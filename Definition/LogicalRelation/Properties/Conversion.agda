@@ -42,7 +42,7 @@ mutual
              (Πₜ f d funcF f≡f [f] [f]₁) =
     let ΠF₁G₁≡ΠF'G'   = whrDet* (red D₁ , Π) (D' , Π)
         F₁≡F' , G₁≡G' = Π-PE-injectivity ΠF₁G₁≡ΠF'G'
-        ΠFG≡ΠF₁G₁ = PE.subst (λ x → Γ ⊢ Π F ▹ G ≡ x) (PE.sym ΠF₁G₁≡ΠF'G')
+        ΠFG≡ΠF₁G₁ = PE.subst (λ x → Γ ⊢ Πₑ F ▹ G ≡ x) (PE.sym ΠF₁G₁≡ΠF'G')
                              (≅-eq A≡B)
     in  Πₜ f (convRed:*: d ΠFG≡ΠF₁G₁) funcF (≅-conv f≡f ΠFG≡ΠF₁G₁)
            (λ {ρ} [ρ] ⊢Δ [a] [b] [a≡b] →
@@ -89,7 +89,7 @@ mutual
              (Πₜ f d funcF f≡f [f] [f]₁) =
     let ΠF₁G₁≡ΠF'G'   = whrDet* (red D₁ , Π) (D' , Π)
         F₁≡F' , G₁≡G' = Π-PE-injectivity ΠF₁G₁≡ΠF'G'
-        ΠFG≡ΠF₁G₁ = PE.subst (λ x → Γ ⊢ Π F ▹ G ≡ x)
+        ΠFG≡ΠF₁G₁ = PE.subst (λ x → Γ ⊢ Πₑ F ▹ G ≡ x)
                              (PE.sym ΠF₁G₁≡ΠF'G') (≅-eq A≡B)
     in  Πₜ f (convRed:*: d (sym ΠFG≡ΠF₁G₁)) funcF (≅-conv f≡f (sym ΠFG≡ΠF₁G₁))
            (λ {ρ} [ρ] ⊢Δ [a] [b] [a≡b] →
@@ -160,7 +160,7 @@ mutual
         [B] = Π' F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁
         [A≡B] = Π₌ F' G' D' A≡B [F≡F'] [G≡G']
         ΠF₁G₁≡ΠF'G' = whrDet* (red D₁ , Π) (D' , Π)
-        ΠFG≡ΠF₁G₁ = PE.subst (λ x → Γ ⊢ Π F ▹ G ≡ x)
+        ΠFG≡ΠF₁G₁ = PE.subst (λ x → Γ ⊢ Πₑ F ▹ G ≡ x)
                              (PE.sym ΠF₁G₁≡ΠF'G') (≅-eq A≡B)
     in  Πₜ₌ f g (convRed:*: d ΠFG≡ΠF₁G₁) (convRed:*: d' ΠFG≡ΠF₁G₁)
             funcF funcG (≅-conv t≡u ΠFG≡ΠF₁G₁)
@@ -201,7 +201,7 @@ mutual
         [B] = Π' F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁
         [A≡B] = Π₌ F' G' D' A≡B [F≡F'] [G≡G']
         ΠF₁G₁≡ΠF'G' = whrDet* (red D₁ , Π) (D' , Π)
-        ΠFG≡ΠF₁G₁ = PE.subst (λ x → Γ ⊢ Π F ▹ G ≡ x)
+        ΠFG≡ΠF₁G₁ = PE.subst (λ x → Γ ⊢ Πₑ F ▹ G ≡ x)
                              (PE.sym ΠF₁G₁≡ΠF'G') (≅-eq A≡B)
     in  Πₜ₌ f g (convRed:*: d (sym ΠFG≡ΠF₁G₁)) (convRed:*: d' (sym ΠFG≡ΠF₁G₁))
             funcF funcG (≅-conv t≡u (sym ΠFG≡ΠF₁G₁))

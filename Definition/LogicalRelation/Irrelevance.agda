@@ -67,7 +67,7 @@ mutual
                  (Π₌ F' G' D' A≡B [F≡F'] [G≡G']) =
     let ΠFG≡ΠF₁G₁   = whrDet* (red D , Π) (red D₁ , Π)
         F≡F₁ , G≡G₁ = Π-PE-injectivity ΠFG≡ΠF₁G₁
-    in  Π₌ F' G' D' (PE.subst (λ x → Γ ⊢ x ≅ Π F' ▹ G') ΠFG≡ΠF₁G₁ A≡B)
+    in  Π₌ F' G' D' (PE.subst (λ x → Γ ⊢ x ≅ Πₑ F' ▹ G') ΠFG≡ΠF₁G₁ A≡B)
            (λ {ρ} [ρ] ⊢Δ → irrelevanceEq' (PE.cong (U.wk ρ) F≡F₁) ([F] [ρ] ⊢Δ)
                                     ([F]₁ [ρ] ⊢Δ) ([F≡F'] [ρ] ⊢Δ))
            (λ {ρ} [ρ] ⊢Δ [a]₁ →

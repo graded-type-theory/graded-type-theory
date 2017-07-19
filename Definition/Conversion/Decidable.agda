@@ -33,11 +33,11 @@ lemx (var x x≡y) = x≡y
 mutual
   dec~↑-app : ∀ {k k₁ l l₁ F F₁ G G₁ B Γ Δ}
             → ⊢ Γ ≡ Δ
-            → Γ ⊢ k ∷ Π F ▹ G
-            → Δ ⊢ k₁ ∷ Π F₁ ▹ G₁
+            → Γ ⊢ k ∷ Πₑ F ▹ G
+            → Δ ⊢ k₁ ∷ Πₑ F₁ ▹ G₁
             → Γ ⊢ k ~ k₁ ↓ B
             → Dec (Γ ⊢ l [conv↑] l₁ ∷ F)
-            → Dec (∃ λ A → Γ ⊢ k ∘ l ~ k₁ ∘ l₁ ↑ A)
+            → Dec (∃ λ A → Γ ⊢ k ∘ₑ l ~ k₁ ∘ₑ l₁ ↑ A)
   dec~↑-app Γ≡Δ k k₁ k~k₁ (yes p) =
     let whnfA , neK , neL = ne~↓ k~k₁
         ⊢A , ⊢k , ⊢l = syntacticEqTerm (soundness~↓ k~k₁)
@@ -174,7 +174,7 @@ mutual
         k~l' = PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) A≡U k~l
     in  yes (ne k~l')
   decConv↓ Γ≡Δ (ne x) (ne x₁) | no ¬p =
-    no (λ x₂ → ¬p (U , decConv↓-ne x₂ x))
+    no (λ x₂ → ¬p (Uₑ , decConv↓-ne x₂ x))
   decConv↓ Γ≡Δ (ne x) (Π-cong x₁ x₂ x₃) =
     no (λ x₄ → let whnfA , neK , neL = ne~↓ x
                in  ⊥-elim (IE.Π≢ne neK (sym (soundnessConv↓ x₄))))
@@ -196,8 +196,8 @@ mutual
 
   decConv↓-ne : ∀ {A B Γ}
               → Γ ⊢ A [conv↓] B
-              → Γ ⊢ A ~ A ↓ U
-              → Γ ⊢ A ~ B ↓ U
+              → Γ ⊢ A ~ A ↓ Uₑ
+              → Γ ⊢ A ~ B ↓ Uₑ
   decConv↓-ne (U-refl x) A~A = A~A
   decConv↓-ne (ℕ-refl x) A~A = A~A
   decConv↓-ne (ne x) A~A = x
@@ -237,9 +237,9 @@ mutual
                           t'''≡u' u'''≡u'' B₂≡B₁ t<>u₂) })
 
   decConv↓Term-ℕ-ins : ∀ {t u Γ}
-                     → Γ ⊢ t [conv↓] u ∷ ℕ
-                     → Γ ⊢ t ~ t ↓ ℕ
-                     → Γ ⊢ t ~ u ↓ ℕ
+                     → Γ ⊢ t [conv↓] u ∷ ℕₑ
+                     → Γ ⊢ t ~ t ↓ ℕₑ
+                     → Γ ⊢ t ~ u ↓ ℕₑ
   decConv↓Term-ℕ-ins (ℕ-ins x) t~t = x
   decConv↓Term-ℕ-ins (ne-ins x x₁ () x₃) t~t
   decConv↓Term-ℕ-ins (zero-refl x) ([~] A D whnfB ())
@@ -257,9 +257,9 @@ mutual
   decConv↓Term-ne-ins () (fun-ext x x₁ x₂ x₃ x₄ x₅)
 
   decConv↓Term-ℕ : ∀ {t u Γ}
-                 → Γ ⊢ t [conv↓] u ∷ ℕ
-                 → Γ ⊢ t ~ t ↓ ℕ
-                 → ¬ (Γ ⊢ t ~ u ↓ ℕ)
+                 → Γ ⊢ t [conv↓] u ∷ ℕₑ
+                 → Γ ⊢ t ~ t ↓ ℕₑ
+                 → ¬ (Γ ⊢ t ~ u ↓ ℕₑ)
                  → ⊥
   decConv↓Term-ℕ (ℕ-ins x) t~t ¬u~u = ¬u~u x
   decConv↓Term-ℕ (ne-ins x x₁ () x₃) t~t ¬u~u
@@ -280,7 +280,7 @@ mutual
         k~l' = PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) A≡ℕ k~l
     in  yes (ℕ-ins k~l')
   decConv↓Term Γ≡Δ (ℕ-ins x) (ℕ-ins x₁) | no ¬p =
-    no (λ x₂ → ¬p (ℕ , decConv↓Term-ℕ-ins x₂ x))
+    no (λ x₂ → ¬p (ℕₑ , decConv↓Term-ℕ-ins x₂ x))
   decConv↓Term Γ≡Δ (ℕ-ins x) (ne-ins x₁ x₂ () x₄)
   decConv↓Term Γ≡Δ (ℕ-ins x) (zero-refl x₁) =
     no (λ x₂ → decConv↓Term-ℕ x₂ x (λ { ([~] A D whnfB ()) }))

@@ -13,9 +13,9 @@ open import Tools.Empty
 open import Tools.Nullary
 
 data UFull : Term → Set where
-  U  : UFull U
-  Π₁ : ∀ {F G} → UFull F → UFull (Π F ▹ G)
-  Π₂ : ∀ {F G} → UFull G → UFull (Π F ▹ G)
+  U  : UFull Uₑ
+  Π₁ : ∀ {F G} → UFull F → UFull (Πₑ F ▹ G)
+  Π₂ : ∀ {F G} → UFull G → UFull (Πₑ F ▹ G)
 
 noU : ∀ {t A Γ} → Γ ⊢ t ∷ A → ¬ (UFull t)
 noU (ℕ x) ()
@@ -35,21 +35,21 @@ noUNe (_∘_ neA) ()
 noUNe (natrec neA) ()
 
 pilem : ∀ {F G H E}
-      → (¬ UFull (Π F ▹ G)) ⊎ (¬ UFull (Π H ▹ E))
+      → (¬ UFull (Πₑ F ▹ G)) ⊎ (¬ UFull (Πₑ H ▹ E))
       → (¬ UFull F) ⊎ (¬ UFull H) × (¬ UFull G) ⊎ (¬ UFull E)
 pilem (inj₁ x) = inj₁ (λ x₁ → x (Π₁ x₁)) , inj₁ (λ x₁ → x (Π₂ x₁))
 pilem (inj₂ x) = inj₂ (λ x₁ → x (Π₁ x₁)) , inj₂ (λ x₁ → x (Π₂ x₁))
 
-inverseUniv : ∀ {A Γ} → ¬ (UFull A) → Γ ⊢ A → Γ ⊢ A ∷ U
+inverseUniv : ∀ {A Γ} → ¬ (UFull A) → Γ ⊢ A → Γ ⊢ A ∷ Uₑ
 inverseUniv q (ℕ x) = ℕ x
 inverseUniv q (U x) = ⊥-elim (q U)
 inverseUniv q (Π A ▹ A₁) = Π inverseUniv (λ x → q (Π₁ x)) A ▹ inverseUniv (λ x → q (Π₂ x)) A₁
 inverseUniv q (univ x) = x
 
-inverseUnivNe : ∀ {A Γ} → Neutral A → Γ ⊢ A → Γ ⊢ A ∷ U
+inverseUnivNe : ∀ {A Γ} → Neutral A → Γ ⊢ A → Γ ⊢ A ∷ Uₑ
 inverseUnivNe neA ⊢A = inverseUniv (noUNe neA) ⊢A
 
-inverseUnivEq' : ∀ {A B Γ} → (¬ (UFull A)) ⊎ (¬ (UFull B)) → Γ ⊢ A ≡ B → Γ ⊢ A ≡ B ∷ U
+inverseUnivEq' : ∀ {A B Γ} → (¬ (UFull A)) ⊎ (¬ (UFull B)) → Γ ⊢ A ≡ B → Γ ⊢ A ≡ B ∷ Uₑ
 inverseUnivEq' q (univ x) = x
 inverseUnivEq' q (refl x) = refl (inverseUniv (Sum.id q) x)
 inverseUnivEq' q (sym A≡B) = sym (inverseUnivEq' (Sum.sym q) A≡B)
@@ -67,5 +67,5 @@ inverseUnivEq' q (Π-cong x A≡B A≡B₁) =
   let w , e = pilem q
   in  Π-cong x (inverseUnivEq' w A≡B) (inverseUnivEq' e A≡B₁)
 
-inverseUnivEq : ∀ {A B Γ} → Γ ⊢ A ∷ U → Γ ⊢ A ≡ B → Γ ⊢ A ≡ B ∷ U
+inverseUnivEq : ∀ {A B Γ} → Γ ⊢ A ∷ Uₑ → Γ ⊢ A ≡ B → Γ ⊢ A ≡ B ∷ Uₑ
 inverseUnivEq A A≡B = inverseUnivEq' (inj₁ (noU A)) A≡B

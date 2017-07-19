@@ -171,7 +171,7 @@ subst↑SEq {F} {G} {G'} {t} {t'}
   in  transEq G[t]' G'[t]' G'[t']' G[t]≡G'[t] G'[t]≡G'[t']
 
 substSΠ₁' : ∀ {F G t Γ l l'}
-           ([ΠFG] : Γ ⊩⟨ l ⟩Π Π F ▹ G)
+           ([ΠFG] : Γ ⊩⟨ l ⟩Π Πₑ F ▹ G)
            ([F] : Γ ⊩⟨ l' ⟩ F)
            ([t] : Γ ⊩⟨ l' ⟩ t ∷ F / [F])
          → Γ ⊩⟨ l ⟩ G [ t ]
@@ -185,15 +185,15 @@ substSΠ₁' {t = t} (noemb (Π F G D ⊢F ⊢G A≡A [F] [G] G-ext)) [F]₁ [t]
 substSΠ₁' (emb 0<1 x) [F]₁ [t] = emb 0<1 (substSΠ₁' x [F]₁ [t])
 
 substSΠ₁ : ∀ {F G t Γ l l'}
-           ([ΠFG] : Γ ⊩⟨ l ⟩ Π F ▹ G)
+           ([ΠFG] : Γ ⊩⟨ l ⟩ Πₑ F ▹ G)
            ([F] : Γ ⊩⟨ l' ⟩ F)
            ([t] : Γ ⊩⟨ l' ⟩ t ∷ F / [F])
          → Γ ⊩⟨ l ⟩ G [ t ]
 substSΠ₁ [ΠFG] [F] [t] = substSΠ₁' (Π-elim [ΠFG]) [F] [t]
 
 substSΠ₂' : ∀ {F F' G G' t t' Γ l l' l'' l'''}
-           ([ΠFG] : Γ ⊩⟨ l ⟩Π Π F ▹ G)
-           ([ΠFG≡ΠF'G'] : Γ ⊩⟨ l ⟩ Π F ▹ G ≡ Π F' ▹ G' / Π-intr [ΠFG])
+           ([ΠFG] : Γ ⊩⟨ l ⟩Π Πₑ F ▹ G)
+           ([ΠFG≡ΠF'G'] : Γ ⊩⟨ l ⟩ Πₑ F ▹ G ≡ Πₑ F' ▹ G' / Π-intr [ΠFG])
            ([F] : Γ ⊩⟨ l' ⟩ F)
            ([F'] : Γ ⊩⟨ l' ⟩ F')
            ([t] : Γ ⊩⟨ l' ⟩ t ∷ F / [F])
@@ -223,8 +223,8 @@ substSΠ₂' (noemb (Π F G D ⊢F ⊢G A≡A [F] [G] G-ext))
 substSΠ₂' (emb 0<1 x) = substSΠ₂' x
 
 substSΠ₂ : ∀ {F F' G G' t t' Γ l l' l'' l'''}
-           ([ΠFG] : Γ ⊩⟨ l ⟩ Π F ▹ G)
-           ([ΠFG≡ΠF'G'] : Γ ⊩⟨ l ⟩ Π F ▹ G ≡ Π F' ▹ G' / [ΠFG])
+           ([ΠFG] : Γ ⊩⟨ l ⟩ Πₑ F ▹ G)
+           ([ΠFG≡ΠF'G'] : Γ ⊩⟨ l ⟩ Πₑ F ▹ G ≡ Πₑ F' ▹ G' / [ΠFG])
            ([F] : Γ ⊩⟨ l' ⟩ F)
            ([F'] : Γ ⊩⟨ l' ⟩ F')
            ([t] : Γ ⊩⟨ l' ⟩ t ∷ F / [F])
@@ -240,7 +240,7 @@ substSΠ₂ [ΠFG] [ΠFG≡ΠF'G'] =
 substSΠ : ∀ {F G t Γ l}
           ([Γ] : ⊩ₛ Γ)
           ([F] : Γ ⊩ₛ⟨ l ⟩ F / [Γ])
-          ([ΠFG] : Γ ⊩ₛ⟨ l ⟩ Π F ▹ G / [Γ])
+          ([ΠFG] : Γ ⊩ₛ⟨ l ⟩ Πₑ F ▹ G / [Γ])
           ([t] : Γ ⊩ₛ⟨ l ⟩ t ∷ F / [Γ] / [F])
         → Γ ⊩ₛ⟨ l ⟩ G [ t ] / [Γ]
 substSΠ {F} {G} {t} [Γ] [F] [ΠFG] [t] ⊢Δ [σ] =
@@ -266,9 +266,9 @@ substSΠEq : ∀ {F G F' G' t u Γ l}
             ([Γ] : ⊩ₛ Γ)
             ([F] : Γ ⊩ₛ⟨ l ⟩ F / [Γ])
             ([F'] : Γ ⊩ₛ⟨ l ⟩ F' / [Γ])
-            ([ΠFG] : Γ ⊩ₛ⟨ l ⟩ Π F ▹ G / [Γ])
-            ([ΠF'G'] : Γ ⊩ₛ⟨ l ⟩ Π F' ▹ G' / [Γ])
-            ([ΠFG≡ΠF'G'] : Γ ⊩ₛ⟨ l ⟩ Π F ▹ G ≡ Π F' ▹ G' / [Γ] / [ΠFG])
+            ([ΠFG] : Γ ⊩ₛ⟨ l ⟩ Πₑ F ▹ G / [Γ])
+            ([ΠF'G'] : Γ ⊩ₛ⟨ l ⟩ Πₑ F' ▹ G' / [Γ])
+            ([ΠFG≡ΠF'G'] : Γ ⊩ₛ⟨ l ⟩ Πₑ F ▹ G ≡ Πₑ F' ▹ G' / [Γ] / [ΠFG])
             ([t]   : Γ ⊩ₛ⟨ l ⟩ t ∷ F / [Γ] / [F])
             ([u]   : Γ ⊩ₛ⟨ l ⟩ u ∷ F' / [Γ] / [F'])
             ([t≡u] : Γ ⊩ₛ⟨ l ⟩ t ≡ u ∷ F / [Γ] / [F])

@@ -203,11 +203,11 @@ idRedTerm:*: t = [ t , t , id t ]
 
 -- U cannot be a term
 
-UnotInA : ∀ {A Γ} → Γ ⊢ U ∷ A → ⊥
+UnotInA : ∀ {A Γ} → Γ ⊢ Uₑ ∷ A → ⊥
 UnotInA (conv U∷U x) = UnotInA U∷U
 
 UnotInA[t] : ∀ {A B t a Γ}
-         → t [ a ] PE.≡ U
+         → t [ a ] PE.≡ Uₑ
          → Γ ⊢ a ∷ A
          → Γ ∙ A ⊢ t ∷ B
          → ⊥
@@ -222,7 +222,7 @@ UnotInA[t] () x₁ (suc x₂)
 UnotInA[t] () x₁ (natrec x₂ x₃ x₄ x₅)
 UnotInA[t] x x₁ (conv x₂ x₃) = UnotInA[t] x x₁ x₂
 
-redU*Term' : ∀ {A B U' Γ} → U' PE.≡ U → Γ ⊢ A ⇒ U' ∷ B → ⊥
+redU*Term' : ∀ {A B U' Γ} → U' PE.≡ Uₑ → Γ ⊢ A ⇒ U' ∷ B → ⊥
 redU*Term' U'≡U (conv A⇒U x) = redU*Term' U'≡U A⇒U
 redU*Term' () (app-subst A⇒U x)
 redU*Term' U'≡U (β-red x x₁ x₂) = UnotInA[t] U'≡U x₂ x₁
@@ -230,15 +230,15 @@ redU*Term' () (natrec-subst x x₁ x₂ A⇒U)
 redU*Term' U'≡U (natrec-zero x x₁ x₂) rewrite U'≡U = UnotInA x₁
 redU*Term' () (natrec-suc x x₁ x₂ x₃)
 
-redU*Term : ∀ {A B Γ} → Γ ⊢ A ⇒* U ∷ B → ⊥
+redU*Term : ∀ {A B Γ} → Γ ⊢ A ⇒* Uₑ ∷ B → ⊥
 redU*Term (id x) = UnotInA x
 redU*Term (x ⇨ A⇒*U) = redU*Term A⇒*U
 
 -- Nothing reduces to U
 
-redU : ∀ {A Γ} → Γ ⊢ A ⇒ U → ⊥
+redU : ∀ {A Γ} → Γ ⊢ A ⇒ Uₑ → ⊥
 redU (univ x) = redU*Term' PE.refl x
 
-redU* : ∀ {A Γ} → Γ ⊢ A ⇒* U → A PE.≡ U
+redU* : ∀ {A Γ} → Γ ⊢ A ⇒* Uₑ → A PE.≡ Uₑ
 redU* (id x) = PE.refl
 redU* (x ⇨ A⇒*U) rewrite redU* A⇒*U = ⊥-elim (redU x)

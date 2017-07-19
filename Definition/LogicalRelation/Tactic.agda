@@ -33,7 +33,7 @@ _⊩⟨_⟩ne_ : (Γ : Con Term) (l : TypeLevel) (A : Term) → Set₁
 _⊩⟨_⟩Π_ : (Γ : Con Term) (l : TypeLevel) (A : Term) → Set₁
 Γ ⊩⟨ l ⟩Π A = MaybeEmb l (λ l' → Γ ⊩'⟨ l' ⟩Π A)
 
-U-intr : ∀ {Γ l} → Γ ⊩⟨ l ⟩U → Γ ⊩⟨ l ⟩ U
+U-intr : ∀ {Γ l} → Γ ⊩⟨ l ⟩U → Γ ⊩⟨ l ⟩ Uₑ
 U-intr (noemb x) = U x
 U-intr (emb 0<1 x) = emb 0<1 (U-intr x)
 
@@ -49,7 +49,7 @@ ne-intr (emb 0<1 x) = emb 0<1 (ne-intr x)
 Π-intr (noemb x) = Π x
 Π-intr (emb 0<1 x) = emb 0<1 (Π-intr x)
 
-U-elim : ∀ {Γ l} → Γ ⊩⟨ l ⟩ U → Γ ⊩⟨ l ⟩U
+U-elim : ∀ {Γ l} → Γ ⊩⟨ l ⟩ Uₑ → Γ ⊩⟨ l ⟩U
 U-elim (U' l' l< ⊢Γ) = noemb (U l' l< ⊢Γ)
 U-elim (ℕ D) = ⊥-elim (U≢ℕ (whnfRed* (red D) U))
 U-elim (ne' K D neK K≡K) = ⊥-elim (U≢ne neK (whnfRed* (red D) U))
@@ -58,7 +58,7 @@ U-elim (emb 0<1 x) with U-elim x
 U-elim (emb 0<1 x) | noemb x₁ = emb 0<1 (noemb x₁)
 U-elim (emb 0<1 x) | emb () x₁
 
-ℕ-elim' : ∀ {A Γ l} → Γ ⊢ A ⇒* ℕ → Γ ⊩⟨ l ⟩ A → Γ ⊩⟨ l ⟩ℕ A
+ℕ-elim' : ∀ {A Γ l} → Γ ⊢ A ⇒* ℕₑ → Γ ⊩⟨ l ⟩ A → Γ ⊩⟨ l ⟩ℕ A
 ℕ-elim' D (U' l' l< ⊢Γ) = ⊥-elim (U≢ℕ (whrDet* (id (U ⊢Γ) , U) (D , ℕ)))
 ℕ-elim' D (ℕ D') = noemb D'
 ℕ-elim' D (ne' K D' neK K≡K) =
@@ -69,7 +69,7 @@ U-elim (emb 0<1 x) | emb () x₁
 ℕ-elim' D (emb 0<1 x) | noemb x₁ = emb 0<1 (noemb x₁)
 ℕ-elim' D (emb 0<1 x) | emb () x₂
 
-ℕ-elim : ∀ {Γ l} → Γ ⊩⟨ l ⟩ ℕ → Γ ⊩⟨ l ⟩ℕ ℕ
+ℕ-elim : ∀ {Γ l} → Γ ⊩⟨ l ⟩ ℕₑ → Γ ⊩⟨ l ⟩ℕ ℕₑ
 ℕ-elim [ℕ] = ℕ-elim' (id (wellformed [ℕ])) [ℕ]
 
 ne-elim' : ∀ {A Γ l K} → Γ ⊢ A ⇒* K → Neutral K  → Γ ⊩⟨ l ⟩ A → Γ ⊩⟨ l ⟩ne A
@@ -86,7 +86,7 @@ ne-elim' D neK (emb 0<1 x) | emb () x₂
 ne-elim : ∀ {Γ l K} → Neutral K  → Γ ⊩⟨ l ⟩ K → Γ ⊩⟨ l ⟩ne K
 ne-elim neK [K] = ne-elim' (id (wellformed [K])) neK [K]
 
-Π-elim' : ∀ {A Γ F G l} → Γ ⊢ A ⇒* Π F ▹ G → Γ ⊩⟨ l ⟩ A → Γ ⊩⟨ l ⟩Π A
+Π-elim' : ∀ {A Γ F G l} → Γ ⊢ A ⇒* Πₑ F ▹ G → Γ ⊩⟨ l ⟩ A → Γ ⊩⟨ l ⟩Π A
 Π-elim' D (U' l' l< ⊢Γ) = ⊥-elim (U≢Π (whrDet* (id (U ⊢Γ) , U) (D , Π)))
 Π-elim' D (ℕ D') = ⊥-elim (ℕ≢Π (whrDet* (red D' , ℕ) (D , Π)))
 Π-elim' D (ne' K D' neK K≡K) =
@@ -97,7 +97,7 @@ ne-elim neK [K] = ne-elim' (id (wellformed [K])) neK [K]
 Π-elim' D (emb 0<1 x) | noemb x₁ = emb 0<1 (noemb x₁)
 Π-elim' D (emb 0<1 x) | emb () x₂
 
-Π-elim : ∀ {Γ F G l} → Γ ⊩⟨ l ⟩ Π F ▹ G → Γ ⊩⟨ l ⟩Π Π F ▹ G
+Π-elim : ∀ {Γ F G l} → Γ ⊩⟨ l ⟩ Πₑ F ▹ G → Γ ⊩⟨ l ⟩Π Πₑ F ▹ G
 Π-elim [Π] = Π-elim' (id (wellformed [Π])) [Π]
 
 extractMaybeEmb : ∀ {l ⊩⟨_⟩} → MaybeEmb l ⊩⟨_⟩ → ∃ λ l' → ⊩⟨ l' ⟩
@@ -105,7 +105,7 @@ extractMaybeEmb (noemb x) = _ , x
 extractMaybeEmb (emb 0<1 x) = extractMaybeEmb x
 
 data Tactic Γ : ∀ l l' A B (p : Γ ⊩⟨ l ⟩ A) (q : Γ ⊩⟨ l' ⟩ B) → Set where
-  U : ∀ {l l'} UA UB → Tactic Γ l l' U U (U UA) (U UB)
+  U : ∀ {l l'} UA UB → Tactic Γ l l' Uₑ Uₑ (U UA) (U UB)
   ℕ : ∀ {A B l l'} ℕA ℕB → Tactic Γ l l' A B (ℕ ℕA) (ℕ ℕB)
   ne  : ∀ {A B l l'} neA neB
       → Tactic Γ l l' A B (ne neA) (ne neB)
@@ -162,7 +162,7 @@ data Tactic₃ Γ : ∀ l l' l'' A B C
                  (p : Γ ⊩⟨ l   ⟩ A)
                  (q : Γ ⊩⟨ l'  ⟩ B)
                  (r : Γ ⊩⟨ l'' ⟩ C) → Set where
-  U : ∀ {l l' l''} UA UB UC → Tactic₃ Γ l l' l'' U U U (U UA) (U UB) (U UC)
+  U : ∀ {l l' l''} UA UB UC → Tactic₃ Γ l l' l'' Uₑ Uₑ Uₑ (U UA) (U UB) (U UC)
   ℕ : ∀ {A B C l l' l''} ℕA ℕB ℕC
     → Tactic₃ Γ l l' l'' A B C (ℕ ℕA) (ℕ ℕB) (ℕ ℕC)
   ne  : ∀ {A B C l l' l''} neA neB neC

@@ -22,35 +22,35 @@ import Tools.PropositionalEquality as PE
 
 
 U≡A' : ∀ {A Γ l} ([U] : Γ ⊩⟨ l ⟩U)
-    → Γ ⊩⟨ l ⟩ U ≡ A / (U-intr [U])
-    → A PE.≡ U
+    → Γ ⊩⟨ l ⟩ Uₑ ≡ A / (U-intr [U])
+    → A PE.≡ Uₑ
 U≡A' (noemb [U]) [U≡A] = [U≡A]
 U≡A' (emb 0<1 [U]) [U≡A] = U≡A' [U] [U≡A]
 
 U≡A : ∀ {A Γ}
-    → Γ ⊢ U ≡ A
-    → A PE.≡ U
+    → Γ ⊢ Uₑ ≡ A
+    → A PE.≡ Uₑ
 U≡A {A} U≡A with fundamentalEq U≡A
 U≡A {A} U≡A | [Γ] , [U] , [A] , [U≡A] =
   let [U]' = soundness [Γ] [U]
-      [U≡A]' = soundnessEq {U} {A} [Γ] [U] [U≡A]
+      [U≡A]' = soundnessEq {Uₑ} {A} [Γ] [U] [U≡A]
   in  U≡A' (U-elim [U]') (irrelevanceEq [U]' (U-intr (U-elim [U]')) [U≡A]')
 
-ℕ≡A' : ∀ {A Γ l} ([ℕ] : Γ ⊩⟨ l ⟩ℕ ℕ)
-    → Γ ⊩⟨ l ⟩ ℕ ≡ A / (ℕ-intr [ℕ])
+ℕ≡A' : ∀ {A Γ l} ([ℕ] : Γ ⊩⟨ l ⟩ℕ ℕₑ)
+    → Γ ⊩⟨ l ⟩ ℕₑ ≡ A / (ℕ-intr [ℕ])
     → Whnf A
-    → A PE.≡ ℕ
+    → A PE.≡ ℕₑ
 ℕ≡A' (noemb x) [ℕ≡A] whnfA = whnfRed* [ℕ≡A] whnfA
 ℕ≡A' (emb 0<1 [ℕ]) [ℕ≡A] whnfA = ℕ≡A' [ℕ] [ℕ≡A] whnfA
 
 ℕ≡A : ∀ {A Γ}
-    → Γ ⊢ ℕ ≡ A
+    → Γ ⊢ ℕₑ ≡ A
     → Whnf A
-    → A PE.≡ ℕ
+    → A PE.≡ ℕₑ
 ℕ≡A {A} ℕ≡A whnfA with fundamentalEq ℕ≡A
 ℕ≡A {A} ℕ≡A whnfA | [Γ] , [ℕ] , [A] , [ℕ≡A] =
   let [ℕ]' = soundness [Γ] [ℕ]
-      [ℕ≡A]' = soundnessEq {ℕ} {A} [Γ] [ℕ] [ℕ≡A]
+      [ℕ≡A]' = soundnessEq {ℕₑ} {A} [Γ] [ℕ] [ℕ≡A]
   in  ℕ≡A' (ℕ-elim [ℕ]') (irrelevanceEq [ℕ]' (ℕ-intr (ℕ-elim [ℕ]')) [ℕ≡A]') whnfA
 
 ne≡A' : ∀ {A K Γ l}
@@ -78,18 +78,18 @@ ne≡A {A} neK ne≡A whnfA | [Γ] , [ne] , [A] , [ne≡A] =
   in  ne≡A' (ne-elim neK' [ne]')
             (irrelevanceEq [ne]' (ne-intr (ne-elim neK' [ne]')) [ne≡A]') whnfA
 
-Π≡A' : ∀ {A F G Γ l} ([Π] : Γ ⊩⟨ l ⟩Π Π F ▹ G)
-    → Γ ⊩⟨ l ⟩ Π F ▹ G ≡ A / (Π-intr [Π])
+Π≡A' : ∀ {A F G Γ l} ([Π] : Γ ⊩⟨ l ⟩Π Πₑ F ▹ G)
+    → Γ ⊩⟨ l ⟩ Πₑ F ▹ G ≡ A / (Π-intr [Π])
     → Whnf A
-    → ∃₂ λ H E → A PE.≡ Π H ▹ E
+    → ∃₂ λ H E → A PE.≡ Πₑ H ▹ E
 Π≡A' (noemb [Π]) (Π₌ F' G' D' A≡B [F≡F'] [G≡G']) whnfA =
   F' , G' , whnfRed* D' whnfA
 Π≡A' (emb 0<1 [Π]) [Π≡A] whnfA = Π≡A' [Π] [Π≡A] whnfA
 
 Π≡A : ∀ {A F G Γ}
-    → Γ ⊢ Π F ▹ G ≡ A
+    → Γ ⊢ Πₑ F ▹ G ≡ A
     → Whnf A
-    → ∃₂ λ H E → A PE.≡ Π H ▹ E
+    → ∃₂ λ H E → A PE.≡ Πₑ H ▹ E
 Π≡A {A} Π≡A whnfA with fundamentalEq Π≡A
 Π≡A {A} Π≡A whnfA | [Γ] , [Π] , [A] , [Π≡A] =
   let ⊢Γ = soundContext [Γ]

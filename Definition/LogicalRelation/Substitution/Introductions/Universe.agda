@@ -17,12 +17,12 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 
-Uₛ : ∀ {Γ} ([Γ] : ⊩ₛ Γ) → Γ ⊩ₛ⟨ ¹ ⟩ U / [Γ]
+Uₛ : ∀ {Γ} ([Γ] : ⊩ₛ Γ) → Γ ⊩ₛ⟨ ¹ ⟩ Uₑ / [Γ]
 Uₛ [Γ] ⊢Δ [σ] = U (U ⁰ 0<1 ⊢Δ) , λ _ x₂ → PE.refl
 
 univₛ : ∀ {A Γ l l'} ([Γ] : ⊩ₛ Γ)
-        ([U] : Γ ⊩ₛ⟨ l ⟩ U / [Γ])
-      → Γ ⊩ₛ⟨ l ⟩ A ∷ U / [Γ] / [U]
+        ([U] : Γ ⊩ₛ⟨ l ⟩ Uₑ / [Γ])
+      → Γ ⊩ₛ⟨ l ⟩ A ∷ Uₑ / [Γ] / [U]
       → Γ ⊩ₛ⟨ l' ⟩ A / [Γ]
 univₛ {l' = l'} [Γ] [U] [A] ⊢Δ [σ] =
   let [A]₁ = maybeEmb' {l'} (univEq (proj₁ ([U] ⊢Δ [σ])) (proj₁ ([A] ⊢Δ [σ])))
@@ -30,9 +30,9 @@ univₛ {l' = l'} [Γ] [U] [A] ⊢Δ [σ] =
                                        ((proj₂ ([A] ⊢Δ [σ])) [σ'] [σ≡σ']))
 
 univEqₛ : ∀ {A B Γ l l'} ([Γ] : ⊩ₛ Γ)
-          ([U] : Γ ⊩ₛ⟨ l' ⟩ U / [Γ])
+          ([U] : Γ ⊩ₛ⟨ l' ⟩ Uₑ / [Γ])
           ([A] : Γ ⊩ₛ⟨ l ⟩ A / [Γ])
-        → Γ ⊩ₛ⟨ l' ⟩ A ≡ B ∷ U / [Γ] / [U]
+        → Γ ⊩ₛ⟨ l' ⟩ A ≡ B ∷ Uₑ / [Γ] / [U]
         → Γ ⊩ₛ⟨ l ⟩ A ≡ B / [Γ] / [A]
 univEqₛ {A} [Γ] [U] [A] [t≡u] ⊢Δ [σ] =
   univEqEq (proj₁ ([U] ⊢Δ [σ])) (proj₁ ([A] ⊢Δ [σ])) ([t≡u] ⊢Δ [σ])

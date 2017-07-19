@@ -34,8 +34,8 @@ import Tools.PropositionalEquality as PE
 
 
 injectivity'' : ∀ {F G H E Γ l}
-               ([ΠFG] : Γ ⊩⟨ l ⟩Π Π F ▹ G)
-             → Γ ⊩⟨ l ⟩ Π F ▹ G ≡ Π H ▹ E / Π-intr [ΠFG]
+               ([ΠFG] : Γ ⊩⟨ l ⟩Π Πₑ F ▹ G)
+             → Γ ⊩⟨ l ⟩ Πₑ F ▹ G ≡ Πₑ H ▹ E / Π-intr [ΠFG]
              → Γ ⊢ F ≡ H
              × Γ ∙ F ⊢ G ≡ E
 injectivity'' (noemb (Π F G D ⊢F ⊢G A≡A [F] [G] G-ext))
@@ -63,16 +63,16 @@ injectivity'' (noemb (Π F G D ⊢F ⊢G A≡A [F] [G] G-ext))
 injectivity'' (emb 0<1 x) [ΠFG≡ΠHE] = injectivity'' x [ΠFG≡ΠHE]
 
 injectivity' : ∀ {F G H E Γ l}
-               ([ΠFG] : Γ ⊩⟨ l ⟩ Π F ▹ G)
-             → Γ ⊩⟨ l ⟩ Π F ▹ G ≡ Π H ▹ E / [ΠFG]
+               ([ΠFG] : Γ ⊩⟨ l ⟩ Πₑ F ▹ G)
+             → Γ ⊩⟨ l ⟩ Πₑ F ▹ G ≡ Πₑ H ▹ E / [ΠFG]
              → Γ ⊢ F ≡ H
              × Γ ∙ F ⊢ G ≡ E
 injectivity' [ΠFG] [ΠFG≡ΠHE] =
   injectivity'' (Π-elim [ΠFG]) (irrelevanceEq [ΠFG] (Π-intr (Π-elim [ΠFG])) [ΠFG≡ΠHE])
 
-injectivity : ∀ {Γ F G H E} → Γ ⊢ Π F ▹ G ≡ Π H ▹ E → Γ ⊢ F ≡ H × Γ ∙ F ⊢ G ≡ E
+injectivity : ∀ {Γ F G H E} → Γ ⊢ Πₑ F ▹ G ≡ Πₑ H ▹ E → Γ ⊢ F ≡ H × Γ ∙ F ⊢ G ≡ E
 injectivity ⊢ΠFG≡ΠHE with fundamentalEq ⊢ΠFG≡ΠHE
 injectivity {Γ} {F} {G} {H} {E} ⊢ΠFG≡ΠHE | [Γ] , [ΠFG] , [ΠHE] , [ΠFG≡ΠHE] =
   let [ΠFG]' = soundness [Γ] [ΠFG]
-      [ΠFG≡ΠHE]' = soundnessEq {Π F ▹ G} {Π H ▹ E} [Γ] [ΠFG] [ΠFG≡ΠHE]
+      [ΠFG≡ΠHE]' = soundnessEq {Πₑ F ▹ G} {Πₑ H ▹ E} [Γ] [ΠFG] [ΠFG≡ΠHE]
   in  injectivity' [ΠFG]' [ΠFG≡ΠHE]'

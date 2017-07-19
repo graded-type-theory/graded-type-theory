@@ -74,7 +74,7 @@ mutual
           in  irrelevanceEq' (PE.cong (λ x → U.wk (lift ρ) x [ _ ]) G₁≡G′)
                              ([G]₁ [ρ] ⊢Δ [a]₁) ([G′] [ρ] ⊢Δ [a′])
                              ([G≡G′]₁ [ρ] ⊢Δ [a]₁)
-    in  Π₌ F″ G″ D″ (≅-trans A≡B (PE.subst (λ x → Γ ⊢ x ≅ Π F″ ▹ G″) ΠF₁G₁≡ΠF′G′ A≡B₁))
+    in  Π₌ F″ G″ D″ (≅-trans A≡B (PE.subst (λ x → Γ ⊢ x ≅ Πₑ F″ ▹ G″) ΠF₁G₁≡ΠF′G′ A≡B₁))
            (λ ρ ⊢Δ → transEq ([F] ρ ⊢Δ) ([F′] ρ ⊢Δ) ([F″] ρ ⊢Δ)
                              ([F≡F′] ρ ⊢Δ) ([F′≡F″] ρ ⊢Δ))
            (λ ρ ⊢Δ [a] →

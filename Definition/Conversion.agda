@@ -23,15 +23,15 @@ mutual
               → x PE.≡ y
               → Γ ⊢ var x ~ var y ↑ A
     app       : ∀ {k l t v F G}
-              → Γ ⊢ k ~ l ↓ Π F ▹ G
+              → Γ ⊢ k ~ l ↓ Πₑ F ▹ G
               → Γ ⊢ t [conv↑] v ∷ F
-              → Γ ⊢ k ∘ t ~ l ∘ v ↑ G [ t ]
+              → Γ ⊢ k ∘ₑ t ~ l ∘ₑ v ↑ G [ t ]
     natrec    : ∀ {k l h g a₀ b₀ F G}
-              → Γ ∙ ℕ ⊢ F [conv↑] G
-              → Γ ⊢ a₀ [conv↑] b₀ ∷ F [ zero ]
-              → Γ ⊢ h [conv↑] g ∷ Π ℕ ▹ (F ▹▹ F [ suc (var zero) ]↑)
-              → Γ ⊢ k ~ l ↓ ℕ
-              → Γ ⊢ natrec F a₀ h k ~ natrec G b₀ g l ↑ F [ k ]
+              → Γ ∙ ℕₑ ⊢ F [conv↑] G
+              → Γ ⊢ a₀ [conv↑] b₀ ∷ F [ zeroₑ ]
+              → Γ ⊢ h [conv↑] g ∷ Πₑ ℕₑ ▹ (F ▹▹ F [ sucₑ (var zero) ]↑)
+              → Γ ⊢ k ~ l ↓ ℕₑ
+              → Γ ⊢ natrecₑ F a₀ h k ~ natrecₑ G b₀ g l ↑ F [ k ]
 
   record _⊢_~_↓_ (Γ : Con Term) (k l B : Term) : Set where
     inductive
@@ -54,16 +54,16 @@ mutual
       A'<>B' : Γ ⊢ A' [conv↓] B'
 
   data _⊢_[conv↓]_ (Γ : Con Term) : (A B : Term) → Set where
-    U-refl    : ⊢ Γ → Γ ⊢ U [conv↓] U
-    ℕ-refl    : ⊢ Γ → Γ ⊢ ℕ [conv↓] ℕ
+    U-refl    : ⊢ Γ → Γ ⊢ Uₑ [conv↓] Uₑ
+    ℕ-refl    : ⊢ Γ → Γ ⊢ ℕₑ [conv↓] ℕₑ
     ne        : ∀ {K L}
-              → Γ ⊢ K ~ L ↓ U
+              → Γ ⊢ K ~ L ↓ Uₑ
               → Γ ⊢ K [conv↓] L
     Π-cong    : ∀ {F G H E}
               → Γ ⊢ F
               → Γ ⊢ F [conv↑] H
               → Γ ∙ F ⊢ G [conv↑] E
-              → Γ ⊢ Π F ▹ G [conv↓] Π H ▹ E
+              → Γ ⊢ Πₑ F ▹ G [conv↓] Πₑ H ▹ E
 
   record _⊢_[conv↑]_∷_ (Γ : Con Term) (t u A : Term) : Set where
     inductive
@@ -80,8 +80,8 @@ mutual
 
   data _⊢_[conv↓]_∷_ (Γ : Con Term) : (t u A : Term) → Set where
     ℕ-ins     : ∀ {k l}
-              → Γ ⊢ k ~ l ↓ ℕ
-              → Γ ⊢ k [conv↓] l ∷ ℕ
+              → Γ ⊢ k ~ l ↓ ℕₑ
+              → Γ ⊢ k [conv↓] l ∷ ℕₑ
     ne-ins    : ∀ {k l M N}
               → Γ ⊢ k ∷ N
               → Γ ⊢ l ∷ N
@@ -89,19 +89,19 @@ mutual
               → Γ ⊢ k ~ l ↓ M
               → Γ ⊢ k [conv↓] l ∷ N
     univ      : ∀ {A B}
-              → Γ ⊢ A ∷ U
-              → Γ ⊢ B ∷ U
+              → Γ ⊢ A ∷ Uₑ
+              → Γ ⊢ B ∷ Uₑ
               → Γ ⊢ A [conv↓] B
-              → Γ ⊢ A [conv↓] B ∷ U
-    zero-refl : ⊢ Γ → Γ ⊢ zero [conv↓] zero ∷ ℕ
+              → Γ ⊢ A [conv↓] B ∷ Uₑ
+    zero-refl : ⊢ Γ → Γ ⊢ zeroₑ [conv↓] zeroₑ ∷ ℕₑ
     suc-cong  : ∀ {m n}
-              → Γ ⊢ m [conv↑] n ∷ ℕ
-              → Γ ⊢ suc m [conv↓] suc n ∷ ℕ
+              → Γ ⊢ m [conv↑] n ∷ ℕₑ
+              → Γ ⊢ sucₑ m [conv↓] sucₑ n ∷ ℕₑ
     fun-ext   : ∀ {f g F G}
               → Γ ⊢ F
-              → Γ ⊢ f ∷ Π F ▹ G
-              → Γ ⊢ g ∷ Π F ▹ G
+              → Γ ⊢ f ∷ Πₑ F ▹ G
+              → Γ ⊢ g ∷ Πₑ F ▹ G
               → Whnf f
               → Whnf g
-              → Γ ∙ F ⊢ wk1 f ∘ var zero [conv↑] wk1 g ∘ var zero ∷ G
-              → Γ ⊢ f [conv↓] g ∷ Π F ▹ G
+              → Γ ∙ F ⊢ wk1 f ∘ₑ var zero [conv↑] wk1 g ∘ₑ var zero ∷ G
+              → Γ ⊢ f [conv↓] g ∷ Πₑ F ▹ G

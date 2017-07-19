@@ -26,23 +26,23 @@ mutual
 
   -- Well-formed type
   data _⊢_ (Γ : Con Term) : Term → Set where
-    ℕ    : ⊢ Γ → Γ ⊢ ℕ
-    U    : ⊢ Γ → Γ ⊢ U
+    ℕ    : ⊢ Γ → Γ ⊢ ℕₑ
+    U    : ⊢ Γ → Γ ⊢ Uₑ
     Π_▹_ : ∀ {F G}
          → Γ     ⊢ F
          → Γ ∙ F ⊢ G
-         → Γ     ⊢ Π F ▹ G
+         → Γ     ⊢ Πₑ F ▹ G
     univ : ∀ {A}
-         → Γ ⊢ A ∷ U
+         → Γ ⊢ A ∷ Uₑ
          → Γ ⊢ A
 
   -- Well-formed term of a type
   data _⊢_∷_ (Γ : Con Term) : Term → Term → Set where
-    ℕ      : ⊢ Γ → Γ ⊢ ℕ ∷ U
+    ℕ      : ⊢ Γ → Γ ⊢ ℕₑ ∷ Uₑ
     Π_▹_   : ∀ {F G}
-           → Γ     ⊢ F ∷ U
-           → Γ ∙ F ⊢ G ∷ U
-           → Γ     ⊢ Π F ▹ G ∷ U
+           → Γ     ⊢ F ∷ Uₑ
+           → Γ ∙ F ⊢ G ∷ Uₑ
+           → Γ     ⊢ Πₑ F ▹ G ∷ Uₑ
     var    : ∀ {A x}
            → ⊢ Γ
            → x ∷ A ∈ Γ
@@ -50,22 +50,22 @@ mutual
     lam    : ∀ {F G t}
            → Γ     ⊢ F
            → Γ ∙ F ⊢ t ∷ G
-           → Γ     ⊢ lam t ∷ Π F ▹ G
+           → Γ     ⊢ lamₑ t ∷ Πₑ F ▹ G
     _∘_    : ∀ {g a F G}
-           → Γ ⊢     g ∷ Π F ▹ G
+           → Γ ⊢     g ∷ Πₑ F ▹ G
            → Γ ⊢     a ∷ F
-           → Γ ⊢ g ∘ a ∷ G [ a ]
+           → Γ ⊢ g ∘ₑ a ∷ G [ a ]
     zero   : ⊢ Γ
-           → Γ ⊢ zero ∷ ℕ
+           → Γ ⊢ zeroₑ ∷ ℕₑ
     suc    : ∀ {n}
-           → Γ ⊢     n ∷ ℕ
-           → Γ ⊢ suc n ∷ ℕ
+           → Γ ⊢     n ∷ ℕₑ
+           → Γ ⊢ sucₑ n ∷ ℕₑ
     natrec : ∀ {G s z n}
-           → Γ ∙ ℕ ⊢ G
-           → Γ     ⊢ z ∷ G [ zero ]
-           → Γ     ⊢ s ∷ Π ℕ ▹ (G ▹▹ G [ suc (var zero) ]↑)
-           → Γ     ⊢ n ∷ ℕ
-           → Γ     ⊢ natrec G z s n ∷ G [ n ]
+           → Γ ∙ ℕₑ ⊢ G
+           → Γ     ⊢ z ∷ G [ zeroₑ ]
+           → Γ     ⊢ s ∷ Πₑ ℕₑ ▹ (G ▹▹ G [ sucₑ (var zero) ]↑)
+           → Γ     ⊢ n ∷ ℕₑ
+           → Γ     ⊢ natrecₑ G z s n ∷ G [ n ]
     conv   : ∀ {t A B}
            → Γ ⊢ t ∷ A
            → Γ ⊢ A ≡ B
@@ -74,7 +74,7 @@ mutual
   -- Type equality
   data _⊢_≡_ (Γ : Con Term) : Term → Term → Set where
     univ   : ∀ {A B}
-           → Γ ⊢ A ≡ B ∷ U
+           → Γ ⊢ A ≡ B ∷ Uₑ
            → Γ ⊢ A ≡ B
     refl   : ∀ {A}
            → Γ ⊢ A
@@ -90,7 +90,7 @@ mutual
            → Γ     ⊢ F
            → Γ     ⊢ F ≡ H
            → Γ ∙ F ⊢ G ≡ E
-           → Γ     ⊢ Π F ▹ G ≡ Π H ▹ E
+           → Γ     ⊢ Πₑ F ▹ G ≡ Πₑ H ▹ E
 
   -- Term equality
   data _⊢_≡_∷_ (Γ : Con Term) : Term → Term → Term → Set where
@@ -110,45 +110,45 @@ mutual
                 → Γ ⊢ t ≡ u ∷ B
     Π-cong      : ∀ {E F G H}
                 → Γ     ⊢ F
-                → Γ     ⊢ F ≡ H       ∷ U
-                → Γ ∙ F ⊢ G ≡ E       ∷ U
-                → Γ     ⊢ Π F ▹ G ≡ Π H ▹ E ∷ U
+                → Γ     ⊢ F ≡ H       ∷ Uₑ
+                → Γ ∙ F ⊢ G ≡ E       ∷ Uₑ
+                → Γ     ⊢ Πₑ F ▹ G ≡ Πₑ H ▹ E ∷ Uₑ
     app-cong    : ∀ {a b f g F G}
-                → Γ ⊢ f ≡ g ∷ Π F ▹ G
+                → Γ ⊢ f ≡ g ∷ Πₑ F ▹ G
                 → Γ ⊢ a ≡ b ∷ F
-                → Γ ⊢ f ∘ a ≡ g ∘ b ∷ G [ a ]
+                → Γ ⊢ f ∘ₑ a ≡ g ∘ₑ b ∷ G [ a ]
     β-red       : ∀ {a t F G}
                 → Γ     ⊢ F
                 → Γ ∙ F ⊢ t ∷ G
                 → Γ     ⊢ a ∷ F
-                → Γ     ⊢ (lam t) ∘ a ≡ t [ a ] ∷ G [ a ]
+                → Γ     ⊢ (lamₑ t) ∘ₑ a ≡ t [ a ] ∷ G [ a ]
     fun-ext     : ∀ {f g F G}
                 → Γ     ⊢ F
-                → Γ     ⊢ f ∷ Π F ▹ G
-                → Γ     ⊢ g ∷ Π F ▹ G
-                → Γ ∙ F ⊢ wk1 f ∘ var zero ≡ wk1 g ∘ var zero ∷ G
-                → Γ     ⊢ f ≡ g ∷ Π F ▹ G
+                → Γ     ⊢ f ∷ Πₑ F ▹ G
+                → Γ     ⊢ g ∷ Πₑ F ▹ G
+                → Γ ∙ F ⊢ wk1 f ∘ₑ var zero ≡ wk1 g ∘ₑ var zero ∷ G
+                → Γ     ⊢ f ≡ g ∷ Πₑ F ▹ G
     suc-cong    : ∀ {m n}
-                → Γ ⊢ m ≡ n ∷ ℕ
-                → Γ ⊢ suc m ≡ suc n ∷ ℕ
+                → Γ ⊢ m ≡ n ∷ ℕₑ
+                → Γ ⊢ sucₑ m ≡ sucₑ n ∷ ℕₑ
     natrec-cong : ∀ {z z' s s' n n' F F'}
-                → Γ ∙ ℕ ⊢ F ≡ F'
-                → Γ     ⊢ z ≡ z' ∷ F [ zero ]
-                → Γ     ⊢ s ≡ s' ∷ Π ℕ ▹ (F ▹▹ F [ suc (var zero) ]↑)
-                → Γ     ⊢ n ≡ n' ∷ ℕ
-                → Γ     ⊢ natrec F z s n ≡ natrec F' z' s' n' ∷ F [ n ]
+                → Γ ∙ ℕₑ ⊢ F ≡ F'
+                → Γ     ⊢ z ≡ z' ∷ F [ zeroₑ ]
+                → Γ     ⊢ s ≡ s' ∷ Πₑ ℕₑ ▹ (F ▹▹ F [ sucₑ (var zero) ]↑)
+                → Γ     ⊢ n ≡ n' ∷ ℕₑ
+                → Γ     ⊢ natrecₑ F z s n ≡ natrecₑ F' z' s' n' ∷ F [ n ]
     natrec-zero : ∀ {z s F}
-                → Γ ∙ ℕ ⊢ F
-                → Γ     ⊢ z ∷ F [ zero ]
-                → Γ     ⊢ s ∷ Π ℕ ▹ (F ▹▹ F [ suc (var zero) ]↑)
-                → Γ     ⊢ natrec F z s zero ≡ z ∷ F [ zero ]
+                → Γ ∙ ℕₑ ⊢ F
+                → Γ     ⊢ z ∷ F [ zeroₑ ]
+                → Γ     ⊢ s ∷ Πₑ ℕₑ ▹ (F ▹▹ F [ sucₑ (var zero) ]↑)
+                → Γ     ⊢ natrecₑ F z s zeroₑ ≡ z ∷ F [ zeroₑ ]
     natrec-suc  : ∀ {n z s F}
-                → Γ     ⊢ n ∷ ℕ
-                → Γ ∙ ℕ ⊢ F
-                → Γ     ⊢ z ∷ F [ zero ]
-                → Γ     ⊢ s ∷ Π ℕ ▹ (F ▹▹ F [ suc (var zero) ]↑)
-                → Γ     ⊢ natrec F z s (suc n) ≡ (s ∘ n) ∘ (natrec F z s n)
-                        ∷ F [ suc n ]
+                → Γ     ⊢ n ∷ ℕₑ
+                → Γ ∙ ℕₑ ⊢ F
+                → Γ     ⊢ z ∷ F [ zeroₑ ]
+                → Γ     ⊢ s ∷ Πₑ ℕₑ ▹ (F ▹▹ F [ sucₑ (var zero) ]↑)
+                → Γ     ⊢ natrecₑ F z s (sucₑ n) ≡ (s ∘ₑ n) ∘ₑ (natrecₑ F z s n)
+                        ∷ F [ sucₑ n ]
 
 -- Term reduction
 data _⊢_⇒_∷_ (Γ : Con Term) : Term → Term → Term → Set where
@@ -157,37 +157,37 @@ data _⊢_⇒_∷_ (Γ : Con Term) : Term → Term → Term → Set where
                → Γ ⊢ A ≡ B
                → Γ ⊢ t ⇒ u ∷ B
   app-subst    : ∀ {A B t u a}
-               → Γ ⊢ t ⇒ u ∷ Π A ▹ B
+               → Γ ⊢ t ⇒ u ∷ Πₑ A ▹ B
                → Γ ⊢ a ∷ A
-               → Γ ⊢ t ∘ a ⇒ u ∘ a ∷ B [ a ]
+               → Γ ⊢ t ∘ₑ a ⇒ u ∘ₑ a ∷ B [ a ]
   β-red        : ∀ {A B a t}
                → Γ     ⊢ A
                → Γ ∙ A ⊢ t ∷ B
                → Γ     ⊢ a ∷ A
-               → Γ     ⊢ (lam t) ∘ a ⇒ t [ a ] ∷ B [ a ]
+               → Γ     ⊢ (lamₑ t) ∘ₑ a ⇒ t [ a ] ∷ B [ a ]
   natrec-subst : ∀ {z s n n' F}
-               → Γ ∙ ℕ ⊢ F
-               → Γ     ⊢ z ∷ F [ zero ]
-               → Γ     ⊢ s ∷ Π ℕ ▹ (F ▹▹ F [ suc (var zero) ]↑)
-               → Γ     ⊢ n ⇒ n' ∷ ℕ
-               → Γ     ⊢ natrec F z s n ⇒ natrec F z s n' ∷ F [ n ]
+               → Γ ∙ ℕₑ ⊢ F
+               → Γ     ⊢ z ∷ F [ zeroₑ ]
+               → Γ     ⊢ s ∷ Πₑ ℕₑ ▹ (F ▹▹ F [ sucₑ (var zero) ]↑)
+               → Γ     ⊢ n ⇒ n' ∷ ℕₑ
+               → Γ     ⊢ natrecₑ F z s n ⇒ natrecₑ F z s n' ∷ F [ n ]
   natrec-zero  : ∀ {z s F}
-               → Γ ∙ ℕ ⊢ F
-               → Γ     ⊢ z ∷ F [ zero ]
-               → Γ     ⊢ s ∷ Π ℕ ▹ (F ▹▹ F [ suc (var zero) ]↑)
-               → Γ     ⊢ natrec F z s zero ⇒ z ∷ F [ zero ]
+               → Γ ∙ ℕₑ ⊢ F
+               → Γ     ⊢ z ∷ F [ zeroₑ ]
+               → Γ     ⊢ s ∷ Πₑ ℕₑ ▹ (F ▹▹ F [ sucₑ (var zero) ]↑)
+               → Γ     ⊢ natrecₑ F z s zeroₑ ⇒ z ∷ F [ zeroₑ ]
   natrec-suc   : ∀ {n z s F}
-               → Γ     ⊢ n ∷ ℕ
-               → Γ ∙ ℕ ⊢ F
-               → Γ     ⊢ z ∷ F [ zero ]
-               → Γ     ⊢ s ∷ Π ℕ ▹ (F ▹▹ F [ suc (var zero) ]↑)
-               → Γ     ⊢ natrec F z s (suc n) ⇒ (s ∘ n) ∘ (natrec F z s n)
-                       ∷ F [ suc n ]
+               → Γ     ⊢ n ∷ ℕₑ
+               → Γ ∙ ℕₑ ⊢ F
+               → Γ     ⊢ z ∷ F [ zeroₑ ]
+               → Γ     ⊢ s ∷ Πₑ ℕₑ ▹ (F ▹▹ F [ sucₑ (var zero) ]↑)
+               → Γ     ⊢ natrecₑ F z s (sucₑ n) ⇒ (s ∘ₑ n) ∘ₑ (natrecₑ F z s n)
+                       ∷ F [ sucₑ n ]
 
 -- Type reduction
 data _⊢_⇒_ (Γ : Con Term) : Term → Term → Set where
   univ : ∀ {A B}
-       → Γ ⊢ A ⇒ B ∷ U
+       → Γ ⊢ A ⇒ B ∷ Uₑ
        → Γ ⊢ A ⇒ B
 
 -- Term reduction closure

@@ -24,7 +24,7 @@ mutual
     PE.subst (λ x → _ ⊢ _ ~ _ ↑ x) (PE.sym (wk-β G))
              (app (wk~↓ ρ ⊢Δ t~u) (wkConv↑Term ρ ⊢Δ x))
   wk~↑ {ρ} {Δ = Δ} [ρ] ⊢Δ (natrec {k} {l} {h} {g} {a₀} {b₀} {F} {G} x x₁ x₂ t~u) =
-    PE.subst (λ x → _ ⊢ U.wk ρ (natrec F a₀ h k) ~ _ ↑ x) (PE.sym (wk-β F))
+    PE.subst (λ x → _ ⊢ U.wk ρ (natrecₑ F a₀ h k) ~ _ ↑ x) (PE.sym (wk-β F))
              (natrec (wkConv↑ (lift [ρ]) (⊢Δ ∙ ℕ ⊢Δ) x)
                      (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x) (wk-β F)
                                (wkConv↑Term [ρ] ⊢Δ x₁))
@@ -80,7 +80,7 @@ mutual
     in  fun-ext ⊢ρF (wkTerm [ρ] ⊢Δ x₁) (wkTerm [ρ] ⊢Δ x₂)
                 (wkWhnf ρ y) (wkWhnf ρ y₁)
                 (PE.subst₃ (λ x y z → Δ ∙ U.wk ρ F ⊢ x [conv↑] y ∷ z)
-                           (PE.cong₂ _∘_ (PE.sym (wk1-wk≡lift-wk1 _ _)) PE.refl)
-                           (PE.cong₂ _∘_ (PE.sym (wk1-wk≡lift-wk1 _ _)) PE.refl)
+                           (PE.cong₂ _∘ₑ_ (PE.sym (wk1-wk≡lift-wk1 _ _)) PE.refl)
+                           (PE.cong₂ _∘ₑ_ (PE.sym (wk1-wk≡lift-wk1 _ _)) PE.refl)
                            PE.refl
                            (wkConv↑Term (lift [ρ]) (⊢Δ ∙ ⊢ρF) t<>u))

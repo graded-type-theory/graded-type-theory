@@ -39,6 +39,6 @@ syntacticRedTerm d with fundamentalTermEq (subset*Term d)
 syntacticRedTerm d | [Γ] , modelsTermEq [A] [t] [u] [t≡u] =
   wellformedₛ [Γ] [A] , wellformedTermₛ [Γ] [A] [t] , wellformedTermₛ [Γ] [A] [u]
 
-syntacticΠ : ∀ {Γ F G} → Γ ⊢ Π F ▹ G → Γ ⊢ F × Γ ∙ F ⊢ G
+syntacticΠ : ∀ {Γ F G} → Γ ⊢ Πₑ F ▹ G → Γ ⊢ F × Γ ∙ F ⊢ G
 syntacticΠ ΠFG with injectivity (refl ΠFG)
 syntacticΠ ΠFG | F≡F , G≡G = proj₁ (syntacticEq F≡F) , proj₁ (syntacticEq G≡G)

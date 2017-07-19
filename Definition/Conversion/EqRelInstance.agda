@@ -38,9 +38,9 @@ data _⊢_~_∷_ (Γ : Con Term) (k l A : Term) : Set where
   in  ↑ (refl ⊢A) (var x PE.refl)
 
 ~-app : ∀ {f g a b F G Γ}
-      → Γ ⊢ f ~ g ∷ Π F ▹ G
+      → Γ ⊢ f ~ g ∷ Πₑ F ▹ G
       → Γ ⊢ a [conv↑] b ∷ F
-      → Γ ⊢ f ∘ a ~ g ∘ b ∷ G [ a ]
+      → Γ ⊢ f ∘ₑ a ~ g ∘ₑ b ∷ G [ a ]
 ~-app (↑ A≡B x) x₁ =
   let _ , ⊢B = syntacticEq A≡B
       B' , whnfB' , D = fullyReducible ⊢B
@@ -54,11 +54,11 @@ data _⊢_~_∷_ (Γ : Con Term) (k l A : Term) : Set where
              (convConvTerm x₁ F≡H))
 
 ~-natrec : ∀ {z z' s s' n n' F F' Γ}
-         → (Γ ∙ ℕ) ⊢ F [conv↑] F' →
-      Γ ⊢ z [conv↑] z' ∷ (F [ zero ]) →
-      Γ ⊢ s [conv↑] s' ∷ (Π ℕ ▹ (F ▹▹ F [ suc (var zero) ]↑)) →
-      Γ ⊢ n ~ n' ∷ ℕ →
-      Γ ⊢ natrec F z s n ~ natrec F' z' s' n' ∷ (F [ n ])
+         → (Γ ∙ ℕₑ) ⊢ F [conv↑] F' →
+      Γ ⊢ z [conv↑] z' ∷ (F [ zeroₑ ]) →
+      Γ ⊢ s [conv↑] s' ∷ (Πₑ ℕₑ ▹ (F ▹▹ F [ sucₑ (var zero) ]↑)) →
+      Γ ⊢ n ~ n' ∷ ℕₑ →
+      Γ ⊢ natrecₑ F z s n ~ natrecₑ F' z' s' n' ∷ (F [ n ])
 ~-natrec x x₁ x₂ (↑ A≡B x₄) =
   let _ , ⊢B = syntacticEq A≡B
       B' , whnfB' , D = fullyReducible ⊢B

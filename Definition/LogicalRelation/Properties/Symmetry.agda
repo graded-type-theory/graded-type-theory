@@ -41,7 +41,7 @@ mutual
                              ([ρF'] [ρ] ⊢Δ) ([F]₁ [ρ] ⊢Δ)
                              (symEq ([F] [ρ] ⊢Δ) ([ρF'] [ρ] ⊢Δ)
                                     ([F≡F'] [ρ] ⊢Δ))
-    in  Π₌ _ _ (red D) (≅-sym (PE.subst (λ x → Γ ⊢ Π F ▹ G ≅ x) (PE.sym ΠF₁G₁≡ΠF'G') A≡B))
+    in  Π₌ _ _ (red D) (≅-sym (PE.subst (λ x → Γ ⊢ Πₑ F ▹ G ≅ x) (PE.sym ΠF₁G₁≡ΠF'G') A≡B))
           [F₁≡F]
           (λ {ρ} [ρ] ⊢Δ [a] →
                let ρG'a≡ρG₁'a = PE.cong (λ x → U.wk (lift ρ) x [ _ ]) (PE.sym G₁≡G')

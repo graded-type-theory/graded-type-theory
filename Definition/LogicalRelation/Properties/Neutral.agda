@@ -23,7 +23,7 @@ import Tools.PropositionalEquality as PE
 
 neu : ∀ {l Γ A} (neA : Neutral A)
     → Γ ⊢ A
-    → Γ ⊢ A ~ A ∷ U
+    → Γ ⊢ A ~ A ∷ Uₑ
     → Γ ⊩⟨ l ⟩ A
 neu neA A A~A = ne' _ (idRed:*: A) neA A~A
 
@@ -31,7 +31,7 @@ neuEq' : ∀ {l Γ A B} ([A] : Γ ⊩⟨ l ⟩ne A)
          (neA : Neutral A)
          (neB : Neutral B)
        → Γ ⊢ A → Γ ⊢ B
-       → Γ ⊢ A ~ B ∷ U
+       → Γ ⊢ A ~ B ∷ Uₑ
        → Γ ⊩⟨ l ⟩ A ≡ B / ne-intr [A]
 neuEq' (noemb (ne K [ ⊢A , ⊢B , D ] neK K≡K)) neA neB A B A~B =
   let A≡K = whnfRed* D (ne neA)
@@ -42,7 +42,7 @@ neuEq : ∀ {l Γ A B} ([A] : Γ ⊩⟨ l ⟩ A)
         (neA : Neutral A)
         (neB : Neutral B)
       → Γ ⊢ A → Γ ⊢ B
-      → Γ ⊢ A ~ B ∷ U
+      → Γ ⊢ A ~ B ∷ Uₑ
       → Γ ⊩⟨ l ⟩ A ≡ B / [A]
 neuEq [A] neA neB A B A~B =
   irrelevanceEq (ne-intr (ne-elim neA [A]))

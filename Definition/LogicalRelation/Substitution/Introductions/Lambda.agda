@@ -33,7 +33,7 @@ lamₛ : ∀ {F G t Γ}
        ([F] : Γ ⊩ₛ⟨ ¹ ⟩ F / [Γ])
        ([G] : Γ ∙ F ⊩ₛ⟨ ¹ ⟩ G / [Γ] ∙ [F])
        ([t] : Γ ∙ F ⊩ₛ⟨ ¹ ⟩ t ∷ G / [Γ] ∙ [F] / [G])
-     → Γ ⊩ₛ⟨ ¹ ⟩ lam t ∷ Π F ▹ G / [Γ] / Πₛ {F} {G} [Γ] [F] [G]
+     → Γ ⊩ₛ⟨ ¹ ⟩ lamₑ t ∷ Πₑ F ▹ G / [Γ] / Πₛ {F} {G} [Γ] [F] [G]
 lamₛ {F} {G} {t} {Γ} [Γ] [F] [G] [t] {Δ = Δ} {σ = σ} ⊢Δ [σ] =
   let ⊢F = wellformed (proj₁ ([F] ⊢Δ [σ]))
       [liftσ] = liftSubstS {F = F} [Γ] ⊢Δ [F] [σ]
@@ -41,7 +41,7 @@ lamₛ {F} {G} {t} {Γ} [Γ] [F] [G] [t] {Δ = Δ} {σ = σ} ⊢Δ [σ] =
       _ , Π F' G' D' ⊢F' ⊢G' A≡A' [F]' [G]' G-ext =
         extractMaybeEmb (Π-elim (proj₁ ([ΠFG] ⊢Δ [σ])))
       lamt : ∀ {Δ σ} (⊢Δ : ⊢ Δ) ([σ] : Δ ⊩ₛ σ ∷ Γ / [Γ] / ⊢Δ)
-           → Δ ⊩⟨ ¹ ⟩ subst σ (lam t) ∷ subst σ (Π F ▹ G) / proj₁ ([ΠFG] ⊢Δ [σ])
+           → Δ ⊩⟨ ¹ ⟩ subst σ (lamₑ t) ∷ subst σ (Πₑ F ▹ G) / proj₁ ([ΠFG] ⊢Δ [σ])
       lamt {Δ} {σ} ⊢Δ [σ] =
         let [liftσ] = liftSubstS {F = F} [Γ] ⊢Δ [F] [σ]
             [σF] = proj₁ ([F] ⊢Δ [σ])
@@ -62,7 +62,7 @@ lamₛ {F} {G} {t} {Γ} [Γ] [F] [G] [t] {Δ = Δ} {σ = σ} ⊢Δ [σ] =
                                                      (var (⊢Δ ∙ ⊢F) here))
             _ , Π F' G' D' ⊢F' ⊢G' A≡A' [F]' [G]' G-ext =
               extractMaybeEmb (Π-elim (proj₁ ([ΠFG] ⊢Δ [σ])))
-        in  Πₜ (lam (subst (liftSubst σ) t)) (idRedTerm:*: (lam ⊢F ⊢t)) lam
+        in  Πₜ (lamₑ (subst (liftSubst σ) t)) (idRedTerm:*: (lam ⊢F ⊢t)) lam
                (≅-fun-ext ⊢F (lam ⊢F ⊢t) (lam ⊢F ⊢t) lam lam
                           (wellformedTermEq [σG]
                             (reflEqTerm [σG]
@@ -164,8 +164,8 @@ lamₛ {F} {G} {t} {Γ} [Γ] [F] [G] [t] {Δ = Δ} {σ = σ} ⊢Δ [σ] =
                               (~-var (var (⊢Δ ∙ ⊢F) here))
              σlamt∘a≡σ'lamt∘a : ∀ {ρ Δ₁ a} → ([ρ] : ρ ∷ Δ₁ ⊆ Δ) (⊢Δ₁ : ⊢ Δ₁)
                  → ([a] : Δ₁ ⊩⟨ ¹ ⟩ a ∷ U.wk ρ (subst σ F) / [F]' [ρ] ⊢Δ₁)
-                 → Δ₁ ⊩⟨ ¹ ⟩ U.wk ρ (subst σ (lam t)) ∘ a
-                           ≡ U.wk ρ (subst σ' (lam t)) ∘ a
+                 → Δ₁ ⊩⟨ ¹ ⟩ U.wk ρ (subst σ (lamₑ t)) ∘ₑ a
+                           ≡ U.wk ρ (subst σ' (lamₑ t)) ∘ₑ a
                            ∷ U.wk (lift ρ) (subst (liftSubst σ) G) [ a ]
                            / [G]' [ρ] ⊢Δ₁ [a]
              σlamt∘a≡σ'lamt∘a {_} {Δ₁} {a} ρ ⊢Δ₁ [a] =
@@ -256,7 +256,7 @@ lamₛ {F} {G} {t} {Γ} [Γ] [F] [G] [t] {Δ = Δ} {σ = σ} ⊢Δ [σ] =
                 in  transEqTerm G[a] [σlamt∘a≡σt[a]]
                                 (transEqTerm G[a] [σt[a]≡σ't[a]]
                                              [σ't[a]≡σ'lamt∘a])
-         in  Πₜ₌ (lam (subst (liftSubst σ) t)) (lam (subst (liftSubst σ') t))
+         in  Πₜ₌ (lamₑ (subst (liftSubst σ) t)) (lamₑ (subst (liftSubst σ') t))
                  (idRedTerm:*: (lam ⊢F ⊢t))
                  (idRedTerm:*: (conv (lam ⊢F' ⊢t')
                                      (sym (≅-eq (wellformedEq (proj₁ ([ΠFG] ⊢Δ [σ]))
@@ -287,15 +287,15 @@ fun-extEqTerm : ∀ {f g F G Γ Δ σ l}
                 ([F] : Γ ⊩ₛ⟨ l ⟩ F / [Γ])
                 ([G] : Γ ∙ F ⊩ₛ⟨ l ⟩ G / [Γ] ∙ [F])
               → let [ΠFG] = Πₛ {F} {G} [Γ] [F] [G] in
-                Γ ∙ F ⊩ₛ⟨ l ⟩ wk1 f ∘ var zero ≡ wk1 g ∘ var zero ∷ G
+                Γ ∙ F ⊩ₛ⟨ l ⟩ wk1 f ∘ₑ var zero ≡ wk1 g ∘ₑ var zero ∷ G
                              / [Γ] ∙ [F] / [G]
               → (⊢Δ   : ⊢ Δ)
                 ([σ]  : Δ ⊩ₛ σ ∷ Γ / [Γ] / ⊢Δ)
-              → Δ ⊩⟨ l ⟩ subst σ f ∷ Π subst σ F ▹ subst (liftSubst σ) G
+              → Δ ⊩⟨ l ⟩ subst σ f ∷ Πₑ subst σ F ▹ subst (liftSubst σ) G
                   / proj₁ ([ΠFG] ⊢Δ [σ])
-              → Δ ⊩⟨ l ⟩ subst σ g ∷ Π subst σ F ▹ subst (liftSubst σ) G
+              → Δ ⊩⟨ l ⟩ subst σ g ∷ Πₑ subst σ F ▹ subst (liftSubst σ) G
                   / proj₁ ([ΠFG] ⊢Δ [σ])
-              → Δ ⊩⟨ l ⟩ subst σ f ≡ subst σ g ∷ Π subst σ F ▹ subst (liftSubst σ) G
+              → Δ ⊩⟨ l ⟩ subst σ f ≡ subst σ g ∷ Πₑ subst σ F ▹ subst (liftSubst σ) G
                   / proj₁ ([ΠFG] ⊢Δ [σ])
 fun-extEqTerm {f} {g} {F} {G} {Γ} {Δ} {σ} [Γ] [F] [G] [f0≡g0] ⊢Δ [σ]
               (Πₜ f₁ [ ⊢t , ⊢u , d ] funcF f≡f [f] [f]₁)
@@ -318,8 +318,8 @@ fun-extEqTerm {f} {g} {F} {G} {Γ} {Δ} {σ} [Γ] [F] [G] [f0≡g0] ⊢Δ [σ]
       σf0≡σg0' =
         PE.subst₂
           (λ x y → Δ ∙ subst σ F ⊢ x ≅ y ∷ subst (liftSubst σ) G)
-          (PE.cong₂ _∘_ (PE.trans (subst-wk f) (PE.sym (wk-subst f))) PE.refl)
-          (PE.cong₂ _∘_ (PE.trans (subst-wk g) (PE.sym (wk-subst g))) PE.refl)
+          (PE.cong₂ _∘ₑ_ (PE.trans (subst-wk f) (PE.sym (wk-subst f))) PE.refl)
+          (PE.cong₂ _∘ₑ_ (PE.trans (subst-wk g) (PE.sym (wk-subst g))) PE.refl)
           σf0≡σg0
       ⊢ΠFG = wellformed [σΠFG]
       f≡f₁' = proj₂ (redSubst*Term d [σΠFG] (Πₜ f₁ (idRedTerm:*: ⊢u) funcF f≡f [f] [f]₁))
@@ -342,8 +342,8 @@ fun-extEqTerm {f} {g} {F} {G} {Γ} {Δ} {σ} [Γ] [F] [G] [f0≡g0] ⊢Δ [σ]
                  [a]' = irrelevanceTerm'
                           (wk-subst F) ([F]' [ρ] ⊢Δ₁)
                           [F]'' [a]
-                 fEq = PE.cong₂ _∘_ (PE.trans (subst-wk f) (PE.sym (wk-subst f))) PE.refl
-                 gEq = PE.cong₂ _∘_ (PE.trans (subst-wk g) (PE.sym (wk-subst g))) PE.refl
+                 fEq = PE.cong₂ _∘ₑ_ (PE.trans (subst-wk f) (PE.sym (wk-subst f))) PE.refl
+                 gEq = PE.cong₂ _∘ₑ_ (PE.trans (subst-wk g) (PE.sym (wk-subst g))) PE.refl
                  GEq = PE.sym (PE.trans (subst-wk (subst (liftSubst σ) G))
                                         (PE.trans (substCompEq G)
                                                   (cons-wk-subst ρ σ a G)))
@@ -352,10 +352,10 @@ fun-extEqTerm {f} {g} {F} {G} {Γ} {Δ} {σ} [Γ] [F] [G] [f0≡g0] ⊢Δ [σ]
                          ([G]' [ρ] ⊢Δ₁ [a])
                          ([f0≡g0] ⊢Δ₁ (wkSubstS [Γ] ⊢Δ ⊢Δ₁ [ρ] [σ] , [a]'))
                  [ρσΠFG] = wk [ρ] ⊢Δ₁ [σΠFG]
-                 [f]' : Δ ⊩⟨ _ ⟩ f₁ ∷ Π F' ▹ G' / [σΠFG]
+                 [f]' : Δ ⊩⟨ _ ⟩ f₁ ∷ Πₑ F' ▹ G' / [σΠFG]
                  [f]' = Πₜ f₁ (idRedTerm:*: ⊢u) funcF f≡f [f] [f]₁
                  [ρf]' = wkTerm [ρ] ⊢Δ₁ [σΠFG] [f]'
-                 [g]' : Δ ⊩⟨ _ ⟩ g₁ ∷ Π F' ▹ G' / [σΠFG]
+                 [g]' : Δ ⊩⟨ _ ⟩ g₁ ∷ Πₑ F' ▹ G' / [σΠFG]
                  [g]' = Πₜ g₁ (idRedTerm:*: ⊢u₁) funcG g≡g [g] [g]₁
                  [ρg]' = wkTerm [ρ] ⊢Δ₁ [σΠFG] [g]'
                  [f∘u] = appTerm ([F]' [ρ] ⊢Δ₁) ([G]' [ρ] ⊢Δ₁ [a]) [ρσΠFG] [ρf]' [a]
@@ -374,11 +374,11 @@ fun-extₛ : ∀ {f g F G Γ l}
            ([F] : Γ ⊩ₛ⟨ l ⟩ F / [Γ])
            ([G] : Γ ∙ F ⊩ₛ⟨ l ⟩ G / [Γ] ∙ [F])
          → let [ΠFG] = Πₛ {F} {G} [Γ] [F] [G] in
-           Γ ⊩ₛ⟨ l ⟩ f ∷ Π F ▹ G / [Γ] / [ΠFG]
-         → Γ ⊩ₛ⟨ l ⟩ g ∷ Π F ▹ G / [Γ] / [ΠFG]
-         → Γ ∙ F ⊩ₛ⟨ l ⟩ wk1 f ∘ var zero ≡ wk1 g ∘ var zero ∷ G
+           Γ ⊩ₛ⟨ l ⟩ f ∷ Πₑ F ▹ G / [Γ] / [ΠFG]
+         → Γ ⊩ₛ⟨ l ⟩ g ∷ Πₑ F ▹ G / [Γ] / [ΠFG]
+         → Γ ∙ F ⊩ₛ⟨ l ⟩ wk1 f ∘ₑ var zero ≡ wk1 g ∘ₑ var zero ∷ G
                         / [Γ] ∙ [F] / [G]
-         → Γ ⊩ₛ⟨ l ⟩ f ≡ g ∷ Π F ▹ G / [Γ] / [ΠFG]
+         → Γ ⊩ₛ⟨ l ⟩ f ≡ g ∷ Πₑ F ▹ G / [Γ] / [ΠFG]
 fun-extₛ {f} {g} {F} {G} [Γ] [F] [G] [f] [g] [f0≡g0] {Δ} {σ} ⊢Δ [σ] =
   fun-extEqTerm {f} {g} {F} {G} [Γ] [F] [G] [f0≡g0] ⊢Δ [σ]
                 (proj₁ ([f] ⊢Δ [σ])) (proj₁ ([g] ⊢Δ [σ]))

@@ -13,9 +13,9 @@ open import Tools.Nat
 open import Tools.Product
 
 
-sucCong : ∀ {F G Γ} → Γ ∙ ℕ ⊢ F ≡ G
-        → Γ ⊢ Π ℕ ▹ (F ▹▹ F [ suc (var zero) ]↑)
-            ≡ Π ℕ ▹ (G ▹▹ G [ suc (var zero) ]↑)
+sucCong : ∀ {F G Γ} → Γ ∙ ℕₑ ⊢ F ≡ G
+        → Γ ⊢ Πₑ ℕₑ ▹ (F ▹▹ F [ sucₑ (var zero) ]↑)
+            ≡ Πₑ ℕₑ ▹ (G ▹▹ G [ sucₑ (var zero) ]↑)
 sucCong F≡G with wfEq F≡G
 sucCong F≡G | ⊢Γ ∙ ⊢ℕ =
   let ⊢F , _ = syntacticEq F≡G

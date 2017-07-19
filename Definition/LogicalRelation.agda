@@ -25,7 +25,7 @@ record _⊩ne_ (Γ : Con Term) (A : Term) : Set where
     K   : Term
     D   : Γ ⊢ A :⇒*: K
     neK : Neutral K
-    K≡K : Γ ⊢ K ~ K ∷ U
+    K≡K : Γ ⊢ K ~ K ∷ Uₑ
 
 record _⊩ne_≡_/_ (Γ : Con Term) (A B : Term) ([A] : Γ ⊩ne A) : Set where
   constructor ne₌
@@ -34,7 +34,7 @@ record _⊩ne_≡_/_ (Γ : Con Term) (A B : Term) ([A] : Γ ⊩ne A) : Set where
     M   : Term
     D'  : Γ ⊢ B :⇒*: M
     neM : Neutral M
-    K≡M : Γ ⊢ K ~ M ∷ U
+    K≡M : Γ ⊢ K ~ M ∷ Uₑ
 
 record _⊩neNf_∷_ (Γ : Con Term) (k A : Term) : Set where
   inductive
@@ -73,32 +73,32 @@ record _⊩ne_≡_∷_/_ (Γ : Con Term) (t u A : Term) ([A] : Γ ⊩ne A) : Set
 -- Natural numbers
 
 _⊩ℕ_ : (Γ : Con Term) (A : Term) → Set
-Γ ⊩ℕ A = Γ ⊢ A :⇒*: ℕ
+Γ ⊩ℕ A = Γ ⊢ A :⇒*: ℕₑ
 
 _⊩ℕ_≡_ : (Γ : Con Term) (A B : Term) → Set
-Γ ⊩ℕ A ≡ B = Γ ⊢ B ⇒* ℕ
+Γ ⊩ℕ A ≡ B = Γ ⊢ B ⇒* ℕₑ
 
 mutual
   data _⊩ℕ_∷ℕ (Γ : Con Term) (t : Term) : Set where
-    ℕₜ : (n : Term) (d : Γ ⊢ t :⇒*: n ∷ ℕ) (n≡n : Γ ⊢ n ≅ n ∷ ℕ)
+    ℕₜ : (n : Term) (d : Γ ⊢ t :⇒*: n ∷ ℕₑ) (n≡n : Γ ⊢ n ≅ n ∷ ℕₑ)
          (prop : Natural-prop Γ n)
        → Γ ⊩ℕ t ∷ℕ
 
   data Natural-prop (Γ : Con Term) : (n : Term) → Set where
-    suc  : ∀ {n} → Γ ⊩ℕ n ∷ℕ → Natural-prop Γ (suc n)
-    zero : Natural-prop Γ zero
-    ne   : ∀ {n} → Γ ⊩neNf n ∷ ℕ → Natural-prop Γ n
+    suc  : ∀ {n} → Γ ⊩ℕ n ∷ℕ → Natural-prop Γ (sucₑ n)
+    zero : Natural-prop Γ zeroₑ
+    ne   : ∀ {n} → Γ ⊩neNf n ∷ ℕₑ → Natural-prop Γ n
 
 mutual
   data _⊩ℕ_≡_∷ℕ (Γ : Con Term) (t u : Term) : Set where
-    ℕₜ₌ : (k k' : Term) (d : Γ ⊢ t :⇒*: k  ∷ ℕ) (d' : Γ ⊢ u :⇒*: k' ∷ ℕ)
-          (k≡k' : Γ ⊢ k ≅ k' ∷ ℕ)
+    ℕₜ₌ : (k k' : Term) (d : Γ ⊢ t :⇒*: k  ∷ ℕₑ) (d' : Γ ⊢ u :⇒*: k' ∷ ℕₑ)
+          (k≡k' : Γ ⊢ k ≅ k' ∷ ℕₑ)
           (prop : [Natural]-prop Γ k k') → Γ ⊩ℕ t ≡ u ∷ℕ
 
   data [Natural]-prop (Γ : Con Term) : (n n' : Term) → Set where
-    suc : ∀ {n n'} → Γ ⊩ℕ n ≡ n' ∷ℕ → [Natural]-prop Γ (suc n) (suc n')
-    zero : [Natural]-prop Γ zero zero
-    ne : ∀ {n n'} → Γ ⊩neNf n ≡ n' ∷ ℕ → [Natural]-prop Γ n n'
+    suc : ∀ {n n'} → Γ ⊩ℕ n ≡ n' ∷ℕ → [Natural]-prop Γ (sucₑ n) (sucₑ n')
+    zero : [Natural]-prop Γ zeroₑ zeroₑ
+    ne : ∀ {n n'} → Γ ⊩neNf n ≡ n' ∷ ℕₑ → [Natural]-prop Γ n n'
 
 natural : ∀ {Γ n} → Natural-prop Γ n → Natural n
 natural (suc x) = suc
@@ -146,16 +146,16 @@ module LogRel (l : TypeLevel) (rec : ∀ {l'} → l' < l → LogRelKit) where
       ⊢Γ : ⊢ Γ
 
   _⊩¹U≡_ : (Γ : Con Term) (B : Term) → Set
-  Γ ⊩¹U≡ B = B PE.≡ U
+  Γ ⊩¹U≡ B = B PE.≡ Uₑ
 
   record _⊩¹U_∷U/_ {l'} (Γ : Con Term) (t : Term) (l< : l' < l) : Set where
     constructor Uₜ
     open LogRelKit (rec l<)
     field
       A     : Term
-      d     : Γ ⊢ t :⇒*: A ∷ U
+      d     : Γ ⊢ t :⇒*: A ∷ Uₑ
       typeA : Type A
-      A≡A   : Γ ⊢ A ≅ A ∷ U
+      A≡A   : Γ ⊢ A ≅ A ∷ Uₑ
       [t]   : Γ ⊩ t
 
   record _⊩¹U_≡_∷U/_ {l'} (Γ : Con Term) (t u : Term) (l< : l' < l) : Set where
@@ -163,11 +163,11 @@ module LogRel (l : TypeLevel) (rec : ∀ {l'} → l' < l → LogRelKit) where
     open LogRelKit (rec l<)
     field
       A B   : Term
-      d     : Γ ⊢ t :⇒*: A ∷ U
-      d'    : Γ ⊢ u :⇒*: B ∷ U
+      d     : Γ ⊢ t :⇒*: A ∷ Uₑ
+      d'    : Γ ⊢ u :⇒*: B ∷ Uₑ
       typeA : Type A
       typeB : Type B
-      A≡B   : Γ ⊢ A ≅ B ∷ U
+      A≡B   : Γ ⊢ A ≅ B ∷ Uₑ
       [t]   : Γ ⊩ t
       [u]   : Γ ⊩ u
       [t≡u] : Γ ⊩ t ≡ u / [t]
@@ -190,7 +190,7 @@ module LogRel (l : TypeLevel) (rec : ∀ {l'} → l' < l → LogRelKit) where
     wk-subst-prop-T¹ Γ F G t [F] [G] =
       ∀ {ρ Δ a} → ([ρ] : ρ ∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ)
                 → ([a] : Δ ⊩¹ a ∷ U.wk ρ F / [F] [ρ] ⊢Δ)
-                → Δ ⊩¹ U.wk ρ t ∘ a ∷ U.wk (lift ρ) G [ a ] / [G] [ρ] ⊢Δ [a]
+                → Δ ⊩¹ U.wk ρ t ∘ₑ a ∷ U.wk (lift ρ) G [ a ] / [G] [ρ] ⊢Δ [a]
 
     wk-substEq-prop¹ : (Γ : Con Term) (F G : Term)
                        ([F] : wk-prop¹ Γ F)
@@ -212,7 +212,7 @@ module LogRel (l : TypeLevel) (rec : ∀ {l'} → l' < l → LogRelKit) where
                     ([a] : Δ ⊩¹ a ∷ U.wk ρ F / [F] [ρ] ⊢Δ)
                     ([b] : Δ ⊩¹ b ∷ U.wk ρ F / [F] [ρ] ⊢Δ)
                     ([a≡b] : Δ ⊩¹ a ≡ b ∷ U.wk ρ F / [F] [ρ] ⊢Δ)
-                  → Δ ⊩¹ U.wk ρ f ∘ a ≡ U.wk ρ f ∘ b ∷ U.wk (lift ρ) G [ a ] / [G] [ρ] ⊢Δ [a]
+                  → Δ ⊩¹ U.wk ρ f ∘ₑ a ≡ U.wk ρ f ∘ₑ b ∷ U.wk (lift ρ) G [ a ] / [G] [ρ] ⊢Δ [a]
 
     wk-fun-ext-prop¹' : (Γ : Con Term) (F G f g : Term)
                         ([F] : wk-prop¹ Γ F)
@@ -221,7 +221,7 @@ module LogRel (l : TypeLevel) (rec : ∀ {l'} → l' < l → LogRelKit) where
     wk-fun-ext-prop¹' Γ F G f g [F] [G] =
       ∀ {ρ Δ a} → ([ρ] : ρ ∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ)
                 → ([a] : Δ ⊩¹ a ∷ U.wk ρ F / [F] [ρ] ⊢Δ)
-                → Δ ⊩¹ U.wk ρ f ∘ a ≡ U.wk ρ g ∘ a ∷ U.wk (lift ρ) G [ a ] / [G] [ρ] ⊢Δ [a]
+                → Δ ⊩¹ U.wk ρ f ∘ₑ a ≡ U.wk ρ g ∘ₑ a ∷ U.wk (lift ρ) G [ a ] / [G] [ρ] ⊢Δ [a]
     -- Pi-type
 
     record _⊩¹Π_ (Γ : Con Term) (A : Term) : Set where
@@ -230,10 +230,10 @@ module LogRel (l : TypeLevel) (rec : ∀ {l'} → l' < l → LogRelKit) where
       field
         F : Term
         G : Term
-        D : Γ ⊢ A :⇒*: Π F ▹ G
+        D : Γ ⊢ A :⇒*: Πₑ F ▹ G
         ⊢F : Γ ⊢ F
         ⊢G : Γ ∙ F ⊢ G
-        A≡A : Γ ⊢ Π F ▹ G ≅ Π F ▹ G
+        A≡A : Γ ⊢ Πₑ F ▹ G ≅ Πₑ F ▹ G
         [F] : wk-prop¹ Γ F
         [G] : wk-subst-prop¹ Γ F G [F]
         G-ext : wk-substEq-prop¹ Γ F G [F] [G]
@@ -245,8 +245,8 @@ module LogRel (l : TypeLevel) (rec : ∀ {l'} → l' < l → LogRelKit) where
       field
         F'     : Term
         G'     : Term
-        D'     : Γ ⊢ B ⇒* Π F' ▹ G'
-        A≡B    : Γ ⊢ Π F ▹ G ≅ Π F' ▹ G'
+        D'     : Γ ⊢ B ⇒* Πₑ F' ▹ G'
+        A≡B    : Γ ⊢ Πₑ F ▹ G ≅ Πₑ F' ▹ G'
         [F≡F'] : ∀ {ρ Δ}
                → ([ρ] : ρ ∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ)
                → Δ ⊩¹ U.wk ρ F ≡ U.wk ρ F' / [F] [ρ] ⊢Δ
@@ -259,9 +259,9 @@ module LogRel (l : TypeLevel) (rec : ∀ {l'} → l' < l → LogRelKit) where
     --        Therefore we have to use ×
     _⊩¹Π_∷_/_ : (Γ : Con Term) (t A : Term) ([A] : Γ ⊩¹Π A) → Set
     Γ ⊩¹Π t ∷ A / Π F G D ⊢F ⊢G A≡A [F] [G] G-ext =
-      ∃ λ f → Γ ⊢ t :⇒*: f ∷ Π F ▹ G
+      ∃ λ f → Γ ⊢ t :⇒*: f ∷ Πₑ F ▹ G
             × Function f
-            × Γ ⊢ f ≅ f ∷ Π F ▹ G
+            × Γ ⊢ f ≅ f ∷ Πₑ F ▹ G
             × wk-fun-ext-prop¹ Γ F G f [F] [G]
             × wk-subst-prop-T¹ Γ F G f [F] [G]
 
@@ -270,11 +270,11 @@ module LogRel (l : TypeLevel) (rec : ∀ {l'} → l' < l → LogRelKit) where
     Γ ⊩¹Π t ≡ u ∷ A / Π F G D ⊢F ⊢G A≡A [F] [G] G-ext =
       let [A] = Π F G D ⊢F ⊢G A≡A [F] [G] G-ext
       in  ∃₂ λ f g →
-          Γ ⊢ t :⇒*: f ∷ Π F ▹ G
-      ×   Γ ⊢ u :⇒*: g ∷ Π F ▹ G
+          Γ ⊢ t :⇒*: f ∷ Πₑ F ▹ G
+      ×   Γ ⊢ u :⇒*: g ∷ Πₑ F ▹ G
       ×   Function f
       ×   Function g
-      ×   Γ ⊢ f ≅ g ∷ Π F ▹ G
+      ×   Γ ⊢ f ≅ g ∷ Πₑ F ▹ G
       ×   Γ ⊩¹Π t ∷ A / [A]
       ×   Γ ⊩¹Π u ∷ A / [A]
       ×   wk-fun-ext-prop¹' Γ F G f g [F] [G]
@@ -283,7 +283,7 @@ module LogRel (l : TypeLevel) (rec : ∀ {l'} → l' < l → LogRelKit) where
     -- Logical relation definition
 
     data _⊩¹_ (Γ : Con Term) : Term → Set where
-      U  : Γ ⊩¹U → Γ ⊩¹ U
+      U  : Γ ⊩¹U → Γ ⊩¹ Uₑ
       ℕ  : ∀ {A} → Γ ⊩ℕ A → Γ ⊩¹ A
       ne : ∀ {A} → Γ ⊩ne A → Γ ⊩¹ A
       Π  : ∀ {A} → Γ ⊩¹Π A → Γ ⊩¹ A
@@ -291,7 +291,7 @@ module LogRel (l : TypeLevel) (rec : ∀ {l'} → l' < l → LogRelKit) where
             ([A] : Γ ⊩ A) → Γ ⊩¹ A
 
     _⊩¹_≡_/_ : (Γ : Con Term) (A B : Term) → Γ ⊩¹ A → Set
-    Γ ⊩¹ .U ≡ B / U UA = Γ ⊩¹U≡ B
+    Γ ⊩¹ .Uₑ ≡ B / U UA = Γ ⊩¹U≡ B
     Γ ⊩¹ A ≡ B / ℕ D = Γ ⊩ℕ A ≡ B
     Γ ⊩¹ A ≡ B / ne neA = Γ ⊩ne A ≡ B / neA
     Γ ⊩¹ A ≡ B / Π ΠA = Γ ⊩¹Π A ≡ B / ΠA
@@ -299,7 +299,7 @@ module LogRel (l : TypeLevel) (rec : ∀ {l'} → l' < l → LogRelKit) where
       where open LogRelKit (rec l<)
 
     _⊩¹_∷_/_ : (Γ : Con Term) (t A : Term) → Γ ⊩¹ A → Set
-    Γ ⊩¹ t ∷ .U / U (U l' l< ⊢Γ) = Γ ⊩¹U t ∷U/ l<
+    Γ ⊩¹ t ∷ .Uₑ / U (U l' l< ⊢Γ) = Γ ⊩¹U t ∷U/ l<
     Γ ⊩¹ t ∷ A / ℕ D = Γ ⊩ℕ t ∷ℕ
     Γ ⊩¹ t ∷ A / ne neA = Γ ⊩ne t ∷ A / neA
     Γ ⊩¹ f ∷ A / Π ΠA  = Γ ⊩¹Π f ∷ A / ΠA
@@ -307,7 +307,7 @@ module LogRel (l : TypeLevel) (rec : ∀ {l'} → l' < l → LogRelKit) where
       where open LogRelKit (rec l<)
 
     _⊩¹_≡_∷_/_ : (Γ : Con Term) (t u A : Term) → Γ ⊩¹ A → Set
-    Γ ⊩¹ t ≡ u ∷ .U / U (U l' l< ⊢Γ) = Γ ⊩¹U t ≡ u ∷U/ l<
+    Γ ⊩¹ t ≡ u ∷ .Uₑ / U (U l' l< ⊢Γ) = Γ ⊩¹U t ≡ u ∷U/ l<
     Γ ⊩¹ t ≡ u ∷ A / ℕ D = Γ ⊩ℕ t ≡ u ∷ℕ
     Γ ⊩¹ t ≡ u ∷ A / ne neA = Γ ⊩ne t ≡ u ∷ A / neA
     Γ ⊩¹ t ≡ u ∷ A / Π ΠA = Γ ⊩¹Π t ≡ u ∷ A / ΠA

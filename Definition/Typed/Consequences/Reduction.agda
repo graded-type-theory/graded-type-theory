@@ -20,10 +20,10 @@ import Tools.PropositionalEquality as PE
 
 fullyReducible' : ∀ {A Γ l} ([A] : Γ ⊩⟨ l ⟩ A)
                 → ∃ λ B → Whnf B × Γ ⊢ A :⇒*: B
-fullyReducible' (U' .⁰ 0<1 ⊢Γ) = U , U , idRed:*: (U ⊢Γ)
-fullyReducible' (ℕ D) = ℕ , ℕ , D
+fullyReducible' (U' .⁰ 0<1 ⊢Γ) = Uₑ , U , idRed:*: (U ⊢Γ)
+fullyReducible' (ℕ D) = ℕₑ , ℕ , D
 fullyReducible' (ne' K D neK K≡K) = K , ne neK , D
-fullyReducible' (Π' F G D ⊢F ⊢G A≡A [F] [G] G-ext) = Π F ▹ G , Π , D
+fullyReducible' (Π' F G D ⊢F ⊢G A≡A [F] [G] G-ext) = Πₑ F ▹ G , Π , D
 fullyReducible' (emb 0<1 [A]) = fullyReducible' [A]
 
 fullyReducible : ∀ {A Γ} → Γ ⊢ A → ∃ λ B → Whnf B × Γ ⊢ A :⇒*: B

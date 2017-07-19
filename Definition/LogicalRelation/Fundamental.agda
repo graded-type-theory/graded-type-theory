@@ -150,12 +150,12 @@ mutual
     with fundamentalTerm ⊢F | fundamentalTerm ⊢G
   ... | [Γ] , [U] , [F]ₜ | [Γ]₁ , [U]₁ , [G]ₜ =
     let [F]   = univₛ {F} [Γ] [U] [F]ₜ
-        [U]'  = S.irrelevance {A = U} [Γ]₁ ([Γ] ∙ [F]) [U]₁
-        [F]ₜ' = S.irrelevanceTerm {A = U} {t = F} [Γ] [Γ] [U] (Uₛ [Γ]) [F]ₜ
-        [G]ₜ' = S.irrelevanceTerm {A = U} {t = G} [Γ]₁ ([Γ] ∙ [F]) [U]₁
+        [U]'  = S.irrelevance {A = Uₑ} [Γ]₁ ([Γ] ∙ [F]) [U]₁
+        [F]ₜ' = S.irrelevanceTerm {A = Uₑ} {t = F} [Γ] [Γ] [U] (Uₛ [Γ]) [F]ₜ
+        [G]ₜ' = S.irrelevanceTerm {A = Uₑ} {t = G} [Γ]₁ ([Γ] ∙ [F]) [U]₁
                                   (λ {Δ} {σ} → [U]' {Δ} {σ}) [G]ₜ
     in  [Γ] , [U]
-    ,   S.irrelevanceTerm {A = U} {t = Π F ▹ G} [Γ] [Γ] (Uₛ [Γ]) [U]
+    ,   S.irrelevanceTerm {A = Uₑ} {t = Πₑ F ▹ G} [Γ] [Γ] (Uₛ [Γ]) [U]
                           (Πₜₛ {F} {G} [Γ] [F] (λ {Δ} {σ} → [U]' {Δ} {σ})
                                [F]ₜ' [G]ₜ')
   fundamentalTerm (var ⊢Γ x∷A) = valid ⊢Γ , fundamentalVar x∷A (valid ⊢Γ)
@@ -169,8 +169,8 @@ mutual
   fundamentalTerm (_∘_ {g} {a} {F} {G} Dt Du)
     with fundamentalTerm Dt | fundamentalTerm Du
   ... | [Γ] , [ΠFG] , [t] | [Γ]₁ , [F] , [u] =
-    let [ΠFG]' = S.irrelevance {A = Π F ▹ G} [Γ] [Γ]₁ [ΠFG]
-        [t]' = S.irrelevanceTerm {A = Π F ▹ G} {t = g} [Γ] [Γ]₁ [ΠFG] [ΠFG]' [t]
+    let [ΠFG]' = S.irrelevance {A = Πₑ F ▹ G} [Γ] [Γ]₁ [ΠFG]
+        [t]' = S.irrelevanceTerm {A = Πₑ F ▹ G} {t = g} [Γ] [Γ]₁ [ΠFG] [ΠFG]' [t]
         [G[t]] = substSΠ {F} {G} {a} [Γ]₁ [F] [ΠFG]' [u]
         [t∘u] = appₛ {F} {G} {g} {a} [Γ]₁ [F] [ΠFG]' [t]' [u]
     in  [Γ]₁ , [G[t]] , [t∘u]
@@ -182,13 +182,13 @@ mutual
     with fundamental ⊢G | fundamentalTerm ⊢z | fundamentalTerm ⊢s
        | fundamentalTerm ⊢n
   ... | [Γ] , [G] | [Γ]₁ , [G₀] , [z] | [Γ]₂ , [G₊] , [s] | [Γ]₃ , [ℕ] , [n] =
-    let sType = Π ℕ ▹ (G ▹▹ G [ suc (var zero) ]↑)
+    let sType = Πₑ ℕₑ ▹ (G ▹▹ G [ sucₑ (var zero) ]↑)
         [Γ]' = [Γ]₃
         [G]' = S.irrelevance {A = G} [Γ] ([Γ]' ∙ [ℕ]) [G]
-        [G₀]' = S.irrelevance {A = G [ zero ]} [Γ]₁ [Γ]' [G₀]
+        [G₀]' = S.irrelevance {A = G [ zeroₑ ]} [Γ]₁ [Γ]' [G₀]
         [G₊]' = S.irrelevance {A = sType} [Γ]₂ [Γ]' [G₊]
-        [Gₙ]' = substS {F = ℕ} {G = G} {t = n} [Γ]' [ℕ] [G]' [n]
-        [z]' = S.irrelevanceTerm {A = G [ zero ]} {t = z} [Γ]₁ [Γ]'
+        [Gₙ]' = substS {F = ℕₑ} {G = G} {t = n} [Γ]' [ℕ] [G]' [n]
+        [z]' = S.irrelevanceTerm {A = G [ zeroₑ ]} {t = z} [Γ]₁ [Γ]'
                                  [G₀] [G₀]' [z]
         [s]' = S.irrelevanceTerm {A = sType} {t = s} [Γ]₂ [Γ]' [G₊] [G₊]' [s]
     in  [Γ]' , [Gₙ]'
@@ -253,24 +253,24 @@ mutual
   ... | [Γ] , [F] | [Γ]₁ , modelsTermEq [U] [F]ₜ [H]ₜ [F≡H]ₜ
       | [Γ]₂ , modelsTermEq [U]₁ [G]ₜ [E]ₜ [G≡E]ₜ =
     let [U]'  = Uₛ [Γ]
-        [F]ₜ' = S.irrelevanceTerm {A = U} {t = F} [Γ]₁ [Γ] [U] [U]' [F]ₜ
-        [H]ₜ' = S.irrelevanceTerm {A = U} {t = H} [Γ]₁ [Γ] [U] [U]' [H]ₜ
+        [F]ₜ' = S.irrelevanceTerm {A = Uₑ} {t = F} [Γ]₁ [Γ] [U] [U]' [F]ₜ
+        [H]ₜ' = S.irrelevanceTerm {A = Uₑ} {t = H} [Γ]₁ [Γ] [U] [U]' [H]ₜ
         [F]'  = S.irrelevance {A = F} [Γ] [Γ]₁ [F]
         [H]   = univₛ {A = H} [Γ] [U]' [H]ₜ'
         [F≡H] = S.irrelevanceEq {A = F} {B = H} [Γ]₁ [Γ] [F]' [F]
                   (univEqₛ {F} {H} [Γ]₁ [U] [F]' [F≡H]ₜ)
         [U]₁' = Uₛ (_∙_ {A = F} [Γ] [F])
         [U]₂' = Uₛ (_∙_ {A = H} [Γ] [H])
-        [G]ₜ' = S.irrelevanceTerm {A = U} {t = G} [Γ]₂ ([Γ] ∙ [F])
+        [G]ₜ' = S.irrelevanceTerm {A = Uₑ} {t = G} [Γ]₂ ([Γ] ∙ [F])
                                   [U]₁ (λ {Δ} {σ} → [U]₁' {Δ} {σ}) [G]ₜ
-        [E]ₜ' = S.irrelevanceTermLift {A = U} {F = F} {H = H} {t = E}
+        [E]ₜ' = S.irrelevanceTermLift {A = Uₑ} {F = F} {H = H} {t = E}
                                       [Γ] [F] [H] [F≡H]
                                       (λ {Δ} {σ} → [U]₁' {Δ} {σ})
-                  (S.irrelevanceTerm {A = U} {t = E} [Γ]₂ ([Γ] ∙ [F])
+                  (S.irrelevanceTerm {A = Uₑ} {t = E} [Γ]₂ ([Γ] ∙ [F])
                                      [U]₁ (λ {Δ} {σ} → [U]₁' {Δ} {σ}) [E]ₜ)
-        [F≡H]ₜ' = S.irrelevanceEqTerm {A = U} {t = F} {u = H}
+        [F≡H]ₜ' = S.irrelevanceEqTerm {A = Uₑ} {t = F} {u = H}
                                       [Γ]₁ [Γ] [U] (Uₛ [Γ]) [F≡H]ₜ
-        [G≡E]ₜ' = S.irrelevanceEqTerm {A = U} {t = G} {u = E} [Γ]₂
+        [G≡E]ₜ' = S.irrelevanceEqTerm {A = Uₑ} {t = G} {u = E} [Γ]₂
                                       (_∙_ {A = F} [Γ] [F]) [U]₁
                                       (λ {Δ} {σ} → [U]₁' {Δ} {σ}) [G≡E]ₜ
     in  [Γ]
@@ -285,18 +285,18 @@ mutual
     with fundamentalTermEq f≡g | fundamentalTermEq a≡b
   ... | [Γ] , modelsTermEq [ΠFG] [f] [g] [f≡g]
       | [Γ]₁ , modelsTermEq [F] [a] [b] [a≡b] =
-    let [ΠFG]' = S.irrelevance {A = Π F ▹ G} [Γ] [Γ]₁ [ΠFG]
-        [f]' = S.irrelevanceTerm {A = Π F ▹ G} {t = f} [Γ] [Γ]₁ [ΠFG] [ΠFG]' [f]
-        [g]' = S.irrelevanceTerm {A = Π F ▹ G} {t = g} [Γ] [Γ]₁ [ΠFG] [ΠFG]' [g]
-        [f≡g]' = S.irrelevanceEqTerm {A = Π F ▹ G} {t = f} {u = g}
+    let [ΠFG]' = S.irrelevance {A = Πₑ F ▹ G} [Γ] [Γ]₁ [ΠFG]
+        [f]' = S.irrelevanceTerm {A = Πₑ F ▹ G} {t = f} [Γ] [Γ]₁ [ΠFG] [ΠFG]' [f]
+        [g]' = S.irrelevanceTerm {A = Πₑ F ▹ G} {t = g} [Γ] [Γ]₁ [ΠFG] [ΠFG]' [g]
+        [f≡g]' = S.irrelevanceEqTerm {A = Πₑ F ▹ G} {t = f} {u = g}
                                      [Γ] [Γ]₁ [ΠFG] [ΠFG]' [f≡g]
         [G[a]] = substSΠ {F} {G} {a} [Γ]₁ [F] [ΠFG]' [a]
         [G[b]] = substSΠ {F} {G} {b} [Γ]₁ [F] [ΠFG]' [b]
         [G[a]≡G[b]] = substSΠEq {F} {G} {F} {G} {a} {b} [Γ]₁ [F] [F] [ΠFG]'
-                                [ΠFG]' (reflₛ {Π F ▹ G} [Γ]₁ [ΠFG]') [a] [b] [a≡b]
+                                [ΠFG]' (reflₛ {Πₑ F ▹ G} [Γ]₁ [ΠFG]') [a] [b] [a≡b]
     in  [Γ]₁ , modelsTermEq [G[a]]
                             (appₛ {F} {G} {f} {a} [Γ]₁ [F] [ΠFG]' [f]' [a])
-                            (conv₂ₛ {g ∘ b} {G [ a ]} {G [ b ]} [Γ]₁
+                            (conv₂ₛ {g ∘ₑ b} {G [ a ]} {G [ b ]} [Γ]₁
                                     [G[a]] [G[b]] [G[a]≡G[b]]
                                     (appₛ {F} {G} {g} {b}
                                           [Γ]₁ [F] [ΠFG]' [g]' [b]))
@@ -310,7 +310,7 @@ mutual
         [G[a]] = substS {F} {G} {a} [Γ]₂ [F]₁ [G]' [a]
         [b[a]] = substSTerm {F} {G} {a} {b} [Γ]₂ [F]₁ [G]' [b]' [a]
         [lam] , [eq] =
-          redSubstTermₛ {G [ a ]} {(lam b) ∘ a} {b [ a ]} [Γ]₂
+          redSubstTermₛ {G [ a ]} {(lamₑ b) ∘ₑ a} {b [ a ]} [Γ]₂
             (λ {Δ} {σ} ⊢Δ [σ] →
                let [liftσ] = liftSubstS {F = F} [Γ]₂ ⊢Δ [F]₁ [σ]
                    ⊢σF = wellformed (proj₁ ([F]₁ ⊢Δ [σ]))
@@ -318,8 +318,8 @@ mutual
                                        (proj₁ ([b]' (⊢Δ ∙ ⊢σF) [liftσ]))
                    ⊢σa = wellformedTerm (proj₁ ([F]₁ ⊢Δ [σ]))
                                        (proj₁ ([a] ⊢Δ [σ]))
-               in  PE.subst₂ (λ x y → _ ⊢ (lam (subst (liftSubst σ) b))
-                                          ∘ (subst σ a) ⇒ x ∷ y)
+               in  PE.subst₂ (λ x y → _ ⊢ (lamₑ (subst (liftSubst σ) b))
+                                          ∘ₑ (subst σ a) ⇒ x ∷ y)
                              (PE.sym (singleSubstLift b a))
                              (PE.sym (singleSubstLift G a))
                              (β-red ⊢σF ⊢σb ⊢σa))
@@ -332,18 +332,18 @@ mutual
       | [Γ]₃ , modelsTermEq [G] [t0] [t'0] [t0≡t'0] =
     let [F]' = S.irrelevance {A = F} [Γ] [Γ]₁ [F]
         [G]' = S.irrelevance {A = G} [Γ]₃ ([Γ]₁ ∙ [F]') [G]
-        [t']' = S.irrelevanceTerm {A = Π F ▹ G} {t = g}
+        [t']' = S.irrelevanceTerm {A = Πₑ F ▹ G} {t = g}
                                   [Γ]₂ [Γ]₁ [ΠFG]₁ [ΠFG] [t']
         [ΠFG]'' = Πₛ {F} {G} [Γ]₁ [F]' [G]'
-        [t]'' = S.irrelevanceTerm {A = Π F ▹ G} {t = f}
+        [t]'' = S.irrelevanceTerm {A = Πₑ F ▹ G} {t = f}
                                   [Γ]₁ [Γ]₁ [ΠFG] [ΠFG]'' [t]
-        [t']'' = S.irrelevanceTerm {A = Π F ▹ G} {t = g}
+        [t']'' = S.irrelevanceTerm {A = Πₑ F ▹ G} {t = g}
                                    [Γ]₂ [Γ]₁ [ΠFG]₁ [ΠFG]'' [t']
-        [t0≡t'0]' = S.irrelevanceEqTerm {A = G} {t = wk1 f ∘ var zero}
-                                        {u = wk1 g ∘ var zero}
+        [t0≡t'0]' = S.irrelevanceEqTerm {A = G} {t = wk1 f ∘ₑ var zero}
+                                        {u = wk1 g ∘ₑ var zero}
                                         [Γ]₃ ([Γ]₁ ∙ [F]') [G] [G]' [t0≡t'0]
         [t≡t'] = fun-extₛ {f} {g} {F} {G} [Γ]₁ [F]' [G]' [t]'' [t']'' [t0≡t'0]'
-        [t≡t']' = S.irrelevanceEqTerm {A = Π F ▹ G} {t = f} {u = g}
+        [t≡t']' = S.irrelevanceEqTerm {A = Πₑ F ▹ G} {t = f} {u = g}
                                       [Γ]₁ [Γ]₁ [ΠFG]'' [ΠFG] [t≡t']
     in  [Γ]₁ , modelsTermEq [ΠFG] [t] [t']' [t≡t']'
   fundamentalTermEq (suc-cong x) with fundamentalTermEq x
@@ -366,42 +366,42 @@ mutual
     [Γ]₁ , modelsTermEq [F₀] [z] [z'] [z≡z'] |
     [Γ]₂ , modelsTermEq [F₊] [s] [s'] [s≡s'] |
     [Γ]₃ , modelsTermEq [ℕ] [n] [n'] [n≡n'] =
-      let sType = Π ℕ ▹ (F ▹▹ F [ suc (var zero) ]↑)
-          s'Type = Π ℕ ▹ (F' ▹▹ F' [ suc (var zero) ]↑)
-          [0] = S.irrelevanceTerm {l = ¹} {A = ℕ} {t = zero}
+      let sType = Πₑ ℕₑ ▹ (F ▹▹ F [ sucₑ (var zero) ]↑)
+          s'Type = Πₑ ℕₑ ▹ (F' ▹▹ F' [ sucₑ (var zero) ]↑)
+          [0] = S.irrelevanceTerm {l = ¹} {A = ℕₑ} {t = zeroₑ}
                                   [Γ]₃ [Γ]₃ (ℕₛ [Γ]₃) [ℕ] (zeroₛ [Γ]₃)
           [F]' = S.irrelevance {A = F} [Γ] ([Γ]₃ ∙ [ℕ]) [F]
-          [F₀]' = S.irrelevance {A = F [ zero ]} [Γ]₁ [Γ]₃ [F₀]
+          [F₀]' = S.irrelevance {A = F [ zeroₑ ]} [Γ]₁ [Γ]₃ [F₀]
           [F₊]' = S.irrelevance {A = sType} [Γ]₂ [Γ]₃ [F₊]
-          [Fₙ]' = substS {ℕ} {F} {n} [Γ]₃ [ℕ] [F]' [n]
+          [Fₙ]' = substS {ℕₑ} {F} {n} [Γ]₃ [ℕ] [F]' [n]
           [F']' = S.irrelevance {A = F'} [Γ] ([Γ]₃ ∙ [ℕ]) [F']
-          [F₀]'' = substS {ℕ} {F} {zero} [Γ]₃ [ℕ] [F]' [0]
-          [F'₀]' = substS {ℕ} {F'} {zero} [Γ]₃ [ℕ] [F']' [0]
+          [F₀]'' = substS {ℕₑ} {F} {zeroₑ} [Γ]₃ [ℕ] [F]' [0]
+          [F'₀]' = substS {ℕₑ} {F'} {zeroₑ} [Γ]₃ [ℕ] [F']' [0]
           [F'₊]' = sucCase {F'} [Γ]₃ [ℕ] [F']'
-          [F'ₙ']' = substS {ℕ} {F'} {n'} [Γ]₃ [ℕ] [F']' [n']
-          [ℕ≡ℕ] = reflₛ {ℕ} [Γ]₃ [ℕ]
-          [0≡0] = reflₜₛ {ℕ} {zero} [Γ]₃ [ℕ] [0]
+          [F'ₙ']' = substS {ℕₑ} {F'} {n'} [Γ]₃ [ℕ] [F']' [n']
+          [ℕ≡ℕ] = reflₛ {ℕₑ} [Γ]₃ [ℕ]
+          [0≡0] = reflₜₛ {ℕₑ} {zeroₑ} [Γ]₃ [ℕ] [0]
           [F≡F']' = S.irrelevanceEq {A = F} {B = F'}
                                     [Γ] ([Γ]₃ ∙ [ℕ]) [F] [F]' [F≡F']
-          [F₀≡F'₀] = substSEq {ℕ} {ℕ} {F} {F'} {zero} {zero}
+          [F₀≡F'₀] = substSEq {ℕₑ} {ℕₑ} {F} {F'} {zeroₑ} {zeroₑ}
                               [Γ]₃ [ℕ] [ℕ] [ℕ≡ℕ]
                               [F]' [F']' [F≡F']' [0] [0] [0≡0]
-          [F₀≡F'₀]' = S.irrelevanceEq {A = F [ zero ]} {B = F' [ zero ]}
+          [F₀≡F'₀]' = S.irrelevanceEq {A = F [ zeroₑ ]} {B = F' [ zeroₑ ]}
                                       [Γ]₃ [Γ]₃ [F₀]'' [F₀]' [F₀≡F'₀]
           [F₊≡F'₊] = sucCaseCong {F} {F'} [Γ]₃ [ℕ] [F]' [F']' [F≡F']'
           [F₊≡F'₊]' = S.irrelevanceEq {A = sType} {B = s'Type}
                                       [Γ]₃ [Γ]₃ (sucCase {F} [Γ]₃ [ℕ] [F]')
                                       [F₊]' [F₊≡F'₊]
-          [Fₙ≡F'ₙ']' = substSEq {ℕ} {ℕ} {F} {F'} {n} {n'}
+          [Fₙ≡F'ₙ']' = substSEq {ℕₑ} {ℕₑ} {F} {F'} {n} {n'}
                                 [Γ]₃ [ℕ] [ℕ] [ℕ≡ℕ] [F]' [F']' [F≡F']'
                                 [n] [n'] [n≡n']
-          [z]' = S.irrelevanceTerm {A = F [ zero ]} {t = z}
+          [z]' = S.irrelevanceTerm {A = F [ zeroₑ ]} {t = z}
                                    [Γ]₁ [Γ]₃ [F₀] [F₀]' [z]
-          [z']' = convₛ {z'} {F [ zero ]} {F' [ zero ]}
+          [z']' = convₛ {z'} {F [ zeroₑ ]} {F' [ zeroₑ ]}
                         [Γ]₃ [F₀]' [F'₀]' [F₀≡F'₀]'
-                        (S.irrelevanceTerm {A = F [ zero ]} {t = z'}
+                        (S.irrelevanceTerm {A = F [ zeroₑ ]} {t = z'}
                                            [Γ]₁ [Γ]₃ [F₀] [F₀]' [z'])
-          [z≡z']' = S.irrelevanceEqTerm {A = F [ zero ]} {t = z} {u = z'}
+          [z≡z']' = S.irrelevanceEqTerm {A = F [ zeroₑ ]} {t = z} {u = z'}
                                         [Γ]₁ [Γ]₃ [F₀] [F₀]' [z≡z']
           [s]' = S.irrelevanceTerm {A = sType} {t = s} [Γ]₂ [Γ]₃ [F₊] [F₊]' [s]
           [s']' = convₛ {s'} {sType} {s'Type} [Γ]₃ [F₊]' [F'₊]' [F₊≡F'₊]'
@@ -413,7 +413,7 @@ mutual
       ,   modelsTermEq [Fₙ]'
                        (natrecₛ {F} {z} {s} {n}
                                 [Γ]₃ [ℕ] [F]' [F₀]' [F₊]' [Fₙ]' [z]' [s]' [n])
-                       (conv₂ₛ {natrec F' z' s' n'} {F [ n ]} {F' [ n' ]}
+                       (conv₂ₛ {natrecₑ F' z' s' n'} {F [ n ]} {F' [ n' ]}
                                [Γ]₃ [Fₙ]' [F'ₙ']' [Fₙ≡F'ₙ']'
                                (natrecₛ {F'} {z'} {s'} {n'}
                                         [Γ]₃ [ℕ] [F']' [F'₀]' [F'₊]' [F'ₙ']'
@@ -428,30 +428,30 @@ mutual
     with fundamental ⊢F | fundamentalTerm ⊢z | fundamentalTerm ⊢s
   fundamentalTermEq (natrec-zero {z} {s} {F} ⊢F ⊢z ⊢s) | [Γ] , [F]
     | [Γ]₁ , [F₀] , [z] | [Γ]₂ , [F₊] , [s] =
-    let sType = Π ℕ ▹ (F ▹▹ F [ suc (var zero) ]↑)
+    let sType = Πₑ ℕₑ ▹ (F ▹▹ F [ sucₑ (var zero) ]↑)
         [Γ]' = [Γ]₁
         [ℕ]' = ℕₛ {l = ¹} [Γ]'
         [F₊]' = S.irrelevance {A = sType} [Γ]₂ [Γ]' [F₊]
         [s]' = S.irrelevanceTerm {A = sType} {t = s} [Γ]₂ [Γ]' [F₊] [F₊]' [s]
         [F]' = S.irrelevance {A = F} [Γ] ([Γ]' ∙ [ℕ]') [F]
         d , r =
-          redSubstTermₛ {F [ zero ]} {natrec F z s zero} {z} [Γ]'
+          redSubstTermₛ {F [ zeroₑ ]} {natrecₑ F z s zeroₑ} {z} [Γ]'
             (λ {Δ} {σ} ⊢Δ [σ] →
                let ⊢ℕ = wellformed (proj₁ ([ℕ]' ⊢Δ [σ]))
                    ⊢F = wellformed (proj₁ ([F]' (⊢Δ ∙ ⊢ℕ)
-                                               (liftSubstS {F = ℕ}
+                                               (liftSubstS {F = ℕₑ}
                                                            [Γ]' ⊢Δ [ℕ]' [σ])))
                    ⊢z = PE.subst (λ x → Δ ⊢ subst σ z ∷ x)
-                                 (singleSubstLift F zero)
+                                 (singleSubstLift F zeroₑ)
                                  (wellformedTerm (proj₁ ([F₀] ⊢Δ [σ]))
                                                 (proj₁ ([z] ⊢Δ [σ])))
                    ⊢s = PE.subst (λ x → Δ ⊢ subst σ s ∷ x)
                                  (natrecSucCase σ F)
                                  (wellformedTerm (proj₁ ([F₊]' ⊢Δ [σ]))
                                                 (proj₁ ([s]' ⊢Δ [σ])))
-               in PE.subst (λ x → Δ ⊢ subst σ (natrec F z s zero)
+               in PE.subst (λ x → Δ ⊢ subst σ (natrecₑ F z s zeroₑ)
                                     ⇒ subst σ z ∷ x)
-                           (PE.sym (singleSubstLift F zero))
+                           (PE.sym (singleSubstLift F zeroₑ))
                            (natrec-zero ⊢F ⊢z ⊢s))
                         [F₀] [z]
     in  [Γ]' , modelsTermEq [F₀] d [z] r
@@ -459,46 +459,46 @@ mutual
     with fundamentalTerm ⊢n | fundamental ⊢F
        | fundamentalTerm ⊢z | fundamentalTerm ⊢s
   ... | [Γ] , [ℕ] , [n] | [Γ]₁ , [F] | [Γ]₂ , [F₀] , [z] | [Γ]₃ , [F₊] , [s] =
-    let [ℕ]' = S.irrelevance {A = ℕ} [Γ] [Γ]₃ [ℕ]
-        [n]' = S.irrelevanceTerm {A = ℕ} {t = n} [Γ] [Γ]₃ [ℕ] [ℕ]' [n]
+    let [ℕ]' = S.irrelevance {A = ℕₑ} [Γ] [Γ]₃ [ℕ]
+        [n]' = S.irrelevanceTerm {A = ℕₑ} {t = n} [Γ] [Γ]₃ [ℕ] [ℕ]' [n]
         [sucn] = sucₛ {n = n} [Γ]₃ [ℕ]' [n]'
-        [F₀]' = S.irrelevance {A = F [ zero ]} [Γ]₂ [Γ]₃ [F₀]
-        [z]' = S.irrelevanceTerm {A = F [ zero ]} {t = z}
+        [F₀]' = S.irrelevance {A = F [ zeroₑ ]} [Γ]₂ [Γ]₃ [F₀]
+        [z]' = S.irrelevanceTerm {A = F [ zeroₑ ]} {t = z}
                                  [Γ]₂ [Γ]₃ [F₀] [F₀]' [z]
         [F]' = S.irrelevance {A = F} [Γ]₁ ([Γ]₃ ∙ [ℕ]') [F]
-        [F[sucn]] = substS {ℕ} {F} {suc n} [Γ]₃ [ℕ]' [F]' [sucn]
-        [Fₙ]' = substS {ℕ} {F} {n} [Γ]₃ [ℕ]' [F]' [n]'
+        [F[sucn]] = substS {ℕₑ} {F} {sucₑ n} [Γ]₃ [ℕ]' [F]' [sucn]
+        [Fₙ]' = substS {ℕₑ} {F} {n} [Γ]₃ [ℕ]' [F]' [n]'
         [natrecₙ] = natrecₛ {F} {z} {s} {n}
                             [Γ]₃ [ℕ]' [F]' [F₀]' [F₊] [Fₙ]' [z]' [s] [n]'
-        t = (s ∘ n) ∘ (natrec F z s n)
+        t = (s ∘ₑ n) ∘ₑ (natrecₑ F z s n)
         q = subst (liftSubst (sgSubst n))
-                  (wk1 (F [ suc (var zero) ]↑))
+                  (wk1 (F [ sucₑ (var zero) ]↑))
         y = S.irrelevanceTerm'
-              {A = q [ natrec F z s n ]} {A' = F [ suc n ]} {t = t}
+              {A = q [ natrecₑ F z s n ]} {A' = F [ sucₑ n ]} {t = t}
               (natrecIrrelevantSubst' F z s n) [Γ]₃ [Γ]₃
-              (substSΠ {F [ n ]} {q} {natrec F z s n} [Γ]₃
-                (substS {ℕ} {F} {n} [Γ]₃ [ℕ]' [F]' [n]')
-                (substSΠ {ℕ} {F ▹▹ F [ suc (var zero) ]↑} {n}
+              (substSΠ {F [ n ]} {q} {natrecₑ F z s n} [Γ]₃
+                (substS {ℕₑ} {F} {n} [Γ]₃ [ℕ]' [F]' [n]')
+                (substSΠ {ℕₑ} {F ▹▹ F [ sucₑ (var zero) ]↑} {n}
                          [Γ]₃ [ℕ]' [F₊] [n]')
                 [natrecₙ])
               [F[sucn]]
-              (appₛ {F [ n ]} {q} {s ∘ n} {natrec F z s n} [Γ]₃ [Fₙ]'
-                (substSΠ {ℕ} {F ▹▹ F [ suc (var zero) ]↑} {n}
+              (appₛ {F [ n ]} {q} {s ∘ₑ n} {natrecₑ F z s n} [Γ]₃ [Fₙ]'
+                (substSΠ {ℕₑ} {F ▹▹ F [ sucₑ (var zero) ]↑} {n}
                          [Γ]₃ [ℕ]' [F₊] [n]')
-                (appₛ {ℕ} {F ▹▹ F [ suc (var zero) ]↑} {s} {n}
+                (appₛ {ℕₑ} {F ▹▹ F [ sucₑ (var zero) ]↑} {s} {n}
                       [Γ]₃ [ℕ]' [F₊] [s] [n]')
                 [natrecₙ])
         d , r =
-          redSubstTermₛ {F [ suc n ]} {natrec F z s (suc n)} {t } {¹} {_} [Γ]₃
+          redSubstTermₛ {F [ sucₑ n ]} {natrecₑ F z s (sucₑ n)} {t } {¹} {_} [Γ]₃
             (λ {Δ} {σ} ⊢Δ [σ] →
                let ⊢n = wellformedTerm (proj₁ ([ℕ]' ⊢Δ [σ]))
                                       (proj₁ ([n]' ⊢Δ [σ]))
                    ⊢ℕ = wellformed (proj₁ ([ℕ]' ⊢Δ [σ]))
                    ⊢F = wellformed (proj₁ ([F]' (⊢Δ ∙ ⊢ℕ)
-                                               (liftSubstS {F = ℕ}
+                                               (liftSubstS {F = ℕₑ}
                                                            [Γ]₃ ⊢Δ [ℕ]' [σ])))
                    ⊢z = PE.subst (λ x → Δ ⊢ subst σ z ∷ x)
-                                 (singleSubstLift F zero)
+                                 (singleSubstLift F zeroₑ)
                                  (wellformedTerm (proj₁ ([F₀]' ⊢Δ [σ]))
                                                 (proj₁ ([z]' ⊢Δ [σ])))
                    ⊢s = PE.subst (λ x → Δ ⊢ subst σ s ∷ x)
@@ -509,7 +509,7 @@ mutual
                                           {z = subst σ z} {s = subst σ s}
                                           {F = subst (liftSubst σ) F}
                                           ⊢n ⊢F ⊢z ⊢s
-               in PE.subst (λ x → Δ ⊢ subst σ (natrec F z s (suc n))
+               in PE.subst (λ x → Δ ⊢ subst σ (natrecₑ F z s (sucₑ n))
                                     ⇒ (subst σ t) ∷ x)
                            (PE.trans (PE.trans (substCompEq F)
                              (substVar-to-subst (λ { zero → PE.refl

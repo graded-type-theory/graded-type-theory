@@ -18,15 +18,15 @@ record EqRelSet : Set₁ where
 
     ~-var : ∀ {x A Γ} → Γ ⊢ var x ∷ A → Γ ⊢ var x ~ var x ∷ A
     ~-app : ∀ {a b f g F G Γ}
-          → Γ ⊢ f ~ g ∷ Π F ▹ G
+          → Γ ⊢ f ~ g ∷ Πₑ F ▹ G
           → Γ ⊢ a ≅ b ∷ F
-          → Γ ⊢ f ∘ a ~ g ∘ b ∷ G [ a ]
+          → Γ ⊢ f ∘ₑ a ~ g ∘ₑ b ∷ G [ a ]
     ~-natrec : ∀ {z z' s s' n n' F F' Γ}
-             → Γ ∙ ℕ ⊢ F ≅ F'
-             → Γ     ⊢ z ≅ z' ∷ F [ zero ]
-             → Γ     ⊢ s ≅ s' ∷ Π ℕ ▹ (F ▹▹ F [ suc (var zero) ]↑)
-             → Γ     ⊢ n ~ n' ∷ ℕ
-             → Γ     ⊢ natrec F z s n ~ natrec F' z' s' n' ∷ F [ n ]
+             → Γ ∙ ℕₑ ⊢ F ≅ F'
+             → Γ     ⊢ z ≅ z' ∷ F [ zeroₑ ]
+             → Γ     ⊢ s ≅ s' ∷ Πₑ ℕₑ ▹ (F ▹▹ F [ sucₑ (var zero) ]↑)
+             → Γ     ⊢ n ~ n' ∷ ℕₑ
+             → Γ     ⊢ natrecₑ F z s n ~ natrecₑ F' z' s' n' ∷ F [ n ]
 
     ~-sym   : ∀ {k l A Γ}
             → Γ ⊢ k ~ l ∷ A
@@ -49,11 +49,11 @@ record EqRelSet : Set₁ where
             → Γ ⊢ k ~ l ∷ A
             → Γ ⊢ k ≅ l ∷ A
 
-    ≅-Urefl   : ∀ {Γ} → ⊢ Γ → Γ ⊢ U ≅ U
-    ≅-ℕrefl   : ∀ {Γ} → ⊢ Γ → Γ ⊢ ℕ ≅ ℕ
-    ≅ₜ-ℕrefl  : ∀ {Γ} → ⊢ Γ → Γ ⊢ ℕ ≅ ℕ ∷ U
+    ≅-Urefl   : ∀ {Γ} → ⊢ Γ → Γ ⊢ Uₑ ≅ Uₑ
+    ≅-ℕrefl   : ∀ {Γ} → ⊢ Γ → Γ ⊢ ℕₑ ≅ ℕₑ
+    ≅ₜ-ℕrefl  : ∀ {Γ} → ⊢ Γ → Γ ⊢ ℕₑ ≅ ℕₑ ∷ Uₑ
 
-    ≅ₜ-zerorefl : ∀ {Γ} → ⊢ Γ → Γ ⊢ zero ≅ zero ∷ ℕ
+    ≅ₜ-zerorefl : ∀ {Γ} → ⊢ Γ → Γ ⊢ zeroₑ ≅ zeroₑ ∷ ℕₑ
 
     ≅-sym  : ∀ {A B Γ}   → Γ ⊢ A ≅ B     → Γ ⊢ B ≅ A
     ≅ₜ-sym : ∀ {t u A Γ} → Γ ⊢ t ≅ u ∷ A → Γ ⊢ u ≅ t ∷ A
@@ -103,33 +103,33 @@ record EqRelSet : Set₁ where
            → Γ ⊢ t ≅ u ∷ B
 
     ≅-univ : ∀ {A B Γ}
-           → Γ ⊢ A ≅ B ∷ U
+           → Γ ⊢ A ≅ B ∷ Uₑ
            → Γ ⊢ A ≅ B
 
     ≅-suc-cong : ∀ {m n Γ}
-               → Γ ⊢ m ≅ n ∷ ℕ
-               → Γ ⊢ suc m ≅ suc n ∷ ℕ
+               → Γ ⊢ m ≅ n ∷ ℕₑ
+               → Γ ⊢ sucₑ m ≅ sucₑ n ∷ ℕₑ
 
     ≅-Π-cong  : ∀ {F G H E Γ}
               → Γ ⊢ F
               → Γ ⊢ F ≅ H
               → Γ ∙ F ⊢ G ≅ E
-              → Γ ⊢ Π F ▹ G ≅ Π H ▹ E
+              → Γ ⊢ Πₑ F ▹ G ≅ Πₑ H ▹ E
 
     ≅ₜ-Π-cong : ∀ {F G H E Γ}
               → Γ ⊢ F
-              → Γ ⊢ F ≅ H ∷ U
-              → Γ ∙ F ⊢ G ≅ E ∷ U
-              → Γ ⊢ Π F ▹ G ≅ Π H ▹ E ∷ U
+              → Γ ⊢ F ≅ H ∷ Uₑ
+              → Γ ∙ F ⊢ G ≅ E ∷ Uₑ
+              → Γ ⊢ Πₑ F ▹ G ≅ Πₑ H ▹ E ∷ Uₑ
 
     ≅-fun-ext : ∀ {f g F G Γ}
               → Γ ⊢ F
-              → Γ ⊢ f ∷ Π F ▹ G
-              → Γ ⊢ g ∷ Π F ▹ G
+              → Γ ⊢ f ∷ Πₑ F ▹ G
+              → Γ ⊢ g ∷ Πₑ F ▹ G
               → Whnf f
               → Whnf g
-              → Γ ∙ F ⊢ wk1 f ∘ var zero ≅ wk1 g ∘ var zero ∷ G
-              → Γ ⊢ f ≅ g ∷ Π F ▹ G
+              → Γ ∙ F ⊢ wk1 f ∘ₑ var zero ≅ wk1 g ∘ₑ var zero ∷ G
+              → Γ ⊢ f ≅ g ∷ Πₑ F ▹ G
 
-  ~-to-≅ : ∀ {k l Γ} → Γ ⊢ k ~ l ∷ U → Γ ⊢ k ≅ l
+  ~-to-≅ : ∀ {k l Γ} → Γ ⊢ k ~ l ∷ Uₑ → Γ ⊢ k ≅ l
   ~-to-≅ k~l = ≅-univ (~-to-≅ₜ k~l)
