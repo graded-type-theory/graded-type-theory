@@ -1,0 +1,103 @@
+module Definition.Modality.Unit where
+
+open import Algebra
+open import Definition.Modality
+open import Tools.Product
+open import Tools.PropositionalEquality
+open import Tools.Unit
+
+_+_ : Op₂ ⊤
+_ + _ = tt
+
+infixr 20 _+_
+
+-- Properties of +
+
+-- + is commutative
++-Commutative : Commutative _≡_ _+_
++-Commutative x y = refl
+
+-- + is associative
++-Associative : Associative _≡_ _+_
++-Associative x y z = refl
+
+-- + is right distributive over itself
++-Distributiveʳ : _DistributesOverʳ_ _≡_ _+_ _+_
++-Distributiveʳ x y z = refl
+
+-- + is left distributive of itself
++-Distributiveˡ : _DistributesOverˡ_ _≡_ _+_ _+_
++-Distributiveˡ x y z = refl
+
+-- tt is the right identity of +
++-Identityʳ : RightIdentity _≡_ tt _+_
++-Identityʳ tt = refl
+
+-- tt is the left identity of +
++-Identityˡ : LeftIdentity _≡_ tt _+_
++-Identityˡ tt = refl
+
+-- + is idempotent
++-Idempotent : Idempotent _≡_ _+_
++-Idempotent tt = refl
+
+-- + forms the following algebras:
+
++-Magma : IsMagma _≡_ _+_
++-Magma = record
+  { isEquivalence = isEquivalence
+  ; ∙-cong        = λ _ _ → refl
+  }
+
++-Semigroup : IsSemigroup _≡_ _+_
++-Semigroup = record
+  { isMagma = +-Magma
+  ; assoc   = +-Associative
+  }
+
++-Monoid : IsMonoid _≡_ _+_ tt
++-Monoid = record
+  { isSemigroup = +-Semigroup
+  ; identity    = +-Identityˡ , +-Identityʳ
+  }
+
++-CommutativeMonoid : IsCommutativeMonoid _≡_ _+_ tt
++-CommutativeMonoid = record
+  { isMonoid = +-Monoid
+  ; comm     = +-Commutative
+  }
+
++-Band : IsBand _≡_ _+_
++-Band = record
+  { isSemigroup = +-Semigroup
+  ; idem        = +-Idempotent
+  }
+
++-Semilattice : IsSemilattice _≡_ _+_
++-Semilattice = record
+  { isBand = +-Band
+  ; comm   = +-Commutative
+  }
+
+-- ⊤ form a modality with + as addition, multiplication and meet
+UnitModality : Modality ⊤
+UnitModality = record
+  { _+_                 = _+_
+  ; _·_                 = _+_
+  ; _∧_                 = _+_
+  ; 𝟘                   = tt
+  ; 𝟙                   = tt
+  ; +-CommutativeMonoid = +-CommutativeMonoid
+  ; ·-Monoid            = +-Monoid
+  ; ∧-Semilattice       = +-Semilattice
+  ; ·-Zero              = (λ x → refl)    , (λ x → refl)
+  ; ·Distr+             = +-Distributiveˡ , +-Distributiveʳ
+  ; ·Distr∧             = +-Distributiveˡ , +-Distributiveʳ
+  ; +Distr∧             = +-Distributiveˡ , +-Distributiveʳ
+  }
+
+prop : IsMonoid _≡_ _+_ tt
+prop = IsCommutativeMonoid.isMonoid (Modality.+-CommutativeMonoid UnitModality)
+
+f : {M : Set} → Modality M → M → M → M
+f M x y = (M Modality.∧ x) y
