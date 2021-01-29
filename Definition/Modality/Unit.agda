@@ -1,3 +1,5 @@
+{-# OPTIONS --without-K --safe #-}
+
 module Definition.Modality.Unit where
 
 open import Algebra

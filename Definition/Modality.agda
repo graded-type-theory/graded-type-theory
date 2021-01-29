@@ -1,3 +1,5 @@
+{-# OPTIONS --without-K --safe #-}
+
 module Definition.Modality where
 
 open import Algebra
@@ -34,5 +36,3 @@ record Modality (M : Set) : Set where
   -- Semilattice partial ordering relation
   _≤_ : M → M → Set
   p ≤ q = p ≡ (p ∧ q)
-
-

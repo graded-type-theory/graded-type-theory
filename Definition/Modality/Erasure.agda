@@ -1,3 +1,5 @@
+{-# OPTIONS --without-K --safe #-}
+
 module Definition.Modality.Erasure where
 
 open import Algebra
