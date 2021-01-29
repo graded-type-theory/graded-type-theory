@@ -21,21 +21,24 @@ infixr 20 _+_
 +-Associative : Associative _≡_ _+_
 +-Associative x y z = refl
 
--- + is right distributive over itself
-+-Distributiveʳ : _DistributesOverʳ_ _≡_ _+_ _+_
-+-Distributiveʳ x y z = refl
-
 -- + is left distributive of itself
 +-Distributiveˡ : _DistributesOverˡ_ _≡_ _+_ _+_
 +-Distributiveˡ x y z = refl
 
--- tt is the right identity of +
-+-Identityʳ : RightIdentity _≡_ tt _+_
-+-Identityʳ tt = refl
+-- + is right distributive over itself
++-Distributiveʳ : _DistributesOverʳ_ _≡_ _+_ _+_
++-Distributiveʳ x y z = refl
 
 -- tt is the left identity of +
-+-Identityˡ : LeftIdentity _≡_ tt _+_
-+-Identityˡ tt = refl
++-LeftIdentity : LeftIdentity _≡_ tt _+_
++-LeftIdentity tt = refl
+
+-- tt is the right identity of +
++-RightIdentity : RightIdentity _≡_ tt _+_
++-RightIdentity tt = refl
+
++-Identity : Identity _≡_ tt _+_
++-Identity = +-LeftIdentity , +-RightIdentity
 
 -- + is idempotent
 +-Idempotent : Idempotent _≡_ _+_
@@ -58,7 +61,7 @@ infixr 20 _+_
 +-Monoid : IsMonoid _≡_ _+_ tt
 +-Monoid = record
   { isSemigroup = +-Semigroup
-  ; identity    = +-Identityˡ , +-Identityʳ
+  ; identity    = +-Identity
   }
 
 +-CommutativeMonoid : IsCommutativeMonoid _≡_ _+_ tt
@@ -95,9 +98,3 @@ UnitModality = record
   ; ·Distr∧             = +-Distributiveˡ , +-Distributiveʳ
   ; +Distr∧             = +-Distributiveˡ , +-Distributiveʳ
   }
-
-prop : IsMonoid _≡_ _+_ tt
-prop = IsCommutativeMonoid.isMonoid (Modality.+-CommutativeMonoid UnitModality)
-
-f : {M : Set} → Modality M → M → M → M
-f M x y = (M Modality.∧ x) y
