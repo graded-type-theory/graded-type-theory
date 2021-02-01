@@ -36,3 +36,30 @@ record Modality (M : Set) : Set where
   -- Semilattice partial ordering relation
   _≤_ : M → M → Set
   p ≤ q = p ≡ (p ∧ q)
+
+  -- Easier access to some operator properties
+  +-Commutative : Commutative _≡_ _+_
+  +-Commutative = IsCommutativeMonoid.comm +-CommutativeMonoid
+
+  +-Associative : Associative _≡_ _+_
+  +-Associative = IsSemigroup.assoc (IsMonoid.isSemigroup
+                    (IsCommutativeMonoid.isMonoid +-CommutativeMonoid))
+
+  +-Identity : Identity _≡_ 𝟘 _+_
+  +-Identity = IsMonoid.identity (IsCommutativeMonoid.isMonoid +-CommutativeMonoid)
+
+  ·-Associative : Associative _≡_ _·_
+  ·-Associative = IsSemigroup.assoc (IsMonoid.isSemigroup ·-Monoid)
+
+  ·-Identity : Identity _≡_ 𝟙 _·_
+  ·-Identity = (IsMonoid.identity ·-Monoid)
+
+  ∧-Commutative : Commutative _≡_ _∧_
+  ∧-Commutative = IsSemilattice.comm ∧-Semilattice
+
+  ∧-Associative : Associative _≡_ _∧_
+  ∧-Associative = IsSemigroup.assoc (IsBand.isSemigroup
+                    (IsSemilattice.isBand ∧-Semilattice))
+
+  ∧-Idempotent : Idempotent _≡_ _∧_
+  ∧-Idempotent = IsBand.idem (IsSemilattice.isBand ∧-Semilattice)
