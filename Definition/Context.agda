@@ -16,15 +16,16 @@ infixr 15 _∷_+_
 infixr 15 _∷_∧_
 infixr 18 _∷_·_
 
+-- Addition lifted to modality contexts
 _∷_+_  : {M : Set} → Modality M →  (γ δ : Con M) → Con M
-M ∷ γ     + ε     = γ
-M ∷ ε + (δ · q) = δ · q
+M ∷  γ      +  ε      = γ
+M ∷  ε      + (δ · q) = δ · q
 M ∷ (γ · p) + (δ · q) = (M ∷ γ + δ) · Modality._+_ M p q
 
 -- Meet lifted to modality contexts
 _∷_∧_ : {M : Set} → Modality M → (γ δ : Con M) → Con M
-M ∷ γ     ∧ ε     = γ
-M ∷ ε     ∧ δ     = δ
+M ∷  γ      ∧ ε       = γ
+M ∷  ε      ∧ δ       = δ
 M ∷ (γ · p) ∧ (δ · q) = (M ∷ γ ∧ δ) · Modality._∧_ M p q
 
 -- Scaling of modality contexts
@@ -34,7 +35,7 @@ M ∷ p · (γ · q) = (M ∷ p · γ) · Modality._·_ M p q
 
 -- Partial order for modalities lifted to modality contexts
 _∷_≤_ : {M : Set} → Modality M → (γ δ : Con M) → Set
-M ∷ γ ≤ δ = γ ≡ (M ∷ γ ∧ δ )
+M ∷ γ ≤ δ = γ ≡ (M ∷ γ ∧ δ)
 
 -- Zero modality context of length n
 𝟘ᶜ : {M : Set} → Modality M → (n : Nat) → Con M
