@@ -6,17 +6,11 @@ open import Definition.Modality
 open import Tools.Nat
 open import Tools.PropositionalEquality
 
-infixr 20 _·_
+infixl 30 _·_
 
 data Con (A : Set) : Set where
   ε   : Con A
   _·_ : Con A → A → Con A
-
--- Addition lifted to modality contexts
-_[_+_] : {M : Set} → Modality M → (γ δ : Con M) → Con M
-M [ γ     + ε     ] = γ
-M [ ε     + δ     ] = δ
-M [ γ · p + δ · q ] = (M [ γ + δ ]) · (Modality._+_ M p q)
 
 infixr 15 _∷_+_
 infixr 15 _∷_∧_
@@ -24,14 +18,14 @@ infixr 18 _∷_·_
 
 _∷_+_  : {M : Set} → Modality M →  (γ δ : Con M) → Con M
 M ∷ γ     + ε     = γ
-M ∷ ε     + δ     = δ
-M ∷ γ · p + δ · q = M ∷ γ + δ · Modality._+_ M p q
+M ∷ ε + (δ · q) = δ · q
+M ∷ (γ · p) + (δ · q) = (M ∷ γ + δ) · Modality._+_ M p q
 
 -- Meet lifted to modality contexts
 _∷_∧_ : {M : Set} → Modality M → (γ δ : Con M) → Con M
 M ∷ γ     ∧ ε     = γ
 M ∷ ε     ∧ δ     = δ
-M ∷ γ · p ∧ δ · q = M ∷ γ ∧ δ · Modality._∧_ M p q
+M ∷ (γ · p) ∧ (δ · q) = (M ∷ γ ∧ δ) · Modality._∧_ M p q
 
 -- Scaling of modality contexts
 _∷_·_ : {M : Set} → Modality M → (p : M) → (γ : Con M) → Con M
