@@ -4,18 +4,25 @@
 
 module Definition.Untyped where
 
+open import Definition.Modality
 open import Tools.Nat
 open import Tools.Product
 open import Tools.List
 import Tools.PropositionalEquality as PE
 
+variable
+  M : Set
+  𝕄 : Modality M
+  p q : M
 
 infixl 30 _∙_
-infix 30 Π_▹_
+infix 30 Π_►_▹_
+infix 22 _►_▹▹_
 infixr 22 _▹▹_
-infix 30 Σ_▹_
+infix 30 Σ_►_▹_
+infix 22 _►_××_
 infixr 22 _××_
-infix 30 ⟦_⟧_▹_
+infix 30 ⟦_⟧_►_▹_
 infixl 30 _ₛ•ₛ_ _•ₛ_ _ₛ•_
 infix 25 _[_]
 infix 25 _[_]↑
@@ -24,42 +31,53 @@ infix 25 _[_]↑
 -- Typing contexts (snoc-lists, isomorphic to lists).
 
 data Con (A : Set) : Set where
-  ε   : Con A               -- Empty context.
+  ε   : Con A              -- Empty context.
   _∙_ : Con A → A → Con A  -- Context extension.
+
+-- Representation of sub elements (in particular sub-terms)
 
 record GenT (A : Set) : Set where
   inductive
   constructor ⟦_,_⟧
   field
-    l : Nat
-    t : A
+    l : Nat -- Shift in de Bruijn index introduced by this term, i.e. number of new variables bound
+    t : A   -- Sub term
 
-data Kind : Set where
-  Ukind : Kind
+-- Kinds of terms parameterized over a modality
 
-  Pikind : Kind
-  Lamkind : Kind
-  Appkind : Kind
+data Kind (𝕄 : Modality M) : Set where
+  Ukind : Kind 𝕄
 
-  Sigmakind : Kind
-  Prodkind : Kind
-  Fstkind : Kind
-  Sndkind : Kind
+  Pikind  : M → Kind 𝕄
+  Lamkind : M → Kind 𝕄
+  Appkind : M → Kind 𝕄
 
-  Natkind : Kind
-  Zerokind : Kind
-  Suckind : Kind
-  Natreckind : Kind
+  Sigmakind : M → Kind 𝕄
+  Prodkind  :     Kind 𝕄
+  Fstkind   :     Kind 𝕄
+  Sndkind   :     Kind 𝕄
 
-  Unitkind : Kind
-  Starkind : Kind
+  Natkind    : Kind 𝕄
+  Zerokind   : Kind 𝕄
+  Suckind    : Kind 𝕄
+  Natreckind : Kind 𝕄
 
-  Emptykind : Kind
-  Emptyreckind : Kind
+  Unitkind : Kind 𝕄
+  Starkind : Kind 𝕄
 
-data Term : Set where
-  var : (x : Nat) → Term
-  gen : (k : Kind) (c : List (GenT Term)) → Term
+  Emptykind    :     Kind 𝕄
+  Emptyreckind : M → Kind 𝕄
+
+-- Terms are parameterized by a modality and are either:
+-- Variables (de Bruijn indices) or
+-- Generic terms, formed by their kind and a list of sub-terms
+
+data Term (𝕄 : Modality M) : Set where
+  var : (x : Nat) → Term 𝕄
+  gen : (k : Kind 𝕄) (c : List (GenT (Term 𝕄))) → Term 𝕄
+
+variable
+  e n m t u A B E F G H K : Term 𝕄
 
 -- The Grammar of our language.
 
@@ -68,63 +86,58 @@ data Term : Set where
 -- Π, lam, and natrec are binders.
 
 -- Type constructors.
-U      : Term                     -- Universe.
+U : Term 𝕄 -- Universe.
 U = gen Ukind []
 
-pattern Univ u = gen (Ukind u) []
+Π_►_▹_ : {𝕄 : Modality M} (p : M) (A B : Term 𝕄) → Term 𝕄 -- Dependent function type (B is a binder).
+Π p ► A ▹ B = gen (Pikind p) (⟦ 0 , A ⟧ ∷ ⟦ 1 , B ⟧ ∷ [])
 
-Π_▹_   : (A B : Term)     → Term  -- Dependent function type (B is a binder).
-Π A ▹ B = gen Pikind (⟦ 0 , A ⟧ ∷ ⟦ 1 , B ⟧ ∷ [])
+Σ_►_▹_ : {𝕄 : Modality M} (p : M) (A B : Term 𝕄) → Term 𝕄 -- Dependent sum type (B  is a binder).
+Σ p ► A ▹ B = gen (Sigmakind p) (⟦ 0 , A ⟧ ∷ ⟦ 1 , B ⟧ ∷ [])
 
-Σ_▹_ : (A B : Term) → Term
-Σ A ▹ B = gen Sigmakind (⟦ 0 , A ⟧ ∷ ⟦ 1 , B ⟧ ∷ [])
-
-ℕ      : Term                     -- Type of natural numbers.
+ℕ     : Term 𝕄 -- Type of natural numbers.
 ℕ = gen Natkind []
 
-Empty : Term
+Empty : Term 𝕄 -- Empty type.
 Empty = gen Emptykind []
 
-Unit  : Term
+Unit  : Term 𝕄 -- Unit type.
 Unit = gen Unitkind []
 
 -- Lambda-calculus.
--- var    : (x : Nat)        → Term  -- Variable (de Bruijn index).
--- var = var
+lam   : {𝕄 : Modality M} (p : M) (t : Term 𝕄)   → Term 𝕄  -- Function abstraction (binder).
+lam p t = gen (Lamkind p) (⟦ 1 , t ⟧ ∷ [])
 
-lam    : (t : Term)       → Term  -- Function abstraction (binder).
-lam t = gen Lamkind (⟦ 1 , t ⟧ ∷ [])
-
-_∘_    : (t u : Term)     → Term  -- Application.
-t ∘ u = gen Appkind (⟦ 0 , t ⟧ ∷ ⟦ 0 , u ⟧ ∷ [])
+_►_∘_ : {𝕄 : Modality M} (p : M) (t u : Term 𝕄) → Term 𝕄  -- Application.
+p ► t ∘ u = gen (Appkind p) (⟦ 0 , t ⟧ ∷ ⟦ 0 , u ⟧ ∷ [])
 
 -- Dependent products
-prod : (t u : Term) → Term
+prod : (t u : Term 𝕄) → Term 𝕄
 prod t u = gen Prodkind (⟦ 0 , t ⟧ ∷ ⟦ 0 , u ⟧ ∷ [])
 
-fst : (t : Term) → Term
+fst : (t : Term 𝕄) → Term 𝕄
 fst t = gen Fstkind (⟦ 0 , t ⟧ ∷ [])
 
-snd : (t : Term) → Term
+snd : (t : Term 𝕄) → Term 𝕄
 snd t = gen Sndkind (⟦ 0 , t ⟧ ∷ [])
 
 -- Introduction and elimination of natural numbers.
-zero   : Term                     -- Natural number zero.
+zero : Term 𝕄 -- Natural number zero.
 zero = gen Zerokind []
 
-suc    : (t : Term)       → Term  -- Successor.
+suc : (t : Term 𝕄) → Term 𝕄  -- Successor.
 suc t = gen Suckind (⟦ 0 , t ⟧ ∷ [])
 
-natrec : (A t u v : Term) → Term  -- Recursor (A is a binder).
+natrec : (A t u v : Term 𝕄) → Term 𝕄  -- Recursor (A is a binder).
 natrec A t u v = gen Natreckind (⟦ 1 , A ⟧ ∷ ⟦ 0 , t ⟧ ∷ ⟦ 0 , u ⟧ ∷ ⟦ 0 , v ⟧ ∷ [])
 
 -- Unit type
-star : Term
+star : Term 𝕄
 star = gen Starkind []
 
 -- Empty type
-Emptyrec : (A e : Term) → Term
-Emptyrec A e = gen Emptyreckind (⟦ 0 , A ⟧ ∷ ⟦ 0 , e ⟧ ∷ [])
+Emptyrec : {𝕄 : Modality M} → (p : M) → (A e : Term 𝕄) → Term 𝕄
+Emptyrec p A e = gen (Emptyreckind p) (⟦ 0 , A ⟧ ∷ ⟦ 0 , e ⟧ ∷ [])
 
 -- Binding types
 
@@ -132,21 +145,22 @@ data BindingType : Set where
   BΠ : BindingType
   BΣ : BindingType
 
-⟦_⟧_▹_ : BindingType → Term → Term → Term
-⟦ BΠ ⟧ F ▹ G = Π F ▹ G
-⟦ BΣ ⟧ F ▹ G = Σ F ▹ G
+⟦_⟧_►_▹_ : {𝕄 : Modality M} → (W : BindingType) → (p : M) → (F G : Term 𝕄) → Term 𝕄
+⟦ BΠ ⟧ p ► F ▹ G = Π p ► F ▹ G
+⟦ BΣ ⟧ p ► F ▹ G = Σ p ► F ▹ G
 
 -- Injectivity of term constructors w.r.t. propositional equality.
 
--- If  W F G = W H E  then  F = H  and  G = E.
+-- If  W p F G = W q H E  then  F = H,  G = E and p = q.
 
-B-PE-injectivity : ∀ {F G H E} W → ⟦ W ⟧ F ▹ G PE.≡ ⟦ W ⟧ H ▹ E → F PE.≡ H × G PE.≡ E
-B-PE-injectivity BΠ PE.refl = PE.refl , PE.refl
-B-PE-injectivity BΣ PE.refl = PE.refl , PE.refl
+B-PE-injectivity : ∀ W → ⟦ W ⟧ p ► F ▹ G PE.≡ ⟦ W ⟧ q ► H ▹ E
+                   → p PE.≡ q × F PE.≡ H × G PE.≡ E
+B-PE-injectivity BΠ PE.refl = PE.refl , PE.refl , PE.refl
+B-PE-injectivity BΣ PE.refl = PE.refl , PE.refl , PE.refl
 
 -- If  suc n = suc m  then  n = m.
 
-suc-PE-injectivity : ∀ {n m} → suc n PE.≡ suc m → n PE.≡ m
+suc-PE-injectivity : suc n PE.≡ suc m → n PE.≡ m
 suc-PE-injectivity PE.refl = PE.refl
 
 
@@ -155,38 +169,38 @@ suc-PE-injectivity PE.refl = PE.refl
 -- A term is neutral if it has a variable in head position.
 -- The variable blocks reduction of such terms.
 
-data Neutral : Term → Set where
-  var       : ∀ n                     → Neutral (var n)
-  ∘ₙ        : ∀ {k u}     → Neutral k → Neutral (k ∘ u)
-  fstₙ      : ∀ {p}       → Neutral p → Neutral (fst p)
-  sndₙ      : ∀ {p}       → Neutral p → Neutral (snd p)
-  natrecₙ   : ∀ {C c g k} → Neutral k → Neutral (natrec C c g k)
-  Emptyrecₙ : ∀ {A e}     → Neutral e → Neutral (Emptyrec A e)
+data Neutral {𝕄 : Modality M} : Term 𝕄 → Set₁ where
+  var       : (n : Nat) → Neutral (var n)
+  ∘ₙ        : Neutral t → Neutral (p ► t ∘ u)
+  fstₙ      : Neutral t → Neutral (fst t)
+  sndₙ      : Neutral t → Neutral (snd t)
+  natrecₙ   : Neutral n → Neutral (natrec A t u n)
+  Emptyrecₙ : Neutral t → Neutral (Emptyrec p A e)
 
 
 -- Weak head normal forms (whnfs).
 
 -- These are the (lazy) values of our language.
 
-data Whnf : Term → Set where
+data Whnf {𝕄 : Modality M} : Term 𝕄 → Set₁ where
 
   -- Type constructors are whnfs.
   Uₙ     : Whnf U
-  Πₙ     : ∀ {A B} → Whnf (Π A ▹ B)
-  Σₙ     : ∀ {A B} → Whnf (Σ A ▹ B)
+  Πₙ     : Whnf (Π p ► A ▹ B)
+  Σₙ     : Whnf (Σ p ► A ▹ B)
   ℕₙ     : Whnf ℕ
   Unitₙ  : Whnf Unit
   Emptyₙ : Whnf Empty
 
   -- Introductions are whnfs.
-  lamₙ  : ∀ {t} → Whnf (lam t)
+  lamₙ  : Whnf (lam p t)
   zeroₙ : Whnf zero
-  sucₙ  : ∀ {t} → Whnf (suc t)
+  sucₙ  : Whnf (suc n)
   starₙ : Whnf star
-  prodₙ : ∀ {t u} → Whnf (prod t u)
+  prodₙ : Whnf (prod t u)
 
   -- Neutrals are whnfs.
-  ne    : ∀ {n} → Neutral n → Whnf n
+  ne    : Neutral n → Whnf n
 
 
 -- Whnf inequalities.
@@ -194,90 +208,90 @@ data Whnf : Term → Set where
 -- Different whnfs are trivially distinguished by propositional equality.
 -- (The following statements are sometimes called "no-confusion theorems".)
 
-U≢ne : ∀ {K} → Neutral K → U PE.≢ K
+U≢ne : Neutral K → U PE.≢ K
 U≢ne () PE.refl
 
-ℕ≢ne : ∀ {K} → Neutral K → ℕ PE.≢ K
+ℕ≢ne : Neutral K → ℕ PE.≢ K
 ℕ≢ne () PE.refl
 
-Empty≢ne : ∀ {K} → Neutral K → Empty PE.≢ K
+Empty≢ne : Neutral K → Empty PE.≢ K
 Empty≢ne () PE.refl
 
-Unit≢ne : ∀ {K} → Neutral K → Unit PE.≢ K
+Unit≢ne : Neutral K → Unit PE.≢ K
 Unit≢ne () PE.refl
 
-B≢ne : ∀ {F G K} W → Neutral K → ⟦ W ⟧ F ▹ G PE.≢ K
+B≢ne : ∀ W → Neutral K → ⟦ W ⟧ p ► F ▹ G PE.≢ K
 B≢ne BΠ () PE.refl
 B≢ne BΣ () PE.refl
 
-U≢B : ∀ {F G} W → U PE.≢ ⟦ W ⟧ F ▹ G
+U≢B : ∀ W → U PE.≢ ⟦ W ⟧ p ► F ▹ G
 U≢B BΠ ()
 U≢B BΣ ()
 
-ℕ≢B : ∀ {F G} W → ℕ PE.≢ ⟦ W ⟧ F ▹ G
+ℕ≢B : ∀ W → ℕ PE.≢ ⟦ W ⟧ p ► F ▹ G
 ℕ≢B BΠ ()
 ℕ≢B BΣ ()
 
-Empty≢B : ∀ {F G} W → Empty PE.≢ ⟦ W ⟧ F ▹ G
+Empty≢B : ∀ W → Empty PE.≢ ⟦ W ⟧ p ► F ▹ G
 Empty≢B BΠ ()
 Empty≢B BΣ ()
 
-Unit≢B : ∀ {F G} W → Unit PE.≢ ⟦ W ⟧ F ▹ G
+Unit≢B : ∀ W → Unit PE.≢ ⟦ W ⟧ p ► F ▹ G
 Unit≢B BΠ ()
 Unit≢B BΣ ()
 
-zero≢ne : ∀ {k} → Neutral k → zero PE.≢ k
+zero≢ne : Neutral t → zero PE.≢ t
 zero≢ne () PE.refl
 
-suc≢ne : ∀ {n k} → Neutral k → suc n PE.≢ k
+suc≢ne : Neutral t → suc n PE.≢ t
 suc≢ne () PE.refl
 
 -- Several views on whnfs (note: not recursive).
 
 -- A whnf of type ℕ is either zero, suc t, or neutral.
 
-data Natural : Term → Set where
-  zeroₙ :                     Natural zero
-  sucₙ  : ∀ {t}             → Natural (suc t)
-  ne    : ∀ {n} → Neutral n → Natural n
+data Natural {𝕄 : Modality M} : Term 𝕄 → Set₁ where
+  zeroₙ :             Natural zero
+  sucₙ  :             Natural (suc t)
+  ne    : Neutral n → Natural n
 
 
 -- A (small) type in whnf is either Π A B, ℕ, or neutral.
 -- Large types could also be U.
 
-data Type : Term → Set where
-  Πₙ : ∀ {A B} → Type (Π A ▹ B)
-  Σₙ : ∀ {A B} → Type (Σ A ▹ B)
+data Type {𝕄 : Modality M} : Term 𝕄 → Set₁ where
+  Πₙ : Type (Π p ► A ▹ B)
+  Σₙ : Type (Σ p ► A ▹ B)
   ℕₙ : Type ℕ
   Emptyₙ : Type Empty
   Unitₙ : Type Unit
-  ne : ∀{n} → Neutral n → Type n
+  ne : Neutral n → Type n
 
-⟦_⟧-type : ∀ (W : BindingType) {F} {G} → Type (⟦ W ⟧ F ▹ G)
+⟦_⟧-type : ∀ (W : BindingType) → Type (⟦ W ⟧ p ► F ▹ G)
 ⟦ BΠ ⟧-type = Πₙ
 ⟦ BΣ ⟧-type = Σₙ
 
 -- A whnf of type Π A ▹ B is either lam t or neutral.
 
-data Function : Term → Set where
-  lamₙ : ∀ {t} → Function (lam t)
-  ne   : ∀ {n} → Neutral n → Function n
+data Function : Term 𝕄 → Set₁ where
+  lamₙ : Function (lam p t)
+  ne   : Neutral n → Function n
 
 -- A whnf of type Σ A ▹ B is either prod t u or neutral.
 
-data Product : Term → Set where
-  prodₙ : ∀ {t u} → Product (prod t u)
-  ne    : ∀ {n} → Neutral n → Product n
+data Product : Term 𝕄 → Set₁ where
+  prodₙ : Product (prod t u)
+  ne    : Neutral n → Product n
 
 -- These views classify only whnfs.
 -- Natural, Type, and Function are a subsets of Whnf.
 
-naturalWhnf : ∀ {n} → Natural n → Whnf n
+naturalWhnf : Natural n → Whnf n
 naturalWhnf sucₙ = sucₙ
 naturalWhnf zeroₙ = zeroₙ
 naturalWhnf (ne x) = ne x
 
-typeWhnf : ∀ {A} → Type A → Whnf A
+typeWhnf : Type A → Whnf A
 typeWhnf Πₙ = Πₙ
 typeWhnf Σₙ = Σₙ
 typeWhnf ℕₙ = ℕₙ
@@ -285,15 +299,15 @@ typeWhnf Emptyₙ = Emptyₙ
 typeWhnf Unitₙ = Unitₙ
 typeWhnf (ne x) = ne x
 
-functionWhnf : ∀ {f} → Function f → Whnf f
+functionWhnf : Function t → Whnf t
 functionWhnf lamₙ = lamₙ
 functionWhnf (ne x) = ne x
 
-productWhnf : ∀ {p} → Product p → Whnf p
+productWhnf : Product t → Whnf t
 productWhnf prodₙ = prodₙ
 productWhnf (ne x) = ne x
 
-⟦_⟧ₙ : (W : BindingType) → ∀ {F G} → Whnf (⟦ W ⟧ F ▹ G)
+⟦_⟧ₙ : (W : BindingType) → Whnf (⟦ W ⟧ p ► F ▹ G)
 ⟦_⟧ₙ BΠ = Πₙ
 ⟦_⟧ₙ BΣ = Σₙ
 
@@ -322,47 +336,47 @@ data Wk : Set where
 
 infixl 30 _•_
 
-_•_                :  Wk → Wk → Wk
-id      • η′       =  η′
-step η  • η′       =  step  (η • η′)
-lift η  • id       =  lift  η
-lift η  • step η′  =  step  (η • η′)
-lift η  • lift η′  =  lift  (η • η′)
+_•_               :  Wk → Wk → Wk
+id     • η′       =  η′
+step η • η′       =  step  (η • η′)
+lift η • id       =  lift  η
+lift η • step η′  =  step  (η • η′)
+lift η • lift η′  =  lift  (η • η′)
 
-repeat : {A : Set} → (A → A) → A → Nat → A
-repeat f a 0 = a
+repeat : ∀ {ℓ} → {A : Set ℓ} → (A → A) → A → Nat → A
+repeat f a  0     = a
 repeat f a (1+ n) = f (repeat f a n)
 
 -- Weakening of variables.
 -- If η : Γ ≤ Δ and x ∈ dom(Δ) then wkVar η x ∈ dom(Γ).
 
 wkVar : (ρ : Wk) (n : Nat) → Nat
-wkVar id       n        = n
-wkVar (step ρ) n        = 1+ (wkVar ρ n)
-wkVar (lift ρ) 0    = 0
+wkVar id       n      = n
+wkVar (step ρ) n      = 1+ (wkVar ρ n)
+wkVar (lift ρ) 0      = 0
 wkVar (lift ρ) (1+ n) = 1+ (wkVar ρ n)
 
   -- Weakening of terms.
   -- If η : Γ ≤ Δ and Δ ⊢ t : A then Γ ⊢ wk η t : wk η A.
 
 mutual
-  wkGen : (ρ : Wk) (g : List (GenT Term)) → List (GenT Term)
+  wkGen : (ρ : Wk) (g : List (GenT (Term 𝕄))) → List (GenT (Term 𝕄))
   wkGen ρ [] = []
   wkGen ρ (⟦ l , t ⟧ ∷ g) = ⟦ l , (wk (repeat lift ρ l) t) ⟧ ∷ wkGen ρ g
 
-  wk : (ρ : Wk) (t : Term) → Term
-  wk ρ (var x) = var (wkVar ρ x)
+  wk : (ρ : Wk) (t : Term 𝕄) → Term 𝕄
+  wk ρ (var x)   = var (wkVar ρ x)
   wk ρ (gen x c) = gen x (wkGen ρ c)
 
 -- Adding one variable to the context requires wk1.
 -- If Γ ⊢ t : B then Γ∙A ⊢ wk1 t : wk1 B.
 
-wk1 : Term → Term
+wk1 : Term 𝕄 → Term 𝕄
 wk1 = wk (step id)
 
 -- Weakening of a neutral term.
 
-wkNeutral : ∀ {t} ρ → Neutral t → Neutral (wk ρ t)
+wkNeutral : ∀ ρ → Neutral t → Neutral (wk ρ t)
 wkNeutral ρ (var n)       = var (wkVar ρ n)
 wkNeutral ρ (∘ₙ n)        = ∘ₙ (wkNeutral ρ n)
 wkNeutral ρ (fstₙ n)      = fstₙ (wkNeutral ρ n)
@@ -372,28 +386,28 @@ wkNeutral ρ (Emptyrecₙ e) = Emptyrecₙ (wkNeutral ρ e)
 
 -- Weakening can be applied to our whnf views.
 
-wkNatural : ∀ {t} ρ → Natural t → Natural (wk ρ t)
-wkNatural ρ sucₙ    = sucₙ
-wkNatural ρ zeroₙ   = zeroₙ
+wkNatural : ∀ ρ → Natural t → Natural (wk ρ t)
+wkNatural ρ sucₙ   = sucₙ
+wkNatural ρ zeroₙ  = zeroₙ
 wkNatural ρ (ne x) = ne (wkNeutral ρ x)
 
-wkType : ∀ {t} ρ → Type t → Type (wk ρ t)
-wkType ρ Πₙ      = Πₙ
-wkType ρ Σₙ      = Σₙ
-wkType ρ ℕₙ      = ℕₙ
-wkType ρ Emptyₙ  = Emptyₙ
-wkType ρ Unitₙ = Unitₙ
+wkType : ∀ ρ → Type t → Type (wk ρ t)
+wkType ρ Πₙ     = Πₙ
+wkType ρ Σₙ     = Σₙ
+wkType ρ ℕₙ     = ℕₙ
+wkType ρ Emptyₙ = Emptyₙ
+wkType ρ Unitₙ  = Unitₙ
 wkType ρ (ne x) = ne (wkNeutral ρ x)
 
-wkFunction : ∀ {t} ρ → Function t → Function (wk ρ t)
+wkFunction : ∀ ρ → Function t → Function (wk ρ t)
 wkFunction ρ lamₙ   = lamₙ
 wkFunction ρ (ne x) = ne (wkNeutral ρ x)
 
-wkProduct : ∀ {t} ρ → Product t → Product (wk ρ t)
+wkProduct : ∀ ρ → Product t → Product (wk ρ t)
 wkProduct ρ prodₙ  = prodₙ
 wkProduct ρ (ne x) = ne (wkNeutral ρ x)
 
-wkWhnf : ∀ {t} ρ → Whnf t → Whnf (wk ρ t)
+wkWhnf : ∀ ρ → Whnf t → Whnf (wk ρ t)
 wkWhnf ρ Uₙ      = Uₙ
 wkWhnf ρ Πₙ      = Πₙ
 wkWhnf ρ Σₙ      = Σₙ
@@ -409,13 +423,24 @@ wkWhnf ρ (ne x)  = ne (wkNeutral ρ x)
 
 -- Non-dependent version of Π.
 
-_▹▹_ : Term → Term → Term
-A ▹▹ B = Π A ▹ wk1 B
+_►_▹▹_ : {𝕄 : Modality M} → M → Term 𝕄 → Term 𝕄 → Term 𝕄
+p ► A ▹▹ B = Π p ► A ▹ wk1 B
+
+-- Non-dependen version of Π with implicit unit (𝟙) modality.
+
+_▹▹_ : Term 𝕄 → Term 𝕄 → Term 𝕄
+_▹▹_ {𝕄 = 𝕄} A B = Π (Modality.𝟙 𝕄) ► A ▹ B
 
 -- Non-dependent products.
 
-_××_ : Term → Term → Term
-A ×× B = Σ A ▹ wk1 B
+_►_××_ : {𝕄 : Modality M} → M → Term 𝕄 → Term 𝕄 → Term 𝕄
+p ► A ×× B = Σ p ► A ▹ wk1 B
+
+-- Non-dependent products with implicit unit (𝟙) modality.
+
+_××_ : Term 𝕄 → Term 𝕄 → Term 𝕄
+_××_ {𝕄 = 𝕄} A B = Σ (Modality.𝟙 𝕄) ► A ▹ wk1 B
+
 
 ------------------------------------------------------------------------
 -- Substitution
@@ -425,8 +450,8 @@ A ×× B = Σ A ▹ wk1 B
 
 -- The substitution σ itself is a map from natural numbers to terms.
 
-Subst : Set
-Subst = Nat → Term
+Subst : {M : Set} → (𝕄 : Modality M) → Set
+Subst 𝕄 = Nat → Term 𝕄
 
 -- Given closed contexts ⊢ Γ and ⊢ Δ,
 -- substitutions may be typed via Γ ⊢ σ : Δ meaning that
@@ -444,7 +469,7 @@ Subst = Nat → Term
 --
 -- If Γ ⊢ σ : Δ∙A  then Γ ⊢ head σ : subst σ A.
 
-head : Subst → Term
+head : Subst 𝕄 → Term 𝕄
 head σ = σ 0
 
 -- Remove the first variable instance of a substitution
@@ -452,14 +477,14 @@ head σ = σ 0
 --
 -- If Γ ⊢ σ : Δ∙A then Γ ⊢ tail σ : Δ.
 
-tail : Subst → Subst
+tail : Subst 𝕄 → Subst 𝕄
 tail σ n = σ (1+ n)
 
 -- Substitution of a variable.
 --
 -- If Γ ⊢ σ : Δ then Γ ⊢ substVar σ x : (subst σ Δ)(x).
 
-substVar : (σ : Subst) (x : Nat) → Term
+substVar : (σ : Subst 𝕄) (x : Nat) → Term 𝕄
 substVar σ x = σ x
 
 -- Identity substitution.
@@ -467,29 +492,29 @@ substVar σ x = σ x
 --
 -- Γ ⊢ idSubst : Γ.
 
-idSubst : Subst
+idSubst : Subst 𝕄
 idSubst = var
 
 -- Weaken a substitution by one.
 --
 -- If Γ ⊢ σ : Δ then Γ∙A ⊢ wk1Subst σ : Δ.
 
-wk1Subst : Subst → Subst
+wk1Subst : Subst 𝕄 → Subst 𝕄
 wk1Subst σ x = wk1 (σ x)
 
 -- Lift a substitution.
 --
 -- If Γ ⊢ σ : Δ then Γ∙A ⊢ liftSubst σ : Δ∙A.
 
-liftSubst : (σ : Subst) → Subst
-liftSubst σ 0    = var 0
+liftSubst : (σ : Subst 𝕄) → Subst 𝕄
+liftSubst σ  0     = var 0
 liftSubst σ (1+ x) = wk1Subst σ x
 
 -- Transform a weakening into a substitution.
 --
 -- If ρ : Γ ≤ Δ then Γ ⊢ toSubst ρ : Δ.
 
-toSubst : Wk → Subst
+toSubst : Wk → Subst 𝕄
 toSubst pr x = var (wkVar pr x)
 
 -- Apply a substitution to a term.
@@ -497,12 +522,12 @@ toSubst pr x = var (wkVar pr x)
 -- If Γ ⊢ σ : Δ and Δ ⊢ t : A then Γ ⊢ subst σ t : subst σ A.
 
 mutual
-  substGen : (σ : Subst) (g : List (GenT Term)) → List (GenT Term)
-  substGen σ [] = []
+  substGen : (σ : Subst 𝕄) (g : List (GenT (Term 𝕄))) → List (GenT (Term 𝕄))
+  substGen σ []              = []
   substGen σ (⟦ l , t ⟧ ∷ g) = ⟦ l , (subst (repeat liftSubst σ l) t) ⟧ ∷ substGen σ g
 
-  subst : (σ : Subst) (t : Term) → Term
-  subst σ (var x) = substVar σ x
+  subst : (σ : Subst 𝕄) (t : Term 𝕄) → Term 𝕄
+  subst σ (var x)   = substVar σ x
   subst σ (gen x c) = gen x (substGen σ c)
 
 -- Extend a substitution by adding a term as
@@ -510,41 +535,41 @@ mutual
 --
 -- If Γ ⊢ σ : Δ and Γ ⊢ t : subst σ A then Γ ⊢ consSubst σ t : Δ∙A.
 
-consSubst : Subst → Term → Subst
-consSubst σ t 0    = t
+consSubst : Subst 𝕄 → Term 𝕄 → Subst 𝕄
+consSubst σ t  0     = t
 consSubst σ t (1+ n) = σ n
 
 -- Singleton substitution.
 --
 -- If Γ ⊢ t : A then Γ ⊢ sgSubst t : Γ∙A.
 
-sgSubst : Term → Subst
+sgSubst : Term 𝕄 → Subst 𝕄
 sgSubst = consSubst idSubst
 
 -- Compose two substitutions.
 --
 -- If Γ ⊢ σ : Δ and Δ ⊢ σ′ : Φ then Γ ⊢ σ ₛ•ₛ σ′ : Φ.
 
-_ₛ•ₛ_ : Subst → Subst → Subst
+_ₛ•ₛ_ : Subst 𝕄 → Subst 𝕄 → Subst 𝕄
 _ₛ•ₛ_ σ σ′ x = subst σ (σ′ x)
 
 -- Composition of weakening and substitution.
 --
 --  If ρ : Γ ≤ Δ and Δ ⊢ σ : Φ then Γ ⊢ ρ •ₛ σ : Φ.
 
-_•ₛ_ : Wk → Subst → Subst
+_•ₛ_ : Wk → Subst 𝕄 → Subst 𝕄
 _•ₛ_ ρ σ x = wk ρ (σ x)
 
 --  If Γ ⊢ σ : Δ and ρ : Δ ≤ Φ then Γ ⊢ σ ₛ• ρ : Φ.
 
-_ₛ•_ : Subst → Wk → Subst
+_ₛ•_ : Subst 𝕄 → Wk → Subst 𝕄
 _ₛ•_ σ ρ x = σ (wkVar ρ x)
 
 -- Substitute the first variable of a term with an other term.
 --
 -- If Γ∙A ⊢ t : B and Γ ⊢ s : A then Γ ⊢ t[s] : B[s].
 
-_[_] : (t : Term) (s : Term) → Term
+_[_] : (t : Term 𝕄) (s : Term 𝕄) → Term 𝕄
 t [ s ] = subst (sgSubst s) t
 
 -- Substitute the first variable of a term with an other term,
@@ -552,11 +577,11 @@ t [ s ] = subst (sgSubst s) t
 --
 -- If Γ∙A ⊢ t : B and Γ∙A ⊢ s : A then Γ∙A ⊢ t[s]↑ : B[s]↑.
 
-_[_]↑ : (t : Term) (s : Term) → Term
+_[_]↑ : (t : Term 𝕄) (s : Term 𝕄) → Term 𝕄
 t [ s ]↑ = subst (consSubst (wk1Subst idSubst) s) t
 
 
-B-subst : (σ : Subst) (W : BindingType) (F G : Term)
-        → subst σ (⟦ W ⟧ F ▹ G) PE.≡ ⟦ W ⟧ (subst σ F) ▹ (subst (liftSubst σ) G)
-B-subst σ BΠ F G = PE.refl
-B-subst σ BΣ F G = PE.refl
+B-subst : {𝕄 : Modality M} (σ : Subst 𝕄) (W : BindingType) (F G : Term 𝕄) (p : M)
+        → subst σ (⟦ W ⟧ p ► F ▹ G) PE.≡ ⟦ W ⟧ p ► (subst σ F) ▹ (subst (liftSubst σ) G)
+B-subst σ BΠ F G p = PE.refl
+B-subst σ BΣ F G p = PE.refl
