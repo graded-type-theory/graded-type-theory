@@ -1,10 +1,16 @@
 {-# OPTIONS --without-K --safe #-}
 
-module Definition.Context where
+module Definition.Modality.Context where
 
 open import Definition.Modality
+
 open import Tools.Nat
 open import Tools.PropositionalEquality
+
+infixl 30 _∙_
+infixr 20 _+ᶜ_
+infixr 20 _∧ᶜ_
+infix  25 _·ᶜ_
 
 private
   variable
@@ -12,10 +18,6 @@ private
     M : Set
     𝕄 : Modality M
 
-infixl 30 _∙_
-infixr 20 _+ᶜ_
-infixr 20 _∧ᶜ_
-infix  25 _·ᶜ_
 
 -- Modality Context
 data ConM {M : Set} (𝕄 : Modality M) : Nat → Set where
@@ -41,7 +43,7 @@ _·ᶜ_ {𝕄 = 𝕄} p (γ ∙ q) = (p ·ᶜ γ) ∙ Modality._·_ 𝕄 p q
 _≤ᶜ_ : (γ δ : ConM 𝕄 n) → Set
 γ ≤ᶜ δ = γ ≡ γ ∧ᶜ δ
 
--- Zero modlaity context
+-- Zero modality context
 𝟘ᶜ : ConM 𝕄 n
 𝟘ᶜ          {n = 0}    = ε
 𝟘ᶜ {𝕄 = 𝕄} {n = 1+ n} = 𝟘ᶜ ∙ Modality.𝟘 𝕄
