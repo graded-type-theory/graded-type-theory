@@ -6,43 +6,47 @@ open import Definition.Modality
 open import Tools.Nat
 open import Tools.PropositionalEquality
 
-infixl 30 _·_
+private
+  variable
+    n : Nat
+    M : Set
+    𝕄 : Modality M
 
-data Con (A : Set) : Set where
-  ε   : Con A
-  _·_ : Con A → A → Con A
+infixl 30 _∙_
+infixr 20 _+ᶜ_
+infixr 20 _∧ᶜ_
+infix  25 _·ᶜ_
 
-infix 15 _▷_+_
-infix 15 _▷_∧_
-infix 18 _▷_·_
+-- Modality Context
+data ConM {M : Set} (𝕄 : Modality M) : Nat → Set where
+  ε   : ConM 𝕄 0
+  _∙_ : {n : Nat} → ConM 𝕄 n → M → ConM 𝕄 (1+ n)
 
 -- Addition lifted to modality contexts
-_▷_+_  : {M : Set} → Modality M →  (γ δ : Con M) → Con M
-M ▷  γ      +  ε      = γ
-M ▷  ε      + (δ · q) = δ · q
-M ▷ (γ · p) + (δ · q) = (M ▷ γ + δ) · Modality._+_ M p q
+_+ᶜ_ : (γ δ : ConM 𝕄 n) → ConM 𝕄 n
+ε +ᶜ ε = ε
+_+ᶜ_ {𝕄 = 𝕄} (γ ∙ p) (δ ∙ q) = (γ +ᶜ δ) ∙ Modality._+_ 𝕄 p q
 
 -- Meet lifted to modality contexts
-_▷_∧_ : {M : Set} → Modality M → (γ δ : Con M) → Con M
-M ▷  γ      ∧ ε       = γ
-M ▷  ε      ∧ δ       = δ
-M ▷ (γ · p) ∧ (δ · q) = (M ▷ γ ∧ δ) · Modality._∧_ M p q
+_∧ᶜ_ : (γ δ : ConM 𝕄 n) → ConM 𝕄 n
+ε ∧ᶜ ε = ε
+_∧ᶜ_ {𝕄 = 𝕄} (γ ∙ p) (δ ∙ q) = (γ ∧ᶜ δ) ∙ Modality._∧_ 𝕄 p q
 
--- Scaling of modality contexts
-_▷_·_ : {M : Set} → Modality M → (p : M) → (γ : Con M) → Con M
-M ▷ p ·  ε      = ε
-M ▷ p · (γ · q) = (M ▷ p · γ) · Modality._·_ M p q
+-- Modality context scaling
+_·ᶜ_ : {𝕄 : Modality M} (p : M) (γ : ConM 𝕄 n) → ConM 𝕄 n
+p ·ᶜ ε = ε
+_·ᶜ_ {𝕄 = 𝕄} p (γ ∙ q) = (p ·ᶜ γ) ∙ Modality._·_ 𝕄 p q
 
--- Partial order for modalities lifted to modality contexts
-_▷_≤_ : {M : Set} → Modality M → (γ δ : Con M) → Set
-M ▷ γ ≤ δ = γ ≡ (M ▷ γ ∧ δ)
+-- Partial order of modality contexts
+_≤ᶜ_ : (γ δ : ConM 𝕄 n) → Set
+γ ≤ᶜ δ = γ ≡ γ ∧ᶜ δ
 
--- Zero modality context of length n
-𝟘ᶜ : {M : Set} → Modality M → (n : Nat) → Con M
-𝟘ᶜ M 0      = ε
-𝟘ᶜ M (1+ n) = (𝟘ᶜ M n) · (Modality.𝟘 M)
+-- Zero modlaity context
+𝟘ᶜ : ConM 𝕄 n
+𝟘ᶜ          {n = 0}    = ε
+𝟘ᶜ {𝕄 = 𝕄} {n = 1+ n} = 𝟘ᶜ ∙ Modality.𝟘 𝕄
 
--- Unit modality context of length n
-𝟙ᶜ : {M : Set} → Modality M → (n : Nat) → Con M
-𝟙ᶜ M 0      = ε
-𝟙ᶜ M (1+ n) = (𝟙ᶜ M n) · (Modality.𝟙 M)
+-- Unit modality context
+𝟙ᶜ : ConM 𝕄 n
+𝟙ᶜ          {n = 0}    = ε
+𝟙ᶜ {𝕄 = 𝕄} {n = 1+ n} = 𝟙ᶜ ∙ Modality.𝟙 𝕄
