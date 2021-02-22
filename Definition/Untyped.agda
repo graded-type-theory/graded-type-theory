@@ -23,10 +23,10 @@ infixl 30 _∙_
 infix 30 Π_,_▷_▹_
 infix 22 _▷_▹▹_
 -- infixr 22 _▹▹_
-infix 30 Σ_,_▷_▹_
+infix 30 Σ_▷_▹_
 infix 22 _▷_××_
 -- infixr 22 _××_
-infix 30 ⟦_⟧_,_▷_▹_
+infix 30 ⟦_⟧_▹_
 infixl 30 _ₛ•ₛ_ _•ₛ_ _ₛ•_
 infix 25 _[_]
 infix 25 _[_]↑
@@ -56,7 +56,7 @@ data Kind (M : Set) : (ns : List Nat) → Set where
   Lamkind : (p : M)   → Kind M (1 ∷ [])
   Appkind : (p : M)   → Kind M (0 ∷ 0 ∷ [])
 
-  Sigmakind : (p q : M) → Kind M (0 ∷ 1 ∷ [])
+  Sigmakind : (p : M) → Kind M (0 ∷ 1 ∷ [])
   Prodkind  : Kind M (0 ∷ 0 ∷ [])
   Fstkind   : Kind M (0 ∷ [])
   Sndkind   : Kind M (0 ∷ [])
@@ -98,8 +98,8 @@ U = gen Ukind []
 Π_,_▷_▹_ : (p q : M) (A : Term M n) (B : Term M (1+ n)) → Term M n -- Dependent function type (B is a binder).
 Π p , q ▷ A ▹ B = gen (Pikind p q) (A ∷ B ∷ [])
 
-Σ_,_▷_▹_ : (p q : M) (A : Term M n) (B : Term M (1+ n)) → Term M n -- Dependent sum type (B is a binder).
-Σ p , q ▷ A ▹ B = gen (Sigmakind p q) (A ∷ B ∷ [])
+Σ_▷_▹_ : (p : M) (A : Term M n) (B : Term M (1+ n)) → Term M n -- Dependent sum type (B is a binder).
+Σ p ▷ A ▹ B = gen (Sigmakind p) (A ∷ B ∷ [])
 
 ℕ      : Term M n                      -- Type of natural numbers.
 ℕ = gen Natkind []
@@ -143,35 +143,24 @@ star = gen Starkind []
 Emptyrec : (p : M) (A e : Term M n) → Term M n   -- Empty type recursor
 Emptyrec p A e = gen (Emptyreckind p) (A ∷ e ∷ [])
 
--- Modality irrelevant type constructors
-
--- Π_▹_ : {p q : M} (A : Term M n) (B : Term M (1+ n)) → Term M n
--- Π_▹_ {p = p} {q} F G = Π p , q ▷ F ▹ G
-
--- Σ_▹_ : {p q : M} (A : Term M n) (B : Term M (1+ n)) → Term M n
--- Σ_▹_ {p = p} {q} F G = Σ p , q ▷ F ▹ G
-
--- _∘_ : {p : M} (t u : Term M n) → Term M n
--- _∘_ {p = p} t u = p ▷ t ∘ u
-
 -- Binding types
 
-data BindingType : Set where
-  BΠ : BindingType
-  BΣ : BindingType
+data BindingType (M : Set) : Set where
+  BΠ : (p q : M) → BindingType M
+  BΣ : (p : M)   → BindingType M
 
-⟦_⟧_,_▷_▹_ : BindingType → (p q : M) → Term M n → Term M (1+ n) → Term M n
-⟦ BΠ ⟧ p , q ▷ F ▹ G = Π p , q ▷ F ▹ G
-⟦ BΣ ⟧ p , q ▷ F ▹ G = Σ p , q ▷ F ▹ G
+⟦_⟧_▹_ : BindingType M → Term M n → Term M (1+ n) → Term M n
+⟦ BΠ p q ⟧ F ▹ G = Π p , q ▷ F ▹ G
+⟦ BΣ p   ⟧ F ▹ G = Σ p ▷ F ▹ G
 
 -- Injectivity of term constructors w.r.t. propositional equality.
 
--- If  W p F G = W q H E  then  F = H,  G = E and p = q.
+-- If  W F G = W H E  then  F = H,  G = E.
 
-B-PE-injectivity : ∀ W → ⟦ W ⟧ p , q ▷ F ▹ G PE.≡ ⟦ W ⟧ r , s ▷ H ▹ E
-                 → F PE.≡ H × G PE.≡ E × p PE.≡ r × q PE.≡ s
-B-PE-injectivity BΠ PE.refl = PE.refl , PE.refl , PE.refl , PE.refl
-B-PE-injectivity BΣ PE.refl = PE.refl , PE.refl , PE.refl , PE.refl
+B-PE-injectivity : ∀ W W' → ⟦ W ⟧ F ▹ G PE.≡ ⟦ W' ⟧ H ▹ E
+                 → F PE.≡ H × G PE.≡ E
+B-PE-injectivity (BΠ p q) (BΠ .p .q) PE.refl = PE.refl , PE.refl
+B-PE-injectivity (BΣ p)   (BΣ .p)    PE.refl = PE.refl , PE.refl
 
 -- If  suc n = suc m  then  n = m.
 
@@ -202,7 +191,7 @@ data Whnf {M : Set} {n : Nat} : Term M n → Set₁ where
   -- Type constructors are whnfs.
   Uₙ     : Whnf U
   Πₙ     : Whnf (Π p , q ▷ A ▹ B)
-  Σₙ     : Whnf (Σ p , q ▷ A ▹ B)
+  Σₙ     : Whnf (Σ p ▷ A ▹ B)
   ℕₙ     : Whnf ℕ
   Unitₙ  : Whnf Unit
   Emptyₙ : Whnf Empty
@@ -235,25 +224,25 @@ Empty≢ne () PE.refl
 Unit≢ne : Neutral A → Unit PE.≢ A
 Unit≢ne () PE.refl
 
-B≢ne : ∀ W → Neutral A → ⟦ W ⟧ p , q ▷ F ▹ G PE.≢ A
-B≢ne BΠ () PE.refl
-B≢ne BΣ () PE.refl
+B≢ne : ∀ W → Neutral A → ⟦ W ⟧ F ▹ G PE.≢ A
+B≢ne (BΠ p q) () PE.refl
+B≢ne (BΣ p)   () PE.refl
 
-U≢B : ∀ W → U PE.≢ ⟦ W ⟧ p , q ▷ F ▹ G
-U≢B BΠ ()
-U≢B BΣ ()
+U≢B : ∀ W → U PE.≢ ⟦ W ⟧ F ▹ G
+U≢B (BΠ p q) ()
+U≢B (BΣ p)   ()
 
-ℕ≢B : ∀ W → ℕ PE.≢ ⟦ W ⟧ p , q ▷ F ▹ G
-ℕ≢B BΠ ()
-ℕ≢B BΣ ()
+ℕ≢B : ∀ W → ℕ PE.≢ ⟦ W ⟧ F ▹ G
+ℕ≢B (BΠ p q) ()
+ℕ≢B (BΣ p)   ()
 
-Empty≢B : ∀ W → Empty PE.≢ ⟦ W ⟧ p , q ▷ F ▹ G
-Empty≢B BΠ ()
-Empty≢B BΣ ()
+Empty≢B : ∀ W → Empty PE.≢ ⟦ W ⟧ F ▹ G
+Empty≢B (BΠ p q) ()
+Empty≢B (BΣ p)   ()
 
-Unit≢B : ∀ W → Unit PE.≢ ⟦ W ⟧ p , q ▷ F ▹ G
-Unit≢B BΠ ()
-Unit≢B BΣ ()
+Unit≢B : ∀ W → Unit PE.≢ ⟦ W ⟧ F ▹ G
+Unit≢B (BΠ p q) ()
+Unit≢B (BΣ p)   ()
 
 zero≢ne : Neutral t → zero PE.≢ t
 zero≢ne () PE.refl
@@ -276,15 +265,15 @@ data Natural {M : Set} {n : Nat} : Term M n → Set₁ where
 
 data Type {M : Set} {n : Nat} : Term M n → Set₁ where
   Πₙ     :             Type (Π p , q ▷ A ▹ B)
-  Σₙ     :             Type (Σ p , q ▷ A ▹ B)
+  Σₙ     :             Type (Σ p ▷ A ▹ B)
   ℕₙ     :             Type ℕ
   Emptyₙ :             Type Empty
   Unitₙ  :             Type Unit
   ne     : Neutral t → Type t
 
-⟦_⟧-type : ∀ (W : BindingType) → Type (⟦ W ⟧ p , q ▷ F ▹ G)
-⟦ BΠ ⟧-type = Πₙ
-⟦ BΣ ⟧-type = Σₙ
+⟦_⟧-type : ∀ (W : BindingType M) → Type (⟦ W ⟧ F ▹ G)
+⟦ BΠ p q ⟧-type = Πₙ
+⟦ BΣ p ⟧-type = Σₙ
 
 -- A whnf of type Π A ▹ B is either lam t or neutral.
 
@@ -322,9 +311,9 @@ productWhnf : Product t → Whnf t
 productWhnf prodₙ  = prodₙ
 productWhnf (ne x) = ne x
 
-⟦_⟧ₙ : (W : BindingType) → Whnf (⟦ W ⟧ p , q ▷ F ▹ G)
-⟦_⟧ₙ BΠ = Πₙ
-⟦_⟧ₙ BΣ = Σₙ
+⟦_⟧ₙ : (W : BindingType M) → Whnf (⟦ W ⟧ F ▹ G)
+⟦_⟧ₙ (BΠ p q) = Πₙ
+⟦_⟧ₙ (BΣ p)   = Σₙ
 
 
 ------------------------------------------------------------------------
@@ -449,7 +438,7 @@ _▷_▹▹_ {𝕄 = 𝕄} p A B = Π p , (Modality.𝟘 𝕄) ▷ A ▹ wk1 B
 -- Non-dependent products.
 
 _▷_××_ : {𝕄 : Modality M} → M → Term M n → Term M n → Term M n
-_▷_××_ {𝕄 = 𝕄} p A B = Σ p , (Modality.𝟘 𝕄) ▷ A ▹ wk1 B
+_▷_××_ {𝕄 = 𝕄} p A B = Σ (Modality.𝟘 𝕄) ▷ A ▹ wk1 B
 
 
 ------------------------------------------------------------------------
@@ -595,7 +584,8 @@ _[_]↑ : (t : Term M (1+ n)) (s : Term M (1+ n)) → Term M (1+ n)
 t [ s ]↑ = subst (consSubst (wk1Subst idSubst) s) t
 
 
-B-subst : (σ : Subst {M} m n) (W : BindingType) (F : Term M n) (G : Term M (1+ n))
-        → subst σ (⟦ W ⟧ p , q ▷ F ▹ G) PE.≡ ⟦ W ⟧ p , q ▷ (subst σ F) ▹ (subst (liftSubst σ) G)
-B-subst σ BΠ F G = PE.refl
-B-subst σ BΣ F G = PE.refl
+B-subst : (σ : Subst {M} m n) (W : BindingType M) (F : Term M n) (G : Term M (1+ n))
+        → subst σ (⟦ W ⟧ F ▹ G) PE.≡ ⟦ W ⟧ (subst σ F) ▹ (subst (liftSubst σ) G)
+B-subst σ (BΠ p q) F G = PE.refl
+B-subst σ (BΣ p)   F G = PE.refl
+
