@@ -4,6 +4,7 @@ module Definition.Modality.Context where
 
 open import Definition.Modality
 
+open import Tools.Fin
 open import Tools.Nat
 open import Tools.PropositionalEquality
 
@@ -12,7 +13,6 @@ infixr 20 _+ᶜ_
 infixr 20 _∧ᶜ_
 infix  25 _·ᶜ_
 infix  10 _≤ᶜ_
-infix  10 _≋_
 
 private
   variable
@@ -25,6 +25,11 @@ private
 data ConM {M : Set} (𝕄 : Modality M) : Nat → Set where
   ε   : ConM 𝕄 0
   _∙_ : {n : Nat} → ConM 𝕄 n → M → ConM 𝕄 (1+ n)
+
+-- Context update
+_,_◂_ : {𝕄 : Modality M} (γ : ConM 𝕄 n) (x : Fin n) (p : M) → ConM 𝕄 n
+(γ ∙ q) , x0     ◂ p = γ ∙ p
+(γ ∙ q) , (x +1) ◂ p = (γ , x ◂ p) ∙ q
 
 -- Addition lifted to modality contexts
 _+ᶜ_ : (γ δ : ConM 𝕄 n) → ConM 𝕄 n
@@ -44,11 +49,6 @@ _·ᶜ_ {𝕄 = 𝕄} p (γ ∙ q) = (p ·ᶜ γ) ∙ Modality._·_ 𝕄 p q
 -- Partial order of modality contexts
 _≤ᶜ_ : (γ δ : ConM 𝕄 n) → Set
 γ ≤ᶜ δ = γ ≡ γ ∧ᶜ δ
-
--- Equality relation for modality contexts
-data _≋_ {𝕄 : Modality M} : (γ δ : ConM 𝕄 n) → Set where
-  ε   : ε ≋ ε
-  _∙_ : ∀ {n} {γ δ : ConM 𝕄 n} {p q} → γ ≋ δ → Modality._≈_ 𝕄 p q → γ ∙ p ≋ δ ∙ q
   
 -- Zero modality context
 𝟘ᶜ : ConM 𝕄 n

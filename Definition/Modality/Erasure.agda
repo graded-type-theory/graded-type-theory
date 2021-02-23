@@ -169,7 +169,6 @@ ErasureModality = record
   { _+_                 = _+_
   ; _·_                 = _·_
   ; _∧_                 = _∧_
-  ; _≈_                 = _≡_
   ; 𝟘                   = 𝟘
   ; 𝟙                   = ω
   ; +-CommutativeMonoid = +-CommutativeMonoid

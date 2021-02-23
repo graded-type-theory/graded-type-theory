@@ -30,10 +30,6 @@ private
     γ δ η θ : ConM 𝕄 n
     γ′ γ″ δ′ η′ θ′ : ConM 𝕄 n
 
-  _▶_≈_ : (𝕄 : Modality M) (p q : M) → Set
-  𝕄 ▶ p ≈ q = Modality._≈_ 𝕄 p q
-
-
 
 -- Well-typed variables
 data _∷_∈_ : (x : Fin n) (A : Term M n) (Γ : Con (Term M) n) → Set₁ where
@@ -51,16 +47,13 @@ data _▸_ {n : Nat} {𝕄 : Modality M} : (γ : ConM 𝕄 n) → Term M n → S
   Emptyₘ    : 𝟘ᶜ ▸ Empty
   Unitₘ     : 𝟘ᶜ ▸ Unit
   Πₘ        : γ ▸ F
-            → (δ ∙ p) ▸ G
-            → 𝕄 ▶ p ≈ r
-            → (γ +ᶜ δ) ▸ Π q , r ▷ F ▹ G
+            → (δ ∙ q) ▸ G
+            → (γ +ᶜ δ) ▸ Π p , q ▷ F ▹ G
   Σₘ        : γ ▸ F
             → (δ ∙ p) ▸ G
-            → 𝕄 ▶ p ≈ q
-            → (γ +ᶜ δ) ▸ Σ q ▷ F ▹ G
+            → (γ +ᶜ δ) ▸ Σ p ▷ F ▹ G
 
-  var       : x ◂ (Modality.𝟙 𝕄) ∈ γ
-            → γ ▸ var x
+  var       : (𝟘ᶜ , x ◂ (Modality.𝟙 𝕄)) ▸ var x
 
   lamₘ      : ∀ {t}
             → (γ ∙ p) ▸ t
@@ -96,9 +89,8 @@ data _▸_ {n : Nat} {𝕄 : Modality M} : (γ : ConM 𝕄 n) → Term M n → S
             → (γ +ᶜ δ +ᶜ η +ᶜ θ) ▸ natrec G z s n
 -}
 
-  Emptyrecₘ : δ ▸ A
-            → γ ▸ t
-            → (γ +ᶜ δ) ▸ (Emptyrec p A t)
+  Emptyrecₘ : γ ▸ t
+            → γ ▸ (Emptyrec p A t)
 
   starₘ     : 𝟘ᶜ ▸ star
 
