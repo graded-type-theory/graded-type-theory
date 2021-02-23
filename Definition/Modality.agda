@@ -5,12 +5,14 @@ module Definition.Modality where
 open import Algebra
 open import Tools.PropositionalEquality
 
-record Modality (M : Set) : Set where
+record Modality (M : Set) : Set₁ where
   field
     -- A modality consists of a type M with three binary operations...
     _+_ : Op₂ M -- Addition
     _·_ : Op₂ M -- Multiplication
     _∧_ : Op₂ M -- Meet
+
+    _≈_ : M → M → Set
 
     -- ... and two special elements
     𝟘 : M

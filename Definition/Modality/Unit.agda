@@ -90,6 +90,7 @@ UnitModality = record
   { _+_                 = _+_
   ; _·_                 = _+_
   ; _∧_                 = _+_
+  ; _≈_                 = _≡_
   ; 𝟘                   = tt
   ; 𝟙                   = tt
   ; +-CommutativeMonoid = +-CommutativeMonoid

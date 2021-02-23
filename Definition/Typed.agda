@@ -30,6 +30,11 @@ private
     γ δ η θ : ConM 𝕄 n
     γ′ γ″ δ′ η′ θ′ : ConM 𝕄 n
 
+  _▶_≈_ : (𝕄 : Modality M) (p q : M) → Set
+  𝕄 ▶ p ≈ q = Modality._≈_ 𝕄 p q
+
+
+
 -- Well-typed variables
 data _∷_∈_ : (x : Fin n) (A : Term M n) (Γ : Con (Term M) n) → Set₁ where
   here  :                       x0 ∷ wk1 A ∈ (Γ ∙ A)
@@ -46,11 +51,13 @@ data _▸_ {n : Nat} {𝕄 : Modality M} : (γ : ConM 𝕄 n) → Term M n → S
   Emptyₘ    : 𝟘ᶜ ▸ Empty
   Unitₘ     : 𝟘ᶜ ▸ Unit
   Πₘ        : γ ▸ F
-            → (δ ∙ q) ▸ G
-            → (γ +ᶜ δ) ▸ Π p , q ▷ F ▹ G
+            → (δ ∙ p) ▸ G
+            → 𝕄 ▶ p ≈ r
+            → (γ +ᶜ δ) ▸ Π q , r ▷ F ▹ G
   Σₘ        : γ ▸ F
             → (δ ∙ p) ▸ G
-            → (γ +ᶜ δ) ▸ Σ p ▷ F ▹ G
+            → 𝕄 ▶ p ≈ q
+            → (γ +ᶜ δ) ▸ Σ q ▷ F ▹ G
 
   var       : x ◂ (Modality.𝟙 𝕄) ∈ γ
             → γ ▸ var x
@@ -515,7 +522,7 @@ mutual
                   → Γ ⊢ e' ∷ Unit
                   → Γ ⊢ e ≡ e' ∷ Unit
 
-
+{-
 mutual
 
   thm : Γ ⊢ t ◂ γ → γ ▸ t
@@ -658,7 +665,7 @@ mutual
   thm8 (natrec-suc x x₁ x₂ x₃) = natrec-suc (thm4 x) (thm2 x₁) (thm4 x₂) (thm4 x₃)
   thm8 (Emptyrec-cong x j) = Emptyrec-cong (thm6 x) (thm8 j)
   thm8 (η-unit x x₁) = η-unit (thm4 x) (thm4 x₁)
-  
+-}  
 {-
 -- Term reduction
 data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set where

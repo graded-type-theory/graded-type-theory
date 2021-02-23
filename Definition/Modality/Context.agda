@@ -11,6 +11,8 @@ infixl 30 _∙_
 infixr 20 _+ᶜ_
 infixr 20 _∧ᶜ_
 infix  25 _·ᶜ_
+infix  10 _≤ᶜ_
+infix  10 _≋_
 
 private
   variable
@@ -43,6 +45,11 @@ _·ᶜ_ {𝕄 = 𝕄} p (γ ∙ q) = (p ·ᶜ γ) ∙ Modality._·_ 𝕄 p q
 _≤ᶜ_ : (γ δ : ConM 𝕄 n) → Set
 γ ≤ᶜ δ = γ ≡ γ ∧ᶜ δ
 
+-- Equality relation for modality contexts
+data _≋_ {𝕄 : Modality M} : (γ δ : ConM 𝕄 n) → Set where
+  ε   : ε ≋ ε
+  _∙_ : ∀ {n} {γ δ : ConM 𝕄 n} {p q} → γ ≋ δ → Modality._≈_ 𝕄 p q → γ ∙ p ≋ δ ∙ q
+  
 -- Zero modality context
 𝟘ᶜ : ConM 𝕄 n
 𝟘ᶜ          {n = 0}    = ε
