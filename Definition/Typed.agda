@@ -46,9 +46,11 @@ data _▸_ {n : Nat} {𝕄 : Modality M} : (γ : ConM 𝕄 n) → Term M n → S
   ℕₘ        : 𝟘ᶜ ▸ ℕ
   Emptyₘ    : 𝟘ᶜ ▸ Empty
   Unitₘ     : 𝟘ᶜ ▸ Unit
+  
   Πₘ        : γ ▸ F
             → (δ ∙ q) ▸ G
             → (γ +ᶜ δ) ▸ Π p , q ▷ F ▹ G
+            
   Σₘ        : γ ▸ F
             → (δ ∙ p) ▸ G
             → (γ +ᶜ δ) ▸ Σ p ▷ F ▹ G
@@ -73,21 +75,13 @@ data _▸_ {n : Nat} {𝕄 : Modality M} : (γ : ConM 𝕄 n) → Term M n → S
   zeroₘ     : 𝟘ᶜ ▸ zero
   sucₘ      : γ ▸ t
             → γ ▸ suc t
-  natrec-zeroₘ : ∀ {G z s}
-               → γ ▸ z
-               → γ ▸ natrec G z s zero
---  natrec-sucₘ  : ∀ {G z s n}
---               → (γ ∙ q ∙ p) ▸ s
---               → δ ▸ n
---               → η ▸ natrec G z s n
---               → (γ +ᶜ q ·ᶜ δ +ᶜ p ·ᶜ η) ▸ natrec G z s (suc n)
- {- natrecₘ   : ∀ {G z s n}
-            → (γ ∙ p) ▸ G
-            → δ ▸ z
-            → η ▸ s
-            → θ ▸ n
-            → (γ +ᶜ δ +ᶜ η +ᶜ θ) ▸ natrec G z s n
--}
+
+  natrecₘ   : ∀ {G z s n}
+            → γ ▸ z
+            → γ ▸ (lam p (lam q s))
+            → δ ▸ n
+            → r PE.≡ (Modality._+_ 𝕄 (Modality.𝟙 𝕄) (Modality._·_ 𝕄 q r))
+            → r ·ᶜ (γ +ᶜ p ·ᶜ δ) ▸ natrec G z (lam p (lam q s)) n
 
   Emptyrecₘ : γ ▸ t
             → γ ▸ (Emptyrec p A t)
