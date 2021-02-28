@@ -3,6 +3,7 @@
 module Definition.Modality.Context.Properties where
 
 open import Definition.Modality
+open import Definition.Modality.Properties
 open import Definition.Modality.Context
 
 open import Tools.Nat
@@ -82,3 +83,59 @@ rightDistr∧ {𝕄 = 𝕄} p q (γ ∙ r) = cong₂ _∙_ IH distr
   where
   IH    = rightDistr∧ p q γ
   distr = proj₂ (Modality.·Distr∧ 𝕄) r p q
+
+-------------
+
+-- 𝟘ᶜ is left unit for addition
+leftUnit : (γ : ConM 𝕄 n) → 𝟘ᶜ +ᶜ γ ≡ γ
+leftUnit           ε      = refl
+leftUnit {𝕄 = 𝕄} (γ ∙ p) = cong₂ _∙_ γ' p'
+  where
+  γ' = leftUnit γ
+  p' = proj₁ (Modality.+-Identity 𝕄) p
+
+-- 𝟘ᶜ is right unit for addition
+rightUnit : (γ : ConM 𝕄 n) → γ +ᶜ 𝟘ᶜ ≡ γ
+rightUnit           ε      = refl
+rightUnit {𝕄 = 𝕄} (γ ∙ p) = cong₂ _∙_ γ' p'
+  where
+  γ' = rightUnit γ
+  p' = proj₂ (Modality.+-Identity 𝕄) p
+
+
+≤ᶜ-reflexive : {γ : ConM 𝕄 n} → γ ≤ᶜ γ
+≤ᶜ-reflexive {γ = ε} = refl
+≤ᶜ-reflexive {𝕄 = 𝕄} {γ = γ ∙ p} = cong₂ _∙_ ≤ᶜ-reflexive (≤-reflexive {𝕄 = 𝕄})
+
+≤ᶜ-transitive : {γ δ η : ConM 𝕄 n} → γ ≤ᶜ δ → δ ≤ᶜ η → γ ≤ᶜ η
+≤ᶜ-transitive {γ = ε} {ε} {ε} x y = refl
+≤ᶜ-transitive {𝕄 = 𝕄} {γ = γ ∙ p} {δ ∙ q} {η ∙ r} x y = cong₂ _∙_
+  (≤ᶜ-transitive (cong tailₘ x) (cong tailₘ y))
+  (≤-transitive {𝕄 = 𝕄} (cong headₘ x) (cong headₘ y))
+
+≤ᶜ-antisymmetric : {γ δ : ConM 𝕄 n} → γ ≤ᶜ δ → δ ≤ᶜ γ → γ ≡ δ
+≤ᶜ-antisymmetric {γ = ε} {ε} refl refl = refl
+≤ᶜ-antisymmetric {𝕄 = 𝕄} {γ = γ ∙ p} {δ ∙ q} x y = cong₂ _∙_
+  (≤ᶜ-antisymmetric (cong tailₘ x) (cong tailₘ y))
+  (≤-antisymmetric {𝕄 = 𝕄} (cong headₘ x) (cong headₘ y))
+
++ᶜ-monotone : {γ δ η : ConM 𝕄 n} → γ ≤ᶜ δ → γ +ᶜ η ≤ᶜ δ +ᶜ η
++ᶜ-monotone {γ = ε} {ε} {ε} refl = refl
++ᶜ-monotone {𝕄 = 𝕄} {γ = γ ∙ p} {δ ∙ q} {η ∙ r} x = cong₂ _∙_
+  (+ᶜ-monotone (cong tailₘ x))
+  (+-monotone {𝕄 = 𝕄} (cong headₘ x))
+
++ᶜ-monotone₂ : {γ γ′ δ δ′ : ConM 𝕄 n} → γ ≤ᶜ γ′ → δ ≤ᶜ δ′ → (γ +ᶜ δ) ≤ᶜ (γ′ +ᶜ δ′)
++ᶜ-monotone₂ {γ = ε} {ε} {ε} {ε} refl refl = refl
++ᶜ-monotone₂ {𝕄 = 𝕄} {γ = γ ∙ p} {γ′ ∙ p′} {δ ∙ q} {δ′ ∙ q′} x y = cong₂ _∙_
+  (+ᶜ-monotone₂ (cong tailₘ x) (cong tailₘ y))
+  (+-monotone₂ {𝕄 = 𝕄} (cong headₘ x) (cong headₘ y))
+
+·ᶜ-monotone : {p : M} {γ δ : ConM 𝕄 n} → γ ≤ᶜ δ → p ·ᶜ γ ≤ᶜ p ·ᶜ δ
+·ᶜ-monotone {γ = ε} {ε} refl = refl
+·ᶜ-monotone {𝕄 = 𝕄} {γ = γ ∙ p} {δ ∙ q} x = cong₂ _∙_
+  (·ᶜ-monotone (cong tailₘ x))
+  (·-monotone {𝕄 = 𝕄} (cong headₘ x))
+
+tail-linear∧ : {γ δ : ConM 𝕄 (1+ n)} → tailₘ (γ ∧ᶜ δ) ≡ (tailₘ γ) ∧ᶜ (tailₘ δ)
+tail-linear∧ {γ = γ ∙ p} {δ ∙ q} = refl
