@@ -232,6 +232,12 @@ mutual
                   → Γ ⊢ fst t ≡ fst u ∷ F
                   → Γ ⊢ snd t ≡ snd u ∷ G [ fst t ]
                   → Γ ⊢ t ≡ u ∷ Σ p ▷ F ▹ G
+    prodrec-cong  : ∀ {t t′ u u′ F G A}
+                  → Γ ⊢ F
+                  → Γ ∙ F ⊢ G
+                  → Γ ⊢ t ≡ t′ ∷ Σ p ▷ F ▹ G
+                  → Γ ∙ F ∙ G ⊢ u ≡ u′ ∷ A
+                  → Γ ⊢ (prodrec p q t u) ≡ (prodrec p q t′ u′) ∷ A [ wk1 (snd t) ] [ fst t ]
     suc-cong      : ∀ {m n}
                   → Γ ⊢ m ≡ n ∷ ℕ
                   → Γ ⊢ suc m ≡ suc n ∷ ℕ
