@@ -20,6 +20,7 @@ private
     n m ℓ : Nat
 
 infixl 30 _∙_
+infixr 5 _∷_
 infix 30 Π_,_▷_▹_
 infix 22 _▷_▹▹_
 -- infixr 22 _▹▹_
@@ -60,6 +61,7 @@ data Kind (M : Set) : (ns : List Nat) → Set where
   Prodkind  : Kind M (0 ∷ 0 ∷ [])
   Fstkind   : Kind M (0 ∷ [])
   Sndkind   : Kind M (0 ∷ [])
+  Prodreckind : (p q : M) → Kind M (0 ∷ 2 ∷ [])
 
   Natkind    : Kind M []
   Zerokind   : Kind M []
@@ -78,7 +80,7 @@ data Kind (M : Set) : (ns : List Nat) → Set where
 
 data Term (M : Set) (n : Nat) : Set where
   var : (x : Fin n) → Term M n
-  gen : {bs : List Nat} (k : Kind M bs) (c : GenTs (Term M) n bs) → Term M n
+  gen : {bs : List Nat} (k : Kind M bs) (ts : GenTs (Term M) n bs) → Term M n
 
 private
   variable
@@ -125,6 +127,9 @@ fst t = gen Fstkind (t ∷ [])
 
 snd : (t : Term M n) → Term M n          -- Second projection
 snd t = gen Sndkind (t ∷ [])
+
+prodrec : (p q : M) (t : Term M n) (u : Term M (1+ (1+ n))) → Term M n
+prodrec p q t u = gen (Prodreckind p q) (t ∷ u ∷ [])
 
 -- Introduction and elimination of natural numbers.
 zero   : Term M n                      -- Natural number zero.
@@ -178,6 +183,7 @@ data Neutral {M : Set} : Term M n → Set₁ where
   ∘ₙ        : Neutral t   → Neutral (p ▷ t ∘ u)
   fstₙ      : Neutral t   → Neutral (fst t)
   sndₙ      : Neutral t   → Neutral (snd t)
+  prodrecₙ    : Neutral t   → Neutral (prodrec p q t u)
   natrecₙ   : Neutral v   → Neutral (natrec G t u v)
   Emptyrecₙ : Neutral t   → Neutral (Emptyrec p A t)
 
@@ -390,6 +396,7 @@ wkNeutral ρ (var n)       = var (wkVar ρ n)
 wkNeutral ρ (∘ₙ n)        = ∘ₙ (wkNeutral ρ n)
 wkNeutral ρ (fstₙ n)      = fstₙ (wkNeutral ρ n)
 wkNeutral ρ (sndₙ n)      = sndₙ (wkNeutral ρ n)
+wkNeutral ρ (prodrecₙ n)  = prodrecₙ (wkNeutral ρ n)
 wkNeutral ρ (natrecₙ n)   = natrecₙ (wkNeutral ρ n)
 wkNeutral ρ (Emptyrecₙ e) = Emptyrecₙ (wkNeutral ρ e)
 
@@ -588,4 +595,3 @@ B-subst : (σ : Subst {M} m n) (W : BindingType M) (F : Term M n) (G : Term M (1
         → subst σ (⟦ W ⟧ F ▹ G) PE.≡ ⟦ W ⟧ (subst σ F) ▹ (subst (liftSubst σ) G)
 B-subst σ (BΠ p q) F G = PE.refl
 B-subst σ (BΣ p)   F G = PE.refl
-
