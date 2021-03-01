@@ -19,29 +19,29 @@ private
 -- Modality contexts form a left module
 
 -- 𝟙 is a left identity to modality contex scaling
-identity : (γ : ConM 𝕄 n) → (Modality.𝟙 𝕄) ·ᶜ γ ≡ γ
-identity           ε      = refl
-identity {𝕄 = 𝕄} (γ ∙ p) = cong₂ _∙_ γ' p'
+identity : {γ : ConM 𝕄 n} → (Modality.𝟙 𝕄) ·ᶜ γ ≡ γ
+identity           {γ = ε}      = refl
+identity {𝕄 = 𝕄} {γ = γ ∙ p} = cong₂ _∙_ γ' p'
   where
-  γ' = identity γ
+  γ' = identity
   p' = (proj₁ (Modality.·-Identity 𝕄)) p
 
 
 -- 𝟘 is a left zero to modality context scaling
-leftZero : (γ : ConM 𝕄 n) → (Modality.𝟘 𝕄) ·ᶜ γ ≡ 𝟘ᶜ
-leftZero           ε      = refl
-leftZero {𝕄 = 𝕄} (γ ∙ p) = cong₂ _∙_ IH z
+leftZero : {γ : ConM 𝕄 n} → (Modality.𝟘 𝕄) ·ᶜ γ ≡ 𝟘ᶜ
+leftZero           {γ = ε}      = refl
+leftZero {𝕄 = 𝕄} {γ = γ ∙ p} = cong₂ _∙_ IH z
   where
-  IH = leftZero γ
+  IH = leftZero
   z  = proj₁ (Modality.·-Zero 𝕄) p
 
 
 -- A zero context is a right zero to modality context scaling
-rightZero : {𝕄 : Modality M} → (p : M) → p ·ᶜ 𝟘ᶜ ≡ 𝟘ᶜ {𝕄 = 𝕄} {n = n}
-rightZero {n = 0}    p = refl
-rightZero {n = 1+ n} {𝕄 = 𝕄} p = cong₂ _∙_ IH z
+rightZero : {𝕄 : Modality M} → {p : M} → p ·ᶜ 𝟘ᶜ ≡ 𝟘ᶜ {𝕄 = 𝕄} {n = n}
+rightZero {n = 0}    {p} = refl
+rightZero {n = 1+ n} {𝕄 = 𝕄} {p} = cong₂ _∙_ IH z
   where
-  IH = rightZero p
+  IH = rightZero
   z  = proj₂ (Modality.·-Zero 𝕄) p
 
 -- Modality context scaling is associative
@@ -87,19 +87,19 @@ rightDistr∧ {𝕄 = 𝕄} p q (γ ∙ r) = cong₂ _∙_ IH distr
 -------------
 
 -- 𝟘ᶜ is left unit for addition
-leftUnit : (γ : ConM 𝕄 n) → 𝟘ᶜ +ᶜ γ ≡ γ
-leftUnit           ε      = refl
-leftUnit {𝕄 = 𝕄} (γ ∙ p) = cong₂ _∙_ γ' p'
+leftUnit : {γ : ConM 𝕄 n} → 𝟘ᶜ +ᶜ γ ≡ γ
+leftUnit           {γ = ε}      = refl
+leftUnit {𝕄 = 𝕄} {γ = γ ∙ p} = cong₂ _∙_ γ' p'
   where
-  γ' = leftUnit γ
+  γ' = leftUnit
   p' = proj₁ (Modality.+-Identity 𝕄) p
 
 -- 𝟘ᶜ is right unit for addition
-rightUnit : (γ : ConM 𝕄 n) → γ +ᶜ 𝟘ᶜ ≡ γ
-rightUnit           ε      = refl
-rightUnit {𝕄 = 𝕄} (γ ∙ p) = cong₂ _∙_ γ' p'
+rightUnit : {γ : ConM 𝕄 n} → γ +ᶜ 𝟘ᶜ ≡ γ
+rightUnit           {γ = ε}      = refl
+rightUnit {𝕄 = 𝕄} {γ = γ ∙ p} = cong₂ _∙_ γ' p'
   where
-  γ' = rightUnit γ
+  γ' = rightUnit
   p' = proj₂ (Modality.+-Identity 𝕄) p
 
 
@@ -139,3 +139,7 @@ rightUnit {𝕄 = 𝕄} (γ ∙ p) = cong₂ _∙_ γ' p'
 
 tail-linear∧ : {γ δ : ConM 𝕄 (1+ n)} → tailₘ (γ ∧ᶜ δ) ≡ (tailₘ γ) ∧ᶜ (tailₘ δ)
 tail-linear∧ {γ = γ ∙ p} {δ ∙ q} = refl
+
++ᶜ-associative : {γ δ η : ConM 𝕄 n} → (γ +ᶜ δ) +ᶜ η ≡ γ +ᶜ (δ +ᶜ η)
++ᶜ-associative {γ = ε} {ε} {ε} = refl
++ᶜ-associative {𝕄 = 𝕄} {γ = γ ∙ p} {δ ∙ q} {η ∙ r} = cong₂ _∙_ +ᶜ-associative (Modality.+-Associative 𝕄 p q r)
