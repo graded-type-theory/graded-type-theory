@@ -13,12 +13,12 @@ import Definition.Modality.Properties
 infixl 30 _∙_
 infixr 20 _+ᶜ_
 infixr 20 _∧ᶜ_
-infix  25 _·ᶜ_
+infixr 25 _·ᶜ_
 infix  10 _≤ᶜ_
 
 private
   variable
-    n : Nat
+    m n : Nat
     M : Set
     𝕄 : Modality M
 
@@ -38,6 +38,17 @@ tailₘ (γ ∙ p) = γ
 _,_≔_ : {𝕄 : Modality M} (γ : ConM 𝕄 n) (x : Fin n) (p : M) → ConM 𝕄 n
 (γ ∙ q) , x0     ≔ p = γ ∙ p
 (γ ∙ q) , (x +1) ≔ p = (γ , x ≔ p) ∙ q
+
+insertAt : {𝕄 : Modality M} (m : Nat) (γ : ConM 𝕄 (m + n)) (p : M)
+         → ConM 𝕄 (m + 1+ n)
+insertAt 0       γ      p = γ ∙ p
+insertAt (1+ m) (γ ∙ q) p = insertAt m γ p ∙ q
+
+-- Scalar product of modality contexts
+
+_*_ : {𝕄 : Modality M} (γ δ : ConM 𝕄 n) → M
+_*_ {𝕄 = 𝕄} ε ε = Modality.𝟘 𝕄
+_*_ {𝕄 = 𝕄} (γ ∙ p) (δ ∙ q) = Modality._+_ 𝕄 (γ * δ) (Modality._·_ 𝕄 p q)
 
 -- Addition lifted to modality contexts
 _+ᶜ_ : (γ δ : ConM 𝕄 n) → ConM 𝕄 n

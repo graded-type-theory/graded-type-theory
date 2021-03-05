@@ -51,11 +51,26 @@ private
                     (+-monotone {𝕄 = 𝕄} y)
             )
 
-·-monotone : {𝕄 : Modality M} {p q r : M}
+·-monotoneˡ : {𝕄 : Modality M} {p q r : M}
            → Modality._≤_ 𝕄 p q
            → Modality._≤_ 𝕄 (Modality._·_ 𝕄 r p) (Modality._·_ 𝕄 r q)
-·-monotone {𝕄 = 𝕄} {p = p} {q} {r} x = subst₂ _≡_
+·-monotoneˡ {𝕄 = 𝕄} {p = p} {q} {r} x = subst₂ _≡_
   (cong₂ (Modality._·_ 𝕄) refl (sym x))
   (proj₁ (Modality.·Distr∧ 𝕄) r p q)
   refl
 
+·-monotoneʳ : {𝕄 : Modality M} {p q r : M}
+           → Modality._≤_ 𝕄 p q
+           → Modality._≤_ 𝕄 (Modality._·_ 𝕄 p r) (Modality._·_ 𝕄 q r)
+·-monotoneʳ {𝕄 = 𝕄} {p = p} {q} {r} x = subst₂ _≡_
+  (cong₂ (Modality._·_ 𝕄) (sym x) refl)
+  (proj₂ (Modality.·Distr∧ 𝕄) r p q)
+  refl
+
+·-monotone₂ : {𝕄 : Modality M} {p q p′ q′ : M}
+            → Modality._≤_ 𝕄 p q → Modality._≤_ 𝕄 p′ q′
+            → Modality._≤_ 𝕄 (Modality._·_ 𝕄 p p′) (Modality._·_ 𝕄 q q′)
+·-monotone₂ {𝕄 = 𝕄} x y = ≤-transitive {𝕄 = 𝕄}
+  (·-monotoneˡ {𝕄 = 𝕄} y)
+  (·-monotoneʳ {𝕄 = 𝕄} x)
+  
