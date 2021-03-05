@@ -73,8 +73,7 @@ data _▸_ {n : Nat} {𝕄 : Modality M} : (γ : ConM 𝕄 n) → Term M n → S
             → γ ▸ z
             → γ ▸ (lam p (lam q s))
             → δ ▸ n
-            → r ≡ (Modality._+_ 𝕄 (Modality.𝟙 𝕄) (Modality._·_ 𝕄 q r))
-            → r ·ᶜ (γ +ᶜ p ·ᶜ δ) ▸ natrec G z (lam p (lam q s)) n
+            → (Modality._* 𝕄 q) ·ᶜ (γ +ᶜ p ·ᶜ δ) ▸ natrec p q G z s n
 
   Emptyrecₘ : γ ▸ t
             → γ ▸ (Emptyrec p A t)

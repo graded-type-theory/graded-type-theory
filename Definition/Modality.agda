@@ -5,12 +5,16 @@ module Definition.Modality where
 open import Algebra
 open import Tools.PropositionalEquality
 
+-- Star ringoid
 record Modality (M : Set) : Set where
   field
     -- A modality consists of a type M with three binary operations...
     _+_ : Op₂ M -- Addition
     _·_ : Op₂ M -- Multiplication
     _∧_ : Op₂ M -- Meet
+
+    -- ... one unary operator
+    _* : Op₁ M
 
     -- ... and two special elements
     𝟘 : M
@@ -22,6 +26,8 @@ record Modality (M : Set) : Set where
     ·-Monoid            : IsMonoid _≡_ _·_ 𝟙
     -- ∧ forms a semilattice
     ∧-Semilattice       : IsSemilattice _≡_ _∧_
+    -- * forms a star semiring
+    *-StarSemiring      : (p : M) → p * ≡ 𝟙 + (p · (p *))
 
     -- 𝟘 is zero for multiplication
     ·-Zero              : Zero _≡_ 𝟘 _·_

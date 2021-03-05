@@ -21,6 +21,9 @@ x · ω = x
 _∧_ : Op₂ Erasure
 _∧_ = _+_
 
+_* : Op₁ Erasure
+x * = ω
+
 
 -- Properties of addition (and meet)
 
@@ -108,6 +111,10 @@ _∧_ = _+_
 +Distr+ : _DistributesOver_ _≡_ _+_ _+_
 +Distr+ = +Distrˡ+ , +Distrʳ+
 
+*-StarSemiring : (p : Erasure) → p * ≡ ω + (p · (p *))
+*-StarSemiring 𝟘 = refl
+*-StarSemiring ω = refl
+
 -- Addition (and meet) form the following algebras
 +-Magma : IsMagma _≡_ _+_
 +-Magma = record
@@ -174,6 +181,7 @@ ErasureModality = record
   ; +-CommutativeMonoid = +-CommutativeMonoid
   ; ·-Monoid            = ·-Monoid
   ; ∧-Semilattice       = +-Semilattice
+  ; *-StarSemiring      = *-StarSemiring
   ; ·-Zero              = ·-Zero
   ; ·Distr+             = ·Distr+
   ; ·Distr∧             = ·Distr+

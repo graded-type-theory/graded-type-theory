@@ -11,6 +11,9 @@ open import Tools.Unit
 _+_ : Op₂ ⊤
 _ + _ = tt
 
+_* : Op₁ ⊤
+_ * = tt
+
 infixr 20 _+_
 
 -- Properties of +
@@ -90,11 +93,13 @@ UnitModality = record
   { _+_                 = _+_
   ; _·_                 = _+_
   ; _∧_                 = _+_
+  ; _*                  = _*
   ; 𝟘                   = tt
   ; 𝟙                   = tt
   ; +-CommutativeMonoid = +-CommutativeMonoid
   ; ·-Monoid            = +-Monoid
   ; ∧-Semilattice       = +-Semilattice
+  ; *-StarSemiring      = λ p → refl
   ; ·-Zero              = (λ x → refl)    , (λ x → refl)
   ; ·Distr+             = +-Distributiveˡ , +-Distributiveʳ
   ; ·Distr∧             = +-Distributiveˡ , +-Distributiveʳ
