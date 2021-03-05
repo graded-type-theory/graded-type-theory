@@ -1,3 +1,4 @@
+
 -- Raw terms, weakening (renaming) and substitution.
 
 {-# OPTIONS --without-K --safe #-}
@@ -61,12 +62,12 @@ data Kind (M : Set) : (ns : List Nat) → Set where
   Prodkind  : Kind M (0 ∷ 0 ∷ [])
   Fstkind   : Kind M (0 ∷ [])
   Sndkind   : Kind M (0 ∷ [])
-  Prodreckind : (p q : M) → Kind M (0 ∷ 2 ∷ [])
+  Prodreckind : (p : M) → Kind M (0 ∷ 2 ∷ [])
 
   Natkind    : Kind M []
   Zerokind   : Kind M []
   Suckind    : Kind M (0 ∷ [])
-  Natreckind : Kind M (1 ∷ 0 ∷ 0 ∷ 0 ∷ [])
+  Natreckind : (p q : M) → Kind M (1 ∷ 0 ∷ 2 ∷ 0 ∷ [])
 
   Unitkind : Kind M []
   Starkind : Kind M []
@@ -128,8 +129,8 @@ fst t = gen Fstkind (t ∷ [])
 snd : (t : Term M n) → Term M n          -- Second projection
 snd t = gen Sndkind (t ∷ [])
 
-prodrec : (p q : M) (t : Term M n) (u : Term M (1+ (1+ n))) → Term M n
-prodrec p q t u = gen (Prodreckind p q) (t ∷ u ∷ [])
+prodrec : (p : M) (t : Term M n) (u : Term M (1+ (1+ n))) → Term M n
+prodrec p t u = gen (Prodreckind p) (t ∷ u ∷ [])
 
 -- Introduction and elimination of natural numbers.
 zero   : Term M n                      -- Natural number zero.
@@ -138,8 +139,9 @@ zero = gen Zerokind []
 suc    : (t : Term M n)       → Term M n -- Successor.
 suc t = gen Suckind (t ∷ [])
 
-natrec : (A : Term M (1+ n)) (t u v : Term M n) → Term M n  -- Natural number recursor (A is a binder).
-natrec A t u v = gen Natreckind (A ∷ t ∷ u ∷ v ∷ [])
+natrec : (p q : M) (A : Term M (1+ n)) (z : Term M n)
+         (s : Term M (1+ (1+ n))) (t : Term M n) → Term M n  -- Natural number recursor (A is a binder).
+natrec p q A z s n = gen (Natreckind p q) (A ∷ z ∷ s ∷ n ∷ [])
 
 
 star : Term M n                        -- Unit element
@@ -183,8 +185,8 @@ data Neutral {M : Set} : Term M n → Set₁ where
   ∘ₙ        : Neutral t   → Neutral (p ▷ t ∘ u)
   fstₙ      : Neutral t   → Neutral (fst t)
   sndₙ      : Neutral t   → Neutral (snd t)
-  prodrecₙ    : Neutral t   → Neutral (prodrec p q t u)
-  natrecₙ   : Neutral v   → Neutral (natrec G t u v)
+  prodrecₙ  : Neutral t   → Neutral (prodrec p t u)
+  natrecₙ   : Neutral v   → Neutral (natrec p q G t u v)
   Emptyrecₙ : Neutral t   → Neutral (Emptyrec p A t)
 
 
@@ -337,7 +339,7 @@ productWhnf (ne x) = ne x
 -- and this would be the natural extension of weakenings.
 
 data Wk : Nat → Nat → Set where
-  id    : {n : Nat} → Wk n n                      -- η : Γ ≤ Γ.
+  id    : {n : Nat}   → Wk n n                    -- η : Γ ≤ Γ.
   step  : {n m : Nat} → Wk m n → Wk (1+ m) n      -- If η : Γ ≤ Δ then step η : Γ∙A ≤ Δ.
   lift  : {n m : Nat} → Wk m n → Wk (1+ m) (1+ n) -- If η : Γ ≤ Δ then lift η : Γ∙A ≤ Δ∙A.
 

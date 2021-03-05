@@ -1,3 +1,4 @@
+{-# OPTIONS --without-K --safe #-}
 module Definition.Modality.Usage where
 
 open import Definition.Modality
@@ -25,6 +26,7 @@ private
 data _◂_∈_ : (x : Fin n) (p : M) (γ : ConM 𝕄 n) → Set₁ where
   here  :                       x0 ◂ p ∈ γ ∙ p
   there : (h : x ◂ p ∈ γ) → (x +1) ◂ p ∈ γ ∙ q
+
 
 -- Well-usage of terms
 data _▸_ {n : Nat} {𝕄 : Modality M} : (γ : ConM 𝕄 n) → Term M n → Set₁ where
@@ -62,8 +64,8 @@ data _▸_ {n : Nat} {𝕄 : Modality M} : (γ : ConM 𝕄 n) → Term M n → S
             → 𝟘ᶜ ▸ snd t
             
   prodrecₘ  : γ ▸ t
-            → (δ ∙ p ∙ q) ▸ u
-            → (γ +ᶜ δ) ▸ (prodrec p q t u)
+            → (δ ∙ p ∙ p) ▸ u
+            → (p ·ᶜ γ +ᶜ δ) ▸ (prodrec p t u)
 
   zeroₘ     : 𝟘ᶜ ▸ zero
   sucₘ      : γ ▸ t
@@ -71,7 +73,7 @@ data _▸_ {n : Nat} {𝕄 : Modality M} : (γ : ConM 𝕄 n) → Term M n → S
 
   natrecₘ   : ∀ {G z s n}
             → γ ▸ z
-            → γ ▸ (lam p (lam q s))
+            → (γ ∙ q ∙ p) ▸ s
             → δ ▸ n
             → (Modality._* 𝕄 q) ·ᶜ (γ +ᶜ p ·ᶜ δ) ▸ natrec p q G z s n
 
@@ -86,37 +88,33 @@ data _▸_ {n : Nat} {𝕄 : Modality M} : (γ : ConM 𝕄 n) → Term M n → S
             
 infix 50 ⌊_⌋
 
-postulate
-  min : M
-  isMin : (p : M) → Modality._≤_ 𝕄 p min → p ≡ min
-
 mutual
   ⌊_⌋ : {𝕄 : Modality M} → Term M n → ConM 𝕄 n
   ⌊_⌋ {𝕄 = 𝕄} (var x) = 𝟘ᶜ , x ≔ (Modality.𝟙 𝕄)
   ⌊ gen k ts ⌋ = gen-usage k ts
 
   gen-usage : ∀ {n bs} {𝕄 : Modality M} (k : Kind M bs) → (ts : GenTs (Term M) n bs) → ConM 𝕄 n
-  gen-usage Ukind []                        = 𝟘ᶜ
-  gen-usage (Pikind p q) (F ∷ G ∷ [])       = ⌊ F ⌋ +ᶜ (tailₘ ⌊ G ⌋)
-  gen-usage (Lamkind p) (t ∷ [])            = tailₘ ⌊ t ⌋
-  gen-usage (Appkind p) (t ∷ u ∷ [])        = ⌊ t ⌋ +ᶜ p ·ᶜ ⌊ u ⌋
-  gen-usage (Sigmakind p) (F ∷ G ∷ [])      = ⌊ F ⌋ +ᶜ (tailₘ ⌊ G ⌋)
-  gen-usage Prodkind (t ∷ u ∷ [])           = ⌊ t ⌋ +ᶜ ⌊ u ⌋
-  gen-usage Fstkind (t ∷ [])                = ⌊ t ⌋
-  gen-usage Sndkind (t ∷ [])                = ⌊ t ⌋
-  gen-usage (Prodreckind p q) (t ∷ u ∷ [])  = ⌊ t ⌋ +ᶜ tailₘ (tailₘ ⌊ u ⌋)
-  gen-usage Natkind  []                     = 𝟘ᶜ
-  gen-usage Zerokind []                     = 𝟘ᶜ
-  gen-usage Suckind (t ∷ [])                = ⌊ t ⌋
-  gen-usage Unitkind  []                    = 𝟘ᶜ
-  gen-usage Starkind  []                    = 𝟘ᶜ
-  gen-usage Emptykind []                    = 𝟘ᶜ
-  gen-usage (Emptyreckind p) (A ∷ e ∷ [])   = ⌊ e ⌋
-  gen-usage {𝕄 = 𝕄} Natreckind (G ∷ z ∷ s ∷ n ∷ []) = min ·ᶜ (⌊ s ⌋ +ᶜ min ·ᶜ ⌊ n ⌋)
+  gen-usage Ukind []                      = 𝟘ᶜ
+  gen-usage (Pikind p q) (F ∷ G ∷ [])     = ⌊ F ⌋ +ᶜ (tailₘ ⌊ G ⌋)
+  gen-usage (Lamkind p) (t ∷ [])          = tailₘ ⌊ t ⌋
+  gen-usage (Appkind p) (t ∷ u ∷ [])      = ⌊ t ⌋ +ᶜ p ·ᶜ ⌊ u ⌋
+  gen-usage (Sigmakind p) (F ∷ G ∷ [])    = ⌊ F ⌋ +ᶜ (tailₘ ⌊ G ⌋)
+  gen-usage Prodkind (t ∷ u ∷ [])         = ⌊ t ⌋ +ᶜ ⌊ u ⌋
+  gen-usage Fstkind (t ∷ [])              = ⌊ t ⌋
+  gen-usage Sndkind (t ∷ [])              = ⌊ t ⌋
+  gen-usage (Prodreckind p) (t ∷ u ∷ [])  = p ·ᶜ ⌊ t ⌋ +ᶜ tailₘ (tailₘ ⌊ u ⌋)
+  gen-usage Natkind  []                   = 𝟘ᶜ
+  gen-usage Zerokind []                   = 𝟘ᶜ
+  gen-usage Suckind (t ∷ [])              = ⌊ t ⌋
+  gen-usage Unitkind  []                  = 𝟘ᶜ
+  gen-usage Starkind  []                  = 𝟘ᶜ
+  gen-usage Emptykind []                  = 𝟘ᶜ
+  gen-usage (Emptyreckind p) (A ∷ e ∷ []) = ⌊ e ⌋
+  gen-usage {𝕄 = 𝕄} (Natreckind p q) (G ∷ z ∷ s ∷ n ∷ []) =
+            (Modality._* 𝕄 q) ·ᶜ (⌊ z ⌋ +ᶜ p ·ᶜ ⌊ n ⌋)
 
-{-
 
-usage-correctness : γ ▸ t → γ ≤ᶜ ⌊ t ⌋
+usage-correctness : {𝕄 : Modality M} → {γ : ConM 𝕄 n} → γ ▸ t → γ ≤ᶜ ⌊ t ⌋
 usage-correctness Uₘ = ≤ᶜ-reflexive
 usage-correctness ℕₘ = ≤ᶜ-reflexive
 usage-correctness Emptyₘ = ≤ᶜ-reflexive
@@ -136,21 +134,18 @@ usage-correctness (prodₘ t u) = +ᶜ-monotone₂ (usage-correctness t) (usage-
 usage-correctness (fstₘ t) = usage-correctness t
 usage-correctness (sndₘ t) = usage-correctness t
 usage-correctness (prodrecₘ {γ} {δ = δ} {p} {u = u₁} t u) = +ᶜ-monotone₂
-  (usage-correctness t)
-  (PE.subst (δ ≡_)
-    (subst₂ _≡_
-      (sym (tail-linear∧ {γ = δ ∙ p} {⌊ {!u₁!} ⌋}))
-      (tail-linear∧ {γ = δ ∙ p} {⌊ {!!} ⌋})
-      (tail-linear∧ {γ = δ ∙ p} {{!!}})
-    )
-    (cong tailₘ (cong tailₘ (usage-correctness u)))
+  (·ᶜ-monotone (usage-correctness t))
+  (begin
+    tailₘ (tailₘ (δ ∙ p ∙ p))            ≡⟨ cong tailₘ (cong tailₘ (usage-correctness u)) ⟩
+    tailₘ (tailₘ (δ ∙ p ∙ p ∧ᶜ ⌊ u₁ ⌋))  ≡⟨ cong tailₘ (tail-linear∧ {γ = δ ∙ p ∙ p} {⌊ u₁ ⌋}) ⟩
+    tailₘ (δ ∙ p ∧ᶜ tailₘ ⌊ u₁ ⌋)        ≡⟨ tail-linear∧ {γ = δ ∙ p} {tailₘ ⌊ u₁ ⌋} ⟩
+    δ ∧ᶜ tailₘ (tailₘ ⌊ u₁ ⌋) ∎     
   )
--- (PE.subst {!!} {!!} {!!})
--- {!cong tailₘ (cong tailₘ (usage-correctness u))!}
 usage-correctness zeroₘ = ≤ᶜ-reflexive
 usage-correctness (sucₘ t) = usage-correctness t
-usage-correctness (natrecₘ x x₁ x₂ x₃) = {!!}
+usage-correctness (natrecₘ x x₁ x₂) = ·ᶜ-monotone
+  (+ᶜ-monotone₂ (usage-correctness x)
+  (·ᶜ-monotone (usage-correctness x₂)))
 usage-correctness (Emptyrecₘ e) = usage-correctness e
 usage-correctness starₘ = ≤ᶜ-reflexive
 usage-correctness (sub t x) = ≤ᶜ-transitive x (usage-correctness t)
--}
