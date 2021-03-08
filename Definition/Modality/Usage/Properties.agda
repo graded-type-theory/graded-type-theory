@@ -20,6 +20,7 @@ private
     n : Nat
     M : Set
 
+
 -- Usage of lifted wk1 terms
     
 liftn-usage : {𝕄 : Modality M} (ℓ : Nat) {γ : ConM 𝕄 (ℓ + n)} {t : Term M (ℓ + n)}
@@ -29,15 +30,24 @@ liftn-usage ℓ ℕₘ     = PE.subst (_▸ ℕ) (insertAt-𝟘 ℓ) ℕₘ
 liftn-usage ℓ Emptyₘ = PE.subst (_▸ Empty) (insertAt-𝟘 ℓ) Emptyₘ
 liftn-usage ℓ Unitₘ  = PE.subst (_▸ Unit) (insertAt-𝟘 ℓ) Unitₘ
 
-liftn-usage {𝕄 = 𝕄} ℓ (Πₘ γ▸F δ▸G) = subst₂ _▸_ (insertAt-distrib-+ᶜ-𝟘 ℓ _ _) refl
-    (Πₘ (liftn-usage ℓ γ▸F) (liftn-usage (1+ ℓ) δ▸G))
+liftn-usage {𝕄 = 𝕄} ℓ (Πₘ γ▸F δ▸G) = subst₂ _▸_
+  (insertAt-distrib-+ᶜ-𝟘 ℓ _ _)
+  refl
+  (Πₘ (liftn-usage ℓ γ▸F) (liftn-usage (1+ ℓ) δ▸G))
     
-liftn-usage ℓ (Σₘ γ▸F δ▸G) = subst₂ _▸_ (insertAt-distrib-+ᶜ-𝟘 ℓ _ _) refl
-    (Σₘ (liftn-usage ℓ γ▸F) (liftn-usage (1+ ℓ) δ▸G))
+liftn-usage ℓ (Σₘ γ▸F δ▸G) = subst₂ _▸_
+  (insertAt-distrib-+ᶜ-𝟘 ℓ _ _)
+  refl
+  (Σₘ (liftn-usage ℓ γ▸F) (liftn-usage (1+ ℓ) δ▸G))
     
 liftn-usage Nat.zero (var)       = var
-liftn-usage (1+ ℓ) (var {x0})   = PE.subst (_▸ (var x0)) (cong₂ _∙_ (insertAt-𝟘 ℓ) refl) var
-liftn-usage (1+ ℓ) (var {x +1}) = subst₂ _▸_ (cong₂ _∙_ (insertAt-liftn ℓ x) refl) refl var
+liftn-usage (1+ ℓ) (var {x0})   = PE.subst (_▸ (var x0))
+  (cong₂ _∙_ (insertAt-𝟘 ℓ) refl)
+  var
+liftn-usage (1+ ℓ) (var {x +1}) = subst₂ _▸_
+  (cong₂ _∙_ (insertAt-liftn ℓ x) refl)
+  refl
+  var
 
 liftn-usage ℓ (lamₘ γ▸t) = (lamₘ (liftn-usage (1+ ℓ) γ▸t))
 
@@ -107,6 +117,8 @@ lift-usage = liftn-usage 1
 
 -- Usage of wk1
 
-wk1-usage : {𝕄 : Modality M} {γ : ConM 𝕄  n} {t : Term M n}
+wk1-usage : {𝕄 : Modality M} {γ : ConM 𝕄 n} {t : Term M n}
             → γ ▸ t →  γ ∙ (Modality.𝟘 𝕄) ▸ wk1 t
 wk1-usage = liftn-usage 0
+
+
