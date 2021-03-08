@@ -1,11 +1,10 @@
-{-# OPTIONS   #-}
+{-# OPTIONS --without-K --safe  #-}
 
 module Definition.Typed where
 
 open import Definition.Untyped hiding (_∷_)
 open import Definition.Modality
 open import Definition.Modality.Context
-open import Definition.Modality.Substitution
 open import Definition.Modality.Usage
 
 open import Tools.Fin
@@ -100,7 +99,7 @@ mutual
     fstⱼ      : ∀ {F G t}
               → Γ ⊢ F
               → Γ ∙ F ⊢ G
-              → Γ ⊢ t ∷ Σ p  ▷ F ▹ G
+              → Γ ⊢ t ∷ Σ p ▷ F ▹ G
               → Γ ⊢ fst t ∷ F
     sndⱼ      : ∀ {F G t}
               → Γ ⊢ F
@@ -110,7 +109,7 @@ mutual
     prodrecⱼ  : ∀ {t u F G A}
               → Γ ⊢ t ∷ Σ p ▷ F ▹ G
               → Γ ∙ F ∙ G ⊢ u ∷ A
-              → Γ ⊢ prodrec q r t u ∷ A [ wk1 (snd t) ] [ fst t ]
+              → Γ ⊢ prodrec q A t u ∷ A [ snd t ][ fst t ]
 
     zeroⱼ     : ⊢ Γ
               → Γ ⊢ zero ∷ ℕ
@@ -118,12 +117,11 @@ mutual
               → Γ ⊢       n ∷ ℕ
               → Γ ⊢ suc n ∷ ℕ
     natrecⱼ   : ∀ {G s z n}
-              → Γ ∙ ℕ ⊢ G
-              → Γ       ⊢ z ∷ G [ zero ]
-              → Γ       ⊢ s ∷ Π p , q ▷ ℕ ▹ (_▷_▹▹_ {𝕄 = 𝕄} r G (G [ suc (var x0) ]↑))
-              -- (r ▷ G ▹▹ G [ suc (var x0) ]↑)
-              → Γ       ⊢ n ∷ ℕ
-              → Γ       ⊢ natrec G z s n ∷ G [ n ]
+              → Γ ∙ ℕ     ⊢ G
+              → Γ         ⊢ z ∷ G [ zero ]
+              → Γ ∙ ℕ ∙ G ⊢ s ∷ wk1 (G [ suc (var x0) ]↑)
+              → Γ         ⊢ n ∷ ℕ
+              → Γ         ⊢ natrec p q G z s n ∷ G [ n ]
 
     Emptyrecⱼ : ∀ {A e}
               → Γ ⊢ A → Γ ⊢ e ∷ Empty → Γ ⊢ Emptyrec p A e ∷ A
@@ -237,30 +235,34 @@ mutual
                   → Γ ∙ F ⊢ G
                   → Γ ⊢ t ≡ t′ ∷ Σ p ▷ F ▹ G
                   → Γ ∙ F ∙ G ⊢ u ≡ u′ ∷ A
-                  → Γ ⊢ (prodrec p q t u) ≡ (prodrec p q t′ u′) ∷ A [ wk1 (snd t) ] [ fst t ]
+                  → Γ ⊢ (prodrec q A t u) ≡ (prodrec q A t′ u′) ∷ A [ snd t ][ fst t ]
+    prodrec-β     : ∀ {t t′ u F G A}
+                  → Γ ⊢ F
+                  → Γ ∙ F ⊢ G
+                  → Γ ⊢ t ∷ F
+                  → Γ ⊢ t′ ∷ G [ t ]
+                  → Γ ∙ F ∙ G ⊢ u ∷ A
+                  → Γ ⊢ (prodrec p A (prod t t′) u) ≡ u [ snd (prod t t′) ][ fst (prod t t′) ] ∷ A [ snd (prod t t′) ][ fst (prod t t′) ]
     suc-cong      : ∀ {m n}
                   → Γ ⊢ m ≡ n ∷ ℕ
                   → Γ ⊢ suc m ≡ suc n ∷ ℕ
     natrec-cong   : ∀ {z z′ s s′ n n′ F F′}
-                  → Γ ∙ ℕ ⊢ F ≡ F′
-                  → Γ     ⊢ z ≡ z′ ∷ F [ zero ]
-                  → Γ     ⊢ s ≡ s′ ∷ Π p , q ▷ ℕ ▹ (_▷_▹▹_ {𝕄 = 𝕄} r F (F [ suc (var x0) ]↑))
-                  --(r ▷ F ▹▹ F [ suc (var x0) ]↑)
-                  → Γ     ⊢ n ≡ n′ ∷ ℕ
-                  → Γ     ⊢ natrec F z s n ≡ natrec F′ z′ s′ n′ ∷ F [ n ]
+                  → Γ ∙ ℕ     ⊢ F ≡ F′
+                  → Γ         ⊢ z ≡ z′ ∷ F [ zero ]
+                  → Γ ∙ ℕ ∙ F ⊢ s ≡ s′ ∷ wk1 (F [ suc (var x0) ]↑)
+                  → Γ         ⊢ n ≡ n′ ∷ ℕ
+                  → Γ         ⊢ natrec p q F z s n ≡ natrec p q F′ z′ s′ n′ ∷ F [ n ]
     natrec-zero   : ∀ {z s F}
                   → Γ ∙ ℕ ⊢ F
                   → Γ     ⊢ z ∷ F [ zero ]
-                  → Γ     ⊢ s ∷ Π p , q ▷ ℕ ▹ (_▷_▹▹_ {𝕄 = 𝕄} r F (F [ suc (var x0) ]↑))
-                  -- (r ▷ F ▹▹ F [ suc (var x0) ]↑)
-                  → Γ     ⊢ natrec F z s zero ≡ z ∷ F [ zero ]
+                  → Γ ∙ ℕ ∙ F ⊢ s ∷ wk1 (F [ suc (var x0) ]↑)
+                  → Γ     ⊢ natrec p q F z s zero ≡ z ∷ F [ zero ]
     natrec-suc    : ∀ {n z s F}
                   → Γ     ⊢ n ∷ ℕ
                   → Γ ∙ ℕ ⊢ F
                   → Γ     ⊢ z ∷ F [ zero ]
-                  → Γ     ⊢ s ∷ Π p , q ▷ ℕ ▹ (_▷_▹▹_ {𝕄 = 𝕄} r F (F [ suc (var x0) ]↑))
-                  -- (r ▷ F ▹▹ F [ suc (var x0) ]↑)
-                  → Γ     ⊢ natrec F z s (suc n) ≡ r ▷ (p ▷ s ∘ n) ∘ (natrec F z s n)
+                  → Γ ∙ ℕ ∙ F ⊢ s ∷ wk1 (F [ suc (var x0) ]↑)
+                  → Γ     ⊢ natrec p r F z s (suc n) ≡ s [ natrec p r F z s n ][ n ]
                                         ∷ F [ suc n ]
     Emptyrec-cong : ∀ {A A' e e'}
                   → Γ ⊢ A ≡ A'
@@ -278,11 +280,11 @@ _⊢_▸_ : {𝕄 : Modality M} (Γ : Con (Term M) n) (A : Term M n) (γ : ConM 
 _⊢_▸_∷_◂_ : {𝕄 : Modality M} (Γ : Con (Term M) n) (γ : ConM 𝕄 n) (t A : Term M n) (δ : ConM 𝕄 n) → Set₁
 Γ ⊢ γ ▸ t ∷ A ◂ δ = (Γ ⊢ t ∷ A) × (γ ▸ t) × (δ ▸ A)
 
-_⊢_≡_◂_ : {𝕄 : Modality M} (Γ : Con (Term M) n) (A B : Term M n) (γ : ConM 𝕄 n) → Set₁
-Γ ⊢ A ≡ B ◂ γ = (Γ ⊢ A ≡ B) × (γ ▸ A) × (γ ▸ B)
-
-_⊢_▸_≡_∷_◂_ : {𝕄 : Modality M} (Γ : Con (Term M) n) (γ : ConM 𝕄 n) (t u A : Term M n) (δ : ConM 𝕄 n) → Set₁
-Γ ⊢ γ ▸ t ≡ u ∷ A ◂ δ = Γ ⊢ t ≡ u ∷ A × γ ▸ t × γ ▸ u × δ ▸ A
+-- _⊢_≡_◂_ : {𝕄 : Modality M} (Γ : Con (Term M) n) (A B : Term M n) (γ : ConM 𝕄 n) → Set₁
+-- Γ ⊢ A ≡ B ◂ γ = (Γ ⊢ A ≡ B) × (γ ▸ A) × (γ ▸ B)
+--
+-- _⊢_▸_≡_∷_◂_ : {𝕄 : Modality M} (Γ : Con (Term M) n) (γ : ConM 𝕄 n) (t u A : Term M n) (δ : ConM 𝕄 n) → Set₁
+-- Γ ⊢ γ ▸ t ≡ u ∷ A ◂ δ = Γ ⊢ t ≡ u ∷ A × γ ▸ t × γ ▸ u × δ ▸ A
 
 
 -- Term reduction
@@ -324,39 +326,38 @@ data _⊢_⇒_∷_ (Γ : Con (Term M) n) : Term M n → Term M n → Term M n �
                  -- TODO(WN): Prove that 𝔍 ∷ G [ t ] is admissible
                  → Γ ⊢ snd (prod t u) ⇒ u ∷ G [ fst (prod t u) ]
 
-  prodrec-subst  : ∀ {t t' F G A}
+  prodrec-subst  : ∀ {t t′ F G A}
                  → Γ ⊢ F
                  → Γ ∙ F ⊢ G
-                 → Γ ⊢ t ⇒ t' ∷ Σ p ▷ F ▹ G
-                 → Γ ⊢ prodrec p q t u ∷ A
-                 → Γ ⊢ prodrec p q t u ⇒ prodrec p q t' u ∷ A
-  prodrec-β      : ∀ {F G t t' u}
+                 → Γ ∙ F ∙ G ⊢ u ∷ A
+                 → Γ ⊢ t ⇒ t′ ∷ Σ p ▷ F ▹ G
+                 → Γ ⊢ prodrec p A t u ⇒ prodrec p A t′ u ∷ A [ snd t ][ fst t ]
+  prodrec-β      : ∀ {A F G t t′ u}
                  → Γ ⊢ F
                  → Γ ∙ F ⊢ G
                  → Γ ⊢ t ∷ F
-                 → Γ ⊢ t' ∷ G [ t ]
-                 → Γ ∙ F ∙ G ⊢ u ∷ wk1 (wk1 A)
-                 → Γ ⊢ prodrec p q (prod t t') u ⇒ subst (consSubst (consSubst idSubst t) t') u ∷ A
+                 → Γ ⊢ t′ ∷ G [ t ]
+                 → Γ ∙ F ∙ G ⊢ u ∷ A
+                 → Γ ⊢ prodrec p A (prod t t′) u ⇒ u [ snd (prod t t′) ][ fst (prod t t′) ] ∷ A [ snd (prod t t′) ][ fst (prod t t′) ]
+                 
   natrec-subst   : ∀ {z s n n′ F}
-                 → Γ ∙ ℕ ⊢ F
-                 → Γ     ⊢ z ∷ F [ zero ]
-                 → Γ     ⊢ s ∷ Π p , q ▷ ℕ ▹ (_▷_▹▹_ {𝕄 = 𝕄} r F (F [ suc (var x0) ]↑))
-                 --(F ▹▹ F [ suc (var x0) ]↑)
-                 → Γ     ⊢ n ⇒ n′ ∷ ℕ
-                 → Γ     ⊢ natrec F z s n ⇒ natrec F z s n′ ∷ F [ n ]
+                 → Γ ∙ ℕ     ⊢ F
+                 → Γ         ⊢ z ∷ F [ zero ]
+                 → Γ ∙ ℕ ∙ F ⊢ s ∷ wk1 (F [ suc (var x0) ]↑)
+                 → Γ         ⊢ n ⇒ n′ ∷ ℕ
+                 → Γ         ⊢ natrec p q F z s n ⇒ natrec p q F z s n′ ∷ F [ n ]
   natrec-zero    : ∀ {z s F}
-                 → Γ ∙ ℕ ⊢ F
-                 → Γ     ⊢ z ∷ F [ zero ]
-                 → Γ     ⊢ s ∷ Π p , q ▷ ℕ ▹ (_▷_▹▹_ {𝕄 = 𝕄} r F (F [ suc (var x0) ]↑))
-                 -- (F ▹▹ F [ suc (var x0) ]↑)
-                 → Γ     ⊢ natrec F z s zero ⇒ z ∷ F [ zero ]
+                 → Γ ∙ ℕ     ⊢ F
+                 → Γ         ⊢ z ∷ F [ zero ]
+                 → Γ ∙ ℕ ∙ F ⊢ s ∷ wk1 (F [ suc (var x0) ]↑)
+                 → Γ         ⊢ natrec p q F z s zero ⇒ z ∷ F [ zero ]
   natrec-suc     : ∀ {n z s F}
-                 → Γ     ⊢ n ∷ ℕ
-                 → Γ ∙ ℕ ⊢ F
-                 → Γ     ⊢ z ∷ F [ zero ]
-                 → Γ     ⊢ s ∷ Π p , q ▷ ℕ ▹ (_▷_▹▹_ {𝕄 = 𝕄} r F (F [ suc (var x0) ]↑))
-                 --(F ▹▹ F [ suc (var x0) ]↑)
-                 → Γ     ⊢ natrec F z s (suc n) ⇒ p ▷ (q ▷ s ∘ n) ∘ (natrec F z s n) ∷ F [ suc n ]
+                 → Γ         ⊢ n ∷ ℕ
+                 → Γ ∙ ℕ     ⊢ F
+                 → Γ         ⊢ z ∷ F [ zero ]
+                 → Γ ∙ ℕ ∙ F ⊢ s ∷ wk1 (F [ suc (var x0) ]↑)
+                 → Γ         ⊢ natrec p r F z s (suc n) ⇒
+                               s [ natrec p r F z s n ][ n ] ∷ F [ suc n ]
   Emptyrec-subst : ∀ {n n′ A}
                  → Γ ⊢ A
                  → Γ     ⊢ n ⇒ n′ ∷ Empty
@@ -456,4 +457,3 @@ data _⊢ˢ_≡_∷_ (Δ : Con (Term M) m) : (σ σ′ : Subst {M} m n) (Γ : Co
      → Γ     ⊢ ⟦ W ⟧ F ▹ G ∷ U
 ⟦ BΠ p q ⟧ⱼᵤ ⊢F ▹ ⊢G = Πⱼ ⊢F ▹ ⊢G
 ⟦ BΣ p ⟧ⱼᵤ ⊢F ▹ ⊢G = Σⱼ ⊢F ▹ ⊢G
-

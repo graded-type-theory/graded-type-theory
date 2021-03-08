@@ -1,4 +1,3 @@
-
 -- Raw terms, weakening (renaming) and substitution.
 
 {-# OPTIONS --without-K --safe #-}
@@ -32,6 +31,7 @@ infix 30 ⟦_⟧_▹_
 infixl 30 _ₛ•ₛ_ _•ₛ_ _ₛ•_
 infix 25 _[_]
 infix 25 _[_]↑
+infix 25 _[_][_]
 
 
 -- Typing contexts (length indexed snoc-lists, isomorphic to lists).
@@ -62,7 +62,7 @@ data Kind (M : Set) : (ns : List Nat) → Set where
   Prodkind  : Kind M (0 ∷ 0 ∷ [])
   Fstkind   : Kind M (0 ∷ [])
   Sndkind   : Kind M (0 ∷ [])
-  Prodreckind : (p : M) → Kind M (0 ∷ 2 ∷ [])
+  Prodreckind : (p : M) → Kind M (2 ∷ 0 ∷ 2 ∷ [])
 
   Natkind    : Kind M []
   Zerokind   : Kind M []
@@ -86,7 +86,7 @@ data Term (M : Set) (n : Nat) : Set where
 private
   variable
     A F H t u v : Term M n
-    B E G       : Term M (1+ n)
+    B E G t′    : Term M (1+ n)
 
 -- The Grammar of our language.
 
@@ -129,8 +129,9 @@ fst t = gen Fstkind (t ∷ [])
 snd : (t : Term M n) → Term M n          -- Second projection
 snd t = gen Sndkind (t ∷ [])
 
-prodrec : (p : M) (t : Term M n) (u : Term M (1+ (1+ n))) → Term M n
-prodrec p t u = gen (Prodreckind p) (t ∷ u ∷ [])
+prodrec : (p : M) (G : Term M (1+ (1+ n))) (t : Term M n)
+          (u : Term M (1+ (1+ n))) → Term M n -- Product recursor
+prodrec p G t u = gen (Prodreckind p) (G ∷ t ∷ u ∷ [])
 
 -- Introduction and elimination of natural numbers.
 zero   : Term M n                      -- Natural number zero.
@@ -185,7 +186,7 @@ data Neutral {M : Set} : Term M n → Set₁ where
   ∘ₙ        : Neutral t   → Neutral (p ▷ t ∘ u)
   fstₙ      : Neutral t   → Neutral (fst t)
   sndₙ      : Neutral t   → Neutral (snd t)
-  prodrecₙ  : Neutral t   → Neutral (prodrec p t u)
+  prodrecₙ  : Neutral t   → Neutral (prodrec p G t u)
   natrecₙ   : Neutral v   → Neutral (natrec p q G t u v)
   Emptyrecₙ : Neutral t   → Neutral (Emptyrec p A t)
 
@@ -293,7 +294,8 @@ data Function {M : Set} {n : Nat} : Term M n → Set₁ where
 
 data Product {M : Set} {n : Nat} : Term M n → Set₁ where
   prodₙ : Product (prod t u)
-  ne    : Neutral t → Product t
+  ne    : Neutral t → Product t  
+  
 
 -- These views classify only whnfs.
 -- Natural, Type, Function and Product are a subsets of Whnf.
@@ -322,7 +324,6 @@ productWhnf (ne x) = ne x
 ⟦_⟧ₙ : (W : BindingType M) → Whnf (⟦ W ⟧ F ▹ G)
 ⟦_⟧ₙ (BΠ p q) = Πₙ
 ⟦_⟧ₙ (BΣ p)   = Σₙ
-
 
 ------------------------------------------------------------------------
 -- Weakening
@@ -592,6 +593,12 @@ t [ s ] = subst (sgSubst s) t
 _[_]↑ : (t : Term M (1+ n)) (s : Term M (1+ n)) → Term M (1+ n)
 t [ s ]↑ = subst (consSubst (wk1Subst idSubst) s) t
 
+-- Substitute the first two variables of a term with other terms.
+--
+-- If Γ∙A∙B ⊢ t : C, Γ ⊢ s : A and Γ ⊢ s′ : B then Γ ⊢ t[s′][s] : C[s′][s]
+
+_[_][_] : (t : Term M (1+ (1+ n))) (s s′ : Term M n) → Term M n
+t [ s ][ s′ ] = subst (consSubst (consSubst idSubst s) s′) t
 
 B-subst : (σ : Subst {M} m n) (W : BindingType M) (F : Term M n) (G : Term M (1+ n))
         → subst σ (⟦ W ⟧ F ▹ G) PE.≡ ⟦ W ⟧ (subst σ F) ▹ (subst (liftSubst σ) G)

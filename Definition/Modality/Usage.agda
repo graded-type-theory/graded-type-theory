@@ -65,7 +65,7 @@ data _▸_ {n : Nat} {𝕄 : Modality M} : (γ : ConM 𝕄 n) → Term M n → S
             
   prodrecₘ  : γ ▸ t
             → (δ ∙ p ∙ p) ▸ u
-            → (p ·ᶜ γ +ᶜ δ) ▸ (prodrec p t u)
+            → (p ·ᶜ γ +ᶜ δ) ▸ (prodrec p G t u)
 
   zeroₘ     : 𝟘ᶜ ▸ zero
   sucₘ      : γ ▸ t
@@ -102,7 +102,7 @@ mutual
   gen-usage Prodkind (t ∷ u ∷ [])         = ⌊ t ⌋ +ᶜ ⌊ u ⌋
   gen-usage Fstkind (t ∷ [])              = ⌊ t ⌋
   gen-usage Sndkind (t ∷ [])              = ⌊ t ⌋
-  gen-usage (Prodreckind p) (t ∷ u ∷ [])  = p ·ᶜ ⌊ t ⌋ +ᶜ tailₘ (tailₘ ⌊ u ⌋)
+  gen-usage (Prodreckind p) (G ∷ t ∷ u ∷ [])  = p ·ᶜ ⌊ t ⌋ +ᶜ tailₘ (tailₘ ⌊ u ⌋)
   gen-usage Natkind  []                   = 𝟘ᶜ
   gen-usage Zerokind []                   = 𝟘ᶜ
   gen-usage Suckind (t ∷ [])              = ⌊ t ⌋
