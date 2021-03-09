@@ -217,10 +217,10 @@ substₘ-lemma Ψ σ Ψ▶σ (γ▸t ∘ₘ δ▸u) = subst₂ _▸_
   ((substₘ-lemma Ψ σ Ψ▶σ γ▸t) ∘ₘ (substₘ-lemma Ψ σ Ψ▶σ δ▸u))
 
 
-substₘ-lemma Ψ σ Ψ▶σ (prodₘ {γ = γ} {δ = δ} γ▸t δ▸u) = subst₂ _▸_
+substₘ-lemma Ψ σ Ψ▶σ (prodₘ {γ = γ} {δ = δ} γ▸t δ▸u PE.refl) = subst₂ _▸_
   (PE.sym (*>-linear-+ᶜ Ψ γ δ))
   refl
-  (prodₘ (substₘ-lemma Ψ σ Ψ▶σ γ▸t) (substₘ-lemma Ψ σ Ψ▶σ δ▸u))
+  (prodₘ! (substₘ-lemma Ψ σ Ψ▶σ γ▸t) (substₘ-lemma Ψ σ Ψ▶σ δ▸u))
 
 substₘ-lemma Ψ σ Ψ▶σ (fstₘ γ▸t) = subst₂ _▸_
   (PE.sym (*>-zeroʳ Ψ))

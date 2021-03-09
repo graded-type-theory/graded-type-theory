@@ -370,13 +370,14 @@ usagePresTerm (sub γ▸t γ≤γ′ ∘ₘ δ▸u) (β-red x x₁ x₂ PE.refl)
 --   (+ᶜ-monotone γ≤γ′)
 
 usagePresTerm (fstₘ γ▸t) (fst-subst x x₁ t⇒u) = fstₘ (usagePresTerm γ▸t t⇒u)
-usagePresTerm {u = u} (fstₘ γ▸t) (Σ-β₁ x x₁ x₂ x₃) = {!!}
+usagePresTerm {u = u} (fstₘ (prodₘ γ▸t γ▸t₁ x₄)) (Σ-β₁ x x₁ x₂ x₃) = {!!}
+usagePresTerm {u = u} (fstₘ (sub γ▸t x₄)) (Σ-β₁ x x₁ x₂ x₃) = {!!}
 
 usagePresTerm (sndₘ γ▸t) (snd-subst x x₁ t⇒u) = sndₘ (usagePresTerm γ▸t t⇒u)
 usagePresTerm (sndₘ γ▸t) (Σ-β₂ x x₁ x₂ x₃) = {!!}
 
 usagePresTerm (prodrecₘ γ▸t δ▸u) (prodrec-subst x x₁ x₂ t⇒u) = prodrecₘ (usagePresTerm γ▸t t⇒u) δ▸u
-usagePresTerm (prodrecₘ {δ = δ} (prodₘ {γ} {t} {u = u} γ▸t γ▸t₁) δ▸u) (prodrec-β x x₁ x₂ x₃ x₄) = {!Ψγ▸σt!}
+usagePresTerm (prodrecₘ {δ = δ} (prodₘ {γ} {t} {u = u} γ▸t γ▸t₁ eq) δ▸u) (prodrec-β x x₁ x₂ x₃ x₄) = {!Ψγ▸σt!}
 -- PE.subst₂ _▸_ {!!} PE.refl Ψγ▸σt
   where
   Ψγ▸σt = substₘ-lemma
@@ -447,4 +448,3 @@ usagePresTerm (sub γ▸t x) t⇒u = sub (usagePresTerm γ▸t t⇒u) x
 usagePres : {𝕄 : Modality M} {γ : Conₘ 𝕄 n} {Γ : Con (Term M) n} {A B : Term M n}
           → γ ▸ A → Γ ⊢ A ⇒ B → γ ▸ B
 usagePres γ▸A (univ x) = usagePresTerm γ▸A x
-
