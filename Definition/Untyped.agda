@@ -595,7 +595,7 @@ t [ s ]↑ = subst (consSubst (wk1Subst idSubst) s) t
 
 -- Substitute the first two variables of a term with other terms.
 --
--- If Γ∙A∙B ⊢ t : C, Γ ⊢ s : A and Γ ⊢ s′ : B then Γ ⊢ t[s′][s] : C[s′][s]
+-- If Γ∙A∙B ⊢ t : C, Γ ⊢ s : B and Γ ⊢ s′ : A then Γ ⊢ t[s][s′] : C[s][s′]
 
 _[_][_] : (t : Term M (1+ (1+ n))) (s s′ : Term M n) → Term M n
 t [ s ][ s′ ] = subst (consSubst (consSubst idSubst s) s′) t

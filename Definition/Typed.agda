@@ -29,8 +29,8 @@ private
     G E : Term M (1+ n)
     x : Fin n
     p q r : M
-    γ δ η θ : ConM 𝕄 n
-    γ′ γ″ δ′ η′ θ′ : ConM 𝕄 n
+    γ δ η θ : Conₘ 𝕄 n
+    γ′ γ″ δ′ η′ θ′ : Conₘ 𝕄 n
 
 
 -- Well-typed variables
@@ -274,16 +274,16 @@ mutual
                   → Γ ⊢ e ≡ e' ∷ Unit
 
 
-_⊢_▸_ : {𝕄 : Modality M} (Γ : Con (Term M) n) (A : Term M n) (γ : ConM 𝕄 n) → Set₁
+_⊢_▸_ : {𝕄 : Modality M} (Γ : Con (Term M) n) (A : Term M n) (γ : Conₘ 𝕄 n) → Set₁
 Γ ⊢ A ▸ γ = (Γ ⊢ A) × (γ ▸ A)
 
-_⊢_▸_∷_◂_ : {𝕄 : Modality M} (Γ : Con (Term M) n) (γ : ConM 𝕄 n) (t A : Term M n) (δ : ConM 𝕄 n) → Set₁
+_⊢_▸_∷_◂_ : {𝕄 : Modality M} (Γ : Con (Term M) n) (γ : Conₘ 𝕄 n) (t A : Term M n) (δ : Conₘ 𝕄 n) → Set₁
 Γ ⊢ γ ▸ t ∷ A ◂ δ = (Γ ⊢ t ∷ A) × (γ ▸ t) × (δ ▸ A)
 
--- _⊢_≡_◂_ : {𝕄 : Modality M} (Γ : Con (Term M) n) (A B : Term M n) (γ : ConM 𝕄 n) → Set₁
+-- _⊢_≡_◂_ : {𝕄 : Modality M} (Γ : Con (Term M) n) (A B : Term M n) (γ : Conₘ 𝕄 n) → Set₁
 -- Γ ⊢ A ≡ B ◂ γ = (Γ ⊢ A ≡ B) × (γ ▸ A) × (γ ▸ B)
 --
--- _⊢_▸_≡_∷_◂_ : {𝕄 : Modality M} (Γ : Con (Term M) n) (γ : ConM 𝕄 n) (t u A : Term M n) (δ : ConM 𝕄 n) → Set₁
+-- _⊢_▸_≡_∷_◂_ : {𝕄 : Modality M} (Γ : Con (Term M) n) (γ : Conₘ 𝕄 n) (t u A : Term M n) (δ : Conₘ 𝕄 n) → Set₁
 -- Γ ⊢ γ ▸ t ≡ u ∷ A ◂ δ = Γ ⊢ t ≡ u ∷ A × γ ▸ t × γ ▸ u × δ ▸ A
 
 
@@ -339,7 +339,7 @@ data _⊢_⇒_∷_ (Γ : Con (Term M) n) : Term M n → Term M n → Term M n �
                  → Γ ⊢ t′ ∷ G [ t ]
                  → Γ ∙ F ∙ G ⊢ u ∷ A
                  → Γ ⊢ prodrec p A (prod t t′) u ⇒ u [ snd (prod t t′) ][ fst (prod t t′) ] ∷ A [ snd (prod t t′) ][ fst (prod t t′) ]
-                 
+
   natrec-subst   : ∀ {z s n n′ F}
                  → Γ ∙ ℕ     ⊢ F
                  → Γ         ⊢ z ∷ F [ zero ]

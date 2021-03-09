@@ -23,7 +23,7 @@ private
 
 -- Usage of lifted wk1 terms
     
-liftn-usage : {𝕄 : Modality M} (ℓ : Nat) {γ : ConM 𝕄 (ℓ + n)} {t : Term M (ℓ + n)}
+liftn-usage : {𝕄 : Modality M} (ℓ : Nat) {γ : Conₘ 𝕄 (ℓ + n)} {t : Term M (ℓ + n)}
             → γ ▸ t → insertAt ℓ γ (Modality.𝟘 𝕄) ▸ wk (liftn (step id) ℓ) t
 liftn-usage ℓ Uₘ     = PE.subst (_▸ U) (insertAt-𝟘 ℓ) Uₘ
 liftn-usage ℓ ℕₘ     = PE.subst (_▸ ℕ) (insertAt-𝟘 ℓ) ℕₘ
@@ -110,15 +110,13 @@ liftn-usage {𝕄 = 𝕄} ℓ (sub γ▸t x) = sub (liftn-usage ℓ γ▸t)
 
 -- Usage of single lift
 
-lift-usage : {𝕄 : Modality M} {γ : ConM 𝕄 (1+ n)} {t : Term M (1+ n)}
+lift-usage : {𝕄 : Modality M} {γ : Conₘ 𝕄 (1+ n)} {t : Term M (1+ n)}
             → γ ▸ t →  insertAt 1 γ (Modality.𝟘 𝕄) ▸ wk (lift (step id)) t
 lift-usage = liftn-usage 1
 
 
 -- Usage of wk1
 
-wk1-usage : {𝕄 : Modality M} {γ : ConM 𝕄 n} {t : Term M n}
+wk1-usage : {𝕄 : Modality M} {γ : Conₘ 𝕄 n} {t : Term M n}
             → γ ▸ t →  γ ∙ (Modality.𝟘 𝕄) ▸ wk1 t
 wk1-usage = liftn-usage 0
-
-

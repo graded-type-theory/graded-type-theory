@@ -19,13 +19,13 @@ private
     M : Set
     𝕄 : Modality M
     m n : Nat
-    γ : ConM 𝕄 n
+    γ : Conₘ 𝕄 n
     t u : Term M n
     σ : Subst m n
 
 -- Linearity proerties of *>
 
-*>-linear-+ᶜ : {𝕄 : Modality M} (Ψ : Substₘ 𝕄 m n) (γ δ : ConM 𝕄 n) → Ψ *> (γ +ᶜ δ) ≡ Ψ *> γ +ᶜ Ψ *> δ
+*>-linear-+ᶜ : {𝕄 : Modality M} (Ψ : Substₘ 𝕄 m n) (γ δ : Conₘ 𝕄 n) → Ψ *> (γ +ᶜ δ) ≡ Ψ *> γ +ᶜ Ψ *> δ
 *>-linear-+ᶜ           ε       ε       ε      = PE.sym rightUnit
 *>-linear-+ᶜ {𝕄 = 𝕄} (Ψ ∙ η) (γ ∙ p) (δ ∙ q) = begin
   Ψ ∙ η *> (γ ∙ p +ᶜ δ ∙ q)                       ≡⟨ cong₂ _+ᶜ_ refl (*>-linear-+ᶜ Ψ γ δ) ⟩
@@ -40,7 +40,7 @@ private
   (q ·ᶜ η +ᶜ Ψ *> δ) +ᶜ p ·ᶜ η +ᶜ Ψ *> γ          ≡⟨ +ᶜ-comm _ _ ⟩
   ((p ·ᶜ η +ᶜ Ψ *> γ) +ᶜ q ·ᶜ η +ᶜ Ψ *> δ)        ∎
 
-*>-linear-·ᶜ : (Ψ : Substₘ 𝕄 m n) (p : M) (γ : ConM 𝕄 n) → Ψ *> (p ·ᶜ γ) ≡ p ·ᶜ (Ψ *> γ)
+*>-linear-·ᶜ : (Ψ : Substₘ 𝕄 m n) (p : M) (γ : Conₘ 𝕄 n) → Ψ *> (p ·ᶜ γ) ≡ p ·ᶜ (Ψ *> γ)
 *>-linear-·ᶜ  ε p ε = PE.sym (rightZero p)
 *>-linear-·ᶜ {𝕄 = 𝕄} (Ψ ∙ δ) p (γ ∙ q) = begin
   (Modality._·_ 𝕄 p q) ·ᶜ δ +ᶜ Ψ *> (p ·ᶜ γ) ≡⟨ cong₂ _+ᶜ_
@@ -50,7 +50,7 @@ private
   p ·ᶜ (q ·ᶜ δ) +ᶜ p ·ᶜ (Ψ *> γ)              ≡⟨ sym (leftDistr+ _ _ _) ⟩
   p ·ᶜ (q ·ᶜ δ +ᶜ Ψ *> γ)                     ∎
 
-*>-linear : (Ψ : Substₘ 𝕄 m n) (p q : M) (γ δ : ConM 𝕄 n)
+*>-linear : (Ψ : Substₘ 𝕄 m n) (p q : M) (γ δ : Conₘ 𝕄 n)
           → Ψ *> (p ·ᶜ γ +ᶜ q ·ᶜ δ) ≡ p ·ᶜ Ψ *> γ +ᶜ q ·ᶜ Ψ *> δ
 *>-linear Ψ p q γ δ = begin
   Ψ *> (p ·ᶜ γ +ᶜ q ·ᶜ δ)        ≡⟨ *>-linear-+ᶜ Ψ (p ·ᶜ γ) (q ·ᶜ δ) ⟩
@@ -66,7 +66,7 @@ private
                                                 (PE.sym (*>-zeroʳ Ψ))
                                     ) (leftUnit 𝟘ᶜ)
 
-*>-monotone : {γ δ : ConM 𝕄 n} (Ψ : Substₘ 𝕄 m n) → γ ≤ᶜ δ → Ψ *> γ ≤ᶜ Ψ *> δ
+*>-monotone : {γ δ : Conₘ 𝕄 n} (Ψ : Substₘ 𝕄 m n) → γ ≤ᶜ δ → Ψ *> γ ≤ᶜ Ψ *> δ
 *>-monotone {γ = ε}     {ε}      ε      γ≤δ = ≤ᶜ-reflexive
 *>-monotone {γ = γ ∙ p} {δ ∙ q} (Ψ ∙ η) γ≤δ = +ᶜ-monotone₂
   (·ᶜ-monotone₂ ≤ᶜ-reflexive (cong headₘ γ≤δ))
@@ -74,7 +74,7 @@ private
 
 -- Properties of specific substitutions
 
-wk1Substₘ-app : (Ψ : Substₘ 𝕄 m n) (γ : ConM 𝕄 n) → wk1Substₘ Ψ *> γ ≡ (Ψ *> γ) ∙ (Modality.𝟘 𝕄)
+wk1Substₘ-app : (Ψ : Substₘ 𝕄 m n) (γ : Conₘ 𝕄 n) → wk1Substₘ Ψ *> γ ≡ (Ψ *> γ) ∙ (Modality.𝟘 𝕄)
 wk1Substₘ-app ε ε = refl
 wk1Substₘ-app {𝕄 = 𝕄} (Ψ ∙ δ) (γ ∙ p) = begin
   (p ·ᶜ δ) ∙ (Modality._·_ 𝕄 p (Modality.𝟘 𝕄)) +ᶜ wk1Substₘ Ψ *> γ
@@ -85,7 +85,7 @@ wk1Substₘ-app {𝕄 = 𝕄} (Ψ ∙ δ) (γ ∙ p) = begin
   ((p ·ᶜ δ +ᶜ Ψ *> γ) ∙ Modality.𝟘 𝕄) ∎
 
 
-liftSubstₘ-app : (Ψ : Substₘ 𝕄 m n) (γ : ConM 𝕄 n) (p : M)
+liftSubstₘ-app : (Ψ : Substₘ 𝕄 m n) (γ : Conₘ 𝕄 n) (p : M)
                → liftSubstₘ Ψ *> (γ ∙ p) ≡ (Ψ *> γ) ∙ p
 liftSubstₘ-app {𝕄 = 𝕄} ε ε p = cong₂ _∙_ (sym γ′) (sym p′)
   where
@@ -107,7 +107,7 @@ liftSubstₘ-app {𝕄 = 𝕄} (Ψ ∙ x) γ p = begin
   (((Ψ ∙ x) *> γ) ∙ p) ∎
 
 
-idSubstₘ-LeftIdentity : (γ : ConM 𝕄 n) → idSubstₘ *> γ ≡ γ
+idSubstₘ-LeftIdentity : (γ : Conₘ 𝕄 n) → idSubstₘ *> γ ≡ γ
 idSubstₘ-LeftIdentity           ε      = refl
 idSubstₘ-LeftIdentity {𝕄 = 𝕄} (γ ∙ p) = begin
   (p ·ᶜ 𝟘ᶜ) ∙ (𝕄 Modality.· p) (Modality.𝟙 𝕄) +ᶜ wk1Substₘ idSubstₘ *> γ
@@ -167,7 +167,7 @@ wf-liftSubstₘ {𝕄 = 𝕄} {Ψ = Ψ} Ψ▶σ (_+1 x) =
       +ᶜ wk1Substₘ Ψ *> (𝟘ᶜ , x ≔ Modality.𝟙 𝕄) ∎
 
 
-wf-consSubstₘ : {𝕄 : Modality M} {Ψ : Substₘ 𝕄 m n} {γ : ConM 𝕄 m}
+wf-consSubstₘ : {𝕄 : Modality M} {Ψ : Substₘ 𝕄 m n} {γ : Conₘ 𝕄 m}
              → Ψ ▶ σ → γ ▸ t → Ψ ∙ γ ▶ consSubst σ t
 wf-consSubstₘ {𝕄 = 𝕄} {Ψ = Ψ} {γ = γ} Ψ▶σ γ▸t x0 = subst₂ _▸_ γ≡ refl γ▸t
   where

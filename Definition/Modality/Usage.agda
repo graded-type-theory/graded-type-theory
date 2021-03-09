@@ -16,20 +16,20 @@ private
     M : Set
     𝕄 : Modality M
     p q r : M
-    γ δ : ConM 𝕄 n
+    γ δ : Conₘ 𝕄 n
     A F : Term M n
     G : Term M (1+ n)
     t u : Term M n
     x : Fin n
 
 -- Well-usage of variables
-data _◂_∈_ : (x : Fin n) (p : M) (γ : ConM 𝕄 n) → Set₁ where
+data _◂_∈_ : (x : Fin n) (p : M) (γ : Conₘ 𝕄 n) → Set₁ where
   here  :                       x0 ◂ p ∈ γ ∙ p
   there : (h : x ◂ p ∈ γ) → (x +1) ◂ p ∈ γ ∙ q
 
 
 -- Well-usage of terms
-data _▸_ {n : Nat} {𝕄 : Modality M} : (γ : ConM 𝕄 n) → Term M n → Set₁ where
+data _▸_ {n : Nat} {𝕄 : Modality M} : (γ : Conₘ 𝕄 n) → Term M n → Set₁ where
   Uₘ        : 𝟘ᶜ ▸ U
   ℕₘ        : 𝟘ᶜ ▸ ℕ
   Emptyₘ    : 𝟘ᶜ ▸ Empty
@@ -89,11 +89,11 @@ data _▸_ {n : Nat} {𝕄 : Modality M} : (γ : ConM 𝕄 n) → Term M n → S
 infix 50 ⌊_⌋
 
 mutual
-  ⌊_⌋ : {𝕄 : Modality M} → Term M n → ConM 𝕄 n
+  ⌊_⌋ : {𝕄 : Modality M} → Term M n → Conₘ 𝕄 n
   ⌊_⌋ {𝕄 = 𝕄} (var x) = 𝟘ᶜ , x ≔ (Modality.𝟙 𝕄)
   ⌊ gen k ts ⌋ = gen-usage k ts
 
-  gen-usage : ∀ {n bs} {𝕄 : Modality M} (k : Kind M bs) → (ts : GenTs (Term M) n bs) → ConM 𝕄 n
+  gen-usage : ∀ {n bs} {𝕄 : Modality M} (k : Kind M bs) → (ts : GenTs (Term M) n bs) → Conₘ 𝕄 n
   gen-usage Ukind []                      = 𝟘ᶜ
   gen-usage (Pikind p q) (F ∷ G ∷ [])     = ⌊ F ⌋ +ᶜ (tailₘ ⌊ G ⌋)
   gen-usage (Lamkind p) (t ∷ [])          = tailₘ ⌊ t ⌋
@@ -114,7 +114,7 @@ mutual
             (Modality._* 𝕄 q) ·ᶜ (⌊ z ⌋ +ᶜ p ·ᶜ ⌊ n ⌋)
 
 
-usage-correctness : {𝕄 : Modality M} → {γ : ConM 𝕄 n} → γ ▸ t → γ ≤ᶜ ⌊ t ⌋
+usage-correctness : {𝕄 : Modality M} → {γ : Conₘ 𝕄 n} → γ ▸ t → γ ≤ᶜ ⌊ t ⌋
 usage-correctness Uₘ = ≤ᶜ-reflexive
 usage-correctness ℕₘ = ≤ᶜ-reflexive
 usage-correctness Emptyₘ = ≤ᶜ-reflexive

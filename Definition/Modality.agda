@@ -13,7 +13,7 @@ record Modality (M : Set) : Set where
     _·_ : Op₂ M -- Multiplication
     _∧_ : Op₂ M -- Meet
 
-    -- ... one unary operator
+    -- ... one unary operator ...
     _* : Op₁ M
 
     -- ... and two special elements

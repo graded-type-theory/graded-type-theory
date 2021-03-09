@@ -25,7 +25,7 @@ private
     Γ : Con (Term M) n
     A A′ B B′ C U′ : Term M n
     a b t u u′ : Term M n
-    γ δ : ConM 𝕄 n
+    γ δ : Conₘ 𝕄 n
 
 -- Escape context extraction
 
