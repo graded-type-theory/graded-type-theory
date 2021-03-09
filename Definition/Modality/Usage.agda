@@ -48,7 +48,7 @@ data _▸_ {n : Nat} {𝕄 : Modality M} : (γ : Conₘ 𝕄 n) → Term M n →
   lamₘ      : ∀ {t}
             → (γ ∙ p) ▸ t
             → γ ▸ lam p t
-            
+
   _∘ₘ_      : γ ▸ t
             → δ ▸ u
             → (γ +ᶜ p ·ᶜ δ) ▸ (p ▷ t ∘ u)
@@ -139,7 +139,7 @@ usage-correctness (prodrecₘ {γ} {δ = δ} {p} {u = u₁} t u) = +ᶜ-monotone
     tailₘ (tailₘ (δ ∙ p ∙ p))            ≡⟨ cong tailₘ (cong tailₘ (usage-correctness u)) ⟩
     tailₘ (tailₘ (δ ∙ p ∙ p ∧ᶜ ⌊ u₁ ⌋))  ≡⟨ cong tailₘ (tail-linear∧ {γ = δ ∙ p ∙ p} {⌊ u₁ ⌋}) ⟩
     tailₘ (δ ∙ p ∧ᶜ tailₘ ⌊ u₁ ⌋)        ≡⟨ tail-linear∧ {γ = δ ∙ p} {tailₘ ⌊ u₁ ⌋} ⟩
-    δ ∧ᶜ tailₘ (tailₘ ⌊ u₁ ⌋) ∎     
+    δ ∧ᶜ tailₘ (tailₘ ⌊ u₁ ⌋) ∎
   )
 usage-correctness zeroₘ = ≤ᶜ-reflexive
 usage-correctness (sucₘ t) = usage-correctness t

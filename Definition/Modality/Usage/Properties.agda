@@ -22,7 +22,7 @@ private
 
 
 -- Usage of lifted wk1 terms
-    
+
 liftn-usage : {𝕄 : Modality M} (ℓ : Nat) {γ : Conₘ 𝕄 (ℓ + n)} {t : Term M (ℓ + n)}
             → γ ▸ t → insertAt ℓ γ (Modality.𝟘 𝕄) ▸ wk (liftn (step id) ℓ) t
 liftn-usage ℓ Uₘ     = PE.subst (_▸ U) (insertAt-𝟘 ℓ) Uₘ
@@ -34,12 +34,12 @@ liftn-usage {𝕄 = 𝕄} ℓ (Πₘ γ▸F δ▸G) = subst₂ _▸_
   (insertAt-distrib-+ᶜ-𝟘 ℓ _ _)
   refl
   (Πₘ (liftn-usage ℓ γ▸F) (liftn-usage (1+ ℓ) δ▸G))
-    
+
 liftn-usage ℓ (Σₘ γ▸F δ▸G) = subst₂ _▸_
   (insertAt-distrib-+ᶜ-𝟘 ℓ _ _)
   refl
   (Σₘ (liftn-usage ℓ γ▸F) (liftn-usage (1+ ℓ) δ▸G))
-    
+
 liftn-usage Nat.zero (var)       = var
 liftn-usage (1+ ℓ) (var {x0})   = PE.subst (_▸ (var x0))
   (cong₂ _∙_ (insertAt-𝟘 ℓ) refl)
@@ -60,7 +60,7 @@ liftn-usage {𝕄 = 𝕄} ℓ (_∘ₘ_ {δ = δ} γ▸t δ▸u) =
     _ ≡⟨ insertAt-distrib-+ᶜ ℓ _ _ _ _ ⟩
     _ ≡⟨ cong (insertAt ℓ _) (proj₁ (Modality.+-Identity 𝕄) (Modality.𝟘 𝕄)) ⟩
     _ ∎
-   
+
 liftn-usage ℓ (prodₘ γ▸t δ▸u) = subst₂ _▸_
   (insertAt-distrib-+ᶜ-𝟘 ℓ _ _)
   refl
@@ -85,7 +85,7 @@ liftn-usage {𝕄 = 𝕄} ℓ (prodrecₘ {δ = δ} γ▸t δ▸u) = subst₂ _�
      _ ≡⟨ insertAt-distrib-+ᶜ ℓ _ _ _ _ ⟩
      _ ≡⟨ cong (insertAt ℓ _) (proj₁ (Modality.+-Identity 𝕄) (Modality.𝟘 𝕄)) ⟩
      _ ∎
-    
+
 liftn-usage ℓ zeroₘ      = PE.subst (_▸ zero) (insertAt-𝟘 ℓ) zeroₘ
 liftn-usage ℓ (sucₘ γ▸t) = sucₘ (liftn-usage ℓ γ▸t)
 
@@ -94,13 +94,13 @@ liftn-usage {𝕄 = 𝕄} ℓ (natrecₘ {δ = δ} γ▸z γ▸s δ▸n) = subst
   where
   eq = begin
      _ ≡⟨ cong₂ _·ᶜ_ refl (cong₂ _+ᶜ_ refl (insertAt-distrib-·ᶜ ℓ _ δ _ _)) ⟩
-      _ ≡⟨ cong₂ _·ᶜ_ refl (cong₂ _+ᶜ_ refl (cong (insertAt ℓ _) (proj₂ (Modality.·-Zero 𝕄) _))) ⟩ 
+      _ ≡⟨ cong₂ _·ᶜ_ refl (cong₂ _+ᶜ_ refl (cong (insertAt ℓ _) (proj₂ (Modality.·-Zero 𝕄) _))) ⟩
      _ ≡⟨ cong₂ _·ᶜ_ refl (insertAt-distrib-+ᶜ ℓ _ _ _ _) ⟩
      _ ≡⟨ cong₂ _·ᶜ_ refl (cong (insertAt ℓ _) (proj₁ (Modality.+-Identity 𝕄) (Modality.𝟘 𝕄))) ⟩
      _ ≡⟨ insertAt-distrib-·ᶜ {𝕄 = 𝕄} ℓ _ δ _ _ ⟩
      _ ≡⟨ cong (insertAt ℓ _) (proj₂ (Modality.·-Zero 𝕄) _) ⟩
      _ ∎
-    
+
 liftn-usage ℓ (Emptyrecₘ γ▸t) = Emptyrecₘ (liftn-usage ℓ γ▸t)
 liftn-usage ℓ starₘ           =  PE.subst (_▸ star) (insertAt-𝟘 ℓ) starₘ
 
