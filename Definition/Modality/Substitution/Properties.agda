@@ -222,15 +222,15 @@ substₘ-lemma Ψ σ Ψ▶σ (prodₘ {γ = γ} {δ = δ} γ▸t δ▸u) = subst
   refl
   (prodₘ (substₘ-lemma Ψ σ Ψ▶σ γ▸t) (substₘ-lemma Ψ σ Ψ▶σ δ▸u))
 
-substₘ-lemma Ψ σ Ψ▶σ (fstₘ γ▸t) = subst₂ _▸_
+substₘ-lemma Ψ σ Ψ▶σ (fstₘ! γ▸t) = subst₂ _▸_
   (PE.sym (*>-zeroʳ Ψ))
   refl
-  (fstₘ (subst₂ _▸_ (*>-zeroʳ Ψ) refl (substₘ-lemma Ψ σ Ψ▶σ γ▸t)))
+  (fstₘ! (subst₂ _▸_ (*>-zeroʳ Ψ) refl (substₘ-lemma Ψ σ Ψ▶σ γ▸t)))
 
-substₘ-lemma Ψ σ Ψ▶σ (sndₘ γ▸t) =  subst₂ _▸_
+substₘ-lemma Ψ σ Ψ▶σ (sndₘ! γ▸t) =  subst₂ _▸_
   (PE.sym (*>-zeroʳ Ψ))
   refl
-  (sndₘ (subst₂ _▸_ (*>-zeroʳ Ψ) refl (substₘ-lemma Ψ σ Ψ▶σ γ▸t)))
+  (sndₘ! (subst₂ _▸_ (*>-zeroʳ Ψ) refl (substₘ-lemma Ψ σ Ψ▶σ γ▸t)))
 
 substₘ-lemma {𝕄 = 𝕄} Ψ σ Ψ▶σ (prodrecₘ {γ = γ} {δ = δ} {p} γ▸t δ▸u) = subst₂ _▸_
   --(PE.sym (*>-linear-+ᶜ {!!} {!!} {!!}))

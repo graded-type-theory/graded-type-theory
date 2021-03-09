@@ -56,13 +56,15 @@ data _▸_ {n : Nat} {𝕄 : Modality M} : (γ : Conₘ 𝕄 n) → Term M n →
   prodₘ     : γ ▸ t
             → δ ▸ u
             → (γ +ᶜ δ) ▸ prod t u
-            
+
   fstₘ      : 𝟘ᶜ {𝕄 = 𝕄} ▸ t
-            → 𝟘ᶜ ▸ fst t
-            
+            → γ PE.≡ 𝟘ᶜ
+            → γ ▸ fst t
+
   sndₘ      : 𝟘ᶜ {𝕄 = 𝕄} ▸ t
-            → 𝟘ᶜ ▸ snd t
-            
+            → γ PE.≡ 𝟘ᶜ
+            → γ ▸ snd t
+
   prodrecₘ  : γ ▸ t
             → (δ ∙ p ∙ p) ▸ u
             → (p ·ᶜ γ +ᶜ δ) ▸ (prodrec p G t u)
@@ -85,7 +87,10 @@ data _▸_ {n : Nat} {𝕄 : Modality M} : (γ : Conₘ 𝕄 n) → Term M n →
   sub       : γ ▸ t
             → δ ≤ᶜ γ
             → δ ▸ t
-            
+
+pattern fstₘ! x = fstₘ x PE.refl
+pattern sndₘ! x = sndₘ x PE.refl
+
 infix 50 ⌊_⌋
 
 mutual
@@ -113,7 +118,7 @@ mutual
   gen-usage {𝕄 = 𝕄} (Natreckind p q) (G ∷ z ∷ s ∷ n ∷ []) =
             (Modality._* 𝕄 q) ·ᶜ (⌊ z ⌋ +ᶜ p ·ᶜ ⌊ n ⌋)
 
-
+--  ⌊ t ⌋ ▸ t ?
 usage-correctness : {𝕄 : Modality M} → {γ : Conₘ 𝕄 n} → γ ▸ t → γ ≤ᶜ ⌊ t ⌋
 usage-correctness Uₘ = ≤ᶜ-reflexive
 usage-correctness ℕₘ = ≤ᶜ-reflexive
@@ -131,8 +136,8 @@ usage-correctness {γ = γ} (lamₘ {p = p} {t₁} t) = PE.subst (γ ≡_)
                                         (cong tailₘ (usage-correctness t))
 usage-correctness (t ∘ₘ u) = +ᶜ-monotone₂ (usage-correctness t) (·ᶜ-monotone (usage-correctness u))
 usage-correctness (prodₘ t u) = +ᶜ-monotone₂ (usage-correctness t) (usage-correctness u)
-usage-correctness (fstₘ t) = usage-correctness t
-usage-correctness (sndₘ t) = usage-correctness t
+usage-correctness (fstₘ! t) = usage-correctness t
+usage-correctness (sndₘ! t) = usage-correctness t
 usage-correctness (prodrecₘ {γ} {δ = δ} {p} {u = u₁} t u) = +ᶜ-monotone₂
   (·ᶜ-monotone (usage-correctness t))
   (begin

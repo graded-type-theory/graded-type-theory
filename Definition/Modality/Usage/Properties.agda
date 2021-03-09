@@ -65,17 +65,17 @@ liftn-usage ℓ (prodₘ γ▸t δ▸u) = subst₂ _▸_
   (insertAt-distrib-+ᶜ-𝟘 ℓ _ _)
   refl
   (prodₘ (liftn-usage ℓ γ▸t) (liftn-usage ℓ δ▸u))
-  
-liftn-usage ℓ (fstₘ γ▸t) = subst₂ _▸_
+
+liftn-usage ℓ (fstₘ! γ▸t) = subst₂ _▸_
   (insertAt-𝟘 ℓ)
   refl
-  (fstₘ (subst₂ _▸_ (sym (insertAt-𝟘 ℓ)) refl (liftn-usage ℓ γ▸t)))
-  
-liftn-usage ℓ (sndₘ γ▸t) =  subst₂ _▸_
+  (fstₘ! (subst₂ _▸_ (sym (insertAt-𝟘 ℓ)) refl (liftn-usage ℓ γ▸t)))
+
+liftn-usage ℓ (sndₘ! γ▸t) =  subst₂ _▸_
   (insertAt-𝟘 ℓ)
   refl
-  (sndₘ (subst₂ _▸_ (sym (insertAt-𝟘 ℓ)) refl (liftn-usage ℓ γ▸t)))
-  
+  (sndₘ! (subst₂ _▸_ (sym (insertAt-𝟘 ℓ)) refl (liftn-usage ℓ γ▸t)))
+
 liftn-usage {𝕄 = 𝕄} ℓ (prodrecₘ {δ = δ} γ▸t δ▸u) = subst₂ _▸_ eq refl
   (prodrecₘ (liftn-usage ℓ γ▸t) (liftn-usage (1+ (1+ ℓ)) δ▸u))
   where
