@@ -6,8 +6,8 @@ open import Definition.Modality.Context
 open import Definition.Modality.Context.Properties
 open import Definition.Modality.Properties
 open import Definition.Modality.Usage
-open import Definition.Untyped as U
-open import Definition.Untyped.Properties
+open import Definition.Untyped as U hiding (_∷_)
+open import Definition.Typed
 
 open import Tools.Fin
 open import Tools.Nat
@@ -19,6 +19,58 @@ private
   variable
     n : Nat
     M : Set
+    𝕄 : Modality M
+    Γ : Con (Term M) n
+    t A : Term M n
+    γ δ : Conₘ 𝕄 n
+
+usage-upper-bound : γ ▸ t → γ ≤ᶜ ⌈ t ⌉
+usage-upper-bound Uₘ = ≤ᶜ-reflexive
+usage-upper-bound ℕₘ = ≤ᶜ-reflexive
+usage-upper-bound Emptyₘ = ≤ᶜ-reflexive
+usage-upper-bound Unitₘ = ≤ᶜ-reflexive
+usage-upper-bound (Πₘ {δ = δ} {q} {G₁} F G) = +ᶜ-monotone₂
+  (usage-upper-bound F)
+  (PE.subst (δ ≡_) (tail-linear∧ {γ = δ ∙ q} {⌈ G₁ ⌉})
+            (cong tailₘ (usage-upper-bound G)))
+usage-upper-bound (Σₘ {δ = δ} {q} {G₁} F G) = +ᶜ-monotone₂
+  (usage-upper-bound F)
+  (PE.subst (δ ≡_) (tail-linear∧ {γ = δ ∙ q} {⌈ G₁ ⌉})
+                   (cong tailₘ (usage-upper-bound G)))
+usage-upper-bound var = ≤ᶜ-reflexive
+usage-upper-bound {γ = γ} (lamₘ {p = p} {t₁} t) = PE.subst (γ ≡_)
+  (tail-linear∧ {γ = γ ∙ p} {⌈ t₁ ⌉})
+  (cong tailₘ (usage-upper-bound t))
+usage-upper-bound (t ∘ₘ u) = +ᶜ-monotone₂ (usage-upper-bound t) (·ᶜ-monotone (usage-upper-bound u))
+usage-upper-bound (prodₘ! t u) = +ᶜ-monotone₂ (usage-upper-bound t) (usage-upper-bound u)
+usage-upper-bound (fstₘ t) = usage-upper-bound t
+usage-upper-bound (sndₘ t) = usage-upper-bound t
+usage-upper-bound (prodrecₘ {γ} {δ = δ} {p} {u = u₁} t u) = +ᶜ-monotone₂
+  (·ᶜ-monotone (usage-upper-bound t))
+  (begin
+    tailₘ (tailₘ (δ ∙ p ∙ p))            ≡⟨ cong tailₘ (cong tailₘ (usage-upper-bound u)) ⟩
+    tailₘ (tailₘ (δ ∙ p ∙ p ∧ᶜ ⌈ u₁ ⌉))  ≡⟨ cong tailₘ (tail-linear∧ {γ = δ ∙ p ∙ p} {⌈ u₁ ⌉}) ⟩
+    tailₘ (δ ∙ p ∧ᶜ tailₘ ⌈ u₁ ⌉)        ≡⟨ tail-linear∧ {γ = δ ∙ p} {tailₘ ⌈ u₁ ⌉} ⟩
+    δ ∧ᶜ tailₘ (tailₘ ⌈ u₁ ⌉) ∎
+  )
+usage-upper-bound zeroₘ = ≤ᶜ-reflexive
+usage-upper-bound (sucₘ t) = usage-upper-bound t
+usage-upper-bound (natrecₘ {γ = γ} {q = q} {p = p} {s = s} x x₁ x₂) = ·ᶜ-monotone (+ᶜ-monotone₂
+  (subst₂ _≤ᶜ_ (∧ᶜ-Idempotent γ) refl (∧ᶜ-monotone₂ (usage-upper-bound x) eq))
+  (·ᶜ-monotone (usage-upper-bound x₂)))
+  where
+  eq = begin
+         tailₘ (tailₘ (γ ∙ q ∙ p))
+           ≡⟨ cong tailₘ (cong tailₘ (usage-upper-bound x₁)) ⟩
+         tailₘ (tailₘ (γ ∙ q ∙ p ∧ᶜ ⌈ s ⌉))
+           ≡⟨ cong tailₘ (tail-linear∧ {γ = γ ∙ q ∙ p} {⌈ s ⌉}) ⟩
+         tailₘ ((γ ∙ q) ∧ᶜ tailₘ ⌈ s ⌉)
+           ≡⟨ tail-linear∧ {γ = γ ∙ q} {tailₘ ⌈ s ⌉} ⟩
+         γ ∧ᶜ tailₘ (tailₘ ⌈ s ⌉) ∎  
+              
+usage-upper-bound (Emptyrecₘ e) = usage-upper-bound e
+usage-upper-bound starₘ = ≤ᶜ-reflexive
+usage-upper-bound (sub t x) = ≤ᶜ-transitive x (usage-upper-bound t)
 
 
 -- Usage of lifted wk1 terms
@@ -74,7 +126,7 @@ liftn-usage ℓ (fstₘ γ▸t) = subst₂ _▸_
 liftn-usage ℓ (sndₘ γ▸t) =  subst₂ _▸_
   (insertAt-𝟘 ℓ)
   refl
-  (sndₘ (subst₂ _▸_ (sym (insertAt-𝟘 ℓ)) refl (liftn-usage ℓ γ▸t)))
+  (sndₘ (subst₂ _▸_ (PE.sym (insertAt-𝟘 ℓ)) refl (liftn-usage ℓ γ▸t)))
 
 liftn-usage {𝕄 = 𝕄} ℓ (prodrecₘ {δ = δ} γ▸t δ▸u) = subst₂ _▸_ eq refl
   (prodrecₘ (liftn-usage ℓ γ▸t) (liftn-usage (1+ (1+ ℓ)) δ▸u))
