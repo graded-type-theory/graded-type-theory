@@ -107,14 +107,17 @@ mutual
               → Γ ⊢ t ∷ Σ p ▷ F ▹ G
               → Γ ⊢ snd t ∷ G [ fst t ]
     prodrecⱼ  : ∀ {t u F G A}
+              → Γ ⊢ F
+              → Γ ∙ F ⊢ G
               → Γ ⊢ t ∷ Σ p ▷ F ▹ G
-              → Γ ∙ F ∙ G ⊢ u ∷ A
-              → Γ ⊢ prodrec q A t u ∷ A [ snd t ][ fst t ]
+              → Γ ∙ (Σ p ▷ F ▹ G) ⊢ A
+              → Γ ∙ F ∙ G ⊢ u ∷ A [⟨ var (x0 +1) , var x0 ⟩]
+              → Γ ⊢ prodrec q A t u ∷ A [ t ]
 
     zeroⱼ     : ⊢ Γ
               → Γ ⊢ zero ∷ ℕ
     sucⱼ      : ∀ {n}
-              → Γ ⊢       n ∷ ℕ
+              → Γ ⊢     n ∷ ℕ
               → Γ ⊢ suc n ∷ ℕ
     natrecⱼ   : ∀ {G s z n}
               → Γ ∙ ℕ     ⊢ G
@@ -235,15 +238,18 @@ mutual
                   → Γ ⊢ F
                   → Γ ∙ F ⊢ G
                   → Γ ⊢ t ≡ t′ ∷ Σ p ▷ F ▹ G
-                  → Γ ∙ F ∙ G ⊢ u ≡ u′ ∷ A
-                  → Γ ⊢ (prodrec q A t u) ≡ (prodrec q A t′ u′) ∷ A [ snd t ][ fst t ]
+                  → Γ ∙ (Σ p ▷ F ▹ G) ⊢ A
+                  → Γ ∙ F ∙ G ⊢ u ≡ u′ ∷ A [⟨ var (x0 +1) , var x0 ⟩]
+                  → Γ ⊢ (prodrec q A t u) ≡ (prodrec q A t′ u′) ∷ A [ t ]
     prodrec-β     : ∀ {t t′ u F G A}
                   → Γ ⊢ F
                   → Γ ∙ F ⊢ G
                   → Γ ⊢ t ∷ F
                   → Γ ⊢ t′ ∷ G [ t ]
-                  → Γ ∙ F ∙ G ⊢ u ∷ A
-                  → Γ ⊢ (prodrec p A (prod t t′) u) ≡ u [ snd (prod t t′) ][ fst (prod t t′) ] ∷ A [ snd (prod t t′) ][ fst (prod t t′) ]
+                  → Γ ∙ (Σ p ▷ F ▹ G) ⊢ A
+                  → Γ ∙ F ∙ G ⊢ u ∷ A [⟨ var (x0 +1) , var x0 ⟩]
+                  → Γ ⊢ (prodrec p A (prod t t′) u) ≡
+                        u [ t′ ][ t ] ∷ A [ prod t t′ ]
     suc-cong      : ∀ {m n}
                   → Γ ⊢ m ≡ n ∷ ℕ
                   → Γ ⊢ suc m ≡ suc n ∷ ℕ
@@ -331,16 +337,19 @@ data _⊢_⇒_∷_ (Γ : Con (Term M) n) : Term M n → Term M n → Term M n �
   prodrec-subst  : ∀ {t t′ F G A}
                  → Γ ⊢ F
                  → Γ ∙ F ⊢ G
-                 → Γ ∙ F ∙ G ⊢ u ∷ A
+                 → Γ ∙ F ∙ G ⊢ u ∷ A [⟨ var (x0 +1) , var x0 ⟩]
+                 → Γ ∙ (Σ p ▷ F ▹ G) ⊢ A
                  → Γ ⊢ t ⇒ t′ ∷ Σ p ▷ F ▹ G
-                 → Γ ⊢ prodrec p A t u ⇒ prodrec p A t′ u ∷ A [ snd t ][ fst t ]
+                 → Γ ⊢ prodrec p A t u ⇒ prodrec p A t′ u ∷ A [ t ]
   prodrec-β      : ∀ {A F G t t′ u}
                  → Γ ⊢ F
                  → Γ ∙ F ⊢ G
                  → Γ ⊢ t ∷ F
                  → Γ ⊢ t′ ∷ G [ t ]
-                 → Γ ∙ F ∙ G ⊢ u ∷ A
-                 → Γ ⊢ prodrec p A (prod t t′) u ⇒ u [ snd (prod t t′) ][ fst (prod t t′) ] ∷ A [ snd (prod t t′) ][ fst (prod t t′) ]
+                 → Γ ∙ (Σ p ▷ F ▹ G) ⊢ A
+                 → Γ ∙ F ∙ G ⊢ u ∷ A [⟨ var (x0 +1) , var x0 ⟩]
+                 → Γ ⊢ prodrec p A (prod t t′) u ⇒
+                       u [ t′ ][ t ] ∷ A [ prod t t′ ]
 
   natrec-subst   : ∀ {z s n n′ F}
                  → Γ ∙ ℕ     ⊢ F
@@ -428,7 +437,7 @@ record _⊢_:⇒*:_∷_ (Γ : Con (Term M) n) (t u A : Term M n) : Set₁ where
 open _⊢_:⇒*:_∷_ using () renaming (d to redₜ; ⊢t to ⊢t-redₜ; ⊢u to ⊢u-redₜ) public
 
 -- Well-formed substitutions.
-data _⊢ˢ_∷_ (Δ : Con (Term M) m) : (σ : Subst {M} m n) (Γ : Con (Term M) n) → Set₁ where
+data _⊢ˢ_∷_ (Δ : Con (Term M) m) : (σ : Subst M m n) (Γ : Con (Term M) n) → Set₁ where
   id  : ∀ {σ} → Δ ⊢ˢ σ ∷ ε
   _,_ : ∀ {A σ}
       → Δ ⊢ˢ tail σ ∷ Γ
@@ -436,7 +445,7 @@ data _⊢ˢ_∷_ (Δ : Con (Term M) m) : (σ : Subst {M} m n) (Γ : Con (Term M)
       → Δ ⊢ˢ σ      ∷ Γ ∙ A
 
 -- Conversion of well-formed substitutions.
-data _⊢ˢ_≡_∷_ (Δ : Con (Term M) m) : (σ σ′ : Subst {M} m n) (Γ : Con (Term M) n) → Set₁ where
+data _⊢ˢ_≡_∷_ (Δ : Con (Term M) m) : (σ σ′ : Subst M m n) (Γ : Con (Term M) n) → Set₁ where
   id  : ∀ {σ σ′} → Δ ⊢ˢ σ ≡ σ′ ∷ ε
   _,_ : ∀ {A σ σ′}
       → Δ ⊢ˢ tail σ ≡ tail σ′ ∷ Γ

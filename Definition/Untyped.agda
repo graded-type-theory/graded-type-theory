@@ -22,16 +22,16 @@ private
 infixl 30 _∙_
 infixr 5 _∷_
 infix 30 Π_,_▷_▹_
-infix 22 _▷_▹▹_
--- infixr 22 _▹▹_
+infix 22 _,_▷_▹▹_
 infix 30 Σ_▷_▹_
-infix 22 _▷_××_
--- infixr 22 _××_
+infix 22 _,_▷_××_
 infix 30 ⟦_⟧_▹_
 infixl 30 _ₛ•ₛ_ _•ₛ_ _ₛ•_
 infix 25 _[_]
 infix 25 _[_]↑
+infix 25 _[_]⇑
 infix 25 _[_][_]
+infix 25 _[⟨_,_⟩]
 
 
 -- Typing contexts (length indexed snoc-lists, isomorphic to lists).
@@ -62,7 +62,7 @@ data Kind (M : Set) : (ns : List Nat) → Set where
   Prodkind  : Kind M (0 ∷ 0 ∷ [])
   Fstkind   : Kind M (0 ∷ [])
   Sndkind   : Kind M (0 ∷ [])
-  Prodreckind : (p : M) → Kind M (2 ∷ 0 ∷ 2 ∷ [])
+  Prodreckind : (p : M) → Kind M (1 ∷ 0 ∷ 2 ∷ [])
 
   Natkind    : Kind M []
   Zerokind   : Kind M []
@@ -129,7 +129,7 @@ fst t = gen Fstkind (t ∷ [])
 snd : (t : Term M n) → Term M n          -- Second projection
 snd t = gen Sndkind (t ∷ [])
 
-prodrec : (p : M) (G : Term M (1+ (1+ n))) (t : Term M n)
+prodrec : (p : M) (G : Term M (1+ n)) (t : Term M n)
           (u : Term M (1+ (1+ n))) → Term M n -- Product recursor
 prodrec p G t u = gen (Prodreckind p) (G ∷ t ∷ u ∷ [])
 
@@ -442,13 +442,13 @@ wkWhnf ρ (ne x)  = ne (wkNeutral ρ x)
 
 -- Non-dependent version of Π.
 
-_▷_▹▹_ : {𝕄 : Modality M} → M → Term M n → Term M n → Term M n
-_▷_▹▹_ {𝕄 = 𝕄} p A B = Π p , (Modality.𝟘 𝕄) ▷ A ▹ wk1 B
+_,_▷_▹▹_ : (𝕄 : Modality M) → M → Term M n → Term M n → Term M n
+𝕄 , p ▷ A ▹▹ B = Π p , (Modality.𝟘 𝕄) ▷ A ▹ wk1 B
 
 -- Non-dependent products.
 
-_▷_××_ : {𝕄 : Modality M} → M → Term M n → Term M n → Term M n
-_▷_××_ {𝕄 = 𝕄} p A B = Σ (Modality.𝟘 𝕄) ▷ A ▹ wk1 B
+_,_▷_××_ : (𝕄 : Modality M) → M → Term M n → Term M n → Term M n
+𝕄 , p ▷ A ×× B = Σ (Modality.𝟘 𝕄) ▷ A ▹ wk1 B
 
 
 ------------------------------------------------------------------------
@@ -459,8 +459,8 @@ _▷_××_ {𝕄 = 𝕄} p A B = Σ (Modality.𝟘 𝕄) ▷ A ▹ wk1 B
 
 -- The substitution σ itself is a map from natural numbers to terms.
 
-Subst : {M : Set} → Nat → Nat → Set
-Subst {M} m n = Fin n → Term M m
+Subst : (M : Set) → Nat → Nat → Set
+Subst M m n = Fin n → Term M m
 
 -- Given closed contexts ⊢ Γ and ⊢ Δ,
 -- substitutions may be typed via Γ ⊢ σ : Δ meaning that
@@ -478,7 +478,7 @@ Subst {M} m n = Fin n → Term M m
 --
 -- If Γ ⊢ σ : Δ∙A  then Γ ⊢ head σ : subst σ A.
 
-head : Subst {M} m (1+ n) → Term M m
+head : Subst M m (1+ n) → Term M m
 head σ = σ x0
 
 -- Remove the first variable instance of a substitution
@@ -486,14 +486,14 @@ head σ = σ x0
 --
 -- If Γ ⊢ σ : Δ∙A then Γ ⊢ tail σ : Δ.
 
-tail : Subst {M} m (1+ n) → Subst m n
+tail : Subst M m (1+ n) → Subst M m n
 tail σ x = σ (x +1)
 
 -- Substitution of a variable.
 --
 -- If Γ ⊢ σ : Δ then Γ ⊢ substVar σ x : (subst σ Δ)(x).
 
-substVar : (σ : Subst m n) (x : Fin n) → Term M m
+substVar : (σ : Subst M m n) (x : Fin n) → Term M m
 substVar σ x = σ x
 
 -- Identity substitution.
@@ -501,25 +501,25 @@ substVar σ x = σ x
 --
 -- Γ ⊢ idSubst : Γ.
 
-idSubst : Subst {M} n n
+idSubst : Subst M n n
 idSubst = var
 
 -- Weaken a substitution by one.
 --
 -- If Γ ⊢ σ : Δ then Γ∙A ⊢ wk1Subst σ : Δ.
 
-wk1Subst : Subst {M} m n → Subst (1+ m) n
+wk1Subst : Subst M m n → Subst M (1+ m) n
 wk1Subst σ x = wk1 (σ x)
 
 -- Lift a substitution.
 --
 -- If Γ ⊢ σ : Δ then Γ∙A ⊢ liftSubst σ : Δ∙A.
 
-liftSubst : (σ : Subst {M}  m n) → Subst (1+ m) (1+ n)
+liftSubst : (σ : Subst M m n) → Subst M (1+ m) (1+ n)
 liftSubst σ x0     = var x0
 liftSubst σ (x +1) = wk1Subst σ x
 
-liftSubstn : {k m : Nat} → Subst {M} k m → (n : Nat) → Subst {M} (n + k) (n + m)
+liftSubstn : {k m : Nat} → Subst M k m → (n : Nat) → Subst M (n + k) (n + m)
 liftSubstn σ Nat.zero = σ
 liftSubstn σ (1+ n)   = liftSubst (liftSubstn σ n)
 
@@ -527,7 +527,7 @@ liftSubstn σ (1+ n)   = liftSubst (liftSubstn σ n)
 --
 -- If ρ : Γ ≤ Δ then Γ ⊢ toSubst ρ : Δ.
 
-toSubst :  Wk m n → Subst {M} m n
+toSubst :  Wk m n → Subst M m n
 toSubst pr x = var (wkVar pr x)
 
 -- Apply a substitution to a term.
@@ -535,11 +535,11 @@ toSubst pr x = var (wkVar pr x)
 -- If Γ ⊢ σ : Δ and Δ ⊢ t : A then Γ ⊢ subst σ t : subst σ A.
 
 mutual
-  substGen : {bs : List Nat} (σ : Subst {M} m n) (g : GenTs (Term M) n bs) → GenTs (Term M) m bs
+  substGen : {bs : List Nat} (σ : Subst M m n) (g : GenTs (Term M) n bs) → GenTs (Term M) m bs
   substGen σ  []      = []
   substGen σ (_∷_ {b = b} t ts) = subst (liftSubstn σ b) t ∷ (substGen σ ts)
 
-  subst : (σ : Subst m n) (t : Term M n) → Term M m
+  subst : (σ : Subst M m n) (t : Term M n) → Term M m
   subst σ (var x)   = substVar σ x
   subst σ (gen x c) = gen x (substGen σ c)
 
@@ -548,7 +548,7 @@ mutual
 --
 -- If Γ ⊢ σ : Δ and Γ ⊢ t : subst σ A then Γ ⊢ consSubst σ t : Δ∙A.
 
-consSubst : Subst m n → Term M m → Subst m (1+ n)
+consSubst : Subst M m n → Term M m → Subst M m (1+ n)
 consSubst σ t  x0    = t
 consSubst σ t (x +1) = σ x
 
@@ -556,26 +556,26 @@ consSubst σ t (x +1) = σ x
 --
 -- If Γ ⊢ t : A then Γ ⊢ sgSubst t : Γ∙A.
 
-sgSubst : Term M n → Subst {M} n (1+ n)
+sgSubst : Term M n → Subst M n (1+ n)
 sgSubst = consSubst idSubst
 
 -- Compose two substitutions.
 --
 -- If Γ ⊢ σ : Δ and Δ ⊢ σ′ : Φ then Γ ⊢ σ ₛ•ₛ σ′ : Φ.
 
-_ₛ•ₛ_ : Subst {M} ℓ m → Subst m n → Subst ℓ n
+_ₛ•ₛ_ : Subst M ℓ m → Subst M m n → Subst M ℓ n
 _ₛ•ₛ_ σ σ′ x = subst σ (σ′ x)
 
 -- Composition of weakening and substitution.
 --
 --  If ρ : Γ ≤ Δ and Δ ⊢ σ : Φ then Γ ⊢ ρ •ₛ σ : Φ.
 
-_•ₛ_ : Wk ℓ m → Subst {M} m n → Subst ℓ n
+_•ₛ_ : Wk ℓ m → Subst M m n → Subst M ℓ n
 _•ₛ_ ρ σ x = wk ρ (σ x)
 
 --  If Γ ⊢ σ : Δ and ρ : Δ ≤ Φ then Γ ⊢ σ ₛ• ρ : Φ.
 
-_ₛ•_ : Subst {M} ℓ m → Wk m n → Subst ℓ n
+_ₛ•_ : Subst M ℓ m → Wk m n → Subst M ℓ n
 _ₛ•_ σ ρ x = σ (wkVar ρ x)
 
 -- Substitute the first variable of a term with an other term.
@@ -593,14 +593,28 @@ t [ s ] = subst (sgSubst s) t
 _[_]↑ : (t : Term M (1+ n)) (s : Term M (1+ n)) → Term M (1+ n)
 t [ s ]↑ = subst (consSubst (wk1Subst idSubst) s) t
 
+
+_[_]⇑ : (t : Term M (1+ (1+ n))) (s : Term M  (1+ n)) → Term M (1+ (1+ n))
+_[_]⇑ {M = M} {n = n} t s = subst (liftSubst (consSubst (wk1Subst idSubst) s)) t
+
 -- Substitute the first two variables of a term with other terms.
 --
 -- If Γ∙A∙B ⊢ t : C, Γ ⊢ s : B and Γ ⊢ s′ : A then Γ ⊢ t[s][s′] : C[s][s′]
 
 _[_][_] : (t : Term M (1+ (1+ n))) (s s′ : Term M n) → Term M n
-t [ s ][ s′ ] = subst (consSubst (consSubst idSubst s) s′) t
+t [ s ][ s′ ] = subst (consSubst (consSubst idSubst s′) s) t
 
-B-subst : (σ : Subst {M} m n) (W : BindingType M) (F : Term M n) (G : Term M (1+ n))
+-- Substitute the first variable with a pair and shift remaining variables up by one
+
+σₚ : (s s′ : Term M (1+ (1+ n))) → Subst M (1+ (1+ n)) (1+ n)
+σₚ s s′ x0 = prod s s′
+σₚ _ _ (x +1) = var (x +1 +1)
+
+_[⟨_,_⟩] : (t : Term M (1+ n)) (s s′ : Term M (1+ (1+ n))) → Term M (1+ (1+ n))
+t [⟨ s , s′ ⟩] = subst (σₚ s s′) t
+
+
+B-subst : (σ : Subst M m n) (W : BindingType M) (F : Term M n) (G : Term M (1+ n))
         → subst σ (⟦ W ⟧ F ▹ G) PE.≡ ⟦ W ⟧ (subst σ F) ▹ (subst (liftSubst σ) G)
 B-subst σ (BΠ p q) F G = PE.refl
 B-subst σ (BΣ p)   F G = PE.refl
