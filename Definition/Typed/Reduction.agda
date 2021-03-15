@@ -2,7 +2,7 @@
 
 module Definition.Typed.Reduction where
 
-open import Definition.Untyped
+open import Definition.Untyped hiding (_∷_)
 open import Definition.Typed
 open import Definition.Typed.Properties
 
@@ -11,9 +11,10 @@ open import Tools.Nat
 private
   variable
     n : Nat
-    Γ : Con Term n
-    A A′ B B′ : Term n
-    a a′ b b′ : Term n
+    M : Set
+    Γ : Con (Term M) n
+    A A′ B B′ : Term M n
+    a a′ b b′ : Term M n
 
 -- Weak head expansion of type equality
 reduction : Γ ⊢ A ⇒* A′

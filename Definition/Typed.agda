@@ -254,6 +254,7 @@ mutual
                   → Γ ⊢ m ≡ n ∷ ℕ
                   → Γ ⊢ suc m ≡ suc n ∷ ℕ
     natrec-cong   : ∀ {z z′ s s′ n n′ F F′}
+                  → Γ ∙ ℕ     ⊢ F
                   → Γ ∙ ℕ     ⊢ F ≡ F′
                   → Γ         ⊢ z ≡ z′ ∷ F [ zero ]
                   → Γ ∙ ℕ ∙ F ⊢ s ≡ s′ ∷ wk1 (F [ suc (var x0) ]↑)
