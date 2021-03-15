@@ -387,9 +387,9 @@ usagePresTerm (prodrecₘ {δ = δ} {p} (prodₘ {γ} {t} {γ₁} {u = t₁} γ�
           δ▸u
   eq′ = PE.begin
         p ·ᶜ γ +ᶜ p ·ᶜ γ₁ +ᶜ idSubstₘ *> δ
-          PE.≡⟨ PE.sym (+ᶜ-associative (p ·ᶜ γ) (p ·ᶜ γ₁) (idSubstₘ *> δ)) ⟩
+          PE.≡⟨ PE.sym (+ᶜ-assoc (p ·ᶜ γ) (p ·ᶜ γ₁) (idSubstₘ *> δ)) ⟩
         (p ·ᶜ γ +ᶜ p ·ᶜ γ₁) +ᶜ idSubstₘ *> δ
-          PE.≡⟨ PE.cong₂ _+ᶜ_ (PE.sym (leftDistr+ p γ γ₁)) (idSubstₘ-LeftIdentity δ) ⟩
+          PE.≡⟨ PE.cong₂ _+ᶜ_ (PE.sym (·ᶜ-distribˡ-+ᶜ p γ γ₁)) (idSubstₘ-LeftIdentity δ) ⟩
          p ·ᶜ (γ +ᶜ γ₁) +ᶜ δ
            PE.≡⟨ PE.cong₂ _+ᶜ_ (PE.cong₂ _·ᶜ_ PE.refl (PE.sym eq)) PE.refl ⟩
          _ PE.∎     
@@ -411,15 +411,15 @@ usagePresTerm {𝕄 = 𝕄} (natrecₘ {γ} {q} {p} {δ} γ▸z γ▸s δ▸n) (
   le = ≤ᶜ-transitive
           (PE.subst₂ _≤ᶜ_
             PE.refl
-            identity
+            (·ᶜ-identityˡ _)
             (·ᶜ-monotone₂ ≤ᶜ-reflexive {!!})
           )
           (PE.subst₂ _≤ᶜ_
             PE.refl
-            rightUnit
+            (+ᶜ-identityʳ _)
             (+ᶜ-monotone₂ ≤ᶜ-reflexive (PE.subst₂ _≤ᶜ_
               PE.refl
-              (rightZero p)
+              (·ᶜ-zeroʳ p)
               (·ᶜ-monotone (δ≤𝟘 δ▸n))
             ))
           )
@@ -444,13 +444,13 @@ usagePresTerm {𝕄 = 𝕄} (natrecₘ {γ} {q = q} {p} {δ} {G = G} {z} {s} γ�
        p ·ᶜ δ +ᶜ q ·ᶜ (Modality._* 𝕄 q) ·ᶜ (γ +ᶜ p ·ᶜ δ) +ᶜ γ
          PE.≡⟨ PE.cong₂ _+ᶜ_ PE.refl (+ᶜ-comm (q ·ᶜ (Modality._* 𝕄 q) ·ᶜ (γ +ᶜ p ·ᶜ δ)) γ) ⟩
        p ·ᶜ δ +ᶜ γ +ᶜ q ·ᶜ (Modality._* 𝕄 q) ·ᶜ (γ +ᶜ p ·ᶜ δ)
-         PE.≡⟨ PE.sym (+ᶜ-associative (p ·ᶜ δ) γ _) ⟩
+         PE.≡⟨ PE.sym (+ᶜ-assoc (p ·ᶜ δ) γ _) ⟩
        (p ·ᶜ δ +ᶜ γ) +ᶜ q ·ᶜ (Modality._* 𝕄 q) ·ᶜ (γ +ᶜ p ·ᶜ δ)
          PE.≡⟨ PE.cong₂ _+ᶜ_ (+ᶜ-comm (p ·ᶜ δ) γ) PE.refl ⟩
        (γ +ᶜ p ·ᶜ δ) +ᶜ q ·ᶜ (Modality._* 𝕄 q) ·ᶜ (γ +ᶜ p ·ᶜ δ)
-         PE.≡⟨ PE.cong₂ _+ᶜ_ (PE.sym identity) (PE.sym (associative q (Modality._* 𝕄 q) (γ +ᶜ p ·ᶜ δ))) ⟩
+         PE.≡⟨ PE.cong₂ _+ᶜ_ (PE.sym (·ᶜ-identityˡ _)) (PE.sym (·ᶜ-assoc q (Modality._* 𝕄 q) (γ +ᶜ p ·ᶜ δ))) ⟩
        (Modality.𝟙 𝕄) ·ᶜ (γ +ᶜ p ·ᶜ δ) +ᶜ (Modality._·_ 𝕄 q (Modality._* 𝕄 q)) ·ᶜ (γ +ᶜ p ·ᶜ δ)
-         PE.≡⟨ PE.sym (rightDistr+ (Modality.𝟙 𝕄) (Modality._·_ 𝕄 q (Modality._* 𝕄 q)) (γ +ᶜ p ·ᶜ δ)) ⟩
+         PE.≡⟨ PE.sym (·ᶜ-distribʳ-+ᶜ (Modality.𝟙 𝕄) (Modality._·_ 𝕄 q (Modality._* 𝕄 q)) (γ +ᶜ p ·ᶜ δ)) ⟩
        (Modality._+_ 𝕄 (Modality.𝟙 𝕄) (Modality._·_ 𝕄 q (Modality._* 𝕄 q))) ·ᶜ (γ +ᶜ p ·ᶜ δ)
          PE.≡⟨ PE.cong₂ _·ᶜ_ (PE.sym (Modality.*-StarSemiring 𝕄 q)) PE.refl ⟩
        (Modality._* 𝕄 q) ·ᶜ (γ +ᶜ p ·ᶜ δ) PE.∎

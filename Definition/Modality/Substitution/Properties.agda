@@ -26,28 +26,28 @@ private
 -- Linearity proerties of *>
 
 *>-linear-+ᶜ : {𝕄 : Modality M} (Ψ : Substₘ 𝕄 m n) (γ δ : Conₘ 𝕄 n) → Ψ *> (γ +ᶜ δ) ≡ Ψ *> γ +ᶜ Ψ *> δ
-*>-linear-+ᶜ           ε       ε       ε      = PE.sym rightUnit
+*>-linear-+ᶜ           ε       ε       ε      = PE.sym (+ᶜ-identityˡ 𝟘ᶜ)
 *>-linear-+ᶜ {𝕄 = 𝕄} (Ψ ∙ η) (γ ∙ p) (δ ∙ q) = begin
   Ψ ∙ η *> (γ ∙ p +ᶜ δ ∙ q)                       ≡⟨ cong₂ _+ᶜ_ refl (*>-linear-+ᶜ Ψ γ δ) ⟩
-  (Modality._+_ 𝕄 p q) ·ᶜ η +ᶜ Ψ *> γ +ᶜ Ψ *> δ  ≡⟨ cong₂ _+ᶜ_ (rightDistr+ p q η) refl ⟩
+  (Modality._+_ 𝕄 p q) ·ᶜ η +ᶜ Ψ *> γ +ᶜ Ψ *> δ  ≡⟨ cong₂ _+ᶜ_ (·ᶜ-distribʳ-+ᶜ p q η) refl ⟩
   (p ·ᶜ η +ᶜ q ·ᶜ η) +ᶜ Ψ *> γ +ᶜ Ψ *> δ          ≡⟨ cong₂ _+ᶜ_ refl (+ᶜ-comm (Ψ *> γ) (Ψ *> δ)) ⟩
-  (p ·ᶜ η +ᶜ q ·ᶜ η) +ᶜ Ψ *> δ +ᶜ Ψ *> γ          ≡⟨ +ᶜ-associative (p ·ᶜ η) (q ·ᶜ η) (Ψ *> δ +ᶜ Ψ *> γ) ⟩
+  (p ·ᶜ η +ᶜ q ·ᶜ η) +ᶜ Ψ *> δ +ᶜ Ψ *> γ          ≡⟨ +ᶜ-assoc (p ·ᶜ η) (q ·ᶜ η) (Ψ *> δ +ᶜ Ψ *> γ) ⟩
   p ·ᶜ η +ᶜ q ·ᶜ η +ᶜ Ψ *> δ +ᶜ Ψ *> γ            ≡⟨ +ᶜ-comm (p ·ᶜ η) (q ·ᶜ η +ᶜ Ψ *> δ +ᶜ Ψ *> γ) ⟩
-  (q ·ᶜ η +ᶜ Ψ *> δ +ᶜ Ψ *> γ) +ᶜ p ·ᶜ η          ≡⟨  +ᶜ-associative _ _ _ ⟩
-  q ·ᶜ η +ᶜ (Ψ *> δ +ᶜ Ψ *> γ) +ᶜ p ·ᶜ η          ≡⟨ cong₂ _+ᶜ_ refl (+ᶜ-associative _ _ _) ⟩
-  q ·ᶜ η +ᶜ Ψ *> δ +ᶜ Ψ *> γ +ᶜ p ·ᶜ η            ≡⟨ sym (+ᶜ-associative _ _ _) ⟩
+  (q ·ᶜ η +ᶜ Ψ *> δ +ᶜ Ψ *> γ) +ᶜ p ·ᶜ η          ≡⟨  +ᶜ-assoc _ _ _ ⟩
+  q ·ᶜ η +ᶜ (Ψ *> δ +ᶜ Ψ *> γ) +ᶜ p ·ᶜ η          ≡⟨ cong₂ _+ᶜ_ refl (+ᶜ-assoc _ _ _) ⟩
+  q ·ᶜ η +ᶜ Ψ *> δ +ᶜ Ψ *> γ +ᶜ p ·ᶜ η            ≡⟨ sym (+ᶜ-assoc _ _ _) ⟩
   (q ·ᶜ η +ᶜ Ψ *> δ) +ᶜ Ψ *> γ +ᶜ p ·ᶜ η          ≡⟨ cong₂ _+ᶜ_ refl (+ᶜ-comm _ _) ⟩
   (q ·ᶜ η +ᶜ Ψ *> δ) +ᶜ p ·ᶜ η +ᶜ Ψ *> γ          ≡⟨ +ᶜ-comm _ _ ⟩
   ((p ·ᶜ η +ᶜ Ψ *> γ) +ᶜ q ·ᶜ η +ᶜ Ψ *> δ)        ∎
 
 *>-linear-·ᶜ : (Ψ : Substₘ 𝕄 m n) (p : M) (γ : Conₘ 𝕄 n) → Ψ *> (p ·ᶜ γ) ≡ p ·ᶜ (Ψ *> γ)
-*>-linear-·ᶜ  ε p ε = PE.sym (rightZero p)
+*>-linear-·ᶜ  ε p ε = PE.sym (·ᶜ-zeroʳ p)
 *>-linear-·ᶜ {𝕄 = 𝕄} (Ψ ∙ δ) p (γ ∙ q) = begin
   (Modality._·_ 𝕄 p q) ·ᶜ δ +ᶜ Ψ *> (p ·ᶜ γ) ≡⟨ cong₂ _+ᶜ_
-                                                      (associative p q δ)
+                                                      (·ᶜ-assoc p q δ)
                                                       (*>-linear-·ᶜ Ψ p γ)
                                                ⟩
-  p ·ᶜ (q ·ᶜ δ) +ᶜ p ·ᶜ (Ψ *> γ)              ≡⟨ sym (leftDistr+ _ _ _) ⟩
+  p ·ᶜ (q ·ᶜ δ) +ᶜ p ·ᶜ (Ψ *> γ)              ≡⟨ sym (·ᶜ-distribˡ-+ᶜ p (q ·ᶜ δ) (Ψ *> γ)) ⟩
   p ·ᶜ (q ·ᶜ δ +ᶜ Ψ *> γ)                     ∎
 
 *>-linear : (Ψ : Substₘ 𝕄 m n) (p q : M) (γ δ : Conₘ 𝕄 n)
@@ -62,9 +62,10 @@ private
 
 *>-zeroʳ : (Ψ : Substₘ 𝕄 m n) → substₘ Ψ 𝟘ᶜ ≡ 𝟘ᶜ
 *>-zeroʳ ε = refl
-*>-zeroʳ (Ψ ∙ γ) = PE.subst (_≡ 𝟘ᶜ) (cong₂ _+ᶜ_ (PE.sym leftZero)
-                                                (PE.sym (*>-zeroʳ Ψ))
-                                    ) (leftUnit 𝟘ᶜ)
+*>-zeroʳ (Ψ ∙ γ) = PE.subst (_≡ 𝟘ᶜ)
+  (cong₂ _+ᶜ_ (PE.sym (·ᶜ-zeroˡ γ))
+         (PE.sym (*>-zeroʳ Ψ)))
+  (+ᶜ-identityˡ 𝟘ᶜ)
 
 *>-monotone : {γ δ : Conₘ 𝕄 n} (Ψ : Substₘ 𝕄 m n) → γ ≤ᶜ δ → Ψ *> γ ≤ᶜ Ψ *> δ
 *>-monotone {γ = ε}     {ε}      ε      γ≤δ = ≤ᶜ-reflexive
@@ -90,8 +91,8 @@ liftSubstₘ-app : (Ψ : Substₘ 𝕄 m n) (γ : Conₘ 𝕄 n) (p : M)
 liftSubstₘ-app {𝕄 = 𝕄} ε ε p = cong₂ _∙_ (sym γ′) (sym p′)
   where
   γ′ = begin
-    𝟘ᶜ            ≡⟨ sym (rightZero p) ⟩
-    p ·ᶜ 𝟘ᶜ       ≡⟨ sym (rightUnit) ⟩
+    𝟘ᶜ            ≡⟨ sym (·ᶜ-zeroʳ p) ⟩
+    p ·ᶜ 𝟘ᶜ       ≡⟨ sym (+ᶜ-identityʳ (p ·ᶜ 𝟘ᶜ)) ⟩
     p ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ ∎
   p′ = begin
     p                                 ≡⟨ sym (proj₂ (Modality.·-Identity 𝕄) p) ⟩
@@ -100,10 +101,10 @@ liftSubstₘ-app {𝕄 = 𝕄} ε ε p = cong₂ _∙_ (sym γ′) (sym p′)
 liftSubstₘ-app {𝕄 = 𝕄} (Ψ ∙ x) γ p = begin
   (p ·ᶜ 𝟘ᶜ) ∙ (Modality._·_ 𝕄 p (Modality.𝟙 𝕄))
     +ᶜ (wk1Substₘ Ψ ∙ (x ∙ Modality.𝟘 𝕄)) *> γ
-      ≡⟨ cong₂ _+ᶜ_ (cong₂ _∙_ (rightZero p) (proj₂ (Modality.·-Identity 𝕄) p))
+      ≡⟨ cong₂ _+ᶜ_ (cong₂ _∙_ (·ᶜ-zeroʳ p) (proj₂ (Modality.·-Identity 𝕄) p))
                     (wk1Substₘ-app (Ψ ∙ x) γ) ⟩
   (𝟘ᶜ +ᶜ (Ψ ∙ x) *> γ) ∙ (𝕄 Modality.+ p) (Modality.𝟘 𝕄)
-      ≡⟨ cong₂ _∙_ (leftUnit ((Ψ ∙ x) *> γ)) (proj₂ (Modality.+-Identity 𝕄) p) ⟩
+      ≡⟨ cong₂ _∙_ (+ᶜ-identityˡ ((Ψ ∙ x) *> γ)) (proj₂ (Modality.+-Identity 𝕄) p) ⟩
   (((Ψ ∙ x) *> γ) ∙ p) ∎
 
 
@@ -111,9 +112,9 @@ idSubstₘ-LeftIdentity : (γ : Conₘ 𝕄 n) → idSubstₘ *> γ ≡ γ
 idSubstₘ-LeftIdentity           ε      = refl
 idSubstₘ-LeftIdentity {𝕄 = 𝕄} (γ ∙ p) = begin
   (p ·ᶜ 𝟘ᶜ) ∙ (𝕄 Modality.· p) (Modality.𝟙 𝕄) +ᶜ wk1Substₘ idSubstₘ *> γ
-    ≡⟨ cong₂ _+ᶜ_ (cong₂ _∙_ (rightZero p) (proj₂ (Modality.·-Identity 𝕄) p)) (wk1Substₘ-app idSubstₘ γ) ⟩
+    ≡⟨ cong₂ _+ᶜ_ (cong₂ _∙_ (·ᶜ-zeroʳ p) (proj₂ (Modality.·-Identity 𝕄) p)) (wk1Substₘ-app idSubstₘ γ) ⟩
   (𝟘ᶜ +ᶜ idSubstₘ *> γ) ∙ (𝕄 Modality.+ p) (Modality.𝟘 𝕄)
-    ≡⟨ cong₂ _∙_ (leftUnit (idSubstₘ *> γ)) (proj₂ (Modality.+-Identity 𝕄) p) ⟩
+    ≡⟨ cong₂ _∙_ (+ᶜ-identityˡ (idSubstₘ *> γ)) (proj₂ (Modality.+-Identity 𝕄) p) ⟩
   (idSubstₘ *> γ) ∙ p ≡⟨ cong (_∙ p) (idSubstₘ-LeftIdentity γ) ⟩
   (γ ∙ p) ∎
 
@@ -122,18 +123,14 @@ idSubstₘ-LeftIdentity {𝕄 = 𝕄} (γ ∙ p) = begin
 
 wf-sgSubstₘ : γ ▸ u → sgSubstₘ γ ▶ sgSubst u
 wf-sgSubstₘ {γ = γ} γ▸u x0 = subst₂ _▸_
-                               (PE.subst (γ ≡_)
-                                         (cong₂ _+ᶜ_ (PE.sym identity)
-                                                     (PE.sym (idSubstₘ-LeftIdentity _))
-                                         ) (PE.sym rightUnit)
-                               ) refl γ▸u
+  (PE.subst (γ ≡_)
+            (cong₂ _+ᶜ_ (PE.sym (·ᶜ-identityˡ _))
+                        (PE.sym (idSubstₘ-LeftIdentity _)))
+            (PE.sym (+ᶜ-identityʳ γ))) refl γ▸u
 wf-sgSubstₘ γ▸u (x +1) = PE.subst (_▸ var x)
-                                  (subst₂ _≡_
-                                          (leftUnit _)
-                                          (cong₂ _+ᶜ_ (PE.sym leftZero)
-                                                      (PE.sym (idSubstₘ-LeftIdentity _))
-                                          ) refl
-                                  ) var
+  (subst₂ _≡_ (+ᶜ-identityˡ _) 
+          (cong₂ _+ᶜ_ (PE.sym (·ᶜ-zeroˡ _))
+                      (PE.sym (idSubstₘ-LeftIdentity _))) refl) var
 
 
 wf-wk1Substₘ : (Ψ : Substₘ 𝕄 m n) (σ : Subst M m n) → Ψ ▶ σ → wk1Substₘ Ψ ▶ wk1Subst σ
@@ -143,14 +140,14 @@ wf-liftSubstₘ : {Ψ : Substₘ 𝕄 m n} → Ψ ▶ σ → liftSubstₘ Ψ ▶
 wf-liftSubstₘ {𝕄 = 𝕄} {Ψ = Ψ} Ψ▶σ x0 = PE.subst (_▸ var x0)
   (cong₂ _+ᶜ_
     (cong₂ _∙_
-      (sym identity)
+      (sym (·ᶜ-identityˡ _))
       (sym (proj₁ (Modality.·-Identity 𝕄) (Modality.𝟙 𝕄)))
     )
     (sym (*>-zeroʳ (wk1Substₘ Ψ)))
   )
   (PE.subst (_▸ var x0)
     (cong₂ _∙_
-      (sym rightUnit)
+      (sym (+ᶜ-identityʳ _))
       (sym (proj₂ (Modality.+-Identity 𝕄) (Modality.𝟙 𝕄)))
     )
   var
@@ -160,9 +157,10 @@ wf-liftSubstₘ {𝕄 = 𝕄} {Ψ = Ψ} Ψ▶σ (_+1 x) =
   where
   wkΨ*>≡ = begin
    wk1Substₘ Ψ *> (𝟘ᶜ , x ≔ Modality.𝟙 𝕄)
-     ≡⟨ sym (leftUnit _ ) ⟩
+     ≡⟨ sym (+ᶜ-identityˡ _ ) ⟩
    𝟘ᶜ +ᶜ wk1Substₘ Ψ *> (𝟘ᶜ , x ≔ Modality.𝟙 𝕄)
-     ≡⟨ cong₂ _+ᶜ_ (cong₂ _∙_ (sym (leftZero {γ = 𝟘ᶜ})) (sym (proj₁ (Modality.·-Zero 𝕄) (Modality.𝟙 𝕄)))) refl ⟩
+     ≡⟨ cong₂ _+ᶜ_ (cong₂ _∙_ (sym (·ᶜ-zeroˡ 𝟘ᶜ))
+        (sym (proj₁ (Modality.·-Zero 𝕄) (Modality.𝟙 𝕄)))) refl ⟩
    (Modality.𝟘 𝕄 ·ᶜ 𝟘ᶜ) ∙ (𝕄 Modality.· Modality.𝟘 𝕄) (Modality.𝟙 𝕄)
       +ᶜ wk1Substₘ Ψ *> (𝟘ᶜ , x ≔ Modality.𝟙 𝕄) ∎
 
@@ -172,14 +170,14 @@ wf-consSubstₘ : {𝕄 : Modality M} {Ψ : Substₘ 𝕄 m n} {γ : Conₘ 𝕄
 wf-consSubstₘ {𝕄 = 𝕄} {Ψ = Ψ} {γ = γ} Ψ▶σ γ▸t x0 = subst₂ _▸_ γ≡ refl γ▸t
   where
   γ≡ = begin
-       γ                             ≡⟨ sym rightUnit ⟩
-       γ +ᶜ 𝟘ᶜ                       ≡⟨ cong₂ _+ᶜ_ (sym identity) (sym (*>-zeroʳ Ψ)) ⟩
+       γ                             ≡⟨ sym (+ᶜ-identityʳ _) ⟩
+       γ +ᶜ 𝟘ᶜ                       ≡⟨ cong₂ _+ᶜ_ (sym (·ᶜ-identityˡ _)) (sym (*>-zeroʳ Ψ)) ⟩
        Modality.𝟙 𝕄 ·ᶜ γ +ᶜ Ψ *> 𝟘ᶜ ∎
 wf-consSubstₘ {𝕄 = 𝕄} {Ψ = Ψ} {γ = γ} Ψ▶σ γ▸t (x +1) = subst₂ _▸_ Ψ*>≡ refl (Ψ▶σ x)
   where
   Ψ*>≡ = begin
-         Ψ *> (𝟘ᶜ , x ≔ Modality.𝟙 𝕄)                       ≡⟨ sym (leftUnit _) ⟩
-         𝟘ᶜ +ᶜ Ψ *> (𝟘ᶜ , x ≔ Modality.𝟙 𝕄)                 ≡⟨ cong₂ _+ᶜ_ (sym leftZero) refl ⟩
+         Ψ *> (𝟘ᶜ , x ≔ Modality.𝟙 𝕄)                       ≡⟨ sym (+ᶜ-identityˡ _) ⟩
+         𝟘ᶜ +ᶜ Ψ *> (𝟘ᶜ , x ≔ Modality.𝟙 𝕄)                 ≡⟨ cong₂ _+ᶜ_ (sym (·ᶜ-zeroˡ _)) refl ⟩
          Modality.𝟘 𝕄 ·ᶜ γ +ᶜ Ψ *> (𝟘ᶜ , x ≔ Modality.𝟙 𝕄) ∎
 
 
@@ -243,9 +241,9 @@ substₘ-lemma {𝕄 = 𝕄} Ψ σ Ψ▶σ (prodrecₘ {γ = γ} {δ = δ} {p} �
     (liftSubstₘ (liftSubstₘ Ψ)) *> (δ ∙ p ∙ p)
       ≡⟨ liftSubstₘ-app (liftSubstₘ Ψ) (δ ∙ p) p ⟩
     ((p ·ᶜ 𝟘ᶜ) ∙ (Modality._·_ 𝕄 p (Modality.𝟙 𝕄)) +ᶜ wk1Substₘ Ψ *> δ) ∙ p
-      ≡⟨ cong₂ _∙_ (cong₂ _+ᶜ_ (cong₂ _∙_ (rightZero p)
+      ≡⟨ cong₂ _∙_ (cong₂ _+ᶜ_ (cong₂ _∙_ (·ᶜ-zeroʳ p)
              (proj₂ (Modality.·-Identity 𝕄) p)) (wk1Substₘ-app Ψ δ)) refl ⟩
-    _ ≡⟨ cong₂ _∙_ (cong₂ _∙_ (leftUnit _) (proj₂ (Modality.+-Identity 𝕄) p)) refl ⟩
+    _ ≡⟨ cong₂ _∙_ (cong₂ _∙_ (+ᶜ-identityˡ _) (proj₂ (Modality.+-Identity 𝕄) p)) refl ⟩
     _ ∎
   δ▸u″ = subst₂ _▸_ eq refl δ▸u′
 
@@ -263,10 +261,10 @@ substₘ-lemma {𝕄 = 𝕄} Ψ σ Ψ▶σ (natrecₘ {γ} {q} {p = p} {δ} γ�
         (liftSubstₘ (liftSubstₘ Ψ)) *> (γ ∙ q ∙ p)
           ≡⟨ liftSubstₘ-app (liftSubstₘ Ψ) (γ ∙ q) p ⟩
         ((q ·ᶜ 𝟘ᶜ) ∙ (Modality._·_ 𝕄 q (Modality.𝟙 𝕄)) +ᶜ wk1Substₘ Ψ *> γ) ∙ p
-          ≡⟨ cong₂ _∙_ (cong₂ _+ᶜ_ (cong₂ _∙_ (rightZero q)
+          ≡⟨ cong₂ _∙_ (cong₂ _+ᶜ_ (cong₂ _∙_ (·ᶜ-zeroʳ q)
              (proj₂ (Modality.·-Identity 𝕄) q)) (wk1Substₘ-app Ψ γ)) refl ⟩
         (𝟘ᶜ +ᶜ Ψ *> γ) ∙ (Modality._+_ 𝕄 q (Modality.𝟘 𝕄)) ∙ p
-          ≡⟨ cong (_∙ p) (cong₂ _∙_ (leftUnit (Ψ *> γ)) (proj₂ (Modality.+-Identity 𝕄) q)) ⟩
+          ≡⟨ cong (_∙ p) (cong₂ _∙_ (+ᶜ-identityˡ (Ψ *> γ)) (proj₂ (Modality.+-Identity 𝕄) q)) ⟩
         (Ψ *> γ) ∙ q ∙ p ∎
   γ▸s″ = subst₂ _▸_ eq′ refl γ▸s′
   eq = begin

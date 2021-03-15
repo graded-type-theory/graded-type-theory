@@ -23,89 +23,122 @@ private
 -- Modality contexts form a left module
 
 -- 𝟙 is a left identity to modality contex scaling
-identity : {γ : Conₘ 𝕄 n} → (Modality.𝟙 𝕄) ·ᶜ γ ≡ γ
-identity           {γ = ε}      = refl
-identity {𝕄 = 𝕄} {γ = γ ∙ p} = cong₂ _∙_ γ' p'
+·ᶜ-identityˡ : (γ : Conₘ 𝕄 n) → (Modality.𝟙 𝕄) ·ᶜ γ ≡ γ
+·ᶜ-identityˡ       ε      = refl
+·ᶜ-identityˡ {𝕄 = 𝕄} (γ ∙ p) = cong₂ _∙_ γ' p'
   where
-  γ' = identity
+  γ' = ·ᶜ-identityˡ γ
   p' = (proj₁ (Modality.·-Identity 𝕄)) p
 
 
 -- 𝟘 is a left zero to modality context scaling
-leftZero : {γ : Conₘ 𝕄 n} → (Modality.𝟘 𝕄) ·ᶜ γ ≡ 𝟘ᶜ
-leftZero           {γ = ε}      = refl
-leftZero {𝕄 = 𝕄} {γ = γ ∙ p} = cong₂ _∙_ IH z
+·ᶜ-zeroˡ : (γ : Conₘ 𝕄 n) → (Modality.𝟘 𝕄) ·ᶜ γ ≡ 𝟘ᶜ
+·ᶜ-zeroˡ            ε     = refl
+·ᶜ-zeroˡ {𝕄 = 𝕄} (γ ∙ p) = cong₂ _∙_ IH z
   where
-  IH = leftZero
+  IH = ·ᶜ-zeroˡ γ
   z  = proj₁ (Modality.·-Zero 𝕄) p
 
 
 -- A zero context is a right zero to modality context scaling
-rightZero : {𝕄 : Modality M} → (p : M) → p ·ᶜ 𝟘ᶜ ≡ 𝟘ᶜ {𝕄 = 𝕄} {n = n}
-rightZero {n = 0}    p = refl
-rightZero {n = 1+ n} {𝕄 = 𝕄} p = cong₂ _∙_ IH z
+·ᶜ-zeroʳ : {𝕄 : Modality M} → (p : M) → p ·ᶜ 𝟘ᶜ ≡ 𝟘ᶜ {𝕄 = 𝕄} {n = n}
+·ᶜ-zeroʳ {n = 0}    p = refl
+·ᶜ-zeroʳ {n = 1+ n} {𝕄 = 𝕄} p = cong₂ _∙_ IH z
   where
-  IH = rightZero p
+  IH = ·ᶜ-zeroʳ p
   z  = proj₂ (Modality.·-Zero 𝕄) p
 
 -- Modality context scaling is associative
-associative : (p q : M) → (γ : Conₘ 𝕄 n) → (Modality._·_ 𝕄 p q) ·ᶜ γ ≡ p ·ᶜ (q ·ᶜ γ)
-associative          p q  ε      = refl
-associative {𝕄 = 𝕄} p q (γ ∙ r) = cong₂ _∙_ γ' r'
+·ᶜ-assoc : (p q : M) → (γ : Conₘ 𝕄 n) → (Modality._·_ 𝕄 p q) ·ᶜ γ ≡ p ·ᶜ (q ·ᶜ γ)
+·ᶜ-assoc          p q  ε      = refl
+·ᶜ-assoc {𝕄 = 𝕄} p q (γ ∙ r) = cong₂ _∙_ γ' r'
   where
-  γ' = associative p q γ
+  γ' = ·ᶜ-assoc p q γ
   r' = Modality.·-Associative 𝕄 p q r
 
 -- Modality contex scaling is left distributive over addition
-leftDistr+ : (p : M) → (γ δ : Conₘ 𝕄 n) → p ·ᶜ (γ +ᶜ δ) ≡ (p ·ᶜ γ) +ᶜ (p ·ᶜ δ)
-leftDistr+          p  ε       ε      = refl
-leftDistr+ {𝕄 = 𝕄} p (γ ∙ q) (δ ∙ r) = cong₂ _∙_ IH distr
+·ᶜ-distribˡ-+ᶜ : (p : M) → (γ δ : Conₘ 𝕄 n) → p ·ᶜ (γ +ᶜ δ) ≡ (p ·ᶜ γ) +ᶜ (p ·ᶜ δ)
+·ᶜ-distribˡ-+ᶜ          p  ε       ε      = refl
+·ᶜ-distribˡ-+ᶜ {𝕄 = 𝕄} p (γ ∙ q) (δ ∙ r) = cong₂ _∙_ IH distr
   where
-  IH    = leftDistr+ p γ δ
+  IH    = ·ᶜ-distribˡ-+ᶜ p γ δ
   distr = proj₁ (Modality.·Distr+ 𝕄) p q r
 
 -- Modality context scaling is right distributive over addition
-rightDistr+ : (p q : M) → (γ : Conₘ 𝕄 n) → (Modality._+_ 𝕄 p q) ·ᶜ γ ≡ (p ·ᶜ γ) +ᶜ (q ·ᶜ γ)
-rightDistr+          p q  ε      = refl
-rightDistr+ {𝕄 = 𝕄} p q (γ ∙ r) = cong₂ _∙_ IH distr
+·ᶜ-distribʳ-+ᶜ : (p q : M) → (γ : Conₘ 𝕄 n) → (Modality._+_ 𝕄 p q) ·ᶜ γ ≡ (p ·ᶜ γ) +ᶜ (q ·ᶜ γ)
+·ᶜ-distribʳ-+ᶜ          p q  ε      = refl
+·ᶜ-distribʳ-+ᶜ {𝕄 = 𝕄} p q (γ ∙ r) = cong₂ _∙_ IH distr
   where
-  IH    = rightDistr+ p q γ
+  IH    = ·ᶜ-distribʳ-+ᶜ p q γ
   distr = proj₂ (Modality.·Distr+ 𝕄) r p q
 
 -- Modality contex scaling is left distributive over meet
-leftDistr∧ : (p : M) → (γ δ : Conₘ 𝕄 n) → p ·ᶜ (γ ∧ᶜ δ) ≡ (p ·ᶜ γ) ∧ᶜ (p ·ᶜ δ)
-leftDistr∧          p  ε       ε      = refl
-leftDistr∧ {𝕄 = 𝕄} p (γ ∙ q) (δ ∙ r) = cong₂ _∙_ IH distr
+·ᶜ-distribˡ-∧ᶜ : (p : M) → (γ δ : Conₘ 𝕄 n) → p ·ᶜ (γ ∧ᶜ δ) ≡ (p ·ᶜ γ) ∧ᶜ (p ·ᶜ δ)
+·ᶜ-distribˡ-∧ᶜ          p  ε       ε      = refl
+·ᶜ-distribˡ-∧ᶜ {𝕄 = 𝕄} p (γ ∙ q) (δ ∙ r) = cong₂ _∙_ IH distr
   where
-  IH    = leftDistr∧ p γ δ
+  IH    = ·ᶜ-distribˡ-∧ᶜ p γ δ
   distr = proj₁ (Modality.·Distr∧ 𝕄) p q r
 
 -- Modality context scaling is right distributive over meet
-rightDistr∧ : (p q : M) → (γ : Conₘ 𝕄 n) → (Modality._∧_ 𝕄 p q) ·ᶜ γ ≡ (p ·ᶜ γ) ∧ᶜ (q ·ᶜ γ)
-rightDistr∧          p q  ε      = refl
-rightDistr∧ {𝕄 = 𝕄} p q (γ ∙ r) = cong₂ _∙_ IH distr
+·ᶜ-distribʳ-∧ᶜ : (p q : M) → (γ : Conₘ 𝕄 n) → (Modality._∧_ 𝕄 p q) ·ᶜ γ ≡ (p ·ᶜ γ) ∧ᶜ (q ·ᶜ γ)
+·ᶜ-distribʳ-∧ᶜ          p q  ε      = refl
+·ᶜ-distribʳ-∧ᶜ {𝕄 = 𝕄} p q (γ ∙ r) = cong₂ _∙_ IH distr
   where
-  IH    = rightDistr∧ p q γ
+  IH    = ·ᶜ-distribʳ-∧ᶜ p q γ
   distr = proj₂ (Modality.·Distr∧ 𝕄) r p q
 
--------------
+
+-- Properties of +ᶜ
 
 -- 𝟘ᶜ is left unit for addition
-leftUnit : (γ : Conₘ 𝕄 n) → 𝟘ᶜ +ᶜ γ ≡ γ
-leftUnit            ε      = refl
-leftUnit {𝕄 = 𝕄} (γ ∙ p) = cong₂ _∙_ γ' p'
++ᶜ-identityˡ : (γ : Conₘ 𝕄 n) → 𝟘ᶜ +ᶜ γ ≡ γ
++ᶜ-identityˡ            ε      = refl
++ᶜ-identityˡ {𝕄 = 𝕄} (γ ∙ p) = cong₂ _∙_ γ' p'
   where
-  γ' = leftUnit γ
+  γ' = +ᶜ-identityˡ γ
   p' = proj₁ (Modality.+-Identity 𝕄) p
 
 -- 𝟘ᶜ is right unit for addition
-rightUnit : {γ : Conₘ 𝕄 n} → γ +ᶜ 𝟘ᶜ ≡ γ
-rightUnit           {γ = ε}      = refl
-rightUnit {𝕄 = 𝕄} {γ = γ ∙ p} = cong₂ _∙_ γ' p'
++ᶜ-identityʳ : (γ : Conₘ 𝕄 n) → γ +ᶜ 𝟘ᶜ ≡ γ
++ᶜ-identityʳ            ε     = refl
++ᶜ-identityʳ {𝕄 = 𝕄} (γ ∙ p) = cong₂ _∙_ γ' p'
   where
-  γ' = rightUnit
+  γ' = +ᶜ-identityʳ γ
   p' = proj₂ (Modality.+-Identity 𝕄) p
 
++ᶜ-assoc : (γ δ η : Conₘ 𝕄 n) → (γ +ᶜ δ) +ᶜ η ≡ γ +ᶜ (δ +ᶜ η)
++ᶜ-assoc ε ε ε = refl
++ᶜ-assoc {𝕄 = 𝕄} (γ ∙ p) (δ ∙ q) (η ∙ r) = cong₂ _∙_
+  (+ᶜ-assoc γ δ η)
+  (Modality.+-Associative 𝕄 p q r)
+
++ᶜ-comm : (γ δ : Conₘ 𝕄 n) → γ +ᶜ δ ≡ δ +ᶜ γ
++ᶜ-comm ε ε = refl
++ᶜ-comm {𝕄 = 𝕄} (γ ∙ p) (δ ∙ q) = cong₂ _∙_
+  (+ᶜ-comm γ δ)
+  (Modality.+-Commutative 𝕄 p q)
+
++ᶜ-noInverse : (γ δ : Conₘ 𝕄 n) → γ +ᶜ δ ≡ 𝟘ᶜ → γ ≡ 𝟘ᶜ × δ ≡ 𝟘ᶜ
++ᶜ-noInverse ε ε eq = refl , refl
++ᶜ-noInverse {𝕄 = 𝕄} (γ ∙ p) (δ ∙ q) eq =
+  cong₂ _∙_ (proj₁ γ+δ=0) (proj₁ p+q=0) , cong₂ _∙_ (proj₂ γ+δ=0) (proj₂ p+q=0)
+  where
+  γ+δ=0 = +ᶜ-noInverse γ δ (cong tailₘ eq)
+  p+q=0 = Modality.+-noInverse 𝕄 p q (cong headₘ eq)
+
+
+-- Properties of ∧ᶜ
+
+∧ᶜ-Idempotent : (γ : Conₘ 𝕄 n) → γ ∧ᶜ γ ≡ γ
+∧ᶜ-Idempotent ε = refl
+∧ᶜ-Idempotent {𝕄 = 𝕄} (γ ∙ p) = cong₂ _∙_
+  (∧ᶜ-Idempotent γ)
+  (Modality.∧-Idempotent 𝕄 p)
+
+-- Properties of ≤ᶜ
+
+-- ≤ᶜ forms a parital order
 
 ≤ᶜ-reflexive : {γ : Conₘ 𝕄 n} → γ ≤ᶜ γ
 ≤ᶜ-reflexive {γ = ε} = refl
@@ -123,6 +156,8 @@ rightUnit {𝕄 = 𝕄} {γ = γ ∙ p} = cong₂ _∙_ γ' p'
   (≤ᶜ-antisymmetric (cong tailₘ x) (cong tailₘ y))
   (≤-antisymmetric {𝕄 = 𝕄} (cong headₘ x) (cong headₘ y))
 
+-- +ᶜ, ∧ᶜ and ·ᶜ are monotone owht reggards to ≤ᶜ
+
 +ᶜ-monotone : {γ δ η : Conₘ 𝕄 n} → γ ≤ᶜ δ → γ +ᶜ η ≤ᶜ δ +ᶜ η
 +ᶜ-monotone {γ = ε} {ε} {ε} refl = refl
 +ᶜ-monotone {𝕄 = 𝕄} {γ = γ ∙ p} {δ ∙ q} {η ∙ r} x = cong₂ _∙_
@@ -134,6 +169,7 @@ rightUnit {𝕄 = 𝕄} {γ = γ ∙ p} = cong₂ _∙_ γ' p'
 +ᶜ-monotone₂ {𝕄 = 𝕄} {γ = γ ∙ p} {γ′ ∙ p′} {δ ∙ q} {δ′ ∙ q′} x y = cong₂ _∙_
   (+ᶜ-monotone₂ (cong tailₘ x) (cong tailₘ y))
   (+-monotone₂ {𝕄 = 𝕄} (cong headₘ x) (cong headₘ y))
+
 
 ·ᶜ-monotone : {p : M} {γ δ : Conₘ 𝕄 n} → γ ≤ᶜ δ → p ·ᶜ γ ≤ᶜ p ·ᶜ δ
 ·ᶜ-monotone {γ = ε} {ε} refl = refl
@@ -147,16 +183,35 @@ rightUnit {𝕄 = 𝕄} {γ = γ ∙ p} = cong₂ _∙_ γ' p'
   (·ᶜ-monotone₂ (cong tailₘ γ≤δ) p≤q)
   (·-monotone₂ {𝕄 = 𝕄} p≤q (cong headₘ γ≤δ))
 
+
+∧ᶜ-monotone : {γ δ η : Conₘ 𝕄 n} → γ ≤ᶜ δ → γ ∧ᶜ η ≤ᶜ δ ∧ᶜ η
+∧ᶜ-monotone {γ = ε} {ε} {ε} refl = refl
+∧ᶜ-monotone {𝕄 = 𝕄} {γ = γ ∙ p} {δ ∙ q} {η ∙ r} x = cong₂ _∙_
+  (∧ᶜ-monotone (cong tailₘ x))
+  (∧-monotone {𝕄 = 𝕄} (cong headₘ x))
+
+∧ᶜ-monotone₂ : {γ γ′ δ δ′ : Conₘ 𝕄 n} → γ ≤ᶜ γ′ → δ ≤ᶜ δ′ → (γ ∧ᶜ δ) ≤ᶜ (γ′ ∧ᶜ δ′)
+∧ᶜ-monotone₂ {γ = ε} {ε} {ε} {ε} refl refl = refl
+∧ᶜ-monotone₂ {𝕄 = 𝕄} {γ = γ ∙ p} {γ′ ∙ p′} {δ ∙ q} {δ′ ∙ q′} x y = cong₂ _∙_
+  (∧ᶜ-monotone₂ (cong tailₘ x) (cong tailₘ y))
+  (∧-monotone₂ {𝕄 = 𝕄} (cong headₘ x) (cong headₘ y))
+
+
+-- Propeties of headₘ and tailₘ
+
+
 tail-linear∧ : {γ δ : Conₘ 𝕄 (1+ n)} → tailₘ (γ ∧ᶜ δ) ≡ (tailₘ γ) ∧ᶜ (tailₘ δ)
 tail-linear∧ {γ = γ ∙ p} {δ ∙ q} = refl
 
-+ᶜ-associative : (γ δ η : Conₘ 𝕄 n) → (γ +ᶜ δ) +ᶜ η ≡ γ +ᶜ (δ +ᶜ η)
-+ᶜ-associative ε ε ε = refl
-+ᶜ-associative {𝕄 = 𝕄} (γ ∙ p) (δ ∙ q) (η ∙ r) = cong₂ _∙_ (+ᶜ-associative γ δ η) (Modality.+-Associative 𝕄 p q r)
+head-linear∧ : {γ δ : Conₘ 𝕄 (1+ n)} → headₘ (γ ∧ᶜ δ)
+             ≡ Modality._∧_ 𝕄 (headₘ γ) (headₘ δ)
+head-linear∧ {γ = γ ∙ p} {δ ∙ q} = refl
 
-+ᶜ-comm : (γ δ : Conₘ 𝕄 n) → γ +ᶜ δ ≡ δ +ᶜ γ
-+ᶜ-comm ε ε = refl
-+ᶜ-comm {𝕄 = 𝕄} (γ ∙ p) (δ ∙ q) = cong₂ _∙_ (+ᶜ-comm γ δ) (Modality.+-Commutative 𝕄 p q)
+headₘ-tailₘ-correct : (γ : Conₘ 𝕄 (1+ n)) → γ ≡ tailₘ γ ∙ headₘ γ
+headₘ-tailₘ-correct (γ ∙ p) = refl
+
+
+-- Properties of insertAt
 
 insertAt-𝟘 : {m : Nat} (n : Nat)
            → 𝟘ᶜ {𝕄 = 𝕄} {n = n + 1+ m} ≡ insertAt n (𝟘ᶜ {n = n + m}) (Modality.𝟘 𝕄)
@@ -176,7 +231,7 @@ insertAt-distrib-+ᶜ-𝟘 {𝕄 = 𝕄} n γ δ = begin
     ≡⟨ insertAt-distrib-+ᶜ n γ δ (Modality.𝟘 𝕄) (Modality.𝟘 𝕄) ⟩
   insertAt n (γ +ᶜ δ) ((𝕄 Modality.+ Modality.𝟘 𝕄) (Modality.𝟘 𝕄))
     ≡⟨ cong (insertAt n (γ +ᶜ δ)) (proj₁ (Modality.+-Identity 𝕄) (Modality.𝟘 𝕄)) ⟩
-  insertAt n (γ +ᶜ δ) (Modality.𝟘 𝕄) ∎  
+  insertAt n (γ +ᶜ δ) (Modality.𝟘 𝕄) ∎
 
 insertAt-distrib-·ᶜ : {𝕄 : Modality M} {m : Nat} (n : Nat) (γ δ : Conₘ 𝕄 (n + m)) (p q : M)
                     → p ·ᶜ insertAt n γ q ≡ insertAt n (p ·ᶜ γ) (Modality._·_ 𝕄 p q)
@@ -194,5 +249,4 @@ insertAt-liftn : {m : Nat} (n : Nat) (x : Fin (n + m))
 insertAt-liftn 0 x = refl
 insertAt-liftn (1+ n) x0 = cong₂ _∙_ (insertAt-𝟘 n) refl
 insertAt-liftn (1+ n) (_+1 x) = cong₂ _∙_ (insertAt-liftn n x) refl
-
 
