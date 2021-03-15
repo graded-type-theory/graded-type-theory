@@ -10,6 +10,7 @@ open import Definition.Modality.Context.Properties
 open import Definition.Modality.Substitution
 open import Definition.Modality.Substitution.Properties
 open import Definition.Modality.Usage
+open import Definition.Modality.Usage.Properties
 
 open import Tools.Fin
 open import Tools.Empty using (⊥; ⊥-elim)
@@ -347,8 +348,26 @@ redU* (id x) = PE.refl
 redU* (x ⇨ A⇒*U) rewrite redU* A⇒*U = ⊥-elim (redU x)
 
 -- Reduction preserves resource usage
+usagePresTerm : {𝕄 : Modality M} {γ : Conₘ 𝕄 n} {Γ : Con (Term M) n} {t u A : Term M n}
+              → γ ▸ t → Γ ⊢ t ⇒ u ∷ A → γ ▸ u
+usagePresTerm x (conv y x₁) = {!!}
+usagePresTerm x (app-subst y x₁) = {!!}
+usagePresTerm γ▸λpt∘a (β-red Γ⊢A Γ∙A⊢t∷B Γ⊢a∷A PE.refl) with inv-usage-app γ▸λpt∘a
+... | invUsageApp δ▸λpt η▸a γ≤δ+pη with inv-usage-lam δ▸λpt
+... | δ′ , δ≤δ′ , δ′∙p▸t = {!substₘ-lemma !}
+usagePresTerm x (fst-subst x₁ x₂ y) = {!!}
+usagePresTerm x (snd-subst x₁ x₂ y) = {!!}
+usagePresTerm x (Σ-β₁ x₁ x₂ x₃ x₄) = {!!}
+usagePresTerm x (Σ-β₂ x₁ x₂ x₃ x₄) = {!!}
+usagePresTerm x (prodrec-subst x₁ x₂ x₃ x₄ y) = {!!}
+usagePresTerm x (prodrec-β x₁ x₂ x₃ x₄ x₅ x₆) = {!!}
+usagePresTerm x (natrec-subst x₁ x₂ x₃ y) = {!!}
+usagePresTerm x (natrec-zero x₁ x₂ x₃) = {!!}
+usagePresTerm x (natrec-suc x₁ x₂ x₃ x₄) = {!!}
+usagePresTerm x (Emptyrec-subst x₁ y) = {!!}
 
-
+{-
+{-# TERMINATING #-}
 usagePresTerm : {𝕄 : Modality M} {γ : Conₘ 𝕄 n} {Γ : Con (Term M) n} {t u A : Term M n}
               → γ ▸ t → Γ ⊢ t ⇒ u ∷ A → γ ▸ u
 usagePresTerm γ▸t (conv t⇒u x) = usagePresTerm γ▸t t⇒u
@@ -392,7 +411,7 @@ usagePresTerm (prodrecₘ {δ = δ} {p} (prodₘ {γ} {t} {γ₁} {u = t₁} γ�
           PE.≡⟨ PE.cong₂ _+ᶜ_ (PE.sym (·ᶜ-distribˡ-+ᶜ p γ γ₁)) (idSubstₘ-LeftIdentity δ) ⟩
          p ·ᶜ (γ +ᶜ γ₁) +ᶜ δ
            PE.≡⟨ PE.cong₂ _+ᶜ_ (PE.cong₂ _·ᶜ_ PE.refl (PE.sym eq)) PE.refl ⟩
-         _ PE.∎     
+         _ PE.∎
 
 usagePresTerm (prodrecₘ {γ} {δ = δ} {p} (sub γ▸t x₆) δ▸u) (prodrec-β {t = t} {t′} x x₁ x₂ x₃ x₄ x₅) = {!sub γ▸t x₆!}
   where
@@ -462,3 +481,11 @@ usagePresTerm (sub γ▸t x) t⇒u = sub (usagePresTerm γ▸t t⇒u) x
 usagePres : {𝕄 : Modality M} {γ : Conₘ 𝕄 n} {Γ : Con (Term M) n} {A B : Term M n}
           → γ ▸ A → Γ ⊢ A ⇒ B → γ ▸ B
 usagePres γ▸A (univ x) = usagePresTerm γ▸A x
+
+
+-- -}
+-- -}
+-- -}
+-- -}
+-- -}
+-- -}

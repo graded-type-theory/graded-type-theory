@@ -30,7 +30,7 @@ data _◂_∈_ : (x : Fin n) (p : M) (γ : Conₘ 𝕄 n) → Set₁ where
 
 
 -- Well-usage of terms
-data _▸_ {n : Nat} {𝕄 : Modality M} : (γ : Conₘ 𝕄 n) → Term M n → Set₁ where
+data _▸_ {n : Nat} {M} {𝕄 : Modality M} : (γ : Conₘ 𝕄 n) → Term M n → Set where
   Uₘ        : 𝟘ᶜ ▸ U
   ℕₘ        : 𝟘ᶜ ▸ ℕ
   Emptyₘ    : 𝟘ᶜ ▸ Empty
@@ -116,4 +116,3 @@ mutual
   gen-usage (Emptyreckind p) (A ∷ e ∷ [])    = ⌈ e ⌉
   gen-usage {𝕄 = 𝕄} (Natreckind p q) (G ∷ z ∷ s ∷ n ∷ []) =
             (Modality._* 𝕄 q) ·ᶜ ((⌈ z ⌉ ∧ᶜ (tailₘ (tailₘ ⌈ s ⌉))) +ᶜ p ·ᶜ ⌈ n ⌉)
-

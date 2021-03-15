@@ -21,8 +21,9 @@ private
     M : Set
     𝕄 : Modality M
     Γ : Con (Term M) n
-    t A : Term M n
-    γ δ : Conₘ 𝕄 n
+    t u A : Term M n
+    γ γ′ δ η : Conₘ 𝕄 n
+    p : M
 
 usage-upper-bound : γ ▸ t → γ ≤ᶜ ⌈ t ⌉
 usage-upper-bound Uₘ = ≤ᶜ-reflexive
@@ -66,8 +67,8 @@ usage-upper-bound (natrecₘ {γ = γ} {q = q} {p = p} {s = s} x x₁ x₂) = ·
            ≡⟨ cong tailₘ (tail-linear∧ {γ = γ ∙ q ∙ p} {⌈ s ⌉}) ⟩
          tailₘ ((γ ∙ q) ∧ᶜ tailₘ ⌈ s ⌉)
            ≡⟨ tail-linear∧ {γ = γ ∙ q} {tailₘ ⌈ s ⌉} ⟩
-         γ ∧ᶜ tailₘ (tailₘ ⌈ s ⌉) ∎  
-              
+         γ ∧ᶜ tailₘ (tailₘ ⌈ s ⌉) ∎
+
 usage-upper-bound (Emptyrecₘ e) = usage-upper-bound e
 usage-upper-bound starₘ = ≤ᶜ-reflexive
 usage-upper-bound (sub t x) = ≤ᶜ-transitive x (usage-upper-bound t)
@@ -121,7 +122,7 @@ liftn-usage ℓ (prodₘ! γ▸t δ▸u) = subst₂ _▸_
 liftn-usage ℓ (fstₘ γ▸t) = subst₂ _▸_
   (insertAt-𝟘 ℓ)
   refl
-  (fstₘ (subst₂ _▸_ (sym (insertAt-𝟘 ℓ)) refl (liftn-usage ℓ γ▸t)))
+  (fstₘ (subst₂ _▸_ (PE.sym (insertAt-𝟘 ℓ)) refl (liftn-usage ℓ γ▸t)))
 
 liftn-usage ℓ (sndₘ γ▸t) =  subst₂ _▸_
   (insertAt-𝟘 ℓ)
@@ -172,3 +173,34 @@ lift-usage = liftn-usage 1
 wk1-usage : {𝕄 : Modality M} {γ : Conₘ 𝕄 n} {t : Term M n}
             → γ ▸ t →  γ ∙ (Modality.𝟘 𝕄) ▸ wk1 t
 wk1-usage = liftn-usage 0
+
+
+-- Inversion lemmata for  γ ▸ t
+
+-- If γ ▸ star then γ ≤ᶜ 𝟘ᶜ
+
+inv-usage-star : γ ▸ star → γ ≤ᶜ 𝟘ᶜ
+inv-usage-star starₘ = ≤ᶜ-reflexive
+inv-usage-star (sub  δ▸star γ≤δ) = ≤ᶜ-transitive γ≤δ (inv-usage-star δ▸star)
+
+inv-usage-zero : γ ▸ zero → γ ≤ᶜ 𝟘ᶜ
+inv-usage-zero zeroₘ = ≤ᶜ-reflexive
+inv-usage-zero (sub  δ▸zero γ≤δ) = ≤ᶜ-transitive γ≤δ (inv-usage-zero δ▸zero)
+
+inv-usage-lam : γ ▸ lam p t → ∃ λ δ → γ ≤ᶜ δ × (δ ∙ p) ▸ t
+inv-usage-lam (lamₘ γ∙p▸t) = _ , ≤ᶜ-reflexive , γ∙p▸t
+inv-usage-lam (sub δ▸λpt γ≤δ) with inv-usage-lam δ▸λpt
+... | η , δ≤η , η∙p▸t = η , ≤ᶜ-transitive γ≤δ δ≤η , η∙p▸t
+
+record InvUsageApp {n} {M} {𝕄 : Modality M} (γ : Conₘ 𝕄 n) (t : Term M n) (p : M) (u : Term M n) : Set where
+  constructor invUsageApp
+  field
+    {uf ua}  : Conₘ 𝕄 n
+    usageFun : uf ▸ t
+    usageArg : ua ▸ u
+    usageLeq : γ ≤ᶜ (uf +ᶜ p ·ᶜ ua)
+
+inv-usage-app : γ′ ▸ (t ∘ p ▷ u) → InvUsageApp γ′ t p u
+inv-usage-app (γ▸t ∘ₘ δ▸u) = invUsageApp γ▸t δ▸u ≤ᶜ-reflexive
+inv-usage-app (sub γ▸t∘p▷u γ′≤γ) with inv-usage-app γ▸t∘p▷u
+... | invUsageApp δ▸t η▸u γ≤δ+pη = invUsageApp δ▸t η▸u (≤ᶜ-transitive γ′≤γ γ≤δ+pη)
