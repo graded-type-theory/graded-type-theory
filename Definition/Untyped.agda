@@ -116,8 +116,8 @@ Unit = gen Unitkind []
 lam    : (p : M) (t : Term M (1+ n)) → Term M n  -- Function abstraction (binder).
 lam p t = gen (Lamkind p) (t ∷ [])
 
-_▷_∘_    : (p : M) (t u : Term M n) → Term M n     -- Application.
-p ▷ t ∘ u = gen (Appkind p) (t ∷ u ∷ [])
+_∘_▷_    : (t : Term M n) (p : M) (u : Term M n) → Term M n -- Application.
+t ∘ p ▷ u = gen (Appkind p) (t ∷ u ∷ [])
 
 
 prod : (t u : Term M n) → Term M n       -- Dependent products
@@ -183,7 +183,7 @@ suc-PE-injectivity PE.refl = PE.refl
 
 data Neutral {M : Set} : Term M n → Set₁ where
   var       : (x : Fin n) → Neutral (var x)
-  ∘ₙ        : Neutral t   → Neutral (p ▷ t ∘ u)
+  ∘ₙ        : Neutral t   → Neutral (t ∘ p ▷ u)
   fstₙ      : Neutral t   → Neutral (fst t)
   sndₙ      : Neutral t   → Neutral (snd t)
   prodrecₙ  : Neutral t   → Neutral (prodrec p G t u)
