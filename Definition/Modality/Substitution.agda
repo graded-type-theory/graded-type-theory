@@ -60,8 +60,8 @@ addrow (Ψ ∙ δ) (γ ∙ p) = addrow Ψ γ ∙ (δ ∙ p)
 
 -- Well formed modality substitutions
 
-_▶_ : (Ψ : Substₘ 𝕄 m n) → (σ : Subst m n) → Set₁
-_▶_ {𝕄 = 𝕄} {n = n} Ψ σ = ∀ (x : Fin n) → (Ψ *> (𝟘ᶜ , x ≔ (Modality.𝟙 𝕄))) ▸ (σ x)
+_▶_ : {𝕄 : Modality M} (Ψ : Substₘ 𝕄 m n) → (σ : Subst M m n) → Set₁
+_▶_ {n = n} {𝕄 = 𝕄} Ψ σ = ∀ (x : Fin n) → (Ψ *> (𝟘ᶜ , x ≔ (Modality.𝟙 𝕄))) ▸ (σ x)
 
 
 -- Modality substitutions corresponding to (term) weakenings

@@ -21,7 +21,7 @@ private
     m n : Nat
     γ : Conₘ 𝕄 n
     t u : Term M n
-    σ : Subst m n
+    σ : Subst M m n
 
 -- Linearity proerties of *>
 
@@ -136,7 +136,7 @@ wf-sgSubstₘ γ▸u (x +1) = PE.subst (_▸ var x)
                                   ) var
 
 
-wf-wk1Substₘ : (Ψ : Substₘ 𝕄 m n) (σ : Subst {M} m n) → Ψ ▶ σ → wk1Substₘ Ψ ▶ wk1Subst σ
+wf-wk1Substₘ : (Ψ : Substₘ 𝕄 m n) (σ : Subst M m n) → Ψ ▶ σ → wk1Substₘ Ψ ▶ wk1Subst σ
 wf-wk1Substₘ Ψ σ Ψ▶σ x = subst₂ _▸_ (sym (wk1Substₘ-app Ψ _)) refl (wk1-usage (Ψ▶σ x))
 
 wf-liftSubstₘ : {Ψ : Substₘ 𝕄 m n} → Ψ ▶ σ → liftSubstₘ Ψ ▶ liftSubst σ
@@ -185,7 +185,7 @@ wf-consSubstₘ {𝕄 = 𝕄} {Ψ = Ψ} {γ = γ} Ψ▶σ γ▸t (x +1) = subst�
 
 -- Substitution lemma for modalities
 
-substₘ-lemma : (Ψ : Substₘ 𝕄 m n) (σ : Subst m n) → Ψ ▶ σ → γ ▸ t → substₘ Ψ γ ▸ U.subst σ t
+substₘ-lemma : (Ψ : Substₘ 𝕄 m n) (σ : Subst M m n) → Ψ ▶ σ → γ ▸ t → substₘ Ψ γ ▸ U.subst σ t
 substₘ-lemma Ψ σ Ψ▶σ Uₘ     = PE.subst (_▸ U)     (PE.sym (*>-zeroʳ Ψ)) Uₘ
 substₘ-lemma Ψ σ Ψ▶σ ℕₘ     = PE.subst (_▸ ℕ)     (PE.sym (*>-zeroʳ Ψ)) ℕₘ
 substₘ-lemma Ψ σ Ψ▶σ Emptyₘ = PE.subst (_▸ Empty) (PE.sym (*>-zeroʳ Ψ)) Emptyₘ
