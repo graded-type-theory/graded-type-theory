@@ -101,6 +101,7 @@ UnitModality = record
   ; ∧-Semilattice       = +-Semilattice
   ; *-StarSemiring      = λ p → refl
   ; ·-Zero              = (λ x → refl)    , (λ x → refl)
+  ; +-noInverse         = λ p q x → refl , refl
   ; ·Distr+             = +-Distributiveˡ , +-Distributiveʳ
   ; ·Distr∧             = +-Distributiveˡ , +-Distributiveʳ
   ; +Distr∧             = +-Distributiveˡ , +-Distributiveʳ

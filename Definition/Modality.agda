@@ -3,6 +3,7 @@
 module Definition.Modality where
 
 open import Algebra
+open import Tools.Product
 open import Tools.PropositionalEquality
 
 -- Star ringoid
@@ -31,6 +32,8 @@ record Modality (M : Set) : Set where
 
     -- 𝟘 is zero for multiplication
     ·-Zero              : Zero _≡_ 𝟘 _·_
+    -- There are no additive inverses (except 𝟘)
+    +-noInverse         : (p q : M) → p + q ≡ 𝟘 → p ≡ 𝟘 × q ≡ 𝟘
 
     -- Multiplication distributes over addition
     ·Distr+             : _DistributesOver_ _≡_ _·_ _+_

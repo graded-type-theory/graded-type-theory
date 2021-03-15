@@ -54,6 +54,12 @@ x * = ω
 +-Identity : Identity _≡_ 𝟘 _+_
 +-Identity = +-LeftIdentity , +-RightIdentity
 
++-noInverse : (p q : Erasure) → p + q ≡ 𝟘 → p ≡ 𝟘 × q ≡ 𝟘
++-noInverse 𝟘 𝟘 refl = refl , refl
++-noInverse 𝟘 ω ()
++-noInverse ω 𝟘 ()
++-noInverse ω ω ()
+
 
 -- Properties of multiplication
 ·-Congruent : Congruent₂ _≡_ _·_
@@ -183,6 +189,7 @@ ErasureModality = record
   ; ∧-Semilattice       = +-Semilattice
   ; *-StarSemiring      = *-StarSemiring
   ; ·-Zero              = ·-Zero
+  ; +-noInverse         = +-noInverse
   ; ·Distr+             = ·Distr+
   ; ·Distr∧             = ·Distr+
   ; +Distr∧             = +Distr+
