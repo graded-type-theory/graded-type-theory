@@ -21,9 +21,13 @@ private
     M : Set
     𝕄 : Modality M
     Γ : Con (Term M) n
-    t u A : Term M n
-    γ γ′ δ η : Conₘ 𝕄 n
-    p : M
+    t u A F : Term M n
+    G : Term M (1+ n)
+    γ γ′ : Conₘ 𝕄 n
+    p q : M
+
+
+-- ⌈ t ⌉ is an upper bound on valid modality contexts
 
 usage-upper-bound : γ ▸ t → γ ≤ᶜ ⌈ t ⌉
 usage-upper-bound Uₘ = ≤ᶜ-reflexive
@@ -147,7 +151,7 @@ liftn-usage {𝕄 = 𝕄} ℓ (natrecₘ {δ = δ} γ▸z γ▸s δ▸n) = subst
   where
   eq = begin
      _ ≡⟨ cong₂ _·ᶜ_ refl (cong₂ _+ᶜ_ refl (insertAt-distrib-·ᶜ ℓ _ δ _ _)) ⟩
-      _ ≡⟨ cong₂ _·ᶜ_ refl (cong₂ _+ᶜ_ refl (cong (insertAt ℓ _) (proj₂ (Modality.·-Zero 𝕄) _))) ⟩
+     _ ≡⟨ cong₂ _·ᶜ_ refl (cong₂ _+ᶜ_ refl (cong (insertAt ℓ _) (proj₂ (Modality.·-Zero 𝕄) _))) ⟩
      _ ≡⟨ cong₂ _·ᶜ_ refl (insertAt-distrib-+ᶜ ℓ _ _ _ _) ⟩
      _ ≡⟨ cong₂ _·ᶜ_ refl (cong (insertAt ℓ _) (proj₁ (Modality.+-Identity 𝕄) (Modality.𝟘 𝕄))) ⟩
      _ ≡⟨ insertAt-distrib-·ᶜ {𝕄 = 𝕄} ℓ _ δ _ _ ⟩
@@ -177,30 +181,207 @@ wk1-usage = liftn-usage 0
 
 -- Inversion lemmata for  γ ▸ t
 
--- If γ ▸ star then γ ≤ᶜ 𝟘ᶜ
+-- If γ ▸ U then γ ≤ᶜ 𝟘ᶜ
 
-inv-usage-star : γ ▸ star → γ ≤ᶜ 𝟘ᶜ
-inv-usage-star starₘ = ≤ᶜ-reflexive
-inv-usage-star (sub  δ▸star γ≤δ) = ≤ᶜ-transitive γ≤δ (inv-usage-star δ▸star)
+inv-usage-U : γ ▸ U → γ ≤ᶜ 𝟘ᶜ
+inv-usage-U Uₘ = ≤ᶜ-reflexive
+inv-usage-U (sub γ▸U γ≤δ) = ≤ᶜ-transitive γ≤δ (inv-usage-U γ▸U)
 
-inv-usage-zero : γ ▸ zero → γ ≤ᶜ 𝟘ᶜ
-inv-usage-zero zeroₘ = ≤ᶜ-reflexive
-inv-usage-zero (sub  δ▸zero γ≤δ) = ≤ᶜ-transitive γ≤δ (inv-usage-zero δ▸zero)
+-- If γ ▸ ℕ then γ ≤ᶜ 𝟘ᶜ
 
-inv-usage-lam : γ ▸ lam p t → ∃ λ δ → γ ≤ᶜ δ × (δ ∙ p) ▸ t
-inv-usage-lam (lamₘ γ∙p▸t) = _ , ≤ᶜ-reflexive , γ∙p▸t
-inv-usage-lam (sub δ▸λpt γ≤δ) with inv-usage-lam δ▸λpt
-... | η , δ≤η , η∙p▸t = η , ≤ᶜ-transitive γ≤δ δ≤η , η∙p▸t
+inv-usage-ℕ : γ ▸ ℕ → γ ≤ᶜ 𝟘ᶜ
+inv-usage-ℕ ℕₘ = ≤ᶜ-reflexive
+inv-usage-ℕ (sub γ▸ℕ γ≤δ) = ≤ᶜ-transitive γ≤δ (inv-usage-ℕ γ▸ℕ)
 
-record InvUsageApp {n} {M} {𝕄 : Modality M} (γ : Conₘ 𝕄 n) (t : Term M n) (p : M) (u : Term M n) : Set where
+-- If γ ▸ Empty then γ ≤ᶜ 𝟘ᶜ
+
+inv-usage-Empty : γ ▸ Empty → γ ≤ᶜ 𝟘ᶜ
+inv-usage-Empty Emptyₘ = ≤ᶜ-reflexive
+inv-usage-Empty (sub γ▸⊥ γ≤δ) = ≤ᶜ-transitive γ≤δ (inv-usage-Empty γ▸⊥)
+
+-- If γ ▸ Unit then γ ≤ᶜ 𝟘ᶜ
+
+inv-usage-Unit : γ ▸ Unit → γ ≤ᶜ 𝟘ᶜ
+inv-usage-Unit Unitₘ = ≤ᶜ-reflexive
+inv-usage-Unit (sub γ▸⊤ γ≤δ) = ≤ᶜ-transitive γ≤δ (inv-usage-Unit γ▸⊤)
+
+
+record InvUsageΠΣ {n} {M} {𝕄 : Modality M} (γ : Conₘ 𝕄 n) (q : M)
+                  (F : Term M n) (G : Term M (1+ n)) : Set where
+  constructor invUsageΠΣ
+  field
+    {δ η} : Conₘ 𝕄 n
+    δ▸F   : δ ▸ F
+    η▸G   : η ∙ q ▸ G
+    γ≤δ+η : γ ≤ᶜ δ +ᶜ η
+
+-- If γ ▸ Π p , q ▷ F ▹ G then δ ▸ F, η ∙ q ▸ G and γ ≤ᶜ δ +ᶜ η
+
+inv-usage-Π : γ ▸ Π p , q ▷ F ▹ G → InvUsageΠΣ γ q F G
+inv-usage-Π (Πₘ γ▸F δ▸G) = invUsageΠΣ γ▸F δ▸G ≤ᶜ-reflexive
+inv-usage-Π (sub γ▸Π γ≤γ′) with inv-usage-Π γ▸Π
+... | invUsageΠΣ δ▸F η▸G γ′≤δ+η = invUsageΠΣ δ▸F η▸G (≤ᶜ-transitive γ≤γ′ γ′≤δ+η)
+
+-- If γ ▸ Σ p , q ▷ F ▹ G then δ ▸ F, η ∙ q ▸ G and γ ≤ᶜ δ +ᶜ η
+
+inv-usage-Σ : γ ▸ Σ q ▷ F ▹ G → InvUsageΠΣ γ q F G
+inv-usage-Σ (Σₘ γ▸F δ▸G) = invUsageΠΣ γ▸F δ▸G ≤ᶜ-reflexive
+inv-usage-Σ (sub γ▸Σ γ≤γ′) with inv-usage-Σ γ▸Σ
+... | invUsageΠΣ δ▸F η▸G γ′≤δ+η = invUsageΠΣ δ▸F η▸G (≤ᶜ-transitive γ≤γ′ γ′≤δ+η)
+
+-- If γ ▸ var x then γ ≤ᶜ (𝟘ᶜ , x ≔ 𝟙)
+
+inv-usage-var : ∀ {x} {𝕄 : Modality M} {γ : Conₘ 𝕄 n}
+              → γ ▸ var x → γ ≤ᶜ (𝟘ᶜ , x ≔ (Modality.𝟙 𝕄))
+inv-usage-var var = ≤ᶜ-reflexive
+inv-usage-var (sub γ▸x γ≤γ′) with inv-usage-var γ▸x
+... | γ′≤δ = ≤ᶜ-transitive γ≤γ′ γ′≤δ
+
+
+record InvUsageLam {n} {M} {𝕄 : Modality M} (γ : Conₘ 𝕄 n) (p : M) (t : Term M (1+ n)) : Set where
+  constructor invUsageLam
+  field
+    {δ} : Conₘ 𝕄 n
+    δ▸t : δ ∙ p ▸ t
+    γ≤δ : γ ≤ᶜ δ
+
+-- If γ ▸ λ p t then δ ∙ p ▸ t and γ ≤ᶜ δ
+
+inv-usage-lam : γ ▸ lam p t → InvUsageLam γ p t
+inv-usage-lam (lamₘ γ▸λpt) = invUsageLam γ▸λpt ≤ᶜ-reflexive
+inv-usage-lam (sub γ′▸λpt γ≤γ′) with inv-usage-lam γ′▸λpt
+... | invUsageLam δ▸t γ′≤δ = invUsageLam δ▸t (≤ᶜ-transitive γ≤γ′ γ′≤δ)
+
+
+record InvUsageApp {n} {M} {𝕄 : Modality M} (γ : Conₘ 𝕄 n)
+                   (t : Term M n) (p : M) (u : Term M n) : Set where
   constructor invUsageApp
   field
-    {uf ua}  : Conₘ 𝕄 n
-    usageFun : uf ▸ t
-    usageArg : ua ▸ u
-    usageLeq : γ ≤ᶜ (uf +ᶜ p ·ᶜ ua)
+    {δ η}  : Conₘ 𝕄 n
+    δ▸t    : δ ▸ t
+    η▸u    : η ▸ u
+    γ≤δ+pη : γ ≤ᶜ (δ +ᶜ p ·ᶜ η)
+
+-- If γ ▸ t ∘ p ▷ u then δ ▸ t, η ▸ u and γ ≤ᶜ δ +ᶜ p ·ᶜ η
 
 inv-usage-app : γ′ ▸ (t ∘ p ▷ u) → InvUsageApp γ′ t p u
 inv-usage-app (γ▸t ∘ₘ δ▸u) = invUsageApp γ▸t δ▸u ≤ᶜ-reflexive
 inv-usage-app (sub γ▸t∘p▷u γ′≤γ) with inv-usage-app γ▸t∘p▷u
 ... | invUsageApp δ▸t η▸u γ≤δ+pη = invUsageApp δ▸t η▸u (≤ᶜ-transitive γ′≤γ γ≤δ+pη)
+
+
+record InvUsageProd {n} {M} {𝕄 : Modality M} (γ′ : Conₘ 𝕄 n)
+                    (t u : Term M n) : Set where
+  constructor invUsageProd
+  field
+    {δ η} : Conₘ 𝕄 n
+    δ▸t     : δ ▸ t
+    η▸u     : η ▸ u
+    γ′≤δ+η   : γ′ ≤ᶜ δ +ᶜ η
+
+-- If γ ▸ prod t u then δ ▸ t, η ▸ u and γ ≤ᶜ δ +ᶜ η
+
+inv-usage-prod : γ ▸ prod t u → InvUsageProd γ t u
+inv-usage-prod (prodₘ! γ▸t δ▸u) = invUsageProd γ▸t δ▸u ≤ᶜ-reflexive
+inv-usage-prod (sub γ▸tu γ≤γ′) with inv-usage-prod γ▸tu
+... | invUsageProd δ▸t η▸u γ′≤γ″ = invUsageProd δ▸t η▸u (≤ᶜ-transitive γ≤γ′ γ′≤γ″)
+
+
+record InvUsageProj {n} {M} {𝕄 : Modality M} (γ : Conₘ 𝕄 n) (t : Term M n) : Set where
+  constructor invUsageProj
+  field
+    𝟘▸t : 𝟘ᶜ {𝕄 = 𝕄} ▸ t
+    γ≤𝟘 : γ ≤ᶜ 𝟘ᶜ
+
+-- If γ ▸ fst t then 𝟘ᶜ ▸ t and γ ≤ᶜ 𝟘ᶜ
+
+inv-usage-fst : γ ▸ fst t → InvUsageProj γ t
+inv-usage-fst (fstₘ 𝟘▸t) = invUsageProj 𝟘▸t ≤ᶜ-reflexive
+inv-usage-fst (sub γ▸t₁ γ≤γ′) with inv-usage-fst γ▸t₁
+... | invUsageProj 𝟘▸t γ′≤𝟘 = invUsageProj 𝟘▸t (≤ᶜ-transitive γ≤γ′ γ′≤𝟘)
+
+-- If γ ▸ snd t then 𝟘ᶜ ▸ t and γ ≤ᶜ 𝟘ᶜ
+
+inv-usage-snd : γ ▸ snd t → InvUsageProj γ t
+inv-usage-snd (sndₘ 𝟘▸t) = invUsageProj 𝟘▸t ≤ᶜ-reflexive
+inv-usage-snd (sub γ▸t₂ γ≤γ′) with inv-usage-snd γ▸t₂
+... | invUsageProj 𝟘▸t γ′≤𝟘 = invUsageProj 𝟘▸t (≤ᶜ-transitive γ≤γ′ γ′≤𝟘)
+
+
+record InvUsageProdrec {n} {M} {𝕄 : Modality M} (γ : Conₘ 𝕄 n) (p : M)
+                       (t : Term M n) (u : Term M (1+ (1+ n))) : Set where
+  constructor invUsageProdrec
+  field
+    {δ η}  : Conₘ 𝕄 n
+    δ▸t    : δ ▸ t
+    η▸u    : η ∙ p ∙ p ▸ u
+    γ≤pδ+η : γ ≤ᶜ p ·ᶜ δ +ᶜ η
+
+-- If γ ▸ prodrec p A t u then δ ▸ t, η ∙ p ∙ p ▸ u and γ ≤ᶜ p ·ᶜ δ +ᶜ η
+
+inv-usage-prodrec : γ ▸ prodrec p G t u → InvUsageProdrec γ p t u
+inv-usage-prodrec (prodrecₘ δ▸t η▸u) = invUsageProdrec δ▸t η▸u ≤ᶜ-reflexive
+inv-usage-prodrec (sub γ▸x γ≤γ′) with inv-usage-prodrec γ▸x
+... | invUsageProdrec δ▸t η▸u γ′≤pδ+η = invUsageProdrec δ▸t η▸u (≤ᶜ-transitive γ≤γ′ γ′≤pδ+η)
+
+-- If γ ▸ zero then γ ≤ᶜ 𝟘ᶜ
+
+inv-usage-zero : γ ▸ zero → γ ≤ᶜ 𝟘ᶜ
+inv-usage-zero zeroₘ = ≤ᶜ-reflexive
+inv-usage-zero (sub  δ▸zero γ≤δ) = ≤ᶜ-transitive γ≤δ (inv-usage-zero δ▸zero)
+
+
+record InvUsageSuc {n} {M} {𝕄 : Modality M} (γ : Conₘ 𝕄 n) (t : Term M n) : Set where
+  constructor invUsageSuc
+  field
+    {δ} : Conₘ 𝕄 n
+    δ▸t : δ ▸ t
+    γ≤δ : γ ≤ᶜ δ
+
+-- If γ ▸ suc t then δ ▸ t and γ ≤ᶜ δ
+
+inv-usage-suc : γ ▸ suc t → InvUsageSuc γ t
+inv-usage-suc (sucₘ γ▸t) = invUsageSuc γ▸t ≤ᶜ-reflexive
+inv-usage-suc (sub γ▸st γ≤γ′) with inv-usage-suc γ▸st
+... | invUsageSuc δ▸t γ′≤δ = invUsageSuc δ▸t (≤ᶜ-transitive γ≤γ′ γ′≤δ)
+
+
+record InvUsageNatrec {m} {M} {𝕄 : Modality M} (γ : Conₘ 𝕄 m) (p q : M)
+                      (z : Term M m) (s : Term M (1+ (1+ m))) (n : Term M m) : Set where
+  constructor invUsageNatrec
+  field
+    {δ η} : Conₘ 𝕄 m
+    δ▸z   : δ ▸ z
+    δ▸s   : δ ∙ q ∙ p ▸ s
+    η▸n   : η ▸ n
+    γ≤γ′  : γ ≤ᶜ (Modality._* 𝕄 q) ·ᶜ (δ +ᶜ p ·ᶜ η)
+
+-- If γ ▸ natrec p q G z s n then δ ▸ z, δ ∙ q ∙ p ▸ s, η ▸ n and γ ≤ᶜ q* ·ᶜ (δ +ᶜ p ·ᶜ η)
+
+inv-usage-natrec : {m : Nat} {𝕄 : Modality M} {γ : Conₘ 𝕄 m} {p q : M} {z n : Term M m}
+                   {G : Term M (1+ m)} {s : Term M (1+ (1+ m))}
+                 → γ ▸ natrec p q G z s n → InvUsageNatrec γ p q z s n
+inv-usage-natrec (natrecₘ δ▸z δ▸s η▸n) = invUsageNatrec δ▸z δ▸s η▸n ≤ᶜ-reflexive
+inv-usage-natrec (sub γ▸natrec γ≤γ′) with inv-usage-natrec γ▸natrec
+... | invUsageNatrec δ▸z δ▸s η▸n γ′≤γ″ = invUsageNatrec δ▸z δ▸s η▸n (≤ᶜ-transitive γ≤γ′ γ′≤γ″)
+
+
+record InvUsageEmptyrec {n} {M} {𝕄 :  Modality M} (γ : Conₘ 𝕄 n) (t : Term M n) : Set where
+  constructor invUsageEmptyrec
+  field
+    {δ} : Conₘ 𝕄 n
+    δ▸t : δ ▸ t
+    γ≤δ : γ ≤ᶜ δ
+
+-- If γ ▸ Emptyrec p A t then δ ▸ t and γ ≤ᶜ δ
+
+inv-usage-Emptyrec : γ ▸ Emptyrec p A t → InvUsageEmptyrec γ t
+inv-usage-Emptyrec (Emptyrecₘ δ▸t) = invUsageEmptyrec δ▸t ≤ᶜ-reflexive
+inv-usage-Emptyrec (sub γ▸et γ≤γ′) with inv-usage-Emptyrec γ▸et
+... | invUsageEmptyrec δ▸t γ′≤δ = invUsageEmptyrec δ▸t (≤ᶜ-transitive γ≤γ′ γ′≤δ)
+
+-- If γ ▸ star then γ ≤ᶜ 𝟘ᶜ
+
+inv-usage-star : γ ▸ star → γ ≤ᶜ 𝟘ᶜ
+inv-usage-star starₘ = ≤ᶜ-reflexive
+inv-usage-star (sub  δ▸star γ≤δ) = ≤ᶜ-transitive γ≤δ (inv-usage-star δ▸star)
