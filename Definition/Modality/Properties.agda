@@ -32,7 +32,7 @@ private
   refl
 
 +-monotone : {𝕄 : Modality M} {p q r : M}
-           → Modality._≤_ 𝕄 p q 
+           → Modality._≤_ 𝕄 p q
            → Modality._≤_ 𝕄 (Modality._+_ 𝕄 p r) (Modality._+_ 𝕄 q r)
 +-monotone {𝕄 = 𝕄} {p} {q} {r} x = subst₂ _≡_
   (cong₂ (Modality._+_ 𝕄) (sym x) refl)
@@ -86,7 +86,7 @@ private
     ≡⟨ sym (Modality.∧-Associative 𝕄 p q (Modality._∧_ 𝕄 q′ p′)) ⟩
   Modality._∧_ 𝕄 (Modality._∧_ 𝕄 p q) (Modality._∧_ 𝕄 q′ p′)
     ≡⟨ cong₂ (Modality._∧_ 𝕄) refl (Modality.∧-Commutative 𝕄 q′ p′) ⟩
-  (Modality._∧_ 𝕄 (Modality._∧_ 𝕄 p q) (Modality._∧_ 𝕄 p′ q′)) ∎    
+  (Modality._∧_ 𝕄 (Modality._∧_ 𝕄 p q) (Modality._∧_ 𝕄 p′ q′)) ∎
 
 ·-monotoneˡ : {𝕄 : Modality M} {p q r : M}
            → Modality._≤_ 𝕄 p q

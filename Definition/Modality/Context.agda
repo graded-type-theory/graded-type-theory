@@ -69,7 +69,7 @@ _·ᶜ_ {𝕄 = 𝕄} p (γ ∙ q) = (p ·ᶜ γ) ∙ Modality._·_ 𝕄 p q
 _≤ᶜ_ : (γ δ : Conₘ 𝕄 n) → Set
 γ ≤ᶜ  δ = γ ≡ γ ∧ᶜ δ
 
-  
+
 -- Zero modality context
 𝟘ᶜ : Conₘ 𝕄 n
 𝟘ᶜ          {n = 0}    = ε
