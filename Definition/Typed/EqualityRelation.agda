@@ -23,7 +23,7 @@ private
 
 -- Generic equality relation used with the logical relation
 
-record EqRelSet : Set₂ where
+record EqRelSet : Set₁ where
   constructor eqRel
   field
     ---------------
@@ -31,13 +31,13 @@ record EqRelSet : Set₂ where
     ---------------
 
     -- Equality of types
-    _⊢_≅_   : Con (Term M) n → (A B : Term M n)   → Set₁
+    _⊢_≅_   : Con (Term M) n → (A B : Term M n)   → Set
 
     -- Equality of terms
-    _⊢_≅_∷_ : Con (Term M) n → (t u A : Term M n) → Set₁
+    _⊢_≅_∷_ : Con (Term M) n → (t u A : Term M n) → Set
 
     -- Equality of neutral terms
-    _⊢_~_∷_ : Con (Term M) n → (t u A : Term M n) → Set₁
+    _⊢_~_∷_ : Con (Term M) n → (t u A : Term M n) → Set
 
     ----------------
     -- Properties --

@@ -24,7 +24,7 @@ private
     x : Fin n
 
 -- Well-usage of variables
-data _◂_∈_ : (x : Fin n) (p : M) (γ : Conₘ 𝕄 n) → Set₁ where
+data _◂_∈_  {M : Set} {𝕄 : Modality M} : (x : Fin n) (p : M) (γ : Conₘ 𝕄 n) → Set where
   here  :                       x0 ◂ p ∈ γ ∙ p
   there : (h : x ◂ p ∈ γ) → (x +1) ◂ p ∈ γ ∙ q
 

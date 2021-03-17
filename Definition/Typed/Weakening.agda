@@ -22,7 +22,7 @@ private
     ρ′ : Wk n ℓ
 -- Weakening type
 
-data _∷_⊆_ : Wk m n → Con (Term M) m → Con (Term M) n → Set₁ where
+data _∷_⊆_ {M : Set} : Wk m n → Con (Term M) m → Con (Term M) n → Set where
   id   :             id     ∷ Γ            ⊆ Γ
   step : ρ ∷ Δ ⊆ Γ → step ρ ∷ Δ ∙ A        ⊆ Γ
   lift : ρ ∷ Δ ⊆ Γ → lift ρ ∷ Δ ∙ U.wk ρ A ⊆ Γ ∙ A

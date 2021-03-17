@@ -29,7 +29,6 @@ infix 30 ⟦_⟧_▹_
 infixl 30 _ₛ•ₛ_ _•ₛ_ _ₛ•_
 infix 25 _[_]
 infix 25 _[_]↑
-infix 25 _[_]⇑
 infix 25 _[_][_]
 infix 25 _[⟨_,_⟩]
 
@@ -181,7 +180,7 @@ suc-PE-injectivity PE.refl = PE.refl
 -- A term is neutral if it has a variable in head position.
 -- The variable blocks reduction of such terms.
 
-data Neutral {M : Set} : Term M n → Set₁ where
+data Neutral {M : Set} : Term M n → Set where
   var       : (x : Fin n) → Neutral (var x)
   ∘ₙ        : Neutral t   → Neutral (t ∘ p ▷ u)
   fstₙ      : Neutral t   → Neutral (fst t)
@@ -195,7 +194,7 @@ data Neutral {M : Set} : Term M n → Set₁ where
 
 -- These are the (lazy) values of our language.
 
-data Whnf {M : Set} {n : Nat} : Term M n → Set₁ where
+data Whnf {M : Set} {n : Nat} : Term M n → Set where
 
   -- Type constructors are whnfs.
   Uₙ     : Whnf U
@@ -263,7 +262,7 @@ suc≢ne () PE.refl
 
 -- A whnf of type ℕ is either zero, suc t, or neutral.
 
-data Natural {M : Set} {n : Nat} : Term M n → Set₁ where
+data Natural {M : Set} {n : Nat} : Term M n → Set where
   zeroₙ :             Natural zero
   sucₙ  :             Natural (suc t)
   ne    : Neutral t → Natural t
@@ -272,7 +271,7 @@ data Natural {M : Set} {n : Nat} : Term M n → Set₁ where
 -- A (small) type in whnf is either Π A B, Σ A B, ℕ, Empty, Unit or neutral.
 -- Large types could also be U.
 
-data Type {M : Set} {n : Nat} : Term M n → Set₁ where
+data Type {M : Set} {n : Nat} : Term M n → Set where
   Πₙ     :             Type (Π p , q ▷ A ▹ B)
   Σₙ     :             Type (Σ p ▷ A ▹ B)
   ℕₙ     :             Type ℕ
@@ -286,16 +285,16 @@ data Type {M : Set} {n : Nat} : Term M n → Set₁ where
 
 -- A whnf of type Π A ▹ B is either lam t or neutral.
 
-data Function {M : Set} {n : Nat} : Term M n → Set₁ where
+data Function {M : Set} {n : Nat} : Term M n → Set where
   lamₙ : Function (lam p t)
   ne   : Neutral t → Function t
 
 -- A whnf of type Σ A ▹ B is either prod t u or neutral.
 
-data Product {M : Set} {n : Nat} : Term M n → Set₁ where
+data Product {M : Set} {n : Nat} : Term M n → Set where
   prodₙ : Product (prod t u)
-  ne    : Neutral t → Product t  
-  
+  ne    : Neutral t → Product t
+
 
 -- These views classify only whnfs.
 -- Natural, Type, Function and Product are a subsets of Whnf.
@@ -593,9 +592,6 @@ t [ s ] = subst (sgSubst s) t
 _[_]↑ : (t : Term M (1+ n)) (s : Term M (1+ n)) → Term M (1+ n)
 t [ s ]↑ = subst (consSubst (wk1Subst idSubst) s) t
 
-
-_[_]⇑ : (t : Term M (1+ (1+ n))) (s : Term M  (1+ n)) → Term M (1+ (1+ n))
-_[_]⇑ {M = M} {n = n} t s = subst (liftSubst (consSubst (wk1Subst idSubst) s)) t
 
 -- Substitute the first two variables of a term with other terms.
 --
