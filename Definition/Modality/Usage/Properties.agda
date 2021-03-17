@@ -274,17 +274,19 @@ record InvUsageProd {n} {M} {𝕄 : Modality M} (γ′ : Conₘ 𝕄 n)
                     (t u : Term M n) : Set where
   constructor invUsageProd
   field
-    {δ η} : Conₘ 𝕄 n
+    {δ η γ″} : Conₘ 𝕄 n
     δ▸t     : δ ▸ t
     η▸u     : η ▸ u
-    γ′≤δ+η   : γ′ ≤ᶜ δ +ᶜ η
+    γ″=δ+η  : γ″ ≡ δ +ᶜ η
+    γ′≤γ″   : γ′ ≤ᶜ γ″
 
 -- If γ ▸ prod t u then δ ▸ t, η ▸ u and γ ≤ᶜ δ +ᶜ η
 
 inv-usage-prod : γ ▸ prod t u → InvUsageProd γ t u
-inv-usage-prod (prodₘ! γ▸t δ▸u) = invUsageProd γ▸t δ▸u ≤ᶜ-reflexive
+inv-usage-prod (prodₘ! γ▸t δ▸u) = invUsageProd γ▸t δ▸u refl ≤ᶜ-reflexive
 inv-usage-prod (sub γ▸tu γ≤γ′) with inv-usage-prod γ▸tu
-... | invUsageProd δ▸t η▸u γ′≤γ″ = invUsageProd δ▸t η▸u (≤ᶜ-transitive γ≤γ′ γ′≤γ″)
+... | invUsageProd δ▸t η▸u γ″=δ+η γ′≤γ″ = invUsageProd δ▸t η▸u γ″=δ+η
+  (≤ᶜ-transitive γ≤γ′ γ′≤γ″)
 
 
 record InvUsageProj {n} {M} {𝕄 : Modality M} (γ : Conₘ 𝕄 n) (t : Term M n) : Set where
