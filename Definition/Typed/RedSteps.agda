@@ -2,16 +2,18 @@
 
 module Definition.Typed.RedSteps where
 
-open import Definition.Untyped
+open import Definition.Untyped hiding (_∷_)
 open import Definition.Typed
 open import Tools.Nat
 
 private
   variable
     n : Nat
-    Γ : Con Term n
-    A B C : Term n
-    a t t′ u r : Term n
+    M : Set
+    Γ : Con (Term M) n
+    A B C : Term M n
+    a t t′ u r : Term M n
+    p q : M
 
 -- Concatenation of type reduction closures
 _⇨*_ : Γ ⊢ A ⇒* B → Γ ⊢ B ⇒* C → Γ ⊢ A ⇒* C
@@ -34,7 +36,7 @@ univ* (id x) = id (univ x)
 univ* (x ⇨ A⇒B) = univ x ⇨ univ* A⇒B
 
 -- Application substitution of reduction closures
-app-subst* : Γ ⊢ t ⇒* t′ ∷ Π A ▹ B → Γ ⊢ a ∷ A
-           → Γ ⊢ t ∘ a ⇒* t′ ∘ a ∷ B [ a ]
+app-subst* : Γ ⊢ t ⇒* t′ ∷ Π p , q ▷ A ▹ B → Γ ⊢ a ∷ A
+           → Γ ⊢ t ∘ p ▷ a ⇒* t′ ∘ p ▷ a ∷ B [ a ]
 app-subst* (id x) a₁ = id (x ∘ⱼ a₁)
 app-subst* (x ⇨ t⇒t′) a₁ = app-subst x a₁ ⇨ app-subst* t⇒t′ a₁

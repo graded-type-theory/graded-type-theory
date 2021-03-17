@@ -36,7 +36,7 @@ record _⊩ne_ {Mod : Set} {ℓ : Nat} (Γ : Con (Term Mod) ℓ) (A : Term Mod �
     K   : Term Mod ℓ
     D   : Γ ⊢ A :⇒*: K
     neK : Neutral K
-    -- K≡K : Γ ⊢ K ~ K ∷ U
+    K≡K : Γ ⊢ K ~ K ∷ U
 
 -- Neutral type equality
 record _⊩ne_≡_/_ (Γ : Con (Term Mod) ℓ) (A B : Term Mod ℓ) ([A] : Γ ⊩ne A) : Set where
@@ -411,8 +411,8 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
     Γ ⊩¹ t ∷ A / Emptyᵣ D = Γ ⊩Empty t ∷Empty
     Γ ⊩¹ t ∷ A / Unitᵣ D = Γ ⊩Unit t ∷Unit
     Γ ⊩¹ t ∷ A / ne neA = Γ ⊩ne t ∷ A / neA
-    Γ ⊩¹ t ∷ A / Bᵣ (BΠ _ _) ΠA  = Γ ⊩¹Π t ∷ A / ΠA
-    Γ ⊩¹ t ∷ A / Bᵣ (BΣ _) ΣA  = Γ ⊩¹Σ t ∷ A / ΣA
+    Γ ⊩¹ t ∷ A / Bᵣ BΠ! ΠA  = Γ ⊩¹Π t ∷ A / ΠA
+    Γ ⊩¹ t ∷ A / Bᵣ BΣ! ΣA  = Γ ⊩¹Σ t ∷ A / ΣA
     Γ ⊩¹ t ∷ A / emb l< [A] = Γ ⊩ t ∷ A / [A]
       where open LogRelKit (rec l<)
 
@@ -422,8 +422,8 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
     Γ ⊩¹ t ≡ u ∷ A / Emptyᵣ D = Γ ⊩Empty t ≡ u ∷Empty
     Γ ⊩¹ t ≡ u ∷ A / Unitᵣ D = Γ ⊩Unit t ≡ u ∷Unit
     Γ ⊩¹ t ≡ u ∷ A / ne neA = Γ ⊩ne t ≡ u ∷ A / neA
-    Γ ⊩¹ t ≡ u ∷ A / Bᵣ (BΠ _ _) ΠA = Γ ⊩¹Π t ≡ u ∷ A / ΠA
-    Γ ⊩¹ t ≡ u ∷ A / Bᵣ (BΣ _) ΣA  = Γ ⊩¹Σ t ≡ u ∷ A / ΣA
+    Γ ⊩¹ t ≡ u ∷ A / Bᵣ BΠ! ΠA = Γ ⊩¹Π t ≡ u ∷ A / ΠA
+    Γ ⊩¹ t ≡ u ∷ A / Bᵣ BΣ! ΣA  = Γ ⊩¹Σ t ≡ u ∷ A / ΣA
     Γ ⊩¹ t ≡ u ∷ A / emb l< [A] = Γ ⊩ t ≡ u ∷ A / [A]
       where open LogRelKit (rec l<)
 
@@ -442,8 +442,8 @@ pattern Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] [fstp] [fstr] [fst≡] [sn
 pattern Uᵣ′ a b c = Uᵣ (Uᵣ a b c)
 pattern ne′ a b c d = ne (ne a b c d)
 pattern Bᵣ′ W a b c d e f g h i = Bᵣ W (Bᵣ a b c d e f g h i)
-pattern Πᵣ′ a b c d e f g h i = Bᵣ′ BΠ a b c d e f g h i
-pattern Σᵣ′ a b c d e f g h i = Bᵣ′ BΣ a b c d e f g h i
+pattern Πᵣ′ a b c d e f g h i = Bᵣ′ BΠ! a b c d e f g h i
+pattern Σᵣ′ a b c d e f g h i = Bᵣ′ BΣ! a b c d e f g h i
 
 logRelRec : ∀ l {l′} → l′ < l → LogRelKit
 logRelRec ⁰ = λ ()

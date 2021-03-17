@@ -156,6 +156,9 @@ data BindingType (M : Set) : Set where
   BΠ : (p q : M) → BindingType M
   BΣ : (p : M)   → BindingType M
 
+pattern BΠ! = BΠ _ _
+pattern BΣ! = BΣ _
+
 ⟦_⟧_▹_ : BindingType M → Term M n → Term M (1+ n) → Term M n
 ⟦ BΠ p q ⟧ F ▹ G = Π p , q ▷ F ▹ G
 ⟦ BΣ p   ⟧ F ▹ G = Σ p ▷ F ▹ G

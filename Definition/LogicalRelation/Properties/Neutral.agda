@@ -24,7 +24,8 @@ import Tools.PropositionalEquality as PE
 private
   variable
     m : Nat
-    Γ : Con Term m
+    M : Set
+    Γ : Con (Term M) m
 
 -- Neutral reflexive types are reducible.
 neu : ∀ {l A} (neA : Neutral A)

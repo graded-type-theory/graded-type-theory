@@ -16,7 +16,8 @@ open import Tools.Nat
 private
   variable
     n : Nat
-    Γ : Con Term n
+    M : Set
+    Γ : Con (Term M) n
 
 -- Helper function for reducible terms of type U for specific type derivations.
 univEq′ : ∀ {l A} ([U] : Γ ⊩⟨ l ⟩U) → Γ ⊩⟨ l ⟩ A ∷ U / U-intr [U] → Γ ⊩⟨ ⁰ ⟩ A

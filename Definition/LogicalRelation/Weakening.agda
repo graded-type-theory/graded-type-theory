@@ -20,9 +20,10 @@ import Tools.PropositionalEquality as PE
 private
   variable
     m n : Nat
+    M : Set
     ρ : Wk m n
-    Δ : Con Term m
-    Γ : Con Term n
+    Δ : Con (Term M) m
+    Γ : Con (Term M) n
 
 -- Weakening of neutrals in WHNF
 
@@ -104,7 +105,7 @@ wkEqTermUnit {ρ = ρ} [ρ] ⊢Δ (Unitₜ₌ ⊢t ⊢u) =
 
 -- Weakening of the logical relation
 
-wk : ∀ {m} {ρ : Wk m n} {Γ Δ A l} → ρ ∷ Δ ⊆ Γ → ⊢ Δ → Γ ⊩⟨ l ⟩ A → Δ ⊩⟨ l ⟩ U.wk ρ A
+wk : ∀ {m} {ρ : Wk m n} {Γ : Con (Term M) n} {Δ A l} → ρ ∷ Δ ⊆ Γ → ⊢ Δ → Γ ⊩⟨ l ⟩ A → Δ ⊩⟨ l ⟩ U.wk ρ A
 wk ρ ⊢Δ (Uᵣ′ l′ l< ⊢Γ) = Uᵣ′ l′ l< ⊢Δ
 wk ρ ⊢Δ (ℕᵣ D) = ℕᵣ (wkRed:*: ρ ⊢Δ D)
 wk ρ ⊢Δ (Emptyᵣ D) = Emptyᵣ (wkRed:*: ρ ⊢Δ D)
@@ -267,8 +268,8 @@ wkTerm {ρ = ρ} [ρ] ⊢Δ (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Π�
             [G]₁ = [G] ([ρ₁] •ₜ [ρ]) ⊢Δ₁ [a]′
             [G]₂ = irrelevance′ G-compEq [G]₁
             [a≡b]′ = irrelevanceEqTerm′ F-compEq [F]₂ [F]₁ [a≡b]
-        in  irrelevanceEqTerm″ (PE.cong (λ x → x ∘ _) (PE.sym (wk-comp ρ₁ ρ _)))
-                                (PE.cong (λ x → x ∘ _) (PE.sym (wk-comp ρ₁ ρ _)))
+        in  irrelevanceEqTerm″ (PE.cong (λ x → x ∘ _ ▷ _) (PE.sym (wk-comp ρ₁ ρ _)))
+                                (PE.cong (λ x → x ∘ _ ▷ _) (PE.sym (wk-comp ρ₁ ρ _)))
                                 G-compEq
                                 [G]₁ [G]₂
                                 ([f] ([ρ₁] •ₜ [ρ]) ⊢Δ₁ [a]′ [b]′ [a≡b]′))
@@ -279,7 +280,7 @@ wkTerm {ρ = ρ} [ρ] ⊢Δ (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Π�
             [G]₁ = [G] ([ρ₁] •ₜ [ρ]) ⊢Δ₁ [a]′
             [G]₂ = irrelevance′ (wk-comp-subst ρ₁ ρ G) [G]₁
         in  irrelevanceTerm″ (wk-comp-subst ρ₁ ρ G)
-                              (PE.cong (λ x → x ∘ _) (PE.sym (wk-comp ρ₁ ρ _)))
+                              (PE.cong (λ x → x ∘ _ ▷ _) (PE.sym (wk-comp ρ₁ ρ _)))
                               [G]₁ [G]₂ ([f]₁ ([ρ₁] •ₜ [ρ]) ⊢Δ₁ [a]′))
 wkTerm {ρ = ρ} [ρ] ⊢Δ [A]@(Σᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                   (Σₜ p d pProd p≅p [fst] [snd]) =
@@ -346,8 +347,8 @@ wkEqTerm {ρ  = ρ} [ρ] ⊢Δ (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                  [a]′ = irrelevanceTerm′ (wk-comp ρ₁ ρ F) [F]₂ [F]₁ [a]
                  [G]₁ = [G] ([ρ₁] •ₜ [ρ]) ⊢Δ₁ [a]′
                  [G]₂ = irrelevance′ (wk-comp-subst ρ₁ ρ G) [G]₁
-             in  irrelevanceEqTerm″ (PE.cong (λ y → y ∘ _) (PE.sym (wk-comp ρ₁ ρ _)))
-                                     (PE.cong (λ y → y ∘ _) (PE.sym (wk-comp ρ₁ ρ _)))
+             in  irrelevanceEqTerm″ (PE.cong (λ y → y ∘ _ ▷ _) (PE.sym (wk-comp ρ₁ ρ _)))
+                                     (PE.cong (λ y → y ∘ _ ▷ _) (PE.sym (wk-comp ρ₁ ρ _)))
                                      (wk-comp-subst ρ₁ ρ G)
                                      [G]₁ [G]₂
                                      ([f≡g] ([ρ₁] •ₜ [ρ]) ⊢Δ₁ [a]′))
