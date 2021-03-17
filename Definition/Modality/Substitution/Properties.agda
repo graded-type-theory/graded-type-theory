@@ -19,9 +19,10 @@ private
     M : Set
     𝕄 : Modality M
     m n : Nat
-    γ : Conₘ 𝕄 n
-    t u : Term M n
+    γ δ η : Conₘ 𝕄 n
+    t u u′ : Term M n
     σ : Subst M m n
+    p q : M
 
 -- Linearity proerties of *>
 
@@ -128,7 +129,7 @@ wf-sgSubstₘ {γ = γ} γ▸u x0 = subst₂ _▸_
                         (PE.sym (idSubstₘ-LeftIdentity _)))
             (PE.sym (+ᶜ-identityʳ γ))) refl γ▸u
 wf-sgSubstₘ γ▸u (x +1) = PE.subst (_▸ var x)
-  (subst₂ _≡_ (+ᶜ-identityˡ _) 
+  (subst₂ _≡_ (+ᶜ-identityˡ _)
           (cong₂ _+ᶜ_ (PE.sym (·ᶜ-zeroˡ _))
                       (PE.sym (idSubstₘ-LeftIdentity _))) refl) var
 
@@ -277,3 +278,23 @@ substₘ-lemma {𝕄 = 𝕄} Ψ σ Ψ▶σ (natrecₘ {γ} {q} {p = p} {δ} γ�
 substₘ-lemma Ψ σ Ψ▶σ (Emptyrecₘ γ▸t) = Emptyrecₘ (substₘ-lemma Ψ σ Ψ▶σ γ▸t)
 substₘ-lemma Ψ σ Ψ▶σ starₘ           = PE.subst (_▸ star) (PE.sym (*>-zeroʳ Ψ)) starₘ
 substₘ-lemma Ψ σ Ψ▶σ (sub γ▸t x)     = sub (substₘ-lemma Ψ σ Ψ▶σ γ▸t) (*>-monotone Ψ x)
+
+sgSubstₘ-lemma : γ ∙ p ▸ t → δ ▸ u → (γ +ᶜ p ·ᶜ δ) ▸ t [ u ]
+sgSubstₘ-lemma {γ = γ} {p} {δ = δ} γ▸t δ▸u = subst₂ _▸_ eq refl
+  (substₘ-lemma (sgSubstₘ _) (sgSubst _) (wf-sgSubstₘ δ▸u) γ▸t)
+  where
+  eq = begin
+    (idSubstₘ ∙ δ) *> (γ ∙ p) ≡⟨ +ᶜ-comm _ _ ⟩
+    idSubstₘ *> γ +ᶜ p ·ᶜ δ   ≡⟨ cong₂ _+ᶜ_ (idSubstₘ-LeftIdentity γ) refl ⟩
+    γ +ᶜ p ·ᶜ δ               ∎
+
+doubleSubstₘ-lemma : γ ∙ q ∙ p ▸ t → δ ▸ u → η ▸ u′ → (γ +ᶜ p ·ᶜ δ +ᶜ q ·ᶜ η) ▸ t [ u ][ u′ ]
+doubleSubstₘ-lemma {γ = γ} {q} {p} {δ = δ} {η = η} γ▸t δ▸u η▸u′ = subst₂ _▸_ eq refl
+  (substₘ-lemma (consSubstₘ (sgSubstₘ _) _) _
+                (wf-consSubstₘ (wf-sgSubstₘ η▸u′) δ▸u) γ▸t)
+  where
+  eq = begin
+    p ·ᶜ δ +ᶜ q ·ᶜ η +ᶜ idSubstₘ *> γ ≡⟨ cong₂ _+ᶜ_ refl (cong₂ _+ᶜ_ refl (idSubstₘ-LeftIdentity γ)) ⟩
+    p ·ᶜ δ +ᶜ q ·ᶜ η +ᶜ γ             ≡⟨ sym (+ᶜ-assoc (p ·ᶜ δ) (q ·ᶜ η) γ) ⟩
+    (p ·ᶜ δ +ᶜ q ·ᶜ η) +ᶜ γ           ≡⟨ +ᶜ-comm (p ·ᶜ δ +ᶜ q ·ᶜ η) γ ⟩
+    γ +ᶜ p ·ᶜ δ +ᶜ q ·ᶜ η             ∎
