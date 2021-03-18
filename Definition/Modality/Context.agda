@@ -44,6 +44,11 @@ insertAt : {𝕄 : Modality M} (m : Nat) (γ : Conₘ 𝕄 (m + n)) (p : M)
 insertAt 0       γ      p = γ ∙ p
 insertAt (1+ m) (γ ∙ q) p = insertAt m γ p ∙ q
 
+-- Context lookup
+_⟨_⟩ : {𝕄 : Modality M} → (γ : Conₘ 𝕄 n) → (x : Fin n) → M
+(γ ∙ p) ⟨ x0 ⟩ = p
+(γ ∙ p) ⟨ x +1 ⟩ = γ ⟨ x ⟩
+
 -- Scalar product of modality contexts
 
 _*_ : {𝕄 : Modality M} (γ δ : Conₘ 𝕄 n) → M

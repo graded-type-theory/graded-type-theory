@@ -127,7 +127,6 @@ private
   γ+δ=0 = +ᶜ-noInverse γ δ (cong tailₘ eq)
   p+q=0 = Modality.+-noInverse 𝕄 p q (cong headₘ eq)
 
-
 -- Properties of ∧ᶜ
 
 ∧ᶜ-Idempotent : (γ : Conₘ 𝕄 n) → γ ∧ᶜ γ ≡ γ
@@ -211,7 +210,7 @@ headₘ-tailₘ-correct : (γ : Conₘ 𝕄 (1+ n)) → γ ≡ tailₘ γ ∙ he
 headₘ-tailₘ-correct (γ ∙ p) = refl
 
 
--- Properties of insertAt
+-- Properties of context updates and lookup
 
 insertAt-𝟘 : {m : Nat} (n : Nat)
            → 𝟘ᶜ {𝕄 = 𝕄} {n = n + 1+ m} ≡ insertAt n (𝟘ᶜ {n = n + m}) (Modality.𝟘 𝕄)
@@ -250,3 +249,56 @@ insertAt-liftn 0 x = refl
 insertAt-liftn (1+ n) x0 = cong₂ _∙_ (insertAt-𝟘 n) refl
 insertAt-liftn (1+ n) (_+1 x) = cong₂ _∙_ (insertAt-liftn n x) refl
 
+𝟘ᶜ-lookup : {𝕄 : Modality M} (x : Fin n) → 𝟘ᶜ {𝕄 = 𝕄} ⟨ x ⟩ ≡ Modality.𝟘 𝕄
+𝟘ᶜ-lookup x0     = refl
+𝟘ᶜ-lookup (x +1) = 𝟘ᶜ-lookup x
+
+update-lookup : (x : Fin n) → (γ , x ≔ p) ⟨ x ⟩ ≡ p
+update-lookup {γ = γ ∙ p} x0 = refl
+update-lookup {γ = γ ∙ p} (_+1 x) = update-lookup {γ = γ} x
+
+update-self : (γ : Conₘ 𝕄 n) (x : Fin n) → (γ , x ≔ (γ ⟨ x ⟩)) ≡ γ
+update-self (γ ∙ p) x0 = refl
+update-self (γ ∙ p) (x +1) = cong₂ _∙_ (update-self γ x) refl
+
+update-monotoneˡ : {𝕄 : Modality M} {γ δ : Conₘ 𝕄 n} {p : M}
+                  (x : Fin n) → γ ≤ᶜ δ → (γ , x ≔ p) ≤ᶜ (δ , x ≔ p)
+update-monotoneˡ {𝕄 = 𝕄} {γ = γ ∙ p} {δ ∙ q} x0 γ≤δ =
+  cong₂ _∙_ (cong tailₘ γ≤δ) (≤-reflexive {𝕄 = 𝕄})
+update-monotoneˡ {γ = γ ∙ p} {δ ∙ q} (_+1 x) γ≤δ =
+  cong₂ _∙_ (update-monotoneˡ x (cong tailₘ γ≤δ)) (cong headₘ γ≤δ)
+
+update-monotoneʳ : {𝕄 : Modality M} {γ : Conₘ 𝕄 n} {p q : M}
+                     → (x : Fin n) → Modality._≤_ 𝕄 p q
+                     → γ , x ≔ p ≤ᶜ γ , x ≔ q
+update-monotoneʳ {γ = γ ∙ p} x0 p≤q = cong₂ _∙_ ≤ᶜ-reflexive p≤q
+update-monotoneʳ {𝕄 = 𝕄} {γ = γ ∙ p} (x +1) p≤q =
+  cong₂ _∙_ (update-monotoneʳ x p≤q) (≤-reflexive {𝕄 = 𝕄})
+
+lookup-monotone : {𝕄 : Modality M} {γ δ : Conₘ 𝕄 n}
+                → (x : Fin n) → γ ≤ᶜ δ → Modality._≤_ 𝕄 (γ ⟨ x ⟩) (δ ⟨ x ⟩)
+lookup-monotone {γ = γ ∙ p} {δ ∙ q} x0 γ≤δ = cong headₘ γ≤δ
+lookup-monotone {γ = γ ∙ p} {δ ∙ q} (x +1) γ≤δ =
+  lookup-monotone x (cong tailₘ γ≤δ)
+
+update-linear-+ᶜ : {𝕄 : Modality M} (γ δ : Conₘ 𝕄 n) (p q : M) (x : Fin n)
+                 → (γ , x ≔ p) +ᶜ (δ , x ≔ q) ≡ (γ +ᶜ δ) , x ≔ (Modality._+_ 𝕄 p q)
+update-linear-+ᶜ (γ ∙ p′) (δ ∙ q′) p q x0 = refl
+update-linear-+ᶜ (γ ∙ p′) (δ ∙ q′) p q (x +1) =
+  cong₂ _∙_ (update-linear-+ᶜ γ δ p q x) refl
+
+update-linear-·ᶜ : {𝕄 : Modality M} (γ : Conₘ 𝕄 n) (p q : M) (x : Fin n)
+                 → p ·ᶜ (γ , x ≔ q) ≡ (p ·ᶜ γ) , x ≔ (Modality._·_ 𝕄 p q)
+update-linear-·ᶜ (γ ∙ r) p q x0 = refl
+update-linear-·ᶜ (γ ∙ r) p q (x +1) =
+  cong₂ _∙_ (update-linear-·ᶜ γ p q x) refl
+
+lookup-linear-+ᶜ : {𝕄 : Modality M} (γ δ : Conₘ 𝕄 n) (x : Fin n)
+                 → (γ +ᶜ δ) ⟨ x ⟩ ≡ Modality._+_ 𝕄 (γ ⟨ x ⟩) (δ ⟨ x ⟩)
+lookup-linear-+ᶜ (γ ∙ p) (δ ∙ q) x0     = refl
+lookup-linear-+ᶜ (γ ∙ p) (δ ∙ q) (x +1) = lookup-linear-+ᶜ γ δ x
+
+lookup-linear-·ᶜ : {𝕄 : Modality M} (γ : Conₘ 𝕄 n) (p : M) (x : Fin n)
+                 → (p ·ᶜ γ) ⟨ x ⟩ ≡ Modality._·_ 𝕄 p (γ ⟨ x ⟩)
+lookup-linear-·ᶜ (γ ∙ q) p x0 = refl
+lookup-linear-·ᶜ (γ ∙ q) p (x +1) = lookup-linear-·ᶜ γ p x

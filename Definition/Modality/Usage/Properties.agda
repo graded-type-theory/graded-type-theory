@@ -26,6 +26,111 @@ private
     γ γ′ : Conₘ 𝕄 n
     p q : M
 
+-- The contents of two valid modality context can be freely interchanged
+
+Conₘ-interchange : {𝕄 : Modality M} {γ δ : Conₘ 𝕄 n}
+            → γ ▸ t → δ ▸ t → (x : Fin n) →
+            let p = δ ⟨ x ⟩
+            in  (γ , x ≔ p) ▸ t
+Conₘ-interchange (sub γ▸t γ≤γ′) δ▸t x  = sub (Conₘ-interchange γ▸t δ▸t x) (update-monotoneˡ x γ≤γ′)
+Conₘ-interchange γ▸t (sub γ′▸t δ≤γ′) x = sub (Conₘ-interchange γ▸t γ′▸t x) (update-monotoneʳ x (lookup-monotone x δ≤γ′))
+Conₘ-interchange {𝕄 = 𝕄} Uₘ Uₘ x     = subst₂ _▸_ (PE.sym (update-self 𝟘ᶜ x)) refl Uₘ
+Conₘ-interchange ℕₘ ℕₘ x               = subst₂ _▸_ (PE.sym (update-self 𝟘ᶜ x)) refl ℕₘ
+Conₘ-interchange Emptyₘ Emptyₘ x       = subst₂ _▸_ (PE.sym (update-self 𝟘ᶜ x)) refl Emptyₘ
+Conₘ-interchange Unitₘ Unitₘ x         = subst₂ _▸_ (PE.sym (update-self 𝟘ᶜ x)) refl Unitₘ
+
+Conₘ-interchange (Πₘ {γ} {δ = δ} γ▸t γ▸t₁) (Πₘ {γ₁} {δ = δ₁} δ▸t δ▸t₁) x = subst₂ _▸_ eq refl
+  (Πₘ (Conₘ-interchange γ▸t δ▸t x) (Conₘ-interchange γ▸t₁ δ▸t₁ (x +1)))
+  where
+  eq = begin
+        (γ , x ≔ (γ₁ ⟨ x ⟩)) +ᶜ (δ , x ≔ (δ₁ ⟨ x ⟩))
+          ≡⟨ update-linear-+ᶜ γ δ _ _ x ⟩
+        (γ +ᶜ δ) , x ≔ _
+          ≡⟨ cong₃ _,_≔_ refl refl (PE.sym (lookup-linear-+ᶜ γ₁ δ₁ x)) ⟩
+        ((γ +ᶜ δ) , x ≔ _) ∎
+
+Conₘ-interchange (Σₘ {γ} {δ = δ} γ▸t γ▸t₁) (Σₘ {γ₁} {δ = δ₁} δ▸t δ▸t₁) x = subst₂ _▸_ eq refl
+  (Σₘ (Conₘ-interchange γ▸t δ▸t x) (Conₘ-interchange γ▸t₁ δ▸t₁ (x +1)))
+  where
+  eq = begin
+        (γ , x ≔ (γ₁ ⟨ x ⟩)) +ᶜ (δ , x ≔ (δ₁ ⟨ x ⟩))
+          ≡⟨ update-linear-+ᶜ γ δ _ _ x ⟩
+        (γ +ᶜ δ) , x ≔ _
+          ≡⟨ cong₃ _,_≔_ refl refl (PE.sym (lookup-linear-+ᶜ γ₁ δ₁ x)) ⟩
+        ((γ +ᶜ δ) , x ≔ _) ∎
+
+Conₘ-interchange {𝕄 = 𝕄} (var {x₁}) var x = subst₂ _▸_
+  (PE.sym (update-self (𝟘ᶜ , x₁ ≔ (Modality.𝟙 𝕄)) x)) refl var
+
+Conₘ-interchange (lamₘ γ▸t) (lamₘ δ▸t) x = lamₘ (Conₘ-interchange γ▸t δ▸t (x +1))
+
+Conₘ-interchange {𝕄 = 𝕄} (_∘ₘ_ {γ} {δ = δ} {p = p} γ▸t γ▸t₁) (_∘ₘ_ {γ₁} {δ = δ₁} δ▸t δ▸t₁) x =
+  subst₂ _▸_ eq refl ((Conₘ-interchange γ▸t δ▸t x) ∘ₘ (Conₘ-interchange γ▸t₁ δ▸t₁ x))
+  where
+  eq = begin
+       (γ , x ≔ (γ₁ ⟨ x ⟩)) +ᶜ p ·ᶜ (δ , x ≔ (δ₁ ⟨ x ⟩))
+         ≡⟨ cong₂ _+ᶜ_ refl (update-linear-·ᶜ δ p _ x) ⟩
+       (γ , x ≔ (γ₁ ⟨ x ⟩)) +ᶜ ((p ·ᶜ δ) , x ≔ _)
+         ≡⟨ update-linear-+ᶜ γ (p ·ᶜ δ) _ _ x ⟩
+       ((γ +ᶜ p ·ᶜ δ) , x ≔ _)
+         ≡⟨ cong₃ _,_≔_ refl refl (cong₂ (Modality._+_ 𝕄) refl
+                  (PE.sym (lookup-linear-·ᶜ δ₁ p x))) ⟩
+       ((γ +ᶜ p ·ᶜ δ) , x ≔ _)
+         ≡⟨ cong₃ _,_≔_ refl refl (PE.sym (lookup-linear-+ᶜ γ₁ (p ·ᶜ δ₁) x)) ⟩
+       _ ∎
+
+Conₘ-interchange (prodₘ {γ} {δ = δ} γ▸t γ▸t₁ refl) (prodₘ {γ₁} {δ = δ₁} δ▸t δ▸t₁ refl) x = prodₘ
+  (Conₘ-interchange γ▸t δ▸t x)
+  (Conₘ-interchange γ▸t₁ δ▸t₁ x)
+  (subst₂ _≡_ (cong₃ _,_≔_ refl refl
+                     (PE.sym (lookup-linear-+ᶜ γ₁ δ₁ x)))
+              (PE.sym (update-linear-+ᶜ γ δ _ _ x)) refl)
+
+Conₘ-interchange (fstₘ γ▸t) (fstₘ δ▸t) x = subst₂ _▸_ (PE.sym (update-self 𝟘ᶜ x)) refl (fstₘ γ▸t)
+Conₘ-interchange (sndₘ γ▸t) (sndₘ δ▸t) x = subst₂ _▸_ (PE.sym (update-self 𝟘ᶜ x)) refl (sndₘ γ▸t)
+
+Conₘ-interchange {𝕄 = 𝕄} (prodrecₘ {γ} {δ = δ} {p} γ▸t γ▸t₁) (prodrecₘ {γ₁} {δ = δ₁} δ▸t δ▸t₁) x =
+  subst₂ _▸_ eq refl (prodrecₘ (Conₘ-interchange γ▸t δ▸t x) (Conₘ-interchange γ▸t₁ δ▸t₁ (x +1 +1)))
+  where
+  eq = begin
+       p ·ᶜ (γ , x ≔ (γ₁ ⟨ x ⟩)) +ᶜ (δ , x ≔ (δ₁ ⟨ x ⟩))
+         ≡⟨ cong₂ _+ᶜ_ (update-linear-·ᶜ γ p _ x) refl ⟩
+       ((p ·ᶜ γ) , x ≔ _) +ᶜ (δ , x ≔ (δ₁ ⟨ x ⟩))
+         ≡⟨ update-linear-+ᶜ (p ·ᶜ γ) δ _ _ x ⟩
+       ((p ·ᶜ γ +ᶜ δ) , x ≔ _)
+         ≡⟨ cong₃ _,_≔_ refl refl (cong₂ (Modality._+_ 𝕄)
+                  (PE.sym (lookup-linear-·ᶜ γ₁ p x)) refl) ⟩
+       ((p ·ᶜ γ +ᶜ δ) , x ≔ _)
+         ≡⟨ cong₃ _,_≔_ refl refl
+                  (PE.sym (lookup-linear-+ᶜ (p ·ᶜ γ₁) δ₁ x)) ⟩
+       _ ∎
+
+Conₘ-interchange zeroₘ zeroₘ x           = subst₂ _▸_ (PE.sym (update-self 𝟘ᶜ x)) refl zeroₘ
+Conₘ-interchange (sucₘ γ▸t) (sucₘ δ▸t) x = sucₘ (Conₘ-interchange γ▸t δ▸t x)
+
+Conₘ-interchange {𝕄 = 𝕄} (natrecₘ {γ} {r} {p} {δ} γ▸t γ▸t₁ γ▸t₂)
+                     (natrecₘ {γ₁} {δ = δ₁} δ▸t δ▸t₁ δ▸t₂) x =
+  subst₂ _▸_ eq refl
+                (natrecₘ (Conₘ-interchange γ▸t δ▸t x) (Conₘ-interchange γ▸t₁ δ▸t₁ (x +1 +1))
+                (Conₘ-interchange γ▸t₂ δ▸t₂ x))
+  where
+  r* = Modality._* 𝕄 r
+  eq = begin
+       r* ·ᶜ  ((γ , x ≔ (γ₁ ⟨ x ⟩)) +ᶜ p ·ᶜ (δ , x ≔ (δ₁ ⟨ x ⟩)))
+         ≡⟨ cong (r* ·ᶜ_) (cong₂ _+ᶜ_ refl (update-linear-·ᶜ δ p (δ₁ ⟨ x ⟩) x)) ⟩
+       r* ·ᶜ ((γ , x ≔ (γ₁ ⟨ x ⟩)) +ᶜ (p ·ᶜ δ , x ≔ _))
+         ≡⟨ cong (r* ·ᶜ_) (update-linear-+ᶜ γ (p ·ᶜ δ) _ _ x) ⟩
+       r* ·ᶜ ((γ +ᶜ p ·ᶜ δ) , x ≔ _)
+         ≡⟨ cong (r* ·ᶜ_) (cong₃ _,_≔_ refl refl (cong₂ (Modality._+_ 𝕄) refl (PE.sym (lookup-linear-·ᶜ δ₁ p x)))) ⟩
+       r* ·ᶜ ((γ +ᶜ p ·ᶜ δ) , x ≔ _)
+         ≡⟨ cong (r* ·ᶜ_) (cong₃ _,_≔_ refl refl (PE.sym (lookup-linear-+ᶜ γ₁ (p ·ᶜ δ₁) x))) ⟩
+       r* ·ᶜ ((γ +ᶜ p ·ᶜ δ) , x ≔ _) ≡⟨ update-linear-·ᶜ (γ +ᶜ p ·ᶜ δ) r* _ x ⟩
+       ((r* ·ᶜ (γ +ᶜ p ·ᶜ δ)) , x ≔ _)
+         ≡⟨ cong₃ _,_≔_ refl refl (PE.sym (lookup-linear-·ᶜ (γ₁ +ᶜ p ·ᶜ δ₁) r* x)) ⟩
+       _ ∎
+
+Conₘ-interchange (Emptyrecₘ γ▸t) (Emptyrecₘ δ▸t) x = Emptyrecₘ (Conₘ-interchange γ▸t δ▸t x)
+Conₘ-interchange starₘ starₘ x = subst₂ _▸_ (PE.sym (update-self 𝟘ᶜ x)) refl starₘ
 
 -- ⌈ t ⌉ is an upper bound on valid modality contexts
 
@@ -60,17 +165,17 @@ usage-upper-bound (prodrecₘ {γ} {δ = δ} {p} {u = u₁} t u) = +ᶜ-monotone
   )
 usage-upper-bound zeroₘ = ≤ᶜ-reflexive
 usage-upper-bound (sucₘ t) = usage-upper-bound t
-usage-upper-bound (natrecₘ {γ = γ} {q = q} {p = p} {s = s} x x₁ x₂) = ·ᶜ-monotone (+ᶜ-monotone₂
+usage-upper-bound (natrecₘ {γ = γ} {r = r} {p = p} {s = s} x x₁ x₂) = ·ᶜ-monotone (+ᶜ-monotone₂
   (subst₂ _≤ᶜ_ (∧ᶜ-Idempotent γ) refl (∧ᶜ-monotone₂ (usage-upper-bound x) eq))
   (·ᶜ-monotone (usage-upper-bound x₂)))
   where
   eq = begin
-         tailₘ (tailₘ (γ ∙ q ∙ p))
+         tailₘ (tailₘ (γ ∙ r ∙ p))
            ≡⟨ cong tailₘ (cong tailₘ (usage-upper-bound x₁)) ⟩
-         tailₘ (tailₘ (γ ∙ q ∙ p ∧ᶜ ⌈ s ⌉))
-           ≡⟨ cong tailₘ (tail-linear∧ {γ = γ ∙ q ∙ p} {⌈ s ⌉}) ⟩
-         tailₘ ((γ ∙ q) ∧ᶜ tailₘ ⌈ s ⌉)
-           ≡⟨ tail-linear∧ {γ = γ ∙ q} {tailₘ ⌈ s ⌉} ⟩
+         tailₘ (tailₘ (γ ∙ r ∙ p ∧ᶜ ⌈ s ⌉))
+           ≡⟨ cong tailₘ (tail-linear∧ {γ = γ ∙ r ∙ p} {⌈ s ⌉}) ⟩
+         tailₘ ((γ ∙ r) ∧ᶜ tailₘ ⌈ s ⌉)
+           ≡⟨ tail-linear∧ {γ = γ ∙ r} {tailₘ ⌈ s ⌉} ⟩
          γ ∧ᶜ tailₘ (tailₘ ⌈ s ⌉) ∎
 
 usage-upper-bound (Emptyrecₘ e) = usage-upper-bound e
