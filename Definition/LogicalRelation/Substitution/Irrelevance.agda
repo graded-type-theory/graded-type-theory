@@ -19,8 +19,9 @@ import Tools.PropositionalEquality as PE
 private
   variable
     m n : Nat
-    Γ : Con Term n
-    σ : Subst m n
+    M : Set
+    Γ : Con (Term M) n
+    σ : Subst M m n
 
 -- Irrelevance of valid substitutions with different derivations of contexts
 irrelevanceSubst : ∀ {Γ Δ}

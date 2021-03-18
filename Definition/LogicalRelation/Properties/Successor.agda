@@ -18,7 +18,8 @@ open import Tools.Product
 private
   variable
     m : Nat
-    Γ : Con Term m
+    M : Set
+    Γ : Con (Term M) m
 
 
 -- Helper function for successors for specific reducible derivations.

@@ -18,7 +18,8 @@ import Tools.PropositionalEquality as PE
 private
   variable
     n : Nat
-    Γ : Con Term n
+    M : Set
+    Γ : Con (Term M) n
 
 -- Weakening of valid types by one.
 wk1ᵛ : ∀ {A F l}

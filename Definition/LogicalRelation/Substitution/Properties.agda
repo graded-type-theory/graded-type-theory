@@ -26,8 +26,9 @@ import Tools.PropositionalEquality as PE
 private
   variable
     k m n : Nat
-    Γ : Con Term n
-    σ σ′ : Subst m n
+    M : Set
+    Γ : Con (Term M) n
+    σ σ′ : Subst M m n
     ρ : Wk k n
 
 -- Valid substitutions are well-formed

@@ -30,18 +30,21 @@ import Tools.PropositionalEquality as PE
 private
   variable
     n : Nat
-    Γ : Con Term n
+    M : Set
+    q : M
+    Γ : Con (Term M) n
+    F : Term M n
 
-prod′ : ∀ {F G t u l l′ l″}
+prod′ : ∀ {Γ : Con (Term M) n} {F : Term M n} {G t u l l′ l″}
        ([F] : Γ ⊩⟨ l ⟩ F)
        ([t] : Γ ⊩⟨ l ⟩ t ∷ F / [F])
        ([Gt] : Γ ⊩⟨ l″ ⟩ G [ t ])
        ([u] : Γ ⊩⟨ l″ ⟩ u ∷ G [ t ] / [Gt])
-       ([ΣFG] : Γ ⊩⟨ l′ ⟩B⟨ BΣ ⟩ Σ F ▹ G)
-     → Γ ⊩⟨ l′ ⟩ prod t u ∷ Σ F ▹ G / B-intr BΣ [ΣFG]
-prod′ {Γ = Γ} {F} {G} {t} {u} {l} {l′} {l″} [F] [t] [Gt] [u]
+       ([ΣFG] : Γ ⊩⟨ l′ ⟩B⟨ BΣ q ⟩ Σ q ▷ F ▹ G)
+     → Γ ⊩⟨ l′ ⟩ prod t u ∷ Σ _ ▷ F ▹ G / B-intr BΣ! [ΣFG]
+prod′ {q = q} {Γ = Γ} {F} {G} {t} {u} {l} {l′} {l″} [F] [t] [Gt] [u]
       [ΣFG]@(noemb (Bᵣ F₁ G₁ D ⊢F ⊢G A≡A [F]₁ [G]₁ G-ext)) with
-        B-PE-injectivity BΣ (whnfRed* (red D) Σₙ)
+        B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) Σₙ)
 ... | PE.refl , PE.refl =
   let ⊢t = escapeTerm [F] [t]
       ⊢u = escapeTerm [Gt] [u]
@@ -49,7 +52,7 @@ prod′ {Γ = Γ} {F} {G} {t} {u} {l} {l′} {l″} [F] [t] [Gt] [u]
 
       fst⇒t : Γ ⊢ fst (prod t u) ⇒ t ∷ F
       fst⇒t = Σ-β₁ ⊢F ⊢G ⊢t ⊢u
-      [fstprod] , [fstprod≡t] = redSubstTerm fst⇒t [F] [t]
+      [fstprod] , [fstprod≡t] = redSubstTerm {p = q} fst⇒t [F] [t]
       [fstprod]′ = (irrelevanceTerm′ (PE.sym (wk-id F))
                                      [F] ([F]₁ id ⊢Γ)
                                      [fstprod])
@@ -72,7 +75,7 @@ prod′ {Γ = Γ} {F} {G} {t} {u} {l} {l′} {l″} [F] [t] [Gt] [u]
 
       snd⇒u : Γ ⊢ snd (prod t u) ⇒ u ∷ G [ fst (prod t u) ]
       snd⇒u = Σ-β₂ ⊢F ⊢G ⊢t ⊢u
-      [sndprod] , [sndprod≡u] = redSubstTerm snd⇒u [Gfst]′ [u]′
+      [sndprod] , [sndprod≡u] = redSubstTerm {p = q} snd⇒u [Gfst]′ [u]′
 
       ⊢prod = prodⱼ ⊢F ⊢G ⊢t ⊢u
 
@@ -91,18 +94,18 @@ prod′ {Γ = Γ} {F} {G} {t} {u} {l} {l′} {l″} [F] [t] [Gt] [u]
 prod′ {Γ = Γ} {F} {G} {t} {u} {l} {l′} [F] [t] [Gt] [u]
       [ΣFG]@(emb 0<1 x) = prod′ [F] [t] [Gt] [u] x
 
-prod″ : ∀ {F G t u l l′}
+prod″ : ∀ {Γ : Con (Term M) n} {F : Term M n} {G t u l l′}
        ([F] : Γ ⊩⟨ l ⟩ F)
        ([t] : Γ ⊩⟨ l ⟩ t ∷ F / [F])
        ([Gt] : Γ ⊩⟨ l ⟩ G [ t ])
        ([u] : Γ ⊩⟨ l ⟩ u ∷ G [ t ] / [Gt])
-       ([ΣFG] : Γ ⊩⟨ l′ ⟩ Σ F ▹ G)
-     → Γ ⊩⟨ l′ ⟩ prod t u ∷ Σ F ▹ G / [ΣFG]
+       ([ΣFG] : Γ ⊩⟨ l′ ⟩ Σ q ▷ F ▹ G)
+     → Γ ⊩⟨ l′ ⟩ prod t u ∷ Σ _ ▷ F ▹ G / [ΣFG]
 prod″ [F] [t] [Gt] [u] [ΣFG] =
-      let [prod] = prod′ [F] [t] [Gt] [u] (B-elim BΣ [ΣFG])
-      in  irrelevanceTerm (B-intr BΣ (B-elim BΣ [ΣFG])) [ΣFG] [prod]
+      let [prod] = prod′ [F] [t] [Gt] [u] (B-elim BΣ! [ΣFG])
+      in  irrelevanceTerm (B-intr BΣ! (B-elim BΣ! [ΣFG])) [ΣFG] [prod]
 
-prod-cong′ : ∀ {F G t t′ u u′ l l′}
+prod-cong′ : ∀ {Γ : Con (Term M) n} {F : Term M n} {G t t′ u u′ l l′}
              ([F] : Γ ⊩⟨ l ⟩ F)
              ([t] : Γ ⊩⟨ l ⟩ t ∷ F / [F])
              ([t′] : Γ ⊩⟨ l ⟩ t′ ∷ F / [F])
@@ -111,12 +114,12 @@ prod-cong′ : ∀ {F G t t′ u u′ l l′}
              ([u] : Γ ⊩⟨ l ⟩ u ∷ G [ t ] / [Gt])
              ([u′] : Γ ⊩⟨ l ⟩ u′ ∷ G [ t ] / [Gt])
              ([u≡u′] : Γ ⊩⟨ l ⟩ u ≡ u′ ∷ G [ t ] / [Gt])
-             ([ΣFG] : Γ ⊩⟨ l′ ⟩B⟨ BΣ ⟩ Σ F ▹ G)
-             → Γ ⊩⟨ l′ ⟩ prod t u ≡ prod t′ u′ ∷ Σ F ▹ G / B-intr BΣ [ΣFG]
-prod-cong′ {Γ = Γ} {F} {G} {t} {t′} {u} {u′} {l} {l′}
+             ([ΣFG] : Γ ⊩⟨ l′ ⟩B⟨ BΣ q ⟩ Σ _ ▷ F ▹ G)
+             → Γ ⊩⟨ l′ ⟩ prod t u ≡ prod t′ u′ ∷ Σ _ ▷ F ▹ G / B-intr BΣ! [ΣFG]
+prod-cong′ {q = q} {Γ = Γ} {F} {G} {t} {t′} {u} {u′} {l} {l′}
            [F] [t] [t′] [t≡t′] [Gt] [u] [u′] [u≡u′]
            [ΣFG]@(noemb (Bᵣ F₁ G₁ D ⊢F ⊢G A≡A [F]₁ [G]₁ G-ext)) with
-             B-PE-injectivity BΣ (whnfRed* (red D) Σₙ)
+             B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) Σₙ)
 ... | PE.refl , PE.refl =
   let [prod] = prod′ [F] [t] [Gt] [u] [ΣFG]
 
@@ -145,9 +148,9 @@ prod-cong′ {Γ = Γ} {F} {G} {t} {t′} {u} {u′} {l} {l′}
       ⊢u′ = escapeTerm [Gt′] [u′]Gt′
 
       fst⇒t = Σ-β₁ ⊢F ⊢G ⊢t ⊢u
-      [fst] , [fst≡t] = redSubstTerm fst⇒t [F] [t]
+      [fst] , [fst≡t] = redSubstTerm {p = q} fst⇒t [F] [t]
       fst⇒t′ = Σ-β₁ ⊢F ⊢G ⊢t′ ⊢u′
-      [fst′] , [fst≡t′] = redSubstTerm fst⇒t′ [F] [t′]
+      [fst′] , [fst≡t′] = redSubstTerm {p = q} fst⇒t′ [F] [t′]
 
       wk[fst≡t] = irrelevanceEqTerm′ (PE.sym (wk-id F))
                                       [F] wk[F]
@@ -180,7 +183,7 @@ prod-cong′ {Γ = Γ} {F} {G} {t} {t′} {u} {u′} {l} {l′}
 
       [u]fst = convTerm₂ [Gfst] [Gt] [Gfst≡Gt] [u]
       snd⇒u = Σ-β₂ ⊢F ⊢G ⊢t ⊢u
-      [snd] , [snd≡u] = redSubstTerm snd⇒u [Gfst] [u]fst
+      [snd] , [snd≡u] = redSubstTerm {p = q} snd⇒u [Gfst] [u]fst
 
       -- u ≡ u′ ∷ G [ fst (prod t u) ]
       [u≡u′]Gfst = convEqTerm₂ [Gfst] [Gt] [Gfst≡Gt] [u≡u′]
@@ -197,7 +200,7 @@ prod-cong′ {Γ = Γ} {F} {G} {t} {t′} {u} {u′} {l} {l′}
       snd⇒u′ = Σ-β₂ ⊢F ⊢G ⊢t′ ⊢u′
 
       [u′]Gfst′ = convTerm₂ [Gfst′] [Gt′] [Gfst′≡Gt′] [u′]Gt′
-      [snd≡u′]Gfst′ = proj₂ (redSubstTerm snd⇒u′ [Gfst′] [u′]Gfst′)
+      [snd≡u′]Gfst′ = proj₂ (redSubstTerm {p = q} snd⇒u′ [Gfst′] [u′]Gfst′)
 
       [Gfst≡Gfst′] = irrelevanceEq″ wkLiftIdEq wkLiftIdEq′
                                     wk[Gfst] [Gfst]
@@ -213,8 +216,8 @@ prod-cong′ {Γ = Γ} {F} {G} {t} {t′} {u} {u′} {l} {l′}
                                         [Gfst] wk[Gfst]
                                         [snd≡snd′]
 
-      ⊢prod = escapeTerm (B-intr BΣ [ΣFG]) [prod]
-      ⊢prod′ = escapeTerm (B-intr BΣ [ΣFG]) [prod′]
+      ⊢prod = escapeTerm (B-intr BΣ! [ΣFG]) [prod]
+      ⊢prod′ = escapeTerm (B-intr BΣ! [ΣFG]) [prod′]
   in Σₜ₌ (prod t u)
          (prod t′ u′)
          (idRedTerm:*: ⊢prod)
@@ -230,7 +233,7 @@ prod-cong′ {Γ = Γ} {F} {G} {t} {t′} {u} {u′} {l} {l′}
 prod-cong′ [F] [t] [t′] [t≡t′] [Gt] [u] [u′] [u≡u′] (emb 0<1 x) =
   prod-cong′ [F] [t] [t′] [t≡t′] [Gt] [u] [u′] [u≡u′] x
 
-prod-cong″ : ∀ {F G t t′ u u′ l l′}
+prod-cong″ : ∀ {Γ : Con (Term M) n} {F : Term M n} {G t t′ u u′ l l′}
              ([F] : Γ ⊩⟨ l ⟩ F)
              ([t] : Γ ⊩⟨ l ⟩ t ∷ F / [F])
              ([t′] : Γ ⊩⟨ l ⟩ t′ ∷ F / [F])
@@ -239,13 +242,13 @@ prod-cong″ : ∀ {F G t t′ u u′ l l′}
              ([u] : Γ ⊩⟨ l ⟩ u ∷ G [ t ] / [Gt])
              ([u′] : Γ ⊩⟨ l ⟩ u′ ∷ G [ t ] / [Gt])
              ([u≡u′] : Γ ⊩⟨ l ⟩ u ≡ u′ ∷ G [ t ] / [Gt])
-             ([ΣFG] : Γ ⊩⟨ l′ ⟩ Σ F ▹ G)
-             → Γ ⊩⟨ l′ ⟩ prod t u ≡ prod t′ u′ ∷ Σ F ▹ G / [ΣFG]
+             ([ΣFG] : Γ ⊩⟨ l′ ⟩ Σ q ▷ F ▹ G)
+             → Γ ⊩⟨ l′ ⟩ prod t u ≡ prod t′ u′ ∷ Σ _ ▷ F ▹ G / [ΣFG]
 prod-cong″ [F] [t] [t′] [t≡t′] [Gt] [u] [u′] [u≡u′] [ΣFG] =
-  let [prod≡] = prod-cong′ [F] [t] [t′] [t≡t′] [Gt] [u] [u′] [u≡u′] (B-elim BΣ [ΣFG])
-  in  irrelevanceEqTerm (B-intr BΣ (B-elim BΣ [ΣFG])) [ΣFG] [prod≡]
+  let [prod≡] = prod-cong′ [F] [t] [t′] [t≡t′] [Gt] [u] [u′] [u≡u′] (B-elim BΣ! [ΣFG])
+  in  irrelevanceEqTerm (B-intr BΣ! (B-elim BΣ! [ΣFG])) [ΣFG] [prod≡]
 
-prod-congᵛ : ∀ {F G t t′ u u′ l}
+prod-congᵛ : ∀ {Γ : Con (Term M) n} {F : Term M n} {G t t′ u u′ l}
              ([Γ] : ⊩ᵛ Γ)
              ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
              ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
@@ -255,7 +258,7 @@ prod-congᵛ : ∀ {F G t t′ u u′ l}
              ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ G [ t ] / [Γ] / substS {F = F} {G} [Γ] [F] [G] [t])
              ([u′] : Γ ⊩ᵛ⟨ l ⟩ u′ ∷ G [ t′ ] / [Γ] / substS {F = F} {G} [Γ] [F] [G] [t′])
              ([u≡u′] : Γ ⊩ᵛ⟨ l ⟩ u ≡ u′ ∷ G [ t ] / [Γ] / substS {F = F} {G} [Γ] [F] [G] [t])
-             → Γ ⊩ᵛ⟨ l ⟩ prod t u ≡ prod t′ u′ ∷ Σ F ▹ G / [Γ] / Σᵛ {F = F} {G} [Γ] [F] [G]
+             → Γ ⊩ᵛ⟨ l ⟩ prod t u ≡ prod t′ u′ ∷ Σ q ▷ F ▹ G / [Γ] / Σᵛ {F = F} {G} [Γ] [F] [G]
 prod-congᵛ {Γ = Γ} {F} {G} {t} {t′} {u} {u′} [Γ] [F] [G] [t] [t′] [t≡t′] [u] [u′] [u≡u′] {Δ = Δ} {σ} ⊢Δ [σ] =
   let ⊩σF = proj₁ ([F] ⊢Δ [σ])
       ⊩σt = proj₁ ([t] ⊢Δ [σ])
@@ -288,13 +291,13 @@ prod-congᵛ {Γ = Γ} {F} {G} {t} {t′} {u} {u′} [Γ] [F] [G] [t] [t′] [t�
       ⊩σΣFG = proj₁ (Σᵛ {F = F} {G} [Γ] [F] [G] ⊢Δ [σ])
   in prod-cong″ ⊩σF ⊩σt ⊩σt′ σt≡σt′ ⊩σGt ⊩σu ⊩σu′ σu≡σu′ ⊩σΣFG
 
-prodᵛ : ∀ {F G t u l}
+prodᵛ : ∀ {Γ : Con (Term M) n} {F : Term M n} {G t u l}
        ([Γ] : ⊩ᵛ Γ)
        ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
        ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
        ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ F / [Γ] / [F])
        ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ G [ t ] / [Γ] / substS {F = F} {G} [Γ] [F] [G] [t])
-     → Γ ⊩ᵛ⟨ l ⟩ prod t u ∷ Σ F ▹ G / [Γ] / Σᵛ {F = F} {G} [Γ] [F] [G]
+     → Γ ⊩ᵛ⟨ l ⟩ prod t u ∷ Σ q ▷ F ▹ G / [Γ] / Σᵛ {F = F} {G} [Γ] [F] [G]
 prodᵛ {Γ = Γ} {F} {G} {t} {u} {l} [Γ] [F] [G] [t] [u] {Δ = Δ} {σ = σ} ⊢Δ [σ] =
   let [Gt] = substS {F = F} {G} [Γ] [F] [G] [t]
       [ΣFG] = Σᵛ {F = F} {G} [Γ] [F] [G]

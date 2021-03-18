@@ -14,7 +14,8 @@ open import Tools.Nat
 private
   variable
     n : Nat
-    Γ : Con Term n
+    M : Set
+    Γ : Con (Term M) n
 
 -- Any level can be embedded into the highest level.
 maybeEmb : ∀ {l A}

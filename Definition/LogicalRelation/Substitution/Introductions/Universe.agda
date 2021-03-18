@@ -17,7 +17,8 @@ import Tools.PropositionalEquality as PE
 private
   variable
     n : Nat
-    Γ : Con Term n
+    M : Set
+    Γ : Con (Term M) n
 
 -- Validity of the universe type.
 Uᵛ : ([Γ] : ⊩ᵛ Γ) → Γ ⊩ᵛ⟨ ¹ ⟩ U / [Γ]

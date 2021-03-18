@@ -15,7 +15,8 @@ open import Tools.Product
 private
   variable
     n : Nat
-    Γ : Con Term n
+    M : Set
+    Γ : Con (Term M) n
 
 -- Reflexivity of valid types.
 reflᵛ : ∀ {A l}
