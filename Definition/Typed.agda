@@ -95,24 +95,24 @@ mutual
               → Γ ∙ F ⊢ G
               → Γ ⊢ t ∷ F
               → Γ ⊢ u ∷ G [ t ]
-              → Γ ⊢ prod t u ∷ Σ p ▷ F ▹ G
+              → Γ ⊢ prod t u ∷ Σ q ▷ F ▹ G
     fstⱼ      : ∀ {F G t}
               → Γ ⊢ F
               → Γ ∙ F ⊢ G
-              → Γ ⊢ t ∷ Σ p ▷ F ▹ G
+              → Γ ⊢ t ∷ Σ q ▷ F ▹ G
               → Γ ⊢ fst t ∷ F
     sndⱼ      : ∀ {F G t}
               → Γ ⊢ F
               → Γ ∙ F ⊢ G
-              → Γ ⊢ t ∷ Σ p ▷ F ▹ G
+              → Γ ⊢ t ∷ Σ q ▷ F ▹ G
               → Γ ⊢ snd t ∷ G [ fst t ]
     prodrecⱼ  : ∀ {t u F G A}
               → Γ ⊢ F
               → Γ ∙ F ⊢ G
-              → Γ ⊢ t ∷ Σ p ▷ F ▹ G
-              → Γ ∙ (Σ p ▷ F ▹ G) ⊢ A
+              → Γ ⊢ t ∷ Σ q ▷ F ▹ G
+              → Γ ∙ (Σ q ▷ F ▹ G) ⊢ A
               → Γ ∙ F ∙ G ⊢ u ∷ A [⟨ var (x0 +1) , var x0 ⟩]
-              → Γ ⊢ prodrec q A t u ∷ A [ t ]
+              → Γ ⊢ prodrec p A t u ∷ A [ t ]
 
     zeroⱼ     : ⊢ Γ
               → Γ ⊢ zero ∷ ℕ
@@ -160,7 +160,7 @@ mutual
            → Γ     ⊢ F
            → Γ     ⊢ F ≡ H
            → Γ ∙ F ⊢ G ≡ E
-           → Γ     ⊢ Σ p ▷ F ▹ G ≡ Σ p ▷ H ▹ E
+           → Γ     ⊢ Σ q ▷ F ▹ G ≡ Σ q ▷ H ▹ E
 
   -- Term equality
   data _⊢_≡_∷_ (Γ : Con (Term M) n) : Term M n → Term M n → Term M n → Set where
