@@ -58,7 +58,7 @@ mutual
            → Γ     ⊢ Π p , q ▷ F ▹ G
     Σⱼ_▹_  : Γ     ⊢ F
            → Γ ∙ F ⊢ G
-           → Γ     ⊢ Σ p ▷ F ▹ G
+           → Γ     ⊢ Σ q ▷ F ▹ G
     univ   : Γ ⊢ A ∷ U
            → Γ ⊢ A
 
@@ -71,7 +71,7 @@ mutual
     Σⱼ_▹_     : ∀ {F G}
               → Γ     ⊢ F ∷ U
               → Γ ∙ F ⊢ G ∷ U
-              → Γ     ⊢ Σ p ▷ F ▹ G ∷ U
+              → Γ     ⊢ Σ q ▷ F ▹ G ∷ U
     ℕⱼ        : ⊢ Γ → Γ ⊢ ℕ ∷ U
     Emptyⱼ    : ⊢ Γ → Γ ⊢ Empty ∷ U
     Unitⱼ     : ⊢ Γ → Γ ⊢ Unit ∷ U

@@ -136,8 +136,8 @@ redFirstTerm {p = p} (natrec-suc n F z s) = natrecⱼ F z s (sucⱼ n)
 redFirstTerm {p = p} (Emptyrec-subst A n⇒n′) = Emptyrecⱼ A (redFirstTerm {p = p} n⇒n′)
 redFirstTerm {p = p} (fst-subst F G x) = fstⱼ F G (redFirstTerm {p = p} x)
 redFirstTerm {p = p} (snd-subst F G x) = sndⱼ F G (redFirstTerm {p = p} x)
-redFirstTerm {p = p} (Σ-β₁ F G x x₁) = fstⱼ {p = p} F G (prodⱼ F G x x₁)
-redFirstTerm {p = p} (Σ-β₂ F G x x₁) = sndⱼ {p = p} F G (prodⱼ F G x x₁)
+redFirstTerm {p = p} (Σ-β₁ F G x x₁) = fstⱼ {q = p} F G (prodⱼ F G x x₁)
+redFirstTerm {p = p} (Σ-β₂ F G x x₁) = sndⱼ {q = p} F G (prodⱼ F G x x₁)
 redFirstTerm {p = p} (prodrec-subst F G x A x₁) = prodrecⱼ F G (redFirstTerm {p = p} x₁) A x
 redFirstTerm {p = p} (prodrec-β F G t t' A u) =  prodrecⱼ F G (prodⱼ F G t t') A u
 

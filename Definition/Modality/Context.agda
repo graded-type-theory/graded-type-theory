@@ -35,6 +35,7 @@ tailₘ : (γ : Conₘ 𝕄 (1+ n)) → Conₘ 𝕄 n
 tailₘ (γ ∙ p) = γ
 
 -- Context update
+
 _,_≔_ : {𝕄 : Modality M} (γ : Conₘ 𝕄 n) (x : Fin n) (p : M) → Conₘ 𝕄 n
 (γ ∙ q) , x0     ≔ p = γ ∙ p
 (γ ∙ q) , (x +1) ≔ p = (γ , x ≔ p) ∙ q
@@ -44,10 +45,13 @@ insertAt : {𝕄 : Modality M} (m : Nat) (γ : Conₘ 𝕄 (m + n)) (p : M)
 insertAt 0       γ      p = γ ∙ p
 insertAt (1+ m) (γ ∙ q) p = insertAt m γ p ∙ q
 
+
 -- Context lookup
+
 _⟨_⟩ : {𝕄 : Modality M} → (γ : Conₘ 𝕄 n) → (x : Fin n) → M
 (γ ∙ p) ⟨ x0 ⟩ = p
 (γ ∙ p) ⟨ x +1 ⟩ = γ ⟨ x ⟩
+
 
 -- Scalar product of modality contexts
 
