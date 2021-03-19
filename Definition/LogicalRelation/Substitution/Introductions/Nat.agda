@@ -19,7 +19,8 @@ open import Tools.Product
 private
   variable
     n : Nat
-    Γ : Con Term n
+    M : Set
+    Γ : Con (Term M) n
 
 
 -- Validity of the natural number type.
