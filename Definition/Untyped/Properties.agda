@@ -494,7 +494,7 @@ wk-β-prodrec ρ A =
          ≡⟨ substVar-to-subst eq A ⟩
        subst (σₚ′ ₛ• (lift ρ)) A
          ≡⟨ sym (subst-wk A) ⟩
-       subst σₚ′ (wk (lift ρ) A) ∎ 
+       subst σₚ′ (wk (lift ρ) A) ∎
      where
         σₚ′ : Subst M (1+ (1+ ℓ)) (1+ ℓ)
         σₚ′ = σₚ (var (x0 +1)) (var x0)
@@ -515,7 +515,7 @@ wk-β-doubleSubst ρ s t u =
        ≡⟨ substVar-to-subst eq s ⟩
      subst ((σₜ (wk ρ t) (wk ρ u)) ₛ• (lift (lift ρ))) s
        ≡⟨ sym (subst-wk s) ⟩
-     wk (lift (lift ρ)) s [ wk ρ t ][ wk ρ u ] ∎ 
+     wk (lift (lift ρ)) s [ wk ρ t ][ wk ρ u ] ∎
   where
     σₜ : (x y : Term M ℓ) → Subst M ℓ (1+ (1+ ℓ))
     σₜ x y = consSubst (consSubst idSubst y) x
