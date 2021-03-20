@@ -6,6 +6,7 @@ open import Definition.Modality.Context
 open import Definition.Modality.Context.Properties
 open import Definition.Modality.Properties
 open import Definition.Modality.Usage
+open import Definition.Modality.Usage.Inversion
 open import Definition.Untyped as U hiding (_∷_)
 open import Definition.Typed
 
@@ -32,12 +33,16 @@ Conₘ-interchange : {𝕄 : Modality M} {γ δ : Conₘ 𝕄 n}
             → γ ▸ t → δ ▸ t → (x : Fin n) →
             let p = δ ⟨ x ⟩
             in  (γ , x ≔ p) ▸ t
-Conₘ-interchange (sub γ▸t γ≤γ′) δ▸t x  = sub (Conₘ-interchange γ▸t δ▸t x) (update-monotoneˡ x γ≤γ′)
-Conₘ-interchange γ▸t (sub γ′▸t δ≤γ′) x = sub (Conₘ-interchange γ▸t γ′▸t x) (update-monotoneʳ x (lookup-monotone x δ≤γ′))
-Conₘ-interchange {𝕄 = 𝕄} Uₘ Uₘ x     = subst₂ _▸_ (PE.sym (update-self 𝟘ᶜ x)) refl Uₘ
-Conₘ-interchange ℕₘ ℕₘ x               = subst₂ _▸_ (PE.sym (update-self 𝟘ᶜ x)) refl ℕₘ
-Conₘ-interchange Emptyₘ Emptyₘ x       = subst₂ _▸_ (PE.sym (update-self 𝟘ᶜ x)) refl Emptyₘ
-Conₘ-interchange Unitₘ Unitₘ x         = subst₂ _▸_ (PE.sym (update-self 𝟘ᶜ x)) refl Unitₘ
+Conₘ-interchange (sub γ▸t γ≤γ′) δ▸t x  = sub
+  (Conₘ-interchange γ▸t δ▸t x)
+  (update-monotoneˡ x γ≤γ′)
+Conₘ-interchange γ▸t (sub γ′▸t δ≤γ′) x = sub
+  (Conₘ-interchange γ▸t γ′▸t x)
+  (update-monotoneʳ x (lookup-monotone x δ≤γ′))
+Conₘ-interchange Uₘ Uₘ x         = subst₂ _▸_ (PE.sym (update-self 𝟘ᶜ x)) refl Uₘ
+Conₘ-interchange ℕₘ ℕₘ x         = subst₂ _▸_ (PE.sym (update-self 𝟘ᶜ x)) refl ℕₘ
+Conₘ-interchange Emptyₘ Emptyₘ x = subst₂ _▸_ (PE.sym (update-self 𝟘ᶜ x)) refl Emptyₘ
+Conₘ-interchange Unitₘ Unitₘ x   = subst₂ _▸_ (PE.sym (update-self 𝟘ᶜ x)) refl Unitₘ
 
 Conₘ-interchange (Πₘ {γ} {δ = δ} γ▸t γ▸t₁) (Πₘ {γ₁} {δ = δ₁} δ▸t δ▸t₁) x = subst₂ _▸_ eq refl
   (Πₘ (Conₘ-interchange γ▸t δ▸t x) (Conₘ-interchange γ▸t₁ δ▸t₁ (x +1)))
@@ -135,26 +140,35 @@ Conₘ-interchange starₘ starₘ x = subst₂ _▸_ (PE.sym (update-self 𝟘�
 -- ⌈ t ⌉ is an upper bound on valid modality contexts
 
 usage-upper-bound : γ ▸ t → γ ≤ᶜ ⌈ t ⌉
-usage-upper-bound Uₘ = ≤ᶜ-reflexive
-usage-upper-bound ℕₘ = ≤ᶜ-reflexive
+usage-upper-bound Uₘ     = ≤ᶜ-reflexive
+usage-upper-bound ℕₘ     = ≤ᶜ-reflexive
 usage-upper-bound Emptyₘ = ≤ᶜ-reflexive
-usage-upper-bound Unitₘ = ≤ᶜ-reflexive
+usage-upper-bound Unitₘ  = ≤ᶜ-reflexive
+
 usage-upper-bound (Πₘ {δ = δ} {q} {G₁} F G) = +ᶜ-monotone₂
   (usage-upper-bound F)
   (PE.subst (δ ≡_) (tail-linear∧ {γ = δ ∙ q} {⌈ G₁ ⌉})
             (cong tailₘ (usage-upper-bound G)))
+
 usage-upper-bound (Σₘ {δ = δ} {q} {G₁} F G) = +ᶜ-monotone₂
   (usage-upper-bound F)
   (PE.subst (δ ≡_) (tail-linear∧ {γ = δ ∙ q} {⌈ G₁ ⌉})
                    (cong tailₘ (usage-upper-bound G)))
+
 usage-upper-bound var = ≤ᶜ-reflexive
+
 usage-upper-bound {γ = γ} (lamₘ {p = p} {t₁} t) = PE.subst (γ ≡_)
   (tail-linear∧ {γ = γ ∙ p} {⌈ t₁ ⌉})
   (cong tailₘ (usage-upper-bound t))
-usage-upper-bound (t ∘ₘ u) = +ᶜ-monotone₂ (usage-upper-bound t) (·ᶜ-monotone (usage-upper-bound u))
+
+usage-upper-bound (t ∘ₘ u) = +ᶜ-monotone₂
+  (usage-upper-bound t)
+  (·ᶜ-monotone (usage-upper-bound u))
+
 usage-upper-bound (prodₘ! t u) = +ᶜ-monotone₂ (usage-upper-bound t) (usage-upper-bound u)
-usage-upper-bound (fstₘ t) = usage-upper-bound t
-usage-upper-bound (sndₘ t) = usage-upper-bound t
+usage-upper-bound (fstₘ t)     = ≤ᶜ-reflexive
+usage-upper-bound (sndₘ t)     = ≤ᶜ-reflexive
+
 usage-upper-bound (prodrecₘ {γ} {δ = δ} {p} {u = u₁} t u) = +ᶜ-monotone₂
   (·ᶜ-monotone (usage-upper-bound t))
   (begin
@@ -163,8 +177,9 @@ usage-upper-bound (prodrecₘ {γ} {δ = δ} {p} {u = u₁} t u) = +ᶜ-monotone
     tailₘ (δ ∙ p ∧ᶜ tailₘ ⌈ u₁ ⌉)        ≡⟨ tail-linear∧ {γ = δ ∙ p} {tailₘ ⌈ u₁ ⌉} ⟩
     δ ∧ᶜ tailₘ (tailₘ ⌈ u₁ ⌉) ∎
   )
-usage-upper-bound zeroₘ = ≤ᶜ-reflexive
+usage-upper-bound zeroₘ    = ≤ᶜ-reflexive
 usage-upper-bound (sucₘ t) = usage-upper-bound t
+
 usage-upper-bound (natrecₘ {γ = γ} {r = r} {p = p} {s = s} x x₁ x₂) = ·ᶜ-monotone (+ᶜ-monotone₂
   (subst₂ _≤ᶜ_ (∧ᶜ-Idempotent γ) refl (∧ᶜ-monotone₂ (usage-upper-bound x) eq))
   (·ᶜ-monotone (usage-upper-bound x₂)))
@@ -179,106 +194,111 @@ usage-upper-bound (natrecₘ {γ = γ} {r = r} {p = p} {s = s} x x₁ x₂) = ·
          γ ∧ᶜ tailₘ (tailₘ ⌈ s ⌉) ∎
 
 usage-upper-bound (Emptyrecₘ e) = usage-upper-bound e
-usage-upper-bound starₘ = ≤ᶜ-reflexive
-usage-upper-bound (sub t x) = ≤ᶜ-transitive x (usage-upper-bound t)
+usage-upper-bound starₘ         = ≤ᶜ-reflexive
+usage-upper-bound (sub t x)     = ≤ᶜ-transitive x (usage-upper-bound t)
 
 
--- Usage of lifted wk1 terms
+-- A valid modality context can be computed from well typed and well resourced terms
 
-liftn-usage : {𝕄 : Modality M} (ℓ : Nat) {γ : Conₘ 𝕄 (ℓ + n)} {t : Term M (ℓ + n)}
-            → γ ▸ t → insertAt ℓ γ (Modality.𝟘 𝕄) ▸ wk (liftn (step id) ℓ) t
-liftn-usage ℓ Uₘ     = PE.subst (_▸ U) (insertAt-𝟘 ℓ) Uₘ
-liftn-usage ℓ ℕₘ     = PE.subst (_▸ ℕ) (insertAt-𝟘 ℓ) ℕₘ
-liftn-usage ℓ Emptyₘ = PE.subst (_▸ Empty) (insertAt-𝟘 ℓ) Emptyₘ
-liftn-usage ℓ Unitₘ  = PE.subst (_▸ Unit) (insertAt-𝟘 ℓ) Unitₘ
-
-liftn-usage {𝕄 = 𝕄} ℓ (Πₘ γ▸F δ▸G) = subst₂ _▸_
-  (insertAt-distrib-+ᶜ-𝟘 ℓ _ _)
-  refl
-  (Πₘ (liftn-usage ℓ γ▸F) (liftn-usage (1+ ℓ) δ▸G))
-
-liftn-usage ℓ (Σₘ γ▸F δ▸G) = subst₂ _▸_
-  (insertAt-distrib-+ᶜ-𝟘 ℓ _ _)
-  refl
-  (Σₘ (liftn-usage ℓ γ▸F) (liftn-usage (1+ ℓ) δ▸G))
-
-liftn-usage Nat.zero (var)       = var
-liftn-usage (1+ ℓ) (var {x0})   = PE.subst (_▸ (var x0))
-  (cong₂ _∙_ (insertAt-𝟘 ℓ) refl)
-  var
-liftn-usage (1+ ℓ) (var {x +1}) = subst₂ _▸_
-  (cong₂ _∙_ (insertAt-liftn ℓ x) refl)
-  refl
-  var
-
-liftn-usage ℓ (lamₘ γ▸t) = (lamₘ (liftn-usage (1+ ℓ) γ▸t))
-
-liftn-usage {𝕄 = 𝕄} ℓ (_∘ₘ_ {δ = δ} γ▸t δ▸u) =
-  subst₂ _▸_ eq refl ((liftn-usage ℓ γ▸t) ∘ₘ (liftn-usage ℓ δ▸u))
+usage-calc-term′ : {𝕄 : Modality M} {Γ : Con (Term M) n} {γ : Conₘ 𝕄 n} {t A : Term M n}
+                 → Γ ⊢ t ∷ A → γ ▸ t → _▸_ {𝕄 = 𝕄} ⌈ t ⌉ t
+usage-calc-term′ (Πⱼ_▹_ {q = q} {G = G} Γ⊢F:U Γ⊢G:U) γ▸t with inv-usage-Π γ▸t
+... | invUsageΠΣ δ▸F η▸G _ = Πₘ
+      (usage-calc-term′ Γ⊢F:U δ▸F)
+      (subst₂ _▸_ (update-head ⌈ G ⌉ q) refl
+              (Conₘ-interchange (usage-calc-term′ Γ⊢G:U η▸G) η▸G x0))
+usage-calc-term′  (Σⱼ_▹_ {q = q} {G = G} Γ⊢F:U Γ⊢G:U) γ▸t with inv-usage-Σ γ▸t
+... | invUsageΠΣ δ▸F η▸G _ = Σₘ
+      (usage-calc-term′ Γ⊢F:U δ▸F)
+      (subst₂ _▸_ (update-head ⌈ G ⌉ q) refl
+              (Conₘ-interchange (usage-calc-term′ Γ⊢G:U η▸G) η▸G x0))
+usage-calc-term′ (ℕⱼ x) γ▸t = ℕₘ
+usage-calc-term′ (Emptyⱼ x) γ▸t = Emptyₘ
+usage-calc-term′ (Unitⱼ x) γ▸t = Unitₘ
+usage-calc-term′ (var x x₁) γ▸t = var
+usage-calc-term′ (lamⱼ {p = p} {t = t} x Γ⊢t:A) γ▸λt with inv-usage-lam γ▸λt
+... | invUsageLam δ▸t _ = lamₘ
+      (subst₂ _▸_ (update-head ⌈ t ⌉ p) refl
+              (Conₘ-interchange (usage-calc-term′ Γ⊢t:A δ▸t) δ▸t x0))
+usage-calc-term′ (Γ⊢t:Π ∘ⱼ Γ⊢u:F) γ▸t with inv-usage-app γ▸t
+... | invUsageApp δ▸t η▸u _ =
+      (usage-calc-term′ Γ⊢t:Π δ▸t) ∘ₘ (usage-calc-term′ Γ⊢u:F η▸u)
+usage-calc-term′ (prodⱼ x x₁ Γ⊢t:A Γ⊢u:B) γ▸t with inv-usage-prod γ▸t
+... | invUsageProd δ▸t η▸u _ _ = prodₘ
+      (usage-calc-term′ Γ⊢t:A δ▸t)
+      (usage-calc-term′ Γ⊢u:B η▸u)
+      refl
+usage-calc-term′ (fstⱼ x x₁ Γ⊢t:A) γ▸t with inv-usage-fst γ▸t
+... | invUsageProj 𝟘▸t _ = fstₘ 𝟘▸t
+usage-calc-term′ (sndⱼ x x₁ Γ⊢t:A) γ▸t with inv-usage-snd γ▸t
+... | invUsageProj 𝟘▸t _ = sndₘ 𝟘▸t
+usage-calc-term′ {n = n} {𝕄 = 𝕄} (prodrecⱼ {p = p} {u = u}
+                    x x₁ Γ⊢t:Σ x₂ Γ⊢u:A) γ▸t with inv-usage-prodrec γ▸t
+... | invUsageProdrec δ▸t η▸u _ = prodrecₘ
+      (usage-calc-term′ Γ⊢t:Σ δ▸t)
+      (subst₂ _▸_ eq refl (Conₘ-interchange (Conₘ-interchange
+                          (usage-calc-term′ Γ⊢u:A η▸u) η▸u (x0 +1)) η▸u x0))
   where
+  γu : Conₘ 𝕄 (1+ (1+ n))
+  γu = ⌈ u ⌉
   eq = begin
-    _ ≡⟨ cong₂ _+ᶜ_ refl (insertAt-distrib-·ᶜ {𝕄 = 𝕄} ℓ _ δ _ _) ⟩
-    _ ≡⟨ cong₂ _+ᶜ_ refl (cong (insertAt ℓ _) (proj₂ (Modality.·-Zero 𝕄) _)) ⟩
-    _ ≡⟨ insertAt-distrib-+ᶜ ℓ _ _ _ _ ⟩
-    _ ≡⟨ cong (insertAt ℓ _) (proj₁ (Modality.+-Identity 𝕄) (Modality.𝟘 𝕄)) ⟩
-    _ ∎
+     ((γu , x0 +1 ≔ p) , x0 ≔ p)
+       ≡⟨ cong₂ (_,_≔ p) (update-step γu p x0) refl ⟩
+     (( (tailₘ γu , x0 ≔ p) ∙ headₘ γu) , x0 ≔ p)
+       ≡⟨ cong (_, x0 ≔ p) (cong (_∙ p) (update-head (tailₘ γu) p)) ⟩
+     ((tailₘ (tailₘ γu) ∙ p ∙ headₘ γu) , x0 ≔ p)
+       ≡⟨ update-head ((tailₘ (tailₘ γu) ∙ p) ∙ headₘ γu) p ⟩
+     (tailₘ (tailₘ γu) ∙ p ∙ p) ∎
 
-liftn-usage ℓ (prodₘ! γ▸t δ▸u) = subst₂ _▸_
-  (insertAt-distrib-+ᶜ-𝟘 ℓ _ _)
-  refl
-  (prodₘ! (liftn-usage ℓ γ▸t) (liftn-usage ℓ δ▸u))
+usage-calc-term′ (zeroⱼ x) γ▸t = zeroₘ
+usage-calc-term′ (sucⱼ Γ⊢t:ℕ) γ▸t  with inv-usage-suc γ▸t
+... | invUsageSuc δ▸t _ = sucₘ (usage-calc-term′ Γ⊢t:ℕ δ▸t)
 
-liftn-usage ℓ (fstₘ γ▸t) = subst₂ _▸_
-  (insertAt-𝟘 ℓ)
-  refl
-  (fstₘ (subst₂ _▸_ (PE.sym (insertAt-𝟘 ℓ)) refl (liftn-usage ℓ γ▸t)))
-
-liftn-usage ℓ (sndₘ γ▸t) =  subst₂ _▸_
-  (insertAt-𝟘 ℓ)
-  refl
-  (sndₘ (subst₂ _▸_ (PE.sym (insertAt-𝟘 ℓ)) refl (liftn-usage ℓ γ▸t)))
-
-liftn-usage {𝕄 = 𝕄} ℓ (prodrecₘ {δ = δ} γ▸t δ▸u) = subst₂ _▸_ eq refl
-  (prodrecₘ (liftn-usage ℓ γ▸t) (liftn-usage (1+ (1+ ℓ)) δ▸u))
+usage-calc-term′ {n = n} {𝕄 = 𝕄} (natrecⱼ {p = p} {q = q} {s = s} {z = z}
+                 x Γ⊢z:G Γ⊢s:G Γ⊢n:ℕ) γ▸t with inv-usage-natrec γ▸t
+... | invUsageNatrec δ▸z δ▸s η▸n _ = natrecₘ
+  (sub (usage-calc-term′ Γ⊢z:G δ▸z) (∧ᶜ-decreasingˡ ⌈ z ⌉ (tailₘ (tailₘ ⌈ s ⌉))))
+  (sub (Conₘ-interchange (Conₘ-interchange
+                         (usage-calc-term′ Γ⊢s:G δ▸s) δ▸s (x0 +1)) δ▸s x0)
+       (subst₂ _≤ᶜ_ refl (PE.sym eq)
+               (cong₂ _∙_ (cong₂ _∙_ (∧ᶜ-decreasingʳ ⌈ z ⌉ (tailₘ (tailₘ ⌈ s ⌉)))
+                      (≤-reflexive {𝕄 = 𝕄}) ) (≤-reflexive {𝕄 = 𝕄}))))
+  (usage-calc-term′ Γ⊢n:ℕ η▸n)
   where
+  γs : Conₘ 𝕄 (1+ (1+ n))
+  γs = ⌈ s ⌉
   eq = begin
-     _ ≡⟨ cong₂ _+ᶜ_ (insertAt-distrib-·ᶜ {𝕄 = 𝕄} ℓ _ δ _ _) refl ⟩
-     _ ≡⟨ cong₂ _+ᶜ_ (cong (insertAt ℓ _) (proj₂ (Modality.·-Zero 𝕄) _)) refl ⟩
-     _ ≡⟨ insertAt-distrib-+ᶜ ℓ _ _ _ _ ⟩
-     _ ≡⟨ cong (insertAt ℓ _) (proj₁ (Modality.+-Identity 𝕄) (Modality.𝟘 𝕄)) ⟩
-     _ ∎
+       ((γs , x0 +1 ≔ q) , x0 ≔ p)
+         ≡⟨ cong (_, x0 ≔ p) (update-step γs q x0) ⟩
+       (( (tailₘ γs , x0 ≔ q) ∙ headₘ γs) , x0 ≔ p)
+         ≡⟨ cong (_, x0 ≔ p) (cong (_∙ q) (update-head (tailₘ γs) q))  ⟩
+       ((tailₘ (tailₘ γs) ∙ q ∙ headₘ γs) , x0 ≔ p)
+         ≡⟨ update-head ((tailₘ (tailₘ γs) ∙ q) ∙ headₘ γs) p ⟩
+       (tailₘ (tailₘ γs) ∙ q ∙ p) ∎
 
-liftn-usage ℓ zeroₘ      = PE.subst (_▸ zero) (insertAt-𝟘 ℓ) zeroₘ
-liftn-usage ℓ (sucₘ γ▸t) = sucₘ (liftn-usage ℓ γ▸t)
+usage-calc-term′ (Emptyrecⱼ x Γ⊢t:A) γ▸t with inv-usage-Emptyrec γ▸t
+... | invUsageEmptyrec δ▸t _ = Emptyrecₘ (usage-calc-term′ Γ⊢t:A δ▸t)
+usage-calc-term′ (starⱼ x) γ▸t = starₘ
+usage-calc-term′ (conv Γ⊢t:A x) γ▸t = usage-calc-term′ Γ⊢t:A γ▸t
 
-liftn-usage {𝕄 = 𝕄} ℓ (natrecₘ {δ = δ} γ▸z γ▸s δ▸n) = subst₂ _▸_ eq refl
-  (natrecₘ (liftn-usage ℓ γ▸z) (liftn-usage (1+ (1+ ℓ)) γ▸s) (liftn-usage ℓ δ▸n))
-  where
-  eq = begin
-     _ ≡⟨ cong₂ _·ᶜ_ refl (cong₂ _+ᶜ_ refl (insertAt-distrib-·ᶜ ℓ _ δ _ _)) ⟩
-     _ ≡⟨ cong₂ _·ᶜ_ refl (cong₂ _+ᶜ_ refl (cong (insertAt ℓ _) (proj₂ (Modality.·-Zero 𝕄) _))) ⟩
-     _ ≡⟨ cong₂ _·ᶜ_ refl (insertAt-distrib-+ᶜ ℓ _ _ _ _) ⟩
-     _ ≡⟨ cong₂ _·ᶜ_ refl (cong (insertAt ℓ _) (proj₁ (Modality.+-Identity 𝕄) (Modality.𝟘 𝕄))) ⟩
-     _ ≡⟨ insertAt-distrib-·ᶜ {𝕄 = 𝕄} ℓ _ δ _ _ ⟩
-     _ ≡⟨ cong (insertAt ℓ _) (proj₂ (Modality.·-Zero 𝕄) _) ⟩
-     _ ∎
+usage-calc-term : {𝕄 : Modality M} {γ γ′ : Conₘ 𝕄 n}
+                → Γ ⊢ γ ▸ t ∷ A ◂ γ′ → ⌈ t ⌉ ▸ t
+usage-calc-term (Γ⊢t:A , γ▸t , γ′▸A) = usage-calc-term′ Γ⊢t:A γ▸t
 
-liftn-usage ℓ (Emptyrecₘ γ▸t) = Emptyrecₘ (liftn-usage ℓ γ▸t)
-liftn-usage ℓ starₘ           =  PE.subst (_▸ star) (insertAt-𝟘 ℓ) starₘ
-
-liftn-usage {𝕄 = 𝕄} ℓ (sub γ▸t x) = sub (liftn-usage ℓ γ▸t)
-  (insertAt-monotone ℓ _ _ _ _ x (≤-reflexive {𝕄 = 𝕄}))
-
-
--- Usage of single lift
-
-lift-usage : {𝕄 : Modality M} {γ : Conₘ 𝕄 (1+ n)} {t : Term M (1+ n)}
-            → γ ▸ t →  insertAt 1 γ (Modality.𝟘 𝕄) ▸ wk (lift (step id)) t
-lift-usage = liftn-usage 1
-
-
--- Usage of wk1
-
-wk1-usage : {𝕄 : Modality M} {γ : Conₘ 𝕄 n} {t : Term M n}
-            → γ ▸ t →  γ ∙ (Modality.𝟘 𝕄) ▸ wk1 t
-wk1-usage = liftn-usage 0
+usage-calc-type : {𝕄 : Modality M} {γ : Conₘ 𝕄 n}
+                → Γ ⊢ A ◂ γ → _▸_ {𝕄 = 𝕄} ⌈ A ⌉ A
+usage-calc-type (Uⱼ x , γ▸A) = Uₘ
+usage-calc-type (ℕⱼ x , γ▸A) = ℕₘ
+usage-calc-type (Emptyⱼ x , γ▸A) = Emptyₘ
+usage-calc-type (Unitⱼ x , γ▸A) = Unitₘ
+usage-calc-type (Πⱼ_▹_ {G = G} {q = q} Γ⊢F Γ⊢G , γ▸Π) with inv-usage-Π γ▸Π
+... | invUsageΠΣ δ▸F η▸G _ = Πₘ
+      (usage-calc-type (Γ⊢F , δ▸F))
+      (subst₂ _▸_ (update-head ⌈ G ⌉ q) refl
+                  (Conₘ-interchange (usage-calc-type (Γ⊢G , η▸G)) η▸G x0))
+usage-calc-type (Σⱼ_▹_ {G = G} {q = q} Γ⊢F Γ⊢G , γ▸Σ) with inv-usage-Σ γ▸Σ
+... | invUsageΠΣ δ▸F η▸G _ = Σₘ
+      (usage-calc-type (Γ⊢F , δ▸F))
+      (subst₂ _▸_ (update-head ⌈ G ⌉ q) refl
+                  (Conₘ-interchange (usage-calc-type (Γ⊢G , η▸G)) η▸G x0))
+usage-calc-type (univ Γ⊢A:U , γ▸A) = usage-calc-term′ Γ⊢A:U γ▸A

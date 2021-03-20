@@ -135,6 +135,19 @@ private
   (∧ᶜ-Idempotent γ)
   (Modality.∧-Idempotent 𝕄 p)
 
+∧ᶜ-comm : (γ δ : Conₘ 𝕄 n) → γ ∧ᶜ δ ≡ δ ∧ᶜ γ
+∧ᶜ-comm ε ε = refl
+∧ᶜ-comm {𝕄 = 𝕄} (γ ∙ p) (δ ∙ q) = cong₂ _∙_
+  (∧ᶜ-comm γ δ)
+  (Modality.∧-Commutative 𝕄 p q)
+
+∧ᶜ-assoc : (γ δ η : Conₘ 𝕄 n) → (γ ∧ᶜ δ) ∧ᶜ η ≡ γ ∧ᶜ (δ ∧ᶜ η)
+∧ᶜ-assoc ε ε ε = refl
+∧ᶜ-assoc {𝕄 = 𝕄} (γ ∙ p) (δ ∙ q) (η ∙ r) = cong₂ _∙_
+ (∧ᶜ-assoc γ δ η)
+ (Modality.∧-Associative 𝕄 p q r)
+
+
 -- Properties of ≤ᶜ
 
 -- ≤ᶜ forms a parital order
@@ -194,6 +207,19 @@ private
 ∧ᶜ-monotone₂ {𝕄 = 𝕄} {γ = γ ∙ p} {γ′ ∙ p′} {δ ∙ q} {δ′ ∙ q′} x y = cong₂ _∙_
   (∧ᶜ-monotone₂ (cong tailₘ x) (cong tailₘ y))
   (∧-monotone₂ {𝕄 = 𝕄} (cong headₘ x) (cong headₘ y))
+
+∧ᶜ-decreasingˡ : (γ δ : Conₘ 𝕄 n) → γ ∧ᶜ δ ≤ᶜ γ
+∧ᶜ-decreasingˡ γ δ = begin
+          γ ∧ᶜ δ          ≡⟨ cong₂ _∧ᶜ_ (sym (∧ᶜ-Idempotent _)) refl ⟩
+          (γ ∧ᶜ γ) ∧ᶜ δ   ≡⟨ ∧ᶜ-assoc _ _ _ ⟩
+          γ ∧ᶜ γ ∧ᶜ δ     ≡⟨ ∧ᶜ-comm _ _ ⟩
+          (γ ∧ᶜ δ) ∧ᶜ γ   ∎
+
+∧ᶜ-decreasingʳ : (γ δ : Conₘ 𝕄 n) → γ ∧ᶜ δ ≤ᶜ δ
+∧ᶜ-decreasingʳ γ δ = begin
+          γ ∧ᶜ δ          ≡⟨ cong₂ _∧ᶜ_ refl (sym (∧ᶜ-Idempotent _)) ⟩
+          γ ∧ᶜ (δ ∧ᶜ δ)   ≡⟨ sym (∧ᶜ-assoc _ _ _) ⟩
+          (γ ∧ᶜ δ) ∧ᶜ δ   ∎
 
 
 -- Propeties of headₘ and tailₘ
@@ -302,3 +328,12 @@ lookup-linear-·ᶜ : {𝕄 : Modality M} (γ : Conₘ 𝕄 n) (p : M) (x : Fin 
                  → (p ·ᶜ γ) ⟨ x ⟩ ≡ Modality._·_ 𝕄 p (γ ⟨ x ⟩)
 lookup-linear-·ᶜ (γ ∙ q) p x0 = refl
 lookup-linear-·ᶜ (γ ∙ q) p (x +1) = lookup-linear-·ᶜ γ p x
+
+update-head : {𝕄 : Modality M} (γ : Conₘ 𝕄 (1+ n)) (p : M)
+            → γ , x0 ≔ p ≡ tailₘ γ ∙ p
+update-head (γ ∙ q) p = refl
+
+update-step : {𝕄 : Modality M} (γ : Conₘ 𝕄 (1+ n)) (p : M) (x : Fin n)
+            → γ , (x +1) ≔ p ≡ (tailₘ γ , x ≔ p) ∙ headₘ γ
+update-step (γ ∙ q) p x = refl
+

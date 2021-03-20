@@ -104,8 +104,8 @@ mutual
   gen-usage (Appkind p) (t ∷ u ∷ [])         = ⌈ t ⌉ +ᶜ p ·ᶜ ⌈ u ⌉
   gen-usage (Sigmakind p) (F ∷ G ∷ [])       = ⌈ F ⌉ +ᶜ tailₘ ⌈ G ⌉
   gen-usage Prodkind (t ∷ u ∷ [])            = ⌈ t ⌉ +ᶜ ⌈ u ⌉
-  gen-usage Fstkind (t ∷ [])                 = ⌈ t ⌉
-  gen-usage Sndkind (t ∷ [])                 = ⌈ t ⌉
+  gen-usage Fstkind (t ∷ [])                 = 𝟘ᶜ
+  gen-usage Sndkind (t ∷ [])                 = 𝟘ᶜ
   gen-usage (Prodreckind p) (G ∷ t ∷ u ∷ []) = p ·ᶜ ⌈ t ⌉ +ᶜ tailₘ (tailₘ ⌈ u ⌉)
   gen-usage Natkind  []                      = 𝟘ᶜ
   gen-usage Zerokind []                      = 𝟘ᶜ
