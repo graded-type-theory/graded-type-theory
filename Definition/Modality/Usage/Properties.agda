@@ -113,7 +113,7 @@ Conₘ-interchange {𝕄 = 𝕄} (prodrecₘ {γ} {δ = δ} {p} γ▸t γ▸t₁
 Conₘ-interchange zeroₘ zeroₘ x           = subst₂ _▸_ (PE.sym (update-self 𝟘ᶜ x)) refl zeroₘ
 Conₘ-interchange (sucₘ γ▸t) (sucₘ δ▸t) x = sucₘ (Conₘ-interchange γ▸t δ▸t x)
 
-Conₘ-interchange {𝕄 = 𝕄} (natrecₘ {γ} {r} {p} {δ} γ▸t γ▸t₁ γ▸t₂)
+Conₘ-interchange {𝕄 = 𝕄} (natrecₘ {γ} {p} {r} {δ} γ▸t γ▸t₁ γ▸t₂)
                      (natrecₘ {γ₁} {δ = δ₁} δ▸t δ▸t₁ δ▸t₂) x =
   subst₂ _▸_ eq refl
                 (natrecₘ (Conₘ-interchange γ▸t δ▸t x) (Conₘ-interchange γ▸t₁ δ▸t₁ (x +1 +1))
@@ -180,17 +180,17 @@ usage-upper-bound (prodrecₘ {γ} {δ = δ} {p} {u = u₁} t u) = +ᶜ-monotone
 usage-upper-bound zeroₘ    = ≤ᶜ-reflexive
 usage-upper-bound (sucₘ t) = usage-upper-bound t
 
-usage-upper-bound (natrecₘ {γ = γ} {r = r} {p = p} {s = s} x x₁ x₂) = ·ᶜ-monotone (+ᶜ-monotone₂
+usage-upper-bound (natrecₘ {γ = γ} {p = p} {r = r} {s = s} x x₁ x₂) = ·ᶜ-monotone (+ᶜ-monotone₂
   (subst₂ _≤ᶜ_ (∧ᶜ-Idempotent γ) refl (∧ᶜ-monotone₂ (usage-upper-bound x) eq))
   (·ᶜ-monotone (usage-upper-bound x₂)))
   where
   eq = begin
-         tailₘ (tailₘ (γ ∙ r ∙ p))
+         tailₘ (tailₘ (γ ∙ p ∙ r))
            ≡⟨ cong tailₘ (cong tailₘ (usage-upper-bound x₁)) ⟩
-         tailₘ (tailₘ (γ ∙ r ∙ p ∧ᶜ ⌈ s ⌉))
-           ≡⟨ cong tailₘ (tail-linear∧ {γ = γ ∙ r ∙ p} {⌈ s ⌉}) ⟩
-         tailₘ ((γ ∙ r) ∧ᶜ tailₘ ⌈ s ⌉)
-           ≡⟨ tail-linear∧ {γ = γ ∙ r} {tailₘ ⌈ s ⌉} ⟩
+         tailₘ (tailₘ (γ ∙ p ∙ r ∧ᶜ ⌈ s ⌉))
+           ≡⟨ cong tailₘ (tail-linear∧ {γ = γ ∙ p ∙ r} {⌈ s ⌉}) ⟩
+         tailₘ ((γ ∙ p) ∧ᶜ tailₘ ⌈ s ⌉)
+           ≡⟨ tail-linear∧ {γ = γ ∙ p} {tailₘ ⌈ s ⌉} ⟩
          γ ∧ᶜ tailₘ (tailₘ ⌈ s ⌉) ∎
 
 usage-upper-bound (Emptyrecₘ e) = usage-upper-bound e
@@ -254,7 +254,7 @@ usage-calc-term′ (zeroⱼ x) γ▸t = zeroₘ
 usage-calc-term′ (sucⱼ Γ⊢t:ℕ) γ▸t  with inv-usage-suc γ▸t
 ... | invUsageSuc δ▸t _ = sucₘ (usage-calc-term′ Γ⊢t:ℕ δ▸t)
 
-usage-calc-term′ {n = n} {𝕄 = 𝕄} (natrecⱼ {p = p} {q = q} {s = s} {z = z}
+usage-calc-term′ {n = n} {𝕄 = 𝕄} (natrecⱼ {p = p} {r = r} {s = s} {z = z}
                  x Γ⊢z:G Γ⊢s:G Γ⊢n:ℕ) γ▸t with inv-usage-natrec γ▸t
 ... | invUsageNatrec δ▸z δ▸s η▸n _ = natrecₘ
   (sub (usage-calc-term′ Γ⊢z:G δ▸z) (∧ᶜ-decreasingˡ ⌈ z ⌉ (tailₘ (tailₘ ⌈ s ⌉))))
@@ -268,13 +268,13 @@ usage-calc-term′ {n = n} {𝕄 = 𝕄} (natrecⱼ {p = p} {q = q} {s = s} {z =
   γs : Conₘ 𝕄 (1+ (1+ n))
   γs = ⌈ s ⌉
   eq = begin
-       ((γs , x0 +1 ≔ q) , x0 ≔ p)
-         ≡⟨ cong (_, x0 ≔ p) (update-step γs q x0) ⟩
-       (( (tailₘ γs , x0 ≔ q) ∙ headₘ γs) , x0 ≔ p)
-         ≡⟨ cong (_, x0 ≔ p) (cong (_∙ q) (update-head (tailₘ γs) q))  ⟩
-       ((tailₘ (tailₘ γs) ∙ q ∙ headₘ γs) , x0 ≔ p)
-         ≡⟨ update-head ((tailₘ (tailₘ γs) ∙ q) ∙ headₘ γs) p ⟩
-       (tailₘ (tailₘ γs) ∙ q ∙ p) ∎
+       ((γs , x0 +1 ≔ p) , x0 ≔ r)
+         ≡⟨ cong (_, x0 ≔ r) (update-step γs p x0) ⟩
+       (( (tailₘ γs , x0 ≔ p) ∙ headₘ γs) , x0 ≔ r)
+         ≡⟨ cong (_, x0 ≔ r) (cong (_∙ p) (update-head (tailₘ γs) p))  ⟩
+       ((tailₘ (tailₘ γs) ∙ p ∙ headₘ γs) , x0 ≔ r)
+         ≡⟨ update-head ((tailₘ (tailₘ γs) ∙ p) ∙ headₘ γs) r ⟩
+       (tailₘ (tailₘ γs) ∙ p ∙ r) ∎
 
 usage-calc-term′ (Emptyrecⱼ x Γ⊢t:A) γ▸t with inv-usage-Emptyrec γ▸t
 ... | invUsageEmptyrec δ▸t _ = Emptyrecₘ (usage-calc-term′ Γ⊢t:A δ▸t)

@@ -124,7 +124,7 @@ mutual
               → Γ         ⊢ z ∷ G [ zero ]
               → Γ ∙ ℕ ∙ G ⊢ s ∷ wk1 (G [ suc (var x0) ]↑)
               → Γ         ⊢ n ∷ ℕ
-              → Γ         ⊢ natrec p q G z s n ∷ G [ n ]
+              → Γ         ⊢ natrec p r G z s n ∷ G [ n ]
 
     Emptyrecⱼ : ∀ {A e}
               → Γ ⊢ A → Γ ⊢ e ∷ Empty → Γ ⊢ Emptyrec p A e ∷ A
@@ -207,12 +207,12 @@ mutual
     fst-cong      : ∀ {t t' F G}
                   → Γ ⊢ F
                   → Γ ∙ F ⊢ G
-                  → Γ ⊢ t ≡ t' ∷ Σ p ▷ F ▹ G
+                  → Γ ⊢ t ≡ t' ∷ Σ q ▷ F ▹ G
                   → Γ ⊢ fst t ≡ fst t' ∷ F
     snd-cong      : ∀ {t t' F G}
                   → Γ ⊢ F
                   → Γ ∙ F ⊢ G
-                  → Γ ⊢ t ≡ t' ∷ Σ p ▷ F ▹ G
+                  → Γ ⊢ t ≡ t' ∷ Σ q ▷ F ▹ G
                   → Γ ⊢ snd t ≡ snd t' ∷ G [ fst t ]
     Σ-β₁          : ∀ {F G t u}
                   → Γ ⊢ F
@@ -229,24 +229,24 @@ mutual
     Σ-η           : ∀ {t u F G}
                   → Γ ⊢ F
                   → Γ ∙ F ⊢ G
-                  → Γ ⊢ t ∷ Σ p ▷ F ▹ G
-                  → Γ ⊢ u ∷ Σ p ▷ F ▹ G
+                  → Γ ⊢ t ∷ Σ q ▷ F ▹ G
+                  → Γ ⊢ u ∷ Σ q ▷ F ▹ G
                   → Γ ⊢ fst t ≡ fst u ∷ F
                   → Γ ⊢ snd t ≡ snd u ∷ G [ fst t ]
-                  → Γ ⊢ t ≡ u ∷ Σ p ▷ F ▹ G
-    prodrec-cong  : ∀ {t t′ u u′ F G A}
+                  → Γ ⊢ t ≡ u ∷ Σ q ▷ F ▹ G
+    prodrec-cong  : ∀ {t t′ u u′ F G A A′}
                   → Γ ⊢ F
                   → Γ ∙ F ⊢ G
-                  → Γ ⊢ t ≡ t′ ∷ Σ p ▷ F ▹ G
-                  → Γ ∙ (Σ p ▷ F ▹ G) ⊢ A
+                  → Γ ∙ (Σ q ▷ F ▹ G) ⊢ A ≡ A′
+                  → Γ ⊢ t ≡ t′ ∷ Σ q ▷ F ▹ G
                   → Γ ∙ F ∙ G ⊢ u ≡ u′ ∷ A [⟨ var (x0 +1) , var x0 ⟩]
-                  → Γ ⊢ (prodrec q A t u) ≡ (prodrec q A t′ u′) ∷ A [ t ]
+                  → Γ ⊢ (prodrec p A t u) ≡ (prodrec p A t′ u′) ∷ A [ t ]
     prodrec-β     : ∀ {t t′ u F G A}
                   → Γ ⊢ F
                   → Γ ∙ F ⊢ G
+                  → Γ ∙ (Σ q ▷ F ▹ G) ⊢ A
                   → Γ ⊢ t ∷ F
                   → Γ ⊢ t′ ∷ G [ t ]
-                  → Γ ∙ (Σ p ▷ F ▹ G) ⊢ A
                   → Γ ∙ F ∙ G ⊢ u ∷ A [⟨ var (x0 +1) , var x0 ⟩]
                   → Γ ⊢ (prodrec p A (prod t t′) u) ≡
                         u [ t′ ][ t ] ∷ A [ prod t t′ ]
@@ -259,12 +259,12 @@ mutual
                   → Γ         ⊢ z ≡ z′ ∷ F [ zero ]
                   → Γ ∙ ℕ ∙ F ⊢ s ≡ s′ ∷ wk1 (F [ suc (var x0) ]↑)
                   → Γ         ⊢ n ≡ n′ ∷ ℕ
-                  → Γ         ⊢ natrec p q F z s n ≡ natrec p q F′ z′ s′ n′ ∷ F [ n ]
+                  → Γ         ⊢ natrec p r F z s n ≡ natrec p r F′ z′ s′ n′ ∷ F [ n ]
     natrec-zero   : ∀ {z s F}
                   → Γ ∙ ℕ ⊢ F
                   → Γ     ⊢ z ∷ F [ zero ]
                   → Γ ∙ ℕ ∙ F ⊢ s ∷ wk1 (F [ suc (var x0) ]↑)
-                  → Γ     ⊢ natrec p q F z s zero ≡ z ∷ F [ zero ]
+                  → Γ     ⊢ natrec p r F z s zero ≡ z ∷ F [ zero ]
     natrec-suc    : ∀ {n z s F}
                   → Γ     ⊢ n ∷ ℕ
                   → Γ ∙ ℕ ⊢ F
@@ -357,12 +357,12 @@ data _⊢_⇒_∷_ (Γ : Con (Term M) n) : Term M n → Term M n → Term M n �
                  → Γ         ⊢ z ∷ F [ zero ]
                  → Γ ∙ ℕ ∙ F ⊢ s ∷ wk1 (F [ suc (var x0) ]↑)
                  → Γ         ⊢ n ⇒ n′ ∷ ℕ
-                 → Γ         ⊢ natrec p q F z s n ⇒ natrec p q F z s n′ ∷ F [ n ]
+                 → Γ         ⊢ natrec p r F z s n ⇒ natrec p r F z s n′ ∷ F [ n ]
   natrec-zero    : ∀ {z s F}
                  → Γ ∙ ℕ     ⊢ F
                  → Γ         ⊢ z ∷ F [ zero ]
                  → Γ ∙ ℕ ∙ F ⊢ s ∷ wk1 (F [ suc (var x0) ]↑)
-                 → Γ         ⊢ natrec p q F z s zero ⇒ z ∷ F [ zero ]
+                 → Γ         ⊢ natrec p r F z s zero ⇒ z ∷ F [ zero ]
   natrec-suc     : ∀ {n z s F}
                  → Γ         ⊢ n ∷ ℕ
                  → Γ ∙ ℕ     ⊢ F
