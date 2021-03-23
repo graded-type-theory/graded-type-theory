@@ -4,15 +4,7 @@ module Definition.Typed.Properties where
 
 open import Definition.Untyped hiding (_∷_)
 open import Definition.Typed
-open import Definition.Modality
-open import Definition.Modality.Context
-open import Definition.Modality.Context.Properties
-open import Definition.Modality.Substitution
-open import Definition.Modality.Substitution.Properties
-open import Definition.Modality.Usage
-open import Definition.Modality.Usage.Properties
 
-open import Tools.Fin
 open import Tools.Empty using (⊥; ⊥-elim)
 open import Tools.Nat
 open import Tools.Product
@@ -22,11 +14,9 @@ private
   variable
     n : Nat
     M : Set
-    𝕄 : Modality M
     Γ : Con (Term M) n
     A A′ B B′ C U′ : Term M n
     a b t u u′ : Term M n
-    γ δ : Conₘ 𝕄 n
 
 -- Escape context extraction
 
@@ -109,8 +99,9 @@ subsetTerm (fst-subst F G x) = fst-cong F G (subsetTerm x)
 subsetTerm (snd-subst F G x) = snd-cong F G (subsetTerm x)
 subsetTerm (Σ-β₁ F G x x₁) = Σ-β₁ F G x x₁
 subsetTerm (Σ-β₂ F G x x₁) = Σ-β₂ F G x x₁
-subsetTerm (prodrec-subst F G u A x) = prodrec-cong F G (subsetTerm x) A (refl u)
-subsetTerm (prodrec-β F G t t' A u) = prodrec-β F G t t' A u
+subsetTerm (prodrec-subst F G u A t⇒t') =
+  prodrec-cong F G (refl A) (subsetTerm t⇒t') (refl u)
+subsetTerm (prodrec-β F G t t' A u) = prodrec-β F G A t t' u
 
 subset : Γ ⊢ A ⇒ B → Γ ⊢ A ≡ B
 subset (univ A⇒B) = univ (subsetTerm A⇒B)
@@ -346,146 +337,3 @@ redU (univ x) = redU*Term′ PE.refl x
 redU* : Γ ⊢ A ⇒* U → A PE.≡ U
 redU* (id x) = PE.refl
 redU* (x ⇨ A⇒*U) rewrite redU* A⇒*U = ⊥-elim (redU x)
-
--- Reduction preserves resource usage
-usagePresTerm : {𝕄 : Modality M} {γ : Conₘ 𝕄 n} {Γ : Con (Term M) n} {t u A : Term M n}
-              → γ ▸ t → Γ ⊢ t ⇒ u ∷ A → γ ▸ u
-usagePresTerm x (conv y x₁) = {!!}
-usagePresTerm x (app-subst y x₁) = {!!}
-usagePresTerm γ▸λpt∘a (β-red Γ⊢A Γ∙A⊢t∷B Γ⊢a∷A PE.refl) with inv-usage-app γ▸λpt∘a
-... | invUsageApp δ▸λpt η▸a γ≤δ+pη with inv-usage-lam δ▸λpt
-... | δ′ , δ≤δ′ , δ′∙p▸t = {!substₘ-lemma !}
-usagePresTerm x (fst-subst x₁ x₂ y) = {!!}
-usagePresTerm x (snd-subst x₁ x₂ y) = {!!}
-usagePresTerm x (Σ-β₁ x₁ x₂ x₃ x₄) = {!!}
-usagePresTerm x (Σ-β₂ x₁ x₂ x₃ x₄) = {!!}
-usagePresTerm x (prodrec-subst x₁ x₂ x₃ x₄ y) = {!!}
-usagePresTerm x (prodrec-β x₁ x₂ x₃ x₄ x₅ x₆) = {!!}
-usagePresTerm x (natrec-subst x₁ x₂ x₃ y) = {!!}
-usagePresTerm x (natrec-zero x₁ x₂ x₃) = {!!}
-usagePresTerm x (natrec-suc x₁ x₂ x₃ x₄) = {!!}
-usagePresTerm x (Emptyrec-subst x₁ y) = {!!}
-
-{-
-{-# TERMINATING #-}
-usagePresTerm : {𝕄 : Modality M} {γ : Conₘ 𝕄 n} {Γ : Con (Term M) n} {t u A : Term M n}
-              → γ ▸ t → Γ ⊢ t ⇒ u ∷ A → γ ▸ u
-usagePresTerm γ▸t (conv t⇒u x) = usagePresTerm γ▸t t⇒u
-usagePresTerm (γ▸t ∘ₘ δ▸u) (app-subst t⇒u x) = usagePresTerm γ▸t t⇒u ∘ₘ δ▸u
-
-usagePresTerm (_∘ₘ_ {γ} {δ = δ} {u} {p} (lamₘ γ▸t) δ▸u) (β-red x x₁ x₂ PE.refl) =
-  PE.subst₂ _▸_ eq PE.refl Ψγ▸σt
-  where
-  Ψγ▸σt = substₘ-lemma (sgSubstₘ δ) (sgSubst u) (wf-sgSubstₘ δ▸u) γ▸t
-  eq = PE.begin
-       p ·ᶜ δ +ᶜ idSubstₘ *> γ PE.≡⟨ PE.cong₂ _+ᶜ_ PE.refl (idSubstₘ-LeftIdentity γ) ⟩
-       p ·ᶜ δ +ᶜ γ             PE.≡⟨ +ᶜ-comm (p ·ᶜ δ) γ ⟩
-       γ +ᶜ p ·ᶜ δ             PE.∎
-
-usagePresTerm (sub γ▸t γ≤γ′ ∘ₘ δ▸u) (β-red x x₁ x₂ PE.refl) =
-  sub (usagePresTerm (γ▸t ∘ₘ δ▸u) (β-red x x₁ x₂ PE.refl)) (+ᶜ-monotone γ≤γ′)
-
-usagePresTerm (fstₘ γ▸t) (fst-subst x x₁ t⇒u) = fstₘ (usagePresTerm γ▸t t⇒u)
-usagePresTerm (fstₘ (prodₘ {γ} {δ = δ} γ▸t γ▸t₁ x₄)) (Σ-β₁ x x₁ x₂ x₃) rewrite proj₁ (+ᶜ-noInverse γ δ (PE.sym x₄)) = γ▸t
-usagePresTerm {u = u} (fstₘ (sub γ▸t x₄)) (Σ-β₁ x x₁ x₂ x₃) = {!usagePresTerm γ▸t !}
-  where
-  qw = (Σ-β₁ x x₁ x₂ x₃)
-  qwe = usagePresTerm {!fstₘ γ▸t!} qw
-
-usagePresTerm (sndₘ γ▸t) (snd-subst x x₁ t⇒u) = sndₘ (usagePresTerm γ▸t t⇒u)
-usagePresTerm (sndₘ (prodₘ {γ} {δ = δ} γ▸t γ▸t₁ x₄)) (Σ-β₂ x x₁ x₂ x₃) rewrite proj₂ (+ᶜ-noInverse γ δ (PE.sym x₄)) = γ▸t₁
-usagePresTerm (sndₘ (sub γ▸t x₄)) (Σ-β₂ x x₁ x₂ x₃) = {!!}
-
-usagePresTerm (prodrecₘ γ▸t δ▸u) (prodrec-subst x x₁ x₂ x₃ t⇒u) = prodrecₘ (usagePresTerm γ▸t t⇒u) δ▸u
-usagePresTerm (prodrecₘ {δ = δ} {p} (prodₘ {γ} {t} {γ₁} {u = t₁} γ▸t γ▸t₁ eq) δ▸u) (prodrec-β x x₁ x₂ x₃ x₄ x₅) = PE.subst₂ _▸_ eq′ PE.refl {!!} --Ψγ▸σt
-  where
-  Ψγ▸σt = substₘ-lemma
-          (consSubstₘ (sgSubstₘ γ₁) γ)
-          (consSubst (consSubst idSubst t₁) t)
-          (wf-consSubstₘ (wf-sgSubstₘ γ▸t₁) γ▸t)
-          δ▸u
-  eq′ = PE.begin
-        p ·ᶜ γ +ᶜ p ·ᶜ γ₁ +ᶜ idSubstₘ *> δ
-          PE.≡⟨ PE.sym (+ᶜ-assoc (p ·ᶜ γ) (p ·ᶜ γ₁) (idSubstₘ *> δ)) ⟩
-        (p ·ᶜ γ +ᶜ p ·ᶜ γ₁) +ᶜ idSubstₘ *> δ
-          PE.≡⟨ PE.cong₂ _+ᶜ_ (PE.sym (·ᶜ-distribˡ-+ᶜ p γ γ₁)) (idSubstₘ-LeftIdentity δ) ⟩
-         p ·ᶜ (γ +ᶜ γ₁) +ᶜ δ
-           PE.≡⟨ PE.cong₂ _+ᶜ_ (PE.cong₂ _·ᶜ_ PE.refl (PE.sym eq)) PE.refl ⟩
-         _ PE.∎
-
-usagePresTerm (prodrecₘ {γ} {δ = δ} {p} (sub γ▸t x₆) δ▸u) (prodrec-β {t = t} {t′} x x₁ x₂ x₃ x₄ x₅) = {!sub γ▸t x₆!}
-  where
-    Ψγ▸σt = substₘ-lemma
-      (consSubstₘ (sgSubstₘ {!!}) {!!})
-      (consSubst (consSubst idSubst t′) t)
-      {!!}
-       δ▸u
-
-usagePresTerm (natrecₘ γ▸z γ▸s δ▸z) (natrec-subst x x₁ x₂ t⇒u) = natrecₘ γ▸z γ▸s (usagePresTerm δ▸z t⇒u)
-usagePresTerm {𝕄 = 𝕄} (natrecₘ {γ} {q} {p} {δ} γ▸z γ▸s δ▸n) (natrec-zero x x₁ x₂) = sub γ▸z le
-  where
-  δ≤𝟘 : {η : Conₘ 𝕄 n} → η ▸ zero → η ≤ᶜ 𝟘ᶜ
-  δ≤𝟘 zeroₘ = ≤ᶜ-reflexive
-  δ≤𝟘 (sub x x₁) = ≤ᶜ-transitive x₁ (δ≤𝟘 x)
-  le = ≤ᶜ-transitive
-          (PE.subst₂ _≤ᶜ_
-            PE.refl
-            (·ᶜ-identityˡ _)
-            (·ᶜ-monotone₂ ≤ᶜ-reflexive {!!})
-          )
-          (PE.subst₂ _≤ᶜ_
-            PE.refl
-            (+ᶜ-identityʳ _)
-            (+ᶜ-monotone₂ ≤ᶜ-reflexive (PE.subst₂ _≤ᶜ_
-              PE.refl
-              (·ᶜ-zeroʳ p)
-              (·ᶜ-monotone (δ≤𝟘 δ▸n))
-            ))
-          )
-
-usagePresTerm {𝕄 = 𝕄} (natrecₘ {γ} {q = q} {p} {δ} {G = G} {z} {s} γ▸z γ▸s δ▸sucn) (natrec-suc {n = n} x x₁ x₂ x₃) = PE.subst₂ _▸_ eq PE.refl {!Ψγ▸σt!} --Ψγ▸σt
-  where
-  η▸n : {𝕄 : Modality M} {m : Nat} {η : Conₘ 𝕄 m} {t : Term M m} → η ▸ suc t → η ▸ t
-  η▸n (sucₘ x) = x
-  η▸n (sub x x₁) = sub (η▸n x) x₁
-  Ψγ▸σt = substₘ-lemma
-    (consSubstₘ (consSubstₘ idSubstₘ ((Modality._* 𝕄 q) ·ᶜ (γ +ᶜ p ·ᶜ δ))) δ)
-    (consSubst (consSubst idSubst (natrec p q G z s n)) n)
-    (wf-consSubstₘ (wf-sgSubstₘ (natrecₘ γ▸z γ▸s (η▸n δ▸sucn))) (η▸n δ▸sucn))
-    γ▸s
-  eq = PE.begin
-       ((idSubstₘ ∙ ((Modality._* 𝕄 q) ·ᶜ (γ +ᶜ p ·ᶜ δ))) ∙ δ) *> (γ ∙ q ∙ p)
-         PE.≡⟨ PE.refl ⟩
-       p ·ᶜ δ +ᶜ (idSubstₘ ∙ ((Modality._* 𝕄 q) ·ᶜ (γ +ᶜ p ·ᶜ δ))) *> (γ ∙ q)
-         PE.≡⟨ PE.refl ⟩
-       p ·ᶜ δ +ᶜ q ·ᶜ (Modality._* 𝕄 q) ·ᶜ (γ +ᶜ p ·ᶜ δ) +ᶜ idSubstₘ *> γ
-         PE.≡⟨ PE.cong₂ _+ᶜ_ PE.refl (PE.cong₂ _+ᶜ_ PE.refl (idSubstₘ-LeftIdentity γ)) ⟩
-       p ·ᶜ δ +ᶜ q ·ᶜ (Modality._* 𝕄 q) ·ᶜ (γ +ᶜ p ·ᶜ δ) +ᶜ γ
-         PE.≡⟨ PE.cong₂ _+ᶜ_ PE.refl (+ᶜ-comm (q ·ᶜ (Modality._* 𝕄 q) ·ᶜ (γ +ᶜ p ·ᶜ δ)) γ) ⟩
-       p ·ᶜ δ +ᶜ γ +ᶜ q ·ᶜ (Modality._* 𝕄 q) ·ᶜ (γ +ᶜ p ·ᶜ δ)
-         PE.≡⟨ PE.sym (+ᶜ-assoc (p ·ᶜ δ) γ _) ⟩
-       (p ·ᶜ δ +ᶜ γ) +ᶜ q ·ᶜ (Modality._* 𝕄 q) ·ᶜ (γ +ᶜ p ·ᶜ δ)
-         PE.≡⟨ PE.cong₂ _+ᶜ_ (+ᶜ-comm (p ·ᶜ δ) γ) PE.refl ⟩
-       (γ +ᶜ p ·ᶜ δ) +ᶜ q ·ᶜ (Modality._* 𝕄 q) ·ᶜ (γ +ᶜ p ·ᶜ δ)
-         PE.≡⟨ PE.cong₂ _+ᶜ_ (PE.sym (·ᶜ-identityˡ _)) (PE.sym (·ᶜ-assoc q (Modality._* 𝕄 q) (γ +ᶜ p ·ᶜ δ))) ⟩
-       (Modality.𝟙 𝕄) ·ᶜ (γ +ᶜ p ·ᶜ δ) +ᶜ (Modality._·_ 𝕄 q (Modality._* 𝕄 q)) ·ᶜ (γ +ᶜ p ·ᶜ δ)
-         PE.≡⟨ PE.sym (·ᶜ-distribʳ-+ᶜ (Modality.𝟙 𝕄) (Modality._·_ 𝕄 q (Modality._* 𝕄 q)) (γ +ᶜ p ·ᶜ δ)) ⟩
-       (Modality._+_ 𝕄 (Modality.𝟙 𝕄) (Modality._·_ 𝕄 q (Modality._* 𝕄 q))) ·ᶜ (γ +ᶜ p ·ᶜ δ)
-         PE.≡⟨ PE.cong₂ _·ᶜ_ (PE.sym (Modality.*-StarSemiring 𝕄 q)) PE.refl ⟩
-       (Modality._* 𝕄 q) ·ᶜ (γ +ᶜ p ·ᶜ δ) PE.∎
-
-usagePresTerm (Emptyrecₘ γ▸t) (Emptyrec-subst x t⇒u) = Emptyrecₘ (usagePresTerm γ▸t t⇒u)
-usagePresTerm (sub γ▸t x) t⇒u = sub (usagePresTerm γ▸t t⇒u) x
-
-
-usagePres : {𝕄 : Modality M} {γ : Conₘ 𝕄 n} {Γ : Con (Term M) n} {A B : Term M n}
-          → γ ▸ A → Γ ⊢ A ⇒ B → γ ▸ B
-usagePres γ▸A (univ x) = usagePresTerm γ▸A x
-
-
--- -}
--- -}
--- -}
--- -}
--- -}
--- -}
