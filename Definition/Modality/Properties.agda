@@ -110,4 +110,3 @@ private
 ·-monotone₂ {𝕄 = 𝕄} x y = ≤-transitive {𝕄 = 𝕄}
   (·-monotoneˡ {𝕄 = 𝕄} y)
   (·-monotoneʳ {𝕄 = 𝕄} x)
-  

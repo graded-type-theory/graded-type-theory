@@ -150,7 +150,7 @@ private
 
 -- Properties of ≤ᶜ
 
--- ≤ᶜ forms a parital order
+-- ≤ᶜ forms a parital order with 𝟘ᶜ as greatest element
 
 ≤ᶜ-reflexive : {γ : Conₘ 𝕄 n} → γ ≤ᶜ γ
 ≤ᶜ-reflexive {γ = ε} = refl
@@ -168,7 +168,11 @@ private
   (≤ᶜ-antisymmetric (cong tailₘ x) (cong tailₘ y))
   (≤-antisymmetric {𝕄 = 𝕄} (cong headₘ x) (cong headₘ y))
 
--- +ᶜ, ∧ᶜ and ·ᶜ are monotone owht reggards to ≤ᶜ
+𝟘ᶜ-max : {γ : Conₘ 𝕄 n} → γ ≤ᶜ 𝟘ᶜ
+𝟘ᶜ-max {γ = ε} = refl
+𝟘ᶜ-max {𝕄 = 𝕄} {γ = γ ∙ p} = cong₂ _∙_ 𝟘ᶜ-max (Modality.𝟘-max 𝕄 p)
+
+-- +ᶜ, ∧ᶜ and ·ᶜ are monotone with regards to ≤ᶜ
 
 +ᶜ-monotone : {γ δ η : Conₘ 𝕄 n} → γ ≤ᶜ δ → γ +ᶜ η ≤ᶜ δ +ᶜ η
 +ᶜ-monotone {γ = ε} {ε} {ε} refl = refl

@@ -121,6 +121,10 @@ x * = ω
 *-StarSemiring 𝟘 = refl
 *-StarSemiring ω = refl
 
+𝟘-max : (p : Erasure) → p ≡ p ∧ 𝟘
+𝟘-max 𝟘 = refl
+𝟘-max ω = refl
+
 -- Addition (and meet) form the following algebras
 +-Magma : IsMagma _≡_ _+_
 +-Magma = record
@@ -190,6 +194,7 @@ ErasureModality = record
   ; *-StarSemiring      = *-StarSemiring
   ; ·-Zero              = ·-Zero
   ; +-noInverse         = +-noInverse
+  ; 𝟘-max               = 𝟘-max
   ; ·Distr+             = ·Distr+
   ; ·Distr∧             = ·Distr+
   ; +Distr∧             = +Distr+

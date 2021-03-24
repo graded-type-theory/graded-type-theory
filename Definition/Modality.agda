@@ -34,6 +34,8 @@ record Modality (M : Set) : Set where
     ·-Zero              : Zero _≡_ 𝟘 _·_
     -- There are no additive inverses (except 𝟘)
     +-noInverse         : (p q : M) → p + q ≡ 𝟘 → p ≡ 𝟘 × q ≡ 𝟘
+    -- 𝟘 is the maximum element
+    𝟘-max               : (p : M) → p ≡ p ∧ 𝟘
 
     -- Multiplication distributes over addition
     ·Distr+             : _DistributesOver_ _≡_ _·_ _+_
