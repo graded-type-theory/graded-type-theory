@@ -1,4 +1,4 @@
-{- #OPTIONS --without-K --safe #-}
+{-#OPTIONS --without-K --safe #-}
 module Definition.Modality.Usage.Weakening where
 
 open import Definition.Modality
