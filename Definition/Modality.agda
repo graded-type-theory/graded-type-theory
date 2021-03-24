@@ -25,8 +25,8 @@ record Modality (M : Set) : Set where
     +-CommutativeMonoid : IsCommutativeMonoid _≡_ _+_ 𝟘
     -- · forms a monoid with 𝟙 as unit element
     ·-Monoid            : IsMonoid _≡_ _·_ 𝟙
-    -- ∧ forms a semilattice
-    ∧-Semilattice       : IsSemilattice _≡_ _∧_
+    -- ∧ forms a bounded semilattice with 𝟘 as identity
+    ∧-BoundedSemilattice       : IsBoundedLattice _≡_ _∧_ 𝟘
     -- * forms a star semiring
     *-StarSemiring      : (p : M) → p * ≡ 𝟙 + (p · (p *))
 
@@ -34,8 +34,6 @@ record Modality (M : Set) : Set where
     ·-Zero              : Zero _≡_ 𝟘 _·_
     -- There are no additive inverses (except 𝟘)
     +-noInverse         : (p q : M) → p + q ≡ 𝟘 → p ≡ 𝟘 × q ≡ 𝟘
-    -- 𝟘 is the maximum element
-    𝟘-max               : (p : M) → p ≡ p ∧ 𝟘
 
     -- Multiplication distributes over addition
     ·Distr+             : _DistributesOver_ _≡_ _·_ _+_
@@ -66,11 +64,13 @@ record Modality (M : Set) : Set where
   ·-Identity = (IsMonoid.identity ·-Monoid)
 
   ∧-Commutative : Commutative _≡_ _∧_
-  ∧-Commutative = IsSemilattice.comm ∧-Semilattice
+  ∧-Commutative = IsBoundedLattice.comm _≡_ ∧-BoundedSemilattice
 
   ∧-Associative : Associative _≡_ _∧_
-  ∧-Associative = IsSemigroup.assoc (IsBand.isSemigroup
-                    (IsSemilattice.isBand ∧-Semilattice))
+  ∧-Associative = IsBoundedLattice.assoc _≡_ ∧-BoundedSemilattice
 
   ∧-Idempotent : Idempotent _≡_ _∧_
-  ∧-Idempotent = IsBand.idem (IsSemilattice.isBand ∧-Semilattice)
+  ∧-Idempotent = IsBoundedLattice.idem ∧-BoundedSemilattice
+
+  𝟘-max : (p : M) → p ≤ 𝟘
+  𝟘-max p = sym (proj₂ (IsBoundedLattice.identity _≡_ ∧-BoundedSemilattice) p)

@@ -150,16 +150,10 @@ x * = ω
   ; comm     = +-Commutative
   }
 
-+-Band : IsBand _≡_ _+_
-+-Band = record
-  { isSemigroup = +-Semigroup
-  ; idem        = +-Idempotent
-  }
-
-+-Semilattice : IsSemilattice _≡_ _+_
-+-Semilattice = record
-  { isBand = +-Band
-  ; comm   = +-Commutative
++-BoundedSemilattice : IsBoundedLattice _≡_ _+_ 𝟘
++-BoundedSemilattice = record
+  { isCommutativeMonoid = +-CommutativeMonoid
+  ; idem                = +-Idempotent
   }
 
 -- Multiplication forms the following algebras
@@ -183,19 +177,18 @@ x * = ω
 
 ErasureModality : Modality Erasure
 ErasureModality = record
-  { _+_                 = _+_
-  ; _·_                 = _·_
-  ; _∧_                 = _∧_
-  ; 𝟘                   = 𝟘
-  ; 𝟙                   = ω
-  ; +-CommutativeMonoid = +-CommutativeMonoid
-  ; ·-Monoid            = ·-Monoid
-  ; ∧-Semilattice       = +-Semilattice
-  ; *-StarSemiring      = *-StarSemiring
-  ; ·-Zero              = ·-Zero
-  ; +-noInverse         = +-noInverse
-  ; 𝟘-max               = 𝟘-max
-  ; ·Distr+             = ·Distr+
-  ; ·Distr∧             = ·Distr+
-  ; +Distr∧             = +Distr+
+  { _+_                  = _+_
+  ; _·_                  = _·_
+  ; _∧_                  = _∧_
+  ; 𝟘                    = 𝟘
+  ; 𝟙                    = ω
+  ; +-CommutativeMonoid  = +-CommutativeMonoid
+  ; ·-Monoid             = ·-Monoid
+  ; ∧-BoundedSemilattice = +-BoundedSemilattice
+  ; *-StarSemiring       = *-StarSemiring
+  ; ·-Zero               = ·-Zero
+  ; +-noInverse          = +-noInverse
+  ; ·Distr+              = ·Distr+
+  ; ·Distr∧              = ·Distr+
+  ; +Distr∧              = +Distr+
   }

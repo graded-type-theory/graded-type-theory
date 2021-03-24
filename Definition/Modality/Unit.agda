@@ -75,35 +75,28 @@ infixr 20 _+_
   ; comm     = +-Commutative
   }
 
-+-Band : IsBand _≡_ _+_
-+-Band = record
-  { isSemigroup = +-Semigroup
-  ; idem        = +-Idempotent
-  }
-
-+-Semilattice : IsSemilattice _≡_ _+_
-+-Semilattice = record
-  { isBand = +-Band
-  ; comm   = +-Commutative
++-BoundedSemilattice : IsBoundedLattice _≡_ _+_ tt
++-BoundedSemilattice = record
+  { isCommutativeMonoid = +-CommutativeMonoid
+  ; idem                = +-Idempotent
   }
 
 -- ⊤ form a modality with + as addition, multiplication and meet
 UnitModality : Modality ⊤
 UnitModality = record
-  { _+_                 = _+_
-  ; _·_                 = _+_
-  ; _∧_                 = _+_
-  ; _*                  = _*
-  ; 𝟘                   = tt
-  ; 𝟙                   = tt
-  ; +-CommutativeMonoid = +-CommutativeMonoid
-  ; ·-Monoid            = +-Monoid
-  ; ∧-Semilattice       = +-Semilattice
-  ; *-StarSemiring      = λ p → refl
-  ; ·-Zero              = (λ x → refl)    , (λ x → refl)
-  ; 𝟘-max               = λ p → refl
-  ; +-noInverse         = λ p q x → refl , refl
-  ; ·Distr+             = +-Distributiveˡ , +-Distributiveʳ
-  ; ·Distr∧             = +-Distributiveˡ , +-Distributiveʳ
-  ; +Distr∧             = +-Distributiveˡ , +-Distributiveʳ
+  { _+_                  = _+_
+  ; _·_                  = _+_
+  ; _∧_                  = _+_
+  ; _*                   = _*
+  ; 𝟘                    = tt
+  ; 𝟙                    = tt
+  ; +-CommutativeMonoid  = +-CommutativeMonoid
+  ; ·-Monoid             = +-Monoid
+  ; ∧-BoundedSemilattice = +-BoundedSemilattice
+  ; *-StarSemiring       = λ p → refl
+  ; ·-Zero               = (λ x → refl)    , (λ x → refl)
+  ; +-noInverse          = λ p q x → refl , refl
+  ; ·Distr+              = +-Distributiveˡ , +-Distributiveʳ
+  ; ·Distr∧              = +-Distributiveˡ , +-Distributiveʳ
+  ; +Distr∧              = +-Distributiveˡ , +-Distributiveʳ
   }
