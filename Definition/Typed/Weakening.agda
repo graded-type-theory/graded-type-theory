@@ -231,30 +231,29 @@ mutual
         ρu = PE.subst (λ x → _ ⊢ _ ∷ x) (wk-β G) ρu
     in  PE.subst (λ x → _ ⊢ _ ≡ _ ∷ x) (PE.sym (wk-β G))
       (Σ-β₂ ρF ρG ρt ρu)
-  wkEqTerm [ρ] ⊢Δ (prodrec-cong {A = A} ⊢F ⊢G t≡t′ ⊢A u≡u′) =
+  wkEqTerm [ρ] ⊢Δ (prodrec-cong {A = A} ⊢F ⊢G A≡A′ t≡t′ u≡u′) =
     let ρF = wk [ρ] ⊢Δ ⊢F
         ρG = wk (lift [ρ]) (⊢Δ ∙ ρF) ⊢G
     in  PE.subst (λ x → _ ⊢ prodrec _ _ _ _ ≡ _ ∷ x) (PE.sym (wk-β A))
-             (prodrec-cong ρF
-                           ρG
-                           (wkEqTerm [ρ] ⊢Δ t≡t′)
-                           (wk (lift [ρ]) (⊢Δ ∙ (Σⱼ ρF ▹ ρG)) ⊢A)
-                           (PE.subst (λ x → _ ⊢ _ ≡ _ ∷ x) (wk-β-prodrec _ A)
-                                     (wkEqTerm (lift (lift [ρ])) ((⊢Δ ∙ ρF) ∙ ρG) u≡u′)))
-  wkEqTerm {ρ = ρ} [ρ] ⊢Δ (prodrec-β {t = t} {t′ = t′} {u = u} {G = G} {A = A} ⊢F ⊢G ⊢t ⊢t′ ⊢A ⊢u) =
+                 (prodrec-cong ρF ρG
+                               (wkEq (lift [ρ]) (⊢Δ ∙ (Σⱼ ρF ▹ ρG)) A≡A′)
+                               (wkEqTerm [ρ] ⊢Δ t≡t′)
+                               (PE.subst (λ x → _ ⊢ _ ≡ _ ∷ x) (wk-β-prodrec _ A)
+                                         (wkEqTerm (lift (lift [ρ])) ((⊢Δ ∙ ρF) ∙ ρG) u≡u′)))
+  wkEqTerm {ρ = ρ} [ρ] ⊢Δ (prodrec-β {t = t} {t′ = t′} {u = u} {G = G} {A = A} ⊢F ⊢G ⊢A ⊢t ⊢t′ ⊢u) =
     let ρF = wk [ρ] ⊢Δ ⊢F
         ρG = wk (lift [ρ]) (⊢Δ ∙ ρF) ⊢G
+        ρA = wk (lift [ρ]) (⊢Δ ∙ (Σⱼ ρF ▹ ρG)) ⊢A
         ρt = wkTerm [ρ] ⊢Δ ⊢t
         ρt′ = PE.subst (λ x → _ ⊢ _ ∷ x) (wk-β G)
                        (wkTerm [ρ] ⊢Δ ⊢t′)
-        ρA = wk (lift [ρ]) (⊢Δ ∙ (Σⱼ ρF ▹ ρG)) ⊢A
         ρu = wkTerm (lift (lift [ρ])) ((⊢Δ ∙ ρF) ∙ ρG) ⊢u
     in  PE.subst (λ x → _ ⊢ prodrec _ _ _ _
                       ≡ U.wk ρ (subst (consSubst (consSubst var t) t′) u) ∷ x)
                  (PE.sym (wk-β A))
                  (PE.subst (λ x → _ ⊢ prodrec _ _ _ _ ≡ x ∷ _)
                            (PE.sym (wk-β-doubleSubst ρ u t′ t))
-                           (prodrec-β ρF ρG ρt ρt′ ρA
+                           (prodrec-β ρF ρG ρA ρt ρt′
                                       (PE.subst (λ x → (_ ∙ U.wk ρ _ ∙ U.wk (lift ρ) G)
                                                      ⊢ U.wk (lift (lift ρ)) u ∷ x)
                                       (wk-β-prodrec ρ A) ρu)))
