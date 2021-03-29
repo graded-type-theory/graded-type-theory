@@ -252,8 +252,8 @@ substₘ-lemma Ψ σ Ψ▶σ zeroₘ =  PE.subst (_▸ zero) (PE.sym (*>-zeroʳ 
 
 substₘ-lemma Ψ σ Ψ▶σ (sucₘ γ▸t) = sucₘ (substₘ-lemma Ψ σ Ψ▶σ γ▸t)
 
-substₘ-lemma {𝕄 = 𝕄} Ψ σ Ψ▶σ (natrecₘ {γ} {p = p} {r = r} {δ} γ▸z γ▸s δ▸n)
-  = subst₂ _▸_ eq refl (natrecₘ γ▸z′ γ▸s″ δ▸n′ )
+substₘ-lemma {𝕄 = 𝕄} Ψ σ Ψ▶σ (natrecₘ {γ} {p = p} {r = r} {δ} γ▸z γ▸s δ▸n r≤0)
+  = subst₂ _▸_ eq refl (natrecₘ γ▸z′ γ▸s″ δ▸n′ r≤0)
   where
   γ▸z′ = substₘ-lemma Ψ σ Ψ▶σ γ▸z
   γ▸s′ = substₘ-lemma (liftSubstₘ (liftSubstₘ Ψ)) (liftSubst (liftSubst σ)) (wf-liftSubstₘ (wf-liftSubstₘ Ψ▶σ)) γ▸s
@@ -279,6 +279,8 @@ substₘ-lemma {𝕄 = 𝕄} Ψ σ Ψ▶σ (natrecₘ {γ} {p = p} {r = r} {δ} 
 substₘ-lemma Ψ σ Ψ▶σ (Emptyrecₘ γ▸t) = Emptyrecₘ (substₘ-lemma Ψ σ Ψ▶σ γ▸t)
 substₘ-lemma Ψ σ Ψ▶σ starₘ           = PE.subst (_▸ star) (PE.sym (*>-zeroʳ Ψ)) starₘ
 substₘ-lemma Ψ σ Ψ▶σ (sub γ▸t x)     = sub (substₘ-lemma Ψ σ Ψ▶σ γ▸t) (*>-monotone Ψ x)
+
+
 
 sgSubstₘ-lemma : γ ∙ p ▸ t → δ ▸ u → (γ +ᶜ p ·ᶜ δ) ▸ t [ u ]
 sgSubstₘ-lemma {γ = γ} {p} {δ = δ} γ▸t δ▸u = subst₂ _▸_ eq refl

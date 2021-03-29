@@ -37,16 +37,10 @@ usagePresTerm γ▸t (snd-subst x x₁ t⇒u) with inv-usage-snd γ▸t
 ... | invUsageProj 𝟘▸t γ≤𝟘 = sub (sndₘ (usagePresTerm 𝟘▸t t⇒u)) γ≤𝟘
 usagePresTerm γ▸t′ (Σ-β₁ x x₁ x₂ x₃) with inv-usage-fst γ▸t′
 ... | invUsageProj 𝟘▸tu γ≤𝟘 with inv-usage-prod 𝟘▸tu
-... | invUsageProd {δ = δ} {η} δ▸t η▸u refl 𝟘≤δ+η = sub δ▸t
-  (subst₂ _≤ᶜ_ refl
-          (PE.sym (proj₁ (+ᶜ-noInverse δ η (≤ᶜ-antisymmetric 𝟘ᶜ-max 𝟘≤δ+η))))
-          γ≤𝟘)
+... | invUsageProd {δ = δ} {η} δ▸t η▸u refl 𝟘≤δ+η = sub δ▸t (≤ᶜ-transitive γ≤𝟘 (proj₁ (+ᶜ-Positive δ η 𝟘≤δ+η)))
 usagePresTerm γ▸u′ (Σ-β₂ x x₁ x₂ x₃) with inv-usage-snd γ▸u′
 ... | invUsageProj 𝟘▸tu γ≤𝟘 with inv-usage-prod 𝟘▸tu
-... | invUsageProd {δ = δ} {η} δ▸t η▸u refl 𝟘≤δ+η = sub η▸u
-  (subst₂ _≤ᶜ_ refl
-          (PE.sym (proj₂ (+ᶜ-noInverse δ η (≤ᶜ-antisymmetric 𝟘ᶜ-max 𝟘≤δ+η))))
-          γ≤𝟘)
+... | invUsageProd {δ = δ} {η} δ▸t η▸u refl 𝟘≤δ+η = sub η▸u (≤ᶜ-transitive γ≤𝟘 (proj₂ (+ᶜ-Positive δ η 𝟘≤δ+η)))
 usagePresTerm γ▸ptu (prodrec-subst x x₁ x₂ x₃ t⇒t′) with inv-usage-prodrec γ▸ptu
 ... | invUsageProdrec δ▸t η▸u γ≤pδ+η = sub (prodrecₘ (usagePresTerm δ▸t t⇒t′) η▸u) γ≤pδ+η
 usagePresTerm γ▸ptu (prodrec-β {p} x x₁ x₂ x₃ x₄ x₅) with inv-usage-prodrec γ▸ptu
@@ -61,25 +55,32 @@ usagePresTerm γ▸ptu (prodrec-β {p} x x₁ x₂ x₃ x₄ x₅) with inv-usag
        η +ᶜ p ·ᶜ δ′ +ᶜ p ·ᶜ η′ ≡⟨ cong₂ _+ᶜ_ refl (+ᶜ-comm (p ·ᶜ δ′) (p ·ᶜ η′)) ⟩
        η +ᶜ p ·ᶜ η′ +ᶜ p ·ᶜ δ′ ∎
 usagePresTerm γ▸natrec (natrec-subst x x₁ x₂ t⇒u) with inv-usage-natrec γ▸natrec
-... | invUsageNatrec δ▸z δ▸s η▸n γ≤γ′ = sub (natrecₘ δ▸z δ▸s (usagePresTerm η▸n t⇒u)) γ≤γ′
-usagePresTerm {𝕄 = 𝕄} γ▸natrec (natrec-zero {r = r} x x₁ x₂) with inv-usage-natrec γ▸natrec
-... | invUsageNatrec {δ = δ} δ▸z δ▸s η▸n γ≤γ′ = sub δ▸z
-  (≤ᶜ-transitive γ≤γ′
-    (subst₂ _≤ᶜ_ refl
-            (subst₂ _≡_ (PE.sym (·ᶜ-identityˡ (δ +ᶜ 𝟘ᶜ))) (+ᶜ-identityʳ δ) refl)
-            (·ᶜ-monotone₂ (+ᶜ-monotone₂ ≤ᶜ-reflexive 𝟘ᶜ-max)
-                          (subst₂ (Modality._≤_ 𝕄)
-                                  (PE.sym (Modality.*-StarSemiring 𝕄 r))
-                                  (proj₂ (Modality.+-Identity 𝕄) (Modality.𝟙 𝕄))
-                                  (+-monotone₂ {𝕄 = 𝕄} (≤-reflexive {𝕄 = 𝕄})
-                                               (Modality.𝟘-max 𝕄 ((𝕄 Modality.· r) (Modality._* 𝕄 r ))))))))
+... | invUsageNatrec δ▸z δ▸s η▸n r≤0 γ≤γ′ = sub (natrecₘ δ▸z δ▸s (usagePresTerm η▸n t⇒u) r≤0) γ≤γ′
+
+usagePresTerm {𝕄 = 𝕄} γ▸natrec (natrec-zero {p = p} {r = r} x x₁ x₂) with inv-usage-natrec γ▸natrec
+... | invUsageNatrec {δ = δ} δ▸z δ▸s η▸n r≤0 γ≤γ′ with inv-usage-zero η▸n
+... | η≤𝟘 = sub δ▸z (≤ᶜ-transitive γ≤γ′ (subst₂ _≤ᶜ_ (cong₂ _·ᶜ_ refl (+ᶜ-comm _ _)) eq γ′≤δ))
+  where
+  rr*≤0 = subst₂ (Modality._≤_ 𝕄) refl
+                 (proj₁ (Modality.·-Zero 𝕄) (Modality._* 𝕄 r))
+                 (·-monotoneʳ {𝕄 = 𝕄} r≤0)
+  r*≤1 = subst₂ (Modality._≤_ 𝕄)
+                (PE.sym (Modality.*-StarSemiring 𝕄 r))
+                (proj₂ (Modality.+-Identity 𝕄) (Modality.𝟙 𝕄))
+                (+-monotone₂ {𝕄 = 𝕄} (≤-reflexive {𝕄 = 𝕄}) rr*≤0)
+  γ′≤δ = ·ᶜ-monotone₂ (+ᶜ-monotone (·ᶜ-monotone η≤𝟘)) r*≤1
+  eq = begin
+     (Modality.𝟙 𝕄) ·ᶜ (p ·ᶜ 𝟘ᶜ +ᶜ δ) ≡⟨ ·ᶜ-identityˡ (p ·ᶜ 𝟘ᶜ +ᶜ δ) ⟩
+     p ·ᶜ 𝟘ᶜ +ᶜ δ                      ≡⟨ cong₂ _+ᶜ_ (·ᶜ-zeroʳ p) refl ⟩
+     𝟘ᶜ +ᶜ δ                           ≡⟨ +ᶜ-identityˡ δ ⟩
+     δ                                 ∎
+
 
 usagePresTerm {𝕄 = 𝕄} γ▸natrec (natrec-suc {p = p} {r = r} x x₁ x₂ x₃) with inv-usage-natrec γ▸natrec
-... | invUsageNatrec {δ = δ} {η} δ▸z δ▸s η▸sn γ≤γ′ with inv-usage-suc η▸sn
+... | invUsageNatrec {δ = δ} {η} δ▸z δ▸s η▸sn r≤0 γ≤γ′ with inv-usage-suc η▸sn
 ... | invUsageSuc {δ = η′} η′▸n η≤η′ = sub
-  (doubleSubstₘ-lemma δ▸s (natrecₘ δ▸z δ▸s η′▸n) η′▸n)
-  (≤ᶜ-transitive γ≤γ′ (subst₂ _≤ᶜ_ refl eq (·ᶜ-monotone
-    (+ᶜ-monotone₂ ≤ᶜ-reflexive (·ᶜ-monotone η≤η′)))))
+  (doubleSubstₘ-lemma δ▸s (natrecₘ δ▸z δ▸s η′▸n r≤0) η′▸n)
+  (≤ᶜ-transitive γ≤γ′ (subst₂ _≤ᶜ_ refl eq (·ᶜ-monotone (+ᶜ-monotone₂ ≤ᶜ-reflexive (·ᶜ-monotone η≤η′)))))
   where
   r* = Modality._* 𝕄 r
   eq = begin

@@ -113,11 +113,11 @@ Conₘ-interchange {𝕄 = 𝕄} (prodrecₘ {γ} {δ = δ} {p} γ▸t γ▸t₁
 Conₘ-interchange zeroₘ zeroₘ x           = subst₂ _▸_ (PE.sym (update-self 𝟘ᶜ x)) refl zeroₘ
 Conₘ-interchange (sucₘ γ▸t) (sucₘ δ▸t) x = sucₘ (Conₘ-interchange γ▸t δ▸t x)
 
-Conₘ-interchange {𝕄 = 𝕄} (natrecₘ {γ} {p} {r} {δ} γ▸t γ▸t₁ γ▸t₂)
-                     (natrecₘ {γ₁} {δ = δ₁} δ▸t δ▸t₁ δ▸t₂) x =
+Conₘ-interchange {𝕄 = 𝕄} (natrecₘ {γ} {p} {r} {δ} γ▸t γ▸t₁ γ▸t₂ r≤0)
+                     (natrecₘ {γ₁} {δ = δ₁} δ▸t δ▸t₁ δ▸t₂ r′≤0) x =
   subst₂ _▸_ eq refl
                 (natrecₘ (Conₘ-interchange γ▸t δ▸t x) (Conₘ-interchange γ▸t₁ δ▸t₁ (x +1 +1))
-                (Conₘ-interchange γ▸t₂ δ▸t₂ x))
+                (Conₘ-interchange γ▸t₂ δ▸t₂ x) r≤0)
   where
   r* = Modality._* 𝕄 r
   eq = begin
@@ -180,7 +180,7 @@ usage-upper-bound (prodrecₘ {γ} {δ = δ} {p} {u = u₁} t u) = +ᶜ-monotone
 usage-upper-bound zeroₘ    = ≤ᶜ-reflexive
 usage-upper-bound (sucₘ t) = usage-upper-bound t
 
-usage-upper-bound (natrecₘ {γ = γ} {p = p} {r = r} {s = s} x x₁ x₂) = ·ᶜ-monotone (+ᶜ-monotone₂
+usage-upper-bound (natrecₘ {γ = γ} {p = p} {r = r} {s = s} x x₁ x₂ x₃) = ·ᶜ-monotone (+ᶜ-monotone₂
   (subst₂ _≤ᶜ_ (∧ᶜ-Idempotent γ) refl (∧ᶜ-monotone₂ (usage-upper-bound x) eq))
   (·ᶜ-monotone (usage-upper-bound x₂)))
   where
@@ -256,7 +256,7 @@ usage-calc-term′ (sucⱼ Γ⊢t:ℕ) γ▸t  with inv-usage-suc γ▸t
 
 usage-calc-term′ {n = n} {𝕄 = 𝕄} (natrecⱼ {p = p} {r = r} {s = s} {z = z}
                  x Γ⊢z:G Γ⊢s:G Γ⊢n:ℕ) γ▸t with inv-usage-natrec γ▸t
-... | invUsageNatrec δ▸z δ▸s η▸n _ = natrecₘ
+... | invUsageNatrec δ▸z δ▸s η▸n r≤0 _ = natrecₘ
   (sub (usage-calc-term′ Γ⊢z:G δ▸z) (∧ᶜ-decreasingˡ ⌈ z ⌉ (tailₘ (tailₘ ⌈ s ⌉))))
   (sub (Conₘ-interchange (Conₘ-interchange
                          (usage-calc-term′ Γ⊢s:G δ▸s) δ▸s (x0 +1)) δ▸s x0)
@@ -264,6 +264,7 @@ usage-calc-term′ {n = n} {𝕄 = 𝕄} (natrecⱼ {p = p} {r = r} {s = s} {z =
                (cong₂ _∙_ (cong₂ _∙_ (∧ᶜ-decreasingʳ ⌈ z ⌉ (tailₘ (tailₘ ⌈ s ⌉)))
                       (≤-reflexive {𝕄 = 𝕄}) ) (≤-reflexive {𝕄 = 𝕄}))))
   (usage-calc-term′ Γ⊢n:ℕ η▸n)
+  r≤0
   where
   γs : Conₘ 𝕄 (1+ (1+ n))
   γs = ⌈ s ⌉
