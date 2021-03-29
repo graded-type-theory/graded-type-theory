@@ -477,8 +477,8 @@ wk-β-natrec ρ G = let G′ = G [ suc (var x0) ]↑ in
   where
     eq : ∀ z → var (wkVar (lift ρ) z) ≡
          (liftSubst (λ x → var (wkVar ρ x))) z
-    eq x0 = refl
-    eq (_+1 z) = refl
+    eq x0     = refl
+    eq (z +1) = refl
 
 
 -- A specific equation on eakenings used for the reduction of prodrec.
@@ -501,8 +501,8 @@ wk-β-prodrec ρ A =
         eq  : ∀ x
             → substVar (lift (lift ρ) •ₛ σₚ′) x
             ≡ substVar σₚ′ (wkVar (lift ρ) x)
-        eq x0 = refl
-        eq (_+1 x) = refl
+        eq x0     = refl
+        eq (x +1) = refl
 
 wk-β-doubleSubst : ∀ (ρ : Wk m n) (s : Term M (1+ (1+ n))) (t u : Term M n)
                  → wk ρ (s [ t ][ u ])
@@ -522,9 +522,9 @@ wk-β-doubleSubst ρ s t u =
     eq : ∀ x
        → substVar ((ρ •ₛ (σₜ t u))) x
        ≡ substVar (σₜ (wk ρ t) (wk ρ u)) (wkVar (lift (lift ρ)) x)
-    eq x0 = refl
-    eq (_+1 x0) = refl
-    eq (_+1 (_+1 x)) = refl
+    eq x0        = refl
+    eq (x0 +1)   = refl
+    eq (x +1 +1) = refl
 
 natrecSucCaseLemma : (x : Fin (1+ n))
   → (step id •ₛ consSubst (wk1Subst idSubst) (suc (var x0)) ₛ•ₛ liftSubst σ) x
@@ -536,17 +536,20 @@ natrecSucCaseLemma {σ = σ} (x +1) =
                              (wk≡subst (step (step id)) (σ x))))
 
 natrecSucCase : ∀ (σ : Subst M m n) F
-  → Π p , q ▷ ℕ ▹ (Π r , (Modality.𝟘 𝕄) ▷ subst (liftSubst σ) F
-                ▹ subst (liftSubst (liftSubst σ)) (wk1 (F [ suc (var x0) ]↑)))
-  ≡ Π p , q ▷ ℕ ▹ (𝕄 , r ▷ subst (liftSubst σ) F ▹▹ subst (liftSubst σ) F [ suc (var x0) ]↑)
-natrecSucCase {p = p} {q} {r} {𝕄} σ F =
-  cong₂ (Π p , q ▷_▹_) refl
-    (cong₂ (Π r , (Modality.𝟘 𝕄) ▷_▹_) refl
-       (trans (trans (subst-wk (F [ suc (var x0) ]↑))
-                           (substCompEq F))
-                 (sym (trans (wk-subst (subst (liftSubst σ) F))
-                                   (trans (substCompEq F)
-                                             (substVar-to-subst natrecSucCaseLemma F))))))
+              → subst (liftSubst (liftSubst σ)) (wk1 (F [ suc (var x0) ]↑))
+              ≡ wk1 (subst (liftSubst σ) F [ suc (var x0) ]↑)
+natrecSucCase σ F = let F′ = F [ suc (var x0) ]↑ in
+  begin
+  subst (liftSubst (liftSubst σ)) (wk (step id) F′) ≡⟨ subst-wk F′ ⟩
+  subst ((liftSubst (liftSubst σ)) ₛ• (step id)) F′ ≡⟨ substVar-to-subst eq F′ ⟩
+  subst (((step id)) •ₛ (liftSubst σ)) F′           ≡⟨ sym (wk-subst F′) ⟩
+  wk1 (subst (liftSubst σ) F′)                      ≡⟨ cong wk1 (singleSubstLift↑ σ F (suc (var x0))) ⟩
+  wk1 (subst (liftSubst σ) F [ suc (var x0) ]↑) ∎
+  where
+  eq : ∀ x → substVar ((liftSubst (liftSubst σ)) ₛ• (step id)) x
+           ≡ substVar (((step id)) •ₛ (liftSubst σ)) x
+  eq x0     = refl
+  eq (x +1) = refl
 
 natrecIrrelevantSubstLemma : ∀ p q F z s m (σ : Subst M ℓ n) (x : Fin (1+ n))
   → (sgSubst (natrec p q

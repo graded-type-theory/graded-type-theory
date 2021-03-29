@@ -49,6 +49,26 @@ substS {F = F} {G} {t} [Γ] [F] [G] [t] {σ = σ} ⊢Δ [σ] =
                                      ([σ′] , proj₁ ([t] ⊢Δ [σ′]))
                                      (([σ≡σ′] , (proj₂ ([t] ⊢Δ [σ]) [σ′] [σ≡σ′])))))
 
+-- Validity of substitution of single variable in types.
+-- substS₂ : ∀ {F G H t u l} ([Γ] : ⊩ᵛ Γ)
+--          ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
+--          ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
+--          ([H] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ H / [Γ] ∙ [F] ∙ [G])
+--          ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ F / [Γ] / [F])
+--          ([u] : Γ ∙ F ⊩ᵛ⟨ l ⟩ u ∷ G / [Γ] ∙ [F] / [G])
+--        → Γ ⊩ᵛ⟨ l ⟩ H [ t ][ u ] / [Γ]
+-- substS₂ {F = F} {G} {H} {t} {u} [Γ] [F] [G] [H] [t] [u] {σ = σ} ⊢Δ [σ] =
+--   let Geq = substConsId G
+--       G[t] = proj₁ ([G] ⊢Δ ([σ] , proj₁ ([t] ⊢Δ [σ])))
+--       G[t]′ = irrelevance′ Geq G[t]
+--       Heq = substConsId H
+--       [σ]′ = {!!}
+--       H[u][t] = {!!}
+--       -- proj₁ ([H] ⊢Δ ({!!} , (proj₁ ([u] ⊢Δ ({!!} , (proj₁ ([t] ⊢Δ [σ])))))))
+--       H[u][t]′ = irrelevance′ Heq H[u][t]
+--   in  {!H[u][t]′!} , {!!}
+
+
 -- Validity of substitution of single variable in type equality.
 substSEq : ∀ {F F′ G G′ t t′ l} ([Γ] : ⊩ᵛ Γ)
            ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
