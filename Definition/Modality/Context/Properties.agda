@@ -14,7 +14,7 @@ open import Tools.PropositionalEquality
 
 private
   variable
-    n : Nat
+    n m : Nat
     M : Set
     𝕄 : Modality M
     p q : M
@@ -119,13 +119,13 @@ private
   (+ᶜ-comm γ δ)
   (Modality.+-Commutative 𝕄 p q)
 
-+ᶜ-noInverse : (γ δ : Conₘ 𝕄 n) → γ +ᶜ δ ≡ 𝟘ᶜ → γ ≡ 𝟘ᶜ × δ ≡ 𝟘ᶜ
-+ᶜ-noInverse ε ε eq = refl , refl
-+ᶜ-noInverse {𝕄 = 𝕄} (γ ∙ p) (δ ∙ q) eq =
-  cong₂ _∙_ (proj₁ γ+δ=0) (proj₁ p+q=0) , cong₂ _∙_ (proj₂ γ+δ=0) (proj₂ p+q=0)
++ᶜ-Positive : (γ δ : Conₘ 𝕄 n) → 𝟘ᶜ ≤ᶜ γ +ᶜ δ → 𝟘ᶜ ≤ᶜ γ × 𝟘ᶜ ≤ᶜ δ
++ᶜ-Positive ε ε eq = refl , refl
++ᶜ-Positive {𝕄 = 𝕄} (γ ∙ p) (δ ∙ q) eq =
+  cong₂ _∙_ (proj₁ 0≤γ+δ) (proj₁ 0≤p+q) , cong₂ _∙_ (proj₂ 0≤γ+δ) (proj₂ 0≤p+q)
   where
-  γ+δ=0 = +ᶜ-noInverse γ δ (cong tailₘ eq)
-  p+q=0 = Modality.+-noInverse 𝕄 p q (cong headₘ eq)
+  0≤γ+δ = +ᶜ-Positive γ δ (cong tailₘ eq)
+  0≤p+q = Modality.+-Positive 𝕄 p q (cong headₘ eq)
 
 -- Properties of ∧ᶜ
 
@@ -150,7 +150,7 @@ private
 
 -- Properties of ≤ᶜ
 
--- ≤ᶜ forms a parital order with 𝟘ᶜ as greatest element
+-- ≤ᶜ forms a parital order
 
 ≤ᶜ-reflexive : {γ : Conₘ 𝕄 n} → γ ≤ᶜ γ
 ≤ᶜ-reflexive {γ = ε} = refl
@@ -167,10 +167,6 @@ private
 ≤ᶜ-antisymmetric {𝕄 = 𝕄} {γ = γ ∙ p} {δ ∙ q} x y = cong₂ _∙_
   (≤ᶜ-antisymmetric (cong tailₘ x) (cong tailₘ y))
   (≤-antisymmetric {𝕄 = 𝕄} (cong headₘ x) (cong headₘ y))
-
-𝟘ᶜ-max : {γ : Conₘ 𝕄 n} → γ ≤ᶜ 𝟘ᶜ
-𝟘ᶜ-max {γ = ε} = refl
-𝟘ᶜ-max {𝕄 = 𝕄} {γ = γ ∙ p} = cong₂ _∙_ 𝟘ᶜ-max (Modality.𝟘-max 𝕄 p)
 
 -- +ᶜ, ∧ᶜ and ·ᶜ are monotone with regards to ≤ᶜ
 
@@ -265,7 +261,24 @@ insertAt-distrib-+ᶜ-𝟘 {𝕄 = 𝕄} n γ δ = begin
 insertAt-distrib-·ᶜ : {𝕄 : Modality M} {m : Nat} (n : Nat) (γ δ : Conₘ 𝕄 (n + m)) (p q : M)
                     → p ·ᶜ insertAt n γ q ≡ insertAt n (p ·ᶜ γ) (Modality._·_ 𝕄 p q)
 insertAt-distrib-·ᶜ 0 γ δ p q = refl
-insertAt-distrib-·ᶜ (1+ n) (γ ∙ p′) (δ ∙ q′) p q = cong₂ _∙_ (insertAt-distrib-·ᶜ n γ δ p q) refl
+insertAt-distrib-·ᶜ (1+ n) (γ ∙ p′) (δ ∙ q′) p q = cong₂ _∙_
+  (insertAt-distrib-·ᶜ n γ δ p q) refl
+
+insertAt-distrib-∧ᶜ : {𝕄 : Modality M} (n : Nat) (γ δ : Conₘ 𝕄 (n + m)) (p q : M)
+                    → insertAt n γ p ∧ᶜ insertAt n δ q ≡ insertAt n (γ ∧ᶜ δ) (Modality._∧_ 𝕄 p q)
+insertAt-distrib-∧ᶜ 0 γ δ p q = refl
+insertAt-distrib-∧ᶜ (1+ n) (γ ∙ p′) (δ ∙ q′) p q = cong₂ _∙_
+  (insertAt-distrib-∧ᶜ n γ δ p q) refl
+
+insertAt-distrib-∧ᶜ-𝟘 : (n : Nat) (γ δ : Conₘ 𝕄 (n + m))
+                      → insertAt n γ (Modality.𝟘 𝕄) ∧ᶜ insertAt n δ (Modality.𝟘 𝕄)
+                      ≡ insertAt n (γ ∧ᶜ δ) (Modality.𝟘 𝕄)
+insertAt-distrib-∧ᶜ-𝟘 {𝕄 = 𝕄} n γ δ = begin
+  insertAt n γ (Modality.𝟘 𝕄) ∧ᶜ insertAt n δ (Modality.𝟘 𝕄)
+    ≡⟨ insertAt-distrib-∧ᶜ n γ δ (Modality.𝟘 𝕄) (Modality.𝟘 𝕄) ⟩
+  insertAt n (γ ∧ᶜ δ) ((𝕄 Modality.∧ Modality.𝟘 𝕄) (Modality.𝟘 𝕄))
+    ≡⟨ cong (insertAt n (γ ∧ᶜ δ)) (Modality.∧-Idempotent 𝕄 (Modality.𝟘 𝕄)) ⟩
+  insertAt n (γ ∧ᶜ δ) (Modality.𝟘 𝕄) ∎
 
 insertAt-monotone : {𝕄 : Modality M} {m : Nat} (n : Nat) (γ δ : Conₘ 𝕄 (n + m)) (p q : M)
                   → γ ≤ᶜ δ → Modality._≤_ 𝕄 p q → insertAt n γ p ≤ᶜ insertAt n δ q
@@ -340,4 +353,3 @@ update-head (γ ∙ q) p = refl
 update-step : {𝕄 : Modality M} (γ : Conₘ 𝕄 (1+ n)) (p : M) (x : Fin n)
             → γ , (x +1) ≔ p ≡ (tailₘ γ , x ≔ p) ∙ headₘ γ
 update-step (γ ∙ q) p x = refl
-

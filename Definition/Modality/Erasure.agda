@@ -24,6 +24,8 @@ _∧_ = _+_
 _* : Op₁ Erasure
 x * = ω
 
+_≤_ : (p q : Erasure) → Set
+p ≤ q = p ≡ p ∧ q
 
 -- Properties of addition (and meet)
 
@@ -54,11 +56,11 @@ x * = ω
 +-Identity : Identity _≡_ 𝟘 _+_
 +-Identity = +-LeftIdentity , +-RightIdentity
 
-+-noInverse : (p q : Erasure) → p + q ≡ 𝟘 → p ≡ 𝟘 × q ≡ 𝟘
-+-noInverse 𝟘 𝟘 refl = refl , refl
-+-noInverse 𝟘 ω ()
-+-noInverse ω 𝟘 ()
-+-noInverse ω ω ()
++-Positive : (p q : Erasure) → 𝟘 ≤ (p + q) → 𝟘 ≤ p × 𝟘 ≤ q
++-Positive 𝟘 𝟘 refl = refl , refl
++-Positive 𝟘 ω ()
++-Positive ω 𝟘 ()
++-Positive ω ω ()
 
 
 -- Properties of multiplication
@@ -150,10 +152,16 @@ x * = ω
   ; comm     = +-Commutative
   }
 
-+-BoundedSemilattice : IsBoundedLattice _≡_ _+_ 𝟘
-+-BoundedSemilattice = record
-  { isCommutativeMonoid = +-CommutativeMonoid
-  ; idem                = +-Idempotent
++-Band : IsBand _≡_ _+_
++-Band = record
+  { isSemigroup = +-Semigroup
+  ; idem        = +-Idempotent
+  }
+
++-Semilattice : IsSemilattice _≡_ _+_
++-Semilattice = record
+  { isBand = +-Band
+  ; comm   = +-Commutative
   }
 
 -- Multiplication forms the following algebras
@@ -184,10 +192,10 @@ ErasureModality = record
   ; 𝟙                    = ω
   ; +-CommutativeMonoid  = +-CommutativeMonoid
   ; ·-Monoid             = ·-Monoid
-  ; ∧-BoundedSemilattice = +-BoundedSemilattice
+  ; ∧-Semilattice        = +-Semilattice
   ; *-StarSemiring       = *-StarSemiring
   ; ·-Zero               = ·-Zero
-  ; +-noInverse          = +-noInverse
+  ; +-Positive           = +-Positive
   ; ·Distr+              = ·Distr+
   ; ·Distr∧              = ·Distr+
   ; +Distr∧              = +Distr+

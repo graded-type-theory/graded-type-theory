@@ -25,15 +25,20 @@ record Modality (M : Set) : Set where
     +-CommutativeMonoid : IsCommutativeMonoid _≡_ _+_ 𝟘
     -- · forms a monoid with 𝟙 as unit element
     ·-Monoid            : IsMonoid _≡_ _·_ 𝟙
-    -- ∧ forms a bounded semilattice with 𝟘 as identity
-    ∧-BoundedSemilattice       : IsBoundedLattice _≡_ _∧_ 𝟘
+    -- ∧ forms a semilattice
+    ∧-Semilattice       : IsSemilattice _≡_ _∧_
     -- * forms a star semiring
     *-StarSemiring      : (p : M) → p * ≡ 𝟙 + (p · (p *))
 
+  -- Semilattice partial ordering relation
+  _≤_ : M → M → Set
+  p ≤ q = p ≡ (p ∧ q)
+
+  field
     -- 𝟘 is zero for multiplication
     ·-Zero              : Zero _≡_ 𝟘 _·_
-    -- There are no additive inverses (except 𝟘)
-    +-noInverse         : (p q : M) → p + q ≡ 𝟘 → p ≡ 𝟘 × q ≡ 𝟘
+    -- The semiring is positive
+    +-Positive          : (p q : M) → 𝟘 ≤ (p + q) → 𝟘 ≤ p × 𝟘 ≤ q
 
     -- Multiplication distributes over addition
     ·Distr+             : _DistributesOver_ _≡_ _·_ _+_
@@ -42,35 +47,28 @@ record Modality (M : Set) : Set where
     -- Addition distributes over meet
     +Distr∧             : _DistributesOver_ _≡_ _+_ _∧_
 
-  -- Semilattice partial ordering relation
-  _≤_ : M → M → Set
-  p ≤ q = p ≡ (p ∧ q)
 
   -- Easier access to some operator properties
   +-Commutative : Commutative _≡_ _+_
   +-Commutative = IsCommutativeMonoid.comm +-CommutativeMonoid
 
   +-Associative : Associative _≡_ _+_
-  +-Associative = IsSemigroup.assoc (IsMonoid.isSemigroup
-                    (IsCommutativeMonoid.isMonoid +-CommutativeMonoid))
+  +-Associative = IsCommutativeMonoid.assoc +-CommutativeMonoid
 
   +-Identity : Identity _≡_ 𝟘 _+_
-  +-Identity = IsMonoid.identity (IsCommutativeMonoid.isMonoid +-CommutativeMonoid)
+  +-Identity = IsCommutativeMonoid.identity +-CommutativeMonoid
 
   ·-Associative : Associative _≡_ _·_
-  ·-Associative = IsSemigroup.assoc (IsMonoid.isSemigroup ·-Monoid)
+  ·-Associative = IsMonoid.assoc ·-Monoid
 
   ·-Identity : Identity _≡_ 𝟙 _·_
-  ·-Identity = (IsMonoid.identity ·-Monoid)
+  ·-Identity = IsMonoid.identity ·-Monoid
 
   ∧-Commutative : Commutative _≡_ _∧_
-  ∧-Commutative = IsBoundedLattice.comm _≡_ ∧-BoundedSemilattice
+  ∧-Commutative = IsSemilattice.comm ∧-Semilattice
 
   ∧-Associative : Associative _≡_ _∧_
-  ∧-Associative = IsBoundedLattice.assoc _≡_ ∧-BoundedSemilattice
+  ∧-Associative = IsSemilattice.assoc ∧-Semilattice
 
   ∧-Idempotent : Idempotent _≡_ _∧_
-  ∧-Idempotent = IsBoundedLattice.idem ∧-BoundedSemilattice
-
-  𝟘-max : (p : M) → p ≤ 𝟘
-  𝟘-max p = sym (proj₂ (IsBoundedLattice.identity _≡_ ∧-BoundedSemilattice) p)
+  ∧-Idempotent = IsSemilattice.idem ∧-Semilattice

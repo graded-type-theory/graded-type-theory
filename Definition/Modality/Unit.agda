@@ -75,10 +75,16 @@ infixr 20 _+_
   ; comm     = +-Commutative
   }
 
-+-BoundedSemilattice : IsBoundedLattice _≡_ _+_ tt
-+-BoundedSemilattice = record
-  { isCommutativeMonoid = +-CommutativeMonoid
-  ; idem                = +-Idempotent
++-Band : IsBand _≡_ _+_
++-Band = record
+  { isSemigroup = +-Semigroup
+  ; idem        = +-Idempotent
+  }
+
++-Semilattice : IsSemilattice _≡_ _+_
++-Semilattice = record
+  { isBand = +-Band
+  ; comm   = +-Commutative
   }
 
 -- ⊤ form a modality with + as addition, multiplication and meet
@@ -92,10 +98,10 @@ UnitModality = record
   ; 𝟙                    = tt
   ; +-CommutativeMonoid  = +-CommutativeMonoid
   ; ·-Monoid             = +-Monoid
-  ; ∧-BoundedSemilattice = +-BoundedSemilattice
+  ; ∧-Semilattice        = +-Semilattice
   ; *-StarSemiring       = λ p → refl
   ; ·-Zero               = (λ x → refl)    , (λ x → refl)
-  ; +-noInverse          = λ p q x → refl , refl
+  ; +-Positive           = λ p q x → refl , refl
   ; ·Distr+              = +-Distributiveˡ , +-Distributiveʳ
   ; ·Distr∧              = +-Distributiveˡ , +-Distributiveʳ
   ; +Distr∧              = +-Distributiveˡ , +-Distributiveʳ
