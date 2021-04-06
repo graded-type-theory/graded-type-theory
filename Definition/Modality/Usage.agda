@@ -3,12 +3,10 @@ module Definition.Modality.Usage where
 
 open import Definition.Modality
 open import Definition.Modality.Context
-open import Definition.Modality.Context.Properties
 open import Definition.Untyped
 
 open import Tools.Fin
 open import Tools.Nat
-open import Tools.Product
 open import Tools.PropositionalEquality as PE
 
 private

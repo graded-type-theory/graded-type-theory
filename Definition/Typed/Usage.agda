@@ -21,7 +21,8 @@ private
     n : Nat
     M : Set
 
--- Reduction preserves resource usage
+-- Term reduction preserves resource usage
+-- If γ ▸ t and Γ ⊢ t ⇒ u ∷ A, then γ ▸ u
 
 usagePresTerm : {𝕄 : Modality M} {γ : Conₘ 𝕄 n} {Γ : Con (Term M) n} {t u A : Term M n}
               → γ ▸ t → Γ ⊢ t ⇒ u ∷ A → γ ▸ u
@@ -30,7 +31,7 @@ usagePresTerm γ▸t (app-subst t⇒u x) with inv-usage-app γ▸t
 ... | invUsageApp δ▸t η▸a γ≤δ+pη = sub ((usagePresTerm δ▸t t⇒u) ∘ₘ η▸a) γ≤δ+pη
 usagePresTerm γ▸λta (β-red x x₁ x₂ refl) with inv-usage-app γ▸λta
 ... | invUsageApp δ▸λt η▸a γ≤δ′+pη with inv-usage-lam δ▸λt
-... | invUsageLam δ▸t δ′≤δ = sub (sgSubstₘ-lemma δ▸t η▸a) (≤ᶜ-transitive γ≤δ′+pη (+ᶜ-monotone δ′≤δ))
+... | invUsageLam δ▸t δ′≤δ = sub (sgSubstₘ-lemma δ▸t η▸a) (≤ᶜ-transitive γ≤δ′+pη (+ᶜ-monotoneˡ δ′≤δ))
 usagePresTerm γ▸t (fst-subst x x₁ t⇒u) with inv-usage-fst γ▸t
 ... | invUsageProj 𝟘▸t γ≤𝟘 = sub (fstₘ (usagePresTerm 𝟘▸t t⇒u)) γ≤𝟘
 usagePresTerm γ▸t (snd-subst x x₁ t⇒u) with inv-usage-snd γ▸t
@@ -47,7 +48,7 @@ usagePresTerm γ▸ptu (prodrec-β {p} x x₁ x₂ x₃ x₄ x₅) with inv-usag
 ... | invUsageProdrec {δ} {η} δ▸tt′ η▸u γ≤pδ+η with inv-usage-prod δ▸tt′
 ... | invUsageProd {δ = δ′} {η = η′} δ′▸t η′▸t′ refl δ≤δ′+η′ = sub
   (doubleSubstₘ-lemma η▸u η′▸t′ δ′▸t)
-  (≤ᶜ-transitive γ≤pδ+η (subst₂ _≤ᶜ_ refl eq (+ᶜ-monotone (·ᶜ-monotone δ≤δ′+η′))))
+  (≤ᶜ-transitive γ≤pδ+η (subst₂ _≤ᶜ_ refl eq (+ᶜ-monotoneˡ (·ᶜ-monotoneʳ δ≤δ′+η′))))
     where
     eq = begin
        p ·ᶜ (δ′ +ᶜ η′) +ᶜ η    ≡⟨ +ᶜ-comm (p ·ᶜ (δ′ +ᶜ η′)) η ⟩
@@ -63,12 +64,12 @@ usagePresTerm {𝕄 = 𝕄} γ▸natrec (natrec-zero {p = p} {r = r} x x₁ x₂
   where
   rr*≤0 = subst₂ (Modality._≤_ 𝕄) refl
                  (proj₁ (Modality.·-Zero 𝕄) (Modality._* 𝕄 r))
-                 (·-monotoneʳ {𝕄 = 𝕄} r≤0)
+                 (·-monotoneˡ {𝕄 = 𝕄} r≤0)
   r*≤1 = subst₂ (Modality._≤_ 𝕄)
                 (PE.sym (Modality.*-StarSemiring 𝕄 r))
                 (proj₂ (Modality.+-Identity 𝕄) (Modality.𝟙 𝕄))
-                (+-monotone₂ {𝕄 = 𝕄} (≤-reflexive {𝕄 = 𝕄}) rr*≤0)
-  γ′≤δ = ·ᶜ-monotone₂ (+ᶜ-monotone (·ᶜ-monotone η≤𝟘)) r*≤1
+                (+-monotone {𝕄 = 𝕄} (≤-reflexive {𝕄 = 𝕄}) rr*≤0)
+  γ′≤δ = ·ᶜ-monotone (+ᶜ-monotoneˡ (·ᶜ-monotoneʳ η≤𝟘)) r*≤1
   eq = begin
      (Modality.𝟙 𝕄) ·ᶜ (p ·ᶜ 𝟘ᶜ +ᶜ δ) ≡⟨ ·ᶜ-identityˡ (p ·ᶜ 𝟘ᶜ +ᶜ δ) ⟩
      p ·ᶜ 𝟘ᶜ +ᶜ δ                      ≡⟨ cong₂ _+ᶜ_ (·ᶜ-zeroʳ p) refl ⟩
@@ -80,7 +81,7 @@ usagePresTerm {𝕄 = 𝕄} γ▸natrec (natrec-suc {p = p} {r = r} x x₁ x₂ 
 ... | invUsageNatrec {δ = δ} {η} δ▸z δ▸s η▸sn r≤0 γ≤γ′ with inv-usage-suc η▸sn
 ... | invUsageSuc {δ = η′} η′▸n η≤η′ = sub
   (doubleSubstₘ-lemma δ▸s (natrecₘ δ▸z δ▸s η′▸n r≤0) η′▸n)
-  (≤ᶜ-transitive γ≤γ′ (subst₂ _≤ᶜ_ refl eq (·ᶜ-monotone (+ᶜ-monotone₂ ≤ᶜ-reflexive (·ᶜ-monotone η≤η′)))))
+  (≤ᶜ-transitive γ≤γ′ (subst₂ _≤ᶜ_ refl eq (·ᶜ-monotoneʳ (+ᶜ-monotone ≤ᶜ-reflexive (·ᶜ-monotoneʳ η≤η′)))))
   where
   r* = Modality._* 𝕄 r
   eq = begin
@@ -93,6 +94,9 @@ usagePresTerm {𝕄 = 𝕄} γ▸natrec (natrec-suc {p = p} {r = r} x x₁ x₂ 
      _ ∎
 usagePresTerm γ▸et (Emptyrec-subst x t⇒u) with inv-usage-Emptyrec γ▸et
 ... | invUsageEmptyrec δ▸t γ≤δ = sub (Emptyrecₘ (usagePresTerm δ▸t t⇒u)) γ≤δ
+
+-- Type reduction preserves modality usage
+-- If γ ▸ A and Γ ⊢ A ⇒ B, then γ ▸ B
 
 usagePres : {𝕄 : Modality M} {γ : Conₘ 𝕄 n} {Γ : Con (Term M) n} {A B : Term M n}
           → γ ▸ A → Γ ⊢ A ⇒ B → γ ▸ B

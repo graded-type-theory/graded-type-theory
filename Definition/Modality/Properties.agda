@@ -11,52 +11,67 @@ private
   variable
     M : Set
     𝕄 : Modality M
-    p q : M
+    p p′ q q′ r : M
 
-≤-reflexive : {𝕄 : Modality M} {p : M} → Modality._≤_ 𝕄 p p
+-- ≤ is reflexive
+-- p ≤ p
+
+≤-reflexive : Modality._≤_ 𝕄 p p
 ≤-reflexive {𝕄 = 𝕄} {p} = sym (Modality.∧-Idempotent 𝕄 p)
 
-≤-transitive : {𝕄 : Modality M} {p q r : M}
-             → Modality._≤_ 𝕄 p q → Modality._≤_ 𝕄 q r
-             → Modality._≤_ 𝕄 p r
+-- ≤ is transitive
+-- If p ≤ q and q ≤ r then p ≤ r
+
+≤-transitive : Modality._≤_ 𝕄 p q → Modality._≤_ 𝕄 q r → Modality._≤_ 𝕄 p r
 ≤-transitive {𝕄 = 𝕄} {p} {q} {r} x y = subst₂ _≡_
   (subst (_≡ p) (cong₂ (Modality._∧_ 𝕄) refl y) (sym x))
   (cong₂ (Modality._∧_ 𝕄) (sym x) refl)
   (sym (Modality.∧-Associative 𝕄 p q r))
 
-≤-antisymmetric : {𝕄 : Modality M} {p q : M} → Modality._≤_ 𝕄 p q
-                → Modality._≤_ 𝕄 q p → p ≡ q
+-- ≤ is antisymmetric
+-- If p ≤ q and q ≤ p then p ≡ q
+
+≤-antisymmetric : Modality._≤_ 𝕄 p q → Modality._≤_ 𝕄 q p → p ≡ q
 ≤-antisymmetric {𝕄 = 𝕄} {p} {q} x y = subst₂ _≡_
   (subst (_≡ p) (Modality.∧-Commutative 𝕄 p q) (sym x))
   (sym y)
   refl
 
-+-monotone : {𝕄 : Modality M} {p q r : M}
-           → Modality._≤_ 𝕄 p q
-           → Modality._≤_ 𝕄 (Modality._+_ 𝕄 p r) (Modality._+_ 𝕄 q r)
-+-monotone {𝕄 = 𝕄} {p} {q} {r} x = subst₂ _≡_
-  (cong₂ (Modality._+_ 𝕄) (sym x) refl)
+-- Addition on the left is a monotone function
+-- If p ≤ q then p + r ≤ q + r
+
++-monotoneˡ : Modality._≤_ 𝕄 p q → Modality._≤_ 𝕄 (Modality._+_ 𝕄 p r) (Modality._+_ 𝕄 q r)
++-monotoneˡ {𝕄 = 𝕄} {p} {q} {r} p≤q = subst₂ _≡_
+  (cong₂ (Modality._+_ 𝕄) (sym p≤q) refl)
   (proj₂ (Modality.+Distr∧ 𝕄) r p q)
   refl
 
-+-monotone₂ : {𝕄 : Modality M} {p p′ q q′ : M}
-            → Modality._≤_ 𝕄 p p′
-            → Modality._≤_ 𝕄 q q′
-            → Modality._≤_ 𝕄 (Modality._+_ 𝕄 p q) (Modality._+_ 𝕄 p′ q′)
-+-monotone₂ {𝕄 = 𝕄} {p = p} {p′} {q} {q′} x y = ≤-transitive {𝕄 = 𝕄}
-            (+-monotone {𝕄 = 𝕄} x)
-            (subst₂ (Modality._≤_ 𝕄)
-                    (Modality.+-Commutative 𝕄 q p′)
-                    (Modality.+-Commutative 𝕄 q′ p′)
-                    (+-monotone {𝕄 = 𝕄} y)
-            )
+-- Addition on the right is a monotone function
+-- If p ≤ q then r + p ≤ r + q
 
-∧-monotone : {𝕄 : Modality M} {p q r : M}
-           → Modality._≤_ 𝕄 p q
-           → Modality._≤_ 𝕄 (Modality._∧_ 𝕄 p r) (Modality._∧_ 𝕄 q r)
-∧-monotone {𝕄 = 𝕄} {p} {q} {r} x = begin
++-monotoneʳ : Modality._≤_ 𝕄 p q → Modality._≤_ 𝕄 (Modality._+_ 𝕄 r p) (Modality._+_ 𝕄 r q)
++-monotoneʳ {𝕄 = 𝕄} {p} {q} {r} p≤q = subst₂ _≡_
+  (cong₂ (Modality._+_ 𝕄) refl (sym p≤q))
+  (proj₁ (Modality.+Distr∧ 𝕄) r p q)
+  refl
+
+-- Addition is a monotone function
+-- If p ≤ p′ and q ≤ q′ then p + q ≤ p′ + q′
+
++-monotone : Modality._≤_ 𝕄 p p′ → Modality._≤_ 𝕄 q q′
+           → Modality._≤_ 𝕄 (Modality._+_ 𝕄 p q) (Modality._+_ 𝕄 p′ q′)
++-monotone {𝕄 = 𝕄} p≤p′ q≤q′ = ≤-transitive {𝕄 = 𝕄}
+            (+-monotoneˡ {𝕄 = 𝕄} p≤p′)
+            (+-monotoneʳ {𝕄 = 𝕄} q≤q′)
+
+-- Meet on the left is a monotone function
+-- If p ≤ q then p ∧ r ≤ q ∧ r
+
+∧-monotoneˡ : Modality._≤_ 𝕄 p q
+            → Modality._≤_ 𝕄 (Modality._∧_ 𝕄 p r) (Modality._∧_ 𝕄 q r)
+∧-monotoneˡ {𝕄 = 𝕄} {p} {q} {r} p≤q = begin
   Modality._∧_ 𝕄 p r
-    ≡⟨ cong₂ (Modality._∧_ 𝕄) x (sym (Modality.∧-Idempotent 𝕄 r)) ⟩
+    ≡⟨ cong₂ (Modality._∧_ 𝕄) p≤q (sym (Modality.∧-Idempotent 𝕄 r)) ⟩
   (𝕄 Modality.∧ ((𝕄 Modality.∧ p) q)) (Modality._∧_ 𝕄 r r)
     ≡⟨ Modality.∧-Associative 𝕄 p q (Modality._∧_ 𝕄 r r) ⟩
   (𝕄 Modality.∧ p) ((𝕄 Modality.∧ q) ((𝕄 Modality.∧ r) r))
@@ -69,44 +84,59 @@ private
      ≡⟨ cong₂ (Modality._∧_ 𝕄) refl (Modality.∧-Commutative 𝕄 r q) ⟩
    (Modality._∧_ 𝕄  (Modality._∧_ 𝕄 p r) (Modality._∧_ 𝕄 q r)) ∎
 
-∧-monotone₂ : {𝕄 : Modality M} {p q p′ q′ : M}
-            → Modality._≤_ 𝕄 p p′
-            → Modality._≤_ 𝕄 q q′
-            → Modality._≤_ 𝕄 (Modality._∧_ 𝕄 p q) (Modality._∧_ 𝕄 p′ q′)
-∧-monotone₂ {𝕄 = 𝕄} {p} {q} {p′} {q′} x y = begin
-  Modality._∧_ 𝕄 p q
-    ≡⟨ cong₂ (Modality._∧_ 𝕄) x y ⟩
-  (𝕄 Modality.∧ ((𝕄 Modality.∧ p) p′)) ((𝕄 Modality.∧ q) q′)
-    ≡⟨ Modality.∧-Associative 𝕄 p p′ (Modality._∧_ 𝕄 q q′) ⟩
-  (𝕄 Modality.∧ p) ((𝕄 Modality.∧ p′) ((𝕄 Modality.∧ q) q′))
-    ≡⟨ cong₂ (Modality._∧_ 𝕄) refl (Modality.∧-Commutative 𝕄 p′ (Modality._∧_ 𝕄 q q′)) ⟩
-  Modality._∧_ 𝕄 p ((𝕄 Modality.∧ (Modality._∧_ 𝕄 q q′)) p′)
-    ≡⟨ cong₂ (Modality._∧_ 𝕄) refl (Modality.∧-Associative 𝕄 q q′ p′) ⟩
-  Modality._∧_ 𝕄 p (Modality._∧_ 𝕄 q (Modality._∧_ 𝕄 q′ p′))
-    ≡⟨ sym (Modality.∧-Associative 𝕄 p q (Modality._∧_ 𝕄 q′ p′)) ⟩
-  Modality._∧_ 𝕄 (Modality._∧_ 𝕄 p q) (Modality._∧_ 𝕄 q′ p′)
-    ≡⟨ cong₂ (Modality._∧_ 𝕄) refl (Modality.∧-Commutative 𝕄 q′ p′) ⟩
-  (Modality._∧_ 𝕄 (Modality._∧_ 𝕄 p q) (Modality._∧_ 𝕄 p′ q′)) ∎
+-- Meet on the right is a monotone function
+-- If p ≤ q then r ∧ p ≤ r ∧ q
 
-·-monotoneˡ : {𝕄 : Modality M} {p q r : M}
-           → Modality._≤_ 𝕄 p q
-           → Modality._≤_ 𝕄 (Modality._·_ 𝕄 r p) (Modality._·_ 𝕄 r q)
-·-monotoneˡ {𝕄 = 𝕄} {p = p} {q} {r} x = subst₂ _≡_
-  (cong₂ (Modality._·_ 𝕄) refl (sym x))
-  (proj₁ (Modality.·Distr∧ 𝕄) r p q)
-  refl
+∧-monotoneʳ : Modality._≤_ 𝕄 p q → Modality._≤_ 𝕄 (Modality._∧_ 𝕄 r p) (Modality._∧_ 𝕄 r q)
+∧-monotoneʳ {𝕄 = 𝕄} {p} {q} {r} p≤q = begin
+  Modality._∧_ 𝕄 r p
+    ≡⟨ cong₂ (Modality._∧_ 𝕄) (sym (Modality.∧-Idempotent 𝕄 r)) p≤q ⟩
+  Modality._∧_ 𝕄 (Modality._∧_ 𝕄 r r) (Modality._∧_ 𝕄 p q)
+    ≡⟨ Modality.∧-Associative 𝕄 r r (Modality._∧_ 𝕄 p q) ⟩
+  Modality._∧_ 𝕄 r (Modality._∧_ 𝕄 r (Modality._∧_ 𝕄 p q))
+    ≡⟨ cong (𝕄 Modality.∧ r) (Modality.∧-Commutative 𝕄 r (Modality._∧_ 𝕄 p q)) ⟩
+  Modality._∧_ 𝕄 r (Modality._∧_ 𝕄 (Modality._∧_ 𝕄 p q) r)
+    ≡⟨ cong (𝕄 Modality.∧ r) (Modality.∧-Associative 𝕄 p q r) ⟩
+  Modality._∧_ 𝕄 r (Modality._∧_ 𝕄 p (Modality._∧_ 𝕄 q r))
+    ≡⟨ sym (Modality.∧-Associative 𝕄 r p ((𝕄 Modality.∧ q) r)) ⟩
+  Modality._∧_ 𝕄 (Modality._∧_ 𝕄 r p) (Modality._∧_ 𝕄 q r)
+    ≡⟨ cong₂ (Modality._∧_ 𝕄) refl (Modality.∧-Commutative 𝕄 q r) ⟩
+  (Modality._∧_ 𝕄 (Modality._∧_ 𝕄 r p) (Modality._∧_ 𝕄 r q)) ∎
 
-·-monotoneʳ : {𝕄 : Modality M} {p q r : M}
-           → Modality._≤_ 𝕄 p q
-           → Modality._≤_ 𝕄 (Modality._·_ 𝕄 p r) (Modality._·_ 𝕄 q r)
-·-monotoneʳ {𝕄 = 𝕄} {p = p} {q} {r} x = subst₂ _≡_
-  (cong₂ (Modality._·_ 𝕄) (sym x) refl)
+-- Meet is a monotone function
+-- If p ≤ p′ and q ≤ q′ then p ∧ p′ ≤ q ∧ q′
+
+∧-monotone : Modality._≤_ 𝕄 p p′ → Modality._≤_ 𝕄 q q′
+           → Modality._≤_ 𝕄 (Modality._∧_ 𝕄 p q) (Modality._∧_ 𝕄 p′ q′)
+∧-monotone {𝕄 = 𝕄} p≤p′ q≤q′ = ≤-transitive {𝕄 = 𝕄}
+  (∧-monotoneˡ {𝕄 = 𝕄} p≤p′)
+  (∧-monotoneʳ {𝕄 = 𝕄} q≤q′)
+
+-- Multiplication on the left is a monotone function
+-- If p ≤ q then p · r ≤ q · r
+
+·-monotoneˡ : Modality._≤_ 𝕄 p q
+            → Modality._≤_ 𝕄 (Modality._·_ 𝕄 p r) (Modality._·_ 𝕄 q r)
+·-monotoneˡ {𝕄 = 𝕄} {p = p} {q} {r} p≤q = subst₂ _≡_
+  (cong₂ (Modality._·_ 𝕄) (sym p≤q) refl)
   (proj₂ (Modality.·Distr∧ 𝕄) r p q)
   refl
 
-·-monotone₂ : {𝕄 : Modality M} {p q p′ q′ : M}
-            → Modality._≤_ 𝕄 p q → Modality._≤_ 𝕄 p′ q′
-            → Modality._≤_ 𝕄 (Modality._·_ 𝕄 p p′) (Modality._·_ 𝕄 q q′)
-·-monotone₂ {𝕄 = 𝕄} x y = ≤-transitive {𝕄 = 𝕄}
-  (·-monotoneˡ {𝕄 = 𝕄} y)
-  (·-monotoneʳ {𝕄 = 𝕄} x)
+-- Multiplication on the right is a monotone function
+-- If p ≤ q then r · p ≤ r · q
+
+·-monotoneʳ : Modality._≤_ 𝕄 p q
+            → Modality._≤_ 𝕄 (Modality._·_ 𝕄 r p) (Modality._·_ 𝕄 r q)
+·-monotoneʳ {𝕄 = 𝕄} {p = p} {q} {r} p≤q = subst₂ _≡_
+  (cong₂ (Modality._·_ 𝕄) refl (sym p≤q))
+  (proj₁ (Modality.·Distr∧ 𝕄) r p q)
+  refl
+
+-- Multiplication is a monotone function
+-- If p ≤ p′ and q ≤ q′ then p · p′ ≤ q · q′
+
+·-monotone : Modality._≤_ 𝕄 p p′ → Modality._≤_ 𝕄 q q′
+           → Modality._≤_ 𝕄 (Modality._·_ 𝕄 p q) (Modality._·_ 𝕄 p′ q′)
+·-monotone {𝕄 = 𝕄} p≤p′ q≤q′ = ≤-transitive {𝕄 = 𝕄}
+  (·-monotoneˡ {𝕄 = 𝕄} p≤p′)
+  (·-monotoneʳ {𝕄 = 𝕄} q≤q′)

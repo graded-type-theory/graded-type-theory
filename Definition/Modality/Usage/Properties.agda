@@ -28,6 +28,7 @@ private
     p q : M
 
 -- The contents of two valid modality context can be freely interchanged
+-- If γ ▸ t and δ ▸ t then, for any x, (γ , x ≔ δ⟨x⟩) ▸ t
 
 Conₘ-interchange : {𝕄 : Modality M} {γ δ : Conₘ 𝕄 n}
             → γ ▸ t → δ ▸ t → (x : Fin n) →
@@ -44,24 +45,24 @@ Conₘ-interchange ℕₘ ℕₘ x         = subst₂ _▸_ (PE.sym (update-self
 Conₘ-interchange Emptyₘ Emptyₘ x = subst₂ _▸_ (PE.sym (update-self 𝟘ᶜ x)) refl Emptyₘ
 Conₘ-interchange Unitₘ Unitₘ x   = subst₂ _▸_ (PE.sym (update-self 𝟘ᶜ x)) refl Unitₘ
 
-Conₘ-interchange (Πₘ {γ} {δ = δ} γ▸t γ▸t₁) (Πₘ {γ₁} {δ = δ₁} δ▸t δ▸t₁) x = subst₂ _▸_ eq refl
+Conₘ-interchange (Πₘ {γ} {δ = δ} γ▸t γ▸t₁) (Πₘ {γ₁} {δ = δ₁} δ▸t δ▸t₁) x = subst₂ _▸_  eq refl
   (Πₘ (Conₘ-interchange γ▸t δ▸t x) (Conₘ-interchange γ▸t₁ δ▸t₁ (x +1)))
   where
   eq = begin
-        (γ , x ≔ (γ₁ ⟨ x ⟩)) +ᶜ (δ , x ≔ (δ₁ ⟨ x ⟩))
-          ≡⟨ update-linear-+ᶜ γ δ _ _ x ⟩
-        (γ +ᶜ δ) , x ≔ _
-          ≡⟨ cong₃ _,_≔_ refl refl (PE.sym (lookup-linear-+ᶜ γ₁ δ₁ x)) ⟩
-        ((γ +ᶜ δ) , x ≔ _) ∎
+    (γ , x ≔ (γ₁ ⟨ x ⟩)) +ᶜ (δ , x ≔ (δ₁ ⟨ x ⟩))
+      ≡⟨  PE.sym (update-distrib-+ᶜ γ δ _ _ x)  ⟩
+    ((γ +ᶜ δ) , x ≔ _)
+      ≡⟨ cong ((γ +ᶜ δ) , x ≔_) (PE.sym (lookup-distrib-+ᶜ γ₁ δ₁ x)) ⟩
+    (γ +ᶜ δ) , x ≔ ((γ₁ +ᶜ δ₁) ⟨ x ⟩)  ∎
 
 Conₘ-interchange (Σₘ {γ} {δ = δ} γ▸t γ▸t₁) (Σₘ {γ₁} {δ = δ₁} δ▸t δ▸t₁) x = subst₂ _▸_ eq refl
   (Σₘ (Conₘ-interchange γ▸t δ▸t x) (Conₘ-interchange γ▸t₁ δ▸t₁ (x +1)))
   where
   eq = begin
         (γ , x ≔ (γ₁ ⟨ x ⟩)) +ᶜ (δ , x ≔ (δ₁ ⟨ x ⟩))
-          ≡⟨ update-linear-+ᶜ γ δ _ _ x ⟩
+          ≡⟨ PE.sym (update-distrib-+ᶜ γ δ _ _ x)  ⟩
         (γ +ᶜ δ) , x ≔ _
-          ≡⟨ cong₃ _,_≔_ refl refl (PE.sym (lookup-linear-+ᶜ γ₁ δ₁ x)) ⟩
+          ≡⟨ cong₃ _,_≔_ refl refl (PE.sym (lookup-distrib-+ᶜ γ₁ δ₁ x)) ⟩
         ((γ +ᶜ δ) , x ≔ _) ∎
 
 Conₘ-interchange {𝕄 = 𝕄} (var {x₁}) var x = subst₂ _▸_
@@ -74,22 +75,21 @@ Conₘ-interchange {𝕄 = 𝕄} (_∘ₘ_ {γ} {δ = δ} {p = p} γ▸t γ▸t�
   where
   eq = begin
        (γ , x ≔ (γ₁ ⟨ x ⟩)) +ᶜ p ·ᶜ (δ , x ≔ (δ₁ ⟨ x ⟩))
-         ≡⟨ cong₂ _+ᶜ_ refl (update-linear-·ᶜ δ p _ x) ⟩
-       (γ , x ≔ (γ₁ ⟨ x ⟩)) +ᶜ ((p ·ᶜ δ) , x ≔ _)
-         ≡⟨ update-linear-+ᶜ γ (p ·ᶜ δ) _ _ x ⟩
-       ((γ +ᶜ p ·ᶜ δ) , x ≔ _)
-         ≡⟨ cong₃ _,_≔_ refl refl (cong₂ (Modality._+_ 𝕄) refl
-                  (PE.sym (lookup-linear-·ᶜ δ₁ p x))) ⟩
-       ((γ +ᶜ p ·ᶜ δ) , x ≔ _)
-         ≡⟨ cong₃ _,_≔_ refl refl (PE.sym (lookup-linear-+ᶜ γ₁ (p ·ᶜ δ₁) x)) ⟩
-       _ ∎
+         ≡⟨ cong₂ _+ᶜ_ refl (PE.sym (update-distrib-·ᶜ δ p _ x)) ⟩
+       (γ , x ≔ (γ₁ ⟨ x ⟩)) +ᶜ ((p ·ᶜ δ) , x ≔ (Modality._·_ 𝕄 p (δ₁ ⟨ x ⟩)))
+         ≡⟨ cong₂ _+ᶜ_ refl (cong ((p ·ᶜ δ) , x ≔_) (PE.sym (lookup-distrib-·ᶜ δ₁ p x))) ⟩
+       (γ , x ≔ (γ₁ ⟨ x ⟩)) +ᶜ ((p ·ᶜ δ) , x ≔ ((p ·ᶜ δ₁) ⟨ x ⟩))
+         ≡⟨ PE.sym (update-distrib-+ᶜ γ (p ·ᶜ δ) (γ₁ ⟨ x ⟩) _ x) ⟩
+       ((γ +ᶜ p ·ᶜ δ) , x ≔ Modality._+_ 𝕄 (γ₁ ⟨ x ⟩) ((p ·ᶜ δ₁) ⟨ x ⟩))
+         ≡⟨ cong (_ , x ≔_) (PE.sym (lookup-distrib-+ᶜ γ₁ (p ·ᶜ δ₁) x)) ⟩
+       ((γ +ᶜ p ·ᶜ δ) , x ≔ ((γ₁ +ᶜ p ·ᶜ δ₁) ⟨ x ⟩)) ∎
 
 Conₘ-interchange (prodₘ {γ} {δ = δ} γ▸t γ▸t₁ refl) (prodₘ {γ₁} {δ = δ₁} δ▸t δ▸t₁ refl) x = prodₘ
   (Conₘ-interchange γ▸t δ▸t x)
   (Conₘ-interchange γ▸t₁ δ▸t₁ x)
   (subst₂ _≡_ (cong₃ _,_≔_ refl refl
-                     (PE.sym (lookup-linear-+ᶜ γ₁ δ₁ x)))
-              (PE.sym (update-linear-+ᶜ γ δ _ _ x)) refl)
+                     (PE.sym (lookup-distrib-+ᶜ γ₁ δ₁ x)))
+              (update-distrib-+ᶜ γ δ _ _ x) refl)
 
 Conₘ-interchange (fstₘ γ▸t) (fstₘ δ▸t) x = subst₂ _▸_ (PE.sym (update-self 𝟘ᶜ x)) refl (fstₘ γ▸t)
 Conₘ-interchange (sndₘ γ▸t) (sndₘ δ▸t) x = subst₂ _▸_ (PE.sym (update-self 𝟘ᶜ x)) refl (sndₘ γ▸t)
@@ -98,46 +98,46 @@ Conₘ-interchange {𝕄 = 𝕄} (prodrecₘ {γ} {δ = δ} {p} γ▸t γ▸t₁
   subst₂ _▸_ eq refl (prodrecₘ (Conₘ-interchange γ▸t δ▸t x) (Conₘ-interchange γ▸t₁ δ▸t₁ (x +1 +1)))
   where
   eq = begin
-       p ·ᶜ (γ , x ≔ (γ₁ ⟨ x ⟩)) +ᶜ (δ , x ≔ (δ₁ ⟨ x ⟩))
-         ≡⟨ cong₂ _+ᶜ_ (update-linear-·ᶜ γ p _ x) refl ⟩
-       ((p ·ᶜ γ) , x ≔ _) +ᶜ (δ , x ≔ (δ₁ ⟨ x ⟩))
-         ≡⟨ update-linear-+ᶜ (p ·ᶜ γ) δ _ _ x ⟩
-       ((p ·ᶜ γ +ᶜ δ) , x ≔ _)
-         ≡⟨ cong₃ _,_≔_ refl refl (cong₂ (Modality._+_ 𝕄)
-                  (PE.sym (lookup-linear-·ᶜ γ₁ p x)) refl) ⟩
-       ((p ·ᶜ γ +ᶜ δ) , x ≔ _)
-         ≡⟨ cong₃ _,_≔_ refl refl
-                  (PE.sym (lookup-linear-+ᶜ (p ·ᶜ γ₁) δ₁ x)) ⟩
-       _ ∎
+    p ·ᶜ (γ , x ≔ (γ₁ ⟨ x ⟩)) +ᶜ (δ , x ≔ (δ₁ ⟨ x ⟩))
+      ≡⟨ cong₂ _+ᶜ_ (PE.sym (update-distrib-·ᶜ γ p (γ₁ ⟨ x ⟩) x)) refl ⟩
+    ((p ·ᶜ γ) , x ≔ (Modality._·_ 𝕄 p (γ₁ ⟨ x ⟩))) +ᶜ (δ , x ≔ (δ₁ ⟨ x ⟩))
+      ≡⟨ cong₂ _+ᶜ_ (cong ((p ·ᶜ γ) , x ≔_) (PE.sym (lookup-distrib-·ᶜ γ₁ p x))) refl ⟩
+    ((p ·ᶜ γ) , x ≔ ((p ·ᶜ γ₁) ⟨ x ⟩)) +ᶜ (δ , x ≔ (δ₁ ⟨ x ⟩))
+      ≡⟨ PE.sym (update-distrib-+ᶜ (p ·ᶜ γ) δ _ (δ₁ ⟨ x ⟩) x) ⟩
+    ((p ·ᶜ γ +ᶜ δ) , x ≔ ((𝕄 Modality.+ ((p ·ᶜ γ₁) ⟨ x ⟩)) (δ₁ ⟨ x ⟩)))
+      ≡⟨ cong (((p ·ᶜ γ) +ᶜ δ) , x ≔_) (PE.sym (lookup-distrib-+ᶜ (p ·ᶜ γ₁) δ₁ x)) ⟩
+    ((p ·ᶜ γ +ᶜ δ) , x ≔ ((p ·ᶜ γ₁ +ᶜ δ₁) ⟨ x ⟩)) ∎
 
 Conₘ-interchange zeroₘ zeroₘ x           = subst₂ _▸_ (PE.sym (update-self 𝟘ᶜ x)) refl zeroₘ
 Conₘ-interchange (sucₘ γ▸t) (sucₘ δ▸t) x = sucₘ (Conₘ-interchange γ▸t δ▸t x)
 
 Conₘ-interchange {𝕄 = 𝕄} (natrecₘ {γ} {p} {r} {δ} γ▸t γ▸t₁ γ▸t₂ r≤0)
                      (natrecₘ {γ₁} {δ = δ₁} δ▸t δ▸t₁ δ▸t₂ r′≤0) x =
-  subst₂ _▸_ eq refl
+  subst₂ _▸_  eq  refl
                 (natrecₘ (Conₘ-interchange γ▸t δ▸t x) (Conₘ-interchange γ▸t₁ δ▸t₁ (x +1 +1))
                 (Conₘ-interchange γ▸t₂ δ▸t₂ x) r≤0)
   where
   r* = Modality._* 𝕄 r
   eq = begin
-       r* ·ᶜ  ((γ , x ≔ (γ₁ ⟨ x ⟩)) +ᶜ p ·ᶜ (δ , x ≔ (δ₁ ⟨ x ⟩)))
-         ≡⟨ cong (r* ·ᶜ_) (cong₂ _+ᶜ_ refl (update-linear-·ᶜ δ p (δ₁ ⟨ x ⟩) x)) ⟩
-       r* ·ᶜ ((γ , x ≔ (γ₁ ⟨ x ⟩)) +ᶜ (p ·ᶜ δ , x ≔ _))
-         ≡⟨ cong (r* ·ᶜ_) (update-linear-+ᶜ γ (p ·ᶜ δ) _ _ x) ⟩
-       r* ·ᶜ ((γ +ᶜ p ·ᶜ δ) , x ≔ _)
-         ≡⟨ cong (r* ·ᶜ_) (cong₃ _,_≔_ refl refl (cong₂ (Modality._+_ 𝕄) refl (PE.sym (lookup-linear-·ᶜ δ₁ p x)))) ⟩
-       r* ·ᶜ ((γ +ᶜ p ·ᶜ δ) , x ≔ _)
-         ≡⟨ cong (r* ·ᶜ_) (cong₃ _,_≔_ refl refl (PE.sym (lookup-linear-+ᶜ γ₁ (p ·ᶜ δ₁) x))) ⟩
-       r* ·ᶜ ((γ +ᶜ p ·ᶜ δ) , x ≔ _) ≡⟨ update-linear-·ᶜ (γ +ᶜ p ·ᶜ δ) r* _ x ⟩
-       ((r* ·ᶜ (γ +ᶜ p ·ᶜ δ)) , x ≔ _)
-         ≡⟨ cong₃ _,_≔_ refl refl (PE.sym (lookup-linear-·ᶜ (γ₁ +ᶜ p ·ᶜ δ₁) r* x)) ⟩
-       _ ∎
+     r* ·ᶜ  ((γ , x ≔ (γ₁ ⟨ x ⟩)) +ᶜ p ·ᶜ (δ , x ≔ (δ₁ ⟨ x ⟩)))
+       ≡⟨ cong (r* ·ᶜ_) (cong₂ _+ᶜ_ refl (PE.sym (update-distrib-·ᶜ δ p _ _))) ⟩
+     r* ·ᶜ ((γ , x ≔ (γ₁ ⟨ x ⟩)) +ᶜ ((p ·ᶜ δ) , x ≔ ((𝕄 Modality.· p) (δ₁ ⟨ x ⟩))))
+       ≡⟨ cong (r* ·ᶜ_) (cong₂ _+ᶜ_ refl (cong ((p ·ᶜ δ) , x ≔_) (PE.sym (lookup-distrib-·ᶜ δ₁ p x)))) ⟩
+     r* ·ᶜ ((γ , x ≔ (γ₁ ⟨ x ⟩)) +ᶜ ((p ·ᶜ δ) , x ≔ ((p ·ᶜ δ₁) ⟨ x ⟩)))
+       ≡⟨ cong (r* ·ᶜ_) (PE.sym (update-distrib-+ᶜ γ (p ·ᶜ δ) (γ₁ ⟨ x ⟩) ((p ·ᶜ δ₁) ⟨ x ⟩) x)) ⟩
+     r* ·ᶜ ((γ +ᶜ p ·ᶜ δ) , x ≔ _)
+       ≡⟨ cong (r* ·ᶜ_) (cong ((γ +ᶜ p ·ᶜ δ) , x ≔_) (PE.sym (lookup-distrib-+ᶜ γ₁ (p ·ᶜ δ₁) x))) ⟩
+     r* ·ᶜ ((γ +ᶜ p ·ᶜ δ) , x ≔ ((γ₁ +ᶜ p ·ᶜ δ₁) ⟨ x ⟩))
+       ≡⟨ PE.sym (update-distrib-·ᶜ (γ +ᶜ p ·ᶜ δ) _ _ x) ⟩
+     ((r* ·ᶜ (γ +ᶜ p ·ᶜ δ)) , x ≔ _)
+       ≡⟨ cong₃ _,_≔_ refl refl (PE.sym (lookup-distrib-·ᶜ (γ₁ +ᶜ p ·ᶜ δ₁) r* x)) ⟩
+     r* ·ᶜ (γ +ᶜ p ·ᶜ δ) , x ≔ _ ∎
 
 Conₘ-interchange (Emptyrecₘ γ▸t) (Emptyrecₘ δ▸t) x = Emptyrecₘ (Conₘ-interchange γ▸t δ▸t x)
 Conₘ-interchange starₘ starₘ x = subst₂ _▸_ (PE.sym (update-self 𝟘ᶜ x)) refl starₘ
 
 -- ⌈ t ⌉ is an upper bound on valid modality contexts
+-- If γ ▸ t, then γ ≤ ⌈ t ⌉
 
 usage-upper-bound : γ ▸ t → γ ≤ᶜ ⌈ t ⌉
 usage-upper-bound Uₘ     = ≤ᶜ-reflexive
@@ -145,52 +145,52 @@ usage-upper-bound ℕₘ     = ≤ᶜ-reflexive
 usage-upper-bound Emptyₘ = ≤ᶜ-reflexive
 usage-upper-bound Unitₘ  = ≤ᶜ-reflexive
 
-usage-upper-bound (Πₘ {δ = δ} {q} {G₁} F G) = +ᶜ-monotone₂
+usage-upper-bound (Πₘ {δ = δ} {q} {G₁} F G) = +ᶜ-monotone
   (usage-upper-bound F)
-  (PE.subst (δ ≡_) (tail-linear∧ {γ = δ ∙ q} {⌈ G₁ ⌉})
+  (PE.subst (δ ≡_) (tail-distrib-∧ {γ = δ ∙ q} {⌈ G₁ ⌉})
             (cong tailₘ (usage-upper-bound G)))
 
-usage-upper-bound (Σₘ {δ = δ} {q} {G₁} F G) = +ᶜ-monotone₂
+usage-upper-bound (Σₘ {δ = δ} {q} {G₁} F G) = +ᶜ-monotone
   (usage-upper-bound F)
-  (PE.subst (δ ≡_) (tail-linear∧ {γ = δ ∙ q} {⌈ G₁ ⌉})
+  (PE.subst (δ ≡_) (tail-distrib-∧ {γ = δ ∙ q} {⌈ G₁ ⌉})
                    (cong tailₘ (usage-upper-bound G)))
 
 usage-upper-bound var = ≤ᶜ-reflexive
 
 usage-upper-bound {γ = γ} (lamₘ {p = p} {t₁} t) = PE.subst (γ ≡_)
-  (tail-linear∧ {γ = γ ∙ p} {⌈ t₁ ⌉})
+  (tail-distrib-∧ {γ = γ ∙ p} {⌈ t₁ ⌉})
   (cong tailₘ (usage-upper-bound t))
 
-usage-upper-bound (t ∘ₘ u) = +ᶜ-monotone₂
+usage-upper-bound (t ∘ₘ u) = +ᶜ-monotone
   (usage-upper-bound t)
-  (·ᶜ-monotone (usage-upper-bound u))
+  (·ᶜ-monotoneʳ (usage-upper-bound u))
 
-usage-upper-bound (prodₘ! t u) = +ᶜ-monotone₂ (usage-upper-bound t) (usage-upper-bound u)
+usage-upper-bound (prodₘ! t u) = +ᶜ-monotone (usage-upper-bound t) (usage-upper-bound u)
 usage-upper-bound (fstₘ t)     = ≤ᶜ-reflexive
 usage-upper-bound (sndₘ t)     = ≤ᶜ-reflexive
 
-usage-upper-bound (prodrecₘ {γ} {δ = δ} {p} {u = u₁} t u) = +ᶜ-monotone₂
-  (·ᶜ-monotone (usage-upper-bound t))
+usage-upper-bound (prodrecₘ {γ} {δ = δ} {p} {u = u₁} t u) = +ᶜ-monotone
+  (·ᶜ-monotoneʳ (usage-upper-bound t))
   (begin
     tailₘ (tailₘ (δ ∙ p ∙ p))            ≡⟨ cong tailₘ (cong tailₘ (usage-upper-bound u)) ⟩
-    tailₘ (tailₘ (δ ∙ p ∙ p ∧ᶜ ⌈ u₁ ⌉))  ≡⟨ cong tailₘ (tail-linear∧ {γ = δ ∙ p ∙ p} {⌈ u₁ ⌉}) ⟩
-    tailₘ (δ ∙ p ∧ᶜ tailₘ ⌈ u₁ ⌉)        ≡⟨ tail-linear∧ {γ = δ ∙ p} {tailₘ ⌈ u₁ ⌉} ⟩
+    tailₘ (tailₘ (δ ∙ p ∙ p ∧ᶜ ⌈ u₁ ⌉))  ≡⟨ cong tailₘ (tail-distrib-∧ {γ = δ ∙ p ∙ p} {⌈ u₁ ⌉}) ⟩
+    tailₘ (δ ∙ p ∧ᶜ tailₘ ⌈ u₁ ⌉)        ≡⟨ tail-distrib-∧ {γ = δ ∙ p} {tailₘ ⌈ u₁ ⌉} ⟩
     δ ∧ᶜ tailₘ (tailₘ ⌈ u₁ ⌉) ∎
   )
 usage-upper-bound zeroₘ    = ≤ᶜ-reflexive
 usage-upper-bound (sucₘ t) = usage-upper-bound t
 
-usage-upper-bound (natrecₘ {γ = γ} {p = p} {r = r} {s = s} x x₁ x₂ x₃) = ·ᶜ-monotone (+ᶜ-monotone₂
-  (subst₂ _≤ᶜ_ (∧ᶜ-Idempotent γ) refl (∧ᶜ-monotone₂ (usage-upper-bound x) eq))
-  (·ᶜ-monotone (usage-upper-bound x₂)))
+usage-upper-bound (natrecₘ {γ = γ} {p = p} {r = r} {s = s} x x₁ x₂ x₃) = ·ᶜ-monotoneʳ (+ᶜ-monotone
+  (subst₂ _≤ᶜ_ (∧ᶜ-Idempotent γ) refl (∧ᶜ-monotone (usage-upper-bound x) eq))
+  (·ᶜ-monotoneʳ (usage-upper-bound x₂)))
   where
   eq = begin
          tailₘ (tailₘ (γ ∙ p ∙ r))
            ≡⟨ cong tailₘ (cong tailₘ (usage-upper-bound x₁)) ⟩
          tailₘ (tailₘ (γ ∙ p ∙ r ∧ᶜ ⌈ s ⌉))
-           ≡⟨ cong tailₘ (tail-linear∧ {γ = γ ∙ p ∙ r} {⌈ s ⌉}) ⟩
+           ≡⟨ cong tailₘ (tail-distrib-∧ {γ = γ ∙ p ∙ r} {⌈ s ⌉}) ⟩
          tailₘ ((γ ∙ p) ∧ᶜ tailₘ ⌈ s ⌉)
-           ≡⟨ tail-linear∧ {γ = γ ∙ p} {tailₘ ⌈ s ⌉} ⟩
+           ≡⟨ tail-distrib-∧ {γ = γ ∙ p} {tailₘ ⌈ s ⌉} ⟩
          γ ∧ᶜ tailₘ (tailₘ ⌈ s ⌉) ∎
 
 usage-upper-bound (Emptyrecₘ e) = usage-upper-bound e
@@ -199,6 +199,7 @@ usage-upper-bound (sub t x)     = ≤ᶜ-transitive x (usage-upper-bound t)
 
 
 -- A valid modality context can be computed from well typed and well resourced terms
+-- If Γ ⊢ t ∷ A and γ ▸ t, then ⌈ t ⌉ ▸ t
 
 usage-calc-term′ : {𝕄 : Modality M} {Γ : Con (Term M) n} {γ : Conₘ 𝕄 n} {t A : Term M n}
                  → Γ ⊢ t ∷ A → γ ▸ t → _▸_ {𝕄 = 𝕄} ⌈ t ⌉ t
@@ -282,9 +283,16 @@ usage-calc-term′ (Emptyrecⱼ x Γ⊢t:A) γ▸t with inv-usage-Emptyrec γ▸
 usage-calc-term′ (starⱼ x) γ▸t = starₘ
 usage-calc-term′ (conv Γ⊢t:A x) γ▸t = usage-calc-term′ Γ⊢t:A γ▸t
 
+-- A valid modality context can be computed from well typed and well resourced terms
+-- If Γ ⊢ γ ▸ t ∷ A ◂ δ, then ⌈ t ⌉ ▸ t
+
 usage-calc-term : {𝕄 : Modality M} {γ γ′ : Conₘ 𝕄 n}
                 → Γ ⊢ γ ▸ t ∷ A ◂ γ′ → ⌈ t ⌉ ▸ t
 usage-calc-term (Γ⊢t:A , γ▸t , γ′▸A) = usage-calc-term′ Γ⊢t:A γ▸t
+
+
+-- A valid modality context can be computed from well typed and well resourced types
+-- If Γ ⊢ A ◂ γ, then ⌈ A ⌉ ▸ A
 
 usage-calc-type : {𝕄 : Modality M} {γ : Conₘ 𝕄 n}
                 → Γ ⊢ A ◂ γ → _▸_ {𝕄 = 𝕄} ⌈ A ⌉ A
