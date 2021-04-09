@@ -20,7 +20,7 @@ private
   variable
     M : Set
     𝕄 : Modality M
-    m n : Nat
+    ℓ m n : Nat
     γ δ η : Conₘ 𝕄 n
     t u u′ : Term M n
     σ : Subst M m n
@@ -30,8 +30,10 @@ private
 -- Properties of *> --
 ----------------------
 
--- Modality substitution application distributes over addition
--- Ψ *> (γ +ᶜ δ) ≡ Ψ *> γ +ᶜ Ψ *> δ
+-- Modality substitution application distributes over addition.
+-- Ψ *> (γ +ᶜ δ) ≡ Ψ *> γ +ᶜ Ψ *> δ.
+-- Proof by induciton on Ψ using identiy, commutativity and associtivity of addition
+-- and distributivity of multiplication over addition.
 
 *>-distrib-+ᶜ : {𝕄 : Modality M} (Ψ : Substₘ 𝕄 m n) (γ δ : Conₘ 𝕄 n) → Ψ *> (γ +ᶜ δ) ≡ Ψ *> γ +ᶜ Ψ *> δ
 *>-distrib-+ᶜ           ε       ε       ε      = PE.sym (+ᶜ-identityˡ 𝟘ᶜ)
@@ -48,8 +50,10 @@ private
   (q ·ᶜ η +ᶜ Ψ *> δ) +ᶜ p ·ᶜ η +ᶜ Ψ *> γ          ≡⟨ +ᶜ-comm _ _ ⟩
   ((p ·ᶜ η +ᶜ Ψ *> γ) +ᶜ q ·ᶜ η +ᶜ Ψ *> δ)        ∎
 
--- Modality substitution application distributes over context scaling
--- Ψ *> (pγ) ≡ p ·ᶜ (Ψ *> γ)
+-- Modality substitution application distributes over context scaling.
+-- Ψ *> (pγ) ≡ p ·ᶜ (Ψ *> γ).
+-- Proof by induction on Ψ using zero and associtivity of multiplication,
+-- and distributivity of multiplication over addition.
 
 *>-distrib-·ᶜ : (Ψ : Substₘ 𝕄 m n) (p : M) (γ : Conₘ 𝕄 n) → Ψ *> (p ·ᶜ γ) ≡ p ·ᶜ (Ψ *> γ)
 *>-distrib-·ᶜ  ε p ε = PE.sym (·ᶜ-zeroʳ p)
@@ -64,6 +68,10 @@ private
 -- Modality substitution application is linear, i.e. distributes over addition and scaling
 -- Ψ *> (pγ +ᶜ qδ) ≡ p ·ᶜ (Ψ *> γ) +ᶜ q ·ᶜ (Ψ *> δ)
 
+-- Modality substitution application is linear, i.e. distributes over addition and scaling.
+-- Ψ *> (pγ +ᶜ qδ) ≡ p ·ᶜ (Ψ *> γ) +ᶜ q ·ᶜ (Ψ *> δ).
+-- Follows from the distributivity over addition and multiplication.
+
 *>-linear : (Ψ : Substₘ 𝕄 m n) (p q : M) (γ δ : Conₘ 𝕄 n)
           → Ψ *> (p ·ᶜ γ +ᶜ q ·ᶜ δ) ≡ p ·ᶜ Ψ *> γ +ᶜ q ·ᶜ Ψ *> δ
 *>-linear Ψ p q γ δ = begin
@@ -72,8 +80,9 @@ private
                                                (*>-distrib-·ᶜ Ψ q δ) ⟩
   (p ·ᶜ Ψ *> γ +ᶜ q ·ᶜ Ψ *> δ)   ∎
 
--- The zero-context is a right zero to modality substitution application
--- Ψ *> 𝟘ᶜ ≡ 𝟘ᶜ
+-- The zero-context is a right zero to modality substitution application.
+-- Ψ *> 𝟘ᶜ ≡ 𝟘ᶜ.
+-- Proof by induction on Ψ using zero of multiplication and identity of addition.
 
 *>-zeroʳ : (Ψ : Substₘ 𝕄 m n) → Ψ *> 𝟘ᶜ ≡ 𝟘ᶜ
 *>-zeroʳ ε = refl
@@ -82,8 +91,9 @@ private
          (PE.sym (*>-zeroʳ Ψ)))
   (+ᶜ-identityˡ 𝟘ᶜ)
 
--- Modality substitution application is a monotone function
--- If γ ≤ᶜ δ, then Ψ *> γ ≤ᶜ Ψ *> δ
+-- Modality substitution application is a monotone function.
+-- If γ ≤ᶜ δ, then Ψ *> γ ≤ᶜ Ψ *> δ.
+-- Proof by induction on Ψ using monotonicity of addition and multiplication.
 
 *>-monotone : {γ δ : Conₘ 𝕄 n} (Ψ : Substₘ 𝕄 m n) → γ ≤ᶜ δ → Ψ *> γ ≤ᶜ Ψ *> δ
 *>-monotone {γ = ε}     {ε}      ε      γ≤δ = ≤ᶜ-reflexive
@@ -91,12 +101,25 @@ private
   (·ᶜ-monotone ≤ᶜ-reflexive (cong headₘ γ≤δ))
   (*>-monotone Ψ (cong tailₘ γ≤δ))
 
+-- Matrix/vector multiplication is associative.
+-- (Ψ <*> Φ) *> γ ≡ Ψ *> (Φ *> γ).
+-- Proof by induction on γ using linearity of matrix multiplication.
+
+<*>-*>-assoc : {ℓ m n : Nat} (Ψ : Substₘ 𝕄 m n) (Φ : Substₘ 𝕄 n ℓ) (γ : Conₘ 𝕄 ℓ)
+             → (Ψ <*> Φ) *> γ ≡ Ψ *> (Φ *> γ)
+<*>-*>-assoc Ψ ε ε = sym (*>-zeroʳ Ψ)
+<*>-*>-assoc Ψ (Φ ∙ δ) (γ ∙ p) = begin
+  p ·ᶜ (Ψ *> δ) +ᶜ (Ψ <*> Φ) *> γ ≡⟨ cong₂ _+ᶜ_ (sym (*>-distrib-·ᶜ Ψ p δ)) (<*>-*>-assoc Ψ Φ γ) ⟩
+  Ψ *> (p ·ᶜ δ) +ᶜ Ψ *> (Φ *> γ)  ≡⟨ sym (*>-distrib-+ᶜ Ψ (p ·ᶜ δ) (Φ *> γ)) ⟩
+  (Ψ *> (p ·ᶜ δ +ᶜ Φ *> γ))       ∎
+
 ------------------------------------------
 -- Properties of specific substitutions --
 ------------------------------------------
 
--- Application of a shifted substitution
--- wk1Substₘ Ψ *> γ ≡ (Ψ *> γ) ∙ 𝟘
+-- Application of a shifted substitution.
+-- wk1Substₘ Ψ *> γ ≡ (Ψ *> γ) ∙ 𝟘.
+-- Proof by induction on γ using identity of addition and zero of multiplication
 
 wk1Substₘ-app : (Ψ : Substₘ 𝕄 m n) (γ : Conₘ 𝕄 n) → wk1Substₘ Ψ *> γ ≡ (Ψ *> γ) ∙ (Modality.𝟘 𝕄)
 wk1Substₘ-app ε ε = refl
@@ -109,8 +132,9 @@ wk1Substₘ-app {𝕄 = 𝕄} (Ψ ∙ δ) (γ ∙ p) = begin
   ((p ·ᶜ δ +ᶜ Ψ *> γ) ∙ Modality.𝟘 𝕄) ∎
 
 
--- Application of a lifted substitution
--- liftSubstₘ Ψ *> (γ ∙ p) ≡ (Ψ *> γ) ∙ p
+-- Application of a lifted substitution.
+-- liftSubstₘ Ψ *> (γ ∙ p) ≡ (Ψ *> γ) ∙ p.
+-- Proof by induction on γ using lemma on application of a shifted substitution.
 
 liftSubstₘ-app : (Ψ : Substₘ 𝕄 m n) (γ : Conₘ 𝕄 n) (p : M)
                → liftSubstₘ Ψ *> (γ ∙ p) ≡ (Ψ *> γ) ∙ p
@@ -133,6 +157,10 @@ liftSubstₘ-app {𝕄 = 𝕄} (Ψ ∙ x) γ p = begin
       ≡⟨ cong₂ _∙_ (+ᶜ-identityˡ ((Ψ ∙ x) *> γ)) (proj₂ (Modality.+-Identity 𝕄) p) ⟩
   (((Ψ ∙ x) *> γ) ∙ p) ∎
 
+-- The identity matrix is a left identity to substitution application.
+-- idSubstₘ *> γ ≡ γ.
+-- Proof by identity of addition, multiplication and matrix multiplication,
+-- zero of multiplication and lemma on the application of shifted substitution matrices.
 
 *>-identityˡ : (γ : Conₘ 𝕄 n) → idSubstₘ *> γ ≡ γ
 *>-identityˡ           ε      = refl
@@ -151,6 +179,9 @@ liftSubstₘ-app {𝕄 = 𝕄} (Ψ ∙ x) γ p = begin
 
 -- Substitting a single (well-used) variable is a well-formed substitution
 -- If γ ▸ u, then sgSubstₘ γ ▶ sgSubst u
+-- Proof by cases
+-- Case x0 uses identity of addition, multiplication and matrix mutiplication.
+-- Case x +1 uses identity of addition and matrix multiplication and zero of multiplicaiton.
 
 wf-sgSubstₘ : γ ▸ u → sgSubstₘ γ ▶ sgSubst u
 wf-sgSubstₘ {γ = γ} γ▸u x0 = subst₂ _▸_
@@ -163,32 +194,32 @@ wf-sgSubstₘ γ▸u (x +1) = PE.subst (_▸ var x)
           (cong₂ _+ᶜ_ (PE.sym (·ᶜ-zeroˡ _))
                       (PE.sym (*>-identityˡ _))) refl) var
 
--- Shifting a well-formed substitution is well-formed
--- If Ψ ▶ σ, then wk1Substₘ Ψ ▶ wk1Subst σ
+-- Shifting a well-formed substitution is well-formed.
+-- If Ψ ▶ σ, then wk1Substₘ Ψ ▶ wk1Subst σ.
+-- Proof using lemmata on the application of a shifted substitution matrix
+-- and shifted modality context.
 
 wf-wk1Substₘ : (Ψ : Substₘ 𝕄 m n) (σ : Subst M m n) → Ψ ▶ σ → wk1Substₘ Ψ ▶ wk1Subst σ
 wf-wk1Substₘ Ψ σ Ψ▶σ x = subst₂ _▸_ (sym (wk1Substₘ-app Ψ _)) refl (wk1-usage (Ψ▶σ x))
 
 -- Lifting a well-formed substitution is well-formed
 -- If Ψ ▶ σ, then liftSubstₘ Ψ ▶ liftSubst σ
+-- Proof by cases
+-- Case x0 uses identity of addition and multiplication and zero of matrix multiplication.
+-- Case x +1 uses identity of addition and zero of multiplication.
 
 wf-liftSubstₘ : {Ψ : Substₘ 𝕄 m n} → Ψ ▶ σ → liftSubstₘ Ψ ▶ liftSubst σ
 wf-liftSubstₘ {𝕄 = 𝕄} {Ψ = Ψ} Ψ▶σ x0 = PE.subst (_▸ var x0)
-  (cong₂ _+ᶜ_
-    (cong₂ _∙_
-      (sym (·ᶜ-identityˡ _))
-      (sym (proj₁ (Modality.·-Identity 𝕄) (Modality.𝟙 𝕄)))
-    )
-    (sym (*>-zeroʳ (wk1Substₘ Ψ)))
-  )
+  (cong₂ _+ᶜ_ (cong₂ _∙_
+                     (sym (·ᶜ-identityˡ _))
+                     (sym (proj₁ (Modality.·-Identity 𝕄) (Modality.𝟙 𝕄))))
+              (sym (*>-zeroʳ (wk1Substₘ Ψ))))
   (PE.subst (_▸ var x0)
-    (cong₂ _∙_
-      (sym (+ᶜ-identityʳ _))
-      (sym (proj₂ (Modality.+-Identity 𝕄) (Modality.𝟙 𝕄)))
-    )
-  var
-  )
-wf-liftSubstₘ {𝕄 = 𝕄} {Ψ = Ψ} Ψ▶σ (_+1 x) =
+            (cong₂ _∙_
+                   (sym (+ᶜ-identityʳ _))
+                   (sym (proj₂ (Modality.+-Identity 𝕄) (Modality.𝟙 𝕄))))
+            var)
+wf-liftSubstₘ {𝕄 = 𝕄} {Ψ = Ψ} Ψ▶σ (x +1) =
   subst₂ _▸_ wkΨ*>≡ refl (wf-wk1Substₘ Ψ _ Ψ▶σ x)
   where
   wkΨ*>≡ = begin
@@ -202,10 +233,13 @@ wf-liftSubstₘ {𝕄 = 𝕄} {Ψ = Ψ} Ψ▶σ (_+1 x) =
 
 
 -- Extending a well-formed substitution with a well-used term gives a well-formed substitution.
--- If Ψ ▶ σ and γ ▸ t, then (Ψ ∙ γ) ▶ consSubst σ t
+-- If Ψ ▶ σ and γ ▸ t, then (Ψ ∙ γ) ▶ consSubst σ t.
+-- Proof by cases.
+-- Case x0 uses identity of addition, multiplication and zero of matrix multiplication
+-- Case x +1 uses identity of addition and zero of multiplication
 
 wf-consSubstₘ : {𝕄 : Modality M} {Ψ : Substₘ 𝕄 m n} {γ : Conₘ 𝕄 m}
-             → Ψ ▶ σ → γ ▸ t → Ψ ∙ γ ▶ consSubst σ t
+              → Ψ ▶ σ → γ ▸ t → Ψ ∙ γ ▶ consSubst σ t
 wf-consSubstₘ {𝕄 = 𝕄} {Ψ = Ψ} {γ = γ} Ψ▶σ γ▸t x0 = subst₂ _▸_ γ≡ refl γ▸t
   where
   γ≡ = begin
@@ -219,12 +253,15 @@ wf-consSubstₘ {𝕄 = 𝕄} {Ψ = Ψ} {γ = γ} Ψ▶σ γ▸t (x +1) = subst�
          𝟘ᶜ +ᶜ Ψ *> (𝟘ᶜ , x ≔ Modality.𝟙 𝕄)                 ≡⟨ cong₂ _+ᶜ_ (sym (·ᶜ-zeroˡ _)) refl ⟩
          Modality.𝟘 𝕄 ·ᶜ γ +ᶜ Ψ *> (𝟘ᶜ , x ≔ Modality.𝟙 𝕄) ∎
 
+
 ---------------------------------------
 -- Substitution lemma for modalities --
 ---------------------------------------
 
--- Substitution lemma
--- If Ψ ▶ σ and γ ▸ t, then Ψ *> γ ▸ t[σ]
+-- Substitution lemma.
+-- If Ψ ▶ σ and γ ▸ t, then Ψ *> γ ▸ t[σ].
+-- Proof by induction on γ ▸ t using linearity of matrix multiplication
+-- and well-formedness of lifted substitution matrices.
 
 substₘ-lemma : (Ψ : Substₘ 𝕄 m n) (σ : Subst M m n) → Ψ ▶ σ → γ ▸ t → substₘ Ψ γ ▸ U.subst σ t
 substₘ-lemma Ψ σ Ψ▶σ Uₘ     = PE.subst (_▸ U)     (PE.sym (*>-zeroʳ Ψ)) Uₘ
@@ -322,8 +359,10 @@ substₘ-lemma Ψ σ Ψ▶σ (Emptyrecₘ γ▸t) = Emptyrecₘ (substₘ-lemma 
 substₘ-lemma Ψ σ Ψ▶σ starₘ           = PE.subst (_▸ star) (PE.sym (*>-zeroʳ Ψ)) starₘ
 substₘ-lemma Ψ σ Ψ▶σ (sub γ▸t x)     = sub (substₘ-lemma Ψ σ Ψ▶σ γ▸t) (*>-monotone Ψ x)
 
--- Special case of substitution lemma for single substitutions
--- If γ ∙ p ▸ t and δ ▸ u, then (γ +ᶜ pδ) ▸ t[u]
+
+-- Special case of substitution lemma for single substitutions.
+-- If γ ∙ p ▸ t and δ ▸ u, then (γ +ᶜ pδ) ▸ t[u].
+-- Follows from the substitution lemma.
 
 sgSubstₘ-lemma : γ ∙ p ▸ t → δ ▸ u → (γ +ᶜ p ·ᶜ δ) ▸ t [ u ]
 sgSubstₘ-lemma {γ = γ} {p} {δ = δ} γ▸t δ▸u = subst₂ _▸_ eq refl
@@ -334,8 +373,9 @@ sgSubstₘ-lemma {γ = γ} {p} {δ = δ} γ▸t δ▸u = subst₂ _▸_ eq refl
     idSubstₘ *> γ +ᶜ p ·ᶜ δ   ≡⟨ cong₂ _+ᶜ_ (*>-identityˡ γ) refl ⟩
     γ +ᶜ p ·ᶜ δ               ∎
 
--- Special case of substitution lemma for double substitutions
--- If γ ∙ q ∙ p ▸ t and δ ▸ u and η ▸ u′, then (γ +ᶜ pδ +ᶜ qη) ▸ t[u][u′]
+-- Special case of substitution lemma for double substitutions.
+-- If γ ∙ q ∙ p ▸ t and δ ▸ u and η ▸ u′, then (γ +ᶜ pδ +ᶜ qη) ▸ t[u][u′].
+-- Follows from the substitution lemma.
 
 doubleSubstₘ-lemma : γ ∙ q ∙ p ▸ t → δ ▸ u → η ▸ u′ → (γ +ᶜ p ·ᶜ δ +ᶜ q ·ᶜ η) ▸ t [ u ][ u′ ]
 doubleSubstₘ-lemma {γ = γ} {q} {p} {δ = δ} {η = η} γ▸t δ▸u η▸u′ = subst₂ _▸_ eq refl
@@ -352,8 +392,9 @@ doubleSubstₘ-lemma {γ = γ} {q} {p} {δ = δ} {η = η} γ▸t δ▸u η▸u�
 -- Substitution matrix calculation --
 -------------------------------------
 
--- Column x of a calculated matrix is the calculated context of σ x
--- ∥ σ ∥ *> 𝕖ᵢ ≡ ⌈ σ xᵢ ⌉
+-- Column i of a calculated matrix is the calculated context of σ xᵢ.
+-- ∥ σ ∥ *> 𝕖ᵢ ≡ ⌈ σ xᵢ ⌉.
+-- Proof by induction on (the width of) substitution matrices.
 
 substₘ-calc-col : {𝕄 : Modality M} (σ : Subst M m n) (x : Fin n)
                 → ∥_∥ {𝕄 = 𝕄} σ *> (𝟘ᶜ , x ≔ (Modality.𝟙 𝕄)) ≡ ⌈ σ x ⌉
@@ -370,16 +411,18 @@ substₘ-calc-col {𝕄 = 𝕄} σ (_+1 x) = begin
     ≡⟨ +ᶜ-identityˡ ⌈ σ (x +1) ⌉ ⟩
   ⌈ σ (x +1) ⌉ ∎
 
--- A calculated substitution matrix is well-formed if all substituted terms are well-typed and well-used
--- If ∀ x. (Γ ⊢ σ x ∷ A and γ ▸ σ x) then ∥ σ ∥ ▶ σ
+-- A calculated substitution matrix is well-formed if all substituted terms are well-typed and well-used.
+-- If ∀ x. (Γ ⊢ σ x ∷ A and γ ▸ σ x) then ∥ σ ∥ ▶ σ.
+-- Proof by the corresponding property for modality contexts applied to each column.
 
 substₘ-calc-correct : {𝕄 : Modality M} {Γ : Con (Term M) m} {γ : Conₘ 𝕄 m} {A : Term M m}
                     → (σ : Subst M m n) → (∀ x → Γ ⊢ σ x ∷ A × γ ▸ σ x) → ∥ σ ∥ ▶ σ
 substₘ-calc-correct σ well-typed x = subst₂ _▸_ (sym (substₘ-calc-col σ x)) refl
   (usage-calc-term′ (proj₁ (well-typed x)) (proj₂ (well-typed x)))
 
--- Each column of a calculated substitution matrix is an upper bound on valid contexts
--- If γ ▸ σ xᵢ then γ ≤ᶜ ∥ σ ∥ *> 𝕖ᵢ
+-- Each column of a calculated substitution matrix is an upper bound on valid contexts.
+-- If γ ▸ σ xᵢ then γ ≤ᶜ ∥ σ ∥ *> 𝕖ᵢ.
+-- Proof using the corresponding property for modality contexts applied to each column.
 
 substₘ-calc-upper-bound : {𝕄 : Modality M} {γ : Conₘ 𝕄 m} → (σ : Subst M m n) → (x : Fin n) → γ ▸ σ x → γ ≤ᶜ ∥ σ ∥ *> (𝟘ᶜ , x ≔ Modality.𝟙 𝕄)
 substₘ-calc-upper-bound σ x γ▸σx = subst₂ _≤ᶜ_ refl (sym (substₘ-calc-col σ x)) (usage-upper-bound γ▸σx)
