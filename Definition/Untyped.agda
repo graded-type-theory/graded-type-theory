@@ -605,12 +605,8 @@ t [ s ][ s′ ] = subst (consSubst (consSubst idSubst s′) s) t
 
 -- Substitute the first variable with a pair and shift remaining variables up by one
 
-σₚ : (s s′ : Term M (1+ (1+ n))) → Subst M (1+ (1+ n)) (1+ n)
-σₚ s s′ x0 = prod s s′
-σₚ _ _ (x +1) = var (x +1 +1)
-
 _[⟨_,_⟩] : (t : Term M (1+ n)) (s s′ : Term M (1+ (1+ n))) → Term M (1+ (1+ n))
-t [⟨ s , s′ ⟩] = subst (σₚ s s′) t
+t [⟨ s , s′ ⟩] = subst (consSubst (wk1Subst (wk1Subst idSubst)) (prod s s′)) t
 
 -- "Strengthen" a substitution by droping the first term
 

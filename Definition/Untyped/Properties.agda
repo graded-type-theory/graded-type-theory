@@ -497,7 +497,7 @@ wk-β-prodrec ρ A =
        subst σₚ′ (wk (lift ρ) A) ∎
      where
         σₚ′ : Subst M (1+ (1+ ℓ)) (1+ ℓ)
-        σₚ′ = σₚ (var (x0 +1)) (var x0)
+        σₚ′ = (consSubst (wk1Subst (wk1Subst idSubst))) (prod (var (x0 +1)) (var x0))
         eq  : ∀ x
             → substVar (lift (lift ρ) •ₛ σₚ′) x
             ≡ substVar σₚ′ (wkVar (lift ρ) x)
