@@ -1,4 +1,4 @@
-{-#OPTIONS --without-K --safe #-}
+{-#OPTIONS --without-K --allow-unsolved-metas #-}
 module Definition.Modality.Usage.Weakening where
 
 open import Definition.Modality
@@ -87,17 +87,18 @@ liftn-usage {𝕄 = 𝕄} ℓ (prodrecₘ {δ = δ} γ▸t δ▸u) = subst₂ _�
 liftn-usage ℓ zeroₘ      = PE.subst (_▸ zero) (PE.sym (insertAt-𝟘 ℓ)) zeroₘ
 liftn-usage ℓ (sucₘ γ▸t) = sucₘ (liftn-usage ℓ γ▸t)
 
-liftn-usage {𝕄 = 𝕄} ℓ (natrecₘ {δ = δ} γ▸z γ▸s δ▸n r≤0) = subst₂ _▸_ eq refl
-  (natrecₘ (liftn-usage ℓ γ▸z) (liftn-usage (1+ (1+ ℓ)) γ▸s) (liftn-usage ℓ δ▸n) r≤0)
-  where
-  eq = begin
-    _ ≡⟨ cong₂ _·ᶜ_ refl (cong₂ _+ᶜ_ refl (sym (insertAt-distrib-·ᶜ ℓ _ δ _ _))) ⟩
-    _ ≡⟨ cong₂ _·ᶜ_ refl (cong₂ _+ᶜ_ refl (cong (insertAt ℓ _) (proj₂ (Modality.·-Zero 𝕄) _))) ⟩
-    _ ≡⟨ cong₂ _·ᶜ_ refl (sym (insertAt-distrib-+ᶜ ℓ _ _ _ _)) ⟩
-    _ ≡⟨ cong₂ _·ᶜ_ refl (cong (insertAt ℓ _) (proj₁ (Modality.+-Identity 𝕄) _)) ⟩
-    _ ≡⟨ sym (insertAt-distrib-·ᶜ ℓ _ δ _ _) ⟩
-    _ ≡⟨ cong (insertAt ℓ _) (proj₂ (Modality.·-Zero 𝕄) _) ⟩
-    _ ∎
+liftn-usage {𝕄 = 𝕄} ℓ (natrecₘ {δ = δ} γ▸z γ▸s δ▸n X≤γ′) = {!!}
+-- subst₂ _▸_ eq refl
+--   (natrecₘ (liftn-usage ℓ γ▸z) (liftn-usage (1+ (1+ ℓ)) γ▸s) (liftn-usage ℓ δ▸n) r≤0)
+--   where
+--   eq = begin
+--     _ ≡⟨ cong₂ _·ᶜ_ refl (cong₂ _+ᶜ_ refl (sym (insertAt-distrib-·ᶜ ℓ _ δ _ _))) ⟩
+--     _ ≡⟨ cong₂ _·ᶜ_ refl (cong₂ _+ᶜ_ refl (cong (insertAt ℓ _) (proj₂ (Modality.·-Zero 𝕄) _))) ⟩
+--     _ ≡⟨ cong₂ _·ᶜ_ refl (sym (insertAt-distrib-+ᶜ ℓ _ _ _ _)) ⟩
+--     _ ≡⟨ cong₂ _·ᶜ_ refl (cong (insertAt ℓ _) (proj₁ (Modality.+-Identity 𝕄) _)) ⟩
+--     _ ≡⟨ sym (insertAt-distrib-·ᶜ ℓ _ δ _ _) ⟩
+--     _ ≡⟨ cong (insertAt ℓ _) (proj₂ (Modality.·-Zero 𝕄) _) ⟩
+--     _ ∎
 
 liftn-usage ℓ (Emptyrecₘ γ▸t) = Emptyrecₘ (liftn-usage ℓ γ▸t)
 liftn-usage ℓ starₘ           =  PE.subst (_▸ star) (PE.sym (insertAt-𝟘 ℓ)) starₘ

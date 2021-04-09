@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --safe #-}
+{-# OPTIONS --without-K --allow-unsolved-metas #-}
 module Definition.Modality.Substitution.Properties where
 
 open import Definition.Modality
@@ -331,29 +331,29 @@ substₘ-lemma Ψ σ Ψ▶σ zeroₘ =  PE.subst (_▸ zero) (PE.sym (*>-zeroʳ 
 
 substₘ-lemma Ψ σ Ψ▶σ (sucₘ γ▸t) = sucₘ (substₘ-lemma Ψ σ Ψ▶σ γ▸t)
 
-substₘ-lemma {𝕄 = 𝕄} Ψ σ Ψ▶σ (natrecₘ {γ} {p = p} {r = r} {δ} γ▸z γ▸s δ▸n r≤0)
-  = subst₂ _▸_ eq refl (natrecₘ γ▸z′ γ▸s″ δ▸n′ r≤0)
+substₘ-lemma {𝕄 = 𝕄} Ψ σ Ψ▶σ (natrecₘ {δ = δ} {p} {r} γ▸z δ▸s η▸n δ′≡) = subst₂ _▸_ {!!} refl (natrecₘ γ▸z′ δ▸s″ η▸n′ {!δ′≡!})
+  -- subst₂ _▸_ eq refl (natrecₘ γ▸z′ γ▸s″ δ▸n′)
   where
   γ▸z′ = substₘ-lemma Ψ σ Ψ▶σ γ▸z
-  γ▸s′ = substₘ-lemma (liftSubstₘ (liftSubstₘ Ψ)) (liftSubst (liftSubst σ)) (wf-liftSubstₘ (wf-liftSubstₘ Ψ▶σ)) γ▸s
-  δ▸n′ = substₘ-lemma Ψ σ Ψ▶σ δ▸n
+  δ▸s′ = substₘ-lemma (liftSubstₘ (liftSubstₘ Ψ)) (liftSubst (liftSubst σ)) (wf-liftSubstₘ (wf-liftSubstₘ Ψ▶σ)) δ▸s
+  η▸n′ = substₘ-lemma Ψ σ Ψ▶σ η▸n
   eq′ = begin
-      liftSubstₘ (liftSubstₘ Ψ) *> (γ ∙ p ∙ r)
-        ≡⟨ liftSubstₘ-app (liftSubstₘ Ψ) (γ ∙ p) r ⟩
-      ((p ·ᶜ 𝟘ᶜ) ∙ (Modality._·_ 𝕄 p (Modality.𝟙 𝕄)) +ᶜ wk1Substₘ Ψ *> γ) ∙ r
+      liftSubstₘ (liftSubstₘ Ψ) *> (δ ∙ p ∙ r)
+        ≡⟨ liftSubstₘ-app (liftSubstₘ Ψ) (δ ∙ p) r ⟩
+      ((p ·ᶜ 𝟘ᶜ) ∙ (Modality._·_ 𝕄 p (Modality.𝟙 𝕄)) +ᶜ wk1Substₘ Ψ *> δ) ∙ r
         ≡⟨ cong (_∙ r) (cong₂ _+ᶜ_ (cong₂ _∙_ (·ᶜ-zeroʳ p)
-                       (proj₂ (Modality.·-Identity 𝕄) p)) (wk1Substₘ-app Ψ γ)) ⟩
-      (𝟘ᶜ +ᶜ Ψ *> γ) ∙ (Modality._+_ 𝕄 p (Modality.𝟘 𝕄)) ∙ r
-        ≡⟨ cong (_∙ r) (cong₂ _∙_ (+ᶜ-identityˡ (Ψ *> γ))
+                       (proj₂ (Modality.·-Identity 𝕄) p)) (wk1Substₘ-app Ψ δ)) ⟩
+      (𝟘ᶜ +ᶜ Ψ *> δ) ∙ (Modality._+_ 𝕄 p (Modality.𝟘 𝕄)) ∙ r
+        ≡⟨ cong (_∙ r) (cong₂ _∙_ (+ᶜ-identityˡ (Ψ *> δ))
                        (proj₂ (Modality.+-Identity 𝕄) p)) ⟩
-      (Ψ *> γ) ∙ p ∙ r ∎
-  γ▸s″ = subst₂ _▸_ eq′ refl γ▸s′
-  eq = begin
-     (𝕄 Modality.*) r ·ᶜ (substₘ Ψ γ +ᶜ p ·ᶜ substₘ Ψ δ)
-       ≡⟨ cong₂ _·ᶜ_ refl (cong₂ _+ᶜ_ refl (sym (*>-distrib-·ᶜ Ψ p δ))) ⟩
-     _ ≡⟨ cong₂ _·ᶜ_ refl (sym (*>-distrib-+ᶜ Ψ γ (p ·ᶜ δ))) ⟩
-     _ ≡⟨ sym (*>-distrib-·ᶜ Ψ _ _) ⟩
-     Ψ *> ((Modality._* 𝕄 r) ·ᶜ (γ +ᶜ p ·ᶜ δ)) ∎
+      (Ψ *> δ) ∙ p ∙ r ∎
+  δ▸s″ = subst₂ _▸_ eq′ refl δ▸s′
+  -- eq = begin
+  --    (𝕄 Modality.*) r ·ᶜ (substₘ Ψ γ +ᶜ p ·ᶜ substₘ Ψ δ)
+  --      ≡⟨ cong₂ _·ᶜ_ refl (cong₂ _+ᶜ_ refl (sym (*>-distrib-·ᶜ Ψ p δ))) ⟩
+  --    _ ≡⟨ cong₂ _·ᶜ_ refl (sym (*>-distrib-+ᶜ Ψ γ (p ·ᶜ δ))) ⟩
+  --    _ ≡⟨ sym (*>-distrib-·ᶜ Ψ _ _) ⟩
+  --    Ψ *> ((Modality._* 𝕄 r) ·ᶜ (γ +ᶜ p ·ᶜ δ)) ∎
 
 substₘ-lemma Ψ σ Ψ▶σ (Emptyrecₘ γ▸t) = Emptyrecₘ (substₘ-lemma Ψ σ Ψ▶σ γ▸t)
 substₘ-lemma Ψ σ Ψ▶σ starₘ           = PE.subst (_▸ star) (PE.sym (*>-zeroʳ Ψ)) starₘ

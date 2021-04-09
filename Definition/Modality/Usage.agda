@@ -75,13 +75,17 @@ data _▸_ {n : Nat} {M} {𝕄 : Modality M} : (γ : Conₘ 𝕄 n) → Term M n
 
   natrecₘ   : ∀ {G z s n}
             → γ ▸ z
-            → (γ ∙ p ∙ r) ▸ s
-            → δ ▸ n
-            → Modality._≤_ 𝕄 r (Modality.𝟘 𝕄)
-            → (Modality._* 𝕄 r) ·ᶜ (γ +ᶜ p ·ᶜ δ) ▸ natrec p r G z s n
+            → δ ∙ p ∙ r ▸ s
+            → η ▸ n
+            {-
+            If X ▸ natrec p r G z s n,
+            need X ≤ γ and X ≤ δ + pη + rX for preservation
+            -}
+            → γ′ ≡ δ +ᶜ r ·ᶜ (γ ∧ᶜ γ′) +ᶜ p ·ᶜ η
+            → γ ∧ᶜ γ′ ▸ natrec p r G z s n
 
   Emptyrecₘ : γ ▸ t
-            → γ ▸ (Emptyrec p A t)
+            → γ ▸ Emptyrec p A t
 
   starₘ     : 𝟘ᶜ ▸ star
 
@@ -115,5 +119,4 @@ mutual
   gen-usage Starkind  []                     = 𝟘ᶜ
   gen-usage Emptykind []                     = 𝟘ᶜ
   gen-usage (Emptyreckind p) (A ∷ e ∷ [])    = ⌈ e ⌉
-  gen-usage {𝕄 = 𝕄} (Natreckind p r) (G ∷ z ∷ s ∷ n ∷ []) =
-            (Modality._* 𝕄 r) ·ᶜ ((⌈ z ⌉ ∧ᶜ (tailₘ (tailₘ ⌈ s ⌉))) +ᶜ p ·ᶜ ⌈ n ⌉)
+  gen-usage {𝕄 = 𝕄} (Natreckind p r) (G ∷ z ∷ s ∷ n ∷ []) = (Modality._* 𝕄 r) ·ᶜ ((⌈ z ⌉ ∧ᶜ (tailₘ (tailₘ ⌈ s ⌉))) +ᶜ p ·ᶜ ⌈ n ⌉)

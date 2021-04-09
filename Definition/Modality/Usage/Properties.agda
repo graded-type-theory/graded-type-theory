@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --safe #-}
+{-# OPTIONS --without-K --allow-unsolved-metas #-}
 module Definition.Modality.Usage.Properties where
 
 open import Definition.Modality
@@ -111,27 +111,27 @@ Conₘ-interchange {𝕄 = 𝕄} (prodrecₘ {γ} {δ = δ} {p} γ▸t γ▸t₁
 Conₘ-interchange zeroₘ zeroₘ x           = subst₂ _▸_ (PE.sym (update-self 𝟘ᶜ x)) refl zeroₘ
 Conₘ-interchange (sucₘ γ▸t) (sucₘ δ▸t) x = sucₘ (Conₘ-interchange γ▸t δ▸t x)
 
-Conₘ-interchange {𝕄 = 𝕄} (natrecₘ {γ} {p} {r} {δ} γ▸t γ▸t₁ γ▸t₂ r≤0)
-                     (natrecₘ {γ₁} {δ = δ₁} δ▸t δ▸t₁ δ▸t₂ r′≤0) x =
-  subst₂ _▸_  eq  refl
-                (natrecₘ (Conₘ-interchange γ▸t δ▸t x) (Conₘ-interchange γ▸t₁ δ▸t₁ (x +1 +1))
-                (Conₘ-interchange γ▸t₂ δ▸t₂ x) r≤0)
-  where
-  r* = Modality._* 𝕄 r
-  eq = begin
-     r* ·ᶜ  ((γ , x ≔ (γ₁ ⟨ x ⟩)) +ᶜ p ·ᶜ (δ , x ≔ (δ₁ ⟨ x ⟩)))
-       ≡⟨ cong (r* ·ᶜ_) (cong₂ _+ᶜ_ refl (PE.sym (update-distrib-·ᶜ δ p _ _))) ⟩
-     r* ·ᶜ ((γ , x ≔ (γ₁ ⟨ x ⟩)) +ᶜ ((p ·ᶜ δ) , x ≔ ((𝕄 Modality.· p) (δ₁ ⟨ x ⟩))))
-       ≡⟨ cong (r* ·ᶜ_) (cong₂ _+ᶜ_ refl (cong ((p ·ᶜ δ) , x ≔_) (PE.sym (lookup-distrib-·ᶜ δ₁ p x)))) ⟩
-     r* ·ᶜ ((γ , x ≔ (γ₁ ⟨ x ⟩)) +ᶜ ((p ·ᶜ δ) , x ≔ ((p ·ᶜ δ₁) ⟨ x ⟩)))
-       ≡⟨ cong (r* ·ᶜ_) (PE.sym (update-distrib-+ᶜ γ (p ·ᶜ δ) (γ₁ ⟨ x ⟩) ((p ·ᶜ δ₁) ⟨ x ⟩) x)) ⟩
-     r* ·ᶜ ((γ +ᶜ p ·ᶜ δ) , x ≔ _)
-       ≡⟨ cong (r* ·ᶜ_) (cong ((γ +ᶜ p ·ᶜ δ) , x ≔_) (PE.sym (lookup-distrib-+ᶜ γ₁ (p ·ᶜ δ₁) x))) ⟩
-     r* ·ᶜ ((γ +ᶜ p ·ᶜ δ) , x ≔ ((γ₁ +ᶜ p ·ᶜ δ₁) ⟨ x ⟩))
-       ≡⟨ PE.sym (update-distrib-·ᶜ (γ +ᶜ p ·ᶜ δ) _ _ x) ⟩
-     ((r* ·ᶜ (γ +ᶜ p ·ᶜ δ)) , x ≔ _)
-       ≡⟨ cong₃ _,_≔_ refl refl (PE.sym (lookup-distrib-·ᶜ (γ₁ +ᶜ p ·ᶜ δ₁) r* x)) ⟩
-     r* ·ᶜ (γ +ᶜ p ·ᶜ δ) , x ≔ _ ∎
+Conₘ-interchange {𝕄 = 𝕄} (natrecₘ {γ} {p} {r} {δ} γ▸t γ▸t₁ γ▸t₂ _)
+                     (natrecₘ {γ₁} {δ = δ₁} δ▸t δ▸t₁ δ▸t₂ _) x = {!!}
+  -- subst₂ _▸_  eq  refl
+  --               (natrecₘ (Conₘ-interchange γ▸t δ▸t x) (Conₘ-interchange γ▸t₁ δ▸t₁ (x +1 +1))
+  --               (Conₘ-interchange γ▸t₂ δ▸t₂ x) r≤0)
+  -- where
+  -- r* = Modality._* 𝕄 r
+  -- eq = begin
+  --    r* ·ᶜ  ((γ , x ≔ (γ₁ ⟨ x ⟩)) +ᶜ p ·ᶜ (δ , x ≔ (δ₁ ⟨ x ⟩)))
+  --      ≡⟨ cong (r* ·ᶜ_) (cong₂ _+ᶜ_ refl (PE.sym (update-distrib-·ᶜ δ p _ _))) ⟩
+  --    r* ·ᶜ ((γ , x ≔ (γ₁ ⟨ x ⟩)) +ᶜ ((p ·ᶜ δ) , x ≔ ((𝕄 Modality.· p) (δ₁ ⟨ x ⟩))))
+  --      ≡⟨ cong (r* ·ᶜ_) (cong₂ _+ᶜ_ refl (cong ((p ·ᶜ δ) , x ≔_) (PE.sym (lookup-distrib-·ᶜ δ₁ p x)))) ⟩
+  --    r* ·ᶜ ((γ , x ≔ (γ₁ ⟨ x ⟩)) +ᶜ ((p ·ᶜ δ) , x ≔ ((p ·ᶜ δ₁) ⟨ x ⟩)))
+  --      ≡⟨ cong (r* ·ᶜ_) (PE.sym (update-distrib-+ᶜ γ (p ·ᶜ δ) (γ₁ ⟨ x ⟩) ((p ·ᶜ δ₁) ⟨ x ⟩) x)) ⟩
+  --    r* ·ᶜ ((γ +ᶜ p ·ᶜ δ) , x ≔ _)
+  --      ≡⟨ cong (r* ·ᶜ_) (cong ((γ +ᶜ p ·ᶜ δ) , x ≔_) (PE.sym (lookup-distrib-+ᶜ γ₁ (p ·ᶜ δ₁) x))) ⟩
+  --    r* ·ᶜ ((γ +ᶜ p ·ᶜ δ) , x ≔ ((γ₁ +ᶜ p ·ᶜ δ₁) ⟨ x ⟩))
+  --      ≡⟨ PE.sym (update-distrib-·ᶜ (γ +ᶜ p ·ᶜ δ) _ _ x) ⟩
+  --    ((r* ·ᶜ (γ +ᶜ p ·ᶜ δ)) , x ≔ _)
+  --      ≡⟨ cong₃ _,_≔_ refl refl (PE.sym (lookup-distrib-·ᶜ (γ₁ +ᶜ p ·ᶜ δ₁) r* x)) ⟩
+  --    r* ·ᶜ (γ +ᶜ p ·ᶜ δ) , x ≔ _ ∎
 
 Conₘ-interchange (Emptyrecₘ γ▸t) (Emptyrecₘ δ▸t) x = Emptyrecₘ (Conₘ-interchange γ▸t δ▸t x)
 Conₘ-interchange starₘ starₘ x = subst₂ _▸_ (PE.sym (update-self 𝟘ᶜ x)) refl starₘ
@@ -180,18 +180,19 @@ usage-upper-bound (prodrecₘ {γ} {δ = δ} {p} {u = u₁} t u) = +ᶜ-monotone
 usage-upper-bound zeroₘ    = ≤ᶜ-reflexive
 usage-upper-bound (sucₘ t) = usage-upper-bound t
 
-usage-upper-bound (natrecₘ {γ = γ} {p = p} {r = r} {s = s} x x₁ x₂ x₃) = ·ᶜ-monotoneʳ (+ᶜ-monotone
-  (subst₂ _≤ᶜ_ (∧ᶜ-Idempotent γ) refl (∧ᶜ-monotone (usage-upper-bound x) eq))
-  (·ᶜ-monotoneʳ (usage-upper-bound x₂)))
-  where
-  eq = begin
-         tailₘ (tailₘ (γ ∙ p ∙ r))
-           ≡⟨ cong tailₘ (cong tailₘ (usage-upper-bound x₁)) ⟩
-         tailₘ (tailₘ (γ ∙ p ∙ r ∧ᶜ ⌈ s ⌉))
-           ≡⟨ cong tailₘ (tail-distrib-∧ {γ = γ ∙ p ∙ r} {⌈ s ⌉}) ⟩
-         tailₘ ((γ ∙ p) ∧ᶜ tailₘ ⌈ s ⌉)
-           ≡⟨ tail-distrib-∧ {γ = γ ∙ p} {tailₘ ⌈ s ⌉} ⟩
-         γ ∧ᶜ tailₘ (tailₘ ⌈ s ⌉) ∎
+usage-upper-bound (natrecₘ x x₁ x₂ x₃) = {!!}
+-- ·ᶜ-monotoneʳ (+ᶜ-monotone
+--   (subst₂ _≤ᶜ_ (∧ᶜ-Idempotent γ) refl (∧ᶜ-monotone (usage-upper-bound x) eq))
+--   (·ᶜ-monotoneʳ (usage-upper-bound x₂)))
+--   where
+--   eq = begin
+--          tailₘ (tailₘ (γ ∙ p ∙ r))
+--            ≡⟨ cong tailₘ (cong tailₘ (usage-upper-bound x₁)) ⟩
+--          tailₘ (tailₘ (γ ∙ p ∙ r ∧ᶜ ⌈ s ⌉))
+--            ≡⟨ cong tailₘ (tail-distrib-∧ {γ = γ ∙ p ∙ r} {⌈ s ⌉}) ⟩
+--          tailₘ ((γ ∙ p) ∧ᶜ tailₘ ⌈ s ⌉)
+--            ≡⟨ tail-distrib-∧ {γ = γ ∙ p} {tailₘ ⌈ s ⌉} ⟩
+--          γ ∧ᶜ tailₘ (tailₘ ⌈ s ⌉) ∎
 
 usage-upper-bound (Emptyrecₘ e) = usage-upper-bound e
 usage-upper-bound starₘ         = ≤ᶜ-reflexive
@@ -257,15 +258,16 @@ usage-calc-term′ (sucⱼ Γ⊢t:ℕ) γ▸t  with inv-usage-suc γ▸t
 
 usage-calc-term′ {n = n} {𝕄 = 𝕄} (natrecⱼ {p = p} {r = r} {s = s} {z = z}
                  x Γ⊢z:G Γ⊢s:G Γ⊢n:ℕ) γ▸t with inv-usage-natrec γ▸t
-... | invUsageNatrec δ▸z δ▸s η▸n r≤0 _ = natrecₘ
-  (sub (usage-calc-term′ Γ⊢z:G δ▸z) (∧ᶜ-decreasingˡ ⌈ z ⌉ (tailₘ (tailₘ ⌈ s ⌉))))
-  (sub (Conₘ-interchange (Conₘ-interchange
-                         (usage-calc-term′ Γ⊢s:G δ▸s) δ▸s (x0 +1)) δ▸s x0)
-       (subst₂ _≤ᶜ_ refl (PE.sym eq)
-               (cong₂ _∙_ (cong₂ _∙_ (∧ᶜ-decreasingʳ ⌈ z ⌉ (tailₘ (tailₘ ⌈ s ⌉)))
-                      (≤-reflexive {𝕄 = 𝕄}) ) (≤-reflexive {𝕄 = 𝕄}))))
-  (usage-calc-term′ Γ⊢n:ℕ η▸n)
-  r≤0
+... | invUsageNatrec δ▸z δ▸s η▸n _ γ≤γ′ = {!!}
+-- natrecₘ
+--   (sub (usage-calc-term′ Γ⊢z:G δ▸z) (∧ᶜ-decreasingˡ ⌈ z ⌉ (tailₘ (tailₘ ⌈ s ⌉))))
+--   (sub (Conₘ-interchange (Conₘ-interchange
+--                          (usage-calc-term′ Γ⊢s:G δ▸s) δ▸s (x0 +1)) δ▸s x0)
+--        (subst₂ _≤ᶜ_ refl (PE.sym eq)
+--                (cong₂ _∙_ (cong₂ _∙_ (∧ᶜ-decreasingʳ ⌈ z ⌉ (tailₘ (tailₘ ⌈ s ⌉)))
+--                       (≤-reflexive {𝕄 = 𝕄}) ) (≤-reflexive {𝕄 = 𝕄}))))
+--   (usage-calc-term′ Γ⊢n:ℕ η▸n)
+
   where
   γs : Conₘ 𝕄 (1+ (1+ n))
   γs = ⌈ s ⌉

@@ -1,4 +1,4 @@
-{- #OPTIONS --without-K --safe #-}
+{- #OPTIONS --without-K --allow-unsolved-metas #-}
 module Definition.Typed.Usage where
 
 open import Definition.Modality
@@ -56,42 +56,115 @@ usagePresTerm γ▸ptu (prodrec-β {p} x x₁ x₂ x₃ x₄ x₅) with inv-usag
        η +ᶜ p ·ᶜ δ′ +ᶜ p ·ᶜ η′ ≡⟨ cong₂ _+ᶜ_ refl (+ᶜ-comm (p ·ᶜ δ′) (p ·ᶜ η′)) ⟩
        η +ᶜ p ·ᶜ η′ +ᶜ p ·ᶜ δ′ ∎
 usagePresTerm γ▸natrec (natrec-subst x x₁ x₂ t⇒u) with inv-usage-natrec γ▸natrec
-... | invUsageNatrec δ▸z δ▸s η▸n r≤0 γ≤γ′ = sub (natrecₘ δ▸z δ▸s (usagePresTerm η▸n t⇒u) r≤0) γ≤γ′
+... | invUsageNatrec δ▸z η▸s θ▸n X≤γ′ γ≤X = sub (natrecₘ δ▸z η▸s (usagePresTerm θ▸n t⇒u) X≤γ′) γ≤X
+-- sub (natrecₘ δ▸z δ▸s (usagePresTerm η▸n t⇒u)) γ≤γ′
 
 usagePresTerm {𝕄 = 𝕄} γ▸natrec (natrec-zero {p = p} {r = r} x x₁ x₂) with inv-usage-natrec γ▸natrec
-... | invUsageNatrec {δ = δ} δ▸z δ▸s η▸n r≤0 γ≤γ′ with inv-usage-zero η▸n
-... | η≤𝟘 = sub δ▸z (≤ᶜ-transitive γ≤γ′ (subst₂ _≤ᶜ_ (cong₂ _·ᶜ_ refl (+ᶜ-comm _ _)) eq γ′≤δ))
-  where
-  rr*≤0 = subst₂ (Modality._≤_ 𝕄) refl
-                 (proj₁ (Modality.·-Zero 𝕄) (Modality._* 𝕄 r))
-                 (·-monotoneˡ {𝕄 = 𝕄} r≤0)
-  r*≤1 = subst₂ (Modality._≤_ 𝕄)
-                (PE.sym (Modality.*-StarSemiring 𝕄 r))
-                (proj₂ (Modality.+-Identity 𝕄) (Modality.𝟙 𝕄))
-                (+-monotone {𝕄 = 𝕄} (≤-reflexive {𝕄 = 𝕄}) rr*≤0)
-  γ′≤δ = ·ᶜ-monotone (+ᶜ-monotoneˡ (·ᶜ-monotoneʳ η≤𝟘)) r*≤1
-  eq = begin
-     (Modality.𝟙 𝕄) ·ᶜ (p ·ᶜ 𝟘ᶜ +ᶜ δ) ≡⟨ ·ᶜ-identityˡ (p ·ᶜ 𝟘ᶜ +ᶜ δ) ⟩
-     p ·ᶜ 𝟘ᶜ +ᶜ δ                      ≡⟨ cong₂ _+ᶜ_ (·ᶜ-zeroʳ p) refl ⟩
-     𝟘ᶜ +ᶜ δ                           ≡⟨ +ᶜ-identityˡ δ ⟩
-     δ                                 ∎
+... | invUsageNatrec {δ = δ} δ▸z η▸s θ▸n X≤γ′ γ≤X with inv-usage-zero θ▸n
+... | θ≤𝟘 = sub δ▸z (≤ᶜ-transitive γ≤X (∧ᶜ-decreasingˡ δ _))
+-- (≤ᶜ-transitive γ≤γ′ (∧ᶜ-decreasingˡ δ _))
+-- sub δ▸z (≤ᶜ-transitive γ≤γ′ (subst₂ _≤ᶜ_ (cong₂ _·ᶜ_ refl (+ᶜ-comm _ _)) eq γ′≤δ))
+  -- where
+  -- rr*≤0 = subst₂ (Modality._≤_ 𝕄) refl
+  --                (proj₁ (Modality.·-Zero 𝕄) (Modality._* 𝕄 r))
+  --                (·-monotoneˡ {𝕄 = 𝕄} r≤0)
+  -- r*≤1 = subst₂ (Modality._≤_ 𝕄)
+  --               (PE.sym (Modality.*-StarSemiring 𝕄 r))
+  --               (proj₂ (Modality.+-Identity 𝕄) (Modality.𝟙 𝕄))
+  --               (+-monotone {𝕄 = 𝕄} (≤-reflexive {𝕄 = 𝕄}) rr*≤0)
+  -- γ′≤δ = ·ᶜ-monotone (+ᶜ-monotoneˡ (·ᶜ-monotoneʳ η≤𝟘)) r*≤1
+  -- eq = begin
+  --    (Modality.𝟙 𝕄) ·ᶜ (p ·ᶜ 𝟘ᶜ +ᶜ δ) ≡⟨ ·ᶜ-identityˡ (p ·ᶜ 𝟘ᶜ +ᶜ δ) ⟩
+  --    p ·ᶜ 𝟘ᶜ +ᶜ δ                      ≡⟨ cong₂ _+ᶜ_ (·ᶜ-zeroʳ p) refl ⟩
+  --    𝟘ᶜ +ᶜ δ                           ≡⟨ +ᶜ-identityˡ δ ⟩
+  --    δ                                 ∎
 
 
 usagePresTerm {𝕄 = 𝕄} γ▸natrec (natrec-suc {p = p} {r = r} x x₁ x₂ x₃) with inv-usage-natrec γ▸natrec
-... | invUsageNatrec {δ = δ} {η} δ▸z δ▸s η▸sn r≤0 γ≤γ′ with inv-usage-suc η▸sn
-... | invUsageSuc {δ = η′} η′▸n η≤η′ = sub
-  (doubleSubstₘ-lemma δ▸s (natrecₘ δ▸z δ▸s η′▸n r≤0) η′▸n)
-  (≤ᶜ-transitive γ≤γ′ (subst₂ _≤ᶜ_ refl eq (·ᶜ-monotoneʳ (+ᶜ-monotone ≤ᶜ-reflexive (·ᶜ-monotoneʳ η≤η′)))))
-  where
-  r* = Modality._* 𝕄 r
-  eq = begin
-     r* ·ᶜ (δ +ᶜ p ·ᶜ η′)
-       ≡⟨ cong₂ _·ᶜ_ (Modality.*-StarSemiring 𝕄 r) refl ⟩
-     _ ≡⟨ ·ᶜ-distribʳ-+ᶜ (Modality.𝟙 𝕄) (Modality._·_ 𝕄 r r*) (δ +ᶜ p ·ᶜ η′) ⟩
-     _ ≡⟨ cong₂ _+ᶜ_ (·ᶜ-identityˡ (δ +ᶜ p ·ᶜ η′)) (·ᶜ-assoc r r* (δ +ᶜ p ·ᶜ η′)) ⟩
-     _ ≡⟨ +ᶜ-assoc δ (p ·ᶜ η′) _ ⟩
-     _ ≡⟨ cong₂ _+ᶜ_ refl (+ᶜ-comm (p ·ᶜ η′) _) ⟩
-     _ ∎
+... | invUsageNatrec {δ = δ} {η} {X = X} δ▸z η▸s θ▸sn X≤γ′ γ≤X with inv-usage-suc θ▸sn
+... | invUsageSuc {δ = θ′} θ′▸n θ≤θ′ = sub
+  (doubleSubstₘ-lemma η▸s (natrecₘ δ▸z η▸s (sub θ′▸n θ≤θ′) X≤γ′) θ′▸n)
+  (≤ᶜ-transitive γ≤X
+                 (≤ᶜ-transitive (∧ᶜ-decreasingʳ δ X)
+                                (≤ᶜ-transitive X≤γ′
+                                               (+ᶜ-monotoneʳ (+ᶜ-monotoneʳ (·ᶜ-monotoneʳ θ≤θ′))))))
+  {-
+  η + r(δ ∧ r*(δ ∧ η + pθ)) + pθ′
+
+
+-}
+
+-- (≤ᶜ-transitive γ≤X (≤ᶜ-transitive (subst₂ _≤ᶜ_ refl X≤γ′ (∧ᶜ-decreasingʳ δ X)) (+ᶜ-monotoneʳ (+ᶜ-monotoneʳ (·ᶜ-monotoneʳ θ≤θ′)))))
+
+-- (≤ᶜ-transitive X≤γ′ (+ᶜ-monotoneʳ (+ᶜ-monotoneʳ (·ᶜ-monotoneʳ θ≤θ′)))))
+{-
+    δ ∧ r*(η + pθ)
+  ≤ r*(η + pθ)
+  = (1+rr*)(η + pθ)
+  = (η + pθ) + rr*(η + pθ)
+
+-}
+-- (≤ᶜ-transitive γ≤γ′ (subst₂ _≤ᶜ_ (PE.sym eq) {!!} (+ᶜ-monotoneʳ (+ᶜ-monotoneʳ (·ᶜ-monotoneʳ θ≤θ′)))))
+
+-- sub (doubleSubstₘ-lemma η▸s ((natrecₘ δ▸z η▸s θ′▸n r+)) θ′▸n) (≤ᶜ-transitive γ≤γ′ {!!})
+-- (doubleSubstₘ-lemma η▸s (natrecₘ δ▸z η▸s θ′▸n r+) θ′▸n) (≤ᶜ-transitive γ≤γ′ {!!})
+-- sub (doubleSubstₘ-lemma η▸s (natrecₘ δ▸z η▸s θ′▸n) r+ θ′▸n) {!!}
+{-
+
+assume:
+X ▸ natrec...
+δ ▸ z
+η ∙ p ∙ r ▸ s
+θ ▸ n
+need:
+X ≤ᶜ δ
+X ≤ η + rX + pθ
+
+try:
+X = δ ∧ r⁺(η + pθ) = δ ∧ (η + pθ) + r(η + p θ) + r²(...
+then:
+X ≤ δ (∧-decr)
+η + rX + pθ = (η + pθ) + (rδ ∧ rr⁺(η + pθ))
+
+
+
+
+
+
+
+
+
+
+
+δ ∧ r+ X = δ ∧ (1 ∧ rr+)X = δ ∧ X ∧ rr⁺X ≤ X ∧ rr⁺X
+
+A ∧ (B + C) ≤ (A ∧ B) + C
+
+
+X = η+pθ
+X' = η+pθ′
+δ ∧ᶜ r*X ≤ r*X ≤ r*X' = X' + rr*X' ≤ ... ≤ X' + r(δ ∧ r*X')
+rr*X' ≤ r(δ ∧ r*X')?
+r*X' ≤ δ ∧ r*X'? no!
+
+
+
+δ ∧ r*X ≤ δ ∧ r*X' = δ ∧ (X' + rr*X')
+
+-}
+-- sub
+--   (doubleSubstₘ-lemma δ▸s (natrecₘ δ▸z δ▸s η′▸n r≤0) η′▸n)
+--   (≤ᶜ-transitive γ≤γ′ (subst₂ _≤ᶜ_ refl eq (·ᶜ-monotoneʳ (+ᶜ-monotone ≤ᶜ-reflexive (·ᶜ-monotoneʳ η≤η′)))))
+--   where
+--   r* = Modality._* 𝕄 r
+--   eq = begin
+--      r* ·ᶜ (δ +ᶜ p ·ᶜ η′)
+--        ≡⟨ cong₂ _·ᶜ_ (Modality.*-StarSemiring 𝕄 r) refl ⟩
+--      _ ≡⟨ ·ᶜ-distribʳ-+ᶜ (Modality.𝟙 𝕄) (Modality._·_ 𝕄 r r*) (δ +ᶜ p ·ᶜ η′) ⟩
+--      _ ≡⟨ cong₂ _+ᶜ_ (·ᶜ-identityˡ (δ +ᶜ p ·ᶜ η′)) (·ᶜ-assoc r r* (δ +ᶜ p ·ᶜ η′)) ⟩
+--      _ ≡⟨ +ᶜ-assoc δ (p ·ᶜ η′) _ ⟩
+--      _ ≡⟨ cong₂ _+ᶜ_ refl (+ᶜ-comm (p ·ᶜ η′) _) ⟩
+--      _ ∎
 usagePresTerm γ▸et (Emptyrec-subst x t⇒u) with inv-usage-Emptyrec γ▸et
 ... | invUsageEmptyrec δ▸t γ≤δ = sub (Emptyrecₘ (usagePresTerm δ▸t t⇒u)) γ≤δ
 

@@ -193,21 +193,22 @@ record InvUsageNatrec {m} {M} {𝕄 : Modality M} (γ : Conₘ 𝕄 m) (p r : M)
                       (z : Term M m) (s : Term M (1+ (1+ m))) (n : Term M m) : Set where
   constructor invUsageNatrec
   field
-    {δ η} : Conₘ 𝕄 m
-    δ▸z   : δ ▸ z
-    δ▸s   : δ ∙ p ∙ r ▸ s
-    η▸n   : η ▸ n
-    r≤0   : Modality._≤_ 𝕄 r (Modality.𝟘 𝕄)
-    γ≤γ′  : γ ≤ᶜ (Modality._* 𝕄 r) ·ᶜ (δ +ᶜ p ·ᶜ η)
+    {δ η θ δ′} : Conₘ 𝕄 m
+    δ▸z  : δ ▸ z
+    η▸s  : η ∙ p ∙ r ▸ s
+    θ▸n  : θ ▸ n
+    δ′≡  : δ′ ≡ η +ᶜ r ·ᶜ (δ ∧ᶜ δ′) +ᶜ p ·ᶜ θ
+    γ≤γ′ : γ ≤ᶜ δ ∧ᶜ δ′
 
 -- If γ ▸ natrec p r G z s n then δ ▸ z, δ ∙ r ∙ p ▸ s, η ▸ n and γ ≤ᶜ r* ·ᶜ (δ +ᶜ p ·ᶜ η)
 
 inv-usage-natrec : {m : Nat} {𝕄 : Modality M} {γ : Conₘ 𝕄 m} {p r : M} {z n : Term M m}
                    {G : Term M (1+ m)} {s : Term M (1+ (1+ m))}
                  → γ ▸ natrec p r G z s n → InvUsageNatrec γ p r z s n
-inv-usage-natrec (natrecₘ δ▸z δ▸s η▸n r≤0) = invUsageNatrec δ▸z δ▸s η▸n r≤0 ≤ᶜ-reflexive
+inv-usage-natrec (natrecₘ δ▸z δ▸s η▸n X≤γ′) = invUsageNatrec δ▸z δ▸s η▸n X≤γ′ ≤ᶜ-reflexive
+-- δ▸z δ▸s η▸n r+ ≤ᶜ-reflexive --δ▸z δ▸s η▸n r+ ≤ᶜ-reflexive
 inv-usage-natrec (sub γ▸natrec γ≤γ′) with inv-usage-natrec γ▸natrec
-... | invUsageNatrec δ▸z δ▸s η▸n r≤0 γ′≤γ″ = invUsageNatrec δ▸z δ▸s η▸n r≤0 (≤ᶜ-transitive γ≤γ′ γ′≤γ″)
+... | invUsageNatrec δ▸z δ▸s η▸n X≤γ′ γ′≤γ″ = invUsageNatrec δ▸z δ▸s η▸n X≤γ′ (≤ᶜ-transitive γ≤γ′ γ′≤γ″)
 
 
 record InvUsageEmptyrec {n} {M} {𝕄 :  Modality M} (γ : Conₘ 𝕄 n) (t : Term M n) : Set where
