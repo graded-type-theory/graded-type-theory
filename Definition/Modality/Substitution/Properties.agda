@@ -426,3 +426,18 @@ substₘ-calc-correct σ well-typed x = subst₂ _▸_ (sym (substₘ-calc-col �
 
 substₘ-calc-upper-bound : {𝕄 : Modality M} {γ : Conₘ 𝕄 m} → (σ : Subst M m n) → (x : Fin n) → γ ▸ σ x → γ ≤ᶜ ∥ σ ∥ *> (𝟘ᶜ , x ≔ Modality.𝟙 𝕄)
 substₘ-calc-upper-bound σ x γ▸σx = subst₂ _≤ᶜ_ refl (sym (substₘ-calc-col σ x)) (usage-upper-bound γ▸σx)
+
+--------------------------------------------------
+-- Well-formedness of substitution compositions --
+--------------------------------------------------
+
+-- Composition of well-formed substitutions are well-formed.
+-- If Ψ ▶ σ and Φ ▶ σ′ then (Ψ <*> Φ) ▶ (σ ₛ•ₛ σ′).
+-- Proof using the substitution lemma and associtivity of matrix/vector pultiplication.
+
+wf-compSubst : ∀ {𝕄 : Modality M} {Ψ : Substₘ 𝕄 m ℓ} {Φ : Substₘ 𝕄 ℓ n} {σ : Subst M m ℓ} {σ′ : Subst M ℓ n}
+             → Ψ ▶ σ → Φ ▶ σ′ → (Ψ <*> Φ) ▶ (σ ₛ•ₛ σ′)
+wf-compSubst {𝕄 = 𝕄} {Ψ = Ψ} {Φ = Φ} {σ = σ} {σ′ = σ′} Ψ▶σ Φ▶σ′ x = subst₂ _▸_
+  (sym (<*>-*>-assoc Ψ Φ (𝟘ᶜ , x ≔ Modality.𝟙 𝕄)))
+  refl
+  (substₘ-lemma Ψ σ Ψ▶σ (Φ▶σ′ x))
