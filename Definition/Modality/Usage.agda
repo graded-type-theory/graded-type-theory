@@ -9,13 +9,15 @@ open import Tools.Fin
 open import Tools.Nat
 open import Tools.PropositionalEquality as PE
 
+infix 10 _▸_
+
 private
   variable
     n : Nat
     M : Set
     𝕄 : Modality M
     p q r : M
-    γ δ γ′ : Conₘ 𝕄 n
+    γ δ γ′ η : Conₘ 𝕄 n
     A F : Term M n
     G : Term M (1+ n)
     t u : Term M n
@@ -35,22 +37,22 @@ data _▸_ {n : Nat} {M} {𝕄 : Modality M} : (γ : Conₘ 𝕄 n) → Term M n
   Unitₘ     : 𝟘ᶜ ▸ Unit
 
   Πₘ        : γ ▸ F
-            → (δ ∙ q) ▸ G
-            → (γ +ᶜ δ) ▸ Π p , q ▷ F ▹ G
+            → δ ∙ q ▸ G
+            → γ +ᶜ δ ▸ Π p , q ▷ F ▹ G
 
   Σₘ        : γ ▸ F
-            → (δ ∙ q) ▸ G
-            → (γ +ᶜ δ) ▸ Σ q ▷ F ▹ G
+            → δ ∙ q ▸ G
+            → γ +ᶜ δ ▸ Σ q ▷ F ▹ G
 
   var       : (𝟘ᶜ , x ≔ (Modality.𝟙 𝕄)) ▸ var x
 
   lamₘ      : ∀ {t}
-            → (γ ∙ p) ▸ t
+            → γ ∙ p ▸ t
             → γ ▸ lam p t
 
   _∘ₘ_      : γ ▸ t
             → δ ▸ u
-            → (γ +ᶜ p ·ᶜ δ) ▸ (t ∘ p ▷ u)
+            → γ +ᶜ p ·ᶜ δ ▸ t ∘ p ▷ u
 
   prodₘ     : γ ▸ t
             → δ ▸ u
@@ -64,8 +66,8 @@ data _▸_ {n : Nat} {M} {𝕄 : Modality M} : (γ : Conₘ 𝕄 n) → Term M n
             → 𝟘ᶜ ▸ snd t
 
   prodrecₘ  : γ ▸ t
-            → (δ ∙ p ∙ p) ▸ u
-            → (p ·ᶜ γ +ᶜ δ) ▸ (prodrec p G t u)
+            → δ ∙ p ∙ p ▸ u
+            → p ·ᶜ γ +ᶜ δ ▸ prodrec p G t u
 
   zeroₘ     : 𝟘ᶜ ▸ zero
   sucₘ      : γ ▸ t
