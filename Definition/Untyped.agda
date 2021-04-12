@@ -608,11 +608,6 @@ t [ s ][ s′ ] = subst (consSubst (consSubst idSubst s′) s) t
 _[⟨_,_⟩] : (t : Term M (1+ n)) (s s′ : Term M (1+ (1+ n))) → Term M (1+ (1+ n))
 t [⟨ s , s′ ⟩] = subst (consSubst (wk1Subst (wk1Subst idSubst)) (prod s s′)) t
 
--- "Strengthen" a substitution by droping the first term
-
-str : {m n : Nat} → Subst M m (1+ n) → Subst M m n
-str σ x = σ (x +1)
-
 
 B-subst : (σ : Subst M m n) (W : BindingType M) (F : Term M n) (G : Term M (1+ n))
         → subst σ (⟦ W ⟧ F ▹ G) PE.≡ ⟦ W ⟧ (subst σ F) ▹ (subst (liftSubst σ) G)

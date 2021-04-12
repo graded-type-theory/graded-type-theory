@@ -70,8 +70,8 @@ _▶_ {n = n} {𝕄 = 𝕄} Ψ σ = ∀ (x : Fin n) → (Ψ *> (𝟘ᶜ , x ≔ 
 -- Substitution matrix calculation
 
 ∥_∥ : {𝕄 : Modality M} (σ : Subst M m n) → Substₘ 𝕄 m n
-∥_∥ {n = Nat.zero} {𝕄 = 𝕄} σ = ε
-∥_∥ {n = 1+ n} {𝕄 = 𝕄} σ = ∥ (str σ) ∥ ∙ ⌈ σ x0 ⌉
+∥_∥ {n = 0}    σ = ε
+∥_∥ {n = 1+ n} σ = ∥ tail σ ∥ ∙ ⌈ head σ ⌉
 
 ---------------------------------------------------------------
 -- Modality substitutions corresponding to (term) weakenings --
