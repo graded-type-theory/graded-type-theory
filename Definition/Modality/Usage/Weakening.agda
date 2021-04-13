@@ -87,7 +87,7 @@ liftn-usage {𝕄 = 𝕄} ℓ (prodrecₘ {δ = δ} γ▸t δ▸u) = subst₂ _�
 liftn-usage ℓ zeroₘ      = PE.subst (_▸ zero) (PE.sym (insertAt-𝟘 ℓ)) zeroₘ
 liftn-usage ℓ (sucₘ γ▸t) = sucₘ (liftn-usage ℓ γ▸t)
 
-liftn-usage {𝕄 = 𝕄} ℓ (natrecₘ {δ = δ} γ▸z γ▸s δ▸n X≤γ′) = {!!}
+liftn-usage {𝕄 = 𝕄} ℓ (natrecₘ {δ = δ} γ▸z γ▸s δ▸n) = {!!}
 -- subst₂ _▸_ eq refl
 --   (natrecₘ (liftn-usage ℓ γ▸z) (liftn-usage (1+ (1+ ℓ)) γ▸s) (liftn-usage ℓ δ▸n) r≤0)
 --   where

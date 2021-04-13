@@ -459,7 +459,7 @@ lookup-monotone {γ = γ ∙ p} {δ ∙ q} (x +1) γ≤δ =
 -- (γ +ᶜ δ) , x ≔ (p + q) ≡ (γ , x ≔ p) +ᶜ (δ , x ≔ q)
 
 update-distrib-+ᶜ : {𝕄 : Modality M} (γ δ : Conₘ 𝕄 n) (p q : M) (x : Fin n)
-                 → (γ +ᶜ δ) , x ≔ (Modality._+_ 𝕄 p q) ≡ (γ , x ≔ p) +ᶜ (δ , x ≔ q)
+                  → (γ +ᶜ δ) , x ≔ (Modality._+_ 𝕄 p q) ≡ (γ , x ≔ p) +ᶜ (δ , x ≔ q)
 update-distrib-+ᶜ (γ ∙ p′) (δ ∙ q′) p q x0 = refl
 update-distrib-+ᶜ (γ ∙ p′) (δ ∙ q′) p q (x +1) =
   cong₂ _∙_ (update-distrib-+ᶜ γ δ p q x) refl
@@ -468,16 +468,34 @@ update-distrib-+ᶜ (γ ∙ p′) (δ ∙ q′) p q (x +1) =
 -- (p ·ᶜ γ) , x ≔ (p · q) ≡ p ·ᶜ (γ , x ≔ q)
 
 update-distrib-·ᶜ : {𝕄 : Modality M} (γ : Conₘ 𝕄 n) (p q : M) (x : Fin n)
-                 → (p ·ᶜ γ) , x ≔ (Modality._·_ 𝕄 p q) ≡ p ·ᶜ (γ , x ≔ q)
+                  → (p ·ᶜ γ) , x ≔ (Modality._·_ 𝕄 p q) ≡ p ·ᶜ (γ , x ≔ q)
 update-distrib-·ᶜ (γ ∙ r) p q x0 = refl
 update-distrib-·ᶜ (γ ∙ r) p q (x +1) =
   cong₂ _∙_ (update-distrib-·ᶜ γ p q x) refl
+
+-- Context update distributes over meet
+-- (γ ∧ᶜ δ) , x ≔ (p ∧ q) ≡ (γ , x ≔ p) ∧ᶜ (δ , x ≔ q)
+
+update-distrib-∧ᶜ : {𝕄 : Modality M} (γ δ : Conₘ 𝕄 n) (p q : M) (x : Fin n)
+                  → (γ ∧ᶜ δ) , x ≔ (Modality._∧_ 𝕄 p q) ≡ (γ , x ≔ p) ∧ᶜ (δ , x ≔ q)
+update-distrib-∧ᶜ (γ ∙ p′) (δ ∙ q′) p q x0 = refl
+update-distrib-∧ᶜ (γ ∙ p′) (δ ∙ q′) p q (x +1) =
+  cong₂ _∙_ (update-distrib-∧ᶜ γ δ p q x) refl
+
+-- Context update distributes over nrᶜ
+-- nrᶜ γ δ r , x ≔ nr p q r ≡  nrᶜ (γ , x ≔ p) (δ , x ≔ q) r
+
+update-distrib-nrᶜ : {𝕄 : Modality M} (γ δ : Conₘ 𝕄 n) (r p q : M) (x : Fin n)
+                   → nrᶜ γ δ r , x ≔ (Modality.nr 𝕄 p q r) ≡ nrᶜ (γ , x ≔ p) (δ , x ≔ q) r
+update-distrib-nrᶜ (γ ∙ _) (δ ∙ _) r p q x0 = refl
+update-distrib-nrᶜ (γ ∙ _) (δ ∙ _) r p q (x +1) =
+  cong₂ _∙_ (update-distrib-nrᶜ γ δ r p q x) refl
 
 -- Context lookup distributes over addition
 -- (γ +ᶜ δ)⟨x⟩ ≡ γ⟨x⟩ + δ⟨x⟩
 
 lookup-distrib-+ᶜ : {𝕄 : Modality M} (γ δ : Conₘ 𝕄 n) (x : Fin n)
-                 → (γ +ᶜ δ) ⟨ x ⟩ ≡ Modality._+_ 𝕄 (γ ⟨ x ⟩) (δ ⟨ x ⟩)
+                  → (γ +ᶜ δ) ⟨ x ⟩ ≡ Modality._+_ 𝕄 (γ ⟨ x ⟩) (δ ⟨ x ⟩)
 lookup-distrib-+ᶜ (γ ∙ p) (δ ∙ q) x0     = refl
 lookup-distrib-+ᶜ (γ ∙ p) (δ ∙ q) (x +1) = lookup-distrib-+ᶜ γ δ x
 
@@ -485,9 +503,25 @@ lookup-distrib-+ᶜ (γ ∙ p) (δ ∙ q) (x +1) = lookup-distrib-+ᶜ γ δ x
 -- (p ·ᶜ γ)⟨x⟩ ≡ p · γ⟨x⟩
 
 lookup-distrib-·ᶜ : {𝕄 : Modality M} (γ : Conₘ 𝕄 n) (p : M) (x : Fin n)
-                 → (p ·ᶜ γ) ⟨ x ⟩ ≡ Modality._·_ 𝕄 p (γ ⟨ x ⟩)
+                  → (p ·ᶜ γ) ⟨ x ⟩ ≡ Modality._·_ 𝕄 p (γ ⟨ x ⟩)
 lookup-distrib-·ᶜ (γ ∙ q) p x0 = refl
 lookup-distrib-·ᶜ (γ ∙ q) p (x +1) = lookup-distrib-·ᶜ γ p x
+
+-- Context lookup distributes over meet
+-- (γ ∧ᶜ δ)⟨x⟩ ≡ γ⟨x⟩ ∧ δ⟨x⟩
+
+lookup-distrib-∧ᶜ : {𝕄 : Modality M} (γ δ : Conₘ 𝕄 n) (x : Fin n)
+                  → (γ ∧ᶜ δ) ⟨ x ⟩ ≡ Modality._∧_ 𝕄 (γ ⟨ x ⟩) (δ ⟨ x ⟩)
+lookup-distrib-∧ᶜ (γ ∙ p) (δ ∙ q) x0     = refl
+lookup-distrib-∧ᶜ (γ ∙ p) (δ ∙ q) (x +1) = lookup-distrib-∧ᶜ γ δ x
+
+-- Context lookup distributes over nrᶜ
+-- (nrᶜ γ δ r)⟨x⟩ ≡ nr γ⟨x⟩ δ⟨x⟩ r
+
+lookup-distrib-nrᶜ : {𝕄 : Modality M} (γ δ : Conₘ 𝕄 n) (r : M) (x : Fin n)
+                   → (nrᶜ γ δ r) ⟨ x ⟩ ≡ Modality.nr 𝕄 (γ ⟨ x ⟩) (δ ⟨ x ⟩) r
+lookup-distrib-nrᶜ (γ ∙ p) (δ ∙ q) r x0     = refl
+lookup-distrib-nrᶜ (γ ∙ p) (δ ∙ q) r (x +1) = lookup-distrib-nrᶜ γ δ r x
 
 -- Updating the head of a context leaves the tail untouched
 -- γ , x0 ≔ p ≡ tailₘ γ ∙ p
@@ -502,3 +536,9 @@ update-head (γ ∙ q) p = refl
 update-step : {𝕄 : Modality M} (γ : Conₘ 𝕄 (1+ n)) (p : M) (x : Fin n)
             → γ , (x +1) ≔ p ≡ (tailₘ γ , x ≔ p) ∙ headₘ γ
 update-step (γ ∙ q) p x = refl
+
+
+nr-thm : {𝕄 : Modality M} (γ δ : Conₘ 𝕄 n) (r : M) →
+         nrᶜ γ δ r ≡ γ ∧ᶜ (δ +ᶜ r ·ᶜ nrᶜ γ δ r)
+nr-thm ε ε r = refl
+nr-thm {𝕄 = 𝕄} (γ ∙ p) (δ ∙ q) r = cong₂ _∙_ (nr-thm γ δ r) (Modality.nr-rec 𝕄 p q r)

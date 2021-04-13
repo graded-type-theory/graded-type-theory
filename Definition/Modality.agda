@@ -6,16 +6,22 @@ open import Algebra
 open import Tools.Product
 open import Tools.PropositionalEquality
 
--- Star ringoid
+
+-- Star ringoid modality structure
 record Modality (M : Set) : Set where
+  infixr 20 _+_
+  infixr 20 _∧_
+  infixr 25 _·_
+  infix  10 _≤_
+
   field
     -- A modality consists of a type M with three binary operations...
     _+_ : Op₂ M -- Addition
     _·_ : Op₂ M -- Multiplication
     _∧_ : Op₂ M -- Meet
 
-    -- ... one unary operator ...
-    _* : Op₁ M
+    -- ... one teritary operator...
+    nr : M → M → M → M
 
     -- ... and two special elements
     𝟘 : M
@@ -27,8 +33,7 @@ record Modality (M : Set) : Set where
     ·-Monoid            : IsMonoid _≡_ _·_ 𝟙
     -- ∧ forms a semilattice
     ∧-Semilattice       : IsSemilattice _≡_ _∧_
-    -- * forms a star semiring
-    *-StarSemiring      : (p : M) → p * ≡ 𝟙 + (p · (p *))
+
 
   -- Semilattice partial ordering relation
   _≤_ : M → M → Set
@@ -39,6 +44,9 @@ record Modality (M : Set) : Set where
     ·-Zero              : Zero _≡_ 𝟘 _·_
     -- The semiring is positive
     +-Positive          : (p q : M) → 𝟘 ≤ (p + q) → 𝟘 ≤ p × 𝟘 ≤ q
+    -- nr is a solution to the following recurrence relation
+    nr-rec : (p q r : M) → nr p q r ≡ p ∧ (q + r · nr p q r)
+
 
     -- Multiplication distributes over addition
     ·Distr+             : _DistributesOver_ _≡_ _·_ _+_

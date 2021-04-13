@@ -56,11 +56,11 @@ usagePresTerm γ▸ptu (prodrec-β {p} x x₁ x₂ x₃ x₄ x₅) with inv-usag
        η +ᶜ p ·ᶜ δ′ +ᶜ p ·ᶜ η′ ≡⟨ cong₂ _+ᶜ_ refl (+ᶜ-comm (p ·ᶜ δ′) (p ·ᶜ η′)) ⟩
        η +ᶜ p ·ᶜ η′ +ᶜ p ·ᶜ δ′ ∎
 usagePresTerm γ▸natrec (natrec-subst x x₁ x₂ t⇒u) with inv-usage-natrec γ▸natrec
-... | invUsageNatrec δ▸z η▸s θ▸n X≤γ′ γ≤X = sub (natrecₘ δ▸z η▸s (usagePresTerm θ▸n t⇒u) X≤γ′) γ≤X
+... | invUsageNatrec δ▸z η▸s θ▸n γ≤X = sub (natrecₘ δ▸z η▸s (usagePresTerm θ▸n t⇒u)) γ≤X
 -- sub (natrecₘ δ▸z δ▸s (usagePresTerm η▸n t⇒u)) γ≤γ′
 
 usagePresTerm {𝕄 = 𝕄} γ▸natrec (natrec-zero {p = p} {r = r} x x₁ x₂) with inv-usage-natrec γ▸natrec
-... | invUsageNatrec {δ = δ} δ▸z η▸s θ▸n X≤γ′ γ≤X with inv-usage-zero θ▸n
+... | invUsageNatrec {δ = δ} δ▸z η▸s θ▸n γ≤X with inv-usage-zero θ▸n
 ... | θ≤𝟘 = sub δ▸z (≤ᶜ-transitive γ≤X (∧ᶜ-decreasingˡ δ _))
 -- (≤ᶜ-transitive γ≤γ′ (∧ᶜ-decreasingˡ δ _))
 -- sub δ▸z (≤ᶜ-transitive γ≤γ′ (subst₂ _≤ᶜ_ (cong₂ _·ᶜ_ refl (+ᶜ-comm _ _)) eq γ′≤δ))
@@ -81,13 +81,13 @@ usagePresTerm {𝕄 = 𝕄} γ▸natrec (natrec-zero {p = p} {r = r} x x₁ x₂
 
 
 usagePresTerm {𝕄 = 𝕄} γ▸natrec (natrec-suc {p = p} {r = r} x x₁ x₂ x₃) with inv-usage-natrec γ▸natrec
-... | invUsageNatrec {δ = δ} {η} {X = X} δ▸z η▸s θ▸sn X≤γ′ γ≤X with inv-usage-suc θ▸sn
-... | invUsageSuc {δ = θ′} θ′▸n θ≤θ′ = sub
-  (doubleSubstₘ-lemma η▸s (natrecₘ δ▸z η▸s (sub θ′▸n θ≤θ′) X≤γ′) θ′▸n)
-  (≤ᶜ-transitive γ≤X
-                 (≤ᶜ-transitive (∧ᶜ-decreasingʳ δ X)
-                                (≤ᶜ-transitive X≤γ′
-                                               (+ᶜ-monotoneʳ (+ᶜ-monotoneʳ (·ᶜ-monotoneʳ θ≤θ′))))))
+... | invUsageNatrec δ▸z η▸s θ▸sn γ≤γ′ with inv-usage-suc θ▸sn
+... | invUsageSuc {δ = θ′} θ′▸n θ≤θ′ = sub (doubleSubstₘ-lemma η▸s (natrecₘ δ▸z η▸s (sub θ′▸n θ≤θ′)) θ′▸n) (≤ᶜ-transitive γ≤γ′ {!!})
+  -- (doubleSubstₘ-lemma η▸s (natrecₘ δ▸z η▸s (sub θ′▸n θ≤θ′)) θ′▸n)
+  -- (≤ᶜ-transitive γ≤X
+  --                (≤ᶜ-transitive (∧ᶜ-decreasingʳ δ X)
+  --                               (≤ᶜ-transitive X≤γ′
+  --                                              (+ᶜ-monotoneʳ (+ᶜ-monotoneʳ (·ᶜ-monotoneʳ θ≤θ′))))))
   {-
   η + r(δ ∧ r*(δ ∧ η + pθ)) + pθ′
 

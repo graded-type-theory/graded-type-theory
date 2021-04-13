@@ -11,7 +11,7 @@ open import Definition.Untyped as U hiding (_∷_)
 open import Definition.Typed
 
 open import Tools.Fin
-open import Tools.Nat
+open import Tools.Nat hiding (_+_)
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 
@@ -111,8 +111,74 @@ Conₘ-interchange {𝕄 = 𝕄} (prodrecₘ {γ} {δ = δ} {p} γ▸t γ▸t₁
 Conₘ-interchange zeroₘ zeroₘ x           = subst₂ _▸_ (PE.sym (update-self 𝟘ᶜ x)) refl zeroₘ
 Conₘ-interchange (sucₘ γ▸t) (sucₘ δ▸t) x = sucₘ (Conₘ-interchange γ▸t δ▸t x)
 
-Conₘ-interchange {𝕄 = 𝕄} (natrecₘ {γ} {p} {r} {δ} γ▸t γ▸t₁ γ▸t₂ _)
-                     (natrecₘ {γ₁} {δ = δ₁} δ▸t δ▸t₁ δ▸t₂ _) x = {!!}
+Conₘ-interchange {𝕄 = 𝕄} (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} γ▸z δ▸s η▸n)
+                 (natrecₘ {γ = γ′} {δ = δ′} {η = η′} γ′▸z δ′▸s η′▸n) x =
+  subst₂ _▸_ eq refl (natrecₘ (Conₘ-interchange γ▸z γ′▸z x)
+                                (Conₘ-interchange δ▸s δ′▸s (x +1 +1))
+                                (Conₘ-interchange η▸n η′▸n x))
+  where
+  open Modality 𝕄
+  eq = let γ'  = γ , x ≔ (γ′ ⟨ x ⟩)
+           δ'  = δ , x ≔ (δ′ ⟨ x ⟩)
+           η'  = η , x ≔ (η′ ⟨ x ⟩)
+           rγ' = r ·ᶜ γ , x ≔ (r · (γ′ ⟨ x ⟩))
+           pη' = p ·ᶜ η , x ≔ (p · (η′ ⟨ x ⟩))
+       in  begin
+         γ' ∧ᶜ (nrᶜ (δ' +ᶜ p ·ᶜ η' +ᶜ r ·ᶜ γ') (δ' +ᶜ p ·ᶜ η') r)
+           ≡⟨ cong (γ' ∧ᶜ_) (cong₂ (λ x₁ x₂ → nrᶜ x₁ x₂ r)
+                   (cong (δ' +ᶜ_) (cong₂ _+ᶜ_ (PE.sym (update-distrib-·ᶜ η p (η′ ⟨ x ⟩) x))
+                                              (PE.sym (update-distrib-·ᶜ γ r (γ′ ⟨ x ⟩) x))))
+                   (cong (δ' +ᶜ_) (PE.sym (update-distrib-·ᶜ η p (η′ ⟨ x ⟩) x)))) ⟩
+         γ' ∧ᶜ nrᶜ (δ' +ᶜ pη' +ᶜ rγ') (δ' +ᶜ pη') r
+           ≡⟨ cong (γ' ∧ᶜ_) (cong₂ (λ x₁ x₂ → nrᶜ x₁ x₂ r)
+                   (cong (δ' +ᶜ_) (PE.sym (update-distrib-+ᶜ (p ·ᶜ η) (r ·ᶜ γ)
+                                                             (p · (η′ ⟨ x ⟩)) (r · (γ′ ⟨ x ⟩)) x)))
+                   (PE.sym (update-distrib-+ᶜ δ (p ·ᶜ η) (δ′ ⟨ x ⟩) (p · (η′ ⟨ x ⟩)) x))) ⟩
+         γ' ∧ᶜ nrᶜ (δ' +ᶜ ((p ·ᶜ η +ᶜ r ·ᶜ γ) , x ≔ ((p · (η′ ⟨ x ⟩)) + (r · (γ′ ⟨ x ⟩)))))
+                   ((δ +ᶜ p ·ᶜ η) , x ≔ ((δ′ ⟨ x ⟩) + (p · (η′ ⟨ x ⟩)))) r
+           ≡⟨ cong (γ' ∧ᶜ_) (cong₂ (λ x₁ x₂ → nrᶜ x₁ x₂ r)
+                   (cong (δ' +ᶜ_) (cong (_ , x ≔_) (cong₂ _+_
+                                  (PE.sym (lookup-distrib-·ᶜ η′ p x))
+                                  (PE.sym (lookup-distrib-·ᶜ γ′ r x)))))
+                   (cong (_ , x ≔_) (cong (_ +_) (PE.sym (lookup-distrib-·ᶜ η′ p x))))) ⟩
+         γ' ∧ᶜ nrᶜ (δ' +ᶜ ((p ·ᶜ η +ᶜ r ·ᶜ γ) , x ≔ (((p ·ᶜ η′) ⟨ x ⟩) + ((r ·ᶜ γ′) ⟨ x ⟩))))
+                   ((δ +ᶜ p ·ᶜ η) , x ≔ ((δ′ ⟨ x ⟩) + ((p ·ᶜ η′) ⟨ x ⟩)))
+                   r
+           ≡⟨ cong (γ' ∧ᶜ_) (cong₂ (λ x₁ x₂ → nrᶜ x₁ x₂ r)
+                                   (cong (_ +ᶜ_) (cong (_ , x ≔_) (PE.sym
+                                         (lookup-distrib-+ᶜ (p ·ᶜ η′) (r ·ᶜ γ′) x))))
+                                   (cong (_ , x ≔_) (PE.sym (lookup-distrib-+ᶜ δ′ (p ·ᶜ η′) x)))) ⟩
+         γ' ∧ᶜ nrᶜ (δ' +ᶜ ((p ·ᶜ η +ᶜ r ·ᶜ γ) , x ≔ ((p ·ᶜ η′ +ᶜ r ·ᶜ γ′) ⟨ x ⟩)))
+                   ((δ +ᶜ p ·ᶜ η) , x ≔ ((δ′ +ᶜ p ·ᶜ η′) ⟨ x ⟩))
+                   r
+           ≡⟨ cong (γ' ∧ᶜ_) (cong (λ x₁ → nrᶜ x₁ _ r)
+                       (PE.sym (update-distrib-+ᶜ δ (p ·ᶜ η +ᶜ r ·ᶜ γ) (δ′ ⟨ x ⟩)
+                                                    (p ·ᶜ η′ +ᶜ r ·ᶜ γ′ ⟨ x ⟩) x))) ⟩
+         γ' ∧ᶜ nrᶜ ((δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ) , x ≔ ((δ′ ⟨ x ⟩) + (p ·ᶜ η′ +ᶜ r ·ᶜ γ′ ⟨ x ⟩)))
+                   ((δ +ᶜ p ·ᶜ η) , x ≔ ((δ′ +ᶜ p ·ᶜ η′) ⟨ x ⟩))
+                   r
+           ≡⟨ cong (γ' ∧ᶜ_) (cong (λ x₁ → nrᶜ x₁ _ r) (cong (_ , x ≔_)
+                                  (PE.sym (lookup-distrib-+ᶜ δ′ (p ·ᶜ η′ +ᶜ r ·ᶜ γ′) x)))) ⟩
+         γ' ∧ᶜ nrᶜ ((δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ) , x ≔ (δ′ +ᶜ p ·ᶜ η′ +ᶜ r ·ᶜ γ′ ⟨ x ⟩))
+                   (δ +ᶜ p ·ᶜ η , x ≔ (δ′ +ᶜ p ·ᶜ η′ ⟨ x ⟩))
+                   r
+           ≡⟨ cong (γ' ∧ᶜ_) (PE.sym (update-distrib-nrᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ) (δ +ᶜ p ·ᶜ η) r
+                                    (δ′ +ᶜ p ·ᶜ η′ +ᶜ r ·ᶜ γ′ ⟨ x ⟩) (δ′ +ᶜ p ·ᶜ η′ ⟨ x ⟩) x)) ⟩
+         γ' ∧ᶜ ((nrᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ) (δ +ᶜ p ·ᶜ η) r) ,
+                     x ≔ (nr (δ′ +ᶜ p ·ᶜ η′ +ᶜ r ·ᶜ γ′ ⟨ x ⟩) (δ′ +ᶜ p ·ᶜ η′ ⟨ x ⟩) r))
+           ≡⟨ cong (γ' ∧ᶜ_) (cong (_ , x ≔_)
+                   (PE.sym (lookup-distrib-nrᶜ (δ′ +ᶜ p ·ᶜ η′ +ᶜ r ·ᶜ γ′)
+                                               (δ′ +ᶜ p ·ᶜ η′) r x))) ⟩
+         γ' ∧ᶜ ((nrᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ) (δ +ᶜ p ·ᶜ η) r) ,
+                     x ≔ (nrᶜ (δ′ +ᶜ p ·ᶜ η′ +ᶜ r ·ᶜ γ′) (δ′ +ᶜ p ·ᶜ η′) r ⟨ x ⟩))
+           ≡⟨ PE.sym (update-distrib-∧ᶜ γ (nrᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ) (δ +ᶜ p ·ᶜ η) r) (γ′ ⟨ x ⟩)
+                                          (nrᶜ (δ′ +ᶜ p ·ᶜ η′ +ᶜ r ·ᶜ γ′) (δ′ +ᶜ p ·ᶜ η′) r ⟨ x ⟩) x) ⟩
+         (γ ∧ᶜ nrᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ) (δ +ᶜ p ·ᶜ η) r) ,
+                     x ≔ ((γ′ ⟨ x ⟩) ∧ (nrᶜ (δ′ +ᶜ p ·ᶜ η′ +ᶜ r ·ᶜ γ′) (δ′ +ᶜ p ·ᶜ η′) r ⟨ x ⟩))
+           ≡⟨ cong (_ , x ≔_) (PE.sym (lookup-distrib-∧ᶜ γ′
+                      (nrᶜ (δ′ +ᶜ p ·ᶜ η′ +ᶜ r ·ᶜ γ′) (δ′ +ᶜ p ·ᶜ η′) r) x)) ⟩
+         (γ ∧ᶜ nrᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ) (δ +ᶜ p ·ᶜ η) r) ,
+           x ≔ ((γ′ ∧ᶜ nrᶜ (δ′ +ᶜ p ·ᶜ η′ +ᶜ r ·ᶜ γ′) (δ′ +ᶜ p ·ᶜ η′) r) ⟨ x ⟩) ∎
   -- subst₂ _▸_  eq  refl
   --               (natrecₘ (Conₘ-interchange γ▸t δ▸t x) (Conₘ-interchange γ▸t₁ δ▸t₁ (x +1 +1))
   --               (Conₘ-interchange γ▸t₂ δ▸t₂ x) r≤0)
@@ -139,7 +205,7 @@ Conₘ-interchange starₘ starₘ x = subst₂ _▸_ (PE.sym (update-self 𝟘�
 -- ⌈ t ⌉ is an upper bound on valid modality contexts
 -- If γ ▸ t, then γ ≤ ⌈ t ⌉
 
-usage-upper-bound : γ ▸ t → γ ≤ᶜ ⌈ t ⌉
+usage-upper-bound :{𝕄 : Modality M} {γ : Conₘ 𝕄 n} {t : Term M n} → γ ▸ t → γ ≤ᶜ ⌈ t ⌉
 usage-upper-bound Uₘ     = ≤ᶜ-reflexive
 usage-upper-bound ℕₘ     = ≤ᶜ-reflexive
 usage-upper-bound Emptyₘ = ≤ᶜ-reflexive
@@ -180,7 +246,17 @@ usage-upper-bound (prodrecₘ {γ} {δ = δ} {p} {u = u₁} t u) = +ᶜ-monotone
 usage-upper-bound zeroₘ    = ≤ᶜ-reflexive
 usage-upper-bound (sucₘ t) = usage-upper-bound t
 
-usage-upper-bound (natrecₘ x x₁ x₂ x₃) = {!!}
+usage-upper-bound {𝕄 = 𝕄} (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {z = z} {s = s} {n = n} γ▸z δ▸s η▸n) =
+  ∧ᶜ-monotone (usage-upper-bound γ▸z) {!!}
+  where
+  open Modality 𝕄
+  ≤₀ : δ ∙ p ≤ᶜ tailₘ ⌈ s ⌉
+  ≤₀ = subst₂ _≤ᶜ_ (PE.sym (cong tailₘ (usage-upper-bound δ▸s))) refl tail-distrib-∧
+  p≤ : p ≤ headₘ (tailₘ ⌈ s ⌉)
+  p≤ = subst₂ _≤_ (PE.sym (cong headₘ ≤₀)) refl head-distrib-∧
+  δ≤ = subst₂ _≤ᶜ_ (PE.sym (cong tailₘ ≤₀)) refl tail-distrib-∧
+  ≤₁ : δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ ≤ᶜ (tailₘ (tailₘ ⌈ s ⌉) +ᶜ headₘ (tailₘ ⌈ s ⌉) ·ᶜ ⌈ n ⌉ +ᶜ headₘ ⌈ s ⌉ ·ᶜ ⌈ z ⌉)
+  ≤₁ = +ᶜ-monotone δ≤ (+ᶜ-monotone (·ᶜ-monotone (usage-upper-bound η▸n) p≤) (·ᶜ-monotone (usage-upper-bound γ▸z) head-distrib-∧))
 -- ·ᶜ-monotoneʳ (+ᶜ-monotone
 --   (subst₂ _≤ᶜ_ (∧ᶜ-Idempotent γ) refl (∧ᶜ-monotone (usage-upper-bound x) eq))
 --   (·ᶜ-monotoneʳ (usage-upper-bound x₂)))
@@ -258,7 +334,19 @@ usage-calc-term′ (sucⱼ Γ⊢t:ℕ) γ▸t  with inv-usage-suc γ▸t
 
 usage-calc-term′ {n = n} {𝕄 = 𝕄} (natrecⱼ {p = p} {r = r} {s = s} {z = z}
                  x Γ⊢z:G Γ⊢s:G Γ⊢n:ℕ) γ▸t with inv-usage-natrec γ▸t
-... | invUsageNatrec δ▸z δ▸s η▸n _ γ≤γ′ = {!!}
+... | invUsageNatrec δ▸z η▸s θ▸n γ≤γ′ = subst₂ _▸_ {!refl!} refl
+  (natrecₘ (usage-calc-term′ Γ⊢z:G δ▸z)
+           (subst₂ _▸_ eq refl (Conₘ-interchange (Conₘ-interchange (usage-calc-term′ Γ⊢s:G η▸s) η▸s (x0 +1)) η▸s x0))
+           (usage-calc-term′ Γ⊢n:ℕ θ▸n))
+  -- (natrecₘ
+  --   (usage-calc-term′ Γ⊢z:G δ▸z)
+  --   --(sub (usage-calc-term′ Γ⊢z:G δ▸z) (∧ᶜ-decreasingˡ ⌈ z ⌉ (tailₘ (tailₘ ⌈ s ⌉))))
+  --   (sub (Conₘ-interchange (Conₘ-interchange
+  --                          (usage-calc-term′ Γ⊢s:G δ▸s) δ▸s (x0 +1)) δ▸s x0) (subst₂ _≤ᶜ_ refl (PE.sym eq)
+  --                     (cong₂ _∙_ (cong₂ _∙_ (∧ᶜ-decreasingʳ ⌈ z ⌉ (tailₘ (tailₘ ⌈ s ⌉)))
+  --                                (≤-reflexive {𝕄 = 𝕄})) (≤-reflexive {𝕄 = 𝕄}))))
+  --   (usage-calc-term′ Γ⊢n:ℕ η▸n))
+  -- (∧ᶜ-monotoneʳ {!eq!})
 -- natrecₘ
 --   (sub (usage-calc-term′ Γ⊢z:G δ▸z) (∧ᶜ-decreasingˡ ⌈ z ⌉ (tailₘ (tailₘ ⌈ s ⌉))))
 --   (sub (Conₘ-interchange (Conₘ-interchange

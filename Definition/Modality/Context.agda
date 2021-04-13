@@ -81,10 +81,17 @@ _·ᶜ_ : {𝕄 : Modality M} (p : M) (γ : Conₘ 𝕄 n) → Conₘ 𝕄 n
 p ·ᶜ ε = ε
 _·ᶜ_ {𝕄 = 𝕄} p (γ ∙ q) = (p ·ᶜ γ) ∙ Modality._·_ 𝕄 p q
 
+
 -- Partial order of modality contexts
 
 _≤ᶜ_ : (γ δ : Conₘ 𝕄 n) → Set
-γ ≤ᶜ  δ = γ ≡ γ ∧ᶜ δ
+γ ≤ᶜ δ = γ ≡ γ ∧ᶜ δ
+
+-- nr-recurrence relation lifted to modality contexts
+
+nrᶜ : {𝕄 : Modality M} (γ δ : Conₘ 𝕄 n) (r : M) → Conₘ 𝕄 n
+nrᶜ ε ε r = ε
+nrᶜ {𝕄 = 𝕄} (γ ∙ p) (δ ∙ q) r = (nrᶜ γ δ r) ∙ Modality.nr 𝕄 p q r
 
 
 -- Zero modality context

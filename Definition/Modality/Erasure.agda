@@ -21,8 +21,11 @@ x · ω = x
 _∧_ : Op₂ Erasure
 _∧_ = _+_
 
-_* : Op₁ Erasure
-x * = ω
+nr : Erasure → Erasure → Erasure → Erasure
+nr 𝟘 q 𝟘 = q
+nr 𝟘 𝟘 ω = 𝟘
+nr 𝟘 ω ω = ω
+nr ω q r = ω
 
 _≤_ : (p q : Erasure) → Set
 p ≤ q = p ≡ p ∧ q
@@ -119,9 +122,12 @@ p ≤ q = p ≡ p ∧ q
 +Distr+ : _DistributesOver_ _≡_ _+_ _+_
 +Distr+ = +Distrˡ+ , +Distrʳ+
 
-*-StarSemiring : (p : Erasure) → p * ≡ ω + (p · (p *))
-*-StarSemiring 𝟘 = refl
-*-StarSemiring ω = refl
+nr-rec : (p q r : Erasure) → nr p q r ≡ p ∧ (q + (r · nr p q r))
+nr-rec 𝟘 𝟘 𝟘 = refl
+nr-rec 𝟘 𝟘 ω = refl
+nr-rec 𝟘 ω 𝟘 = refl
+nr-rec 𝟘 ω ω = refl
+nr-rec ω q r = subst₂ _≡_ refl (+-Commutative (q + r) ω) refl
 
 𝟘-max : (p : Erasure) → p ≡ p ∧ 𝟘
 𝟘-max 𝟘 = refl
@@ -193,7 +199,8 @@ ErasureModality = record
   ; +-CommutativeMonoid  = +-CommutativeMonoid
   ; ·-Monoid             = ·-Monoid
   ; ∧-Semilattice        = +-Semilattice
-  ; *-StarSemiring       = *-StarSemiring
+ -- ; *-StarSemiring       = *-StarSemiring
+  ; nr-rec = nr-rec
   ; ·-Zero               = ·-Zero
   ; +-Positive           = +-Positive
   ; ·Distr+              = ·Distr+

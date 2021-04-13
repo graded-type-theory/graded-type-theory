@@ -81,8 +81,13 @@ data _▸_ {n : Nat} {M} {𝕄 : Modality M} : (γ : Conₘ 𝕄 n) → Term M n
             If X ▸ natrec p r G z s n,
             need X ≤ γ and X ≤ δ + pη + rX for preservation
             -}
-            → γ′ ≡ δ +ᶜ r ·ᶜ (γ ∧ᶜ γ′) +ᶜ p ·ᶜ η
-            → γ ∧ᶜ γ′ ▸ natrec p r G z s n
+            -- → γ′ ≡ δ +ᶜ r ·ᶜ (γ ∧ᶜ γ′) +ᶜ p ·ᶜ η
+            -- γ′ ≤ δ + pη + r(γ ∧ γ′)
+            -- γ′ ≤ (δ + pη + rγ) ∧ (δ + pη + rγ′)
+            -- a ≤ b + cd ∧ b + ca
+            -- → γ ∧ᶜ γ′ ▸ natrec p r G z s n
+            -- → γ ∧ᶜ (recᶜ (δ + pη + rγ) (δ + pη) r) ▸ natrec p r G z s n
+            → γ ∧ᶜ nrᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ) (δ +ᶜ p ·ᶜ η) r ▸ natrec p r G z s n
 
   Emptyrecₘ : γ ▸ t
             → γ ▸ Emptyrec p A t
@@ -103,20 +108,27 @@ mutual
   ⌈ gen k ts ⌉ = gen-usage k ts
 
   gen-usage : ∀ {n bs} {𝕄 : Modality M} (k : Kind M bs) → (ts : GenTs (Term M) n bs) → Conₘ 𝕄 n
-  gen-usage Ukind []                         = 𝟘ᶜ
-  gen-usage (Pikind p q) (F ∷ G ∷ [])        = ⌈ F ⌉ +ᶜ tailₘ ⌈ G ⌉
-  gen-usage (Lamkind p) (t ∷ [])             = tailₘ ⌈ t ⌉
-  gen-usage (Appkind p) (t ∷ u ∷ [])         = ⌈ t ⌉ +ᶜ p ·ᶜ ⌈ u ⌉
-  gen-usage (Sigmakind p) (F ∷ G ∷ [])       = ⌈ F ⌉ +ᶜ tailₘ ⌈ G ⌉
-  gen-usage Prodkind (t ∷ u ∷ [])            = ⌈ t ⌉ +ᶜ ⌈ u ⌉
-  gen-usage Fstkind (t ∷ [])                 = 𝟘ᶜ
-  gen-usage Sndkind (t ∷ [])                 = 𝟘ᶜ
-  gen-usage (Prodreckind p) (G ∷ t ∷ u ∷ []) = p ·ᶜ ⌈ t ⌉ +ᶜ tailₘ (tailₘ ⌈ u ⌉)
-  gen-usage Natkind  []                      = 𝟘ᶜ
-  gen-usage Zerokind []                      = 𝟘ᶜ
-  gen-usage Suckind (t ∷ [])                 = ⌈ t ⌉
-  gen-usage Unitkind  []                     = 𝟘ᶜ
-  gen-usage Starkind  []                     = 𝟘ᶜ
-  gen-usage Emptykind []                     = 𝟘ᶜ
-  gen-usage (Emptyreckind p) (A ∷ e ∷ [])    = ⌈ e ⌉
-  gen-usage {𝕄 = 𝕄} (Natreckind p r) (G ∷ z ∷ s ∷ n ∷ []) = (Modality._* 𝕄 r) ·ᶜ ((⌈ z ⌉ ∧ᶜ (tailₘ (tailₘ ⌈ s ⌉))) +ᶜ p ·ᶜ ⌈ n ⌉)
+  gen-usage Ukind            []                   = 𝟘ᶜ
+  gen-usage (Pikind p q)     (F ∷ G ∷ [])         = ⌈ F ⌉ +ᶜ tailₘ ⌈ G ⌉
+  gen-usage (Lamkind p)      (t ∷ [])             = tailₘ ⌈ t ⌉
+  gen-usage (Appkind p)      (t ∷ u ∷ [])         = ⌈ t ⌉ +ᶜ p ·ᶜ ⌈ u ⌉
+  gen-usage (Sigmakind p)    (F ∷ G ∷ [])         = ⌈ F ⌉ +ᶜ tailₘ ⌈ G ⌉
+  gen-usage Prodkind         (t ∷ u ∷ [])         = ⌈ t ⌉ +ᶜ ⌈ u ⌉
+  gen-usage Fstkind          (t ∷ [])             = 𝟘ᶜ
+  gen-usage Sndkind          (t ∷ [])             = 𝟘ᶜ
+  gen-usage (Prodreckind p)  (G ∷ t ∷ u ∷ [])     = p ·ᶜ ⌈ t ⌉ +ᶜ tailₘ (tailₘ ⌈ u ⌉)
+  gen-usage Natkind          []                   = 𝟘ᶜ
+  gen-usage Zerokind         []                   = 𝟘ᶜ
+  gen-usage Suckind          (t ∷ [])             = ⌈ t ⌉
+  gen-usage Unitkind         []                   = 𝟘ᶜ
+  gen-usage Starkind         []                   = 𝟘ᶜ
+  gen-usage Emptykind        []                   = 𝟘ᶜ
+  gen-usage (Emptyreckind p) (A ∷ e ∷ [])         = ⌈ e ⌉
+  gen-usage (Natreckind p r) (G ∷ z ∷ s ∷ n ∷ []) =
+    let γ  = ⌈ z ⌉
+        δ′ = ⌈ s ⌉
+        δ  = tailₘ (tailₘ δ′)
+        r  = headₘ δ′
+        p  = headₘ (tailₘ δ′)
+        η  = ⌈ n ⌉
+    in  γ ∧ᶜ (nrᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ) (δ +ᶜ p ·ᶜ η) r)

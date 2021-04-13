@@ -1,4 +1,4 @@
-{-#OPTIONS --without-K --allow-unsolved-metas #-}
+{-# OPTIONS --without-K --allow-unsolved-metas #-}
 module Definition.Modality.Substitution where
 
 open import Definition.Untyped as U

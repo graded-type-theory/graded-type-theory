@@ -80,7 +80,11 @@ private
                                                (*>-distrib-·ᶜ Ψ q δ) ⟩
   (p ·ᶜ Ψ *> γ +ᶜ q ·ᶜ Ψ *> δ)   ∎
 
--- The zero-context is a right zero to modality substitution application.
+*>-sub-distrib-∧ᶜ : {𝕄 : Modality M} (Ψ : Substₘ 𝕄 m n) (γ δ : Conₘ 𝕄 n) → Ψ *> (γ ∧ᶜ δ) ≤ᶜ Ψ *> γ ∧ᶜ Ψ *> δ
+*>-sub-distrib-∧ᶜ ε ε ε = {!sym (∧ᶜ-Idempotent 𝟘ᶜ)!}
+*>-sub-distrib-∧ᶜ (Ψ ∙ η) (γ ∙ p) (δ ∙ q) = {!!}
+
+--- The zero-context is a right zero to modality substitution application.
 -- Ψ *> 𝟘ᶜ ≡ 𝟘ᶜ.
 -- Proof by induction on Ψ using zero of multiplication and identity of addition.
 
@@ -331,7 +335,8 @@ substₘ-lemma Ψ σ Ψ▶σ zeroₘ =  PE.subst (_▸ zero) (PE.sym (*>-zeroʳ 
 
 substₘ-lemma Ψ σ Ψ▶σ (sucₘ γ▸t) = sucₘ (substₘ-lemma Ψ σ Ψ▶σ γ▸t)
 
-substₘ-lemma {𝕄 = 𝕄} Ψ σ Ψ▶σ (natrecₘ {δ = δ} {p} {r} γ▸z δ▸s η▸n δ′≡) = subst₂ _▸_ {!!} refl (natrecₘ γ▸z′ δ▸s″ η▸n′ {!δ′≡!})
+substₘ-lemma {𝕄 = 𝕄} Ψ σ Ψ▶σ (natrecₘ {δ = δ} {p} {r} γ▸z δ▸s η▸n) = subst₂ _▸_ refl refl (sub (natrecₘ γ▸z′ δ▸s″ η▸n′) {!!})
+  -- subst₂ _▸_ {!!} refl (natrecₘ γ▸z′ δ▸s″ η▸n′ {!δ′≡!})
   -- subst₂ _▸_ eq refl (natrecₘ γ▸z′ γ▸s″ δ▸n′)
   where
   γ▸z′ = substₘ-lemma Ψ σ Ψ▶σ γ▸z
