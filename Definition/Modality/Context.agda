@@ -23,8 +23,8 @@ infixr 40 _∧ᶜ_
 infixr 45 _·ᶜ_
 infixr 45 _*_
 infix  10 _≤ᶜ_
-infix  15 _,_≔_
-infix  14 _⟨_⟩
+infix  35 _,_≔_
+infix  60 _⟨_⟩
 
 private
   variable
@@ -34,18 +34,24 @@ private
 -- Modality Contexts are snoc-lists
 
 data Conₘ : Nat → Set where
-  ε   : Conₘ 0
-  _∙_ : (γ : Conₘ n) → (p : M) → Conₘ (1+ n)
+  nil   : Conₘ 0
+  snoc : (γ : Conₘ n) → (p : M) → Conₘ (1+ n)
+
+-- Modality equality lifted pointwise to contexts
+
+data _≈ᶜ_ : (γ δ : Conₘ n) → Set where
+  nil : nil ≈ᶜ nil
+  snoc : {γ δ : Conₘ n} {p q : M} → γ ≈ᶜ δ → p ≈ q → (snoc γ p) ≈ᶜ (snoc δ q)
+
+-- Use pattern to fix broken case-splitting
+pattern _∙_ γ p = snoc γ p
+pattern ε = nil
 
 headₘ : (γ : Conₘ (1+ n)) → M
 headₘ (γ ∙ p) = p
 
 tailₘ : (γ : Conₘ (1+ n)) → Conₘ n
 tailₘ (γ ∙ p) = γ
-
-data _≈ᶜ_ : (γ δ : Conₘ n) → Set where
-  ε : ε ≈ᶜ ε
-  _∙_ : {γ δ : Conₘ n} {p q : M} → γ ≈ᶜ δ → p ≈ q → (γ ∙ p) ≈ᶜ (δ ∙ q)
 
 -- Update the value of an element in a context
 

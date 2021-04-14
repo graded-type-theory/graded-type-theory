@@ -104,3 +104,22 @@ private
 
 ·-monotone : p ≤ p′ → q ≤ q′ → p · q ≤ p′ · q′
 ·-monotone p≤p′ q≤q′ = ≤-trans (·-monotoneˡ p≤p′) (·-monotoneʳ q≤q′)
+
+-- Meet on the left is a decreasing function
+-- p ∧ q ≤ p
+
+∧-decreasingˡ : (p q : M) → p ∧ q ≤ p
+∧-decreasingˡ p q = begin
+  p ∧ q       ∼⟨ ≈-cong-∧ (sym (∧-idem p)) refl ⟩
+  (p ∧ p) ∧ q ∼⟨ ∧-assoc p p q ⟩
+  p ∧ (p ∧ q) ∼⟨ ∧-comm p (p ∧ q) ⟩
+  (p ∧ q) ∧ p ∎⟨ refl ⟩
+
+-- Meet on the right is a decreasing function
+-- p ∧ q ≤ q
+
+∧-decreasingʳ : (p q : M) → p ∧ q ≤ q
+∧-decreasingʳ p q = begin
+  p ∧ q       ∼⟨ ≈-cong-∧ refl (sym (∧-idem q)) ⟩
+  p ∧ (q ∧ q) ∼⟨ sym (∧-assoc p q q) ⟩
+  (p ∧ q) ∧ q ∎⟨ refl ⟩
