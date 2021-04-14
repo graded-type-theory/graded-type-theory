@@ -1,13 +1,19 @@
 {-# OPTIONS --without-K --safe #-}
 
-module Definition.Modality where
+open import Tools.Relation
 
-open import Algebra
+module Definition.Modality (M : Set) (_≈_ : Rel M _) where
+
+open import Tools.Algebra (_≈_)
 open import Tools.Product
-open import Tools.PropositionalEquality
 
 -- Star ringoid
-record Modality (M : Set) : Set where
+record Modality : Set where
+  infixr 40 _+_
+  infixr 40 _∧_
+  infixr 45 _·_
+  infix  10 _≤_
+
   field
     -- A modality consists of a type M with three binary operations...
     _+_ : Op₂ M -- Addition
@@ -22,53 +28,74 @@ record Modality (M : Set) : Set where
     𝟙 : M
 
     -- + forms a commutative monoid with 𝟘 as unit element
-    +-CommutativeMonoid : IsCommutativeMonoid _≡_ _+_ 𝟘
+    +-CommutativeMonoid : IsCommutativeMonoid  _+_ 𝟘
     -- · forms a monoid with 𝟙 as unit element
-    ·-Monoid            : IsMonoid _≡_ _·_ 𝟙
+    ·-Monoid            : IsMonoid _·_ 𝟙
     -- ∧ forms a semilattice
-    ∧-Semilattice       : IsSemilattice _≡_ _∧_
+    ∧-Semilattice       : IsSemilattice _∧_
     -- * forms a star semiring
-    *-StarSemiring      : (p : M) → p * ≡ 𝟙 + (p · (p *))
+    *-StarSemiring      : (p : M) → (p *) ≈ (𝟙 + (p · (p *)))
 
   -- Semilattice partial ordering relation
-  _≤_ : M → M → Set
-  p ≤ q = p ≡ (p ∧ q)
+  _≤_ : Rel M _
+  p ≤ q = p ≈ (p ∧ q)
 
   field
     -- 𝟘 is zero for multiplication
-    ·-Zero              : Zero _≡_ 𝟘 _·_
+    ·-zero              : Zero 𝟘 _·_
     -- The semiring is positive
-    +-Positive          : (p q : M) → 𝟘 ≤ (p + q) → 𝟘 ≤ p × 𝟘 ≤ q
+    +-positive          : (p q : M) → 𝟘 ≤ (p + q) → 𝟘 ≤ p × 𝟘 ≤ q
 
     -- Multiplication distributes over addition
-    ·Distr+             : _DistributesOver_ _≡_ _·_ _+_
+    ·-distrib-+         : _·_ DistributesOver _+_
     -- Multiplation distributes over meet
-    ·Distr∧             : _DistributesOver_ _≡_ _·_ _∧_
+    ·-distrib-∧         : _·_ DistributesOver _∧_
     -- Addition distributes over meet
-    +Distr∧             : _DistributesOver_ _≡_ _+_ _∧_
+    +-distrib-∧         : _+_ DistributesOver _∧_
+
+    -- ≈ is an equivallence relation
+    ≈-Equivalence       : IsEquivalence _≈_
 
 
   -- Easier access to some operator properties
-  +-Commutative : Commutative _≡_ _+_
-  +-Commutative = IsCommutativeMonoid.comm +-CommutativeMonoid
+  +-comm : Commutative _+_
+  +-comm = IsCommutativeMonoid.comm +-CommutativeMonoid
 
-  +-Associative : Associative _≡_ _+_
-  +-Associative = IsCommutativeMonoid.assoc +-CommutativeMonoid
+  +-assoc : Associative _+_
+  +-assoc = IsCommutativeMonoid.assoc +-CommutativeMonoid
 
-  +-Identity : Identity _≡_ 𝟘 _+_
-  +-Identity = IsCommutativeMonoid.identity +-CommutativeMonoid
+  +-identity : Identity 𝟘 _+_
+  +-identity = IsCommutativeMonoid.identity +-CommutativeMonoid
 
-  ·-Associative : Associative _≡_ _·_
-  ·-Associative = IsMonoid.assoc ·-Monoid
+  ·-assoc : Associative _·_
+  ·-assoc = IsMonoid.assoc ·-Monoid
 
-  ·-Identity : Identity _≡_ 𝟙 _·_
-  ·-Identity = IsMonoid.identity ·-Monoid
+  ·-identity : Identity 𝟙 _·_
+  ·-identity = IsMonoid.identity ·-Monoid
 
-  ∧-Commutative : Commutative _≡_ _∧_
-  ∧-Commutative = IsSemilattice.comm ∧-Semilattice
+  ∧-comm : Commutative _∧_
+  ∧-comm = IsSemilattice.comm ∧-Semilattice
 
-  ∧-Associative : Associative _≡_ _∧_
-  ∧-Associative = IsSemilattice.assoc ∧-Semilattice
+  ∧-assoc : Associative _∧_
+  ∧-assoc = IsSemilattice.assoc ∧-Semilattice
 
-  ∧-Idempotent : Idempotent _≡_ _∧_
-  ∧-Idempotent = IsSemilattice.idem ∧-Semilattice
+  ∧-idem : Idempotent _∧_
+  ∧-idem = IsSemilattice.idem ∧-Semilattice
+
+  ≈-refl : Reflexive _≈_
+  ≈-refl = IsEquivalence.refl ≈-Equivalence
+
+  ≈-sym : Symmetric _≈_
+  ≈-sym = IsEquivalence.sym ≈-Equivalence
+
+  ≈-trans : Transitive _≈_
+  ≈-trans = IsEquivalence.trans ≈-Equivalence
+
+  ≈-cong-+ : Congruent₂ _+_
+  ≈-cong-+ = IsCommutativeMonoid.∙-cong +-CommutativeMonoid
+
+  ≈-cong-· : Congruent₂ _·_
+  ≈-cong-· = IsMonoid.∙-cong ·-Monoid
+
+  ≈-cong-∧ : Congruent₂ _∧_
+  ≈-cong-∧ = IsSemilattice.∧-cong ∧-Semilattice

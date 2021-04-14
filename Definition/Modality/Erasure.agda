@@ -3,12 +3,14 @@
 module Definition.Modality.Erasure where
 
 open import Algebra
-open import Definition.Modality
+
 open import Tools.Product
 open import Tools.PropositionalEquality
 
 data Erasure : Set where
   𝟘 ω : Erasure
+
+open import Definition.Modality Erasure _≡_ public
 
 _+_ : Op₂ Erasure
 x + 𝟘 = x
@@ -183,7 +185,7 @@ p ≤ q = p ≡ p ∧ q
   ; identity    = ·-Identity
   }
 
-ErasureModality : Modality Erasure
+ErasureModality : Modality
 ErasureModality = record
   { _+_                  = _+_
   ; _·_                  = _·_
