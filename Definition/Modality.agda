@@ -91,11 +91,11 @@ record Modality : Set where
   ≈-trans : Transitive _≈_
   ≈-trans = IsEquivalence.trans ≈-Equivalence
 
-  ≈-cong-+ : Congruent₂ _+_
-  ≈-cong-+ = IsCommutativeMonoid.∙-cong +-CommutativeMonoid
+  +-cong : Congruent₂ _+_
+  +-cong = IsCommutativeMonoid.∙-cong +-CommutativeMonoid
 
-  ≈-cong-· : Congruent₂ _·_
-  ≈-cong-· = IsMonoid.∙-cong ·-Monoid
+  ·-cong : Congruent₂ _·_
+  ·-cong = IsMonoid.∙-cong ·-Monoid
 
-  ≈-cong-∧ : Congruent₂ _∧_
-  ≈-cong-∧ = IsSemilattice.∧-cong ∧-Semilattice
+  ∧-cong : Congruent₂ _∧_
+  ∧-cong = IsSemilattice.∧-cong ∧-Semilattice

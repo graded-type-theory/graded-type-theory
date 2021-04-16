@@ -9,13 +9,13 @@ module Definition.Modality.Context.Properties
   where
 
 open import Definition.Modality.Properties 𝕄
-open import Definition.Modality.Context {M} {_≈_} 𝕄
--- open import Definition.Untyped
+open import Definition.Modality.Context 𝕄
+open import Definition.Untyped M _≈_ hiding (_∙_ ; ε)
 
 open import Tools.Fin
 open import Tools.Nat renaming (_+_ to _+ⁿ_)
 open import Tools.Product
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE
 
 open Modality 𝕄
 
@@ -178,28 +178,35 @@ private
 ≈ᶜ-sym {γ = ε} {ε} a = ε
 ≈ᶜ-sym {γ = γ ∙ p} {δ ∙ q} (γ≈δ ∙ p≈q) = (≈ᶜ-sym γ≈δ) ∙ (≈-sym p≈q)
 
+≈ᶜ-equivalence : {n : Nat} → IsEquivalence (_≈ᶜ_ {n = n})
+≈ᶜ-equivalence = record
+  { refl  = ≈ᶜ-refl
+  ; sym   = ≈ᶜ-sym
+  ; trans = ≈ᶜ-trans
+  }
+
 -- Congruence of +ᶜ
 -- If γ ≈ᶜ γ′ and δ ≈ᶜ δ′ then γ +ᶜ δ ≈ᶜ γ′ +ᶜ δ′
 
-≈ᶜ-cong-+ᶜ : γ ≈ᶜ γ′ → δ ≈ᶜ δ′ → γ +ᶜ δ ≈ᶜ γ′ +ᶜ δ′
-≈ᶜ-cong-+ᶜ ε ε = ε
-≈ᶜ-cong-+ᶜ (γ≈γ′ ∙ p≈p′) (δ≈δ′ ∙ q≈q′) =
-  (≈ᶜ-cong-+ᶜ γ≈γ′ δ≈δ′) ∙ (≈-cong-+ p≈p′ q≈q′)
++ᶜ-cong : γ ≈ᶜ γ′ → δ ≈ᶜ δ′ → γ +ᶜ δ ≈ᶜ γ′ +ᶜ δ′
++ᶜ-cong ε ε = ε
++ᶜ-cong (γ≈γ′ ∙ p≈p′) (δ≈δ′ ∙ q≈q′) =
+  (+ᶜ-cong γ≈γ′ δ≈δ′) ∙ (+-cong p≈p′ q≈q′)
 
 -- Congruence of ·ᶜ
 -- If p ≈ q and γ ≈ᶜ δ then p ·ᶜ γ ≈ᶜ q ·ᶜ δ
 
-≈ᶜ-cong-·ᶜ : p ≈ q → γ ≈ᶜ δ → p ·ᶜ γ ≈ᶜ q ·ᶜ δ
-≈ᶜ-cong-·ᶜ p≈q ε = ε
-≈ᶜ-cong-·ᶜ p≈q (γ≈δ ∙ p′≈q′) = (≈ᶜ-cong-·ᶜ p≈q γ≈δ) ∙ (≈-cong-· p≈q p′≈q′)
+·ᶜ-cong : p ≈ q → γ ≈ᶜ δ → p ·ᶜ γ ≈ᶜ q ·ᶜ δ
+·ᶜ-cong p≈q ε = ε
+·ᶜ-cong p≈q (γ≈δ ∙ p′≈q′) = (·ᶜ-cong p≈q γ≈δ) ∙ (·-cong p≈q p′≈q′)
 
 -- Congruence of ∧ᶜ
 -- If γ ≈ᶜ γ′ and δ ≈ᶜ δ′ then γ ∧ᶜ δ ≈ᶜ γ′ ∧ᶜ δ′
 
-≈ᶜ-cong-∧ᶜ : γ ≈ᶜ γ′ → δ ≈ᶜ δ′ → γ ∧ᶜ δ ≈ᶜ γ′ ∧ᶜ δ′
-≈ᶜ-cong-∧ᶜ ε ε = ε
-≈ᶜ-cong-∧ᶜ (γ≈γ′ ∙ p≈p′) (δ≈δ′ ∙ q≈q′) =
-  (≈ᶜ-cong-∧ᶜ γ≈γ′ δ≈δ′) ∙ (≈-cong-∧ p≈p′ q≈q′)
+∧ᶜ-cong : γ ≈ᶜ γ′ → δ ≈ᶜ δ′ → γ ∧ᶜ δ ≈ᶜ γ′ ∧ᶜ δ′
+∧ᶜ-cong ε ε = ε
+∧ᶜ-cong (γ≈γ′ ∙ p≈p′) (δ≈δ′ ∙ q≈q′) =
+  (∧ᶜ-cong γ≈γ′ δ≈δ′) ∙ (∧-cong p≈p′ q≈q′)
 
 ----------------------
 -- Properties of ≤ᶜ --
@@ -224,8 +231,44 @@ private
 -- If γ ≤ᶜ δ and δ ≤ᶜ γ then γ ≈ᶜ δ
 
 ≤ᶜ-antisym : {γ δ : Conₘ n} → γ ≤ᶜ δ → δ ≤ᶜ γ → γ ≈ᶜ δ
-≤ᶜ-antisym {γ = ε} {ε} a b = ε
-≤ᶜ-antisym {γ = γ ∙ p} {δ ∙ q} (γ≤δ ∙ p≤q) (δ≤γ ∙ q≤p) = ≤ᶜ-antisym γ≤δ δ≤γ ∙ ≤-antisym p≤q q≤p
+≤ᶜ-antisym {γ = ε} {ε} _ _ = ε
+≤ᶜ-antisym {γ = γ ∙ p} {δ ∙ q} (γ≤δ ∙ p≤q) (δ≤γ ∙ q≤p) =
+  (≤ᶜ-antisym γ≤δ δ≤γ) ∙ (≤-antisym p≤q q≤p)
+
+-- ≤ᶜ is a non-strict order relation
+-- If γ ≈ᶜ δ then γ ≤ᶜ δ
+
+≤ᶜ-reflexive : {γ δ : Conₘ n} → γ ≈ᶜ δ → γ ≤ᶜ δ
+≤ᶜ-reflexive {γ = ε} {ε} _ = ε
+≤ᶜ-reflexive {γ = γ ∙ p} {δ ∙ q} (γ≈δ ∙ p≈q) =
+  (≤ᶜ-reflexive γ≈δ) ∙ (≤-reflexive p≈q)
+
+-- ≤ᶜ is a preorder
+
+≤ᶜ-preorder : {n : Nat} → IsPreorder (_≈ᶜ_ {n = n}) _≤ᶜ_
+≤ᶜ-preorder = record
+  { isEquivalence = ≈ᶜ-equivalence
+  ; reflexive = ≤ᶜ-reflexive
+  ; trans = ≤ᶜ-trans
+  }
+
+-- ≤ᶜ is a partial order
+
+≤ᶜ-partial : {n : Nat} → IsPartialOrder (_≈ᶜ_ {n = n}) _≤ᶜ_
+≤ᶜ-partial = record
+  { isPreorder = ≤ᶜ-preorder
+  ; antisym = ≤ᶜ-antisym
+  }
+
+-- (Conₘ, ≤ᶜ) is a poset
+
+≤ᶜ-poset : {n : Nat} → Poset _ _ _
+≤ᶜ-poset {n} = record
+  { Carrier = Conₘ n
+  ; _≈_ = _≈ᶜ_
+  ; _≤_ = _≤ᶜ_
+  ; isPartialOrder = ≤ᶜ-partial
+  }
 
 -----------------------------
 -- Monotonicity properties --
@@ -236,14 +279,14 @@ private
 
 +ᶜ-monotoneˡ : {γ δ η : Conₘ n} → γ ≤ᶜ δ → γ +ᶜ η ≤ᶜ δ +ᶜ η
 +ᶜ-monotoneˡ {γ = ε} {ε} {ε} ε = ε
-+ᶜ-monotoneˡ  {γ = γ ∙ p} {δ ∙ q} {η ∙ r} (γ≤δ ∙ p≤q) = (+ᶜ-monotoneˡ γ≤δ) ∙ (+-monotoneˡ p≤q)
++ᶜ-monotoneˡ {γ = γ ∙ p} {δ ∙ q} {η ∙ r} (γ≤δ ∙ p≤q) = (+ᶜ-monotoneˡ γ≤δ) ∙ (+-monotoneˡ p≤q)
 
 -- Addition on the right is monotone
 -- If γ ≤ᶜ δ then η +ᶜ γ ≤ᶜ η +ᶜ δ
 
 +ᶜ-monotoneʳ : {γ δ η : Conₘ n} → γ ≤ᶜ δ → η +ᶜ γ ≤ᶜ η +ᶜ δ
-+ᶜ-monotoneʳ {γ = ε} {ε} {ε} refl = refl
-+ᶜ-monotoneʳ  {γ = γ ∙ p} {δ ∙ q} {η ∙ r} (γ≤δ ∙ p≤q) = (+ᶜ-monotoneʳ γ≤δ) ∙ (+-monotoneʳ p≤q)
++ᶜ-monotoneʳ {γ = ε} {ε} {ε} ε = ε
++ᶜ-monotoneʳ {γ = γ ∙ p} {δ ∙ q} {η ∙ r} (γ≤δ ∙ p≤q) = (+ᶜ-monotoneʳ γ≤δ) ∙ (+-monotoneʳ p≤q)
 
 -- Addition is monotone
 -- If γ ≤ᶜ γ′ and δ ≤ᶜ δ′ then γ + δ ≤ᶜ γ′ +ᶜ δ′
@@ -283,8 +326,8 @@ private
 -- If γ ≤ᶜ δ then γ ∧ᶜ η ≤ᶜ δ ∧ᶜ η
 
 ∧ᶜ-monotoneʳ : {γ δ η : Conₘ n} → γ ≤ᶜ δ → η ∧ᶜ γ ≤ᶜ η ∧ᶜ δ
-∧ᶜ-monotoneʳ {γ = ε} {ε} {ε} refl = refl
-∧ᶜ-monotoneʳ  {γ = γ ∙ p} {δ ∙ q} {η ∙ r} (γ≤δ ∙ p≤q) =
+∧ᶜ-monotoneʳ {γ = ε} {ε} {ε} ̋ε = ε
+∧ᶜ-monotoneʳ {γ = γ ∙ p} {δ ∙ q} {η ∙ r} (γ≤δ ∙ p≤q) =
   (∧ᶜ-monotoneʳ γ≤δ) ∙ (∧-monotoneʳ p≤q)
 
 -- Meet is monotone
@@ -307,28 +350,70 @@ private
 ∧ᶜ-decreasingʳ ε ε = ε
 ∧ᶜ-decreasingʳ (γ ∙ p) (δ ∙ q) = (∧ᶜ-decreasingʳ γ δ) ∙ (∧-decreasingʳ p q)
 
+-- Context extension is monotone w.r.t the tail
+-- If γ ≤ᶜ δ then γ ∙ p ≤ᶜ δ ∙ p
+
+∙-monotoneˡ : {γ δ : Conₘ n} {p : M} → γ ≤ᶜ δ → γ ∙ p ≤ᶜ δ ∙ p
+∙-monotoneˡ γ≤δ = γ≤δ ∙ ≤-refl
+
+-- Context extension is monotone w.r.t the head
+-- If p ≤ q then γ ∙ p ≤ᶜ γ ∙ q
+
+∙-monotoneʳ : {γ : Conₘ n} {p q : M} → p ≤ q → γ ∙ p ≤ᶜ γ ∙ q
+∙-monotoneʳ p≤q = ≤ᶜ-refl ∙ p≤q
+
+-- Context extension is monotone
+-- If γ ≤ᶜ δ and p ≤ q then γ ∙ p ≤ᶜ δ ∙ q
+
+∙-monotone : {γ δ : Conₘ n} {p q : M} → γ ≤ᶜ δ → p ≤ q → γ ∙ p ≤ᶜ δ ∙ q
+∙-monotone γ≤δ p≤q = ≤ᶜ-trans (∙-monotoneˡ γ≤δ) (∙-monotoneʳ p≤q)
+
 ----------------------------------
 -- Propeties of headₘ and tailₘ --
 ----------------------------------
 
 -- tailₘ distributes over meet
--- tailₘ (γ ∧ᶜ δ) ≈ᶜ tailₘ γ ∧ᶜ tailₘ δ
+-- tailₘ (γ ∧ᶜ δ) ≡ tailₘ γ ∧ᶜ tailₘ δ
 
-tail-distrib-∧ : (γ δ : Conₘ (1+ n)) → tailₘ (γ ∧ᶜ δ) ≈ᶜ (tailₘ γ) ∧ᶜ (tailₘ δ)
-tail-distrib-∧ (ε ∙ p) (ε ∙ q) = ε
-tail-distrib-∧ (γ ∙ p′ ∙ p) (δ ∙ q′ ∙ q) = (tail-distrib-∧ (γ ∙ p′) (δ ∙ q′)) ∙ ≈-refl
+tailₘ-distrib-∧ᶜ : (γ δ : Conₘ (1+ n)) → tailₘ (γ ∧ᶜ δ) ≡ (tailₘ γ) ∧ᶜ (tailₘ δ)
+tailₘ-distrib-∧ᶜ (ε ∙ p) (ε ∙ q) = refl
+tailₘ-distrib-∧ᶜ (γ ∙ p′ ∙ p) (δ ∙ q′ ∙ q) = cong₂ _∙_ (tailₘ-distrib-∧ᶜ (γ ∙ p) (δ ∙ q)) refl
 
 -- headₘ distributes over meet
--- headₘ (γ ∧ᶜ δ) ≈ᶜ headₘ γ ∧ headₘ δ
+-- headₘ (γ ∧ᶜ δ) ≡ headₘ γ ∧ headₘ δ
 
-head-distrib-∧ : (γ δ : Conₘ (1+ n)) → headₘ (γ ∧ᶜ δ) ≈ (headₘ γ) ∧ (headₘ δ)
-head-distrib-∧ (γ ∙ p) (δ ∙ q) = ≈-refl
+head-distrib-∧ : (γ δ : Conₘ (1+ n)) → headₘ (γ ∧ᶜ δ) ≡ (headₘ γ) ∧ (headₘ δ)
+head-distrib-∧ (γ ∙ p) (δ ∙ q) = refl
 
 -- The headₘ and tailₘ functions correctly give the head and tail of the context
--- tailₘ γ ∙ headₘ γ ≈ᶜ γ
+-- tailₘ γ ∙ headₘ γ ≡ γ
 
-headₘ-tailₘ-correct : (γ : Conₘ (1+ n)) → tailₘ γ ∙ headₘ γ ≈ᶜ γ
-headₘ-tailₘ-correct (γ ∙ p) = ≈ᶜ-refl
+headₘ-tailₘ-correct : (γ : Conₘ (1+ n)) → tailₘ γ ∙ headₘ γ ≡ γ
+headₘ-tailₘ-correct (γ ∙ p) = refl
+
+-- Congruence of tailₘ
+-- If γ ≈ᶜ δ then tailₘ γ ≈ᶜ tailₘ δ
+
+tailₘ-cong : {γ δ : Conₘ (1+ n)} → γ ≈ᶜ δ → tailₘ γ ≈ᶜ tailₘ δ
+tailₘ-cong (γ≈δ ∙ p≈q) = γ≈δ
+
+-- Congruence of headₘ
+-- If γ ≈ᶜ δ then headₘ γ ≈ᶜ headₘ δ
+
+headₘ-cong : {γ δ : Conₘ (1+ n)} → γ ≈ᶜ δ → headₘ γ ≈ headₘ δ
+headₘ-cong (γ≈δ ∙ p≈q) = p≈q
+
+-- tailₘ is monotone
+-- If γ ≤ᶜ δ then tailₘ γ ≤ᶜ tailₘ δ
+
+tailₘ-monotone : {γ δ : Conₘ (1+ n)} → γ ≤ᶜ δ → tailₘ γ ≤ᶜ tailₘ δ
+tailₘ-monotone {γ = γ ∙ p} {δ ∙ q} (γ≤δ ∙ p≤q) = γ≤δ
+
+-- headₘ is monotone
+-- If γ ≤ᶜ δ then headₘ γ ≤ᶜ headₘ δ
+
+headₘ-monotone : {γ δ : Conₘ (1+ n)} → γ ≤ᶜ δ → headₘ γ ≤ headₘ δ
+headₘ-monotone {γ = γ ∙ p} {δ ∙ q} (γ≤δ ∙ p≤q) = p≤q
 
 ----------------------------------------------
 -- Properties of context updates and lookup --
@@ -343,20 +428,21 @@ insertAt-cong {n = 0} γ≈δ p≈q = γ≈δ ∙ p≈q
 insertAt-cong {n = 1+ n} (γ≈δ ∙ p′≈q′) p≈q = (insertAt-cong γ≈δ p≈q) ∙ p′≈q′
 
 -- Inserting a zero into a zero-context gives a zero-context
--- insertAt x 𝟘ᶜ 𝟘 ≈ᶜ 𝟘ᶜ
+-- insertAt x 𝟘ᶜ 𝟘 ≡ 𝟘ᶜ
 
 insertAt-𝟘 : {m : Nat} (n : Nat)
-           → insertAt n (𝟘ᶜ {n = n +ⁿ m}) 𝟘 ≈ᶜ 𝟘ᶜ {n = n +ⁿ 1+ m}
-insertAt-𝟘 0      = ≈ᶜ-refl
-insertAt-𝟘 (1+ n) = (insertAt-𝟘 n) ∙ ≈-refl
+           → insertAt n (𝟘ᶜ {n = n +ⁿ m}) 𝟘 ≡ 𝟘ᶜ {n = n +ⁿ 1+ m}
+insertAt-𝟘 0      = refl
+insertAt-𝟘 (1+ n) = cong₂ _∙_ (insertAt-𝟘 n) refl
 
 -- Inserting the sum of two elements distributes over addition
--- insertAt n (γ +ᶜ δ) (p + q) ≈ᶜ insertAt n γ p +ᶜ insertAt n δ q
+-- insertAt n (γ +ᶜ δ) (p + q) ≡ insertAt n γ p +ᶜ insertAt n δ q
 
 insertAt-distrib-+ᶜ : {m : Nat} (n : Nat) (γ δ : Conₘ (n +ⁿ m)) (p q : M)
-                    → insertAt n (γ +ᶜ δ) (p + q) ≈ᶜ insertAt n γ p +ᶜ insertAt n δ q
-insertAt-distrib-+ᶜ 0      γ δ p q = ≈ᶜ-refl
-insertAt-distrib-+ᶜ (1+ n) (γ ∙ p′) (δ ∙ q′) p q = (insertAt-distrib-+ᶜ n γ δ p q) ∙ ≈-refl
+                    → insertAt n (γ +ᶜ δ) (p + q) ≡ insertAt n γ p +ᶜ insertAt n δ q
+insertAt-distrib-+ᶜ 0 γ δ p q = refl
+insertAt-distrib-+ᶜ (1+ n) (γ ∙ p′) (δ ∙ q′) p q =
+  cong₂ _∙_ (insertAt-distrib-+ᶜ n γ δ p q) refl
 
 -- Inserting a zero into a modality context distributes over addition
 -- insertAt n (γ +ᶜ δ) 𝟘 ≈ᶜ insertAt n γ 𝟘 +ᶜ insertAt n δ 𝟘
@@ -364,26 +450,39 @@ insertAt-distrib-+ᶜ (1+ n) (γ ∙ p′) (δ ∙ q′) p q = (insertAt-distrib
 insertAt-distrib-+ᶜ-𝟘 : {m : Nat} (n : Nat) (γ δ : Conₘ (n +ⁿ m))
                       → insertAt n (γ +ᶜ δ) 𝟘 ≈ᶜ insertAt n γ 𝟘 +ᶜ insertAt n δ 𝟘
 insertAt-distrib-+ᶜ-𝟘  n γ δ = begin
-  insertAt n (γ +ᶜ δ) 𝟘            ∼⟨ insertAt-cong ≈ᶜ-refl (≈-sym (proj₁ +-identity 𝟘)) ⟩
-  insertAt n (γ +ᶜ δ) (𝟘 + 𝟘)      ∼⟨ insertAt-distrib-+ᶜ n γ δ 𝟘 𝟘 ⟩
-  insertAt n γ 𝟘 +ᶜ insertAt n δ 𝟘 ∎⟨ ≈ᶜ-refl ⟩
-  where open import Tools.Reasoning _≈ᶜ_ ≈ᶜ-trans
+  insertAt n (γ +ᶜ δ) 𝟘            ≈⟨ insertAt-cong ≈ᶜ-refl (≈-sym (proj₁ +-identity 𝟘)) ⟩
+  insertAt n (γ +ᶜ δ) (𝟘 + 𝟘)      ≡⟨ insertAt-distrib-+ᶜ n γ δ 𝟘 𝟘 ⟩
+  insertAt n γ 𝟘 +ᶜ insertAt n δ 𝟘 ∎
+  where open import Tools.Reasoning.Equivalence ≈ᶜ-equivalence
 
 -- Inserting the product of two elements distributes over context scaling
--- insertAt n (p ·ᶜ γ) (p · q) ≈ᶜ p ·ᶜ insertAt n γ q
+-- insertAt n (p ·ᶜ γ) (p · q) ≡ p ·ᶜ insertAt n γ q
 
-insertAt-distrib-·ᶜ : {m : Nat} (n : Nat) (γ δ : Conₘ (n +ⁿ m)) (p q : M)
-                    → insertAt n (p ·ᶜ γ) (p · q) ≈ᶜ p ·ᶜ insertAt n γ q
-insertAt-distrib-·ᶜ 0 γ δ p q = ≈ᶜ-refl
-insertAt-distrib-·ᶜ (1+ n) (γ ∙ p′) (δ ∙ q′) p q = (insertAt-distrib-·ᶜ n γ δ p q) ∙ ≈-refl
+insertAt-distrib-·ᶜ : {m : Nat} (n : Nat) (γ : Conₘ (n +ⁿ m)) (p q : M)
+                    → insertAt n (p ·ᶜ γ) (p · q) ≡ p ·ᶜ insertAt n γ q
+insertAt-distrib-·ᶜ 0 γ p q = refl
+insertAt-distrib-·ᶜ (1+ n) (γ ∙ r) p q =
+  cong₂ _∙_ (insertAt-distrib-·ᶜ n γ p q) refl
+
+-- Inserting a zero into a modality context distributes over context scaling
+-- insertAt n (p ·ᶜ γ) 𝟘 ≈ᶜ p ·ᶜ insertAt n γ 𝟘
+
+insertAt-distrib-·ᶜ-𝟘 : {m : Nat} (n : Nat) (p : M) (γ : Conₘ (n +ⁿ m))
+                      → insertAt n (p ·ᶜ γ) 𝟘 ≈ᶜ p ·ᶜ insertAt n γ 𝟘
+insertAt-distrib-·ᶜ-𝟘 n p γ = begin
+  insertAt n (p ·ᶜ γ) 𝟘       ≈⟨ insertAt-cong ≈ᶜ-refl (≈-sym (proj₂ ·-zero p)) ⟩
+  insertAt n (p ·ᶜ γ) (p · 𝟘) ≡⟨ insertAt-distrib-·ᶜ n γ p 𝟘 ⟩
+  p ·ᶜ insertAt n γ 𝟘         ∎
+  where open import Tools.Reasoning.Equivalence ≈ᶜ-equivalence
 
 -- Inserting the meet of two elements distributes over meet
--- insertAt n (γ ∧ᶜ δ) (p ∧ q) ≈ᶜ insertAt n γ p ∧ᶜ insertAt n δ q
+-- insertAt n (γ ∧ᶜ δ) (p ∧ q) ≡ insertAt n γ p ∧ᶜ insertAt n δ q
 
 insertAt-distrib-∧ᶜ : {m : Nat} (n : Nat) (γ δ : Conₘ (n +ⁿ m)) (p q : M)
-                    → insertAt n (γ ∧ᶜ δ) (p ∧ q) ≈ᶜ insertAt n γ p ∧ᶜ insertAt n δ q
-insertAt-distrib-∧ᶜ 0 γ δ p q = ≈ᶜ-refl
-insertAt-distrib-∧ᶜ (1+ n) (γ ∙ p′) (δ ∙ q′) p q = (insertAt-distrib-∧ᶜ n γ δ p q) ∙ ≈-refl
+                    → insertAt n (γ ∧ᶜ δ) (p ∧ q) ≡ insertAt n γ p ∧ᶜ insertAt n δ q
+insertAt-distrib-∧ᶜ 0 γ δ p q = refl
+insertAt-distrib-∧ᶜ (1+ n) (γ ∙ p′) (δ ∙ q′) p q =
+  cong₂ _∙_ (insertAt-distrib-∧ᶜ n γ δ p q) refl
 
 -- Inserting a zero into a modality context distributes over meet
 -- insertAt n (γ ∧ᶜ δ) 𝟘 ≈ᶜ insertAt n γ 𝟘 ∧ᶜ insertAt n δ 𝟘
@@ -391,11 +490,11 @@ insertAt-distrib-∧ᶜ (1+ n) (γ ∙ p′) (δ ∙ q′) p q = (insertAt-distr
 insertAt-distrib-∧ᶜ-𝟘 : {m : Nat} (n : Nat) (γ δ : Conₘ (n +ⁿ m))
                       → insertAt n (γ ∧ᶜ δ) 𝟘 ≈ᶜ insertAt n γ 𝟘 ∧ᶜ insertAt n δ 𝟘
 insertAt-distrib-∧ᶜ-𝟘  n γ δ = begin
-  insertAt n (γ ∧ᶜ δ) 𝟘            ∼⟨ insertAt-cong ≈ᶜ-refl (≈-sym (∧-idem 𝟘)) ⟩
-  insertAt n (γ ∧ᶜ δ) (𝟘 ∧ 𝟘)      ∼⟨ insertAt-distrib-∧ᶜ n γ δ 𝟘 𝟘 ⟩
-  insertAt n γ 𝟘 ∧ᶜ insertAt n δ 𝟘 ∎⟨ ≈ᶜ-refl ⟩
+  insertAt n (γ ∧ᶜ δ) 𝟘            ≈⟨ insertAt-cong ≈ᶜ-refl (≈-sym (∧-idem 𝟘)) ⟩
+  insertAt n (γ ∧ᶜ δ) (𝟘 ∧ 𝟘)      ≡⟨ insertAt-distrib-∧ᶜ n γ δ 𝟘 𝟘 ⟩
+  insertAt n γ 𝟘 ∧ᶜ insertAt n δ 𝟘 ∎
   where
-  open import Tools.Reasoning _≈ᶜ_ ≈ᶜ-trans
+  open import Tools.Reasoning.Equivalence ≈ᶜ-equivalence
 
 -- Inserting an element into a modality context is a monotone function
 -- If γ ≤ᶜ δ and p ≤ q, then insertAt n γ p ≤ᶜ insertAt n δ q
@@ -407,48 +506,47 @@ insertAt-monotone (1+ n) (γ ∙ p′) (δ ∙ q′) p q (γ≤δ ∙ p′≤q�
   insertAt-monotone n γ δ p q γ≤δ p≤q ∙ p′≤q′
 
 -- Lemma on insertions and lifted variable weakenings
--- 𝟘ᶜ , x[⇑ⁿ(↑id)] ≔ 𝟙 ≈ᶜ insertAt n (𝟘ᶜ , x ≔ 𝟙) 𝟘
+-- 𝟘ᶜ , x[⇑ⁿ(↑id)] ≔ 𝟙 ≡ insertAt n (𝟘ᶜ , x ≔ 𝟙) 𝟘
 
--- insertAt-liftn : {m : Nat} (n : Nat) (x : Fin (n +ⁿ m))
---                → (𝟘ᶜ  , wkVar (liftn (step id) n) x ≔ 𝟙) ≈ᶜ
---                 insertAt n (𝟘ᶜ , x ≔ 𝟙) 𝟘
--- insertAt-liftn 0 x = ? --refl
--- insertAt-liftn (1+ n) x0 = ? --cong₂ _∙_ (PE.sym (insertAt-𝟘 n)) refl
--- insertAt-liftn (1+ n) (_+1 x) = ? --cong₂ _∙_ (insertAt-liftn n x) refl
+insertAt-liftn : {m : Nat} (n : Nat) (x : Fin (n +ⁿ m))
+               → (𝟘ᶜ , wkVar (liftn (step id) n) x ≔ 𝟙) ≡ insertAt n (𝟘ᶜ , x ≔ 𝟙) 𝟘
+insertAt-liftn 0 x = refl
+insertAt-liftn (1+ n) x0 = cong₂ _∙_ (PE.sym (insertAt-𝟘 n)) refl
+insertAt-liftn (1+ n) (x +1) = cong₂ _∙_ (insertAt-liftn n x) refl
 
 -- Every lookup in a zero-context is zero
--- 𝟘ᶜ ⟨ x ⟩ ≈ 𝟘
+-- 𝟘ᶜ ⟨ x ⟩ ≡ 𝟘
 
-𝟘ᶜ-lookup : (x : Fin n) → 𝟘ᶜ ⟨ x ⟩ ≈ 𝟘
-𝟘ᶜ-lookup x0     = ≈-refl
+𝟘ᶜ-lookup : (x : Fin n) → 𝟘ᶜ ⟨ x ⟩ ≡ 𝟘
+𝟘ᶜ-lookup x0     = refl
 𝟘ᶜ-lookup (x +1) = 𝟘ᶜ-lookup x
 
 -- Lookup is consistent with context updates
--- (γ , x ≔ p) ⟨ x ⟩ ≈ p
+-- (γ , x ≔ p) ⟨ x ⟩ ≡ p
 
-update-lookup : (x : Fin n) → (γ , x ≔ p) ⟨ x ⟩ ≈ p
-update-lookup {γ = γ ∙ p} x0 = ≈-refl
+update-lookup : (x : Fin n) → (γ , x ≔ p) ⟨ x ⟩ ≡ p
+update-lookup {γ = γ ∙ p} x0     = refl
 update-lookup {γ = γ ∙ p} (x +1) = update-lookup {γ = γ} x
 
 -- Updating a context with its own content has no effect
--- (γ , x ≔ (γ ⟨ x ⟩)) ≈ᶜ γ
+-- (γ , x ≔ (γ ⟨ x ⟩)) ≡ γ
 
-update-self : (γ : Conₘ n) (x : Fin n) → (γ , x ≔ (γ ⟨ x ⟩)) ≈ᶜ γ
-update-self (γ ∙ p) x0 = ≈ᶜ-refl
-update-self (γ ∙ p) (x +1) = (update-self γ x) ∙ ≈-refl
+update-self : (γ : Conₘ n) (x : Fin n) → (γ , x ≔ (γ ⟨ x ⟩)) ≡ γ
+update-self (γ ∙ p) x0     = refl
+update-self (γ ∙ p) (x +1) = cong₂ _∙_ (update-self γ x) refl
 
 -- Context update is a monotone function with regards to the context
 -- If γ ≤ᶜ δ then (γ , x ≔ p) ≤ᶜ (δ , x ≔ p)
 
 update-monotoneˡ :(x : Fin n) → γ ≤ᶜ δ → (γ , x ≔ p) ≤ᶜ (δ , x ≔ p)
-update-monotoneˡ {γ = γ ∙ p} {δ ∙ q} x0 (γ≤δ ∙ _) = γ≤δ ∙ ≤-refl
+update-monotoneˡ {γ = γ ∙ p} {δ ∙ q} x0 (γ≤δ ∙ _)        = γ≤δ ∙ ≤-refl
 update-monotoneˡ {γ = γ ∙ p} {δ ∙ q} (_+1 x) (γ≤δ ∙ p≤q) = (update-monotoneˡ x γ≤δ) ∙ p≤q
 
 -- Context update is monotone with regards to the inserted element
 -- If p ≤ q then( γ , x ≔ p) ≤ᶜ (γ , x ≔ q)
 
 update-monotoneʳ : (x : Fin n) → p ≤ q → (γ , x ≔ p) ≤ᶜ (γ , x ≔ q)
-update-monotoneʳ {γ = γ ∙ p} x0 p≤q = ≤ᶜ-refl ∙ p≤q
+update-monotoneʳ {γ = γ ∙ p} x0 p≤q     = ≤ᶜ-refl ∙ p≤q
 update-monotoneʳ {γ = γ ∙ p} (x +1) p≤q = (update-monotoneʳ x p≤q) ∙ ≤-refl
 
 -- Context lookup is a monotone function
@@ -459,44 +557,44 @@ lookup-monotone {γ = γ ∙ p} {δ ∙ q} x0     (γ≤δ ∙ p≤q) = p≤q
 lookup-monotone {γ = γ ∙ p} {δ ∙ q} (x +1) (γ≤δ ∙ p≤q) = lookup-monotone x γ≤δ
 
 -- Context update distributes over addition
--- (γ +ᶜ δ) , x ≔ (p + q) ≈ᶜ (γ , x ≔ p) +ᶜ (δ , x ≔ q)
+-- (γ +ᶜ δ) , x ≔ (p + q) ≡ (γ , x ≔ p) +ᶜ (δ , x ≔ q)
 
 update-distrib-+ᶜ : (γ δ : Conₘ n) (p q : M) (x : Fin n)
-                  → (γ +ᶜ δ) , x ≔ (p + q) ≈ᶜ (γ , x ≔ p) +ᶜ (δ , x ≔ q)
-update-distrib-+ᶜ (γ ∙ p′) (δ ∙ q′) p q x0     = ≈ᶜ-refl
-update-distrib-+ᶜ (γ ∙ p′) (δ ∙ q′) p q (x +1) = (update-distrib-+ᶜ γ δ p q x) ∙ ≈-refl
+                  → (γ +ᶜ δ) , x ≔ (p + q) ≡ (γ , x ≔ p) +ᶜ (δ , x ≔ q)
+update-distrib-+ᶜ (γ ∙ p′) (δ ∙ q′) p q x0     = refl
+update-distrib-+ᶜ (γ ∙ p′) (δ ∙ q′) p q (x +1) = cong₂ _∙_ (update-distrib-+ᶜ γ δ p q x) refl
 
 -- Context update distributes over multiplication
--- (p ·ᶜ γ) , x ≔ (p · q) ≈ᶜ p ·ᶜ (γ , x ≔ q)
+-- (p ·ᶜ γ) , x ≔ (p · q) ≡ p ·ᶜ (γ , x ≔ q)
 
 update-distrib-·ᶜ : (γ : Conₘ n) (p q : M) (x : Fin n)
-                  → (p ·ᶜ γ) , x ≔ (p · q) ≈ᶜ p ·ᶜ (γ , x ≔ q)
-update-distrib-·ᶜ (γ ∙ r) p q x0     = ≈ᶜ-refl
-update-distrib-·ᶜ (γ ∙ r) p q (x +1) = (update-distrib-·ᶜ γ p q x) ∙ ≈-refl
+                  → (p ·ᶜ γ) , x ≔ (p · q) ≡ p ·ᶜ (γ , x ≔ q)
+update-distrib-·ᶜ (γ ∙ r) p q x0     = refl
+update-distrib-·ᶜ (γ ∙ r) p q (x +1) = cong₂ _∙_ (update-distrib-·ᶜ γ p q x) refl
 
 -- Context lookup distributes over addition
--- (γ +ᶜ δ)⟨x⟩ ≈ᶜ γ⟨x⟩ + δ⟨x⟩
+-- (γ +ᶜ δ)⟨x⟩ ≡ γ⟨x⟩ + δ⟨x⟩
 
-lookup-distrib-+ᶜ : (γ δ : Conₘ n) (x : Fin n) → (γ +ᶜ δ) ⟨ x ⟩ ≈ γ ⟨ x ⟩ + δ ⟨ x ⟩
-lookup-distrib-+ᶜ (γ ∙ p) (δ ∙ q) x0     = ≈-refl
+lookup-distrib-+ᶜ : (γ δ : Conₘ n) (x : Fin n) → (γ +ᶜ δ) ⟨ x ⟩ ≡ γ ⟨ x ⟩ + δ ⟨ x ⟩
+lookup-distrib-+ᶜ (γ ∙ p) (δ ∙ q) x0     = refl
 lookup-distrib-+ᶜ (γ ∙ p) (δ ∙ q) (x +1) = lookup-distrib-+ᶜ γ δ x
 
 -- Context lookup distributes over multiplication
--- (p ·ᶜ γ)⟨x⟩ ≈ᶜ p · γ⟨x⟩
+-- (p ·ᶜ γ)⟨x⟩ ≡ p · γ⟨x⟩
 
-lookup-distrib-·ᶜ : (γ : Conₘ n) (p : M) (x : Fin n) → (p ·ᶜ γ) ⟨ x ⟩ ≈ p · γ ⟨ x ⟩
-lookup-distrib-·ᶜ (γ ∙ q) p x0     = ≈-refl
+lookup-distrib-·ᶜ : (γ : Conₘ n) (p : M) (x : Fin n) → (p ·ᶜ γ) ⟨ x ⟩ ≡ p · γ ⟨ x ⟩
+lookup-distrib-·ᶜ (γ ∙ q) p x0     = refl
 lookup-distrib-·ᶜ (γ ∙ q) p (x +1) = lookup-distrib-·ᶜ γ p x
 
 -- Updating the head of a context leaves the tail untouched
--- γ , x0 ≔ p ≈ᶜ tailₘ γ ∙ p
+-- γ , x0 ≔ p ≡ tailₘ γ ∙ p
 
-update-head : (γ : Conₘ (1+ n)) (p : M) → γ , x0 ≔ p ≈ᶜ tailₘ γ ∙ p
-update-head (γ ∙ q) p = ≈ᶜ-refl
+update-head : (γ : Conₘ (1+ n)) (p : M) → γ , x0 ≔ p ≡ tailₘ γ ∙ p
+update-head (γ ∙ q) p = refl
 
 -- Updating the tail of a context leaves the head untouched
--- γ , (x +1) ≔ p ≈ᶜ (tailₘ γ , x ≔ p) ∙ headₘ γ
+-- γ , (x +1) ≔ p ≡ (tailₘ γ , x ≔ p) ∙ headₘ γ
 
 update-step : (γ : Conₘ (1+ n)) (p : M) (x : Fin n)
-            → γ , (x +1) ≔ p ≈ᶜ (tailₘ γ , x ≔ p) ∙ headₘ γ
-update-step (γ ∙ q) p x = ≈ᶜ-refl
+            → γ , (x +1) ≔ p ≡ (tailₘ γ , x ≔ p) ∙ headₘ γ
+update-step (γ ∙ q) p x = refl

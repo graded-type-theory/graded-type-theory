@@ -83,19 +83,19 @@ _*_ : (γ δ : Conₘ n) → M
 
 _+ᶜ_ : (γ δ : Conₘ n) → Conₘ n
 ε +ᶜ ε = ε
-(γ ∙ p) +ᶜ (δ ∙ q) = γ +ᶜ δ ∙ p + q
+(γ ∙ p) +ᶜ (δ ∙ q) = (γ +ᶜ δ) ∙ (p + q)
 
 -- Meet lifted to modality contexts
 
 _∧ᶜ_ : (γ δ : Conₘ n) → Conₘ n
 ε ∧ᶜ ε = ε
-(γ ∙ p) ∧ᶜ (δ ∙ q) = γ ∧ᶜ δ ∙ p ∧ q
+(γ ∙ p) ∧ᶜ (δ ∙ q) = (γ ∧ᶜ δ) ∙ (p ∧ q)
 
 -- Modality context scaling
 
 _·ᶜ_ : (p : M) (γ : Conₘ n) → Conₘ n
 p ·ᶜ ε = ε
-p ·ᶜ (γ ∙ q) = p ·ᶜ γ ∙ p · q
+p ·ᶜ (γ ∙ q) = (p ·ᶜ γ) ∙ (p · q)
 
 -- Partial order of modality contexts
 
