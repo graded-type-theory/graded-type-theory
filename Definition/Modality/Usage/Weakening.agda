@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --safe #-}
+{-# OPTIONS --without-K --allow-unsolved-metas #-}
 
 open import Tools.Relation
 open import Definition.Modality
@@ -91,15 +91,22 @@ liftn-usage ℓ (prodrecₘ {γ = γ} {δ = δ} {p = p} γ▸t δ▸u) = sub
 liftn-usage ℓ zeroₘ      = PE.subst (_▸ zero) (PE.sym (insertAt-𝟘 ℓ)) zeroₘ
 liftn-usage ℓ (sucₘ γ▸t) = sucₘ (liftn-usage ℓ γ▸t)
 
-liftn-usage ℓ (natrecₘ {γ = γ} {p = p} {r = r} {δ = δ} γ▸z γ▸s δ▸n r≤0) = sub
-  (natrecₘ (liftn-usage ℓ γ▸z) (liftn-usage (1+ (1+ ℓ)) γ▸s) (liftn-usage ℓ δ▸n) r≤0)
-  (≤ᶜ-reflexive (≈ᶜ-trans (insertAt-distrib-·ᶜ-𝟘 ℓ (r *) (γ +ᶜ p ·ᶜ δ)) (·ᶜ-cong ≈-refl eq)))
+liftn-usage ℓ (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} γ▸z δ▸s η▸n) = sub
+  (natrecₘ (liftn-usage ℓ γ▸z) (liftn-usage (1+ (1+ ℓ)) δ▸s) (liftn-usage ℓ η▸n))
+  {!!}
+  -- (natrecₘ (liftn-usage ℓ γ▸z) (liftn-usage (1+ (1+ ℓ)) γ▸s) (liftn-usage ℓ δ▸n) r≤0)
+  -- (≤ᶜ-reflexive (≈ᶜ-trans (insertAt-distrib-·ᶜ-𝟘 ℓ (r *) (γ +ᶜ p ·ᶜ δ)) (·ᶜ-cong ≈-refl eq)))
   where
-  open import Tools.Reasoning.Equivalence ≈ᶜ-equivalence
+  open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
   eq = begin
-    insertAt ℓ (γ +ᶜ p ·ᶜ δ) 𝟘               ≈⟨ insertAt-distrib-+ᶜ-𝟘 ℓ γ (p ·ᶜ δ) ⟩
-    insertAt ℓ γ 𝟘 +ᶜ insertAt ℓ (p ·ᶜ δ) 𝟘 ≈⟨ +ᶜ-cong ≈ᶜ-refl (insertAt-distrib-·ᶜ-𝟘 ℓ p δ) ⟩
-    insertAt ℓ γ 𝟘 +ᶜ p ·ᶜ insertAt ℓ δ 𝟘   ∎
+    insertAt ℓ (nrᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ) (δ +ᶜ p ·ᶜ η) r) 𝟘 ≈⟨ {!insertAt-distrib-nrᶜ!} ⟩
+    nrᶜ (insertAt ℓ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ) 𝟘) (insertAt ℓ (δ +ᶜ p ·ᶜ η) 𝟘) r ≈⟨ ? ⟩
+    nrᶜ (insertAt ℓ δ 𝟘 +ᶜ p ·ᶜ insertAt ℓ η 𝟘 +ᶜ r ·ᶜ insertAt ℓ γ 𝟘)
+      (insertAt ℓ δ 𝟘 +ᶜ p ·ᶜ insertAt ℓ η 𝟘) r ∎
+  -- begin
+  --   insertAt ℓ (γ +ᶜ p ·ᶜ δ) 𝟘               ≈⟨ insertAt-distrib-+ᶜ-𝟘 ℓ γ (p ·ᶜ δ) ⟩
+  --   insertAt ℓ γ 𝟘 +ᶜ insertAt ℓ (p ·ᶜ δ) 𝟘 ≈⟨ +ᶜ-cong ≈ᶜ-refl (insertAt-distrib-·ᶜ-𝟘 ℓ p δ) ⟩
+  --   insertAt ℓ γ 𝟘 +ᶜ p ·ᶜ insertAt ℓ δ 𝟘   ∎
 
 liftn-usage ℓ (Emptyrecₘ γ▸t) = Emptyrecₘ (liftn-usage ℓ γ▸t)
 liftn-usage ℓ starₘ           =  PE.subst (_▸ star) (PE.sym (insertAt-𝟘 ℓ)) starₘ

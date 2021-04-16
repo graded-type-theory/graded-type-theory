@@ -25,67 +25,6 @@ private
     p q : M
     γ γ′ δ δ′ η : Conₘ n
 
-------------------------------------------
--- Modality contexts form a left module --
-------------------------------------------
-
--- 𝟙 is a left identity to modality contex scaling
--- 𝟙 ·ᶜ γ ≈ᶜ γ
-
-·ᶜ-identityˡ : (γ : Conₘ n) → 𝟙 ·ᶜ γ ≈ᶜ γ
-·ᶜ-identityˡ  ε      = ε
-·ᶜ-identityˡ (γ ∙ p) = (·ᶜ-identityˡ γ) ∙ (proj₁ ·-identity p)
-
--- 𝟘 is a left zero to modality context scaling
--- 𝟘 ·ᶜ γ ≈ᶜ 𝟘ᶜ
-
-·ᶜ-zeroˡ : (γ : Conₘ n) → 𝟘 ·ᶜ γ ≈ᶜ 𝟘ᶜ
-·ᶜ-zeroˡ  ε      = ε
-·ᶜ-zeroˡ (γ ∙ p) = (·ᶜ-zeroˡ γ) ∙ (proj₁ ·-zero p)
-
--- A zero context is a right zero to modality context scaling
--- p ·ᶜ 𝟘ᶜ ≈ᶜ 𝟘ᶜ
-
-·ᶜ-zeroʳ : {n : Nat} (p : M) → p ·ᶜ 𝟘ᶜ ≈ᶜ 𝟘ᶜ {n = n}
-·ᶜ-zeroʳ {n = 0}    p = ε
-·ᶜ-zeroʳ {n = 1+ n} p = (·ᶜ-zeroʳ p) ∙ (proj₂ ·-zero p)
-
--- Modality context scaling is associative
--- (p · q) ·ᶜ γ ≈ᶜ p ·ᶜ (q ·ᶜ γ)
-
-·ᶜ-assoc : (p q : M) → (γ : Conₘ n) → (p · q) ·ᶜ γ ≈ᶜ p ·ᶜ (q ·ᶜ γ)
-·ᶜ-assoc p q  ε      = ε
-·ᶜ-assoc p q (γ ∙ r) = (·ᶜ-assoc p q γ) ∙ (·-assoc p q r)
-
--- Modality contex scaling is left distributive over addition
--- p ·ᶜ (γ +ᶜ δ) ≈ᶜ (p ·ᶜ γ) +ᶜ (p ·ᶜ δ)
-
-·ᶜ-distribˡ-+ᶜ : (p : M) → (γ δ : Conₘ n) → (p ·ᶜ (γ +ᶜ δ)) ≈ᶜ (p ·ᶜ γ) +ᶜ (p ·ᶜ δ)
-·ᶜ-distribˡ-+ᶜ p  ε       ε      = ε
-·ᶜ-distribˡ-+ᶜ p (γ ∙ q) (δ ∙ r) = (·ᶜ-distribˡ-+ᶜ p γ δ) ∙ (proj₁ ·-distrib-+ p q r)
-
-
--- Modality context scaling is right distributive over addition
--- (p + q) ·ᶜ γ ≈ᶜ (p ·ᶜ γ) +ᶜ (q ·ᶜ γ)
-
-·ᶜ-distribʳ-+ᶜ : (p q : M) → (γ : Conₘ n) → (p + q) ·ᶜ γ ≈ᶜ (p ·ᶜ γ) +ᶜ (q ·ᶜ γ)
-·ᶜ-distribʳ-+ᶜ p q  ε      = ε
-·ᶜ-distribʳ-+ᶜ p q (γ ∙ r) = (·ᶜ-distribʳ-+ᶜ p q γ) ∙ (proj₂ ·-distrib-+ r p q)
-
--- Modality contex scaling is left distributive over meet
--- p ·ᶜ (γ ∧ᶜ δ) ≈ᶜ (p ·ᶜ γ) ∧ᶜ (p ·ᶜ δ)
-
-·ᶜ-distribˡ-∧ᶜ : (p : M) → (γ δ : Conₘ n) → p ·ᶜ (γ ∧ᶜ δ) ≈ᶜ (p ·ᶜ γ) ∧ᶜ (p ·ᶜ δ)
-·ᶜ-distribˡ-∧ᶜ p  ε       ε      = ε
-·ᶜ-distribˡ-∧ᶜ p (γ ∙ q) (δ ∙ r) = (·ᶜ-distribˡ-∧ᶜ p γ δ) ∙ (proj₁ ·-distrib-∧ p q r)
-
--- Modality context scaling is right distributive over meet
--- (p ∧ q) ·ᶜ γ ≈ᶜ (p ·ᶜ γ) ∧ᶜ (q ·ᶜ γ)
-
-·ᶜ-distribʳ-∧ᶜ : (p q : M) → (γ : Conₘ n) → (p ∧ q) ·ᶜ γ ≈ᶜ (p ·ᶜ γ) ∧ᶜ (q ·ᶜ γ)
-·ᶜ-distribʳ-∧ᶜ p q  ε      = ε
-·ᶜ-distribʳ-∧ᶜ p q (γ ∙ r) = (·ᶜ-distribʳ-∧ᶜ p q γ) ∙ (proj₂ ·-distrib-∧ r p q)
-
 ----------------------
 -- Properties of +ᶜ --
 ----------------------
@@ -126,6 +65,80 @@ private
 +ᶜ-positive  (γ ∙ p) (δ ∙ q) (0≤γ+δ ∙ 0≤p+q) =
   (proj₁ (+ᶜ-positive γ δ 0≤γ+δ) ∙ proj₁ (+-positive p q 0≤p+q)) ,
   (proj₂ (+ᶜ-positive γ δ 0≤γ+δ) ∙ proj₂ (+-positive p q 0≤p+q))
+
+-- Addition is left distributive over meet
+-- γ +ᶜ (δ ∧ᶜ η) ≈ᶜ (γ +ᶜ δ) ∧ᶜ (γ +ᶜ η)
+
++ᶜ-distribˡ-∧ᶜ : (γ δ η : Conₘ n) → γ +ᶜ (δ ∧ᶜ η) ≈ᶜ (γ +ᶜ δ) ∧ᶜ (γ +ᶜ η)
++ᶜ-distribˡ-∧ᶜ ε        ε       ε      = ε
++ᶜ-distribˡ-∧ᶜ (γ ∙ p) (δ ∙ q) (η ∙ r) = (+ᶜ-distribˡ-∧ᶜ γ δ η) ∙ (proj₁ +-distrib-∧ p q r)
+
+-- Addition is right distributive over meet
+-- (δ ∧ᶜ η) +ᶜ γ ≈ᶜ (̋δ +ᶜ γ) ∧ᶜ (η +ᶜ γ)
+
++ᶜ-distribʳ-∧ᶜ : (γ δ η : Conₘ n) → (δ ∧ᶜ η) +ᶜ γ ≈ᶜ (δ +ᶜ γ) ∧ᶜ (η +ᶜ γ)
++ᶜ-distribʳ-∧ᶜ ε ε ε = ε
++ᶜ-distribʳ-∧ᶜ (γ ∙ p) (δ ∙ q) (η ∙ r) = (+ᶜ-distribʳ-∧ᶜ γ δ η) ∙ (proj₂ +-distrib-∧ p q r)
+
+----------------------
+-- Properties of ·ᶜ --
+----------------------
+
+-- 𝟙 is a left identity to modality contex scaling
+-- 𝟙 ·ᶜ γ ≈ᶜ γ
+
+·ᶜ-identityˡ : (γ : Conₘ n) → 𝟙 ·ᶜ γ ≈ᶜ γ
+·ᶜ-identityˡ  ε      = ε
+·ᶜ-identityˡ (γ ∙ p) = (·ᶜ-identityˡ γ) ∙ (proj₁ ·-identity p)
+
+-- 𝟘 is a left zero to modality context scaling
+-- 𝟘 ·ᶜ γ ≈ᶜ 𝟘ᶜ
+
+·ᶜ-zeroˡ : (γ : Conₘ n) → 𝟘 ·ᶜ γ ≈ᶜ 𝟘ᶜ
+·ᶜ-zeroˡ  ε      = ε
+·ᶜ-zeroˡ (γ ∙ p) = (·ᶜ-zeroˡ γ) ∙ (proj₁ ·-zero p)
+
+-- A zero context is a right zero to modality context scaling
+-- p ·ᶜ 𝟘ᶜ ≈ᶜ 𝟘ᶜ
+
+·ᶜ-zeroʳ : {n : Nat} (p : M) → p ·ᶜ 𝟘ᶜ ≈ᶜ 𝟘ᶜ {n = n}
+·ᶜ-zeroʳ {n = 0}    p = ε
+·ᶜ-zeroʳ {n = 1+ n} p = (·ᶜ-zeroʳ p) ∙ (proj₂ ·-zero p)
+
+-- Modality context scaling is associative
+-- (p · q) ·ᶜ γ ≈ᶜ p ·ᶜ (q ·ᶜ γ)
+
+·ᶜ-assoc : (p q : M) → (γ : Conₘ n) → (p · q) ·ᶜ γ ≈ᶜ p ·ᶜ (q ·ᶜ γ)
+·ᶜ-assoc p q  ε      = ε
+·ᶜ-assoc p q (γ ∙ r) = (·ᶜ-assoc p q γ) ∙ (·-assoc p q r)
+
+-- Modality contex scaling is left distributive over addition
+-- p ·ᶜ (γ +ᶜ δ) ≈ᶜ (p ·ᶜ γ) +ᶜ (p ·ᶜ δ)
+
+·ᶜ-distribˡ-+ᶜ : (p : M) → (γ δ : Conₘ n) → (p ·ᶜ (γ +ᶜ δ)) ≈ᶜ (p ·ᶜ γ) +ᶜ (p ·ᶜ δ)
+·ᶜ-distribˡ-+ᶜ p  ε       ε      = ε
+·ᶜ-distribˡ-+ᶜ p (γ ∙ q) (δ ∙ r) = (·ᶜ-distribˡ-+ᶜ p γ δ) ∙ (proj₁ ·-distrib-+ p q r)
+
+-- Modality context scaling is right distributive over addition
+-- (p + q) ·ᶜ γ ≈ᶜ (p ·ᶜ γ) +ᶜ (q ·ᶜ γ)
+
+·ᶜ-distribʳ-+ᶜ : (p q : M) → (γ : Conₘ n) → (p + q) ·ᶜ γ ≈ᶜ (p ·ᶜ γ) +ᶜ (q ·ᶜ γ)
+·ᶜ-distribʳ-+ᶜ p q  ε      = ε
+·ᶜ-distribʳ-+ᶜ p q (γ ∙ r) = (·ᶜ-distribʳ-+ᶜ p q γ) ∙ (proj₂ ·-distrib-+ r p q)
+
+-- Modality contex scaling is left distributive over meet
+-- p ·ᶜ (γ ∧ᶜ δ) ≈ᶜ (p ·ᶜ γ) ∧ᶜ (p ·ᶜ δ)
+
+·ᶜ-distribˡ-∧ᶜ : (p : M) → (γ δ : Conₘ n) → p ·ᶜ (γ ∧ᶜ δ) ≈ᶜ (p ·ᶜ γ) ∧ᶜ (p ·ᶜ δ)
+·ᶜ-distribˡ-∧ᶜ p  ε       ε      = ε
+·ᶜ-distribˡ-∧ᶜ p (γ ∙ q) (δ ∙ r) = (·ᶜ-distribˡ-∧ᶜ p γ δ) ∙ (proj₁ ·-distrib-∧ p q r)
+
+-- Modality context scaling is right distributive over meet
+-- (p ∧ q) ·ᶜ γ ≈ᶜ (p ·ᶜ γ) ∧ᶜ (q ·ᶜ γ)
+
+·ᶜ-distribʳ-∧ᶜ : (p q : M) → (γ : Conₘ n) → (p ∧ q) ·ᶜ γ ≈ᶜ (p ·ᶜ γ) ∧ᶜ (q ·ᶜ γ)
+·ᶜ-distribʳ-∧ᶜ p q  ε      = ε
+·ᶜ-distribʳ-∧ᶜ p q (γ ∙ r) = (·ᶜ-distribʳ-∧ᶜ p q γ) ∙ (proj₂ ·-distrib-∧ r p q)
 
 ----------------------
 -- Properties of ∧ᶜ --
@@ -575,8 +588,8 @@ update-distrib-·ᶜ (γ ∙ r) p q (x +1) = cong₂ _∙_ (update-distrib-·ᶜ
 -- Context update distributes over meet
 -- (γ ∧ᶜ δ) , x ≔ (p ∧ q) ≡ (γ , x ≔ p) ∧ᶜ (δ , x ≔ q)
 
-update-distrib-∧ᶜ : {𝕄 : Modality M} (γ δ : Conₘ 𝕄 n) (p q : M) (x : Fin n)
-                  → (γ ∧ᶜ δ) , x ≔ (Modality._∧_ 𝕄 p q) ≡ (γ , x ≔ p) ∧ᶜ (δ , x ≔ q)
+update-distrib-∧ᶜ : (γ δ : Conₘ n) (p q : M) (x : Fin n)
+                  → (γ ∧ᶜ δ) , x ≔ (p ∧ q) ≡ (γ , x ≔ p) ∧ᶜ (δ , x ≔ q)
 update-distrib-∧ᶜ (γ ∙ p′) (δ ∙ q′) p q x0 = refl
 update-distrib-∧ᶜ (γ ∙ p′) (δ ∙ q′) p q (x +1) =
   cong₂ _∙_ (update-distrib-∧ᶜ γ δ p q x) refl
@@ -584,8 +597,8 @@ update-distrib-∧ᶜ (γ ∙ p′) (δ ∙ q′) p q (x +1) =
 -- Context update distributes over nrᶜ
 -- nrᶜ γ δ r , x ≔ nr p q r ≡  nrᶜ (γ , x ≔ p) (δ , x ≔ q) r
 
-update-distrib-nrᶜ : {𝕄 : Modality M} (γ δ : Conₘ 𝕄 n) (r p q : M) (x : Fin n)
-                   → nrᶜ γ δ r , x ≔ (Modality.nr 𝕄 p q r) ≡ nrᶜ (γ , x ≔ p) (δ , x ≔ q) r
+update-distrib-nrᶜ : (γ δ : Conₘ n) (r p q : M) (x : Fin n)
+                   → nrᶜ γ δ r , x ≔ (nr p q r) ≡ nrᶜ (γ , x ≔ p) (δ , x ≔ q) r
 update-distrib-nrᶜ (γ ∙ _) (δ ∙ _) r p q x0 = refl
 update-distrib-nrᶜ (γ ∙ _) (δ ∙ _) r p q (x +1) =
   cong₂ _∙_ (update-distrib-nrᶜ γ δ r p q x) refl
@@ -607,16 +620,16 @@ lookup-distrib-·ᶜ (γ ∙ q) p (x +1) = lookup-distrib-·ᶜ γ p x
 -- Context lookup distributes over meet
 -- (γ ∧ᶜ δ)⟨x⟩ ≡ γ⟨x⟩ ∧ δ⟨x⟩
 
-lookup-distrib-∧ᶜ : {𝕄 : Modality M} (γ δ : Conₘ 𝕄 n) (x : Fin n)
-                  → (γ ∧ᶜ δ) ⟨ x ⟩ ≡ Modality._∧_ 𝕄 (γ ⟨ x ⟩) (δ ⟨ x ⟩)
+lookup-distrib-∧ᶜ : (γ δ : Conₘ n) (x : Fin n)
+                  → (γ ∧ᶜ δ) ⟨ x ⟩ ≡ (γ ⟨ x ⟩) ∧ (δ ⟨ x ⟩)
 lookup-distrib-∧ᶜ (γ ∙ p) (δ ∙ q) x0     = refl
 lookup-distrib-∧ᶜ (γ ∙ p) (δ ∙ q) (x +1) = lookup-distrib-∧ᶜ γ δ x
 
 -- Context lookup distributes over nrᶜ
 -- (nrᶜ γ δ r)⟨x⟩ ≡ nr γ⟨x⟩ δ⟨x⟩ r
 
-lookup-distrib-nrᶜ : {𝕄 : Modality M} (γ δ : Conₘ 𝕄 n) (r : M) (x : Fin n)
-                   → (nrᶜ γ δ r) ⟨ x ⟩ ≡ Modality.nr 𝕄 (γ ⟨ x ⟩) (δ ⟨ x ⟩) r
+lookup-distrib-nrᶜ : (γ δ : Conₘ n) (r : M) (x : Fin n)
+                   → (nrᶜ γ δ r) ⟨ x ⟩ ≡ nr (γ ⟨ x ⟩) (δ ⟨ x ⟩) r
 lookup-distrib-nrᶜ (γ ∙ p) (δ ∙ q) r x0     = refl
 lookup-distrib-nrᶜ (γ ∙ p) (δ ∙ q) r (x +1) = lookup-distrib-nrᶜ γ δ r x
 
@@ -634,7 +647,6 @@ update-step : (γ : Conₘ (1+ n)) (p : M) (x : Fin n)
 update-step (γ ∙ q) p x = refl
 
 
-nr-thm : {𝕄 : Modality M} (γ δ : Conₘ 𝕄 n) (r : M) →
-         nrᶜ γ δ r ≡ γ ∧ᶜ (δ +ᶜ r ·ᶜ nrᶜ γ δ r)
-nr-thm ε ε r = refl
-nr-thm {𝕄 = 𝕄} (γ ∙ p) (δ ∙ q) r = cong₂ _∙_ (nr-thm γ δ r) (Modality.nr-rec 𝕄 p q r)
+nrᶜ-rec : (γ δ : Conₘ n) (r : M) → nrᶜ γ δ r ≈ᶜ γ ∧ᶜ (δ +ᶜ r ·ᶜ nrᶜ γ δ r)
+nrᶜ-rec ε ε r             = ≈ᶜ-refl
+nrᶜ-rec (γ ∙ p) (δ ∙ q) r = (nrᶜ-rec γ δ r) ∙ (nr-rec p q r)

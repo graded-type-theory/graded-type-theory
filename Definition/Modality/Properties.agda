@@ -11,11 +11,10 @@ module Definition.Modality.Properties
 open Modality 𝕄 renaming (≈-sym to sym ; ≈-refl to refl ; ≈-trans to trans)
 
 open import Tools.Product
-open import Tools.Reasoning.Equality ≈-Equivalence
 
 private
   variable
-    p p′ q q′ r : M
+    p p′ q q′ r r′ : M
 
 -- ≤ is reflexive
 -- p ≤ p
@@ -47,7 +46,7 @@ private
 
 ≤-preorder : IsPreorder _≈_ _≤_
 ≤-preorder = record
-  { isEquivalence = ≈-Equivalence
+  { isEquivalence = ≈-equivalence
   ; reflexive     = ≤-reflexive
   ; trans         = ≤-trans
   }
@@ -69,7 +68,6 @@ private
   ; _≤_            = _≤_
   ; isPartialOrder = ≤-partial
   }
-
 
 -- Addition on the left is a monotone function
 -- If p ≤ q then p + r ≤ q + r
@@ -101,6 +99,7 @@ private
   p ∧ r ∧ r ∧ q     ≈⟨ sym (∧-assoc p r (r ∧ q)) ⟩
   (p ∧ r) ∧ r ∧ q   ≈⟨ ∧-cong refl (∧-comm r q) ⟩
   (p ∧ r) ∧ (q ∧ r) ∎
+  where open import Tools.Reasoning.Equivalence ≈-equivalence
 
 -- Meet on the right is a monotone function
 -- If p ≤ q then r ∧ p ≤ r ∧ q
@@ -114,6 +113,7 @@ private
   r ∧ p ∧ (q ∧ r)   ≈⟨ sym (∧-assoc r p (q ∧ r)) ⟩
   (r ∧ p) ∧ (q ∧ r) ≈⟨ ∧-cong refl (∧-comm q r) ⟩
   (r ∧ p) ∧ (r ∧ q) ∎
+  where open import Tools.Reasoning.Equivalence ≈-equivalence
 
 -- Meet is a monotone function
 -- If p ≤ p′ and q ≤ q′ then p ∧ q ≤ p′ ∧ q′
@@ -148,6 +148,7 @@ private
   (p ∧ p) ∧ q ≈⟨ ∧-assoc p p q ⟩
   p ∧ (p ∧ q) ≈⟨ ∧-comm p (p ∧ q) ⟩
   (p ∧ q) ∧ p ∎
+  where open import Tools.Reasoning.Equivalence ≈-equivalence
 
 -- Meet on the right is a decreasing function
 -- p ∧ q ≤ q
@@ -157,3 +158,15 @@ private
   p ∧ q       ≈⟨ ∧-cong refl (sym (∧-idem q)) ⟩
   p ∧ (q ∧ q) ≈⟨ sym (∧-assoc p q q) ⟩
   (p ∧ q) ∧ q ∎
+  where open import Tools.Reasoning.Equivalence ≈-equivalence
+
+-- nr-monotone : p ≤ p′ → q ≤ q′ → r ≤ r′ → nr p q r ≤ nr p′ q′ r′
+-- nr-monotone {p} {p′} {q} {q′} {r} {r′} p≤p′ q≤q′ r≤r′ = begin
+--   nr p q r ≈⟨ nr-rec p q r ⟩
+--   p ∧ (q + r · nr p q r) ≤⟨ ∧-monotoneˡ p≤p′ ⟩
+--   p′ ∧ (q + r · nr p q r) ≤⟨ ∧-monotoneʳ (+-monotoneˡ q≤q′) ⟩
+--   p′ ∧ (q′ + r · nr p q r) ≤⟨ ∧-monotoneʳ (+-monotoneʳ (·-monotoneˡ r≤r′)) ⟩
+--   p′ ∧ (q′ + r′ · nr p q r) ≤⟨ {!!} ⟩
+--   p′ ∧ (q′ + r′ · nr p′ q′ r′) ≈˘⟨ nr-rec p′ q′ r′ ⟩
+--   nr p′ q′ r′ ∎
+--   where open import Tools.Reasoning.PartialOrder ≤-poset

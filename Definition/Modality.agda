@@ -32,7 +32,7 @@ record Modality : Set where
     -- · forms a monoid with 𝟙 as unit element
     ·-Monoid            : IsMonoid _·_ 𝟙
     -- ∧ forms a semilattice
-    ∧-Semilattice       : IsSemilattice _≡_ _∧_
+    ∧-Semilattice       : IsSemilattice _∧_
 
 
   -- Semilattice partial ordering relation
@@ -45,7 +45,7 @@ record Modality : Set where
     -- The semiring is positive
     +-positive          : (p q : M) → 𝟘 ≤ (p + q) → 𝟘 ≤ p × 𝟘 ≤ q
     -- nr is a solution to the following recurrence relation
-    nr-rec : (p q r : M) → nr p q r ≡ p ∧ (q + r · nr p q r)
+    nr-rec : (p q r : M) → nr p q r ≈ p ∧ (q + r · nr p q r)
 
 
     -- Multiplication distributes over addition
@@ -56,7 +56,7 @@ record Modality : Set where
     +-distrib-∧         : _+_ DistributesOver _∧_
 
     -- ≈ is an equivallence relation
-    ≈-Equivalence       : IsEquivalence _≈_
+    ≈-equivalence       : IsEquivalence _≈_
 
 
   -- Easier access to some operator properties
@@ -85,13 +85,13 @@ record Modality : Set where
   ∧-idem = IsSemilattice.idem ∧-Semilattice
 
   ≈-refl : Reflexive _≈_
-  ≈-refl = IsEquivalence.refl ≈-Equivalence
+  ≈-refl = IsEquivalence.refl ≈-equivalence
 
   ≈-sym : Symmetric _≈_
-  ≈-sym = IsEquivalence.sym ≈-Equivalence
+  ≈-sym = IsEquivalence.sym ≈-equivalence
 
   ≈-trans : Transitive _≈_
-  ≈-trans = IsEquivalence.trans ≈-Equivalence
+  ≈-trans = IsEquivalence.trans ≈-equivalence
 
   +-cong : Congruent₂ _+_
   +-cong = IsCommutativeMonoid.∙-cong +-CommutativeMonoid

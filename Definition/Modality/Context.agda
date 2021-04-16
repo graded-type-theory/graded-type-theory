@@ -105,9 +105,9 @@ _≤ᶜ_ : (γ δ : Conₘ n) → Set
 
 -- nr-recurrence relation lifted to modality contexts
 
-nrᶜ : {𝕄 : Modality M} (γ δ : Conₘ 𝕄 n) (r : M) → Conₘ 𝕄 n
+nrᶜ : (γ δ : Conₘ n) (r : M) → Conₘ n
 nrᶜ ε ε r = ε
-nrᶜ {𝕄 = 𝕄} (γ ∙ p) (δ ∙ q) r = (nrᶜ γ δ r) ∙ Modality.nr 𝕄 p q r
+nrᶜ (γ ∙ p) (δ ∙ q) r = (nrᶜ γ δ r) ∙ nr p q r
 
 
 -- Zero modality context

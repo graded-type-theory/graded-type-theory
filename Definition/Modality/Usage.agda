@@ -132,9 +132,9 @@ mutual
   gen-usage (Emptyreckind p) (A ∷ e ∷ [])    = ⌈ e ⌉
   gen-usage (Natreckind p r) (G ∷ z ∷ s ∷ n ∷ []) =
     let γ  = ⌈ z ⌉
-        δ  = tailₘ (tailₘ δ′)
         δ′ = ⌈ s ⌉
-        r  = headₘ δ′
         η  = ⌈ n ⌉
+        δ  = tailₘ (tailₘ δ′)
+        r  = headₘ δ′
         p  = headₘ (tailₘ δ′)
     in  γ ∧ᶜ (nrᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ) (δ +ᶜ p ·ᶜ η) r)

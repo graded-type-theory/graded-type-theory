@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --safe #-}
+{-# OPTIONS --without-K --allow-unsolved-metas #-}
 
 open import Tools.Relation
 open import Definition.Modality
@@ -29,7 +29,7 @@ private
     Γ : Con Term n
     t u A F : Term n
     G : Term (1+ n)
-    γ γ′ δ : Conₘ n
+    γ δ : Conₘ n
     p q : M
 
 -- The contents of two valid modality context can be freely interchanged
@@ -121,13 +121,13 @@ Conₘ-interchange (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} γ�
                                 (Conₘ-interchange δ▸s δ′▸s (x +1 +1))
                                 (Conₘ-interchange η▸n η′▸n x))
   where
-  open Modality 𝕄
+  open import Tools.Reasoning.PropositionalEquality
   eq = let γ'  = γ , x ≔ (γ′ ⟨ x ⟩)
            δ'  = δ , x ≔ (δ′ ⟨ x ⟩)
            η'  = η , x ≔ (η′ ⟨ x ⟩)
            rγ' = r ·ᶜ γ , x ≔ (r · (γ′ ⟨ x ⟩))
            pη' = p ·ᶜ η , x ≔ (p · (η′ ⟨ x ⟩))
-       in  begin
+       in begin
          γ' ∧ᶜ (nrᶜ (δ' +ᶜ p ·ᶜ η' +ᶜ r ·ᶜ γ') (δ' +ᶜ p ·ᶜ η') r)
            ≡⟨ cong (γ' ∧ᶜ_) (cong₂ (λ x₁ x₂ → nrᶜ x₁ x₂ r)
                    (cong (δ' +ᶜ_) (cong₂ _+ᶜ_ (PE.sym (update-distrib-·ᶜ η p (η′ ⟨ x ⟩) x))
@@ -157,19 +157,19 @@ Conₘ-interchange (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} γ�
                    r
            ≡⟨ cong (γ' ∧ᶜ_) (cong (λ x₁ → nrᶜ x₁ _ r)
                        (PE.sym (update-distrib-+ᶜ δ (p ·ᶜ η +ᶜ r ·ᶜ γ) (δ′ ⟨ x ⟩)
-                                                    (p ·ᶜ η′ +ᶜ r ·ᶜ γ′ ⟨ x ⟩) x))) ⟩
-         γ' ∧ᶜ nrᶜ ((δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ) , x ≔ ((δ′ ⟨ x ⟩) + (p ·ᶜ η′ +ᶜ r ·ᶜ γ′ ⟨ x ⟩)))
+                                                    ((p ·ᶜ η′ +ᶜ r ·ᶜ γ′) ⟨ x ⟩) x))) ⟩
+         γ' ∧ᶜ nrᶜ ((δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ) , x ≔ ((δ′ ⟨ x ⟩) + ((p ·ᶜ η′ +ᶜ r ·ᶜ γ′) ⟨ x ⟩)))
                    ((δ +ᶜ p ·ᶜ η) , x ≔ ((δ′ +ᶜ p ·ᶜ η′) ⟨ x ⟩))
                    r
            ≡⟨ cong (γ' ∧ᶜ_) (cong (λ x₁ → nrᶜ x₁ _ r) (cong (_ , x ≔_)
                                   (PE.sym (lookup-distrib-+ᶜ δ′ (p ·ᶜ η′ +ᶜ r ·ᶜ γ′) x)))) ⟩
-         γ' ∧ᶜ nrᶜ ((δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ) , x ≔ (δ′ +ᶜ p ·ᶜ η′ +ᶜ r ·ᶜ γ′ ⟨ x ⟩))
-                   (δ +ᶜ p ·ᶜ η , x ≔ (δ′ +ᶜ p ·ᶜ η′ ⟨ x ⟩))
+         γ' ∧ᶜ nrᶜ ((δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ) , x ≔ ((δ′ +ᶜ p ·ᶜ η′ +ᶜ r ·ᶜ γ′) ⟨ x ⟩))
+                   (δ +ᶜ p ·ᶜ η , x ≔ ((δ′ +ᶜ p ·ᶜ η′) ⟨ x ⟩))
                    r
            ≡⟨ cong (γ' ∧ᶜ_) (PE.sym (update-distrib-nrᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ) (δ +ᶜ p ·ᶜ η) r
-                                    (δ′ +ᶜ p ·ᶜ η′ +ᶜ r ·ᶜ γ′ ⟨ x ⟩) (δ′ +ᶜ p ·ᶜ η′ ⟨ x ⟩) x)) ⟩
+                                    ((δ′ +ᶜ p ·ᶜ η′ +ᶜ r ·ᶜ γ′) ⟨ x ⟩) ((δ′ +ᶜ p ·ᶜ η′) ⟨ x ⟩) x)) ⟩
          γ' ∧ᶜ ((nrᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ) (δ +ᶜ p ·ᶜ η) r) ,
-                     x ≔ (nr (δ′ +ᶜ p ·ᶜ η′ +ᶜ r ·ᶜ γ′ ⟨ x ⟩) (δ′ +ᶜ p ·ᶜ η′ ⟨ x ⟩) r))
+                     x ≔ (nr ((δ′ +ᶜ p ·ᶜ η′ +ᶜ r ·ᶜ γ′) ⟨ x ⟩) ((δ′ +ᶜ p ·ᶜ η′) ⟨ x ⟩) r))
            ≡⟨ cong (γ' ∧ᶜ_) (cong (_ , x ≔_)
                    (PE.sym (lookup-distrib-nrᶜ (δ′ +ᶜ p ·ᶜ η′ +ᶜ r ·ᶜ γ′)
                                                (δ′ +ᶜ p ·ᶜ η′) r x))) ⟩
@@ -244,15 +244,24 @@ usage-upper-bound (prodrecₘ {γ} {δ = δ} {p} {u = u₁} t u) = +ᶜ-monotone
 usage-upper-bound zeroₘ    = ≤ᶜ-refl
 usage-upper-bound (sucₘ t) = usage-upper-bound t
 
-usage-upper-bound (natrecₘ {γ = γ} {p = p} {r = r} {z = z} {s = s} x x₁ x₂ x₃) = ·ᶜ-monotoneʳ (+ᶜ-monotone le (·ᶜ-monotoneʳ (usage-upper-bound x₂)))
+usage-upper-bound (natrecₘ {γ = γ} {p = p} {r = r} {z = z} {s = s} {n = n} γ▸z δ▸s η▸n) = ∧ᶜ-monotone (usage-upper-bound γ▸z) le
+-- ·ᶜ-monotoneʳ (+ᶜ-monotone le (·ᶜ-monotoneʳ (usage-upper-bound x₂)))
   where
   open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
-  le = begin
-    γ      ≈˘⟨ ∧ᶜ-idem γ ⟩
-    γ ∧ᶜ γ ≤⟨ ∧ᶜ-monotone (usage-upper-bound x)
-                          (tailₘ-monotone (tailₘ-monotone
-                                          (usage-upper-bound x₁))) ⟩
-    ⌈ z ⌉ ∧ᶜ tailₘ (tailₘ ⌈ s ⌉) ∎
+  |s| = ⌈ s ⌉
+  γ′ = ⌈ z ⌉
+  δ′ = tailₘ (tailₘ |s|)
+  η′ = ⌈ n ⌉
+  p′ = headₘ (tailₘ |s|)
+  r′ = headₘ |s|
+  le = begin {!!}
+    -- nrᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ) (δ +ᶜ p ·ᶜ η) r
+    -- nrᶜ (δ′ +ᶜ p′ ·ᶜ η′ +ᶜ r′ ·ᶜ γ′) (δ′ +ᶜ p′ ·ᶜ η′) r′
+  --   γ      ≈˘⟨ ∧ᶜ-idem γ ⟩
+  --   γ ∧ᶜ γ ≤⟨ ∧ᶜ-monotone (usage-upper-bound x)
+  --                         (tailₘ-monotone (tailₘ-monotone
+  --                                         (usage-upper-bound x₁))) ⟩
+  --   ⌈ z ⌉ ∧ᶜ tailₘ (tailₘ ⌈ s ⌉) ∎
 
 usage-upper-bound (Emptyrecₘ e) = usage-upper-bound e
 usage-upper-bound starₘ         = ≤ᶜ-refl
@@ -317,32 +326,48 @@ usage-calc-term′ (zeroⱼ x) γ▸t = zeroₘ
 usage-calc-term′ (sucⱼ Γ⊢t:ℕ) γ▸t  with inv-usage-suc γ▸t
 ... | invUsageSuc δ▸t _ = sucₘ (usage-calc-term′ Γ⊢t:ℕ δ▸t)
 
-usage-calc-term′ {n = n} (natrecⱼ {p = p} {r = r} {s = s} {z = z}
+usage-calc-term′ (natrecⱼ {p = p} {r = r} {s = s} {z = z} {n = n}
                  x Γ⊢z:G Γ⊢s:G Γ⊢n:ℕ) γ▸t with inv-usage-natrec γ▸t
-... | invUsageNatrec {δ = δ} δ▸z δ▸s η▸n r≤0 _ = natrecₘ
-  (sub (usage-calc-term′ Γ⊢z:G δ▸z) (∧ᶜ-decreasingˡ ⌈ z ⌉ (tailₘ (tailₘ ⌈ s ⌉))))
-  (sub (Conₘ-interchange (Conₘ-interchange
-                         (usage-calc-term′ Γ⊢s:G δ▸s) δ▸s (x0 +1)) δ▸s x0)
-       le)
+... | invUsageNatrec {δ = δ} {η} {θ} δ▸z η▸s θ▸n a = sub
+  (natrecₘ (usage-calc-term′ Γ⊢z:G δ▸z)
+           (sub (Conₘ-interchange (Conₘ-interchange
+                                  (usage-calc-term′ Γ⊢s:G η▸s)
+                                                    η▸s (x0 +1)) η▸s x0)
+                eq)
+           (usage-calc-term′ Γ⊢n:ℕ θ▸n))
+  (∧ᶜ-monotoneʳ le)
+-- natrecₘ
+--   (sub (usage-calc-term′ Γ⊢z:G δ▸z) (∧ᶜ-decreasingˡ ⌈ z ⌉ (tailₘ (tailₘ ⌈ s ⌉))))
+--   (sub (Conₘ-interchange (Conₘ-interchange
+--                          (usage-calc-term′ Γ⊢s:G δ▸s) δ▸s (x0 +1)) δ▸s x0)
+--        le)
        -- (subst₂ _≤ᶜ_ refl (PE.sym eq)
        --         (cong₂ _∙_ (cong₂ _∙_ (∧ᶜ-decreasingʳ ⌈ z ⌉ (tailₘ (tailₘ ⌈ s ⌉)))
        --                (≤-refl {𝕄 = 𝕄}) ) (≤-refl {𝕄 = 𝕄}))))
-  (usage-calc-term′ Γ⊢n:ℕ η▸n)
-  r≤0
+  --(usage-calc-term′ Γ⊢n:ℕ η▸n)
   where
-  open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
-  le = begin
-    (⌈ z ⌉ ∧ᶜ tailₘ (tailₘ ⌈ s ⌉)) ∙ p ∙ r
-       ≤⟨ ∙-monotoneˡ (∙-monotoneˡ (∧ᶜ-decreasingʳ ⌈ z ⌉ (tailₘ (tailₘ ⌈ s ⌉)))) ⟩
-    (tailₘ (tailₘ ⌈ s ⌉)) ∙ p ∙ r
-       ≡˘⟨ update-head (tailₘ (tailₘ ⌈ s ⌉) ∙ p ∙ headₘ ⌈ s ⌉) r ⟩
-    (tailₘ (tailₘ ⌈ s ⌉) ∙ p ∙ headₘ ⌈ s ⌉) , x0 ≔ r
-      ≡˘⟨ cong (_, x0 ≔ r) (cong (_∙ p) (update-head (tailₘ ⌈ s ⌉) p)) ⟩
-    (((tailₘ ⌈ s ⌉) , x0 ≔ p) ∙ headₘ ⌈ s ⌉) , x0 ≔ r
-      ≡˘⟨ cong (_, x0 ≔ r) (update-step ⌈ s ⌉ p x0) ⟩
+  |s| = ⌈ s ⌉
+  γ′ = ⌈ z ⌉
+  δ′ = tailₘ (tailₘ |s|)
+  η′ = ⌈ n ⌉
+  p′ = headₘ (tailₘ |s|)
+  r′ = headₘ |s|
+  open import Tools.Reasoning.PartialOrder ≤ᶜ-poset as R₁
+  eq = R₁.begin
+    δ′ ∙ p ∙ r
+       R₁.≡˘⟨ update-head (δ′ ∙ p ∙ r′) r ⟩
+    (δ′ ∙ p ∙ r′) , x0 ≔ r
+      R₁.≡˘⟨ cong (_, x0 ≔ r) (cong (_∙ p) (update-head (tailₘ ⌈ s ⌉) p)) ⟩
+    (((tailₘ ⌈ s ⌉) , x0 ≔ p) ∙ r′) , x0 ≔ r
+      R₁.≡˘⟨ cong (_, x0 ≔ r) (update-step ⌈ s ⌉ p x0) ⟩
     ((⌈ s ⌉ , (x0 +1) ≔ p) , x0 ≔ r)
-      ≡⟨⟩
-    (⌈ s ⌉ , (x0 +1) ≔ ((δ ∙ p ∙ r) ⟨ x0 +1 ⟩)) , x0 ≔ ((δ ∙ p ∙ r) ⟨ x0 ⟩) ∎
+      R₁.≡⟨⟩
+    (|s| , (x0 +1) ≔ ((δ ∙ p ∙ r) ⟨ x0 +1 ⟩)) , x0 ≔ ((δ ∙ p ∙ r) ⟨ x0 ⟩) ∎
+  open import Tools.Reasoning.PartialOrder ≤ᶜ-poset as R₂
+  le = R₂.begin
+    nrᶜ (δ′ +ᶜ p′ ·ᶜ η′ +ᶜ r′ ·ᶜ γ′) (δ′ +ᶜ p′ ·ᶜ η′) r′ R₂.≤⟨ {!usage-calc-term′ Γ⊢s:G η▸s!} ⟩
+    nrᶜ (δ′ +ᶜ p ·ᶜ η′ +ᶜ r ·ᶜ γ′) (δ′ +ᶜ p ·ᶜ η′) r R₂.∎
+
 
 usage-calc-term′ (Emptyrecⱼ x Γ⊢t:A) γ▸t with inv-usage-Emptyrec γ▸t
 ... | invUsageEmptyrec δ▸t _ = Emptyrecₘ (usage-calc-term′ Γ⊢t:A δ▸t)
@@ -352,8 +377,8 @@ usage-calc-term′ (conv Γ⊢t:A x) γ▸t = usage-calc-term′ Γ⊢t:A γ▸t
 -- A valid modality context can be computed from well typed and well resourced terms
 -- If Γ ⊢ γ ▸ t ∷ A ◂ δ, then ⌈ t ⌉ ▸ t
 
-usage-calc-term : Γ ⊢ γ ▸ t ∷ A ◂ γ′ → ⌈ t ⌉ ▸ t
-usage-calc-term (Γ⊢t:A , γ▸t , γ′▸A) = usage-calc-term′ Γ⊢t:A γ▸t
+usage-calc-term : Γ ⊢ γ ▸ t ∷ A ◂ δ → ⌈ t ⌉ ▸ t
+usage-calc-term (Γ⊢t:A , γ▸t , δ▸A) = usage-calc-term′ Γ⊢t:A γ▸t
 
 
 -- A valid modality context can be computed from well typed and well resourced types
