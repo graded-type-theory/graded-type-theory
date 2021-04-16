@@ -1,36 +1,42 @@
 {-# OPTIONS --without-K --safe #-}
-module Definition.Modality.Usage where
 
+open import Tools.Relation
 open import Definition.Modality
-open import Definition.Modality.Context
-open import Definition.Untyped
+
+module Definition.Modality.Usage
+  {M : Set} {_≈_ : Rel M _}
+  (𝕄 : Modality M _≈_)
+  where
+
+open import Definition.Modality.Context 𝕄
+open import Definition.Untyped M _≈_ hiding (_∙_)
 
 open import Tools.Fin
 open import Tools.Nat
-open import Tools.PropositionalEquality as PE
+import Tools.PropositionalEquality as PE
+
+open Modality 𝕄
 
 infix 10 _▸_
 
 private
   variable
     n : Nat
-    M : Set
-    𝕄 : Modality M
     p q r : M
-    γ δ γ′ η : Conₘ 𝕄 n
-    A F : Term M n
-    G : Term M (1+ n)
-    t u : Term M n
+    γ δ γ′ η : Conₘ n
+    A F : Term n
+    G : Term (1+ n)
+    t u : Term n
     x : Fin n
 
 -- Well-usage of variables
-data _◂_∈_  {M : Set} {𝕄 : Modality M} : (x : Fin n) (p : M) (γ : Conₘ 𝕄 n) → Set where
+data _◂_∈_  : (x : Fin n) (p : M) (γ : Conₘ n) → Set where
   here  :                       x0 ◂ p ∈ γ ∙ p
   there : (h : x ◂ p ∈ γ) → (x +1) ◂ p ∈ γ ∙ q
 
 
 -- Well-usage of terms
-data _▸_ {n : Nat} {M} {𝕄 : Modality M} : (γ : Conₘ 𝕄 n) → Term M n → Set where
+data _▸_ {n : Nat} : (γ : Conₘ n) → Term n → Set where
   Uₘ        : 𝟘ᶜ ▸ U
   ℕₘ        : 𝟘ᶜ ▸ ℕ
   Emptyₘ    : 𝟘ᶜ ▸ Empty
@@ -44,7 +50,7 @@ data _▸_ {n : Nat} {M} {𝕄 : Modality M} : (γ : Conₘ 𝕄 n) → Term M n
             → δ ∙ q ▸ G
             → γ +ᶜ δ ▸ Σ q ▷ F ▹ G
 
-  var       : (𝟘ᶜ , x ≔ (Modality.𝟙 𝕄)) ▸ var x
+  var       : (𝟘ᶜ , x ≔ 𝟙) ▸ var x
 
   lamₘ      : ∀ {t}
             → γ ∙ p ▸ t
@@ -59,10 +65,10 @@ data _▸_ {n : Nat} {M} {𝕄 : Modality M} : (γ : Conₘ 𝕄 n) → Term M n
             → γ′ PE.≡ (γ +ᶜ δ)
             → γ′ ▸ prod t u
 
-  fstₘ      : 𝟘ᶜ {𝕄 = 𝕄} ▸ t
+  fstₘ      : 𝟘ᶜ ▸ t
             → 𝟘ᶜ ▸ fst t
 
-  sndₘ      : 𝟘ᶜ {𝕄 = 𝕄} ▸ t
+  sndₘ      : 𝟘ᶜ ▸ t
             → 𝟘ᶜ ▸ snd t
 
   prodrecₘ  : γ ▸ t
@@ -103,32 +109,32 @@ pattern prodₘ! x y = prodₘ x y PE.refl
 infix 50 ⌈_⌉
 
 mutual
-  ⌈_⌉ : {𝕄 : Modality M} → Term M n → Conₘ 𝕄 n
-  ⌈_⌉ {𝕄 = 𝕄} (var x) = 𝟘ᶜ , x ≔ (Modality.𝟙 𝕄)
+  ⌈_⌉ : Term n → Conₘ n
+  ⌈ var x ⌉ = 𝟘ᶜ , x ≔ 𝟙
   ⌈ gen k ts ⌉ = gen-usage k ts
 
-  gen-usage : ∀ {n bs} {𝕄 : Modality M} (k : Kind M bs) → (ts : GenTs (Term M) n bs) → Conₘ 𝕄 n
-  gen-usage Ukind            []                   = 𝟘ᶜ
-  gen-usage (Pikind p q)     (F ∷ G ∷ [])         = ⌈ F ⌉ +ᶜ tailₘ ⌈ G ⌉
-  gen-usage (Lamkind p)      (t ∷ [])             = tailₘ ⌈ t ⌉
-  gen-usage (Appkind p)      (t ∷ u ∷ [])         = ⌈ t ⌉ +ᶜ p ·ᶜ ⌈ u ⌉
-  gen-usage (Sigmakind p)    (F ∷ G ∷ [])         = ⌈ F ⌉ +ᶜ tailₘ ⌈ G ⌉
-  gen-usage Prodkind         (t ∷ u ∷ [])         = ⌈ t ⌉ +ᶜ ⌈ u ⌉
-  gen-usage Fstkind          (t ∷ [])             = 𝟘ᶜ
-  gen-usage Sndkind          (t ∷ [])             = 𝟘ᶜ
-  gen-usage (Prodreckind p)  (G ∷ t ∷ u ∷ [])     = p ·ᶜ ⌈ t ⌉ +ᶜ tailₘ (tailₘ ⌈ u ⌉)
-  gen-usage Natkind          []                   = 𝟘ᶜ
-  gen-usage Zerokind         []                   = 𝟘ᶜ
-  gen-usage Suckind          (t ∷ [])             = ⌈ t ⌉
-  gen-usage Unitkind         []                   = 𝟘ᶜ
-  gen-usage Starkind         []                   = 𝟘ᶜ
-  gen-usage Emptykind        []                   = 𝟘ᶜ
-  gen-usage (Emptyreckind p) (A ∷ e ∷ [])         = ⌈ e ⌉
+  gen-usage : ∀ {n bs} (k : Kind bs) → (ts : GenTs Term n bs) → Conₘ n
+  gen-usage Ukind []                         = 𝟘ᶜ
+  gen-usage (Pikind p q) (F ∷ G ∷ [])        = ⌈ F ⌉ +ᶜ tailₘ ⌈ G ⌉
+  gen-usage (Lamkind p) (t ∷ [])             = tailₘ ⌈ t ⌉
+  gen-usage (Appkind p) (t ∷ u ∷ [])         = ⌈ t ⌉ +ᶜ p ·ᶜ ⌈ u ⌉
+  gen-usage (Sigmakind p) (F ∷ G ∷ [])       = ⌈ F ⌉ +ᶜ tailₘ ⌈ G ⌉
+  gen-usage Prodkind (t ∷ u ∷ [])            = ⌈ t ⌉ +ᶜ ⌈ u ⌉
+  gen-usage Fstkind (t ∷ [])                 = 𝟘ᶜ
+  gen-usage Sndkind (t ∷ [])                 = 𝟘ᶜ
+  gen-usage (Prodreckind p) (G ∷ t ∷ u ∷ []) = p ·ᶜ ⌈ t ⌉ +ᶜ tailₘ (tailₘ ⌈ u ⌉)
+  gen-usage Natkind  []                      = 𝟘ᶜ
+  gen-usage Zerokind []                      = 𝟘ᶜ
+  gen-usage Suckind (t ∷ [])                 = ⌈ t ⌉
+  gen-usage Unitkind  []                     = 𝟘ᶜ
+  gen-usage Starkind  []                     = 𝟘ᶜ
+  gen-usage Emptykind []                     = 𝟘ᶜ
+  gen-usage (Emptyreckind p) (A ∷ e ∷ [])    = ⌈ e ⌉
   gen-usage (Natreckind p r) (G ∷ z ∷ s ∷ n ∷ []) =
     let γ  = ⌈ z ⌉
-        δ′ = ⌈ s ⌉
         δ  = tailₘ (tailₘ δ′)
+        δ′ = ⌈ s ⌉
         r  = headₘ δ′
-        p  = headₘ (tailₘ δ′)
         η  = ⌈ n ⌉
+        p  = headₘ (tailₘ δ′)
     in  γ ∧ᶜ (nrᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ) (δ +ᶜ p ·ᶜ η) r)

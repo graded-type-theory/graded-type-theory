@@ -10,7 +10,7 @@ module Tools.PropositionalEquality where
 open import Tools.Empty public
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; _≢_; refl; sym; trans; cong; cong₂; subst; subst₂; isEquivalence) public
-open Eq.≡-Reasoning public
+-- open Eq.≡-Reasoning public
 
 -- Non-dependent congruence rules.
 

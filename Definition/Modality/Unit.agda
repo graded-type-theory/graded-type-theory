@@ -3,10 +3,12 @@
 module Definition.Modality.Unit where
 
 open import Algebra
-open import Definition.Modality
+
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Unit
+
+open import Definition.Modality ⊤ _≡_ public
 
 _+_ : Op₂ ⊤
 _ + _ = tt
@@ -88,7 +90,7 @@ infixr 20 _+_
   }
 
 -- ⊤ form a modality with + as addition, multiplication and meet
-UnitModality : Modality ⊤
+UnitModality : Modality
 UnitModality = record
   { _+_                  = _+_
   ; _·_                  = _+_
@@ -100,9 +102,10 @@ UnitModality = record
   ; ·-Monoid             = +-Monoid
   ; ∧-Semilattice        = +-Semilattice
   ; *-StarSemiring       = λ p → refl
-  ; ·-Zero               = (λ x → refl)    , (λ x → refl)
-  ; +-Positive           = λ p q x → refl , refl
-  ; ·Distr+              = +-Distributiveˡ , +-Distributiveʳ
-  ; ·Distr∧              = +-Distributiveˡ , +-Distributiveʳ
-  ; +Distr∧              = +-Distributiveˡ , +-Distributiveʳ
+  ; ·-zero               = (λ x → refl)    , (λ x → refl)
+  ; +-positive           = λ p q x → refl , refl
+  ; ·-distrib-+          = +-Distributiveˡ , +-Distributiveʳ
+  ; ·-distrib-∧          = +-Distributiveˡ , +-Distributiveʳ
+  ; +-distrib-∧          = +-Distributiveˡ , +-Distributiveʳ
+  ; ≈-Equivalence        = isEquivalence
   }
