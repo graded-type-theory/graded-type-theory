@@ -2,8 +2,7 @@
 
 module Definition.Modality.Unit where
 
-open import Algebra
-
+open import Tools.Algebra
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Unit
@@ -95,17 +94,17 @@ UnitModality = record
   { _+_                  = _+_
   ; _·_                  = _+_
   ; _∧_                  = _+_
-  ; _*                   = _*
+  ; nr                   = λ _ _ _ → tt
   ; 𝟘                    = tt
   ; 𝟙                    = tt
   ; +-CommutativeMonoid  = +-CommutativeMonoid
   ; ·-Monoid             = +-Monoid
   ; ∧-Semilattice        = +-Semilattice
-  ; *-StarSemiring       = λ p → refl
+  ; nr-rec               = λ p q r → refl
   ; ·-zero               = (λ x → refl)    , (λ x → refl)
   ; +-positive           = λ p q x → refl , refl
   ; ·-distrib-+          = +-Distributiveˡ , +-Distributiveʳ
   ; ·-distrib-∧          = +-Distributiveˡ , +-Distributiveʳ
   ; +-distrib-∧          = +-Distributiveˡ , +-Distributiveʳ
-  ; ≈-Equivalence        = isEquivalence
+  ; ≈-equivalence        = isEquivalence
   }

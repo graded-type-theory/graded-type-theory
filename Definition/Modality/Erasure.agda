@@ -2,8 +2,7 @@
 
 module Definition.Modality.Erasure where
 
-open import Algebra
-
+open import Tools.Algebra
 open import Tools.Product
 open import Tools.PropositionalEquality
 
@@ -124,6 +123,8 @@ p ≤ q = p ≡ p ∧ q
 +Distr+ : _DistributesOver_ _≡_ _+_ _+_
 +Distr+ = +Distrˡ+ , +Distrʳ+
 
+-- Properties of nr
+
 nr-rec : (p q r : Erasure) → nr p q r ≡ p ∧ (q + (r · nr p q r))
 nr-rec 𝟘 𝟘 𝟘 = refl
 nr-rec 𝟘 𝟘 ω = refl
@@ -131,9 +132,39 @@ nr-rec 𝟘 ω 𝟘 = refl
 nr-rec 𝟘 ω ω = refl
 nr-rec ω q r = subst₂ _≡_ refl (+-Commutative (q + r) ω) refl
 
-𝟘-max : (p : Erasure) → p ≡ p ∧ 𝟘
-𝟘-max 𝟘 = refl
-𝟘-max ω = refl
+nr-mono : (a b c d e : Erasure) → a ≤ b → c ≤ d → nr a c e ≤ nr b d e
+nr-mono 𝟘 𝟘 𝟘 𝟘 𝟘 refl refl = refl
+nr-mono 𝟘 𝟘 𝟘 𝟘 ω refl refl = refl
+nr-mono 𝟘 𝟘 𝟘 ω 𝟘 refl ()
+nr-mono 𝟘 𝟘 𝟘 ω ω refl ()
+nr-mono 𝟘 𝟘 ω 𝟘 𝟘 refl refl = refl
+nr-mono 𝟘 𝟘 ω 𝟘 ω refl refl = refl
+nr-mono 𝟘 𝟘 ω ω 𝟘 refl refl = refl
+nr-mono 𝟘 𝟘 ω ω ω refl refl = refl
+nr-mono 𝟘 ω 𝟘 𝟘 𝟘 () Q
+nr-mono 𝟘 ω 𝟘 𝟘 ω () Q
+nr-mono 𝟘 ω 𝟘 ω 𝟘 () Q
+nr-mono 𝟘 ω 𝟘 ω ω () Q
+nr-mono 𝟘 ω ω 𝟘 𝟘 () Q
+nr-mono 𝟘 ω ω 𝟘 ω () Q
+nr-mono 𝟘 ω ω ω 𝟘 () Q
+nr-mono 𝟘 ω ω ω ω () Q
+nr-mono ω 𝟘 𝟘 𝟘 𝟘 refl refl = refl
+nr-mono ω 𝟘 𝟘 𝟘 ω refl refl = refl
+nr-mono ω 𝟘 𝟘 ω 𝟘 refl ()
+nr-mono ω 𝟘 𝟘 ω ω refl ()
+nr-mono ω 𝟘 ω 𝟘 𝟘 refl refl = refl
+nr-mono ω 𝟘 ω 𝟘 ω refl refl = refl
+nr-mono ω 𝟘 ω ω 𝟘 refl refl = refl
+nr-mono ω 𝟘 ω ω ω refl refl = refl
+nr-mono ω ω 𝟘 𝟘 𝟘 refl refl = refl
+nr-mono ω ω 𝟘 𝟘 ω refl refl = refl
+nr-mono ω ω 𝟘 ω 𝟘 refl ()
+nr-mono ω ω 𝟘 ω ω refl ()
+nr-mono ω ω ω 𝟘 𝟘 refl refl = refl
+nr-mono ω ω ω 𝟘 ω refl refl = refl
+nr-mono ω ω ω ω 𝟘 refl refl = refl
+nr-mono ω ω ω ω ω refl refl = refl
 
 -- Addition (and meet) form the following algebras
 +-Magma : IsMagma _≡_ _+_
@@ -191,21 +222,20 @@ nr-rec ω q r = subst₂ _≡_ refl (+-Commutative (q + r) ω) refl
   ; identity    = ·-Identity
   }
 
-ErasureModality : Modality
-ErasureModality = record
-  { _+_                  = _+_
-  ; _·_                  = _·_
-  ; _∧_                  = _∧_
-  ; 𝟘                    = 𝟘
-  ; 𝟙                    = ω
-  ; +-CommutativeMonoid  = +-CommutativeMonoid
-  ; ·-Monoid             = ·-Monoid
-  ; ∧-Semilattice        = +-Semilattice
- -- ; *-StarSemiring       = *-StarSemiring
-  ; nr-rec = nr-rec
-  ; ·-Zero               = ·-Zero
-  ; +-Positive           = +-Positive
-  ; ·Distr+              = ·Distr+
-  ; ·Distr∧              = ·Distr+
-  ; +Distr∧              = +Distr+
-  }
+-- ErasureModality : Modality
+-- ErasureModality = record
+--   { _+_                  = _+_
+--   ; _·_                  = _·_
+--   ; _∧_                  = _∧_
+--   ; 𝟘                    = 𝟘
+--   ; 𝟙                    = ω
+--   ; +-CommutativeMonoid  = +-CommutativeMonoid
+--   ; ·-Monoid             = ·-Monoid
+--   ; ∧-Semilattice        = +-Semilattice
+--   ; nr-rec = nr-rec
+--   ; ·-zero               = ·-Zero
+--   ; +-positive           = +-Positive
+--   ; ·-distrib-+              = ·Distr+
+--   ; ·-distrib-∧              = ·Distr+
+--   ; +-distrib-∧              = +Distr+
+--   }

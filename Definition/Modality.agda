@@ -46,7 +46,10 @@ record Modality : Set where
     +-positive          : (p q : M) → 𝟘 ≤ (p + q) → 𝟘 ≤ p × 𝟘 ≤ q
     -- nr is a solution to the following recurrence relation
     nr-rec : (p q r : M) → nr p q r ≈ p ∧ (q + r · nr p q r)
-
+    -- nr is idempotent on 𝟘 on the first two arguments
+    nr-𝟘 : (r : M) → nr 𝟘 𝟘 r ≈ 𝟘
+    -- nr is monotone in its first two arguments
+    nr-monotone : {p p′ q q′ r : M} → p ≤ p′ → q ≤ q′ → nr p q r ≤ nr p′ q′ r
 
     -- Multiplication distributes over addition
     ·-distrib-+         : _·_ DistributesOver _+_
@@ -54,9 +57,17 @@ record Modality : Set where
     ·-distrib-∧         : _·_ DistributesOver _∧_
     -- Addition distributes over meet
     +-distrib-∧         : _+_ DistributesOver _∧_
+    -- Multiplication right distributes over the first two arguments of nr
+    ·-distribʳ-nr       : (p q r p′ : M) → nr (p · p′) (q · p′) r ≈ nr p q r · p′
+    -- Addition sub-distributes over the first two arguments of nr
+    +-super-distrib-nr  : (p p′ q q′ r : M)
+                        → nr p q r + nr p′ q′ r ≤ nr (p + p′) (q + q′) r
 
     -- ≈ is an equivallence relation
     ≈-equivalence       : IsEquivalence _≈_
+    -- Congruence of nr
+    nr-cong             : {p p′ q q′ r r′ : M}
+                        → p ≈ p′ → q ≈ q′ → r ≈ r′ → nr p q r ≈ nr p′ q′ r′
 
 
   -- Easier access to some operator properties

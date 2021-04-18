@@ -135,6 +135,4 @@ mutual
         δ′ = ⌈ s ⌉
         η  = ⌈ n ⌉
         δ  = tailₘ (tailₘ δ′)
-        r  = headₘ δ′
-        p  = headₘ (tailₘ δ′)
     in  γ ∧ᶜ (nrᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ) (δ +ᶜ p ·ᶜ η) r)
