@@ -2,87 +2,88 @@
 
 module Definition.Modality.Unit where
 
-open import Tools.Algebra
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Unit
+
+open import Tools.Algebra {A = ⊤} _≡_
 
 open import Definition.Modality ⊤ _≡_ public
 
 _+_ : Op₂ ⊤
 _ + _ = tt
 
-_* : Op₁ ⊤
-_ * = tt
+nr : Op₃ ⊤
+nr _ _ _ = tt
 
 infixr 20 _+_
 
 -- Properties of +
 
 -- + is commutative
-+-Commutative : Commutative _≡_ _+_
++-Commutative : Commutative _+_
 +-Commutative x y = refl
 
 -- + is associative
-+-Associative : Associative _≡_ _+_
++-Associative : Associative _+_
 +-Associative x y z = refl
 
 -- + is left distributive of itself
-+-Distributiveˡ : _DistributesOverˡ_ _≡_ _+_ _+_
++-Distributiveˡ : _+_ DistributesOverˡ _+_
 +-Distributiveˡ x y z = refl
 
 -- + is right distributive over itself
-+-Distributiveʳ : _DistributesOverʳ_ _≡_ _+_ _+_
++-Distributiveʳ : _+_ DistributesOverʳ _+_
 +-Distributiveʳ x y z = refl
 
 -- tt is the left identity of +
-+-LeftIdentity : LeftIdentity _≡_ tt _+_
++-LeftIdentity : LeftIdentity tt _+_
 +-LeftIdentity tt = refl
 
 -- tt is the right identity of +
-+-RightIdentity : RightIdentity _≡_ tt _+_
++-RightIdentity : RightIdentity tt _+_
 +-RightIdentity tt = refl
 
-+-Identity : Identity _≡_ tt _+_
++-Identity : Identity tt _+_
 +-Identity = +-LeftIdentity , +-RightIdentity
 
 -- + is idempotent
-+-Idempotent : Idempotent _≡_ _+_
++-Idempotent : Idempotent _+_
 +-Idempotent tt = refl
 
 -- + forms the following algebras:
 
-+-Magma : IsMagma _≡_ _+_
++-Magma : IsMagma _+_
 +-Magma = record
   { isEquivalence = isEquivalence
-  ; ∙-cong        = λ _ _ → refl
+  ; ∙-cong        = cong₂ _+_
   }
 
-+-Semigroup : IsSemigroup _≡_ _+_
++-Semigroup : IsSemigroup _+_
 +-Semigroup = record
   { isMagma = +-Magma
   ; assoc   = +-Associative
   }
 
-+-Monoid : IsMonoid _≡_ _+_ tt
++-Monoid : IsMonoid _+_ tt
 +-Monoid = record
   { isSemigroup = +-Semigroup
   ; identity    = +-Identity
   }
 
-+-CommutativeMonoid : IsCommutativeMonoid _≡_ _+_ tt
++-CommutativeMonoid : IsCommutativeMonoid _+_ tt
 +-CommutativeMonoid = record
   { isMonoid = +-Monoid
   ; comm     = +-Commutative
   }
 
-+-Band : IsBand _≡_ _+_
++-Band : IsBand _+_
 +-Band = record
   { isSemigroup = +-Semigroup
   ; idem        = +-Idempotent
   }
 
-+-Semilattice : IsSemilattice _≡_ _+_
++-Semilattice : IsSemilattice _+_
 +-Semilattice = record
   { isBand = +-Band
   ; comm   = +-Commutative
@@ -100,11 +101,16 @@ UnitModality = record
   ; +-CommutativeMonoid  = +-CommutativeMonoid
   ; ·-Monoid             = +-Monoid
   ; ∧-Semilattice        = +-Semilattice
-  ; nr-rec               = λ p q r → refl
-  ; ·-zero               = (λ x → refl)    , (λ x → refl)
-  ; +-positive           = λ p q x → refl , refl
+  ; ·-zero               = (λ _ → refl)    , (λ _ → refl)
+  ; +-positive           = λ _ _ _ → refl , refl
+  ; nr-rec               = λ _ _ _ → refl
+  ; nr-𝟘                 = λ _ → refl
+  ; nr-monotone          = λ _ _ → refl
   ; ·-distrib-+          = +-Distributiveˡ , +-Distributiveʳ
   ; ·-distrib-∧          = +-Distributiveˡ , +-Distributiveʳ
   ; +-distrib-∧          = +-Distributiveˡ , +-Distributiveʳ
+  ; ·-distribʳ-nr        = λ _ _ _ _ → refl
+  ; +-super-distrib-nr   = λ _ _ _ _ _ → refl
   ; ≈-equivalence        = isEquivalence
+  ; nr-cong              = cong₃ nr
   }
