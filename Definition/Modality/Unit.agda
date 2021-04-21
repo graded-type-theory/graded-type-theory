@@ -2,6 +2,7 @@
 
 module Definition.Modality.Unit where
 
+open import Tools.Nat hiding (_+_)
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Unit
@@ -13,8 +14,8 @@ open import Definition.Modality ⊤ _≡_ public
 _+_ : Op₂ ⊤
 _ + _ = tt
 
-nr : Op₃ ⊤
-nr _ _ _ = tt
+nrⁿ : (n : Nat) → Op₃ ⊤
+nrⁿ _ _ _ _ = tt
 
 infixr 20 _+_
 
@@ -95,7 +96,7 @@ UnitModality = record
   { _+_                  = _+_
   ; _·_                  = _+_
   ; _∧_                  = _+_
-  ; nr                   = λ _ _ _ → tt
+  ; nrⁿ                  = nrⁿ
   ; 𝟘                    = tt
   ; 𝟙                    = tt
   ; +-CommutativeMonoid  = +-CommutativeMonoid
@@ -103,14 +104,11 @@ UnitModality = record
   ; ∧-Semilattice        = +-Semilattice
   ; ·-zero               = (λ _ → refl)    , (λ _ → refl)
   ; +-positive           = λ _ _ _ → refl , refl
-  ; nr-rec               = λ _ _ _ → refl
-  ; nr-𝟘                 = λ _ → refl
-  ; nr-monotone          = λ _ _ → refl
+  ; nrⁿ-rec              = λ _ _ _ _ → refl
+  ; nrⁿ-0                = λ _ _ _ → refl
+  ; nrⁿ-fix              = 0 , (λ _ _ _ → refl)
   ; ·-distrib-+          = +-Distributiveˡ , +-Distributiveʳ
   ; ·-distrib-∧          = +-Distributiveˡ , +-Distributiveʳ
   ; +-distrib-∧          = +-Distributiveˡ , +-Distributiveʳ
-  ; ·-distribʳ-nr        = λ _ _ _ _ → refl
-  ; +-super-distrib-nr   = λ _ _ _ _ _ → refl
   ; ≈-equivalence        = isEquivalence
-  ; nr-cong              = cong₃ nr
   }

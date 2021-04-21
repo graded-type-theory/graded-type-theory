@@ -10,6 +10,7 @@ data Erasure : Set where
 
 open import Definition.Modality Erasure _≡_ public
 open import Tools.Algebra {A = Erasure} _≡_
+open import Tools.Nat hiding (_+_)
 
 _+_ : Op₂ Erasure
 x + 𝟘 = x
@@ -27,6 +28,23 @@ nr 𝟘 q 𝟘 = q
 nr 𝟘 𝟘 ω = 𝟘
 nr 𝟘 ω ω = ω
 nr ω q r = ω
+
+nrⁿ : Nat → Op₃ Erasure
+nrⁿ Nat.zero p q r = 𝟘
+nrⁿ (1+ n) p q r = p ∧ (q + (r · (nrⁿ n p q r)))
+
+nr-fix₁ : (p q r : Erasure) → (p ∧ (q + (r · (p ∧ q)))) ≡ (p ∧ q)
+nr-fix₁ 𝟘 𝟘 𝟘 = refl
+nr-fix₁ 𝟘 𝟘 ω = refl
+nr-fix₁ 𝟘 ω 𝟘 = refl
+nr-fix₁ 𝟘 ω ω = refl
+nr-fix₁ ω 𝟘 𝟘 = refl
+nr-fix₁ ω 𝟘 ω = refl
+nr-fix₁ ω ω 𝟘 = refl
+nr-fix₁ ω ω ω = refl
+
+nr-fix : ∃ (λ n → (p q r : Erasure) → (p ∧ (q + (r · nrⁿ n p q r))) ≡ nrⁿ n p q r)
+nr-fix = 1 , nr-fix₁
 
 _≤_ : (p q : Erasure) → Set
 p ≤ q = p ≡ p ∧ q
@@ -123,52 +141,6 @@ p ≤ q = p ≡ p ∧ q
 +-distrib-+ : _+_ DistributesOver _+_
 +-distrib-+ = +-distribˡ-+ , +-distribʳ-+
 
--- Properties of nr
-
-nr-rec : (p q r : Erasure) → nr p q r ≡ p ∧ (q + (r · nr p q r))
-nr-rec 𝟘 𝟘 𝟘 = refl
-nr-rec 𝟘 𝟘 ω = refl
-nr-rec 𝟘 ω 𝟘 = refl
-nr-rec 𝟘 ω ω = refl
-nr-rec ω q r = subst (_ ≡_) (+-Commutative (q + r) ω) refl
-
-nr-𝟘 : (r : Erasure) → nr 𝟘 𝟘 r ≡ 𝟘
-nr-𝟘 𝟘 = refl
-nr-𝟘 ω = refl
-
-nr-monotone : {p p′ q q′ r : Erasure} → p ≤ p′ → q ≤ q′ → nr p q r ≤ nr p′ q′ r
-nr-monotone {𝟘} {𝟘} {q} {q′} {𝟘} p≤p′ q≤q′ = q≤q′
-nr-monotone {𝟘} {𝟘} {𝟘} {𝟘}  {ω} p≤p′ q≤q′ = refl
-nr-monotone {𝟘} {𝟘} {ω} {𝟘}  {ω} p≤p′ q≤q′ = refl
-nr-monotone {𝟘} {𝟘} {ω} {ω}  {ω} p≤p′ q≤q′ = refl
-nr-monotone {ω} {𝟘} {q} {𝟘}  {𝟘} p≤p′ q≤q  = refl
-nr-monotone {ω} {𝟘} {q} {𝟘}  {ω} p≤p′ q≤q  = refl
-nr-monotone {ω} {𝟘} {q} {ω}  {𝟘} p≤p′ q≤q  = refl
-nr-monotone {ω} {𝟘} {q} {ω}  {ω} p≤p′ q≤q  = refl
-nr-monotone {ω} {ω} {q} {q′} {r} p≤p′ q≤q  = refl
-
-·-distribʳ-nr : (p q r p′ : Erasure) → nr (p · p′) (q · p′) r ≡ nr p q r · p′
-·-distribʳ-nr p q r 𝟘 = nr-𝟘 r
-·-distribʳ-nr 𝟘 q 𝟘 ω = refl
-·-distribʳ-nr 𝟘 𝟘 ω ω = refl
-·-distribʳ-nr 𝟘 ω ω ω = refl
-·-distribʳ-nr ω q r ω = refl
-
-+-super-distrib-nr : (p p′ q q′ r : Erasure)
-                   → ((nr p q r) + (nr p′ q′ r)) ≤ nr (p + p′) (q + q′) r
-+-super-distrib-nr 𝟘 𝟘 𝟘 𝟘 𝟘  = refl
-+-super-distrib-nr 𝟘 𝟘 ω 𝟘 𝟘  = refl
-+-super-distrib-nr ω 𝟘 q 𝟘 𝟘  = refl
-+-super-distrib-nr 𝟘 𝟘 𝟘 𝟘 ω  = refl
-+-super-distrib-nr 𝟘 𝟘 ω 𝟘 ω  = refl
-+-super-distrib-nr ω 𝟘 q 𝟘 ω  = refl
-+-super-distrib-nr 𝟘 𝟘 q ω 𝟘  = refl
-+-super-distrib-nr ω 𝟘 q ω 𝟘  = refl
-+-super-distrib-nr 𝟘 𝟘 q ω ω  = refl
-+-super-distrib-nr ω 𝟘 q ω ω  = refl
-+-super-distrib-nr p ω q q′ r = refl
-
-
 -- Addition (and meet) form the following algebras
 
 +-Magma : IsMagma _+_
@@ -233,7 +205,7 @@ ErasureModality = record
   { _+_                 = _+_
   ; _·_                 = _·_
   ; _∧_                 = _∧_
-  ; nr                  = nr
+  ; nrⁿ                 = nrⁿ
   ; 𝟘                   = 𝟘
   ; 𝟙                   = ω
   ; +-CommutativeMonoid = +-CommutativeMonoid
@@ -241,14 +213,11 @@ ErasureModality = record
   ; ∧-Semilattice       = +-Semilattice
   ; ·-zero              = ·-zero
   ; +-positive          = +-positive
-  ; nr-rec              = nr-rec
-  ; nr-𝟘                = nr-𝟘
-  ; nr-monotone         = nr-monotone
+  ; nrⁿ-rec             = λ n p q r → refl
+  ; nrⁿ-0               = λ p q r → refl
+  ; nrⁿ-fix             = nr-fix
   ; ·-distrib-+         = ·-distrib-+
   ; ·-distrib-∧         = ·-distrib-+
   ; +-distrib-∧         = +-distrib-+
-  ; ·-distribʳ-nr       = ·-distribʳ-nr
-  ; +-super-distrib-nr  = +-super-distrib-nr
   ; ≈-equivalence       = isEquivalence
-  ; nr-cong             = cong₃ nr
   }

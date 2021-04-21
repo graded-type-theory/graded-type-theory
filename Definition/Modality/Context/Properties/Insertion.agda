@@ -10,6 +10,7 @@ module Definition.Modality.Context.Properties.Insertion
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties.Equivalence 𝕄
+open import Definition.Modality.Properties 𝕄
 open import Definition.Untyped M _≈_ using (wkVar; liftn; step; id)
 
 open import Tools.Fin
@@ -104,7 +105,7 @@ insertAt-distrib-∧ᶜ-𝟘 n γ δ = begin
 
 insertAt-distrib-nrᶜ-𝟘 : (n : Nat) (γ δ : Conₘ (n +ⁿ m)) (r : M)
                      → insertAt n (nrᶜ γ δ r) 𝟘 ≈ᶜ nrᶜ (insertAt n γ 𝟘) (insertAt n δ 𝟘) r
-insertAt-distrib-nrᶜ-𝟘 0 γ δ r = ≈ᶜ-refl ∙ (≈-sym (nr-𝟘 r))
+insertAt-distrib-nrᶜ-𝟘 0 γ δ r = ≈ᶜ-refl ∙ (≈-sym (nr-idem-𝟘 r))
 insertAt-distrib-nrᶜ-𝟘 (1+ n) (γ ∙ p) (δ ∙ q) r = (insertAt-distrib-nrᶜ-𝟘 n γ δ r) ∙ ≈-refl
 
 -- Inserting an element into a modality context is a monotone function

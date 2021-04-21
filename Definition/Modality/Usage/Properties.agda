@@ -228,7 +228,8 @@ usage-upper-bound (natrecₘ {z = z} {s = s} {n = n} γ▸z δ▸s η▸n) = ∧
   γ≤γ′
   (nrᶜ-monotone (+ᶜ-monotone (tailₘ-monotone (tailₘ-monotone δ≤δ′))
                              (+ᶜ-monotone (·ᶜ-monotoneʳ η≤η′) (·ᶜ-monotoneʳ γ≤γ′)))
-                (+ᶜ-monotone (tailₘ-monotone (tailₘ-monotone δ≤δ′)) (·ᶜ-monotoneʳ η≤η′)))
+                (+ᶜ-monotone (tailₘ-monotone (tailₘ-monotone δ≤δ′)) (·ᶜ-monotoneʳ η≤η′))
+                ≤-refl)
   where
   γ≤γ′ = usage-upper-bound γ▸z
   δ≤δ′ = usage-upper-bound δ▸s

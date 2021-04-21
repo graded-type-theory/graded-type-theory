@@ -5,9 +5,10 @@ open import Tools.Relation
 module Definition.Modality (M : Set) (_≈_ : Rel M _) where
 
 open import Tools.Algebra (_≈_)
+open import Tools.Nat hiding (_+_)
 open import Tools.Product
 
--- Star ringoid
+-- Modality ringoid
 record Modality : Set where
   infixr 40 _+_
   infixr 40 _∧_
@@ -20,8 +21,8 @@ record Modality : Set where
     _·_ : Op₂ M -- Multiplication
     _∧_ : Op₂ M -- Meet
 
-    -- ... one teritary operator...
-    nr : M → M → M → M
+    -- ... one natural number-indexed tertiary operator...
+    nrⁿ : Nat → Op₃ M
 
     -- ... and two special elements
     𝟘 : M
@@ -44,12 +45,13 @@ record Modality : Set where
     ·-zero              : Zero 𝟘 _·_
     -- The semiring is positive
     +-positive          : (p q : M) → 𝟘 ≤ (p + q) → 𝟘 ≤ p × 𝟘 ≤ q
+
     -- nr is a solution to the following recurrence relation
-    nr-rec : (p q r : M) → nr p q r ≈ p ∧ (q + r · nr p q r)
-    -- nr is idempotent on 𝟘 on the first two arguments
-    nr-𝟘 : (r : M) → nr 𝟘 𝟘 r ≈ 𝟘
-    -- nr is monotone in its first two arguments
-    nr-monotone : {p p′ q q′ r : M} → p ≤ p′ → q ≤ q′ → nr p q r ≤ nr p′ q′ r
+    nrⁿ-rec : (n : Nat) (p q r : M) → nrⁿ (1+ n) p q r ≈ p ∧ (q + r · nrⁿ n p q r)
+    -- The base case value of nrᶜ is 𝟘
+    nrⁿ-0 : (p q r : M) → nrⁿ 0 p q r ≈ 𝟘
+    -- nrⁿ has a fixpoint
+    nrⁿ-fix : ∃ (λ n → ∀ (p q r : M) → nrⁿ (1+ n) p q r ≈ nrⁿ n p q r)
 
     -- Multiplication distributes over addition
     ·-distrib-+         : _·_ DistributesOver _+_
@@ -57,18 +59,13 @@ record Modality : Set where
     ·-distrib-∧         : _·_ DistributesOver _∧_
     -- Addition distributes over meet
     +-distrib-∧         : _+_ DistributesOver _∧_
-    -- Multiplication right distributes over the first two arguments of nr
-    ·-distribʳ-nr       : (p q r p′ : M) → nr (p · p′) (q · p′) r ≈ nr p q r · p′
-    -- Addition sub-distributes over the first two arguments of nr
-    +-super-distrib-nr  : (p p′ q q′ r : M)
-                        → nr p q r + nr p′ q′ r ≤ nr (p + p′) (q + q′) r
 
     -- ≈ is an equivallence relation
     ≈-equivalence       : IsEquivalence _≈_
-    -- Congruence of nr
-    nr-cong             : {p p′ q q′ r r′ : M}
-                        → p ≈ p′ → q ≈ q′ → r ≈ r′ → nr p q r ≈ nr p′ q′ r′
 
+  -- The fixpoint of nrⁿ defines a tertiary operator
+  nr : Op₃ M
+  nr = nrⁿ (proj₁ nrⁿ-fix)
 
   -- Easier access to some operator properties
   +-comm : Commutative _+_
