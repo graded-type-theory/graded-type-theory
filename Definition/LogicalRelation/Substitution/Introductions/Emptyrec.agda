@@ -2,28 +2,28 @@
 
 open import Definition.Typed.EqualityRelation
 
-module Definition.LogicalRelation.Substitution.Introductions.Emptyrec {{eqrel : EqRelSet}} where
+module Definition.LogicalRelation.Substitution.Introductions.Emptyrec (M : Set) {{eqrel : EqRelSet M}} where
 open EqRelSet {{...}}
 
-open import Definition.Untyped as U hiding (wk ; _∷_)
-open import Definition.Untyped.Properties
-open import Definition.Typed
-import Definition.Typed.Weakening as T
-open import Definition.Typed.Properties
-open import Definition.Typed.RedSteps
-open import Definition.LogicalRelation
-open import Definition.LogicalRelation.ShapeView
-open import Definition.LogicalRelation.Irrelevance
-open import Definition.LogicalRelation.Properties
-open import Definition.LogicalRelation.Application
-open import Definition.LogicalRelation.Substitution
-open import Definition.LogicalRelation.Substitution.Properties
-import Definition.LogicalRelation.Substitution.Irrelevance as S
-open import Definition.LogicalRelation.Substitution.Reflexivity
-open import Definition.LogicalRelation.Substitution.Weakening
-open import Definition.LogicalRelation.Substitution.Introductions.Empty
-open import Definition.LogicalRelation.Substitution.Introductions.Pi
-open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst
+open import Definition.Untyped M as U hiding (wk ; _∷_)
+open import Definition.Untyped.Properties M
+open import Definition.Typed M
+import Definition.Typed.Weakening M as T
+open import Definition.Typed.Properties M
+open import Definition.Typed.RedSteps M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.ShapeView M
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.Properties M
+open import Definition.LogicalRelation.Application M
+open import Definition.LogicalRelation.Substitution M
+open import Definition.LogicalRelation.Substitution.Properties M
+import Definition.LogicalRelation.Substitution.Irrelevance M as S
+open import Definition.LogicalRelation.Substitution.Reflexivity M
+open import Definition.LogicalRelation.Substitution.Weakening M
+open import Definition.LogicalRelation.Substitution.Introductions.Empty M
+open import Definition.LogicalRelation.Substitution.Introductions.Pi M
+open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst M
 
 open import Tools.Product
 open import Tools.Unit
@@ -35,9 +35,8 @@ import Tools.PropositionalEquality as PE
 private
   variable
     m n : Nat
-    M : Set
-    Γ : Con (Term M) n
-    Δ : Con (Term M) m
+    Γ : Con Term n
+    Δ : Con Term m
     p : M
 
 -- Empty elimination closure reduction (requires reducible terms and equality).

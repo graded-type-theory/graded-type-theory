@@ -2,10 +2,7 @@
 
 {-# OPTIONS --without-K --safe #-}
 
-open import Tools.Relation
--- open import Definition.Modality
-
-module Definition.Untyped {ℓ′} (M : Set) (_≈_ : Rel M ℓ′) where
+module Definition.Untyped (M : Set) where
 
 open import Tools.Fin
 open import Tools.Nat
@@ -21,9 +18,7 @@ private
 infixl 30 _∙_
 infixr 5 _∷_
 infix 30 Π_,_▷_▹_
--- infix 22 _,_▷_▹▹_
 infix 30 Σ_▷_▹_
--- infix 22 _,_▷_××_
 infix 30 ⟦_⟧_▹_
 infixl 30 _ₛ•ₛ_ _•ₛ_ _ₛ•_
 infix 25 _[_]
@@ -441,15 +436,7 @@ wkWhnf ρ sucₙ    = sucₙ
 wkWhnf ρ starₙ   = starₙ
 wkWhnf ρ (ne x)  = ne (wkNeutral ρ x)
 
--- -- Non-dependent version of Π.
 
--- _,_▷_▹▹_ : (𝕄 : Modality M) → M → Term n → Term n → Term n
--- 𝕄 , p ▷ A ▹▹ B = Π p , (Modality.𝟘 𝕄) ▷ A ▹ wk1 B
-
--- -- Non-dependent products.
-
--- _,_▷_××_ : (𝕄 : Modality M) → M → Term n → Term n → Term n
--- 𝕄 , p ▷ A ×× B = Σ (Modality.𝟘 𝕄) ▷ A ▹ wk1 B
 
 
 ------------------------------------------------------------------------

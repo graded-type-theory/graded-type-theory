@@ -2,18 +2,18 @@
 
 open import Definition.Typed.EqualityRelation
 
-module Definition.LogicalRelation.Properties.Reduction {{eqrel : EqRelSet}} where
+module Definition.LogicalRelation.Properties.Reduction (M : Set) {{eqrel : EqRelSet M}} where
 open EqRelSet {{...}}
 
-open import Definition.Untyped using (Con ; Term)
-open import Definition.Typed
-open import Definition.Typed.Properties
-import Definition.Typed.Weakening as Wk
-open import Definition.Typed.RedSteps
-open import Definition.LogicalRelation
-open import Definition.LogicalRelation.Properties.Reflexivity
-open import Definition.LogicalRelation.Properties.Universe
-open import Definition.LogicalRelation.Properties.Escape
+open import Definition.Untyped M using (Con ; Term)
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+import Definition.Typed.Weakening M as Wk
+open import Definition.Typed.RedSteps M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.Properties.Reflexivity M
+open import Definition.LogicalRelation.Properties.Universe M
+open import Definition.LogicalRelation.Properties.Escape M
 
 open import Tools.Nat
 open import Tools.Product
@@ -22,11 +22,10 @@ import Tools.PropositionalEquality as PE
 private
   variable
     n : Nat
-    M : Set
-    Γ : Con (Term M) n
+    Γ : Con Term n
 
 -- Weak head expansion of reducible types.
-redSubst* : ∀ {A B : Term M n} {l} {p : M}
+redSubst* : ∀ {A B : Term n} {l} {p : M}
           → Γ ⊢ A ⇒* B
           → Γ ⊩⟨ l ⟩ B
           → ∃ λ ([A] : Γ ⊩⟨ l ⟩ A)
@@ -55,7 +54,7 @@ redSubst* {p = p} D (emb 0<1 x) with redSubst* {p = p} D x
 redSubst* D (emb 0<1 x) | y , y₁ = emb 0<1 y , y₁
 
 -- Weak head expansion of reducible terms.
-redSubst*Term : ∀ {A : Term M n} {t u l} {p : M}
+redSubst*Term : ∀ {A : Term n} {t u l} {p : M}
               → Γ ⊢ t ⇒* u ∷ A
               → ([A] : Γ ⊩⟨ l ⟩ A)
               → Γ ⊩⟨ l ⟩ u ∷ A / [A]
@@ -114,7 +113,7 @@ redSubst*Term {Γ = Γ} {A} {t} {u} {l} {q} t⇒u (Σᵣ′ F G D ⊢F ⊢G A≡
 redSubst*Term {p = p} t⇒u (emb 0<1 x) [u] = redSubst*Term {p = p} t⇒u x [u]
 
 -- Weak head expansion of reducible types with single reduction step.
-redSubst : ∀ {A B : Term M n} {l} {p : M}
+redSubst : ∀ {A B : Term n} {l} {p : M}
          → Γ ⊢ A ⇒ B
          → Γ ⊩⟨ l ⟩ B
          → ∃ λ ([A] : Γ ⊩⟨ l ⟩ A)
@@ -122,7 +121,7 @@ redSubst : ∀ {A B : Term M n} {l} {p : M}
 redSubst {p = p} A⇒B [B] = redSubst* {p = p} (A⇒B ⇨ id (escape [B])) [B]
 
 -- Weak head expansion of reducible terms with single reduction step.
-redSubstTerm : ∀ {A t u : Term M n} {l} {p : M}
+redSubstTerm : ∀ {A t u : Term n} {l} {p : M}
              → Γ ⊢ t ⇒ u ∷ A
              → ([A] : Γ ⊩⟨ l ⟩ A)
              → Γ ⊩⟨ l ⟩ u ∷ A / [A]

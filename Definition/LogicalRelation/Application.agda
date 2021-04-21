@@ -2,19 +2,19 @@
 
 open import Definition.Typed.EqualityRelation
 
-module Definition.LogicalRelation.Application {{eqrel : EqRelSet}} where
+module Definition.LogicalRelation.Application (M : Set) {{eqrel : EqRelSet M}} where
 open EqRelSet {{...}}
 
-open import Definition.Untyped hiding (_∷_)
-open import Definition.Untyped.Properties
-open import Definition.Typed
-open import Definition.Typed.Weakening using (id)
-open import Definition.Typed.Properties
-open import Definition.Typed.RedSteps
-open import Definition.LogicalRelation
-open import Definition.LogicalRelation.ShapeView
-open import Definition.LogicalRelation.Irrelevance
-open import Definition.LogicalRelation.Properties
+open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped.Properties M
+open import Definition.Typed M
+open import Definition.Typed.Weakening M using (id)
+open import Definition.Typed.Properties M
+open import Definition.Typed.RedSteps M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.ShapeView M
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.Properties M
 
 open import Tools.Nat
 open import Tools.Product
@@ -23,8 +23,7 @@ import Tools.PropositionalEquality as PE
 private
   variable
     n : Nat
-    M : Set
-    Γ : Con (Term M) n
+    Γ : Con Term n
     p q : M
 
 -- Helper function for application of specific type derivations.
@@ -64,7 +63,7 @@ appTerm [F] [G[u]] [ΠFG] [t] [u] =
   in  appTerm′ [F] [G[u]] (Π-elim [ΠFG]) [t]′ [u]
 
 -- Helper function for application congruence of specific type derivations.
-app-congTerm′ : ∀ {n} {Γ : Con (Term M) n} {F G t t′ u u′ l l′}
+app-congTerm′ : ∀ {n} {Γ : Con Term n} {F G t t′ u u′ l l′}
           ([F] : Γ ⊩⟨ l′ ⟩ F)
           ([G[u]] : Γ ⊩⟨ l′ ⟩ G [ u ])
           ([ΠFG] : Γ ⊩⟨ l ⟩B⟨ BΠ p q ⟩ Π p , q ▷ F ▹ G)
@@ -73,7 +72,7 @@ app-congTerm′ : ∀ {n} {Γ : Con (Term M) n} {F G t t′ u u′ l l′}
           ([u′] : Γ ⊩⟨ l′ ⟩ u′ ∷ F / [F])
           ([u≡u′] : Γ ⊩⟨ l′ ⟩ u ≡ u′ ∷ F / [F])
         → Γ ⊩⟨ l′ ⟩ t ∘ p ▷ u ≡ t′ ∘ p ▷ u′ ∷ G [ u ] / [G[u]]
-app-congTerm′ {M = M} {p = p} {n = n} {Γ} {F′} {G′} {t = t} {t′ = t′}
+app-congTerm′ {p = p} {n = n} {Γ} {F′} {G′} {t = t} {t′ = t′}
               [F] [G[u]] (noemb (Bᵣ F G D ⊢F ⊢G A≡A [F]₁ [G] G-ext))
               (Πₜ₌ f g [ ⊢t , ⊢f , d ] [ ⊢t′ , ⊢g , d′ ] funcF funcG t≡u
                    (Πₜ f′ [ _ , ⊢f′ , d″ ] funcF′ f≡f [f] [f]₁)
@@ -85,9 +84,9 @@ app-congTerm′ {M = M} {p = p} {n = n} {Γ} {F′} {G′} {t = t} {t′ = t′}
       f≡f′ = whrDet*Term (d , functionWhnf funcF) (d″ , functionWhnf funcF′)
       g≡g′ = whrDet*Term (d′ , functionWhnf funcG) (d‴ , functionWhnf funcG′)
       F≡wkidF′ = PE.trans F≡F′ (PE.sym (wk-id _))
-      t∘x≡wkidt∘x : {a b : Term M n} → wk id a ∘ _ ▷ b PE.≡ a ∘ _ ▷ b
+      t∘x≡wkidt∘x : {a b : Term n} → wk id a ∘ _ ▷ b PE.≡ a ∘ _ ▷ b
       t∘x≡wkidt∘x {a} {b} = PE.cong (λ x → x ∘ _ ▷ b) (wk-id a)
-      t∘x≡wkidt∘x′ : {a : Term M n} → wk id g′ ∘ _ ▷ a PE.≡ g ∘ _ ▷ a
+      t∘x≡wkidt∘x′ : {a : Term n} → wk id g′ ∘ _ ▷ a PE.≡ g ∘ _ ▷ a
       t∘x≡wkidt∘x′ {a} = PE.cong (λ x → x ∘ _ ▷ a) (PE.trans (wk-id _) (PE.sym g≡g′))
       wkidG₁[u]≡G[u] = PE.cong (λ x → x [ _ ])
                                (PE.trans (wk-lift-id _) (PE.sym G≡G′))

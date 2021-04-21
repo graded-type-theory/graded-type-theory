@@ -1,23 +1,15 @@
 {-# OPTIONS --without-K --safe  #-}
 
-open import Tools.Relation
-open import Definition.Modality
+module Definition.Typed (M : Set) where
 
-module Definition.Typed
-  {M : Set} {_≈_ : Rel M _}
-  (𝕄 : Modality M _≈_)
-  where
-
-open import Definition.Untyped M _≈_ hiding (_∷_)
-open import Definition.Modality.Context 𝕄 using (Conₘ)
-open import Definition.Modality.Usage 𝕄
+open import Definition.Untyped M hiding (_∷_)
 
 open import Tools.Fin
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 
-open Modality 𝕄
+-- open Modality 𝕄
 
 infixl 30 _∙_
 infix 30 Πⱼ_▹_
@@ -34,8 +26,6 @@ private
     G E : Term (1+ n)
     x : Fin n
     p q r : M
-    -- γ δ η θ : Conₘ 𝕄 n
-    -- γ′ γ″ δ′ η′ θ′ : Conₘ 𝕄 n
 
 
 -- Well-typed variables
@@ -285,19 +275,6 @@ mutual
                   → Γ ⊢ e ∷ Unit
                   → Γ ⊢ e' ∷ Unit
                   → Γ ⊢ e ≡ e' ∷ Unit
-
-
-_⊢_◂_ : (Γ : Con Term n) (A : Term n) (γ : Conₘ n) → Set
-Γ ⊢ A ◂ γ = (Γ ⊢ A) × (γ ▸ A)
-
-_⊢_▸_∷_◂_ : (Γ : Con Term n) (γ : Conₘ n) (t A : Term n) (δ : Conₘ n) → Set
-Γ ⊢ γ ▸ t ∷ A ◂ δ = (Γ ⊢ t ∷ A) × (γ ▸ t) × (δ ▸ A)
-
--- _⊢_≡_◂_ : {𝕄 : Modality M} (Γ : Con (Term) n) (A B : Term n) (γ : Conₘ 𝕄 n) → Set
--- Γ ⊢ A ≡ B ◂ γ = (Γ ⊢ A ≡ B) × (γ ▸ A) × (γ ▸ B)
---
--- _⊢_▸_≡_∷_◂_ : {𝕄 : Modality M} (Γ : Con (Term) n) (γ : Conₘ 𝕄 n) (t u A : Term n) (δ : Conₘ 𝕄 n) → Set
--- Γ ⊢ γ ▸ t ≡ u ∷ A ◂ δ = Γ ⊢ t ≡ u ∷ A × γ ▸ t × γ ▸ u × δ ▸ A
 
 
 -- Term reduction

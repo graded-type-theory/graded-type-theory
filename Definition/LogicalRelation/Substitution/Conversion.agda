@@ -2,13 +2,13 @@
 
 open import Definition.Typed.EqualityRelation
 
-module Definition.LogicalRelation.Substitution.Conversion {{eqrel : EqRelSet}} where
+module Definition.LogicalRelation.Substitution.Conversion (M : Set) {{eqrel : EqRelSet M}} where
 open EqRelSet {{...}}
 
-open import Definition.LogicalRelation.Irrelevance
-open import Definition.LogicalRelation.Properties
-open import Definition.LogicalRelation.Substitution
-open import Definition.Untyped using (Con ; Term)
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.Properties M
+open import Definition.LogicalRelation.Substitution M
+open import Definition.Untyped M using (Con ; Term)
 
 open import Tools.Nat
 open import Tools.Product
@@ -16,8 +16,7 @@ open import Tools.Product
 private
   variable
     n : Nat
-    M : Set
-    Γ : Con (Term M) n
+    Γ : Con Term n
 
 -- Conversion from left to right of valid terms.
 convᵛ : ∀ {t A B l}

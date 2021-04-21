@@ -4,10 +4,9 @@
 
 open import Tools.Relation
 
-module Definition.Untyped.Properties {ℓ′} (M : Set) (_≈_ : Rel M ℓ′) where
+module Definition.Untyped.Properties (M : Set) where
 
--- open import Definition.Modality M _≈_
-open import Definition.Untyped M _≈_
+open import Definition.Untyped M
 
 open import Tools.Fin
 open import Tools.Nat
@@ -22,7 +21,6 @@ private
     η : Wk n ℓ
     σ σ′ : Subst m n
     p q r : M
- --   𝕄 : Modality M
 
 -- Weakening properties
 

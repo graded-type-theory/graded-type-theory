@@ -1,18 +1,17 @@
 {-# OPTIONS --without-K --safe #-}
 
-module Definition.Typed.RedSteps where
+module Definition.Typed.RedSteps (M : Set) where
 
-open import Definition.Untyped hiding (_∷_)
-open import Definition.Typed
+open import Definition.Untyped M hiding (_∷_)
+open import Definition.Typed M
 open import Tools.Nat
 
 private
   variable
     n : Nat
-    M : Set
-    Γ : Con (Term M) n
-    A B C : Term M n
-    a t t′ u r : Term M n
+    Γ : Con Term n
+    A B C : Term n
+    a t t′ u r : Term n
     p q : M
 
 -- Concatenation of type reduction closures

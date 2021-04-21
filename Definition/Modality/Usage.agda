@@ -9,7 +9,7 @@ module Definition.Modality.Usage
   where
 
 open import Definition.Modality.Context 𝕄
-open import Definition.Untyped M _≈_ hiding (_∙_)
+open import Definition.Untyped M hiding (_∙_)
 
 open import Tools.Fin
 open import Tools.Nat

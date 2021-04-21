@@ -2,22 +2,22 @@
 
 open import Definition.Typed.EqualityRelation
 
-module Definition.LogicalRelation.Substitution.Introductions.SingleSubst {{eqrel : EqRelSet}} where
+module Definition.LogicalRelation.Substitution.Introductions.SingleSubst (M : Set) {{eqrel : EqRelSet M}} where
 open EqRelSet {{...}}
 
-open import Definition.Untyped hiding (_∷_)
-open import Definition.Untyped.Properties
-open import Definition.Typed
-open import Definition.Typed.Weakening using (id)
-open import Definition.Typed.Properties
-open import Definition.LogicalRelation
-open import Definition.LogicalRelation.ShapeView
-open import Definition.LogicalRelation.Irrelevance
-open import Definition.LogicalRelation.Properties
-open import Definition.LogicalRelation.Substitution
-open import Definition.LogicalRelation.Substitution.Properties
-open import Definition.LogicalRelation.Substitution.Conversion
-open import Definition.LogicalRelation.Substitution.Weakening
+open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped.Properties M
+open import Definition.Typed M
+open import Definition.Typed.Weakening M using (id)
+open import Definition.Typed.Properties M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.ShapeView M
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.Properties M
+open import Definition.LogicalRelation.Substitution M
+open import Definition.LogicalRelation.Substitution.Properties M
+open import Definition.LogicalRelation.Substitution.Conversion M
+open import Definition.LogicalRelation.Substitution.Weakening M
 
 open import Tools.Nat
 open import Tools.Product
@@ -26,8 +26,7 @@ import Tools.PropositionalEquality as PE
 private
   variable
     n : Nat
-    M : Set
-    Γ : Con (Term M) n
+    Γ : Con Term n
 
 -- Validity of substitution of single variable in types.
 substS : ∀ {F G t l} ([Γ] : ⊩ᵛ Γ)
@@ -126,6 +125,31 @@ substSTerm {F = F} {G} {t} {f} [Γ] [F] [G] [f] [t] {σ = σ} ⊢Δ [σ] =
            (proj₂ ([f] ⊢Δ ([σ] , proj₁ ([t] ⊢Δ [σ])))
                   ([σ′] , proj₁ ([t] ⊢Δ [σ′]))
                   ([σ≡σ′] , proj₂ ([t] ⊢Δ [σ]) [σ′] [σ≡σ′])))
+
+-- Validity of substitution of single variable in terms.
+-- substSTerm₂ : ∀ {F G t f l} ([Γ] : ⊩ᵛ Γ)
+--              ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
+--              ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
+--              ([t] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ t ∷ wk1 (F [ suc (var x0) ]↑) / [Γ] ∙ [F] / [G])
+--              ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ F / [Γ] / [F])
+--            → Γ ⊩ᵛ⟨ l ⟩ f [ t ] ∷ G [ t ] / [Γ]
+--                       / substS {F = F} {G} {t} [Γ] [F] [G] [t]
+-- substSTerm₂ {F = F} {G} {t} {f} [Γ] [F] [G] [f] [t] {σ = σ} ⊢Δ [σ] =
+--   let prfG = substConsId G
+--       prff = substConsId f
+--       G[t] = proj₁ ([G] ⊢Δ ([σ] , proj₁ ([t] ⊢Δ [σ])))
+--       G[t]′ = irrelevance′ prfG G[t]
+--       f[t] = proj₁ ([f] ⊢Δ ([σ] , proj₁ ([t] ⊢Δ [σ])))
+--       f[t]′ = irrelevanceTerm″ prfG prff G[t] G[t]′ f[t]
+--   in  f[t]′
+--   ,   (λ {σ′} [σ′] [σ≡σ′] →
+--          irrelevanceEqTerm″
+--            prff
+--            (substConsId f)
+--            prfG G[t] G[t]′
+--            (proj₂ ([f] ⊢Δ ([σ] , proj₁ ([t] ⊢Δ [σ])))
+--                   ([σ′] , proj₁ ([t] ⊢Δ [σ′]))
+--                   ([σ≡σ′] , proj₂ ([t] ⊢Δ [σ]) [σ′] [σ≡σ′])))
 
 -- Validity of substitution of single lifted variable in types.
 subst↑S : ∀ {F G t l} ([Γ] : ⊩ᵛ Γ)

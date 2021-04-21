@@ -2,14 +2,14 @@
 
 open import Definition.Typed.EqualityRelation
 
-module Definition.LogicalRelation.Substitution.Weakening {{eqrel : EqRelSet}} where
+module Definition.LogicalRelation.Substitution.Weakening (M : Set) {{eqrel : EqRelSet M}} where
 open EqRelSet {{...}}
 
-open import Definition.Untyped
-open import Definition.Untyped.Properties
-open import Definition.LogicalRelation
-open import Definition.LogicalRelation.Irrelevance
-open import Definition.LogicalRelation.Substitution
+open import Definition.Untyped M
+open import Definition.Untyped.Properties M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.Substitution M
 
 open import Tools.Nat
 open import Tools.Product
@@ -18,8 +18,7 @@ import Tools.PropositionalEquality as PE
 private
   variable
     n : Nat
-    M : Set
-    Γ : Con (Term M) n
+    Γ : Con Term n
 
 -- Weakening of valid types by one.
 wk1ᵛ : ∀ {A F l}

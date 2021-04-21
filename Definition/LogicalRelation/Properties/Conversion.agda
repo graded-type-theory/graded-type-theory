@@ -2,17 +2,17 @@
 
 open import Definition.Typed.EqualityRelation
 
-module Definition.LogicalRelation.Properties.Conversion {{eqrel : EqRelSet}} where
+module Definition.LogicalRelation.Properties.Conversion (M : Set) {{eqrel : EqRelSet M}} where
 open EqRelSet {{...}}
 
-open import Definition.Untyped hiding (_∷_)
-open import Definition.Typed
-open import Definition.Typed.RedSteps
-open import Definition.Typed.Properties
-import Definition.Typed.Weakening as Wk
-open import Definition.LogicalRelation
-open import Definition.LogicalRelation.ShapeView
-open import Definition.LogicalRelation.Irrelevance
+open import Definition.Untyped M hiding (Wk; _∷_)
+open import Definition.Typed M
+open import Definition.Typed.RedSteps M
+open import Definition.Typed.Properties M
+import Definition.Typed.Weakening M as Wk
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.ShapeView M
+open import Definition.LogicalRelation.Irrelevance M
 
 open import Tools.Nat
 open import Tools.Product
@@ -21,9 +21,8 @@ import Tools.PropositionalEquality as PE
 private
   variable
     n : Nat
-    M : Set
     p q : M
-    Γ : Con (Term M) n
+    Γ : Con Term n
 
 -- Conversion of syntactic reduction closures.
 convRed:*: : ∀ {t u A B} → Γ ⊢ t :⇒*: u ∷ A → Γ ⊢ A ≡ B → Γ ⊢ t :⇒*: u ∷ B

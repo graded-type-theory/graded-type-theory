@@ -1,11 +1,11 @@
 {-# OPTIONS --without-K --safe #-}
 
-module Definition.Typed.Weakening where
+module Definition.Typed.Weakening (M : Set) where
 
-open import Definition.Untyped as U hiding (wk ; _∷_)
-open import Definition.Untyped.Properties
-open import Definition.Typed
-open import Definition.Typed.Properties
+open import Definition.Untyped M as U hiding (wk ; _∷_)
+open import Definition.Untyped.Properties M
+open import Definition.Typed M
+open import Definition.Typed.Properties M
 
 open import Tools.Nat
 import Tools.PropositionalEquality as PE
@@ -13,16 +13,16 @@ import Tools.PropositionalEquality as PE
 private
   variable
     ℓ n m  : Nat
-    M : Set
-    A B t u : Term M n
-    Γ  : Con (Term M) n
-    Δ  : Con (Term M) m
-    Δ′ : Con (Term M) ℓ
+    A B t u : Term n
+    Γ  : Con Term n
+    Δ  : Con Term m
+    Δ′ : Con Term ℓ
     ρ  : Wk m n
     ρ′ : Wk n ℓ
+
 -- Weakening type
 
-data _∷_⊆_ {M : Set} : Wk m n → Con (Term M) m → Con (Term M) n → Set where
+data _∷_⊆_ : Wk m n → Con Term m → Con Term n → Set where
   id   :             id     ∷ Γ            ⊆ Γ
   step : ρ ∷ Δ ⊆ Γ → step ρ ∷ Δ ∙ A        ⊆ Γ
   lift : ρ ∷ Δ ⊆ Γ → lift ρ ∷ Δ ∙ U.wk ρ A ⊆ Γ ∙ A
@@ -75,7 +75,7 @@ mutual
                        in  Σⱼ ρF ▹ (wk (lift ρ) (⊢Δ ∙ ρF) G)
   wk ρ ⊢Δ (univ A) = univ (wkTerm ρ ⊢Δ A)
 
-  wkTerm : {Δ : Con (Term M) m} {ρ : Wk m n} → ρ ∷ Δ ⊆ Γ →
+  wkTerm : {Δ : Con Term m} {ρ : Wk m n} → ρ ∷ Δ ⊆ Γ →
          let ρA = U.wk ρ A
              ρt = U.wk ρ t
          in ⊢ Δ → Γ ⊢ t ∷ A → Δ ⊢ ρt ∷ ρA
@@ -157,7 +157,7 @@ mutual
                                  in  Σ-cong ρF (wkEq ρ ⊢Δ F≡H)
                                                (wkEq (lift ρ) (⊢Δ ∙ ρF) G≡E)
 
-  wkEqTerm : {Δ : Con (Term M) m} {ρ : Wk m n} → ρ ∷ Δ ⊆ Γ →
+  wkEqTerm : {Δ : Con Term m} {ρ : Wk m n} → ρ ∷ Δ ⊆ Γ →
            let ρA = U.wk ρ A
                ρt = U.wk ρ t
                ρu = U.wk ρ u
@@ -312,7 +312,7 @@ mutual
            in ⊢ Δ → Γ ⊢ A ⇒ B → Δ ⊢ ρA ⇒ ρB
   wkRed ρ ⊢Δ (univ A⇒B) = univ (wkRedTerm ρ ⊢Δ A⇒B)
 
-  wkRedTerm : {Δ : Con (Term M) m} {ρ : Wk m n} → ρ ∷ Δ ⊆ Γ →
+  wkRedTerm : {Δ : Con Term m} {ρ : Wk m n} → ρ ∷ Δ ⊆ Γ →
            let ρA = U.wk ρ A
                ρt = U.wk ρ t
                ρu = U.wk ρ u
