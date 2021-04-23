@@ -10,7 +10,7 @@ module Definition.Modality.Context.Properties
 
 open import Definition.Modality.Properties 𝕄
 open import Definition.Modality.Context 𝕄
-open import Definition.Untyped M _≈_ hiding (_∙_ ; ε)
+open import Definition.Untyped M hiding (_∙_ ; ε)
 
 open import Tools.Fin
 open import Tools.Nat renaming (_+_ to _+ⁿ_)

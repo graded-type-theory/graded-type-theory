@@ -83,16 +83,6 @@ data _▸_ {n : Nat} : (γ : Conₘ n) → Term n → Set where
             → γ ▸ z
             → δ ∙ p ∙ r ▸ s
             → η ▸ n
-            {-
-            If X ▸ natrec p r G z s n,
-            need X ≤ γ and X ≤ δ + pη + rX for preservation
-            -}
-            -- → γ′ ≡ δ +ᶜ r ·ᶜ (γ ∧ᶜ γ′) +ᶜ p ·ᶜ η
-            -- γ′ ≤ δ + pη + r(γ ∧ γ′)
-            -- γ′ ≤ (δ + pη + rγ) ∧ (δ + pη + rγ′)
-            -- a ≤ b + cd ∧ b + ca
-            -- → γ ∧ᶜ γ′ ▸ natrec p r G z s n
-            -- → γ ∧ᶜ (recᶜ (δ + pη + rγ) (δ + pη) r) ▸ natrec p r G z s n
             → γ ∧ᶜ nrᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ) (δ +ᶜ p ·ᶜ η) r ▸ natrec p r G z s n
 
   Emptyrecₘ : γ ▸ t
@@ -105,6 +95,8 @@ data _▸_ {n : Nat} : (γ : Conₘ n) → Term n → Set where
             → δ ▸ t
 
 pattern prodₘ! x y = prodₘ x y PE.refl
+
+-- Modality context inference
 
 infix 50 ⌈_⌉
 

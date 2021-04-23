@@ -14,8 +14,8 @@ open import Definition.Modality.Substitution 𝕄
 open import Definition.Modality.Usage 𝕄
 open import Definition.Modality.Usage.Properties 𝕄
 open import Definition.Modality.Usage.Weakening 𝕄
-open import Definition.Typed 𝕄 using (_⊢_∷_)
-open import Definition.Untyped M _≈_ as U hiding (ε ; _∙_)
+open import Definition.Typed M using (_⊢_∷_)
+open import Definition.Untyped M as U hiding (ε ; _∙_)
 
 open import Tools.Fin
 open import Tools.Nat hiding (_+_)
@@ -108,7 +108,12 @@ private
   pη = p ·ᶜ η
   qη = q ·ᶜ η
 
-*>-sub-distrib-nrᶜ : (Ψ : Substₘ m n) (γ δ : Conₘ n) (r : M) → Ψ *> nrᶜ γ δ r ≤ᶜ nrᶜ (Ψ *> γ) (Ψ *> δ) r
+-- Modality substitution application sub-distributes over the two first arguments of nrᶜ
+-- Ψ *> nrᶜ γ δ r ≤ nrᶜ (Ψ *> γ) (Ψ *> δ) r
+-- Proof by induction on Ψ using distributivity properties of nrᶜ
+
+*>-sub-distrib-nrᶜ : (Ψ : Substₘ m n) (γ δ : Conₘ n) (r : M)
+                   → Ψ *> nrᶜ γ δ r ≤ᶜ nrᶜ (Ψ *> γ) (Ψ *> δ) r
 *>-sub-distrib-nrᶜ [] ε ε r = ≤ᶜ-reflexive (≈ᶜ-sym (nrᶜ-𝟘ᶜ r))
 *>-sub-distrib-nrᶜ (Ψ ⊙ η) (γ ∙ p) (δ ∙ q) r = begin
   (Ψ ⊙ η) *> nrᶜ (γ ∙ p) (δ ∙ q) r
@@ -172,10 +177,13 @@ wk1Substₘ-app : (Ψ : Substₘ m n) (γ : Conₘ n) → wk1Substₘ Ψ *> γ �
 wk1Substₘ-app [] ε            = ≈ᶜ-refl
 wk1Substₘ-app (Ψ ⊙ δ) (γ ∙ p) = begin
   wk1Substₘ (Ψ ⊙ δ) *> (γ ∙ p) ≡⟨⟩
-  ((p ·ᶜ δ) ∙ (p · 𝟘)) +ᶜ wk1Substₘ Ψ *> γ ≈⟨ +ᶜ-cong (≈ᶜ-refl ∙ (proj₂ ·-zero p)) (wk1Substₘ-app Ψ γ) ⟩
-  ((p ·ᶜ δ) ∙ 𝟘) +ᶜ ((Ψ *> γ) ∙ 𝟘) ≡⟨⟩
-  (p ·ᶜ δ) +ᶜ (Ψ *> γ) ∙ (𝟘 + 𝟘) ≈⟨ ≈ᶜ-refl ∙ (proj₁ +-identity 𝟘) ⟩
-  ((Ψ ⊙ δ) *> (γ ∙ p)) ∙ 𝟘 ∎
+  ((p ·ᶜ δ) ∙ (p · 𝟘)) +ᶜ wk1Substₘ Ψ *> γ
+      ≈⟨ +ᶜ-cong (≈ᶜ-refl ∙ (proj₂ ·-zero p)) (wk1Substₘ-app Ψ γ) ⟩
+  ((p ·ᶜ δ) ∙ 𝟘) +ᶜ ((Ψ *> γ) ∙ 𝟘)
+      ≡⟨⟩
+  (p ·ᶜ δ) +ᶜ (Ψ *> γ) ∙ (𝟘 + 𝟘)
+     ≈⟨ ≈ᶜ-refl ∙ (proj₁ +-identity 𝟘) ⟩
+  ((Ψ ⊙ δ) *> (γ ∙ p)) ∙ 𝟘         ∎
   where open import Tools.Reasoning.Equivalence ≈ᶜ-equivalence
 
 
@@ -185,7 +193,7 @@ wk1Substₘ-app (Ψ ⊙ δ) (γ ∙ p) = begin
 
 liftSubstₘ-app : (Ψ : Substₘ m n) (γ : Conₘ n) (p : M)
                → liftSubstₘ Ψ *> (γ ∙ p) ≈ᶜ (Ψ *> γ) ∙ p
-liftSubstₘ-app [] ε p = begin -- cong₂ _∙_ (sym γ′) (sym p′)
+liftSubstₘ-app [] ε p = begin
   liftSubstₘ [] *> (ε ∙ p)    ≡⟨⟩
   ([] ⊙ (𝟘ᶜ ∙ 𝟙)) *> (ε ∙ p)  ≡⟨⟩
   p ·ᶜ (𝟘ᶜ ∙ 𝟙) +ᶜ 𝟘ᶜ         ≡⟨⟩
@@ -200,7 +208,8 @@ liftSubstₘ-app (Ψ ⊙ η) γ p = begin
   (wk1Substₘ (Ψ ⊙ η) ⊙ (𝟘ᶜ ∙ 𝟙)) *> (γ ∙ p) ≡⟨⟩
   p ·ᶜ (𝟘ᶜ ∙ 𝟙) +ᶜ (wk1Substₘ (Ψ ⊙ η) *> γ)
      ≈⟨ +ᶜ-cong ((·ᶜ-zeroʳ p) ∙ (proj₂ ·-identity p)) (wk1Substₘ-app (Ψ ⊙ η) γ) ⟩
-  (𝟘ᶜ ∙ p) +ᶜ (((Ψ ⊙ η) *> γ) ∙ 𝟘) ≈⟨ (+ᶜ-identityˡ ((Ψ ⊙ η) *> γ)) ∙ (proj₂ +-identity p) ⟩
+  (𝟘ᶜ ∙ p) +ᶜ (((Ψ ⊙ η) *> γ) ∙ 𝟘)
+     ≈⟨ (+ᶜ-identityˡ ((Ψ ⊙ η) *> γ)) ∙ (proj₂ +-identity p) ⟩
   ((Ψ ⊙ η) *> γ) ∙ p ∎
   where open import Tools.Reasoning.Equivalence ≈ᶜ-equivalence
 
@@ -217,7 +226,8 @@ liftSubstₘ-app (Ψ ⊙ η) γ p = begin
     ≈⟨ +ᶜ-cong ((·ᶜ-zeroʳ p) ∙ (proj₂ ·-identity p)) (wk1Substₘ-app idSubstₘ γ) ⟩
   ((𝟘ᶜ ∙ p) +ᶜ ((idSubstₘ *> γ) ∙ 𝟘))
     ≈⟨ (+ᶜ-identityˡ _) ∙ (proj₂ +-identity p) ⟩
-  (idSubstₘ *> γ) ∙ p ≈⟨ (*>-identityˡ γ) ∙ ≈-refl ⟩
+  (idSubstₘ *> γ) ∙ p
+    ≈⟨ (*>-identityˡ γ) ∙ ≈-refl ⟩
   γ ∙ p ∎
   where open import Tools.Reasoning.Equivalence ≈ᶜ-equivalence
 
@@ -237,8 +247,8 @@ wf-sgSubstₘ {γ = γ} γ▸u x0 = sub γ▸u eq
   open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
   eq = begin
     𝟙 ·ᶜ γ +ᶜ idSubstₘ *> 𝟘ᶜ ≈⟨ +ᶜ-cong (·ᶜ-identityˡ γ) (*>-identityˡ 𝟘ᶜ) ⟩
-    γ +ᶜ 𝟘ᶜ ≈⟨ +ᶜ-identityʳ γ ⟩
-    γ ∎
+    γ +ᶜ 𝟘ᶜ                  ≈⟨ +ᶜ-identityʳ γ ⟩
+    γ                        ∎
 wf-sgSubstₘ {γ = γ} γ▸u (x +1) = sub var eq
   where
   open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
@@ -269,8 +279,8 @@ wf-liftSubstₘ {Ψ = Ψ} Ψ▶σ x0 = sub var eq
     ((𝟙 ·ᶜ 𝟘ᶜ) ∙ (𝟙 · 𝟙)) +ᶜ wk1Substₘ Ψ *> 𝟘ᶜ
                     ≈⟨ +ᶜ-cong ((·ᶜ-zeroʳ 𝟙) ∙ (proj₁ ·-identity 𝟙)) (*>-zeroʳ (wk1Substₘ Ψ)) ⟩
     (𝟘ᶜ ∙ 𝟙) +ᶜ 𝟘ᶜ ≈⟨ +ᶜ-identityʳ _ ⟩
-    𝟘ᶜ ∙ 𝟙         ≡⟨⟩
-    𝟘ᶜ , x0 ≔ 𝟙    ∎
+    𝟘ᶜ ∙ 𝟙          ≡⟨⟩
+    𝟘ᶜ , x0 ≔ 𝟙     ∎
 
 wf-liftSubstₘ {Ψ = Ψ} Ψ▶σ (x +1) = sub (wf-wk1Substₘ Ψ _ Ψ▶σ x) eq
   where
@@ -295,14 +305,14 @@ wf-consSubstₘ {Ψ = Ψ} {γ = γ} Ψ▶σ γ▸t x0 = sub γ▸t eq
   eq = begin
        𝟙 ·ᶜ γ +ᶜ Ψ *> 𝟘ᶜ ≈⟨ +ᶜ-cong (·ᶜ-identityˡ γ) (*>-zeroʳ Ψ) ⟩
        γ +ᶜ 𝟘ᶜ           ≈⟨ +ᶜ-identityʳ _ ⟩
-       γ                 ∎
+       γ                  ∎
 wf-consSubstₘ {Ψ = Ψ} {γ = γ} Ψ▶σ γ▸t (x +1) = sub (Ψ▶σ x) eq
   where
   open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
   eq = begin
          𝟘 ·ᶜ γ +ᶜ Ψ *> (𝟘ᶜ , x ≔ 𝟙) ≈⟨ +ᶜ-cong (·ᶜ-zeroˡ _) ≈ᶜ-refl ⟩
          𝟘ᶜ +ᶜ Ψ *> (𝟘ᶜ , x ≔ 𝟙)     ≈⟨ +ᶜ-identityˡ _ ⟩
-         Ψ *> (𝟘ᶜ , x ≔ 𝟙)           ∎
+         Ψ *> (𝟘ᶜ , x ≔ 𝟙)            ∎
 
 ---------------------------------------
 -- Substitution lemma for modalities --
@@ -359,9 +369,6 @@ substₘ-lemma Ψ σ Ψ▶σ (sndₘ γ▸t) = sub
   (sndₘ (sub (substₘ-lemma Ψ σ Ψ▶σ γ▸t) (≤ᶜ-reflexive (≈ᶜ-sym (*>-zeroʳ Ψ)))))
   (≤ᶜ-reflexive (*>-zeroʳ Ψ))
 
-
-
-
 substₘ-lemma Ψ σ Ψ▶σ (prodrecₘ {γ = γ} {δ = δ} {p} γ▸t δ▸u) = sub
   (prodrecₘ γ▸t′ (sub δ▸u′ eq))
   eq′
@@ -369,22 +376,22 @@ substₘ-lemma Ψ σ Ψ▶σ (prodrecₘ {γ = γ} {δ = δ} {p} γ▸t δ▸u) 
   γ▸t′ = substₘ-lemma Ψ σ Ψ▶σ γ▸t
   δ▸u′ = substₘ-lemma (liftSubstₘ (liftSubstₘ Ψ)) (liftSubst (liftSubst σ))
                       (wf-liftSubstₘ (wf-liftSubstₘ Ψ▶σ)) δ▸u
-  import Tools.Reasoning.PartialOrder ≤ᶜ-poset as R₁
-  eq = R₁.begin
+  eq = begin
     Ψ *> δ ∙ p ∙ p
-      R₁.≈⟨ (≈ᶜ-sym (liftSubstₘ-app Ψ δ p)) ∙ ≈-refl ⟩
+      ≈⟨ (≈ᶜ-sym (liftSubstₘ-app Ψ δ p)) ∙ ≈-refl ⟩
     (wk1Substₘ Ψ ⊙ (𝟘ᶜ ∙ 𝟙)) *> (δ ∙ p) ∙ p
-      R₁.≈⟨ ≈ᶜ-sym (liftSubstₘ-app (wk1Substₘ Ψ ⊙ (𝟘ᶜ ∙ 𝟙)) (δ ∙ p) p) ⟩
+      ≈⟨ ≈ᶜ-sym (liftSubstₘ-app (wk1Substₘ Ψ ⊙ (𝟘ᶜ ∙ 𝟙)) (δ ∙ p) p) ⟩
     ((wk1Substₘ (wk1Substₘ Ψ) ⊙ (𝟘ᶜ ∙ 𝟙 ∙ 𝟘) ⊙ (𝟘ᶜ ∙ 𝟙)) *> (δ ∙ p ∙ p))
-      R₁.≡⟨⟩
+      ≡⟨⟩
     p ·ᶜ (𝟘ᶜ ∙ 𝟘 ∙ 𝟙) +ᶜ p ·ᶜ (𝟘ᶜ ∙ 𝟙 ∙ 𝟘) +ᶜ ((wk1Substₘ (wk1Substₘ Ψ)) *> δ)
-      R₁.≡⟨⟩
-    (p ·ᶜ 𝟘ᶜ ∙ p · 𝟘 ∙ p · 𝟙) +ᶜ (p ·ᶜ 𝟘ᶜ ∙ p · 𝟙 ∙ p · 𝟘) +ᶜ ((wk1Substₘ (wk1Substₘ Ψ)) *> δ) R₁.∎
-  import Tools.Reasoning.PartialOrder ≤ᶜ-poset as R₂
-  eq′ = R₂.begin
-    Ψ *> (p ·ᶜ γ +ᶜ δ)      R₂.≈⟨ *>-distrib-+ᶜ Ψ (p ·ᶜ γ) δ ⟩
-    Ψ *> (p ·ᶜ γ) +ᶜ Ψ *> δ R₂.≈⟨ +ᶜ-cong (*>-distrib-·ᶜ Ψ p γ) ≈ᶜ-refl ⟩
-    p ·ᶜ Ψ *> γ +ᶜ Ψ *> δ   R₂.∎
+      ≡⟨⟩
+    (p ·ᶜ 𝟘ᶜ ∙ p · 𝟘 ∙ p · 𝟙) +ᶜ (p ·ᶜ 𝟘ᶜ ∙ p · 𝟙 ∙ p · 𝟘) +ᶜ ((wk1Substₘ (wk1Substₘ Ψ)) *> δ) ∎
+    where open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
+  eq′ = begin
+    Ψ *> (p ·ᶜ γ +ᶜ δ)      ≈⟨ *>-distrib-+ᶜ Ψ (p ·ᶜ γ) δ ⟩
+    Ψ *> (p ·ᶜ γ) +ᶜ Ψ *> δ ≈⟨ +ᶜ-cong (*>-distrib-·ᶜ Ψ p γ) ≈ᶜ-refl ⟩
+    p ·ᶜ Ψ *> γ +ᶜ Ψ *> δ   ∎
+    where open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
 substₘ-lemma Ψ σ Ψ▶σ zeroₘ = sub zeroₘ (≤ᶜ-reflexive (*>-zeroʳ Ψ))
 
@@ -393,9 +400,7 @@ substₘ-lemma Ψ σ Ψ▶σ (sucₘ γ▸t) = sucₘ (substₘ-lemma Ψ σ Ψ�
 substₘ-lemma Ψ σ Ψ▶σ (natrecₘ {γ = γ} {δ = δ} {p} {r} {η = η} γ▸z δ▸s η▸n) = sub
   (natrecₘ γ▸z′ δ▸s″ η▸n′)
   le
--- subst₂ _▸_ refl refl (sub (natrecₘ γ▸z′ δ▸s″ η▸n′) {!!})
   where
-
   γ▸z′ = substₘ-lemma Ψ σ Ψ▶σ γ▸z
   δ▸s′ = substₘ-lemma (liftSubstₘ (liftSubstₘ Ψ)) (liftSubst (liftSubst σ))
                       (wf-liftSubstₘ (wf-liftSubstₘ Ψ▶σ)) δ▸s
@@ -417,9 +422,13 @@ substₘ-lemma Ψ σ Ψ▶σ (natrecₘ {γ = γ} {δ = δ} {p} {r} {η = η} γ
     Ψ *> γ ∧ᶜ nrᶜ (Ψ *> (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ)) (Ψ *> (δ +ᶜ p ·ᶜ η)) r
          ≈⟨ ∧ᶜ-cong ≈ᶜ-refl (nrᶜ-cong (*>-distrib-+ᶜ Ψ _ _) (*>-distrib-+ᶜ Ψ _ _) ≈-refl) ⟩
     Ψ *> γ ∧ᶜ nrᶜ (Ψ *> δ +ᶜ Ψ *> (p ·ᶜ η +ᶜ r ·ᶜ γ)) (Ψ *> δ +ᶜ Ψ *> (p ·ᶜ η)) r
-         ≈⟨ ∧ᶜ-cong ≈ᶜ-refl (nrᶜ-cong (+ᶜ-cong ≈ᶜ-refl (*>-distrib-+ᶜ Ψ _ _)) (+ᶜ-cong ≈ᶜ-refl (*>-distrib-·ᶜ Ψ p η)) ≈-refl) ⟩
+         ≈⟨ ∧ᶜ-cong ≈ᶜ-refl (nrᶜ-cong (+ᶜ-cong ≈ᶜ-refl (*>-distrib-+ᶜ Ψ _ _))
+                                      (+ᶜ-cong ≈ᶜ-refl (*>-distrib-·ᶜ Ψ p η))
+                                      ≈-refl) ⟩
     Ψ *> γ ∧ᶜ nrᶜ (Ψ *> δ +ᶜ Ψ *> (p ·ᶜ η) +ᶜ Ψ *> (r ·ᶜ γ)) (Ψ *> δ +ᶜ p ·ᶜ Ψ *> η) r
-         ≈⟨ ∧ᶜ-cong ≈ᶜ-refl (nrᶜ-cong (+ᶜ-cong ≈ᶜ-refl (+ᶜ-cong (*>-distrib-·ᶜ Ψ p η) (*>-distrib-·ᶜ Ψ r γ))) ≈ᶜ-refl ≈-refl) ⟩
+         ≈⟨ ∧ᶜ-cong ≈ᶜ-refl (nrᶜ-cong (+ᶜ-cong ≈ᶜ-refl
+                                               (+ᶜ-cong (*>-distrib-·ᶜ Ψ p η) (*>-distrib-·ᶜ Ψ r γ)))
+                                      ≈ᶜ-refl ≈-refl) ⟩
     Ψ *> γ ∧ᶜ nrᶜ (Ψ *> δ +ᶜ p ·ᶜ Ψ *> η +ᶜ r ·ᶜ Ψ *> γ) (Ψ *> δ +ᶜ p ·ᶜ Ψ *> η) r ∎
     where open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
@@ -475,17 +484,18 @@ substₘ-calc-col σ x0 = begin
   ∥ σ ∥ *> (𝟘ᶜ ∙ 𝟙)                 ≡⟨⟩
   𝟙 ·ᶜ ⌈ σ x0 ⌉ +ᶜ ∥ tail σ ∥ *> 𝟘ᶜ ≈⟨ +ᶜ-cong (·ᶜ-identityˡ _) (*>-zeroʳ ∥ tail σ ∥) ⟩
   ⌈ σ x0 ⌉ +ᶜ 𝟘ᶜ                     ≈⟨ +ᶜ-identityʳ _ ⟩
-  ⌈ σ x0 ⌉                           ∎
+  ⌈ σ x0 ⌉                            ∎
   where open import Tools.Reasoning.Equivalence ≈ᶜ-equivalence
 substₘ-calc-col σ (x +1) = begin
   ∥ σ ∥ *> (𝟘ᶜ , x +1 ≔ 𝟙)                    ≡⟨⟩
   ∥ σ ∥ *> ((𝟘ᶜ , x ≔ 𝟙) ∙ 𝟘)                 ≡⟨⟩
   𝟘 ·ᶜ ⌈ σ x0 ⌉ +ᶜ ∥ tail σ ∥ *> (𝟘ᶜ , x ≔ 𝟙) ≈⟨ +ᶜ-cong (·ᶜ-zeroˡ _) (substₘ-calc-col (tail σ) x) ⟩
-  𝟘ᶜ +ᶜ ⌈ tail σ x ⌉                            ≈⟨ +ᶜ-identityˡ _ ⟩
+  𝟘ᶜ +ᶜ ⌈ tail σ x ⌉                           ≈⟨ +ᶜ-identityˡ _ ⟩
   ⌈ σ (x +1) ⌉                                  ∎
   where open import Tools.Reasoning.Equivalence ≈ᶜ-equivalence
 
--- A calculated substitution matrix is well-formed if all substituted terms are well-typed and well-used.
+-- An infered substitution matrix is well-formed if
+-- all substituted terms are well-typed and well-used.
 -- If ∀ x. (Γ ⊢ σ x ∷ A and γ ▸ σ x) then ∥ σ ∥ ▶ σ.
 -- Proof by the corresponding property for modality contexts applied to each column.
 

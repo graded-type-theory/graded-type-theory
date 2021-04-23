@@ -41,4 +41,4 @@ p ▷ F ▹▹ G = Π p , 𝟘 ▷ F ▹ wk1 G
 -- Non-dependent products.
 
 _××_ : (F G : Term n) → Term n
-A ×× B = Σ 𝟘 ▷ A ▹ wk1 B
+F ×× G = Σ 𝟘 ▷ F ▹ wk1 G

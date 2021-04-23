@@ -11,7 +11,7 @@ module Definition.Modality.Context.Properties.Insertion
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties.Equivalence 𝕄
 open import Definition.Modality.Properties 𝕄
-open import Definition.Untyped M _≈_ using (wkVar; liftn; step; id)
+open import Definition.Untyped M using (wkVar; liftn; step; id)
 
 open import Tools.Fin
 open import Tools.Nat renaming (_+_ to _+ⁿ_)

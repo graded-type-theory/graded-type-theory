@@ -11,7 +11,7 @@ module Definition.Modality.Usage.Inversion
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
 open import Definition.Modality.Usage 𝕄
-open import Definition.Untyped M _≈_ hiding (_∙_)
+open import Definition.Untyped M hiding (_∙_)
 
 open import Tools.Nat
 open import Tools.PropositionalEquality

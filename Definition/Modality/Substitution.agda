@@ -8,9 +8,9 @@ module Definition.Modality.Substitution
   (𝕄 : Modality M _≈_)
   where
 
-open import Definition.Untyped M _≈_
+open import Definition.Untyped M
   using (Subst ; tail ; head ; Wk ; id ; step ; lift)
-open import Definition.Untyped.Properties M _≈_
+open import Definition.Untyped.Properties M
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
 open import Definition.Modality.Properties 𝕄

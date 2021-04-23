@@ -13,8 +13,9 @@ open import Definition.Modality.Context.Properties 𝕄
 open import Definition.Modality.Substitution.Properties 𝕄
 open import Definition.Modality.Usage 𝕄
 open import Definition.Modality.Usage.Inversion 𝕄
-open import Definition.Typed 𝕄
-open import Definition.Untyped M _≈_ hiding (_∷_)
+open import Definition.Typed M
+open import Definition.Untyped M hiding (_∷_)
+open import Definition.Usage 𝕄
 
 open import Tools.Nat
 open import Tools.Product
@@ -24,12 +25,16 @@ open import Tools.PropositionalEquality as PE
 private
   variable
     n : Nat
+    Γ : Con Term n
+    γ δ : Conₘ n
+    t u A B : Term n
+
+-- Subject reduction properties for modality usage
 
 -- Term reduction preserves resource usage
 -- If γ ▸ t and Γ ⊢ t ⇒ u ∷ A, then γ ▸ u
 
-usagePresTerm : {γ : Conₘ n} {Γ : Con Term n} {t u A : Term n}
-              → γ ▸ t → Γ ⊢ t ⇒ u ∷ A → γ ▸ u
+usagePresTerm : γ ▸ t → Γ ⊢ t ⇒ u ∷ A → γ ▸ u
 usagePresTerm γ▸t (conv t⇒u x) = usagePresTerm γ▸t t⇒u
 usagePresTerm γ▸t (app-subst t⇒u x) with inv-usage-app γ▸t
 ... | invUsageApp δ▸t η▸a γ≤δ+pη = sub ((usagePresTerm δ▸t t⇒u) ∘ₘ η▸a) γ≤δ+pη
@@ -69,7 +74,6 @@ usagePresTerm {γ = γ} γ▸ptu (prodrec-β {p} x x₁ x₂ x₃ x₄ x₅) wit
 
 usagePresTerm γ▸natrec (natrec-subst x x₁ x₂ t⇒u) with inv-usage-natrec γ▸natrec
 ... | invUsageNatrec δ▸z η▸s θ▸n γ≤X = sub (natrecₘ δ▸z η▸s (usagePresTerm θ▸n t⇒u)) γ≤X
--- sub (natrecₘ δ▸z δ▸s (usagePresTerm η▸n t⇒u)) γ≤γ′
 
 usagePresTerm γ▸natrec (natrec-zero {p = p} {r = r} x x₁ x₂) with inv-usage-natrec γ▸natrec
 ... | invUsageNatrec {δ = δ} δ▸z η▸s θ▸n γ≤X with inv-usage-zero θ▸n
@@ -107,6 +111,5 @@ usagePresTerm γ▸et (Emptyrec-subst x t⇒u) with inv-usage-Emptyrec γ▸et
 -- Type reduction preserves modality usage
 -- If γ ▸ A and Γ ⊢ A ⇒ B, then γ ▸ B
 
-usagePres : {γ : Conₘ n} {Γ : Con Term n} {A B : Term n}
-          → γ ▸ A → Γ ⊢ A ⇒ B → γ ▸ B
+usagePres : γ ▸ A → Γ ⊢ A ⇒ B → γ ▸ B
 usagePres γ▸A (univ A⇒B) = usagePresTerm γ▸A A⇒B
