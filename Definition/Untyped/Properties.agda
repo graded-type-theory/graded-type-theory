@@ -484,8 +484,8 @@ wk-β-natrec ρ G = let G′ = G [ suc (var x0) ]↑ in
 -- A specific equation on eakenings used for the reduction of prodrec.
 
 wk-β-prodrec : ∀ (ρ : Wk m n) (A : Term (1+ n))
-             → wk (lift (lift ρ)) (A [⟨ var (x0 +1) , var x0 ⟩])
-             ≡ wk (lift ρ) A [⟨ var (x0 +1) , var x0 ⟩]
+             → wk (lift (lift ρ)) (A [ prod (var (x0 +1)) (var x0) ]↑²)
+             ≡ wk (lift ρ) A [ prod (var (x0 +1)) (var x0) ]↑²
 wk-β-prodrec ρ A =
   begin
        wk (lift (lift ρ)) (subst σₚ′ A)
@@ -505,8 +505,8 @@ wk-β-prodrec ρ A =
         eq (x +1) = refl
 
 wk-β-doubleSubst : ∀ (ρ : Wk m n) (s : Term (1+ (1+ n))) (t u : Term n)
-                 → wk ρ (s [ t ][ u ])
-                 ≡ wk (lift (lift ρ)) s [ wk ρ t ][ wk ρ u ]
+                 → wk ρ (s [ u , t ])
+                 ≡ wk (lift (lift ρ)) s [ wk ρ u , wk ρ t ]
 wk-β-doubleSubst ρ s t u =
  begin
     wk ρ (subst (σₜ t u) s)
@@ -515,7 +515,7 @@ wk-β-doubleSubst ρ s t u =
        ≡⟨ substVar-to-subst eq s ⟩
      subst ((σₜ (wk ρ t) (wk ρ u)) ₛ• (lift (lift ρ))) s
        ≡⟨ sym (subst-wk s) ⟩
-     wk (lift (lift ρ)) s [ wk ρ t ][ wk ρ u ] ∎
+     wk (lift (lift ρ)) s [ wk ρ u , wk ρ t ] ∎
   where
     σₜ : (x y : Term ℓ) → Subst ℓ (1+ (1+ ℓ))
     σₜ x y = consSubst (consSubst idSubst y) x

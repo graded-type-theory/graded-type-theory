@@ -23,8 +23,8 @@ infix 30 ⟦_⟧_▹_
 infixl 30 _ₛ•ₛ_ _•ₛ_ _ₛ•_
 infix 25 _[_]
 infix 25 _[_]↑
-infix 25 _[_][_]
-infix 25 _[⟨_,_⟩]
+infix 25 _[_,_]
+infix 25 _[_]↑²
 
 
 -- Typing contexts (length indexed snoc-lists, isomorphic to lists).
@@ -584,15 +584,16 @@ t [ s ]↑ = subst (consSubst (wk1Subst idSubst) s) t
 
 -- Substitute the first two variables of a term with other terms.
 --
--- If Γ∙A∙B ⊢ t : C, Γ ⊢ s : B and Γ ⊢ s′ : A then Γ ⊢ t[s][s′] : C[s][s′]
+-- If Γ∙A∙B ⊢ t : C, Γ ⊢ s : A and Γ ⊢ s ′: B and  then Γ ⊢ t[s,s′] : C[s,s′]
 
-_[_][_] : (t : Term (1+ (1+ n))) (s s′ : Term n) → Term n
-t [ s ][ s′ ] = subst (consSubst (consSubst idSubst s′) s) t
+_[_,_] : (t : Term (1+ (1+ n))) (s s′ : Term n) → Term n
+t [ s , s′ ] = subst (consSubst (consSubst idSubst s) s′) t
 
--- Substitute the first variable with a pair and shift remaining variables up by one
+-- Substitute the first variable with a term and shift remaining variables up by one
+-- If Γ ∙ A ⊢ t : A′ and Γ ∙ B ∙ C ⊢ s : A then Γ ∙ B ∙ C ⊢ t[s]↑² : A′
 
-_[⟨_,_⟩] : (t : Term (1+ n)) (s s′ : Term (1+ (1+ n))) → Term (1+ (1+ n))
-t [⟨ s , s′ ⟩] = subst (consSubst (wk1Subst (wk1Subst idSubst)) (prod s s′)) t
+_[_]↑² : (t : Term (1+ n)) (s : Term (1+ (1+ n))) → Term (1+ (1+ n))
+t [ s ]↑² = subst (consSubst (wk1Subst (wk1Subst idSubst)) s) t
 
 
 B-subst : (σ : Subst m n) (W : BindingType) (F : Term n) (G : Term (1+ n))

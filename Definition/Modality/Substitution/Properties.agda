@@ -19,7 +19,7 @@ open import Definition.Untyped M as U hiding (ε ; _∙_)
 
 open import Tools.Fin
 open import Tools.Nat hiding (_+_)
-open import Tools.Product
+open import Tools.Product hiding (_,_)
 open import Tools.PropositionalEquality as PE
 
 open Modality 𝕄
@@ -456,7 +456,8 @@ sgSubstₘ-lemma {γ = γ} {p} {δ = δ} γ▸t δ▸u = sub
 -- If γ ∙ q ∙ p ▸ t and δ ▸ u and η ▸ u′, then (γ +ᶜ pδ +ᶜ qη) ▸ t[u][u′].
 -- Follows from the substitution lemma.
 
-doubleSubstₘ-lemma : γ ∙ q ∙ p ▸ t → δ ▸ u → η ▸ u′ → (γ +ᶜ p ·ᶜ δ +ᶜ q ·ᶜ η) ▸ t [ u ][ u′ ]
+doubleSubstₘ-lemma : γ ∙ q ∙ p ▸ t → δ ▸ u → η ▸ u′
+                   → (γ +ᶜ p ·ᶜ δ +ᶜ q ·ᶜ η) ▸ t [ u′ , u ]
 doubleSubstₘ-lemma {γ = γ} {q} {p} {δ = δ} {η = η} γ▸t δ▸u η▸u′ = sub
   (substₘ-lemma (consSubstₘ (sgSubstₘ _) _) _
                 (wf-consSubstₘ (wf-sgSubstₘ η▸u′) δ▸u) γ▸t)

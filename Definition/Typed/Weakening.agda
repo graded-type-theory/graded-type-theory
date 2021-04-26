@@ -4,7 +4,7 @@ module Definition.Typed.Weakening (M : Set) where
 
 open import Definition.Untyped M as U hiding (wk ; _∷_)
 open import Definition.Untyped.Properties M
-open import Definition.Typed M
+open import Definition.Typed M hiding (_,_)
 open import Definition.Typed.Properties M
 
 open import Tools.Nat
@@ -289,7 +289,7 @@ mutual
         ρF = wk (lift [ρ]) (⊢Δ ∙ (ℕⱼ ⊢Δ)) ⊢F
         ρz = PE.subst (λ x → _ ⊢ _ ∷ x) (wk-β F) (wkTerm [ρ] ⊢Δ ⊢z)
     in  PE.subst (λ x → _ ⊢ natrec _ _ (U.wk (lift ρ) F) _ _ _
-                          ≡ U.wk ρ (s [ natrec p r F z s n ][ n ]) ∷ x)
+                          ≡ U.wk ρ (s [ n , natrec p r F z s n ]) ∷ x)
              (PE.sym (wk-β F))
              (PE.subst (λ x → Δ ⊢ natrec _ _ _ _ _ _ ≡ x ∷ _)
                        (PE.sym (wk-β-doubleSubst ρ s (natrec p r F z s n) n))
@@ -409,7 +409,7 @@ mutual
     let ρn = wkTerm [ρ] ⊢Δ ⊢n
         ρF = wk (lift [ρ]) (⊢Δ ∙ (ℕⱼ ⊢Δ)) ⊢F
         ρz = PE.subst (λ x → _ ⊢ _ ∷ x) (wk-β F) (wkTerm [ρ] ⊢Δ ⊢z)
-        ρs = U.wk ρ (s [ natrec p r F z s n ][ n ])
+        ρs = U.wk ρ (s [ n , natrec p r F z s n ])
     in  PE.subst (λ x → _ ⊢ natrec _ _ (U.wk (lift ρ) F) _ _ _ ⇒ ρs ∷ x)
              (PE.sym (wk-β F))
              (PE.subst (λ x → _ ⊢ natrec _ _ _ _ _ _ ⇒ x ∷ _)

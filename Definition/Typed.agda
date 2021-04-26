@@ -6,7 +6,7 @@ open import Definition.Untyped M hiding (_∷_)
 
 open import Tools.Fin
 open import Tools.Nat
-open import Tools.Product
+open import Tools.Product hiding (_,_)
 import Tools.PropositionalEquality as PE
 
 -- open Modality 𝕄
@@ -106,7 +106,7 @@ mutual
               → Γ ∙ F ⊢ G
               → Γ ⊢ t ∷ Σ q ▷ F ▹ G
               → Γ ∙ (Σ q ▷ F ▹ G) ⊢ A
-              → Γ ∙ F ∙ G ⊢ u ∷ A [⟨ var (x0 +1) , var x0 ⟩]
+              → Γ ∙ F ∙ G ⊢ u ∷ A [ prod (var (x0 +1)) (var x0) ]↑²
               → Γ ⊢ prodrec p A t u ∷ A [ t ]
 
     zeroⱼ     : ⊢ Γ
@@ -234,7 +234,7 @@ mutual
                   → Γ ∙ F ⊢ G
                   → Γ ∙ (Σ q ▷ F ▹ G) ⊢ A ≡ A′
                   → Γ ⊢ t ≡ t′ ∷ Σ q ▷ F ▹ G
-                  → Γ ∙ F ∙ G ⊢ u ≡ u′ ∷ A [⟨ var (x0 +1) , var x0 ⟩]
+                  → Γ ∙ F ∙ G ⊢ u ≡ u′ ∷ A [ prod (var (x0 +1)) (var x0) ]↑²
                   → Γ ⊢ (prodrec p A t u) ≡ (prodrec p A t′ u′) ∷ A [ t ]
     prodrec-β     : ∀ {t t′ u F G A}
                   → Γ ⊢ F
@@ -242,9 +242,9 @@ mutual
                   → Γ ∙ (Σ q ▷ F ▹ G) ⊢ A
                   → Γ ⊢ t ∷ F
                   → Γ ⊢ t′ ∷ G [ t ]
-                  → Γ ∙ F ∙ G ⊢ u ∷ A [⟨ var (x0 +1) , var x0 ⟩]
+                  → Γ ∙ F ∙ G ⊢ u ∷ A [ prod (var (x0 +1)) (var x0) ]↑²
                   → Γ ⊢ (prodrec p A (prod t t′) u) ≡
-                        u [ t′ ][ t ] ∷ A [ prod t t′ ]
+                        u [ t , t′ ] ∷ A [ prod t t′ ]
     suc-cong      : ∀ {m n}
                   → Γ ⊢ m ≡ n ∷ ℕ
                   → Γ ⊢ suc m ≡ suc n ∷ ℕ
@@ -265,7 +265,7 @@ mutual
                   → Γ ∙ ℕ ⊢ F
                   → Γ     ⊢ z ∷ F [ zero ]
                   → Γ ∙ ℕ ∙ F ⊢ s ∷ wk1 (F [ suc (var x0) ]↑)
-                  → Γ     ⊢ natrec p r F z s (suc n) ≡ s [ natrec p r F z s n ][ n ]
+                  → Γ     ⊢ natrec p r F z s (suc n) ≡ s [ n , natrec p r F z s n ]
                                         ∷ F [ suc n ]
     Emptyrec-cong : ∀ {A A' e e'}
                   → Γ ⊢ A ≡ A'
@@ -320,7 +320,7 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set wher
   prodrec-subst  : ∀ {t t′ F G A}
                  → Γ ⊢ F
                  → Γ ∙ F ⊢ G
-                 → Γ ∙ F ∙ G ⊢ u ∷ A [⟨ var (x0 +1) , var x0 ⟩]
+                 → Γ ∙ F ∙ G ⊢ u ∷ A [ prod (var (x0 +1)) (var x0) ]↑²
                  → Γ ∙ (Σ p ▷ F ▹ G) ⊢ A
                  → Γ ⊢ t ⇒ t′ ∷ Σ p ▷ F ▹ G
                  → Γ ⊢ prodrec p A t u ⇒ prodrec p A t′ u ∷ A [ t ]
@@ -330,9 +330,9 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set wher
                  → Γ ⊢ t ∷ F
                  → Γ ⊢ t′ ∷ G [ t ]
                  → Γ ∙ (Σ p ▷ F ▹ G) ⊢ A
-                 → Γ ∙ F ∙ G ⊢ u ∷ A [⟨ var (x0 +1) , var x0 ⟩]
+                 → Γ ∙ F ∙ G ⊢ u ∷ A [ prod (var (x0 +1)) (var x0) ]↑²
                  → Γ ⊢ prodrec p A (prod t t′) u ⇒
-                       u [ t′ ][ t ] ∷ A [ prod t t′ ]
+                       u [ t , t′ ] ∷ A [ prod t t′ ]
 
   natrec-subst   : ∀ {z s n n′ F}
                  → Γ ∙ ℕ     ⊢ F
@@ -351,7 +351,7 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set wher
                  → Γ         ⊢ z ∷ F [ zero ]
                  → Γ ∙ ℕ ∙ F ⊢ s ∷ wk1 (F [ suc (var x0) ]↑)
                  → Γ         ⊢ natrec p r F z s (suc n) ⇒
-                               s [ natrec p r F z s n ][ n ] ∷ F [ suc n ]
+                               s [ n , natrec p r F z s n ] ∷ F [ suc n ]
   Emptyrec-subst : ∀ {n n′ A}
                  → Γ ⊢ A
                  → Γ     ⊢ n ⇒ n′ ∷ Empty

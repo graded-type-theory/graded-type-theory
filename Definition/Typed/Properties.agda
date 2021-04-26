@@ -302,14 +302,14 @@ UnotInA[t] () x₁ (natrecⱼ x₂ x₃ x₄ x₅)
 UnotInA[t] () x₁ (Emptyrecⱼ x₂ x₃)
 UnotInA[t] x x₁ (conv x₂ x₃) = UnotInA[t] x x₁ x₂
 
-UnotInA[t][u] : t [ u′ ][ u ] PE.≡ U
+UnotInA[t,u] : subst (consSubst (consSubst idSubst u) u′) t PE.≡ U
               → Γ ⊢ u ∷ A
               → Γ ⊢ u′ ∷ B [ a ]
               → Γ ∙ A ∙ B ⊢ t ∷ C
               → ⊥
-UnotInA[t][u] PE.refl u u′ (var x here) = UnotInA u′
-UnotInA[t][u] PE.refl u u′ (var x (there here)) = UnotInA u --u′
-UnotInA[t][u] eq u u′ (conv t x) = UnotInA[t][u] eq u u′ t
+UnotInA[t,u] PE.refl u u′ (var x here) = UnotInA u′
+UnotInA[t,u] PE.refl u u′ (var x (there here)) = UnotInA u
+UnotInA[t,u] eq u u′ (conv t x) = UnotInA[t,u] eq u u′ t
 
 
 redU*Term′ : U′ PE.≡ U → Γ ⊢ A ⇒ U′ ∷ B → ⊥
@@ -318,11 +318,11 @@ redU*Term′ () (app-subst A⇒U x)
 redU*Term′ U′≡U (β-red x x₁ x₂ p≡q) = UnotInA[t] U′≡U x₂ x₁
 redU*Term′ () (natrec-subst x x₁ x₂ A⇒U)
 redU*Term′ PE.refl (natrec-zero x x₁ x₂) = UnotInA x₁
-redU*Term′ U′≡U (natrec-suc x x₁ x₂ x₃) = UnotInA[t][u] U′≡U x (natrecⱼ x₁ x₂ x₃ x) x₃
+redU*Term′ U′≡U (natrec-suc x x₁ x₂ x₃) = UnotInA[t,u] U′≡U x (natrecⱼ x₁ x₂ x₃ x) x₃
 redU*Term′ () (Emptyrec-subst x A⇒U)
 redU*Term′ PE.refl (Σ-β₁ F G x x₁) = UnotInA x
 redU*Term′ PE.refl (Σ-β₂ F G x x₁) = UnotInA x₁
-redU*Term′ U′≡U (prodrec-β {p = p} x x₁ x₂ x₃ x₄ x₅) = UnotInA[t][u] U′≡U x₂ x₃ x₅
+redU*Term′ U′≡U (prodrec-β {p = p} x x₁ x₂ x₃ x₄ x₅) = UnotInA[t,u] U′≡U x₂ x₃ x₅
 
 redU*Term : Γ ⊢ A ⇒* U ∷ B → ⊥
 redU*Term (id x) = UnotInA x
