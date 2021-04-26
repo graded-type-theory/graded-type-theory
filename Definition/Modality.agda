@@ -23,7 +23,7 @@ record Modality : Set where
     _∧_ : Op₂ M -- Meet
 
     -- ... one natural number-indexed tertiary operator...
-    nrⁿ : Nat → Op₃ M
+    -- nrⁿ : Nat → Op₃ M
 
     -- ... and two special elements
     𝟘 : M
@@ -41,16 +41,15 @@ record Modality : Set where
   _≤_ : Rel M ℓ₀
   p ≤ q = p ≈ (p ∧ q)
 
+  -- Iteratively defined tertiary operator
+  nrⁿ : Nat → Op₃ M
+  nrⁿ n p q r = fold 𝟘 (λ x → p ∧ (q + (r · x))) n
+
   field
     -- 𝟘 is zero for multiplication
     ·-zero              : Zero 𝟘 _·_
     -- The semiring is positive
     +-positive          : (p q : M) → 𝟘 ≤ (p + q) → 𝟘 ≤ p × 𝟘 ≤ q
-
-    -- nr is a solution to the following recurrence relation
-    nrⁿ-rec : (n : Nat) (p q r : M) → nrⁿ (1+ n) p q r ≈ p ∧ (q + r · nrⁿ n p q r)
-    -- The base case value of nrᶜ is 𝟘
-    nrⁿ-0 : (p q r : M) → nrⁿ 0 p q r ≈ 𝟘
     -- nrⁿ has a fixpoint
     nrⁿ-fix : ∃ (λ n → ∀ (p q r : M) → nrⁿ (1+ n) p q r ≈ nrⁿ n p q r)
 

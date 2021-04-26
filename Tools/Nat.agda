@@ -13,6 +13,7 @@ open import Tools.Bool
 open import Agda.Builtin.Nat using (zero; suc)
 open import Data.Nat using (_≤?_; _+_; _∸_) renaming (ℕ to Nat) public
 open import Data.Nat.Show using (show) public
+open import Data.Nat.GeneralisedArithmetic using (fold) public
 
 pattern 1+ n = suc n
 
