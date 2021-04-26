@@ -2,26 +2,26 @@
 
 open import Definition.Typed.EqualityRelation
 
-module Definition.LogicalRelation.Substitution.Introductions.Prod {{eqrel : EqRelSet}} where
+module Definition.LogicalRelation.Substitution.Introductions.Prod (M : Set) {{eqrel : EqRelSet M}} where
 open EqRelSet {{...}}
 
-open import Definition.Untyped as U hiding (wk ; _∷_)
-open import Definition.Untyped.Properties
-open import Definition.Typed
-open import Definition.Typed.Properties
-open import Definition.Typed.Weakening as T hiding (wk; wkTerm; wkEqTerm)
-open import Definition.Typed.RedSteps
-open import Definition.LogicalRelation
-open import Definition.LogicalRelation.ShapeView
-open import Definition.LogicalRelation.Irrelevance
-open import Definition.LogicalRelation.Weakening
-open import Definition.LogicalRelation.Properties
-open import Definition.LogicalRelation.Application
-open import Definition.LogicalRelation.Substitution
-open import Definition.LogicalRelation.Substitution.Properties
-open import Definition.LogicalRelation.Substitution.Reflexivity
-open import Definition.LogicalRelation.Substitution.Introductions.Pi
-open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst
+open import Definition.Untyped M as U hiding (wk ; _∷_)
+open import Definition.Untyped.Properties M
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.Typed.Weakening M as T hiding (wk; wkTerm; wkEqTerm)
+open import Definition.Typed.RedSteps M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.ShapeView M
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.Weakening M
+open import Definition.LogicalRelation.Properties M
+open import Definition.LogicalRelation.Application M
+open import Definition.LogicalRelation.Substitution M
+open import Definition.LogicalRelation.Substitution.Properties M
+open import Definition.LogicalRelation.Substitution.Reflexivity M
+open import Definition.LogicalRelation.Substitution.Introductions.Pi M
+open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst M
 
 open import Tools.Nat
 open import Tools.Product
@@ -30,12 +30,11 @@ import Tools.PropositionalEquality as PE
 private
   variable
     n : Nat
-    M : Set
     q : M
-    Γ : Con (Term M) n
-    F : Term M n
+    Γ : Con Term n
+    F : Term n
 
-prod′ : ∀ {Γ : Con (Term M) n} {F : Term M n} {G t u l l′ l″}
+prod′ : ∀ {Γ : Con Term n} {F : Term n} {G t u l l′ l″}
        ([F] : Γ ⊩⟨ l ⟩ F)
        ([t] : Γ ⊩⟨ l ⟩ t ∷ F / [F])
        ([Gt] : Γ ⊩⟨ l″ ⟩ G [ t ])
@@ -94,7 +93,7 @@ prod′ {q = q} {Γ = Γ} {F} {G} {t} {u} {l} {l′} {l″} [F] [t] [Gt] [u]
 prod′ {Γ = Γ} {F} {G} {t} {u} {l} {l′} [F] [t] [Gt] [u]
       [ΣFG]@(emb 0<1 x) = prod′ [F] [t] [Gt] [u] x
 
-prod″ : ∀ {Γ : Con (Term M) n} {F : Term M n} {G t u l l′}
+prod″ : ∀ {Γ : Con Term n} {F : Term n} {G t u l l′}
        ([F] : Γ ⊩⟨ l ⟩ F)
        ([t] : Γ ⊩⟨ l ⟩ t ∷ F / [F])
        ([Gt] : Γ ⊩⟨ l ⟩ G [ t ])
@@ -105,7 +104,7 @@ prod″ [F] [t] [Gt] [u] [ΣFG] =
       let [prod] = prod′ [F] [t] [Gt] [u] (B-elim BΣ! [ΣFG])
       in  irrelevanceTerm (B-intr BΣ! (B-elim BΣ! [ΣFG])) [ΣFG] [prod]
 
-prod-cong′ : ∀ {Γ : Con (Term M) n} {F : Term M n} {G t t′ u u′ l l′}
+prod-cong′ : ∀ {Γ : Con Term n} {F : Term n} {G t t′ u u′ l l′}
              ([F] : Γ ⊩⟨ l ⟩ F)
              ([t] : Γ ⊩⟨ l ⟩ t ∷ F / [F])
              ([t′] : Γ ⊩⟨ l ⟩ t′ ∷ F / [F])
@@ -233,7 +232,7 @@ prod-cong′ {q = q} {Γ = Γ} {F} {G} {t} {t′} {u} {u′} {l} {l′}
 prod-cong′ [F] [t] [t′] [t≡t′] [Gt] [u] [u′] [u≡u′] (emb 0<1 x) =
   prod-cong′ [F] [t] [t′] [t≡t′] [Gt] [u] [u′] [u≡u′] x
 
-prod-cong″ : ∀ {Γ : Con (Term M) n} {F : Term M n} {G t t′ u u′ l l′}
+prod-cong″ : ∀ {Γ : Con Term n} {F : Term n} {G t t′ u u′ l l′}
              ([F] : Γ ⊩⟨ l ⟩ F)
              ([t] : Γ ⊩⟨ l ⟩ t ∷ F / [F])
              ([t′] : Γ ⊩⟨ l ⟩ t′ ∷ F / [F])
@@ -248,7 +247,7 @@ prod-cong″ [F] [t] [t′] [t≡t′] [Gt] [u] [u′] [u≡u′] [ΣFG] =
   let [prod≡] = prod-cong′ [F] [t] [t′] [t≡t′] [Gt] [u] [u′] [u≡u′] (B-elim BΣ! [ΣFG])
   in  irrelevanceEqTerm (B-intr BΣ! (B-elim BΣ! [ΣFG])) [ΣFG] [prod≡]
 
-prod-congᵛ : ∀ {Γ : Con (Term M) n} {F : Term M n} {G t t′ u u′ l}
+prod-congᵛ : ∀ {Γ : Con Term n} {F : Term n} {G t t′ u u′ l}
              ([Γ] : ⊩ᵛ Γ)
              ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
              ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
@@ -291,7 +290,7 @@ prod-congᵛ {Γ = Γ} {F} {G} {t} {t′} {u} {u′} [Γ] [F] [G] [t] [t′] [t�
       ⊩σΣFG = proj₁ (Σᵛ {F = F} {G} [Γ] [F] [G] ⊢Δ [σ])
   in prod-cong″ ⊩σF ⊩σt ⊩σt′ σt≡σt′ ⊩σGt ⊩σu ⊩σu′ σu≡σu′ ⊩σΣFG
 
-prodᵛ : ∀ {Γ : Con (Term M) n} {F : Term M n} {G t u l}
+prodᵛ : ∀ {Γ : Con Term n} {F : Term n} {G t u l}
        ([Γ] : ⊩ᵛ Γ)
        ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
        ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])

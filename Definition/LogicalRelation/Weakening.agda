@@ -2,28 +2,28 @@
 
 open import Definition.Typed.EqualityRelation
 
-module Definition.LogicalRelation.Weakening {{eqrel : EqRelSet}} where
+module Definition.LogicalRelation.Weakening (M : Set) {{eqrel : EqRelSet M}} where
 open EqRelSet {{...}}
 
-open import Definition.Untyped as U hiding (wk ; _∷_)
-open import Definition.Untyped.Properties
-open import Definition.Typed
-open import Definition.Typed.Properties
-open import Definition.Typed.Weakening as T hiding (wk; wkEq; wkTerm; wkEqTerm)
-open import Definition.LogicalRelation
-open import Definition.LogicalRelation.Irrelevance
+open import Definition.Untyped M as U hiding (wk ; _∷_)
+open import Definition.Untyped.Properties M
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.Typed.Weakening M as T hiding (wk; wkEq; wkTerm; wkEqTerm)
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.Irrelevance M
 
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Reasoning.PropositionalEquality
 
 private
   variable
     m n : Nat
-    M : Set
     ρ : Wk m n
-    Δ : Con (Term M) m
-    Γ : Con (Term M) n
+    Δ : Con Term m
+    Γ : Con Term n
 
 -- Weakening of neutrals in WHNF
 
@@ -105,7 +105,7 @@ wkEqTermUnit {ρ = ρ} [ρ] ⊢Δ (Unitₜ₌ ⊢t ⊢u) =
 
 -- Weakening of the logical relation
 
-wk : ∀ {m} {ρ : Wk m n} {Γ : Con (Term M) n} {Δ A l} → ρ ∷ Δ ⊆ Γ → ⊢ Δ → Γ ⊩⟨ l ⟩ A → Δ ⊩⟨ l ⟩ U.wk ρ A
+wk : ∀ {m} {ρ : Wk m n} {Γ : Con Term n} {Δ A l} → ρ ∷ Δ ⊆ Γ → ⊢ Δ → Γ ⊩⟨ l ⟩ A → Δ ⊩⟨ l ⟩ U.wk ρ A
 wk ρ ⊢Δ (Uᵣ′ l′ l< ⊢Γ) = Uᵣ′ l′ l< ⊢Δ
 wk ρ ⊢Δ (ℕᵣ D) = ℕᵣ (wkRed:*: ρ ⊢Δ D)
 wk ρ ⊢Δ (Emptyᵣ D) = Emptyᵣ (wkRed:*: ρ ⊢Δ D)
@@ -287,13 +287,13 @@ wkTerm {ρ = ρ} [ρ] ⊢Δ [A]@(Σᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
   let [ρF] = irrelevance′ (PE.sym (wk-comp id ρ F)) ([F] [ρ] (wf (T.wk [ρ] ⊢Δ ⊢F)))
       [ρfst] = wkTerm [ρ] ⊢Δ ([F] id (wf ⊢F)) [fst]
       [ρfst]′ = (irrelevanceTerm′
-                  (PE.begin
+                  (begin
                     U.wk ρ (U.wk id F)
-                  PE.≡⟨ PE.cong (U.wk ρ) (wk-id F) ⟩
+                  ≡⟨ PE.cong (U.wk ρ) (wk-id F) ⟩
                     U.wk ρ F
-                  PE.≡⟨ PE.sym (wk-id (U.wk ρ F)) ⟩
+                  ≡⟨ PE.sym (wk-id (U.wk ρ F)) ⟩
                     U.wk id (U.wk ρ F)
-                  PE.∎)
+                  ∎)
                   (wk [ρ] ⊢Δ ([F] id (wf ⊢F)))
                   [ρF]
                   [ρfst])
@@ -305,15 +305,15 @@ wkTerm {ρ = ρ} [ρ] ⊢Δ [A]@(Σᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
          ([F] [ρ] (wf (T.wk [ρ] ⊢Δ ⊢F)))
          [ρfst]′)))
       [ρsnd]′ = irrelevanceTerm′
-                  (PE.begin
+                  (begin
                     U.wk ρ (U.wk (lift id) G [ fst p ])
-                  PE.≡⟨ PE.cong (λ x → U.wk ρ (x [ fst p ])) (wk-lift-id G) ⟩
+                  ≡⟨ PE.cong (λ x → U.wk ρ (x [ fst p ])) (wk-lift-id G) ⟩
                     U.wk ρ (G [ fst p ])
-                  PE.≡⟨ wk-β G ⟩
+                  ≡⟨ wk-β G ⟩
                     (U.wk (lift ρ) G) [ fst (U.wk ρ p) ]
-                  PE.≡⟨ PE.cong (λ x → x [ fst (U.wk ρ p) ]) (PE.sym (wk-lift-id (U.wk (lift ρ) G))) ⟩
+                  ≡⟨ PE.cong (λ x → x [ fst (U.wk ρ p) ]) (PE.sym (wk-lift-id (U.wk (lift ρ) G))) ⟩
                     (U.wk (lift id) (U.wk (lift ρ) G)) [ fst (U.wk ρ p) ]
-                  PE.∎)
+                  ∎)
                   (wk [ρ] ⊢Δ ([G] id (wf ⊢F) [fst])) [ρG]′
                   [ρsnd]
   in  Σₜ (U.wk ρ p) (wkRed:*:Term [ρ] ⊢Δ d) (wkProduct ρ pProd) (≅ₜ-wk [ρ] ⊢Δ p≅p)
@@ -356,13 +356,13 @@ wkEqTerm {ρ = ρ} [ρ] ⊢Δ [A]@(Σᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                     (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] [fstp] [fstr] [fst≡] [snd≡]) =
   let [A] = Σᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext
       ⊢Γ = wf ⊢F
-      ρidF≡idρF = PE.begin
+      ρidF≡idρF = begin
                     U.wk ρ (U.wk id F)
-                  PE.≡⟨ PE.cong (U.wk ρ) (wk-id F) ⟩
+                  ≡⟨ PE.cong (U.wk ρ) (wk-id F) ⟩
                     U.wk ρ F
-                  PE.≡⟨ PE.sym (wk-id (U.wk ρ F)) ⟩
+                  ≡⟨ PE.sym (wk-id (U.wk ρ F)) ⟩
                     U.wk id (U.wk ρ F)
-                  PE.∎
+                  ∎
       [ρF] = irrelevance′ (PE.sym (wk-comp id ρ F)) ([F] [ρ] (wf (T.wk [ρ] ⊢Δ ⊢F)))
       [ρfstp] = wkTerm [ρ] ⊢Δ ([F] id ⊢Γ) [fstp]
       [ρfstp]′ = irrelevanceTerm′
@@ -387,15 +387,15 @@ wkEqTerm {ρ = ρ} [ρ] ⊢Δ [A]@(Σᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
          ([F] [ρ] (wf (T.wk [ρ] ⊢Δ ⊢F)))
          [ρfstp]′)))
       [ρsnd≡]′ = irrelevanceEqTerm′
-                  (PE.begin
+                  (begin
                     U.wk ρ (U.wk (lift id) G [ fst p ])
-                  PE.≡⟨ PE.cong (λ x → U.wk ρ (x [ fst p ])) (wk-lift-id G) ⟩
+                  ≡⟨ PE.cong (λ x → U.wk ρ (x [ fst p ])) (wk-lift-id G) ⟩
                     U.wk ρ (G [ fst p ])
-                  PE.≡⟨ wk-β G ⟩
+                  ≡⟨ wk-β G ⟩
                     (U.wk (lift ρ) G) [ fst (U.wk ρ p) ]
-                  PE.≡⟨ PE.cong (λ x → x [ fst (U.wk ρ p) ]) (PE.sym (wk-lift-id (U.wk (lift ρ) G))) ⟩
+                  ≡⟨ PE.cong (λ x → x [ fst (U.wk ρ p) ]) (PE.sym (wk-lift-id (U.wk (lift ρ) G))) ⟩
                     (U.wk (lift id) (U.wk (lift ρ) G)) [ fst (U.wk ρ p) ]
-                  PE.∎)
+                  ∎)
                   (wk [ρ] ⊢Δ ([G] id (wf ⊢F) [fstp])) [ρG]′
                   [ρsnd≡]
   in  Σₜ₌ (U.wk ρ p) (U.wk ρ r) (wkRed:*:Term [ρ] ⊢Δ d) (wkRed:*:Term [ρ] ⊢Δ d′)

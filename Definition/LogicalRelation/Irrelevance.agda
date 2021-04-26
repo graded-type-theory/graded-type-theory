@@ -2,15 +2,15 @@
 
 open import Definition.Typed.EqualityRelation
 
-module Definition.LogicalRelation.Irrelevance {{eqrel : EqRelSet}} where
+module Definition.LogicalRelation.Irrelevance (M : Set) {{eqrel : EqRelSet M}} where
 open EqRelSet {{...}}
 
-open import Definition.Untyped hiding (_∷_)
-open import Definition.Typed
-import Definition.Typed.Weakening as Wk
-open import Definition.Typed.Properties
-open import Definition.LogicalRelation
-open import Definition.LogicalRelation.ShapeView
+open import Definition.Untyped M hiding (Wk; _∷_)
+open import Definition.Typed M
+import Definition.Typed.Weakening M as Wk
+open import Definition.Typed.Properties M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.ShapeView M
 
 open import Tools.Nat
 open import Tools.Product
@@ -19,8 +19,7 @@ import Tools.PropositionalEquality as PE
 private
   variable
     n : Nat
-    M : Set
-    Γ Γ′ : Con (Term M) n
+    Γ Γ′ : Con Term n
 
 -- Irrelevance for propositionally equal types
 irrelevance′ : ∀ {A A′ l}
@@ -164,7 +163,7 @@ mutual
                    (Σₜ p d pProd p≅p [fst] [snd]) =
     let ΣFG≡ΣF₁G₁   = whrDet* (red D , Σₙ) (red D₁ , Σₙ)
         F≡F₁ , G≡G₁ = B-PE-injectivity BΣ! BΣ! ΣFG≡ΣF₁G₁
-        [fst]′ = irrelevanceTerm′ (PE.cong (wk Wk.id) F≡F₁)
+        [fst]′ = irrelevanceTerm′ (PE.cong (wk id) F≡F₁)
           ([F] Wk.id (wf ⊢F)) ([F]₁ Wk.id (wf ⊢F₁))
           [fst]
         [snd]′ = irrelevanceTerm′ (PE.cong (λ x → wk (lift id) x [ fst p ]) G≡G₁)
@@ -233,13 +232,13 @@ mutual
         F≡F₁ , G≡G₁ = B-PE-injectivity BΣ! BΣ! ΣFG≡ΣF₁G₁
         [A]         = Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext
         [A]₁        = Bᵣ′ BΣ! F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁
-        [fstp]′ = irrelevanceTerm′ (PE.cong (wk Wk.id) F≡F₁)
+        [fstp]′ = irrelevanceTerm′ (PE.cong (wk id) F≡F₁)
           ([F] Wk.id (wf ⊢F)) ([F]₁ Wk.id (wf ⊢F₁))
           [fstp]
-        [fstr]′ = irrelevanceTerm′ (PE.cong (wk Wk.id) F≡F₁)
+        [fstr]′ = irrelevanceTerm′ (PE.cong (wk id) F≡F₁)
           ([F] Wk.id (wf ⊢F)) ([F]₁ Wk.id (wf ⊢F₁))
           [fstr]
-        [fst≡]′ = irrelevanceEqTerm′ (PE.cong (wk Wk.id) F≡F₁)
+        [fst≡]′ = irrelevanceEqTerm′ (PE.cong (wk id) F≡F₁)
           ([F] Wk.id (wf ⊢F)) ([F]₁ Wk.id (wf ⊢F₁))
           [fst≡]
         [snd≡]′ = irrelevanceEqTerm′ (PE.cong (λ x → wk (lift id) x [ fst p ]) G≡G₁)

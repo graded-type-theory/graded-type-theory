@@ -1,20 +1,19 @@
 {-# OPTIONS --without-K --safe #-}
 
-module Definition.Typed.Reduction where
+module Definition.Typed.Reduction (M : Set) where
 
-open import Definition.Untyped hiding (_∷_)
-open import Definition.Typed
-open import Definition.Typed.Properties
+open import Definition.Untyped M hiding (_∷_)
+open import Definition.Typed M
+open import Definition.Typed.Properties M
 
 open import Tools.Nat
 
 private
   variable
     n : Nat
-    M : Set
-    Γ : Con (Term M) n
-    A A′ B B′ : Term M n
-    a a′ b b′ : Term M n
+    Γ : Con Term n
+    A A′ B B′ : Term n
+    a a′ b b′ : Term n
 
 -- Weak head expansion of type equality
 reduction : Γ ⊢ A ⇒* A′

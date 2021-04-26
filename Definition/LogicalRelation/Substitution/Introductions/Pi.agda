@@ -2,24 +2,24 @@
 
 open import Definition.Typed.EqualityRelation
 
-module Definition.LogicalRelation.Substitution.Introductions.Pi {{eqrel : EqRelSet}} where
+module Definition.LogicalRelation.Substitution.Introductions.Pi (M : Set) {{eqrel : EqRelSet M}} where
 open EqRelSet {{...}}
 
-open import Definition.Untyped as U hiding (wk ; _∷_)
-open import Definition.Untyped.Properties
-open import Definition.Typed
-open import Definition.Typed.Weakening using (_∷_⊆_)
-open import Definition.Typed.Properties
-open import Definition.LogicalRelation
-open import Definition.LogicalRelation.ShapeView
-open import Definition.LogicalRelation.Weakening
-open import Definition.LogicalRelation.Irrelevance
-open import Definition.LogicalRelation.Properties
-open import Definition.LogicalRelation.Substitution
-open import Definition.LogicalRelation.Substitution.Weakening
-open import Definition.LogicalRelation.Substitution.Properties
-import Definition.LogicalRelation.Substitution.Irrelevance as S
-open import Definition.LogicalRelation.Substitution.Introductions.Universe
+open import Definition.Untyped M as U hiding (wk ; _∷_)
+open import Definition.Untyped.Properties M
+open import Definition.Typed M
+open import Definition.Typed.Weakening M using (_∷_⊆_)
+open import Definition.Typed.Properties M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.ShapeView M
+open import Definition.LogicalRelation.Weakening M
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.Properties M
+open import Definition.LogicalRelation.Substitution M
+open import Definition.LogicalRelation.Substitution.Weakening M
+open import Definition.LogicalRelation.Substitution.Properties M
+import Definition.LogicalRelation.Substitution.Irrelevance M as S
+open import Definition.LogicalRelation.Substitution.Introductions.Universe M
 
 open import Tools.Fin
 open import Tools.Nat
@@ -29,18 +29,17 @@ import Tools.PropositionalEquality as PE
 private
   variable
     n : Nat
-    M : Set
-    F : Term M n
-    G : Term M (1+ n)
-    Γ : Con (Term M) n
+    F : Term n
+    G : Term (1+ n)
+    Γ : Con Term n
 
 -- Validity of W.
-⟦_⟧ᵛ : ∀ W {n} {Γ : Con (Term M) n} {F G l}
+⟦_⟧ᵛ : ∀ W {n} {Γ : Con Term n} {F G l}
      ([Γ] : ⊩ᵛ Γ)
      ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
    → Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F]
    → Γ ⊩ᵛ⟨ l ⟩ ⟦ W ⟧ F ▹ G / [Γ]
-⟦_⟧ᵛ {M = M} W {n = n} {Γ} {F} {G} {l} [Γ] [F] [G] {k} {Δ = Δ} {σ = σ} ⊢Δ [σ] =
+⟦ W ⟧ᵛ {n = n} {Γ} {F} {G} {l} [Γ] [F] [G] {k} {Δ = Δ} {σ = σ} ⊢Δ [σ] =
   let [F]σ {σ′} [σ′] = [F] {σ = σ′} ⊢Δ [σ′]
       [σF] = proj₁ ([F]σ [σ])
       ⊢F {σ′} [σ′] = escape (proj₁ ([F]σ {σ′} [σ′]))
@@ -55,7 +54,7 @@ private
                 / proj₁ ([F] ⊢Δ₁ (wkSubstS [Γ] ⊢Δ ⊢Δ₁ [ρ] [σ])))
            → Σ (Δ₁ ⊩⟨ l ⟩ subst (consSubst (ρ •ₛ σ) a) G)
                (λ [Aσ] →
-               {σ′ : Subst M m (1+ n)} →
+               {σ′ : Subst m (1+ n)} →
                (Σ (Δ₁ ⊩ˢ tail σ′ ∷ Γ / [Γ] / ⊢Δ₁)
                (λ [tailσ] →
                   Δ₁ ⊩⟨ l ⟩ head σ′ ∷ subst (tail σ′) F / proj₁ ([F] ⊢Δ₁ [tailσ]))) →
@@ -236,7 +235,7 @@ W-congᵛ {Γ = Γ} {F} {G} {H} {E} {l} (BΣ q) [Γ] [F] [G] [H] [E] [F≡H] [G�
                                 ([G≡E] ⊢Δ₁ [aρσ]))
 
 -- Validity of ⟦ W ⟧ as a term.
-Wᵗᵛ : ∀ {Γ : Con (Term M) n} {F G} W ([Γ] : ⊩ᵛ_ {n = n} Γ)
+Wᵗᵛ : ∀ {Γ : Con Term n} {F G} W ([Γ] : ⊩ᵛ_ {n = n} Γ)
       ([F] : Γ ⊩ᵛ⟨ ¹ ⟩ F / [Γ])
       ([U] : Γ ∙ F ⊩ᵛ⟨ ¹ ⟩ U / [Γ] ∙ [F])
     → Γ ⊩ᵛ⟨ ¹ ⟩ F ∷ U / [Γ] / Uᵛ [Γ]
@@ -303,7 +302,7 @@ Wᵗᵛ {Γ = Γ} {F} {G} W [Γ] [F] [U] [Fₜ] [Gₜ] {Δ = Δ} {σ = σ} ⊢Δ
                  (proj₁ [ΠFG]) (proj₁ [ΠFG]′) (proj₂ [ΠFG] [σ′] [σ≡σ′]))
 
 -- Validity of W-congruence as a term equality.
-W-congᵗᵛ : ∀ {Γ : Con (Term M) n} {F G H E} W
+W-congᵗᵛ : ∀ {Γ : Con Term n} {F G H E} W
            ([Γ] : ⊩ᵛ_ {n = n} Γ)
            ([F] : Γ ⊩ᵛ⟨ ¹ ⟩ F / [Γ])
            ([H] : Γ ⊩ᵛ⟨ ¹ ⟩ H / [Γ])
@@ -389,38 +388,38 @@ nd-congᵛ {F = F} {F′} {G} {G′} W [Γ] [F] [F′] [F≡F′] [G] [G′] [G�
           [F≡F′] (wk1Eqᵛ {A = G} {G′} {F} [Γ] [F] [G] [G≡G′])
 
 -- Respecialized declarations at Π and Σ
-Πᵛ : ∀ {Γ : Con (Term M) n} {F G l p q} → _
+Πᵛ : ∀ {Γ : Con Term n} {F G l p q} → _
 Πᵛ {Γ = Γ} {F} {G} {l} {p} {q} = ⟦ BΠ p q ⟧ᵛ {Γ = Γ} {F} {G} {l}
 
-Π-congᵛ : ∀ {Γ : Con (Term M) n} {F G H E l p q} → _
+Π-congᵛ : ∀ {Γ : Con Term n} {F G H E l p q} → _
 Π-congᵛ {Γ = Γ} {F} {G} {H} {E} {l} {p} {q} = W-congᵛ {Γ = Γ} {F} {G} {H} {E} {l} (BΠ p q)
 
-Πᵗᵛ : ∀ {Γ : Con (Term M) n} {F G p q} → _
+Πᵗᵛ : ∀ {Γ : Con Term n} {F G p q} → _
 Πᵗᵛ {Γ = Γ} {F} {G} {p} {q} = Wᵗᵛ {Γ = Γ} {F} {G} (BΠ p q)
 
-Π-congᵗᵛ : ∀ {Γ : Con (Term M) n} {F G H E p q} → _
+Π-congᵗᵛ : ∀ {Γ : Con Term n} {F G H E p q} → _
 Π-congᵗᵛ  {Γ = Γ} {F} {G} {H} {E} {p} {q} = W-congᵗᵛ {Γ = Γ} {F} {G} {H} {E} (BΠ p q)
 
-▹▹ᵛ : ∀ {Γ : Con (Term M) n} {F G l p q} → _
+▹▹ᵛ : ∀ {Γ : Con Term n} {F G l p q} → _
 ▹▹ᵛ {Γ = Γ} {F} {G} {l} {p} {q} = ndᵛ {Γ = Γ} {F} {G} {l} (BΠ p q)
 
-▹▹-congᵛ : ∀ {Γ : Con (Term M) n} {F F′ G G′ l p q} → _
+▹▹-congᵛ : ∀ {Γ : Con Term n} {F F′ G G′ l p q} → _
 ▹▹-congᵛ {Γ = Γ} {F} {F′} {G} {G′} {l} {p} {q} = nd-congᵛ {Γ = Γ} {F} {F′} {G} {G′} {l} (BΠ p q)
 
-Σᵛ : ∀ {Γ : Con (Term M) n} {F G l q} → _
+Σᵛ : ∀ {Γ : Con Term n} {F G l q} → _
 Σᵛ {Γ = Γ} {F} {G} {l} {q} = ⟦ BΣ q ⟧ᵛ {Γ = Γ} {F} {G} {l}
 
-Σ-congᵛ : ∀ {Γ : Con (Term M) n} {F G H E l q} → _
+Σ-congᵛ : ∀ {Γ : Con Term n} {F G H E l q} → _
 Σ-congᵛ {Γ = Γ} {F} {G} {H} {E} {l} {q} = W-congᵛ {Γ = Γ} {F} {G} {H} {E} {l} (BΣ q)
 
-Σᵗᵛ : ∀ {Γ : Con (Term M) n} {F G q} → _
+Σᵗᵛ : ∀ {Γ : Con Term n} {F G q} → _
 Σᵗᵛ {Γ = Γ} {F} {G} {q} = Wᵗᵛ {Γ = Γ} {F} {G} (BΣ q)
 
-Σ-congᵗᵛ : ∀ {Γ : Con (Term M) n} {F G H E q} → _
+Σ-congᵗᵛ : ∀ {Γ : Con Term n} {F G H E q} → _
 Σ-congᵗᵛ {Γ = Γ} {F} {G} {H} {E} {q} = W-congᵗᵛ {Γ = Γ} {F} {G} {H} {E} (BΣ q)
 
-××ᵛ : ∀ {Γ : Con (Term M) n} {F G l q} → _
+××ᵛ : ∀ {Γ : Con Term n} {F G l q} → _
 ××ᵛ {Γ = Γ} {F} {G} {l} {q} = ndᵛ {Γ = Γ} {F} {G} {l} (BΣ q)
 
-××-congᵛ : ∀ {Γ : Con (Term M) n} {F F′ G G′ l q} → _
+××-congᵛ : ∀ {Γ : Con Term n} {F F′ G G′ l q} → _
 ××-congᵛ {Γ = Γ} {F} {F′} {G} {G′} {l} {q} = nd-congᵛ {Γ = Γ} {F} {F′} {G} {G′} {l} (BΣ q)

@@ -2,15 +2,15 @@
 
 open import Definition.Typed.EqualityRelation
 
-module Definition.LogicalRelation.ShapeView {{eqrel : EqRelSet}} where
+module Definition.LogicalRelation.ShapeView (M : Set) {{eqrel : EqRelSet M}} where
 open EqRelSet {{...}}
 
-open import Definition.Untyped
-open import Definition.Typed
-open import Definition.Typed.Properties
-open import Definition.LogicalRelation
-open import Definition.LogicalRelation.Properties.Escape
-open import Definition.LogicalRelation.Properties.Reflexivity
+open import Definition.Untyped M
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.Properties.Escape M
+open import Definition.LogicalRelation.Properties.Reflexivity M
 
 open import Tools.Nat
 open import Tools.Product
@@ -20,9 +20,8 @@ import Tools.PropositionalEquality as PE
 private
   variable
     n : Nat
-    M : Set
-    Γ : Con (Term M) n
-    A B : Term M n
+    Γ : Con Term n
+    A B : Term n
     p q : M
 
 -- Type for maybe embeddings of reducible types
@@ -32,22 +31,22 @@ data MaybeEmb (l : TypeLevel) (⊩⟨_⟩ : TypeLevel → Set) : Set where
 
 -- Specific reducible types with possible embedding
 
-_⊩⟨_⟩U : (Γ : Con (Term M) n) (l : TypeLevel) → Set
+_⊩⟨_⟩U : (Γ : Con Term n) (l : TypeLevel) → Set
 Γ ⊩⟨ l ⟩U = MaybeEmb l (λ l′ → Γ ⊩′⟨ l′ ⟩U)
 
-_⊩⟨_⟩ℕ_ : (Γ : Con (Term M) n) (l : TypeLevel) (A : Term M n) → Set
+_⊩⟨_⟩ℕ_ : (Γ : Con Term n) (l : TypeLevel) (A : Term n) → Set
 Γ ⊩⟨ l ⟩ℕ A = MaybeEmb l (λ l′ → Γ ⊩ℕ A)
 
-_⊩⟨_⟩Empty_ : (Γ : Con (Term M) n) (l : TypeLevel) (A : Term M n) → Set
+_⊩⟨_⟩Empty_ : (Γ : Con Term n) (l : TypeLevel) (A : Term n) → Set
 Γ ⊩⟨ l ⟩Empty A = MaybeEmb l (λ l′ → Γ ⊩Empty A)
 
-_⊩⟨_⟩Unit_ : (Γ : Con (Term M) n) (l : TypeLevel) (A : Term M n) → Set
+_⊩⟨_⟩Unit_ : (Γ : Con Term n) (l : TypeLevel) (A : Term n) → Set
 Γ ⊩⟨ l ⟩Unit A = MaybeEmb l (λ l′ → Γ ⊩Unit A)
 
-_⊩⟨_⟩ne_ : (Γ : Con (Term M) n) (l : TypeLevel) (A : Term M n) → Set
+_⊩⟨_⟩ne_ : (Γ : Con Term n) (l : TypeLevel) (A : Term n) → Set
 Γ ⊩⟨ l ⟩ne A = MaybeEmb l (λ l′ → Γ ⊩ne A)
 
-_⊩⟨_⟩B⟨_⟩_ : (Γ : Con (Term M) n) (l : TypeLevel) (W : BindingType M) (A : Term M n) → Set
+_⊩⟨_⟩B⟨_⟩_ : (Γ : Con Term n) (l : TypeLevel) (W : BindingType) (A : Term n) → Set
 Γ ⊩⟨ l ⟩B⟨ W ⟩ A = MaybeEmb l (λ l′ → Γ ⊩′⟨ l′ ⟩B⟨ W ⟩ A)
 
 -- Construct a general reducible type from a specific
@@ -205,7 +204,7 @@ extractMaybeEmb (noemb x) = _ , x
 extractMaybeEmb (emb 0<1 x) = extractMaybeEmb x
 
 -- A view for constructor equality of types where embeddings are ignored
-data ShapeView (Γ : Con (Term M) n) : ∀ l l′ A B (p : Γ ⊩⟨ l ⟩ A) (q : Γ ⊩⟨ l′ ⟩ B) → Set where
+data ShapeView (Γ : Con Term n) : ∀ l l′ A B (p : Γ ⊩⟨ l ⟩ A) (q : Γ ⊩⟨ l′ ⟩ B) → Set where
   Uᵥ : ∀ {l l′} UA UB → ShapeView Γ l l′ U U (Uᵣ UA) (Uᵣ UB)
   ℕᵥ : ∀ {A B l l′} ℕA ℕB → ShapeView Γ l l′ A B (ℕᵣ ℕA) (ℕᵣ ℕB)
   Emptyᵥ : ∀ {A B l l′} EmptyA EmptyB → ShapeView Γ l l′ A B (Emptyᵣ EmptyA) (Emptyᵣ EmptyB)
@@ -351,7 +350,7 @@ goodCasesRefl [A] [A′] = goodCases [A] [A′] (reflEq [A])
 
 
 -- A view for constructor equality between three types
-data ShapeView₃ (Γ : Con (Term M) n) : ∀ l l′ l″ A B C
+data ShapeView₃ (Γ : Con Term n) : ∀ l l′ l″ A B C
                  (p : Γ ⊩⟨ l   ⟩ A)
                  (q : Γ ⊩⟨ l′  ⟩ B)
                  (r : Γ ⊩⟨ l″ ⟩ C) → Set where

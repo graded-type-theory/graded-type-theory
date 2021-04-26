@@ -1,77 +1,84 @@
 {-#OPTIONS --without-K --safe #-}
-module Definition.Modality.Substitution where
 
-open import Definition.Untyped as U
-open import Definition.Untyped.Properties
+open import Tools.Relation
 open import Definition.Modality
-open import Definition.Modality.Context
-open import Definition.Modality.Context.Properties
-open import Definition.Modality.Properties
-open import Definition.Modality.Usage
+
+module Definition.Modality.Substitution
+  {M : Set} {_≈_ : Rel M _}
+  (𝕄 : Modality M _≈_)
+  where
+
+open import Definition.Untyped M
+  using (Subst ; tail ; head ; Wk ; id ; step ; lift)
+open import Definition.Untyped.Properties M
+open import Definition.Modality.Context 𝕄
+open import Definition.Modality.Context.Properties 𝕄
+open import Definition.Modality.Properties 𝕄
+open import Definition.Modality.Usage 𝕄
 
 open import Tools.Fin
 open import Tools.Nat
 open import Tools.Product
-open import Tools.PropositionalEquality as PE
 
-infix 28 _*>_
-infix 50 ∥_∥
+open Modality 𝕄
+
+infixr 50 _*>_
+infix  20 ∥_∥
+infixl 30 _⊙_
 
 private
   variable
-    M : Set
     ℓ m n : Nat
-    𝕄 : Modality M
 
 -- Substitutions are matrices represented as snoc-lists of modality contexts.
 
-data Substₘ (𝕄 : Modality M) : (m n : Nat) → Set where
-  ε   : Substₘ 𝕄 m 0
-  _∙_ : Substₘ 𝕄 m n →  Conₘ 𝕄 m → Substₘ 𝕄 m (1+ n)
+data Substₘ : (m n : Nat) → Set where
+  []  : Substₘ m 0
+  _⊙_ : Substₘ m n →  Conₘ m → Substₘ m (1+ n)
 
 private
   variable
-    Ψ Φ : Substₘ 𝕄 m n
+    Ψ Φ : Substₘ m n
 
 -- Application of substitution matrix from the left
 
-_*>_ : (Ψ : Substₘ 𝕄 m n) → (γ : Conₘ 𝕄 n) → Conₘ 𝕄 m
-ε *> ε = 𝟘ᶜ
-(Ψ ∙ δ) *> (γ ∙ p) = p ·ᶜ δ +ᶜ (Ψ *> γ)
+_*>_ : (Ψ : Substₘ m n) → (γ : Conₘ n) → Conₘ m
+[] *> ε = 𝟘ᶜ
+(Ψ ⊙ δ) *> (γ ∙ p) = p ·ᶜ δ +ᶜ (Ψ *> γ)
 
 substₘ = _*>_
 
 -- Application of substitution matrix from the right
 
-_<*_ : (γ : Conₘ 𝕄 m) → (Ψ : Substₘ 𝕄 m n) → Conₘ 𝕄 n
-γ <* ε = ε
-γ <* (Ψ ∙ δ) = (γ <* Ψ) ∙ (γ * δ)
+_<*_ : (γ : Conₘ m) → (Ψ : Substₘ m n) → Conₘ n
+γ <* [] = ε
+γ <* (Ψ ⊙ δ) = (γ <* Ψ) ∙ (γ * δ)
 
 -- Composition of substitution matrices
 
-_<*>_ : (Ψ : Substₘ 𝕄 m ℓ) (Φ : Substₘ 𝕄 ℓ n) → Substₘ 𝕄 m n
-Ψ <*> ε = ε
-Ψ <*> (Φ ∙ δ) = (Ψ <*> Φ) ∙ (Ψ *> δ)
+_<*>_ : (Ψ : Substₘ m ℓ) (Φ : Substₘ ℓ n) → Substₘ m n
+Ψ <*> [] = []
+Ψ <*> (Φ ⊙ δ) = (Ψ <*> Φ) ⊙ (Ψ *> δ)
 
 -- Prepend a substitution matrix with a row
 
-addrow : (Ψ : Substₘ 𝕄 m n) → (γ : Conₘ 𝕄 n) → Substₘ 𝕄 (1+ m) n
-addrow ε ε = ε
-addrow (Ψ ∙ δ) (γ ∙ p) = addrow Ψ γ ∙ (δ ∙ p)
+addrow : (Ψ : Substₘ m n) → (γ : Conₘ n) → Substₘ (1+ m) n
+addrow [] ε = []
+addrow (Ψ ⊙ δ) (γ ∙ p) = addrow Ψ γ ⊙ (δ ∙ p)
 
 ---------------------------------------------------------------
 
 -- Well formed modality substitutions
 -- If ∀ x. γₓ ▸ σ x, where γₓ is the x-th column vector of Ψ, then Ψ ▶ σ
 
-_▶_ : {𝕄 : Modality M} (Ψ : Substₘ 𝕄 m n) → (σ : Subst M m n) → Set
-_▶_ {n = n} {𝕄 = 𝕄} Ψ σ = ∀ (x : Fin n) → (Ψ *> (𝟘ᶜ , x ≔ (Modality.𝟙 𝕄))) ▸ (σ x)
+_▶_ : (Ψ : Substₘ m n) → (σ : Subst m n) → Set
+_▶_ {n = n} Ψ σ = ∀ (x : Fin n) → (Ψ *> (𝟘ᶜ , x ≔ 𝟙)) ▸ (σ x)
 
--- Substitution matrix calculation
+-- Substitution matrix inference
 
-∥_∥ : {𝕄 : Modality M} (σ : Subst M m n) → Substₘ 𝕄 m n
-∥_∥ {n = 0}    σ = ε
-∥_∥ {n = 1+ n} σ = ∥ tail σ ∥ ∙ ⌈ head σ ⌉
+∥_∥ : (σ : Subst m n) → Substₘ m n
+∥_∥ {n = 0}    σ = []
+∥_∥ {n = 1+ n} σ = ∥ tail σ ∥ ⊙ ⌈ head σ ⌉
 
 ---------------------------------------------------------------
 -- Modality substitutions corresponding to (term) weakenings --
@@ -79,24 +86,24 @@ _▶_ {n = n} {𝕄 = 𝕄} Ψ σ = ∀ (x : Fin n) → (Ψ *> (𝟘ᶜ , x ≔ 
 
 -- Single step weakening of a substitution matrix
 
-wk1Substₘ : Substₘ 𝕄 m n → Substₘ 𝕄 (1+ m) n
-wk1Substₘ ε = ε
-wk1Substₘ {𝕄 = 𝕄} (Ψ ∙ δ) = (wk1Substₘ Ψ) ∙ (δ ∙ Modality.𝟘 𝕄)
+wk1Substₘ : Substₘ m n → Substₘ (1+ m) n
+wk1Substₘ [] = []
+wk1Substₘ (Ψ ⊙ δ) = (wk1Substₘ Ψ) ⊙ (δ ∙ 𝟘)
 
 -- Lifting a substitution matrix
 
-liftSubstₘ : Substₘ 𝕄 m n → Substₘ 𝕄 (1+ m) (1+ n)
-liftSubstₘ {𝕄 = 𝕄} Ψ = (wk1Substₘ Ψ) ∙ (𝟘ᶜ , x0 ≔ Modality.𝟙 𝕄)
+liftSubstₘ : Substₘ m n → Substₘ (1+ m) (1+ n)
+liftSubstₘ Ψ = (wk1Substₘ Ψ) ⊙ (𝟘ᶜ , x0 ≔ 𝟙)
 
 -- Identity substitution matrix
 
-idSubstₘ : Substₘ 𝕄 n n
-idSubstₘ {n = Nat.zero} = ε
-idSubstₘ {𝕄 = 𝕄} {n = 1+ n} = liftSubstₘ idSubstₘ
+idSubstₘ : Substₘ n n
+idSubstₘ {n = 0} = []
+idSubstₘ {n = 1+ n} = liftSubstₘ idSubstₘ
 
 -- Substitution matrix from a weakening
 
-wkSubstₘ : (ρ : Wk m n) → Substₘ 𝕄 m n
+wkSubstₘ : (ρ : Wk m n) → Substₘ m n
 wkSubstₘ id       = idSubstₘ
 wkSubstₘ (step ρ) = wk1Substₘ (wkSubstₘ ρ)
 wkSubstₘ (lift ρ) = liftSubstₘ (wkSubstₘ ρ)
@@ -107,10 +114,10 @@ wkSubstₘ (lift ρ) = liftSubstₘ (wkSubstₘ ρ)
 
 -- Extend a  substitution matrix with a single term substitution
 
-consSubstₘ : (Ψ : Substₘ 𝕄 m n) → (γ : Conₘ 𝕄 m) → Substₘ 𝕄 m (1+ n)
-consSubstₘ = _∙_
+consSubstₘ : (Ψ : Substₘ m n) → (γ : Conₘ m) → Substₘ m (1+ n)
+consSubstₘ = _⊙_
 
 -- Single term substitution matrix
 
-sgSubstₘ : (γ : Conₘ 𝕄 n) → Substₘ 𝕄 n (1+ n)
+sgSubstₘ : (γ : Conₘ n) → Substₘ n (1+ n)
 sgSubstₘ = consSubstₘ idSubstₘ

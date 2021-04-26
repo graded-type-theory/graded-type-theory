@@ -2,24 +2,24 @@
 
 open import Definition.Typed.EqualityRelation
 
-module Definition.LogicalRelation.Substitution.Introductions.Lambda {{eqrel : EqRelSet}} where
+module Definition.LogicalRelation.Substitution.Introductions.Lambda (M : Set) {{eqrel : EqRelSet M}} where
 open EqRelSet {{...}}
 
-open import Definition.Untyped as U hiding (wk; _∷_)
-open import Definition.Untyped.Properties
-open import Definition.Typed
-open import Definition.Typed.Properties
-open import Definition.Typed.Weakening as T hiding (wk; wkTerm; wkEqTerm)
-open import Definition.Typed.RedSteps
-open import Definition.LogicalRelation
-open import Definition.LogicalRelation.ShapeView
-open import Definition.LogicalRelation.Irrelevance
-open import Definition.LogicalRelation.Weakening
-open import Definition.LogicalRelation.Properties
-open import Definition.LogicalRelation.Application
-open import Definition.LogicalRelation.Substitution
-open import Definition.LogicalRelation.Substitution.Properties
-open import Definition.LogicalRelation.Substitution.Introductions.Pi
+open import Definition.Untyped M as U hiding (wk; _∷_)
+open import Definition.Untyped.Properties M
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.Typed.Weakening M as T hiding (wk; wkTerm; wkEqTerm)
+open import Definition.Typed.RedSteps M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.ShapeView M
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.Weakening M
+open import Definition.LogicalRelation.Properties M
+open import Definition.LogicalRelation.Application M
+open import Definition.LogicalRelation.Substitution M
+open import Definition.LogicalRelation.Substitution.Properties M
+open import Definition.LogicalRelation.Substitution.Introductions.Pi M
 
 open import Tools.Fin
 open import Tools.Nat
@@ -28,10 +28,10 @@ import Tools.PropositionalEquality as PE
 
 private
   variable
-    n : Nat
-    M : Set
-    Γ Δ : Con (Term M) n
-    σ : Subst M n n
+    m n : Nat
+    Γ : Con Term n
+    Δ : Con Term m
+    σ : Subst m n
     p q : M
 
 -- Valid lambda term construction.
@@ -290,7 +290,7 @@ lamᵛ {Γ = Γ} {p = p} {q = q} {F = F} {G} {t} {l} [Γ] [F] [G] [t] {k} {Δ = 
 
 
 -- Reducibility of η-equality under a valid substitution.
-η-eqEqTerm : ∀ {mm nn} {σ : Subst M mm nn} {Γ Δ f g F G l}
+η-eqEqTerm : ∀ {m′ n′} {σ : Subst m′ n′} {Γ Δ f g F G l}
              ([Γ] : ⊩ᵛ Γ)
              ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
              ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
@@ -378,7 +378,7 @@ lamᵛ {Γ = Γ} {p = p} {q = q} {F = F} {G} {t} {l} [Γ] [F] [G] [t] {k} {Δ = 
                              (transEqTerm ([G]′ [ρ] ⊢Δ₁ [a]) f≡g [gu≡t′u]))
 
 -- Validity of η-equality.
-η-eqᵛ : ∀ {Γ : Con (Term M) n} {f g F G l}
+η-eqᵛ : ∀ {Γ : Con Term n} {f g F G l}
         ([Γ] : ⊩ᵛ Γ)
         ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
         ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])

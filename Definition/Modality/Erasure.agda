@@ -2,13 +2,15 @@
 
 module Definition.Modality.Erasure where
 
-open import Algebra
-open import Definition.Modality
 open import Tools.Product
 open import Tools.PropositionalEquality
 
 data Erasure : Set where
   𝟘 ω : Erasure
+
+open import Definition.Modality Erasure _≡_ public
+open import Tools.Algebra {A = Erasure} _≡_
+open import Tools.Nat hiding (_+_)
 
 _+_ : Op₂ Erasure
 x + 𝟘 = x
@@ -21,182 +23,201 @@ x · ω = x
 _∧_ : Op₂ Erasure
 _∧_ = _+_
 
-_* : Op₁ Erasure
-x * = ω
+nr : Op₃ Erasure
+nr 𝟘 q 𝟘 = q
+nr 𝟘 𝟘 ω = 𝟘
+nr 𝟘 ω ω = ω
+nr ω q r = ω
+
+nrⁿ : Nat → Op₃ Erasure
+nrⁿ Nat.zero p q r = 𝟘
+nrⁿ (1+ n) p q r = p ∧ (q + (r · (nrⁿ n p q r)))
+
+nr-fix₁ : (p q r : Erasure) → (p ∧ (q + (r · (p ∧ q)))) ≡ (p ∧ q)
+nr-fix₁ 𝟘 𝟘 𝟘 = refl
+nr-fix₁ 𝟘 𝟘 ω = refl
+nr-fix₁ 𝟘 ω 𝟘 = refl
+nr-fix₁ 𝟘 ω ω = refl
+nr-fix₁ ω 𝟘 𝟘 = refl
+nr-fix₁ ω 𝟘 ω = refl
+nr-fix₁ ω ω 𝟘 = refl
+nr-fix₁ ω ω ω = refl
+
+nr-fix : ∃ (λ n → (p q r : Erasure) → (p ∧ (q + (r · nrⁿ n p q r))) ≡ nrⁿ n p q r)
+nr-fix = 1 , nr-fix₁
 
 _≤_ : (p q : Erasure) → Set
 p ≤ q = p ≡ p ∧ q
 
 -- Properties of addition (and meet)
 
-+-Congruent : Congruent₂ _≡_ _+_
++-Congruent : Congruent₂ _+_
 +-Congruent refl refl = refl
 
-+-Commutative : Commutative _≡_ _+_
++-Commutative : Commutative _+_
 +-Commutative 𝟘 𝟘 = refl
 +-Commutative 𝟘 ω = refl
 +-Commutative ω 𝟘 = refl
 +-Commutative ω ω = refl
 
-+-Associative : Associative _≡_ _+_
++-Associative : Associative _+_
 +-Associative x y 𝟘 = refl
 +-Associative x y ω = refl
 
-+-Idempotent : Idempotent _≡_ _+_
++-Idempotent : Idempotent _+_
 +-Idempotent 𝟘 = refl
 +-Idempotent ω = refl
 
-+-LeftIdentity : LeftIdentity _≡_ 𝟘 _+_
++-LeftIdentity : LeftIdentity 𝟘 _+_
 +-LeftIdentity 𝟘 = refl
 +-LeftIdentity ω = refl
 
-+-RightIdentity : RightIdentity _≡_ 𝟘 _+_
++-RightIdentity : RightIdentity 𝟘 _+_
 +-RightIdentity x = refl
 
-+-Identity : Identity _≡_ 𝟘 _+_
++-Identity : Identity 𝟘 _+_
 +-Identity = +-LeftIdentity , +-RightIdentity
 
-+-Positive : (p q : Erasure) → 𝟘 ≤ (p + q) → 𝟘 ≤ p × 𝟘 ≤ q
-+-Positive 𝟘 𝟘 refl = refl , refl
-+-Positive 𝟘 ω ()
-+-Positive ω 𝟘 ()
-+-Positive ω ω ()
++-positive : (p q : Erasure) → 𝟘 ≤ (p + q) → 𝟘 ≤ p × 𝟘 ≤ q
++-positive 𝟘 𝟘 refl = refl , refl
++-positive 𝟘 ω ()
++-positive ω 𝟘 ()
++-positive ω ω ()
 
 
 -- Properties of multiplication
-·-Congruent : Congruent₂ _≡_ _·_
-·-Congruent refl refl = refl
+·-Congruent : Congruent₂ _·_
+·-Congruent = cong₂ _·_
 
-·-Associative : Associative _≡_ _·_
+·-Associative : Associative _·_
 ·-Associative x y 𝟘 = refl
 ·-Associative x y ω = refl
 
-·-LeftZero : LeftZero _≡_ 𝟘 _·_
+·-LeftZero : LeftZero 𝟘 _·_
 ·-LeftZero 𝟘 = refl
 ·-LeftZero ω = refl
 
-·-RightZero : RightZero _≡_ 𝟘 _·_
+·-RightZero : RightZero 𝟘 _·_
 ·-RightZero x = refl
 
-·-Zero : Zero _≡_ 𝟘 _·_
-·-Zero = ·-LeftZero , ·-RightZero
+·-zero : Zero 𝟘 _·_
+·-zero = ·-LeftZero , ·-RightZero
 
-·-LeftIdentity : LeftIdentity _≡_ ω _·_
+·-LeftIdentity : LeftIdentity ω _·_
 ·-LeftIdentity 𝟘 = refl
 ·-LeftIdentity ω = refl
 
-·-RightIdentity : RightIdentity _≡_ ω _·_
+·-RightIdentity : RightIdentity ω _·_
 ·-RightIdentity x = refl
 
-·-Identity : Identity _≡_ ω _·_
+·-Identity : Identity ω _·_
 ·-Identity = ·-LeftIdentity , ·-RightIdentity
 
 
 -- Distributive properties of addition, multiplication (and meet)
-·Distrˡ+ : _DistributesOverˡ_ _≡_ _·_ _+_
-·Distrˡ+ x y 𝟘 = refl
-·Distrˡ+ ω y ω = refl
-·Distrˡ+ 𝟘 𝟘 ω = refl
-·Distrˡ+ 𝟘 ω ω = refl
+·-distribˡ-+ : _·_ DistributesOverˡ _+_
+·-distribˡ-+ x y 𝟘 = refl
+·-distribˡ-+ ω y ω = refl
+·-distribˡ-+ 𝟘 𝟘 ω = refl
+·-distribˡ-+ 𝟘 ω ω = refl
 
-·Distrʳ+ : _DistributesOverʳ_ _≡_ _·_ _+_
-·Distrʳ+ 𝟘 y z = refl
-·Distrʳ+ ω y z = refl
+·-distribʳ-+ : _·_ DistributesOverʳ _+_
+·-distribʳ-+ 𝟘 y z = refl
+·-distribʳ-+ ω y z = refl
 
-·Distr+ : _DistributesOver_ _≡_ _·_ _+_
-·Distr+ = ·Distrˡ+ , ·Distrʳ+
+·-distrib-+ : _·_ DistributesOver _+_
+·-distrib-+ = ·-distribˡ-+ , ·-distribʳ-+
 
-+Distrˡ+ : _DistributesOverˡ_ _≡_ _+_ _+_
-+Distrˡ+ x y ω = refl
-+Distrˡ+ 𝟘 y 𝟘 = refl
-+Distrˡ+ ω 𝟘 𝟘 = refl
-+Distrˡ+ ω ω 𝟘 = refl
++-distribˡ-+ : _+_ DistributesOverˡ _+_
++-distribˡ-+ x y ω = refl
++-distribˡ-+ 𝟘 y 𝟘 = refl
++-distribˡ-+ ω 𝟘 𝟘 = refl
++-distribˡ-+ ω ω 𝟘 = refl
 
-+Distrʳ+ : _DistributesOverʳ_ _≡_ _+_ _+_
-+Distrʳ+ 𝟘 y z = refl
-+Distrʳ+ ω y z = refl
++-distribʳ-+ : _+_ DistributesOverʳ _+_
++-distribʳ-+ 𝟘 y z = refl
++-distribʳ-+ ω y z = refl
 
-+Distr+ : _DistributesOver_ _≡_ _+_ _+_
-+Distr+ = +Distrˡ+ , +Distrʳ+
-
-*-StarSemiring : (p : Erasure) → p * ≡ ω + (p · (p *))
-*-StarSemiring 𝟘 = refl
-*-StarSemiring ω = refl
-
-𝟘-max : (p : Erasure) → p ≡ p ∧ 𝟘
-𝟘-max 𝟘 = refl
-𝟘-max ω = refl
++-distrib-+ : _+_ DistributesOver _+_
++-distrib-+ = +-distribˡ-+ , +-distribʳ-+
 
 -- Addition (and meet) form the following algebras
-+-Magma : IsMagma _≡_ _+_
+
++-Magma : IsMagma _+_
 +-Magma = record
   { isEquivalence = isEquivalence
   ; ∙-cong        = +-Congruent
   }
 
-+-Semigroup : IsSemigroup _≡_ _+_
++-Semigroup : IsSemigroup _+_
 +-Semigroup = record
   { isMagma = +-Magma
   ; assoc   = +-Associative
   }
 
-+-Monoid : IsMonoid _≡_ _+_ 𝟘
++-Monoid : IsMonoid _+_ 𝟘
 +-Monoid = record
   { isSemigroup = +-Semigroup
   ; identity    = +-Identity
   }
 
-+-CommutativeMonoid : IsCommutativeMonoid _≡_ _+_ 𝟘
++-CommutativeMonoid : IsCommutativeMonoid _+_ 𝟘
 +-CommutativeMonoid = record
   { isMonoid = +-Monoid
   ; comm     = +-Commutative
   }
 
-+-Band : IsBand _≡_ _+_
++-Band : IsBand _+_
 +-Band = record
   { isSemigroup = +-Semigroup
   ; idem        = +-Idempotent
   }
 
-+-Semilattice : IsSemilattice _≡_ _+_
++-Semilattice : IsSemilattice _+_
 +-Semilattice = record
   { isBand = +-Band
   ; comm   = +-Commutative
   }
 
+
 -- Multiplication forms the following algebras
-·-Magma : IsMagma _≡_ _·_
+
+·-Magma : IsMagma _·_
 ·-Magma = record
   { isEquivalence = isEquivalence
   ; ∙-cong        = ·-Congruent
   }
 
-·-Semigroup : IsSemigroup _≡_ _·_
+·-Semigroup : IsSemigroup _·_
 ·-Semigroup = record
   { isMagma = ·-Magma
   ; assoc   = ·-Associative
   }
 
-·-Monoid : IsMonoid _≡_ _·_ ω
+·-Monoid : IsMonoid _·_ ω
 ·-Monoid = record
   { isSemigroup = ·-Semigroup
   ; identity    = ·-Identity
   }
 
-ErasureModality : Modality Erasure
+ErasureModality : Modality
 ErasureModality = record
-  { _+_                  = _+_
-  ; _·_                  = _·_
-  ; _∧_                  = _∧_
-  ; 𝟘                    = 𝟘
-  ; 𝟙                    = ω
-  ; +-CommutativeMonoid  = +-CommutativeMonoid
-  ; ·-Monoid             = ·-Monoid
-  ; ∧-Semilattice        = +-Semilattice
-  ; *-StarSemiring       = *-StarSemiring
-  ; ·-Zero               = ·-Zero
-  ; +-Positive           = +-Positive
-  ; ·Distr+              = ·Distr+
-  ; ·Distr∧              = ·Distr+
-  ; +Distr∧              = +Distr+
+  { _+_                 = _+_
+  ; _·_                 = _·_
+  ; _∧_                 = _∧_
+  ; nrⁿ                 = nrⁿ
+  ; 𝟘                   = 𝟘
+  ; 𝟙                   = ω
+  ; +-CommutativeMonoid = +-CommutativeMonoid
+  ; ·-Monoid            = ·-Monoid
+  ; ∧-Semilattice       = +-Semilattice
+  ; ·-zero              = ·-zero
+  ; +-positive          = +-positive
+  ; nrⁿ-rec             = λ n p q r → refl
+  ; nrⁿ-0               = λ p q r → refl
+  ; nrⁿ-fix             = nr-fix
+  ; ·-distrib-+         = ·-distrib-+
+  ; ·-distrib-∧         = ·-distrib-+
+  ; +-distrib-∧         = +-distrib-+
+  ; ≈-equivalence       = isEquivalence
   }

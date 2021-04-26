@@ -2,12 +2,12 @@
 
 open import Definition.Typed.EqualityRelation
 
-module Definition.LogicalRelation.Substitution.Reduction {{eqrel : EqRelSet}} where
+module Definition.LogicalRelation.Substitution.Reduction (M : Set) {{eqrel : EqRelSet M}} where
 open EqRelSet {{...}}
 
-open import Definition.LogicalRelation.Properties
-open import Definition.LogicalRelation.Substitution
-open import Definition.Untyped using (Con ; Term)
+open import Definition.LogicalRelation.Properties M
+open import Definition.LogicalRelation.Substitution M
+open import Definition.Untyped M using (Con ; Term)
 
 open import Tools.Nat
 open import Tools.Product
@@ -15,11 +15,10 @@ open import Tools.Product
 private
   variable
     n : Nat
-    M : Set
-    Γ : Con (Term M) n
+    Γ : Con Term n
 
 -- Weak head expansion of valid terms.
-redSubstTermᵛ : ∀ {M : Set} {Γ : Con (Term M) n} {A t u l} {p : M}
+redSubstTermᵛ : ∀ {Γ : Con Term n} {A t u l} {p : M}
               → ([Γ] : ⊩ᵛ Γ)
               → Γ ⊩ᵛ t ⇒ u ∷ A / [Γ]
               → ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ])

@@ -1,9 +1,9 @@
 {-#OPTIONS --safe --without-K #-}
 
-module Definition.Typed.Properties where
+module Definition.Typed.Properties (M : Set) where
 
-open import Definition.Untyped hiding (_∷_)
-open import Definition.Typed
+open import Definition.Untyped M hiding (_∷_)
+open import Definition.Typed M
 
 open import Tools.Empty using (⊥; ⊥-elim)
 open import Tools.Nat
@@ -13,10 +13,9 @@ import Tools.PropositionalEquality as PE
 private
   variable
     n : Nat
-    M : Set
-    Γ : Con (Term M) n
-    A A′ B B′ C U′ : Term M n
-    a b t u u′ : Term M n
+    Γ : Con Term n
+    A A′ B B′ C U′ : Term n
+    a b t u u′ : Term n
 
 -- Escape context extraction
 
@@ -117,7 +116,7 @@ subset* (A⇒A′ ⇨ A′⇒*B) = trans (subset A⇒A′) (subset* A′⇒*B)
 
 -- Can extract left-part of a reduction
 
-redFirstTerm : {p : M} {Γ : Con (Term M) n} → Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ∷ A
+redFirstTerm : {p : M} {Γ : Con Term n} → Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ∷ A
 redFirstTerm {p = p} (conv t⇒u A≡B) = conv (redFirstTerm {p = p} t⇒u) A≡B
 redFirstTerm {p = p} (app-subst t⇒u a) = (redFirstTerm {p = p} t⇒u) ∘ⱼ a
 redFirstTerm {p = q} (β-red {p} A t a PE.refl) = _∘ⱼ_ {p = p} {q = q} (lamⱼ {p = p} A t) a
@@ -132,14 +131,14 @@ redFirstTerm {p = p} (Σ-β₂ F G x x₁) = sndⱼ {q = p} F G (prodⱼ F G x x
 redFirstTerm {p = p} (prodrec-subst F G x A x₁) = prodrecⱼ F G (redFirstTerm {p = p} x₁) A x
 redFirstTerm {p = p} (prodrec-β F G t t' A u) =  prodrecⱼ F G (prodⱼ F G t t') A u
 
-redFirst : {p : M} {Γ : Con (Term M) n} → Γ ⊢ A ⇒ B → Γ ⊢ A
+redFirst : {p : M} {Γ : Con Term n} → Γ ⊢ A ⇒ B → Γ ⊢ A
 redFirst {p = p} (univ A⇒B) = univ (redFirstTerm {p = p} A⇒B)
 
-redFirst*Term : {p : M} {Γ : Con (Term M) n} → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t ∷ A
+redFirst*Term : {p : M} {Γ : Con Term n} → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t ∷ A
 redFirst*Term (id t) = t
 redFirst*Term {p = p} (t⇒t′ ⇨ t′⇒*u) = redFirstTerm {p = p} t⇒t′
 
-redFirst* : {p : M} {Γ : Con (Term M) n} → Γ ⊢ A ⇒* B → Γ ⊢ A
+redFirst* : {p : M} {Γ : Con Term n} → Γ ⊢ A ⇒* B → Γ ⊢ A
 redFirst* (id A) = A
 redFirst* {p = p} (A⇒A′ ⇨ A′⇒*B) = redFirst {p = p} A⇒A′
 

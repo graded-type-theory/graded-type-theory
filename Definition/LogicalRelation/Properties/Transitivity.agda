@@ -2,18 +2,18 @@
 
 open import Definition.Typed.EqualityRelation
 
-module Definition.LogicalRelation.Properties.Transitivity {{eqrel : EqRelSet}} where
+module Definition.LogicalRelation.Properties.Transitivity (M : Set) {{eqrel : EqRelSet M}} where
 open EqRelSet {{...}}
 
-open import Definition.Untyped hiding (_∷_)
-open import Definition.Typed
-open import Definition.Typed.Properties
-import Definition.Typed.Weakening as Wk
-open import Definition.LogicalRelation
-open import Definition.LogicalRelation.ShapeView
-open import Definition.LogicalRelation.Irrelevance
-open import Definition.LogicalRelation.Properties.Conversion
-open import Definition.LogicalRelation.Properties.Symmetry
+open import Definition.Untyped M hiding (_∷_)
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+import Definition.Typed.Weakening M as Weak
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.ShapeView M
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.Properties.Conversion M
+open import Definition.LogicalRelation.Properties.Symmetry M
 
 open import Tools.Nat
 open import Tools.Product
@@ -22,12 +22,11 @@ import Tools.PropositionalEquality as PE
 private
   variable
     n : Nat
-    M : Set
-    Γ : Con (Term M) n
+    Γ : Con Term n
 
 mutual
   -- Helper function for transitivity of type equality using shape views.
-  transEqT : ∀ {n} {Γ : Con (Term M) n} {A B C l l′ l″}
+  transEqT : ∀ {n} {Γ : Con Term n} {A B C l l′ l″}
              {[A] : Γ ⊩⟨ l ⟩ A} {[B] : Γ ⊩⟨ l′ ⟩ B} {[C] : Γ ⊩⟨ l″ ⟩ C}
            → ShapeView₃ Γ l l′ l″ A B C [A] [B] [C]
            → Γ ⊩⟨ l ⟩  A ≡ B / [A]
@@ -206,14 +205,14 @@ transEqTerm (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
             rewrite whrDet*Term (redₜ d′ , productWhnf rProd)
                                 (redₜ d₁ , productWhnf pProd₁) =
   let ⊢Γ = wf ⊢F
-      [Gfstp≡Gfstp₁] = G-ext Wk.id ⊢Γ [fstp] [fstr] [fst≡]
-      [snd≡]′ = transEqTerm ([G] Wk.id ⊢Γ [fstp])
+      [Gfstp≡Gfstp₁] = G-ext Weak.id ⊢Γ [fstp] [fstr] [fst≡]
+      [snd≡]′ = transEqTerm ([G] Weak.id ⊢Γ [fstp])
                             [snd≡]
-                            (convEqTerm₂ ([G] Wk.id ⊢Γ [fstp])
-                                         ([G] Wk.id ⊢Γ [fstp]₁)
+                            (convEqTerm₂ ([G] Weak.id ⊢Γ [fstp])
+                                         ([G] Weak.id ⊢Γ [fstp]₁)
                                          [Gfstp≡Gfstp₁]
                                          [snd≡]₁)
   in  Σₜ₌ p r₁ d d₁′ pProd rProd₁ (≅ₜ-trans p≅r p≅r₁) [t] [u]₁ [fstp] [fstr]₁
-          (transEqTerm ([F] Wk.id ⊢Γ) [fst≡] [fst≡]₁)
+          (transEqTerm ([F] Weak.id ⊢Γ) [fst≡] [fst≡]₁)
           [snd≡]′
 transEqTerm (emb 0<1 x) t≡u u≡v = transEqTerm x t≡u u≡v

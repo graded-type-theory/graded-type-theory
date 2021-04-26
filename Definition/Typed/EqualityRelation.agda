@@ -1,25 +1,24 @@
 {-# OPTIONS --without-K --safe #-}
 
-module Definition.Typed.EqualityRelation where
+module Definition.Typed.EqualityRelation (M : Set) where
 
-open import Definition.Untyped hiding (_∷_)
-open import Definition.Typed
-open import Definition.Typed.Weakening using (_∷_⊆_)
+open import Definition.Untyped M hiding (_∷_)
+open import Definition.Typed M
+open import Definition.Typed.Weakening M using (_∷_⊆_)
 
 open import Tools.Fin
 open import Tools.Nat
 
 private
   variable
-    M : Set
     p q : M
     ℓ n : Nat
-    Γ : Con (Term M) n
-    Δ : Con (Term M) ℓ
+    Γ : Con Term n
+    Δ : Con Term ℓ
     ρ : Wk ℓ n
-    A A′ B B′ C : Term M n
-    a a′ b b′ e e′ : Term M n
-    k l m t u v : Term M n
+    A A′ B B′ C : Term n
+    a a′ b b′ e e′ : Term n
+    k l m t u v : Term n
 
 -- Generic equality relation used with the logical relation
 
@@ -31,13 +30,13 @@ record EqRelSet : Set₁ where
     ---------------
 
     -- Equality of types
-    _⊢_≅_   : Con (Term M) n → (A B : Term M n)   → Set
+    _⊢_≅_   : Con Term n → (A B : Term n)   → Set
 
     -- Equality of terms
-    _⊢_≅_∷_ : Con (Term M) n → (t u A : Term M n) → Set
+    _⊢_≅_∷_ : Con Term n → (t u A : Term n) → Set
 
     -- Equality of neutral terms
-    _⊢_~_∷_ : Con (Term M) n → (t u A : Term M n) → Set
+    _⊢_~_∷_ : Con Term n → (t u A : Term n) → Set
 
     ----------------
     -- Properties --

@@ -2,17 +2,17 @@
 
 open import Definition.Typed.EqualityRelation
 
-module Definition.LogicalRelation.Substitution.Introductions.Unit {{eqrel : EqRelSet}} where
+module Definition.LogicalRelation.Substitution.Introductions.Unit (M : Set) {{eqrel : EqRelSet M}} where
 open EqRelSet {{...}}
 
-open import Definition.Untyped hiding (_∷_)
-open import Definition.Typed
-open import Definition.Typed.Properties
-open import Definition.LogicalRelation
-open import Definition.LogicalRelation.Properties
-open import Definition.LogicalRelation.Substitution
-open import Definition.LogicalRelation.Substitution.Introductions.Universe
-open import Definition.LogicalRelation.Irrelevance
+open import Definition.Untyped M hiding (_∷_)
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.Properties M
+open import Definition.LogicalRelation.Substitution M
+open import Definition.LogicalRelation.Substitution.Introductions.Universe M
+open import Definition.LogicalRelation.Irrelevance M
 
 open import Tools.Nat
 open import Tools.Unit
@@ -21,8 +21,7 @@ open import Tools.Product
 private
   variable
     n : Nat
-    M : Set
-    Γ : Con (Term M) n
+    Γ : Con Term n
 
 -- Validity of the Unit type.
 Unitᵛ : ∀ {l} ([Γ] : ⊩ᵛ Γ) → Γ ⊩ᵛ⟨ l ⟩ Unit / [Γ]

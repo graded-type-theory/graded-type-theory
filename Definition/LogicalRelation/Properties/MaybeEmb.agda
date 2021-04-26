@@ -2,20 +2,19 @@
 
 open import Definition.Typed.EqualityRelation
 
-module Definition.LogicalRelation.Properties.MaybeEmb {{eqrel : EqRelSet}} where
+module Definition.LogicalRelation.Properties.MaybeEmb (M : Set) {{eqrel : EqRelSet M}} where
 open EqRelSet {{...}}
 
-open import Definition.Untyped
-open import Definition.Typed
-open import Definition.LogicalRelation
+open import Definition.Untyped M
+open import Definition.Typed M
+open import Definition.LogicalRelation M
 
 open import Tools.Nat
 
 private
   variable
     n : Nat
-    M : Set
-    Γ : Con (Term M) n
+    Γ : Con Term n
 
 -- Any level can be embedded into the highest level.
 maybeEmb : ∀ {l A}
