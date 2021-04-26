@@ -2,16 +2,16 @@
 
 open import Definition.Typed.EqualityRelation
 
-module Definition.LogicalRelation.Substitution.Introductions.Empty {{eqrel : EqRelSet}} where
+module Definition.LogicalRelation.Substitution.Introductions.Empty (M : Set) {{eqrel : EqRelSet M}} where
 open EqRelSet {{...}}
 
-open import Definition.Untyped
-open import Definition.Typed
-open import Definition.Typed.Properties
-open import Definition.LogicalRelation
-open import Definition.LogicalRelation.Properties
-open import Definition.LogicalRelation.Substitution
-open import Definition.LogicalRelation.Substitution.Introductions.Universe
+open import Definition.Untyped M
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.Properties M
+open import Definition.LogicalRelation.Substitution M
+open import Definition.LogicalRelation.Substitution.Introductions.Universe M
 
 open import Tools.Nat
 open import Tools.Unit

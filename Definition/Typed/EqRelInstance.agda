@@ -1,12 +1,12 @@
 {-# OPTIONS --without-K --safe #-}
 
-module Definition.Typed.EqRelInstance where
+module Definition.Typed.EqRelInstance (M : Set) where
 
-open import Definition.Untyped
-open import Definition.Typed
-open import Definition.Typed.Weakening
-open import Definition.Typed.Reduction
-open import Definition.Typed.EqualityRelation
+open import Definition.Untyped M
+open import Definition.Typed M
+open import Definition.Typed.Weakening M
+open import Definition.Typed.Reduction M
+open import Definition.Typed.EqualityRelation M
 
 open import Tools.Function
 

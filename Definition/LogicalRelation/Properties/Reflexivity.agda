@@ -2,13 +2,13 @@
 
 open import Definition.Typed.EqualityRelation
 
-module Definition.LogicalRelation.Properties.Reflexivity {{eqrel : EqRelSet}} where
+module Definition.LogicalRelation.Properties.Reflexivity (M : Set) {{eqrel : EqRelSet M}} where
 
-open import Definition.Untyped hiding (_∷_)
-open import Definition.Typed
-open import Definition.Typed.Weakening
-open import Definition.Typed.Properties
-open import Definition.LogicalRelation
+open import Definition.Untyped M hiding (_∷_)
+open import Definition.Typed M
+open import Definition.Typed.Weakening M
+open import Definition.Typed.Properties M
+open import Definition.LogicalRelation M
 
 open import Tools.Nat
 open import Tools.Product
@@ -26,7 +26,7 @@ reflEq (ℕᵣ D) = red D
 reflEq (Emptyᵣ D) = red D
 reflEq (Unitᵣ D) = red D
 reflEq (ne′ K [ ⊢A , ⊢B , D ] neK K≡K) =
-  ne₌ _ [ ⊢A , ⊢B , D ] neK K≡K
+   ne₌ _ [ ⊢A , ⊢B , D ] neK K≡K
 reflEq (Bᵣ′ W F G [ ⊢A , ⊢B , D ] ⊢F ⊢G A≡A [F] [G] G-ext) =
    B₌ _ _ D A≡A
       (λ ρ ⊢Δ → reflEq ([F] ρ ⊢Δ))
@@ -63,10 +63,10 @@ reflEqTerm (Unitᵣ D) (Unitₜ n [ ⊢t , ⊢u , d ] prop) =
   Unitₜ₌ ⊢t ⊢t
 reflEqTerm (ne′ K D neK K≡K) (neₜ k d (neNfₜ neK₁ ⊢k k≡k)) =
   neₜ₌ k k d d (neNfₜ₌ neK₁ neK₁ k≡k)
-reflEqTerm (Bᵣ′ BΠ F G D ⊢F ⊢G A≡A [F] [G] G-ext) [t]@(Πₜ f d funcF f≡f [f] [f]₁) =
+reflEqTerm (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext) [t]@(Πₜ f d funcF f≡f [f] [f]₁) =
   Πₜ₌ f f d d funcF funcF f≡f [t] [t]
       (λ ρ ⊢Δ [a] → [f] ρ ⊢Δ [a] [a] (reflEqTerm ([F] ρ ⊢Δ) [a]))
-reflEqTerm (Bᵣ′ BΣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) [t]@(Σₜ p d pProd p≅p [fst] [snd]) =
+reflEqTerm (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext) [t]@(Σₜ p d pProd p≅p [fst] [snd]) =
   Σₜ₌ p p d d pProd pProd p≅p [t] [t] [fst] [fst]
     (reflEqTerm ([F] id (wf ⊢F)) [fst])
     (reflEqTerm ([G] id (wf ⊢F) [fst]) [snd])

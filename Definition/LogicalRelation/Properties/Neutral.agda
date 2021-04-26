@@ -2,20 +2,20 @@
 
 open import Definition.Typed.EqualityRelation
 
-module Definition.LogicalRelation.Properties.Neutral {{eqrel : EqRelSet}} where
+module Definition.LogicalRelation.Properties.Neutral (M : Set) {{eqrel : EqRelSet M}} where
 open EqRelSet {{...}}
 
-open import Definition.Untyped hiding (_∷_)
-open import Definition.Untyped.Properties
-open import Definition.Typed
-open import Definition.Typed.Properties
-import Definition.Typed.Weakening as Wk
-open import Definition.LogicalRelation
-open import Definition.LogicalRelation.ShapeView
-open import Definition.LogicalRelation.Irrelevance
-open import Definition.LogicalRelation.Properties.Reflexivity
-open import Definition.LogicalRelation.Properties.Escape
-open import Definition.LogicalRelation.Properties.Symmetry
+open import Definition.Untyped M hiding (Wk; _∷_)
+open import Definition.Untyped.Properties M
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+import Definition.Typed.Weakening M as Wk
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.ShapeView M
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.Properties.Reflexivity M
+open import Definition.LogicalRelation.Properties.Escape M
+open import Definition.LogicalRelation.Properties.Symmetry M
 
 open import Tools.Nat
 open import Tools.Product

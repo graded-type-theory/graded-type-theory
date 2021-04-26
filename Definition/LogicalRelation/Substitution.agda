@@ -2,11 +2,11 @@
 
 open import Definition.Typed.EqualityRelation
 
-module Definition.LogicalRelation.Substitution {{eqrel : EqRelSet}} where
+module Definition.LogicalRelation.Substitution (M : Set) {{eqrel : EqRelSet M}} where
 
-open import Definition.Untyped hiding (_∷_)
-open import Definition.Typed
-open import Definition.LogicalRelation
+open import Definition.Untyped M hiding (_∷_)
+open import Definition.Typed M
+open import Definition.LogicalRelation M
 
 open import Tools.Nat
 open import Tools.Product
@@ -29,7 +29,7 @@ mutual
 
   -- Validity of types
   _⊩ᵛ⟨_⟩_/_ : {n : Nat} (Γ : Con Term n) (l : TypeLevel) (A : Term n) → ⊩ᵛ Γ → Set
-  _⊩ᵛ⟨_⟩_/_ {n} Γ l A [Γ] =
+  _⊩ᵛ⟨_⟩_/_ {n = n} Γ l A [Γ] =
     ∀ {k : Nat} {Δ : Con Term k} {σ : Subst k n} (⊢Δ : ⊢ Δ) ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
     → Σ (Δ ⊩⟨ l ⟩ subst σ A) (λ [Aσ]
       → ∀ {σ′} ([σ′] : Δ ⊩ˢ σ′ ∷ Γ / [Γ] / ⊢Δ)

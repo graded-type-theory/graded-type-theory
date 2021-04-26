@@ -1,65 +1,111 @@
 {-# OPTIONS --without-K --safe #-}
 
-module Definition.Modality where
+open import Tools.Relation
 
-open import Algebra
-open import Tools.PropositionalEquality
+module Definition.Modality (M : Set) (_≈_ : Rel M _) where
 
-record Modality (M : Set) : Set where
+open import Tools.Algebra (_≈_)
+open import Tools.Nat hiding (_+_)
+open import Tools.Product
+
+-- Modality ringoid
+record Modality : Set where
+  infixr 40 _+_
+  infixr 40 _∧_
+  infixr 45 _·_
+  infix  10 _≤_
+
   field
     -- A modality consists of a type M with three binary operations...
     _+_ : Op₂ M -- Addition
     _·_ : Op₂ M -- Multiplication
     _∧_ : Op₂ M -- Meet
 
+    -- ... one natural number-indexed tertiary operator...
+    nrⁿ : Nat → Op₃ M
+
     -- ... and two special elements
     𝟘 : M
     𝟙 : M
 
     -- + forms a commutative monoid with 𝟘 as unit element
-    +-CommutativeMonoid : IsCommutativeMonoid _≡_ _+_ 𝟘
+    +-CommutativeMonoid : IsCommutativeMonoid  _+_ 𝟘
     -- · forms a monoid with 𝟙 as unit element
-    ·-Monoid            : IsMonoid _≡_ _·_ 𝟙
+    ·-Monoid            : IsMonoid _·_ 𝟙
     -- ∧ forms a semilattice
-    ∧-Semilattice       : IsSemilattice _≡_ _∧_
+    ∧-Semilattice       : IsSemilattice _∧_
 
-    -- 𝟘 is zero for multiplication
-    ·-Zero              : Zero _≡_ 𝟘 _·_
-
-    -- Multiplication distributes over addition
-    ·Distr+             : _DistributesOver_ _≡_ _·_ _+_
-    -- Multiplation distributes over meet
-    ·Distr∧             : _DistributesOver_ _≡_ _·_ _∧_
-    -- Addition distributes over meet
-    +Distr∧             : _DistributesOver_ _≡_ _+_ _∧_
 
   -- Semilattice partial ordering relation
-  _≤_ : M → M → Set
-  p ≤ q = p ≡ (p ∧ q)
+  _≤_ : Rel M _
+  p ≤ q = p ≈ (p ∧ q)
+
+  field
+    -- 𝟘 is zero for multiplication
+    ·-zero              : Zero 𝟘 _·_
+    -- The semiring is positive
+    +-positive          : (p q : M) → 𝟘 ≤ (p + q) → 𝟘 ≤ p × 𝟘 ≤ q
+
+    -- nr is a solution to the following recurrence relation
+    nrⁿ-rec : (n : Nat) (p q r : M) → nrⁿ (1+ n) p q r ≈ p ∧ (q + r · nrⁿ n p q r)
+    -- The base case value of nrᶜ is 𝟘
+    nrⁿ-0 : (p q r : M) → nrⁿ 0 p q r ≈ 𝟘
+    -- nrⁿ has a fixpoint
+    nrⁿ-fix : ∃ (λ n → ∀ (p q r : M) → nrⁿ (1+ n) p q r ≈ nrⁿ n p q r)
+
+    -- Multiplication distributes over addition
+    ·-distrib-+         : _·_ DistributesOver _+_
+    -- Multiplation distributes over meet
+    ·-distrib-∧         : _·_ DistributesOver _∧_
+    -- Addition distributes over meet
+    +-distrib-∧         : _+_ DistributesOver _∧_
+
+    -- ≈ is an equivallence relation
+    ≈-equivalence       : IsEquivalence _≈_
+
+  -- The fixpoint of nrⁿ defines a tertiary operator
+  nr : Op₃ M
+  nr = nrⁿ (proj₁ nrⁿ-fix)
 
   -- Easier access to some operator properties
-  +-Commutative : Commutative _≡_ _+_
-  +-Commutative = IsCommutativeMonoid.comm +-CommutativeMonoid
+  +-comm : Commutative _+_
+  +-comm = IsCommutativeMonoid.comm +-CommutativeMonoid
 
-  +-Associative : Associative _≡_ _+_
-  +-Associative = IsSemigroup.assoc (IsMonoid.isSemigroup
-                    (IsCommutativeMonoid.isMonoid +-CommutativeMonoid))
+  +-assoc : Associative _+_
+  +-assoc = IsCommutativeMonoid.assoc +-CommutativeMonoid
 
-  +-Identity : Identity _≡_ 𝟘 _+_
-  +-Identity = IsMonoid.identity (IsCommutativeMonoid.isMonoid +-CommutativeMonoid)
+  +-identity : Identity 𝟘 _+_
+  +-identity = IsCommutativeMonoid.identity +-CommutativeMonoid
 
-  ·-Associative : Associative _≡_ _·_
-  ·-Associative = IsSemigroup.assoc (IsMonoid.isSemigroup ·-Monoid)
+  ·-assoc : Associative _·_
+  ·-assoc = IsMonoid.assoc ·-Monoid
 
-  ·-Identity : Identity _≡_ 𝟙 _·_
-  ·-Identity = (IsMonoid.identity ·-Monoid)
+  ·-identity : Identity 𝟙 _·_
+  ·-identity = IsMonoid.identity ·-Monoid
 
-  ∧-Commutative : Commutative _≡_ _∧_
-  ∧-Commutative = IsSemilattice.comm ∧-Semilattice
+  ∧-comm : Commutative _∧_
+  ∧-comm = IsSemilattice.comm ∧-Semilattice
 
-  ∧-Associative : Associative _≡_ _∧_
-  ∧-Associative = IsSemigroup.assoc (IsBand.isSemigroup
-                    (IsSemilattice.isBand ∧-Semilattice))
+  ∧-assoc : Associative _∧_
+  ∧-assoc = IsSemilattice.assoc ∧-Semilattice
 
-  ∧-Idempotent : Idempotent _≡_ _∧_
-  ∧-Idempotent = IsBand.idem (IsSemilattice.isBand ∧-Semilattice)
+  ∧-idem : Idempotent _∧_
+  ∧-idem = IsSemilattice.idem ∧-Semilattice
+
+  ≈-refl : Reflexive _≈_
+  ≈-refl = IsEquivalence.refl ≈-equivalence
+
+  ≈-sym : Symmetric _≈_
+  ≈-sym = IsEquivalence.sym ≈-equivalence
+
+  ≈-trans : Transitive _≈_
+  ≈-trans = IsEquivalence.trans ≈-equivalence
+
+  +-cong : Congruent₂ _+_
+  +-cong = IsCommutativeMonoid.∙-cong +-CommutativeMonoid
+
+  ·-cong : Congruent₂ _·_
+  ·-cong = IsMonoid.∙-cong ·-Monoid
+
+  ∧-cong : Congruent₂ _∧_
+  ∧-cong = IsSemilattice.∧-cong ∧-Semilattice

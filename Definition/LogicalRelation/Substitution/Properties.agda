@@ -2,20 +2,20 @@
 
 open import Definition.Typed.EqualityRelation
 
-module Definition.LogicalRelation.Substitution.Properties {{eqrel : EqRelSet}} where
+module Definition.LogicalRelation.Substitution.Properties (M : Set) {{eqrel : EqRelSet M}} where
 open EqRelSet {{...}}
 
-open import Definition.Untyped
-open import Definition.Untyped.Properties
-open import Definition.Typed
-open import Definition.Typed.Weakening
-open import Definition.LogicalRelation
-open import Definition.LogicalRelation.Substitution
-open import Definition.LogicalRelation.Substitution.Irrelevance
+open import Definition.Untyped M
+open import Definition.Untyped.Properties M
+open import Definition.Typed M
+open import Definition.Typed.Weakening M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.Substitution M
+open import Definition.LogicalRelation.Substitution.Irrelevance M
      using (irrelevanceSubst′)
-open import Definition.LogicalRelation.Irrelevance
-open import Definition.LogicalRelation.Properties
-import Definition.LogicalRelation.Weakening as LR
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.Properties M
+import Definition.LogicalRelation.Weakening M as LR
 
 open import Tools.Fin
 open import Tools.Nat

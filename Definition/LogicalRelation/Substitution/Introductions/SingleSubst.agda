@@ -2,22 +2,22 @@
 
 open import Definition.Typed.EqualityRelation
 
-module Definition.LogicalRelation.Substitution.Introductions.SingleSubst {{eqrel : EqRelSet}} where
+module Definition.LogicalRelation.Substitution.Introductions.SingleSubst (M : Set) {{eqrel : EqRelSet M}} where
 open EqRelSet {{...}}
 
-open import Definition.Untyped hiding (_∷_)
-open import Definition.Untyped.Properties
-open import Definition.Typed
-open import Definition.Typed.Weakening using (id)
-open import Definition.Typed.Properties
-open import Definition.LogicalRelation
-open import Definition.LogicalRelation.ShapeView
-open import Definition.LogicalRelation.Irrelevance
-open import Definition.LogicalRelation.Properties
-open import Definition.LogicalRelation.Substitution
-open import Definition.LogicalRelation.Substitution.Properties
-open import Definition.LogicalRelation.Substitution.Conversion
-open import Definition.LogicalRelation.Substitution.Weakening
+open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped.Properties M
+open import Definition.Typed M
+open import Definition.Typed.Weakening M using (id)
+open import Definition.Typed.Properties M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.ShapeView M
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.Properties M
+open import Definition.LogicalRelation.Substitution M
+open import Definition.LogicalRelation.Substitution.Properties M
+open import Definition.LogicalRelation.Substitution.Conversion M
+open import Definition.LogicalRelation.Substitution.Weakening M
 
 open import Tools.Nat
 open import Tools.Product
@@ -47,6 +47,26 @@ substS {F = F} {G} {t} [Γ] [F] [G] [t] {σ = σ} ⊢Δ [σ] =
                                      ([σ] , proj₁ ([t] ⊢Δ [σ])))
                                      ([σ′] , proj₁ ([t] ⊢Δ [σ′]))
                                      (([σ≡σ′] , (proj₂ ([t] ⊢Δ [σ]) [σ′] [σ≡σ′])))))
+
+-- Validity of substitution of single variable in types.
+-- substS₂ : ∀ {F G H t u l} ([Γ] : ⊩ᵛ Γ)
+--          ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
+--          ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
+--          ([H] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ H / [Γ] ∙ [F] ∙ [G])
+--          ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ F / [Γ] / [F])
+--          ([u] : Γ ∙ F ⊩ᵛ⟨ l ⟩ u ∷ G / [Γ] ∙ [F] / [G])
+--        → Γ ⊩ᵛ⟨ l ⟩ H [ t ][ u ] / [Γ]
+-- substS₂ {F = F} {G} {H} {t} {u} [Γ] [F] [G] [H] [t] [u] {σ = σ} ⊢Δ [σ] =
+--   let Geq = substConsId G
+--       G[t] = proj₁ ([G] ⊢Δ ([σ] , proj₁ ([t] ⊢Δ [σ])))
+--       G[t]′ = irrelevance′ Geq G[t]
+--       Heq = substConsId H
+--       [σ]′ = {!!}
+--       H[u][t] = {!!}
+--       -- proj₁ ([H] ⊢Δ ({!!} , (proj₁ ([u] ⊢Δ ({!!} , (proj₁ ([t] ⊢Δ [σ])))))))
+--       H[u][t]′ = irrelevance′ Heq H[u][t]
+--   in  {!H[u][t]′!} , {!!}
+
 
 -- Validity of substitution of single variable in type equality.
 substSEq : ∀ {F F′ G G′ t t′ l} ([Γ] : ⊩ᵛ Γ)
@@ -105,6 +125,31 @@ substSTerm {F = F} {G} {t} {f} [Γ] [F] [G] [f] [t] {σ = σ} ⊢Δ [σ] =
            (proj₂ ([f] ⊢Δ ([σ] , proj₁ ([t] ⊢Δ [σ])))
                   ([σ′] , proj₁ ([t] ⊢Δ [σ′]))
                   ([σ≡σ′] , proj₂ ([t] ⊢Δ [σ]) [σ′] [σ≡σ′])))
+
+-- Validity of substitution of single variable in terms.
+-- substSTerm₂ : ∀ {F G t f l} ([Γ] : ⊩ᵛ Γ)
+--              ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
+--              ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
+--              ([t] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ t ∷ wk1 (F [ suc (var x0) ]↑) / [Γ] ∙ [F] / [G])
+--              ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ F / [Γ] / [F])
+--            → Γ ⊩ᵛ⟨ l ⟩ f [ t ] ∷ G [ t ] / [Γ]
+--                       / substS {F = F} {G} {t} [Γ] [F] [G] [t]
+-- substSTerm₂ {F = F} {G} {t} {f} [Γ] [F] [G] [f] [t] {σ = σ} ⊢Δ [σ] =
+--   let prfG = substConsId G
+--       prff = substConsId f
+--       G[t] = proj₁ ([G] ⊢Δ ([σ] , proj₁ ([t] ⊢Δ [σ])))
+--       G[t]′ = irrelevance′ prfG G[t]
+--       f[t] = proj₁ ([f] ⊢Δ ([σ] , proj₁ ([t] ⊢Δ [σ])))
+--       f[t]′ = irrelevanceTerm″ prfG prff G[t] G[t]′ f[t]
+--   in  f[t]′
+--   ,   (λ {σ′} [σ′] [σ≡σ′] →
+--          irrelevanceEqTerm″
+--            prff
+--            (substConsId f)
+--            prfG G[t] G[t]′
+--            (proj₂ ([f] ⊢Δ ([σ] , proj₁ ([t] ⊢Δ [σ])))
+--                   ([σ′] , proj₁ ([t] ⊢Δ [σ′]))
+--                   ([σ≡σ′] , proj₂ ([t] ⊢Δ [σ]) [σ′] [σ≡σ′])))
 
 -- Validity of substitution of single lifted variable in types.
 subst↑S : ∀ {F G t l} ([Γ] : ⊩ᵛ Γ)
@@ -180,7 +225,7 @@ substSΠ₁′ : ∀ {F G t l l′} W
            ([t] : Γ ⊩⟨ l′ ⟩ t ∷ F / [F])
          → Γ ⊩⟨ l ⟩ G [ t ]
 substSΠ₁′ {t = t} W (noemb (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) [F]₁ [t] =
-  let F≡F′ , G≡G′ = B-PE-injectivity W (whnfRed* (red D) ⟦ W ⟧ₙ)
+  let F≡F′ , G≡G′ = B-PE-injectivity W W (whnfRed* (red D) ⟦ W ⟧ₙ)
       Feq = PE.trans F≡F′ (PE.sym (wk-id _))
       Geq = PE.cong (λ x → x [ _ ]) (PE.trans (wk-lift-id _) (PE.sym G≡G′))
       ⊢Γ = wf (escape [F]₁)
@@ -211,8 +256,8 @@ substSΠ₂′ : ∀ {F F′ G G′ t t′ l l′ l″ l‴} W
 substSΠ₂′ W (noemb (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext))
           (B₌ F″ G″ D′ A≡B [F≡F′] [G≡G′])
           [F]₁ [F′] [t] [t′] [t≡t′] [G[t]] [G′[t′]] =
-  let F≡F′ , G≡G′ = B-PE-injectivity W (whnfRed* (red D) (⟦ W ⟧ₙ))
-      F′≡F″ , G′≡G″ = B-PE-injectivity W (whnfRed* D′ ⟦ W ⟧ₙ)
+  let F≡F′ , G≡G′ = B-PE-injectivity W W (whnfRed* (red D) (⟦ W ⟧ₙ))
+      F′≡F″ , G′≡G″ = B-PE-injectivity W W (whnfRed* D′ ⟦ W ⟧ₙ)
       Feq = PE.trans F≡F′ (PE.sym (wk-id _))
       F′eq = PE.trans F′≡F″ (PE.sym (wk-id _))
       Geq = PE.cong (λ x → x [ _ ]) (PE.trans (wk-lift-id _) (PE.sym G≡G′))
@@ -251,11 +296,11 @@ substSΠ : ∀ {F G t l} W
           ([ΠFG] : Γ ⊩ᵛ⟨ l ⟩ ⟦ W ⟧ F ▹ G / [Γ])
           ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ F / [Γ] / [F])
         → Γ ⊩ᵛ⟨ l ⟩ G [ t ] / [Γ]
-substSΠ {F = F} {G} {t} BΠ [Γ] [F] [ΠFG] [t] ⊢Δ [σ] =
+substSΠ {F = F} {G} {t} BΠ! [Γ] [F] [ΠFG] [t] ⊢Δ [σ] =
   let ⊩σΠFG = [ΠFG] ⊢Δ [σ]
       --[σΠFG] = PE.subst (λ x → _ ⊩⟨ _ ⟩ x) (B-subst _ W F G) (proj₁ ⊩σΠFG)
       [σΠFG] = proj₁ ⊩σΠFG
-      [σG[t]] = substSΠ₁ BΠ [σΠFG]
+      [σG[t]] = substSΠ₁ BΠ! [σΠFG]
                            (proj₁ ([F] ⊢Δ [σ]))
                            (proj₁ ([t] ⊢Δ [σ]))
       [σG[t]]′ = irrelevance′ (PE.sym (singleSubstLift G t))
@@ -265,20 +310,20 @@ substSΠ {F = F} {G} {t} BΠ [Γ] [F] [ΠFG] [t] ⊢Δ [σ] =
          irrelevanceEq″ (PE.sym (singleSubstLift G t))
                          (PE.sym (singleSubstLift G t))
                          [σG[t]] [σG[t]]′
-                         (substSΠ₂ BΠ
+                         (substSΠ₂ BΠ!
                                    [σΠFG]
                                    (proj₂ ⊩σΠFG [σ′] [σ≡σ′])
                                    (proj₁ ([F] ⊢Δ [σ])) (proj₁ ([F] ⊢Δ [σ′]))
                                    (proj₁ ([t] ⊢Δ [σ])) (proj₁ ([t] ⊢Δ [σ′]))
                                    (proj₂ ([t] ⊢Δ [σ]) [σ′] [σ≡σ′]) [σG[t]]
-                                   (substSΠ₁ BΠ
+                                   (substSΠ₁ BΠ!
                                              (proj₁ ([ΠFG] ⊢Δ [σ′]))
                                              (proj₁ ([F] ⊢Δ [σ′]))
                                              (proj₁ ([t] ⊢Δ [σ′])))))
-substSΠ {F = F} {G} {t} BΣ [Γ] [F] [ΠFG] [t] ⊢Δ [σ] =
+substSΠ {F = F} {G} {t} BΣ! [Γ] [F] [ΠFG] [t] ⊢Δ [σ] =
   let ⊩σΠFG = [ΠFG] ⊢Δ [σ]
       [σΠFG] = proj₁ ⊩σΠFG
-      [σG[t]] = substSΠ₁ BΣ [σΠFG]
+      [σG[t]] = substSΠ₁ BΣ! [σΠFG]
                            (proj₁ ([F] ⊢Δ [σ]))
                            (proj₁ ([t] ⊢Δ [σ]))
       [σG[t]]′ = irrelevance′ (PE.sym (singleSubstLift G t))
@@ -288,13 +333,13 @@ substSΠ {F = F} {G} {t} BΣ [Γ] [F] [ΠFG] [t] ⊢Δ [σ] =
          irrelevanceEq″ (PE.sym (singleSubstLift G t))
                          (PE.sym (singleSubstLift G t))
                          [σG[t]] [σG[t]]′
-                         (substSΠ₂ BΣ
+                         (substSΠ₂ BΣ!
                                    [σΠFG]
                                    (proj₂ ⊩σΠFG [σ′] [σ≡σ′])
                                    (proj₁ ([F] ⊢Δ [σ])) (proj₁ ([F] ⊢Δ [σ′]))
                                    (proj₁ ([t] ⊢Δ [σ])) (proj₁ ([t] ⊢Δ [σ′]))
                                    (proj₂ ([t] ⊢Δ [σ]) [σ′] [σ≡σ′]) [σG[t]]
-                                   (substSΠ₁ BΣ
+                                   (substSΠ₁ BΣ!
                                              (proj₁ ([ΠFG] ⊢Δ [σ′]))
                                              (proj₁ ([F] ⊢Δ [σ′]))
                                              (proj₁ ([t] ⊢Δ [σ′])))))
@@ -312,14 +357,14 @@ substSΠEq : ∀ {F G F′ G′ t u l} W
             ([t≡u] : Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ F / [Γ] / [F])
           → Γ ⊩ᵛ⟨ l ⟩ G [ t ] ≡ G′ [ u ] / [Γ]
                     / substSΠ {F = F} {G} {t} W [Γ] [F] [ΠFG] [t]
-substSΠEq {F = F} {G} {F′} {G′} {t} {u} BΠ [Γ] [F] [F′] [ΠFG] [ΠF′G′] [ΠFG≡ΠF′G′]
+substSΠEq {F = F} {G} {F′} {G′} {t} {u} BΠ! [Γ] [F] [F′] [ΠFG] [ΠF′G′] [ΠFG≡ΠF′G′]
            [t] [u] [t≡u] {Δ = Δ} {σ = σ} ⊢Δ [σ] =
   let [σΠFG] = proj₁ ([ΠFG] ⊢Δ [σ])
       _ , Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ = extractMaybeEmb (Π-elim [σΠFG])
-      F≡F₁ , G≡G₁ = B-PE-injectivity BΠ (whnfRed* (red D₁) Πₙ)
+      F≡F₁ , G≡G₁ = B-PE-injectivity BΠ! BΠ! (whnfRed* (red D₁) Πₙ)
       [σΠF′G′] = proj₁ ([ΠF′G′] ⊢Δ [σ])
       _ , Bᵣ F₂ G₂ D₂ ⊢F₂ ⊢G₂ A≡A₂ [F]₂ [G]₂ G-ext₂ = extractMaybeEmb (Π-elim [σΠF′G′])
-      F′≡F₂ , G′≡G₂ = B-PE-injectivity BΠ (whnfRed* (red D₂) Πₙ)
+      F′≡F₂ , G′≡G₂ = B-PE-injectivity BΠ! BΠ! (whnfRed* (red D₂) Πₙ)
       [σF] = proj₁ ([F] ⊢Δ [σ])
       [σF′] = proj₁ ([F′] ⊢Δ [σ])
       [σt] = proj₁ ([t] ⊢Δ [σ])
@@ -338,23 +383,23 @@ substSΠEq {F = F} {G} {F′} {G′} {t} {u} BΠ [Γ] [F] [F′] [ΠFG] [ΠF′G
   in  irrelevanceEq″ (PE.sym (singleSubstLift G t))
                       (PE.sym (singleSubstLift G′ u))
                       [G[t]]
-                        (proj₁ (substSΠ {F = F} {G} {t} BΠ [Γ] [F] [ΠFG] [t] ⊢Δ [σ]))
+                        (proj₁ (substSΠ {F = F} {G} {t} BΠ! [Γ] [F] [ΠFG] [t] ⊢Δ [σ]))
                       (substSΠ₂ {F = subst σ F} {subst σ F′}
                                 {subst (liftSubst σ) G}
                                 {subst (liftSubst σ) G′}
-                                BΠ
+                                BΠ!
                                 (proj₁ ([ΠFG] ⊢Δ [σ]))
                                 ([ΠFG≡ΠF′G′] ⊢Δ [σ])
                                 [σF] [σF′] [σt] [σu] [σt≡σu] [G[t]] [G′[u]])
 
-substSΠEq {F = F} {G} {F′} {G′} {t} {u} BΣ [Γ] [F] [F′] [ΣFG] [ΣF′G′] [ΣFG≡ΣF′G′]
+substSΠEq {F = F} {G} {F′} {G′} {t} {u} BΣ! [Γ] [F] [F′] [ΣFG] [ΣF′G′] [ΣFG≡ΣF′G′]
            [t] [u] [t≡u] {Δ = Δ} {σ = σ} ⊢Δ [σ] =
   let [σΣFG] = proj₁ ([ΣFG] ⊢Δ [σ])
       _ , Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ = extractMaybeEmb (Σ-elim [σΣFG])
-      F≡F₁ , G≡G₁ = B-PE-injectivity BΣ (whnfRed* (red D₁) Σₙ)
+      F≡F₁ , G≡G₁ = B-PE-injectivity BΣ! BΣ! (whnfRed* (red D₁) Σₙ)
       [σΣF′G′] = proj₁ ([ΣF′G′] ⊢Δ [σ])
       _ , Bᵣ F₂ G₂ D₂ ⊢F₂ ⊢G₂ A≡A₂ [F]₂ [G]₂ G-ext₂ = extractMaybeEmb (Σ-elim [σΣF′G′])
-      F′≡F₂ , G′≡G₂ = B-PE-injectivity BΣ (whnfRed* (red D₂) Σₙ)
+      F′≡F₂ , G′≡G₂ = B-PE-injectivity BΣ! BΣ! (whnfRed* (red D₂) Σₙ)
       [σF] = proj₁ ([F] ⊢Δ [σ])
       [σF′] = proj₁ ([F′] ⊢Δ [σ])
       [σt] = proj₁ ([t] ⊢Δ [σ])
@@ -373,11 +418,11 @@ substSΠEq {F = F} {G} {F′} {G′} {t} {u} BΣ [Γ] [F] [F′] [ΣFG] [ΣF′G
   in  irrelevanceEq″ (PE.sym (singleSubstLift G t))
                       (PE.sym (singleSubstLift G′ u))
                       [G[t]]
-                        (proj₁ (substSΠ {F = F} {G} {t} BΣ [Γ] [F] [ΣFG] [t] ⊢Δ [σ]))
+                        (proj₁ (substSΠ {F = F} {G} {t} BΣ! [Γ] [F] [ΣFG] [t] ⊢Δ [σ]))
                       (substSΠ₂ {F = subst σ F} {subst σ F′}
                                 {subst (liftSubst σ) G}
                                 {subst (liftSubst σ) G′}
-                                BΣ
+                                BΣ!
                                 (proj₁ ([ΣFG] ⊢Δ [σ]))
                                 ([ΣFG≡ΣF′G′] ⊢Δ [σ])
                                 [σF] [σF′] [σt] [σu] [σt≡σu] [G[t]] [G′[u]])

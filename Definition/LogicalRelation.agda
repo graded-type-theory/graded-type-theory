@@ -2,14 +2,14 @@
 
 open import Definition.Typed.EqualityRelation
 
-module Definition.LogicalRelation {{eqrel : EqRelSet}} where
+module Definition.LogicalRelation (Mod : Set) {{eqrel : EqRelSet Mod}} where
 open EqRelSet {{...}}
 
-open import Definition.Untyped as U hiding (_∷_)
-open import Definition.Untyped.Properties
-open import Definition.Typed.Properties
-open import Definition.Typed
-open import Definition.Typed.Weakening
+open import Definition.Untyped Mod as U hiding (_∷_)
+open import Definition.Untyped.Properties Mod
+open import Definition.Typed.Properties Mod
+open import Definition.Typed Mod
+open import Definition.Typed.Weakening Mod
 
 open import Tools.Nat
 open import Tools.Product
@@ -17,6 +17,7 @@ import Tools.PropositionalEquality as PE
 
 private
   variable
+    p q : Mod
     ℓ : Nat
     Γ : Con Term ℓ
 
@@ -28,7 +29,7 @@ private
 -- Reducibility of Neutrals:
 
 -- Neutral type
-record _⊩ne_ (Γ : Con Term ℓ) (A : Term ℓ) : Set where
+record _⊩ne_ {ℓ : Nat} (Γ : Con Term ℓ) (A : Term ℓ) : Set where
   constructor ne
   field
     K   : Term ℓ
@@ -322,20 +323,20 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
                → Δ ⊩¹ U.wk (lift ρ) G [ a ] ≡ U.wk (lift ρ) G′ [ a ] / [G] [ρ] ⊢Δ [a]
 
     -- Term reducibility of Π-type
-    _⊩¹Π_∷_/_ : {ℓ : Nat} (Γ : Con Term ℓ) (t A : Term ℓ) ([A] : Γ ⊩¹B⟨ BΠ ⟩ A) → Set
-    _⊩¹Π_∷_/_ {ℓ} Γ t A (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) =
-      ∃ λ f → Γ ⊢ t :⇒*: f ∷ Π F ▹ G
+    _⊩¹Π_∷_/_ : {ℓ : Nat} {p q : Mod} (Γ : Con Term ℓ) (t A : Term ℓ) ([A] : Γ ⊩¹B⟨ BΠ p q ⟩ A) → Set
+    _⊩¹Π_∷_/_ {ℓ} {p} {q} Γ t A (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) =
+      ∃ λ f → Γ ⊢ t :⇒*: f ∷ Π p , q ▷ F ▹ G
             × Function f
-            × Γ ⊢ f ≅ f ∷ Π F ▹ G
+            × Γ ⊢ f ≅ f ∷ Π p , q ▷ F ▹ G
             × (∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a b}
               ([ρ] : ρ ∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ)
               ([a] : Δ ⊩¹ a ∷ U.wk ρ F / [F] [ρ] ⊢Δ)
               ([b] : Δ ⊩¹ b ∷ U.wk ρ F / [F] [ρ] ⊢Δ)
               ([a≡b] : Δ ⊩¹ a ≡ b ∷ U.wk ρ F / [F] [ρ] ⊢Δ)
-              → Δ ⊩¹ U.wk ρ f ∘ a ≡ U.wk ρ f ∘ b ∷ U.wk (lift ρ) G [ a ] / [G] [ρ] ⊢Δ [a])
+              → Δ ⊩¹ U.wk ρ f ∘ p ▷ a ≡ U.wk ρ f ∘ p ▷ b ∷ U.wk (lift ρ) G [ a ] / [G] [ρ] ⊢Δ [a])
             × (∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a} → ([ρ] : ρ ∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ)
               → ([a] : Δ ⊩¹ a ∷ U.wk ρ F / [F] [ρ] ⊢Δ)
-              → Δ ⊩¹ U.wk ρ f ∘ a ∷ U.wk (lift ρ) G [ a ] / [G] [ρ] ⊢Δ [a])
+              → Δ ⊩¹ U.wk ρ f ∘ p ▷ a ∷ U.wk (lift ρ) G [ a ] / [G] [ρ] ⊢Δ [a])
               {- NOTE(WN): Last 2 fields could be refactored to a single forall.
                            But touching this definition is painful, so only do it
                            if you have to change it anyway. -}
@@ -343,38 +344,38 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
     --        Therefore we have to use ×
 
     -- Term equality of Π-type
-    _⊩¹Π_≡_∷_/_ : {ℓ : Nat} (Γ : Con Term ℓ) (t u A : Term ℓ) ([A] : Γ ⊩¹B⟨ BΠ ⟩ A) → Set
-    _⊩¹Π_≡_∷_/_  {ℓ} Γ t u A [A]@(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) =
-      ∃₂ λ f g → Γ ⊢ t :⇒*: f ∷ Π F ▹ G
-               × Γ ⊢ u :⇒*: g ∷ Π F ▹ G
+    _⊩¹Π_≡_∷_/_ : {ℓ : Nat} {p q : Mod} (Γ : Con Term ℓ) (t u A : Term ℓ) ([A] : Γ ⊩¹B⟨ BΠ p q ⟩ A) → Set
+    _⊩¹Π_≡_∷_/_  {ℓ} {p} {q} Γ t u A [A]@(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) =
+      ∃₂ λ f g → Γ ⊢ t :⇒*: f ∷ Π p , q ▷ F ▹ G
+               × Γ ⊢ u :⇒*: g ∷ Π p , q ▷ F ▹ G
                × Function f
                × Function g
-               × Γ ⊢ f ≅ g ∷ Π F ▹ G
+               × Γ ⊢ f ≅ g ∷ Π p , q ▷ F ▹ G
                × Γ ⊩¹Π t ∷ A / [A]
                × Γ ⊩¹Π u ∷ A / [A]
                × (∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a} ([ρ] : ρ ∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ)
                  ([a] : Δ ⊩¹ a ∷ U.wk ρ F / [F] [ρ] ⊢Δ)
-                 → Δ ⊩¹ U.wk ρ f ∘ a ≡ U.wk ρ g ∘ a ∷ U.wk (lift ρ) G [ a ] / [G] [ρ] ⊢Δ [a])
+                 → Δ ⊩¹ U.wk ρ f ∘ p ▷ a ≡ U.wk ρ g ∘ p ▷ a ∷ U.wk (lift ρ) G [ a ] / [G] [ρ] ⊢Δ [a])
     -- Issue: Same as above.
 
 
     -- Term reducibility of Σ-type
-    _⊩¹Σ_∷_/_ : (Γ : Con Term ℓ) (t A : Term ℓ) ([A] : Γ ⊩¹B⟨ BΣ ⟩ A) → Set
-    Γ ⊩¹Σ t ∷ A / [A]@(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) =
-      ∃ λ p → Γ ⊢ t :⇒*: p ∷ Σ F ▹ G
+    _⊩¹Σ_∷_/_ : {q : Mod} (Γ : Con Term ℓ) (t A : Term ℓ) ([A] : Γ ⊩¹B⟨ BΣ q ⟩ A) → Set
+    _⊩¹Σ_∷_/_ {q = q} Γ t A [A]@(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) =
+      ∃ λ p → Γ ⊢ t :⇒*: p ∷ Σ q ▷ F ▹ G
             × Product p
-            × Γ ⊢ p ≅ p ∷ Σ F ▹ G
+            × Γ ⊢ p ≅ p ∷ Σ q ▷ F ▹ G
             × (Σ (Γ ⊩¹ fst p ∷ U.wk id F / [F] id (wf ⊢F)) λ [fst]
                  → Γ ⊩¹ snd p ∷ U.wk (lift id) G [ fst p ] / [G] id (wf ⊢F) [fst])
 
     -- Term equality of Σ-type
-    _⊩¹Σ_≡_∷_/_ : (Γ : Con Term ℓ) (t u A : Term ℓ) ([A] : Γ ⊩¹B⟨ BΣ ⟩ A) → Set
-    Γ ⊩¹Σ t ≡ u ∷ A / [A]@(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) =
-      ∃₂ λ p r → Γ ⊢ t :⇒*: p ∷ Σ F ▹ G
-               × Γ ⊢ u :⇒*: r ∷ Σ F ▹ G
+    _⊩¹Σ_≡_∷_/_ : {q : Mod} (Γ : Con Term ℓ) (t u A : Term ℓ) ([A] : Γ ⊩¹B⟨ BΣ q ⟩ A) → Set
+    _⊩¹Σ_≡_∷_/_ {q = q} Γ t u A [A]@(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) =
+      ∃₂ λ p r → Γ ⊢ t :⇒*: p ∷ Σ q ▷ F ▹ G
+               × Γ ⊢ u :⇒*: r ∷ Σ q ▷ F ▹ G
                × Product p
                × Product r
-               × Γ ⊢ p ≅ r ∷ Σ F ▹ G
+               × Γ ⊢ p ≅ r ∷ Σ q ▷ F ▹ G
                × Γ ⊩¹Σ t ∷ A / [A]
                × Γ ⊩¹Σ u ∷ A / [A]
                × (Σ (Γ ⊩¹ fst p ∷ U.wk id F / [F] id (wf ⊢F)) λ [fstp]
@@ -409,8 +410,8 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
     Γ ⊩¹ t ∷ A / Emptyᵣ D = Γ ⊩Empty t ∷Empty
     Γ ⊩¹ t ∷ A / Unitᵣ D = Γ ⊩Unit t ∷Unit
     Γ ⊩¹ t ∷ A / ne neA = Γ ⊩ne t ∷ A / neA
-    Γ ⊩¹ t ∷ A / Bᵣ BΠ ΠA  = Γ ⊩¹Π t ∷ A / ΠA
-    Γ ⊩¹ t ∷ A / Bᵣ BΣ ΣA  = Γ ⊩¹Σ t ∷ A / ΣA
+    Γ ⊩¹ t ∷ A / Bᵣ BΠ! ΠA  = Γ ⊩¹Π t ∷ A / ΠA
+    Γ ⊩¹ t ∷ A / Bᵣ BΣ! ΣA  = Γ ⊩¹Σ t ∷ A / ΣA
     Γ ⊩¹ t ∷ A / emb l< [A] = Γ ⊩ t ∷ A / [A]
       where open LogRelKit (rec l<)
 
@@ -420,8 +421,8 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
     Γ ⊩¹ t ≡ u ∷ A / Emptyᵣ D = Γ ⊩Empty t ≡ u ∷Empty
     Γ ⊩¹ t ≡ u ∷ A / Unitᵣ D = Γ ⊩Unit t ≡ u ∷Unit
     Γ ⊩¹ t ≡ u ∷ A / ne neA = Γ ⊩ne t ≡ u ∷ A / neA
-    Γ ⊩¹ t ≡ u ∷ A / Bᵣ BΠ ΠA = Γ ⊩¹Π t ≡ u ∷ A / ΠA
-    Γ ⊩¹ t ≡ u ∷ A / Bᵣ BΣ ΣA  = Γ ⊩¹Σ t ≡ u ∷ A / ΣA
+    Γ ⊩¹ t ≡ u ∷ A / Bᵣ BΠ! ΠA = Γ ⊩¹Π t ≡ u ∷ A / ΠA
+    Γ ⊩¹ t ≡ u ∷ A / Bᵣ BΣ! ΣA  = Γ ⊩¹Σ t ≡ u ∷ A / ΣA
     Γ ⊩¹ t ≡ u ∷ A / emb l< [A] = Γ ⊩ t ≡ u ∷ A / [A]
       where open LogRelKit (rec l<)
 
@@ -440,8 +441,8 @@ pattern Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] [fstp] [fstr] [fst≡] [sn
 pattern Uᵣ′ a b c = Uᵣ (Uᵣ a b c)
 pattern ne′ a b c d = ne (ne a b c d)
 pattern Bᵣ′ W a b c d e f g h i = Bᵣ W (Bᵣ a b c d e f g h i)
-pattern Πᵣ′ a b c d e f g h i = Bᵣ′ BΠ a b c d e f g h i
-pattern Σᵣ′ a b c d e f g h i = Bᵣ′ BΣ a b c d e f g h i
+pattern Πᵣ′ a b c d e f g h i = Bᵣ′ BΠ! a b c d e f g h i
+pattern Σᵣ′ a b c d e f g h i = Bᵣ′ BΣ! a b c d e f g h i
 
 logRelRec : ∀ l {l′} → l′ < l → LogRelKit
 logRelRec ⁰ = λ ()

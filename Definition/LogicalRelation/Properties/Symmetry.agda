@@ -2,17 +2,17 @@
 
 open import Definition.Typed.EqualityRelation
 
-module Definition.LogicalRelation.Properties.Symmetry {{eqrel : EqRelSet}} where
+module Definition.LogicalRelation.Properties.Symmetry (M : Set) {{eqrel : EqRelSet M}} where
 open EqRelSet {{...}}
 
-open import Definition.Untyped hiding (_∷_)
-open import Definition.Typed
-open import Definition.Typed.Properties
-import Definition.Typed.Weakening as Wk
-open import Definition.LogicalRelation
-open import Definition.LogicalRelation.ShapeView
-open import Definition.LogicalRelation.Irrelevance
-open import Definition.LogicalRelation.Properties.Conversion
+open import Definition.Untyped M hiding (Wk; _∷_)
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+import Definition.Typed.Weakening M as Wk
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.ShapeView M
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.Properties.Conversion M
 
 open import Tools.Nat
 open import Tools.Product
@@ -25,7 +25,7 @@ private
 
 mutual
   -- Helper function for symmetry of type equality using shape views.
-  symEqT : ∀ {A B l l′} {[A] : Γ ⊩⟨ l ⟩ A} {[B] : Γ ⊩⟨ l′ ⟩ B}
+  symEqT : ∀ {Γ : Con Term n} {A B l l′}  {[A] : Γ ⊩⟨ l ⟩ A} {[B] : Γ ⊩⟨ l′ ⟩ B}
          → ShapeView Γ l l′ A B [A] [B]
          → Γ ⊩⟨ l  ⟩ A ≡ B / [A]
          → Γ ⊩⟨ l′ ⟩ B ≡ A / [B]
@@ -40,7 +40,7 @@ mutual
                        (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁))
          (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
     let ΠF₁G₁≡ΠF′G′   = whrDet* (red D₁ , ⟦ W ⟧ₙ) (D′ , ⟦ W ⟧ₙ)
-        F₁≡F′ , G₁≡G′ = B-PE-injectivity W ΠF₁G₁≡ΠF′G′
+        F₁≡F′ , G₁≡G′ = B-PE-injectivity W W ΠF₁G₁≡ΠF′G′
         [F₁≡F] : ∀ {ℓ} {Δ : Con Term ℓ} {ρ} [ρ] ⊢Δ → _
         [F₁≡F] {_} {Δ} {ρ} [ρ] ⊢Δ =
           let ρF′≡ρF₁ ρ = PE.cong (wk ρ) (PE.sym F₁≡F′)
@@ -103,11 +103,11 @@ symEqTerm (Unitᵣ D) (Unitₜ₌ ⊢t ⊢u) =
   Unitₜ₌ ⊢u ⊢t
 symEqTerm (ne′ K D neK K≡K) (neₜ₌ k m d d′ nf) =
   neₜ₌ m k d′ d (symNeutralTerm nf)
-symEqTerm (Bᵣ′ BΠ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+symEqTerm (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
           (Πₜ₌ f g d d′ funcF funcG f≡g [f] [g] [f≡g]) =
   Πₜ₌ g f d′ d funcG funcF (≅ₜ-sym f≡g) [g] [f]
       (λ ρ ⊢Δ [a] → symEqTerm ([G] ρ ⊢Δ [a]) ([f≡g] ρ ⊢Δ [a]))
-symEqTerm (Bᵣ′ BΣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+symEqTerm (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
           (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] [fstp] [fstr] [fst≡] [snd≡]) =
   let ⊢Γ = wf ⊢F
       [Gfstp≡Gfstr] = G-ext Wk.id ⊢Γ [fstp] [fstr] [fst≡]

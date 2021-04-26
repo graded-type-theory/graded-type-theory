@@ -1,84 +1,101 @@
 {-# OPTIONS --without-K --safe #-}
 
-module Definition.Modality.Context.Properties where
-
+open import Tools.Relation
 open import Definition.Modality
-open import Definition.Modality.Context
 
-open import Tools.Nat
+module Definition.Modality.Context.Properties
+  {M : Set} {_≈_ : Rel M _}
+  (𝕄 : Modality M _≈_)
+  where
+
+open import Definition.Modality.Properties 𝕄
+open import Definition.Modality.Context 𝕄
+open import Definition.Untyped M hiding (_∙_ ; ε)
+
+open import Tools.Fin
+open import Tools.Nat renaming (_+_ to _+ⁿ_)
 open import Tools.Product
-open import Tools.PropositionalEquality
+open import Tools.PropositionalEquality as PE
+
+open Modality 𝕄
+
+open import Definition.Modality.Context.Properties.Addition 𝕄 public
+open import Definition.Modality.Context.Properties.Equivalence 𝕄 public
+open import Definition.Modality.Context.Properties.Insertion 𝕄 public
+open import Definition.Modality.Context.Properties.Lookup 𝕄 public
+open import Definition.Modality.Context.Properties.Meet 𝕄 public
+open import Definition.Modality.Context.Properties.Multiplication 𝕄 public
+open import Definition.Modality.Context.Properties.PartialOrder 𝕄 public
+open import Definition.Modality.Context.Properties.Recurrence 𝕄 public
+open import Definition.Modality.Context.Properties.Update 𝕄 public
 
 private
   variable
     n : Nat
-    M : Set
-    𝕄 : Modality M
+    p q r r′ : M
+    γ γ′ δ δ′ η : Conₘ n
 
--- Modality contexts form a left module
+-- Context extension is monotone w.r.t the tail
+-- If γ ≤ᶜ δ then γ ∙ p ≤ᶜ δ ∙ p
 
--- 𝟙 is a left identity to modality contex scaling
-identity : (γ : ConM 𝕄 n) → (Modality.𝟙 𝕄) ·ᶜ γ ≡ γ
-identity           ε      = refl
-identity {𝕄 = 𝕄} (γ ∙ p) = cong₂ _∙_ γ' p'
-  where
-  γ' = identity γ
-  p' = (proj₁ (Modality.·-Identity 𝕄)) p
+∙-monotoneˡ : {γ δ : Conₘ n} {p : M} → γ ≤ᶜ δ → γ ∙ p ≤ᶜ δ ∙ p
+∙-monotoneˡ γ≤δ = γ≤δ ∙ ≤-refl
 
+-- Context extension is monotone w.r.t the head
+-- If p ≤ q then γ ∙ p ≤ᶜ γ ∙ q
 
--- 𝟘 is a left zero to modality context scaling
-leftZero : (γ : ConM 𝕄 n) → (Modality.𝟘 𝕄) ·ᶜ γ ≡ 𝟘ᶜ
-leftZero           ε      = refl
-leftZero {𝕄 = 𝕄} (γ ∙ p) = cong₂ _∙_ IH z
-  where
-  IH = leftZero γ
-  z  = proj₁ (Modality.·-Zero 𝕄) p
+∙-monotoneʳ : {γ : Conₘ n} {p q : M} → p ≤ q → γ ∙ p ≤ᶜ γ ∙ q
+∙-monotoneʳ p≤q = ≤ᶜ-refl ∙ p≤q
 
+-- Context extension is monotone
+-- If γ ≤ᶜ δ and p ≤ q then γ ∙ p ≤ᶜ δ ∙ q
 
--- A zero context is a right zero to modality context scaling
-rightZero : {𝕄 : Modality M} → (p : M) → p ·ᶜ 𝟘ᶜ ≡ 𝟘ᶜ {𝕄 = 𝕄} {n = n}
-rightZero {n = 0}    p = refl
-rightZero {n = 1+ n} {𝕄 = 𝕄} p = cong₂ _∙_ IH z
-  where
-  IH = rightZero p
-  z  = proj₂ (Modality.·-Zero 𝕄) p
+∙-monotone : {γ δ : Conₘ n} {p q : M} → γ ≤ᶜ δ → p ≤ q → γ ∙ p ≤ᶜ δ ∙ q
+∙-monotone γ≤δ p≤q = ≤ᶜ-trans (∙-monotoneˡ γ≤δ) (∙-monotoneʳ p≤q)
 
--- Modality context scaling is associative
-associative : (p q : M) → (γ : ConM 𝕄 n) → (Modality._·_ 𝕄 p q) ·ᶜ γ ≡ p ·ᶜ (q ·ᶜ γ)
-associative          p q  ε      = refl
-associative {𝕄 = 𝕄} p q (γ ∙ r) = cong₂ _∙_ γ' r'
-  where
-  γ' = associative p q γ
-  r' = Modality.·-Associative 𝕄 p q r
+----------------------------------
+-- Propeties of headₘ and tailₘ --
+----------------------------------
 
--- Modality contex scaling is left distributive over addition
-leftDistr+ : (p : M) → (γ δ : ConM 𝕄 n) → p ·ᶜ (γ +ᶜ δ) ≡ (p ·ᶜ γ) +ᶜ (p ·ᶜ δ)
-leftDistr+          p  ε       ε      = refl
-leftDistr+ {𝕄 = 𝕄} p (γ ∙ q) (δ ∙ r) = cong₂ _∙_ IH distr
-  where
-  IH    = leftDistr+ p γ δ
-  distr = proj₁ (Modality.·Distr+ 𝕄) p q r
+-- tailₘ distributes over meet
+-- tailₘ (γ ∧ᶜ δ) ≡ tailₘ γ ∧ᶜ tailₘ δ
 
--- Modality context scaling is right distributive over addition
-rightDistr+ : (p q : M) → (γ : ConM 𝕄 n) → (Modality._+_ 𝕄 p q) ·ᶜ γ ≡ (p ·ᶜ γ) +ᶜ (q ·ᶜ γ)
-rightDistr+          p q  ε      = refl
-rightDistr+ {𝕄 = 𝕄} p q (γ ∙ r) = cong₂ _∙_ IH distr
-  where
-  IH    = rightDistr+ p q γ
-  distr = proj₂ (Modality.·Distr+ 𝕄) r p q
+tailₘ-distrib-∧ᶜ : (γ δ : Conₘ (1+ n)) → tailₘ (γ ∧ᶜ δ) ≡ (tailₘ γ) ∧ᶜ (tailₘ δ)
+tailₘ-distrib-∧ᶜ (ε ∙ p) (ε ∙ q) = refl
+tailₘ-distrib-∧ᶜ (γ ∙ p′ ∙ p) (δ ∙ q′ ∙ q) = cong₂ _∙_ (tailₘ-distrib-∧ᶜ (γ ∙ p) (δ ∙ q)) refl
 
--- Modality contex scaling is left distributive over meet
-leftDistr∧ : (p : M) → (γ δ : ConM 𝕄 n) → p ·ᶜ (γ ∧ᶜ δ) ≡ (p ·ᶜ γ) ∧ᶜ (p ·ᶜ δ)
-leftDistr∧          p  ε       ε      = refl
-leftDistr∧ {𝕄 = 𝕄} p (γ ∙ q) (δ ∙ r) = cong₂ _∙_ IH distr
-  where
-  IH    = leftDistr∧ p γ δ
-  distr = proj₁ (Modality.·Distr∧ 𝕄) p q r
+-- headₘ distributes over meet
+-- headₘ (γ ∧ᶜ δ) ≡ headₘ γ ∧ headₘ δ
 
--- Modality context scaling is right distributive over meet
-rightDistr∧ : (p q : M) → (γ : ConM 𝕄 n) → (Modality._∧_ 𝕄 p q) ·ᶜ γ ≡ (p ·ᶜ γ) ∧ᶜ (q ·ᶜ γ)
-rightDistr∧          p q  ε      = refl
-rightDistr∧ {𝕄 = 𝕄} p q (γ ∙ r) = cong₂ _∙_ IH distr
-  where
-  IH    = rightDistr∧ p q γ
-  distr = proj₂ (Modality.·Distr∧ 𝕄) r p q
+head-distrib-∧ : (γ δ : Conₘ (1+ n)) → headₘ (γ ∧ᶜ δ) ≡ (headₘ γ) ∧ (headₘ δ)
+head-distrib-∧ (γ ∙ p) (δ ∙ q) = refl
+
+-- The headₘ and tailₘ functions correctly give the head and tail of the context
+-- tailₘ γ ∙ headₘ γ ≡ γ
+
+headₘ-tailₘ-correct : (γ : Conₘ (1+ n)) → tailₘ γ ∙ headₘ γ ≡ γ
+headₘ-tailₘ-correct (γ ∙ p) = refl
+
+-- Congruence of tailₘ
+-- If γ ≈ᶜ δ then tailₘ γ ≈ᶜ tailₘ δ
+
+tailₘ-cong : {γ δ : Conₘ (1+ n)} → γ ≈ᶜ δ → tailₘ γ ≈ᶜ tailₘ δ
+tailₘ-cong (γ≈δ ∙ p≈q) = γ≈δ
+
+-- Congruence of headₘ
+-- If γ ≈ᶜ δ then headₘ γ ≈ᶜ headₘ δ
+
+headₘ-cong : {γ δ : Conₘ (1+ n)} → γ ≈ᶜ δ → headₘ γ ≈ headₘ δ
+headₘ-cong (γ≈δ ∙ p≈q) = p≈q
+
+-- tailₘ is monotone
+-- If γ ≤ᶜ δ then tailₘ γ ≤ᶜ tailₘ δ
+
+tailₘ-monotone : {γ δ : Conₘ (1+ n)} → γ ≤ᶜ δ → tailₘ γ ≤ᶜ tailₘ δ
+tailₘ-monotone {γ = γ ∙ p} {δ ∙ q} (γ≤δ ∙ p≤q) = γ≤δ
+
+-- headₘ is monotone
+-- If γ ≤ᶜ δ then headₘ γ ≤ᶜ headₘ δ
+
+headₘ-monotone : {γ δ : Conₘ (1+ n)} → γ ≤ᶜ δ → headₘ γ ≤ headₘ δ
+headₘ-monotone {γ = γ ∙ p} {δ ∙ q} (γ≤δ ∙ p≤q) = p≤q

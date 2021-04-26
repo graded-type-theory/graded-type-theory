@@ -2,14 +2,14 @@
 
 open import Definition.Typed.EqualityRelation
 
-module Definition.LogicalRelation.Substitution.Irrelevance {{eqrel : EqRelSet}} where
+module Definition.LogicalRelation.Substitution.Irrelevance (M : Set) {{eqrel : EqRelSet M}} where
 open EqRelSet {{...}}
 
-open import Definition.Untyped hiding (_∷_)
-open import Definition.Typed
-open import Definition.LogicalRelation
-import Definition.LogicalRelation.Irrelevance as LR
-open import Definition.LogicalRelation.Substitution
+open import Definition.Untyped M hiding (_∷_)
+open import Definition.Typed M
+open import Definition.LogicalRelation M
+import Definition.LogicalRelation.Irrelevance M as LR
+open import Definition.LogicalRelation.Substitution M
 
 open import Tools.Nat
 open import Tools.Product
@@ -75,7 +75,7 @@ irrelevance [Γ] [Γ]′ [A] ⊢Δ [σ] =
                        (irrelevanceSubst [Γ]′ [Γ] ⊢Δ ⊢Δ [σ′])
                        (irrelevanceSubstEq [Γ]′ [Γ] ⊢Δ ⊢Δ [σ] [σ]′ [σ≡σ′])
 
-open import Definition.LogicalRelation.Properties
+open import Definition.LogicalRelation.Properties M
 
 -- Irrelevance of valid types with different derivations of contexts
 -- with lifting of eqaul types

@@ -2,31 +2,31 @@
 
 open import Definition.Typed.EqualityRelation
 
-module Definition.LogicalRelation.Substitution.Introductions.ProdBetaEta {{eqrel : EqRelSet}} where
+module Definition.LogicalRelation.Substitution.Introductions.ProdBetaEta (M : Set) {{eqrel : EqRelSet M}} where
 open EqRelSet {{...}}
 
-open import Definition.Untyped as U hiding (wk ; _∷_)
-open import Definition.Untyped.Properties
-open import Definition.Typed
-open import Definition.Typed.Properties
-open import Definition.Typed.Weakening as T hiding (wk; wkTerm; wkEqTerm)
-open import Definition.Typed.RedSteps
-open import Definition.LogicalRelation
-open import Definition.LogicalRelation.ShapeView
-open import Definition.LogicalRelation.Irrelevance
-open import Definition.LogicalRelation.Weakening
-open import Definition.LogicalRelation.Properties
-open import Definition.LogicalRelation.Application
-open import Definition.LogicalRelation.Substitution
-open import Definition.LogicalRelation.Substitution.Properties
-open import Definition.LogicalRelation.Substitution.Reduction
-open import Definition.LogicalRelation.Substitution.Conversion
-open import Definition.LogicalRelation.Substitution.Reflexivity
-open import Definition.LogicalRelation.Substitution.Introductions.Pi
-open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst
-open import Definition.LogicalRelation.Substitution.Introductions.Prod
-open import Definition.LogicalRelation.Substitution.Introductions.Fst
-open import Definition.LogicalRelation.Substitution.Introductions.Snd
+open import Definition.Untyped M as U hiding (wk ; _∷_)
+open import Definition.Untyped.Properties M
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.Typed.Weakening M as T hiding (wk; wkTerm; wkEqTerm)
+open import Definition.Typed.RedSteps M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.ShapeView M
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.Weakening M
+open import Definition.LogicalRelation.Properties M
+open import Definition.LogicalRelation.Application M
+open import Definition.LogicalRelation.Substitution M
+open import Definition.LogicalRelation.Substitution.Properties M
+open import Definition.LogicalRelation.Substitution.Reduction M
+open import Definition.LogicalRelation.Substitution.Conversion M
+open import Definition.LogicalRelation.Substitution.Reflexivity M
+open import Definition.LogicalRelation.Substitution.Introductions.Pi M
+open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst M
+open import Definition.LogicalRelation.Substitution.Introductions.Prod M
+open import Definition.LogicalRelation.Substitution.Introductions.Fst M
+open import Definition.LogicalRelation.Substitution.Introductions.Snd M
 
 open import Tools.Nat
 open import Tools.Product
@@ -36,15 +36,16 @@ private
   variable
     n : Nat
     Γ : Con Term n
+    q : M
 
-Σ-β₁ᵛ : ∀ {F G t u l}
+Σ-β₁ᵛ : ∀ {F G t u l q}
         ([Γ] : ⊩ᵛ Γ)
         ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
         ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
         ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ F / [Γ] / [F])
         ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ G [ t ] / [Γ] / substS {F = F} {G} [Γ] [F] [G] [t])
       → Γ ⊩ᵛ⟨ l ⟩ fst (prod t u) ≡ t ∷ F / [Γ] / [F]
-Σ-β₁ᵛ {Γ = Γ} {F} {G} {t} {u} {l} [Γ] [F] [G] [t] [u] =
+Σ-β₁ᵛ {Γ = Γ} {F} {G} {t} {u} {l} {q} [Γ] [F] [G] [t] [u] =
   let [Gt] = substS {F = F} {G} {t} [Γ] [F] [G] [t]
       fst⇒t : Γ ⊩ᵛ fst (prod t u) ⇒ t ∷ F / [Γ]
       fst⇒t = (λ {_} {Δ} {σ} ⊢Δ [σ] →
@@ -66,7 +67,7 @@ private
                     ⊩σu = irrelevanceTerm′ (singleSubstLift G t) ⊩σGt₁ ⊩σGt ⊩σu₁
                     ⊢σu = escapeTerm ⊩σGt ⊩σu
                 in  Σ-β₁ ⊢σF ⊢σG ⊢σt ⊢σu)
-  in  proj₂ (redSubstTermᵛ {A = F} {fst (prod t u)} {t} [Γ] fst⇒t [F] [t])
+  in  proj₂ (redSubstTermᵛ {A = F} {fst (prod t u)} {t} {p = q} [Γ] fst⇒t [F] [t])
 
 Σ-β₂ᵛ : ∀ {F G t u l}
         ([Γ] : ⊩ᵛ Γ)
@@ -76,14 +77,14 @@ private
         ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ G [ t ] / [Γ] / substS {F = F} {G} [Γ] [F] [G] [t])
       → Γ ⊩ᵛ⟨ l ⟩ snd (prod t u) ≡ u ∷ G [ fst (prod t u) ] / [Γ]
           / substS {F = F} {G} [Γ] [F] [G]
-                   (fstᵛ {F = F} {G} {prod t u} [Γ] [F] [G]
+                   (fstᵛ {q = q} {F = F} {G} {prod t u} [Γ] [F] [G]
                          (prodᵛ {F = F} {G} {t} {u} [Γ] [F] [G] [t] [u]))
-Σ-β₂ᵛ {Γ = Γ} {F} {G} {t} {u} {l} [Γ] [F] [G] [t] [u] =
+Σ-β₂ᵛ {Γ = Γ} {q = q} {F = F} {G} {t} {u} {l} [Γ] [F] [G] [t] [u] =
   let [Gt] = substS {F = F} {G} {t} [Γ] [F] [G] [t]
       [prod] = prodᵛ {F = F} {G} {t} {u} [Γ] [F] [G] [t] [u]
       [fst] = fstᵛ {F = F} {G} {prod t u} [Γ] [F] [G] [prod]
       [Gfst] = substS {F = F} {G} {fst (prod t u)} [Γ] [F] [G] [fst]
-      [fst≡t] = Σ-β₁ᵛ {F = F} {G} {t} {u} [Γ] [F] [G] [t] [u]
+      [fst≡t] = Σ-β₁ᵛ {F = F} {G} {t} {u} {q = q} [Γ] [F] [G] [t] [u]
       [Gfst≡Gt] = substSEq {F = F} {F} {G} {G} {fst (prod t u)} {t}
                            [Γ] [F] [F] (reflᵛ {A = F} [Γ] [F])
                                [G] [G] (reflᵛ {Γ = Γ ∙ F} {A = G} ([Γ] ∙ [F]) [G])
@@ -118,27 +119,27 @@ private
                                            (singleSubstLift G (fst (prod t u)))
                                            (refl (escape (proj₁ ([Gfst] ⊢Δ [σ]))))
               in  conv snd⇒t σGfst≡σGfst)
-  in  proj₂ (redSubstTermᵛ {A = G [ fst (prod t u) ]} {snd (prod t u)} {u} [Γ] snd⇒t [Gfst] [u]Gfst)
+  in  proj₂ (redSubstTermᵛ {A = G [ fst (prod t u) ]} {snd (prod t u)} {u} {p = q} [Γ] snd⇒t [Gfst] [u]Gfst)
 
 Σ-η′ : ∀ {F G p r l l′}
          ([F] : Γ ⊩⟨ l′ ⟩ F)
          ([Gfstp] : Γ ⊩⟨ l′ ⟩ G [ fst p ])
-         ([ΣFG]₁ : Γ ⊩⟨ l ⟩B⟨ BΣ ⟩ Σ F ▹ G )
-         ([p] : Γ ⊩⟨ l ⟩ p ∷ Σ F ▹ G / B-intr BΣ [ΣFG]₁)
-         ([r] : Γ ⊩⟨ l ⟩ r ∷ Σ F ▹ G / B-intr BΣ [ΣFG]₁)
+         ([ΣFG]₁ : Γ ⊩⟨ l ⟩B⟨ BΣ q ⟩ Σ q ▷ F ▹ G )
+         ([p] : Γ ⊩⟨ l ⟩ p ∷ Σ q ▷ F ▹ G / B-intr BΣ! [ΣFG]₁)
+         ([r] : Γ ⊩⟨ l ⟩ r ∷ Σ q ▷ F ▹ G / B-intr BΣ! [ΣFG]₁)
          ([fst≡] : Γ ⊩⟨ l′ ⟩ fst p ≡ fst r ∷ F / [F])
          ([snd≡] : Γ ⊩⟨ l′ ⟩ snd p ≡ snd r ∷ G [ fst p ] / [Gfstp])
-       → Γ ⊩⟨ l ⟩ p ≡ r ∷ Σ F ▹ G / B-intr BΣ [ΣFG]₁
-Σ-η′ {Γ = Γ} {F} {G} {p} {r} {l} {l′}
+       → Γ ⊩⟨ l ⟩ p ≡ r ∷ Σ q ▷ F ▹ G / B-intr BΣ! [ΣFG]₁
+Σ-η′ {Γ = Γ} {q = q} {F = F} {G} {p} {r} {l} {l′}
      [F] [Gfstp]
      [ΣFG]₁@(noemb (Bᵣ F₁ G₁ D ⊢F ⊢G A≡A [F]₁ [G]₁ G-ext))
      [p]@(Σₜ p′ dₚ p′Prod p′≅p′ wk[fstp′] wk[sndp′])
      [r]@(Σₜ r′ dᵣ r′Prod r′≅r′ wk[fstr′] wk[sndr′])
      [fst≡]
      [snd≡]
-       with B-PE-injectivity BΣ (whnfRed* (red D) Σₙ)
+       with B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) Σₙ)
 ... | PE.refl , PE.refl =
-  let [ΣFG] = B-intr BΣ [ΣFG]₁
+  let [ΣFG] = B-intr BΣ! [ΣFG]₁
       ⊢Γ = wf ⊢F
       wk[F] = [F]₁ id ⊢Γ
       wk[Gfstp′] = [G]₁ id ⊢Γ wk[fstp′]
@@ -152,8 +153,8 @@ private
                         (fst-subst* ⊢F ⊢G (redₜ dᵣ))
 
       --wk[fstp≡] : Γ ⊩⟨ l ⟩ fst p ≡ fst p′ ∷ U.wk id F / wk[F]
-      wk[fstp] , wk[fstp≡] = redSubst*Term fstp⇒* wk[F] wk[fstp′]
-      wk[fstr] , wk[fstr≡] = redSubst*Term fstr⇒* wk[F] wk[fstr′]
+      wk[fstp] , wk[fstp≡] = redSubst*Term {p = q} fstp⇒* wk[F] wk[fstp′]
+      wk[fstr] , wk[fstr≡] = redSubst*Term {p = q} fstr⇒* wk[F] wk[fstr′]
 
       wk[fst≡] = irrelevanceEqTerm′ (PE.sym (wk-id F))
                                     [F] wk[F]
@@ -163,7 +164,7 @@ private
                              (symEqTerm wk[F] wk[fstp≡])
                              (transEqTerm wk[F] wk[fst≡] wk[fstr≡])
 
-      [p′] : Γ ⊩⟨ l ⟩ p′ ∷ Σ F ▹ G / [ΣFG]
+      [p′] : Γ ⊩⟨ l ⟩ p′ ∷ Σ _ ▷ F ▹ G / [ΣFG]
       [p′] = Σₜ p′ (idRedTerm:*: (⊢u-redₜ dₚ)) p′Prod p′≅p′ wk[fstp′] wk[sndp′]
       [r′] = Σₜ r′ (idRedTerm:*: (⊢u-redₜ dᵣ)) r′Prod r′≅r′ wk[fstr′] wk[sndr′]
 
@@ -197,8 +198,8 @@ private
       sndr⇒* = conv* sndr⇒*₁ (≅-eq (escapeEq [Gfstr] [Gfstr≡wkGfstp′]))
 
       wk[sndp≡] : Γ ⊩⟨ l ⟩ snd p ≡ snd p′ ∷ U.wk (lift id) G [ fst p′ ] / wk[Gfstp′]
-      wk[sndp≡] = proj₂ (redSubst*Term sndp⇒* wk[Gfstp′] wk[sndp′])
-      wk[sndr≡] = proj₂ (redSubst*Term sndr⇒* wk[Gfstp′]
+      wk[sndp≡] = proj₂ (redSubst*Term {p = q} sndp⇒* wk[Gfstp′] wk[sndp′])
+      wk[sndr≡] = proj₂ (redSubst*Term {p = q} sndr⇒* wk[Gfstp′]
                                        (convTerm₁ wk[Gfstr′] wk[Gfstp′]
                                                   [wkGfstr′≡wkGfstp′]
                                                   wk[sndr′]))
@@ -211,7 +212,7 @@ private
                               (symEqTerm wk[Gfstp′] wk[sndp≡])
                               (transEqTerm wk[Gfstp′] wk[snd≡] wk[sndr≡])
 
-      p′≅r′ : Γ ⊢ p′ ≅ r′ ∷ Σ F ▹ G
+      p′≅r′ : Γ ⊢ p′ ≅ r′ ∷ Σ _ ▷ F ▹ G
       p′≅r′ = ≅-Σ-η ⊢F ⊢G (⊢u-redₜ dₚ) (⊢u-redₜ dᵣ)
                     p′Prod r′Prod
                     (PE.subst (λ x → Γ ⊢ _ ≅ _ ∷ x)
@@ -231,31 +232,31 @@ private
 Σ-η″ : ∀ {F G p r l}
         ([F] : Γ ⊩⟨ l ⟩ F)
         ([Gfst] : Γ ⊩⟨ l ⟩ G [ fst p ])
-        ([ΣFG] : Γ ⊩⟨ l ⟩ Σ F ▹ G)
-        ([p] : Γ ⊩⟨ l ⟩ p ∷ Σ F ▹ G / [ΣFG])
-        ([r] : Γ ⊩⟨ l ⟩ r ∷ Σ F ▹ G / [ΣFG])
+        ([ΣFG] : Γ ⊩⟨ l ⟩ Σ q ▷ F ▹ G)
+        ([p] : Γ ⊩⟨ l ⟩ p ∷ Σ q ▷ F ▹ G / [ΣFG])
+        ([r] : Γ ⊩⟨ l ⟩ r ∷ Σ q ▷ F ▹ G / [ΣFG])
         ([fst≡] : Γ ⊩⟨ l ⟩ fst p ≡ fst r ∷ F / [F])
         ([snd≡] : Γ ⊩⟨ l ⟩ snd p ≡ snd r ∷ G [ fst p ] / [Gfst])
-      → Γ ⊩⟨ l ⟩ p ≡ r ∷ Σ F ▹ G / [ΣFG]
-Σ-η″ {Γ = Γ} {F} {G} {t} {l} [F] [Gfst] [ΣFG] [p] [r] [fst≡] [snd≡] =
-  let [ΣFG]′ = B-intr BΣ (B-elim BΣ [ΣFG])
+      → Γ ⊩⟨ l ⟩ p ≡ r ∷ Σ q ▷ F ▹ G / [ΣFG]
+Σ-η″ {Γ = Γ} {F = F} {G} {t} {l} [F] [Gfst] [ΣFG] [p] [r] [fst≡] [snd≡] =
+  let [ΣFG]′ = B-intr BΣ! (B-elim BΣ! [ΣFG])
       [p]′ = irrelevanceTerm [ΣFG] [ΣFG]′ [p]
       [r]′ = irrelevanceTerm [ΣFG] [ΣFG]′ [r]
-      [p≡]′ = Σ-η′ [F] [Gfst] (B-elim BΣ [ΣFG]) [p]′ [r]′ [fst≡] [snd≡]
+      [p≡]′ = Σ-η′ [F] [Gfst] (B-elim BΣ! [ΣFG]) [p]′ [r]′ [fst≡] [snd≡]
   in  irrelevanceEqTerm [ΣFG]′ [ΣFG] [p≡]′
 
 Σ-ηᵛ : ∀ {F G p r l}
          ([Γ] : ⊩ᵛ Γ)
          ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
          ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
-       → let [ΣFG] = Σᵛ {F = F} {G} [Γ] [F] [G] in
-         ([p] : Γ ⊩ᵛ⟨ l ⟩ p ∷ Σ F ▹ G / [Γ] / [ΣFG])
-         ([r] : Γ ⊩ᵛ⟨ l ⟩ r ∷ Σ F ▹ G / [Γ] / [ΣFG])
+       → let [ΣFG] = Σᵛ {F = F} {G} {q = q} [Γ] [F] [G] in
+         ([p] : Γ ⊩ᵛ⟨ l ⟩ p ∷ Σ _ ▷ F ▹ G / [Γ] / [ΣFG])
+         ([r] : Γ ⊩ᵛ⟨ l ⟩ r ∷ Σ _ ▷ F ▹ G / [Γ] / [ΣFG])
          ([fst≡] : Γ ⊩ᵛ⟨ l ⟩ fst p ≡ fst r ∷ F / [Γ] / [F])
        → let [Gfst] = substS {F = F} {G} [Γ] [F] [G] (fstᵛ {F = F} {G} {p} [Γ] [F] [G] [p]) in
          ([snd≡] : Γ ⊩ᵛ⟨ l ⟩ snd p ≡ snd r ∷ G [ fst p ] / [Γ] / [Gfst])
-       → Γ ⊩ᵛ⟨ l ⟩ p ≡ r ∷ Σ F ▹ G / [Γ] / [ΣFG]
-Σ-ηᵛ {Γ = Γ} {F} {G} {p} {r} {l} [Γ] [F] [G] [p] [r] [fst≡] [snd≡] {Δ} {σ} ⊢Δ [σ] =
+       → Γ ⊩ᵛ⟨ l ⟩ p ≡ r ∷ Σ _ ▷ F ▹ G / [Γ] / [ΣFG]
+Σ-ηᵛ {Γ = Γ} {F = F} {G} {p} {r} {l} [Γ] [F] [G] [p] [r] [fst≡] [snd≡] {Δ} {σ} ⊢Δ [σ] =
   let [ΣFG] = Σᵛ {F = F} {G} [Γ] [F] [G]
       [Gfst] = substS {F = F} {G} [Γ] [F] [G] (fstᵛ {F = F} {G} {p} [Γ] [F] [G] [p])
       ⊩σF = proj₁ ([F] ⊢Δ [σ])

@@ -1,10 +1,10 @@
 {-# OPTIONS --without-K --safe #-}
 
-module Definition.Typed.Reduction where
+module Definition.Typed.Reduction (M : Set) where
 
-open import Definition.Untyped
-open import Definition.Typed
-open import Definition.Typed.Properties
+open import Definition.Untyped M hiding (_∷_)
+open import Definition.Typed M
+open import Definition.Typed.Properties M
 
 open import Tools.Nat
 

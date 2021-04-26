@@ -2,14 +2,14 @@
 
 open import Definition.Typed.EqualityRelation
 
-module Definition.LogicalRelation.Properties.Universe {{eqrel : EqRelSet}} where
+module Definition.LogicalRelation.Properties.Universe (M : Set) {{eqrel : EqRelSet M}} where
 open EqRelSet {{...}}
 
-open import Definition.Untyped hiding (_∷_)
-open import Definition.Typed
-open import Definition.LogicalRelation
-open import Definition.LogicalRelation.ShapeView
-open import Definition.LogicalRelation.Irrelevance
+open import Definition.Untyped M hiding (_∷_)
+open import Definition.Typed M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.ShapeView M
+open import Definition.LogicalRelation.Irrelevance M
 
 open import Tools.Nat
 

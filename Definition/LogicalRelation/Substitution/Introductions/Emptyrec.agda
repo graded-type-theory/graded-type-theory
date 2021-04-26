@@ -2,28 +2,28 @@
 
 open import Definition.Typed.EqualityRelation
 
-module Definition.LogicalRelation.Substitution.Introductions.Emptyrec {{eqrel : EqRelSet}} where
+module Definition.LogicalRelation.Substitution.Introductions.Emptyrec (M : Set) {{eqrel : EqRelSet M}} where
 open EqRelSet {{...}}
 
-open import Definition.Untyped as U hiding (wk ; _∷_)
-open import Definition.Untyped.Properties
-open import Definition.Typed
-import Definition.Typed.Weakening as T
-open import Definition.Typed.Properties
-open import Definition.Typed.RedSteps
-open import Definition.LogicalRelation
-open import Definition.LogicalRelation.ShapeView
-open import Definition.LogicalRelation.Irrelevance
-open import Definition.LogicalRelation.Properties
-open import Definition.LogicalRelation.Application
-open import Definition.LogicalRelation.Substitution
-open import Definition.LogicalRelation.Substitution.Properties
-import Definition.LogicalRelation.Substitution.Irrelevance as S
-open import Definition.LogicalRelation.Substitution.Reflexivity
-open import Definition.LogicalRelation.Substitution.Weakening
-open import Definition.LogicalRelation.Substitution.Introductions.Empty
-open import Definition.LogicalRelation.Substitution.Introductions.Pi
-open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst
+open import Definition.Untyped M as U hiding (wk ; _∷_)
+open import Definition.Untyped.Properties M
+open import Definition.Typed M
+import Definition.Typed.Weakening M as T
+open import Definition.Typed.Properties M
+open import Definition.Typed.RedSteps M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.ShapeView M
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.Properties M
+open import Definition.LogicalRelation.Application M
+open import Definition.LogicalRelation.Substitution M
+open import Definition.LogicalRelation.Substitution.Properties M
+import Definition.LogicalRelation.Substitution.Irrelevance M as S
+open import Definition.LogicalRelation.Substitution.Reflexivity M
+open import Definition.LogicalRelation.Substitution.Weakening M
+open import Definition.LogicalRelation.Substitution.Introductions.Empty M
+open import Definition.LogicalRelation.Substitution.Introductions.Pi M
+open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst M
 
 open import Tools.Product
 open import Tools.Unit
@@ -37,6 +37,7 @@ private
     m n : Nat
     Γ : Con Term n
     Δ : Con Term m
+    p : M
 
 -- Empty elimination closure reduction (requires reducible terms and equality).
 Emptyrec-subst* : ∀ {C n n′ l}
@@ -44,11 +45,11 @@ Emptyrec-subst* : ∀ {C n n′ l}
               → Γ ⊢ n ⇒* n′ ∷ Empty
               → ([Empty] : Γ ⊩⟨ l ⟩ Empty)
               → Γ ⊩⟨ l ⟩ n′ ∷ Empty / [Empty]
-              → Γ ⊢ Emptyrec C n ⇒* Emptyrec C n′ ∷ C
+              → Γ ⊢ Emptyrec p C n ⇒* Emptyrec p C n′ ∷ C
 Emptyrec-subst* C (id x) [Empty] [n′] = id (Emptyrecⱼ C x)
-Emptyrec-subst* C (x ⇨ n⇒n′) [Empty] [n′] =
-  let q , w = redSubst*Term n⇒n′ [Empty] [n′]
-      a , s = redSubstTerm x [Empty] q
+Emptyrec-subst* {p = p} C (x ⇨ n⇒n′) [Empty] [n′] =
+  let q , w = redSubst*Term {p = p} n⇒n′ [Empty] [n′]
+      a , s = redSubstTerm {p = p} x [Empty] q
   in  Emptyrec-subst C x ⇨ conv* (Emptyrec-subst* C n⇒n′ [Empty] [n′]) (refl C)
 
 -- Reducibility of empty elimination under a valid substitution.
@@ -58,10 +59,10 @@ EmptyrecTerm : ∀ {F n σ l}
              (⊢Δ   : ⊢ Δ)
              ([σ]  : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
              ([σn] : Δ ⊩⟨ l ⟩ n ∷ Empty / Emptyᵣ (idRed:*: (Emptyⱼ ⊢Δ)))
-           → Δ ⊩⟨ l ⟩ Emptyrec (subst σ F) n
+           → Δ ⊩⟨ l ⟩ Emptyrec p (subst σ F) n
                ∷ subst σ F
                / proj₁ ([F] ⊢Δ [σ])
-EmptyrecTerm {Γ = Γ} {Δ = Δ} {F} {n} {σ} {l} [Γ] [F] ⊢Δ [σ]
+EmptyrecTerm {Γ = Γ} {Δ = Δ} {p = p} {F} {n} {σ} {l} [Γ] [F] ⊢Δ [σ]
            (Emptyₜ m d n≡n (ne (neNfₜ neM ⊢m m≡m))) =
   let [Empty] = Emptyᵛ {l = l} [Γ]
       [σEmpty] = proj₁ ([Empty] ⊢Δ [σ])
@@ -72,7 +73,7 @@ EmptyrecTerm {Γ = Γ} {Δ = Δ} {F} {n} {σ} {l} [Γ] [F] ⊢Δ [σ]
       EmptyrecM = neuTerm [σF] (Emptyrecₙ neM) (Emptyrecⱼ ⊢F ⊢m)
                         (~-Emptyrec ⊢F≡F m≡m)
       reduction = Emptyrec-subst* ⊢F (redₜ d) [σEmpty] [σm]
-  in proj₁ (redSubst*Term reduction [σF] EmptyrecM)
+  in proj₁ (redSubst*Term {p = p} reduction [σF] EmptyrecM)
 
 
 -- Reducibility of empty elimination congruence under a valid substitution equality.
@@ -88,11 +89,11 @@ Emptyrec-congTerm : ∀ {F F′ n m σ σ′ l}
                   ([σn]     : Δ ⊩⟨ l ⟩ n ∷ Empty / Emptyᵣ (idRed:*: (Emptyⱼ ⊢Δ)))
                   ([σm]     : Δ ⊩⟨ l ⟩ m ∷ Empty / Emptyᵣ (idRed:*: (Emptyⱼ ⊢Δ)))
                   ([σn≡σm]  : Δ ⊩⟨ l ⟩ n ≡ m ∷ Empty / Emptyᵣ (idRed:*: (Emptyⱼ ⊢Δ)))
-                → Δ ⊩⟨ l ⟩ Emptyrec (subst σ F) n
-                    ≡ Emptyrec (subst σ′ F′) m
+                → Δ ⊩⟨ l ⟩ Emptyrec p (subst σ F) n
+                    ≡ Emptyrec p (subst σ′ F′) m
                     ∷ subst σ F
                     / proj₁ ([F] ⊢Δ [σ])
-Emptyrec-congTerm {Γ = Γ} {Δ = Δ} {F} {F′} {n} {m} {σ} {σ′} {l}
+Emptyrec-congTerm {Γ = Γ} {Δ = Δ} {p = p} {F} {F′} {n} {m} {σ} {σ′} {l}
                 [Γ] [F] [F′] [F≡F′]
                 ⊢Δ [σ] [σ′] [σ≡σ′]
                 (Emptyₜ n′ d n≡n (ne (neNfₜ neN′ ⊢n′ n≡n₁)))
@@ -133,8 +134,8 @@ Emptyrec-congTerm {Γ = Γ} {Δ = Δ} {F} {F′} {n} {m} {σ} {σ′} {l}
                                           n″≡n′ m″≡m′ prop₂)))
       reduction₁ = Emptyrec-subst* ⊢F (redₜ d) [σEmpty] [σn′]
       reduction₂ = Emptyrec-subst* ⊢F′ (redₜ d′) [σ′Empty] [σ′m′]
-      eq₁ = proj₂ (redSubst*Term reduction₁ [σF] EmptyrecN)
-      eq₂ = proj₂ (redSubst*Term reduction₂ [σ′F′] EmptyrecM)
+      eq₁ = proj₂ (redSubst*Term {p = p} reduction₁ [σF] EmptyrecN)
+      eq₂ = proj₂ (redSubst*Term {p = p} reduction₂ [σ′F′] EmptyrecM)
   in transEqTerm [σF] eq₁
                  (transEqTerm [σF] EmptyrecN≡M
                               (convEqTerm₂ [σF] [σ′F′] [σF≡σ′F′]
@@ -145,7 +146,7 @@ Emptyrecᵛ : ∀ {F n l} ([Γ] : ⊩ᵛ Γ)
           ([Empty]  : Γ ⊩ᵛ⟨ l ⟩ Empty / [Γ])
           ([F]  : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
         → ([n] : Γ ⊩ᵛ⟨ l ⟩ n ∷ Empty / [Γ] / [Empty])
-        → Γ ⊩ᵛ⟨ l ⟩ Emptyrec F n ∷ F / [Γ] / [F]
+        → Γ ⊩ᵛ⟨ l ⟩ Emptyrec p F n ∷ F / [Γ] / [F]
 Emptyrecᵛ {F = F} {n} {l = l} [Γ] [Empty] [F] [n]
         {Δ = Δ} {σ = σ} ⊢Δ [σ] =
   let [σn] = irrelevanceTerm {l′ = l} (proj₁ ([Empty] ⊢Δ [σ]))
@@ -170,7 +171,7 @@ Emptyrec-congᵛ : ∀ {F F′ n n′ l} ([Γ] : ⊩ᵛ Γ)
           ([n] : Γ ⊩ᵛ⟨ l ⟩ n ∷ Empty / [Γ] / [Empty])
           ([n′] : Γ ⊩ᵛ⟨ l ⟩ n′ ∷ Empty / [Γ] / [Empty])
           ([n≡n′] : Γ ⊩ᵛ⟨ l ⟩ n ≡ n′ ∷ Empty / [Γ] / [Empty])
-        → Γ ⊩ᵛ⟨ l ⟩ Emptyrec F n ≡ Emptyrec F′ n′ ∷ F / [Γ] / [F]
+        → Γ ⊩ᵛ⟨ l ⟩ Emptyrec p F n ≡ Emptyrec p F′ n′ ∷ F / [Γ] / [F]
 Emptyrec-congᵛ {F = F} {F′} {n} {n′} {l = l}
              [Γ] [Empty] [F] [F′] [F≡F′]
              [n] [n′] [n≡n′] {Δ = Δ} {σ = σ} ⊢Δ [σ] =
