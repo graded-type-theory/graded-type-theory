@@ -28,9 +28,7 @@ data Term : Nat → Set where
   snd       : (t : Term n) → Term n
   prodrec   : (t : Term n) (u : Term (1+ (1+ n))) → Term n
   star      : Term n
-  undefined : (t : Term m) → Term n
-  Type      : Term n
-
+  undefined : Term n
 
 private
   variable
@@ -65,8 +63,7 @@ wk ρ (fst t) = fst (wk ρ t)
 wk ρ (snd t) = snd (wk ρ t)
 wk ρ (prodrec t u) = prodrec (wk ρ t) (wk (lift (lift ρ)) u)
 wk ρ star = star
-wk ρ (undefined t) = undefined t
-wk ρ Type = Type
+wk ρ undefined = undefined
 
 -- Shift all variables in a term up by one
 
@@ -105,7 +102,7 @@ consSubst σ t (x +1) = σ x
 -- Any occurences of x0 become undefined
 
 drop : Subst n (1+ n)
-drop {n} x0 = undefined (var {n = 1+ n} x0)
+drop {n} x0 = undefined
 drop (x +1) = var x
 
 -- Apply a substitution to a term
@@ -122,8 +119,7 @@ subst σ (fst t) = fst (subst σ t)
 subst σ (snd t) = snd (subst σ t)
 subst σ (prodrec t u) = prodrec (subst σ t) (subst (liftSubst (liftSubst σ)) u)
 subst σ star = star
-subst σ (undefined t) = undefined t
-subst σ Type = Type
+subst σ undefined = undefined
 
 -- Substitute the first variable of a term with an other term.
 
@@ -134,6 +130,29 @@ t [ u ] = subst (consSubst idSubst u) t
 
 _[_,_] : (t : Term (1+ (1+ n))) → (u v : Term n) → Term n
 t [ u , v ] = subst (consSubst (consSubst idSubst u) v) t
+
+-- Strengthening of terms.
+-- Strengthenings are constructed similarily to weakenings.
+
+data Str : (m n : Nat) → Set where
+  id   : Str n n                       -- The identity strengthening
+  step : Str m n → Str m (1+ n)      -- Removes x0 by substituting it with undefined and shifting remaining indices down
+  lift : Str m n → Str (1+ m) (1+ n) -- Lifts a strengthening ρ by leaving x0 intact and applying ρ to all other
+
+-- Strengthening of variables
+
+strVar : Str m n → Fin n → Term m
+strVar id x = var x
+strVar (step ρ) x0 = undefined
+strVar (step ρ) (_+1 x) = strVar ρ x
+strVar (lift ρ) x0 = var x0
+strVar (lift ρ) (x +1) = wk1 (strVar ρ x)
+
+-- Strengthening of terms
+
+str : Str m n → Term n → Term m
+str ρ t = subst (strVar ρ) t
+
 
 -- Single-step reduction relation
 
