@@ -9,13 +9,11 @@ open import Tools.Nat
 open import Tools.Product hiding (_,_)
 import Tools.PropositionalEquality as PE
 
--- open Modality 𝕄
 
 infixl 30 _∙_
 infix 30 Πⱼ_▹_
 infix 30 Σⱼ_▹_
 infix 30 ⟦_⟧ⱼ_▹_
-
 
 private
   variable
