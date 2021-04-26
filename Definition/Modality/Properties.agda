@@ -167,19 +167,23 @@ private
 
 nr-rec : (p q r : M) → nr p q r ≈ p ∧ (q + r · nr p q r)
 nr-rec p q r with nrⁿ-fix
-... | n , fix = sym (fix p q r)
+... | n , fix = begin
+  nrⁿ n p q r               ≈˘⟨ fix p q r ⟩
+  nrⁿ (1+ n) p q r          ≈⟨ nrⁿ-rec n p q r ⟩
+  p ∧ (q + r · nrⁿ n p q r) ∎
+  where open import Tools.Reasoning.Equivalence ≈-equivalence
 
 -- nrⁿ is idempotent on 𝟘 for its first two (non Nat) arguments
 -- nrⁿ n 𝟘 𝟘 r ≈ 𝟘
 
 nrⁿ-idem-𝟘 : (n : Nat) → nrⁿ n 𝟘 𝟘 r ≈ 𝟘
-nrⁿ-idem-𝟘 {r} 0 = refl
+nrⁿ-idem-𝟘 {r} 0 = nrⁿ-0 𝟘 𝟘 r
 nrⁿ-idem-𝟘 {r} (1+ n) = begin
-  nrⁿ (1+ n) 𝟘 𝟘 r          ≡⟨⟩
+  nrⁿ (1+ n) 𝟘 𝟘 r ≈⟨ nrⁿ-rec n 𝟘 𝟘 r ⟩
   𝟘 ∧ (𝟘 + r · nrⁿ n 𝟘 𝟘 r) ≈⟨ ∧-cong refl (proj₁ +-identity _) ⟩
-  𝟘 ∧ (r · nrⁿ n 𝟘 𝟘 r)     ≈⟨ ∧-cong refl (·-cong refl (nrⁿ-idem-𝟘 n)) ⟩
-  𝟘 ∧ (r · 𝟘)               ≈⟨ ∧-cong refl (proj₂ ·-zero r) ⟩
-  𝟘 ∧ 𝟘                     ≈⟨ ∧-idem 𝟘 ⟩
+  𝟘 ∧ (r · nrⁿ n 𝟘 𝟘 r) ≈⟨ ∧-cong refl (·-cong refl (nrⁿ-idem-𝟘 n)) ⟩
+  𝟘 ∧ (r · 𝟘) ≈⟨ ∧-cong refl (proj₂ ·-zero r) ⟩
+  𝟘 ∧ 𝟘 ≈⟨ ∧-idem 𝟘 ⟩
   𝟘 ∎
  where open import Tools.Reasoning.Equivalence ≈-equivalence
 
@@ -194,9 +198,20 @@ nr-idem-𝟘 r with nrⁿ-fix
 -- If p ≤ p′ and q ≤ q′ and r ≤ r′ then nrⁿ n p q r ≤ nrⁿ n p′ q′ r′
 
 nrⁿ-monotone : (n : Nat) → p ≤ p′ → q ≤ q′ → r ≤ r′ → nrⁿ n p q r ≤ nrⁿ n p′ q′ r′
-nrⁿ-monotone {p} {p′} {q} {q′} {r} {r′} 0 x y z = ≤-refl
-nrⁿ-monotone {p} {p′} {q} {q′} {r} {r′} (1+ n) p≤p′ q≤q′ r≤r′ =
-  ∧-monotone p≤p′ (+-monotone q≤q′ (·-monotone r≤r′ (nrⁿ-monotone n p≤p′ q≤q′ r≤r′)))
+nrⁿ-monotone {p} {p′} {q} {q′} {r} {r′} 0 x y z = begin
+  nrⁿ 0 p q r    ≈⟨ nrⁿ-0 p q r ⟩
+  𝟘              ≈˘⟨ nrⁿ-0 p′ q′ r′ ⟩
+  nrⁿ 0 p′ q′ r′ ∎
+  where open import Tools.Reasoning.PartialOrder ≤-poset
+nrⁿ-monotone {p} {p′} {q} {q′} {r} {r′} (1+ n) p≤p′ q≤q′ r≤r′ = begin
+  nrⁿ (1+ n) p q r
+    ≈⟨ nrⁿ-rec n p q r ⟩
+  p ∧ (q + r · nrⁿ n p q r)
+    ≤⟨ ∧-monotone p≤p′ (+-monotone q≤q′ (·-monotone r≤r′ (nrⁿ-monotone n p≤p′ q≤q′ r≤r′))) ⟩
+  p′ ∧ (q′ + r′ · nrⁿ n p′ q′ r′)
+    ≈˘⟨ nrⁿ-rec n p′ q′ r′ ⟩
+  nrⁿ (1+ n) p′ q′ r′ ∎
+  where open import Tools.Reasoning.PartialOrder ≤-poset
 
 -- nr is monotone
 -- If p ≤ p′ and q ≤ q′ and r ≤ r′ then nr n p q r ≤ nr n p′ q′ r′
@@ -210,10 +225,15 @@ nr-monotone {p} {p′} {q} {q′} {r} {r′} p≤p′ q≤q′ r≤r′ with nr�
 
 ·-distribʳ-nrⁿ : (n : Nat) (p′ p q r : M)
                → nrⁿ n (p · p′) (q · p′) r ≈ nrⁿ n p q r · p′
-·-distribʳ-nrⁿ 0 p′ p q r = sym (proj₁ ·-zero p′)
+·-distribʳ-nrⁿ 0 p′ p q r = begin
+  nrⁿ 0 (p · p′) (q · p′) r ≈⟨ nrⁿ-0 (p · p′) (q · p′) r ⟩
+  𝟘                         ≈˘⟨ proj₁ ·-zero p′ ⟩
+  𝟘 · p′                    ≈˘⟨ ·-cong (nrⁿ-0 p q r) refl ⟩
+  nrⁿ 0 p q r · p′          ∎
+  where open import Tools.Reasoning.Equivalence ≈-equivalence
 ·-distribʳ-nrⁿ (1+ n) p′ p q r = begin
   nrⁿ (1+ n) (p · p′) (q · p′) r
-     ≡⟨⟩
+     ≈⟨ nrⁿ-rec n (p · p′) (q · p′) r ⟩
   (p · p′) ∧ ((q · p′) + r · nrⁿ n (p · p′) (q · p′) r)
      ≈⟨  ∧-cong refl (+-cong refl (·-cong refl (·-distribʳ-nrⁿ n p′ p q r)))  ⟩
   (p · p′) ∧ ((q · p′) + r · nrⁿ n p q r · p′)
@@ -223,7 +243,7 @@ nr-monotone {p} {p′} {q} {q′} {r} {r′} p≤p′ q≤q′ r≤r′ with nr�
   (p · p′) ∧ ((q + r · nrⁿ n p q r) · p′)
      ≈˘⟨ proj₂ ·-distrib-∧ p′ p _ ⟩
   (p ∧ (q + r · nrⁿ n p q r)) · p′
-     ≡⟨⟩
+     ≈˘⟨ ·-cong (nrⁿ-rec n p q r) refl ⟩
   nrⁿ (1+ n) p q r · p′ ∎
   where open import Tools.Reasoning.Equivalence ≈-equivalence
 
@@ -239,10 +259,15 @@ nr-monotone {p} {p′} {q} {q′} {r} {r′} p≤p′ q≤q′ r≤r′ with nr�
 
 +-super-distrib-nrⁿ : (n : Nat) (p p′ q q′ r : M)
                      → nrⁿ n p q r + nrⁿ n p′ q′ r ≤ nrⁿ n (p + p′) (q + q′) r
-+-super-distrib-nrⁿ 0 p p′ q q′ r = ≤-reflexive (proj₁ +-identity 𝟘)
++-super-distrib-nrⁿ 0 p p′ q q′ r = begin
+  nrⁿ 0 p q r + nrⁿ 0 p′ q′ r ≈⟨ +-cong (nrⁿ-0 p q r) (nrⁿ-0 p′ q′ r) ⟩
+  𝟘 + 𝟘                       ≈⟨ proj₁ +-identity 𝟘 ⟩
+  𝟘                           ≈˘⟨ nrⁿ-0 (p + p′) (q + q′) r ⟩
+  nrⁿ 0 (p + p′) (q + q′) r   ∎
+  where open import Tools.Reasoning.PartialOrder ≤-poset
 +-super-distrib-nrⁿ (1+ n) p p′ q q′ r = begin
   nrⁿ (1+ n) p q r + nrⁿ (1+ n) p′ q′ r
-     ≡⟨⟩
+     ≈⟨ +-cong (nrⁿ-rec n p q r) (nrⁿ-rec n p′ q′ r) ⟩
   (p ∧ (q + r · nrⁿ n p q r)) + (p′ ∧ (q′ + r · nrⁿ n p′ q′ r))
      ≈⟨ proj₂ +-distrib-∧ _ _ _ ⟩
   (p + (p′ ∧ (q′ + r · nrⁿ n p′ q′ r))) ∧ ((q + r · nrⁿ n p q r) + (p′ ∧ (q′ + r · nrⁿ n p′ q′ r)))
@@ -262,9 +287,9 @@ nr-monotone {p} {p′} {q} {q′} {r} {r′} p≤p′ q≤q′ r≤r′ with nr�
   (p + p′) ∧ ((q + q′) + (r · nrⁿ n p q r + r · nrⁿ n p′ q′ r))
      ≈˘⟨ ∧-cong refl (+-cong refl (proj₁ ·-distrib-+ _ _ _)) ⟩
   (p + p′) ∧ ((q + q′) + (r · (nrⁿ n p q r + nrⁿ n p′ q′ r)))
-     ≤⟨ ∧-monotoneʳ (+-monotoneʳ (·-monotoneʳ (+-super-distrib-nrⁿ n _ _ _ _ _))) ⟩
+     ≤⟨ ∧-monotoneʳ (+-monotoneʳ (·-monotoneʳ (+-super-distrib-nrⁿ _ _ _ _ _ _))) ⟩
   (p + p′) ∧ ((q + q′) + (r · nrⁿ n (p + p′) (q + q′) r))
-     ≡⟨⟩
+     ≈˘⟨ nrⁿ-rec n (p + p′) (q + q′) r ⟩
   nrⁿ (1+ n) (p + p′) (q + q′) r ∎
   where open import Tools.Reasoning.PartialOrder ≤-poset
 
@@ -279,9 +304,20 @@ nr-monotone {p} {p′} {q} {q′} {r} {r′} p≤p′ q≤q′ r≤r′ with nr�
 -- If p ≈ p′ and q ≈ q′ and r ≈ r′ then nrⁿ n p q r ≈ nrⁿ n p′ q′ r′
 
 nrⁿ-cong : (n : Nat) → p ≈ p′ → q ≈ q′ → r ≈ r′ → nrⁿ n p q r ≈ nrⁿ n p′ q′ r′
-nrⁿ-cong {p} {p′} {q} {q′} {r} {r′} 0 p≈p′ q≈q′ r≈r′ = refl
-nrⁿ-cong {p} {p′} {q} {q′} {r} {r′} (1+ n) p≈p′ q≈q′ r≈r′ =
-  ∧-cong p≈p′ (+-cong q≈q′ (·-cong r≈r′ (nrⁿ-cong n p≈p′ q≈q′ r≈r′)))
+nrⁿ-cong {p} {p′} {q} {q′} {r} {r′} 0 p≈p′ q≈q′ r≈r′ = begin
+  nrⁿ 0 p q r    ≈⟨ nrⁿ-0 p q r ⟩
+  𝟘              ≈˘⟨ nrⁿ-0 p′ q′ r′ ⟩
+  nrⁿ 0 p′ q′ r′ ∎
+  where open import Tools.Reasoning.Equivalence ≈-equivalence
+nrⁿ-cong {p} {p′} {q} {q′} {r} {r′} (1+ n) p≈p′ q≈q′ r≈r′ = begin
+  nrⁿ (1+ n) p q r
+    ≈⟨ nrⁿ-rec n p q r ⟩
+  p ∧ (q + r · nrⁿ n p q r)
+    ≈⟨ ∧-cong p≈p′ (+-cong q≈q′ (·-cong r≈r′ (nrⁿ-cong n p≈p′ q≈q′ r≈r′))) ⟩
+  (p′ ∧ (q′ + (r′ · nrⁿ n p′ q′ r′)))
+    ≈˘⟨ nrⁿ-rec n p′ q′ r′ ⟩
+  nrⁿ (1+ n) p′ q′ r′ ∎
+  where open import Tools.Reasoning.Equivalence ≈-equivalence
 
 -- Congruence of nr
 -- If p ≈ p′ and q ≈ q′ and r ≈ r′ then nr p q r ≈ nr p′ q′ r′

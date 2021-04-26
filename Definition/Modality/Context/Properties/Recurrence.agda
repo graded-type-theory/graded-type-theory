@@ -29,7 +29,7 @@ private
 
 nrᶜ-rec : (γ δ : Conₘ n) (r : M) → nrᶜ γ δ r ≈ᶜ γ ∧ᶜ (δ +ᶜ r ·ᶜ nrᶜ γ δ r)
 nrᶜ-rec ε ε r             = ≈ᶜ-refl
-nrᶜ-rec (γ ∙ p) (δ ∙ q) r = (nrᶜ-rec γ δ r) ∙ (nr-rec p q r)
+nrᶜ-rec (γ ∙ p) (δ ∙ q) r = (nrᶜ-rec γ δ r) ∙( nr-rec p q r)
 
 -- nrᶜ is idempotent on 𝟘ᶜ on the first two arguments
 -- nrᶜ 𝟘ᶜ 𝟘ᶜ r ≈ᶜ 𝟘ᶜ
