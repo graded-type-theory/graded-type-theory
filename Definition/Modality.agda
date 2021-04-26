@@ -1,8 +1,9 @@
 {-# OPTIONS --without-K --safe #-}
 
+open import Tools.Level
 open import Tools.Relation
 
-module Definition.Modality (M : Set) (_≈_ : Rel M _) where
+module Definition.Modality (M : Set) (_≈_ : Rel M ℓ₀) where
 
 open import Tools.Algebra (_≈_)
 open import Tools.Nat hiding (_+_)
@@ -37,7 +38,7 @@ record Modality : Set where
 
 
   -- Semilattice partial ordering relation
-  _≤_ : Rel M _
+  _≤_ : Rel M ℓ₀
   p ≤ q = p ≈ (p ∧ q)
 
   field
