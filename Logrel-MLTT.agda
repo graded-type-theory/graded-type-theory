@@ -19,6 +19,18 @@ import Tools.List
 import Tools.PropositionalEquality
 import Tools.Fin
 
+-- Modality structure
+import Definition.Modality
+import Definition.Modality.Properties
+import Definition.Modality.Context
+import Definition.Modality.Context.Properties
+import Definition.Modality.Usage
+import Definition.Modality.Usage.Inversion
+import Definition.Modality.Usage.Properties
+import Definition.Modality.Usage.Weakening
+import Definition.Modality.Substitution
+import Definition.Modality.Substitution.Properties
+
 -- Grammar of the language
 import Definition.Untyped
 import Definition.Untyped.Properties
@@ -31,6 +43,10 @@ import Definition.Typed.Reduction
 import Definition.Typed.RedSteps
 import Definition.Typed.EqualityRelation
 import Definition.Typed.EqRelInstance
+import Definition.Typed.Usage
+
+-- Combined usage and typing relations
+import Definition.Usage
 
 -- Logical relation
 import Definition.LogicalRelation
