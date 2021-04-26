@@ -353,8 +353,8 @@ lift η  • step η′  =  step  (η • η′)
 lift η  • lift η′  =  lift  (η • η′)
 
 liftn : {k m : Nat} → Wk k m → (n : Nat) → Wk (n + k) (n + m)
-liftn ρ Nat.zero = ρ
-liftn ρ (1+ n)   = lift (liftn ρ n)
+liftn ρ 0 = ρ
+liftn ρ (1+ n) = lift (liftn ρ n)
 
 repeat : {A : Set} → (A → A) → A → Nat → A
 repeat f a 0 = a
@@ -584,7 +584,7 @@ t [ s ]↑ = subst (consSubst (wk1Subst idSubst) s) t
 
 -- Substitute the first two variables of a term with other terms.
 --
--- If Γ∙A∙B ⊢ t : C, Γ ⊢ s : A and Γ ⊢ s ′: B and  then Γ ⊢ t[s,s′] : C[s,s′]
+-- If Γ∙A∙B ⊢ t : C, Γ ⊢ s : A and Γ ⊢ s′ : B and  then Γ ⊢ t[s,s′] : C[s,s′]
 
 _[_,_] : (t : Term (1+ (1+ n))) (s s′ : Term n) → Term n
 t [ s , s′ ] = subst (consSubst (consSubst idSubst s) s′) t
