@@ -11,8 +11,16 @@ open import Tools.Algebra {A = ⊤} _≡_
 
 open import Definition.Modality ⊤ _≡_ public
 
+-----------------------------------------------
+-- A trivial modality formed by the unit set --
+-----------------------------------------------
+
+-- Trivial addition (and multiplication and meet) operation
+
 _+_ : Op₂ ⊤
 _ + _ = tt
+
+-- Trivial recurrence function
 
 nrⁿ : (n : Nat) → Op₃ ⊤
 nrⁿ _ _ _ _ = tt
@@ -21,38 +29,59 @@ infixr 20 _+_
 
 -- Properties of +
 
--- + is commutative
+-- Addition is commutative
+-- p + q ≡ q + p
+
 +-Commutative : Commutative _+_
 +-Commutative x y = refl
 
--- + is associative
+-- Addition is associative
+-- p + (q + r) ≡ (p + q) + r
+
 +-Associative : Associative _+_
 +-Associative x y z = refl
 
--- + is left distributive of itself
+-- Addition is left distributive of itself
+-- p + (q + r) ≡ (p + q) + (p + r)
+
 +-Distributiveˡ : _+_ DistributesOverˡ _+_
 +-Distributiveˡ x y z = refl
 
--- + is right distributive over itself
+-- Addition is right distributive over itself
+-- (q + r) + p ≡ (q + p) + (r + p)
+
 +-Distributiveʳ : _+_ DistributesOverʳ _+_
 +-Distributiveʳ x y z = refl
 
--- tt is the left identity of +
+-- tt is the left identity of addition
+-- tt + p ≡ p
+
 +-LeftIdentity : LeftIdentity tt _+_
 +-LeftIdentity tt = refl
 
--- tt is the right identity of +
+-- tt is the right identity of addition
+-- p + tt ≡ p
+
 +-RightIdentity : RightIdentity tt _+_
 +-RightIdentity tt = refl
+
+-- tt is the identity of addition
+-- tt + p ≡ p ≡ p + tt
 
 +-Identity : Identity tt _+_
 +-Identity = +-LeftIdentity , +-RightIdentity
 
--- + is idempotent
+-- Addition is idempotent
+-- p + p ≡ p
+
 +-Idempotent : Idempotent _+_
 +-Idempotent tt = refl
 
--- + forms the following algebras:
+------------------------------------
+-- + forms the following algebras --
+------------------------------------
+
+-- Addition forms a magma
 
 +-Magma : IsMagma _+_
 +-Magma = record
@@ -60,11 +89,15 @@ infixr 20 _+_
   ; ∙-cong        = cong₂ _+_
   }
 
+-- Addition forms a semigroup
+
 +-Semigroup : IsSemigroup _+_
 +-Semigroup = record
   { isMagma = +-Magma
   ; assoc   = +-Associative
   }
+
+-- Addition forms a monoid with tt as identity
 
 +-Monoid : IsMonoid _+_ tt
 +-Monoid = record
@@ -72,17 +105,23 @@ infixr 20 _+_
   ; identity    = +-Identity
   }
 
+-- Addition forms a commutative monoid with tt as identity
+
 +-CommutativeMonoid : IsCommutativeMonoid _+_ tt
 +-CommutativeMonoid = record
   { isMonoid = +-Monoid
   ; comm     = +-Commutative
   }
 
+-- Addition forms a band
+
 +-Band : IsBand _+_
 +-Band = record
   { isSemigroup = +-Semigroup
   ; idem        = +-Idempotent
   }
+
+-- Addition forms a semilattice
 
 +-Semilattice : IsSemilattice _+_
 +-Semilattice = record
@@ -91,6 +130,7 @@ infixr 20 _+_
   }
 
 -- ⊤ form a modality with + as addition, multiplication and meet
+
 UnitModality : Modality
 UnitModality = record
   { _+_                  = _+_
