@@ -98,13 +98,6 @@ consSubst : (σ : Subst m n) → (t : Term m) → Subst m (1+ n)
 consSubst σ t x0 = t
 consSubst σ t (x +1) = σ x
 
--- Drop all variables indices by one.
--- Any occurences of x0 become undefined
-
-drop : Subst n (1+ n)
-drop {n} x0 = undefined
-drop (x +1) = var x
-
 -- Apply a substitution to a term
 
 subst : (σ : Subst m n) → (t : Term n) → Term m
@@ -135,7 +128,7 @@ t [ u , v ] = subst (consSubst (consSubst idSubst u) v) t
 -- Strengthenings are constructed similarily to weakenings.
 
 data Str : (m n : Nat) → Set where
-  id   : Str n n                       -- The identity strengthening
+  id   : Str n n                     -- The identity strengthening
   step : Str m n → Str m (1+ n)      -- Removes x0 by substituting it with undefined and shifting remaining indices down
   lift : Str m n → Str (1+ m) (1+ n) -- Lifts a strengthening ρ by leaving x0 intact and applying ρ to all other
 
