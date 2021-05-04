@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K --safe #-}
 
-module Definition.Target where
+module Erasure.Target where
 
 open import Tools.Fin
 open import Tools.Nat
@@ -11,7 +11,7 @@ infix 10 _⇒_
 
 private
   variable
-    m n : Nat
+    ℓ m n : Nat
 
 -- Terms of the target language:
 -- A lambda calculus extended with natural numbers, products and unit
@@ -34,12 +34,26 @@ private
   variable
     s t t′ u z : Term n
 
+
 -- Weakenings in the same style as the source language
 
 data Wk : (m n : Nat) → Set where
   id   : Wk n n
   step : (ρ : Wk m n) → Wk (1+ m) n
   lift : (ρ : Wk m n) → Wk (1+ m) (1+ n)
+
+-- Composition of weakenings
+
+_•_ : (ρ : Wk m n) → (ρ′ : Wk n ℓ) → Wk m ℓ
+id • ρ′ = ρ′
+step ρ • ρ′ = step (ρ • ρ′)
+lift ρ • id = lift ρ
+lift ρ • step ρ′ = step (ρ • ρ′)
+lift ρ • lift ρ′ = lift (ρ • ρ′)
+
+liftn : (ρ : Wk ℓ m) → (n : Nat) → Wk (n + ℓ) (n + m)
+liftn ρ 0 = ρ
+liftn ρ (1+ n) = lift (liftn ρ n)
 
 -- Weakening of variables
 
@@ -54,7 +68,7 @@ wkVar (lift ρ) (x +1) = (wkVar ρ x) +1
 wk : (ρ : Wk m n) → (t : Term n) → Term m
 wk ρ (var x) = var (wkVar ρ x)
 wk ρ (lam t) = lam (wk (lift ρ) t)
-wk ρ (t ∘ u) = wk ρ t ∘ wk ρ t
+wk ρ (t ∘ u) = wk ρ t ∘ wk ρ u
 wk ρ zero = zero
 wk ρ (suc t) = suc (wk ρ t)
 wk ρ (natrec z s n) = natrec (wk ρ z) (wk (lift (lift ρ)) s) (wk ρ n)
@@ -91,12 +105,23 @@ liftSubst : (σ : Subst m n) → Subst (1+ m) (1+ n)
 liftSubst σ x0 = var x0
 liftSubst σ (x +1) = wk1Subst σ x
 
+liftSubstn : (σ : Subst ℓ m) → (n : Nat) → Subst (n + ℓ) (n + m)
+liftSubstn σ 0 = σ
+liftSubstn σ (1+ n) = liftSubst (liftSubstn σ n)
+
+
 -- Extend a substitution σ with a term t, substituting x0 with t
 -- and remaining variables by σ.
 
 consSubst : (σ : Subst m n) → (t : Term m) → Subst m (1+ n)
 consSubst σ t x0 = t
 consSubst σ t (x +1) = σ x
+
+sgSubst : (t : Term n) → Subst n (1+ n)
+sgSubst = consSubst idSubst
+
+toSubst : (ρ : Wk m n) → Subst m n
+toSubst ρ x = var (wkVar ρ x)
 
 -- Apply a substitution to a term
 
@@ -114,6 +139,20 @@ subst σ (prodrec t u) = prodrec (subst σ t) (subst (liftSubst (liftSubst σ)) 
 subst σ star = star
 subst σ undefined = undefined
 
+-- Compose two substitutions.
+
+_ₛ•ₛ_ : Subst ℓ m → Subst m n → Subst ℓ n
+_ₛ•ₛ_ σ σ′ x = subst σ (σ′ x)
+
+-- Composition of weakening and substitution.
+
+_•ₛ_ : Wk ℓ m → Subst m n → Subst ℓ n
+_•ₛ_ ρ σ x = wk ρ (σ x)
+
+_ₛ•_ : Subst ℓ m → Wk m n → Subst ℓ n
+_ₛ•_ σ ρ x = σ (wkVar ρ x)
+
+
 -- Substitute the first variable of a term with an other term.
 
 _[_] : (t : Term (1+ n)) → (s : Term n) → Term n
@@ -123,28 +162,6 @@ t [ u ] = subst (consSubst idSubst u) t
 
 _[_,_] : (t : Term (1+ (1+ n))) → (u v : Term n) → Term n
 t [ u , v ] = subst (consSubst (consSubst idSubst u) v) t
-
--- Strengthening of terms.
--- Strengthenings are constructed similarily to weakenings.
-
-data Str : (m n : Nat) → Set where
-  id   : Str n n                     -- The identity strengthening
-  step : Str m n → Str m (1+ n)      -- Removes x0 by substituting it with undefined and shifting remaining indices down
-  lift : Str m n → Str (1+ m) (1+ n) -- Lifts a strengthening ρ by leaving x0 intact and applying ρ to all other
-
--- Strengthening of variables
-
-strVar : Str m n → Fin n → Term m
-strVar id x = var x
-strVar (step ρ) x0 = undefined
-strVar (step ρ) (_+1 x) = strVar ρ x
-strVar (lift ρ) x0 = var x0
-strVar (lift ρ) (x +1) = wk1 (strVar ρ x)
-
--- Strengthening of terms
-
-str : Str m n → Term n → Term m
-str ρ t = subst (strVar ρ) t
 
 
 -- Single-step reduction relation
