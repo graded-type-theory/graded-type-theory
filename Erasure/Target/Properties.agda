@@ -441,16 +441,6 @@ singleSubstLift G t =
 doubleSubstLift : (σ : Subst m n) (G : Term (1+ (1+ n))) (t u : Term n)
                 → subst σ (G [ t , u ])
                 ≡ subst (liftSubst (liftSubst σ)) G [ subst σ t , subst σ u ]
-                -- subst σ ((var x2) [ star , undefined ]) = σ x0
-                -- subst (liftSubst (liftSubst σ)) (var x2) [ star , undefined ]
-                 -- = (liftSubst (liftSubst σ)) x2 [ star , undefined ]
-                 -- = wk1Subst (liftSubst σ) x1 [_,_]
-                 -- = wk1 (liftSubst σ x1) [_,_]
-                 -- = wk1 (wk1Subst σ x0) [_,_]
-                 -- = wk1 (wk1 (σ x0)) [_,_]
-                 -- wk (step id) (wk (step id) (σ x0)) [_,_]
-                 --- !!!! Weakening x2 och sedan [_,_] gör inget
-                 --- Lemma ^^^^
 doubleSubstLift {n = n} σ G t u = begin
   subst σ (G [ t , u ])
     ≡⟨⟩
