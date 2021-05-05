@@ -306,12 +306,14 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set wher
                  → Γ ∙ F ⊢ G
                  → Γ ⊢ t ∷ F
                  → Γ ⊢ u ∷ G [ t ]
+                 → Γ ⊢ (prod t u) ∷ Σ q ▷ F ▹ G
                  → Γ ⊢ fst (prod t u) ⇒ t ∷ F
   Σ-β₂           : ∀ {F G t u}
                  → Γ ⊢ F
                  → Γ ∙ F ⊢ G
                  → Γ ⊢ t ∷ F
                  → Γ ⊢ u ∷ G [ t ]
+                 → Γ ⊢ (prod t u) ∷ Σ q ▷ F ▹ G
                  -- TODO(WN): Prove that 𝔍 ∷ G [ t ] is admissible
                  → Γ ⊢ snd (prod t u) ⇒ u ∷ G [ fst (prod t u) ]
 

@@ -96,8 +96,8 @@ subsetTerm (β-red A t a p≡q) = β-red A t a p≡q
 subsetTerm (conv t⇒u A≡B) = conv (subsetTerm t⇒u) A≡B
 subsetTerm (fst-subst F G x) = fst-cong F G (subsetTerm x)
 subsetTerm (snd-subst F G x) = snd-cong F G (subsetTerm x)
-subsetTerm (Σ-β₁ F G x x₁) = Σ-β₁ F G x x₁
-subsetTerm (Σ-β₂ F G x x₁) = Σ-β₂ F G x x₁
+subsetTerm (Σ-β₁ F G x x₁ x₂) = Σ-β₁ F G x x₁
+subsetTerm (Σ-β₂ F G x x₁ x₂) = Σ-β₂ F G x x₁
 subsetTerm (prodrec-subst F G u A t⇒t') =
   prodrec-cong F G (refl A) (subsetTerm t⇒t') (refl u)
 subsetTerm (prodrec-β F G t t' A u) = prodrec-β F G A t t' u
@@ -116,32 +116,31 @@ subset* (A⇒A′ ⇨ A′⇒*B) = trans (subset A⇒A′) (subset* A′⇒*B)
 
 -- Can extract left-part of a reduction
 
-redFirstTerm : {p : M} {Γ : Con Term n} → Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ∷ A
-redFirstTerm {p = p} (conv t⇒u A≡B) = conv (redFirstTerm {p = p} t⇒u) A≡B
-redFirstTerm {p = p} (app-subst t⇒u a) = (redFirstTerm {p = p} t⇒u) ∘ⱼ a
-redFirstTerm {p = q} (β-red {p} A t a PE.refl) = _∘ⱼ_ {p = p} {q = q} (lamⱼ {p = p} A t) a
-redFirstTerm {p = p} (natrec-subst F z s n⇒n′) = natrecⱼ F z s (redFirstTerm {p = p} n⇒n′)
-redFirstTerm {p = p} (natrec-zero F z s) = natrecⱼ F z s (zeroⱼ (wfTerm z))
-redFirstTerm {p = p} (natrec-suc n F z s) = natrecⱼ F z s (sucⱼ n)
-redFirstTerm {p = p} (Emptyrec-subst A n⇒n′) = Emptyrecⱼ A (redFirstTerm {p = p} n⇒n′)
-redFirstTerm {p = p} (fst-subst F G x) = fstⱼ F G (redFirstTerm {p = p} x)
-redFirstTerm {p = p} (snd-subst F G x) = sndⱼ F G (redFirstTerm {p = p} x)
-redFirstTerm {p = p} (Σ-β₁ F G x x₁) = fstⱼ {q = p} F G (prodⱼ F G x x₁)
-redFirstTerm {p = p} (Σ-β₂ F G x x₁) = sndⱼ {q = p} F G (prodⱼ F G x x₁)
-redFirstTerm {p = p} (prodrec-subst F G x A x₁) = prodrecⱼ F G (redFirstTerm {p = p} x₁) A x
-redFirstTerm {p = p} (prodrec-β F G t t' A u) =  prodrecⱼ F G (prodⱼ F G t t') A u
+redFirstTerm :{Γ : Con Term n} → Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ∷ A
+redFirstTerm (conv t⇒u A≡B) = conv (redFirstTerm t⇒u) A≡B
+redFirstTerm (app-subst t⇒u a) = (redFirstTerm t⇒u) ∘ⱼ a
+redFirstTerm (β-red {p} A t a PE.refl) = _∘ⱼ_ {q = p} (lamⱼ A t) a
+redFirstTerm (natrec-subst F z s n⇒n′) = natrecⱼ F z s (redFirstTerm n⇒n′)
+redFirstTerm (natrec-zero F z s) = natrecⱼ F z s (zeroⱼ (wfTerm z))
+redFirstTerm (natrec-suc n F z s) = natrecⱼ F z s (sucⱼ n)
+redFirstTerm (Emptyrec-subst A n⇒n′) = Emptyrecⱼ A (redFirstTerm n⇒n′)
+redFirstTerm (fst-subst F G x) = fstⱼ F G (redFirstTerm x)
+redFirstTerm (snd-subst F G x) = sndⱼ F G (redFirstTerm x)
+redFirstTerm (Σ-β₁ {q = q} F G x x₁ x₂) = fstⱼ {q = q} F G (prodⱼ F G x x₁)
+redFirstTerm (Σ-β₂ {q = q} F G x x₁ x₂) = sndⱼ {q = q} F G (prodⱼ F G x x₁)
+redFirstTerm (prodrec-subst F G x A x₁) = prodrecⱼ F G (redFirstTerm x₁) A x
+redFirstTerm (prodrec-β F G t t' A u) = prodrecⱼ F G (prodⱼ F G t t') A u
 
-redFirst : {p : M} {Γ : Con Term n} → Γ ⊢ A ⇒ B → Γ ⊢ A
-redFirst {p = p} (univ A⇒B) = univ (redFirstTerm {p = p} A⇒B)
+redFirst :{Γ : Con Term n} → Γ ⊢ A ⇒ B → Γ ⊢ A
+redFirst (univ A⇒B) = univ (redFirstTerm A⇒B)
 
-redFirst*Term : {p : M} {Γ : Con Term n} → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t ∷ A
+redFirst*Term : {Γ : Con Term n} → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t ∷ A
 redFirst*Term (id t) = t
-redFirst*Term {p = p} (t⇒t′ ⇨ t′⇒*u) = redFirstTerm {p = p} t⇒t′
+redFirst*Term (t⇒t′ ⇨ t′⇒*u) = redFirstTerm t⇒t′
 
 redFirst* : {p : M} {Γ : Con Term n} → Γ ⊢ A ⇒* B → Γ ⊢ A
 redFirst* (id A) = A
-redFirst* {p = p} (A⇒A′ ⇨ A′⇒*B) = redFirst {p = p} A⇒A′
-
+redFirst* (A⇒A′ ⇨ A′⇒*B) = redFirst A⇒A′
 
 -- No neutral terms are well-formed in an empty context
 
@@ -167,8 +166,8 @@ neRedTerm (natrec-suc x x₁ x₂ x₃) (natrecₙ ())
 neRedTerm (Emptyrec-subst x d) (Emptyrecₙ n₁) = neRedTerm d n₁
 neRedTerm (fst-subst _ _ d) (fstₙ n) = neRedTerm d n
 neRedTerm (snd-subst _ _ d) (sndₙ n) = neRedTerm d n
-neRedTerm (Σ-β₁ F G x x₁) (fstₙ ())
-neRedTerm (Σ-β₂ F G x x₁) (sndₙ ())
+neRedTerm (Σ-β₁ F G x x₁ x₂) (fstₙ ())
+neRedTerm (Σ-β₂ F G x x₁ x₂) (sndₙ ())
 neRedTerm (prodrec-subst x x₁ x₂ x₃ d) (prodrecₙ n) = neRedTerm d n
 neRedTerm (prodrec-β x x₁ x₂ x₃ x₄ x₅) (prodrecₙ ())
 
@@ -187,8 +186,8 @@ whnfRedTerm (natrec-suc x x₁ x₂ x₃) (ne (natrecₙ ()))
 whnfRedTerm (Emptyrec-subst x d) (ne (Emptyrecₙ x₂)) = neRedTerm d x₂
 whnfRedTerm (fst-subst _ _ d) (ne (fstₙ n)) = neRedTerm d n
 whnfRedTerm (snd-subst _ _ d) (ne (sndₙ n)) = neRedTerm d n
-whnfRedTerm (Σ-β₁ F G x x₁) (ne (fstₙ ()))
-whnfRedTerm (Σ-β₂ F G x x₁) (ne (sndₙ ()))
+whnfRedTerm (Σ-β₁ F G x x₁ x₂) (ne (fstₙ ()))
+whnfRedTerm (Σ-β₂ F G x x₁ x₂) (ne (sndₙ ()))
 whnfRedTerm (prodrec-subst x x₁ x₂ x₃ d) (ne (prodrecₙ n)) = neRedTerm d n
 whnfRedTerm (prodrec-β x x₁ x₂ x₃ x₄ x₅) (ne (prodrecₙ ()))
 
@@ -224,8 +223,8 @@ whrDetTerm (app-subst d x) (app-subst d′ x₁) rewrite whrDetTerm d d′ = PE.
 whrDetTerm (β-red x x₁ x₂ p≡q) (β-red x₃ x₄ x₅ p≡q₁) = PE.refl
 whrDetTerm (fst-subst _ _ x) (fst-subst _ _ y) rewrite whrDetTerm x y = PE.refl
 whrDetTerm (snd-subst _ _ x) (snd-subst _ _ y) rewrite whrDetTerm x y = PE.refl
-whrDetTerm (Σ-β₁ F G x x₁) (Σ-β₁ F₁ G₁ x₂ x₃) = PE.refl
-whrDetTerm (Σ-β₂ F G x x₁) (Σ-β₂ F₁ G₁ x₂ x₃) = PE.refl
+whrDetTerm (Σ-β₁ F G x x₁ x₂) (Σ-β₁ F₁ G₁ x₃ x₄ x₅) = PE.refl
+whrDetTerm (Σ-β₂ F G x x₁ x₂) (Σ-β₂ F₁ G₁ x₃ x₄ x₅) = PE.refl
 whrDetTerm (natrec-subst x x₁ x₂ d) (natrec-subst x₃ x₄ x₅ d′) rewrite whrDetTerm d d′ = PE.refl
 whrDetTerm (natrec-zero x x₁ x₂) (natrec-zero x₃ x₄ x₅) = PE.refl
 whrDetTerm (natrec-suc x x₁ x₂ x₃) (natrec-suc x₄ x₅ x₆ x₇) = PE.refl
@@ -239,10 +238,10 @@ whrDetTerm (natrec-subst x x₁ x₂ d) (natrec-zero x₃ x₄ x₅) = ⊥-elim 
 whrDetTerm (natrec-subst x x₁ x₂ d) (natrec-suc x₃ x₄ x₅ x₆) = ⊥-elim (whnfRedTerm d sucₙ)
 whrDetTerm (natrec-zero x x₁ x₂) (natrec-subst x₃ x₄ x₅ d′) = ⊥-elim (whnfRedTerm d′ zeroₙ)
 whrDetTerm (natrec-suc x x₁ x₂ x₃) (natrec-subst x₄ x₅ x₆ d′) = ⊥-elim (whnfRedTerm d′ sucₙ)
-whrDetTerm (fst-subst _ _ x) (Σ-β₁ F G x₁ x₂) = ⊥-elim (whnfRedTerm x prodₙ)
-whrDetTerm (snd-subst _ _ x) (Σ-β₂ F G x₁ x₂) = ⊥-elim (whnfRedTerm x prodₙ)
-whrDetTerm (Σ-β₁ F G x x₁) (fst-subst _ _ y) = ⊥-elim (whnfRedTerm y prodₙ)
-whrDetTerm (Σ-β₂ F G x x₁) (snd-subst _ _ y) = ⊥-elim (whnfRedTerm y prodₙ)
+whrDetTerm (fst-subst _ _ x) (Σ-β₁ F G x₁ x₂ x₃) = ⊥-elim (whnfRedTerm x prodₙ)
+whrDetTerm (snd-subst _ _ x) (Σ-β₂ F G x₁ x₂ x₃) = ⊥-elim (whnfRedTerm x prodₙ)
+whrDetTerm (Σ-β₁ F G x x₁ x₂) (fst-subst _ _ y) = ⊥-elim (whnfRedTerm y prodₙ)
+whrDetTerm (Σ-β₂ F G x x₁ x₂) (snd-subst _ _ y) = ⊥-elim (whnfRedTerm y prodₙ)
 whrDetTerm (prodrec-subst _ _ _ _ d) (prodrec-β _ _ _ _ _ _) = ⊥-elim (whnfRedTerm d prodₙ)
 whrDetTerm (prodrec-β _ _ _ _ _ _) (prodrec-subst _ _ _ _ d′) = ⊥-elim (whnfRedTerm d′ prodₙ)
 
@@ -320,8 +319,8 @@ redU*Term′ () (natrec-subst x x₁ x₂ A⇒U)
 redU*Term′ PE.refl (natrec-zero x x₁ x₂) = UnotInA x₁
 redU*Term′ U′≡U (natrec-suc x x₁ x₂ x₃) = UnotInA[t,u] U′≡U x (natrecⱼ x₁ x₂ x₃ x) x₃
 redU*Term′ () (Emptyrec-subst x A⇒U)
-redU*Term′ PE.refl (Σ-β₁ F G x x₁) = UnotInA x
-redU*Term′ PE.refl (Σ-β₂ F G x x₁) = UnotInA x₁
+redU*Term′ PE.refl (Σ-β₁ F G x x₁ x₂) = UnotInA x
+redU*Term′ PE.refl (Σ-β₂ F G x x₁ x₂) = UnotInA x₁
 redU*Term′ U′≡U (prodrec-β {p = p} x x₁ x₂ x₃ x₄ x₅) = UnotInA[t,u] U′≡U x₂ x₃ x₅
 
 redU*Term : Γ ⊢ A ⇒* U ∷ B → ⊥

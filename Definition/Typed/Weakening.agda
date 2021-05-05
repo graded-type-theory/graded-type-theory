@@ -339,21 +339,23 @@ mutual
         ρt⇒ = wkRedTerm ρ ⊢Δ t⇒
     in  PE.subst (λ x → _ ⊢ snd _ ⇒ snd _ ∷ x) (PE.sym (wk-β G))
       (snd-subst ρF ρG ρt⇒)
-  wkRedTerm {ρ = ρ} [ρ] ⊢Δ (Σ-β₁ {G = G} ⊢F ⊢G t u) =
+  wkRedTerm {ρ = ρ} [ρ] ⊢Δ (Σ-β₁ {G = G} ⊢F ⊢G t u ⊢tu) =
     let ρF = wk [ρ] ⊢Δ ⊢F
         ρG = wk (lift [ρ]) (⊢Δ ∙ ρF) ⊢G
         ρt = wkTerm [ρ] ⊢Δ t
         ρu = wkTerm [ρ] ⊢Δ u
         ρu = PE.subst (λ x → _ ⊢ _ ∷ x) (wk-β G) ρu
-    in  Σ-β₁ ρF ρG ρt ρu
-  wkRedTerm {ρ = ρ} [ρ] ⊢Δ (Σ-β₂ {G = G} ⊢F ⊢G t u) =
+        ρtu = wkTerm [ρ] ⊢Δ ⊢tu
+    in  Σ-β₁ ρF ρG ρt ρu ρtu
+  wkRedTerm {ρ = ρ} [ρ] ⊢Δ (Σ-β₂ {G = G} ⊢F ⊢G t u ⊢tu) =
     let ρF = wk [ρ] ⊢Δ ⊢F
         ρG = wk (lift [ρ]) (⊢Δ ∙ ρF) ⊢G
         ρt = wkTerm [ρ] ⊢Δ t
         ρu = wkTerm [ρ] ⊢Δ u
         ρu = PE.subst (λ x → _ ⊢ _ ∷ x) (wk-β G) ρu
+        ρtu = wkTerm [ρ] ⊢Δ ⊢tu
     in  PE.subst (λ x → _ ⊢ _ ⇒ _ ∷ x) (PE.sym (wk-β G))
-      (Σ-β₂ ρF ρG ρt ρu)
+      (Σ-β₂ ρF ρG ρt ρu ρtu)
   wkRedTerm {Δ = Δ} {ρ = ρ} [ρ] ⊢Δ (prodrec-subst {u = u} {p = p} {t = t} {t′ = t′} {F = F} {G = G} {A = A} ⊢F ⊢G ⊢u ⊢A t⇒t′) =
     let ρF = wk [ρ] ⊢Δ ⊢F
         ρG = wk (lift [ρ]) (⊢Δ ∙ ρF) ⊢G
