@@ -11,8 +11,9 @@ open import Definition.Untyped Erasure as U hiding (_∷_)
 open import Definition.Untyped.Properties Erasure
 open import Definition.Typed Erasure as Ty
 open import Definition.Typed.Properties Erasure
-open import Definition.Typed.RedSteps Erasure
-open import Erasure.Target as T renaming (_⇒*_ to _=>*_)
+open import Definition.Typed.RedSteps Erasure as RedSteps
+open import Erasure.Target as T hiding (_⇒*_)
+open import Erasure.Target.Properties as TP
 open import Erasure.Extraction
 
 open import Definition.LogicalRelation Erasure
@@ -30,33 +31,30 @@ private
     v v′ : T.Term n
     p : Erasure
 
+data _®_∷U : (t : U.Term 0) (v : T.Term 0) → Set where
+  Uᵣ : ε ⊢ t ∷ U → v T.⇒* undefined → t ® v ∷U
+
+data _®_∷ℕ : (t : U.Term 0) (v : T.Term 0) → Set where
+  zeroᵣ : ε ⊢ t ⇒* U.zero ∷ ℕ → v T.⇒* T.zero → t ® v ∷ℕ
+  sucᵣ : ε ⊢ t ⇒* U.suc t′ ∷ ℕ → v T.⇒* T.suc v′ → t′ ® v′ ∷ℕ → t ® v ∷ℕ
+
+data _®_∷Empty : (t : U.Term 0) (v : T.Term 0) → Set where
+  Emptyᵣ : ε ⊢ t ∷ Empty → v T.⇒* undefined → t ® v ∷Empty
+
+data _®_∷Unit : (t : U.Term 0) (v : T.Term 0) → Set where
+  starᵣ : ε ⊢ t ⇒* U.star ∷ Unit → v T.⇒* T.star → t ® v ∷Unit
+
 mutual
 
-  data _®_∷U : (t : U.Term 0) (v : T.Term 0) → Set where
-    Uᵣ : ε ⊢ t ∷ U → v T.⇒* undefined → t ® v ∷U
-
-  data _®_∷ℕ : (t : U.Term 0) (v : T.Term 0) → Set where
-    zeroᵣ : ε ⊢ t ⇒* U.zero ∷ ℕ → v T.⇒* T.zero → t ® v ∷ℕ
-    sucᵣ : ε ⊢ t ⇒* U.suc t′ ∷ ℕ → v T.⇒* T.suc v′ → t′ ® v′ ∷ℕ → t ® v ∷ℕ
-
-  data _®_∷Empty : (t : U.Term 0) (v : T.Term 0) → Set where
-    Emptyᵣ : ε ⊢ t ∷ Empty → v T.⇒* undefined → t ® v ∷Empty
-
-  data _®_∷Unit : (t : U.Term 0) (v : T.Term 0) → Set where
-    starᵣ : ε ⊢ t ⇒* U.star ∷ Unit → v T.⇒* T.star → t ® v ∷Unit
-
-  data _®_∷Π_ : (t : U.Term 0) (v : T.Term 0) (p : Erasure) → Set where
-    Πωᵣ : ∀ {l} → (∀ {a a′} → (⊢a:A : ε ⊢ a ∷ A)
-                            → ([A] : ε ⊩⟨ l ⟩ A)
+  data _®⟨_⟩_∷Π_ : (t : U.Term 0) (l : TypeLevel) (v : T.Term 0) (p : Erasure) → Set where
+    Πωᵣ : ∀ {l} → (∀ {a a′} → ([A] : ε ⊩⟨ l ⟩ A)
                             → ([B] : ε ⊩⟨ l ⟩ B U.[ a ])
                             →  a ®⟨ l ⟩ a′ ∷ A / [A]
                             → (t ∘ ω ▷ a) ®⟨ l ⟩ v ∘ a′ ∷ B U.[ a ] / [B])
-                → t ® v ∷Π ω
-    Π𝟘ᵣ : ∀ {l} → (∀ {a} → (⊢a:A : ε ⊢ a ∷ A)
-                         -- → ([A] : ε ⊩⟨ l ⟩ A)
-                         → ([B] : ε ⊩⟨ l ⟩ B U.[ a ])
+                → t ®⟨ l ⟩ v ∷Π ω
+    Π𝟘ᵣ : ∀ {l} → (∀ {a} → ([B] : ε ⊩⟨ l ⟩ B U.[ a ])
                          → (t ∘ 𝟘 ▷ a) ®⟨ l ⟩ v ∘ undefined ∷ B U.[ a ] / [B])
-                → t ® v ∷Π 𝟘
+                → t ®⟨ l ⟩ v ∷Π 𝟘
 
 
   data _®_∷Σ : (t : U.Term 0) (v : T.Term 0) → Set where
@@ -73,10 +71,11 @@ mutual
   t ®⟨ l ⟩ v ∷ A / Unitᵣ x = t ® v ∷Unit
   t ®⟨ l ⟩ v ∷ A / ne′ K D neK K≡K with noClosedNe neK
   ... | ()
-  t ®⟨ l ⟩ v ∷ A / Bᵣ (BΠ p q) x = t ® v ∷Π p
+  t ®⟨ l ⟩ v ∷ A / Bᵣ (BΠ p q) x = t ®⟨ l ⟩ v ∷Π p
   t ®⟨ l ⟩ v ∷ A / Bᵣ (BΣ q) x = t ® v ∷Σ
   t ®⟨ ¹ ⟩ v ∷ A / emb 0<1 [A] = t ®⟨ ⁰ ⟩ v ∷ A / [A]
 
+-- Related terms are well-formed
 
 wfTermEscapeℕ : t ® v ∷ℕ → ε ⊢ t ∷ ℕ
 wfTermEscapeℕ (zeroᵣ x x₁) = redFirst*Term x
@@ -91,38 +90,58 @@ wfTermEscapeUnit (starᵣ x x₁) = redFirst*Term x
 wfTermEscapeEmpty : t ® v ∷Empty → ε ⊢ t ∷ Empty
 wfTermEscapeEmpty (Emptyᵣ x x₁) = x
 
-wfTermEscapeΠ : t ® v ∷Π p → ε ⊢ t ∷ Π p , _ ▷ _ ▹ _
-wfTermEscapeΠ (Πωᵣ x) = {!!}
-wfTermEscapeΠ (Π𝟘ᵣ x) = {!!}
+wfTermEscape : ∀ {l} → ([A] : ε ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A] → ε ⊢ t ∷ A
+wfTermEscape (Uᵣ x) t®v = wfTermEscapeU t®v
+wfTermEscape (ℕᵣ [ ⊢A , ⊢B , D ]) t®v = conv (wfTermEscapeℕ t®v) (sym (subset* D))
+wfTermEscape (Emptyᵣ [ ⊢A , ⊢B , D ]) t®v = conv (wfTermEscapeEmpty t®v) (sym (subset* D))
+wfTermEscape (Unitᵣ [ ⊢A , ⊢B , D ]) t®v = conv (wfTermEscapeUnit t®v) (sym (subset* D))
+wfTermEscape (ne′ K D neK K≡K) t®v with noClosedNe neK
+... | ()
+wfTermEscape (Bᵣ (BΠ p q) x) t®v = {!!}
+wfTermEscape (Bᵣ (BΣ p) x) t®v = {!!}
+wfTermEscape (emb 0<1 [A]) t®v = wfTermEscape [A] t®v
 
+-- Relation is preserved by reduction backwards
 
-®-back-closure : ∀ {l} ([A] : ε ⊩⟨ l ⟩ A) → t′ ®⟨ l ⟩ v ∷ A / [A] → ε ⊢ t ⇒* t′ ∷ A → t ®⟨ l ⟩ v ∷ A / [A]
-®-back-closure (Uᵣ x) (Uᵣ x₁ x₂) t⇒t′ = Uᵣ (redFirst*Term t⇒t′) x₂
--- {!Uᵣ (redFirst*Term t⇒t′) x₂!}
-®-back-closure (ℕᵣ [ ⊢A , ⊢B , D ]) (zeroᵣ t′⇒zero v⇒zero) t⇒t′ = zeroᵣ
+®-back-closureˡ : ∀ {l} ([A] : ε ⊩⟨ l ⟩ A) → t′ ®⟨ l ⟩ v ∷ A / [A] → ε ⊢ t ⇒* t′ ∷ A → t ®⟨ l ⟩ v ∷ A / [A]
+®-back-closureˡ (Uᵣ x) (Uᵣ x₁ x₂) t⇒t′ = Uᵣ (redFirst*Term t⇒t′) x₂
+®-back-closureˡ (ℕᵣ [ ⊢A , ⊢B , D ]) (zeroᵣ t′⇒zero v⇒zero) t⇒t′ = zeroᵣ
   ((conv* t⇒t′ (subset* D)) ⇨∷* t′⇒zero)
   v⇒zero
-®-back-closure {l = l} (ℕᵣ [ ⊢A , ⊢B , D ]) (sucᵣ t⇒suct′ v⇒sucv′ t′®v′) t⇒t′ = sucᵣ
+®-back-closureˡ {l = l} (ℕᵣ [ ⊢A , ⊢B , D ]) (sucᵣ t⇒suct′ v⇒sucv′ t′®v′) t⇒t′ = sucᵣ
   ((conv* t⇒t′ (subset* D)) ⇨∷* t⇒suct′)
   v⇒sucv′
-  (®-back-closure {l = l} ((ℕᵣ ([ ⊢A , ⊢B , D ])))
-        t′®v′
-        (id (conv (wfTermEscapeℕ t′®v′) (sym (subset* D)))))
-®-back-closure (Emptyᵣ [ ⊢A , ⊢B , D ]) (Emptyᵣ ⊢t:Empty v⇒undefined) t⇒t′ = Emptyᵣ
+  (®-back-closureˡ {l = l} ((ℕᵣ ([ ⊢A , ⊢B , D ])))
+                  t′®v′
+                  (id (conv (wfTermEscapeℕ t′®v′) (sym (subset* D)))))
+®-back-closureˡ (Emptyᵣ [ ⊢A , ⊢B , D ]) (Emptyᵣ ⊢t:Empty v⇒undefined) t⇒t′ = Emptyᵣ
   (conv (redFirst*Term t⇒t′) (subset* D))
   v⇒undefined
-®-back-closure (Unitᵣ [ ⊢A , ⊢B , D ]) (starᵣ t′⇒star v⇒star) t⇒t′ = starᵣ
+®-back-closureˡ (Unitᵣ [ ⊢A , ⊢B , D ]) (starᵣ t′⇒star v⇒star) t⇒t′ = starᵣ
   ((conv* t⇒t′ (subset* D)) ⇨∷* t′⇒star)
   v⇒star
-®-back-closure (ne′ K D neK K≡K) t′®v t⇒t′ with noClosedNe neK
+®-back-closureˡ (ne′ K D neK K≡K) t′®v t⇒t′ with noClosedNe neK
 ... | ()
-®-back-closure (Bᵣ′ (BΠ 𝟘 q) F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Π𝟘ᵣ prop) t⇒t′ = Π𝟘ᵣ (λ ⊢a:A [B] → prop {!!} {!!})
-®-back-closure (Bᵣ′ (BΠ ω q) F G [ ⊢A , ⊢B , D ] ⊢F ⊢G A≡A [F] [G] G-ext) (Πωᵣ prop) t⇒t′ = Πωᵣ λ ⊢a:A [A] [B] x → prop ⊢a:A [A] [B] (®-back-closure {!!} x (conv* t⇒t′ (subset* D)))
-®-back-closure (Bᵣ′ (BΣ q) F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Σᵣ [A] [B] t′⇒p v⇒p′ p₁®p₁′ p₂®p₂′) t⇒t′ = Σᵣ
-  {!!}
-  {!D!}
-  ({!t⇒t′!} ⇨∷* {!!})
+®-back-closureˡ (Bᵣ′ (BΠ 𝟘 q) F G [ ⊢A , ⊢B , D ] ⊢F ⊢G A≡A [F] [G] G-ext) (Π𝟘ᵣ prop) t⇒t′ = Π𝟘ᵣ λ [B] → ®-back-closureˡ [B] (prop [B]) (RedSteps.app-subst* (conv* t⇒t′ (subset* D)) {!!})
+®-back-closureˡ {A} (Bᵣ′ (BΠ ω q) F G [ ⊢A , ⊢B , D ] ⊢F ⊢G A≡A [F] [G] G-ext) (Πωᵣ {A₁} prop) t⇒t′ = Πωᵣ (λ [A] [B] x → ®-back-closureˡ [B] (prop [A] [B] x) (RedSteps.app-subst* (conv* t⇒t′ (subset* D)) {!!}))
+®-back-closureˡ (Bᵣ′ (BΣ q) F G [ ⊢A , ⊢B , D ] ⊢F ⊢G A≡A [F] [G] G-ext) (Σᵣ [A] [B] t′⇒p v⇒p′ p₁®p₁′ p₂®p₂′) t⇒t′ = Σᵣ
+  [A]
+  [B]
+  (conv* t⇒t′ {!subset* D!} ⇨∷* t′⇒p)
   v⇒p′
-  (®-back-closure {!!} p₁®p₁′ (id {!wfTermEscape!}))
-  (®-back-closure {!!} p₂®p₂′ (id {!!}))
-®-back-closure (emb 0<1 [A]) t′®v t⇒t′ = ®-back-closure [A] t′®v t⇒t′
+  (®-back-closureˡ [A] p₁®p₁′ (id (wfTermEscape [A] p₁®p₁′)))
+  (®-back-closureˡ [B] p₂®p₂′ (id (wfTermEscape [B] p₂®p₂′)))
+®-back-closureˡ (emb 0<1 [A]) t′®v t⇒t′ = ®-back-closureˡ [A] t′®v t⇒t′
+
+®-back-closureʳ : ∀ {l} ([A] : ε ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v′ ∷ A / [A] → v T.⇒* v′ → t ®⟨ l ⟩ v ∷ A / [A]
+®-back-closureʳ (Uᵣ x) (Uᵣ ⊢t:U v′⇒undefined) v⇒v′ = Uᵣ ⊢t:U (red*concat v⇒v′ v′⇒undefined)
+®-back-closureʳ (ℕᵣ x) (zeroᵣ t⇒zero v′⇒zero) v⇒v′ = zeroᵣ t⇒zero (red*concat v⇒v′ v′⇒zero)
+®-back-closureʳ (ℕᵣ x) (sucᵣ t⇒suct′ v′⇒sucw t′®w) v⇒v′ = sucᵣ t⇒suct′ (red*concat v⇒v′ v′⇒sucw) t′®w
+®-back-closureʳ (Emptyᵣ x) (Emptyᵣ ⊢t:Empty v′⇒undefined) v⇒v′ = Emptyᵣ ⊢t:Empty (red*concat v⇒v′ v′⇒undefined)
+®-back-closureʳ (Unitᵣ x) (starᵣ t⇒star v′⇒star) v⇒v′ = starᵣ t⇒star (red*concat v⇒v′ v′⇒star)
+®-back-closureʳ (ne′ K D neK K≡K) t®v′ v⇒v′ with noClosedNe neK
+... | ()
+®-back-closureʳ (Bᵣ′ (BΠ 𝟘 q) F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Π𝟘ᵣ {B} prop) v⇒v′ = Π𝟘ᵣ {B} λ [B] → ®-back-closureʳ [B] (prop [B]) (TP.app-subst* v⇒v′)
+®-back-closureʳ (Bᵣ (BΠ ω q) x) (Πωᵣ {B = B} prop) v⇒v′ = Πωᵣ {B = B} (λ [A] [B] x₁ → ®-back-closureʳ [B] (prop [A] [B] x₁) (TP.app-subst* v⇒v′))
+®-back-closureʳ (Bᵣ (BΣ q) x) (Σᵣ [A] [B] t⇒p v′⇒p′ p₁®p₁′ p₂®p₂′) v⇒v′ = Σᵣ [A] [B] t⇒p (red*concat v⇒v′ v′⇒p′) (®-back-closureʳ [A] p₁®p₁′ refl) (®-back-closureʳ [B] p₂®p₂′ refl)
+®-back-closureʳ (emb 0<1 [A]) t®v′ v⇒v′ = ®-back-closureʳ [A] t®v′ v⇒v′

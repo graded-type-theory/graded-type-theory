@@ -1,7 +1,7 @@
 {-# OPTIONS --without-K --safe #-}
 module Erasure.Target.Properties where
 
-open import Erasure.Target hiding (refl; trans)
+open import Erasure.Target renaming (refl to ⇒*-refl; trans to ⇒*-trans)
 
 open import Tools.Fin
 open import Tools.Nat
@@ -13,6 +13,7 @@ private
     ℓ m n : Nat
     ρ ρ′ : Wk m n
     σ σ′ : Subst m n
+    t t′ u : Term n
 
 -- Weakening properties
 
@@ -470,12 +471,22 @@ doubleSubstLift {n = n} σ G t u = begin
 
 -- Reduction properties
 
+-- Concatenation of reduction closure
+
+red*concat : t ⇒* t′ → t′ ⇒* u → t ⇒* u
+red*concat ⇒*-refl t′⇒*u = t′⇒*u
+red*concat (⇒*-trans x t⇒*t′) t′⇒*u = ⇒*-trans x (red*concat t⇒*t′ t′⇒*u)
+
 -- Closure of substitution reductions
 
-app-subst* : v ⇒* v′ → (v ∘ w) ⇒* (v′ ∘ w)
-app-subst* refl = refl
-app-subst* (_⇒*_.trans x v⇒*v′) = _⇒*_.trans (app-subst x) (app-subst* v⇒*v′)
+app-subst* : t ⇒* t′ → (t ∘ u) ⇒* (t′ ∘ u)
+app-subst* ⇒*-refl = ⇒*-refl
+app-subst* (⇒*-trans x t⇒*t′) = ⇒*-trans (app-subst x) (app-subst* t⇒*t′)
 
-fst-subst* : v ⇒* v′ → T.fst v ⇒* T.fst v′
-fst-subst* refl = refl
-fst-subst* (_⇒*_.trans x v⇒*v′) = _⇒*_.trans (fst-subst x) (fst-subst* v⇒*v′)
+fst-subst* : t ⇒* t′ → fst t ⇒* fst t′
+fst-subst* ⇒*-refl = ⇒*-refl
+fst-subst* (⇒*-trans x t⇒*t′) = ⇒*-trans (fst-subst x) (fst-subst* t⇒*t′)
+
+snd-subst* : t ⇒* t′ → snd t ⇒* snd t′
+snd-subst* ⇒*-refl = ⇒*-refl
+snd-subst* (⇒*-trans x t⇒*t′) = ⇒*-trans (snd-subst x) (snd-subst* t⇒*t′)
