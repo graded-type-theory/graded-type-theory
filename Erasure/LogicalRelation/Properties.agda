@@ -17,7 +17,7 @@ open import Definition.Untyped.Properties Erasure using (noClosedNe ; wk-id ; wk
 
 open import Erasure.LogicalRelation
 open import Erasure.Target as T hiding (_⇒*_)
-open import Erasure.Target.Properties as TP using (red*concat)
+open import Erasure.Target.Properties.Reduction as TP using (red*concat)
 
 open import Tools.Product
 import Tools.PropositionalEquality as PE

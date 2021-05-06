@@ -2,7 +2,8 @@ module Erasure.Extraction.Properties where
 
 open import Erasure.Extraction
 open import Erasure.Target as T hiding (refl; trans)
-open import Erasure.Target.Properties
+open import Erasure.Target.Properties.Weakening
+open import Erasure.Target.Properties.Substitution
 
 open import Definition.Modality.Erasure
 open import Definition.Untyped Erasure hiding (Wk; Term; wk; wkVar; _[_]; _[_,_]; liftSubst)
