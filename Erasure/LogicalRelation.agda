@@ -7,24 +7,17 @@ open import Definition.Typed.EqualityRelation
 module Erasure.LogicalRelation {{eqrel : EqRelSet Erasure}} where
 open EqRelSet {{...}}
 
-
+open import Definition.LogicalRelation Erasure
 open import Definition.Untyped Erasure as U hiding (_∷_)
 open import Definition.Untyped.Properties Erasure using (noClosedNe)
 open import Definition.Typed Erasure --using (_⊢_∷_ ; _⊢_⇒*_∷_) --as Ty
 open import Definition.Typed.Weakening Erasure
--- open import Definition.Typed.Properties Erasure
--- open import Definition.Typed.RedSteps Erasure as RedSteps
+
 open import Erasure.Target as T hiding (_⇒*_)
--- hiding (_⇒*_)
--- open import Erasure.Target.Properties as TP
 open import Erasure.Extraction
 
-open import Definition.LogicalRelation Erasure
--- open import Definition.LogicalRelation.Properties.Escape Erasure
-
--- open import Tools.Nat
 open import Tools.Product
--- import Tools.PropositionalEquality as PE
+
 
 private
   variable
