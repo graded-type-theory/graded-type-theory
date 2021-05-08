@@ -1,4 +1,5 @@
 {-# OPTIONS --without-K --safe #-}
+
 open import Definition.Modality.Erasure
 
 open import Definition.Typed.EqualityRelation
@@ -38,10 +39,10 @@ wfTermEscapeU : t ® v ∷U → ε ⊢ t ∷ U
 wfTermEscapeU (Uᵣ x x₁) = x
 
 wfTermEscapeUnit : t ® v ∷Unit → ε ⊢ t ∷ Unit
-wfTermEscapeUnit (starᵣ x x₁) = redFirst*Term x
+wfTermEscapeUnit (starᵣ x x₁) = x
 
 wfTermEscapeEmpty : t ® v ∷Empty → ε ⊢ t ∷ Empty
-wfTermEscapeEmpty (Emptyᵣ x x₁) = x
+wfTermEscapeEmpty ()
 
 
 
@@ -56,11 +57,9 @@ wfTermEscapeEmpty (Emptyᵣ x x₁) = x
   ((conv* t⇒t′ (subset* D)) ⇨∷* t⇒suct′)
   v⇒sucv′
   t′®v′
-®-back-closureˡ (Emptyᵣ [ ⊢A , ⊢B , D ]) (Emptyᵣ ⊢t:Empty v⇒undefined) t⇒t′ = Emptyᵣ
-  (conv (redFirst*Term t⇒t′) (subset* D))
-  v⇒undefined
-®-back-closureˡ (Unitᵣ [ ⊢A , ⊢B , D ]) (starᵣ t′⇒star v⇒star) t⇒t′ = starᵣ
-  ((conv* t⇒t′ (subset* D)) ⇨∷* t′⇒star)
+®-back-closureˡ (Emptyᵣ [ ⊢A , ⊢B , D ]) () t⇒t′
+®-back-closureˡ (Unitᵣ [ ⊢A , ⊢B , D ]) (starᵣ ⊢t′:Unit v⇒star) t⇒t′ = starᵣ
+  (redFirst*Term (conv* t⇒t′ (subset* D)))
   v⇒star
 ®-back-closureˡ (ne′ K D neK K≡K) t′®v t⇒t′ with noClosedNe neK
 ... | ()
@@ -98,7 +97,7 @@ wfTermEscapeEmpty (Emptyᵣ x x₁) = x
 ®-back-closureʳ (Uᵣ x) (Uᵣ ⊢t:U v′⇒undefined) v⇒v′ = Uᵣ ⊢t:U (red*concat v⇒v′ v′⇒undefined)
 ®-back-closureʳ (ℕᵣ x) (zeroᵣ t⇒zero v′⇒zero) v⇒v′ = zeroᵣ t⇒zero (red*concat v⇒v′ v′⇒zero)
 ®-back-closureʳ (ℕᵣ x) (sucᵣ t⇒suct′ v′⇒sucw t′®w) v⇒v′ = sucᵣ t⇒suct′ (red*concat v⇒v′ v′⇒sucw) t′®w
-®-back-closureʳ (Emptyᵣ x) (Emptyᵣ ⊢t:Empty v′⇒undefined) v⇒v′ = Emptyᵣ ⊢t:Empty (red*concat v⇒v′ v′⇒undefined)
+®-back-closureʳ (Emptyᵣ x) () v⇒v′
 ®-back-closureʳ (Unitᵣ x) (starᵣ t⇒star v′⇒star) v⇒v′ = starᵣ t⇒star (red*concat v⇒v′ v′⇒star)
 ®-back-closureʳ (ne′ K D neK K≡K) t®v′ v⇒v′ with noClosedNe neK
 ... | ()
@@ -119,9 +118,8 @@ wfTermEscapeEmpty (Emptyᵣ x x₁) = x
 ... | t′⇒zero = zeroᵣ t′⇒zero v⇒zero
 ®-forward-closureˡ [ℕ]@(ℕᵣ ([ ⊢A , ⊢B , D ])) (sucᵣ t⇒sucu v⇒sucw u®w) t⇒t′ with whrDet↘Term (t⇒sucu , sucₙ) (conv* t⇒t′ (subset* D))
 ... | t′⇒sucu = sucᵣ t′⇒sucu v⇒sucw u®w
-®-forward-closureˡ (Emptyᵣ [ ⊢A , ⊢B , D ]) (Emptyᵣ ⊢t:Empty v⇒undefined) t⇒t′ = Emptyᵣ {!!} v⇒undefined
-®-forward-closureˡ (Unitᵣ [ ⊢A , ⊢B , D ]) (starᵣ t⇒star v⇒star) t⇒t′ with whrDet↘Term (t⇒star , starₙ) (conv* t⇒t′ (subset* D))
-... | t′⇒star = starᵣ t′⇒star v⇒star
+®-forward-closureˡ (Emptyᵣ [ ⊢A , ⊢B , D ]) () t⇒t′
+®-forward-closureˡ (Unitᵣ [ ⊢A , ⊢B , D ]) (starᵣ ⊢t:Unit v⇒star) t⇒t′ = starᵣ {!!} v⇒star
 ®-forward-closureˡ (ne′ K D neK K≡K) t®v t⇒t′ with noClosedNe neK
 ... | ()
 ®-forward-closureˡ {A = A} (Bᵣ′ (BΠ 𝟘 q) F G [ ⊢A , ⊢B , D ] ⊢F ⊢G A≡A [F] [G] G-ext) t®v t⇒t′ [a] = ®-forward-closureˡ
@@ -155,12 +153,10 @@ wfTermEscapeEmpty (Emptyᵣ x x₁) = x
 ®-forward-closureʳ (ℕᵣ x) (sucᵣ t⇒suct′ v⇒sucv′ t′®v′) v⇒v′ with red*Det v⇒v′ v⇒sucv′
 ... | inj₁ v′⇒sucw = sucᵣ t⇒suct′ v′⇒sucw t′®v′
 ... | inj₂ sucw⇒v′ rewrite suc-noRed sucw⇒v′ = sucᵣ t⇒suct′ refl t′®v′
-®-forward-closureʳ (Emptyᵣ x) (Emptyᵣ ⊢t:Empty v⇒undefined) v⇒v′ with red*Det v⇒v′ v⇒undefined
-... | inj₁ v′⇒undefined = Emptyᵣ ⊢t:Empty v′⇒undefined
-... | inj₂ undefined⇒v′ rewrite undefined-noRed undefined⇒v′ = Emptyᵣ ⊢t:Empty refl
-®-forward-closureʳ (Unitᵣ x) (starᵣ t⇒star v⇒star) v⇒v′ with red*Det v⇒v′ v⇒star
-... | inj₁ v′⇒star = starᵣ t⇒star v′⇒star
-... | inj₂ star⇒v′ rewrite star-noRed star⇒v′ = starᵣ t⇒star refl
+®-forward-closureʳ (Emptyᵣ x) () v⇒v′
+®-forward-closureʳ (Unitᵣ x) (starᵣ ⊢t:Unit v⇒star) v⇒v′ with red*Det v⇒v′ v⇒star
+... | inj₁ v′⇒star = starᵣ ⊢t:Unit v′⇒star
+... | inj₂ star⇒v′ rewrite star-noRed star⇒v′ = starᵣ ⊢t:Unit refl
 ®-forward-closureʳ (ne′ K D neK K≡K) t®v v⇒v′ with noClosedNe neK
 ... | ()
 ®-forward-closureʳ (Bᵣ′ (BΠ 𝟘 q) F G D ⊢F ⊢G A≡A [F] [G] G-ext) t®v v⇒v′ [a] = ®-forward-closureʳ ([G] id ε [a]) (t®v [a]) (TP.app-subst* v⇒v′)

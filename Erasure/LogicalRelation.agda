@@ -34,10 +34,9 @@ data _®_∷ℕ (t : U.Term 0) (v : T.Term 0) : Set where
   sucᵣ : ε ⊢ t ⇒* U.suc t′ ∷ ℕ → v T.⇒* T.suc v′ → t′ ® v′ ∷ℕ → t ® v ∷ℕ
 
 data _®_∷Empty (t : U.Term 0) (v : T.Term 0) : Set where
-  Emptyᵣ : ε ⊢ t ∷ Empty → v T.⇒* undefined → t ® v ∷Empty
 
 data _®_∷Unit (t : U.Term 0) (v : T.Term 0) : Set where
-  starᵣ : ε ⊢ t ⇒* U.star ∷ Unit → v T.⇒* T.star → t ® v ∷Unit
+  starᵣ : ε ⊢ t ∷ Unit → v T.⇒* T.star → t ® v ∷Unit
 
 -- Logical relation for erasure
 
