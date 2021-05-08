@@ -50,8 +50,8 @@ prod′ {q = q} {Γ = Γ} {F} {G} {t} {u} {l} {l′} {l″} [F] [t] [Gt] [u]
       ⊢Γ = wf ⊢F
 
       fst⇒t : Γ ⊢ fst (prod t u) ⇒ t ∷ F
-      fst⇒t = Σ-β₁ ⊢F ⊢G ⊢t ⊢u
-      [fstprod] , [fstprod≡t] = redSubstTerm {p = q} fst⇒t [F] [t]
+      fst⇒t = Σ-β₁ {q = q} ⊢F ⊢G ⊢t ⊢u (prodⱼ ⊢F ⊢G ⊢t ⊢u)
+      [fstprod] , [fstprod≡t] = redSubstTerm fst⇒t [F] [t]
       [fstprod]′ = (irrelevanceTerm′ (PE.sym (wk-id F))
                                      [F] ([F]₁ id ⊢Γ)
                                      [fstprod])
@@ -73,8 +73,8 @@ prod′ {q = q} {Γ = Γ} {F} {G} {t} {u} {l} {l′} {l″} [F] [t] [Gt] [u]
       [u]′ = convTerm₂ [Gfst]′ [Gt] [Gfst≡Gt] [u]
 
       snd⇒u : Γ ⊢ snd (prod t u) ⇒ u ∷ G [ fst (prod t u) ]
-      snd⇒u = Σ-β₂ ⊢F ⊢G ⊢t ⊢u
-      [sndprod] , [sndprod≡u] = redSubstTerm {p = q} snd⇒u [Gfst]′ [u]′
+      snd⇒u = Σ-β₂ {q = q} ⊢F ⊢G ⊢t ⊢u (prodⱼ ⊢F ⊢G ⊢t ⊢u)
+      [sndprod] , [sndprod≡u] = redSubstTerm snd⇒u [Gfst]′ [u]′
 
       ⊢prod = prodⱼ ⊢F ⊢G ⊢t ⊢u
 
@@ -146,10 +146,10 @@ prod-cong′ {q = q} {Γ = Γ} {F} {G} {t} {t′} {u} {u′} {l} {l′}
       ⊢u = escapeTerm [Gt] [u]
       ⊢u′ = escapeTerm [Gt′] [u′]Gt′
 
-      fst⇒t = Σ-β₁ ⊢F ⊢G ⊢t ⊢u
-      [fst] , [fst≡t] = redSubstTerm {p = q} fst⇒t [F] [t]
-      fst⇒t′ = Σ-β₁ ⊢F ⊢G ⊢t′ ⊢u′
-      [fst′] , [fst≡t′] = redSubstTerm {p = q} fst⇒t′ [F] [t′]
+      fst⇒t = Σ-β₁ {q = q} ⊢F ⊢G ⊢t ⊢u (prodⱼ ⊢F ⊢G ⊢t ⊢u)
+      [fst] , [fst≡t] = redSubstTerm fst⇒t [F] [t]
+      fst⇒t′ = Σ-β₁ {q = q} ⊢F ⊢G ⊢t′ ⊢u′ (prodⱼ ⊢F ⊢G ⊢t′ ⊢u′)
+      [fst′] , [fst≡t′] = redSubstTerm fst⇒t′ [F] [t′]
 
       wk[fst≡t] = irrelevanceEqTerm′ (PE.sym (wk-id F))
                                       [F] wk[F]
@@ -181,8 +181,8 @@ prod-cong′ {q = q} {Γ = Γ} {F} {G} {t} {t′} {u} {u′} {l} {l′}
                                  (G-ext id ⊢Γ wk[fst] wk[t] wk[fst≡t])
 
       [u]fst = convTerm₂ [Gfst] [Gt] [Gfst≡Gt] [u]
-      snd⇒u = Σ-β₂ ⊢F ⊢G ⊢t ⊢u
-      [snd] , [snd≡u] = redSubstTerm {p = q} snd⇒u [Gfst] [u]fst
+      snd⇒u = Σ-β₂ {q = q} ⊢F ⊢G ⊢t ⊢u (prodⱼ ⊢F ⊢G ⊢t ⊢u)
+      [snd] , [snd≡u] = redSubstTerm snd⇒u [Gfst] [u]fst
 
       -- u ≡ u′ ∷ G [ fst (prod t u) ]
       [u≡u′]Gfst = convEqTerm₂ [Gfst] [Gt] [Gfst≡Gt] [u≡u′]
@@ -196,10 +196,10 @@ prod-cong′ {q = q} {Γ = Γ} {F} {G} {t} {t′} {u} {u′} {l} {l′}
                                    wk[Gfst′] [Gfst′]
                                    (G-ext id ⊢Γ wk[fst′] wk[t′] wk[fst≡t′])
 
-      snd⇒u′ = Σ-β₂ ⊢F ⊢G ⊢t′ ⊢u′
+      snd⇒u′ = Σ-β₂ {q = q} ⊢F ⊢G ⊢t′ ⊢u′ (prodⱼ ⊢F ⊢G ⊢t′ ⊢u′)
 
       [u′]Gfst′ = convTerm₂ [Gfst′] [Gt′] [Gfst′≡Gt′] [u′]Gt′
-      [snd≡u′]Gfst′ = proj₂ (redSubstTerm {p = q} snd⇒u′ [Gfst′] [u′]Gfst′)
+      [snd≡u′]Gfst′ = proj₂ (redSubstTerm snd⇒u′ [Gfst′] [u′]Gfst′)
 
       [Gfst≡Gfst′] = irrelevanceEq″ wkLiftIdEq wkLiftIdEq′
                                     wk[Gfst] [Gfst]

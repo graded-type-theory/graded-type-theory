@@ -66,8 +66,8 @@ private
                     ⊩σu₁ = proj₁ ([u] ⊢Δ [σ])
                     ⊩σu = irrelevanceTerm′ (singleSubstLift G t) ⊩σGt₁ ⊩σGt ⊩σu₁
                     ⊢σu = escapeTerm ⊩σGt ⊩σu
-                in  Σ-β₁ ⊢σF ⊢σG ⊢σt ⊢σu)
-  in  proj₂ (redSubstTermᵛ {A = F} {fst (prod t u)} {t} {p = q} [Γ] fst⇒t [F] [t])
+                in  Σ-β₁ {q = q} ⊢σF ⊢σG ⊢σt ⊢σu (prodⱼ ⊢σF ⊢σG ⊢σt ⊢σu))
+  in  proj₂ (redSubstTermᵛ {A = F} {fst (prod t u)} {t} [Γ] fst⇒t [F] [t])
 
 Σ-β₂ᵛ : ∀ {F G t u l}
         ([Γ] : ⊩ᵛ Γ)
@@ -114,12 +114,12 @@ private
                     ⊢σu = escapeTerm ⊩σGt ⊩σu
 
                     snd⇒t : Δ ⊢ _ ⇒ _ ∷ _
-                    snd⇒t = Σ-β₂ ⊢σF ⊢σG ⊢σt ⊢σu
+                    snd⇒t = Σ-β₂ {q = q} ⊢σF ⊢σG ⊢σt ⊢σu (prodⱼ ⊢σF ⊢σG ⊢σt ⊢σu)
                     σGfst≡σGfst = PE.subst (λ x → Δ ⊢ x ≡ subst σ (G [ fst (prod t u) ]))
                                            (singleSubstLift G (fst (prod t u)))
                                            (refl (escape (proj₁ ([Gfst] ⊢Δ [σ]))))
               in  conv snd⇒t σGfst≡σGfst)
-  in  proj₂ (redSubstTermᵛ {A = G [ fst (prod t u) ]} {snd (prod t u)} {u} {p = q} [Γ] snd⇒t [Gfst] [u]Gfst)
+  in  proj₂ (redSubstTermᵛ {A = G [ fst (prod t u) ]} {snd (prod t u)} {u} [Γ] snd⇒t [Gfst] [u]Gfst)
 
 Σ-η′ : ∀ {F G p r l l′}
          ([F] : Γ ⊩⟨ l′ ⟩ F)
@@ -153,8 +153,8 @@ private
                         (fst-subst* ⊢F ⊢G (redₜ dᵣ))
 
       --wk[fstp≡] : Γ ⊩⟨ l ⟩ fst p ≡ fst p′ ∷ U.wk id F / wk[F]
-      wk[fstp] , wk[fstp≡] = redSubst*Term {p = q} fstp⇒* wk[F] wk[fstp′]
-      wk[fstr] , wk[fstr≡] = redSubst*Term {p = q} fstr⇒* wk[F] wk[fstr′]
+      wk[fstp] , wk[fstp≡] = redSubst*Term fstp⇒* wk[F] wk[fstp′]
+      wk[fstr] , wk[fstr≡] = redSubst*Term fstr⇒* wk[F] wk[fstr′]
 
       wk[fst≡] = irrelevanceEqTerm′ (PE.sym (wk-id F))
                                     [F] wk[F]
@@ -198,8 +198,8 @@ private
       sndr⇒* = conv* sndr⇒*₁ (≅-eq (escapeEq [Gfstr] [Gfstr≡wkGfstp′]))
 
       wk[sndp≡] : Γ ⊩⟨ l ⟩ snd p ≡ snd p′ ∷ U.wk (lift id) G [ fst p′ ] / wk[Gfstp′]
-      wk[sndp≡] = proj₂ (redSubst*Term {p = q} sndp⇒* wk[Gfstp′] wk[sndp′])
-      wk[sndr≡] = proj₂ (redSubst*Term {p = q} sndr⇒* wk[Gfstp′]
+      wk[sndp≡] = proj₂ (redSubst*Term sndp⇒* wk[Gfstp′] wk[sndp′])
+      wk[sndr≡] = proj₂ (redSubst*Term sndr⇒* wk[Gfstp′]
                                        (convTerm₁ wk[Gfstr′] wk[Gfstp′]
                                                   [wkGfstr′≡wkGfstp′]
                                                   wk[sndr′]))

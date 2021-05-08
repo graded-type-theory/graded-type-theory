@@ -49,10 +49,10 @@ snd-subst*′ {Γ = Γ} {q = q} {F = F} {G = G} {t = t} {t′ = t″} [F]
               B-PE-injectivity (BΣ q) (BΣ q) (whnfRed* (red D) Σₙ)
 ... | PE.refl , PE.refl =
   let [ΣFG] = B-intr (BΣ q) [ΣFG]₀
-      [t] , _ = redSubst*Term {p = q} t⇒*t″ [ΣFG] [t″]
-      [t′] , _ = redSubst*Term {p = q} t′⇒*t″ [ΣFG] [t″]
+      [t] , _ = redSubst*Term t⇒*t″ [ΣFG] [t″]
+      [t′] , _ = redSubst*Term t′⇒*t″ [ΣFG] [t″]
       [t≡t′] : Γ ⊩⟨ _ ⟩ t ≡ t′ ∷ Σ _ ▷ F ▹ G / [ΣFG]
-      [t≡t′] = proj₂ (redSubstTerm {p = q} t⇒t′ [ΣFG] [t′])
+      [t≡t′] = proj₂ (redSubstTerm t⇒t′ [ΣFG] [t′])
       [fstt] : Γ ⊩⟨ _ ⟩ fst t ∷ F / [F]
       [fstt] = fst″ [F] [ΣFG] [t]
       [fstt′] : Γ ⊩⟨ _ ⟩ fst t′ ∷ F / [F]
@@ -93,7 +93,7 @@ snd′ {Γ = Γ} {q = q} {F = F} {G = G} {t = t} {l = l} {l′ = l′}
   let ⊢Γ = wf ⊢F
       [p] = Σₜ p (idRedTerm:*: (⊢u-redₜ d)) pProd p≅p [fstp] [sndp]
 
-      [fstt] , [fstt≡fstp] = redSubst*Term {p = q} (PE.subst (λ x → Γ ⊢ fst t ⇒* fst p ∷ x)
+      [fstt] , [fstt≡fstp] = redSubst*Term (PE.subst (λ x → Γ ⊢ fst t ⇒* fst p ∷ x)
                                                      (PE.sym (wk-id F))
                                                      (fst-subst* ⊢F ⊢G (redₜ d)))
                                            ([F'] id ⊢Γ) [fstp]
@@ -107,7 +107,7 @@ snd′ {Γ = Γ} {q = q} {F = F} {G = G} {t = t} {l = l} {l′ = l′}
       [sndp] : Γ ⊩⟨ l′ ⟩ snd p ∷ G [ fst t ] / [Gfst]
       [sndp] = irrelevanceTerm′ (PE.cong (λ x → x [ fst t ]) (wk-lift-id G))
                                 [Gfstt] [Gfst] [sndp]
-  in  proj₁ (redSubst*Term {p = q} (snd-subst* (PE.subst (λ x → Γ ⊩⟨ l ⟩ x) (wk-id F) ([F'] id ⊢Γ))
+  in  proj₁ (redSubst*Term (snd-subst* (PE.subst (λ x → Γ ⊩⟨ l ⟩ x) (wk-id F) ([F'] id ⊢Γ))
                                        (B-intr BΣ! [ΣFG])
                                        [p]
                                        (redₜ d))
@@ -148,7 +148,7 @@ snd-cong′ {Γ = Γ} {q = q} {F = F} {G} {t} {t′} {l} {l′}
       [p′] = Σₜ p′ (idRedTerm:*: (⊢u-redₜ d′)) pProd′ p′≅p′ [fstp′] [sndp′]
       [F]′ = irrelevance′ (wk-id F) ([F] id ⊢Γ)
 
-      [fstt] , [fstt≡fstp] = redSubst*Term {p = q} (PE.subst (λ x → Γ ⊢ fst t ⇒* fst p ∷ x)
+      [fstt] , [fstt≡fstp] = redSubst*Term (PE.subst (λ x → Γ ⊢ fst t ⇒* fst p ∷ x)
                                                      (PE.sym (wk-id F))
                                                      (fst-subst* ⊢F ⊢G (redₜ d)))
                                            ([F] id ⊢Γ) [fstp]
@@ -161,7 +161,7 @@ snd-cong′ {Γ = Γ} {q = q} {F = F} {G} {t} {t′} {l} {l′}
                                  ([G] id ⊢Γ [fstt]) [Gfst]
                                  [sndp]′
       [sndt≡sndp] : Γ ⊩⟨ l′ ⟩ snd t ≡ snd p ∷ G [ fst t ] / [Gfst]
-      [sndt≡sndp] = proj₂ (redSubst*Term {p = q} sndt⇒*sndp [Gfst] [sndp]″)
+      [sndt≡sndp] = proj₂ (redSubst*Term sndt⇒*sndp [Gfst] [sndp]″)
 
       [snd≡]′ = convEqTerm₂ ([G] id ⊢Γ [fstt]) ([G] id ⊢Γ [fstp]₁) [Gfstt≡Gfstp] [snd≡]
       [sndp≡sndp′] : Γ ⊩⟨ l′ ⟩ snd p ≡ snd p′ ∷ G [ fst t ] / [Gfst]
@@ -169,7 +169,7 @@ snd-cong′ {Γ = Γ} {q = q} {F = F} {G} {t} {t′} {l} {l′}
                                         ([G] id ⊢Γ [fstt]) [Gfst]
                                         [snd≡]′
 
-      [fstt′] , [fstt′≡fstp′] = redSubst*Term {p = q} (PE.subst (λ x → Γ ⊢ fst t′ ⇒* fst p′ ∷ x)
+      [fstt′] , [fstt′≡fstp′] = redSubst*Term (PE.subst (λ x → Γ ⊢ fst t′ ⇒* fst p′ ∷ x)
                                                      (PE.sym (wk-id F))
                                                      (fst-subst* ⊢F ⊢G (redₜ d′)))
                                            ([F] id ⊢Γ) [fstp′]
@@ -193,7 +193,7 @@ snd-cong′ {Γ = Γ} {q = q} {F = F} {G} {t} {t′} {l} {l′}
       sndt′⇒*sndp′ = conv* (snd-subst* [F]′ (B-intr BΣ! [ΣFG]) [p′] (redₜ d′))
                            (≅-eq (≅-sym (escapeEq [Gfstt]′ [Gfstt≡Gfstt′])))
       [sndt′≡sndp′] : Γ ⊩⟨ l′ ⟩ snd t′ ≡ snd p′ ∷ G [ fst t ] / [Gfst]
-      [sndt′≡sndp′] = proj₂ (redSubst*Term {p = q} sndt′⇒*sndp′ [Gfst] [sndp′]″)
+      [sndt′≡sndp′] = proj₂ (redSubst*Term sndt′⇒*sndp′ [Gfst] [sndp′]″)
 
   in  transEqTerm [Gfst] [sndt≡sndp] (transEqTerm [Gfst] [sndp≡sndp′] (symEqTerm [Gfst] [sndt′≡sndp′]))
 snd-cong′ {F} {G} (emb 0<1 x) = snd-cong′ x

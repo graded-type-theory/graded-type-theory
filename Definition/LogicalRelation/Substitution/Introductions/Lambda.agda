@@ -73,7 +73,7 @@ lamᵛ {Γ = Γ} {p = p} {q = q} {F = F} {G} {t} {l} [Γ] [F] [G] [t] {k} {Δ = 
                (≅-η-eq ⊢F (lamⱼ ⊢F ⊢t) (lamⱼ ⊢F ⊢t) lamₙ lamₙ
                        (escapeTermEq [σG]
                          (reflEqTerm [σG]
-                           (proj₁ (redSubstTerm {p = p} β-red′ [σG] wk1t[0])))))
+                           (proj₁ (redSubstTerm β-red′ [σG] wk1t[0])))))
                (λ {_} {_} {Δ₁} {a} {b} ρ ⊢Δ₁ [a] [b] [a≡b] →
                   let [ρσ] = wkSubstS [Γ] ⊢Δ ⊢Δ₁ ρ [σ]
                       [a]′ = irrelevanceTerm′ (wk-subst F) ([F]′ ρ ⊢Δ₁)
@@ -113,7 +113,7 @@ lamᵛ {Γ = Γ} {p = p} {q = q} {F = F} {G} {t} {l} [Γ] [F] [G] [t] {k} {Δ = 
                                (PE.sym (singleSubstWkComp b σ t))
                                G[b]′ G[b]
                                (proj₁ ([t] ⊢Δ₁ ([ρσ] , [b]′)))
-                      lamt∘a≡t[a] = proj₂ (redSubstTerm {p = p} (β-red ⊢F₁ ⊢t ⊢a PE.refl) G[a] t[a])
+                      lamt∘a≡t[a] = proj₂ (redSubstTerm (β-red ⊢F₁ ⊢t ⊢a PE.refl) G[a] t[a])
                       G[a]≡G[b] = G-ext ρ ⊢Δ₁ [a] [b] [a≡b]
                       t[a]≡t[b] = irrelevanceEqTerm″
                                     (PE.sym (singleSubstWkComp a σ t))
@@ -124,7 +124,7 @@ lamᵛ {Γ = Γ} {p = p} {q = q} {F = F} {G} {t} {l} [Γ] [F] [G] [t] {k} {Δ = 
                                                 (reflSubst [Γ] ⊢Δ₁ [ρσ] , [a≡b]′))
                       t[b]≡lamt∘b =
                         convEqTerm₂ G[a] G[b] G[a]≡G[b]
-                          (symEqTerm G[b] (proj₂ (redSubstTerm {p = p} (β-red ⊢F₁ ⊢t ⊢b PE.refl)
+                          (symEqTerm G[b] (proj₂ (redSubstTerm (β-red ⊢F₁ ⊢t ⊢b PE.refl)
                                                                G[b] t[b])))
                   in  transEqTerm G[a] lamt∘a≡t[a]
                              (transEqTerm G[a] t[a]≡t[b] t[b]≡lamt∘b))
@@ -154,7 +154,7 @@ lamᵛ {Γ = Γ} {p = p} {q = q} {F = F} {G} {t} {l} [Γ] [F] [G] [t] {k} {Δ = 
                                                (PE.sym (singleSubstWkComp a σ t))
                                                G[a]′ G[a]
                                                (proj₁ ([t] ⊢Δ₁ ([ρσ] , [a]′)))
-                  in  proj₁ (redSubstTerm {p = p} (β-red ⊢F₁ ⊢t ⊢a PE.refl) G[a] t[a]))
+                  in  proj₁ (redSubstTerm (β-red ⊢F₁ ⊢t ⊢a PE.refl) G[a] t[a]))
   in  lamt ⊢Δ [σ]
   ,   (λ {σ′} [σ′] [σ≡σ′] →
          let [liftσ′] = liftSubstS {F = F} [Γ] ⊢Δ [F] [σ′]
@@ -244,12 +244,12 @@ lamᵛ {Γ = Γ} {p = p} {q = q} {F = F} {G} {t} {l} [Γ] [F] [G] [t] {k} {Δ = 
                               (PE.sym (singleSubstWkComp a σ′ t))
                               G[a]₁′ G[a]″
                               (proj₁ ([t] ⊢Δ₁ ([ρσ′] , [a]″)))
-                    [σlamt∘a≡σt[a]] = proj₂ (redSubstTerm {p = p} (β-red ⊢F₁ ⊢t ⊢a PE.refl)
+                    [σlamt∘a≡σt[a]] = proj₂ (redSubstTerm (β-red ⊢F₁ ⊢t ⊢a PE.refl)
                                                           G[a] t[a])
                     [σ′t[a]≡σ′lamt∘a] =
                       convEqTerm₂ G[a] G[a]″ [σG[a]≡σ′G[a]]
                         (symEqTerm G[a]″
-                           (proj₂ (redSubstTerm {p = p} (β-red ⊢F₂ ⊢t′ ⊢a′ PE.refl)
+                           (proj₂ (redSubstTerm (β-red ⊢F₂ ⊢t′ ⊢a′ PE.refl)
                                                 G[a]″ t[a]′)))
                     [σt[a]≡σ′t[a]] = irrelevanceEqTerm″
                                        (PE.sym (singleSubstWkComp a σ t))
@@ -330,8 +330,8 @@ lamᵛ {Γ = Γ} {p = p} {q = q} {F = F} {G} {t} {l} [Γ] [F] [G] [t] {k} {Δ = 
           (PE.cong₂ (_∘ p ▷_) (PE.trans (subst-wk g) (PE.sym (wk-subst g))) PE.refl)
           σf0≡σg0
       ⊢ΠFG = escape [σΠFG]
-      f≡f₁′ = proj₂ (redSubst*Term {p = p} d [σΠFG] (Πₜ f₁ (idRedTerm:*: ⊢u) funcF f≡f [f] [f]₁))
-      g≡g₁′ = proj₂ (redSubst*Term {p = p} d₁ [σΠFG] (Πₜ g₁ (idRedTerm:*: ⊢u₁) funcG g≡g [g] [g]₁))
+      f≡f₁′ = proj₂ (redSubst*Term d [σΠFG] (Πₜ f₁ (idRedTerm:*: ⊢u) funcF f≡f [f] [f]₁))
+      g≡g₁′ = proj₂ (redSubst*Term d₁ [σΠFG] (Πₜ g₁ (idRedTerm:*: ⊢u₁) funcG g≡g [g] [g]₁))
       eq′  = irrelevanceEqTerm′ (cons0wkLift1-id σ G) [σG]′ [σG]
                                 (app-congTerm [wk1F] [σG]′ (wk (step id) (⊢Δ ∙ ⊢F) [σΠFG])
                                               (wkEqTerm (step id) (⊢Δ ∙ ⊢F) [σΠFG] f≡f₁′) var0 var0 var0≡0)
@@ -368,10 +368,10 @@ lamᵛ {Γ = Γ} {p = p} {q = q} {F = F} {G} {t} {l} [Γ] [F] [G] [t] {k} {Δ = 
                  [ρg]′ = wkTerm [ρ] ⊢Δ₁ [σΠFG] [g]′
                  [f∘u] = appTerm ([F]′ [ρ] ⊢Δ₁) ([G]′ [ρ] ⊢Δ₁ [a]) [ρσΠFG] [ρf]′ [a]
                  [g∘u] = appTerm ([F]′ [ρ] ⊢Δ₁) ([G]′ [ρ] ⊢Δ₁ [a]) [ρσΠFG] [ρg]′ [a]
-                 [tu≡fu] = proj₂ (redSubst*Term {p = p} (app-subst* (wkRed*Term [ρ] ⊢Δ₁ d)
+                 [tu≡fu] = proj₂ (redSubst*Term (app-subst* (wkRed*Term [ρ] ⊢Δ₁ d)
                                                             (escapeTerm ([F]′ [ρ] ⊢Δ₁) [a]))
                                                 ([G]′ [ρ] ⊢Δ₁ [a]) [f∘u])
-                 [gu≡t′u] = proj₂ (redSubst*Term {p = p} (app-subst* (wkRed*Term [ρ] ⊢Δ₁ d₁)
+                 [gu≡t′u] = proj₂ (redSubst*Term (app-subst* (wkRed*Term [ρ] ⊢Δ₁ d₁)
                                                              (escapeTerm ([F]′ [ρ] ⊢Δ₁) [a]))
                                                  ([G]′ [ρ] ⊢Δ₁ [a]) [g∘u])
              in transEqTerm ([G]′ [ρ] ⊢Δ₁ [a]) (symEqTerm ([G]′ [ρ] ⊢Δ₁ [a]) [tu≡fu])

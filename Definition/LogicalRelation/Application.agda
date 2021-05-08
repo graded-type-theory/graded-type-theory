@@ -47,7 +47,7 @@ appTerm′ {Γ = Γ} {p = p} {t = t} [F] [G[u]] (noemb (Bᵣ F G D ⊢F ⊢G A�
                                 ([G′] id ⊢Γ [u]′) [G[u]] ([f]₁ id ⊢Γ [u]′)
       ⊢u = escapeTerm [F] [u]
       d′ = PE.subst (λ x → Γ ⊢ t ⇒* f ∷ x) (PE.sym ΠFG≡ΠF′G′) (redₜ d)
-  in  proj₁ (redSubst*Term {p = p} (app-subst* d′ ⊢u) [G[u]] [f∘u])
+  in  proj₁ (redSubst*Term (app-subst* d′ ⊢u) [G[u]] [f∘u])
 appTerm′ [F] [G[u]] (emb 0<1 x) [t] [u] = appTerm′ [F] [G[u]] x [t] [u]
 
 -- Application of reducible terms.
@@ -118,11 +118,11 @@ app-congTerm′ {p = p} {n = n} {Γ} {F′} {G′} {t = t} {t′ = t′}
                                        ([g] id ⊢Γ [u]′ [u′]′ [u≡u′]′)
       d₁ = PE.subst (λ x → Γ ⊢ t ⇒* f ∷ x) (PE.sym ΠFG≡ΠF′G′) d
       d₂ = PE.subst (λ x → Γ ⊢ t′ ⇒* g ∷ x) (PE.sym ΠFG≡ΠF′G′) d′
-      [tu≡fu] = proj₂ (redSubst*Term {p = p} (app-subst* d₁ (escapeTerm [F] [a]))
+      [tu≡fu] = proj₂ (redSubst*Term (app-subst* d₁ (escapeTerm [F] [a]))
                                      [G[u]] [f∘u])
       [gu′≡t′u′] = convEqTerm₂ [G[u]] [G[u′]] [G[u≡u′]]
                      (symEqTerm [G[u′]]
-                       (proj₂ (redSubst*Term {p = p} (app-subst* d₂ (escapeTerm [F] [a′]))
+                       (proj₂ (redSubst*Term (app-subst* d₂ (escapeTerm [F] [a′]))
                                              [G[u′]] [g∘u′])))
   in  transEqTerm [G[u]] (transEqTerm [G[u]] [tu≡fu] [tu≡t′u])
                          (transEqTerm [G[u]] [t′u≡t′u′] [gu′≡t′u′])
