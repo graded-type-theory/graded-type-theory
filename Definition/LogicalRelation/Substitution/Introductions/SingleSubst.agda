@@ -48,25 +48,6 @@ substS {F = F} {G} {t} [Γ] [F] [G] [t] {σ = σ} ⊢Δ [σ] =
                                      ([σ′] , proj₁ ([t] ⊢Δ [σ′]))
                                      (([σ≡σ′] , (proj₂ ([t] ⊢Δ [σ]) [σ′] [σ≡σ′])))))
 
--- Validity of substitution of single variable in types.
--- substS₂ : ∀ {F G H t u l} ([Γ] : ⊩ᵛ Γ)
---          ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
---          ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
---          ([H] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ H / [Γ] ∙ [F] ∙ [G])
---          ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ F / [Γ] / [F])
---          ([u] : Γ ∙ F ⊩ᵛ⟨ l ⟩ u ∷ G / [Γ] ∙ [F] / [G])
---        → Γ ⊩ᵛ⟨ l ⟩ H [ t ][ u ] / [Γ]
--- substS₂ {F = F} {G} {H} {t} {u} [Γ] [F] [G] [H] [t] [u] {σ = σ} ⊢Δ [σ] =
---   let Geq = substConsId G
---       G[t] = proj₁ ([G] ⊢Δ ([σ] , proj₁ ([t] ⊢Δ [σ])))
---       G[t]′ = irrelevance′ Geq G[t]
---       Heq = substConsId H
---       [σ]′ = {!!}
---       H[u][t] = {!!}
---       -- proj₁ ([H] ⊢Δ ({!!} , (proj₁ ([u] ⊢Δ ({!!} , (proj₁ ([t] ⊢Δ [σ])))))))
---       H[u][t]′ = irrelevance′ Heq H[u][t]
---   in  {!H[u][t]′!} , {!!}
-
 
 -- Validity of substitution of single variable in type equality.
 substSEq : ∀ {F F′ G G′ t t′ l} ([Γ] : ⊩ᵛ Γ)
@@ -125,31 +106,6 @@ substSTerm {F = F} {G} {t} {f} [Γ] [F] [G] [f] [t] {σ = σ} ⊢Δ [σ] =
            (proj₂ ([f] ⊢Δ ([σ] , proj₁ ([t] ⊢Δ [σ])))
                   ([σ′] , proj₁ ([t] ⊢Δ [σ′]))
                   ([σ≡σ′] , proj₂ ([t] ⊢Δ [σ]) [σ′] [σ≡σ′])))
-
--- Validity of substitution of single variable in terms.
--- substSTerm₂ : ∀ {F G t f l} ([Γ] : ⊩ᵛ Γ)
---              ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
---              ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
---              ([t] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ t ∷ wk1 (F [ suc (var x0) ]↑) / [Γ] ∙ [F] / [G])
---              ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ F / [Γ] / [F])
---            → Γ ⊩ᵛ⟨ l ⟩ f [ t ] ∷ G [ t ] / [Γ]
---                       / substS {F = F} {G} {t} [Γ] [F] [G] [t]
--- substSTerm₂ {F = F} {G} {t} {f} [Γ] [F] [G] [f] [t] {σ = σ} ⊢Δ [σ] =
---   let prfG = substConsId G
---       prff = substConsId f
---       G[t] = proj₁ ([G] ⊢Δ ([σ] , proj₁ ([t] ⊢Δ [σ])))
---       G[t]′ = irrelevance′ prfG G[t]
---       f[t] = proj₁ ([f] ⊢Δ ([σ] , proj₁ ([t] ⊢Δ [σ])))
---       f[t]′ = irrelevanceTerm″ prfG prff G[t] G[t]′ f[t]
---   in  f[t]′
---   ,   (λ {σ′} [σ′] [σ≡σ′] →
---          irrelevanceEqTerm″
---            prff
---            (substConsId f)
---            prfG G[t] G[t]′
---            (proj₂ ([f] ⊢Δ ([σ] , proj₁ ([t] ⊢Δ [σ])))
---                   ([σ′] , proj₁ ([t] ⊢Δ [σ′]))
---                   ([σ≡σ′] , proj₂ ([t] ⊢Δ [σ]) [σ′] [σ≡σ′])))
 
 -- Validity of substitution of single lifted variable in types.
 subst↑S : ∀ {F G t l} ([Γ] : ⊩ᵛ Γ)

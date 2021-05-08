@@ -138,7 +138,7 @@ redFirst*Term : {Γ : Con Term n} → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t ∷ A
 redFirst*Term (id t) = t
 redFirst*Term (t⇒t′ ⇨ t′⇒*u) = redFirstTerm t⇒t′
 
-redFirst* : {p : M} {Γ : Con Term n} → Γ ⊢ A ⇒* B → Γ ⊢ A
+redFirst* : {Γ : Con Term n} → Γ ⊢ A ⇒* B → Γ ⊢ A
 redFirst* (id A) = A
 redFirst* (A⇒A′ ⇨ A′⇒*B) = redFirst A⇒A′
 
