@@ -173,3 +173,12 @@ wfTermEscapeEmpty ()
 ... | inj₁ v′⇒w = t⇒p , v′⇒w , t₁®v₁ , t₂®v₂
 ... | inj₂ w⇒v′ rewrite prod-noRed w⇒v′ = t⇒p , refl , t₁®v₁ , t₂®v₂
 ®-forward-closureʳ (emb 0<1 [A]) t®v v⇒v′ = ®-forward-closureʳ [A] t®v v⇒v′
+
+thm : ∀ {l} ([A] : ε ⊩⟨ l ⟩ A) ([t] : ε ⊩⟨ l ⟩ t ∷ A / [A]) → t ®⟨ l ⟩ erase t ∷ A / [A]
+thm (Uᵣ x) (Uₜ A d typeA A≡A [t]) = {!!}
+thm (ℕᵣ x) (ℕₜ n d n≡n prop) = {!!}
+thm (Emptyᵣ x) [t] = {!!}
+thm [Unit]@(Unitᵣ ([ ⊢A , ⊢B , D ])) (Unitₜ n [ ⊢t , ⊢u , d ] prop) = ®-back-closure [Unit] (starᵣ {!!} {!!}) {!!} {!!}
+thm (ne x) [t] = {!!}
+thm (Bᵣ W x) [t] = {!!}
+thm (emb l< [A]) [t] = {!!}
