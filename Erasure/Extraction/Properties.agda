@@ -1,3 +1,5 @@
+{-# OPTIONS --without-K --safe #-}
+
 module Erasure.Extraction.Properties where
 
 open import Erasure.Extraction
@@ -6,8 +8,8 @@ open import Erasure.Target.Properties.Weakening
 open import Erasure.Target.Properties.Substitution
 
 open import Definition.Modality.Erasure
-open import Definition.Untyped Erasure hiding (Wk; Term; wk; wkVar; _[_]; _[_,_]; liftSubst)
-import Definition.Untyped Erasure as U
+open import Definition.Untyped Erasure as U hiding (Wk; Term; wk; wkVar; _[_]; _[_,_]; liftSubst)
+open import Definition.Untyped.Properties Erasure using (noClosedNe)
 
 open import Tools.Fin
 open import Tools.Nat renaming (_+_ to _+ⁿ_)
@@ -175,3 +177,14 @@ subst-erase-comm σ (gen Unitkind []) = refl
 subst-erase-comm σ (gen Starkind []) = refl
 subst-erase-comm σ (gen Emptykind []) = refl
 subst-erase-comm σ (gen (Emptyreckind p) (A ∷ t ∷ [])) = refl
+
+-- Closed types are extrated to undefined
+
+eraseType : {A : U.Term 0} → Type A → erase A ≡ undefined
+eraseType Πₙ = refl
+eraseType Σₙ = refl
+eraseType ℕₙ = refl
+eraseType Emptyₙ = refl
+eraseType Unitₙ = refl
+eraseType (ne x) with noClosedNe x
+... | ()

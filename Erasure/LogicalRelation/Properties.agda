@@ -9,6 +9,8 @@ open EqRelSet {{...}}
 
 open import Definition.LogicalRelation Erasure
 open import Definition.LogicalRelation.Properties.Escape Erasure
+open import Definition.Modality.Context ErasureModality renaming (ε to εᶜ)
+open import Definition.Modality.Usage ErasureModality
 open import Definition.Typed Erasure
 open import Definition.Typed.Properties Erasure
 open import Definition.Typed.RedSteps Erasure as RS
@@ -16,6 +18,8 @@ open import Definition.Typed.Weakening Erasure
 open import Definition.Untyped Erasure as U hiding (_∷_)
 open import Definition.Untyped.Properties Erasure using (noClosedNe ; wk-id ; wk-lift-id)
 
+open import Erasure.Extraction
+open import Erasure.Extraction.Properties
 open import Erasure.LogicalRelation
 open import Erasure.Target as T hiding (_⇒*_)
 open import Erasure.Target.Properties.Reduction as TP
@@ -111,6 +115,9 @@ wfTermEscapeEmpty ()
       t₂®v₂ = proj₂ (proj₂ (proj₂ ®Σ))
   in t⇒p , red*concat v⇒v′ v′⇒w , t₁®v₁ , t₂®v₂
 ®-back-closureʳ (emb 0<1 [A]) t®v′ v⇒v′ = ®-back-closureʳ [A] t®v′ v⇒v′
+
+®-back-closure : ∀ {l} ([A] : ε ⊩⟨ l ⟩ A) → t′ ®⟨ l ⟩ v′ ∷ A / [A] → ε ⊢ t ⇒* t′ ∷ A → v T.⇒* v′ → t ®⟨ l ⟩ v ∷ A / [A]
+®-back-closure [A] t′®v′ t⇒t′ v⇒v′ = ®-back-closureˡ [A] (®-back-closureʳ [A] t′®v′ v⇒v′) t⇒t′
 
 ®-forward-closureˡ : ∀ {l} ([A] : ε ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A] → ε ⊢ t ⇒* t′ ∷ A → t′ ®⟨ l ⟩ v ∷ A / [A]
 ®-forward-closureˡ (Uᵣ′ l′ l< ⊢Γ) (Uᵣ ⊢t:U v⇒undefined) t⇒t′ = Uᵣ {!!} v⇒undefined
