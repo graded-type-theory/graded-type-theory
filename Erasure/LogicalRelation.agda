@@ -48,13 +48,19 @@ t ®⟨ l ⟩ v ∷ A / Emptyᵣ x = t ® v ∷Empty
 t ®⟨ l ⟩ v ∷ A / Unitᵣ x  = t ® v ∷Unit
 t ®⟨ l ⟩ v ∷ A / ne′ K D neK K≡K with noClosedNe neK
 ... | ()
+
+-- Ordinary Π:
 t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΠ ω q) F G D ⊢F ⊢G A≡A [F] [G] G-ext =
   ∀ {a w} → ([a] : ε ⊩⟨ l ⟩ a ∷ U.wk id F / [F] id ε)
           → a ®⟨ l ⟩ w ∷ U.wk id F / [F] id ε
           → (t ∘ ω ▷ a) ®⟨ l ⟩ v ∘ w ∷ U.wk (lift id) G U.[ a ] / [G] id ε [a]
+
+-- Erased Π:
 t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΠ 𝟘 q) F G D ⊢F ⊢G A≡A [F] [G] G-ext =
   ∀ {a} → ([a] : ε ⊩⟨ l ⟩ a ∷ U.wk id F / [F] id ε)
         → (t ∘ 𝟘 ▷ a) ®⟨ l ⟩ v ∘ undefined ∷ U.wk (lift id) G U.[ a ] / [G] id ε [a]
+
+-- Σ:
 t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΣ q) F G D ⊢F ⊢G A≡A [F] [G] G-ext =
   ∀ {t₁ t₂ v₁ v₂} → ([t₁] : ε ⊩⟨ l ⟩ t₁ ∷ U.wk id F / [F] id ε)
                   → ([t₂] : ε ⊩⟨ l ⟩ t₂ ∷ U.wk (lift id) G U.[ t₁ ] / [G] id ε [t₁])
@@ -62,4 +68,16 @@ t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΣ q) F G D ⊢F ⊢G A≡A [F] [G] G-ext =
                   × v T.⇒* T.prod v₁ v₂
                   × t₁ ®⟨ l ⟩ v₁ ∷ U.wk id F / [F] id ε
                   × t₂ ®⟨ l ⟩ v₂ ∷ U.wk (lift id) G U.[ t₁ ] / [G] id ε [t₁]
+
+-- -- Alternative Σ using projections
+-- t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΣ q) F G D ⊢F ⊢G A≡A [F] [G] G-ext =
+--   let t₁ = U.fst t
+--       t₂ = U.snd t
+--       v₁ = T.fst v
+--       v₂ = T.snd v
+--   in ([t₁] : ε ⊩⟨ l ⟩ t₁ ∷ U.wk id F / [F] id ε)
+--    → t₁ ®⟨ l ⟩ v₁ ∷ U.wk id F / [F] id ε
+--    × t₂ ®⟨ l ⟩ v₂ ∷ U.wk (lift id) G U.[ t₁ ] / [G] id ε [t₁]
+
+-- Subsumption:
 t ®⟨ ¹ ⟩ v ∷ A / emb 0<1 [A] = t ®⟨ ⁰ ⟩ v ∷ A / [A]
