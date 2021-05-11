@@ -1,22 +1,22 @@
-{-# OPTIONS --without-K --safe #-}
+{-# OPTIONS --without-K  #-}
 
-module Definition.Conversion.Lift where
+module Definition.Conversion.Lift (M : Set) where
 
-open import Definition.Untyped hiding (_∷_)
-open import Definition.Untyped.Properties
-open import Definition.Typed
-open import Definition.Typed.Weakening
-open import Definition.Typed.Properties
-open import Definition.Typed.EqRelInstance
-open import Definition.Conversion
-open import Definition.Conversion.Whnf
-open import Definition.Conversion.Soundness
-open import Definition.Conversion.Weakening
-open import Definition.LogicalRelation
-open import Definition.LogicalRelation.Properties
-open import Definition.LogicalRelation.Fundamental.Reducibility
-open import Definition.Typed.Consequences.Syntactic
-open import Definition.Typed.Consequences.Reduction
+open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped.Properties M
+open import Definition.Typed M
+open import Definition.Typed.Weakening M
+open import Definition.Typed.Properties M
+open import Definition.Typed.EqRelInstance M
+open import Definition.Conversion M
+open import Definition.Conversion.Whnf M
+open import Definition.Conversion.Soundness M
+open import Definition.Conversion.Weakening M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.Properties M
+open import Definition.LogicalRelation.Fundamental.Reducibility M
+open import Definition.Typed.Consequences.Syntactic M
+open import Definition.Typed.Consequences.Reduction M
 
 open import Tools.Fin
 open import Tools.Nat
@@ -83,7 +83,7 @@ mutual
         0≡0 = lift~toConv↑′ ([F] (step id) (⊢Γ ∙ ⊢F)) (var-refl (var (⊢Γ ∙ ⊢F) here) PE.refl)
         k∘0≡l∘0 = lift~toConv↑′ ([G] (step id) (⊢Γ ∙ ⊢F) var0)
                                 (app-cong (wk~↓ (step id) (⊢Γ ∙ ⊢F) ([~] A D₂ Πₙ k~l))
-                                          0≡0)
+                                          0≡0 PE.refl)
     in  η-eq ⊢t ⊢u (ne neT) (ne neU)
              (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x)
                        (wkSingleSubstId _)

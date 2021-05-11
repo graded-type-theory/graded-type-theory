@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K #-}
+{-# OPTIONS --without-K  #-}
 
 module Definition.Conversion.Soundness (M : Set) where
 

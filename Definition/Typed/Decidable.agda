@@ -1,15 +1,15 @@
-{-# OPTIONS --without-K --safe #-}
+{-# OPTIONS --without-K  #-}
 
-module Definition.Typed.Decidable where
+module Definition.Typed.Decidable (M : Set) where
 
-open import Definition.Untyped
-open import Definition.Typed
-open import Definition.Typed.Properties
-open import Definition.Conversion
-open import Definition.Conversion.Decidable
-open import Definition.Conversion.Soundness
-open import Definition.Conversion.Stability
-open import Definition.Conversion.Consequences.Completeness
+open import Definition.Untyped M hiding (_∷_)
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.Conversion M
+open import Definition.Conversion.Decidable M
+open import Definition.Conversion.Soundness M
+open import Definition.Conversion.Stability M
+open import Definition.Conversion.Consequences.Completeness M
 
 open import Tools.Nat
 open import Tools.Nullary

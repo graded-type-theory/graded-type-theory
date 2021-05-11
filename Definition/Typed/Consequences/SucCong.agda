@@ -20,9 +20,17 @@ private
 
 -- Congruence of the type of the successor case in natrec.
 sucCong : ∀ {F G} → Γ ∙ ℕ ⊢ F ≡ G
-        → Γ ∙ ℕ ∙ G ⊢ wk1 (F [ suc (var x0) ]↑) ≡ wk1 (G [ suc (var x0) ]↑)
+        → Γ ∙ ℕ ∙ F ⊢ wk1 (F [ suc (var x0) ]↑) ≡ wk1 (G [ suc (var x0) ]↑)
 sucCong F≡G with wfEq F≡G
 sucCong F≡G | ⊢Γ ∙ ⊢ℕ =
+  let ⊢F , ⊢G = syntacticEq F≡G
+  in wkEq (step id) (⊢Γ ∙ ⊢ℕ ∙ ⊢F)
+          (subst↑TypeEq F≡G (refl (sucⱼ (var (⊢Γ ∙ ⊢ℕ) here))))
+
+sucCong′ : ∀ {F G} → Γ ∙ ℕ ⊢ F ≡ G
+        → Γ ∙ ℕ ∙ G ⊢ wk1 (F [ suc (var x0) ]↑) ≡ wk1 (G [ suc (var x0) ]↑)
+sucCong′ F≡G with wfEq F≡G
+sucCong′ F≡G | ⊢Γ ∙ ⊢ℕ =
   let ⊢F , ⊢G = syntacticEq F≡G
   in wkEq (step id) (⊢Γ ∙ ⊢ℕ ∙ ⊢G)
           (subst↑TypeEq F≡G (refl (sucⱼ (var (⊢Γ ∙ ⊢ℕ) here))))

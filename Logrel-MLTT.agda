@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --safe #-}
+{-# OPTIONS --without-K #-}
 
 -- A Logical Relation for Dependent Type Theory Formalized in Agda
 
@@ -18,6 +18,14 @@ import Tools.Nullary
 import Tools.List
 import Tools.PropositionalEquality
 import Tools.Fin
+import Tools.Algebra
+import Tools.Level
+import Tools.Relation
+import Tools.Reasoning.Equivalence
+import Tools.Reasoning.PartialOrder
+import Tools.Reasoning.Preorder
+import Tools.Reasoning.PropositionalEquality
+
 
 -- Modality structure
 import Definition.Modality

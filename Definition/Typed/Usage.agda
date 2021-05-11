@@ -48,11 +48,11 @@ usagePresTerm γ▸t (fst-subst x x₁ t⇒u) with inv-usage-fst γ▸t
 ... | invUsageProj 𝟘▸t γ≤𝟘 = sub (fstₘ (usagePresTerm 𝟘▸t t⇒u)) γ≤𝟘
 usagePresTerm γ▸t (snd-subst x x₁ t⇒u) with inv-usage-snd γ▸t
 ... | invUsageProj 𝟘▸t γ≤𝟘 = sub (sndₘ (usagePresTerm 𝟘▸t t⇒u)) γ≤𝟘
-usagePresTerm γ▸t′ (Σ-β₁ x x₁ x₂ x₃) with inv-usage-fst γ▸t′
+usagePresTerm γ▸t′ (Σ-β₁ x x₁ x₂ x₃ x₄) with inv-usage-fst γ▸t′
 ... | invUsageProj 𝟘▸tu γ≤𝟘 with inv-usage-prod 𝟘▸tu
 ... | invUsageProd {δ = δ} {η} δ▸t η▸u refl 𝟘≤δ+η = sub δ▸t
   (≤ᶜ-trans γ≤𝟘 (proj₁ (+ᶜ-positive δ η 𝟘≤δ+η)))
-usagePresTerm γ▸u′ (Σ-β₂ x x₁ x₂ x₃) with inv-usage-snd γ▸u′
+usagePresTerm γ▸u′ (Σ-β₂ x x₁ x₂ x₃ x₄) with inv-usage-snd γ▸u′
 ... | invUsageProj 𝟘▸tu γ≤𝟘 with inv-usage-prod 𝟘▸tu
 ... | invUsageProd {δ = δ} {η} δ▸t η▸u refl 𝟘≤δ+η = sub η▸u
   (≤ᶜ-trans γ≤𝟘 (proj₂ (+ᶜ-positive δ η 𝟘≤δ+η)))

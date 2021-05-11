@@ -65,7 +65,7 @@ mutual
     in  _ , substTypeEq (soundnessConv↑ x) (soundness~↓ t~u)
     ,   natrec-cong (symConv↑ (Γ≡Δ ∙ (refl (ℕⱼ ⊢Γ))) x)
                     (convConvTerm (symConv↑Term Γ≡Δ x₁) F[0]≡G[0])
-                    (convConvTerm (symConv↑Term (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ) ∙ soundnessConv↑ x) x₂) (sucCong F≡G))
+                    (convConvTerm (symConv↑Term (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ) ∙ soundnessConv↑ x) x₂) (sucCong′ F≡G))
                     (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡ℕ u~t)
                     PE.refl PE.refl
   sym~↑ Γ≡Δ (Emptyrec-cong x t~u PE.refl) =
