@@ -215,8 +215,6 @@ natrecTerm {Γ = Γ} {Δ = Δ} {p = p} {r = r} {F = F} {z} {s} {n} {σ} {l} [Γ]
       -- [Fₘ] = proj₁ ([F] {![m]!} {!!})
       -- [F] ⊢Γ (consSubstS [Γ] ⊢Γ (idSubstS [Γ]) {![m]!} {!!})
       natrecM = natrecTerm {r = r} {F = F} {z = z} {s = s} [Γ] [F] [F₀] [F₊] [z] [s] ⊢Δ [σ] [m]
-      -- [σs] = proj₁ ([s] {!!} {!!})
-      -- plswrk = [s] ⊢Γ (consSubstS [Γℕ] ⊢Γ (consSubstS [Γ] ⊢Γ {![σ⇑⇑]!} [ℕ] [m]) {![σFₘ]!} natrecM)
       [natrec] = [s] ⊢Δ (compSubstS ([Γ] ∙ [ℕ] ∙ [F]) ({![Δ]!} ∙ ℕᵛ {!!} ∙ {!!}) (⊢Δ ∙ ⊢ℕ ∙ ⊢F) ⊢Δ [σ⇑⇑]
                            (consSubstS ({![Δ]!} ∙ ℕᵛ {!!}) (⊢Δ ∙ ⊢ℕ)
                                        (consSubstS {![Δ]!} ⊢Δ
@@ -245,7 +243,6 @@ natrecTerm {Γ = Γ} {Δ = Δ} {p = p} {r = r} {F = F} {z} {s} {n} {σ} {l} [Γ]
                   (≅-eq (escapeEq (proj₁ ([F] ⊢Δ ([σ] , [t]))) (proj₂ ([F] ⊢Δ ([σ] , [t])) ([σ] , [t′]) ((reflSubst [Γ] ⊢Δ [σ]) , [t≡t′])))))
       reduction'' = conv* ((natrec-suc ⊢m ⊢F ⊢z ⊢s) ⇨ (id (escapeTerm [σFₛₘ] [natrec]′))) (sym (≅-eq (escapeEq [σFₙ] [Fₙ≡Fₛₘ])))
       reduction''' = reduction' ⇨∷* reduction''
-     -- reduction'''' = PE.subst (λ x → Δ ⊢ _ ⇒* x ∷ _) (PE.sym (doubleSubstLift σ {!!} {!reduction'!} {![σn]!})) reduction'''
   in proj₁ (redSubst*Term reduction''' [σFₙ]
                           (convTerm₂ [σFₙ] [σFₛₘ] [Fₙ≡Fₛₘ] {![natrec]′!}))
 
