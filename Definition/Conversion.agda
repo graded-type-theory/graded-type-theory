@@ -28,7 +28,7 @@ private
     a₀ b₀ g h k l t u v : Term n
     G E : Term (1+ n)
     x y : Fin n
-    p q r : M
+    p p′ q q′ r r′ : M
 
 mutual
   -- Neutral equality.
@@ -40,7 +40,8 @@ mutual
 
     app-cong      : Γ ⊢ k ~ l ↓ Π p , q ▷ F ▹ G
                   → Γ ⊢ t [conv↑] v ∷ F
-                  → Γ ⊢ k ∘ p ▷ t ~ l ∘ p ▷ v ↑ G [ t ]
+                  → p PE.≡ p′
+                  → Γ ⊢ k ∘ p ▷ t ~ l ∘ p′ ▷ v ↑ G [ t ]
 
     fst-cong      : Γ ⊢ k ~ l ↓ Σ p ▷ F ▹ G
                   → Γ ⊢ fst k ~ fst l ↑ F
@@ -52,11 +53,14 @@ mutual
                   → Γ ⊢ a₀ [conv↑] b₀ ∷ F [ zero ]
                   → Γ ∙ ℕ ∙ F ⊢ h [conv↑] g ∷ wk1 (F [ suc (var x0) ]↑)
                   → Γ ⊢ k ~ l ↓ ℕ
-                  → Γ ⊢ natrec p r F a₀ h k ~ natrec p r G b₀ g l ↑ F [ k ]
+                  → p PE.≡ p′
+                  → r PE.≡ r′
+                  → Γ ⊢ natrec p r F a₀ h k ~ natrec p′ r′ G b₀ g l ↑ F [ k ]
 
     Emptyrec-cong : Γ ⊢ F [conv↑] H
                   → Γ ⊢ k ~ l ↓ Empty
-                  → Γ ⊢ Emptyrec p F k ~ Emptyrec p H l ↑ F
+                  → p PE.≡ p′
+                  → Γ ⊢ Emptyrec p F k ~ Emptyrec p′ H l ↑ F
 
   -- Neutral equality with types in WHNF.
   record _⊢_~_↓_ (Γ : Con Term n) (k l B : Term n) : Set where
@@ -99,13 +103,16 @@ mutual
                → Γ ⊢ F
                → Γ ⊢ F [conv↑] H
                → Γ ∙ F ⊢ G [conv↑] E
-               → Γ ⊢ Π p , q ▷ F ▹ G [conv↓] Π p , q ▷ H ▹ E
+               → p PE.≡ p′
+               → q PE.≡ q′
+               → Γ ⊢ Π p , q ▷ F ▹ G [conv↓] Π p′ , q′ ▷ H ▹ E
 
     Σ-cong     : ∀ {F G H E}
                → Γ ⊢ F
                → Γ ⊢ F [conv↑] H
                → Γ ∙ F ⊢ G [conv↑] E
-               → Γ ⊢ Σ p ▷ F ▹ G [conv↓] Σ p ▷ H ▹ E
+               → p PE.≡ p′
+               → Γ ⊢ Σ p ▷ F ▹ G [conv↓] Σ p′ ▷ H ▹ E
 
   -- Term equality.
   record _⊢_[conv↑]_∷_ (Γ : Con Term n) (t u A : Term n) : Set where

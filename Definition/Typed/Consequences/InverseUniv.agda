@@ -1,10 +1,10 @@
-{-# OPTIONS --without-K --safe #-}
+{-# OPTIONS --without-K  #-}
 
-module Definition.Typed.Consequences.InverseUniv where
+module Definition.Typed.Consequences.InverseUniv (M : Set) where
 
-open import Definition.Untyped
-open import Definition.Typed
-open import Definition.Typed.Consequences.Syntactic
+open import Definition.Untyped M hiding (_∷_)
+open import Definition.Typed M
+open import Definition.Typed.Consequences.Syntactic M
 
 open import Tools.Nat
 import Tools.Sum as Sum
@@ -19,14 +19,15 @@ private
     Γ : Con Term n
     A F H : Term n
     G E : Term (1+ n)
+    p q : M
 
 -- Proposition for terms if they contain a U.
 data UFull : Term n → Set where
   ∃U  : UFull {n} U
-  ∃Π₁ : UFull F → UFull (Π F ▹ G)
-  ∃Π₂ : UFull G → UFull (Π F ▹ G)
-  ∃Σ₁ : UFull F → UFull (Σ F ▹ G)
-  ∃Σ₂ : UFull G → UFull (Σ F ▹ G)
+  ∃Π₁ : UFull F → UFull (Π p , q ▷ F ▹ G)
+  ∃Π₂ : UFull G → UFull (Π p , q ▷ F ▹ G)
+  ∃Σ₁ : UFull F → UFull (Σ q ▷ F ▹ G)
+  ∃Σ₂ : UFull G → UFull (Σ q ▷ F ▹ G)
 
 -- Terms cannot contain U.
 noU : ∀ {t A} → Γ ⊢ t ∷ A → ¬ (UFull t)
@@ -54,12 +55,12 @@ noUNe (Emptyrecₙ neA) ()
 
 -- Helper function where if at least one Π-type does not contain U,
 -- one of F and H will not contain U and one of G and E will not contain U.
-pilem : (¬ UFull (Π F ▹ G)) ⊎ (¬ UFull (Π H ▹ E))
+pilem : (¬ UFull (Π p , q ▷ F ▹ G)) ⊎ (¬ UFull (Π p , q ▷ H ▹ E))
       → (¬ UFull F) ⊎ (¬ UFull H) × (¬ UFull G) ⊎ (¬ UFull E)
 pilem (inj₁ x) = inj₁ (λ x₁ → x (∃Π₁ x₁)) , inj₁ (λ x₁ → x (∃Π₂ x₁))
 pilem (inj₂ x) = inj₂ (λ x₁ → x (∃Π₁ x₁)) , inj₂ (λ x₁ → x (∃Π₂ x₁))
 
-pilemΣ :(¬ UFull (Σ F ▹ G)) ⊎ (¬ UFull (Σ H ▹ E))
+pilemΣ :(¬ UFull (Σ q ▷ F ▹ G)) ⊎ (¬ UFull (Σ q ▷ H ▹ E))
       → (¬ UFull F) ⊎ (¬ UFull H) × (¬ UFull G) ⊎ (¬ UFull E)
 pilemΣ (inj₁ x) = inj₁ (λ x₁ → x (∃Σ₁ x₁)) , inj₁ (λ x₁ → x (∃Σ₂ x₁))
 pilemΣ (inj₂ x) = inj₂ (λ x₁ → x (∃Σ₁ x₁)) , inj₂ (λ x₁ → x (∃Σ₂ x₁))

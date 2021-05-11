@@ -1,15 +1,15 @@
-{-# OPTIONS --without-K --safe #-}
+{-# OPTIONS --without-K #-}
 
-module Definition.Typed.Consequences.Equality where
+module Definition.Typed.Consequences.Equality (M : Set) where
 
-open import Definition.Untyped
-open import Definition.Typed
-open import Definition.Typed.Properties
-open import Definition.Typed.EqRelInstance
-open import Definition.LogicalRelation
-open import Definition.LogicalRelation.Irrelevance
-open import Definition.LogicalRelation.ShapeView
-open import Definition.LogicalRelation.Fundamental.Reducibility
+open import Definition.Untyped M
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.Typed.EqRelInstance M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.ShapeView M
+open import Definition.LogicalRelation.Fundamental.Reducibility M
 
 open import Tools.Nat
 open import Tools.Product
@@ -110,10 +110,10 @@ B≡A′ W (noemb [W]) (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) whnfA =
   F′ , G′ , whnfRed* D′ whnfA
 B≡A′ W (emb 0<1 [W]) [W≡A] whnfA = B≡A′ W [W] [W≡A] whnfA
 
-Π≡A′ : ∀ {Γ : Con Term n} {A F G l} → _
-Π≡A′ {Γ = Γ} {A} {F} {G} {l} = B≡A′ {Γ = Γ} {A} {F} {G} {l} BΠ
-Σ≡A′ : ∀ {Γ : Con Term n} {A F G l} → _
-Σ≡A′ {Γ = Γ} {A} {F} {G} {l} = B≡A′ {Γ = Γ} {A} {F} {G} {l} BΣ
+Π≡A′ : ∀ {Γ : Con Term n} {A F G l p q} → _
+Π≡A′ {Γ = Γ} {A} {F} {G} {l} {p} {q} = B≡A′ {Γ = Γ} {A} {F} {G} {l} (BΠ p q)
+Σ≡A′ : ∀ {Γ : Con Term n} {A F G l q} → _
+Σ≡A′ {Γ = Γ} {A} {F} {G} {l} {q} = B≡A′ {Γ = Γ} {A} {F} {G} {l} (BΣ q)
 
 -- If A is judgmentally equal to Π F ▹ G, then there exists H and E such that
 -- A is propositionally equal to  Π H ▹ E.
@@ -125,7 +125,7 @@ B≡A {A} W W≡A whnfA with reducibleEq W≡A
 B≡A {A} W W≡A whnfA | [W] , [A] , [W≡A] =
   B≡A′ W (B-elim W [W]) (irrelevanceEq [W] (B-intr W (B-elim W [W])) [W≡A]) whnfA
 
-Π≡A : ∀ {Γ : Con Term n} {A F G} → _
-Π≡A {Γ = Γ} {A} {F} {G} = B≡A {Γ = Γ} {A} {F} {G} BΠ
-Σ≡A : ∀ {Γ : Con Term n} {A F G} → _
-Σ≡A {Γ = Γ} {A} {F} {G} = B≡A {Γ = Γ} {A} {F} {G} BΣ
+Π≡A : ∀ {Γ : Con Term n} {A F G p q} → _
+Π≡A {Γ = Γ} {A} {F} {G} {p} {q} = B≡A {Γ = Γ} {A} {F} {G} (BΠ p q)
+Σ≡A : ∀ {Γ : Con Term n} {A F G q} → _
+Σ≡A {Γ = Γ} {A} {F} {G} {q} = B≡A {Γ = Γ} {A} {F} {G} (BΣ q)

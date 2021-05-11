@@ -1,19 +1,19 @@
-{-# OPTIONS --without-K --safe #-}
+{-# OPTIONS --without-K  #-}
 
-module Definition.Typed.Consequences.Substitution where
+module Definition.Typed.Consequences.Substitution (M : Set) where
 
-open import Definition.Untyped
-open import Definition.Untyped.Properties
-open import Definition.Typed
-open import Definition.Typed.Properties
-open import Definition.Typed.EqRelInstance
-open import Definition.Typed.Weakening
-open import Definition.Typed.Consequences.Syntactic
-open import Definition.LogicalRelation
-open import Definition.LogicalRelation.Properties
-open import Definition.LogicalRelation.Substitution
-open import Definition.LogicalRelation.Substitution.Irrelevance
-open import Definition.LogicalRelation.Fundamental
+open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped.Properties M
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.Typed.EqRelInstance M
+open import Definition.Typed.Weakening M
+open import Definition.Typed.Consequences.Syntactic M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.Properties M
+open import Definition.LogicalRelation.Substitution M
+open import Definition.LogicalRelation.Substitution.Irrelevance M
+open import Definition.LogicalRelation.Fundamental M
 
 open import Tools.Fin
 open import Tools.Nat
@@ -26,6 +26,7 @@ private
     Γ : Con Term n
     σ σ′ : Subst m n
     ρ : Wk ℓ m
+    p q : M
 
 -- Well-formed substitution of types.
 substitution : ∀ {A Γ Δ} → Γ ⊢ A → Δ ⊢ˢ σ ∷ Γ → ⊢ Δ → Δ ⊢ subst σ A
@@ -166,7 +167,7 @@ substTerm {F = F} {G} {t} {f} ⊢f ⊢t =
   let ⊢Γ = wfTerm ⊢t
   in  substitutionTerm ⊢f (singleSubst ⊢t) ⊢Γ
 
-substTypeΠ : ∀ {t F G} → Γ ⊢ Π F ▹ G → Γ ⊢ t ∷ F → Γ ⊢ G [ t ]
+substTypeΠ : ∀ {t F G} → Γ ⊢ Π p , q ▷ F ▹ G → Γ ⊢ t ∷ F → Γ ⊢ G [ t ]
 substTypeΠ ΠFG t with syntacticΠ ΠFG
 substTypeΠ ΠFG t | F , G = substType G t
 

@@ -1,20 +1,20 @@
-{-# OPTIONS --without-K --safe #-}
+{-# OPTIONS --without-K #-}
 
-module Definition.Typed.Consequences.Injectivity where
+module Definition.Typed.Consequences.Injectivity (M : Set) where
 
-open import Definition.Untyped hiding (wk)
-import Definition.Untyped as U
-open import Definition.Untyped.Properties
+open import Definition.Untyped M hiding (wk)
+import Definition.Untyped M as U
+open import Definition.Untyped.Properties M
 
-open import Definition.Typed
-open import Definition.Typed.Weakening
-open import Definition.Typed.Properties
-open import Definition.Typed.EqRelInstance
-open import Definition.LogicalRelation
-open import Definition.LogicalRelation.Irrelevance
-open import Definition.LogicalRelation.ShapeView
-open import Definition.LogicalRelation.Properties
-open import Definition.LogicalRelation.Fundamental.Reducibility
+open import Definition.Typed M
+open import Definition.Typed.Weakening M
+open import Definition.Typed.Properties M
+open import Definition.Typed.EqRelInstance M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.ShapeView M
+open import Definition.LogicalRelation.Properties M
+open import Definition.LogicalRelation.Fundamental.Reducibility M
 
 open import Tools.Fin
 open import Tools.Nat
@@ -25,6 +25,7 @@ private
   variable
     n : Nat
     Γ : Con Term n
+    p q : M
 
 -- Helper function of injectivity for specific reducible Π-types
 injectivity′ : ∀ {F G H E l} W
@@ -34,8 +35,8 @@ injectivity′ : ∀ {F G H E l} W
              × Γ ∙ F ⊢ G ≡ E
 injectivity′ W (noemb (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext))
          (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
-  let F≡F₁ , G≡G₁ = B-PE-injectivity W (whnfRed* (red D) ⟦ W ⟧ₙ)
-      H≡F′ , E≡G′ = B-PE-injectivity W (whnfRed* D′ ⟦ W ⟧ₙ)
+  let F≡F₁ , G≡G₁ = B-PE-injectivity W W (whnfRed* (red D) ⟦ W ⟧ₙ)
+      H≡F′ , E≡G′ = B-PE-injectivity W W (whnfRed* D′ ⟦ W ⟧ₙ)
       ⊢Γ = wf ⊢F
       [F]₁ = [F] id ⊢Γ
       [F]′ = irrelevance′ (PE.trans (wk-id _) (PE.sym F≡F₁)) [F]₁
@@ -63,8 +64,8 @@ B-injectivity W ⊢WFG≡WHE =
   in  injectivity′ W (B-elim W [WFG])
                    (irrelevanceEq [WFG] (B-intr W (B-elim W [WFG])) [WFG≡WHE])
 
-injectivity : ∀ {F G H E} → Γ ⊢ Π F ▹ G ≡ Π H ▹ E → Γ ⊢ F ≡ H × Γ ∙ F ⊢ G ≡ E
-injectivity = B-injectivity BΠ
+injectivity : ∀ {F G H E} → Γ ⊢ Π p , q ▷ F ▹ G ≡ Π p , q ▷ H ▹ E → Γ ⊢ F ≡ H × Γ ∙ F ⊢ G ≡ E
+injectivity = B-injectivity BΠ!
 
-Σ-injectivity : ∀ {F G H E} → Γ ⊢ Σ F ▹ G ≡ Σ H ▹ E → Γ ⊢ F ≡ H × Γ ∙ F ⊢ G ≡ E
-Σ-injectivity = B-injectivity BΣ
+Σ-injectivity : ∀ {F G H E} → Γ ⊢ Σ q ▷ F ▹ G ≡ Σ q ▷ H ▹ E → Γ ⊢ F ≡ H × Γ ∙ F ⊢ G ≡ E
+Σ-injectivity = B-injectivity BΣ!
