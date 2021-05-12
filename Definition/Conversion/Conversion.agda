@@ -1,20 +1,20 @@
-{-# OPTIONS --without-K --safe #-}
+{-# OPTIONS --without-K  #-}
 
-module Definition.Conversion.Conversion where
+module Definition.Conversion.Conversion (M : Set) where
 
-open import Definition.Untyped hiding (_∷_)
-open import Definition.Untyped.Properties
-open import Definition.Typed
-open import Definition.Typed.RedSteps
-open import Definition.Typed.Properties
-open import Definition.Conversion
-open import Definition.Conversion.Stability
-open import Definition.Conversion.Soundness
-open import Definition.Typed.Consequences.Syntactic
-open import Definition.Typed.Consequences.Substitution
-open import Definition.Typed.Consequences.Injectivity
-open import Definition.Typed.Consequences.Equality
-open import Definition.Typed.Consequences.Reduction
+open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped.Properties M
+open import Definition.Typed M
+open import Definition.Typed.RedSteps M
+open import Definition.Typed.Properties M
+open import Definition.Conversion M
+open import Definition.Conversion.Stability M
+open import Definition.Conversion.Soundness M
+open import Definition.Typed.Consequences.Syntactic M
+open import Definition.Typed.Consequences.Substitution M
+open import Definition.Typed.Consequences.Injectivity M
+open import Definition.Typed.Consequences.Equality M
+open import Definition.Typed.Consequences.Reduction M
 
 open import Tools.Nat
 open import Tools.Product

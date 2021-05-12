@@ -1,10 +1,10 @@
 {-# OPTIONS --without-K --safe #-}
 
-module Definition.Conversion.Whnf where
+module Definition.Conversion.Whnf (M : Set) where
 
-open import Definition.Untyped hiding (_∷_)
-open import Definition.Typed
-open import Definition.Conversion
+open import Definition.Untyped M hiding (_∷_)
+open import Definition.Typed M
+open import Definition.Conversion M
 
 open import Tools.Nat
 open import Tools.Product
@@ -20,18 +20,18 @@ mutual
        → Γ ⊢ t ~ u ↑ A
        → Neutral t × Neutral u
   ne~↑ (var-refl x₁ x≡y) = var _ , var _
-  ne~↑ (app-cong x x₁) = let _ , q , w = ne~↓ x
-                         in  ∘ₙ q , ∘ₙ w
+  ne~↑ (app-cong x x₁ _) = let _ , q , w = ne~↓ x
+                           in  ∘ₙ q , ∘ₙ w
   ne~↑ (fst-cong x) =
     let _ , pNe , rNe = ne~↓ x
     in  fstₙ pNe , fstₙ rNe
   ne~↑ (snd-cong x) =
     let _ , pNe , rNe = ne~↓ x
     in  sndₙ pNe , sndₙ rNe
-  ne~↑ (natrec-cong x x₁ x₂ x₃) = let _ , q , w = ne~↓ x₃
-                                  in  natrecₙ q , natrecₙ w
-  ne~↑ (Emptyrec-cong x x₁) = let _ , q , w = ne~↓ x₁
-                              in Emptyrecₙ q , Emptyrecₙ w
+  ne~↑ (natrec-cong x x₁ x₂ x₃ _ _) = let _ , q , w = ne~↓ x₃
+                                      in  natrecₙ q , natrecₙ w
+  ne~↑ (Emptyrec-cong x x₁ _) = let _ , q , w = ne~↓ x₁
+                                in Emptyrecₙ q , Emptyrecₙ w
 
   -- Extraction of neutrality and WHNF from algorithmic equality of neutrals
   -- with type in WHNF.
@@ -50,8 +50,8 @@ whnfConv↓ (Empty-refl x) = Emptyₙ , Emptyₙ
 whnfConv↓ (Unit-refl x) = Unitₙ , Unitₙ
 whnfConv↓ (ne x) = let _ , neA , neB = ne~↓ x
                    in  ne neA , ne neB
-whnfConv↓ (Π-cong x x₁ x₂) = Πₙ , Πₙ
-whnfConv↓ (Σ-cong x x₁ x₂) = Σₙ , Σₙ
+whnfConv↓ (Π-cong x x₁ x₂ _ _) = Πₙ , Πₙ
+whnfConv↓ (Σ-cong x x₁ x₂ _) = Σₙ , Σₙ
 
 -- Extraction of WHNF from algorithmic equality of terms in WHNF.
 whnfConv↓Term : ∀ {t u A}

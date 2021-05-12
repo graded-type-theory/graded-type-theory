@@ -1,24 +1,24 @@
-{-# OPTIONS --without-K --safe #-}
+{-# OPTIONS --without-K --allow-unsolved-metas #-}
 
 open import Definition.Typed.EqualityRelation
 
-module Definition.LogicalRelation.Fundamental {{eqrel : EqRelSet}} where
+module Definition.LogicalRelation.Fundamental (M : Set) {{eqrel : EqRelSet M}} where
 open EqRelSet {{...}}
 
-open import Definition.Untyped hiding (_∷_)
-open import Definition.Untyped.Properties
-open import Definition.Typed
-open import Definition.Typed.Properties
-open import Definition.LogicalRelation
-open import Definition.LogicalRelation.Irrelevance
-open import Definition.LogicalRelation.Properties
-open import Definition.LogicalRelation.Substitution
-open import Definition.LogicalRelation.Substitution.Properties
-open import Definition.LogicalRelation.Substitution.Conversion
-open import Definition.LogicalRelation.Substitution.Reduction
-open import Definition.LogicalRelation.Substitution.Reflexivity
-open import Definition.LogicalRelation.Substitution.Introductions
-import Definition.LogicalRelation.Substitution.Irrelevance as S
+open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped.Properties M
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.Properties M
+open import Definition.LogicalRelation.Substitution M
+open import Definition.LogicalRelation.Substitution.Properties M
+open import Definition.LogicalRelation.Substitution.Conversion M
+open import Definition.LogicalRelation.Substitution.Reduction M
+open import Definition.LogicalRelation.Substitution.Reflexivity M
+open import Definition.LogicalRelation.Substitution.Introductions M
+import Definition.LogicalRelation.Substitution.Irrelevance M as S
 
 open import Tools.Fin
 open import Tools.Product
@@ -29,10 +29,9 @@ import Tools.PropositionalEquality as PE
 private
   variable
     m n : Nat
-    M : Set
-    Γ : Con (Term M) n
-    Δ : Con (Term M) m
-    σ σ′ : Subst M m n
+    Γ : Con Term n
+    Δ : Con Term m
+    σ σ′ : Subst m n
 
 mutual
   -- Fundamental theorem for contexts.
@@ -241,18 +240,16 @@ mutual
     with fundamental ⊢G | fundamentalTerm ⊢z | fundamentalTerm ⊢s
        | fundamentalTerm ⊢n
   ... | [Γ] , [G] | [Γ]₁ , [G₀] , [z] | [Γ]₂ , [G₊] , [s] | [Γ]₃ , [ℕ] , [n] =
-    let sType = {!!} --Π ℕ ▹ (G ▹▹ G [ suc (var x0) ]↑)
-        [Γ]′ = [Γ]₃
+    let [Γ]′ = [Γ]₃
         [G]′ = S.irrelevance {A = G} [Γ] ([Γ]′ ∙ [ℕ]) [G]
         [G₀]′ = S.irrelevance {A = G [ zero ]} [Γ]₁ [Γ]′ [G₀]
-        [G₊]′ = S.irrelevance {A = {!!}} [Γ]₂ [Γ]′ [G₊]
+        [G₊]′ = S.irrelevance {A = wk1 (G [ (suc (var x0)) ]↑)} [Γ]₂ ([Γ]′ ∙ [ℕ] ∙ [G]′) [G₊]
         [Gₙ]′ = substS {F = ℕ} {G = G} {t = n} [Γ]′ [ℕ] [G]′ [n]
         [z]′ = S.irrelevanceTerm {A = G [ zero ]} {t = z} [Γ]₁ [Γ]′
                                  [G₀] [G₀]′ [z]
-        [s]′ = S.irrelevanceTerm {A = {!!}} {t = s} [Γ]₂ [Γ]′ [G₊] [G₊]′ [s]
-    in {!!}
-    -- in  [Γ]′ , [Gₙ]′
-    -- ,   natrecᵛ {F = G} {z} {s} {n} [Γ]′ [ℕ] [G]′ [G₀]′ [G₊]′ [Gₙ]′ [z]′ [s]′ [n]
+        [s]′ = S.irrelevanceTerm {A = wk1 (G [ (suc (var x0)) ]↑)} {t = s} [Γ]₂ ([Γ]′ ∙ [ℕ] ∙ [G]′) [G₊] [G₊]′ [s]
+    in [Γ]′ , [Gₙ]′
+    , (natrecᵛ {F = G} {z} {s} {n} [Γ]′ [ℕ] [G]′ [G₀]′ [G₊]′ [Gₙ]′ [z]′ [s]′ [n])
   fundamentalTerm (Emptyrecⱼ {A = A} {n} ⊢A ⊢n)
     with fundamental ⊢A | fundamentalTerm ⊢n
   ... | [Γ] , [A] | [Γ]′ , [Empty] , [n] =
@@ -409,7 +406,7 @@ mutual
         [G[a]] = substS {F = F} {G} {a} [Γ]₂ [F]₁ [G]′ [a]
         [b[a]] = substSTerm {F = F} {G} {a} {b} [Γ]₂ [F]₁ [G]′ [b]′ [a]
         [lam] , [eq] =
-          redSubstTermᵛ {A = G [ a ]} {(lam p b) ∘ p ▷ a} {b [ a ]} {p = p} [Γ]₂
+          redSubstTermᵛ {A = G [ a ]} {(lam p b) ∘ p ▷ a} {b [ a ]} [Γ]₂
             (λ {_} {Δ} {σ} ⊢Δ [σ] →
                let [liftσ] = liftSubstS {F = F} [Γ]₂ ⊢Δ [F]₁ [σ]
                    ⊢σF = escape (proj₁ ([F]₁ ⊢Δ [σ]))

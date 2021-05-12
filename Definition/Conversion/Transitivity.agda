@@ -1,27 +1,26 @@
-{-# OPTIONS --without-K --safe #-}
+{-# OPTIONS --without-K --allow-unsolved-metas #-}
 
-module Definition.Conversion.Transitivity where
+module Definition.Conversion.Transitivity (M : Set) where
 
-open import Definition.Untyped hiding (_∷_)
-open import Definition.Typed
-open import Definition.Typed.Properties
-open import Definition.Typed.RedSteps
-open import Definition.Conversion
-open import Definition.Conversion.Soundness
-open import Definition.Conversion.Stability
-open import Definition.Conversion.Whnf
-open import Definition.Conversion.Conversion
-open import Definition.Conversion.Reduction
-open import Definition.Conversion.Lift
-open import Definition.Typed.Consequences.Syntactic
-open import Definition.Typed.Consequences.Injectivity
-import Definition.Typed.Consequences.Inequality as WF
-open import Definition.Typed.Consequences.Syntactic
-open import Definition.Typed.Consequences.Substitution
-open import Definition.Typed.Consequences.NeTypeEq
-open import Definition.Typed.Consequences.SucCong
-open import Definition.Typed.Consequences.Inversion
-open import Definition.Typed.Consequences.Reduction
+open import Definition.Untyped M hiding (_∷_)
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.Typed.RedSteps M
+open import Definition.Conversion M
+open import Definition.Conversion.Soundness M
+open import Definition.Conversion.Stability M
+open import Definition.Conversion.Whnf M
+open import Definition.Conversion.Conversion M
+open import Definition.Conversion.Reduction M
+open import Definition.Conversion.Lift M
+open import Definition.Typed.Consequences.Syntactic M
+open import Definition.Typed.Consequences.Injectivity M
+import Definition.Typed.Consequences.Inequality M as WF
+open import Definition.Typed.Consequences.Substitution M
+open import Definition.Typed.Consequences.NeTypeEq M
+open import Definition.Typed.Consequences.SucCong M
+open import Definition.Typed.Consequences.Inversion M
+open import Definition.Typed.Consequences.Reduction M
 
 open import Tools.Nat
 open import Tools.Product
@@ -45,35 +44,36 @@ mutual
     , neTypeEq (var _) x₁
                (PE.subst (λ x → _ ⊢ var x ∷ _) (PE.sym x≡y)
                          x₂)
-  trans~↑ (app-cong t~u a<>b) (app-cong u~v b<>c) =
+  trans~↑ (app-cong t~u a<>b PE.refl) (app-cong u~v b<>c PE.refl) =
     let t~v , ΠFG≡ΠF′G′ = trans~↓ t~u u~v
-        F≡F₁ , G≡G₁ = injectivity ΠFG≡ΠF′G′
+        F≡F₁ , G≡G₁ = injectivity {!ΠFG≡ΠF′G′!}
         a<>c = transConv↑Term F≡F₁ a<>b b<>c
-    in  app-cong t~v a<>c , substTypeEq G≡G₁ (soundnessConv↑Term a<>b)
+    in  app-cong t~v a<>c PE.refl , substTypeEq G≡G₁ (soundnessConv↑Term a<>b)
   trans~↑ (fst-cong t~u) (fst-cong u~v) =
     let t~v , ΣFG≡ΣF′G′ = trans~↓ t~u u~v
-        F≡F′ , _ = Σ-injectivity ΣFG≡ΣF′G′
+        F≡F′ , _ = Σ-injectivity {!ΣFG≡ΣF′G′!}
     in  fst-cong t~v , F≡F′
   trans~↑ (snd-cong t~u) (snd-cong u~v) =
     let t~v , ΣFG≡ΣF′G′ = trans~↓ t~u u~v
-        F≡F′ , G≡G′ = Σ-injectivity ΣFG≡ΣF′G′
+        F≡F′ , G≡G′ = Σ-injectivity {!ΣFG≡ΣF′G′!}
     in  snd-cong t~v , substTypeEq G≡G′ (soundness~↑ (fst-cong t~u))
-  trans~↑ (natrec-cong A<>B a₀<>b₀ aₛ<>bₛ t~u) (natrec-cong B<>C b₀<>c₀ bₛ<>cₛ u~v) =
+  trans~↑ (natrec-cong A<>B a₀<>b₀ aₛ<>bₛ t~u PE.refl PE.refl) (natrec-cong B<>C b₀<>c₀ bₛ<>cₛ u~v PE.refl PE.refl) =
     let ⊢Γ = wf (proj₁ (syntacticEqTerm (soundness~↓ t~u)))
         A≡B = soundnessConv↑ A<>B
         F[0]≡F₁[0] = substTypeEq A≡B (refl (zeroⱼ ⊢Γ))
         ΠℕFs≡ΠℕF₁s = sucCong A≡B
         A<>C = transConv↑ A<>B B<>C
         a₀<>c₀ = transConv↑Term F[0]≡F₁[0] a₀<>b₀ b₀<>c₀
-        aₛ<>cₛ = transConv↑Term ΠℕFs≡ΠℕF₁s aₛ<>bₛ bₛ<>cₛ
+        aₛ<>cₛ = transConv↑Term ΠℕFs≡ΠℕF₁s aₛ<>bₛ
+                                (stabilityConv↑Term ((reflConEq (⊢Γ ∙ (ℕⱼ ⊢Γ))) ∙ sym A≡B) bₛ<>cₛ)
         t~v , _ = trans~↓ t~u u~v
-    in  natrec-cong A<>C a₀<>c₀ aₛ<>cₛ t~v
+    in  natrec-cong A<>C a₀<>c₀ aₛ<>cₛ t~v PE.refl PE.refl
     ,   substTypeEq A≡B (soundness~↓ t~u)
-  trans~↑ (Emptyrec-cong A<>B t~u) (Emptyrec-cong B<>C u~v) =
+  trans~↑ (Emptyrec-cong A<>B t~u PE.refl) (Emptyrec-cong B<>C u~v PE.refl) =
     let A≡B = soundnessConv↑ A<>B
         A<>C = transConv↑ A<>B B<>C
         t~v , _ = trans~↓  t~u u~v
-    in  Emptyrec-cong A<>C t~v , A≡B
+    in  Emptyrec-cong A<>C t~v PE.refl , A≡B
 
   -- Transitivity of algorithmic equality of neutrals with types in WHNF.
   trans~↓ : ∀ {t u v A B}
@@ -121,21 +121,22 @@ mutual
   transConv↓ (ne x) (ne x₁) =
     let A~C , U≡U = trans~↓ x x₁
     in  ne A~C
-  transConv↓ (Π-cong x x₁ x₂) (Π-cong x₃ x₄ x₅) =
-    Π-cong x (transConv↑ x₁ x₄) (transConv↑′ (reflConEq (wf x) ∙ soundnessConv↑ x₁) x₂ x₅)
-  transConv↓ (Σ-cong x x₁ x₂) (Σ-cong x₃ x₄ x₅) =
-    Σ-cong x (transConv↑ x₁ x₄) (transConv↑′ (reflConEq (wf x) ∙ soundnessConv↑ x₁) x₂ x₅)
+  transConv↓ (Π-cong x x₁ x₂ PE.refl PE.refl) (Π-cong x₃ x₄ x₅ PE.refl PE.refl) =
+    Π-cong x (transConv↑ x₁ x₄)
+           (transConv↑′ (reflConEq (wf x) ∙ soundnessConv↑ x₁) x₂ x₅) PE.refl PE.refl
+  transConv↓ (Σ-cong x x₁ x₂ PE.refl) (Σ-cong x₃ x₄ x₅ PE.refl) =
+    Σ-cong x (transConv↑ x₁ x₄) (transConv↑′ (reflConEq (wf x) ∙ soundnessConv↑ x₁) x₂ x₅) PE.refl
   -- Refutable cases
   transConv↓ (U-refl x) (ne ([~] A D whnfB ()))
   transConv↓ (ℕ-refl x) (ne ([~] A D whnfB ()))
   transConv↓ (Empty-refl x) (ne ([~] A D whnfB ()))
-  transConv↓ (Π-cong x x₁ x₂) (ne ([~] A D whnfB ()))
-  transConv↓ (Σ-cong x x₁ x₂) (ne ([~] A D whnfB ()))
+  transConv↓ (Π-cong x x₁ x₂ _ _) (ne ([~] A D whnfB ()))
+  transConv↓ (Σ-cong x x₁ x₂ _) (ne ([~] A D whnfB ()))
   transConv↓ (ne ([~] A₁ D whnfB ())) (U-refl x₁)
   transConv↓ (ne ([~] A₁ D whnfB ())) (ℕ-refl x₁)
   transConv↓ (ne ([~] A₁ D whnfB ())) (Empty-refl x₁)
-  transConv↓ (ne ([~] A₁ D whnfB ())) (Π-cong x₁ x₂ x₃)
-  transConv↓ (ne ([~] A₁ D whnfB ())) (Σ-cong x₁ x₂ x₃)
+  transConv↓ (ne ([~] A₁ D whnfB ())) (Π-cong x₁ x₂ x₃ _ _)
+  transConv↓ (ne ([~] A₁ D whnfB ())) (Σ-cong x₁ x₂ x₃ _)
 
   -- Transitivity of algorithmic equality of terms.
   transConv↑Term : ∀ {t u v A B}
@@ -194,12 +195,12 @@ mutual
   transConv↓Term A≡B (suc-cong x) (suc-cong x₁) =
     suc-cong (transConv↑Term A≡B x x₁)
   transConv↓Term A≡B (η-eq x₁ x₂ y y₁ x₃) (η-eq x₅ x₆ y₂ y₃ x₇) =
-    let F₁≡F , G₁≡G = injectivity A≡B
+    let F₁≡F , G₁≡G = injectivity {!A≡B!}
     in  η-eq x₁ (conv x₆ (sym A≡B))
-             y y₃ (transConv↑Term′ (reflConEq (wfEq F₁≡F) ∙ F₁≡F) G₁≡G x₃ x₇)
+             y y₃ (transConv↑Term′ (reflConEq (wfEq F₁≡F) ∙ F₁≡F) G₁≡G x₃ {!x₇!})
   transConv↓Term A≡B (Σ-η ⊢p ⊢r pProd rProd fstConv sndConv)
                      (Σ-η ⊢r′ ⊢q _ qProd fstConv′ sndConv′) =
-    let F≡ , G≡ = Σ-injectivity A≡B
+    let F≡ , G≡ = Σ-injectivity {!A≡B!}
         Gfst≡ = substTypeEq G≡ (soundnessConv↑Term fstConv)
     in  Σ-η ⊢p (conv ⊢q (sym A≡B)) pProd qProd
             (transConv↑Term F≡ fstConv fstConv′)

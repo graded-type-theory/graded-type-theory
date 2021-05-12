@@ -1,14 +1,14 @@
-{-# OPTIONS --without-K --safe #-}
+{-# OPTIONS --without-K  #-}
 
-module Definition.Conversion.Universe where
+module Definition.Conversion.Universe (M : Set) where
 
-open import Definition.Untyped hiding (_∷_)
-open import Definition.Typed
-open import Definition.Typed.Properties
-open import Definition.Typed.RedSteps
-open import Definition.Conversion
-open import Definition.Conversion.Reduction
-open import Definition.Conversion.Lift
+open import Definition.Untyped M hiding (_∷_)
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.Typed.RedSteps M
+open import Definition.Conversion M
+open import Definition.Conversion.Reduction M
+open import Definition.Conversion.Lift M
 
 open import Tools.Nat
 import Tools.PropositionalEquality as PE

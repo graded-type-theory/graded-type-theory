@@ -1,13 +1,13 @@
-{-# OPTIONS --without-K --safe #-}
+{-# OPTIONS --without-K  #-}
 
-module Definition.Typed.Consequences.SucCong where
+module Definition.Typed.Consequences.SucCong (M : Set) where
 
-open import Definition.Untyped
-open import Definition.Typed
-open import Definition.Typed.Weakening
-open import Definition.Typed.Properties
-open import Definition.Typed.Consequences.Syntactic
-open import Definition.Typed.Consequences.Substitution
+open import Definition.Untyped M
+open import Definition.Typed M
+open import Definition.Typed.Weakening M
+open import Definition.Typed.Properties M
+open import Definition.Typed.Consequences.Syntactic M
+open import Definition.Typed.Consequences.Substitution M
 
 open import Tools.Fin
 open import Tools.Nat
@@ -20,13 +20,17 @@ private
 
 -- Congruence of the type of the successor case in natrec.
 sucCong : ∀ {F G} → Γ ∙ ℕ ⊢ F ≡ G
-        → Γ ⊢ Π ℕ ▹ (F ▹▹ F [ suc (var x0) ]↑)
-            ≡ Π ℕ ▹ (G ▹▹ G [ suc (var x0) ]↑)
+        → Γ ∙ ℕ ∙ F ⊢ wk1 (F [ suc (var x0) ]↑) ≡ wk1 (G [ suc (var x0) ]↑)
 sucCong F≡G with wfEq F≡G
 sucCong F≡G | ⊢Γ ∙ ⊢ℕ =
-  let ⊢F , _ = syntacticEq F≡G
-  in  Π-cong ⊢ℕ (refl ⊢ℕ)
-             (Π-cong ⊢F F≡G
-                     (wkEq (step id) (⊢Γ ∙ ⊢ℕ ∙ ⊢F)
-                           (subst↑TypeEq F≡G
-                                         (refl (sucⱼ (var (⊢Γ ∙ ⊢ℕ) here))))))
+  let ⊢F , ⊢G = syntacticEq F≡G
+  in wkEq (step id) (⊢Γ ∙ ⊢ℕ ∙ ⊢F)
+          (subst↑TypeEq F≡G (refl (sucⱼ (var (⊢Γ ∙ ⊢ℕ) here))))
+
+sucCong′ : ∀ {F G} → Γ ∙ ℕ ⊢ F ≡ G
+        → Γ ∙ ℕ ∙ G ⊢ wk1 (F [ suc (var x0) ]↑) ≡ wk1 (G [ suc (var x0) ]↑)
+sucCong′ F≡G with wfEq F≡G
+sucCong′ F≡G | ⊢Γ ∙ ⊢ℕ =
+  let ⊢F , ⊢G = syntacticEq F≡G
+  in wkEq (step id) (⊢Γ ∙ ⊢ℕ ∙ ⊢G)
+          (subst↑TypeEq F≡G (refl (sucⱼ (var (⊢Γ ∙ ⊢ℕ) here))))

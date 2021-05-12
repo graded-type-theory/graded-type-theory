@@ -1,12 +1,12 @@
 {-# OPTIONS --without-K --safe #-}
 
-module Definition.Conversion.Reduction where
+module Definition.Conversion.Reduction (M : Set) where
 
-open import Definition.Untyped hiding (_∷_)
-open import Definition.Typed
-open import Definition.Typed.Properties
-open import Definition.Typed.RedSteps
-open import Definition.Conversion
+open import Definition.Untyped M hiding (_∷_)
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.Typed.RedSteps M
+open import Definition.Conversion M
 
 open import Tools.Nat
 

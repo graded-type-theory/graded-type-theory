@@ -1,20 +1,20 @@
-{-# OPTIONS --without-K --safe #-}
+{-# OPTIONS --without-K  #-}
 
 open import Definition.Typed.EqualityRelation
 
-module Definition.LogicalRelation.Substitution.Introductions {{eqrel : EqRelSet}} where
+module Definition.LogicalRelation.Substitution.Introductions (M : Set) {{eqrel : EqRelSet M}} where
 
-open import Definition.LogicalRelation.Substitution.Introductions.Pi public
-open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst public
-open import Definition.LogicalRelation.Substitution.Introductions.Lambda public
-open import Definition.LogicalRelation.Substitution.Introductions.Application public
-open import Definition.LogicalRelation.Substitution.Introductions.Prod public
-open import Definition.LogicalRelation.Substitution.Introductions.Fst public
-open import Definition.LogicalRelation.Substitution.Introductions.Snd public
-open import Definition.LogicalRelation.Substitution.Introductions.ProdBetaEta public
-open import Definition.LogicalRelation.Substitution.Introductions.Nat public
-open import Definition.LogicalRelation.Substitution.Introductions.Natrec public
-open import Definition.LogicalRelation.Substitution.Introductions.Empty public
-open import Definition.LogicalRelation.Substitution.Introductions.Emptyrec public
-open import Definition.LogicalRelation.Substitution.Introductions.Unit public
-open import Definition.LogicalRelation.Substitution.Introductions.Universe public
+open import Definition.LogicalRelation.Substitution.Introductions.Pi M public
+open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst M public
+open import Definition.LogicalRelation.Substitution.Introductions.Lambda M public
+open import Definition.LogicalRelation.Substitution.Introductions.Application M public
+open import Definition.LogicalRelation.Substitution.Introductions.Prod M public
+open import Definition.LogicalRelation.Substitution.Introductions.Fst M public
+open import Definition.LogicalRelation.Substitution.Introductions.Snd M public
+open import Definition.LogicalRelation.Substitution.Introductions.ProdBetaEta M public
+open import Definition.LogicalRelation.Substitution.Introductions.Nat M public
+open import Definition.LogicalRelation.Substitution.Introductions.Natrec M public
+open import Definition.LogicalRelation.Substitution.Introductions.Empty M public
+open import Definition.LogicalRelation.Substitution.Introductions.Emptyrec M public
+open import Definition.LogicalRelation.Substitution.Introductions.Unit M public
+open import Definition.LogicalRelation.Substitution.Introductions.Universe M public

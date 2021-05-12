@@ -1,15 +1,15 @@
-{-# OPTIONS --without-K --safe #-}
+{-# OPTIONS --without-K  #-}
 
-module Definition.Typed.Consequences.Inequality where
+module Definition.Typed.Consequences.Inequality (M : Set) where
 
-open import Definition.Untyped hiding (U≢ne; ℕ≢ne; B≢ne; U≢B; ℕ≢B)
-open import Definition.Typed
-open import Definition.Typed.EqRelInstance
-open import Definition.LogicalRelation
-open import Definition.LogicalRelation.Irrelevance
-open import Definition.LogicalRelation.ShapeView
-open import Definition.LogicalRelation.Fundamental.Reducibility
-open import Definition.Typed.Consequences.Syntactic
+open import Definition.Untyped M hiding (U≢ne; ℕ≢ne; B≢ne; U≢B; ℕ≢B)
+open import Definition.Typed M
+open import Definition.Typed.EqRelInstance M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.ShapeView M
+open import Definition.LogicalRelation.Fundamental.Reducibility M
+open import Definition.Typed.Consequences.Syntactic M
 
 open import Tools.Nat
 open import Tools.Product
@@ -19,6 +19,7 @@ private
   variable
     n : Nat
     Γ : Con Term n
+    p q q′ : M
 
 A≢B : ∀ {A B Γ} (_⊩′⟨_⟩A_ _⊩′⟨_⟩B_ : Con Term n → TypeLevel → Term n → Set)
       (A-intr : ∀ {l} → Γ ⊩′⟨ l ⟩A A → Γ ⊩⟨ l ⟩ A)
@@ -167,10 +168,10 @@ U≢B W U≡W =
   let _ , ⊢W = syntacticEq U≡W
   in  U≢B-red W (id ⊢W) U≡W
 
-U≢Π : ∀ {Γ : Con Term n} {F G} → _
-U≢Π {Γ = Γ} {F} {G} = U≢B {Γ = Γ} {F} {G} BΠ
-U≢Σ : ∀ {Γ : Con Term n} {F G} → _
-U≢Σ {Γ = Γ} {F} {G} = U≢B {Γ = Γ} {F} {G} BΣ
+U≢Π : ∀ {Γ : Con Term n} {F G p q} → _
+U≢Π {Γ = Γ} {F} {G} {p} {q} = U≢B {Γ = Γ} {F} {G} (BΠ p q)
+U≢Σ : ∀ {Γ : Con Term n} {F G q} → _
+U≢Σ {Γ = Γ} {F} {G} {q} = U≢B {Γ = Γ} {F} {G} (BΣ q)
 
 U≢ne′ : ∀ {K l l′}
        ([U] : Γ ⊩′⟨ l ⟩U)
@@ -209,10 +210,10 @@ U≢ne neK U≡K =
   let ⊢ℕ , ⊢W = syntacticEq ℕ≡W
   in  ℕ≢B-red W (id ⊢ℕ) (id ⊢W) ℕ≡W
 
-ℕ≢Π : ∀ {Γ : Con Term n} {F G} → _
-ℕ≢Π {Γ = Γ} {F} {G} = ℕ≢B {Γ = Γ} {F} {G} BΠ
-ℕ≢Σ : ∀ {Γ : Con Term n} {F G} → _
-ℕ≢Σ {Γ = Γ} {F} {G} = ℕ≢B {Γ = Γ} {F} {G} BΣ
+ℕ≢Π : ∀ {Γ : Con Term n} {F G p q} → _
+ℕ≢Π {Γ = Γ} {F} {G} {p} {q} = ℕ≢B {Γ = Γ} {F} {G} (BΠ p q)
+ℕ≢Σ : ∀ {Γ : Con Term n} {F G q} → _
+ℕ≢Σ {Γ = Γ} {F} {G} {q} = ℕ≢B {Γ = Γ} {F} {G} (BΣ q)
 
 -- Empty and Π
 Empty≢B′ : ∀ {A B l l′} W
@@ -233,10 +234,10 @@ Empty≢Bⱼ W Empty≡W =
   let ⊢Empty , ⊢W = syntacticEq Empty≡W
   in  Empty≢B-red W (id ⊢Empty) (id ⊢W) Empty≡W
 
-Empty≢Πⱼ : ∀ {Γ : Con Term n} {F G} → _
-Empty≢Πⱼ {Γ = Γ} {F} {G} = Empty≢Bⱼ {Γ = Γ} {F} {G} BΠ
-Empty≢Σⱼ : ∀ {Γ : Con Term n} {F G} → _
-Empty≢Σⱼ {Γ = Γ} {F} {G} = Empty≢Bⱼ {Γ = Γ} {F} {G} BΣ
+Empty≢Πⱼ : ∀ {Γ : Con Term n} {F G p q} → _
+Empty≢Πⱼ {Γ = Γ} {F} {G} {p} {q} = Empty≢Bⱼ {Γ = Γ} {F} {G} (BΠ p q)
+Empty≢Σⱼ : ∀ {Γ : Con Term n} {F G q} → _
+Empty≢Σⱼ {Γ = Γ} {F} {G} {q} = Empty≢Bⱼ {Γ = Γ} {F} {G} (BΣ q)
 
 -- Unit and Π
 Unit≢B′ : ∀ {A B l l′} W
@@ -257,10 +258,10 @@ Unit≢Bⱼ W Unit≡W =
   let ⊢Unit , ⊢W = syntacticEq Unit≡W
   in  Unit≢B-red W (id ⊢Unit) (id ⊢W) Unit≡W
 
-Unit≢Πⱼ : ∀ {Γ : Con Term n} {F G} → _
-Unit≢Πⱼ {Γ = Γ} {F} {G} = Unit≢Bⱼ {Γ = Γ} {F} {G} BΠ
-Unit≢Σⱼ : ∀ {Γ : Con Term n} {F G} → _
-Unit≢Σⱼ {Γ = Γ} {F} {G} = Unit≢Bⱼ {Γ = Γ} {F} {G} BΣ
+Unit≢Πⱼ : ∀ {Γ : Con Term n} {F G p q} → _
+Unit≢Πⱼ {Γ = Γ} {F} {G} {p} {q} = Unit≢Bⱼ {Γ = Γ} {F} {G} (BΠ p q)
+Unit≢Σⱼ : ∀ {Γ : Con Term n} {F G q} → _
+Unit≢Σⱼ {Γ = Γ} {F} {G} {q} = Unit≢Bⱼ {Γ = Γ} {F} {G} (BΣ q)
 
 ℕ≢ne′ : ∀ {A K l l′}
        ([ℕ] : Γ ⊩ℕ A)
@@ -336,26 +337,26 @@ B≢ne W neK W≡K =
   let ⊢W , ⊢K = syntacticEq W≡K
   in  B≢ne-red W (id ⊢W) (id ⊢K) neK W≡K
 
-Π≢ne : ∀ {Γ : Con Term n} {F G K} → _
-Π≢ne {Γ = Γ} {F} {G} {K} = B≢ne {Γ = Γ} {F} {G} {K} BΠ
-Σ≢ne : ∀ {Γ : Con Term n} {F G K} → _
-Σ≢ne {Γ = Γ} {F} {G} {K} = B≢ne {Γ = Γ} {F} {G} {K} BΣ
+Π≢ne : ∀ {Γ : Con Term n} {F G K p q} → _
+Π≢ne {Γ = Γ} {F} {G} {K} {p} {q} = B≢ne {Γ = Γ} {F} {G} {K} (BΠ p q)
+Σ≢ne : ∀ {Γ : Con Term n} {F G K q} → _
+Σ≢ne {Γ = Γ} {F} {G} {K} {q} = B≢ne {Γ = Γ} {F} {G} {K} (BΣ q)
 
 -- Π and Σ
-Π≢Σ′ : ∀ {A B l l′}
-       ([A] : Γ ⊩′⟨ l ⟩B⟨ BΠ ⟩ A)
-       ([B] : Γ ⊩′⟨ l′ ⟩B⟨ BΣ ⟩ B)
-     → ShapeView Γ l l′ _ _ (Bᵣ BΠ [A]) (Bᵣ BΣ [B]) → ⊥
+Π≢Σ′ : ∀ {A B l l′ p q q′}
+       ([A] : Γ ⊩′⟨ l ⟩B⟨ BΠ p q ⟩ A)
+       ([B] : Γ ⊩′⟨ l′ ⟩B⟨ BΣ q′ ⟩ B)
+     → ShapeView Γ l l′ _ _ (Bᵣ (BΠ p q) [A]) (Bᵣ (BΣ q′) [B]) → ⊥
 Π≢Σ′ a b ()
 
-Π≢Σ-red : ∀ {A B F G H E} → Γ ⊢ A ⇒* Π F ▹ G → Γ ⊢ B ⇒* Σ H ▹ E → Γ ⊢ A ≡ B → ⊥
-Π≢Σ-red D D′ = A≢B (λ Γ l A → Γ ⊩′⟨ l ⟩B⟨ BΠ ⟩ A)
-                   (λ Γ l A → Γ ⊩′⟨ l ⟩B⟨ BΣ ⟩ A) (Bᵣ BΠ) (Bᵣ BΣ)
-                   (λ x → extractMaybeEmb (B-elim′ BΠ D x))
-                   (λ x → extractMaybeEmb (B-elim′ BΣ D′ x))
+Π≢Σ-red : ∀ {A B F G H E} → Γ ⊢ A ⇒* Π p , q ▷ F ▹ G → Γ ⊢ B ⇒* Σ q′ ▷ H ▹ E → Γ ⊢ A ≡ B → ⊥
+Π≢Σ-red D D′ = A≢B (λ Γ l A → Γ ⊩′⟨ l ⟩B⟨ BΠ! ⟩ A)
+                   (λ Γ l A → Γ ⊩′⟨ l ⟩B⟨ BΣ! ⟩ A) (Bᵣ BΠ!) (Bᵣ BΣ!)
+                   (λ x → extractMaybeEmb (B-elim′ BΠ! D x))
+                   (λ x → extractMaybeEmb (B-elim′ BΣ! D′ x))
                    Π≢Σ′
 
-Π≢Σ : ∀ {F G H E} → Γ ⊢ Π F ▹ G ≡ Σ H ▹ E → ⊥
+Π≢Σ : ∀ {F G H E} → Γ ⊢ Π p , q ▷ F ▹ G ≡ Σ q′ ▷ H ▹ E → ⊥
 Π≢Σ Π≡Σ =
   let ⊢Π , ⊢Σ = syntacticEq Π≡Σ
   in  Π≢Σ-red (id ⊢Π) (id ⊢Σ) Π≡Σ

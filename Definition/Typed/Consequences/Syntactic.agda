@@ -1,16 +1,16 @@
-{-# OPTIONS --without-K --safe #-}
+{-# OPTIONS --without-K  #-}
 
-module Definition.Typed.Consequences.Syntactic where
+module Definition.Typed.Consequences.Syntactic (M : Set) where
 
-open import Definition.Untyped hiding (_∷_)
-open import Definition.Typed
-open import Definition.Typed.Properties
-open import Definition.Typed.EqRelInstance
-open import Definition.LogicalRelation
-open import Definition.LogicalRelation.Substitution
-open import Definition.LogicalRelation.Substitution.Escape
-open import Definition.LogicalRelation.Fundamental
-open import Definition.Typed.Consequences.Injectivity
+open import Definition.Untyped M hiding (_∷_)
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.Typed.EqRelInstance M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.Substitution M
+open import Definition.LogicalRelation.Substitution.Escape M
+open import Definition.LogicalRelation.Fundamental M
+open import Definition.Typed.Consequences.Injectivity M
 
 open import Tools.Nat
 open import Tools.Product
@@ -19,6 +19,7 @@ private
   variable
     n : Nat
     Γ : Con Term n
+    p q : M
 
 -- Syntactic validity of type equality.
 syntacticEq : ∀ {A B} → Γ ⊢ A ≡ B → Γ ⊢ A × Γ ⊢ B
@@ -46,10 +47,10 @@ syntacticRedTerm : ∀ {t u A} → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ A × (Γ ⊢
 syntacticRedTerm d = syntacticEqTerm (subset*Term d)
 
 -- Syntactic validity of Π-types.
-syntacticΠ : ∀ {F G} → Γ ⊢ Π F ▹ G → Γ ⊢ F × Γ ∙ F ⊢ G
+syntacticΠ : ∀ {F G} → Γ ⊢ Π p , q ▷ F ▹ G → Γ ⊢ F × Γ ∙ F ⊢ G
 syntacticΠ ΠFG with injectivity (refl ΠFG)
 syntacticΠ ΠFG | F≡F , G≡G = proj₁ (syntacticEq F≡F) , proj₁ (syntacticEq G≡G)
 
-syntacticΣ : ∀ {F G} → Γ ⊢ Σ F ▹ G → Γ ⊢ F × Γ ∙ F ⊢ G
+syntacticΣ : ∀ {F G} → Γ ⊢ Σ q ▷ F ▹ G → Γ ⊢ F × Γ ∙ F ⊢ G
 syntacticΣ ΣFG with Σ-injectivity (refl ΣFG)
 syntacticΣ ΣFG | F≡F , G≡G = proj₁ (syntacticEq F≡F) , proj₁ (syntacticEq G≡G)

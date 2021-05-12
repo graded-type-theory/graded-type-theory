@@ -1,20 +1,20 @@
-{-# OPTIONS --without-K --safe #-}
+{-# OPTIONS --without-K #-}
 
-module Definition.Conversion.Symmetry where
+module Definition.Conversion.Symmetry (M : Set) where
 
-open import Definition.Untyped hiding (_∷_)
-open import Definition.Typed
-open import Definition.Typed.Properties
-open import Definition.Conversion
-open import Definition.Conversion.Stability
-open import Definition.Conversion.Soundness
-open import Definition.Conversion.Conversion
-open import Definition.Typed.Consequences.Syntactic
-open import Definition.Typed.Consequences.Equality
-open import Definition.Typed.Consequences.Reduction
-open import Definition.Typed.Consequences.Injectivity
-open import Definition.Typed.Consequences.Substitution
-open import Definition.Typed.Consequences.SucCong
+open import Definition.Untyped M hiding (_∷_)
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.Conversion M
+open import Definition.Conversion.Stability M
+open import Definition.Conversion.Soundness M
+open import Definition.Conversion.Conversion M
+open import Definition.Typed.Consequences.Syntactic M
+open import Definition.Typed.Consequences.Equality M
+open import Definition.Typed.Consequences.Reduction M
+open import Definition.Typed.Consequences.Injectivity M
+open import Definition.Typed.Consequences.Substitution M
+open import Definition.Typed.Consequences.SucCong M
 
 open import Tools.Nat
 open import Tools.Product
@@ -35,7 +35,7 @@ mutual
     in  _ , refl ⊢A
      ,  var-refl (PE.subst (λ y → _ ⊢ var y ∷ _) x≡y (stabilityTerm Γ≡Δ x))
                  (PE.sym x≡y)
-  sym~↑ Γ≡Δ (app-cong t~u x) =
+  sym~↑ Γ≡Δ (app-cong t~u x PE.refl) =
     let ⊢Γ , ⊢Δ , _ = contextConvSubst Γ≡Δ
         B , whnfB , A≡B , u~t = sym~↓ Γ≡Δ t~u
         F′ , G′ , ΠF′G′≡B = Π≡A A≡B whnfB
@@ -43,6 +43,7 @@ mutual
     in  _ , substTypeEq G≡G′ (soundnessConv↑Term x)
     ,   app-cong (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) ΠF′G′≡B u~t)
                  (convConvTerm (symConv↑Term Γ≡Δ x) (stabilityEq Γ≡Δ F≡F′))
+                 PE.refl
   sym~↑ Γ≡Δ (fst-cong p~r) =
     let B , whnfB , A≡B , r~p = sym~↓ Γ≡Δ p~r
         F′ , G′ , Σ≡ = Σ≡A A≡B whnfB
@@ -55,7 +56,7 @@ mutual
         r~p = PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) Σ≡ r~p
         F≡ , G≡ = Σ-injectivity (PE.subst (λ x → _ ⊢ _ ≡ x) Σ≡ A≡B)
     in  G′ [ fst r ] , substTypeEq G≡ fst≡ , snd-cong r~p
-  sym~↑ Γ≡Δ (natrec-cong x x₁ x₂ t~u) =
+  sym~↑ Γ≡Δ (natrec-cong x x₁ x₂ t~u PE.refl PE.refl) =
     let ⊢Γ , ⊢Δ , _ = contextConvSubst Γ≡Δ
         B , whnfB , A≡B , u~t = sym~↓ Γ≡Δ t~u
         B≡ℕ = ℕ≡A A≡B whnfB
@@ -64,9 +65,10 @@ mutual
     in  _ , substTypeEq (soundnessConv↑ x) (soundness~↓ t~u)
     ,   natrec-cong (symConv↑ (Γ≡Δ ∙ (refl (ℕⱼ ⊢Γ))) x)
                     (convConvTerm (symConv↑Term Γ≡Δ x₁) F[0]≡G[0])
-                    (convConvTerm (symConv↑Term Γ≡Δ x₂) (sucCong F≡G))
+                    (convConvTerm (symConv↑Term (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ) ∙ soundnessConv↑ x) x₂) (sucCong′ F≡G))
                     (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡ℕ u~t)
-  sym~↑ Γ≡Δ (Emptyrec-cong x t~u) =
+                    PE.refl PE.refl
+  sym~↑ Γ≡Δ (Emptyrec-cong x t~u PE.refl) =
     let ⊢Γ , ⊢Δ , _ = contextConvSubst Γ≡Δ
         B , whnfB , A≡B , u~t = sym~↓ Γ≡Δ t~u
         B≡Empty = Empty≡A A≡B whnfB
@@ -74,6 +76,7 @@ mutual
     in  _ , soundnessConv↑ x
     , Emptyrec-cong (symConv↑ Γ≡Δ x)
                     (PE.subst (λ x₁ → _ ⊢ _ ~ _ ↓ x₁) B≡Empty u~t)
+                    PE.refl
 
   -- Symmetry of algorithmic equality of neutrals of types in WHNF.
   sym~↓ : ∀ {t u A} → ⊢ Γ ≡ Δ → Γ ⊢ t ~ u ↓ A
@@ -109,16 +112,18 @@ mutual
     let B , whnfB , U≡B , B~A = sym~↓ Γ≡Δ A~B
         B≡U = U≡A U≡B
     in  ne (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡U B~A)
-  symConv↓ Γ≡Δ (Π-cong x A<>B A<>B₁) =
+  symConv↓ Γ≡Δ (Π-cong x A<>B A<>B₁ PE.refl PE.refl) =
     let F≡H = soundnessConv↑ A<>B
         _ , ⊢H = syntacticEq (stabilityEq Γ≡Δ F≡H)
     in  Π-cong ⊢H (symConv↑ Γ≡Δ A<>B)
                   (symConv↑ (Γ≡Δ ∙ F≡H) A<>B₁)
-  symConv↓ Γ≡Δ (Σ-cong x A<>B A<>B₁) =
+                  PE.refl PE.refl
+  symConv↓ Γ≡Δ (Σ-cong x A<>B A<>B₁ PE.refl) =
     let F≡H = soundnessConv↑ A<>B
         _ , ⊢H = syntacticEq (stabilityEq Γ≡Δ F≡H)
     in  Σ-cong ⊢H (symConv↑ Γ≡Δ A<>B)
                   (symConv↑ (Γ≡Δ ∙ F≡H) A<>B₁)
+                  PE.refl
 
   -- Symmetry of algorithmic equality of terms.
   symConv↑Term : ∀ {t u A} → ⊢ Γ ≡ Δ → Γ ⊢ t [conv↑] u ∷ A → Δ ⊢ u [conv↑] t ∷ A
