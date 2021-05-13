@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --allow-unsolved-metas #-}
+{-# OPTIONS --without-K  #-}
 
 module Definition.Conversion.Transitivity (M : Set) where
 
@@ -46,16 +46,16 @@ mutual
                          x₂)
   trans~↑ (app-cong t~u a<>b PE.refl) (app-cong u~v b<>c PE.refl) =
     let t~v , ΠFG≡ΠF′G′ = trans~↓ t~u u~v
-        F≡F₁ , G≡G₁ = injectivity {!ΠFG≡ΠF′G′!}
+        F≡F₁ , G≡G₁ , _ , _ = injectivity ΠFG≡ΠF′G′
         a<>c = transConv↑Term F≡F₁ a<>b b<>c
     in  app-cong t~v a<>c PE.refl , substTypeEq G≡G₁ (soundnessConv↑Term a<>b)
   trans~↑ (fst-cong t~u) (fst-cong u~v) =
     let t~v , ΣFG≡ΣF′G′ = trans~↓ t~u u~v
-        F≡F′ , _ = Σ-injectivity {!ΣFG≡ΣF′G′!}
+        F≡F′ , _ , _ = Σ-injectivity ΣFG≡ΣF′G′
     in  fst-cong t~v , F≡F′
   trans~↑ (snd-cong t~u) (snd-cong u~v) =
     let t~v , ΣFG≡ΣF′G′ = trans~↓ t~u u~v
-        F≡F′ , G≡G′ = Σ-injectivity {!ΣFG≡ΣF′G′!}
+        F≡F′ , G≡G′ , _ = Σ-injectivity ΣFG≡ΣF′G′
     in  snd-cong t~v , substTypeEq G≡G′ (soundness~↑ (fst-cong t~u))
   trans~↑ (natrec-cong A<>B a₀<>b₀ aₛ<>bₛ t~u PE.refl PE.refl) (natrec-cong B<>C b₀<>c₀ bₛ<>cₛ u~v PE.refl PE.refl) =
     let ⊢Γ = wf (proj₁ (syntacticEqTerm (soundness~↓ t~u)))
@@ -195,12 +195,13 @@ mutual
   transConv↓Term A≡B (suc-cong x) (suc-cong x₁) =
     suc-cong (transConv↑Term A≡B x x₁)
   transConv↓Term A≡B (η-eq x₁ x₂ y y₁ x₃) (η-eq x₅ x₆ y₂ y₃ x₇) =
-    let F₁≡F , G₁≡G = injectivity {!A≡B!}
+    let F₁≡F , G₁≡G , p≡p′ , _ = injectivity A≡B
     in  η-eq x₁ (conv x₆ (sym A≡B))
-             y y₃ (transConv↑Term′ (reflConEq (wfEq F₁≡F) ∙ F₁≡F) G₁≡G x₃ {!x₇!})
+             y y₃ (transConv↑Term′ (reflConEq (wfEq F₁≡F) ∙ F₁≡F) G₁≡G x₃
+                  (PE.subst (λ p → _ ⊢ _ ∘ p ▷ _ [conv↑] _ ∘ p ▷ _ ∷ _) (PE.sym p≡p′) x₇))
   transConv↓Term A≡B (Σ-η ⊢p ⊢r pProd rProd fstConv sndConv)
                      (Σ-η ⊢r′ ⊢q _ qProd fstConv′ sndConv′) =
-    let F≡ , G≡ = Σ-injectivity {!A≡B!}
+    let F≡ , G≡ , _ = Σ-injectivity A≡B
         Gfst≡ = substTypeEq G≡ (soundnessConv↑Term fstConv)
     in  Σ-η ⊢p (conv ⊢q (sym A≡B)) pProd qProd
             (transConv↑Term F≡ fstConv fstConv′)

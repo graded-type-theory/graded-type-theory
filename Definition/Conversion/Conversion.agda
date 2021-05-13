@@ -67,14 +67,14 @@ mutual
     suc-cong (stabilityConv↑Term Γ≡Δ x)
   convConv↓Term Γ≡Δ A≡B whnfB (η-eq x₁ x₂ y y₁ x₃) with Π≡A A≡B whnfB
   convConv↓Term Γ≡Δ A≡B whnfB (η-eq x₁ x₂ y y₁ x₃) | F′ , G′ , PE.refl =
-    let F≡F′ , G≡G′ = injectivity A≡B
+    let F≡F′ , G≡G′ , _ = injectivity A≡B
     in  η-eq (stabilityTerm Γ≡Δ (conv x₁ A≡B))
              (stabilityTerm Γ≡Δ (conv x₂ A≡B)) y y₁
              (convConv↑Term (Γ≡Δ ∙ F≡F′) G≡G′ x₃)
   convConv↓Term Γ≡Δ A≡B whnfB (Σ-η ⊢p ⊢r pProd rProd fstConv sndConv)
     with Σ≡A A≡B whnfB
   ... | F , G , PE.refl =
-    let F≡ , G≡ = Σ-injectivity A≡B
+    let F≡ , G≡ , _ = Σ-injectivity A≡B
         ⊢F = proj₁ (syntacticEq F≡)
         ⊢G = proj₁ (syntacticEq G≡)
         ⊢fst = fstⱼ ⊢F ⊢G ⊢p

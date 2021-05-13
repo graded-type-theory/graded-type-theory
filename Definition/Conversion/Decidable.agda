@@ -58,7 +58,7 @@ dec~↑-app k₂ k₃ k~k₁ (no ¬p) =
       let whnfA , neK , neL = ne~↓ x
           ⊢A , ⊢k , ⊢l = syntacticEqTerm (soundness~↓ x)
           ΠFG≡ΠF₂G₂ = neTypeEq neK k₂ ⊢k
-          F≡F₂ , G≡G₂ = injectivity {!ΠFG≡ΠF₂G₂!}
+          F≡F₂ , G≡G₂ , _ = injectivity ΠFG≡ΠF₂G₂
       in  ¬p (convConvTerm x₁ (sym F≡F₂)) })
 
 -- Helper function for decidability for neutrals of natural number type.
@@ -140,9 +140,10 @@ mutual
         _ , ⊢l₂ , _ = syntacticEqTerm (soundness~↓ x₂)
         ΠFG≡A = neTypeEq neK ⊢l₁ ⊢k
         ΠF′G′≡A = neTypeEq neL ⊢l₂ ⊢l
-        F≡F′ , G≡G′ = injectivity (trans ΠFG≡A (sym {!ΠF′G′≡A!}))
-    in  {!eq′!}
-    -- dec~↑-app ⊢l₁ ⊢l₂ k~l (decConv↑TermConv F≡F′ x₁ x₃)
+        F≡F′ , G≡G′ , p≡p′ , q≡q′ = injectivity (trans ΠFG≡A (sym ΠF′G′≡A))
+        ⊢l₂′ = PE.subst₂ (λ p q → _ ⊢ _ ∷ Π p , q ▷ _ ▹ _ ) (PE.sym p≡p′) (PE.sym q≡q′) ⊢l₂
+    in  PE.subst Dec (PE.cong ∃ (PE.cong (_ ⊢ _ ∘ _ ▷ _ ~_↑_) (PE.cong (_ ∘_▷ _) p≡p′)))
+                 (dec~↑-app ⊢l₁ ⊢l₂′ k~l (decConv↑TermConv F≡F′ x₁ x₃))
   ... | no ¬p = no (λ { (_ , app-cong x₄ x₅ x₆) → ¬p (_ , x₄) })
   dec~↑ (app-cong x₁ x₂ _) (var-refl x₃ x≡y) = no (λ { (_ , ()) })
   dec~↑ (app-cong x x₁ _) (fst-cong x₂) = no (λ { (_ , ()) })
@@ -190,7 +191,8 @@ mutual
                (substTypeEq (soundnessConv↑ p)
                             (refl (zeroⱼ (wfEqTerm (soundness~↓ x₃)))))
                x₁ x₅
-           | decConv↑TermConv (sucCong (soundnessConv↑ p)) x₂ (stabilityConv↑Term (reflConEq (wfEq (soundnessConv↑ x)) ∙ {!!}) x₆) --x₂ x₆
+           | decConv↑TermConv (sucCong (soundnessConv↑ p)) {!x₂!} {!x₆!}
+           -- (stabilityConv↑Term (reflConEq (wfEq (soundnessConv↑ x)) ∙ {!x₆!}) x₆) --x₂ x₆
            | dec~↓ x₃ x₇
   ... | yes p₁ | yes p₂ | yes (A , k~l) =
     let whnfA , neK , neL = ne~↓ k~l

@@ -39,7 +39,7 @@ mutual
     let ⊢Γ , ⊢Δ , _ = contextConvSubst Γ≡Δ
         B , whnfB , A≡B , u~t = sym~↓ Γ≡Δ t~u
         F′ , G′ , ΠF′G′≡B = Π≡A A≡B whnfB
-        F≡F′ , G≡G′ = injectivity (PE.subst (λ x → _ ⊢ _ ≡ x) ΠF′G′≡B A≡B)
+        F≡F′ , G≡G′ , _ = injectivity (PE.subst (λ x → _ ⊢ _ ≡ x) ΠF′G′≡B A≡B)
     in  _ , substTypeEq G≡G′ (soundnessConv↑Term x)
     ,   app-cong (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) ΠF′G′≡B u~t)
                  (convConvTerm (symConv↑Term Γ≡Δ x) (stabilityEq Γ≡Δ F≡F′))
@@ -47,14 +47,14 @@ mutual
   sym~↑ Γ≡Δ (fst-cong p~r) =
     let B , whnfB , A≡B , r~p = sym~↓ Γ≡Δ p~r
         F′ , G′ , Σ≡ = Σ≡A A≡B whnfB
-        F≡ , G≡ = Σ-injectivity (PE.subst (λ x → _ ⊢ _ ≡ x) Σ≡ A≡B)
+        F≡ , G≡ , _ = Σ-injectivity (PE.subst (λ x → _ ⊢ _ ≡ x) Σ≡ A≡B)
     in  F′ , F≡ , fst-cong (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) Σ≡ r~p)
   sym~↑ Γ≡Δ (snd-cong {p} {r} {F} {G} p~r) =
     let fst≡  = soundness~↑ (fst-cong p~r)
         B , whnfB , A≡B , r~p = sym~↓ Γ≡Δ p~r
         F′ , G′ , Σ≡ = Σ≡A A≡B whnfB
         r~p = PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) Σ≡ r~p
-        F≡ , G≡ = Σ-injectivity (PE.subst (λ x → _ ⊢ _ ≡ x) Σ≡ A≡B)
+        F≡ , G≡ , _ = Σ-injectivity (PE.subst (λ x → _ ⊢ _ ≡ x) Σ≡ A≡B)
     in  G′ [ fst r ] , substTypeEq G≡ fst≡ , snd-cong r~p
   sym~↑ Γ≡Δ (natrec-cong x x₁ x₂ t~u PE.refl PE.refl) =
     let ⊢Γ , ⊢Δ , _ = contextConvSubst Γ≡Δ
