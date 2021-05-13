@@ -37,7 +37,7 @@ appTerm′ : ∀ {F G t u l l′ l″}
 appTerm′ {Γ = Γ} {p = p} {t = t} [F] [G[u]] (noemb (Bᵣ F G D ⊢F ⊢G A≡A [F′] [G′] G-ext))
          (Πₜ f d funcF f≡f [f] [f]₁) [u] =
   let ΠFG≡ΠF′G′ = whnfRed* (red D) Πₙ
-      F≡F′ , G≡G′ = B-PE-injectivity BΠ! BΠ! ΠFG≡ΠF′G′
+      F≡F′ , G≡G′ , _ = B-PE-injectivity BΠ! BΠ! ΠFG≡ΠF′G′
       F≡idF′ = PE.trans F≡F′ (PE.sym (wk-id _))
       idG′ᵤ≡Gᵤ = PE.cong (λ x → x [ _ ]) (PE.trans (wk-lift-id _) (PE.sym G≡G′))
       idf∘u≡f∘u = (PE.cong (λ x → x ∘ _ ▷ _) (wk-id _))
@@ -80,7 +80,7 @@ app-congTerm′ {p = p} {n = n} {Γ} {F′} {G′} {t = t} {t′ = t′}
               [a] [a′] [a≡a′] =
   let [ΠFG] = Πᵣ′ F G D ⊢F ⊢G A≡A [F]₁ [G] G-ext
       ΠFG≡ΠF′G′ = whnfRed* (red D) Πₙ
-      F≡F′ , G≡G′ = B-PE-injectivity BΠ! BΠ! ΠFG≡ΠF′G′
+      F≡F′ , G≡G′ , _ = B-PE-injectivity BΠ! BΠ! ΠFG≡ΠF′G′
       f≡f′ = whrDet*Term (d , functionWhnf funcF) (d″ , functionWhnf funcF′)
       g≡g′ = whrDet*Term (d′ , functionWhnf funcG) (d‴ , functionWhnf funcG′)
       F≡wkidF′ = PE.trans F≡F′ (PE.sym (wk-id _))

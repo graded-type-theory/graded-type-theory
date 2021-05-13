@@ -138,7 +138,7 @@ private
      [fst≡]
      [snd≡]
        with B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) Σₙ)
-... | PE.refl , PE.refl =
+... | PE.refl , PE.refl , _ =
   let [ΣFG] = B-intr BΣ! [ΣFG]₁
       ⊢Γ = wf ⊢F
       wk[F] = [F]₁ id ⊢Γ

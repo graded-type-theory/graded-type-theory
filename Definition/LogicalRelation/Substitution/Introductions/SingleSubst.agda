@@ -181,7 +181,7 @@ substSΠ₁′ : ∀ {F G t l l′} W
            ([t] : Γ ⊩⟨ l′ ⟩ t ∷ F / [F])
          → Γ ⊩⟨ l ⟩ G [ t ]
 substSΠ₁′ {t = t} W (noemb (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) [F]₁ [t] =
-  let F≡F′ , G≡G′ = B-PE-injectivity W W (whnfRed* (red D) ⟦ W ⟧ₙ)
+  let F≡F′ , G≡G′ , _ = B-PE-injectivity W W (whnfRed* (red D) ⟦ W ⟧ₙ)
       Feq = PE.trans F≡F′ (PE.sym (wk-id _))
       Geq = PE.cong (λ x → x [ _ ]) (PE.trans (wk-lift-id _) (PE.sym G≡G′))
       ⊢Γ = wf (escape [F]₁)
@@ -212,8 +212,8 @@ substSΠ₂′ : ∀ {F F′ G G′ t t′ l l′ l″ l‴} W
 substSΠ₂′ W (noemb (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext))
           (B₌ F″ G″ D′ A≡B [F≡F′] [G≡G′])
           [F]₁ [F′] [t] [t′] [t≡t′] [G[t]] [G′[t′]] =
-  let F≡F′ , G≡G′ = B-PE-injectivity W W (whnfRed* (red D) (⟦ W ⟧ₙ))
-      F′≡F″ , G′≡G″ = B-PE-injectivity W W (whnfRed* D′ ⟦ W ⟧ₙ)
+  let F≡F′  , G≡G′  , _ = B-PE-injectivity W W (whnfRed* (red D) (⟦ W ⟧ₙ))
+      F′≡F″ , G′≡G″ , _ = B-PE-injectivity W W (whnfRed* D′ ⟦ W ⟧ₙ)
       Feq = PE.trans F≡F′ (PE.sym (wk-id _))
       F′eq = PE.trans F′≡F″ (PE.sym (wk-id _))
       Geq = PE.cong (λ x → x [ _ ]) (PE.trans (wk-lift-id _) (PE.sym G≡G′))
@@ -317,10 +317,10 @@ substSΠEq {F = F} {G} {F′} {G′} {t} {u} BΠ! [Γ] [F] [F′] [ΠFG] [ΠF′
            [t] [u] [t≡u] {Δ = Δ} {σ = σ} ⊢Δ [σ] =
   let [σΠFG] = proj₁ ([ΠFG] ⊢Δ [σ])
       _ , Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ = extractMaybeEmb (Π-elim [σΠFG])
-      F≡F₁ , G≡G₁ = B-PE-injectivity BΠ! BΠ! (whnfRed* (red D₁) Πₙ)
+      F≡F₁ , G≡G₁ , _ = B-PE-injectivity BΠ! BΠ! (whnfRed* (red D₁) Πₙ)
       [σΠF′G′] = proj₁ ([ΠF′G′] ⊢Δ [σ])
       _ , Bᵣ F₂ G₂ D₂ ⊢F₂ ⊢G₂ A≡A₂ [F]₂ [G]₂ G-ext₂ = extractMaybeEmb (Π-elim [σΠF′G′])
-      F′≡F₂ , G′≡G₂ = B-PE-injectivity BΠ! BΠ! (whnfRed* (red D₂) Πₙ)
+      F′≡F₂ , G′≡G₂ , _ = B-PE-injectivity BΠ! BΠ! (whnfRed* (red D₂) Πₙ)
       [σF] = proj₁ ([F] ⊢Δ [σ])
       [σF′] = proj₁ ([F′] ⊢Δ [σ])
       [σt] = proj₁ ([t] ⊢Δ [σ])
@@ -352,10 +352,10 @@ substSΠEq {F = F} {G} {F′} {G′} {t} {u} BΣ! [Γ] [F] [F′] [ΣFG] [ΣF′
            [t] [u] [t≡u] {Δ = Δ} {σ = σ} ⊢Δ [σ] =
   let [σΣFG] = proj₁ ([ΣFG] ⊢Δ [σ])
       _ , Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ = extractMaybeEmb (Σ-elim [σΣFG])
-      F≡F₁ , G≡G₁ = B-PE-injectivity BΣ! BΣ! (whnfRed* (red D₁) Σₙ)
+      F≡F₁ , G≡G₁ , _ = B-PE-injectivity BΣ! BΣ! (whnfRed* (red D₁) Σₙ)
       [σΣF′G′] = proj₁ ([ΣF′G′] ⊢Δ [σ])
       _ , Bᵣ F₂ G₂ D₂ ⊢F₂ ⊢G₂ A≡A₂ [F]₂ [G]₂ G-ext₂ = extractMaybeEmb (Σ-elim [σΣF′G′])
-      F′≡F₂ , G′≡G₂ = B-PE-injectivity BΣ! BΣ! (whnfRed* (red D₂) Σₙ)
+      F′≡F₂ , G′≡G₂ , _ = B-PE-injectivity BΣ! BΣ! (whnfRed* (red D₂) Σₙ)
       [σF] = proj₁ ([F] ⊢Δ [σ])
       [σF′] = proj₁ ([F′] ⊢Δ [σ])
       [σt] = proj₁ ([t] ⊢Δ [σ])

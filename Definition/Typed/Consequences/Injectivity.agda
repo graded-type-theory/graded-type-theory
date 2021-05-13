@@ -25,18 +25,18 @@ private
   variable
     n : Nat
     Γ : Con Term n
-    p q : M
+    p p′ q q′ : M
 
 -- Helper function of injectivity for specific reducible Π-types
-injectivity′ : ∀ {F G H E l} W
+injectivity′ : ∀ {F G H E l} W W′
                ([WFG] : Γ ⊩⟨ l ⟩B⟨ W ⟩ ⟦ W ⟧ F ▹ G)
-             → Γ ⊩⟨ l ⟩ ⟦ W ⟧ F ▹ G ≡ ⟦ W ⟧ H ▹ E / B-intr W [WFG]
+             → Γ ⊩⟨ l ⟩ ⟦ W ⟧ F ▹ G ≡ ⟦ W′ ⟧ H ▹ E / B-intr W [WFG]
              → Γ ⊢ F ≡ H
              × Γ ∙ F ⊢ G ≡ E
-injectivity′ W (noemb (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext))
-         (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
-  let F≡F₁ , G≡G₁ = B-PE-injectivity W W (whnfRed* (red D) ⟦ W ⟧ₙ)
-      H≡F′ , E≡G′ = B-PE-injectivity W W (whnfRed* D′ ⟦ W ⟧ₙ)
+             × (W PE.≡ W′)
+injectivity′ W W′ (noemb (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
+  let F≡F₁ , G≡G₁ , _    = B-PE-injectivity W W (whnfRed* (red D) ⟦ W ⟧ₙ)
+      H≡F′ , E≡G′ , W′≡W = B-PE-injectivity W′ W (whnfRed* D′ ⟦ W′ ⟧ₙ)
       ⊢Γ = wf ⊢F
       [F]₁ = [F] id ⊢Γ
       [F]′ = irrelevance′ (PE.trans (wk-id _) (PE.sym F≡F₁)) [F]₁
@@ -54,18 +54,21 @@ injectivity′ W (noemb (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext))
       [G≡E]′ = irrelevanceEqLift″ (PE.trans (wkSingleSubstId _) (PE.sym G≡G₁))
                                    (PE.trans (wkSingleSubstId _) (PE.sym E≡G′))
                                    (PE.sym F≡F₁) [G]₁ [G]′ [G≡E]₁
-  in  escapeEq [F]′ [F≡H]′ , escapeEq [G]′ [G≡E]′
-injectivity′ W (emb 0<1 x) [WFG≡WHE] = injectivity′ W x [WFG≡WHE]
+  in escapeEq [F]′ [F≡H]′ , escapeEq [G]′ [G≡E]′ , PE.sym W′≡W
+injectivity′ W W′ (emb 0<1 x) [WFG≡WHE] = injectivity′ W W′ x [WFG≡WHE]
 
 -- Injectivity of W
-B-injectivity : ∀ {F G H E} W → Γ ⊢ ⟦ W ⟧ F ▹ G ≡ ⟦ W ⟧ H ▹ E → Γ ⊢ F ≡ H × Γ ∙ F ⊢ G ≡ E
-B-injectivity W ⊢WFG≡WHE =
+B-injectivity : ∀ {F G H E} W W′ → Γ ⊢ ⟦ W ⟧ F ▹ G ≡ ⟦ W′ ⟧ H ▹ E → Γ ⊢ F ≡ H × Γ ∙ F ⊢ G ≡ E × W PE.≡ W′
+B-injectivity W W′ ⊢WFG≡WHE =
   let [WFG] , _ , [WFG≡WHE] = reducibleEq ⊢WFG≡WHE
-  in  injectivity′ W (B-elim W [WFG])
+  in  injectivity′ W W′ (B-elim W [WFG])
                    (irrelevanceEq [WFG] (B-intr W (B-elim W [WFG])) [WFG≡WHE])
 
-injectivity : ∀ {F G H E} → Γ ⊢ Π p , q ▷ F ▹ G ≡ Π p , q ▷ H ▹ E → Γ ⊢ F ≡ H × Γ ∙ F ⊢ G ≡ E
-injectivity = B-injectivity BΠ!
+injectivity : ∀ {F G H E} → Γ ⊢ Π p , q ▷ F ▹ G ≡ Π p′ , q′ ▷ H ▹ E
+            → Γ ⊢ F ≡ H × Γ ∙ F ⊢ G ≡ E × p PE.≡ p′ × q PE.≡ q′
+injectivity x with B-injectivity BΠ! BΠ! x
+... | F≡H , G≡E , PE.refl = F≡H , G≡E , PE.refl , PE.refl
 
-Σ-injectivity : ∀ {F G H E} → Γ ⊢ Σ q ▷ F ▹ G ≡ Σ q ▷ H ▹ E → Γ ⊢ F ≡ H × Γ ∙ F ⊢ G ≡ E
-Σ-injectivity = B-injectivity BΣ!
+Σ-injectivity : ∀ {F G H E} → Γ ⊢ Σ q ▷ F ▹ G ≡ Σ q′ ▷ H ▹ E → Γ ⊢ F ≡ H × Γ ∙ F ⊢ G ≡ E × q PE.≡ q′
+Σ-injectivity x with B-injectivity BΣ! BΣ! x
+... | F≡H , G≡E , PE.refl = F≡H , G≡E , PE.refl
