@@ -45,7 +45,7 @@ fst′ : ∀ {F G t l l′}
 fst′ {Γ = Γ} {q = q} {F = F} {t = t} [F] (noemb (Bᵣ F' G' D ⊢F ⊢G A≡A [F'] [G'] G-ext))
      (Σₜ p d pProd p≅p [fstp] [sndp]) with
        B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) Σₙ)
-... | PE.refl , PE.refl =
+... | PE.refl , PE.refl , _ =
   let [fstp] : Γ ⊩⟨ _ ⟩ fst p ∷ F / [F]
       [fstp] = irrelevanceTerm′ (wk-id F)
                                 ([F'] id (wf ⊢F)) [F]
@@ -73,7 +73,7 @@ fst-cong′ {Γ = Γ} {q = q} {F = F} {G = G} [F]
           [ΣFG]@(noemb (Bᵣ F' G' D ⊢F ⊢G A≡A [F'] [G'] G-ext))
           [t≡t′]@(Σₜ₌ p p′ d d′ pProd pProd′ p≅p′ [t] [t′] [fstp] [fstp′] [fst≡] [snd≡]) with
             B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) Σₙ)
-... | PE.refl , PE.refl =
+... | PE.refl , PE.refl , _ =
   let ⊢Γ = wf ⊢F
       [fstp]₁ = irrelevanceTerm′ (wk-id F) ([F'] id ⊢Γ) [F] [fstp]
       [fstp′]₁ = irrelevanceTerm′ (wk-id F) ([F'] id ⊢Γ) [F] [fstp′]

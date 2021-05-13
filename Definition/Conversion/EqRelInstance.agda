@@ -62,7 +62,7 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set where
       B′ , whnfB′ , D = whNorm ⊢B
       ΠFG≡B′ = trans A≡B (subset* (red D))
       H , E , B≡ΠHE = Π≡A ΠFG≡B′ whnfB′
-      F≡H , G≡E = injectivity (PE.subst (λ x → _ ⊢ _ ≡ x) B≡ΠHE ΠFG≡B′)
+      F≡H , G≡E , _ , _ = injectivity (PE.subst (λ x → _ ⊢ _ ≡ x) B≡ΠHE ΠFG≡B′)
       _ , ⊢f , _ = syntacticEqTerm (soundnessConv↑Term x₁)
   in  ↑ (substTypeEq G≡E (refl ⊢f))
         (app-cong (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x)
@@ -78,7 +78,7 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set where
       B′ , whnfB′ , D = whNorm ⊢B
       ΣFG≡B′ = trans A≡B (subset* (red D))
       H , E , B≡ΣHE = Σ≡A ΣFG≡B′ whnfB′
-      F≡H , G≡E = Σ-injectivity (PE.subst (λ x → _ ⊢ _ ≡ x) B≡ΣHE ΣFG≡B′)
+      F≡H , G≡E , _ = Σ-injectivity (PE.subst (λ x → _ ⊢ _ ≡ x) B≡ΣHE ΣFG≡B′)
       p~r↓ = PE.subst (λ x → _ ⊢ _ ~ _ ↓ x)
                       B≡ΣHE
                       ([~] _ (red D) whnfB′ p~r)
@@ -92,7 +92,7 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set where
       B′ , whnfB′ , D = whNorm ⊢B
       ΣFG≡B′ = trans A≡B (subset* (red D))
       H , E , B≡ΣHE = Σ≡A ΣFG≡B′ whnfB′
-      F≡H , G≡E = Σ-injectivity (PE.subst (λ x → _ ⊢ _ ≡ x) B≡ΣHE ΣFG≡B′)
+      F≡H , G≡E , _ = Σ-injectivity (PE.subst (λ x → _ ⊢ _ ≡ x) B≡ΣHE ΣFG≡B′)
       p~r↓ = PE.subst (λ x → _ ⊢ _ ~ _ ↓ x)
                       B≡ΣHE
                       ([~] _ (red D) whnfB′ p~r)

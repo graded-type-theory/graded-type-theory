@@ -12,6 +12,7 @@ module Definition.Modality.Properties
 open Modality 𝕄 renaming (≈-sym to sym ; ≈-refl to refl ; ≈-trans to trans)
 
 open import Tools.Nat hiding (_+_)
+open import Tools.Nullary
 open import Tools.Product
 
 private
@@ -325,3 +326,4 @@ nrⁿ-cong {p} {p′} {q} {q′} {r} {r′} (1+ n) p≈p′ q≈q′ r≈r′ = 
 nr-cong : p ≈ p′ → q ≈ q′ → r ≈ r′ → nr p q r ≈ nr p′ q′ r′
 nr-cong p≈p′ q≈q′ r≈r′ with nrⁿ-fix
 ... | n , fix = nrⁿ-cong n p≈p′ q≈q′ r≈r′
+

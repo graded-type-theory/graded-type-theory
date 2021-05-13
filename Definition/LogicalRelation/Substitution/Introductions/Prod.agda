@@ -44,7 +44,7 @@ prod′ : ∀ {Γ : Con Term n} {F : Term n} {G t u l l′ l″}
 prod′ {q = q} {Γ = Γ} {F} {G} {t} {u} {l} {l′} {l″} [F] [t] [Gt] [u]
       [ΣFG]@(noemb (Bᵣ F₁ G₁ D ⊢F ⊢G A≡A [F]₁ [G]₁ G-ext)) with
         B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) Σₙ)
-... | PE.refl , PE.refl =
+... | PE.refl , PE.refl , _ =
   let ⊢t = escapeTerm [F] [t]
       ⊢u = escapeTerm [Gt] [u]
       ⊢Γ = wf ⊢F
@@ -119,7 +119,7 @@ prod-cong′ {q = q} {Γ = Γ} {F} {G} {t} {t′} {u} {u′} {l} {l′}
            [F] [t] [t′] [t≡t′] [Gt] [u] [u′] [u≡u′]
            [ΣFG]@(noemb (Bᵣ F₁ G₁ D ⊢F ⊢G A≡A [F]₁ [G]₁ G-ext)) with
              B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) Σₙ)
-... | PE.refl , PE.refl =
+... | PE.refl , PE.refl , _ =
   let [prod] = prod′ [F] [t] [Gt] [u] [ΣFG]
 
       ⊢Γ = wf ⊢F

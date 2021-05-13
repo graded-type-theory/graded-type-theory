@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --allow-unsolved-metas #-}
+{-# OPTIONS --without-K  #-}
 
 module Definition.Typed.Consequences.NeTypeEq (M : Set) where
 
@@ -31,12 +31,12 @@ neTypeEq : ∀ {t A B} → Neutral t → Γ ⊢ t ∷ A → Γ ⊢ t ∷ B → �
 neTypeEq (var x) (var x₁ x₂) (var x₃ x₄) =
   varTypeEq (syntacticTerm (var x₃ x₂)) (syntacticTerm (var x₃ x₄)) x₂ x₄
 neTypeEq (∘ₙ neT) (t∷A ∘ⱼ t∷A₁) (t∷B ∘ⱼ t∷B₁) with neTypeEq neT t∷A t∷B
-... | q = let w = proj₂ (injectivity {!q!})
+... | q = let w = proj₁ (proj₂ (injectivity q))
           in  substTypeEq w (refl t∷A₁)
 neTypeEq (fstₙ neP) (fstⱼ ⊢F ⊢G ⊢t) (fstⱼ ⊢F′ ⊢G′ ⊢t′) with neTypeEq neP ⊢t ⊢t′
-... | q = proj₁ (Σ-injectivity {!q!})
+... | q = proj₁ (Σ-injectivity q)
 neTypeEq (sndₙ neP) (sndⱼ ⊢F ⊢G ⊢t) (sndⱼ ⊢F′ ⊢G′ ⊢t′) with neTypeEq neP ⊢t ⊢t′
-... | q = let G≡G₁ = proj₂ (Σ-injectivity {!q!})
+... | q = let G≡G₁ = proj₁ (proj₂ (Σ-injectivity q))
               ⊢fst = fstⱼ ⊢F ⊢G ⊢t
           in  substTypeEq G≡G₁ (refl ⊢fst)
 neTypeEq (natrecₙ neT) (natrecⱼ x t∷A t∷A₁ t∷A₂) (natrecⱼ x₁ t∷B t∷B₁ t∷B₂) =

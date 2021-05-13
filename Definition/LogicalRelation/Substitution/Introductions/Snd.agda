@@ -41,13 +41,13 @@ snd-subst*′ : ∀ {l l′ F G t t′}
              → Γ ⊢ snd t ⇒* snd t′ ∷ G [ fst t ]
 snd-subst*′ [F] (noemb (Bᵣ F G D ⊢F ⊢G A≡A [F]₁ [G] G-ext)) _ (id x) with
               B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) Σₙ)
-... | PE.refl , PE.refl = id (sndⱼ ⊢F ⊢G x)
+... | PE.refl , PE.refl , _ = id (sndⱼ ⊢F ⊢G x)
 snd-subst*′ {Γ = Γ} {q = q} {F = F} {G = G} {t = t} {t′ = t″} [F]
             [ΣFG]₀@(noemb (Bᵣ F₁ G₁ D ⊢F ⊢G A≡A [F]₁ [G] G-ext))
             [t″]
             t⇒*t″@(_⇨_ {t′ = t′} t⇒t′ t′⇒*t″) with
               B-PE-injectivity (BΣ q) (BΣ q) (whnfRed* (red D) Σₙ)
-... | PE.refl , PE.refl =
+... | PE.refl , PE.refl , _ =
   let [ΣFG] = B-intr (BΣ q) [ΣFG]₀
       [t] , _ = redSubst*Term t⇒*t″ [ΣFG] [t″]
       [t′] , _ = redSubst*Term t′⇒*t″ [ΣFG] [t″]
@@ -89,7 +89,7 @@ snd′ {Γ = Γ} {q = q} {F = F} {G = G} {t = t} {l = l} {l′ = l′}
      [ΣFG]@(noemb (Bᵣ F' G' D ⊢F ⊢G A≡A [F'] [G'] G-ext))
      [t]@(Σₜ p d pProd p≅p [fstp] [sndp]) [Gfst] with
        B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) Σₙ)
-... | PE.refl , PE.refl =
+... | PE.refl , PE.refl , _ =
   let ⊢Γ = wf ⊢F
       [p] = Σₜ p (idRedTerm:*: (⊢u-redₜ d)) pProd p≅p [fstp] [sndp]
 
@@ -140,7 +140,7 @@ snd-cong′ {Γ = Γ} {q = q} {F = F} {G} {t} {t′} {l} {l′}
             B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) Σₙ)
           | whrDet*Term (redₜ d , productWhnf pProd) (redₜ d₁ , productWhnf pProd₁)
           | whrDet*Term (redₜ d′ , productWhnf pProd′) (redₜ d′₁ , productWhnf pProd′₁)
-... | PE.refl , PE.refl | PE.refl | PE.refl =
+... | PE.refl , PE.refl , _ | PE.refl | PE.refl =
   let ⊢Γ = wf ⊢F
       [p] : Γ ⊩⟨ l ⟩ p ∷ Σ _ ▷ F ▹ G / B-intr BΣ! [ΣFG]
       [p] = Σₜ p (idRedTerm:*: (⊢u-redₜ d)) pProd p≅p [fstp] [sndp]

@@ -159,12 +159,13 @@ pattern BΣ! = BΣ _
 
 -- Injectivity of term constructors w.r.t. propositional equality.
 
--- If  W F G = W H E  then  F = H,  G = E.
+-- If  W F G = W' H E  then  F = H,  G = E and W = W'.
 
 B-PE-injectivity : ∀ W W' → ⟦ W ⟧ F ▹ G PE.≡ ⟦ W' ⟧ H ▹ E
-                 → F PE.≡ H × G PE.≡ E
-B-PE-injectivity (BΠ p q) (BΠ .p .q) PE.refl = PE.refl , PE.refl
-B-PE-injectivity (BΣ p)   (BΣ .p)    PE.refl = PE.refl , PE.refl
+                 → F PE.≡ H × G PE.≡ E × W PE.≡ W'
+B-PE-injectivity (BΠ p q) (BΠ .p .q) PE.refl = PE.refl , PE.refl , PE.refl
+B-PE-injectivity (BΣ p)   (BΣ .p)    PE.refl = PE.refl , PE.refl , PE.refl
+
 
 -- If  suc n = suc m  then  n = m.
 
