@@ -93,9 +93,17 @@ t ®⟨ ¹ ⟩ v ∷ A / emb 0<1 [A] = t ®⟨ ⁰ ⟩ v ∷ A / [A]
 data _⊩_®⟨_⟩_/_ : (Γ : Con U.Term n) (σₜₛ : U.Subst 0 n) (l : TypeLevel)
                   (σᵥₛ : T.Subst 0 n) ([Γ] : ⊩ᵛ Γ) → Set where
      ε   : ∀ {l} → ε ⊩ U.idSubst ®⟨ l ⟩ T.idSubst / ε
-     _∙_ : ∀ {Γ : Con U.Term n} {t A : U.Term n} {v : T.Term n} {l : TypeLevel}
-             {σₜₛ : U.Subst 0 n} {σᵥₛ : T.Subst 0 n} {[Γ] : ⊩ᵛ Γ}
+     _∙_ : ∀ {Γ : Con U.Term n} {A : U.Term n} {l : TypeLevel}
+             {σₜₛₜ : U.Subst 0 (1+ n)} {σᵥₛᵥ : T.Subst 0 (1+ n)}
+             (let t = U.head σₜₛₜ) (let v = T.head σᵥₛᵥ)
+             (let σₜₛ = U.tail σₜₛₜ) (let σᵥₛ = T.tail σᵥₛᵥ) {[Γ] : ⊩ᵛ Γ}
              {[σₜₛ] :  ε ⊩ˢ σₜₛ ∷ Γ / [Γ] / ε} {[A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ]}
          → Γ ⊩ σₜₛ ®⟨ l ⟩ σᵥₛ / [Γ]
-         → U.subst σₜₛ t ®⟨ l ⟩ T.subst σᵥₛ v ∷ U.subst σₜₛ A / proj₁ ([A] ε [σₜₛ])
-         → (Γ ∙ A) ⊩ (U.consSubst σₜₛ (U.subst σₜₛ t)) ®⟨ l ⟩ (T.consSubst σᵥₛ (T.subst σᵥₛ v)) / [Γ] ∙ [A]
+         → t ®⟨ l ⟩ v ∷ U.subst σₜₛ A / proj₁ ([A] ε [σₜₛ])
+         → (Γ ∙ A) ⊩ σₜₛₜ ®⟨ l ⟩ σᵥₛᵥ / [Γ] ∙ [A]
+     -- _∙_ : ∀ {Γ : Con U.Term n} {A : U.Term n} {t : U.Term 0} {v : T.Term 0} {l : TypeLevel}
+     --         {σₜₛ : U.Subst 0 n} {σᵥₛ : T.Subst 0 n} {[Γ] : ⊩ᵛ Γ}
+     --         {[σₜₛ] :  ε ⊩ˢ σₜₛ ∷ Γ / [Γ] / ε} {[A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ]}
+     --     → Γ ⊩ σₜₛ ®⟨ l ⟩ σᵥₛ / [Γ]
+     --     → t ®⟨ l ⟩ v ∷ U.subst σₜₛ A / proj₁ ([A] ε [σₜₛ])
+     --     → (Γ ∙ A) ⊩ (U.consSubst σₜₛ t) ®⟨ l ⟩ (T.consSubst σᵥₛ v) / [Γ] ∙ [A]

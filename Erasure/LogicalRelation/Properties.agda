@@ -1,5 +1,7 @@
 {-# OPTIONS --without-K  #-}
 
+open import Tools.Fin
+
 open import Definition.Modality.Erasure
 
 open import Definition.Typed.EqualityRelation
@@ -61,6 +63,13 @@ wfTermEscapeEmpty : t ® v ∷Empty → ε ⊢ t ∷ Empty
 wfTermEscapeEmpty ()
 
 
+postulate
+  ®-back-closureˡ : ∀ {l} ([A] : ε ⊩⟨ l ⟩ A) → t′ ®⟨ l ⟩ v ∷ A / [A] → ε ⊢ t ⇒* t′ ∷ A → t ®⟨ l ⟩ v ∷ A / [A]
+  ®-back-closureʳ : ∀ {l} ([A] : ε ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v′ ∷ A / [A] → v T.⇒* v′ → t ®⟨ l ⟩ v ∷ A / [A]
+  ®-forward-closureˡ : ∀ {l} ([A] : ε ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A] → ε ⊢ t ⇒* t′ ∷ A → t′ ®⟨ l ⟩ v ∷ A / [A]
+  ®-forward-closureʳ : ∀ {l} ([A] : ε ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A] → v T.⇒* v′ → t ®⟨ l ⟩ v′ ∷ A / [A]
+
+{-
 
 -- Relation is preserved by reduction backwards
 
@@ -198,9 +207,55 @@ wfTermEscapeEmpty ()
 -- ... | inj₂ w⇒v′ rewrite prod-noRed w⇒v′ = t⇒p , refl , t₁®v₁ , t₂®v₂
 ®-forward-closureʳ (emb 0<1 [A]) t®v v⇒v′ = ®-forward-closureʳ [A] t®v v⇒v′
 
+-}
 
 
-fundamental : ∀ {Γ : Con U.Term n} {t A : U.Term n} {σₜₛ : U.Subst 0 n} {l}
+fundamental-var
+            : ∀ {Γ : Con U.Term n} {x : Fin n} {A : U.Term n} {σₜₛ : U.Subst 0 n}
+            → x ∷ A ∈ Γ
+            → ([Γ] : ⊩ᵛ Γ)
+            → ([ts] : ε ⊩ˢ σₜₛ ∷ Γ / [Γ] / ε)
+            → (ts®vs : Γ ⊩ σₜₛ ®⟨ ¹ ⟩ eraseSubst σₜₛ / [Γ])
+            → ∃ λ [A]′ → σₜₛ x ®⟨ ¹ ⟩ eraseSubst σₜₛ x ∷ U.subst σₜₛ A / [A]′
+fundamental-var {Γ = Γ ∙ A} here      ([Γ] ∙ [A]) ([ts] , [t]) (ts®vs ∙ t®v)= {!!}
+fundamental-var {Γ = Γ ∙ A} (there x) ([Γ] ∙ [A]) ([ts] , [t]) (ts®vs ∙ t®v) =
+  let [A]′ , x®x′ = fundamental-var x [Γ] [ts] ts®vs
+  in  {![A]′!} , {!x®x′!}
+
+
+-- fundamental-var' : ∀ {Γ : Con U.Term n} {x : Fin n} {A : U.Term n} {σₜₛ : U.Subst 0 n} -- {l}
+--             → ⊢ Γ
+--             → x ∷ A ∈ Γ
+--             → ∃ λ ([Γ] : ⊩ᵛ Γ)
+--             → ([ts] : ε ⊩ˢ σₜₛ ∷ Γ / [Γ] / ε)
+--             → (ts®vs : Γ ⊩ σₜₛ ®⟨ ¹ ⟩ eraseSubst σₜₛ / [Γ])
+--               -- → ∃ λ ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ])
+--             → ∃ λ ([A] : ε ⊩⟨ ¹ ⟩ U.subst σₜₛ A)
+--             → σₜₛ x ®⟨ ¹ ⟩ eraseSubst σₜₛ x ∷ U.subst σₜₛ A / [A]
+-- fundamental-var' = {!!}
+
+-- Try this:
+fundamental : ∀ {Γ : Con U.Term n} {t A : U.Term n} {σₜₛ : U.Subst 0 n} -- {l}
+            → Γ ⊢ t ∷ A
+            → ∃ λ ([Γ] : ⊩ᵛ Γ)
+            → ∃ λ ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ])
+            → ([ts] : ε ⊩ˢ σₜₛ ∷ Γ / [Γ] / ε)
+            → (ts®vs : Γ ⊩ σₜₛ ®⟨ ¹ ⟩ eraseSubst σₜₛ / [Γ])
+            → U.subst σₜₛ t ®⟨ ¹ ⟩ T.subst (eraseSubst σₜₛ) (erase t) ∷ U.subst σₜₛ A / [A] ε [ts]
+fundamental = {!!}
+
+-- fundamental : ∀ {Γ : Con U.Term n} {t A : U.Term n} {σₜₛ : U.Subst 0 n} -- {l}
+--             → Γ ⊢ t ∷ A
+--             → ∃ λ ([Γ] : ⊩ᵛ Γ)
+--             → ([ts] : ε ⊩ˢ σₜₛ ∷ Γ / [Γ] / ε)
+--             → (ts®vs : Γ ⊩ σₜₛ ®⟨ ¹ ⟩ eraseSubst σₜₛ / [Γ])
+--               -- → ∃ λ ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ])
+--             → ∃ λ ([A] : ε ⊩⟨ ¹ ⟩ U.subst σₜₛ A)
+--             → U.subst σₜₛ t ®⟨ ¹ ⟩ T.subst (eraseSubst σₜₛ) (erase t) ∷ U.subst σₜₛ A / [A]
+-- fundamental = {!!}
+
+{-
+fundamental : ∀ {Γ : Con U.Term n} {t A : U.Term n} {σₜₛ : U.Subst 0 n} -- {l}
             → Γ ⊢ t ∷ A
             → ([Γ] : ⊩ᵛ Γ)
             → ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ])
@@ -230,11 +285,16 @@ fundamental (Σⱼ Γ⊢F:U ▹ Γ⊢G:U) [Γ] [A] [ts] ts®vs =
 fundamental (ℕⱼ x) [Γ] [A] [ts] ts®vs = Uᵣ (Uᵣ ⁰ 0<1 ε) , Uᵣ (ℕⱼ ε) refl
 fundamental (Emptyⱼ x) [Γ] [A] [ts] ts®vs = Uᵣ (Uᵣ ⁰ 0<1 ε) , Uᵣ (Emptyⱼ ε) refl
 fundamental (Unitⱼ x) [Γ] [A] [ts] ts®vs = Uᵣ (Uᵣ ⁰ 0<1 ε) , Uᵣ (Unitⱼ ε) refl
-fundamental (var ⊢Γ here) [Γ] [A] [ts] ts®vs = proj₁ ([A] ε [ts]) , {!!}
-fundamental (var (⊢Γ ∙ ⊢B) (there x)) ([Γ] ∙ [B]) [A] ([ts] , [t]) ts®vs =
-  let [A]′ , x®x′ = fundamental (var ⊢Γ x) [Γ] {![B]!} [ts] {!!}
-  in  ? , ?
-fundamental (lamⱼ x ⊢t:A) [Γ] [A] [ts] ts®vs =
+fundamental (var ⊢Γ x) [Γ] _ [ts] ts®vs = fundamental-var x [Γ] [ts] ts®vs
+
+-- fundamental (var ⊢Γ here) ([Γ] ∙ [A']) [A] ([ts] , [t]) (ts®vs ∙ t®v) = proj₁ {! [A'] ε [ts]!} , {!t®v!}
+-- fundamental (var (⊢Γ ∙ ⊢B) (there x)) ([Γ] ∙ [B]) [A] ([ts] , [t]) ts®vs =
+--   let [A]′ , x®x′ = fundamental (var ⊢Γ x) [Γ] {![B]!} [ts] {!!}
+--   in  {!!} , {!!}
+fundamental (lamⱼ {p = 𝟘} x ⊢t:A) [Γ] [A] [ts] ts®vs =
+  let [Π] = proj₁ ([A] ε [ts])
+  in  [Π] , {!!}
+fundamental (lamⱼ {p} x ⊢t:A) [Γ] [A] [ts] ts®vs =
   let [Π] = proj₁ ([A] ε [ts])
   in  [Π] , {!!}
 fundamental (⊢t:Π ∘ⱼ ⊢u:F) [Γ] [A] [ts] ts®vs =
@@ -255,3 +315,8 @@ fundamental (starⱼ x) [Γ] [A] [ts] ts®vs =
   Unitᵣ ([ Unitⱼ ε , Unitⱼ ε , id (Unitⱼ ε) ]) , starᵣ (starⱼ ε) refl
 fundamental (conv ⊢t:A x) [Γ] [B] [ts] ts®vs = {!!} , {!!}
 
+-- -}
+-- -}
+-- -}
+-- -}
+-- -}

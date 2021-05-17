@@ -89,6 +89,21 @@ wk1 = wk (step id)
 Subst : (m n : Nat) → Set
 Subst m n = Fin n → Term m
 
+-- Extract the substitution of the first variable.
+--
+-- If Γ ⊢ σ : Δ∙A  then Γ ⊢ head σ : subst σ A.
+
+head : Subst m (1+ n) → Term m
+head σ = σ x0
+
+-- Remove the first variable instance of a substitution
+-- and shift the rest to accommodate.
+--
+-- If Γ ⊢ σ : Δ∙A then Γ ⊢ tail σ : Δ.
+
+tail : Subst m (1+ n) → Subst m n
+tail σ x = σ (x +1)
+
 -- Identity substitution
 
 idSubst : Subst n n
