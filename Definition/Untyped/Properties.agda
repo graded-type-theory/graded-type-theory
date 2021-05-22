@@ -639,6 +639,14 @@ substConcatSingleton′ : ∀ {a} t
                       ≡ subst (consSubst σ (subst σ a)) t
 substConcatSingleton′ t = substVar-to-subst (λ { x0 → refl ; (x +1) → refl}) t
 
+
+wk1-tail : (t : Term n) → subst σ (wk1 t) ≡ subst (tail σ) t
+wk1-tail {σ = σ} t = begin
+  subst σ (wk1 t) ≡⟨⟩
+  subst σ (wk (step id) t) ≡⟨ subst-wk t ⟩
+  subst (σ ₛ• step id) t ≡⟨⟩
+  subst (tail σ) t ∎
+
 wk1-tailId : (t : Term n) → wk1 t ≡ subst (tail idSubst) t
 wk1-tailId t = trans (sym (subst-id (wk1 t))) (subst-wk t)
 
@@ -651,7 +659,7 @@ wk1-sgSubst t t' rewrite wk1-tailId t =
         (substVar-to-subst (substVar-sgSubst-tail t') t))
       (subst-id t)
 
--- There are not closed neutral terms
+-- There are no closed neutral terms
 
 noClosedNe : {t : Term 0} → Neutral t → ⊥
 noClosedNe (∘ₙ net) = noClosedNe net
