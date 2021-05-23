@@ -114,6 +114,21 @@ prodʳ {F = F} {G = G} {t = t} {u = u} {γ = γ} {δ = δ} {q = q} [Γ] [F] [G] 
 --                            p₂®q₂
 
 
+fstʳ′ : ∀ {l} {Γ : Con Term n}
+      → ([Γ] : ⊩ᵛ Γ)
+        ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
+        ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
+        ([t₁] : Γ ⊩ᵛ⟨ l ⟩ fst t ∷ F / [Γ] / [F])
+        (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷ Σ q ▷ F ▹ G / [Γ] / Σᵛ {F = F} {G = G} {q = q} [Γ] [F] [G])
+      → γ ▸ Γ ⊩ʳ⟨ l ⟩ fst t ∷ F / [Γ] / [F]
+fstʳ′ {F = F} {G} {t} {q = q} [Γ] [F] [G] [t₁] ⊩ʳt {σ = σ} [σ] σ®σ′ =
+  let [Σ] = Σᵛ {F = F} {G = G} {q = q} [Γ] [F] [G]
+      t®v = ⊩ʳt [σ] σ®σ′
+      _  , Bᵣ F′ G′ D ⊢F ⊢G A≡A [F′] [G′] G-ext = extractMaybeEmb (Σ-elim (proj₁ ([Σ] ε [σ])))
+      [t₁]′ = proj₁ ([t₁] ε [σ])
+      [t₁]″ = I.irrelevanceTerm′ (PE.sym (wk-id (subst σ F))) (proj₁ ([F] ε [σ])) ([F′] id ε) [t₁]′
+      t₁®v₁ = proj₁ (t®v [t₁]″)
+  in  irrelevanceTerm′ (wk-id (subst σ F)) ([F′] id ε) (proj₁ ([F] ε [σ])) t₁®v₁
 
 fstʳ : Γ ⊢ F → Γ ∙ F ⊢ G → Γ ⊢ t ∷ Σ q ▷ F ▹ G
      → ([Γ] : ⊩ᵛ Γ) ([Σ] : Γ ⊩ᵛ⟨ ¹ ⟩ Σ q ▷ F ▹ G / [Γ])
@@ -128,17 +143,30 @@ fstʳ {Γ = Γ} {F = F} {G = G} {t = t} {q = q} Γ⊢F Γ⊢G Γ⊢t:Σ [Γ] [Σ
       [Σ]′ = Σᵛ {F = F} {G = G} {q = q} [Γ] [F] [G]
       ⊩ʳt′ = irrelevance {A = Σ q ▷ F ▹ G} {t = t} [Γ] [Γ] [Σ] [Σ]′ ⊩ʳt
       Γ⊢t₁:F = fstⱼ Γ⊢F Γ⊢G Γ⊢t:Σ
-  in  [F] , λ [σ] σ®σ′ →
-      let t®v∷Σ = ⊩ʳt′ [σ] σ®σ′
-          [σF] = proj₁ ([F] ε [σ])
-          [ρσF] = W.wk id ε [σF]
-          [Γ]₃ , [F]″ , [t₁]‴ = fundamentalTerm Γ⊢t₁:F
-          [t₁]″ = IS.irrelevanceTerm {A = F} {t = fst t} [Γ]₃ [Γ] [F]″ [F] [t₁]‴
-          [t₁]′ = proj₁ ([t₁]″ ε [σ])
-          [t₁] = I.irrelevanceTerm′ (PE.sym (wk-id (subst _ F))) [σF] [ρσF] [t₁]′
-          t₁®v₁ = proj₁ (t®v∷Σ [t₁])
-      in  irrelevanceTerm′ (wk-id (subst _ F)) [ρσF] [σF] t₁®v₁
+      [Γ]₃ , [F]″ , [t₁]′ = fundamentalTerm Γ⊢t₁:F
+      [t₁] = IS.irrelevanceTerm {A = F} {t = fst t} [Γ]₃ [Γ] [F]″ [F] [t₁]′
+  in  [F] , fstʳ′ {F = F} {G = G} {t = t} {q = q} [Γ] [F] [G] [t₁] ⊩ʳt′
 
+sndʳ′ : ∀ {l} {Γ : Con Term n}
+      → ([Γ] : ⊩ᵛ Γ)
+        ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
+        ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
+        ([t₁] : Γ ⊩ᵛ⟨ l ⟩ fst t ∷ F / [Γ] / [F])
+        (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷ Σ q ▷ F ▹ G / [Γ] / Σᵛ {F = F} {G = G} {q = q} [Γ] [F] [G])
+      → ∃ λ ([G] : Γ ⊩ᵛ⟨ l ⟩ G [ fst t ] / [Γ])
+      → γ ▸ Γ ⊩ʳ⟨ l ⟩ snd t ∷ G [ fst t ] / [Γ] / [G]
+sndʳ′ {F = F} {G} {t} {q = q} [Γ] [F] [G] [t₁] ⊩ʳt =
+  let [Σ] = Σᵛ {F = F} {G = G} {q = q} [Γ] [F] [G]
+      [G[t₁]] = substSΠ {F = F} {G = G} {t = fst t} (BΣ q) [Γ] [F] [Σ] [t₁]
+  in  [G[t₁]] , λ {σ = σ} [σ] σ®σ′ →
+      let t®v = ⊩ʳt [σ] σ®σ′
+          _  , Bᵣ F′ G′ D ⊢F ⊢G A≡A [F′] [G′] G-ext = extractMaybeEmb (Σ-elim (proj₁ ([Σ] ε [σ])))
+          [t₁]′ = proj₁ ([t₁] ε [σ])
+          [t₁]″ = I.irrelevanceTerm′ (PE.sym (wk-id (subst σ F))) (proj₁ ([F] ε [σ])) ([F′] id ε) [t₁]′
+          t₂®v₂ = proj₂ (t®v [t₁]″)
+      in  irrelevanceTerm′ (PE.trans (PE.cong (_[ subst σ (fst t) ]) (wk-lift-id (subst (liftSubst σ) G)))
+                                     (PE.sym (singleSubstLift G (fst t))))
+                           ([G′] id ε [t₁]″) (proj₁ ([G[t₁]] ε [σ])) t₂®v₂
 
 sndʳ : Γ ⊢ F → Γ ∙ F ⊢ G → Γ ⊢ t ∷ Σ q ▷ F ▹ G
      → ([Γ] : ⊩ᵛ Γ) ([Σ] : Γ ⊩ᵛ⟨ ¹ ⟩ Σ q ▷ F ▹ G / [Γ])
@@ -152,86 +180,7 @@ sndʳ {Γ = Γ} {F = F} {G = G} {t = t} {q = q} Γ⊢F Γ⊢G Γ⊢t:Σ [Γ] [Σ
       [G] = IS.irrelevance {A = G} [Γ]₂ ([Γ] ∙ [F]) [G]′
       [Σ]′ = Σᵛ {F = F} {G = G} {q = q} [Γ] [F] [G]
       ⊩ʳt′ = irrelevance {A = Σ q ▷ F ▹ G} {t = t} [Γ] [Γ] [Σ] [Σ]′ ⊩ʳt
-      ⊢Γ = wf Γ⊢F
       Γ⊢t₁:F = fstⱼ Γ⊢F Γ⊢G Γ⊢t:Σ
-      [Γfst] , [Ffst] , [fstt] = fundamentalTerm Γ⊢t₁:F
-      [fstt]′ = IS.irrelevanceTerm {A = F} {t = fst t} [Γfst] [Γ] [Ffst] [F] [fstt]
-      Γ⊢G[fstt] = substitution Γ⊢G (singleSubst Γ⊢t₁:F) ⊢Γ
-      [Γ]₃ , [G[fstt]]′ = fundamental Γ⊢G[fstt]
-      [G[fstt]] = IS.irrelevance {A = G [ fst t ]} [Γ]₃ [Γ] [G[fstt]]′
-  in  [G[fstt]] , λ {σ = σ} [σ] σ®σ′ →
-      let t®v∷Σ = ⊩ʳt′ [σ] σ®σ′
-          _  , Bᵣ F′ G′ D ⊢F ⊢G A≡A [ρF] [ρG] G-ext = extractMaybeEmb (Σ-elim (proj₁ ([Σ] ε [σ])))
-          [σF] = proj₁ ([F] ε [σ])
-          ⊢σF = escape [σF]
-          [ρσF] = W.wk id ε [σF]
-          ⊢ρσF = escape [ρσF]
-          [ε] , [ρσF]′ = fundamental ⊢ρσF
-          [ρσF]″ = IS.irrelevance {A = U.wk id (subst σ F)} [ε] ε [ρσF]′
-          [σfstt] = proj₁ ([fstt]′ ε [σ])
-          ⊢σfstt = escapeTerm [σF] [σfstt]
-          [ρσfstt] = W.wkTerm id ε [σF] [σfstt]
-          ⊢ρσfstt = escapeTerm [ρσF] [ρσfstt]
-          [σG] = proj₁ ([G] {σ = liftSubst σ} (ε ∙ ⊢σF)
-                            (liftSubstS {σ = σ} {F = F} [Γ] ε [F] [σ]))
-          [ρσG] = W.wk (lift id) (ε ∙ ⊢ρσF) [σG]
-          ⊢ρσG = escape [ρσG]
-          [Γ]₄ , [ρσG]′ = fundamental ⊢ρσG
-          [σG[fstt]] = proj₁ ([G[fstt]] ε [σ])
-          [σG[fstt]]′ = I.irrelevance′ (singleSubstLift G (fst t)) [σG[fstt]]
-          ⊢ρσG[fstt]′ = substitution ⊢ρσG (singleSubst ⊢ρσfstt) ε
-          ⊢ρσG[fstt] = PE.subst (λ t → ε ⊢ U.wk (lift id) (subst (liftSubst σ) G) [ t ])
-                                (wk-id (subst σ (fst t))) ⊢ρσG[fstt]′
-          [ρσG[fstt]] = reducible ⊢ρσG[fstt]
-          [Γ]₅ , [F]″ , [t₁]‴ = fundamentalTerm Γ⊢t₁:F
-          [t₁]″ = IS.irrelevanceTerm {A = F} {t = fst t} [Γ]₅ [Γ] [F]″ [F] [t₁]‴
-          [t₁]′ = proj₁ ([t₁]″ ε [σ])
-          [t₁] = I.irrelevanceTerm′ (PE.sym (wk-id (subst _ F))) [σF] [ρσF] [t₁]′
-          t₂®v₂′ = proj₂ (t®v∷Σ [t₁])
-          -- eq : U.wk (lift id) (subst (liftSubst σ) G) [ fst (subst σ t) ] PE.≡ subst σ (G [ fst t ])
-          -- eq = PE.trans (PE.cong (_[ fst (subst σ t) ])
-          --                        (wk-lift-id (subst (liftSubst σ) G)))
-          --               (PE.sym (singleSubstLift G (fst t)))
-          -- t₂®v₂ = irrelevanceTerm′ (PE.sym eq) {![σG[fstt]]!} [ρσG[fstt]] t₂®v₂′
-                -- ((PE.cong (_[ fst (subst σ t) ]) (wk-lift-id (subst (liftSubst σ) G))))
-                   --                {![ρσG[fstt]]!} [σG[fstt]]′ t₂®v₂′
-          -- t₂®v₂ = irrelevanceTerm′ ((PE.cong (_[ fst (subst σ t) ])) (wk-lift-id (subst _ G))) [ρσG[fstt]] [σG[fstt]]′  t₂®v₂′
-      in  ?
-      -- irrelevanceTerm′ {!!} {![ρG] ? ? ?!} {!!} t₂®v₂′
-      -- irrelevanceTerm′ (PE.sym (singleSubstLift G (fst t))) [σG[fstt]]′ [σG[fstt]] t₂®v₂
-      -- irrelevanceTerm′ {!!} {!!} {!!} t₂®v₂′
-      -- irrelevanceTerm′ (singleSubstLift G (fst t)) {![!} {![σG[fstt]]′!} t₂®v₂
-      -- irrelevanceTerm′ {!!} {!!} {!!} t₂®v₂
-      -- irrelevanceTerm′ {!!} {![G]!} {![σG]!} t₂®v₂
-      -- irrelevanceTerm′ (wk-id (subst _ F)) [ρσF] [σF] t₁®v₁
-
-
--- snd (subst σ t) ®⟨ ¹ ⟩
---       Erasure.Target.Term.snd
---       (Erasure.Target.subst σ′ (Erasure.Extraction.erase t))
---       ∷
---       U.wk (lift id)
---       (subst (liftSubst σ) G)
---       [ fst (subst σ t) ]
-
-
--- gen Sndkind (subst σ t U.∷ []) ®⟨ ¹ ⟩
---       Erasure.Target.Term.snd
---       (Erasure.Target.subst σ′ (Erasure.Extraction.erase t))
---       ∷
---       U.wk
---       (lift id)
---       (subst (liftSubst σ) G)
---       [ fst (subst σ t) ]
-
-
-
--- -- U.wk (lift id)
--- --       (subst (liftSubst σ) G)
--- --       [ fst (subst σ t) ]
-
--- -- (subst (liftSubst σ) G)
--- --       [ fst (subst σ t) ]
-
--- -- subst σ (G [ fst t ])
--- -- --
+      [Γ]₃ , [F]″ , [t₁]′ = fundamentalTerm Γ⊢t₁:F
+      [t₁] = IS.irrelevanceTerm {A = F} {t = fst t} [Γ]₃ [Γ] [F]″ [F] [t₁]′
+  in  sndʳ′ {F = F} {G = G} {t = t} {q = q} [Γ] [F] [G] [t₁] ⊩ʳt′
