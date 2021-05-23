@@ -85,7 +85,8 @@ appʳ′ {F = F} {G} {u} {γ = γ} {t = t} {p = ω} {q = q} {δ = δ}
       u®w = irrelevanceTerm′ (PE.sym (wk-id (subst σ F))) [σF] [ρσF] u®w′
       t∘u®v∘w = ⊩ʳt′ [σ] σ®σ′ [σu]′ u®w
       _  , Bᵣ F′ G′ D ⊢F ⊢G A≡A [F]′ [G]′ G-ext = extractMaybeEmb (Π-elim (proj₁ ([Π] ε [σ])))
-  in  irrelevanceTerm′ (PE.trans (PE.cong (_[ subst σ u ]) (wk-lift-id (subst (liftSubst σ) G)))
+  in  irrelevanceTerm′ (PE.trans (PE.cong (_[ subst σ u ])
+                                          (wk-lift-id (subst (liftSubst σ) G)))
                                  (PE.sym (singleSubstLift G u)))
                        ([G]′ id ε [σu]′) (proj₁ ([G[u]] ε [σ])) t∘u®v∘w
 

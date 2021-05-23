@@ -13,7 +13,7 @@ open import Definition.Untyped.Properties Erasure using (noClosedNe)
 
 open import Tools.Fin
 open import Tools.Nat renaming (_+_ to _+ⁿ_)
-open import Tools.PropositionalEquality
+open import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 
 private
@@ -37,11 +37,8 @@ wk-erase-comm : (ρ : U.Wk m n) (t : U.Term n) → wk (eraseWk ρ) (erase t) ≡
 wk-erase-comm ρ (var x) = cong var (wkVar-erase-comm ρ x)
 wk-erase-comm ρ (gen Ukind []) = refl
 wk-erase-comm ρ (gen (Pikind p q) (F ∷ G ∷ [])) = refl
-wk-erase-comm ρ (gen (Lamkind 𝟘) (t ∷ [])) = trans
-  (wk-β (erase t))
-  (cong (_[ undefined ]) (wk-erase-comm (lift ρ) t))
-wk-erase-comm ρ (gen (Lamkind ω) (t ∷ [])) = cong T.lam (wk-erase-comm (lift ρ) t)
-wk-erase-comm ρ (gen (Appkind 𝟘) (t ∷ u ∷ [])) = wk-erase-comm ρ t
+wk-erase-comm ρ (gen (Lamkind p) (t ∷ [])) = cong T.lam (wk-erase-comm (lift ρ) t)
+wk-erase-comm ρ (gen (Appkind 𝟘) (t ∷ u ∷ [])) = cong (_∘ undefined) (wk-erase-comm ρ t)
 wk-erase-comm ρ (gen (Appkind ω) (t ∷ u ∷ [])) = cong₂ _∘_
   (wk-erase-comm ρ t)
   (wk-erase-comm ρ u)
@@ -78,11 +75,8 @@ liftSubst-erase-comm {σ = σ} (x +1) with σ x
 ... | var x₁ = refl
 ... | gen Ukind [] = refl
 ... | gen (Pikind p q) (F ∷ G ∷ []) = refl
-... | gen (Lamkind 𝟘) (t ∷ []) = trans
-  (wk-β (erase t))
-  (cong (_[ undefined ]) (wk-erase-comm (lift (step id)) t))
-... | gen (Lamkind ω) (t ∷ []) = cong T.lam (wk-erase-comm (lift (step id)) t)
-... | gen (Appkind 𝟘) (t ∷ u ∷ []) = wk-erase-comm (step id) t
+... | gen (Lamkind p) (t ∷ []) = cong T.lam (wk-erase-comm (lift (step id)) t)
+... | gen (Appkind 𝟘) (t ∷ u ∷ []) = cong (_∘ undefined) (wk-erase-comm (step id) t)
 ... | gen (Appkind ω) (t ∷ u ∷ []) = cong₂ _∘_
   (wk-erase-comm (step id) t)
   (wk-erase-comm (step id) u)
@@ -131,18 +125,17 @@ subst-erase-comm : (σ : U.Subst m n) (t : U.Term n) → T.subst (eraseSubst σ)
 subst-erase-comm σ (var x) = refl
 subst-erase-comm σ (gen Ukind []) = refl
 subst-erase-comm σ (gen (Pikind p q) (F ∷ G ∷ [])) = refl
-subst-erase-comm σ (gen (Lamkind 𝟘) (t ∷ [])) = begin
-  T.subst (eraseSubst σ) (erase t [ undefined ])
-    ≡⟨ singleSubstLift (erase t) undefined ⟩
-  T.subst (T.liftSubst (eraseSubst σ)) (erase t) [ undefined ]
-    ≡⟨ cong (_[ undefined ]) (substVar-to-subst liftSubst-erase-comm (erase t)) ⟩
-  T.subst (eraseSubst (U.liftSubst σ)) (erase t) [ undefined ]
-    ≡⟨ cong (_[ undefined ]) (subst-erase-comm (U.liftSubst σ) t) ⟩
-  erase (U.subst (U.liftSubst σ) t) [ undefined ] ∎
+subst-erase-comm σ (gen (Lamkind 𝟘) (t ∷ [])) = cong Term.lam
+  (begin
+    T.subst (liftSubst (eraseSubst σ)) (erase t)
+      ≡⟨ substVar-to-subst (liftSubsts-erase-comm 1) (erase t) ⟩
+    T.subst (eraseSubst (U.liftSubst σ)) (erase t)
+      ≡⟨ subst-erase-comm (U.liftSubst σ) t ⟩
+    erase (U.subst (U.liftSubst σ) t) ∎)
 subst-erase-comm σ (gen (Lamkind ω) (t ∷ [])) = cong T.lam (trans
   (substVar-to-subst liftSubst-erase-comm (erase t))
   (subst-erase-comm (U.liftSubst σ) t))
-subst-erase-comm σ (gen (Appkind 𝟘) (t ∷ u ∷ [])) = subst-erase-comm σ t
+subst-erase-comm σ (gen (Appkind 𝟘) (t ∷ u ∷ [])) = cong (_∘ undefined) (subst-erase-comm σ t)
 subst-erase-comm σ (gen (Appkind ω) (t ∷ u ∷ [])) = cong₂ _∘_
   (subst-erase-comm σ t)
   (subst-erase-comm σ u)
@@ -178,13 +171,42 @@ subst-erase-comm σ (gen Starkind []) = refl
 subst-erase-comm σ (gen Emptykind []) = refl
 subst-erase-comm σ (gen (Emptyreckind p) (A ∷ t ∷ [])) = refl
 
--- Closed types are extrated to undefined
+subst-undefined : (x : Fin (1+ n)) →
+      erase (U.consSubst var Empty x) ≡
+      T.consSubst var undefined x
+subst-undefined x0 = refl
+subst-undefined (x +1) = refl
 
-eraseType : {A : U.Term 0} → Type A → erase A ≡ undefined
-eraseType Πₙ = refl
-eraseType Σₙ = refl
-eraseType ℕₙ = refl
-eraseType Emptyₙ = refl
-eraseType Unitₙ = refl
-eraseType (ne x) with noClosedNe x
-... | ()
+erase-consSubst-var : (σ : U.Subst m n) (a : U.Term m) (x : Fin (1+ n))
+                    → T.consSubst (eraseSubst σ) (erase a) x
+                    ≡ eraseSubst (U.consSubst σ a) x
+erase-consSubst-var σ a x0 = refl
+erase-consSubst-var σ a (x +1) = refl
+
+erase-consSubst : (σ : U.Subst m n) (a : U.Term m) (t : T.Term (1+ n))
+                → T.subst (T.consSubst (eraseSubst σ) (erase a)) t
+                ≡ T.subst (eraseSubst (U.consSubst σ a)) t
+erase-consSubst σ a t = substVar-to-subst (erase-consSubst-var σ a) t
+
+
+-- sgSubst-erase-comm′ : (u : U.Term n) (x : Fin (1+ n))
+--                     → eraseSubst (U.sgSubst u) x ≡ T.sgSubst (erase u) x
+-- sgSubst-erase-comm′ u x0 = refl
+-- sgSubst-erase-comm′ u (_+1 x) = refl
+
+-- sgSubst-erase-comm : (t : U.Term (1+ n)) (u : U.Term n)
+--                    → (erase t) T.[ erase u ] ≡ erase (t U.[ u ])
+-- sgSubst-erase-comm t u = PE.subst (_≡ erase (t U.[ u ])) {!substVar-to-subst (sgSubst-erase-comm′ u)!} qwe
+--   where
+--   qwe = subst-erase-comm (U.sgSubst u) t
+
+-- -- Closed types are extrated to undefined
+
+-- eraseType : {A : U.Term 0} → Type A → erase A ≡ undefined
+-- eraseType Πₙ = refl
+-- eraseType Σₙ = refl
+-- eraseType ℕₙ = refl
+-- eraseType Emptyₙ = refl
+-- eraseType Unitₙ = refl
+-- eraseType (ne x) with noClosedNe x
+-- ... | ()

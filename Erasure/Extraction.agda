@@ -26,9 +26,8 @@ erase : U.Term n → T.Term n
 erase (var x) = T.var x
 erase (gen Ukind []) = undefined
 erase (gen (Pikind p q) (F ∷ G ∷ [])) = undefined
-erase (gen (Lamkind 𝟘) (t ∷ [])) = (erase t) T.[ undefined ]
-erase (gen (Lamkind ω) (t ∷ [])) = T.lam (erase t)
-erase (gen (Appkind 𝟘) (t ∷ u ∷ [])) = erase t
+erase (gen (Lamkind p) (t ∷ [])) = T.lam (erase t)
+erase (gen (Appkind 𝟘) (t ∷ u ∷ [])) = erase t ∘ undefined
 erase (gen (Appkind ω) (t ∷ u ∷ [])) = (erase t) ∘ (erase u)
 erase (gen (Sigmakind p) (F ∷ G ∷ [])) = undefined
 erase (gen Prodkind (t ∷ u ∷ [])) = T.prod (erase t) (erase u)

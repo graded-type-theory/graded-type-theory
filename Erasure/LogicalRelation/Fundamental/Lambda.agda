@@ -129,11 +129,11 @@ lamʳ {F = F} {G = G} {t = t} {p = ω} {q = q}
 
          [ρσG[a]] : ε ⊩⟨ ¹ ⟩ U.wk (lift id) (subst (liftSubst σ) G) [ a ]
          [ρσG[a]] = [G]′ id ε [a]
-     in irrelevanceTerm′ (PE.sym eq) [σaG] [ρσG[a]] λtu®λvw
+     in  irrelevanceTerm′ (PE.sym eq) [σaG] [ρσG[a]] λtu®λvw
 
 lamʳ {F = F} {G = G} {t = t} {p = 𝟘} {q = q}
      [Γ] [F] [G] [t] ⊩ʳt {σ = σ} {σ′ = σ′} [σ] σ®σ′ {a = a} [a] =
-     let [Π] = Πᵛ {F = F} {G = G} {p = ω} {q = q} [Γ] [F] [G]
+     let [Π] = Πᵛ {F = F} {G = G} {p = 𝟘} {q = q} [Γ] [F] [G]
          _  , Bᵣ F′ G′ D ⊢F ⊢G A≡A [F]′ [G]′ G-ext = extractMaybeEmb (Π-elim (proj₁ ([Π] ε [σ])))
          [σF] = proj₁ ([F] ε [σ])
          [ρσF] = [F]′ id ε
@@ -144,6 +144,4 @@ lamʳ {F = F} {G = G} {t = t} {p = 𝟘} {q = q}
                        (UP.singleSubstComp a σ G)
          λtu®λvw = lamʳ′ {F = F} {G = G} {p = 𝟘} {t = t} {u = a} {w = T.undefined}
                          [Γ] [F] [G] ⊩ʳt [σ] σ®σ′ [t] [a]′ tt
-         v⇒v′ = PE.subst₂ T._⇒*_ PE.refl (PE.sym (TP.singleSubstLift (erase t) T.undefined)) (T.trans T.β-red T.refl)
-         t®v = ®-forward-closureʳ [σaG] λtu®λvw v⇒v′
-     in  irrelevanceTerm′ (PE.sym eq) [σaG] [ρσG[a]] t®v
+     in  irrelevanceTerm′ (PE.sym eq) [σaG] [ρσG[a]] λtu®λvw
