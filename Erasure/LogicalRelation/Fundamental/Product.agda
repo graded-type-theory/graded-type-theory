@@ -7,10 +7,11 @@ open import Definition.Typed.EqualityRelation
 module Erasure.LogicalRelation.Fundamental.Product {{eqrel : EqRelSet Erasure}} where
 open EqRelSet {{...}}
 
-open import Definition.Untyped Erasure as U hiding (_∷_)
+open import Definition.Untyped Erasure as U hiding (_∷_) renaming (_[_,_] to _[_,,_])
 open import Definition.Untyped.Properties Erasure
 open import Definition.Typed Erasure
 open import Definition.Typed.Properties Erasure
+open import Definition.Typed.RedSteps Erasure
 open import Definition.Typed.Weakening Erasure
 open import Definition.Typed.Consequences.Reduction Erasure
 open import Definition.Typed.Consequences.Substitution Erasure
@@ -40,19 +41,26 @@ open import Erasure.LogicalRelation.Irrelevance
 
 open import Erasure.Extraction
 import Erasure.Target as T
+import Erasure.Target.Properties as TP
 
+open import Tools.Fin
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Unit
 
 private
   variable
     n : Nat
     Γ : Con Term n
-    F t u : Term n
+    A F t u : Term n
+    t₁ t₂ : Term 0
+    v₁ v₂ : T.Term 0
     G : Term (1+ n)
-    q : Erasure
+    p q : Erasure
     γ δ : Conₘ n
+    σ : Subst 0 n
+    σ′ : T.Subst 0 n
 
 Σʳ : ([Γ] : ⊩ᵛ Γ) → Γ ⊢ Σ q ▷ F ▹ G ∷ U
    → ∃ λ ([U] : Γ ⊩ᵛ⟨ ¹ ⟩ U / [Γ])
@@ -84,7 +92,8 @@ prodʳ {F = F} {G = G} {t = t} {u = u} {γ = γ} {δ = δ} {q = q} [Γ] [F] [G] 
           [ρσG] = W.wk (lift id) (ε ∙ ⊢ρσF) [σG]
           ⊢ρσG = escape [ρσG]
           [Γ]₁ , [ρσG]′ = fundamental ⊢ρσG
-          [ρσG]″ = IS.irrelevance {A = U.wk (lift id) (subst (liftSubst σ) G)} [Γ]₁ (ε ∙ [ρσF]″) [ρσG]′
+          [ρσG]″ = IS.irrelevance {A = U.wk (lift id) (subst (liftSubst σ) G)}
+                                  [Γ]₁ (ε ∙ [ρσF]″) [ρσG]′
           [σG[t]]′ = proj₁ ([G[t]] ε [σ])
           [σG[t]] = I.irrelevance′ (singleSubstLift G t) [σG[t]]′
           [σt] = proj₁ ([t] ε [σ])
@@ -97,22 +106,21 @@ prodʳ {F = F} {G = G} {t = t} {u = u} {γ = γ} {δ = δ} {q = q} [Γ] [F] [G] 
           [Γ]₂ , [σp₁] = reducibleTerm ⊢σp₁
           t⇒t′ = redMany (Σ-β₁ {q = q} ⊢σF ⊢σG ⊢σt ⊢σu ⊢σp)
           v⇒v′ = T.trans (T.Σ-β₁ {t = T.subst σ′ (erase t)} {u = T.subst σ′ (erase u)}) T.refl
-          p₁®q₁ = ®-back-closure [σF] σt®σv t⇒t′ v⇒v′
-          [G[p₁]] = {!!}
+          p₁®q₁ = ®-red* [σF] σt®σv t⇒t′ v⇒v′
+          [G[p₁]] = {!p₁®q₁!}
           -- I.irrelevance′ {!!} (proj₁ ([G[t]] ε [σ]))
           u⇒u′ = redMany (Σ-β₂ {q = q} ⊢σF ⊢σG ⊢σt ⊢σu ⊢σp)
           w⇒w′ = T.trans (T.Σ-β₂ {t = T.subst σ′ (erase t)} {u = T.subst σ′ (erase u)}) T.refl
           σu®σw′ = irrelevanceTerm′ {!u⇒u′!} [σG[t]]′ [G[p₁]] σu®σw
-          p₂®q₂ = ®-back-closure [G[p₁]] σu®σw′ u⇒u′ w⇒w′
+          p₂®q₂ = ®-red* [G[p₁]] σu®σw′ u⇒u′ w⇒w′
       in  irrelevanceTerm′ (PE.sym (wk-id (subst σ F))) [σF] [ρσF] p₁®q₁
-        , {!p₂®q₂!}
+        , {!irrelevanceTerm′ ? ? ?  ?!}
 --         irrelevanceTerm′ {t = snd (subst σ t)} {v = T.snd (T.subst σ′ (erase t))}
 --                            (PE.sym (PE.cong (_[ fst (prod (subst σ t) (subst σ u)) ])
 --                                             (wk-lift-id (subst (liftSubst σ) G))))
 --                            [G[p₁]]
 --                            (proj₁ ([ρσG]″ {σ = sgSubst (fst (prod (subst σ t) (subst σ u)))} ε (idSubstS ε , {!!})))
 --                            p₂®q₂
-
 
 fstʳ′ : ∀ {l} {Γ : Con Term n}
       → ([Γ] : ⊩ᵛ Γ)

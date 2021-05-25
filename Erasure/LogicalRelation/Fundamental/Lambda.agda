@@ -59,16 +59,19 @@ private
   let ⊢σΠ = substitutionTerm ⊢Π (wellformedSubst [Γ] ε [σ]) ε
   in  Uᵣ ⊢σΠ T.refl
 
-lamʳ′ : ∀ {l} {Γ : Con Term n} → ([Γ] : ⊩ᵛ Γ) ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
+lamʳ′ : ∀ {l} {Γ : Con Term n}
+      → ([Γ] : ⊩ᵛ Γ)
+        ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
         ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
         (⊩ʳt : γ ∙ p ▸ Γ ∙ F ⊩ʳ⟨ l ⟩ t ∷ G / [Γ] ∙ [F] / [G])
-        ([σ] : ε ⊩ˢ σ ∷ Γ / [Γ] / ε) (σ®σ′ : σ ®⟨ l ⟩ σ′ ∷ Γ ◂ γ / [Γ] / [σ])
+        ([σ] : ε ⊩ˢ σ ∷ Γ / [Γ] / ε)
+        (σ®σ′ : σ ®⟨ l ⟩ σ′ ∷ Γ ◂ γ / [Γ] / [σ])
         ([t] : Γ ∙ F ⊩ᵛ⟨ l ⟩ t ∷ G / [Γ] ∙ [F] / [G])
         ([u] : ε ⊩⟨ l ⟩ u ∷ subst σ F / proj₁ ([F] ε [σ]))
         (u®w : u ®⟨ l ⟩ w ∷ subst σ F ◂ p / proj₁ ([F] ε [σ]))
       → ((subst σ (lam p t)) ∘ p ▷ u) ®⟨ l ⟩ (T.subst σ′ (T.lam (erase t))) T.∘ w
         ∷ subst (consSubst σ u) G / proj₁ ([G] ε ([σ] , [u]))
-lamʳ′ {F = F} {G = G} {γ = γ} {p = p} {t = t} {σ = σ} {σ′ = σ′}  {u = u} {w = w} {l = l} {Γ}
+lamʳ′ {F = F} {G = G} {γ = γ} {p = p} {t = t} {σ = σ} {σ′ = σ′} {u = u} {w = w} {l = l} {Γ}
       [Γ] [F] [G] ⊩ʳt [σ] σ®σ′ [t] [u] u®w =
   let [σ∙u] = [σ] , [u]
       [G]′ = proj₁ ([G] ε [σ∙u])
@@ -91,7 +94,7 @@ lamʳ′ {F = F} {G = G} {γ = γ} {p = p} {t = t} {σ = σ} {σ′ = σ′}  {u
       t⇒t′ = redMany (β-red ⊢σF ⊢σt ⊢u PE.refl)
       t⇒t″ = PE.subst (λ G → ε ⊢ _ ⇒* _ ∷ G) (UP.singleSubstComp u σ G) t⇒t′
       v⇒v′ = T.trans (T.β-red {t = T.subst (T.liftSubst σ′) (erase t)} {u = w}) T.refl
-      in  ®-back-closure [G]′ σut®σwv′ t⇒t″ v⇒v′
+      in  ®-red* [G]′ σut®σwv′ t⇒t″ v⇒v′
 
 lamʳ : ∀ {Γ : Con Term n} → ([Γ] : ⊩ᵛ Γ) ([F] : Γ ⊩ᵛ⟨ ¹ ⟩ F / [Γ])
        ([G] : Γ ∙ F ⊩ᵛ⟨ ¹ ⟩ G / [Γ] ∙ [F])
