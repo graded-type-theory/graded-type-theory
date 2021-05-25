@@ -10,21 +10,27 @@ open EqRelSet {{...}}
 open import Erasure.LogicalRelation
 
 open import Definition.LogicalRelation Erasure
+open import Definition.LogicalRelation.ShapeView Erasure
 import Definition.LogicalRelation.Irrelevance Erasure as I
 open import Definition.LogicalRelation.Properties.MaybeEmb Erasure
+open import Definition.LogicalRelation.Properties.Escape Erasure
+open import Definition.LogicalRelation.Properties.Conversion Erasure
 open import Definition.LogicalRelation.Substitution Erasure
 import Definition.LogicalRelation.Substitution.Irrelevance Erasure as IS
 
 open import Definition.Untyped Erasure
 open import Definition.Untyped.Properties Erasure
 open import Definition.Typed Erasure
+open import Definition.Typed.Consequences.Injectivity Erasure
+open import Definition.Typed.Reduction Erasure
 open import Definition.Typed.Weakening Erasure
 open import Definition.Typed.Properties Erasure
 open import Definition.Modality.Context ErasureModality
 
+open import Tools.Empty
 open import Tools.Nat
 open import Tools.Product
-open import Tools.PropositionalEquality
+import Tools.PropositionalEquality as PE
 open import Tools.Unit
 
 private
@@ -35,117 +41,86 @@ private
     γ : Conₘ n
     p : Erasure
 
+irrelevanceTermSV : ∀ {l l′ t v A} → ([A] : ε ⊩⟨ l ⟩ A) ([A]′ : ε ⊩⟨ l′ ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A]
+                 → ShapeView ε l l′ A A [A] [A]′ → t ®⟨ l′ ⟩ v ∷ A / [A]′
+irrelevanceTermSV .(Uᵣ UA) .(Uᵣ UB) t®v (Uᵥ UA UB) = t®v
+irrelevanceTermSV .(ℕᵣ ℕA) .(ℕᵣ ℕB) t®v (ℕᵥ ℕA ℕB) = t®v
+irrelevanceTermSV .(Unitᵣ UnitA) .(Unitᵣ UnitB) t®v (Unitᵥ UnitA UnitB) = t®v
+irrelevanceTermSV [A] [A]′ t®v (ne (ne K D neK K≡K) neB) = ⊥-elim (noClosedNe neK)
+irrelevanceTermSV [A] [A]′ t®v (Bᵥ (BΠ 𝟘 q) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+                               (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁)) [a]′
+                               with whrDet* (red D , Πₙ) (red D₁ , Πₙ)
+... | Π≡Π′ with B-PE-injectivity (BΠ 𝟘 q) (BΠ 𝟘 q) Π≡Π′
+... | PE.refl , PE.refl , _ =
+  let [a] = I.irrelevanceTerm ([F]₁ id ε) ([F] id ε) [a]′
+      t®v′ = t®v [a]
+      SV′ = goodCasesRefl ([G] id ε [a]) ([G]₁ id ε [a]′)
+  in  irrelevanceTermSV ([G] id ε [a]) ([G]₁ id ε [a]′) t®v′ SV′
+irrelevanceTermSV [A] [A]′ t®v (Bᵥ (BΠ ω q) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+                               (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁)) [a]′ a®w′
+                               with whrDet* (red D , Πₙ) (red D₁ , Πₙ)
+... | Π≡Π′ with B-PE-injectivity (BΠ ω q) (BΠ ω q) Π≡Π′
+... | PE.refl , PE.refl , _ =
+  let [a] = I.irrelevanceTerm ([F]₁ id ε) ([F] id ε) [a]′
+      SV = goodCasesRefl ([F]₁ id ε) ([F] id ε)
+      a®w = irrelevanceTermSV ([F]₁ id ε) ([F] id ε) a®w′ SV
+      t®v′ = t®v [a] a®w
+      SV′ = goodCasesRefl ([G] id ε [a]) ([G]₁ id ε [a]′)
+      in  irrelevanceTermSV ([G] id ε [a]) ([G]₁ id ε [a]′) t®v′ SV′
+irrelevanceTermSV [A] [A]′ t®v (Bᵥ (BΣ q) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+                               (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁)) [t₁]′
+                               with whrDet* (red D , Σₙ) (red D₁ , Σₙ)
+... | Σ≡Σ′ with B-PE-injectivity (BΣ q) (BΣ q) Σ≡Σ′
+... | PE.refl , PE.refl , _ =
+  let [t₁] = I.irrelevanceTerm ([F]₁ id ε) ([F] id ε) [t₁]′
+      t₁®v₁  , t₂®v₂ = t®v [t₁]
+      SV = goodCasesRefl ([F] id ε) ([F]₁ id ε)
+      SV′ = goodCasesRefl ([G] id ε [t₁]) ([G]₁ id ε [t₁]′)
+  in  irrelevanceTermSV ([F] id ε) ([F]₁ id ε) t₁®v₁ SV
+    , irrelevanceTermSV ([G] id ε [t₁]) ([G]₁ id ε [t₁]′) t₂®v₂ SV′
+irrelevanceTermSV (emb 0<1 [A]) [A]′ t®v (emb⁰¹ SV) = irrelevanceTermSV [A] [A]′ t®v SV
+irrelevanceTermSV [A] (emb 0<1 [A]′) t®v (emb¹⁰ SV) = irrelevanceTermSV [A] [A]′ t®v SV
+
 irrelevanceTerm : ∀ {l t v A} → ([A] [A]′ : ε ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A]
                 → t ®⟨ l ⟩ v ∷ A / [A]′
-
--- Equal cases
-
-irrelevanceTerm (Uᵣ x) (Uᵣ x₁) t®v = t®v
-irrelevanceTerm (ℕᵣ x) (ℕᵣ x₁) t®v = t®v
-irrelevanceTerm (Unitᵣ D) (Unitᵣ D′) t®v = t®v
-irrelevanceTerm (Bᵣ′ (BΠ 𝟘 q) F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-                (Bᵣ′ (BΠ p′ q′) F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext′) t®v
-                with whrDet* (red D , Πₙ) (red D′ , Πₙ)
-... | Π≡Π′ with B-PE-injectivity (BΠ 𝟘 q) (BΠ p′ q′) Π≡Π′
-... | refl , refl , refl = λ [a]′ →
-  let [a] = I.irrelevanceTerm ([F]′ id ε) ([F] id ε) [a]′
-      t®v′ = t®v [a]
-  in  irrelevanceTerm ([G] id ε [a]) ([G]′ id ε [a]′) t®v′
-irrelevanceTerm (Bᵣ′ (BΠ ω q) F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-                (Bᵣ′ (BΠ p′ q′) F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext′) t®v
-                with whrDet* (red D , Πₙ) (red D′ , Πₙ)
-... | Π≡Π′ with B-PE-injectivity (BΠ ω q) (BΠ p′ q′) Π≡Π′
-... | refl , refl , refl = λ [a]′ a®w′ →
-  let [a] = I.irrelevanceTerm ([F]′ id ε) ([F] id ε) [a]′
-      a®w = irrelevanceTerm ([F]′ id ε) ([F] id ε) a®w′
-      t®v′ = t®v [a] a®w
-  in  irrelevanceTerm ([G] id ε [a]) ([G]′ id ε [a]′) t®v′
-irrelevanceTerm (Bᵣ′ (BΣ q) F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-                (Bᵣ′ (BΣ q′) F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext′) t®v
-                with whrDet* (red D , Σₙ) (red D′ , Σₙ)
-... | Σ≡Σ′ with B-PE-injectivity (BΣ q) (BΣ q′) Σ≡Σ′
-... | refl , refl , refl = λ [t₁]′ →
-  let [t₁] = I.irrelevanceTerm ([F]′ id ε) ([F] id ε) [t₁]′
-      t₁®v₁  , t₂®v₂ = t®v [t₁]
-  in  irrelevanceTerm ([F] id ε) ([F]′ id ε) t₁®v₁
-    , irrelevanceTerm ([G] id ε [t₁]) ([G]′ id ε [t₁]′) t₂®v₂
-
--- Neutral cases
-
-irrelevanceTerm [A] (ne′ K D neK K≡K) t®v with noClosedNe neK
-... | ()
-irrelevanceTerm (ne′ K D neK K≡K) [A]′ t®v with noClosedNe neK
-... | ()
-
--- Embedding cases
-
-irrelevanceTerm [A] (emb 1<0 [A]′) t®v = {!!}
-irrelevanceTerm (emb 1<0 [A]) [A]′ t®v = {![A]!}
-
--- Refutable cases
-
-irrelevanceTerm (Uᵣ x) (ℕᵣ D) t®v with whnfRed* (red D) Uₙ
-... | ()
-irrelevanceTerm (Uᵣ x) (Emptyᵣ D) t®v with whnfRed* (red D) Uₙ
-... | ()
-irrelevanceTerm (Uᵣ x) (Unitᵣ D) t®v with whnfRed* (red D) Uₙ
-... | ()
-irrelevanceTerm (Uᵣ x) (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) t®v =
-  ⊥-elim (U≢B W (whnfRed* (red D) Uₙ))
+irrelevanceTerm [A] [A]′ t®v = irrelevanceTermSV [A] [A]′ t®v (goodCasesRefl [A] [A]′)
 
 
-irrelevanceTerm (ℕᵣ D) (Uᵣ x₁) t®v with whnfRed* (red D) Uₙ
-... | ()
-irrelevanceTerm (ℕᵣ D) (Emptyᵣ D′) t®v with whrDet* (red D , ℕₙ) (red D′ , Emptyₙ)
-... | ()
-irrelevanceTerm (ℕᵣ D) (Unitᵣ D′) t®v with whrDet* (red D , ℕₙ) (red D′ , Unitₙ)
-... | ()
-irrelevanceTerm (ℕᵣ D) (Bᵣ′ W F G D′ ⊢F ⊢G A≡A [F] [G] G-ext) t®v =
-  ⊥-elim (ℕ≢B W (whrDet* (red D , ℕₙ) (red D′ , ⟦ W ⟧ₙ)))
-
-
-irrelevanceTerm (Unitᵣ D) (Uᵣ D′) t®v with whnfRed* (red D) Uₙ
-... | ()
-irrelevanceTerm (Unitᵣ D) (ℕᵣ D′) t®v with whrDet* (red D , Unitₙ) (red D′ , ℕₙ)
-... | ()
-irrelevanceTerm (Unitᵣ D) (Emptyᵣ D′) t®v with whrDet* (red D , Unitₙ) (red D′ , Emptyₙ)
-... | ()
-irrelevanceTerm (Unitᵣ D) (Bᵣ′ W F G D′ ⊢F ⊢G A≡A [F] [G] G-ext) t®v =
-  ⊥-elim (Unit≢B W (whrDet* (red D , Unitₙ) (red D′ , ⟦ W ⟧ₙ)))
-
-
-irrelevanceTerm (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Uᵣ D′) t®v
-  = ⊥-elim (U≢B W (whnfRed* (red D) Uₙ))
-irrelevanceTerm (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ℕᵣ D′) t®v
-  = ⊥-elim (ℕ≢B W (whrDet* (red D′ , ℕₙ) (red D , ⟦ W ⟧ₙ)))
-irrelevanceTerm (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Emptyᵣ D′) t®v
-  = ⊥-elim (Empty≢B W (whrDet* (red D′ , Emptyₙ) (red D , ⟦ W ⟧ₙ)))
-irrelevanceTerm (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Unitᵣ D′) t®v
-  = ⊥-elim (Unit≢B W (whrDet* (red D′ , Unitₙ) (red D , ⟦ W ⟧ₙ)))
-
-irrelevanceTerm (Bᵣ′ (BΠ p q) F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-                (Bᵣ′ (BΣ q′) F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext′) t®v
-                with whrDet* (red D , Πₙ) (red D′ , Σₙ)
-... | ()
-irrelevanceTerm (Bᵣ′ (BΣ q′) F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-                (Bᵣ′ (BΠ p q) F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext′) t®v
-                with whrDet* (red D , Σₙ) (red D′ , Πₙ)
-... | ()
-
-
-irrelevanceTerm′ : ∀ {l t v A} → A ≡ A′ → ([A] : ε ⊩⟨ l ⟩ A)
+irrelevanceTerm′ : ∀ {l t v A} → A PE.≡ A′ → ([A] : ε ⊩⟨ l ⟩ A)
                  → ([A]′ : ε ⊩⟨ l ⟩ A′) → t ®⟨ l ⟩ v ∷ A / [A]
                  → t ®⟨ l ⟩ v ∷ A′ / [A]′
-irrelevanceTerm′ refl [A] [A]′ t®v = irrelevanceTerm [A] [A]′ t®v
+irrelevanceTerm′ PE.refl [A] [A]′ t®v = irrelevanceTerm [A] [A]′ t®v
 
-irrelevanceTerm″ : ∀ {l t v A} → A ≡ A′
-                 → ([A] : ε ⊩⟨ l ⟩ A)
-                 → t ®⟨ l ⟩ v ∷ A / [A]
-                 → ∃ λ ([A]′ : ε ⊩⟨ l ⟩ A′)
-                 → t ®⟨ l ⟩ v ∷ A′ / [A]′
-irrelevanceTerm″ eq [A] t®v =
-  let [A]′ = I.irrelevance′ eq [A]
-  in  [A]′ , irrelevanceTerm′ eq [A] [A]′ t®v
+convTermSV : ∀ {l l′ A B t v} → ([A] : ε ⊩⟨ l ⟩ A) → ([B] : ε ⊩⟨ l′ ⟩ B) → ε ⊩⟨ l ⟩ A ≡ B / [A]
+          → ShapeView ε l l′ A B [A] [B] → t ®⟨ l ⟩ v ∷ A / [A] → t ®⟨ l′ ⟩ v ∷ B / [B]
+convTermSV .(Uᵣ UA) .(Uᵣ UB) A≡B (Uᵥ UA UB) t®v = t®v
+convTermSV .(ℕᵣ ℕA) .(ℕᵣ ℕB) A≡B (ℕᵥ ℕA ℕB) t®v = t®v
+convTermSV .(Unitᵣ UnitA) .(Unitᵣ UnitB) A≡B (Unitᵥ UnitA UnitB) t®v = t®v
+convTermSV .(ne′ K D neK K≡K) .(ne neB) A≡B (ne (ne K D neK K≡K) neB) t®v = ⊥-elim (noClosedNe neK)
+convTermSV [A] _ A≡B (Bᵥ (BΠ 𝟘 q) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+                           (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁)) t®v [a]′ =
+  let [a] = convTerm₁ ([F]₁ id ε) ([F] id ε) {!!} [a]′
+      t®v′ = t®v [a]
+      SV = goodCases ([G] id ε [a]) ([G]₁ id ε [a]′) {!!}
+  in  convTermSV ([G] id ε [a]) ([G]₁ id ε [a]′) {!!} SV t®v′
+  -- irrelevanceTermSV ([G] id ε [a]) ([G]₁ id ε [a]′) t®v′ SV′
+convTermSV (Bᵣ (BΠ ω q) BA) .(Bᵣ (BΠ ω q) BB) A≡B (Bᵥ (BΠ ω q) BA BB) t®v = {!!}
+convTermSV (Bᵣ (BΣ p) BA) .(Bᵣ (BΣ p) BB) A≡B (Bᵥ (BΣ p) BA BB) t®v = {!!}
+convTermSV (emb 0<1 [A]) [B] A≡B (emb⁰¹ SV) t®v = convTermSV [A] [B] A≡B SV t®v
+convTermSV [A] (emb 0<1 [B]) A≡B (emb¹⁰ SV) t®v = convTermSV [A] [B] A≡B SV t®v
+
+convTerm : ∀ {l A B t v} → ([A] : ε ⊩⟨ l ⟩ A) → ([B] : ε ⊩⟨ l ⟩ B) → ε ⊩⟨ l ⟩ A ≡ B / [A]
+         → t ®⟨ l ⟩ v ∷ A / [A] → t ®⟨ l ⟩ v ∷ B / [B]
+convTerm [A] [B] A≡B t®v = convTermSV [A] [B] A≡B {!(goodCases [A] [B] A≡B)!} t®v
+
+-- irrelevanceTerm″ : ∀ {l t v A} → A ≡ A′
+--                  → ([A] : ε ⊩⟨ l ⟩ A)
+--                  → t ®⟨ l ⟩ v ∷ A / [A]
+--                  → ∃ λ ([A]′ : ε ⊩⟨ l ⟩ A′)
+--                  → t ®⟨ l ⟩ v ∷ A′ / [A]′
+-- irrelevanceTerm″ eq [A] t®v =
+--   let [A]′ = I.irrelevance′ eq [A]
+--   in  [A]′ , irrelevanceTerm′ eq [A] [A]′ t®v
 
 irrelevanceQuant : ∀ {l t v A} → ([A] [A]′ : ε ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A ◂ p / [A]
                  → t ®⟨ l ⟩ v ∷ A ◂ p / [A]′

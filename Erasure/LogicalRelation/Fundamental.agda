@@ -35,6 +35,7 @@ open import Definition.Typed.Consequences.Syntactic Erasure
 
 -- open import Erasure.Extraction
 open import Erasure.LogicalRelation
+open import Erasure.LogicalRelation.Conversion
 open import Erasure.LogicalRelation.Fundamental.Application
 open import Erasure.LogicalRelation.Fundamental.Empty
 open import Erasure.LogicalRelation.Fundamental.Lambda
@@ -213,6 +214,9 @@ fundamental {Γ = Γ} {γ = γ} (Emptyrecⱼ {p = p} {A = A} {e = t} ⊢A Γ⊢t
                                 [Γ] [A] δ⊩ʳEmptyrec γ≤δ
   in  [Γ] , [A] , γ⊩ʳEmptyrec
 fundamental (starⱼ ⊢Γ) γ▸t = starʳ ⊢Γ
-fundamental (conv Γ⊢t:A x) γ▸t =
-  let [Γ] , [A]′ , t®v = fundamental Γ⊢t:A γ▸t
-  in  [Γ] , convᵛ {!!} {!!} {!!} {!!} [A]′ , {!!}
+fundamental (conv {t = t} {A = A} {B = B} Γ⊢t:A A≡B) γ▸t =
+  let [Γ] , [A] , ⊩ʳt = fundamental Γ⊢t:A γ▸t
+      Γ⊢B = syntacticTerm (conv Γ⊢t:A A≡B)
+      [Γ]′ , [B]′ = F.fundamental Γ⊢B
+      [B] = IS.irrelevance {A = B} [Γ]′ [Γ] [B]′
+  in  [Γ] , [B] , convʳ {A = A} {B = B} {t = t} [Γ] [A] [B] A≡B ⊩ʳt
