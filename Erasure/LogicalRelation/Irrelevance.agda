@@ -14,7 +14,6 @@ open import Definition.LogicalRelation.ShapeView Erasure
 import Definition.LogicalRelation.Irrelevance Erasure as I
 open import Definition.LogicalRelation.Properties.MaybeEmb Erasure
 open import Definition.LogicalRelation.Properties.Escape Erasure
-open import Definition.LogicalRelation.Properties.Conversion Erasure
 open import Definition.LogicalRelation.Substitution Erasure
 import Definition.LogicalRelation.Substitution.Irrelevance Erasure as IS
 
@@ -91,36 +90,8 @@ irrelevanceTerm′ : ∀ {l t v A} → A PE.≡ A′ → ([A] : ε ⊩⟨ l ⟩ 
                  → t ®⟨ l ⟩ v ∷ A′ / [A]′
 irrelevanceTerm′ PE.refl [A] [A]′ t®v = irrelevanceTerm [A] [A]′ t®v
 
-convTermSV : ∀ {l l′ A B t v} → ([A] : ε ⊩⟨ l ⟩ A) → ([B] : ε ⊩⟨ l′ ⟩ B) → ε ⊩⟨ l ⟩ A ≡ B / [A]
-          → ShapeView ε l l′ A B [A] [B] → t ®⟨ l ⟩ v ∷ A / [A] → t ®⟨ l′ ⟩ v ∷ B / [B]
-convTermSV .(Uᵣ UA) .(Uᵣ UB) A≡B (Uᵥ UA UB) t®v = t®v
-convTermSV .(ℕᵣ ℕA) .(ℕᵣ ℕB) A≡B (ℕᵥ ℕA ℕB) t®v = t®v
-convTermSV .(Unitᵣ UnitA) .(Unitᵣ UnitB) A≡B (Unitᵥ UnitA UnitB) t®v = t®v
-convTermSV .(ne′ K D neK K≡K) .(ne neB) A≡B (ne (ne K D neK K≡K) neB) t®v = ⊥-elim (noClosedNe neK)
-convTermSV [A] _ A≡B (Bᵥ (BΠ 𝟘 q) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-                           (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁)) t®v [a]′ =
-  let [a] = convTerm₁ ([F]₁ id ε) ([F] id ε) {!!} [a]′
-      t®v′ = t®v [a]
-      SV = goodCases ([G] id ε [a]) ([G]₁ id ε [a]′) {!!}
-  in  convTermSV ([G] id ε [a]) ([G]₁ id ε [a]′) {!!} SV t®v′
-  -- irrelevanceTermSV ([G] id ε [a]) ([G]₁ id ε [a]′) t®v′ SV′
-convTermSV (Bᵣ (BΠ ω q) BA) .(Bᵣ (BΠ ω q) BB) A≡B (Bᵥ (BΠ ω q) BA BB) t®v = {!!}
-convTermSV (Bᵣ (BΣ p) BA) .(Bᵣ (BΣ p) BB) A≡B (Bᵥ (BΣ p) BA BB) t®v = {!!}
-convTermSV (emb 0<1 [A]) [B] A≡B (emb⁰¹ SV) t®v = convTermSV [A] [B] A≡B SV t®v
-convTermSV [A] (emb 0<1 [B]) A≡B (emb¹⁰ SV) t®v = convTermSV [A] [B] A≡B SV t®v
 
-convTerm : ∀ {l A B t v} → ([A] : ε ⊩⟨ l ⟩ A) → ([B] : ε ⊩⟨ l ⟩ B) → ε ⊩⟨ l ⟩ A ≡ B / [A]
-         → t ®⟨ l ⟩ v ∷ A / [A] → t ®⟨ l ⟩ v ∷ B / [B]
-convTerm [A] [B] A≡B t®v = convTermSV [A] [B] A≡B {!(goodCases [A] [B] A≡B)!} t®v
 
--- irrelevanceTerm″ : ∀ {l t v A} → A ≡ A′
---                  → ([A] : ε ⊩⟨ l ⟩ A)
---                  → t ®⟨ l ⟩ v ∷ A / [A]
---                  → ∃ λ ([A]′ : ε ⊩⟨ l ⟩ A′)
---                  → t ®⟨ l ⟩ v ∷ A′ / [A]′
--- irrelevanceTerm″ eq [A] t®v =
---   let [A]′ = I.irrelevance′ eq [A]
---   in  [A]′ , irrelevanceTerm′ eq [A] [A]′ t®v
 
 irrelevanceQuant : ∀ {l t v A} → ([A] [A]′ : ε ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A ◂ p / [A]
                  → t ®⟨ l ⟩ v ∷ A ◂ p / [A]′

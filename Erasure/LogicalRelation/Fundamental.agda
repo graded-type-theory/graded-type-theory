@@ -9,8 +9,9 @@ open EqRelSet {{...}}
 
 open import Definition.LogicalRelation Erasure
 import Definition.LogicalRelation.Fundamental Erasure as F
+open import Definition.LogicalRelation.Fundamental.Reducibility Erasure
 import Definition.LogicalRelation.Irrelevance Erasure as I
--- open import Definition.LogicalRelation.Properties.Escape Erasure
+open import Definition.LogicalRelation.Properties.Escape Erasure
 -- open import Definition.LogicalRelation.ShapeView Erasure
 open import Definition.LogicalRelation.Substitution Erasure
 open import Definition.LogicalRelation.Substitution.Conversion Erasure
@@ -24,6 +25,7 @@ open import Definition.LogicalRelation.Substitution.Introductions.Pi Erasure
 open import Definition.LogicalRelation.Substitution.Introductions.Nat Erasure
 
 open import Definition.Modality.Context ErasureModality
+open import Definition.Modality.Erasure.Properties
 open import Definition.Modality.Usage ErasureModality
 open import Definition.Modality.Usage.Inversion ErasureModality
 
@@ -67,55 +69,51 @@ private
      x : Fin n
      σ′ : T.Subst 0 n
 
-lemma : ∀ {σ σ′ Γ γ [Γ] [σ] A p} → (x : Fin n) → σ ®⟨ ¹ ⟩ σ′ ∷ Γ ◂ γ / [Γ] / [σ]
-                                   → x ∷ A ∈ Γ → x ◂ p ∈ γ
-                                   → ∃ λ [A] → σ x ®⟨ ¹ ⟩ σ′ x ∷ subst σ A ◂ p / [A]
-lemma {[Γ] = [Γ] ∙ [A]} {[σ] = [tailσ] , _} x0 (fst₂ , snd₂) here here = {!proj₁ ([A] ε [tailσ])!} , {!snd₂!}
-lemma {[Γ] = _∙_ {A = A′} [Γ] [A]} {[σ] = [tailσ] , _} (_+1 x) (fst₁ , snd₁) (there {A = A} x∷A) (there x◂p) =
-  let [A]′ , σx®σ′x = lemma x fst₁ x∷A x◂p
-      [A]″ = I.irrelevance′ (PE.sym (wk1-tail A)) [A]′
-  in  [A]″ ,  {![A]″!}
-  -- irrelevanceTerm′ {!!} {![A]′!} {!!} σx®σ′x
 
--- fundamentalVar′ : ∀ ([Γ] : ⊩ᵛ Γ) ([σ] : ε ⊩ˢ σ ∷ Γ / [Γ] / ε)
---                 → x ∷ A ∈ Γ → x ◂ p ∈ γ
---                 → σ ®⟨ ¹ ⟩ σ′ ∷ Γ ◂ γ / [Γ] / [σ]
---                 → ∃ λ ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ])
---                 → σ x ®⟨ ¹ ⟩ σ′ x ∷ subst σ A ◂ p / proj₁ ([A] ε [σ])
--- fundamentalVar′ (_∙_ {A = A} [Γ] [A]) ([tailσ] , ⊩σx0) here here (σ®σ′ , σx0®σ′x0) =
---   let [A]′ = wk1ᵛ {A = A} {F = A} [Γ] [A] [A]
---       [A]″ = maybeEmbᵛ ([Γ] ∙ [A]) [A]′
---       σx0®σ′x0′ = irrelevanceTerm′ (PE.sym (wk1-tail A)) {!!} {!!} σx0®σ′x0
---       -- (wk1-tail A) {![A]′!} (proj₁ ([A]′ ε {![tailσ]!})) σx0®σ′x0
---   in  [A]″ , {![A]″!}
--- fundamentalVar′ ([Γ] ∙ [B]) ([tailσ] , ⊩σx0) (there x∷A∈Γ) (there x◂p∈γ) (σ®σ′ , σx0®σ′x0) = {!x!}
+fundamentalVar′ : ([Γ] : ⊩ᵛ Γ)
+               → x ∷ A ∈ Γ
+               → x ◂ ω ∈ γ
+               → ([σ] : ε ⊩ˢ σ ∷ Γ / [Γ] / ε)
+               → (σ®σ′ : σ ®⟨ ¹ ⟩ σ′ ∷ Γ ◂ γ / [Γ] / [σ])
+               → ∃ λ ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ])
+               → σ x ®⟨ ¹ ⟩ σ′ x ∷ subst σ A / proj₁ ([A] ε [σ])
+fundamentalVar′ ε ()
+fundamentalVar′ {σ = σ} (_∙_ {A = A} [Γ] [A]) here here
+                ([tailσ] , [headσ]) (σ®σ′ , σ0®σ′0) =
+  let [A]′ = proj₁ ([A] ε [tailσ])
+      [↑A] = wk1ᵛ {A = A} {F = A} [Γ] [A] [A]
+      [↑A]′ = maybeEmbᵛ {A = wk1 A} (_∙_ {A = A} [Γ] [A]) [↑A]
+      [σ↑A] = proj₁ ([↑A]′ {σ = σ} ε ([tailσ] , [headσ]))
+      A≡A : ε ⊢ subst (tail σ) A ≡ subst (tail σ) A
+      A≡A = refl (escape [A]′)
+      A≡A′ = PE.subst (ε ⊢ subst (tail σ) A ≡_)
+                      (PE.sym (wk1-tail A)) A≡A
+  in  [↑A]′ , convTermʳ [A]′ [σ↑A] A≡A′ σ0®σ′0
+fundamentalVar′ (_∙_ {A = A} [Γ] [A]) (there {A = B} x) (there x₁)
+                ([tailσ] , [headσ]) (σ®σ′ , σ0®σ′0) =
+  let [σA] = proj₁ ([A] ε [tailσ])
+      [A]′ = maybeEmbᵛ {A = A} [Γ] [A]
+      [B] , t®v = fundamentalVar′ [Γ] x x₁ [tailσ] σ®σ′
+      [↑B] = wk1ᵛ {A = B} {F = A} [Γ] [A]′ [B]
+      [↑B]′ = maybeEmbᵛ {A = wk1 B} (_∙_ {A = A} [Γ] [A]′) [↑B]
+      [↑B]″ = IS.irrelevance {A = wk1 B} (_∙_ {A = A} [Γ] [A]′) ([Γ] ∙ [A]) [↑B]′
+      t®v′ = irrelevanceTerm′ (PE.sym (wk1-tail B)) (proj₁ ([B] ε [tailσ]))
+                              (proj₁ ([↑B]″ ε ([tailσ] , [headσ]))) t®v
+  in  [↑B]″ , t®v′
 
--- fundamentalVar′ : ([Γ] : ⊩ᵛ Γ)
---                 → ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ])
---                 → ([A]′ : Γ ∙ A ⊩ᵛ⟨ ¹ ⟩ wk1 A / [Γ] ∙ [A])
---                 → ([σ] : ε ⊩ˢ σ ∷ Γ ∙ A / [Γ] ∙ [A] / ε)
---                 → (σ®σ′ : σ ®⟨ ¹ ⟩ σ′ ∷ Γ ∙ A ◂ γ ∙ p / [Γ] ∙ [A] / [σ])
---                 → (x : Fin (1+ n))
---                 → σ x ®⟨ ¹ ⟩ σ′ x ∷ subst σ (wk1 A) / proj₁ ([A]′ ε [σ])
--- fundamentalVar′ [Γ] [A] [A]′ (fst₁ , snd₁) (fst₂ , snd₂) x = {!!}
+fundamentalVar : ([Γ] : ⊩ᵛ Γ)
+               → x ∷ A ∈ Γ
+               → γ ▸ var x
+               → ∃ λ ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ])
+               → γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ var x ∷ A / [Γ] / [A]
+fundamentalVar {γ = γ} [Γ] x∷A∈Γ γ▸x =
+  let [A] , _ = F.fundamentalVar x∷A∈Γ [Γ]
+      x◂ω∈γ = valid-var-usage γ▸x
+  in [A] , λ [σ] σ®σ′ →
+     let [A]′ , t®v = fundamentalVar′ [Γ] x∷A∈Γ x◂ω∈γ [σ] σ®σ′
+     in  irrelevanceTerm (proj₁ ([A]′ ε [σ])) (proj₁ ([A] ε [σ])) t®v
 
--- fundamentalVar : x ∷ A ∈ Γ
---                → x ◂ p ∈ γ
---                → ([Γ] : ⊩ᵛ Γ)
---                → ∃ λ ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ])
---                → γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ var x ∷ A / [Γ] / [A]
--- fundamentalVar here here (_∙_ {A = A} {l = l} [Γ] [A]) =
---   let [A]′ = wk1ᵛ {A = A} {F = A} [Γ] [A] [A]
---       [A]″ = maybeEmbᵛ {A = wk1 A} (_∙_ {A = A} [Γ] [A]) [A]′
---   in  [A]″ , λ {σ = σ} {σ′ = σ′} [σ] σ®σ′ →
---       let σx®σ′x = fundamentalVar′ {A = A} {σ = σ} {σ′ = σ′} {p = {!p!}} [Γ] (maybeEmbᵛ {A = {!A!}} [Γ] [A]) {![A]″!} [σ] σ®σ′ x0
---       in  {!!}
--- fundamentalVar (there x∷A∈Γ) (there x◂p∈Γ) ([Γ] ∙ [B]) =
---   let [A] , x = fundamentalVar x∷A∈Γ x◂p∈Γ [Γ]
---       [A]′ = wk1ᵛ [Γ] (maybeEmbᵛ [Γ] [B]) [A]
---   in  {![A]′!} , λ [σ] σ®σ′ → {!!}
---   -- let [Γ] = F.valid ⊢Γ
---   -- in  [Γ] , {!!}
+
 
 fundamental : Γ ⊢ t ∷ A → γ ▸ t
             → ∃ λ ([Γ] : ⊩ᵛ Γ)
@@ -134,7 +132,10 @@ fundamental Γ⊢Σ@(Σⱼ Γ⊢F:U ▹ Γ⊢G:U) γ▸t =
 fundamental (ℕⱼ ⊢Γ) γ▸t = ℕʳ ⊢Γ
 fundamental (Emptyⱼ ⊢Γ) γ▸t = Emptyʳ ⊢Γ
 fundamental (Unitⱼ ⊢Γ) γ▸t = Unitʳ ⊢Γ
-fundamental (var x x₁) γ▸t = {!!} , {!!} , {!!}
+fundamental (var ⊢Γ x∷A∈Γ) γ▸t =
+  let [Γ] = F.valid ⊢Γ
+      [A] , ⊩ʳx = fundamentalVar [Γ] x∷A∈Γ γ▸t
+  in  [Γ] , [A] , ⊩ʳx
 fundamental (lamⱼ {p = p} {q = q} {F = F} {G = G} {t = t} Γ⊢F Γ⊢t:G) γ▸t =
   let invUsageLam {δ = δ} δ▸t δ≤γ = inv-usage-lam γ▸t
       [ΓF] , [G]′ , ⊩ʳt = fundamental Γ⊢t:G δ▸t
@@ -182,7 +183,11 @@ fundamental (sndⱼ {G = G} {t = t} Γ⊢F Γ⊢G Γ⊢t:Σ) γ▸t =
       [Γ] , [Σ] , ⊩ʳt = fundamental Γ⊢t:Σ δ▸t
       [G] , ⊩ʳt₂ = sndʳ Γ⊢F Γ⊢G Γ⊢t:Σ [Γ] [Σ] ⊩ʳt
   in  [Γ] , [G] , subsumption {t = snd t} {A = G [ fst t ]} [Γ] [G] ⊩ʳt₂ δ≤𝟘
-fundamental (prodrecⱼ x x₁ Γ⊢t:A x₂ Γ⊢t:A₁) γ▸t = {!!}
+fundamental (prodrecⱼ Γ⊢F Γ⊢G Γ⊢t:Σ Γ⊢A Γ⊢u:A) γ▸t =
+  let invUsageProdrec δ▸t η▸u le = inv-usage-prodrec γ▸t
+      [Γ] , [Σ] , ⊩ʳt = fundamental Γ⊢t:Σ δ▸t
+      [ΓFG] , [A] , ⊩ʳu = fundamental Γ⊢u:A η▸u
+  in  {!!} , ({!!} , {!⊩ʳu!})
 fundamental (zeroⱼ ⊢Γ) γ▸t = zeroʳ ⊢Γ
 fundamental (sucⱼ {n = t} Γ⊢t:ℕ) γ▸t =
   let invUsageSuc δ▸t γ≤δ = inv-usage-suc γ▸t
@@ -199,10 +204,11 @@ fundamental (natrecⱼ {G = A} {s = s} {z = z} {n = n} Γ⊢A Γ⊢z:A Γ⊢s:A 
       [Γℕ] = [Γ] ∙ [ℕ]
       [Γℕ]′ , [A]′ = F.fundamental Γ⊢A
       [A] = IS.irrelevance {A = A} [Γℕ]′ [Γℕ] [A]′
-      [A₊] = IS.irrelevance {A = wk1 (A [ (suc (var x0)) ]↑)} [ΓℕA] ([Γℕ] ∙ [A]) [A₊]′
+      [A₊] = IS.irrelevance {A = wk1 (A [ (suc (var x0)) ]↑)}
+                            [ΓℕA] ([Γℕ] ∙ [A]) [A₊]′
       ⊩ʳs = irrelevance [ΓℕA] ([Γℕ] ∙ [A]) [A₊]′ [A₊] ⊩ʳs′
       ⊩ʳn = irrelevance [Γ]′ [Γ] [ℕ]′ [ℕ] ⊩ʳn′
-  in  [Γ] , {!!} , {!!}
+  in  [Γ] , {!⊩ʳs′!} , {![n]!}
 fundamental {Γ = Γ} {γ = γ} (Emptyrecⱼ {p = p} {A = A} {e = t} ⊢A Γ⊢t:Empty) γ▸t =
   let invUsageEmptyrec δ▸t γ≤δ = inv-usage-Emptyrec γ▸t
       [Γ] , [Empty] , ⊩ʳt = fundamental Γ⊢t:Empty δ▸t

@@ -117,12 +117,12 @@ convTermʳ′ [A] (emb 0<1 [B]) A≡B (emb¹⁰ SV) t®v = convTermʳ′ [A] [B]
 -- Conversion of logical relation for erasure
 -- If t ® v ∷ A and ε ⊢ A ≡ B then t ® v ∷ B
 
-convTermʳ : ∀ {l A B t v}
+convTermʳ : ∀ {l l′ A B t v}
           → ([A] : ε ⊩⟨ l ⟩ A)
-            ([B] : ε ⊩⟨ l ⟩ B)
+            ([B] : ε ⊩⟨ l′ ⟩ B)
           → ε ⊢ A ≡ B
           → t ®⟨ l ⟩ v ∷ A / [A]
-          → t ®⟨ l ⟩ v ∷ B / [B]
+          → t ®⟨ l′ ⟩ v ∷ B / [B]
 convTermʳ [A] [B] A≡B t®v =
   let [A]′ , [B]′ , [A≡B]′ = reducibleEq A≡B
       [A≡B] = irrelevanceEq [A]′ [A] [A≡B]′
@@ -131,13 +131,13 @@ convTermʳ [A] [B] A≡B t®v =
 -- Conversion of erasure validity
 -- If γ ▸ Γ ⊩ʳ t ∷ A and Γ ⊩ᵛ A ≡ B then γ ▸ Γ ⊩ʳ t ∷ B
 
-convʳ : ∀ {l A B t γ}
+convʳ : ∀ {l l′ A B t γ}
       → ([Γ] : ⊩ᵛ Γ)
         ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ])
-        ([B] : Γ ⊩ᵛ⟨ l ⟩ B / [Γ])
+        ([B] : Γ ⊩ᵛ⟨ l′ ⟩ B / [Γ])
         (A≡B : Γ ⊢ A ≡ B)
         (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷ A / [Γ] / [A])
-      → (γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷ B / [Γ] / [B])
+      → (γ ▸ Γ ⊩ʳ⟨ l′ ⟩ t ∷ B / [Γ] / [B])
 convʳ {A = A} {B = B} [Γ] [A] [B] A≡B ⊩ʳt [σ] σ®σ′ =
   let t®v = ⊩ʳt [σ] σ®σ′
       [σA] = proj₁ ([A] ε [σ])

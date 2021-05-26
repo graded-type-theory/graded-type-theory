@@ -60,3 +60,39 @@ private
 +ᶜ-decreasingʳ : (γ δ : Conₘ n) → γ +ᶜ δ ≤ᶜ δ
 +ᶜ-decreasingʳ ε ε = ≤ᶜ-refl
 +ᶜ-decreasingʳ (γ ∙ p) (δ ∙ q) = (+ᶜ-decreasingʳ γ δ) ∙ (+-decreasingʳ p q)
+
+-- 𝟘 is the greatest element of the erasure modality
+-- p ≤ 𝟘
+
+greatest-elem : (p : Erasure) → p ≤ 𝟘
+greatest-elem p = PE.refl
+
+-- ω is the least element of the erasure modality
+-- ω ≤ p
+
+least-elem : (p : Erasure) → ω ≤ p
+least-elem 𝟘 = PE.refl
+least-elem ω = PE.refl
+
+
+-- 𝟘 is the greatest element of the erasure modality
+-- If 𝟘 ≤ p then p ≡ 𝟘
+
+greatest-elem′ : (p : Erasure) → 𝟘 ≤ p → p PE.≡ 𝟘
+greatest-elem′ p 𝟘≤p = ≤-antisym (greatest-elem p) 𝟘≤p
+
+-- ω is the least element of the erasure modality
+-- If p ≤ ω then p ≡ ω
+
+least-elem′ : (p : Erasure) → p ≤ ω → p PE.≡ ω
+least-elem′ p p≤ω = ≤-antisym p≤ω (least-elem p)
+
+
+
+-- Variables are always annotated with ω
+-- If γ ▸ var x then x ◂ ω ∈ γ
+
+valid-var-usage : γ ▸ var x → x ◂ ω ∈ γ
+valid-var-usage γ▸x with inv-usage-var γ▸x
+valid-var-usage {x = x0} γ▸x | γ≤γ′ ∙ p≤ω rewrite least-elem′ _ p≤ω = here
+valid-var-usage {x = x +1} γ▸x | γ≤γ′ ∙ p≤𝟘 = there (valid-var-usage (sub (var {x = x}) γ≤γ′))
