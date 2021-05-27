@@ -49,19 +49,21 @@ open import Erasure.LogicalRelation.Irrelevance
 -- open import Erasure.LogicalRelation.Irrelevance
 open import Erasure.LogicalRelation.Properties
 import Erasure.Target as T
--- open import Erasure.Target.Properties as TP
+open import Erasure.Extraction
+import Erasure.Target.Properties as TP
 
 open import Tools.Fin
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Unit
 
 private
   variable
      n : Nat
      Γ : Con Term n
-     A u : Term n
-     B t : Term (1+ n)
+     t A u : Term n
+     B : Term (1+ n)
      -- w : T.Term n
      γ : Conₘ n
      p q : Erasure
@@ -187,7 +189,7 @@ fundamental (prodrecⱼ Γ⊢F Γ⊢G Γ⊢t:Σ Γ⊢A Γ⊢u:A) γ▸t =
   let invUsageProdrec δ▸t η▸u le = inv-usage-prodrec γ▸t
       [Γ] , [Σ] , ⊩ʳt = fundamental Γ⊢t:Σ δ▸t
       [ΓFG] , [A] , ⊩ʳu = fundamental Γ⊢u:A η▸u
-  in  {!!} , ({!!} , {!⊩ʳu!})
+  in  [Γ] , ({!!} , {!⊩ʳu!})
 fundamental (zeroⱼ ⊢Γ) γ▸t = zeroʳ ⊢Γ
 fundamental (sucⱼ {n = t} Γ⊢t:ℕ) γ▸t =
   let invUsageSuc δ▸t γ≤δ = inv-usage-suc γ▸t
@@ -206,9 +208,11 @@ fundamental (natrecⱼ {G = A} {s = s} {z = z} {n = n} Γ⊢A Γ⊢z:A Γ⊢s:A 
       [A] = IS.irrelevance {A = A} [Γℕ]′ [Γℕ] [A]′
       [A₊] = IS.irrelevance {A = wk1 (A [ (suc (var x0)) ]↑)}
                             [ΓℕA] ([Γℕ] ∙ [A]) [A₊]′
+      [Γ]″ , [ℕ]″ , [n]′ = F.fundamentalTerm Γ⊢n:ℕ
+      [n] = IS.irrelevanceTerm {A = ℕ} {t = n} [Γ]″ [Γ] [ℕ]″ [ℕ]
       ⊩ʳs = irrelevance [ΓℕA] ([Γℕ] ∙ [A]) [A₊]′ [A₊] ⊩ʳs′
       ⊩ʳn = irrelevance [Γ]′ [Γ] [ℕ]′ [ℕ] ⊩ʳn′
-  in  [Γ] , {!⊩ʳs′!} , {![n]!}
+  in  [Γ] , {![A]!} , {![n]!}
 fundamental {Γ = Γ} {γ = γ} (Emptyrecⱼ {p = p} {A = A} {e = t} ⊢A Γ⊢t:Empty) γ▸t =
   let invUsageEmptyrec δ▸t γ≤δ = inv-usage-Emptyrec γ▸t
       [Γ] , [Empty] , ⊩ʳt = fundamental Γ⊢t:Empty δ▸t
@@ -226,3 +230,18 @@ fundamental (conv {t = t} {A = A} {B = B} Γ⊢t:A A≡B) γ▸t =
       [Γ]′ , [B]′ = F.fundamental Γ⊢B
       [B] = IS.irrelevance {A = B} [Γ]′ [Γ] [B]′
   in  [Γ] , [B] , convʳ {A = A} {B = B} {t = t} [Γ] [A] [B] A≡B ⊩ʳt
+
+
+fundamental′ : ∀ {t A} → ε ⊢ t ∷ A → ε ▸ t
+             → ∃ λ ([A] : ε ⊩⟨ ¹ ⟩ A)
+             → t ®⟨ ¹ ⟩ erase t ∷ A / [A]
+fundamental′ {t = t} {A = A} ε⊢t∷A ε▸t =
+  let [ε] , [A] , ⊩ʳt = fundamental ε⊢t∷A ε▸t
+      [A]′ = IS.irrelevance {A = A} [ε] ε [A]
+      [σA] = proj₁ ([A]′ {σ = idSubst} ε (idSubstS  ε))
+      [σA]′ = I.irrelevance′ (subst-id A) [σA]
+      ⊩ʳt′ = irrelevance {A = A} {t = t} [ε] ε [A] [A]′ ⊩ʳt
+      t®v = ⊩ʳt′ {σ′ = T.idSubst} (idSubstS ε) tt
+      t®v′ = irrelevanceTerm′ (subst-id A) [σA] [σA]′ t®v
+      t®v″ = PE.subst₂ (λ t′ v′ → t′ ®⟨ _ ⟩ v′ ∷ A / [σA]′) (subst-id t) (TP.subst-id (erase t)) t®v′
+  in  [σA]′ , t®v″
