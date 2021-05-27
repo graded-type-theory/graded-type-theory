@@ -1,7 +1,7 @@
 {-# OPTIONS --without-K --safe #-}
 module Erasure.Target.Properties.Reduction where
 
-open import Erasure.Target --renaming (refl to ⇒*-refl; trans to ⇒*-trans)
+open import Erasure.Target
 
 open import Tools.Nat
 open import Tools.Product
@@ -36,6 +36,9 @@ snd-subst* : t ⇒* t′ → snd t ⇒* snd t′
 snd-subst* refl = refl
 snd-subst* (trans x t⇒*t′) = trans (snd-subst x) (snd-subst* t⇒*t′)
 
+natrec-subst* : ∀ {z s} → t ⇒* t′ → natrec z s t ⇒* natrec z s t′
+natrec-subst* refl = refl
+natrec-subst* (trans x t⇒t′) = trans (natrec-subst x) (natrec-subst* t⇒t′)
 
 
 -- Reduction is deterministic
