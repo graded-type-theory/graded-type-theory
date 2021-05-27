@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --allow-unsolved-metas  #-}
+{-# OPTIONS --without-K  #-}
 open import Definition.Modality.Erasure
 
 open import Definition.Typed.EqualityRelation
@@ -40,8 +40,14 @@ private
     γ : Conₘ n
     p : Erasure
 
-irrelevanceTermSV : ∀ {l l′ t v A} → ([A] : ε ⊩⟨ l ⟩ A) ([A]′ : ε ⊩⟨ l′ ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A]
-                 → ShapeView ε l l′ A A [A] [A]′ → t ®⟨ l′ ⟩ v ∷ A / [A]′
+-- Irrelevance of logical relation for erasure using a ShapreView
+
+irrelevanceTermSV : ∀ {l l′ t v A}
+                  → ([A] : ε ⊩⟨ l ⟩ A)
+                    ([A]′ : ε ⊩⟨ l′ ⟩ A)
+                  → t ®⟨ l ⟩ v ∷ A / [A]
+                  → ShapeView ε l l′ A A [A] [A]′
+                  → t ®⟨ l′ ⟩ v ∷ A / [A]′
 irrelevanceTermSV .(Uᵣ UA) .(Uᵣ UB) t®v (Uᵥ UA UB) = t®v
 irrelevanceTermSV .(ℕᵣ ℕA) .(ℕᵣ ℕB) t®v (ℕᵥ ℕA ℕB) = t®v
 irrelevanceTermSV .(Unitᵣ UnitA) .(Unitᵣ UnitB) t®v (Unitᵥ UnitA UnitB) = t®v
@@ -80,40 +86,57 @@ irrelevanceTermSV [A] [A]′ t®v (Bᵥ (BΣ q) (Bᵣ F G D ⊢F ⊢G A≡A [F] 
 irrelevanceTermSV (emb 0<1 [A]) [A]′ t®v (emb⁰¹ SV) = irrelevanceTermSV [A] [A]′ t®v SV
 irrelevanceTermSV [A] (emb 0<1 [A]′) t®v (emb¹⁰ SV) = irrelevanceTermSV [A] [A]′ t®v SV
 
-irrelevanceTerm : ∀ {l t v A} → ([A] [A]′ : ε ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A]
-                → t ®⟨ l ⟩ v ∷ A / [A]′
+-- Irrelevance of logical relation for erasure
+
+irrelevanceTerm : ∀ {l l′ t v A}
+                → ([A] : ε ⊩⟨ l ⟩ A)
+                  ([A]′ : ε ⊩⟨ l′ ⟩ A)
+                → t ®⟨ l ⟩ v ∷ A / [A]
+                → t ®⟨ l′ ⟩ v ∷ A / [A]′
 irrelevanceTerm [A] [A]′ t®v = irrelevanceTermSV [A] [A]′ t®v (goodCasesRefl [A] [A]′)
 
+-- Irrelevance of logical relation for erasure with propositionally equal types
 
-irrelevanceTerm′ : ∀ {l t v A} → A PE.≡ A′ → ([A] : ε ⊩⟨ l ⟩ A)
-                 → ([A]′ : ε ⊩⟨ l ⟩ A′) → t ®⟨ l ⟩ v ∷ A / [A]
-                 → t ®⟨ l ⟩ v ∷ A′ / [A]′
+irrelevanceTerm′ : ∀ {l l′ t v A}
+                 → A PE.≡ A′
+                 → ([A] : ε ⊩⟨ l ⟩ A)
+                 → ([A]′ : ε ⊩⟨ l′ ⟩ A′)
+                 → t ®⟨ l ⟩ v ∷ A / [A]
+                 → t ®⟨ l′ ⟩ v ∷ A′ / [A]′
 irrelevanceTerm′ PE.refl [A] [A]′ t®v = irrelevanceTerm [A] [A]′ t®v
 
+-- Irrelevance of quantified logical relation for erasure
 
-
-
-irrelevanceQuant : ∀ {l t v A} → ([A] [A]′ : ε ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A ◂ p / [A]
-                 → t ®⟨ l ⟩ v ∷ A ◂ p / [A]′
+irrelevanceQuant : ∀ {l l′ t v A}
+                 → ([A] : ε ⊩⟨ l ⟩ A)
+                 → ([A]′ : ε ⊩⟨ l′ ⟩ A)
+                 → t ®⟨ l ⟩ v ∷ A ◂ p / [A]
+                 → t ®⟨ l′ ⟩ v ∷ A ◂ p / [A]′
 irrelevanceQuant {𝟘} [A] [A]′ t®v = tt
 irrelevanceQuant {ω} [A] [A]′ t®v = irrelevanceTerm [A] [A]′ t®v
 
-irrelevanceSubst : ∀ {σ σ′ l} → ([Γ] [Γ]′ : ⊩ᵛ Γ) ([σ] : ε ⊩ˢ σ ∷ Γ / [Γ] / ε)
-                           ([σ]′ : ε ⊩ˢ σ ∷ Γ / [Γ]′ / ε)
-                           (σ®σ′ : σ ®⟨ l ⟩ σ′ ∷ Γ ◂ γ / [Γ] / [σ])
-                         → (σ ®⟨ l ⟩ σ′ ∷ Γ ◂ γ / [Γ]′ / [σ]′)
+-- Irrelevance of related substitutions
+
+irrelevanceSubst : ∀ {σ σ′ l}
+                 → ([Γ] [Γ]′ : ⊩ᵛ Γ)
+                   ([σ] : ε ⊩ˢ σ ∷ Γ / [Γ] / ε)
+                   ([σ]′ : ε ⊩ˢ σ ∷ Γ / [Γ]′ / ε)
+                   (σ®σ′ : σ ®⟨ l ⟩ σ′ ∷ Γ ◂ γ / [Γ] / [σ])
+                 → (σ ®⟨ l ⟩ σ′ ∷ Γ ◂ γ / [Γ]′ / [σ]′)
 irrelevanceSubst {Γ = ε} {γ = ε} ε ε tt tt tt = tt
 irrelevanceSubst {Γ = Γ ∙ A} {γ = γ ∙ p} {l = l}
                  ([Γ] ∙ [A]) ([Γ]′ ∙ [A]′) ([tailσ] , b) ([tailσ]′ , d) (σ®σ , t®v) =
-  let σ®σ′ = irrelevanceSubst [Γ] [Γ]′ [tailσ] [tailσ]′ σ®σ
+  let σ®σ′ = irrelevanceSubst {l = l} [Γ] [Γ]′ [tailσ] [tailσ]′ σ®σ
       [σA] = proj₁ ([A] ε [tailσ])
-      t®v′ = irrelevanceQuant {!!} (proj₁ ([A]′ ε [tailσ]′)) t®v
+      t®v′ = irrelevanceQuant {p = p} (proj₁ ([A] ε [tailσ])) (proj₁ ([A]′ ε [tailσ]′)) t®v
   in  σ®σ′ , t®v′
+
+-- Irrelevance of erasure validity
 
 irrelevance : ∀ {l} → ([Γ] [Γ]′ : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ]) ([A]′ : Γ ⊩ᵛ⟨ l ⟩ A / [Γ]′)
               (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷ A / [Γ] / [A]) → (γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷ A / [Γ]′ / [A]′)
-irrelevance [Γ] [Γ]′ [A] [A]′ ⊩ʳt [σ]′ σ®σ′ =
+irrelevance {l = l} [Γ] [Γ]′ [A] [A]′ ⊩ʳt [σ]′ σ®σ′ =
   let [σ] = IS.irrelevanceSubst [Γ]′ [Γ] ε ε [σ]′
-      σ®σ = irrelevanceSubst [Γ]′ [Γ] [σ]′ [σ] σ®σ′
+      σ®σ = irrelevanceSubst {l = l} [Γ]′ [Γ] [σ]′ [σ] σ®σ′
       t®v = ⊩ʳt [σ] σ®σ
   in  irrelevanceTerm (proj₁ ([A] ε [σ])) (proj₁ ([A]′ ε [σ]′)) t®v
