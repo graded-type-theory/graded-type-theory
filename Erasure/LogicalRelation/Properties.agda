@@ -35,7 +35,7 @@ open import Erasure.Extraction
 open import Erasure.Extraction.Properties
 open import Erasure.LogicalRelation
 open import Erasure.LogicalRelation.Conversion
-open import Erasure.Target as T hiding (_⇒*_)
+open import Erasure.Target as T hiding (_⇒_; _⇒*_)
 open import Erasure.Target.Properties as TP
 
 open import Tools.Empty
@@ -177,6 +177,14 @@ subsumption {l = l} [Γ] [A] γ⊩ʳt δ≤γ [σ] σ®σ′ = γ⊩ʳt [σ] (su
 ®-red*ʳ : ∀ {l} ([A] : ε ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v′ ∷ A / [A] → v T.⇒* v′ → t ®⟨ l ⟩ v ∷ A / [A]
 ®-red*ʳ [A] t®v′ refl = t®v′
 ®-red*ʳ [A] t®v′ (trans x v⇒v′) = ®-redʳ [A] (®-red*ʳ [A] t®v′ v⇒v′) x
+
+
+-- Logical relation for erasure is preserved under reduction closure backwards
+-- If t′ ® v′ ∷ A and ε ⊢ t ⇒* t′ ∷ A and v ⇒* v′ then t ® v ∷ A
+
+®-red₁ : ∀ {l} ([A] : ε ⊩⟨ l ⟩ A) → t′ ®⟨ l ⟩ v′ ∷ A / [A]
+       → ε ⊢ t ⇒ t′ ∷ A → v T.⇒ v′ → t ®⟨ l ⟩ v ∷ A / [A]
+®-red₁ [A] t′®v′ t⇒t′ v⇒v′ = ®-redʳ [A] (®-redˡ [A] t′®v′ t⇒t′) v⇒v′
 
 
 -- Logical relation for erasure is preserved under reduction closure backwards

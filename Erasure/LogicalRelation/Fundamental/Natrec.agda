@@ -59,6 +59,73 @@ zeroCaseRed (zeroᵣ x x₁) t⇒zero = x₁
 zeroCaseRed (sucᵣ x x₁ t®v) t⇒zero with whrDet*Term (t⇒zero , zeroₙ) (x , sucₙ)
 ... | ()
 
+
+natrecʳ′ : ∀ {l} {Γ : Con Term n}
+         → ([Γ] : ⊩ᵛ Γ)
+           (let [ℕ] = ℕᵛ {l = l} [Γ])
+           -- ([ℕ] : Γ ⊩ᵛ⟨ l ⟩ ℕ / [Γ])
+           ([A] : Γ ∙ ℕ ⊩ᵛ⟨ l ⟩ A / [Γ] ∙ [ℕ])
+           ([A₊] : Γ ∙ ℕ ∙ A ⊩ᵛ⟨ l ⟩ wk1 (A [ (suc (var x0)) ]↑) / [Γ] ∙ [ℕ] ∙ [A])
+           ([A₀] : Γ ⊩ᵛ⟨ l ⟩ A [ zero ] / [Γ])
+           -- ([Aₘ] : Γ ⊩ᵛ⟨ l ⟩ A [ m ] / [Γ])
+           ([z] : Γ ⊩ᵛ⟨ l ⟩ z ∷ A [ zero ] / [Γ] / [A₀])
+           ([s] : Γ ∙ ℕ ∙ A ⊩ᵛ⟨ l ⟩ s ∷  wk1 (A [ (suc (var x0)) ]↑) / [Γ] ∙ [ℕ] ∙ [A] / [A₊])
+           -- ([m] : Γ ⊩ᵛ⟨ l ⟩ m ∷ ℕ / [Γ] / [ℕ])
+           ([σ] : ε ⊩ˢ σ ∷ Γ / [Γ] / ε)
+         → (σ®σ′ : σ ®⟨ l ⟩ σ′ ∷ Γ ◂ γ ∧ᶜ nrᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ η) (δ +ᶜ p ·ᶜ η) r / [Γ] / [σ])
+         → (⊩ʳz : γ ▸ Γ ⊩ʳ⟨ l ⟩ z ∷ A [ zero ] / [Γ] / [A₀])
+         → (⊩ʳs : δ ∙ p ∙ r ▸ Γ ∙ ℕ ∙ A
+             ⊩ʳ⟨ l ⟩ s ∷ wk1 (A [ (suc (var x0)) ]↑) / [Γ] ∙ [ℕ] ∙ [A] / [A₊])
+           -- → η ▸ Γ ⊩ʳ⟨ l ⟩ m ∷ ℕ / [Γ] / [ℕ]
+         → ([m] : ε ⊩ℕ m ∷ℕ)
+         → natrec p r (subst (liftSubst σ) A) (subst σ z) (subst (liftSubstn σ 2) s) m
+             ®⟨ l ⟩ T.natrec (T.subst σ′ (erase z)) (T.subst (T.liftSubstn σ′ 2) (erase s)) (erase m)
+          ∷ subst (consSubst σ m) A / proj₁ ([A] ε ( [σ] , [m]))
+natrecʳ′ {n} {A} {z} {s} {σ} {σ′} {γ} {δ} {p} {η} {r} {m} {l} {Γ} [Γ] [A] [A₊] [A₀] [z] [s] [σ] σ®σ′ ⊩ʳz ⊩ʳs (ℕₜ _ d n≡n (sucᵣ {n = m'} [m'])) =
+  let A′ = subst (liftSubst σ) A
+      z′ = subst σ z
+      s′ = subst (liftSubst (liftSubst σ)) s
+      -- m′ = subst σ m
+      -- [Aₘ]′ = proj₁ ([Aₘ] ε [σ])
+      [A₀]′ = proj₁ ([A₀] ε [σ])
+      [ℕ] = ℕᵛ {l = l} [Γ]
+      ⊢ℕ = escape (proj₁ ([ℕ] ε [σ]))
+      ⊢A′ = escape (proj₁ ([A] {σ = liftSubst σ} (ε ∙ ⊢ℕ) (liftSubstS {F = ℕ} [Γ] ε [ℕ] [σ])))
+      [⇑⇑σ] = liftSubstS {σ = liftSubst σ} {F = A} (_∙_ {A = ℕ} [Γ] [ℕ]) (ε ∙ ⊢ℕ) [A]
+                         (liftSubstS {F = ℕ} [Γ] ε [ℕ] [σ])
+      Γ₊ = ε ∙ ℕ ∙ subst (liftSubst σ) A
+      σ′ = consSubst σ m'
+      [A₊]′ : Γ₊ ⊩⟨ l ⟩ subst (liftSubst (liftSubst σ)) (wk1 (A [ suc (var x0) ]↑))
+      [A₊]′ = {! proj₁ ([A₊] {σ = ?} ε ?) !} -- ([σ] , [m'] , ?)
+
+      -- [A₊]′ : Γ₊ ⊩⟨ l ⟩ subst (liftSubst (liftSubst σ)) (wk1 (A [ suc (var x0) ]↑))
+      -- [A₊]′ = proj₁ ([A₊] {σ = liftSubst (liftSubst σ)} (ε ∙ ⊢ℕ ∙ ⊢A′) [⇑⇑σ])
+      [A₊]″ : ε ⊩⟨ l ⟩ subst (liftSubst σ) A [ suc m' ]
+      [A₊]″ = {![A₊]′!} -- {!PE.subst (λ □ → Γ₊ ⊩⟨ l ⟩ □) {! (natrecSucCase σ A) !} [A₊]′!}
+         -- singleSubstLift↑
+      ⊢z′ = escapeTerm [A₀]′ (proj₁ ([z] ε [σ]))
+      ⊢z″ = PE.subst (λ A → ε ⊢ subst σ z ∷ A)
+                     (PE.trans (PE.sym (substConsId A))
+                               (PE.sym (singleSubstComp zero σ A)))
+                     ⊢z′
+      ⊢s′ = escapeTerm [A₊]′ (proj₁ ([s] (ε ∙ ⊢ℕ ∙ ⊢A′) [⇑⇑σ]))
+      m′≡succ = subset*Term (redₜ d)
+      ⊩ʳnr = natrecʳ′ [Γ] [A] [A₊] [A₀] [z] [s] [σ] σ®σ′ ⊩ʳz ⊩ʳs [m']
+      σ®σ′ᵐ = subsumption′ σ®σ′ (≤ᶜ-trans (∧ᶜ-decreasingʳ γ _)
+                                (≤ᶜ-trans (nrᶜ-decreasingʳ _ _ r)
+                                (≤ᶜ-trans (+ᶜ-decreasingʳ δ (p ·ᶜ η)) {!!})))
+      σ®σ′ˢ = subsumption′ σ®σ′ (≤ᶜ-trans (∧ᶜ-decreasingʳ γ _)
+                                (≤ᶜ-trans (nrᶜ-decreasingʳ _ _ r) (+ᶜ-decreasingˡ δ (p ·ᶜ η))))
+      -- m®w = ⊩ʳm [σ] σ®σ′ᵐ
+      s®v = ⊩ʳs {!!} ((σ®σ′ˢ , {!m®w!}) , {!!})
+  in  ®-red₁ [A₊]″ {!⊩ʳs {! [σ] , [m'] , ? !} {! σ®σ′ !} !} (natrec-suc {!!} ⊢A′ ⊢z″ {!!}) T.natrec-suc
+
+natrecʳ′ {n} {A} {z} {s} {σ} {σ′} {γ} {δ} {p} {η} {r} {m} {l} {Γ} [Γ] [A] [A₊] [A₀] [z] [s] [σ] σ® ⊩ʳz ⊩ʳs (ℕₜ _ d n≡n zeroᵣ) = {!!}
+natrecʳ′ {n} {A} {z} {s} {σ} {σ′} {γ} {δ} {p} {η} {r} {m} {l} {Γ} [Γ] [A] [A₊] [A₀] [z] [s] [σ] σ® ⊩ʳz ⊩ʳs (ℕₜ n₁ d n≡n (ne x)) = {!!}
+
+         -- → subst σ (natrec p r A z s m) ®⟨ l ⟩ T.subst σ′ (erase (natrec p r A z s m)) ∷ subst σ (A [ m ]) / proj₁ ([Aₘ] ε [σ])
+
+{-
 natrecʳ′ : ∀ {l} {Γ : Con Term n}
          → ([Γ] : ⊩ᵛ Γ)
            ([ℕ] : Γ ⊩ᵛ⟨ l ⟩ ℕ / [Γ])
@@ -97,7 +164,7 @@ natrecʳ′ {A = A} {m} {z} {s} {σ = σ} {σ′ = σ′} {γ = γ} {δ} {p} {η
                      ⊢z′
       ⊢s′ = escapeTerm [A₊]′ (proj₁ ([s] (ε ∙ ⊢ℕ ∙ ⊢A′) [⇑⇑σ]))
       m′≡succ = subset*Term (redₜ d)
-      ⊩ʳnr = natrecʳ′ [Γ] [ℕ] [A] [A₊] [A₀] {!!} [z] [s] {!!} [σ] σ®σ′ ⊩ʳz ⊩ʳs {!!} {!x!}
+      ⊩ʳnr = natrecʳ′ [Γ] [ℕ] [A] [A₊] [A₀] {![Aₘ]!} [z] [s] {!!} [σ] σ®σ′ ⊩ʳz ⊩ʳs {!!} {!x!}
       σ®σ′ᵐ = subsumption′ σ®σ′ (≤ᶜ-trans (∧ᶜ-decreasingʳ γ _)
                                 (≤ᶜ-trans (nrᶜ-decreasingʳ _ _ r)
                                 (≤ᶜ-trans (+ᶜ-decreasingʳ δ (p ·ᶜ η)) {!!})))
@@ -150,3 +217,10 @@ natrecʳ′ {A = A} {m} {z} {s} {σ = σ} {σ′ = σ′} {γ = γ} {δ} {p} {η
   in  convTermʳ [A₀]″ [Aₘ]′ (sym A[m]≡A[0]′) z®v″
 natrecʳ′ [Γ] [ℕ] [A] [A₊] [A₀] [Aₘ] [z] [s] [m] [σ] σ®σ′ ⊩ʳz ⊩ʳs ⊩ʳm
          (ℕₜ n d n≡n (ne (neNfₜ neK ⊢k k≡k))) = PE.⊥-elim (noClosedNe neK)
+
+-- -}
+-- -}
+-- -}
+-- -}
+-- -}
+-- -}
