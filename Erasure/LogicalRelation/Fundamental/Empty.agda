@@ -44,7 +44,7 @@ Emptyʳ ⊢Γ =
   in  [Γ] , [U] , λ [σ] x → Uᵣ (Emptyⱼ ε) T.refl
 
 Emptyrecʳ′ : ∀ {l} → ([Empty] : ε ⊩⟨ l ⟩ Empty) → t ®⟨ l ⟩ v ∷ Empty / [Empty] → ⊥
-Emptyrecʳ′ [Empty] t®v with irrelevanceTerm [Empty] (Emptyᵣ ([ Emptyⱼ ε , Emptyⱼ ε , id (Emptyⱼ ε) ])) t®v
+Emptyrecʳ′ {l = l} [Empty] t®v with irrelevanceTerm {l′ = l} [Empty] (Emptyᵣ ([ Emptyⱼ ε , Emptyⱼ ε , id (Emptyⱼ ε) ])) t®v
 ... | ()
 
 Emptyrecʳ : ∀ {l p} → ([Γ] : ⊩ᵛ Γ) → ([Empty] : Γ ⊩ᵛ⟨ l ⟩ Empty / [Γ])
