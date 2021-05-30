@@ -42,6 +42,7 @@ open import Erasure.LogicalRelation.Fundamental.Application
 open import Erasure.LogicalRelation.Fundamental.Empty
 open import Erasure.LogicalRelation.Fundamental.Lambda
 open import Erasure.LogicalRelation.Fundamental.Nat
+open import Erasure.LogicalRelation.Fundamental.Natrec
 open import Erasure.LogicalRelation.Fundamental.Product
 open import Erasure.LogicalRelation.Fundamental.Unit
 
@@ -197,8 +198,8 @@ fundamental (sucⱼ {n = t} Γ⊢t:ℕ) γ▸t =
       δ⊩ʳsuct = sucʳ [Γ] [ℕ] ⊩ʳt Γ⊢t:ℕ
       γ⊩ʳsuct = subsumption {t = suc t} {A = ℕ} [Γ] [ℕ] δ⊩ʳsuct γ≤δ
   in  [Γ] , [ℕ] , γ⊩ʳsuct
-fundamental (natrecⱼ {G = A} {s = s} {z = z} {n = n} Γ⊢A Γ⊢z:A Γ⊢s:A Γ⊢n:ℕ) γ▸t =
-  let invUsageNatrec δ▸z η▸s θ▸n le = inv-usage-natrec γ▸t
+fundamental (natrecⱼ {p = p} {r = r} {G = A} {s = s} {z = z} {n = n} Γ⊢A Γ⊢z:A Γ⊢s:A Γ⊢n:ℕ) γ▸t =
+  let invUsageNatrec δ▸z η▸s θ▸n γ≤γ′ = inv-usage-natrec γ▸t
       [Γ]   , [A₀]  , ⊩ʳz  = fundamental Γ⊢z:A δ▸z
       [ΓℕA] , [A₊]′ , ⊩ʳs′ = fundamental Γ⊢s:A η▸s
       [Γ]′  , [ℕ]′  , ⊩ʳn′ = fundamental Γ⊢n:ℕ θ▸n
@@ -208,11 +209,20 @@ fundamental (natrecⱼ {G = A} {s = s} {z = z} {n = n} Γ⊢A Γ⊢z:A Γ⊢s:A 
       [A] = IS.irrelevance {A = A} [Γℕ]′ [Γℕ] [A]′
       [A₊] = IS.irrelevance {A = wk1 (A [ (suc (var x0)) ]↑)}
                             [ΓℕA] ([Γℕ] ∙ [A]) [A₊]′
-      [Γ]″ , [ℕ]″ , [n]′ = F.fundamentalTerm Γ⊢n:ℕ
-      [n] = IS.irrelevanceTerm {A = ℕ} {t = n} [Γ]″ [Γ] [ℕ]″ [ℕ]
-      ⊩ʳs = irrelevance [ΓℕA] ([Γℕ] ∙ [A]) [A₊]′ [A₊] ⊩ʳs′
-      ⊩ʳn = irrelevance [Γ]′ [Γ] [ℕ]′ [ℕ] ⊩ʳn′
-  in  [Γ] , {![A]!} , {![n]!}
+      [Γ]ᶻ , [A]ᶻ , [z]′ = F.fundamentalTerm Γ⊢z:A
+      [z] = IS.irrelevanceTerm {A = A [ zero ]} {t = z} [Γ]ᶻ [Γ] [A]ᶻ [A₀] [z]′
+      [Γ]ˢ , [A]ˢ , [s]′ = F.fundamentalTerm Γ⊢s:A
+      [s] = IS.irrelevanceTerm {A = wk1 (A [ (suc (var x0)) ]↑)} {t = s}
+                               [Γ]ˢ ([Γℕ] ∙ [A]) [A]ˢ [A₊] [s]′
+      [Γ]ⁿ , [ℕ]ⁿ , [n]′ = F.fundamentalTerm Γ⊢n:ℕ
+      [n] = IS.irrelevanceTerm {A = ℕ} {t = n} [Γ]ⁿ [Γ] [ℕ]ⁿ [ℕ] [n]′
+      ⊩ʳs = irrelevance {A = wk1 (A [ (suc (var x0)) ]↑)} {t = s}
+                        [ΓℕA] ([Γℕ] ∙ [A]) [A₊]′ [A₊] ⊩ʳs′
+      ⊩ʳn = irrelevance {A = ℕ} {t = n} [Γ]′ [Γ] [ℕ]′ [ℕ] ⊩ʳn′
+      [A[n]] , ⊩ʳnatrec = natrecʳ {A = A} {z = z} {s = s} {m = n}
+                                  [Γ] [A] [A₊] [A₀] [z] [s] [n] ⊩ʳz ⊩ʳs ⊩ʳn
+  in  [Γ] , [A[n]] , subsumption {t = natrec p r A z s n} {A = A [ n ]}
+                                 [Γ] [A[n]] ⊩ʳnatrec γ≤γ′
 fundamental {Γ = Γ} {γ = γ} (Emptyrecⱼ {p = p} {A = A} {e = t} ⊢A Γ⊢t:Empty) γ▸t =
   let invUsageEmptyrec δ▸t γ≤δ = inv-usage-Emptyrec γ▸t
       [Γ] , [Empty] , ⊩ʳt = fundamental Γ⊢t:Empty δ▸t
