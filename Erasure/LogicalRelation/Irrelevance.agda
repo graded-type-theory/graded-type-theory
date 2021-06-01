@@ -133,8 +133,8 @@ irrelevanceSubst {Γ = Γ ∙ A} {γ = γ ∙ p} {l = l}
 
 -- Irrelevance of erasure validity
 
-irrelevance : ∀ {l} → ([Γ] [Γ]′ : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ]) ([A]′ : Γ ⊩ᵛ⟨ l ⟩ A / [Γ]′)
-              (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷ A / [Γ] / [A]) → (γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷ A / [Γ]′ / [A]′)
+irrelevance : ∀ {l l′} → ([Γ] [Γ]′ : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ]) ([A]′ : Γ ⊩ᵛ⟨ l′ ⟩ A / [Γ]′)
+              (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷ A / [Γ] / [A]) → (γ ▸ Γ ⊩ʳ⟨ l′ ⟩ t ∷ A / [Γ]′ / [A]′)
 irrelevance {l = l} [Γ] [Γ]′ [A] [A]′ ⊩ʳt [σ]′ σ®σ′ =
   let [σ] = IS.irrelevanceSubst [Γ]′ [Γ] ε ε [σ]′
       σ®σ = irrelevanceSubst {l = l} [Γ]′ [Γ] [σ]′ [σ] σ®σ′
