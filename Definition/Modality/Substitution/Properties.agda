@@ -433,7 +433,9 @@ substₘ-lemma Ψ σ Ψ▶σ (natrecₘ {γ = γ} {δ = δ} {p} {r} {η = η} γ
     Ψ *> γ ∧ᶜ nrᶜ (Ψ *> δ +ᶜ p ·ᶜ Ψ *> η +ᶜ r ·ᶜ Ψ *> γ) (Ψ *> δ +ᶜ p ·ᶜ Ψ *> η) r ∎
     where open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-substₘ-lemma Ψ σ Ψ▶σ (Emptyrecₘ γ▸t) = Emptyrecₘ (substₘ-lemma Ψ σ Ψ▶σ γ▸t)
+substₘ-lemma Ψ σ Ψ▶σ (Emptyrecₘ γ▸t) = sub (Emptyrecₘ (substₘ-lemma Ψ σ Ψ▶σ γ▸t))
+                                           (≤ᶜ-reflexive (*>-distrib-·ᶜ Ψ _ _))
+
 substₘ-lemma Ψ σ Ψ▶σ starₘ           = sub starₘ (≤ᶜ-reflexive (*>-zeroʳ Ψ))
 substₘ-lemma Ψ σ Ψ▶σ (sub γ▸t x)     = sub (substₘ-lemma Ψ σ Ψ▶σ γ▸t) (*>-monotone Ψ x)
 

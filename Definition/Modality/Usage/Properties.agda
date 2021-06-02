@@ -22,6 +22,7 @@ open import Tools.Fin
 open import Tools.Nat hiding (_+_)
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
+open import Tools.Reasoning.PropositionalEquality
 
 open Modality 𝕄
 
@@ -54,7 +55,6 @@ Conₘ-interchange Unitₘ Unitₘ x   = subst (_▸ _) (PE.sym (update-self �
 Conₘ-interchange (Πₘ {γ} {δ = δ} γ▸t δ▸u) (Πₘ {γ′} {δ = δ′} γ′▸t δ′▸u) x = subst (_▸ _)  eq
   (Πₘ (Conₘ-interchange γ▸t γ′▸t x) (Conₘ-interchange δ▸u δ′▸u (x +1)))
   where
-  open import Tools.Reasoning.PropositionalEquality
   eq = begin
     (γ , x ≔ γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩) ≡˘⟨ update-distrib-+ᶜ γ δ _ _ x ⟩
     (γ +ᶜ δ , x ≔ γ′ ⟨ x ⟩ + δ′ ⟨ x ⟩)       ≡˘⟨ cong ((γ +ᶜ δ) , x ≔_) (lookup-distrib-+ᶜ γ′ δ′ x) ⟩
@@ -63,7 +63,6 @@ Conₘ-interchange (Πₘ {γ} {δ = δ} γ▸t δ▸u) (Πₘ {γ′} {δ = δ�
 Conₘ-interchange (Σₘ {γ} {δ = δ} γ▸t δ▸u) (Σₘ {γ′} {δ = δ′} γ′▸t δ′▸u) x = subst (_▸ _)  eq
   (Σₘ (Conₘ-interchange γ▸t γ′▸t x) (Conₘ-interchange δ▸u δ′▸u (x +1)))
   where
-  open import Tools.Reasoning.PropositionalEquality
   eq = begin
     (γ , x ≔ γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩) ≡˘⟨ update-distrib-+ᶜ γ δ _ _ x ⟩
     (γ +ᶜ δ , x ≔ γ′ ⟨ x ⟩ + δ′ ⟨ x ⟩)       ≡˘⟨ cong ((γ +ᶜ δ) , x ≔_) (lookup-distrib-+ᶜ γ′ δ′ x) ⟩
@@ -77,7 +76,6 @@ Conₘ-interchange (lamₘ γ▸t) (lamₘ δ▸t) x = lamₘ (Conₘ-interchang
 Conₘ-interchange (_∘ₘ_ {γ} {δ = δ} {p = p} γ▸t δ▸u) (_∘ₘ_ {γ′} {δ = δ′} γ′▸t δ′▸u) x =
   subst (_▸ _) eq ((Conₘ-interchange γ▸t γ′▸t x) ∘ₘ (Conₘ-interchange δ▸u δ′▸u x))
   where
-  open import Tools.Reasoning.PropositionalEquality
   eq = begin
     (γ , x ≔ (γ′ ⟨ x ⟩)) +ᶜ p ·ᶜ (δ , x ≔ (δ′ ⟨ x ⟩))
        ≡˘⟨ cong (_ +ᶜ_) (update-distrib-·ᶜ δ p _ x) ⟩
@@ -101,7 +99,6 @@ Conₘ-interchange (sndₘ γ▸t) (sndₘ δ▸t) x = subst (_▸ _) (PE.sym (u
 Conₘ-interchange (prodrecₘ {γ} {δ = δ} {p} γ▸t δ▸u) (prodrecₘ {γ′} {δ = δ′} γ′▸t δ′▸u) x =
   subst (_▸ _) eq (prodrecₘ (Conₘ-interchange γ▸t γ′▸t x) (Conₘ-interchange δ▸u δ′▸u (x +1 +1)))
   where
-  open import Tools.Reasoning.PropositionalEquality
   eq = begin
      p ·ᶜ (γ , x ≔ (γ′ ⟨ x ⟩)) +ᶜ (δ , x ≔ (δ′ ⟨ x ⟩))
          ≡˘⟨ cong (_+ᶜ _) (update-distrib-·ᶜ γ p _ x) ⟩
@@ -122,7 +119,6 @@ Conₘ-interchange (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} γ�
                            (Conₘ-interchange δ▸s δ′▸s (x +1 +1))
                            (Conₘ-interchange η▸n η′▸n x))
   where
-  open import Tools.Reasoning.PropositionalEquality
   eq = let γ'  = γ , x ≔ (γ′ ⟨ x ⟩)
            δ'  = δ , x ≔ (δ′ ⟨ x ⟩)
            η'  = η , x ≔ (η′ ⟨ x ⟩)
@@ -185,8 +181,15 @@ Conₘ-interchange (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} γ�
          (γ ∧ᶜ nrᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ) (δ +ᶜ p ·ᶜ η) r) ,
            x ≔ ((γ′ ∧ᶜ nrᶜ (δ′ +ᶜ p ·ᶜ η′ +ᶜ r ·ᶜ γ′) (δ′ +ᶜ p ·ᶜ η′) r) ⟨ x ⟩) ∎
 
-Conₘ-interchange (Emptyrecₘ γ▸t) (Emptyrecₘ δ▸t) x = Emptyrecₘ (Conₘ-interchange γ▸t δ▸t x)
+Conₘ-interchange (Emptyrecₘ {γ} {p = p} γ▸t) (Emptyrecₘ {δ} δ▸t) x = subst (_▸ _) eq (Emptyrecₘ (Conₘ-interchange γ▸t δ▸t x))
+  where
+  eq = begin
+    p ·ᶜ (γ , x ≔ δ ⟨ x ⟩)      ≡˘⟨ update-distrib-·ᶜ γ p (δ ⟨ x ⟩) x ⟩
+    p ·ᶜ γ , x ≔ p · (δ ⟨ x ⟩)  ≡˘⟨ cong (_ , _ ≔_) (lookup-distrib-·ᶜ δ p x) ⟩
+    p ·ᶜ γ , x ≔ (p ·ᶜ δ) ⟨ x ⟩ ∎
+
 Conₘ-interchange starₘ starₘ x = subst (_▸ _) (PE.sym (update-self 𝟘ᶜ x)) starₘ
+
 
 -- ⌈ t ⌉ is an upper bound on valid modality contexts
 -- If γ ▸ t, then γ ≤ ⌈ t ⌉
@@ -237,7 +240,7 @@ usage-upper-bound (natrecₘ {z = z} {s = s} {n = n} γ▸z δ▸s η▸n) = ∧
   δ≤δ′ = usage-upper-bound δ▸s
   η≤η′ = usage-upper-bound η▸n
 
-usage-upper-bound (Emptyrecₘ e) = usage-upper-bound e
+usage-upper-bound (Emptyrecₘ e) = ·ᶜ-monotoneʳ (usage-upper-bound e)
 usage-upper-bound starₘ         = ≤ᶜ-refl
 usage-upper-bound (sub t x)     = ≤ᶜ-trans x (usage-upper-bound t)
 
@@ -284,7 +287,7 @@ usage-calc-term′ {n = n} (prodrecⱼ {p = p} {u = u}
       (subst₂ _▸_ eq refl (Conₘ-interchange (Conₘ-interchange
                           (usage-calc-term′ Γ⊢u:A η▸u) η▸u (x0 +1)) η▸u x0))
   where
-  open import Tools.Reasoning.PropositionalEquality
+
   γu = ⌈ u ⌉
   eq =  begin
      ((γu , x0 +1 ≔ p) , x0 ≔ p)

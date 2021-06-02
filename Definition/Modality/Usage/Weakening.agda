@@ -118,7 +118,14 @@ liftn-usage ℓ (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} γ▸z 
     nrᶜ (insertAt ℓ δ 𝟘 +ᶜ p ·ᶜ insertAt ℓ η 𝟘 +ᶜ r ·ᶜ insertAt ℓ γ 𝟘)
         (insertAt ℓ δ 𝟘 +ᶜ p ·ᶜ insertAt ℓ η 𝟘) r ∎
 
-liftn-usage ℓ (Emptyrecₘ γ▸t) = Emptyrecₘ (liftn-usage ℓ γ▸t)
+liftn-usage ℓ (Emptyrecₘ {γ = γ} {p = p} γ▸t) = sub (Emptyrecₘ (liftn-usage ℓ γ▸t)) eq
+  where
+  open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
+  eq = begin
+   insertAt ℓ (p ·ᶜ γ) 𝟘        ≈˘⟨ insertAt-cong ≈ᶜ-refl (proj₂ ·-zero p) ⟩
+   insertAt ℓ (p ·ᶜ γ) (p · 𝟘)  ≡⟨ insertAt-distrib-·ᶜ ℓ γ p 𝟘 ⟩
+   p ·ᶜ insertAt ℓ γ 𝟘          ∎
+
 liftn-usage ℓ starₘ           =  subst (_▸ star) (PE.sym (insertAt-𝟘 ℓ)) starₘ
 
 liftn-usage ℓ (sub γ▸t x) = sub (liftn-usage ℓ γ▸t)
