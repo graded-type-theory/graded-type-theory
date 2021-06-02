@@ -87,7 +87,7 @@ data _▸_ {n : Nat} : (γ : Conₘ n) → Term n → Set where
             → γ ∧ᶜ nrᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ) (δ +ᶜ p ·ᶜ η) r ▸ natrec p r G z s n
 
   Emptyrecₘ : γ ▸ t
-            → γ ▸ Emptyrec p A t
+            → p ·ᶜ γ ▸ Emptyrec p A t
 
   starₘ     : 𝟘ᶜ ▸ star
 
@@ -122,7 +122,7 @@ mutual
   gen-usage Unitkind  []                     = 𝟘ᶜ
   gen-usage Starkind  []                     = 𝟘ᶜ
   gen-usage Emptykind []                     = 𝟘ᶜ
-  gen-usage (Emptyreckind p) (A ∷ e ∷ [])    = ⌈ e ⌉
+  gen-usage (Emptyreckind p) (A ∷ e ∷ [])    = p ·ᶜ ⌈ e ⌉
   gen-usage (Natreckind p r) (G ∷ z ∷ s ∷ n ∷ []) =
     let γ  = ⌈ z ⌉
         δ′ = ⌈ s ⌉

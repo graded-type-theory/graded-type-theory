@@ -214,16 +214,16 @@ inv-usage-natrec (sub γ▸natrec γ≤γ′) with inv-usage-natrec γ▸natrec
 ... | invUsageNatrec δ▸z δ▸s η▸n γ′≤γ″ = invUsageNatrec δ▸z δ▸s η▸n (≤ᶜ-trans γ≤γ′ γ′≤γ″)
 
 
-record InvUsageEmptyrec {n} (γ : Conₘ n) (t : Term n) : Set where
+record InvUsageEmptyrec {n} (p : M) (γ : Conₘ n) (t : Term n) : Set where
   constructor invUsageEmptyrec
   field
     {δ} : Conₘ n
     δ▸t : δ ▸ t
-    γ≤δ : γ ≤ᶜ δ
+    γ≤δ : γ ≤ᶜ p ·ᶜ δ
 
 -- If γ ▸ Emptyrec p A t then δ ▸ t and γ ≤ᶜ δ
 
-inv-usage-Emptyrec : γ ▸ Emptyrec p A t → InvUsageEmptyrec γ t
+inv-usage-Emptyrec : γ ▸ Emptyrec p A t → InvUsageEmptyrec p γ t
 inv-usage-Emptyrec (Emptyrecₘ δ▸t) = invUsageEmptyrec δ▸t ≤ᶜ-refl
 inv-usage-Emptyrec (sub γ▸et γ≤γ′) with inv-usage-Emptyrec γ▸et
 ... | invUsageEmptyrec δ▸t γ′≤δ = invUsageEmptyrec δ▸t (≤ᶜ-trans γ≤γ′ γ′≤δ)
