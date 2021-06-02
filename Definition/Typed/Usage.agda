@@ -58,7 +58,7 @@ usagePresTerm γ▸u′ (Σ-β₂ x x₁ x₂ x₃ x₄) with inv-usage-snd γ�
   (≤ᶜ-trans γ≤𝟘 (proj₂ (+ᶜ-positive δ η 𝟘≤δ+η)))
 usagePresTerm γ▸ptu (prodrec-subst x x₁ x₂ x₃ t⇒t′) with inv-usage-prodrec γ▸ptu
 ... | invUsageProdrec δ▸t η▸u γ≤pδ+η = sub (prodrecₘ (usagePresTerm δ▸t t⇒t′) η▸u) γ≤pδ+η
-usagePresTerm {γ = γ} γ▸ptu (prodrec-β {p} x x₁ x₂ x₃ x₄ x₅) with inv-usage-prodrec γ▸ptu
+usagePresTerm {γ = γ} γ▸ptu (prodrec-β {p = p} x x₁ x₂ x₃ x₄ x₅) with inv-usage-prodrec γ▸ptu
 ... | invUsageProdrec {δ} {η} δ▸tt′ η▸u γ≤pδ+η with inv-usage-prod δ▸tt′
 ... | invUsageProd {δ = δ′} {η = η′} δ′▸t η′▸t′ refl δ≤δ′+η′ = sub
   (doubleSubstₘ-lemma η▸u η′▸t′ δ′▸t)
