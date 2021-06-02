@@ -12,7 +12,6 @@ import Definition.LogicalRelation.Fundamental Erasure as F
 open import Definition.LogicalRelation.Fundamental.Reducibility Erasure
 import Definition.LogicalRelation.Irrelevance Erasure as I
 open import Definition.LogicalRelation.Properties.Escape Erasure
--- open import Definition.LogicalRelation.ShapeView Erasure
 open import Definition.LogicalRelation.Substitution Erasure
 open import Definition.LogicalRelation.Substitution.Conversion Erasure
 open import Definition.LogicalRelation.Substitution.Escape Erasure
@@ -228,10 +227,9 @@ fundamental {Γ = Γ} {γ = γ} (Emptyrecⱼ {p = p} {A = A} {e = t} ⊢A Γ⊢t
       [Γ] , [Empty] , ⊩ʳt = fundamental Γ⊢t:Empty δ▸t
       [Γ]′ , [A]′ = F.fundamental ⊢A
       [A] = IS.irrelevance {A = A} [Γ]′ [Γ] [A]′
-      δ⊩ʳEmptyrec = Emptyrecʳ {t = t} {A = A} {p = p} [Γ] [Empty] ⊩ʳt [A]
-      γ⊩ʳEmptyrec : γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ Emptyrec p A t ∷ A / [Γ] / [A]
-      γ⊩ʳEmptyrec = subsumption {t = Emptyrec p A t} {A = A}
-                                [Γ] [A] δ⊩ʳEmptyrec γ≤δ
+      [Γ]″ , [Empty]′ , [t]′ = F.fundamentalTerm Γ⊢t:Empty
+      [t] = IS.irrelevanceTerm {A = Empty} {t = t} [Γ]″ [Γ] [Empty]′ [Empty] [t]′
+      γ⊩ʳEmptyrec = Emptyrecʳ {A = A} {t = t} {p = p} [Γ] [Empty] [A] [t]
   in  [Γ] , [A] , γ⊩ʳEmptyrec
 fundamental (starⱼ ⊢Γ) γ▸t = starʳ ⊢Γ
 fundamental (conv {t = t} {A = A} {B = B} Γ⊢t:A A≡B) γ▸t =

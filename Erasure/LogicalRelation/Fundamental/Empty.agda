@@ -8,15 +8,17 @@ module Erasure.LogicalRelation.Fundamental.Empty {{eqrel : EqRelSet Erasure}} wh
 open EqRelSet {{...}}
 
 open import Erasure.LogicalRelation
-open import Erasure.LogicalRelation.Irrelevance
+open import Erasure.LogicalRelation.Properties
 import Erasure.Target as T
 
 open import Definition.Untyped Erasure
+open import Definition.Untyped.Properties Erasure
 open import Definition.Typed Erasure
 
 open import Definition.LogicalRelation Erasure
 open import Definition.LogicalRelation.Fundamental Erasure
 open import Definition.LogicalRelation.Substitution Erasure
+open import Definition.LogicalRelation.Substitution.Irrelevance Erasure
 open import Definition.LogicalRelation.Substitution.Introductions.Universe Erasure
 open import Definition.LogicalRelation.Substitution.Introductions.Empty Erasure
 
@@ -43,14 +45,21 @@ Emptyʳ ⊢Γ =
       [U] = Uᵛ [Γ]
   in  [Γ] , [U] , λ [σ] x → Uᵣ (Emptyⱼ ε) T.refl
 
-Emptyrecʳ′ : ∀ {l} → ([Empty] : ε ⊩⟨ l ⟩ Empty) → t ®⟨ l ⟩ v ∷ Empty / [Empty] → ⊥
-Emptyrecʳ′ {l = l} [Empty] t®v with irrelevanceTerm {l′ = l} [Empty] (Emptyᵣ ([ Emptyⱼ ε , Emptyⱼ ε , id (Emptyⱼ ε) ])) t®v
-... | ()
 
-Emptyrecʳ : ∀ {l p} → ([Γ] : ⊩ᵛ Γ) → ([Empty] : Γ ⊩ᵛ⟨ l ⟩ Empty / [Γ])
-          → (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷ Empty / [Γ] / [Empty])
+Emptyrecʳ′ : ∀ {l p} → ([Γ] : ⊩ᵛ Γ)
           → ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ])
+          → ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ Empty / [Γ] / Emptyᵛ [Γ])
           → γ ▸ Γ ⊩ʳ⟨ l ⟩ Emptyrec p A t ∷ A / [Γ] / [A]
-Emptyrecʳ [Γ] [Empty] ⊩ʳt [A] [σ] σ®σ′ =
-  let t®v:Empty = ⊩ʳt [σ] σ®σ′
-  in  ⊥-elim (Emptyrecʳ′ (proj₁ ([Empty] ε [σ])) t®v:Empty)
+Emptyrecʳ′ [Γ] [A] [t] [σ] σ®σ′ with proj₁ ([t] ε [σ])
+... | Emptyₜ n d n≡n (ne (neNfₜ neK ⊢k k≡k)) = ⊥-elim (noClosedNe neK)
+
+
+Emptyrecʳ : ∀ {l p} → ([Γ] : ⊩ᵛ Γ)
+          → ([Empty] : Γ ⊩ᵛ⟨ l ⟩ Empty / [Γ])
+          → ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ])
+          → ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ Empty / [Γ] / [Empty])
+          → γ ▸ Γ ⊩ʳ⟨ l ⟩ Emptyrec p A t ∷ A / [Γ] / [A]
+Emptyrecʳ {A = A} {t = t} {l = l} {p} [Γ] [Empty] [A] [t] [σ] σ®σ′ =
+  let [Empty]′ = Emptyᵛ {l = l} [Γ]
+      [t]′ = irrelevanceTerm {A = Empty} {t = t} [Γ] [Γ] [Empty] [Empty]′ [t]
+  in  Emptyrecʳ′ {A = A} {t = t} {p = p} [Γ] [A] [t]′ [σ] σ®σ′

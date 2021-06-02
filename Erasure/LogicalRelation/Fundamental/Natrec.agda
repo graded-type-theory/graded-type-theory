@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K   #-}
+{-# OPTIONS --without-K --allow-unsolved-metas  #-}
 open import Definition.Modality.Erasure
 
 open import Definition.Typed.EqualityRelation
