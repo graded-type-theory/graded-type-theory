@@ -30,7 +30,8 @@ open import Tools.PropositionalEquality
 private
   variable
     n : Nat
-    t t′ : Term n
+    t t′ F : Term n
+    G : Term (1+ n)
     v v′ : T.Term n
 
 -- WH reduction soundness of natural numbers
@@ -74,3 +75,14 @@ soundness-suc t⇒suc γ▸t =
       [ℕ] , t®t′ = fundamental′ ⊢t γ▸t
       t®t″ = irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ ([ ℕⱼ ε , ℕⱼ ε , id (ℕⱼ ε) ])) t®t′
   in  soundness-suc′ t®t″ t⇒suc
+
+
+soundness-star′ : t ® v ∷Unit → v T.⇒* T.star
+soundness-star′ (starᵣ _ v⇒star) = v⇒star
+
+soundness-star : ε ⊢ t ⇒* star ∷ Unit → ε ▸ t → erase t T.⇒* T.star
+soundness-star t⇒star γ▸t =
+  let ⊢t = redFirst*Term t⇒star
+      [⊤] , t®t′ = fundamental′ ⊢t γ▸t
+      t®t″ = irrelevanceTerm {l′ = ¹} [⊤] (Unitᵣ ([ Unitⱼ ε , Unitⱼ ε , id (Unitⱼ ε) ])) t®t′
+  in  soundness-star′ t®t″
