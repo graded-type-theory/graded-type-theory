@@ -10,6 +10,7 @@ open EqRelSet {{...}}
 open import Definition.Untyped Erasure hiding (_∷_)
 open import Definition.Untyped.Properties Erasure
 open import Definition.Typed Erasure
+open import Definition.Typed.RedSteps Erasure
 open import Definition.Typed.Properties Erasure
 open import Definition.Typed.Consequences.Syntactic Erasure
 open import Definition.Typed.Consequences.Inversion Erasure
@@ -18,6 +19,7 @@ open import Definition.Modality.Context ErasureModality
 open import Definition.Modality.Usage ErasureModality
 
 import Erasure.Target as T
+open import Erasure.Target.Properties.Reduction
 open import Erasure.Extraction
 open import Erasure.LogicalRelation
 open import Erasure.LogicalRelation.Fundamental
@@ -35,6 +37,46 @@ private
     v v′ : T.Term n
 
 -- WH reduction soundness of natural numbers
+
+-- Canonical representation of natural numbers
+
+sucᵏ : (k : Nat) → Term n
+sucᵏ 0      = zero
+sucᵏ (1+ n) = suc (sucᵏ n)
+
+sucᵏ′ : (k : Nat) → T.Term n
+sucᵏ′ 0      = T.zero
+sucᵏ′ (1+ n) = T.suc (sucᵏ′ n)
+
+-- Weak head representation of natural numbers
+
+data WHℕ : (n : Nat) → Term 0 → Set where
+  zeroʷ : ε ⊢ t ⇒* zero ∷ ℕ → WHℕ 0 t
+  sucʷ  : ε ⊢ t ⇒* suc t′ ∷ ℕ → WHℕ n t′ → WHℕ (1+ n) t
+
+data WHℕ′ : (n : Nat) → T.Term 0 → Set where
+  zeroʷ : v T.⇒* T.zero → WHℕ′ 0 v
+  sucʷ  : v T.⇒* T.suc v′ → WHℕ′ n v′ → WHℕ′ (1+ n) v
+
+
+-- Weak head representations are equivallent to canonical representations
+-- when reductions are allowed under the head of suc
+
+-- If (∀ t t′ → ε ⊢ t ⇒* t′ ∷ ℕ → ε ⊢ suc t ⇒* suc t′ ∷ ℕ) and WHℕ n t
+-- then ε ⊢ t ⇒* sucᵏ n ∷ ℕ
+
+WHℕ-canon : (∀ {t t′} → ε ⊢ t ⇒* t′ ∷ ℕ → ε ⊢ suc t ⇒* suc t′ ∷ ℕ)
+              → WHℕ n t → ε ⊢ t ⇒* sucᵏ n ∷ ℕ
+WHℕ-canon red (zeroʷ x) = x
+WHℕ-canon red (sucʷ x wh) = x ⇨∷* (red (WHℕ-canon red wh))
+
+-- If (∀ v v′ → v ⇒* v′ → suc v ⇒* suc v′) and WHℕ′ n v
+-- then v ⇒* sucᵏ′ v
+
+WHℕ′-canon : (∀ {v v′ : T.Term 0} → v T.⇒* v′ → T.suc v T.⇒* T.suc v′)
+           → WHℕ′ n v → v T.⇒* sucᵏ′ n
+WHℕ′-canon red (zeroʷ x) = x
+WHℕ′-canon red (sucʷ x wh) = red*concat x (red (WHℕ′-canon red wh))
 
 
 -- Helper lemma for WH reduction soundness of zero
@@ -77,8 +119,31 @@ soundness-suc t⇒suc γ▸t =
   in  soundness-suc′ t®t″ t⇒suc
 
 
+-- Helper lemma for WH reduction soundness of natural numbers
+-- If t ® v ∷ℕ and WHℕ n t then WHℕ′ n v
+
+soundness-ℕ′ : t ® v ∷ℕ → WHℕ n t → WHℕ′ n v
+soundness-ℕ′ t®v (zeroʷ x) = zeroʷ (soundness-zero′ t®v x)
+soundness-ℕ′ t®v (sucʷ x whn) =
+  let v′ , v⇒suc , t®v′ = soundness-suc′ t®v x
+  in  sucʷ v⇒suc (soundness-ℕ′ t®v′ whn)
+
+-- WH reduction soundness of natural numbers
+-- If t ® v ∷ℕ and WHℕ n t then WHℕ′ n v
+
+soundness-ℕ : ε ⊢ t ∷ ℕ → ε ▸ t → WHℕ n t → WHℕ′ n (erase t)
+soundness-ℕ ⊢t γ▸t whn =
+  let [ℕ] , t®t′ = fundamental′ ⊢t γ▸t
+      t®t″ = irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ ([ ℕⱼ ε , ℕⱼ ε , id (ℕⱼ ε) ])) t®t′
+  in  soundness-ℕ′ t®t″ whn
+
+
+-- Helper lemma for WH reduction soundness of unit
+
 soundness-star′ : t ® v ∷Unit → v T.⇒* T.star
 soundness-star′ (starᵣ _ v⇒star) = v⇒star
+
+-- WH reduction soundness of unit
 
 soundness-star : ε ⊢ t ⇒* star ∷ Unit → ε ▸ t → erase t T.⇒* T.star
 soundness-star t⇒star γ▸t =
