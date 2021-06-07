@@ -85,6 +85,10 @@ data _▸_ {n : Nat} : (γ : Conₘ n) → Term n → Set where
             → δ ∙ p ∙ r ▸ s
             → η ▸ n
             → γ ∧ᶜ nrᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ) (δ +ᶜ p ·ᶜ η) r ▸ natrec p r G z s n
+            -- Can this typing be repace by just
+            -- → nrᶜ γ (δ +ᶜ p ·ᶜ η) r ▸ natrec p r G z s n
+            -- which unfolds to
+            -- γ ∧ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ nrᶜ γ (δ +ᶜ p ·ᶜ η) r)
 
   Emptyrecₘ : γ ▸ t
             → p ·ᶜ γ ▸ Emptyrec p A t
