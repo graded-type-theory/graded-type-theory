@@ -94,29 +94,17 @@ liftn-usage ℓ (sucₘ γ▸t) = sucₘ (liftn-usage ℓ γ▸t)
 
 liftn-usage ℓ (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} γ▸z δ▸s η▸n) = sub
   (natrecₘ (liftn-usage ℓ γ▸z) (liftn-usage (1+ (1+ ℓ)) δ▸s) (liftn-usage ℓ η▸n))
-  (≤ᶜ-reflexive (≈ᶜ-trans (insertAt-distrib-∧ᶜ-𝟘 ℓ γ _) (∧ᶜ-cong ≈ᶜ-refl eq)))
+  le
   where
-  open import Tools.Reasoning.Equivalence ≈ᶜ-equivalence
-  eq = begin
-    insertAt ℓ (nrᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ) (δ +ᶜ p ·ᶜ η) r) 𝟘
+  open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
+  le = begin
+    insertAt ℓ (nrᶜ γ (δ +ᶜ p ·ᶜ η) r) 𝟘
         ≈⟨ insertAt-distrib-nrᶜ-𝟘 ℓ _ _ r ⟩
-    nrᶜ (insertAt ℓ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ) 𝟘) (insertAt ℓ (δ +ᶜ p ·ᶜ η) 𝟘) r
-        ≈⟨ nrᶜ-cong (insertAt-distrib-+ᶜ-𝟘 ℓ δ ((p ·ᶜ η) +ᶜ (r ·ᶜ γ)))
-                    (insertAt-distrib-+ᶜ-𝟘 ℓ δ (p ·ᶜ η))
-                    ≈-refl ⟩
-    nrᶜ (insertAt ℓ δ 𝟘 +ᶜ insertAt ℓ (p ·ᶜ η +ᶜ r ·ᶜ γ) 𝟘)
-        (insertAt ℓ δ 𝟘 +ᶜ insertAt ℓ (p ·ᶜ η) 𝟘) r
-        ≈⟨ nrᶜ-cong (+ᶜ-cong ≈ᶜ-refl (insertAt-distrib-+ᶜ-𝟘 ℓ (p ·ᶜ η) (r ·ᶜ γ)))
-                    (+ᶜ-cong ≈ᶜ-refl (insertAt-distrib-·ᶜ-𝟘 ℓ p η))
-                    ≈-refl ⟩
-    nrᶜ (insertAt ℓ δ 𝟘 +ᶜ insertAt ℓ (p ·ᶜ η) 𝟘 +ᶜ insertAt ℓ (r ·ᶜ γ) 𝟘)
-        (insertAt ℓ δ 𝟘 +ᶜ p ·ᶜ insertAt ℓ η 𝟘) r
-        ≈⟨ nrᶜ-cong (+ᶜ-cong ≈ᶜ-refl (+ᶜ-cong (insertAt-distrib-·ᶜ-𝟘 ℓ p η)
-                                              (insertAt-distrib-·ᶜ-𝟘 ℓ r γ)))
-                    ≈ᶜ-refl
-                    ≈-refl ⟩
-    nrᶜ (insertAt ℓ δ 𝟘 +ᶜ p ·ᶜ insertAt ℓ η 𝟘 +ᶜ r ·ᶜ insertAt ℓ γ 𝟘)
-        (insertAt ℓ δ 𝟘 +ᶜ p ·ᶜ insertAt ℓ η 𝟘) r ∎
+    nrᶜ (insertAt ℓ γ 𝟘) (insertAt ℓ (δ +ᶜ p ·ᶜ η) 𝟘) r
+        ≈⟨ nrᶜ-cong ≈ᶜ-refl (insertAt-distrib-+ᶜ-𝟘 ℓ δ (p ·ᶜ η)) ≈-refl ⟩
+    nrᶜ (insertAt ℓ γ 𝟘) (insertAt ℓ δ 𝟘 +ᶜ insertAt ℓ (p ·ᶜ η) 𝟘) r
+        ≈⟨ nrᶜ-cong ≈ᶜ-refl (+ᶜ-cong ≈ᶜ-refl (insertAt-distrib-·ᶜ-𝟘 ℓ p η)) ≈-refl ⟩
+    nrᶜ (insertAt ℓ γ 𝟘) (insertAt ℓ δ 𝟘 +ᶜ p ·ᶜ insertAt ℓ η 𝟘) r ∎
 
 liftn-usage ℓ (Emptyrecₘ {γ = γ} {p = p} γ▸t) = sub (Emptyrecₘ (liftn-usage ℓ γ▸t)) eq
   where

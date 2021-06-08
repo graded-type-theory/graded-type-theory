@@ -84,11 +84,7 @@ data _▸_ {n : Nat} : (γ : Conₘ n) → Term n → Set where
             → γ ▸ z
             → δ ∙ p ∙ r ▸ s
             → η ▸ n
-            → γ ∧ᶜ nrᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ) (δ +ᶜ p ·ᶜ η) r ▸ natrec p r G z s n
-            -- Can this typing be repace by just
-            -- → nrᶜ γ (δ +ᶜ p ·ᶜ η) r ▸ natrec p r G z s n
-            -- which unfolds to
-            -- γ ∧ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ nrᶜ γ (δ +ᶜ p ·ᶜ η) r)
+            → nrᶜ γ (δ +ᶜ p ·ᶜ η) r ▸ natrec p r G z s n
 
   Emptyrecₘ : γ ▸ t
             → p ·ᶜ γ ▸ Emptyrec p A t
@@ -132,4 +128,4 @@ mutual
         δ′ = ⌈ s ⌉
         η  = ⌈ n ⌉
         δ  = tailₘ (tailₘ δ′)
-    in  γ ∧ᶜ (nrᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ) (δ +ᶜ p ·ᶜ η) r)
+    in  nrᶜ γ (δ +ᶜ p ·ᶜ η) r

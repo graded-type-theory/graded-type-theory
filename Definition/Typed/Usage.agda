@@ -77,8 +77,14 @@ usagePresTerm γ▸natrec (natrec-subst x x₁ x₂ t⇒u) with inv-usage-natrec
 ... | invUsageNatrec δ▸z η▸s θ▸n γ≤X = sub (natrecₘ δ▸z η▸s (usagePresTerm θ▸n t⇒u)) γ≤X
 
 usagePresTerm γ▸natrec (natrec-zero {p = p} {r = r} x x₁ x₂) with inv-usage-natrec γ▸natrec
-... | invUsageNatrec {δ = δ} δ▸z η▸s θ▸n γ≤X with inv-usage-zero θ▸n
-... | θ≤𝟘 = sub δ▸z (≤ᶜ-trans γ≤X (∧ᶜ-decreasingˡ δ _))
+... | invUsageNatrec {δ = δ} δ▸z η▸s θ▸n γ≤nr with inv-usage-zero θ▸n
+... | θ≤𝟘 = sub δ▸z (≤ᶜ-trans γ≤nr nr≤δ)
+  where
+  open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
+  nr≤δ = begin
+    nrᶜ δ (_ +ᶜ p ·ᶜ _) r ≈⟨ nrᶜ-rec δ _ r ⟩
+    (δ ∧ᶜ _) ≤⟨ ∧ᶜ-decreasingˡ δ _ ⟩
+    δ ∎
 
 usagePresTerm {γ = γ} γ▸natrec (natrec-suc {p = p} {r = r} x x₁ x₂ x₃) with inv-usage-natrec γ▸natrec
 ... | invUsageNatrec {δ = δ} {η} {θ} δ▸z η▸s θ▸sn γ≤γ′ with inv-usage-suc θ▸sn
@@ -87,24 +93,20 @@ usagePresTerm {γ = γ} γ▸natrec (natrec-suc {p = p} {r = r} x x₁ x₂ x₃
   le
   where
   open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
-  NR = nrᶜ (η +ᶜ p ·ᶜ θ +ᶜ r ·ᶜ δ) (η +ᶜ p ·ᶜ θ) r
+  NR = nrᶜ δ (η +ᶜ p ·ᶜ θ) r
   le = begin
-      γ           ≤⟨ γ≤γ′ ⟩
-      δ ∧ᶜ NR     ≤⟨ ∧ᶜ-decreasingʳ δ NR ⟩
-      NR          ≈⟨ nrᶜ-rec _ _ _ ⟩
-      (η +ᶜ p ·ᶜ θ +ᶜ r ·ᶜ δ) ∧ᶜ ((η +ᶜ p ·ᶜ θ) +ᶜ r ·ᶜ NR)
-                  ≈˘⟨ ∧ᶜ-cong (+ᶜ-assoc _ _ _) ≈ᶜ-refl ⟩
-      ((η +ᶜ p ·ᶜ θ) +ᶜ r ·ᶜ δ) ∧ᶜ ((η +ᶜ p ·ᶜ θ) +ᶜ r ·ᶜ NR)
-                  ≈˘⟨ +ᶜ-distribˡ-∧ᶜ _ _ _ ⟩
-      (η +ᶜ p ·ᶜ θ) +ᶜ (r ·ᶜ δ ∧ᶜ r ·ᶜ NR)
-                  ≈˘⟨ +ᶜ-cong ≈ᶜ-refl (·ᶜ-distribˡ-∧ᶜ _ _ _) ⟩
-      (η +ᶜ p ·ᶜ θ) +ᶜ r ·ᶜ (δ ∧ᶜ NR)
-                  ≈⟨ +ᶜ-assoc _ _ _ ⟩
-      η +ᶜ p ·ᶜ θ +ᶜ r ·ᶜ (δ ∧ᶜ NR)
-                  ≈⟨ +ᶜ-cong ≈ᶜ-refl (+ᶜ-comm _ _) ⟩
-      η +ᶜ r ·ᶜ (δ ∧ᶜ NR) +ᶜ p ·ᶜ θ
-                  ≤⟨ +ᶜ-monotoneʳ (+ᶜ-monotoneʳ (·ᶜ-monotoneʳ θ≤θ′)) ⟩
-      η +ᶜ r ·ᶜ (δ ∧ᶜ NR) +ᶜ p ·ᶜ θ′ ∎
+      γ       ≤⟨ γ≤γ′ ⟩
+      NR      ≈⟨ nrᶜ-rec _ _ _ ⟩
+      δ ∧ᶜ ((η +ᶜ p ·ᶜ θ) +ᶜ r ·ᶜ NR)
+              ≤⟨ ∧ᶜ-decreasingʳ δ _ ⟩
+      (η +ᶜ p ·ᶜ θ) +ᶜ r ·ᶜ NR
+              ≈⟨ +ᶜ-assoc η (p ·ᶜ θ) (r ·ᶜ nrᶜ δ (η +ᶜ (p ·ᶜ θ)) r) ⟩
+      η +ᶜ p ·ᶜ θ +ᶜ r ·ᶜ NR
+              ≈⟨ +ᶜ-cong ≈ᶜ-refl (+ᶜ-comm (p ·ᶜ θ) (r ·ᶜ nrᶜ δ (η +ᶜ (p ·ᶜ θ)) r)) ⟩
+      η +ᶜ r ·ᶜ NR +ᶜ p ·ᶜ θ
+              ≤⟨ +ᶜ-monotoneʳ (+ᶜ-monotoneʳ (·ᶜ-monotoneʳ θ≤θ′)) ⟩
+      η +ᶜ r ·ᶜ NR +ᶜ p ·ᶜ θ′ ∎
+
 
 usagePresTerm γ▸et (Emptyrec-subst x t⇒u) with inv-usage-Emptyrec γ▸et
 ... | invUsageEmptyrec δ▸t γ≤δ = sub (Emptyrecₘ (usagePresTerm δ▸t t⇒u)) γ≤δ
