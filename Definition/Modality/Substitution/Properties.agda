@@ -416,21 +416,13 @@ substₘ-lemma Ψ σ Ψ▶σ (natrecₘ {γ = γ} {δ = δ} {p} {r} {η = η} γ
     liftSubstₘ (liftSubstₘ Ψ) *> (δ ∙ p ∙ r) ∎)
     where open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
   le = begin
-    Ψ *> (γ ∧ᶜ nrᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ) (δ +ᶜ p ·ᶜ η) r)
-         ≤⟨ *>-sub-distrib-∧ᶜ Ψ γ _ ⟩
-    Ψ *> γ ∧ᶜ Ψ *> nrᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ) (δ +ᶜ p ·ᶜ η) r
-         ≤⟨ ∧ᶜ-monotoneʳ (*>-sub-distrib-nrᶜ Ψ _ _ r) ⟩
-    Ψ *> γ ∧ᶜ nrᶜ (Ψ *> (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ γ)) (Ψ *> (δ +ᶜ p ·ᶜ η)) r
-         ≈⟨ ∧ᶜ-cong ≈ᶜ-refl (nrᶜ-cong (*>-distrib-+ᶜ Ψ _ _) (*>-distrib-+ᶜ Ψ _ _) ≈-refl) ⟩
-    Ψ *> γ ∧ᶜ nrᶜ (Ψ *> δ +ᶜ Ψ *> (p ·ᶜ η +ᶜ r ·ᶜ γ)) (Ψ *> δ +ᶜ Ψ *> (p ·ᶜ η)) r
-         ≈⟨ ∧ᶜ-cong ≈ᶜ-refl (nrᶜ-cong (+ᶜ-cong ≈ᶜ-refl (*>-distrib-+ᶜ Ψ _ _))
-                                      (+ᶜ-cong ≈ᶜ-refl (*>-distrib-·ᶜ Ψ p η))
-                                      ≈-refl) ⟩
-    Ψ *> γ ∧ᶜ nrᶜ (Ψ *> δ +ᶜ Ψ *> (p ·ᶜ η) +ᶜ Ψ *> (r ·ᶜ γ)) (Ψ *> δ +ᶜ p ·ᶜ Ψ *> η) r
-         ≈⟨ ∧ᶜ-cong ≈ᶜ-refl (nrᶜ-cong (+ᶜ-cong ≈ᶜ-refl
-                                               (+ᶜ-cong (*>-distrib-·ᶜ Ψ p η) (*>-distrib-·ᶜ Ψ r γ)))
-                                      ≈ᶜ-refl ≈-refl) ⟩
-    Ψ *> γ ∧ᶜ nrᶜ (Ψ *> δ +ᶜ p ·ᶜ Ψ *> η +ᶜ r ·ᶜ Ψ *> γ) (Ψ *> δ +ᶜ p ·ᶜ Ψ *> η) r ∎
+    Ψ *> nrᶜ γ (δ +ᶜ p ·ᶜ η) r
+         ≤⟨ *>-sub-distrib-nrᶜ Ψ _ _ r ⟩
+    nrᶜ (Ψ *> γ) (Ψ *> (δ +ᶜ p ·ᶜ η)) r
+         ≈⟨ nrᶜ-cong ≈ᶜ-refl (*>-distrib-+ᶜ Ψ δ (p ·ᶜ η)) ≈-refl ⟩
+    nrᶜ (Ψ *> γ) (Ψ *> δ +ᶜ Ψ *> (p ·ᶜ η)) r
+         ≈⟨ nrᶜ-cong ≈ᶜ-refl (+ᶜ-cong ≈ᶜ-refl (*>-distrib-·ᶜ Ψ p η)) ≈-refl ⟩
+    nrᶜ (Ψ *> γ) (Ψ *> δ +ᶜ p ·ᶜ Ψ *> η) r ∎
     where open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
 substₘ-lemma Ψ σ Ψ▶σ (Emptyrecₘ γ▸t) = sub (Emptyrecₘ (substₘ-lemma Ψ σ Ψ▶σ γ▸t))
