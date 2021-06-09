@@ -220,8 +220,8 @@ fundamental (natrecⱼ {p = p} {r = r} {G = A} {s = s} {z = z} {n = n} Γ⊢A Γ
       ⊩ʳn = irrelevance {A = ℕ} {t = n} [Γ]′ [Γ] [ℕ]′ [ℕ] ⊩ʳn′
       [A[n]] , ⊩ʳnatrec = natrecʳ {A = A} {z = z} {s = s} {m = n}
                                   [Γ] [A] [A₊] [A₀] [z] [s] [n] ⊩ʳz ⊩ʳs ⊩ʳn
-  in  [Γ] , [A[n]] , subsumption {t = natrec p r A z s n} {A = A [ n ]}
-                                 [Γ] [A[n]] ⊩ʳnatrec γ≤γ′
+  in  [Γ] , [A[n]] , {!subsumption {t = natrec p r A z s n} {A = A [ n ]}
+                                 [Γ] [A[n]] ⊩ʳnatrec γ≤γ′!}
 fundamental {Γ = Γ} {γ = γ} (Emptyrecⱼ {p = p} {A = A} {e = t} ⊢A Γ⊢t:Empty) γ▸t =
   let invUsageEmptyrec δ▸t γ≤δ = inv-usage-Emptyrec γ▸t
       [Γ] , [Empty] , ⊩ʳt = fundamental Γ⊢t:Empty δ▸t

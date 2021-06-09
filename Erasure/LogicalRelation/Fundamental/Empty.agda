@@ -43,7 +43,7 @@ Emptyʳ : ⊢ Γ
 Emptyʳ ⊢Γ =
   let [Γ] = valid ⊢Γ
       [U] = Uᵛ [Γ]
-  in  [Γ] , [U] , λ [σ] x → Uᵣ (Emptyⱼ ε) T.refl
+  in  [Γ] , [U] , λ [σ] x → Uᵣ (Emptyⱼ ε)
 
 
 Emptyrecʳ′ : ∀ {l p} → ([Γ] : ⊩ᵛ Γ)

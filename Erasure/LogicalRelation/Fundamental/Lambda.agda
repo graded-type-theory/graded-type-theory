@@ -57,7 +57,7 @@ private
    → γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ Π p , q ▷ F ▹ G ∷ U / [Γ] / [U]
 Πʳ [Γ] ⊢Π = Uᵛ [Γ] , λ [σ] σ®σ′ →
   let ⊢σΠ = substitutionTerm ⊢Π (wellformedSubst [Γ] ε [σ]) ε
-  in  Uᵣ ⊢σΠ T.refl
+  in  Uᵣ ⊢σΠ
 
 lamʳ′ : ∀ {l} {Γ : Con Term n}
       → ([Γ] : ⊩ᵛ Γ)

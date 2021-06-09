@@ -68,7 +68,7 @@ private
    → γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ Σ q ▷ F ▹ G ∷ U / [Γ] / [U]
 Σʳ [Γ] ⊢Σ = Uᵛ [Γ] , λ [σ] σ®σ′ →
   let ⊢σΣ = substitutionTerm ⊢Σ (wellformedSubst [Γ] ε [σ]) ε
-  in  Uᵣ ⊢σΣ T.refl
+  in  Uᵣ ⊢σΣ
 
 prodʳ : ([Γ] : ⊩ᵛ Γ) ([F] : Γ ⊩ᵛ⟨ ¹ ⟩ F / [Γ]) ([G] : Γ ∙ F ⊩ᵛ⟨ ¹ ⟩ G / [Γ] ∙ [F])
         ([G[t]] : Γ ⊩ᵛ⟨ ¹ ⟩ G [ t ] / [Γ]) ([t] : Γ ⊩ᵛ⟨ ¹ ⟩ t ∷ F / [Γ] / [F])

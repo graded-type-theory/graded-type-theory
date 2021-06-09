@@ -35,7 +35,7 @@ private
 -- Logical relation for erasure for base types
 
 data _®_∷U (t : U.Term 0) (v : T.Term 0) : Set where
-  Uᵣ : ε ⊢ t ∷ U → v T.⇒* undefined → t ® v ∷U
+  Uᵣ : ε ⊢ t ∷ U → t ® v ∷U
 
 data _®_∷ℕ (t : U.Term 0) (v : T.Term 0) : Set where
   zeroᵣ : ε ⊢ t ⇒* U.zero ∷ ℕ → v T.⇒* T.zero → t ® v ∷ℕ

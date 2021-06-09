@@ -87,7 +87,7 @@ subsumption {l = l} [Γ] [A] γ⊩ʳt δ≤γ [σ] σ®σ′ = γ⊩ʳt [σ] (su
 -- If t′ ® v ∷ A and ε ⊢ t ⇒ t′ ∷ A then t ® v ∷ A
 
 ®-redˡ : ∀ {l} ([A] : ε ⊩⟨ l ⟩ A) → t′ ®⟨ l ⟩ v ∷ A / [A] → _⊢_⇒_∷_ ε t t′ A → t ®⟨ l ⟩ v ∷ A / [A]
-®-redˡ (Uᵣ _) (Uᵣ _ v⇒v′) t⇒t′ = Uᵣ (redFirstTerm t⇒t′) v⇒v′
+®-redˡ (Uᵣ _) (Uᵣ _) t⇒t′ = Uᵣ (redFirstTerm t⇒t′)
 ®-redˡ (ℕᵣ ([ ⊢A , ⊢B , D ])) (zeroᵣ t′⇒zero v⇒v′) t⇒t′ =
   zeroᵣ ((conv t⇒t′ (subset* D)) ⇨ t′⇒zero) v⇒v′
 ®-redˡ (ℕᵣ ([ ⊢A , ⊢B , D ])) (sucᵣ t′⇒suc v⇒v′ t®v) t⇒t′ =
@@ -146,7 +146,7 @@ subsumption {l = l} [Γ] [A] γ⊩ʳt δ≤γ [σ] σ®σ′ = γ⊩ʳt [σ] (su
 
 ®-redʳ : ∀ {l} ([A] : ε ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v′ ∷ A / [A]
        → v T.⇒ v′ → t ®⟨ l ⟩ v ∷ A / [A]
-®-redʳ (Uᵣ x) (Uᵣ x₁ v′⇒↯) v⇒v′ = Uᵣ x₁ (trans v⇒v′ v′⇒↯)
+®-redʳ (Uᵣ x) (Uᵣ x₁) v⇒v′ = Uᵣ x₁
 ®-redʳ (ℕᵣ x) (zeroᵣ t′⇒zero v′⇒zero) v⇒v′ = zeroᵣ t′⇒zero (trans v⇒v′ v′⇒zero)
 ®-redʳ (ℕᵣ x) (sucᵣ t′⇒suc v′⇒suc t®v) v⇒v′ = sucᵣ t′⇒suc (trans v⇒v′ v′⇒suc) t®v
 ®-redʳ (Unitᵣ x) (starᵣ x₁ v′⇒star) v⇒v′ = starᵣ x₁ (trans v⇒v′ v′⇒star)
@@ -200,8 +200,8 @@ subsumption {l = l} [Γ] [A] γ⊩ʳt δ≤γ [σ] σ®σ′ = γ⊩ʳt [σ] (su
 
 ®-redˡ′ : ∀ {l} ([A] : ε ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A]
         → _⊢_⇒_∷_ ε t t′ A → t′ ®⟨ l ⟩ v ∷ A / [A]
-®-redˡ′ (Uᵣ x) (Uᵣ x₁ v⇒↯) t⇒t′ with syntacticRedTerm (redMany t⇒t′)
-... | _ , _ , ε⊢t′∷U = Uᵣ ε⊢t′∷U v⇒↯
+®-redˡ′ (Uᵣ x) (Uᵣ x₁) t⇒t′ with syntacticRedTerm (redMany t⇒t′)
+... | _ , _ , ε⊢t′∷U = Uᵣ ε⊢t′∷U
 ®-redˡ′ (ℕᵣ [ ⊢A , ⊢B , D ]) (zeroᵣ t⇒zero v⇒zero) t⇒t′ with whrDet↘Term (t⇒zero , zeroₙ) (conv* (redMany t⇒t′) (subset* D))
 ... | t′⇒zero = zeroᵣ t′⇒zero v⇒zero
 ®-redˡ′ (ℕᵣ [ ⊢A , ⊢B , D ]) (sucᵣ t⇒suc v⇒suc t®v) t⇒t′ with whrDet↘Term (t⇒suc , sucₙ) (conv* (redMany t⇒t′) (subset* D))
@@ -263,9 +263,7 @@ subsumption {l = l} [Γ] [A] γ⊩ʳt δ≤γ [σ] σ®σ′ = γ⊩ʳt [σ] (su
 
 ®-redʳ′ : ∀ {l} ([A] : ε ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A]
         → v T.⇒ v′ → t ®⟨ l ⟩ v′ ∷ A / [A]
-®-redʳ′ (Uᵣ x) (Uᵣ x₁ v⇒↯) v⇒v′ with red*Det v⇒↯ (T.trans v⇒v′ T.refl)
-... | inj₁ x₂ rewrite undefined-noRed x₂ = Uᵣ x₁ refl
-... | inj₂ x₂ = Uᵣ x₁ x₂
+®-redʳ′ (Uᵣ x) (Uᵣ x₁) v⇒v′ = Uᵣ x₁
 ®-redʳ′ (ℕᵣ x) (zeroᵣ x₁ v⇒zero) v⇒v′ with red*Det v⇒zero (T.trans v⇒v′ T.refl)
 ... | inj₁ x₂ rewrite zero-noRed x₂ = zeroᵣ x₁ T.refl
 ... | inj₂ x₂ = zeroᵣ x₁ x₂

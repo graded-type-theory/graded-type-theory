@@ -42,7 +42,7 @@ private
 ℕʳ ⊢Γ =
   let [Γ] = valid ⊢Γ
       [U] = Uᵛ [Γ]
-  in  [Γ] , [U] , λ [σ] x → Uᵣ (ℕⱼ ε) T.refl
+  in  [Γ] , [U] , λ [σ] x → Uᵣ (ℕⱼ ε)
 
 
 

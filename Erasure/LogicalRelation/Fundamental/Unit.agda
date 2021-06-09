@@ -37,7 +37,7 @@ Unitʳ : ⊢ Γ
 Unitʳ ⊢Γ =
   let [Γ] = valid ⊢Γ
       [U] = Uᵛ [Γ]
-  in  [Γ] , [U] , λ [σ] x → Uᵣ (Unitⱼ ε) T.refl
+  in  [Γ] , [U] , λ [σ] x → Uᵣ (Unitⱼ ε)
 
 starʳ : ∀ {l} → ⊢ Γ
       → ∃ λ ([Γ] : ⊩ᵛ Γ)
