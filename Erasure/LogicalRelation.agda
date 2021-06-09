@@ -13,7 +13,7 @@ open import Definition.Modality.Context ErasureModality
 open import Definition.Modality.Usage ErasureModality
 open import Definition.Untyped Erasure as U hiding (_∷_)
 open import Definition.Untyped.Properties Erasure using (noClosedNe)
-open import Definition.Typed Erasure --using (_⊢_∷_ ; _⊢_⇒*_∷_) --as Ty
+open import Definition.Typed Erasure
 open import Definition.Typed.Weakening Erasure
 
 open import Erasure.Target as T hiding (_⇒*_)
