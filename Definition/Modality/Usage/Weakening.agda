@@ -98,13 +98,13 @@ liftn-usage ℓ (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} γ▸z 
   where
   open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
   le = begin
-    insertAt ℓ (nrᶜ γ (δ +ᶜ p ·ᶜ η) r) 𝟘
+    insertAt ℓ (nrᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r) 𝟘
         ≈⟨ insertAt-distrib-nrᶜ-𝟘 ℓ _ _ r ⟩
-    nrᶜ (insertAt ℓ γ 𝟘) (insertAt ℓ (δ +ᶜ p ·ᶜ η) 𝟘) r
-        ≈⟨ nrᶜ-cong ≈ᶜ-refl (insertAt-distrib-+ᶜ-𝟘 ℓ δ (p ·ᶜ η)) ≈-refl ⟩
-    nrᶜ (insertAt ℓ γ 𝟘) (insertAt ℓ δ 𝟘 +ᶜ insertAt ℓ (p ·ᶜ η) 𝟘) r
+    nrᶜ (insertAt ℓ (γ ∧ᶜ η) 𝟘) (insertAt ℓ (δ +ᶜ p ·ᶜ η) 𝟘) r
+        ≈⟨ nrᶜ-cong (insertAt-distrib-∧ᶜ-𝟘 ℓ γ η) (insertAt-distrib-+ᶜ-𝟘 ℓ δ (p ·ᶜ η)) ≈-refl ⟩
+    nrᶜ (insertAt ℓ γ 𝟘 ∧ᶜ insertAt ℓ η 𝟘) (insertAt ℓ δ 𝟘 +ᶜ insertAt ℓ (p ·ᶜ η) 𝟘) r
         ≈⟨ nrᶜ-cong ≈ᶜ-refl (+ᶜ-cong ≈ᶜ-refl (insertAt-distrib-·ᶜ-𝟘 ℓ p η)) ≈-refl ⟩
-    nrᶜ (insertAt ℓ γ 𝟘) (insertAt ℓ δ 𝟘 +ᶜ p ·ᶜ insertAt ℓ η 𝟘) r ∎
+    nrᶜ (insertAt ℓ γ 𝟘 ∧ᶜ insertAt ℓ η 𝟘) (insertAt ℓ δ 𝟘 +ᶜ p ·ᶜ insertAt ℓ η 𝟘) r ∎
 
 liftn-usage ℓ (Emptyrecₘ {γ = γ} {p = p} γ▸t) = sub (Emptyrecₘ (liftn-usage ℓ γ▸t)) eq
   where

@@ -11,6 +11,7 @@ module Definition.Modality.Substitution.Properties
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
+open import Definition.Modality.Properties 𝕄
 open import Definition.Modality.Substitution 𝕄
 open import Definition.Modality.Usage 𝕄
 open import Definition.Modality.Usage.Properties 𝕄
@@ -416,13 +417,15 @@ substₘ-lemma Ψ σ Ψ▶σ (natrecₘ {γ = γ} {δ = δ} {p} {r} {η = η} γ
     liftSubstₘ (liftSubstₘ Ψ) *> (δ ∙ p ∙ r) ∎)
     where open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
   le = begin
-    Ψ *> nrᶜ γ (δ +ᶜ p ·ᶜ η) r
+    Ψ *> nrᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r
          ≤⟨ *>-sub-distrib-nrᶜ Ψ _ _ r ⟩
-    nrᶜ (Ψ *> γ) (Ψ *> (δ +ᶜ p ·ᶜ η)) r
+    nrᶜ (Ψ *> (γ ∧ᶜ η)) (Ψ *> (δ +ᶜ p ·ᶜ η)) r
          ≈⟨ nrᶜ-cong ≈ᶜ-refl (*>-distrib-+ᶜ Ψ δ (p ·ᶜ η)) ≈-refl ⟩
-    nrᶜ (Ψ *> γ) (Ψ *> δ +ᶜ Ψ *> (p ·ᶜ η)) r
+    nrᶜ (Ψ *> (γ ∧ᶜ η)) (Ψ *> δ +ᶜ Ψ *> (p ·ᶜ η)) r
+         ≤⟨ nrᶜ-monotone (*>-sub-distrib-∧ᶜ Ψ γ η) ≤ᶜ-refl ≤-refl ⟩
+    nrᶜ (Ψ *> γ ∧ᶜ Ψ *> η) (Ψ *> δ +ᶜ Ψ *> (p ·ᶜ η)) r
          ≈⟨ nrᶜ-cong ≈ᶜ-refl (+ᶜ-cong ≈ᶜ-refl (*>-distrib-·ᶜ Ψ p η)) ≈-refl ⟩
-    nrᶜ (Ψ *> γ) (Ψ *> δ +ᶜ p ·ᶜ Ψ *> η) r ∎
+    nrᶜ (Ψ *> γ ∧ᶜ Ψ *> η) (Ψ *> δ +ᶜ p ·ᶜ Ψ *> η) r ∎
     where open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
 substₘ-lemma Ψ σ Ψ▶σ (Emptyrecₘ γ▸t) = sub (Emptyrecₘ (substₘ-lemma Ψ σ Ψ▶σ γ▸t))
