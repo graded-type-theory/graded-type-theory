@@ -203,7 +203,7 @@ record InvUsageNatrec {m} (γ : Conₘ m) (p r : M) (z : Term m)
     δ▸z  : δ ▸ z
     η▸s  : η ∙ p ∙ r ▸ s
     θ▸n  : θ ▸ n
-    γ≤γ′ : γ ≤ᶜ nrᶜ δ (η +ᶜ p ·ᶜ θ) r
+    γ≤γ′ : γ ≤ᶜ nrᶜ (δ ∧ᶜ θ) (η +ᶜ p ·ᶜ θ) r
 
 -- If γ ▸ natrec p r G z s n then δ ▸ z, δ ∙ r ∙ p ▸ s, η ▸ n and γ ≤ᶜ r* ·ᶜ (δ +ᶜ p ·ᶜ η)
 
