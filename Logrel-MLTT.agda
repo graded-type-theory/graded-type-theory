@@ -29,6 +29,8 @@ import Tools.Reasoning.PropositionalEquality
 
 -- Modality structure
 import Definition.Modality
+import Definition.Modality.Erasure
+import Definition.Modality.Unit
 import Definition.Modality.Properties
 import Definition.Modality.Context
 import Definition.Modality.Context.Properties
@@ -114,3 +116,29 @@ import Definition.Conversion.Consequences.Completeness
 
 -- Decidability of conversion
 import Definition.Typed.Decidable
+
+-- Erasure
+
+import Definition.Modality.Erasure.Properties
+
+-- Target language
+
+import Erasure.Target
+import Erasure.Target.Properties
+
+-- Extraction
+
+import Erasure.Extraction
+import Erasure.Extraction.Properties
+
+-- Logical relation for Erasure
+
+import Erasure.LogicalRelation
+import Erasure.LogicalRelation.Conversion
+import Erasure.LogicalRelation.Irrelevance
+import Erasure.LogicalRelation.Properties
+import Erasure.LogicalRelation.Fundamental
+
+-- Soundness of Extraction function
+
+import Erasure.Soundness
