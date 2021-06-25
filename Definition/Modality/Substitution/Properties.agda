@@ -17,11 +17,11 @@ open import Definition.Modality.Usage 𝕄
 open import Definition.Modality.Usage.Properties 𝕄
 open import Definition.Modality.Usage.Weakening 𝕄
 open import Definition.Typed M using (_⊢_∷_)
-open import Definition.Untyped M as U hiding (ε ; _∙_)
+open import Definition.Untyped M as U renaming (_[_,_] to _[_,,_])
 
 open import Tools.Fin
 open import Tools.Nat hiding (_+_)
-open import Tools.Product hiding (_,_)
+open import Tools.Product
 open import Tools.PropositionalEquality as PE
 
 open Modality 𝕄
@@ -455,7 +455,7 @@ sgSubstₘ-lemma {γ = γ} {p} {δ = δ} γ▸t δ▸u = sub
 -- Follows from the substitution lemma.
 
 doubleSubstₘ-lemma : γ ∙ q ∙ p ▸ t → δ ▸ u → η ▸ u′
-                   → (γ +ᶜ p ·ᶜ δ +ᶜ q ·ᶜ η) ▸ t [ u′ , u ]
+                   → (γ +ᶜ p ·ᶜ δ +ᶜ q ·ᶜ η) ▸ t [ u′ ,, u ]
 doubleSubstₘ-lemma {γ = γ} {q} {p} {δ = δ} {η = η} γ▸t δ▸u η▸u′ = sub
   (substₘ-lemma (consSubstₘ (sgSubstₘ _) _) _
                 (wf-consSubstₘ (wf-sgSubstₘ η▸u′) δ▸u) γ▸t)
@@ -498,10 +498,11 @@ substₘ-calc-col σ (x +1) = begin
 -- If ∀ x. (Γ ⊢ σ x ∷ A and γ ▸ σ x) then ∥ σ ∥ ▶ σ.
 -- Proof by the corresponding property for modality contexts applied to each column.
 
-substₘ-calc-correct : {Γ : Con Term m} {γ : Conₘ m} {A : Term m}
-                    → (σ : Subst m n) → (∀ x → Γ ⊢ σ x ∷ A × γ ▸ σ x) → ∥ σ ∥ ▶ σ
-substₘ-calc-correct σ well-typed x = sub
-  (usage-calc-term′ (proj₁ (well-typed x)) (proj₂ (well-typed x)))
+substₘ-calc-correct : {Γ : Con Term m} (σ : Subst m n)
+                    → (∀ x → ∃₂ λ A γ → Γ ⊢ σ x ∷ A × γ ▸ σ x) → ∥ σ ∥ ▶ σ
+substₘ-calc-correct σ well-typed x with well-typed x
+... | A , γ , Γ⊢σx∷A , γ▸σx = sub
+  (usage-calc-term′ Γ⊢σx∷A γ▸σx)
   (≤ᶜ-reflexive (substₘ-calc-col σ x))
 
 -- Each column of a calculated substitution matrix is an upper bound on valid contexts.
