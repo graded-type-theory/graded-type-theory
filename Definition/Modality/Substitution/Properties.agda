@@ -501,7 +501,7 @@ substₘ-calc-col σ (x +1) = begin
 substₘ-calc-correct : {Γ : Con Term m} (σ : Subst m n)
                     → (∀ x → ∃₂ λ A γ → Γ ⊢ σ x ∷ A × γ ▸ σ x) → ∥ σ ∥ ▶ σ
 substₘ-calc-correct σ well-typed x with well-typed x
-... | A , γ , Γ⊢σx∷A , γ▸σx = sub (usage-calc-term′ Γ⊢σx∷A γ▸σx) (≤ᶜ-reflexive {!substₘ-calc-col σ x!})
+... | A , γ , Γ⊢σx∷A , γ▸σx = sub (usage-calc-term′ Γ⊢σx∷A γ▸σx) (≤ᶜ-reflexive (substₘ-calc-col σ x))
 
 -- Each column of a calculated substitution matrix is an upper bound on valid contexts.
 -- If γ ▸ σ xᵢ then γ ≤ᶜ ∥ σ ∥ *> 𝕖ᵢ.
