@@ -22,7 +22,7 @@ open import Tools.Fin
 open import Tools.Nat hiding (_+_)
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
-open import Tools.Reasoning.PropositionalEquality
+
 
 open Modality 𝕄
 
@@ -32,8 +32,8 @@ private
     Γ : Con Term n
     t u A F : Term n
     G : Term (1+ n)
-    γ δ : Conₘ n
-    p q : M
+    γ δ η : Conₘ n
+    p q r : M
 
 -- The contents of two valid modality context can be freely interchanged
 -- If γ ▸ t and δ ▸ t then, for any x, (γ , x ≔ δ⟨x⟩) ▸ t
@@ -55,6 +55,7 @@ Conₘ-interchange Unitₘ Unitₘ x   = subst (_▸ _) (PE.sym (update-self �
 Conₘ-interchange (Πₘ {γ} {δ = δ} γ▸t δ▸u) (Πₘ {γ′} {δ = δ′} γ′▸t δ′▸u) x = subst (_▸ _)  eq
   (Πₘ (Conₘ-interchange γ▸t γ′▸t x) (Conₘ-interchange δ▸u δ′▸u (x +1)))
   where
+  open import Tools.Reasoning.PropositionalEquality
   eq = begin
     (γ , x ≔ γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩) ≡˘⟨ update-distrib-+ᶜ γ δ _ _ x ⟩
     (γ +ᶜ δ , x ≔ γ′ ⟨ x ⟩ + δ′ ⟨ x ⟩)       ≡˘⟨ cong ((γ +ᶜ δ) , x ≔_) (lookup-distrib-+ᶜ γ′ δ′ x) ⟩
@@ -63,6 +64,7 @@ Conₘ-interchange (Πₘ {γ} {δ = δ} γ▸t δ▸u) (Πₘ {γ′} {δ = δ�
 Conₘ-interchange (Σₘ {γ} {δ = δ} γ▸t δ▸u) (Σₘ {γ′} {δ = δ′} γ′▸t δ′▸u) x = subst (_▸ _)  eq
   (Σₘ (Conₘ-interchange γ▸t γ′▸t x) (Conₘ-interchange δ▸u δ′▸u (x +1)))
   where
+  open import Tools.Reasoning.PropositionalEquality
   eq = begin
     (γ , x ≔ γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩) ≡˘⟨ update-distrib-+ᶜ γ δ _ _ x ⟩
     (γ +ᶜ δ , x ≔ γ′ ⟨ x ⟩ + δ′ ⟨ x ⟩)       ≡˘⟨ cong ((γ +ᶜ δ) , x ≔_) (lookup-distrib-+ᶜ γ′ δ′ x) ⟩
@@ -76,6 +78,7 @@ Conₘ-interchange (lamₘ γ▸t) (lamₘ δ▸t) x = lamₘ (Conₘ-interchang
 Conₘ-interchange (_∘ₘ_ {γ} {δ = δ} {p = p} γ▸t δ▸u) (_∘ₘ_ {γ′} {δ = δ′} γ′▸t δ′▸u) x =
   subst (_▸ _) eq ((Conₘ-interchange γ▸t γ′▸t x) ∘ₘ (Conₘ-interchange δ▸u δ′▸u x))
   where
+  open import Tools.Reasoning.PropositionalEquality
   eq = begin
     (γ , x ≔ (γ′ ⟨ x ⟩)) +ᶜ p ·ᶜ (δ , x ≔ (δ′ ⟨ x ⟩))
        ≡˘⟨ cong (_ +ᶜ_) (update-distrib-·ᶜ δ p _ x) ⟩
@@ -99,6 +102,7 @@ Conₘ-interchange (sndₘ γ▸t) (sndₘ δ▸t) x = subst (_▸ _) (PE.sym (u
 Conₘ-interchange (prodrecₘ {γ} {δ = δ} {p} γ▸t δ▸u) (prodrecₘ {γ′} {δ = δ′} γ′▸t δ′▸u) x =
   subst (_▸ _) eq (prodrecₘ (Conₘ-interchange γ▸t γ′▸t x) (Conₘ-interchange δ▸u δ′▸u (x +1 +1)))
   where
+  open import Tools.Reasoning.PropositionalEquality
   eq = begin
      p ·ᶜ (γ , x ≔ (γ′ ⟨ x ⟩)) +ᶜ (δ , x ≔ (δ′ ⟨ x ⟩))
          ≡˘⟨ cong (_+ᶜ _) (update-distrib-·ᶜ γ p _ x) ⟩
@@ -119,6 +123,7 @@ Conₘ-interchange (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} γ�
                            (Conₘ-interchange δ▸s δ′▸s (x +1 +1))
                            (Conₘ-interchange η▸n η′▸n x))
   where
+  open import Tools.Reasoning.PropositionalEquality
   eq = let γ'  = γ , x ≔ (γ′ ⟨ x ⟩)
            δ'  = δ , x ≔ (δ′ ⟨ x ⟩)
            η'  = η , x ≔ (η′ ⟨ x ⟩)
@@ -143,6 +148,7 @@ Conₘ-interchange (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} γ�
 
 Conₘ-interchange (Emptyrecₘ {γ} {p = p} γ▸t) (Emptyrecₘ {δ} δ▸t) x = subst (_▸ _) eq (Emptyrecₘ (Conₘ-interchange γ▸t δ▸t x))
   where
+  open import Tools.Reasoning.PropositionalEquality
   eq = begin
     p ·ᶜ (γ , x ≔ δ ⟨ x ⟩)      ≡˘⟨ update-distrib-·ᶜ γ p (δ ⟨ x ⟩) x ⟩
     p ·ᶜ γ , x ≔ p · (δ ⟨ x ⟩)  ≡˘⟨ cong (_ , _ ≔_) (lookup-distrib-·ᶜ δ p x) ⟩
@@ -245,7 +251,7 @@ usage-calc-term′ {n = n} (prodrecⱼ {p = p} {u = u}
       (subst₂ _▸_ eq refl (Conₘ-interchange (Conₘ-interchange
                           (usage-calc-term′ Γ⊢u:A η▸u) η▸u (x0 +1)) η▸u x0))
   where
-
+  open import Tools.Reasoning.PropositionalEquality
   γu = ⌈ u ⌉
   eq =  begin
      ((γu , x0 +1 ≔ p) , x0 ≔ p)
@@ -310,3 +316,84 @@ usage-calc-type (Σⱼ_▹_ {G = G} {q = q} Γ⊢F Γ⊢G , γ▸Σ) with inv-us
       (subst (_▸ _) (update-head ⌈ G ⌉ q)
                     (Conₘ-interchange (usage-calc-type (Γ⊢G , η▸G)) η▸G x0))
 usage-calc-type (univ Γ⊢A:U , γ▸A) = usage-calc-term′ Γ⊢A:U γ▸A
+
+
+-- The context used in the usage rule for natrec satisfies the neccessary inequalities
+-- nrᶜ (γ ∧ η) (δ + pη) r ≤ γ and
+-- nrᶜ (γ ∧ η) (δ + pη) r ≤ δ + pη + r (nrᶜ (γ ∧ η) (δ + pη) r) and
+-- nrᶜ (γ ∧ η) (δ + pη) r ≤ η
+
+natrec-usage : nrᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r ≤ᶜ γ
+             × nrᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r ≤ᶜ δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ nrᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r
+             × nrᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r ≤ᶜ η
+natrec-usage = (≤ᶜ-trans (≤ᶜ-reflexive (nrᶜ-rec _ _ _))
+                         (≤ᶜ-trans (∧ᶜ-decreasingˡ _ _) (∧ᶜ-decreasingˡ _ _)))
+             , (≤ᶜ-trans (≤ᶜ-reflexive (nrᶜ-rec _ _ _))
+                         (≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) (≤ᶜ-reflexive (+ᶜ-assoc _ _ _))))
+             , (≤ᶜ-trans (≤ᶜ-reflexive (nrᶜ-rec _ _ _))
+                         (≤ᶜ-trans (∧ᶜ-decreasingˡ _ _) (∧ᶜ-decreasingʳ _ _)))
+
+-- The context used in the usage rule for natrec is an upper bound
+-- of contexts satisfying the neccesary inequalities
+-- when 𝟘 is an upper bound of the semilattice
+
+module BoundNatrec (bound : ∀ {p} → p ≤ 𝟘) where
+
+  -- 𝟘ᶜ is the greatest context
+  -- γ ≤ᶜ 𝟘ᶜ
+
+  boundᶜ : γ ≤ᶜ 𝟘ᶜ
+  boundᶜ {γ = ε} = ≤ᶜ-refl
+  boundᶜ {γ = γ ∙ p} = (boundᶜ {γ = γ}) ∙ (bound {p})
+
+  -- Helper lemma for showing context used in the usage rule for natrec
+  -- is an upper bound pointwise of contexts satisfying the neccesary inequalities
+  -- If x ≤ g and x ≤ (d + p · h) + r · x and x ≤ h
+  -- then x ≤ nrⁿ n (g ∧ h) (d + p · h) r
+
+  natrec-usage-boundⁿ : ∀ {x g d h p r}
+                      → (n : Nat)
+                      → x ≤ g
+                      → x ≤ (d + p · h) + r · x
+                      → x ≤ h
+                      → x ≤ nrⁿ n (g ∧ h) (d + p · h) r
+  natrec-usage-boundⁿ 0 x≤g x≤d+ph+rx x≤h = ≤-trans bound (≤-reflexive (≈-sym (nrⁿ-0 _ _ _)))
+  natrec-usage-boundⁿ {x} {g} {d} {h} {p} {r} (1+ n) x≤g x≤d+ph+rx x≤h = begin
+    x     ≈˘⟨ ∧-idem x ⟩
+    x ∧ x ≈˘⟨ ∧-cong (∧-idem x) ≈-refl ⟩
+    (x ∧ x) ∧ x
+      ≤⟨ ∧-monotone (∧-monotone x≤g x≤h) x≤d+ph+rx ⟩
+    (g ∧ h) ∧ ((d + p · h) + r · x)
+      ≤⟨ ∧-monotoneʳ (+-monotoneʳ (·-monotoneʳ (natrec-usage-boundⁿ n x≤g x≤d+ph+rx x≤h))) ⟩
+    (g ∧ h) ∧ ((d + p · h) + r · nrⁿ n (g ∧ h) (d + p · h) r)
+      ≈˘⟨ nrⁿ-rec n (g ∧ h) (d + p · h) r ⟩
+    nrⁿ (1+ n) (g ∧ h) (d + p · h) r ∎
+    where open import Tools.Reasoning.PartialOrder ≤-poset
+
+  -- The context used in the usage rule for natrec is an upper bound pointwise
+  -- of contexts satisfying the neccesary inequalities
+  -- If x ≤ g and x ≤ (d + p · h) + r · x and x ≤ h
+  -- then x ≤ nr (g ∧ h) (d + p · h) r
+
+  natrec-usage-bound′ : ∀ {x g d h p r}
+                      → x ≤ g
+                      → x ≤ (d + p · h) + r · x
+                      → x ≤ h
+                      → x ≤ nr (g ∧ h) (d + p · h) r
+  natrec-usage-bound′ x≤g x≤d+ph+rx x≤h with nrⁿ-fix
+  ... | n , fix = natrec-usage-boundⁿ n x≤g x≤d+ph+rx x≤h
+
+  -- The context used in the usage rule for natrec is an upper bound
+  -- of contexts satisfying the neccesary inequalities
+  -- If χ ≤ᶜ γ and χ ≤ᶜ (δ +ᶜ p ·ᶜ η) +ᶜ r ·ᶜ χ and χ ≤ᶜ η
+  -- then χ ≤ᶜ nrᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r
+
+  natrec-usage-bound : ∀ {χ}
+                     → χ ≤ᶜ γ
+                     → χ ≤ᶜ (δ +ᶜ p ·ᶜ η) +ᶜ r ·ᶜ χ
+                     → χ ≤ᶜ η
+                     → χ ≤ᶜ nrᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r
+  natrec-usage-bound {γ = ε} {ε} {η = ε} {χ = ε} χ≤γ χ≤δ+pη+rχ χ≤η = ≤ᶜ-refl
+  natrec-usage-bound {γ = γ ∙ g} {δ ∙ d} {η = η ∙ h} {χ = χ ∙ x}
+                     (χ≤γ ∙ x≤g) (χ≤δ+pη+rχ ∙ x≤d+ph+rx) (χ≤η ∙ x≤h) =
+                     natrec-usage-bound χ≤γ χ≤δ+pη+rχ χ≤η ∙ natrec-usage-bound′ x≤g x≤d+ph+rx x≤h

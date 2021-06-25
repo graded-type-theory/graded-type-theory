@@ -35,18 +35,15 @@ private
 -- Modality Contexts are snoc-lists
 
 data Conₘ : Nat → Set where
-  nil   : Conₘ 0
-  snoc : (γ : Conₘ n) → (p : M) → Conₘ (1+ n)
+  ε   : Conₘ 0
+  _∙_ : (γ : Conₘ n) → (p : M) → Conₘ (1+ n)
 
 -- Modality equality lifted pointwise to contexts
 
 data _≈ᶜ_ : (γ δ : Conₘ n) → Set where
-  nil : nil ≈ᶜ nil
-  snoc : {γ δ : Conₘ n} {p q : M} → γ ≈ᶜ δ → p ≈ q → (snoc γ p) ≈ᶜ (snoc δ q)
+  ε : ε ≈ᶜ ε
+  _∙_ : {γ δ : Conₘ n} {p q : M} → γ ≈ᶜ δ → p ≈ q → (γ ∙ p) ≈ᶜ (δ ∙ q)
 
--- Use pattern to fix broken case-splitting
-pattern _∙_ γ p = snoc γ p
-pattern ε = nil
 
 headₘ : (γ : Conₘ (1+ n)) → M
 headₘ (γ ∙ p) = p
