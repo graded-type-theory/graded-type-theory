@@ -326,3 +326,22 @@ doubleSubstLift {n = n} σ G t u = begin
     subst σ₂ (wk ((step id) • (step id)) (σ x))  ≡˘⟨ cong (subst σ₂) (wk-comp (step id) (step id) (σ x)) ⟩
     subst σ₂ (wk1 (wk1 (σ x)))                   ≡⟨⟩
     (σ₂ ₛ•ₛ (liftSubst (liftSubst σ))) (x +1 +1) ∎
+
+wk1-tail : (t : Term n) → subst σ (wk1 t) ≡ subst (tail σ) t
+wk1-tail {σ = σ} t = begin
+  subst σ (wk1 t) ≡⟨⟩
+  subst σ (wk (step id) t) ≡⟨ subst-wk t ⟩
+  subst (σ ₛ• step id) t ≡⟨⟩
+  subst (tail σ) t ∎
+
+wk1-tailId : (t : Term n) → wk1 t ≡ subst (tail idSubst) t
+wk1-tailId t = trans (sym (subst-id (wk1 t))) (subst-wk t)
+
+wk1-sgSubst : ∀ (t : Term n) t' → (wk1 t) [ t' ] ≡ t
+wk1-sgSubst t t' rewrite wk1-tailId t =
+  let substVar-sgSubst-tail : ∀ a n → (sgSubst a ₛ•ₛ tail idSubst) n ≡ idSubst n
+      substVar-sgSubst-tail a n = refl
+  in  trans (trans
+        (substCompEq t)
+        (substVar-to-subst (substVar-sgSubst-tail t') t))
+      (subst-id t)
