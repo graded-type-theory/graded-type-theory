@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --allow-unsolved-metas #-}
+{-# OPTIONS --without-K  #-}
 open import Definition.Modality.Erasure
 
 open import Definition.Typed.EqualityRelation
@@ -34,7 +34,6 @@ open import Definition.Typed Erasure
 open import Definition.Typed.Consequences.Substitution Erasure
 open import Definition.Typed.Consequences.Syntactic Erasure
 
--- open import Erasure.Extraction
 open import Erasure.LogicalRelation
 open import Erasure.LogicalRelation.Conversion
 open import Erasure.LogicalRelation.Fundamental.Application
@@ -46,7 +45,6 @@ open import Erasure.LogicalRelation.Fundamental.Product
 open import Erasure.LogicalRelation.Fundamental.Unit
 
 open import Erasure.LogicalRelation.Irrelevance
--- open import Erasure.LogicalRelation.Irrelevance
 open import Erasure.LogicalRelation.Properties
 import Erasure.Target as T
 open import Erasure.Extraction
@@ -64,7 +62,6 @@ private
      Γ : Con Term n
      t A u : Term n
      B : Term (1+ n)
-     -- w : T.Term n
      γ : Conₘ n
      p q : Erasure
      σ : Subst 0 n
@@ -187,9 +184,9 @@ fundamental (sndⱼ {G = G} {t = t} Γ⊢F Γ⊢G Γ⊢t:Σ) γ▸t =
   in  [Γ] , [G] , subsumption {t = snd t} {A = G [ fst t ]} [Γ] [G] ⊩ʳt₂ δ≤𝟘
 fundamental (prodrecⱼ Γ⊢F Γ⊢G Γ⊢t:Σ Γ⊢A Γ⊢u:A) γ▸t =
   let invUsageProdrec δ▸t η▸u le = inv-usage-prodrec γ▸t
-      [Γ] , [Σ] , ⊩ʳt = fundamental Γ⊢t:Σ δ▸t
+      [Γ]   , [Σ] , ⊩ʳt = fundamental Γ⊢t:Σ δ▸t
       [ΓFG] , [A] , ⊩ʳu = fundamental Γ⊢u:A η▸u
-  in  [Γ] , ({!!} , {!⊩ʳu!})
+  in  [Γ] , {![A]!} , {!⊩ʳu!}
 fundamental (zeroⱼ ⊢Γ) γ▸t = zeroʳ ⊢Γ
 fundamental (sucⱼ {n = t} Γ⊢t:ℕ) γ▸t =
   let invUsageSuc δ▸t γ≤δ = inv-usage-suc γ▸t
@@ -220,8 +217,8 @@ fundamental (natrecⱼ {p = p} {r = r} {G = A} {s = s} {z = z} {n = n} Γ⊢A Γ
       ⊩ʳn = irrelevance {A = ℕ} {t = n} [Γ]′ [Γ] [ℕ]′ [ℕ] ⊩ʳn′
       [A[n]] , ⊩ʳnatrec = natrecʳ {A = A} {z = z} {s = s} {m = n}
                                   [Γ] [A] [A₊] [A₀] [z] [s] [n] ⊩ʳz ⊩ʳs ⊩ʳn
-  in  [Γ] , [A[n]] , {!subsumption {t = natrec p r A z s n} {A = A [ n ]}
-                                 [Γ] [A[n]] ⊩ʳnatrec γ≤γ′!}
+  in  [Γ] , [A[n]] , subsumption {t = natrec p r A z s n} {A = A [ n ]}
+                                 [Γ] [A[n]] ⊩ʳnatrec γ≤γ′
 fundamental {Γ = Γ} {γ = γ} (Emptyrecⱼ {p = p} {A = A} {e = t} ⊢A Γ⊢t:Empty) γ▸t =
   let invUsageEmptyrec δ▸t γ≤δ = inv-usage-Emptyrec γ▸t
       [Γ] , [Empty] , ⊩ʳt = fundamental Γ⊢t:Empty δ▸t
