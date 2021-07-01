@@ -95,7 +95,7 @@ snd′ {Γ = Γ} {q = q} {F = F} {G = G} {t = t} {l = l} {l′ = l′}
 
       [fstt] , [fstt≡fstp] = redSubst*Term (PE.subst (λ x → Γ ⊢ fst t ⇒* fst p ∷ x)
                                                      (PE.sym (wk-id F))
-                                                     (fst-subst* ⊢F ⊢G (redₜ d)))
+                                                     (fst-subst* (redₜ d) ⊢F ⊢G))
                                            ([F'] id ⊢Γ) [fstp]
 
       [Gfstt] = [G'] id ⊢Γ [fstt]
@@ -150,7 +150,7 @@ snd-cong′ {Γ = Γ} {q = q} {F = F} {G} {t} {t′} {l} {l′}
 
       [fstt] , [fstt≡fstp] = redSubst*Term (PE.subst (λ x → Γ ⊢ fst t ⇒* fst p ∷ x)
                                                      (PE.sym (wk-id F))
-                                                     (fst-subst* ⊢F ⊢G (redₜ d)))
+                                                     (fst-subst* (redₜ d) ⊢F ⊢G))
                                            ([F] id ⊢Γ) [fstp]
       [Gfstt≡Gfstp] = G-ext id ⊢Γ [fstt] [fstp] [fstt≡fstp]
 
@@ -171,7 +171,7 @@ snd-cong′ {Γ = Γ} {q = q} {F = F} {G} {t} {t′} {l} {l′}
 
       [fstt′] , [fstt′≡fstp′] = redSubst*Term (PE.subst (λ x → Γ ⊢ fst t′ ⇒* fst p′ ∷ x)
                                                      (PE.sym (wk-id F))
-                                                     (fst-subst* ⊢F ⊢G (redₜ d′)))
+                                                     (fst-subst* (redₜ d′) ⊢F ⊢G))
                                            ([F] id ⊢Γ) [fstp′]
       [fstt≡fstt′] = irrelevanceEqTerm′ (PE.sym (wk-id F))
                                         [F]′ ([F] id ⊢Γ)

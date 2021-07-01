@@ -147,10 +147,10 @@ private
       fstp⇒* : Γ ⊢ fst p ⇒* fst p′ ∷ U.wk id F
       fstp⇒* = PE.subst (λ x → Γ ⊢ _ ⇒* _ ∷ x)
                         (PE.sym (wk-id F))
-                        (fst-subst* ⊢F ⊢G (redₜ dₚ))
+                        (fst-subst* (redₜ dₚ) ⊢F ⊢G)
       fstr⇒* = PE.subst (λ x → Γ ⊢ _ ⇒* _ ∷ x)
                         (PE.sym (wk-id F))
-                        (fst-subst* ⊢F ⊢G (redₜ dᵣ))
+                        (fst-subst* (redₜ dᵣ) ⊢F ⊢G)
 
       --wk[fstp≡] : Γ ⊩⟨ l ⟩ fst p ≡ fst p′ ∷ U.wk id F / wk[F]
       wk[fstp] , wk[fstp≡] = redSubst*Term fstp⇒* wk[F] wk[fstp′]

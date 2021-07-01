@@ -31,11 +31,6 @@ private
     Γ : Con Term n
     q : M
 
-fst-subst* : ∀ {F G t t′} → Γ ⊢ F → Γ ∙ F ⊢ G
-             → Γ ⊢ t ⇒* t′ ∷ Σ q ▷ F ▹ G → Γ ⊢ fst t ⇒* fst t′ ∷ F
-fst-subst* ⊢F ⊢G (id x) = id (fstⱼ ⊢F ⊢G x)
-fst-subst* ⊢F ⊢G (x ⇨ t⇒t′) = fst-subst ⊢F ⊢G x ⇨ fst-subst* ⊢F ⊢G t⇒t′
-
 -- Reducibility of fst with a specific typing derivation
 fst′ : ∀ {F G t l l′}
        ([F] : Γ ⊩⟨ l′ ⟩ F)
@@ -50,7 +45,7 @@ fst′ {Γ = Γ} {q = q} {F = F} {t = t} [F] (noemb (Bᵣ F' G' D ⊢F ⊢G A≡
       [fstp] = irrelevanceTerm′ (wk-id F)
                                 ([F'] id (wf ⊢F)) [F]
                                 [fstp]
-  in  proj₁ (redSubst*Term (fst-subst* ⊢F ⊢G (redₜ d))
+  in  proj₁ (redSubst*Term (fst-subst* (redₜ d) ⊢F ⊢G)
                            [F] [fstp])
 fst′ {Γ = Γ} {t = t} {l = l} [F] (emb 0<1 x) [t] = fst′ [F] x [t]
 
@@ -78,8 +73,8 @@ fst-cong′ {Γ = Γ} {q = q} {F = F} {G = G} [F]
       [fstp]₁ = irrelevanceTerm′ (wk-id F) ([F'] id ⊢Γ) [F] [fstp]
       [fstp′]₁ = irrelevanceTerm′ (wk-id F) ([F'] id ⊢Γ) [F] [fstp′]
       [fst≡]₁ = irrelevanceEqTerm′ (wk-id F) ([F'] id ⊢Γ) [F] [fst≡]
-      [fstt≡fstp] = proj₂ (redSubst*Term (fst-subst* ⊢F ⊢G (redₜ d)) [F] [fstp]₁)
-      [fstt′≡fstp′] = proj₂ (redSubst*Term (fst-subst* ⊢F ⊢G (redₜ d′)) [F] [fstp′]₁)
+      [fstt≡fstp] = proj₂ (redSubst*Term (fst-subst* (redₜ d) ⊢F ⊢G) [F] [fstp]₁)
+      [fstt′≡fstp′] = proj₂ (redSubst*Term (fst-subst* (redₜ d′) ⊢F ⊢G) [F] [fstp′]₁)
   in  transEqTerm [F] [fstt≡fstp] (transEqTerm [F] [fst≡]₁ (symEqTerm [F] [fstt′≡fstp′]))
 fst-cong′ [F] (emb 0<1 x) = fst-cong′ [F] x
 

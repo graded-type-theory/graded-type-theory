@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K  #-}
+{-# OPTIONS --without-K   #-}
 
 open import Tools.Fin
 
@@ -86,7 +86,8 @@ subsumption {l = l} [Γ] [A] γ⊩ʳt δ≤γ [σ] σ®σ′ = γ⊩ʳt [σ] (su
 -- Logical relation for erasure is preserved under a single reduction backwards on the left term
 -- If t′ ® v ∷ A and ε ⊢ t ⇒ t′ ∷ A then t ® v ∷ A
 
-®-redˡ : ∀ {l} ([A] : ε ⊩⟨ l ⟩ A) → t′ ®⟨ l ⟩ v ∷ A / [A] → _⊢_⇒_∷_ ε t t′ A → t ®⟨ l ⟩ v ∷ A / [A]
+®-redˡ : ∀ {l} ([A] : ε ⊩⟨ l ⟩ A) → t′ ®⟨ l ⟩ v ∷ A / [A]
+       → ε ⊢ t ⇒ t′ ∷ A → t ®⟨ l ⟩ v ∷ A / [A]
 ®-redˡ (Uᵣ _) (Uᵣ _) t⇒t′ = Uᵣ (redFirstTerm t⇒t′)
 ®-redˡ (ℕᵣ ([ ⊢A , ⊢B , D ])) (zeroᵣ t′⇒zero v⇒v′) t⇒t′ =
   zeroᵣ ((conv t⇒t′ (subset* D)) ⇨ t′⇒zero) v⇒v′
@@ -109,26 +110,9 @@ subsumption {l = l} [Γ] [A] γ⊩ʳt δ≤γ [σ] σ®σ′ = γ⊩ʳt [σ] (su
       t∘a⇒t′∘w′ = app-subst (conv t⇒t′ (subset* D)) ⊢a′
       t∘a⇒t′∘w = PE.subst (_⊢_⇒_∷_ ε _ _) (PE.cong (U._[ a ]) (PE.sym (UP.wk-lift-id G))) t∘a⇒t′∘w′
   in ®-redˡ ([G] id ε [a]) t®v t∘a⇒t′∘w
-®-redˡ (Bᵣ′ (BΣ p) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext) t®v t⇒t′ [t₁] =
-  let t₁⇒t′₁′ = fst-subst ⊢F ⊢G (conv t⇒t′ (subset* D))
-      t₁⇒t′₁ = PE.subst (_⊢_⇒_∷_ ε (U.fst _) (U.fst _)) (PE.sym (UP.wk-id F)) t₁⇒t′₁′
-      t₂⇒t′₂ = snd-subst ⊢F ⊢G (conv t⇒t′ (subset* D))
-      ⊢t′₁ = proj₂ (proj₂ (syntacticRedTerm (redMany t₁⇒t′₁)))
-      [F]′ , [t′₁]′ = reducibleTerm ⊢t′₁
-      [t′₁] = I.irrelevanceTerm [F]′ ([F] id ε) [t′₁]′
-      t₁®v₁′ , t₂®v₂′ = t®v [t′₁]
-      t₁®v₁ = ®-redˡ ([F] id ε) t₁®v₁′ t₁⇒t′₁
-      G[t₁]≡G[t′₁] = substTypeEq (refl ⊢G) (subsetTerm t₁⇒t′₁′)
-      G[t₁]≡G[t′₁]′ = PE.subst (ε ⊢ G U.[ U.fst _ ] ≡_)
-                               (PE.cong (U._[ U.fst _ ])
-                                        (PE.sym (UP.wk-lift-id G)))
-                               G[t₁]≡G[t′₁]
-      G[t′₁]≡G[t₁] = PE.subst (ε ⊢ U.wk (lift id) G U.[ _ ] ≡_)
-                              (PE.sym (PE.cong (U._[ _ ]) (UP.wk-lift-id G)))
-                              (sym G[t₁]≡G[t′₁]′)
-      t₂®v₂″ = ®-redˡ (([G] id ε [t′₁])) t₂®v₂′ (conv t₂⇒t′₂ G[t₁]≡G[t′₁]′)
-      t₂®v₂ = convTermʳ ([G] id ε [t′₁]) ([G] id ε [t₁]) G[t′₁]≡G[t₁] t₂®v₂″
-  in  t₁®v₁ , t₂®v₂
+®-redˡ (Bᵣ′ (BΣ p) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext)
+       (t₁ , t₂ , v₁ , v₂ , t′⇒u , v⇒v′ , t®v) t⇒t′ =
+         t₁ , t₂ , v₁ , v₂ , ((conv t⇒t′ (subset* D)) ⇨ t′⇒u) , v⇒v′ , t®v
 ®-redˡ (emb 0<1 [A]) t®v t⇒t′ = ®-redˡ [A] t®v t⇒t′
 
 
@@ -156,18 +140,15 @@ subsumption {l = l} [Γ] [A] γ⊩ʳt δ≤γ [σ] σ®σ′ = γ⊩ʳt [σ] (su
       v∘w⇒v′∘w′ = T.app-subst v⇒v′
       [G[a]] = [G] id ε [a]
   in ®-redʳ [G[a]] t®v v∘w⇒v′∘w′
-®-redʳ (Bᵣ′ (BΠ ω q) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext) t®v′ v⇒v′ {a = a} [a] a®w =
+®-redʳ (Bᵣ′ (BΠ ω q) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext)
+       t®v′ v⇒v′ {a = a} [a] a®w =
   let t®v = t®v′ [a] a®w
       v∘w⇒v′∘w′ = T.app-subst v⇒v′
       [G[a]] = [G] id ε [a]
   in ®-redʳ [G[a]] t®v v∘w⇒v′∘w′
-®-redʳ (Bᵣ′ (BΣ q) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext) t®v′ v⇒v′ [t₁] =
-  let t₁®v₁′ , t₂®v₂′ = t®v′ [t₁]
-      v₁⇒w₁ = T.fst-subst v⇒v′
-      v₂⇒w₂ = T.snd-subst v⇒v′
-      t₁®v₁ = ®-redʳ ([F] id ε) t₁®v₁′ v₁⇒w₁
-      t₂®v₂ = ®-redʳ ([G] id ε [t₁]) t₂®v₂′ v₂⇒w₂
-  in  t₁®v₁ , t₂®v₂
+®-redʳ (Bᵣ′ (BΣ q) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext)
+       (t₁ , t₂ , v₁ , v₂ , t⇒t′ , v′⇒w , t®v′) v⇒v′ =
+         t₁ , t₂ , v₁ , v₂ , t⇒t′ , trans v⇒v′ v′⇒w , t®v′
 ®-redʳ (emb 0<1 [A]) t®v′ v⇒v′ = ®-redʳ [A] t®v′ v⇒v′
 
 
@@ -199,7 +180,7 @@ subsumption {l = l} [Γ] [A] γ⊩ʳt δ≤γ [σ] σ®σ′ = γ⊩ʳt [σ] (su
 -- If t ® v ∷ A and ε ⊢ t ⇒ t′ ∷ A  then t′ ® v ∷ A
 
 ®-redˡ′ : ∀ {l} ([A] : ε ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A]
-        → _⊢_⇒_∷_ ε t t′ A → t′ ®⟨ l ⟩ v ∷ A / [A]
+        → ε ⊢ t ⇒ t′ ∷ A → t′ ®⟨ l ⟩ v ∷ A / [A]
 ®-redˡ′ (Uᵣ x) (Uᵣ x₁) t⇒t′ with syntacticRedTerm (redMany t⇒t′)
 ... | _ , _ , ε⊢t′∷U = Uᵣ ε⊢t′∷U
 ®-redˡ′ (ℕᵣ [ ⊢A , ⊢B , D ]) (zeroᵣ t⇒zero v⇒zero) t⇒t′ with whrDet↘Term (t⇒zero , zeroₙ) (conv* (redMany t⇒t′) (subset* D))
@@ -227,25 +208,13 @@ subsumption {l = l} [Γ] [A] γ⊩ʳt δ≤γ [σ] σ®σ′ = γ⊩ʳt [σ] (su
                           (PE.cong (U._[ a ]) (PE.sym (UP.wk-lift-id G)))
                           t∘a⇒t′∘a′
   in  ®-redˡ′ ([G] id ε [a]) t®v t∘a⇒t′∘a
-®-redˡ′ (Bᵣ′ (BΣ q) F G D ⊢F ⊢G A≡A [F] [G] G-ext) t®v t⇒t′ [t′₁] =
-  let
-      t₁⇒t′₁ = fst-subst ⊢F ⊢G (conv t⇒t′ (subset* (red D)))
-      t₂⇒t′₂ = snd-subst ⊢F ⊢G (conv t⇒t′ (subset* (red D)))
-      t₁⇒t′₁′ = PE.subst (_⊢_⇒_∷_ ε _ _) (PE.sym (UP.wk-id F)) t₁⇒t′₁
-      t₂⇒t′₂′ = PE.subst (_⊢_⇒_∷_ ε _ _)
-                         (PE.cong (U._[ _ ]) (PE.sym (UP.wk-lift-id G)))
-                         t₂⇒t′₂
-      ⊢t₁ =  proj₁ (proj₂ (syntacticRedTerm (redMany t₁⇒t′₁′)))
-      [F]′ , [t₁]′ = reducibleTerm ⊢t₁
-      [t₁] = I.irrelevanceTerm [F]′ ([F] id ε) [t₁]′
-      t₁®v₁ , t₂®v₂ = t®v [t₁]
-      t₁®v₁′ = ®-redˡ′ ([F] id ε) t₁®v₁ t₁⇒t′₁′
-      t₂®v₂′ = ®-redˡ′ ([G] id ε [t₁]) t₂®v₂ t₂⇒t′₂′
-      G[t₁]≡G[t′₁] = substTypeEq (refl ⊢G) (subsetTerm t₁⇒t′₁)
-      G[t₁]≡G[t′₁]′ = PE.subst (λ G → ε ⊢ G U.[ _ ] ≡ G U.[ _ ])
-                               (PE.sym (UP.wk-lift-id G))
-                               G[t₁]≡G[t′₁]
-  in  t₁®v₁′ , convTermʳ ([G] id ε [t₁]) ([G] id ε [t′₁]) G[t₁]≡G[t′₁]′ t₂®v₂′
+®-redˡ′ (Bᵣ′ (BΣ q) F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+        (t₁ , t₂ , v₁ , v₂ , t⇒u , v⇒v′ , t®v) t⇒t′ =
+         t₁ , t₂ , v₁ , v₂ , reddet (conv t⇒t′ (subset* (red D))) (t⇒u , prodₙ) , v⇒v′ , t®v
+    where
+    reddet : ∀ {t t′ u A} → ε ⊢ t ⇒ t′ ∷ A → ε ⊢ t ↘ u ∷ A → ε ⊢ t′ ⇒* u ∷ A
+    reddet t⇒t′ ((id x) , w) rewrite whnfRed*Term (redMany t⇒t′) w = id x
+    reddet t⇒t′ ((x ⇨ t⇒u) , w) rewrite whrDetTerm t⇒t′ x = t⇒u
 ®-redˡ′ (emb 0<1 [A]) t®v t⇒t′ = ®-redˡ′ [A] t®v t⇒t′
 
 
@@ -282,11 +251,15 @@ subsumption {l = l} [Γ] [A] γ⊩ʳt δ≤γ [σ] σ®σ′ = γ⊩ʳt [σ] (su
   let t®v = t®v′ [a] a®w
       v∘w⇒v′∘w = T.app-subst v⇒v′
   in  ®-redʳ′ ([G] id ε [a]) t®v v∘w⇒v′∘w
-®-redʳ′ (Bᵣ′ (BΣ p) F G D ⊢F ⊢G A≡A [F] [G] G-ext) t®v′ v⇒v′ [t₁] =
-  let t₁®v₁ , t₂®v₂ = t®v′ [t₁]
-      v₁⇒v′₁ = T.fst-subst v⇒v′
-      v₂⇒v′₂ = T.snd-subst v⇒v′
-  in  ®-redʳ′ ([F] id ε) t₁®v₁ v₁⇒v′₁ , ®-redʳ′ ([G] id ε [t₁]) t₂®v₂ v₂⇒v′₂
+®-redʳ′ (Bᵣ′ (BΣ p) F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+        (t₁ , t₂ , v₁ , v₂ , t⇒t′ , v⇒w , t®v′) v⇒v′ =
+    let v₁⇒v′₁ = T.fst-subst v⇒v′
+        v₂⇒v′₂ = T.snd-subst v⇒v′
+        v′⇒w = cases (red*Det (trans v⇒v′ T.refl) v⇒w)
+                     (λ x → x)
+                     (λ x → PE.subst (T._⇒* (T.prod v₁ v₂))
+                                     (PE.sym (prod-noRed x)) T.refl)
+    in  t₁ , t₂ , v₁ , v₂ , t⇒t′ , v′⇒w , t®v′
 ®-redʳ′ (emb 0<1 [A]) t®v v⇒v′ = ®-redʳ′ [A] t®v v⇒v′
 
 
