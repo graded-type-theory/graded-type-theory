@@ -5,9 +5,10 @@ open import Tools.Relation
 open import Definition.Modality
 
 module Definition.Modality.Context.Properties
-  {M : Set} {_≈_ : Rel M ℓ₀}
-  (𝕄 : Modality M _≈_)
+  {M′ : Setoid _ _} (𝕄 : Modality M′)
   where
+
+open Modality 𝕄
 
 open import Definition.Modality.Properties 𝕄
 open import Definition.Modality.Context 𝕄
@@ -17,8 +18,6 @@ open import Tools.Fin
 open import Tools.Nat renaming (_+_ to _+ⁿ_)
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
-
-open Modality 𝕄
 
 open import Definition.Modality.Context.Properties.Addition 𝕄 public
 open import Definition.Modality.Context.Properties.Equivalence 𝕄 public
@@ -62,20 +61,20 @@ private
 -- tailₘ (γ ∧ᶜ δ) ≡ tailₘ γ ∧ᶜ tailₘ δ
 
 tailₘ-distrib-∧ᶜ : (γ δ : Conₘ (1+ n)) → tailₘ (γ ∧ᶜ δ) ≡ (tailₘ γ) ∧ᶜ (tailₘ δ)
-tailₘ-distrib-∧ᶜ (ε ∙ p) (ε ∙ q) = refl
-tailₘ-distrib-∧ᶜ (γ ∙ p′ ∙ p) (δ ∙ q′ ∙ q) = cong₂ _∙_ (tailₘ-distrib-∧ᶜ (γ ∙ p) (δ ∙ q)) refl
+tailₘ-distrib-∧ᶜ (ε ∙ p) (ε ∙ q) = PE.refl
+tailₘ-distrib-∧ᶜ (γ ∙ p′ ∙ p) (δ ∙ q′ ∙ q) = cong₂ _∙_ (tailₘ-distrib-∧ᶜ (γ ∙ p) (δ ∙ q)) PE.refl
 
 -- headₘ distributes over meet
 -- headₘ (γ ∧ᶜ δ) ≡ headₘ γ ∧ headₘ δ
 
 head-distrib-∧ : (γ δ : Conₘ (1+ n)) → headₘ (γ ∧ᶜ δ) ≡ (headₘ γ) ∧ (headₘ δ)
-head-distrib-∧ (γ ∙ p) (δ ∙ q) = refl
+head-distrib-∧ (γ ∙ p) (δ ∙ q) = PE.refl
 
 -- The headₘ and tailₘ functions correctly give the head and tail of the context
 -- tailₘ γ ∙ headₘ γ ≡ γ
 
 headₘ-tailₘ-correct : (γ : Conₘ (1+ n)) → tailₘ γ ∙ headₘ γ ≡ γ
-headₘ-tailₘ-correct (γ ∙ p) = refl
+headₘ-tailₘ-correct (γ ∙ p) = PE.refl
 
 -- Congruence of tailₘ
 -- If γ ≈ᶜ δ then tailₘ γ ≈ᶜ tailₘ δ

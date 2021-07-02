@@ -5,9 +5,10 @@ open import Tools.Relation
 open import Definition.Modality
 
 module Definition.Modality.Substitution
-  {M : Set} {_≈_ : Rel M ℓ₀}
-  (𝕄 : Modality M _≈_)
+  {M′ : Setoid _ _} (𝕄 : Modality M′)
   where
+
+open Modality 𝕄
 
 open import Definition.Untyped M
   using (Subst ; tail ; head ; Wk ; id ; step ; lift)
@@ -20,8 +21,6 @@ open import Definition.Modality.Usage 𝕄
 open import Tools.Fin
 open import Tools.Nat
 open import Tools.Product
-
-open Modality 𝕄
 
 infixr 50 _*>_
 infix  20 ∥_∥

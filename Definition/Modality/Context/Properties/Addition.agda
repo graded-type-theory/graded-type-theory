@@ -5,8 +5,7 @@ open import Tools.Relation
 open import Definition.Modality
 
 module Definition.Modality.Context.Properties.Addition
-  {M : Set} {_≈_ : Rel M ℓ₀}
-  (𝕄 : Modality M _≈_)
+  {M′ : Setoid _ _} (𝕄 : Modality M′)
   where
 
 open import Definition.Modality.Context 𝕄

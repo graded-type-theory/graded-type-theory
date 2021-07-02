@@ -3,9 +3,11 @@
 open import Tools.Level
 open import Tools.Relation
 
-module Definition.Modality (M : Set) (_≈_ : Rel M ℓ₀) where
+module Definition.Modality (M′ : Setoid _ _) where
 
-open import Tools.Algebra (_≈_)
+-- open Setoid M′ renaming (Carrier to M) public
+
+open import Tools.Algebra (Setoid._≈_ M′)
 open import Tools.Nat hiding (_+_)
 open import Tools.Product
 
@@ -15,6 +17,8 @@ record Modality : Set where
   infixr 40 _∧_
   infixr 45 _·_
   infix  10 _≤_
+
+  open Setoid M′ renaming (Carrier to M) public
 
   field
     -- A modality consists of a type M with three binary operations...

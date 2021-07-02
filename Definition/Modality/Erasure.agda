@@ -11,7 +11,9 @@ open import Tools.PropositionalEquality
 data Erasure : Set where
   𝟘 ω : Erasure
 
-open import Definition.Modality Erasure _≡_ public
+open import Definition.Modality
+  (record { Carrier = Erasure ; _≈_ = _≡_ ; isEquivalence = isEquivalence })
+  public
 open import Tools.Algebra {A = Erasure} _≡_
 open import Tools.Nat hiding (_+_)
 

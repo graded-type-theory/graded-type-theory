@@ -5,9 +5,10 @@ open import Tools.Relation
 open import Definition.Modality
 
 module Definition.Modality.Usage.Inversion
-  {M : Set} {_≈_ : Rel M ℓ₀}
-  (𝕄 : Modality M _≈_)
+  {M′ : Setoid _ _} (𝕄 : Modality M′)
   where
+
+open Modality 𝕄
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
@@ -15,9 +16,7 @@ open import Definition.Modality.Usage 𝕄
 open import Definition.Untyped M hiding (_∙_)
 
 open import Tools.Nat
-open import Tools.PropositionalEquality
-
-open Modality 𝕄
+open import Tools.PropositionalEquality as PE
 
 private
   variable
@@ -130,7 +129,7 @@ record InvUsageProd {n} (γ′ : Conₘ n) (t u : Term n) : Set where
 -- If γ ▸ prod t u then δ ▸ t, η ▸ u and γ ≤ᶜ δ +ᶜ η
 
 inv-usage-prod : γ ▸ prod t u → InvUsageProd γ t u
-inv-usage-prod (prodₘ! γ▸t δ▸u) = invUsageProd γ▸t δ▸u refl ≤ᶜ-refl
+inv-usage-prod (prodₘ! γ▸t δ▸u) = invUsageProd γ▸t δ▸u PE.refl ≤ᶜ-refl
 inv-usage-prod (sub γ▸tu γ≤γ′) with inv-usage-prod γ▸tu
 ... | invUsageProd δ▸t η▸u γ″=δ+η γ′≤γ″ = invUsageProd δ▸t η▸u γ″=δ+η
   (≤ᶜ-trans γ≤γ′ γ′≤γ″)

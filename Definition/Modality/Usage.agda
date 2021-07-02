@@ -5,9 +5,10 @@ open import Tools.Relation
 open import Definition.Modality
 
 module Definition.Modality.Usage
-  {M : Set} {_≈_ : Rel M ℓ₀}
-  (𝕄 : Modality M _≈_)
+  {M′ : Setoid _ _} (𝕄 : Modality M′)
   where
+
+open Modality 𝕄
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Untyped M hiding (_∙_)
@@ -15,8 +16,6 @@ open import Definition.Untyped M hiding (_∙_)
 open import Tools.Fin
 open import Tools.Nat
 import Tools.PropositionalEquality as PE
-
-open Modality 𝕄
 
 infix 10 _▸_
 

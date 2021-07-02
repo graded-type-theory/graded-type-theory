@@ -9,7 +9,9 @@ open import Tools.Unit
 
 open import Tools.Algebra {A = ⊤} _≡_
 
-open import Definition.Modality ⊤ _≡_ public
+open import Definition.Modality
+  (record { Carrier = ⊤ ; _≈_ = _≡_ ; isEquivalence = isEquivalence })
+  public
 
 -----------------------------------------------
 -- A trivial modality formed by the unit set --

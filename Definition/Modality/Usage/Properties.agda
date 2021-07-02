@@ -5,9 +5,10 @@ open import Tools.Relation
 open import Definition.Modality
 
 module Definition.Modality.Usage.Properties
-  {M : Set} {_≈_ : Rel M ℓ₀}
-  (𝕄 : Modality M _≈_)
+  {M′ : Setoid _ _} (𝕄 : Modality M′)
   where
+
+open Modality 𝕄
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
@@ -23,8 +24,6 @@ open import Tools.Nat hiding (_+_)
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 
-
-open Modality 𝕄
 
 private
   variable
@@ -90,11 +89,11 @@ Conₘ-interchange (_∘ₘ_ {γ} {δ = δ} {p = p} γ▸t δ▸u) (_∘ₘ_ {γ
        ≡˘⟨ cong (_ , x ≔_) (lookup-distrib-+ᶜ γ′ (p ·ᶜ δ′) x) ⟩
     (γ +ᶜ p ·ᶜ δ) , x ≔ (γ′ +ᶜ p ·ᶜ δ′) ⟨ x ⟩ ∎
 
-Conₘ-interchange (prodₘ {γ} {δ = δ} γ▸t γ▸t₁ refl) (prodₘ {γ₁} {δ = δ₁} δ▸t δ▸t₁ refl) x = prodₘ
+Conₘ-interchange (prodₘ {γ} {δ = δ} γ▸t γ▸t₁ PE.refl) (prodₘ {γ₁} {δ = δ₁} δ▸t δ▸t₁ PE.refl) x = prodₘ
   (Conₘ-interchange γ▸t δ▸t x)
   (Conₘ-interchange γ▸t₁ δ▸t₁ x)
   (subst₂ _≡_ (cong (_ , _ ≔_) (PE.sym (lookup-distrib-+ᶜ γ₁ δ₁ x)))
-              (update-distrib-+ᶜ γ δ _ _ x) refl)
+              (update-distrib-+ᶜ γ δ _ _ x) PE.refl)
 
 Conₘ-interchange (fstₘ γ▸t) (fstₘ δ▸t) x = subst (_▸ _) (PE.sym (update-self 𝟘ᶜ x)) (fstₘ γ▸t)
 Conₘ-interchange (sndₘ γ▸t) (sndₘ δ▸t) x = subst (_▸ _) (PE.sym (update-self 𝟘ᶜ x)) (sndₘ γ▸t)
@@ -217,12 +216,12 @@ usage-calc-term′ : {Γ : Con Term n} {γ : Conₘ n} {t A : Term n}
 usage-calc-term′ (Πⱼ_▹_ {q = q} {G = G} Γ⊢F:U Γ⊢G:U) γ▸t with inv-usage-Π γ▸t
 ... | invUsageΠΣ δ▸F η▸G _ = Πₘ
       (usage-calc-term′ Γ⊢F:U δ▸F)
-      (subst₂ _▸_ (update-head ⌈ G ⌉ q) refl
+      (subst₂ _▸_ (update-head ⌈ G ⌉ q) PE.refl
               (Conₘ-interchange (usage-calc-term′ Γ⊢G:U η▸G) η▸G x0))
 usage-calc-term′  (Σⱼ_▹_ {q = q} {G = G} Γ⊢F:U Γ⊢G:U) γ▸t with inv-usage-Σ γ▸t
 ... | invUsageΠΣ δ▸F η▸G _ = Σₘ
       (usage-calc-term′ Γ⊢F:U δ▸F)
-      (subst₂ _▸_ (update-head ⌈ G ⌉ q) refl
+      (subst₂ _▸_ (update-head ⌈ G ⌉ q) PE.refl
               (Conₘ-interchange (usage-calc-term′ Γ⊢G:U η▸G) η▸G x0))
 usage-calc-term′ (ℕⱼ x) γ▸t = ℕₘ
 usage-calc-term′ (Emptyⱼ x) γ▸t = Emptyₘ
@@ -230,7 +229,7 @@ usage-calc-term′ (Unitⱼ x) γ▸t = Unitₘ
 usage-calc-term′ (var x x₁) γ▸t = var
 usage-calc-term′ (lamⱼ {p = p} {t = t} x Γ⊢t:A) γ▸λt with inv-usage-lam γ▸λt
 ... | invUsageLam δ▸t _ = lamₘ
-      (subst₂ _▸_ (update-head ⌈ t ⌉ p) refl
+      (subst₂ _▸_ (update-head ⌈ t ⌉ p) PE.refl
               (Conₘ-interchange (usage-calc-term′ Γ⊢t:A δ▸t) δ▸t x0))
 usage-calc-term′ (Γ⊢t:Π ∘ⱼ Γ⊢u:F) γ▸t with inv-usage-app γ▸t
 ... | invUsageApp δ▸t η▸u _ =
@@ -239,7 +238,7 @@ usage-calc-term′ (prodⱼ x x₁ Γ⊢t:A Γ⊢u:B) γ▸t with inv-usage-prod
 ... | invUsageProd δ▸t η▸u _ _ = prodₘ
       (usage-calc-term′ Γ⊢t:A δ▸t)
       (usage-calc-term′ Γ⊢u:B η▸u)
-      refl
+      PE.refl
 usage-calc-term′ (fstⱼ x x₁ Γ⊢t:A) γ▸t with inv-usage-fst γ▸t
 ... | invUsageProj 𝟘▸t _ = fstₘ 𝟘▸t
 usage-calc-term′ (sndⱼ x x₁ Γ⊢t:A) γ▸t with inv-usage-snd γ▸t
@@ -248,14 +247,14 @@ usage-calc-term′ {n = n} (prodrecⱼ {p = p} {u = u}
                     x x₁ Γ⊢t:Σ x₂ Γ⊢u:A) γ▸t with inv-usage-prodrec γ▸t
 ... | invUsageProdrec δ▸t η▸u _ = prodrecₘ
       (usage-calc-term′ Γ⊢t:Σ δ▸t)
-      (subst₂ _▸_ eq refl (Conₘ-interchange (Conₘ-interchange
+      (subst₂ _▸_ eq PE.refl (Conₘ-interchange (Conₘ-interchange
                           (usage-calc-term′ Γ⊢u:A η▸u) η▸u (x0 +1)) η▸u x0))
   where
   open import Tools.Reasoning.PropositionalEquality
   γu = ⌈ u ⌉
   eq =  begin
      ((γu , x0 +1 ≔ p) , x0 ≔ p)
-       ≡⟨ cong₂ (_,_≔ p) (update-step γu p x0) refl ⟩
+       ≡⟨ cong₂ (_,_≔ p) (update-step γu p x0) PE.refl ⟩
      (( (tailₘ γu , x0 ≔ p) ∙ headₘ γu) , x0 ≔ p)
        ≡⟨ cong (_, x0 ≔ p) (cong (_∙ p) (update-head (tailₘ γu) p)) ⟩
      ((tailₘ (tailₘ γu) ∙ p ∙ headₘ γu) , x0 ≔ p)

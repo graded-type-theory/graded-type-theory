@@ -5,9 +5,10 @@ open import Tools.Relation
 open import Definition.Modality
 
 module Definition.Modality.Substitution.Properties
-  {M : Set} {_≈_ : Rel M ℓ₀}
-  (𝕄 : Modality M _≈_)
+  {M′ : Setoid _ _} (𝕄 : Modality M′)
   where
+
+open Modality 𝕄
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
@@ -23,8 +24,6 @@ open import Tools.Fin
 open import Tools.Nat hiding (_+_)
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
-
-open Modality 𝕄
 
 private
   variable
