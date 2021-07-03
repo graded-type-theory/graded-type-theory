@@ -345,3 +345,21 @@ wk1-sgSubst t t' rewrite wk1-tailId t =
         (substCompEq t)
         (substVar-to-subst (substVar-sgSubst-tail t') t))
       (subst-id t)
+
+doubleSubstComp : (A : Term (1+ (1+ n))) (t u : Term m) (σ : Subst m n)
+                → subst (liftSubstn σ 2) A [ t , u ]
+                ≡ subst (consSubst (consSubst σ t) u) A
+doubleSubstComp {n = n} A t u σ = begin
+  subst (liftSubstn σ 2) A [ t , u ]
+    ≡⟨ substCompEq A ⟩
+  subst (consSubst (consSubst idSubst t) u ₛ•ₛ liftSubstn σ 2) A
+    ≡⟨ substVar-to-subst varEq A ⟩
+  subst (consSubst (consSubst σ t) u) A ∎
+  where
+  varEq : (x : Fin (1+ (1+ n)))
+        → (consSubst (consSubst idSubst t) u ₛ•ₛ liftSubstn σ 2) x
+        ≡  consSubst (consSubst σ t) u x
+  varEq x0 = refl
+  varEq (x0 +1) = refl
+  varEq (x +1 +1) = trans (wk1-tail (wk1 (σ x)))
+                          (trans (wk1-tail (σ x)) (subst-id (σ x)))

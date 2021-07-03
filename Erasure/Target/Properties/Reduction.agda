@@ -40,6 +40,10 @@ natrec-subst* : ∀ {z s} → t ⇒* t′ → natrec z s t ⇒* natrec z s t′
 natrec-subst* refl = refl
 natrec-subst* (trans x t⇒t′) = trans (natrec-subst x) (natrec-subst* t⇒t′)
 
+prodrec-subst* : t ⇒* t′ → prodrec t u ⇒* prodrec t′ u
+prodrec-subst* refl = refl
+prodrec-subst* (trans x t⇒t′) = trans (prodrec-subst x) (prodrec-subst* t⇒t′)
+
 
 -- Reduction is deterministic
 -- If a ⇒ b and a ⇒ c then b ≡ c
