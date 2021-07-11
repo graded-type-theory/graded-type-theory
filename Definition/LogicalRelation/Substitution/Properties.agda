@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --allow-unsolved-metas #-}
+{-# OPTIONS --without-K --safe #-}
 
 open import Definition.Typed.EqualityRelation
 
@@ -144,42 +144,6 @@ liftSubstSEq {σ = σ} {σ′ = σ′} {F = F} {Δ = Δ} [Γ] ⊢Δ [F] [σ] [σ
       var0 = var (⊢Δ ∙ ⊢F) (PE.subst (λ x → x0 ∷ x ∈ (Δ ∙ subst σ F)) (wk-subst F) here)
   in  [tailσ≡σ′] , neuEqTerm (proj₁ ([F] (⊢Δ ∙ ⊢F) [tailσ])) (var x0) (var x0)
                          var0 var0 (~-var var0)
-
-
--- Extend a valid substitution with a term
-compSubstS : ∀ {Γ : Con Term n} {Δ : Con Term m} {Δ′ : Con Term k}
-           {σ : Subst m n} {σ′ : Subst k m}
-           ([Γ] : ⊩ᵛ Γ) ([Δ] : ⊩ᵛ Δ)
-           (⊢Δ : ⊢ Δ) (⊢Δ′ : ⊢ Δ′)
-           ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
-           ([σ′] : Δ′ ⊩ˢ σ′ ∷ Δ / [Δ] / ⊢Δ′)
-         → Δ′ ⊩ˢ σ′ ₛ•ₛ σ ∷ Γ / [Γ] / ⊢Δ′
-compSubstS ε [Δ] ⊢Δ ⊢Δ′ [σ] [σ′] = tt
-compSubstS {Γ = Γ ∙ A} {σ = σ} {σ′ = σ′} ([Γ] ∙ x) [Δ] ⊢Δ ⊢Δ′ [σ] [σ′] =
-  let [tailσ] = compSubstS [Γ] [Δ] ⊢Δ ⊢Δ′ (proj₁ [σ]) [σ′]
-  --     Z = proj₁ (x ⊢Δ′ [tailσ])
-  --     X = proj₁ (x ⊢Δ (proj₁ [σ]))
-  --     Y = proj₁ {!X!} (proj₂ [σ])
-  --     Q = {![tailσ]!}
-  in  [tailσ] , {!proj₂ [σ] !}
-  -- irrelevanceTerm′ {!!}
-  --                 {!Z!}
-  --                 (proj₁ (x ⊢Δ′ [tailσ]))
-  --                 {!σ′ ₛ•ₛ (tail σ)!}
-  -- where
-  -- IH = compSubstS [Γ] [Δ] ⊢Δ ⊢Δ′ {!proj₁ [σ]!} fst₂
-  -- let [tailσ] = wkSubstS [Γ] ⊢Δ ⊢Δ′ ρ (proj₁ [σ])
-  -- in  [tailσ]
-  --  ,  irrelevanceTerm′ (wk-subst A)
-  --       (LR.wk ρ ⊢Δ′ (proj₁ (x ⊢Δ (proj₁ [σ]))))
-  --       (proj₁ (x ⊢Δ′ [tailσ]))
-  --       (LR.wkTerm ρ ⊢Δ′ (proj₁ (x ⊢Δ (proj₁ [σ]))) (proj₂ [σ]))
--- compSubstS ε [Δ] ⊢Δ ⊢Δ′ [σ] [σ′] = tt
--- compSubstS ([Γ] ∙ x) [Δ] ⊢Δ ⊢Δ′ [σ] [σ′] with [σ]
--- compSubstS ([Γ] ∙ x) ε ⊢Δ ⊢Δ′ [σ] [σ′] | [tailσ] , snd₁ = (compSubstS [Γ] ε ⊢Δ ⊢Δ′ [tailσ] [σ′]) , {!snd₁!}
--- compSubstS ([Γ] ∙ x) ([Δ] ∙ x₁) ⊢Δ ⊢Δ′ [σ] [σ′] | [tailσ] , snd₁ = (compSubstS [Γ] ([Δ] ∙ x₁) ⊢Δ ⊢Δ′ [tailσ] [σ′]) , {!!}
-  -- where
-  -- qw = {![σ′] !}
 
 mutual
   -- Valid contexts are well-formed

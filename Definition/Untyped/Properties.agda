@@ -639,6 +639,13 @@ substConcatSingleton′ : ∀ {a} t
                       ≡ subst (consSubst σ (subst σ a)) t
 substConcatSingleton′ t = substVar-to-subst (λ { x0 → refl ; (x +1) → refl}) t
 
+wk1-tail : (t : Term n) → subst σ (wk1 t) ≡ subst (tail σ) t
+wk1-tail {σ = σ} t = begin
+  subst σ (wk1 t) ≡⟨⟩
+  subst σ (wk (step id) t) ≡⟨ subst-wk t ⟩
+  subst (σ ₛ• step id) t ≡⟨⟩
+  subst (tail σ) t ∎
+
 wk1-tailId : (t : Term n) → wk1 t ≡ subst (tail idSubst) t
 wk1-tailId t = trans (sym (subst-id (wk1 t))) (subst-wk t)
 
@@ -650,3 +657,69 @@ wk1-sgSubst t t' rewrite wk1-tailId t =
         (substCompEq t)
         (substVar-to-subst (substVar-sgSubst-tail t') t))
       (subst-id t)
+
+subst-β-prodrec : (A : Term (1+ n)) (σ : Subst m n)
+                → subst (liftSubstn σ 2) (A [ prod (var (x0 +1)) (var x0) ]↑²)
+                ≡ subst (liftSubst σ) A [ prod (var (x0 +1)) (var x0) ]↑²
+subst-β-prodrec {n = n} A σ = begin
+   subst (liftSubstn σ 2) (A [ t ]↑²)
+     ≡⟨ substCompEq A ⟩
+   subst (liftSubstn σ 2 ₛ•ₛ consSubst (wk1Subst (wk1Subst idSubst)) t) A
+     ≡⟨ substVar-to-subst varEq A ⟩
+   subst (consSubst (wk1Subst (wk1Subst idSubst)) t′ ₛ•ₛ liftSubst σ) A
+     ≡˘⟨ substCompEq A ⟩
+   subst (liftSubst σ) A [ t′ ]↑² ∎
+   where
+   t = prod (var (x0 +1)) (var x0)
+   t′ = prod (var (x0 +1)) (var x0)
+   varEq : (x : Fin (1+ n))
+         → (liftSubstn σ 2 ₛ•ₛ consSubst (wk1Subst (wk1Subst idSubst)) t) x
+         ≡ (consSubst (wk1Subst (wk1Subst idSubst)) t′ ₛ•ₛ liftSubst σ) x
+   varEq x0 = refl
+   varEq (x +1) = begin
+     wk1 (wk1 (σ x))
+       ≡⟨ wk≡subst (step id) (wk1 (σ x)) ⟩
+     subst (wk1Subst idSubst) (wk1 (σ x))
+       ≡⟨ subst-wk (σ x) ⟩
+     subst (wk1Subst idSubst ₛ• step id) (σ x)
+       ≡⟨ substVar-to-subst (λ x₁ → refl) (σ x) ⟩
+     subst (λ y → var (y +1 +1)) (σ x)
+       ≡˘⟨ wk1-tail (σ x) ⟩
+     subst (consSubst (λ y → var (y +1 +1)) t′) (wk1 (σ x)) ∎
+
+substCompProdrec : (A : Term (1+ n)) (t u : Term m) (σ : Subst m n)
+                 → subst (liftSubst σ) A [ prod t u ]
+                 ≡ subst (consSubst (consSubst σ t) u) (A [ prod (var (x0 +1)) (var x0) ]↑²)
+substCompProdrec {n = n} A t u σ = begin
+   subst (liftSubst σ) A [ prod t u ]
+     ≡⟨ substCompEq A ⟩
+   subst (sgSubst (prod t u) ₛ•ₛ liftSubst σ) A
+     ≡⟨ substVar-to-subst varEq A ⟩
+   subst (consSubst (consSubst σ t) u ₛ•ₛ consSubst (wk1Subst (wk1Subst idSubst)) px) A
+     ≡˘⟨ substCompEq A ⟩
+   subst (consSubst (consSubst σ t) u) (A [ px ]↑²) ∎
+   where
+   px = prod (var (x0 +1)) (var x0)
+   varEq : (x : Fin (1+ n))
+         → (sgSubst (prod t u) ₛ•ₛ liftSubst σ) x
+         ≡ (consSubst (consSubst σ t) u ₛ•ₛ consSubst (wk1Subst (wk1Subst idSubst)) px) x
+   varEq x0 = refl
+   varEq (x +1) = trans (wk1-tail (σ x)) (subst-id (σ x))
+
+doubleSubstComp : (A : Term (1+ (1+ n))) (t u : Term m) (σ : Subst m n)
+                → subst (liftSubstn σ 2) A [ t , u ]
+                ≡ subst (consSubst (consSubst σ t) u) A
+doubleSubstComp {n = n} A t u σ = begin
+  subst (liftSubstn σ 2) A [ t , u ]
+    ≡⟨ substCompEq A ⟩
+  subst (consSubst (consSubst idSubst t) u ₛ•ₛ liftSubstn σ 2) A
+    ≡⟨ substVar-to-subst varEq A ⟩
+  subst (consSubst (consSubst σ t) u) A ∎
+  where
+  varEq : (x : Fin (1+ (1+ n)))
+        → (consSubst (consSubst idSubst t) u ₛ•ₛ liftSubstn σ 2) x
+        ≡  consSubst (consSubst σ t) u x
+  varEq x0 = refl
+  varEq (x0 +1) = refl
+  varEq (x +1 +1) = trans (wk1-tail (wk1 (σ x)))
+                          (trans (wk1-tail (σ x)) (subst-id (σ x)))

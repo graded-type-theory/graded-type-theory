@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --allow-unsolved-metas #-}
+{-# OPTIONS --without-K  #-}
 
 open import Definition.Typed.EqualityRelation
 
@@ -18,7 +18,9 @@ open import Definition.LogicalRelation.Substitution.Conversion M
 open import Definition.LogicalRelation.Substitution.Reduction M
 open import Definition.LogicalRelation.Substitution.Reflexivity M
 open import Definition.LogicalRelation.Substitution.Introductions M
+open import Definition.LogicalRelation.Substitution.Weakening M
 import Definition.LogicalRelation.Substitution.Irrelevance M as S
+
 
 open import Tools.Fin
 open import Tools.Product
@@ -456,55 +458,83 @@ mutual
          fundamentalTermEq z≡z′      |
          fundamentalTermEq s≡s′      |
          fundamentalTermEq n≡n′
-  fundamentalTermEq (natrec-cong {z} {z′} {s} {s′} {n} {n′} {F} {F′}
+  fundamentalTermEq (natrec-cong {p = p} {r = r} {z = z} {z′ = z′} {s = s} {s′ = s′}
+                                 {n = n} {n′ = n′} {F = F} {F′ = F′}
                                  ⊢F F≡F′ z≡z′ s≡s′ n≡n′) |
     [Γ]  , [F] , [F′] , [F≡F′] |
     [Γ]₁ , modelsTermEq [F₀] [z] [z′] [z≡z′] |
     [Γ]₂ , modelsTermEq [F₊] [s] [s′] [s≡s′] |
-    [Γ]₃ , modelsTermEq [ℕ] [n] [n′] [n≡n′] = {!!}
-      -- let sType = Π ℕ ▹ (F ▹▹ F [ suc (var x0) ]↑)
-      --     s′Type = Π ℕ ▹ (F′ ▹▹ F′ [ suc (var x0) ]↑)
-      --     [0] = S.irrelevanceTerm {l = ¹} {A = ℕ} {t = zero}
-      --                             [Γ]₃ [Γ]₃ (ℕᵛ [Γ]₃) [ℕ] (zeroᵛ {l = ¹} [Γ]₃)
-      --     [F]′ = S.irrelevance {A = F} [Γ] ([Γ]₃ ∙ [ℕ]) [F]
-      --     [F₀]′ = S.irrelevance {A = F [ zero ]} [Γ]₁ [Γ]₃ [F₀]
-      --     [F₊]′ = S.irrelevance {A = sType} [Γ]₂ [Γ]₃ [F₊]
-      --     [Fₙ]′ = substS {F = ℕ} {F} {n} [Γ]₃ [ℕ] [F]′ [n]
-      --     [F′]′ = S.irrelevance {A = F′} [Γ] ([Γ]₃ ∙ [ℕ]) [F′]
-      --     [F₀]″ = substS {F = ℕ} {F} {zero} [Γ]₃ [ℕ] [F]′ [0]
-      --     [F′₀]′ = substS {F = ℕ} {F′} {zero} [Γ]₃ [ℕ] [F′]′ [0]
-      --     [F′₊]′ = sucCase {F = F′} [Γ]₃ [ℕ] [F′]′
-      --     [F′ₙ′]′ = substS {F = ℕ} {F′} {n′} [Γ]₃ [ℕ] [F′]′ [n′]
-      --     [ℕ≡ℕ] = reflᵛ {A = ℕ} [Γ]₃ [ℕ]
-      --     [0≡0] = reflᵗᵛ {A = ℕ} {zero} [Γ]₃ [ℕ] [0]
-      --     [F≡F′]′ = S.irrelevanceEq {A = F} {B = F′}
-      --                               [Γ] ([Γ]₃ ∙ [ℕ]) [F] [F]′ [F≡F′]
-      --     [F₀≡F′₀] = substSEq {F = ℕ} {ℕ} {F} {F′} {zero} {zero}
-      --                         [Γ]₃ [ℕ] [ℕ] [ℕ≡ℕ]
-      --                         [F]′ [F′]′ [F≡F′]′ [0] [0] [0≡0]
-      --     [F₀≡F′₀]′ = S.irrelevanceEq {A = F [ zero ]} {B = F′ [ zero ]}
-      --                                 [Γ]₃ [Γ]₃ [F₀]″ [F₀]′ [F₀≡F′₀]
-      --     [F₊≡F′₊] = sucCaseCong {F = F} {F′} [Γ]₃ [ℕ] [F]′ [F′]′ [F≡F′]′
-      --     [F₊≡F′₊]′ = S.irrelevanceEq {A = sType} {B = s′Type}
-      --                                 [Γ]₃ [Γ]₃ (sucCase {F = F} [Γ]₃ [ℕ] [F]′)
-      --                                 [F₊]′ [F₊≡F′₊]
-      --     [Fₙ≡F′ₙ′]′ = substSEq {F = ℕ} {ℕ} {F} {F′} {n} {n′}
-      --                           [Γ]₃ [ℕ] [ℕ] [ℕ≡ℕ] [F]′ [F′]′ [F≡F′]′
-      --                           [n] [n′] [n≡n′]
-      --     [z]′ = S.irrelevanceTerm {A = F [ zero ]} {t = z}
-      --                              [Γ]₁ [Γ]₃ [F₀] [F₀]′ [z]
-      --     [z′]′ = convᵛ {t = z′} {F [ zero ]} {F′ [ zero ]}
-      --                   [Γ]₃ [F₀]′ [F′₀]′ [F₀≡F′₀]′
-      --                   (S.irrelevanceTerm {A = F [ zero ]} {t = z′}
-      --                                      [Γ]₁ [Γ]₃ [F₀] [F₀]′ [z′])
-      --     [z≡z′]′ = S.irrelevanceEqTerm {A = F [ zero ]} {t = z} {u = z′}
-      --                                   [Γ]₁ [Γ]₃ [F₀] [F₀]′ [z≡z′]
-      --     [s]′ = S.irrelevanceTerm {A = sType} {t = s} [Γ]₂ [Γ]₃ [F₊] [F₊]′ [s]
-      --     [s′]′ = convᵛ {t = s′} {sType} {s′Type} [Γ]₃ [F₊]′ [F′₊]′ [F₊≡F′₊]′
-      --                   (S.irrelevanceTerm {A = sType} {t = s′}
-      --                                      [Γ]₂ [Γ]₃ [F₊] [F₊]′ [s′])
-      --     [s≡s′]′ = S.irrelevanceEqTerm {A = sType} {t = s} {u = s′}
-      --                                   [Γ]₂ [Γ]₃ [F₊] [F₊]′ [s≡s′]
+    [Γ]₃ , modelsTermEq [ℕ] [n] [n′] [n≡n′] =
+      let sType = wk1 (F [ suc (var x0) ]↑)
+          s′Type = wk1 (F′ [ suc (var x0) ]↑)
+          [0] = S.irrelevanceTerm {l = ¹} {A = ℕ} {t = zero}
+                                  [Γ]₃ [Γ]₃ (ℕᵛ [Γ]₃) [ℕ] (zeroᵛ {l = ¹} [Γ]₃)
+          [F]′ = S.irrelevance {A = F} [Γ] ([Γ]₃ ∙ [ℕ]) [F]
+          [F₀]′ = S.irrelevance {A = F [ zero ]} [Γ]₁ [Γ]₃ [F₀]
+          [F₊]′ = S.irrelevance {A = sType} [Γ]₂ ([Γ]₃ ∙ [ℕ] ∙ [F]′) [F₊]
+          [Fₙ]′ = substS {F = ℕ} {F} {n} [Γ]₃ [ℕ] [F]′ [n]
+          [F′]′ = S.irrelevance {A = F′} [Γ] ([Γ]₃ ∙ [ℕ]) [F′]
+          [F₀]″ = substS {F = ℕ} {F} {zero} [Γ]₃ [ℕ] [F]′ [0]
+          [F′₀]′ = substS {F = ℕ} {F′} {zero} [Γ]₃ [ℕ] [F′]′ [0]
+          [ℕ]′ , [x0] = fundamentalVar {A = ℕ} here ([Γ]₃ ∙ [ℕ])
+          [sucx0] = sucᵛ {n = var x0} (_∙_ {A = ℕ} [Γ]₃ [ℕ]) [ℕ]′ [x0]
+          [Fₓ] = subst↑S {F = ℕ} {G = F} {t = suc (var x0)} [Γ]₃ [ℕ] [F]′ [sucx0]
+          [F′ₓ] = subst↑S {F = ℕ} {G = F′} {t = suc (var x0)} [Γ]₃ [ℕ] [F′]′ [sucx0]
+          [F′₊]′ = wk1ᵛ {A = F′ [ suc (var x0) ]↑} {F = F′} (_∙_ {A = ℕ} [Γ]₃ [ℕ]) [F′]′ [F′ₓ]
+          [F′ₙ′]′ = substS {F = ℕ} {F′} {n′} [Γ]₃ [ℕ] [F′]′ [n′]
+          [ℕ≡ℕ] = reflᵛ {A = ℕ} [Γ]₃ [ℕ]
+          [0≡0] = reflᵗᵛ {A = ℕ} {zero} [Γ]₃ [ℕ] [0]
+          [F≡F′]′ = S.irrelevanceEq {A = F} {B = F′}
+                                    [Γ] ([Γ]₃ ∙ [ℕ]) [F] [F]′ [F≡F′]
+          [F₀≡F′₀] = substSEq {F = ℕ} {ℕ} {F} {F′} {zero} {zero}
+                              [Γ]₃ [ℕ] [ℕ] [ℕ≡ℕ]
+                              [F]′ [F′]′ [F≡F′]′ [0] [0] [0≡0]
+          [F₀≡F′₀]′ = S.irrelevanceEq {A = F [ zero ]} {B = F′ [ zero ]}
+                                      [Γ]₃ [Γ]₃ [F₀]″ [F₀]′ [F₀≡F′₀]
+          -- [sucx0]′ = S.irrelevanceTerm ? ([Γ]₃ ∙ [ℕ]) {![ℕ]′!} {![ℕ] [sucx0]
+          [Fₓ≡F′ₓ] = subst↑SEq {F = ℕ} {G = F} {G′ = F′}
+                               {t = suc (var x0)} {t′ = suc (var x0)}
+                               [Γ]₃ [ℕ] [F]′ [F′]′ [F≡F′]′ [sucx0] [sucx0]
+                               (reflᵗᵛ {A = ℕ} {t = suc (var x0)} (_∙_ {A = ℕ} [Γ]₃ [ℕ]) [ℕ]′ [sucx0])
+          [F₊≡F′₊] = wk1Eqᵛ {A = F [ suc (var x0) ]↑} {B = F′ [ suc (var x0) ]↑} {F = F}
+                            ([Γ]₃ ∙ [ℕ]) [F]′ [Fₓ] [Fₓ≡F′ₓ]
+          -- sucCaseCong {F = F} {F′} [Γ]₃ [ℕ] [F]′ [F′]′ [F≡F′]′
+          [F₊≡F′₊]′ = S.irrelevanceEq {A = sType} {B = s′Type}
+                                      ([Γ]₃ ∙ [ℕ] ∙ [F]′) ([Γ]₃ ∙ [ℕ] ∙ [F]′) {!(sucCase {F = F} [Γ]₃ [ℕ] [F]′)!}
+                                      [F₊]′ {![F₊≡F′₊]!}
+          [Fₙ≡F′ₙ′]′ = substSEq {F = ℕ} {ℕ} {F} {F′} {n} {n′}
+                                [Γ]₃ [ℕ] [ℕ] [ℕ≡ℕ] [F]′ [F′]′ [F≡F′]′
+                                [n] [n′] [n≡n′]
+          [z]′ = S.irrelevanceTerm {A = F [ zero ]} {t = z}
+                                   [Γ]₁ [Γ]₃ [F₀] [F₀]′ [z]
+          [z′]′ = convᵛ {t = z′} {F [ zero ]} {F′ [ zero ]}
+                        [Γ]₃ [F₀]′ [F′₀]′ [F₀≡F′₀]′
+                        (S.irrelevanceTerm {A = F [ zero ]} {t = z′}
+                                           [Γ]₁ [Γ]₃ [F₀] [F₀]′ [z′])
+          [z≡z′]′ = S.irrelevanceEqTerm {A = F [ zero ]} {t = z} {u = z′}
+                                        [Γ]₁ [Γ]₃ [F₀] [F₀]′ [z≡z′]
+          [s]′ = S.irrelevanceTerm {A = sType} {t = s} [Γ]₂ ([Γ]₃ ∙ [ℕ] ∙ [F]′) [F₊] [F₊]′ [s]
+          [s′]′ = convᵛ {t = s′} {sType} {s′Type} ([Γ]₃ ∙ [ℕ] ∙ [F]′) [F₊]′ [F′₊]′ {![F₊≡F′₊]′!}
+                        (S.irrelevanceTerm {A = sType} {t = s′}
+                                           [Γ]₂ ([Γ]₃ ∙ [ℕ] ∙ [F]′) [F₊] [F₊]′ [s′])
+          [s≡s′]′ = S.irrelevanceEqTerm {A = sType} {t = s} {u = s′}
+                                        [Γ]₂ ([Γ]₃ ∙ [ℕ] ∙ [F]′) [F₊] [F₊]′ [s≡s′]
+      in  [Γ]₃
+      ,   modelsTermEq [Fₙ]′
+                       (natrecᵛ {F = F} {z = z} {s = s} {n = n}
+                                [Γ]₃ [ℕ] [F]′ [F₀]′ [F₊]′ [Fₙ]′ [z]′ [s]′ [n])
+                       (conv₂ᵛ {t = natrec p r F′ z′ s′ n′} {F [ n ]} {F′ [ n′ ]}
+                               [Γ]₃ [Fₙ]′ [F′ₙ′]′ [Fₙ≡F′ₙ′]′
+                               (natrecᵛ {F = F′} {z = z′} {s = s′} {n = n′}
+                                        [Γ]₃ [ℕ] [F′]′ [F′₀]′ [F′₊]′ [F′ₙ′]′
+                                        [z′]′ [s′]′ [n′]))
+                       (natrec-congᵛ {F = F} {F′ = F′} {z = z} {z′ = z′}
+                                     {s = s} {s′ = s′} {n = n} {n′ = n′}
+                                     [Γ]₃ [ℕ] [F]′ [F′]′ [F≡F′]′
+                                     [F₀]′ [F′₀]′ [F₀≡F′₀]′
+                                     [F₊]′ [F′₊]′ {![F₊≡F′₊]′!} [Fₙ]′
+                                     [z]′ [z′]′ [z≡z′]′
+                                     [s]′ [s′]′ [s≡s′]′ [n] [n′] [n≡n′])
       -- in  [Γ]₃
       -- ,   modelsTermEq [Fₙ]′
       --                  (natrecᵛ {F = F} {z} {s} {n}
