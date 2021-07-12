@@ -477,7 +477,10 @@ mutual
           [F₀]″ = substS {F = ℕ} {F} {zero} [Γ]₃ [ℕ] [F]′ [0]
           [F′₀]′ = substS {F = ℕ} {F′} {zero} [Γ]₃ [ℕ] [F′]′ [0]
           [ℕ]′ , [x0] = fundamentalVar {A = ℕ} here ([Γ]₃ ∙ [ℕ])
-          [sucx0] = sucᵛ {n = var x0} (_∙_ {A = ℕ} [Γ]₃ [ℕ]) [ℕ]′ [x0]
+          [x0]′ = S.irrelevanceTerm {A = ℕ} {t = var x0}
+                                    (_∙_ {A = ℕ} [Γ]₃ [ℕ]) (_∙_ {A = ℕ} [Γ]₃ [ℕ])
+                                    [ℕ]′ (wk1ᵛ {A = ℕ} {F = ℕ} [Γ]₃ [ℕ] [ℕ]) [x0]
+          [sucx0] = sucᵛ {n = var x0} (_∙_ {A = ℕ} [Γ]₃ [ℕ]) (wk1ᵛ {A = ℕ} {F = ℕ} [Γ]₃ [ℕ] [ℕ]) [x0]′
           [Fₓ] = subst↑S {F = ℕ} {G = F} {t = suc (var x0)} [Γ]₃ [ℕ] [F]′ [sucx0]
           [F′ₓ] = subst↑S {F = ℕ} {G = F′} {t = suc (var x0)} [Γ]₃ [ℕ] [F′]′ [sucx0]
           [F′₊]′ = wk1ᵛ {A = F′ [ suc (var x0) ]↑} {F = F′} (_∙_ {A = ℕ} [Γ]₃ [ℕ]) [F′]′ [F′ₓ]
@@ -491,17 +494,24 @@ mutual
                               [F]′ [F′]′ [F≡F′]′ [0] [0] [0≡0]
           [F₀≡F′₀]′ = S.irrelevanceEq {A = F [ zero ]} {B = F′ [ zero ]}
                                       [Γ]₃ [Γ]₃ [F₀]″ [F₀]′ [F₀≡F′₀]
-          -- [sucx0]′ = S.irrelevanceTerm ? ([Γ]₃ ∙ [ℕ]) {![ℕ]′!} {![ℕ] [sucx0]
           [Fₓ≡F′ₓ] = subst↑SEq {F = ℕ} {G = F} {G′ = F′}
                                {t = suc (var x0)} {t′ = suc (var x0)}
-                               [Γ]₃ [ℕ] [F]′ [F′]′ [F≡F′]′ [sucx0] [sucx0]
-                               (reflᵗᵛ {A = ℕ} {t = suc (var x0)} (_∙_ {A = ℕ} [Γ]₃ [ℕ]) [ℕ]′ [sucx0])
+                               [Γ]₃ [ℕ] [F]′ [F′]′ [F≡F′]′ [sucx0] {![sucx0]!}
+                               {!reflᵗᵛ {A = ℕ} {t = suc (var x0)} (_∙_ {A = ℕ} [Γ]₃ [ℕ]) [ℕ]′ [sucx0]!}
           [F₊≡F′₊] = wk1Eqᵛ {A = F [ suc (var x0) ]↑} {B = F′ [ suc (var x0) ]↑} {F = F}
-                            ([Γ]₃ ∙ [ℕ]) [F]′ [Fₓ] [Fₓ≡F′ₓ]
-          -- sucCaseCong {F = F} {F′} [Γ]₃ [ℕ] [F]′ [F′]′ [F≡F′]′
+                            (_∙_ {A = ℕ} [Γ]₃ [ℕ]) [F]′ [Fₓ] [Fₓ≡F′ₓ]
           [F₊≡F′₊]′ = S.irrelevanceEq {A = sType} {B = s′Type}
-                                      ([Γ]₃ ∙ [ℕ] ∙ [F]′) ([Γ]₃ ∙ [ℕ] ∙ [F]′) {!(sucCase {F = F} [Γ]₃ [ℕ] [F]′)!}
-                                      [F₊]′ {![F₊≡F′₊]!}
+                                      ((_∙_ {A = F} (_∙_ {A = ℕ} [Γ]₃ [ℕ]) [F]′))
+                                      (_∙_ {A = F} (_∙_ {A = ℕ} [Γ]₃ [ℕ]) [F]′)
+                                      (wk1ᵛ {A = F [ suc (var x0) ]↑} {F = F} (_∙_ {A = ℕ} [Γ]₃ [ℕ]) [F]′ [Fₓ])
+                                      [F₊]′ [F₊≡F′₊]
+          [F₊≡F′₊]″ = wk1Eqᵛ {A = F [ suc (var x0) ]↑} {B = F′ [ suc (var x0) ]↑} {F = F′}
+                             (_∙_ {A = ℕ} [Γ]₃ [ℕ]) [F′]′ [Fₓ] [Fₓ≡F′ₓ]
+          [F₊≡F′₊]‴ = S.irrelevanceEq {A = sType} {B = s′Type}
+                                      ((_∙_ {A = F′} (_∙_ {A = ℕ} [Γ]₃ [ℕ]) [F′]′))
+                                      (_∙_ {A = F′} (_∙_ {A = ℕ} [Γ]₃ [ℕ]) [F′]′)
+                                      (wk1ᵛ {A = F [ suc (var x0) ]↑} {F = F′} (_∙_ {A = ℕ} [Γ]₃ [ℕ]) [F′]′ [Fₓ])
+                                      (S.irrelevanceLift {A = sType} {F = F} {H = F′} (_∙_ {A = ℕ} [Γ]₃ [ℕ]) [F]′ [F′]′ [F≡F′]′ [F₊]′) [F₊≡F′₊]″
           [Fₙ≡F′ₙ′]′ = substSEq {F = ℕ} {ℕ} {F} {F′} {n} {n′}
                                 [Γ]₃ [ℕ] [ℕ] [ℕ≡ℕ] [F]′ [F′]′ [F≡F′]′
                                 [n] [n′] [n≡n′]
@@ -514,9 +524,14 @@ mutual
           [z≡z′]′ = S.irrelevanceEqTerm {A = F [ zero ]} {t = z} {u = z′}
                                         [Γ]₁ [Γ]₃ [F₀] [F₀]′ [z≡z′]
           [s]′ = S.irrelevanceTerm {A = sType} {t = s} [Γ]₂ ([Γ]₃ ∙ [ℕ] ∙ [F]′) [F₊] [F₊]′ [s]
-          [s′]′ = convᵛ {t = s′} {sType} {s′Type} ([Γ]₃ ∙ [ℕ] ∙ [F]′) [F₊]′ [F′₊]′ {![F₊≡F′₊]′!}
-                        (S.irrelevanceTerm {A = sType} {t = s′}
-                                           [Γ]₂ ([Γ]₃ ∙ [ℕ] ∙ [F]′) [F₊] [F₊]′ [s′])
+          [s′]′ = S.irrelevanceTerm {A = sType} {t = s′} [Γ]₂
+                                    (_∙_ {A = F} (_∙_ {A = ℕ} [Γ]₃ [ℕ]) [F]′)
+                                    [F₊] [F₊]′ [s′]
+          [s′]″ = S.irrelevanceTermLift {A = sType} {F = F} {H = F′} {t = s′}
+                                        (_∙_ {A = ℕ} [Γ]₃ [ℕ]) [F]′ [F′]′ [F≡F′]′ [F₊]′ [s′]′
+          [s′]″ = convᵛ {t = s′} {sType} {s′Type} (_∙_ {A = F′} (_∙_ {A = ℕ} [Γ]₃ [ℕ]) [F′]′)
+                        (S.irrelevanceLift {A = sType} {F = F} {H = F′} (_∙_ {A = ℕ} [Γ]₃ [ℕ]) [F]′ [F′]′ [F≡F′]′ [F₊]′)
+                        [F′₊]′ [F₊≡F′₊]‴ [s′]″
           [s≡s′]′ = S.irrelevanceEqTerm {A = sType} {t = s} {u = s′}
                                         [Γ]₂ ([Γ]₃ ∙ [ℕ] ∙ [F]′) [F₊] [F₊]′ [s≡s′]
       in  [Γ]₃
@@ -527,14 +542,14 @@ mutual
                                [Γ]₃ [Fₙ]′ [F′ₙ′]′ [Fₙ≡F′ₙ′]′
                                (natrecᵛ {F = F′} {z = z′} {s = s′} {n = n′}
                                         [Γ]₃ [ℕ] [F′]′ [F′₀]′ [F′₊]′ [F′ₙ′]′
-                                        [z′]′ [s′]′ [n′]))
+                                        [z′]′ [s′]″ [n′]))
                        (natrec-congᵛ {F = F} {F′ = F′} {z = z} {z′ = z′}
                                      {s = s} {s′ = s′} {n = n} {n′ = n′}
                                      [Γ]₃ [ℕ] [F]′ [F′]′ [F≡F′]′
                                      [F₀]′ [F′₀]′ [F₀≡F′₀]′
-                                     [F₊]′ [F′₊]′ {![F₊≡F′₊]′!} [Fₙ]′
+                                     [F₊]′ [F′₊]′ [F₊≡F′₊]′ [Fₙ]′
                                      [z]′ [z′]′ [z≡z′]′
-                                     [s]′ [s′]′ [s≡s′]′ [n] [n′] [n≡n′])
+                                     [s]′ [s′]″ [s≡s′]′ [n] [n′] [n≡n′])
       -- in  [Γ]₃
       -- ,   modelsTermEq [Fₙ]′
       --                  (natrecᵛ {F = F} {z} {s} {n}
