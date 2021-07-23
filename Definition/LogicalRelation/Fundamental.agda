@@ -5,7 +5,7 @@ open import Definition.Typed.EqualityRelation
 module Definition.LogicalRelation.Fundamental (M : Set) {{eqrel : EqRelSet M}} where
 open EqRelSet {{...}}
 
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M hiding (_∷_) renaming (_[_,_] to _[_,,_])
 open import Definition.Untyped.Properties M
 open import Definition.Typed M
 open import Definition.Typed.Properties M
@@ -477,12 +477,19 @@ mutual
           [F₀]″ = substS {F = ℕ} {F} {zero} [Γ]₃ [ℕ] [F]′ [0]
           [F′₀]′ = substS {F = ℕ} {F′} {zero} [Γ]₃ [ℕ] [F′]′ [0]
           [ℕ]′ , [x0] = fundamentalVar {A = ℕ} here ([Γ]₃ ∙ [ℕ])
+          [↑ℕ] = wk1ᵛ {A = ℕ} {F = ℕ} [Γ]₃ [ℕ] [ℕ]
           [x0]′ = S.irrelevanceTerm {A = ℕ} {t = var x0}
                                     (_∙_ {A = ℕ} [Γ]₃ [ℕ]) (_∙_ {A = ℕ} [Γ]₃ [ℕ])
-                                    [ℕ]′ (wk1ᵛ {A = ℕ} {F = ℕ} [Γ]₃ [ℕ] [ℕ]) [x0]
-          [sucx0] = sucᵛ {n = var x0} (_∙_ {A = ℕ} [Γ]₃ [ℕ]) (wk1ᵛ {A = ℕ} {F = ℕ} [Γ]₃ [ℕ] [ℕ]) [x0]′
-          [Fₓ] = subst↑S {F = ℕ} {G = F} {t = suc (var x0)} [Γ]₃ [ℕ] [F]′ [sucx0]
-          [F′ₓ] = subst↑S {F = ℕ} {G = F′} {t = suc (var x0)} [Γ]₃ [ℕ] [F′]′ [sucx0]
+                                    (λ {k Δ σ} → [ℕ]′ {σ = σ})
+                                    (λ {k Δ σ} → [↑ℕ] {σ = σ})
+                                    (λ {k Δ σ} → [x0] {σ = σ})
+          [sucx0] = sucᵛ {n = var x0} (_∙_ {A = ℕ} [Γ]₃ [ℕ])
+                         (λ {k Δ σ} → [↑ℕ] {σ = σ})
+                         (λ {k Δ σ} → [x0]′ {σ = σ})
+          [Fₓ] = subst↑S {F = ℕ} {G = F} {t = suc (var x0)} [Γ]₃ [ℕ] [F]′
+                         (λ {k Δ σ} → [sucx0] {σ = σ})
+          [F′ₓ] = subst↑S {F = ℕ} {G = F′} {t = suc (var x0)} [Γ]₃ [ℕ] [F′]′
+                          (λ {k Δ σ} → [sucx0] {σ = σ})
           [F′₊]′ = wk1ᵛ {A = F′ [ suc (var x0) ]↑} {F = F′} (_∙_ {A = ℕ} [Γ]₃ [ℕ]) [F′]′ [F′ₓ]
           [F′ₙ′]′ = substS {F = ℕ} {F′} {n′} [Γ]₃ [ℕ] [F′]′ [n′]
           [ℕ≡ℕ] = reflᵛ {A = ℕ} [Γ]₃ [ℕ]
@@ -496,8 +503,12 @@ mutual
                                       [Γ]₃ [Γ]₃ [F₀]″ [F₀]′ [F₀≡F′₀]
           [Fₓ≡F′ₓ] = subst↑SEq {F = ℕ} {G = F} {G′ = F′}
                                {t = suc (var x0)} {t′ = suc (var x0)}
-                               [Γ]₃ [ℕ] [F]′ [F′]′ [F≡F′]′ [sucx0] {![sucx0]!}
-                               {!reflᵗᵛ {A = ℕ} {t = suc (var x0)} (_∙_ {A = ℕ} [Γ]₃ [ℕ]) [ℕ]′ [sucx0]!}
+                               [Γ]₃ [ℕ] [F]′ [F′]′ [F≡F′]′
+                               (λ {k Δ σ} → [sucx0] {σ = σ})
+                               (λ {k Δ σ} → [sucx0] {σ = σ})
+                               (λ {k Δ σ} → reflᵗᵛ {A = ℕ} {t = suc (var x0)}
+                                                   (_∙_ {A = ℕ} [Γ]₃ [ℕ]) (λ {k Δ σ} → [ℕ]′ {σ = σ})
+                                                   (λ {k Δ σ} →  [sucx0] {σ = σ}) {σ = σ})
           [F₊≡F′₊] = wk1Eqᵛ {A = F [ suc (var x0) ]↑} {B = F′ [ suc (var x0) ]↑} {F = F}
                             (_∙_ {A = ℕ} [Γ]₃ [ℕ]) [F]′ [Fₓ] [Fₓ≡F′ₓ]
           [F₊≡F′₊]′ = S.irrelevanceEq {A = sType} {B = s′Type}
@@ -511,7 +522,9 @@ mutual
                                       ((_∙_ {A = F′} (_∙_ {A = ℕ} [Γ]₃ [ℕ]) [F′]′))
                                       (_∙_ {A = F′} (_∙_ {A = ℕ} [Γ]₃ [ℕ]) [F′]′)
                                       (wk1ᵛ {A = F [ suc (var x0) ]↑} {F = F′} (_∙_ {A = ℕ} [Γ]₃ [ℕ]) [F′]′ [Fₓ])
-                                      (S.irrelevanceLift {A = sType} {F = F} {H = F′} (_∙_ {A = ℕ} [Γ]₃ [ℕ]) [F]′ [F′]′ [F≡F′]′ [F₊]′) [F₊≡F′₊]″
+                                      (S.irrelevanceLift {A = sType} {F = F} {H = F′}
+                                                         (_∙_ {A = ℕ} [Γ]₃ [ℕ])
+                                                         [F]′ [F′]′ [F≡F′]′ [F₊]′) [F₊≡F′₊]″
           [Fₙ≡F′ₙ′]′ = substSEq {F = ℕ} {ℕ} {F} {F′} {n} {n′}
                                 [Γ]₃ [ℕ] [ℕ] [ℕ≡ℕ] [F]′ [F′]′ [F≡F′]′
                                 [n] [n′] [n≡n′]
@@ -550,118 +563,144 @@ mutual
                                      [F₊]′ [F′₊]′ [F₊≡F′₊]′ [Fₙ]′
                                      [z]′ [z′]′ [z≡z′]′
                                      [s]′ [s′]″ [s≡s′]′ [n] [n′] [n≡n′])
-      -- in  [Γ]₃
-      -- ,   modelsTermEq [Fₙ]′
-      --                  (natrecᵛ {F = F} {z} {s} {n}
-      --                           [Γ]₃ [ℕ] [F]′ [F₀]′ [F₊]′ [Fₙ]′ [z]′ [s]′ [n])
-      --                  (conv₂ᵛ {t = natrec F′ z′ s′ n′} {F [ n ]} {F′ [ n′ ]}
-      --                          [Γ]₃ [Fₙ]′ [F′ₙ′]′ [Fₙ≡F′ₙ′]′
-      --                          (natrecᵛ {F = F′} {z′} {s′} {n′}
-      --                                   [Γ]₃ [ℕ] [F′]′ [F′₀]′ [F′₊]′ [F′ₙ′]′
-      --                                   [z′]′ [s′]′ [n′]))
-      --                  (natrec-congᵛ {F = F} {F′} {z} {z′} {s} {s′} {n} {n′}
-      --                                [Γ]₃ [ℕ] [F]′ [F′]′ [F≡F′]′
-      --                                [F₀]′ [F′₀]′ [F₀≡F′₀]′
-      --                                [F₊]′ [F′₊]′ [F₊≡F′₊]′ [Fₙ]′
-      --                                [z]′ [z′]′ [z≡z′]′
-      --                                [s]′ [s′]′ [s≡s′]′ [n] [n′] [n≡n′])
   fundamentalTermEq (natrec-zero {z} {s} {F} ⊢F ⊢z ⊢s)
     with fundamental ⊢F | fundamentalTerm ⊢z | fundamentalTerm ⊢s
-  fundamentalTermEq (natrec-zero {z} {s} {F} ⊢F ⊢z ⊢s) | [Γ] , [F]
-    | [Γ]₁ , [F₀] , [z] | [Γ]₂ , [F₊] , [s] = {!!}
-    -- let sType = Π ℕ ▹ (F ▹▹ F [ suc (var x0) ]↑)
-    --     [Γ]′ = [Γ]₁
-    --     [ℕ]′ = ℕᵛ {l = ¹} [Γ]′
-    --     [F₊]′ = S.irrelevance {A = sType} [Γ]₂ [Γ]′ [F₊]
-    --     [s]′ = S.irrelevanceTerm {A = sType} {t = s} [Γ]₂ [Γ]′ [F₊] [F₊]′ [s]
-    --     [F]′ = S.irrelevance {A = F} [Γ] ([Γ]′ ∙ [ℕ]′) [F]
-    --     d , r =
-    --       redSubstTermᵛ {A = F [ zero ]} {natrec F z s zero} {z} [Γ]′
-    --         (λ {_} {Δ} {σ} ⊢Δ [σ] →
-    --            let ⊢ℕ = escape (proj₁ ([ℕ]′ ⊢Δ [σ]))
-    --                ⊢F = escape (proj₁ ([F]′ (⊢Δ ∙ ⊢ℕ)
-    --                                            (liftSubstS {F = ℕ}
-    --                                                        [Γ]′ ⊢Δ [ℕ]′ [σ])))
-    --                ⊢z = PE.subst (λ x → Δ ⊢ subst σ z ∷ x)
-    --                              (singleSubstLift F zero)
-    --                              (escapeTerm (proj₁ ([F₀] ⊢Δ [σ]))
-    --                                             (proj₁ ([z] ⊢Δ [σ])))
-    --                ⊢s = PE.subst (λ x → Δ ⊢ subst σ s ∷ x)
-    --                              (natrecSucCase σ F)
-    --                              (escapeTerm (proj₁ ([F₊]′ ⊢Δ [σ]))
-    --                                             (proj₁ ([s]′ ⊢Δ [σ])))
-    --            in PE.subst (λ x → Δ ⊢ subst σ (natrec F z s zero)
-    --                                 ⇒ subst σ z ∷ x)
-    --                        (PE.sym (singleSubstLift F zero))
-    --                        (natrec-zero ⊢F ⊢z ⊢s))
-    --                     [F₀] [z]
-    -- in  [Γ]′ , modelsTermEq [F₀] d [z] r
-  fundamentalTermEq (natrec-suc {n} {z} {s} {F} ⊢n ⊢F ⊢z ⊢s)
+  fundamentalTermEq (natrec-zero {p = p} {r = r} {z = z} {s = s} {F = F} ⊢F ⊢z ⊢s) | [Γ] , [F]
+    | [Γ]₁ , [F₀] , [z] | [Γ]₂ , [F₊] , [s] = 
+    let sType = wk1 (F [ suc (var x0) ]↑)
+        [Γ]′ = [Γ]₁
+        [ℕ]′ = ℕᵛ {l = ¹} [Γ]′
+        [F]′ = S.irrelevance {A = F} [Γ] ([Γ]′ ∙ [ℕ]′) [F]
+        [ΓℕF]′ = _∙_ {A = F} (_∙_ {A = ℕ} [Γ]′ [ℕ]′) [F]′
+        [F₊]′ = S.irrelevance {A = sType} [Γ]₂ [ΓℕF]′ [F₊]
+        [s]′ = S.irrelevanceTerm {A = sType} {t = s} [Γ]₂ [ΓℕF]′ [F₊] [F₊]′ [s]
+        d , r =
+          redSubstTermᵛ {A = F [ zero ]} {natrec p r F z s zero} {z} [Γ]′
+            (λ {_} {Δ} {σ} ⊢Δ [σ] →
+               let ⊢ℕ = escape (proj₁ ([ℕ]′ ⊢Δ [σ]))
+                   ⊢F = escape (proj₁ ([F]′ (⊢Δ ∙ ⊢ℕ)
+                                               (liftSubstS {F = ℕ}
+                                                           [Γ]′ ⊢Δ [ℕ]′ [σ])))
+                   ⊢z = PE.subst (λ x → Δ ⊢ subst σ z ∷ x)
+                                 (singleSubstLift F zero)
+                                 (escapeTerm (proj₁ ([F₀] ⊢Δ [σ]))
+                                                (proj₁ ([z] ⊢Δ [σ])))
+                   ⊢Δℕ = ⊢Δ ∙ ℕⱼ ⊢Δ
+                   [σ⇑⇑] = liftSubstS {F = F} (_∙_ {A = ℕ} [Γ]′ [ℕ]′) ⊢Δℕ [F]′
+                                      (liftSubstS {F = ℕ} [Γ]′ ⊢Δ [ℕ]′ [σ]) 
+                   ⊢s = PE.subst (λ x → Δ ∙ ℕ ∙ (subst (liftSubst σ) F) ⊢ subst (liftSubstn σ 2) s ∷ x)
+                                 (natrecSucCase σ F)
+                                 (escapeTerm (proj₁ ([F₊]′ (⊢Δℕ ∙ ⊢F) [σ⇑⇑]))
+                                             (proj₁ ([s]′ (⊢Δℕ ∙ ⊢F) [σ⇑⇑])))
+               in PE.subst (λ x → Δ ⊢ subst σ (natrec p r F z s zero)
+                                    ⇒ subst σ z ∷ x)
+                           (PE.sym (singleSubstLift F zero))
+                           (natrec-zero ⊢F ⊢z ⊢s))
+                        [F₀] [z]
+    in  [Γ]′ , modelsTermEq [F₀] d [z] r
+  fundamentalTermEq {Γ = Γ} (natrec-suc {p = p} {r = r} {n = n} {z = z} {s = s} {F = F} ⊢n ⊢F ⊢z ⊢s)
     with fundamentalTerm ⊢n | fundamental ⊢F
        | fundamentalTerm ⊢z | fundamentalTerm ⊢s
-  ... | [Γ] , [ℕ] , [n] | [Γ]₁ , [F] | [Γ]₂ , [F₀] , [z] | [Γ]₃ , [F₊] , [s] = {!!}
-    -- let [ℕ]′ = S.irrelevance {A = ℕ} [Γ] [Γ]₃ [ℕ]
-    --     [n]′ = S.irrelevanceTerm {A = ℕ} {t = n} [Γ] [Γ]₃ [ℕ] [ℕ]′ [n]
-    --     [sucn] = sucᵛ {n = n} [Γ]₃ [ℕ]′ [n]′
-    --     [F₀]′ = S.irrelevance {A = F [ zero ]} [Γ]₂ [Γ]₃ [F₀]
-    --     [z]′ = S.irrelevanceTerm {A = F [ zero ]} {t = z}
-    --                              [Γ]₂ [Γ]₃ [F₀] [F₀]′ [z]
-    --     [F]′ = S.irrelevance {A = F} [Γ]₁ ([Γ]₃ ∙ [ℕ]′) [F]
-    --     [F[sucn]] = substS {F = ℕ} {F} {suc n} [Γ]₃ [ℕ]′ [F]′ [sucn]
-    --     [Fₙ]′ = substS {F = ℕ} {F} {n} [Γ]₃ [ℕ]′ [F]′ [n]′
-    --     [natrecₙ] = natrecᵛ {F = F} {z} {s} {n}
-    --                         [Γ]₃ [ℕ]′ [F]′ [F₀]′ [F₊] [Fₙ]′ [z]′ [s] [n]′
-    --     t = (s ∘ n) ∘ (natrec F z s n)
-    --     q = subst (liftSubst (sgSubst n))
-    --               (wk1 (F [ suc (var x0) ]↑))
-    --     y = S.irrelevanceTerm′
-    --           {A = q [ natrec F z s n ]} {A′ = F [ suc n ]} {t = t}
-    --           (natrecIrrelevantSubst′ F z s n) [Γ]₃ [Γ]₃
-    --           (substSΠ {F = F [ n ]} {q} {natrec F z s n} BΠ [Γ]₃
-    --             (substS {F = ℕ} {F} {n} [Γ]₃ [ℕ]′ [F]′ [n]′)
-    --             (substSΠ {F = ℕ} {F ▹▹ F [ suc (var x0) ]↑} {n}
-    --                      BΠ [Γ]₃ [ℕ]′ [F₊] [n]′)
-    --             [natrecₙ])
-    --           [F[sucn]]
-    --           (appᵛ {F = F [ n ]} {q} {s ∘ n} {natrec F z s n} [Γ]₃ [Fₙ]′
-    --             (substSΠ {F = ℕ} {F ▹▹ F [ suc (var x0) ]↑} {n}
-    --                      BΠ [Γ]₃ [ℕ]′ [F₊] [n]′)
-    --             (appᵛ {F = ℕ} {F ▹▹ F [ suc (var x0) ]↑} {s} {n}
-    --                   [Γ]₃ [ℕ]′ [F₊] [s] [n]′)
-    --             [natrecₙ])
-    --     d , r =
-    --       redSubstTermᵛ {A = F [ suc n ]} {natrec F z s (suc n)} {t } {¹} [Γ]₃
-    --         (λ {_} {Δ} {σ} ⊢Δ [σ] →
-    --            let ⊢n = escapeTerm (proj₁ ([ℕ]′ ⊢Δ [σ]))
-    --                                   (proj₁ ([n]′ ⊢Δ [σ]))
-    --                ⊢ℕ = escape (proj₁ ([ℕ]′ ⊢Δ [σ]))
-    --                ⊢F = escape (proj₁ ([F]′ (⊢Δ ∙ ⊢ℕ)
-    --                                            (liftSubstS {F = ℕ}
-    --                                                        [Γ]₃ ⊢Δ [ℕ]′ [σ])))
-    --                ⊢z = PE.subst (λ x → Δ ⊢ subst σ z ∷ x)
-    --                              (singleSubstLift F zero)
-    --                              (escapeTerm (proj₁ ([F₀]′ ⊢Δ [σ]))
-    --                                             (proj₁ ([z]′ ⊢Δ [σ])))
-    --                ⊢s = PE.subst (λ x → Δ ⊢ subst σ s ∷ x)
-    --                              (natrecSucCase σ F)
-    --                              (escapeTerm (proj₁ ([F₊] ⊢Δ [σ]))
-    --                                             (proj₁ ([s] ⊢Δ [σ])))
-    --                r = _⊢_⇒_∷_.natrec-suc {_} {n = subst σ n}
-    --                                       {z = subst σ z} {s = subst σ s}
-    --                                       {F = subst (liftSubst σ) F}
-    --                                       ⊢n ⊢F ⊢z ⊢s
-    --            in PE.subst (λ x → Δ ⊢ subst σ (natrec F z s (suc n))
-    --                                 ⇒ (subst σ t) ∷ x)
-    --                        (PE.trans (PE.trans (substCompEq F)
-    --                          (substVar-to-subst (λ { x0 → PE.refl
-    --                                      ; (x +1) → PE.trans (subst-wk (σ x))
-    --                                                           (subst-id (σ x))
-    --                                      })
-    --                                   F))
-    --                          (PE.sym (substCompEq F)))
-    --                        r)
-    --                     [F[sucn]] y
-    -- in  [Γ]₃ , modelsTermEq [F[sucn]] d y r
+  ... | [Γ] , [ℕ] , [n] | [Γ]₁ , [F] | [Γ]₂ , [F₀] , [z] | [Γ]₃ , [F₊] , [s] = 
+    let [sucn] = sucᵛ {n = n} [Γ] [ℕ] [n]
+        [F₀]′ = S.irrelevance {A = F [ zero ]} [Γ]₂ [Γ] [F₀]
+        [z]′ = S.irrelevanceTerm {A = F [ zero ]} {t = z}
+                                 [Γ]₂ [Γ] [F₀] [F₀]′ [z]
+        [F]′ = S.irrelevance {A = F} [Γ]₁ ([Γ] ∙ [ℕ]) [F]
+        [F[sucn]] = substS {F = ℕ} {F} {suc n} [Γ] [ℕ] [F]′ [sucn]
+        [Fₙ]′ = substS {F = ℕ} {F} {n} [Γ] [ℕ] [F]′ [n]
+        [ΓℕF] = _∙_ {A = F} (_∙_ {A = ℕ} [Γ] [ℕ]) [F]′
+        [F₊]′ = S.irrelevance {A = wk1 (F [ suc (var x0) ]↑)} [Γ]₃ [ΓℕF] [F₊]
+        [s]′ = S.irrelevanceTerm {A = wk1 (F [ suc (var x0) ]↑)} {t = s} [Γ]₃ [ΓℕF] [F₊] [F₊]′ [s]
+        [natrecₙ] = natrecᵛ {p = p} {r = r} {F = F} {z} {s} {n}
+                            [Γ] [ℕ] [F]′ [F₀]′ [F₊]′ [Fₙ]′ [z]′ [s]′ [n]
+        -- t = s [ natrec p r F z s n ,, n ]
+        -- q = subst (liftSubst (sgSubst n))
+        --           (wk1 (F [ suc (var x0) ]↑))
+        [s₊] = (λ {k : Nat} {Δ : Con Term k} {σ} (⊢Δ : ⊢ Δ) ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ) →
+                            let [σn] = proj₁ ([n] ⊢Δ [σ])
+                                [σnatrecₙ] = proj₁ ([natrecₙ] ⊢Δ [σ])
+                                [σFₙ] = proj₁ ([Fₙ]′ ⊢Δ [σ])
+                                [σFₙ]′ = irrelevance′ {A′ = subst (consSubst σ (subst σ n)) F}
+                                                      (PE.trans (singleSubstLift F n) (singleSubstComp (subst σ n) σ F)) [σFₙ]
+                                [σnatrecₙ]′ = irrelevanceTerm′ (PE.trans (singleSubstLift F n) (singleSubstComp (subst σ n) σ F))
+                                                               [σFₙ] (proj₁ ([F]′ ⊢Δ ([σ] , [σn]))) [σnatrecₙ]
+                                [σ₊] = ([σ] , [σn]) , [σnatrecₙ]′
+                                [σ₊s] = proj₁ ([s]′ {σ = consSubst (consSubst σ (subst σ n)) (subst σ (natrec p r F z s n))} ⊢Δ [σ₊])
+                                [σ₊s]′ = irrelevanceTerm″ (PE.trans (sucCaseSubstEq F) (PE.sym (singleSubstLift F (suc n))))
+                                                          (PE.trans (substVar-to-subst (λ { x0 → PE.refl
+                                                                                          ; (x0 +1) → PE.refl
+                                                                                          ; (x +1 +1) → PE.refl})
+                                                                                       s)
+                                                                    (PE.sym (substCompEq s)))
+                                                          (proj₁ ([F₊] ⊢Δ (S.irrelevanceSubst ([Γ] ∙ [ℕ] ∙ [F]′) [Γ]₃ ⊢Δ ⊢Δ [σ₊])))
+                                                          (proj₁ ([F[sucn]] ⊢Δ [σ])) [σ₊s]
+                            in  [σ₊s]′ , (λ {σ′} [σ′] [σ≡σ′] →
+                                let 
+                                    [σ′n] = proj₁ ([n] ⊢Δ [σ′])
+                                    [σ′natrecₙ] = proj₁ ([natrecₙ] ⊢Δ [σ′])
+                                    [σ′natrecₙ]′ = irrelevanceTerm′ (PE.trans (singleSubstLift F n) (singleSubstComp (subst σ′ n) σ′ F))
+                                                                    (proj₁ (substS {F = ℕ} {G = F} {t = n} [Γ] [ℕ] [F]′ [n] ⊢Δ [σ′]))
+                                                                    (proj₁ ([F]′ ⊢Δ ([σ′] , proj₁ ([n] ⊢Δ [σ′])))) [σ′natrecₙ]
+                                    [σ′₊] = ([σ′] , [σ′n]) , [σ′natrecₙ]′
+                                    [σnr≡σ′nr] = proj₂ ([natrecₙ] ⊢Δ [σ]) [σ′] [σ≡σ′]
+                                    [σ₊s≡σ′₊s] = proj₂ ([s]′ {σ = consSubst (consSubst σ (subst σ n)) (subst σ (natrec p r F z s n))}
+                                                             ⊢Δ [σ₊])
+                                                       {σ′ = consSubst (consSubst σ′ (subst σ′ n)) (subst σ′ (natrec p r F z s n))}
+                                                       [σ′₊] (([σ≡σ′] , (proj₂ ([n] ⊢Δ [σ]) [σ′] [σ≡σ′])) ,
+                                                             irrelevanceEqTerm′ (PE.trans (singleSubstLift F n) (singleSubstComp (subst σ n) σ F))
+                                                                                (proj₁ ([Fₙ]′ ⊢Δ [σ])) (proj₁ ([F]′ ⊢Δ ([σ] , proj₁ ([n] ⊢Δ [σ]))))
+                                                                                [σnr≡σ′nr])
+                                in  irrelevanceEqTerm″ (PE.trans (substVar-to-subst (λ { x0 → PE.refl
+                                                                                       ; (x0 +1) → PE.refl
+                                                                                       ; (x +1 +1) → PE.refl}) s)
+                                                                 (PE.sym (substCompEq s)))
+                                                       (PE.trans (substVar-to-subst (λ { x0 → PE.refl
+                                                                                       ; (x0 +1) → PE.refl
+                                                                                       ; (x +1 +1) → PE.refl}) s)
+                                                                 (PE.sym (substCompEq s)))
+                                                       (PE.trans (sucCaseSubstEq F) (PE.sym (singleSubstLift F (suc n))))
+                                                       (proj₁ ([F₊]′ ⊢Δ (([σ] , proj₁ ([n] ⊢Δ [σ]))
+                                                                              , irrelevanceTerm′ (PE.trans (singleSubstLift F n)
+                                                                                                           (singleSubstComp (subst σ n) σ F))
+                                                                                                 (proj₁ ([Fₙ]′ ⊢Δ [σ])) (proj₁ ([F]′ ⊢Δ ([σ] , proj₁ ([n] ⊢Δ [σ]))))
+                                                                                                 [σnatrecₙ])))
+                                                                                                 (proj₁ ([F[sucn]] ⊢Δ [σ])) [σ₊s≡σ′₊s]))
+        [natrecₛₙ] , [nr≡s₊] = redSubstTermᵛ {A = F [ suc n ]} {natrec p r F z s (suc n)}
+                                             {subst (consSubst (consSubst idSubst n) (natrec p r F z s n)) s}
+                               [Γ] (λ {k Δ σ} ⊢Δ [σ] →
+                                   let [σℕ] = proj₁ ([ℕ] ⊢Δ [σ])
+                                       ⊢ℕ = escape [σℕ]
+                                       [σn] = proj₁ ([n] ⊢Δ [σ])
+                                       [σF] = proj₁ ([F]′ {σ = liftSubst σ} (⊢Δ ∙ ⊢ℕ)
+                                                          (liftSubstS {F = ℕ} [Γ] ⊢Δ [ℕ] [σ]))
+                                       ⊢F = escape [σF]
+                                       [σF₀] = proj₁ ([F₀]′ ⊢Δ [σ])
+                                       [σF₀]′ = irrelevance′ (singleSubstLift F zero) [σF₀]
+                                       [σ⇑⇑] = liftSubstS {F = F} (_∙_ {A = ℕ} [Γ] [ℕ]) (⊢Δ ∙ ⊢ℕ) [F]′
+                                                          (liftSubstS {F = ℕ} [Γ] ⊢Δ [ℕ] [σ])
+                                       [σF₊] = proj₁ ([F₊]′ {σ = liftSubstn σ 2} (⊢Δ ∙ ⊢ℕ ∙ ⊢F) [σ⇑⇑])
+                                       [σF₊]′ = irrelevance′ (natrecSucCase σ F) [σF₊]
+                                       [σz] = proj₁ ([z]′ ⊢Δ [σ])
+                                       [σz]′ = irrelevanceTerm′ (singleSubstLift F zero) [σF₀] [σF₀]′ [σz]
+                                       
+                                       [σs] = proj₁ ([s]′ {σ = liftSubstn σ 2} (⊢Δ ∙ ⊢ℕ ∙ ⊢F) [σ⇑⇑])
+                                       [σs]′ = irrelevanceTerm′ (natrecSucCase σ F) [σF₊] [σF₊]′ [σs]
+                                       ⊢n = escapeTerm [σℕ] [σn]
+                                       ⊢F = escape [σF]
+                                       ⊢z = escapeTerm [σF₀]′ [σz]′
+                                       ⊢s = escapeTerm [σF₊]′ [σs]′
+                                       red = natrec-suc {p = p} {r = r} ⊢n ⊢F ⊢z ⊢s
+                                   in  PE.subst₂ (λ u A → Δ ⊢ subst σ (natrec p r F z s (suc n)) ⇒ u ∷ A)
+                                                 (PE.trans (doubleSubstComp s (subst σ n) (subst σ (natrec p r F z s n)) σ)
+                                                           (PE.trans (substVar-to-subst (λ { x0 → PE.refl
+                                                                                           ; (x0 +1) → PE.refl
+                                                                                           ; (x +1 +1) → PE.refl}) s)
+                                                                     (PE.sym (substCompEq s))))
+                                                 (PE.sym (singleSubstLift F (suc n)))
+                                                 red)
+                               [F[sucn]] [s₊]
+    in  [Γ] , modelsTermEq [F[sucn]] [natrecₛₙ] [s₊] [nr≡s₊]
   fundamentalTermEq (Emptyrec-cong {A = F} {F′} {n} {n′}
                                  F≡F′ n≡n′)
     with fundamentalEq F≡F′ |
