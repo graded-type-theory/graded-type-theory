@@ -68,8 +68,8 @@ wfEqTerm (Σ-cong F _ _) = wf F
 wfEqTerm (fst-cong _ _ a) = wfEqTerm a
 wfEqTerm (snd-cong _ _ a) = wfEqTerm a
 wfEqTerm (Σ-η _ _ x _ _ _) = wfTerm x
-wfEqTerm (Σ-β₁ F G x x₁) = wfTerm x
-wfEqTerm (Σ-β₂ F G x x₁) = wfTerm x
+wfEqTerm (Σ-β₁ F G x x₁ _) = wfTerm x
+wfEqTerm (Σ-β₂ F G x x₁ _) = wfTerm x
 wfEqTerm (prodrec-cong a _ _ _ _) = wf a
 wfEqTerm (prodrec-β a _ _ _ _ _) = wf a
 
@@ -96,8 +96,8 @@ subsetTerm (β-red A t a p≡q) = β-red A t a p≡q
 subsetTerm (conv t⇒u A≡B) = conv (subsetTerm t⇒u) A≡B
 subsetTerm (fst-subst F G x) = fst-cong F G (subsetTerm x)
 subsetTerm (snd-subst F G x) = snd-cong F G (subsetTerm x)
-subsetTerm (Σ-β₁ F G x x₁ x₂) = Σ-β₁ F G x x₁
-subsetTerm (Σ-β₂ F G x x₁ x₂) = Σ-β₂ F G x x₁
+subsetTerm (Σ-β₁ F G x x₁ x₂) = Σ-β₁ F G x x₁ x₂
+subsetTerm (Σ-β₂ F G x x₁ x₂) = Σ-β₂ F G x x₁ x₂
 subsetTerm (prodrec-subst F G u A t⇒t') =
   prodrec-cong F G (refl A) (subsetTerm t⇒t') (refl u)
 subsetTerm (prodrec-β F G t t' A u) = prodrec-β F G A t t' u

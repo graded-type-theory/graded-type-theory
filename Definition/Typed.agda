@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --safe  #-}
+{-# OPTIONS --without-K --safe #-}
 
 module Definition.Typed (M : Set) where
 
@@ -212,12 +212,14 @@ mutual
                   → Γ ∙ F ⊢ G
                   → Γ ⊢ t ∷ F
                   → Γ ⊢ u ∷ G [ t ]
+                  → Γ ⊢ prod t u ∷ Σ q ▷ F ▹ G
                   → Γ ⊢ fst (prod t u) ≡ t ∷ F
     Σ-β₂          : ∀ {F G t u}
                   → Γ ⊢ F
                   → Γ ∙ F ⊢ G
                   → Γ ⊢ t ∷ F
                   → Γ ⊢ u ∷ G [ t ]
+                  → Γ ⊢ prod t u ∷ Σ q ▷ F ▹ G
                   → Γ ⊢ snd (prod t u) ≡ u ∷ G [ fst (prod t u) ]
     Σ-η           : ∀ {t u F G}
                   → Γ ⊢ F
