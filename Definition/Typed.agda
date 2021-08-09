@@ -323,15 +323,15 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set wher
                  → Γ ⊢ F
                  → Γ ∙ F ⊢ G
                  → Γ ∙ F ∙ G ⊢ u ∷ A [ prod (var (x0 +1)) (var x0) ]↑²
-                 → Γ ∙ (Σ p ▷ F ▹ G) ⊢ A
-                 → Γ ⊢ t ⇒ t′ ∷ Σ p ▷ F ▹ G
+                 → Γ ∙ (Σ q ▷ F ▹ G) ⊢ A
+                 → Γ ⊢ t ⇒ t′ ∷ Σ q ▷ F ▹ G
                  → Γ ⊢ prodrec p A t u ⇒ prodrec p A t′ u ∷ A [ t ]
   prodrec-β      : ∀ {A F G t t′ u}
                  → Γ ⊢ F
                  → Γ ∙ F ⊢ G
                  → Γ ⊢ t ∷ F
                  → Γ ⊢ t′ ∷ G [ t ]
-                 → Γ ∙ (Σ p ▷ F ▹ G) ⊢ A
+                 → Γ ∙ (Σ q ▷ F ▹ G) ⊢ A
                  → Γ ∙ F ∙ G ⊢ u ∷ A [ prod (var (x0 +1)) (var x0) ]↑²
                  → Γ ⊢ prodrec p A (prod t t′) u ⇒
                        u [ t , t′ ] ∷ A [ prod t t′ ]

@@ -100,7 +100,7 @@ subsetTerm (Σ-β₁ F G x x₁ x₂) = Σ-β₁ F G x x₁ x₂
 subsetTerm (Σ-β₂ F G x x₁ x₂) = Σ-β₂ F G x x₁ x₂
 subsetTerm (prodrec-subst F G u A t⇒t') =
   prodrec-cong F G (refl A) (subsetTerm t⇒t') (refl u)
-subsetTerm (prodrec-β F G t t' A u) = prodrec-β F G A t t' u
+subsetTerm (prodrec-β F G t t′ A u) = prodrec-β F G A t t′ u
 
 subset : Γ ⊢ A ⇒ B → Γ ⊢ A ≡ B
 subset (univ A⇒B) = univ (subsetTerm A⇒B)
@@ -129,7 +129,7 @@ redFirstTerm (snd-subst F G x) = sndⱼ F G (redFirstTerm x)
 redFirstTerm (Σ-β₁ {q = q} F G x x₁ x₂) = fstⱼ {q = q} F G (prodⱼ F G x x₁)
 redFirstTerm (Σ-β₂ {q = q} F G x x₁ x₂) = sndⱼ {q = q} F G (prodⱼ F G x x₁)
 redFirstTerm (prodrec-subst F G x A x₁) = prodrecⱼ F G (redFirstTerm x₁) A x
-redFirstTerm (prodrec-β F G t t' A u) = prodrecⱼ F G (prodⱼ F G t t') A u
+redFirstTerm (prodrec-β F G t t′ A u) = prodrecⱼ F G (prodⱼ F G t t′) A u
 
 redFirst :{Γ : Con Term n} → Γ ⊢ A ⇒ B → Γ ⊢ A
 redFirst (univ A⇒B) = univ (redFirstTerm A⇒B)
@@ -309,7 +309,6 @@ UnotInA[t,u] : subst (consSubst (consSubst idSubst u) u′) t PE.≡ U
 UnotInA[t,u] PE.refl u u′ (var x here) = UnotInA u′
 UnotInA[t,u] PE.refl u u′ (var x (there here)) = UnotInA u
 UnotInA[t,u] eq u u′ (conv t x) = UnotInA[t,u] eq u u′ t
-
 
 redU*Term′ : U′ PE.≡ U → Γ ⊢ A ⇒ U′ ∷ B → ⊥
 redU*Term′ U′≡U (conv A⇒U x) = redU*Term′ U′≡U A⇒U

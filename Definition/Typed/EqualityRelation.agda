@@ -208,6 +208,15 @@ record EqRelSet : Set₁ where
              → Γ         ⊢ n ~ n′ ∷ ℕ
              → Γ         ⊢ natrec p q F z s n ~ natrec p q F′ z′ s′ n′ ∷ F [ n ]
 
+    -- Product recursion congruence
+    ~-prodrec : ∀ {F G A A′ t t′ u u′}
+             → Γ                 ⊢ F
+             → Γ ∙ F             ⊢ G
+             → Γ ∙ (Σ q ▷ F ▹ G) ⊢ A ≅ A′
+             → Γ                 ⊢ t ~ t′ ∷ Σ q ▷ F ▹ G
+             → Γ ∙ F ∙ G         ⊢ u ≅ u′ ∷ A [ prod (var (x0 +1)) (var x0) ]↑²
+             → Γ                 ⊢ (prodrec p A t u) ~ (prodrec p A t′ u′) ∷ A [ t ]
+
     -- Empty recursion congruence
     ~-Emptyrec : ∀ {n n′ F F′}
                → Γ ⊢ F ≅ F′

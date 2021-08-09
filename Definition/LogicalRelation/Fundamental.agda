@@ -266,7 +266,21 @@ mutual
           [t]′ = S.irrelevanceTerm {A = A} {t = t} [Γ] [Γ]′ [A′] [A′]₁ [t]
       in  [Γ]′ , [A]
       ,   convᵛ {t = t} {A} {B} [Γ]′ [A′]₁ [A] [A′≡A] [t]′
-  fundamentalTerm (prodrecⱼ x x₁ j x₂ j₁) = {!!}
+  fundamentalTerm (prodrecⱼ ⊢F ⊢G ⊢t ⊢A ⊢u)
+    with fundamental ⊢F | fundamental ⊢G | fundamental ⊢A | fundamentalTerm ⊢t | fundamentalTerm ⊢u
+  fundamentalTerm (prodrecⱼ {q = q} {t = t} {u} {F} {G} {A} ⊢F ⊢G ⊢t ⊢A ⊢u)
+    | [Γ] , [F] | [Γ]₁ , [G] | [Γ]₂ , [A]
+    | [Γ]₃ , [Σ] , [t] | [Γ]₄ , [A₊] , [u] =
+      let [G]′ = S.irrelevance {A = G} [Γ]₁ ([Γ] ∙ [F]) [G]
+          [Σ]′ = S.irrelevance {A = Σ q ▷ F ▹ G} [Γ]₃ [Γ] [Σ]
+          [A]′ = S.irrelevance {A = A} [Γ]₂ ([Γ] ∙ [Σ]′) [A]
+          [A₊]′ = S.irrelevance {A = A [ prod (var (x0 +1)) (var x0) ]↑²}
+                                [Γ]₄ ([Γ] ∙ [F] ∙ [G]′) [A₊]
+          [t]′ = S.irrelevanceTerm {A = Σ q ▷ F ▹ G} {t = t} [Γ]₃ [Γ] [Σ] [Σ]′ [t]
+          [u]′ = S.irrelevanceTerm {A = A [ prod (var (x0 +1)) (var x0) ]↑²} {t = u}
+                                   [Γ]₄ ([Γ] ∙ [F] ∙ [G]′) [A₊] [A₊]′ [u]
+          [Aₜ] = substS {F = Σ q ▷ F ▹ G} {A} {t} [Γ] [Σ]′ [A]′ [t]′
+      in  [Γ] , [Aₜ] , {!!}
 
   -- Fundamental theorem for term equality.
   fundamentalTermEq : ∀ {A t t′} → Γ ⊢ t ≡ t′ ∷ A
@@ -842,8 +856,8 @@ mutual
         [p≡r] = Σ-ηᵛ {F = F} {G} {p} {r}
                      [Γ] [F] [G] [p] [r] [fst≡] [snd≡]
     in  [Γ] , modelsTermEq [ΣFG] [p] [r] [p≡r]
-  fundamentalTermEq (prodrec-cong x x₁ x₂ j j₁) = {!!}
-  fundamentalTermEq (prodrec-β x x₁ x₂ x₃ x₄ x₅) = {!!}
+  fundamentalTermEq (prodrec-cong ⊢F ⊢G ⊢A≡A′ ⊢t≡t′ ⊢u≡u′) = {!!}
+  fundamentalTermEq (prodrec-β ⊢F ⊢G ⊢A ⊢t ⊢t′ ⊢u) = {!!}
 
 
 -- Fundamental theorem for substitutions.

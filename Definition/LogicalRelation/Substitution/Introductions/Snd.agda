@@ -92,7 +92,6 @@ snd′ {Γ = Γ} {q = q} {F = F} {G = G} {t = t} {l = l} {l′ = l′}
 ... | PE.refl , PE.refl , _ =
   let ⊢Γ = wf ⊢F
       [p] = Σₜ p (idRedTerm:*: (⊢u-redₜ d)) pProd p≅p [fstp] [sndp]
-
       [fstt] , [fstt≡fstp] = redSubst*Term (PE.subst (λ x → Γ ⊢ fst t ⇒* fst p ∷ x)
                                                      (PE.sym (wk-id F))
                                                      (fst-subst* ⊢F ⊢G (redₜ d)))
