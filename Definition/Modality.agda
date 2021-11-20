@@ -3,22 +3,22 @@
 open import Tools.Level
 open import Tools.Relation
 
-module Definition.Modality (M′ : Setoid _ _) where
+module Definition.Modality {a ℓ} (M′ : Setoid a ℓ) where
 
--- open Setoid M′ renaming (Carrier to M) public
+open Setoid M′ renaming (Carrier to M)
 
-open import Tools.Algebra (Setoid._≈_ M′)
+open import Tools.Algebra M′
 open import Tools.Nat hiding (_+_)
 open import Tools.Product
 
 -- Modality ringoid
-record Modality : Set where
+record Modality : Set (a ⊔ ℓ) where
   infixr 40 _+_
   infixr 40 _∧_
   infixr 45 _·_
   infix  10 _≤_
 
-  open Setoid M′ renaming (Carrier to M) public
+  -- open Setoid M′ renaming (Carrier to M) public
 
   field
     -- A modality consists of a type M with three binary operations...
@@ -42,8 +42,8 @@ record Modality : Set where
 
 
   -- Semilattice partial ordering relation
-  _≤_ : Rel M ℓ₀
-  p ≤ q = p ≈ (p ∧ q)
+  _≤_ : Rel M ℓ
+  p ≤ q = p ≈ (p ∧ q) --p ≈ (p ∧ q)
 
   field
     -- 𝟘 is zero for multiplication

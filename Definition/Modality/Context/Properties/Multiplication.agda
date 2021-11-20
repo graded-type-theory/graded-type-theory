@@ -17,6 +17,7 @@ open import Tools.Nat hiding (_+_)
 open import Tools.Product
 
 open Modality 𝕄
+open Setoid M′ renaming (Carrier to M)
 
 private
   variable

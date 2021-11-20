@@ -10,6 +10,7 @@ module Definition.Modality.Context
   where
 
 open Modality 𝕄
+open Setoid M′ renaming (Carrier to M)
 
 open import Tools.Fin
 open import Tools.Nat renaming (_+_ to _+ⁿ_)

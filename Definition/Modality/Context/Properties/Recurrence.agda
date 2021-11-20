@@ -16,6 +16,7 @@ open import Definition.Modality.Properties 𝕄
 open import Tools.Nat
 
 open Modality 𝕄
+open Setoid M′ renaming (Carrier to M)
 
 private
   variable

@@ -9,6 +9,7 @@ module Definition.Modality.Usage
   where
 
 open Modality 𝕄
+open Setoid M′ renaming (Carrier to M)
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Untyped M hiding (_∙_)

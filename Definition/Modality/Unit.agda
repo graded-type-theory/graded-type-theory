@@ -5,13 +5,15 @@ module Definition.Modality.Unit where
 open import Tools.Nat hiding (_+_)
 open import Tools.Product
 open import Tools.PropositionalEquality
+open import Tools.Relation
 open import Tools.Unit
 
-open import Tools.Algebra {A = ⊤} _≡_
+Unit′ : Setoid _ _
+Unit′ = record { Carrier = ⊤ ; _≈_ = _≡_ ; isEquivalence = isEquivalence }
 
-open import Definition.Modality
-  (record { Carrier = ⊤ ; _≈_ = _≡_ ; isEquivalence = isEquivalence })
-  public
+open import Tools.Algebra Unit′
+
+open import Definition.Modality Unit′ public
 
 -----------------------------------------------
 -- A trivial modality formed by the unit set --
