@@ -4,7 +4,7 @@
 
 open import Tools.Relation
 
-module Definition.Untyped.Properties (M : Set) where
+module Definition.Untyped.Properties {a} (M : Set a) where
 
 open import Definition.Untyped M
 

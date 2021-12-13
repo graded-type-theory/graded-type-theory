@@ -4,8 +4,8 @@ open import Tools.Level
 open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Usage.Weakening
-  {M′ : Setoid _ _} (𝕄 : Modality M′)
+module Definition.Modality.Usage.Weakening {a ℓ′}
+  {M′ : Setoid a ℓ′} (𝕄 : Modality M′)
   where
 
 open Modality 𝕄
@@ -78,16 +78,6 @@ liftn-usage ℓ (sndₘ γ▸t) =  subst₂ _▸_
   (PE.sym (insertAt-𝟘 ℓ))
   PE.refl
   (sndₘ (subst₂ _▸_ (insertAt-𝟘 ℓ) PE.refl (liftn-usage ℓ γ▸t)))
-
-liftn-usage ℓ (prodrecₘ {γ = γ} {δ = δ} {p = p} γ▸t δ▸u) = sub
-  (prodrecₘ (liftn-usage ℓ γ▸t) (liftn-usage (1+ (1+ ℓ)) δ▸u))
-  eq
-  where
-  open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
-  eq = begin
-    insertAt ℓ (p ·ᶜ γ +ᶜ δ) 𝟘               ≈⟨ insertAt-distrib-+ᶜ-𝟘 ℓ (p ·ᶜ γ) δ ⟩
-    insertAt ℓ (p ·ᶜ γ) 𝟘 +ᶜ insertAt ℓ δ 𝟘 ≈⟨ +ᶜ-cong (insertAt-distrib-·ᶜ-𝟘 ℓ p γ) ≈ᶜ-refl ⟩
-    p ·ᶜ insertAt ℓ γ 𝟘 +ᶜ insertAt ℓ δ 𝟘   ∎
 
 liftn-usage ℓ zeroₘ      = subst (_▸ zero) (PE.sym (insertAt-𝟘 ℓ)) zeroₘ
 liftn-usage ℓ (sucₘ γ▸t) = sucₘ (liftn-usage ℓ γ▸t)

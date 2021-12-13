@@ -43,7 +43,7 @@ record Modality : Set (a ⊔ ℓ) where
 
   -- Semilattice partial ordering relation
   _≤_ : Rel M ℓ
-  p ≤ q = p ≈ (p ∧ q) --p ≈ (p ∧ q)
+  p ≤ q = p ≈ (p ∧ q)
 
   field
     -- 𝟘 is zero for multiplication

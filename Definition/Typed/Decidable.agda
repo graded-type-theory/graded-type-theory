@@ -1,15 +1,19 @@
-{-# OPTIONS --without-K  #-}
+{-# OPTIONS --without-K --safe #-}
 
-module Definition.Typed.Decidable (M : Set) where
+open import Tools.Relation
+
+module Definition.Typed.Decidable {a ℓ} (M″ : DecSetoid a ℓ) where
+
+open DecSetoid M″ using () renaming (Carrier to M; setoid to M′)
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-open import Definition.Conversion M
-open import Definition.Conversion.Decidable M
-open import Definition.Conversion.Soundness M
-open import Definition.Conversion.Stability M
-open import Definition.Conversion.Consequences.Completeness M
+open import Definition.Typed M′
+open import Definition.Typed.Properties M′
+open import Definition.Conversion M′
+open import Definition.Conversion.Decidable M″
+open import Definition.Conversion.Soundness M′
+open import Definition.Conversion.Stability M′
+open import Definition.Conversion.Consequences.Completeness M′
 
 open import Tools.Nat
 open import Tools.Nullary

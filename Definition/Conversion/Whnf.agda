@@ -1,10 +1,14 @@
 {-# OPTIONS --without-K --safe #-}
 
-module Definition.Conversion.Whnf (M : Set) where
+open import Tools.Relation
+
+module Definition.Conversion.Whnf {a ℓ} (M′ : Setoid a ℓ) where
+
+open Setoid M′ using () renaming (Carrier to M)
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
-open import Definition.Conversion M
+open import Definition.Typed M′
+open import Definition.Conversion M′
 
 open import Tools.Nat
 open import Tools.Product
@@ -20,8 +24,8 @@ mutual
        → Γ ⊢ t ~ u ↑ A
        → Neutral t × Neutral u
   ne~↑ (var-refl x₁ x≡y) = var _ , var _
-  ne~↑ (app-cong x x₁ _) = let _ , q , w = ne~↓ x
-                           in  ∘ₙ q , ∘ₙ w
+  ne~↑ (app-cong x x₁ _ _) = let _ , q , w = ne~↓ x
+                             in  ∘ₙ q , ∘ₙ w
   ne~↑ (fst-cong x) =
     let _ , pNe , rNe = ne~↓ x
     in  fstₙ pNe , fstₙ rNe

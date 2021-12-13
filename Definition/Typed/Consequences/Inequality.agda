@@ -1,16 +1,21 @@
-{-# OPTIONS --without-K  #-}
+{-# OPTIONS --without-K --safe #-}
 
-module Definition.Typed.Consequences.Inequality (M : Set) where
+open import Tools.Relation
+
+module Definition.Typed.Consequences.Inequality {a ℓ} (M′ : Setoid a ℓ) where
+
+open Setoid M′ using () renaming (Carrier to M)
 
 open import Definition.Untyped M hiding (U≢ne; ℕ≢ne; B≢ne; U≢B; ℕ≢B)
-open import Definition.Typed M
-open import Definition.Typed.EqRelInstance M
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.Irrelevance M
-open import Definition.LogicalRelation.ShapeView M
-open import Definition.LogicalRelation.Fundamental.Reducibility M
-open import Definition.Typed.Consequences.Syntactic M
+open import Definition.Typed M′
+open import Definition.Typed.EqRelInstance M′
+open import Definition.LogicalRelation M′
+open import Definition.LogicalRelation.Irrelevance M′
+open import Definition.LogicalRelation.ShapeView M′
+open import Definition.LogicalRelation.Fundamental.Reducibility M′
+open import Definition.Typed.Consequences.Syntactic M′
 
+open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
 open import Tools.Empty
@@ -21,7 +26,7 @@ private
     Γ : Con Term n
     p q q′ : M
 
-A≢B : ∀ {A B Γ} (_⊩′⟨_⟩A_ _⊩′⟨_⟩B_ : Con Term n → TypeLevel → Term n → Set)
+A≢B : ∀ {A B Γ} (_⊩′⟨_⟩A_ _⊩′⟨_⟩B_ : Con Term n → TypeLevel → Term n → Set (a ⊔ ℓ))
       (A-intr : ∀ {l} → Γ ⊩′⟨ l ⟩A A → Γ ⊩⟨ l ⟩ A)
       (B-intr : ∀ {l} → Γ ⊩′⟨ l ⟩B B → Γ ⊩⟨ l ⟩ B)
       (A-elim : ∀ {l} → Γ ⊩⟨ l ⟩ A → ∃ λ l′ → Γ ⊩′⟨ l′ ⟩A A)
@@ -347,7 +352,7 @@ B≢ne W neK W≡K =
        ([A] : Γ ⊩′⟨ l ⟩B⟨ BΠ p q ⟩ A)
        ([B] : Γ ⊩′⟨ l′ ⟩B⟨ BΣ q′ ⟩ B)
      → ShapeView Γ l l′ _ _ (Bᵣ (BΠ p q) [A]) (Bᵣ (BΣ q′) [B]) → ⊥
-Π≢Σ′ a b ()
+Π≢Σ′ a b (Bᵥ .(BΠ _ _) .(BΣ _) .a .b ())
 
 Π≢Σ-red : ∀ {A B F G H E} → Γ ⊢ A ⇒* Π p , q ▷ F ▹ G → Γ ⊢ B ⇒* Σ q′ ▷ H ▹ E → Γ ⊢ A ≡ B → ⊥
 Π≢Σ-red D D′ = A≢B (λ Γ l A → Γ ⊩′⟨ l ⟩B⟨ BΠ! ⟩ A)

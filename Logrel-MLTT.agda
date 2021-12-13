@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K #-}
+{-# OPTIONS --without-K --safe #-}
 
 -- A Logical Relation for Dependent Type Theory Formalized in Agda
 
@@ -41,6 +41,7 @@ import Definition.Modality.Substitution.Properties
 
 -- Grammar of the language
 import Definition.Untyped
+import Definition.Untyped.BindingType
 import Definition.Untyped.Properties
 
 -- Typing and conversion rules of language

@@ -1,14 +1,18 @@
-{-# OPTIONS --without-K  #-}
+{-# OPTIONS --without-K --safe #-}
 
-module Definition.Typed.Consequences.Inversion (M : Set) where
+open import Tools.Relation
+
+module Definition.Typed.Consequences.Inversion {a ℓ} (M′ : Setoid a ℓ) where
+
+open Setoid M′ using () renaming (Carrier to M)
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
-open import Definition.Typed.Properties M
+open import Definition.Typed M′
+open import Definition.Typed.Properties M′
 
-open import Definition.Typed.Consequences.Syntactic M
-open import Definition.Typed.Consequences.Substitution M
-open import Definition.Typed.Consequences.Inequality M
+open import Definition.Typed.Consequences.Syntactic M′
+open import Definition.Typed.Consequences.Substitution M′
+open import Definition.Typed.Consequences.Inequality M′
 
 open import Tools.Fin
 open import Tools.Nat

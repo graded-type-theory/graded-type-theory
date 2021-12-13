@@ -1,20 +1,25 @@
-{-# OPTIONS --without-K  #-}
+{-# OPTIONS --without-K --safe #-}
 
-module Definition.Conversion.Conversion (M : Set) where
+open import Tools.Relation
+
+module Definition.Conversion.Conversion {a ℓ} (M′ : Setoid a ℓ) where
+
+open Setoid M′ using () renaming (Carrier to M; trans to ≈-trans; sym to ≈-sym)
 
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Untyped.Properties M
-open import Definition.Typed M
-open import Definition.Typed.RedSteps M
-open import Definition.Typed.Properties M
-open import Definition.Conversion M
-open import Definition.Conversion.Stability M
-open import Definition.Conversion.Soundness M
-open import Definition.Typed.Consequences.Syntactic M
-open import Definition.Typed.Consequences.Substitution M
-open import Definition.Typed.Consequences.Injectivity M
-open import Definition.Typed.Consequences.Equality M
-open import Definition.Typed.Consequences.Reduction M
+open import Definition.Typed M′
+open import Definition.Typed.RedSteps M′
+open import Definition.Typed.Properties M′
+open import Definition.Conversion M′
+open import Definition.Conversion.Stability M′
+open import Definition.Conversion.Soundness M′
+open import Definition.Typed.Consequences.Syntactic M′
+open import Definition.Typed.Consequences.Substitution M′
+open import Definition.Typed.Consequences.Inequality M′
+open import Definition.Typed.Consequences.Injectivity M′
+open import Definition.Typed.Consequences.Equality M′
+open import Definition.Typed.Consequences.Reduction M′
 
 open import Tools.Nat
 open import Tools.Product
@@ -66,14 +71,15 @@ mutual
   convConv↓Term Γ≡Δ A≡B whnfB (suc-cong x) rewrite ℕ≡A A≡B whnfB =
     suc-cong (stabilityConv↑Term Γ≡Δ x)
   convConv↓Term Γ≡Δ A≡B whnfB (η-eq x₁ x₂ y y₁ x₃) with Π≡A A≡B whnfB
-  convConv↓Term Γ≡Δ A≡B whnfB (η-eq x₁ x₂ y y₁ x₃) | F′ , G′ , PE.refl =
-    let F≡F′ , G≡G′ , _ = injectivity A≡B
+  convConv↓Term Γ≡Δ A≡B whnfB (η-eq x₁ x₂ y y₁ x₃) | p , q , F′ , G′ , PE.refl =
+    let F≡F′ , G≡G′ , p′≈p , _ = injectivity A≡B
     in  η-eq (stabilityTerm Γ≡Δ (conv x₁ A≡B))
-             (stabilityTerm Γ≡Δ (conv x₂ A≡B)) y y₁
-             (convConv↑Term (Γ≡Δ ∙ F≡F′) G≡G′ x₃)
+             (stabilityTerm Γ≡Δ (conv x₂ A≡B))
+             y y₁
+             λ x x₄ → convConv↑Term (Γ≡Δ ∙ F≡F′) G≡G′ (x₃ (≈-trans p′≈p x) (≈-trans p′≈p x₄))
   convConv↓Term Γ≡Δ A≡B whnfB (Σ-η ⊢p ⊢r pProd rProd fstConv sndConv)
     with Σ≡A A≡B whnfB
-  ... | F , G , PE.refl =
+  ... | q , F , G , PE.refl =
     let F≡ , G≡ , _ = Σ-injectivity A≡B
         ⊢F = proj₁ (syntacticEq F≡)
         ⊢G = proj₁ (syntacticEq G≡)

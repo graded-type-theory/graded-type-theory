@@ -1,12 +1,16 @@
+
 {-# OPTIONS --without-K --safe #-}
 
 open import Definition.Typed.EqualityRelation
+open import Tools.Relation
 
-module Definition.LogicalRelation.Substitution.Reflexivity (M : Set) {{eqrel : EqRelSet M}} where
+module Definition.LogicalRelation.Substitution.Reflexivity {a ℓ} (M′ : Setoid a ℓ)
+                                                           {{eqrel : EqRelSet M′}} where
 open EqRelSet {{...}}
+open Setoid M′ using () renaming (Carrier to M)
 
-open import Definition.LogicalRelation.Properties M
-open import Definition.LogicalRelation.Substitution M
+open import Definition.LogicalRelation.Properties M′
+open import Definition.LogicalRelation.Substitution M′
 open import Definition.Untyped M using (Con ; Term)
 
 open import Tools.Nat

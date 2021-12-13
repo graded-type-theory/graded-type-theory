@@ -4,8 +4,8 @@ open import Tools.Level
 open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Substitution.Properties
-  {M′ : Setoid _ _} (𝕄 : Modality M′)
+module Definition.Modality.Substitution.Properties {a ℓ′}
+  {M′ : Setoid a ℓ′} (𝕄 : Modality M′)
   where
 
 open Modality 𝕄
@@ -18,7 +18,7 @@ open import Definition.Modality.Substitution 𝕄
 open import Definition.Modality.Usage 𝕄
 open import Definition.Modality.Usage.Properties 𝕄
 open import Definition.Modality.Usage.Weakening 𝕄
-open import Definition.Typed M using (_⊢_∷_)
+open import Definition.Typed M′ using (_⊢_∷_)
 open import Definition.Untyped M as U renaming (_[_,_] to _[_,,_])
 
 open import Tools.Fin
@@ -370,30 +370,6 @@ substₘ-lemma Ψ σ Ψ▶σ (fstₘ γ▸t) = sub
 substₘ-lemma Ψ σ Ψ▶σ (sndₘ γ▸t) = sub
   (sndₘ (sub (substₘ-lemma Ψ σ Ψ▶σ γ▸t) (≤ᶜ-reflexive (≈ᶜ-sym (*>-zeroʳ Ψ)))))
   (≤ᶜ-reflexive (*>-zeroʳ Ψ))
-
-substₘ-lemma Ψ σ Ψ▶σ (prodrecₘ {γ = γ} {δ = δ} {p} γ▸t δ▸u) = sub
-  (prodrecₘ γ▸t′ (sub δ▸u′ eq))
-  eq′
-  where
-  γ▸t′ = substₘ-lemma Ψ σ Ψ▶σ γ▸t
-  δ▸u′ = substₘ-lemma (liftSubstₘ (liftSubstₘ Ψ)) (liftSubst (liftSubst σ))
-                      (wf-liftSubstₘ (wf-liftSubstₘ Ψ▶σ)) δ▸u
-  eq = begin
-    Ψ *> δ ∙ p ∙ p
-      ≈⟨ (≈ᶜ-sym (liftSubstₘ-app Ψ δ p)) ∙ ≈-refl ⟩
-    (wk1Substₘ Ψ ⊙ (𝟘ᶜ ∙ 𝟙)) *> (δ ∙ p) ∙ p
-      ≈⟨ ≈ᶜ-sym (liftSubstₘ-app (wk1Substₘ Ψ ⊙ (𝟘ᶜ ∙ 𝟙)) (δ ∙ p) p) ⟩
-    ((wk1Substₘ (wk1Substₘ Ψ) ⊙ (𝟘ᶜ ∙ 𝟙 ∙ 𝟘) ⊙ (𝟘ᶜ ∙ 𝟙)) *> (δ ∙ p ∙ p))
-      ≡⟨⟩
-    p ·ᶜ (𝟘ᶜ ∙ 𝟘 ∙ 𝟙) +ᶜ p ·ᶜ (𝟘ᶜ ∙ 𝟙 ∙ 𝟘) +ᶜ ((wk1Substₘ (wk1Substₘ Ψ)) *> δ)
-      ≡⟨⟩
-    (p ·ᶜ 𝟘ᶜ ∙ p · 𝟘 ∙ p · 𝟙) +ᶜ (p ·ᶜ 𝟘ᶜ ∙ p · 𝟙 ∙ p · 𝟘) +ᶜ ((wk1Substₘ (wk1Substₘ Ψ)) *> δ) ∎
-    where open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
-  eq′ = begin
-    Ψ *> (p ·ᶜ γ +ᶜ δ)      ≈⟨ *>-distrib-+ᶜ Ψ (p ·ᶜ γ) δ ⟩
-    Ψ *> (p ·ᶜ γ) +ᶜ Ψ *> δ ≈⟨ +ᶜ-cong (*>-distrib-·ᶜ Ψ p γ) ≈ᶜ-refl ⟩
-    p ·ᶜ Ψ *> γ +ᶜ Ψ *> δ   ∎
-    where open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
 substₘ-lemma Ψ σ Ψ▶σ zeroₘ = sub zeroₘ (≤ᶜ-reflexive (*>-zeroʳ Ψ))
 

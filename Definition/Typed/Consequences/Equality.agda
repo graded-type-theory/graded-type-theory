@@ -1,16 +1,22 @@
-{-# OPTIONS --without-K #-}
+{-# OPTIONS --without-K --safe #-}
 
-module Definition.Typed.Consequences.Equality (M : Set) where
+open import Tools.Relation
+
+module Definition.Typed.Consequences.Equality {a ℓ} (M′ : Setoid a ℓ) where
+
+open Setoid M′ using () renaming (Carrier to M)
 
 open import Definition.Untyped M
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-open import Definition.Typed.EqRelInstance M
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.Irrelevance M
-open import Definition.LogicalRelation.ShapeView M
-open import Definition.LogicalRelation.Fundamental.Reducibility M
+open import Definition.Typed M′
+open import Definition.Typed.Properties M′
+open import Definition.Typed.EqRelInstance M′
+open import Definition.Typed.Consequences.Inequality M′
+open import Definition.LogicalRelation M′
+open import Definition.LogicalRelation.Irrelevance M′
+open import Definition.LogicalRelation.ShapeView M′
+open import Definition.LogicalRelation.Fundamental.Reducibility M′
 
+open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -23,7 +29,7 @@ private
 U≡A′ : ∀ {A l} ([U] : Γ ⊩⟨ l ⟩U)
     → Γ ⊩⟨ l ⟩ U ≡ A / (U-intr [U])
     → A PE.≡ U
-U≡A′ (noemb [U]) [U≡A] = [U≡A]
+U≡A′ (noemb [U]) (lift A≡U) = A≡U
 U≡A′ (emb 0<1 [U]) [U≡A] = U≡A′ [U] [U≡A]
 
 -- If A is judgmentally equal to U, then A is propositionally equal to U.
@@ -105,9 +111,9 @@ ne≡A {A} neK ne≡A whnfA | [ne] , [A] , [ne≡A] =
 B≡A′ : ∀ {A F G l} W ([W] : Γ ⊩⟨ l ⟩B⟨ W ⟩ ⟦ W ⟧ F ▹ G)
     → Γ ⊩⟨ l ⟩ ⟦ W ⟧ F ▹ G ≡ A / (B-intr W [W])
     → Whnf A
-    → ∃₂ λ H E → A PE.≡ ⟦ W ⟧ H ▹ E
-B≡A′ W (noemb [W]) (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) whnfA =
-  F′ , G′ , whnfRed* D′ whnfA
+    → ∃₃ λ W′ H E → A PE.≡ ⟦ W′ ⟧ H ▹ E
+B≡A′ W (noemb [W]) (B₌ F′ G′ W′ D′ W≋W′ A≡B [F≡F′] [G≡G′]) whnfA =
+  W′ , F′ , G′ , whnfRed* D′ whnfA
 B≡A′ W (emb 0<1 [W]) [W≡A] whnfA = B≡A′ W [W] [W≡A] whnfA
 
 Π≡A′ : ∀ {Γ : Con Term n} {A F G l p q} → _
@@ -120,12 +126,16 @@ B≡A′ W (emb 0<1 [W]) [W≡A] whnfA = B≡A′ W [W] [W≡A] whnfA
 B≡A : ∀ {A F G} W
     → Γ ⊢ ⟦ W ⟧ F ▹ G ≡ A
     → Whnf A
-    → ∃₂ λ H E → A PE.≡ ⟦ W ⟧ H ▹ E
+    → ∃₃ λ W′ H E → A PE.≡ ⟦ W′ ⟧ H ▹ E
 B≡A {A} W W≡A whnfA with reducibleEq W≡A
 B≡A {A} W W≡A whnfA | [W] , [A] , [W≡A] =
   B≡A′ W (B-elim W [W]) (irrelevanceEq [W] (B-intr W (B-elim W [W])) [W≡A]) whnfA
 
-Π≡A : ∀ {Γ : Con Term n} {A F G p q} → _
-Π≡A {Γ = Γ} {A} {F} {G} {p} {q} = B≡A {Γ = Γ} {A} {F} {G} (BΠ p q)
-Σ≡A : ∀ {Γ : Con Term n} {A F G q} → _
-Σ≡A {Γ = Γ} {A} {F} {G} {q} = B≡A {Γ = Γ} {A} {F} {G} (BΣ q)
+Π≡A : ∀ {Γ : Con Term n} {A F G p q} → Γ ⊢ ⟦ BΠ p q ⟧ F ▹ G ≡ A → Whnf A → ∃₄ λ p′ q′ H E → A PE.≡ ⟦ BΠ p′ q′ ⟧ H ▹ E
+Π≡A {Γ = Γ} {A} {F} {G} {p} {q} x y with B≡A {Γ = Γ} {A} {F} {G} (BΠ p q) x y
+... | BΠ p₁ q₁ , H , E , A≡ΠHE = p₁ , q₁ , H , E , A≡ΠHE
+... | BΣ q₁ , H , E , PE.refl = PE.⊥-elim (Π≢Σ x)
+Σ≡A : ∀ {Γ : Con Term n} {A F G q} → Γ ⊢ ⟦ BΣ q ⟧ F ▹ G ≡ A → Whnf A → ∃₃ λ q′ H E → A PE.≡ ⟦ BΣ q′ ⟧ H ▹ E
+Σ≡A {Γ = Γ} {A} {F} {G} {q} x y with B≡A {Γ = Γ} {A} {F} {G} (BΣ q) x y
+... | BΠ p q₁ , H , E , PE.refl = PE.⊥-elim (Π≢Σ (sym x))
+... | BΣ q₁ , H , E , A≡ΣHE = q₁ , H , E , A≡ΣHE

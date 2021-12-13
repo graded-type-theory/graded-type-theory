@@ -6,8 +6,6 @@ open import Tools.Nat
 open import Tools.Nullary
 open import Tools.PropositionalEquality
 
--- open import Data.Fin.Properties using (suc-injective)
-
 open import Data.Fin.Base public using (Fin) renaming (zero to x0 ; suc to _+1)
 
 
