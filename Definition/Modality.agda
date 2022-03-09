@@ -18,8 +18,6 @@ record Modality : Set (a ⊔ ℓ) where
   infixr 45 _·_
   infix  10 _≤_
 
-  -- open Setoid M′ renaming (Carrier to M) public
-
   field
     -- A modality consists of a type M with three binary operations...
     _+_ : Op₂ M -- Addition

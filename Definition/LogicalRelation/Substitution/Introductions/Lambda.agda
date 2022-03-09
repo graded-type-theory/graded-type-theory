@@ -133,9 +133,6 @@ lamᵛ {Γ = Γ} {p = p} {q = q} {F = F} {G} {t} {l} [Γ] [F] [G] [t] {k} {Δ = 
                                                                G[b] t[b])))
                   in  transEqTerm G[a] lamt∘a≡t[a]
                                   (transEqTerm G[a] t[a]≡t[b] t[b]≡lamt∘b))
-                  -- transEqTerm G[a] {!lamt∘a≡t[a]!} {!redSubstTerm (β-red ⊢F₁ ⊢t ⊢a PE.refl) G[a] t[a]!})
-                  -- transEqTerm G[a] lamt∘a≡t[a]
-                  --            (transEqTerm G[a] t[a]≡t[b] t[b]≡lamt∘b))
                (λ {_} {_} {Δ₁} {a} ρ ⊢Δ₁ [a] p≈p′ →
                   let [ρσ] = wkSubstS [Γ] ⊢Δ ⊢Δ₁ ρ [σ]
                       [a]′ = irrelevanceTerm′ (wk-subst F) ([F]′ ρ ⊢Δ₁)
