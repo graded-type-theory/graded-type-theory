@@ -126,6 +126,22 @@ decConv↓Term-Unit tConv uConv =
       _ , uWhnf , _ = whnfConv↓Term uConv
   in  yes (η-unit [t] [u] tWhnf uWhnf)
 
+-- Helper function for Σ-η.
+decConv↓Term-Σ-η : ∀ {t u q F G}
+                  → Γ ⊢ t ∷ Σ q ▷ F ▹ G
+                  → Γ ⊢ u ∷ Σ q ▷ F ▹ G
+                  → Product t
+                  → Product u
+                  → Γ ⊢ fst t [conv↑] fst u ∷ F
+                  → Dec (Γ ⊢ snd t [conv↑] snd u ∷ G [ fst t ])
+                  → Dec (Γ ⊢ t [conv↓] u ∷ Σ q ▷ F ▹ G)
+decConv↓Term-Σ-η ⊢t ⊢u tProd uProd fstConv (yes Q) =
+  yes (Σ-η ⊢t ⊢u tProd uProd fstConv Q)
+decConv↓Term-Σ-η ⊢t ⊢u tProd uProd fstConv (no ¬Q) =
+  no (λ {(Σ-η _ _ _ _ _ Q) → ¬Q Q})
+
+
+
 mutual
   -- Decidability of algorithmic equality of neutrals.
   dec~↑ : ∀ {k l R T k′ l′}
@@ -493,15 +509,13 @@ mutual
           ; (suc-cong x₂) → ¬p x₂ })
   decConv↓Term (Σ-η ⊢t _ tProd _ fstConvT sndConvT)
                (Σ-η ⊢u _ uProd _ fstConvU sndConvU)
-    with decConv↑Term fstConvT fstConvU
-  ... | yes P with(let ⊢F , ⊢G = syntacticΣ (syntacticTerm ⊢t)
-                       fstt≡fstu = soundnessConv↑Term P
-                       Gfstt≡Gfstu = substTypeEq (refl ⊢G) fstt≡fstu
-                   in  decConv↑TermConv Gfstt≡Gfstu sndConvT sndConvU)
-  ... | yes Q = yes (Σ-η ⊢t ⊢u tProd uProd P Q)
-  ... | no ¬Q = no (λ { (Σ-η _ _ _ _ _ Q) → ¬Q Q } )
-  decConv↓Term (Σ-η _ _ _ _ _ _) (Σ-η _ _ _ _ _ _)
-    | no ¬P = no (λ { (Σ-η _ _ _ _ P _) → ¬P P } )
+               with decConv↑Term fstConvT fstConvU
+  ... | yes P = let ⊢F , ⊢G = syntacticΣ (syntacticTerm ⊢t)
+                    fstt≡fstu = soundnessConv↑Term P
+                    Gfstt≡Gfstu = substTypeEq (refl ⊢G) fstt≡fstu
+                    sndConv = decConv↑TermConv Gfstt≡Gfstu sndConvT sndConvU
+                in  decConv↓Term-Σ-η ⊢t ⊢u tProd uProd P sndConv
+  ... | no ¬P = no (λ { (Σ-η _ _ _ _ P _) → ¬P P } )
   decConv↓Term (η-eq {p = p} {f = t} x₁ x₂ x₃ x₄ x₅) (η-eq {f = u} x₇ x₈ x₉ x₁₀ x₁₁)
     with decConv↑Term (x₅ ≈-refl ≈-refl) (x₁₁ ≈-refl ≈-refl)
   ... | yes P = yes (η-eq x₁ x₇ x₃ x₉ (λ x x₆ →
