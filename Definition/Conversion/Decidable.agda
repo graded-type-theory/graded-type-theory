@@ -286,8 +286,6 @@ mutual
            → Dec (Γ ⊢ A [conv↑] B)
   decConv↑ ([↑] A′ B′ D D′ whnfA′ whnfB′ A′<>B′)
                ([↑] A″ B″ D₁ D″ whnfA″ whnfB″ A′<>B″)
-           -- rewrite whrDet* (D , whnfA′) ({!D′!} , whnfB′)
-           --       | whrDet* (D₁ , whnfA″) ({!D″!} , whnfB″)
            with decConv↓ A′<>B′ A′<>B″
   decConv↑ ([↑] A′ B′ D D′ whnfA′ whnfB′ A′<>B′)
                ([↑] A″ B″ D₁ D″ whnfA″ whnfB″ A′<>B″) | yes p =
