@@ -41,7 +41,6 @@ open import Erasure.LogicalRelation.Fundamental.Empty
 open import Erasure.LogicalRelation.Fundamental.Lambda
 open import Erasure.LogicalRelation.Fundamental.Nat
 open import Erasure.LogicalRelation.Fundamental.Natrec
-open import Erasure.LogicalRelation.Fundamental.Prodrec
 open import Erasure.LogicalRelation.Fundamental.Product
 open import Erasure.LogicalRelation.Fundamental.Unit
 
@@ -183,34 +182,6 @@ fundamental (sndⱼ {G = G} {t = t} Γ⊢F Γ⊢G Γ⊢t:Σ) γ▸t =
       [Γ] , [Σ] , ⊩ʳt = fundamental Γ⊢t:Σ δ▸t
       [G] , ⊩ʳt₂ = sndʳ Γ⊢F Γ⊢G Γ⊢t:Σ [Γ] [Σ] ⊩ʳt
   in  [Γ] , [G] , subsumption {t = snd t} {A = G [ fst t ]} [Γ] [G] ⊩ʳt₂ δ≤𝟘
-fundamental (prodrecⱼ {q = q} {p = p} {t = t} {u} {F} {G} {A}
-                      Γ⊢F Γ⊢G Γ⊢t:Σ Γ⊢A Γ⊢u:A) γ▸t =
-  let invUsageProdrec δ▸t η▸u γ≤pδ+η = inv-usage-prodrec γ▸t
-      [Γ]   , [Σ]′ , ⊩ʳt′ = fundamental Γ⊢t:Σ δ▸t
-      [ΓFG] , [A₊]′ , ⊩ʳu′ = fundamental Γ⊢u:A η▸u
-      [Γ]′ , [A[t]]′ = F.fundamental (substType Γ⊢A Γ⊢t:Σ)
-      [Γ]″ , [F]′ = F.fundamental Γ⊢F
-      [F] = IS.irrelevance {A = F} [Γ]″ [Γ] [F]′
-      [Γ]‴ , [G]′ = F.fundamental Γ⊢G
-      [G] = IS.irrelevance {A = G} [Γ]‴ ([Γ] ∙ [F]) [G]′
-      [Γ]⁗ , [A]′ = F.fundamental Γ⊢A
-      [Σ] = Σᵛ {F = F} {G = G} {q = q} [Γ] [F] [G]
-      [A] = IS.irrelevance {A = A} [Γ]⁗ ([Γ] ∙ [Σ]) [A]′
-      [A₊] = IS.irrelevance {A = A [ prod (var (x0 +1)) (var x0) ]↑²}
-                            [ΓFG] ([Γ] ∙ [F] ∙ [G]) [A₊]′
-      [A[t]] = IS.irrelevance {A = A [ t ]} [Γ]′ [Γ] [A[t]]′
-      [Γ]⁗ , [Σ]″ , [t]′ = F.fundamentalTerm Γ⊢t:Σ
-      [t] = IS.irrelevanceTerm {A = Σ q ▷ F ▹ G} {t = t} [Γ]⁗ [Γ] [Σ]″ [Σ] [t]′
-      [Γ]⁗ , [A₊]″ , [u]′ = F.fundamentalTerm Γ⊢u:A
-      [u] = IS.irrelevanceTerm {A = A [ prod (var (x0 +1)) (var x0) ]↑²}
-                               {t = u} [Γ]⁗ ([Γ] ∙ [F] ∙ [G]) [A₊]″ [A₊] [u]′
-      ⊩ʳt = irrelevance {A = Σ q ▷ F ▹ G} {t = t} [Γ] [Γ] [Σ]′ [Σ] ⊩ʳt′
-      ⊩ʳu = irrelevance {A = A [ prod (var (x0 +1)) (var x0) ]↑²} {t = u}
-                        [ΓFG] ([Γ] ∙ [F] ∙ [G]) [A₊]′ [A₊] ⊩ʳu′
-      ⊩ʳpr = prodrecʳ {F = F} {G = G} {A = A} {t = t} {u = u} {p = p}
-                      [Γ] [F] [G] [A] [A₊] [A[t]] [t] [u] ⊩ʳt ⊩ʳu
-  in  [Γ] , [A[t]] , subsumption {t = prodrec p A t u} {A = A [ t ]}
-                                 [Γ] [A[t]] ⊩ʳpr γ≤pδ+η
 fundamental (zeroⱼ ⊢Γ) γ▸t = zeroʳ ⊢Γ
 fundamental (sucⱼ {n = t} Γ⊢t:ℕ) γ▸t =
   let invUsageSuc δ▸t γ≤δ = inv-usage-suc γ▸t

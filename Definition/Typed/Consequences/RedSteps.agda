@@ -52,18 +52,3 @@ natrec-subst* (id x) ⊢A ⊢z ⊢s = id (natrecⱼ ⊢A ⊢z ⊢s x)
 natrec-subst* (x ⇨ t⇒t′) ⊢A ⊢z ⊢s =
   natrec-subst ⊢A ⊢z ⊢s x ⇨ conv* (natrec-subst* t⇒t′ ⊢A ⊢z ⊢s)
                                   (substTypeEq (refl ⊢A) (sym (subsetTerm x)))
-
--- Prodrec substitution of reduction closures
-
-prodrec-subst* : Γ ⊢ t ⇒* t′ ∷ Σ q ▷ F ▹ G
-               → Γ ⊢ F
-               → Γ ∙ F ⊢ G
-               → Γ ∙ (Σ q ▷ F ▹ G) ⊢ A
-               → Γ ⊢ t ∷ Σ q ▷ F ▹ G
-               → Γ ∙ F ∙ G ⊢ u ∷ A [ prod (var (x0 +1)) (var x0) ]↑²
-               → Γ ⊢ prodrec p A t u ⇒* prodrec p A t′ u ∷ A [ t ]
-prodrec-subst* (id x) ⊢F ⊢G ⊢A ⊢t ⊢u = id (prodrecⱼ ⊢F ⊢G ⊢t ⊢A ⊢u)
-prodrec-subst* (x ⇨ t⇒t′) ⊢F ⊢G ⊢A ⊢t ⊢u =
-  let _ , _ , ⊢t′ = syntacticRedTerm (redMany x)
-  in  (prodrec-subst ⊢F ⊢G ⊢u ⊢A x) ⇨ conv* (prodrec-subst* t⇒t′ ⊢F ⊢G ⊢A ⊢t′ ⊢u)
-                                            (substTypeEq (refl ⊢A) (sym (subsetTerm x)))
