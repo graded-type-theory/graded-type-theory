@@ -1,28 +1,34 @@
 {-# OPTIONS --without-K --safe #-}
 
-module Definition.Typed.EqualityRelation (M : Set) where
+open import Tools.Level
+open import Tools.Relation
+
+module Definition.Typed.EqualityRelation {ℓ ℓ′} (M′ : Setoid ℓ ℓ′) where
+
+open Setoid M′ using (_≈_) renaming (Carrier to M)
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
-open import Definition.Typed.Weakening M using (_∷_⊆_)
+open import Definition.Untyped.BindingType M′
+open import Definition.Typed M′
+open import Definition.Typed.Weakening M′ using (_∷_⊆_)
 
 open import Tools.Fin
 open import Tools.Nat
 
 private
   variable
-    p q : M
-    ℓ n : Nat
+    p q r p′ q′ r′ p₁ p₂ : M
+    n n′ : Nat
     Γ : Con Term n
-    Δ : Con Term ℓ
-    ρ : Wk ℓ n
+    Δ : Con Term n′
+    ρ : Wk n′ n
     A A′ B B′ C : Term n
     a a′ b b′ e e′ : Term n
     k l m t u v : Term n
 
 -- Generic equality relation used with the logical relation
 
-record EqRelSet : Set₁ where
+record EqRelSet : Set (lsuc (ℓ ⊔ ℓ′)) where
   constructor eqRel
   field
     ---------------
@@ -30,13 +36,13 @@ record EqRelSet : Set₁ where
     ---------------
 
     -- Equality of types
-    _⊢_≅_   : Con Term n → (A B : Term n)   → Set
+    _⊢_≅_   : Con Term n → (A B : Term n)   → Set (ℓ ⊔ ℓ′)
 
     -- Equality of terms
-    _⊢_≅_∷_ : Con Term n → (t u A : Term n) → Set
+    _⊢_≅_∷_ : Con Term n → (t u A : Term n) → Set (ℓ ⊔ ℓ′)
 
     -- Equality of neutral terms
-    _⊢_~_∷_ : Con Term n → (t u A : Term n) → Set
+    _⊢_~_∷_ : Con Term n → (t u A : Term n) → Set (ℓ ⊔ ℓ′)
 
     ----------------
     -- Properties --
@@ -127,13 +133,17 @@ record EqRelSet : Set₁ where
               → Γ ⊢ F
               → Γ ⊢ F ≅ H
               → Γ ∙ F ⊢ G ≅ E
-              → Γ ⊢ Π p , q ▷ F ▹ G ≅ Π p , q ▷ H ▹ E
+              → p ≈ p′
+              → q ≈ q′
+              → Γ ⊢ Π p , q ▷ F ▹ G ≅ Π p′ , q′ ▷ H ▹ E
 
     ≅ₜ-Π-cong : ∀ {F G H E}
               → Γ ⊢ F
               → Γ ⊢ F ≅ H ∷ U
               → Γ ∙ F ⊢ G ≅ E ∷ U
-              → Γ ⊢ Π p , q ▷ F ▹ G ≅ Π p , q ▷ H ▹ E ∷ U
+              → p ≈ p′
+              → q ≈ q′
+              → Γ ⊢ Π p , q ▷ F ▹ G ≅ Π p′ , q′ ▷ H ▹ E ∷ U
 
     -- Σ-congruence
 
@@ -141,13 +151,15 @@ record EqRelSet : Set₁ where
               → Γ ⊢ F
               → Γ ⊢ F ≅ H
               → Γ ∙ F ⊢ G ≅ E
-              → Γ ⊢ Σ p ▷ F ▹ G ≅ Σ p ▷ H ▹ E
+              → q ≈ q′
+              → Γ ⊢ Σ q ▷ F ▹ G ≅ Σ q′ ▷ H ▹ E
 
     ≅ₜ-Σ-cong : ∀ {F G H E}
               → Γ ⊢ F
               → Γ ⊢ F ≅ H ∷ U
               → Γ ∙ F ⊢ G ≅ E ∷ U
-              → Γ ⊢ Σ p ▷ F ▹ G ≅ Σ p ▷ H ▹ E ∷ U
+              → q ≈ q′
+              → Γ ⊢ Σ q ▷ F ▹ G ≅ Σ q′ ▷ H ▹ E ∷ U
 
     -- Zero reflexivity
     ≅ₜ-zerorefl : ⊢ Γ → Γ ⊢ zero ≅ zero ∷ ℕ
@@ -162,7 +174,10 @@ record EqRelSet : Set₁ where
            → Γ ⊢ g ∷ Π p , q ▷ F ▹ G
            → Function f
            → Function g
-           → Γ ∙ F ⊢ wk1 f ∘ p ▷ var x0 ≅ wk1 g ∘ p ▷ var x0 ∷ G
+           → (∀ {p₁ p₂}
+              → p ≈ p₁
+              → p ≈ p₂
+              → Γ ∙ F ⊢ wk1 f ∘ p₁ ▷ var x0 ≅ wk1 g ∘ p₂ ▷ var x0 ∷ G)
            → Γ ⊢ f ≅ g ∷ Π p , q ▷ F ▹ G
 
     -- η for product types
@@ -184,7 +199,9 @@ record EqRelSet : Set₁ where
     ~-app : ∀ {a b f g F G}
           → Γ ⊢ f ~ g ∷ Π p , q ▷ F ▹ G
           → Γ ⊢ a ≅ b ∷ F
-          → Γ ⊢ f ∘ p ▷ a ~ g ∘ p ▷ b ∷ G [ a ]
+          → p ≈ p₁
+          → p ≈ p₂
+          → Γ ⊢ f ∘ p₁ ▷ a ~ g ∘ p₂ ▷ b ∷ G [ a ]
 
     -- Product projections congruence
     ~-fst : ∀ {p r F G}
@@ -206,13 +223,16 @@ record EqRelSet : Set₁ where
              → Γ         ⊢ z ≅ z′ ∷ F [ zero ]
              → Γ ∙ ℕ ∙ F ⊢ s ≅ s′ ∷ wk1 (F [ suc (var x0) ]↑)
              → Γ         ⊢ n ~ n′ ∷ ℕ
-             → Γ         ⊢ natrec p q F z s n ~ natrec p q F′ z′ s′ n′ ∷ F [ n ]
+             → p ≈ p′
+             → r ≈ r′
+             → Γ         ⊢ natrec p r F z s n ~ natrec p′ r′ F′ z′ s′ n′ ∷ F [ n ]
 
     -- Empty recursion congruence
     ~-Emptyrec : ∀ {n n′ F F′}
                → Γ ⊢ F ≅ F′
                → Γ ⊢ n ~ n′ ∷ Empty
-               → Γ ⊢ Emptyrec p F n ~ Emptyrec p F′ n′ ∷ F
+               → p ≈ p′
+               → Γ ⊢ Emptyrec p F n ~ Emptyrec p′ F′ n′ ∷ F
 
   -- Star reflexivity
   ≅ₜ-starrefl : ⊢ Γ → Γ ⊢ star ≅ star ∷ Unit
@@ -222,18 +242,20 @@ record EqRelSet : Set₁ where
   ~-to-≅ : ∀ {k l} → Γ ⊢ k ~ l ∷ U → Γ ⊢ k ≅ l
   ~-to-≅ k~l = ≅-univ (~-to-≅ₜ k~l)
 
-  ≅-W-cong : ∀ {F G H E} W
+  ≅-W-cong : ∀ {F G H E} W W′
+          → W ≋ W′
           → Γ ⊢ F
           → Γ ⊢ F ≅ H
           → Γ ∙ F ⊢ G ≅ E
-          → Γ ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W ⟧ H ▹ E
-  ≅-W-cong (BΠ p q) = ≅-Π-cong
-  ≅-W-cong (BΣ q)   = ≅-Σ-cong
+          → Γ ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W′ ⟧ H ▹ E
+  ≅-W-cong (BΠ p q) _ (Π≋Π p≈p′ q≈q′) = λ x x₁ x₂ → ≅-Π-cong x x₁ x₂ p≈p′ q≈q′
+  ≅-W-cong (BΣ q) _ (Σ≋Σ q≈q′)  = λ x x₁ x₂ → ≅-Σ-cong x x₁ x₂ q≈q′
 
-  ≅ₜ-W-cong : ∀ {F G H E} W
+  ≅ₜ-W-cong : ∀ {F G H E} W W′
+            → W ≋ W′
             → Γ ⊢ F
             → Γ ⊢ F ≅ H ∷ U
             → Γ ∙ F ⊢ G ≅ E ∷ U
-            → Γ ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W ⟧ H ▹ E ∷ U
-  ≅ₜ-W-cong (BΠ p q) = ≅ₜ-Π-cong
-  ≅ₜ-W-cong (BΣ q)   = ≅ₜ-Σ-cong
+            → Γ ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W′ ⟧ H ▹ E ∷ U
+  ≅ₜ-W-cong (BΠ p q)  _ (Π≋Π p≈p′ q≈q′) = λ x x₁ x₂ → ≅ₜ-Π-cong x x₁ x₂ p≈p′ q≈q′
+  ≅ₜ-W-cong (BΣ q) _ (Σ≋Σ q≈q′)  = λ x x₁ x₂ → ≅ₜ-Σ-cong x x₁ x₂ q≈q′

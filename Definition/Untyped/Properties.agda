@@ -4,7 +4,7 @@
 
 open import Tools.Relation
 
-module Definition.Untyped.Properties (M : Set) where
+module Definition.Untyped.Properties {a} (M : Set a) where
 
 open import Definition.Untyped M
 
@@ -639,7 +639,6 @@ substConcatSingleton′ : ∀ {a} t
                       ≡ subst (consSubst σ (subst σ a)) t
 substConcatSingleton′ t = substVar-to-subst (λ { x0 → refl ; (x +1) → refl}) t
 
-
 wk1-tail : (t : Term n) → subst σ (wk1 t) ≡ subst (tail σ) t
 wk1-tail {σ = σ} t = begin
   subst σ (wk1 t) ≡⟨⟩
@@ -731,6 +730,5 @@ noClosedNe : {t : Term 0} → Neutral t → ⊥
 noClosedNe (∘ₙ net) = noClosedNe net
 noClosedNe (fstₙ net) = noClosedNe net
 noClosedNe (sndₙ net) = noClosedNe net
-noClosedNe (prodrecₙ net) = noClosedNe net
 noClosedNe (natrecₙ net) = noClosedNe net
 noClosedNe (Emptyrecₙ net) = noClosedNe net

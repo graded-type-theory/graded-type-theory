@@ -5,6 +5,8 @@
 
 module Tools.PropositionalEquality where
 
+open import Tools.Level
+
 -- We reexport Agda's builtin equality type.
 
 open import Tools.Empty public
@@ -14,12 +16,12 @@ open Eq using (_≡_; _≢_; refl; sym; trans; cong; cong₂; subst; subst₂; i
 
 -- Non-dependent congruence rules.
 
-cong₃ : ∀ {A B C D : Set} {a a′ b b′ c c′}
+cong₃ : ∀ {ℓ} {A B C D : Set ℓ} {a a′ b b′ c c′}
         (f : A → B → C → D) → a ≡ a′ → b ≡ b′ → c ≡ c′
       → f a b c ≡ f a′ b′ c′
 cong₃ f refl refl refl = refl
 
-cong₄ : ∀ {A B C D E : Set} {a a′ b b′ c c′ d d′}
+cong₄ : ∀ {ℓ} {A B C D E : Set ℓ} {a a′ b b′ c c′ d d′}
         (f : A → B → C → D → E) → a ≡ a′ → b ≡ b′ → c ≡ c′ → d ≡ d′
       → f a b c d ≡ f a′ b′ c′ d′
 cong₄ f refl refl refl refl = refl
@@ -28,6 +30,6 @@ cong₄ f refl refl refl refl = refl
 
 -- Three substitutions simultaneously.
 
-subst₃ : ∀ {A B C : Set} {a a′ b b′ c c′} (F : A → B → C → Set)
+subst₃ : ∀ {ℓ ℓ′ ℓ″ ℓ‴} {A : Set ℓ} {B : Set ℓ′} {C : Set ℓ″} {a a′ b b′ c c′} (F : A → B → C → Set ℓ‴)
        → a ≡ a′ → b ≡ b′ → c ≡ c′ → F a b c → F a′ b′ c′
 subst₃ F refl refl refl f = f

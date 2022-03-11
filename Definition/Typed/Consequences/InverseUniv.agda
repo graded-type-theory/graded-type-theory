@@ -1,10 +1,14 @@
-{-# OPTIONS --without-K  #-}
+{-# OPTIONS --without-K --safe #-}
 
-module Definition.Typed.Consequences.InverseUniv (M : Set) where
+open import Tools.Relation
+
+module Definition.Typed.Consequences.InverseUniv {a ℓ} (M′ : Setoid a ℓ) where
+
+open Setoid M′ using () renaming (Carrier to M)
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
-open import Definition.Typed.Consequences.Syntactic M
+open import Definition.Typed M′
+open import Definition.Typed.Consequences.Syntactic M′
 
 open import Tools.Nat
 import Tools.Sum as Sum
@@ -19,10 +23,10 @@ private
     Γ : Con Term n
     A F H : Term n
     G E : Term (1+ n)
-    p q : M
+    p p′ q q′ : M
 
 -- Proposition for terms if they contain a U.
-data UFull : Term n → Set where
+data UFull : Term n → Set a where
   ∃U  : UFull {n} U
   ∃Π₁ : UFull F → UFull (Π p , q ▷ F ▹ G)
   ∃Π₂ : UFull G → UFull (Π p , q ▷ F ▹ G)
@@ -55,12 +59,12 @@ noUNe (Emptyrecₙ neA) ()
 
 -- Helper function where if at least one Π-type does not contain U,
 -- one of F and H will not contain U and one of G and E will not contain U.
-pilem : (¬ UFull (Π p , q ▷ F ▹ G)) ⊎ (¬ UFull (Π p , q ▷ H ▹ E))
+pilem : (¬ UFull (Π p , q ▷ F ▹ G)) ⊎ (¬ UFull (Π p′ , q′ ▷ H ▹ E))
       → (¬ UFull F) ⊎ (¬ UFull H) × (¬ UFull G) ⊎ (¬ UFull E)
 pilem (inj₁ x) = inj₁ (λ x₁ → x (∃Π₁ x₁)) , inj₁ (λ x₁ → x (∃Π₂ x₁))
 pilem (inj₂ x) = inj₂ (λ x₁ → x (∃Π₁ x₁)) , inj₂ (λ x₁ → x (∃Π₂ x₁))
 
-pilemΣ :(¬ UFull (Σ q ▷ F ▹ G)) ⊎ (¬ UFull (Σ q ▷ H ▹ E))
+pilemΣ :(¬ UFull (Σ q ▷ F ▹ G)) ⊎ (¬ UFull (Σ q′ ▷ H ▹ E))
       → (¬ UFull F) ⊎ (¬ UFull H) × (¬ UFull G) ⊎ (¬ UFull E)
 pilemΣ (inj₁ x) = inj₁ (λ x₁ → x (∃Σ₁ x₁)) , inj₁ (λ x₁ → x (∃Σ₂ x₁))
 pilemΣ (inj₂ x) = inj₂ (λ x₁ → x (∃Σ₁ x₁)) , inj₂ (λ x₁ → x (∃Σ₂ x₁))
@@ -95,12 +99,12 @@ inverseUnivEq′ (inj₂ x) (trans A≡B A≡B₁) =
       _ , t , _ = syntacticEqTerm w
       y = noU t
   in  trans (inverseUnivEq′ (inj₂ y) A≡B) w
-inverseUnivEq′ q (Π-cong x A≡B A≡B₁) =
+inverseUnivEq′ q (Π-cong x A≡B A≡B₁ p≈p′ q≈q′) =
   let w , e = pilem q
-  in  Π-cong x (inverseUnivEq′ w A≡B) (inverseUnivEq′ e A≡B₁)
-inverseUnivEq′ q (Σ-cong x A≡B A≡B₁) =
+  in  Π-cong x (inverseUnivEq′ w A≡B) (inverseUnivEq′ e A≡B₁) p≈p′ q≈q′
+inverseUnivEq′ q (Σ-cong x A≡B A≡B₁ q≈q′) =
   let w , e = pilemΣ q
-  in  Σ-cong x (inverseUnivEq′ w A≡B) (inverseUnivEq′ e A≡B₁)
+  in  Σ-cong x (inverseUnivEq′ w A≡B) (inverseUnivEq′ e A≡B₁) q≈q′
 
 -- If A is a term of U, then the equality of types is an equality of terms of type U.
 inverseUnivEq : ∀ {A B} → Γ ⊢ A ∷ U → Γ ⊢ A ≡ B → Γ ⊢ A ≡ B ∷ U

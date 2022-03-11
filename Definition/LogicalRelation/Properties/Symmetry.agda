@@ -1,18 +1,23 @@
 {-# OPTIONS --without-K --safe #-}
 
 open import Definition.Typed.EqualityRelation
+open import Tools.Level
+open import Tools.Relation
 
-module Definition.LogicalRelation.Properties.Symmetry (M : Set) {{eqrel : EqRelSet M}} where
+module Definition.LogicalRelation.Properties.Symmetry {a ℓ} (M′ : Setoid a ℓ)
+                                                      {{eqrel : EqRelSet M′}} where
 open EqRelSet {{...}}
+open Setoid M′ using () renaming (Carrier to M)
 
 open import Definition.Untyped M hiding (Wk; _∷_)
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-import Definition.Typed.Weakening M as Wk
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.ShapeView M
-open import Definition.LogicalRelation.Irrelevance M
-open import Definition.LogicalRelation.Properties.Conversion M
+import Definition.Untyped.BindingType M′ as BT
+open import Definition.Typed M′
+open import Definition.Typed.Properties M′
+import Definition.Typed.Weakening M′ as Wk
+open import Definition.LogicalRelation M′
+open import Definition.LogicalRelation.ShapeView M′
+open import Definition.LogicalRelation.Irrelevance M′
+open import Definition.LogicalRelation.Properties.Conversion M′
 
 open import Tools.Nat
 open import Tools.Product
@@ -36,11 +41,11 @@ mutual
          rewrite whrDet* (red D′ , ne neM) (red D₁ , ne neK₁) =
     ne₌ _ D neK
         (~-sym K≡M)
-  symEqT {Γ = Γ} (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-                       (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁))
-         (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
-    let ΠF₁G₁≡ΠF′G′       = whrDet* (red D₁ , ⟦ W ⟧ₙ) (D′ , ⟦ W ⟧ₙ)
-        F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity W W ΠF₁G₁≡ΠF′G′
+  symEqT {Γ = Γ} (Bᵥ W W′ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+                       (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) W≋W′)
+         (B₌ F′ G′ W″ D′ W≋W″ A≡B [F≡F′] [G≡G′]) =
+    let ΠF₁G₁≡ΠF′G′       = whrDet* (red D₁ , ⟦ W′ ⟧ₙ) (D′ , ⟦ W″ ⟧ₙ)
+        F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity W′ W″ ΠF₁G₁≡ΠF′G′
         [F₁≡F] : ∀ {ℓ} {Δ : Con Term ℓ} {ρ} [ρ] ⊢Δ → _
         [F₁≡F] {_} {Δ} {ρ} [ρ] ⊢Δ =
           let ρF′≡ρF₁ ρ = PE.cong (wk ρ) (PE.sym F₁≡F′)
@@ -49,7 +54,7 @@ mutual
                              ([ρF′] [ρ] ⊢Δ) ([F]₁ [ρ] ⊢Δ)
                              (symEq ([F] [ρ] ⊢Δ) ([ρF′] [ρ] ⊢Δ)
                                     ([F≡F′] [ρ] ⊢Δ))
-    in  B₌ _ _ (red D) (≅-sym (PE.subst (λ x → Γ ⊢ ⟦ W ⟧ F ▹ G ≅ x) (PE.sym ΠF₁G₁≡ΠF′G′) A≡B))
+    in  B₌ _ _ W (red D) (BT.sym W≋W′) (≅-sym (PE.subst (λ x → Γ ⊢ ⟦ W ⟧ F ▹ G ≅ x) (PE.sym ΠF₁G₁≡ΠF′G′) A≡B))
           [F₁≡F]
           (λ {_} {ρ} [ρ] ⊢Δ [a] →
                let ρG′a≡ρG₁′a = PE.cong (λ x → wk (lift ρ) x [ _ ]) (PE.sym G₁≡G′)
@@ -61,7 +66,7 @@ mutual
                                   ([G]₁ [ρ] ⊢Δ [a])
                                   (symEq ([G] [ρ] ⊢Δ [a]₁) [ρG′a]
                                          ([G≡G′] [ρ] ⊢Δ [a]₁)))
-  symEqT (Uᵥ (Uᵣ _ _ _) (Uᵣ _ _ _)) A≡B = PE.refl
+  symEqT (Uᵥ (Uᵣ _ _ _) (Uᵣ _ _ _)) A≡B = lift PE.refl
   symEqT (emb⁰¹ x) A≡B = symEqT x A≡B
   symEqT (emb¹⁰ x) A≡B = symEqT x A≡B
 
@@ -106,7 +111,7 @@ symEqTerm (ne′ K D neK K≡K) (neₜ₌ k m d d′ nf) =
 symEqTerm (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
           (Πₜ₌ f g d d′ funcF funcG f≡g [f] [g] [f≡g]) =
   Πₜ₌ g f d′ d funcG funcF (≅ₜ-sym f≡g) [g] [f]
-      (λ ρ ⊢Δ [a] → symEqTerm ([G] ρ ⊢Δ [a]) ([f≡g] ρ ⊢Δ [a]))
+      (λ ρ ⊢Δ [a] p≈p₁ p≈p₂ → symEqTerm ([G] ρ ⊢Δ [a]) ([f≡g] ρ ⊢Δ [a] p≈p₂ p≈p₁))
 symEqTerm (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
           (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] [fstp] [fstr] [fst≡] [snd≡]) =
   let ⊢Γ = wf ⊢F

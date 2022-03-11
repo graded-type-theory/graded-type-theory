@@ -1,23 +1,26 @@
-{-# OPTIONS --without-K  #-}
+{-# OPTIONS --without-K --safe #-}
 
 open import Definition.Typed.EqualityRelation
+open import Tools.Relation
 
-module Definition.LogicalRelation.Substitution.Introductions.SingleSubst (M : Set) {{eqrel : EqRelSet M}} where
+module Definition.LogicalRelation.Substitution.Introductions.SingleSubst {a ℓ} (M′ : Setoid a ℓ)
+                                                                         {{eqrel : EqRelSet M′}} where
 open EqRelSet {{...}}
+open Setoid M′ using () renaming (Carrier to M)
 
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Untyped.Properties M
-open import Definition.Typed M
-open import Definition.Typed.Weakening M using (id)
-open import Definition.Typed.Properties M
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.ShapeView M
-open import Definition.LogicalRelation.Irrelevance M
-open import Definition.LogicalRelation.Properties M
-open import Definition.LogicalRelation.Substitution M
-open import Definition.LogicalRelation.Substitution.Properties M
-open import Definition.LogicalRelation.Substitution.Conversion M
-open import Definition.LogicalRelation.Substitution.Weakening M
+open import Definition.Typed M′
+open import Definition.Typed.Weakening M′ using (id)
+open import Definition.Typed.Properties M′
+open import Definition.LogicalRelation M′
+open import Definition.LogicalRelation.ShapeView M′
+open import Definition.LogicalRelation.Irrelevance M′
+open import Definition.LogicalRelation.Properties M′
+open import Definition.LogicalRelation.Substitution M′
+open import Definition.LogicalRelation.Substitution.Properties M′
+open import Definition.LogicalRelation.Substitution.Conversion M′
+open import Definition.LogicalRelation.Substitution.Weakening M′
 
 open import Tools.Nat
 open import Tools.Product
@@ -210,10 +213,10 @@ substSΠ₂′ : ∀ {F F′ G G′ t t′ l l′ l″ l‴} W
            ([G′[t′]] : Γ ⊩⟨ l‴ ⟩ G′ [ t′ ])
          → Γ ⊩⟨ l″ ⟩ G [ t ] ≡ G′ [ t′ ] / [G[t]]
 substSΠ₂′ W (noemb (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext))
-          (B₌ F″ G″ D′ A≡B [F≡F′] [G≡G′])
+          (B₌ F″ G″ W′ D′ W≋W′ A≡B [F≡F′] [G≡G′])
           [F]₁ [F′] [t] [t′] [t≡t′] [G[t]] [G′[t′]] =
   let F≡F′  , G≡G′  , _ = B-PE-injectivity W W (whnfRed* (red D) (⟦ W ⟧ₙ))
-      F′≡F″ , G′≡G″ , _ = B-PE-injectivity W W (whnfRed* D′ ⟦ W ⟧ₙ)
+      F′≡F″ , G′≡G″ , _ = B-PE-injectivity W W′ (whnfRed* D′ ⟦ W ⟧ₙ)
       Feq = PE.trans F≡F′ (PE.sym (wk-id _))
       F′eq = PE.trans F′≡F″ (PE.sym (wk-id _))
       Geq = PE.cong (λ x → x [ _ ]) (PE.trans (wk-lift-id _) (PE.sym G≡G′))

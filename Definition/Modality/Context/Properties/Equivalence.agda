@@ -4,9 +4,8 @@ open import Tools.Level
 open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Context.Properties.Equivalence
-  {M : Set} {_≈_ : Rel M ℓ₀}
-  (𝕄 : Modality M _≈_)
+module Definition.Modality.Context.Properties.Equivalence {a ℓ}
+  {M′ : Setoid a ℓ} (𝕄 : Modality M′)
   where
 
 open import Definition.Modality.Context 𝕄

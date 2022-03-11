@@ -4,10 +4,12 @@ open import Tools.Level
 open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Usage.Weakening
-  {M : Set} {_≈_ : Rel M ℓ₀}
-  (𝕄 : Modality M _≈_)
+module Definition.Modality.Usage.Weakening {a ℓ′}
+  {M′ : Setoid a ℓ′} (𝕄 : Modality M′)
   where
+
+open Modality 𝕄
+open Setoid M′ renaming (Carrier to M)
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
@@ -20,8 +22,6 @@ open import Tools.Nat renaming (_+_ to _+ⁿ_)
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 
-open Modality 𝕄
-
 private
   variable
     ℓ n : Nat
@@ -32,10 +32,10 @@ private
 liftn-usage : (ℓ : Nat) {γ : Conₘ (ℓ +ⁿ n)} {t : Term (ℓ +ⁿ n)}
             → γ ▸ t → insertAt ℓ γ 𝟘 ▸ wk (liftn (step id) ℓ) t
 
-liftn-usage ℓ Uₘ = subst (_▸ U) (sym (insertAt-𝟘 ℓ)) Uₘ
-liftn-usage ℓ ℕₘ = subst (_▸ ℕ) (sym (insertAt-𝟘 ℓ)) ℕₘ
-liftn-usage ℓ Emptyₘ = subst (_▸ Empty) (sym (insertAt-𝟘 ℓ)) Emptyₘ
-liftn-usage ℓ Unitₘ = subst (_▸ Unit) (sym (insertAt-𝟘 ℓ)) Unitₘ
+liftn-usage ℓ Uₘ = subst (_▸ U) (PE.sym (insertAt-𝟘 ℓ)) Uₘ
+liftn-usage ℓ ℕₘ = subst (_▸ ℕ) (PE.sym (insertAt-𝟘 ℓ)) ℕₘ
+liftn-usage ℓ Emptyₘ = subst (_▸ Empty) (PE.sym (insertAt-𝟘 ℓ)) Emptyₘ
+liftn-usage ℓ Unitₘ = subst (_▸ Unit) (PE.sym (insertAt-𝟘 ℓ)) Unitₘ
 
 liftn-usage ℓ (Πₘ γ▸F δ▸G) = sub
   (Πₘ (liftn-usage ℓ γ▸F) (liftn-usage (1+ ℓ) δ▸G))
@@ -47,11 +47,11 @@ liftn-usage ℓ (Σₘ γ▸F δ▸G) = sub
 
 liftn-usage Nat.zero (var)       = var
 liftn-usage (1+ ℓ) (var {x0})   = subst (_▸ (var x0))
-  (cong₂ _∙_ (PE.sym (insertAt-𝟘 ℓ)) refl)
+  (cong₂ _∙_ (PE.sym (insertAt-𝟘 ℓ)) PE.refl)
   var
 liftn-usage (1+ ℓ) (var {x +1}) = subst₂ _▸_
-  (cong₂ _∙_ (insertAt-liftn ℓ x) refl)
-  refl
+  (cong₂ _∙_ (insertAt-liftn ℓ x) PE.refl)
+  PE.refl
   var
 
 liftn-usage ℓ (lamₘ γ▸t) = (lamₘ (liftn-usage (1+ ℓ) γ▸t))
@@ -71,23 +71,13 @@ liftn-usage ℓ (prodₘ! γ▸t δ▸u) = sub
 
 liftn-usage ℓ (fstₘ γ▸t) = subst₂ _▸_
   (PE.sym (insertAt-𝟘 ℓ))
-  refl
-  (fstₘ (subst₂ _▸_ (insertAt-𝟘 ℓ) refl (liftn-usage ℓ γ▸t)))
+  PE.refl
+  (fstₘ (subst₂ _▸_ (insertAt-𝟘 ℓ) PE.refl (liftn-usage ℓ γ▸t)))
 
 liftn-usage ℓ (sndₘ γ▸t) =  subst₂ _▸_
   (PE.sym (insertAt-𝟘 ℓ))
-  refl
-  (sndₘ (subst₂ _▸_ (insertAt-𝟘 ℓ) refl (liftn-usage ℓ γ▸t)))
-
-liftn-usage ℓ (prodrecₘ {γ = γ} {δ = δ} {p = p} γ▸t δ▸u) = sub
-  (prodrecₘ (liftn-usage ℓ γ▸t) (liftn-usage (1+ (1+ ℓ)) δ▸u))
-  eq
-  where
-  open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
-  eq = begin
-    insertAt ℓ (p ·ᶜ γ +ᶜ δ) 𝟘               ≈⟨ insertAt-distrib-+ᶜ-𝟘 ℓ (p ·ᶜ γ) δ ⟩
-    insertAt ℓ (p ·ᶜ γ) 𝟘 +ᶜ insertAt ℓ δ 𝟘 ≈⟨ +ᶜ-cong (insertAt-distrib-·ᶜ-𝟘 ℓ p γ) ≈ᶜ-refl ⟩
-    p ·ᶜ insertAt ℓ γ 𝟘 +ᶜ insertAt ℓ δ 𝟘   ∎
+  PE.refl
+  (sndₘ (subst₂ _▸_ (insertAt-𝟘 ℓ) PE.refl (liftn-usage ℓ γ▸t)))
 
 liftn-usage ℓ zeroₘ      = subst (_▸ zero) (PE.sym (insertAt-𝟘 ℓ)) zeroₘ
 liftn-usage ℓ (sucₘ γ▸t) = sucₘ (liftn-usage ℓ γ▸t)

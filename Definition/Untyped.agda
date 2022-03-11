@@ -2,7 +2,7 @@
 
 {-# OPTIONS --without-K --safe #-}
 
-module Definition.Untyped (M : Set) where
+module Definition.Untyped {a} (M : Set a) where
 
 open import Tools.Fin
 open import Tools.Nat
@@ -31,20 +31,20 @@ infix 25 _[_]↑²
 -- Terms added to the context are well scoped in the sense that it cannot
 -- contain more unbound variables than can be looked up in the context.
 
-data Con (A : Nat → Set) : Nat → Set where
+data Con (A : Nat → Set a) : Nat → Set a where
   ε   :                             Con A 0        -- Empty context.
   _∙_ : {n : Nat} → Con A n → A n → Con A (1+ n)   -- Context extension.
 
 -- Representation of sub terms using a list of binding levels
 
-data GenTs (A : Nat → Set) : Nat → List Nat → Set where
+data GenTs (A : Nat → Set a) : Nat → List Nat → Set a where
   []  : {n : Nat} → GenTs A n []
   _∷_ : {n b : Nat} {bs : List Nat} (t : A (b + n)) (ts : GenTs A n bs) → GenTs A n (b ∷ bs)
 
 -- Kinds are indexed on the number of expected sub terms
 -- and the number of new variables bound by each sub term
 
-data Kind : (ns : List Nat) → Set where
+data Kind : (ns : List Nat) → Set a where
   Ukind : Kind []
 
   Pikind  : (p q : M) → Kind (0 ∷ 1 ∷ [])
@@ -55,7 +55,6 @@ data Kind : (ns : List Nat) → Set where
   Prodkind  : Kind (0 ∷ 0 ∷ [])
   Fstkind   : Kind (0 ∷ [])
   Sndkind   : Kind (0 ∷ [])
-  Prodreckind : (p : M) → Kind (1 ∷ 0 ∷ 2 ∷ [])
 
   Natkind    : Kind []
   Zerokind   : Kind []
@@ -72,7 +71,7 @@ data Kind : (ns : List Nat) → Set where
 -- de Bruijn style variables or
 -- generic terms, formed by their kind and sub terms
 
-data Term (n : Nat) : Set where
+data Term (n : Nat) : Set a where
   var : (x : Fin n) → Term n
   gen : {bs : List Nat} (k : Kind bs) (ts : GenTs Term n bs) → Term n
 
@@ -122,10 +121,6 @@ fst t = gen Fstkind (t ∷ [])
 snd : (t : Term n) → Term n          -- Second projection
 snd t = gen Sndkind (t ∷ [])
 
-prodrec : (p : M) (G : Term (1+ n)) (t : Term n)
-          (u : Term (1+ (1+ n))) → Term n -- Product recursor
-prodrec p G t u = gen (Prodreckind p) (G ∷ t ∷ u ∷ [])
-
 -- Introduction and elimination of natural numbers.
 zero   : Term n                      -- Natural number zero.
 zero = gen Zerokind []
@@ -146,9 +141,9 @@ Emptyrec p A e = gen (Emptyreckind p) (A ∷ e ∷ [])
 
 -- Binding types
 
-data BindingType : Set where
+data BindingType : Set a where
   BΠ : (p q : M) → BindingType
-  BΣ : (p : M)   → BindingType
+  BΣ : (q : M)   → BindingType
 
 pattern BΠ! = BΠ _ _
 pattern BΣ! = BΣ _
@@ -166,6 +161,12 @@ B-PE-injectivity : ∀ W W' → ⟦ W ⟧ F ▹ G PE.≡ ⟦ W' ⟧ H ▹ E
 B-PE-injectivity (BΠ p q) (BΠ .p .q) PE.refl = PE.refl , PE.refl , PE.refl
 B-PE-injectivity (BΣ p)   (BΣ .p)    PE.refl = PE.refl , PE.refl , PE.refl
 
+BΠ-PE-injectivity : ∀ {p p′ q q′} → BΠ p q PE.≡ BΠ p′ q′ → p PE.≡ p′ × q PE.≡ q′
+BΠ-PE-injectivity PE.refl = PE.refl , PE.refl
+
+BΣ-PE-injectivity : ∀ {q q′} → BΣ q PE.≡ BΣ q′ → q PE.≡ q′
+BΣ-PE-injectivity PE.refl = PE.refl
+
 
 -- If  suc n = suc m  then  n = m.
 
@@ -178,12 +179,11 @@ suc-PE-injectivity PE.refl = PE.refl
 -- A term is neutral if it has a variable in head position.
 -- The variable blocks reduction of such terms.
 
-data Neutral : Term n → Set where
+data Neutral : Term n → Set a where
   var       : (x : Fin n) → Neutral (var x)
   ∘ₙ        : Neutral t   → Neutral (t ∘ p ▷ u)
   fstₙ      : Neutral t   → Neutral (fst t)
   sndₙ      : Neutral t   → Neutral (snd t)
-  prodrecₙ  : Neutral t   → Neutral (prodrec p G t u)
   natrecₙ   : Neutral v   → Neutral (natrec p q G t u v)
   Emptyrecₙ : Neutral t   → Neutral (Emptyrec p A t)
 
@@ -192,7 +192,7 @@ data Neutral : Term n → Set where
 
 -- These are the (lazy) values of our language.
 
-data Whnf {n : Nat} : Term n → Set where
+data Whnf {n : Nat} : Term n → Set a where
 
   -- Type constructors are whnfs.
   Uₙ     : Whnf U
@@ -260,7 +260,7 @@ suc≢ne () PE.refl
 
 -- A whnf of type ℕ is either zero, suc t, or neutral.
 
-data Natural {n : Nat} : Term n → Set where
+data Natural {n : Nat} : Term n → Set a where
   zeroₙ :             Natural zero
   sucₙ  :             Natural (suc t)
   ne    : Neutral t → Natural t
@@ -269,7 +269,7 @@ data Natural {n : Nat} : Term n → Set where
 -- A (small) type in whnf is either Π A B, Σ A B, ℕ, Empty, Unit or neutral.
 -- Large types could also be U.
 
-data Type {n : Nat} : Term n → Set where
+data Type {n : Nat} : Term n → Set a where
   Πₙ     :             Type (Π p , q ▷ A ▹ B)
   Σₙ     :             Type (Σ p ▷ A ▹ B)
   ℕₙ     :             Type ℕ
@@ -283,13 +283,13 @@ data Type {n : Nat} : Term n → Set where
 
 -- A whnf of type Π A ▹ B is either lam t or neutral.
 
-data Function {n : Nat} : Term n → Set where
+data Function {n : Nat} : Term n → Set a where
   lamₙ : Function (lam p t)
   ne   : Neutral t → Function t
 
 -- A whnf of type Σ A ▹ B is either prod t u or neutral.
 
-data Product {n : Nat} : Term n → Set where
+data Product {n : Nat} : Term n → Set a where
   prodₙ : Product (prod t u)
   ne    : Neutral t → Product t
 
@@ -392,7 +392,6 @@ wkNeutral ρ (var n)       = var (wkVar ρ n)
 wkNeutral ρ (∘ₙ n)        = ∘ₙ (wkNeutral ρ n)
 wkNeutral ρ (fstₙ n)      = fstₙ (wkNeutral ρ n)
 wkNeutral ρ (sndₙ n)      = sndₙ (wkNeutral ρ n)
-wkNeutral ρ (prodrecₙ n)  = prodrecₙ (wkNeutral ρ n)
 wkNeutral ρ (natrecₙ n)   = natrecₙ (wkNeutral ρ n)
 wkNeutral ρ (Emptyrecₙ e) = Emptyrecₙ (wkNeutral ρ e)
 
@@ -444,7 +443,7 @@ wkWhnf ρ (ne x)  = ne (wkNeutral ρ x)
 
 -- The substitution σ itself is a map from natural numbers to terms.
 
-Subst : Nat → Nat → Set
+Subst : Nat → Nat → Set a
 Subst m n = Fin n → Term m
 
 -- Given closed contexts ⊢ Γ and ⊢ Δ,

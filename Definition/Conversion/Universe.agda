@@ -1,14 +1,18 @@
-{-# OPTIONS --without-K  #-}
+{-# OPTIONS --without-K --safe #-}
 
-module Definition.Conversion.Universe (M : Set) where
+open import Tools.Relation
+
+module Definition.Conversion.Universe {a ℓ} (M′ : Setoid a ℓ) where
+
+open Setoid M′ using () renaming (Carrier to M)
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-open import Definition.Typed.RedSteps M
-open import Definition.Conversion M
-open import Definition.Conversion.Reduction M
-open import Definition.Conversion.Lift M
+open import Definition.Typed M′
+open import Definition.Typed.Properties M′
+open import Definition.Typed.RedSteps M′
+open import Definition.Conversion M′
+open import Definition.Conversion.Reduction M′
+open import Definition.Conversion.Lift M′
 
 open import Tools.Nat
 import Tools.PropositionalEquality as PE

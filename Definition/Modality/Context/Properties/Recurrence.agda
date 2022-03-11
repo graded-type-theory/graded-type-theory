@@ -4,9 +4,8 @@ open import Tools.Level
 open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Context.Properties.Recurrence
-  {M : Set} {_≈_ : Rel M ℓ₀}
-  (𝕄 : Modality M _≈_)
+module Definition.Modality.Context.Properties.Recurrence {a ℓ}
+  {M′ : Setoid a ℓ} (𝕄 : Modality M′)
   where
 
 open import Definition.Modality.Context 𝕄
@@ -17,6 +16,7 @@ open import Definition.Modality.Properties 𝕄
 open import Tools.Nat
 
 open Modality 𝕄
+open Setoid M′ renaming (Carrier to M)
 
 private
   variable

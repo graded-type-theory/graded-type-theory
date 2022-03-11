@@ -1,16 +1,19 @@
-{-# OPTIONS --without-K #-}
+{-# OPTIONS --without-K --safe #-}
 
 open import Definition.Typed.EqualityRelation
+open import Tools.Relation
 
-module Definition.LogicalRelation.Fundamental.Reducibility (M : Set) {{eqrel : EqRelSet M}} where
+module Definition.LogicalRelation.Fundamental.Reducibility {a ℓ} (M′ : Setoid a ℓ) {{eqrel : EqRelSet M′}} where
 open EqRelSet {{...}}
 
+open Setoid M′ using () renaming (Carrier to M)
+
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.Substitution M
-open import Definition.LogicalRelation.Substitution.Reducibility M
-open import Definition.LogicalRelation.Fundamental M
+open import Definition.Typed M′
+open import Definition.LogicalRelation M′
+open import Definition.LogicalRelation.Substitution M′
+open import Definition.LogicalRelation.Substitution.Reducibility M′
+open import Definition.LogicalRelation.Fundamental M′
 
 open import Tools.Nat
 open import Tools.Product

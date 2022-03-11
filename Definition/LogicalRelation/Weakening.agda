@@ -1,17 +1,21 @@
 {-# OPTIONS --without-K --safe #-}
 
 open import Definition.Typed.EqualityRelation
+open import Tools.Level
+open import Tools.Relation
 
-module Definition.LogicalRelation.Weakening (M : Set) {{eqrel : EqRelSet M}} where
+module Definition.LogicalRelation.Weakening {a ℓ} (M′ : Setoid a ℓ)
+                                            {{eqrel : EqRelSet M′}} where
 open EqRelSet {{...}}
+open Setoid M′ using () renaming (Carrier to M)
 
 open import Definition.Untyped M as U hiding (wk ; _∷_)
 open import Definition.Untyped.Properties M
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-open import Definition.Typed.Weakening M as T hiding (wk; wkEq; wkTerm; wkEqTerm)
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.Irrelevance M
+open import Definition.Typed M′
+open import Definition.Typed.Properties M′
+open import Definition.Typed.Weakening M′ as T hiding (wk; wkEq; wkTerm; wkEqTerm)
+open import Definition.LogicalRelation M′
+open import Definition.LogicalRelation.Irrelevance M′
 
 open import Tools.Nat
 open import Tools.Product
@@ -194,7 +198,7 @@ wkEq : ∀ {A B l} → ([ρ] : ρ ∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ)
        ([A] : Γ ⊩⟨ l ⟩ A)
      → Γ ⊩⟨ l ⟩ A ≡ B / [A]
      → Δ ⊩⟨ l ⟩ U.wk ρ A ≡ U.wk ρ B / wk [ρ] ⊢Δ [A]
-wkEq ρ ⊢Δ (Uᵣ′ _ _ _) PE.refl = PE.refl
+wkEq ρ ⊢Δ (Uᵣ′ _ _ _) (lift PE.refl) = lift PE.refl
 wkEq ρ ⊢Δ (ℕᵣ D) A≡B = wkRed* ρ ⊢Δ A≡B
 wkEq ρ ⊢Δ (Emptyᵣ D) A≡B = wkRed* ρ ⊢Δ A≡B
 wkEq ρ ⊢Δ (Unitᵣ D) A≡B = wkRed* ρ ⊢Δ A≡B
@@ -202,8 +206,8 @@ wkEq {ρ = ρ} [ρ] ⊢Δ (ne′ _ _ _ _) (ne₌ M D′ neM K≡M) =
   ne₌ (U.wk ρ M) (wkRed:*: [ρ] ⊢Δ D′)
       (wkNeutral ρ neM) (~-wk [ρ] ⊢Δ K≡M)
 wkEq {ρ = ρ} [ρ] ⊢Δ (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-                (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
-  B₌ (U.wk ρ F′) (U.wk (lift ρ) G′) (T.wkRed* [ρ] ⊢Δ D′) (≅-wk [ρ] ⊢Δ A≡B)
+                (B₌ F′ G′ BΠ! D′ W≋W′ A≡B [F≡F′] [G≡G′]) =
+  B₌ (U.wk ρ F′) (U.wk (lift ρ) G′) BΠ! (T.wkRed* [ρ] ⊢Δ D′) W≋W′ (≅-wk [ρ] ⊢Δ A≡B)
      (λ {_} {ρ₁} [ρ₁] ⊢Δ₁ → irrelevanceEq″ (PE.sym (wk-comp ρ₁ ρ F))
                                  (PE.sym (wk-comp ρ₁ ρ F′))
                                  ([F] ([ρ₁] •ₜ [ρ]) ⊢Δ₁)
@@ -222,8 +226,8 @@ wkEq {ρ = ρ} [ρ] ⊢Δ (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                                           ([G] ([ρ₁] •ₜ [ρ]) ⊢Δ₁ [a]′))
                             ([G≡G′] ([ρ₁] •ₜ [ρ]) ⊢Δ₁ [a]′))
 wkEq {ρ = ρ} [ρ] ⊢Δ (Σᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-                (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
-  B₌ (U.wk ρ F′) (U.wk (lift ρ) G′) (T.wkRed* [ρ] ⊢Δ D′) (≅-wk [ρ] ⊢Δ A≡B)
+                (B₌ F′ G′ BΣ! D′ W≋W′ A≡B [F≡F′] [G≡G′]) =
+  B₌ (U.wk ρ F′) (U.wk (lift ρ) G′) BΣ! (T.wkRed* [ρ] ⊢Δ D′) W≋W′ (≅-wk [ρ] ⊢Δ A≡B)
      (λ {_} {ρ₁} [ρ₁] ⊢Δ₁ → irrelevanceEq″ (PE.sym (wk-comp ρ₁ ρ F))
                                  (PE.sym (wk-comp ρ₁ ρ F′))
                                  ([F] ([ρ₁] •ₜ [ρ]) ⊢Δ₁)
@@ -258,7 +262,7 @@ wkTerm {ρ = ρ} [ρ] ⊢Δ (ne′ K D neK K≡K) (neₜ k d nf) =
 wkTerm {ρ = ρ} [ρ] ⊢Δ (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Πₜ f d funcF f≡f [f] [f]₁) =
   Πₜ (U.wk ρ f) (wkRed:*:Term [ρ] ⊢Δ d) (wkFunction ρ funcF)
      (≅ₜ-wk [ρ] ⊢Δ f≡f)
-     (λ {_} {ρ₁} [ρ₁] ⊢Δ₁ [a] [b] [a≡b] →
+     (λ {_} {ρ₁} [ρ₁] ⊢Δ₁ [a] [b] [a≡b] p≈p₁ p≈p₂ →
         let F-compEq = wk-comp ρ₁ ρ F
             G-compEq = wk-comp-subst ρ₁ ρ G
             [F]₁ = [F] ([ρ₁] •ₜ [ρ]) ⊢Δ₁
@@ -272,8 +276,8 @@ wkTerm {ρ = ρ} [ρ] ⊢Δ (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Π�
                                 (PE.cong (λ x → x ∘ _ ▷ _) (PE.sym (wk-comp ρ₁ ρ _)))
                                 G-compEq
                                 [G]₁ [G]₂
-                                ([f] ([ρ₁] •ₜ [ρ]) ⊢Δ₁ [a]′ [b]′ [a≡b]′))
-     (λ {_} {ρ₁} [ρ₁] ⊢Δ₁ [a] →
+                                ([f] ([ρ₁] •ₜ [ρ]) ⊢Δ₁ [a]′ [b]′ [a≡b]′ p≈p₁ p≈p₂))
+     (λ {_} {ρ₁} [ρ₁] ⊢Δ₁ [a] p≈p′ →
         let [F]₁ = [F] ([ρ₁] •ₜ [ρ]) ⊢Δ₁
             [F]₂ = irrelevance′ (PE.sym (wk-comp ρ₁ ρ F)) [F]₁
             [a]′ = irrelevanceTerm′ (wk-comp ρ₁ ρ F) [F]₂ [F]₁ [a]
@@ -281,7 +285,7 @@ wkTerm {ρ = ρ} [ρ] ⊢Δ (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Π�
             [G]₂ = irrelevance′ (wk-comp-subst ρ₁ ρ G) [G]₁
         in  irrelevanceTerm″ (wk-comp-subst ρ₁ ρ G)
                               (PE.cong (λ x → x ∘ _ ▷ _) (PE.sym (wk-comp ρ₁ ρ _)))
-                              [G]₁ [G]₂ ([f]₁ ([ρ₁] •ₜ [ρ]) ⊢Δ₁ [a]′))
+                              [G]₁ [G]₂ ([f]₁ ([ρ₁] •ₜ [ρ]) ⊢Δ₁ [a]′ p≈p′))
 wkTerm {ρ = ρ} [ρ] ⊢Δ [A]@(Σᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                   (Σₜ p d pProd p≅p [fst] [snd]) =
   let [ρF] = irrelevance′ (PE.sym (wk-comp id ρ F)) ([F] [ρ] (wf (T.wk [ρ] ⊢Δ ⊢F)))
@@ -341,17 +345,17 @@ wkEqTerm {ρ  = ρ} [ρ] ⊢Δ (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
   in  Πₜ₌ (U.wk ρ f) (U.wk ρ g) (wkRed:*:Term [ρ] ⊢Δ d) (wkRed:*:Term [ρ] ⊢Δ d′)
           (wkFunction ρ funcF) (wkFunction ρ funcG)
           (≅ₜ-wk [ρ] ⊢Δ f≡g) (wkTerm [ρ] ⊢Δ [A] [t]) (wkTerm [ρ] ⊢Δ [A] [u])
-          (λ {_} {ρ₁} [ρ₁] ⊢Δ₁ [a] →
+          (λ {_} {ρ₁} [ρ₁] ⊢Δ₁ [a] p≈p₁ p≈p₂ →
              let [F]₁ = [F] ([ρ₁] •ₜ [ρ]) ⊢Δ₁
                  [F]₂ = irrelevance′ (PE.sym (wk-comp ρ₁ ρ F)) [F]₁
                  [a]′ = irrelevanceTerm′ (wk-comp ρ₁ ρ F) [F]₂ [F]₁ [a]
                  [G]₁ = [G] ([ρ₁] •ₜ [ρ]) ⊢Δ₁ [a]′
                  [G]₂ = irrelevance′ (wk-comp-subst ρ₁ ρ G) [G]₁
              in  irrelevanceEqTerm″ (PE.cong (λ y → y ∘ _ ▷ _) (PE.sym (wk-comp ρ₁ ρ _)))
-                                     (PE.cong (λ y → y ∘ _ ▷ _) (PE.sym (wk-comp ρ₁ ρ _)))
-                                     (wk-comp-subst ρ₁ ρ G)
-                                     [G]₁ [G]₂
-                                     ([f≡g] ([ρ₁] •ₜ [ρ]) ⊢Δ₁ [a]′))
+                                    (PE.cong (λ y → y ∘ _ ▷ _) (PE.sym (wk-comp ρ₁ ρ _)))
+                                    (wk-comp-subst ρ₁ ρ G)
+                                    [G]₁ [G]₂
+                                    ([f≡g] ([ρ₁] •ₜ [ρ]) ⊢Δ₁ [a]′ p≈p₁ p≈p₂))
 wkEqTerm {ρ = ρ} [ρ] ⊢Δ [A]@(Σᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                     (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] [fstp] [fstr] [fst≡] [snd≡]) =
   let [A] = Σᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext

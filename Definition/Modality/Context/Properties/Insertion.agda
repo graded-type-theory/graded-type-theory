@@ -4,10 +4,12 @@ open import Tools.Level
 open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Context.Properties.Insertion
-  {M : Set} {_≈_ : Rel M ℓ₀}
-  (𝕄 : Modality M _≈_)
+module Definition.Modality.Context.Properties.Insertion {a ℓ}
+  {M′ : Setoid a ℓ} (𝕄 : Modality M′)
   where
+
+open Modality 𝕄
+open Setoid M′ renaming (Carrier to M)
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties.Equivalence 𝕄
@@ -17,9 +19,7 @@ open import Definition.Untyped M using (wkVar; liftn; step; id)
 open import Tools.Fin
 open import Tools.Nat renaming (_+_ to _+ⁿ_)
 open import Tools.Product
-open import Tools.PropositionalEquality
-
-open Modality 𝕄
+open import Tools.PropositionalEquality as PE
 
 private
   variable
@@ -37,7 +37,7 @@ insertAt-cong {n = 1+ n} (γ≈δ ∙ p′≈q′) p≈q = (insertAt-cong γ≈�
 -- insertAt x 𝟘ᶜ 𝟘 ≡ 𝟘ᶜ
 
 insertAt-𝟘 : (n : Nat) → insertAt n (𝟘ᶜ {n = n +ⁿ m}) 𝟘 ≡ 𝟘ᶜ {n = n +ⁿ 1+ m}
-insertAt-𝟘 0      = refl
+insertAt-𝟘 0      = PE.refl
 insertAt-𝟘 (1+ n) = cong (_∙ _) (insertAt-𝟘 n)
 
 -- Inserting the sum of two elements distributes over addition
@@ -45,7 +45,7 @@ insertAt-𝟘 (1+ n) = cong (_∙ _) (insertAt-𝟘 n)
 
 insertAt-distrib-+ᶜ : (n : Nat) (γ δ : Conₘ (n +ⁿ m)) (p q : M)
                     → insertAt n (γ +ᶜ δ) (p + q) ≡ insertAt n γ p +ᶜ insertAt n δ q
-insertAt-distrib-+ᶜ 0 γ δ p q = refl
+insertAt-distrib-+ᶜ 0 γ δ p q = PE.refl
 insertAt-distrib-+ᶜ (1+ n) (γ ∙ p′) (δ ∙ q′) p q =
   cong (_∙ _) (insertAt-distrib-+ᶜ n γ δ p q)
 
@@ -65,7 +65,7 @@ insertAt-distrib-+ᶜ-𝟘  n γ δ = begin
 
 insertAt-distrib-·ᶜ : (n : Nat) (γ : Conₘ (n +ⁿ m)) (p q : M)
                     → insertAt n (p ·ᶜ γ) (p · q) ≡ p ·ᶜ insertAt n γ q
-insertAt-distrib-·ᶜ 0 γ p q = refl
+insertAt-distrib-·ᶜ 0 γ p q = PE.refl
 insertAt-distrib-·ᶜ (1+ n) (γ ∙ r) p q =
   cong (_∙ _) (insertAt-distrib-·ᶜ n γ p q)
 
@@ -85,7 +85,7 @@ insertAt-distrib-·ᶜ-𝟘 n p γ = begin
 
 insertAt-distrib-∧ᶜ : (n : Nat) (γ δ : Conₘ (n +ⁿ m)) (p q : M)
                     → insertAt n (γ ∧ᶜ δ) (p ∧ q) ≡ insertAt n γ p ∧ᶜ insertAt n δ q
-insertAt-distrib-∧ᶜ 0 γ δ p q = refl
+insertAt-distrib-∧ᶜ 0 γ δ p q = PE.refl
 insertAt-distrib-∧ᶜ (1+ n) (γ ∙ p′) (δ ∙ q′) p q =
   cong (_∙ _) (insertAt-distrib-∧ᶜ n γ δ p q)
 
@@ -123,6 +123,6 @@ insertAt-monotone (1+ n) (γ ∙ p′) (δ ∙ q′) p q (γ≤δ ∙ p′≤q�
 
 insertAt-liftn : (n : Nat) (x : Fin (n +ⁿ m))
                → (𝟘ᶜ , wkVar (liftn (step id) n) x ≔ 𝟙) ≡ insertAt n (𝟘ᶜ , x ≔ 𝟙) 𝟘
-insertAt-liftn 0 x = refl
-insertAt-liftn (1+ n) x0 = cong (_∙ _) (sym (insertAt-𝟘 n))
+insertAt-liftn 0 x = PE.refl
+insertAt-liftn (1+ n) x0 = cong (_∙ _) (PE.sym (insertAt-𝟘 n))
 insertAt-liftn (1+ n) (x +1) = cong (_∙ _) (insertAt-liftn n x)

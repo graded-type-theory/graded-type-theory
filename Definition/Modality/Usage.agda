@@ -4,10 +4,12 @@ open import Tools.Level
 open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Usage
-  {M : Set} {_≈_ : Rel M ℓ₀}
-  (𝕄 : Modality M _≈_)
+module Definition.Modality.Usage {a ℓ}
+  {M′ : Setoid a ℓ} (𝕄 : Modality M′)
   where
+
+open Modality 𝕄
+open Setoid M′ renaming (Carrier to M)
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Untyped M hiding (_∙_)
@@ -15,8 +17,6 @@ open import Definition.Untyped M hiding (_∙_)
 open import Tools.Fin
 open import Tools.Nat
 import Tools.PropositionalEquality as PE
-
-open Modality 𝕄
 
 infix 10 _▸_
 
@@ -31,13 +31,13 @@ private
     x : Fin n
 
 -- Well-usage of variables
-data _◂_∈_  : (x : Fin n) (p : M) (γ : Conₘ n) → Set where
+data _◂_∈_  : (x : Fin n) (p : M) (γ : Conₘ n) → Set a where
   here  :                       x0 ◂ p ∈ γ ∙ p
   there : (h : x ◂ p ∈ γ) → (x +1) ◂ p ∈ γ ∙ q
 
 
 -- Well-usage of terms
-data _▸_ {n : Nat} : (γ : Conₘ n) → Term n → Set where
+data _▸_ {n : Nat} : (γ : Conₘ n) → Term n → Set (a ⊔ ℓ) where
   Uₘ        : 𝟘ᶜ ▸ U
   ℕₘ        : 𝟘ᶜ ▸ ℕ
   Emptyₘ    : 𝟘ᶜ ▸ Empty
@@ -71,10 +71,6 @@ data _▸_ {n : Nat} : (γ : Conₘ n) → Term n → Set where
 
   sndₘ      : 𝟘ᶜ ▸ t
             → 𝟘ᶜ ▸ snd t
-
-  prodrecₘ  : γ ▸ t
-            → δ ∙ p ∙ p ▸ u
-            → p ·ᶜ γ +ᶜ δ ▸ prodrec p G t u
 
   zeroₘ     : 𝟘ᶜ ▸ zero
   sucₘ      : γ ▸ t
@@ -115,7 +111,6 @@ mutual
   gen-usage Prodkind (t ∷ u ∷ [])            = ⌈ t ⌉ +ᶜ ⌈ u ⌉
   gen-usage Fstkind (t ∷ [])                 = 𝟘ᶜ
   gen-usage Sndkind (t ∷ [])                 = 𝟘ᶜ
-  gen-usage (Prodreckind p) (G ∷ t ∷ u ∷ []) = p ·ᶜ ⌈ t ⌉ +ᶜ tailₘ (tailₘ ⌈ u ⌉)
   gen-usage Natkind  []                      = 𝟘ᶜ
   gen-usage Zerokind []                      = 𝟘ᶜ
   gen-usage Suckind (t ∷ [])                 = ⌈ t ⌉

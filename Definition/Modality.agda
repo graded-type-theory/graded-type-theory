@@ -3,14 +3,16 @@
 open import Tools.Level
 open import Tools.Relation
 
-module Definition.Modality (M : Set) (_≈_ : Rel M ℓ₀) where
+module Definition.Modality {a ℓ} (M′ : Setoid a ℓ) where
 
-open import Tools.Algebra (_≈_)
+open Setoid M′ renaming (Carrier to M)
+
+open import Tools.Algebra M′
 open import Tools.Nat hiding (_+_)
 open import Tools.Product
 
 -- Modality ringoid
-record Modality : Set where
+record Modality : Set (a ⊔ ℓ) where
   infixr 40 _+_
   infixr 40 _∧_
   infixr 45 _·_
@@ -38,7 +40,7 @@ record Modality : Set where
 
 
   -- Semilattice partial ordering relation
-  _≤_ : Rel M ℓ₀
+  _≤_ : Rel M ℓ
   p ≤ q = p ≈ (p ∧ q)
 
   field
