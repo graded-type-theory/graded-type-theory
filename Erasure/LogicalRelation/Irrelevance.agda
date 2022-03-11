@@ -1,32 +1,34 @@
-{-# OPTIONS --without-K  #-}
+{-# OPTIONS --without-K --safe #-}
 open import Definition.Modality.Erasure
 
 open import Definition.Typed.EqualityRelation
 
 
-module Erasure.LogicalRelation.Irrelevance {{eqrel : EqRelSet Erasure}} where
+module Erasure.LogicalRelation.Irrelevance {{eqrel : EqRelSet Erasure′}} where
 open EqRelSet {{...}}
 
 open import Erasure.LogicalRelation
 
-open import Definition.LogicalRelation Erasure
-open import Definition.LogicalRelation.ShapeView Erasure
-import Definition.LogicalRelation.Irrelevance Erasure as I
-open import Definition.LogicalRelation.Properties.MaybeEmb Erasure
-open import Definition.LogicalRelation.Properties.Escape Erasure
-open import Definition.LogicalRelation.Substitution Erasure
-import Definition.LogicalRelation.Substitution.Irrelevance Erasure as IS
+open import Definition.LogicalRelation Erasure′
+open import Definition.LogicalRelation.ShapeView Erasure′
+import Definition.LogicalRelation.Irrelevance Erasure′ as I
+open import Definition.LogicalRelation.Properties.MaybeEmb Erasure′
+open import Definition.LogicalRelation.Properties.Escape Erasure′
+open import Definition.LogicalRelation.Substitution Erasure′
+import Definition.LogicalRelation.Substitution.Irrelevance Erasure′ as IS
 
 open import Definition.Untyped Erasure
 open import Definition.Untyped.Properties Erasure
-open import Definition.Typed Erasure
-open import Definition.Typed.Consequences.Injectivity Erasure
-open import Definition.Typed.Reduction Erasure
-open import Definition.Typed.Weakening Erasure
-open import Definition.Typed.Properties Erasure
+import Definition.Untyped.BindingType Erasure′ as BT
+open import Definition.Typed Erasure′
+open import Definition.Typed.Consequences.Injectivity Erasure′
+open import Definition.Typed.Reduction Erasure′
+open import Definition.Typed.Weakening Erasure′
+open import Definition.Typed.Properties Erasure′
 open import Definition.Modality.Context ErasureModality
 
 open import Tools.Empty
+open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -52,8 +54,8 @@ irrelevanceTermSV .(Uᵣ UA) .(Uᵣ UB) t®v (Uᵥ UA UB) = t®v
 irrelevanceTermSV .(ℕᵣ ℕA) .(ℕᵣ ℕB) t®v (ℕᵥ ℕA ℕB) = t®v
 irrelevanceTermSV .(Unitᵣ UnitA) .(Unitᵣ UnitB) t®v (Unitᵥ UnitA UnitB) = t®v
 irrelevanceTermSV [A] [A]′ t®v (ne (ne K D neK K≡K) neB) = ⊥-elim (noClosedNe neK)
-irrelevanceTermSV [A] [A]′ t®v (Bᵥ (BΠ 𝟘 q) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-                               (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁)) [a]′
+irrelevanceTermSV [A] [A]′ t®v (Bᵥ (BΠ 𝟘 q) BΠ! (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+                               (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) (BT.Π≋Π PE.refl PE.refl)) [a]′
                                with whrDet* (red D , Πₙ) (red D₁ , Πₙ)
 ... | Π≡Π′ with B-PE-injectivity (BΠ 𝟘 q) (BΠ 𝟘 q) Π≡Π′
 ... | PE.refl , PE.refl , _ =
@@ -61,8 +63,8 @@ irrelevanceTermSV [A] [A]′ t®v (Bᵥ (BΠ 𝟘 q) (Bᵣ F G D ⊢F ⊢G A≡A
       t®v′ = t®v [a]
       SV′ = goodCasesRefl ([G] id ε [a]) ([G]₁ id ε [a]′)
   in  irrelevanceTermSV ([G] id ε [a]) ([G]₁ id ε [a]′) t®v′ SV′
-irrelevanceTermSV [A] [A]′ t®v (Bᵥ (BΠ ω q) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-                               (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁)) [a]′ a®w′
+irrelevanceTermSV [A] [A]′ t®v (Bᵥ (BΠ ω q) BΠ! (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+                               (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) (BT.Π≋Π PE.refl PE.refl)) [a]′ a®w′
                                with whrDet* (red D , Πₙ) (red D₁ , Πₙ)
 ... | Π≡Π′ with B-PE-injectivity (BΠ ω q) (BΠ ω q) Π≡Π′
 ... | PE.refl , PE.refl , _ =
@@ -73,8 +75,8 @@ irrelevanceTermSV [A] [A]′ t®v (Bᵥ (BΠ ω q) (Bᵣ F G D ⊢F ⊢G A≡A [
       SV′ = goodCasesRefl ([G] id ε [a]) ([G]₁ id ε [a]′)
       in  irrelevanceTermSV ([G] id ε [a]) ([G]₁ id ε [a]′) t®v′ SV′
 irrelevanceTermSV [A] [A]′ (t₁ , t₂ , v₁ , v₂ , t⇒t′ , v⇒v′ , t®v)
-                           (Bᵥ (BΣ q) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-                           (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁))
+                           (Bᵥ (BΣ q) BΣ! (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+                           (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) (BT.Σ≋Σ PE.refl))
                            with whrDet* (red D , Σₙ) (red D₁ , Σₙ)
 ... | Σ≡Σ′ with B-PE-injectivity (BΣ q) (BΣ q) Σ≡Σ′
 ... | PE.refl , PE.refl , _ = t₁ , t₂ , v₁ , v₂ , t⇒t′ , v⇒v′ , λ [t₁]′ →
@@ -125,7 +127,7 @@ irrelevanceSubst : ∀ {σ σ′ l}
                    ([σ]′ : ε ⊩ˢ σ ∷ Γ / [Γ]′ / ε)
                    (σ®σ′ : σ ®⟨ l ⟩ σ′ ∷ Γ ◂ γ / [Γ] / [σ])
                  → (σ ®⟨ l ⟩ σ′ ∷ Γ ◂ γ / [Γ]′ / [σ]′)
-irrelevanceSubst {Γ = ε} {γ = ε} ε ε tt tt tt = tt
+irrelevanceSubst {Γ = ε} {γ = ε} ε ε (lift tt) (lift tt) tt = tt
 irrelevanceSubst {Γ = Γ ∙ A} {γ = γ ∙ p} {l = l}
                  ([Γ] ∙ [A]) ([Γ]′ ∙ [A]′) ([tailσ] , b) ([tailσ]′ , d) (σ®σ , t®v) =
   let σ®σ′ = irrelevanceSubst {l = l} [Γ] [Γ]′ [tailσ] [tailσ]′ σ®σ

@@ -1,25 +1,26 @@
-{-# OPTIONS --without-K  #-}
+{-# OPTIONS --without-K  --safe #-}
 open import Definition.Modality.Erasure
 
 open import Definition.Typed.EqualityRelation
 
 
-module Erasure.LogicalRelation {{eqrel : EqRelSet Erasure}} where
+module Erasure.LogicalRelation {{eqrel : EqRelSet Erasure′}} where
 open EqRelSet {{...}}
 
-open import Definition.LogicalRelation Erasure
-open import Definition.LogicalRelation.Substitution Erasure
+open import Definition.LogicalRelation Erasure′
+open import Definition.LogicalRelation.Substitution Erasure′
 open import Definition.Modality.Context ErasureModality
 open import Definition.Modality.Usage ErasureModality
 open import Definition.Untyped Erasure as U hiding (_∷_)
 open import Definition.Untyped.Properties Erasure using (noClosedNe)
-open import Definition.Typed Erasure
-open import Definition.Typed.Weakening Erasure
+open import Definition.Typed Erasure′
+open import Definition.Typed.Weakening Erasure′
 
 open import Erasure.Target as T hiding (_⇒*_)
 open import Erasure.Extraction
 
 open import Tools.Fin
+open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -99,7 +100,7 @@ t ®⟨ l ⟩ v ∷ A ◂ ω / [A] = t ®⟨ l ⟩ v ∷ A / [A]
 
 _®⟨_⟩_∷_◂_/_/_ : (σₜ : U.Subst 0 n) (l : TypeLevel) (σᵥ : T.Subst 0 n) (Γ : Con U.Term n)
                  (γ : Conₘ n) ([Γ] : ⊩ᵛ Γ) ([σ] : ε ⊩ˢ σₜ ∷ Γ / [Γ] / ε) → Set
-σₜ ®⟨ l ⟩ σᵥ ∷ ε ◂ ε / ε / tt = ⊤
+σₜ ®⟨ l ⟩ σᵥ ∷ ε ◂ ε / ε / (lift tt) = ⊤
 σₜ ®⟨ l ⟩ σᵥ ∷ Γ ∙ A ◂ γ ∙ p / _∙_ {l = l₁} [Γ] [A] / ([σ] , [σA]) =
   ((U.tail σₜ) ®⟨ l ⟩ (T.tail σᵥ) ∷ Γ ◂ γ / [Γ] / [σ]) ×
   ((U.head σₜ) ®⟨ l₁ ⟩ (T.head σᵥ) ∷ (U.subst (U.tail σₜ) A) ◂ p / proj₁ ([A] ε [σ]))

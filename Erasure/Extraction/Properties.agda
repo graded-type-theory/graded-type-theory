@@ -187,26 +187,3 @@ erase-consSubst : (σ : U.Subst m n) (a : U.Term m) (t : T.Term (1+ n))
                 → T.subst (T.consSubst (eraseSubst σ) (erase a)) t
                 ≡ T.subst (eraseSubst (U.consSubst σ a)) t
 erase-consSubst σ a t = substVar-to-subst (erase-consSubst-var σ a) t
-
-
--- sgSubst-erase-comm′ : (u : U.Term n) (x : Fin (1+ n))
---                     → eraseSubst (U.sgSubst u) x ≡ T.sgSubst (erase u) x
--- sgSubst-erase-comm′ u x0 = refl
--- sgSubst-erase-comm′ u (_+1 x) = refl
-
--- sgSubst-erase-comm : (t : U.Term (1+ n)) (u : U.Term n)
---                    → (erase t) T.[ erase u ] ≡ erase (t U.[ u ])
--- sgSubst-erase-comm t u = PE.subst (_≡ erase (t U.[ u ])) {!substVar-to-subst (sgSubst-erase-comm′ u)!} qwe
---   where
---   qwe = subst-erase-comm (U.sgSubst u) t
-
--- -- Closed types are extrated to undefined
-
--- eraseType : {A : U.Term 0} → Type A → erase A ≡ undefined
--- eraseType Πₙ = refl
--- eraseType Σₙ = refl
--- eraseType ℕₙ = refl
--- eraseType Emptyₙ = refl
--- eraseType Unitₙ = refl
--- eraseType (ne x) with noClosedNe x
--- ... | ()

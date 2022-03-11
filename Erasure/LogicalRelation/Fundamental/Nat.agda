@@ -1,10 +1,10 @@
-{-# OPTIONS --without-K  #-}
+{-# OPTIONS --without-K --safe #-}
 open import Definition.Modality.Erasure
 
 open import Definition.Typed.EqualityRelation
 
 
-module Erasure.LogicalRelation.Fundamental.Nat {{eqrel : EqRelSet Erasure}} where
+module Erasure.LogicalRelation.Fundamental.Nat {{eqrel : EqRelSet Erasure′}} where
 open EqRelSet {{...}}
 
 open import Erasure.Extraction
@@ -13,15 +13,15 @@ open import Erasure.LogicalRelation.Irrelevance
 import Erasure.Target as T
 
 open import Definition.Untyped Erasure hiding (_∷_)
-open import Definition.Typed Erasure
-open import Definition.Typed.Consequences.Substitution Erasure
+open import Definition.Typed Erasure′
+open import Definition.Typed.Consequences.Substitution Erasure′
 
-open import Definition.LogicalRelation Erasure
-open import Definition.LogicalRelation.Fundamental Erasure
-open import Definition.LogicalRelation.Substitution Erasure
-open import Definition.LogicalRelation.Substitution.Properties Erasure
-open import Definition.LogicalRelation.Substitution.Introductions.Universe Erasure
-open import Definition.LogicalRelation.Substitution.Introductions.Nat Erasure
+open import Definition.LogicalRelation Erasure′
+open import Definition.LogicalRelation.Fundamental Erasure′
+open import Definition.LogicalRelation.Substitution Erasure′
+open import Definition.LogicalRelation.Substitution.Properties Erasure′
+open import Definition.LogicalRelation.Substitution.Introductions.Universe Erasure′
+open import Definition.LogicalRelation.Substitution.Introductions.Nat Erasure′
 
 open import Definition.Modality.Context ErasureModality
 

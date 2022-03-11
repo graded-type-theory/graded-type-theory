@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K   #-}
+{-# OPTIONS --without-K --safe #-}
 
 open import Tools.Fin
 
@@ -6,27 +6,27 @@ open import Definition.Modality.Erasure
 
 open import Definition.Typed.EqualityRelation
 
-module Erasure.LogicalRelation.Properties {{eqrel : EqRelSet Erasure}} where
+module Erasure.LogicalRelation.Properties {{eqrel : EqRelSet Erasure′}} where
 open EqRelSet {{...}}
 
-open import Definition.LogicalRelation Erasure
-import Definition.LogicalRelation.Fundamental Erasure as F
-open import Definition.LogicalRelation.Fundamental.Reducibility  Erasure
-open import Definition.LogicalRelation.Properties.Escape Erasure
-open import Definition.LogicalRelation.Substitution Erasure
-import Definition.LogicalRelation.Irrelevance Erasure as I
-open import Definition.LogicalRelation.Substitution.Properties Erasure
+open import Definition.LogicalRelation Erasure′
+import Definition.LogicalRelation.Fundamental Erasure′ as F
+open import Definition.LogicalRelation.Fundamental.Reducibility  Erasure′
+open import Definition.LogicalRelation.Properties.Escape Erasure′
+open import Definition.LogicalRelation.Substitution Erasure′
+import Definition.LogicalRelation.Irrelevance Erasure′ as I
+open import Definition.LogicalRelation.Substitution.Properties Erasure′
 
 open import Definition.Modality.Context ErasureModality
 
-open import Definition.Typed Erasure
-open import Definition.Typed.Consequences.Canonicity Erasure
-open import Definition.Typed.Consequences.Substitution Erasure
-open import Definition.Typed.Consequences.Syntactic Erasure
-open import Definition.Typed.Consequences.Reduction Erasure
-open import Definition.Typed.Properties Erasure
-open import Definition.Typed.RedSteps Erasure as RS
-open import Definition.Typed.Weakening Erasure
+open import Definition.Typed Erasure′
+open import Definition.Typed.Consequences.Canonicity Erasure′
+open import Definition.Typed.Consequences.Substitution Erasure′
+open import Definition.Typed.Consequences.Syntactic Erasure′
+open import Definition.Typed.Consequences.Reduction Erasure′
+open import Definition.Typed.Properties Erasure′
+open import Definition.Typed.RedSteps Erasure′ as RS
+open import Definition.Typed.Weakening Erasure′
 
 open import Definition.Untyped Erasure as U hiding (_∷_)
 open import Definition.Untyped.Properties Erasure as UP using (noClosedNe ; wk-id ; wk-lift-id)
@@ -39,6 +39,7 @@ open import Erasure.Target as T hiding (_⇒_; _⇒*_)
 open import Erasure.Target.Properties as TP
 
 open import Tools.Empty
+open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -69,7 +70,7 @@ subsumption″ {p = ω} {ω} t®v q≤p = t®v
 
 subsumption′ : ∀ {l σₜ σᵥ [Γ] [σ]} → σₜ ®⟨ l ⟩ σᵥ ∷ Γ ◂ γ / [Γ] / [σ] → γ ≤ᶜ δ
              → σₜ ®⟨ l ⟩ σᵥ ∷ Γ ◂ δ / [Γ] / [σ]
-subsumption′ {Γ = ε} {ε} {ε} {[Γ] = ε} {tt} tt ε = tt
+subsumption′ {Γ = ε} {ε} {ε} {[Γ] = ε} {lift tt} tt ε = tt
 subsumption′ {Γ = Γ ∙ x} {γ ∙ p} {δ ∙ q} {l = l} {[Γ] = [Γ] ∙ [A]} {_ , _} (σ®σ′ , t®v) (γ≤δ ∙ p≤q) =
   subsumption′ {l = l} σ®σ′ γ≤δ , subsumption″ t®v p≤q
 

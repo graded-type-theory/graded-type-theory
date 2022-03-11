@@ -1,32 +1,31 @@
-{-# OPTIONS --without-K  #-}
+{-# OPTIONS --without-K --safe #-}
 open import Definition.Modality.Erasure
 
 open import Definition.Typed.EqualityRelation
 
-
-module Erasure.LogicalRelation.Fundamental.Lambda {{eqrel : EqRelSet Erasure}} where
+module Erasure.LogicalRelation.Fundamental.Lambda {{eqrel : EqRelSet Erasure′}} where
 open EqRelSet {{...}}
 
-open import Definition.LogicalRelation Erasure
-import Definition.LogicalRelation.Irrelevance Erasure as I
-open import Definition.LogicalRelation.Properties.Escape Erasure
-open import Definition.LogicalRelation.ShapeView Erasure
-import Definition.LogicalRelation.Weakening Erasure as W
-open import Definition.LogicalRelation.Fundamental Erasure
-open import Definition.LogicalRelation.Substitution Erasure
-import Definition.LogicalRelation.Substitution.Irrelevance Erasure as IS
-open import Definition.LogicalRelation.Substitution.Properties Erasure
-open import Definition.LogicalRelation.Substitution.Introductions.Pi Erasure
-open import Definition.LogicalRelation.Substitution.Introductions.Universe Erasure
+open import Definition.LogicalRelation Erasure′
+import Definition.LogicalRelation.Irrelevance Erasure′ as I
+open import Definition.LogicalRelation.Properties.Escape Erasure′
+open import Definition.LogicalRelation.ShapeView Erasure′
+import Definition.LogicalRelation.Weakening Erasure′ as W
+open import Definition.LogicalRelation.Fundamental Erasure′
+open import Definition.LogicalRelation.Substitution Erasure′
+import Definition.LogicalRelation.Substitution.Irrelevance Erasure′ as IS
+open import Definition.LogicalRelation.Substitution.Properties Erasure′
+open import Definition.LogicalRelation.Substitution.Introductions.Pi Erasure′
+open import Definition.LogicalRelation.Substitution.Introductions.Universe Erasure′
 
 open import Definition.Modality.Context ErasureModality
 
 open import Definition.Untyped Erasure as U hiding (_∷_)
 open import Definition.Untyped.Properties Erasure as UP
-open import Definition.Typed Erasure
-open import Definition.Typed.Weakening Erasure
-open import Definition.Typed.Consequences.Reduction Erasure
-open import Definition.Typed.Consequences.Substitution Erasure
+open import Definition.Typed Erasure′
+open import Definition.Typed.Weakening Erasure′
+open import Definition.Typed.Consequences.Reduction Erasure′
+open import Definition.Typed.Consequences.Substitution Erasure′
 
 open import Erasure.Extraction
 open import Erasure.LogicalRelation
@@ -91,7 +90,7 @@ lamʳ′ {F = F} {G = G} {γ = γ} {p = p} {t = t} {σ = σ} {σ′ = σ′} {u 
                            σut®σwv
       t⇒t′ : ε ⊢ lam p (subst (liftSubst σ) t) ∘ p ▷ u ⇒*
                subst (liftSubst σ) t [ u ] ∷ (subst (liftSubst σ) G [ u ])
-      t⇒t′ = redMany (β-red ⊢σF ⊢σt ⊢u PE.refl)
+      t⇒t′ = redMany (β-red ⊢σF ⊢σG ⊢σt ⊢u PE.refl)
       t⇒t″ = PE.subst (λ G → ε ⊢ _ ⇒* _ ∷ G) (UP.singleSubstComp u σ G) t⇒t′
       v⇒v′ = T.trans (T.β-red {t = T.subst (T.liftSubst σ′) (erase t)} {u = w}) T.refl
       in  ®-red* [G]′ σut®σwv′ t⇒t″ v⇒v′

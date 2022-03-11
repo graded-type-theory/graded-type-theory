@@ -1,23 +1,23 @@
-{-# OPTIONS --without-K  #-}
+{-# OPTIONS --without-K --safe #-}
 open import Definition.Modality.Erasure
 
 open import Definition.Typed.EqualityRelation
 
 
-module Erasure.LogicalRelation.Fundamental.Unit {{eqrel : EqRelSet Erasure}} where
+module Erasure.LogicalRelation.Fundamental.Unit {{eqrel : EqRelSet Erasure′}} where
 open EqRelSet {{...}}
 
 open import Erasure.LogicalRelation
 import Erasure.Target as T
 
 open import Definition.Untyped Erasure
-open import Definition.Typed Erasure
+open import Definition.Typed Erasure′
 
-open import Definition.LogicalRelation Erasure
-open import Definition.LogicalRelation.Fundamental Erasure
-open import Definition.LogicalRelation.Substitution Erasure
-open import Definition.LogicalRelation.Substitution.Introductions.Universe Erasure
-open import Definition.LogicalRelation.Substitution.Introductions.Unit Erasure
+open import Definition.LogicalRelation Erasure′
+open import Definition.LogicalRelation.Fundamental Erasure′
+open import Definition.LogicalRelation.Substitution Erasure′
+open import Definition.LogicalRelation.Substitution.Introductions.Universe Erasure′
+open import Definition.LogicalRelation.Substitution.Introductions.Unit Erasure′
 
 open import Definition.Modality.Context ErasureModality
 

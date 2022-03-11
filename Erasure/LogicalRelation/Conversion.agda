@@ -1,36 +1,37 @@
-{-# OPTIONS --without-K   #-}
+{-# OPTIONS --without-K --safe #-}
 open import Definition.Modality.Erasure
 
 open import Definition.Typed.EqualityRelation
 
 
-module Erasure.LogicalRelation.Conversion {{eqrel : EqRelSet Erasure}} where
+module Erasure.LogicalRelation.Conversion {{eqrel : EqRelSet Erasure′}} where
 open EqRelSet {{...}}
 
 open import Erasure.LogicalRelation
 import Erasure.Target as T
 
-open import Definition.LogicalRelation Erasure
-open import Definition.LogicalRelation.Irrelevance Erasure
-open import Definition.LogicalRelation.Fundamental Erasure
-open import Definition.LogicalRelation.Fundamental.Reducibility Erasure
-open import Definition.LogicalRelation.ShapeView Erasure
-open import Definition.LogicalRelation.Properties.Conversion Erasure
-open import Definition.LogicalRelation.Properties.Escape Erasure
-open import Definition.LogicalRelation.Properties.Symmetry Erasure
-open import Definition.LogicalRelation.Substitution Erasure
-open import Definition.LogicalRelation.Substitution.Properties Erasure
-import Definition.LogicalRelation.Substitution.Irrelevance Erasure as IS
+open import Definition.LogicalRelation Erasure′
+open import Definition.LogicalRelation.Irrelevance Erasure′
+open import Definition.LogicalRelation.Fundamental Erasure′
+open import Definition.LogicalRelation.Fundamental.Reducibility Erasure′
+open import Definition.LogicalRelation.ShapeView Erasure′
+open import Definition.LogicalRelation.Properties.Conversion Erasure′
+open import Definition.LogicalRelation.Properties.Escape Erasure′
+open import Definition.LogicalRelation.Properties.Symmetry Erasure′
+open import Definition.LogicalRelation.Substitution Erasure′
+open import Definition.LogicalRelation.Substitution.Properties Erasure′
+import Definition.LogicalRelation.Substitution.Irrelevance Erasure′ as IS
 
 open import Definition.Untyped Erasure
 open import Definition.Untyped.Properties Erasure
-open import Definition.Typed Erasure
-open import Definition.Typed.Consequences.Injectivity Erasure
-open import Definition.Typed.Consequences.Substitution Erasure
-open import Definition.Typed.Reduction Erasure
-open import Definition.Typed.RedSteps Erasure
-open import Definition.Typed.Weakening Erasure
-open import Definition.Typed.Properties Erasure
+import Definition.Untyped.BindingType Erasure′ as BT
+open import Definition.Typed Erasure′
+open import Definition.Typed.Consequences.Injectivity Erasure′
+open import Definition.Typed.Consequences.Substitution Erasure′
+open import Definition.Typed.Reduction Erasure′
+open import Definition.Typed.RedSteps Erasure′
+open import Definition.Typed.Weakening Erasure′
+open import Definition.Typed.Properties Erasure′
 open import Definition.Modality.Context ErasureModality
 
 open import Tools.Empty
@@ -60,8 +61,8 @@ convTermʳ′ _ _ A≡B (Uᵥ UA UB) t®v = t®v
 convTermʳ′ _ _ A≡B (ℕᵥ ℕA ℕB) t®v = t®v
 convTermʳ′ _ _ A≡B (Unitᵥ UnitA UnitB) t®v = t®v
 convTermʳ′ _ _ A≡B (ne (ne K D neK K≡K) neB) t®v = ⊥-elim (noClosedNe neK)
-convTermʳ′ [A] [B] A≡B (Bᵥ (BΠ 𝟘 q) (Bᵣ F G [ _ , _ , A⇒Π ] ⊢F ⊢G A≡A [F] [G] G-ext)
-           (Bᵣ F₁ G₁ [ _ , _ , B⇒Π₁ ] ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁)) t®v [a]′ =
+convTermʳ′ [A] [B] A≡B (Bᵥ (BΠ 𝟘 q) BΠ! (Bᵣ F G [ _ , _ , A⇒Π ] ⊢F ⊢G A≡A [F] [G] G-ext)
+           (Bᵣ F₁ G₁ [ _ , _ , B⇒Π₁ ] ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) (BT.Π≋Π PE.refl PE.refl)) t®v [a]′ =
   let Π≡Π₁ = reduction′ A⇒Π B⇒Π₁ Πₙ Πₙ A≡B
       F≡F₁ , G≡G₁ , _ , _ = injectivity Π≡Π₁
       [F₁]′ , [F]′ , [F₁≡F]′ = reducibleEq (sym F≡F₁)
@@ -75,8 +76,8 @@ convTermʳ′ [A] [B] A≡B (Bᵥ (BΠ 𝟘 q) (Bᵣ F G [ _ , _ , A⇒Π ] ⊢F
       t®v′ = t®v [a]
       SV = goodCases ([G] id ε [a]) ([G]₁ id ε [a]′) [Ga≡G₁a]
   in  convTermʳ′ ([G] id ε [a]) ([G]₁ id ε [a]′) G[a]≡G₁[a] SV t®v′
-convTermʳ′ [A] [B] A≡B (Bᵥ (BΠ ω q) (Bᵣ F G [ _ , _ , A⇒Π ] ⊢F ⊢G A≡A [F] [G] G-ext)
-           (Bᵣ F₁ G₁ [ _ , _ , B⇒Π₁ ] ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁)) t®v [a]′ a®w′ =
+convTermʳ′ [A] [B] A≡B (Bᵥ (BΠ ω q) BΠ! (Bᵣ F G [ _ , _ , A⇒Π ] ⊢F ⊢G A≡A [F] [G] G-ext)
+           (Bᵣ F₁ G₁ [ _ , _ , B⇒Π₁ ] ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) (BT.Π≋Π PE.refl PE.refl)) t®v [a]′ a®w′ =
    let Π≡Π₁ = reduction′ A⇒Π B⇒Π₁ Πₙ Πₙ A≡B
        F≡F₁ , G≡G₁ , _ , _ = injectivity Π≡Π₁
        [F₁]′ , [F]′ , [F₁≡F]′ = reducibleEq (sym F≡F₁)
@@ -93,8 +94,8 @@ convTermʳ′ [A] [B] A≡B (Bᵥ (BΠ ω q) (Bᵣ F G [ _ , _ , A⇒Π ] ⊢F �
        t®v′ = t®v [a] a®w
        SV′ = goodCases ([G] id ε [a]) ([G]₁ id ε [a]′) [Ga≡G₁a]
    in  convTermʳ′ ([G] id ε [a]) ([G]₁ id ε [a]′) G[a]≡G₁[a] SV′ t®v′
-convTermʳ′ [A] [B] A≡B (Bᵥ (BΣ q) (Bᵣ F G [ _ , _ , A⇒Σ ] ⊢F ⊢G A≡A [F] [G] G-ext)
-           (Bᵣ F₁ G₁ [ _ , _ , B⇒Σ₁ ] ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁))
+convTermʳ′ [A] [B] A≡B (Bᵥ (BΣ q) BΣ! (Bᵣ F G [ _ , _ , A⇒Σ ] ⊢F ⊢G A≡A [F] [G] G-ext)
+           (Bᵣ F₁ G₁ [ _ , _ , B⇒Σ₁ ] ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) (BT.Σ≋Σ PE.refl))
            (t₁ , t₂ , v₁ , v₂ , t⇒t′ , v⇒v′ , t®v) =
   let Σ≡Σ₁ = reduction′ A⇒Σ B⇒Σ₁ Σₙ Σₙ A≡B
   in  t₁ , t₂ , v₁ , v₂ , conv* t⇒t′ Σ≡Σ₁ , v⇒v′ , λ [t₁]′ →

@@ -1,10 +1,10 @@
-{-# OPTIONS --without-K #-}
+{-# OPTIONS --without-K --safe #-}
 open import Definition.Modality.Erasure
 
 open import Definition.Typed.EqualityRelation
 
 
-module Erasure.LogicalRelation.Fundamental.Application {{eqrel : EqRelSet Erasure}} where
+module Erasure.LogicalRelation.Fundamental.Application {{eqrel : EqRelSet Erasure′}} where
 open EqRelSet {{...}}
 
 open import Erasure.Extraction
@@ -15,22 +15,22 @@ import Erasure.Target as T
 
 open import Definition.Untyped Erasure as U hiding (_∷_)
 open import Definition.Untyped.Properties Erasure
-open import Definition.Typed Erasure
-open import Definition.Typed.Weakening Erasure
-open import Definition.Typed.Consequences.Syntactic Erasure
+open import Definition.Typed Erasure′
+open import Definition.Typed.Weakening Erasure′
+open import Definition.Typed.Consequences.Syntactic Erasure′
 
 
-open import Definition.LogicalRelation Erasure
-import Definition.LogicalRelation.Weakening Erasure as W
-import Definition.LogicalRelation.Irrelevance Erasure as I
-open import Definition.LogicalRelation.Fundamental Erasure
-open import Definition.LogicalRelation.ShapeView Erasure
-open import Definition.LogicalRelation.Substitution Erasure
-open import Definition.LogicalRelation.Substitution.Escape Erasure
-open import Definition.LogicalRelation.Substitution.Properties Erasure
-open import Definition.LogicalRelation.Substitution.Introductions.Pi Erasure
-open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst Erasure
-import Definition.LogicalRelation.Substitution.Irrelevance Erasure as IS
+open import Definition.LogicalRelation Erasure′
+import Definition.LogicalRelation.Weakening Erasure′ as W
+import Definition.LogicalRelation.Irrelevance Erasure′ as I
+open import Definition.LogicalRelation.Fundamental Erasure′
+open import Definition.LogicalRelation.ShapeView Erasure′
+open import Definition.LogicalRelation.Substitution Erasure′
+open import Definition.LogicalRelation.Substitution.Escape Erasure′
+open import Definition.LogicalRelation.Substitution.Properties Erasure′
+open import Definition.LogicalRelation.Substitution.Introductions.Pi Erasure′
+open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst Erasure′
+import Definition.LogicalRelation.Substitution.Irrelevance Erasure′ as IS
 
 open import Definition.Modality.Context ErasureModality
 open import Definition.Modality.Erasure.Properties
