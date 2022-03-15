@@ -7,16 +7,16 @@ module Erasure.LogicalRelation.Fundamental.Lambda {{eqrel : EqRelSet Erasure′}
 open EqRelSet {{...}}
 
 open import Definition.LogicalRelation Erasure′
-import Definition.LogicalRelation.Irrelevance Erasure′ as I
 open import Definition.LogicalRelation.Properties.Escape Erasure′
-open import Definition.LogicalRelation.ShapeView Erasure′
-import Definition.LogicalRelation.Weakening Erasure′ as W
 open import Definition.LogicalRelation.Fundamental Erasure′
 open import Definition.LogicalRelation.Substitution Erasure′
-import Definition.LogicalRelation.Substitution.Irrelevance Erasure′ as IS
 open import Definition.LogicalRelation.Substitution.Properties Erasure′
 open import Definition.LogicalRelation.Substitution.Introductions.Pi Erasure′
 open import Definition.LogicalRelation.Substitution.Introductions.Universe Erasure′
+
+import Definition.LogicalRelation.Irrelevance Erasure′ as I
+import Definition.LogicalRelation.Weakening Erasure′ as W
+import Definition.LogicalRelation.Substitution.Irrelevance Erasure′ as IS
 
 open import Definition.Modality.Context ErasureModality
 
@@ -31,13 +31,13 @@ open import Erasure.Extraction
 open import Erasure.LogicalRelation
 open import Erasure.LogicalRelation.Irrelevance
 open import Erasure.LogicalRelation.Properties
-import Erasure.Target as T
 open import Erasure.Target.Properties as TP
+import Erasure.Target as T
 
 open import Tools.Nat
 open import Tools.Product
-import Tools.PropositionalEquality as PE
 open import Tools.Unit
+import Tools.PropositionalEquality as PE
 
 private
   variable
@@ -103,9 +103,8 @@ lamʳ : ∀ {Γ : Con Term n} → ([Γ] : ⊩ᵛ Γ) ([F] : Γ ⊩ᵛ⟨ ¹ ⟩ 
 lamʳ {F = F} {G = G} {t = t} {p = ω} {q = q}
      [Γ] [F] [G] [t] ⊩ʳt {σ = σ} {σ′ = σ′} [σ] σ®σ′ {a = a} {w = w} [a] a®w =
      let [Π] = Πᵛ {F = F} {G = G} {p = ω} {q = q} [Γ] [F] [G]
-         _  , Bᵣ F′ G′ D ⊢F ⊢G A≡A [F]′ [G]′ G-ext = extractMaybeEmb (Π-elim (proj₁ ([Π] ε [σ])))
          [σF] = proj₁ ([F] ε [σ])
-         [ρσF] = [F]′ id ε
+         [ρσF] = W.wk id ε [σF]
          ⊢σF = escape [σF]
          [ε] , [σF]′ = fundamental ⊢σF
          [σF]″ = IS.irrelevance {A = subst σ F} [ε] ε [σF]′
@@ -121,6 +120,8 @@ lamʳ {F = F} {G = G} {t = t} {p = ω} {q = q}
                                  [ε∙F] (ε ∙ [ρσF]″) [ρσG]′
          a®w′ = irrelevanceTerm′   (UP.wk-id (subst σ F)) [ρσF] [σF] a®w
          [a]′ = I.irrelevanceTerm′ (UP.wk-id (subst σ F)) [ρσF] [σF] [a]
+         [a]″ = I.irrelevanceTerm′ (UP.wk-subst F) [ρσF]
+                                   (proj₁ ([F] ε (wkSubstS [Γ] ε ε id [σ]))) [a]
          λtu®λvw = lamʳ′ {F = F} {G = G} {t = t} {u = a} {w = w}
                          [Γ] [F] [G] ⊩ʳt [σ] σ®σ′ [t] [a]′ a®w′
          eq : U.wk (lift id) (subst (liftSubst σ) G) [ a ] PE.≡ subst (consSubst σ a) G
@@ -128,20 +129,22 @@ lamʳ {F = F} {G = G} {t = t} {p = ω} {q = q}
                        (UP.singleSubstComp a σ G)
          [σaG] : ε ⊩⟨ ¹ ⟩ subst (consSubst σ a) G
          [σaG] = proj₁ ([G] ε ([σ] , [a]′))
-
          [ρσG[a]] : ε ⊩⟨ ¹ ⟩ U.wk (lift id) (subst (liftSubst σ) G) [ a ]
-         [ρσG[a]] = [G]′ id ε [a]
+         [ρσG[a]] = I.irrelevance′ (PE.sym (UP.singleSubstWkComp a σ G))
+                                   (proj₁ ([G] ε ((wkSubstS [Γ] ε ε id [σ]) , [a]″)))
      in  irrelevanceTerm′ (PE.sym eq) [σaG] [ρσG[a]] λtu®λvw
 
 lamʳ {F = F} {G = G} {t = t} {p = 𝟘} {q = q}
      [Γ] [F] [G] [t] ⊩ʳt {σ = σ} {σ′ = σ′} [σ] σ®σ′ {a = a} [a] =
      let [Π] = Πᵛ {F = F} {G = G} {p = 𝟘} {q = q} [Γ] [F] [G]
-         _  , Bᵣ F′ G′ D ⊢F ⊢G A≡A [F]′ [G]′ G-ext = extractMaybeEmb (Π-elim (proj₁ ([Π] ε [σ])))
          [σF] = proj₁ ([F] ε [σ])
-         [ρσF] = [F]′ id ε
+         [ρσF] = W.wk id ε [σF]
          [a]′ = I.irrelevanceTerm′ (UP.wk-id (subst σ F)) [ρσF] [σF] [a]
+         [a]″ = I.irrelevanceTerm′ (UP.wk-subst F) [ρσF]
+                                   (proj₁ ([F] ε (wkSubstS [Γ] ε ε id [σ]))) [a]
          [σaG] = proj₁ ([G] ε ([σ] , [a]′))
-         [ρσG[a]] = [G]′ id ε [a]
+         [ρσG[a]] = I.irrelevance′ (PE.sym (UP.singleSubstWkComp a σ G))
+                                   (proj₁ ([G] ε ((wkSubstS [Γ] ε ε id [σ]) , [a]″)))
          eq = PE.trans (PE.cong (_[ a ]) (UP.wk-lift-id ((subst (liftSubst σ) G))))
                        (UP.singleSubstComp a σ G)
          λtu®λvw = lamʳ′ {F = F} {G = G} {p = 𝟘} {t = t} {u = a} {w = T.undefined}

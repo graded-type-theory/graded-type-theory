@@ -19,13 +19,14 @@ open import Definition.Typed.Consequences.Substitution Erasure′
 open import Definition.Typed.Consequences.Syntactic Erasure′
 
 open import Definition.LogicalRelation Erasure′
-import Definition.LogicalRelation.Irrelevance Erasure′ as I
 open import Definition.LogicalRelation.Fundamental.Reducibility Erasure′
 open import Definition.LogicalRelation.Substitution Erasure′
 open import Definition.LogicalRelation.Substitution.Properties Erasure′
 open import Definition.LogicalRelation.Substitution.Introductions.Nat Erasure′
 open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst Erasure′
 open import Definition.LogicalRelation.Properties.Escape Erasure′
+
+import Definition.LogicalRelation.Irrelevance Erasure′ as I
 
 open import Definition.Modality.Context ErasureModality
 open import Definition.Modality.Erasure.Properties

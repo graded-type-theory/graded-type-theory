@@ -21,12 +21,9 @@ open import Definition.Typed.Consequences.Substitution Erasure′
 open import Definition.Typed.Consequences.Syntactic Erasure′
 
 open import Definition.LogicalRelation Erasure′
-import Definition.LogicalRelation.Irrelevance Erasure′ as I
 open import Definition.LogicalRelation.Fundamental Erasure′
 open import Definition.LogicalRelation.Fundamental.Reducibility Erasure′
 open import Definition.LogicalRelation.Properties.Escape Erasure′
-import Definition.LogicalRelation.Weakening Erasure′ as W
-open import Definition.LogicalRelation.ShapeView Erasure′
 open import Definition.LogicalRelation.Substitution Erasure′
 open import Definition.LogicalRelation.Substitution.Properties Erasure′
 open import Definition.LogicalRelation.Substitution.Introductions.Fst Erasure′
@@ -34,6 +31,9 @@ open import Definition.LogicalRelation.Substitution.Introductions.Pi Erasure′
 open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst Erasure′
 open import Definition.LogicalRelation.Substitution.Introductions.Universe Erasure′
 open import Definition.LogicalRelation.Substitution.Reducibility Erasure′
+
+import Definition.LogicalRelation.Irrelevance Erasure′ as I
+import Definition.LogicalRelation.Weakening Erasure′ as W
 import Definition.LogicalRelation.Substitution.Irrelevance Erasure′ as IS
 
 open import Definition.Modality.Context ErasureModality
