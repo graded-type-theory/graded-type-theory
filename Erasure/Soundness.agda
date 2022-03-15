@@ -32,9 +32,9 @@ open import Tools.PropositionalEquality
 private
   variable
     n : Nat
-    t t′ F : Term n
+    t t′ u F : Term n
     G : Term (1+ n)
-    v v′ : T.Term n
+    v v′ w : T.Term n
 
 -- WH reduction soundness of natural numbers
 
@@ -59,31 +59,67 @@ data WHℕ′ : (n : Nat) → T.Term 0 → Set where
   sucʷ  : v T.⇒* T.suc v′ → WHℕ′ n v′ → WHℕ′ (1+ n) v
 
 
--- Weak head representations are equivallent to canonical representations
+-- Weak head representations are equivalent to canonical representations
 -- when reductions are allowed under the head of suc
 
--- If (∀ t t′ → ε ⊢ t ⇒* t′ ∷ ℕ → ε ⊢ suc t ⇒* suc t′ ∷ ℕ) and WHℕ n t
--- then ε ⊢ t ⇒* sucᵏ n ∷ ℕ
+data _⇓_ : (t t′ : Term 0) → Set where
+  whred : ε ⊢ t ⇒ t′ ∷ ℕ → t ⇓ t′
+  sucred : t ⇓ t′ → suc t ⇓ suc t′
 
-WHℕ-canon : (∀ {t t′} → ε ⊢ t ⇒* t′ ∷ ℕ → ε ⊢ suc t ⇒* suc t′ ∷ ℕ)
-              → WHℕ n t → ε ⊢ t ⇒* sucᵏ n ∷ ℕ
-WHℕ-canon red (zeroʷ x) = x
-WHℕ-canon red (sucʷ x wh) = x ⇨∷* (red (WHℕ-canon red wh))
+data _⇓*_ : (t t′ : Term 0) → Set where
+  id : ε ⊢ t ∷ ℕ → t ⇓* t
+  _⇩_ : t ⇓ t′ → t′ ⇓* u → t ⇓* u
 
--- If (∀ v v′ → v ⇒* v′ → suc v ⇒* suc v′) and WHℕ′ n v
--- then v ⇒* sucᵏ′ v
+whred* : ε ⊢ t ⇒* t′ ∷ ℕ → t ⇓* t′
+whred* (id x) = id x
+whred* (x ⇨ x₁) = (whred x) ⇩ (whred* x₁)
 
-WHℕ′-canon : (∀ {v v′ : T.Term 0} → v T.⇒* v′ → T.suc v T.⇒* T.suc v′)
-           → WHℕ′ n v → v T.⇒* sucᵏ′ n
-WHℕ′-canon red (zeroʷ x) = x
-WHℕ′-canon red (sucʷ x wh) = red*concat x (red (WHℕ′-canon red wh))
+sucred* : t ⇓* t′ → suc t ⇓* suc t′
+sucred* (id x) = id (sucⱼ x)
+sucred* (x ⇩ x₁) = sucred x ⇩ sucred* x₁
+
+_⇩*_ : t ⇓* t′ → t′ ⇓* u → t ⇓* u
+id ⊢t ⇩* t⇓u = t⇓u
+(t⇓t′ ⇩ t′⇓t″) ⇩* t″⇓u = t⇓t′ ⇩ (t′⇓t″ ⇩* t″⇓u)
+
+data _↓_ : (v v′ : T.Term 0) → Set where
+  whred : v T.⇒ v′ → v ↓ v′
+  sucred : v ↓ v′ → T.suc v ↓ T.suc v′
+
+data _↓*_ : (v v′ : T.Term 0) → Set where
+  id : v ↓* v
+  _⇩_ : v ↓ v′ → v′ ↓* w → v ↓* w
+
+whred*′ : v T.⇒* v′ → v ↓* v′
+whred*′ T.refl = id
+whred*′ (T.trans x x₁) = whred x ⇩ whred*′ x₁
+
+sucred*′ : v ↓* v′ → T.suc v ↓* T.suc v′
+sucred*′ id = id
+sucred*′ (x ⇩ x₁) = sucred x ⇩ sucred*′ x₁
+
+_⇩′*_ : v ↓* v′ → v′ ↓* w → v ↓* w
+id ⇩′* v⇩w = v⇩w
+(v⇩v′ ⇩ v′⇩v″) ⇩′* v″⇩w = v⇩v′ ⇩ (v′⇩v″ ⇩′* v″⇩w)
+
+-- If WHℕ n t then t ⇓ sucᵏ n
+
+WHℕ-canon : WHℕ n t → t ⇓* sucᵏ n
+WHℕ-canon (zeroʷ x) = whred* x
+WHℕ-canon (sucʷ x x₁) = (whred* x) ⇩* sucred* (WHℕ-canon x₁)
+
+-- If WHℕ′ n v then v ⇓′ sucᵏ′ v
+
+WHℕ′-canon : WHℕ′ n v → v ↓* sucᵏ′ n
+WHℕ′-canon (zeroʷ x) = whred*′ x
+WHℕ′-canon (sucʷ x x₁) = whred*′ x ⇩′* (sucred*′ (WHℕ′-canon x₁))
 
 
 -- Helper lemma for WH reduction soundness of zero
 -- If t ® v ∷ℕ  and t ⇒* zero then v ⇒* zero
 
 soundness-zero′ : t ® v ∷ℕ → ε ⊢ t ⇒* zero ∷ ℕ → v T.⇒* T.zero
-soundness-zero′ (zeroᵣ t⇒zero′ v⇒zero ) t⇒zero = v⇒zero
+soundness-zero′ (zeroᵣ t⇒zero′ v⇒zero) t⇒zero = v⇒zero
 soundness-zero′ (sucᵣ t⇒suc v⇒suc t®v) t⇒zero with whrDet*Term (t⇒zero , zeroₙ) (t⇒suc , sucₙ)
 ... | ()
 
