@@ -95,11 +95,9 @@ convTermʳ′ [A] [B] A≡B (Bᵥ (BΠ ω q) BΠ! (Bᵣ F G [ _ , _ , A⇒Π ] �
        SV′ = goodCases ([G] id ε [a]) ([G]₁ id ε [a]′) [Ga≡G₁a]
    in  convTermʳ′ ([G] id ε [a]) ([G]₁ id ε [a]′) G[a]≡G₁[a] SV′ t®v′
 convTermʳ′ [A] [B] A≡B (Bᵥ (BΣ q) BΣ! (Bᵣ F G [ _ , _ , A⇒Σ ] ⊢F ⊢G A≡A [F] [G] G-ext)
-           (Bᵣ F₁ G₁ [ _ , _ , B⇒Σ₁ ] ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) (BT.Σ≋Σ PE.refl))
-           (t₁ , t₂ , v₁ , v₂ , t⇒t′ , v⇒v′ , t®v) =
-  let Σ≡Σ₁ = reduction′ A⇒Σ B⇒Σ₁ Σₙ Σₙ A≡B
-  in  t₁ , t₂ , v₁ , v₂ , conv* t⇒t′ Σ≡Σ₁ , v⇒v′ , λ [t₁]′ →
-    let F≡F₁ , G≡G₁ , _ = Σ-injectivity Σ≡Σ₁
+           (Bᵣ F₁ G₁ [ _ , _ , B⇒Σ₁ ] ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) (BT.Σ≋Σ PE.refl)) t®v [t₁]′ =
+    let Σ≡Σ₁ = reduction′ A⇒Σ B⇒Σ₁ Σₙ Σₙ A≡B
+        F≡F₁ , G≡G₁ , _ = Σ-injectivity Σ≡Σ₁
         [F₁]′ , [F]′ , [F₁≡F]′ = reducibleEq (sym F≡F₁)
         [F₁≡F] = irrelevanceEq″ (PE.sym (wk-id F₁)) (PE.sym (wk-id F))
                                 [F₁]′ ([F]₁ id ε) [F₁≡F]′

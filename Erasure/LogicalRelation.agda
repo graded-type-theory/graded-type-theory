@@ -71,20 +71,13 @@ t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΠ 𝟘 q) F G D ⊢F ⊢G A≡A [F] [G] G-ext
 
 -- Σ:
 t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΣ q) F G D ⊢F ⊢G A≡A [F] [G] G-ext =
-     ∃₂ λ t₁ t₂
-   → ∃₂ λ v₁ v₂
-   → ε ⊢ t ⇒* U.prod t₁ t₂ ∷ Σ q ▷ F ▹ G
-   × v T.⇒* T.prod v₁ v₂
-   × (([t₁] : ε ⊩⟨ l ⟩ t₁ ∷ U.wk id F / [F] id ε)
+  let t₁ = U.fst t
+      t₂ = U.snd t
+      v₁ = T.fst v
+      v₂ = T.snd v
+  in ([t₁] : ε ⊩⟨ l ⟩ t₁ ∷ U.wk id F / [F] id ε)
    → t₁ ®⟨ l ⟩ v₁ ∷ U.wk id F / [F] id ε
-   × t₂ ®⟨ l ⟩ v₂ ∷ U.wk (lift id) G U.[ t₁ ] / [G] id ε [t₁])
-  -- let t₁ = U.fst t
-  --     t₂ = U.snd t
-  --     v₁ = T.fst v
-  --     v₂ = T.snd v
-  -- in ([t₁] : ε ⊩⟨ l ⟩ t₁ ∷ U.wk id F / [F] id ε)
-  --  → t₁ ®⟨ l ⟩ v₁ ∷ U.wk id F / [F] id ε
-  --  × t₂ ®⟨ l ⟩ v₂ ∷ U.wk (lift id) G U.[ t₁ ] / [G] id ε [t₁]
+   × t₂ ®⟨ l ⟩ v₂ ∷ U.wk (lift id) G U.[ t₁ ] / [G] id ε [t₁]
 
 -- Subsumption:
 t ®⟨ ¹ ⟩ v ∷ A / emb 0<1 [A] = t ®⟨ ⁰ ⟩ v ∷ A / [A]

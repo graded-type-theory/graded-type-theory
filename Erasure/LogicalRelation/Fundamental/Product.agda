@@ -25,9 +25,11 @@ import Definition.LogicalRelation.Irrelevance Erasure′ as I
 open import Definition.LogicalRelation.Fundamental Erasure′
 open import Definition.LogicalRelation.Fundamental.Reducibility Erasure′
 open import Definition.LogicalRelation.Properties.Escape Erasure′
+import Definition.LogicalRelation.Weakening Erasure′ as W
 open import Definition.LogicalRelation.ShapeView Erasure′
 open import Definition.LogicalRelation.Substitution Erasure′
 open import Definition.LogicalRelation.Substitution.Properties Erasure′
+open import Definition.LogicalRelation.Substitution.Introductions.Fst Erasure′
 open import Definition.LogicalRelation.Substitution.Introductions.Pi Erasure′
 open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst Erasure′
 open import Definition.LogicalRelation.Substitution.Introductions.Universe Erasure′
@@ -87,55 +89,56 @@ prodʳ : ∀ {l}
 prodʳ {F = F} {G = G} {t = t} {u = u} {γ = γ} {δ = δ} {q = q} {l = l}
       [Γ] [F] [G] [G[t]] [t] [u] ⊩ʳt ⊩ʳu =
   let [Σ] = Σᵛ {F = F} {G = G} [Γ] [F] [G]
-  in  [Σ] , λ {σ = σ} {σ′ = σ′} [σ] σ®σ′ →
+  in  [Σ] , λ {σ = σ} {σ′ = σ′} [σ] σ®σ′ [t₁] →
       let σ®σ′ₜ = subsumption′ {l = l} σ®σ′ (+ᶜ-decreasingˡ γ δ)
           σ®σ′ᵤ = subsumption′ {l = l} σ®σ′ (+ᶜ-decreasingʳ γ δ)
-          _  , Bᵣ F′ G′ D ⊢F ⊢G A≡A [F′] [G′] G-ext = extractMaybeEmb (Σ-elim (proj₁ ([Σ] ε [σ])))
           [σF] = proj₁ ([F] ε [σ])
+          ⊢F = escape [σF]
+          [σG] = proj₁ ([G] (ε ∙ ⊢F) (liftSubstS {F = F} [Γ] ε [F] [σ]))
+          [σF]′ = W.wk id ε [σF]
           [σG[t]] = proj₁ ([G[t]] ε [σ])
+          ⊢G = escape [σG]
           ⊢t = escapeTerm [σF] (proj₁ ([t] ε [σ]))
           ⊢u = escapeTerm [σG[t]] (proj₁ ([u] ε [σ]))
           ⊢u′ = PE.subst (λ A → ε ⊢ subst σ u ∷ A) (singleSubstLift G t) ⊢u
-      in  subst σ t , subst σ u , T.subst σ′ (erase t) , T.subst σ′ (erase u)
-          , id (prodⱼ ⊢F ⊢G ⊢t ⊢u′) , T.refl , λ [t₁] →
-          let t®v = ⊩ʳt [σ] σ®σ′ₜ
-              u®w = ⊩ʳu [σ] σ®σ′ᵤ
-              t®v′ = irrelevanceTerm′ (PE.sym (wk-id (subst σ F))) [σF]  ([F′] id ε) t®v
-              u®w′ = irrelevanceTerm′ (PE.trans (singleSubstLift G t)
-                                                (PE.cong (_[ subst σ t ])
-                                                         (PE.sym (wk-lift-id (subst (liftSubst σ) G)))))
-                                      [σG[t]] ([G′] id ε [t₁]) u®w
-          in t®v′ , u®w′
-
+          ⊢p = prodⱼ {q = q} ⊢F ⊢G ⊢t ⊢u′
+          t®t′ = ⊩ʳt [σ] σ®σ′ₜ
+          p₁⇒t = Σ-β₁ ⊢F ⊢G ⊢t ⊢u′ ⊢p
+          p₁′⇒t′ = T.Σ-β₁ {t = T.subst σ′ (erase t)} {u = T.subst σ′ (erase u)}
+          p₁®p₁′ = ®-red [σF] t®t′ p₁⇒t p₁′⇒t′
+          p₁®p₁″ = irrelevanceTerm′ (PE.sym (wk-id (subst σ F))) [σF] [σF]′ p₁®p₁′
+          [t₁]′ = I.irrelevanceTerm′ (wk-subst F) [σF]′ (proj₁ ([F] ε (wkSubstS [Γ] ε ε id [σ]))) [t₁]
+          G[p₁]≡G[t] = substTypeEq (refl ⊢G) (subsetTerm p₁⇒t)
+          G[p₁]≡G[t]′ = PE.subst (λ x → ε ⊢ (subst (liftSubst σ) G) [ _ ] ≡ x)
+                                 (PE.sym (singleSubstLift G t)) G[p₁]≡G[t]
+          [σG[p₁]]′ = I.irrelevance′ (PE.sym (singleSubstWkComp (subst σ (fst (prod t u))) σ G))
+                                    (proj₁ ([G] ε (wkSubstS [Γ] ε ε id [σ] , [t₁]′)))
+          [σG[p₁]] = reducible (substType ⊢G (fstⱼ ⊢F ⊢G ⊢p))
+          u®u′ = ⊩ʳu [σ] σ®σ′ᵤ
+          u®u″ = convTermʳ [σG[t]] [σG[p₁]] (sym G[p₁]≡G[t]′) u®u′
+          p₂®p₂′ = ®-red [σG[p₁]] u®u″ (Σ-β₂ ⊢F ⊢G ⊢t ⊢u′ ⊢p)
+                         (T.Σ-β₂ {t = T.subst σ′ (erase t)} {u = T.subst σ′ (erase u)})
+          p₂®p₂″ = irrelevanceTerm′ (PE.cong (λ x → x [ _ ]) (PE.sym (wk-lift-id (subst (liftSubst σ) G))))
+                                    [σG[p₁]] [σG[p₁]]′ p₂®p₂′
+      in  p₁®p₁″ , p₂®p₂″
 
 fstʳ′ : ∀ {l} {Γ : Con Term n}
       → ([Γ] : ⊩ᵛ Γ)
         ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
         ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
-        (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷ Σ q ▷ F ▹ G / [Γ] / Σᵛ {F = F} {G = G} {q = q} [Γ] [F] [G])
+        ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ Σ q ▷ F ▹ G / [Γ] / Σᵛ {F = F} {G = G} [Γ] [F] [G])
+        (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷ Σ q ▷ F ▹ G / [Γ] / Σᵛ {F = F} {G = G} [Γ] [F] [G])
       → γ ▸ Γ ⊩ʳ⟨ l ⟩ fst t ∷ F / [Γ] / [F]
-fstʳ′ {F = F} {G} {t = t} {q = q} [Γ] [F] [G] ⊩ʳt {σ = σ} [σ] σ®σ′ =
+fstʳ′ {F = F} {G} {t = t} {q = q} [Γ] [F] [G] [t] ⊩ʳt {σ = σ} [σ] σ®σ′ =
   let [Σ] = Σᵛ {F = F} {G = G} {q = q} [Γ] [F] [G]
-      t₁ , t₂ , v₁ , v₂ , t⇒t′ , v⇒v′ , t®v = ⊩ʳt [σ] σ®σ′
-      _  , Bᵣ F′ G′ D ⊢F ⊢G A≡A [F′] [G′] G-ext = extractMaybeEmb
-                                                  (Σ-elim (proj₁ ([Σ] ε [σ])))
-      _ , _ , ⊢t = syntacticRedTerm t⇒t′
-      _ , _ , _ , _ , _ , ⊢t₁ , ⊢t₂ , eq = inversion-prod ⊢t
-      eq₁ , eq₂ , _ = Σ-injectivity eq
-      ⊢t₁′ = conv ⊢t₁ (sym eq₁)
-      eq₂′ = substitutionEq eq₂ (substRefl (singleSubst ⊢t₁′)) ε
-      ⊢t₂′ = conv ⊢t₂ (sym eq₂′)
-      t⇒u = fst-subst* t⇒t′ ⊢F ⊢G
-      t⇒u′ = t⇒u ⇨∷* redMany (Σ-β₁ {q = q} ⊢F ⊢G ⊢t₁′ ⊢t₂′ (prodⱼ ⊢F ⊢G ⊢t₁′ ⊢t₂′))
-      v⇒w = TP.red*concat (TP.fst-subst* v⇒v′) (T.trans T.Σ-β₁ T.refl)
-      [F]′ , [t₁]′ = reducibleTerm (conv ⊢t₁ (sym eq₁))
-      [t₁] = I.irrelevanceTerm′ (PE.sym (wk-id (subst σ F))) [F]′ ([F′] id ε) [t₁]′
-      t₁®v₁ , _ = t®v [t₁]
-      t₁®v₁′ = ®-red* ([F′] id ε) t₁®v₁
-                      (PE.subst (ε ⊢ fst (subst σ t) ⇒* t₁ ∷_)
-                                (PE.sym (wk-id (subst σ F))) t⇒u′)
-                      v⇒w
-  in  irrelevanceTerm′ (wk-id (subst σ F)) ([F′] id ε) (proj₁ ([F] ε [σ])) t₁®v₁′
+      [σF] = proj₁ ([F] ε [σ])
+      [σF]′ = W.wk id ε [σF]
+      [t₁] = fstᵛ {F = F} {G = G} {t = t} [Γ] [F] [G] [t]
+      [σt₁] = proj₁ ([t₁] ε [σ])
+      [σt₁]′ = I.irrelevanceTerm′ (PE.sym (wk-id (subst σ F))) [σF] [σF]′ [σt₁]
+      t®v = ⊩ʳt [σ] σ®σ′
+      t₁®v₁ , _ = t®v [σt₁]′
+  in  irrelevanceTerm′ (wk-id (subst σ F)) [σF]′ [σF] t₁®v₁
 
 fstʳ : Γ ⊢ F → Γ ∙ F ⊢ G → Γ ⊢ t ∷ Σ q ▷ F ▹ G
      → ([Γ] : ⊩ᵛ Γ) ([Σ] : Γ ⊩ᵛ⟨ ¹ ⟩ Σ q ▷ F ▹ G / [Γ])
@@ -148,56 +151,38 @@ fstʳ {Γ = Γ} {F = F} {G = G} {t = t} {q = q} Γ⊢F Γ⊢G Γ⊢t:Σ [Γ] [Σ
       [F] = IS.irrelevance {A = F} [Γ]₁ [Γ] [F]′
       [G] = IS.irrelevance {A = G} [Γ]₂ ([Γ] ∙ [F]) [G]′
       [Σ]′ = Σᵛ {F = F} {G = G} {q = q} [Γ] [F] [G]
+      [Γ]₃ , [Σ]″ , [t]′ = fundamentalTerm Γ⊢t:Σ
+      [t] = IS.irrelevanceTerm {A = Σ q ▷ F ▹ G} {t = t} [Γ]₃ [Γ] [Σ]″ [Σ]′ [t]′
       ⊩ʳt′ = irrelevance {A = Σ q ▷ F ▹ G} {t = t} [Γ] [Γ] [Σ] [Σ]′ ⊩ʳt
-  in  [F] , fstʳ′ {F = F} {G = G} {t = t} {q = q} [Γ] [F] [G] ⊩ʳt′
+  in  [F] , fstʳ′ {F = F} {G = G} {t = t} [Γ] [F] [G] [t] ⊩ʳt′
 
 sndʳ′ : ∀ {l} {Γ : Con Term n}
       → ([Γ] : ⊩ᵛ Γ)
         ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
         ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
-        ([t₁] : Γ ⊩ᵛ⟨ l ⟩ fst t ∷ F / [Γ] / [F])
+        ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ Σ q ▷ F ▹ G / [Γ] / Σᵛ {F = F} {G = G} {q = q} [Γ] [F] [G])
         (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷ Σ q ▷ F ▹ G / [Γ] / Σᵛ {F = F} {G = G} {q = q} [Γ] [F] [G])
       → ∃ λ ([G] : Γ ⊩ᵛ⟨ l ⟩ G [ fst t ] / [Γ])
       → γ ▸ Γ ⊩ʳ⟨ l ⟩ snd t ∷ G [ fst t ] / [Γ] / [G]
-sndʳ′ {F = F} {G} {t} {q = q} [Γ] [F] [G] [t₁] ⊩ʳt =
+sndʳ′ {F = F} {G} {t} {q = q} [Γ] [F] [G] [t] ⊩ʳt =
   let [Σ] = Σᵛ {F = F} {G = G} {q = q} [Γ] [F] [G]
+      [t₁] = fstᵛ {F = F} {G = G} {t = t} [Γ] [F] [G] [t]
       [G[t₁]] = substSΠ {F = F} {G = G} {t = fst t} (BΣ q) [Γ] [F] [Σ] [t₁]
   in  [G[t₁]] , λ {σ = σ} [σ] σ®σ′ →
-      let t₁ , t₂ , v₁ , v₂ , t⇒t′ , v⇒v′ , t®v = ⊩ʳt [σ] σ®σ′
-          _  , Bᵣ F′ G′ D ⊢F ⊢G A≡A [F′] [G′] G-ext = extractMaybeEmb
-                                                      (Σ-elim (proj₁ ([Σ] ε [σ])))
-          _ , _ , ⊢t = syntacticRedTerm t⇒t′
-          _ , _ , _ , _ , _ , ⊢t₁ , ⊢t₂ , eq = inversion-prod ⊢t
-          eq₁ , eq₂ , _ = Σ-injectivity eq
-          ⊢t₁′ = conv ⊢t₁ (sym eq₁)
-          eq₂′ = substitutionEq eq₂ (substRefl (singleSubst ⊢t₁′)) ε
-          ⊢t₂′ = conv ⊢t₂ (sym eq₂′)
-          t≡t₁ = subset*Term (redMany (Σ-β₁ {q = q} ⊢F ⊢G ⊢t₁′ ⊢t₂′
-                                            (prodⱼ ⊢F ⊢G ⊢t₁′ ⊢t₂′)))
-          t′≡t₁ = subset*Term (fst-subst* t⇒t′ ⊢F ⊢G ⇨∷*
-                               redMany (Σ-β₁ {q = q} ⊢F ⊢G ⊢t₁′ ⊢t₂′
-                                             (prodⱼ ⊢F ⊢G ⊢t₁′ ⊢t₂′)))
-          G[t]≡G[t₁] = substTypeEq (refl ⊢G) t≡t₁
-          G[t]≡G[t₁]′ = PE.subst (ε ⊢ subst (liftSubst σ) G [ _ ] ≡_)
-                                 (PE.cong (_[ t₁ ])
-                                          (PE.sym (wk-lift-id (subst (liftSubst σ) G))))
-                                 G[t]≡G[t₁]
-          G[t′]≡G[t₁] = substTypeEq (refl ⊢G) t′≡t₁
-          G[t′]≡G[t₁]′ = PE.subst₂ (ε ⊢_≡_)
-                                   (PE.cong (_[ t₁ ])
-                                            (PE.sym (wk-lift-id (subst (liftSubst σ) G))))
-                                   (PE.sym (singleSubstLift G (fst t)))
-                                   (sym G[t′]≡G[t₁])
-          t⇒u = conv* (snd-subst* t⇒t′ ⊢F ⊢G)
-                      (substTypeEq (refl ⊢G) (fst-cong ⊢F ⊢G (subset*Term t⇒t′)))
-          t⇒u′ = t⇒u ⇨∷* redMany (Σ-β₂ {q = q} ⊢F ⊢G ⊢t₁′ ⊢t₂′ (prodⱼ ⊢F ⊢G ⊢t₁′ ⊢t₂′))
-          t⇒u″ = conv* t⇒u′ G[t]≡G[t₁]′
-          v⇒w = TP.red*concat (TP.snd-subst* v⇒v′) (T.trans T.Σ-β₂ T.refl)
-          [F]′ , [t₁]′ = reducibleTerm (conv ⊢t₁ (sym eq₁))
-          [t₁] = I.irrelevanceTerm′ (PE.sym (wk-id (subst σ F))) [F]′ ([F′] id ε) [t₁]′
-          _ , t₂®v₂ = t®v [t₁]
-          t₂®v₂′ = ®-red* ([G′] id ε [t₁]) t₂®v₂ t⇒u″ v⇒w
-      in  convTermʳ ([G′] id ε [t₁]) (proj₁ ([G[t₁]] ε [σ])) G[t′]≡G[t₁]′ t₂®v₂′
+      let [σF] = proj₁ ([F] ε [σ])
+          [σF]′ = W.wk id ε [σF]
+          [σF]″ = proj₁ ([F] ε (wkSubstS [Γ] ε ε id [σ]))
+          [σt₁] = proj₁ ([t₁] ε [σ])
+          [σt₁]′ = I.irrelevanceTerm′ (PE.sym (wk-id (subst σ F))) [σF] [σF]′ [σt₁]
+          [σt₁]″ = I.irrelevanceTerm′ (wk-subst F) [σF]′ [σF]″ [σt₁]′
+          t®v = ⊩ʳt [σ] σ®σ′
+          _ , t₂®v₂ = t®v [σt₁]′
+          [σG[t₁]]′ = proj₁ ([G] ε ((wkSubstS [Γ] ε ε id [σ]) , [σt₁]″))
+          [σG[t₁]]″ = I.irrelevance′ (PE.sym (singleSubstWkComp (fst (subst σ t)) σ G)) [σG[t₁]]′
+          [σG[t₁]] = proj₁ ([G[t₁]] ε [σ])
+      in  irrelevanceTerm′ (PE.trans (PE.cong (λ x → x [ _ ]) (wk-lift-id (subst (liftSubst σ) G)))
+                                     (PE.sym (singleSubstLift G (fst t))))
+                           [σG[t₁]]″ [σG[t₁]] t₂®v₂
 
 
 sndʳ : Γ ⊢ F → Γ ∙ F ⊢ G → Γ ⊢ t ∷ Σ q ▷ F ▹ G
@@ -212,7 +197,6 @@ sndʳ {Γ = Γ} {F = F} {G = G} {t = t} {q = q} Γ⊢F Γ⊢G Γ⊢t:Σ [Γ] [Σ
       [G] = IS.irrelevance {A = G} [Γ]₂ ([Γ] ∙ [F]) [G]′
       [Σ]′ = Σᵛ {F = F} {G = G} {q = q} [Γ] [F] [G]
       ⊩ʳt′ = irrelevance {A = Σ q ▷ F ▹ G} {t = t} [Γ] [Γ] [Σ] [Σ]′ ⊩ʳt
-      Γ⊢t₁:F = fstⱼ Γ⊢F Γ⊢G Γ⊢t:Σ
-      [Γ]₃ , [F]″ , [t₁]′ = fundamentalTerm Γ⊢t₁:F
-      [t₁] = IS.irrelevanceTerm {A = F} {t = fst t} [Γ]₃ [Γ] [F]″ [F] [t₁]′
-  in  sndʳ′ {F = F} {G = G} {t = t} {q = q} [Γ] [F] [G] [t₁] ⊩ʳt′
+      [Γ]₃ , [Σ]″ , [t]′ = fundamentalTerm Γ⊢t:Σ
+      [t] = IS.irrelevanceTerm {A = Σ q ▷ F ▹ G} {t = t} [Γ]₃ [Γ] [Σ]″ [Σ]′ [t]′
+  in  sndʳ′ {F = F} {G = G} {t = t} {q = q} [Γ] [F] [G] [t] ⊩ʳt′

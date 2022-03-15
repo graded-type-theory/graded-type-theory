@@ -13,6 +13,7 @@ open import Definition.LogicalRelation Erasure′
 import Definition.LogicalRelation.Fundamental Erasure′ as F
 open import Definition.LogicalRelation.Fundamental.Reducibility  Erasure′
 open import Definition.LogicalRelation.Properties.Escape Erasure′
+open import Definition.LogicalRelation.Properties.Reduction Erasure′
 open import Definition.LogicalRelation.Substitution Erasure′
 import Definition.LogicalRelation.Irrelevance Erasure′ as I
 open import Definition.LogicalRelation.Substitution.Properties Erasure′
@@ -109,11 +110,22 @@ subsumption {l = l} [Γ] [A] γ⊩ʳt δ≤γ [σ] σ®σ′ = γ⊩ʳt [σ] (su
       ⊢a = escapeTerm ([F] id ε) [a]
       ⊢a′ = PE.subst (ε ⊢ a ∷_) (UP.wk-id F) ⊢a
       t∘a⇒t′∘w′ = app-subst (conv t⇒t′ (subset* D)) ⊢a′
-      t∘a⇒t′∘w = PE.subst (_⊢_⇒_∷_ ε _ _) (PE.cong (U._[ a ]) (PE.sym (UP.wk-lift-id G))) t∘a⇒t′∘w′
+      t∘a⇒t′∘w = PE.subst (ε ⊢ _ ⇒ _ ∷_) (PE.cong (U._[ a ]) (PE.sym (UP.wk-lift-id G))) t∘a⇒t′∘w′
   in ®-redˡ ([G] id ε [a]) t®v t∘a⇒t′∘w
-®-redˡ (Bᵣ′ (BΣ p) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext)
-       (t₁ , t₂ , v₁ , v₂ , t′⇒u , v⇒v′ , t®v) t⇒t′ =
-         t₁ , t₂ , v₁ , v₂ , ((conv t⇒t′ (subset* D)) ⇨ t′⇒u) , v⇒v′ , t®v
+®-redˡ (Bᵣ′ (BΣ p) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext) t®v t⇒t′ [t₁] =
+  let t₁⇒t′₁ = fst-subst ⊢F ⊢G (conv t⇒t′ (subset* D))
+      t₁⇒t′₁′ = PE.subst (λ x → ε ⊢ _ ⇒ _ ∷ x) (PE.sym (UP.wk-id F)) t₁⇒t′₁
+      t₂⇒t′₂ = snd-subst ⊢F ⊢G (conv t⇒t′ (subset* D))
+      t₂⇒t′₂′ = PE.subst (λ x → ε ⊢ _ ⇒ _ ∷ x U.[ _ ]) (PE.sym (UP.wk-lift-id G)) t₂⇒t′₂
+      _ , _ , ⊢t′ = syntacticRedTerm (redMany t₁⇒t′₁′)
+      [F]′ , [t′₁]′ = reducibleTerm ⊢t′
+      [t′₁] = I.irrelevanceTerm [F]′ ([F] id ε) [t′₁]′
+      Gt≡Gt′ = substTypeEq (refl ⊢G) (subsetTerm t₁⇒t′₁)
+      t₁®v₁ , t₂®v₂ = t®v [t′₁]
+      t₂®v₂′ = convTermʳ ([G] id ε [t′₁]) ([G] id ε [t₁])
+                         ((PE.subst (λ x → ε ⊢ x U.[ _ ] ≡ x U.[ _ ]) (PE.sym (UP.wk-lift-id G)) (sym Gt≡Gt′)))
+                         t₂®v₂
+  in  ®-redˡ ([F] id ε) t₁®v₁ t₁⇒t′₁′ , ®-redˡ ([G] id ε [t₁]) t₂®v₂′ t₂⇒t′₂′
 ®-redˡ (emb 0<1 [A]) t®v t⇒t′ = ®-redˡ [A] t®v t⇒t′
 
 
@@ -147,9 +159,9 @@ subsumption {l = l} [Γ] [A] γ⊩ʳt δ≤γ [σ] σ®σ′ = γ⊩ʳt [σ] (su
       v∘w⇒v′∘w′ = T.app-subst v⇒v′
       [G[a]] = [G] id ε [a]
   in ®-redʳ [G[a]] t®v v∘w⇒v′∘w′
-®-redʳ (Bᵣ′ (BΣ q) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext)
-       (t₁ , t₂ , v₁ , v₂ , t⇒t′ , v′⇒w , t®v′) v⇒v′ =
-         t₁ , t₂ , v₁ , v₂ , t⇒t′ , trans v⇒v′ v′⇒w , t®v′
+®-redʳ (Bᵣ′ (BΣ q) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext) t®v′ v⇒v′ [t₁] =
+  let t₁®v′₁ , t₂®v′₂ = t®v′ [t₁]
+  in  ®-redʳ ([F] id ε) t₁®v′₁ (T.fst-subst v⇒v′) , ®-redʳ ([G] id ε [t₁]) t₂®v′₂ (T.snd-subst v⇒v′)
 ®-redʳ (emb 0<1 [A]) t®v′ v⇒v′ = ®-redʳ [A] t®v′ v⇒v′
 
 
@@ -164,9 +176,9 @@ subsumption {l = l} [Γ] [A] γ⊩ʳt δ≤γ [σ] σ®σ′ = γ⊩ʳt [σ] (su
 -- Logical relation for erasure is preserved under reduction closure backwards
 -- If t′ ® v′ ∷ A and ε ⊢ t ⇒* t′ ∷ A and v ⇒* v′ then t ® v ∷ A
 
-®-red₁ : ∀ {l} ([A] : ε ⊩⟨ l ⟩ A) → t′ ®⟨ l ⟩ v′ ∷ A / [A]
-       → ε ⊢ t ⇒ t′ ∷ A → v T.⇒ v′ → t ®⟨ l ⟩ v ∷ A / [A]
-®-red₁ [A] t′®v′ t⇒t′ v⇒v′ = ®-redʳ [A] (®-redˡ [A] t′®v′ t⇒t′) v⇒v′
+®-red : ∀ {l} ([A] : ε ⊩⟨ l ⟩ A) → t′ ®⟨ l ⟩ v′ ∷ A / [A]
+      → ε ⊢ t ⇒ t′ ∷ A → v T.⇒ v′ → t ®⟨ l ⟩ v ∷ A / [A]
+®-red [A] t′®v′ t⇒t′ v⇒v′ = ®-redʳ [A] (®-redˡ [A] t′®v′ t⇒t′) v⇒v′
 
 
 -- Logical relation for erasure is preserved under reduction closure backwards
@@ -209,13 +221,18 @@ subsumption {l = l} [Γ] [A] γ⊩ʳt δ≤γ [σ] σ®σ′ = γ⊩ʳt [σ] (su
                           (PE.cong (U._[ a ]) (PE.sym (UP.wk-lift-id G)))
                           t∘a⇒t′∘a′
   in  ®-redˡ′ ([G] id ε [a]) t®v t∘a⇒t′∘a
-®-redˡ′ (Bᵣ′ (BΣ q) F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-        (t₁ , t₂ , v₁ , v₂ , t⇒u , v⇒v′ , t®v) t⇒t′ =
-         t₁ , t₂ , v₁ , v₂ , reddet (conv t⇒t′ (subset* (red D))) (t⇒u , prodₙ) , v⇒v′ , t®v
-    where
-    reddet : ∀ {t t′ u A} → ε ⊢ t ⇒ t′ ∷ A → ε ⊢ t ↘ u ∷ A → ε ⊢ t′ ⇒* u ∷ A
-    reddet t⇒t′ ((id x) , w) rewrite whnfRed*Term (redMany t⇒t′) w = id x
-    reddet t⇒t′ ((x ⇨ t⇒u) , w) rewrite whrDetTerm t⇒t′ x = t⇒u
+®-redˡ′ (Bᵣ′ (BΣ q) F G D ⊢F ⊢G A≡A [F] [G] G-ext) t®v t⇒t′ [t₁] =
+  let t₁⇒t′₁ = fst-subst ⊢F ⊢G (conv t⇒t′ (subset* (red D)))
+      t₁⇒t′₁′ = PE.subst (λ x → ε ⊢ _ ⇒ _ ∷ x) (PE.sym (UP.wk-id F)) t₁⇒t′₁
+      t₂⇒t′₂ = snd-subst ⊢F ⊢G (conv t⇒t′ (subset* (red D)))
+      Gt≡Gt′ = substTypeEq (refl ⊢G) (subsetTerm t₁⇒t′₁)
+      t₂⇒t′₂′ = PE.subst (λ x → ε ⊢ _ ⇒ _ ∷ x U.[ _ ]) (PE.sym (UP.wk-lift-id G)) (conv t₂⇒t′₂ Gt≡Gt′)
+      [t₁]′ = proj₁ (redSubstTerm t₁⇒t′₁′ ([F] id ε) [t₁])
+      t₁®v₁ , t₂®v₂ = t®v [t₁]′
+      t₂®v₂′ = convTermʳ ([G] id ε [t₁]′) ([G] id ε [t₁])
+                         (PE.subst (λ x → ε ⊢ x U.[ _ ] ≡ x U.[ _ ]) (PE.sym (UP.wk-lift-id G)) Gt≡Gt′ )
+                         t₂®v₂
+  in  (®-redˡ′ ([F] id ε) t₁®v₁ t₁⇒t′₁′) , ®-redˡ′ ([G] id ε [t₁]) t₂®v₂′ t₂⇒t′₂′
 ®-redˡ′ (emb 0<1 [A]) t®v t⇒t′ = ®-redˡ′ [A] t®v t⇒t′
 
 
@@ -252,15 +269,11 @@ subsumption {l = l} [Γ] [A] γ⊩ʳt δ≤γ [σ] σ®σ′ = γ⊩ʳt [σ] (su
   let t®v = t®v′ [a] a®w
       v∘w⇒v′∘w = T.app-subst v⇒v′
   in  ®-redʳ′ ([G] id ε [a]) t®v v∘w⇒v′∘w
-®-redʳ′ (Bᵣ′ (BΣ p) F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-        (t₁ , t₂ , v₁ , v₂ , t⇒t′ , v⇒w , t®v′) v⇒v′ =
+®-redʳ′ (Bᵣ′ (BΣ p) F G D ⊢F ⊢G A≡A [F] [G] G-ext) t®v′ v⇒v′ [t₁] =
     let v₁⇒v′₁ = T.fst-subst v⇒v′
         v₂⇒v′₂ = T.snd-subst v⇒v′
-        v′⇒w = cases (red*Det (trans v⇒v′ T.refl) v⇒w)
-                     (λ x → x)
-                     (λ x → PE.subst (T._⇒* (T.prod v₁ v₂))
-                                     (PE.sym (prod-noRed x)) T.refl)
-    in  t₁ , t₂ , v₁ , v₂ , t⇒t′ , v′⇒w , t®v′
+        t₁®v′₁ , t₂®v′₂ = t®v′ [t₁]
+    in  ®-redʳ′ ([F] id ε) t₁®v′₁ v₁⇒v′₁ , ®-redʳ′ ([G] id ε [t₁]) t₂®v′₂ v₂⇒v′₂
 ®-redʳ′ (emb 0<1 [A]) t®v v⇒v′ = ®-redʳ′ [A] t®v v⇒v′
 
 
