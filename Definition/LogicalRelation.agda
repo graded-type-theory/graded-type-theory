@@ -11,7 +11,6 @@ open EqRelSet {{...}}
 open Setoid Mod′ using (_≈_) renaming (Carrier to Mod)
 
 open import Definition.Untyped Mod as U hiding (_∷_)
-open import Definition.Untyped.Properties Mod
 open import Definition.Untyped.BindingType Mod′
 open import Definition.Typed.Properties Mod′
 open import Definition.Typed Mod′

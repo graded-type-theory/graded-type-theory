@@ -17,7 +17,6 @@ open import Definition.LogicalRelation M′
 open import Definition.LogicalRelation.ShapeView M′
 open import Definition.LogicalRelation.Irrelevance M′
 open import Definition.LogicalRelation.Properties.Conversion M′
-open import Definition.LogicalRelation.Properties.Symmetry M′
 
 open import Tools.Nat
 open import Tools.Product

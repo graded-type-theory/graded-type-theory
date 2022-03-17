@@ -9,15 +9,12 @@ open Setoid M′ using () renaming (Carrier to M)
 open import Definition.Untyped M hiding (_∷_)
 
 open import Definition.Typed M′
-open import Definition.Typed.Weakening M′
 open import Definition.Typed.Properties M′
 open import Definition.Typed.EqRelInstance M′
 open import Definition.LogicalRelation M′
 open import Definition.LogicalRelation.Irrelevance M′
 open import Definition.LogicalRelation.ShapeView M′
 open import Definition.LogicalRelation.Fundamental.Reducibility M′
-open import Definition.Typed.Consequences.Inversion M′
-open import Definition.Typed.Consequences.Inequality M′
 
 open import Tools.Empty
 open import Tools.Nat

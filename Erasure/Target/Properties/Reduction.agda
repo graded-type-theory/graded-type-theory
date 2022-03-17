@@ -4,10 +4,8 @@ module Erasure.Target.Properties.Reduction where
 open import Erasure.Target
 
 open import Tools.Nat
-open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Sum
-
 
 private
   variable

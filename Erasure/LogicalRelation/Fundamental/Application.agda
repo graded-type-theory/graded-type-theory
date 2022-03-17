@@ -7,7 +7,6 @@ open import Definition.Typed.EqualityRelation
 module Erasure.LogicalRelation.Fundamental.Application {{eqrel : EqRelSet Erasure′}} where
 open EqRelSet {{...}}
 
-open import Erasure.Extraction
 open import Erasure.LogicalRelation
 open import Erasure.LogicalRelation.Properties
 open import Erasure.LogicalRelation.Irrelevance

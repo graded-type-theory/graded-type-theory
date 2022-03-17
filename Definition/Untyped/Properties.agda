@@ -2,15 +2,12 @@
 
 {-# OPTIONS --without-K --safe #-}
 
-open import Tools.Relation
-
 module Definition.Untyped.Properties {a} (M : Set a) where
 
 open import Definition.Untyped M
 
 open import Tools.Fin
 open import Tools.Nat
-open import Tools.List
 open import Tools.PropositionalEquality hiding (subst)
 open import Tools.Reasoning.PropositionalEquality
 

@@ -1,6 +1,5 @@
 {-#OPTIONS --safe --without-K #-}
 
-open import Tools.Level
 open import Tools.Relation
 
 module Definition.Typed.Properties {ℓ ℓ′} (M′ : Setoid ℓ ℓ′) where

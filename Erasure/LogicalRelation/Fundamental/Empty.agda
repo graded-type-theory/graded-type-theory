@@ -8,7 +8,6 @@ module Erasure.LogicalRelation.Fundamental.Empty {{eqrel : EqRelSet Erasure′}}
 open EqRelSet {{...}}
 
 open import Erasure.LogicalRelation
-open import Erasure.LogicalRelation.Properties
 import Erasure.Target as T
 
 open import Definition.Untyped Erasure

@@ -14,7 +14,6 @@ open import Definition.Modality.Usage.Inversion ErasureModality
 
 open import Definition.Untyped Erasure
 
-open import Tools.Empty
 open import Tools.Fin
 open import Tools.Nat hiding (_+_)
 import Tools.PropositionalEquality as PE

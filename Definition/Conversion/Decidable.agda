@@ -24,7 +24,6 @@ open import Definition.Typed.Consequences.Equality M′
 open import Definition.Typed.Consequences.Inequality M′ as IE
 open import Definition.Typed.Consequences.NeTypeEq M′
 open import Definition.Typed.Consequences.SucCong M′
-open import Definition.Typed.Consequences.Inversion M′
 
 open import Tools.Fin
 open import Tools.Nat hiding (_≟_)

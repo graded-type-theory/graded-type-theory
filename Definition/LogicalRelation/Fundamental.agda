@@ -12,8 +12,8 @@ open Setoid M′ using () renaming (Carrier to M; refl to ≈-refl)
 open import Definition.Untyped M hiding (_∷_) renaming (_[_,_] to _[_,,_])
 open import Definition.Untyped.Properties M
 import Definition.Untyped.BindingType M′ as BT
+
 open import Definition.Typed M′
-open import Definition.Typed.Properties M′
 open import Definition.LogicalRelation M′
 open import Definition.LogicalRelation.Irrelevance M′
 open import Definition.LogicalRelation.Properties M′

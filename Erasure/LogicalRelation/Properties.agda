@@ -1,27 +1,23 @@
 {-# OPTIONS --without-K --safe #-}
 
-open import Tools.Fin
-
 open import Definition.Modality.Erasure
-
 open import Definition.Typed.EqualityRelation
 
 module Erasure.LogicalRelation.Properties {{eqrel : EqRelSet Erasure′}} where
 open EqRelSet {{...}}
 
 open import Definition.LogicalRelation Erasure′
-import Definition.LogicalRelation.Fundamental Erasure′ as F
 open import Definition.LogicalRelation.Fundamental.Reducibility  Erasure′
 open import Definition.LogicalRelation.Properties.Escape Erasure′
 open import Definition.LogicalRelation.Properties.Reduction Erasure′
 open import Definition.LogicalRelation.Substitution Erasure′
+
+import Definition.LogicalRelation.Fundamental Erasure′ as F
 import Definition.LogicalRelation.Irrelevance Erasure′ as I
-open import Definition.LogicalRelation.Substitution.Properties Erasure′
 
 open import Definition.Modality.Context ErasureModality
 
 open import Definition.Typed Erasure′
-open import Definition.Typed.Consequences.Canonicity Erasure′
 open import Definition.Typed.Consequences.Substitution Erasure′
 open import Definition.Typed.Consequences.Syntactic Erasure′
 open import Definition.Typed.Consequences.Reduction Erasure′
@@ -32,8 +28,6 @@ open import Definition.Typed.Weakening Erasure′
 open import Definition.Untyped Erasure as U hiding (_∷_)
 open import Definition.Untyped.Properties Erasure as UP using (noClosedNe ; wk-id ; wk-lift-id)
 
-open import Erasure.Extraction
-open import Erasure.Extraction.Properties
 open import Erasure.LogicalRelation
 open import Erasure.LogicalRelation.Conversion
 open import Erasure.Target as T hiding (_⇒_; _⇒*_)

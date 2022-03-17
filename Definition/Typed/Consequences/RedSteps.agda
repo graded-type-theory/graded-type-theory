@@ -10,13 +10,10 @@ open import Definition.Untyped M hiding (_∷_)
 open import Definition.Typed M′
 open import Definition.Typed.Properties M′
 open import Definition.Typed.RedSteps M′
-open import Definition.Typed.Consequences.Reduction M′
 open import Definition.Typed.Consequences.Substitution M′
-open import Definition.Typed.Consequences.Syntactic M′
 
 open import Tools.Nat
 open import Tools.Fin
-open import Tools.Product
 
 
 private

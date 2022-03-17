@@ -36,14 +36,12 @@ open import Erasure.LogicalRelation.Conversion
 open import Erasure.LogicalRelation.Irrelevance
 open import Erasure.LogicalRelation.Properties
 open import Erasure.Extraction
-open import Erasure.Extraction.Properties
 import Erasure.Target as T
 import Erasure.Target.Properties as TP
 
 open import Tools.Fin
 open import Tools.Nat hiding (_+_)
 open import Tools.Product
-open import Tools.Unit
 import Tools.PropositionalEquality as PE
 
 private

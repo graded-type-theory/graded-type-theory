@@ -10,7 +10,6 @@ open EqRelSet {{...}}
 open import Definition.LogicalRelation Erasure′
 open import Definition.LogicalRelation.Substitution Erasure′
 open import Definition.Modality.Context ErasureModality
-open import Definition.Modality.Usage ErasureModality
 open import Definition.Untyped Erasure as U hiding (_∷_)
 open import Definition.Untyped.Properties Erasure using (noClosedNe)
 open import Definition.Typed Erasure′
@@ -19,7 +18,6 @@ open import Definition.Typed.Weakening Erasure′
 open import Erasure.Target as T hiding (_⇒*_)
 open import Erasure.Extraction
 
-open import Tools.Fin
 open import Tools.Level
 open import Tools.Nat
 open import Tools.Product

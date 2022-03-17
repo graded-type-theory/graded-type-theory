@@ -8,11 +8,8 @@ open DecSetoid M″ using () renaming (Carrier to M; setoid to M′)
 
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Typed M′
-open import Definition.Typed.Properties M′
-open import Definition.Conversion M′
 open import Definition.Conversion.Decidable M″
 open import Definition.Conversion.Soundness M′
-open import Definition.Conversion.Stability M′
 open import Definition.Conversion.Consequences.Completeness M′
 
 open import Tools.Nat

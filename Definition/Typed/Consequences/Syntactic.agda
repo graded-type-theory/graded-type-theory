@@ -10,7 +10,6 @@ open import Definition.Untyped M hiding (_∷_)
 open import Definition.Typed M′
 open import Definition.Typed.Properties M′
 open import Definition.Typed.EqRelInstance M′
-open import Definition.LogicalRelation M′
 open import Definition.LogicalRelation.Substitution M′
 open import Definition.LogicalRelation.Substitution.Escape M′
 open import Definition.LogicalRelation.Fundamental M′

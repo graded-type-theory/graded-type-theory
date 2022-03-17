@@ -13,15 +13,11 @@ open Setoid M′ renaming (Carrier to M)
 
 open import Definition.Untyped M
   using (Subst ; tail ; head ; Wk ; id ; step ; lift)
-open import Definition.Untyped.Properties M
 open import Definition.Modality.Context 𝕄
-open import Definition.Modality.Context.Properties 𝕄
-open import Definition.Modality.Properties 𝕄
 open import Definition.Modality.Usage 𝕄
 
 open import Tools.Fin
 open import Tools.Nat
-open import Tools.Product
 
 infixr 50 _*>_
 infix  20 ∥_∥

@@ -1,7 +1,6 @@
 {-# OPTIONS --without-K --safe #-}
 
 open import Definition.Typed.EqualityRelation
-open import Tools.Level
 open import Tools.Relation
 
 module Definition.LogicalRelation.Substitution.Introductions.Pi {a ℓ} (M′ : Setoid a ℓ)

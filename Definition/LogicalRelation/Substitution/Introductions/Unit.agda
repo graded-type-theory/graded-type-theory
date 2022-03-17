@@ -18,7 +18,6 @@ open import Definition.LogicalRelation.Substitution.Introductions.Universe M′
 open import Definition.LogicalRelation.Irrelevance M′
 
 open import Tools.Nat
-open import Tools.Unit
 open import Tools.Product
 
 private

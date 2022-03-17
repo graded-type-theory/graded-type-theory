@@ -1,6 +1,5 @@
 {-# OPTIONS --without-K --safe #-}
 
-open import Tools.Level
 open import Tools.Relation
 open import Definition.Modality
 
@@ -19,7 +18,6 @@ open import Definition.Modality.Usage 𝕄
 open import Definition.Modality.Usage.Inversion 𝕄
 open import Definition.Typed M′
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Usage 𝕄
 
 open import Tools.Nat
 open import Tools.Product

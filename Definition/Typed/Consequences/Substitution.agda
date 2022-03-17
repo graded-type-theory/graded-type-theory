@@ -13,7 +13,6 @@ open import Definition.Typed.Properties M′
 open import Definition.Typed.EqRelInstance M′
 open import Definition.Typed.Weakening M′
 open import Definition.Typed.Consequences.Syntactic M′
-open import Definition.LogicalRelation M′
 open import Definition.LogicalRelation.Properties M′
 open import Definition.LogicalRelation.Substitution M′
 open import Definition.LogicalRelation.Substitution.Irrelevance M′

@@ -13,15 +13,11 @@ open import Definition.Untyped.Properties M
 open import Definition.Typed M′
 open import Definition.Typed.Properties M′
 open import Definition.Typed.Weakening M′ as T hiding (wk; wkTerm; wkEqTerm)
-open import Definition.Typed.RedSteps M′
 open import Definition.LogicalRelation M′
 open import Definition.LogicalRelation.ShapeView M′
 open import Definition.LogicalRelation.Irrelevance M′
-open import Definition.LogicalRelation.Weakening M′
 open import Definition.LogicalRelation.Properties M′
-open import Definition.LogicalRelation.Application M′
 open import Definition.LogicalRelation.Substitution M′
-open import Definition.LogicalRelation.Substitution.Properties M′
 open import Definition.LogicalRelation.Substitution.Reflexivity M′
 open import Definition.LogicalRelation.Substitution.Introductions.Pi M′
 open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst M′

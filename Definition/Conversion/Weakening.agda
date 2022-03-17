@@ -11,7 +11,6 @@ open import Definition.Untyped.Properties M
 open import Definition.Typed M′
 open import Definition.Typed.Weakening M′
 open import Definition.Typed.Consequences.Syntactic M′
-open import Definition.Typed.Properties M′
 open import Definition.Conversion M′
 open import Definition.Conversion.Soundness M′
 

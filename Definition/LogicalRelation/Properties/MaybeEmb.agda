@@ -9,7 +9,6 @@ open EqRelSet {{...}}
 open Setoid M′ using () renaming (Carrier to M)
 
 open import Definition.Untyped M
-open import Definition.Typed M′
 open import Definition.LogicalRelation M′
 
 open import Tools.Nat

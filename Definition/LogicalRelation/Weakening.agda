@@ -18,7 +18,6 @@ open import Definition.LogicalRelation M′
 open import Definition.LogicalRelation.Irrelevance M′
 
 open import Tools.Nat
-open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 

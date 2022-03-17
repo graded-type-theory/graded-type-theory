@@ -16,15 +16,11 @@ open import Definition.Typed.RedSteps M′
 open import Definition.LogicalRelation M′
 open import Definition.LogicalRelation.Irrelevance M′
 open import Definition.LogicalRelation.Properties M′
-open import Definition.LogicalRelation.Application M′
 open import Definition.LogicalRelation.Substitution M′
 open import Definition.LogicalRelation.Substitution.Properties M′
 import Definition.LogicalRelation.Substitution.Irrelevance M′ as S
 open import Definition.LogicalRelation.Substitution.Reflexivity M′
-open import Definition.LogicalRelation.Substitution.Weakening M′
 open import Definition.LogicalRelation.Substitution.Introductions.Nat M′
-open import Definition.LogicalRelation.Substitution.Introductions.Pi M′
-open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst M′
 
 open import Tools.Fin
 open import Tools.Nat

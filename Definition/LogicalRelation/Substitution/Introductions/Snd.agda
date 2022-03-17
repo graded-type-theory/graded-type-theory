@@ -17,11 +17,8 @@ open import Definition.Typed.RedSteps M′
 open import Definition.LogicalRelation M′
 open import Definition.LogicalRelation.ShapeView M′
 open import Definition.LogicalRelation.Irrelevance M′
-open import Definition.LogicalRelation.Weakening M′
 open import Definition.LogicalRelation.Properties M′
-open import Definition.LogicalRelation.Application M′
 open import Definition.LogicalRelation.Substitution M′
-open import Definition.LogicalRelation.Substitution.Properties M′
 open import Definition.LogicalRelation.Substitution.Introductions.Pi M′
 open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst M′
 open import Definition.LogicalRelation.Substitution.Introductions.Fst M′

@@ -11,7 +11,6 @@ open Setoid M′ using () renaming (Carrier to M)
 
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Typed M′
-open import Definition.LogicalRelation M′
 import Definition.LogicalRelation.Irrelevance M′ as LR
 open import Definition.LogicalRelation.Substitution M′
 

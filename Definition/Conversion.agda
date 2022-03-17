@@ -14,7 +14,6 @@ open import Definition.Typed M′
 
 open import Tools.Fin
 open import Tools.Nat
-open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 

@@ -13,10 +13,6 @@ open Setoid M′ renaming (Carrier to M)
 
 open import Tools.Fin
 open import Tools.Nat renaming (_+_ to _+ⁿ_)
-open import Tools.Product
-open import Tools.Unit
-
-open import Definition.Modality.Properties 𝕄
 
 infixl 30 _∙_
 infixr 40 _+ᶜ_

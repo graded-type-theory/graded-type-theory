@@ -1,15 +1,11 @@
 {-# OPTIONS --without-K --safe #-}
 module Erasure.Extraction where
 
-
 open import Definition.Modality.Erasure
 
-open import Tools.Fin
 open import Tools.Nat
-open import Tools.PropositionalEquality as PE
 
 open import Definition.Untyped Erasure as U
--- open import Definition.Typed Erasure as Ty
 open import Erasure.Target as T
 
 private
@@ -19,7 +15,6 @@ private
     A t t′ u : U.Term n
     v v′ w : T.Term n
     p : Erasure
-
 
 
 erase : U.Term n → T.Term n

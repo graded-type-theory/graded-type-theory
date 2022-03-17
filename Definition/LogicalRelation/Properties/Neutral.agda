@@ -21,7 +21,6 @@ open import Definition.LogicalRelation.Properties.Escape M′
 open import Definition.LogicalRelation.Properties.Symmetry M′
 
 open import Tools.Nat
-open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 private

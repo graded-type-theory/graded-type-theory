@@ -1,6 +1,5 @@
 {-# OPTIONS --without-K --safe #-}
 
-open import Tools.Level
 open import Tools.Relation
 open import Definition.Modality
 
@@ -13,7 +12,6 @@ open Modality 𝕄
 open Setoid M′ renaming (Carrier to M)
 
 open import Tools.Nat hiding (_+_)
-open import Tools.Nullary
 open import Tools.Product
 
 

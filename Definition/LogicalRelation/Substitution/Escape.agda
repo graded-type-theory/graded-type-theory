@@ -13,7 +13,6 @@ open import Definition.Untyped.Properties M
 
 open import Definition.Typed M′
 
-open import Definition.LogicalRelation M′
 open import Definition.LogicalRelation.Irrelevance M′
 open import Definition.LogicalRelation.Properties M′
 open import Definition.LogicalRelation.Substitution M′

@@ -8,18 +8,13 @@ module Erasure.Soundness {{eqrel : EqRelSet Erasure′}} where
 open EqRelSet {{...}}
 
 open import Definition.Untyped Erasure hiding (_∷_)
-open import Definition.Untyped.Properties Erasure
 open import Definition.Typed Erasure′
-open import Definition.Typed.RedSteps Erasure′
 open import Definition.Typed.Properties Erasure′
-open import Definition.Typed.Consequences.Syntactic Erasure′
-open import Definition.Typed.Consequences.Inversion Erasure′
 open import Definition.LogicalRelation Erasure′
 open import Definition.Modality.Context ErasureModality
 open import Definition.Modality.Usage ErasureModality
 
 import Erasure.Target as T
-open import Erasure.Target.Properties.Reduction
 open import Erasure.Extraction
 open import Erasure.LogicalRelation
 open import Erasure.LogicalRelation.Fundamental

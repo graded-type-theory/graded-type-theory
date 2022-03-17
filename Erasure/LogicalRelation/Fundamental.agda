@@ -8,20 +8,17 @@ module Erasure.LogicalRelation.Fundamental {{eqrel : EqRelSet Erasure′}} where
 open EqRelSet {{...}}
 
 open import Definition.LogicalRelation Erasure′
-import Definition.LogicalRelation.Fundamental Erasure′ as F
-open import Definition.LogicalRelation.Fundamental.Reducibility Erasure′
-import Definition.LogicalRelation.Irrelevance Erasure′ as I
 open import Definition.LogicalRelation.Properties.Escape Erasure′
 open import Definition.LogicalRelation.Substitution Erasure′
-open import Definition.LogicalRelation.Substitution.Conversion Erasure′
-open import Definition.LogicalRelation.Substitution.Escape Erasure′
 open import Definition.LogicalRelation.Substitution.MaybeEmbed Erasure′
 open import Definition.LogicalRelation.Substitution.Properties Erasure′
 open import Definition.LogicalRelation.Substitution.Weakening Erasure′
-import Definition.LogicalRelation.Substitution.Irrelevance Erasure′ as IS
-open import Definition.LogicalRelation.Substitution.Introductions.Universe Erasure′
 open import Definition.LogicalRelation.Substitution.Introductions.Pi Erasure′
 open import Definition.LogicalRelation.Substitution.Introductions.Nat Erasure′
+
+import Definition.LogicalRelation.Fundamental Erasure′ as F
+import Definition.LogicalRelation.Irrelevance Erasure′ as I
+import Definition.LogicalRelation.Substitution.Irrelevance Erasure′ as IS
 
 open import Definition.Modality.Context ErasureModality
 open import Definition.Modality.Erasure.Properties
@@ -31,7 +28,6 @@ open import Definition.Modality.Usage.Inversion ErasureModality
 open import Definition.Untyped Erasure hiding (_∷_)
 open import Definition.Untyped.Properties Erasure
 open import Definition.Typed Erasure′
-open import Definition.Typed.Consequences.Substitution Erasure′
 open import Definition.Typed.Consequences.Syntactic Erasure′
 
 open import Erasure.LogicalRelation

@@ -6,7 +6,6 @@ open import Erasure.Target renaming (refl to ⇒*-refl; trans to ⇒*-trans)
 open import Tools.Fin
 open import Tools.Nat
 open import Tools.PropositionalEquality hiding (subst)
-open import Tools.Reasoning.PropositionalEquality
 
 private
   variable

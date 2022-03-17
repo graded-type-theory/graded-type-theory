@@ -12,7 +12,6 @@ import Erasure.Target as T
 
 open import Definition.LogicalRelation Erasure′
 open import Definition.LogicalRelation.Irrelevance Erasure′
-open import Definition.LogicalRelation.Fundamental Erasure′
 open import Definition.LogicalRelation.Fundamental.Reducibility Erasure′
 open import Definition.LogicalRelation.ShapeView Erasure′
 open import Definition.LogicalRelation.Properties.Conversion Erasure′
@@ -25,20 +24,17 @@ import Definition.LogicalRelation.Substitution.Irrelevance Erasure′ as IS
 open import Definition.Untyped Erasure
 open import Definition.Untyped.Properties Erasure
 import Definition.Untyped.BindingType Erasure′ as BT
+
 open import Definition.Typed Erasure′
 open import Definition.Typed.Consequences.Injectivity Erasure′
 open import Definition.Typed.Consequences.Substitution Erasure′
 open import Definition.Typed.Reduction Erasure′
-open import Definition.Typed.RedSteps Erasure′
 open import Definition.Typed.Weakening Erasure′
-open import Definition.Typed.Properties Erasure′
-open import Definition.Modality.Context ErasureModality
 
 open import Tools.Empty
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
-open import Tools.Unit
 
 private
   variable

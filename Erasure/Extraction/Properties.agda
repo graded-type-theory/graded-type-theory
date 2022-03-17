@@ -4,12 +4,10 @@ module Erasure.Extraction.Properties where
 
 open import Erasure.Extraction
 open import Erasure.Target as T hiding (refl; trans)
-open import Erasure.Target.Properties.Weakening
 open import Erasure.Target.Properties.Substitution
 
 open import Definition.Modality.Erasure
 open import Definition.Untyped Erasure as U hiding (Wk; Term; wk; wkVar; _[_]; _[_,_]; liftSubst)
-open import Definition.Untyped.Properties Erasure using (noClosedNe)
 
 open import Tools.Fin
 open import Tools.Nat renaming (_+_ to _+ⁿ_)

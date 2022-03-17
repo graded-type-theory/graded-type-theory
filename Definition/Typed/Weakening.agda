@@ -9,7 +9,6 @@ open Setoid M′ using () renaming (Carrier to M)
 open import Definition.Untyped M as U hiding (wk ; _∷_)
 open import Definition.Untyped.Properties M
 open import Definition.Typed M′ hiding (_,_)
-open import Definition.Typed.Properties M′
 
 open import Tools.Nat
 import Tools.PropositionalEquality as PE

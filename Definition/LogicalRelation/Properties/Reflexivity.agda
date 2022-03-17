@@ -17,7 +17,6 @@ open import Definition.Typed.Properties M′
 open import Definition.LogicalRelation M′
 
 open import Tools.Nat
-open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 private

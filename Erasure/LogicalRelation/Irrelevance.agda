@@ -12,19 +12,17 @@ open import Erasure.LogicalRelation
 open import Definition.LogicalRelation Erasure′
 open import Definition.LogicalRelation.ShapeView Erasure′
 import Definition.LogicalRelation.Irrelevance Erasure′ as I
-open import Definition.LogicalRelation.Properties.MaybeEmb Erasure′
-open import Definition.LogicalRelation.Properties.Escape Erasure′
 open import Definition.LogicalRelation.Substitution Erasure′
 import Definition.LogicalRelation.Substitution.Irrelevance Erasure′ as IS
 
 open import Definition.Untyped Erasure
 open import Definition.Untyped.Properties Erasure
 import Definition.Untyped.BindingType Erasure′ as BT
+
 open import Definition.Typed Erasure′
-open import Definition.Typed.Consequences.Injectivity Erasure′
-open import Definition.Typed.Reduction Erasure′
 open import Definition.Typed.Weakening Erasure′
 open import Definition.Typed.Properties Erasure′
+
 open import Definition.Modality.Context ErasureModality
 
 open import Tools.Empty

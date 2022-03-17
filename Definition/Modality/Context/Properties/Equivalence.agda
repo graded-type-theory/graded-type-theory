@@ -1,6 +1,5 @@
 {-# OPTIONS --without-K --safe #-}
 
-open import Tools.Level
 open import Tools.Relation
 open import Definition.Modality
 
@@ -9,7 +8,6 @@ module Definition.Modality.Context.Properties.Equivalence {a ℓ}
   where
 
 open import Definition.Modality.Context 𝕄
-open import Definition.Modality.Properties 𝕄
 
 open import Tools.Nat
 
