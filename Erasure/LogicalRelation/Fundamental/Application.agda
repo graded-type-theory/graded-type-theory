@@ -8,7 +8,7 @@ module Erasure.LogicalRelation.Fundamental.Application {{eqrel : EqRelSet Erasur
 open EqRelSet {{...}}
 
 open import Erasure.LogicalRelation
-open import Erasure.LogicalRelation.Properties
+open import Erasure.LogicalRelation.Subsumption
 open import Erasure.LogicalRelation.Irrelevance
 import Erasure.Target as T
 

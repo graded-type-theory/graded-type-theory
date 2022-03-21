@@ -137,9 +137,10 @@ import Erasure.Extraction.Properties
 import Erasure.LogicalRelation
 import Erasure.LogicalRelation.Conversion
 import Erasure.LogicalRelation.Irrelevance
-import Erasure.LogicalRelation.Properties
+import Erasure.LogicalRelation.Reduction
+import Erasure.LogicalRelation.Subsumption
 import Erasure.LogicalRelation.Fundamental
 
 -- Soundness of Extraction function
 
-import Erasure.Soundness
+import Erasure.Consequences.Soundness

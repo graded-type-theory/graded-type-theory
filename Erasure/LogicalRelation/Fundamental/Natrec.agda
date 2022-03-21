@@ -34,7 +34,8 @@ open import Definition.Modality.Erasure.Properties
 open import Erasure.LogicalRelation
 open import Erasure.LogicalRelation.Conversion
 open import Erasure.LogicalRelation.Irrelevance
-open import Erasure.LogicalRelation.Properties
+open import Erasure.LogicalRelation.Subsumption
+open import Erasure.LogicalRelation.Reduction
 open import Erasure.Extraction
 import Erasure.Target as T
 import Erasure.Target.Properties as TP
@@ -101,11 +102,12 @@ natrecʳ″ {n} {A} {z} {s} {σ} {σ′} {γ} {η} {δ} {p} {r} {l} {m} {w} {Γ}
       nrm⇒z = nrm⇒nr0′ ⇨∷* redMany nr0⇒z
       nrw⇒nr0 = TP.natrec-subst* {s = T.subst (T.liftSubst (T.liftSubst σ′)) (erase s)} w⇒zero
       nrw⇒z = TP.red*concat nrw⇒nr0 (T.trans T.natrec-zero T.refl)
-      z®z′ = ⊩ʳz [σ] (subsumption′ {l = l} σ®σ′ (≤ᶜ-trans (nrᶜ-decreasingˡ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r)
-                                                          (∧ᶜ-decreasingˡ γ η)))
+      z®z′ = ⊩ʳz [σ] (subsumptionSubst {l = l} σ®σ′
+                                       (≤ᶜ-trans (nrᶜ-decreasingˡ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r)
+                                                 (∧ᶜ-decreasingˡ γ η)))
       [σA₀]′ = I.irrelevance′ (singleSubstLift A zero) [σA₀]
       z®z″ = irrelevanceTerm′ (singleSubstLift A zero) [σA₀] [σA₀]′ z®z′
-      nr®nr = ®-red* [σA₀]′ z®z″ nrm⇒z nrw⇒z
+      nr®nr = redSubstTerm* [σA₀]′ z®z″ nrm⇒z nrw⇒z
       [σA₀]″ = I.irrelevance′ (singleSubstComp zero σ A) [σA₀]′
       [σA[m]]′ = I.irrelevance′ (PE.sym (singleSubstComp m σ A)) [σA[m]]
       nr®nr′ = convTermʳ [σA₀]′ [σA[m]]′ (sym A[m]≡A[0]) nr®nr
@@ -154,15 +156,16 @@ natrecʳ″ {n} {A} {z} {s} {σ} {σ′} {γ} {η} {δ} {p} {r} {l} {m} {w} {Γ}
                                      {s = T.subst (T.liftSubst (T.liftSubst σ′)) (erase s)}
                                      w⇒sucw′
       nrw⇒s = TP.red*concat nrw⇒nrsucw′ (T.trans T.natrec-suc T.refl)
-      σ®σ′ₛ = subsumption′ {l = l} σ®σ′ (≤ᶜ-trans (nrᶜ-decreasingʳ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r)
-                                                  (+ᶜ-decreasingˡ δ (p ·ᶜ η)))
+      σ®σ′ₛ = subsumptionSubst {l = l} σ®σ′
+                               (≤ᶜ-trans (nrᶜ-decreasingʳ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r)
+                                         (+ᶜ-decreasingˡ δ (p ·ᶜ η)))
       nrm′®nrw′ = natrecʳ″ {A = A} {z = z} {s = s}
                            [Γ] [A] [A₊] [A₀] [z] [s] [σ] σ®σ′ ⊩ʳz ⊩ʳs [m′] m′®w′
       s®s′ = ⊩ʳs {σ = consSubst (consSubst σ m′) σnrm′}
                  {σ′ = T.consSubst (T.consSubst σ′ w′) σnrw′}
                  (([σ] , [m′]) , [nrm′])
-                 ((σ®σ′ₛ , subsumption″ m′®w′ (least-elem p)) ,
-                           subsumption″ nrm′®nrw′ (least-elem r))
+                 ((σ®σ′ₛ , subsumptionTerm m′®w′ (least-elem p)) ,
+                           subsumptionTerm nrm′®nrw′ (least-elem r))
       s®s″ = irrelevanceTerm′ (PE.trans (wk1-tail (A [ suc (var x0) ]↑))
                                         (PE.trans (substCompEq A)
                                         (PE.trans (substVar-to-subst substLem A)
@@ -173,7 +176,7 @@ natrecʳ″ {n} {A} {z} {s} {σ} {σ′} {γ} {η} {δ} {p} {r} {l} {m} {w} {Γ}
                        (PE.trans (TP.substVar-to-subst substLem″ (erase s))
                                  (PE.sym (TP.substCompEq (erase s))))
                        s®s″
-      nrm®nrw = ®-red* [A[sucm′]]′ s®s‴ nrm⇒s nrw⇒s
+      nrm®nrw = redSubstTerm* [A[sucm′]]′ s®s‴ nrm⇒s nrw⇒s
       nrm®nrw′ = convTermʳ [A[sucm′]]′ [σA[m]]′ (sym A[m]≡A[sucm′]) nrm®nrw
   in  irrelevanceTerm′ (singleSubstComp m σ A) [σA[m]]′ [σA[m]] nrm®nrw′
   where
@@ -224,7 +227,9 @@ natrecʳ′ : ∀ {l} {Γ : Con Term n}
              ⊩ʳ⟨ l ⟩ natrec p r A z s m ∷ A [ m ] / [Γ] / [A[m]]
 natrecʳ′ {n} {A} {m} {z} {s} {γ} {δ} {p} {r} {η} {l} {Γ} [Γ] [A] [A₊] [A₀] [A[m]] [z] [s] [m] ⊩ʳz ⊩ʳs ⊩ʳm {σ} {σ′} [σ] σ®σ′ =
   let [σm] = proj₁ ([m] ε [σ])
-      m®w = ⊩ʳm [σ] (subsumption′ {l = l} σ®σ′ (≤ᶜ-trans (nrᶜ-decreasingˡ (γ ∧ᶜ η) _ r) (∧ᶜ-decreasingʳ γ η)))
+      m®w = ⊩ʳm [σ] (subsumptionSubst {l = l} σ®σ′
+                                      (≤ᶜ-trans (nrᶜ-decreasingˡ (γ ∧ᶜ η) _ r)
+                                                (∧ᶜ-decreasingʳ γ η)))
       nr®nr = natrecʳ″ {A = A} {z = z} {s = s}
                        [Γ] [A] [A₊] [A₀] [z] [s] [σ] σ®σ′ ⊩ʳz ⊩ʳs [σm] m®w
   in  irrelevanceTerm′ (PE.sym (PE.trans (singleSubstLift A m) (singleSubstComp (subst σ m) σ A)))

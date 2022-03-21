@@ -4,7 +4,7 @@ open import Definition.Modality.Erasure
 open import Definition.Typed.EqualityRelation
 
 
-module Erasure.Soundness {{eqrel : EqRelSet Erasure′}} where
+module Erasure.Consequences.Soundness {{eqrel : EqRelSet Erasure′}} where
 open EqRelSet {{...}}
 
 open import Definition.Untyped Erasure hiding (_∷_)

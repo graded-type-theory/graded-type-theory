@@ -34,7 +34,8 @@ open import Definition.Modality.Erasure.Properties
 
 open import Erasure.LogicalRelation
 open import Erasure.LogicalRelation.Conversion
-open import Erasure.LogicalRelation.Properties
+open import Erasure.LogicalRelation.Reduction
+open import Erasure.LogicalRelation.Subsumption
 open import Erasure.LogicalRelation.Irrelevance
 
 open import Erasure.Extraction
@@ -80,8 +81,8 @@ prodʳ {F = F} {G = G} {t = t} {u = u} {γ = γ} {δ = δ} {q = q} {l = l}
       [Γ] [F] [G] [G[t]] [t] [u] ⊩ʳt ⊩ʳu =
   let [Σ] = Σᵛ {F = F} {G = G} [Γ] [F] [G]
   in  [Σ] , λ {σ = σ} {σ′ = σ′} [σ] σ®σ′ [t₁] →
-      let σ®σ′ₜ = subsumption′ {l = l} σ®σ′ (+ᶜ-decreasingˡ γ δ)
-          σ®σ′ᵤ = subsumption′ {l = l} σ®σ′ (+ᶜ-decreasingʳ γ δ)
+      let σ®σ′ₜ = subsumptionSubst {l = l} σ®σ′ (+ᶜ-decreasingˡ γ δ)
+          σ®σ′ᵤ = subsumptionSubst {l = l} σ®σ′ (+ᶜ-decreasingʳ γ δ)
           [σF] = proj₁ ([F] ε [σ])
           ⊢F = escape [σF]
           [σG] = proj₁ ([G] (ε ∙ ⊢F) (liftSubstS {F = F} [Γ] ε [F] [σ]))
@@ -95,7 +96,7 @@ prodʳ {F = F} {G = G} {t = t} {u = u} {γ = γ} {δ = δ} {q = q} {l = l}
           t®t′ = ⊩ʳt [σ] σ®σ′ₜ
           p₁⇒t = Σ-β₁ ⊢F ⊢G ⊢t ⊢u′ ⊢p
           p₁′⇒t′ = T.Σ-β₁ {t = T.subst σ′ (erase t)} {u = T.subst σ′ (erase u)}
-          p₁®p₁′ = ®-red [σF] t®t′ p₁⇒t p₁′⇒t′
+          p₁®p₁′ = redSubstTerm [σF] t®t′ p₁⇒t p₁′⇒t′
           p₁®p₁″ = irrelevanceTerm′ (PE.sym (wk-id (subst σ F))) [σF] [σF]′ p₁®p₁′
           [t₁]′ = I.irrelevanceTerm′ (wk-subst F) [σF]′ (proj₁ ([F] ε (wkSubstS [Γ] ε ε id [σ]))) [t₁]
           G[p₁]≡G[t] = substTypeEq (refl ⊢G) (subsetTerm p₁⇒t)
@@ -106,8 +107,8 @@ prodʳ {F = F} {G = G} {t = t} {u = u} {γ = γ} {δ = δ} {q = q} {l = l}
           [σG[p₁]] = reducible (substType ⊢G (fstⱼ ⊢F ⊢G ⊢p))
           u®u′ = ⊩ʳu [σ] σ®σ′ᵤ
           u®u″ = convTermʳ [σG[t]] [σG[p₁]] (sym G[p₁]≡G[t]′) u®u′
-          p₂®p₂′ = ®-red [σG[p₁]] u®u″ (Σ-β₂ ⊢F ⊢G ⊢t ⊢u′ ⊢p)
-                         (T.Σ-β₂ {t = T.subst σ′ (erase t)} {u = T.subst σ′ (erase u)})
+          p₂®p₂′ = redSubstTerm [σG[p₁]] u®u″ (Σ-β₂ ⊢F ⊢G ⊢t ⊢u′ ⊢p)
+                                (T.Σ-β₂ {t = T.subst σ′ (erase t)} {u = T.subst σ′ (erase u)})
           p₂®p₂″ = irrelevanceTerm′ (PE.cong (λ x → x [ _ ]) (PE.sym (wk-lift-id (subst (liftSubst σ) G))))
                                     [σG[p₁]] [σG[p₁]]′ p₂®p₂′
       in  p₁®p₁″ , p₂®p₂″

@@ -30,7 +30,7 @@ open import Definition.Typed.Consequences.Substitution Erasure′
 open import Erasure.Extraction
 open import Erasure.LogicalRelation
 open import Erasure.LogicalRelation.Irrelevance
-open import Erasure.LogicalRelation.Properties
+open import Erasure.LogicalRelation.Reduction
 open import Erasure.Target.Properties as TP
 import Erasure.Target as T
 
@@ -93,7 +93,7 @@ lamʳ′ {F = F} {G = G} {γ = γ} {p = p} {t = t} {σ = σ} {σ′ = σ′} {u 
       t⇒t′ = redMany (β-red ⊢σF ⊢σG ⊢σt ⊢u PE.refl)
       t⇒t″ = PE.subst (λ G → ε ⊢ _ ⇒* _ ∷ G) (UP.singleSubstComp u σ G) t⇒t′
       v⇒v′ = T.trans (T.β-red {t = T.subst (T.liftSubst σ′) (erase t)} {u = w}) T.refl
-      in  ®-red* [G]′ σut®σwv′ t⇒t″ v⇒v′
+      in  redSubstTerm* [G]′ σut®σwv′ t⇒t″ v⇒v′
 
 lamʳ : ∀ {Γ : Con Term n} → ([Γ] : ⊩ᵛ Γ) ([F] : Γ ⊩ᵛ⟨ ¹ ⟩ F / [Γ])
        ([G] : Γ ∙ F ⊩ᵛ⟨ ¹ ⟩ G / [Γ] ∙ [F])

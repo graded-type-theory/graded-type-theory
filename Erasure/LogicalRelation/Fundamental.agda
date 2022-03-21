@@ -41,7 +41,7 @@ open import Erasure.LogicalRelation.Fundamental.Product
 open import Erasure.LogicalRelation.Fundamental.Unit
 
 open import Erasure.LogicalRelation.Irrelevance
-open import Erasure.LogicalRelation.Properties
+open import Erasure.LogicalRelation.Subsumption
 import Erasure.Target as T
 open import Erasure.Extraction
 import Erasure.Target.Properties as TP
