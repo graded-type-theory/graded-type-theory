@@ -57,7 +57,7 @@ insertAt-distrib-+ᶜ-𝟘  n γ δ = begin
   insertAt n (γ +ᶜ δ) 𝟘            ≈⟨ insertAt-cong ≈ᶜ-refl (≈-sym (proj₁ +-identity 𝟘)) ⟩
   insertAt n (γ +ᶜ δ) (𝟘 + 𝟘)      ≡⟨ insertAt-distrib-+ᶜ n γ δ 𝟘 𝟘 ⟩
   insertAt n γ 𝟘 +ᶜ insertAt n δ 𝟘 ∎
-  where open import Tools.Reasoning.Equivalence ≈ᶜ-equivalence
+  where open import Tools.Reasoning.Equivalence Conₘ-setoid
 
 -- Inserting the product of two elements distributes over context scaling
 -- insertAt n (p ·ᶜ γ) (p · q) ≡ p ·ᶜ insertAt n γ q
@@ -77,7 +77,7 @@ insertAt-distrib-·ᶜ-𝟘 n p γ = begin
   insertAt n (p ·ᶜ γ) 𝟘       ≈⟨ insertAt-cong ≈ᶜ-refl (≈-sym (proj₂ ·-zero p)) ⟩
   insertAt n (p ·ᶜ γ) (p · 𝟘) ≡⟨ insertAt-distrib-·ᶜ n γ p 𝟘 ⟩
   p ·ᶜ insertAt n γ 𝟘         ∎
-  where open import Tools.Reasoning.Equivalence ≈ᶜ-equivalence
+  where open import Tools.Reasoning.Equivalence Conₘ-setoid
 
 -- Inserting the meet of two elements distributes over meet
 -- insertAt n (γ ∧ᶜ δ) (p ∧ q) ≡ insertAt n γ p ∧ᶜ insertAt n δ q
@@ -98,7 +98,7 @@ insertAt-distrib-∧ᶜ-𝟘 n γ δ = begin
   insertAt n (γ ∧ᶜ δ) (𝟘 ∧ 𝟘)      ≡⟨ insertAt-distrib-∧ᶜ n γ δ 𝟘 𝟘 ⟩
   insertAt n γ 𝟘 ∧ᶜ insertAt n δ 𝟘 ∎
   where
-  open import Tools.Reasoning.Equivalence ≈ᶜ-equivalence
+  open import Tools.Reasoning.Equivalence Conₘ-setoid
 
 -- Inserting a zero into a modality context distributes over nrᶜ
 -- insertAt n (nrᶜ γ δ r) 𝟘 ≡ nrᶜ (insertAt n γ 𝟘) (insertAt n δ 𝟘) r

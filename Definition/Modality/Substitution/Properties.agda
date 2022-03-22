@@ -55,7 +55,7 @@ private
   (q ·ᶜ η +ᶜ Ψ *> δ) +ᶜ Ψ *> γ +ᶜ p ·ᶜ η          ≈⟨ +ᶜ-cong ≈ᶜ-refl (+ᶜ-comm (Ψ *> γ) (p ·ᶜ η)) ⟩
   (q ·ᶜ η +ᶜ Ψ *> δ) +ᶜ p ·ᶜ η +ᶜ Ψ *> γ          ≈⟨ +ᶜ-comm _ _ ⟩
   ((p ·ᶜ η +ᶜ Ψ *> γ) +ᶜ q ·ᶜ η +ᶜ Ψ *> δ)        ∎
-  where open import Tools.Reasoning.Equivalence ≈ᶜ-equivalence
+  where open import Tools.Reasoning.Equivalence Conₘ-setoid
 
 -- Modality substitution application distributes over context scaling.
 -- Ψ *> (pγ) ≡ p ·ᶜ (Ψ *> γ).
@@ -68,7 +68,7 @@ private
   (p · q) ·ᶜ δ +ᶜ Ψ *> (p ·ᶜ γ)  ≈⟨ +ᶜ-cong (·ᶜ-assoc p q δ) (*>-distrib-·ᶜ Ψ p γ) ⟩
   p ·ᶜ (q ·ᶜ δ) +ᶜ p ·ᶜ (Ψ *> γ) ≈˘⟨ ·ᶜ-distribˡ-+ᶜ p (q ·ᶜ δ) (Ψ *> γ) ⟩
   p ·ᶜ (q ·ᶜ δ +ᶜ Ψ *> γ)        ∎
-  where open import Tools.Reasoning.Equivalence ≈ᶜ-equivalence
+  where open import Tools.Reasoning.Equivalence Conₘ-setoid
 
 -- Modality substitution application is linear, i.e. distributes over addition and scaling
 -- Ψ *> (pγ +ᶜ qδ) ≡ p ·ᶜ (Ψ *> γ) +ᶜ q ·ᶜ (Ψ *> δ)
@@ -83,7 +83,7 @@ private
   Ψ *> (p ·ᶜ γ +ᶜ q ·ᶜ δ)        ≈⟨ *>-distrib-+ᶜ Ψ (p ·ᶜ γ) (q ·ᶜ δ) ⟩
   Ψ *> (p ·ᶜ γ) +ᶜ Ψ *> (q ·ᶜ δ) ≈⟨ +ᶜ-cong (*>-distrib-·ᶜ Ψ p γ) (*>-distrib-·ᶜ Ψ q δ) ⟩
   (p ·ᶜ Ψ *> γ +ᶜ q ·ᶜ Ψ *> δ)   ∎
-  where open import Tools.Reasoning.Equivalence ≈ᶜ-equivalence
+  where open import Tools.Reasoning.Equivalence Conₘ-setoid
 
 *>-sub-distrib-∧ᶜ : (Ψ : Substₘ m n) (γ δ : Conₘ n) → Ψ *> (γ ∧ᶜ δ) ≤ᶜ Ψ *> γ ∧ᶜ Ψ *> δ
 *>-sub-distrib-∧ᶜ [] ε ε = ≤ᶜ-reflexive (≈ᶜ-sym (∧ᶜ-idem 𝟘ᶜ))
@@ -143,7 +143,7 @@ private
   𝟘 ·ᶜ γ +ᶜ (Ψ *> 𝟘ᶜ) ≈⟨ +ᶜ-cong (·ᶜ-zeroˡ γ) (*>-zeroʳ Ψ) ⟩
   𝟘ᶜ +ᶜ 𝟘ᶜ            ≈⟨ +ᶜ-identityˡ 𝟘ᶜ ⟩
   𝟘ᶜ                  ∎
-  where open import Tools.Reasoning.Equivalence ≈ᶜ-equivalence
+  where open import Tools.Reasoning.Equivalence Conₘ-setoid
 
 -- Modality substitution application is a monotone function.
 -- If γ ≤ᶜ δ, then Ψ *> γ ≤ᶜ Ψ *> δ.
@@ -164,7 +164,7 @@ private
   p ·ᶜ (Ψ *> δ) +ᶜ (Ψ <*> Φ) *> γ ≈⟨ +ᶜ-cong (≈ᶜ-sym (*>-distrib-·ᶜ Ψ p δ)) (<*>-*>-assoc Ψ Φ γ) ⟩
   Ψ *> (p ·ᶜ δ) +ᶜ Ψ *> (Φ *> γ)  ≈˘⟨ *>-distrib-+ᶜ Ψ (p ·ᶜ δ) (Φ *> γ) ⟩
   Ψ *> (p ·ᶜ δ +ᶜ Φ *> γ)         ∎
-  where open import Tools.Reasoning.Equivalence ≈ᶜ-equivalence
+  where open import Tools.Reasoning.Equivalence Conₘ-setoid
 
 ------------------------------------------
 -- Properties of specific substitutions --
@@ -185,7 +185,7 @@ wk1Substₘ-app (Ψ ⊙ δ) (γ ∙ p) = begin
   (p ·ᶜ δ) +ᶜ (Ψ *> γ) ∙ (𝟘 + 𝟘)
      ≈⟨ ≈ᶜ-refl ∙ (proj₁ +-identity 𝟘) ⟩
   ((Ψ ⊙ δ) *> (γ ∙ p)) ∙ 𝟘         ∎
-  where open import Tools.Reasoning.Equivalence ≈ᶜ-equivalence
+  where open import Tools.Reasoning.Equivalence Conₘ-setoid
 
 
 -- Application of a lifted substitution.
@@ -202,7 +202,7 @@ liftSubstₘ-app [] ε p = begin
   (p ·ᶜ 𝟘ᶜ) ∙ (p · 𝟙)         ≈⟨ (·ᶜ-zeroʳ p) ∙ (proj₂ ·-identity p) ⟩
   𝟘ᶜ ∙ p                      ≡⟨⟩
   ([] *> ε) ∙ p ∎
-  where open import Tools.Reasoning.Equivalence ≈ᶜ-equivalence
+  where open import Tools.Reasoning.Equivalence Conₘ-setoid
 
 liftSubstₘ-app (Ψ ⊙ η) γ p = begin
   liftSubstₘ (Ψ ⊙ η) *> (γ ∙ p)             ≡⟨⟩
@@ -212,7 +212,7 @@ liftSubstₘ-app (Ψ ⊙ η) γ p = begin
   (𝟘ᶜ ∙ p) +ᶜ (((Ψ ⊙ η) *> γ) ∙ 𝟘)
      ≈⟨ (+ᶜ-identityˡ ((Ψ ⊙ η) *> γ)) ∙ (proj₂ +-identity p) ⟩
   ((Ψ ⊙ η) *> γ) ∙ p ∎
-  where open import Tools.Reasoning.Equivalence ≈ᶜ-equivalence
+  where open import Tools.Reasoning.Equivalence Conₘ-setoid
 
 -- The identity matrix is a left identity to substitution application.
 -- idSubstₘ *> γ ≡ γ.
@@ -230,7 +230,7 @@ liftSubstₘ-app (Ψ ⊙ η) γ p = begin
   (idSubstₘ *> γ) ∙ p
     ≈⟨ (*>-identityˡ γ) ∙ ≈-refl ⟩
   γ ∙ p ∎
-  where open import Tools.Reasoning.Equivalence ≈ᶜ-equivalence
+  where open import Tools.Reasoning.Equivalence Conₘ-setoid
 
 -------------------------------
 -- Well-formed substitutions --
@@ -459,14 +459,14 @@ substₘ-calc-col σ x0 = begin
   𝟙 ·ᶜ ⌈ σ x0 ⌉ +ᶜ ∥ tail σ ∥ *> 𝟘ᶜ ≈⟨ +ᶜ-cong (·ᶜ-identityˡ _) (*>-zeroʳ ∥ tail σ ∥) ⟩
   ⌈ σ x0 ⌉ +ᶜ 𝟘ᶜ                     ≈⟨ +ᶜ-identityʳ _ ⟩
   ⌈ σ x0 ⌉                            ∎
-  where open import Tools.Reasoning.Equivalence ≈ᶜ-equivalence
+  where open import Tools.Reasoning.Equivalence Conₘ-setoid
 substₘ-calc-col σ (x +1) = begin
   ∥ σ ∥ *> (𝟘ᶜ , x +1 ≔ 𝟙)                    ≡⟨⟩
   ∥ σ ∥ *> ((𝟘ᶜ , x ≔ 𝟙) ∙ 𝟘)                 ≡⟨⟩
   𝟘 ·ᶜ ⌈ σ x0 ⌉ +ᶜ ∥ tail σ ∥ *> (𝟘ᶜ , x ≔ 𝟙) ≈⟨ +ᶜ-cong (·ᶜ-zeroˡ _) (substₘ-calc-col (tail σ) x) ⟩
   𝟘ᶜ +ᶜ ⌈ tail σ x ⌉                           ≈⟨ +ᶜ-identityˡ _ ⟩
   ⌈ σ (x +1) ⌉                                  ∎
-  where open import Tools.Reasoning.Equivalence ≈ᶜ-equivalence
+  where open import Tools.Reasoning.Equivalence Conₘ-setoid
 
 -- An infered substitution matrix is well-formed if
 -- all substituted terms are well-typed and well-used.

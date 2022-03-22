@@ -2,4 +2,4 @@
 
 module Tools.List where
 
-open import Data.List.Base using (List; []; _∷_) public
+open import Agda.Builtin.List using (List; []; _∷_) public

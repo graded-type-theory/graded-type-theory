@@ -4,22 +4,22 @@ open import Tools.Relation
 
 -- Reasoning for equivalence relations using preorder relation syntax
 
-module Tools.Reasoning.Equivalence
-  {a ℓ} {A : Set a} {_≈_ : Rel A ℓ} (E : IsEquivalence _≈_)
-  where
+module Tools.Reasoning.Equivalence {a ℓ} (S : Setoid a ℓ) where
+
+open Setoid S
 
 -- ≈ is a preorder
 
 ≈-isPreorder : IsPreorder _≈_ _≈_
 ≈-isPreorder = record
-  { isEquivalence = E
+  { isEquivalence = isEquivalence
   ; reflexive = λ x → x
-  ; trans = IsEquivalence.trans E
+  ; trans = trans
   }
 
 ≈-preorder : Preorder _ _ _
 ≈-preorder = record
-  { Carrier = A
+  { Carrier = Carrier
   ; _≈_ = _≈_
   ; _∼_ = _≈_
   ; isPreorder = ≈-isPreorder

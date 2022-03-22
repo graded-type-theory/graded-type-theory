@@ -9,6 +9,7 @@ module Definition.Modality.Context.Properties.Equivalence {a ℓ}
 
 open import Definition.Modality.Context 𝕄
 
+open import Tools.Level
 open import Tools.Nat
 
 open Modality 𝕄
@@ -49,3 +50,7 @@ private
   ; sym   = ≈ᶜ-sym
   ; trans = ≈ᶜ-trans
   }
+
+Conₘ-setoid : {n : Nat} → Setoid a (a ⊔ ℓ)
+Conₘ-setoid {n} = record
+  { Carrier = Conₘ n ; _≈_ = _≈ᶜ_ ; isEquivalence = ≈ᶜ-equivalence }

@@ -6,8 +6,11 @@ open import Tools.Nat
 open import Tools.Nullary
 open import Tools.PropositionalEquality
 
-open import Data.Fin.Base public using (Fin) renaming (zero to x0 ; suc to _+1)
+open import Data.Fin.Base using (Fin) public
+open import Data.Fin.Base using (zero; suc)
 
+pattern x0 = zero
+pattern _+1 x = suc x
 
 -- Decidability of equality
 
