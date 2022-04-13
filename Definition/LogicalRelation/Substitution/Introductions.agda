@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K  #-}
+{-# OPTIONS --without-K --safe #-}
 
 open import Definition.Typed.EqualityRelation
 
@@ -12,6 +12,8 @@ open import Definition.LogicalRelation.Substitution.Introductions.Prod M public
 open import Definition.LogicalRelation.Substitution.Introductions.Fst M public
 open import Definition.LogicalRelation.Substitution.Introductions.Snd M public
 open import Definition.LogicalRelation.Substitution.Introductions.ProdBetaEta M public
+open import Definition.LogicalRelation.Substitution.Introductions.Prodrec M public
+open import Definition.LogicalRelation.Substitution.Introductions.DoubleSubst M public
 open import Definition.LogicalRelation.Substitution.Introductions.Nat M public
 open import Definition.LogicalRelation.Substitution.Introductions.Natrec M public
 open import Definition.LogicalRelation.Substitution.Introductions.Empty M public

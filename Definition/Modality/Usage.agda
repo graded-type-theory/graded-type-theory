@@ -4,8 +4,8 @@ open import Tools.Level
 open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Usage
-  {M′ : Setoid _ _} (𝕄 : Modality M′)
+module Definition.Modality.Usage {ℓ}
+  {M′ : Setoid ℓ₀ ℓ} (𝕄 : Modality M′)
   where
 
 open Modality 𝕄
@@ -28,15 +28,16 @@ private
     G : Term (1+ n)
     t u : Term n
     x : Fin n
+    m : SigmaMode
 
 -- Well-usage of variables
-data _◂_∈_  : (x : Fin n) (p : M) (γ : Conₘ n) → Set where
+data _◂_∈_  : (x : Fin n) (p : M) (γ : Conₘ n) → Set ℓ where
   here  :                       x0 ◂ p ∈ γ ∙ p
   there : (h : x ◂ p ∈ γ) → (x +1) ◂ p ∈ γ ∙ q
 
 
 -- Well-usage of terms
-data _▸_ {n : Nat} : (γ : Conₘ n) → Term n → Set where
+data _▸_ {n : Nat} : (γ : Conₘ n) → Term n → Set ℓ where
   Uₘ        : 𝟘ᶜ ▸ U
   ℕₘ        : 𝟘ᶜ ▸ ℕ
   Emptyₘ    : 𝟘ᶜ ▸ Empty
@@ -48,7 +49,7 @@ data _▸_ {n : Nat} : (γ : Conₘ n) → Term n → Set where
 
   Σₘ        : γ ▸ F
             → δ ∙ q ▸ G
-            → γ +ᶜ δ ▸ Σ q ▷ F ▹ G
+            → γ +ᶜ δ ▸ Σ⟨ m ⟩ q ▷ F ▹ G
 
   var       : (𝟘ᶜ , x ≔ 𝟙) ▸ var x
 
@@ -110,7 +111,7 @@ mutual
   gen-usage (Pikind p q) (F ∷ G ∷ [])        = ⌈ F ⌉ +ᶜ tailₘ ⌈ G ⌉
   gen-usage (Lamkind p) (t ∷ [])             = tailₘ ⌈ t ⌉
   gen-usage (Appkind p) (t ∷ u ∷ [])         = ⌈ t ⌉ +ᶜ p ·ᶜ ⌈ u ⌉
-  gen-usage (Sigmakind p) (F ∷ G ∷ [])       = ⌈ F ⌉ +ᶜ tailₘ ⌈ G ⌉
+  gen-usage (Sigmakind q m) (F ∷ G ∷ [])     = ⌈ F ⌉ +ᶜ tailₘ ⌈ G ⌉
   gen-usage Prodkind (t ∷ u ∷ [])            = ⌈ t ⌉ +ᶜ ⌈ u ⌉
   gen-usage Fstkind (t ∷ [])                 = 𝟘ᶜ
   gen-usage Sndkind (t ∷ [])                 = 𝟘ᶜ

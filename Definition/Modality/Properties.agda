@@ -4,8 +4,8 @@ open import Tools.Level
 open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Properties
-  {M′ : Setoid _ _}
+module Definition.Modality.Properties {a ℓ}
+  {M′ : Setoid a ℓ}
   (𝕄 : Modality M′)
   where
 

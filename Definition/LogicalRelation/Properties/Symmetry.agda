@@ -107,14 +107,27 @@ symEqTerm (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
           (Πₜ₌ f g d d′ funcF funcG f≡g [f] [g] [f≡g]) =
   Πₜ₌ g f d′ d funcG funcF (≅ₜ-sym f≡g) [g] [f]
       (λ ρ ⊢Δ [a] → symEqTerm ([G] ρ ⊢Δ [a]) ([f≡g] ρ ⊢Δ [a]))
-symEqTerm (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-          (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] [fstp] [fstr] [fst≡] [snd≡]) =
+symEqTerm (Bᵣ′ BΣₚ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+          (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] ([fstp] , [fstr] , [fst≡] , [snd≡])) =
   let ⊢Γ = wf ⊢F
       [Gfstp≡Gfstr] = G-ext Wk.id ⊢Γ [fstp] [fstr] [fst≡]
-  in  Σₜ₌ r p d′ d rProd pProd (≅ₜ-sym p≅r) [u] [t] [fstr] [fstp]
-          (symEqTerm ([F] Wk.id ⊢Γ) [fst≡])
+  in  Σₜ₌ r p d′ d rProd pProd (≅ₜ-sym p≅r) [u] [t]
+          ([fstr] , [fstp] , (symEqTerm ([F] Wk.id ⊢Γ) [fst≡]) ,
           (convEqTerm₁
             ([G] Wk.id ⊢Γ [fstp]) ([G] Wk.id ⊢Γ [fstr])
             [Gfstp≡Gfstr]
-            (symEqTerm ([G] Wk.id ⊢Γ [fstp]) [snd≡]))
+            (symEqTerm ([G] Wk.id ⊢Γ [fstp]) [snd≡])))
+symEqTerm (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+          (Σₜ₌ p r d d′ prodₙ prodₙ p≅r [t] [u] ([p₁] , [r₁] , [p₂] , [r₂] , [fst≡] , [snd≡])) =
+  let ⊢Γ = wf ⊢F
+      [Gfstp≡Gfstr] = G-ext Wk.id ⊢Γ [p₁] [r₁] [fst≡]
+  in  Σₜ₌ r p d′ d prodₙ prodₙ (≅ₜ-sym p≅r) [u] [t]
+          ([r₁] , [p₁] , [r₂] , [p₂] , (symEqTerm ([F] Wk.id ⊢Γ) [fst≡]) ,
+          (convEqTerm₁
+            ([G] Wk.id ⊢Γ [p₁]) ([G] Wk.id ⊢Γ [r₁])
+            [Gfstp≡Gfstr]
+            (symEqTerm ([G] Wk.id ⊢Γ [p₁]) [snd≡])))
+symEqTerm (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+          (Σₜ₌ p r d d′ (ne x) (ne y) p≅r [t] [u] p~r) =
+  Σₜ₌ r p d′ d (ne y) (ne x) (≅ₜ-sym p≅r) [u] [t] (~-sym p~r)
 symEqTerm (emb 0<1 x) t≡u = symEqTerm x t≡u

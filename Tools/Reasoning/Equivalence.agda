@@ -5,7 +5,7 @@ open import Tools.Relation
 -- Reasoning for equivalence relations using preorder relation syntax
 
 module Tools.Reasoning.Equivalence
-  {ℓ} {A : Set} {_≈_ : Rel A ℓ} (E : IsEquivalence _≈_)
+  {a ℓ} {A : Set a} {_≈_ : Rel A ℓ} (E : IsEquivalence _≈_)
   where
 
 -- ≈ is a preorder

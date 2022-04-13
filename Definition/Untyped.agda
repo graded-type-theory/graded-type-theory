@@ -19,6 +19,7 @@ infixl 30 _∙_
 infixr 5 _∷_
 infix 30 Π_,_▷_▹_
 infix 30 Σ_▷_▹_
+infix 30 Σ⟨_⟩_▷_▹_
 infix 30 ⟦_⟧_▹_
 infixl 30 _ₛ•ₛ_ _•ₛ_ _ₛ•_
 infix 25 _[_]
@@ -41,6 +42,10 @@ data GenTs (A : Nat → Set) : Nat → List Nat → Set where
   []  : {n : Nat} → GenTs A n []
   _∷_ : {n b : Nat} {bs : List Nat} (t : A (b + n)) (ts : GenTs A n bs) → GenTs A n (b ∷ bs)
 
+-- Sigma types have two modes, allowing either projections or prodrec
+data SigmaMode : Set where
+  Σₚ Σᵣ : SigmaMode
+
 -- Kinds are indexed on the number of expected sub terms
 -- and the number of new variables bound by each sub term
 
@@ -51,7 +56,7 @@ data Kind : (ns : List Nat) → Set where
   Lamkind : (p : M)   → Kind (1 ∷ [])
   Appkind : (p : M)   → Kind (0 ∷ 0 ∷ [])
 
-  Sigmakind : (p : M) → Kind (0 ∷ 1 ∷ [])
+  Sigmakind : (p : M) → SigmaMode → Kind (0 ∷ 1 ∷ [])
   Prodkind  : Kind (0 ∷ 0 ∷ [])
   Fstkind   : Kind (0 ∷ [])
   Sndkind   : Kind (0 ∷ [])
@@ -94,8 +99,11 @@ U = gen Ukind []
 Π_,_▷_▹_ : (p q : M) (A : Term n) (B : Term (1+ n)) → Term n -- Dependent function type (B is a binder).
 Π p , q ▷ A ▹ B = gen (Pikind p q) (A ∷ B ∷ [])
 
-Σ_▷_▹_ : (p : M) (A : Term n) (B : Term (1+ n)) → Term n -- Dependent sum type (B is a binder).
-Σ p ▷ A ▹ B = gen (Sigmakind p) (A ∷ B ∷ [])
+Σᵣ_▷_▹_ : (p : M) (A : Term n) (B : Term (1+ n)) → Term n -- Dependent sum type (B is a binder).
+Σᵣ q ▷ A ▹ B = gen (Sigmakind q Σᵣ) (A ∷ B ∷ [])
+
+Σₚ_▷_▹_ : (p : M) (A : Term n) (B : Term (1+ n)) → Term n -- Dependent sum type (B is a binder).
+Σₚ q ▷ A ▹ B = gen (Sigmakind q Σₚ) (A ∷ B ∷ [])
 
 ℕ      : Term n                      -- Type of natural numbers.
 ℕ = gen Natkind []
@@ -148,14 +156,18 @@ Emptyrec p A e = gen (Emptyreckind p) (A ∷ e ∷ [])
 
 data BindingType : Set where
   BΠ : (p q : M) → BindingType
-  BΣ : (p : M)   → BindingType
+  BΣ : (p : M) → SigmaMode → BindingType
 
 pattern BΠ! = BΠ _ _
-pattern BΣ! = BΣ _
+pattern BΣ! = BΣ _ _
+pattern BΣᵣ = BΣ _ Σᵣ
+pattern BΣₚ = BΣ _ Σₚ
+pattern Σ_▷_▹_ q A B = gen (Sigmakind q _) (A ∷ B ∷ [])
+pattern Σ⟨_⟩_▷_▹_ m q A B = gen (Sigmakind q m) (A ∷ B ∷ [])
 
 ⟦_⟧_▹_ : BindingType → Term n → Term (1+ n) → Term n
 ⟦ BΠ p q ⟧ F ▹ G = Π p , q ▷ F ▹ G
-⟦ BΣ p   ⟧ F ▹ G = Σ p ▷ F ▹ G
+⟦ BΣ q m ⟧ F ▹ G = Σ⟨ m ⟩ q ▷ F ▹ G
 
 -- Injectivity of term constructors w.r.t. propositional equality.
 
@@ -164,8 +176,7 @@ pattern BΣ! = BΣ _
 B-PE-injectivity : ∀ W W' → ⟦ W ⟧ F ▹ G PE.≡ ⟦ W' ⟧ H ▹ E
                  → F PE.≡ H × G PE.≡ E × W PE.≡ W'
 B-PE-injectivity (BΠ p q) (BΠ .p .q) PE.refl = PE.refl , PE.refl , PE.refl
-B-PE-injectivity (BΣ p)   (BΣ .p)    PE.refl = PE.refl , PE.refl , PE.refl
-
+B-PE-injectivity (BΣ q m) (BΣ .q .m) PE.refl = PE.refl , PE.refl , PE.refl
 
 -- If  suc n = suc m  then  n = m.
 
@@ -197,7 +208,7 @@ data Whnf {n : Nat} : Term n → Set where
   -- Type constructors are whnfs.
   Uₙ     : Whnf U
   Πₙ     : Whnf (Π p , q ▷ A ▹ B)
-  Σₙ     : Whnf (Σ p ▷ A ▹ B)
+  Σₙ     : ∀ {m} → Whnf (Σ⟨ m ⟩ q ▷ A ▹ B)
   ℕₙ     : Whnf ℕ
   Unitₙ  : Whnf Unit
   Emptyₙ : Whnf Empty
@@ -232,29 +243,32 @@ Unit≢ne () PE.refl
 
 B≢ne : ∀ W → Neutral A → ⟦ W ⟧ F ▹ G PE.≢ A
 B≢ne (BΠ p q) () PE.refl
-B≢ne (BΣ p)   () PE.refl
+B≢ne (BΣ q m) () PE.refl
 
 U≢B : ∀ W → U PE.≢ ⟦ W ⟧ F ▹ G
 U≢B (BΠ p q) ()
-U≢B (BΣ p)   ()
+U≢B (BΣ q m) ()
 
 ℕ≢B : ∀ W → ℕ PE.≢ ⟦ W ⟧ F ▹ G
 ℕ≢B (BΠ p q) ()
-ℕ≢B (BΣ p)   ()
+ℕ≢B (BΣ q m) ()
 
 Empty≢B : ∀ W → Empty PE.≢ ⟦ W ⟧ F ▹ G
 Empty≢B (BΠ p q) ()
-Empty≢B (BΣ p)   ()
+Empty≢B (BΣ q m) ()
 
 Unit≢B : ∀ W → Unit PE.≢ ⟦ W ⟧ F ▹ G
 Unit≢B (BΠ p q) ()
-Unit≢B (BΣ p)   ()
+Unit≢B (BΣ q m) ()
 
 zero≢ne : Neutral t → zero PE.≢ t
 zero≢ne () PE.refl
 
 suc≢ne : Neutral t → suc u PE.≢ t
 suc≢ne () PE.refl
+
+prod≢ne : Neutral v → prod t u PE.≢ v
+prod≢ne () PE.refl
 
 -- Several views on whnfs (note: not recursive).
 
@@ -271,7 +285,7 @@ data Natural {n : Nat} : Term n → Set where
 
 data Type {n : Nat} : Term n → Set where
   Πₙ     :             Type (Π p , q ▷ A ▹ B)
-  Σₙ     :             Type (Σ p ▷ A ▹ B)
+  Σₙ     : ∀ {m} →     Type (Σ⟨ m ⟩ p ▷ A ▹ B)
   ℕₙ     :             Type ℕ
   Emptyₙ :             Type Empty
   Unitₙ  :             Type Unit
@@ -279,7 +293,7 @@ data Type {n : Nat} : Term n → Set where
 
 ⟦_⟧-type : ∀ (W : BindingType) → Type (⟦ W ⟧ F ▹ G)
 ⟦ BΠ p q ⟧-type = Πₙ
-⟦ BΣ p ⟧-type = Σₙ
+⟦ BΣ q m ⟧-type = Σₙ
 
 -- A whnf of type Π A ▹ B is either lam t or neutral.
 
@@ -320,7 +334,7 @@ productWhnf (ne x) = ne x
 
 ⟦_⟧ₙ : (W : BindingType) → Whnf (⟦ W ⟧ F ▹ G)
 ⟦_⟧ₙ (BΠ p q) = Πₙ
-⟦_⟧ₙ (BΣ p)   = Σₙ
+⟦_⟧ₙ (BΣ q m) = Σₙ
 
 ------------------------------------------------------------------------
 -- Weakening
@@ -596,4 +610,4 @@ t [ s ]↑² = subst (consSubst (wk1Subst (wk1Subst idSubst)) s) t
 B-subst : (σ : Subst m n) (W : BindingType) (F : Term n) (G : Term (1+ n))
         → subst σ (⟦ W ⟧ F ▹ G) PE.≡ ⟦ W ⟧ (subst σ F) ▹ (subst (liftSubst σ) G)
 B-subst σ (BΠ p q) F G = PE.refl
-B-subst σ (BΣ p)   F G = PE.refl
+B-subst σ (BΣ q m) F G = PE.refl

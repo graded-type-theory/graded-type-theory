@@ -65,6 +65,7 @@ wfEqTerm (natrec-suc n F z s) = wfTerm n
 wfEqTerm (Emptyrec-cong A≡A' e≡e') = wfEqTerm e≡e'
 wfEqTerm (η-unit e e') = wfTerm e
 wfEqTerm (Σ-cong F _ _) = wf F
+wfEqTerm (prod-cong F G x x₁) = wf F
 wfEqTerm (fst-cong _ _ a) = wfEqTerm a
 wfEqTerm (snd-cong _ _ a) = wfEqTerm a
 wfEqTerm (Σ-η _ _ x _ _ _) = wfTerm x

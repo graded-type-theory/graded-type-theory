@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K  #-}
+{-# OPTIONS --without-K --safe #-}
 
 open import Definition.Typed.EqualityRelation
 
@@ -16,7 +16,6 @@ open import Definition.LogicalRelation.ShapeView M
 open import Definition.LogicalRelation.Irrelevance M
 open import Definition.LogicalRelation.Weakening M
 open import Definition.LogicalRelation.Properties M
-open import Definition.LogicalRelation.Application M
 open import Definition.LogicalRelation.Substitution M
 open import Definition.LogicalRelation.Substitution.Properties M
 open import Definition.LogicalRelation.Substitution.Introductions.Pi M
@@ -35,9 +34,9 @@ private
 
 snd-subst*′ : ∀ {l l′ F G t t′}
              ([F] : Γ ⊩⟨ l ⟩ F)
-             ([ΣFG] : Γ ⊩⟨ l′ ⟩B⟨ BΣ q ⟩ Σ q ▷ F ▹ G)
-             ([t′] : Γ ⊩⟨ l′ ⟩ t′ ∷ Σ q ▷ F ▹ G / B-intr (BΣ q) [ΣFG])
-             → Γ ⊢ t ⇒* t′ ∷ Σ q ▷ F ▹ G
+             ([ΣFG] : Γ ⊩⟨ l′ ⟩B⟨ BΣ q Σₚ ⟩ Σ⟨ Σₚ ⟩ q ▷ F ▹ G)
+             ([t′] : Γ ⊩⟨ l′ ⟩ t′ ∷ Σ q ▷ F ▹ G / B-intr (BΣ q Σₚ) [ΣFG])
+             → Γ ⊢ t ⇒* t′ ∷ Σ⟨ Σₚ ⟩ q ▷ F ▹ G
              → Γ ⊢ snd t ⇒* snd t′ ∷ G [ fst t ]
 snd-subst*′ [F] (noemb (Bᵣ F G D ⊢F ⊢G A≡A [F]₁ [G] G-ext)) _ (id x) with
               B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) Σₙ)
@@ -46,9 +45,9 @@ snd-subst*′ {Γ = Γ} {q = q} {F = F} {G = G} {t = t} {t′ = t″} [F]
             [ΣFG]₀@(noemb (Bᵣ F₁ G₁ D ⊢F ⊢G A≡A [F]₁ [G] G-ext))
             [t″]
             t⇒*t″@(_⇨_ {t′ = t′} t⇒t′ t′⇒*t″) with
-              B-PE-injectivity (BΣ q) (BΣ q) (whnfRed* (red D) Σₙ)
+              B-PE-injectivity (BΣ q Σₚ) (BΣ q Σₚ) (whnfRed* (red D) Σₙ)
 ... | PE.refl , PE.refl , _ =
-  let [ΣFG] = B-intr (BΣ q) [ΣFG]₀
+  let [ΣFG] = B-intr (BΣ q Σₚ) [ΣFG]₀
       [t] , _ = redSubst*Term t⇒*t″ [ΣFG] [t″]
       [t′] , _ = redSubst*Term t′⇒*t″ [ΣFG] [t″]
       [t≡t′] : Γ ⊩⟨ _ ⟩ t ≡ t′ ∷ Σ _ ▷ F ▹ G / [ΣFG]
@@ -81,17 +80,18 @@ snd-subst* [F] [ΣFG] [t′] t⇒*t′ =
   in  snd-subst*′ [F] (B-elim BΣ! [ΣFG]) [t′]′ t⇒*t′
 
 snd′ : ∀ {F G t l l′}
-       ([ΣFG] : Γ ⊩⟨ l ⟩B⟨ BΣ q ⟩ Σ q ▷ F ▹ G)
+       ([ΣFG] : Γ ⊩⟨ l ⟩B⟨ BΣ q Σₚ ⟩ Σ q ▷ F ▹ G)
        ([t] : Γ ⊩⟨ l ⟩ t ∷ Σ _ ▷ F ▹ G / B-intr BΣ! [ΣFG])
        ([Gfst] : Γ ⊩⟨ l′ ⟩ G [ fst t ])
        → Γ ⊩⟨ l′ ⟩ snd t ∷ G [ fst t ] / [Gfst]
 snd′ {Γ = Γ} {q = q} {F = F} {G = G} {t = t} {l = l} {l′ = l′}
-     [ΣFG]@(noemb (Bᵣ F' G' D ⊢F ⊢G A≡A [F'] [G'] G-ext))
-     [t]@(Σₜ p d pProd p≅p [fstp] [sndp]) [Gfst] with
+     [ΣFG]@(noemb [Σ]@(Bᵣ F' G' D ⊢F ⊢G A≡A [F'] [G'] G-ext))
+     [t]@(Σₜ p d p≅p pProd pProp) [Gfst] with
        B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) Σₙ)
 ... | PE.refl , PE.refl , _ =
   let ⊢Γ = wf ⊢F
-      [p] = Σₜ p (idRedTerm:*: (⊢u-redₜ d)) pProd p≅p [fstp] [sndp]
+      [fstp] , [sndp] = pProp
+      [p] = Σₜ p (idRedTerm:*: (⊢u-redₜ d)) p≅p pProd pProp
       [fstt] , [fstt≡fstp] = redSubst*Term (PE.subst (λ x → Γ ⊢ fst t ⇒* fst p ∷ x)
                                                      (PE.sym (wk-id F))
                                                      (fst-subst* ⊢F ⊢G (redₜ d)))
@@ -124,27 +124,30 @@ snd″ {Γ = Γ} {t = t} {l = l} [ΣFG] [t] [Gfst] =
   in  snd′ (Σ-elim [ΣFG]) [t]′ [Gfst]
 
 snd-cong′ : ∀ {F G t t′ l l′}
-            ([ΣFG] : Γ ⊩⟨ l ⟩B⟨ BΣ! ⟩ Σ q ▷ F ▹ G)
+            ([ΣFG] : Γ ⊩⟨ l ⟩B⟨ BΣₚ ⟩ Σ q ▷ F ▹ G)
             ([t] : Γ ⊩⟨ l ⟩ t ∷ Σ q ▷ F ▹ G / B-intr BΣ! [ΣFG])
             ([t′] : Γ ⊩⟨ l ⟩ t′ ∷ Σ q ▷ F ▹ G / B-intr BΣ! [ΣFG])
             ([t≡t′] : Γ ⊩⟨ l ⟩ t ≡ t′ ∷ Σ _ ▷ F ▹ G / B-intr BΣ! [ΣFG])
             ([Gfst] : Γ ⊩⟨ l′ ⟩ G [ fst t ])
             → Γ ⊩⟨ l′ ⟩ snd t ≡ snd t′ ∷ G [ fst t ] / [Gfst]
 snd-cong′ {Γ = Γ} {q = q} {F = F} {G} {t} {t′} {l} {l′}
-          [ΣFG]@(noemb (Bᵣ F' G' D ⊢F ⊢G A≡A [F] [G] G-ext))
-          [t]@(Σₜ p d pProd p≅p [fstp] [sndp])
-          [t′]@(Σₜ p′ d′ pProd′ p′≅p′ [fstp′] [sndp′])
-          [t≡t′]@(Σₜ₌ p₁ p′₁ d₁ d′₁ pProd₁ pProd′₁ p≅p′ [t]₁ [t′]₁ [fstp]₁ [fstp′]₁ [fst≡] [snd≡])
+          [ΣFG]@(noemb [Σ]@(Bᵣ F' G' D ⊢F ⊢G A≡A [F] [G] G-ext))
+          [t]@(Σₜ p d p≅p pProd pProp)
+          [t′]@(Σₜ p′ d′ p′≅p′ pProd′ pProp′)
+          [t≡t′]@(Σₜ₌ p₁ p′₁ d₁ d′₁ pProd₁ pProd′₁ p≅p′ [t]₁ [t′]₁ prop)
           [Gfst] with
             B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) Σₙ)
           | whrDet*Term (redₜ d , productWhnf pProd) (redₜ d₁ , productWhnf pProd₁)
           | whrDet*Term (redₜ d′ , productWhnf pProd′) (redₜ d′₁ , productWhnf pProd′₁)
 ... | PE.refl , PE.refl , _ | PE.refl | PE.refl =
   let ⊢Γ = wf ⊢F
+      [fstp] , [sndp] = pProp
+      [fstp′] , [sndp′] = pProp′
+      [fstp]₁ , [fstr]₁ , [fst≡] , [snd≡] = prop
       [p] : Γ ⊩⟨ l ⟩ p ∷ Σ _ ▷ F ▹ G / B-intr BΣ! [ΣFG]
-      [p] = Σₜ p (idRedTerm:*: (⊢u-redₜ d)) pProd p≅p [fstp] [sndp]
+      [p] = Σₜ p (idRedTerm:*: (⊢u-redₜ d)) p≅p pProd pProp
       [p′] : Γ ⊩⟨ l ⟩ p′ ∷ Σ _ ▷ F ▹ G / B-intr BΣ! [ΣFG]
-      [p′] = Σₜ p′ (idRedTerm:*: (⊢u-redₜ d′)) pProd′ p′≅p′ [fstp′] [sndp′]
+      [p′] = Σₜ p′ (idRedTerm:*: (⊢u-redₜ d′)) p′≅p′ pProd′ pProp′
       [F]′ = irrelevance′ (wk-id F) ([F] id ⊢Γ)
 
       [fstt] , [fstt≡fstp] = redSubst*Term (PE.subst (λ x → Γ ⊢ fst t ⇒* fst p ∷ x)

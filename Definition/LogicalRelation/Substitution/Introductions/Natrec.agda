@@ -141,7 +141,7 @@ natrecTerm {Γ = Γ} {Δ = Δ} {p = p} {r = r} {F = F} {z} {s} {n} {σ} {l} [Γ]
                   (PE.sym (singleSubstComp t σ F))
                   (PE.sym (singleSubstComp t′ σ F))
                   (≅-eq (escapeEq (proj₁ ([F] ⊢Δ ([σ] , [t]))) (proj₂ ([F] ⊢Δ ([σ] , [t])) ([σ] , [t′]) ((reflSubst [Γ] ⊢Δ [σ]) , [t≡t′])))))
-      reduction′ = conv* ((natrec-suc ⊢m ⊢F ⊢z ⊢s) ⇨ (id ({!escapeTerm [σFₛₘ] [natrec]″!}))) (sym (≅-eq (escapeEq [σFₙ] [Fₙ≡Fₛₘ])))
+      reduction′ = conv* ((natrec-suc ⊢m ⊢F ⊢z ⊢s) ⇨ (id (escapeTerm [σFₛₘ] [natrec]″))) (sym (≅-eq (escapeEq [σFₙ] [Fₙ≡Fₛₘ])))
       reduction″ = PE.subst (Δ ⊢ _ ⇒*_∷ _)
                             (doubleSubstComp s m (natrec p r (subst (liftSubst σ) F) (subst σ z)
                                                              (subst (liftSubstn σ 2) s) m) σ)

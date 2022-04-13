@@ -4,8 +4,8 @@ open import Tools.Level
 open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Context
-  {M′ : Setoid _ _}
+module Definition.Modality.Context {a ℓ}
+  {M′ : Setoid a ℓ}
   (𝕄 : Modality M′)
   where
 
@@ -34,13 +34,13 @@ private
 
 -- Modality Contexts are snoc-lists
 
-data Conₘ : Nat → Set where
+data Conₘ : Nat → Set a where
   ε   : Conₘ 0
   _∙_ : (γ : Conₘ n) → (p : M) → Conₘ (1+ n)
 
 -- Modality equality lifted pointwise to contexts
 
-data _≈ᶜ_ : (γ δ : Conₘ n) → Set where
+data _≈ᶜ_ : (γ δ : Conₘ n) → Set (a ⊔ ℓ) where
   ε : ε ≈ᶜ ε
   _∙_ : {γ δ : Conₘ n} {p q : M} → γ ≈ᶜ δ → p ≈ q → (γ ∙ p) ≈ᶜ (δ ∙ q)
 
@@ -98,7 +98,7 @@ p ·ᶜ (γ ∙ q) = (p ·ᶜ γ) ∙ (p · q)
 
 -- Partial order of modality contexts
 
-_≤ᶜ_ : (γ δ : Conₘ n) → Set
+_≤ᶜ_ : (γ δ : Conₘ n) → Set (a ⊔ ℓ)
 γ ≤ᶜ δ = γ ≈ᶜ γ ∧ᶜ δ
 
 -- nr-recurrence relation lifted to modality contexts

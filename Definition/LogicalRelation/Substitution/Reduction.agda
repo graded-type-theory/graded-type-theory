@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --safe #-}
+{-# OPTIONS --without-K --safe  #-}
 
 open import Definition.Typed.EqualityRelation
 

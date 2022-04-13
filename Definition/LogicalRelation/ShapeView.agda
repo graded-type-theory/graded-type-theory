@@ -195,7 +195,7 @@ B-elim W [Π] = B-elim′ W (id (escape [Π])) [Π]
 Π-elim : ∀ {F G l} → Γ ⊩⟨ l ⟩ Π p , q ▷ F ▹ G → Γ ⊩⟨ l ⟩B⟨ BΠ p q ⟩ Π p , q ▷ F ▹ G
 Π-elim [Π] = B-elim′ BΠ! (id (escape [Π])) [Π]
 
-Σ-elim : ∀ {F G l} → Γ ⊩⟨ l ⟩ Σ q ▷ F ▹ G → Γ ⊩⟨ l ⟩B⟨ BΣ q ⟩ Σ q ▷ F ▹ G
+Σ-elim : ∀ {F G m l} → Γ ⊩⟨ l ⟩ Σ q ▷ F ▹ G → Γ ⊩⟨ l ⟩B⟨ BΣ q m ⟩ Σ q ▷ F ▹ G
 Σ-elim [Σ] = B-elim′ BΣ! (id (escape [Σ])) [Σ]
 
 -- Extract a type and a level from a maybe embedding

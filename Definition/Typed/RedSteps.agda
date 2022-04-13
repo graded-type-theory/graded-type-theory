@@ -39,3 +39,9 @@ app-subst* : Γ ⊢ t ⇒* t′ ∷ Π p , q ▷ A ▹ B → Γ ⊢ a ∷ A
            → Γ ⊢ t ∘ p ▷ a ⇒* t′ ∘ p ▷ a ∷ B [ a ]
 app-subst* (id x) a₁ = id (x ∘ⱼ a₁)
 app-subst* (x ⇨ t⇒t′) a₁ = app-subst x a₁ ⇨ app-subst* t⇒t′ a₁
+
+-- Fisrt projection substitution of reduction closures
+fst-subst* : ∀ {F G t t′} → Γ ⊢ F → Γ ∙ F ⊢ G
+           → Γ ⊢ t ⇒* t′ ∷ Σ⟨ Σₚ ⟩ q ▷ F ▹ G → Γ ⊢ fst t ⇒* fst t′ ∷ F
+fst-subst* ⊢F ⊢G (id x) = id (fstⱼ ⊢F ⊢G x)
+fst-subst* ⊢F ⊢G (x ⇨ t⇒t′) = fst-subst ⊢F ⊢G x ⇨ fst-subst* ⊢F ⊢G t⇒t′
