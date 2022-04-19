@@ -81,7 +81,7 @@ mutual
              (Σₜ f d f≡f pProd ([f₁] , [f₂])) =
     let ΣF₁G₁≡ΣF′G′       = whrDet* (red D₁ , Σₙ) (D′ , Σₙ)
         F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity (BΣ q Σₚ) BΣ! ΣF₁G₁≡ΣF′G′
-        ΣFG≡ΣF₁G₁ = PE.subst (λ x → Γ ⊢ Σ⟨ Σₚ ⟩ q ▷ F ▹ G ≡ x) (PE.sym ΣF₁G₁≡ΣF′G′)
+        ΣFG≡ΣF₁G₁ = PE.subst (λ x → Γ ⊢ Σₚ q ▷ F ▹ G ≡ x) (PE.sym ΣF₁G₁≡ΣF′G′)
                              (≅-eq A≡B)
         ⊢Γ = wf ⊢F
         F≡F₁ = PE.subst (λ x → Γ ⊩⟨ l ⟩ wk id F ≡ wk id x / [F] Wk.id ⊢Γ)
@@ -99,7 +99,7 @@ mutual
              (Σₜ f d f≡f prodₙ ([f₁] , [f₂])) =
     let ΣF₁G₁≡ΣF′G′       = whrDet* (red D₁ , Σₙ) (D′ , Σₙ)
         F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity (BΣ q Σᵣ) BΣ! ΣF₁G₁≡ΣF′G′
-        ΣFG≡ΣF₁G₁ = PE.subst (λ x → Γ ⊢ Σ⟨ Σᵣ ⟩ q ▷ F ▹ G ≡ x) (PE.sym ΣF₁G₁≡ΣF′G′)
+        ΣFG≡ΣF₁G₁ = PE.subst (λ x → Γ ⊢ Σᵣ q ▷ F ▹ G ≡ x) (PE.sym ΣF₁G₁≡ΣF′G′)
                              (≅-eq A≡B)
         ⊢Γ = wf ⊢F
         F≡F₁ = PE.subst (λ x → Γ ⊩⟨ l ⟩ wk id F ≡ wk id x / [F] Wk.id ⊢Γ)
@@ -116,7 +116,7 @@ mutual
              (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
              (Σₜ f d f≡f (ne x) f~f) =
     let ΣF₁G₁≡ΣF′G′       = whrDet* (red D₁ , Σₙ) (D′ , Σₙ)
-        ΣFG≡ΣF₁G₁ = PE.subst (λ x → Γ ⊢ Σ⟨ Σᵣ ⟩ q ▷ F ▹ G ≡ x) (PE.sym ΣF₁G₁≡ΣF′G′)
+        ΣFG≡ΣF₁G₁ = PE.subst (λ x → Γ ⊢ Σᵣ q ▷ F ▹ G ≡ x) (PE.sym ΣF₁G₁≡ΣF′G′)
                              (≅-eq A≡B)
     in  Σₜ f (convRed:*: d ΣFG≡ΣF₁G₁) (≅-conv f≡f ΣFG≡ΣF₁G₁)
            (ne x) (~-conv f~f ΣFG≡ΣF₁G₁)
@@ -177,7 +177,7 @@ mutual
              (Σₜ f d f≡f pProd ([f₁]₁ , [f₂]₁)) =
     let ΣF₁G₁≡ΣF′G′       = whrDet* (red D₁ , Σₙ) (D′ , Σₙ)
         F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity (BΣ q _) BΣ! ΣF₁G₁≡ΣF′G′
-        ΣFG≡ΣF₁G₁ = PE.subst (λ x → Γ ⊢ Σ⟨ Σₚ ⟩ q ▷ F ▹ G ≡ x) (PE.sym ΣF₁G₁≡ΣF′G′)
+        ΣFG≡ΣF₁G₁ = PE.subst (λ x → Γ ⊢ Σₚ q ▷ F ▹ G ≡ x) (PE.sym ΣF₁G₁≡ΣF′G′)
                              (≅-eq A≡B)
         ⊢Γ = wf ⊢F
         F≡F₁ = PE.subst (λ x → Γ ⊩⟨ l ⟩ wk id F ≡ wk id x / [F] Wk.id ⊢Γ)
@@ -195,7 +195,7 @@ mutual
              (Σₜ f d f≡f (prodₙ {t = f₁} {u = f₂}) ([f₁]₁ , [f₂]₁)) =
     let ΣF₁G₁≡ΣF′G′       = whrDet* (red D₁ , Σₙ) (D′ , Σₙ)
         F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity (BΣ q _) BΣ! ΣF₁G₁≡ΣF′G′
-        ΣFG≡ΣF₁G₁ = PE.subst (λ x → Γ ⊢ Σ⟨ Σᵣ ⟩ q ▷ F ▹ G ≡ x) (PE.sym ΣF₁G₁≡ΣF′G′)
+        ΣFG≡ΣF₁G₁ = PE.subst (λ x → Γ ⊢ Σᵣ q ▷ F ▹ G ≡ x) (PE.sym ΣF₁G₁≡ΣF′G′)
                              (≅-eq A≡B)
         ⊢Γ = wf ⊢F
         F≡F₁ = PE.subst (λ x → Γ ⊩⟨ l ⟩ wk id F ≡ wk id x / [F] Wk.id ⊢Γ)
@@ -212,7 +212,7 @@ mutual
                               (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
                               (Σₜ f d f≡f (ne x) f~f) =
     let ΣF₁G₁≡ΣF′G′       = whrDet* (red D₁ , Σₙ) (D′ , Σₙ)
-        ΣFG≡ΣF₁G₁ = PE.subst (λ x → Γ ⊢ Σ⟨ Σᵣ ⟩ q ▷ F ▹ G ≡ x) (PE.sym ΣF₁G₁≡ΣF′G′)
+        ΣFG≡ΣF₁G₁ = PE.subst (λ x → Γ ⊢ Σᵣ q ▷ F ▹ G ≡ x) (PE.sym ΣF₁G₁≡ΣF′G′)
                              (≅-eq A≡B)
     in  Σₜ f (convRed:*: d (sym ΣFG≡ΣF₁G₁)) (≅-conv f≡f (sym ΣFG≡ΣF₁G₁))
            (ne x) (~-conv f~f (sym ΣFG≡ΣF₁G₁))
@@ -297,7 +297,7 @@ mutual
         [A≡B] = B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]
         ΣF₁G₁≡ΣF′G′       = whrDet* (red D₁ , Σₙ) (D′ , Σₙ)
         F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity BΣ! BΣ! ΣF₁G₁≡ΣF′G′
-        ΣFG≡ΣF₁G₁ = PE.subst (λ x → Γ ⊢ Σ⟨ Σₚ ⟩ q ▷ F ▹ G ≡ x)
+        ΣFG≡ΣF₁G₁ = PE.subst (λ x → Γ ⊢ Σₚ q ▷ F ▹ G ≡ x)
                              (PE.sym ΣF₁G₁≡ΣF′G′) (≅-eq A≡B)
         ⊢Γ = wf ⊢F
         ⊢Γ₁ = wf ⊢F₁
@@ -324,7 +324,7 @@ mutual
         [A≡B] = B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]
         ΣF₁G₁≡ΣF′G′       = whrDet* (red D₁ , Σₙ) (D′ , Σₙ)
         F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity BΣ! BΣ! ΣF₁G₁≡ΣF′G′
-        ΣFG≡ΣF₁G₁ = PE.subst (λ x → Γ ⊢ Σ⟨ Σᵣ ⟩ q ▷ F ▹ G ≡ x)
+        ΣFG≡ΣF₁G₁ = PE.subst (λ x → Γ ⊢ Σᵣ q ▷ F ▹ G ≡ x)
                              (PE.sym ΣF₁G₁≡ΣF′G′) (≅-eq A≡B)
         ⊢Γ = wf ⊢F
         ⊢Γ₁ = wf ⊢F₁
@@ -356,7 +356,7 @@ mutual
         [A≡B] = B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]
         ΣF₁G₁≡ΣF′G′       = whrDet* (red D₁ , Σₙ) (D′ , Σₙ)
         F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity BΣ! BΣ! ΣF₁G₁≡ΣF′G′
-        ΣFG≡ΣF₁G₁ = PE.subst (λ x → Γ ⊢ Σ⟨ Σᵣ ⟩ q ▷ F ▹ G ≡ x)
+        ΣFG≡ΣF₁G₁ = PE.subst (λ x → Γ ⊢ Σᵣ q ▷ F ▹ G ≡ x)
                              (PE.sym ΣF₁G₁≡ΣF′G′) (≅-eq A≡B)
         p~r₁ = ~-conv p~r ΣFG≡ΣF₁G₁
     in  Σₜ₌ p r (convRed:*: d ΣFG≡ΣF₁G₁) (convRed:*: d′ ΣFG≡ΣF₁G₁)
@@ -416,7 +416,7 @@ mutual
         [A≡B] = B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]
         ΣF₁G₁≡ΣF′G′       = whrDet* (red D₁ , Σₙ) (D′ , Σₙ)
         F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity BΣ! BΣ! ΣF₁G₁≡ΣF′G′
-        ΣFG≡ΣF₁G₁ = PE.subst (λ x → Γ ⊢ Σ⟨ Σₚ ⟩ q ▷ F ▹ G ≡ x)
+        ΣFG≡ΣF₁G₁ = PE.subst (λ x → Γ ⊢ Σₚ q ▷ F ▹ G ≡ x)
                              (PE.sym ΣF₁G₁≡ΣF′G′) (≅-eq A≡B)
         ⊢Γ = wf ⊢F
         ⊢Γ₁ = wf ⊢F₁
@@ -443,7 +443,7 @@ mutual
         [A≡B] = B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]
         ΣF₁G₁≡ΣF′G′       = whrDet* (red D₁ , Σₙ) (D′ , Σₙ)
         F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity BΣ! BΣ! ΣF₁G₁≡ΣF′G′
-        ΣFG≡ΣF₁G₁ = PE.subst (λ x → Γ ⊢ Σ⟨ Σᵣ ⟩ q ▷ F ▹ G ≡ x)
+        ΣFG≡ΣF₁G₁ = PE.subst (λ x → Γ ⊢ Σᵣ q ▷ F ▹ G ≡ x)
                              (PE.sym ΣF₁G₁≡ΣF′G′) (≅-eq A≡B)
         ⊢Γ = wf ⊢F
         ⊢Γ₁ = wf ⊢F₁
@@ -476,7 +476,7 @@ mutual
         [A≡B] = B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]
         ΣF₁G₁≡ΣF′G′       = whrDet* (red D₁ , Σₙ) (D′ , Σₙ)
         F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity BΣ! BΣ! ΣF₁G₁≡ΣF′G′
-        ΣFG≡ΣF₁G₁ = PE.subst (λ x → Γ ⊢ Σ⟨ Σᵣ ⟩ q ▷ F ▹ G ≡ x)
+        ΣFG≡ΣF₁G₁ = PE.subst (λ x → Γ ⊢ Σᵣ q ▷ F ▹ G ≡ x)
                              (PE.sym ΣF₁G₁≡ΣF′G′) (≅-eq A≡B)
         p~r = ~-conv p~r₁ (sym ΣFG≡ΣF₁G₁)
     in  Σₜ₌ p r (convRed:*: d (sym ΣFG≡ΣF₁G₁)) (convRed:*: d′ (sym ΣFG≡ΣF₁G₁))

@@ -1,10 +1,12 @@
-{-# OPTIONS --without-K #-}
+{-# OPTIONS --without-K --safe #-}
 
 module Definition.Conversion.Symmetry (M : Set) where
 
 open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped.Properties M
 open import Definition.Typed M
 open import Definition.Typed.Properties M
+open import Definition.Typed.Weakening M as W hiding (wk)
 open import Definition.Conversion M
 open import Definition.Conversion.Stability M
 open import Definition.Conversion.Soundness M
@@ -16,6 +18,7 @@ open import Definition.Typed.Consequences.Injectivity M
 open import Definition.Typed.Consequences.Substitution M
 open import Definition.Typed.Consequences.SucCong M
 
+open import Tools.Fin
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -68,6 +71,48 @@ mutual
                     (convConvTerm (symConv↑Term (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ) ∙ soundnessConv↑ x) x₂) (sucCong′ F≡G))
                     (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡ℕ u~t)
                     PE.refl PE.refl
+  sym~↑ {Γ = Γ} {Δ = Δ} Γ≡Δ (prodrec-cong {F = F} {G} C↑E g~h u↑v PE.refl) =
+    let g≡h = soundness~↓ g~h
+        C≡E = soundnessConv↑ C↑E
+        ⊢Σ , _ = syntacticEqTerm g≡h
+        ⊢F , ⊢G = syntacticΣ ⊢Σ
+        B , whnfB , ⊢Σ≡B , h~g = sym~↓ Γ≡Δ g~h
+        F′ , G′ , B≡Σ′ = Σ≡A ⊢Σ≡B whnfB
+        ⊢Σ≡Σ′ = PE.subst (λ x → Γ ⊢ _ ≡ x) B≡Σ′ ⊢Σ≡B
+        E↑C = symConv↑ (Γ≡Δ ∙ ⊢Σ≡Σ′) C↑E
+        v↑u = symConv↑Term (Γ≡Δ ∙ refl ⊢F ∙ refl ⊢G) u↑v
+        ⊢Γ , ⊢Δ , ⊢idsubst = contextConvSubst Γ≡Δ
+        ⊢F′ = stability Γ≡Δ ⊢F
+        ⊢G′ = stability (Γ≡Δ ∙ refl ⊢F) ⊢G
+        ⊢F≡F′ , ⊢G≡G′ , _ = Σ-injectivity (stabilityEq Γ≡Δ ⊢Σ≡Σ′)
+        ⊢ΔF = ⊢Δ ∙ ⊢F′
+        ⊢ΔFG = ⊢ΔF ∙ ⊢G′
+        ⊢ρF = W.wk (step (step id)) ⊢ΔFG ⊢F′
+        ⊢ρG = W.wk (lift (step (step id))) (⊢ΔFG ∙ ⊢ρF) ⊢G′
+        C₊≡E₊ = substitutionEq (soundnessConv↑ C↑E)
+                               (substRefl (wk1Subst′ ⊢Γ ⊢ΔF ⊢G′ (wk1Subst′ ⊢Γ ⊢Δ ⊢F′ ⊢idsubst)
+                               , prodⱼ (PE.subst (λ x → Δ ∙ F ∙ G ⊢ x) (wk≡subst (step (step id)) F) ⊢ρF)
+                                       (PE.subst₂ (λ x y → Δ ∙ F ∙ G ∙ x ⊢ y)
+                                                  (wk≡subst (step (step id)) F)
+                                                  (PE.trans (wk≡subst (lift (step (step id))) G)
+                                                            (substVar-to-subst (λ{x0 → PE.refl; (x +1) → PE.refl}) G))
+                                                  ⊢ρG)
+                                       (var ⊢ΔFG (PE.subst (λ x → (x0 +1) ∷ x ∈ Δ ∙ F ∙ G)
+                                                           (PE.trans (wk-comp (step id) (step id) F)
+                                                                     (wk≡subst (step id • step id) F))
+                                                           (there here)))
+                                       (var ⊢ΔFG (PE.subst (λ x → x0 ∷ x ∈ Δ ∙ F ∙ G)
+                                                           (PE.trans (wk≡subst (step id) G)
+                                                                     (PE.trans (substVar-to-subst (λ{x0 → PE.refl; (x +1) → PE.refl}) G)
+                                                                               (PE.sym (substCompEq G))))
+                                                           here))))
+                               ⊢ΔFG
+
+
+    in  _ , substTypeEq C≡E g≡h
+      , prodrec-cong E↑C (PE.subst (λ x → Δ ⊢ _ ~ _ ↓ x) B≡Σ′ h~g)
+                     (convConv↑Term (reflConEq ⊢Δ ∙ ⊢F≡F′ ∙ ⊢G≡G′) C₊≡E₊ v↑u)
+                     PE.refl
   sym~↑ Γ≡Δ (Emptyrec-cong x t~u PE.refl) =
     let ⊢Γ , ⊢Δ , _ = contextConvSubst Γ≡Δ
         B , whnfB , A≡B , u~t = sym~↓ Γ≡Δ t~u
@@ -154,6 +199,14 @@ mutual
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
     in  zero-refl ⊢Δ
   symConv↓Term Γ≡Δ (suc-cong t<>u) = suc-cong (symConv↑Term Γ≡Δ t<>u)
+  symConv↓Term Γ≡Δ (prod-cong x x₁ x₂ x₃) =
+    let Δ⊢F = stability Γ≡Δ x
+        Δ⊢G = stability (Γ≡Δ ∙ refl x) x₁
+        Δ⊢t′↑t = symConv↑Term Γ≡Δ x₂
+        _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
+        Δ⊢u′↑u = symConv↑Term Γ≡Δ x₃
+        Gt≡Gt′ = substTypeEq (refl Δ⊢G) (sym (soundnessConv↑Term Δ⊢t′↑t))
+    in  prod-cong Δ⊢F Δ⊢G Δ⊢t′↑t (convConv↑Term (reflConEq ⊢Δ) Gt≡Gt′ Δ⊢u′↑u)
   symConv↓Term Γ≡Δ (η-eq x₁ x₂ y y₁ t<>u) =
     let ⊢F , _ = syntacticΠ (syntacticTerm x₁)
     in  η-eq (stabilityTerm Γ≡Δ x₂) (stabilityTerm Γ≡Δ x₁)

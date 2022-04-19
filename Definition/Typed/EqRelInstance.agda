@@ -57,5 +57,5 @@ eqRelInstance = record {
   ~-fst = fst-cong;
   ~-snd = snd-cong;
   ~-natrec = natrec-cong;
-  ~-prodrec = {!prodrec-cong!};
+  ~-prodrec = prodrec-cong;
   ~-Emptyrec = Emptyrec-cong }

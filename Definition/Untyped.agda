@@ -19,6 +19,8 @@ infixl 30 _∙_
 infixr 5 _∷_
 infix 30 Π_,_▷_▹_
 infix 30 Σ_▷_▹_
+infix 30 Σₚ_▷_▹_
+infix 30 Σᵣ_▷_▹_
 infix 30 Σ⟨_⟩_▷_▹_
 infix 30 ⟦_⟧_▹_
 infixl 30 _ₛ•ₛ_ _•ₛ_ _ₛ•_

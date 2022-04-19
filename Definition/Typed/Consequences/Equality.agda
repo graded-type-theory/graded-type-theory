@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K #-}
+{-# OPTIONS --without-K --safe #-}
 
 module Definition.Typed.Consequences.Equality (M : Set) where
 
@@ -112,8 +112,8 @@ B≡A′ W (emb 0<1 [W]) [W≡A] whnfA = B≡A′ W [W] [W≡A] whnfA
 
 Π≡A′ : ∀ {Γ : Con Term n} {A F G l p q} → _
 Π≡A′ {Γ = Γ} {A} {F} {G} {l} {p} {q} = B≡A′ {Γ = Γ} {A} {F} {G} {l} (BΠ p q)
-Σ≡A′ : ∀ {Γ : Con Term n} {A F G l q} → _
-Σ≡A′ {Γ = Γ} {A} {F} {G} {l} {q} = B≡A′ {Γ = Γ} {A} {F} {G} {l} (BΣ q)
+Σ≡A′ : ∀ {Γ : Con Term n} {A F G l q m} → _
+Σ≡A′ {Γ = Γ} {A} {F} {G} {l} {q} {m} = B≡A′ {Γ = Γ} {A} {F} {G} {l} (BΣ q m)
 
 -- If A is judgmentally equal to Π F ▹ G, then there exists H and E such that
 -- A is propositionally equal to  Π H ▹ E.
@@ -127,5 +127,5 @@ B≡A {A} W W≡A whnfA | [W] , [A] , [W≡A] =
 
 Π≡A : ∀ {Γ : Con Term n} {A F G p q} → _
 Π≡A {Γ = Γ} {A} {F} {G} {p} {q} = B≡A {Γ = Γ} {A} {F} {G} (BΠ p q)
-Σ≡A : ∀ {Γ : Con Term n} {A F G q} → _
-Σ≡A {Γ = Γ} {A} {F} {G} {q} = B≡A {Γ = Γ} {A} {F} {G} (BΣ q)
+Σ≡A : ∀ {Γ : Con Term n} {A F G q m} → _
+Σ≡A {Γ = Γ} {A} {F} {G} {q} {m} = B≡A {Γ = Γ} {A} {F} {G} (BΣ q m)

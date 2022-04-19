@@ -24,11 +24,11 @@ private
   variable
     n : Nat
     Γ : Con Term n
-    C F H : Term n
+    C F H G E : Term n
     a₀ b₀ g h k l t u v : Term n
-    G E : Term (1+ n)
     x y : Fin n
     p p′ q q′ r r′ : M
+    m : SigmaMode
 
 mutual
   -- Neutral equality.
@@ -43,10 +43,10 @@ mutual
                   → p PE.≡ p′
                   → Γ ⊢ k ∘ p ▷ t ~ l ∘ p′ ▷ v ↑ G [ t ]
 
-    fst-cong      : Γ ⊢ k ~ l ↓ Σ p ▷ F ▹ G
+    fst-cong      : Γ ⊢ k ~ l ↓ Σₚ p ▷ F ▹ G
                   → Γ ⊢ fst k ~ fst l ↑ F
 
-    snd-cong      : Γ ⊢ k ~ l ↓ Σ p ▷ F ▹ G
+    snd-cong      : Γ ⊢ k ~ l ↓ Σₚ p ▷ F ▹ G
                   → Γ ⊢ snd k ~ snd l ↑ G [ fst k ]
 
     natrec-cong   : Γ ∙ ℕ ⊢ F [conv↑] G
@@ -56,6 +56,12 @@ mutual
                   → p PE.≡ p′
                   → r PE.≡ r′
                   → Γ ⊢ natrec p r F a₀ h k ~ natrec p′ r′ G b₀ g l ↑ F [ k ]
+
+    prodrec-cong  : Γ ∙ (Σᵣ q ▷ F ▹ G) ⊢ C [conv↑] E
+                  → Γ ⊢ g ~ h ↓ Σᵣ q ▷ F ▹ G
+                  → Γ ∙ F ∙ G ⊢ u [conv↑] v ∷ C [ prod (var (x0 +1)) (var x0) ]↑²
+                  → p PE.≡ p′
+                  → Γ ⊢ prodrec p C g u ~ prodrec p′ E h v ↑ C [ g ]
 
     Emptyrec-cong : Γ ⊢ F [conv↑] H
                   → Γ ⊢ k ~ l ↓ Empty
@@ -112,7 +118,7 @@ mutual
                → Γ ⊢ F [conv↑] H
                → Γ ∙ F ⊢ G [conv↑] E
                → p PE.≡ p′
-               → Γ ⊢ Σ p ▷ F ▹ G [conv↓] Σ p′ ▷ H ▹ E
+               → Γ ⊢ Σ⟨ m ⟩ p ▷ F ▹ G [conv↓] Σ⟨ m ⟩ p′ ▷ H ▹ E
 
   -- Term equality.
   record _⊢_[conv↑]_∷_ (Γ : Con Term n) (t u A : Term n) : Set where
@@ -159,6 +165,13 @@ mutual
               → Γ ⊢ m [conv↑] n ∷ ℕ
               → Γ ⊢ suc m [conv↓] suc n ∷ ℕ
 
+    prod-cong : ∀ {F G t t′ u u′}
+              → Γ ⊢ F
+              → Γ ∙ F ⊢ G
+              → Γ ⊢ t [conv↑] t′ ∷ F
+              → Γ ⊢ u [conv↑] u′ ∷ G [ t ]
+              → Γ ⊢ prod t u [conv↓] prod t′ u′ ∷ Σᵣ q ▷ F ▹ G
+
     η-eq      : ∀ {f g F G}
               → Γ ⊢ f ∷ Π p , q ▷ F ▹ G
               → Γ ⊢ g ∷ Π p , q ▷ F ▹ G
@@ -167,13 +180,13 @@ mutual
               → Γ ∙ F ⊢ wk1 f ∘ p ▷ var x0 [conv↑] wk1 g ∘ p ▷ var x0 ∷ G
               → Γ ⊢ f [conv↓] g ∷ Π p , q ▷ F ▹ G
 
-    Σ-η       : Γ ⊢ k ∷ Σ p ▷ F ▹ G
-              → Γ ⊢ l ∷ Σ p ▷ F ▹ G
+    Σ-η       : Γ ⊢ k ∷ Σₚ p ▷ F ▹ G
+              → Γ ⊢ l ∷ Σₚ p ▷ F ▹ G
               → Product k
               → Product l
               → Γ ⊢ fst k [conv↑] fst l ∷ F
               → Γ ⊢ snd k [conv↑] snd l ∷ G [ fst k ]
-              → Γ ⊢ k [conv↓] l ∷ Σ p ▷ F ▹ G
+              → Γ ⊢ k [conv↓] l ∷ Σₚ p ▷ F ▹ G
 
     η-unit    : ∀ {k l}
               → Γ ⊢ k ∷ Unit

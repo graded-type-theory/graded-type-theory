@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K  #-}
+{-# OPTIONS --without-K --safe #-}
 
 module Definition.Conversion.Stability (M : Set) where
 
@@ -161,6 +161,13 @@ mutual
                    (stabilityConv↑Term Γ≡Δ x₂)
                    ((stabilityConv↑Term (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ) ∙ refl ⊢F) x₃))
                    (stability~↓ Γ≡Δ k~l) PE.refl PE.refl
+  stability~↑ Γ≡Δ (prodrec-cong x x₁ x₂ PE.refl) =
+    let ⊢Σ , _ = syntacticEqTerm (soundness~↓ x₁)
+        ⊢F , ⊢G = syntacticΣ ⊢Σ
+    in  prodrec-cong (stabilityConv↑ (Γ≡Δ ∙ refl ⊢Σ) x)
+                     (stability~↓ Γ≡Δ x₁)
+                     (stabilityConv↑Term (Γ≡Δ ∙ refl ⊢F ∙ refl ⊢G) x₂)
+                     PE.refl
   stability~↑ Γ≡Δ (Emptyrec-cong x₁ k~l PE.refl) =
     Emptyrec-cong (stabilityConv↑ Γ≡Δ x₁)
                   (stability~↓ Γ≡Δ k~l) PE.refl
@@ -237,6 +244,9 @@ mutual
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
     in  zero-refl ⊢Δ
   stabilityConv↓Term Γ≡Δ (suc-cong t<>u) = suc-cong (stabilityConv↑Term Γ≡Δ t<>u)
+  stabilityConv↓Term Γ≡Δ (prod-cong x x₁ x₂ x₃) =
+    prod-cong (stability Γ≡Δ x) (stability (Γ≡Δ ∙ refl x) x₁)
+              (stabilityConv↑Term Γ≡Δ x₂) (stabilityConv↑Term Γ≡Δ x₃)
   stabilityConv↓Term Γ≡Δ (η-eq x x₁ y y₁ t<>u) =
     let ⊢F , ⊢G = syntacticΠ (syntacticTerm x)
     in  η-eq (stabilityTerm Γ≡Δ x) (stabilityTerm Γ≡Δ x₁)

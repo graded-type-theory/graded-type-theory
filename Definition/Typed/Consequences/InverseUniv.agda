@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K  #-}
+{-# OPTIONS --without-K --safe #-}
 
 module Definition.Typed.Consequences.InverseUniv (M : Set) where
 
@@ -20,14 +20,15 @@ private
     A F H : Term n
     G E : Term (1+ n)
     p q : M
+    m : SigmaMode
 
 -- Proposition for terms if they contain a U.
 data UFull : Term n → Set where
   ∃U  : UFull {n} U
   ∃Π₁ : UFull F → UFull (Π p , q ▷ F ▹ G)
   ∃Π₂ : UFull G → UFull (Π p , q ▷ F ▹ G)
-  ∃Σ₁ : UFull F → UFull (Σ q ▷ F ▹ G)
-  ∃Σ₂ : UFull G → UFull (Σ q ▷ F ▹ G)
+  ∃Σ₁ : UFull F → UFull (Σ⟨ m ⟩ q ▷ F ▹ G)
+  ∃Σ₂ : UFull G → UFull (Σ⟨ m ⟩ q ▷ F ▹ G)
 
 -- Terms cannot contain U.
 noU : ∀ {t A} → Γ ⊢ t ∷ A → ¬ (UFull t)
@@ -60,7 +61,7 @@ pilem : (¬ UFull (Π p , q ▷ F ▹ G)) ⊎ (¬ UFull (Π p , q ▷ H ▹ E))
 pilem (inj₁ x) = inj₁ (λ x₁ → x (∃Π₁ x₁)) , inj₁ (λ x₁ → x (∃Π₂ x₁))
 pilem (inj₂ x) = inj₂ (λ x₁ → x (∃Π₁ x₁)) , inj₂ (λ x₁ → x (∃Π₂ x₁))
 
-pilemΣ :(¬ UFull (Σ q ▷ F ▹ G)) ⊎ (¬ UFull (Σ q ▷ H ▹ E))
+pilemΣ :(¬ UFull (Σ⟨ m ⟩ q ▷ F ▹ G)) ⊎ (¬ UFull (Σ⟨ m ⟩ q ▷ H ▹ E))
       → (¬ UFull F) ⊎ (¬ UFull H) × (¬ UFull G) ⊎ (¬ UFull E)
 pilemΣ (inj₁ x) = inj₁ (λ x₁ → x (∃Σ₁ x₁)) , inj₁ (λ x₁ → x (∃Σ₂ x₁))
 pilemΣ (inj₂ x) = inj₂ (λ x₁ → x (∃Σ₁ x₁)) , inj₂ (λ x₁ → x (∃Σ₂ x₁))

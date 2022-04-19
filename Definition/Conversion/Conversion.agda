@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K  #-}
+{-# OPTIONS --without-K --safe #-}
 
 module Definition.Conversion.Conversion (M : Set) where
 
@@ -65,6 +65,15 @@ mutual
     in  zero-refl ⊢Δ
   convConv↓Term Γ≡Δ A≡B whnfB (suc-cong x) rewrite ℕ≡A A≡B whnfB =
     suc-cong (stabilityConv↑Term Γ≡Δ x)
+  convConv↓Term Γ≡Δ A≡B whnfB (prod-cong x x₁ x₂ x₃) with Σ≡A A≡B whnfB
+  convConv↓Term Γ≡Δ A≡B whnfB (prod-cong x x₁ x₂ x₃) | F′ , G′ , PE.refl =
+    let F≡F′ , G≡G′ , _ = Σ-injectivity A≡B
+        _ , ⊢F′ = syntacticEq F≡F′
+        _ , ⊢G′ = syntacticEq G≡G′
+        _ , ⊢t , _ = syntacticEqTerm (soundnessConv↑Term x₂)
+        Gt≡G′t = substTypeEq G≡G′ (refl ⊢t)
+    in  prod-cong (stability Γ≡Δ ⊢F′) (stability (Γ≡Δ ∙ F≡F′) ⊢G′)
+                  (convConv↑Term Γ≡Δ F≡F′ x₂) (convConv↑Term Γ≡Δ Gt≡G′t x₃)
   convConv↓Term Γ≡Δ A≡B whnfB (η-eq x₁ x₂ y y₁ x₃) with Π≡A A≡B whnfB
   convConv↓Term Γ≡Δ A≡B whnfB (η-eq x₁ x₂ y y₁ x₃) | F′ , G′ , PE.refl =
     let F≡F′ , G≡G′ , _ = injectivity A≡B

@@ -377,7 +377,7 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
            Σ (Γ ⊩¹ p₁ ∷ U.wk id F / [F] id (wf ⊢F)) λ [p₁]
            → Γ ⊩¹ p₂ ∷ U.wk (lift id) G [ p₁ ] / [G] id (wf ⊢F) [p₁]
     Σ-prop {q = q} Σᵣ p Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ne x) =
-           Γ ⊢ p ~ p ∷ Σ⟨ Σᵣ ⟩ q ▷ F ▹ G
+           Γ ⊢ p ~ p ∷ Σᵣ q ▷ F ▹ G
 
     -- Term equality of Σ-type
     _⊩¹Σ_≡_∷_/_ : {q : Mod} {m : SigmaMode} (Γ : Con Term ℓ) (t u A : Term ℓ) ([A] : Γ ⊩¹B⟨ BΣ q m ⟩ A) → Set
@@ -408,7 +408,7 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
     [Σ]-prop Σᵣ p r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (prodₙ {t = p₁} {u = p₂}) (ne y) = PE.⊥
     [Σ]-prop Σᵣ p r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ne x) (prodₙ {t = r₁} {u = r₂}) = PE.⊥
     [Σ]-prop {q = q} Σᵣ p r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ne x) (ne y) =
-             Γ ⊢ p ~ r ∷ Σ⟨ Σᵣ ⟩ q ▷ F ▹ G
+             Γ ⊢ p ~ r ∷ Σᵣ q ▷ F ▹ G
 
     -- Logical relation definition
     data _⊩¹_ (Γ : Con Term ℓ) : Term ℓ → Set where

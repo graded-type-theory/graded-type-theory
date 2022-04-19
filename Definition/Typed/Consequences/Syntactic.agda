@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K  #-}
+{-# OPTIONS --without-K --safe #-}
 
 module Definition.Typed.Consequences.Syntactic (M : Set) where
 
@@ -51,6 +51,6 @@ syntacticΠ : ∀ {F G} → Γ ⊢ Π p , q ▷ F ▹ G → Γ ⊢ F × Γ ∙ F
 syntacticΠ ΠFG with injectivity (refl ΠFG)
 syntacticΠ ΠFG | F≡F , G≡G , _ = proj₁ (syntacticEq F≡F) , proj₁ (syntacticEq G≡G)
 
-syntacticΣ : ∀ {F G} → Γ ⊢ Σ q ▷ F ▹ G → Γ ⊢ F × Γ ∙ F ⊢ G
+syntacticΣ : ∀ {m F G} → Γ ⊢ Σ⟨ m ⟩ q ▷ F ▹ G → Γ ⊢ F × Γ ∙ F ⊢ G
 syntacticΣ ΣFG with Σ-injectivity (refl ΣFG)
 syntacticΣ ΣFG | F≡F , G≡G , _ = proj₁ (syntacticEq F≡F) , proj₁ (syntacticEq G≡G)

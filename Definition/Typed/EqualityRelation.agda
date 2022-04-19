@@ -178,13 +178,13 @@ record EqRelSet : Set₁ where
     ≅-Σ-η : ∀ {p r F G}
           → Γ ⊢ F
           → Γ ∙ F ⊢ G
-          → Γ ⊢ p ∷ Σ⟨ Σₚ ⟩ q ▷ F ▹ G
-          → Γ ⊢ r ∷ Σ⟨ Σₚ ⟩ q ▷ F ▹ G
+          → Γ ⊢ p ∷ Σₚ q ▷ F ▹ G
+          → Γ ⊢ r ∷ Σₚ q ▷ F ▹ G
           → Product p
           → Product r
           → Γ ⊢ fst p ≅ fst r ∷ F
           → Γ ⊢ snd p ≅ snd r ∷ G [ fst p ]
-          → Γ ⊢ p ≅ r ∷ Σ⟨ Σₚ ⟩ q ▷ F ▹ G
+          → Γ ⊢ p ≅ r ∷ Σₚ q ▷ F ▹ G
 
     -- Variable reflexivity
     ~-var : ∀ {x A} → Γ ⊢ var x ∷ A → Γ ⊢ var x ~ var x ∷ A
@@ -199,13 +199,13 @@ record EqRelSet : Set₁ where
     ~-fst : ∀ {p r F G}
           → Γ ⊢ F
           → Γ ∙ F ⊢ G
-          → Γ ⊢ p ~ r ∷ Σ⟨ Σₚ ⟩ q ▷ F ▹ G
+          → Γ ⊢ p ~ r ∷ Σₚ q ▷ F ▹ G
           → Γ ⊢ fst p ~ fst r ∷ F
 
     ~-snd : ∀ {p r F G}
           → Γ ⊢ F
           → Γ ∙ F ⊢ G
-          → Γ ⊢ p ~ r ∷ Σ⟨ Σₚ ⟩ q ▷ F ▹ G
+          → Γ ⊢ p ~ r ∷ Σₚ q ▷ F ▹ G
           → Γ ⊢ snd p ~ snd r ∷ G [ fst p ]
 
     -- Natural recursion congruence
@@ -221,8 +221,8 @@ record EqRelSet : Set₁ where
     ~-prodrec : ∀ {F G A A′ t t′ u u′}
              → Γ                 ⊢ F
              → Γ ∙ F             ⊢ G
-             → Γ ∙ (Σ⟨ Σᵣ ⟩ q ▷ F ▹ G) ⊢ A ≅ A′
-             → Γ                 ⊢ t ~ t′ ∷ Σ⟨ Σᵣ ⟩ q ▷ F ▹ G
+             → Γ ∙ (Σᵣ q ▷ F ▹ G) ⊢ A ≅ A′
+             → Γ                 ⊢ t ~ t′ ∷ Σᵣ q ▷ F ▹ G
              → Γ ∙ F ∙ G         ⊢ u ≅ u′ ∷ A [ prod (var (x0 +1)) (var x0) ]↑²
              → Γ                 ⊢ prodrec p A t u ~ prodrec p A′ t′ u′ ∷ A [ t ]
 

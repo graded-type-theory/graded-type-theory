@@ -34,9 +34,9 @@ private
 
 snd-subst*′ : ∀ {l l′ F G t t′}
              ([F] : Γ ⊩⟨ l ⟩ F)
-             ([ΣFG] : Γ ⊩⟨ l′ ⟩B⟨ BΣ q Σₚ ⟩ Σ⟨ Σₚ ⟩ q ▷ F ▹ G)
+             ([ΣFG] : Γ ⊩⟨ l′ ⟩B⟨ BΣ q Σₚ ⟩ Σₚ q ▷ F ▹ G)
              ([t′] : Γ ⊩⟨ l′ ⟩ t′ ∷ Σ q ▷ F ▹ G / B-intr (BΣ q Σₚ) [ΣFG])
-             → Γ ⊢ t ⇒* t′ ∷ Σ⟨ Σₚ ⟩ q ▷ F ▹ G
+             → Γ ⊢ t ⇒* t′ ∷ Σₚ q ▷ F ▹ G
              → Γ ⊢ snd t ⇒* snd t′ ∷ G [ fst t ]
 snd-subst*′ [F] (noemb (Bᵣ F G D ⊢F ⊢G A≡A [F]₁ [G] G-ext)) _ (id x) with
               B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) Σₙ)

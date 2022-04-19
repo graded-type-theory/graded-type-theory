@@ -36,7 +36,7 @@ private
 -- Reducibility of fst with a specific typing derivation
 fst′ : ∀ {F G t l l′}
        ([F] : Γ ⊩⟨ l′ ⟩ F)
-       ([ΣFG] : Γ ⊩⟨ l ⟩B⟨ BΣ q Σₚ ⟩ Σ⟨ Σₚ ⟩ q ▷ F ▹ G)
+       ([ΣFG] : Γ ⊩⟨ l ⟩B⟨ BΣ q Σₚ ⟩ Σₚ q ▷ F ▹ G)
        ([t] : Γ ⊩⟨ l ⟩ t ∷ Σ _ ▷ F ▹ G / B-intr BΣ! [ΣFG])
        → Γ ⊩⟨ l′ ⟩ fst t ∷ F / [F]
 fst′ {Γ = Γ} {q = q} {F = F} {t = t} [F] (noemb [Σ]@(Bᵣ F' G' D ⊢F ⊢G A≡A [F'] [G'] G-ext))
@@ -63,7 +63,7 @@ fst″ {Γ = Γ} {t = t} {l = l} [F] [ΣFG] [t] =
 
 fst-cong′ : ∀ {F G t t′ l l′}
             ([F] : Γ ⊩⟨ l′ ⟩ F)
-            ([ΣFG] : Γ ⊩⟨ l ⟩B⟨ BΣ q Σₚ ⟩ Σ⟨ Σₚ ⟩ q ▷ F ▹ G)
+            ([ΣFG] : Γ ⊩⟨ l ⟩B⟨ BΣ q Σₚ ⟩ Σₚ q ▷ F ▹ G)
             ([t≡t′] : Γ ⊩⟨ l ⟩ t ≡ t′ ∷ Σ _ ▷ F ▹ G / B-intr BΣ! [ΣFG])
             → Γ ⊩⟨ l′ ⟩ fst t ≡ fst t′ ∷ F / [F]
 fst-cong′ {Γ = Γ} {q = q} {F = F} {G = G} [F]
@@ -96,8 +96,8 @@ fst-congᵛ : ∀ {F G t t′ l}
             ([Γ] : ⊩ᵛ Γ)
             ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
             ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
-            ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ Σ⟨ Σₚ ⟩ q ▷ F ▹ G / [Γ] / Σᵛ {F = F} {G} [Γ] [F] [G])
-            ([t′] : Γ ⊩ᵛ⟨ l ⟩ t′ ∷ Σ⟨ Σₚ ⟩ q ▷ F ▹ G / [Γ] / Σᵛ {F = F} {G} [Γ] [F] [G])
+            ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ Σₚ q ▷ F ▹ G / [Γ] / Σᵛ {F = F} {G} [Γ] [F] [G])
+            ([t′] : Γ ⊩ᵛ⟨ l ⟩ t′ ∷ Σₚ q ▷ F ▹ G / [Γ] / Σᵛ {F = F} {G} [Γ] [F] [G])
             ([t≡t′] : Γ ⊩ᵛ⟨ l ⟩ t ≡ t′ ∷ Σ q ▷ F ▹ G / [Γ] / Σᵛ {F = F} {G} [Γ] [F] [G])
           → Γ ⊩ᵛ⟨ l ⟩ fst t ≡ fst t′ ∷ F / [Γ] / [F]
 fst-congᵛ {F = F} {G} [Γ] [F] [G] [t] [t′] [t≡t′] ⊢Δ [σ] =

@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K #-}
+{-# OPTIONS --without-K --safe #-}
 
 module Definition.Typed.Consequences.Injectivity (M : Set) where
 
@@ -69,6 +69,6 @@ injectivity : ∀ {F G H E} → Γ ⊢ Π p , q ▷ F ▹ G ≡ Π p′ , q′ �
 injectivity x with B-injectivity BΠ! BΠ! x
 ... | F≡H , G≡E , PE.refl = F≡H , G≡E , PE.refl , PE.refl
 
-Σ-injectivity : ∀ {F G H E} → Γ ⊢ Σ q ▷ F ▹ G ≡ Σ q′ ▷ H ▹ E → Γ ⊢ F ≡ H × Γ ∙ F ⊢ G ≡ E × q PE.≡ q′
+Σ-injectivity : ∀ {m m′ F G H E} → Γ ⊢ Σ⟨ m ⟩ q ▷ F ▹ G ≡ Σ⟨ m′ ⟩ q′ ▷ H ▹ E → Γ ⊢ F ≡ H × Γ ∙ F ⊢ G ≡ E × q PE.≡ q′ × m PE.≡ m′
 Σ-injectivity x with B-injectivity BΣ! BΣ! x
-... | F≡H , G≡E , PE.refl = F≡H , G≡E , PE.refl
+... | F≡H , G≡E , PE.refl = F≡H , G≡E , PE.refl , PE.refl
