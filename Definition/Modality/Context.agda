@@ -91,7 +91,6 @@ _·ᶜ_ : (p : M) (γ : Conₘ n) → Conₘ n
 p ·ᶜ ε = ε
 p ·ᶜ (γ ∙ q) = (p ·ᶜ γ) ∙ (p · q)
 
-
 -- Partial order of modality contexts
 
 _≤ᶜ_ : (γ δ : Conₘ n) → Set (a ⊔ ℓ)
@@ -102,7 +101,6 @@ _≤ᶜ_ : (γ δ : Conₘ n) → Set (a ⊔ ℓ)
 nrᶜ : (γ δ : Conₘ n) (r : M) → Conₘ n
 nrᶜ ε ε r = ε
 nrᶜ (γ ∙ p) (δ ∙ q) r = (nrᶜ γ δ r) ∙ nr p q r
-
 
 -- Zero modality context
 

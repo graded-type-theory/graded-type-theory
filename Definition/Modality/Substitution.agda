@@ -15,6 +15,7 @@ open import Definition.Untyped M
   using (Subst ; tail ; head ; Wk ; id ; step ; lift)
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Usage 𝕄
+open import Definition.Modality.Usage.Weakening 𝕄
 
 open import Tools.Fin
 open import Tools.Nat
@@ -31,7 +32,7 @@ private
 
 data Substₘ : (m n : Nat) → Set a where
   []  : Substₘ m 0
-  _⊙_ : Substₘ m n →  Conₘ m → Substₘ m (1+ n)
+  _⊙_ : Substₘ m n → Conₘ m → Substₘ m (1+ n)
 
 private
   variable
@@ -85,12 +86,12 @@ _▶_ {n = n} Ψ σ = ∀ (x : Fin n) → (Ψ *> (𝟘ᶜ , x ≔ 𝟙)) ▸ (σ
 
 wk1Substₘ : Substₘ m n → Substₘ (1+ m) n
 wk1Substₘ [] = []
-wk1Substₘ (Ψ ⊙ δ) = (wk1Substₘ Ψ) ⊙ (δ ∙ 𝟘)
+wk1Substₘ (Ψ ⊙ δ) = (wk1Substₘ Ψ) ⊙ wkConₘ (step id) δ
 
 -- Lifting a substitution matrix
 
 liftSubstₘ : Substₘ m n → Substₘ (1+ m) (1+ n)
-liftSubstₘ Ψ = (wk1Substₘ Ψ) ⊙ (𝟘ᶜ , x0 ≔ 𝟙)
+liftSubstₘ Ψ = (wk1Substₘ Ψ) ⊙ (𝟘ᶜ ∙ 𝟙)
 
 -- Identity substitution matrix
 

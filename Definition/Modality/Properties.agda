@@ -181,11 +181,11 @@ nr-rec p q r with nrⁿ-fix
 nrⁿ-idem-𝟘 : (n : Nat) → nrⁿ n 𝟘 𝟘 r ≈ 𝟘
 nrⁿ-idem-𝟘 {r} 0 = nrⁿ-0 𝟘 𝟘 r
 nrⁿ-idem-𝟘 {r} (1+ n) = begin
-  nrⁿ (1+ n) 𝟘 𝟘 r ≈⟨ nrⁿ-rec n 𝟘 𝟘 r ⟩
+  nrⁿ (1+ n) 𝟘 𝟘 r           ≈⟨ nrⁿ-rec n 𝟘 𝟘 r ⟩
   𝟘 ∧ (𝟘 + r · nrⁿ n 𝟘 𝟘 r) ≈⟨ ∧-cong ≈-refl (proj₁ +-identity _) ⟩
-  𝟘 ∧ (r · nrⁿ n 𝟘 𝟘 r) ≈⟨ ∧-cong ≈-refl (·-cong ≈-refl (nrⁿ-idem-𝟘 n)) ⟩
-  𝟘 ∧ (r · 𝟘) ≈⟨ ∧-cong ≈-refl (proj₂ ·-zero r) ⟩
-  𝟘 ∧ 𝟘 ≈⟨ ∧-idem 𝟘 ⟩
+  𝟘 ∧ (r · nrⁿ n 𝟘 𝟘 r)     ≈⟨ ∧-cong ≈-refl (·-cong ≈-refl (nrⁿ-idem-𝟘 n)) ⟩
+  𝟘 ∧ (r · 𝟘)               ≈⟨ ∧-cong ≈-refl (proj₂ ·-zero r) ⟩
+  𝟘 ∧ 𝟘                     ≈⟨ ∧-idem 𝟘 ⟩
   𝟘 ∎
  where open import Tools.Reasoning.Equivalence ≈-equivalence
 
@@ -199,7 +199,8 @@ nr-idem-𝟘 r with nrⁿ-fix
 -- nrⁿ is monotone
 -- If p ≤ p′ and q ≤ q′ and r ≤ r′ then nrⁿ n p q r ≤ nrⁿ n p′ q′ r′
 
-nrⁿ-monotone : (n : Nat) → p ≤ p′ → q ≤ q′ → r ≤ r′ → nrⁿ n p q r ≤ nrⁿ n p′ q′ r′
+nrⁿ-monotone : (n : Nat) → p ≤ p′ → q ≤ q′ → r ≤ r′
+             → nrⁿ n p q r ≤ nrⁿ n p′ q′ r′
 nrⁿ-monotone {p} {p′} {q} {q′} {r} {r′} 0 x y z = begin
   nrⁿ 0 p q r    ≈⟨ nrⁿ-0 p q r ⟩
   𝟘              ≈˘⟨ nrⁿ-0 p′ q′ r′ ⟩

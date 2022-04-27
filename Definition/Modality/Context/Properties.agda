@@ -59,7 +59,7 @@ private
 
 tailₘ-distrib-∧ᶜ : (γ δ : Conₘ (1+ n)) → tailₘ (γ ∧ᶜ δ) ≡ (tailₘ γ) ∧ᶜ (tailₘ δ)
 tailₘ-distrib-∧ᶜ (ε ∙ p) (ε ∙ q) = PE.refl
-tailₘ-distrib-∧ᶜ (γ ∙ p′ ∙ p) (δ ∙ q′ ∙ q) = cong₂ _∙_ (tailₘ-distrib-∧ᶜ (γ ∙ p) (δ ∙ q)) PE.refl
+tailₘ-distrib-∧ᶜ (γ ∙ p′ ∙ p) (δ ∙ q′ ∙ q) = cong (_∙ _) (tailₘ-distrib-∧ᶜ (γ ∙ p) (δ ∙ q))
 
 -- headₘ distributes over meet
 -- headₘ (γ ∧ᶜ δ) ≡ headₘ γ ∧ headₘ δ

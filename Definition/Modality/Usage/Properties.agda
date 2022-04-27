@@ -247,31 +247,30 @@ usage-upper-bound (sub t x) = ≤ᶜ-trans x (usage-upper-bound t)
 usage-calc-term′ : {Γ : Con Term n} {γ : Conₘ n} {t A : Term n}
                  → Γ ⊢ t ∷ A → γ ▸ t → ⌈ t ⌉ ▸ t
 usage-calc-term′ (Πⱼ_▹_ {q = q} {G = G} Γ⊢F:U Γ⊢G:U) γ▸t with inv-usage-Π γ▸t
-... | invUsageΠΣ δ▸F η▸G _ = Πₘ
-      (usage-calc-term′ Γ⊢F:U δ▸F)
-      (subst₂ _▸_ (update-head ⌈ G ⌉ q) PE.refl
-              (Conₘ-interchange (usage-calc-term′ Γ⊢G:U η▸G) η▸G x0))
+... | invUsageΠΣ δ▸F η▸G _ =
+  Πₘ (usage-calc-term′ Γ⊢F:U δ▸F)
+     (subst₂ _▸_ (update-head ⌈ G ⌉ q) PE.refl
+                 (Conₘ-interchange (usage-calc-term′ Γ⊢G:U η▸G) η▸G x0))
 usage-calc-term′  (Σⱼ_▹_ {q = q} {G = G} Γ⊢F:U Γ⊢G:U) γ▸t with inv-usage-Σ γ▸t
-... | invUsageΠΣ δ▸F η▸G _ = Σₘ
-      (usage-calc-term′ Γ⊢F:U δ▸F)
-      (subst₂ _▸_ (update-head ⌈ G ⌉ q) PE.refl
-              (Conₘ-interchange (usage-calc-term′ Γ⊢G:U η▸G) η▸G x0))
+... | invUsageΠΣ δ▸F η▸G _ =
+  Σₘ (usage-calc-term′ Γ⊢F:U δ▸F)
+     (subst₂ _▸_ (update-head ⌈ G ⌉ q) PE.refl
+                 (Conₘ-interchange (usage-calc-term′ Γ⊢G:U η▸G) η▸G x0))
 usage-calc-term′ (ℕⱼ x) γ▸t = ℕₘ
 usage-calc-term′ (Emptyⱼ x) γ▸t = Emptyₘ
 usage-calc-term′ (Unitⱼ x) γ▸t = Unitₘ
 usage-calc-term′ (var x x₁) γ▸t = var
 usage-calc-term′ (lamⱼ {p = p} {t = t} x Γ⊢t:A) γ▸λt with inv-usage-lam γ▸λt
-... | invUsageLam δ▸t _ = lamₘ
-      (subst₂ _▸_ (update-head ⌈ t ⌉ p) PE.refl
-              (Conₘ-interchange (usage-calc-term′ Γ⊢t:A δ▸t) δ▸t x0))
+... | invUsageLam δ▸t _ = lamₘ (subst₂ _▸_ (update-head ⌈ t ⌉ p) PE.refl
+                               (Conₘ-interchange (usage-calc-term′ Γ⊢t:A δ▸t) δ▸t x0))
 usage-calc-term′ (Γ⊢t:Π ∘ⱼ Γ⊢u:F) γ▸t with inv-usage-app γ▸t
 ... | invUsageApp δ▸t η▸u _ =
-      (usage-calc-term′ Γ⊢t:Π δ▸t) ∘ₘ (usage-calc-term′ Γ⊢u:F η▸u)
+    (usage-calc-term′ Γ⊢t:Π δ▸t) ∘ₘ (usage-calc-term′ Γ⊢u:F η▸u)
 usage-calc-term′ (prodⱼ x x₁ Γ⊢t:A Γ⊢u:B) γ▸t with inv-usage-prod γ▸t
-... | invUsageProd δ▸t η▸u _ _ = prodₘ
-      (usage-calc-term′ Γ⊢t:A δ▸t)
-      (usage-calc-term′ Γ⊢u:B η▸u)
-      PE.refl
+... | invUsageProd δ▸t η▸u _ _ =
+  prodₘ (usage-calc-term′ Γ⊢t:A δ▸t)
+        (usage-calc-term′ Γ⊢u:B η▸u)
+        PE.refl
 usage-calc-term′ (fstⱼ x x₁ Γ⊢t:A) γ▸t with inv-usage-fst γ▸t
 ... | invUsageProj 𝟘▸t _ = fstₘ 𝟘▸t
 usage-calc-term′ (sndⱼ x x₁ Γ⊢t:A) γ▸t with inv-usage-snd γ▸t
@@ -338,15 +337,15 @@ usage-calc-type (ℕⱼ x , γ▸A) = ℕₘ
 usage-calc-type (Emptyⱼ x , γ▸A) = Emptyₘ
 usage-calc-type (Unitⱼ x , γ▸A) = Unitₘ
 usage-calc-type (Πⱼ_▹_ {G = G} {q = q} Γ⊢F Γ⊢G , γ▸Π) with inv-usage-Π γ▸Π
-... | invUsageΠΣ δ▸F η▸G _ = Πₘ
-      (usage-calc-type (Γ⊢F , δ▸F))
-      (subst (_▸ _) (update-head ⌈ G ⌉ q)
-                    (Conₘ-interchange (usage-calc-type (Γ⊢G , η▸G)) η▸G x0))
+... | invUsageΠΣ δ▸F η▸G _ =
+  Πₘ (usage-calc-type (Γ⊢F , δ▸F))
+     (subst (_▸ _) (update-head ⌈ G ⌉ q)
+                   (Conₘ-interchange (usage-calc-type (Γ⊢G , η▸G)) η▸G x0))
 usage-calc-type (Σⱼ_▹_ {G = G} {q = q} Γ⊢F Γ⊢G , γ▸Σ) with inv-usage-Σ γ▸Σ
-... | invUsageΠΣ δ▸F η▸G _ = Σₘ
-      (usage-calc-type (Γ⊢F , δ▸F))
-      (subst (_▸ _) (update-head ⌈ G ⌉ q)
-                    (Conₘ-interchange (usage-calc-type (Γ⊢G , η▸G)) η▸G x0))
+... | invUsageΠΣ δ▸F η▸G _ =
+  Σₘ (usage-calc-type (Γ⊢F , δ▸F))
+     (subst (_▸ _) (update-head ⌈ G ⌉ q)
+                   (Conₘ-interchange (usage-calc-type (Γ⊢G , η▸G)) η▸G x0))
 usage-calc-type (univ Γ⊢A:U , γ▸A) = usage-calc-term′ Γ⊢A:U γ▸A
 
 
