@@ -1,26 +1,27 @@
 {-# OPTIONS --without-K --safe #-}
 
 open import Definition.Typed.EqualityRelation
+open import Tools.Relation
 
-module Definition.LogicalRelation.Substitution.Introductions.Snd (M : Set) {{eqrel : EqRelSet M}} where
+module Definition.LogicalRelation.Substitution.Introductions.Snd {a ℓ} (M′ : Setoid a ℓ)
+                                                                 {{eqrel : EqRelSet M′}} where
 open EqRelSet {{...}}
+open Setoid M′ using () renaming (Carrier to M)
 
 open import Definition.Untyped M as U hiding (wk ; _∷_)
 open import Definition.Untyped.Properties M
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-open import Definition.Typed.Weakening M as T hiding (wk; wkTerm; wkEqTerm)
-open import Definition.Typed.RedSteps M
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.ShapeView M
-open import Definition.LogicalRelation.Irrelevance M
-open import Definition.LogicalRelation.Weakening M
-open import Definition.LogicalRelation.Properties M
-open import Definition.LogicalRelation.Substitution M
-open import Definition.LogicalRelation.Substitution.Properties M
-open import Definition.LogicalRelation.Substitution.Introductions.Pi M
-open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst M
-open import Definition.LogicalRelation.Substitution.Introductions.Fst M
+open import Definition.Typed M′
+open import Definition.Typed.Properties M′
+open import Definition.Typed.Weakening M′ as T hiding (wk; wkTerm; wkEqTerm)
+open import Definition.Typed.RedSteps M′
+open import Definition.LogicalRelation M′
+open import Definition.LogicalRelation.ShapeView M′
+open import Definition.LogicalRelation.Irrelevance M′
+open import Definition.LogicalRelation.Properties M′
+open import Definition.LogicalRelation.Substitution M′
+open import Definition.LogicalRelation.Substitution.Introductions.Pi M′
+open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst M′
+open import Definition.LogicalRelation.Substitution.Introductions.Fst M′
 
 open import Tools.Nat
 open import Tools.Product
@@ -94,7 +95,7 @@ snd′ {Γ = Γ} {q = q} {F = F} {G = G} {t = t} {l = l} {l′ = l′}
       [p] = Σₜ p (idRedTerm:*: (⊢u-redₜ d)) p≅p pProd pProp
       [fstt] , [fstt≡fstp] = redSubst*Term (PE.subst (λ x → Γ ⊢ fst t ⇒* fst p ∷ x)
                                                      (PE.sym (wk-id F))
-                                                     (fst-subst* ⊢F ⊢G (redₜ d)))
+                                                     (fst-subst* (redₜ d) ⊢F ⊢G))
                                            ([F'] id ⊢Γ) [fstp]
 
       [Gfstt] = [G'] id ⊢Γ [fstt]
@@ -152,7 +153,7 @@ snd-cong′ {Γ = Γ} {q = q} {F = F} {G} {t} {t′} {l} {l′}
 
       [fstt] , [fstt≡fstp] = redSubst*Term (PE.subst (λ x → Γ ⊢ fst t ⇒* fst p ∷ x)
                                                      (PE.sym (wk-id F))
-                                                     (fst-subst* ⊢F ⊢G (redₜ d)))
+                                                     (fst-subst* (redₜ d) ⊢F ⊢G))
                                            ([F] id ⊢Γ) [fstp]
       [Gfstt≡Gfstp] = G-ext id ⊢Γ [fstt] [fstp] [fstt≡fstp]
 
@@ -173,7 +174,7 @@ snd-cong′ {Γ = Γ} {q = q} {F = F} {G} {t} {t′} {l} {l′}
 
       [fstt′] , [fstt′≡fstp′] = redSubst*Term (PE.subst (λ x → Γ ⊢ fst t′ ⇒* fst p′ ∷ x)
                                                      (PE.sym (wk-id F))
-                                                     (fst-subst* ⊢F ⊢G (redₜ d′)))
+                                                     (fst-subst* (redₜ d′) ⊢F ⊢G))
                                            ([F] id ⊢Γ) [fstp′]
       [fstt≡fstt′] = irrelevanceEqTerm′ (PE.sym (wk-id F))
                                         [F]′ ([F] id ⊢Γ)

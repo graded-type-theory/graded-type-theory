@@ -1,11 +1,10 @@
 {-# OPTIONS --without-K --safe #-}
 
-open import Tools.Level
 open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Context.Properties.Lookup
-  {M′ : Setoid _ _} (𝕄 : Modality M′)
+module Definition.Modality.Context.Properties.Lookup {a ℓ}
+  {M′ : Setoid a ℓ} (𝕄 : Modality M′)
   where
 
 open import Definition.Modality.Context 𝕄
@@ -15,6 +14,7 @@ open import Tools.Nat hiding (_+_)
 open import Tools.PropositionalEquality as PE
 
 open Modality 𝕄
+open Setoid M′ renaming (Carrier to M)
 
 private
   variable

@@ -2,15 +2,12 @@
 
 {-# OPTIONS --without-K --safe #-}
 
-open import Tools.Relation
-
-module Definition.Untyped.Properties (M : Set) where
+module Definition.Untyped.Properties {a} (M : Set a) where
 
 open import Definition.Untyped M
 
 open import Tools.Fin
 open import Tools.Nat
-open import Tools.List
 open import Tools.PropositionalEquality hiding (subst)
 open import Tools.Reasoning.PropositionalEquality
 
@@ -723,3 +720,13 @@ doubleSubstComp {n = n} A t u σ = begin
   varEq (x0 +1) = refl
   varEq (x +1 +1) = trans (wk1-tail (wk1 (σ x)))
                           (trans (wk1-tail (σ x)) (subst-id (σ x)))
+
+-- There are no closed neutral terms
+
+noClosedNe : {t : Term 0} → Neutral t → ⊥
+noClosedNe (∘ₙ net) = noClosedNe net
+noClosedNe (fstₙ net) = noClosedNe net
+noClosedNe (sndₙ net) = noClosedNe net
+noClosedNe (natrecₙ net) = noClosedNe net
+noClosedNe (prodrecₙ net) = noClosedNe net
+noClosedNe (Emptyrecₙ net) = noClosedNe net

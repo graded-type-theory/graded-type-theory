@@ -1,15 +1,18 @@
 {-# OPTIONS --without-K --safe #-}
 
 open import Definition.Typed.EqualityRelation
+open import Tools.Level
+open import Tools.Relation
 
-module Definition.LogicalRelation.Substitution.Irrelevance (M : Set) {{eqrel : EqRelSet M}} where
+module Definition.LogicalRelation.Substitution.Irrelevance {a ℓ} (M′ : Setoid a ℓ)
+                                                           {{eqrel : EqRelSet M′}} where
 open EqRelSet {{...}}
+open Setoid M′ using () renaming (Carrier to M)
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
-open import Definition.LogicalRelation M
-import Definition.LogicalRelation.Irrelevance M as LR
-open import Definition.LogicalRelation.Substitution M
+open import Definition.Typed M′
+import Definition.LogicalRelation.Irrelevance M′ as LR
+open import Definition.LogicalRelation.Substitution M′
 
 open import Tools.Nat
 open import Tools.Product
@@ -28,13 +31,13 @@ irrelevanceSubst : ∀ {Γ Δ}
                    (⊢Δ ⊢Δ′ : ⊢ Δ)
                  → Δ ⊩ˢ σ ∷ Γ / [Γ]  / ⊢Δ
                  → Δ ⊩ˢ σ ∷ Γ / [Γ]′ / ⊢Δ′
-irrelevanceSubst ε ε ⊢Δ ⊢Δ′ [σ] = tt
+irrelevanceSubst ε ε ⊢Δ ⊢Δ′ [σ] = lift tt
 irrelevanceSubst ([Γ] ∙ [A]) ([Γ]′ ∙ [A]′) ⊢Δ ⊢Δ′ ([tailσ] , [headσ]) =
   let [tailσ]′ = irrelevanceSubst [Γ] [Γ]′ ⊢Δ ⊢Δ′ [tailσ]
   in  [tailσ]′
   ,   LR.irrelevanceTerm (proj₁ ([A] ⊢Δ [tailσ]))
-                            (proj₁ ([A]′ ⊢Δ′ [tailσ]′))
-                            [headσ]
+                         (proj₁ ([A]′ ⊢Δ′ [tailσ]′))
+                         [headσ]
 
 -- Irrelevance of valid substitutions with different contexts
 -- that are propositionally equal
@@ -56,7 +59,7 @@ irrelevanceSubstEq : ∀ {σ′ Γ Δ}
                      ([σ]′ : Δ ⊩ˢ σ ∷ Γ / [Γ]′ / ⊢Δ′)
                    → Δ ⊩ˢ σ ≡ σ′ ∷ Γ / [Γ]  / ⊢Δ  / [σ]
                    → Δ ⊩ˢ σ ≡ σ′ ∷ Γ / [Γ]′ / ⊢Δ′ / [σ]′
-irrelevanceSubstEq ε ε ⊢Δ ⊢Δ′ [σ] [σ]′ [σ≡σ′] = tt
+irrelevanceSubstEq ε ε ⊢Δ ⊢Δ′ [σ] [σ]′ [σ≡σ′] = lift tt
 irrelevanceSubstEq ([Γ] ∙ [A]) ([Γ]′ ∙ [A]′) ⊢Δ ⊢Δ′ [σ] [σ]′ [σ≡σ′] =
   irrelevanceSubstEq [Γ] [Γ]′ ⊢Δ ⊢Δ′ (proj₁ [σ]) (proj₁ [σ]′) (proj₁ [σ≡σ′])
   , LR.irrelevanceEqTerm (proj₁ ([A] ⊢Δ  (proj₁ [σ])))
@@ -75,7 +78,7 @@ irrelevance [Γ] [Γ]′ [A] ⊢Δ [σ] =
                        (irrelevanceSubst [Γ]′ [Γ] ⊢Δ ⊢Δ [σ′])
                        (irrelevanceSubstEq [Γ]′ [Γ] ⊢Δ ⊢Δ [σ] [σ]′ [σ≡σ′])
 
-open import Definition.LogicalRelation.Properties M
+open import Definition.LogicalRelation.Properties M′
 
 -- Irrelevance of valid types with different derivations of contexts
 -- with lifting of eqaul types

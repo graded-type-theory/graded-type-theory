@@ -1,21 +1,25 @@
 {-# OPTIONS --without-K --safe #-}
 
 open import Definition.Typed.EqualityRelation
+open import Tools.Level
+open import Tools.Relation
 
-module Definition.LogicalRelation.Substitution.Properties (M : Set) {{eqrel : EqRelSet M}} where
+module Definition.LogicalRelation.Substitution.Properties {a ℓ} (M′ : Setoid a ℓ)
+                                                          {{eqrel : EqRelSet M′}} where
 open EqRelSet {{...}}
+open Setoid M′ using () renaming (Carrier to M)
 
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
-open import Definition.Typed M
-open import Definition.Typed.Weakening M
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.Substitution M
-open import Definition.LogicalRelation.Substitution.Irrelevance M
+open import Definition.Typed M′
+open import Definition.Typed.Weakening M′
+open import Definition.LogicalRelation M′
+open import Definition.LogicalRelation.Substitution M′
+open import Definition.LogicalRelation.Substitution.Irrelevance M′
      using (irrelevanceSubst′)
-open import Definition.LogicalRelation.Irrelevance M
-open import Definition.LogicalRelation.Properties M
-import Definition.LogicalRelation.Weakening M as LR
+open import Definition.LogicalRelation.Irrelevance M′
+open import Definition.LogicalRelation.Properties M′
+import Definition.LogicalRelation.Weakening M′ as LR
 
 open import Tools.Fin
 open import Tools.Nat
@@ -73,7 +77,7 @@ wkSubstS : ∀ {Γ Δ Δ′} ([Γ] : ⊩ᵛ Γ) (⊢Δ : ⊢ Δ) (⊢Δ′ : ⊢
            ([ρ] : ρ ∷ Δ′ ⊆ Δ)
            ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
          → Δ′ ⊩ˢ ρ •ₛ σ ∷ Γ / [Γ] / ⊢Δ′
-wkSubstS ε ⊢Δ ⊢Δ′ ρ [σ] = tt
+wkSubstS ε ⊢Δ ⊢Δ′ ρ [σ] = lift tt
 wkSubstS {σ = σ} {Γ = Γ ∙ A} ([Γ] ∙ x) ⊢Δ ⊢Δ′ ρ [σ] =
   let [tailσ] = wkSubstS [Γ] ⊢Δ ⊢Δ′ ρ (proj₁ [σ])
   in  [tailσ]
@@ -89,7 +93,7 @@ wkSubstSEq : ∀ {Γ Δ Δ′} ([Γ] : ⊩ᵛ Γ) (⊢Δ : ⊢ Δ) (⊢Δ′ : �
              ([σ≡σ′] : Δ ⊩ˢ σ ≡ σ′ ∷ Γ / [Γ] / ⊢Δ / [σ])
            → Δ′ ⊩ˢ ρ •ₛ σ ≡ ρ •ₛ σ′ ∷ Γ / [Γ]
                 / ⊢Δ′ / wkSubstS [Γ] ⊢Δ ⊢Δ′ [ρ] [σ]
-wkSubstSEq ε ⊢Δ ⊢Δ′ ρ [σ] [σ≡σ′] = tt
+wkSubstSEq ε ⊢Δ ⊢Δ′ ρ [σ] [σ≡σ′] = lift tt
 wkSubstSEq {Γ = Γ ∙ A} ([Γ] ∙ x) ⊢Δ ⊢Δ′ ρ [σ] [σ≡σ′] =
   wkSubstSEq [Γ] ⊢Δ ⊢Δ′ ρ (proj₁ [σ]) (proj₁ [σ≡σ′])
   , irrelevanceEqTerm′ (wk-subst A) (LR.wk ρ ⊢Δ′ (proj₁ (x ⊢Δ (proj₁ [σ]))))
@@ -156,7 +160,7 @@ mutual
 
   -- From a valid context we can constuct a valid identity substitution
   idSubstS : ([Γ] : ⊩ᵛ Γ) → Γ ⊩ˢ idSubst ∷ Γ / [Γ] / soundContext [Γ]
-  idSubstS ε = tt
+  idSubstS ε = lift tt
   idSubstS {Γ = Γ ∙ A} ([Γ] ∙ [A]) =
     let ⊢Γ = soundContext [Γ]
         ⊢Γ∙A = soundContext ([Γ] ∙ [A])
@@ -181,7 +185,7 @@ mutual
 reflSubst : ∀ {Γ Δ} ([Γ] : ⊩ᵛ Γ) (⊢Δ : ⊢ Δ)
             ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
           → Δ ⊩ˢ σ ≡ σ ∷ Γ / [Γ] / ⊢Δ / [σ]
-reflSubst ε ⊢Δ [σ] = tt
+reflSubst ε ⊢Δ [σ] = lift tt
 reflSubst ([Γ] ∙ x) ⊢Δ [σ] =
   reflSubst [Γ] ⊢Δ (proj₁ [σ]) , reflEqTerm (proj₁ (x ⊢Δ (proj₁ [σ]))) (proj₂ [σ])
 
@@ -196,7 +200,7 @@ symS : ∀ {Γ Δ} ([Γ] : ⊩ᵛ Γ) (⊢Δ : ⊢ Δ)
        ([σ′] : Δ ⊩ˢ σ′ ∷ Γ / [Γ] / ⊢Δ)
      → Δ ⊩ˢ σ ≡ σ′ ∷ Γ / [Γ] / ⊢Δ / [σ]
      → Δ ⊩ˢ σ′ ≡ σ ∷ Γ / [Γ] / ⊢Δ / [σ′]
-symS ε ⊢Δ [σ] [σ′] [σ≡σ′] = tt
+symS ε ⊢Δ [σ] [σ′] [σ≡σ′] = lift tt
 symS ([Γ] ∙ x) ⊢Δ [σ] [σ′] [σ≡σ′] =
   symS [Γ] ⊢Δ (proj₁ [σ]) (proj₁ [σ′]) (proj₁ [σ≡σ′])
   , let [σA]           = proj₁ (x ⊢Δ (proj₁ [σ]))
@@ -213,7 +217,7 @@ transS : ∀ {σ″ Γ Δ} ([Γ] : ⊩ᵛ Γ) (⊢Δ : ⊢ Δ)
        → Δ ⊩ˢ σ  ≡ σ′  ∷ Γ / [Γ] / ⊢Δ / [σ]
        → Δ ⊩ˢ σ′ ≡ σ″ ∷ Γ / [Γ] / ⊢Δ / [σ′]
        → Δ ⊩ˢ σ  ≡ σ″ ∷ Γ / [Γ] / ⊢Δ / [σ]
-transS ε ⊢Δ [σ] [σ′] [σ″] [σ≡σ′] [σ′≡σ″] = tt
+transS ε ⊢Δ [σ] [σ′] [σ″] [σ≡σ′] [σ′≡σ″] = lift tt
 transS ([Γ] ∙ x) ⊢Δ [σ] [σ′] [σ″] [σ≡σ′] [σ′≡σ″] =
   transS [Γ] ⊢Δ (proj₁ [σ]) (proj₁ [σ′]) (proj₁ [σ″])
          (proj₁ [σ≡σ′]) (proj₁ [σ′≡σ″])

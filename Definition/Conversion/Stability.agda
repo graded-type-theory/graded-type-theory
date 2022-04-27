@@ -1,16 +1,21 @@
 {-# OPTIONS --without-K --safe #-}
 
-module Definition.Conversion.Stability (M : Set) where
+open import Tools.Relation
+
+module Definition.Conversion.Stability {a ℓ} (M′ : Setoid a ℓ) where
+
+open Setoid M′ using () renaming (Carrier to M)
 
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Untyped.Properties M
-open import Definition.Typed M
-open import Definition.Typed.Weakening M
-open import Definition.Conversion M
-open import Definition.Conversion.Soundness M
-open import Definition.Typed.Consequences.Syntactic M
-open import Definition.Typed.Consequences.Substitution M
+open import Definition.Typed M′
+open import Definition.Typed.Weakening M′
+open import Definition.Conversion M′
+open import Definition.Conversion.Soundness M′
+open import Definition.Typed.Consequences.Syntactic M′
+open import Definition.Typed.Consequences.Substitution M′
 
+open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -21,7 +26,7 @@ private
     Γ Δ : Con Term n
 
 -- Equality of contexts.
-data ⊢_≡_ : (Γ Δ : Con Term n) → Set where
+data ⊢_≡_ : (Γ Δ : Con Term n) → Set (a ⊔ ℓ) where
   ε : ⊢ ε ≡ ε
   _∙_ : ∀ {A B} → ⊢ Γ ≡ Δ → Γ ⊢ A ≡ B → ⊢ Γ ∙ A ≡ Δ ∙ B
 
@@ -97,9 +102,9 @@ stabilityRedTerm Γ≡Δ (Σ-β₂ ⊢F ⊢G ⊢t ⊢u ⊢Σ) =
        (stabilityTerm Γ≡Δ ⊢t)
        (stabilityTerm Γ≡Δ ⊢u)
        (stabilityTerm Γ≡Δ ⊢Σ)
-stabilityRedTerm Γ≡Δ (β-red x x₁ x₂ x₃) =
-  β-red (stability Γ≡Δ x) (stabilityTerm (Γ≡Δ ∙ refl x) x₁)
-        (stabilityTerm Γ≡Δ x₂) x₃
+stabilityRedTerm Γ≡Δ (β-red x x₁ x₂ x₃ x₄) =
+  β-red (stability Γ≡Δ x) (stability (Γ≡Δ ∙ refl x) x₁)
+        (stabilityTerm (Γ≡Δ ∙ refl x) x₂) (stabilityTerm Γ≡Δ x₃) x₄
 stabilityRedTerm Γ≡Δ (natrec-subst x x₁ x₂ d) =
   let ⊢Γ , _ , _ = contextConvSubst Γ≡Δ
   in  natrec-subst (stability (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ)) x) (stabilityTerm Γ≡Δ x₁)
@@ -113,18 +118,18 @@ stabilityRedTerm Γ≡Δ (natrec-suc x x₁ x₂ x₃) =
   in  natrec-suc (stabilityTerm Γ≡Δ x) (stability (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ)) x₁)
                  (stabilityTerm Γ≡Δ x₂)
                  (stabilityTerm (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ) ∙ refl x₁) x₃)
-stabilityRedTerm Γ≡Δ (Emptyrec-subst x d) =
-  Emptyrec-subst (stability Γ≡Δ x) (stabilityRedTerm Γ≡Δ d)
 stabilityRedTerm Γ≡Δ (prodrec-subst x x₁ x₂ x₃ d) =
-  prodrec-subst (stability Γ≡Δ x) (stability (Γ≡Δ ∙ refl x) x₁)
-                (stabilityTerm (Γ≡Δ ∙ refl x ∙ refl x₁) x₂)
-                (stability (Γ≡Δ ∙ refl (Σⱼ x ▹ x₁)) x₃)
+  prodrec-subst (stability Γ≡Δ x) (stability (Γ≡Δ ∙ (refl x)) x₁)
+                (stability (Γ≡Δ ∙ refl (Σⱼ x ▹ x₁)) x₂)
+                (stabilityTerm (Γ≡Δ ∙ refl x ∙ refl x₁) x₃)
                 (stabilityRedTerm Γ≡Δ d)
 stabilityRedTerm Γ≡Δ (prodrec-β x x₁ x₂ x₃ x₄ x₅) =
   prodrec-β (stability Γ≡Δ x) (stability (Γ≡Δ ∙ refl x) x₁)
-            (stabilityTerm Γ≡Δ x₂) (stabilityTerm Γ≡Δ x₃)
-            (stability (Γ≡Δ ∙ refl (Σⱼ x ▹ x₁)) x₄)
-            (stabilityTerm ((Γ≡Δ ∙ refl x) ∙ refl x₁) x₅)
+            (stability (Γ≡Δ ∙ refl (Σⱼ x ▹ x₁)) x₂)
+            (stabilityTerm Γ≡Δ x₃) (stabilityTerm Γ≡Δ x₄)
+            (stabilityTerm (Γ≡Δ ∙ refl x ∙ refl x₁) x₅)
+stabilityRedTerm Γ≡Δ (Emptyrec-subst x d) =
+  Emptyrec-subst (stability Γ≡Δ x) (stabilityRedTerm Γ≡Δ d)
 
 -- Stability of type reductions.
 stabilityRed : ∀ {A B} → ⊢ Γ ≡ Δ → Γ ⊢ A ⇒ B → Δ ⊢ A ⇒ B
@@ -148,29 +153,29 @@ mutual
               → Δ ⊢ k ~ l ↑ A
   stability~↑ Γ≡Δ (var-refl x x≡y) =
     var-refl (stabilityTerm Γ≡Δ x) x≡y
-  stability~↑ Γ≡Δ (app-cong k~l x PE.refl) =
-    app-cong (stability~↓ Γ≡Δ k~l) (stabilityConv↑Term Γ≡Δ x) PE.refl
+  stability~↑ Γ≡Δ (app-cong k~l x p≈p₁ p≈p₂) =
+    app-cong (stability~↓ Γ≡Δ k~l) (stabilityConv↑Term Γ≡Δ x) p≈p₁ p≈p₂
   stability~↑ Γ≡Δ (fst-cong p~r) =
     fst-cong (stability~↓ Γ≡Δ p~r)
   stability~↑ Γ≡Δ (snd-cong p~r) =
     snd-cong (stability~↓ Γ≡Δ p~r)
-  stability~↑ Γ≡Δ (natrec-cong x₁ x₂ x₃ k~l PE.refl PE.refl) =
+  stability~↑ Γ≡Δ (natrec-cong x₁ x₂ x₃ k~l p≈p′ r≈r′) =
     let ⊢Γ , _ , _ = contextConvSubst Γ≡Δ
         ⊢F = proj₁ (syntacticEq (soundnessConv↑ x₁))
     in natrec-cong (stabilityConv↑ (Γ≡Δ ∙ (refl (ℕⱼ ⊢Γ))) x₁)
                    (stabilityConv↑Term Γ≡Δ x₂)
                    ((stabilityConv↑Term (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ) ∙ refl ⊢F) x₃))
-                   (stability~↓ Γ≡Δ k~l) PE.refl PE.refl
-  stability~↑ Γ≡Δ (prodrec-cong x x₁ x₂ PE.refl) =
+                   (stability~↓ Γ≡Δ k~l) p≈p′ r≈r′
+  stability~↑ Γ≡Δ (prodrec-cong x x₁ x₂ p≈p′) =
     let ⊢Σ , _ = syntacticEqTerm (soundness~↓ x₁)
         ⊢F , ⊢G = syntacticΣ ⊢Σ
     in  prodrec-cong (stabilityConv↑ (Γ≡Δ ∙ refl ⊢Σ) x)
                      (stability~↓ Γ≡Δ x₁)
                      (stabilityConv↑Term (Γ≡Δ ∙ refl ⊢F ∙ refl ⊢G) x₂)
-                     PE.refl
-  stability~↑ Γ≡Δ (Emptyrec-cong x₁ k~l PE.refl) =
+                     p≈p′
+  stability~↑ Γ≡Δ (Emptyrec-cong x₁ k~l p≈p′) =
     Emptyrec-cong (stabilityConv↑ Γ≡Δ x₁)
-                  (stability~↓ Γ≡Δ k~l) PE.refl
+                  (stability~↓ Γ≡Δ k~l) p≈p′
 
   -- Stability of algorithmic equality of neutrals of types in WHNF.
   stability~↓ : ∀ {k l A}
@@ -208,12 +213,12 @@ mutual
     in  Unit-refl ⊢Δ
   stabilityConv↓ Γ≡Δ (ne x) =
     ne (stability~↓ Γ≡Δ x)
-  stabilityConv↓ Γ≡Δ (Π-cong F A<>B A<>B₁ PE.refl PE.refl) =
+  stabilityConv↓ Γ≡Δ (Π-cong F A<>B A<>B₁ p≈p′ q≈q′) =
     Π-cong (stability Γ≡Δ F) (stabilityConv↑ Γ≡Δ A<>B)
-           (stabilityConv↑ (Γ≡Δ ∙ refl F) A<>B₁) PE.refl PE.refl
-  stabilityConv↓ Γ≡Δ (Σ-cong F A<>B A<>B₁ PE.refl) =
+           (stabilityConv↑ (Γ≡Δ ∙ refl F) A<>B₁) p≈p′ q≈q′
+  stabilityConv↓ Γ≡Δ (Σ-cong F A<>B A<>B₁ q≈q′) =
     Σ-cong (stability Γ≡Δ F) (stabilityConv↑ Γ≡Δ A<>B)
-           (stabilityConv↑ (Γ≡Δ ∙ refl F) A<>B₁) PE.refl
+           (stabilityConv↑ (Γ≡Δ ∙ refl F) A<>B₁) q≈q′
 
   -- Stability of algorithmic equality of terms.
   stabilityConv↑Term : ∀ {t u A}
@@ -236,6 +241,8 @@ mutual
     Empty-ins (stability~↓ Γ≡Δ x)
   stabilityConv↓Term Γ≡Δ (Unit-ins x) =
     Unit-ins (stability~↓ Γ≡Δ x)
+  stabilityConv↓Term Γ≡Δ (Σᵣ-ins x x₁ x₂) =
+    Σᵣ-ins (stabilityTerm Γ≡Δ x) (stabilityTerm Γ≡Δ x₁) (stability~↓ Γ≡Δ x₂)
   stabilityConv↓Term Γ≡Δ (ne-ins t u neN x) =
     ne-ins (stabilityTerm Γ≡Δ t) (stabilityTerm Γ≡Δ u) neN (stability~↓ Γ≡Δ x)
   stabilityConv↓Term Γ≡Δ (univ x x₁ x₂) =
@@ -250,7 +257,7 @@ mutual
   stabilityConv↓Term Γ≡Δ (η-eq x x₁ y y₁ t<>u) =
     let ⊢F , ⊢G = syntacticΠ (syntacticTerm x)
     in  η-eq (stabilityTerm Γ≡Δ x) (stabilityTerm Γ≡Δ x₁)
-             y y₁ (stabilityConv↑Term (Γ≡Δ ∙ refl ⊢F) t<>u)
+             y y₁ λ x₂ x₃ → stabilityConv↑Term (Γ≡Δ ∙ (refl ⊢F)) (t<>u x₂ x₃)
   stabilityConv↓Term Γ≡Δ (Σ-η ⊢p ⊢r pProd rProd fstConv sndConv) =
     Σ-η (stabilityTerm Γ≡Δ ⊢p) (stabilityTerm Γ≡Δ ⊢r)
         pProd rProd

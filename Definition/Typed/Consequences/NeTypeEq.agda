@@ -1,12 +1,16 @@
 {-# OPTIONS --without-K --safe #-}
 
-module Definition.Typed.Consequences.NeTypeEq (M : Set) where
+open import Tools.Relation
+
+module Definition.Typed.Consequences.NeTypeEq {a ℓ} (M′ : Setoid a ℓ) where
+
+open Setoid M′ using () renaming (Carrier to M)
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
-open import Definition.Typed.Consequences.Syntactic M
-open import Definition.Typed.Consequences.Injectivity M
-open import Definition.Typed.Consequences.Substitution M
+open import Definition.Typed M′
+open import Definition.Typed.Consequences.Syntactic M′
+open import Definition.Typed.Consequences.Injectivity M′
+open import Definition.Typed.Consequences.Substitution M′
 
 open import Tools.Nat
 open import Tools.Product
@@ -41,10 +45,10 @@ neTypeEq (sndₙ neP) (sndⱼ ⊢F ⊢G ⊢t) (sndⱼ ⊢F′ ⊢G′ ⊢t′) w
           in  substTypeEq G≡G₁ (refl ⊢fst)
 neTypeEq (natrecₙ neT) (natrecⱼ x t∷A t∷A₁ t∷A₂) (natrecⱼ x₁ t∷B t∷B₁ t∷B₂) =
   refl (substType x₁ t∷B₂)
+neTypeEq (prodrecₙ neT) (prodrecⱼ x x₁ x₂ x₃ x₄) (prodrecⱼ x₅ x₆ x₇ y y₁) =
+  refl (substType x₂ x₃)
 neTypeEq (Emptyrecₙ neT) (Emptyrecⱼ x t∷A) (Emptyrecⱼ x₁ t∷B) =
   refl x₁
-neTypeEq (prodrecₙ neT) (prodrecⱼ _ _ _ _ _) (prodrecⱼ _ _ t∷Σ ⊢A _) =
-  refl (substType ⊢A t∷Σ)
 neTypeEq x (conv t∷A x₁) t∷B = let q = neTypeEq x t∷A t∷B
                                in  trans (sym x₁) q
 neTypeEq x t∷A (conv t∷B x₃) = let q = neTypeEq x t∷A t∷B

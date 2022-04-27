@@ -1,21 +1,21 @@
 {-# OPTIONS --without-K --safe #-}
 
-open import Tools.Level
 open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Usage.Properties
-  {M′ : Setoid _ _} (𝕄 : Modality M′)
+module Definition.Modality.Usage.Properties {a ℓ}
+  {M′ : Setoid a ℓ} (𝕄 : Modality M′)
   where
 
 open Modality 𝕄
+open Setoid M′ renaming (Carrier to M)
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
 open import Definition.Modality.Properties 𝕄
 open import Definition.Modality.Usage 𝕄
 open import Definition.Modality.Usage.Inversion 𝕄
-open import Definition.Typed M hiding (_∙_)
+open import Definition.Typed M′ hiding (_∙_)
 open import Definition.Untyped M hiding (_∷_ ; _∙_ ; ε ; subst)
 open import Definition.Usage 𝕄
 
@@ -34,7 +34,7 @@ private
     γ δ η : Conₘ n
     p q r : M
 
--- The contents of two valid modality context can be freely interchanged
+-- The contents of two valid modality contexts can be freely interchanged
 -- If γ ▸ t and δ ▸ t then, for any x, (γ , x ≔ δ⟨x⟩) ▸ t
 
 Conₘ-interchange : γ ▸ t → δ ▸ t → (x : Fin n) →
@@ -46,27 +46,39 @@ Conₘ-interchange (sub γ▸t γ≤γ′) δ▸t x  = sub
 Conₘ-interchange γ▸t (sub γ′▸t δ≤γ′) x = sub
   (Conₘ-interchange γ▸t γ′▸t x)
   (update-monotoneʳ x (lookup-monotone x δ≤γ′))
-Conₘ-interchange Uₘ Uₘ x         = subst (_▸ _) (PE.sym (update-self 𝟘ᶜ x)) Uₘ
-Conₘ-interchange ℕₘ ℕₘ x         = subst (_▸ _) (PE.sym (update-self 𝟘ᶜ x)) ℕₘ
-Conₘ-interchange Emptyₘ Emptyₘ x = subst (_▸ _) (PE.sym (update-self 𝟘ᶜ x)) Emptyₘ
-Conₘ-interchange Unitₘ Unitₘ x   = subst (_▸ _) (PE.sym (update-self 𝟘ᶜ x)) Unitₘ
+Conₘ-interchange Uₘ Uₘ x =
+  subst (_▸ _) (PE.sym (update-self 𝟘ᶜ x)) Uₘ
+Conₘ-interchange ℕₘ ℕₘ x =
+  subst (_▸ _) (PE.sym (update-self 𝟘ᶜ x)) ℕₘ
+Conₘ-interchange Emptyₘ Emptyₘ x =
+  subst (_▸ _) (PE.sym (update-self 𝟘ᶜ x)) Emptyₘ
+Conₘ-interchange Unitₘ Unitₘ x =
+  subst (_▸ _) (PE.sym (update-self 𝟘ᶜ x)) Unitₘ
 
-Conₘ-interchange (Πₘ {γ} {δ = δ} γ▸t δ▸u) (Πₘ {γ′} {δ = δ′} γ′▸t δ′▸u) x = subst (_▸ _)  eq
-  (Πₘ (Conₘ-interchange γ▸t γ′▸t x) (Conₘ-interchange δ▸u δ′▸u (x +1)))
+Conₘ-interchange (Πₘ {γ} {δ = δ} γ▸t δ▸u)
+                 (Πₘ {γ′} {δ = δ′} γ′▸t δ′▸u) x =
+  subst (_▸ _) eq (Πₘ (Conₘ-interchange γ▸t γ′▸t x)
+                      (Conₘ-interchange δ▸u δ′▸u (x +1)))
   where
   open import Tools.Reasoning.PropositionalEquality
   eq = begin
-    (γ , x ≔ γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩) ≡˘⟨ update-distrib-+ᶜ γ δ _ _ x ⟩
-    (γ +ᶜ δ , x ≔ γ′ ⟨ x ⟩ + δ′ ⟨ x ⟩)       ≡˘⟨ cong ((γ +ᶜ δ) , x ≔_) (lookup-distrib-+ᶜ γ′ δ′ x) ⟩
+    (γ , x ≔ γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩)
+      ≡˘⟨ update-distrib-+ᶜ γ δ _ _ x ⟩
+    (γ +ᶜ δ , x ≔ γ′ ⟨ x ⟩ + δ′ ⟨ x ⟩)
+      ≡˘⟨ cong ((γ +ᶜ δ) , x ≔_) (lookup-distrib-+ᶜ γ′ δ′ x) ⟩
     (γ +ᶜ δ) , x ≔ ((γ′ +ᶜ δ′) ⟨ x ⟩)        ∎
 
-Conₘ-interchange (Σₘ {γ} {δ = δ} γ▸t δ▸u) (Σₘ {γ′} {δ = δ′} γ′▸t δ′▸u) x = subst (_▸ _)  eq
-  (Σₘ (Conₘ-interchange γ▸t γ′▸t x) (Conₘ-interchange δ▸u δ′▸u (x +1)))
+Conₘ-interchange (Σₘ {γ} {δ = δ} γ▸t δ▸u)
+                 (Σₘ {γ′} {δ = δ′} γ′▸t δ′▸u) x =
+  subst (_▸ _) eq (Σₘ (Conₘ-interchange γ▸t γ′▸t x)
+                      (Conₘ-interchange δ▸u δ′▸u (x +1)))
   where
   open import Tools.Reasoning.PropositionalEquality
   eq = begin
-    (γ , x ≔ γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩) ≡˘⟨ update-distrib-+ᶜ γ δ _ _ x ⟩
-    (γ +ᶜ δ , x ≔ γ′ ⟨ x ⟩ + δ′ ⟨ x ⟩)       ≡˘⟨ cong ((γ +ᶜ δ) , x ≔_) (lookup-distrib-+ᶜ γ′ δ′ x) ⟩
+    (γ , x ≔ γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩)
+      ≡˘⟨ update-distrib-+ᶜ γ δ _ _ x ⟩
+    (γ +ᶜ δ , x ≔ γ′ ⟨ x ⟩ + δ′ ⟨ x ⟩)
+      ≡˘⟨ cong ((γ +ᶜ δ) , x ≔_) (lookup-distrib-+ᶜ γ′ δ′ x) ⟩
     (γ +ᶜ δ) , x ≔ ((γ′ +ᶜ δ′) ⟨ x ⟩)        ∎
 
 Conₘ-interchange (var {x₁}) var x = subst (_▸ _)
@@ -74,7 +86,8 @@ Conₘ-interchange (var {x₁}) var x = subst (_▸ _)
 
 Conₘ-interchange (lamₘ γ▸t) (lamₘ δ▸t) x = lamₘ (Conₘ-interchange γ▸t δ▸t (x +1))
 
-Conₘ-interchange (_∘ₘ_ {γ} {δ = δ} {p = p} γ▸t δ▸u) (_∘ₘ_ {γ′} {δ = δ′} γ′▸t δ′▸u) x =
+Conₘ-interchange (_∘ₘ_ {γ} {δ = δ} {p = p} γ▸t δ▸u)
+                 (_∘ₘ_ {γ′} {δ = δ′} γ′▸t δ′▸u) x =
   subst (_▸ _) eq ((Conₘ-interchange γ▸t γ′▸t x) ∘ₘ (Conₘ-interchange δ▸u δ′▸u x))
   where
   open import Tools.Reasoning.PropositionalEquality
@@ -89,32 +102,40 @@ Conₘ-interchange (_∘ₘ_ {γ} {δ = δ} {p = p} γ▸t δ▸u) (_∘ₘ_ {γ
        ≡˘⟨ cong (_ , x ≔_) (lookup-distrib-+ᶜ γ′ (p ·ᶜ δ′) x) ⟩
     (γ +ᶜ p ·ᶜ δ) , x ≔ (γ′ +ᶜ p ·ᶜ δ′) ⟨ x ⟩ ∎
 
-Conₘ-interchange (prodₘ {γ} {δ = δ} γ▸t γ▸t₁ PE.refl) (prodₘ {γ₁} {δ = δ₁} δ▸t δ▸t₁ PE.refl) x = prodₘ
-  (Conₘ-interchange γ▸t δ▸t x)
-  (Conₘ-interchange γ▸t₁ δ▸t₁ x)
-  (subst₂ _≡_ (cong (_ , _ ≔_) (PE.sym (lookup-distrib-+ᶜ γ₁ δ₁ x)))
-              (update-distrib-+ᶜ γ δ _ _ x) PE.refl)
+Conₘ-interchange (prodₘ {γ} {δ = δ} γ▸t γ▸t₁ PE.refl)
+                 (prodₘ {γ₁} {δ = δ₁} δ▸t δ▸t₁ PE.refl) x =
+  prodₘ
+    (Conₘ-interchange γ▸t δ▸t x)
+    (Conₘ-interchange γ▸t₁ δ▸t₁ x)
+    (subst₂ _≡_ (cong (_ , _ ≔_) (PE.sym (lookup-distrib-+ᶜ γ₁ δ₁ x)))
+                (update-distrib-+ᶜ γ δ _ _ x) PE.refl)
 
-Conₘ-interchange (fstₘ γ▸t) (fstₘ δ▸t) x = subst (_▸ _) (PE.sym (update-self 𝟘ᶜ x)) (fstₘ γ▸t)
-Conₘ-interchange (sndₘ γ▸t) (sndₘ δ▸t) x = subst (_▸ _) (PE.sym (update-self 𝟘ᶜ x)) (sndₘ γ▸t)
+Conₘ-interchange (fstₘ γ▸t) (fstₘ δ▸t) x =
+  subst (_▸ _) (PE.sym (update-self 𝟘ᶜ x)) (fstₘ γ▸t)
+Conₘ-interchange (sndₘ γ▸t) (sndₘ δ▸t) x =
+  subst (_▸ _) (PE.sym (update-self 𝟘ᶜ x)) (sndₘ γ▸t)
 
-Conₘ-interchange (prodrecₘ {γ} {δ = δ} {p} γ▸t δ▸u) (prodrecₘ {γ′} {δ = δ′} γ′▸t δ′▸u) x =
-  subst (_▸ _) eq (prodrecₘ (Conₘ-interchange γ▸t γ′▸t x) (Conₘ-interchange δ▸u δ′▸u (x +1 +1)))
+Conₘ-interchange (prodrecₘ {γ = γ} {δ = δ} {p} γ▸t δ▸t)
+                 (prodrecₘ {γ = γ′} {δ = δ′} γ▸t₁ δ▸t₁) x =
+  subst (_▸ _) eq (prodrecₘ (Conₘ-interchange γ▸t γ▸t₁ x)
+                              (Conₘ-interchange δ▸t δ▸t₁ (x +1 +1)))
   where
   open import Tools.Reasoning.PropositionalEquality
   eq = begin
-     p ·ᶜ (γ , x ≔ (γ′ ⟨ x ⟩)) +ᶜ (δ , x ≔ (δ′ ⟨ x ⟩))
-         ≡˘⟨ cong (_+ᶜ _) (update-distrib-·ᶜ γ p _ x) ⟩
-     ((p ·ᶜ γ) , x ≔ (p · γ′ ⟨ x ⟩)) +ᶜ (δ , x ≔ (δ′ ⟨ x ⟩))
-         ≡˘⟨ cong (_+ᶜ _) (cong (_ , x ≔_) (lookup-distrib-·ᶜ γ′ p x)) ⟩
-     ((p ·ᶜ γ) , x ≔ ((p ·ᶜ γ′) ⟨ x ⟩)) +ᶜ (δ , x ≔ (δ′ ⟨ x ⟩))
-         ≡˘⟨ update-distrib-+ᶜ (p ·ᶜ γ) δ _ _ x ⟩
-     (p ·ᶜ γ +ᶜ δ) , x ≔ ((p ·ᶜ γ′) ⟨ x ⟩ + δ′ ⟨ x ⟩)
-         ≡˘⟨ cong (_ , x ≔_) (lookup-distrib-+ᶜ (p ·ᶜ γ′) δ′ x) ⟩
-     ((p ·ᶜ γ +ᶜ δ) , x ≔ ((p ·ᶜ γ′ +ᶜ δ′) ⟨ x ⟩)) ∎
+    p ·ᶜ (γ , x ≔ γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩)
+      ≡˘⟨ cong (_+ᶜ _) (update-distrib-·ᶜ γ p (γ′ ⟨ x ⟩) x) ⟩
+    (p ·ᶜ γ , x ≔ p · γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩)
+      ≡˘⟨ update-distrib-+ᶜ (p ·ᶜ γ) δ (p · γ′ ⟨ x ⟩) (δ′ ⟨ x ⟩) x ⟩
+    p ·ᶜ γ +ᶜ δ , x ≔ p · γ′ ⟨ x ⟩ + δ′ ⟨ x ⟩
+      ≡˘⟨ cong (λ y → _ , x ≔ y + _) (lookup-distrib-·ᶜ γ′ p x) ⟩
+    p ·ᶜ γ +ᶜ δ , x ≔ (p ·ᶜ γ′) ⟨ x ⟩ + δ′ ⟨ x ⟩
+      ≡˘⟨ cong (λ y → _ , x ≔ y) (lookup-distrib-+ᶜ (p ·ᶜ γ′) δ′ x) ⟩
+    p ·ᶜ γ +ᶜ δ , x ≔ (p ·ᶜ γ′ +ᶜ δ′) ⟨ x ⟩ ∎
 
-Conₘ-interchange zeroₘ zeroₘ x           = subst (_▸ _) (PE.sym (update-self 𝟘ᶜ x)) zeroₘ
-Conₘ-interchange (sucₘ γ▸t) (sucₘ δ▸t) x = sucₘ (Conₘ-interchange γ▸t δ▸t x)
+Conₘ-interchange zeroₘ zeroₘ x           =
+  subst (_▸ _) (PE.sym (update-self 𝟘ᶜ x)) zeroₘ
+Conₘ-interchange (sucₘ γ▸t) (sucₘ δ▸t) x =
+  sucₘ (Conₘ-interchange γ▸t δ▸t x)
 
 Conₘ-interchange (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} γ▸z δ▸s η▸n)
                  (natrecₘ {γ = γ′} {δ = δ′} {η = η′} γ′▸z δ′▸s η′▸n) x =
@@ -129,23 +150,30 @@ Conₘ-interchange (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} γ�
            pη' = p ·ᶜ η , x ≔ (p · (η′ ⟨ x ⟩))
        in begin
           nrᶜ (γ' ∧ᶜ η') (δ' +ᶜ p ·ᶜ η') r
-            ≡˘⟨ cong (λ x₁ → nrᶜ (γ' ∧ᶜ η') x₁ r) (cong (δ' +ᶜ_) (update-distrib-·ᶜ η p (η′ ⟨ x ⟩) x)) ⟩
+            ≡˘⟨ cong (λ y → nrᶜ _ (_ +ᶜ y) r)
+                     (update-distrib-·ᶜ η p (η′ ⟨ x ⟩) x) ⟩
           nrᶜ (γ' ∧ᶜ η') (δ' +ᶜ pη') r
-            ≡˘⟨ cong (λ x₁ → nrᶜ (γ' ∧ᶜ η') x₁ r) (cong (_ +ᶜ_) (cong (_ , x ≔_) (lookup-distrib-·ᶜ η′ p x))) ⟩
+            ≡˘⟨ cong (λ y → nrᶜ _ (_ +ᶜ (_ , x ≔ y)) r)
+                     (lookup-distrib-·ᶜ η′ p x) ⟩
           nrᶜ (γ' ∧ᶜ η') (δ' +ᶜ ((p ·ᶜ η) , x ≔ ((p ·ᶜ η′) ⟨ x ⟩))) r
-            -- ≡˘⟨ {!!} ⟩
-            ≡˘⟨ cong (λ x₁ → nrᶜ (γ' ∧ᶜ η') x₁ r) (update-distrib-+ᶜ δ (p ·ᶜ η) (δ′ ⟨ x ⟩) ((p ·ᶜ η′) ⟨ x ⟩) x) ⟩
+            ≡˘⟨ cong (λ y → nrᶜ _ y r)
+                     (update-distrib-+ᶜ δ (p ·ᶜ η) (δ′ ⟨ x ⟩) ((p ·ᶜ η′) ⟨ x ⟩) x) ⟩
           nrᶜ (γ' ∧ᶜ η') ((δ +ᶜ p ·ᶜ η) , x ≔ (δ′ ⟨ x ⟩ + (p ·ᶜ η′) ⟨ x ⟩)) r
-            ≡˘⟨ cong₂ (λ x₁ x₂ → nrᶜ x₁ x₂ r) ((update-distrib-∧ᶜ γ η (γ′ ⟨ x ⟩) (η′ ⟨ x ⟩) x)) (cong (_ , x ≔_) (lookup-distrib-+ᶜ δ′ (p ·ᶜ η′) x)) ⟩
+            ≡˘⟨ cong₂ (λ y z → nrᶜ y (_ , x ≔ z) r)
+                      (update-distrib-∧ᶜ γ η (γ′ ⟨ x ⟩) (η′ ⟨ x ⟩) x)
+                      (lookup-distrib-+ᶜ δ′ (p ·ᶜ η′) x)  ⟩
           nrᶜ ((γ ∧ᶜ η) , x ≔ (γ′ ⟨ x ⟩ ∧ η′ ⟨ x ⟩)) ((δ +ᶜ p ·ᶜ η) , x ≔ ((δ′ +ᶜ p ·ᶜ η′) ⟨ x ⟩)) r
-            ≡˘⟨ update-distrib-nrᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r ((γ′ ⟨ x ⟩) ∧ (η′ ⟨ x ⟩)) ((δ′ +ᶜ p ·ᶜ η′) ⟨ x ⟩) x ⟩
+            ≡˘⟨ update-distrib-nrᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r
+                                   ((γ′ ⟨ x ⟩) ∧ (η′ ⟨ x ⟩))
+                                   ((δ′ +ᶜ p ·ᶜ η′) ⟨ x ⟩) x ⟩
           nrᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r , x ≔ nr ((γ′ ⟨ x ⟩) ∧ (η′ ⟨ x ⟩)) ((δ′ +ᶜ p ·ᶜ η′) ⟨ x ⟩) r
-            ≡˘⟨ cong (nrᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r , x ≔_) (cong (λ x₁ → nr x₁ ((δ′ +ᶜ p ·ᶜ η′) ⟨ x ⟩) r) (lookup-distrib-∧ᶜ γ′ η′ x)) ⟩
+            ≡˘⟨ cong (λ y → _ , x ≔ nr y _ _) (lookup-distrib-∧ᶜ γ′ η′ x) ⟩
           nrᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r , x ≔ nr ((γ′ ∧ᶜ η′) ⟨ x ⟩) ((δ′ +ᶜ p ·ᶜ η′) ⟨ x ⟩) r
-            ≡˘⟨ cong (_ , x ≔_) (lookup-distrib-nrᶜ (γ′ ∧ᶜ η′) (δ′ +ᶜ p ·ᶜ η′) r x ) ⟩
+            ≡˘⟨ cong (λ y → _ , x ≔ y) (lookup-distrib-nrᶜ (γ′ ∧ᶜ η′) (δ′ +ᶜ p ·ᶜ η′) r x) ⟩
           nrᶜ (γ ∧ᶜ η) (δ +ᶜ (p ·ᶜ η)) r , x ≔ (nrᶜ (γ′ ∧ᶜ η′) (δ′ +ᶜ (p ·ᶜ η′)) r ⟨ x ⟩) ∎
 
-Conₘ-interchange (Emptyrecₘ {γ} {p = p} γ▸t) (Emptyrecₘ {δ} δ▸t) x = subst (_▸ _) eq (Emptyrecₘ (Conₘ-interchange γ▸t δ▸t x))
+Conₘ-interchange (Emptyrecₘ {γ} {p = p} γ▸t) (Emptyrecₘ {δ} δ▸t) x =
+  subst (_▸ _) eq (Emptyrecₘ (Conₘ-interchange γ▸t δ▸t x))
   where
   open import Tools.Reasoning.PropositionalEquality
   eq = begin
@@ -153,7 +181,8 @@ Conₘ-interchange (Emptyrecₘ {γ} {p = p} γ▸t) (Emptyrecₘ {δ} δ▸t) x
     p ·ᶜ γ , x ≔ p · (δ ⟨ x ⟩)  ≡˘⟨ cong (_ , _ ≔_) (lookup-distrib-·ᶜ δ p x) ⟩
     p ·ᶜ γ , x ≔ (p ·ᶜ δ) ⟨ x ⟩ ∎
 
-Conₘ-interchange starₘ starₘ x = subst (_▸ _) (PE.sym (update-self 𝟘ᶜ x)) starₘ
+Conₘ-interchange starₘ starₘ x =
+  subst (_▸ _) (PE.sym (update-self 𝟘ᶜ x)) starₘ
 
 
 -- ⌈ t ⌉ is an upper bound on valid modality contexts
@@ -165,47 +194,51 @@ usage-upper-bound ℕₘ     = ≤ᶜ-refl
 usage-upper-bound Emptyₘ = ≤ᶜ-refl
 usage-upper-bound Unitₘ  = ≤ᶜ-refl
 
-usage-upper-bound (Πₘ {δ = δ} {q} {G₁} F G) = +ᶜ-monotone
-  (usage-upper-bound F)
-  (subst (δ ≈ᶜ_) (tailₘ-distrib-∧ᶜ (δ ∙ q) ⌈ G₁ ⌉) (tailₘ-cong (usage-upper-bound G)))
+usage-upper-bound (Πₘ {δ = δ} {q} {G₁} F G) =
+  +ᶜ-monotone (usage-upper-bound F)
+              (subst (δ ≈ᶜ_) (tailₘ-distrib-∧ᶜ (δ ∙ q) ⌈ G₁ ⌉)
+                     (tailₘ-cong (usage-upper-bound G)))
 
-usage-upper-bound (Σₘ {δ = δ} {q} {G₁} F G) = +ᶜ-monotone
-  (usage-upper-bound F)
-  (subst (δ ≈ᶜ_) (tailₘ-distrib-∧ᶜ (δ ∙ q) ⌈ G₁ ⌉) (tailₘ-cong (usage-upper-bound G)))
+usage-upper-bound (Σₘ {δ = δ} {q} {G₁} F G) =
+  +ᶜ-monotone (usage-upper-bound F)
+              (subst (δ ≈ᶜ_) (tailₘ-distrib-∧ᶜ (δ ∙ q) ⌈ G₁ ⌉)
+                     (tailₘ-cong (usage-upper-bound G)))
 
 usage-upper-bound var = ≤ᶜ-refl
 
-usage-upper-bound {γ = γ} (lamₘ {p = p} {t₁} t) = subst (γ ≈ᶜ_)
-  (tailₘ-distrib-∧ᶜ (γ ∙ p) ⌈ t₁ ⌉)
-  (tailₘ-cong (usage-upper-bound t))
+usage-upper-bound {γ = γ} (lamₘ {p = p} {t₁} t) =
+  subst (γ ≈ᶜ_) (tailₘ-distrib-∧ᶜ (γ ∙ p) ⌈ t₁ ⌉)
+        (tailₘ-cong (usage-upper-bound t))
 
-usage-upper-bound (t ∘ₘ u) = +ᶜ-monotone
-  (usage-upper-bound t)
-  (·ᶜ-monotoneʳ (usage-upper-bound u))
+usage-upper-bound (t ∘ₘ u) =
+  +ᶜ-monotone (usage-upper-bound t)
+              (·ᶜ-monotoneʳ (usage-upper-bound u))
 
-usage-upper-bound (prodₘ! t u) = +ᶜ-monotone (usage-upper-bound t) (usage-upper-bound u)
-usage-upper-bound (fstₘ t)     = ≤ᶜ-refl
-usage-upper-bound (sndₘ t)     = ≤ᶜ-refl
-
-usage-upper-bound (prodrecₘ {γ} {δ = δ} {p} {u = u₁} t u) = +ᶜ-monotone
-  (·ᶜ-monotoneʳ (usage-upper-bound t))
-  (tailₘ-monotone (tailₘ-monotone (usage-upper-bound u)))
+usage-upper-bound (prodₘ! t u)   =
+  +ᶜ-monotone (usage-upper-bound t) (usage-upper-bound u)
+usage-upper-bound (fstₘ t) = ≤ᶜ-refl
+usage-upper-bound (sndₘ t) = ≤ᶜ-refl
+usage-upper-bound (prodrecₘ t u) =
+  +ᶜ-monotone (·ᶜ-monotoneʳ (usage-upper-bound t))
+              (tailₘ-monotone (tailₘ-monotone (usage-upper-bound u)))
 
 usage-upper-bound zeroₘ    = ≤ᶜ-refl
 usage-upper-bound (sucₘ t) = usage-upper-bound t
 
-usage-upper-bound (natrecₘ {z = z} {s = s} {n = n} γ▸z δ▸s η▸n) = nrᶜ-monotone
-  (∧ᶜ-monotone γ≤γ′ η≤η′)
-  (+ᶜ-monotone (tailₘ-monotone (tailₘ-monotone δ≤δ′)) (·ᶜ-monotoneʳ η≤η′))
-  ≤-refl
+usage-upper-bound (natrecₘ {z = z} {s = s} {n = n} γ▸z δ▸s η▸n) =
+  nrᶜ-monotone (∧ᶜ-monotone γ≤γ′ η≤η′)
+               (+ᶜ-monotone (tailₘ-monotone (tailₘ-monotone δ≤δ′))
+                            (·ᶜ-monotoneʳ η≤η′))
+               ≤-refl
   where
   γ≤γ′ = usage-upper-bound γ▸z
   δ≤δ′ = usage-upper-bound δ▸s
   η≤η′ = usage-upper-bound η▸n
 
-usage-upper-bound (Emptyrecₘ e) = ·ᶜ-monotoneʳ (usage-upper-bound e)
-usage-upper-bound starₘ         = ≤ᶜ-refl
-usage-upper-bound (sub t x)     = ≤ᶜ-trans x (usage-upper-bound t)
+usage-upper-bound (Emptyrecₘ e) =
+  ·ᶜ-monotoneʳ (usage-upper-bound e)
+usage-upper-bound starₘ = ≤ᶜ-refl
+usage-upper-bound (sub t x) = ≤ᶜ-trans x (usage-upper-bound t)
 
 
 -- A valid modality context can be computed from well typed and well resourced terms
@@ -243,23 +276,21 @@ usage-calc-term′ (fstⱼ x x₁ Γ⊢t:A) γ▸t with inv-usage-fst γ▸t
 ... | invUsageProj 𝟘▸t _ = fstₘ 𝟘▸t
 usage-calc-term′ (sndⱼ x x₁ Γ⊢t:A) γ▸t with inv-usage-snd γ▸t
 ... | invUsageProj 𝟘▸t _ = sndₘ 𝟘▸t
-usage-calc-term′ {n = n} (prodrecⱼ {p = p} {u = u}
-                    x x₁ Γ⊢t:Σ x₂ Γ⊢u:A) γ▸t with inv-usage-prodrec γ▸t
-... | invUsageProdrec δ▸t η▸u _ = prodrecₘ
-      (usage-calc-term′ Γ⊢t:Σ δ▸t)
-      (subst₂ _▸_ eq PE.refl (Conₘ-interchange (Conₘ-interchange
-                          (usage-calc-term′ Γ⊢u:A η▸u) η▸u (x0 +1)) η▸u x0))
+usage-calc-term′ (prodrecⱼ {p = p} {u = u} x x₁ x₂ Γ⊢t:A Γ⊢u:B) γ▸t with inv-usage-prodrec γ▸t
+... | invUsageProdrec {δ = δ} {η} δ▸t η▸u γ≤γ′ =
+  prodrecₘ (usage-calc-term′ Γ⊢t:A δ▸t)
+           (subst (_▸ _) eq
+                  (Conₘ-interchange (Conₘ-interchange (usage-calc-term′ Γ⊢u:B η▸u)
+                                                      η▸u (x0 +1))
+                                    η▸u x0))
   where
   open import Tools.Reasoning.PropositionalEquality
-  γu = ⌈ u ⌉
-  eq =  begin
-     ((γu , x0 +1 ≔ p) , x0 ≔ p)
-       ≡⟨ cong₂ (_,_≔ p) (update-step γu p x0) PE.refl ⟩
-     (( (tailₘ γu , x0 ≔ p) ∙ headₘ γu) , x0 ≔ p)
-       ≡⟨ cong (_, x0 ≔ p) (cong (_∙ p) (update-head (tailₘ γu) p)) ⟩
-     ((tailₘ (tailₘ γu) ∙ p ∙ headₘ γu) , x0 ≔ p)
-       ≡⟨ update-head ((tailₘ (tailₘ γu) ∙ p) ∙ headₘ γu) p ⟩
-     (tailₘ (tailₘ γu) ∙ p ∙ p) ∎
+  eq = begin
+    (⌈ u ⌉ , x0 +1 ≔ p) , x0 ≔ p
+      ≡⟨ cong (λ γ → γ , x0 ≔ p) (update-step ⌈ u ⌉ p x0) ⟩
+    tailₘ ⌈ u ⌉ , x0 ≔ p ∙ p
+      ≡⟨ cong (_∙ p) (update-head (tailₘ ⌈ u ⌉) p) ⟩
+    tailₘ (tailₘ ⌈ u ⌉) ∙ p ∙ p ∎
 
 usage-calc-term′ (zeroⱼ x) γ▸t = zeroₘ
 usage-calc-term′ (sucⱼ Γ⊢t:ℕ) γ▸t  with inv-usage-suc γ▸t
@@ -267,22 +298,24 @@ usage-calc-term′ (sucⱼ Γ⊢t:ℕ) γ▸t  with inv-usage-suc γ▸t
 
 usage-calc-term′ (natrecⱼ {p = p} {r = r} {s = s} {z = z} {n = n}
                  x Γ⊢z:G Γ⊢s:G Γ⊢n:ℕ) γ▸t with inv-usage-natrec γ▸t
-... | invUsageNatrec {δ = δ} {η} {θ} δ▸z η▸s θ▸n a = natrecₘ
-  (usage-calc-term′ Γ⊢z:G δ▸z)
-  (subst (_▸ _) eq (Conₘ-interchange (Conₘ-interchange
-                                     (usage-calc-term′ Γ⊢s:G η▸s) η▸s (x0 +1)) η▸s x0))
+... | invUsageNatrec {δ = δ} {η} {θ} δ▸z η▸s θ▸n a =
+  natrecₘ (usage-calc-term′ Γ⊢z:G δ▸z)
+          (subst (_▸ _) eq
+                 (Conₘ-interchange (Conₘ-interchange (usage-calc-term′ Γ⊢s:G η▸s)
+                                                     η▸s (x0 +1))
+                                   η▸s x0))
   (usage-calc-term′ Γ⊢n:ℕ θ▸n)
   where
   open import Tools.Reasoning.PropositionalEquality
   ηs = ⌈ s ⌉
   eq =  begin
-     ((ηs , x0 +1 ≔ p) , x0 ≔ r)
+     (ηs , x0 +1 ≔ p) , x0 ≔ r
        ≡⟨ cong (_, x0 ≔ r) (update-step ηs p x0) ⟩
-     (( (tailₘ ηs , x0 ≔ p) ∙ headₘ ηs) , x0 ≔ r)
+     ((tailₘ ηs , x0 ≔ p) ∙ headₘ ηs) , x0 ≔ r
        ≡⟨ cong (_, x0 ≔ r) (cong (_∙ p) (update-head (tailₘ ηs) p)) ⟩
-     ((tailₘ (tailₘ ηs) ∙ p ∙ headₘ ηs) , x0 ≔ r)
+     (tailₘ (tailₘ ηs) ∙ p ∙ headₘ ηs) , x0 ≔ r
        ≡⟨ update-head ((tailₘ (tailₘ ηs) ∙ p) ∙ headₘ ηs) r ⟩
-     (tailₘ (tailₘ ηs) ∙ p ∙ r) ∎
+     tailₘ (tailₘ ηs) ∙ p ∙ r ∎
 
 usage-calc-term′ (Emptyrecⱼ x Γ⊢t:A) γ▸t with inv-usage-Emptyrec γ▸t
 ... | invUsageEmptyrec δ▸t _ = Emptyrecₘ (usage-calc-term′ Γ⊢t:A δ▸t)

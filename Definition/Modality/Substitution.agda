@@ -4,23 +4,20 @@ open import Tools.Level
 open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Substitution
-  {M′ : Setoid _ _} (𝕄 : Modality M′)
+module Definition.Modality.Substitution {a ℓ}
+  {M′ : Setoid a ℓ} (𝕄 : Modality M′)
   where
 
 open Modality 𝕄
+open Setoid M′ renaming (Carrier to M)
 
 open import Definition.Untyped M
   using (Subst ; tail ; head ; Wk ; id ; step ; lift)
-open import Definition.Untyped.Properties M
 open import Definition.Modality.Context 𝕄
-open import Definition.Modality.Context.Properties 𝕄
-open import Definition.Modality.Properties 𝕄
 open import Definition.Modality.Usage 𝕄
 
 open import Tools.Fin
 open import Tools.Nat
-open import Tools.Product
 
 infixr 50 _*>_
 infix  20 ∥_∥
@@ -28,11 +25,11 @@ infixl 30 _⊙_
 
 private
   variable
-    ℓ m n : Nat
+    k m n : Nat
 
 -- Substitutions are matrices represented as snoc-lists of modality contexts.
 
-data Substₘ : (m n : Nat) → Set where
+data Substₘ : (m n : Nat) → Set a where
   []  : Substₘ m 0
   _⊙_ : Substₘ m n →  Conₘ m → Substₘ m (1+ n)
 
@@ -56,7 +53,7 @@ _<*_ : (γ : Conₘ m) → (Ψ : Substₘ m n) → Conₘ n
 
 -- Composition of substitution matrices
 
-_<*>_ : (Ψ : Substₘ m ℓ) (Φ : Substₘ ℓ n) → Substₘ m n
+_<*>_ : (Ψ : Substₘ m k) (Φ : Substₘ k n) → Substₘ m n
 Ψ <*> [] = []
 Ψ <*> (Φ ⊙ δ) = (Ψ <*> Φ) ⊙ (Ψ *> δ)
 
@@ -71,7 +68,7 @@ addrow (Ψ ⊙ δ) (γ ∙ p) = addrow Ψ γ ⊙ (δ ∙ p)
 -- Well formed modality substitutions
 -- If ∀ x. γₓ ▸ σ x, where γₓ is the x-th column vector of Ψ, then Ψ ▶ σ
 
-_▶_ : (Ψ : Substₘ m n) → (σ : Subst m n) → Set
+_▶_ : (Ψ : Substₘ m n) → (σ : Subst m n) → Set (a ⊔ ℓ)
 _▶_ {n = n} Ψ σ = ∀ (x : Fin n) → (Ψ *> (𝟘ᶜ , x ≔ 𝟙)) ▸ (σ x)
 
 -- Substitution matrix inference

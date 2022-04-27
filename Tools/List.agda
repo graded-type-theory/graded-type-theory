@@ -2,7 +2,4 @@
 
 module Tools.List where
 
-open import Data.List.Base public using (List; []; _∷_)
-
-module L where
-  open import Data.List.Base public
+open import Data.List.Base using (List; []; _∷_) public

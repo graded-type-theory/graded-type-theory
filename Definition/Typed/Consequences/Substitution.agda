@@ -1,19 +1,22 @@
 {-# OPTIONS --without-K --safe #-}
 
-module Definition.Typed.Consequences.Substitution (M : Set) where
+open import Tools.Relation
 
-open import Definition.Untyped M hiding (_∷_)
+module Definition.Typed.Consequences.Substitution {a ℓ′} (M′ : Setoid a ℓ′) where
+
+open Setoid M′ using () renaming (Carrier to M)
+
+open import Definition.Untyped M hiding (_∷_; wk)
 open import Definition.Untyped.Properties M
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-open import Definition.Typed.EqRelInstance M
-open import Definition.Typed.Weakening M
-open import Definition.Typed.Consequences.Syntactic M
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.Properties M
-open import Definition.LogicalRelation.Substitution M
-open import Definition.LogicalRelation.Substitution.Irrelevance M
-open import Definition.LogicalRelation.Fundamental M
+open import Definition.Typed M′
+open import Definition.Typed.Properties M′
+open import Definition.Typed.EqRelInstance M′
+open import Definition.Typed.Weakening M′
+open import Definition.Typed.Consequences.Syntactic M′
+open import Definition.LogicalRelation.Properties M′
+open import Definition.LogicalRelation.Substitution M′
+open import Definition.LogicalRelation.Substitution.Irrelevance M′
+open import Definition.LogicalRelation.Fundamental M′
 
 open import Tools.Fin
 open import Tools.Nat
@@ -182,3 +185,42 @@ subst↑TypeEq : ∀ {t u F G E}
              → Γ ∙ F ⊢ t ≡ u ∷ wk1 F
              → Γ ∙ F ⊢ G [ t ]↑ ≡ E [ u ]↑
 subst↑TypeEq ⊢G ⊢t = substitutionEq ⊢G (singleSubst↑Eq ⊢t) (wfEqTerm ⊢t)
+
+subst↑²TypeEq : ∀ {m F G A B}
+              → Γ ∙ (Σ⟨ m ⟩ q ▷ F ▹ G) ⊢ A ≡ B
+              → Γ ∙ F ∙ G ⊢ A [ prod (var (x0 +1)) (var x0) ]↑²
+                          ≡ B [ prod (var (x0 +1)) (var x0) ]↑²
+subst↑²TypeEq {Γ = Γ} {F = F} {G} {A} {B} A≡B =
+  let ⊢A , ⊢B = syntacticEq A≡B
+      ⊢ΓΣ = wf ⊢A
+      ⊢Γ , ⊢Σ = splitCon ⊢ΓΣ
+      ⊢F , ⊢G = syntacticΣ ⊢Σ
+      ⊢ΓFG = ⊢Γ ∙ ⊢F ∙ ⊢G
+      ⊢ρF = wk (step (step id)) ⊢ΓFG ⊢F
+      ⊢ρG = wk (lift (step (step id))) (⊢ΓFG ∙ ⊢ρF) ⊢G
+      ⊢ρF′ = PE.subst (λ x → _ ⊢ x) (wk≡subst (step (step id)) F) ⊢ρF
+      ⊢ρG′ = PE.subst₂ (λ x y → (Γ ∙ F ∙ G ∙ x) ⊢ y)
+                       (wk≡subst (step (step id)) F)
+                       (PE.trans (wk≡subst (lift (step (step id))) G)
+                                 (substVar-to-subst (λ{x0 → PE.refl
+                                                    ; (x +1) → PE.refl}) G))
+                       ⊢ρG
+      var1 = PE.subst (λ x → Γ ∙ F ∙ G ⊢ var (x0 +1) ∷ x)
+                      (PE.trans (wk-comp (step id) (step id) F)
+                                (wk≡subst (step id • step id) F))
+                      (var ⊢ΓFG (there here))
+      var0 = PE.subst (λ x → Γ ∙ F ∙ G ⊢ var x0 ∷ x)
+                      (PE.trans (wk≡subst (step id) G)
+                                (PE.trans (substVar-to-subst (λ{x0 → PE.refl
+                                                             ; (x +1) → PE.refl}) G)
+                                          (PE.sym (substCompEq G))))
+                      (var ⊢ΓFG here)
+  in  substitutionEq A≡B
+                     (substRefl (wk1Subst′ ⊢Γ (⊢Γ ∙ ⊢F) ⊢G
+                                           (wk1Subst′ ⊢Γ ⊢Γ ⊢F
+                                                      (idSubst′ ⊢Γ))
+                                , prodⱼ ⊢ρF′ ⊢ρG′ var1 var0))
+                     ⊢ΓFG
+  where
+  splitCon : ∀ {Γ : Con Term n} {F} → ⊢ (Γ ∙ F) → ⊢ Γ × Γ ⊢ F
+  splitCon (x ∙ x₁) = x , x₁

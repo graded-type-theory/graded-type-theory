@@ -1,22 +1,26 @@
 {-# OPTIONS --without-K --safe #-}
 
-module Definition.Conversion.Lift (M : Set) where
+open import Tools.Relation
+
+module Definition.Conversion.Lift {a ℓ} (M′ : Setoid a ℓ) where
+
+open Setoid M′ using () renaming (Carrier to M; refl to ≈-refl)
 
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Untyped.Properties M
-open import Definition.Typed M
-open import Definition.Typed.Weakening M
-open import Definition.Typed.Properties M
-open import Definition.Typed.EqRelInstance M
-open import Definition.Conversion M
-open import Definition.Conversion.Whnf M
-open import Definition.Conversion.Soundness M
-open import Definition.Conversion.Weakening M
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.Properties M
-open import Definition.LogicalRelation.Fundamental.Reducibility M
-open import Definition.Typed.Consequences.Syntactic M
-open import Definition.Typed.Consequences.Reduction M
+open import Definition.Typed M′
+open import Definition.Typed.Weakening M′
+open import Definition.Typed.Properties M′
+open import Definition.Typed.EqRelInstance M′
+open import Definition.Conversion M′
+open import Definition.Conversion.Whnf M′
+open import Definition.Conversion.Soundness M′
+open import Definition.Conversion.Weakening M′
+open import Definition.LogicalRelation M′
+open import Definition.LogicalRelation.Properties M′
+open import Definition.LogicalRelation.Fundamental.Reducibility M′
+open import Definition.Typed.Consequences.Syntactic M′
+open import Definition.Typed.Consequences.Reduction M′
 
 open import Tools.Fin
 open import Tools.Nat
@@ -80,13 +84,12 @@ mutual
         var0 = neuTerm ([F] (step id) (⊢Γ ∙ ⊢F)) (var x0) (var (⊢Γ ∙ ⊢F) here)
                        (refl (var (⊢Γ ∙ ⊢F) here))
         0≡0 = lift~toConv↑′ ([F] (step id) (⊢Γ ∙ ⊢F)) (var-refl (var (⊢Γ ∙ ⊢F) here) PE.refl)
-        k∘0≡l∘0 = lift~toConv↑′ ([G] (step id) (⊢Γ ∙ ⊢F) var0)
-                                (app-cong (wk~↓ (step id) (⊢Γ ∙ ⊢F) ([~] A D₂ Πₙ k~l))
-                                          0≡0 PE.refl)
     in  η-eq ⊢t ⊢u (ne neT) (ne neU)
-             (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x)
-                       (wkSingleSubstId _)
-                       k∘0≡l∘0)
+             (λ a b → PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x)
+                               (wkSingleSubstId _)
+                               (lift~toConv↑′ ([G] (step id) (⊢Γ ∙ ⊢F) var0)
+                                              (app-cong (wk~↓ (step id) (⊢Γ ∙ ⊢F) ([~] A D₂ Πₙ k~l))
+                                                        0≡0 a b)))
   lift~toConv↓′ (Bᵣ′ BΣₚ F G D ⊢F ⊢G Σ≡Σ [F] [G] G-ext) D₁ ([~] A″ D₂ whnfA t~u)
                 rewrite PE.sym (whrDet* (red D , Σₙ) (D₁ , whnfA)) {- Σ F ▹ G ≡ A -} =
     let neT , neU = ne~↑ t~u
@@ -112,32 +115,11 @@ mutual
             (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x) wkLiftId
                       (lift~toConv↑′ wk[Gfst] wksnd~))
   lift~toConv↓′ (Bᵣ′ BΣᵣ F G D ⊢F ⊢G Σ≡Σ [F] [G] G-ext) D₁ ([~] A″ D₂ whnfA t~u)
-                rewrite PE.sym (whrDet* (red D , Σₙ) (D₁ , whnfA)) {- Σ F ▹ G ≡ A -}
-                with reducibleEqTerm (soundness~↑ t~u)
-  ... | [A″] , [t≡u] = {!t~u!}
-    -- let neT , neU = ne~↑ t~u
-    --     -- t~u↓ = [~] A″ D₂ Σₙ t~u
-    --     -- ⊢ΣFG , ⊢t , ⊢u = syntacticEqTerm (soundness~↓ t~u↓)
-    --     -- ⊢F , ⊢G = syntacticΣ ⊢ΣFG
-    --     -- ⊢Γ = wf ⊢F
+                rewrite PE.sym (whrDet* (red D , Σₙ) (D₁ , whnfA)) {- Σ F ▹ G ≡ A -} =
+    let t~u↓ = [~] A″ D₂ Σₙ t~u
+        _ , ⊢t , ⊢u = syntacticEqTerm (soundness~↓ t~u↓)
+    in  Σᵣ-ins ⊢t ⊢u t~u↓
 
-    --     -- wkId = wk-id F
-    --     -- wkLiftId = PE.cong (λ x → x [ fst _ ]) (wk-lift-id G)
-
-    --     -- wk[F] = [F] id ⊢Γ
-    --     -- wk⊢fst = PE.subst (λ x → _ ⊢ _ ∷ x) (PE.sym wkId) (fstⱼ ⊢F ⊢G {!⊢t!})
-    --     -- wkfst≡ = PE.subst (λ x → _ ⊢ _ ≡ _ ∷ x) (PE.sym wkId) (fst-cong ⊢F ⊢G (refl {!⊢t!}))
-    --     -- wk[fst] = neuTerm wk[F] (fstₙ neT) wk⊢fst wkfst≡
-    --     -- wk[Gfst] = [G] id ⊢Γ wk[fst]
-
-    --     -- wkfst~ = PE.subst (λ x → _ ⊢ _ ~ _ ↑ x) (PE.sym wkId) (fst-cong t~u↓)
-    --     -- wksnd~ = PE.subst (λ x → _ ⊢ _ ~ _ ↑ x) (PE.sym wkLiftId) (snd-cong t~u↓)
-    -- in  {!!}
-    -- Σ-η ⊢t ⊢u (ne neT) (ne neU)
-    --         (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x) wkId
-    --                   (lift~toConv↑′ wk[F] wkfst~))
-    --         (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x) wkLiftId
-    --                   (lift~toConv↑′ wk[Gfst] wksnd~))
   lift~toConv↓′ (emb 0<1 [A]) D t~u = lift~toConv↓′ [A] D t~u
 
   -- Helper function for lifting from neutrals to generic terms.

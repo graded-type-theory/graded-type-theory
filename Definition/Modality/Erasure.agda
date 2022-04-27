@@ -4,6 +4,7 @@ module Definition.Modality.Erasure where
 
 open import Tools.Product
 open import Tools.PropositionalEquality
+open import Tools.Relation
 
 -- The set of erasure annotations with 𝟘 corresponding to no usage
 -- and ω to any usage.
@@ -11,11 +12,13 @@ open import Tools.PropositionalEquality
 data Erasure : Set where
   𝟘 ω : Erasure
 
-open import Definition.Modality
-  (record { Carrier = Erasure ; _≈_ = _≡_ ; isEquivalence = isEquivalence })
-  public
-open import Tools.Algebra {A = Erasure} _≡_
+Erasure′ : Setoid _ _
+Erasure′ = record { Carrier = Erasure ; _≈_ = _≡_ ; isEquivalence = isEquivalence }
+
+open import Definition.Modality Erasure′ public
+open import Tools.Algebra Erasure′
 open import Tools.Nat hiding (_+_)
+
 
 -- Addition of erasure annotations
 

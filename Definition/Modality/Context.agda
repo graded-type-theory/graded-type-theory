@@ -5,18 +5,14 @@ open import Tools.Relation
 open import Definition.Modality
 
 module Definition.Modality.Context {a ℓ}
-  {M′ : Setoid a ℓ}
-  (𝕄 : Modality M′)
-  where
+       {M′ : Setoid a ℓ} (𝕄 : Modality M′)
+       where
 
 open Modality 𝕄
+open Setoid M′ renaming (Carrier to M)
 
 open import Tools.Fin
 open import Tools.Nat renaming (_+_ to _+ⁿ_)
-open import Tools.Product
-open import Tools.Unit
-
-open import Definition.Modality.Properties 𝕄
 
 infixl 30 _∙_
 infixr 40 _+ᶜ_

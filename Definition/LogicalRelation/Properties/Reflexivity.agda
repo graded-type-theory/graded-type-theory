@@ -1,14 +1,20 @@
 {-# OPTIONS --without-K --safe #-}
 
 open import Definition.Typed.EqualityRelation
+open import Tools.Level
+open import Tools.Relation
 
-module Definition.LogicalRelation.Properties.Reflexivity (M : Set) {{eqrel : EqRelSet M}} where
+module Definition.LogicalRelation.Properties.Reflexivity {a ℓ} (M′ : Setoid a ℓ)
+                                                         {{eqrel : EqRelSet M′}} where
+
+open Setoid M′ using () renaming (Carrier to M)
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
-open import Definition.Typed.Weakening M
-open import Definition.Typed.Properties M
-open import Definition.LogicalRelation M
+import Definition.Untyped.BindingType M′ as BT
+open import Definition.Typed M′
+open import Definition.Typed.Weakening M′
+open import Definition.Typed.Properties M′
+open import Definition.LogicalRelation M′
 
 open import Tools.Nat
 open import Tools.Product
@@ -21,14 +27,14 @@ private
 
 -- Reflexivity of reducible types.
 reflEq : ∀ {l A} ([A] : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ A ≡ A / [A]
-reflEq (Uᵣ′ l′ l< ⊢Γ) = PE.refl
+reflEq (Uᵣ′ l′ l< ⊢Γ) = lift PE.refl
 reflEq (ℕᵣ D) = red D
 reflEq (Emptyᵣ D) = red D
 reflEq (Unitᵣ D) = red D
 reflEq (ne′ K [ ⊢A , ⊢B , D ] neK K≡K) =
    ne₌ _ [ ⊢A , ⊢B , D ] neK K≡K
 reflEq (Bᵣ′ W F G [ ⊢A , ⊢B , D ] ⊢F ⊢G A≡A [F] [G] G-ext) =
-   B₌ _ _ D A≡A
+   B₌ _ _ W D BT.refl A≡A
       (λ ρ ⊢Δ → reflEq ([F] ρ ⊢Δ))
       (λ ρ ⊢Δ [a] → reflEq ([G] ρ ⊢Δ [a]))
 reflEq (emb 0<1 [A]) = reflEq [A]

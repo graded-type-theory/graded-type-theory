@@ -2,14 +2,18 @@
 
 {-# OPTIONS --without-K --safe #-}
 
-module Definition.Conversion (M : Set) where
+open import Tools.Relation
+open import Tools.Level
+
+module Definition.Conversion {a ℓ} (M′ : Setoid a ℓ) where
+
+open Setoid M′ renaming (Carrier to M)
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
+open import Definition.Typed M′
 
 open import Tools.Fin
 open import Tools.Nat
-open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 
@@ -27,12 +31,12 @@ private
     C F H G E : Term n
     a₀ b₀ g h k l t u v : Term n
     x y : Fin n
-    p p′ q q′ r r′ : M
+    p p′ p₁ p₂ q q′ r r′ : M
     m : SigmaMode
 
 mutual
   -- Neutral equality.
-  data _⊢_~_↑_ (Γ : Con Term n) : (k l A : Term n) → Set where
+  data _⊢_~_↑_ (Γ : Con Term n) : (k l A : Term n) → Set (a ⊔ ℓ) where
 
     var-refl      : Γ ⊢ var x ∷ C
                   → x PE.≡ y
@@ -40,8 +44,9 @@ mutual
 
     app-cong      : Γ ⊢ k ~ l ↓ Π p , q ▷ F ▹ G
                   → Γ ⊢ t [conv↑] v ∷ F
-                  → p PE.≡ p′
-                  → Γ ⊢ k ∘ p ▷ t ~ l ∘ p′ ▷ v ↑ G [ t ]
+                  → p ≈ p₁
+                  → p ≈ p₂
+                  → Γ ⊢ k ∘ p₁ ▷ t ~ l ∘ p₂ ▷ v ↑ G [ t ]
 
     fst-cong      : Γ ⊢ k ~ l ↓ Σₚ p ▷ F ▹ G
                   → Γ ⊢ fst k ~ fst l ↑ F
@@ -53,23 +58,23 @@ mutual
                   → Γ ⊢ a₀ [conv↑] b₀ ∷ F [ zero ]
                   → Γ ∙ ℕ ∙ F ⊢ h [conv↑] g ∷ wk1 (F [ suc (var x0) ]↑)
                   → Γ ⊢ k ~ l ↓ ℕ
-                  → p PE.≡ p′
-                  → r PE.≡ r′
+                  → p ≈ p′
+                  → r ≈ r′
                   → Γ ⊢ natrec p r F a₀ h k ~ natrec p′ r′ G b₀ g l ↑ F [ k ]
 
     prodrec-cong  : Γ ∙ (Σᵣ q ▷ F ▹ G) ⊢ C [conv↑] E
                   → Γ ⊢ g ~ h ↓ Σᵣ q ▷ F ▹ G
                   → Γ ∙ F ∙ G ⊢ u [conv↑] v ∷ C [ prod (var (x0 +1)) (var x0) ]↑²
-                  → p PE.≡ p′
+                  → p ≈ p′
                   → Γ ⊢ prodrec p C g u ~ prodrec p′ E h v ↑ C [ g ]
 
     Emptyrec-cong : Γ ⊢ F [conv↑] H
                   → Γ ⊢ k ~ l ↓ Empty
-                  → p PE.≡ p′
+                  → p ≈ p′
                   → Γ ⊢ Emptyrec p F k ~ Emptyrec p′ H l ↑ F
 
   -- Neutral equality with types in WHNF.
-  record _⊢_~_↓_ (Γ : Con Term n) (k l B : Term n) : Set where
+  record _⊢_~_↓_ (Γ : Con Term n) (k l B : Term n) : Set (a ⊔ ℓ) where
     inductive
     constructor [~]
     field
@@ -79,7 +84,7 @@ mutual
       k~l   : Γ ⊢ k ~ l ↑ A
 
   -- Type equality.
-  record _⊢_[conv↑]_ (Γ : Con Term n) (A B : Term n) : Set where
+  record _⊢_[conv↑]_ (Γ : Con Term n) (A B : Term n) : Set (a ⊔ ℓ) where
     inductive
     constructor [↑]
     field
@@ -91,7 +96,7 @@ mutual
       A′<>B′ : Γ ⊢ A′ [conv↓] B′
 
   -- Type equality with types in WHNF.
-  data _⊢_[conv↓]_ (Γ : Con Term n) : (A B : Term n) → Set where
+  data _⊢_[conv↓]_ (Γ : Con Term n) : (A B : Term n) → Set (a ⊔ ℓ) where
 
     U-refl     : ⊢ Γ → Γ ⊢ U [conv↓] U
 
@@ -109,19 +114,19 @@ mutual
                → Γ ⊢ F
                → Γ ⊢ F [conv↑] H
                → Γ ∙ F ⊢ G [conv↑] E
-               → p PE.≡ p′
-               → q PE.≡ q′
+               → p ≈ p′
+               → q ≈ q′
                → Γ ⊢ Π p , q ▷ F ▹ G [conv↓] Π p′ , q′ ▷ H ▹ E
 
     Σ-cong     : ∀ {F G H E}
                → Γ ⊢ F
                → Γ ⊢ F [conv↑] H
                → Γ ∙ F ⊢ G [conv↑] E
-               → p PE.≡ p′
-               → Γ ⊢ Σ⟨ m ⟩ p ▷ F ▹ G [conv↓] Σ⟨ m ⟩ p′ ▷ H ▹ E
+               → q ≈ q′
+               → Γ ⊢ Σ⟨ m ⟩ q ▷ F ▹ G [conv↓] Σ⟨ m ⟩ q′ ▷ H ▹ E
 
   -- Term equality.
-  record _⊢_[conv↑]_∷_ (Γ : Con Term n) (t u A : Term n) : Set where
+  record _⊢_[conv↑]_∷_ (Γ : Con Term n) (t u A : Term n) : Set (a ⊔ ℓ) where
     inductive
     constructor [↑]ₜ
     field
@@ -135,7 +140,7 @@ mutual
       t<>u    : Γ ⊢ t′ [conv↓] u′ ∷ B
 
   -- Term equality with types and terms in WHNF.
-  data _⊢_[conv↓]_∷_ (Γ : Con Term n) : (t u A : Term n) → Set where
+  data _⊢_[conv↓]_∷_ (Γ : Con Term n) : (t u A : Term n) → Set (a ⊔ ℓ) where
 
     ℕ-ins     : Γ ⊢ k ~ l ↓ ℕ
               → Γ ⊢ k [conv↓] l ∷ ℕ
@@ -145,6 +150,11 @@ mutual
 
     Unit-ins  : Γ ⊢ k ~ l ↓ Unit
               → Γ ⊢ k [conv↓] l ∷ Unit
+
+    Σᵣ-ins    : Γ ⊢ k ∷ Σᵣ q ▷ F ▹ G
+              → Γ ⊢ l ∷ Σᵣ q ▷ F ▹ G
+              → Γ ⊢ k ~ l ↓ Σᵣ q′ ▷ H ▹ E
+              → Γ ⊢ k [conv↓] l ∷ Σᵣ q ▷ F ▹ G
 
     ne-ins    : ∀ {k l M N}
               → Γ ⊢ k ∷ N
@@ -177,7 +187,10 @@ mutual
               → Γ ⊢ g ∷ Π p , q ▷ F ▹ G
               → Function f
               → Function g
-              → Γ ∙ F ⊢ wk1 f ∘ p ▷ var x0 [conv↑] wk1 g ∘ p ▷ var x0 ∷ G
+              → (∀ {p₁ p₂}
+                 → p ≈ p₁
+                 → p ≈ p₂
+                 → Γ ∙ F ⊢ wk1 f ∘ p₁ ▷ var x0 [conv↑] wk1 g ∘ p₂ ▷ var x0 ∷ G)
               → Γ ⊢ f [conv↓] g ∷ Π p , q ▷ F ▹ G
 
     Σ-η       : Γ ⊢ k ∷ Σₚ p ▷ F ▹ G

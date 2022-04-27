@@ -1,14 +1,14 @@
 {-# OPTIONS --without-K --safe #-}
 
-open import Tools.Level
 open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Context.Properties.Insertion
-  {M′ : Setoid _ _} (𝕄 : Modality M′)
+module Definition.Modality.Context.Properties.Insertion {a ℓ}
+  {M′ : Setoid a ℓ} (𝕄 : Modality M′)
   where
 
 open Modality 𝕄
+open Setoid M′ renaming (Carrier to M)
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties.Equivalence 𝕄

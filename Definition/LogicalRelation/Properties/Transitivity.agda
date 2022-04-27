@@ -1,19 +1,22 @@
 {-# OPTIONS --without-K --safe #-}
 
 open import Definition.Typed.EqualityRelation
+open import Tools.Relation
 
-module Definition.LogicalRelation.Properties.Transitivity (M : Set) {{eqrel : EqRelSet M}} where
+module Definition.LogicalRelation.Properties.Transitivity {a ℓ} (M′ : Setoid a ℓ)
+                                                          {{eqrel : EqRelSet M′}} where
 open EqRelSet {{...}}
+open Setoid M′ using () renaming (Carrier to M)
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-import Definition.Typed.Weakening M as Weak
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.ShapeView M
-open import Definition.LogicalRelation.Irrelevance M
-open import Definition.LogicalRelation.Properties.Conversion M
-open import Definition.LogicalRelation.Properties.Symmetry M
+import Definition.Untyped.BindingType M′ as BT
+open import Definition.Typed M′
+open import Definition.Typed.Properties M′
+import Definition.Typed.Weakening M′ as Weak
+open import Definition.LogicalRelation M′
+open import Definition.LogicalRelation.ShapeView M′
+open import Definition.LogicalRelation.Irrelevance M′
+open import Definition.LogicalRelation.Properties.Conversion M′
 
 open import Tools.Nat
 open import Tools.Product
@@ -43,15 +46,15 @@ mutual
     ne₌ M₁ D″ neM₁
         (~-trans K≡M K≡M₁)
   transEqT {n = n} {Γ = Γ} {l = l} {l′ = l′} {l″ = l″}
-           (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+           (Bᵥ W W′ W″ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                  (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁)
                  (Bᵣ F₂ G₂ D₂ ⊢F₂ ⊢G₂ A≡A₂ [F]₂ [G]₂ G-ext₂))
-           (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
-           (B₌ F″ G″ D″ A≡B₁ [F≡F′]₁ [G≡G′]₁) =
-    let ΠF₁G₁≡ΠF′G′       = whrDet* (red D₁ , ⟦ W ⟧ₙ) (D′  , ⟦ W ⟧ₙ)
-        F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity W W ΠF₁G₁≡ΠF′G′
-        F₂≡F″ , G₂≡G″ , _ = B-PE-injectivity W W (whrDet* (red D₂ , ⟦ W ⟧ₙ) (D″ , ⟦ W ⟧ₙ))
-        substLift : ∀ {m n Δ l a} (ρ : Wk m n) x → Set
+           (B₌ F′ G′ W‴ D′ W≋W′ A≡B [F≡F′] [G≡G′])
+           (B₌ F″ G″ W⁗ D″ W′≋W″ A≡B₁ [F≡F′]₁ [G≡G′]₁) =
+    let ΠF₁G₁≡ΠF′G′       = whrDet* (red D₁ , ⟦ W′ ⟧ₙ) (D′  , ⟦ W‴ ⟧ₙ)
+        F₁≡F′ , G₁≡G′ , W′≡W‴ = B-PE-injectivity W′ W‴ ΠF₁G₁≡ΠF′G′
+        F₂≡F″ , G₂≡G″ , _ = B-PE-injectivity W″ W⁗ (whrDet* (red D₂ , ⟦ W″ ⟧ₙ) (D″ , ⟦ W⁗ ⟧ₙ))
+        substLift : ∀ {m n Δ l a} (ρ : Wk m n) x → Set _
         substLift {_} {_} {Δ} {l} {a} ρ x = Δ ⊩⟨ l ⟩ wk (lift ρ) x [ a ]
         [F′] : ∀ {m} {ρ : Wk m n} {Δ} [ρ] ⊢Δ → Δ ⊩⟨ l′ ⟩ wk ρ F′
         [F′] {_} {ρ} [ρ] ⊢Δ = PE.subst (λ x → _ ⊩⟨ _ ⟩ wk ρ x) F₁≡F′ ([F]₁ [ρ] ⊢Δ)
@@ -84,14 +87,15 @@ mutual
           in  irrelevanceEq′ (PE.cong (λ x → wk (lift ρ) x [ _ ]) G₁≡G′)
                              ([G]₁ [ρ] ⊢Δ [a]₁) ([G′] [ρ] ⊢Δ [a′])
                              ([G≡G′]₁ [ρ] ⊢Δ [a]₁)
-    in  B₌ F″ G″ D″ (≅-trans A≡B (PE.subst (λ x → Γ ⊢ x ≅ ⟦ W ⟧ F″ ▹ G″) ΠF₁G₁≡ΠF′G′ A≡B₁))
+    in  B₌ F″ G″ W⁗ D″ (BT.trans W≋W′ (PE.subst (λ W → W BT.≋ W⁗) W′≡W‴ W′≋W″))
+           (≅-trans A≡B (PE.subst (λ x → Γ ⊢ x ≅ ⟦ W⁗ ⟧ F″ ▹ G″) ΠF₁G₁≡ΠF′G′ A≡B₁))
            (λ ρ ⊢Δ → transEq ([F] ρ ⊢Δ) ([F′] ρ ⊢Δ) ([F″] ρ ⊢Δ)
-                             ([F≡F′] ρ ⊢Δ) ([F′≡F″] ρ ⊢Δ))
-           (λ ρ ⊢Δ [a] →
-              let [a′] = convTerm₁ ([F] ρ ⊢Δ) ([F′] ρ ⊢Δ) ([F≡F′] ρ ⊢Δ) [a]
-                  [a″] = convTerm₁ ([F′] ρ ⊢Δ) ([F″] ρ ⊢Δ) ([F′≡F″] ρ ⊢Δ) [a′]
-              in  transEq ([G] ρ ⊢Δ [a]) ([G′] ρ ⊢Δ [a′]) ([G″] ρ ⊢Δ [a″])
-                          ([G≡G′] ρ ⊢Δ [a]) ([G′≡G″] ρ ⊢Δ [a′]))
+                              ([F≡F′] ρ ⊢Δ) ([F′≡F″] ρ ⊢Δ))
+           λ ρ ⊢Δ [a] →
+             let [a′] = convTerm₁ ([F] ρ ⊢Δ) ([F′] ρ ⊢Δ) ([F≡F′] ρ ⊢Δ) [a]
+                 [a″] = convTerm₁ ([F′] ρ ⊢Δ) ([F″] ρ ⊢Δ) ([F′≡F″] ρ ⊢Δ) [a′]
+             in  transEq ([G] ρ ⊢Δ [a]) ([G′] ρ ⊢Δ [a′]) ([G″] ρ ⊢Δ [a″])
+                         ([G≡G′] ρ ⊢Δ [a]) ([G′≡G″] ρ ⊢Δ [a′])
   transEqT (Uᵥ ⊢Γ ⊢Γ₁ ⊢Γ₂) A≡B B≡C = A≡B
   transEqT (emb⁰¹¹ AB) A≡B B≡C = transEqT AB A≡B B≡C
   transEqT (emb¹⁰¹ AB) A≡B B≡C = transEqT AB A≡B B≡C
@@ -196,9 +200,9 @@ transEqTerm (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
             rewrite whrDet*Term (redₜ d′ , functionWhnf funcG)
                             (redₜ d₁ , functionWhnf funcF₁) =
   Πₜ₌ f g₁ d d₁′ funcF funcG₁ (≅ₜ-trans f≡g f≡g₁) [f] [g]₁
-      (λ ρ ⊢Δ [a] → transEqTerm ([G] ρ ⊢Δ [a])
-                                ([f≡g] ρ ⊢Δ [a])
-                                ([f≡g]₁ ρ ⊢Δ [a]))
+                (λ ρ ⊢Δ [a] p≈p₁ p≈p₂ → transEqTerm ([G] ρ ⊢Δ [a])
+                                                ([f≡g] ρ ⊢Δ [a] p≈p₁ p≈p₁)
+                                                ([f≡g]₁ ρ ⊢Δ [a] p≈p₁ p≈p₂))
 transEqTerm (Bᵣ′ (BΣ _ m) F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] prop) (Σₜ₌ p₁ r₁ d₁ d₁′ pProd₁ rProd₁ p≅r₁ [t]₁ [u]₁ prop₁)
             with whrDet*Term (redₜ d′ , productWhnf rProd) (redₜ d₁ , productWhnf pProd₁)
 transEqTerm (Bᵣ′ BΣₚ F G D ⊢F ⊢G A≡A [F] [G] G-ext)

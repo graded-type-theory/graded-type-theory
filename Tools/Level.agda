@@ -2,4 +2,4 @@
 
 module Tools.Level where
 
-open import Agda.Primitive renaming (lzero to ℓ₀) public
+open import Level renaming (zero to ℓ₀; suc to lsuc) public

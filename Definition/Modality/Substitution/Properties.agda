@@ -1,14 +1,14 @@
 {-# OPTIONS --without-K --safe #-}
 
-open import Tools.Level
 open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Substitution.Properties
-  {M′ : Setoid _ _} (𝕄 : Modality M′)
+module Definition.Modality.Substitution.Properties {a ℓ′}
+  {M′ : Setoid a ℓ′} (𝕄 : Modality M′)
   where
 
 open Modality 𝕄
+open Setoid M′ renaming (Carrier to M)
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
@@ -17,7 +17,7 @@ open import Definition.Modality.Substitution 𝕄
 open import Definition.Modality.Usage 𝕄
 open import Definition.Modality.Usage.Properties 𝕄
 open import Definition.Modality.Usage.Weakening 𝕄
-open import Definition.Typed M using (_⊢_∷_)
+open import Definition.Typed M′ using (_⊢_∷_)
 open import Definition.Untyped M as U renaming (_[_,_] to _[_,,_])
 
 open import Tools.Fin
@@ -45,7 +45,7 @@ private
 *>-distrib-+ᶜ : (Ψ : Substₘ m n) (γ δ : Conₘ n) → Ψ *> (γ +ᶜ δ) ≈ᶜ Ψ *> γ +ᶜ Ψ *> δ
 *>-distrib-+ᶜ []       ε       ε      = ≈ᶜ-sym (+ᶜ-identityˡ 𝟘ᶜ)
 *>-distrib-+ᶜ (Ψ ⊙ η) (γ ∙ p) (δ ∙ q) = begin
-  (Ψ ⊙ η) *> ((γ ∙ p) +ᶜ (δ ∙ q))                 ≈⟨ +ᶜ-cong (·ᶜ-distribʳ-+ᶜ p q η) (*>-distrib-+ᶜ Ψ γ δ) ⟩
+  (Ψ ⊙ η) *> ((γ ∙ p) +ᶜ (δ ∙ q))                ≈⟨ +ᶜ-cong (·ᶜ-distribʳ-+ᶜ p q η) (*>-distrib-+ᶜ Ψ γ δ) ⟩
   (p ·ᶜ η +ᶜ q ·ᶜ η) +ᶜ Ψ *> γ +ᶜ Ψ *> δ          ≈⟨ +ᶜ-cong ≈ᶜ-refl (+ᶜ-comm (Ψ *> γ) (Ψ *> δ)) ⟩
   (p ·ᶜ η +ᶜ q ·ᶜ η) +ᶜ Ψ *> δ +ᶜ Ψ *> γ          ≈⟨ +ᶜ-assoc (p ·ᶜ η) (q ·ᶜ η) (Ψ *> δ +ᶜ Ψ *> γ) ⟩
   p ·ᶜ η +ᶜ q ·ᶜ η +ᶜ Ψ *> δ +ᶜ Ψ *> γ            ≈⟨ +ᶜ-comm (p ·ᶜ η) (q ·ᶜ η +ᶜ Ψ *> δ +ᶜ Ψ *> γ) ⟩
@@ -330,13 +330,15 @@ substₘ-lemma Ψ σ Ψ▶σ ℕₘ     = sub ℕₘ (≤ᶜ-reflexive (*>-zero�
 substₘ-lemma Ψ σ Ψ▶σ Emptyₘ = sub Emptyₘ (≤ᶜ-reflexive (*>-zeroʳ Ψ))
 substₘ-lemma Ψ σ Ψ▶σ Unitₘ  = sub Unitₘ (≤ᶜ-reflexive (*>-zeroʳ Ψ))
 
-substₘ-lemma Ψ σ Ψ▶σ (Πₘ γ▸F δ▸G) = sub (Πₘ γ▸F′ δ▸G″) (≤ᶜ-reflexive (*>-distrib-+ᶜ Ψ _ _))
+substₘ-lemma Ψ σ Ψ▶σ (Πₘ γ▸F δ▸G) =
+  sub (Πₘ γ▸F′ δ▸G″) (≤ᶜ-reflexive (*>-distrib-+ᶜ Ψ _ _))
   where
   γ▸F′ = substₘ-lemma Ψ σ Ψ▶σ γ▸F
   δ▸G′ = substₘ-lemma (liftSubstₘ Ψ) (liftSubst σ) (wf-liftSubstₘ Ψ▶σ) δ▸G
   δ▸G″ = sub δ▸G′ (≤ᶜ-reflexive (≈ᶜ-sym (liftSubstₘ-app Ψ _ _)))
 
-substₘ-lemma Ψ σ Ψ▶σ (Σₘ γ▸F δ▸G) = sub (Σₘ γ▸F′ δ▸G″) (≤ᶜ-reflexive (*>-distrib-+ᶜ Ψ _ _))
+substₘ-lemma Ψ σ Ψ▶σ (Σₘ γ▸F δ▸G) =
+  sub (Σₘ γ▸F′ δ▸G″) (≤ᶜ-reflexive (*>-distrib-+ᶜ Ψ _ _))
   where
   γ▸F′ = substₘ-lemma Ψ σ Ψ▶σ γ▸F
   δ▸G′ = substₘ-lemma (liftSubstₘ Ψ) (liftSubst σ) (wf-liftSubstₘ Ψ▶σ) δ▸G
@@ -344,13 +346,12 @@ substₘ-lemma Ψ σ Ψ▶σ (Σₘ γ▸F δ▸G) = sub (Σₘ γ▸F′ δ▸G
 
 substₘ-lemma Ψ σ Ψ▶σ (var {x}) = Ψ▶σ x
 
-substₘ-lemma Ψ σ Ψ▶σ (lamₘ γ▸t) = lamₘ (sub γ▸t′ (≤ᶜ-reflexive (≈ᶜ-sym (liftSubstₘ-app Ψ _ _))))
-  where
-  γ▸t′ = (substₘ-lemma (liftSubstₘ Ψ) (liftSubst σ) (wf-liftSubstₘ Ψ▶σ) γ▸t)
+substₘ-lemma Ψ σ Ψ▶σ (lamₘ γ▸t) =
+  lamₘ (sub (substₘ-lemma (liftSubstₘ Ψ) (liftSubst σ) (wf-liftSubstₘ Ψ▶σ) γ▸t)
+            (≤ᶜ-reflexive (≈ᶜ-sym (liftSubstₘ-app Ψ _ _))))
 
-substₘ-lemma Ψ σ Ψ▶σ (_∘ₘ_ {γ} {δ = δ} {p = p} γ▸t δ▸u) = sub
-  ((substₘ-lemma Ψ σ Ψ▶σ γ▸t) ∘ₘ (substₘ-lemma Ψ σ Ψ▶σ δ▸u))
-  eq
+substₘ-lemma Ψ σ Ψ▶σ (_∘ₘ_ {γ} {δ = δ} {p = p} γ▸t δ▸u) =
+  sub ((substₘ-lemma Ψ σ Ψ▶σ γ▸t) ∘ₘ (substₘ-lemma Ψ σ Ψ▶σ δ▸u)) eq
   where
   open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
   eq = begin
@@ -358,49 +359,50 @@ substₘ-lemma Ψ σ Ψ▶σ (_∘ₘ_ {γ} {δ = δ} {p = p} γ▸t δ▸u) = s
     Ψ *> γ +ᶜ Ψ *> (p ·ᶜ δ) ≈⟨ +ᶜ-cong ≈ᶜ-refl (*>-distrib-·ᶜ Ψ p δ) ⟩
     Ψ *> γ +ᶜ p ·ᶜ (Ψ *> δ) ∎
 
-substₘ-lemma Ψ σ Ψ▶σ (prodₘ {γ = γ} {δ = δ} γ▸t δ▸u PE.refl) = sub
-  (prodₘ! (substₘ-lemma Ψ σ Ψ▶σ γ▸t) (substₘ-lemma Ψ σ Ψ▶σ δ▸u))
-  (≤ᶜ-reflexive (*>-distrib-+ᶜ Ψ γ δ))
+substₘ-lemma Ψ σ Ψ▶σ (prodₘ {γ = γ} {δ = δ} γ▸t δ▸u PE.refl) =
+  sub (prodₘ! (substₘ-lemma Ψ σ Ψ▶σ γ▸t) (substₘ-lemma Ψ σ Ψ▶σ δ▸u))
+      (≤ᶜ-reflexive (*>-distrib-+ᶜ Ψ γ δ))
 
-substₘ-lemma Ψ σ Ψ▶σ (fstₘ γ▸t) = sub
-  (fstₘ (sub (substₘ-lemma Ψ σ Ψ▶σ γ▸t) (≤ᶜ-reflexive (≈ᶜ-sym (*>-zeroʳ Ψ)))))
-  (≤ᶜ-reflexive (*>-zeroʳ Ψ))
+substₘ-lemma Ψ σ Ψ▶σ (fstₘ γ▸t) =
+  sub (fstₘ (sub (substₘ-lemma Ψ σ Ψ▶σ γ▸t)
+                 (≤ᶜ-reflexive (≈ᶜ-sym (*>-zeroʳ Ψ)))))
+      (≤ᶜ-reflexive (*>-zeroʳ Ψ))
 
-substₘ-lemma Ψ σ Ψ▶σ (sndₘ γ▸t) = sub
-  (sndₘ (sub (substₘ-lemma Ψ σ Ψ▶σ γ▸t) (≤ᶜ-reflexive (≈ᶜ-sym (*>-zeroʳ Ψ)))))
-  (≤ᶜ-reflexive (*>-zeroʳ Ψ))
+substₘ-lemma Ψ σ Ψ▶σ (sndₘ γ▸t) =
+  sub (sndₘ (sub (substₘ-lemma Ψ σ Ψ▶σ γ▸t)
+                 (≤ᶜ-reflexive (≈ᶜ-sym (*>-zeroʳ Ψ)))))
+      (≤ᶜ-reflexive (*>-zeroʳ Ψ))
 
-substₘ-lemma Ψ σ Ψ▶σ (prodrecₘ {γ = γ} {δ = δ} {p} γ▸t δ▸u) = sub
-  (prodrecₘ γ▸t′ (sub δ▸u′ eq))
-  eq′
+substₘ-lemma Ψ σ Ψ▶σ (prodrecₘ {γ = γ} {δ = δ} {p} γ▸t δ▸u) =
+  sub (prodrecₘ (substₘ-lemma Ψ σ Ψ▶σ γ▸t)
+                (sub Ψδ▸σu (≤ᶜ-reflexive eq₁)))
+      (≤ᶜ-reflexive eq₂)
   where
-  γ▸t′ = substₘ-lemma Ψ σ Ψ▶σ γ▸t
-  δ▸u′ = substₘ-lemma (liftSubstₘ (liftSubstₘ Ψ)) (liftSubst (liftSubst σ))
-                      (wf-liftSubstₘ (wf-liftSubstₘ Ψ▶σ)) δ▸u
-  eq = begin
+  Ψδ▸σu = substₘ-lemma (liftSubstₘ (liftSubstₘ Ψ)) (liftSubstn σ 2)
+                       (wf-liftSubstₘ (wf-liftSubstₘ Ψ▶σ)) δ▸u
+  eq₁ = begin
     Ψ *> δ ∙ p ∙ p
-      ≈⟨ (≈ᶜ-sym (liftSubstₘ-app Ψ δ p)) ∙ ≈-refl ⟩
-    (wk1Substₘ Ψ ⊙ (𝟘ᶜ ∙ 𝟙)) *> (δ ∙ p) ∙ p
-      ≈⟨ ≈ᶜ-sym (liftSubstₘ-app (wk1Substₘ Ψ ⊙ (𝟘ᶜ ∙ 𝟙)) (δ ∙ p) p) ⟩
-    ((wk1Substₘ (wk1Substₘ Ψ) ⊙ (𝟘ᶜ ∙ 𝟙 ∙ 𝟘) ⊙ (𝟘ᶜ ∙ 𝟙)) *> (δ ∙ p ∙ p))
-      ≡⟨⟩
-    p ·ᶜ (𝟘ᶜ ∙ 𝟘 ∙ 𝟙) +ᶜ p ·ᶜ (𝟘ᶜ ∙ 𝟙 ∙ 𝟘) +ᶜ ((wk1Substₘ (wk1Substₘ Ψ)) *> δ)
-      ≡⟨⟩
-    (p ·ᶜ 𝟘ᶜ ∙ p · 𝟘 ∙ p · 𝟙) +ᶜ (p ·ᶜ 𝟘ᶜ ∙ p · 𝟙 ∙ p · 𝟘) +ᶜ ((wk1Substₘ (wk1Substₘ Ψ)) *> δ) ∎
-    where open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
-  eq′ = begin
-    Ψ *> (p ·ᶜ γ +ᶜ δ)      ≈⟨ *>-distrib-+ᶜ Ψ (p ·ᶜ γ) δ ⟩
-    Ψ *> (p ·ᶜ γ) +ᶜ Ψ *> δ ≈⟨ +ᶜ-cong (*>-distrib-·ᶜ Ψ p γ) ≈ᶜ-refl ⟩
-    p ·ᶜ Ψ *> γ +ᶜ Ψ *> δ   ∎
-    where open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
+      ≈˘⟨ +ᶜ-identityˡ _ ∙ proj₂ +-identity p ∙ ≈-refl ⟩
+    (𝟘ᶜ +ᶜ Ψ *> δ) ∙ (p + 𝟘) ∙ p
+      ≈˘⟨ +ᶜ-cong (·ᶜ-zeroʳ p ∙ proj₂ ·-identity p) (wk1Substₘ-app Ψ δ) ∙ ≈-refl ⟩
+    (p ·ᶜ 𝟘ᶜ ∙ p · 𝟙) +ᶜ wk1Substₘ Ψ *> δ ∙ p
+      ≈˘⟨ liftSubstₘ-app (liftSubstₘ Ψ) (δ ∙ p) p ⟩
+    liftSubstₘ (liftSubstₘ Ψ) *> (δ ∙ p ∙ p) ∎
+    where open import Tools.Reasoning.Equivalence ≈ᶜ-equivalence
+  eq₂ = begin
+    Ψ *> (p ·ᶜ γ +ᶜ δ)
+      ≈⟨ *>-distrib-+ᶜ Ψ (p ·ᶜ γ) δ ⟩
+    Ψ *> (p ·ᶜ γ) +ᶜ Ψ *> δ
+      ≈⟨ +ᶜ-cong (*>-distrib-·ᶜ Ψ p γ) ≈ᶜ-refl ⟩
+    p ·ᶜ Ψ *> γ +ᶜ Ψ *> δ ∎
+    where open import Tools.Reasoning.Equivalence ≈ᶜ-equivalence
 
 substₘ-lemma Ψ σ Ψ▶σ zeroₘ = sub zeroₘ (≤ᶜ-reflexive (*>-zeroʳ Ψ))
 
 substₘ-lemma Ψ σ Ψ▶σ (sucₘ γ▸t) = sucₘ (substₘ-lemma Ψ σ Ψ▶σ γ▸t)
 
-substₘ-lemma Ψ σ Ψ▶σ (natrecₘ {γ = γ} {δ = δ} {p} {r} {η = η} γ▸z δ▸s η▸n) = sub
-  (natrecₘ γ▸z′ δ▸s″ η▸n′)
-  le
+substₘ-lemma Ψ σ Ψ▶σ (natrecₘ {γ = γ} {δ = δ} {p} {r} {η = η} γ▸z δ▸s η▸n) =
+  sub (natrecₘ γ▸z′ δ▸s″ η▸n′) le
   where
   γ▸z′ = substₘ-lemma Ψ σ Ψ▶σ γ▸z
   δ▸s′ = substₘ-lemma (liftSubstₘ (liftSubstₘ Ψ)) (liftSubst (liftSubst σ))
@@ -427,11 +429,13 @@ substₘ-lemma Ψ σ Ψ▶σ (natrecₘ {γ = γ} {δ = δ} {p} {r} {η = η} γ
     nrᶜ (Ψ *> γ ∧ᶜ Ψ *> η) (Ψ *> δ +ᶜ p ·ᶜ Ψ *> η) r ∎
     where open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-substₘ-lemma Ψ σ Ψ▶σ (Emptyrecₘ γ▸t) = sub (Emptyrecₘ (substₘ-lemma Ψ σ Ψ▶σ γ▸t))
-                                           (≤ᶜ-reflexive (*>-distrib-·ᶜ Ψ _ _))
+substₘ-lemma Ψ σ Ψ▶σ (Emptyrecₘ γ▸t) =
+  sub (Emptyrecₘ (substₘ-lemma Ψ σ Ψ▶σ γ▸t))
+      (≤ᶜ-reflexive (*>-distrib-·ᶜ Ψ _ _))
 
-substₘ-lemma Ψ σ Ψ▶σ starₘ           = sub starₘ (≤ᶜ-reflexive (*>-zeroʳ Ψ))
-substₘ-lemma Ψ σ Ψ▶σ (sub γ▸t x)     = sub (substₘ-lemma Ψ σ Ψ▶σ γ▸t) (*>-monotone Ψ x)
+substₘ-lemma Ψ σ Ψ▶σ starₘ = sub starₘ (≤ᶜ-reflexive (*>-zeroʳ Ψ))
+substₘ-lemma Ψ σ Ψ▶σ (sub γ▸t x) =
+  sub (substₘ-lemma Ψ σ Ψ▶σ γ▸t) (*>-monotone Ψ x)
 
 
 -- Special case of substitution lemma for single substitutions.

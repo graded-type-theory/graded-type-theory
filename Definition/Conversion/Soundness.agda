@@ -1,15 +1,20 @@
 {-# OPTIONS --without-K --safe #-}
 
-module Definition.Conversion.Soundness (M : Set) where
+open import Tools.Relation
+
+module Definition.Conversion.Soundness {a ℓ} (M′ : Setoid a ℓ) where
+
+open Setoid M′ using () renaming (Carrier to M; refl to ≈-refl; trans to ≈-trans; sym to ≈-sym)
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-open import Definition.Conversion M
-open import Definition.Conversion.Whnf M
-open import Definition.Typed.Consequences.InverseUniv M
-open import Definition.Typed.Consequences.Syntactic M
-open import Definition.Typed.Consequences.NeTypeEq M
+open import Definition.Typed M′
+open import Definition.Typed.Properties M′
+open import Definition.Conversion M′
+open import Definition.Conversion.Whnf M′
+open import Definition.Typed.Consequences.Equality M′
+open import Definition.Typed.Consequences.InverseUniv M′
+open import Definition.Typed.Consequences.Syntactic M′
+open import Definition.Typed.Consequences.NeTypeEq M′
 
 open import Tools.Nat
 open import Tools.Product
@@ -24,7 +29,7 @@ mutual
   -- Algorithmic equality of neutrals is well-formed.
   soundness~↑ : ∀ {k l A} → Γ ⊢ k ~ l ↑ A → Γ ⊢ k ≡ l ∷ A
   soundness~↑ (var-refl x x≡y) = PE.subst (λ y → _ ⊢ _ ≡ var y ∷ _) x≡y (refl x)
-  soundness~↑ (app-cong k~l x₁ PE.refl) = app-cong (soundness~↓ k~l) (soundnessConv↑Term x₁)
+  soundness~↑ (app-cong k~l x₁ p≈p₁ p≈p₂) = app-cong (soundness~↓ k~l) (soundnessConv↑Term x₁) p≈p₁ p≈p₂
   soundness~↑ (fst-cong x) =
     let p≡ = soundness~↓ x
         ⊢ΣFG = proj₁ (syntacticEqTerm p≡)
@@ -35,19 +40,20 @@ mutual
         ⊢ΣFG = proj₁ (syntacticEqTerm p≡)
         ⊢F , ⊢G = syntacticΣ ⊢ΣFG
     in  snd-cong ⊢F ⊢G p≡
-  soundness~↑ (natrec-cong x₁ x₂ x₃ k~l PE.refl PE.refl) =
+  soundness~↑ (natrec-cong x₁ x₂ x₃ k~l p≈p′ r≈r′) =
     let F≡G = soundnessConv↑ x₁
         ⊢F = proj₁ (syntacticEq F≡G)
     in  natrec-cong ⊢F F≡G (soundnessConv↑Term x₂)
                     (soundnessConv↑Term x₃) (soundness~↓ k~l)
-  soundness~↑ (prodrec-cong x x₁ x₂ PE.refl) =
+                    p≈p′ r≈r′
+  soundness~↑ (prodrec-cong x x₁ x₂ p≈p′) =
     let C≡E = soundnessConv↑ x
         g≡h = soundness~↓ x₁
         u≡v = soundnessConv↑Term x₂
         ⊢F , ⊢G = syntacticΣ (proj₁ (syntacticEqTerm g≡h))
-    in  prodrec-cong ⊢F ⊢G C≡E g≡h u≡v
-  soundness~↑ (Emptyrec-cong x₁ k~l PE.refl) =
-    Emptyrec-cong (soundnessConv↑ x₁) (soundness~↓ k~l)
+    in  prodrec-cong ⊢F ⊢G C≡E g≡h u≡v p≈p′
+  soundness~↑ (Emptyrec-cong x₁ k~l p≈p′) =
+    Emptyrec-cong (soundnessConv↑ x₁) (soundness~↓ k~l) p≈p′
 
   -- Algorithmic equality of neutrals in WHNF is well-formed.
   soundness~↓ : ∀ {k l A} → Γ ⊢ k ~ l ↓ A → Γ ⊢ k ≡ l ∷ A
@@ -65,10 +71,10 @@ mutual
   soundnessConv↓ (Empty-refl ⊢Γ) = refl (Emptyⱼ ⊢Γ)
   soundnessConv↓ (Unit-refl ⊢Γ) = refl (Unitⱼ ⊢Γ)
   soundnessConv↓ (ne x) = univ (soundness~↓ x)
-  soundnessConv↓ (Π-cong F c c₁ PE.refl PE.refl) =
-    Π-cong F (soundnessConv↑ c) (soundnessConv↑ c₁)
-  soundnessConv↓ (Σ-cong F c c₁ PE.refl) =
-    Σ-cong F (soundnessConv↑ c) (soundnessConv↑ c₁)
+  soundnessConv↓ (Π-cong F c c₁ p≈p′ q≈q′) =
+    Π-cong F (soundnessConv↑ c) (soundnessConv↑ c₁) p≈p′ q≈q′
+  soundnessConv↓ (Σ-cong F c c₁ q≈q′) =
+    Σ-cong F (soundnessConv↑ c) (soundnessConv↑ c₁) q≈q′
 
   -- Algorithmic equality of terms is well-formed.
   soundnessConv↑Term : ∀ {a b A} → Γ ⊢ a [conv↑] b ∷ A → Γ ⊢ a ≡ b ∷ A
@@ -83,6 +89,12 @@ mutual
   soundnessConv↓Term (ℕ-ins x) = soundness~↓ x
   soundnessConv↓Term (Empty-ins x) = soundness~↓ x
   soundnessConv↓Term (Unit-ins x) = soundness~↓ x
+  soundnessConv↓Term (Σᵣ-ins x x₁ x₂) =
+    let a≡b = soundness~↓ x₂
+        _ , neA , _ = ne~↓ x₂
+        _ , ⊢a , _ = syntacticEqTerm a≡b
+        Σ≡Σ′ = neTypeEq neA x ⊢a
+    in  conv a≡b (sym Σ≡Σ′)
   soundnessConv↓Term (ne-ins t u x x₁) =
     let _ , neA , _ = ne~↓ x₁
         _ , t∷M , _ = syntacticEqTerm (soundness~↓ x₁)
@@ -95,7 +107,7 @@ mutual
   soundnessConv↓Term (η-eq x x₁ y y₁ c) =
     let ⊢ΠFG = syntacticTerm x
         ⊢F , _ = syntacticΠ ⊢ΠFG
-    in  η-eq ⊢F x x₁ (soundnessConv↑Term c)
+    in  η-eq ⊢F x x₁ λ x₂ x₃ → soundnessConv↑Term (c x₂ x₃)
   soundnessConv↓Term (Σ-η ⊢p ⊢r pProd rProd fstConv sndConv) =
     let ⊢ΣFG = syntacticTerm ⊢p
         ⊢F , ⊢G = syntacticΣ ⊢ΣFG

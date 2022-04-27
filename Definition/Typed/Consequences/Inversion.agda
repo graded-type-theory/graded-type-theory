@@ -1,14 +1,18 @@
 {-# OPTIONS --without-K --safe #-}
 
-module Definition.Typed.Consequences.Inversion (M : Set) where
+open import Tools.Relation
+
+module Definition.Typed.Consequences.Inversion {a ℓ} (M′ : Setoid a ℓ) where
+
+open Setoid M′ using () renaming (Carrier to M)
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
-open import Definition.Typed.Properties M
+open import Definition.Typed M′
+open import Definition.Typed.Properties M′
 
-open import Definition.Typed.Consequences.Syntactic M
-open import Definition.Typed.Consequences.Substitution M
-open import Definition.Typed.Consequences.Inequality M
+open import Definition.Typed.Consequences.Syntactic M′
+open import Definition.Typed.Consequences.Substitution M′
+open import Definition.Typed.Consequences.Inequality M′
 
 open import Tools.Fin
 open import Tools.Nat
@@ -103,11 +107,12 @@ inversion-prodrec : ∀ {t u A C} → Γ ⊢ prodrec p C t u ∷ A
                   → ∃₃ λ F G q
                   → (Γ ⊢ F)
                   × (Γ ∙ F ⊢ G)
-                  × (Γ ⊢ t ∷ Σᵣ q ▷ F ▹ G)
                   × (Γ ∙ (Σᵣ q ▷ F ▹ G) ⊢ C)
+                  × Γ ⊢ t ∷ Σᵣ q ▷ F ▹ G
                   × Γ ∙ F ∙ G ⊢ u ∷ C [ prod (var (x0 +1)) (var x0) ]↑²
                   × Γ ⊢ A ≡ C [ t ]
-inversion-prodrec (prodrecⱼ ⊢F ⊢G ⊢t ⊢C ⊢u) = _ , _ , _ , ⊢F , ⊢G , ⊢t , ⊢C , ⊢u , refl (substType ⊢C ⊢t)
+inversion-prodrec (prodrecⱼ ⊢F ⊢G ⊢C ⊢t ⊢u) =
+  _ , _ , _ , ⊢F , ⊢G , ⊢C , ⊢t , ⊢u , refl (substType ⊢C ⊢t)
 inversion-prodrec (conv x x₁) =
   let F , G , q , a , b , c , d , e , f = inversion-prodrec x
   in  F , G , q , a , b , c , d , e , trans (sym x₁) f

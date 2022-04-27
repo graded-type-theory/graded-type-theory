@@ -1,24 +1,25 @@
 {-# OPTIONS --without-K --safe #-}
 
 open import Definition.Typed.EqualityRelation
+open import Tools.Relation
 
-module Definition.LogicalRelation.Substitution.Introductions.Fst (M : Set) {{eqrel : EqRelSet M}} where
+module Definition.LogicalRelation.Substitution.Introductions.Fst {a ℓ} (M′ : Setoid a ℓ)
+                                                                 {{eqrel : EqRelSet M′}} where
 open EqRelSet {{...}}
+open Setoid M′ using () renaming (Carrier to M)
 
 open import Definition.Untyped M as U hiding (Wk; wk; _∷_)
 open import Definition.Untyped.Properties M
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-open import Definition.Typed.Weakening M as Wk hiding (wk; wkTerm; wkEqTerm)
-open import Definition.Typed.RedSteps M
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.ShapeView M
-open import Definition.LogicalRelation.Irrelevance M
-open import Definition.LogicalRelation.Weakening M
-open import Definition.LogicalRelation.Properties M
-open import Definition.LogicalRelation.Substitution M
-open import Definition.LogicalRelation.Substitution.Properties M
-open import Definition.LogicalRelation.Substitution.Introductions.Pi M
+open import Definition.Typed M′
+open import Definition.Typed.Properties M′
+open import Definition.Typed.Weakening M′ as Wk hiding (wk; wkTerm; wkEqTerm)
+open import Definition.Typed.RedSteps M′
+open import Definition.LogicalRelation M′
+open import Definition.LogicalRelation.ShapeView M′
+open import Definition.LogicalRelation.Irrelevance M′
+open import Definition.LogicalRelation.Properties M′
+open import Definition.LogicalRelation.Substitution M′
+open import Definition.LogicalRelation.Substitution.Introductions.Pi M′
 
 open import Tools.Nat
 open import Tools.Product
@@ -29,9 +30,6 @@ private
     n : Nat
     Γ : Con Term n
     q : M
-
-
-
 
 -- Reducibility of fst with a specific typing derivation
 fst′ : ∀ {F G t l l′}
@@ -47,7 +45,7 @@ fst′ {Γ = Γ} {q = q} {F = F} {t = t} [F] (noemb [Σ]@(Bᵣ F' G' D ⊢F ⊢G
       [fstp] = irrelevanceTerm′ (wk-id F)
                                 ([F'] id (wf ⊢F)) [F]
                                 [fstp]′
-  in  proj₁ (redSubst*Term (fst-subst* ⊢F ⊢G (redₜ d))
+  in  proj₁ (redSubst*Term (fst-subst* (redₜ d) ⊢F ⊢G)
                            [F] [fstp])
 fst′ {Γ = Γ} {t = t} {l = l} [F] (emb 0<1 x) [t] = fst′ [F] x [t]
 
@@ -77,8 +75,8 @@ fst-cong′ {Γ = Γ} {q = q} {F = F} {G = G} [F]
       [fstp]′ = irrelevanceTerm′ (wk-id F) [F]′ [F] [fstp]
       [fstr]′ = irrelevanceTerm′ (wk-id F) [F]′ [F] [fstr]
       [fst≡]′ = irrelevanceEqTerm′ (wk-id F) [F]′ [F] [fst≡]
-      [fstt≡fstp] = proj₂ (redSubst*Term (fst-subst* ⊢F ⊢G (redₜ d)) [F] [fstp]′)
-      [fstt′≡fstp′] = proj₂ (redSubst*Term (fst-subst* ⊢F ⊢G (redₜ d′)) [F] [fstr]′)
+      [fstt≡fstp] = proj₂ (redSubst*Term (fst-subst* (redₜ d) ⊢F ⊢G) [F] [fstp]′)
+      [fstt′≡fstp′] = proj₂ (redSubst*Term (fst-subst* (redₜ d′) ⊢F ⊢G) [F] [fstr]′)
   in  transEqTerm [F] [fstt≡fstp] (transEqTerm [F] [fst≡]′ (symEqTerm [F] [fstt′≡fstp′]))
 fst-cong′ [F] (emb 0<1 x) = fst-cong′ [F] x
 

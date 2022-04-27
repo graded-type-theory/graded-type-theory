@@ -1,9 +1,13 @@
 {-# OPTIONS --without-K --safe #-}
 
-module Definition.Typed.RedSteps (M : Set) where
+open import Tools.Relation
+
+module Definition.Typed.RedSteps {ℓ ℓ′} (M′ : Setoid ℓ ℓ′) where
+
+open Setoid M′ using () renaming (Carrier to M)
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
+open import Definition.Typed M′
 open import Tools.Nat
 
 private
@@ -40,8 +44,10 @@ app-subst* : Γ ⊢ t ⇒* t′ ∷ Π p , q ▷ A ▹ B → Γ ⊢ a ∷ A
 app-subst* (id x) a₁ = id (x ∘ⱼ a₁)
 app-subst* (x ⇨ t⇒t′) a₁ = app-subst x a₁ ⇨ app-subst* t⇒t′ a₁
 
--- Fisrt projection substitution of reduction closures
-fst-subst* : ∀ {F G t t′} → Γ ⊢ F → Γ ∙ F ⊢ G
-           → Γ ⊢ t ⇒* t′ ∷ Σₚ q ▷ F ▹ G → Γ ⊢ fst t ⇒* fst t′ ∷ F
-fst-subst* ⊢F ⊢G (id x) = id (fstⱼ ⊢F ⊢G x)
-fst-subst* ⊢F ⊢G (x ⇨ t⇒t′) = fst-subst ⊢F ⊢G x ⇨ fst-subst* ⊢F ⊢G t⇒t′
+-- First projection substitution of reduction closures
+fst-subst* : Γ ⊢ t ⇒* t′ ∷ Σₚ q ▷ A ▹ B
+           → Γ ⊢ A
+           → Γ ∙ A ⊢ B
+           → Γ ⊢ fst t ⇒* fst t′ ∷ A
+fst-subst* (id x) ⊢F ⊢G = id (fstⱼ ⊢F ⊢G x)
+fst-subst* (x ⇨ t⇒t′) ⊢F ⊢G = (fst-subst ⊢F ⊢G x) ⇨ (fst-subst* t⇒t′ ⊢F ⊢G)

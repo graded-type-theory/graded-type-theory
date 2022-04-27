@@ -1,20 +1,23 @@
 {-# OPTIONS --without-K --safe #-}
 
 open import Definition.Typed.EqualityRelation
+open import Tools.Relation
 
-module Definition.LogicalRelation.Substitution.Introductions.DoubleSubst (M : Set) {{eqrel : EqRelSet M}} where
+module Definition.LogicalRelation.Substitution.Introductions.DoubleSubst {a ℓ} (M′ : Setoid a ℓ)
+                                                                         {{eqrel : EqRelSet M′}} where
 open EqRelSet {{...}}
+open Setoid M′ using () renaming (Carrier to M)
 
 open import Definition.Untyped M as U hiding (_∷_)
 open import Definition.Untyped.Properties M
-open import Definition.Typed M
-open import Definition.LogicalRelation.Irrelevance M
-open import Definition.LogicalRelation.Properties M
-open import Definition.LogicalRelation.Substitution M
-open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst M
-open import Definition.LogicalRelation.Substitution.Introductions.Prod M
-open import Definition.LogicalRelation.Substitution.Introductions.Pi M
-open import Definition.LogicalRelation.Substitution.Weakening M
+open import Definition.Typed M′
+open import Definition.LogicalRelation.Irrelevance M′
+open import Definition.LogicalRelation.Properties M′
+open import Definition.LogicalRelation.Substitution M′
+open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst M′
+open import Definition.LogicalRelation.Substitution.Introductions.Prod M′
+open import Definition.LogicalRelation.Substitution.Introductions.Pi M′
+open import Definition.LogicalRelation.Substitution.Weakening M′
 
 open import Tools.Fin
 open import Tools.Nat

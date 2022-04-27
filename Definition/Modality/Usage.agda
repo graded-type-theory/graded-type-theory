@@ -4,11 +4,12 @@ open import Tools.Level
 open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Usage {ℓ}
-  {M′ : Setoid ℓ₀ ℓ} (𝕄 : Modality M′)
+module Definition.Modality.Usage {a ℓ}
+  {M′ : Setoid a ℓ} (𝕄 : Modality M′)
   where
 
 open Modality 𝕄
+open Setoid M′ renaming (Carrier to M)
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Untyped M hiding (_∙_)
@@ -31,13 +32,13 @@ private
     m : SigmaMode
 
 -- Well-usage of variables
-data _◂_∈_  : (x : Fin n) (p : M) (γ : Conₘ n) → Set ℓ where
+data _◂_∈_  : (x : Fin n) (p : M) (γ : Conₘ n) → Set a where
   here  :                       x0 ◂ p ∈ γ ∙ p
   there : (h : x ◂ p ∈ γ) → (x +1) ◂ p ∈ γ ∙ q
 
 
 -- Well-usage of terms
-data _▸_ {n : Nat} : (γ : Conₘ n) → Term n → Set ℓ where
+data _▸_ {n : Nat} : (γ : Conₘ n) → Term n → Set (a ⊔ ℓ) where
   Uₘ        : 𝟘ᶜ ▸ U
   ℕₘ        : 𝟘ᶜ ▸ ℕ
   Emptyₘ    : 𝟘ᶜ ▸ Empty
@@ -74,7 +75,7 @@ data _▸_ {n : Nat} : (γ : Conₘ n) → Term n → Set ℓ where
 
   prodrecₘ  : γ ▸ t
             → δ ∙ p ∙ p ▸ u
-            → p ·ᶜ γ +ᶜ δ ▸ prodrec p G t u
+            → p ·ᶜ γ +ᶜ δ ▸ prodrec p A t u
 
   zeroₘ     : 𝟘ᶜ ▸ zero
   sucₘ      : γ ▸ t
@@ -115,7 +116,7 @@ mutual
   gen-usage Prodkind (t ∷ u ∷ [])            = ⌈ t ⌉ +ᶜ ⌈ u ⌉
   gen-usage Fstkind (t ∷ [])                 = 𝟘ᶜ
   gen-usage Sndkind (t ∷ [])                 = 𝟘ᶜ
-  gen-usage (Prodreckind p) (G ∷ t ∷ u ∷ []) = p ·ᶜ ⌈ t ⌉ +ᶜ tailₘ (tailₘ ⌈ u ⌉)
+  gen-usage (Prodreckind p) (A ∷ t ∷ u ∷ []) = p ·ᶜ ⌈ t ⌉ +ᶜ tailₘ (tailₘ ⌈ u ⌉)
   gen-usage Natkind  []                      = 𝟘ᶜ
   gen-usage Zerokind []                      = 𝟘ᶜ
   gen-usage Suckind (t ∷ [])                 = ⌈ t ⌉
