@@ -53,13 +53,6 @@ _,_≔_ : (γ : Conₘ n) (x : Fin n) (p : M) → Conₘ n
 (γ ∙ q) , x0     ≔ p = γ ∙ p
 (γ ∙ q) , (x +1) ≔ p = (γ , x ≔ p) ∙ q
 
--- Insert a new element in a context at a given position
-
-insertAt : (m : Nat) → (γ : Conₘ (m +ⁿ n)) → (p : M) → Conₘ (m +ⁿ 1+ n)
-insertAt 0       γ      p = γ ∙ p
-insertAt (1+ m) (γ ∙ q) p = insertAt m γ p ∙ q
-
-
 -- Look up an element in a context
 
 _⟨_⟩ : (γ : Conₘ n) → (x : Fin n) → M

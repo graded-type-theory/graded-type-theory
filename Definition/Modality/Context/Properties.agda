@@ -18,7 +18,6 @@ open import Tools.PropositionalEquality as PE
 
 open import Definition.Modality.Context.Properties.Addition 𝕄 public
 open import Definition.Modality.Context.Properties.Equivalence 𝕄 public
-open import Definition.Modality.Context.Properties.Insertion 𝕄 public
 open import Definition.Modality.Context.Properties.Lookup 𝕄 public
 open import Definition.Modality.Context.Properties.Meet 𝕄 public
 open import Definition.Modality.Context.Properties.Multiplication 𝕄 public

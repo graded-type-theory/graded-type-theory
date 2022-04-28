@@ -281,7 +281,7 @@ wf-sgSubstₘ {γ = γ} γ▸u (x +1) = sub var eq
 wf-wk1Substₘ : (Ψ : Substₘ m n) (σ : Subst m n)
              → Ψ ▶ σ → wk1Substₘ Ψ ▶ wk1Subst σ
 wf-wk1Substₘ Ψ σ Ψ▶σ x =
-  sub (wk1-usage (Ψ▶σ x)) (≤ᶜ-reflexive (wk1Substₘ-app Ψ _))
+  sub (wkUsage (step id) (Ψ▶σ x)) (≤ᶜ-reflexive (wk1Substₘ-app Ψ _))
 
 -- Lifting a well-formed substitution is well-formed
 -- If Ψ ▶ σ, then liftSubstₘ Ψ ▶ liftSubst σ
