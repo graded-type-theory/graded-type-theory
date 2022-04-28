@@ -96,7 +96,7 @@ inversion-lam (conv x x₁) = let a , b , c , d , e , f = inversion-lam x
 
 -- Inversion of products.
 inversion-prod : ∀ {t u A} → Γ ⊢ prod t u ∷ A →
-  ∃₃ λ F G q → ∃ λ m → Γ ⊢ F × (Γ ∙ F ⊢ G × (Γ ⊢ t ∷ F × Γ ⊢ u ∷ G [ t ] × Γ ⊢ A ≡ Σ⟨ m ⟩ q ▷ F ▹ G))
+  ∃₄ λ F G q m → Γ ⊢ F × (Γ ∙ F ⊢ G × (Γ ⊢ t ∷ F × Γ ⊢ u ∷ G [ t ] × Γ ⊢ A ≡ Σ⟨ m ⟩ q ▷ F ▹ G))
   -- NOTE fundamental theorem not required since prodⱼ has inversion built-in.
 inversion-prod (prodⱼ ⊢F ⊢G ⊢t ⊢u) = _ , _ , _ , _ , ⊢F , ⊢G , ⊢t , ⊢u , refl (Σⱼ ⊢F ▹ ⊢G)
 inversion-prod (conv x x₁) =

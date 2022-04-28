@@ -90,25 +90,7 @@ convTermʳ′ [A] [B] A≡B (Bᵥ (BΠ ω q) BΠ! (Bᵣ F G [ _ , _ , A⇒Π ] �
       t®v′ = t®v [a] a®w
       SV′ = goodCases ([G] id ε [a]) ([G]₁ id ε [a]′) [Ga≡G₁a]
   in  convTermʳ′ ([G] id ε [a]) ([G]₁ id ε [a]′) G[a]≡G₁[a] SV′ t®v′
-convTermʳ′ [A] [B] A≡B (Bᵥ (BΣ q Σₚ) BΣ! (Bᵣ F G [ _ , _ , A⇒Σ ] ⊢F ⊢G A≡A [F] [G] G-ext)
-           (Bᵣ F₁ G₁ [ _ , _ , B⇒Σ₁ ] ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) (BT.Σ≋Σ PE.refl)) t®v [t₁]′ =
-  let Σ≡Σ₁ = reduction′ A⇒Σ B⇒Σ₁ Σₙ Σₙ A≡B
-      F≡F₁ , G≡G₁ , _ = Σ-injectivity Σ≡Σ₁
-      [F]′ , [F₁]′ , [F≡F₁]′ = reducibleEq F≡F₁
-      [F≡F₁] = irrelevanceEq″ (PE.sym (wk-id F)) (PE.sym (wk-id F₁))
-                              [F]′ ([F] id ε) [F≡F₁]′
-      F≡F₁′ = PE.subst₂ (ε ⊢_≡_) (PE.sym (wk-id F)) (PE.sym (wk-id F₁)) F≡F₁
-      [t₁] = convTerm₂ ([F] id ε) ([F]₁ id ε) [F≡F₁] [t₁]′
-      G≡G₁′ = wkEq (lift id) (ε ∙ escape ([F] id ε)) G≡G₁
-      G[t₁]≡G₁[t₁] = substTypeEq G≡G₁′ (refl (escapeTerm ([F] id ε) [t₁]))
-      [Gt₁]′ , [G₁t₁]′ , [Gt₁≡G₁t₁]′ = reducibleEq G[t₁]≡G₁[t₁]
-      [Gt₁≡G₁t₁] = irrelevanceEq [Gt₁]′ ([G] id ε [t₁]) [Gt₁≡G₁t₁]′
-      t₁®v₁  , t₂®v₂ = t®v [t₁]
-      SV₁ = goodCases ([F] id ε) ([F]₁ id ε) [F≡F₁]
-      SV₂ = goodCases ([G] id ε [t₁]) ([G]₁ id ε [t₁]′) [Gt₁≡G₁t₁]
-  in  convTermʳ′ ([F] id ε) ([F]₁ id ε) F≡F₁′ SV₁ t₁®v₁
-    , convTermʳ′ ([G] id ε [t₁]) ([G]₁ id ε [t₁]′) G[t₁]≡G₁[t₁] SV₂ t₂®v₂
-convTermʳ′ [A] [B] A≡B (Bᵥ (BΣ q Σᵣ) BΣ! (Bᵣ F G [ _ , _ , A⇒Σ ] ⊢F ⊢G A≡A [F] [G] G-ext)
+convTermʳ′ [A] [B] A≡B (Bᵥ (BΣ q m) BΣ! (Bᵣ F G [ _ , _ , A⇒Σ ] ⊢F ⊢G A≡A [F] [G] G-ext)
            (Bᵣ F₁ G₁ [ _ , _ , B⇒Σ₁ ] ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) (BT.Σ≋Σ PE.refl))
            (t₁ , t₂ , v₁ , v₂ , t⇒t′ , v⇒v′ , [t₁] , t₁®v₁ , t₂®v₂) =
   let Σ≡Σ₁ = reduction′ A⇒Σ B⇒Σ₁ Σₙ Σₙ A≡B
