@@ -11,7 +11,6 @@ open import Definition.Typed M′
 open import Definition.Typed.Properties M′
 open import Definition.Conversion M′
 open import Definition.Conversion.Whnf M′
-open import Definition.Typed.Consequences.Equality M′
 open import Definition.Typed.Consequences.InverseUniv M′
 open import Definition.Typed.Consequences.Syntactic M′
 open import Definition.Typed.Consequences.NeTypeEq M′

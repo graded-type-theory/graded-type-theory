@@ -26,7 +26,6 @@ open import Definition.Typed.Consequences.Substitution M′
 open import Definition.Typed.Consequences.Injectivity M′
 open import Definition.Typed.Consequences.Equality M′
 open import Definition.Typed.Consequences.Reduction M′
-open import Definition.Typed.Consequences.Inversion M′
 
 open import Tools.Fin
 open import Tools.Level

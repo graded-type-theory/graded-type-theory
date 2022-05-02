@@ -16,7 +16,6 @@ open import Definition.LogicalRelation.Substitution Erasure′
 import Definition.LogicalRelation.Substitution.Irrelevance Erasure′ as IS
 
 open import Definition.Untyped Erasure
-open import Definition.Untyped.Properties Erasure
 import Definition.Untyped.BindingType Erasure′ as BT
 
 open import Definition.Typed Erasure′
@@ -25,7 +24,6 @@ open import Definition.Typed.Properties Erasure′
 
 open import Definition.Modality.Context ErasureModality
 
-open import Tools.Empty
 open import Tools.Level
 open import Tools.Nat
 open import Tools.Product

@@ -7,7 +7,6 @@ module Erasure.LogicalRelation.Reduction {{eqrel : EqRelSet Erasure′}} where
 open EqRelSet {{...}}
 
 open import Definition.LogicalRelation Erasure′
-open import Definition.LogicalRelation.Fundamental.Reducibility  Erasure′
 open import Definition.LogicalRelation.Properties.Escape Erasure′
 
 import Definition.LogicalRelation.Fundamental Erasure′ as F
@@ -15,7 +14,6 @@ import Definition.LogicalRelation.Irrelevance Erasure′ as I
 import Definition.LogicalRelation.Properties.Reduction Erasure′ as R
 
 open import Definition.Typed Erasure′
-open import Definition.Typed.Consequences.Substitution Erasure′
 open import Definition.Typed.Consequences.Syntactic Erasure′
 open import Definition.Typed.Consequences.Reduction Erasure′
 open import Definition.Typed.Properties Erasure′
@@ -26,11 +24,9 @@ open import Definition.Untyped Erasure as U hiding (_∷_)
 open import Definition.Untyped.Properties Erasure as UP using (wk-id ; wk-lift-id)
 
 open import Erasure.LogicalRelation
-open import Erasure.LogicalRelation.Conversion
 open import Erasure.Target as T hiding (_⇒_; _⇒*_)
 open import Erasure.Target.Properties as TP
 
-open import Tools.Empty
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE

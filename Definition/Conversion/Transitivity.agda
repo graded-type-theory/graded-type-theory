@@ -10,7 +10,6 @@ open import Definition.Untyped M hiding (_∷_)
 open import Definition.Typed M′
 open import Definition.Typed.Properties M′
 open import Definition.Typed.RedSteps M′
-open import Definition.Typed.Weakening M′ as W hiding (wk)
 open import Definition.Conversion M′
 open import Definition.Conversion.Soundness M′
 open import Definition.Conversion.Stability M′
@@ -23,7 +22,6 @@ open import Definition.Typed.Consequences.Substitution M′
 open import Definition.Typed.Consequences.NeTypeEq M′
 open import Definition.Typed.Consequences.SucCong M′
 
-open import Tools.Fin
 open import Tools.Nat
 open import Tools.Product
 open import Tools.Empty

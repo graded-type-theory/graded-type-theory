@@ -21,7 +21,6 @@ open import Definition.Typed.Consequences.Injectivity M′
 open import Definition.Typed.Consequences.Substitution M′
 open import Definition.Typed.Consequences.SucCong M′
 
-open import Tools.Fin
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE

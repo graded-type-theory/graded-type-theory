@@ -22,7 +22,6 @@ open import Definition.Typed.Consequences.Reduction Erasure′
 
 open import Definition.LogicalRelation Erasure′
 open import Definition.LogicalRelation.Fundamental Erasure′
-open import Definition.LogicalRelation.Fundamental.Reducibility Erasure′
 open import Definition.LogicalRelation.Properties.Escape Erasure′
 open import Definition.LogicalRelation.Substitution Erasure′
 open import Definition.LogicalRelation.Substitution.Properties Erasure′

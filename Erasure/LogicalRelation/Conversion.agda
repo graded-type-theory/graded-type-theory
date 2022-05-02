@@ -16,7 +16,6 @@ open import Definition.LogicalRelation.Fundamental.Reducibility Erasure′
 open import Definition.LogicalRelation.ShapeView Erasure′
 open import Definition.LogicalRelation.Properties.Conversion Erasure′
 open import Definition.LogicalRelation.Properties.Escape Erasure′
-open import Definition.LogicalRelation.Properties.Symmetry Erasure′
 open import Definition.LogicalRelation.Substitution Erasure′
 open import Definition.LogicalRelation.Substitution.Properties Erasure′
 import Definition.LogicalRelation.Substitution.Irrelevance Erasure′ as IS
@@ -32,7 +31,6 @@ open import Definition.Typed.Reduction Erasure′
 open import Definition.Typed.RedSteps Erasure′
 open import Definition.Typed.Weakening Erasure′
 
-open import Tools.Empty
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
