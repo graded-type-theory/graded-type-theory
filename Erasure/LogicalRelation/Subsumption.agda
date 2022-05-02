@@ -51,7 +51,8 @@ subsumptionSubst : ∀ {l σₜ σᵥ [Γ] [σ]}
                  → γ ≤ᶜ δ
                  → σₜ ®⟨ l ⟩ σᵥ ∷ Γ ◂ δ / [Γ] / [σ]
 subsumptionSubst {Γ = ε} {ε} {ε} {[Γ] = ε} {lift tt} tt ε = tt
-subsumptionSubst {Γ = Γ ∙ x} {γ ∙ p} {δ ∙ q} {l = l} {[Γ] = [Γ] ∙ [A]} {_ , _} (σ®σ′ , t®v) (γ≤δ ∙ p≤q) =
+subsumptionSubst {Γ = Γ ∙ x} {γ ∙ p} {δ ∙ q} {l = l}
+                 {[Γ] = [Γ] ∙ [A]} {_ , _} (σ®σ′ , t®v) (γ≤δ ∙ p≤q) =
   subsumptionSubst {l = l} σ®σ′ γ≤δ , subsumptionTerm t®v p≤q
 
 -- Subsumption of erasure validity
@@ -62,4 +63,5 @@ subsumption : ∀ {l} {Γ : Con U.Term n} {t A : U.Term n}
             → γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷ A / [Γ] / [A]
             → δ ≤ᶜ γ
             → δ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷ A / [Γ] / [A]
-subsumption {l = l} [Γ] [A] γ⊩ʳt δ≤γ [σ] σ®σ′ = γ⊩ʳt [σ] (subsumptionSubst {l = l} σ®σ′ δ≤γ)
+subsumption {l = l} [Γ] [A] γ⊩ʳt δ≤γ [σ] σ®σ′ =
+  γ⊩ʳt [σ] (subsumptionSubst {l = l} σ®σ′ δ≤γ)

@@ -167,7 +167,7 @@ fundamental (prodⱼ {F = F} {G = G} {t = t} {u = u} Γ⊢F Γ⊢G Γ⊢t:F Γ�
       [Σ] , ⊩ʳp = prodʳ {F = F} {G = G} {t = t} {u = u} [Γ] [F] [G] [G[t]] [t] [u] ⊩ʳt
                         (irrelevance {A = G [ t ]} {t = u} [Γ]₂ [Γ] [G[t]]′ [G[t]] ⊩ʳu)
   in  [Γ] , [Σ] , subsumption {t = prod t u} {A = Σ _ ▷ F ▹ G}
-                              [Γ] [Σ] ⊩ʳp (PE.subst₂ _≤ᶜ_ PE.refl γ′≡δ+η γ≤δ+η)
+                              [Γ] [Σ] ⊩ʳp (PE.subst (_ ≤ᶜ_) γ′≡δ+η γ≤δ+η)
 fundamental (fstⱼ {F = F} {t = t} Γ⊢F Γ⊢G Γ⊢t:Σ) γ▸t =
   let invUsageProj δ▸t δ≤𝟘 = inv-usage-fst γ▸t
       [Γ] , [Σ] , ⊩ʳt = fundamental Γ⊢t:Σ δ▸t
@@ -178,6 +178,25 @@ fundamental (sndⱼ {G = G} {t = t} Γ⊢F Γ⊢G Γ⊢t:Σ) γ▸t =
       [Γ] , [Σ] , ⊩ʳt = fundamental Γ⊢t:Σ δ▸t
       [G] , ⊩ʳt₂ = sndʳ Γ⊢F Γ⊢G Γ⊢t:Σ [Γ] [Σ] ⊩ʳt
   in  [Γ] , [G] , subsumption {t = snd t} {A = G [ fst t ]} [Γ] [G] ⊩ʳt₂ δ≤𝟘
+fundamental (prodrecⱼ {t = t} {u} {F} {G} {A} Γ⊢F Γ⊢G Γ⊢A Γ⊢t Γ⊢u) γ▸prodrec  =
+  let invUsageProdrec δ▸t η▸u γ≤pδ+η = inv-usage-prodrec γ▸prodrec
+      [Γ] , [Σ] , ⊩ʳt = fundamental Γ⊢t δ▸t
+      [Γ]₂ , [A₊]₂ , ⊩ʳu = fundamental Γ⊢u η▸u
+      [Γ]₃ , [F]₃ = F.fundamental Γ⊢F
+      [Γ]₄ , [G]₄ = F.fundamental Γ⊢G
+      [Γ]₅ , [A]₅ = F.fundamental Γ⊢A
+      [Γ]₆ , [Σ]₆ , [t]₆ = F.fundamentalTerm Γ⊢t
+      [Γ]₇ , [A₊]₇ , [u]₇ = F.fundamentalTerm Γ⊢u
+      A₊ = A [ prod (var (x0 +1)) (var x0) ]↑²
+      [F] = IS.irrelevance {A = F} [Γ]₃ [Γ] [F]₃
+      [G] = IS.irrelevance {A = G} [Γ]₄ ([Γ] ∙ [F]) [G]₄
+      [A₊] = IS.irrelevance {A = A₊} [Γ]₂ ([Γ] ∙ [F] ∙ [G]) [A₊]₂
+      [A] = IS.irrelevance {A = A} [Γ]₅ ([Γ] ∙ [Σ]) [A]₅
+      [t] = IS.irrelevanceTerm {A = Σ _ ▷ F ▹ G} {t} [Γ]₆ [Γ] [Σ]₆ [Σ] [t]₆
+      [u] = IS.irrelevanceTerm {A = A₊} {u} [Γ]₇ ([Γ] ∙ [F] ∙ [G]) [A₊]₇ [A₊] [u]₇
+      ⊩ʳu′ = irrelevance {A = A [ prod (var (x0 +1)) (var x0) ]↑²} {t = u} [Γ]₂ ([Γ] ∙ [F] ∙ [G]) [A₊]₂ [A₊] ⊩ʳu
+      [At] , ⊩ʳprodrec = prodrecʳ {F = F} {G} {A = A} {t} {u} [Γ] [F] [G] [Σ] [A] [A₊] [t] [u] ⊩ʳt ⊩ʳu′
+  in  [Γ] , [At] , subsumption {t = prodrec _ A t u} {A = A [ t ]} [Γ] [At] ⊩ʳprodrec γ≤pδ+η
 fundamental (zeroⱼ ⊢Γ) γ▸t = zeroʳ ⊢Γ
 fundamental (sucⱼ {n = t} Γ⊢t:ℕ) γ▸t =
   let invUsageSuc δ▸t γ≤δ = inv-usage-suc γ▸t

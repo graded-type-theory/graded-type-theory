@@ -115,7 +115,8 @@ WHℕ′-canon (sucʷ x x₁) = whred*′ x ⇩′* (sucred*′ (WHℕ′-canon 
 
 soundness-zero′ : t ® v ∷ℕ → ε ⊢ t ⇒* zero ∷ ℕ → v T.⇒* T.zero
 soundness-zero′ (zeroᵣ t⇒zero′ v⇒zero) t⇒zero = v⇒zero
-soundness-zero′ (sucᵣ t⇒suc v⇒suc t®v) t⇒zero with whrDet*Term (t⇒zero , zeroₙ) (t⇒suc , sucₙ)
+soundness-zero′ (sucᵣ t⇒suc v⇒suc t®v) t⇒zero
+  with whrDet*Term (t⇒zero , zeroₙ) (t⇒suc , sucₙ)
 ... | ()
 
 -- WH reduction soundness of zero
@@ -125,13 +126,14 @@ soundness-zero : ε ⊢ t ⇒* zero ∷ ℕ → ε ▸ t → erase t T.⇒* T.ze
 soundness-zero t⇒zero γ▸t =
   let ⊢t = redFirst*Term t⇒zero
       [ℕ] , t®t′ = fundamental′ ⊢t γ▸t
-      t®t″ = irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ ([ ℕⱼ ε , ℕⱼ ε , id (ℕⱼ ε) ])) t®t′
+      t®t″ = irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ (idRed:*: (ℕⱼ ε))) t®t′
   in  soundness-zero′ t®t″ t⇒zero
 
 -- Helper lemma for WH reduction soundness of suc
 -- If t ® v ∷ℕ  and t ⇒* suc t′ then v ⇒* suc v′ and t′ ® v′ ∷ℕ for some v′
 
-soundness-suc′ : t ® v ∷ℕ → ε ⊢ t ⇒* suc t′ ∷ ℕ → ∃ λ v′ → v T.⇒* T.suc v′ × t′ ® v′ ∷ℕ
+soundness-suc′ : t ® v ∷ℕ → ε ⊢ t ⇒* suc t′ ∷ ℕ
+               → ∃ λ v′ → v T.⇒* T.suc v′ × t′ ® v′ ∷ℕ
 soundness-suc′ (zeroᵣ t⇒zero v⇒zero) t⇒suc
   with whrDet*Term (t⇒zero , zeroₙ) (t⇒suc , sucₙ)
 ... | ()
@@ -142,11 +144,12 @@ soundness-suc′ (sucᵣ {v′ = v′} t⇒suc′ v⇒suc t®v) t⇒suc
 -- WH reduction soundness of suc
 -- If t ⇒* suc t′ and ε ▸ t then erase t ⇒* suc v′ and t′ ® v′ ∷ℕ for some v′
 
-soundness-suc : ε ⊢ t ⇒* suc t′ ∷ ℕ → ε ▸ t → ∃ λ v′ → erase t T.⇒* T.suc v′ × t′ ® v′ ∷ℕ
+soundness-suc : ε ⊢ t ⇒* suc t′ ∷ ℕ → ε ▸ t
+              → ∃ λ v′ → erase t T.⇒* T.suc v′ × t′ ® v′ ∷ℕ
 soundness-suc t⇒suc γ▸t =
   let ⊢t = redFirst*Term t⇒suc
       [ℕ] , t®t′ = fundamental′ ⊢t γ▸t
-      t®t″ = irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ ([ ℕⱼ ε , ℕⱼ ε , id (ℕⱼ ε) ])) t®t′
+      t®t″ = irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ (idRed:*: (ℕⱼ ε))) t®t′
   in  soundness-suc′ t®t″ t⇒suc
 
 
@@ -165,7 +168,7 @@ soundness-ℕ′ t®v (sucʷ x whn) =
 soundness-ℕ : ε ⊢ t ∷ ℕ → ε ▸ t → WHℕ n t → WHℕ′ n (erase t)
 soundness-ℕ ⊢t γ▸t whn =
   let [ℕ] , t®t′ = fundamental′ ⊢t γ▸t
-      t®t″ = irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ ([ ℕⱼ ε , ℕⱼ ε , id (ℕⱼ ε) ])) t®t′
+      t®t″ = irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ (idRed:*: (ℕⱼ ε))) t®t′
   in  soundness-ℕ′ t®t″ whn
 
 
@@ -180,5 +183,5 @@ soundness-star : ε ⊢ t ⇒* star ∷ Unit → ε ▸ t → erase t T.⇒* T.s
 soundness-star t⇒star γ▸t =
   let ⊢t = redFirst*Term t⇒star
       [⊤] , t®t′ = fundamental′ ⊢t γ▸t
-      t®t″ = irrelevanceTerm {l′ = ¹} [⊤] (Unitᵣ ([ Unitⱼ ε , Unitⱼ ε , id (Unitⱼ ε) ])) t®t′
+      t®t″ = irrelevanceTerm {l′ = ¹} [⊤] (Unitᵣ (idRed:*: (Unitⱼ ε))) t®t′
   in  soundness-star′ t®t″

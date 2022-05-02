@@ -17,6 +17,7 @@ open import Definition.Typed.Properties M′
 open import Definition.LogicalRelation M′
 
 open import Tools.Nat
+open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 private
@@ -70,9 +71,15 @@ reflEqTerm (ne′ K D neK K≡K) (neₜ k d (neNfₜ neK₁ ⊢k k≡k)) =
   neₜ₌ k k d d (neNfₜ₌ neK₁ neK₁ k≡k)
 reflEqTerm (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext) [t]@(Πₜ f d funcF f≡f [f] [f]₁) =
   Πₜ₌ f f d d funcF funcF f≡f [t] [t]
-      (λ ρ ⊢Δ [a] p≈p₁ p≈p₂ → [f] ρ ⊢Δ [a] [a] (reflEqTerm ([F] ρ ⊢Δ) [a]) p≈p₁ p≈p₂)
-reflEqTerm (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext) [t]@(Σₜ p d pProd p≅p [fst] [snd]) =
-  Σₜ₌ p p d d pProd pProd p≅p [t] [t] [fst] [fst]
-    (reflEqTerm ([F] id (wf ⊢F)) [fst])
-    (reflEqTerm ([G] id (wf ⊢F) [fst]) [snd])
+      (λ ρ ⊢Δ [a] → [f] ρ ⊢Δ [a] [a] (reflEqTerm ([F] ρ ⊢Δ) [a]))
+reflEqTerm (Bᵣ′ BΣₚ F G D ⊢F ⊢G A≡A [F] [G] G-ext) [t]@(Σₜ p d p≅p prodP ([fstp] , [sndp])) =
+  Σₜ₌ p p d d prodP prodP p≅p [t] [t]
+      ([fstp] , [fstp] , reflEqTerm ([F] id (wf ⊢F)) [fstp] , reflEqTerm ([G] id (wf ⊢F) [fstp]) [sndp])
+reflEqTerm (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) [t]@(Σₜ p d p≅p prodₙ ([p₁] , [p₂])) =
+  Σₜ₌ p p d d prodₙ prodₙ p≅p [t] [t]
+      ([p₁] , [p₁] , [p₂] , [p₂] ,
+        reflEqTerm ([F] id (wf ⊢F)) [p₁] ,
+        reflEqTerm ([G] id (wf ⊢F) [p₁]) [p₂])
+reflEqTerm (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) [t]@(Σₜ p d p≅p (ne x) p~p) =
+  Σₜ₌ p p d d (ne x) (ne x) p≅p [t] [t] p~p
 reflEqTerm (emb 0<1 [A]) t = reflEqTerm [A] t

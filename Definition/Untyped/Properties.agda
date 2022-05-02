@@ -728,4 +728,5 @@ noClosedNe (∘ₙ net) = noClosedNe net
 noClosedNe (fstₙ net) = noClosedNe net
 noClosedNe (sndₙ net) = noClosedNe net
 noClosedNe (natrecₙ net) = noClosedNe net
+noClosedNe (prodrecₙ net) = noClosedNe net
 noClosedNe (Emptyrecₙ net) = noClosedNe net

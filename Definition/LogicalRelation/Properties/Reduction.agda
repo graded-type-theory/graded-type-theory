@@ -9,7 +9,7 @@ module Definition.LogicalRelation.Properties.Reduction {a ℓ} (M′ : Setoid a 
 open EqRelSet {{...}}
 open Setoid M′ using () renaming (Carrier to M)
 
-open import Definition.Untyped M using (Con ; Term)
+open import Definition.Untyped M hiding (Wk; _∷_)
 import Definition.Untyped.BindingType M′ as BT
 open import Definition.Typed M′
 open import Definition.Typed.Properties M′
@@ -106,16 +106,35 @@ redSubst*Term {Γ = Γ} {A = A} {t} {u} {l} t⇒u (Πᵣ′ F G D ⊢F ⊢G A≡
   ,   Πₜ₌ f f [d′] [d] funcF funcF f≡f [u′] [u]
           (λ [ρ] ⊢Δ [a] p≈p₁ p≈p₂ →
             [f] [ρ] ⊢Δ [a] [a] (reflEqTerm ([F] [ρ] ⊢Δ) [a]) p≈p₁ p≈p₂)
-redSubst*Term {Γ = Γ} {A} {t} {u} {l} t⇒u (Σᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-                  [u]@(Σₜ p [d]@([ ⊢t , ⊢u , d ]) pProd p≅p [fst] [snd]) =
+redSubst*Term {Γ = Γ} {A} {t} {u} {l} t⇒u (Bᵣ′ BΣₚ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+                  [u]@(Σₜ p [d]@([ ⊢t , ⊢u , d ]) p≅p pProd pProp) =
+
   let A≡ΣFG = subset* (red D)
       t⇒u′  = conv* t⇒u A≡ΣFG
       [d′] = [ conv (redFirst*Term t⇒u) A≡ΣFG , ⊢u , conv* t⇒u A≡ΣFG ⇨∷* d ]
-      [u′] = Σₜ p [d′] pProd p≅p [fst] [snd]
-  in  [u′]
-  ,   Σₜ₌ p p [d′] [d] pProd pProd p≅p [u′] [u] [fst] [fst]
-          (reflEqTerm ([F] Wk.id (wf ⊢F)) [fst])
-          (reflEqTerm ([G] Wk.id (wf ⊢F) [fst]) [snd])
+      [fstp] , [sndp] = pProp
+      [u′] = Σₜ p [d′] p≅p pProd pProp
+  in  [u′] , Σₜ₌ p p [d′] [d] pProd pProd p≅p [u′] [u]
+                 ([fstp] , [fstp] , reflEqTerm ([F] Wk.id (wf ⊢F)) [fstp] ,
+                   reflEqTerm ([G] Wk.id (wf ⊢F) [fstp]) [sndp])
+redSubst*Term {Γ = Γ} {A} {t} {u} {l} t⇒u (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+                 [u]@(Σₜ p [d]@([ ⊢t , ⊢u , d ]) p≅p prodₙ pProp) =
+  let A≡ΣFG = subset* (red D)
+      t⇒u′  = conv* t⇒u A≡ΣFG
+      [d′] = [ conv (redFirst*Term t⇒u) A≡ΣFG , ⊢u , conv* t⇒u A≡ΣFG ⇨∷* d ]
+      [p₁] , [p₂] = pProp
+      [p₁≡p₁] = reflEqTerm ([F] Wk.id (wf ⊢F)) [p₁]
+      [p₂≡p₂] = reflEqTerm ([G] Wk.id (wf ⊢F) [p₁]) [p₂]
+      [u′] = Σₜ p [d′] p≅p prodₙ pProp
+  in  [u′] , Σₜ₌ p p [d′] [d] prodₙ prodₙ p≅p [u′] [u]
+                 ([p₁] , [p₁] , [p₂] , [p₂] , [p₁≡p₁] , [p₂≡p₂])
+redSubst*Term {Γ = Γ} {A} {t} {u} {l} t⇒u (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+                 [u]@(Σₜ p [d]@([ ⊢t , ⊢u , d ]) p≅p (ne x) p~p) =
+  let A≡ΣFG = subset* (red D)
+      t⇒u′  = conv* t⇒u A≡ΣFG
+      [d′] = [ conv (redFirst*Term t⇒u) A≡ΣFG , ⊢u , conv* t⇒u A≡ΣFG ⇨∷* d ]
+      [u′] = Σₜ p [d′] p≅p (ne x) p~p
+  in  [u′] , Σₜ₌ p p [d′] [d] (ne x) (ne x) p≅p [u′] [u] p~p
 redSubst*Term t⇒u (emb 0<1 x) [u] = redSubst*Term t⇒u x [u]
 
 -- Weak head expansion of reducible types with single reduction step.

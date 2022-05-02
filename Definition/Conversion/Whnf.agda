@@ -33,6 +33,9 @@ mutual
     in  sndₙ pNe , sndₙ rNe
   ne~↑ (natrec-cong x x₁ x₂ x₃ _ _) = let _ , q , w = ne~↓ x₃
                                       in  natrecₙ q , natrecₙ w
+  ne~↑ (prodrec-cong x x₁ x₂ x₃) =
+    let _ , gNe , hNe = ne~↓ x₁
+    in  prodrecₙ gNe , prodrecₙ hNe
   ne~↑ (Emptyrec-cong x x₁ _) = let _ , q , w = ne~↓ x₁
                                 in Emptyrecₙ q , Emptyrecₙ w
 
@@ -66,12 +69,16 @@ whnfConv↓Term (Empty-ins x) = let _ , neT , neU = ne~↓ x
                               in Emptyₙ , ne neT , ne neU
 whnfConv↓Term (Unit-ins x) = let _ , neT , neU = ne~↓ x
                              in Unitₙ , ne neT , ne neU
+whnfConv↓Term (Σᵣ-ins x x₁ x₂) =
+  let _ , neT , neU = ne~↓ x₂
+  in  Σₙ , ne neT , ne neU
 whnfConv↓Term (ne-ins t u x x₁) =
   let _ , neT , neU = ne~↓ x₁
   in ne x , ne neT , ne neU
 whnfConv↓Term (univ x x₁ x₂) = Uₙ , whnfConv↓ x₂
 whnfConv↓Term (zero-refl x) = ℕₙ , zeroₙ , zeroₙ
 whnfConv↓Term (suc-cong x) = ℕₙ , sucₙ , sucₙ
+whnfConv↓Term (prod-cong x x₁ x₂ x₃) = Σₙ , prodₙ , prodₙ
 whnfConv↓Term (η-eq x₁ x₂ y y₁ x₃) = Πₙ , functionWhnf y , functionWhnf y₁
 whnfConv↓Term (Σ-η _ _ pProd rProd _ _) = Σₙ , productWhnf pProd , productWhnf rProd
 whnfConv↓Term (η-unit _ _ tWhnf uWhnf) = Unitₙ , tWhnf , uWhnf

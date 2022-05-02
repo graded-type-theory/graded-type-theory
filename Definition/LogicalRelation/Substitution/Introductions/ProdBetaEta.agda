@@ -125,7 +125,7 @@ private
 Σ-η′ : ∀ {F G p r l l′}
          ([F] : Γ ⊩⟨ l′ ⟩ F)
          ([Gfstp] : Γ ⊩⟨ l′ ⟩ G [ fst p ])
-         ([ΣFG]₁ : Γ ⊩⟨ l ⟩B⟨ BΣ q ⟩ Σ q ▷ F ▹ G )
+         ([ΣFG]₁ : Γ ⊩⟨ l ⟩B⟨ BΣ q Σₚ ⟩ Σₚ q ▷ F ▹ G )
          ([p] : Γ ⊩⟨ l ⟩ p ∷ Σ q ▷ F ▹ G / B-intr BΣ! [ΣFG]₁)
          ([r] : Γ ⊩⟨ l ⟩ r ∷ Σ q ▷ F ▹ G / B-intr BΣ! [ΣFG]₁)
          ([fst≡] : Γ ⊩⟨ l′ ⟩ fst p ≡ fst r ∷ F / [F])
@@ -133,17 +133,20 @@ private
        → Γ ⊩⟨ l ⟩ p ≡ r ∷ Σ q ▷ F ▹ G / B-intr BΣ! [ΣFG]₁
 Σ-η′ {Γ = Γ} {q = q} {F = F} {G} {p} {r} {l} {l′}
      [F] [Gfstp]
-     [ΣFG]₁@(noemb (Bᵣ F₁ G₁ D ⊢F ⊢G A≡A [F]₁ [G]₁ G-ext))
-     [p]@(Σₜ p′ dₚ p′Prod p′≅p′ wk[fstp′] wk[sndp′])
-     [r]@(Σₜ r′ dᵣ r′Prod r′≅r′ wk[fstr′] wk[sndr′])
+     [ΣFG]₁@(noemb [Σ]@(Bᵣ F₁ G₁ D ⊢F ⊢G A≡A [F]₁ [G]₁ G-ext))
+     [p]@(Σₜ p′ dₚ p′≅p′ pProd p′Prop)
+     [r]@(Σₜ r′ dᵣ r′≅r′ rProd r′Prop)
      [fst≡]
      [snd≡]
        with B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) Σₙ)
 ... | PE.refl , PE.refl , _ =
   let [ΣFG] = B-intr BΣ! [ΣFG]₁
       ⊢Γ = wf ⊢F
+      wk[fstp′] , wk[sndp′] = p′Prop
+      wk[fstr′] , wk[sndr′] = r′Prop
       wk[F] = [F]₁ id ⊢Γ
       wk[Gfstp′] = [G]₁ id ⊢Γ wk[fstp′]
+
 
       fstp⇒* : Γ ⊢ fst p ⇒* fst p′ ∷ U.wk id F
       fstp⇒* = PE.subst (λ x → Γ ⊢ _ ⇒* _ ∷ x)
@@ -153,7 +156,6 @@ private
                         (PE.sym (wk-id F))
                         (fst-subst* (redₜ dᵣ) ⊢F ⊢G)
 
-      --wk[fstp≡] : Γ ⊩⟨ l ⟩ fst p ≡ fst p′ ∷ U.wk id F / wk[F]
       wk[fstp] , wk[fstp≡] = redSubst*Term fstp⇒* wk[F] wk[fstp′]
       wk[fstr] , wk[fstr≡] = redSubst*Term fstr⇒* wk[F] wk[fstr′]
 
@@ -166,8 +168,8 @@ private
                              (transEqTerm wk[F] wk[fst≡] wk[fstr≡])
 
       [p′] : Γ ⊩⟨ l ⟩ p′ ∷ Σ _ ▷ F ▹ G / [ΣFG]
-      [p′] = Σₜ p′ (idRedTerm:*: (⊢u-redₜ dₚ)) p′Prod p′≅p′ wk[fstp′] wk[sndp′]
-      [r′] = Σₜ r′ (idRedTerm:*: (⊢u-redₜ dᵣ)) r′Prod r′≅r′ wk[fstr′] wk[sndr′]
+      [p′] = Σₜ p′ (idRedTerm:*: (⊢u-redₜ dₚ)) p′≅p′ pProd p′Prop
+      [r′] = Σₜ r′ (idRedTerm:*: (⊢u-redₜ dᵣ)) r′≅r′ rProd r′Prop
 
       sndp⇒*₁ : Γ ⊢ snd p ⇒* snd p′ ∷ G [ fst p ]
       sndp⇒*₁ = snd-subst* [F] [ΣFG] [p′] (redₜ dₚ)
@@ -215,19 +217,15 @@ private
 
       p′≅r′ : Γ ⊢ p′ ≅ r′ ∷ Σ _ ▷ F ▹ G
       p′≅r′ = ≅-Σ-η ⊢F ⊢G (⊢u-redₜ dₚ) (⊢u-redₜ dᵣ)
-                    p′Prod r′Prod
+                    pProd rProd
                     (PE.subst (λ x → Γ ⊢ _ ≅ _ ∷ x)
                               (wk-id F)
                               (escapeTermEq wk[F] wk[fst′≡]))
                     (PE.subst (λ x → Γ ⊢ _ ≅ _ ∷ x [ fst p′ ])
                               (wk-lift-id G)
                               (escapeTermEq wk[Gfstp′] wk[snd′≡]))
-  in  Σₜ₌ p′ r′ dₚ dᵣ p′Prod r′Prod
-          p′≅r′ [p] [r]
-          wk[fstp′]
-          wk[fstr′]
-          wk[fst′≡]
-          wk[snd′≡]
+  in  Σₜ₌ p′ r′ dₚ dᵣ pProd rProd p′≅r′ [p] [r]
+         (wk[fstp′] , wk[fstr′] , wk[fst′≡] , wk[snd′≡])
 Σ-η′ [F] [Gfst] (emb 0<1 x) = Σ-η′ [F] [Gfst] x
 
 Σ-η″ : ∀ {F G p r l}

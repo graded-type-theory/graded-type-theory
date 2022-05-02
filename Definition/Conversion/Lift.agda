@@ -50,7 +50,6 @@ liftConvTerm t<>u =
       whnfA , whnfT , whnfU = whnfConv↓Term t<>u
   in  [↑]ₜ _ _ _ (id ⊢A) (id ⊢t) (id ⊢u) whnfA whnfT whnfU t<>u
 
-
 mutual
   -- Helper function for lifting from neutrals to generic terms in WHNF.
   lift~toConv↓′ : ∀ {t u A A′ l}
@@ -91,7 +90,7 @@ mutual
                                (lift~toConv↑′ ([G] (step id) (⊢Γ ∙ ⊢F) var0)
                                               (app-cong (wk~↓ (step id) (⊢Γ ∙ ⊢F) ([~] A D₂ Πₙ k~l))
                                                         0≡0 a b)))
-  lift~toConv↓′ (Σᵣ′ F G D ⊢F ⊢G Σ≡Σ [F] [G] G-ext) D₁ ([~] A″ D₂ whnfA t~u)
+  lift~toConv↓′ (Bᵣ′ BΣₚ F G D ⊢F ⊢G Σ≡Σ [F] [G] G-ext) D₁ ([~] A″ D₂ whnfA t~u)
                 rewrite PE.sym (whrDet* (red D , Σₙ) (D₁ , whnfA)) {- Σ F ▹ G ≡ A -} =
     let neT , neU = ne~↑ t~u
         t~u↓ = [~] A″ D₂ Σₙ t~u
@@ -115,6 +114,12 @@ mutual
                       (lift~toConv↑′ wk[F] wkfst~))
             (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x) wkLiftId
                       (lift~toConv↑′ wk[Gfst] wksnd~))
+  lift~toConv↓′ (Bᵣ′ BΣᵣ F G D ⊢F ⊢G Σ≡Σ [F] [G] G-ext) D₁ ([~] A″ D₂ whnfA t~u)
+                rewrite PE.sym (whrDet* (red D , Σₙ) (D₁ , whnfA)) {- Σ F ▹ G ≡ A -} =
+    let t~u↓ = [~] A″ D₂ Σₙ t~u
+        _ , ⊢t , ⊢u = syntacticEqTerm (soundness~↓ t~u↓)
+    in  Σᵣ-ins ⊢t ⊢u t~u↓
+
   lift~toConv↓′ (emb 0<1 [A]) D t~u = lift~toConv↓′ [A] D t~u
 
   -- Helper function for lifting from neutrals to generic terms.

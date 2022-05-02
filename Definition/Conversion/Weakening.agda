@@ -51,6 +51,17 @@ mutual
                               (wk-β-natrec _ F) (wkConv↑Term (lift (lift [ρ]))
                                                              (⊢Δℕ ∙ Δℕ⊢F) x₂))
                               (wk~↓ [ρ] ⊢Δ t~u) p≈p′ r≈r′)
+  wk~↑ {ρ = ρ} {Δ = Δ} [ρ] ⊢Δ (prodrec-cong {C = C} {E} {g} {h} {u} {v} {p} x g~h x₁ p≈p′) =
+    let ρg~ρh = wk~↓ [ρ] ⊢Δ g~h
+        ⊢ρΣ , _ , _ = syntacticEqTerm (soundness~↓ ρg~ρh)
+        ⊢ρF , ⊢ρG = syntacticΣ ⊢ρΣ
+        u↓v = PE.subst (λ x → _ ⊢ U.wk (liftn ρ 2) u [conv↑] U.wk (liftn ρ 2) v ∷ x)
+                       (wk-β-prodrec ρ C)
+                       (wkConv↑Term (lift (lift [ρ])) (⊢Δ ∙ ⊢ρF ∙ ⊢ρG) x₁)
+    in  PE.subst  (λ x → _ ⊢ U.wk ρ (prodrec p C g u) ~ U.wk ρ (prodrec _ E h v) ↑ x)
+                  (PE.sym (wk-β C))
+                  (prodrec-cong (wkConv↑ (lift [ρ]) (⊢Δ ∙ ⊢ρΣ) x)
+                                ρg~ρh u↓v p≈p′)
   wk~↑ {ρ} {Δ = Δ} [ρ] ⊢Δ (Emptyrec-cong {k} {l} {F} {G} x t~u p≈p′) =
     Emptyrec-cong (wkConv↑ [ρ] ⊢Δ x) (wk~↓ [ρ] ⊢Δ t~u) p≈p′
 
@@ -105,12 +116,19 @@ mutual
     Empty-ins (wk~↓ ρ ⊢Δ x)
   wkConv↓Term ρ ⊢Δ (Unit-ins x) =
     Unit-ins (wk~↓ ρ ⊢Δ x)
+  wkConv↓Term ρ ⊢Δ (Σᵣ-ins t u x) =
+    Σᵣ-ins (wkTerm ρ ⊢Δ t) (wkTerm ρ ⊢Δ u) (wk~↓ ρ ⊢Δ x)
   wkConv↓Term {ρ = ρ} [ρ] ⊢Δ (ne-ins t u x x₁) =
     ne-ins (wkTerm [ρ] ⊢Δ t) (wkTerm [ρ] ⊢Δ u) (wkNeutral ρ x) (wk~↓ [ρ] ⊢Δ x₁)
   wkConv↓Term ρ ⊢Δ (univ x x₁ x₂) =
     univ (wkTerm ρ ⊢Δ x) (wkTerm ρ ⊢Δ x₁) (wkConv↓ ρ ⊢Δ x₂)
   wkConv↓Term ρ ⊢Δ (zero-refl x) = zero-refl ⊢Δ
   wkConv↓Term ρ ⊢Δ (suc-cong t<>u) = suc-cong (wkConv↑Term ρ ⊢Δ t<>u)
+  wkConv↓Term ρ ⊢Δ (prod-cong {G = G} x x₁ x₂ x₃) =
+    let ⊢ρF = wk ρ ⊢Δ x
+        ⊢ρG = wk (lift ρ) (⊢Δ ∙ ⊢ρF) x₁
+    in  prod-cong ⊢ρF ⊢ρG (wkConv↑Term ρ ⊢Δ x₂)
+                  (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x) (wk-β G) (wkConv↑Term ρ ⊢Δ x₃))
   wkConv↓Term {ρ = ρ} {Δ = Δ} [ρ] ⊢Δ (η-eq {F = F} {G = G} x₁ x₂ y y₁ t<>u) =
     let ⊢F , _ = syntacticΠ (syntacticTerm x₁)
         ⊢ρF = wk [ρ] ⊢Δ ⊢F

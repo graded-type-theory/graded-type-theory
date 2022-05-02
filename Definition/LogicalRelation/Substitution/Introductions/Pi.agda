@@ -182,7 +182,6 @@ W-congᵛ {Γ = Γ} {F} {G} {H} {E} {l} (BΠ p q) (BΠ p′ q′)
       ⊢σE = escape (proj₁ ([E] {σ = liftSubst σ} (⊢Δ ∙ ⊢σH) (liftSubstS {F = H} [Γ] ⊢Δ [H] [σ])))
       ⊢σF≡σH = escapeEq [σF] ([F≡H] ⊢Δ [σ])
       ⊢σG≡σE = escapeEq [σG] ([G≡E] (⊢Δ ∙ ⊢σF) (liftSubstS {F = F} [Γ] ⊢Δ [F] [σ]))
-
   in  B₌ (subst σ H) (subst (liftSubst σ) E) (BΠ p′ q′)
          (id (Πⱼ ⊢σH ▹ ⊢σE)) W≋W′ (≅-Π-cong ⊢σF ⊢σF≡σH ⊢σG≡σE p≈p′ q≈q′)
          (λ ρ ⊢Δ₁ →
@@ -206,9 +205,9 @@ W-congᵛ {Γ = Γ} {F} {G} {H} {E} {l} (BΠ p q) (BΠ p′ q′)
                                    ([G]′ [ρ] ⊢Δ₁ [a])
                                    ([G≡E] ⊢Δ₁ [aρσ]))
 
-W-congᵛ {Γ = Γ} {F} {G} {H} {E} {l} (BΣ q) (BΣ q′)
+W-congᵛ {Γ = Γ} {F} {G} {H} {E} {l} (BΣ q m) (BΣ q′ m′)
         [Γ] [F] [G] [H] [E] [F≡H] [G≡E] W≋W′@(BT.Σ≋Σ q≈q′) {σ = σ} ⊢Δ [σ] =
-  let [ΠFG] = ⟦ BΣ q ⟧ᵛ {F = F} {G} [Γ] [F] [G]
+  let [ΠFG] = ⟦ BΣ q m ⟧ᵛ {F = F} {G} [Γ] [F] [G]
       [σΠFG] = proj₁ ([ΠFG] ⊢Δ [σ])
       l′ , Bᵣ F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext′ = extractMaybeEmb (Σ-elim [σΠFG])
       [σF] = proj₁ ([F] ⊢Δ [σ])
@@ -218,7 +217,7 @@ W-congᵛ {Γ = Γ} {F} {G} {H} {E} {l} (BΣ q) (BΣ q′)
       ⊢σE = escape (proj₁ ([E] (⊢Δ ∙ ⊢σH) (liftSubstS {F = H} [Γ] ⊢Δ [H] [σ])))
       ⊢σF≡σH = escapeEq [σF] ([F≡H] ⊢Δ [σ])
       ⊢σG≡σE = escapeEq [σG] ([G≡E] (⊢Δ ∙ ⊢σF) (liftSubstS {F = F} [Γ] ⊢Δ [F] [σ]))
-  in  B₌ (subst σ H) (subst (liftSubst σ) E) (BΣ q′)
+  in  B₌ (subst σ H) (subst (liftSubst σ) E) (BΣ q′ m′)
          (id (Σⱼ ⊢σH ▹ ⊢σE)) W≋W′ (≅-Σ-cong ⊢σF ⊢σF≡σH ⊢σG≡σE q≈q′)
          (λ ρ ⊢Δ₁ → let [ρσ] = wkSubstS [Γ] ⊢Δ ⊢Δ₁ ρ [σ]
                         eqA = PE.sym (wk-subst F)
@@ -413,20 +412,20 @@ nd-congᵛ {F = F} {F′} {G} {G′} W W′ [Γ] [F] [F′] [F≡F′] [G] [G′
 ▹▹-congᵛ : ∀ {Γ : Con Term n} {F F′ G G′ l p q p′ q′} → _
 ▹▹-congᵛ {Γ = Γ} {F} {F′} {G} {G′} {l} {p} {q} {p′} {q′} = nd-congᵛ {Γ = Γ} {F} {F′} {G} {G′} {l} (BΠ p q) (BΠ p′ q′)
 
-Σᵛ : ∀ {Γ : Con Term n} {F G l q} → _
-Σᵛ {Γ = Γ} {F} {G} {l} {q} = ⟦ BΣ q ⟧ᵛ {Γ = Γ} {F} {G} {l}
+Σᵛ : ∀ {Γ : Con Term n} {F G l q m} → _
+Σᵛ {Γ = Γ} {F} {G} {l} {q} {m} = ⟦ BΣ q m ⟧ᵛ {Γ = Γ} {F} {G} {l}
 
-Σ-congᵛ : ∀ {Γ : Con Term n} {F G H E l q q′} → _
-Σ-congᵛ {Γ = Γ} {F} {G} {H} {E} {l} {q} {q′} = W-congᵛ {Γ = Γ} {F} {G} {H} {E} {l} (BΣ q) (BΣ q′)
+Σ-congᵛ : ∀ {Γ : Con Term n} {F G H E l q q′ m m′} → _
+Σ-congᵛ {Γ = Γ} {F} {G} {H} {E} {l} {q} {q′} {m} {m′} = W-congᵛ {Γ = Γ} {F} {G} {H} {E} {l} (BΣ q m) (BΣ q′ m′)
 
-Σᵗᵛ : ∀ {Γ : Con Term n} {F G q} → _
-Σᵗᵛ {Γ = Γ} {F} {G} {q} = Wᵗᵛ {Γ = Γ} {F} {G} (BΣ q)
+Σᵗᵛ : ∀ {Γ : Con Term n} {F G q m} → _
+Σᵗᵛ {Γ = Γ} {F} {G} {q} {m} = Wᵗᵛ {Γ = Γ} {F} {G} (BΣ q m)
 
-Σ-congᵗᵛ : ∀ {Γ : Con Term n} {F G H E q q′} → _
-Σ-congᵗᵛ {Γ = Γ} {F} {G} {H} {E} {q} {q′} = W-congᵗᵛ {Γ = Γ} {F} {G} {H} {E} (BΣ q) (BΣ q′)
+Σ-congᵗᵛ : ∀ {Γ : Con Term n} {F G H E q q′ m m′} → _
+Σ-congᵗᵛ {Γ = Γ} {F} {G} {H} {E} {q} {q′} {m} {m′} = W-congᵗᵛ {Γ = Γ} {F} {G} {H} {E} (BΣ q m) (BΣ q′ m′)
 
-××ᵛ : ∀ {Γ : Con Term n} {F G l q} → _
-××ᵛ {Γ = Γ} {F} {G} {l} {q} = ndᵛ {Γ = Γ} {F} {G} {l} (BΣ q)
+××ᵛ : ∀ {Γ : Con Term n} {F G l q m} → _
+××ᵛ {Γ = Γ} {F} {G} {l} {q} {m} = ndᵛ {Γ = Γ} {F} {G} {l} (BΣ q m)
 
-××-congᵛ : ∀ {Γ : Con Term n} {F F′ G G′ l q q′} → _
-××-congᵛ {Γ = Γ} {F} {F′} {G} {G′} {l} {q} {q′} = nd-congᵛ {Γ = Γ} {F} {F′} {G} {G′} {l} (BΣ q) (BΣ q′)
+××-congᵛ : ∀ {Γ : Con Term n} {F F′ G G′ l q q′ m m′} → _
+××-congᵛ {Γ = Γ} {F} {F′} {G} {G′} {l} {q} {q′} {m} {m′} = nd-congᵛ {Γ = Γ} {F} {F′} {G} {G′} {l} (BΣ q m) (BΣ q′ m′)

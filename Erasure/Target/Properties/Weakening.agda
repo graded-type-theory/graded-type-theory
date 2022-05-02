@@ -19,20 +19,6 @@ private
 -- variables.  Formally, they are considered equal iff
 --
 --   (∀ x → wkVar ρ x ≡ wkVar ρ′ x)
---
--- Intensional (propositional) equality would be too fine.  For
--- instance,
---
---   lift id : Γ∙A ≤ Γ∙A
---
--- is extensionally equal to
---
---   id : Γ∙A ≤ Γ∙A
---
--- but syntactically different.
-
--- "lift" preserves equality of weakenings.  Or:
--- If two weakenings are equal under wkVar, then they are equal when lifted.
 
 wkVar-lift : (∀ x → wkVar ρ x ≡ wkVar ρ′ x)
            → (∀ x → wkVar (lift ρ) x ≡ wkVar (lift ρ′) x)

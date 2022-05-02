@@ -29,6 +29,7 @@ private
     G : Term (1+ n)
     t u : Term n
     x : Fin n
+    m : SigmaMode
 
 -- Well-usage of variables
 data _◂_∈_  : (x : Fin n) (p : M) (γ : Conₘ n) → Set a where
@@ -49,7 +50,7 @@ data _▸_ {n : Nat} : (γ : Conₘ n) → Term n → Set (a ⊔ ℓ) where
 
   Σₘ        : γ ▸ F
             → δ ∙ q ▸ G
-            → γ +ᶜ δ ▸ Σ q ▷ F ▹ G
+            → γ +ᶜ δ ▸ Σ⟨ m ⟩ q ▷ F ▹ G
 
   var       : (𝟘ᶜ , x ≔ 𝟙) ▸ var x
 
@@ -71,6 +72,10 @@ data _▸_ {n : Nat} : (γ : Conₘ n) → Term n → Set (a ⊔ ℓ) where
 
   sndₘ      : 𝟘ᶜ ▸ t
             → 𝟘ᶜ ▸ snd t
+
+  prodrecₘ  : γ ▸ t
+            → δ ∙ p ∙ p ▸ u
+            → p ·ᶜ γ +ᶜ δ ▸ prodrec p A t u
 
   zeroₘ     : 𝟘ᶜ ▸ zero
   sucₘ      : γ ▸ t
@@ -107,10 +112,11 @@ mutual
   gen-usage (Pikind p q) (F ∷ G ∷ [])        = ⌈ F ⌉ +ᶜ tailₘ ⌈ G ⌉
   gen-usage (Lamkind p) (t ∷ [])             = tailₘ ⌈ t ⌉
   gen-usage (Appkind p) (t ∷ u ∷ [])         = ⌈ t ⌉ +ᶜ p ·ᶜ ⌈ u ⌉
-  gen-usage (Sigmakind p) (F ∷ G ∷ [])       = ⌈ F ⌉ +ᶜ tailₘ ⌈ G ⌉
+  gen-usage (Sigmakind q m) (F ∷ G ∷ [])     = ⌈ F ⌉ +ᶜ tailₘ ⌈ G ⌉
   gen-usage Prodkind (t ∷ u ∷ [])            = ⌈ t ⌉ +ᶜ ⌈ u ⌉
   gen-usage Fstkind (t ∷ [])                 = 𝟘ᶜ
   gen-usage Sndkind (t ∷ [])                 = 𝟘ᶜ
+  gen-usage (Prodreckind p) (A ∷ t ∷ u ∷ []) = p ·ᶜ ⌈ t ⌉ +ᶜ tailₘ (tailₘ ⌈ u ⌉)
   gen-usage Natkind  []                      = 𝟘ᶜ
   gen-usage Zerokind []                      = 𝟘ᶜ
   gen-usage Suckind (t ∷ [])                 = ⌈ t ⌉

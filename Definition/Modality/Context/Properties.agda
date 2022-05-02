@@ -18,7 +18,6 @@ open import Tools.PropositionalEquality as PE
 
 open import Definition.Modality.Context.Properties.Addition 𝕄 public
 open import Definition.Modality.Context.Properties.Equivalence 𝕄 public
-open import Definition.Modality.Context.Properties.Insertion 𝕄 public
 open import Definition.Modality.Context.Properties.Lookup 𝕄 public
 open import Definition.Modality.Context.Properties.Meet 𝕄 public
 open import Definition.Modality.Context.Properties.Multiplication 𝕄 public
@@ -59,7 +58,7 @@ private
 
 tailₘ-distrib-∧ᶜ : (γ δ : Conₘ (1+ n)) → tailₘ (γ ∧ᶜ δ) ≡ (tailₘ γ) ∧ᶜ (tailₘ δ)
 tailₘ-distrib-∧ᶜ (ε ∙ p) (ε ∙ q) = PE.refl
-tailₘ-distrib-∧ᶜ (γ ∙ p′ ∙ p) (δ ∙ q′ ∙ q) = cong₂ _∙_ (tailₘ-distrib-∧ᶜ (γ ∙ p) (δ ∙ q)) PE.refl
+tailₘ-distrib-∧ᶜ (γ ∙ p′ ∙ p) (δ ∙ q′ ∙ q) = cong (_∙ _) (tailₘ-distrib-∧ᶜ (γ ∙ p) (δ ∙ q))
 
 -- headₘ distributes over meet
 -- headₘ (γ ∧ᶜ δ) ≡ headₘ γ ∧ headₘ δ

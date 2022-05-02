@@ -9,6 +9,7 @@ open Setoid M′ using () renaming (Carrier to M; sym to ≈-sym; trans to ≈-t
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Typed M′
 open import Definition.Typed.Properties M′
+open import Definition.Typed.Weakening M′ as W hiding (wk)
 open import Definition.Conversion M′
 open import Definition.Conversion.Stability M′
 open import Definition.Conversion.Soundness M′
@@ -73,6 +74,29 @@ mutual
                     (convConvTerm (symConv↑Term (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ) ∙ soundnessConv↑ x) x₂) (sucCong′ F≡G))
                     (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡ℕ u~t)
                     (≈-sym p≈p′) (≈-sym r≈r′)
+  sym~↑ {Γ = Γ} {Δ = Δ} Γ≡Δ (prodrec-cong {F = F} {G} C↑E g~h u↑v p≈p′) =
+    let g≡h = soundness~↓ g~h
+        C≡E = soundnessConv↑ C↑E
+        ⊢Σ , _ = syntacticEqTerm g≡h
+        ⊢F , ⊢G = syntacticΣ ⊢Σ
+        B , whnfB , ⊢Σ≡B , h~g = sym~↓ Γ≡Δ g~h
+        q , F′ , G′ , B≡Σ′ = Σ≡A ⊢Σ≡B whnfB
+        ⊢Σ≡Σ′ = PE.subst (λ x → Γ ⊢ _ ≡ x) B≡Σ′ ⊢Σ≡B
+        E↑C = symConv↑ (Γ≡Δ ∙ ⊢Σ≡Σ′) C↑E
+        v↑u = symConv↑Term (Γ≡Δ ∙ refl ⊢F ∙ refl ⊢G) u↑v
+        ⊢Γ , ⊢Δ , ⊢idsubst = contextConvSubst Γ≡Δ
+        ⊢F′ = stability Γ≡Δ ⊢F
+        ⊢G′ = stability (Γ≡Δ ∙ refl ⊢F) ⊢G
+        ⊢F≡F′ , ⊢G≡G′ , _ = Σ-injectivity (stabilityEq Γ≡Δ ⊢Σ≡Σ′)
+        ⊢ΔF = ⊢Δ ∙ ⊢F′
+        ⊢ΔFG = ⊢ΔF ∙ ⊢G′
+        ⊢ρF = W.wk (step (step id)) ⊢ΔFG ⊢F′
+        ⊢ρG = W.wk (lift (step (step id))) (⊢ΔFG ∙ ⊢ρF) ⊢G′
+        C₊≡E₊ = subst↑²TypeEq (stabilityEq (Γ≡Δ ∙ refl ⊢Σ) C≡E)
+    in  _ , substTypeEq C≡E g≡h
+      , prodrec-cong E↑C (PE.subst (λ x → Δ ⊢ _ ~ _ ↓ x) B≡Σ′ h~g)
+                     (convConv↑Term (reflConEq ⊢Δ ∙ ⊢F≡F′ ∙ ⊢G≡G′) C₊≡E₊ v↑u)
+                     (≈-sym p≈p′)
   sym~↑ Γ≡Δ (Emptyrec-cong x t~u p≈p′) =
     let ⊢Γ , ⊢Δ , _ = contextConvSubst Γ≡Δ
         B , whnfB , A≡B , u~t = sym~↓ Γ≡Δ t~u
@@ -150,6 +174,11 @@ mutual
     let B , whnfB , A≡B , u~t = sym~↓ Γ≡Δ t~u
         B≡Unit = Unit≡A A≡B whnfB
     in  Unit-ins (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡Unit u~t)
+  symConv↓Term Γ≡Δ (Σᵣ-ins t u t~u) =
+    let B , whnfB , A≡B , u~t = sym~↓ Γ≡Δ t~u
+        _ , _ , _ , B≡Σ = Σ≡A A≡B whnfB
+    in  Σᵣ-ins (stabilityTerm Γ≡Δ u) (stabilityTerm Γ≡Δ t)
+               (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡Σ u~t)
   symConv↓Term Γ≡Δ (ne-ins t u x t~u) =
     let B , whnfB , A≡B , u~t = sym~↓ Γ≡Δ t~u
     in  ne-ins (stabilityTerm Γ≡Δ u) (stabilityTerm Γ≡Δ t) x u~t
@@ -159,6 +188,14 @@ mutual
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
     in  zero-refl ⊢Δ
   symConv↓Term Γ≡Δ (suc-cong t<>u) = suc-cong (symConv↑Term Γ≡Δ t<>u)
+  symConv↓Term Γ≡Δ (prod-cong x x₁ x₂ x₃) =
+    let Δ⊢F = stability Γ≡Δ x
+        Δ⊢G = stability (Γ≡Δ ∙ refl x) x₁
+        Δ⊢t′↑t = symConv↑Term Γ≡Δ x₂
+        _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
+        Δ⊢u′↑u = symConv↑Term Γ≡Δ x₃
+        Gt≡Gt′ = substTypeEq (refl Δ⊢G) (sym (soundnessConv↑Term Δ⊢t′↑t))
+    in  prod-cong Δ⊢F Δ⊢G Δ⊢t′↑t (convConv↑Term (reflConEq ⊢Δ) Gt≡Gt′ Δ⊢u′↑u)
   symConv↓Term Γ≡Δ (η-eq x₁ x₂ y y₁ t<>u) =
     let ⊢F , _ = syntacticΠ (syntacticTerm x₁)
     in  η-eq (stabilityTerm Γ≡Δ x₂) (stabilityTerm Γ≡Δ x₁)

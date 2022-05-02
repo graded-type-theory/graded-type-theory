@@ -199,24 +199,43 @@ transEqTerm (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
             (Πₜ₌ f₁ g₁ d₁ d₁′ funcF₁ funcG₁ f≡g₁ [f]₁ [g]₁ [f≡g]₁)
             rewrite whrDet*Term (redₜ d′ , functionWhnf funcG)
                             (redₜ d₁ , functionWhnf funcF₁) =
-            Πₜ₌ f g₁ d d₁′ funcF funcG₁ (≅ₜ-trans f≡g f≡g₁) [f] [g]₁
+  Πₜ₌ f g₁ d d₁′ funcF funcG₁ (≅ₜ-trans f≡g f≡g₁) [f] [g]₁
                 (λ ρ ⊢Δ [a] p≈p₁ p≈p₂ → transEqTerm ([G] ρ ⊢Δ [a])
                                                 ([f≡g] ρ ⊢Δ [a] p≈p₁ p≈p₁)
                                                 ([f≡g]₁ ρ ⊢Δ [a] p≈p₁ p≈p₂))
-transEqTerm (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-            (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] [fstp] [fstr] [fst≡] [snd≡])
-            (Σₜ₌ p₁ r₁ d₁ d₁′ pProd₁ rProd₁ p≅r₁ [t]₁ [u]₁ [fstp]₁ [fstr]₁ [fst≡]₁ [snd≡]₁)
-            rewrite whrDet*Term (redₜ d′ , productWhnf rProd)
-                                (redₜ d₁ , productWhnf pProd₁) =
+transEqTerm (Bᵣ′ (BΣ _ m) F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] prop) (Σₜ₌ p₁ r₁ d₁ d₁′ pProd₁ rProd₁ p≅r₁ [t]₁ [u]₁ prop₁)
+            with whrDet*Term (redₜ d′ , productWhnf rProd) (redₜ d₁ , productWhnf pProd₁)
+transEqTerm (Bᵣ′ BΣₚ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+            (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] ([fstp] , [fstr] , [fst≡] , [snd≡]))
+            (Σₜ₌ r r₁ d₁ d₁′ pProd₁ rProd₁ p≅r₁ [t]₁ [u]₁ ([fstp]₁ , [fstr]₁ , [fst≡]₁ , [snd≡]₁))
+            | PE.refl =
   let ⊢Γ = wf ⊢F
+      p≅r₁ = ≅ₜ-trans p≅r p≅r₁
+      [F]′ = [F] Weak.id ⊢Γ
+      [fst≡]′ = transEqTerm [F]′ [fst≡] [fst≡]₁
       [Gfstp≡Gfstp₁] = G-ext Weak.id ⊢Γ [fstp] [fstr] [fst≡]
-      [snd≡]′ = transEqTerm ([G] Weak.id ⊢Γ [fstp])
-                            [snd≡]
-                            (convEqTerm₂ ([G] Weak.id ⊢Γ [fstp])
-                                         ([G] Weak.id ⊢Γ [fstp]₁)
-                                         [Gfstp≡Gfstp₁]
-                                         [snd≡]₁)
-  in  Σₜ₌ p r₁ d d₁′ pProd rProd₁ (≅ₜ-trans p≅r p≅r₁) [t] [u]₁ [fstp] [fstr]₁
-          (transEqTerm ([F] Weak.id ⊢Γ) [fst≡] [fst≡]₁)
-          [snd≡]′
+      [Gfstp] = [G] Weak.id ⊢Γ [fstp]
+      [Gfstp₁] = [G] Weak.id ⊢Γ [fstp]₁
+      [snd≡]₁′ = convEqTerm₂ [Gfstp] [Gfstp₁] [Gfstp≡Gfstp₁] [snd≡]₁
+      [snd≡]′ = transEqTerm [Gfstp] [snd≡] [snd≡]₁′
+  in  Σₜ₌ p r₁ d d₁′ pProd rProd₁ p≅r₁ [t] [u]₁ ([fstp] , [fstr]₁ , [fst≡]′ , [snd≡]′)
+transEqTerm (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+            (Σₜ₌ p r d d′ prodₙ prodₙ p≅r [t] [u] ([p₁] , [r₁] , [p₂] , [r₂] , [p₁≡r₁] , [p₂≡r₂]))
+            (Σₜ₌ r r₁ d₁ d₁′ prodₙ prodₙ p≅r₁ [t]₁ [u]₁ ([p₁]₁ , [r₁]₁ , [p₂]₁ , [r₂]₁ , [p₁≡r₁]₁ , [p₂≡r₂]₁))
+            | PE.refl =
+  let ⊢Γ = wf ⊢F
+      p≅r₁ = ≅ₜ-trans p≅r p≅r₁
+      [F]′ = [F] Weak.id ⊢Γ
+      [p₁≡r₁]′ = transEqTerm [F]′ [p₁≡r₁] [p₁≡r₁]₁
+      [Gp≡Gp₁] = G-ext Weak.id ⊢Γ [p₁] [p₁]₁ [p₁≡r₁]
+      [Gp] = [G] Weak.id ⊢Γ [p₁]
+      [Gp]₁ = [G] Weak.id ⊢Γ [p₁]₁
+      [p₂≡r₂]₁′ = convEqTerm₂ [Gp] [Gp]₁ [Gp≡Gp₁] [p₂≡r₂]₁
+      [p₂≡r₂]′ = transEqTerm [Gp] [p₂≡r₂] [p₂≡r₂]₁′
+  in  Σₜ₌ p r₁ d d₁′ prodₙ prodₙ p≅r₁ [t] [u]₁ ([p₁] , [r₁]₁ , [p₂] , [r₂]₁ , [p₁≡r₁]′ , [p₂≡r₂]′)
+transEqTerm (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+            (Σₜ₌ p r d d′ (ne x) (ne y) p≅r [t] [u] p~r)
+            (Σₜ₌ r r₁ d₁ d₁′ (ne x₁) (ne y₁) p≅r₁ [t]₁ [u]₁ p₁~r₁)
+            | PE.refl =
+            Σₜ₌ p r₁ d d₁′ (ne x) (ne y₁) (≅ₜ-trans p≅r p≅r₁) [t] [u]₁ (~-trans p~r p₁~r₁)
 transEqTerm (emb 0<1 x) t≡u u≡v = transEqTerm x t≡u u≡v

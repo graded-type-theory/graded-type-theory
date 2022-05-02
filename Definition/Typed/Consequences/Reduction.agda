@@ -56,7 +56,7 @@ whNormTerm′ (ne (ne K D neK K≡K)) (neₜ k d (neNfₜ neK₁ ⊢k k≡k)) =
   k , ne neK₁ , convRed:*: d (sym (subset* (red D)))
 whNormTerm′ (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Πₜ f d funcF f≡f [f] [f]₁) =
   f , functionWhnf funcF , convRed:*: d (sym (subset* (red D)))
-whNormTerm′ (Σᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Σₜ p d pProd p≡p [fst] [snd]) =
+whNormTerm′ (Σᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Σₜ p d p≡p pProd pProp) =
   p , productWhnf pProd , convRed:*: d (sym (subset* (red D)))
 whNormTerm′ (emb 0<1 [A]) [a] = whNormTerm′ [A] [a]
 

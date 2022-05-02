@@ -43,7 +43,14 @@ mutual
     let F≡G = soundnessConv↑ x₁
         ⊢F = proj₁ (syntacticEq F≡G)
     in  natrec-cong ⊢F F≡G (soundnessConv↑Term x₂)
-                    (soundnessConv↑Term x₃) (soundness~↓ k~l) p≈p′ r≈r′
+                    (soundnessConv↑Term x₃) (soundness~↓ k~l)
+                    p≈p′ r≈r′
+  soundness~↑ (prodrec-cong x x₁ x₂ p≈p′) =
+    let C≡E = soundnessConv↑ x
+        g≡h = soundness~↓ x₁
+        u≡v = soundnessConv↑Term x₂
+        ⊢F , ⊢G = syntacticΣ (proj₁ (syntacticEqTerm g≡h))
+    in  prodrec-cong ⊢F ⊢G C≡E g≡h u≡v p≈p′
   soundness~↑ (Emptyrec-cong x₁ k~l p≈p′) =
     Emptyrec-cong (soundnessConv↑ x₁) (soundness~↓ k~l) p≈p′
 
@@ -81,6 +88,12 @@ mutual
   soundnessConv↓Term (ℕ-ins x) = soundness~↓ x
   soundnessConv↓Term (Empty-ins x) = soundness~↓ x
   soundnessConv↓Term (Unit-ins x) = soundness~↓ x
+  soundnessConv↓Term (Σᵣ-ins x x₁ x₂) =
+    let a≡b = soundness~↓ x₂
+        _ , neA , _ = ne~↓ x₂
+        _ , ⊢a , _ = syntacticEqTerm a≡b
+        Σ≡Σ′ = neTypeEq neA x ⊢a
+    in  conv a≡b (sym Σ≡Σ′)
   soundnessConv↓Term (ne-ins t u x x₁) =
     let _ , neA , _ = ne~↓ x₁
         _ , t∷M , _ = syntacticEqTerm (soundness~↓ x₁)
@@ -89,6 +102,7 @@ mutual
   soundnessConv↓Term (univ x x₁ x₂) = inverseUnivEq x (soundnessConv↓ x₂)
   soundnessConv↓Term (zero-refl ⊢Γ) = refl (zeroⱼ ⊢Γ)
   soundnessConv↓Term (suc-cong c) = suc-cong (soundnessConv↑Term c)
+  soundnessConv↓Term (prod-cong x x₁ x₂ x₃) = prod-cong x x₁ (soundnessConv↑Term x₂) (soundnessConv↑Term x₃)
   soundnessConv↓Term (η-eq x x₁ y y₁ c) =
     let ⊢ΠFG = syntacticTerm x
         ⊢F , _ = syntacticΠ ⊢ΠFG

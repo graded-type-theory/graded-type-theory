@@ -25,6 +25,7 @@ private
     A A′ B B′ C : Term n
     a a′ b b′ e e′ : Term n
     k l m t u v : Term n
+    s : SigmaMode
 
 -- Generic equality relation used with the logical relation
 
@@ -152,20 +153,28 @@ record EqRelSet : Set (lsuc (ℓ ⊔ ℓ′)) where
               → Γ ⊢ F ≅ H
               → Γ ∙ F ⊢ G ≅ E
               → q ≈ q′
-              → Γ ⊢ Σ q ▷ F ▹ G ≅ Σ q′ ▷ H ▹ E
+              → Γ ⊢ Σ⟨ s ⟩ q ▷ F ▹ G ≅ Σ⟨ s ⟩ q′ ▷ H ▹ E
 
     ≅ₜ-Σ-cong : ∀ {F G H E}
               → Γ ⊢ F
               → Γ ⊢ F ≅ H ∷ U
               → Γ ∙ F ⊢ G ≅ E ∷ U
               → q ≈ q′
-              → Γ ⊢ Σ q ▷ F ▹ G ≅ Σ q′ ▷ H ▹ E ∷ U
+              → Γ ⊢ Σ⟨ s ⟩ q ▷ F ▹ G ≅ Σ⟨ s ⟩ q′ ▷ H ▹ E ∷ U
 
     -- Zero reflexivity
     ≅ₜ-zerorefl : ⊢ Γ → Γ ⊢ zero ≅ zero ∷ ℕ
 
     -- Successor congruence
     ≅-suc-cong : ∀ {m n} → Γ ⊢ m ≅ n ∷ ℕ → Γ ⊢ suc m ≅ suc n ∷ ℕ
+
+    -- Product congruence
+    ≅-prod-cong : ∀ {F G t t′ u u′}
+                → Γ ⊢ F
+                → Γ ∙ F ⊢ G
+                → Γ ⊢ t ≅ t′ ∷ F
+                → Γ ⊢ u ≅ u′ ∷ G [ t ]
+                → Γ ⊢ prod t u ≅ prod t′ u′ ∷ Σᵣ q ▷ F ▹ G
 
     -- η-equality
     ≅-η-eq : ∀ {f g F G}
@@ -184,13 +193,13 @@ record EqRelSet : Set (lsuc (ℓ ⊔ ℓ′)) where
     ≅-Σ-η : ∀ {p r F G}
           → Γ ⊢ F
           → Γ ∙ F ⊢ G
-          → Γ ⊢ p ∷ Σ q ▷ F ▹ G
-          → Γ ⊢ r ∷ Σ q ▷ F ▹ G
+          → Γ ⊢ p ∷ Σₚ q ▷ F ▹ G
+          → Γ ⊢ r ∷ Σₚ q ▷ F ▹ G
           → Product p
           → Product r
           → Γ ⊢ fst p ≅ fst r ∷ F
           → Γ ⊢ snd p ≅ snd r ∷ G [ fst p ]
-          → Γ ⊢ p ≅ r ∷ Σ q ▷ F ▹ G
+          → Γ ⊢ p ≅ r ∷ Σₚ q ▷ F ▹ G
 
     -- Variable reflexivity
     ~-var : ∀ {x A} → Γ ⊢ var x ∷ A → Γ ⊢ var x ~ var x ∷ A
@@ -207,13 +216,13 @@ record EqRelSet : Set (lsuc (ℓ ⊔ ℓ′)) where
     ~-fst : ∀ {p r F G}
           → Γ ⊢ F
           → Γ ∙ F ⊢ G
-          → Γ ⊢ p ~ r ∷ Σ q ▷ F ▹ G
+          → Γ ⊢ p ~ r ∷ Σₚ q ▷ F ▹ G
           → Γ ⊢ fst p ~ fst r ∷ F
 
     ~-snd : ∀ {p r F G}
           → Γ ⊢ F
           → Γ ∙ F ⊢ G
-          → Γ ⊢ p ~ r ∷ Σ q ▷ F ▹ G
+          → Γ ⊢ p ~ r ∷ Σₚ q ▷ F ▹ G
           → Γ ⊢ snd p ~ snd r ∷ G [ fst p ]
 
     -- Natural recursion congruence
@@ -226,6 +235,16 @@ record EqRelSet : Set (lsuc (ℓ ⊔ ℓ′)) where
              → p ≈ p′
              → r ≈ r′
              → Γ         ⊢ natrec p r F z s n ~ natrec p′ r′ F′ z′ s′ n′ ∷ F [ n ]
+
+    -- Product recursion congruence
+    ~-prodrec : ∀ {F G A A′ t t′ u u′}
+             → Γ                 ⊢ F
+             → Γ ∙ F             ⊢ G
+             → Γ ∙ (Σᵣ q ▷ F ▹ G) ⊢ A ≅ A′
+             → Γ                 ⊢ t ~ t′ ∷ Σᵣ q ▷ F ▹ G
+             → Γ ∙ F ∙ G         ⊢ u ≅ u′ ∷ A [ prod (var (x0 +1)) (var x0) ]↑²
+             → p ≈ p′
+             → Γ                 ⊢ prodrec p A t u ~ prodrec p′ A′ t′ u′ ∷ A [ t ]
 
     -- Empty recursion congruence
     ~-Emptyrec : ∀ {n n′ F F′}
@@ -249,7 +268,7 @@ record EqRelSet : Set (lsuc (ℓ ⊔ ℓ′)) where
           → Γ ∙ F ⊢ G ≅ E
           → Γ ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W′ ⟧ H ▹ E
   ≅-W-cong (BΠ p q) _ (Π≋Π p≈p′ q≈q′) = λ x x₁ x₂ → ≅-Π-cong x x₁ x₂ p≈p′ q≈q′
-  ≅-W-cong (BΣ q) _ (Σ≋Σ q≈q′)  = λ x x₁ x₂ → ≅-Σ-cong x x₁ x₂ q≈q′
+  ≅-W-cong (BΣ q _) _ (Σ≋Σ q≈q′)      = λ x x₁ x₂ → ≅-Σ-cong x x₁ x₂ q≈q′
 
   ≅ₜ-W-cong : ∀ {F G H E} W W′
             → W ≋ W′
@@ -258,4 +277,4 @@ record EqRelSet : Set (lsuc (ℓ ⊔ ℓ′)) where
             → Γ ∙ F ⊢ G ≅ E ∷ U
             → Γ ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W′ ⟧ H ▹ E ∷ U
   ≅ₜ-W-cong (BΠ p q)  _ (Π≋Π p≈p′ q≈q′) = λ x x₁ x₂ → ≅ₜ-Π-cong x x₁ x₂ p≈p′ q≈q′
-  ≅ₜ-W-cong (BΣ q) _ (Σ≋Σ q≈q′)  = λ x x₁ x₂ → ≅ₜ-Σ-cong x x₁ x₂ q≈q′
+  ≅ₜ-W-cong (BΣ q _) _ (Σ≋Σ q≈q′)        = λ x x₁ x₂ → ≅ₜ-Σ-cong x x₁ x₂ q≈q′

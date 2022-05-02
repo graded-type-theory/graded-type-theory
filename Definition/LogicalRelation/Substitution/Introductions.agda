@@ -14,6 +14,8 @@ open import Definition.LogicalRelation.Substitution.Introductions.Prod M′ publ
 open import Definition.LogicalRelation.Substitution.Introductions.Fst M′ public
 open import Definition.LogicalRelation.Substitution.Introductions.Snd M′ public
 open import Definition.LogicalRelation.Substitution.Introductions.ProdBetaEta M′ public
+open import Definition.LogicalRelation.Substitution.Introductions.Prodrec M′ public
+open import Definition.LogicalRelation.Substitution.Introductions.DoubleSubst M′ public
 open import Definition.LogicalRelation.Substitution.Introductions.Nat M′ public
 open import Definition.LogicalRelation.Substitution.Introductions.Natrec M′ public
 open import Definition.LogicalRelation.Substitution.Introductions.Empty M′ public

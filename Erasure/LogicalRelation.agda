@@ -11,7 +11,6 @@ open import Definition.LogicalRelation Erasure′
 open import Definition.LogicalRelation.Substitution Erasure′
 open import Definition.Modality.Context ErasureModality
 open import Definition.Untyped Erasure as U hiding (_∷_)
-open import Definition.Untyped.Properties Erasure using (noClosedNe)
 open import Definition.Typed Erasure′
 open import Definition.Typed.Weakening Erasure′
 
@@ -53,8 +52,7 @@ t ®⟨ l ⟩ v ∷ U / Uᵣ x     = t ® v ∷U
 t ®⟨ l ⟩ v ∷ A / ℕᵣ x     = t ® v ∷ℕ
 t ®⟨ l ⟩ v ∷ A / Emptyᵣ x = t ® v ∷Empty
 t ®⟨ l ⟩ v ∷ A / Unitᵣ x  = t ® v ∷Unit
-t ®⟨ l ⟩ v ∷ A / ne′ K D neK K≡K with noClosedNe neK
-... | ()
+t ®⟨ l ⟩ v ∷ A / ne′ K D neK K≡K = PE.⊥
 
 -- Ordinary Π:
 t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΠ ω q) F G D ⊢F ⊢G A≡A [F] [G] G-ext =
@@ -68,14 +66,13 @@ t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΠ 𝟘 q) F G D ⊢F ⊢G A≡A [F] [G] G-ext
         → (t ∘ 𝟘 ▷ a) ®⟨ l ⟩ v ∘ undefined ∷ U.wk (lift id) G U.[ a ] / [G] id ε [a]
 
 -- Σ:
-t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΣ q) F G D ⊢F ⊢G A≡A [F] [G] G-ext =
-  let t₁ = U.fst t
-      t₂ = U.snd t
-      v₁ = T.fst v
-      v₂ = T.snd v
-  in ([t₁] : ε ⊩⟨ l ⟩ t₁ ∷ U.wk id F / [F] id ε)
-   → t₁ ®⟨ l ⟩ v₁ ∷ U.wk id F / [F] id ε
-   × t₂ ®⟨ l ⟩ v₂ ∷ U.wk (lift id) G U.[ t₁ ] / [G] id ε [t₁]
+t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΣ q m) F G D ⊢F ⊢G A≡A [F] [G] G-ext =
+  ∃₄ λ t₁ t₂ v₁ v₂
+     → ε ⊢ t ⇒* U.prod t₁ t₂ ∷ Σ⟨ m ⟩ q ▷ F ▹ G
+     × v T.⇒* T.prod v₁ v₂
+     × Σ (ε ⊩⟨ l ⟩ t₁ ∷ U.wk id F / [F] id ε) λ [t₁]
+     → t₁ ®⟨ l ⟩ v₁ ∷ U.wk id F / [F] id ε
+     × (t₂ ®⟨ l ⟩ v₂ ∷ U.wk (lift id) G U.[ t₁ ] / [G] id ε [t₁])
 
 -- Subsumption:
 t ®⟨ ¹ ⟩ v ∷ A / emb 0<1 [A] = t ®⟨ ⁰ ⟩ v ∷ A / [A]

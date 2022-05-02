@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K  --safe #-}
+{-# OPTIONS --without-K --safe #-}
 
 open import Tools.Relation
 
@@ -54,6 +54,6 @@ syntacticΠ : ∀ {F G} → Γ ⊢ Π p , q ▷ F ▹ G → Γ ⊢ F × Γ ∙ F
 syntacticΠ ΠFG with injectivity (refl ΠFG)
 syntacticΠ ΠFG | F≡F , G≡G , _ = proj₁ (syntacticEq F≡F) , proj₁ (syntacticEq G≡G)
 
-syntacticΣ : ∀ {F G} → Γ ⊢ Σ q ▷ F ▹ G → Γ ⊢ F × Γ ∙ F ⊢ G
+syntacticΣ : ∀ {m F G} → Γ ⊢ Σ⟨ m ⟩ q ▷ F ▹ G → Γ ⊢ F × Γ ∙ F ⊢ G
 syntacticΣ ΣFG with Σ-injectivity (refl ΣFG)
 syntacticΣ ΣFG | F≡F , G≡G , _ = proj₁ (syntacticEq F≡F) , proj₁ (syntacticEq G≡G)

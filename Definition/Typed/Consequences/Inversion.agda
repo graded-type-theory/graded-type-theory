@@ -51,8 +51,8 @@ inversion-Π (Πⱼ x ▹ x₁) = x , x₁ , refl (Uⱼ (wfTerm x))
 inversion-Π (conv x x₁) = let a , b , c = inversion-Π x
                           in  a , b , trans (sym x₁) c
 
-inversion-Σ : ∀ {F G C}
-            → Γ ⊢ Σ q ▷ F ▹ G ∷ C → Γ ⊢ F ∷ U × Γ ∙ F ⊢ G ∷ U × Γ ⊢ C ≡ U
+inversion-Σ : ∀ {F G C m}
+            → Γ ⊢ Σ⟨ m ⟩ q ▷ F ▹ G ∷ C → Γ ⊢ F ∷ U × Γ ∙ F ⊢ G ∷ U × Γ ⊢ C ≡ U
 inversion-Σ (Σⱼ x ▹ x₁) = x , x₁ , refl (Uⱼ (wfTerm x))
 inversion-Σ (conv x x₁) = let a , b , c = inversion-Σ x
                           in  a , b , trans (sym x₁) c
@@ -96,13 +96,26 @@ inversion-lam (conv x x₁) = let a , b , c , d , e , f = inversion-lam x
 
 -- Inversion of products.
 inversion-prod : ∀ {t u A} → Γ ⊢ prod t u ∷ A →
-  ∃₃ λ F G q → Γ ⊢ F × (Γ ∙ F ⊢ G × (Γ ⊢ t ∷ F × Γ ⊢ u ∷ G [ t ] × Γ ⊢ A ≡ Σ q ▷ F ▹ G))
-inversion-prod (prodⱼ ⊢F ⊢G ⊢t ⊢u) =
+  ∃₄ λ F G q m → Γ ⊢ F × (Γ ∙ F ⊢ G × (Γ ⊢ t ∷ F × Γ ⊢ u ∷ G [ t ] × Γ ⊢ A ≡ Σ⟨ m ⟩ q ▷ F ▹ G))
   -- NOTE fundamental theorem not required since prodⱼ has inversion built-in.
-  _ , _ , _ , ⊢F , ⊢G , ⊢t , ⊢u , refl (Σⱼ ⊢F ▹ ⊢G)
+inversion-prod (prodⱼ ⊢F ⊢G ⊢t ⊢u) = _ , _ , _ , _ , ⊢F , ⊢G , ⊢t , ⊢u , refl (Σⱼ ⊢F ▹ ⊢G)
 inversion-prod (conv x x₁) =
-  let F , G , q , a , b , c , d , e = inversion-prod x
-  in F , G , q , a , b , c , d , trans (sym x₁) e
+  let F , G , q , m , a , b , c , d , e = inversion-prod x
+  in F , G , q , m , a , b , c , d , trans (sym x₁) e
+
+inversion-prodrec : ∀ {t u A C} → Γ ⊢ prodrec p C t u ∷ A
+                  → ∃₃ λ F G q
+                  → (Γ ⊢ F)
+                  × (Γ ∙ F ⊢ G)
+                  × (Γ ∙ (Σᵣ q ▷ F ▹ G) ⊢ C)
+                  × Γ ⊢ t ∷ Σᵣ q ▷ F ▹ G
+                  × Γ ∙ F ∙ G ⊢ u ∷ C [ prod (var (x0 +1)) (var x0) ]↑²
+                  × Γ ⊢ A ≡ C [ t ]
+inversion-prodrec (prodrecⱼ ⊢F ⊢G ⊢C ⊢t ⊢u) =
+  _ , _ , _ , ⊢F , ⊢G , ⊢C , ⊢t , ⊢u , refl (substType ⊢C ⊢t)
+inversion-prodrec (conv x x₁) =
+  let F , G , q , a , b , c , d , e , f = inversion-prodrec x
+  in  F , G , q , a , b , c , d , e , trans (sym x₁) f
 
 -- Inversion of star.
 inversion-star : ∀ {C} → Γ ⊢ star ∷ C → Γ ⊢ C ≡ Unit
@@ -110,7 +123,7 @@ inversion-star (starⱼ x) = refl (Unitⱼ x)
 inversion-star (conv x x₁) = trans (sym x₁) (inversion-star x)
 
 -- Inversion of products in WHNF.
-whnfProduct : ∀ {p F G} → Γ ⊢ p ∷ Σ q ▷ F ▹ G → Whnf p → Product p
+whnfProduct : ∀ {p F G m} → Γ ⊢ p ∷ Σ⟨ m ⟩ q ▷ F ▹ G → Whnf p → Product p
 whnfProduct x prodₙ = prodₙ
 whnfProduct x (ne pNe) = ne pNe
 

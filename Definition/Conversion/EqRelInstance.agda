@@ -26,7 +26,6 @@ open import Definition.Typed.Consequences.Substitution M′
 open import Definition.Typed.Consequences.Injectivity M′
 open import Definition.Typed.Consequences.Equality M′
 open import Definition.Typed.Consequences.Reduction M′
-open import Definition.Typed.Consequences.Inversion M′
 
 open import Tools.Fin
 open import Tools.Level
@@ -128,6 +127,30 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set (a ⊔ ℓ) where
       _ , ⊢n , _ = syntacticEqTerm (soundness~↓ k~l′)
   in  ↑ (refl (substType ⊢F ⊢n))
         (natrec-cong x x₁ x₂ k~l′ p≈p′ r≈r′)
+
+~-prodrec : ∀ {F G A A′ t t′ u u′}
+          → Γ ⊢ F
+          → Γ ∙ F ⊢ G
+          → Γ ∙ (Σᵣ q ▷ F ▹ G) ⊢ A [conv↑] A′
+          → Γ ⊢ t ~ t′ ∷ (Σᵣ q ▷ F ▹ G)
+          → Γ ∙ F ∙ G ⊢ u [conv↑] u′ ∷ A [ prod (var (x0 +1)) (var x0) ]↑²
+          → p ≈ p′
+          → Γ ⊢ prodrec p A t u ~ prodrec p′ A′ t′ u′ ∷ (A [ t ])
+~-prodrec x x₁ x₂ (↑ A≡B k~↑l) x₄ x₅ =
+  let _ , ⊢B = syntacticEq A≡B
+      B′ , whnfB′ , D = whNorm ⊢B
+      t~t′ = [~] _ (red D) whnfB′ k~↑l
+      q′ , F′ , G′ , B≡Σ = Σ≡A (trans A≡B (subset* (red D))) whnfB′
+      ⊢Γ = wf ⊢B
+      ⊢Γ≡Γ = reflConEq ⊢Γ
+      Σ≡Σ′ = PE.subst (λ x → _ ⊢ _ ≡ x) B≡Σ (trans A≡B (subset* (red D)))
+      F≡F′ , G≡G′ , _ = Σ-injectivity Σ≡Σ′
+      ⊢A , _ = syntacticEq (soundnessConv↑ x₂)
+      _ , ⊢t , _ = syntacticEqTerm (soundness~↑ k~↑l)
+  in  ↑ (refl (substType ⊢A (conv ⊢t (sym A≡B))))
+        (prodrec-cong (stabilityConv↑ (⊢Γ≡Γ ∙ Σ≡Σ′) x₂)
+                      (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡Σ t~t′)
+                      (stabilityConv↑Term (⊢Γ≡Γ ∙ F≡F′ ∙ G≡G′) x₄) x₅)
 
 ~-Emptyrec : ∀ {n n′ F F′}
          → Γ ⊢ F [conv↑] F′ →
@@ -236,6 +259,7 @@ eqRelInstance = record {
                                                     (Σ-cong x F<>H G<>E x₃));
   ≅ₜ-zerorefl = liftConvTerm ∘ᶠ zero-refl;
   ≅-suc-cong = liftConvTerm ∘ᶠ suc-cong;
+  ≅-prod-cong = λ x x₁ x₂ x₃ → liftConvTerm (prod-cong x x₁ x₂ x₃);
   ≅-η-eq = λ x x₁ x₂ x₃ x₄ x₅ → liftConvTerm (η-eq x₁ x₂ x₃ x₄ x₅);
   ≅-Σ-η = λ x x₁ x₂ x₃ x₄ x₅ x₆ x₇ → (liftConvTerm (Σ-η x₂ x₃ x₄ x₅ x₆ x₇));
   ~-var = ~-var;
@@ -243,4 +267,5 @@ eqRelInstance = record {
   ~-fst = λ x x₁ x₂ → ~-fst x₂;
   ~-snd = λ x x₁ x₂ → ~-snd x₂;
   ~-natrec = ~-natrec;
+  ~-prodrec = ~-prodrec;
   ~-Emptyrec = ~-Emptyrec }

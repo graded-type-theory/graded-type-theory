@@ -41,5 +41,5 @@ p ▷ F ▹▹ G = Π p , 𝟘 ▷ F ▹ wk1 G
 
 -- Non-dependent products.
 
-_××_ : (F G : Term n) → Term n
-F ×× G = Σ 𝟘 ▷ F ▹ wk1 G
+_××_ : {m : SigmaMode} (F G : Term n) → Term n
+_××_ {m = m} F G = Σ⟨ m ⟩ 𝟘 ▷ F ▹ wk1 G

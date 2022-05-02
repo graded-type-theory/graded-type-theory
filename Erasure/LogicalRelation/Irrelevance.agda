@@ -16,7 +16,6 @@ open import Definition.LogicalRelation.Substitution Erasure′
 import Definition.LogicalRelation.Substitution.Irrelevance Erasure′ as IS
 
 open import Definition.Untyped Erasure
-open import Definition.Untyped.Properties Erasure
 import Definition.Untyped.BindingType Erasure′ as BT
 
 open import Definition.Typed Erasure′
@@ -25,7 +24,6 @@ open import Definition.Typed.Properties Erasure′
 
 open import Definition.Modality.Context ErasureModality
 
-open import Tools.Empty
 open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
@@ -51,7 +49,6 @@ irrelevanceTermSV : ∀ {l l′ t v A}
 irrelevanceTermSV .(Uᵣ UA) .(Uᵣ UB) t®v (Uᵥ UA UB) = t®v
 irrelevanceTermSV .(ℕᵣ ℕA) .(ℕᵣ ℕB) t®v (ℕᵥ ℕA ℕB) = t®v
 irrelevanceTermSV .(Unitᵣ UnitA) .(Unitᵣ UnitB) t®v (Unitᵥ UnitA UnitB) = t®v
-irrelevanceTermSV [A] [A]′ t®v (ne (ne K D neK K≡K) neB) = ⊥-elim (noClosedNe neK)
 irrelevanceTermSV [A] [A]′ t®v (Bᵥ (BΠ 𝟘 q) BΠ! (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                                (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) (BT.Π≋Π PE.refl PE.refl)) [a]′
                                with whrDet* (red D , Πₙ) (red D₁ , Πₙ)
@@ -72,18 +69,20 @@ irrelevanceTermSV [A] [A]′ t®v (Bᵥ (BΠ ω q) BΠ! (Bᵣ F G D ⊢F ⊢G A�
       t®v′ = t®v [a] a®w
       SV′ = goodCasesRefl ([G] id ε [a]) ([G]₁ id ε [a]′)
       in  irrelevanceTermSV ([G] id ε [a]) ([G]₁ id ε [a]′) t®v′ SV′
-irrelevanceTermSV [A] [A]′ t®v (Bᵥ (BΣ q) BΣ! (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-                  (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) (BT.Σ≋Σ PE.refl)) [t₁]′
-                           with whrDet* (red D , Σₙ) (red D₁ , Σₙ)
-... | Σ≡Σ′ with B-PE-injectivity (BΣ q) (BΣ q) Σ≡Σ′
+irrelevanceTermSV [A] [A]′ (t₁ , t₂ , v₁ , v₂ , t⇒t′ , v⇒v′ , [t₁] , t₁®v₁ , t₂®v₂)
+                  (Bᵥ (BΣ q m) BΣ! (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+                      (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) (BT.Σ≋Σ PE.refl))
+                  with whrDet* (red D , Σₙ) (red D₁ , Σₙ)
+... | Σ≡Σ′ with B-PE-injectivity (BΣ q m) (BΣ q m) Σ≡Σ′
 ... | PE.refl , PE.refl , _ =
-    let [t₁] = I.irrelevanceTerm ([F]₁ id ε) ([F] id ε) [t₁]′
-        t₁®v₁ , t₂®v₂ = t®v [t₁]
-        SV  = goodCasesRefl ([F] id ε) ([F]₁ id ε)
-        SV′ = goodCasesRefl ([G] id ε [t₁]) ([G]₁ id ε [t₁]′)
-        t₁®v₁′ = irrelevanceTermSV ([F] id ε) ([F]₁ id ε) t₁®v₁ SV
-        t₂®v₂′ = irrelevanceTermSV ([G] id ε [t₁]) ([G]₁ id ε [t₁]′) t₂®v₂ SV′
-    in  t₁®v₁′  , t₂®v₂′
+  let [F]′ = [F] id ε
+      [F]₁′ = [F]₁ id ε
+      [t₁]′ = I.irrelevanceTerm [F]′ [F]₁′ [t₁]
+      [Gt₁] = [G] id ε [t₁]
+      [Gt₁]₁ = [G]₁ id ε [t₁]′
+      t₁®v₁′ = irrelevanceTermSV [F]′ [F]₁′ t₁®v₁ (goodCasesRefl [F]′ [F]₁′)
+      t₂®v₂′ = irrelevanceTermSV [Gt₁] [Gt₁]₁ t₂®v₂ (goodCasesRefl [Gt₁] [Gt₁]₁)
+  in  t₁ , t₂ , v₁ , v₂ , t⇒t′ , v⇒v′ , [t₁]′ , t₁®v₁′ , t₂®v₂′
 irrelevanceTermSV (emb 0<1 [A]) [A]′ t®v (emb⁰¹ SV) = irrelevanceTermSV [A] [A]′ t®v SV
 irrelevanceTermSV [A] (emb 0<1 [A]′) t®v (emb¹⁰ SV) = irrelevanceTermSV [A] [A]′ t®v SV
 
@@ -134,8 +133,12 @@ irrelevanceSubst {Γ = Γ ∙ A} {γ = γ ∙ p} {l = l}
 
 -- Irrelevance of erasure validity
 
-irrelevance : ∀ {l l′} → ([Γ] [Γ]′ : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ]) ([A]′ : Γ ⊩ᵛ⟨ l′ ⟩ A / [Γ]′)
-              (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷ A / [Γ] / [A]) → (γ ▸ Γ ⊩ʳ⟨ l′ ⟩ t ∷ A / [Γ]′ / [A]′)
+irrelevance : ∀ {l l′}
+            → ([Γ] [Γ]′ : ⊩ᵛ Γ)
+              ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ])
+              ([A]′ : Γ ⊩ᵛ⟨ l′ ⟩ A / [Γ]′)
+              (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷ A / [Γ] / [A])
+            → (γ ▸ Γ ⊩ʳ⟨ l′ ⟩ t ∷ A / [Γ]′ / [A]′)
 irrelevance {l = l} [Γ] [Γ]′ [A] [A]′ ⊩ʳt [σ]′ σ®σ′ =
   let [σ] = IS.irrelevanceSubst [Γ]′ [Γ] ε ε [σ]′
       σ®σ = irrelevanceSubst {l = l} [Γ]′ [Γ] [σ]′ [σ] σ®σ′

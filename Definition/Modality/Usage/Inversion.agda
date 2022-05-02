@@ -27,6 +27,7 @@ private
     A F t u z n' : Term n
     G : Term (1+ n)
     s : Term (1+ (1+ n))
+    m : SigmaMode
 
 -- Inversion lemmata for  γ ▸ t
 
@@ -73,7 +74,7 @@ inv-usage-Π (sub γ▸Π γ≤γ′) with inv-usage-Π γ▸Π
 
 -- If γ ▸ Σ p , q ▷ F ▹ G then δ ▸ F, η ∙ q ▸ G and γ ≤ᶜ δ +ᶜ η
 
-inv-usage-Σ : γ ▸ Σ q ▷ F ▹ G → InvUsageΠΣ γ q F G
+inv-usage-Σ : γ ▸ Σ⟨ m ⟩ q ▷ F ▹ G → InvUsageΠΣ γ q F G
 inv-usage-Σ (Σₘ γ▸F δ▸G) = invUsageΠΣ γ▸F δ▸G ≤ᶜ-refl
 inv-usage-Σ (sub γ▸Σ γ≤γ′) with inv-usage-Σ γ▸Σ
 ... | invUsageΠΣ δ▸F η▸G γ′≤δ+η = invUsageΠΣ δ▸F η▸G (≤ᶜ-trans γ≤γ′ γ′≤δ+η)
@@ -156,6 +157,21 @@ inv-usage-snd (sndₘ 𝟘▸t) = invUsageProj 𝟘▸t ≤ᶜ-refl
 inv-usage-snd (sub γ▸t₂ γ≤γ′) with inv-usage-snd γ▸t₂
 ... | invUsageProj 𝟘▸t γ′≤𝟘 = invUsageProj 𝟘▸t (≤ᶜ-trans γ≤γ′ γ′≤𝟘)
 
+record InvUsageProdrec {n} (γ : Conₘ n) (p : M) (t : Term n)
+                       (u : Term (1+ (1+ n))) : Set (a ⊔ ℓ) where
+  constructor invUsageProdrec
+  field
+    {δ η} : Conₘ n
+    δ▸t : δ ▸ t
+    η▸u : η ∙ p ∙ p ▸ u
+    γ≤γ′ : γ ≤ᶜ p ·ᶜ δ +ᶜ η
+
+-- If γ ▸ prodrec p A t u then δ ▸ t, η ∙ p ∙ p ▸ u and γ ≤ᶜ p ·ᶜ δ +ᶜ η
+
+inv-usage-prodrec : γ ▸ prodrec p A t u → InvUsageProdrec γ p t u
+inv-usage-prodrec (prodrecₘ γ▸t δ▸u) = invUsageProdrec γ▸t δ▸u ≤ᶜ-refl
+inv-usage-prodrec (sub γ▸t γ≤γ′) with inv-usage-prodrec γ▸t
+... | invUsageProdrec δ▸t η▸u γ′≤γ″ = invUsageProdrec δ▸t η▸u (≤ᶜ-trans γ≤γ′ γ′≤γ″)
 
 -- If γ ▸ zero then γ ≤ᶜ 𝟘ᶜ
 
@@ -189,7 +205,8 @@ record InvUsageNatrec {m} (γ : Conₘ m) (p r : M) (z : Term m)
     θ▸n  : θ ▸ n
     γ≤γ′ : γ ≤ᶜ nrᶜ (δ ∧ᶜ θ) (η +ᶜ p ·ᶜ θ) r
 
--- If γ ▸ natrec p r G z s n then δ ▸ z, δ ∙ r ∙ p ▸ s, η ▸ n and γ ≤ᶜ r* ·ᶜ (δ +ᶜ p ·ᶜ η)
+-- If γ ▸ natrec p r G z s n then δ ▸ z, η ∙ r ∙ p ▸ s, θ ▸ n
+-- and γ ≤ᶜ nrᶜ (δ ∧ᶜ θ) (η +ᶜ p ·ᶜ θ) r
 
 inv-usage-natrec : {p r : M} → γ ▸ natrec p r G z s n' → InvUsageNatrec γ p r z s n'
 inv-usage-natrec (natrecₘ δ▸z δ▸s η▸n) = invUsageNatrec δ▸z δ▸s η▸n ≤ᶜ-refl

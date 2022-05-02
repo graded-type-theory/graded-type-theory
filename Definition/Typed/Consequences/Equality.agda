@@ -118,8 +118,8 @@ B≡A′ W (emb 0<1 [W]) [W≡A] whnfA = B≡A′ W [W] [W≡A] whnfA
 
 Π≡A′ : ∀ {Γ : Con Term n} {A F G l p q} → _
 Π≡A′ {Γ = Γ} {A} {F} {G} {l} {p} {q} = B≡A′ {Γ = Γ} {A} {F} {G} {l} (BΠ p q)
-Σ≡A′ : ∀ {Γ : Con Term n} {A F G l q} → _
-Σ≡A′ {Γ = Γ} {A} {F} {G} {l} {q} = B≡A′ {Γ = Γ} {A} {F} {G} {l} (BΣ q)
+Σ≡A′ : ∀ {Γ : Con Term n} {A F G l q m} → _
+Σ≡A′ {Γ = Γ} {A} {F} {G} {l} {q} {m} = B≡A′ {Γ = Γ} {A} {F} {G} {l} (BΣ q m)
 
 -- If A is judgmentally equal to Π F ▹ G, then there exists H and E such that
 -- A is propositionally equal to  Π H ▹ E.
@@ -131,11 +131,16 @@ B≡A {A} W W≡A whnfA with reducibleEq W≡A
 B≡A {A} W W≡A whnfA | [W] , [A] , [W≡A] =
   B≡A′ W (B-elim W [W]) (irrelevanceEq [W] (B-intr W (B-elim W [W])) [W≡A]) whnfA
 
-Π≡A : ∀ {Γ : Con Term n} {A F G p q} → Γ ⊢ ⟦ BΠ p q ⟧ F ▹ G ≡ A → Whnf A → ∃₄ λ p′ q′ H E → A PE.≡ ⟦ BΠ p′ q′ ⟧ H ▹ E
+Π≡A : ∀ {Γ : Con Term n} {A F G p q} → Γ ⊢ ⟦ BΠ p q ⟧ F ▹ G ≡ A
+    → Whnf A → ∃₄ λ p′ q′ H E → A PE.≡ ⟦ BΠ p′ q′ ⟧ H ▹ E
 Π≡A {Γ = Γ} {A} {F} {G} {p} {q} x y with B≡A {Γ = Γ} {A} {F} {G} (BΠ p q) x y
 ... | BΠ p₁ q₁ , H , E , A≡ΠHE = p₁ , q₁ , H , E , A≡ΠHE
-... | BΣ q₁ , H , E , PE.refl = PE.⊥-elim (Π≢Σ x)
-Σ≡A : ∀ {Γ : Con Term n} {A F G q} → Γ ⊢ ⟦ BΣ q ⟧ F ▹ G ≡ A → Whnf A → ∃₃ λ q′ H E → A PE.≡ ⟦ BΣ q′ ⟧ H ▹ E
-Σ≡A {Γ = Γ} {A} {F} {G} {q} x y with B≡A {Γ = Γ} {A} {F} {G} (BΣ q) x y
-... | BΠ p q₁ , H , E , PE.refl = PE.⊥-elim (Π≢Σ (sym x))
-... | BΣ q₁ , H , E , A≡ΣHE = q₁ , H , E , A≡ΣHE
+... | BΣ q₁ m , H , E , PE.refl = PE.⊥-elim (Π≢Σ x)
+Σ≡A : ∀ {Γ : Con Term n} {A F G q m} → Γ ⊢ ⟦ BΣ q m ⟧ F ▹ G ≡ A
+    → Whnf A → ∃₃ λ q′ H E → A PE.≡ ⟦ BΣ q′ m ⟧ H ▹ E
+Σ≡A {Γ = Γ} {A} {F} {G} {q} {m} x y with B≡A {Γ = Γ} {A} {F} {G} (BΣ q m) x y
+Σ≡A {Γ = Γ} {A} {F} {G} {q} {m} x y | BΠ p q₁ , H , E , PE.refl = PE.⊥-elim (Π≢Σ (sym x))
+Σ≡A {Γ = Γ} {A} {F} {G} {q} {Σₚ} x y | BΣ q₁ Σₚ , H , E , A≡ΣHE = q₁ , H , E , A≡ΣHE
+Σ≡A {Γ = Γ} {A} {F} {G} {q} {Σₚ} x y | BΣ q₁ Σᵣ , H , E , PE.refl = PE.⊥-elim (Σₚ≢Σᵣ x)
+Σ≡A {Γ = Γ} {A} {F} {G} {q} {Σᵣ} x y | BΣ q₁ Σₚ , H , E , PE.refl = PE.⊥-elim (Σₚ≢Σᵣ (sym x))
+Σ≡A {Γ = Γ} {A} {F} {G} {q} {Σᵣ} x y | BΣ q₁ Σᵣ , H , E , A≡ΣHE = q₁ , H , E , A≡ΣHE
