@@ -203,10 +203,10 @@ record InvUsageNatrec {m} (γ : Conₘ m) (p r : M) (z : Term m)
     δ▸z  : δ ▸ z
     η▸s  : η ∙ p ∙ r ▸ s
     θ▸n  : θ ▸ n
-    γ≤γ′ : γ ≤ᶜ nrᶜ (δ ∧ᶜ θ) (η +ᶜ p ·ᶜ θ) r
+    γ≤γ′ : γ ≤ᶜ (δ ∧ᶜ θ) ⊛ᶜ (η +ᶜ p ·ᶜ θ) ▷ r
 
 -- If γ ▸ natrec p r G z s n then δ ▸ z, η ∙ r ∙ p ▸ s, θ ▸ n
--- and γ ≤ᶜ nrᶜ (δ ∧ᶜ θ) (η +ᶜ p ·ᶜ θ) r
+-- and γ ≤ᶜ (δ ∧ᶜ θ) ⊛ᵣ (η +ᶜ p ·ᶜ θ)
 
 inv-usage-natrec : {p r : M} → γ ▸ natrec p r G z s n' → InvUsageNatrec γ p r z s n'
 inv-usage-natrec (natrecₘ δ▸z δ▸s η▸n) = invUsageNatrec δ▸z δ▸s η▸n ≤ᶜ-refl

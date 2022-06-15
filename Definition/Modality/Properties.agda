@@ -11,6 +11,7 @@ module Definition.Modality.Properties {a ℓ}
 open Modality 𝕄
 open Setoid M′ renaming (Carrier to M)
 
+open import Tools.Algebra M′
 open import Tools.Nat hiding (_+_)
 open import Tools.Product
 
@@ -164,167 +165,32 @@ private
   (p ∧ q) ∧ q ∎
   where open import Tools.Reasoning.Equivalence M′
 
--- Characteristic reccurence relation for nr
--- nr p q r ≈ p ∧ (q + r · nr p q r)
+-- ⊛ is monotone on the first two arguments
+-- If p ≤ p′ and q ≤ q′ then p ⊛ q ▷ r ≤ p′ ⊛ q′ ≤ r
 
-nr-rec : (p q r : M) → nr p q r ≈ p ∧ (q + r · nr p q r)
-nr-rec p q r with nrⁿ-fix
-... | n , fix = begin
-  nrⁿ n p q r               ≈˘⟨ fix p q r ⟩
-  nrⁿ (1+ n) p q r          ≈⟨ nrⁿ-rec n p q r ⟩
-  p ∧ (q + r · nrⁿ n p q r) ∎
-  where open import Tools.Reasoning.Equivalence M′
-
--- nrⁿ is idempotent on 𝟘 for its first two (non Nat) arguments
--- nrⁿ n 𝟘 𝟘 r ≈ 𝟘
-
-nrⁿ-idem-𝟘 : (n : Nat) → nrⁿ n 𝟘 𝟘 r ≈ 𝟘
-nrⁿ-idem-𝟘 {r} 0 = nrⁿ-0 𝟘 𝟘 r
-nrⁿ-idem-𝟘 {r} (1+ n) = begin
-  nrⁿ (1+ n) 𝟘 𝟘 r           ≈⟨ nrⁿ-rec n 𝟘 𝟘 r ⟩
-  𝟘 ∧ (𝟘 + r · nrⁿ n 𝟘 𝟘 r) ≈⟨ ∧-cong ≈-refl (proj₁ +-identity _) ⟩
-  𝟘 ∧ (r · nrⁿ n 𝟘 𝟘 r)     ≈⟨ ∧-cong ≈-refl (·-cong ≈-refl (nrⁿ-idem-𝟘 n)) ⟩
-  𝟘 ∧ (r · 𝟘)               ≈⟨ ∧-cong ≈-refl (proj₂ ·-zero r) ⟩
-  𝟘 ∧ 𝟘                     ≈⟨ ∧-idem 𝟘 ⟩
-  𝟘 ∎
- where open import Tools.Reasoning.Equivalence M′
-
--- nr is idempotent on 𝟘 for its first two arguments
--- nr 𝟘 𝟘 r ≈ 𝟘
-
-nr-idem-𝟘 : (r : M) → nr 𝟘 𝟘 r ≈ 𝟘
-nr-idem-𝟘 r with nrⁿ-fix
-... | n , fix = nrⁿ-idem-𝟘 n
-
--- nrⁿ is monotone
--- If p ≤ p′ and q ≤ q′ and r ≤ r′ then nrⁿ n p q r ≤ nrⁿ n p′ q′ r′
-
-nrⁿ-monotone : (n : Nat) → p ≤ p′ → q ≤ q′ → r ≤ r′
-             → nrⁿ n p q r ≤ nrⁿ n p′ q′ r′
-nrⁿ-monotone {p} {p′} {q} {q′} {r} {r′} 0 x y z = begin
-  nrⁿ 0 p q r    ≈⟨ nrⁿ-0 p q r ⟩
-  𝟘              ≈˘⟨ nrⁿ-0 p′ q′ r′ ⟩
-  nrⁿ 0 p′ q′ r′ ∎
-  where open import Tools.Reasoning.PartialOrder ≤-poset
-nrⁿ-monotone {p} {p′} {q} {q′} {r} {r′} (1+ n) p≤p′ q≤q′ r≤r′ = begin
-  nrⁿ (1+ n) p q r
-    ≈⟨ nrⁿ-rec n p q r ⟩
-  p ∧ (q + r · nrⁿ n p q r)
-    ≤⟨ ∧-monotone p≤p′ (+-monotone q≤q′ (·-monotone r≤r′ (nrⁿ-monotone n p≤p′ q≤q′ r≤r′))) ⟩
-  p′ ∧ (q′ + r′ · nrⁿ n p′ q′ r′)
-    ≈˘⟨ nrⁿ-rec n p′ q′ r′ ⟩
-  nrⁿ (1+ n) p′ q′ r′ ∎
+⊛-monotone : p ≤ p′ → q ≤ q′ → p ⊛ q ▷ r ≤ p′ ⊛ q′ ▷ r
+⊛-monotone {p} {p′} {q} {q′} {r} p≤p′ q≤q′ = begin
+  p ⊛ q ▷ r
+    ≈⟨ ⊛-cong p≤p′ q≤q′ ≈-refl ⟩
+  (p ∧ p′) ⊛ (q ∧ q′) ▷ r
+    ≤⟨ proj₁ (⊛-sub-distrib-∧ r) (p ∧ p′) q q′ ⟩
+  ((p ∧ p′) ⊛ q ▷ r) ∧ ((p ∧ p′) ⊛ q′ ▷ r)
+    ≤⟨ ∧-monotone (proj₂ (⊛-sub-distrib-∧ r) q p p′) (proj₂ (⊛-sub-distrib-∧ r) q′ p p′) ⟩
+  ((p ⊛ q ▷ r) ∧ (p′ ⊛ q ▷ r)) ∧ (p ⊛ q′ ▷ r ∧ p′ ⊛ q′ ▷ r)
+    ≤⟨ ∧-decreasingʳ _ _ ⟩
+  p ⊛ q′ ▷ r ∧ p′ ⊛ q′ ▷ r
+    ≤⟨ ∧-decreasingʳ _ _ ⟩
+  p′ ⊛ q′ ▷ r ∎
   where open import Tools.Reasoning.PartialOrder ≤-poset
 
--- nr is monotone
--- If p ≤ p′ and q ≤ q′ and r ≤ r′ then nr n p q r ≤ nr n p′ q′ r′
-
-nr-monotone : p ≤ p′ → q ≤ q′ → r ≤ r′ → nr p q r ≤ nr p′ q′ r′
-nr-monotone {p} {p′} {q} {q′} {r} {r′} p≤p′ q≤q′ r≤r′ with nrⁿ-fix
-... | n , fix = nrⁿ-monotone n p≤p′ q≤q′ r≤r′
-
--- Multiplication is right distributive over nrⁿ
--- nrⁿ n (p′ · p) (p′ · q) r ≈ p′ · nrⁿ n p q r
-
-·-distribʳ-nrⁿ : (n : Nat) (p′ p q r : M)
-               → nrⁿ n (p · p′) (q · p′) r ≈ nrⁿ n p q r · p′
-·-distribʳ-nrⁿ 0 p′ p q r = begin
-  nrⁿ 0 (p · p′) (q · p′) r ≈⟨ nrⁿ-0 (p · p′) (q · p′) r ⟩
-  𝟘                         ≈˘⟨ proj₁ ·-zero p′ ⟩
-  𝟘 · p′                    ≈˘⟨ ·-cong (nrⁿ-0 p q r) ≈-refl ⟩
-  nrⁿ 0 p q r · p′          ∎
-  where open import Tools.Reasoning.Equivalence M′
-·-distribʳ-nrⁿ (1+ n) p′ p q r = begin
-  nrⁿ (1+ n) (p · p′) (q · p′) r
-     ≈⟨ nrⁿ-rec n (p · p′) (q · p′) r ⟩
-  (p · p′) ∧ ((q · p′) + r · nrⁿ n (p · p′) (q · p′) r)
-     ≈⟨  ∧-cong ≈-refl (+-cong ≈-refl (·-cong ≈-refl (·-distribʳ-nrⁿ n p′ p q r)))  ⟩
-  (p · p′) ∧ ((q · p′) + r · nrⁿ n p q r · p′)
-     ≈˘⟨ ∧-cong ≈-refl (+-cong ≈-refl (·-assoc r _ p′)) ⟩
-  (p · p′) ∧ ((q · p′) + (r · nrⁿ n p q r) · p′)
-     ≈˘⟨ ∧-cong ≈-refl (proj₂ ·-distrib-+ p′ q _) ⟩
-  (p · p′) ∧ ((q + r · nrⁿ n p q r) · p′)
-     ≈˘⟨ proj₂ ·-distrib-∧ p′ p _ ⟩
-  (p ∧ (q + r · nrⁿ n p q r)) · p′
-     ≈˘⟨ ·-cong (nrⁿ-rec n p q r) ≈-refl ⟩
-  nrⁿ (1+ n) p q r · p′ ∎
-  where open import Tools.Reasoning.Equivalence M′
-
--- Multiplication is right distributive over nr
--- nr (p′ · p) (p′ · q) r ≈ p′ · nr p q r
-
-·-distribʳ-nr : (p′ p q r : M) → nr (p · p′) (q · p′) r ≈ nr p q r · p′
-·-distribʳ-nr p′ p q r with nrⁿ-fix
-... | (n , fix) = ·-distribʳ-nrⁿ n p′ p q r
-
--- Addition is super-distributive over nrⁿ
--- nrⁿ n p q r + nrⁿ n p′ q′ r ≤ nrⁿ n (p + p′) (q + q′) r
-
-+-super-distrib-nrⁿ : (n : Nat) (p p′ q q′ r : M)
-                     → nrⁿ n p q r + nrⁿ n p′ q′ r ≤ nrⁿ n (p + p′) (q + q′) r
-+-super-distrib-nrⁿ 0 p p′ q q′ r = begin
-  nrⁿ 0 p q r + nrⁿ 0 p′ q′ r ≈⟨ +-cong (nrⁿ-0 p q r) (nrⁿ-0 p′ q′ r) ⟩
-  𝟘 + 𝟘                       ≈⟨ proj₁ +-identity 𝟘 ⟩
-  𝟘                           ≈˘⟨ nrⁿ-0 (p + p′) (q + q′) r ⟩
-  nrⁿ 0 (p + p′) (q + q′) r   ∎
-  where open import Tools.Reasoning.PartialOrder ≤-poset
-+-super-distrib-nrⁿ (1+ n) p p′ q q′ r = begin
-  nrⁿ (1+ n) p q r + nrⁿ (1+ n) p′ q′ r
-     ≈⟨ +-cong (nrⁿ-rec n p q r) (nrⁿ-rec n p′ q′ r) ⟩
-  (p ∧ (q + r · nrⁿ n p q r)) + (p′ ∧ (q′ + r · nrⁿ n p′ q′ r))
-     ≈⟨ proj₂ +-distrib-∧ _ _ _ ⟩
-  (p + (p′ ∧ (q′ + r · nrⁿ n p′ q′ r))) ∧ ((q + r · nrⁿ n p q r) + (p′ ∧ (q′ + r · nrⁿ n p′ q′ r)))
-     ≈⟨ ∧-cong (proj₁ +-distrib-∧ _ _ _) (proj₁ +-distrib-∧ _ _ _) ⟩
-  ((p + p′) ∧ (p + (q′ + r · nrⁿ n p′ q′ r))) ∧ (((q + r · nrⁿ n p q r) + p′) ∧ ((q + r · nrⁿ n p q r) + (q′ + r · nrⁿ n p′ q′ r)))
-     ≤⟨ ∧-monotone (∧-decreasingˡ _ _) (∧-decreasingʳ _ _) ⟩
-  (p + p′) ∧ (q + r · nrⁿ n p q r) + q′ + r · nrⁿ n p′ q′ r
-     ≈⟨ ∧-cong ≈-refl (+-assoc _ _ _) ⟩
-  (p + p′) ∧ (q + r · nrⁿ n p q r + q′ + r · nrⁿ n p′ q′ r)
-     ≈˘⟨ ∧-cong ≈-refl (+-cong ≈-refl (+-assoc _ _ _)) ⟩
-  (p + p′) ∧ (q + (r · nrⁿ n p q r + q′) + r · nrⁿ n p′ q′ r)
-     ≈⟨ ∧-cong ≈-refl (+-cong ≈-refl (+-cong (+-comm _ _) ≈-refl)) ⟩
-  (p + p′) ∧ (q + (q′ + r · nrⁿ n p q r) + r · nrⁿ n p′ q′ r)
-     ≈⟨ ∧-cong ≈-refl (+-cong ≈-refl (+-assoc _ _ _)) ⟩
-  (p + p′) ∧ (q + q′ + r · nrⁿ n p q r + r · nrⁿ n p′ q′ r)
-     ≈˘⟨ ∧-cong ≈-refl (+-assoc _ _ _) ⟩
-  (p + p′) ∧ ((q + q′) + (r · nrⁿ n p q r + r · nrⁿ n p′ q′ r))
-     ≈˘⟨ ∧-cong ≈-refl (+-cong ≈-refl (proj₁ ·-distrib-+ _ _ _)) ⟩
-  (p + p′) ∧ ((q + q′) + (r · (nrⁿ n p q r + nrⁿ n p′ q′ r)))
-     ≤⟨ ∧-monotoneʳ (+-monotoneʳ (·-monotoneʳ (+-super-distrib-nrⁿ _ _ _ _ _ _))) ⟩
-  (p + p′) ∧ ((q + q′) + (r · nrⁿ n (p + p′) (q + q′) r))
-     ≈˘⟨ nrⁿ-rec n (p + p′) (q + q′) r ⟩
-  nrⁿ (1+ n) (p + p′) (q + q′) r ∎
-  where open import Tools.Reasoning.PartialOrder ≤-poset
-
--- Addition is super-distributive over nr
--- nr p q r + nr p′ q′ r ≤ nr (p + p′) (q + q′) r
-
-+-super-distrib-nr : (p p′ q q′ r : M) → nr p q r + nr p′ q′ r ≤ nr (p + p′) (q + q′) r
-+-super-distrib-nr p p′ q q′ r with nrⁿ-fix
-... | (n , fix) = +-super-distrib-nrⁿ n p p′ q q′ r
-
--- Congruence of nrⁿ
--- If p ≈ p′ and q ≈ q′ and r ≈ r′ then nrⁿ n p q r ≈ nrⁿ n p′ q′ r′
-
-nrⁿ-cong : (n : Nat) → p ≈ p′ → q ≈ q′ → r ≈ r′ → nrⁿ n p q r ≈ nrⁿ n p′ q′ r′
-nrⁿ-cong {p} {p′} {q} {q′} {r} {r′} 0 p≈p′ q≈q′ r≈r′ = begin
-  nrⁿ 0 p q r    ≈⟨ nrⁿ-0 p q r ⟩
-  𝟘              ≈˘⟨ nrⁿ-0 p′ q′ r′ ⟩
-  nrⁿ 0 p′ q′ r′ ∎
-  where open import Tools.Reasoning.Equivalence M′
-nrⁿ-cong {p} {p′} {q} {q′} {r} {r′} (1+ n) p≈p′ q≈q′ r≈r′ = begin
-  nrⁿ (1+ n) p q r
-    ≈⟨ nrⁿ-rec n p q r ⟩
-  p ∧ (q + r · nrⁿ n p q r)
-    ≈⟨ ∧-cong p≈p′ (+-cong q≈q′ (·-cong r≈r′ (nrⁿ-cong n p≈p′ q≈q′ r≈r′))) ⟩
-  (p′ ∧ (q′ + (r′ · nrⁿ n p′ q′ r′)))
-    ≈˘⟨ nrⁿ-rec n p′ q′ r′ ⟩
-  nrⁿ (1+ n) p′ q′ r′ ∎
-  where open import Tools.Reasoning.Equivalence M′
-
--- Congruence of nr
--- If p ≈ p′ and q ≈ q′ and r ≈ r′ then nr p q r ≈ nr p′ q′ r′
-
-nr-cong : p ≈ p′ → q ≈ q′ → r ≈ r′ → nr p q r ≈ nr p′ q′ r′
-nr-cong p≈p′ q≈q′ r≈r′ with nrⁿ-fix
-... | n , fix = nrⁿ-cong n p≈p′ q≈q′ r≈r′
+-- ⊛ is idempotent on 𝟘 w.r.t the first two arguments
+-- 𝟘 ⊛ 𝟘 ▷ r ≈ 𝟘
+⊛-idem-𝟘 : (r : M) → (_⊛_▷ r) IdempotentOn 𝟘
+⊛-idem-𝟘 r = ≤-antisym (⊛-ineq₂ 𝟘 𝟘 r) 𝟘≤𝟘⊛𝟘
+  where
+  open import Tools.Reasoning.PartialOrder ≤-poset
+  𝟘≤𝟘⊛𝟘 = begin
+    𝟘                     ≈˘⟨ proj₂ ·-zero (𝟘 ⊛ 𝟘 ▷ r) ⟩
+    (𝟘 ⊛ 𝟘 ▷ r) · 𝟘       ≤⟨ ·-sub-distribʳ-⊛ r 𝟘 𝟘 𝟘 ⟩
+    (𝟘 · 𝟘) ⊛ (𝟘 · 𝟘) ▷ r ≈⟨ ⊛-cong (proj₁ ·-zero 𝟘) (proj₁ ·-zero 𝟘) ≈-refl ⟩
+    𝟘 ⊛ 𝟘 ▷ r ∎

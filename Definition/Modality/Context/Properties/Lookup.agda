@@ -58,13 +58,13 @@ lookup-distrib-∧ᶜ : (γ δ : Conₘ n) (x : Fin n)
 lookup-distrib-∧ᶜ (γ ∙ p) (δ ∙ q) x0     = PE.refl
 lookup-distrib-∧ᶜ (γ ∙ p) (δ ∙ q) (x +1) = lookup-distrib-∧ᶜ γ δ x
 
--- Context lookup distributes over nrᶜ
--- (nrᶜ γ δ r)⟨x⟩ ≡ nr γ⟨x⟩ δ⟨x⟩ r
+-- Context lookup distributes over ⊛ᶜ
+-- (γ ⊛ᶜ δ ▷ r)⟨x⟩ ≡ γ⟨x⟩ ⊛ δ⟨x⟩ ▷ r
 
-lookup-distrib-nrᶜ : (γ δ : Conₘ n) (r : M) (x : Fin n)
-                   → (nrᶜ γ δ r) ⟨ x ⟩ ≡ nr (γ ⟨ x ⟩) (δ ⟨ x ⟩) r
-lookup-distrib-nrᶜ (γ ∙ p) (δ ∙ q) r x0     = PE.refl
-lookup-distrib-nrᶜ (γ ∙ p) (δ ∙ q) r (x +1) = lookup-distrib-nrᶜ γ δ r x
+lookup-distrib-⊛ᶜ : (γ δ : Conₘ n) (r : M) (x : Fin n)
+                   → (γ ⊛ᶜ δ ▷ r) ⟨ x ⟩ ≡ (γ ⟨ x ⟩) ⊛ (δ ⟨ x ⟩) ▷ r
+lookup-distrib-⊛ᶜ (γ ∙ p) (δ ∙ q) r x0     = PE.refl
+lookup-distrib-⊛ᶜ (γ ∙ p) (δ ∙ q) r (x +1) = lookup-distrib-⊛ᶜ γ δ r x
 
 -- Lookup is consistent with context updates
 -- (γ , x ≔ p) ⟨ x ⟩ ≡ p

@@ -22,7 +22,7 @@ open import Definition.Modality.Context.Properties.Lookup 𝕄 public
 open import Definition.Modality.Context.Properties.Meet 𝕄 public
 open import Definition.Modality.Context.Properties.Multiplication 𝕄 public
 open import Definition.Modality.Context.Properties.PartialOrder 𝕄 public
-open import Definition.Modality.Context.Properties.Recurrence 𝕄 public
+open import Definition.Modality.Context.Properties.Star 𝕄 public
 open import Definition.Modality.Context.Properties.Update 𝕄 public
 
 private

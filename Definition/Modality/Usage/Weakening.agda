@@ -69,12 +69,12 @@ wk-∧ᶜ (step ρ) = (wk-∧ᶜ ρ) ∙ (≈-sym (∧-idem 𝟘))
 wk-∧ᶜ {γ = γ ∙ p} {δ ∙ q} (lift ρ) = (wk-∧ᶜ ρ) ∙ ≈-refl
 
 -- Weakening of modality contexts distribute over the reccurence operator
--- wkConₘ ρ (nrᶜ γ δ r) ≈ᶜ nrᶜ (wkConₘ ρ γ) (wkConₘ ρ δ) r
+-- wkConₘ ρ (γ ⊛ᵣ δ) ≈ᶜ (wkConₘ ρ γ) ⊛ᵣ (wkConₘ ρ δ)
 
-wk-nrᶜ : (ρ : Wk m n) → wkConₘ ρ (nrᶜ γ δ r) ≈ᶜ nrᶜ (wkConₘ ρ γ) (wkConₘ ρ δ) r
-wk-nrᶜ id = ≈ᶜ-refl
-wk-nrᶜ (step ρ) = (wk-nrᶜ ρ) ∙ (≈-sym (nr-idem-𝟘 _))
-wk-nrᶜ {γ = γ ∙ p} {δ ∙ q} (lift ρ) = (wk-nrᶜ ρ) ∙ ≈-refl
+wk-⊛ᶜ : (ρ : Wk m n) → wkConₘ ρ (γ ⊛ᶜ δ ▷ r) ≈ᶜ (wkConₘ ρ γ) ⊛ᶜ (wkConₘ ρ δ) ▷ r
+wk-⊛ᶜ id = ≈ᶜ-refl
+wk-⊛ᶜ (step ρ) = wk-⊛ᶜ ρ ∙ ≈-sym (⊛-idem-𝟘 _)
+wk-⊛ᶜ {γ = γ ∙ p} {δ ∙ q} (lift ρ) = wk-⊛ᶜ ρ ∙ ≈-refl
 
 -- Weakening of modality contexts is monotone
 -- If γ ≤ᶜ δ then wkConₘ ρ γ ≤ᶜ wkConₘ ρ δ
@@ -82,7 +82,7 @@ wk-nrᶜ {γ = γ ∙ p} {δ ∙ q} (lift ρ) = (wk-nrᶜ ρ) ∙ ≈-refl
 wk-≤ᶜ : (ρ : Wk m n) → γ ≤ᶜ δ → wkConₘ ρ γ ≤ᶜ wkConₘ ρ δ
 wk-≤ᶜ id γ≤δ = γ≤δ
 wk-≤ᶜ (step ρ) γ≤δ = (wk-≤ᶜ ρ γ≤δ) ∙ ≤-refl
-wk-≤ᶜ {γ = γ ∙ p} {δ ∙ q} (lift ρ) (γ≤δ ∙ p≤q) = (wk-≤ᶜ ρ γ≤δ) ∙ p≤q
+wk-≤ᶜ {γ = γ ∙ p} {δ ∙ q} (lift ρ) (γ≤δ ∙ p≤q) = wk-≤ᶜ ρ γ≤δ ∙ p≤q
 
 -- Lemma for usage of weakened variables
 
@@ -129,10 +129,10 @@ wkUsage ρ zeroₘ = PE.subst (λ γ → γ ▸ zero) (PE.sym (wk-𝟘ᶜ ρ)) z
 wkUsage ρ (sucₘ γ▸t) = sucₘ (wkUsage ρ γ▸t)
 wkUsage ρ (natrecₘ γ▸z δ▸s η▸n) =
   sub (natrecₘ (wkUsage ρ γ▸z) (wkUsage (liftn ρ 2) δ▸s) (wkUsage ρ η▸n))
-      (≤ᶜ-reflexive (≈ᶜ-trans (wk-nrᶜ ρ)
-                              (nrᶜ-cong (wk-∧ᶜ ρ)
-                                        (≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-cong ≈ᶜ-refl (wk-·ᶜ ρ)))
-                                        ≈-refl)))
+      (≤ᶜ-reflexive (≈ᶜ-trans (wk-⊛ᶜ ρ)
+                              (⊛ᶜ-cong (wk-∧ᶜ ρ)
+                                       (≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-cong ≈ᶜ-refl (wk-·ᶜ ρ)))
+                                       ≈-refl)))
 wkUsage ρ (Emptyrecₘ γ▸t) =
   sub (Emptyrecₘ (wkUsage ρ γ▸t)) (≤ᶜ-reflexive (wk-·ᶜ ρ))
 wkUsage ρ starₘ = subst (λ γ → γ ▸ star) (PE.sym (wk-𝟘ᶜ ρ)) starₘ

@@ -149,28 +149,28 @@ Conₘ-interchange (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} γ�
            η'  = η , x ≔ (η′ ⟨ x ⟩)
            pη' = p ·ᶜ η , x ≔ (p · (η′ ⟨ x ⟩))
        in begin
-          nrᶜ (γ' ∧ᶜ η') (δ' +ᶜ p ·ᶜ η') r
-            ≡˘⟨ cong (λ y → nrᶜ _ (_ +ᶜ y) r)
+          (γ' ∧ᶜ η') ⊛ᶜ (δ' +ᶜ p ·ᶜ η') ▷ r
+            ≡˘⟨ cong (λ y → _ ⊛ᶜ (_ +ᶜ y) ▷ r)
                      (update-distrib-·ᶜ η p (η′ ⟨ x ⟩) x) ⟩
-          nrᶜ (γ' ∧ᶜ η') (δ' +ᶜ pη') r
-            ≡˘⟨ cong (λ y → nrᶜ _ (_ +ᶜ (_ , x ≔ y)) r)
+          (γ' ∧ᶜ η') ⊛ᶜ (δ' +ᶜ pη') ▷ r
+            ≡˘⟨ cong (λ y → _ ⊛ᶜ (_ +ᶜ (_ , x ≔ y)) ▷ r)
                      (lookup-distrib-·ᶜ η′ p x) ⟩
-          nrᶜ (γ' ∧ᶜ η') (δ' +ᶜ ((p ·ᶜ η) , x ≔ ((p ·ᶜ η′) ⟨ x ⟩))) r
-            ≡˘⟨ cong (λ y → nrᶜ _ y r)
+          (γ' ∧ᶜ η') ⊛ᶜ (δ' +ᶜ ((p ·ᶜ η) , x ≔ ((p ·ᶜ η′) ⟨ x ⟩))) ▷ r
+            ≡˘⟨ cong (λ y →  _ ⊛ᶜ y ▷ r)
                      (update-distrib-+ᶜ δ (p ·ᶜ η) (δ′ ⟨ x ⟩) ((p ·ᶜ η′) ⟨ x ⟩) x) ⟩
-          nrᶜ (γ' ∧ᶜ η') ((δ +ᶜ p ·ᶜ η) , x ≔ (δ′ ⟨ x ⟩ + (p ·ᶜ η′) ⟨ x ⟩)) r
-            ≡˘⟨ cong₂ (λ y z → nrᶜ y (_ , x ≔ z) r)
+          (γ' ∧ᶜ η') ⊛ᶜ ((δ +ᶜ p ·ᶜ η) , x ≔ (δ′ ⟨ x ⟩ + (p ·ᶜ η′) ⟨ x ⟩)) ▷ r
+            ≡˘⟨ cong₂ (λ y z → y ⊛ᶜ (_ , x ≔ z) ▷ r)
                       (update-distrib-∧ᶜ γ η (γ′ ⟨ x ⟩) (η′ ⟨ x ⟩) x)
-                      (lookup-distrib-+ᶜ δ′ (p ·ᶜ η′) x)  ⟩
-          nrᶜ ((γ ∧ᶜ η) , x ≔ (γ′ ⟨ x ⟩ ∧ η′ ⟨ x ⟩)) ((δ +ᶜ p ·ᶜ η) , x ≔ ((δ′ +ᶜ p ·ᶜ η′) ⟨ x ⟩)) r
-            ≡˘⟨ update-distrib-nrᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r
+                      (lookup-distrib-+ᶜ δ′ (p ·ᶜ η′) x)   ⟩
+          ((γ ∧ᶜ η) , x ≔ (γ′ ⟨ x ⟩ ∧ η′ ⟨ x ⟩)) ⊛ᶜ ((δ +ᶜ p ·ᶜ η) , x ≔ ((δ′ +ᶜ p ·ᶜ η′) ⟨ x ⟩)) ▷ r
+            ≡˘⟨ update-distrib-⊛ᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r
                                    ((γ′ ⟨ x ⟩) ∧ (η′ ⟨ x ⟩))
                                    ((δ′ +ᶜ p ·ᶜ η′) ⟨ x ⟩) x ⟩
-          nrᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r , x ≔ nr ((γ′ ⟨ x ⟩) ∧ (η′ ⟨ x ⟩)) ((δ′ +ᶜ p ·ᶜ η′) ⟨ x ⟩) r
-            ≡˘⟨ cong (λ y → _ , x ≔ nr y _ _) (lookup-distrib-∧ᶜ γ′ η′ x) ⟩
-          nrᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r , x ≔ nr ((γ′ ∧ᶜ η′) ⟨ x ⟩) ((δ′ +ᶜ p ·ᶜ η′) ⟨ x ⟩) r
-            ≡˘⟨ cong (λ y → _ , x ≔ y) (lookup-distrib-nrᶜ (γ′ ∧ᶜ η′) (δ′ +ᶜ p ·ᶜ η′) r x) ⟩
-          nrᶜ (γ ∧ᶜ η) (δ +ᶜ (p ·ᶜ η)) r , x ≔ (nrᶜ (γ′ ∧ᶜ η′) (δ′ +ᶜ (p ·ᶜ η′)) r ⟨ x ⟩) ∎
+          (γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r , x ≔ ((γ′ ⟨ x ⟩) ∧ (η′ ⟨ x ⟩)) ⊛ ((δ′ +ᶜ p ·ᶜ η′) ⟨ x ⟩) ▷ r
+            ≡˘⟨ cong (λ y → _ , x ≔ y ⊛ _ ▷ _) (lookup-distrib-∧ᶜ γ′ η′ x) ⟩
+          (γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r , x ≔ ((γ′ ∧ᶜ η′) ⟨ x ⟩) ⊛ ((δ′ +ᶜ p ·ᶜ η′) ⟨ x ⟩) ▷ r
+            ≡˘⟨ cong (λ y → _ , x ≔ y) (lookup-distrib-⊛ᶜ (γ′ ∧ᶜ η′) (δ′ +ᶜ p ·ᶜ η′) r x) ⟩
+          (γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ (p ·ᶜ η)) ▷ r , x ≔ ((γ′ ∧ᶜ η′) ⊛ᶜ (δ′ +ᶜ (p ·ᶜ η′)) ▷ r) ⟨ x ⟩ ∎
 
 Conₘ-interchange (Emptyrecₘ {γ} {p = p} γ▸t) (Emptyrecₘ {δ} δ▸t) x =
   subst (_▸ _) eq (Emptyrecₘ (Conₘ-interchange γ▸t δ▸t x))
@@ -226,10 +226,9 @@ usage-upper-bound zeroₘ    = ≤ᶜ-refl
 usage-upper-bound (sucₘ t) = usage-upper-bound t
 
 usage-upper-bound (natrecₘ {z = z} {s = s} {n = n} γ▸z δ▸s η▸n) =
-  nrᶜ-monotone (∧ᶜ-monotone γ≤γ′ η≤η′)
+  ⊛ᶜ-monotone (∧ᶜ-monotone γ≤γ′ η≤η′)
                (+ᶜ-monotone (tailₘ-monotone (tailₘ-monotone δ≤δ′))
                             (·ᶜ-monotoneʳ η≤η′))
-               ≤-refl
   where
   γ≤γ′ = usage-upper-bound γ▸z
   δ≤δ′ = usage-upper-bound δ▸s
@@ -350,81 +349,15 @@ usage-calc-type (univ Γ⊢A:U , γ▸A) = usage-calc-term′ Γ⊢A:U γ▸A
 
 
 -- The context used in the usage rule for natrec satisfies the neccessary inequalities
--- nrᶜ (γ ∧ η) (δ + pη) r ≤ γ and
--- nrᶜ (γ ∧ η) (δ + pη) r ≤ δ + pη + r (nrᶜ (γ ∧ η) (δ + pη) r) and
--- nrᶜ (γ ∧ η) (δ + pη) r ≤ η
+-- (γ ∧ η) ⊛ᶜ (δ + pη) ▷ r ≤ γ and
+-- (γ ∧ η) ⊛ᶜ (δ + pη) ▷ r ≤ δ + pη + r ((γ ∧ η) ⊛ᶜ (δ + pη) ▷ r) and
+-- (γ ∧ η) ⊛ᶜ (δ + pη) ▷ r ≤ η
 
-natrec-usage : nrᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r ≤ᶜ γ
-             × nrᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r ≤ᶜ δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ nrᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r
-             × nrᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r ≤ᶜ η
-natrec-usage = (≤ᶜ-trans (≤ᶜ-reflexive (nrᶜ-rec _ _ _))
-                         (≤ᶜ-trans (∧ᶜ-decreasingˡ _ _) (∧ᶜ-decreasingˡ _ _)))
-             , (≤ᶜ-trans (≤ᶜ-reflexive (nrᶜ-rec _ _ _))
-                         (≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) (≤ᶜ-reflexive (+ᶜ-assoc _ _ _))))
-             , (≤ᶜ-trans (≤ᶜ-reflexive (nrᶜ-rec _ _ _))
-                         (≤ᶜ-trans (∧ᶜ-decreasingˡ _ _) (∧ᶜ-decreasingʳ _ _)))
-
--- The context used in the usage rule for natrec is an upper bound
--- of contexts satisfying the neccesary inequalities
--- when 𝟘 is an upper bound of the semilattice
-
-module BoundNatrec (bound : ∀ {p} → p ≤ 𝟘) where
-
-  -- 𝟘ᶜ is the greatest context
-  -- γ ≤ᶜ 𝟘ᶜ
-
-  boundᶜ : γ ≤ᶜ 𝟘ᶜ
-  boundᶜ {γ = ε} = ≤ᶜ-refl
-  boundᶜ {γ = γ ∙ p} = (boundᶜ {γ = γ}) ∙ (bound {p})
-
-  -- Helper lemma for showing context used in the usage rule for natrec
-  -- is an upper bound pointwise of contexts satisfying the neccesary inequalities
-  -- If x ≤ g and x ≤ (d + p · h) + r · x and x ≤ h
-  -- then x ≤ nrⁿ n (g ∧ h) (d + p · h) r
-
-  natrec-usage-boundⁿ : ∀ {x g d h p r}
-                      → (n : Nat)
-                      → x ≤ g
-                      → x ≤ (d + p · h) + r · x
-                      → x ≤ h
-                      → x ≤ nrⁿ n (g ∧ h) (d + p · h) r
-  natrec-usage-boundⁿ 0 x≤g x≤d+ph+rx x≤h = ≤-trans bound (≤-reflexive (≈-sym (nrⁿ-0 _ _ _)))
-  natrec-usage-boundⁿ {x} {g} {d} {h} {p} {r} (1+ n) x≤g x≤d+ph+rx x≤h = begin
-    x     ≈˘⟨ ∧-idem x ⟩
-    x ∧ x ≈˘⟨ ∧-cong (∧-idem x) ≈-refl ⟩
-    (x ∧ x) ∧ x
-      ≤⟨ ∧-monotone (∧-monotone x≤g x≤h) x≤d+ph+rx ⟩
-    (g ∧ h) ∧ ((d + p · h) + r · x)
-      ≤⟨ ∧-monotoneʳ (+-monotoneʳ (·-monotoneʳ (natrec-usage-boundⁿ n x≤g x≤d+ph+rx x≤h))) ⟩
-    (g ∧ h) ∧ ((d + p · h) + r · nrⁿ n (g ∧ h) (d + p · h) r)
-      ≈˘⟨ nrⁿ-rec n (g ∧ h) (d + p · h) r ⟩
-    nrⁿ (1+ n) (g ∧ h) (d + p · h) r ∎
-    where open import Tools.Reasoning.PartialOrder ≤-poset
-
-  -- The context used in the usage rule for natrec is an upper bound pointwise
-  -- of contexts satisfying the neccesary inequalities
-  -- If x ≤ g and x ≤ (d + p · h) + r · x and x ≤ h
-  -- then x ≤ nr (g ∧ h) (d + p · h) r
-
-  natrec-usage-bound′ : ∀ {x g d h p r}
-                      → x ≤ g
-                      → x ≤ (d + p · h) + r · x
-                      → x ≤ h
-                      → x ≤ nr (g ∧ h) (d + p · h) r
-  natrec-usage-bound′ x≤g x≤d+ph+rx x≤h with nrⁿ-fix
-  ... | n , fix = natrec-usage-boundⁿ n x≤g x≤d+ph+rx x≤h
-
-  -- The context used in the usage rule for natrec is an upper bound
-  -- of contexts satisfying the neccesary inequalities
-  -- If χ ≤ᶜ γ and χ ≤ᶜ (δ +ᶜ p ·ᶜ η) +ᶜ r ·ᶜ χ and χ ≤ᶜ η
-  -- then χ ≤ᶜ nrᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r
-
-  natrec-usage-bound : ∀ {χ}
-                     → χ ≤ᶜ γ
-                     → χ ≤ᶜ (δ +ᶜ p ·ᶜ η) +ᶜ r ·ᶜ χ
-                     → χ ≤ᶜ η
-                     → χ ≤ᶜ nrᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r
-  natrec-usage-bound {γ = ε} {ε} {η = ε} {χ = ε} χ≤γ χ≤δ+pη+rχ χ≤η = ≤ᶜ-refl
-  natrec-usage-bound {γ = γ ∙ g} {δ ∙ d} {η = η ∙ h} {χ = χ ∙ x}
-                     (χ≤γ ∙ x≤g) (χ≤δ+pη+rχ ∙ x≤d+ph+rx) (χ≤η ∙ x≤h) =
-                     natrec-usage-bound χ≤γ χ≤δ+pη+rχ χ≤η ∙ natrec-usage-bound′ x≤g x≤d+ph+rx x≤h
+natrec-usage : (γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r ≤ᶜ γ
+             × (γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r ≤ᶜ δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ (γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r
+             × (γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r ≤ᶜ η
+natrec-usage {γ = γ} {η} {δ} {p} {r} =
+  ≤ᶜ-trans (⊛ᶜ-ineq₂ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r) (∧ᶜ-decreasingˡ γ η)
+  , ≤ᶜ-trans (⊛ᶜ-ineq₁ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r)
+             (≤ᶜ-reflexive (+ᶜ-assoc δ (p ·ᶜ η) (r ·ᶜ (γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r)))
+  , ≤ᶜ-trans (⊛ᶜ-ineq₂ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r) (∧ᶜ-decreasingʳ γ η)

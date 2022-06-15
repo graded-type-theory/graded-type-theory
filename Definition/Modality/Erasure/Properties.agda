@@ -60,59 +60,58 @@ private
 +ᶜ-decreasingʳ ε ε = ≤ᶜ-refl
 +ᶜ-decreasingʳ (γ ∙ p) (δ ∙ q) = (+ᶜ-decreasingʳ γ δ) ∙ (+-decreasingʳ p q)
 
--- nr is a decreasing function on its first argument
--- nr p q r ≤ q
+-- ⊛ᵣ is a decreasing function on its first argument
+-- p ⊛ q ▷ r ≤ p
 
-nr-decreasingˡ : (p q r : Erasure) → nr p q r ≤ p
-nr-decreasingˡ 𝟘 𝟘 r = PE.refl
-nr-decreasingˡ 𝟘 ω r = PE.refl
-nr-decreasingˡ ω 𝟘 r = PE.refl
-nr-decreasingˡ ω ω r = PE.refl
+⊛-decreasingˡ : (p q r : Erasure) → p ⊛ q ▷ r ≤ p
+⊛-decreasingˡ 𝟘 𝟘 r = PE.refl
+⊛-decreasingˡ 𝟘 ω r = PE.refl
+⊛-decreasingˡ ω 𝟘 r = PE.refl
+⊛-decreasingˡ ω ω r = PE.refl
 
--- nr is a decreasing function on its second argument
--- nr p q r ≤ q
+-- ⊛ᵣ is a decreasing function on its second argument
+-- p ⊛ q ▷ r ≤ q
 
-nr-decreasingʳ : (p q r : Erasure) → nr p q r ≤ q
-nr-decreasingʳ 𝟘 𝟘 r = PE.refl
-nr-decreasingʳ 𝟘 ω 𝟘 = PE.refl
-nr-decreasingʳ 𝟘 ω ω = PE.refl
-nr-decreasingʳ ω 𝟘 r = PE.refl
-nr-decreasingʳ ω ω r = PE.refl
+⊛-decreasingʳ : (p q r : Erasure) → p ⊛ q ▷ r ≤ q
+⊛-decreasingʳ 𝟘 𝟘 r = PE.refl
+⊛-decreasingʳ 𝟘 ω 𝟘 = PE.refl
+⊛-decreasingʳ 𝟘 ω ω = PE.refl
+⊛-decreasingʳ ω 𝟘 r = PE.refl
+⊛-decreasingʳ ω ω r = PE.refl
 
 
--- nrᶜ is a decreasing function on its first argument
--- nrᶜ γ δ r ≤ γ
+-- ⊛ᶜ is a decreasing function on its first argument
+-- γ ⊛ᶜ δ ▷ r ≤ᶜ γ
 
-nrᶜ-decreasingˡ : (γ δ : Conₘ n) (r : Erasure) → nrᶜ γ δ r ≤ᶜ γ
-nrᶜ-decreasingˡ ε ε r = ≤ᶜ-refl
-nrᶜ-decreasingˡ (γ ∙ 𝟘) (δ ∙ 𝟘) r = (nrᶜ-decreasingˡ γ δ r) ∙ PE.refl
-nrᶜ-decreasingˡ (γ ∙ 𝟘) (δ ∙ ω) r = (nrᶜ-decreasingˡ γ δ r) ∙ PE.refl
-nrᶜ-decreasingˡ (γ ∙ ω) (δ ∙ 𝟘) r = (nrᶜ-decreasingˡ γ δ r) ∙ PE.refl
-nrᶜ-decreasingˡ (γ ∙ ω) (δ ∙ ω) r = (nrᶜ-decreasingˡ γ δ r) ∙ PE.refl
--- (nrᶜ-decreasingˡ γ δ r) ∙ (nr-decreasingˡ p q r)
+⊛ᶜ-decreasingˡ : (γ δ : Conₘ n) (r : Erasure) → γ ⊛ᶜ δ ▷ r ≤ᶜ γ
+⊛ᶜ-decreasingˡ ε ε r = ≤ᶜ-refl
+⊛ᶜ-decreasingˡ (γ ∙ 𝟘) (δ ∙ 𝟘) r = (⊛ᶜ-decreasingˡ γ δ r) ∙ PE.refl
+⊛ᶜ-decreasingˡ (γ ∙ 𝟘) (δ ∙ ω) r = (⊛ᶜ-decreasingˡ γ δ r) ∙ PE.refl
+⊛ᶜ-decreasingˡ (γ ∙ ω) (δ ∙ 𝟘) r = (⊛ᶜ-decreasingˡ γ δ r) ∙ PE.refl
+⊛ᶜ-decreasingˡ (γ ∙ ω) (δ ∙ ω) r = (⊛ᶜ-decreasingˡ γ δ r) ∙ PE.refl
 
--- nrᶜ is a decreasing function on its second argument
--- nrᶜ γ δ r ≤ δ
+-- ⊛ᶜ is a decreasing function on its second argument
+-- γ ⊛ᶜ δ ▷ r ≤ᶜ δ
 
-nrᶜ-decreasingʳ : (γ δ : Conₘ n) (r : Erasure)  → nrᶜ γ δ r ≤ᶜ δ
-nrᶜ-decreasingʳ ε ε r = ≤ᶜ-refl
-nrᶜ-decreasingʳ (γ ∙ 𝟘) (δ ∙ 𝟘) r = nrᶜ-decreasingʳ γ δ r ∙ PE.refl
-nrᶜ-decreasingʳ (γ ∙ 𝟘) (δ ∙ ω) r = nrᶜ-decreasingʳ γ δ r ∙ PE.refl
-nrᶜ-decreasingʳ (γ ∙ ω) (δ ∙ 𝟘) r = nrᶜ-decreasingʳ γ δ r ∙ PE.refl
-nrᶜ-decreasingʳ (γ ∙ ω) (δ ∙ ω) r = nrᶜ-decreasingʳ γ δ r ∙ PE.refl
+⊛ᶜ-decreasingʳ : (γ δ : Conₘ n) (r : Erasure)  → γ ⊛ᶜ δ ▷ r ≤ᶜ δ
+⊛ᶜ-decreasingʳ ε ε r = ≤ᶜ-refl
+⊛ᶜ-decreasingʳ (γ ∙ 𝟘) (δ ∙ 𝟘) r = ⊛ᶜ-decreasingʳ γ δ r ∙ PE.refl
+⊛ᶜ-decreasingʳ (γ ∙ 𝟘) (δ ∙ ω) r = ⊛ᶜ-decreasingʳ γ δ r ∙ PE.refl
+⊛ᶜ-decreasingʳ (γ ∙ ω) (δ ∙ 𝟘) r = ⊛ᶜ-decreasingʳ γ δ r ∙ PE.refl
+⊛ᶜ-decreasingʳ (γ ∙ ω) (δ ∙ ω) r = ⊛ᶜ-decreasingʳ γ δ r ∙ PE.refl
 
 -- 𝟘 is the greatest element of the erasure modality
 -- p ≤ 𝟘
 
 greatest-elem : (p : Erasure) → p ≤ 𝟘
-greatest-elem p = PE.refl
+greatest-elem 𝟘 = PE.refl
+greatest-elem ω = PE.refl
 
 -- ω is the least element of the erasure modality
 -- ω ≤ p
 
 least-elem : (p : Erasure) → ω ≤ p
-least-elem 𝟘 = PE.refl
-least-elem ω = PE.refl
+least-elem p = PE.refl
 
 
 -- 𝟘 is the greatest element of the erasure modality

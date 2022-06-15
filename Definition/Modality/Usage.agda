@@ -85,7 +85,7 @@ data _▸_ {n : Nat} : (γ : Conₘ n) → Term n → Set (a ⊔ ℓ) where
             → γ ▸ z
             → δ ∙ p ∙ r ▸ s
             → η ▸ n
-            → nrᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r ▸ natrec p r G z s n
+            → (γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r ▸ natrec p r G z s n
 
   Emptyrecₘ : γ ▸ t
             → p ·ᶜ γ ▸ Emptyrec p A t
@@ -129,4 +129,4 @@ mutual
         δ′ = ⌈ s ⌉
         η  = ⌈ n ⌉
         δ  = tailₘ (tailₘ δ′)
-    in  nrᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r
+    in  (γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r

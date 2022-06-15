@@ -17,6 +17,7 @@ record Modality : Set (a ⊔ ℓ) where
   infixr 40 _∧_
   infixr 45 _·_
   infix  10 _≤_
+  infix  50 _⊛_▷_
 
   field
     -- A modality consists of a type M with three binary operations...
@@ -24,8 +25,8 @@ record Modality : Set (a ⊔ ℓ) where
     _·_ : Op₂ M -- Multiplication
     _∧_ : Op₂ M -- Meet
 
-    -- ... one natural number-indexed tertiary operator...
-    nrⁿ : Nat → Op₃ M
+    -- ... one tertiary operator...
+    _⊛_▷_ : Op₃ M
 
     -- ... and two special elements
     𝟘 : M
@@ -49,12 +50,11 @@ record Modality : Set (a ⊔ ℓ) where
     -- The semiring is positive
     +-positive          : (p q : M) → 𝟘 ≤ (p + q) → 𝟘 ≤ p × 𝟘 ≤ q
 
-    -- nr is a solution to the following recurrence relation
-    nrⁿ-rec : (n : Nat) (p q r : M) → nrⁿ (1+ n) p q r ≈ p ∧ (q + r · nrⁿ n p q r)
-    -- The base case value of nrᶜ is 𝟘
-    nrⁿ-0 : (p q r : M) → nrⁿ 0 p q r ≈ 𝟘
-    -- nrⁿ has a fixpoint
-    nrⁿ-fix : ∃ (λ n → ∀ (p q r : M) → nrⁿ (1+ n) p q r ≈ nrⁿ n p q r)
+    -- ⊛ is a solution to the following system of inequalities
+    ⊛-ineq : ((p q r : M) → p ⊛ q ▷ r ≤ q + r · p ⊛ q ▷ r)
+           × ((p q r : M) → p ⊛ q ▷ r ≤ p)
+    -- ⊛ respects the equivalence relation
+    ⊛-cong : ∀ {p p′ q q′ r r′} → p ≈ p′ → q ≈ q′ → r ≈ r′ → p ⊛ q ▷ r ≈ p′ ⊛ q′ ▷ r′
 
     -- Multiplication distributes over addition
     ·-distrib-+         : _·_ DistributesOver _+_
@@ -63,12 +63,15 @@ record Modality : Set (a ⊔ ℓ) where
     -- Addition distributes over meet
     +-distrib-∧         : _+_ DistributesOver _∧_
 
-    -- ≈ is an equivallence relation
-    ≈-equivalence       : IsEquivalence _≈_
+    -- addition is sub-interchangable over ⊛ w.r.t the first two arguments
+    +-sub-interchangable-⊛ : (r : M) → _+_ SubInterchangable (_⊛_▷ r) by _≤_
+    -- multiplication is right sub-distributive over ⊛ w.r.t the first two arguments
+    ·-sub-distribʳ-⊛ : (r : M) → _·_ SubDistributesOverʳ (_⊛_▷ r) by _≤_
+    -- ⊛ is sub-distributive over meet w.r.t the first two arguments
+    ⊛-sub-distrib-∧    : (r : M) → (_⊛_▷ r) SubDistributesOver _∧_ by _≤_
 
-  -- The fixpoint of nrⁿ defines a tertiary operator
-  nr : Op₃ M
-  nr = nrⁿ (proj₁ nrⁿ-fix)
+    -- ≈ is an equivalence relation
+    ≈-equivalence       : IsEquivalence _≈_
 
   -- Easier access to some operator properties
   +-comm : Commutative _+_
@@ -112,3 +115,9 @@ record Modality : Set (a ⊔ ℓ) where
 
   ∧-cong : Congruent₂ _∧_
   ∧-cong = IsSemilattice.∧-cong ∧-Semilattice
+
+  ⊛-ineq₁ : (p q r : M) → p ⊛ q ▷ r ≤ q + r · (p ⊛ q ▷ r)
+  ⊛-ineq₁ = proj₁ ⊛-ineq
+
+  ⊛-ineq₂ : (p q r : M) → p ⊛ q ▷ r ≤ p
+  ⊛-ineq₂ = proj₂ ⊛-ineq

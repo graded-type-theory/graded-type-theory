@@ -66,35 +66,32 @@ usagePresTerm γ▸natrec (natrec-subst x x₁ x₂ t⇒u) with inv-usage-natrec
 ... | invUsageNatrec δ▸z η▸s θ▸n γ≤X = sub (natrecₘ δ▸z η▸s (usagePresTerm θ▸n t⇒u)) γ≤X
 
 usagePresTerm γ▸natrec (natrec-zero {p = p} {r = r} x x₁ x₂) with inv-usage-natrec γ▸natrec
-... | invUsageNatrec {δ = δ} {θ = θ} δ▸z η▸s θ▸n γ≤nr with inv-usage-zero θ▸n
-... | θ≤𝟘 = sub δ▸z (≤ᶜ-trans γ≤nr nr≤δ)
+... | invUsageNatrec {δ = δ} {θ = θ} δ▸z η▸s θ▸n γ≤γ′ with inv-usage-zero θ▸n
+... | θ≤𝟘 = sub δ▸z (≤ᶜ-trans γ≤γ′ γ′≤δ)
   where
   open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
-  nr≤δ = begin
-    nrᶜ (δ ∧ᶜ θ) (_ +ᶜ p ·ᶜ _) r ≈⟨ nrᶜ-rec (δ ∧ᶜ θ) _ r ⟩
-    (δ ∧ᶜ θ) ∧ᶜ _                ≤⟨ ∧ᶜ-decreasingˡ (δ ∧ᶜ θ) _ ⟩
-    δ ∧ᶜ θ                       ≤⟨ ∧ᶜ-decreasingˡ δ θ ⟩
-    δ                            ∎
+  γ′≤δ = begin
+    (δ ∧ᶜ θ) ⊛ᶜ (_ +ᶜ p ·ᶜ _) ▷ r ≤⟨ ⊛ᶜ-ineq₂ (δ ∧ᶜ θ) _ r ⟩
+    δ ∧ᶜ θ                        ≤⟨ ∧ᶜ-decreasingˡ δ θ ⟩
+    δ                             ∎
 
 usagePresTerm {γ = γ} γ▸natrec (natrec-suc {p = p} {r = r} x x₁ x₂ x₃) with inv-usage-natrec γ▸natrec
 ... | invUsageNatrec {δ = δ} {η} {θ} δ▸z η▸s θ▸sn γ≤γ′ with inv-usage-suc θ▸sn
 ... | invUsageSuc {δ = θ′} θ′▸n θ≤θ′ =
-  sub (doubleSubstₘ-lemma η▸s (natrecₘ δ▸z η▸s (sub θ′▸n θ≤θ′)) θ′▸n) le
+  sub (doubleSubstₘ-lemma η▸s (natrecₘ δ▸z η▸s (sub θ′▸n θ≤θ′)) θ′▸n) γ≤γ″
   where
   open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
-  NR = nrᶜ (δ ∧ᶜ θ) (η +ᶜ p ·ᶜ θ) r
-  le = begin
+  γ′ = (δ ∧ᶜ θ) ⊛ᶜ (η +ᶜ p ·ᶜ θ) ▷ r
+  γ≤γ″ = begin
       γ       ≤⟨ γ≤γ′ ⟩
-      NR      ≈⟨ nrᶜ-rec _ _ _ ⟩
-      (δ ∧ᶜ θ) ∧ᶜ ((η +ᶜ p ·ᶜ θ) +ᶜ r ·ᶜ NR)
-              ≤⟨ ∧ᶜ-decreasingʳ (δ ∧ᶜ θ) _ ⟩
-      (η +ᶜ p ·ᶜ θ) +ᶜ r ·ᶜ NR
-              ≈⟨ +ᶜ-assoc η (p ·ᶜ θ) (r ·ᶜ nrᶜ (δ ∧ᶜ θ) (η +ᶜ (p ·ᶜ θ)) r) ⟩
-      η +ᶜ p ·ᶜ θ +ᶜ r ·ᶜ NR
-              ≈⟨ +ᶜ-cong ≈ᶜ-refl (+ᶜ-comm (p ·ᶜ θ) (r ·ᶜ nrᶜ (δ ∧ᶜ θ) (η +ᶜ (p ·ᶜ θ)) r)) ⟩
-      η +ᶜ r ·ᶜ NR +ᶜ p ·ᶜ θ
+      γ′      ≤⟨ ⊛ᶜ-ineq₁ _ _ _ ⟩
+      (η +ᶜ p ·ᶜ θ) +ᶜ r ·ᶜ γ′
+              ≈⟨ +ᶜ-assoc η (p ·ᶜ θ) (r ·ᶜ (δ ∧ᶜ θ) ⊛ᶜ (η +ᶜ (p ·ᶜ θ)) ▷ r) ⟩
+      η +ᶜ p ·ᶜ θ +ᶜ r ·ᶜ γ′
+              ≈⟨ +ᶜ-cong ≈ᶜ-refl (+ᶜ-comm (p ·ᶜ θ) (r ·ᶜ (δ ∧ᶜ θ) ⊛ᶜ (η +ᶜ (p ·ᶜ θ)) ▷ r)) ⟩
+      η +ᶜ r ·ᶜ γ′ +ᶜ p ·ᶜ θ
               ≤⟨ +ᶜ-monotoneʳ (+ᶜ-monotoneʳ (·ᶜ-monotoneʳ θ≤θ′)) ⟩
-      η +ᶜ r ·ᶜ NR +ᶜ p ·ᶜ θ′ ∎
+      η +ᶜ r ·ᶜ γ′ +ᶜ p ·ᶜ θ′ ∎
 
 usagePresTerm γ▸prodrec (prodrec-subst x x₁ x₂ x₃ x₄) with inv-usage-prodrec γ▸prodrec
 ... | invUsageProdrec δ▸t η▸u γ≤γ′ = sub (prodrecₘ (usagePresTerm δ▸t x₄) η▸u) γ≤γ′
@@ -121,3 +118,43 @@ usagePresTerm γ▸et (Emptyrec-subst x t⇒u) with inv-usage-Emptyrec γ▸et
 
 usagePres : γ ▸ A → Γ ⊢ A ⇒ B → γ ▸ B
 usagePres γ▸A (univ A⇒B) = usagePresTerm γ▸A A⇒B
+
+open import Tools.Fin
+fst′ : Term (1+ n) → Term n → Term n
+fst′ A t = prodrec 𝟙 A t (var (x0 +1))
+
+snd′ : Term n
+snd′ = lam {!!} (lam {!!} (lam 𝟙 (prodrec 𝟙 (var (x0 +1 +1)) (var x0) (var x0))))
+
+
+foo : γ ▸ t → γ ▸ fst′ A t
+foo ▸t = sub (prodrecₘ ▸t (sub var {!!})) {!!} --prodrecₘ ▸t (sub var ((? ∙ ≤-refl) ∙ {!𝟙≤𝟘!})) -- ε ∙ 𝟙 ∙ 𝟙 ≤ 𝟘ᶜ , x1 ≔ 𝟙
+
+⊢snd′ : ⊢ Γ → Γ ⊢ snd′ ∷ (Π 𝟘 , 𝟙 ▷ U ▹ (Π 𝟘 , 𝟙 ▷ U ▹ (Π 𝟙 , 𝟙 ▷ Σ _ ▷ (var (x0 +1)) ▹ (var (x0 +1)) ▹ var (x0 +1))))
+-- (Π {!!} , {!!} ▷ U ▹ (Π {!!} , {!!} ▷ U ▹ (Π {!!} , {!!} ▷ (Σ {!!} ▷ (var (x0 +1 +1)) ▹ (var x0 +1)) ▹ (var (x0 +1)))))
+⊢snd′ ⊢Γ =
+  let
+      Γ⊢U = Uⱼ ⊢Γ
+      ⊢ΓU = ⊢Γ ∙ Γ⊢U
+      ΓU⊢U = Uⱼ ⊢ΓU
+      ⊢ΓUU = ⊢ΓU ∙ ΓU⊢U
+      ΓUU⊢x₁ = univ (var ⊢ΓUU (there here))
+      ΓUUx₁⊢x₁ = univ (var (⊢ΓUU ∙ ΓUU⊢x₁) (there here))
+      ΓUU⊢Σ = Σⱼ ΓUU⊢x₁ ▹ ΓUUx₁⊢x₁
+      ⊢ΓUUΣ = ⊢ΓUU ∙ ΓUU⊢Σ
+      ΓUUΣ⊢x₂ = var ⊢ΓUUΣ (there (there here))
+  in  lamⱼ Γ⊢U (lamⱼ ΓU⊢U (lamⱼ ΓUU⊢Σ
+           (prodrecⱼ (univ ΓUUΣ⊢x₂)
+                     (univ (var (⊢ΓUUΣ ∙ univ ΓUUΣ⊢x₂) (there (there here))))
+                     (univ (var (⊢ΓUUΣ ∙ (Σⱼ (univ ΓUUΣ⊢x₂) ▹ (univ (var (⊢ΓUUΣ ∙ univ ΓUUΣ⊢x₂) (there (there here)))))) (there (there here))))
+                     (var ⊢ΓUUΣ here)
+                     (var (⊢ΓUUΣ ∙ univ ΓUUΣ⊢x₂ ∙ univ (var (⊢ΓUUΣ ∙ univ ΓUUΣ⊢x₂) (there (there here)))) here))))
+
+bound : ∀ p → p ≤ 𝟘
+bound = {!!}
+
+boundᶜ : γ ≤ᶜ 𝟘ᶜ
+boundᶜ = {!!}
+
+▸snd′ : ∃ λ γ → γ ▸ snd′
+▸snd′ = 𝟘ᶜ , (lamₘ (lamₘ (lamₘ (sub (prodrecₘ var (sub var ((boundᶜ ∙ bound 𝟙) ∙ ≤-refl))) ({!!} ∙ {!!} ∙ {!!})))))

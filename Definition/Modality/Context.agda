@@ -19,6 +19,7 @@ infixr 40 _+ᶜ_
 infixr 40 _∧ᶜ_
 infixr 45 _·ᶜ_
 infixr 45 _*_
+infix  50 _⊛ᶜ_▷_
 infix  10 _≤ᶜ_
 infix  35 _,_≔_
 infix  60 _⟨_⟩
@@ -89,11 +90,11 @@ p ·ᶜ (γ ∙ q) = (p ·ᶜ γ) ∙ (p · q)
 _≤ᶜ_ : (γ δ : Conₘ n) → Set (a ⊔ ℓ)
 γ ≤ᶜ δ = γ ≈ᶜ γ ∧ᶜ δ
 
--- nr-recurrence relation lifted to modality contexts
+-- ⊛ lifted to modality contexts
 
-nrᶜ : (γ δ : Conₘ n) (r : M) → Conₘ n
-nrᶜ ε ε r = ε
-nrᶜ (γ ∙ p) (δ ∙ q) r = (nrᶜ γ δ r) ∙ nr p q r
+_⊛ᶜ_▷_ : (γ δ : Conₘ n) (r : M) → Conₘ n
+ε ⊛ᶜ ε ▷ r = ε
+(γ ∙ p) ⊛ᶜ (δ ∙ q) ▷ r = (γ ⊛ᶜ δ ▷ r) ∙ (p ⊛ q ▷ r)
 
 -- Zero modality context
 

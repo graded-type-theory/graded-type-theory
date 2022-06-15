@@ -24,11 +24,6 @@ open import Definition.Modality Unit′ public
 _+_ : Op₂ ⊤
 _ + _ = tt
 
--- Trivial recurrence function
-
-nrⁿ : (n : Nat) → Op₃ ⊤
-nrⁿ _ _ _ _ = tt
-
 infixr 20 _+_
 
 -- Properties of +
@@ -137,22 +132,24 @@ infixr 20 _+_
 
 UnitModality : Modality
 UnitModality = record
-  { _+_                  = _+_
-  ; _·_                  = _+_
-  ; _∧_                  = _+_
-  ; nrⁿ                  = nrⁿ
-  ; 𝟘                    = tt
-  ; 𝟙                    = tt
-  ; +-CommutativeMonoid  = +-CommutativeMonoid
-  ; ·-Monoid             = +-Monoid
-  ; ∧-Semilattice        = +-Semilattice
-  ; ·-zero               = (λ _ → refl)    , (λ _ → refl)
-  ; +-positive           = λ _ _ _ → refl , refl
-  ; nrⁿ-rec              = λ _ _ _ _ → refl
-  ; nrⁿ-0                = λ _ _ _ → refl
-  ; nrⁿ-fix              = 0 , (λ _ _ _ → refl)
+  { _+_ = _+_
+  ; _·_ = _+_
+  ; _∧_ = _+_
+  ; _⊛_▷_ = λ p q r → tt
+  ; 𝟘 = tt
+  ; 𝟙 = tt
+  ; +-CommutativeMonoid = +-CommutativeMonoid
+  ; ·-Monoid = +-Monoid
+  ; ∧-Semilattice = +-Semilattice
+  ; ·-zero = (λ x → refl) , (λ x → refl)
+  ; +-positive = λ p q _ → refl , refl
+  ; ⊛-ineq = (λ x x₁ x₂ → refl) , (λ x x₁ x₂ → refl)
+  ; ⊛-cong = λ _ _ _ → refl
   ; ·-distrib-+          = +-Distributiveˡ , +-Distributiveʳ
   ; ·-distrib-∧          = +-Distributiveˡ , +-Distributiveʳ
   ; +-distrib-∧          = +-Distributiveˡ , +-Distributiveʳ
-  ; ≈-equivalence        = isEquivalence
+  ; +-sub-interchangable-⊛ = λ r w x y z → refl
+  ; ·-sub-distribʳ-⊛ = λ r x y z → refl
+  ; ⊛-sub-distrib-∧ = λ r → (λ x x₁ x₂ → refl) , (λ x x₁ x₂ → refl)
+  ; ≈-equivalence = isEquivalence
   }

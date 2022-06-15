@@ -119,27 +119,25 @@ private
   pη = p ·ᶜ η
   qη = q ·ᶜ η
 
--- Modality substitution application sub-distributes over the two first arguments of nrᶜ
--- Ψ *> nrᶜ γ δ r ≤ nrᶜ (Ψ *> γ) (Ψ *> δ) r
--- Proof by induction on Ψ using distributivity properties of nrᶜ
+-- Modality substitution application sub-distributes over the two first arguments of ⊛ᶜ
+-- Ψ *> γ ⊛ᶜ δ ▷ r ≤ (Ψ *> γ) ⊛ (Ψ *> δ) ▷ r
+-- Proof by induction on Ψ using sub-distributivity and interchange properties of ⊛ᶜ
 
-*>-sub-distrib-nrᶜ : (Ψ : Substₘ m n) (γ δ : Conₘ n) (r : M)
-                   → Ψ *> nrᶜ γ δ r ≤ᶜ nrᶜ (Ψ *> γ) (Ψ *> δ) r
-*>-sub-distrib-nrᶜ [] ε ε r = ≤ᶜ-reflexive (≈ᶜ-sym (nrᶜ-𝟘ᶜ r))
-*>-sub-distrib-nrᶜ (Ψ ⊙ η) (γ ∙ p) (δ ∙ q) r = begin
-  (Ψ ⊙ η) *> nrᶜ (γ ∙ p) (δ ∙ q) r
+*>-sub-distrib-⊛ᶜ : (Ψ : Substₘ m n) (γ δ : Conₘ n) (r : M)
+                   → Ψ *> (γ ⊛ᶜ δ ▷ r) ≤ᶜ (Ψ *> γ) ⊛ᶜ (Ψ *> δ) ▷ r
+*>-sub-distrib-⊛ᶜ [] ε ε r = ≤ᶜ-reflexive (≈ᶜ-sym (⊛ᶜ-idem-𝟘ᶜ r))
+*>-sub-distrib-⊛ᶜ (Ψ ⊙ η) (γ ∙ p) (δ ∙ q) r = begin
+  (Ψ ⊙ η) *> ((γ ∙ p) ⊛ᶜ (δ ∙ q) ▷ r)
       ≡⟨⟩
-  (Ψ ⊙ η) *> (nrᶜ γ δ r ∙ nr p q r)
+  (Ψ ⊙ η) *> (γ ⊛ᶜ δ ▷ r ∙ p ⊛ q ▷ r)
       ≡⟨⟩
-  nr p q r ·ᶜ η +ᶜ Ψ *> nrᶜ γ δ r
-      ≤⟨ +ᶜ-monotoneʳ  (*>-sub-distrib-nrᶜ Ψ γ δ r) ⟩
-  nr p q r ·ᶜ η +ᶜ nrᶜ (Ψ *> γ) (Ψ *> δ) r
-      ≈˘⟨ +ᶜ-cong (·ᶜ-distribʳ-nrᶜ p q r η) ≈ᶜ-refl ⟩
-  nrᶜ (p ·ᶜ η) (q ·ᶜ η) r +ᶜ nrᶜ (Ψ *> γ) (Ψ *> δ) r
-      ≤⟨ +ᶜ-super-distrib-nrᶜ (p ·ᶜ η) (Ψ *> γ) (q ·ᶜ η) (Ψ *> δ) r ⟩
-  nrᶜ (p ·ᶜ η +ᶜ Ψ *> γ) (q ·ᶜ η +ᶜ Ψ *> δ) r
+  p ⊛ q ▷ r ·ᶜ η +ᶜ Ψ *> (γ ⊛ᶜ δ ▷ r)
+      ≤⟨ +ᶜ-monotone (·ᶜ-sub-distribʳ-⊛ p q r η) (*>-sub-distrib-⊛ᶜ Ψ γ δ r) ⟩
+  (p ·ᶜ η) ⊛ᶜ (q ·ᶜ η) ▷ r +ᶜ (Ψ *> γ) ⊛ᶜ (Ψ *> δ) ▷ r
+      ≤⟨ +ᶜ-sub-interchangable-⊛ᶜ r (p ·ᶜ η) (q ·ᶜ η) (Ψ *> γ) (Ψ *> δ) ⟩
+  (p ·ᶜ η +ᶜ Ψ *> γ) ⊛ᶜ (q ·ᶜ η +ᶜ Ψ *> δ) ▷ r
       ≡⟨⟩
-  nrᶜ ((Ψ ⊙ η) *> (γ ∙ p)) ((Ψ ⊙ η) *> (δ ∙ q)) r ∎
+  ((Ψ ⊙ η) *> (γ ∙ p)) ⊛ᶜ ((Ψ ⊙ η) *> (δ ∙ q)) ▷ r ∎
   where open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
 --- The zero-context is a right zero to modality substitution application.
@@ -433,15 +431,15 @@ substₘ-lemma Ψ σ Ψ▶σ (natrecₘ {γ = γ} {δ = δ} {p} {r} {η = η} γ
     liftSubstₘ (liftSubstₘ Ψ) *> (δ ∙ p ∙ r) ∎)
     where open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
   le = begin
-    Ψ *> nrᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r
-         ≤⟨ *>-sub-distrib-nrᶜ Ψ _ _ r ⟩
-    nrᶜ (Ψ *> (γ ∧ᶜ η)) (Ψ *> (δ +ᶜ p ·ᶜ η)) r
-         ≈⟨ nrᶜ-cong ≈ᶜ-refl (*>-distrib-+ᶜ Ψ δ (p ·ᶜ η)) ≈-refl ⟩
-    nrᶜ (Ψ *> (γ ∧ᶜ η)) (Ψ *> δ +ᶜ Ψ *> (p ·ᶜ η)) r
-         ≤⟨ nrᶜ-monotone (*>-sub-distrib-∧ᶜ Ψ γ η) ≤ᶜ-refl ≤-refl ⟩
-    nrᶜ (Ψ *> γ ∧ᶜ Ψ *> η) (Ψ *> δ +ᶜ Ψ *> (p ·ᶜ η)) r
-         ≈⟨ nrᶜ-cong ≈ᶜ-refl (+ᶜ-cong ≈ᶜ-refl (*>-distrib-·ᶜ Ψ p η)) ≈-refl ⟩
-    nrᶜ (Ψ *> γ ∧ᶜ Ψ *> η) (Ψ *> δ +ᶜ p ·ᶜ Ψ *> η) r ∎
+    Ψ *> ((γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r)
+         ≤⟨ *>-sub-distrib-⊛ᶜ Ψ _ _ r ⟩
+    (Ψ *> (γ ∧ᶜ η)) ⊛ᶜ (Ψ *> (δ +ᶜ p ·ᶜ η)) ▷ r
+         ≈⟨ ⊛ᶜ-cong ≈ᶜ-refl (*>-distrib-+ᶜ Ψ δ (p ·ᶜ η)) ≈-refl ⟩
+    (Ψ *> (γ ∧ᶜ η)) ⊛ᶜ (Ψ *> δ +ᶜ Ψ *> (p ·ᶜ η)) ▷ r
+         ≤⟨ ⊛ᶜ-monotone (*>-sub-distrib-∧ᶜ Ψ γ η) ≤ᶜ-refl ⟩
+    (Ψ *> γ ∧ᶜ Ψ *> η) ⊛ᶜ (Ψ *> δ +ᶜ Ψ *> (p ·ᶜ η)) ▷ r
+         ≈⟨ ⊛ᶜ-cong ≈ᶜ-refl (+ᶜ-cong ≈ᶜ-refl (*>-distrib-·ᶜ Ψ p η)) ≈-refl ⟩
+    (Ψ *> γ ∧ᶜ Ψ *> η) ⊛ᶜ (Ψ *> δ +ᶜ p ·ᶜ Ψ *> η) ▷ r ∎
     where open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
 substₘ-lemma Ψ σ Ψ▶σ (Emptyrecₘ γ▸t) =

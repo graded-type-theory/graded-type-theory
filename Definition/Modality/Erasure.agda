@@ -19,18 +19,24 @@ open import Definition.Modality Erasure′ public
 open import Tools.Algebra Erasure′
 open import Tools.Nat hiding (_+_)
 
+infixl 40 _+_
+infixl 40 _∧_
+infixl 45 _·_
+infix  10 _≤_
+infix  50 _⊛_▷_
+
 
 -- Addition of erasure annotations
 
 _+_ : Op₂ Erasure
-x + 𝟘 = x
-x + ω = ω
+𝟘 + q = q
+ω + q = ω
 
 -- Multiplication of erasure annotations
 
 _·_ : Op₂ Erasure
-x · 𝟘 = 𝟘
-x · ω = x
+𝟘 · q = 𝟘
+ω · q = q
 
 -- Meet for erasure annotations coincides with addition
 
@@ -39,17 +45,9 @@ _∧_ = _+_
 
 -- Natrec recurrence function
 
-nr : Op₃ Erasure
-nr 𝟘 q 𝟘 = q
-nr 𝟘 𝟘 ω = 𝟘
-nr 𝟘 ω ω = ω
-nr ω q r = ω
+_⊛_▷_ : Op₃ Erasure
+p ⊛ q ▷ r = p + q
 
--- Iteratively defined natrec recurrence function
-
-nrⁿ : Nat → Op₃ Erasure
-nrⁿ Nat.zero p q r = 𝟘
-nrⁿ (1+ n) p q r = p ∧ (q + (r · (nrⁿ n p q r)))
 
 -- Ordering relation for erasures
 -- Reflexive closure of ω ≤ 𝟘
@@ -74,8 +72,8 @@ p ≤ q = p ≡ p ∧ q
 -- p + (q + r) ≡ (p + q) + r
 
 +-Associative : Associative _+_
-+-Associative p q 𝟘 = refl
-+-Associative p q ω = refl
++-Associative 𝟘 q r = refl
++-Associative ω q r = refl
 
 -- Addition is idempotent
 
@@ -87,14 +85,14 @@ p ≤ q = p ≡ p ∧ q
 -- 𝟘 + p ≡ p
 
 +-LeftIdentity : LeftIdentity 𝟘 _+_
-+-LeftIdentity 𝟘 = refl
-+-LeftIdentity ω = refl
++-LeftIdentity p = refl
 
 -- 𝟘 is a right identity of addition
 -- p + 𝟘 ≡ p
 
 +-RightIdentity : RightIdentity 𝟘 _+_
-+-RightIdentity x = refl
++-RightIdentity 𝟘 = refl
++-RightIdentity ω = refl
 
 -- 𝟘 is an identity of addition
 -- 𝟘 + p ≡ p ≡ p + 𝟘
@@ -119,21 +117,21 @@ p ≤ q = p ≡ p ∧ q
 -- p · (q · r) ≡ (p · q) · r
 
 ·-Associative : Associative _·_
-·-Associative x y 𝟘 = refl
-·-Associative x y ω = refl
+·-Associative 𝟘 q r = refl
+·-Associative ω q r = refl
 
 -- 𝟘 is a left zero for multiplication
 -- 𝟘 · p ≡ 𝟘
 
 ·-LeftZero : LeftZero 𝟘 _·_
-·-LeftZero 𝟘 = refl
-·-LeftZero ω = refl
+·-LeftZero p = refl
 
 -- 𝟘 is a right zero for multiplication
 -- p · 𝟘 ≡ 𝟘
 
 ·-RightZero : RightZero 𝟘 _·_
-·-RightZero x = refl
+·-RightZero 𝟘 = refl
+·-RightZero ω = refl
 
 -- 𝟘 is a zero for multiplication
 -- 𝟘 · p ≡ 𝟘 ≡ p · 𝟘
@@ -145,14 +143,14 @@ p ≤ q = p ≡ p ∧ q
 -- ω · p ≡ p
 
 ·-LeftIdentity : LeftIdentity ω _·_
-·-LeftIdentity 𝟘 = refl
-·-LeftIdentity ω = refl
+·-LeftIdentity p = refl
 
 -- ω is a right identity for multiplication
 -- p · ω ≡ p
 
 ·-RightIdentity : RightIdentity ω _·_
-·-RightIdentity x = refl
+·-RightIdentity 𝟘 = refl
+·-RightIdentity ω = refl
 
 -- ω is an identity for multiplication
 -- ω · p ≡ p ≡ p · ω
@@ -160,31 +158,61 @@ p ≤ q = p ≡ p ∧ q
 ·-Identity : Identity ω _·_
 ·-Identity = ·-LeftIdentity , ·-RightIdentity
 
-----------------------------------------------
--- Properties of natrec recurrence function --
-----------------------------------------------
+----------------------
+-- Properties of ⊛  --
+----------------------
 
--- nr iteration reaches a fixpoint after one iteration
--- nrⁿ 1 p q r ≡ nrⁿ 0 p q r
+-- p ⊛ᵣ q is a solution to the inequality x ≤ q + rx
+-- p ⊛ᵣ q ≤ q + r · (p ⊛ᵣ q)
 
-nr-fix₁ : (p q r : Erasure) → (p ∧ (q + (r · (p ∧ q)))) ≡ (p ∧ q)
-nr-fix₁ 𝟘 𝟘 r = refl
-nr-fix₁ ω 𝟘 𝟘 = refl
-nr-fix₁ ω 𝟘 ω = refl
-nr-fix₁ p ω 𝟘 = refl
-nr-fix₁ p ω ω = refl
+⊛-ineq₁ : (p q r : Erasure) → p ⊛ q ▷ r ≤ q + r · p ⊛ q ▷ r
+⊛-ineq₁ 𝟘 𝟘 𝟘 = refl
+⊛-ineq₁ 𝟘 𝟘 ω = refl
+⊛-ineq₁ 𝟘 ω r = refl
+⊛-ineq₁ ω q r = refl
 
--- nr coincides with nrⁿ at the fixpoint, i.e. with nr in the modality ringoid.
--- nr p q r ≡ nrⁿ 1 p q r
+-- p ⊛ᵣ q is a solution to the the inequality x ≤ p
+-- p ⊛ᵣ q ≤ p
 
-nr-correct : (p q r : Erasure) → nr p q r ≡ nrⁿ 1 p q r
-nr-correct 𝟘 𝟘 𝟘 = refl
-nr-correct 𝟘 ω 𝟘 = refl
-nr-correct 𝟘 𝟘 ω = refl
-nr-correct 𝟘 ω ω = refl
-nr-correct ω 𝟘 r = refl
-nr-correct ω ω r = refl
+⊛-ineq₂ : (p q r : Erasure) → p ⊛ q ▷ r ≤ p
+⊛-ineq₂ 𝟘 𝟘 r = refl
+⊛-ineq₂ 𝟘 ω r = refl
+⊛-ineq₂ ω q r = refl
 
+-- Addition is sub-interchangable with ⊛ᵣ
+-- (p ⊛ᵣ q) + (p′ ⊛ᵣ q′) ≤ (p + p′) ⊛ᵣ (q + q′)
+
++-sub-interchangable-⊛ : (r : Erasure) → _+_ SubInterchangable (_⊛_▷ r) by _≤_
++-sub-interchangable-⊛ r 𝟘 𝟘 𝟘 𝟘 = refl
++-sub-interchangable-⊛ r 𝟘 𝟘 𝟘 ω = refl
++-sub-interchangable-⊛ r 𝟘 𝟘 ω q′ = refl
++-sub-interchangable-⊛ r 𝟘 ω p′ q′ = refl
++-sub-interchangable-⊛ r ω q p′ q′ = refl
+
+-- Multiplation right sub-distributes over ⊛ᵣ
+-- (p ⊛ᵣ p′) · q ≤ (p · q) ⊛ᵣ (p′ · q)
+
+·-sub-distribʳ-⊛ : (r : Erasure) → _·_ SubDistributesOverʳ (_⊛_▷ r) by _≤_
+·-sub-distribʳ-⊛ r q 𝟘 p′ = sym (+-Idempotent (p′ · q))
+·-sub-distribʳ-⊛ r 𝟘 ω 𝟘 = refl
+·-sub-distribʳ-⊛ r 𝟘 ω ω = refl
+·-sub-distribʳ-⊛ r ω ω p′ = refl
+
+-- ⊛ᵣ left sub-distributes over meet
+-- p ⊛ᵣ (q ∧ q′) ≤ (p ⊛ᵣ q) ∧ (p ⊛ᵣ q′)
+
+⊛-sub-distribˡ-∧ : (r : Erasure) → (_⊛_▷ r) SubDistributesOverˡ _∧_ by _≤_
+⊛-sub-distribˡ-∧ r 𝟘 q q′ = sym (+-Idempotent (q + q′))
+⊛-sub-distribˡ-∧ r ω q q′ = refl
+
+-- ⊛ᵣ left sub-distributes over meet
+-- (p ∧ p′) ⊛ᵣ q ≤ (p ⊛ᵣ q) ∧ (p′ ⊛ᵣ q)
+
+⊛-sub-distribʳ-∧ : (r : Erasure) → (_⊛_▷ r) SubDistributesOverʳ _∧_ by _≤_
+⊛-sub-distribʳ-∧ r q ω p′ = refl
+⊛-sub-distribʳ-∧ r q 𝟘 ω = refl
+⊛-sub-distribʳ-∧ r 𝟘 𝟘 𝟘 = refl
+⊛-sub-distribʳ-∧ r ω 𝟘 𝟘 = refl
 
 --------------------------------------------------------------------
 -- Distributive properties of addition, multiplication (and meet) --
@@ -194,17 +222,17 @@ nr-correct ω ω r = refl
 -- p · (q + r) ≡ (p · q) + (p · r)
 
 ·-distribˡ-+ : _·_ DistributesOverˡ _+_
-·-distribˡ-+ p q 𝟘 = refl
-·-distribˡ-+ ω q ω = refl
-·-distribˡ-+ 𝟘 𝟘 ω = refl
-·-distribˡ-+ 𝟘 ω ω = refl
+·-distribˡ-+ 𝟘 q r = refl
+·-distribˡ-+ ω q r = refl
 
 -- Multiplication is right distributive over addition
 -- (q + r) · p ≡ (q · p) + (r · p)
 
 ·-distribʳ-+ : _·_ DistributesOverʳ _+_
-·-distribʳ-+ 𝟘 q r = refl
-·-distribʳ-+ ω q r = refl
+·-distribʳ-+ p 𝟘 r = refl
+·-distribʳ-+ 𝟘 ω 𝟘 = refl
+·-distribʳ-+ 𝟘 ω ω = refl
+·-distribʳ-+ ω ω r = refl
 
 -- Multiplication is distributive over addition
 -- p · (q + r) ≡ (p · q) + (p · r) and (q + r) · p ≡ (q · p) + (r · p)
@@ -216,17 +244,17 @@ nr-correct ω ω r = refl
 -- p + (q + r) ≡ (p + q) + (p + r)
 
 +-distribˡ-+ : _+_ DistributesOverˡ _+_
-+-distribˡ-+ p q ω = refl
-+-distribˡ-+ 𝟘 q 𝟘 = refl
-+-distribˡ-+ ω 𝟘 𝟘 = refl
-+-distribˡ-+ ω ω 𝟘 = refl
++-distribˡ-+ 𝟘 q r = refl
++-distribˡ-+ ω q r = refl
 
 -- Addition is right distributive over addition
 -- (q + r) + p ≡ (q + p) + (r + p)
 
 +-distribʳ-+ : _+_ DistributesOverʳ _+_
-+-distribʳ-+ 𝟘 q r = refl
-+-distribʳ-+ ω q r = refl
++-distribʳ-+ p ω r = refl
++-distribʳ-+ 𝟘 𝟘 r = refl
++-distribʳ-+ ω 𝟘 𝟘 = refl
++-distribʳ-+ ω 𝟘 ω = refl
 
 -- Addition is distributive over addition
 -- p + (q + r) ≡ (p + q) + (p + r) and (q + r) + p ≡ (q + p) + (r + p)
@@ -318,22 +346,24 @@ nr-correct ω ω r = refl
 
 ErasureModality : Modality
 ErasureModality = record
-  { _+_                 = _+_
-  ; _·_                 = _·_
-  ; _∧_                 = _∧_
-  ; nrⁿ                 = nrⁿ
-  ; 𝟘                   = 𝟘
-  ; 𝟙                   = ω
+  { _+_ = _+_
+  ; _·_ = _·_
+  ; _∧_ = _∧_
+  ; _⊛_▷_ = _⊛_▷_
+  ; 𝟘 = 𝟘
+  ; 𝟙 = ω
   ; +-CommutativeMonoid = +-CommutativeMonoid
-  ; ·-Monoid            = ·-Monoid
-  ; ∧-Semilattice       = +-Semilattice
-  ; ·-zero              = ·-zero
-  ; +-positive          = +-positive
-  ; nrⁿ-rec             = λ n p q r → refl
-  ; nrⁿ-0               = λ p q r → refl
-  ; nrⁿ-fix             = 1 , nr-fix₁
-  ; ·-distrib-+         = ·-distrib-+
-  ; ·-distrib-∧         = ·-distrib-+
-  ; +-distrib-∧         = +-distrib-+
-  ; ≈-equivalence       = isEquivalence
+  ; ·-Monoid = ·-Monoid
+  ; ∧-Semilattice = +-Semilattice
+  ; ·-zero = ·-zero
+  ; +-positive = +-positive
+  ; ⊛-ineq = ⊛-ineq₁ , ⊛-ineq₂
+  ; ⊛-cong = cong₃ _⊛_▷_
+  ; ·-distrib-+ = ·-distrib-+
+  ; ·-distrib-∧ = ·-distrib-+
+  ; +-distrib-∧ = +-distrib-+
+  ; +-sub-interchangable-⊛ = +-sub-interchangable-⊛
+  ; ·-sub-distribʳ-⊛ = ·-sub-distribʳ-⊛
+  ; ⊛-sub-distrib-∧ = λ r → (⊛-sub-distribˡ-∧ r) , (⊛-sub-distribʳ-∧ r)
+  ; ≈-equivalence = isEquivalence
   }

@@ -69,14 +69,14 @@ update-distrib-∧ᶜ : (γ δ : Conₘ n) (p q : M) (x : Fin n)
 update-distrib-∧ᶜ (γ ∙ p′) (δ ∙ q′) p q x0 = PE.refl
 update-distrib-∧ᶜ (γ ∙ p′) (δ ∙ q′) p q (x +1) = cong (_∙ _) (update-distrib-∧ᶜ γ δ p q x)
 
--- Context update distributes over nrᶜ
--- nrᶜ γ δ r , x ≔ nr p q r ≡ nrᶜ (γ , x ≔ p) (δ , x ≔ q) r
+-- Context update distributes over ⊛ᶜ
+-- γ ⊛ᶜ δ ▷ r , x ≔ p ⊛ q ▷ r ≡ (γ , x ≔ p) ⊛ᶜ (δ , x ≔ q) ▷ r
 
-update-distrib-nrᶜ : (γ δ : Conₘ n) (r p q : M) (x : Fin n)
-                   → nrᶜ γ δ r , x ≔ (nr p q r) ≡ nrᶜ (γ , x ≔ p) (δ , x ≔ q) r
-update-distrib-nrᶜ (γ ∙ _) (δ ∙ _) r p q x0 = PE.refl
-update-distrib-nrᶜ (γ ∙ _) (δ ∙ _) r p q (x +1) =
-  cong (_∙ _) (update-distrib-nrᶜ γ δ r p q x)
+update-distrib-⊛ᶜ : (γ δ : Conₘ n) (r p q : M) (x : Fin n)
+                   → γ ⊛ᶜ δ ▷ r , x ≔ (p ⊛ q ▷ r) ≡ (γ , x ≔ p) ⊛ᶜ (δ , x ≔ q) ▷ r
+update-distrib-⊛ᶜ (γ ∙ _) (δ ∙ _) r p q x0 = PE.refl
+update-distrib-⊛ᶜ (γ ∙ _) (δ ∙ _) r p q (x +1) =
+  cong (_∙ _) (update-distrib-⊛ᶜ γ δ r p q x)
 
 -- Updating the head of a context leaves the tail untouched
 -- γ , x0 ≔ p ≡ tailₘ γ ∙ p
