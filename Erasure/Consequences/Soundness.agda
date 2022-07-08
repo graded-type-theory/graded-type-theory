@@ -1,5 +1,5 @@
 {-# OPTIONS --without-K --safe #-}
-open import Definition.Modality.Erasure
+open import Definition.Modality.Instances.Erasure
 
 open import Definition.Typed.EqualityRelation
 
@@ -163,7 +163,7 @@ soundness-ℕ′ t®v (sucʷ x whn) =
   in  sucʷ v⇒suc (soundness-ℕ′ t®v′ whn)
 
 -- WH reduction soundness of natural numbers
--- If t ® v ∷ℕ and WHℕ n t then WHℕ′ n v
+-- If ε ⊢ t ∷ ℕ and ε ▸ t and WHℕ n t then WHℕ′ n (erase t)
 
 soundness-ℕ : ε ⊢ t ∷ ℕ → ε ▸ t → WHℕ n t → WHℕ′ n (erase t)
 soundness-ℕ ⊢t γ▸t whn =
@@ -171,6 +171,21 @@ soundness-ℕ ⊢t γ▸t whn =
       t®t″ = irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ (idRed:*: (ℕⱼ ε))) t®t′
   in  soundness-ℕ′ t®t″ whn
 
+-- Helper lemma for existensial WH reduction soundness of natural numbers
+-- If t ® v ∷ℕ then ∃ n such that WHℕ n t and WHℕ′ n v
+
+soundness-ℕ-∃′ : t ® v ∷ℕ → ∃ λ n → WHℕ n t × WHℕ′ n v
+soundness-ℕ-∃′ (zeroᵣ x x₁) = 0 , zeroʷ x , zeroʷ x₁
+soundness-ℕ-∃′ (sucᵣ x x₁ t®v) with soundness-ℕ-∃′ t®v
+... | n , y , y₁ = 1+ n , sucʷ x y , sucʷ x₁ y₁
+
+-- Existensial WH reduction soundness for natural numbers
+-- If ε ⊢ t ∷ ℕ and ε ▸ t then ∃ n such that WHℕ n t and WHℕ′ n (erase t)
+
+soundness-ℕ-∃ : ε ⊢ t ∷ ℕ → ε ▸ t → ∃ λ n → WHℕ n t × WHℕ′ n (erase t)
+soundness-ℕ-∃ ⊢t ▸t =
+  let [ℕ] , t®v = fundamental′ ⊢t ▸t
+  in  soundness-ℕ-∃′ (irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ (idRed:*: (ℕⱼ ε))) t®v)
 
 -- Helper lemma for WH reduction soundness of unit
 

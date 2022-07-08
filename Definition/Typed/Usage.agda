@@ -119,42 +119,16 @@ usagePresTerm γ▸et (Emptyrec-subst x t⇒u) with inv-usage-Emptyrec γ▸et
 usagePres : γ ▸ A → Γ ⊢ A ⇒ B → γ ▸ B
 usagePres γ▸A (univ A⇒B) = usagePresTerm γ▸A A⇒B
 
-open import Tools.Fin
-fst′ : Term (1+ n) → Term n → Term n
-fst′ A t = prodrec 𝟙 A t (var (x0 +1))
+-- Term reduction closeure preserves modality usage
+-- If γ ▸ t and Γ ⊢ t ⇒* u ∷ A then γ ▸ u
 
-snd′ : Term n
-snd′ = lam {!!} (lam {!!} (lam 𝟙 (prodrec 𝟙 (var (x0 +1 +1)) (var x0) (var x0))))
+usagePres*Term : γ ▸ t → Γ ⊢ t ⇒* u ∷ A → γ ▸ u
+usagePres*Term γ▸t (id x) = γ▸t
+usagePres*Term γ▸t (x ⇨ t⇒u) = usagePres*Term (usagePresTerm γ▸t x) t⇒u
 
+-- Type reduction closeure preserves modality usage
+-- If γ ▸ A and Γ ⊢ A ⇒* B then γ ▸ B
 
-foo : γ ▸ t → γ ▸ fst′ A t
-foo ▸t = sub (prodrecₘ ▸t (sub var {!!})) {!!} --prodrecₘ ▸t (sub var ((? ∙ ≤-refl) ∙ {!𝟙≤𝟘!})) -- ε ∙ 𝟙 ∙ 𝟙 ≤ 𝟘ᶜ , x1 ≔ 𝟙
-
-⊢snd′ : ⊢ Γ → Γ ⊢ snd′ ∷ (Π 𝟘 , 𝟙 ▷ U ▹ (Π 𝟘 , 𝟙 ▷ U ▹ (Π 𝟙 , 𝟙 ▷ Σ _ ▷ (var (x0 +1)) ▹ (var (x0 +1)) ▹ var (x0 +1))))
--- (Π {!!} , {!!} ▷ U ▹ (Π {!!} , {!!} ▷ U ▹ (Π {!!} , {!!} ▷ (Σ {!!} ▷ (var (x0 +1 +1)) ▹ (var x0 +1)) ▹ (var (x0 +1)))))
-⊢snd′ ⊢Γ =
-  let
-      Γ⊢U = Uⱼ ⊢Γ
-      ⊢ΓU = ⊢Γ ∙ Γ⊢U
-      ΓU⊢U = Uⱼ ⊢ΓU
-      ⊢ΓUU = ⊢ΓU ∙ ΓU⊢U
-      ΓUU⊢x₁ = univ (var ⊢ΓUU (there here))
-      ΓUUx₁⊢x₁ = univ (var (⊢ΓUU ∙ ΓUU⊢x₁) (there here))
-      ΓUU⊢Σ = Σⱼ ΓUU⊢x₁ ▹ ΓUUx₁⊢x₁
-      ⊢ΓUUΣ = ⊢ΓUU ∙ ΓUU⊢Σ
-      ΓUUΣ⊢x₂ = var ⊢ΓUUΣ (there (there here))
-  in  lamⱼ Γ⊢U (lamⱼ ΓU⊢U (lamⱼ ΓUU⊢Σ
-           (prodrecⱼ (univ ΓUUΣ⊢x₂)
-                     (univ (var (⊢ΓUUΣ ∙ univ ΓUUΣ⊢x₂) (there (there here))))
-                     (univ (var (⊢ΓUUΣ ∙ (Σⱼ (univ ΓUUΣ⊢x₂) ▹ (univ (var (⊢ΓUUΣ ∙ univ ΓUUΣ⊢x₂) (there (there here)))))) (there (there here))))
-                     (var ⊢ΓUUΣ here)
-                     (var (⊢ΓUUΣ ∙ univ ΓUUΣ⊢x₂ ∙ univ (var (⊢ΓUUΣ ∙ univ ΓUUΣ⊢x₂) (there (there here)))) here))))
-
-bound : ∀ p → p ≤ 𝟘
-bound = {!!}
-
-boundᶜ : γ ≤ᶜ 𝟘ᶜ
-boundᶜ = {!!}
-
-▸snd′ : ∃ λ γ → γ ▸ snd′
-▸snd′ = 𝟘ᶜ , (lamₘ (lamₘ (lamₘ (sub (prodrecₘ var (sub var ((boundᶜ ∙ bound 𝟙) ∙ ≤-refl))) ({!!} ∙ {!!} ∙ {!!})))))
+usagePres* : γ ▸ A → Γ ⊢ A ⇒* B → γ ▸ B
+usagePres* γ▸A (id x) = γ▸A
+usagePres* γ▸A (x ⇨ A⇒B) = usagePres* (usagePres γ▸A x) A⇒B

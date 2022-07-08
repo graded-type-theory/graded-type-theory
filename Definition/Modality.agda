@@ -12,12 +12,12 @@ open import Tools.Nat hiding (_+_)
 open import Tools.Product
 
 -- Modality ringoid
-record Modality : Set (a ⊔ ℓ) where
+record ModalityWithout⊛ : Set (a ⊔ ℓ) where
   infixr 40 _+_
   infixr 40 _∧_
   infixr 45 _·_
   infix  10 _≤_
-  infix  50 _⊛_▷_
+
 
   field
     -- A modality consists of a type M with three binary operations...
@@ -25,8 +25,7 @@ record Modality : Set (a ⊔ ℓ) where
     _·_ : Op₂ M -- Multiplication
     _∧_ : Op₂ M -- Meet
 
-    -- ... one tertiary operator...
-    _⊛_▷_ : Op₃ M
+
 
     -- ... and two special elements
     𝟘 : M
@@ -50,11 +49,7 @@ record Modality : Set (a ⊔ ℓ) where
     -- The semiring is positive
     +-positive          : (p q : M) → 𝟘 ≤ (p + q) → 𝟘 ≤ p × 𝟘 ≤ q
 
-    -- ⊛ is a solution to the following system of inequalities
-    ⊛-ineq : ((p q r : M) → p ⊛ q ▷ r ≤ q + r · p ⊛ q ▷ r)
-           × ((p q r : M) → p ⊛ q ▷ r ≤ p)
-    -- ⊛ respects the equivalence relation
-    ⊛-cong : ∀ {p p′ q q′ r r′} → p ≈ p′ → q ≈ q′ → r ≈ r′ → p ⊛ q ▷ r ≈ p′ ⊛ q′ ▷ r′
+
 
     -- Multiplication distributes over addition
     ·-distrib-+         : _·_ DistributesOver _+_
@@ -63,12 +58,7 @@ record Modality : Set (a ⊔ ℓ) where
     -- Addition distributes over meet
     +-distrib-∧         : _+_ DistributesOver _∧_
 
-    -- addition is sub-interchangable over ⊛ w.r.t the first two arguments
-    +-sub-interchangable-⊛ : (r : M) → _+_ SubInterchangable (_⊛_▷ r) by _≤_
-    -- multiplication is right sub-distributive over ⊛ w.r.t the first two arguments
-    ·-sub-distribʳ-⊛ : (r : M) → _·_ SubDistributesOverʳ (_⊛_▷ r) by _≤_
-    -- ⊛ is sub-distributive over meet w.r.t the first two arguments
-    ⊛-sub-distrib-∧    : (r : M) → (_⊛_▷ r) SubDistributesOver _∧_ by _≤_
+
 
     -- ≈ is an equivalence relation
     ≈-equivalence       : IsEquivalence _≈_
@@ -115,6 +105,28 @@ record Modality : Set (a ⊔ ℓ) where
 
   ∧-cong : Congruent₂ _∧_
   ∧-cong = IsSemilattice.∧-cong ∧-Semilattice
+
+record Modality : Set (a ⊔ ℓ) where
+  infix  50 _⊛_▷_
+  field
+    modalityWithout⊛ : ModalityWithout⊛
+  open ModalityWithout⊛ modalityWithout⊛ public
+
+  field
+    -- ... one tertiary operator...
+    _⊛_▷_ : Op₃ M
+    -- ⊛ is a solution to the following system of inequalities
+    ⊛-ineq : ((p q r : M) → p ⊛ q ▷ r ≤ q + r · p ⊛ q ▷ r)
+           × ((p q r : M) → p ⊛ q ▷ r ≤ p)
+    -- ⊛ respects the equivalence relation
+    ⊛-cong : ∀ {p p′ q q′ r r′} → p ≈ p′ → q ≈ q′ → r ≈ r′ → p ⊛ q ▷ r ≈ p′ ⊛ q′ ▷ r′
+
+    -- addition is sub-interchangable over ⊛ w.r.t the first two arguments
+    +-sub-interchangable-⊛ : (r : M) → _+_ SubInterchangable (_⊛_▷ r) by _≤_
+    -- multiplication is right sub-distributive over ⊛ w.r.t the first two arguments
+    ·-sub-distribʳ-⊛ : (r : M) → _·_ SubDistributesOverʳ (_⊛_▷ r) by _≤_
+    -- ⊛ is sub-distributive over meet w.r.t the first two arguments
+    ⊛-sub-distrib-∧    : (r : M) → (_⊛_▷ r) SubDistributesOver _∧_ by _≤_
 
   ⊛-ineq₁ : (p q r : M) → p ⊛ q ▷ r ≤ q + r · (p ⊛ q ▷ r)
   ⊛-ineq₁ = proj₁ ⊛-ineq

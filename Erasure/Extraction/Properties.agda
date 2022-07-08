@@ -6,7 +6,7 @@ open import Erasure.Extraction
 open import Erasure.Target as T hiding (refl; trans)
 open import Erasure.Target.Properties.Substitution
 
-open import Definition.Modality.Erasure
+open import Definition.Modality.Instances.Erasure
 open import Definition.Untyped Erasure as U hiding (Wk; Term; wk; wkVar; _[_]; _[_,_]; liftSubst)
 
 open import Tools.Fin

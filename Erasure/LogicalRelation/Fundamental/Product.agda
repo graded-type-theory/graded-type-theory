@@ -1,5 +1,5 @@
 {-# OPTIONS --without-K --safe #-}
-open import Definition.Modality.Erasure
+open import Definition.Modality.Instances.Erasure
 
 open import Definition.Typed.EqualityRelation
 
@@ -35,7 +35,7 @@ import Definition.LogicalRelation.Weakening Erasure′ as W
 import Definition.LogicalRelation.Substitution.Irrelevance Erasure′ as IS
 
 open import Definition.Modality.Context ErasureModality
-open import Definition.Modality.Erasure.Properties
+open import Definition.Modality.Instances.Erasure.Properties
 
 open import Erasure.LogicalRelation
 open import Erasure.LogicalRelation.Conversion

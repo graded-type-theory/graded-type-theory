@@ -44,7 +44,6 @@ private
         × ((γ δ : Conₘ n) (r : M) → γ ⊛ᶜ δ ▷ r ≤ᶜ γ)
 ⊛ᶜ-ineq = ⊛ᶜ-ineq₁ , ⊛ᶜ-ineq₂
 
-
 -- ⊛ᶜ is idempotent on 𝟘ᶜ on the first two arguments
 -- 𝟘ᶜ ⊛ᶜ 𝟘ᶜ ▷ r ≈ᶜ 𝟘ᶜ
 

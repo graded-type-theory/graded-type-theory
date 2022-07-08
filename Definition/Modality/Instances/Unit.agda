@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K --safe #-}
 
-module Definition.Modality.Unit where
+module Definition.Modality.Instances.Unit where
 
 open import Tools.Nat hiding (_+_)
 open import Tools.Product
@@ -25,6 +25,9 @@ _+_ : Op₂ ⊤
 _ + _ = tt
 
 infixr 20 _+_
+
+_⊛_▷_ : Op₃ ⊤
+_ ⊛ _ ▷ _ = tt
 
 -- Properties of +
 
@@ -130,12 +133,11 @@ infixr 20 _+_
 
 -- ⊤ form a modality with + as addition, multiplication and meet
 
-UnitModality : Modality
-UnitModality = record
+UnitModalityWithout⊛ : ModalityWithout⊛
+UnitModalityWithout⊛ = record
   { _+_ = _+_
   ; _·_ = _+_
   ; _∧_ = _+_
-  ; _⊛_▷_ = λ p q r → tt
   ; 𝟘 = tt
   ; 𝟙 = tt
   ; +-CommutativeMonoid = +-CommutativeMonoid
@@ -143,13 +145,19 @@ UnitModality = record
   ; ∧-Semilattice = +-Semilattice
   ; ·-zero = (λ x → refl) , (λ x → refl)
   ; +-positive = λ p q _ → refl , refl
-  ; ⊛-ineq = (λ x x₁ x₂ → refl) , (λ x x₁ x₂ → refl)
-  ; ⊛-cong = λ _ _ _ → refl
-  ; ·-distrib-+          = +-Distributiveˡ , +-Distributiveʳ
-  ; ·-distrib-∧          = +-Distributiveˡ , +-Distributiveʳ
-  ; +-distrib-∧          = +-Distributiveˡ , +-Distributiveʳ
-  ; +-sub-interchangable-⊛ = λ r w x y z → refl
-  ; ·-sub-distribʳ-⊛ = λ r x y z → refl
-  ; ⊛-sub-distrib-∧ = λ r → (λ x x₁ x₂ → refl) , (λ x x₁ x₂ → refl)
+  ; ·-distrib-+ = +-Distributiveˡ , +-Distributiveʳ
+  ; ·-distrib-∧ = +-Distributiveˡ , +-Distributiveʳ
+  ; +-distrib-∧ = +-Distributiveˡ , +-Distributiveʳ
   ; ≈-equivalence = isEquivalence
+  }
+
+UnitModality : Modality
+UnitModality = record
+  { modalityWithout⊛ = UnitModalityWithout⊛
+  ; _⊛_▷_ = _⊛_▷_
+  ; ⊛-ineq = (λ p q r → refl) , (λ p q r → refl)
+  ; ⊛-cong = cong₃ _⊛_▷_
+  ; +-sub-interchangable-⊛ = λ r p q p′ q′ → refl
+  ; ·-sub-distribʳ-⊛ = λ r q p p′ → refl
+  ; ⊛-sub-distrib-∧ = λ r → (λ p q q′ → refl) , (λ q p p′ → refl)
   }

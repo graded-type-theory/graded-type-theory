@@ -1,5 +1,5 @@
 {-# OPTIONS --without-K --safe #-}
-open import Definition.Modality.Erasure
+open import Definition.Modality.Instances.Erasure
 
 open import Definition.Typed.EqualityRelation
 

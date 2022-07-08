@@ -17,7 +17,7 @@ open import Definition.Modality.Substitution 𝕄
 open import Definition.Modality.Usage 𝕄
 open import Definition.Modality.Usage.Properties 𝕄
 open import Definition.Modality.Usage.Weakening 𝕄
-open import Definition.Typed M′ using (_⊢_∷_)
+open import Definition.Typed M′ using (_⊢_∷_; _⊢ˢ_∷_; _,_)
 open import Definition.Untyped M as U renaming (_[_,_] to _[_,,_])
 
 open import Tools.Fin
@@ -328,6 +328,12 @@ wf-consSubstₘ {Ψ = Ψ} {γ = γ} Ψ▶σ γ▸t (x +1) = sub (Ψ▶σ x) eq
          𝟘ᶜ +ᶜ Ψ *> (𝟘ᶜ , x ≔ 𝟙)     ≈⟨ +ᶜ-identityˡ _ ⟩
          Ψ *> (𝟘ᶜ , x ≔ 𝟙)           ∎
 
+-- The tail of a well-formed substitution is a well-formed substitution.
+-- If (Ψ ⊙ γ) ▶ σ then Ψ ▶ tail σ
+
+wf-tailSubstₘ : {Ψ : Substₘ m n} → (Ψ ⊙ γ) ▶ σ → Ψ ▶ tail σ
+wf-tailSubstₘ Ψ▶σ x = sub (Ψ▶σ (x +1)) (≤ᶜ-reflexive (≈ᶜ-sym (≈ᶜ-trans (+ᶜ-cong (·ᶜ-zeroˡ _) ≈ᶜ-refl) (+ᶜ-identityˡ _))))
+
 ---------------------------------------
 -- Substitution lemma for modalities --
 ---------------------------------------
@@ -520,6 +526,15 @@ substₘ-calc-correct : {Γ : Con Term m} (σ : Subst m n)
 substₘ-calc-correct σ well-typed x with well-typed x
 ... | A , γ , Γ⊢σx∷A , γ▸σx =
   sub (usage-calc-term′ Γ⊢σx∷A γ▸σx) (≤ᶜ-reflexive (substₘ-calc-col σ x))
+
+subst-calc-correct′ : ∀ {Γ Δ} {Ψ : Substₘ m n} → Γ ⊢ˢ σ ∷ Δ → Ψ ▶ σ → ∥ σ ∥ ▶ σ
+subst-calc-correct′ {σ = σ} {Ψ = Ψ ⊙ γ} (⊢σ , ⊢t) Ψ▶σ x0 =
+  sub (usage-calc-term′ ⊢t (Ψ▶σ x0))
+      (≤ᶜ-reflexive (≈ᶜ-trans (+ᶜ-cong (·ᶜ-identityˡ _) (*>-zeroʳ ∥ tail σ ∥))
+                              (+ᶜ-identityʳ _)))
+subst-calc-correct′ {Ψ = Ψ ⊙ γ} (⊢σ , ⊢t) Ψ▶σ (x +1) =
+  sub (subst-calc-correct′ {Ψ = Ψ} ⊢σ (wf-tailSubstₘ Ψ▶σ) x)
+      (≤ᶜ-reflexive (≈ᶜ-trans (+ᶜ-cong (·ᶜ-zeroˡ _) ≈ᶜ-refl) (+ᶜ-identityˡ _)))
 
 -- Each column of a calculated substitution matrix is an upper bound on valid contexts.
 -- If γ ▸ σ xᵢ then γ ≤ᶜ ∥ σ ∥ *> 𝕖ᵢ.

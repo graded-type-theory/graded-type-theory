@@ -29,8 +29,8 @@ import Tools.Reasoning.PropositionalEquality
 
 -- Modality structure
 import Definition.Modality
-import Definition.Modality.Erasure
-import Definition.Modality.Unit
+import Definition.Modality.Instances.Erasure
+import Definition.Modality.Instances.Unit
 import Definition.Modality.Properties
 import Definition.Modality.Context
 import Definition.Modality.Context.Properties
@@ -121,7 +121,7 @@ import Definition.Typed.Decidable
 
 -- Erasure
 
-import Definition.Modality.Erasure.Properties
+import Definition.Modality.Instances.Erasure.Properties
 
 -- Target language
 

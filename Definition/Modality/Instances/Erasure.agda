@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K --safe #-}
 
-module Definition.Modality.Erasure where
+module Definition.Modality.Instances.Erasure where
 
 open import Tools.Product
 open import Tools.PropositionalEquality
@@ -344,12 +344,11 @@ p ≤ q = p ≡ p ∧ q
 
 -- Erasures form a modality
 
-ErasureModality : Modality
-ErasureModality = record
+erasureModalityWithout⊛ : ModalityWithout⊛
+erasureModalityWithout⊛ = record
   { _+_ = _+_
   ; _·_ = _·_
   ; _∧_ = _∧_
-  ; _⊛_▷_ = _⊛_▷_
   ; 𝟘 = 𝟘
   ; 𝟙 = ω
   ; +-CommutativeMonoid = +-CommutativeMonoid
@@ -357,13 +356,19 @@ ErasureModality = record
   ; ∧-Semilattice = +-Semilattice
   ; ·-zero = ·-zero
   ; +-positive = +-positive
-  ; ⊛-ineq = ⊛-ineq₁ , ⊛-ineq₂
-  ; ⊛-cong = cong₃ _⊛_▷_
   ; ·-distrib-+ = ·-distrib-+
   ; ·-distrib-∧ = ·-distrib-+
   ; +-distrib-∧ = +-distrib-+
+  ; ≈-equivalence = isEquivalence
+  }
+
+ErasureModality : Modality
+ErasureModality = record
+  { modalityWithout⊛ = erasureModalityWithout⊛
+  ; _⊛_▷_ = _⊛_▷_
+  ; ⊛-ineq = ⊛-ineq₁ , ⊛-ineq₂
+  ; ⊛-cong = cong₃ _⊛_▷_
   ; +-sub-interchangable-⊛ = +-sub-interchangable-⊛
   ; ·-sub-distribʳ-⊛ = ·-sub-distribʳ-⊛
-  ; ⊛-sub-distrib-∧ = λ r → (⊛-sub-distribˡ-∧ r) , (⊛-sub-distribʳ-∧ r)
-  ; ≈-equivalence = isEquivalence
+  ; ⊛-sub-distrib-∧ = λ r → ⊛-sub-distribˡ-∧ r , ⊛-sub-distribʳ-∧ r
   }

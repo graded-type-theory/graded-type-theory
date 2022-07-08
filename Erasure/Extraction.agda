@@ -1,7 +1,7 @@
 {-# OPTIONS --without-K --safe #-}
 module Erasure.Extraction where
 
-open import Definition.Modality.Erasure
+open import Definition.Modality.Instances.Erasure
 
 open import Tools.Nat
 

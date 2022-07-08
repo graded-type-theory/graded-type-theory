@@ -1,8 +1,8 @@
 {-# OPTIONS --without-K --safe #-}
 
-module Definition.Modality.Erasure.Properties where
+module Definition.Modality.Instances.Erasure.Properties where
 
-open import Definition.Modality.Erasure
+open import Definition.Modality.Instances.Erasure
 
 open import Definition.Modality.Context ErasureModality
 open import Definition.Modality.Context.Properties ErasureModality public
@@ -113,7 +113,6 @@ greatest-elem ω = PE.refl
 least-elem : (p : Erasure) → ω ≤ p
 least-elem p = PE.refl
 
-
 -- 𝟘 is the greatest element of the erasure modality
 -- If 𝟘 ≤ p then p ≡ 𝟘
 
@@ -148,5 +147,5 @@ least-elemᶜ (γ ∙ p) = (least-elemᶜ γ) ∙ (least-elem p)
 
 valid-var-usage : γ ▸ var x → x ◂ ω ∈ γ
 valid-var-usage γ▸x with inv-usage-var γ▸x
-valid-var-usage {x = x0} γ▸x | γ≤γ′ ∙ p≤ω rewrite least-elem′ _ p≤ω = here
-valid-var-usage {x = x +1} γ▸x | γ≤γ′ ∙ p≤𝟘 = there (valid-var-usage (sub (var {x = x}) γ≤γ′))
+valid-var-usage {x = x0} γ▸x | γ≤𝟘ᶜ ∙ p≤ω rewrite least-elem′ _ p≤ω = here
+valid-var-usage {x = x +1} γ▸x | γ≤γ′ ∙ p≤𝟘 = there (valid-var-usage (sub var γ≤γ′))
