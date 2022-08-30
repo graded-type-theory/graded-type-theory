@@ -60,6 +60,16 @@ import Definition.Modality.Morphism
 -- Modes
 import Definition.Mode
 
+-- Modality instances
+import Definition.Modality.Instances.Erasure
+import Definition.Modality.Instances.Unit
+
+-- Modality pseudo-instances
+import Definition.Modality.Instances.BoundedStar
+import Definition.Modality.Instances.Finite
+import Definition.Modality.Instances.LowerBounded
+import Definition.Modality.Instances.Recursive
+
 -- Grammar of the language
 import Definition.Untyped
 import Definition.Untyped.BindingType
@@ -147,6 +157,16 @@ import Definition.Modality.FullReduction
 import Definition.Conversion.Consequences.Completeness
 
 -- Decidability of conversion
+import Definition.Typed.Decidable.Equality
+
+-- Bi-directional type checking
+import Definition.Typechecking
+import Definition.Typechecking.Deterministic
+import Definition.Typechecking.Soundness
+import Definition.Typechecking.Completeness
+import Definition.Typechecking.Decidable
+
+-- Decidability of type checking
 import Definition.Typed.Decidable
 
 -- The type Erased.

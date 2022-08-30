@@ -25,37 +25,38 @@ private
 -- Re-export decidability of type and term equality
 open import Definition.Typed.Decidable.Equality M″ public
 
+-- Decidability of well-formed types
+
+dec : ⊢ Γ → Nf A → Dec (Γ ⊢ A)
+dec ⊢Γ A = map (soundness⇇Type ⊢Γ) (completeness⇇Type A) (dec⇇Type ⊢Γ A)
+
+-- Decidability of type checking normal form terms
+
+decTermᶜ : ⊢ Γ → Γ ⊢ A → Nf t → Dec (Γ ⊢ t ∷ A)
+decTermᶜ ⊢Γ ⊢A t = map (soundness⇇ ⊢Γ ⊢A) (completeness⇇ t) (dec⇇ ⊢Γ t ⊢A)
+
+-- Decidability of type inference of NfNeutral terms
+
+decTermᵢ : ⊢ Γ → NfNeutral t → Dec (∃ λ A → Γ ⊢ t ∷ A)
+decTermᵢ ⊢Γ t = map (λ { (A , t⇉A) → A , (proj₂ (soundness⇉ ⊢Γ t⇉A))})
+                    (λ { (A , ⊢t)  → _ , (proj₁ (proj₂ (completeness⇉ t ⊢t)))})
+                    (dec⇉ ⊢Γ t)
+
+-- Decidability of well-formed contexts consisting of normal form types
+
 NfCon : (Γ : Con Term n) → Set a
 NfCon ε = Lift a ⊤
 NfCon (Γ ∙ A) = Nf A × NfCon Γ
 
-mutual
+decWfCon : NfCon Γ → Dec (⊢ Γ)
+decWfCon {Γ = ε} (lift tt) = yes ε
+decWfCon {Γ = Γ ∙ A} (NfA , NfΓ) with decWfCon NfΓ
+decWfCon {Γ = Γ ∙ A} (NfA , NfΓ) | yes ⊢Γ with dec ⊢Γ NfA
+decWfCon {Γ = Γ ∙ A} (NfA , NfΓ) | yes ⊢Γ | yes ⊢A = yes (⊢Γ ∙ ⊢A)
+decWfCon {Γ = Γ ∙ A} (NfA , NfΓ) | yes ⊢Γ | no ⊬A = no λ { (_ ∙ ⊢A) → ⊬A ⊢A}
+decWfCon {Γ = Γ ∙ A} (NfA , NfΓ) | no ⊬Γ = no (λ { (⊢Γ ∙ _) → ⊬Γ ⊢Γ})
 
-  decWfCon : NfCon Γ → Dec (⊢ Γ)
-  decWfCon {Γ = ε} (lift tt) = yes ε
-  decWfCon {Γ = Γ ∙ A} (NfA , NfΓ) with dec NfΓ NfA | decWfCon NfΓ
-  ... | yes ⊢A | yes ⊢Γ = yes (⊢Γ ∙ ⊢A)
-  ... | yes ⊢A | no ⊬Γ = no (λ { (x ∙ x₁) → ⊬Γ x})
-  ... | no ⊬A | _ = no λ { (x ∙ x₁) → ⊬A x₁}
-
-  dec : NfCon Γ → Nf A → Dec (Γ ⊢ A)
-  dec Γ A with decWfCon Γ
-  ... | yes ⊢Γ = map (soundness⇇Type ⊢Γ) (completeness⇇Type A) (dec⇇Type ⊢Γ A)
-  ... | no ⊬Γ = no (λ x → ⊬Γ (wf x))
-
-
-decNfTerm : NfCon Γ → Nf t → Nf A → Dec (Γ ⊢ t ∷ A)
-decNfTerm Γ t A with dec Γ A
-... | yes ⊢A = map (soundness⇇ (wf ⊢A) ⊢A) (completeness⇇ t) (dec⇇ (wf ⊢A) t ⊢A)
-... | no ⊬A = no λ {x → ⊬A (syntacticTerm x)}
-
-decNeTerm : NfCon Γ → NfNeutral t → Dec (∃ λ A → Γ ⊢ t ∷ A)
-decNeTerm Γ t with decWfCon Γ
-... | yes ⊢Γ = map (λ { (A , t⇉A) → A , proj₂ (soundness⇉ ⊢Γ t⇉A)})
-                   (λ { (A , ⊢t) → _ , proj₁ (proj₂ (completeness⇉ t ⊢t))})
-                   (dec⇉ ⊢Γ t)
-... | no ⊬Γ = no (λ { (_ , ⊢t) → ⊬Γ (wfTerm ⊢t)})
-
+-- Decidability of whether terms are in normal form or NfNeutral
 
 mutual
 
