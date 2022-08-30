@@ -1,0 +1,121 @@
+{-# OPTIONS --safe --without-K #-}
+
+open import Tools.Relation
+
+module Definition.Typechecking.Soundness {a ℓ} (M′ : Setoid a ℓ) where
+
+open Setoid M′ using () renaming (Carrier to M; refl to ≈-refl; sym to ≈-sym)
+
+open import Definition.Typechecking M′
+open import Definition.Typed M′
+open import Definition.Typed.Properties M′
+import Definition.Typed.Weakening M′ as W
+open import Definition.Typed.Consequences.Syntactic M′
+open import Definition.Typed.Consequences.Substitution M′
+open import Definition.Untyped M hiding (_∷_)
+
+open import Tools.Nat
+open import Tools.Product
+
+private
+  variable
+    n : Nat
+    Γ : Con Term n
+    t A : Term n
+
+soundness⇉-var : ∀ {x} →  ⊢ Γ → x ∷ A ∈ Γ → (Γ ⊢ A) × (Γ ⊢ var x ∷ A)
+soundness⇉-var (⊢Γ ∙ ⊢A) here = W.wk (W.step W.id) (⊢Γ ∙ ⊢A) ⊢A , var (⊢Γ ∙ ⊢A) here
+soundness⇉-var (⊢Γ ∙ ⊢B) (there x) =
+  let ⊢A , ⊢x = soundness⇉-var ⊢Γ x
+  in  W.wk (W.step W.id) (⊢Γ ∙ ⊢B) ⊢A , var (⊢Γ ∙ ⊢B) (there x)
+
+
+mutual
+
+  soundness⇇Type : ⊢ Γ → Γ ⊢ A ⇇Type → Γ ⊢ A
+  soundness⇇Type ⊢Γ Uᵢ = Uⱼ ⊢Γ
+  soundness⇇Type ⊢Γ ℕᵢ = ℕⱼ ⊢Γ
+  soundness⇇Type ⊢Γ Unitᵢ = Unitⱼ ⊢Γ
+  soundness⇇Type ⊢Γ Emptyᵢ = Emptyⱼ ⊢Γ
+  soundness⇇Type ⊢Γ (Πᵢ x x₁) =
+    let ⊢F = soundness⇇Type ⊢Γ x
+    in  Πⱼ ⊢F ▹ soundness⇇Type (⊢Γ ∙ ⊢F) x₁
+  soundness⇇Type ⊢Γ (Σᵢ x x₁) =
+    let ⊢F = soundness⇇Type ⊢Γ x
+    in  Σⱼ ⊢F ▹ soundness⇇Type (⊢Γ ∙ ⊢F) x₁
+  soundness⇇Type ⊢Γ (univᵢ x) = univ (soundness⇇ ⊢Γ (Uⱼ ⊢Γ) x)
+
+  soundness⇉ : ⊢ Γ → Γ ⊢ t ⇉ A → (Γ ⊢ A) × (Γ ⊢ t ∷ A)
+  soundness⇉ ⊢Γ (Πᵢ F⇇U G⇇U) =
+    let ⊢F = soundness⇇ ⊢Γ (Uⱼ ⊢Γ) F⇇U
+        ⊢G = soundness⇇ (⊢Γ ∙ univ ⊢F) (Uⱼ (⊢Γ ∙ univ ⊢F)) G⇇U
+    in  Uⱼ ⊢Γ , Πⱼ ⊢F ▹ ⊢G
+  soundness⇉ ⊢Γ (Σᵢ F⇇U G⇇U) =
+    let ⊢F = soundness⇇ ⊢Γ (Uⱼ ⊢Γ) F⇇U
+        ⊢G = soundness⇇ (⊢Γ ∙ univ ⊢F) (Uⱼ (⊢Γ ∙ univ ⊢F)) G⇇U
+    in  Uⱼ ⊢Γ , Σⱼ ⊢F ▹ ⊢G
+  soundness⇉ ⊢Γ (varᵢ x∷A∈Γ) = soundness⇉-var ⊢Γ x∷A∈Γ
+  soundness⇉ ⊢Γ (appᵢ t⇉A (A⇒ΠFG , _) u⇇F p≈p′) =
+    let ⊢A , ⊢t = soundness⇉ ⊢Γ t⇉A
+        A≡ΠFG = subset* A⇒ΠFG
+        _ , ⊢ΠFG = syntacticEq A≡ΠFG
+        ⊢F , ⊢G = syntacticΠ ⊢ΠFG
+        ⊢u = soundness⇇ ⊢Γ ⊢F u⇇F
+        ⊢t′ = conv ⊢t (trans A≡ΠFG (Π-cong ⊢F (refl ⊢F) (refl ⊢G)  p≈p′ ≈-refl))
+    in  substType ⊢G ⊢u , ⊢t′ ∘ⱼ ⊢u
+  soundness⇉ ⊢Γ (fstᵢ t⇉A (A⇒ΣFG , _)) =
+    let ⊢A , ⊢t = soundness⇉ ⊢Γ t⇉A
+        A≡ΣFG = subset* A⇒ΣFG
+        _ , ⊢ΣFG = syntacticEq A≡ΣFG
+        ⊢F , ⊢G = syntacticΣ ⊢ΣFG
+    in  ⊢F , fstⱼ ⊢F ⊢G (conv ⊢t A≡ΣFG)
+  soundness⇉ ⊢Γ (sndᵢ t⇉A (A⇒ΣFG , _)) =
+    let ⊢A , ⊢t = soundness⇉ ⊢Γ t⇉A
+        A≡ΣFG = subset* A⇒ΣFG
+        _ , ⊢ΣFG = syntacticEq A≡ΣFG
+        ⊢F , ⊢G = syntacticΣ ⊢ΣFG
+    in  substType ⊢G (fstⱼ ⊢F ⊢G (conv ⊢t A≡ΣFG)) , sndⱼ ⊢F ⊢G (conv ⊢t A≡ΣFG)
+  soundness⇉ ⊢Γ (prodrecᵢ A⇇Type t⇉B (B⇒ΣFG , _) u⇇A₊) =
+    let ⊢B , ⊢t = soundness⇉ ⊢Γ t⇉B
+        B≡ΣFG = subset* B⇒ΣFG
+        ⊢t′ = conv ⊢t B≡ΣFG
+        _ , ⊢ΣFG = syntacticEq B≡ΣFG
+        ⊢F , ⊢G = syntacticΣ ⊢ΣFG
+        ⊢A = soundness⇇Type (⊢Γ ∙ ⊢ΣFG) A⇇Type
+        ⊢u = soundness⇇ (⊢Γ ∙ ⊢F ∙ ⊢G) (subst↑²Type ⊢A) u⇇A₊
+    in  substType ⊢A ⊢t′ , prodrecⱼ ⊢F ⊢G ⊢A ⊢t′ ⊢u
+  soundness⇉ ⊢Γ ℕᵢ = Uⱼ ⊢Γ , ℕⱼ ⊢Γ
+  soundness⇉ ⊢Γ zeroᵢ = (ℕⱼ ⊢Γ) , (zeroⱼ ⊢Γ)
+  soundness⇉ ⊢Γ (sucᵢ t⇇ℕ) = (ℕⱼ ⊢Γ) , (sucⱼ (soundness⇇ ⊢Γ (ℕⱼ ⊢Γ) t⇇ℕ))
+  soundness⇉ ⊢Γ (natrecᵢ A⇇Type z⇇A₀ s⇇A₊ n⇇ℕ) =
+    let ⊢ℕ = ℕⱼ ⊢Γ
+        ⊢A = soundness⇇Type (⊢Γ ∙ ⊢ℕ) A⇇Type
+        ⊢z = soundness⇇ ⊢Γ (substType ⊢A (zeroⱼ ⊢Γ)) z⇇A₀
+        ⊢s = soundness⇇ (⊢Γ ∙ ⊢ℕ ∙ ⊢A)
+                        (W.wk (W.step W.id) (⊢Γ ∙ ℕⱼ ⊢Γ ∙ ⊢A)
+                              (subst↑Type ⊢A (sucⱼ (var (⊢Γ ∙ ℕⱼ ⊢Γ) here))))
+                        s⇇A₊
+        ⊢n = soundness⇇ ⊢Γ ⊢ℕ n⇇ℕ
+    in  substType ⊢A ⊢n , (natrecⱼ ⊢A ⊢z ⊢s ⊢n)
+  soundness⇉ ⊢Γ Unitᵢ = (Uⱼ ⊢Γ) , (Unitⱼ ⊢Γ)
+  soundness⇉ ⊢Γ starᵢ = (Unitⱼ ⊢Γ) , (starⱼ ⊢Γ)
+  soundness⇉ ⊢Γ Emptyᵢ = (Uⱼ ⊢Γ) , (Emptyⱼ ⊢Γ)
+  soundness⇉ ⊢Γ (Emptyrecᵢ A⇇Type t⇇Empty) =
+    let ⊢A = soundness⇇Type ⊢Γ A⇇Type
+    in  ⊢A , (Emptyrecⱼ ⊢A (soundness⇇ ⊢Γ (Emptyⱼ ⊢Γ) t⇇Empty))
+
+  soundness⇇ : ⊢ Γ → Γ ⊢ A → Γ ⊢ t ⇇ A → Γ ⊢ t ∷ A
+  soundness⇇  ⊢Γ ⊢A (lamᶜ A↘ΠFG t⇇G p≈p′)=
+    let A≡ΠFG = subset* (proj₁ A↘ΠFG)
+        _ , ⊢ΠFG = syntacticEq A≡ΠFG
+        ⊢F , ⊢G = syntacticΠ ⊢ΠFG
+        ⊢t = soundness⇇ (⊢Γ ∙ ⊢F) ⊢G t⇇G
+    in  conv (lamⱼ ⊢F ⊢t) (trans (Π-cong ⊢F (refl ⊢F) (refl ⊢G) (≈-sym p≈p′) ≈-refl) (sym A≡ΠFG))
+  soundness⇇  ⊢Γ ⊢A (prodᶜ A↘ΣFG t⇇F u⇇Gt) =
+    let A≡ΣFG = subset* (proj₁ A↘ΣFG)
+        _ , ⊢ΣFG = syntacticEq A≡ΣFG
+        ⊢F , ⊢G = syntacticΣ ⊢ΣFG
+        ⊢t = soundness⇇ ⊢Γ ⊢F t⇇F
+        ⊢u = soundness⇇ ⊢Γ (substType ⊢G ⊢t) u⇇Gt
+    in  conv (prodⱼ ⊢F ⊢G ⊢t ⊢u) (sym A≡ΣFG)
+  soundness⇇ ⊢Γ ⊢A (infᶜ t⇉B A≡B) = conv (proj₂ (soundness⇉ ⊢Γ t⇉B)) A≡B

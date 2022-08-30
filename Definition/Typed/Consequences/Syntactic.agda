@@ -1,10 +1,11 @@
 module Definition.Typed.Consequences.Syntactic
   {a} (M : Set a) where
 
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M hiding (_∷_; wk)
 open import Definition.Typed M
 open import Definition.Typed.Properties M
 open import Definition.Typed.EqRelInstance M
+open import Definition.Typed.Weakening M
 open import Definition.LogicalRelation.Substitution M
 open import Definition.LogicalRelation.Substitution.Escape M
 open import Definition.LogicalRelation.Fundamental M
@@ -52,3 +53,9 @@ syntacticΠ ΠFG | F≡F , G≡G , _ = proj₁ (syntacticEq F≡F) , proj₁ (sy
 syntacticΣ : ∀ {m F G} → Γ ⊢ Σ⟨ m ⟩ p , q ▷ F ▹ G → Γ ⊢ F × Γ ∙ F ⊢ G
 syntacticΣ ΣFG with Σ-injectivity (refl ΣFG)
 syntacticΣ ΣFG | F≡F , G≡G , _ = proj₁ (syntacticEq F≡F) , proj₁ (syntacticEq G≡G)
+
+-- Syntactic validity of context lookup
+
+syntacticVar : ∀ {x A} → x ∷ A ∈ Γ → ⊢ Γ → Γ ⊢ A
+syntacticVar here (⊢Γ ∙ ⊢A) = wk (step id) (⊢Γ ∙ ⊢A) ⊢A
+syntacticVar (there x) (⊢Γ ∙ ⊢B) = wk (step id) (⊢Γ ∙ ⊢B) (syntacticVar x ⊢Γ)

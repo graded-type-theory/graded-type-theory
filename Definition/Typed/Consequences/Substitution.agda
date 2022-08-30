@@ -181,6 +181,41 @@ subst↑TypeEq : ∀ {t u F G E}
              → Γ ∙ F ⊢ G [ t ]↑ ≡ E [ u ]↑
 subst↑TypeEq ⊢G ⊢t = substitutionEq ⊢G (singleSubst↑Eq ⊢t) (wfEqTerm ⊢t)
 
+subst↑²Type : ∀ {m F G A}
+            → Γ ∙ (Σ⟨ m ⟩ p , q ▷ F ▹ G) ⊢ A
+            → Γ ∙ F ∙ G ⊢ A [ prod m p (var (x0 +1)) (var x0) ]↑²
+subst↑²Type {Γ = Γ} {F = F} {G} {A} ⊢A =
+  let ⊢ΓΣ = wf ⊢A
+      ⊢Γ , ⊢Σ = splitCon ⊢ΓΣ
+      ⊢F , ⊢G = syntacticΣ ⊢Σ
+      ⊢ΓFG = ⊢Γ ∙ ⊢F ∙ ⊢G
+      ⊢ρF = wk (step (step id)) ⊢ΓFG ⊢F
+      ⊢ρG = wk (lift (step (step id))) (⊢ΓFG ∙ ⊢ρF) ⊢G
+      ⊢ρF′ = PE.subst (λ x → _ ⊢ x) (wk≡subst (step (step id)) F) ⊢ρF
+      ⊢ρG′ = PE.subst₂ (λ x y → (Γ ∙ F ∙ G ∙ x) ⊢ y)
+                       (wk≡subst (step (step id)) F)
+                       (PE.trans (wk≡subst (lift (step (step id))) G)
+                                 (substVar-to-subst (λ{x0 → PE.refl
+                                                    ; (x +1) → PE.refl}) G))
+                       ⊢ρG
+      var1 = PE.subst (λ x → Γ ∙ F ∙ G ⊢ var (x0 +1) ∷ x)
+                      (PE.trans (wk-comp (step id) (step id) F)
+                                (wk≡subst (step id • step id) F))
+                      (var ⊢ΓFG (there here))
+      var0 = PE.subst (λ x → Γ ∙ F ∙ G ⊢ var x0 ∷ x)
+                      (PE.trans (wk≡subst (step id) G)
+                                (PE.trans (substVar-to-subst (λ{x0 → PE.refl
+                                                             ; (x +1) → PE.refl}) G)
+                                          (PE.sym (substCompEq G))))
+                      (var ⊢ΓFG here)
+  in  substitution ⊢A
+                   (wk1Subst′ ⊢Γ (⊢Γ ∙ ⊢F) ⊢G (wk1Subst′ ⊢Γ ⊢Γ ⊢F (idSubst′ ⊢Γ))
+                   , prodⱼ ⊢ρF′ ⊢ρG′ var1 var0)
+                   ⊢ΓFG
+  where
+  splitCon : ∀ {Γ : Con Term n} {F} → ⊢ (Γ ∙ F) → ⊢ Γ × Γ ⊢ F
+  splitCon (x ∙ x₁) = x , x₁
+
 subst↑²TypeEq : ∀ {m F G A B}
               → Γ ∙ (Σ⟨ m ⟩ p , q ▷ F ▹ G) ⊢ A ≡ B
               → Γ ∙ F ∙ G ⊢ A [ prod m p (var (x0 +1)) (var x0) ]↑²
