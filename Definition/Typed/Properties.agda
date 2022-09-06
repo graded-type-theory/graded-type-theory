@@ -344,3 +344,7 @@ redU (univ x) = redU*Term′ PE.refl x
 redU* : Γ ⊢ A ⇒* U → A PE.≡ U
 redU* (id x) = PE.refl
 redU* (x ⇨ A⇒*U) rewrite redU* A⇒*U = ⊥-elim (redU x)
+
+det∈ : ∀ {x} → x ∷ A ∈ Γ → x ∷ B ∈ Γ → A PE.≡ B
+det∈ here here = PE.refl
+det∈ (there x) (there y) = PE.cong wk1 (det∈ x y)

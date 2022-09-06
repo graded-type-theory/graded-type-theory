@@ -31,10 +31,6 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Nullary
 
-open import Definition.Typed.EqRelInstance M′
-open import Definition.LogicalRelation M′
-open import Definition.LogicalRelation.Properties.Escape M′
-open import Definition.LogicalRelation.Fundamental.Reducibility M′
 
 private
   variable
@@ -49,255 +45,371 @@ dec⇉-var {Γ = Γ ∙ B} (x +1) =
   let A , x∷A∈Γ = dec⇉-var x
   in  _ , there x∷A∈Γ
 
-isB′ : ∀ {l} → Γ ⊩⟨ l ⟩ A → Dec (∃₃ λ F G W → (Γ ⊢ F) × (Γ ∙ F ⊢ G) × Γ ⊢ A ⇒* (⟦ W ⟧ F ▹ G))
-isB′ (Uᵣ′ l′ l< ⊢Γ) = no (λ {(F , G , W , ⊢F , ⊢G , U⇒W) → U≢B W (subset* U⇒W)})
-isB′ (ℕᵣ x) = no (λ {(F , G , W , ⊢F , ⊢G , A⇒W) → ℕ≢B W (trans (sym (subset* (red x))) (subset* A⇒W))})
-isB′ (Emptyᵣ x) = no (λ {(F , G , W , ⊢F , ⊢G , A⇒W) → Empty≢Bⱼ W (trans (sym (subset* (red x))) (subset* A⇒W))})
-isB′ (Unitᵣ x) = no (λ {(F , G , W , ⊢F , ⊢G , A⇒W) → Unit≢Bⱼ W (trans (sym (subset* (red x))) (subset* A⇒W))})
-isB′ (ne′ K D neK K≡K) = no (λ {(F , G , W , ⊢F , ⊢G , A⇒W) → B≢ne W neK (trans (sym (subset* A⇒W)) (subset* (red D)))})
-isB′ (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) = yes (F , G , W , ⊢F , ⊢G , red D)
-isB′ (emb 0<1 [A]) = isB′ [A]
+dec⇇-var : (x : Fin n) → Γ ⊢ A → Dec (Γ ⊢ var x ⇇ A)
+dec⇇-var x ⊢A with dec⇉-var x
+... | B , x∷B∈Γ with decEq (syntacticVar x∷B∈Γ (wf ⊢A)) ⊢A
+... | yes B≡A = yes (infᶜ (varᵢ x∷B∈Γ) B≡A)
+... | no B≢A = no λ { (infᶜ (varᵢ x) x₁) → B≢A (PE.subst (λ x → _ ⊢ x ≡ _) (det∈ x x∷B∈Γ) x₁)}
 
-isB : Γ ⊢ A → Dec (∃₃ λ F G W → (Γ ⊢ F) × (Γ ∙ F ⊢ G) × Γ ⊢ A ⇒* (⟦ W ⟧ F ▹ G))
-isB ⊢A = isB′ (reducible ⊢A)
+mutual
 
-isΠ : Γ ⊢ A → Dec (∃₄ λ F G p q → (Γ ⊢ F) × (Γ ∙ F ⊢ G) × Γ ⊢ A ⇒* (Π p , q ▷ F ▹ G))
-isΠ ⊢A with isB ⊢A
-... | yes (F , G , BΠ p q , ⊢F , ⊢G , A⇒Π) = yes (F , G , p , q , ⊢F , ⊢G , A⇒Π)
-... | yes (F , G , BΣ p x , ⊢F , ⊢G , A⇒Σ) = no (λ {(F′ , G′ , p′ , q′ , ⊢F , ⊢G , A⇒Π) → Π≢Σ (trans (sym (subset* A⇒Π)) (subset* A⇒Σ))})
-... | no ¬isB = no (λ {(F′ , G′ , p′ , q′ , ⊢F , ⊢G , A⇒Π) → ¬isB (F′ , G′ , BΠ p′ q′ , ⊢F , ⊢G , A⇒Π)})
+  -- Decidability of terms being inferable
 
-isΣ : Γ ⊢ A → Dec (∃₄ λ F G m q → (Γ ⊢ F) × (Γ ∙ F ⊢ G) × Γ ⊢ A ⇒* (Σ⟨ m ⟩ q ▷ F ▹ G))
-isΣ ⊢A with isB ⊢A
-... | yes (F , G , BΣ q m , ⊢F , ⊢G , A⇒Σ) = yes (F , G , m , q , ⊢F , ⊢G , A⇒Σ)
-... | yes (F , G , BΠ p q , ⊢F , ⊢G , A⇒Π) = no (λ {(F′ , G′ , p′ , q′ , ⊢F , ⊢G , A⇒Σ) → Π≢Σ (trans (sym (subset* A⇒Π)) (subset* A⇒Σ))})
-... | no ¬isB = no (λ {(F′ , G′ , m , q′ , ⊢F , ⊢G , A⇒Π) → ¬isB (F′ , G′ , BΣ q′ m , ⊢F , ⊢G , A⇒Π)})
+  dec-Inferable : (t : Term n) → Dec (Inferable t)
+  dec-Inferable (var x) = yes varᵢ
+  dec-Inferable (gen Ukind []) = yes Uᵢ
+  dec-Inferable (gen (Pikind p q) (F ∷ G ∷ []))
+    with dec-Checkable F | dec-Checkable G
+  ... | yes F′ | yes G′ = yes (Πᵢ F′ G′)
+  ... | yes F′ | no ¬G′ = no λ { (Πᵢ x x₁) → ¬G′ x₁}
+  ... | no ¬F′ | _      = no λ { (Πᵢ x x₁) → ¬F′ x}
+  dec-Inferable (gen (Lamkind p) (t ∷ [])) = no λ {()}
+  dec-Inferable (gen (Appkind p) (t ∷ u ∷ []))
+    with dec-Inferable t | dec-Checkable u
+  ... | yes t′ | yes u′ = yes (∘ᵢ t′ u′)
+  ... | yes t′ | no ¬u′ = no λ { (∘ᵢ x x₁) → ¬u′ x₁}
+  ... | no ¬t′ | _      = no λ { (∘ᵢ x x₁) → ¬t′ x}
+  dec-Inferable (gen (Sigmakind q x) (F ∷ G ∷ []))
+    with dec-Checkable F | dec-Checkable G
+  ... | yes F′ | yes G′ = yes (Σᵢ F′ G′)
+  ... | yes F′ | no ¬G′ = no λ { (Σᵢ x x₁) → ¬G′ x₁}
+  ... | no ¬F′ | _      = no λ { (Σᵢ x x₁) → ¬F′ x}
+  dec-Inferable (gen Prodkind (t ∷ u ∷ [])) = no λ {()}
+  dec-Inferable (gen Fstkind (t ∷ []))
+    with dec-Inferable t
+  ... | yes t′ = yes (fstᵢ t′)
+  ... | no ¬t′ = no λ { (fstᵢ x) → ¬t′ x}
+  dec-Inferable (gen Sndkind (t ∷ []))
+    with dec-Inferable t
+  ... | yes t′ = yes (sndᵢ t′)
+  ... | no ¬t′ = no λ { (sndᵢ x) → ¬t′ x}
+  dec-Inferable (gen (Prodreckind p) (A ∷ t ∷ u ∷ []))
+    with dec-Checkable A | dec-Inferable t | dec-Checkable u
+  ... | yes A′ | yes t′ | yes u′ = yes (prodrecᵢ A′ t′ u′)
+  ... | yes A′ | yes t′ | no ¬u′ = no λ { (prodrecᵢ x x₁ x₂) → ¬u′ x₂}
+  ... | yes A′ | no ¬t′ | _      = no λ { (prodrecᵢ x x₁ x₂) → ¬t′ x₁}
+  ... | no ¬A′ | _ | _           = no λ { (prodrecᵢ x x₁ x₂) → ¬A′ x}
+  dec-Inferable (gen Natkind []) = yes ℕᵢ
+  dec-Inferable (gen Zerokind []) = yes zeroᵢ
+  dec-Inferable (gen Suckind (t ∷ []))
+    with dec-Checkable t
+  ... | yes t′ = yes (sucᵢ t′)
+  ... | no ¬t′ = no λ { (sucᵢ x) → ¬t′ x}
+  dec-Inferable (gen (Natreckind p q) (A ∷ z ∷ s ∷ n ∷ []))
+    with dec-Checkable A | dec-Checkable z | dec-Checkable s | dec-Checkable n
+  ... | yes A′ | yes z′ | yes s′ | yes n′ = yes (natrecᵢ A′ z′ s′ n′)
+  ... | yes A′ | yes z′ | yes s′ | no ¬n′ = no λ { (natrecᵢ x x₁ x₂ x₃) → ¬n′ x₃}
+  ... | yes A′ | yes z′ | no ¬s′ | _      = no λ { (natrecᵢ x x₁ x₂ x₃) → ¬s′ x₂}
+  ... | yes A′ | no ¬z′ | _ | _           = no λ { (natrecᵢ x x₁ x₂ x₃) → ¬z′ x₁}
+  ... | no ¬A′ | _ | _ | _                = no λ { (natrecᵢ x x₁ x₂ x₃) → ¬A′ x}
+  dec-Inferable (gen Unitkind []) = yes Unitᵢ
+  dec-Inferable (gen Starkind []) = yes starᵢ
+  dec-Inferable (gen Emptykind []) = yes Emptyᵢ
+  dec-Inferable (gen (Emptyreckind p) (A ∷ t ∷ []))
+    with dec-Checkable A | dec-Checkable t
+  ... | yes A′ | yes t′ = yes (Emptyrecᵢ A′ t′)
+  ... | yes A′ | no ¬t′ = no λ { (Emptyrecᵢ x x₁) → ¬t′ x₁}
+  ... | no ¬A′ | _      = no λ { (Emptyrecᵢ x x₁) → ¬A′ x}
 
-isΣₚ : Γ ⊢ A → Dec (∃₃ λ F G q → (Γ ⊢ F) × (Γ ∙ F ⊢ G) × Γ ⊢ A ⇒* (Σₚ q ▷ F ▹ G))
-isΣₚ ⊢A with isΣ ⊢A
-... | yes (F , G , Σₚ , q , ⊢F , ⊢G , A⇒Σ) = yes (F , G , q , ⊢F , ⊢G , A⇒Σ)
-... | yes (F , G , Σᵣ , q , ⊢F , ⊢G , A⇒Σ) = no (λ {(F′ , G′ , q′ , ⊢F′ , ⊢G′ , A⇒Σ′) → Σₚ≢Σᵣ (trans (sym (subset* A⇒Σ′)) (subset* A⇒Σ))})
-... | no ¬isΣ = no (λ {(F′ , G′ , q′ , ⊢F′ , ⊢G′ , A⇒Σ′) → ¬isΣ (F′ , G′ , Σₚ , q′ , ⊢F′ , ⊢G′ , A⇒Σ′)})
+  -- Decidability of terms being checkable
 
-isΣᵣ : Γ ⊢ A → Dec (∃₃ λ F G q → (Γ ⊢ F) × (Γ ∙ F ⊢ G) × Γ ⊢ A ⇒* (Σᵣ q ▷ F ▹ G))
-isΣᵣ ⊢A with isΣ ⊢A
-... | yes (F , G , Σₚ , q , ⊢F , ⊢G , A⇒Σ) = no (λ {(F′ , G′ , q′ , ⊢F′ , ⊢G′ , A⇒Σ′) → Σₚ≢Σᵣ (trans (sym (subset* A⇒Σ)) (subset* A⇒Σ′))})
-... | yes (F , G , Σᵣ , q , ⊢F , ⊢G , A⇒Σ) = yes (F , G , q , ⊢F , ⊢G , A⇒Σ)
-... | no ¬isΣ = no (λ {(F′ , G′ , q′ , ⊢F′ , ⊢G′ , A⇒Σ′) → ¬isΣ (F′ , G′ , Σᵣ , q′ , ⊢F′ , ⊢G′ , A⇒Σ′)})
+  dec-Checkable : (t : Term n) → Dec (Checkable t)
+  dec-Checkable (var x) = yes (infᶜ varᵢ)
+  dec-Checkable (gen Ukind []) = yes (infᶜ Uᵢ)
+  dec-Checkable (gen (Pikind p q) (F ∷ G ∷ []))
+    with dec-Checkable F | dec-Checkable G
+  ... | yes F′ | yes G′ = yes (infᶜ (Πᵢ F′ G′))
+  ... | yes F′ | no ¬G′ = no λ { (infᶜ (Πᵢ x x₁)) → ¬G′ x₁}
+  ... | no ¬F′ | _      = no λ { (infᶜ (Πᵢ x x₁)) → ¬F′ x}
+  dec-Checkable (gen (Lamkind p) (t ∷ []))
+    with dec-Checkable t
+  ... | yes t′ = yes (lamᶜ t′)
+  ... | no ¬t′ = no λ { (lamᶜ x) → ¬t′ x}
+  dec-Checkable (gen (Appkind p) (t ∷ u ∷ []))
+    with dec-Inferable t | dec-Checkable u
+  ... | yes t′ | yes u′ = yes (infᶜ (∘ᵢ t′ u′))
+  ... | yes t′ | no ¬u′ = no λ { (infᶜ (∘ᵢ x x₁)) → ¬u′ x₁}
+  ... | no ¬t′ | _      = no λ { (infᶜ (∘ᵢ x x₁)) → ¬t′ x}
+  dec-Checkable (gen (Sigmakind q x) (F ∷ G ∷ []))
+    with dec-Checkable F | dec-Checkable G
+  ... | yes F′ | yes G′ = yes (infᶜ (Σᵢ F′ G′))
+  ... | yes F′ | no ¬G′ = no λ { (infᶜ (Σᵢ x x₁)) → ¬G′ x₁}
+  ... | no ¬F′ | _      = no λ { (infᶜ (Σᵢ x x₁)) → ¬F′ x}
+  dec-Checkable (gen Prodkind (t ∷ u ∷ []))
+    with dec-Checkable t | dec-Checkable u
+  ... | yes t′ | yes u′ = yes (prodᶜ t′ u′)
+  ... | yes t′ | no ¬u′ = no λ { (prodᶜ x x₁) → ¬u′ x₁}
+  ... | no ¬t′ | _      = no λ { (prodᶜ x x₁) → ¬t′ x}
+  dec-Checkable (gen Fstkind (t ∷ []))
+    with dec-Inferable t
+  ... | yes t′ = yes (infᶜ (fstᵢ t′))
+  ... | no ¬t′ = no λ { (infᶜ (fstᵢ x)) → ¬t′ x}
+  dec-Checkable (gen Sndkind (t ∷ []))
+    with dec-Inferable t
+  ... | yes t′ = yes (infᶜ (sndᵢ t′))
+  ... | no ¬t′ = no λ { (infᶜ (sndᵢ x)) → ¬t′ x}
+  dec-Checkable (gen (Prodreckind p) (A ∷ t ∷ u ∷ []))
+    with dec-Checkable A | dec-Inferable t | dec-Checkable u
+  ... | yes A′ | yes t′ | yes u′ = yes (infᶜ (prodrecᵢ A′ t′ u′))
+  ... | yes A′ | yes t′ | no ¬u′ = no λ { (infᶜ (prodrecᵢ x x₁ x₂)) → ¬u′ x₂}
+  ... | yes A′ | no ¬t′ | _      = no λ { (infᶜ (prodrecᵢ x x₁ x₂)) → ¬t′ x₁}
+  ... | no ¬A′ | _ | _           = no λ { (infᶜ (prodrecᵢ x x₁ x₂)) → ¬A′ x}
+  dec-Checkable (gen Natkind []) = yes (infᶜ ℕᵢ)
+  dec-Checkable (gen Zerokind []) = yes (infᶜ zeroᵢ)
+  dec-Checkable (gen Suckind (t ∷ []))
+    with dec-Checkable t
+  ... | yes t′ = yes (infᶜ (sucᵢ t′))
+  ... | no ¬t′ = no λ { (infᶜ (sucᵢ x)) → ¬t′ x}
+  dec-Checkable (gen (Natreckind p q) (A ∷ z ∷ s ∷ n ∷ []))
+    with dec-Checkable A | dec-Checkable z | dec-Checkable s | dec-Checkable n
+  ... | yes A′ | yes z′ | yes s′ | yes n′ = yes (infᶜ (natrecᵢ A′ z′ s′ n′))
+  ... | yes A′ | yes z′ | yes s′ | no ¬n′ = no λ { (infᶜ (natrecᵢ x x₁ x₂ x₃)) → ¬n′ x₃}
+  ... | yes A′ | yes z′ | no ¬s′ | _      = no λ { (infᶜ (natrecᵢ x x₁ x₂ x₃)) → ¬s′ x₂}
+  ... | yes A′ | no ¬z′ | _ | _           = no λ { (infᶜ (natrecᵢ x x₁ x₂ x₃)) → ¬z′ x₁}
+  ... | no ¬A′ | _ | _ | _                = no λ { (infᶜ (natrecᵢ x x₁ x₂ x₃)) → ¬A′ x}
+  dec-Checkable (gen Unitkind []) = yes (infᶜ Unitᵢ)
+  dec-Checkable (gen Starkind []) = yes (infᶜ starᵢ)
+  dec-Checkable (gen Emptykind []) = yes (infᶜ Emptyᵢ)
+  dec-Checkable (gen (Emptyreckind p) (A ∷ t ∷ []))
+    with dec-Checkable A | dec-Checkable t
+  ... | yes A′ | yes t′ = yes (infᶜ (Emptyrecᵢ A′ t′))
+  ... | yes A′ | no ¬t′ = no λ { (infᶜ (Emptyrecᵢ x x₁)) → ¬t′ x₁}
+  ... | no ¬A′ | _      = no λ { (infᶜ (Emptyrecᵢ x x₁)) → ¬A′ x}
 
 
 mutual
 
-  dec⇉-app : ⊢ Γ → NfNeutral t → Nf u → Dec (∃ λ A → Γ ⊢ t ∘ p ▷ u ⇉ A)
-  dec⇉-app ⊢Γ t u with dec⇉ ⊢Γ t
-  dec⇉-app ⊢Γ t u | yes (A , t⇉A) with isΠ (proj₁ (soundness⇉ ⊢Γ t⇉A))
-  dec⇉-app {p = p′} ⊢Γ t u | yes (A , t⇉A) | yes (F , G , p , q , ⊢F , ⊢G , A⇒ΠFG) with dec⇇ ⊢Γ u ⊢F | p ≟ p′
-  dec⇉-app {p = p′} ⊢Γ t u | yes (A , t⇉A) | yes (F , G , p , q , ⊢F , ⊢G , A⇒ΠFG)
-                           | yes u⇇F | yes p≈p′ = yes (_ , (appᵢ t⇉A (A⇒ΠFG , Πₙ) u⇇F p≈p′))
-  dec⇉-app {p = p′} ⊢Γ t u | yes (A , t⇉A) | yes (F , G , p , q , ⊢F , ⊢G , A⇒ΠFG)
-                           | yes u⇇F | no p≉p′ =
-    no (λ { (_ , appᵢ x x₁ x₂ x₃) →
-      let A≡A′ = deterministic⇉ t⇉A x
-          A↘ΠF′G′ = PE.subst (λ A → _ ⊢ A ↘ _) (PE.sym A≡A′) x₁
-          ΠFG≡ΠF′G′ = whrDet* (A⇒ΠFG , Πₙ) A↘ΠF′G′
-          _ , _ , W≡W′ = B-PE-injectivity BΠ! BΠ! ΠFG≡ΠF′G′
-          p≡p″ , _ = BΠ-PE-injectivity W≡W′
-      in  p≉p′ (PE.subst (λ p → p ≈ _) (PE.sym p≡p″) x₃)})
-  dec⇉-app {p = p′} ⊢Γ t u | yes (A , t⇉A) | yes (F , G , p , q , ⊢F , ⊢G , A⇒ΠFG)
-                           | no ¬u⇇F | _ =
-    no (λ { (_ , appᵢ x x₁ x₂ x₃) →
-      let A≡A′ = deterministic⇉ t⇉A x
-          A↘ΠF′G′ = PE.subst (λ A → _ ⊢ A ↘ _) (PE.sym A≡A′) x₁
-          ΠFG≡ΠF′G′ = whrDet* (A⇒ΠFG , Πₙ) A↘ΠF′G′
-          F≡F′ , _ , _ = B-PE-injectivity BΠ! BΠ! ΠFG≡ΠF′G′
-      in  ¬u⇇F (PE.subst (λ F → _ ⊢ _ ⇇ F) (PE.sym F≡F′) x₂)})
-  dec⇉-app ⊢Γ t u | yes (A , t⇉A) | no ¬A⇒ΠFG = no (λ { (_ , appᵢ x x₁ x₂ x₃) →
+  dec⇉-app : ⊢ Γ → Inferable t → Checkable u → Dec (∃ λ A → Γ ⊢ t ∘ p ▷ u ⇉ A)
+  dec⇉-app {p = p′} ⊢Γ t u with dec⇉ ⊢Γ t
+  ... | no ¬t⇉A = no λ { (_ , appᵢ x x₁ x₂ x₃) → ¬t⇉A (_ , x)}
+  ... | yes (A , t⇉A) with isΠ (proj₁ (soundness⇉ ⊢Γ t⇉A))
+  ... | no ¬isΠ = no λ { (_ , appᵢ x x₁ x₂ x₃) →
+    let A≡A′ = deterministic⇉ x t⇉A
+        _ , ⊢Π = syntacticRed (proj₁ x₁)
+        ⊢F , ⊢G = syntacticΠ ⊢Π
+    in  ¬isΠ (_ , _ , _ , _ , ⊢F , ⊢G , PE.subst (λ x → _ ⊢ x ⇒* _) A≡A′ (proj₁ x₁))}
+  ... | yes (F , G , p , q  , ⊢F , ⊢G , A⇒Π) with dec⇇ ⊢Γ u ⊢F
+  ... | no ¬u⇇F = no λ { (_ , appᵢ x x₁ x₂ x₃) →
     let A≡A′ = deterministic⇉ t⇉A x
-        A⇒ΠFG = PE.subst (λ A → _ ⊢ A ↘ _) (PE.sym A≡A′) x₁
-        _ , ⊢ΠFG = syntacticRed (proj₁ x₁)
-        ⊢F , ⊢G = syntacticΠ ⊢ΠFG
-    in  ¬A⇒ΠFG (_ , _ , _ , _ , ⊢F , ⊢G , proj₁ A⇒ΠFG)})
-  dec⇉-app ⊢Γ t u | no ¬t⇉A = no (λ { (_ , appᵢ x x₁ x₂ x₃) → ¬t⇉A (_ , x)})
+        Π≡Π′ = whrDet* x₁ (PE.subst (λ x → _ ⊢ x ⇒* _) A≡A′ A⇒Π , Πₙ)
+        F≡F′ , _ = B-PE-injectivity BΠ! BΠ! Π≡Π′
+    in  ¬u⇇F (PE.subst (λ x → _ ⊢ _ ⇇ x) F≡F′ x₂)}
+  ... | yes u⇇F with p ≟ p′
+  ... | no p≉p′ = no λ { (_ , appᵢ x x₁ x₂ x₃) →
+    let A≡A′ = deterministic⇉ t⇉A x
+        Π≡Π′ = whrDet* x₁ (PE.subst (λ x → _ ⊢ x ⇒* _) A≡A′ A⇒Π , Πₙ)
+        F≡F′ , G≡G′ , W≡W′ = B-PE-injectivity BΠ! BΠ! Π≡Π′
+        p≡p′ , _ = BΠ-PE-injectivity W≡W′
+    in  p≉p′ (PE.subst (λ x → x ≈ _) p≡p′ x₃)}
+  ... | yes p≈p′ = yes (_ , (appᵢ t⇉A (A⇒Π , Πₙ) u⇇F p≈p′))
 
-  dec⇉-natrec′ : ∀ {A z s n C} → ⊢ Γ → Nf z → Nf s → Γ ⊢ n ⇉ C → Γ ∙ ℕ ⊢ A → Γ ∙ ℕ ⊢ A ⇇Type → Dec (∃ λ B → Γ ⊢ natrec p r A z s n ⇉ B)
-  dec⇉-natrec′ ⊢Γ z s n⇉C ⊢A A⇇Type with dec⇇ ⊢Γ z (substType ⊢A (zeroⱼ ⊢Γ)) | decEq (proj₁ (soundness⇉ ⊢Γ n⇉C)) (ℕⱼ ⊢Γ)
-  dec⇉-natrec′ ⊢Γ z s n⇉C ⊢A A⇇Type | yes z⇇A₀ | yes C≡ℕ
-    with dec⇇ (⊢Γ ∙ ℕⱼ ⊢Γ ∙ ⊢A) s (W.wk (step id) (⊢Γ ∙ ℕⱼ ⊢Γ ∙ ⊢A) (subst↑Type ⊢A (sucⱼ (var (⊢Γ ∙ ℕⱼ ⊢Γ) here))))
-  dec⇉-natrec′ ⊢Γ z s n⇉C ⊢A A⇇Type | yes z⇇A₀ | yes C≡ℕ | yes s⇇A₊ = yes (_ , natrecᵢ A⇇Type z⇇A₀ s⇇A₊ (infᶜ n⇉C C≡ℕ))
-  dec⇉-natrec′ ⊢Γ z s n⇉C ⊢A A⇇Type | yes z⇇A₀ | yes C≡ℕ | no ¬s⇇A₊ = no (λ { (_ , natrecᵢ x x₁ x₂ x₃) → ¬s⇇A₊ x₂})
-  dec⇉-natrec′ ⊢Γ z s n⇉C ⊢A A⇇Type | yes z⇇A₀ | no C≢ℕ =
-    no λ { (_ , natrecᵢ x x₁ x₂ (infᶜ x₃ x₄)) → C≢ℕ (PE.subst (λ C → _ ⊢ C ≡ ℕ) (deterministic⇉ x₃ n⇉C) x₄)}
-  dec⇉-natrec′ ⊢Γ z s n⇉C ⊢A A⇇Type | no ¬z⇇A₀ | _ = no (λ { (_ , natrecᵢ x x₁ x₂ x₃) → ¬z⇇A₀ x₁})
+  dec⇉-fst : ⊢ Γ → Inferable t → Dec (∃ λ A → Γ ⊢ fst t ⇉ A)
+  dec⇉-fst ⊢Γ t with dec⇉ ⊢Γ t
+  ... | no ¬t⇉A = no λ { (_ , fstᵢ x x₁) → ¬t⇉A (_ , x)}
+  ... | yes (A , t⇉A) with isΣₚ (proj₁ (soundness⇉ ⊢Γ t⇉A))
+  ... | no ¬isΣ = no λ { (_ , fstᵢ x x₁) →
+    let A≡A′ = deterministic⇉ x t⇉A
+        _ , ⊢Σ = syntacticRed (proj₁ x₁)
+        ⊢F , ⊢G = syntacticΣ ⊢Σ
+    in  ¬isΣ (_ , _ , _ , ⊢F , ⊢G , PE.subst (λ x → _ ⊢ x ⇒* _) A≡A′ (proj₁ x₁))}
+  ... | yes (F , G , q , ⊢F , ⊢G , A⇒Σ) = yes (F , fstᵢ t⇉A (A⇒Σ , Σₙ))
 
-  dec⇉-natrec : ∀ {A z s n} → ⊢ Γ → Nf A → Nf z → Nf s → NfNeutral n → Dec (∃ λ B → Γ ⊢ natrec p r A z s n ⇉ B)
-  dec⇉-natrec ⊢Γ A z s n with dec⇉ ⊢Γ n | dec⇇Type (⊢Γ ∙ ℕⱼ ⊢Γ) A
-  dec⇉-natrec ⊢Γ A z s n | yes (B , n⇉B) | yes A⇇Type = dec⇉-natrec′ ⊢Γ z s n⇉B (soundness⇇Type (⊢Γ ∙ ℕⱼ ⊢Γ) A⇇Type) A⇇Type
-  dec⇉-natrec ⊢Γ A z s n | yes (B , n⇉B) | no ¬A⇇Type = no (λ { (_ , natrecᵢ x x₁ x₂ x₃) → ¬A⇇Type x})
-  dec⇉-natrec ⊢Γ A z s n | no ¬n⇇A | _ = no (λ { (_ , natrecᵢ x x₁ x₂ (infᶜ x₃ x₄)) → ¬n⇇A (_ , x₃)})
+  dec⇉-snd : ⊢ Γ → Inferable t → Dec (∃ λ A → Γ ⊢ snd t ⇉ A)
+  dec⇉-snd ⊢Γ t with dec⇉ ⊢Γ t
+  ... | no ¬t⇉A = no λ { (_ , sndᵢ x x₁) → ¬t⇉A (_ , x)}
+  ... | yes (A , t⇉A) with isΣₚ (proj₁ (soundness⇉ ⊢Γ t⇉A))
+  ... | no ¬isΣ = no λ { (_ , sndᵢ x x₁) →
+    let A≡A′ = deterministic⇉ x t⇉A
+        _ , ⊢Σ = syntacticRed (proj₁ x₁)
+        ⊢F , ⊢G = syntacticΣ ⊢Σ
+    in  ¬isΣ (_ , _ , _ , ⊢F , ⊢G , PE.subst (λ x → _ ⊢ x ⇒* _) A≡A′ (proj₁ x₁))}
+  ... | yes (F , G , q , ⊢F , ⊢G , A⇒Σ) = yes (G [ _ ] , sndᵢ t⇉A (A⇒Σ , Σₙ))
 
+  dec⇉-natrec′ : ∀ {A z s n} → ⊢ Γ → Checkable z → Checkable s → Γ ⊢ n ⇇ ℕ → Γ ∙ ℕ ⊢ A
+               → Γ ∙ ℕ ⊢ A ⇇Type → Dec (∃ λ B → Γ ⊢ natrec p r A z s n ⇉ B)
+  dec⇉-natrec′ ⊢Γ z s n⇇ℕ ⊢A A⇇Type with dec⇇ ⊢Γ z (substType ⊢A (zeroⱼ ⊢Γ))
+      | dec⇇ (⊢Γ ∙ ℕⱼ ⊢Γ ∙ ⊢A) s (W.wk (step id) (⊢Γ ∙ ℕⱼ ⊢Γ ∙ ⊢A) (subst↑Type ⊢A (sucⱼ (var (⊢Γ ∙ ℕⱼ ⊢Γ) here))))
+  ... | yes z⇇A₀ | yes s⇇A₊ = yes (_ , natrecᵢ A⇇Type z⇇A₀ s⇇A₊ n⇇ℕ)
+  ... | yes z⇇A₀ | no ¬s⇇A₊ = no λ { (_ , natrecᵢ x x₁ x₂ x₃) → ¬s⇇A₊ x₂}
+  ... | no ¬z⇇A₀ | _ = no λ { (_ , natrecᵢ x x₁ x₂ x₃) → ¬z⇇A₀ x₁}
 
-  dec⇉-prodrec : ⊢ Γ → Nf A → NfNeutral t → Nf u → Dec (∃ λ B → Γ ⊢ prodrec p A t u ⇉ B)
+  dec⇉-natrec : ∀ {A z s n} → ⊢ Γ → Checkable A → Checkable z → Checkable s → Checkable n → Dec (∃ λ B → Γ ⊢ natrec p r A z s n ⇉ B)
+  dec⇉-natrec ⊢Γ A z s n with dec⇇ ⊢Γ n (ℕⱼ ⊢Γ) | dec⇇Type (⊢Γ ∙ ℕⱼ ⊢Γ) A
+  ... | yes n⇇ℕ | yes A⇇Type = dec⇉-natrec′ ⊢Γ z s n⇇ℕ (soundness⇇Type (⊢Γ ∙ ℕⱼ ⊢Γ) A⇇Type) A⇇Type
+  ... | yes n⇇ℕ | no ¬A⇇Type = no λ { (_ , natrecᵢ x x₁ x₂ x₃) → ¬A⇇Type x}
+  ... | no ¬n⇇ℕ | _ = no λ { (_ , natrecᵢ x x₁ x₂ x₃) → ¬n⇇ℕ x₃}
+
+  dec⇉-prodrec : ⊢ Γ → Checkable A → Inferable t → Checkable u → Dec (∃ λ B → Γ ⊢ prodrec p A t u ⇉ B)
   dec⇉-prodrec ⊢Γ A t u with dec⇉ ⊢Γ t
-  dec⇉-prodrec ⊢Γ A t u | yes (B , t⇉B) with isΣᵣ (proj₁ (soundness⇉ ⊢Γ t⇉B))
-  dec⇉-prodrec ⊢Γ A t u | yes (B , t⇉B) | yes (F , G , q , ⊢F , ⊢G , B⇒ΣFG)
-    with dec⇇Type (⊢Γ ∙ (Σⱼ ⊢F ▹ ⊢G)) A
-  dec⇉-prodrec ⊢Γ A t u | yes (B , t⇉B) | yes (F , G , q , ⊢F , ⊢G , B⇒ΣFG)
-                        | yes A⇇Type with dec⇇ (⊢Γ ∙ ⊢F ∙ ⊢G) u (subst↑²Type (soundness⇇Type (⊢Γ ∙ proj₂ (syntacticRed B⇒ΣFG)) A⇇Type))
-  dec⇉-prodrec ⊢Γ A t u | yes (B , t⇉B) | yes (F , G , q , ⊢F , ⊢G , B⇒ΣFG)
-                        | yes A⇇Type | yes u⇇A₊ = yes (_ , prodrecᵢ A⇇Type t⇉B (B⇒ΣFG , Σₙ) u⇇A₊)
-  dec⇉-prodrec ⊢Γ A t u | yes (B , t⇉B) | yes (F , G , q , ⊢F , ⊢G , B⇒ΣFG)
-                        | yes A⇇Type | no ¬u⇇A₊ = no λ { (_ , prodrecᵢ x x₁ x₂ x₃) →
-    let B≡B′ = deterministic⇉ t⇉B x₁
-        Σ≡Σ′ = whrDet* (PE.subst (λ B → _ ⊢ B ↘ _) B≡B′ (B⇒ΣFG , Σₙ)) x₂
-        F≡F′ , G≡G′ , _ = B-PE-injectivity BΣ! BΣ! Σ≡Σ′
-    in  ¬u⇇A₊ (PE.subst₂ (λ F G → (_ ∙ F ∙ G) ⊢ _ ⇇ _) (PE.sym F≡F′) (PE.sym G≡G′) x₃)}
-  dec⇉-prodrec {Γ = Γ} {A = A′} ⊢Γ A t u | yes (B , t⇉B) | yes (F , G , q , ⊢F , ⊢G , B⇒ΣFG)
-                        | no ¬A⇇Type = no (λ { (_ , prodrecᵢ x x₁ x₂ x₃) →
-    let B≡B′ = deterministic⇉ t⇉B x₁
-        Σ≡Σ′ = whrDet* (PE.subst (λ B → _ ⊢ B ↘ _) B≡B′ (B⇒ΣFG , Σₙ)) x₂
-    in  ¬A⇇Type (PE.subst (λ Σ → Γ ∙ Σ ⊢ A′ ⇇Type) (PE.sym Σ≡Σ′) x)})
-  dec⇉-prodrec ⊢Γ A t u | yes (B , t⇉B) | no ¬isΣᵣ = no λ { (_ , prodrecᵢ x x₁ x₂ x₃) →
-    let B′≡B = deterministic⇉ x₁ t⇉B
+  ... | no ¬t⇉B = no λ { (_ , prodrecᵢ x x₁ x₂ x₃) → ¬t⇉B (_ , x₁)}
+  ... | yes (B , t⇉B) with isΣᵣ (proj₁ (soundness⇉ ⊢Γ t⇉B))
+  ... | no ¬isΣ = no λ { (_ , prodrecᵢ x x₁ x₂ x₃) →
+    let B≡B′ = deterministic⇉ x₁ t⇉B
         _ , ⊢Σ = syntacticRed (proj₁ x₂)
         ⊢F , ⊢G = syntacticΣ ⊢Σ
-    in  ¬isΣᵣ (_ , _ , _ , ⊢F , ⊢G , PE.subst (λ B → _ ⊢ B ⇒* _) B′≡B (proj₁ x₂))}
-  dec⇉-prodrec ⊢Γ A t u | no ¬t⇉B = no λ { (_ , prodrecᵢ x x₁ x₂ x₃) → ¬t⇉B (_ , x₁)}
+    in  ¬isΣ (_ , _ , _ , ⊢F , ⊢G , PE.subst (λ x → _ ⊢ x ⇒* _) B≡B′ (proj₁ x₂))}
+  ... | yes (F , G , q , ⊢F , ⊢G , B⇒Σ) with dec⇇Type (⊢Γ ∙ (Σⱼ ⊢F ▹ ⊢G)) A
+  ... | no ¬A⇇Type = no λ { (_ , prodrecᵢ x x₁ x₂ x₃) →
+    let B≡B′ = deterministic⇉ t⇉B x₁
+        Σ≡Σ′ = whrDet* x₂ (PE.subst (λ x → _ ⊢ x ⇒* _) B≡B′ B⇒Σ , Σₙ)
+        F≡F′ , G≡G′ , W≡W′ = B-PE-injectivity BΣ! BΣ! Σ≡Σ′
+        q≡q′ , _ = BΣ-PE-injectivity W≡W′
+    in  ¬A⇇Type (PE.subst₃ (λ x y z → _ ∙ (Σ x ▷ y ▹ z) ⊢ _ ⇇Type) q≡q′ F≡F′ G≡G′ x)}
+  ... | yes A⇇Type with dec⇇ (⊢Γ ∙ ⊢F ∙ ⊢G) u (subst↑²Type (soundness⇇Type (⊢Γ ∙ (Σⱼ ⊢F ▹ ⊢G)) A⇇Type))
+  ... | no ¬u⇇A₊ = no λ { (_ , prodrecᵢ x x₁ x₂ x₃) →
+    let B≡B′ = deterministic⇉ t⇉B x₁
+        Σ≡Σ′ = whrDet* x₂ (PE.subst (λ x → _ ⊢ x ⇒* _) B≡B′ B⇒Σ , Σₙ)
+        F≡F′ , G≡G′ , W≡W′ = B-PE-injectivity BΣ! BΣ! Σ≡Σ′
+    in  ¬u⇇A₊ (PE.subst₂ (λ x y → _ ∙ x ∙ y ⊢ _ ⇇ _) F≡F′ G≡G′ x₃)}
+  ... | yes u⇇A₊ = yes (_ , prodrecᵢ A⇇Type t⇉B (B⇒Σ , Σₙ) u⇇A₊)
+
+  dec⇉-Emptyrec : ⊢ Γ → Checkable A → Checkable t → Dec (∃ λ B → Γ ⊢ Emptyrec p A t ⇉ B)
+  dec⇉-Emptyrec ⊢Γ A t with dec⇇Type ⊢Γ A | dec⇇ ⊢Γ t (Emptyⱼ ⊢Γ)
+  ... | yes A⇇Type | yes t⇇Empty = yes (_ , Emptyrecᵢ A⇇Type t⇇Empty)
+  ... | yes A⇇Type | no ¬t⇇Empty = no λ { (_ , Emptyrecᵢ x x₁) → ¬t⇇Empty x₁}
+  ... | no ¬A⇇Type | _ = no λ { (_ , Emptyrecᵢ x x₁) → ¬A⇇Type x}
 
   -- Decidability of checking that a term is a type
 
-  dec⇇Type : ⊢ Γ → Nf A → Dec (Γ ⊢ A ⇇Type)
-  dec⇇Type ⊢Γ Uₙ = yes Uᵢ
-  dec⇇Type ⊢Γ (Πₙ F G) with dec⇇Type ⊢Γ F
+  dec⇉Type : ⊢ Γ → Inferable A → Dec (Γ ⊢ A ⇇Type)
+  dec⇉Type ⊢Γ Uᵢ = yes Uᶜ
+  dec⇉Type ⊢Γ (Πᵢ F G) with dec⇇Type ⊢Γ F
   ... | yes F⇇Type with dec⇇Type (⊢Γ ∙ soundness⇇Type ⊢Γ F⇇Type) G
-  ... | yes G⇇Type = yes (Πᵢ F⇇Type G⇇Type)
-  ... | no ¬G⇇Type = no (λ { (Πᵢ x x₁) → ¬G⇇Type x₁ ; (univᵢ (infᶜ (Πᵢ x x₂) x₁)) → ¬G⇇Type (univᵢ x₂)})
-  dec⇇Type ⊢Γ (Πₙ F G) | no ¬F⇇Type = no (λ { (Πᵢ x x₁) → ¬F⇇Type x ; (univᵢ (infᶜ (Πᵢ x x₂) x₁)) → ¬F⇇Type (univᵢ x)})
-  dec⇇Type ⊢Γ (Σₙ F G) with dec⇇Type ⊢Γ F
+  ... | yes G⇇Type = yes (Πᶜ F⇇Type G⇇Type)
+  ... | no ¬G⇇Type = no λ { (Πᶜ x x₁) → ¬G⇇Type x₁ ; (univᶜ (infᶜ (Πᵢ x x₂) x₁)) → ¬G⇇Type (univᶜ x₂)}
+  dec⇉Type ⊢Γ (Πᵢ F G) | no ¬F⇇Type = no λ { (Πᶜ x x₁) → ¬F⇇Type x ; (univᶜ (infᶜ (Πᵢ x x₂) x₁)) → ¬F⇇Type (univᶜ x)}
+  dec⇉Type ⊢Γ (Σᵢ F G) with dec⇇Type ⊢Γ F
   ... | yes F⇇Type with dec⇇Type (⊢Γ ∙ soundness⇇Type ⊢Γ F⇇Type) G
-  ... | yes G⇇Type = yes (Σᵢ F⇇Type G⇇Type)
-  ... | no ¬G⇇Type = no (λ { (Σᵢ x x₁) → ¬G⇇Type x₁ ; (univᵢ (infᶜ (Σᵢ x x₂) x₁)) → ¬G⇇Type (univᵢ x₂)})
-  dec⇇Type ⊢Γ (Σₙ F G) | no ¬F⇇Type = no (λ { (Σᵢ x x₁) → ¬F⇇Type x ; (univᵢ (infᶜ (Σᵢ x x₂) x₁)) → ¬F⇇Type (univᵢ x)})
-  dec⇇Type ⊢Γ ℕₙ = yes ℕᵢ
-  dec⇇Type ⊢Γ Emptyₙ = yes Emptyᵢ
-  dec⇇Type ⊢Γ Unitₙ = yes Unitᵢ
-  dec⇇Type ⊢Γ (lamₙ t) = no (λ { (univᵢ (lamᶜ x x₁ x₂)) → U.U≢B BΠ! (whnfRed* (proj₁ x) Uₙ)})
-  dec⇇Type ⊢Γ (prodₙ t u) = no (λ { (univᵢ (prodᶜ x x₁ x₂)) → U.U≢B BΣ! (whnfRed* (proj₁ x) Uₙ)})
-  dec⇇Type ⊢Γ zeroₙ = no (λ { (univᵢ (infᶜ zeroᵢ x₁)) → U≢ℕ (sym x₁)})
-  dec⇇Type ⊢Γ (sucₙ t) = no (λ { (univᵢ (infᶜ (sucᵢ x) x₁)) → U≢ℕ (sym x₁)})
-  dec⇇Type ⊢Γ starₙ = no (λ { (univᵢ (infᶜ starᵢ x₁)) → U≢Unitⱼ (sym x₁)})
-  dec⇇Type ⊢Γ (ne x) with dec⇉ ⊢Γ x
-  ... | yes (A , t⇉A) with decEq (proj₁ (soundness⇉ ⊢Γ t⇉A)) (Uⱼ ⊢Γ)
-  ... | yes A≡U = yes (univᵢ (infᶜ t⇉A A≡U))
-  ... | no A≢U = no (λ { (univᵢ (infᶜ x x₁)) → A≢U (PE.subst (λ A → _ ⊢ A ≡ _) (deterministic⇉ x t⇉A) x₁)})
-  dec⇇Type ⊢Γ (ne x) | no ¬t⇉A = no (λ { (univᵢ (infᶜ x x₁)) → ¬t⇉A (_ , x)})
+  ... | yes G⇇Type = yes (Σᶜ F⇇Type G⇇Type)
+  ... | no ¬G⇇Type = no λ { (Σᶜ x x₁) → ¬G⇇Type x₁ ; (univᶜ (infᶜ (Σᵢ x x₂) x₁)) → ¬G⇇Type (univᶜ x₂)}
+  dec⇉Type ⊢Γ (Σᵢ F G) | no ¬F⇇Type = no λ { (Σᶜ x x₁) → ¬F⇇Type x ; (univᶜ (infᶜ (Σᵢ x x₂) x₁)) → ¬F⇇Type (univᶜ x)}
+  dec⇉Type ⊢Γ (varᵢ {x = x}) with dec⇇-var x (Uⱼ ⊢Γ)
+  ... | yes x⇇U = yes (univᶜ x⇇U)
+  ... | no ¬x⇇U = no λ { (univᶜ x) → ¬x⇇U x}
+  dec⇉Type ⊢Γ (∘ᵢ t u) with dec⇉-app ⊢Γ t u
+  ... | no ¬tu⇉A = no λ { (univᶜ (infᶜ x x₁)) → ¬tu⇉A (_ , x)}
+  ... | yes (A , tu⇉A) with decEq (proj₁ (soundness⇉ ⊢Γ tu⇉A)) (Uⱼ ⊢Γ)
+  ... | no A≢U = no λ { (univᶜ (infᶜ x x₁)) →
+    let A≡A′ = deterministic⇉ x tu⇉A
+    in  A≢U (PE.subst (λ x → _ ⊢ x ≡ U) A≡A′ x₁)}
+  ... | yes A≡U = yes (univᶜ (infᶜ tu⇉A A≡U))
+  dec⇉Type ⊢Γ (fstᵢ t) with dec⇉-fst ⊢Γ t
+  ... | no ¬t₁⇉A = no λ { (univᶜ (infᶜ x x₁)) → ¬t₁⇉A (_ , x)}
+  ... | yes (A , t₁⇉A) with decEq (proj₁ (soundness⇉ ⊢Γ t₁⇉A)) (Uⱼ ⊢Γ)
+  ... | no A≢U = no λ { (univᶜ (infᶜ x x₁)) →
+    let A≡A′ = deterministic⇉ x t₁⇉A
+    in  A≢U (PE.subst (λ x → _ ⊢ x ≡ U) A≡A′ x₁)}
+  ... | yes A≡U = yes (univᶜ (infᶜ t₁⇉A A≡U))
+  dec⇉Type ⊢Γ (sndᵢ t) with dec⇉-snd ⊢Γ t
+  ... | no ¬t₂⇉A = no λ { (univᶜ (infᶜ x x₁)) → ¬t₂⇉A (_ , x)}
+  ... | yes (A , t₂⇉A) with decEq (proj₁ (soundness⇉ ⊢Γ t₂⇉A)) (Uⱼ ⊢Γ)
+  ... | no A≢U = no λ { (univᶜ (infᶜ x x₁)) →
+    let A≡A′ = deterministic⇉ x t₂⇉A
+    in  A≢U (PE.subst (λ x → _ ⊢ x ≡ U) A≡A′ x₁)}
+  ... | yes A≡U = yes (univᶜ (infᶜ t₂⇉A A≡U))
+  dec⇉Type ⊢Γ (prodrecᵢ A t u) with dec⇉-prodrec ⊢Γ A t u
+  ... | no ¬pr⇉B = no λ { (univᶜ (infᶜ x x₁)) → ¬pr⇉B (_ , x)}
+  ... | yes (B , pr⇉B) with decEq (proj₁ (soundness⇉ ⊢Γ pr⇉B)) (Uⱼ ⊢Γ)
+  ... | no B≢U = no λ { (univᶜ (infᶜ x x₁)) →
+    let B≡B′ = deterministic⇉ x pr⇉B
+    in  B≢U (PE.subst (λ x → _ ⊢ x ≡ U) B≡B′ x₁)}
+  ... | yes B≡U = yes (univᶜ (infᶜ pr⇉B B≡U))
+  dec⇉Type ⊢Γ ℕᵢ = yes ℕᶜ
+  dec⇉Type ⊢Γ zeroᵢ = no λ { (univᶜ (infᶜ zeroᵢ x₁)) → U≢ℕ (sym x₁)}
+  dec⇉Type ⊢Γ (sucᵢ x) = no λ { (univᶜ (infᶜ (sucᵢ x) x₁)) → U≢ℕ (sym x₁)}
+  dec⇉Type ⊢Γ (natrecᵢ A z s n) with dec⇉-natrec ⊢Γ A z s n
+  ... | no ¬nr⇉B = no λ { (univᶜ (infᶜ x x₁)) → ¬nr⇉B (_ , x)}
+  ... | yes (B , nr⇉B) with decEq (proj₁ (soundness⇉ ⊢Γ nr⇉B)) (Uⱼ ⊢Γ)
+  ... | no B≢U = no λ { (univᶜ (infᶜ x x₁)) →
+    let B≡B′ = deterministic⇉ x nr⇉B
+    in  B≢U (PE.subst (λ x → _ ⊢ x ≡ U) B≡B′ x₁)}
+  ... | yes B≡U = yes (univᶜ (infᶜ nr⇉B B≡U))
+  dec⇉Type ⊢Γ Unitᵢ = yes Unitᶜ
+  dec⇉Type ⊢Γ starᵢ = no λ { (univᶜ (infᶜ starᵢ x₁)) → U≢Unitⱼ (sym x₁)}
+  dec⇉Type ⊢Γ Emptyᵢ = yes Emptyᶜ
+  dec⇉Type ⊢Γ (Emptyrecᵢ A t) with dec⇉-Emptyrec ⊢Γ A t
+  ... | no ¬er⇉B = no λ { (univᶜ (infᶜ x x₁)) → ¬er⇉B (_ , x)}
+  ... | yes (B , er⇉B) with decEq (proj₁ (soundness⇉ ⊢Γ er⇉B)) (Uⱼ ⊢Γ)
+  ... | no B≢U = no λ { (univᶜ (infᶜ x x₁)) →
+    let B≡B′ = deterministic⇉ x er⇉B
+    in  B≢U (PE.subst (λ x → _ ⊢ x ≡ U) B≡B′ x₁)}
+  ... | yes B≡U = yes (univᶜ (infᶜ er⇉B B≡U))
+
+  dec⇇Type : ⊢ Γ → Checkable A → Dec (Γ ⊢ A ⇇Type)
+  dec⇇Type ⊢Γ (lamᶜ t) = no λ { (univᶜ (lamᶜ x x₁ x₂)) → U.U≢B BΠ! (whnfRed* (proj₁ x) Uₙ)}
+  dec⇇Type ⊢Γ (prodᶜ t u) = no λ { (univᶜ (prodᶜ x x₁ x₂)) → U.U≢B BΣ! (whnfRed* (proj₁ x) Uₙ)}
+  dec⇇Type ⊢Γ (infᶜ x) = dec⇉Type ⊢Γ x
 
   -- Decidability of algorithmic type inference
 
-  dec⇉ : ⊢ Γ → NfNeutral t → Dec (∃ λ A → Γ ⊢ t ⇉ A)
-  dec⇉ ⊢Γ (var x) = yes (_ , varᵢ (proj₂ (dec⇉-var x)))
-  dec⇉ ⊢Γ (∘ₙ {q = p} t u) = dec⇉-app ⊢Γ t u
-  dec⇉ ⊢Γ (fstₙ t) with dec⇉ ⊢Γ t
-  ... | yes (A , t⇉A) with isΣₚ (proj₁ (soundness⇉ ⊢Γ t⇉A))
-  ... | yes (F , G , q , ⊢F , ⊢G , A⇒ΣFG) = yes (_ , fstᵢ t⇉A (A⇒ΣFG , Σₙ))
-  ... | no ¬A⇒ΣFG = no (λ { (_ , fstᵢ x x₁) →
-    let A≡A′ = deterministic⇉ t⇉A x
-        A⇒ΣFG = PE.subst (λ A → _ ⊢ A ↘ _) (PE.sym A≡A′) x₁
-        _ , ⊢ΣFG = syntacticRed (proj₁ x₁)
-        ⊢F , ⊢G = syntacticΣ ⊢ΣFG
-    in  ¬A⇒ΣFG (_ , _ , _ , ⊢F , ⊢G , proj₁ A⇒ΣFG)})
-  dec⇉ ⊢Γ (fstₙ t) | no ¬t⇉A = no (λ { (_ , fstᵢ x x₁) → ¬t⇉A (_ , x)})
-  dec⇉ ⊢Γ (sndₙ t) with dec⇉ ⊢Γ t
-  ... | yes (A , t⇉A) with isΣₚ (proj₁ (soundness⇉ ⊢Γ t⇉A))
-  ... | yes (F , G , q , ⊢F , ⊢G , A⇒ΣFG) = yes (_ , sndᵢ t⇉A (A⇒ΣFG , Σₙ))
-  ... | no ¬A⇒ΣFG = no (λ { (_ , sndᵢ x x₁) →
-    let A≡A′ = deterministic⇉ t⇉A x
-        A⇒ΣFG = PE.subst (λ A → _ ⊢ A ↘ _) (PE.sym A≡A′) x₁
-        _ , ⊢ΣFG = syntacticRed (proj₁ x₁)
-        ⊢F , ⊢G = syntacticΣ ⊢ΣFG
-    in  ¬A⇒ΣFG (_ , _ , _ , ⊢F , ⊢G , proj₁ A⇒ΣFG)})
-  dec⇉ ⊢Γ (sndₙ t) | no ¬t⇉A = no (λ { (_ , sndᵢ x x₁) → ¬t⇉A (_ , x)})
-  dec⇉ ⊢Γ (natrecₙ A z s n) = dec⇉-natrec ⊢Γ A z s n
-  dec⇉ ⊢Γ (prodrecₙ A t u) = dec⇉-prodrec ⊢Γ A t u
-  dec⇉ ⊢Γ (Emptyrecₙ A t) with dec⇉ ⊢Γ t
-  ... | yes (B , t⇉B) with decEq (proj₁ (soundness⇉ ⊢Γ t⇉B)) (Emptyⱼ ⊢Γ) | dec⇇Type ⊢Γ A
-  ... | yes B≡Empty | yes A⇇Type = yes (_ , Emptyrecᵢ A⇇Type (infᶜ t⇉B B≡Empty))
-  ... | yes B≡Empty | no ¬A⇇Type = no (λ { (_ , Emptyrecᵢ x x₁) → ¬A⇇Type x})
-  ... | no B≢Empty | _ = no (λ { (_ , Emptyrecᵢ x (infᶜ x₁ x₂)) → B≢Empty (PE.subst (λ B → _ ⊢ B ≡ Empty) (deterministic⇉ x₁ t⇉B) x₂)})
-  dec⇉ ⊢Γ (Emptyrecₙ A t) | no ¬t⇉B = no (λ { (_ , Emptyrecᵢ x (infᶜ x₁ x₂)) → ¬t⇉B ((_ , x₁))})
+  dec⇉ : ⊢ Γ → Inferable t → Dec (∃ λ A → Γ ⊢ t ⇉ A)
+  dec⇉ ⊢Γ Uᵢ = no (λ { (A , ())})
+  dec⇉ ⊢Γ (Πᵢ F G) with dec⇇ ⊢Γ F (Uⱼ ⊢Γ)
+  ... | no ¬F⇇U = no λ { (_ , Πᵢ x x₁) → ¬F⇇U x}
+  ... | yes F⇇U with dec⇇ (⊢Γ ∙ univ (soundness⇇ ⊢Γ F⇇U)) G (Uⱼ (⊢Γ ∙ univ (soundness⇇ ⊢Γ F⇇U)))
+  ... | no ¬G⇇U = no λ { (_ , Πᵢ x x₁) → ¬G⇇U x₁}
+  ... | yes G⇇U = yes (U , Πᵢ F⇇U G⇇U)
+  dec⇉ ⊢Γ (Σᵢ F G) with dec⇇ ⊢Γ F (Uⱼ ⊢Γ)
+  ... | no ¬F⇇U = no λ { (_ , Σᵢ x x₁) → ¬F⇇U x}
+  ... | yes F⇇U with dec⇇ (⊢Γ ∙ univ (soundness⇇ ⊢Γ F⇇U)) G (Uⱼ (⊢Γ ∙ univ (soundness⇇ ⊢Γ F⇇U)))
+  ... | no ¬G⇇U = no λ { (_ , Σᵢ x x₁) → ¬G⇇U x₁}
+  ... | yes G⇇U = yes (U , Σᵢ F⇇U G⇇U)
+  dec⇉ ⊢Γ varᵢ = yes (_ , varᵢ (proj₂ (dec⇉-var _)))
+  dec⇉ ⊢Γ (∘ᵢ t u) = dec⇉-app ⊢Γ t u
+  dec⇉ ⊢Γ (fstᵢ t) = dec⇉-fst ⊢Γ t
+  dec⇉ ⊢Γ (sndᵢ t) = dec⇉-snd ⊢Γ t
+  dec⇉ ⊢Γ (prodrecᵢ A t u) = dec⇉-prodrec ⊢Γ A t u
+  dec⇉ ⊢Γ ℕᵢ = yes (U , ℕᵢ)
+  dec⇉ ⊢Γ zeroᵢ = yes (ℕ , zeroᵢ)
+  dec⇉ ⊢Γ (sucᵢ t) with dec⇇ ⊢Γ t (ℕⱼ ⊢Γ)
+  ... | no ¬t⇇ℕ = no λ { (_ , sucᵢ x) → ¬t⇇ℕ x}
+  ... | yes t⇇ℕ = yes (ℕ , sucᵢ t⇇ℕ)
+  dec⇉ ⊢Γ (natrecᵢ A z s n) = dec⇉-natrec ⊢Γ A z s n
+  dec⇉ ⊢Γ Unitᵢ = yes (U , Unitᵢ)
+  dec⇉ ⊢Γ starᵢ = yes (Unit , starᵢ)
+  dec⇉ ⊢Γ Emptyᵢ = yes (U , Emptyᵢ)
+  dec⇉ ⊢Γ (Emptyrecᵢ A t) = dec⇉-Emptyrec ⊢Γ A t
 
   -- Decidability of algorithmic type checking
 
-  dec⇇ : ⊢ Γ → Nf t → Γ ⊢ A → Dec (Γ ⊢ t ⇇ A)
-  dec⇇ ⊢Γ Uₙ ⊢A = no (λ { (infᶜ () x₁)})
-  dec⇇ ⊢Γ (Πₙ F G) ⊢A with dec⇇ ⊢Γ F (Uⱼ ⊢Γ)
-  ... | yes F⇇U with dec⇇ (⊢Γ ∙ univ (soundness⇇ ⊢Γ (Uⱼ ⊢Γ) F⇇U)) G (Uⱼ (⊢Γ ∙ univ (soundness⇇ ⊢Γ (Uⱼ ⊢Γ) F⇇U)))
-  ... | yes G⇇U with decEq (Uⱼ ⊢Γ) ⊢A
-  ... | yes U≡A = yes (infᶜ (Πᵢ F⇇U G⇇U) U≡A)
-  ... | no U≢A = no (λ { (infᶜ (Πᵢ x x₂) x₁) → U≢A x₁})
-  dec⇇ ⊢Γ (Πₙ F G) ⊢A | yes F⇇U | no ¬G⇇U = no (λ { (infᶜ (Πᵢ x x₂) x₁) → ¬G⇇U x₂})
-  dec⇇ ⊢Γ (Πₙ F G) ⊢A | no ¬F⇇U = no (λ { (infᶜ (Πᵢ x x₂) x₁) → ¬F⇇U x})
-  dec⇇ ⊢Γ (Σₙ F G) ⊢A with dec⇇ ⊢Γ F (Uⱼ ⊢Γ)
-  ... | yes F⇇U with dec⇇ (⊢Γ ∙ univ (soundness⇇ ⊢Γ (Uⱼ ⊢Γ) F⇇U)) G (Uⱼ (⊢Γ ∙ univ (soundness⇇ ⊢Γ (Uⱼ ⊢Γ) F⇇U)))
-  ... | yes G⇇U with decEq (Uⱼ ⊢Γ) ⊢A
-  ... | yes U≡A = yes (infᶜ (Σᵢ F⇇U G⇇U) U≡A)
-  ... | no U≢A = no (λ { (infᶜ (Σᵢ x x₂) x₁) → U≢A x₁})
-  dec⇇ ⊢Γ (Σₙ F G) ⊢A | yes F⇇U | no ¬G⇇U = no (λ { (infᶜ (Σᵢ x x₂) x₁) → ¬G⇇U x₂})
-  dec⇇ ⊢Γ (Σₙ F G) ⊢A | no ¬F⇇U = no (λ { (infᶜ (Σᵢ x x₂) x₁) → ¬F⇇U x})
-  dec⇇ ⊢Γ ℕₙ ⊢A with decEq (Uⱼ ⊢Γ) ⊢A
-  ... | yes U≡A = yes (infᶜ ℕᵢ U≡A)
-  ... | no U≢A = no (λ { (infᶜ ℕᵢ x₁) → U≢A x₁})
-  dec⇇ ⊢Γ Emptyₙ ⊢A with decEq (Uⱼ ⊢Γ) ⊢A
-  ... | yes U≡A = yes (infᶜ Emptyᵢ U≡A)
-  ... | no U≢A = no (λ { (infᶜ Emptyᵢ x₁) → U≢A x₁})
-  dec⇇ ⊢Γ Unitₙ ⊢A with decEq (Uⱼ ⊢Γ) ⊢A
-  ... | yes U≡A = yes (infᶜ Unitᵢ U≡A)
-  ... | no U≢A = no (λ { (infᶜ Unitᵢ x₁) → U≢A x₁})
-  dec⇇ ⊢Γ (lamₙ {q = p} t) ⊢A with isΠ ⊢A
-  ... | yes (F , G , p′ , q , ⊢F , ⊢G , A⇒ΠFG) with dec⇇ (⊢Γ ∙ ⊢F) t ⊢G | p ≟ p′
-  ... | yes t⇇G | yes p≈p′ = yes (lamᶜ (A⇒ΠFG , Πₙ) t⇇G (≈-sym p≈p′))
-  ... | yes t⇇G | no p≉p′ = no (λ { (lamᶜ x x₁ x₂) →
-    let Π≡Π′ = trans (sym (subset* A⇒ΠFG)) (subset* (proj₁ x))
-        _ , _ , p′≈p″ , _ = injectivity Π≡Π′
-    in  p≉p′ (≈-trans (≈-sym x₂) (≈-sym p′≈p″))})
-  ... | no ¬t⇇G | _ = no (λ { (lamᶜ x x₁ x₂) →
-    let Π≡Π′ = whrDet* (A⇒ΠFG , Πₙ) x
+  dec⇇ : ⊢ Γ → Checkable t → Γ ⊢ A → Dec (Γ ⊢ t ⇇ A)
+  dec⇇ ⊢Γ (lamᶜ {p = p′} t) ⊢A with isΠ ⊢A
+  ... | no ¬isΠ = no λ { (lamᶜ x x₁ x₂) →
+    let _ , ⊢Π = syntacticRed (proj₁ x)
+        ⊢F , ⊢G = syntacticΠ ⊢Π
+    in  ¬isΠ (_ , _ , _ , _ , ⊢F , ⊢G , proj₁ x)}
+  ... | yes (F , G , p , q , ⊢F , ⊢G , A⇒Π) with dec⇇ (⊢Γ ∙ ⊢F) t ⊢G
+  ... | no ¬t⇇G = no λ { (lamᶜ x x₁ x₂) →
+    let Π≡Π′ = whrDet* x (A⇒Π , Πₙ)
         F≡F′ , G≡G′ , _ = B-PE-injectivity BΠ! BΠ! Π≡Π′
-    in  ¬t⇇G (PE.subst₂ (λ F G → (_ ∙ F) ⊢ _ ⇇ G) (PE.sym F≡F′) (PE.sym G≡G′) x₁)})
-  dec⇇ ⊢Γ (lamₙ t) ⊢A | no ¬isΠ = no (λ { (lamᶜ x x₁ x₂) →
-    let _ , ⊢ΠFG = syntacticRed (proj₁ x)
-        ⊢F , ⊢G = syntacticΠ ⊢ΠFG
-    in  ¬isΠ (_ , _ , _ , _ , ⊢F , ⊢G , proj₁ x)})
-  dec⇇ ⊢Γ (prodₙ t u) ⊢A with isΣ ⊢A
-  ... | yes (F , G , m , q , ⊢F , ⊢G , A⇒ΣFG) with dec⇇ ⊢Γ t ⊢F
-  ... | yes t⇇F with dec⇇ ⊢Γ u (substType ⊢G (soundness⇇ ⊢Γ ⊢F t⇇F))
-  ... | yes u⇇Gt = yes (prodᶜ (A⇒ΣFG , Σₙ) t⇇F u⇇Gt)
-  ... | no ¬u⇇Gt = no (λ { (prodᶜ x x₁ x₂) →
-    let Σ≡Σ′ = whrDet* (A⇒ΣFG , Σₙ) x
+    in  ¬t⇇G (PE.subst₂ (λ x y → _ ∙ x ⊢ _ ⇇ y) F≡F′ G≡G′ x₁)}
+  ... | yes t⇇G with p ≟ p′
+  ... | no p≉p′ = no λ { (lamᶜ x x₁ x₂) →
+    let Π≡Π′ = whrDet* x (A⇒Π , Πₙ)
+        F≡F′ , G≡G′ , W≡W′ = B-PE-injectivity BΠ! BΠ! Π≡Π′
+        p≡p′ , _ = BΠ-PE-injectivity W≡W′
+    in  p≉p′ (PE.subst (λ x → x ≈ _) p≡p′ x₂)}
+  ... | yes p≈p′ = yes (lamᶜ (A⇒Π , Πₙ) t⇇G p≈p′)
+  dec⇇ ⊢Γ (prodᶜ t u) ⊢A with isΣ ⊢A
+  ... | no ¬isΣ = no λ { (prodᶜ x x₁ x₂) →
+    let _ , ⊢Σ = syntacticRed (proj₁ x)
+        ⊢F , ⊢G = syntacticΣ ⊢Σ
+    in  ¬isΣ (_ , _ , _ , _ , ⊢F , ⊢G , proj₁ x)}
+  ... | yes (F , G , q , m , ⊢F , ⊢G , A⇒Σ) with dec⇇ ⊢Γ t ⊢F
+  ... | no ¬t⇇F = no λ { (prodᶜ x x₁ x₂) →
+    let Σ≡Σ′ = whrDet* x (A⇒Σ , Σₙ)
         F≡F′ , G≡G′ , _ = B-PE-injectivity BΣ! BΣ! Σ≡Σ′
-    in  ¬u⇇Gt (PE.subst (λ G → _ ⊢ _ ⇇ (G [ _ ])) (PE.sym G≡G′) x₂)})
-  dec⇇ ⊢Γ (prodₙ t u) ⊢A | yes (F , G , m , q , ⊢F , ⊢G , A⇒ΣFG) | no ¬t⇇F = no λ { (prodᶜ x x₁ x₂) →
-    let Σ≡Σ′ = whrDet* (A⇒ΣFG , Σₙ) x
+    in  ¬t⇇F (PE.subst (λ x → _ ⊢ _ ⇇ x) F≡F′ x₁)}
+  ... | yes t⇇F with dec⇇ ⊢Γ u (substType ⊢G (soundness⇇ ⊢Γ t⇇F))
+  ... | no ¬u⇇Gₜ = no λ { (prodᶜ x x₁ x₂) →
+    let Σ≡Σ′ = whrDet* x (A⇒Σ , Σₙ)
         F≡F′ , G≡G′ , _ = B-PE-injectivity BΣ! BΣ! Σ≡Σ′
-    in  ¬t⇇F (PE.subst (λ F → _ ⊢ _ ⇇ F) (PE.sym F≡F′) x₁)}
-  dec⇇ ⊢Γ (prodₙ t u) ⊢A | no ¬isΣ = no (λ { (prodᶜ x x₁ x₂) →
-    let _ , ⊢ΣFG = syntacticRed (proj₁ x)
-        ⊢F , ⊢G = syntacticΣ ⊢ΣFG
-    in  ¬isΣ (_ , _ , _ , _ , ⊢F , ⊢G , proj₁ x)})
-  dec⇇ ⊢Γ zeroₙ ⊢A with decEq (ℕⱼ ⊢Γ) ⊢A
-  ... | yes ℕ≡A = yes (infᶜ zeroᵢ ℕ≡A)
-  ... | no ℕ≢A = no (λ { (infᶜ zeroᵢ x₁) → ℕ≢A x₁})
-  dec⇇ ⊢Γ (sucₙ t) ⊢A with dec⇇ ⊢Γ t (ℕⱼ ⊢Γ)
-  ... | yes t⇇ℕ with decEq (ℕⱼ ⊢Γ) ⊢A
-  ... | yes ℕ≡A = yes (infᶜ (sucᵢ t⇇ℕ) ℕ≡A)
-  ... | no ℕ≢A = no (λ { (infᶜ (sucᵢ x) x₁) → ℕ≢A x₁})
-  dec⇇ ⊢Γ (sucₙ t) ⊢A | no ¬t⇇ℕ = no λ { (infᶜ (sucᵢ x) x₁) → ¬t⇇ℕ x}
-  dec⇇ ⊢Γ starₙ ⊢A with decEq (Unitⱼ ⊢Γ) ⊢A
-  ... | yes Unit≡A = yes (infᶜ starᵢ Unit≡A)
-  ... | no Unit≢A = no (λ { (infᶜ starᵢ x₁) → Unit≢A x₁})
-  dec⇇ ⊢Γ (ne x) ⊢A with dec⇉ ⊢Γ x
+    in  ¬u⇇Gₜ (PE.subst (λ x → _ ⊢ _ ⇇ x [ _ ]) G≡G′ x₂)}
+  ... | yes u⇇Gₜ = yes (prodᶜ (A⇒Σ , Σₙ) t⇇F u⇇Gₜ)
+  dec⇇ ⊢Γ (infᶜ t) ⊢A with dec⇉ ⊢Γ t
+  ... | no ¬t⇉B = no λ { (infᶜ x x₁) → ¬t⇉B (_ , x)}
   ... | yes (B , t⇉B) with decEq (proj₁ (soundness⇉ ⊢Γ t⇉B)) ⊢A
+  ... | no B≢A = no λ { (infᶜ x x₁) →
+    let B≡B′ = deterministic⇉ x t⇉B
+    in  B≢A (PE.subst (λ x → _ ⊢ x ≡ _) B≡B′ x₁)}
   ... | yes B≡A = yes (infᶜ t⇉B B≡A)
-  ... | no B≢A = no (λ { (infᶜ x x₁) →
-    let B≡A′ = deterministic⇉ t⇉B x
-    in  B≢A (PE.subst (λ x → _ ⊢ x ≡ _) (PE.sym B≡A′) x₁)})
-  dec⇇ ⊢Γ (ne x) ⊢A | no ¬t⇉B = no (λ { (infᶜ x x₁) → ¬t⇉B (_ , x)})

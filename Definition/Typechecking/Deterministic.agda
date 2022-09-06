@@ -27,6 +27,8 @@ deterministic⇉-var : {x : Fin n} → x ∷ A ∈ Γ → x ∷ B ∈ Γ → A P
 deterministic⇉-var {x = x0} here here = PE.refl
 deterministic⇉-var {x = x +1} (there y) (there z) rewrite deterministic⇉-var y z = PE.refl
 
+-- Type inference is deterministic
+-- If Γ ⊢ t ⇉ A and Γ ⊢ t ⇉ B then A ≡ B
 
 deterministic⇉ : Γ ⊢ t ⇉ A → Γ ⊢ t ⇉ B → A PE.≡ B
 deterministic⇉ (Πᵢ x x₁) (Πᵢ x₂ x₃) = PE.refl
