@@ -6,31 +6,25 @@ module Definition.Typechecking.Decidable {a ℓ} (M″ : DecSetoid a ℓ) where
 
 open DecSetoid M″ using (_≟_; _≈_) renaming (Carrier to M; setoid to M′; refl to ≈-refl; sym to ≈-sym; trans to ≈-trans)
 
-open import Definition.Conversion.FullReduction M′
 open import Definition.Typechecking M′
-open import Definition.Typechecking.Inversion M′
 open import Definition.Typechecking.Soundness M′
-open import Definition.Typechecking.Completeness M′
 open import Definition.Typechecking.Deterministic M′
 open import Definition.Typed M′
 open import Definition.Typed.Properties M′
 open import Definition.Typed.Weakening M′ as W
 open import Definition.Typed.Consequences.Inequality M′
-open import Definition.Typed.Consequences.Injectivity M′
-open import Definition.Typed.Consequences.Inversion M′
-open import Definition.Typed.Consequences.Reduction M′
 open import Definition.Typed.Consequences.Syntactic M′
 open import Definition.Typed.Consequences.Substitution M′
 open import Definition.Typed.Decidable.Equality M″
-open import Definition.Untyped M renaming (_∷_ to _∷∷_) hiding (U≢B; ℕ≢B; B≢ne)
+open import Definition.Typed.Decidable.Reduction M″
+open import Definition.Untyped M
 import Definition.Untyped M as U
 
 open import Tools.Fin
-open import Tools.Nat hiding (_≟_)
+open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Nullary
-
 
 private
   variable

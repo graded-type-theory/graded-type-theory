@@ -6,7 +6,6 @@ module Definition.Typechecking.Deterministic {a ℓ} (M′ : Setoid a ℓ) where
 
 open Setoid M′ using () renaming (Carrier to M)
 
-open import Definition.Conversion.FullReduction M′
 open import Definition.Typechecking M′
 open import Definition.Typed M′
 open import Definition.Typed.Properties M′

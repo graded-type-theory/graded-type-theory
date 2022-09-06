@@ -13,7 +13,6 @@ open import Tools.Bool using (T)
 open import Tools.PropositionalEquality
 import Tools.Reasoning.PartialOrder
 
-
 private
   variable
     p p′ q q′ r r′ : M

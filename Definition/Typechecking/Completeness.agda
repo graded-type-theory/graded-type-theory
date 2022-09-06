@@ -6,25 +6,21 @@ module Definition.Typechecking.Completeness {a ℓ} (M′ : Setoid a ℓ) where
 
 open Setoid M′ using () renaming (Carrier to M; sym to ≈-sym)
 
-open import Definition.Conversion.FullReduction M′
 open import Definition.Conversion.Stability M′
 open import Definition.Typechecking M′
 open import Definition.Typechecking.Soundness M′
 open import Definition.Typed M′
 open import Definition.Typed.Properties M′
 import Definition.Typed.Weakening M′ as W
-open import Definition.Typed.Consequences.Inequality M′
 open import Definition.Typed.Consequences.Inversion M′
 open import Definition.Typed.Consequences.Reduction M′
 open import Definition.Typed.Consequences.Substitution  M′
 open import Definition.Typed.Consequences.Syntactic M′
 open import Definition.Untyped M hiding (_∷_)
 
-open import Tools.Fin
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
-open import Tools.Nullary
 
 private
   variable
