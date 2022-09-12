@@ -75,7 +75,7 @@ reflEqTerm (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext) [t]@(Πₜ f d fun
 reflEqTerm (Bᵣ′ BΣₚ F G D ⊢F ⊢G A≡A [F] [G] G-ext) [t]@(Σₜ p d p≅p prodP ([fstp] , [sndp])) =
   Σₜ₌ p p d d prodP prodP p≅p [t] [t]
       ([fstp] , [fstp] , reflEqTerm ([F] id (wf ⊢F)) [fstp] , reflEqTerm ([G] id (wf ⊢F) [fstp]) [sndp])
-reflEqTerm (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) [t]@(Σₜ p d p≅p prodₙ ([p₁] , [p₂])) =
+reflEqTerm (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) [t]@(Σₜ p d p≅p prodₙ ([p₁] , [p₂] , PE.refl)) =
   Σₜ₌ p p d d prodₙ prodₙ p≅p [t] [t]
       ([p₁] , [p₁] , [p₂] , [p₂] ,
         reflEqTerm ([F] id (wf ⊢F)) [p₁] ,

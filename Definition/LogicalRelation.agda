@@ -382,9 +382,10 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
     Σ-prop Σₚ p Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) _ =
       Σ (Γ ⊩¹ fst p ∷ U.wk id F / [F] id (wf ⊢F)) λ [fst]
       → Γ ⊩¹ snd p ∷ U.wk (lift id) G [ fst p ] / [G] id (wf ⊢F) [fst]
-    Σ-prop Σᵣ p Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (prodₙ {t = p₁} {u = p₂}) =
+    Σ-prop Σᵣ p Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (prodₙ {t = p₁} {u = p₂} {m = m}) =
            Σ (Γ ⊩¹ p₁ ∷ U.wk id F / [F] id (wf ⊢F)) λ [p₁]
            → Γ ⊩¹ p₂ ∷ U.wk (lift id) G [ p₁ ] / [G] id (wf ⊢F) [p₁]
+           × m PE.≡ Σᵣ
     Σ-prop {q = q} Σᵣ p Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ne x) =
            Γ ⊢ p ~ p ∷ Σᵣ q ▷ F ▹ G
 

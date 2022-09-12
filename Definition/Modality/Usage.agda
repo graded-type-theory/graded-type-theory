@@ -62,16 +62,20 @@ data _▸_ {n : Nat} : (γ : Conₘ n) → Term n → Set (a ⊔ ℓ) where
             → δ ▸ u
             → γ +ᶜ p ·ᶜ δ ▸ t ∘ p ▷ u
 
-  prodₘ     : γ ▸ t
+  prodᵣₘ    : γ ▸ t
             → δ ▸ u
             → γ′ PE.≡ (γ +ᶜ δ)
-            → γ′ ▸ prod t u
+            → γ′ ▸ prodᵣ t u
 
-  fstₘ      : 𝟘ᶜ ▸ t
-            → 𝟘ᶜ ▸ fst t
+  prodₚₘ   : γ ▸ t
+           → γ ▸ u
+           → γ ▸ prodₚ t u
 
-  sndₘ      : 𝟘ᶜ ▸ t
-            → 𝟘ᶜ ▸ snd t
+  fstₘ      : γ ▸ t
+            → γ ▸ fst t
+
+  sndₘ      : γ ▸ t
+            → γ ▸ snd t
 
   prodrecₘ  : γ ▸ t
             → δ ∙ p ∙ p ▸ u
@@ -96,7 +100,7 @@ data _▸_ {n : Nat} : (γ : Conₘ n) → Term n → Set (a ⊔ ℓ) where
             → δ ≤ᶜ γ
             → δ ▸ t
 
-pattern prodₘ! x y = prodₘ x y PE.refl
+
 
 -- Modality context inference
 
@@ -113,9 +117,10 @@ mutual
   gen-usage (Lamkind p) (t ∷ [])             = tailₘ ⌈ t ⌉
   gen-usage (Appkind p) (t ∷ u ∷ [])         = ⌈ t ⌉ +ᶜ p ·ᶜ ⌈ u ⌉
   gen-usage (Sigmakind q m) (F ∷ G ∷ [])     = ⌈ F ⌉ +ᶜ tailₘ ⌈ G ⌉
-  gen-usage Prodkind (t ∷ u ∷ [])            = ⌈ t ⌉ +ᶜ ⌈ u ⌉
-  gen-usage Fstkind (t ∷ [])                 = 𝟘ᶜ
-  gen-usage Sndkind (t ∷ [])                 = 𝟘ᶜ
+  gen-usage (Prodkind Σᵣ) (t ∷ u ∷ [])       = ⌈ t ⌉ +ᶜ ⌈ u ⌉
+  gen-usage (Prodkind Σₚ) (t ∷ u ∷ [])       = ⌈ t ⌉ ∧ᶜ ⌈ u ⌉
+  gen-usage Fstkind (t ∷ [])                 = ⌈ t ⌉
+  gen-usage Sndkind (t ∷ [])                 = ⌈ t ⌉
   gen-usage (Prodreckind p) (A ∷ t ∷ u ∷ []) = p ·ᶜ ⌈ t ⌉ +ᶜ tailₘ (tailₘ ⌈ u ⌉)
   gen-usage Natkind  []                      = 𝟘ᶜ
   gen-usage Zerokind []                      = 𝟘ᶜ

@@ -53,7 +53,7 @@ mutual
     Unitₙ  : Nf Unit
 
     lamₙ   : {t : Term (1+ m)} → Nf t → Nf (lam q t)
-    prodₙ  : {t u : Term m} → Nf t → Nf u → Nf (prod t u)
+    prodₙ  : {t u : Term m} → Nf t → Nf u → Nf (prod s t u)
     zeroₙ  : Nf zero
     sucₙ   : {t : Term m} → Nf t → Nf (suc t)
     starₙ  : Nf star
@@ -161,7 +161,7 @@ mutual
   fullRedTermConv↓ (prod-cong ⊢F ⊢G t↑t u↑u) =
     let t′ , nfT , t≡t′ = fullRedTerm t↑t
         u′ , nfU , u≡u′ = fullRedTerm u↑u
-    in  prod t′ u′ , prodₙ nfT nfU , prod-cong ⊢F ⊢G t≡t′ u≡u′
+    in  prod! t′ u′ , prodₙ nfT nfU , prod-cong ⊢F ⊢G t≡t′ u≡u′
   fullRedTermConv↓ (η-eq {p = p} ⊢t _ _ _ t∘0) =
     let u , nf , t∘0≡u = fullRedTerm (t∘0 ≈-refl ≈-refl)
         ⊢G , _ , ⊢u = syntacticEqTerm t∘0≡u
@@ -198,7 +198,7 @@ mutual
         Gfst≡Gfstprod = substTypeEq (refl ⊢G) fst≡fstprod
         sndprod≡snd′ = conv (Σ-β₂ ⊢F ⊢G ⊢fst′ ⊢snd′ ⊢prod) (sym Gfst≡Gfstprod)
         snd≡sndprod = trans snd≡snd′ (sym sndprod≡snd′)
-    in  prod fst′ snd′ , prodₙ nfFst′ nfSnd′
+    in  prod! fst′ snd′ , prodₙ nfFst′ nfSnd′
       , Σ-η ⊢F ⊢G ⊢t ⊢prod fst≡fstprod snd≡sndprod
   fullRedTermConv↓ (η-unit ⊢t _ tUnit _) =
     star , starₙ , η-unit ⊢t (starⱼ (wfTerm ⊢t))
