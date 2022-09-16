@@ -243,110 +243,49 @@ usage-upper-bound (sub t x) = ≤ᶜ-trans x (usage-upper-bound t)
 -- A valid modality context can be computed from well typed and well resourced terms
 -- If Γ ⊢ t ∷ A and γ ▸ t, then ⌈ t ⌉ ▸ t
 
-usage-calc-term′ : {Γ : Con Term n} {γ : Conₘ n} {t A : Term n}
-                 → Γ ⊢ t ∷ A → γ ▸ t → ⌈ t ⌉ ▸ t
-usage-calc-term′ (Πⱼ_▹_ {q = q} {G = G} Γ⊢F:U Γ⊢G:U) γ▸t with inv-usage-Π γ▸t
-... | invUsageΠΣ δ▸F η▸G _ =
-  Πₘ (usage-calc-term′ Γ⊢F:U δ▸F)
-     (subst₂ _▸_ (update-head ⌈ G ⌉ q) PE.refl
-                 (Conₘ-interchange (usage-calc-term′ Γ⊢G:U η▸G) η▸G x0))
-usage-calc-term′  (Σⱼ_▹_ {q = q} {G = G} Γ⊢F:U Γ⊢G:U) γ▸t with inv-usage-Σ γ▸t
-... | invUsageΠΣ δ▸F η▸G _ =
-  Σₘ (usage-calc-term′ Γ⊢F:U δ▸F)
-     (subst₂ _▸_ (update-head ⌈ G ⌉ q) PE.refl
-                 (Conₘ-interchange (usage-calc-term′ Γ⊢G:U η▸G) η▸G x0))
-usage-calc-term′ (ℕⱼ x) γ▸t = ℕₘ
-usage-calc-term′ (Emptyⱼ x) γ▸t = Emptyₘ
-usage-calc-term′ (Unitⱼ x) γ▸t = Unitₘ
-usage-calc-term′ (var x x₁) γ▸t = var
-usage-calc-term′ (lamⱼ {p = p} {t = t} x Γ⊢t:A) γ▸λt with inv-usage-lam γ▸λt
-... | invUsageLam δ▸t _ = lamₘ (subst₂ _▸_ (update-head ⌈ t ⌉ p) PE.refl
-                               (Conₘ-interchange (usage-calc-term′ Γ⊢t:A δ▸t) δ▸t x0))
-usage-calc-term′ (Γ⊢t:Π ∘ⱼ Γ⊢u:F) γ▸t with inv-usage-app γ▸t
-... | invUsageApp δ▸t η▸u _ =
-    (usage-calc-term′ Γ⊢t:Π δ▸t) ∘ₘ (usage-calc-term′ Γ⊢u:F η▸u)
-usage-calc-term′ (prodⱼ x x₁ Γ⊢t:A Γ⊢u:B) γ▸t with inv-usage-prod γ▸t
-... | invUsageProd δ▸t η▸u _ _ =
-  prodₘ (usage-calc-term′ Γ⊢t:A δ▸t)
-        (usage-calc-term′ Γ⊢u:B η▸u)
-        PE.refl
-usage-calc-term′ (fstⱼ x x₁ Γ⊢t:A) γ▸t with inv-usage-fst γ▸t
-... | invUsageProj 𝟘▸t _ = fstₘ 𝟘▸t
-usage-calc-term′ (sndⱼ x x₁ Γ⊢t:A) γ▸t with inv-usage-snd γ▸t
-... | invUsageProj 𝟘▸t _ = sndₘ 𝟘▸t
-usage-calc-term′ (prodrecⱼ {p = p} {u = u} x x₁ x₂ Γ⊢t:A Γ⊢u:B) γ▸t with inv-usage-prodrec γ▸t
-... | invUsageProdrec {δ = δ} {η} δ▸t η▸u γ≤γ′ =
-  prodrecₘ (usage-calc-term′ Γ⊢t:A δ▸t)
-           (subst (_▸ _) eq
-                  (Conₘ-interchange (Conₘ-interchange (usage-calc-term′ Γ⊢u:B η▸u)
-                                                      η▸u (x0 +1))
-                                    η▸u x0))
-  where
-  open import Tools.Reasoning.PropositionalEquality
-  eq = begin
-    (⌈ u ⌉ , x0 +1 ≔ p) , x0 ≔ p
-      ≡⟨ cong (λ γ → γ , x0 ≔ p) (update-step ⌈ u ⌉ p x0) ⟩
-    tailₘ ⌈ u ⌉ , x0 ≔ p ∙ p
-      ≡⟨ cong (_∙ p) (update-head (tailₘ ⌈ u ⌉) p) ⟩
-    tailₘ (tailₘ ⌈ u ⌉) ∙ p ∙ p ∎
-
-usage-calc-term′ (zeroⱼ x) γ▸t = zeroₘ
-usage-calc-term′ (sucⱼ Γ⊢t:ℕ) γ▸t  with inv-usage-suc γ▸t
-... | invUsageSuc δ▸t _ = sucₘ (usage-calc-term′ Γ⊢t:ℕ δ▸t)
-
-usage-calc-term′ (natrecⱼ {p = p} {r = r} {s = s} {z = z} {n = n}
-                 x Γ⊢z:G Γ⊢s:G Γ⊢n:ℕ) γ▸t with inv-usage-natrec γ▸t
-... | invUsageNatrec {δ = δ} {η} {θ} δ▸z η▸s θ▸n a =
-  natrecₘ (usage-calc-term′ Γ⊢z:G δ▸z)
-          (subst (_▸ _) eq
-                 (Conₘ-interchange (Conₘ-interchange (usage-calc-term′ Γ⊢s:G η▸s)
-                                                     η▸s (x0 +1))
-                                   η▸s x0))
-  (usage-calc-term′ Γ⊢n:ℕ θ▸n)
-  where
-  open import Tools.Reasoning.PropositionalEquality
-  ηs = ⌈ s ⌉
-  eq =  begin
-     (ηs , x0 +1 ≔ p) , x0 ≔ r
-       ≡⟨ cong (_, x0 ≔ r) (update-step ηs p x0) ⟩
-     ((tailₘ ηs , x0 ≔ p) ∙ headₘ ηs) , x0 ≔ r
-       ≡⟨ cong (_, x0 ≔ r) (cong (_∙ p) (update-head (tailₘ ηs) p)) ⟩
-     (tailₘ (tailₘ ηs) ∙ p ∙ headₘ ηs) , x0 ≔ r
-       ≡⟨ update-head ((tailₘ (tailₘ ηs) ∙ p) ∙ headₘ ηs) r ⟩
-     tailₘ (tailₘ ηs) ∙ p ∙ r ∎
-
-usage-calc-term′ (Emptyrecⱼ x Γ⊢t:A) γ▸t with inv-usage-Emptyrec γ▸t
-... | invUsageEmptyrec δ▸t _ = Emptyrecₘ (usage-calc-term′ Γ⊢t:A δ▸t)
-usage-calc-term′ (starⱼ x) γ▸t = starₘ
-usage-calc-term′ (conv Γ⊢t:A x) γ▸t = usage-calc-term′ Γ⊢t:A γ▸t
-
--- A valid modality context can be computed from well typed and well resourced terms
--- If Γ ⊢ γ ▸ t ∷ A ◂ δ, then ⌈ t ⌉ ▸ t
-
-usage-calc-term : Γ ⊢ γ ▸ t ∷ A ◂ δ → ⌈ t ⌉ ▸ t
-usage-calc-term (Γ⊢t:A , γ▸t , δ▸A) = usage-calc-term′ Γ⊢t:A γ▸t
-
-
--- A valid modality context can be computed from well typed and well resourced types
--- If Γ ⊢ A ◂ γ, then ⌈ A ⌉ ▸ A
-
-usage-calc-type : Γ ⊢ A ◂ γ → ⌈ A ⌉ ▸ A
-usage-calc-type (Uⱼ x , γ▸A) = Uₘ
-usage-calc-type (ℕⱼ x , γ▸A) = ℕₘ
-usage-calc-type (Emptyⱼ x , γ▸A) = Emptyₘ
-usage-calc-type (Unitⱼ x , γ▸A) = Unitₘ
-usage-calc-type (Πⱼ_▹_ {G = G} {q = q} Γ⊢F Γ⊢G , γ▸Π) with inv-usage-Π γ▸Π
-... | invUsageΠΣ δ▸F η▸G _ =
-  Πₘ (usage-calc-type (Γ⊢F , δ▸F))
-     (subst (_▸ _) (update-head ⌈ G ⌉ q)
-                   (Conₘ-interchange (usage-calc-type (Γ⊢G , η▸G)) η▸G x0))
-usage-calc-type (Σⱼ_▹_ {G = G} {q = q} Γ⊢F Γ⊢G , γ▸Σ) with inv-usage-Σ γ▸Σ
-... | invUsageΠΣ δ▸F η▸G _ =
-  Σₘ (usage-calc-type (Γ⊢F , δ▸F))
-     (subst (_▸ _) (update-head ⌈ G ⌉ q)
-                   (Conₘ-interchange (usage-calc-type (Γ⊢G , η▸G)) η▸G x0))
-usage-calc-type (univ Γ⊢A:U , γ▸A) = usage-calc-term′ Γ⊢A:U γ▸A
-
+usage-inf : γ ▸ t → ⌈ t ⌉ ▸ t
+usage-inf Uₘ = Uₘ
+usage-inf ℕₘ = ℕₘ
+usage-inf Emptyₘ = Emptyₘ
+usage-inf Unitₘ = Unitₘ
+usage-inf (Πₘ {q = q} {G = G} γ▸F δ▸G) =
+  Πₘ (usage-inf γ▸F)
+     (sub (usage-inf δ▸G)
+          (subst (tailₘ ⌈ G ⌉ ∙ q ≤ᶜ_) (headₘ-tailₘ-correct ⌈ G ⌉)
+                 (≤ᶜ-refl ∙ headₘ-monotone (usage-upper-bound δ▸G))))
+usage-inf (Σₘ {q = q} {G = G} γ▸F δ▸G) =
+  Σₘ (usage-inf γ▸F)
+     (sub (usage-inf δ▸G)
+          (subst (tailₘ ⌈ G ⌉ ∙ q ≤ᶜ_) (headₘ-tailₘ-correct ⌈ G ⌉)
+                 (≤ᶜ-refl ∙ headₘ-monotone (usage-upper-bound δ▸G))))
+usage-inf var = var
+usage-inf (lamₘ {p = p} {t = t} γ▸t) =
+  lamₘ (sub (usage-inf γ▸t)
+            (PE.subst (⌈ lam p t ⌉ ∙ p ≤ᶜ_)
+                      (headₘ-tailₘ-correct ⌈ t ⌉)
+                      (≤ᶜ-refl ∙ headₘ-monotone (usage-upper-bound γ▸t))))
+usage-inf (γ▸t ∘ₘ γ▸t₁) = usage-inf γ▸t ∘ₘ usage-inf γ▸t₁
+usage-inf (prodₘ γ▸t γ▸t₁ x) = prodₘ (usage-inf γ▸t) (usage-inf γ▸t₁) PE.refl
+usage-inf (fstₘ γ▸t) = fstₘ γ▸t
+usage-inf (sndₘ γ▸t) = sndₘ γ▸t
+usage-inf (prodrecₘ {p = p} {u = u} γ▸t δ▸u) =
+  prodrecₘ (usage-inf γ▸t)
+           (sub (usage-inf δ▸u)
+                (subst (tailₘ (tailₘ ⌈ u ⌉) ∙ p ∙ p ≤ᶜ_)
+                       (PE.trans (cong (_∙ headₘ ⌈ u ⌉) (headₘ-tailₘ-correct (tailₘ ⌈ u ⌉))) (headₘ-tailₘ-correct ⌈ u ⌉))
+                       (≤ᶜ-refl ∙ headₘ-monotone (tailₘ-monotone (usage-upper-bound δ▸u)) ∙ headₘ-monotone (usage-upper-bound δ▸u))))
+usage-inf zeroₘ = zeroₘ
+usage-inf (sucₘ γ▸t) = sucₘ (usage-inf γ▸t)
+usage-inf (natrecₘ {p = p} {r = r} {s = s} γ▸z δ▸s η▸n) =
+  natrecₘ (usage-inf γ▸z)
+          (sub (usage-inf δ▸s)
+               (subst (tailₘ (tailₘ ⌈ s ⌉) ∙ p ∙ r ≤ᶜ_)
+                      (PE.trans (cong (_∙ headₘ ⌈ s ⌉) (headₘ-tailₘ-correct (tailₘ ⌈ s ⌉))) (headₘ-tailₘ-correct ⌈ s ⌉))
+                      (≤ᶜ-refl ∙ headₘ-monotone (tailₘ-monotone (usage-upper-bound δ▸s)) ∙ headₘ-monotone (usage-upper-bound δ▸s))))
+          (usage-inf η▸n)
+usage-inf (Emptyrecₘ γ▸t) = Emptyrecₘ (usage-inf γ▸t)
+usage-inf starₘ = starₘ
+usage-inf (sub γ▸t x) = usage-inf γ▸t
 
 -- The context used in the usage rule for natrec satisfies the neccessary inequalities
 -- (γ ∧ η) ⊛ᶜ (δ + pη) ▷ r ≤ γ and

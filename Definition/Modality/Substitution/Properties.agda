@@ -517,23 +517,23 @@ substₘ-calc-col σ (x +1) = begin
 
 
 -- An infered substitution matrix is well-formed if
--- all substituted terms are well-typed and well-used.
--- If ∀ x. (Γ ⊢ σ x ∷ A and γ ▸ σ x) then ∥ σ ∥ ▶ σ.
+-- all substituted terms are well-resourced.
+-- If ∀ x. γ ▸ σ x then ∥ σ ∥ ▶ σ.
 -- Proof by the corresponding property for modality contexts applied to each column.
 
 substₘ-calc-correct : {Γ : Con Term m} (σ : Subst m n)
-                    → (∀ x → ∃₂ λ A γ → Γ ⊢ σ x ∷ A × γ ▸ σ x) → ∥ σ ∥ ▶ σ
-substₘ-calc-correct σ well-typed x with well-typed x
-... | A , γ , Γ⊢σx∷A , γ▸σx =
-  sub (usage-calc-term′ Γ⊢σx∷A γ▸σx) (≤ᶜ-reflexive (substₘ-calc-col σ x))
+                    → (∀ x → ∃ λ γ → γ ▸ σ x) → ∥ σ ∥ ▶ σ
+substₘ-calc-correct σ prop x with prop x
+... | γ , γ▸σx =
+  sub (usage-inf γ▸σx) (≤ᶜ-reflexive (substₘ-calc-col σ x))
 
-subst-calc-correct′ : ∀ {Γ Δ} {Ψ : Substₘ m n} → Γ ⊢ˢ σ ∷ Δ → Ψ ▶ σ → ∥ σ ∥ ▶ σ
-subst-calc-correct′ {σ = σ} {Ψ = Ψ ⊙ γ} (⊢σ , ⊢t) Ψ▶σ x0 =
-  sub (usage-calc-term′ ⊢t (Ψ▶σ x0))
+subst-calc-correct′ : {Ψ : Substₘ m n} → Ψ ▶ σ → ∥ σ ∥ ▶ σ
+subst-calc-correct′ {σ = σ} {Ψ = Ψ ⊙ γ} Ψ▶σ x0 =
+  sub (usage-inf (Ψ▶σ x0))
       (≤ᶜ-reflexive (≈ᶜ-trans (+ᶜ-cong (·ᶜ-identityˡ _) (*>-zeroʳ ∥ tail σ ∥))
                               (+ᶜ-identityʳ _)))
-subst-calc-correct′ {Ψ = Ψ ⊙ γ} (⊢σ , ⊢t) Ψ▶σ (x +1) =
-  sub (subst-calc-correct′ {Ψ = Ψ} ⊢σ (wf-tailSubstₘ Ψ▶σ) x)
+subst-calc-correct′ {Ψ = Ψ ⊙ γ} Ψ▶σ (x +1) =
+  sub (subst-calc-correct′ {Ψ = Ψ} (wf-tailSubstₘ Ψ▶σ) x)
       (≤ᶜ-reflexive (≈ᶜ-trans (+ᶜ-cong (·ᶜ-zeroˡ _) ≈ᶜ-refl) (+ᶜ-identityˡ _)))
 
 -- Each column of a calculated substitution matrix is an upper bound on valid contexts.
