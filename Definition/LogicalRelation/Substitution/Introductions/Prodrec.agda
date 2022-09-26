@@ -121,15 +121,18 @@ prodrecTerm : ∀ {F G A t u σ l}
 prodrecTerm {Γ = Γ} {q} {Δ = Δ} {r} {F} {G} {A} {t} {u} {σ} {l}
             [Γ] [F] [G] [A] [A₊] [u] ⊢Δ [σ]
             [σt]@(Σₜ p t⇒p p≅p (prodₙ {t = p₁} {u = p₂}) ([p₁] , [p₂])) =
-  let [Σ] = Σᵛ {F = F} {G = G} [Γ] [F] [G]
+      [σA[t]]′ , proj₁ (redSubst*Term reduction [σA[t]]′ [u₊]″)
+      where
+      [Σ] = Σᵛ {F = F} {G = G} {q = q} {m = Σᵣ} [Γ] [F] [G]
       [σΣ] = proj₁ ([Σ] ⊢Δ [σ])
       [σF] = proj₁ ([F] ⊢Δ [σ])
       ⊢σF = escape [σF]
-      [σG] = proj₁ ([G] (⊢Δ ∙ ⊢σF) (liftSubstS {F = F} [Γ] ⊢Δ [F] [σ]))
+      [σG] = proj₁ ([G] {σ = liftSubst σ} (⊢Δ ∙ ⊢σF) (liftSubstS {F = F} [Γ] ⊢Δ [F] [σ]))
       ⊢σG = escape [σG]
       [σ⇑⇑] = liftSubstS {σ = liftSubst σ} {F = G} (_∙_ {A = F} [Γ] [F]) (⊢Δ ∙ ⊢σF) [G]
                           (liftSubstS {σ = σ} {F = F} [Γ] ⊢Δ [F] [σ])
       ⊢σΣ = escape [σΣ]
+      -- TODO: Slow!
       [σA] = proj₁ ([A] {σ = liftSubst σ} (⊢Δ ∙ ⊢σΣ)
                         (liftSubstS {σ = σ} {F = Σ q ▷ F ▹ G} [Γ] ⊢Δ [Σ] [σ]))
       ⊢σA = escape [σA]
@@ -159,11 +162,12 @@ prodrecTerm {Γ = Γ} {q} {Δ = Δ} {r} {F} {G} {A} {t} {u} {σ} {l}
       [u₊] = proj₁ ([u] {σ = consSubst (consSubst σ p₁) p₂} ⊢Δ (([σ] , [p₁]′) , [p₂]′))
       [u₊]′ = irrelevanceTerm″ (PE.sym (substCompProdrec A p₁ p₂ σ))
                                (PE.sym (doubleSubstComp u p₁ p₂ σ)) [σA₊′] [σA₊′]′ [u₊]
-      [σA[t]] = proj₁ ([A] ⊢Δ ([σ] , [σt]))
+      [σA[t]] = proj₁ ([A] {σ = consSubst _ _} ⊢Δ ([σ] , [σt]))
       [σA[t]]′ = irrelevance′ (PE.sym (singleSubstComp t σ A)) [σA[t]]
       ⊢u₊ = escapeTerm [σA₊′] [u₊]
       ⊢u₊′ = PE.subst₂ (Δ ⊢_∷_) (PE.sym (doubleSubstComp u p₁ p₂ σ))
                        (PE.sym (substCompProdrec A p₁ p₂ σ)) ⊢u₊
+      [p] : Δ ⊩⟨ l ⟩ prod p₁ p₂ ∷ gen (Sigmakind q Σᵣ) (subst σ F U.∷ subst (liftSubst σ) G U.∷ []) / [σΣ]
       [p] = Σₜ p (idRedTerm:*: ⊢p) p≅p prodₙ ([p₁] , [p₂])
       [t≡p] = proj₂ (redSubst*Term (redₜ t⇒p) [σΣ] [p])
       A[t]≡A[p] = proj₂ ([A] {σ = consSubst σ t} ⊢Δ ([σ] , [σt]))
@@ -176,24 +180,27 @@ prodrecTerm {Γ = Γ} {q} {Δ = Δ} {r} {F} {G} {A} {t} {u} {σ} {l}
       ⊢A[p]≡A[t] = PE.subst₂ (Δ ⊢_≡_) (PE.sym (singleSubstComp (prod p₁ p₂) σ A))
                              (PE.sym (singleSubstComp t σ A)) (sym ⊢A[t]≡A[p])
       [u₊]″ = convTerm₂ [σA[t]]′ [σA₊′]′ A[t]≡A[p]′ [u₊]′
+      -- TODO: Slow!
       reduction₁ = prodrec-subst* {p = r} {u = u} {A} {F} {G} {σ}
                                   [Γ] [F] [G] [Σ] [A] [A₊] [u] ⊢Δ [σ] [p] (redₜ t⇒p)
       reduction₂ : _ ⊢ _ ⇒* _ ∷ _
       reduction₂ = (prodrec-β {p = r} ⊢σF ⊢σG ⊢σA ⊢p₁ ⊢p₂′ ⊢σu′) ⇨ id ⊢u₊′
       reduction = reduction₁ ⇨∷* conv* reduction₂ ⊢A[p]≡A[t]
-  in  [σA[t]]′ , proj₁ (redSubst*Term reduction [σA[t]]′ [u₊]″)
 prodrecTerm {Γ = Γ} {q} {Δ = Δ} {r} {F} {G} {A} {t} {u} {σ} {l}
             [Γ] [F] [G] [A] [A₊] [u] ⊢Δ [σ]
             [σt]@(Σₜ p t⇒p p≅p (ne x) p~p) =
-  let [Σ] = Σᵛ {F = F} {G = G} [Γ] [F] [G]
+      [σA[t]] , proj₁ (redSubst*Term reduction [σA[t]] prodrecT)
+      where
+      [Σ] = Σᵛ {F = F} {G = G} {q = q} {m = Σᵣ} [Γ] [F] [G]
       [σF] = proj₁ ([F] ⊢Δ [σ])
       ⊢σF = escape [σF]
-      [σG] = proj₁ ([G] (⊢Δ ∙ ⊢σF) (liftSubstS {F = F} [Γ] ⊢Δ [F] [σ]))
+      [σG] = proj₁ ([G] {σ = liftSubst σ} (⊢Δ ∙ ⊢σF) (liftSubstS {F = F} [Γ] ⊢Δ [F] [σ]))
       ⊢σG = escape [σG]
       [σ⇑⇑] = liftSubstS {σ = liftSubst σ} {F = G} (_∙_ {A = F} [Γ] [F]) (⊢Δ ∙ ⊢σF) [G]
                          (liftSubstS {σ = σ} {F = F} [Γ] ⊢Δ [F] [σ])
       [σΣ] = proj₁ ([Σ] ⊢Δ [σ])
       ⊢σΣ = escape [σΣ]
+      -- TODO: Slow!
       [σA] = proj₁ ([A] {σ = liftSubst σ} (⊢Δ ∙ ⊢σΣ)
                         (liftSubstS {σ = σ} {F = Σ q ▷ F ▹ G} [Γ] ⊢Δ [Σ] [σ]))
       ⊢σA = escape [σA]
@@ -203,6 +210,7 @@ prodrecTerm {Γ = Γ} {q} {Δ = Δ} {r} {F} {G} {A} {t} {u} {σ} {l}
       ⊢σu = escapeTerm [σA₊] [σu]
       ⊢σu′ = PE.subst (λ x → _ ⊢ subst (liftSubstn σ 2) u ∷ x) (subst-β-prodrec A σ) ⊢σu
       ⊢p = ⊢u-redₜ t⇒p
+      [p] : Δ ⊩⟨ l ⟩ p ∷ subst (tail (consSubst σ p)) (Σᵣ q ▷ F ▹ G) / [σΣ]
       [p] = Σₜ p (idRedTerm:*: ⊢p) p≅p (ne x) p~p
       [σA[p]] = irrelevance′ (PE.sym (singleSubstComp p σ A)) (proj₁ ([A] {σ = consSubst σ p} ⊢Δ ([σ] , [p])))
       [σA[t]]′ = proj₁ ([A] {σ = consSubst σ t} ⊢Δ ([σ] , [σt]))
@@ -219,11 +227,11 @@ prodrecTerm {Γ = Γ} {q} {Δ = Δ} {r} {F} {G} {A} {t} {u} {σ} {l}
       A[t]≡A[p]′ = irrelevanceEq″ (PE.sym (singleSubstComp t σ A))
                                    (PE.sym (singleSubstComp p σ A))
                                    [σA[t]]′ [σA[t]] A[t]≡A[p]
+      -- TODO: Slow!
       reduction = prodrec-subst* {p = r} {u = u} {A} {F} {G} {σ} [Γ] [F] [G] [Σ] [A] [A₊] [u] ⊢Δ [σ] [p] (redₜ t⇒p)
-      prodrecT′ = neuTerm [σA[p]] (prodrecₙ x) (prodrecⱼ ⊢σF ⊢σG ⊢σA ⊢p ⊢σu′)
+      prodrecT′ = neuTerm [σA[p]] (prodrecₙ {p = r} x) (prodrecⱼ ⊢σF ⊢σG ⊢σA ⊢p ⊢σu′)
                           (~-prodrec ⊢σF ⊢σG (escapeEq [σA] (reflEq [σA])) p~p ⊢u≡u′ ≈-refl)
       prodrecT = convTerm₂ [σA[t]] [σA[p]] A[t]≡A[p]′ prodrecT′
-  in  [σA[t]] , proj₁ (redSubst*Term reduction [σA[t]] prodrecT)
 
 prodrecCong-eq : ∀ {m n} → (G : Term (1+ n)) (σ : Subst m n) (t : Term m)
                → subst (consSubst (id •ₛ σ) t) G PE.≡ U.wk (lift id) (subst (liftSubst σ) G) [ t ]
@@ -251,7 +259,7 @@ prodrecCong : ∀ {l F F′ G G′ A A′ t t′ u u′ σ σ′}
               ([u] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ u ∷ A [ prod (var (x0 +1)) (var x0) ]↑² / [Γ] ∙ [F] ∙ [G] / [A₊])
               ([u′] : Γ ∙ F′ ∙ G′ ⊩ᵛ⟨ l ⟩ u′ ∷ A′ [ prod (var (x0 +1)) (var x0) ]↑² / [Γ] ∙ [F′] ∙ [G′] / [A′₊])
               ([u≡u′] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ u ≡ u′ ∷ A [ prod (var (x0 +1)) (var x0) ]↑² / [Γ] ∙ [F] ∙ [G] / [A₊])
-            → Δ ⊢ subst σ (Σ q ▷ F ▹ G) ≡ subst σ′ (Σ q ▷ F′ ▹ G′)
+            → Δ ⊢ subst σ (Σᵣ q ▷ F ▹ G) ≡ subst σ′ (Σᵣ q ▷ F′ ▹ G′)
             → p ≈ p′
             → (⊢Δ : ⊢ Δ)
               ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
@@ -271,6 +279,7 @@ prodrecCong {Γ = Γ} {q} {Δ = Δ} {p} {p′} {l} {F} {F′} {G} {G′}
             [t]@(Σₜ pₜ dₜ p≅p (prodₙ {t = p₁} {u = p₂}) pProp)
             [t′]@(Σₜ rₜ d′ₜ r≅r (prodₙ {t = r₁} {u = r₂}) rProp)
             [t≡t′]@(Σₜ₌ _ _ d d′ prodₙ prodₙ p≅r wk[t] wk[t′] (wk[p₁′] , wk[r₁′] , wk[p₂′] , wk[r₂′] , wk[p₁≡r₁] , wk[p₂≡r₂]))
+            -- TODO: Very slow!
             with whrDet*Term (redₜ d , prodₙ) (redₜ dₜ , prodₙ)
                | whrDet*Term (redₜ d′ , prodₙ) (conv* (redₜ d′ₜ) (sym ⊢Σ≡Σ′) , prodₙ)
 ... | PE.refl | PE.refl =
@@ -471,6 +480,7 @@ prodrecCong {Γ = Γ} {q} {Δ = Δ} {p} {p′} {l} {F} {F′} {G} {G′}
             [t]@(Σₜ pₜ dₜ p≅p (ne xₜ) pProp)
             [t′]@(Σₜ rₜ d′ₜ r≅r (ne yₜ) rProp)
             [t≡t′]@(Σₜ₌ _ _ d d′ (ne x) (ne y) p≅r wk[t] wk[t′] p~r)
+            -- TODO: Very slow!
             with whrDet*Term (redₜ d , ne x) (redₜ dₜ , ne xₜ)
                | whrDet*Term (redₜ d′ , ne y) (conv* (redₜ d′ₜ) (sym ⊢Σ≡Σ′) , ne yₜ)
 ... | PE.refl | PE.refl =
@@ -768,10 +778,11 @@ prodrecᵛ : ∀ {F G A t u l}
 prodrecᵛ {n} {Γ} {q} {p} {F} {G} {A} {t} {u} {l}
          [Γ] [F] [G] [Σ] [A] [A₊] [Aₜ] [t] [u]
          {k} {Δ} {σ} ⊢Δ [σ] =
-  let [Σ]′ = Σᵛ {F = F} {G = G} {q = q} [Γ] [F] [G]
+  let [Σ]′ = Σᵛ {F = F} {G = G} {q = q} {m = Σᵣ} [Γ] [F] [G]
       [A]′ = S.irrelevance {A = A} (_∙_ {A = Σ q ▷ F ▹ G} [Γ] [Σ]) ([Γ] ∙ [Σ]′) [A]
       [σt] = proj₁ ([t] ⊢Δ [σ])
       [σt]′ = irrelevanceTerm (proj₁ ([Σ] ⊢Δ [σ])) (proj₁ ([Σ]′ ⊢Δ [σ])) [σt]
+      -- TODO: Slow!
       [A[t]] , [σpr] = prodrecTerm {p = p} {F} {G} {A} {subst σ t} {u} {σ} [Γ] [F] [G] [A]′ [A₊] [u] ⊢Δ [σ] [σt]′
       [σAₜ] = proj₁ ([Aₜ] ⊢Δ [σ])
   in  irrelevanceTerm′ (PE.sym (singleSubstLift A t)) [A[t]] [σAₜ] [σpr]
@@ -783,6 +794,7 @@ prodrecᵛ {n} {Γ} {q} {p} {F} {G} {A} {t} {u} {l}
             [σt≡σ′t]′ = irrelevanceEqTerm (proj₁ ([Σ] ⊢Δ [σ])) (proj₁ ([Σ]′ ⊢Δ [σ])) [σt≡σ′t]
             [σΣ≡σ′Σ] = proj₂ ([Σ]′ ⊢Δ [σ]) [σ′] [σ≡σ′]
             ⊢σΣ≡σ′Σ = ≅-eq (escapeEq (proj₁ ([Σ]′ ⊢Δ [σ])) [σΣ≡σ′Σ])
+            -- TODO: Slow!
             [A[t]]′ , [σpr≡σ′pr] = prodrecCong {q = q} {p = p} {p} {F = F} {F} {G} {G} {A} {A}
                                                {subst σ t} {subst σ′ t} {u} {u} {σ} {σ′}
                                                [Γ] [F] [F] (reflᵛ {A = F} [Γ] [F])
@@ -824,10 +836,11 @@ prodrec-congᵛ {Γ = Γ} {q} {p} {p′} {F} {F′} {G} {G′} {A} {A′} {t} {t
               [Γ] [F] [F′] [F≡F′] [G] [G′] [G≡G′] [Σ] [Σ′] [Σ≡Σ′]
               [A] [A′] [A≡A′] [A₊] [A′₊] [A₊≡A′₊] [Aₜ]
               [t] [t′] [t≡t′] [u] [u′] [u≡u′] p≈p′ {k} {Δ} {σ} ⊢Δ [σ]  =
-  let [Σ]′ = Σᵛ {F = F} {G = G} {q = q} [Γ] [F] [G]
-      [Σ′]′ = Σᵛ {F = F′} {G = G′} {q = q} [Γ] [F′] [G′]
+  let [Σ]′ = Σᵛ {F = F} {G = G} {q = q} {m = Σᵣ} [Γ] [F] [G]
+      [Σ′]′ = Σᵛ {F = F′} {G = G′} {q = q} {m = Σᵣ} [Γ] [F′] [G′]
       [A]′ = S.irrelevance {A = A} (_∙_ {A = Σ q ▷ F ▹ G} [Γ] [Σ]) ([Γ] ∙ [Σ]′) [A]
       [A′]′ = S.irrelevance {A = A′} (_∙_ {A = Σ q ▷ F′ ▹ G′} [Γ] [Σ′]) ([Γ] ∙ [Σ′]′) [A′]
+      -- TODO: Slow!
       [A≡A′]′ = S.irrelevanceEq {A = A} {B = A′} (_∙_ {A = Σ q ▷ F ▹ G} [Γ] [Σ]) (_∙_ {A = Σ q ▷ F ▹ G} [Γ] [Σ]′) [A] [A]′ [A≡A′]
       [t]′ = S.irrelevanceTerm {A = Σ q ▷ F ▹ G} {t = t} [Γ] [Γ] [Σ] [Σ]′ [t]
       [t′]′ = S.irrelevanceTerm {A = Σ q ▷ F′ ▹ G′} {t = t′} [Γ] [Γ] [Σ′] [Σ′]′ [t′]
@@ -838,6 +851,7 @@ prodrec-congᵛ {Γ = Γ} {q} {p} {p′} {F} {F′} {G} {G′} {A} {A′} {t} {t
       [Σ≡Σ′] = Σ-congᵛ {F = F} {G} {F′} {G′} {q = q} [Γ] [F] [G] [F′] [G′] [F≡F′] [G≡G′] BT.refl
       [σΣ≡σΣ′] = [Σ≡Σ′] ⊢Δ [σ]
       ⊢σΣ≡σΣ′ = ≅-eq (escapeEq (proj₁ ([Σ]′ ⊢Δ [σ])) [σΣ≡σΣ′])
+      -- TODO: Slow!
       [Aₜ]′ , [pr≡pr]  = prodrecCong {F = F} {F′} {G} {G′} {A} {A′} {subst σ t} {subst σ t′} {u} {u′}
                                      [Γ] [F] [F′] [F≡F′] [G] [G′] [G≡G′] [A]′ [A′]′ [A≡A′]′
                                      [A₊] [A′₊] [A₊≡A′₊] [u] [u′] [u≡u′] ⊢σΣ≡σΣ′ p≈p′
