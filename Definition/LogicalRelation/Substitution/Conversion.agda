@@ -30,8 +30,8 @@ convᵛ : ∀ {t A B l}
       → Γ ⊩ᵛ⟨ l ⟩ t ∷ A / [Γ] / [A]
       → Γ ⊩ᵛ⟨ l ⟩ t ∷ B / [Γ] / [B]
 convᵛ [Γ] [A] [B] [A≡B] [t] ⊢Δ [σ] =
-  let [σA]     = proj₁ ([A] ⊢Δ [σ])
-      [σB]     = proj₁ ([B] ⊢Δ [σ])
+  let [σA]     = proj₁ (unwrap [A] ⊢Δ [σ])
+      [σB]     = proj₁ (unwrap [B] ⊢Δ [σ])
       [σA≡σB]  = irrelevanceEq [σA] [σA] ([A≡B] ⊢Δ [σ])
       [σt]     = proj₁ ([t] ⊢Δ [σ])
       [σt≡σ′t] = proj₂ ([t] ⊢Δ [σ])
@@ -47,8 +47,8 @@ conv₂ᵛ : ∀ {t A B l}
        → Γ ⊩ᵛ⟨ l ⟩ t ∷ B / [Γ] / [B]
        → Γ ⊩ᵛ⟨ l ⟩ t ∷ A / [Γ] / [A]
 conv₂ᵛ [Γ] [A] [B] [A≡B] [t] ⊢Δ [σ] =
-  let [σA]     = proj₁ ([A] ⊢Δ [σ])
-      [σB]     = proj₁ ([B] ⊢Δ [σ])
+  let [σA]     = proj₁ (unwrap [A] ⊢Δ [σ])
+      [σB]     = proj₁ (unwrap [B] ⊢Δ [σ])
       [σA≡σB]  = irrelevanceEq [σA] [σA] ([A≡B] ⊢Δ [σ])
       [σt]     = proj₁ ([t] ⊢Δ [σ])
       [σt≡σ′t] = proj₂ ([t] ⊢Δ [σ])
@@ -64,7 +64,7 @@ convEqᵛ : ∀ {t u A B l}
       → Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A / [Γ] / [A]
       → Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ B / [Γ] / [B]
 convEqᵛ [Γ] [A] [B] [A≡B] [t≡u] ⊢Δ [σ] =
-  let [σA]     = proj₁ ([A] ⊢Δ [σ])
-      [σB]     = proj₁ ([B] ⊢Δ [σ])
+  let [σA]     = proj₁ (unwrap [A] ⊢Δ [σ])
+      [σB]     = proj₁ (unwrap [B] ⊢Δ [σ])
       [σA≡σB]  = irrelevanceEq [σA] [σA] ([A≡B] ⊢Δ [σ])
   in  convEqTerm₁ [σA] [σB] [σA≡σB] ([t≡u] ⊢Δ [σ])

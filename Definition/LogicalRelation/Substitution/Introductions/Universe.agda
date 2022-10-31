@@ -25,16 +25,16 @@ private
 
 -- Validity of the universe type.
 Uᵛ : ([Γ] : ⊩ᵛ Γ) → Γ ⊩ᵛ⟨ ¹ ⟩ U / [Γ]
-Uᵛ [Γ] ⊢Δ [σ] = Uᵣ′ ⁰ 0<1 ⊢Δ , λ _ x₂ → lift PE.refl
+Uᵛ [Γ] = wrap λ ⊢Δ [σ] → Uᵣ′ ⁰ 0<1 ⊢Δ , λ _ x₂ → lift PE.refl
 
 -- Valid terms of type U are valid types.
 univᵛ : ∀ {A l l′} ([Γ] : ⊩ᵛ Γ)
         ([U] : Γ ⊩ᵛ⟨ l ⟩ U / [Γ])
       → Γ ⊩ᵛ⟨ l ⟩ A ∷ U / [Γ] / [U]
       → Γ ⊩ᵛ⟨ l′ ⟩ A / [Γ]
-univᵛ {l′ = l′} [Γ] [U] [A] ⊢Δ [σ] =
-  let [A]₁ = maybeEmb′ {l = l′} (univEq (proj₁ ([U] ⊢Δ [σ])) (proj₁ ([A] ⊢Δ [σ])))
-  in  [A]₁ , (λ [σ′] [σ≡σ′] → univEqEq (proj₁ ([U] ⊢Δ [σ])) [A]₁
+univᵛ {l′ = l′} [Γ] [U] [A] = wrap λ ⊢Δ [σ] →
+  let [A]₁ = maybeEmb′ {l = l′} (univEq (proj₁ (unwrap [U] ⊢Δ [σ])) (proj₁ ([A] ⊢Δ [σ])))
+  in  [A]₁ , (λ [σ′] [σ≡σ′] → univEqEq (proj₁ (unwrap [U] ⊢Δ [σ])) [A]₁
                                        ((proj₂ ([A] ⊢Δ [σ])) [σ′] [σ≡σ′]))
 
 -- Valid term equality of type U is valid type equality.
@@ -44,4 +44,4 @@ univEqᵛ : ∀ {A B l l′} ([Γ] : ⊩ᵛ Γ)
         → Γ ⊩ᵛ⟨ l′ ⟩ A ≡ B ∷ U / [Γ] / [U]
         → Γ ⊩ᵛ⟨ l ⟩ A ≡ B / [Γ] / [A]
 univEqᵛ {A} [Γ] [U] [A] [t≡u] ⊢Δ [σ] =
-  univEqEq (proj₁ ([U] ⊢Δ [σ])) (proj₁ ([A] ⊢Δ [σ])) ([t≡u] ⊢Δ [σ])
+  univEqEq (proj₁ (unwrap [U] ⊢Δ [σ])) (proj₁ (unwrap [A] ⊢Δ [σ])) ([t≡u] ⊢Δ [σ])
