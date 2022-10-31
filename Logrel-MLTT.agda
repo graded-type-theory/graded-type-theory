@@ -145,3 +145,6 @@ import Erasure.LogicalRelation.Fundamental
 -- Soundness of Extraction function
 
 import Erasure.Consequences.Soundness
+
+-- Application: consistent negative axioms preserve canonicity
+import Application.NegativeAxioms.Canonicity
