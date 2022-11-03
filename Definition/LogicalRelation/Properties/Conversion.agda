@@ -100,7 +100,7 @@ mutual
   convTermT₁ {Γ = Γ} {l} {l′} (Bᵥ (BΣ q Σᵣ) BΣᵣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                                  (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) Σ≋Σ′)
              (B₌ F′ G′ BΣ! D′ W≋W′ A≡B [F≡F′] [G≡G′])
-             (Σₜ f d f≡f prodₙ ([f₁] , [f₂])) =
+             (Σₜ f d f≡f prodₙ ([f₁] , [f₂] , PE.refl)) =
     let ΣF₁G₁≡ΣF′G′       = whrDet* (red D₁ , Σₙ) (D′ , Σₙ)
         F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity BΣ! BΣ! ΣF₁G₁≡ΣF′G′
         ΣFG≡ΣF₁G₁ = PE.subst (λ x → Γ ⊢ Σᵣ q ▷ F ▹ G ≡ x) (PE.sym ΣF₁G₁≡ΣF′G′)
@@ -114,7 +114,7 @@ mutual
                         (PE.sym G₁≡G′)
                         ([G≡G′] Wk.id ⊢Γ [f₁])
         [f₂]₁ = convTerm₁ ([G] Wk.id ⊢Γ [f₁]) ([G]₁ Wk.id (wf ⊢F₁) [f₁]₁) G≡G₁ [f₂]
-    in  Σₜ f (convRed:*: d ΣFG≡ΣF₁G₁) (≅-conv f≡f ΣFG≡ΣF₁G₁) prodₙ ([f₁]₁ , [f₂]₁)
+    in  Σₜ f (convRed:*: d ΣFG≡ΣF₁G₁) (≅-conv f≡f ΣFG≡ΣF₁G₁) prodₙ ([f₁]₁ , [f₂]₁ , PE.refl)
   convTermT₁ {Γ = Γ} {l} {l′} (Bᵥ (BΣ q Σᵣ) BΣᵣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                                  (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) Σ≋Σ′)
              (B₌ F′ G′ BΣ! D′ W≋W′ A≡B [F≡F′] [G≡G′])
@@ -198,7 +198,7 @@ mutual
   convTermT₂ {Γ = Γ} {l} {l′} (Bᵥ (BΣ q Σᵣ) BΣᵣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                                      (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) Σ≋Σ′)
              (B₌ F′ G′ BΣ! D′ W≋W′ A≡B [F≡F′] [G≡G′])
-             (Σₜ f d f≡f (prodₙ {t = f₁} {u = f₂}) ([f₁]₁ , [f₂]₁)) =
+             (Σₜ f d f≡f (prodₙ {t = f₁} {u = f₂}) ([f₁]₁ , [f₂]₁ , PE.refl)) =
     let ΣF₁G₁≡ΣF′G′       = whrDet* (red D₁ , Σₙ) (D′ , Σₙ)
         F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity BΣ! BΣ! ΣF₁G₁≡ΣF′G′
         ΣFG≡ΣF₁G₁ = PE.subst (λ x → Γ ⊢ Σᵣ q ▷ F ▹ G ≡ x) (PE.sym ΣF₁G₁≡ΣF′G′)
@@ -212,7 +212,7 @@ mutual
                         (PE.sym G₁≡G′)
                         ([G≡G′] Wk.id ⊢Γ [f₁])
         [f₂] = convTerm₂ ([G] Wk.id ⊢Γ [f₁]) ([G]₁ Wk.id (wf ⊢F₁) [f₁]₁) G≡G₁ [f₂]₁
-    in  Σₜ f (convRed:*: d (sym ΣFG≡ΣF₁G₁)) (≅-conv f≡f (sym ΣFG≡ΣF₁G₁)) prodₙ ([f₁] , [f₂])
+    in  Σₜ f (convRed:*: d (sym ΣFG≡ΣF₁G₁)) (≅-conv f≡f (sym ΣFG≡ΣF₁G₁)) prodₙ ([f₁] , [f₂] , PE.refl)
   convTermT₂ {Γ = Γ} {l} {l′} (Bᵥ (BΣ q Σᵣ) BΣᵣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                                          (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) Σ≋Σ′)
                               (B₌ F′ G′ BΣ! D′ W≋W′ A≡B [F≡F′] [G≡G′])

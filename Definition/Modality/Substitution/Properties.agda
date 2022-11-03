@@ -378,19 +378,16 @@ substₘ-lemma Ψ σ Ψ▶σ (_∘ₘ_ {γ} {δ = δ} {p = p} γ▸t δ▸u) =
     Ψ *> γ +ᶜ Ψ *> (p ·ᶜ δ) ≈⟨ +ᶜ-cong ≈ᶜ-refl (*>-distrib-·ᶜ Ψ p δ) ⟩
     Ψ *> γ +ᶜ p ·ᶜ (Ψ *> δ) ∎
 
-substₘ-lemma Ψ σ Ψ▶σ (prodₘ {γ = γ} {δ = δ} γ▸t δ▸u PE.refl) =
-  sub (prodₘ! (substₘ-lemma Ψ σ Ψ▶σ γ▸t) (substₘ-lemma Ψ σ Ψ▶σ δ▸u))
+substₘ-lemma Ψ σ Ψ▶σ (prodᵣₘ {γ = γ} {δ = δ} γ▸t δ▸u PE.refl) =
+  sub (prodᵣₘ (substₘ-lemma Ψ σ Ψ▶σ γ▸t) (substₘ-lemma Ψ σ Ψ▶σ δ▸u) PE.refl)
       (≤ᶜ-reflexive (*>-distrib-+ᶜ Ψ γ δ))
 
-substₘ-lemma Ψ σ Ψ▶σ (fstₘ γ▸t) =
-  sub (fstₘ (sub (substₘ-lemma Ψ σ Ψ▶σ γ▸t)
-                 (≤ᶜ-reflexive (≈ᶜ-sym (*>-zeroʳ Ψ)))))
-      (≤ᶜ-reflexive (*>-zeroʳ Ψ))
+substₘ-lemma Ψ σ Ψ▶σ (prodₚₘ γ▸t γ▸u) =
+  prodₚₘ (substₘ-lemma Ψ σ Ψ▶σ γ▸t) (substₘ-lemma Ψ σ Ψ▶σ γ▸u)
 
-substₘ-lemma Ψ σ Ψ▶σ (sndₘ γ▸t) =
-  sub (sndₘ (sub (substₘ-lemma Ψ σ Ψ▶σ γ▸t)
-                 (≤ᶜ-reflexive (≈ᶜ-sym (*>-zeroʳ Ψ)))))
-      (≤ᶜ-reflexive (*>-zeroʳ Ψ))
+substₘ-lemma Ψ σ Ψ▶σ (fstₘ γ▸t) = fstₘ (substₘ-lemma Ψ σ Ψ▶σ γ▸t)
+
+substₘ-lemma Ψ σ Ψ▶σ (sndₘ γ▸t) = sndₘ (substₘ-lemma Ψ σ Ψ▶σ γ▸t)
 
 substₘ-lemma Ψ σ Ψ▶σ (prodrecₘ {γ = γ} {δ = δ} {p} γ▸t δ▸u) =
   sub (prodrecₘ (substₘ-lemma Ψ σ Ψ▶σ γ▸t)

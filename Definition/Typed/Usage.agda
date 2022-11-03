@@ -54,13 +54,11 @@ usagePresTerm γ▸t (snd-subst x x₁ t⇒u) with inv-usage-snd γ▸t
 ... | invUsageProj 𝟘▸t γ≤𝟘 =
   sub (sndₘ (usagePresTerm 𝟘▸t t⇒u)) γ≤𝟘
 usagePresTerm γ▸t′ (Σ-β₁ x x₁ x₂ x₃ x₄) with inv-usage-fst γ▸t′
-... | invUsageProj 𝟘▸tu γ≤𝟘 with inv-usage-prod 𝟘▸tu
-... | invUsageProd {δ = δ} {η} δ▸t η▸u refl 𝟘≤δ+η =
-  sub δ▸t (≤ᶜ-trans γ≤𝟘 (proj₁ (+ᶜ-positive δ η 𝟘≤δ+η)))
+... | invUsageProj δ▸tu γ≤δ with inv-usage-prodₚ δ▸tu
+... | invUsageProdₚ η▸t η▸u δ≤η = sub η▸t (≤ᶜ-trans γ≤δ δ≤η)
 usagePresTerm γ▸u′ (Σ-β₂ x x₁ x₂ x₃ x₄) with inv-usage-snd γ▸u′
-... | invUsageProj 𝟘▸tu γ≤𝟘 with inv-usage-prod 𝟘▸tu
-... | invUsageProd {δ = δ} {η} δ▸t η▸u refl 𝟘≤δ+η =
-  sub η▸u (≤ᶜ-trans γ≤𝟘 (proj₂ (+ᶜ-positive δ η 𝟘≤δ+η)))
+... | invUsageProj δ▸tu γ≤δ with inv-usage-prodₚ δ▸tu
+... | invUsageProdₚ η▸t η▸u δ≤η = sub η▸u (≤ᶜ-trans γ≤δ δ≤η)
 
 usagePresTerm γ▸natrec (natrec-subst x x₁ x₂ t⇒u) with inv-usage-natrec γ▸natrec
 ... | invUsageNatrec δ▸z η▸s θ▸n γ≤X = sub (natrecₘ δ▸z η▸s (usagePresTerm θ▸n t⇒u)) γ≤X
@@ -97,8 +95,8 @@ usagePresTerm γ▸prodrec (prodrec-subst x x₁ x₂ x₃ x₄) with inv-usage-
 ... | invUsageProdrec δ▸t η▸u γ≤γ′ = sub (prodrecₘ (usagePresTerm δ▸t x₄) η▸u) γ≤γ′
 usagePresTerm {γ = γ} γ▸prodrec (prodrec-β {p = p} {t = t} {t′} {u} x x₁ x₂ x₃ x₄ x₅)
   with inv-usage-prodrec γ▸prodrec
-... | invUsageProdrec {δ = δ} {η} δ▸t η▸u γ≤γ′ with inv-usage-prod δ▸t
-... | invUsageProd {δ = δ′} {η′} δ▸t₁ η▸t₂ PE.refl γ′≤γ″ =
+... | invUsageProdrec {δ = δ} {η} δ▸t η▸u γ≤γ′ with inv-usage-prodᵣ δ▸t
+... | invUsageProdᵣ {δ = δ′} {η′} δ▸t₁ η▸t₂ PE.refl γ′≤γ″ =
   sub (doubleSubstₘ-lemma η▸u η▸t₂ δ▸t₁) le
   where
   open import Tools.Reasoning.PartialOrder ≤ᶜ-poset

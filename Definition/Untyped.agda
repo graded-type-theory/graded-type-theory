@@ -59,7 +59,7 @@ data Kind : (ns : List Nat) → Set a where
   Appkind : (p : M)   → Kind (0 ∷ 0 ∷ [])
 
   Sigmakind   : (q : M) → SigmaMode → Kind (0 ∷ 1 ∷ [])
-  Prodkind    : Kind (0 ∷ 0 ∷ [])
+  Prodkind    : SigmaMode → Kind (0 ∷ 0 ∷ [])
   Fstkind     : Kind (0 ∷ [])
   Sndkind     : Kind (0 ∷ [])
   Prodreckind : (p : M) → Kind (1 ∷ 0 ∷ 2 ∷ [])
@@ -123,8 +123,16 @@ _∘_▷_    : (t : Term n) (p : M) (u : Term n) → Term n -- Application.
 t ∘ p ▷ u = gen (Appkind p) (t ∷ u ∷ [])
 
 
-prod : (t u : Term n) → Term n       -- Dependent products
-prod t u = gen Prodkind (t ∷ u ∷ [])
+prod : (m : SigmaMode) → (t u : Term n) → Term n       -- Dependent products
+prod m t u = gen (Prodkind m) (t ∷ u ∷ [])
+
+prodᵣ : (t u : Term n) → Term n      -- Weak dependent products
+prodᵣ t u = prod Σᵣ t u
+
+prodₚ : (t u : Term n) → Term n      -- Strong dependent products
+prodₚ t u = prod Σₚ t u
+
+pattern prod! t u = gen (Prodkind _) (t ∷ u ∷ [])
 
 fst : (t : Term n) → Term n          -- First projection
 fst t = gen Fstkind (t ∷ [])
@@ -225,7 +233,7 @@ data Whnf {n : Nat} : Term n → Set a where
   zeroₙ : Whnf zero
   sucₙ  : Whnf (suc t)
   starₙ : Whnf star
-  prodₙ : Whnf (prod t u)
+  prodₙ : ∀ {m} → Whnf (prod m t u)
 
   -- Neutrals are whnfs.
   ne    : Neutral t → Whnf t
@@ -274,7 +282,7 @@ zero≢ne () PE.refl
 suc≢ne : Neutral t → suc u PE.≢ t
 suc≢ne () PE.refl
 
-prod≢ne : Neutral v → prod t u PE.≢ v
+prod≢ne : ∀ {m} → Neutral v → prod m t u PE.≢ v
 prod≢ne () PE.refl
 
 -- Several views on whnfs (note: not recursive).
@@ -311,7 +319,7 @@ data Function {n : Nat} : Term n → Set a where
 -- A whnf of type Σ A ▹ B is either prod t u or neutral.
 
 data Product {n : Nat} : Term n → Set a where
-  prodₙ : Product (prod t u)
+  prodₙ : ∀ {m} → Product (prod m t u)
   ne    : Neutral t → Product t
 
 

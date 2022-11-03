@@ -54,7 +54,7 @@ prodrec-subst* : Γ ⊢ t ⇒* t′ ∷ Σᵣ q ▷ F ▹ G
                → Γ ⊢ F
                → Γ ∙ F ⊢ G
                → Γ ∙ (Σᵣ q ▷ F ▹ G) ⊢ A
-               → Γ ∙ F ∙ G ⊢ u ∷ A [ prod (var (x0 +1)) (var x0) ]↑²
+               → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ (var (x0 +1)) (var x0) ]↑²
                → Γ ⊢ prodrec p A t u ⇒* prodrec p A t′ u ∷ A [ t ]
 prodrec-subst* (id x) ⊢F ⊢G ⊢A ⊢u = id (prodrecⱼ ⊢F ⊢G ⊢A x ⊢u)
 prodrec-subst* (x ⇨ t⇒t′) ⊢F ⊢G ⊢A ⊢u =

@@ -113,15 +113,12 @@ wkUsage ρ (lamₘ γ▸t) = lamₘ (wkUsage (lift ρ) γ▸t)
 wkUsage ρ (γ▸t ∘ₘ δ▸u) =
   sub ((wkUsage ρ γ▸t) ∘ₘ (wkUsage ρ δ▸u))
       (≤ᶜ-reflexive (≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-cong ≈ᶜ-refl (wk-·ᶜ ρ))))
-wkUsage ρ (prodₘ γ▸t δ▸u refl) =
-  sub (prodₘ (wkUsage ρ γ▸t) (wkUsage ρ δ▸u) PE.refl)
+wkUsage ρ (prodᵣₘ γ▸t δ▸u refl) =
+  sub (prodᵣₘ (wkUsage ρ γ▸t) (wkUsage ρ δ▸u) PE.refl)
       (≤ᶜ-reflexive (wk-+ᶜ ρ))
-wkUsage ρ (fstₘ 𝟘▸t) =
-  subst (λ γ → γ ▸ fst _) (PE.sym (wk-𝟘ᶜ ρ))
-        (fstₘ (subst (λ γ → γ ▸ _) (wk-𝟘ᶜ ρ) (wkUsage ρ 𝟘▸t)))
-wkUsage ρ (sndₘ 𝟘▸t) =
-  subst (λ γ → γ ▸ snd _) (PE.sym (wk-𝟘ᶜ ρ))
-        (sndₘ (subst (λ γ → γ ▸ _) (wk-𝟘ᶜ ρ) (wkUsage ρ 𝟘▸t)))
+wkUsage ρ (prodₚₘ γ▸t γ▸u) = prodₚₘ (wkUsage ρ γ▸t) (wkUsage ρ γ▸u)
+wkUsage ρ (fstₘ γ▸t) = fstₘ (wkUsage ρ γ▸t)
+wkUsage ρ (sndₘ γ▸t) = sndₘ (wkUsage ρ γ▸t)
 wkUsage ρ (prodrecₘ γ▸t δ▸u) =
   sub (prodrecₘ (wkUsage ρ γ▸t) (wkUsage (liftn ρ 2) δ▸u))
       (≤ᶜ-reflexive (≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-cong (wk-·ᶜ ρ) ≈ᶜ-refl)))

@@ -119,8 +119,8 @@ inv-usage-app (sub γ▸t∘p▷u γ′≤γ) with inv-usage-app γ▸t∘p▷u
 ... | invUsageApp δ▸t η▸u γ≤δ+pη = invUsageApp δ▸t η▸u (≤ᶜ-trans γ′≤γ γ≤δ+pη)
 
 
-record InvUsageProd {n} (γ′ : Conₘ n) (t u : Term n) : Set (a ⊔ ℓ) where
-  constructor invUsageProd
+record InvUsageProdᵣ {n} (γ′ : Conₘ n) (t u : Term n) : Set (a ⊔ ℓ) where
+  constructor invUsageProdᵣ
   field
     {δ η γ″} : Conₘ n
     δ▸t     : δ ▸ t
@@ -130,18 +130,32 @@ record InvUsageProd {n} (γ′ : Conₘ n) (t u : Term n) : Set (a ⊔ ℓ) wher
 
 -- If γ ▸ prod t u then δ ▸ t, η ▸ u and γ ≤ᶜ δ +ᶜ η
 
-inv-usage-prod : γ ▸ prod t u → InvUsageProd γ t u
-inv-usage-prod (prodₘ! γ▸t δ▸u) = invUsageProd γ▸t δ▸u PE.refl ≤ᶜ-refl
-inv-usage-prod (sub γ▸tu γ≤γ′) with inv-usage-prod γ▸tu
-... | invUsageProd δ▸t η▸u γ″=δ+η γ′≤γ″ = invUsageProd δ▸t η▸u γ″=δ+η
-  (≤ᶜ-trans γ≤γ′ γ′≤γ″)
+inv-usage-prodᵣ : γ ▸ prodᵣ t u → InvUsageProdᵣ γ t u
+inv-usage-prodᵣ (prodᵣₘ γ▸t δ▸u PE.refl) = invUsageProdᵣ γ▸t δ▸u PE.refl ≤ᶜ-refl
+inv-usage-prodᵣ (sub γ▸tu γ≤γ′) with inv-usage-prodᵣ γ▸tu
+... | invUsageProdᵣ δ▸t η▸u γ″=δ+η γ′≤γ″ =
+  invUsageProdᵣ δ▸t η▸u γ″=δ+η (≤ᶜ-trans γ≤γ′ γ′≤γ″)
+
+record InvUsageProdₚ {n} (γ : Conₘ n) (t u : Term n) : Set (a ⊔ ℓ) where
+  constructor invUsageProdₚ
+  field
+    {δ} : Conₘ n
+    δ▸t : δ ▸ t
+    δ▸u : δ ▸ u
+    γ≤δ : γ ≤ᶜ δ
+
+inv-usage-prodₚ : γ ▸ prodₚ t u → InvUsageProdₚ γ t u
+inv-usage-prodₚ (prodₚₘ γ▸t γ▸u) = invUsageProdₚ γ▸t γ▸u ≤ᶜ-refl
+inv-usage-prodₚ (sub δ▸tu γ≤γ′) with inv-usage-prodₚ δ▸tu
+... | invUsageProdₚ δ▸t δ▸u γ′≤δ = invUsageProdₚ δ▸t δ▸u (≤ᶜ-trans γ≤γ′ γ′≤δ)
 
 
 record InvUsageProj {n} (γ : Conₘ n) (t : Term n) : Set (a ⊔ ℓ) where
   constructor invUsageProj
   field
-    𝟘▸t : 𝟘ᶜ ▸ t
-    γ≤𝟘 : γ ≤ᶜ 𝟘ᶜ
+    {δ} : Conₘ n
+    δ▸t : δ ▸ t
+    γ≤δ : γ ≤ᶜ δ
 
 -- If γ ▸ fst t then 𝟘ᶜ ▸ t and γ ≤ᶜ 𝟘ᶜ
 

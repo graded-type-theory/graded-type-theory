@@ -133,7 +133,7 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set (a ⊔ ℓ) where
           → Γ ∙ F ⊢ G
           → Γ ∙ (Σᵣ q ▷ F ▹ G) ⊢ A [conv↑] A′
           → Γ ⊢ t ~ t′ ∷ (Σᵣ q ▷ F ▹ G)
-          → Γ ∙ F ∙ G ⊢ u [conv↑] u′ ∷ A [ prod (var (x0 +1)) (var x0) ]↑²
+          → Γ ∙ F ∙ G ⊢ u [conv↑] u′ ∷ A [ prodᵣ (var (x0 +1)) (var x0) ]↑²
           → p ≈ p′
           → Γ ⊢ prodrec p A t u ~ prodrec p′ A′ t′ u′ ∷ (A [ t ])
 ~-prodrec x x₁ x₂ (↑ A≡B k~↑l) x₄ x₅ =

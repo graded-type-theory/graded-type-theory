@@ -64,7 +64,7 @@ mutual
 
     prodrec-cong  : Γ ∙ (Σᵣ q ▷ F ▹ G) ⊢ C [conv↑] E
                   → Γ ⊢ g ~ h ↓ Σᵣ q ▷ F ▹ G
-                  → Γ ∙ F ∙ G ⊢ u [conv↑] v ∷ C [ prod (var (x0 +1)) (var x0) ]↑²
+                  → Γ ∙ F ∙ G ⊢ u [conv↑] v ∷ C [ prodᵣ (var (x0 +1)) (var x0) ]↑²
                   → p ≈ p′
                   → Γ ⊢ prodrec p C g u ~ prodrec p′ E h v ↑ C [ g ]
 
@@ -180,7 +180,7 @@ mutual
               → Γ ∙ F ⊢ G
               → Γ ⊢ t [conv↑] t′ ∷ F
               → Γ ⊢ u [conv↑] u′ ∷ G [ t ]
-              → Γ ⊢ prod t u [conv↓] prod t′ u′ ∷ Σᵣ q ▷ F ▹ G
+              → Γ ⊢ prodᵣ t u [conv↓] prodᵣ t′ u′ ∷ Σᵣ q ▷ F ▹ G
 
     η-eq      : ∀ {f g F G}
               → Γ ⊢ f ∷ Π p , q ▷ F ▹ G

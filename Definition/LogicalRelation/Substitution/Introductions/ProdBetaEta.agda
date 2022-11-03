@@ -45,10 +45,10 @@ private
         ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
         ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ F / [Γ] / [F])
         ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ G [ t ] / [Γ] / substS {F = F} {G} [Γ] [F] [G] [t])
-      → Γ ⊩ᵛ⟨ l ⟩ fst (prod t u) ≡ t ∷ F / [Γ] / [F]
+      → Γ ⊩ᵛ⟨ l ⟩ fst (prodₚ t u) ≡ t ∷ F / [Γ] / [F]
 Σ-β₁ᵛ {Γ = Γ} {F} {G} {t} {u} {l} {q} [Γ] [F] [G] [t] [u] =
   let [Gt] = substS {F = F} {G} {t} [Γ] [F] [G] [t]
-      fst⇒t : Γ ⊩ᵛ fst (prod t u) ⇒ t ∷ F / [Γ]
+      fst⇒t : Γ ⊩ᵛ fst (prodₚ t u) ⇒ t ∷ F / [Γ]
       fst⇒t = (λ {_} {Δ} {σ} ⊢Δ [σ] →
                 let ⊩σF = proj₁ ([F] ⊢Δ [σ])
                     ⊢σF = escape ⊩σF
@@ -68,7 +68,7 @@ private
                     ⊩σu = irrelevanceTerm′ (singleSubstLift G t) ⊩σGt₁ ⊩σGt ⊩σu₁
                     ⊢σu = escapeTerm ⊩σGt ⊩σu
                 in  Σ-β₁ {q = q} ⊢σF ⊢σG ⊢σt ⊢σu (prodⱼ ⊢σF ⊢σG ⊢σt ⊢σu))
-  in  proj₂ (redSubstTermᵛ {A = F} {fst (prod t u)} {t} [Γ] fst⇒t [F] [t])
+  in  proj₂ (redSubstTermᵛ {A = F} {fst (prodₚ t u)} {t} [Γ] fst⇒t [F] [t])
 
 Σ-β₂ᵛ : ∀ {F G t u l}
         ([Γ] : ⊩ᵛ Γ)
@@ -76,25 +76,25 @@ private
         ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
         ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ F / [Γ] / [F])
         ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ G [ t ] / [Γ] / substS {F = F} {G} [Γ] [F] [G] [t])
-      → Γ ⊩ᵛ⟨ l ⟩ snd (prod t u) ≡ u ∷ G [ fst (prod t u) ] / [Γ]
+      → Γ ⊩ᵛ⟨ l ⟩ snd (prodₚ t u) ≡ u ∷ G [ fst (prodₚ t u) ] / [Γ]
           / substS {F = F} {G} [Γ] [F] [G]
-                   (fstᵛ {q = q} {F = F} {G} {prod t u} [Γ] [F] [G]
+                   (fstᵛ {q = q} {F = F} {G} {prodₚ t u} [Γ] [F] [G]
                          (prodᵛ {F = F} {G} {t} {u} [Γ] [F] [G] [t] [u]))
 Σ-β₂ᵛ {Γ = Γ} {q = q} {F = F} {G} {t} {u} {l} [Γ] [F] [G] [t] [u] =
   let [Gt] = substS {F = F} {G} {t} [Γ] [F] [G] [t]
       [prod] = prodᵛ {F = F} {G} {t} {u} [Γ] [F] [G] [t] [u]
-      [fst] = fstᵛ {F = F} {G} {prod t u} [Γ] [F] [G] [prod]
-      [Gfst] = substS {F = F} {G} {fst (prod t u)} [Γ] [F] [G] [fst]
+      [fst] = fstᵛ {F = F} {G} {prodₚ t u} [Γ] [F] [G] [prod]
+      [Gfst] = substS {F = F} {G} {fst (prodₚ t u)} [Γ] [F] [G] [fst]
       [fst≡t] = Σ-β₁ᵛ {F = F} {G} {t} {u} {q = q} [Γ] [F] [G] [t] [u]
-      [Gfst≡Gt] = substSEq {F = F} {F} {G} {G} {fst (prod t u)} {t}
+      [Gfst≡Gt] = substSEq {F = F} {F} {G} {G} {fst (prodₚ t u)} {t}
                            [Γ] [F] [F] (reflᵛ {A = F} [Γ] [F])
                                [G] [G] (reflᵛ {Γ = Γ ∙ F} {A = G} ([Γ] ∙ [F]) [G])
                                [fst] [t] [fst≡t]
 
-      [u]Gfst = conv₂ᵛ {t = u} {G [ fst (prod t u) ]} {G [ t ]}
+      [u]Gfst = conv₂ᵛ {t = u} {G [ fst (prodₚ t u) ]} {G [ t ]}
                        [Γ] [Gfst] [Gt] [Gfst≡Gt] [u]
 
-      snd⇒t : Γ ⊩ᵛ snd (prod t u) ⇒ u ∷ G [ fst (prod t u) ] / [Γ]
+      snd⇒t : Γ ⊩ᵛ snd (prodₚ t u) ⇒ u ∷ G [ fst (prodₚ t u) ] / [Γ]
       snd⇒t = (λ {_} {Δ} {σ} ⊢Δ [σ] →
                 let ⊩σF = proj₁ ([F] ⊢Δ [σ])
                     ⊢σF = escape ⊩σF
@@ -116,11 +116,11 @@ private
 
                     snd⇒t : Δ ⊢ _ ⇒ _ ∷ _
                     snd⇒t = Σ-β₂ {q = q} ⊢σF ⊢σG ⊢σt ⊢σu (prodⱼ ⊢σF ⊢σG ⊢σt ⊢σu)
-                    σGfst≡σGfst = PE.subst (λ x → Δ ⊢ x ≡ subst σ (G [ fst (prod t u) ]))
-                                           (singleSubstLift G (fst (prod t u)))
+                    σGfst≡σGfst = PE.subst (λ x → Δ ⊢ x ≡ subst σ (G [ fst (prodₚ t u) ]))
+                                           (singleSubstLift G (fst (prodₚ t u)))
                                            (refl (escape (proj₁ ([Gfst] ⊢Δ [σ]))))
               in  conv snd⇒t σGfst≡σGfst)
-  in  proj₂ (redSubstTermᵛ {A = G [ fst (prod t u) ]} {snd (prod t u)} {u} [Γ] snd⇒t [Gfst] [u]Gfst)
+  in  proj₂ (redSubstTermᵛ {A = G [ fst (prodₚ t u) ]} {snd (prodₚ t u)} {u} [Γ] snd⇒t [Gfst] [u]Gfst)
 
 Σ-η′ : ∀ {F G p r l l′}
          ([F] : Γ ⊩⟨ l′ ⟩ F)
