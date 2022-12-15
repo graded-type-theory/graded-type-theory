@@ -27,7 +27,7 @@ private
 
 -- Validity of the Unit type.
 Unitᵛ : ∀ {l} ([Γ] : ⊩ᵛ Γ) → Γ ⊩ᵛ⟨ l ⟩ Unit / [Γ]
-Unitᵛ [Γ] ⊢Δ [σ] = Unitᵣ (idRed:*: (Unitⱼ ⊢Δ)) , λ _ x₂ → id (Unitⱼ ⊢Δ)
+Unitᵛ [Γ] = wrap λ ⊢Δ [σ] → Unitᵣ (idRed:*: (Unitⱼ ⊢Δ)) , λ _ x₂ → id (Unitⱼ ⊢Δ)
 
 -- Validity of the Unit type as a term.
 Unitᵗᵛ : ([Γ] : ⊩ᵛ Γ)
@@ -52,7 +52,7 @@ starᵛ [Γ] ⊢Δ [σ] =
   ([e'] : Γ ⊩ᵛ⟨ l ⟩ e' ∷ Unit / [Γ] / [Unit])
   → Γ ⊩ᵛ⟨ l ⟩ e ≡ e' ∷ Unit / [Γ] / [Unit]
 η-unitᵛ {Γ = Γ} {l} {e} {e'} [Γ] [Unit] [e] [e'] {Δ = Δ} {σ} ⊢Δ [σ] =
-  let J = proj₁ ([Unit] ⊢Δ [σ])
+  let J = proj₁ (unwrap [Unit] ⊢Δ [σ])
       [σe] = proj₁ ([e] ⊢Δ [σ])
       [σe'] = proj₁ ([e'] ⊢Δ [σ])
       UnitJ : Δ ⊩⟨ l ⟩ Unit

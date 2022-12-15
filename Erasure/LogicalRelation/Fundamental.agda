@@ -71,14 +71,14 @@ fundamentalVar′ : ([Γ] : ⊩ᵛ Γ)
                → ([σ] : ε ⊩ˢ σ ∷ Γ / [Γ] / ε)
                → (σ®σ′ : σ ®⟨ ¹ ⟩ σ′ ∷ Γ ◂ γ / [Γ] / [σ])
                → ∃ λ ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ])
-               → σ x ®⟨ ¹ ⟩ σ′ x ∷ subst σ A / proj₁ ([A] ε [σ])
+               → σ x ®⟨ ¹ ⟩ σ′ x ∷ subst σ A / proj₁ (unwrap [A] ε [σ])
 fundamentalVar′ ε ()
 fundamentalVar′ {σ = σ} (_∙_ {A = A} [Γ] [A]) here here
                 ([tailσ] , [headσ]) (σ®σ′ , σ0®σ′0) =
-  let [A]′ = proj₁ ([A] ε [tailσ])
+  let [A]′ = proj₁ (unwrap [A] ε [tailσ])
       [↑A] = wk1ᵛ {A = A} {F = A} [Γ] [A] [A]
       [↑A]′ = maybeEmbᵛ {A = wk1 A} (_∙_ {A = A} [Γ] [A]) [↑A]
-      [σ↑A] = proj₁ ([↑A]′ {σ = σ} ε ([tailσ] , [headσ]))
+      [σ↑A] = proj₁ (unwrap [↑A]′ {σ = σ} ε ([tailσ] , [headσ]))
       A≡A : ε ⊢ subst (tail σ) A ≡ subst (tail σ) A
       A≡A = refl (escape [A]′)
       A≡A′ = PE.subst (ε ⊢ subst (tail σ) A ≡_)
@@ -86,14 +86,14 @@ fundamentalVar′ {σ = σ} (_∙_ {A = A} [Γ] [A]) here here
   in  [↑A]′ , convTermʳ [A]′ [σ↑A] A≡A′ σ0®σ′0
 fundamentalVar′ (_∙_ {A = A} [Γ] [A]) (there {A = B} x) (there x₁)
                 ([tailσ] , [headσ]) (σ®σ′ , σ0®σ′0) =
-  let [σA] = proj₁ ([A] ε [tailσ])
+  let [σA] = proj₁ (unwrap [A] ε [tailσ])
       [A]′ = maybeEmbᵛ {A = A} [Γ] [A]
       [B] , t®v = fundamentalVar′ [Γ] x x₁ [tailσ] σ®σ′
       [↑B] = wk1ᵛ {A = B} {F = A} [Γ] [A]′ [B]
       [↑B]′ = maybeEmbᵛ {A = wk1 B} (_∙_ {A = A} [Γ] [A]′) [↑B]
       [↑B]″ = IS.irrelevance {A = wk1 B} (_∙_ {A = A} [Γ] [A]′) ([Γ] ∙ [A]) [↑B]′
-      t®v′ = irrelevanceTerm′ (PE.sym (wk1-tail B)) (proj₁ ([B] ε [tailσ]))
-                              (proj₁ ([↑B]″ ε ([tailσ] , [headσ]))) t®v
+      t®v′ = irrelevanceTerm′ (PE.sym (wk1-tail B)) (proj₁ (unwrap [B] ε [tailσ]))
+                              (proj₁ (unwrap [↑B]″ ε ([tailσ] , [headσ]))) t®v
   in  [↑B]″ , t®v′
 
 fundamentalVar : ([Γ] : ⊩ᵛ Γ)
@@ -106,7 +106,7 @@ fundamentalVar {γ = γ} [Γ] x∷A∈Γ γ▸x =
       x◂ω∈γ = valid-var-usage γ▸x
   in [A] , λ [σ] σ®σ′ →
      let [A]′ , t®v = fundamentalVar′ [Γ] x∷A∈Γ x◂ω∈γ [σ] σ®σ′
-     in  irrelevanceTerm (proj₁ ([A]′ ε [σ])) (proj₁ ([A] ε [σ])) t®v
+     in  irrelevanceTerm (proj₁ (unwrap [A]′ ε [σ])) (proj₁ (unwrap [A] ε [σ])) t®v
 
 
 
@@ -253,7 +253,7 @@ fundamental′ : ∀ {t A} → ε ⊢ t ∷ A → ε ▸ t
 fundamental′ {t = t} {A = A} ε⊢t∷A ε▸t =
   let [ε] , [A] , ⊩ʳt = fundamental ε⊢t∷A ε▸t
       [A]′ = IS.irrelevance {A = A} [ε] ε [A]
-      [σA] = proj₁ ([A]′ {σ = idSubst} ε (idSubstS  ε))
+      [σA] = proj₁ (unwrap [A]′ {σ = idSubst} ε (idSubstS  ε))
       [σA]′ = I.irrelevance′ (subst-id A) [σA]
       ⊩ʳt′ = irrelevance {A = A} {t = t} [ε] ε [A] [A]′ ⊩ʳt
       t®v = ⊩ʳt′ {σ′ = T.idSubst} (idSubstS ε) tt

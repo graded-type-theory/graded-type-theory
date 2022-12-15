@@ -67,7 +67,7 @@ sucʳ {Γ = Γ} {γ = γ} {t = t} {l = l} [Γ] [ℕ] ⊩ʳt Γ⊢t:ℕ {σ = σ}
   let [ℕ]′ = ℕᵛ {l = l} [Γ]
       ⊢t:ℕ = substitutionTerm Γ⊢t:ℕ (wellformedSubst [Γ] ε [σ]) ε
       t®v = ⊩ʳt [σ] σ®σ′
-      t®v∷ℕ = irrelevanceTerm (proj₁ ([ℕ] ε [σ])) (proj₁ ([ℕ]′ ε [σ])) t®v
-      suct®sucv : suc (subst σ t) ®⟨ _ ⟩ T.suc (T.subst σ′ (erase t)) ∷ ℕ / proj₁ ([ℕ]′ ε [σ])
+      t®v∷ℕ = irrelevanceTerm (proj₁ (unwrap [ℕ] ε [σ])) (proj₁ (unwrap [ℕ]′ ε [σ])) t®v
+      suct®sucv : suc (subst σ t) ®⟨ _ ⟩ T.suc (T.subst σ′ (erase t)) ∷ ℕ / proj₁ (unwrap [ℕ]′ ε [σ])
       suct®sucv = sucᵣ (id (sucⱼ ⊢t:ℕ)) T.refl t®v∷ℕ
-  in  irrelevanceTerm (proj₁ ([ℕ]′ ε [σ])) (proj₁ ([ℕ] ε [σ])) suct®sucv
+  in  irrelevanceTerm (proj₁ (unwrap [ℕ]′ ε [σ])) (proj₁ (unwrap [ℕ] ε [σ])) suct®sucv

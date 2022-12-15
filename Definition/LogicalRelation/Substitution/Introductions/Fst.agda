@@ -100,8 +100,8 @@ fst-congᵛ : ∀ {F G t t′ l}
           → Γ ⊩ᵛ⟨ l ⟩ fst t ≡ fst t′ ∷ F / [Γ] / [F]
 fst-congᵛ {F = F} {G} [Γ] [F] [G] [t] [t′] [t≡t′] ⊢Δ [σ] =
   let [ΣFG] = Σᵛ {F = F} {G} [Γ] [F] [G]
-      ⊩σF = proj₁ ([F] ⊢Δ [σ])
-      ⊩σΣFG = proj₁ ([ΣFG] ⊢Δ [σ])
+      ⊩σF = proj₁ (unwrap [F] ⊢Δ [σ])
+      ⊩σΣFG = proj₁ (unwrap [ΣFG] ⊢Δ [σ])
       ⊩σt≡t′ = [t≡t′] ⊢Δ [σ]
   in  fst-cong″ ⊩σF ⊩σΣFG ⊩σt≡t′
 
@@ -115,16 +115,16 @@ fstᵛ : ∀ {Γ : Con Term n} {F : Term n} {G t l}
 fstᵛ {Γ = Γ} {F} {G} {t} {l} [Γ] [F] [G] [t] {Δ = Δ} {σ = σ} ⊢Δ [σ] =
   let [ΣFG] = Σᵛ {F = F} {G} [Γ] [F] [G]
       σfst : ∀ {Δ σ} (⊢Δ : ⊢ Δ) ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
-           → Δ ⊩⟨ l ⟩ subst σ (fst t) ∷ subst σ F / proj₁ ([F] ⊢Δ [σ])
+           → Δ ⊩⟨ l ⟩ subst σ (fst t) ∷ subst σ F / proj₁ (unwrap [F] ⊢Δ [σ])
       σfst {Δ} {σ} ⊢Δ [σ] =
-        let ⊩σF = proj₁ ([F] ⊢Δ [σ])
-            ⊩σΣFG = proj₁ ([ΣFG] ⊢Δ [σ])
+        let ⊩σF = proj₁ (unwrap [F] ⊢Δ [σ])
+            ⊩σΣFG = proj₁ (unwrap [ΣFG] ⊢Δ [σ])
             ⊩σt = proj₁ ([t] ⊢Δ [σ])
         in  fst″ ⊩σF ⊩σΣFG ⊩σt
 
   in  σfst ⊢Δ [σ] ,
       (λ {σ′} [σ′] [σ≡σ′] →
-        let [σF] = proj₁ ([F] ⊢Δ [σ])
-            [σΣFG] = proj₁ ([ΣFG] ⊢Δ [σ])
+        let [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
+            [σΣFG] = proj₁ (unwrap [ΣFG] ⊢Δ [σ])
             [σt≡σ′t] = proj₂ ([t] ⊢Δ [σ]) [σ′] [σ≡σ′]
         in  fst-cong″ [σF] [σΣFG] [σt≡σ′t])

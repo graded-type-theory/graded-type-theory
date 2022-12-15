@@ -27,11 +27,11 @@ maybeEmbᵛ : ∀ {l A}
             ([Γ] : ⊩ᵛ Γ)
           → Γ ⊩ᵛ⟨ l ⟩ A / [Γ]
           → Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ]
-maybeEmbᵛ {l = ⁰} [Γ] [A] ⊢Δ [σ] =
-  let [σA]  = proj₁ ([A] ⊢Δ [σ])
-      [σA]′ = maybeEmb (proj₁ ([A] ⊢Δ [σ]))
+maybeEmbᵛ {l = ⁰} [Γ] [A] = wrap λ ⊢Δ [σ] →
+  let [σA]  = proj₁ (unwrap [A] ⊢Δ [σ])
+      [σA]′ = maybeEmb (proj₁ (unwrap [A] ⊢Δ [σ]))
   in  [σA]′
-  ,   (λ [σ′] [σ≡σ′] → irrelevanceEq [σA] [σA]′ (proj₂ ([A] ⊢Δ [σ]) [σ′] [σ≡σ′]))
+  ,   (λ [σ′] [σ≡σ′] → irrelevanceEq [σA] [σA]′ (proj₂ (unwrap [A] ⊢Δ [σ]) [σ′] [σ≡σ′]))
 maybeEmbᵛ {l = ¹} [Γ] [A] = [A]
 
 -- The lowest level can be embedded in any level (validity variant).
@@ -40,8 +40,8 @@ maybeEmbₛ′ : ∀ {l A}
            → Γ ⊩ᵛ⟨ ⁰ ⟩ A / [Γ]
            → Γ ⊩ᵛ⟨ l ⟩ A / [Γ]
 maybeEmbₛ′ {l = ⁰} [Γ] [A] = [A]
-maybeEmbₛ′ {l = ¹} [Γ] [A] ⊢Δ [σ] =
-  let [σA]  = proj₁ ([A] ⊢Δ [σ])
-      [σA]′ = maybeEmb′ (proj₁ ([A] ⊢Δ [σ]))
+maybeEmbₛ′ {l = ¹} [Γ] [A] = wrap λ ⊢Δ [σ] →
+  let [σA]  = proj₁ (unwrap [A] ⊢Δ [σ])
+      [σA]′ = maybeEmb′ (proj₁ (unwrap [A] ⊢Δ [σ]))
   in  [σA]′
-  ,   (λ [σ′] [σ≡σ′] → irrelevanceEq [σA] [σA]′ (proj₂ ([A] ⊢Δ [σ]) [σ′] [σ≡σ′]))
+  ,   (λ [σ′] [σ≡σ′] → irrelevanceEq [σA] [σA]′ (proj₂ (unwrap [A] ⊢Δ [σ]) [σ′] [σ≡σ′]))

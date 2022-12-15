@@ -91,7 +91,7 @@ _®⟨_⟩_∷_◂_/_/_ : (σₜ : U.Subst 0 n) (l : TypeLevel) (σᵥ : T.Subst
 σₜ ®⟨ l ⟩ σᵥ ∷ ε ◂ ε / ε / (lift tt) = ⊤
 σₜ ®⟨ l ⟩ σᵥ ∷ Γ ∙ A ◂ γ ∙ p / _∙_ {l = l₁} [Γ] [A] / ([σ] , [σA]) =
   ((U.tail σₜ) ®⟨ l ⟩ (T.tail σᵥ) ∷ Γ ◂ γ / [Γ] / [σ]) ×
-  ((U.head σₜ) ®⟨ l₁ ⟩ (T.head σᵥ) ∷ (U.subst (U.tail σₜ) A) ◂ p / proj₁ ([A] ε [σ]))
+  ((U.head σₜ) ®⟨ l₁ ⟩ (T.head σᵥ) ∷ (U.subst (U.tail σₜ) A) ◂ p / proj₁ (unwrap [A] ε [σ]))
 
 -- Validity of erasure
 
@@ -100,4 +100,4 @@ _▸_⊩ʳ⟨_⟩_∷_/_/_ : (γ : Conₘ n) (Γ : Con U.Term n) (l : TypeLevel)
 γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷ A / [Γ] / [A] =
   ∀ {σ σ′} → ([σ] : ε ⊩ˢ σ ∷ Γ / [Γ] / ε)
            → σ ®⟨ l ⟩ σ′ ∷ Γ ◂ γ / [Γ] / [σ]
-           → U.subst σ t ®⟨ l ⟩ T.subst σ′ (erase t) ∷ U.subst σ A / proj₁ ([A] ε [σ])
+           → U.subst σ t ®⟨ l ⟩ T.subst σ′ (erase t) ∷ U.subst σ A / proj₁ (unwrap [A] ε [σ])

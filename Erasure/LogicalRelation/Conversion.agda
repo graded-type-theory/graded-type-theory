@@ -137,7 +137,7 @@ convʳ : ∀ {l l′ A B t γ}
       → (γ ▸ Γ ⊩ʳ⟨ l′ ⟩ t ∷ B / [Γ] / [B])
 convʳ {A = A} {B = B} [Γ] [A] [B] A≡B ⊩ʳt [σ] σ®σ′ =
   let t®v = ⊩ʳt [σ] σ®σ′
-      [σA] = proj₁ ([A] ε [σ])
-      [σB] = proj₁ ([B] ε [σ])
+      [σA] = proj₁ (unwrap [A] ε [σ])
+      [σB] = proj₁ (unwrap [B] ε [σ])
       σA≡σB = substitutionEq A≡B (wellformedSubstEq [Γ] ε [σ] (reflSubst [Γ] ε [σ])) ε
   in  convTermʳ [σA] [σB] σA≡σB t®v
