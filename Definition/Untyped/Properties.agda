@@ -646,6 +646,27 @@ wk1-tail {σ = σ} t = begin
 wk1-tailId : (t : Term n) → wk1 t ≡ subst (tail idSubst) t
 wk1-tailId t = trans (sym (subst-id (wk1 t))) (subst-wk t)
 
+wk2-tail-B′ : ∀ (W : BindingType) (F : Term n) (G : Term (1+ n))
+           → ⟦ W ⟧ subst σ (wk1 (wk1 F)) ▹ subst (liftSubst σ) (wk (lift (step (step id))) G)
+           ≡ ⟦ W ⟧ subst (tail (tail σ)) F ▹ subst (liftSubst (tail (tail σ))) G
+wk2-tail-B′ {n} {σ = σ} W F G = begin
+  ⟦ W ⟧ subst σ (wk1 (wk1 F)) ▹ subst (liftSubst σ) (wk (lift (step (step id))) G)
+    ≡⟨ cong₂ (⟦ W ⟧_▹_) (wk1-tail (wk1 F)) (subst-wk G) ⟩
+  ⟦ W ⟧ subst (tail σ) (wk1 F) ▹ subst (liftSubst σ ₛ• lift (step (step id))) G
+    ≡⟨ cong₂ (⟦ W ⟧_▹_) (wk1-tail F) (substVar-to-subst eq G) ⟩
+  ⟦ W ⟧ subst (tail (tail σ)) F ▹ subst (liftSubst (tail (tail σ))) G ∎
+  where
+  eq : (x : Fin (1+ n))
+     → (liftSubst σ ₛ• lift (step (step id))) x ≡ liftSubst (tail (tail σ)) x
+  eq x0 = refl
+  eq (x +1) = refl
+
+wk2-tail-B : ∀ (W : BindingType) (F : Term n) (G : Term (1+ n))
+           → ⟦ W ⟧ subst σ (wk1 (wk1 F)) ▹ subst (liftSubst σ) (wk (lift (step (step id))) G)
+           ≡ subst (tail (tail σ)) (⟦ W ⟧ F ▹ G)
+wk2-tail-B (BΠ p q) F G = wk2-tail-B′ (BΠ p q) F G
+wk2-tail-B (BΣ q m) F G = wk2-tail-B′ (BΣ q m) F G
+
 wk1-sgSubst : ∀ (t : Term n) t' → (wk1 t) [ t' ] ≡ t
 wk1-sgSubst t t' rewrite wk1-tailId t =
   let substVar-sgSubst-tail : ∀ a n → (sgSubst a ₛ•ₛ tail idSubst) n ≡ idSubst n

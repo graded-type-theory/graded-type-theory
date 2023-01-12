@@ -18,6 +18,7 @@ open import Definition.LogicalRelation.ShapeView M′
 open import Definition.LogicalRelation.Irrelevance M′
 open import Definition.LogicalRelation.Properties.Conversion M′
 
+open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -51,51 +52,59 @@ mutual
                  (Bᵣ F₂ G₂ D₂ ⊢F₂ ⊢G₂ A≡A₂ [F]₂ [G]₂ G-ext₂))
            (B₌ F′ G′ W‴ D′ W≋W′ A≡B [F≡F′] [G≡G′])
            (B₌ F″ G″ W⁗ D″ W′≋W″ A≡B₁ [F≡F′]₁ [G≡G′]₁) =
-    let ΠF₁G₁≡ΠF′G′       = whrDet* (red D₁ , ⟦ W′ ⟧ₙ) (D′  , ⟦ W‴ ⟧ₙ)
+    let ΠF₁G₁≡ΠF′G′ = whrDet* (red D₁ , ⟦ W′ ⟧ₙ) (D′  , ⟦ W‴ ⟧ₙ)
         F₁≡F′ , G₁≡G′ , W′≡W‴ = B-PE-injectivity W′ W‴ ΠF₁G₁≡ΠF′G′
         F₂≡F″ , G₂≡G″ , _ = B-PE-injectivity W″ W⁗ (whrDet* (red D₂ , ⟦ W″ ⟧ₙ) (D″ , ⟦ W⁗ ⟧ₙ))
-        substLift : ∀ {m n Δ l a} (ρ : Wk m n) x → Set _
+        substLift : ∀ {m n : Nat} {Δ : Con Term m} {l : TypeLevel} {b : Term m}
+                      (ρ : Wk m n) (x : Term (1+ n)) → Set (a ⊔ ℓ)
         substLift {_} {_} {Δ} {l} {a} ρ x = Δ ⊩⟨ l ⟩ wk (lift ρ) x [ a ]
-        [F′] : ∀ {m} {ρ : Wk m n} {Δ} [ρ] ⊢Δ → Δ ⊩⟨ l′ ⟩ wk ρ F′
-        [F′] {_} {ρ} [ρ] ⊢Δ = PE.subst (λ x → _ ⊩⟨ _ ⟩ wk ρ x) F₁≡F′ ([F]₁ [ρ] ⊢Δ)
-        [F″] : ∀ {m} {ρ : Wk m n} {Δ} [ρ] ⊢Δ → Δ ⊩⟨ l″ ⟩ wk ρ F″
-        [F″] {_} {ρ} [ρ] ⊢Δ = PE.subst (λ x → _ ⊩⟨ _ ⟩ wk ρ x) F₂≡F″ ([F]₂ [ρ] ⊢Δ)
-        [F′≡F″] : ∀ {m} {ρ : Wk m n} {Δ} [ρ] ⊢Δ → Δ ⊩⟨ l′ ⟩ wk ρ F′ ≡ wk ρ F″ / [F′] [ρ] ⊢Δ
+        [F′] : ∀ {m : Nat} {ρ : Wk m n} {Δ : Con Term m}
+                 ([ρ] : ρ Weak.∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ) → Δ ⊩⟨ l′ ⟩ wk ρ F′
+        [F′] {_} {ρ} {Δ} [ρ] ⊢Δ = PE.subst (λ (x : Term n) → Δ ⊩⟨ l′ ⟩ wk ρ x) F₁≡F′ ([F]₁ [ρ] ⊢Δ)
+        [F″] : ∀ {m : Nat} {ρ : Wk m n} {Δ : Con Term m}
+                 ([ρ] : ρ Weak.∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ) → Δ ⊩⟨ l″ ⟩ wk ρ F″
+        [F″] {_} {ρ} {Δ} [ρ] ⊢Δ = PE.subst (λ (x : Term n) → Δ ⊩⟨ l″ ⟩ wk ρ x) F₂≡F″ ([F]₂ [ρ] ⊢Δ)
+        [F′≡F″] : ∀ {m : Nat} {ρ : Wk m n} {Δ : Con Term m}
+                    ([ρ] : ρ Weak.∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ) → Δ ⊩⟨ l′ ⟩ wk ρ F′ ≡ wk ρ F″ / [F′] [ρ] ⊢Δ
         [F′≡F″] {_} {ρ} [ρ] ⊢Δ = irrelevanceEq′ (PE.cong (wk ρ) F₁≡F′)
                                       ([F]₁ [ρ] ⊢Δ) ([F′] [ρ] ⊢Δ) ([F≡F′]₁ [ρ] ⊢Δ)
-        [G′] : ∀ {m} {ρ : Wk m n} {Δ a} [ρ] ⊢Δ
+        [G′] : ∀ {m : Nat} {ρ : Wk m n} {Δ : Con Term m} {a : Term m}
+                 ([ρ] : ρ Weak.∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ)
              → Δ ⊩⟨ l′ ⟩ a ∷ wk ρ F′ / [F′] [ρ] ⊢Δ
              → Δ ⊩⟨ l′ ⟩ wk (lift ρ) G′ [ a ]
         [G′] {m} {ρ} [ρ] ⊢Δ [a] =
           let [a′] = irrelevanceTerm′ (PE.cong (wk ρ) (PE.sym F₁≡F′))
                                       ([F′] [ρ] ⊢Δ) ([F]₁ [ρ] ⊢Δ) [a]
           in  PE.subst (substLift ρ) G₁≡G′ ([G]₁ [ρ] ⊢Δ [a′])
-        [G″] : ∀ {m} {ρ : Wk m n} {Δ a} [ρ] ⊢Δ
+        [G″] : ∀ {m} {ρ : Wk m n} {Δ : Con Term m} {a : Term m}
+                 ([ρ] : ρ Weak.∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ)
              → Δ ⊩⟨ l″ ⟩ a ∷ wk ρ F″ / [F″] [ρ] ⊢Δ
              → Δ ⊩⟨ l″ ⟩ wk (lift ρ) G″ [ a ]
         [G″] {_} {ρ} [ρ] ⊢Δ [a] =
           let [a″] = irrelevanceTerm′ (PE.cong (wk ρ) (PE.sym F₂≡F″))
                                       ([F″] [ρ] ⊢Δ) ([F]₂ [ρ] ⊢Δ) [a]
           in  PE.subst (substLift ρ) G₂≡G″ ([G]₂ [ρ] ⊢Δ [a″])
-        [G′≡G″] : ∀ {m} {ρ : Wk m n} {Δ a} [ρ] ⊢Δ
+        [G′≡G″] : ∀ {m : Nat} {ρ : Wk m n} {Δ : Con Term m} {a : Term m}
+                  ([ρ] : ρ Weak.∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ)
                   ([a] : Δ ⊩⟨ l′ ⟩ a ∷ wk ρ F′ / [F′] [ρ] ⊢Δ)
                 → Δ ⊩⟨ l′ ⟩ wk (lift ρ) G′  [ a ]
                           ≡ wk (lift ρ) G″ [ a ] / [G′] [ρ] ⊢Δ [a]
-        [G′≡G″] {_} {ρ} [ρ] ⊢Δ [a′] =
+        [G′≡G″] {_} {ρ} {Δ} {a₁} [ρ] ⊢Δ [a′] =
           let [a]₁ = irrelevanceTerm′ (PE.cong (wk ρ) (PE.sym F₁≡F′))
                                       ([F′] [ρ] ⊢Δ) ([F]₁ [ρ] ⊢Δ) [a′]
-          in  irrelevanceEq′ (PE.cong (λ x → wk (lift ρ) x [ _ ]) G₁≡G′)
+          in  irrelevanceEq′ (PE.cong (λ (x : Term (1+ n)) → wk (lift ρ) x [ a₁ ]) G₁≡G′)
                              ([G]₁ [ρ] ⊢Δ [a]₁) ([G′] [ρ] ⊢Δ [a′])
                              ([G≡G′]₁ [ρ] ⊢Δ [a]₁)
-    in  B₌ F″ G″ W⁗ D″ (BT.trans W≋W′ (PE.subst (λ W → W BT.≋ W⁗) W′≡W‴ W′≋W″))
-           (≅-trans A≡B (PE.subst (λ x → Γ ⊢ x ≅ ⟦ W⁗ ⟧ F″ ▹ G″) ΠF₁G₁≡ΠF′G′ A≡B₁))
-           (λ ρ ⊢Δ → transEq ([F] ρ ⊢Δ) ([F′] ρ ⊢Δ) ([F″] ρ ⊢Δ)
-                              ([F≡F′] ρ ⊢Δ) ([F′≡F″] ρ ⊢Δ))
-           λ ρ ⊢Δ [a] →
-             let [a′] = convTerm₁ ([F] ρ ⊢Δ) ([F′] ρ ⊢Δ) ([F≡F′] ρ ⊢Δ) [a]
-                 [a″] = convTerm₁ ([F′] ρ ⊢Δ) ([F″] ρ ⊢Δ) ([F′≡F″] ρ ⊢Δ) [a′]
-             in  transEq ([G] ρ ⊢Δ [a]) ([G′] ρ ⊢Δ [a′]) ([G″] ρ ⊢Δ [a″])
-                         ([G≡G′] ρ ⊢Δ [a]) ([G′≡G″] ρ ⊢Δ [a′])
+        W≋W⁗ = BT.trans W≋W′ (PE.subst (λ (W : BindingType) → W BT.≋ W⁗) W′≡W‴ W′≋W″)
+        A≡B₁ = ≅-trans A≡B (PE.subst (λ (x : Term n) → Γ ⊢ x ≅ ⟦ W⁗ ⟧ F″ ▹ G″) ΠF₁G₁≡ΠF′G′ A≡B₁)
+        in  B₌ F″ G″ W⁗ D″ W≋W⁗ A≡B₁
+               (λ ρ ⊢Δ → transEq ([F] ρ ⊢Δ) ([F′] ρ ⊢Δ) ([F″] ρ ⊢Δ)
+                                 ([F≡F′] ρ ⊢Δ) ([F′≡F″] ρ ⊢Δ))
+                λ ρ ⊢Δ [a] →
+                  let [a′] = convTerm₁ ([F] ρ ⊢Δ) ([F′] ρ ⊢Δ) ([F≡F′] ρ ⊢Δ) [a]
+                      [a″] = convTerm₁ ([F′] ρ ⊢Δ) ([F″] ρ ⊢Δ) ([F′≡F″] ρ ⊢Δ) [a′]
+                  in  transEq ([G] ρ ⊢Δ [a]) ([G′] ρ ⊢Δ [a′]) ([G″] ρ ⊢Δ [a″])
+                              ([G≡G′] ρ ⊢Δ [a]) ([G′≡G″] ρ ⊢Δ [a′])
   transEqT (Uᵥ ⊢Γ ⊢Γ₁ ⊢Γ₂) A≡B B≡C = A≡B
   transEqT (emb⁰¹¹ AB) A≡B B≡C = transEqT AB A≡B B≡C
   transEqT (emb¹⁰¹ AB) A≡B B≡C = transEqT AB A≡B B≡C
@@ -131,13 +140,13 @@ mutual
                → Γ ⊩ℕ n  ≡ n′  ∷ℕ
                → Γ ⊩ℕ n′ ≡ n″ ∷ℕ
                → Γ ⊩ℕ n  ≡ n″ ∷ℕ
-  transEqTermℕ (ℕₜ₌ k k′ d d′ t≡u prop)
+  transEqTermℕ {n} (ℕₜ₌ k k′ d d′ t≡u prop)
                (ℕₜ₌ k₁ k″ d₁ d″ t≡u₁ prop₁) =
     let k₁Whnf = naturalWhnf (proj₁ (split prop₁))
         k′Whnf = naturalWhnf (proj₂ (split prop))
         k₁≡k′ = whrDet*Term (redₜ d₁ , k₁Whnf) (redₜ d′ , k′Whnf)
-        prop′ = PE.subst (λ x → [Natural]-prop _ x _) k₁≡k′ prop₁
-    in  ℕₜ₌ k k″ d d″ (≅ₜ-trans t≡u (PE.subst (λ x → _ ⊢ x ≅ _ ∷ _) k₁≡k′ t≡u₁))
+        prop′ = PE.subst (λ (x : Term n) → [Natural]-prop _ x _) k₁≡k′ prop₁
+    in  ℕₜ₌ k k″ d d″ (≅ₜ-trans t≡u (PE.subst (λ (x : Term n) → _ ⊢ x ≅ _ ∷ _) k₁≡k′ t≡u₁))
             (transNatural-prop prop prop′)
 
   transNatural-prop : ∀ {k k′ k″}
@@ -164,13 +173,13 @@ transEqTermEmpty : ∀ {n n′ n″}
   → Γ ⊩Empty n  ≡ n′ ∷Empty
   → Γ ⊩Empty n′ ≡ n″ ∷Empty
   → Γ ⊩Empty n  ≡ n″ ∷Empty
-transEqTermEmpty (Emptyₜ₌ k k′ d d′ t≡u prop)
+transEqTermEmpty {n} (Emptyₜ₌ k k′ d d′ t≡u prop)
              (Emptyₜ₌ k₁ k″ d₁ d″ t≡u₁ prop₁) =
   let k₁Whnf = ne (proj₁ (esplit prop₁))
       k′Whnf = ne (proj₂ (esplit prop))
       k₁≡k′ = whrDet*Term (redₜ d₁ , k₁Whnf) (redₜ d′ , k′Whnf)
-      prop′ = PE.subst (λ x → [Empty]-prop _ x _) k₁≡k′ prop₁
-  in Emptyₜ₌ k k″ d d″ (≅ₜ-trans t≡u (PE.subst (λ x → _ ⊢ x ≅ _ ∷ _) k₁≡k′ t≡u₁))
+      prop′ = PE.subst (λ (x : Term n) → [Empty]-prop _ x _) k₁≡k′ prop₁
+  in Emptyₜ₌ k k″ d d″ (≅ₜ-trans t≡u (PE.subst (λ (x : Term n) → _ ⊢ x ≅ _ ∷ _) k₁≡k′ t≡u₁))
      (transEmpty-prop prop prop′)
 
 -- Transitivty of term equality.
@@ -188,12 +197,12 @@ transEqTerm (Uᵣ′ .⁰ 0<1 ⊢Γ)
 transEqTerm (ℕᵣ D) [t≡u] [u≡v] = transEqTermℕ [t≡u] [u≡v]
 transEqTerm (Emptyᵣ D) [t≡u] [u≡v] = transEqTermEmpty [t≡u] [u≡v]
 transEqTerm (Unitᵣ D) (Unitₜ₌ ⊢t _) (Unitₜ₌ _ ⊢v) = Unitₜ₌ ⊢t ⊢v
-transEqTerm (ne′ K D neK K≡K) (neₜ₌ k m d d′ (neNfₜ₌ neK₁ neM k≡m))
+transEqTerm {n} (ne′ K D neK K≡K) (neₜ₌ k m d d′ (neNfₜ₌ neK₁ neM k≡m))
                               (neₜ₌ k₁ m₁ d₁ d″ (neNfₜ₌ neK₂ neM₁ k≡m₁)) =
   let k₁≡m = whrDet*Term (redₜ d₁ , ne neK₂) (redₜ d′ , ne neM)
   in  neₜ₌ k m₁ d d″
            (neNfₜ₌ neK₁ neM₁
-                   (~-trans k≡m (PE.subst (λ x → _ ⊢ x ~ _ ∷ _) k₁≡m k≡m₁)))
+                   (~-trans k≡m (PE.subst (λ (x : Term n) → _ ⊢ x ~ _ ∷ _) k₁≡m k≡m₁)))
 transEqTerm (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
             (Πₜ₌ f g d d′ funcF funcG f≡g [f] [g] [f≡g])
             (Πₜ₌ f₁ g₁ d₁ d₁′ funcF₁ funcG₁ f≡g₁ [f]₁ [g]₁ [f≡g]₁)
@@ -203,39 +212,71 @@ transEqTerm (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                 (λ ρ ⊢Δ [a] p≈p₁ p≈p₂ → transEqTerm ([G] ρ ⊢Δ [a])
                                                 ([f≡g] ρ ⊢Δ [a] p≈p₁ p≈p₁)
                                                 ([f≡g]₁ ρ ⊢Δ [a] p≈p₁ p≈p₂))
-transEqTerm (Bᵣ′ (BΣ _ m) F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] prop) (Σₜ₌ p₁ r₁ d₁ d₁′ pProd₁ rProd₁ p≅r₁ [t]₁ [u]₁ prop₁)
-            with whrDet*Term (redₜ d′ , productWhnf rProd) (redₜ d₁ , productWhnf pProd₁)
-transEqTerm (Bᵣ′ BΣₚ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+transEqTerm {n} {Γ = Γ} (Bᵣ′ (BΣ q Σₚ) F G D ⊢F ⊢G A≡A [F] [G] G-ext)
             (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] ([fstp] , [fstr] , [fst≡] , [snd≡]))
-            (Σₜ₌ r r₁ d₁ d₁′ pProd₁ rProd₁ p≅r₁ [t]₁ [u]₁ ([fstp]₁ , [fstr]₁ , [fst≡]₁ , [snd≡]₁))
-            | PE.refl =
+            (Σₜ₌ p₁ r₁ d₁ d₁′ pProd₁ rProd₁ p≅r₁ [t]₁ [u]₁ ([fstp]₁ , [fstr]₁ , [fst≡]₁ , [snd≡]₁)) =
   let ⊢Γ = wf ⊢F
-      p≅r₁ = ≅ₜ-trans p≅r p≅r₁
+      p₁≡r = whrDet*Term (redₜ d₁ , productWhnf pProd₁) (redₜ d′ , productWhnf rProd)
+      p≅r₁ = ≅ₜ-trans p≅r (PE.subst (λ (x : Term n) → Γ ⊢ x ≅ r₁ ∷ Σₚ q ▷ F ▹ G) p₁≡r p≅r₁)
       [F]′ = [F] Weak.id ⊢Γ
-      [fst≡]′ = transEqTerm [F]′ [fst≡] [fst≡]₁
-      [Gfstp≡Gfstp₁] = G-ext Weak.id ⊢Γ [fstp] [fstr] [fst≡]
+      [fst≡]′ = transEqTerm [F]′ [fst≡]
+                (PE.subst (λ (x : Term n) → Γ ⊩⟨ _ ⟩ fst x ≡ fst r₁ ∷ wk id F / [F]′) p₁≡r [fst≡]₁)
+      [Gfstp≡Gfstp₁] = G-ext Weak.id ⊢Γ [fstp] [fstp]₁
+                             (PE.subst (λ (x : Term n) → Γ ⊩⟨ _ ⟩ fst p ≡ fst x ∷ wk id F / [F]′) (
+                                       PE.sym p₁≡r) [fst≡])
       [Gfstp] = [G] Weak.id ⊢Γ [fstp]
       [Gfstp₁] = [G] Weak.id ⊢Γ [fstp]₁
       [snd≡]₁′ = convEqTerm₂ [Gfstp] [Gfstp₁] [Gfstp≡Gfstp₁] [snd≡]₁
-      [snd≡]′ = transEqTerm [Gfstp] [snd≡] [snd≡]₁′
+      [snd≡]′ = transEqTerm [Gfstp] [snd≡]
+                            (PE.subst (λ (x : Term n) → Γ ⊩⟨ _ ⟩ snd x ≡ snd r₁ ∷ wk (lift id) G [ fst p ] / [Gfstp])
+                                      p₁≡r [snd≡]₁′)
   in  Σₜ₌ p r₁ d d₁′ pProd rProd₁ p≅r₁ [t] [u]₁ ([fstp] , [fstr]₁ , [fst≡]′ , [snd≡]′)
-transEqTerm (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-            (Σₜ₌ p r d d′ prodₙ prodₙ p≅r [t] [u] ([p₁] , [r₁] , [p₂] , [r₂] , [p₁≡r₁] , [p₂≡r₂]))
-            (Σₜ₌ r r₁ d₁ d₁′ prodₙ prodₙ p≅r₁ [t]₁ [u]₁ ([p₁]₁ , [r₁]₁ , [p₂]₁ , [r₂]₁ , [p₁≡r₁]₁ , [p₂≡r₂]₁))
-            | PE.refl =
+transEqTerm {n} {Γ = Γ} (Bᵣ′ (BΣ q Σᵣ) F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+            (Σₜ₌ p r d d′ prodₙ prodₙ p≅r [t] [u]
+                 ([p₁] , [r₁] , [p₂] , [r₂] , [p₁≡r₁] , [p₂≡r₂]))
+            (Σₜ₌ p′ r′ d₁ d₁′ prodₙ prodₙ p′≅r′ [t]₁ [u]₁
+                 ([p₁]′ , [r₁]′ , [p₂]′ , [r₂]′ , [p′₁≡r′₁] , [p′₂≡r′₂])) =
   let ⊢Γ = wf ⊢F
-      p≅r₁ = ≅ₜ-trans p≅r p≅r₁
+      p′≡r = whrDet*Term (redₜ d₁ , prodₙ) (redₜ d′ , prodₙ)
+      p′₁≡r₁ , p′₂≡r₂ = prod-PE-injectivity p′≡r
+      p≅r′ = ≅ₜ-trans p≅r (PE.subst (λ x → Γ ⊢ x ≅ r′ ∷ Σᵣ q ▷ F ▹ G) p′≡r p′≅r′)
       [F]′ = [F] Weak.id ⊢Γ
-      [p₁≡r₁]′ = transEqTerm [F]′ [p₁≡r₁] [p₁≡r₁]₁
-      [Gp≡Gp₁] = G-ext Weak.id ⊢Γ [p₁] [p₁]₁ [p₁≡r₁]
+      [p₁≡r′₁] = transEqTerm [F]′ [p₁≡r₁] (PE.subst (λ (x : Term n) → Γ ⊩⟨ _ ⟩ x ≡ _ ∷ wk id F / [F]′) p′₁≡r₁ [p′₁≡r′₁])
+      [Gp≡Gp₁] = G-ext Weak.id ⊢Γ [p₁] [p₁]′
+                       (PE.subst (λ (x : Term n) → Γ ⊩⟨ _ ⟩ _ ≡ x ∷ wk id F / [F]′)
+                                 (PE.sym p′₁≡r₁) [p₁≡r₁])
       [Gp] = [G] Weak.id ⊢Γ [p₁]
-      [Gp]₁ = [G] Weak.id ⊢Γ [p₁]₁
-      [p₂≡r₂]₁′ = convEqTerm₂ [Gp] [Gp]₁ [Gp≡Gp₁] [p₂≡r₂]₁
-      [p₂≡r₂]′ = transEqTerm [Gp] [p₂≡r₂] [p₂≡r₂]₁′
-  in  Σₜ₌ p r₁ d d₁′ prodₙ prodₙ p≅r₁ [t] [u]₁ ([p₁] , [r₁]₁ , [p₂] , [r₂]₁ , [p₁≡r₁]′ , [p₂≡r₂]′)
+      [Gp′] = [G] Weak.id ⊢Γ [p₁]′
+      [r₂≡r′₂] = convEqTerm₂ [Gp] [Gp′] [Gp≡Gp₁]
+                             (PE.subst (λ (x : Term n) → Γ ⊩⟨ _ ⟩ x ≡ _ ∷ wk (lift id) G [ _ ] / [Gp′])
+                                       p′₂≡r₂ [p′₂≡r′₂])
+      [p₂≡r′₂] = transEqTerm [Gp] [p₂≡r₂] [r₂≡r′₂]
+  in  Σₜ₌ p r′ d d₁′ prodₙ prodₙ p≅r′ [t] [u]₁ ([p₁] , [r₁]′ , [p₂] , [r₂]′ , [p₁≡r′₁] , [p₂≡r′₂])
+transEqTerm {n} {Γ = Γ} (Bᵣ′ (BΣ q Σᵣ) F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+            (Σₜ₌ p r d d′ (ne x) (ne x₁) p≅r [t] [u] p~r)
+            (Σₜ₌ p₁ r₁ d₁ d₁′ (ne x₂) (ne x₃) p≅r₁ [t]₁ [u]₁ p₁~r₁) =
+  let p₁≡r = whrDet*Term (redₜ d₁ , ne x₂) (redₜ d′ , ne x₁)
+      p≅r₁ = ≅ₜ-trans p≅r (PE.subst (λ (x : Term n) → Γ ⊢ x ≅ r₁ ∷ Σᵣ q ▷ F ▹ G) p₁≡r p≅r₁)
+      p~r₁ = ~-trans p~r (PE.subst (λ (x : Term n) → Γ ⊢ x ~ _ ∷ Σᵣ q ▷ F ▹ G) p₁≡r p₁~r₁)
+  in  Σₜ₌ p r₁ d d₁′ (ne x) (ne x₃) p≅r₁ [t] [u]₁ p~r₁
 transEqTerm (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-            (Σₜ₌ p r d d′ (ne x) (ne y) p≅r [t] [u] p~r)
-            (Σₜ₌ r r₁ d₁ d₁′ (ne x₁) (ne y₁) p≅r₁ [t]₁ [u]₁ p₁~r₁)
-            | PE.refl =
-            Σₜ₌ p r₁ d d₁′ (ne x) (ne y₁) (≅ₜ-trans p≅r p≅r₁) [t] [u]₁ (~-trans p~r p₁~r₁)
+            (Σₜ₌ p r d d′ prodₙ prodₙ p≅r [t] [u] prop)
+            (Σₜ₌ p₁ r₁ d₁ d₁′ (ne x) (ne x₁) p≅r₁ [t]₁ [u]₁ prop₁) =
+  PE.⊥-elim (prod≢ne x (whrDet*Term (redₜ d′ , prodₙ) (redₜ d₁ , ne x)))
+transEqTerm (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+            (Σₜ₌ p r d d′ (ne x) (ne x₁) p≅r [t] [u] prop)
+            (Σₜ₌ p₁ r₁ d₁ d₁′ prodₙ prodₙ p≅r₁ [t]₁ [u]₁ prop₁) =
+  PE.⊥-elim (prod≢ne x₁ (whrDet*Term (redₜ d₁ , prodₙ) (redₜ d′ , ne x₁)))
+transEqTerm (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+            (Σₜ₌ p r d d′ prodₙ (ne x) p≅r [t] [u] (lift ()))
+            (Σₜ₌ p₁ r₁ d₁ d₁′ pProd₁ rProd₁ p≅r₁ [t]₁ [u]₁ prop₁)
+transEqTerm (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+            (Σₜ₌ p r d d′ (ne x) prodₙ p≅r [t] [u] (lift ()))
+            (Σₜ₌ p₁ r₁ d₁ d₁′ pProd₁ rProd₁ p≅r₁ [t]₁ [u]₁ prop₁)
+transEqTerm (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+            (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] prop)
+            (Σₜ₌ p₁ r₁ d₁ d₁′ prodₙ (ne x) p≅r₁ [t]₁ [u]₁ (lift ()))
+transEqTerm (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+            (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] prop)
+            (Σₜ₌ p₁ r₁ d₁ d₁′ (ne x) prodₙ p≅r₁ [t]₁ [u]₁ (lift ()))
 transEqTerm (emb 0<1 x) t≡u u≡v = transEqTerm x t≡u u≡v

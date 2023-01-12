@@ -476,9 +476,9 @@ combine (Bᵥ W W′ BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) W≋W′) (Un
   ⊥-elim (Unit≢B W′ (whrDet* (red UnitA , Unitₙ) (red D , ⟦ W′ ⟧ₙ)))
 combine (Bᵥ W W′ BA (Bᵣ F G D₁ ⊢F ⊢G A≡A [F] [G] G-ext) W≋W′) (ne (ne K D neK K≡K) neB) =
   ⊥-elim (B≢ne W′ neK (whrDet* (red D₁ , ⟦ W′ ⟧ₙ) (red D , ne neK)))
-combine (Bᵥ W BΠ! ΠA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) W≋Π) (Bᵥ BΣ! W′ (Bᵣ F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext′) ΣA  Σ≋W′)
-  with whrDet* (red D , Πₙ) (red D′ , Σₙ)
-... | ()
-combine (Bᵥ W BΣ! ΣA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) W≋Σ) (Bᵥ BΠ! W′ (Bᵣ F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext′) ΠA Π≋W′)
-  with whrDet* (red D , Σₙ) (red D′ , Πₙ)
-... | ()
+combine (Bᵥ W BΠ! ΠA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) W≋Π) (Bᵥ BΣ! W′
+        (Bᵣ F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext′) ΣA  Σ≋W′) =
+  ⊥-elim (Π≢Σ (whrDet* (red D , Πₙ) (red D′ , Σₙ)))
+combine (Bᵥ W BΣ! ΣA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) W≋Σ) (Bᵥ BΠ! W′
+        (Bᵣ F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext′) ΠA Π≋W′) =
+  ⊥-elim (Π≢Σ (whrDet* (red D′ , Πₙ) (red D , Σₙ)))

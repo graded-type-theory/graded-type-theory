@@ -389,7 +389,8 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
            Γ ⊢ p ~ p ∷ Σᵣ q ▷ F ▹ G
 
     -- Term equality of Σ-type
-    _⊩¹Σ_≡_∷_/_ : {q : Mod} {m : SigmaMode} (Γ : Con Term ℓ) (t u A : Term ℓ) ([A] : Γ ⊩¹B⟨ BΣ q m ⟩ A) → Set (a ⊔ ℓ′)
+    _⊩¹Σ_≡_∷_/_ : {q : Mod} {m : SigmaMode} (Γ : Con Term ℓ) (t u A : Term ℓ)
+                  ([A] : Γ ⊩¹B⟨ BΣ q m ⟩ A) → Set (a ⊔ ℓ′)
     _⊩¹Σ_≡_∷_/_ {q = q} {m} Γ t u A [A]@(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) =
       ∃₂ λ p r → Γ ⊢ t :⇒*: p ∷ Σ⟨ m ⟩ q ▷ F ▹ G
                × Γ ⊢ u :⇒*: r ∷ Σ⟨ m ⟩ q ▷ F ▹ G

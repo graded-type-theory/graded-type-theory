@@ -240,11 +240,11 @@ prodrecCong-eq G σ t = PE.sym (PE.trans (PE.cong (_[ t ]) (PE.trans (wk-subst {
                                         (PE.trans (substCompEq {σ = sgSubst t} {σ′ = liftSubst (id •ₛ σ)} G )
                                                   (substVar-to-subst (substVarSingletonComp {σ = id •ₛ σ} {u = t}) G)))
 
-prod-inj₁ : ∀ {t t′ u u′ : Term n} → prod t u PE.≡ prod t′ u′ → t PE.≡ t′
-prod-inj₁ PE.refl = PE.refl
+-- prod-inj₁ : ∀ {t t′ u u′ : Term n} → prod t u PE.≡ prod t′ u′ → t PE.≡ t′
+-- prod-inj₁ PE.refl = PE.refl
 
-prod-inj₂ : ∀ {t t′ u u′ : Term n} → prod t u PE.≡ prod t′ u′ → u PE.≡ u′
-prod-inj₂ PE.refl = PE.refl
+-- prod-inj₂ : ∀ {t t′ u u′ : Term n} → prod t u PE.≡ prod t′ u′ → u PE.≡ u′
+-- prod-inj₂ PE.refl = PE.refl
 
 
 prodrecCong : ∀ {l F F′ G G′ A A′ t t′ u u′ σ σ′}
@@ -445,10 +445,14 @@ prodrecCong {n} {Γ} {q} {m} {Δ} {p} {p′} {l} {F} {F′} {G} {G′}
       [r₂]″ = convTerm₂ [σ′Gr₁] [σ′G′r₁]′ [σ′Gr₁≡σ′G′r₁] [r₂]′
 
       [σ′₊]′ = ([σ′] , [r₁]′) , [r₂]″
-      [p₁≡r₁] = irrelevanceEqTerm″ (prod-inj₁ tu≡p) (prod-inj₁ tu′≡r)
+      t≡p₁ = proj₁ (prod-PE-injectivity tu≡p)
+      t′≡r₁ = proj₁ (prod-PE-injectivity tu′≡r)
+      u≡p₂ = proj₂ (prod-PE-injectivity tu≡p)
+      u′≡r₂ = proj₂ (prod-PE-injectivity tu′≡r)
+      [p₁≡r₁] = irrelevanceEqTerm″ t≡p₁ t′≡r₁
                                    (wk-id (subst σ F)) wk[σF] [σF] wk[p₁≡r₁]
-      [p₂≡r₂] = irrelevanceEqTerm″ (prod-inj₂ tu≡p) (prod-inj₂ tu′≡r)
-                                   (PE.trans (PE.cong₂ _[_] (wk-lift-id (subst (liftSubst σ) G)) (prod-inj₁ tu≡p))
+      [p₂≡r₂] = irrelevanceEqTerm″  u≡p₂ u′≡r₂
+                                   (PE.trans (PE.cong₂ _[_] (wk-lift-id (subst (liftSubst σ) G)) t≡p₁)
                                              (singleSubstComp p₁ σ G))
                                     wk[σGp₁′] [σGp₁]′ wk[p₂≡r₂]
       [σ₊≡σ′₊] = ([σ≡σ′] , [p₁≡r₁]) , [p₂≡r₂]
@@ -770,6 +774,19 @@ prodrecCong {n} {Γ} {q} {m} {Δ} {p} {p′} {l} {F} {F′} {G} {G′}
                                  (PE.sym (singleSubstComp t′ σ′ A′))
                                  [A[t]]′ [A[t]] [At≡A′t′]′
       [prₜ′≡prᵣ]′ = convEqTerm₂ [A[t]] [A′[t′]] [At≡A′t′] [prₜ′≡prᵣ]
+
+prodrecCong {Γ = Γ} {q} {Δ = Δ} {q′} {p′} {l} {F} {F′} {G} {G′} {A} {A′} {t} {t′} {u} {u′} {σ} {σ′}
+            [Γ] [F] [F′] [F≡F′] [G] [G′] [G≡G′] [A] [A′] [A≡A′] [A₊] [A′₊] [A₊≡A′₊]
+            [u] [u′] [u≡u′] ⊢Σ≡Σ′ p≈p′ ⊢Δ [σ] [σ′] [σ≡σ′]
+            [t]@(Σₜ _ d p≅p pProd pProp)
+            [t′]@(Σₜ _ d′ p′≅p′ rProd pProp′)
+            [σt≡σt′]@(Σₜ₌ _ _ d₁ d′₁ (ne x) prodₙ p≅r [p] [r] ())
+prodrecCong {Γ = Γ} {q} {Δ = Δ} {q′} {p′} {l} {F} {F′} {G} {G′} {A} {A′} {t} {t′} {u} {u′} {σ} {σ′}
+            [Γ] [F] [F′] [F≡F′] [G] [G′] [G≡G′] [A] [A′] [A≡A′] [A₊] [A′₊] [A₊≡A′₊]
+            [u] [u′] [u≡u′] ⊢Σ≡Σ′ p≈p′ ⊢Δ [σ] [σ′] [σ≡σ′]
+            [t]@(Σₜ _ d p≅p pProd pProp)
+            [t′]@(Σₜ _ d′ p′≅p′ rProd pProp′)
+            [σt≡σt′]@(Σₜ₌ _ _ d₁ d′₁ prodₙ (ne x) p≅r [p] [r] ())
 
 prodrecCong {Γ = Γ} {q} {Δ = Δ} {q′} {p′} {l} {F} {F′} {G} {G′} {A} {A′} {t} {t′} {u} {u′} {σ} {σ′}
             [Γ] [F] [F′] [F≡F′] [G] [G′] [G≡G′] [A] [A′] [A≡A′] [A₊] [A′₊] [A₊≡A′₊]
