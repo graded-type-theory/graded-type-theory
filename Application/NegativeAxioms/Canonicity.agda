@@ -5,18 +5,24 @@
 
 module Application.NegativeAxioms.Canonicity where
 
-open import Definition.Untyped as U
+open import Definition.Modality.Instances.Erasure
+open import Definition.Modality.Instances.Erasure.Properties
+open import Definition.Modality.Context ErasureModality
+open import Definition.Modality.Usage ErasureModality
+open import Definition.Modality.Usage.Inversion ErasureModality
 
-open import Definition.Typed
-open import Definition.Typed.Properties
-open import Definition.Typed.Weakening as T
-open import Definition.Typed.Consequences.Inequality
-open import Definition.Typed.Consequences.Injectivity
-open import Definition.Typed.Consequences.Substitution
-open import Definition.Typed.Consequences.Syntactic
+open import Definition.Untyped Erasure as U hiding (_∷_)
 
-open import Definition.Conversion.Consequences.Completeness
-open import Definition.Conversion.FullReduction
+open import Definition.Typed Erasure′
+open import Definition.Typed.Properties Erasure′
+open import Definition.Typed.Weakening Erasure′ as T
+open import Definition.Typed.Consequences.Inequality Erasure′
+open import Definition.Typed.Consequences.Injectivity Erasure′
+open import Definition.Typed.Consequences.Substitution Erasure′
+open import Definition.Typed.Consequences.Syntactic Erasure′
+
+open import Definition.Conversion.Consequences.Completeness Erasure′
+open import Definition.Conversion.FullReduction Erasure′
 
 open import Tools.Empty
 open import Tools.Fin
@@ -39,6 +45,8 @@ private
     Γ Δ   : Con Term m
     A B C : Term m
     t u   : Term m
+    p q   : Erasure
+    γ     : Conₘ m
 
 -- Numerals
 
@@ -58,12 +66,12 @@ data NegativeType (Γ : Cxt m) : Ty m → Set where
 
   pi    : Γ ⊢ A
         → NegativeType (Γ ∙ A) B
-        → NegativeType Γ (Π A ▹ B)
+        → NegativeType Γ (Π p , q ▷ A ▹ B)
 
   sigma : Γ ⊢ A
         → NegativeType Γ A
         → NegativeType (Γ ∙ A) B
-        → NegativeType Γ (Σ A ▹ B)
+        → NegativeType Γ (Σₚ q ▷ A ▹ B)
 
   conv  : NegativeType Γ A
         → Γ ⊢ A ≡ B
@@ -110,7 +118,7 @@ subNeg1 n ⊢t = subNeg n (singleSubst ⊢t) (wfTerm ⊢t)
 
 -- Lemma: The first component of a negative Σ-type is negative.
 
-fstNeg : NegativeType Γ C → Γ ⊢ C ≡ Σ A ▹ B → NegativeType Γ A
+fstNeg : NegativeType Γ C → Γ ⊢ C ≡ Σₚ q ▷ A ▹ B → NegativeType Γ A
 fstNeg empty          c = ⊥-elim (Empty≢Σⱼ c)
 fstNeg (pi _ _)       c = ⊥-elim (Π≢Σ c)
 fstNeg (sigma _ nA _) c = conv nA (proj₁ (Σ-injectivity c))
@@ -118,19 +126,19 @@ fstNeg (conv n c)    c' = fstNeg n (trans c c')
 
 -- Lemma: Any instance of the second component of a negative Σ-type is negative.
 
-sndNeg : NegativeType Γ C → Γ ⊢ C ≡ Σ A ▹ B → Γ ⊢ t ∷ A → NegativeType Γ (B [ t ])
+sndNeg : NegativeType Γ C → Γ ⊢ C ≡ Σₚ q ▷ A ▹ B → Γ ⊢ t ∷ A → NegativeType Γ (B [ t ])
 sndNeg empty          c = ⊥-elim (Empty≢Σⱼ c)
 sndNeg (pi _ _)       c = ⊥-elim (Π≢Σ c)
-sndNeg (sigma _ _ nB) c ⊢t = let (cA , cB) = Σ-injectivity c in
-  subNeg (conv nB cB) (singleSubst (conv ⊢t (sym cA))) (wfTerm ⊢t)
+sndNeg (sigma _ _ nB) c ⊢t = let (cA , cB , _ , _) = Σ-injectivity c in
+    subNeg (conv nB cB) (singleSubst (conv ⊢t (sym cA))) (wfTerm ⊢t)
 sndNeg (conv n c)    c' = sndNeg n (trans c c')
 
 -- Lemma: Any instance of the codomain of a negative Π-type is negative.
 
-appNeg : NegativeType Γ C → Γ ⊢ C ≡ Π A ▹ B → Γ ⊢ t ∷ A → NegativeType Γ (B [ t ])
+appNeg : NegativeType Γ C → Γ ⊢ C ≡ Π p , q ▷ A ▹ B → Γ ⊢ t ∷ A → NegativeType Γ (B [ t ])
 appNeg empty          c = ⊥-elim (Empty≢Πⱼ c)
 appNeg (sigma _ _ _)  c = ⊥-elim (Π≢Σ (sym c))
-appNeg (pi _ nB) c ⊢t = let (cA , cB) = injectivity c in
+appNeg (pi _ nB) c ⊢t = let (cA , cB , _ , _) = injectivity c in
   subNeg (conv nB cB) (singleSubst (conv ⊢t (sym cA))) (wfTerm ⊢t)
 appNeg (conv n c)    c' = appNeg n (trans c c')
 
@@ -142,79 +150,79 @@ appNeg (conv n c)    c' = appNeg n (trans c c')
 ¬negℕ (sigma _ _ _) c = ℕ≢Σ (sym c)
 ¬negℕ (conv n c)   c' = ¬negℕ n (trans c c')
 
+-- Lemma: The type Σᵣ is not negative
+
+¬negΣᵣ : NegativeType Γ C → Γ ⊢ C ≡ Σᵣ q ▷ A ▹ B → ⊥
+¬negΣᵣ empty         c = Empty≢Bⱼ BΣ! c
+¬negΣᵣ (pi _ _)      c = Π≢Σ c
+¬negΣᵣ (sigma _ _ _) c = Σₚ≢Σᵣ c
+¬negΣᵣ (conv n c)   c' = ¬negΣᵣ n (trans c c')
+
 -- Negative contexts
 ---------------------------------------------------------------------------
 
 -- A context is negative if all of its type entries are negative.
 
-data NegativeContext : Con Ty m → Set where
-  ε   : NegativeContext ε
-  _∙_ : NegativeContext Γ → NegativeType Γ A → NegativeContext (Γ ∙ A)
+data NegativeErasedContext : Con Ty m → Conₘ m → Set where
+  ε   : NegativeErasedContext ε ε
+  _∙_ : NegativeErasedContext Γ γ → NegativeType Γ A → NegativeErasedContext (Γ ∙ A) (γ ∙ p)
+  _∙𝟘 : NegativeErasedContext Γ γ → NegativeErasedContext (Γ ∙ A) (γ ∙ 𝟘)
 
 -- Lemma: Any entry in negative context is a negative type (needs weakening).
 
-lookupNegative : ⊢ Γ → NegativeContext Γ → (x ∷ A ∈ Γ) → NegativeType Γ A
-lookupNegative ⊢Γ∙A            (nΓ ∙ nA) here
+lookupNegative : ⊢ Γ → NegativeErasedContext Γ γ → (x ∷ A ∈ Γ) → (x ◂ ω ∈ γ) → NegativeType Γ A
+lookupNegative ⊢Γ∙A            (nΓ ∙ nA) here _
   = wkNeg (step id) ⊢Γ∙A nA
-lookupNegative ⊢Γ∙A@(⊢Γ ∙ Γ⊢A) (nΓ ∙ nA) (there h)
-  = wkNeg (step id) ⊢Γ∙A (lookupNegative ⊢Γ nΓ h)
+lookupNegative ⊢Γ∙A@(⊢Γ ∙ Γ⊢A) (nΓ ∙ nA) (there h) (there j)
+  = wkNeg (step id) ⊢Γ∙A (lookupNegative ⊢Γ nΓ h j)
+lookupNegative ⊢Γ∙A (nΓγ ∙𝟘) here ()
+lookupNegative ⊢Γ∙A@(⊢Γ ∙ Γ⊢A) (nΓγ ∙𝟘) (there h) (there j) =
+  wkNeg (step id) ⊢Γ∙A (lookupNegative ⊢Γ nΓγ h j)
 
 -- Main results
 ---------------------------------------------------------------------------
 
 -- We assume a negative, consistent context.
 
-module Main (nΓ : NegativeContext Γ) (consistent : ∀{t} → Γ ⊢ t ∷ Empty → ⊥) where
+module Main (nΓγ : NegativeErasedContext Γ γ) (consistent : ∀{t} → Γ ⊢ t ∷ Empty → ⊥) where
 
-  -- Lemma: A neutral has negative type in a consistent negative context.
+  open import Definition.Typed.Consequences.Reduction Erasure′
+  open import Definition.Typed.Usage ErasureModality
 
-  neNeg : (d : Γ ⊢ u ∷ A) (n : NfNeutral u) → NegativeType Γ A
-  neNeg (var ⊢Γ h       ) (var _           ) = lookupNegative ⊢Γ nΓ h
-  neNeg (d ∘ⱼ ⊢t        ) (∘ₙ n _          ) = appNeg (neNeg d n) (refl (syntacticTerm d)) ⊢t
-  neNeg (fstⱼ ⊢A A⊢B d  ) (fstₙ n          ) = fstNeg (neNeg d n) (refl (Σⱼ ⊢A ▹ A⊢B))
-  neNeg (sndⱼ ⊢A A⊢B d  ) (sndₙ n          ) = sndNeg (neNeg d n) (refl (Σⱼ ⊢A ▹ A⊢B)) (fstⱼ ⊢A A⊢B d)
-  neNeg (natrecⱼ _ _ _ d) (natrecₙ _ _ _ n ) = ⊥-elim (¬negℕ (neNeg d n) ⊢ℕ) where ⊢ℕ = refl (ℕⱼ (wfTerm d))
-  neNeg (Emptyrecⱼ _ d  ) (Emptyrecₙ _ _   ) = ⊥-elim (consistent d)
-  neNeg (conv d c       ) n                  = conv (neNeg d n) c
+  -- Lemma: A neutral has negative type in a consistent negative/erased context.
 
-  -- Lemma: A normal form of type ℕ is a numeral in a consistent negative context.
+  neNeg : (d : Γ ⊢ u ∷ A) (n : Neutral u) (f : γ ▸ u) → NegativeType Γ A
+  neNeg (var ⊢Γ h          ) (var _      ) γ▸u = lookupNegative ⊢Γ nΓγ h (valid-var-usage γ▸u)
+  neNeg (d ∘ⱼ ⊢t           ) (∘ₙ n       ) γ▸u =
+    let invUsageApp δ▸g η▸a γ≤γ′ = inv-usage-app γ▸u
+    in  appNeg (neNeg d n (sub δ▸g (≤ᶜ-trans γ≤γ′ (+ᶜ-decreasingˡ _ _))))
+               (refl (syntacticTerm d)) ⊢t
+  neNeg (fstⱼ ⊢A A⊢B d     ) (fstₙ n     ) γ▸u =
+    let invUsageProj δ▸t γ≤δ = inv-usage-fst γ▸u
+    in  fstNeg (neNeg d n (sub δ▸t γ≤δ))
+               (refl (Σⱼ ⊢A ▹ A⊢B))
+  neNeg (sndⱼ ⊢A A⊢B d     ) (sndₙ n     ) γ▸u =
+    let invUsageProj δ▸t γ≤δ = inv-usage-snd γ▸u
+    in  sndNeg (neNeg d n (sub δ▸t γ≤δ))
+               (refl (Σⱼ ⊢A ▹ A⊢B)) (fstⱼ ⊢A A⊢B d)
+  neNeg (natrecⱼ _ _ _ d   ) (natrecₙ n  ) γ▸u =
+    let invUsageNatrec _ _ δ▸n γ≤γ′ = inv-usage-natrec γ▸u
+        ⊢ℕ = refl (ℕⱼ (wfTerm d))
+        γ▸n = sub δ▸n (≤ᶜ-trans γ≤γ′ (≤ᶜ-trans (⊛ᶜ-ineq₂ _ _ _) (∧ᶜ-decreasingʳ _ _)))
+    in  ⊥-elim (¬negℕ (neNeg d n γ▸n) ⊢ℕ)
+  neNeg (prodrecⱼ ⊢A A⊢B _ d _) (prodrecₙ n ) γ▸u =
+    let invUsageProdrec δ▸t η▸u γ≤γ′ = inv-usage-prodrec γ▸u
+        γ▸t = sub δ▸t (≤ᶜ-trans γ≤γ′ {!!})
+        ⊢Σ = refl (Σⱼ ⊢A ▹ A⊢B)
+    in  ⊥-elim (¬negΣᵣ (neNeg d n γ▸t) ⊢Σ)
+  neNeg (Emptyrecⱼ _ d     ) (Emptyrecₙ n) γ▸u = ⊥-elim (consistent d)
+  neNeg (conv d c          ) n             γ▸u = conv (neNeg d n γ▸u) c
 
-  nfN : (d : Γ ⊢ u ∷ A)
-      → (n : Nf u)
-      → (c : Γ ⊢ A ≡ ℕ)
-      → Numeral u
+  thm : Γ ⊢ t ∷ ℕ → γ ▸ t → ∃ λ u → Γ ⊢ t ⇒* u ∷ ℕ × Whnf u × (Neutral u → ⊥)
+  thm ⊢t γ▸t =
+    let u , whnfU , d = whNormTerm ⊢t
+        γ▸u = usagePres*Term γ▸t (redₜ d)
+        ⊢ℕ = refl (ℕⱼ (wfTerm ⊢t))
+    in  u , redₜ d , whnfU , λ x → ¬negℕ (neNeg (⊢u-redₜ d) x γ▸u) ⊢ℕ
 
-  -- Case: neutrals. The type cannot be ℕ since it must be negative.
-  nfN d (ne n) c = ⊥-elim (¬negℕ (neNeg d n) c)
-
-  -- Case: numerals.
-  nfN (zeroⱼ x) zeroₙ   c = zeroₙ
-  nfN (sucⱼ d) (sucₙ n) c = sucₙ (nfN d n c)
-
-  -- Case: conversion.
-  nfN (conv d c) n c' = nfN d n (trans c c')
-
-  -- Impossible cases: type is not ℕ.
-
-  -- * Canonical types
-  nfN (Πⱼ _ ▹ _)      (Πₙ _ _)    c = ⊥-elim (U≢ℕ c)
-  nfN (Σⱼ _ ▹ _)      (Σₙ _ _)    c = ⊥-elim (U≢ℕ c)
-  nfN (ℕⱼ _)           ℕₙ         c = ⊥-elim (U≢ℕ c)
-  nfN (Emptyⱼ _)       Emptyₙ     c = ⊥-elim (U≢ℕ c)
-  nfN (Unitⱼ _)        Unitₙ      c = ⊥-elim (U≢ℕ c)
-
-  -- * Canonical forms
-  nfN (lamⱼ _ _)      (lamₙ _)    c = ⊥-elim (ℕ≢Π (sym c))
-  nfN (prodⱼ _ _ _ _) (prodₙ _ _) c = ⊥-elim (ℕ≢Σ (sym c))
-  nfN (starⱼ _)       starₙ       c = ⊥-elim (ℕ≢Unitⱼ (sym c))
-  -- q.e.d
-
-
-  -- Canonicity theorem: Any well-typed term Γ ⊢ t : ℕ is convertible to a numeral.
-
-  thm : (⊢t : Γ ⊢ t ∷ ℕ) → ∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ
-
-  thm ⊢t with fullRedTerm (completeEqTerm (refl ⊢t))
-  ... | u , nf , eq = u , nfN (proj₂ (proj₂ (syntacticEqTerm eq))) nf (refl (ℕⱼ (wfTerm ⊢t))) , eq
-
--- Q.E.D. 2021-05-27
+-- Q.E.D. 2023-01-19
