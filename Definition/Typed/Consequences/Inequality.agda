@@ -362,8 +362,8 @@ B≢ne W neK W≡K =
                    (λ x → extractMaybeEmb (B-elim′ BΣ! D′ x))
                    Π≢Σ′
 
-Π≢Σ : ∀ {F G H E m} → Γ ⊢ Π p , q ▷ F ▹ G ≡ Σ⟨ m ⟩ q′ ▷ H ▹ E → ⊥
-Π≢Σ Π≡Σ =
+Π≢Σⱼ : ∀ {F G H E m} → Γ ⊢ Π p , q ▷ F ▹ G ≡ Σ⟨ m ⟩ q′ ▷ H ▹ E → ⊥
+Π≢Σⱼ Π≡Σ =
   let ⊢Π , ⊢Σ = syntacticEq Π≡Σ
   in  Π≢Σ-red (id ⊢Π) (id ⊢Σ) Π≡Σ
 
@@ -382,7 +382,7 @@ B≢ne W neK W≡K =
                      (λ x → extractMaybeEmb (B-elim′ BΣ! D′ x))
                      Σₚ≢Σᵣ′
 
-Σₚ≢Σᵣ : ∀ {F G H E} → Γ ⊢ Σₚ q ▷ F ▹ G ≡ Σᵣ q′ ▷ H ▹ E → ⊥
-Σₚ≢Σᵣ Σₚ≡Σᵣ =
+Σₚ≢Σᵣⱼ : ∀ {F G H E} → Γ ⊢ Σₚ q ▷ F ▹ G ≡ Σᵣ q′ ▷ H ▹ E → ⊥
+Σₚ≢Σᵣⱼ Σₚ≡Σᵣ =
   let ⊢Σₚ , ⊢Σᵣ = syntacticEq Σₚ≡Σᵣ
   in  Σₚ≢Σᵣ-red (id ⊢Σₚ) (id ⊢Σᵣ) Σₚ≡Σᵣ
