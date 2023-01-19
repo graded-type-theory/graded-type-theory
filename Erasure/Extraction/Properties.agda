@@ -43,7 +43,7 @@ wk-erase-comm ρ (gen (Appkind 𝟘) (t ∷ u ∷ [])) =
 wk-erase-comm ρ (gen (Appkind ω) (t ∷ u ∷ [])) =
   cong₂ _∘_ (wk-erase-comm ρ t) (wk-erase-comm ρ u)
 wk-erase-comm ρ (gen (Sigmakind p m) (F ∷ G ∷ [])) = refl
-wk-erase-comm ρ (gen Prodkind (t ∷ u ∷ [])) =
+wk-erase-comm ρ (gen (Prodkind m) (t ∷ u ∷ [])) =
   cong₂ T.prod (wk-erase-comm ρ t) (wk-erase-comm ρ u)
 wk-erase-comm ρ (gen Fstkind (t ∷ [])) =
   cong T.fst (wk-erase-comm ρ t)
@@ -84,7 +84,7 @@ liftSubst-erase-comm {σ = σ} (x +1) with σ x
 ... | gen (Appkind ω) (t ∷ u ∷ []) =
   cong₂ _∘_ (wk-erase-comm (step id) t) (wk-erase-comm (step id) u)
 ... | gen (Sigmakind p m) (F ∷ G ∷ []) = refl
-... | gen Prodkind (t ∷ u ∷ []) =
+... | gen (Prodkind m) (t ∷ u ∷ []) =
   cong₂ T.prod (wk-erase-comm (step id) t) (wk-erase-comm (step id) u)
 ... | gen Fstkind (t ∷ []) = cong T.fst (wk-erase-comm (step id) t)
 ... | gen Sndkind (t ∷ []) = cong T.snd (wk-erase-comm (step id) t)
@@ -149,7 +149,7 @@ subst-erase-comm σ (gen (Appkind 𝟘) (t ∷ u ∷ [])) =
 subst-erase-comm σ (gen (Appkind ω) (t ∷ u ∷ [])) =
   cong₂ _∘_ (subst-erase-comm σ t) (subst-erase-comm σ u)
 subst-erase-comm σ (gen (Sigmakind p m) (F ∷ G ∷ [])) = refl
-subst-erase-comm σ (gen Prodkind (t ∷ u ∷ [])) =
+subst-erase-comm σ (gen (Prodkind m) (t ∷ u ∷ [])) =
   cong₂ T.prod (subst-erase-comm σ t) (subst-erase-comm σ u)
 subst-erase-comm σ (gen Fstkind (t ∷ [])) = cong T.fst (subst-erase-comm σ t)
 subst-erase-comm σ (gen Sndkind (t ∷ [])) = cong T.snd (subst-erase-comm σ t)

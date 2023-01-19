@@ -102,18 +102,20 @@ Conₘ-interchange (_∘ₘ_ {γ} {δ = δ} {p = p} γ▸t δ▸u)
        ≡˘⟨ cong (_ , x ≔_) (lookup-distrib-+ᶜ γ′ (p ·ᶜ δ′) x) ⟩
     (γ +ᶜ p ·ᶜ δ) , x ≔ (γ′ +ᶜ p ·ᶜ δ′) ⟨ x ⟩ ∎
 
-Conₘ-interchange (prodₘ {γ} {δ = δ} γ▸t γ▸t₁ PE.refl)
-                 (prodₘ {γ₁} {δ = δ₁} δ▸t δ▸t₁ PE.refl) x =
-  prodₘ
-    (Conₘ-interchange γ▸t δ▸t x)
-    (Conₘ-interchange γ▸t₁ δ▸t₁ x)
-    (subst₂ _≡_ (cong (_ , _ ≔_) (PE.sym (lookup-distrib-+ᶜ γ₁ δ₁ x)))
-                (update-distrib-+ᶜ γ δ _ _ x) PE.refl)
+Conₘ-interchange (prodᵣₘ {γ} {δ = δ} γ▸t γ▸t₁ PE.refl)
+                 (prodᵣₘ {γ₁} {δ = δ₁} δ▸t δ▸t₁ PE.refl) x =
+  prodᵣₘ (Conₘ-interchange γ▸t δ▸t x)
+         (Conₘ-interchange γ▸t₁ δ▸t₁ x)
+         (subst₂ _≡_ (cong (_ , _ ≔_) (PE.sym (lookup-distrib-+ᶜ γ₁ δ₁ x)))
+                 (update-distrib-+ᶜ γ δ _ _ x) PE.refl)
+
+Conₘ-interchange (prodₚₘ γ▸t γ▸u) (prodₚₘ δ▸t δ▸u) x =
+  prodₚₘ (Conₘ-interchange γ▸t δ▸t x) (Conₘ-interchange γ▸u δ▸u x)
 
 Conₘ-interchange (fstₘ γ▸t) (fstₘ δ▸t) x =
-  subst (_▸ _) (PE.sym (update-self 𝟘ᶜ x)) (fstₘ γ▸t)
+  fstₘ (Conₘ-interchange γ▸t δ▸t x)
 Conₘ-interchange (sndₘ γ▸t) (sndₘ δ▸t) x =
-  subst (_▸ _) (PE.sym (update-self 𝟘ᶜ x)) (sndₘ γ▸t)
+  sndₘ (Conₘ-interchange γ▸t δ▸t x)
 
 Conₘ-interchange (prodrecₘ {γ = γ} {δ = δ} {p} γ▸t δ▸t)
                  (prodrecₘ {γ = γ′} {δ = δ′} γ▸t₁ δ▸t₁) x =
@@ -214,10 +216,13 @@ usage-upper-bound (t ∘ₘ u) =
   +ᶜ-monotone (usage-upper-bound t)
               (·ᶜ-monotoneʳ (usage-upper-bound u))
 
-usage-upper-bound (prodₘ! t u)   =
+usage-upper-bound (prodᵣₘ t u PE.refl) =
   +ᶜ-monotone (usage-upper-bound t) (usage-upper-bound u)
-usage-upper-bound (fstₘ t) = ≤ᶜ-refl
-usage-upper-bound (sndₘ t) = ≤ᶜ-refl
+usage-upper-bound (prodₚₘ t u) =
+  ≤ᶜ-trans (≤ᶜ-reflexive (≈ᶜ-sym (∧ᶜ-idem _)))
+           (∧ᶜ-monotone (usage-upper-bound t) (usage-upper-bound u))
+usage-upper-bound (fstₘ t) = usage-upper-bound t
+usage-upper-bound (sndₘ t) = usage-upper-bound t
 usage-upper-bound (prodrecₘ t u) =
   +ᶜ-monotone (·ᶜ-monotoneʳ (usage-upper-bound t))
               (tailₘ-monotone (tailₘ-monotone (usage-upper-bound u)))
@@ -265,9 +270,11 @@ usage-inf (lamₘ {p = p} {t = t} γ▸t) =
                       (headₘ-tailₘ-correct ⌈ t ⌉)
                       (≤ᶜ-refl ∙ headₘ-monotone (usage-upper-bound γ▸t))))
 usage-inf (γ▸t ∘ₘ γ▸t₁) = usage-inf γ▸t ∘ₘ usage-inf γ▸t₁
-usage-inf (prodₘ γ▸t γ▸t₁ x) = prodₘ (usage-inf γ▸t) (usage-inf γ▸t₁) PE.refl
-usage-inf (fstₘ γ▸t) = fstₘ γ▸t
-usage-inf (sndₘ γ▸t) = sndₘ γ▸t
+usage-inf (prodᵣₘ γ▸t γ▸t₁ PE.refl) = prodᵣₘ (usage-inf γ▸t) (usage-inf γ▸t₁) PE.refl
+usage-inf (prodₚₘ γ▸t γ▸t₁) = prodₚₘ (sub (usage-inf γ▸t) (∧ᶜ-decreasingˡ _ _))
+                                     (sub (usage-inf γ▸t₁) (∧ᶜ-decreasingʳ _ _))
+usage-inf (fstₘ γ▸t) = fstₘ (usage-inf γ▸t)
+usage-inf (sndₘ γ▸t) = sndₘ (usage-inf γ▸t)
 usage-inf (prodrecₘ {p = p} {u = u} γ▸t δ▸u) =
   prodrecₘ (usage-inf γ▸t)
            (sub (usage-inf δ▸u)

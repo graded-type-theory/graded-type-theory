@@ -93,7 +93,7 @@ mutual
               → Γ ∙ F ⊢ G
               → Γ ⊢ t ∷ F
               → Γ ⊢ u ∷ G [ t ]
-              → Γ ⊢ prod t u ∷ Σ⟨ m ⟩ q ▷ F ▹ G
+              → Γ ⊢ prod m t u ∷ Σ⟨ m ⟩ q ▷ F ▹ G
     fstⱼ      : ∀ {F G t}
               → Γ ⊢ F
               → Γ ∙ F ⊢ G
@@ -109,7 +109,7 @@ mutual
               → Γ ∙ F ⊢ G
               → Γ ∙ (Σᵣ q ▷ F ▹ G) ⊢ A
               → Γ ⊢ t ∷ Σᵣ q ▷ F ▹ G
-              → Γ ∙ F ∙ G ⊢ u ∷ A [ prod (var (x0 +1)) (var x0) ]↑²
+              → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ (var (x0 +1)) (var x0) ]↑²
               → Γ ⊢ prodrec p A t u ∷ A [ t ]
     zeroⱼ     : ⊢ Γ
               → Γ ⊢ zero ∷ ℕ
@@ -228,21 +228,21 @@ mutual
                   → Γ ∙ F ⊢ G
                   → Γ ⊢ t ≡ t′ ∷ F
                   → Γ ⊢ u ≡ u′ ∷ G [ t ]
-                  → Γ ⊢ prod t u ≡ prod t′ u′ ∷ Σ⟨ m ⟩ q ▷ F ▹ G
+                  → Γ ⊢ prod m t u ≡ prod m t′ u′ ∷ Σ⟨ m ⟩ q ▷ F ▹ G
     Σ-β₁          : ∀ {F G t u}
                   → Γ ⊢ F
                   → Γ ∙ F ⊢ G
                   → Γ ⊢ t ∷ F
                   → Γ ⊢ u ∷ G [ t ]
-                  → Γ ⊢ prod t u ∷ Σₚ q ▷ F ▹ G
-                  → Γ ⊢ fst (prod t u) ≡ t ∷ F
+                  → Γ ⊢ prodₚ t u ∷ Σₚ q ▷ F ▹ G
+                  → Γ ⊢ fst (prodₚ t u) ≡ t ∷ F
     Σ-β₂          : ∀ {F G t u}
                   → Γ ⊢ F
                   → Γ ∙ F ⊢ G
                   → Γ ⊢ t ∷ F
                   → Γ ⊢ u ∷ G [ t ]
-                  → Γ ⊢ prod t u ∷ Σₚ q ▷ F ▹ G
-                  → Γ ⊢ snd (prod t u) ≡ u ∷ G [ fst (prod t u) ]
+                  → Γ ⊢ prodₚ t u ∷ Σₚ q ▷ F ▹ G
+                  → Γ ⊢ snd (prodₚ t u) ≡ u ∷ G [ fst (prodₚ t u) ]
     Σ-η           : ∀ {t u F G}
                   → Γ ⊢ F
                   → Γ ∙ F ⊢ G
@@ -256,7 +256,7 @@ mutual
                   → Γ ∙ F ⊢ G
                   → Γ ∙ (Σᵣ q ▷ F ▹ G) ⊢ A ≡ A′
                   → Γ ⊢ t ≡ t′ ∷ Σᵣ q ▷ F ▹ G
-                  → Γ ∙ F ∙ G ⊢ u ≡ u′ ∷ A [ prod (var (x0 +1)) (var x0) ]↑²
+                  → Γ ∙ F ∙ G ⊢ u ≡ u′ ∷ A [ prodᵣ (var (x0 +1)) (var x0) ]↑²
                   → p ≈ p′
                   → Γ ⊢ prodrec p A t u ≡ prodrec p′ A′ t′ u′ ∷ A [ t ]
     prodrec-β     : ∀ {t t′ u F G A}
@@ -265,9 +265,9 @@ mutual
                   → Γ ∙ (Σᵣ q ▷ F ▹ G) ⊢ A
                   → Γ ⊢ t ∷ F
                   → Γ ⊢ t′ ∷ G [ t ]
-                  → Γ ∙ F ∙ G ⊢ u ∷ A [ prod (var (x0 +1)) (var x0) ]↑²
-                  → Γ ⊢ (prodrec p A (prod t t′) u) ≡
-                        u [ t , t′ ] ∷ A [ prod t t′ ]
+                  → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ (var (x0 +1)) (var x0) ]↑²
+                  → Γ ⊢ (prodrec p A (prodᵣ t t′) u) ≡
+                        u [ t , t′ ] ∷ A [ prodᵣ t t′ ]
     suc-cong      : ∀ {m n}
                   → Γ ⊢ m ≡ n ∷ ℕ
                   → Γ ⊢ suc m ≡ suc n ∷ ℕ
@@ -335,21 +335,21 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set (ℓ
                  → Γ ∙ F ⊢ G
                  → Γ ⊢ t ∷ F
                  → Γ ⊢ u ∷ G [ t ]
-                 → Γ ⊢ (prod t u) ∷ Σₚ q ▷ F ▹ G
-                 → Γ ⊢ fst (prod t u) ⇒ t ∷ F
+                 → Γ ⊢ (prodₚ t u) ∷ Σₚ q ▷ F ▹ G
+                 → Γ ⊢ fst (prodₚ t u) ⇒ t ∷ F
   Σ-β₂           : ∀ {F G t u}
                  → Γ ⊢ F
                  → Γ ∙ F ⊢ G
                  → Γ ⊢ t ∷ F
                  → Γ ⊢ u ∷ G [ t ]
-                 → Γ ⊢ (prod t u) ∷ Σₚ q ▷ F ▹ G
+                 → Γ ⊢ (prodₚ t u) ∷ Σₚ q ▷ F ▹ G
                  -- TODO(WN): Prove that 𝔍 ∷ G [ t ] is admissible
-                 → Γ ⊢ snd (prod t u) ⇒ u ∷ G [ fst (prod t u) ]
+                 → Γ ⊢ snd (prodₚ t u) ⇒ u ∷ G [ fst (prodₚ t u) ]
   prodrec-subst  : ∀ {t t′ F G A}
                  → Γ ⊢ F
                  → Γ ∙ F ⊢ G
                  → Γ ∙ (Σᵣ q ▷ F ▹ G) ⊢ A
-                 → Γ ∙ F ∙ G ⊢ u ∷ A [ prod (var (x0 +1)) (var x0) ]↑²
+                 → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ (var (x0 +1)) (var x0) ]↑²
                  → Γ ⊢ t ⇒ t′ ∷ Σᵣ q ▷ F ▹ G
                  → Γ ⊢ prodrec p A t u ⇒ prodrec p A t′ u ∷ A [ t ]
   prodrec-β      : ∀ {A F G t t′ u}
@@ -358,9 +358,9 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set (ℓ
                  → Γ ∙ (Σᵣ q ▷ F ▹ G) ⊢ A
                  → Γ ⊢ t ∷ F
                  → Γ ⊢ t′ ∷ G [ t ]
-                 → Γ ∙ F ∙ G ⊢ u ∷ A [ prod (var (x0 +1)) (var x0) ]↑²
-                 → Γ ⊢ prodrec p A (prod t t′) u ⇒
-                       u [ t , t′ ] ∷ A [ prod t t′ ]
+                 → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ (var (x0 +1)) (var x0) ]↑²
+                 → Γ ⊢ prodrec p A (prodᵣ t t′) u ⇒
+                       u [ t , t′ ] ∷ A [ prodᵣ t t′ ]
   natrec-subst   : ∀ {z s n n′ F}
                  → Γ ∙ ℕ     ⊢ F
                  → Γ         ⊢ z ∷ F [ zero ]

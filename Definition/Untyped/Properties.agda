@@ -480,9 +480,9 @@ wk-β-natrec ρ G = let G′ = G [ suc (var x0) ]↑ in
 
 -- A specific equation on eakenings used for the reduction of prodrec.
 
-wk-β-prodrec : ∀ (ρ : Wk m n) (A : Term (1+ n))
-             → wk (lift (lift ρ)) (A [ prod (var (x0 +1)) (var x0) ]↑²)
-             ≡ wk (lift ρ) A [ prod (var (x0 +1)) (var x0) ]↑²
+wk-β-prodrec : ∀ {s}(ρ : Wk m n) (A : Term (1+ n))
+             → wk (lift (lift ρ)) (A [ prod s (var (x0 +1)) (var x0) ]↑²)
+             ≡ wk (lift ρ) A [ prod s (var (x0 +1)) (var x0) ]↑²
 wk-β-prodrec ρ A =
   begin
        wk (lift (lift ρ)) (subst σₚ′ A)
@@ -494,7 +494,7 @@ wk-β-prodrec ρ A =
        subst σₚ′ (wk (lift ρ) A) ∎
      where
         σₚ′ : Subst (1+ (1+ ℓ)) (1+ ℓ)
-        σₚ′ = (consSubst (wk1Subst (wk1Subst idSubst))) (prod (var (x0 +1)) (var x0))
+        σₚ′ = (consSubst (wk1Subst (wk1Subst idSubst))) (prod! (var (x0 +1)) (var x0))
         eq  : ∀ x
             → substVar (lift (lift ρ) •ₛ σₚ′) x
             ≡ substVar σₚ′ (wkVar (lift ρ) x)
@@ -676,9 +676,9 @@ wk1-sgSubst t t' rewrite wk1-tailId t =
         (substVar-to-subst (substVar-sgSubst-tail t') t))
       (subst-id t)
 
-subst-β-prodrec : (A : Term (1+ n)) (σ : Subst m n)
-                → subst (liftSubstn σ 2) (A [ prod (var (x0 +1)) (var x0) ]↑²)
-                ≡ subst (liftSubst σ) A [ prod (var (x0 +1)) (var x0) ]↑²
+subst-β-prodrec : ∀ {s} (A : Term (1+ n)) (σ : Subst m n)
+                → subst (liftSubstn σ 2) (A [ prod s (var (x0 +1)) (var x0) ]↑²)
+                ≡ subst (liftSubst σ) A [ prod s (var (x0 +1)) (var x0) ]↑²
 subst-β-prodrec {n = n} A σ = begin
    subst (liftSubstn σ 2) (A [ t ]↑²)
      ≡⟨ substCompEq A ⟩
@@ -688,8 +688,8 @@ subst-β-prodrec {n = n} A σ = begin
      ≡˘⟨ substCompEq A ⟩
    subst (liftSubst σ) A [ t′ ]↑² ∎
    where
-   t = prod (var (x0 +1)) (var x0)
-   t′ = prod (var (x0 +1)) (var x0)
+   t = prod! (var (x0 +1)) (var x0)
+   t′ = prod! (var (x0 +1)) (var x0)
    varEq : (x : Fin (1+ n))
          → (liftSubstn σ 2 ₛ•ₛ consSubst (wk1Subst (wk1Subst idSubst)) t) x
          ≡ (consSubst (wk1Subst (wk1Subst idSubst)) t′ ₛ•ₛ liftSubst σ) x
@@ -705,21 +705,21 @@ subst-β-prodrec {n = n} A σ = begin
        ≡˘⟨ wk1-tail (σ x) ⟩
      subst (consSubst (λ y → var (y +1 +1)) t′) (wk1 (σ x)) ∎
 
-substCompProdrec : (A : Term (1+ n)) (t u : Term m) (σ : Subst m n)
-                 → subst (liftSubst σ) A [ prod t u ]
-                 ≡ subst (consSubst (consSubst σ t) u) (A [ prod (var (x0 +1)) (var x0) ]↑²)
+substCompProdrec : ∀ {s} (A : Term (1+ n)) (t u : Term m) (σ : Subst m n)
+                 → subst (liftSubst σ) A [ prod s t u ]
+                 ≡ subst (consSubst (consSubst σ t) u) (A [ prod s (var (x0 +1)) (var x0) ]↑²)
 substCompProdrec {n = n} A t u σ = begin
-   subst (liftSubst σ) A [ prod t u ]
+   subst (liftSubst σ) A [ prod! t u ]
      ≡⟨ substCompEq A ⟩
-   subst (sgSubst (prod t u) ₛ•ₛ liftSubst σ) A
+   subst (sgSubst (prod! t u) ₛ•ₛ liftSubst σ) A
      ≡⟨ substVar-to-subst varEq A ⟩
    subst (consSubst (consSubst σ t) u ₛ•ₛ consSubst (wk1Subst (wk1Subst idSubst)) px) A
      ≡˘⟨ substCompEq A ⟩
    subst (consSubst (consSubst σ t) u) (A [ px ]↑²) ∎
    where
-   px = prod (var (x0 +1)) (var x0)
+   px = prod! (var (x0 +1)) (var x0)
    varEq : (x : Fin (1+ n))
-         → (sgSubst (prod t u) ₛ•ₛ liftSubst σ) x
+         → (sgSubst (prod! t u) ₛ•ₛ liftSubst σ) x
          ≡ (consSubst (consSubst σ t) u ₛ•ₛ consSubst (wk1Subst (wk1Subst idSubst)) px) x
    varEq x0 = refl
    varEq (x +1) = trans (wk1-tail (σ x)) (subst-id (σ x))

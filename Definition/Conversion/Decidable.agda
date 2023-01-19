@@ -166,7 +166,7 @@ decConv↓Term-Σ-η ⊢t ⊢u tProd uProd fstConv (no ¬Q) =
 dec~↑-prodrec : ∀ {F G C E t t′ u v p′ F′ G′ q′}
               → Dec (Γ ∙ (Σᵣ q ▷ F ▹ G) ⊢ C [conv↑] E)
               → (Γ ∙ (Σᵣ q ▷ F ▹ G) ⊢ C ≡ E
-                 → Dec (Γ ∙ F ∙ G ⊢ u [conv↑] v ∷ C [ prod (var (x0 +1)) (var x0) ]↑²))
+                 → Dec (Γ ∙ F ∙ G ⊢ u [conv↑] v ∷ C [ prodᵣ (var (x0 +1)) (var x0) ]↑²))
               → p ≈ p′
               → Γ ⊢ t ~ t′ ↓ Σᵣ q′ ▷ F′ ▹ G′
               → Γ ⊢ Σᵣ q ▷ F ▹ G ≡ Σᵣ q′ ▷ F′ ▹ G′

@@ -60,6 +60,13 @@ private
 +ᶜ-decreasingʳ ε ε = ≤ᶜ-refl
 +ᶜ-decreasingʳ (γ ∙ p) (δ ∙ q) = (+ᶜ-decreasingʳ γ δ) ∙ (+-decreasingʳ p q)
 
+-- Addition is idempotent
+-- γ +ᶜ γ ≡ γ
+
++ᶜ-idem : (γ : Conₘ n) → γ +ᶜ γ PE.≡ γ
++ᶜ-idem ε = PE.refl
++ᶜ-idem (γ ∙ p) = PE.cong₂ _∙_ (+ᶜ-idem γ) (+-Idempotent p)
+
 -- ⊛ᵣ is a decreasing function on its first argument
 -- p ⊛ q ▷ r ≤ p
 

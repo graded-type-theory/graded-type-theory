@@ -38,6 +38,7 @@ private
 
 usagePresTerm : γ ▸ t → Γ ⊢ t ⇒ u ∷ A → γ ▸ u
 usagePresTerm γ▸t (conv t⇒u x) = usagePresTerm γ▸t t⇒u
+-- <<<<<<< HEAD
 usagePresTerm γ▸t (app-subst t⇒u x) =
   let invUsageApp δ▸t η▸a γ≤δ+pη = inv-usage-app γ▸t
   in  sub ((usagePresTerm δ▸t t⇒u) ∘ₘ η▸a) γ≤δ+pη
@@ -53,15 +54,13 @@ usagePresTerm γ▸t (snd-subst x x₁ t⇒u) =
   let invUsageProj 𝟘▸t γ≤𝟘 = inv-usage-snd γ▸t
   in  sub (sndₘ (usagePresTerm 𝟘▸t t⇒u)) γ≤𝟘
 usagePresTerm γ▸t′ (Σ-β₁ x x₁ x₂ x₃ x₄) =
-  let invUsageProj 𝟘▸tu γ≤𝟘 = inv-usage-fst γ▸t′
-      invUsageProd {δ = δ} {η} δ▸t η▸u γ″≡δ+η 𝟘≤γ″ = inv-usage-prod 𝟘▸tu
-      𝟘≤δ+η = PE.subst (λ γ → 𝟘ᶜ ≤ᶜ γ) γ″≡δ+η 𝟘≤γ″
-  in  sub δ▸t (≤ᶜ-trans γ≤𝟘 (proj₁ (+ᶜ-positive δ η 𝟘≤δ+η)))
-usagePresTerm γ▸u′ (Σ-β₂ x x₁ x₂ x₃ x₄) =
-  let invUsageProj 𝟘▸tu γ≤𝟘 =  inv-usage-snd γ▸u′
-      invUsageProd {δ = δ} {η} δ▸t η▸u γ″≡δ+η 𝟘≤γ″ = inv-usage-prod 𝟘▸tu
-      𝟘≤δ+η = PE.subst (λ γ → 𝟘ᶜ ≤ᶜ γ) γ″≡δ+η 𝟘≤γ″
-  in  sub η▸u (≤ᶜ-trans γ≤𝟘 (proj₂ (+ᶜ-positive δ η 𝟘≤δ+η)))
+  let invUsageProj δ▸tu γ≤δ = inv-usage-fst γ▸t′
+      invUsageProdₚ η▸t η▸u δ≤η = inv-usage-prodₚ δ▸tu
+  in  sub η▸t (≤ᶜ-trans γ≤δ δ≤η)
+usagePresTerm γ▸t′ (Σ-β₂ x x₁ x₂ x₃ x₄) =
+  let invUsageProj δ▸tu γ≤δ = inv-usage-snd γ▸t′
+      invUsageProdₚ η▸t η▸u δ≤η = inv-usage-prodₚ δ▸tu
+  in  sub η▸u (≤ᶜ-trans γ≤δ δ≤η)
 
 usagePresTerm γ▸natrec (natrec-subst x x₁ x₂ t⇒u) =
   let invUsageNatrec δ▸z η▸s θ▸n γ≤X = inv-usage-natrec γ▸natrec
@@ -96,13 +95,14 @@ usagePresTerm {γ = γ} γ▸natrec (natrec-suc {p = p} {r = r} x x₁ x₂ x₃
   where
   open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
+-- <<<<<<< HEAD
 
 usagePresTerm γ▸prodrec (prodrec-subst x x₁ x₂ x₃ x₄) =
   let invUsageProdrec δ▸t η▸u γ≤γ′ = inv-usage-prodrec γ▸prodrec
   in  sub (prodrecₘ (usagePresTerm δ▸t x₄) η▸u) γ≤γ′
 usagePresTerm {γ = γ} γ▸prodrec (prodrec-β {p = p} {t = t} {t′} {u} x x₁ x₂ x₃ x₄ x₅) =
   let invUsageProdrec {δ = δ} {η} δ▸t η▸u γ≤pδ+η = inv-usage-prodrec γ▸prodrec
-      invUsageProd {δ = δ′} {η′} {θ} δ′▸t₁ η′▸t₂ γ″≡δ′+η′ γ′≤γ″ = inv-usage-prod δ▸t
+      invUsageProdᵣ {δ = δ′} {η′} {θ} δ′▸t₁ η′▸t₂ γ″≡δ′+η′ γ′≤γ″ = inv-usage-prodᵣ δ▸t
       le = begin
         γ                      ≤⟨ γ≤pδ+η ⟩
         p ·ᶜ δ +ᶜ η            ≈⟨ +ᶜ-comm (p ·ᶜ δ) η ⟩

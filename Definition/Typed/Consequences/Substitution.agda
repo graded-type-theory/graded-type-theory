@@ -188,8 +188,8 @@ subst↑TypeEq ⊢G ⊢t = substitutionEq ⊢G (singleSubst↑Eq ⊢t) (wfEqTerm
 
 subst↑²TypeEq : ∀ {m F G A B}
               → Γ ∙ (Σ⟨ m ⟩ q ▷ F ▹ G) ⊢ A ≡ B
-              → Γ ∙ F ∙ G ⊢ A [ prod (var (x0 +1)) (var x0) ]↑²
-                          ≡ B [ prod (var (x0 +1)) (var x0) ]↑²
+              → Γ ∙ F ∙ G ⊢ A [ prod m (var (x0 +1)) (var x0) ]↑²
+                          ≡ B [ prod m (var (x0 +1)) (var x0) ]↑²
 subst↑²TypeEq {Γ = Γ} {F = F} {G} {A} {B} A≡B =
   let ⊢A , ⊢B = syntacticEq A≡B
       ⊢ΓΣ = wf ⊢A

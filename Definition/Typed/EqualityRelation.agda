@@ -174,7 +174,7 @@ record EqRelSet : Set (lsuc (ℓ ⊔ ℓ′)) where
                 → Γ ∙ F ⊢ G
                 → Γ ⊢ t ≅ t′ ∷ F
                 → Γ ⊢ u ≅ u′ ∷ G [ t ]
-                → Γ ⊢ prod t u ≅ prod t′ u′ ∷ Σᵣ q ▷ F ▹ G
+                → Γ ⊢ prodᵣ t u ≅ prodᵣ t′ u′ ∷ Σᵣ q ▷ F ▹ G
 
     -- η-equality
     ≅-η-eq : ∀ {f g F G}
@@ -242,7 +242,7 @@ record EqRelSet : Set (lsuc (ℓ ⊔ ℓ′)) where
              → Γ ∙ F             ⊢ G
              → Γ ∙ (Σᵣ q ▷ F ▹ G) ⊢ A ≅ A′
              → Γ                 ⊢ t ~ t′ ∷ Σᵣ q ▷ F ▹ G
-             → Γ ∙ F ∙ G         ⊢ u ≅ u′ ∷ A [ prod (var (x0 +1)) (var x0) ]↑²
+             → Γ ∙ F ∙ G         ⊢ u ≅ u′ ∷ A [ prodᵣ (var (x0 +1)) (var x0) ]↑²
              → p ≈ p′
              → Γ                 ⊢ prodrec p A t u ~ prodrec p′ A′ t′ u′ ∷ A [ t ]
 

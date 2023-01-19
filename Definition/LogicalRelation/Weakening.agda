@@ -287,7 +287,7 @@ wkTerm {ρ = ρ} [ρ] ⊢Δ (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Π�
                               (PE.cong (λ x → x ∘ _ ▷ _) (PE.sym (wk-comp ρ₁ ρ _)))
                               [G]₁ [G]₂ ([f]₁ ([ρ₁] •ₜ [ρ]) ⊢Δ₁ [a]′ p≈p′))
 wkTerm {ρ = ρ} [ρ] ⊢Δ [A]@(Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-       (Σₜ p d p≅p (prodₙ {t = p₁}) ([p₁] , [p₂])) =
+       (Σₜ p d p≅p (prodₙ {t = p₁}) ([p₁] , [p₂] , PE.refl)) =
   let [ρF] = irrelevance′ (PE.sym (wk-comp id ρ F)) ([F] [ρ] (wf (T.wk [ρ] ⊢Δ ⊢F)))
       [ρp₁] = wkTerm [ρ] ⊢Δ ([F] id (wf ⊢F)) [p₁]
       [ρp₁]′ = (irrelevanceTerm′
@@ -320,7 +320,7 @@ wkTerm {ρ = ρ} [ρ] ⊢Δ [A]@(Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-
                   ∎)
                   (wk [ρ] ⊢Δ ([G] id (wf ⊢F) [p₁])) [ρG]′
                   [ρp₂]
-  in  Σₜ (U.wk ρ p) (wkRed:*:Term [ρ] ⊢Δ d) (≅ₜ-wk [ρ] ⊢Δ p≅p) (wkProduct ρ prodₙ) ([ρp₁]′ , [ρp₂]′)
+  in  Σₜ (U.wk ρ p) (wkRed:*:Term [ρ] ⊢Δ d) (≅ₜ-wk [ρ] ⊢Δ p≅p) (wkProduct ρ prodₙ) ([ρp₁]′ , [ρp₂]′ , PE.refl)
 wkTerm {ρ = ρ} [ρ] ⊢Δ [A]@(Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
        (Σₜ p d p≅p (ne x) p~p) =
   Σₜ (U.wk ρ p) (wkRed:*:Term [ρ] ⊢Δ d) (≅ₜ-wk [ρ] ⊢Δ p≅p)
