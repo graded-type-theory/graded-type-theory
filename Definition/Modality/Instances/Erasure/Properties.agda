@@ -1,8 +1,10 @@
 {-# OPTIONS --without-K --safe #-}
 
-module Definition.Modality.Instances.Erasure.Properties where
-
 open import Definition.Modality.Instances.Erasure
+
+module Definition.Modality.Instances.Erasure.Properties (Prodrec : Erasure → Set) where
+
+open import Definition.Modality.Instances.Erasure.Modality Prodrec
 
 open import Definition.Modality.Context ErasureModality
 open import Definition.Modality.Context.Properties ErasureModality public

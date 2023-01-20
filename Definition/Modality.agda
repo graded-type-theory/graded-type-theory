@@ -12,7 +12,7 @@ open import Tools.Nat hiding (_+_)
 open import Tools.Product
 
 -- Modality ringoid
-record ModalityWithout⊛ : Set (a ⊔ ℓ) where
+record ModalityWithout⊛ : Set (lsuc (a ⊔ ℓ)) where
   infixr 40 _+_
   infixr 40 _∧_
   infixr 45 _·_
@@ -38,6 +38,9 @@ record ModalityWithout⊛ : Set (a ⊔ ℓ) where
     ·-distrib-∧         : _·_ DistributesOver _∧_
     -- Addition distributes over meet
     +-distrib-∧         : _+_ DistributesOver _∧_
+
+    -- Restriction on allowed modalities for prodrec terms
+    Prodrec : (p : M) → Set
 
   -- Semilattice partial ordering relation
   _≤_ : Rel M ℓ
@@ -100,7 +103,7 @@ record ModalityWithout⊛ : Set (a ⊔ ℓ) where
               reflexive to ≈-reflexive
              )
 
-record Modality : Set (a ⊔ ℓ) where
+record Modality : Set (lsuc (a ⊔ ℓ)) where
   infix  50 _⊛_▷_
   field
     modalityWithout⊛ : ModalityWithout⊛

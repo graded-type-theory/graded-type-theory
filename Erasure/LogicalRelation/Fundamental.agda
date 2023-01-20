@@ -1,10 +1,10 @@
 {-# OPTIONS --without-K --safe #-}
-open import Definition.Modality.Instances.Erasure
 
+open import Definition.Modality.Instances.Erasure
 open import Definition.Typed.EqualityRelation
 
-
-module Erasure.LogicalRelation.Fundamental {{eqrel : EqRelSet Erasure′}} where
+module Erasure.LogicalRelation.Fundamental
+  (Prodrec : Erasure → Set) {{eqrel : EqRelSet Erasure′}} where
 open EqRelSet {{...}}
 
 open import Definition.LogicalRelation Erasure′
@@ -20,8 +20,9 @@ import Definition.LogicalRelation.Fundamental Erasure′ as F
 import Definition.LogicalRelation.Irrelevance Erasure′ as I
 import Definition.LogicalRelation.Substitution.Irrelevance Erasure′ as IS
 
+open import Definition.Modality.Instances.Erasure.Modality Prodrec
 open import Definition.Modality.Context ErasureModality
-open import Definition.Modality.Instances.Erasure.Properties
+open import Definition.Modality.Instances.Erasure.Properties Prodrec
 open import Definition.Modality.Usage ErasureModality
 open import Definition.Modality.Usage.Inversion ErasureModality
 
@@ -30,18 +31,18 @@ open import Definition.Untyped.Properties Erasure
 open import Definition.Typed Erasure′
 open import Definition.Typed.Consequences.Syntactic Erasure′
 
-open import Erasure.LogicalRelation
-open import Erasure.LogicalRelation.Conversion
-open import Erasure.LogicalRelation.Fundamental.Application
-open import Erasure.LogicalRelation.Fundamental.Empty
-open import Erasure.LogicalRelation.Fundamental.Lambda
-open import Erasure.LogicalRelation.Fundamental.Nat
-open import Erasure.LogicalRelation.Fundamental.Natrec
-open import Erasure.LogicalRelation.Fundamental.Product
-open import Erasure.LogicalRelation.Fundamental.Unit
+open import Erasure.LogicalRelation Prodrec
+open import Erasure.LogicalRelation.Conversion Prodrec
+open import Erasure.LogicalRelation.Fundamental.Application Prodrec
+open import Erasure.LogicalRelation.Fundamental.Empty Prodrec
+open import Erasure.LogicalRelation.Fundamental.Lambda Prodrec
+open import Erasure.LogicalRelation.Fundamental.Nat Prodrec
+open import Erasure.LogicalRelation.Fundamental.Natrec Prodrec
+open import Erasure.LogicalRelation.Fundamental.Product Prodrec
+open import Erasure.LogicalRelation.Fundamental.Unit Prodrec
+open import Erasure.LogicalRelation.Irrelevance Prodrec
+open import Erasure.LogicalRelation.Subsumption Prodrec
 
-open import Erasure.LogicalRelation.Irrelevance
-open import Erasure.LogicalRelation.Subsumption
 import Erasure.Target as T
 open import Erasure.Extraction
 import Erasure.Target.Properties as TP
@@ -182,7 +183,7 @@ fundamental (sndⱼ {G = G} {t = t} Γ⊢F Γ⊢G Γ⊢t:Σ) γ▸t =
       [G] , ⊩ʳt₂ = sndʳ Γ⊢F Γ⊢G Γ⊢t:Σ [Γ] [Σ] ⊩ʳt
   in  [Γ] , [G] , subsumption {t = snd t} {A = G [ fst t ]} [Γ] [G] ⊩ʳt₂ δ≤𝟘
 fundamental (prodrecⱼ {t = t} {u} {F} {G} {A} Γ⊢F Γ⊢G Γ⊢A Γ⊢t Γ⊢u) γ▸prodrec  =
-  let invUsageProdrec δ▸t η▸u γ≤pδ+η = inv-usage-prodrec γ▸prodrec
+  let invUsageProdrec δ▸t η▸u P γ≤pδ+η = inv-usage-prodrec γ▸prodrec
       [Γ] , [Σ] , ⊩ʳt = fundamental Γ⊢t δ▸t
       [Γ]₂ , [A₊]₂ , ⊩ʳu = fundamental Γ⊢u η▸u
       [Γ]₃ , [F]₃ = F.fundamental Γ⊢F

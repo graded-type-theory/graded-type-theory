@@ -15,9 +15,7 @@ data Erasure : Set where
 Erasure′ : Setoid _ _
 Erasure′ = record { Carrier = Erasure ; _≈_ = _≡_ ; isEquivalence = isEquivalence }
 
-open import Definition.Modality Erasure′ public
 open import Tools.Algebra Erasure′
-open import Tools.Nat hiding (_+_)
 
 infixl 40 _+_
 infixl 40 _∧_
@@ -348,30 +346,4 @@ p ≤ q = p ≡ p ∧ q
 +-·-Semiring = record
   { isSemiringWithoutAnnihilatingZero = +-·-SemiringWithoutAnnihilatingZero
   ; zero = ·-zero
-  }
-
--- Erasures form a modality
-
-erasureModalityWithout⊛ : ModalityWithout⊛
-erasureModalityWithout⊛ = record
-  { _+_ = _+_
-  ; _·_ = _·_
-  ; _∧_ = _∧_
-  ; 𝟘 = 𝟘
-  ; 𝟙 = ω
-  ; +-·-Semiring = +-·-Semiring
-  ; ∧-Semilattice = +-Semilattice
-  ; ·-distrib-∧ = ·-distrib-+
-  ; +-distrib-∧ = +-distrib-+
-  }
-
-ErasureModality : Modality
-ErasureModality = record
-  { modalityWithout⊛ = erasureModalityWithout⊛
-  ; _⊛_▷_ = _⊛_▷_
-  ; ⊛-ineq = ⊛-ineq₁ , ⊛-ineq₂
-  ; ⊛-cong = cong₃ _⊛_▷_
-  ; +-sub-interchangable-⊛ = +-sub-interchangable-⊛
-  ; ·-sub-distribʳ-⊛ = ·-sub-distribʳ-⊛
-  ; ⊛-sub-distrib-∧ = λ r → ⊛-sub-distribˡ-∧ r , ⊛-sub-distribʳ-∧ r
   }

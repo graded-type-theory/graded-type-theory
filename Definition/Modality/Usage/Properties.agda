@@ -117,10 +117,11 @@ Conₘ-interchange (fstₘ γ▸t) (fstₘ δ▸t) x =
 Conₘ-interchange (sndₘ γ▸t) (sndₘ δ▸t) x =
   sndₘ (Conₘ-interchange γ▸t δ▸t x)
 
-Conₘ-interchange (prodrecₘ {γ = γ} {δ = δ} {p} γ▸t δ▸t)
-                 (prodrecₘ {γ = γ′} {δ = δ′} γ▸t₁ δ▸t₁) x =
+Conₘ-interchange (prodrecₘ {γ = γ} {δ = δ} {p} γ▸t δ▸t P)
+                 (prodrecₘ {γ = γ′} {δ = δ′} γ▸t₁ δ▸t₁ Q) x =
   subst (_▸ _) eq (prodrecₘ (Conₘ-interchange γ▸t γ▸t₁ x)
-                              (Conₘ-interchange δ▸t δ▸t₁ (x +1 +1)))
+                            (Conₘ-interchange δ▸t δ▸t₁ (x +1 +1))
+                            Q)
   where
   open import Tools.Reasoning.PropositionalEquality
   eq = begin
@@ -223,7 +224,7 @@ usage-upper-bound (prodₚₘ t u) =
            (∧ᶜ-monotone (usage-upper-bound t) (usage-upper-bound u))
 usage-upper-bound (fstₘ t) = usage-upper-bound t
 usage-upper-bound (sndₘ t) = usage-upper-bound t
-usage-upper-bound (prodrecₘ t u) =
+usage-upper-bound (prodrecₘ t u P) =
   +ᶜ-monotone (·ᶜ-monotoneʳ (usage-upper-bound t))
               (tailₘ-monotone (tailₘ-monotone (usage-upper-bound u)))
 
@@ -275,12 +276,13 @@ usage-inf (prodₚₘ γ▸t γ▸t₁) = prodₚₘ (sub (usage-inf γ▸t) (�
                                      (sub (usage-inf γ▸t₁) (∧ᶜ-decreasingʳ _ _))
 usage-inf (fstₘ γ▸t) = fstₘ (usage-inf γ▸t)
 usage-inf (sndₘ γ▸t) = sndₘ (usage-inf γ▸t)
-usage-inf (prodrecₘ {p = p} {u = u} γ▸t δ▸u) =
+usage-inf (prodrecₘ {p = p} {u = u} γ▸t δ▸u P) =
   prodrecₘ (usage-inf γ▸t)
            (sub (usage-inf δ▸u)
                 (subst (tailₘ (tailₘ ⌈ u ⌉) ∙ p ∙ p ≤ᶜ_)
                        (PE.trans (cong (_∙ headₘ ⌈ u ⌉) (headₘ-tailₘ-correct (tailₘ ⌈ u ⌉))) (headₘ-tailₘ-correct ⌈ u ⌉))
                        (≤ᶜ-refl ∙ headₘ-monotone (tailₘ-monotone (usage-upper-bound δ▸u)) ∙ headₘ-monotone (usage-upper-bound δ▸u))))
+           P
 usage-inf zeroₘ = zeroₘ
 usage-inf (sucₘ γ▸t) = sucₘ (usage-inf γ▸t)
 usage-inf (natrecₘ {p = p} {r = r} {s = s} γ▸z δ▸s η▸n) =
