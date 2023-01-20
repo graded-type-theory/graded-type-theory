@@ -1,15 +1,15 @@
 {-# OPTIONS --without-K --safe #-}
-open import Definition.Modality.Instances.Erasure
 
+open import Definition.Modality.Instances.Erasure
 open import Definition.Typed.EqualityRelation
 
-
-module Erasure.LogicalRelation.Fundamental.Nat {{eqrel : EqRelSet Erasure′}} where
+module Erasure.LogicalRelation.Fundamental.Nat
+  (Prodrec : Erasure → Set) {{eqrel : EqRelSet Erasure′}} where
 open EqRelSet {{...}}
 
 open import Erasure.Extraction
-open import Erasure.LogicalRelation
-open import Erasure.LogicalRelation.Irrelevance
+open import Erasure.LogicalRelation Prodrec
+open import Erasure.LogicalRelation.Irrelevance Prodrec
 import Erasure.Target as T
 
 open import Definition.Untyped Erasure hiding (_∷_)
@@ -23,6 +23,7 @@ open import Definition.LogicalRelation.Substitution.Properties Erasure′
 open import Definition.LogicalRelation.Substitution.Introductions.Universe Erasure′
 open import Definition.LogicalRelation.Substitution.Introductions.Nat Erasure′
 
+open import Definition.Modality.Instances.Erasure.Modality Prodrec
 open import Definition.Modality.Context ErasureModality
 
 open import Tools.Nat
@@ -44,8 +45,6 @@ private
       [U] = Uᵛ [Γ]
   in  [Γ] , [U] , λ [σ] x → Uᵣ (ℕⱼ ε)
 
-
-
 zeroʳ : ∀ {l} → ⊢ Γ
       → ∃ λ ([Γ] : ⊩ᵛ Γ)
       → ∃ λ ([ℕ] : Γ ⊩ᵛ⟨ l ⟩ ℕ / [Γ])
@@ -54,8 +53,6 @@ zeroʳ ⊢Γ =
   let [Γ] = valid ⊢Γ
       [ℕ] = ℕᵛ [Γ]
   in  [Γ] , [ℕ] , λ [σ] x → zeroᵣ (id (zeroⱼ ε)) T.refl
-
-
 
 sucʳ : ∀ {l}
      → ([Γ] : ⊩ᵛ Γ)

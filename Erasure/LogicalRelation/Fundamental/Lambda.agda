@@ -1,9 +1,10 @@
 {-# OPTIONS --without-K --safe #-}
-open import Definition.Modality.Instances.Erasure
 
+open import Definition.Modality.Instances.Erasure
 open import Definition.Typed.EqualityRelation
 
-module Erasure.LogicalRelation.Fundamental.Lambda {{eqrel : EqRelSet Erasure′}} where
+module Erasure.LogicalRelation.Fundamental.Lambda
+  (Prodrec : Erasure → Set) {{eqrel : EqRelSet Erasure′}} where
 open EqRelSet {{...}}
 
 open import Definition.LogicalRelation Erasure′
@@ -18,6 +19,7 @@ import Definition.LogicalRelation.Irrelevance Erasure′ as I
 import Definition.LogicalRelation.Weakening Erasure′ as W
 import Definition.LogicalRelation.Substitution.Irrelevance Erasure′ as IS
 
+open import Definition.Modality.Instances.Erasure.Modality Prodrec
 open import Definition.Modality.Context ErasureModality
 
 open import Definition.Untyped Erasure as U hiding (_∷_)
@@ -28,9 +30,9 @@ open import Definition.Typed.Consequences.Reduction Erasure′
 open import Definition.Typed.Consequences.Substitution Erasure′
 
 open import Erasure.Extraction
-open import Erasure.LogicalRelation
-open import Erasure.LogicalRelation.Irrelevance
-open import Erasure.LogicalRelation.Reduction
+open import Erasure.LogicalRelation Prodrec
+open import Erasure.LogicalRelation.Irrelevance Prodrec
+open import Erasure.LogicalRelation.Reduction Prodrec
 open import Erasure.Target.Properties as TP
 import Erasure.Target as T
 

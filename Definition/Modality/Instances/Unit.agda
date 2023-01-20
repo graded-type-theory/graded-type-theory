@@ -157,6 +157,7 @@ UnitModalityWithout⊛ = record
   ; ∧-Semilattice = +-Semilattice
   ; ·-distrib-∧ = +-Distributiveˡ , +-Distributiveʳ
   ; +-distrib-∧ = +-Distributiveˡ , +-Distributiveʳ
+  ; Prodrec = λ _ → ⊤
   }
 
 UnitModality : Modality

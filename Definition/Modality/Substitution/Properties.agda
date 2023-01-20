@@ -391,9 +391,10 @@ substₘ-lemma Ψ σ Ψ▶σ (fstₘ γ▸t) = fstₘ (substₘ-lemma Ψ σ Ψ�
 
 substₘ-lemma Ψ σ Ψ▶σ (sndₘ γ▸t) = sndₘ (substₘ-lemma Ψ σ Ψ▶σ γ▸t)
 
-substₘ-lemma Ψ σ Ψ▶σ (prodrecₘ {γ = γ} {δ = δ} {p} γ▸t δ▸u) =
+substₘ-lemma Ψ σ Ψ▶σ (prodrecₘ {γ = γ} {δ = δ} {p} γ▸t δ▸u P) =
   sub (prodrecₘ (substₘ-lemma Ψ σ Ψ▶σ γ▸t)
-                (sub Ψδ▸σu (≤ᶜ-reflexive eq₁)))
+                (sub Ψδ▸σu (≤ᶜ-reflexive eq₁))
+                P)
       (≤ᶜ-reflexive eq₂)
   where
   Ψδ▸σu = substₘ-lemma (liftSubstₘ (liftSubstₘ Ψ)) (liftSubstn σ 2)

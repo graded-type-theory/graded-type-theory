@@ -79,6 +79,7 @@ data _▸_ {n : Nat} : (γ : Conₘ n) → Term n → Set (a ⊔ ℓ) where
 
   prodrecₘ  : γ ▸ t
             → δ ∙ p ∙ p ▸ u
+            → Prodrec p
             → p ·ᶜ γ +ᶜ δ ▸ prodrec p A t u
 
   zeroₘ     : 𝟘ᶜ ▸ zero

@@ -95,10 +95,10 @@ usagePresTerm {γ = γ} γ▸natrec (natrec-suc {p = p} {r = r} x x₁ x₂ x₃
   open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
 usagePresTerm γ▸prodrec (prodrec-subst x x₁ x₂ x₃ x₄) =
-  let invUsageProdrec δ▸t η▸u γ≤γ′ = inv-usage-prodrec γ▸prodrec
-  in  sub (prodrecₘ (usagePresTerm δ▸t x₄) η▸u) γ≤γ′
+  let invUsageProdrec δ▸t η▸u P γ≤γ′ = inv-usage-prodrec γ▸prodrec
+  in  sub (prodrecₘ (usagePresTerm δ▸t x₄) η▸u P) γ≤γ′
 usagePresTerm {γ = γ} γ▸prodrec (prodrec-β {p = p} {t = t} {t′} {u} x x₁ x₂ x₃ x₄ x₅) =
-  let invUsageProdrec {δ = δ} {η} δ▸t η▸u γ≤pδ+η = inv-usage-prodrec γ▸prodrec
+  let invUsageProdrec {δ = δ} {η} δ▸t η▸u P γ≤pδ+η = inv-usage-prodrec γ▸prodrec
       invUsageProdᵣ {δ = δ′} {η′} {θ} δ′▸t₁ η′▸t₂ γ″≡δ′+η′ γ′≤γ″ = inv-usage-prodᵣ δ▸t
       le = begin
         γ                      ≤⟨ γ≤pδ+η ⟩

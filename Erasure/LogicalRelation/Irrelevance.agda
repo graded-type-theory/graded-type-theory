@@ -1,13 +1,14 @@
 {-# OPTIONS --without-K --safe #-}
-open import Definition.Modality.Instances.Erasure
 
+open import Definition.Modality.Instances.Erasure
 open import Definition.Typed.EqualityRelation
 
-
-module Erasure.LogicalRelation.Irrelevance {{eqrel : EqRelSet Erasure′}} where
+module Erasure.LogicalRelation.Irrelevance (Prodrec : Erasure → Set)
+                                           {{eqrel : EqRelSet Erasure′}} where
 open EqRelSet {{...}}
 
-open import Erasure.LogicalRelation
+open import Definition.Modality.Instances.Erasure.Modality Prodrec
+open import Erasure.LogicalRelation Prodrec
 
 open import Definition.LogicalRelation Erasure′
 open import Definition.LogicalRelation.ShapeView Erasure′
