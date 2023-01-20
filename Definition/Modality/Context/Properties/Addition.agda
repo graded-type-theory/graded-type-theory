@@ -50,15 +50,6 @@ private
 +ᶜ-comm ε ε = ≈ᶜ-refl
 +ᶜ-comm (γ ∙ p) (δ ∙ q) = (+ᶜ-comm γ δ) ∙ (+-comm p q)
 
--- The module of modality contexts is positive
--- If 𝟘ᶜ ≤ᶜ γ +ᶜ δ then 𝟘ᶜ ≤ᶜ γ and 𝟘ᶜ ≤ δ
-
-+ᶜ-positive : (γ δ : Conₘ n) → 𝟘ᶜ ≤ᶜ γ +ᶜ δ → 𝟘ᶜ ≤ᶜ γ × 𝟘ᶜ ≤ᶜ δ
-+ᶜ-positive ε ε ε = ≈ᶜ-refl , ≈ᶜ-refl
-+ᶜ-positive  (γ ∙ p) (δ ∙ q) (0≤γ+δ ∙ 0≤p+q) =
-  (proj₁ (+ᶜ-positive γ δ 0≤γ+δ) ∙ proj₁ (+-positive p q 0≤p+q)) ,
-  (proj₂ (+ᶜ-positive γ δ 0≤γ+δ) ∙ proj₂ (+-positive p q 0≤p+q))
-
 -- Addition is left distributive over meet
 -- γ +ᶜ (δ ∧ᶜ η) ≈ᶜ (γ +ᶜ δ) ∧ᶜ (γ +ᶜ η)
 
@@ -81,6 +72,17 @@ private
 +ᶜ-cong (γ≈γ′ ∙ p≈p′) (δ≈δ′ ∙ q≈q′) =
   (+ᶜ-cong γ≈γ′ δ≈δ′) ∙ (+-cong p≈p′ q≈q′)
 
+-- Congruence of +ᶜ on the left
+-- If δ ≈ᶜ δ′ then γ +ᶜ δ ≈ γ +ᶜ δ′
+
++ᶜ-congˡ : δ ≈ᶜ δ′ → γ +ᶜ δ ≈ᶜ γ +ᶜ δ′
++ᶜ-congˡ δ≈δ′ = +ᶜ-cong ≈ᶜ-refl δ≈δ′
+
+-- Congruence of +ᶜ on the right
+-- If γ ≈ᶜ γ′ then γ +ᶜ δ ≈ γ′ +ᶜ δ
+
++ᶜ-congʳ : γ ≈ᶜ γ′ → γ +ᶜ δ ≈ᶜ γ′ +ᶜ δ
++ᶜ-congʳ γ≈γ′ = +ᶜ-cong γ≈γ′ ≈ᶜ-refl
 
 -- Addition on the left is monotone
 -- If γ ≤ᶜ δ then γ +ᶜ η ≤ᶜ δ +ᶜ η

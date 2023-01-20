@@ -50,13 +50,25 @@ private
 ∧ᶜ-cong (γ≈γ′ ∙ p≈p′) (δ≈δ′ ∙ q≈q′) =
   (∧ᶜ-cong γ≈γ′ δ≈δ′) ∙ (∧-cong p≈p′ q≈q′)
 
+-- Congruence of ∧ᶜ on the left
+-- If δ ≈ᶜ δ′ then γ ∧ᶜ δ ≈ᶜ γ ∧ᶜ δ′
+
+∧ᶜ-congˡ : δ ≈ᶜ δ′ → γ ∧ᶜ δ ≈ᶜ γ ∧ᶜ δ′
+∧ᶜ-congˡ δ≈δ′ = ∧ᶜ-cong ≈ᶜ-refl δ≈δ′
+
+-- Congruence of ∧ᶜ on the right
+-- If γ ≈ᶜ γ′ then γ ∧ᶜ δ ≈ᶜ γ′ ∧ᶜ δ
+
+∧ᶜ-congʳ : γ ≈ᶜ γ′ → γ ∧ᶜ δ ≈ᶜ γ′ ∧ᶜ δ
+∧ᶜ-congʳ γ≈γ′ = ∧ᶜ-cong γ≈γ′ ≈ᶜ-refl
 
 -- Meet on the left is monotone
 -- If γ ≤ᶜ δ then γ ∧ᶜ η ≤ᶜ δ ∧ᶜ η
 
 ∧ᶜ-monotoneˡ : γ ≤ᶜ δ → γ ∧ᶜ η ≤ᶜ δ ∧ᶜ η
 ∧ᶜ-monotoneˡ {γ = ε} {ε} {ε} ε = ≤ᶜ-refl
-∧ᶜ-monotoneˡ {γ = γ ∙ p} {δ ∙ q} {η ∙ r} (γ≤δ ∙ p≤q) = (∧ᶜ-monotoneˡ γ≤δ) ∙ (∧-monotoneˡ p≤q)
+∧ᶜ-monotoneˡ {γ = γ ∙ p} {δ ∙ q} {η ∙ r} (γ≤δ ∙ p≤q) =
+  (∧ᶜ-monotoneˡ γ≤δ) ∙ (∧-monotoneˡ p≤q)
 
 -- Meet on the right is monotone
 -- If γ ≤ᶜ δ then γ ∧ᶜ η ≤ᶜ δ ∧ᶜ η

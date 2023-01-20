@@ -23,17 +23,28 @@ private
   variable
     p p′ q q′ r r′ : M
 
+-- Variants of ⊛-congurence
+
+⊛ᵣ-cong : p ≈ p′ → q ≈ q′ → p ⊛ q ▷ r ≈ p′ ⊛ q′ ▷ r
+⊛ᵣ-cong p≈p′ q≈q′ = ⊛-cong p≈p′ q≈q′ ≈-refl
+
+⊛ᵣ-congˡ : q ≈ q′ → p ⊛ q ▷ r ≈ p ⊛ q′ ▷ r
+⊛ᵣ-congˡ q≈q′ = ⊛ᵣ-cong ≈-refl q≈q′
+
+⊛ᵣ-congʳ : p ≈ p′ → p ⊛ q ▷ r ≈ p′ ⊛ q ▷ r
+⊛ᵣ-congʳ p≈p′ = ⊛ᵣ-cong p≈p′ ≈-refl
+
 -- ⊛ is monotone on the first two arguments
 -- If p ≤ p′ and q ≤ q′ then p ⊛ q ▷ r ≤ p′ ⊛ q′ ≤ r
 
 ⊛-monotone : p ≤ p′ → q ≤ q′ → p ⊛ q ▷ r ≤ p′ ⊛ q′ ▷ r
 ⊛-monotone {p} {p′} {q} {q′} {r} p≤p′ q≤q′ = begin
   p ⊛ q ▷ r
-    ≈⟨ ⊛-cong p≤p′ q≤q′ ≈-refl ⟩
+    ≈⟨ ⊛ᵣ-cong p≤p′ q≤q′ ⟩
   (p ∧ p′) ⊛ (q ∧ q′) ▷ r
-    ≤⟨ proj₁ (⊛-sub-distrib-∧ r) (p ∧ p′) q q′ ⟩
+    ≤⟨ ⊛-sub-distribˡ-∧ r (p ∧ p′) q q′ ⟩
   ((p ∧ p′) ⊛ q ▷ r) ∧ ((p ∧ p′) ⊛ q′ ▷ r)
-    ≤⟨ ∧-monotone (proj₂ (⊛-sub-distrib-∧ r) q p p′) (proj₂ (⊛-sub-distrib-∧ r) q′ p p′) ⟩
+    ≤⟨ ∧-monotone (⊛-sub-distribʳ-∧ r q p p′) (⊛-sub-distribʳ-∧ r q′ p p′) ⟩
   ((p ⊛ q ▷ r) ∧ (p′ ⊛ q ▷ r)) ∧ (p ⊛ q′ ▷ r ∧ p′ ⊛ q′ ▷ r)
     ≤⟨ ∧-decreasingʳ _ _ ⟩
   p ⊛ q′ ▷ r ∧ p′ ⊛ q′ ▷ r
@@ -48,7 +59,7 @@ private
   where
   open import Tools.Reasoning.PartialOrder ≤-poset
   𝟘≤𝟘⊛𝟘 = begin
-    𝟘                     ≈˘⟨ proj₂ ·-zero (𝟘 ⊛ 𝟘 ▷ r) ⟩
+    𝟘                     ≈˘⟨ ·-zeroʳ (𝟘 ⊛ 𝟘 ▷ r) ⟩
     (𝟘 ⊛ 𝟘 ▷ r) · 𝟘       ≤⟨ ·-sub-distribʳ-⊛ r 𝟘 𝟘 𝟘 ⟩
-    (𝟘 · 𝟘) ⊛ (𝟘 · 𝟘) ▷ r ≈⟨ ⊛-cong (proj₁ ·-zero 𝟘) (proj₁ ·-zero 𝟘) ≈-refl ⟩
+    (𝟘 · 𝟘) ⊛ (𝟘 · 𝟘) ▷ r ≈⟨ ⊛ᵣ-cong (·-zeroˡ 𝟘) (·-zeroˡ 𝟘) ⟩
     𝟘 ⊛ 𝟘 ▷ r ∎

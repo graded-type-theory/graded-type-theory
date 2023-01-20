@@ -15,8 +15,9 @@ open import Algebra.Definitions (_≈_)
             _DistributesOverˡ_; _DistributesOverʳ_; Idempotent; _IdempotentOn_;
             Identity; LeftIdentity; LeftZero; RightIdentity; RightZero; Zero) public
 open import Algebra.Structures (_≈_)
-     using (IsBand; IsCommutativeMonoid; IsMagma;
-            IsMonoid; IsSemigroup; IsSemilattice) public
+     using (IsBand; IsCommutativeMonoid; IsMagma; IsMonoid;
+            IsSemigroup; IsSemilattice; IsSemiring;
+            IsSemiringWithoutAnnihilatingZero) public
 
 Op₃ : ∀ {ℓ} → Set ℓ → Set ℓ
 Op₃ A = A → A → A → A

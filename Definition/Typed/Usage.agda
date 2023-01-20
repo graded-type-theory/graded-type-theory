@@ -38,7 +38,6 @@ private
 
 usagePresTerm : γ ▸ t → Γ ⊢ t ⇒ u ∷ A → γ ▸ u
 usagePresTerm γ▸t (conv t⇒u x) = usagePresTerm γ▸t t⇒u
--- <<<<<<< HEAD
 usagePresTerm γ▸t (app-subst t⇒u x) =
   let invUsageApp δ▸t η▸a γ≤δ+pη = inv-usage-app γ▸t
   in  sub ((usagePresTerm δ▸t t⇒u) ∘ₘ η▸a) γ≤δ+pη
@@ -87,15 +86,13 @@ usagePresTerm {γ = γ} γ▸natrec (natrec-suc {p = p} {r = r} x x₁ x₂ x₃
         (η +ᶜ p ·ᶜ θ) +ᶜ r ·ᶜ γ′
                 ≈⟨ +ᶜ-assoc η (p ·ᶜ θ) (r ·ᶜ (δ ∧ᶜ θ) ⊛ᶜ (η +ᶜ (p ·ᶜ θ)) ▷ r) ⟩
         η +ᶜ p ·ᶜ θ +ᶜ r ·ᶜ γ′
-               ≈⟨ +ᶜ-cong ≈ᶜ-refl (+ᶜ-comm (p ·ᶜ θ) (r ·ᶜ (δ ∧ᶜ θ) ⊛ᶜ (η +ᶜ (p ·ᶜ θ)) ▷ r)) ⟩
+               ≈⟨ +ᶜ-congˡ (+ᶜ-comm (p ·ᶜ θ) (r ·ᶜ (δ ∧ᶜ θ) ⊛ᶜ (η +ᶜ (p ·ᶜ θ)) ▷ r)) ⟩
         η +ᶜ r ·ᶜ γ′ +ᶜ p ·ᶜ θ
                ≤⟨ +ᶜ-monotoneʳ (+ᶜ-monotoneʳ (·ᶜ-monotoneʳ θ≤θ′)) ⟩
         η +ᶜ r ·ᶜ γ′ +ᶜ p ·ᶜ θ′ ∎
   in  sub (doubleSubstₘ-lemma η▸s (natrecₘ δ▸z η▸s (sub θ′▸n θ≤θ′)) θ′▸n) γ≤γ″
   where
   open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
-
--- <<<<<<< HEAD
 
 usagePresTerm γ▸prodrec (prodrec-subst x x₁ x₂ x₃ x₄) =
   let invUsageProdrec δ▸t η▸u γ≤γ′ = inv-usage-prodrec γ▸prodrec
@@ -108,8 +105,8 @@ usagePresTerm {γ = γ} γ▸prodrec (prodrec-β {p = p} {t = t} {t′} {u} x x�
         p ·ᶜ δ +ᶜ η            ≈⟨ +ᶜ-comm (p ·ᶜ δ) η ⟩
         η +ᶜ p ·ᶜ δ            ≤⟨ +ᶜ-monotoneʳ (·ᶜ-monotoneʳ γ′≤γ″) ⟩
         η +ᶜ (p ·ᶜ θ)          ≡⟨ PE.cong (λ γ → η +ᶜ p ·ᶜ γ) γ″≡δ′+η′ ⟩
-        η +ᶜ p ·ᶜ (δ′ +ᶜ η′)   ≈⟨ +ᶜ-cong ≈ᶜ-refl (·ᶜ-distribˡ-+ᶜ p δ′ η′) ⟩
-        η +ᶜ p ·ᶜ δ′ +ᶜ p ·ᶜ η′ ≈⟨ +ᶜ-cong ≈ᶜ-refl (+ᶜ-comm (p ·ᶜ δ′) (p ·ᶜ η′)) ⟩
+        η +ᶜ p ·ᶜ (δ′ +ᶜ η′)   ≈⟨ +ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ p δ′ η′) ⟩
+        η +ᶜ p ·ᶜ δ′ +ᶜ p ·ᶜ η′ ≈⟨ +ᶜ-congˡ (+ᶜ-comm (p ·ᶜ δ′) (p ·ᶜ η′)) ⟩
         η +ᶜ p ·ᶜ η′ +ᶜ p ·ᶜ δ′ ∎
   in  sub (doubleSubstₘ-lemma η▸u η′▸t₂ δ′▸t₁) le
   where

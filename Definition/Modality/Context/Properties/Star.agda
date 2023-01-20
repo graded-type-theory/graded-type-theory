@@ -73,6 +73,15 @@ private
 ⊛ᶜ-cong (γ≈γ′ ∙ p≈p′) (δ≈δ′ ∙ q≈q′) r≈r′ =
   (⊛ᶜ-cong γ≈γ′ δ≈δ′ r≈r′) ∙ (⊛-cong p≈p′ q≈q′ r≈r′)
 
+⊛ᵣᶜ-cong : γ ≈ᶜ γ′ → δ ≈ᶜ δ′ → γ ⊛ᶜ δ ▷ r ≈ᶜ γ′ ⊛ᶜ δ′ ▷ r
+⊛ᵣᶜ-cong γ≈γ′ δ≈δ′ = ⊛ᶜ-cong γ≈γ′ δ≈δ′ ≈-refl
+
+⊛ᵣᶜ-congˡ : δ ≈ᶜ δ′ → γ ⊛ᶜ δ ▷ r ≈ᶜ γ ⊛ᶜ δ′ ▷ r
+⊛ᵣᶜ-congˡ δ≈δ′ = ⊛ᵣᶜ-cong ≈ᶜ-refl δ≈δ′
+
+⊛ᵣᶜ-congʳ : γ ≈ᶜ γ′ → γ ⊛ᶜ δ ▷ r ≈ᶜ γ′ ⊛ᶜ δ ▷ r
+⊛ᵣᶜ-congʳ γ≈γ′ = ⊛ᵣᶜ-cong γ≈γ′ ≈ᶜ-refl
+
 -- ⊛ᶜ is monotone on its first two arguments
 -- If γ ≤ᶜ γ′ and δ ≤ᶜ δ′ then γ ⊛ᶜ δ ▷ r ≤ᶜ γ′ ⊛ᶜ δ′ ▷ r
 
@@ -80,3 +89,9 @@ private
 ⊛ᶜ-monotone {γ = ε} {ε} {ε} {ε} γ≤γ′ δ≤δ′ = ε
 ⊛ᶜ-monotone {γ = γ ∙ p} {γ′ ∙ p′} {δ ∙ q} {δ′ ∙ q′} (γ≤γ′ ∙ p≤p′) (δ≤δ′ ∙ q≤q′) =
   ⊛ᶜ-monotone γ≤γ′ δ≤δ′ ∙ ⊛-monotone p≤p′ q≤q′
+
+⊛ᶜ-monotoneˡ : δ ≤ᶜ δ′ → γ ⊛ᶜ δ ▷ r ≤ᶜ γ ⊛ᶜ δ′ ▷ r
+⊛ᶜ-monotoneˡ δ≤δ′ = ⊛ᶜ-monotone ≤ᶜ-refl δ≤δ′
+
+⊛ᶜ-monotoneʳ : γ ≤ᶜ γ′ → γ ⊛ᶜ δ ▷ r ≤ᶜ γ′ ⊛ᶜ δ ▷ r
+⊛ᶜ-monotoneʳ γ≤γ′ = ⊛ᶜ-monotone γ≤γ′ ≤ᶜ-refl

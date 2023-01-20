@@ -32,8 +32,8 @@ private
 
 ≤-trans : p ≤ q → q ≤ r → p ≤ r
 ≤-trans {p} {q} {r} p≤q q≤r = ≈-trans p≤q
-  (≈-trans (∧-cong ≈-refl q≤r)
-  (≈-trans (≈-sym (∧-assoc p q r)) (∧-cong (≈-sym p≤q) ≈-refl)))
+  (≈-trans (∧-congˡ q≤r)
+  (≈-trans (≈-sym (∧-assoc p q r)) (∧-congʳ (≈-sym p≤q))))
 
 -- ≤ is antisymmetric
 -- If p ≤ q and q ≤ p then p ≈ q
@@ -45,7 +45,7 @@ private
 -- If p ≈ q then p ≤ q
 
 ≤-reflexive : p ≈ q → p ≤ q
-≤-reflexive {p} p≈q = ≈-trans (≈-sym (∧-idem p)) (∧-cong ≈-refl p≈q)
+≤-reflexive {p} p≈q = ≈-trans (≈-sym (∧-idem p)) (∧-congˡ p≈q)
 
 -- ≤ is a preorder relation
 

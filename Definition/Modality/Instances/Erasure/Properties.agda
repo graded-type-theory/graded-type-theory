@@ -132,7 +132,6 @@ greatest-elem′ p 𝟘≤p = ≤-antisym (greatest-elem p) 𝟘≤p
 least-elem′ : (p : Erasure) → p ≤ ω → p PE.≡ ω
 least-elem′ p p≤ω = ≤-antisym p≤ω (least-elem p)
 
-
 -- 𝟘ᶜ is the greatest erasure modality context
 -- γ ≤ 𝟘ᶜ
 
@@ -146,8 +145,6 @@ greatest-elemᶜ (γ ∙ p) = (greatest-elemᶜ γ) ∙ (greatest-elem p)
 least-elemᶜ : (γ : Conₘ n) → 𝟙ᶜ ≤ᶜ γ
 least-elemᶜ ε = ε
 least-elemᶜ (γ ∙ p) = (least-elemᶜ γ) ∙ (least-elem p)
-
-
 
 -- Variables are always annotated with ω
 -- If γ ▸ var x then x ◂ ω ∈ γ
