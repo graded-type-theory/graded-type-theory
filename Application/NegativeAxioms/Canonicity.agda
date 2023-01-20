@@ -6,7 +6,8 @@
 module Application.NegativeAxioms.Canonicity where
 
 open import Definition.Modality.Instances.Erasure
-open import Definition.Modality.Instances.Erasure.Properties
+open import Definition.Modality.Instances.Erasure.Modality (_≤ ω)
+open import Definition.Modality.Instances.Erasure.Properties (_≤ ω)
 open import Definition.Modality.Context ErasureModality
 open import Definition.Modality.Usage ErasureModality
 open import Definition.Modality.Usage.Inversion ErasureModality
@@ -120,7 +121,7 @@ subNeg1 n ⊢t = subNeg n (singleSubst ⊢t) (wfTerm ⊢t)
 
 fstNeg : NegativeType Γ C → Γ ⊢ C ≡ Σₚ q ▷ A ▹ B → NegativeType Γ A
 fstNeg empty          c = ⊥-elim (Empty≢Σⱼ c)
-fstNeg (pi _ _)       c = ⊥-elim (Π≢Σ c)
+fstNeg (pi _ _)       c = ⊥-elim (Π≢Σⱼ c)
 fstNeg (sigma _ nA _) c = conv nA (proj₁ (Σ-injectivity c))
 fstNeg (conv n c)    c' = fstNeg n (trans c c')
 
@@ -128,7 +129,7 @@ fstNeg (conv n c)    c' = fstNeg n (trans c c')
 
 sndNeg : NegativeType Γ C → Γ ⊢ C ≡ Σₚ q ▷ A ▹ B → Γ ⊢ t ∷ A → NegativeType Γ (B [ t ])
 sndNeg empty          c = ⊥-elim (Empty≢Σⱼ c)
-sndNeg (pi _ _)       c = ⊥-elim (Π≢Σ c)
+sndNeg (pi _ _)       c = ⊥-elim (Π≢Σⱼ c)
 sndNeg (sigma _ _ nB) c ⊢t = let (cA , cB , _ , _) = Σ-injectivity c in
     subNeg (conv nB cB) (singleSubst (conv ⊢t (sym cA))) (wfTerm ⊢t)
 sndNeg (conv n c)    c' = sndNeg n (trans c c')
@@ -137,7 +138,7 @@ sndNeg (conv n c)    c' = sndNeg n (trans c c')
 
 appNeg : NegativeType Γ C → Γ ⊢ C ≡ Π p , q ▷ A ▹ B → Γ ⊢ t ∷ A → NegativeType Γ (B [ t ])
 appNeg empty          c = ⊥-elim (Empty≢Πⱼ c)
-appNeg (sigma _ _ _)  c = ⊥-elim (Π≢Σ (sym c))
+appNeg (sigma _ _ _)  c = ⊥-elim (Π≢Σⱼ (sym c))
 appNeg (pi _ nB) c ⊢t = let (cA , cB , _ , _) = injectivity c in
   subNeg (conv nB cB) (singleSubst (conv ⊢t (sym cA))) (wfTerm ⊢t)
 appNeg (conv n c)    c' = appNeg n (trans c c')
@@ -154,8 +155,8 @@ appNeg (conv n c)    c' = appNeg n (trans c c')
 
 ¬negΣᵣ : NegativeType Γ C → Γ ⊢ C ≡ Σᵣ q ▷ A ▹ B → ⊥
 ¬negΣᵣ empty         c = Empty≢Bⱼ BΣ! c
-¬negΣᵣ (pi _ _)      c = Π≢Σ c
-¬negΣᵣ (sigma _ _ _) c = Σₚ≢Σᵣ c
+¬negΣᵣ (pi _ _)      c = Π≢Σⱼ c
+¬negΣᵣ (sigma _ _ _) c = Σₚ≢Σᵣⱼ c
 ¬negΣᵣ (conv n c)   c' = ¬negΣᵣ n (trans c c')
 
 -- Negative contexts
@@ -211,8 +212,9 @@ module Main (nΓγ : NegativeErasedContext Γ γ) (consistent : ∀{t} → Γ �
         γ▸n = sub δ▸n (≤ᶜ-trans γ≤γ′ (≤ᶜ-trans (⊛ᶜ-ineq₂ _ _ _) (∧ᶜ-decreasingʳ _ _)))
     in  ⊥-elim (¬negℕ (neNeg d n γ▸n) ⊢ℕ)
   neNeg (prodrecⱼ ⊢A A⊢B _ d _) (prodrecₙ n ) γ▸u =
-    let invUsageProdrec δ▸t η▸u γ≤γ′ = inv-usage-prodrec γ▸u
-        γ▸t = sub δ▸t (≤ᶜ-trans γ≤γ′ {!!})
+    let invUsageProdrec δ▸t η▸u p≤ω γ≤γ′ = inv-usage-prodrec γ▸u
+        γ▸t = sub δ▸t (≤ᶜ-trans γ≤γ′ (≤ᶜ-trans (+ᶜ-decreasingˡ _ _)
+                                (≤ᶜ-trans (·ᶜ-monotoneˡ p≤ω) (≤ᶜ-reflexive (·ᶜ-identityˡ _)))))
         ⊢Σ = refl (Σⱼ ⊢A ▹ A⊢B)
     in  ⊥-elim (¬negΣᵣ (neNeg d n γ▸t) ⊢Σ)
   neNeg (Emptyrecⱼ _ d     ) (Emptyrecₙ n) γ▸u = ⊥-elim (consistent d)
