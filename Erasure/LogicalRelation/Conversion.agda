@@ -1,13 +1,13 @@
 {-# OPTIONS --without-K --safe #-}
-open import Definition.Modality.Instances.Erasure
 
+open import Definition.Modality.Instances.Erasure
 open import Definition.Typed.EqualityRelation
 
-
-module Erasure.LogicalRelation.Conversion {{eqrel : EqRelSet Erasure′}} where
+module Erasure.LogicalRelation.Conversion (Prodrec : Erasure → Set)
+                                          {{eqrel : EqRelSet Erasure′}} where
 open EqRelSet {{...}}
 
-open import Erasure.LogicalRelation
+open import Erasure.LogicalRelation Prodrec
 import Erasure.Target as T
 
 open import Definition.LogicalRelation Erasure′
@@ -137,7 +137,7 @@ convʳ : ∀ {l l′ A B t γ}
       → (γ ▸ Γ ⊩ʳ⟨ l′ ⟩ t ∷ B / [Γ] / [B])
 convʳ {A = A} {B = B} [Γ] [A] [B] A≡B ⊩ʳt [σ] σ®σ′ =
   let t®v = ⊩ʳt [σ] σ®σ′
-      [σA] = proj₁ ([A] ε [σ])
-      [σB] = proj₁ ([B] ε [σ])
+      [σA] = proj₁ (unwrap [A] ε [σ])
+      [σB] = proj₁ (unwrap [B] ε [σ])
       σA≡σB = substitutionEq A≡B (wellformedSubstEq [Γ] ε [σ] (reflSubst [Γ] ε [σ])) ε
   in  convTermʳ [σA] [σB] σA≡σB t®v

@@ -178,14 +178,15 @@ record InvUsageProdrec {n} (γ : Conₘ n) (p : M) (t : Term n)
     {δ η} : Conₘ n
     δ▸t : δ ▸ t
     η▸u : η ∙ p ∙ p ▸ u
+    P : Prodrec p
     γ≤γ′ : γ ≤ᶜ p ·ᶜ δ +ᶜ η
 
 -- If γ ▸ prodrec p A t u then δ ▸ t, η ∙ p ∙ p ▸ u and γ ≤ᶜ p ·ᶜ δ +ᶜ η
 
 inv-usage-prodrec : γ ▸ prodrec p A t u → InvUsageProdrec γ p t u
-inv-usage-prodrec (prodrecₘ γ▸t δ▸u) = invUsageProdrec γ▸t δ▸u ≤ᶜ-refl
+inv-usage-prodrec (prodrecₘ γ▸t δ▸u P) = invUsageProdrec γ▸t δ▸u P ≤ᶜ-refl
 inv-usage-prodrec (sub γ▸t γ≤γ′) with inv-usage-prodrec γ▸t
-... | invUsageProdrec δ▸t η▸u γ′≤γ″ = invUsageProdrec δ▸t η▸u (≤ᶜ-trans γ≤γ′ γ′≤γ″)
+... | invUsageProdrec δ▸t η▸u P γ′≤γ″ = invUsageProdrec δ▸t η▸u P (≤ᶜ-trans γ≤γ′ γ′≤γ″)
 
 -- If γ ▸ zero then γ ≤ᶜ 𝟘ᶜ
 

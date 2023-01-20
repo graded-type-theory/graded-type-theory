@@ -26,7 +26,7 @@ private
 
 -- Validity of the Empty type.
 Emptyᵛ : ∀ {l} ([Γ] : ⊩ᵛ Γ) → Γ ⊩ᵛ⟨ l ⟩ Empty / [Γ]
-Emptyᵛ [Γ] ⊢Δ [σ] = Emptyᵣ (idRed:*: (Emptyⱼ ⊢Δ)) , λ _ x₂ → id (Emptyⱼ ⊢Δ)
+Emptyᵛ [Γ] = wrap λ ⊢Δ [σ] → Emptyᵣ (idRed:*: (Emptyⱼ ⊢Δ)) , λ _ x₂ → id (Emptyⱼ ⊢Δ)
 
 -- Validity of the Empty type as a term.
 Emptyᵗᵛ : ([Γ] : ⊩ᵛ Γ)

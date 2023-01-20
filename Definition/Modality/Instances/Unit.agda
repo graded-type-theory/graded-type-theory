@@ -131,6 +131,19 @@ _ ⊛ _ ▷ _ = tt
   ; comm   = +-Commutative
   }
 
++-+-SemiringWithoutAnnihilatingZero : IsSemiringWithoutAnnihilatingZero _+_ _+_ tt tt
++-+-SemiringWithoutAnnihilatingZero = record
+  { +-isCommutativeMonoid = +-CommutativeMonoid
+  ; *-isMonoid = +-Monoid
+  ; distrib = +-Distributiveˡ , +-Distributiveʳ
+  }
+
++-+-Semiring : IsSemiring _+_ _+_ tt tt
++-+-Semiring = record
+  { isSemiringWithoutAnnihilatingZero = +-+-SemiringWithoutAnnihilatingZero
+  ; zero = (λ x → refl) , (λ x → refl)
+  }
+
 -- ⊤ form a modality with + as addition, multiplication and meet
 
 UnitModalityWithout⊛ : ModalityWithout⊛
@@ -140,15 +153,11 @@ UnitModalityWithout⊛ = record
   ; _∧_ = _+_
   ; 𝟘 = tt
   ; 𝟙 = tt
-  ; +-CommutativeMonoid = +-CommutativeMonoid
-  ; ·-Monoid = +-Monoid
+  ; +-·-Semiring = +-+-Semiring
   ; ∧-Semilattice = +-Semilattice
-  ; ·-zero = (λ x → refl) , (λ x → refl)
-  ; +-positive = λ p q _ → refl , refl
-  ; ·-distrib-+ = +-Distributiveˡ , +-Distributiveʳ
   ; ·-distrib-∧ = +-Distributiveˡ , +-Distributiveʳ
   ; +-distrib-∧ = +-Distributiveˡ , +-Distributiveʳ
-  ; ≈-equivalence = isEquivalence
+  ; Prodrec = λ _ → ⊤
   }
 
 UnitModality : Modality

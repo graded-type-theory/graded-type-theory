@@ -26,33 +26,34 @@ p ⊛ q ▷ r = ∞ · (p ∧ q)
 
 +-IdempotentOn-∞ : _+_ IdempotentOn ∞
 +-IdempotentOn-∞ = ≤-antisym (≤-trans (+-monotoneʳ (∞-min 𝟘))
-                                      (≤-reflexive (proj₂ +-identity ∞)))
+                                      (≤-reflexive (+-identityʳ ∞)))
                              (∞-min (∞ + ∞))
 
 ⊛-ineq₁ : (p q r : M) → (p ⊛ q ▷ r) ≤ q + r · (p ⊛ q ▷ r)
 ⊛-ineq₁ p q r = begin
   p ⊛ q ▷ r ≡⟨⟩
-  ∞ · (p ∧ q) ≈˘⟨ ·-cong +-IdempotentOn-∞ ≈-refl ⟩
+  ∞ · (p ∧ q) ≈˘⟨ ·-congʳ +-IdempotentOn-∞ ⟩
   (∞ + ∞) · (p ∧ q) ≤⟨ ·-monotoneˡ (+-monotoneˡ (∞-min 𝟙)) ⟩
-  (𝟙 + ∞) · (p ∧ q) ≈⟨ proj₂ ·-distrib-+ (p ∧ q) 𝟙 ∞ ⟩
-  𝟙 · (p ∧ q) + ∞ · (p ∧ q) ≈⟨ +-cong (proj₁ ·-identity (p ∧ q)) ≈-refl ⟩
+  (𝟙 + ∞) · (p ∧ q) ≈⟨ ·-distribʳ-+ (p ∧ q) 𝟙 ∞ ⟩
+  𝟙 · (p ∧ q) + ∞ · (p ∧ q) ≈⟨ +-congʳ (·-identityˡ (p ∧ q)) ⟩
   (p ∧ q) + ∞ · (p ∧ q) ≤⟨ +-monotone (∧-decreasingʳ p q) (·-monotoneˡ (∞-min (r · ∞))) ⟩
-  q + (r · ∞) · (p ∧ q) ≈⟨ +-cong ≈-refl (·-assoc r ∞ (p ∧ q)) ⟩
+  q + (r · ∞) · (p ∧ q) ≈⟨ +-congˡ (·-assoc r ∞ (p ∧ q)) ⟩
   q + r · (∞ · (p ∧ q)) ≡⟨⟩
   q + r · (p ⊛ q ▷ r) ∎
 
 ⊛-ineq₂ : (p q r : M) → (p ⊛ q ▷ r) ≤ p
-⊛-ineq₂ p q r = ≤-trans (·-monotone (∞-min 𝟙) (∧-decreasingˡ p q)) (≤-reflexive (proj₁ ·-identity p))
+⊛-ineq₂ p q r = ≤-trans (·-monotone (∞-min 𝟙) (∧-decreasingˡ p q))
+                        (≤-reflexive (·-identityˡ p))
 
 +-sub-interchangable-⊛ : (r : M) → _+_ SubInterchangable _⊛_▷ r by _≤_
 +-sub-interchangable-⊛ r p q p′ q′ = begin
   (p ⊛ q ▷ r) + (p′ ⊛ q′ ▷ r) ≡⟨⟩
   ∞ · (p ∧ q) + ∞ · (p′ ∧ q′)
-    ≈˘⟨ proj₁ ·-distrib-+ ∞ _ _ ⟩
+    ≈˘⟨ ·-distribˡ-+ ∞ _ _ ⟩
   ∞ · ((p ∧ q) + (p′ ∧ q′))
-    ≈⟨ ·-cong ≈-refl (proj₁ +-distrib-∧ (p ∧ q) p′ q′) ⟩
+    ≈⟨ ·-congˡ (+-distribˡ-∧ (p ∧ q) p′ q′) ⟩
   ∞ · (((p ∧ q) + p′) ∧ ((p ∧ q) + q′))
-    ≈⟨ ·-cong ≈-refl (∧-cong (proj₂ +-distrib-∧ p′ p q) (proj₂ +-distrib-∧ q′ p q)) ⟩
+    ≈⟨ ·-congˡ (∧-cong (+-distribʳ-∧ p′ p q) (+-distribʳ-∧ q′ p q)) ⟩
   ∞ · (((p + p′) ∧ (q + p′)) ∧ ((p + q′) ∧ (q + q′)))
     ≤⟨ ·-monotoneʳ (∧-monotone (∧-decreasingˡ _ _) (∧-decreasingʳ _ _)) ⟩
   ∞ · ((p + p′) ∧ (q + q′)) ≡⟨⟩
@@ -62,7 +63,7 @@ p ⊛ q ▷ r = ∞ · (p ∧ q)
 ·-sub-distribʳ-⊛ r q p p′ = begin
   (p ⊛ p′ ▷ r) · q ≡⟨⟩
   (∞ · (p ∧ p′)) · q ≈⟨ ·-assoc ∞ (p ∧ p′) q ⟩
-  ∞ · (p ∧ p′) · q ≈⟨ ·-cong ≈-refl (proj₂ ·-distrib-∧ q p p′) ⟩
+  ∞ · (p ∧ p′) · q ≈⟨ ·-congˡ (·-distribʳ-∧ q p p′) ⟩
   ∞ · (p · q ∧ p′ · q) ≡⟨⟩
   (p · q) ⊛ (p′ · q) ▷ r ∎
 
@@ -70,32 +71,32 @@ p ⊛ q ▷ r = ∞ · (p ∧ q)
 ⊛-sub-distribˡ-∧ r p q q′ = begin
   p ⊛ (q ∧ q′) ▷ r ≡⟨⟩
   ∞ · (p ∧ (q ∧ q′))
-    ≈˘⟨ ·-cong ≈-refl (∧-cong (∧-idem p) ≈-refl) ⟩
+    ≈˘⟨ ·-congˡ (∧-congʳ (∧-idem p)) ⟩
   ∞ · ((p ∧ p) ∧ q ∧ q′)
-    ≈˘⟨ ·-cong ≈-refl (∧-assoc (p ∧ p) q q′) ⟩
+    ≈˘⟨ ·-congˡ (∧-assoc (p ∧ p) q q′) ⟩
   ∞ · (((p ∧ p) ∧ q) ∧ q′)
-    ≈⟨ ·-cong ≈-refl (∧-cong (∧-assoc p p q) ≈-refl) ⟩
+    ≈⟨ ·-congˡ (∧-congʳ (∧-assoc p p q)) ⟩
   ∞ · ((p ∧ (p ∧ q)) ∧ q′)
-    ≈⟨ ·-cong ≈-refl (∧-cong (∧-cong ≈-refl (∧-comm p q)) ≈-refl) ⟩
+    ≈⟨ ·-congˡ (∧-congʳ (∧-congˡ (∧-comm p q))) ⟩
   ∞ · ((p ∧ (q ∧ p)) ∧ q′)
-    ≈˘⟨ ·-cong ≈-refl (∧-cong (∧-assoc p q p) ≈-refl) ⟩
+    ≈˘⟨ ·-congˡ (∧-congʳ (∧-assoc p q p)) ⟩
   ∞ · (((p ∧ q) ∧ p) ∧ q′)
-    ≈⟨ ·-cong ≈-refl (∧-assoc (p ∧ q) p q′) ⟩
+    ≈⟨ ·-congˡ (∧-assoc (p ∧ q) p q′) ⟩
   ∞ · ((p ∧ q) ∧ (p ∧ q′))
-    ≈⟨ proj₁ ·-distrib-∧ ∞ (p ∧ q) (p ∧ q′) ⟩
+    ≈⟨ ·-distribˡ-∧ ∞ (p ∧ q) (p ∧ q′) ⟩
   ∞ · (p ∧ q) ∧ ∞ · (p ∧ q′) ≡⟨⟩
   (p ⊛ q ▷ r) ∧ (p ⊛ q′ ▷ r) ∎
 
 ⊛-sub-distribʳ-∧ : (r : M) → (_⊛_▷ r) SubDistributesOverʳ _∧_ by _≤_
 ⊛-sub-distribʳ-∧ r q p p′ = begin
   (p ∧ p′) ⊛ q ▷ r ≡⟨⟩
-  ∞ · ((p ∧ p′) ∧ q) ≈˘⟨ ·-cong ≈-refl (∧-cong ≈-refl (∧-idem q)) ⟩
-  ∞ · ((p ∧ p′) ∧ q ∧ q) ≈˘⟨ ·-cong ≈-refl (∧-assoc (p ∧ p′) q q) ⟩
-  ∞ · (((p ∧ p′) ∧ q) ∧ q) ≈⟨ ·-cong ≈-refl (∧-cong (∧-assoc p p′ q) ≈-refl) ⟩
-  ∞ · ((p ∧ p′ ∧ q) ∧ q) ≈⟨ ·-cong ≈-refl (∧-cong (∧-cong ≈-refl (∧-comm p′ q)) ≈-refl) ⟩
-  ∞ · ((p ∧ q ∧ p′) ∧ q) ≈˘⟨ ·-cong ≈-refl (∧-cong (∧-assoc p q p′) ≈-refl) ⟩
-  ∞ · (((p ∧ q) ∧ p′) ∧ q) ≈⟨ ·-cong ≈-refl (∧-assoc (p ∧ q) p′ q) ⟩
-  ∞ · ((p ∧ q) ∧ (p′ ∧ q)) ≈⟨ proj₁ ·-distrib-∧ ∞ (p ∧ q) (p′ ∧ q) ⟩
+  ∞ · ((p ∧ p′) ∧ q) ≈˘⟨ ·-congˡ (∧-congˡ (∧-idem q)) ⟩
+  ∞ · ((p ∧ p′) ∧ q ∧ q) ≈˘⟨ ·-congˡ (∧-assoc (p ∧ p′) q q) ⟩
+  ∞ · (((p ∧ p′) ∧ q) ∧ q) ≈⟨ ·-congˡ (∧-congʳ (∧-assoc p p′ q)) ⟩
+  ∞ · ((p ∧ p′ ∧ q) ∧ q) ≈⟨ ·-congˡ (∧-congʳ (∧-congˡ (∧-comm p′ q))) ⟩
+  ∞ · ((p ∧ q ∧ p′) ∧ q) ≈˘⟨ ·-congˡ (∧-congʳ (∧-assoc p q p′)) ⟩
+  ∞ · (((p ∧ q) ∧ p′) ∧ q) ≈⟨ ·-congˡ (∧-assoc (p ∧ q) p′ q) ⟩
+  ∞ · ((p ∧ q) ∧ (p′ ∧ q)) ≈⟨ ·-distribˡ-∧ ∞ (p ∧ q) (p′ ∧ q) ⟩
   ∞ · (p ∧ q) ∧ ∞ · (p′ ∧ q) ≡⟨⟩
   (p ⊛ q ▷ r) ∧ (p′ ⊛ q ▷ r) ∎
 
@@ -104,7 +105,7 @@ isModality = record
   { modalityWithout⊛ = 𝕄
   ; _⊛_▷_ = _⊛_▷_
   ; ⊛-ineq = ⊛-ineq₁ , ⊛-ineq₂
-  ; ⊛-cong = λ p≈p′ q≈q′ r≈r′ → ·-cong ≈-refl (∧-cong p≈p′ q≈q′)
+  ; ⊛-cong = λ p≈p′ q≈q′ r≈r′ → ·-congˡ (∧-cong p≈p′ q≈q′)
   ; +-sub-interchangable-⊛ = +-sub-interchangable-⊛
   ; ·-sub-distribʳ-⊛ = ·-sub-distribʳ-⊛
   ; ⊛-sub-distrib-∧ = λ r → ⊛-sub-distribˡ-∧ r , ⊛-sub-distribʳ-∧ r

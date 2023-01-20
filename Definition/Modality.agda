@@ -12,7 +12,7 @@ open import Tools.Nat hiding (_+_)
 open import Tools.Product
 
 -- Modality ringoid
-record ModalityWithout⊛ : Set (a ⊔ ℓ) where
+record ModalityWithout⊛ : Set (lsuc (a ⊔ ℓ)) where
   infixr 40 _+_
   infixr 40 _∧_
   infixr 45 _·_
@@ -25,88 +25,85 @@ record ModalityWithout⊛ : Set (a ⊔ ℓ) where
     _·_ : Op₂ M -- Multiplication
     _∧_ : Op₂ M -- Meet
 
-
-
     -- ... and two special elements
     𝟘 : M
     𝟙 : M
 
-    -- + forms a commutative monoid with 𝟘 as unit element
-    +-CommutativeMonoid : IsCommutativeMonoid  _+_ 𝟘
-    -- · forms a monoid with 𝟙 as unit element
-    ·-Monoid            : IsMonoid _·_ 𝟙
+    -- + and · form a semiring with 𝟙 as multiplicativ unit and 𝟘 as zero
+    +-·-Semiring  : IsSemiring _+_ _·_ 𝟘 𝟙
     -- ∧ forms a semilattice
     ∧-Semilattice       : IsSemilattice _∧_
 
-
-  -- Semilattice partial ordering relation
-  _≤_ : Rel M ℓ
-  p ≤ q = p ≈ (p ∧ q)
-
-  field
-    -- 𝟘 is zero for multiplication
-    ·-zero              : Zero 𝟘 _·_
-    -- The semiring is positive
-    +-positive          : (p q : M) → 𝟘 ≤ (p + q) → 𝟘 ≤ p × 𝟘 ≤ q
-
-
-
-    -- Multiplication distributes over addition
-    ·-distrib-+         : _·_ DistributesOver _+_
     -- Multiplation distributes over meet
     ·-distrib-∧         : _·_ DistributesOver _∧_
     -- Addition distributes over meet
     +-distrib-∧         : _+_ DistributesOver _∧_
 
+    -- Restriction on allowed modalities for prodrec terms
+    Prodrec : (p : M) → Set
 
+  -- Semilattice partial ordering relation
+  _≤_ : Rel M ℓ
+  p ≤ q = p ≈ (p ∧ q)
 
-    -- ≈ is an equivalence relation
-    ≈-equivalence       : IsEquivalence _≈_
+  ·-distribˡ-∧ : _·_ DistributesOverˡ _∧_
+  ·-distribˡ-∧ = proj₁ ·-distrib-∧
 
-  -- Easier access to some operator properties
-  +-comm : Commutative _+_
-  +-comm = IsCommutativeMonoid.comm +-CommutativeMonoid
+  ·-distribʳ-∧ : _·_ DistributesOverʳ _∧_
+  ·-distribʳ-∧ = proj₂ ·-distrib-∧
 
-  +-assoc : Associative _+_
-  +-assoc = IsCommutativeMonoid.assoc +-CommutativeMonoid
+  +-distribˡ-∧ : _+_ DistributesOverˡ _∧_
+  +-distribˡ-∧ = proj₁ +-distrib-∧
 
-  +-identity : Identity 𝟘 _+_
-  +-identity = IsCommutativeMonoid.identity +-CommutativeMonoid
+  +-distribʳ-∧ : _+_ DistributesOverʳ _∧_
+  +-distribʳ-∧ = proj₂ +-distrib-∧
 
-  ·-assoc : Associative _·_
-  ·-assoc = IsMonoid.assoc ·-Monoid
+  open IsSemiring +-·-Semiring public
+    using (
+            +-assoc;
+            +-cong;
+            +-congˡ;
+            +-congʳ;
+            +-identity;
+            +-identityˡ;
+            +-identityʳ;
+            +-comm
+          )
+    renaming (
+              *-assoc to ·-assoc;
+              *-cong to ·-cong;
+              *-congˡ to ·-congˡ;
+              *-congʳ to ·-congʳ;
+              *-identity to ·-identity;
+              *-identityˡ to ·-identityˡ;
+              *-identityʳ to ·-identityʳ;
 
-  ·-identity : Identity 𝟙 _·_
-  ·-identity = IsMonoid.identity ·-Monoid
+              distrib to ·-distrib-+;
+              distribˡ to ·-distribˡ-+;
+              distribʳ to ·-distribʳ-+;
+              zero to ·-zero;
+              zeroˡ to ·-zeroˡ;
+              zeroʳ to ·-zeroʳ;
 
-  ∧-comm : Commutative _∧_
-  ∧-comm = IsSemilattice.comm ∧-Semilattice
+              isEquivalence to ≈-equivalence
+             )
 
-  ∧-assoc : Associative _∧_
-  ∧-assoc = IsSemilattice.assoc ∧-Semilattice
+  open IsSemilattice ∧-Semilattice public
+    using (∧-cong; ∧-congˡ; ∧-congʳ)
+    renaming (comm to ∧-comm;
+              idem to ∧-idem;
+              assoc to ∧-assoc
+             )
 
-  ∧-idem : Idempotent _∧_
-  ∧-idem = IsSemilattice.idem ∧-Semilattice
+  open IsEquivalence ≈-equivalence public
+    using ()
+    renaming (refl to ≈-refl;
+              sym to ≈-sym;
+              trans to ≈-trans;
+              reflexive to ≈-reflexive
+             )
 
-  ≈-refl : Reflexive _≈_
-  ≈-refl = IsEquivalence.refl ≈-equivalence
-
-  ≈-sym : Symmetric _≈_
-  ≈-sym = IsEquivalence.sym ≈-equivalence
-
-  ≈-trans : Transitive _≈_
-  ≈-trans = IsEquivalence.trans ≈-equivalence
-
-  +-cong : Congruent₂ _+_
-  +-cong = IsCommutativeMonoid.∙-cong +-CommutativeMonoid
-
-  ·-cong : Congruent₂ _·_
-  ·-cong = IsMonoid.∙-cong ·-Monoid
-
-  ∧-cong : Congruent₂ _∧_
-  ∧-cong = IsSemilattice.∧-cong ∧-Semilattice
-
-record Modality : Set (a ⊔ ℓ) where
+record Modality : Set (lsuc (a ⊔ ℓ)) where
   infix  50 _⊛_▷_
   field
     modalityWithout⊛ : ModalityWithout⊛
@@ -133,3 +130,9 @@ record Modality : Set (a ⊔ ℓ) where
 
   ⊛-ineq₂ : (p q r : M) → p ⊛ q ▷ r ≤ p
   ⊛-ineq₂ = proj₂ ⊛-ineq
+
+  ⊛-sub-distribˡ-∧ : (r : M) → (_⊛_▷ r) SubDistributesOverˡ _∧_ by _≤_
+  ⊛-sub-distribˡ-∧ r = proj₁ (⊛-sub-distrib-∧ r)
+
+  ⊛-sub-distribʳ-∧ : (r : M) → (_⊛_▷ r) SubDistributesOverʳ _∧_ by _≤_
+  ⊛-sub-distribʳ-∧ r = proj₂ (⊛-sub-distrib-∧ r)

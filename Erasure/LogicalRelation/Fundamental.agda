@@ -1,10 +1,10 @@
 {-# OPTIONS --without-K --safe #-}
-open import Definition.Modality.Instances.Erasure
 
+open import Definition.Modality.Instances.Erasure
 open import Definition.Typed.EqualityRelation
 
-
-module Erasure.LogicalRelation.Fundamental {{eqrel : EqRelSet Erasure′}} where
+module Erasure.LogicalRelation.Fundamental
+  (Prodrec : Erasure → Set) {{eqrel : EqRelSet Erasure′}} where
 open EqRelSet {{...}}
 
 open import Definition.LogicalRelation Erasure′
@@ -20,8 +20,9 @@ import Definition.LogicalRelation.Fundamental Erasure′ as F
 import Definition.LogicalRelation.Irrelevance Erasure′ as I
 import Definition.LogicalRelation.Substitution.Irrelevance Erasure′ as IS
 
+open import Definition.Modality.Instances.Erasure.Modality Prodrec
 open import Definition.Modality.Context ErasureModality
-open import Definition.Modality.Instances.Erasure.Properties
+open import Definition.Modality.Instances.Erasure.Properties Prodrec
 open import Definition.Modality.Usage ErasureModality
 open import Definition.Modality.Usage.Inversion ErasureModality
 
@@ -30,18 +31,18 @@ open import Definition.Untyped.Properties Erasure
 open import Definition.Typed Erasure′
 open import Definition.Typed.Consequences.Syntactic Erasure′
 
-open import Erasure.LogicalRelation
-open import Erasure.LogicalRelation.Conversion
-open import Erasure.LogicalRelation.Fundamental.Application
-open import Erasure.LogicalRelation.Fundamental.Empty
-open import Erasure.LogicalRelation.Fundamental.Lambda
-open import Erasure.LogicalRelation.Fundamental.Nat
-open import Erasure.LogicalRelation.Fundamental.Natrec
-open import Erasure.LogicalRelation.Fundamental.Product
-open import Erasure.LogicalRelation.Fundamental.Unit
+open import Erasure.LogicalRelation Prodrec
+open import Erasure.LogicalRelation.Conversion Prodrec
+open import Erasure.LogicalRelation.Fundamental.Application Prodrec
+open import Erasure.LogicalRelation.Fundamental.Empty Prodrec
+open import Erasure.LogicalRelation.Fundamental.Lambda Prodrec
+open import Erasure.LogicalRelation.Fundamental.Nat Prodrec
+open import Erasure.LogicalRelation.Fundamental.Natrec Prodrec
+open import Erasure.LogicalRelation.Fundamental.Product Prodrec
+open import Erasure.LogicalRelation.Fundamental.Unit Prodrec
+open import Erasure.LogicalRelation.Irrelevance Prodrec
+open import Erasure.LogicalRelation.Subsumption Prodrec
 
-open import Erasure.LogicalRelation.Irrelevance
-open import Erasure.LogicalRelation.Subsumption
 import Erasure.Target as T
 open import Erasure.Extraction
 import Erasure.Target.Properties as TP
@@ -76,14 +77,14 @@ fundamentalVar′ : ([Γ] : ⊩ᵛ Γ)
                → ([σ] : ε ⊩ˢ σ ∷ Γ / [Γ] / ε)
                → (σ®σ′ : σ ®⟨ ¹ ⟩ σ′ ∷ Γ ◂ γ / [Γ] / [σ])
                → ∃ λ ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ])
-               → σ x ®⟨ ¹ ⟩ σ′ x ∷ subst σ A / proj₁ ([A] ε [σ])
+               → σ x ®⟨ ¹ ⟩ σ′ x ∷ subst σ A / proj₁ (unwrap [A] ε [σ])
 fundamentalVar′ ε ()
 fundamentalVar′ {σ = σ} (_∙_ {A = A} [Γ] [A]) here here
                 ([tailσ] , [headσ]) (σ®σ′ , σ0®σ′0) =
-  let [A]′ = proj₁ ([A] ε [tailσ])
+  let [A]′ = proj₁ (unwrap [A] ε [tailσ])
       [↑A] = wk1ᵛ {A = A} {F = A} [Γ] [A] [A]
       [↑A]′ = maybeEmbᵛ {A = wk1 A} (_∙_ {A = A} [Γ] [A]) [↑A]
-      [σ↑A] = proj₁ ([↑A]′ {σ = σ} ε ([tailσ] , [headσ]))
+      [σ↑A] = proj₁ (unwrap [↑A]′ {σ = σ} ε ([tailσ] , [headσ]))
       A≡A : ε ⊢ subst (tail σ) A ≡ subst (tail σ) A
       A≡A = refl (escape [A]′)
       A≡A′ = PE.subst (ε ⊢ subst (tail σ) A ≡_)
@@ -91,14 +92,14 @@ fundamentalVar′ {σ = σ} (_∙_ {A = A} [Γ] [A]) here here
   in  [↑A]′ , convTermʳ [A]′ [σ↑A] A≡A′ σ0®σ′0
 fundamentalVar′ (_∙_ {A = A} [Γ] [A]) (there {A = B} x) (there x₁)
                 ([tailσ] , [headσ]) (σ®σ′ , σ0®σ′0) =
-  let [σA] = proj₁ ([A] ε [tailσ])
+  let [σA] = proj₁ (unwrap [A] ε [tailσ])
       [A]′ = maybeEmbᵛ {A = A} [Γ] [A]
       [B] , t®v = fundamentalVar′ [Γ] x x₁ [tailσ] σ®σ′
       [↑B] = wk1ᵛ {A = B} {F = A} [Γ] [A]′ [B]
       [↑B]′ = maybeEmbᵛ {A = wk1 B} (_∙_ {A = A} [Γ] [A]′) [↑B]
       [↑B]″ = IS.irrelevance {A = wk1 B} (_∙_ {A = A} [Γ] [A]′) ([Γ] ∙ [A]) [↑B]′
-      t®v′ = irrelevanceTerm′ (PE.sym (wk1-tail B)) (proj₁ ([B] ε [tailσ]))
-                              (proj₁ ([↑B]″ ε ([tailσ] , [headσ]))) t®v
+      t®v′ = irrelevanceTerm′ (PE.sym (wk1-tail B)) (proj₁ (unwrap [B] ε [tailσ]))
+                              (proj₁ (unwrap [↑B]″ ε ([tailσ] , [headσ]))) t®v
   in  [↑B]″ , t®v′
 
 fundamentalVar : ([Γ] : ⊩ᵛ Γ)
@@ -111,7 +112,7 @@ fundamentalVar {γ = γ} [Γ] x∷A∈Γ γ▸x =
       x◂ω∈γ = valid-var-usage γ▸x
   in [A] , λ [σ] σ®σ′ →
      let [A]′ , t®v = fundamentalVar′ [Γ] x∷A∈Γ x◂ω∈γ [σ] σ®σ′
-     in  irrelevanceTerm (proj₁ ([A]′ ε [σ])) (proj₁ ([A] ε [σ])) t®v
+     in  irrelevanceTerm (proj₁ (unwrap [A]′ ε [σ])) (proj₁ (unwrap [A] ε [σ])) t®v
 
 fundamental : Γ ⊢ t ∷ A → γ ▸ t
             → ∃ λ ([Γ] : ⊩ᵛ Γ)
@@ -182,7 +183,7 @@ fundamental (sndⱼ {G = G} {t = t} Γ⊢F Γ⊢G Γ⊢t:Σ) γ▸t =
       [G] , ⊩ʳt₂ = sndʳ Γ⊢F Γ⊢G Γ⊢t:Σ [Γ] [Σ] ⊩ʳt
   in  [Γ] , [G] , subsumption {t = snd t} {A = G [ fst t ]} [Γ] [G] ⊩ʳt₂ δ≤𝟘
 fundamental (prodrecⱼ {t = t} {u} {F} {G} {A} Γ⊢F Γ⊢G Γ⊢A Γ⊢t Γ⊢u) γ▸prodrec  =
-  let invUsageProdrec δ▸t η▸u γ≤pδ+η = inv-usage-prodrec γ▸prodrec
+  let invUsageProdrec δ▸t η▸u P γ≤pδ+η = inv-usage-prodrec γ▸prodrec
       [Γ] , [Σ] , ⊩ʳt = fundamental Γ⊢t δ▸t
       [Γ]₂ , [A₊]₂ , ⊩ʳu = fundamental Γ⊢u η▸u
       [Γ]₃ , [F]₃ = F.fundamental Γ⊢F
@@ -256,7 +257,7 @@ fundamental′ : ∀ {t A} → ε ⊢ t ∷ A → ε ▸ t
 fundamental′ {t = t} {A = A} ε⊢t∷A ε▸t =
   let [ε] , [A] , ⊩ʳt = fundamental ε⊢t∷A ε▸t
       [A]′ = IS.irrelevance {A = A} [ε] ε [A]
-      [σA] = proj₁ ([A]′ {σ = idSubst} ε (idSubstS  ε))
+      [σA] = proj₁ (unwrap [A]′ {σ = idSubst} ε (idSubstS  ε))
       [σA]′ = I.irrelevance′ (subst-id A) [σA]
       ⊩ʳt′ = irrelevance {A = A} {t = t} [ε] ε [A] [A]′ ⊩ʳt
       t®v = ⊩ʳt′ {σ′ = T.idSubst} (idSubstS ε) tt

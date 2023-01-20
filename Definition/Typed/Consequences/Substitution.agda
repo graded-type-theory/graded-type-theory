@@ -35,7 +35,7 @@ private
 substitution : ∀ {A Γ Δ} → Γ ⊢ A → Δ ⊢ˢ σ ∷ Γ → ⊢ Δ → Δ ⊢ subst σ A
 substitution A σ ⊢Δ with fundamental A | fundamentalSubst (wf A) ⊢Δ σ
 substitution A σ ⊢Δ | [Γ] , [A] | [Γ]′ , [σ] =
-  escape (proj₁ ([A] ⊢Δ (irrelevanceSubst [Γ]′ [Γ] ⊢Δ ⊢Δ [σ])))
+  escape (proj₁ (unwrap [A] ⊢Δ (irrelevanceSubst [Γ]′ [Γ] ⊢Δ ⊢Δ [σ])))
 
 -- Well-formed substitution of type equality.
 substitutionEq : ∀ {A B Γ Δ}
@@ -45,10 +45,10 @@ substitutionEq A≡B σ ⊢Δ | [Γ] , [A] , [B] , [A≡B] | [Γ]′ , [σ] , [�
   let [σ]′ = irrelevanceSubst [Γ]′ [Γ] ⊢Δ ⊢Δ [σ]
       [σ′]′ = irrelevanceSubst [Γ]′ [Γ] ⊢Δ ⊢Δ [σ′]
       [σ≡σ′]′ = irrelevanceSubstEq [Γ]′ [Γ] ⊢Δ ⊢Δ [σ] [σ]′ [σ≡σ′]
-  in  escapeEq (proj₁ ([A] ⊢Δ [σ]′))
-                   (transEq (proj₁ ([A] ⊢Δ [σ]′)) (proj₁ ([B] ⊢Δ [σ]′))
-                            (proj₁ ([B] ⊢Δ [σ′]′)) ([A≡B] ⊢Δ [σ]′)
-                            (proj₂ ([B] ⊢Δ [σ]′) [σ′]′ [σ≡σ′]′))
+  in  escapeEq (proj₁ (unwrap [A] ⊢Δ [σ]′))
+                   (transEq (proj₁ (unwrap [A] ⊢Δ [σ]′)) (proj₁ (unwrap [B] ⊢Δ [σ]′))
+                            (proj₁ (unwrap [B] ⊢Δ [σ′]′)) ([A≡B] ⊢Δ [σ]′)
+                            (proj₂ (unwrap [B] ⊢Δ [σ]′) [σ′]′ [σ≡σ′]′))
 
 -- Well-formed substitution of terms.
 substitutionTerm : ∀ {t A Γ Δ}
@@ -56,7 +56,7 @@ substitutionTerm : ∀ {t A Γ Δ}
 substitutionTerm t σ ⊢Δ with fundamentalTerm t | fundamentalSubst (wfTerm t) ⊢Δ σ
 substitutionTerm t σ ⊢Δ | [Γ] , [A] , [t] | [Γ]′ , [σ] =
   let [σ]′ = irrelevanceSubst [Γ]′ [Γ] ⊢Δ ⊢Δ [σ]
-  in  escapeTerm (proj₁ ([A] ⊢Δ [σ]′)) (proj₁ ([t] ⊢Δ [σ]′))
+  in  escapeTerm (proj₁ (unwrap [A] ⊢Δ [σ]′)) (proj₁ ([t] ⊢Δ [σ]′))
 
 -- Well-formed substitution of term equality.
 substitutionEqTerm : ∀ {t u A Γ Δ}
@@ -68,8 +68,8 @@ substitutionEqTerm t≡u σ≡σ′ ⊢Δ with fundamentalTermEq t≡u
   let [σ]′ = irrelevanceSubst [Γ]′ [Γ] ⊢Δ ⊢Δ [σ]
       [σ′]′ = irrelevanceSubst [Γ]′ [Γ] ⊢Δ ⊢Δ [σ′]
       [σ≡σ′]′ = irrelevanceSubstEq [Γ]′ [Γ] ⊢Δ ⊢Δ [σ] [σ]′ [σ≡σ′]
-  in  escapeTermEq (proj₁ ([A] ⊢Δ [σ]′))
-                       (transEqTerm (proj₁ ([A] ⊢Δ [σ]′)) ([t≡u] ⊢Δ [σ]′)
+  in  escapeTermEq (proj₁ (unwrap [A] ⊢Δ [σ]′))
+                       (transEqTerm (proj₁ (unwrap [A] ⊢Δ [σ]′)) ([t≡u] ⊢Δ [σ]′)
                                     (proj₂ ([u] ⊢Δ [σ]′) [σ′]′ [σ≡σ′]′))
 
 -- Reflexivity of well-formed substitution.

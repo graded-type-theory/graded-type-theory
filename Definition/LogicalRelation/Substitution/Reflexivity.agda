@@ -27,7 +27,7 @@ reflᵛ : ∀ {A l}
         ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ])
       → Γ ⊩ᵛ⟨ l ⟩ A ≡ A / [Γ] / [A]
 reflᵛ [Γ] [A] ⊢Δ [σ] =
-  reflEq (proj₁ ([A] ⊢Δ [σ]))
+  reflEq (proj₁ (unwrap [A] ⊢Δ [σ]))
 
 -- Reflexivity of valid terms.
 reflᵗᵛ : ∀ {A t l}
@@ -36,4 +36,4 @@ reflᵗᵛ : ∀ {A t l}
          ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ A / [Γ] / [A])
        → Γ ⊩ᵛ⟨ l ⟩ t ≡ t ∷ A / [Γ] / [A]
 reflᵗᵛ [Γ] [A] [t] ⊢Δ [σ] =
-  reflEqTerm (proj₁ ([A] ⊢Δ [σ])) (proj₁ ([t] ⊢Δ [σ]))
+  reflEqTerm (proj₁ (unwrap [A] ⊢Δ [σ])) (proj₁ ([t] ⊢Δ [σ]))

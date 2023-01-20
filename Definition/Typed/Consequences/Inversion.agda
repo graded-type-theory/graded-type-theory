@@ -139,7 +139,7 @@ whnfProduct x Unitₙ = ⊥-elim (U≢Σ (sym (inversion-Unit x)))
 whnfProduct x Emptyₙ = ⊥-elim (U≢Σ (sym (inversion-Empty x)))
 whnfProduct x lamₙ =
   let _ , _ , _ , _ , _ , Σ≡Π = inversion-lam x
-  in  ⊥-elim (Π≢Σ (sym Σ≡Π))
+  in  ⊥-elim (Π≢Σⱼ (sym Σ≡Π))
 whnfProduct x zeroₙ = ⊥-elim (ℕ≢Σ (sym (inversion-zero x)))
 whnfProduct x sucₙ =
   let _ , A≡ℕ = inversion-suc x

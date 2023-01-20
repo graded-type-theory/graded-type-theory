@@ -49,7 +49,7 @@ wk-𝟘ᶜ (lift ρ) = cong (λ γ → γ ∙ 𝟘) (wk-𝟘ᶜ ρ)
 
 wk-+ᶜ : (ρ : Wk m n) → wkConₘ ρ (γ +ᶜ δ) ≈ᶜ wkConₘ ρ γ +ᶜ wkConₘ ρ δ
 wk-+ᶜ id = ≈ᶜ-refl
-wk-+ᶜ (step ρ) = (wk-+ᶜ ρ) ∙ (≈-sym (proj₁ +-identity 𝟘))
+wk-+ᶜ (step ρ) = (wk-+ᶜ ρ) ∙ (≈-sym (+-identityˡ 𝟘))
 wk-+ᶜ {γ = γ ∙ p} {δ ∙ q} (lift ρ) = (wk-+ᶜ ρ) ∙ ≈-refl
 
 -- Weakening of modality contexts distribute over multiplication
@@ -57,7 +57,7 @@ wk-+ᶜ {γ = γ ∙ p} {δ ∙ q} (lift ρ) = (wk-+ᶜ ρ) ∙ ≈-refl
 
 wk-·ᶜ : (ρ : Wk m n) → wkConₘ ρ (p ·ᶜ γ) ≈ᶜ p ·ᶜ wkConₘ ρ γ
 wk-·ᶜ id = ≈ᶜ-refl
-wk-·ᶜ (step ρ) = (wk-·ᶜ ρ) ∙ (≈-sym (proj₂ ·-zero _))
+wk-·ᶜ (step ρ) = (wk-·ᶜ ρ) ∙ (≈-sym (·-zeroʳ _))
 wk-·ᶜ {γ = γ ∙ p} (lift ρ) = (wk-·ᶜ ρ) ∙ ≈-refl
 
 -- Weakening of modality contexts distribute over meet
@@ -112,24 +112,23 @@ wkUsage ρ var =
 wkUsage ρ (lamₘ γ▸t) = lamₘ (wkUsage (lift ρ) γ▸t)
 wkUsage ρ (γ▸t ∘ₘ δ▸u) =
   sub ((wkUsage ρ γ▸t) ∘ₘ (wkUsage ρ δ▸u))
-      (≤ᶜ-reflexive (≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-cong ≈ᶜ-refl (wk-·ᶜ ρ))))
+      (≤ᶜ-reflexive (≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-congˡ (wk-·ᶜ ρ))))
 wkUsage ρ (prodᵣₘ γ▸t δ▸u refl) =
   sub (prodᵣₘ (wkUsage ρ γ▸t) (wkUsage ρ δ▸u) PE.refl)
       (≤ᶜ-reflexive (wk-+ᶜ ρ))
 wkUsage ρ (prodₚₘ γ▸t γ▸u) = prodₚₘ (wkUsage ρ γ▸t) (wkUsage ρ γ▸u)
 wkUsage ρ (fstₘ γ▸t) = fstₘ (wkUsage ρ γ▸t)
 wkUsage ρ (sndₘ γ▸t) = sndₘ (wkUsage ρ γ▸t)
-wkUsage ρ (prodrecₘ γ▸t δ▸u) =
-  sub (prodrecₘ (wkUsage ρ γ▸t) (wkUsage (liftn ρ 2) δ▸u))
-      (≤ᶜ-reflexive (≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-cong (wk-·ᶜ ρ) ≈ᶜ-refl)))
+wkUsage ρ (prodrecₘ γ▸t δ▸u P) =
+  sub (prodrecₘ (wkUsage ρ γ▸t) (wkUsage (liftn ρ 2) δ▸u ) P)
+      (≤ᶜ-reflexive (≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-congʳ (wk-·ᶜ ρ))))
 wkUsage ρ zeroₘ = PE.subst (λ γ → γ ▸ zero) (PE.sym (wk-𝟘ᶜ ρ)) zeroₘ
 wkUsage ρ (sucₘ γ▸t) = sucₘ (wkUsage ρ γ▸t)
 wkUsage ρ (natrecₘ γ▸z δ▸s η▸n) =
   sub (natrecₘ (wkUsage ρ γ▸z) (wkUsage (liftn ρ 2) δ▸s) (wkUsage ρ η▸n))
       (≤ᶜ-reflexive (≈ᶜ-trans (wk-⊛ᶜ ρ)
-                              (⊛ᶜ-cong (wk-∧ᶜ ρ)
-                                       (≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-cong ≈ᶜ-refl (wk-·ᶜ ρ)))
-                                       ≈-refl)))
+                              (⊛ᵣᶜ-cong (wk-∧ᶜ ρ)
+                                       (≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-congˡ (wk-·ᶜ ρ))))))
 wkUsage ρ (Emptyrecₘ γ▸t) =
   sub (Emptyrecₘ (wkUsage ρ γ▸t)) (≤ᶜ-reflexive (wk-·ᶜ ρ))
 wkUsage ρ starₘ = subst (λ γ → γ ▸ star) (PE.sym (wk-𝟘ᶜ ρ)) starₘ

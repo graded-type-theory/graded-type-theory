@@ -85,8 +85,8 @@ data Term (n : Nat) : Set a where
 
 private
   variable
-    A F H t u v : Term n
-    B E G t′    : Term (1+ n)
+    A F H t u t′ u′ v : Term n
+    B E G             : Term (1+ n)
 
 -- The Grammar of our language.
 
@@ -165,7 +165,7 @@ Emptyrec p A e = gen (Emptyreckind p) (A ∷ e ∷ [])
 
 data BindingType : Set a where
   BΠ : (p q : M) → BindingType
-  BΣ : (p : M) → SigmaMode → BindingType
+  BΣ : (q : M) → SigmaMode → BindingType
 
 pattern BΠ! = BΠ _ _
 pattern BΣ! = BΣ _ _
@@ -198,6 +198,12 @@ BΣ-PE-injectivity PE.refl = PE.refl , PE.refl
 suc-PE-injectivity : suc t PE.≡ suc u → t PE.≡ u
 suc-PE-injectivity PE.refl = PE.refl
 
+-- If prod t u = prod t′ u′ then t = t′ and u = u′
+
+prod-PE-injectivity : ∀ {m m′} → prod m t u PE.≡ prod m′ t′ u′
+                    → m PE.≡ m′ × t PE.≡ t′ × u PE.≡ u′
+prod-PE-injectivity PE.refl = PE.refl , PE.refl , PE.refl
+
 
 -- Neutral terms.
 
@@ -209,7 +215,7 @@ data Neutral : Term n → Set a where
   ∘ₙ        : Neutral t   → Neutral (t ∘ p ▷ u)
   fstₙ      : Neutral t   → Neutral (fst t)
   sndₙ      : Neutral t   → Neutral (snd t)
-  natrecₙ   : Neutral v   → Neutral (natrec p q G t u v)
+  natrecₙ   : Neutral v   → Neutral (natrec p r G t u v)
   prodrecₙ  : Neutral t   → Neutral (prodrec p A t u)
   Emptyrecₙ : Neutral t   → Neutral (Emptyrec p A t)
 
@@ -275,6 +281,12 @@ Empty≢B (BΣ q m) ()
 Unit≢B : ∀ W → Unit PE.≢ ⟦ W ⟧ F ▹ G
 Unit≢B (BΠ p q) ()
 Unit≢B (BΣ q m) ()
+
+Π≢Σ : ∀ {m} → Π p , q ▷ F ▹ G PE.≢ Σ⟨ m ⟩ r ▷ H ▹ E
+Π≢Σ ()
+
+Σₚ≢Σᵣ : Σₚ q ▷ F ▹ G PE.≢ Σᵣ r ▷ H ▹ E
+Σₚ≢Σᵣ ()
 
 zero≢ne : Neutral t → zero PE.≢ t
 zero≢ne () PE.refl

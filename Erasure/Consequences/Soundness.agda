@@ -1,24 +1,26 @@
 {-# OPTIONS --without-K --safe #-}
-open import Definition.Modality.Instances.Erasure
 
+open import Definition.Modality.Instances.Erasure
 open import Definition.Typed.EqualityRelation
 
-
-module Erasure.Consequences.Soundness {{eqrel : EqRelSet Erasure′}} where
+module Erasure.Consequences.Soundness
+  (Prodrec : Erasure → Set){{eqrel : EqRelSet Erasure′}} where
 open EqRelSet {{...}}
 
 open import Definition.Untyped Erasure hiding (_∷_)
 open import Definition.Typed Erasure′
 open import Definition.Typed.Properties Erasure′
 open import Definition.LogicalRelation Erasure′
+
+open import Definition.Modality.Instances.Erasure.Modality Prodrec
 open import Definition.Modality.Context ErasureModality
 open import Definition.Modality.Usage ErasureModality
 
 import Erasure.Target as T
 open import Erasure.Extraction
-open import Erasure.LogicalRelation
-open import Erasure.LogicalRelation.Fundamental
-open import Erasure.LogicalRelation.Irrelevance
+open import Erasure.LogicalRelation Prodrec
+open import Erasure.LogicalRelation.Fundamental Prodrec
+open import Erasure.LogicalRelation.Irrelevance Prodrec
 
 open import Tools.Nat
 open import Tools.Product

@@ -28,15 +28,15 @@ wk1ᵛ : ∀ {A F l}
       ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
     → Γ ⊩ᵛ⟨ l ⟩ A / [Γ]
     → Γ ∙ F ⊩ᵛ⟨ l ⟩ wk1 A / [Γ] ∙ [F]
-wk1ᵛ {A = A} [Γ] [F] [A] ⊢Δ [σ] =
-  let [σA] = proj₁ ([A] ⊢Δ (proj₁ [σ]))
+wk1ᵛ {A = A} [Γ] [F] [A] = wrap λ ⊢Δ [σ] →
+  let [σA] = proj₁ (unwrap [A] ⊢Δ (proj₁ [σ]))
       [σA]′ = irrelevance′ (PE.sym (subst-wk A)) [σA]
   in  [σA]′
   ,   (λ [σ′] [σ≡σ′] →
          irrelevanceEq″ (PE.sym (subst-wk A))
                         (PE.sym (subst-wk A))
                         [σA] [σA]′
-                        (proj₂ ([A] ⊢Δ (proj₁ [σ])) (proj₁ [σ′]) (proj₁ [σ≡σ′])))
+                        (proj₂ (unwrap [A] ⊢Δ (proj₁ [σ])) (proj₁ [σ′]) (proj₁ [σ≡σ′])))
 
 -- Weakening of valid type equality by one.
 wk1Eqᵛ : ∀ {A B F l}
@@ -46,7 +46,7 @@ wk1Eqᵛ : ∀ {A B F l}
          ([A≡B] : Γ ⊩ᵛ⟨ l ⟩ A ≡ B / [Γ] / [A])
        → Γ ∙ F ⊩ᵛ⟨ l ⟩ wk1 A ≡ wk1 B / [Γ] ∙ [F] / wk1ᵛ {A = A} {F} [Γ] [F] [A]
 wk1Eqᵛ {A = A} {B} [Γ] [F] [A] [A≡B] ⊢Δ [σ] =
-  let [σA] = proj₁ ([A] ⊢Δ (proj₁ [σ]))
+  let [σA] = proj₁ (unwrap [A] ⊢Δ (proj₁ [σ]))
       [σA]′ = irrelevance′ (PE.sym (subst-wk A)) [σA]
   in  irrelevanceEq″ (PE.sym (subst-wk A))
                      (PE.sym (subst-wk B))

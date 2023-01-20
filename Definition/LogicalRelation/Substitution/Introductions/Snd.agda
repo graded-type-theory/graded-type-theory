@@ -227,12 +227,12 @@ snd-congᵛ {Γ = Γ} {F = F} {G} {t} {t′} {l} [Γ] [F] [G] [t] [t′] [t≡t�
       [fst] = fstᵛ {F = F} {G} {t} [Γ] [F] [G] [t]
       [Gfst] = substS {F = F} {G} [Γ] [F] [G] [fst]
 
-      ⊩σΣFG = proj₁ ([ΣFG] ⊢Δ [σ])
+      ⊩σΣFG = proj₁ (unwrap [ΣFG] ⊢Δ [σ])
       ⊩σt = proj₁ ([t] ⊢Δ [σ])
       ⊩σt′ = proj₁ ([t′] ⊢Δ [σ])
       σt≡σt′ = [t≡t′] ⊢Δ [σ]
 
-      ⊩σGfst₁ = proj₁ ([Gfst] ⊢Δ [σ])
+      ⊩σGfst₁ = proj₁ (unwrap [Gfst] ⊢Δ [σ])
       ⊩σGfst = irrelevance′ (singleSubstLift G (fst t)) ⊩σGfst₁
 
       σsnd≡₁ = snd-cong″ ⊩σΣFG ⊩σt ⊩σt′ σt≡σt′ ⊩σGfst
@@ -252,11 +252,11 @@ sndᵛ {Γ = Γ} {F = F} {G} {t} {l} [Γ] [F] [G] [t] {Δ = Δ} {σ = σ} ⊢Δ 
       [Gfst] = substS {F = F} {G} [Γ] [F] [G] (fstᵛ {F = F} {G} {t} [Γ] [F] [G] [t])
 
       σsnd : ∀ {Δ σ} (⊢Δ : ⊢ Δ) ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
-           → Δ ⊩⟨ l ⟩ subst σ (snd t) ∷ subst σ (G [ fst t ]) / proj₁ ([Gfst] ⊢Δ [σ])
+           → Δ ⊩⟨ l ⟩ subst σ (snd t) ∷ subst σ (G [ fst t ]) / proj₁ (unwrap [Gfst] ⊢Δ [σ])
       σsnd {Δ} {σ} ⊢Δ [σ] =
-        let ⊩σΣFG = proj₁ ([ΣFG] ⊢Δ [σ])
+        let ⊩σΣFG = proj₁ (unwrap [ΣFG] ⊢Δ [σ])
             ⊩σt = proj₁ ([t] ⊢Δ [σ])
-            ⊩σGfstt = proj₁ ([Gfst] ⊢Δ [σ])
+            ⊩σGfstt = proj₁ (unwrap [Gfst] ⊢Δ [σ])
             ⊩σGfstt′ = PE.subst (λ x → Δ ⊩⟨ l ⟩ x) (singleSubstLift G (fst t)) ⊩σGfstt
             ⊩σsnd = snd″ ⊩σΣFG ⊩σt ⊩σGfstt′
         in  irrelevanceTerm′
@@ -266,16 +266,16 @@ sndᵛ {Γ = Γ} {F = F} {G} {t} {l} [Γ] [F] [G] [t] {Δ = Δ} {σ = σ} ⊢Δ 
 
   in  σsnd ⊢Δ [σ] ,
       (λ {σ′} [σ′] [σ≡σ′] →
-        let [σF] = proj₁ ([F] ⊢Δ [σ])
-            [σΣFG] = proj₁ ([ΣFG] ⊢Δ [σ])
-            [σ′ΣFG] = proj₁ ([ΣFG] ⊢Δ [σ′])
-            [σΣFG≡σ′ΣFG] = proj₂ ([ΣFG] ⊢Δ [σ]) [σ′] [σ≡σ′]
+        let [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
+            [σΣFG] = proj₁ (unwrap [ΣFG] ⊢Δ [σ])
+            [σ′ΣFG] = proj₁ (unwrap [ΣFG] ⊢Δ [σ′])
+            [σΣFG≡σ′ΣFG] = proj₂ (unwrap [ΣFG] ⊢Δ [σ]) [σ′] [σ≡σ′]
             [σt] = proj₁ ([t] ⊢Δ [σ])
             [σ′t] = proj₁ ([t] ⊢Δ [σ′])
             [σ′t] : Δ ⊩⟨ l ⟩ subst σ′ t ∷ subst σ (Σ _ ▷ F ▹ G) / [σΣFG]
             [σ′t] = convTerm₂ [σΣFG] [σ′ΣFG] [σΣFG≡σ′ΣFG] [σ′t]
             [σt≡σ′t] = proj₂ ([t] ⊢Δ [σ]) [σ′] [σ≡σ′]
-            [σGfstt] = proj₁ ([Gfst] ⊢Δ [σ])
+            [σGfstt] = proj₁ (unwrap [Gfst] ⊢Δ [σ])
             [σGfstt]′ = PE.subst (λ x → _ ⊩⟨ l ⟩ x)
                                 (singleSubstLift G (fst t))
                                 [σGfstt]

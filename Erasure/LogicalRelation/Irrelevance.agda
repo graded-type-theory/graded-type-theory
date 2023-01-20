@@ -1,13 +1,14 @@
 {-# OPTIONS --without-K --safe #-}
-open import Definition.Modality.Instances.Erasure
 
+open import Definition.Modality.Instances.Erasure
 open import Definition.Typed.EqualityRelation
 
-
-module Erasure.LogicalRelation.Irrelevance {{eqrel : EqRelSet Erasure′}} where
+module Erasure.LogicalRelation.Irrelevance (Prodrec : Erasure → Set)
+                                           {{eqrel : EqRelSet Erasure′}} where
 open EqRelSet {{...}}
 
-open import Erasure.LogicalRelation
+open import Definition.Modality.Instances.Erasure.Modality Prodrec
+open import Erasure.LogicalRelation Prodrec
 
 open import Definition.LogicalRelation Erasure′
 open import Definition.LogicalRelation.ShapeView Erasure′
@@ -127,8 +128,8 @@ irrelevanceSubst {Γ = ε} {γ = ε} ε ε (lift tt) (lift tt) tt = tt
 irrelevanceSubst {Γ = Γ ∙ A} {γ = γ ∙ p} {l = l}
                  ([Γ] ∙ [A]) ([Γ]′ ∙ [A]′) ([tailσ] , b) ([tailσ]′ , d) (σ®σ , t®v) =
   let σ®σ′ = irrelevanceSubst {l = l} [Γ] [Γ]′ [tailσ] [tailσ]′ σ®σ
-      [σA] = proj₁ ([A] ε [tailσ])
-      t®v′ = irrelevanceQuant {p = p} (proj₁ ([A] ε [tailσ])) (proj₁ ([A]′ ε [tailσ]′)) t®v
+      [σA] = proj₁ (unwrap [A] ε [tailσ])
+      t®v′ = irrelevanceQuant {p = p} (proj₁ (unwrap [A] ε [tailσ])) (proj₁ (unwrap [A]′ ε [tailσ]′)) t®v
   in  σ®σ′ , t®v′
 
 -- Irrelevance of erasure validity
@@ -143,4 +144,4 @@ irrelevance {l = l} [Γ] [Γ]′ [A] [A]′ ⊩ʳt [σ]′ σ®σ′ =
   let [σ] = IS.irrelevanceSubst [Γ]′ [Γ] ε ε [σ]′
       σ®σ = irrelevanceSubst {l = l} [Γ]′ [Γ] [σ]′ [σ] σ®σ′
       t®v = ⊩ʳt [σ] σ®σ
-  in  irrelevanceTerm (proj₁ ([A] ε [σ])) (proj₁ ([A]′ ε [σ]′)) t®v
+  in  irrelevanceTerm (proj₁ (unwrap [A] ε [σ])) (proj₁ (unwrap [A]′ ε [σ]′)) t®v

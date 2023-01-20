@@ -1,9 +1,10 @@
 {-# OPTIONS --without-K --safe #-}
-open import Definition.Modality.Instances.Erasure
 
+open import Definition.Modality.Instances.Erasure
 open import Definition.Typed.EqualityRelation
 
-module Erasure.LogicalRelation.Fundamental.Lambda {{eqrel : EqRelSet Erasure′}} where
+module Erasure.LogicalRelation.Fundamental.Lambda
+  (Prodrec : Erasure → Set) {{eqrel : EqRelSet Erasure′}} where
 open EqRelSet {{...}}
 
 open import Definition.LogicalRelation Erasure′
@@ -18,6 +19,7 @@ import Definition.LogicalRelation.Irrelevance Erasure′ as I
 import Definition.LogicalRelation.Weakening Erasure′ as W
 import Definition.LogicalRelation.Substitution.Irrelevance Erasure′ as IS
 
+open import Definition.Modality.Instances.Erasure.Modality Prodrec
 open import Definition.Modality.Context ErasureModality
 
 open import Definition.Untyped Erasure as U hiding (_∷_)
@@ -28,9 +30,9 @@ open import Definition.Typed.Consequences.Reduction Erasure′
 open import Definition.Typed.Consequences.Substitution Erasure′
 
 open import Erasure.Extraction
-open import Erasure.LogicalRelation
-open import Erasure.LogicalRelation.Irrelevance
-open import Erasure.LogicalRelation.Reduction
+open import Erasure.LogicalRelation Prodrec
+open import Erasure.LogicalRelation.Irrelevance Prodrec
+open import Erasure.LogicalRelation.Reduction Prodrec
 open import Erasure.Target.Properties as TP
 import Erasure.Target as T
 
@@ -66,17 +68,17 @@ lamʳ′ : ∀ {l} {Γ : Con Term n}
         ([σ] : ε ⊩ˢ σ ∷ Γ / [Γ] / ε)
         (σ®σ′ : σ ®⟨ l ⟩ σ′ ∷ Γ ◂ γ / [Γ] / [σ])
         ([t] : Γ ∙ F ⊩ᵛ⟨ l ⟩ t ∷ G / [Γ] ∙ [F] / [G])
-        ([u] : ε ⊩⟨ l ⟩ u ∷ subst σ F / proj₁ ([F] ε [σ]))
-        (u®w : u ®⟨ l ⟩ w ∷ subst σ F ◂ p / proj₁ ([F] ε [σ]))
+        ([u] : ε ⊩⟨ l ⟩ u ∷ subst σ F / proj₁ (unwrap [F] ε [σ]))
+        (u®w : u ®⟨ l ⟩ w ∷ subst σ F ◂ p / proj₁ (unwrap [F] ε [σ]))
       → ((subst σ (lam p t)) ∘ p ▷ u) ®⟨ l ⟩ (T.subst σ′ (T.lam (erase t))) T.∘ w
-        ∷ subst (consSubst σ u) G / proj₁ ([G] ε ([σ] , [u]))
+        ∷ subst (consSubst σ u) G / proj₁ (unwrap [G] ε ([σ] , [u]))
 lamʳ′ {F = F} {G = G} {γ = γ} {p = p} {t = t} {σ = σ} {σ′ = σ′} {u = u} {w = w} {l = l} {Γ}
       [Γ] [F] [G] ⊩ʳt [σ] σ®σ′ [t] [u] u®w =
   let [σ∙u] = [σ] , [u]
-      [G]′ = proj₁ ([G] ε [σ∙u])
-      [σF] = proj₁ ([F] ε [σ])
+      [G]′ = proj₁ (unwrap [G] ε [σ∙u])
+      [σF] = proj₁ (unwrap [F] ε [σ])
       ⊢σF = escape [σF]
-      [σG] = proj₁ ([G] (ε ∙ ⊢σF) (liftSubstS {F = F} [Γ] ε [F] [σ]))
+      [σG] = proj₁ (unwrap [G] (ε ∙ ⊢σF) (liftSubstS {F = F} [Γ] ε [F] [σ]))
       ⊢σG = escape [σG]
       [σt] = proj₁ ([t] (ε ∙ ⊢σF) (liftSubstS {F = F} [Γ] ε [F] [σ]))
       ⊢σt = escapeTerm [σG] [σt]
@@ -103,7 +105,7 @@ lamʳ : ∀ {Γ : Con Term n} → ([Γ] : ⊩ᵛ Γ) ([F] : Γ ⊩ᵛ⟨ ¹ ⟩ 
 lamʳ {F = F} {G = G} {t = t} {p = ω} {q = q}
      [Γ] [F] [G] [t] ⊩ʳt {σ = σ} {σ′ = σ′} [σ] σ®σ′ {a = a} {w = w} [a] a®w =
      let [Π] = Πᵛ {F = F} {G = G} {p = ω} {q = q} [Γ] [F] [G]
-         [σF] = proj₁ ([F] ε [σ])
+         [σF] = proj₁ (unwrap [F] ε [σ])
          [ρσF] = W.wk id ε [σF]
          ⊢σF = escape [σF]
          [ε] , [σF]′ = fundamental ⊢σF
@@ -111,7 +113,7 @@ lamʳ {F = F} {G = G} {t = t} {p = ω} {q = q}
          ⊢ρσF = escape [ρσF]
          [ε]′ , [ρσF]′ = fundamental ⊢ρσF
          [ρσF]″ = IS.irrelevance {A = U.wk id (subst σ F)} [ε]′ ε [ρσF]′
-         [σG] = proj₁ ([G] {σ = liftSubst σ} (ε ∙ ⊢σF)
+         [σG] = proj₁ (unwrap [G] {σ = liftSubst σ} (ε ∙ ⊢σF)
                            (liftSubstS {σ = σ} {F = F} [Γ] ε [F] [σ]))
          [ρσG] = W.wk (lift id) (ε ∙ ⊢ρσF) [σG]
          ⊢ρσG = escape [ρσG]
@@ -121,30 +123,30 @@ lamʳ {F = F} {G = G} {t = t} {p = ω} {q = q}
          a®w′ = irrelevanceTerm′   (UP.wk-id (subst σ F)) [ρσF] [σF] a®w
          [a]′ = I.irrelevanceTerm′ (UP.wk-id (subst σ F)) [ρσF] [σF] [a]
          [a]″ = I.irrelevanceTerm′ (UP.wk-subst F) [ρσF]
-                                   (proj₁ ([F] ε (wkSubstS [Γ] ε ε id [σ]))) [a]
+                                   (proj₁ (unwrap [F] ε (wkSubstS [Γ] ε ε id [σ]))) [a]
          λtu®λvw = lamʳ′ {F = F} {G = G} {t = t} {u = a} {w = w}
                          [Γ] [F] [G] ⊩ʳt [σ] σ®σ′ [t] [a]′ a®w′
          eq : U.wk (lift id) (subst (liftSubst σ) G) [ a ] PE.≡ subst (consSubst σ a) G
          eq = PE.trans (PE.cong (_[ a ]) (UP.wk-lift-id ((subst (liftSubst σ) G))))
                        (UP.singleSubstComp a σ G)
          [σaG] : ε ⊩⟨ ¹ ⟩ subst (consSubst σ a) G
-         [σaG] = proj₁ ([G] ε ([σ] , [a]′))
+         [σaG] = proj₁ (unwrap [G] ε ([σ] , [a]′))
          [ρσG[a]] : ε ⊩⟨ ¹ ⟩ U.wk (lift id) (subst (liftSubst σ) G) [ a ]
          [ρσG[a]] = I.irrelevance′ (PE.sym (UP.singleSubstWkComp a σ G))
-                                   (proj₁ ([G] ε ((wkSubstS [Γ] ε ε id [σ]) , [a]″)))
+                                   (proj₁ (unwrap [G] ε ((wkSubstS [Γ] ε ε id [σ]) , [a]″)))
      in  irrelevanceTerm′ (PE.sym eq) [σaG] [ρσG[a]] λtu®λvw
 
 lamʳ {F = F} {G = G} {t = t} {p = 𝟘} {q = q}
      [Γ] [F] [G] [t] ⊩ʳt {σ = σ} {σ′ = σ′} [σ] σ®σ′ {a = a} [a] =
      let [Π] = Πᵛ {F = F} {G = G} {p = 𝟘} {q = q} [Γ] [F] [G]
-         [σF] = proj₁ ([F] ε [σ])
+         [σF] = proj₁ (unwrap [F] ε [σ])
          [ρσF] = W.wk id ε [σF]
          [a]′ = I.irrelevanceTerm′ (UP.wk-id (subst σ F)) [ρσF] [σF] [a]
          [a]″ = I.irrelevanceTerm′ (UP.wk-subst F) [ρσF]
-                                   (proj₁ ([F] ε (wkSubstS [Γ] ε ε id [σ]))) [a]
-         [σaG] = proj₁ ([G] ε ([σ] , [a]′))
+                                   (proj₁ (unwrap [F] ε (wkSubstS [Γ] ε ε id [σ]))) [a]
+         [σaG] = proj₁ (unwrap [G] ε ([σ] , [a]′))
          [ρσG[a]] = I.irrelevance′ (PE.sym (UP.singleSubstWkComp a σ G))
-                                   (proj₁ ([G] ε ((wkSubstS [Γ] ε ε id [σ]) , [a]″)))
+                                   (proj₁ (unwrap [G] ε ((wkSubstS [Γ] ε ε id [σ]) , [a]″)))
          eq = PE.trans (PE.cong (_[ a ]) (UP.wk-lift-id ((subst (liftSubst σ) G))))
                        (UP.singleSubstComp a σ G)
          λtu®λvw = lamʳ′ {F = F} {G = G} {p = 𝟘} {t = t} {u = a} {w = T.undefined}

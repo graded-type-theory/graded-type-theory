@@ -56,13 +56,13 @@ EmptyrecTerm : ∀ {F n σ l}
              ([σn] : Δ ⊩⟨ l ⟩ n ∷ Empty / Emptyᵣ (idRed:*: (Emptyⱼ ⊢Δ)))
            → Δ ⊩⟨ l ⟩ Emptyrec p (subst σ F) n
                ∷ subst σ F
-               / proj₁ ([F] ⊢Δ [σ])
+               / proj₁ (unwrap [F] ⊢Δ [σ])
 EmptyrecTerm {Γ = Γ} {Δ = Δ} {F = F} {n} {σ} {l} [Γ] [F] ⊢Δ [σ]
            (Emptyₜ m d n≡n (ne (neNfₜ neM ⊢m m≡m))) =
   let [Empty] = Emptyᵛ {l = l} [Γ]
-      [σEmpty] = proj₁ ([Empty] ⊢Δ [σ])
+      [σEmpty] = proj₁ (unwrap [Empty] ⊢Δ [σ])
       [σm] = neuTerm [σEmpty] neM ⊢m m≡m
-      [σF] = proj₁ ([F] ⊢Δ [σ])
+      [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
       ⊢F = escape [σF]
       ⊢F≡F = escapeEq [σF] (reflEq [σF])
       EmptyrecM = neuTerm [σF] (Emptyrecₙ neM) (Emptyrecⱼ ⊢F ⊢m)
@@ -88,7 +88,7 @@ Emptyrec-congTerm : ∀ {F F′ n m σ σ′ l}
                 → Δ ⊩⟨ l ⟩ Emptyrec p (subst σ F) n
                     ≡ Emptyrec p′ (subst σ′ F′) m
                     ∷ subst σ F
-                    / proj₁ ([F] ⊢Δ [σ])
+                    / proj₁ (unwrap [F] ⊢Δ [σ])
 Emptyrec-congTerm {Γ = Γ} {Δ = Δ} {p = p} {p′ = p′} {F} {F′} {n} {m} {σ} {σ′} {l}
                 [Γ] [F] [F′] [F≡F′]
                 ⊢Δ [σ] [σ′] [σ≡σ′]
@@ -99,21 +99,21 @@ Emptyrec-congTerm {Γ = Γ} {Δ = Δ} {p = p} {p′ = p′} {F} {F′} {n} {m} {
   let n″≡n′ = whrDet*Term (redₜ d₁ , ne x₂) (redₜ d , ne neN′)
       m″≡m′ = whrDet*Term (redₜ d₁′ , ne x₃) (redₜ d′ , ne neM′)
       [Empty] = Emptyᵛ {l = l} [Γ]
-      [σEmpty] = proj₁ ([Empty] ⊢Δ [σ])
-      [σ′Empty] = proj₁ ([Empty] ⊢Δ [σ′])
-      [σF] = proj₁ ([F] ⊢Δ [σ])
-      [σ′F] = proj₁ ([F] ⊢Δ [σ′])
-      [σ′F′] = proj₁ ([F′] ⊢Δ [σ′])
+      [σEmpty] = proj₁ (unwrap [Empty] ⊢Δ [σ])
+      [σ′Empty] = proj₁ (unwrap [Empty] ⊢Δ [σ′])
+      [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
+      [σ′F] = proj₁ (unwrap [F] ⊢Δ [σ′])
+      [σ′F′] = proj₁ (unwrap [F′] ⊢Δ [σ′])
       [σn′] = neuTerm [σEmpty] neN′ ⊢n′ n≡n₁
       [σ′m′] = neuTerm [σ′Empty] neM′ ⊢m′ m≡m₁
       ⊢F = escape [σF]
       ⊢F≡F = escapeEq [σF] (reflEq [σF])
       ⊢F′ = escape [σ′F′]
       ⊢F′≡F′ = escapeEq [σ′F′] (reflEq [σ′F′])
-      ⊢σF≡σ′F = escapeEq [σF] (proj₂ ([F] ⊢Δ [σ]) [σ′] [σ≡σ′])
+      ⊢σF≡σ′F = escapeEq [σF] (proj₂ (unwrap [F] ⊢Δ [σ]) [σ′] [σ≡σ′])
       ⊢σ′F≡σ′F′ = escapeEq [σ′F] ([F≡F′] ⊢Δ [σ′])
       ⊢F≡F′ = ≅-trans ⊢σF≡σ′F ⊢σ′F≡σ′F′
-      [σF≡σ′F] = proj₂ ([F] ⊢Δ [σ]) [σ′] [σ≡σ′]
+      [σF≡σ′F] = proj₂ (unwrap [F] ⊢Δ [σ]) [σ′] [σ≡σ′]
       [σ′F≡σ′F′] = [F≡F′] ⊢Δ [σ′]
       [σF≡σ′F′] = transEq [σF] [σ′F] [σ′F′] [σF≡σ′F] [σ′F≡σ′F′]
       EmptyrecN = neuTerm [σF] (Emptyrecₙ neN′) (Emptyrecⱼ ⊢F ⊢n′)
@@ -147,13 +147,13 @@ Emptyrecᵛ : ∀ {F n l} ([Γ] : ⊩ᵛ Γ)
         → Γ ⊩ᵛ⟨ l ⟩ Emptyrec p F n ∷ F / [Γ] / [F]
 Emptyrecᵛ {F = F} {n} {l = l} [Γ] [Empty] [F] [n]
         {Δ = Δ} {σ = σ} ⊢Δ [σ] =
-  let [σn] = irrelevanceTerm {l′ = l} (proj₁ ([Empty] ⊢Δ [σ]))
+  let [σn] = irrelevanceTerm {l′ = l} (proj₁ (unwrap [Empty] ⊢Δ [σ]))
                              (Emptyᵣ (idRed:*: (Emptyⱼ ⊢Δ))) (proj₁ ([n] ⊢Δ [σ]))
   in EmptyrecTerm {F = F} [Γ] [F] ⊢Δ [σ] [σn]
     , λ {σ'} [σ′] [σ≡σ′] →
-      let [σ′n] = irrelevanceTerm {l′ = l} (proj₁ ([Empty] ⊢Δ [σ′]))
+      let [σ′n] = irrelevanceTerm {l′ = l} (proj₁ (unwrap [Empty] ⊢Δ [σ′]))
                                   (Emptyᵣ (idRed:*: (Emptyⱼ ⊢Δ))) (proj₁ ([n] ⊢Δ [σ′]))
-          [σn≡σ′n] = irrelevanceEqTerm {l′ = l} (proj₁ ([Empty] ⊢Δ [σ]))
+          [σn≡σ′n] = irrelevanceEqTerm {l′ = l} (proj₁ (unwrap [Empty] ⊢Δ [σ]))
                                        (Emptyᵣ (idRed:*: (Emptyⱼ ⊢Δ)))
                                        (proj₂ ([n] ⊢Δ [σ]) [σ′] [σ≡σ′])
           congTerm = Emptyrec-congTerm {F = F} {F′ = F} [Γ] [F] [F] (reflᵛ {A = F} {l = l} [Γ] [F])
@@ -174,11 +174,11 @@ Emptyrec-congᵛ : ∀ {F F′ n n′ l} ([Γ] : ⊩ᵛ Γ)
 Emptyrec-congᵛ {F = F} {F′} {n} {n′} {l = l}
              [Γ] [Empty] [F] [F′] [F≡F′]
              [n] [n′] [n≡n′] p≈p′ {Δ = Δ} {σ = σ} ⊢Δ [σ] =
-  let [σn] = irrelevanceTerm {l′ = l} (proj₁ ([Empty] ⊢Δ [σ]))
+  let [σn] = irrelevanceTerm {l′ = l} (proj₁ (unwrap [Empty] ⊢Δ [σ]))
                              (Emptyᵣ (idRed:*: (Emptyⱼ ⊢Δ))) (proj₁ ([n] ⊢Δ [σ]))
-      [σn′] = irrelevanceTerm {l′ = l} (proj₁ ([Empty] ⊢Δ [σ]))
+      [σn′] = irrelevanceTerm {l′ = l} (proj₁ (unwrap [Empty] ⊢Δ [σ]))
                              (Emptyᵣ (idRed:*: (Emptyⱼ ⊢Δ))) (proj₁ ([n′] ⊢Δ [σ]))
-      [σn≡σn′] = irrelevanceEqTerm {l′ = l} (proj₁ ([Empty] ⊢Δ [σ]))
+      [σn≡σn′] = irrelevanceEqTerm {l′ = l} (proj₁ (unwrap [Empty] ⊢Δ [σ]))
                                    (Emptyᵣ (idRed:*: (Emptyⱼ ⊢Δ))) ([n≡n′] ⊢Δ [σ])
       congTerm = Emptyrec-congTerm {F = F} {F′} [Γ] [F] [F′] [F≡F′]
                                    ⊢Δ [σ] [σ] (reflSubst [Γ] ⊢Δ [σ]) [σn] [σn′] [σn≡σn′] p≈p′

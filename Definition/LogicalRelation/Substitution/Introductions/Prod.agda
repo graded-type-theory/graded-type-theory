@@ -316,13 +316,13 @@ prod-congᵛ : ∀ {Γ : Con Term n} {F : Term n} {G t t′ u u′ l}
              ([u≡u′] : Γ ⊩ᵛ⟨ l ⟩ u ≡ u′ ∷ G [ t ] / [Γ] / substS {F = F} {G} [Γ] [F] [G] [t])
              → Γ ⊩ᵛ⟨ l ⟩ prod m t u ≡ prod m t′ u′ ∷ Σ⟨ m ⟩ q ▷ F ▹ G / [Γ] / Σᵛ {F = F} {G} [Γ] [F] [G]
 prod-congᵛ {Γ = Γ} {F} {G} {t} {t′} {u} {u′} [Γ] [F] [G] [t] [t′] [t≡t′] [u] [u′] [u≡u′] {Δ = Δ} {σ} ⊢Δ [σ] =
-  let ⊩σF = proj₁ ([F] ⊢Δ [σ])
+  let ⊩σF = proj₁ (unwrap [F] ⊢Δ [σ])
       ⊩σt = proj₁ ([t] ⊢Δ [σ])
       ⊩σt′ = proj₁ ([t′] ⊢Δ [σ])
       σt≡σt′ = [t≡t′] ⊢Δ [σ]
 
       [Gt] = substS {F = F} {G} [Γ] [F] [G] [t]
-      ⊩σGt₁ = proj₁ ([Gt] ⊢Δ [σ])
+      ⊩σGt₁ = proj₁ (unwrap [Gt] ⊢Δ [σ])
       ⊩σGt = irrelevance′ (singleSubstLift G t) ⊩σGt₁
 
       ⊩σu = irrelevanceTerm′ (singleSubstLift G t)
@@ -335,7 +335,7 @@ prod-congᵛ {Γ = Γ} {F} {G} {t} {t′} {u} {u′} [Γ] [F] [G] [t] [t′] [t�
                           [t] [t′] [t≡t′]
       σGt≡σGt′ = [Gt≡Gt′] ⊢Δ [σ]
 
-      ⊩σGt′ = proj₁ (substS {F = F} {G} [Γ] [F] [G] [t′] ⊢Δ [σ])
+      ⊩σGt′ = proj₁ (unwrap (substS {F = F} {G} [Γ] [F] [G] [t′]) ⊢Δ [σ])
       ⊩σu′₂ = proj₁ ([u′] ⊢Δ [σ])
       ⊩σu′₁ = convTerm₂ ⊩σGt₁ ⊩σGt′ σGt≡σGt′ ⊩σu′₂
       ⊩σu′ = irrelevanceTerm′ (singleSubstLift G t) ⊩σGt₁ ⊩σGt ⊩σu′₁
@@ -344,7 +344,7 @@ prod-congᵛ {Γ = Γ} {F} {G} {t} {t′} {u} {u′} [Γ] [F] [G] [t] [t′] [t�
                                   ⊩σGt₁ ⊩σGt
                                   ([u≡u′] ⊢Δ [σ])
 
-      ⊩σΣFG = proj₁ (Σᵛ {F = F} {G} [Γ] [F] [G] ⊢Δ [σ])
+      ⊩σΣFG = proj₁ (unwrap (Σᵛ {F = F} {G} [Γ] [F] [G]) ⊢Δ [σ])
   in prod-cong″ ⊩σF ⊩σt ⊩σt′ σt≡σt′ ⊩σGt ⊩σu ⊩σu′ σu≡σu′ ⊩σΣFG
 
 prodᵛ : ∀ {Γ : Con Term n} {F : Term n} {G t u l}
@@ -358,31 +358,31 @@ prodᵛ {Γ = Γ} {F} {G} {t} {u} {l} [Γ] [F] [G] [t] [u] {Δ = Δ} {σ = σ} �
   let [Gt] = substS {F = F} {G} [Γ] [F] [G] [t]
       [ΣFG] = Σᵛ {F = F} {G} [Γ] [F] [G]
 
-      ⊩σF = proj₁ ([F] ⊢Δ [σ])
+      ⊩σF = proj₁ (unwrap [F] ⊢Δ [σ])
       ⊢σF = escape ⊩σF
       ⊩σt = proj₁ ([t] ⊢Δ [σ])
       ⊩σGt′ : Δ ⊩⟨ l ⟩ subst σ (G [ t ])
-      ⊩σGt′ = proj₁ ([Gt] ⊢Δ [σ])
+      ⊩σGt′ = proj₁ (unwrap [Gt] ⊢Δ [σ])
       ⊩σGt : Δ ⊩⟨ l ⟩ subst (liftSubst σ) G [ subst σ t ]
       ⊩σGt = irrelevance′ (singleSubstLift G t) ⊩σGt′
       ⊩σu′ = proj₁ ([u] ⊢Δ [σ])
       ⊩σu : Δ ⊩⟨ l ⟩ subst σ u ∷ subst (liftSubst σ) G [ subst σ t ] / ⊩σGt
       ⊩σu = irrelevanceTerm′ (singleSubstLift G t) ⊩σGt′ ⊩σGt ⊩σu′
-      ⊩σΣFG = proj₁ ([ΣFG] ⊢Δ [σ])
+      ⊩σΣFG = proj₁ (unwrap [ΣFG] ⊢Δ [σ])
 
   in  prod″ ⊩σF ⊩σt ⊩σGt ⊩σu ⊩σΣFG ,
       (λ {σ′} [σ′] [σ≡σ′] →
-        let ⊩σ′F = proj₁ ([F] ⊢Δ [σ′])
-            σF≡σ′F = proj₂ ([F] ⊢Δ [σ]) [σ′] [σ≡σ′]
+        let ⊩σ′F = proj₁ (unwrap [F] ⊢Δ [σ′])
+            σF≡σ′F = proj₂ (unwrap [F] ⊢Δ [σ]) [σ′] [σ≡σ′]
 
             ⊩σ′t = proj₁ ([t] ⊢Δ [σ′])
             ⊩σ′t = convTerm₂ ⊩σF ⊩σ′F σF≡σ′F ⊩σ′t
             σt≡σ′t = proj₂ ([t] ⊢Δ [σ]) [σ′] [σ≡σ′]
 
-            ⊩σ′Gt′ = proj₁ ([Gt] ⊢Δ [σ′])
+            ⊩σ′Gt′ = proj₁ (unwrap [Gt] ⊢Δ [σ′])
             ⊩σ′Gt = irrelevance′ (singleSubstLift G t) ⊩σ′Gt′
 
-            σGt≡σ′Gt = proj₂ ([Gt] ⊢Δ [σ]) [σ′] [σ≡σ′]
+            σGt≡σ′Gt = proj₂ (unwrap [Gt] ⊢Δ [σ]) [σ′] [σ≡σ′]
 
             ⊩σ′u″ = proj₁ ([u] ⊢Δ [σ′])
             ⊩σ′u′ = convTerm₂ ⊩σGt′ ⊩σ′Gt′ σGt≡σ′Gt ⊩σ′u″

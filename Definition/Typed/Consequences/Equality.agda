@@ -135,12 +135,12 @@ B≡A {A} W W≡A whnfA | [W] , [A] , [W≡A] =
     → Whnf A → ∃₄ λ p′ q′ H E → A PE.≡ ⟦ BΠ p′ q′ ⟧ H ▹ E
 Π≡A {Γ = Γ} {A} {F} {G} {p} {q} x y with B≡A {Γ = Γ} {A} {F} {G} (BΠ p q) x y
 ... | BΠ p₁ q₁ , H , E , A≡ΠHE = p₁ , q₁ , H , E , A≡ΠHE
-... | BΣ q₁ m , H , E , PE.refl = PE.⊥-elim (Π≢Σ x)
+... | BΣ q₁ m , H , E , PE.refl = PE.⊥-elim (Π≢Σⱼ x)
 Σ≡A : ∀ {Γ : Con Term n} {A F G q m} → Γ ⊢ ⟦ BΣ q m ⟧ F ▹ G ≡ A
     → Whnf A → ∃₃ λ q′ H E → A PE.≡ ⟦ BΣ q′ m ⟧ H ▹ E
 Σ≡A {Γ = Γ} {A} {F} {G} {q} {m} x y with B≡A {Γ = Γ} {A} {F} {G} (BΣ q m) x y
-Σ≡A {Γ = Γ} {A} {F} {G} {q} {m} x y | BΠ p q₁ , H , E , PE.refl = PE.⊥-elim (Π≢Σ (sym x))
+Σ≡A {Γ = Γ} {A} {F} {G} {q} {m} x y | BΠ p q₁ , H , E , PE.refl = PE.⊥-elim (Π≢Σⱼ (sym x))
 Σ≡A {Γ = Γ} {A} {F} {G} {q} {Σₚ} x y | BΣ q₁ Σₚ , H , E , A≡ΣHE = q₁ , H , E , A≡ΣHE
-Σ≡A {Γ = Γ} {A} {F} {G} {q} {Σₚ} x y | BΣ q₁ Σᵣ , H , E , PE.refl = PE.⊥-elim (Σₚ≢Σᵣ x)
-Σ≡A {Γ = Γ} {A} {F} {G} {q} {Σᵣ} x y | BΣ q₁ Σₚ , H , E , PE.refl = PE.⊥-elim (Σₚ≢Σᵣ (sym x))
+Σ≡A {Γ = Γ} {A} {F} {G} {q} {Σₚ} x y | BΣ q₁ Σᵣ , H , E , PE.refl = PE.⊥-elim (Σₚ≢Σᵣⱼ x)
+Σ≡A {Γ = Γ} {A} {F} {G} {q} {Σᵣ} x y | BΣ q₁ Σₚ , H , E , PE.refl = PE.⊥-elim (Σₚ≢Σᵣⱼ (sym x))
 Σ≡A {Γ = Γ} {A} {F} {G} {q} {Σᵣ} x y | BΣ q₁ Σᵣ , H , E , A≡ΣHE = q₁ , H , E , A≡ΣHE

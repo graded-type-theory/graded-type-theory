@@ -53,31 +53,31 @@ open import Tools.Reasoning.PartialOrder ≤-poset
 +-sub-interchangable-nr : (n : Nat) (r : M) → _+_ SubInterchangable (λ p q → nr n p q r) by _≤_
 +-sub-interchangable-nr 0 r p q p′ q′ = begin
   nr 0 p q r + nr 0 p′ q′ r ≈⟨ +-cong (nr-0 p q r) (nr-0 p′ q′ r) ⟩
-  𝟘 + 𝟘                     ≈⟨ proj₁ +-identity 𝟘 ⟩
+  𝟘 + 𝟘                     ≈⟨ +-identityˡ 𝟘 ⟩
   𝟘                         ≈˘⟨ nr-0 (p + p′) (q + q′) r ⟩
   nr 0 (p + p′) (q + q′) r ∎
 +-sub-interchangable-nr (1+ n) r p q p′ q′ = begin
   nr (1+ n) p q r + nr (1+ n) p′ q′ r
     ≈⟨ +-cong (nr-rec n p q r) (nr-rec n p′ q′ r) ⟩
   (p ∧ (q + r · nr n p q r)) + (p′ ∧ (q′ + r · nr n p′ q′ r))
-    ≈⟨ proj₂ +-distrib-∧ _ _ _ ⟩
+    ≈⟨ +-distribʳ-∧ _ _ _ ⟩
   (p + (p′ ∧ (q′ + r · nr n p′ q′ r))) ∧ ((q + r · nr n p q r) + (p′ ∧ (q′ + r · nr n p′ q′ r)))
-    ≈⟨ ∧-cong (proj₁ +-distrib-∧ _ _ _) (proj₁ +-distrib-∧ _ _ _) ⟩
+    ≈⟨ ∧-cong (+-distribˡ-∧ _ _ _) (+-distribˡ-∧ _ _ _) ⟩
   ((p + p′) ∧ (p + (q′ + r · nr n p′ q′ r))) ∧ (((q + r · nr n p q r) + p′)
     ∧ ((q + r · nr n p q r) + (q′ + r · nr n p′ q′ r)))
     ≤⟨ ∧-monotone (∧-decreasingˡ _ _) (∧-decreasingʳ _ _) ⟩
   (p + p′) ∧ (q + r · nr n p q r) + q′ + r · nr n p′ q′ r
-    ≈⟨ ∧-cong ≈-refl (+-assoc _ _ _) ⟩
+    ≈⟨ ∧-congˡ (+-assoc _ _ _) ⟩
   (p + p′) ∧ (q + r · nr n p q r + q′ + r · nr n p′ q′ r)
-    ≈˘⟨ ∧-cong ≈-refl (+-cong ≈-refl (+-assoc _ _ _)) ⟩
+    ≈˘⟨ ∧-congˡ (+-congˡ (+-assoc _ _ _)) ⟩
   (p + p′) ∧ (q + (r · nr n p q r + q′) + r · nr n p′ q′ r)
-    ≈⟨ ∧-cong ≈-refl (+-cong ≈-refl (+-cong (+-comm _ _) ≈-refl)) ⟩
+    ≈⟨ ∧-congˡ  (+-congˡ (+-congʳ (+-comm _ _))) ⟩
   (p + p′) ∧ (q + (q′ + r · nr n p q r) + r · nr n p′ q′ r)
-    ≈⟨ ∧-cong ≈-refl (+-cong ≈-refl (+-assoc _ _ _)) ⟩
+    ≈⟨ ∧-congˡ (+-congˡ (+-assoc _ _ _)) ⟩
   (p + p′) ∧ (q + q′ + r · nr n p q r + r · nr n p′ q′ r)
-    ≈˘⟨ ∧-cong ≈-refl (+-assoc _ _ _) ⟩
+    ≈˘⟨ ∧-congˡ (+-assoc _ _ _) ⟩
   (p + p′) ∧ ((q + q′) + (r · nr n p q r + r · nr n p′ q′ r))
-    ≈˘⟨ ∧-cong ≈-refl (+-cong ≈-refl (proj₁ ·-distrib-+ _ _ _)) ⟩
+    ≈˘⟨ ∧-congˡ (+-congˡ (·-distribˡ-+ _ _ _)) ⟩
   (p + p′) ∧ ((q + q′) + (r · (nr n p q r + nr n p′ q′ r)))
     ≤⟨ ∧-monotoneʳ (+-monotoneʳ (·-monotoneʳ (+-sub-interchangable-nr n r p q p′ q′))) ⟩
   (p + p′) ∧ ((q + q′) + (r · nr n (p + p′) (q + q′) r))
@@ -86,19 +86,19 @@ open import Tools.Reasoning.PartialOrder ≤-poset
 
 ·-sub-distribʳ-nr : (n : Nat) (r : M) → _·_ SubDistributesOverʳ (λ p q → nr n p q r) by _≤_
 ·-sub-distribʳ-nr 0 r q p p′ = begin
-  nr 0 p p′ r · q ≈⟨ ·-cong (nr-0 p p′ r) ≈-refl ⟩
-  𝟘 · q           ≈⟨ proj₁ ·-zero q ⟩
+  nr 0 p p′ r · q ≈⟨ ·-congʳ (nr-0 p p′ r) ⟩
+  𝟘 · q           ≈⟨ ·-zeroˡ q ⟩
   𝟘               ≈˘⟨ nr-0 (p · q) (p′ · q) r ⟩
   nr 0 (p · q) (p′ · q) r ∎
 ·-sub-distribʳ-nr (1+ n) r q p p′ = begin
   nr (1+ n) p p′ r · q
-    ≈⟨ ·-cong (nr-rec n p p′ r) ≈-refl ⟩
+    ≈⟨ ·-congʳ (nr-rec n p p′ r) ⟩
   (p ∧ p′ + r · nr n p p′ r) · q
-    ≈⟨ proj₂ ·-distrib-∧ q p _ ⟩
+    ≈⟨ ·-distribʳ-∧ q p _ ⟩
   (p · q) ∧ (p′ + r · nr n p p′ r) · q
-    ≈⟨ ∧-cong ≈-refl (proj₂ ·-distrib-+ q p′ _) ⟩
+    ≈⟨ ∧-congˡ (·-distribʳ-+ q p′ _) ⟩
   (p · q) ∧ (p′ · q) + (r · nr n p p′ r) · q
-    ≈⟨ ∧-cong ≈-refl (+-cong ≈-refl (·-assoc r _ q)) ⟩
+    ≈⟨ ∧-congˡ (+-congˡ (·-assoc r _ q)) ⟩
   (p · q) ∧ (p′ · q) + r · (nr n p p′ r · q)
     ≤⟨ ∧-monotoneʳ (+-monotoneʳ (·-monotoneʳ (·-sub-distribʳ-nr n r q p p′))) ⟩
   (p · q) ∧ (p′ · q) + r · nr n (p · q) (p′ · q) r
@@ -115,7 +115,7 @@ nr-sub-distribˡ-∧ (1+ n) r p q q′ = begin
   nr (1+ n) p (q ∧ q′) r
     ≈⟨ nr-rec n p (q ∧ q′) r ⟩
   p ∧ ((q ∧ q′) + r · nr n p (q ∧ q′) r)
-    ≈⟨ ∧-cong (sym (∧-idem p)) (proj₂ +-distrib-∧ _ q q′) ⟩
+    ≈⟨ ∧-cong (sym (∧-idem p)) (+-distribʳ-∧ _ q q′) ⟩
   (p ∧ p) ∧ ((q + r · nr n p (q ∧ q′) r) ∧ (q′ + r · nr n p (q ∧ q′) r))
     ≤⟨ ∧-monotoneʳ (∧-monotone (+-monotoneʳ (·-monotoneʳ (nr-sub-distribˡ-∧ n r p q q′)))
                               (+-monotoneʳ (·-monotoneʳ (nr-sub-distribˡ-∧ n r p q q′)))) ⟩
@@ -125,11 +125,11 @@ nr-sub-distribˡ-∧ (1+ n) r p q q′ = begin
   (p ∧ p) ∧ ((q + r · nr n p q r) ∧ (q′ + r · nr n p q′ r))
     ≈˘⟨ ∧-assoc (p ∧ p) _ _ ⟩
   ((p ∧ p) ∧ (q + r · nr n p q r)) ∧ (q′ + r · nr n p q′ r)
-    ≈⟨ ∧-cong (∧-assoc p p _) ≈-refl ⟩
+    ≈⟨ ∧-congʳ (∧-assoc p p _) ⟩
   (p ∧ p ∧ (q + r · nr n p q r)) ∧ (q′ + r · nr n p q′ r)
-    ≈⟨ ∧-cong (∧-cong ≈-refl (∧-comm p _)) ≈-refl ⟩
+    ≈⟨ ∧-congʳ (∧-congˡ (∧-comm p _)) ⟩
   (p ∧ (q + r · nr n p q r) ∧ p) ∧ (q′ + r · nr n p q′ r)
-    ≈˘⟨ ∧-cong (∧-assoc p _ p) ≈-refl ⟩
+    ≈˘⟨ ∧-congʳ (∧-assoc p _ p) ⟩
   ((p ∧ (q + r · nr n p q r)) ∧ p) ∧ (q′ + r · nr n p q′ r)
     ≈⟨ ∧-assoc _ _ _ ⟩
   (p ∧ q + r · nr n p q r) ∧ (p ∧ q′ + r · nr n p q′ r)
@@ -145,12 +145,12 @@ nr-sub-distribʳ-∧ 0 r q p p′ = begin
 nr-sub-distribʳ-∧ (1+ n) r q p p′ = begin
   nr (1+ n) (p ∧ p′) q r ≈⟨ nr-rec n (p ∧ p′) q r ⟩
   (p ∧ p′) ∧ (q + r · nr n (p ∧ p′) q r) ≤⟨ ∧-monotoneʳ (+-monotoneʳ (·-monotoneʳ (nr-sub-distribʳ-∧ n r q p p′))) ⟩
-  (p ∧ p′) ∧ (q + r · (nr n p q r ∧ nr n p′ q r)) ≈⟨ ∧-cong ≈-refl (+-cong ≈-refl (proj₁ ·-distrib-∧ r _ _)) ⟩
-  (p ∧ p′) ∧ (q + (r · nr n p q r ∧ r · nr n p′ q r)) ≈⟨ ∧-cong ≈-refl (proj₁ +-distrib-∧ q _ _) ⟩
+  (p ∧ p′) ∧ (q + r · (nr n p q r ∧ nr n p′ q r)) ≈⟨ ∧-congˡ (+-congˡ (·-distribˡ-∧ r _ _)) ⟩
+  (p ∧ p′) ∧ (q + (r · nr n p q r ∧ r · nr n p′ q r)) ≈⟨ ∧-congˡ (+-distribˡ-∧ q _ _) ⟩
   (p ∧ p′) ∧ (q + r · nr n p q r) ∧ (q + r · nr n p′ q r) ≈˘⟨ ∧-assoc _ _ _ ⟩
-  ((p ∧ p′) ∧ (q + r · nr n p q r)) ∧ (q + r · nr n p′ q r) ≈⟨ ∧-cong (∧-assoc p p′ _) ≈-refl ⟩
-  (p ∧ p′ ∧ (q + r · nr n p q r)) ∧ (q + r · nr n p′ q r) ≈⟨ ∧-cong (∧-cong ≈-refl (∧-comm p′ _)) ≈-refl ⟩
-  (p ∧ (q + r · nr n p q r) ∧ p′) ∧ (q + r · nr n p′ q r) ≈˘⟨ ∧-cong (∧-assoc p _ p′) ≈-refl ⟩
+  ((p ∧ p′) ∧ (q + r · nr n p q r)) ∧ (q + r · nr n p′ q r) ≈⟨ ∧-congʳ (∧-assoc p p′ _) ⟩
+  (p ∧ p′ ∧ (q + r · nr n p q r)) ∧ (q + r · nr n p′ q r) ≈⟨ ∧-congʳ (∧-congˡ (∧-comm p′ _)) ⟩
+  (p ∧ (q + r · nr n p q r) ∧ p′) ∧ (q + r · nr n p′ q r) ≈˘⟨ ∧-congʳ (∧-assoc p _ p′) ⟩
   ((p ∧ (q + r · nr n p q r)) ∧ p′) ∧ (q + r · nr n p′ q r) ≈⟨ ∧-assoc _ _ _ ⟩
   (p ∧ q + r · nr n p q r) ∧ (p′ ∧ q + r · nr n p′ q r) ≈˘⟨ ∧-cong (nr-rec n p q r) (nr-rec n p′ q r) ⟩
   nr (1+ n) p q r ∧ nr (1+ n) p′ q r ∎

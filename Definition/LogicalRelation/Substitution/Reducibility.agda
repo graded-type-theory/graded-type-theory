@@ -31,7 +31,7 @@ reducibleᵛ : ∀ {A l}
 reducibleᵛ [Γ] [A] =
   let ⊢Γ = soundContext [Γ]
       [id] = idSubstS [Γ]
-  in  irrelevance′ (subst-id _) (proj₁ ([A] ⊢Γ [id]))
+  in  irrelevance′ (subst-id _) (proj₁ (unwrap [A] ⊢Γ [id]))
 
 -- Valid type equality is reducible.
 reducibleEqᵛ : ∀ {A B l}
@@ -44,7 +44,7 @@ reducibleEqᵛ {A = A} [Γ] [A] [A≡B] =
       ⊢Γ = soundContext [Γ]
       [id] = idSubstS [Γ]
   in  irrelevanceEq″ (subst-id _) (subst-id _)
-                      (proj₁ ([A] ⊢Γ [id])) [σA] ([A≡B] ⊢Γ [id])
+                      (proj₁ (unwrap [A] ⊢Γ [id])) [σA] ([A≡B] ⊢Γ [id])
 
 -- Valid terms are reducible.
 reducibleTermᵛ : ∀ {t A l}
@@ -57,7 +57,7 @@ reducibleTermᵛ {A = A} [Γ] [A] [t] =
       ⊢Γ = soundContext [Γ]
       [id] = idSubstS [Γ]
   in  irrelevanceTerm″ (subst-id _) (subst-id _)
-                        (proj₁ ([A] ⊢Γ [id])) [σA] (proj₁ ([t] ⊢Γ [id]))
+                        (proj₁ (unwrap [A] ⊢Γ [id])) [σA] (proj₁ ([t] ⊢Γ [id]))
 
 -- Valid term equality is reducible.
 reducibleEqTermᵛ : ∀ {t u A l}
@@ -70,4 +70,4 @@ reducibleEqTermᵛ {A = A} [Γ] [A] [t≡u] =
       ⊢Γ = soundContext [Γ]
       [id] = idSubstS [Γ]
   in  irrelevanceEqTerm″ (subst-id _) (subst-id _) (subst-id _)
-                          (proj₁ ([A] ⊢Γ [id])) [σA] ([t≡u] ⊢Γ [id])
+                          (proj₁ (unwrap [A] ⊢Γ [id])) [σA] ([t≡u] ⊢Γ [id])

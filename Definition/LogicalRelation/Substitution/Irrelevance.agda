@@ -35,8 +35,8 @@ irrelevanceSubst ε ε ⊢Δ ⊢Δ′ [σ] = lift tt
 irrelevanceSubst ([Γ] ∙ [A]) ([Γ]′ ∙ [A]′) ⊢Δ ⊢Δ′ ([tailσ] , [headσ]) =
   let [tailσ]′ = irrelevanceSubst [Γ] [Γ]′ ⊢Δ ⊢Δ′ [tailσ]
   in  [tailσ]′
-  ,   LR.irrelevanceTerm (proj₁ ([A] ⊢Δ [tailσ]))
-                         (proj₁ ([A]′ ⊢Δ′ [tailσ]′))
+  ,   LR.irrelevanceTerm (proj₁ (unwrap [A] ⊢Δ [tailσ]))
+                         (proj₁ (unwrap [A]′ ⊢Δ′ [tailσ]′))
                          [headσ]
 
 -- Irrelevance of valid substitutions with different contexts
@@ -62,8 +62,8 @@ irrelevanceSubstEq : ∀ {σ′ Γ Δ}
 irrelevanceSubstEq ε ε ⊢Δ ⊢Δ′ [σ] [σ]′ [σ≡σ′] = lift tt
 irrelevanceSubstEq ([Γ] ∙ [A]) ([Γ]′ ∙ [A]′) ⊢Δ ⊢Δ′ [σ] [σ]′ [σ≡σ′] =
   irrelevanceSubstEq [Γ] [Γ]′ ⊢Δ ⊢Δ′ (proj₁ [σ]) (proj₁ [σ]′) (proj₁ [σ≡σ′])
-  , LR.irrelevanceEqTerm (proj₁ ([A] ⊢Δ  (proj₁ [σ])))
-                            (proj₁ ([A]′ ⊢Δ′ (proj₁ [σ]′)))
+  , LR.irrelevanceEqTerm (proj₁ (unwrap [A] ⊢Δ  (proj₁ [σ])))
+                            (proj₁ (unwrap [A]′ ⊢Δ′ (proj₁ [σ]′)))
                             (proj₂ [σ≡σ′])
 
 -- Irrelevance of valid types with different derivations of contexts
@@ -71,10 +71,10 @@ irrelevance : ∀ {l A}
               ([Γ] [Γ]′ : ⊩ᵛ Γ)
             → Γ ⊩ᵛ⟨ l ⟩ A / [Γ]
             → Γ ⊩ᵛ⟨ l ⟩ A / [Γ]′
-irrelevance [Γ] [Γ]′ [A] ⊢Δ [σ] =
+irrelevance [Γ] [Γ]′ [A] = wrap λ ⊢Δ [σ] →
   let [σ]′ = irrelevanceSubst [Γ]′ [Γ] ⊢Δ ⊢Δ [σ]
-  in  proj₁ ([A] ⊢Δ [σ]′)
-   ,  λ [σ′] [σ≡σ′] → proj₂ ([A] ⊢Δ [σ]′)
+  in  proj₁ (unwrap [A] ⊢Δ [σ]′)
+   ,  λ [σ′] [σ≡σ′] → proj₂ (unwrap [A] ⊢Δ [σ]′)
                        (irrelevanceSubst [Γ]′ [Γ] ⊢Δ ⊢Δ [σ′])
                        (irrelevanceSubstEq [Γ]′ [Γ] ⊢Δ ⊢Δ [σ] [σ]′ [σ≡σ′])
 
@@ -89,22 +89,22 @@ irrelevanceLift : ∀ {l A F H}
               ([F≡H] : Γ ⊩ᵛ⟨ l ⟩ F ≡ H / [Γ] / [F])
             → Γ ∙ F ⊩ᵛ⟨ l ⟩ A / [Γ] ∙ [F]
             → Γ ∙ H ⊩ᵛ⟨ l ⟩ A / [Γ] ∙ [H]
-irrelevanceLift [Γ] [F] [H] [F≡H] [A] ⊢Δ ([tailσ] , [headσ]) =
-  let [σ]′ = [tailσ] , convTerm₂ (proj₁ ([F] ⊢Δ [tailσ]))
-                                 (proj₁ ([H] ⊢Δ [tailσ]))
+irrelevanceLift [Γ] [F] [H] [F≡H] [A] = wrap λ { ⊢Δ ([tailσ] , [headσ]) →
+  let [σ]′ = [tailσ] , convTerm₂ (proj₁ (unwrap [F] ⊢Δ [tailσ]))
+                                 (proj₁ (unwrap [H] ⊢Δ [tailσ]))
                                  ([F≡H] ⊢Δ [tailσ]) [headσ]
-  in  proj₁ ([A] ⊢Δ [σ]′)
+  in  proj₁ (unwrap [A] ⊢Δ [σ]′)
   ,   (λ [σ′] x →
-         let [σ′]′ = proj₁ [σ′] , convTerm₂ (proj₁ ([F] ⊢Δ (proj₁ [σ′])))
-                                            (proj₁ ([H] ⊢Δ (proj₁ [σ′])))
+         let [σ′]′ = proj₁ [σ′] , convTerm₂ (proj₁ (unwrap [F] ⊢Δ (proj₁ [σ′])))
+                                            (proj₁ (unwrap [H] ⊢Δ (proj₁ [σ′])))
                                             ([F≡H] ⊢Δ (proj₁ [σ′]))
                                             (proj₂ [σ′])
              [tailσ′] = proj₁ [σ′]
-         in  proj₂ ([A] ⊢Δ [σ]′) [σ′]′
-                   (proj₁ x , convEqTerm₂ (proj₁ ([F] ⊢Δ [tailσ]))
-                                          (proj₁ ([H] ⊢Δ [tailσ]))
+         in  proj₂ (unwrap [A] ⊢Δ [σ]′) [σ′]′
+                   (proj₁ x , convEqTerm₂ (proj₁ (unwrap [F] ⊢Δ [tailσ]))
+                                          (proj₁ (unwrap [H] ⊢Δ [tailσ]))
                                           ([F≡H] ⊢Δ [tailσ])
-                                          (proj₂ x)))
+                                          (proj₂ x)))}
 
 -- Irrelevance of valid type equality with different derivations of
 -- contexts and types
@@ -116,8 +116,8 @@ irrelevanceEq : ∀ {l l′ A B}
               → Γ ⊩ᵛ⟨ l′ ⟩ A ≡ B / [Γ]′ / [A]′
 irrelevanceEq [Γ] [Γ]′ [A] [A]′ [A≡B] ⊢Δ [σ] =
   let [σ]′ = irrelevanceSubst [Γ]′ [Γ] ⊢Δ ⊢Δ [σ]
-  in  LR.irrelevanceEq (proj₁ ([A] ⊢Δ [σ]′))
-                       (proj₁ ([A]′ ⊢Δ [σ]))
+  in  LR.irrelevanceEq (proj₁ (unwrap [A] ⊢Δ [σ]′))
+                       (proj₁ (unwrap [A]′ ⊢Δ [σ]))
                        ([A≡B] ⊢Δ [σ]′)
 
 -- Irrelevance of valid terms with different derivations of contexts and types
@@ -129,8 +129,8 @@ irrelevanceTerm : ∀ {l l′ A t}
                 → Γ ⊩ᵛ⟨ l′ ⟩ t ∷ A / [Γ]′ / [A]′
 irrelevanceTerm [Γ] [Γ]′ [A] [A]′ [t] ⊢Δ [σ]′ =
   let [σ]   = irrelevanceSubst [Γ]′ [Γ] ⊢Δ ⊢Δ [σ]′
-      [σA]  = proj₁ ([A] ⊢Δ [σ])
-      [σA]′ = proj₁ ([A]′ ⊢Δ [σ]′)
+      [σA]  = proj₁ (unwrap [A] ⊢Δ [σ])
+      [σA]′ = proj₁ (unwrap [A]′ ⊢Δ [σ]′)
   in  LR.irrelevanceTerm [σA] [σA]′ (proj₁ ([t] ⊢Δ [σ]))
    ,  (λ [σ′] x → LR.irrelevanceEqTerm [σA] [σA]′ ((proj₂ ([t] ⊢Δ [σ]))
                     (irrelevanceSubst [Γ]′ [Γ] ⊢Δ ⊢Δ [σ′])
@@ -161,19 +161,19 @@ irrelevanceTermLift : ∀ {l A F H t}
                            / irrelevanceLift {A = A} {F = F} {H = H}
                                              [Γ] [F] [H] [F≡H] [A]
 irrelevanceTermLift [Γ] [F] [H] [F≡H] [A] [t] ⊢Δ ([tailσ] , [headσ]) =
-  let [σ]′ = [tailσ] , convTerm₂ (proj₁ ([F] ⊢Δ [tailσ]))
-                                 (proj₁ ([H] ⊢Δ [tailσ]))
+  let [σ]′ = [tailσ] , convTerm₂ (proj₁ (unwrap [F] ⊢Δ [tailσ]))
+                                 (proj₁ (unwrap [H] ⊢Δ [tailσ]))
                                  ([F≡H] ⊢Δ [tailσ]) [headσ]
   in  proj₁ ([t] ⊢Δ [σ]′)
   , (λ [σ′] x →
-       let [σ′]′ = proj₁ [σ′] , convTerm₂ (proj₁ ([F] ⊢Δ (proj₁ [σ′])))
-                                          (proj₁ ([H] ⊢Δ (proj₁ [σ′])))
+       let [σ′]′ = proj₁ [σ′] , convTerm₂ (proj₁ (unwrap [F] ⊢Δ (proj₁ [σ′])))
+                                          (proj₁ (unwrap [H] ⊢Δ (proj₁ [σ′])))
                                           ([F≡H] ⊢Δ (proj₁ [σ′]))
                                           (proj₂ [σ′])
            [tailσ′] = proj₁ [σ′]
        in  proj₂ ([t] ⊢Δ [σ]′) [σ′]′
-                 (proj₁ x , convEqTerm₂ (proj₁ ([F] ⊢Δ [tailσ]))
-                                        (proj₁ ([H] ⊢Δ [tailσ]))
+                 (proj₁ x , convEqTerm₂ (proj₁ (unwrap [F] ⊢Δ [tailσ]))
+                                        (proj₁ (unwrap [H] ⊢Δ [tailσ]))
                                         ([F≡H] ⊢Δ [tailσ])
                                         (proj₂ x)))
 
@@ -187,6 +187,6 @@ irrelevanceEqTerm : ∀ {l l′ A t u}
                 → Γ ⊩ᵛ⟨ l′ ⟩ t ≡ u ∷ A / [Γ]′ / [A]′
 irrelevanceEqTerm {A = A} {t = t} {u = u} [Γ] [Γ]′ [A] [A]′ [t≡u] ⊢Δ [σ] =
   let [σ]′ = irrelevanceSubst [Γ]′ [Γ] ⊢Δ ⊢Δ [σ]
-  in  LR.irrelevanceEqTerm (proj₁ ([A] ⊢Δ [σ]′))
-                           (proj₁ ([A]′ ⊢Δ [σ]))
+  in  LR.irrelevanceEqTerm (proj₁ (unwrap [A] ⊢Δ [σ]′))
+                           (proj₁ (unwrap [A]′ ⊢Δ [σ]))
                            ([t≡u] ⊢Δ [σ]′)

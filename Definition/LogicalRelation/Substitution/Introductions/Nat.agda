@@ -27,7 +27,7 @@ private
 
 -- Validity of the natural number type.
 ℕᵛ : ∀ {l} ([Γ] : ⊩ᵛ Γ) → Γ ⊩ᵛ⟨ l ⟩ ℕ / [Γ]
-ℕᵛ [Γ] ⊢Δ [σ] = ℕᵣ (idRed:*: (ℕⱼ ⊢Δ)) , λ _ x₂ → id (ℕⱼ ⊢Δ)
+ℕᵛ [Γ] = wrap λ ⊢Δ [σ] → ℕᵣ (idRed:*: (ℕⱼ ⊢Δ)) , λ _ x₂ → id (ℕⱼ ⊢Δ)
 
 -- Validity of the natural number type as a term.
 ℕᵗᵛ : ([Γ] : ⊩ᵛ Γ)
@@ -52,5 +52,5 @@ sucᵛ : ∀ {n l} ([Γ] : ⊩ᵛ Γ)
      → Γ ⊩ᵛ⟨ l ⟩ n ∷ ℕ / [Γ] / [ℕ]
      → Γ ⊩ᵛ⟨ l ⟩ suc n ∷ ℕ / [Γ] / [ℕ]
 sucᵛ ⊢Γ [ℕ] [n] ⊢Δ [σ] =
-  sucTerm (proj₁ ([ℕ] ⊢Δ [σ])) (proj₁ ([n] ⊢Δ [σ]))
-  , (λ x x₁ → sucEqTerm (proj₁ ([ℕ] ⊢Δ [σ])) (proj₂ ([n] ⊢Δ [σ]) x x₁))
+  sucTerm (proj₁ (unwrap [ℕ] ⊢Δ [σ])) (proj₁ ([n] ⊢Δ [σ]))
+  , (λ x x₁ → sucEqTerm (proj₁ (unwrap [ℕ] ⊢Δ [σ])) (proj₂ ([n] ⊢Δ [σ]) x x₁))

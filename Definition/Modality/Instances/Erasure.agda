@@ -15,9 +15,7 @@ data Erasure : Set where
 Erasure′ : Setoid _ _
 Erasure′ = record { Carrier = Erasure ; _≈_ = _≡_ ; isEquivalence = isEquivalence }
 
-open import Definition.Modality Erasure′ public
 open import Tools.Algebra Erasure′
-open import Tools.Nat hiding (_+_)
 
 infixl 40 _+_
 infixl 40 _∧_
@@ -99,15 +97,6 @@ p ≤ q = p ≡ p ∧ q
 
 +-Identity : Identity 𝟘 _+_
 +-Identity = +-LeftIdentity , +-RightIdentity
-
--- Addition is positive
--- If 𝟘 ≤ p + q then 𝟘 ≤ p and 𝟘 ≤ q
-
-+-positive : (p q : Erasure) → 𝟘 ≤ (p + q) → 𝟘 ≤ p × 𝟘 ≤ q
-+-positive 𝟘 𝟘 refl = refl , refl
-+-positive 𝟘 ω ()
-+-positive ω 𝟘 ()
-+-positive ω ω ()
 
 ----------------------------------
 -- Properties of multiplication --
@@ -342,33 +331,19 @@ p ≤ q = p ≡ p ∧ q
   ; identity    = ·-Identity
   }
 
--- Erasures form a modality
+-------------------------------------------------
+-- Addition and Multiplication form a semiring --
+-------------------------------------------------
 
-erasureModalityWithout⊛ : ModalityWithout⊛
-erasureModalityWithout⊛ = record
-  { _+_ = _+_
-  ; _·_ = _·_
-  ; _∧_ = _∧_
-  ; 𝟘 = 𝟘
-  ; 𝟙 = ω
-  ; +-CommutativeMonoid = +-CommutativeMonoid
-  ; ·-Monoid = ·-Monoid
-  ; ∧-Semilattice = +-Semilattice
-  ; ·-zero = ·-zero
-  ; +-positive = +-positive
-  ; ·-distrib-+ = ·-distrib-+
-  ; ·-distrib-∧ = ·-distrib-+
-  ; +-distrib-∧ = +-distrib-+
-  ; ≈-equivalence = isEquivalence
++-·-SemiringWithoutAnnihilatingZero : IsSemiringWithoutAnnihilatingZero _+_ _·_ 𝟘 ω
++-·-SemiringWithoutAnnihilatingZero = record
+  { +-isCommutativeMonoid = +-CommutativeMonoid
+  ; *-isMonoid = ·-Monoid
+  ; distrib = ·-distrib-+
   }
 
-ErasureModality : Modality
-ErasureModality = record
-  { modalityWithout⊛ = erasureModalityWithout⊛
-  ; _⊛_▷_ = _⊛_▷_
-  ; ⊛-ineq = ⊛-ineq₁ , ⊛-ineq₂
-  ; ⊛-cong = cong₃ _⊛_▷_
-  ; +-sub-interchangable-⊛ = +-sub-interchangable-⊛
-  ; ·-sub-distribʳ-⊛ = ·-sub-distribʳ-⊛
-  ; ⊛-sub-distrib-∧ = λ r → ⊛-sub-distribˡ-∧ r , ⊛-sub-distribʳ-∧ r
++-·-Semiring : IsSemiring _+_ _·_ 𝟘 ω
++-·-Semiring = record
+  { isSemiringWithoutAnnihilatingZero = +-·-SemiringWithoutAnnihilatingZero
+  ; zero = ·-zero
   }

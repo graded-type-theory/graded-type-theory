@@ -29,10 +29,10 @@ private
 ∧-monotoneˡ {p} {q} {r} p≤q = begin
   p ∧ r             ≈⟨ ∧-cong p≤q (≈-sym (∧-idem r)) ⟩
   (p ∧ q) ∧ r ∧ r   ≈⟨ ∧-assoc p q (r ∧ r) ⟩
-  p ∧ q ∧ r ∧ r     ≈⟨ ∧-cong ≈-refl (∧-comm q (r ∧ r)) ⟩
-  p ∧ (r ∧ r) ∧ q   ≈⟨ ∧-cong ≈-refl (∧-assoc r r q) ⟩
+  p ∧ q ∧ r ∧ r     ≈⟨ ∧-congˡ (∧-comm q (r ∧ r)) ⟩
+  p ∧ (r ∧ r) ∧ q   ≈⟨ ∧-congˡ (∧-assoc r r q) ⟩
   p ∧ r ∧ r ∧ q     ≈⟨ ≈-sym (∧-assoc p r (r ∧ q)) ⟩
-  (p ∧ r) ∧ r ∧ q   ≈⟨ ∧-cong ≈-refl (∧-comm r q) ⟩
+  (p ∧ r) ∧ r ∧ q   ≈⟨ ∧-congˡ (∧-comm r q) ⟩
   (p ∧ r) ∧ (q ∧ r) ∎
   where open import Tools.Reasoning.Equivalence M′
 
@@ -43,10 +43,10 @@ private
 ∧-monotoneʳ {p} {q} {r} p≤q = begin
   r ∧ p             ≈⟨ ∧-cong (≈-sym (∧-idem r)) p≤q ⟩
   (r ∧ r) ∧ (p ∧ q) ≈⟨ ∧-assoc r r (p ∧ q) ⟩
-  r ∧ r ∧ p ∧ q     ≈⟨ ∧-cong ≈-refl (∧-comm r (p ∧ q)) ⟩
-  r ∧ (p ∧ q) ∧ r   ≈⟨ ∧-cong ≈-refl (∧-assoc p q r) ⟩
-  r ∧ p ∧ (q ∧ r)   ≈⟨ ≈-sym (∧-assoc r p (q ∧ r)) ⟩
-  (r ∧ p) ∧ (q ∧ r) ≈⟨ ∧-cong ≈-refl (∧-comm q r) ⟩
+  r ∧ r ∧ p ∧ q     ≈⟨ ∧-congˡ (∧-comm r (p ∧ q)) ⟩
+  r ∧ (p ∧ q) ∧ r   ≈⟨ ∧-congˡ (∧-assoc p q r) ⟩
+  r ∧ p ∧ (q ∧ r)   ≈˘⟨ ∧-assoc r p (q ∧ r) ⟩
+  (r ∧ p) ∧ (q ∧ r) ≈⟨ ∧-congˡ (∧-comm q r) ⟩
   (r ∧ p) ∧ (r ∧ q) ∎
   where open import Tools.Reasoning.Equivalence M′
 
@@ -61,7 +61,7 @@ private
 
 ∧-decreasingˡ : (p q : M) → p ∧ q ≤ p
 ∧-decreasingˡ p q = begin
-  p ∧ q       ≈⟨ ∧-cong (≈-sym (∧-idem p)) ≈-refl ⟩
+  p ∧ q       ≈⟨ ∧-congʳ (≈-sym (∧-idem p)) ⟩
   (p ∧ p) ∧ q ≈⟨ ∧-assoc p p q ⟩
   p ∧ (p ∧ q) ≈⟨ ∧-comm p (p ∧ q) ⟩
   (p ∧ q) ∧ p ∎
@@ -72,7 +72,7 @@ private
 
 ∧-decreasingʳ : (p q : M) → p ∧ q ≤ q
 ∧-decreasingʳ p q = begin
-  p ∧ q       ≈⟨ ∧-cong ≈-refl (≈-sym (∧-idem q)) ⟩
-  p ∧ (q ∧ q) ≈⟨ ≈-sym (∧-assoc p q q) ⟩
+  p ∧ q       ≈⟨ ∧-congˡ (≈-sym (∧-idem q)) ⟩
+  p ∧ (q ∧ q) ≈˘⟨ ∧-assoc p q q ⟩
   (p ∧ q) ∧ q ∎
   where open import Tools.Reasoning.Equivalence M′

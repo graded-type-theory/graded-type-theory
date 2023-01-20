@@ -9,11 +9,11 @@ module Definition.LogicalRelation.Properties.Symmetry {a ℓ} (M′ : Setoid a �
 open EqRelSet {{...}}
 open Setoid M′ using () renaming (Carrier to M)
 
-open import Definition.Untyped M hiding (Wk; _∷_)
+open import Definition.Untyped M hiding (_∷_)
 import Definition.Untyped.BindingType M′ as BT
 open import Definition.Typed M′
 open import Definition.Typed.Properties M′
-import Definition.Typed.Weakening M′ as Wk
+import Definition.Typed.Weakening M′ as W
 open import Definition.LogicalRelation M′
 open import Definition.LogicalRelation.ShapeView M′
 open import Definition.LogicalRelation.Irrelevance M′
@@ -41,24 +41,26 @@ mutual
          rewrite whrDet* (red D′ , ne neM) (red D₁ , ne neK₁) =
     ne₌ _ D neK
         (~-sym K≡M)
-  symEqT {Γ = Γ} (Bᵥ W W′ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+  symEqT {n} {Γ = Γ} {l′ = l′} (Bᵥ W W′ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                        (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) W≋W′)
          (B₌ F′ G′ W″ D′ W≋W″ A≡B [F≡F′] [G≡G′]) =
     let ΠF₁G₁≡ΠF′G′       = whrDet* (red D₁ , ⟦ W′ ⟧ₙ) (D′ , ⟦ W″ ⟧ₙ)
         F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity W′ W″ ΠF₁G₁≡ΠF′G′
-        [F₁≡F] : ∀ {ℓ} {Δ : Con Term ℓ} {ρ} [ρ] ⊢Δ → _
+        [F₁≡F] : ∀ {ℓ : Nat} {Δ : Con Term ℓ} {ρ : Wk ℓ n} ([ρ] : ρ W.∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ)
+               → Δ ⊩⟨ l′ ⟩ (wk ρ F₁) ≡ (wk ρ F) / [F]₁ [ρ] ⊢Δ
         [F₁≡F] {_} {Δ} {ρ} [ρ] ⊢Δ =
           let ρF′≡ρF₁ ρ = PE.cong (wk ρ) (PE.sym F₁≡F′)
-              [ρF′] {ρ} [ρ] ⊢Δ = PE.subst (λ x → Δ ⊩⟨ _ ⟩ wk ρ x) F₁≡F′ ([F]₁ [ρ] ⊢Δ)
+              [ρF′] {ρ} [ρ] ⊢Δ = PE.subst (λ (x : Term n) → Δ ⊩⟨ l′ ⟩ wk ρ x) F₁≡F′ ([F]₁ [ρ] ⊢Δ)
           in  irrelevanceEq′ {Γ = Δ} (ρF′≡ρF₁ ρ)
                              ([ρF′] [ρ] ⊢Δ) ([F]₁ [ρ] ⊢Δ)
                              (symEq ([F] [ρ] ⊢Δ) ([ρF′] [ρ] ⊢Δ)
                                     ([F≡F′] [ρ] ⊢Δ))
-    in  B₌ _ _ W (red D) (BT.sym W≋W′) (≅-sym (PE.subst (λ x → Γ ⊢ ⟦ W ⟧ F ▹ G ≅ x) (PE.sym ΠF₁G₁≡ΠF′G′) A≡B))
+    in  B₌ _ _ W (red D) (BT.sym W≋W′)
+          (≅-sym (PE.subst (λ (x : Term n) → Γ ⊢ ⟦ W ⟧ F ▹ G ≅ x) (PE.sym ΠF₁G₁≡ΠF′G′) A≡B))
           [F₁≡F]
-          (λ {_} {ρ} [ρ] ⊢Δ [a] →
-               let ρG′a≡ρG₁′a = PE.cong (λ x → wk (lift ρ) x [ _ ]) (PE.sym G₁≡G′)
-                   [ρG′a] = PE.subst (λ x → _ ⊩⟨ _ ⟩ wk (lift ρ) x [ _ ]) G₁≡G′
+          (λ {_} {ρ} {Δ} {a} [ρ] ⊢Δ [a] →
+               let ρG′a≡ρG₁′a = PE.cong (λ x → wk (lift ρ) x [ a ]) (PE.sym G₁≡G′)
+                   [ρG′a] = PE.subst (λ x → Δ ⊩⟨ l′ ⟩ wk (lift ρ) x [ a ]) G₁≡G′
                                      ([G]₁ [ρ] ⊢Δ [a])
                    [a]₁ = convTerm₁ ([F]₁ [ρ] ⊢Δ) ([F] [ρ] ⊢Δ) ([F₁≡F] [ρ] ⊢Δ) [a]
                in  irrelevanceEq′ ρG′a≡ρG₁′a
@@ -115,24 +117,28 @@ symEqTerm (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
 symEqTerm (Bᵣ′ BΣₚ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
           (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] ([fstp] , [fstr] , [fst≡] , [snd≡])) =
   let ⊢Γ = wf ⊢F
-      [Gfstp≡Gfstr] = G-ext Wk.id ⊢Γ [fstp] [fstr] [fst≡]
+      [Gfstp≡Gfstr] = G-ext W.id ⊢Γ [fstp] [fstr] [fst≡]
   in  Σₜ₌ r p d′ d rProd pProd (≅ₜ-sym p≅r) [u] [t]
-          ([fstr] , [fstp] , (symEqTerm ([F] Wk.id ⊢Γ) [fst≡]) ,
+          ([fstr] , [fstp] , (symEqTerm ([F] W.id ⊢Γ) [fst≡]) ,
           (convEqTerm₁
-            ([G] Wk.id ⊢Γ [fstp]) ([G] Wk.id ⊢Γ [fstr])
+            ([G] W.id ⊢Γ [fstp]) ([G] W.id ⊢Γ [fstr])
             [Gfstp≡Gfstr]
-            (symEqTerm ([G] Wk.id ⊢Γ [fstp]) [snd≡])))
+            (symEqTerm ([G] W.id ⊢Γ [fstp]) [snd≡])))
 symEqTerm (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
           (Σₜ₌ p r d d′ prodₙ prodₙ p≅r [t] [u] ([p₁] , [r₁] , [p₂] , [r₂] , [fst≡] , [snd≡])) =
   let ⊢Γ = wf ⊢F
-      [Gfstp≡Gfstr] = G-ext Wk.id ⊢Γ [p₁] [r₁] [fst≡]
+      [Gfstp≡Gfstr] = G-ext W.id ⊢Γ [p₁] [r₁] [fst≡]
   in  Σₜ₌ r p d′ d prodₙ prodₙ (≅ₜ-sym p≅r) [u] [t]
-          ([r₁] , [p₁] , [r₂] , [p₂] , (symEqTerm ([F] Wk.id ⊢Γ) [fst≡]) ,
+          ([r₁] , [p₁] , [r₂] , [p₂] , (symEqTerm ([F] W.id ⊢Γ) [fst≡]) ,
           (convEqTerm₁
-            ([G] Wk.id ⊢Γ [p₁]) ([G] Wk.id ⊢Γ [r₁])
+            ([G] W.id ⊢Γ [p₁]) ([G] W.id ⊢Γ [r₁])
             [Gfstp≡Gfstr]
-            (symEqTerm ([G] Wk.id ⊢Γ [p₁]) [snd≡])))
+            (symEqTerm ([G] W.id ⊢Γ [p₁]) [snd≡])))
 symEqTerm (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
           (Σₜ₌ p r d d′ (ne x) (ne y) p≅r [t] [u] p~r) =
   Σₜ₌ r p d′ d (ne y) (ne x) (≅ₜ-sym p≅r) [u] [t] (~-sym p~r)
+symEqTerm (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+          (Σₜ₌ p r d d′ prodₙ (ne y) p≅r [t] [u] (lift ()))
+symEqTerm (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+          (Σₜ₌ p r d d′ (ne x) prodₙ p≅r [t] [u] (lift ()))
 symEqTerm (emb 0<1 x) t≡u = symEqTerm x t≡u
