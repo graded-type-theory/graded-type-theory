@@ -11,19 +11,20 @@ open import Definition.Modality.Instances.Erasure.Properties (_≤ ω)
 open import Definition.Modality.Context ErasureModality
 open import Definition.Modality.Usage ErasureModality
 open import Definition.Modality.Usage.Inversion ErasureModality
+open import Definition.Modality.FullReduction ErasureModality greatest-elem
 
-open import Definition.Untyped Erasure as U hiding (_∷_)
+open import Definition.Untyped Erasure as U hiding (_∷_; ℕ≢B)
 
 open import Definition.Typed Erasure′
 open import Definition.Typed.Properties Erasure′
 open import Definition.Typed.Weakening Erasure′ as T
 open import Definition.Typed.Consequences.Inequality Erasure′
 open import Definition.Typed.Consequences.Injectivity Erasure′
+open import Definition.Typed.Consequences.Inversion Erasure′
 open import Definition.Typed.Consequences.Substitution Erasure′
 open import Definition.Typed.Consequences.Syntactic Erasure′
 
-open import Definition.Conversion.Consequences.Completeness Erasure′
-open import Definition.Conversion.FullReduction Erasure′
+open import Definition.Conversion.FullReduction Erasure′ hiding (fullRedTerm)
 
 open import Tools.Empty
 open import Tools.Fin
@@ -220,11 +221,96 @@ module Main (nΓγ : NegativeErasedContext Γ γ) (consistent : ∀{t} → Γ �
   neNeg (Emptyrecⱼ _ d     ) (Emptyrecₙ n) γ▸u = ⊥-elim (consistent d)
   neNeg (conv d c          ) n             γ▸u = conv (neNeg d n γ▸u) c
 
-  thm : Γ ⊢ t ∷ ℕ → γ ▸ t → ∃ λ u → Γ ⊢ t ⇒* u ∷ ℕ × Whnf u × (Neutral u → ⊥)
-  thm ⊢t γ▸t =
+  -- Lemma: A normal form of type ℕ is a numeral in a consistent negative context.
+
+  nfN : (d : Γ ⊢ u ∷ A)
+      → (m : γ ▸ u)
+      → (n : Nf u)
+      → (c : Γ ⊢ A ≡ ℕ)
+      → Numeral u
+
+  -- Case: neutrals. The type cannot be ℕ since it must be negative.
+  nfN d γ▸u (ne n) c = ⊥-elim (¬negℕ (neNeg d (nfNeutral n) γ▸u) c)
+  -- ⊥-elim (¬negℕ (neNeg d n) c)
+
+  -- Case: numerals.
+  nfN (zeroⱼ x) γ▸u zeroₙ   c = zeroₙ
+  nfN (sucⱼ d) γ▸u (sucₙ n) c =
+    let invUsageSuc δ▸n γ≤δ = inv-usage-suc γ▸u
+    in  sucₙ (nfN d (sub δ▸n γ≤δ) n c)
+
+  -- Case: conversion.
+  nfN (conv d c) γ▸u n c' = nfN d γ▸u n (trans c c')
+
+  -- Impossible cases: type is not ℕ.
+
+  -- * Canonical types
+  nfN (Πⱼ _ ▹ _)       γ▸u (Πₙ _ _)   c = ⊥-elim (U≢ℕ c)
+  nfN (Σⱼ _ ▹ _)       γ▸u (Σₙ _ _)   c = ⊥-elim (U≢ℕ c)
+  nfN (ℕⱼ _)           γ▸u ℕₙ         c = ⊥-elim (U≢ℕ c)
+  nfN (Emptyⱼ _)       γ▸u Emptyₙ     c = ⊥-elim (U≢ℕ c)
+  nfN (Unitⱼ _)        γ▸u Unitₙ      c = ⊥-elim (U≢ℕ c)
+
+  -- * Canonical forms
+  nfN (lamⱼ _ _)      γ▸u (lamₙ _)    c = ⊥-elim (ℕ≢Π (sym c))
+  nfN (prodⱼ _ _ _ _) γ▸u (prodₙ _ _) c = ⊥-elim (ℕ≢Σ (sym c))
+  nfN (starⱼ _)       γ▸u starₙ       c = ⊥-elim (ℕ≢Unitⱼ (sym c))
+  -- q.e.d
+
+  -- Canonicity theorem: Any well-typed term Γ ⊢ t : ℕ is convertible to a numeral.
+
+  thm : (⊢t : Γ ⊢ t ∷ ℕ) → (γ▸t : γ ▸ t) → ∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ
+  thm ⊢t γ▸t with fullRedTerm ⊢t γ▸t
+  ... | u , nf , eq , γ▸u = u , nfN (proj₂ (proj₂ (syntacticEqTerm eq))) γ▸u nf (refl (ℕⱼ (wfTerm ⊢t))) , eq
+
+  -- Any well-typed term Γ ⊢ t : ℕ WH-reduces to zero or suc u for some u
+
+  lem : Γ ⊢ t ∷ ℕ → γ ▸ t → ∃ λ u → Γ ⊢ t ⇒* u ∷ ℕ × Whnf u × (Neutral u → ⊥)
+  lem ⊢t γ▸t =
     let u , whnfU , d = whNormTerm ⊢t
         γ▸u = usagePres*Term γ▸t (redₜ d)
         ⊢ℕ = refl (ℕⱼ (wfTerm ⊢t))
     in  u , redₜ d , whnfU , λ x → ¬negℕ (neNeg (⊢u-redₜ d) x γ▸u) ⊢ℕ
 
--- Q.E.D. 2023-01-19
+  thm′ : Γ ⊢ t ∷ ℕ → γ ▸ t → (Γ ⊢ t ⇒* zero ∷ ℕ) ⊎ ∃ λ u → Γ ⊢ t ⇒* suc u ∷ ℕ
+  thm′ ⊢t γ▸t with lem ⊢t γ▸t
+  -- True cases
+  ... | _ , d , zeroₙ , ¬neU = inj₁ d
+  ... | _ , d , sucₙ , ¬neU = inj₂ (_ , d)
+  -- False cases
+  ... | _ , d , Uₙ , ¬neU = ⊥-elim (redU*Term d)
+  ... | _ , d , Πₙ , ¬neU =
+    let _ , _ , ⊢Π = syntacticRedTerm d
+        _ , _ , ℕ≡U = inversion-Π ⊢Π
+    in  ⊥-elim (U≢ℕ (sym ℕ≡U))
+  ... | _ , d , Σₙ , ¬neU =
+    let _ , _ , ⊢Σ = syntacticRedTerm d
+        _ , _ , ℕ≡U = inversion-Σ ⊢Σ
+    in  ⊥-elim (U≢ℕ (sym ℕ≡U))
+  ... | _ , d , ℕₙ , ¬neU =
+    let _ , _ , ⊢ℕ = syntacticRedTerm d
+        ℕ≡U = inversion-ℕ ⊢ℕ
+    in  ⊥-elim (U≢ℕ (sym ℕ≡U))
+  ... | _ , d , Unitₙ , ¬neU =
+    let _ , _ , ⊢Unit = syntacticRedTerm d
+        ℕ≡U = inversion-Unit ⊢Unit
+    in  ⊥-elim (U≢ℕ (sym ℕ≡U))
+  ... | _ , d , Emptyₙ , ¬neU =
+    let _ , _ , ⊢Empty = syntacticRedTerm d
+        ℕ≡U = inversion-Empty ⊢Empty
+    in  ⊥-elim (U≢ℕ (sym ℕ≡U))
+  ... | _ , d , lamₙ , ¬neU =
+    let _ , _ , ⊢lam = syntacticRedTerm d
+        _ , _ , _ , _ , _ , ℕ≡Π = inversion-lam ⊢lam
+    in  ⊥-elim (ℕ≢B BΠ! ℕ≡Π)
+  ... | _ , d , starₙ , ¬neU =
+    let _ , _ , ⊢star = syntacticRedTerm d
+        ℕ≡Unit = inversion-star ⊢star
+    in  ⊥-elim (ℕ≢Unitⱼ ℕ≡Unit)
+  ... | _ , d , prodₙ , ¬neU =
+    let _ , _ , ⊢prod = syntacticRedTerm d
+        _ , _ , _ , _ , _ , _ , _ , ℕ≡Σ = inversion-prod ⊢prod
+    in  ⊥-elim (ℕ≢B BΣ! ℕ≡Σ)
+  ... | _ , d , ne x , ¬neU = ⊥-elim (¬neU x)
+
+-- Q.E.D. 2023-01-20
