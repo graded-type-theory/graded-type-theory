@@ -127,6 +127,14 @@ mutual
   convTermT₁ (Uᵥ (Uᵣ .⁰ 0<1 ⊢Γ) (Uᵣ .⁰ 0<1 ⊢Γ₁)) A≡B t = t
   convTermT₁ (emb⁰¹ x) A≡B t = convTermT₁ x A≡B t
   convTermT₁ (emb¹⁰ x) A≡B t = convTermT₁ x A≡B t
+  -- Impossible cases
+  convTermT₁ (Bᵥ BΠ! BΣ! BA BB ()) A≡B t
+  convTermT₁ (Bᵥ BΣ! BΠ! BA BB ()) A≡B t
+  convTermT₁ (Bᵥ BΣᵣ BΣₚ BA BB ()) A≡B t
+  convTermT₁ (Bᵥ BΣₚ BΣᵣ BA BB ()) A≡B t
+  convTermT₁ (Bᵥ BΠ! BΠ! BA BB x) (B₌ F′ G′ BΣ! D′ () A≡B [F≡F′] [G≡G′]) t
+  convTermT₁ (Bᵥ BΣ! BΣ! BA BB x) (B₌ F′ G′ BΠ! D′ () A≡B [F≡F′] [G≡G′]) t
+
 
   -- Helper function for conversion of terms converting from right to left.
   convTermT₂ : ∀ {l l′ A B t} {[A] : Γ ⊩⟨ l ⟩ A} {[B] : Γ ⊩⟨ l′ ⟩ B}
@@ -225,6 +233,13 @@ mutual
   convTermT₂ (Uᵥ (Uᵣ .⁰ 0<1 ⊢Γ) (Uᵣ .⁰ 0<1 ⊢Γ₁)) A≡B t = t
   convTermT₂ (emb⁰¹ x) A≡B t = convTermT₂ x A≡B t
   convTermT₂ (emb¹⁰ x) A≡B t = convTermT₂ x A≡B t
+  -- Impossible cases
+  convTermT₂ (Bᵥ BΠ! BΣ! BA BB ()) A≡B t
+  convTermT₂ (Bᵥ BΣ! BΠ! BA BB ()) A≡B t
+  convTermT₂ (Bᵥ BΣᵣ BΣₚ BA BB ()) A≡B t
+  convTermT₂ (Bᵥ BΣₚ BΣᵣ BA BB ()) A≡B t
+  convTermT₂ (Bᵥ BΠ! BΠ! BA BB x) (B₌ F′ G′ BΣ! D′ () A≡B [F≡F′] [G≡G′]) t
+  convTermT₂ (Bᵥ BΣ! BΣ! BA BB x) (B₌ F′ G′ BΠ! D′ () A≡B [F≡F′] [G≡G′]) t
 
   -- Conversion of terms converting from left to right.
   convTerm₁ : ∀ {A B t l l′} ([A] : Γ ⊩⟨ l ⟩ A) ([B] : Γ ⊩⟨ l′ ⟩ B)
@@ -375,6 +390,16 @@ mutual
   convEqTermT₁ (Uᵥ (Uᵣ .⁰ 0<1 ⊢Γ) (Uᵣ .⁰ 0<1 ⊢Γ₁)) A≡B t≡u = t≡u
   convEqTermT₁ (emb⁰¹ x) A≡B t≡u = convEqTermT₁ x A≡B t≡u
   convEqTermT₁ (emb¹⁰ x) A≡B t≡u = convEqTermT₁ x A≡B t≡u
+  -- Impossible cases
+  convEqTermT₁ (Bᵥ BΠ! BΣ! BA BB ()) A≡B t≡u
+  convEqTermT₁ (Bᵥ BΣ! BΠ! BA BB ()) A≡B t≡u
+  convEqTermT₁ (Bᵥ BΣᵣ BΣₚ BA BB ()) A≡B t≡u
+  convEqTermT₁ (Bᵥ BΣₚ BΣᵣ BA BB ()) A≡B t≡u
+  convEqTermT₁ (Bᵥ BΠ! BΠ! BA BB x) (B₌ F′ G′ BΣ! D′ () A≡B [F≡F′] [G≡G′]) t≡u
+  convEqTermT₁ (Bᵥ BΣ! BΣ! BA BB x) (B₌ F′ G′ BΠ! D′ () A≡B [F≡F′] [G≡G′]) t≡u
+  convEqTermT₁ (Bᵥ BΣᵣ BΣᵣ BA BB x) (B₌ F′ G′ BΣₚ D′ () A≡B [F≡F′] [G≡G′]) t≡u
+  convEqTermT₁ (Bᵥ BΣᵣ BΣᵣ BA BB x) A≡B (Σₜ₌ p r d d′ prodₙ (ne y) t≡u [t] [u] ())
+  convEqTermT₁ (Bᵥ BΣᵣ BΣᵣ BA BB x) A≡B (Σₜ₌ p r d d′ (ne y) prodₙ t≡u [t] [u] ())
 
   -- Helper function for conversion of term equality converting from right to left.
   convEqTermT₂ : ∀ {l l′ A B t u} {[A] : Γ ⊩⟨ l ⟩ A} {[B] : Γ ⊩⟨ l′ ⟩ B}
@@ -497,6 +522,17 @@ mutual
   convEqTermT₂ (Uᵥ (Uᵣ .⁰ 0<1 ⊢Γ) (Uᵣ .⁰ 0<1 ⊢Γ₁)) A≡B t≡u = t≡u
   convEqTermT₂ (emb⁰¹ x) A≡B t≡u = convEqTermT₂ x A≡B t≡u
   convEqTermT₂ (emb¹⁰ x) A≡B t≡u = convEqTermT₂ x A≡B t≡u
+  -- Impossible cases
+  convEqTermT₂ (Bᵥ BΠ! BΣ! BA BB ()) A≡B t≡u
+  convEqTermT₂ (Bᵥ BΣ! BΠ! BA BB ()) A≡B t≡u
+  convEqTermT₂ (Bᵥ BΣᵣ BΣₚ BA BB ()) A≡B t≡u
+  convEqTermT₂ (Bᵥ BΣₚ BΣᵣ BA BB ()) A≡B t≡u
+  convEqTermT₂ (Bᵥ BΠ! BΠ! BA BB x) (B₌ F′ G′ BΣ! D′ () A≡B [F≡F′] [G≡G′]) t≡u
+  convEqTermT₂ (Bᵥ BΣ! BΣ! BA BB x) (B₌ F′ G′ BΠ! D′ () A≡B [F≡F′] [G≡G′]) t≡u
+  convEqTermT₂ (Bᵥ BΣᵣ BΣᵣ BA BB x) (B₌ F′ G′ BΣₚ D′ () A≡B [F≡F′] [G≡G′]) t≡u
+  convEqTermT₂ (Bᵥ BΣₚ BΣₚ BA BB x) (B₌ F′ G′ BΣᵣ D′ () A≡B [F≡F′] [G≡G′]) t≡u
+  convEqTermT₂ (Bᵥ BΣᵣ BΣᵣ BA BB x) A≡B (Σₜ₌ p r d d′ prodₙ (ne y) t≡u [t] [u] ())
+  convEqTermT₂ (Bᵥ BΣᵣ BΣᵣ BA BB x) A≡B (Σₜ₌ p r d d′ (ne y) prodₙ t≡u [t] [u] ())
 
   -- Conversion of term equality converting from left to right.
   convEqTerm₁ : ∀ {l l′ A B t u} ([A] : Γ ⊩⟨ l ⟩ A) ([B] : Γ ⊩⟨ l′ ⟩ B)

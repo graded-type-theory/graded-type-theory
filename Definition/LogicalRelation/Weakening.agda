@@ -246,6 +246,9 @@ wkEq {ρ = ρ} [ρ] ⊢Δ (Σᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                                           ([G] ([ρ₁] •ₜ [ρ]) ⊢Δ₁ [a]′))
                             ([G≡G′] ([ρ₁] •ₜ [ρ]) ⊢Δ₁ [a]′))
 wkEq ρ ⊢Δ (emb 0<1 x) A≡B = wkEq ρ ⊢Δ x A≡B
+-- Impossible cases
+wkEq ρ ⊢Δ (Bᵣ BΣ! x) (B₌ F′ G′ BΠ! D′ () A≡B [F≡F′] [G≡G′])
+wkEq ρ ⊢Δ (Bᵣ BΠ! x) (B₌ F′ G′ BΣ! D′ () A≡B [F≡F′] [G≡G′])
 
 wkTerm : ∀ {A t l} ([ρ] : ρ ∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ)
          ([A] : Γ ⊩⟨ l ⟩ A)
@@ -513,3 +516,6 @@ wkEqTerm {ρ = ρ} [ρ] ⊢Δ [A]@(Bᵣ′ BΣₚ F G D ⊢F ⊢G A≡A [F] [G] 
           (≅ₜ-wk [ρ] ⊢Δ p≅r) (wkTerm [ρ] ⊢Δ [A] [t]) (wkTerm [ρ] ⊢Δ [A] [u])
           ([ρfstp]′ , [ρfstr]′ , [ρfst≡]′ , [ρsnd≡]′)
 wkEqTerm ρ ⊢Δ (emb 0<1 x) t≡u = wkEqTerm ρ ⊢Δ x t≡u
+-- Impossible cases
+wkEqTerm ρ ⊢Δ (Bᵣ BΣᵣ x) (Σₜ₌ p r d d′ prodₙ (ne y) p≅r [t] [u] ())
+wkEqTerm ρ ⊢Δ (Bᵣ BΣᵣ x) (Σₜ₌ p r d d′ (ne y) prodₙ p≅r [t] [u] ())

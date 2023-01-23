@@ -101,6 +101,7 @@ decConv↓Term-Σᵣ-ins : ∀ {t t′ u F G H E q′}
                     → ∃ λ B → Γ ⊢ t ~ u ↓ B
 decConv↓Term-Σᵣ-ins (Σᵣ-ins x x₁ x₂) t~t = _ , x₂
 decConv↓Term-Σᵣ-ins (prod-cong x x₁ x₂ x₃) ()
+decConv↓Term-Σᵣ-ins (ne-ins x x₁ () x₃) t~t
 
 -- Helper function for decidability for neutrals of a neutral type.
 decConv↓Term-ne-ins : ∀ {t u A}
@@ -114,6 +115,11 @@ decConv↓Term-ne-ins () (univ x x₁ x₂)
 decConv↓Term-ne-ins () (zero-refl x)
 decConv↓Term-ne-ins () (suc-cong x)
 decConv↓Term-ne-ins () (η-eq x₁ x₂ x₃ x₄ x₅)
+decConv↓Term-ne-ins () (Unit-ins x)
+decConv↓Term-ne-ins () (Σᵣ-ins x x₁ x₂)
+decConv↓Term-ne-ins () (prod-cong x x₁ x₂ x₃)
+decConv↓Term-ne-ins () (Σ-η x x₁ x₂ x₃ x₄ x₅)
+decConv↓Term-ne-ins () (η-unit x x₁ x₂ x₃)
 
 -- Helper function for decidability for impossibility of terms not being equal
 -- as neutrals when they are equal as terms and the first is a neutral.
@@ -134,6 +140,7 @@ decConv↓Term-Σᵣ : ∀ {t u t′ F G F′ G′ q′}
                 → ⊥
 decConv↓Term-Σᵣ (Σᵣ-ins x x₁ x₂) t~t ¬u~u = ¬u~u x₂
 decConv↓Term-Σᵣ (prod-cong x x₁ x₂ x₃) () ¬u~u
+decConv↓Term-Σᵣ (ne-ins x x₁ () x₃) t~t ¬u~u
 
 -- Helper function for extensional equality of Unit.
 decConv↓Term-Unit : ∀ {t u t′ u′}
@@ -511,6 +518,8 @@ mutual
   decConv↓-ne (Empty-refl x) ()
   decConv↓-ne (ne x) A~A = x
   decConv↓-ne (Π-cong x x₁ x₂ _ _) ([~] A D whnfB ())
+  decConv↓-ne (Unit-refl x) ()
+  decConv↓-ne (Σ-cong x x₁ x₂ x₃) ()
 
   -- Decidability of algorithmic equality of terms.
   decConv↑Term : ∀ {t u A t′ u′}
@@ -648,6 +657,28 @@ mutual
     no λ x₇ → decConv↓Term-Σᵣ x₇ x₂ (λ{ ()})
   decConv↓Term (prod-cong x x₁ x₂ x₃) (Σᵣ-ins x₄ x₅ x₆) =
     no (λ x₇ → decConv↓Term-Σᵣ (symConv↓Term′ x₇) x₆ (λ{ ()}))
+
+  -- Impossible cases
+  decConv↓Term (ℕ-ins x) (ne-ins x₁ x₂ () x₄)
+  decConv↓Term (Empty-ins x) (ne-ins x₁ x₂ () x₄)
+  decConv↓Term (Σᵣ-ins x x₁ x₂) (ne-ins x₃ x₄ () x₆)
+  decConv↓Term (ne-ins x x₁ () x₃) (ℕ-ins x₄)
+  decConv↓Term (ne-ins x x₁ () x₃) (Empty-ins x₄)
+  decConv↓Term (ne-ins x x₁ () x₃) (Unit-ins x₄)
+  decConv↓Term (ne-ins x x₁ () x₃) (Σᵣ-ins x₄ x₅ x₆)
+  decConv↓Term (ne-ins x x₁ () x₃) (univ x₄ x₅ x₆)
+  decConv↓Term (ne-ins x x₁ () x₃) (zero-refl x₄)
+  decConv↓Term (ne-ins x x₁ () x₃) (suc-cong x₄)
+  decConv↓Term (ne-ins x x₁ () x₃) (prod-cong x₄ x₅ x₆ x₇)
+  decConv↓Term (ne-ins x x₁ () x₃) (η-eq x₄ x₅ x₆ x₇ x₈)
+  decConv↓Term (ne-ins x x₁ () x₃) (Σ-η x₄ x₅ x₆ x₇ x₈ x₉)
+  decConv↓Term (ne-ins x x₁ () x₃) (η-unit x₄ x₅ x₆ x₇)
+  decConv↓Term (univ x x₁ x₂) (ne-ins x₃ x₄ () x₆)
+  decConv↓Term (zero-refl x) (ne-ins x₁ x₂ () x₄)
+  decConv↓Term (suc-cong x) (ne-ins x₁ x₂ () x₄)
+  decConv↓Term (prod-cong x x₁ x₂ x₃) (ne-ins x₄ x₅ () x₇)
+  decConv↓Term (η-eq x x₁ x₂ x₃ x₄) (ne-ins x₅ x₆ () x₈)
+  decConv↓Term (Σ-η x x₁ x₂ x₃ x₄ x₅) (ne-ins x₆ x₇ () x₉)
 
   -- Decidability of algorithmic equality of terms of equal types.
   decConv↑TermConv : ∀ {t u A B t′ u′}

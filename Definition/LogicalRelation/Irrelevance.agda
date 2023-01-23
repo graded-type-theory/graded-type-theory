@@ -198,6 +198,11 @@ mutual
   irrelevanceTermT (Uᵥ (Uᵣ .⁰ 0<1 ⊢Γ) (Uᵣ .⁰ 0<1 ⊢Γ₁)) t = t
   irrelevanceTermT (emb⁰¹ x) t = irrelevanceTermT x t
   irrelevanceTermT (emb¹⁰ x) t = irrelevanceTermT x t
+  -- Impossible cases
+  irrelevanceTermT (Bᵥ (BΠ p q) (BΣ q₁ x) BA BB ()) t
+  irrelevanceTermT (Bᵥ (BΣ q x) (BΠ p q₁) BA BB ()) t
+  irrelevanceTermT (Bᵥ BΣᵣ BΣₚ BA BB ()) t
+  irrelevanceTermT (Bᵥ BΣₚ BΣᵣ BA BB ()) t
 
 --------------------------------------------------------------------------------
 
@@ -321,3 +326,14 @@ mutual
   irrelevanceEqTermT (Uᵥ (Uᵣ .⁰ 0<1 ⊢Γ) (Uᵣ .⁰ 0<1 ⊢Γ₁)) t≡u = t≡u
   irrelevanceEqTermT (emb⁰¹ x) t≡u = irrelevanceEqTermT x t≡u
   irrelevanceEqTermT (emb¹⁰ x) t≡u = irrelevanceEqTermT x t≡u
+  -- Impossible cases
+  irrelevanceEqTermT (Bᵥ (BΠ p q) (BΣ q₁ x) BA BB ()) t≡u
+  irrelevanceEqTermT (Bᵥ (BΣ q x) (BΠ p q₁) BA BB ()) t≡u
+  irrelevanceEqTermT (Bᵥ BΣᵣ BΣₚ BA BB ()) t≡u
+  irrelevanceEqTermT (Bᵥ BΣₚ BΣᵣ BA BB ()) t≡u
+  irrelevanceEqTermT (Bᵥ BΣᵣ BΣᵣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+                     (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) (BT.Σ≋Σ q≈q′))
+                     (Σₜ₌ p r d d′ prodₙ (ne x) p≅r [t] [u] ())
+  irrelevanceEqTermT (Bᵥ BΣᵣ BΣᵣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+                     (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) (BT.Σ≋Σ q≈q′))
+                     (Σₜ₌ p r d d′ (ne x) prodₙ p≅r [t] [u] ())

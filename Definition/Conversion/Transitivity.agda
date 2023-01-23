@@ -319,6 +319,15 @@ mutual
   transConv↓Term A≡B (Σ-η x x₁ x₂ x₃ x₄ x₅) (prod-cong x₆ x₇ x₈ x₉) = ⊥-elim (WF.Σₚ≢Σᵣⱼ A≡B)
   transConv↓Term A≡B (Σ-η x₁ x₂ x₃ x₄ x₅ x₆) (η-unit x₇ x₈ x₉ x₁₀) = ⊥-elim (WF.Unit≢Σⱼ (sym A≡B))
   transConv↓Term A≡B (Σ-η x₁ x₂ x₃ x₄ x₅ x₆) (η-eq x₈ x₉ x₁₀ x₁₁ x₁₂) = ⊥-elim (WF.Π≢Σⱼ (sym A≡B))
+  transConv↓Term A≡B (Σᵣ-ins x x₁ ()) (suc-cong x₃)
+  transConv↓Term A≡B (Σᵣ-ins x x₁ ()) (prod-cong x₃ x₄ x₅ x₆)
+  transConv↓Term A≡B (suc-cong x) (Unit-ins ())
+  transConv↓Term A≡B (suc-cong x) (Σᵣ-ins x₁ x₂ ())
+  transConv↓Term A≡B (prod-cong x x₁ x₂ x₃) (ℕ-ins ())
+  transConv↓Term A≡B (prod-cong x x₁ x₂ x₃) (Empty-ins ())
+  transConv↓Term A≡B (prod-cong x x₁ x₂ x₃) (Unit-ins ())
+  transConv↓Term A≡B (prod-cong x x₁ x₂ x₃) (Σᵣ-ins x₄ x₅ ())
+  transConv↓Term A≡B (prod-cong x x₁ x₂ x₃) (ne-ins x₄ x₅ x₆ ())
 
 -- Transitivity of algorithmic equality of types of the same context.
 transConv : ∀ {A B C}

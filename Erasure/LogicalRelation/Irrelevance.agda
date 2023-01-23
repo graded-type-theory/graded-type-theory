@@ -86,6 +86,11 @@ irrelevanceTermSV [A] [A]′ (t₁ , t₂ , v₁ , v₂ , t⇒t′ , v⇒v′ , 
   in  t₁ , t₂ , v₁ , v₂ , t⇒t′ , v⇒v′ , [t₁]′ , t₁®v₁′ , t₂®v₂′
 irrelevanceTermSV (emb 0<1 [A]) [A]′ t®v (emb⁰¹ SV) = irrelevanceTermSV [A] [A]′ t®v SV
 irrelevanceTermSV [A] (emb 0<1 [A]′) t®v (emb¹⁰ SV) = irrelevanceTermSV [A] [A]′ t®v SV
+-- Impossible cases
+irrelevanceTermSV .(Emptyᵣ EmptyA) .(Emptyᵣ EmptyB) () (ShapeView.Emptyᵥ EmptyA EmptyB)
+irrelevanceTermSV .(ne neA) .(ne neB) () (ShapeView.ne neA neB)
+irrelevanceTermSV _ _ t®v (ShapeView.Bᵥ BΣ! BΠ! BA BB ())
+irrelevanceTermSV _ _ t®v (ShapeView.Bᵥ BΠ! BΣ! BA BB ())
 
 -- Irrelevance of logical relation for erasure
 
