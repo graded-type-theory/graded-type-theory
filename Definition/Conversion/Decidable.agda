@@ -58,7 +58,7 @@ dec~↑-app : ∀ {k k₁ l l₁ F F₁ G G₁ B}
           → p ≈ p₁
           → p ≈ p₂
           → Dec (Γ ⊢ l [conv↑] l₁ ∷ F)
-          → Dec (∃ λ A → Γ ⊢ k ∘ p₁ ▷ l ~ k₁ ∘ p₂ ▷ l₁ ↑ A)
+          → Dec (∃ λ A → Γ ⊢ k ∘⟨ p₁ ⟩ l ~ k₁ ∘⟨ p₂ ⟩ l₁ ↑ A)
 dec~↑-app k k₁ k~k₁ p₃≈p₁ p₃≈p₂ (yes p) =
   let whnfA , neK , neL = ne~↓ k~k₁
       ⊢A , ⊢k , ⊢l = syntacticEqTerm (soundness~↓ k~k₁)

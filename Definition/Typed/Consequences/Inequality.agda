@@ -357,7 +357,7 @@ B≢ne W neK W≡K =
 Π≢Σ-red : ∀ {A B F G H E m} → Γ ⊢ A ⇒* Π p , q ▷ F ▹ G
          → Γ ⊢ B ⇒* Σ⟨ m ⟩ q′ ▷ H ▹ E → Γ ⊢ A ≡ B → ⊥
 Π≢Σ-red {q′ = q′} {m = m} D D′ = A≢B (λ Γ l A → Γ ⊩′⟨ l ⟩B⟨ BΠ! ⟩ A)
-                   (λ Γ l A → Γ ⊩′⟨ l ⟩B⟨ BΣ q′ m ⟩ A) (Bᵣ BΠ!) (Bᵣ BΣ!)
+                   (λ Γ l A → Γ ⊩′⟨ l ⟩B⟨ BΣ m q′ ⟩ A) (Bᵣ BΠ!) (Bᵣ BΣ!)
                    (λ x → extractMaybeEmb (B-elim′ BΠ! D x))
                    (λ x → extractMaybeEmb (B-elim′ BΣ! D′ x))
                    Π≢Σ′
@@ -368,10 +368,10 @@ B≢ne W neK W≡K =
   in  Π≢Σ-red (id ⊢Π) (id ⊢Σ) Π≡Σ
 
 Σₚ≢Σᵣ′ : ∀ {A B l l′ q q′}
-         ([A] : Γ ⊩′⟨ l ⟩B⟨ BΣ q Σₚ ⟩ A)
-         ([B] : Γ ⊩′⟨ l′ ⟩B⟨ BΣ q′ Σᵣ ⟩ B)
-       → ShapeView Γ l l′ _ _ (Bᵣ (BΣ q Σₚ) [A]) (Bᵣ (BΣ q′ Σᵣ) [B]) → ⊥
-Σₚ≢Σᵣ′ [A] [B] (Bᵥ .(BΣ _ Σₚ) .(BΣ _ Σᵣ) .[A] .[B] ())
+         ([A] : Γ ⊩′⟨ l ⟩B⟨ BΣ Σₚ q ⟩ A)
+         ([B] : Γ ⊩′⟨ l′ ⟩B⟨ BΣ Σᵣ q′ ⟩ B)
+       → ShapeView Γ l l′ _ _ (Bᵣ (BΣ Σₚ q) [A]) (Bᵣ (BΣ Σᵣ q′) [B]) → ⊥
+Σₚ≢Σᵣ′ [A] [B] (Bᵥ .BΣₚ .BΣᵣ .[A] .[B] ())
 
 Σₚ≢Σᵣ-red : ∀ {A B F G H E} → Γ ⊢ A ⇒* Σₚ q ▷ F ▹ G
           → Γ ⊢ B ⇒* Σᵣ q′ ▷ H ▹ E → Γ ⊢ A ≡ B → ⊥

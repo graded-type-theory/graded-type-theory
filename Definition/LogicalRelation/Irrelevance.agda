@@ -199,8 +199,8 @@ mutual
   irrelevanceTermT (emb⁰¹ x) t = irrelevanceTermT x t
   irrelevanceTermT (emb¹⁰ x) t = irrelevanceTermT x t
   -- Impossible cases
-  irrelevanceTermT (Bᵥ (BΠ p q) (BΣ q₁ x) BA BB ()) t
-  irrelevanceTermT (Bᵥ (BΣ q x) (BΠ p q₁) BA BB ()) t
+  irrelevanceTermT (Bᵥ (BΠ p q) (BΣ x q′) BA BB ()) t
+  irrelevanceTermT (Bᵥ (BΣ x q) (BΠ p q′) BA BB ()) t
   irrelevanceTermT (Bᵥ BΣᵣ BΣₚ BA BB ()) t
   irrelevanceTermT (Bᵥ BΣₚ BΣᵣ BA BB ()) t
 
@@ -327,8 +327,8 @@ mutual
   irrelevanceEqTermT (emb⁰¹ x) t≡u = irrelevanceEqTermT x t≡u
   irrelevanceEqTermT (emb¹⁰ x) t≡u = irrelevanceEqTermT x t≡u
   -- Impossible cases
-  irrelevanceEqTermT (Bᵥ (BΠ p q) (BΣ q₁ x) BA BB ()) t≡u
-  irrelevanceEqTermT (Bᵥ (BΣ q x) (BΠ p q₁) BA BB ()) t≡u
+  irrelevanceEqTermT (Bᵥ (BΠ p q) (BΣ x q′) BA BB ()) t≡u
+  irrelevanceEqTermT (Bᵥ (BΣ x q) (BΠ p q′) BA BB ()) t≡u
   irrelevanceEqTermT (Bᵥ BΣᵣ BΣₚ BA BB ()) t≡u
   irrelevanceEqTermT (Bᵥ BΣₚ BΣᵣ BA BB ()) t≡u
   irrelevanceEqTermT (Bᵥ BΣᵣ BΣᵣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)

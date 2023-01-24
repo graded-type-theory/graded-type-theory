@@ -58,7 +58,7 @@ data Kind : (ns : List Nat) → Set a where
   Lamkind : (p : M)   → Kind (1 ∷ [])
   Appkind : (p : M)   → Kind (0 ∷ 0 ∷ [])
 
-  Sigmakind   : (q : M) → SigmaMode → Kind (0 ∷ 1 ∷ [])
+  Sigmakind   : SigmaMode → (q : M) → Kind (0 ∷ 1 ∷ [])
   Prodkind    : SigmaMode → Kind (0 ∷ 0 ∷ [])
   Fstkind     : Kind (0 ∷ [])
   Sndkind     : Kind (0 ∷ [])
@@ -67,7 +67,7 @@ data Kind : (ns : List Nat) → Set a where
   Natkind    : Kind []
   Zerokind   : Kind []
   Suckind    : Kind (0 ∷ [])
-  Natreckind : (p q : M) → Kind (1 ∷ 0 ∷ 2 ∷ 0 ∷ [])
+  Natreckind : (p r : M) → Kind (1 ∷ 0 ∷ 2 ∷ 0 ∷ [])
 
   Unitkind : Kind []
   Starkind : Kind []
@@ -95,88 +95,49 @@ private
 -- Π, lam, and natrec are binders.
 
 -- Type constructors.
-U      : Term n                      -- Universe.
-U = gen Ukind []
+pattern U = gen Ukind []
+pattern ℕ = gen Natkind []
+pattern Empty = gen Emptykind []
+pattern Unit = gen Unitkind []
 
-Π_,_▷_▹_ : (p q : M) (A : Term n) (B : Term (1+ n)) → Term n -- Dependent function type (B is a binder).
-Π p , q ▷ A ▹ B = gen (Pikind p q) (A ∷ B ∷ [])
+pattern Π_,_▷_▹_ p q F G = gen (Pikind p q) (F ∷ G ∷ [])
+pattern Σₚ_▷_▹_ q F G = gen (Sigmakind Σₚ q) (F ∷ G ∷ [])
+pattern Σᵣ_▷_▹_ q F G = gen (Sigmakind Σᵣ q) (F ∷ G ∷ [])
+pattern Σ_▷_▹_ q F G = gen (Sigmakind _ q) (F ∷ G ∷ [])
+pattern Σ⟨_⟩_▷_▹_ m q F G = gen (Sigmakind m q) (F ∷ G ∷ [])
 
-Σᵣ_▷_▹_ : (p : M) (A : Term n) (B : Term (1+ n)) → Term n -- Dependent sum type (B is a binder).
-Σᵣ q ▷ A ▹ B = gen (Sigmakind q Σᵣ) (A ∷ B ∷ [])
+pattern lam p t = gen (Lamkind p) (t ∷ [])
+pattern _∘⟨_⟩_ t p u = gen (Appkind p) (t ∷ u ∷ [])
+pattern _∘_ t u = gen (Appkind _) (t ∷ u ∷ [])
 
-Σₚ_▷_▹_ : (p : M) (A : Term n) (B : Term (1+ n)) → Term n -- Dependent sum type (B is a binder).
-Σₚ q ▷ A ▹ B = gen (Sigmakind q Σₚ) (A ∷ B ∷ [])
-
-ℕ      : Term n                      -- Type of natural numbers.
-ℕ = gen Natkind []
-
-Empty : Term n                       -- Empty type
-Empty = gen Emptykind []
-
-Unit  : Term n                       -- Unit type
-Unit = gen Unitkind []
-
-lam    : (p : M) (t : Term (1+ n)) → Term n  -- Function abstraction (binder).
-lam p t = gen (Lamkind p) (t ∷ [])
-
-_∘_▷_    : (t : Term n) (p : M) (u : Term n) → Term n -- Application.
-t ∘ p ▷ u = gen (Appkind p) (t ∷ u ∷ [])
-
-
-prod : (m : SigmaMode) → (t u : Term n) → Term n       -- Dependent products
-prod m t u = gen (Prodkind m) (t ∷ u ∷ [])
-
-prodᵣ : (t u : Term n) → Term n      -- Weak dependent products
-prodᵣ t u = prod Σᵣ t u
-
-prodₚ : (t u : Term n) → Term n      -- Strong dependent products
-prodₚ t u = prod Σₚ t u
-
+pattern prodₚ t u = gen (Prodkind Σₚ) (t ∷ u ∷ [])
+pattern prodᵣ t u = gen (Prodkind Σᵣ) (t ∷ u ∷ [])
+pattern prod m t u = gen (Prodkind m) (t ∷ u ∷ [])
 pattern prod! t u = gen (Prodkind _) (t ∷ u ∷ [])
+pattern fst t = gen Fstkind (t ∷ [])
+pattern snd t = gen Sndkind (t ∷ [])
+pattern prodrec p A t u = gen (Prodreckind p) (A ∷ t ∷ u ∷ [])
 
-fst : (t : Term n) → Term n          -- First projection
-fst t = gen Fstkind (t ∷ [])
+pattern zero = gen Zerokind []
+pattern suc t = gen Suckind (t ∷ [])
+pattern natrec p r A z s n = gen (Natreckind p r) (A ∷ z ∷ s ∷ n ∷ [])
 
-snd : (t : Term n) → Term n          -- Second projection
-snd t = gen Sndkind (t ∷ [])
+pattern star = gen Starkind []
+pattern Emptyrec p A t = gen (Emptyreckind p) (A ∷ t ∷ [])
 
-prodrec : (p : M) (A : Term (1+ n)) (t : Term n) (u : Term (1+ (1+ n))) → Term n
-prodrec p A t u = gen (Prodreckind p) (A ∷ t ∷ u ∷ [])
-
--- Introduction and elimination of natural numbers.
-zero   : Term n                      -- Natural number zero.
-zero = gen Zerokind []
-
-suc    : (t : Term n)       → Term n -- Successor.
-suc t = gen Suckind (t ∷ [])
-
-natrec : (p q : M) (A : Term (1+ n)) (z : Term n)
-         (s : Term (1+ (1+ n))) (t : Term n) → Term n  -- Natural number recursor (A is a binder).
-natrec p q A z s n = gen (Natreckind p q) (A ∷ z ∷ s ∷ n ∷ [])
-
-
-star : Term n                        -- Unit element
-star = gen Starkind []
-
-Emptyrec : (p : M) (A e : Term n) → Term n   -- Empty type recursor
-Emptyrec p A e = gen (Emptyreckind p) (A ∷ e ∷ [])
-
--- Binding types
 
 data BindingType : Set a where
   BΠ : (p q : M) → BindingType
-  BΣ : (q : M) → SigmaMode → BindingType
+  BΣ : SigmaMode → (q : M) → BindingType
 
 pattern BΠ! = BΠ _ _
 pattern BΣ! = BΣ _ _
-pattern BΣᵣ = BΣ _ Σᵣ
-pattern BΣₚ = BΣ _ Σₚ
-pattern Σ_▷_▹_ q A B = gen (Sigmakind q _) (A ∷ B ∷ [])
-pattern Σ⟨_⟩_▷_▹_ m q A B = gen (Sigmakind q m) (A ∷ B ∷ [])
+pattern BΣᵣ = BΣ Σᵣ _
+pattern BΣₚ = BΣ Σₚ _
 
 ⟦_⟧_▹_ : BindingType → Term n → Term (1+ n) → Term n
 ⟦ BΠ p q ⟧ F ▹ G = Π p , q ▷ F ▹ G
-⟦ BΣ q m ⟧ F ▹ G = Σ⟨ m ⟩ q ▷ F ▹ G
+⟦ BΣ m q ⟧ F ▹ G = Σ⟨ m ⟩ q ▷ F ▹ G
 
 -- Injectivity of term constructors w.r.t. propositional equality.
 
@@ -190,7 +151,7 @@ B-PE-injectivity (BΣ q m) (BΣ .q .m) PE.refl = PE.refl , PE.refl , PE.refl
 BΠ-PE-injectivity : ∀ {p p′ q q′} → BΠ p q PE.≡ BΠ p′ q′ → p PE.≡ p′ × q PE.≡ q′
 BΠ-PE-injectivity PE.refl = PE.refl , PE.refl
 
-BΣ-PE-injectivity : ∀ {q q′ m m′} → BΣ q m PE.≡ BΣ q′ m′ → q PE.≡ q′ × m PE.≡ m′
+BΣ-PE-injectivity : ∀ {q q′ m m′} → BΣ m q PE.≡ BΣ m′ q′ → q PE.≡ q′ × m PE.≡ m′
 BΣ-PE-injectivity PE.refl = PE.refl , PE.refl
 
 -- If  suc n = suc m  then  n = m.
@@ -212,7 +173,7 @@ prod-PE-injectivity PE.refl = PE.refl , PE.refl , PE.refl
 
 data Neutral : Term n → Set a where
   var       : (x : Fin n) → Neutral (var x)
-  ∘ₙ        : Neutral t   → Neutral (t ∘ p ▷ u)
+  ∘ₙ        : Neutral t   → Neutral (t ∘⟨ p ⟩ u)
   fstₙ      : Neutral t   → Neutral (fst t)
   sndₙ      : Neutral t   → Neutral (snd t)
   natrecₙ   : Neutral v   → Neutral (natrec p r G t u v)
@@ -264,23 +225,23 @@ Unit≢ne () PE.refl
 
 B≢ne : ∀ W → Neutral A → ⟦ W ⟧ F ▹ G PE.≢ A
 B≢ne (BΠ p q) () PE.refl
-B≢ne (BΣ q m) () PE.refl
+B≢ne (BΣ m q) () PE.refl
 
 U≢B : ∀ W → U PE.≢ ⟦ W ⟧ F ▹ G
 U≢B (BΠ p q) ()
-U≢B (BΣ q m) ()
+U≢B (BΣ m q) ()
 
 ℕ≢B : ∀ W → ℕ PE.≢ ⟦ W ⟧ F ▹ G
 ℕ≢B (BΠ p q) ()
-ℕ≢B (BΣ q m) ()
+ℕ≢B (BΣ m q) ()
 
 Empty≢B : ∀ W → Empty PE.≢ ⟦ W ⟧ F ▹ G
 Empty≢B (BΠ p q) ()
-Empty≢B (BΣ q m) ()
+Empty≢B (BΣ m q) ()
 
 Unit≢B : ∀ W → Unit PE.≢ ⟦ W ⟧ F ▹ G
 Unit≢B (BΠ p q) ()
-Unit≢B (BΣ q m) ()
+Unit≢B (BΣ m q) ()
 
 Π≢Σ : ∀ {m} → Π p , q ▷ F ▹ G PE.≢ Σ⟨ m ⟩ r ▷ H ▹ E
 Π≢Σ ()
@@ -320,7 +281,7 @@ data Type {n : Nat} : Term n → Set a where
 
 ⟦_⟧-type : ∀ (W : BindingType) → Type (⟦ W ⟧ F ▹ G)
 ⟦ BΠ p q ⟧-type = Πₙ
-⟦ BΣ q m ⟧-type = Σₙ
+⟦ BΣ m q ⟧-type = Σₙ
 
 -- A whnf of type Π A ▹ B is either lam t or neutral.
 
@@ -361,7 +322,7 @@ productWhnf (ne x) = ne x
 
 ⟦_⟧ₙ : (W : BindingType) → Whnf (⟦ W ⟧ F ▹ G)
 ⟦_⟧ₙ (BΠ p q) = Πₙ
-⟦_⟧ₙ (BΣ q m) = Σₙ
+⟦_⟧ₙ (BΣ m q) = Σₙ
 
 ------------------------------------------------------------------------
 -- Weakening
@@ -637,4 +598,4 @@ t [ s ]↑² = subst (consSubst (wk1Subst (wk1Subst idSubst)) s) t
 B-subst : (σ : Subst m n) (W : BindingType) (F : Term n) (G : Term (1+ n))
         → subst σ (⟦ W ⟧ F ▹ G) PE.≡ ⟦ W ⟧ (subst σ F) ▹ (subst (liftSubst σ) G)
 B-subst σ (BΠ p q) F G = PE.refl
-B-subst σ (BΣ q m) F G = PE.refl
+B-subst σ (BΣ m q) F G = PE.refl

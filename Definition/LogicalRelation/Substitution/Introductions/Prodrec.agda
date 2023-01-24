@@ -164,7 +164,7 @@ prodrecTerm {Γ = Γ} {q} {Δ = Δ} {r} {F} {G} {A} {t} {u} {σ} {l}
       ⊢u₊ = escapeTerm [σA₊′] [u₊]
       ⊢u₊′ = PE.subst₂ (Δ ⊢_∷_) (PE.sym (doubleSubstComp u p₁ p₂ σ))
                        (PE.sym (substCompProdrec A p₁ p₂ σ)) ⊢u₊
-      [p] : Δ ⊩⟨ l ⟩ prodᵣ p₁ p₂ ∷ gen (Sigmakind q Σᵣ) (subst σ F U.∷ subst (liftSubst σ) G U.∷ []) / [σΣ]
+      [p] : Δ ⊩⟨ l ⟩ prodᵣ p₁ p₂ ∷ subst σ (Σᵣ q ▷ F ▹ G) / [σΣ]
       [p] = Σₜ p (idRedTerm:*: ⊢p) p≅p prodₙ ([p₁] , [p₂] , PE.refl)
       [t≡p] = proj₂ (redSubst*Term (redₜ t⇒p) [σΣ] [p])
       A[t]≡A[p] = proj₂ (unwrap [A] {σ = consSubst σ t} ⊢Δ ([σ] , [σt]))

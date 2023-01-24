@@ -124,7 +124,7 @@ mutual
                in  neuTerm ([G] [ρ] ⊢Δ [a]) (∘ₙ (wkNeutral ρ neN))
                            (conv (Wk.wkTerm [ρ] ⊢Δ n) ρA≡ρΠFG′ ∘ⱼ a)
                            (~-app (~-wk [ρ] ⊢Δ (~-conv n~n A≡ΠFG′)) a≡a ≈-refl ≈-refl))
-  neuTerm (Bᵣ′ (BΣ q Σₚ) F G D ⊢F ⊢G A≡A [F] [G] G-ext) neN ⊢n n~n =
+  neuTerm (Bᵣ′ (BΣ Σₚ q) F G D ⊢F ⊢G A≡A [F] [G] G-ext) neN ⊢n n~n =
     let A≡ΣFG = subset* (red D)
         ⊢Γ = wf ⊢F
         ⊢n = conv ⊢n A≡ΣFG
@@ -151,7 +151,7 @@ mutual
                           (PE.cong (λ x → x [ fst _ ]) (PE.sym (wk-lift-id G)))
                           (~-snd ⊢F ⊢G n~n))
     in  Σₜ _ (idRedTerm:*: ⊢n) (~-to-≅ₜ n~n) (ne neN) ([fst] , [snd])
-  neuTerm (Bᵣ′ (BΣ q Σᵣ) F G D ⊢F ⊢G A≡A [F] [G] G-ext) neN ⊢n n~n =
+  neuTerm (Bᵣ′ (BΣ Σᵣ q) F G D ⊢F ⊢G A≡A [F] [G] G-ext) neN ⊢n n~n =
     let A≡ΣFG = subset* (red D)
         ⊢Γ = wf ⊢F
         ⊢n = conv ⊢n A≡ΣFG

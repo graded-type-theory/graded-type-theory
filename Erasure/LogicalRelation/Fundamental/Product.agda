@@ -167,7 +167,7 @@ sndʳ′ : ∀ {l} {Γ : Con Term n}
 sndʳ′ {F = F} {G} {t} {q = q} [Γ] [F] [G] [t] ⊩ʳt =
   let [Σ] = Σᵛ {F = F} {G = G} {q = q} [Γ] [F] [G]
       [t₁] = fstᵛ {F = F} {G = G} {t = t} [Γ] [F] [G] [t]
-      [G[t₁]] = substSΠ {F = F} {G = G} {t = fst t} (BΣ q Σₚ) [Γ] [F] [Σ] [t₁]
+      [G[t₁]] = substSΠ {F = F} {G = G} {t = fst t} (BΣ Σₚ q) [Γ] [F] [Σ] [t₁]
   in  [G[t₁]] , λ {σ = σ} [σ] σ®σ′ →
       let t₁ , t₂ , v₁ , v₂ , t⇒t′ , v⇒v′ , [t₁] , t₁®v₁ , t₂®v₂ = ⊩ʳt [σ] σ®σ′
           [σF] = proj₁ (unwrap [F] ε [σ])

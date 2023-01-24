@@ -19,28 +19,25 @@ private
 
 erase : U.Term n → T.Term n
 erase (var x) = T.var x
-erase (gen Ukind []) = undefined
-erase (gen (Pikind p q) (F ∷ G ∷ [])) = undefined
-erase (gen (Lamkind p) (t ∷ [])) = T.lam (erase t)
-erase (gen (Appkind 𝟘) (t ∷ u ∷ [])) = erase t ∘ undefined
-erase (gen (Appkind ω) (t ∷ u ∷ [])) = (erase t) ∘ (erase u)
-erase (gen (Sigmakind p m) (F ∷ G ∷ [])) = undefined
-erase (gen (Prodkind _) (t ∷ u ∷ [])) = T.prod (erase t) (erase u)
-erase (gen Fstkind (t ∷ [])) = T.fst (erase t)
-erase (gen Sndkind (t ∷ [])) = T.snd (erase t)
-erase (gen (Prodreckind 𝟘) (A ∷ t ∷ u ∷ [])) =
-  (erase u) T.[ undefined , undefined ]
-erase (gen (Prodreckind ω) (A ∷ t ∷ u ∷ [])) =
-  Term.prodrec (erase t) (erase u)
-erase (gen Natkind []) = undefined
-erase (gen Zerokind []) = T.zero
-erase (gen Suckind (t ∷ [])) = T.suc (erase t)
-erase (gen (Natreckind p r) (A ∷ z ∷ s ∷ n ∷ [])) =
-  T.natrec (erase z) (erase s) (erase n)
-erase (gen Unitkind []) = undefined
-erase (gen Starkind []) = T.star
-erase (gen Emptykind []) = undefined
-erase (gen (Emptyreckind p) (A ∷ t ∷ [])) = undefined
+erase U = undefined
+erase (Π p , q ▷ F ▹ G) = undefined
+erase (U.lam p t) = T.lam (erase t)
+erase (t ∘⟨ 𝟘 ⟩ u) = erase t T.∘ undefined
+erase (t ∘⟨ ω ⟩ u) = erase t T.∘ erase u
+erase (Σ q ▷ F ▹ G) = undefined
+erase (prod! t u) = T.prod (erase t) (erase u)
+erase (U.fst t) = T.fst (erase t)
+erase (U.snd t) = T.snd (erase t)
+erase (U.prodrec 𝟘 A t u) = (erase u) T.[ undefined , undefined ]
+erase (U.prodrec ω A t u) = T.prodrec (erase t) (erase u)
+erase ℕ = undefined
+erase U.zero = T.zero
+erase (U.suc t) = T.suc (erase t)
+erase (U.natrec p r A z s n) = T.natrec (erase z) (erase s) (erase n)
+erase Unit = undefined
+erase U.star = T.star
+erase Empty = undefined
+erase (Emptyrec p A t) = undefined
 
 eraseSubst : U.Subst m n → T.Subst m n
 eraseSubst σ x = erase (σ x)

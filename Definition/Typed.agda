@@ -86,7 +86,7 @@ mutual
     _∘ⱼ_      : ∀ {g a F G}
               → Γ ⊢     g ∷ Π p , q ▷ F ▹ G
               → Γ ⊢     a ∷ F
-              → Γ ⊢ g ∘ p ▷ a ∷ G [ a ]
+              → Γ ⊢ g ∘⟨ p ⟩ a ∷ G [ a ]
 
     prodⱼ     : ∀ {F G t u}
               → Γ ⊢ F
@@ -196,14 +196,14 @@ mutual
                   → Γ ⊢ a ≡ b ∷ F
                   → p ≈ p₁
                   → p ≈ p₂
-                  → Γ ⊢ f ∘ p₁ ▷ a ≡ g ∘ p₂ ▷ b ∷ G [ a ]
+                  → Γ ⊢ f ∘⟨ p₁ ⟩ a ≡ g ∘⟨ p₂ ⟩ b ∷ G [ a ]
     β-red         : ∀ {a t F G}
                   → Γ     ⊢ F
                   → Γ ∙ F ⊢ G
                   → Γ ∙ F ⊢ t ∷ G
                   → Γ     ⊢ a ∷ F
                   → p ≈ p′
-                  → Γ     ⊢ (lam p t) ∘ p′ ▷ a ≡ t [ a ] ∷ G [ a ]
+                  → Γ     ⊢ lam p t ∘⟨ p′ ⟩ a ≡ t [ a ] ∷ G [ a ]
     η-eq          : ∀ {f g F G}
                   → Γ     ⊢ F
                   → Γ     ⊢ f ∷ Π p , q ▷ F ▹ G
@@ -211,7 +211,7 @@ mutual
                   → (∀ {p₁ p₂}
                      → p ≈ p₁
                      → p ≈ p₂
-                     → Γ ∙ F ⊢ wk1 f ∘ p₁ ▷ var x0 ≡ wk1 g ∘ p₂ ▷ var x0 ∷ G)
+                     → Γ ∙ F ⊢ wk1 f ∘⟨ p₁ ⟩ var x0 ≡ wk1 g ∘⟨ p₂ ⟩ var x0 ∷ G)
                   → Γ     ⊢ f ≡ g ∷ Π p , q ▷ F ▹ G
     fst-cong      : ∀ {t t' F G}
                   → Γ ⊢ F
@@ -312,14 +312,14 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set (ℓ
   app-subst      : ∀ {A B t u a}
                  → Γ ⊢ t ⇒ u ∷ Π p , q ▷ A ▹ B
                  → Γ ⊢ a ∷ A
-                 → Γ ⊢ t ∘ p ▷ a ⇒ u ∘ p ▷ a ∷ B [ a ]
+                 → Γ ⊢ t ∘⟨ p ⟩ a ⇒ u ∘⟨ p ⟩ a ∷ B [ a ]
   β-red          : ∀ {A B a t}
                  → Γ     ⊢ A
                  → Γ ∙ A ⊢ B
                  → Γ ∙ A ⊢ t ∷ B
                  → Γ     ⊢ a ∷ A
                  → p ≈ p′
-                 → Γ     ⊢ (lam p t) ∘ p′ ▷ a ⇒ t [ a ] ∷ B [ a ]
+                 → Γ     ⊢ lam p t ∘⟨ p′ ⟩ a ⇒ t [ a ] ∷ B [ a ]
   fst-subst      : ∀ {t t' F G}
                  → Γ ⊢ F
                  → Γ ∙ F ⊢ G
@@ -470,11 +470,11 @@ data _⊢ˢ_≡_∷_ (Δ : Con Term k) : (σ σ′ : Subst k n) (Γ : Con Term n
      → Γ ∙ F ⊢ G
      → Γ     ⊢ ⟦ W ⟧ F ▹ G
 ⟦ BΠ p q ⟧ⱼ ⊢F ▹ ⊢G = Πⱼ ⊢F ▹ ⊢G
-⟦ BΣ p m ⟧ⱼ ⊢F ▹ ⊢G = Σⱼ ⊢F ▹ ⊢G
+⟦ BΣ m q ⟧ⱼ ⊢F ▹ ⊢G = Σⱼ ⊢F ▹ ⊢G
 
 ⟦_⟧ⱼᵤ_▹_ : (W : BindingType) → ∀ {F G}
      → Γ     ⊢ F ∷ U
      → Γ ∙ F ⊢ G ∷ U
      → Γ     ⊢ ⟦ W ⟧ F ▹ G ∷ U
 ⟦ BΠ p q ⟧ⱼᵤ ⊢F ▹ ⊢G = Πⱼ ⊢F ▹ ⊢G
-⟦ BΣ p m ⟧ⱼᵤ ⊢F ▹ ⊢G = Σⱼ ⊢F ▹ ⊢G
+⟦ BΣ m q ⟧ⱼᵤ ⊢F ▹ ⊢G = Σⱼ ⊢F ▹ ⊢G

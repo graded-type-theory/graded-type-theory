@@ -60,7 +60,7 @@ data _▸_ {n : Nat} : (γ : Conₘ n) → Term n → Set (a ⊔ ℓ) where
 
   _∘ₘ_      : γ ▸ t
             → δ ▸ u
-            → γ +ᶜ p ·ᶜ δ ▸ t ∘ p ▷ u
+            → γ +ᶜ p ·ᶜ δ ▸ t ∘⟨ p ⟩ u
 
   prodᵣₘ    : γ ▸ t
             → δ ▸ u
@@ -110,29 +110,26 @@ infix 50 ⌈_⌉
 mutual
   ⌈_⌉ : Term n → Conₘ n
   ⌈ var x ⌉ = 𝟘ᶜ , x ≔ 𝟙
-  ⌈ gen k ts ⌉ = gen-usage k ts
-
-  gen-usage : ∀ {n bs} (k : Kind bs) → (ts : GenTs Term n bs) → Conₘ n
-  gen-usage Ukind []                         = 𝟘ᶜ
-  gen-usage (Pikind p q) (F ∷ G ∷ [])        = ⌈ F ⌉ +ᶜ tailₘ ⌈ G ⌉
-  gen-usage (Lamkind p) (t ∷ [])             = tailₘ ⌈ t ⌉
-  gen-usage (Appkind p) (t ∷ u ∷ [])         = ⌈ t ⌉ +ᶜ p ·ᶜ ⌈ u ⌉
-  gen-usage (Sigmakind q m) (F ∷ G ∷ [])     = ⌈ F ⌉ +ᶜ tailₘ ⌈ G ⌉
-  gen-usage (Prodkind Σᵣ) (t ∷ u ∷ [])       = ⌈ t ⌉ +ᶜ ⌈ u ⌉
-  gen-usage (Prodkind Σₚ) (t ∷ u ∷ [])       = ⌈ t ⌉ ∧ᶜ ⌈ u ⌉
-  gen-usage Fstkind (t ∷ [])                 = ⌈ t ⌉
-  gen-usage Sndkind (t ∷ [])                 = ⌈ t ⌉
-  gen-usage (Prodreckind p) (A ∷ t ∷ u ∷ []) = p ·ᶜ ⌈ t ⌉ +ᶜ tailₘ (tailₘ ⌈ u ⌉)
-  gen-usage Natkind  []                      = 𝟘ᶜ
-  gen-usage Zerokind []                      = 𝟘ᶜ
-  gen-usage Suckind (t ∷ [])                 = ⌈ t ⌉
-  gen-usage Unitkind  []                     = 𝟘ᶜ
-  gen-usage Starkind  []                     = 𝟘ᶜ
-  gen-usage Emptykind []                     = 𝟘ᶜ
-  gen-usage (Emptyreckind p) (A ∷ e ∷ [])    = p ·ᶜ ⌈ e ⌉
-  gen-usage (Natreckind p r) (G ∷ z ∷ s ∷ n ∷ []) =
+  ⌈ U ⌉ = 𝟘ᶜ
+  ⌈ Π p , q ▷ F ▹ G ⌉ = ⌈ F ⌉ +ᶜ tailₘ ⌈ G ⌉
+  ⌈ lam p t ⌉ = tailₘ ⌈ t ⌉
+  ⌈ t ∘⟨ p ⟩ u ⌉ = ⌈ t ⌉ +ᶜ p ·ᶜ ⌈ u ⌉
+  ⌈ Σ q ▷ F ▹ G ⌉ = ⌈ F ⌉ +ᶜ tailₘ ⌈ G ⌉
+  ⌈ prod Σᵣ t u ⌉ = ⌈ t ⌉ +ᶜ ⌈ u ⌉
+  ⌈ prod Σₚ t u ⌉ = ⌈ t ⌉ ∧ᶜ ⌈ u ⌉
+  ⌈ fst t ⌉ = ⌈ t ⌉
+  ⌈ snd t ⌉ = ⌈ t ⌉
+  ⌈ prodrec p A t u ⌉ = p ·ᶜ ⌈ t ⌉ +ᶜ tailₘ (tailₘ ⌈ u ⌉)
+  ⌈ ℕ ⌉ = 𝟘ᶜ
+  ⌈ zero ⌉ = 𝟘ᶜ
+  ⌈ suc t ⌉ = ⌈ t ⌉
+  ⌈ natrec p r A z s n ⌉ =
     let γ  = ⌈ z ⌉
         δ′ = ⌈ s ⌉
         η  = ⌈ n ⌉
         δ  = tailₘ (tailₘ δ′)
     in  (γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r
+  ⌈ Unit ⌉ = 𝟘ᶜ
+  ⌈ star ⌉ = 𝟘ᶜ
+  ⌈ Empty ⌉ = 𝟘ᶜ
+  ⌈ Emptyrec p A e ⌉ = p ·ᶜ ⌈ e ⌉

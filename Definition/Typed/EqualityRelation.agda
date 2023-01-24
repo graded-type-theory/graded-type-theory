@@ -186,7 +186,7 @@ record EqRelSet : Set (lsuc (ℓ ⊔ ℓ′)) where
            → (∀ {p₁ p₂}
               → p ≈ p₁
               → p ≈ p₂
-              → Γ ∙ F ⊢ wk1 f ∘ p₁ ▷ var x0 ≅ wk1 g ∘ p₂ ▷ var x0 ∷ G)
+              → Γ ∙ F ⊢ wk1 f ∘⟨ p₁ ⟩ var x0 ≅ wk1 g ∘⟨ p₂ ⟩ var x0 ∷ G)
            → Γ ⊢ f ≅ g ∷ Π p , q ▷ F ▹ G
 
     -- η for product types
@@ -210,7 +210,7 @@ record EqRelSet : Set (lsuc (ℓ ⊔ ℓ′)) where
           → Γ ⊢ a ≅ b ∷ F
           → p ≈ p₁
           → p ≈ p₂
-          → Γ ⊢ f ∘ p₁ ▷ a ~ g ∘ p₂ ▷ b ∷ G [ a ]
+          → Γ ⊢ f ∘⟨ p₁ ⟩ a ~ g ∘⟨ p₂ ⟩ b ∷ G [ a ]
 
     -- Product projections congruence
     ~-fst : ∀ {p r F G}
@@ -267,8 +267,8 @@ record EqRelSet : Set (lsuc (ℓ ⊔ ℓ′)) where
           → Γ ⊢ F ≅ H
           → Γ ∙ F ⊢ G ≅ E
           → Γ ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W′ ⟧ H ▹ E
-  ≅-W-cong (BΠ p q) _ (Π≋Π p≈p′ q≈q′) = λ x x₁ x₂ → ≅-Π-cong x x₁ x₂ p≈p′ q≈q′
-  ≅-W-cong (BΣ q _) _ (Σ≋Σ q≈q′)      = λ x x₁ x₂ → ≅-Σ-cong x x₁ x₂ q≈q′
+  ≅-W-cong BΠ! _ (Π≋Π p≈p′ q≈q′) = λ x x₁ x₂ → ≅-Π-cong x x₁ x₂ p≈p′ q≈q′
+  ≅-W-cong BΣ! _ (Σ≋Σ q≈q′)      = λ x x₁ x₂ → ≅-Σ-cong x x₁ x₂ q≈q′
 
   ≅ₜ-W-cong : ∀ {F G H E} W W′
             → W ≋ W′
@@ -276,5 +276,5 @@ record EqRelSet : Set (lsuc (ℓ ⊔ ℓ′)) where
             → Γ ⊢ F ≅ H ∷ U
             → Γ ∙ F ⊢ G ≅ E ∷ U
             → Γ ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W′ ⟧ H ▹ E ∷ U
-  ≅ₜ-W-cong (BΠ p q)  _ (Π≋Π p≈p′ q≈q′) = λ x x₁ x₂ → ≅ₜ-Π-cong x x₁ x₂ p≈p′ q≈q′
-  ≅ₜ-W-cong (BΣ q _) _ (Σ≋Σ q≈q′)        = λ x x₁ x₂ → ≅ₜ-Σ-cong x x₁ x₂ q≈q′
+  ≅ₜ-W-cong BΠ! _ (Π≋Π p≈p′ q≈q′) = λ x x₁ x₂ → ≅ₜ-Π-cong x x₁ x₂ p≈p′ q≈q′
+  ≅ₜ-W-cong BΣ! _ (Σ≋Σ q≈q′)      = λ x x₁ x₂ → ≅ₜ-Σ-cong x x₁ x₂ q≈q′

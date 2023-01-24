@@ -402,7 +402,7 @@ mutual
                                 [ΠFG]′ (reflᵛ {A = Π _ , _ ▷ F ▹ G} [Γ]₁ [ΠFG]′) [a] [b] [a≡b]
     in  [Γ]₁ , modelsTermEq [G[a]]
                             (appᵛ {F = F} {G} {f} {a} [Γ]₁ [F] [ΠFG]′ [f]′ [a] p≈p₁)
-                            (conv₂ᵛ {t = g ∘ _ ▷ b} {G [ a ]} {G [ b ]} [Γ]₁
+                            (conv₂ᵛ {t = g ∘ b} {G [ a ]} {G [ b ]} [Γ]₁
                                     [G[a]] [G[b]] [G[a]≡G[b]]
                                     (appᵛ {F = F} {G} {g} {b}
                                           [Γ]₁ [F] [ΠFG]′ [g]′ [b] p≈p₂))
@@ -417,7 +417,7 @@ mutual
         [G[a]] = substS {F = F} {G} {a} [Γ]₂ [F]₁ [G]′ [a]
         [b[a]] = substSTerm {F = F} {G} {a} {b} [Γ]₂ [F]₁ [G]′ [b]′ [a]
         [lam] , [eq] =
-          redSubstTermᵛ {A = G [ a ]} {(lam p b) ∘ q ▷ a} {b [ a ]} [Γ]₂
+          redSubstTermᵛ {A = G [ a ]} {lam p b ∘⟨ q ⟩ a} {b [ a ]} [Γ]₂
             (λ {_} {Δ} {σ} ⊢Δ [σ] →
                let [liftσ] = liftSubstS {F = F} [Γ]₂ ⊢Δ [F]₁ [σ]
                    ⊢σF = escape (proj₁ (unwrap [F]₁ ⊢Δ [σ]))
@@ -427,7 +427,7 @@ mutual
                    ⊢σa = escapeTerm (proj₁ (unwrap [F]₁ ⊢Δ [σ]))
                                        (proj₁ ([a] ⊢Δ [σ]))
                in  PE.subst₂ (λ x y → _ ⊢ (lam _ (subst (liftSubst σ) b))
-                                          ∘ _ ▷ (subst σ a) ⇒ x ∷ y)
+                                          ∘ (subst σ a) ⇒ x ∷ y)
                              (PE.sym (singleSubstLift b a))
                              (PE.sym (singleSubstLift G a))
                              (β-red ⊢σF ⊢σG ⊢σb ⊢σa p≈p′))
@@ -447,8 +447,8 @@ mutual
                                   [Γ]₁ [Γ]₁ [ΠFG] [ΠFG]″ [t]
         [t′]″ = S.irrelevanceTerm {A = Π _ , _ ▷ F ▹ G} {t = g}
                                    [Γ]₂ [Γ]₁ [ΠFG]₁ [ΠFG]″ [t′]
-        [t0≡t′0]′ = S.irrelevanceEqTerm {A = G} {t = wk1 f ∘ _ ▷ var x0}
-                                        {u = wk1 g ∘ _ ▷ var x0}
+        [t0≡t′0]′ = S.irrelevanceEqTerm {A = G} {t = wk1 f ∘ var x0}
+                                        {u = wk1 g ∘ var x0}
                                         [Γ]₃ ([Γ]₁ ∙ [F]′) [G] [G]′ [t0≡t′0]
         [t≡t′] =  η-eqᵛ {f = f} {g} {F} {G} [Γ]₁ [F]′ [G]′ [t]″ [t′]″ ≈-refl ≈-refl [t0≡t′0]′
         [t≡t′]′ = S.irrelevanceEqTerm {A = Π _ , _ ▷ F ▹ G} {t = f} {u = g}

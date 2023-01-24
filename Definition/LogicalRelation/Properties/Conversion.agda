@@ -79,7 +79,7 @@ mutual
                                           ([G] [ρ] ⊢Δ [a]₁)
                                           ([G≡G′] [ρ] ⊢Δ [a]₁)
              in  convTerm₁ ([G] [ρ] ⊢Δ [a]₁) ([G]₁ [ρ] ⊢Δ [a]) [G≡G₁] ([f]₁ [ρ] ⊢Δ [a]₁ (≈-trans p≈p′ p′≈p″)))
-  convTermT₁ {Γ = Γ} {l} {l′} (Bᵥ (BΣ q Σₚ) BΣₚ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+  convTermT₁ {Γ = Γ} {l} {l′} (Bᵥ (BΣ Σₚ q) BΣₚ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                                  (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) Σ≋Σ′)
              (B₌ F′ G′ BΣ! D′ W≋W′ A≡B [F≡F′] [G≡G′])
              (Σₜ f d f≡f pProd ([f₁] , [f₂])) =
@@ -97,7 +97,7 @@ mutual
                         ([G≡G′] Wk.id ⊢Γ [f₁])
         [f₂]₁ = convTerm₁ ([G] Wk.id ⊢Γ [f₁]) ([G]₁ Wk.id (wf ⊢F₁) [f₁]₁) G≡G₁ [f₂]
     in  Σₜ f (convRed:*: d ΣFG≡ΣF₁G₁) (≅-conv f≡f ΣFG≡ΣF₁G₁) pProd ([f₁]₁ , [f₂]₁)
-  convTermT₁ {Γ = Γ} {l} {l′} (Bᵥ (BΣ q Σᵣ) BΣᵣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+  convTermT₁ {Γ = Γ} {l} {l′} (Bᵥ (BΣ Σᵣ q) BΣᵣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                                  (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) Σ≋Σ′)
              (B₌ F′ G′ BΣ! D′ W≋W′ A≡B [F≡F′] [G≡G′])
              (Σₜ f d f≡f prodₙ ([f₁] , [f₂] , PE.refl)) =
@@ -115,7 +115,7 @@ mutual
                         ([G≡G′] Wk.id ⊢Γ [f₁])
         [f₂]₁ = convTerm₁ ([G] Wk.id ⊢Γ [f₁]) ([G]₁ Wk.id (wf ⊢F₁) [f₁]₁) G≡G₁ [f₂]
     in  Σₜ f (convRed:*: d ΣFG≡ΣF₁G₁) (≅-conv f≡f ΣFG≡ΣF₁G₁) prodₙ ([f₁]₁ , [f₂]₁ , PE.refl)
-  convTermT₁ {Γ = Γ} {l} {l′} (Bᵥ (BΣ q Σᵣ) BΣᵣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+  convTermT₁ {Γ = Γ} {l} {l′} (Bᵥ (BΣ Σᵣ q) BΣᵣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                                  (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) Σ≋Σ′)
              (B₌ F′ G′ BΣ! D′ W≋W′ A≡B [F≡F′] [G≡G′])
              (Σₜ f d f≡f (ne x) f~f) =
@@ -185,7 +185,7 @@ mutual
                                            ([G≡G′] [ρ] ⊢Δ [a])
               in  convTerm₂ ([G] [ρ] ⊢Δ [a]) ([G]₁ [ρ] ⊢Δ [a]₁)
                             [G≡G₁] ([f]₁ [ρ] ⊢Δ [a]₁ (≈-trans (≈-sym p≈p′) p′≈p″)))
-  convTermT₂ {Γ = Γ} {l} {l′} (Bᵥ (BΣ q Σₚ) BΣₚ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+  convTermT₂ {Γ = Γ} {l} {l′} (Bᵥ (BΣ Σₚ q) BΣₚ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                                      (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) Σ≋Σ′)
              (B₌ F′ G′ BΣ! D′ W≋W′ A≡B [F≡F′] [G≡G′])
              (Σₜ f d f≡f pProd ([f₁]₁ , [f₂]₁)) =
@@ -203,7 +203,7 @@ mutual
                         ([G≡G′] Wk.id ⊢Γ [f₁])
         [f₂] = convTerm₂ ([G] Wk.id ⊢Γ [f₁]) ([G]₁ Wk.id (wf ⊢F₁) [f₁]₁) G≡G₁ [f₂]₁
     in  Σₜ f (convRed:*: d (sym ΣFG≡ΣF₁G₁)) (≅-conv f≡f (sym ΣFG≡ΣF₁G₁)) pProd ([f₁] , [f₂])
-  convTermT₂ {Γ = Γ} {l} {l′} (Bᵥ (BΣ q Σᵣ) BΣᵣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+  convTermT₂ {Γ = Γ} {l} {l′} (Bᵥ (BΣ Σᵣ q) BΣᵣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                                      (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) Σ≋Σ′)
              (B₌ F′ G′ BΣ! D′ W≋W′ A≡B [F≡F′] [G≡G′])
              (Σₜ f d f≡f (prodₙ {t = f₁} {u = f₂}) ([f₁]₁ , [f₂]₁ , PE.refl)) =
@@ -221,7 +221,7 @@ mutual
                         ([G≡G′] Wk.id ⊢Γ [f₁])
         [f₂] = convTerm₂ ([G] Wk.id ⊢Γ [f₁]) ([G]₁ Wk.id (wf ⊢F₁) [f₁]₁) G≡G₁ [f₂]₁
     in  Σₜ f (convRed:*: d (sym ΣFG≡ΣF₁G₁)) (≅-conv f≡f (sym ΣFG≡ΣF₁G₁)) prodₙ ([f₁] , [f₂] , PE.refl)
-  convTermT₂ {Γ = Γ} {l} {l′} (Bᵥ (BΣ q Σᵣ) BΣᵣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+  convTermT₂ {Γ = Γ} {l} {l′} (Bᵥ (BΣ Σᵣ q) BΣᵣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                                          (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) Σ≋Σ′)
                               (B₌ F′ G′ BΣ! D′ W≋W′ A≡B [F≡F′] [G≡G′])
                               (Σₜ f d f≡f (ne x) f~f) =
@@ -311,7 +311,7 @@ mutual
                    p≈p₂ = ≈-trans p≈p′ p′≈p₂
                in  convEqTerm₁ ([G] [ρ] ⊢Δ [a]₁) ([G]₁ [ρ] ⊢Δ [a])
                                [G≡G₁] ([t≡u] [ρ] ⊢Δ [a]₁ p≈p₁ p≈p₂))
-  convEqTermT₁ {Γ = Γ} (Bᵥ (BΣ q Σₚ) BΣₚ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+  convEqTermT₁ {Γ = Γ} (Bᵥ (BΣ Σₚ q) BΣₚ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                                   (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) Σ≋Σ′)
                (B₌ F′ G′ BΣ! D′ W≋W′ A≡B [F≡F′] [G≡G′])
                (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] ([p₁] , [r₁] , [fst≡] , [snd≡])) =
@@ -338,7 +338,7 @@ mutual
             pProd rProd (≅-conv p≅r ΣFG≡ΣF₁G₁)
             (convTerm₁ [A] [B] [A≡B] [t]) (convTerm₁ [A] [B] [A≡B] [u])
             ([p₁]₁ , [r₁]₁ , [fst≡]₁ , [snd≡]₁)
-  convEqTermT₁ {Γ = Γ} (Bᵥ (BΣ q Σᵣ) BΣᵣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+  convEqTermT₁ {Γ = Γ} (Bᵥ (BΣ Σᵣ q) BΣᵣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                                   (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) Σ≋Σ′)
                (B₌ F′ G′ BΣ! D′ W≋W′ A≡B [F≡F′] [G≡G′])
                (Σₜ₌ p r d d′ (prodₙ {t = p₁}) prodₙ p≅r [t] [u] ([p₁] , [r₁] , [p₂] , [r₂] , [fst≡] , [snd≡])) =
@@ -371,7 +371,7 @@ mutual
             prodₙ prodₙ (≅-conv p≅r ΣFG≡ΣF₁G₁)
             (convTerm₁ [A] [B] [A≡B] [t]) (convTerm₁ [A] [B] [A≡B] [u])
             ([p₁]₁ , [r₁]₁ , [p₂]₁ , [r₂]₁ , [fst≡]₁ , [snd≡]₁)
-  convEqTermT₁ {Γ = Γ} (Bᵥ (BΣ q Σᵣ) BΣᵣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+  convEqTermT₁ {Γ = Γ} (Bᵥ (BΣ Σᵣ q) BΣᵣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                                   (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) Σ≋Σ′)
                        (B₌ F′ G′ BΣ! D′ W≋W′  A≡B [F≡F′] [G≡G′])
                (Σₜ₌ p r d d′ (ne x) (ne y) p≅r [t] [u] p~r) =
@@ -443,7 +443,7 @@ mutual
                    p′≈p₂ = ≈-trans (≈-sym p≈p′) p≈p₂
                in  convEqTerm₂ ([G] [ρ] ⊢Δ [a]) ([G]₁ [ρ] ⊢Δ [a]₁)
                                [G≡G₁] ([t≡u] [ρ] ⊢Δ [a]₁ p′≈p₁ p′≈p₂))
-  convEqTermT₂ {Γ = Γ} (Bᵥ (BΣ q Σₚ) BΣₚ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+  convEqTermT₂ {Γ = Γ} (Bᵥ (BΣ Σₚ q) BΣₚ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                                   (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) Σ≋Σ′)
                        (B₌ F′ G′ BΣₚ D′ W≋W′ A≡B [F≡F′] [G≡G′])
                        (Σₜ₌ p r d d′ pProd rProd t≡u [t] [u] ([p₁]₁ , [r₁]₁ , [fst≡]₁ , [snd≡]₁)) =
@@ -470,7 +470,7 @@ mutual
             pProd rProd (≅-conv t≡u (sym ΣFG≡ΣF₁G₁))
             (convTerm₂ [A] [B] [A≡B] [t]) (convTerm₂ [A] [B] [A≡B] [u])
             ([p₁] , [r₁] , [fst≡] , [snd≡])
-  convEqTermT₂ {Γ = Γ} (Bᵥ (BΣ q Σᵣ) BΣᵣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+  convEqTermT₂ {Γ = Γ} (Bᵥ (BΣ Σᵣ q) BΣᵣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                                   (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) Σ≋Σ′)
                        (B₌ F′ G′ BΣᵣ D′ W≋W′ A≡B [F≡F′] [G≡G′])
                        (Σₜ₌ p r d d′ (prodₙ {t = p₁}) prodₙ t≡u [t] [u] ([p₁]₁ , [r₁]₁ , [p₂]₁ , [r₂]₁ , [fst≡]₁ , [snd≡]₁)) =
@@ -503,7 +503,7 @@ mutual
             prodₙ prodₙ (≅-conv t≡u (sym ΣFG≡ΣF₁G₁))
             (convTerm₂ [A] [B] [A≡B] [t]) (convTerm₂ [A] [B] [A≡B] [u])
             ([p₁] , [r₁] , [p₂] , [r₂] , [fst≡] , [snd≡])
-  convEqTermT₂ {Γ = Γ} (Bᵥ (BΣ q Σᵣ) BΣᵣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+  convEqTermT₂ {Γ = Γ} (Bᵥ (BΣ Σᵣ q) BΣᵣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                                   (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) Σ≋Σ′)
                        (B₌ F′ G′ BΣᵣ D′ W≋W′ A≡B [F≡F′] [G≡G′])
                        (Σₜ₌ p r d d′ (ne x) (ne y) t≡u [t] [u] p~r₁) =

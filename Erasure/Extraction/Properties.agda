@@ -34,38 +34,38 @@ wkVar-erase-comm (lift ρ) (x +1) = cong _+1 (wkVar-erase-comm ρ x)
 wk-erase-comm : (ρ : U.Wk m n) (t : U.Term n)
               → wk (eraseWk ρ) (erase t) ≡ erase (U.wk ρ t)
 wk-erase-comm ρ (var x) = cong var (wkVar-erase-comm ρ x)
-wk-erase-comm ρ (gen Ukind []) = refl
-wk-erase-comm ρ (gen (Pikind p q) (F ∷ G ∷ [])) = refl
-wk-erase-comm ρ (gen (Lamkind p) (t ∷ [])) =
+wk-erase-comm ρ U = refl
+wk-erase-comm ρ (Π p , w ▷ F ▹ G) = refl
+wk-erase-comm ρ (U.lam p t) =
   cong T.lam (wk-erase-comm (lift ρ) t)
-wk-erase-comm ρ (gen (Appkind 𝟘) (t ∷ u ∷ [])) =
-  cong (_∘ undefined) (wk-erase-comm ρ t)
-wk-erase-comm ρ (gen (Appkind ω) (t ∷ u ∷ [])) =
-  cong₂ _∘_ (wk-erase-comm ρ t) (wk-erase-comm ρ u)
-wk-erase-comm ρ (gen (Sigmakind p m) (F ∷ G ∷ [])) = refl
-wk-erase-comm ρ (gen (Prodkind m) (t ∷ u ∷ [])) =
+wk-erase-comm ρ (t ∘⟨ 𝟘 ⟩ u) =
+  cong (T._∘ undefined) (wk-erase-comm ρ t)
+wk-erase-comm ρ (t ∘⟨ ω ⟩ u) =
+  cong₂ T._∘_ (wk-erase-comm ρ t) (wk-erase-comm ρ u)
+wk-erase-comm ρ (Σ q ▷ F ▹ G) = refl
+wk-erase-comm ρ (prod! t u) =
   cong₂ T.prod (wk-erase-comm ρ t) (wk-erase-comm ρ u)
-wk-erase-comm ρ (gen Fstkind (t ∷ [])) =
+wk-erase-comm ρ (U.fst t) =
   cong T.fst (wk-erase-comm ρ t)
-wk-erase-comm ρ (gen Sndkind (t ∷ [])) =
+wk-erase-comm ρ (U.snd t) =
   cong T.snd (wk-erase-comm ρ t)
-wk-erase-comm ρ (gen (Prodreckind 𝟘) (A ∷ t ∷ u ∷ [])) =
+wk-erase-comm ρ (U.prodrec 𝟘 A t u) =
   trans (wk-β-doubleSubst (eraseWk ρ) (erase u) undefined undefined)
         (PE.cong (_[ _ , _ ]) (wk-erase-comm (lift (lift ρ)) u))
-wk-erase-comm ρ (gen (Prodreckind ω) (A ∷ t ∷ u ∷ [])) =
+wk-erase-comm ρ (U.prodrec ω A t u) =
   cong₂ T.prodrec (wk-erase-comm ρ t) (wk-erase-comm (lift (lift ρ)) u)
-wk-erase-comm ρ (gen Natkind []) = refl
-wk-erase-comm ρ (gen Zerokind []) = refl
-wk-erase-comm ρ (gen Suckind (t ∷ [])) =
+wk-erase-comm ρ ℕ = refl
+wk-erase-comm ρ U.zero = refl
+wk-erase-comm ρ (U.suc t) =
   cong T.suc (wk-erase-comm ρ t)
-wk-erase-comm ρ (gen (Natreckind p q) (A ∷ z ∷ s ∷ n ∷ [])) =
+wk-erase-comm ρ (U.natrec p r A z s n) =
   cong₃ T.natrec (wk-erase-comm ρ z)
                  (wk-erase-comm (lift (lift ρ)) s)
                  (wk-erase-comm ρ n)
-wk-erase-comm ρ (gen Unitkind []) = refl
-wk-erase-comm ρ (gen Starkind []) = refl
-wk-erase-comm ρ (gen Emptykind []) = refl
-wk-erase-comm ρ (gen (Emptyreckind p) (A ∷ t ∷ [])) = refl
+wk-erase-comm ρ Unit = refl
+wk-erase-comm ρ U.star = refl
+wk-erase-comm ρ Empty = refl
+wk-erase-comm ρ (Emptyrec p A t) = refl
 
 -- Lifting substitutions commute with erase
 -- liftSubst (eraseSubst σ) x ≡ eraseSubst (liftSubst σ) x
@@ -75,36 +75,36 @@ liftSubst-erase-comm : (x : Fin (1+ n))
 liftSubst-erase-comm x0 = refl
 liftSubst-erase-comm {σ = σ} (x +1) with σ x
 ... | var x₁ = refl
-... | gen Ukind [] = refl
-... | gen (Pikind p q) (F ∷ G ∷ []) = refl
-... | gen (Lamkind p) (t ∷ []) =
+... | U = refl
+... | Π p , q ▷ F ▹ G = refl
+... | U.lam p t =
   cong T.lam (wk-erase-comm (lift (step id)) t)
-... | gen (Appkind 𝟘) (t ∷ u ∷ []) =
-  cong (_∘ undefined) (wk-erase-comm (step id) t)
-... | gen (Appkind ω) (t ∷ u ∷ []) =
-  cong₂ _∘_ (wk-erase-comm (step id) t) (wk-erase-comm (step id) u)
-... | gen (Sigmakind p m) (F ∷ G ∷ []) = refl
-... | gen (Prodkind m) (t ∷ u ∷ []) =
+... | t ∘⟨ 𝟘 ⟩ u =
+  cong (T._∘ undefined) (wk-erase-comm (step id) t)
+... | t ∘⟨ ω ⟩ u =
+  cong₂ T._∘_ (wk-erase-comm (step id) t) (wk-erase-comm (step id) u)
+... | Σ q ▷ F ▹ G = refl
+... | prod! t u =
   cong₂ T.prod (wk-erase-comm (step id) t) (wk-erase-comm (step id) u)
-... | gen Fstkind (t ∷ []) = cong T.fst (wk-erase-comm (step id) t)
-... | gen Sndkind (t ∷ []) = cong T.snd (wk-erase-comm (step id) t)
-... | gen (Prodreckind 𝟘) (A ∷ t ∷ u ∷ []) =
+... | U.fst t = cong T.fst (wk-erase-comm (step id) t)
+... | U.snd t = cong T.snd (wk-erase-comm (step id) t)
+... | U.prodrec 𝟘 A t u =
   PE.trans (wk-β-doubleSubst (step id) (erase u) undefined undefined)
            (PE.cong (_[ _ , _ ]) (wk-erase-comm (lift (lift (step id))) u))
-... | gen (Prodreckind ω) (A ∷ t ∷ u ∷ []) =
+... | U.prodrec ω A t u =
   cong₂ Term.prodrec (wk-erase-comm (step id) t)
                      (wk-erase-comm (lift (lift (step id))) u)
-... | gen Natkind [] = refl
-... | gen Zerokind [] = refl
-... | gen Suckind (t ∷ []) = cong T.suc (wk-erase-comm (step id) t)
-... | gen (Natreckind p q) (A ∷ z ∷ s ∷ n ∷ []) =
+... | ℕ = refl
+... | U.zero = refl
+... | U.suc t = cong T.suc (wk-erase-comm (step id) t)
+... | U.natrec p r A z s n =
   cong₃ T.natrec (wk-erase-comm (step id) z)
                  (wk-erase-comm (lift (lift (step id))) s)
                  (wk-erase-comm (step id) n)
-... | gen Unitkind [] = refl
-... | gen Starkind [] = refl
-... | gen Emptykind [] = refl
-... | gen (Emptyreckind p) (A ∷ t ∷ []) = refl
+... | Unit = refl
+... | U.star = refl
+... | Empty = refl
+... | Emptyrec p A t = refl
 
 -- Multiple lifts commutes with erase
 -- liftSubstn (eraseSubst σ) n x ≡ eraseSubst (liftSubstn σ n) x
@@ -131,9 +131,9 @@ liftSubsts-erase-comm {σ = σ} (1+ k) (x +1) = begin
 subst-erase-comm : (σ : U.Subst m n) (t : U.Term n)
                  → T.subst (eraseSubst σ) (erase t) ≡ erase (U.subst σ t)
 subst-erase-comm σ (var x) = refl
-subst-erase-comm σ (gen Ukind []) = refl
-subst-erase-comm σ (gen (Pikind p q) (F ∷ G ∷ [])) = refl
-subst-erase-comm σ (gen (Lamkind 𝟘) (t ∷ [])) =
+subst-erase-comm σ U = refl
+subst-erase-comm σ (Π p , q ▷ F ▹ G) = refl
+subst-erase-comm σ (U.lam p t) =
   cong Term.lam
     (begin
       T.subst (liftSubst (eraseSubst σ)) (erase t)
@@ -141,38 +141,35 @@ subst-erase-comm σ (gen (Lamkind 𝟘) (t ∷ [])) =
       T.subst (eraseSubst (U.liftSubst σ)) (erase t)
         ≡⟨ subst-erase-comm (U.liftSubst σ) t ⟩
       erase (U.subst (U.liftSubst σ) t) ∎)
-subst-erase-comm σ (gen (Lamkind ω) (t ∷ [])) =
-  cong T.lam (trans (substVar-to-subst liftSubst-erase-comm (erase t))
-                    (subst-erase-comm (U.liftSubst σ) t))
-subst-erase-comm σ (gen (Appkind 𝟘) (t ∷ u ∷ [])) =
-  cong (_∘ undefined) (subst-erase-comm σ t)
-subst-erase-comm σ (gen (Appkind ω) (t ∷ u ∷ [])) =
-  cong₂ _∘_ (subst-erase-comm σ t) (subst-erase-comm σ u)
-subst-erase-comm σ (gen (Sigmakind p m) (F ∷ G ∷ [])) = refl
-subst-erase-comm σ (gen (Prodkind m) (t ∷ u ∷ [])) =
+subst-erase-comm σ (t ∘⟨ 𝟘 ⟩ u) =
+  cong (T._∘ undefined) (subst-erase-comm σ t)
+subst-erase-comm σ (t ∘⟨ ω ⟩ u) =
+  cong₂ T._∘_ (subst-erase-comm σ t) (subst-erase-comm σ u)
+subst-erase-comm σ (Σ q ▷ F ▹ G) = refl
+subst-erase-comm σ (prod! t u) =
   cong₂ T.prod (subst-erase-comm σ t) (subst-erase-comm σ u)
-subst-erase-comm σ (gen Fstkind (t ∷ [])) = cong T.fst (subst-erase-comm σ t)
-subst-erase-comm σ (gen Sndkind (t ∷ [])) = cong T.snd (subst-erase-comm σ t)
-subst-erase-comm σ (gen (Prodreckind 𝟘) (A ∷ t ∷ u ∷ [])) =
+subst-erase-comm σ (U.fst t) = cong T.fst (subst-erase-comm σ t)
+subst-erase-comm σ (U.snd t) = cong T.snd (subst-erase-comm σ t)
+subst-erase-comm σ (U.prodrec 𝟘 A t u) =
   trans (doubleSubstLift (eraseSubst σ) (erase u) undefined undefined)
         (cong (_[ _ , _ ]) (trans (substVar-to-subst (liftSubsts-erase-comm 2) (erase u))
                                   (subst-erase-comm (U.liftSubstn σ 2) u)))
-subst-erase-comm σ (gen (Prodreckind ω) (A ∷ t ∷ u ∷ [])) =
+subst-erase-comm σ (U.prodrec ω A t u) =
   cong₂ Term.prodrec (subst-erase-comm σ t)
         (trans (substVar-to-subst (liftSubsts-erase-comm 2) (erase u))
                (subst-erase-comm (U.liftSubstn σ 2) u))
-subst-erase-comm σ (gen Natkind []) = refl
-subst-erase-comm σ (gen Zerokind []) = refl
-subst-erase-comm σ (gen Suckind (t ∷ [])) = cong T.suc (subst-erase-comm σ t)
-subst-erase-comm σ (gen (Natreckind p q) (A ∷ z ∷ s ∷ n ∷ [])) = cong₃ T.natrec
+subst-erase-comm σ ℕ = refl
+subst-erase-comm σ U.zero = refl
+subst-erase-comm σ (U.suc t) = cong T.suc (subst-erase-comm σ t)
+subst-erase-comm σ (U.natrec p r A z s n) = cong₃ T.natrec
   (subst-erase-comm σ z)
   (trans (substVar-to-subst (liftSubsts-erase-comm 2) (erase s))
          (subst-erase-comm (U.liftSubst (U.liftSubst σ)) s))
   (subst-erase-comm σ n)
-subst-erase-comm σ (gen Unitkind []) = refl
-subst-erase-comm σ (gen Starkind []) = refl
-subst-erase-comm σ (gen Emptykind []) = refl
-subst-erase-comm σ (gen (Emptyreckind p) (A ∷ t ∷ [])) = refl
+subst-erase-comm σ Unit = refl
+subst-erase-comm σ U.star = refl
+subst-erase-comm σ Empty = refl
+subst-erase-comm σ (Emptyrec p A t) = refl
 
 subst-undefined : (x : Fin (1+ n)) →
       erase (U.consSubst var Empty x) ≡

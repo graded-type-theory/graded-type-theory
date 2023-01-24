@@ -113,7 +113,7 @@ record InvUsageApp {n} (γ : Conₘ n) (t : Term n) (p : M) (u : Term n) : Set (
 
 -- If γ ▸ t ∘ p ▷ u then δ ▸ t, η ▸ u and γ ≤ᶜ δ +ᶜ p ·ᶜ η
 
-inv-usage-app : γ′ ▸ (t ∘ p ▷ u) → InvUsageApp γ′ t p u
+inv-usage-app : γ′ ▸ t ∘⟨ p ⟩ u → InvUsageApp γ′ t p u
 inv-usage-app (γ▸t ∘ₘ δ▸u) = invUsageApp γ▸t δ▸u ≤ᶜ-refl
 inv-usage-app (sub γ▸t∘p▷u γ′≤γ) with inv-usage-app γ▸t∘p▷u
 ... | invUsageApp δ▸t η▸u γ≤δ+pη = invUsageApp δ▸t η▸u (≤ᶜ-trans γ′≤γ γ≤δ+pη)

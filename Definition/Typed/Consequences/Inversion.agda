@@ -81,7 +81,7 @@ inversion-natrec (conv d x) = let a , b , c , d , e = inversion-natrec d
                               in  a , b , c , d , trans (sym x) e
 
 -- Inversion of application.
-inversion-app :  ∀ {f a A} → Γ ⊢ (f ∘ p ▷ a) ∷ A →
+inversion-app :  ∀ {f a A} → Γ ⊢ f ∘⟨ p ⟩ a ∷ A →
   ∃₃ λ F G q → Γ ⊢ f ∷ Π p , q ▷ F ▹ G × Γ ⊢ a ∷ F × Γ ⊢ A ≡ G [ a ]
 inversion-app (d ∘ⱼ d₁) = _ , _ , _ , d , d₁ , refl (substTypeΠ (syntacticTerm d) d₁)
 inversion-app (conv d x) = let a , b , c , d , e , f = inversion-app d
