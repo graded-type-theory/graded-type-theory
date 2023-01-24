@@ -190,6 +190,8 @@ module Main (nΓγ : NegativeErasedContext Γ γ) (consistent : ∀{t} → Γ �
 
   open import Definition.Typed.Consequences.Reduction Erasure′
   open import Definition.Typed.Usage ErasureModality
+  open import Definition.Typed.Consequences.Consistency Erasure′
+  open import Erasure.SucRed Erasure′
 
   -- Lemma: A neutral has negative type in a consistent negative/erased context.
 
@@ -261,19 +263,20 @@ module Main (nΓγ : NegativeErasedContext Γ γ) (consistent : ∀{t} → Γ �
 
   thm : (⊢t : Γ ⊢ t ∷ ℕ) → (γ▸t : γ ▸ t) → ∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ
   thm ⊢t γ▸t with fullRedTerm ⊢t γ▸t
-  ... | u , nf , eq , γ▸u = u , nfN (proj₂ (proj₂ (syntacticEqTerm eq))) γ▸u nf (refl (ℕⱼ (wfTerm ⊢t))) , eq
+  ... | u , nf , eq , γ▸u =
+    u , nfN (proj₂ (proj₂ (syntacticEqTerm eq))) γ▸u nf (refl (ℕⱼ (wfTerm ⊢t))) , eq
 
   -- Any well-typed term Γ ⊢ t : ℕ WH-reduces to zero or suc u for some u
 
-  lem : Γ ⊢ t ∷ ℕ → γ ▸ t → ∃ λ u → Γ ⊢ t ⇒* u ∷ ℕ × Whnf u × (Neutral u → ⊥)
-  lem ⊢t γ▸t =
+  lem : Γ ⊢ t ∷ A → γ ▸ t → (NegativeType Γ A → ⊥)
+      → ∃ λ u → Γ ⊢ t ⇒* u ∷ A × Whnf u × (Neutral u → ⊥)
+  lem ⊢t γ▸t ¬negA =
     let u , whnfU , d = whNormTerm ⊢t
         γ▸u = usagePres*Term γ▸t (redₜ d)
-        ⊢ℕ = refl (ℕⱼ (wfTerm ⊢t))
-    in  u , redₜ d , whnfU , λ x → ¬negℕ (neNeg (⊢u-redₜ d) x γ▸u) ⊢ℕ
+    in  u , redₜ d , whnfU , λ x → ¬negA (neNeg (⊢u-redₜ d) x γ▸u)
 
   thm′ : Γ ⊢ t ∷ ℕ → γ ▸ t → (Γ ⊢ t ⇒* zero ∷ ℕ) ⊎ ∃ λ u → Γ ⊢ t ⇒* suc u ∷ ℕ
-  thm′ ⊢t γ▸t with lem ⊢t γ▸t
+  thm′ ⊢t γ▸t with lem ⊢t γ▸t (λ x → ¬negℕ x (refl (ℕⱼ (wfTerm ⊢t))))
   -- True cases
   ... | _ , d , zeroₙ , ¬neU = inj₁ d
   ... | _ , d , sucₙ , ¬neU = inj₂ (_ , d)
@@ -313,4 +316,27 @@ module Main (nΓγ : NegativeErasedContext Γ γ) (consistent : ∀{t} → Γ �
     in  ⊥-elim (ℕ≢B BΣ! ℕ≡Σ)
   ... | _ , d , ne x , ¬neU = ⊥-elim (¬neU x)
 
--- Q.E.D. 2023-01-20
+  lem′ : Γ ⊢ t ∷ ℕ → γ ▸ t → Γ ⊢ t ≡ u ∷ ℕ → Numeral u
+       → ∃ λ v → Numeral v × Γ ⊢ t ⇒ˢ* v ∷ℕ
+  lem′ ⊢t γ▸t t≡u num with thm′ ⊢t γ▸t
+  lem′ ⊢t γ▸t t≡u zeroₙ | inj₁ x = zero , zeroₙ , whred* x
+  lem′ ⊢t γ▸t t≡0 zeroₙ | inj₂ (u , t⇒sucu) =
+    ⊥-elim (zero≢suc (trans (sym t≡0) (subset*Term t⇒sucu)))
+  lem′ ⊢t γ▸t t≡sucu (sucₙ num) | inj₁ t⇒0 =
+    ⊥-elim (zero≢suc (trans (sym (subset*Term t⇒0)) t≡sucu))
+  lem′ ⊢t γ▸t t≡suct′ (sucₙ numT) | inj₂ (u , t⇒sucu) =
+    let sucu≡suct′ = trans (sym (subset*Term t⇒sucu)) t≡suct′
+        u≡t′ = suc-injectivity sucu≡suct′
+        _ , _ , ⊢sucu = syntacticRedTerm t⇒sucu
+        ⊢u , _ = inversion-suc ⊢sucu
+        γ▸sucu = usagePres*Term γ▸t t⇒sucu
+        invUsageSuc δ▸u γ≤δ = inv-usage-suc γ▸sucu
+        γ▸u = sub δ▸u γ≤δ
+        v , numV , t⇒v = lem′ ⊢u γ▸u u≡t′ numT
+    in  suc v , sucₙ numV , ⇒ˢ*∷ℕ-trans (whred* t⇒sucu) (sucred* t⇒v)
+
+  thm″ : Γ ⊢ t ∷ ℕ → γ ▸ t → ∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ
+  thm″ ⊢t γ▸t with thm ⊢t γ▸t
+  ... | u , num , eq = lem′ ⊢t γ▸t eq num
+
+-- Q.E.D. 2023-01-24
