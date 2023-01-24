@@ -4,7 +4,7 @@ open import Definition.Modality.Instances.Erasure
 open import Definition.Typed.EqualityRelation
 
 module Erasure.Consequences.Soundness
-  (Prodrec : Erasure → Set){{eqrel : EqRelSet Erasure′}} where
+  (Prodrec : Erasure → Set) {{eqrel : EqRelSet Erasure′}} where
 open EqRelSet {{...}}
 
 open import Definition.Untyped Erasure hiding (_∷_)
@@ -18,6 +18,7 @@ open import Definition.Modality.Usage ErasureModality
 
 import Erasure.Target as T
 open import Erasure.Extraction
+open import Erasure.SucRed Erasure′
 open import Erasure.LogicalRelation Prodrec
 open import Erasure.LogicalRelation.Fundamental Prodrec
 open import Erasure.LogicalRelation.Irrelevance Prodrec
@@ -55,62 +56,20 @@ data WHℕ′ : (n : Nat) → T.Term 0 → Set where
   zeroʷ : v T.⇒* T.zero → WHℕ′ 0 v
   sucʷ  : v T.⇒* T.suc v′ → WHℕ′ n v′ → WHℕ′ (1+ n) v
 
-
 -- Weak head representations are equivalent to canonical representations
 -- when reductions are allowed under the head of suc
 
-data _⇓_ : (t t′ : Term 0) → Set where
-  whred : ε ⊢ t ⇒ t′ ∷ ℕ → t ⇓ t′
-  sucred : t ⇓ t′ → suc t ⇓ suc t′
-
-data _⇓*_ : (t t′ : Term 0) → Set where
-  id : ε ⊢ t ∷ ℕ → t ⇓* t
-  _⇩_ : t ⇓ t′ → t′ ⇓* u → t ⇓* u
-
-whred* : ε ⊢ t ⇒* t′ ∷ ℕ → t ⇓* t′
-whred* (id x) = id x
-whred* (x ⇨ x₁) = (whred x) ⇩ (whred* x₁)
-
-sucred* : t ⇓* t′ → suc t ⇓* suc t′
-sucred* (id x) = id (sucⱼ x)
-sucred* (x ⇩ x₁) = sucred x ⇩ sucred* x₁
-
-_⇩*_ : t ⇓* t′ → t′ ⇓* u → t ⇓* u
-id ⊢t ⇩* t⇓u = t⇓u
-(t⇓t′ ⇩ t′⇓t″) ⇩* t″⇓u = t⇓t′ ⇩ (t′⇓t″ ⇩* t″⇓u)
-
-data _↓_ : (v v′ : T.Term 0) → Set where
-  whred : v T.⇒ v′ → v ↓ v′
-  sucred : v ↓ v′ → T.suc v ↓ T.suc v′
-
-data _↓*_ : (v v′ : T.Term 0) → Set where
-  id : v ↓* v
-  _⇩_ : v ↓ v′ → v′ ↓* w → v ↓* w
-
-whred*′ : v T.⇒* v′ → v ↓* v′
-whred*′ T.refl = id
-whred*′ (T.trans x x₁) = whred x ⇩ whred*′ x₁
-
-sucred*′ : v ↓* v′ → T.suc v ↓* T.suc v′
-sucred*′ id = id
-sucred*′ (x ⇩ x₁) = sucred x ⇩ sucred*′ x₁
-
-_⇩′*_ : v ↓* v′ → v′ ↓* w → v ↓* w
-id ⇩′* v⇩w = v⇩w
-(v⇩v′ ⇩ v′⇩v″) ⇩′* v″⇩w = v⇩v′ ⇩ (v′⇩v″ ⇩′* v″⇩w)
-
 -- If WHℕ n t then t ⇓ sucᵏ n
 
-WHℕ-canon : WHℕ n t → t ⇓* sucᵏ n
+WHℕ-canon : WHℕ n t → ε ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
 WHℕ-canon (zeroʷ x) = whred* x
-WHℕ-canon (sucʷ x x₁) = (whred* x) ⇩* sucred* (WHℕ-canon x₁)
+WHℕ-canon (sucʷ x x₁) = ⇒ˢ*∷ℕ-trans (whred* x) (sucred* (WHℕ-canon x₁))
 
 -- If WHℕ′ n v then v ⇓′ sucᵏ′ v
 
-WHℕ′-canon : WHℕ′ n v → v ↓* sucᵏ′ n
+WHℕ′-canon : WHℕ′ n v → v ⇒ˢ* sucᵏ′ n
 WHℕ′-canon (zeroʷ x) = whred*′ x
-WHℕ′-canon (sucʷ x x₁) = whred*′ x ⇩′* (sucred*′ (WHℕ′-canon x₁))
-
+WHℕ′-canon (sucʷ x x₁) = ⇒ˢ*-trans (whred*′ x) (sucred*′ (WHℕ′-canon x₁))
 
 -- Helper lemma for WH reduction soundness of zero
 -- If t ® v ∷ℕ  and t ⇒* zero then v ⇒* zero
