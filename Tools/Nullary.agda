@@ -5,7 +5,6 @@
 module Tools.Nullary where
 
 open import Relation.Nullary using (¬_; Dec; yes; no) public
-open import Relation.Nullary.Decidable using (isYes) public
 
 -- If A and B are logically equivalent, then so are Dec A and Dec B.
 

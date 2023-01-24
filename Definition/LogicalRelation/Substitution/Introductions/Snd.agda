@@ -35,8 +35,8 @@ private
 
 snd-subst*′ : ∀ {l l′ F G t t′}
              ([F] : Γ ⊩⟨ l ⟩ F)
-             ([ΣFG] : Γ ⊩⟨ l′ ⟩B⟨ BΣ q Σₚ ⟩ Σₚ q ▷ F ▹ G)
-             ([t′] : Γ ⊩⟨ l′ ⟩ t′ ∷ Σ q ▷ F ▹ G / B-intr (BΣ q Σₚ) [ΣFG])
+             ([ΣFG] : Γ ⊩⟨ l′ ⟩B⟨ BΣ Σₚ q ⟩ Σₚ q ▷ F ▹ G)
+             ([t′] : Γ ⊩⟨ l′ ⟩ t′ ∷ Σ q ▷ F ▹ G / B-intr (BΣ Σₚ q) [ΣFG])
              → Γ ⊢ t ⇒* t′ ∷ Σₚ q ▷ F ▹ G
              → Γ ⊢ snd t ⇒* snd t′ ∷ G [ fst t ]
 snd-subst*′ [F] (noemb (Bᵣ F G D ⊢F ⊢G A≡A [F]₁ [G] G-ext)) _ (id x) with
@@ -46,9 +46,9 @@ snd-subst*′ {Γ = Γ} {q = q} {F = F} {G = G} {t = t} {t′ = t″} [F]
             [ΣFG]₀@(noemb (Bᵣ F₁ G₁ D ⊢F ⊢G A≡A [F]₁ [G] G-ext))
             [t″]
             t⇒*t″@(_⇨_ {t′ = t′} t⇒t′ t′⇒*t″) with
-              B-PE-injectivity (BΣ q Σₚ) (BΣ q Σₚ) (whnfRed* (red D) Σₙ)
+              B-PE-injectivity (BΣ Σₚ q) (BΣ Σₚ q) (whnfRed* (red D) Σₙ)
 ... | PE.refl , PE.refl , _ =
-  let [ΣFG] = B-intr (BΣ q Σₚ) [ΣFG]₀
+  let [ΣFG] = B-intr (BΣ Σₚ q) [ΣFG]₀
       [t] , _ = redSubst*Term t⇒*t″ [ΣFG] [t″]
       [t′] , _ = redSubst*Term t′⇒*t″ [ΣFG] [t″]
       [t≡t′] : Γ ⊩⟨ _ ⟩ t ≡ t′ ∷ Σ _ ▷ F ▹ G / [ΣFG]
@@ -81,8 +81,8 @@ snd-subst* [F] [ΣFG] [t′] t⇒*t′ =
   in  snd-subst*′ [F] (B-elim BΣ! [ΣFG]) [t′]′ t⇒*t′
 
 snd′ : ∀ {F G t l l′}
-       ([ΣFG] : Γ ⊩⟨ l ⟩B⟨ BΣ q Σₚ ⟩ Σ q ▷ F ▹ G)
-       ([t] : Γ ⊩⟨ l ⟩ t ∷ Σ _ ▷ F ▹ G / B-intr BΣ! [ΣFG])
+       ([ΣFG] : Γ ⊩⟨ l ⟩B⟨ BΣ Σₚ q ⟩ Σ q ▷ F ▹ G)
+       ([t] : Γ ⊩⟨ l ⟩ t ∷ Σ q ▷ F ▹ G / B-intr BΣ! [ΣFG])
        ([Gfst] : Γ ⊩⟨ l′ ⟩ G [ fst t ])
        → Γ ⊩⟨ l′ ⟩ snd t ∷ G [ fst t ] / [Gfst]
 snd′ {Γ = Γ} {q = q} {F = F} {G = G} {t = t} {l = l} {l′ = l′}

@@ -39,9 +39,9 @@ prod′ : ∀ {Γ : Con Term n} {F : Term n} {G t u l l′ l″}
        ([t] : Γ ⊩⟨ l ⟩ t ∷ F / [F])
        ([Gt] : Γ ⊩⟨ l″ ⟩ G [ t ])
        ([u] : Γ ⊩⟨ l″ ⟩ u ∷ G [ t ] / [Gt])
-       ([ΣFG] : Γ ⊩⟨ l′ ⟩B⟨ BΣ q m ⟩ Σ⟨ m ⟩ q ▷ F ▹ G)
-     → Γ ⊩⟨ l′ ⟩ prod m t u ∷ Σ _ ▷ F ▹ G / B-intr BΣ! [ΣFG]
-prod′ {q = q} {m = Σₚ} {Γ = Γ} {F} {G} {t} {u} {l} {l′} {l″} [F] [t] [Gt] [u]
+       ([ΣFG] : Γ ⊩⟨ l′ ⟩B⟨ BΣ m q ⟩ Σ⟨ m ⟩ q ▷ F ▹ G)
+     → Γ ⊩⟨ l′ ⟩ prod m t u ∷ Σ q ▷ F ▹ G / B-intr BΣ! [ΣFG]
+prod′ {m = Σₚ} {q = q} {Γ = Γ} {F} {G} {t} {u} {l} {l′} {l″} [F] [t] [Gt] [u]
       [ΣFG]@(noemb (Bᵣ F₁ G₁ D ⊢F ⊢G A≡A [F]₁ [G]₁ G-ext)) with
         B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) Σₙ)
 ... | PE.refl , PE.refl , _ =
@@ -89,7 +89,7 @@ prod′ {q = q} {m = Σₚ} {Γ = Γ} {F} {G} {t} {u} {l} {l′} {l″} [F] [t] 
                 (escapeTermEq [Gfst]′ [sndRefl]))
          prodₙ ([fstprod]′ , [sndprod]′)
 
-prod′ {q = q} {m = Σᵣ} {Γ = Γ} {F} {G} {t} {u} {l} {l′} {l″} [F] [t] [Gt] [u]
+prod′ {m = Σᵣ} {q = q} {Γ = Γ} {F} {G} {t} {u} {l} {l′} {l″} [F] [t] [Gt] [u]
       [ΣFG]@(noemb (Bᵣ F₁ G₁ D ⊢F ⊢G A≡A [F]₁ [G]₁ G-ext)) with
         B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) Σₙ)
 ... | PE.refl , PE.refl , _ =
@@ -133,9 +133,9 @@ prod-cong′ : ∀ {Γ : Con Term n} {F : Term n} {G t t′ u u′ l l′}
              ([u] : Γ ⊩⟨ l ⟩ u ∷ G [ t ] / [Gt])
              ([u′] : Γ ⊩⟨ l ⟩ u′ ∷ G [ t ] / [Gt])
              ([u≡u′] : Γ ⊩⟨ l ⟩ u ≡ u′ ∷ G [ t ] / [Gt])
-             ([ΣFG] : Γ ⊩⟨ l′ ⟩B⟨ BΣ q m ⟩ Σ⟨ m ⟩ q  ▷ F ▹ G)
+             ([ΣFG] : Γ ⊩⟨ l′ ⟩B⟨ BΣ m q ⟩ Σ⟨ m ⟩ q  ▷ F ▹ G)
              → Γ ⊩⟨ l′ ⟩ prod m t u ≡ prod m t′ u′ ∷ Σ q ▷ F ▹ G / B-intr BΣ! [ΣFG]
-prod-cong′ {q = q} {m = Σₚ} {Γ = Γ} {F} {G} {t} {t′} {u} {u′} {l} {l′}
+prod-cong′ {m = Σₚ} {q = q} {Γ = Γ} {F} {G} {t} {t′} {u} {u′} {l} {l′}
            [F] [t] [t′] [t≡t′] [Gt] [u] [u′] [u≡u′]
            [ΣFG]@(noemb (Bᵣ F₁ G₁ D ⊢F ⊢G A≡A [F]₁ [G]₁ G-ext)) with
              B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) Σₙ)
@@ -250,7 +250,7 @@ prod-cong′ {q = q} {m = Σₚ} {Γ = Γ} {F} {G} {t} {t′} {u} {u′} {l} {l�
           [prod] [prod′]
           (wk[fst] , wk[fst′] , wk[fst≡fst′] , wk[snd≡snd′])
 
-prod-cong′ {q = q} {m = Σᵣ} {Γ = Γ} {F} {G} {t} {t′} {u} {u′} {l} {l′}
+prod-cong′ {m = Σᵣ} {q = q} {Γ = Γ} {F} {G} {t} {t′} {u} {u′} {l} {l′}
            [F] [t] [t′] [t≡t′] [Gt] [u] [u′] [u≡u′]
            [ΣFG]@(noemb (Bᵣ F₁ G₁ D ⊢F ⊢G A≡A [F]₁ [G]₁ G-ext)) with
              B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) Σₙ)
@@ -299,7 +299,7 @@ prod-cong″ : ∀ {Γ : Con Term n} {F : Term n} {G t t′ u u′ l l′}
              ([u′] : Γ ⊩⟨ l ⟩ u′ ∷ G [ t ] / [Gt])
              ([u≡u′] : Γ ⊩⟨ l ⟩ u ≡ u′ ∷ G [ t ] / [Gt])
              ([ΣFG] : Γ ⊩⟨ l′ ⟩ Σ⟨ m ⟩ q ▷ F ▹ G)
-             → Γ ⊩⟨ l′ ⟩ prod m t u ≡ prod m t′ u′ ∷ Σ _ ▷ F ▹ G / [ΣFG]
+             → Γ ⊩⟨ l′ ⟩ prod m t u ≡ prod m t′ u′ ∷ Σ q ▷ F ▹ G / [ΣFG]
 prod-cong″ {m = m} [F] [t] [t′] [t≡t′] [Gt] [u] [u′] [u≡u′] [ΣFG] =
   let [prod≡] = prod-cong′ {m = m} [F] [t] [t′] [t≡t′] [Gt] [u] [u′] [u≡u′] (B-elim BΣ! [ΣFG])
   in  irrelevanceEqTerm (B-intr BΣ! (B-elim BΣ! [ΣFG])) [ΣFG] [prod≡]

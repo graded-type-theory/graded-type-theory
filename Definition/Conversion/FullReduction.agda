@@ -35,7 +35,7 @@ private
 mutual
   data NfNeutral {m : Nat} : Term m → Set a where
     var       : (x : Fin m)                             → NfNeutral (var x)
-    ∘ₙ        : {k u : Term m}     → NfNeutral k → Nf u → NfNeutral (k ∘ q ▷ u)
+    ∘ₙ        : {k u : Term m}     → NfNeutral k → Nf u → NfNeutral (k ∘⟨ q ⟩ u)
     fstₙ      : {p : Term m}       → NfNeutral p        → NfNeutral (fst p)
     sndₙ      : {p : Term m}       → NfNeutral p        → NfNeutral (snd p)
     natrecₙ   : {C : Term (1+ m)} {c k : Term m} {g : Term (1+ (1+ m))}
@@ -89,7 +89,7 @@ mutual
   fullRedNe (app-cong t u p≈p₁ p≈p₂) =
     let t′ , nfT′ , t≡t′ = fullRedNe~↓ t
         u′ , nfU′ , u≡u′ = fullRedTerm u
-    in  (t′ ∘ _ ▷ u′) , (∘ₙ nfT′ nfU′) , app-cong t≡t′ u≡u′ p≈p₁ p≈p₂
+    in  (t′ ∘ u′) , (∘ₙ nfT′ nfU′) , app-cong t≡t′ u≡u′ p≈p₁ p≈p₂
   fullRedNe (fst-cong p~p) =
     let p′ , neP′ , p≡p′ = fullRedNe~↓ p~p
         ⊢ΣFG , _ , _ = syntacticEqTerm p≡p′
@@ -194,10 +194,10 @@ mutual
         ΓFF'⊢ = ΓF⊢ ∙ wk⊢F
         wk⊢u = wkTerm (lift (step id)) ΓFF'⊢ ⊢u
         wk⊢t = wkTerm (step id) ΓF⊢ ⊢t
-        λu∘0 = lam p (U.wk (lift (step id)) u) ∘ p ▷ var x0
+        λu∘0 = lam p (U.wk (lift (step id)) u) ∘⟨ p ⟩ var x0
     in  lam _ u , lamₙ nf
      ,  η-eq ⊢F ⊢t (lamⱼ ⊢F ⊢u) λ {p₁} {p₂} p≈p₁ p≈p₂ →
-             let λu∘0 = lam p (U.wk (lift (step id)) u) ∘ p₂ ▷ var x0
+             let λu∘0 = lam p (U.wk (lift (step id)) u) ∘⟨ p₂ ⟩ var x0
              in  trans (PE.subst (λ x → _ ⊢ _ ≡ _ ∷ x) (wkSingleSubstId _)
                                  (app-cong (refl wk⊢t) (refl (var ΓF⊢ here)) p≈p₁ ≈-refl))
                        (trans t∘0≡u (PE.subst₂ (λ x y → _ ⊢ x ≡ λu∘0 ∷ y)

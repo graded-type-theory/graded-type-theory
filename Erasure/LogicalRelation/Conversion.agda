@@ -110,6 +110,11 @@ convTermʳ′ [A] [B] A≡B (Bᵥ (BΣ q m) BΣ! (Bᵣ F G [ _ , _ , A⇒Σ ] �
   in  t₁ , t₂ , v₁ , v₂ , t⇒t″ , v⇒v′ , [t₁]′ , t₁®v₁′ , t₂®v₂′
 convTermʳ′ (emb 0<1 [A]) [B] A≡B (emb⁰¹ SV) t®v = convTermʳ′ [A] [B] A≡B SV t®v
 convTermʳ′ [A] (emb 0<1 [B]) A≡B (emb¹⁰ SV) t®v = convTermʳ′ [A] [B] A≡B SV t®v
+-- Impossible cases
+convTermʳ′ _ _ A≡B (Emptyᵥ EmptyA EmptyB) ()
+convTermʳ′ _ _ A≡B (ne neA neB) ()
+convTermʳ′ _ _ A≡B (Bᵥ BΣ! BΠ! BA BB ()) t®v
+convTermʳ′ _ _ A≡B (Bᵥ BΠ! BΣ! BA BB ()) t®v
 
 -- Conversion of logical relation for erasure
 -- If t ® v ∷ A and ε ⊢ A ≡ B then t ® v ∷ B

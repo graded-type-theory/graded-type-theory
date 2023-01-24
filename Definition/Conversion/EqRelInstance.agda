@@ -62,7 +62,7 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set (a ⊔ ℓ) where
       → Γ ⊢ a [conv↑] b ∷ F
       → p ≈ p₁
       → p ≈ p₂
-      → Γ ⊢ f ∘ p₁ ▷ a ~ g ∘ p₂ ▷ b ∷ G [ a ]
+      → Γ ⊢ f ∘⟨ p₁ ⟩ a ~ g ∘⟨ p₂ ⟩ b ∷ G [ a ]
 ~-app (↑ A≡B x) x₁ p≈p₁ p≈p₂ =
   let _ , ⊢B = syntacticEq A≡B
       B′ , whnfB′ , D = whNorm ⊢B

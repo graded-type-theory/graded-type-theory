@@ -24,21 +24,25 @@ private
   variable
     n : Nat
     Γ : Con Term n
+    t : Term n
 
-zero≢one′ : ∀ {l} ([ℕ] : Γ ⊩⟨ l ⟩ℕ ℕ)
-           → Γ ⊩⟨ l ⟩ zero ≡ suc zero ∷ ℕ / ℕ-intr [ℕ] → ⊥
-zero≢one′ (noemb x) (ℕₜ₌ .(suc _) .(suc _) d d′ k≡k′ (sucᵣ x₁))
+zero≢suc′ : ∀ {l} ([ℕ] : Γ ⊩⟨ l ⟩ℕ ℕ)
+           → Γ ⊩⟨ l ⟩ zero ≡ suc t ∷ ℕ / ℕ-intr [ℕ] → ⊥
+zero≢suc′ (noemb x) (ℕₜ₌ .(suc _) .(suc _) d d′ k≡k′ (sucᵣ x₁))
   with whnfRed*Term (redₜ d) zeroₙ
 ... | ()
-zero≢one′ (noemb x) (ℕₜ₌ .zero .zero d d′ k≡k′ zeroᵣ)
+zero≢suc′ (noemb x) (ℕₜ₌ .zero .zero d d′ k≡k′ zeroᵣ)
   with (PE.sym (whnfRed*Term (redₜ d′) sucₙ))
 ... | ()
-zero≢one′ (noemb x) (ℕₜ₌ k k′ d d′ k≡k′ (ne (neNfₜ₌ neK neM k≡m))) =
+zero≢suc′ (noemb x) (ℕₜ₌ k k′ d d′ k≡k′ (ne (neNfₜ₌ neK neM k≡m))) =
   zero≢ne neK (whnfRed*Term (redₜ d) zeroₙ)
-zero≢one′ (emb 0<1 [ℕ]) n = zero≢one′ [ℕ] n
+zero≢suc′ (emb 0<1 [ℕ]) n = zero≢suc′ [ℕ] n
 
--- Zero cannot be judgmentally equal to one.
+-- Zero cannot be judgmentally equal to suc t.
+zero≢suc : Γ ⊢ zero ≡ suc t ∷ ℕ → ⊥
+zero≢suc 0≡s =
+  let [ℕ] , [0≡s] = reducibleEqTerm 0≡s
+  in  zero≢suc′ (ℕ-elim [ℕ]) (irrelevanceEqTerm [ℕ] (ℕ-intr (ℕ-elim [ℕ])) [0≡s])
+
 zero≢one : Γ ⊢ zero ≡ suc zero ∷ ℕ → ⊥
-zero≢one 0≡1 =
-  let [ℕ] , [0≡1] = reducibleEqTerm 0≡1
-  in  zero≢one′ (ℕ-elim [ℕ]) (irrelevanceEqTerm [ℕ] (ℕ-intr (ℕ-elim [ℕ])) [0≡1])
+zero≢one = zero≢suc

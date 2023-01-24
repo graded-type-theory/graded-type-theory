@@ -57,7 +57,7 @@ mutual
         t′ , nfT′ , t≡t′ , δ▸t′ = fullRedNe~↓ t δ▸t
         u′ , nfU′ , u≡u′ , η▸u′ = fullRedTermConv↑ u η▸u
         p₁≈p₂ = ≈-trans (≈-sym p≈p₁) p≈p₂
-    in  t′ ∘ _ ▷ u′ , ∘ₙ nfT′ nfU′ , app-cong t≡t′ u≡u′ p≈p₁ p≈p₂
+    in  t′ ∘ u′ , ∘ₙ nfT′ nfU′ , app-cong t≡t′ u≡u′ p≈p₁ p≈p₂
       , sub (δ▸t′ ∘ₘ η▸u′) (≤ᶜ-trans γ≤γ′ (≤ᶜ-reflexive (+ᶜ-congˡ (·ᶜ-congʳ p₁≈p₂))))
   fullRedNe (fst-cong p~p) γ▸t =
     let invUsageProj δ▸p γ≤δ = inv-usage-fst γ▸t
@@ -185,10 +185,10 @@ mutual
         ΓFF'⊢ = ΓF⊢ ∙ wk⊢F
         wk⊢u = wkTerm (lift (step id)) ΓFF'⊢ ⊢u
         wk⊢t = wkTerm (step id) ΓF⊢ ⊢t
-        λu∘0 = lam p (U.wk (lift (step id)) u) ∘ p ▷ var x0
+        λu∘0 = lam p (U.wk (lift (step id)) u) ∘⟨ p ⟩ var x0
     in  lam _ u , lamₙ nf
       , η-eq ⊢F ⊢t (lamⱼ ⊢F ⊢u) (λ {p₁} {p₂} p≈p₁ p≈p₂ →
-             let λu∘0 = lam p (U.wk (lift (step id)) u) ∘ p₂ ▷ var x0
+             let λu∘0 = lam p (U.wk (lift (step id)) u) ∘⟨ p₂ ⟩ var x0
              in  trans (PE.subst (λ x → _ ⊢ _ ≡ _ ∷ x) (wkSingleSubstId _)
                                  (app-cong (refl wk⊢t) (refl (var ΓF⊢ here)) p≈p₁ ≈-refl))
                        (trans t∘0≡u (PE.subst₂ (λ x y → _ ⊢ x ≡ λu∘0 ∷ y)

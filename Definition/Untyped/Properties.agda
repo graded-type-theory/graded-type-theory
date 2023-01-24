@@ -665,7 +665,7 @@ wk2-tail-B : ∀ (W : BindingType) (F : Term n) (G : Term (1+ n))
            → ⟦ W ⟧ subst σ (wk1 (wk1 F)) ▹ subst (liftSubst σ) (wk (lift (step (step id))) G)
            ≡ subst (tail (tail σ)) (⟦ W ⟧ F ▹ G)
 wk2-tail-B (BΠ p q) F G = wk2-tail-B′ (BΠ p q) F G
-wk2-tail-B (BΣ q m) F G = wk2-tail-B′ (BΣ q m) F G
+wk2-tail-B (BΣ m q) F G = wk2-tail-B′ (BΣ m q) F G
 
 wk1-sgSubst : ∀ (t : Term n) t' → (wk1 t) [ t' ] ≡ t
 wk1-sgSubst t t' rewrite wk1-tailId t =

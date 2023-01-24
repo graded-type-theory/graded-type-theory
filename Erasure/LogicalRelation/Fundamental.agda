@@ -155,7 +155,7 @@ fundamental (_∘ⱼ_ {p = p} {q = q} {g = t} {a = u} {F = F} {G = G} Γ⊢t:Π 
       [Γ]″ , [F]′ , [u]′ = F.fundamentalTerm Γ⊢u:F
       [u] = IS.irrelevanceTerm {A = F} {t = u} [Γ]″ [Γ] [F]′ [F] [u]′
       [G[u]] , ⊩ʳt∘u = appʳ {F = F} {G = G} {u = u} {t = t} [Γ] [F] [Π] [u] ⊩ʳt ⊩ʳu
-  in  [Γ] , [G[u]] , subsumption {t = t ∘ p ▷ u} {A = G [ u ]} [Γ] [G[u]] ⊩ʳt∘u γ≤δ+pη
+  in  [Γ] , [G[u]] , subsumption {t = t ∘⟨ p ⟩ u} {A = G [ u ]} [Γ] [G[u]] ⊩ʳt∘u γ≤δ+pη
 fundamental (prodⱼ {F = F} {G = G} {t = t} {u = u} Γ⊢F Γ⊢G Γ⊢t:F Γ⊢u:G) γ▸t =
   let invUsageProdᵣ δ▸t η▸u γ′≡δ+η γ≤δ+η = inv-usage-prodₑ γ▸t
       [Γ]₁ , [F] , ⊩ʳt = fundamental Γ⊢t:F δ▸t

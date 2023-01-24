@@ -135,8 +135,8 @@ mutual
     in  η-eq (wkTerm [ρ] ⊢Δ x₁) (wkTerm [ρ] ⊢Δ x₂)
              (wkFunction ρ y) (wkFunction ρ y₁)
              λ x x₃ → (PE.subst₃ (λ x y z → Δ ∙ U.wk ρ F ⊢ x [conv↑] y ∷ z)
-                                 (PE.cong₃ _∘_▷_ (PE.sym (wk1-wk≡lift-wk1 _ _)) PE.refl PE.refl)
-                                 (PE.cong₃ _∘_▷_ (PE.sym (wk1-wk≡lift-wk1 _ _)) PE.refl PE.refl)
+                                 (PE.cong₃ _∘⟨_⟩_ (PE.sym (wk1-wk≡lift-wk1 _ _)) PE.refl PE.refl)
+                                 (PE.cong₃ _∘⟨_⟩_ (PE.sym (wk1-wk≡lift-wk1 _ _)) PE.refl PE.refl)
                                  PE.refl
                                  (wkConv↑Term (lift [ρ]) (⊢Δ ∙ ⊢ρF) (t<>u x x₃)))
   wkConv↓Term {ρ = ρ} [ρ] ⊢Δ (Σ-η {G = G} ⊢p ⊢r pProd rProd fstConv sndConv) =

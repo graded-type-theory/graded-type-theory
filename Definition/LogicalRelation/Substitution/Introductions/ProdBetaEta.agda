@@ -125,7 +125,7 @@ private
 Σ-η′ : ∀ {F G p r l l′}
          ([F] : Γ ⊩⟨ l′ ⟩ F)
          ([Gfstp] : Γ ⊩⟨ l′ ⟩ G [ fst p ])
-         ([ΣFG]₁ : Γ ⊩⟨ l ⟩B⟨ BΣ q Σₚ ⟩ Σₚ q ▷ F ▹ G )
+         ([ΣFG]₁ : Γ ⊩⟨ l ⟩B⟨ BΣ Σₚ q ⟩ Σₚ q ▷ F ▹ G )
          ([p] : Γ ⊩⟨ l ⟩ p ∷ Σ q ▷ F ▹ G / B-intr BΣ! [ΣFG]₁)
          ([r] : Γ ⊩⟨ l ⟩ r ∷ Σ q ▷ F ▹ G / B-intr BΣ! [ΣFG]₁)
          ([fst≡] : Γ ⊩⟨ l′ ⟩ fst p ≡ fst r ∷ F / [F])

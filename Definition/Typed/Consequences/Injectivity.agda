@@ -6,7 +6,7 @@ module Definition.Typed.Consequences.Injectivity {a ℓ} (M′ : Setoid a ℓ) w
 
 open Setoid M′ using (_≈_) renaming (Carrier to M)
 
-open import Definition.Untyped M hiding (wk)
+open import Definition.Untyped M hiding (wk; _∷_)
 import Definition.Untyped M as U
 import Definition.Untyped.BindingType M′ as BT
 open import Definition.Untyped.Properties M
@@ -78,3 +78,24 @@ injectivity x with B-injectivity BΠ! BΠ! x
               → Γ ⊢ F ≡ H × Γ ∙ F ⊢ G ≡ E × q ≈ q′ × m PE.≡ m′
 Σ-injectivity x with B-injectivity BΣ! BΣ! x
 ... | F≡H , G≡E , BT.Σ≋Σ q≈q′ = F≡H , G≡E , q≈q′ , PE.refl
+
+-- Injectivity of suc
+
+suc-injectivity′ : ∀ {l t u A}
+                 → ([ℕ] : Γ ⊩⟨ l ⟩ℕ A)
+                 → Γ ⊩⟨ l ⟩ suc t ≡ suc u ∷ A / ℕ-intr [ℕ]
+                 → Γ ⊩⟨ l ⟩ t ≡ u ∷ A / ℕ-intr [ℕ]
+suc-injectivity′ (noemb [ ⊢A , ⊢B , D ]) (ℕₜ₌ k k′ d d′ k≡k′ prop)
+  with whnfRed*Term (redₜ d) sucₙ | whnfRed*Term (redₜ d′) sucₙ
+suc-injectivity′ (noemb [ ⊢A , ⊢B , D ]) (ℕₜ₌ _ _ d d′ k≡k′ (sucᵣ x)) | PE.refl | PE.refl = x
+suc-injectivity′ (emb 0<1 [ℕ]) x = suc-injectivity′ [ℕ] x
+
+suc-injectivity : ∀ {t u}
+                → Γ ⊢ suc t ≡ suc u ∷ ℕ
+                → Γ ⊢ t ≡ u ∷ ℕ
+suc-injectivity ⊢suct≡sucu =
+  let [ℕ] , [suct≡sucu] = reducibleEqTerm ⊢suct≡sucu
+      [ℕ]′ = ℕ-intr (ℕ-elim [ℕ])
+      [suct≡sucu]′ = irrelevanceEqTerm [ℕ] [ℕ]′ [suct≡sucu]
+      [t≡u] = suc-injectivity′ (ℕ-elim [ℕ]) [suct≡sucu]′
+  in  escapeTermEq [ℕ]′ [t≡u]

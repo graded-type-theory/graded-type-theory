@@ -70,7 +70,7 @@ lamʳ′ : ∀ {l} {Γ : Con Term n}
         ([t] : Γ ∙ F ⊩ᵛ⟨ l ⟩ t ∷ G / [Γ] ∙ [F] / [G])
         ([u] : ε ⊩⟨ l ⟩ u ∷ subst σ F / proj₁ (unwrap [F] ε [σ]))
         (u®w : u ®⟨ l ⟩ w ∷ subst σ F ◂ p / proj₁ (unwrap [F] ε [σ]))
-      → ((subst σ (lam p t)) ∘ p ▷ u) ®⟨ l ⟩ (T.subst σ′ (T.lam (erase t))) T.∘ w
+      → ((subst σ (lam p t)) ∘⟨ p ⟩ u) ®⟨ l ⟩ (T.subst σ′ (T.lam (erase t))) T.∘ w
         ∷ subst (consSubst σ u) G / proj₁ (unwrap [G] ε ([σ] , [u]))
 lamʳ′ {F = F} {G = G} {γ = γ} {p = p} {t = t} {σ = σ} {σ′ = σ′} {u = u} {w = w} {l = l} {Γ}
       [Γ] [F] [G] ⊩ʳt [σ] σ®σ′ [t] [u] u®w =
@@ -90,7 +90,7 @@ lamʳ′ {F = F} {G = G} {γ = γ} {p = p} {t = t} {σ = σ} {σ′ = σ′} {u 
                            (PE.sym (UP.singleSubstComp u σ t))
                            (PE.sym (TP.singleSubstComp w σ′ (erase t)))
                            σut®σwv
-      t⇒t′ : ε ⊢ lam p (subst (liftSubst σ) t) ∘ p ▷ u ⇒*
+      t⇒t′ : ε ⊢ lam p (subst (liftSubst σ) t) ∘⟨ p ⟩ u ⇒*
                subst (liftSubst σ) t [ u ] ∷ (subst (liftSubst σ) G [ u ])
       t⇒t′ = redMany (β-red ⊢σF ⊢σG ⊢σt ⊢u PE.refl)
       t⇒t″ = PE.subst (λ G → ε ⊢ _ ⇒* _ ∷ G) (UP.singleSubstComp u σ G) t⇒t′

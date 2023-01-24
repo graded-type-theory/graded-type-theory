@@ -34,8 +34,8 @@ private
 -- Reducibility of fst with a specific typing derivation
 fst′ : ∀ {F G t l l′}
        ([F] : Γ ⊩⟨ l′ ⟩ F)
-       ([ΣFG] : Γ ⊩⟨ l ⟩B⟨ BΣ q Σₚ ⟩ Σₚ q ▷ F ▹ G)
-       ([t] : Γ ⊩⟨ l ⟩ t ∷ Σ _ ▷ F ▹ G / B-intr BΣ! [ΣFG])
+       ([ΣFG] : Γ ⊩⟨ l ⟩B⟨ BΣ Σₚ q ⟩ Σₚ q ▷ F ▹ G)
+       ([t] : Γ ⊩⟨ l ⟩ t ∷ Σ q ▷ F ▹ G / B-intr BΣ! [ΣFG])
        → Γ ⊩⟨ l′ ⟩ fst t ∷ F / [F]
 fst′ {Γ = Γ} {q = q} {F = F} {t = t} [F] (noemb [Σ]@(Bᵣ F' G' D ⊢F ⊢G A≡A [F'] [G'] G-ext))
      [t]@(Σₜ p d p≅p prodP propP) with B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) Σₙ)
@@ -61,8 +61,8 @@ fst″ {Γ = Γ} {t = t} {l = l} [F] [ΣFG] [t] =
 
 fst-cong′ : ∀ {F G t t′ l l′}
             ([F] : Γ ⊩⟨ l′ ⟩ F)
-            ([ΣFG] : Γ ⊩⟨ l ⟩B⟨ BΣ q Σₚ ⟩ Σₚ q ▷ F ▹ G)
-            ([t≡t′] : Γ ⊩⟨ l ⟩ t ≡ t′ ∷ Σ _ ▷ F ▹ G / B-intr BΣ! [ΣFG])
+            ([ΣFG] : Γ ⊩⟨ l ⟩B⟨ BΣ Σₚ q ⟩ Σₚ q ▷ F ▹ G)
+            ([t≡t′] : Γ ⊩⟨ l ⟩ t ≡ t′ ∷ Σ q ▷ F ▹ G / B-intr BΣ! [ΣFG])
             → Γ ⊩⟨ l′ ⟩ fst t ≡ fst t′ ∷ F / [F]
 fst-cong′ {Γ = Γ} {q = q} {F = F} {G = G} [F]
           [ΣFG]@(noemb [Σ]@(Bᵣ F' G' D ⊢F ⊢G A≡A [F'] [G'] G-ext))

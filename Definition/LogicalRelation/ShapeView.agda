@@ -200,7 +200,7 @@ B-elim W [Π] = B-elim′ W (id (escape [Π])) [Π]
 Π-elim : ∀ {F G l} → Γ ⊩⟨ l ⟩ Π p , q ▷ F ▹ G → Γ ⊩⟨ l ⟩B⟨ BΠ p q ⟩ Π p , q ▷ F ▹ G
 Π-elim [Π] = B-elim′ BΠ! (id (escape [Π])) [Π]
 
-Σ-elim : ∀ {F G m l} → Γ ⊩⟨ l ⟩ Σ q ▷ F ▹ G → Γ ⊩⟨ l ⟩B⟨ BΣ q m ⟩ Σ q ▷ F ▹ G
+Σ-elim : ∀ {F G m l} → Γ ⊩⟨ l ⟩ Σ q ▷ F ▹ G → Γ ⊩⟨ l ⟩B⟨ BΣ m q ⟩ Σ q ▷ F ▹ G
 Σ-elim [Σ] = B-elim′ BΣ! (id (escape [Σ])) [Σ]
 
 -- Extract a type and a level from a maybe embedding
@@ -308,45 +308,35 @@ goodCases (ne′ K D neK K≡K) (Unitᵣ D₁) (ne₌ M D′ neM K≡M) =
 goodCases (ne′ K D neK K≡K) (Bᵣ′ W F G D₁ ⊢F ⊢G A≡A [F] [G] G-ext) (ne₌ M D′ neM K≡M) =
   ⊥-elim (B≢ne W neM (whrDet* (red D₁ , ⟦ W ⟧ₙ) (red D′ , ne neM)))
 
--- Π ≡ _
-goodCases (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Uᵣ ⊢Γ)
-          (B₌ F′ G′ BΠ! D′ W≋W′ A≡B [F≡F′] [G≡G′]) with whnfRed* D′ Uₙ
-... | ()
-goodCases (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ℕᵣ D₁)
-          (B₌ F′ G′ BΠ! D′ W≋W′ A≡B [F≡F′] [G≡G′]) with whrDet* (red D₁ , ℕₙ) (D′ , Πₙ)
-... | ()
-goodCases (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Emptyᵣ D₁)
-          (B₌ F′ G′ BΠ! D′ W≋W′ A≡B [F≡F′] [G≡G′]) with whrDet* (red D₁ , Emptyₙ) (D′ , Πₙ)
-... | ()
-goodCases (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Unitᵣ D₁)
-          (B₌ F′ G′ BΠ! D′ W≋W′ A≡B [F≡F′] [G≡G′]) with whrDet* (red D₁ , Unitₙ) (D′ , Πₙ)
-... | ()
-goodCases (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Bᵣ′ BΣ! F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext′)
-          (B₌ F′₁ G′₁ BΠ! D′₁ W≋W′ A≡B [F≡F′] [G≡G′]) with whrDet* (red D′ , Σₙ) (D′₁ , Πₙ)
-... | ()
-goodCases (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ne′ K D₁ neK K≡K)
-          (B₌ F′ G′ BΠ! D′ W≋W′ A≡B [F≡F′] [G≡G′]) =
-  ⊥-elim (B≢ne BΠ! neK (whrDet* (D′ , Πₙ) (red D₁ , ne neK)))
-
--- Σ ≡ _
-goodCases (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Uᵣ ⊢Γ)
-          (B₌ F′ G′ BΣ! D′ W≋W′ A≡B [F≡F′] [G≡G′]) with whnfRed* D′ Uₙ
-... | ()
-goodCases (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ℕᵣ D₁)
-          (B₌ F′ G′ BΣ! D′ W≋W′ A≡B [F≡F′] [G≡G′]) with whrDet* (red D₁ , ℕₙ) (D′ , Σₙ)
-... | ()
-goodCases (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Emptyᵣ D₁)
-          (B₌ F′ G′ BΣ! D′ W≋W′ A≡B [F≡F′] [G≡G′]) with whrDet* (red D₁ , Emptyₙ) (D′ , Σₙ)
-... | ()
-goodCases (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Unitᵣ D₁)
-          (B₌ F′ G′ BΣ! D′ W≋W′ A≡B [F≡F′] [G≡G′]) with whrDet* (red D₁ , Unitₙ) (D′ , Σₙ)
-... | ()
-goodCases (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Bᵣ′ BΠ! F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext′)
-          (B₌ F′₁ G′₁ BΣ! D′₁ W≋W′ A≡B [F≡F′] [G≡G′]) with whrDet* (red D′ , Πₙ) (D′₁ , Σₙ)
-... | ()
-goodCases (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ne′ K D₁ neK K≡K)
-          (B₌ F′ G′ BΣ! D′ W≋W′ A≡B [F≡F′] [G≡G′]) =
-  ⊥-elim (B≢ne BΣ! neK (whrDet* (D′ , Σₙ) (red D₁ , ne neK)))
+-- B ≡ _
+goodCases (Bᵣ W x) (Uᵣ ⊢Γ) (B₌ F′ G′ W′ D′ W≋W′ A≡B [F≡F′] [G≡G′]) =
+  ⊥-elim (U≢B W′ (whnfRed* D′ Uₙ))
+goodCases (Bᵣ W x) (ℕᵣ D₁) (B₌ F′ G′ W′ D′ W≋W′ A≡B [F≡F′] [G≡G′]) =
+  ⊥-elim (ℕ≢B W′ (whrDet* (red D₁ , ℕₙ) (D′ , ⟦ W′ ⟧ₙ)))
+goodCases (Bᵣ W x) (Emptyᵣ D₁) (B₌ F′ G′ W′ D′ W≋W′ A≡B [F≡F′] [G≡G′]) =
+  ⊥-elim (Empty≢B W′ (whrDet* (red D₁ , Emptyₙ) (D′ , ⟦ W′ ⟧ₙ)))
+goodCases (Bᵣ W x) (Unitᵣ D₁) (B₌ F′ G′ W′ D′ W≋W′ A≡B [F≡F′] [G≡G′]) =
+  ⊥-elim (Unit≢B W′ (whrDet* (red D₁ , Unitₙ) (D′ , ⟦ W′ ⟧ₙ)))
+goodCases (Bᵣ W x) (ne′ K D neK K≡K) (B₌ F′ G′ W′ D′ W≋W′ A≡B [F≡F′] [G≡G′]) =
+  ⊥-elim (B≢ne W′ neK (whrDet* (D′ , ⟦ W′ ⟧ₙ) (red D , ne neK)))
+goodCases (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+          (Bᵣ′ BΣ! F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext′)
+          (B₌ F′₁ G′₁ BΠ! D′₁ W≋W′ A≡B [F≡F′] [G≡G′]) =
+  ⊥-elim (Π≢Σ (whrDet* (D′₁ , Πₙ) (red D′ , Σₙ)))
+goodCases (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+          (Bᵣ′ BΠ! F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext′)
+          (B₌ F′₁ G′₁ BΣ! D′₁ W≋W′ A≡B [F≡F′] [G≡G′]) =
+  ⊥-elim (Π≢Σ (whrDet* (red D′ , Πₙ) (D′₁ , Σₙ)))
+goodCases (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+          (Bᵣ′ BΣ! F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext′)
+          (B₌ F′₁ G′₁ BΣ! D′₁ () A≡B [F≡F′] [G≡G′])
+goodCases (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+          (Bᵣ′ BΠ! F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext′)
+          (B₌ F′₁ G′₁ BΠ! D′₁ () A≡B [F≡F′] [G≡G′])
+goodCases (Bᵣ (BΠ p q) x) (Bᵣ (BΠ p₁ q₁) x₁)
+          (B₌ F′ G′ BΣ! D′ () A≡B [F≡F′] [G≡G′])
+goodCases (Bᵣ (BΣ x₂ q) x) (Bᵣ (BΣ x₃ q₁) x₁)
+          (B₌ F′ G′ BΠ! D′ () A≡B [F≡F′] [G≡G′])
 
 -- Construct an shape view between two derivations of the same type
 goodCasesRefl : ∀ {l l′ A} ([A] : Γ ⊩⟨ l ⟩ A) ([A′] : Γ ⊩⟨ l′ ⟩ A)

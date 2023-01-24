@@ -34,7 +34,7 @@ appᵛ : ∀ {F G t u l}
        ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ Π _ , _ ▷ F ▹ G / [Γ] / [ΠFG])
        ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ F / [Γ] / [F])
      → p ≈ p′
-     → Γ ⊩ᵛ⟨ l ⟩ t ∘ p′ ▷ u ∷ G [ u ] / [Γ] / substSΠ {F = F} {G} {u} BΠ! [Γ] [F] [ΠFG] [u]
+     → Γ ⊩ᵛ⟨ l ⟩ t ∘⟨ p′ ⟩ u ∷ G [ u ] / [Γ] / substSΠ {F = F} {G} {u} BΠ! [Γ] [F] [ΠFG] [u]
 appᵛ {F = F} {G} {t} {u} [Γ] [F] [ΠFG] [t] [u] p≈p′ {σ = σ} ⊢Δ [σ] =
   let [G[u]] = substSΠ {F = F} {G} {u} BΠ! [Γ] [F] [ΠFG] [u]
       [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
@@ -69,7 +69,7 @@ app-congᵛ : ∀ {F G t u a b l}
             ([a≡b] : Γ ⊩ᵛ⟨ l ⟩ a ≡ b ∷ F / [Γ] / [F])
           → p ≈ p₁
           → p ≈ p₂
-          → Γ ⊩ᵛ⟨ l ⟩ t ∘ p₁ ▷ a ≡ u ∘ p₂ ▷ b ∷ G [ a ] / [Γ]
+          → Γ ⊩ᵛ⟨ l ⟩ t ∘⟨ p₁ ⟩ a ≡ u ∘⟨ p₂ ⟩ b ∷ G [ a ] / [Γ]
               / substSΠ {F = F} {G} {a} BΠ! [Γ] [F] [ΠFG] [a]
 app-congᵛ {F = F} {G} {a = a} [Γ] [F] [ΠFG] [t≡u] [a] [b] [a≡b] p≈p₁ p≈p₂ ⊢Δ [σ] =
   let [σF] = proj₁ (unwrap [F] ⊢Δ [σ])

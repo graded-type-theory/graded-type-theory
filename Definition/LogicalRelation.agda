@@ -342,11 +342,11 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
               ([a≡b] : Δ ⊩¹ a ≡ b ∷ U.wk ρ F / [F] [ρ] ⊢Δ)
               → p ≈ p₁
               → p ≈ p₂
-              → Δ ⊩¹ U.wk ρ f ∘ p₁ ▷ a ≡ U.wk ρ f ∘ p₂ ▷ b ∷ U.wk (lift ρ) G [ a ] / [G] [ρ] ⊢Δ [a])
+              → Δ ⊩¹ U.wk ρ f ∘⟨ p₁ ⟩ a ≡ U.wk ρ f ∘⟨ p₂ ⟩ b ∷ U.wk (lift ρ) G [ a ] / [G] [ρ] ⊢Δ [a])
             × (∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a} {p′ : Mod} → ([ρ] : ρ ∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ)
               → ([a] : Δ ⊩¹ a ∷ U.wk ρ F / [F] [ρ] ⊢Δ)
               → p ≈ p′
-              → Δ ⊩¹ U.wk ρ f ∘ p′ ▷ a ∷ U.wk (lift ρ) G [ a ] / [G] [ρ] ⊢Δ [a])
+              → Δ ⊩¹ U.wk ρ f ∘⟨ p′ ⟩ a ∷ U.wk (lift ρ) G [ a ] / [G] [ρ] ⊢Δ [a])
               {- NOTE(WN): Last 2 fields could be refactored to a single forall.
                            But touching this definition is painful, so only do it
                            if you have to change it anyway. -}
@@ -365,12 +365,12 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
                × Γ ⊩¹Π u ∷ A / [A]
                × (∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a} {p₁ p₂ : Mod} ([ρ] : ρ ∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ)
                  ([a] : Δ ⊩¹ a ∷ U.wk ρ F / [F] [ρ] ⊢Δ) → p ≈ p₁ → p ≈ p₂
-                 → Δ ⊩¹ U.wk ρ f ∘ p₁ ▷ a ≡ U.wk ρ g ∘ p₂ ▷ a ∷ U.wk (lift ρ) G [ a ] / [G] [ρ] ⊢Δ [a])
+                 → Δ ⊩¹ U.wk ρ f ∘⟨ p₁ ⟩ a ≡ U.wk ρ g ∘⟨ p₂ ⟩ a ∷ U.wk (lift ρ) G [ a ] / [G] [ρ] ⊢Δ [a])
     -- Issue: Same as above.
 
 
     -- Term reducibility of Σ-type
-    _⊩¹Σ_∷_/_ : {q : Mod} {m : SigmaMode} (Γ : Con Term ℓ) (t A : Term ℓ) ([A] : Γ ⊩¹B⟨ BΣ q m ⟩ A) → Set (a ⊔ ℓ′)
+    _⊩¹Σ_∷_/_ : {q : Mod} {m : SigmaMode} (Γ : Con Term ℓ) (t A : Term ℓ) ([A] : Γ ⊩¹B⟨ BΣ m q ⟩ A) → Set (a ⊔ ℓ′)
     _⊩¹Σ_∷_/_ {q = q} {m} Γ t A [A]@(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) =
       ∃ λ p → Γ ⊢ t :⇒*: p ∷ Σ⟨ m ⟩ q ▷ F ▹ G
             × Γ ⊢ p ≅ p ∷ Σ⟨ m ⟩ q ▷ F ▹ G
@@ -378,7 +378,7 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
             → Σ-prop m p Γ [A] pProd
 
     Σ-prop : ∀ {A q} (m : SigmaMode) (p : Term ℓ) → (Γ : Con Term ℓ)
-           → ([A] : Γ ⊩¹B⟨ BΣ q m ⟩ A) → (Product p) → Set (a ⊔ ℓ′)
+           → ([A] : Γ ⊩¹B⟨ BΣ m q ⟩ A) → (Product p) → Set (a ⊔ ℓ′)
     Σ-prop Σₚ p Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) _ =
       Σ (Γ ⊩¹ fst p ∷ U.wk id F / [F] id (wf ⊢F)) λ [fst]
       → Γ ⊩¹ snd p ∷ U.wk (lift id) G [ fst p ] / [G] id (wf ⊢F) [fst]
@@ -391,7 +391,7 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
 
     -- Term equality of Σ-type
     _⊩¹Σ_≡_∷_/_ : {q : Mod} {m : SigmaMode} (Γ : Con Term ℓ) (t u A : Term ℓ)
-                  ([A] : Γ ⊩¹B⟨ BΣ q m ⟩ A) → Set (a ⊔ ℓ′)
+                  ([A] : Γ ⊩¹B⟨ BΣ m q ⟩ A) → Set (a ⊔ ℓ′)
     _⊩¹Σ_≡_∷_/_ {q = q} {m} Γ t u A [A]@(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) =
       ∃₂ λ p r → Γ ⊢ t :⇒*: p ∷ Σ⟨ m ⟩ q ▷ F ▹ G
                × Γ ⊢ u :⇒*: r ∷ Σ⟨ m ⟩ q ▷ F ▹ G
@@ -403,7 +403,7 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
                → [Σ]-prop m p r Γ [A] pProd rProd
 
     [Σ]-prop : ∀ {A q} (m : SigmaMode) (p r : Term ℓ) → (Γ : Con Term ℓ)
-             → ([A] : Γ ⊩¹B⟨ BΣ q m ⟩ A) → (Product p) → (Product r) → Set (a ⊔ ℓ′)
+             → ([A] : Γ ⊩¹B⟨ BΣ m q ⟩ A) → (Product p) → (Product r) → Set (a ⊔ ℓ′)
     [Σ]-prop Σₚ p r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) _ _ =
       Σ (Γ ⊩¹ fst p ∷ U.wk id F / [F] id (wf ⊢F)) λ [fstp]
       → Γ ⊩¹ fst r ∷ U.wk id F / [F] id (wf ⊢F)

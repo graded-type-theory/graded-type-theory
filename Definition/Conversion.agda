@@ -46,7 +46,7 @@ mutual
                   → Γ ⊢ t [conv↑] v ∷ F
                   → p ≈ p₁
                   → p ≈ p₂
-                  → Γ ⊢ k ∘ p₁ ▷ t ~ l ∘ p₂ ▷ v ↑ G [ t ]
+                  → Γ ⊢ k ∘⟨ p₁ ⟩ t ~ l ∘⟨ p₂ ⟩ v ↑ G [ t ]
 
     fst-cong      : Γ ⊢ k ~ l ↓ Σₚ p ▷ F ▹ G
                   → Γ ⊢ fst k ~ fst l ↑ F
@@ -190,7 +190,7 @@ mutual
               → (∀ {p₁ p₂}
                  → p ≈ p₁
                  → p ≈ p₂
-                 → Γ ∙ F ⊢ wk1 f ∘ p₁ ▷ var x0 [conv↑] wk1 g ∘ p₂ ▷ var x0 ∷ G)
+                 → Γ ∙ F ⊢ wk1 f ∘⟨ p₁ ⟩ var x0 [conv↑] wk1 g ∘⟨ p₂ ⟩ var x0 ∷ G)
               → Γ ⊢ f [conv↓] g ∷ Π p , q ▷ F ▹ G
 
     Σ-η       : Γ ⊢ k ∷ Σₚ p ▷ F ▹ G
