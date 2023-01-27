@@ -57,6 +57,15 @@ inversion-Σ (Σⱼ x ▹ x₁) = x , x₁ , refl (Uⱼ (wfTerm x))
 inversion-Σ (conv x x₁) = let a , b , c = inversion-Σ x
                           in  a , b , trans (sym x₁) c
 
+-- Inversion of variables
+inversion-var : ∀ {x C} → Γ ⊢ var x ∷ C → ∃ λ A → x ∷ A ∈ Γ × Γ ⊢ C ≡ A
+inversion-var ⊢x@(var x x₁) =
+  let ⊢C = syntacticTerm ⊢x
+  in  _ , x₁ , refl ⊢C
+inversion-var (conv x x₁) =
+  let a , b , c = inversion-var x
+  in  a , b , trans (sym x₁) c
+
 -- Inversion of zero.
 inversion-zero : ∀ {C} → Γ ⊢ zero ∷ C → Γ ⊢ C ≡ ℕ
 inversion-zero (zeroⱼ x) = refl (ℕⱼ x)
@@ -103,6 +112,24 @@ inversion-prod (conv x x₁) =
   let F , G , q , a , b , c , d , e = inversion-prod x
   in F , G , q , a , b , c , d , trans (sym x₁) e
 
+
+-- Inversion of projections
+inversion-fst : ∀ {t A} → Γ ⊢ fst t ∷ A →
+  ∃₃ λ F G q → Γ ⊢ F × Γ ∙ F ⊢ G × (Γ ⊢ t ∷ Σₚ q ▷ F ▹ G) × (Γ ⊢ A ≡ F)
+inversion-fst (fstⱼ ⊢F ⊢G ⊢t) = _ , _ , _ , ⊢F , ⊢G , ⊢t , refl ⊢F
+inversion-fst (conv ⊢t x) =
+  let F , G , q , a , b , c , d = inversion-fst ⊢t
+  in  F , G , q , a , b , c , trans (sym x) d
+
+inversion-snd : ∀ {t A} → Γ ⊢ snd t ∷ A →
+  ∃₃ λ F G q → Γ ⊢ F × Γ ∙ F ⊢ G × (Γ ⊢ t ∷ Σₚ q ▷ F ▹ G) × (Γ ⊢ A ≡ G [ fst t ])
+inversion-snd (sndⱼ ⊢F ⊢G ⊢t) =
+  _ , _ , _ , ⊢F , ⊢G , ⊢t , refl (substType ⊢G (fstⱼ ⊢F ⊢G ⊢t))
+inversion-snd (conv ⊢t x) =
+  let F , G , q , a , b , c , d = inversion-snd ⊢t
+  in  F , G , q , a , b , c , trans (sym x) d
+
+-- Inversion of prodrec
 inversion-prodrec : ∀ {t u A C} → Γ ⊢ prodrec p C t u ∷ A
                   → ∃₃ λ F G q
                   → (Γ ⊢ F)
@@ -121,6 +148,14 @@ inversion-prodrec (conv x x₁) =
 inversion-star : ∀ {C} → Γ ⊢ star ∷ C → Γ ⊢ C ≡ Unit
 inversion-star (starⱼ x) = refl (Unitⱼ x)
 inversion-star (conv x x₁) = trans (sym x₁) (inversion-star x)
+
+-- Inversion of Emptyrec
+inversion-Emptyrec : ∀ {C A t} → Γ ⊢ Emptyrec p A t ∷ C
+                   → (Γ ⊢ A) × (Γ ⊢ t ∷ Empty) × Γ ⊢ C ≡ A
+inversion-Emptyrec (Emptyrecⱼ x ⊢t) = x , ⊢t , refl x
+inversion-Emptyrec (conv ⊢t x) =
+  let q , w , e = inversion-Emptyrec ⊢t
+  in  q , w , trans (sym x) e
 
 -- Inversion of products in WHNF.
 whnfProduct : ∀ {p F G m} → Γ ⊢ p ∷ Σ⟨ m ⟩ q ▷ F ▹ G → Whnf p → Product p
