@@ -147,4 +147,9 @@ import Erasure.LogicalRelation.Fundamental
 import Erasure.Consequences.Soundness
 
 -- Application: consistent negative axioms preserve canonicity
-import Application.NegativeAxioms.Canonicity
+import Application.NegativeAxioms.Canonicity.Negative
+
+-- Application: consistent negative/erased axioms preserve canonicity
+import Application.NegativeAxioms.Canonicity.NegativeErased
+-- ... but not if matching is allowed on erased pairs
+import Application.NegativeAxioms.Canonicity.EliminateErased
