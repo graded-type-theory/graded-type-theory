@@ -23,6 +23,7 @@ private
     n : Nat
     p q : M
     γ δ : Conₘ n
+    x : Fin n
 
 -- Updating a context with its own content has no effect
 -- (γ , x ≔ (γ ⟨ x ⟩)) ≡ γ
@@ -30,6 +31,13 @@ private
 update-self : (γ : Conₘ n) (x : Fin n) → (γ , x ≔ (γ ⟨ x ⟩)) ≡ γ
 update-self (γ ∙ p) x0     = PE.refl
 update-self (γ ∙ p) (x +1) = cong (_∙ _) (update-self γ x)
+
+-- If a given position is updated twice, then the first update has no
+-- effect.
+
+update-twice : (γ , x ≔ p) , x ≔ q ≡ γ , x ≔ q
+update-twice {γ = _ ∙ _} {x = x0}   = PE.refl
+update-twice {γ = _ ∙ _} {x = x +1} = cong (_∙ _) update-twice
 
 -- Context update is a monotone function with regards to the context
 -- If γ ≤ᶜ δ then (γ , x ≔ p) ≤ᶜ (δ , x ≔ p)
