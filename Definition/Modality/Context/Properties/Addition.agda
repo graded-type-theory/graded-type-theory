@@ -12,6 +12,7 @@ open import Definition.Modality.Context.Properties.Equivalence 𝕄
 open import Definition.Modality.Context.Properties.PartialOrder 𝕄
 open import Definition.Modality.Properties 𝕄
 
+open import Tools.Algebra
 open import Tools.Nat hiding (_+_)
 open import Tools.Product
 
@@ -63,6 +64,15 @@ private
 +ᶜ-distribʳ-∧ᶜ : (γ δ η : Conₘ n) → (δ ∧ᶜ η) +ᶜ γ ≈ᶜ (δ +ᶜ γ) ∧ᶜ (η +ᶜ γ)
 +ᶜ-distribʳ-∧ᶜ ε ε ε = ≈ᶜ-refl
 +ᶜ-distribʳ-∧ᶜ (γ ∙ p) (δ ∙ q) (η ∙ r) = (+ᶜ-distribʳ-∧ᶜ γ δ η) ∙ (proj₂ +-distrib-∧ p q r)
+
+-- The operation _+ᶜ_ is sub-interchangeable with _∧ᶜ_ (with respect
+-- to _≤ᶜ_).
+
++ᶜ-sub-interchangeable-∧ᶜ :
+  _SubInterchangable_by_ (Conₘ-setoid {n = n}) _+ᶜ_ _∧ᶜ_ _≤ᶜ_
++ᶜ-sub-interchangeable-∧ᶜ ε       ε       ε       ε       = ε
++ᶜ-sub-interchangeable-∧ᶜ (_ ∙ _) (_ ∙ _) (_ ∙ _) (_ ∙ _) =
+  +ᶜ-sub-interchangeable-∧ᶜ _ _ _ _ ∙ +-sub-interchangeable-∧ _ _ _ _
 
 -- Congruence of +ᶜ
 -- If γ ≈ᶜ γ′ and δ ≈ᶜ δ′ then γ +ᶜ δ ≈ᶜ γ′ +ᶜ δ′

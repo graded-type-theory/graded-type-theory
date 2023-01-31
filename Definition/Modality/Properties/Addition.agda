@@ -11,11 +11,13 @@ module Definition.Modality.Properties.Addition {a ℓ}
 open ModalityWithout⊛ 𝕄
 open Setoid M′ renaming (Carrier to M)
 
+open import Definition.Modality.Properties.Meet 𝕄
 open import Definition.Modality.Properties.PartialOrder 𝕄
 
 open import Tools.Algebra M′
 open import Tools.Nat hiding (_+_)
 open import Tools.Product
+import Tools.Reasoning.PartialOrder
 
 
 private
@@ -39,3 +41,15 @@ private
 
 +-monotone : p ≤ p′ → q ≤ q′ → p + q ≤ p′ + q′
 +-monotone p≤p′ q≤q′ = ≤-trans (+-monotoneˡ p≤p′) (+-monotoneʳ q≤q′)
+
+-- The operation _+_ is sub-interchangeable with _∧_ (with respect
+-- to _≤_).
+
++-sub-interchangeable-∧ : _+_ SubInterchangable _∧_ by _≤_
++-sub-interchangeable-∧ p q p′ q′ = begin
+  (p ∧ q) + (p′ ∧ q′)                            ≈⟨ +-distribˡ-∧ _ _ _ ⟩
+  ((p ∧ q) + p′) ∧ ((p ∧ q) + q′)                ≈⟨ ∧-cong (+-distribʳ-∧ _ _ _) (+-distribʳ-∧ _ _ _) ⟩
+  ((p + p′) ∧ (q + p′)) ∧ ((p + q′) ∧ (q + q′))  ≤⟨ ∧-monotone (∧-decreasingˡ _ _) (∧-decreasingʳ _ _) ⟩
+  (p + p′) ∧ (q + q′)                            ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
