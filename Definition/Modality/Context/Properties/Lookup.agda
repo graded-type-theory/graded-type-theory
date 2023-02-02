@@ -29,6 +29,12 @@ private
 𝟘ᶜ-lookup x0     = PE.refl
 𝟘ᶜ-lookup (x +1) = 𝟘ᶜ-lookup x
 
+-- The result of looking up anything in 𝟙ᶜ is 𝟙.
+
+𝟙ᶜ-lookup : (x : Fin n) → 𝟙ᶜ ⟨ x ⟩ ≡ 𝟙
+𝟙ᶜ-lookup x0     = PE.refl
+𝟙ᶜ-lookup (x +1) = 𝟙ᶜ-lookup x
+
 -- Context lookup is a monotone function
 -- If γ ≤ᶜ δ then γ⟨x⟩ ≤ δ⟨x⟩
 
