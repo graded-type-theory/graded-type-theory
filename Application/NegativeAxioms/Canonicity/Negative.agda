@@ -21,12 +21,17 @@ open import Erasure.SucRed M′
 open import Definition.Untyped M hiding (_∷_; ℕ≢B)
 open import Definition.Typed M′
 open import Definition.Typed.Properties M′
+open import Definition.Typed.EqRelInstance M′
 open import Definition.Typed.Consequences.Consistency M′
 open import Definition.Typed.Consequences.Inequality M′
 open import Definition.Typed.Consequences.Injectivity M′
 open import Definition.Typed.Consequences.Inversion M′
 open import Definition.Typed.Consequences.Reduction M′
 open import Definition.Typed.Consequences.Syntactic M′
+
+open import Definition.LogicalRelation M′
+open import Definition.LogicalRelation.Irrelevance M′
+open import Definition.LogicalRelation.Fundamental.Reducibility M′
 
 open import Application.NegativeAxioms.NegativeContext M′
 open import Definition.Conversion.FullReduction M′
@@ -107,86 +112,42 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   nfN (starⱼ _)       starₙ       c = ⊥-elim (ℕ≢Unitⱼ (sym c))
   -- q.e.d
 
-  -- Canonicity theorem: Any well-typed term Γ ⊢ t : ℕ is convertible to a numeral.
+   -- Terms of non-negative types reduce to non-neutrals
 
-  thm : (⊢t : Γ ⊢ t ∷ ℕ) → ∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ
-  thm ⊢t with fullRedTerm (completeEqTerm (refl ⊢t))
-  ... | u , nf , eq =
-    let _ , _ , ⊢u = syntacticEqTerm eq
-    in  u , nfN ⊢u nf (refl (ℕⱼ (wfTerm ⊢t))) , eq
-
-  -- Lemma: Any well-typed term of a non-negative type reduces to a non-neutral
-
-  lem : Γ ⊢ t ∷ A → (NegativeType Γ A → ⊥)
-      → ∃ λ u → Γ ⊢ t ⇒* u ∷ A × Whnf u × (Neutral u → ⊥)
-  lem ⊢t ¬negA =
+  ¬NeutralNf : Γ ⊢ t ∷ A → (NegativeType Γ A → ⊥)
+             → ∃ λ u → Γ ⊢ t ⇒* u ∷ A × Whnf u × (Neutral u → ⊥)
+  ¬NeutralNf ⊢t ¬negA =
     let u , whnfU , d = whNormTerm ⊢t
     in  u , redₜ d , whnfU , λ x → ¬negA (neNeg (⊢u-redₜ d) x)
 
-  -- Canonicity theorem: Any well-typed term Γ ⊢ t : ℕ WH-reduces to zero or suc u for some u
-
-  thm′ : Γ ⊢ t ∷ ℕ → (Γ ⊢ t ⇒* zero ∷ ℕ) ⊎ ∃ λ u → Γ ⊢ t ⇒* suc u ∷ ℕ
-  thm′ ⊢t with lem ⊢t (λ x → ¬negℕ x (refl (ℕⱼ (wfTerm ⊢t))))
-  -- True cases
-  ... | _ , d , zeroₙ , ¬neU = inj₁ d
-  ... | _ , d , sucₙ , ¬neU = inj₂ (_ , d)
-  -- False cases
-  ... | _ , d , Uₙ , ¬neU = ⊥-elim (redU*Term d)
-  ... | _ , d , Πₙ , ¬neU =
-    let _ , _ , ⊢Π = syntacticRedTerm d
-        _ , _ , ℕ≡U = inversion-Π ⊢Π
-    in  ⊥-elim (U≢ℕ (sym ℕ≡U))
-  ... | _ , d , Σₙ , ¬neU =
-    let _ , _ , ⊢Σ = syntacticRedTerm d
-        _ , _ , ℕ≡U = inversion-Σ ⊢Σ
-    in  ⊥-elim (U≢ℕ (sym ℕ≡U))
-  ... | _ , d , ℕₙ , ¬neU =
-    let _ , _ , ⊢ℕ = syntacticRedTerm d
-        ℕ≡U = inversion-ℕ ⊢ℕ
-    in  ⊥-elim (U≢ℕ (sym ℕ≡U))
-  ... | _ , d , Unitₙ , ¬neU =
-    let _ , _ , ⊢Unit = syntacticRedTerm d
-        ℕ≡U = inversion-Unit ⊢Unit
-    in  ⊥-elim (U≢ℕ (sym ℕ≡U))
-  ... | _ , d , Emptyₙ , ¬neU =
-    let _ , _ , ⊢Empty = syntacticRedTerm d
-        ℕ≡U = inversion-Empty ⊢Empty
-    in  ⊥-elim (U≢ℕ (sym ℕ≡U))
-  ... | _ , d , lamₙ , ¬neU =
-    let _ , _ , ⊢lam = syntacticRedTerm d
-        _ , _ , _ , _ , _ , ℕ≡Π = inversion-lam ⊢lam
-    in  ⊥-elim (ℕ≢B BΠ! ℕ≡Π)
-  ... | _ , d , starₙ , ¬neU =
-    let _ , _ , ⊢star = syntacticRedTerm d
-        ℕ≡Unit = inversion-star ⊢star
-    in  ⊥-elim (ℕ≢Unitⱼ ℕ≡Unit)
-  ... | _ , d , prodₙ , ¬neU =
-    let _ , _ , ⊢prod = syntacticRedTerm d
-        _ , _ , _ , _ , _ , _ , _ , ℕ≡Σ = inversion-prod ⊢prod
-    in  ⊥-elim (ℕ≢B BΣ! ℕ≡Σ)
-  ... | _ , d , ne x , ¬neU = ⊥-elim (¬neU x)
-
-  -- Canonicity theorem: Any well-typed term Γ ⊢ t ∷ ℕ, γ ▸ t
+  -- Canonicity theorem: Any well-typed term Γ ⊢ t ∷ ℕ
   -- reduces to a numeral under the ⇒ˢ* reduction.
 
-  lem′ : Γ ⊢ t ∷ ℕ → Γ ⊢ t ≡ u ∷ ℕ → Numeral u
-       → ∃ λ v → Numeral v × Γ ⊢ t ⇒ˢ* v ∷ℕ
-  lem′ ⊢t t≡u num with thm′ ⊢t
-  lem′ ⊢t t≡u zeroₙ | inj₁ x = zero , zeroₙ , whred* x
-  lem′ ⊢t t≡0 zeroₙ | inj₂ (u , t⇒sucu) =
-    ⊥-elim (zero≢suc (trans (sym t≡0) (subset*Term t⇒sucu)))
-  lem′ ⊢t t≡sucu (sucₙ num) | inj₁ t⇒0 =
-    ⊥-elim (zero≢suc (trans (sym (subset*Term t⇒0)) t≡sucu))
-  lem′ ⊢t t≡suct′ (sucₙ numT) | inj₂ (u , t⇒sucu) =
-    let sucu≡suct′ = trans (sym (subset*Term t⇒sucu)) t≡suct′
-        u≡t′ = suc-injectivity sucu≡suct′
-        _ , _ , ⊢sucu = syntacticRedTerm t⇒sucu
-        ⊢u , _ = inversion-suc ⊢sucu
-        v , numV , t⇒v = lem′ ⊢u u≡t′ numT
-    in  suc v , sucₙ numV , ⇒ˢ*∷ℕ-trans (whred* t⇒sucu) (sucred* t⇒v)
+  canonicityRed′ : ∀ {l} → (⊢Γ : ⊢ Γ)
+                 → Γ ⊩⟨ l ⟩ t ∷ ℕ / ℕᵣ (idRed:*: (ℕⱼ ⊢Γ))
+                 → ∃ λ v → Numeral v × Γ ⊢ t ⇒ˢ* v ∷ℕ
+  canonicityRed′ {l = l} ⊢Γ (ℕₜ _ d n≡n (sucᵣ x)) =
+    let v , numV , d′ = canonicityRed′ {l = l} ⊢Γ x
+    in  suc v , sucₙ numV , ⇒ˢ*∷ℕ-trans (whred* (redₜ d)) (sucred* d′)
+  canonicityRed′ ⊢Γ (ℕₜ _ d n≡n zeroᵣ) =
+    zero , zeroₙ , whred* (redₜ d)
+  canonicityRed′ ⊢Γ (ℕₜ n d n≡n (ne (neNfₜ neK ⊢k k≡k))) =
+    let u , d′ , whU , ¬neU = ¬NeutralNf (⊢t-redₜ d) λ negℕ → ¬negℕ negℕ (refl (ℕⱼ ⊢Γ))
+    in  ⊥-elim (¬neU (PE.subst Neutral (whrDet*Term (redₜ d , ne neK) (d′ , whU)) neK))
 
-  thm″ : Γ ⊢ t ∷ ℕ → ∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ
-  thm″ ⊢t with thm ⊢t
-  ... | u , num , eq = lem′ ⊢t eq num
+  canonicityRed : Γ ⊢ t ∷ ℕ → ∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ
+  canonicityRed ⊢t with reducibleTerm ⊢t
+  ... | [ℕ] , [t] =
+    let ⊢Γ = wfTerm ⊢t
+        [ℕ]′ = ℕᵣ {l = ¹} (idRed:*: (ℕⱼ ⊢Γ))
+        [t]′ = irrelevanceTerm [ℕ] [ℕ]′ [t]
+    in  canonicityRed′ {l = ¹} ⊢Γ [t]′
+
+  -- Canonicity theorem: Any well-typed term Γ ⊢ t : ℕ is convertible to a numeral.
+
+  canonicityEq : (⊢t : Γ ⊢ t ∷ ℕ) → ∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ
+  canonicityEq ⊢t =
+    let u , numU , d = canonicityRed ⊢t
+    in  u , numU , subset*Termˢ d
 
   -- Q.E.D. 2023-01-24
