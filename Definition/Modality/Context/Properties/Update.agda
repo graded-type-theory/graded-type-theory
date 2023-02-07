@@ -8,6 +8,7 @@ module Definition.Modality.Context.Properties.Update {a ℓ}
   where
 
 open import Definition.Modality.Context 𝕄
+open import Definition.Modality.Context.Properties.Equivalence 𝕄
 open import Definition.Modality.Context.Properties.PartialOrder 𝕄
 open import Definition.Modality.Properties 𝕄
 
@@ -52,6 +53,27 @@ update-monotoneˡ {γ = γ ∙ p} {δ ∙ q} (_+1 x) (γ≤δ ∙ p≤q) = (upda
 update-monotoneʳ : (x : Fin n) → p ≤ q → (γ , x ≔ p) ≤ᶜ (γ , x ≔ q)
 update-monotoneʳ {γ = γ ∙ p} x0 p≤q     = ≤ᶜ-refl ∙ p≤q
 update-monotoneʳ {γ = γ ∙ p} (x +1) p≤q = (update-monotoneʳ x p≤q) ∙ ≤-refl
+
+-- The update operation preserves equivalence in its first argument.
+
+update-congˡ : γ ≈ᶜ δ → (γ , x ≔ p) ≈ᶜ (δ , x ≔ p)
+update-congˡ γ≈δ =
+  ≤ᶜ-antisym (update-monotoneˡ _ (≤ᶜ-reflexive γ≈δ))
+    (update-monotoneˡ _ (≤ᶜ-reflexive (≈ᶜ-sym γ≈δ)))
+
+-- The update operation preserves equivalence in its third argument.
+
+update-congʳ : p ≈ q → (γ , x ≔ p) ≈ᶜ (γ , x ≔ q)
+update-congʳ p≈q =
+  ≤ᶜ-antisym (update-monotoneʳ _ (≤-reflexive p≈q))
+    (update-monotoneʳ _ (≤-reflexive (≈-sym p≈q)))
+
+-- The update operation preserves equivalence in its first and third
+-- arguments.
+
+update-cong : γ ≈ᶜ δ → p ≈ q → (γ , x ≔ p) ≈ᶜ (δ , x ≔ q)
+update-cong γ≈δ p≈q =
+  ≈ᶜ-trans (update-congˡ γ≈δ) (update-congʳ p≈q)
 
 -- Context update distributes over addition
 -- (γ +ᶜ δ) , x ≔ (p + q) ≡ (γ , x ≔ p) +ᶜ (δ , x ≔ q)
