@@ -120,14 +120,14 @@ mutual
     let B , nf , A≡B , γ▸B = fullRedNe~↓ A γ▸A
     in  B , ne nf , univ A≡B , γ▸B
   fullRedConv↓ (Π-cong ⊢F F G p≈p′ q≈q′) γ▸A =
-    let invUsageΠΣ δ▸F η▸G γ≤γ′ = inv-usage-Π γ▸A
+    let invUsageΠ δ▸F η▸G γ≤γ′ = inv-usage-Π γ▸A
         F′ , nfF′ , F≡F′ , δ▸F′ = fullRedConv↑ F δ▸F
         G′ , nfG′ , G≡G′ , η▸G′ = fullRedConv↑ G η▸G
         η′▸G′ = sub η▸G′ (≤ᶜ-reflexive (≈ᶜ-refl ∙ ≈-sym q≈q′))
     in  Π _ , _ ▷ F′ ▹ G′ , Πₙ nfF′ nfG′ , Π-cong ⊢F F≡F′ G≡G′ p≈p′ q≈q′
       , sub (Πₘ δ▸F′ η′▸G′) γ≤γ′
   fullRedConv↓ (Σ-cong ⊢F F G q≈q′) γ▸A =
-    let invUsageΠΣ δ▸F η▸G γ≤γ′ = inv-usage-Σ γ▸A
+    let invUsageΣ δ▸F η▸G γ≤γ′ = inv-usage-Σ γ▸A
         F′ , nfF′ , F≡F′ , δ▸F′ = fullRedConv↑ F δ▸F
         G′ , nfG′ , G≡G′ , η▸G′ = fullRedConv↑ G η▸G
         η′▸G′ = sub η▸G′ (≤ᶜ-reflexive (≈ᶜ-refl ∙ ≈-sym q≈q′))

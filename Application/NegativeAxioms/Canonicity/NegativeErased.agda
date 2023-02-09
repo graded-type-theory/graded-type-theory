@@ -4,18 +4,28 @@
 {-# OPTIONS --without-K --safe #-}
 
 open import Definition.Modality.Instances.Erasure
-open import Definition.Modality.Instances.Erasure.Modality (_≤ ω)
-open import Application.NegativeAxioms.NegativeErasedContext ErasureModality (λ ())
+import Definition.Modality.Instances.Erasure.Modality
+open import Definition.Modality.Restrictions Erasure′
+import Application.NegativeAxioms.NegativeErasedContext
 open import Definition.Typed Erasure′
 open import Definition.Untyped Erasure hiding (_∷_; ℕ≢B)
 open import Definition.Typed.EqRelInstance Erasure′
 
 open import Tools.Empty
 
-module Application.NegativeAxioms.Canonicity.NegativeErased {m} {Γ : Con Term m} {γ}
-  (nΓγ : NegativeErasedContext Γ γ) (consistent : ∀{t} → Γ ⊢ t ∷ Empty → ⊥) where
+module Application.NegativeAxioms.Canonicity.NegativeErased
+  (restrictions : Restrictions)
+  (-- In this module prodrec is restricted to the quantity ω.
+   open Definition.Modality.Instances.Erasure.Modality
+          (prodrec-only-for-ω restrictions))
+  (open Application.NegativeAxioms.NegativeErasedContext ErasureModality (λ ()))
+  {m} {Γ : Con Term m} {γ}
+  (nΓγ : NegativeErasedContext Γ γ)
+  (consistent : ∀{t} → Γ ⊢ t ∷ Empty → ⊥)
+  where
 
-open import Definition.Modality.Instances.Erasure.Properties (_≤ ω)
+open import Definition.Modality.Instances.Erasure.Properties
+  (prodrec-only-for-ω restrictions)
 open import Definition.Modality.Context ErasureModality
 open import Definition.Modality.Usage ErasureModality
 open import Definition.Modality.Usage.Inversion ErasureModality
@@ -83,9 +93,10 @@ neNeg (natrecⱼ _ _ _ d   ) (natrecₙ n  ) γ▸u =
       γ▸n = sub δ▸n (≤ᶜ-trans γ≤γ′ (≤ᶜ-trans (⊛ᶜ-ineq₂ _ _ _) (∧ᶜ-decreasingʳ _ _)))
   in  ⊥-elim (¬negℕ (neNeg d n γ▸n) ⊢ℕ)
 neNeg (prodrecⱼ ⊢A A⊢B _ d _) (prodrecₙ n ) γ▸u =
-  let invUsageProdrec δ▸t η▸u p≤ω γ≤γ′ = inv-usage-prodrec γ▸u
+  let invUsageProdrec δ▸t η▸u (_ , p≡ω) γ≤γ′ = inv-usage-prodrec γ▸u
       γ▸t = sub δ▸t (≤ᶜ-trans γ≤γ′ (≤ᶜ-trans (+ᶜ-decreasingˡ _ _)
-                              (≤ᶜ-trans (·ᶜ-monotoneˡ p≤ω) (≤ᶜ-reflexive (·ᶜ-identityˡ _)))))
+                              (≤ᶜ-trans (·ᶜ-monotoneˡ (≤-reflexive p≡ω))
+                                 (≤ᶜ-reflexive (·ᶜ-identityˡ _)))))
       ⊢Σ = refl (Σⱼ ⊢A ▹ A⊢B)
   in  ⊥-elim (¬negΣᵣ (neNeg d n γ▸t) ⊢Σ)
 neNeg (Emptyrecⱼ _ d     ) (Emptyrecₙ n) γ▸u = ⊥-elim (consistent d)

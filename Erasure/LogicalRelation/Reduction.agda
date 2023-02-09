@@ -1,10 +1,14 @@
 {-# OPTIONS --without-K --safe #-}
 
 open import Definition.Modality.Instances.Erasure
+open import Definition.Modality.Restrictions
 open import Definition.Typed.EqualityRelation
 
-module Erasure.LogicalRelation.Reduction (Prodrec : Erasure → Set)
-                                         {{eqrel : EqRelSet Erasure′}} where
+module Erasure.LogicalRelation.Reduction
+  (restrictions : Restrictions Erasure′)
+  {{eqrel : EqRelSet Erasure′}}
+  where
+
 open EqRelSet {{...}}
 
 open import Definition.LogicalRelation Erasure′
@@ -24,7 +28,7 @@ open import Definition.Typed.Weakening Erasure′
 open import Definition.Untyped Erasure as U hiding (_∷_)
 open import Definition.Untyped.Properties Erasure as UP using (wk-id ; wk-lift-id)
 
-open import Erasure.LogicalRelation Prodrec
+open import Erasure.LogicalRelation restrictions
 open import Erasure.Target as T hiding (_⇒_; _⇒*_)
 open import Erasure.Target.Properties as TP
 

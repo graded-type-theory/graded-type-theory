@@ -1,10 +1,11 @@
 {-# OPTIONS --without-K --safe #-}
 
 open import Definition.Modality.Instances.Erasure
+open import Definition.Modality.Restrictions
 
-module Definition.Modality.Instances.Erasure.Modality (Prodrec : (p : Erasure) → Set) where
-
-
+module Definition.Modality.Instances.Erasure.Modality
+  (restrictions : Restrictions Erasure′)
+  where
 
 open import Tools.Product
 open import Tools.PropositionalEquality
@@ -25,7 +26,7 @@ erasureModalityWithout⊛ = record
   ; ∧-Semilattice = +-Semilattice
   ; ·-distrib-∧ = ·-distrib-+
   ; +-distrib-∧ = +-distrib-+
-  ; Prodrec = Prodrec
+  ; restrictions = restrictions
   }
 
 ErasureModality : Modality

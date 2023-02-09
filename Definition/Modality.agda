@@ -11,6 +11,8 @@ open import Tools.Algebra M′
 open import Tools.Nat hiding (_+_)
 open import Tools.Product
 
+open import Definition.Modality.Restrictions M′
+
 -- Modality ringoid
 record ModalityWithout⊛ : Set (lsuc (a ⊔ ℓ)) where
   infixr 40 _+_
@@ -39,8 +41,8 @@ record ModalityWithout⊛ : Set (lsuc (a ⊔ ℓ)) where
     -- Addition distributes over meet
     +-distrib-∧         : _+_ DistributesOver _∧_
 
-    -- Restriction on allowed modalities for prodrec terms
-    Prodrec : (p : M) → Set
+    -- "Extra" restrictions for certain term/type constructors.
+    restrictions : Restrictions
 
   -- Semilattice partial ordering relation
   _≤_ : Rel M ℓ
@@ -102,6 +104,8 @@ record ModalityWithout⊛ : Set (lsuc (a ⊔ ℓ)) where
               trans to ≈-trans;
               reflexive to ≈-reflexive
              )
+
+  open Restrictions restrictions public
 
 record Modality : Set (lsuc (a ⊔ ℓ)) where
   infix  50 _⊛_▷_

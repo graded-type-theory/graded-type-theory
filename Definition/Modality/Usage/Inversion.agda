@@ -56,28 +56,38 @@ inv-usage-Unit Unitₘ = ≤ᶜ-refl
 inv-usage-Unit (sub γ▸⊤ γ≤δ) = ≤ᶜ-trans γ≤δ (inv-usage-Unit γ▸⊤)
 
 
-record InvUsageΠΣ {n} (γ : Conₘ n) (q : M)
-                  (F : Term n) (G : Term (1+ n)) : Set (a ⊔ ℓ) where
-  constructor invUsageΠΣ
+record InvUsageΠ {n} (γ : Conₘ n) (p q : M)
+                 (F : Term n) (G : Term (1+ n)) : Set (a ⊔ ℓ) where
+  constructor invUsageΠ
   field
     {δ η} : Conₘ n
     δ▸F   : δ ▸ F
     η▸G   : η ∙ q ▸ G
     γ≤δ+η : γ ≤ᶜ δ +ᶜ η
 
--- If γ ▸ Π p , q ▷ F ▹ G then δ ▸ F, η ∙ q ▸ G and γ ≤ᶜ δ +ᶜ η
+-- If γ ▸ Π p , q ▷ F ▹ G then δ ▸ F, η ∙ q ▸ G and γ ≤ᶜ δ +ᶜ η.
 
-inv-usage-Π : γ ▸ Π p , q ▷ F ▹ G → InvUsageΠΣ γ q F G
-inv-usage-Π (Πₘ γ▸F δ▸G) = invUsageΠΣ γ▸F δ▸G ≤ᶜ-refl
+inv-usage-Π : γ ▸ Π p , q ▷ F ▹ G → InvUsageΠ γ p q F G
+inv-usage-Π (Πₘ γ▸F δ▸G) = invUsageΠ γ▸F δ▸G ≤ᶜ-refl
 inv-usage-Π (sub γ▸Π γ≤γ′) with inv-usage-Π γ▸Π
-... | invUsageΠΣ δ▸F η▸G γ′≤δ+η = invUsageΠΣ δ▸F η▸G (≤ᶜ-trans γ≤γ′ γ′≤δ+η)
+… | invUsageΠ δ▸F η▸G γ′≤δ+η =
+  invUsageΠ δ▸F η▸G (≤ᶜ-trans γ≤γ′ γ′≤δ+η)
+
+record InvUsageΣ {n} (γ : Conₘ n) (q : M)
+                 (F : Term n) (G : Term (1+ n)) : Set (a ⊔ ℓ) where
+  constructor invUsageΣ
+  field
+    {δ η} : Conₘ n
+    δ▸F   : δ ▸ F
+    η▸G   : η ∙ q ▸ G
+    γ≤δ+η : γ ≤ᶜ δ +ᶜ η
 
 -- If γ ▸ Σ p , q ▷ F ▹ G then δ ▸ F, η ∙ q ▸ G and γ ≤ᶜ δ +ᶜ η
 
-inv-usage-Σ : γ ▸ Σ⟨ m ⟩ q ▷ F ▹ G → InvUsageΠΣ γ q F G
-inv-usage-Σ (Σₘ γ▸F δ▸G) = invUsageΠΣ γ▸F δ▸G ≤ᶜ-refl
+inv-usage-Σ : γ ▸ Σ⟨ m ⟩ q ▷ F ▹ G → InvUsageΣ γ q F G
+inv-usage-Σ (Σₘ γ▸F δ▸G) = invUsageΣ γ▸F δ▸G ≤ᶜ-refl
 inv-usage-Σ (sub γ▸Σ γ≤γ′) with inv-usage-Σ γ▸Σ
-... | invUsageΠΣ δ▸F η▸G γ′≤δ+η = invUsageΠΣ δ▸F η▸G (≤ᶜ-trans γ≤γ′ γ′≤δ+η)
+… | invUsageΣ δ▸F η▸G γ′≤δ+η = invUsageΣ δ▸F η▸G (≤ᶜ-trans γ≤γ′ γ′≤δ+η)
 
 -- If γ ▸ var x then γ ≤ᶜ (𝟘ᶜ , x ≔ 𝟙)
 

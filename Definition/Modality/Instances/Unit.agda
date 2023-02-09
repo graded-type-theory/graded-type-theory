@@ -14,6 +14,7 @@ Unit′ = record { Carrier = ⊤ ; _≈_ = _≡_ ; isEquivalence = isEquivalence
 open import Tools.Algebra Unit′
 
 open import Definition.Modality Unit′ public
+open import Definition.Modality.Restrictions Unit′
 
 -----------------------------------------------
 -- A trivial modality formed by the unit set --
@@ -157,7 +158,7 @@ UnitModalityWithout⊛ = record
   ; ∧-Semilattice = +-Semilattice
   ; ·-distrib-∧ = +-Distributiveˡ , +-Distributiveʳ
   ; +-distrib-∧ = +-Distributiveˡ , +-Distributiveʳ
-  ; Prodrec = λ _ → ⊤
+  ; restrictions = no-restrictions
   }
 
 UnitModality : Modality

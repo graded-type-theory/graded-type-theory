@@ -15,6 +15,7 @@ data Erasure : Set where
 Erasure′ : Setoid _ _
 Erasure′ = record { Carrier = Erasure ; _≈_ = _≡_ ; isEquivalence = isEquivalence }
 
+open import Definition.Modality.Restrictions Erasure′
 open import Tools.Algebra Erasure′
 
 infixl 40 _+_
@@ -347,3 +348,19 @@ p ≤ q = p ≡ p ∧ q
   { isSemiringWithoutAnnihilatingZero = +-·-SemiringWithoutAnnihilatingZero
   ; zero = ·-zero
   }
+
+----------------------------
+-- A specific restriction --
+----------------------------
+
+-- The restriction that prodrec may only be used with the quantity ω.
+-- Other restrictions are inherited.
+
+prodrec-only-for-ω : Restrictions → Restrictions
+prodrec-only-for-ω restrictions = record restrictions
+  { Prodrec      = λ p → Prodrec p × p ≡ ω
+  ; Prodrec-resp = λ where
+      refl (ok , refl) → ok , refl
+  }
+  where
+  open Restrictions restrictions

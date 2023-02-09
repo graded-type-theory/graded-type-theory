@@ -1,13 +1,17 @@
 {-# OPTIONS --without-K --safe #-}
 
 open import Definition.Modality.Instances.Erasure
+open import Definition.Modality.Restrictions
 open import Definition.Typed.EqualityRelation
 
-module Erasure.LogicalRelation.Conversion (Prodrec : Erasure → Set)
-                                          {{eqrel : EqRelSet Erasure′}} where
+module Erasure.LogicalRelation.Conversion
+  (restrictions : Restrictions Erasure′)
+  {{eqrel : EqRelSet Erasure′}}
+  where
+
 open EqRelSet {{...}}
 
-open import Erasure.LogicalRelation Prodrec
+open import Erasure.LogicalRelation restrictions
 import Erasure.Target as T
 
 open import Definition.LogicalRelation Erasure′

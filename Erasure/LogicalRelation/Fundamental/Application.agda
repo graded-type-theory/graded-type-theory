@@ -1,16 +1,20 @@
 {-# OPTIONS --without-K --safe #-}
 
 open import Definition.Modality.Instances.Erasure
+open import Definition.Modality.Restrictions
 open import Definition.Typed.EqualityRelation
 
 module Erasure.LogicalRelation.Fundamental.Application
-  (Prodrec : Erasure → Set) {{eqrel : EqRelSet Erasure′}} where
+  (restrictions : Restrictions Erasure′)
+  {{eqrel : EqRelSet Erasure′}}
+  where
+
 open EqRelSet {{...}}
 
-open import Definition.Modality.Instances.Erasure.Modality Prodrec
-open import Erasure.LogicalRelation Prodrec
-open import Erasure.LogicalRelation.Subsumption Prodrec
-open import Erasure.LogicalRelation.Irrelevance Prodrec
+open import Definition.Modality.Instances.Erasure.Modality restrictions
+open import Erasure.LogicalRelation restrictions
+open import Erasure.LogicalRelation.Subsumption restrictions
+open import Erasure.LogicalRelation.Irrelevance restrictions
 import Erasure.Target as T
 
 open import Definition.Untyped Erasure as U hiding (_∷_)
@@ -32,7 +36,8 @@ import Definition.LogicalRelation.Irrelevance Erasure′ as I
 import Definition.LogicalRelation.Substitution.Irrelevance Erasure′ as IS
 
 open import Definition.Modality.Context ErasureModality
-open import Definition.Modality.Instances.Erasure.Properties Prodrec
+open import Definition.Modality.Instances.Erasure.Properties
+  restrictions
 
 open import Tools.Nat
 open import Tools.Product

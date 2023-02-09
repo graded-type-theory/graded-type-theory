@@ -4,7 +4,9 @@
 {-# OPTIONS --without-K --safe #-}
 
 open import Definition.Modality.Instances.Erasure
-open import Definition.Modality.Instances.Erasure.Modality (_≤ 𝟘)
+open import Definition.Modality.Restrictions Erasure′
+open import Definition.Modality.Instances.Erasure.Modality
+  no-restrictions
 open import Application.NegativeAxioms.NegativeErasedContext ErasureModality (λ ())
   hiding (lookupNegative)
 open import Definition.Typed Erasure′
@@ -15,7 +17,8 @@ open import Tools.Empty
 
 module Application.NegativeAxioms.Canonicity.EliminateErased where
 
-open import Definition.Modality.Instances.Erasure.Properties (_≤ ω)
+open import Definition.Modality.Instances.Erasure.Properties
+  no-restrictions
 open import Definition.Modality.Context ErasureModality
 open import Definition.Modality.Usage ErasureModality
 open import Definition.Modality.Usage.Inversion ErasureModality
@@ -87,7 +90,7 @@ cEx : ∃₄ λ (m : Nat) (Γ : Con Term m) (γ : Conₘ m) (t : Term m)
     × ((∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ) → ⊥)
 cEx = _ , ε ∙ (Σᵣ 𝟘 ▷ ℕ ▹ ℕ) , ε ∙ 𝟘 , prodrec 𝟘 ℕ (var x0) zero
     , prodrecⱼ εΣ⊢ℕ εΣℕ⊢ℕ εΣΣ⊢ℕ (var ⊢εΣ here) (zeroⱼ ⊢εΣℕℕ)
-    , prodrecₘ var zeroₘ PE.refl
+    , prodrecₘ var zeroₘ _
     , ε ∙𝟘
     , (λ ⊢t → ¬Empty (substTerm ⊢t (prodⱼ ε⊢ℕ εℕ⊢ℕ (zeroⱼ ε) (zeroⱼ ε))))
     , λ { (.zero , zeroₙ , t≡u) → lem (completeEqTerm t≡u)
