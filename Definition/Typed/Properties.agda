@@ -64,7 +64,7 @@ wfEqTerm (app-cong f≡g a≡b p≈p₁ p≈p₂) = wfEqTerm f≡g
 wfEqTerm (β-red F G t a p≡q) = wfTerm a
 wfEqTerm (η-eq F f g f0≡g0) = wfTerm f
 wfEqTerm (suc-cong n) = wfEqTerm n
-wfEqTerm (natrec-cong _ F≡F′ z≡z′ s≡s′ n≡n′ _ _) = wfEqTerm z≡z′
+wfEqTerm (natrec-cong _ F≡F′ z≡z′ s≡s′ n≡n′ _ _ _) = wfEqTerm z≡z′
 wfEqTerm (natrec-zero F z s) = wfTerm z
 wfEqTerm (natrec-suc n F z s) = wfTerm n
 wfEqTerm (Emptyrec-cong A≡A' e≡e' _) = wfEqTerm e≡e'
@@ -73,7 +73,7 @@ wfEqTerm (Σ-cong F _ _ _) = wf F
 wfEqTerm (prod-cong F G x x₁) = wf F
 wfEqTerm (fst-cong _ _ a) = wfEqTerm a
 wfEqTerm (snd-cong _ _ a) = wfEqTerm a
-wfEqTerm (prodrec-cong F G _ _ _ _) = wf F
+wfEqTerm (prodrec-cong F G _ _ _ _ _) = wf F
 wfEqTerm (prodrec-β F G _ _ _ _) = wf F
 wfEqTerm (Σ-η _ _ x _ _ _) = wfTerm x
 wfEqTerm (Σ-β₁ F G x x₁ _) = wfTerm x
@@ -92,19 +92,19 @@ wfEq (Σ-cong F x₁ x₂ _) = wf F
 
 subsetTerm : Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ≡ u ∷ A
 subsetTerm (natrec-subst F z s n⇒n′) =
-  natrec-cong F (refl F) (refl z) (refl s) (subsetTerm n⇒n′) ≈-refl ≈-refl
+  natrec-cong F (refl F) (refl z) (refl s) (subsetTerm n⇒n′) ≈-refl ≈-refl ≈-refl
 subsetTerm (natrec-zero F z s) = natrec-zero F z s
 subsetTerm (natrec-suc n F z s) = natrec-suc n F z s
 subsetTerm (Emptyrec-subst A n⇒n′) =
   Emptyrec-cong (refl A) (subsetTerm n⇒n′) ≈-refl
 subsetTerm (app-subst t⇒u a) =
-  app-cong (subsetTerm t⇒u) (refl a) (Setoid.refl M′) (Setoid.refl M′)
+  app-cong (subsetTerm t⇒u) (refl a) ≈-refl ≈-refl
 subsetTerm (β-red A B t a p≈p′) = β-red A B t a p≈p′
 subsetTerm (conv t⇒u A≡B) = conv (subsetTerm t⇒u) A≡B
 subsetTerm (fst-subst F G x) = fst-cong F G (subsetTerm x)
 subsetTerm (snd-subst F G x) = snd-cong F G (subsetTerm x)
 subsetTerm (prodrec-subst F G A u t⇒t′) =
-  prodrec-cong F G (refl A) (subsetTerm t⇒t′) (refl u) (Setoid.refl M′)
+  prodrec-cong F G (refl A) (subsetTerm t⇒t′) (refl u) ≈-refl ≈-refl
 subsetTerm (prodrec-β F G A t t′ u) = prodrec-β F G A t t′ u
 subsetTerm (Σ-β₁ F G x x₁ x₂) = Σ-β₁ F G x x₁ x₂
 subsetTerm (Σ-β₂ F G x x₁ x₂) = Σ-β₂ F G x x₁ x₂

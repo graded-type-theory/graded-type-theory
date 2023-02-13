@@ -23,7 +23,7 @@ private
   variable
     n : Nat
     Γ : Con Term n
-    p q r : M
+    p q q′ r : M
 
 -- Inversion of U (it has no type).
 inversion-U : ∀ {C} → Γ ⊢ U ∷ C → ⊥
@@ -79,7 +79,7 @@ inversion-suc (conv x x₁) =
   in  a , trans (sym x₁) b
 
 -- Inversion of natural recursion.
-inversion-natrec : ∀ {c g n A C} → Γ ⊢ natrec p r C c g n ∷ A
+inversion-natrec : ∀ {c g n A C} → Γ ⊢ natrec p q r C c g n ∷ A
   → (Γ ∙ ℕ ⊢ C)
   × Γ ⊢ c ∷ C [ zero ]
   × Γ ∙ ℕ ∙ C ⊢ g ∷ wk1 (C [ suc (var x0) ]↑)
@@ -130,7 +130,7 @@ inversion-snd (conv ⊢t x) =
   in  F , G , q , a , b , c , trans (sym x) d
 
 -- Inversion of prodrec
-inversion-prodrec : ∀ {t u A C} → Γ ⊢ prodrec p C t u ∷ A
+inversion-prodrec : ∀ {t u A C} → Γ ⊢ prodrec p q′ C t u ∷ A
                   → ∃₃ λ F G q
                   → (Γ ⊢ F)
                   × (Γ ∙ F ⊢ G)

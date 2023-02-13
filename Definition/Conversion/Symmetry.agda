@@ -62,7 +62,7 @@ mutual
         r~p = PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) Σ≡ r~p
         F≡ , G≡ , _ = Σ-injectivity (PE.subst (λ x → _ ⊢ _ ≡ x) Σ≡ A≡B)
     in  G′ [ fst r ] , substTypeEq G≡ fst≡ , snd-cong r~p
-  sym~↑ Γ≡Δ (natrec-cong x x₁ x₂ t~u p≈p′ r≈r′) =
+  sym~↑ Γ≡Δ (natrec-cong x x₁ x₂ t~u p≈p′ q≈q′ r≈r′) =
     let ⊢Γ , ⊢Δ , _ = contextConvSubst Γ≡Δ
         B , whnfB , A≡B , u~t = sym~↓ Γ≡Δ t~u
         B≡ℕ = ℕ≡A A≡B whnfB
@@ -73,8 +73,8 @@ mutual
                     (convConvTerm (symConv↑Term Γ≡Δ x₁) F[0]≡G[0])
                     (convConvTerm (symConv↑Term (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ) ∙ soundnessConv↑ x) x₂) (sucCong′ F≡G))
                     (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡ℕ u~t)
-                    (≈-sym p≈p′) (≈-sym r≈r′)
-  sym~↑ {Γ = Γ} {Δ = Δ} Γ≡Δ (prodrec-cong {F = F} {G} C↑E g~h u↑v p≈p′) =
+                    (≈-sym p≈p′) (≈-sym q≈q′) (≈-sym r≈r′)
+  sym~↑ {Γ = Γ} {Δ = Δ} Γ≡Δ (prodrec-cong {F = F} {G} C↑E g~h u↑v p≈p′ q≈q′) =
     let g≡h = soundness~↓ g~h
         C≡E = soundnessConv↑ C↑E
         ⊢Σ , _ = syntacticEqTerm g≡h
@@ -96,7 +96,7 @@ mutual
     in  _ , substTypeEq C≡E g≡h
       , prodrec-cong E↑C (PE.subst (λ x → Δ ⊢ _ ~ _ ↓ x) B≡Σ′ h~g)
                      (convConv↑Term (reflConEq ⊢Δ ∙ ⊢F≡F′ ∙ ⊢G≡G′) C₊≡E₊ v↑u)
-                     (≈-sym p≈p′)
+                     (≈-sym p≈p′) (≈-sym q≈q′)
   sym~↑ Γ≡Δ (Emptyrec-cong x t~u p≈p′) =
     let ⊢Γ , ⊢Δ , _ = contextConvSubst Γ≡Δ
         B , whnfB , A≡B , u~t = sym~↓ Γ≡Δ t~u

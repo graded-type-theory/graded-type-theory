@@ -58,7 +58,8 @@ mutual
     let t~v , ΣFG≡ΣF′G′ = trans~↓ t~u u~v
         F≡F′ , G≡G′ , _ = Σ-injectivity ΣFG≡ΣF′G′
     in  snd-cong t~v , substTypeEq G≡G′ (soundness~↑ (fst-cong t~u))
-  trans~↑ (natrec-cong A<>B a₀<>b₀ aₛ<>bₛ t~u p≈p′ r≈r′) (natrec-cong B<>C b₀<>c₀ bₛ<>cₛ u~v p′≈p″ r′≈r″) =
+  trans~↑ (natrec-cong A<>B a₀<>b₀ aₛ<>bₛ t~u p≈p′ q≈q′ r≈r′)
+          (natrec-cong B<>C b₀<>c₀ bₛ<>cₛ u~v p′≈p″ q′≈q″ r′≈r″) =
     let ⊢Γ = wf (proj₁ (syntacticEqTerm (soundness~↓ t~u)))
         A≡B = soundnessConv↑ A<>B
         F[0]≡F₁[0] = substTypeEq A≡B (refl (zeroⱼ ⊢Γ))
@@ -68,10 +69,13 @@ mutual
         aₛ<>cₛ = transConv↑Term ΠℕFs≡ΠℕF₁s aₛ<>bₛ
                                 (stabilityConv↑Term ((reflConEq (⊢Γ ∙ (ℕⱼ ⊢Γ))) ∙ sym A≡B) bₛ<>cₛ)
         t~v , _ = trans~↓ t~u u~v
-    in  natrec-cong A<>C a₀<>c₀ aₛ<>cₛ t~v (≈-trans p≈p′ p′≈p″) (≈-trans r≈r′ r′≈r″)
+        p≈p″ = ≈-trans p≈p′ p′≈p″
+        q≈q″ = ≈-trans q≈q′ q′≈q″
+        r≈r″ = ≈-trans r≈r′ r′≈r″
+    in  natrec-cong A<>C a₀<>c₀ aₛ<>cₛ t~v p≈p″ q≈q″ r≈r″
     ,   substTypeEq A≡B (soundness~↓ t~u)
-  trans~↑ {Γ = Γ} (prodrec-cong {F = F} {G} A<>B a~b t<>u p≈p′)
-                  (prodrec-cong B<>C b~c u<>v p′≈p″) =
+  trans~↑ {Γ = Γ} (prodrec-cong {F = F} {G} A<>B a~b t<>u p≈p′ q≈q′)
+                  (prodrec-cong B<>C b~c u<>v p′≈p″ q′≈q″) =
     let a~c , Σ≡Σ′ = trans~↓ a~b b~c
         ⊢Γ = wfEq Σ≡Σ′
         Γ≡Γ = reflConEq ⊢Γ
@@ -88,7 +92,9 @@ mutual
         t<>v = transConv↑Term A₊≡B₊ t<>u u<>v′
         a≡b = soundness~↓ a~b
         Aa≡Bb = substTypeEq A≡B a≡b
-    in  prodrec-cong A<>C a~c t<>v (≈-trans p≈p′ p′≈p″) , Aa≡Bb
+        p≈p″ = ≈-trans p≈p′ p′≈p″
+        q≈q″ = ≈-trans q≈q′ q′≈q″
+    in  prodrec-cong A<>C a~c t<>v p≈p″ q≈q″ , Aa≡Bb
   trans~↑ (Emptyrec-cong A<>B t~u p≈p′) (Emptyrec-cong B<>C u~v p′≈p″) =
     let A≡B = soundnessConv↑ A<>B
         A<>C = transConv↑ A<>B B<>C

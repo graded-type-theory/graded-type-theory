@@ -54,7 +54,7 @@ private
     A : Term (1+ n)
     s : Term (1+ (1+ n))
     v w : T.Term n
-    p r : Erasure
+    p q r : Erasure
     γ δ η : Conₘ n
     σ : Subst 0 n
     σ′ : T.Subst 0 n
@@ -75,10 +75,10 @@ natrecʳ″ : ∀ {l m w} {Γ : Con Term n}
              ⊩ʳ⟨ l ⟩ s ∷ wk1 (A [ (suc (var x0)) ]↑) / [Γ] ∙ [ℕ] ∙ [A] / [A₊])
          → ([m] : ε ⊩⟨ l ⟩ m ∷ ℕ / proj₁ (unwrap [ℕ] ε [σ]))
          → (m®w : m ® w ∷ℕ)
-         → natrec p r (subst (liftSubst σ) A) (subst σ z) (subst (liftSubstn σ 2) s) m
+         → natrec p q r (subst (liftSubst σ) A) (subst σ z) (subst (liftSubstn σ 2) s) m
            ®⟨ l ⟩ T.natrec (T.subst σ′ (erase z)) (T.subst (T.liftSubstn σ′ 2) (erase s)) w
            ∷ subst (consSubst σ m) A / proj₁ (unwrap [A] ε ([σ] , [m]))
-natrecʳ″ {n} {A} {z} {s} {σ} {σ′} {γ} {η} {δ} {p} {r} {l} {m} {w} {Γ}
+natrecʳ″ {n} {A} {z} {s} {σ} {σ′} {γ} {η} {δ} {p} {r} {q} {l} {m} {w} {Γ}
          [Γ] [A] [A₊] [A₀] [z] [s] [σ] σ®σ′ ⊩ʳz ⊩ʳs [m] (zeroᵣ m⇒zero w⇒zero) =
   let [ℕ] = ℕᵛ {l = l} [Γ]
       [σA₀] = proj₁ (unwrap [A₀] ε [σ])
@@ -113,11 +113,11 @@ natrecʳ″ {n} {A} {z} {s} {σ} {σ′} {γ} {η} {δ} {p} {r} {l} {m} {w} {Γ}
       [σA[m]]′ = I.irrelevance′ (PE.sym (singleSubstComp m σ A)) [σA[m]]
       nr®nr′ = convTermʳ [σA₀]′ [σA[m]]′ (sym A[m]≡A[0]) nr®nr
   in  irrelevanceTerm′ (singleSubstComp m σ A) [σA[m]]′ [σA[m]] nr®nr′
-natrecʳ″ {n} {A} {z} {s} {σ} {σ′} {γ} {η} {δ} {p} {r} {l} {m} {w} {Γ}
+natrecʳ″ {n} {A} {z} {s} {σ} {σ′} {γ} {η} {δ} {p} {r} {q} {l} {m} {w} {Γ}
          [Γ] [A] [A₊] [A₀] [z] [s] [σ] σ®σ′ ⊩ʳz ⊩ʳs [m] (sucᵣ {t′ = m′} {v′ = w′} m⇒sucm′ w⇒sucw′ m′®w′) =
   let [ℕ] = ℕᵛ {l = l} [Γ]
-      σnrm = natrec p r (subst (liftSubst σ) A) (subst σ z) (subst (liftSubstn σ 2) s) m
-      σnrm′ = natrec p r (subst (liftSubst σ) A) (subst σ z) (subst (liftSubstn σ 2) s) m′
+      σnrm = natrec p q r (subst (liftSubst σ) A) (subst σ z) (subst (liftSubstn σ 2) s) m
+      σnrm′ = natrec p q r (subst (liftSubst σ) A) (subst σ z) (subst (liftSubstn σ 2) s) m′
       σnrw′ = T.natrec (T.subst σ′ (erase z)) (T.subst (T.liftSubstn σ′ 2) (erase s)) w′
       [σA₀] = proj₁ (unwrap [A₀] ε [σ])
       [σz] = proj₁ ([z] ε [σ])
@@ -187,11 +187,11 @@ natrecʳ″ {n} {A} {z} {s} {σ} {σ′} {γ} {η} {δ} {p} {r} {l} {m} {w} {Γ}
   substLem x0 = PE.refl
   substLem (x +1) = PE.sym (PE.trans (wk1-tail (σ x)) (subst-id (σ x)))
   substLem′ : (x : Fin (1+ (1+ n)))
-            → consSubst (consSubst σ m′) (natrec p r (subst (liftSubst σ) A) (subst σ z)
+            → consSubst (consSubst σ m′) (natrec p q r (subst (liftSubst σ) A) (subst σ z)
                         (subst (liftSubstn σ 2) s) m′) x
             PE.≡ (consSubst (consSubst var m′)
-                            (natrec p r (subst (liftSubst σ) A) (subst σ z)
-                                        (subst (liftSubstn σ 2) s) m′)
+                            (natrec p q r (subst (liftSubst σ) A) (subst σ z)
+                                          (subst (liftSubstn σ 2) s) m′)
                  ₛ•ₛ liftSubstn σ 2) x
   substLem′ x0 = PE.refl
   substLem′ (x0 +1) = PE.refl
@@ -225,8 +225,9 @@ natrecʳ′ : ∀ {l} {Γ : Con Term n}
              ⊩ʳ⟨ l ⟩ s ∷ wk1 (A [ (suc (var x0)) ]↑) / [Γ] ∙ [ℕ] ∙ [A] / [A₊])
          → (⊩ʳm : η ▸ Γ ⊩ʳ⟨ l ⟩ m ∷ ℕ / [Γ] / [ℕ])
          → (γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r ▸ Γ
-             ⊩ʳ⟨ l ⟩ natrec p r A z s m ∷ A [ m ] / [Γ] / [A[m]]
-natrecʳ′ {n} {A} {m} {z} {s} {γ} {δ} {p} {r} {η} {l} {Γ} [Γ] [A] [A₊] [A₀] [A[m]] [z] [s] [m] ⊩ʳz ⊩ʳs ⊩ʳm {σ} {σ′} [σ] σ®σ′ =
+             ⊩ʳ⟨ l ⟩ natrec p q r A z s m ∷ A [ m ] / [Γ] / [A[m]]
+natrecʳ′ {n} {A} {m} {z} {s} {γ} {δ} {p} {r} {η} {q} {l} {Γ}
+         [Γ] [A] [A₊] [A₀] [A[m]] [z] [s] [m] ⊩ʳz ⊩ʳs ⊩ʳm {σ} {σ′} [σ] σ®σ′ =
   let [σm] = proj₁ ([m] ε [σ])
       m®w = ⊩ʳm [σ] (subsumptionSubst {l = l} σ®σ′
                                       (≤ᶜ-trans (⊛ᶜ-decreasingˡ (γ ∧ᶜ η) _ r)
@@ -250,8 +251,8 @@ natrecʳ : ∀ {l} {Γ : Con Term n}
              ⊩ʳ⟨ l ⟩ s ∷ wk1 (A [ (suc (var x0)) ]↑) / [Γ] ∙ [ℕ] ∙ [A] / [A₊])
          → (⊩ʳm : η ▸ Γ ⊩ʳ⟨ l ⟩ m ∷ ℕ / [Γ] / [ℕ])
          → ∃ λ ([A[m]] : Γ ⊩ᵛ⟨ l ⟩ A [ m ] / [Γ])
-         → (γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r ▸ Γ ⊩ʳ⟨ l ⟩ natrec p r A z s m ∷ A [ m ] / [Γ] / [A[m]]
-natrecʳ {n} {A} {z} {s} {m} {γ} {δ} {p} {r} {η} {l} {Γ}
+         → (γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r ▸ Γ ⊩ʳ⟨ l ⟩ natrec p q r A z s m ∷ A [ m ] / [Γ] / [A[m]]
+natrecʳ {n} {A} {z} {s} {m} {γ} {δ} {p} {r} {η} {q} {l} {Γ}
         [Γ] [A] [A₊] [A₀] [z] [s] [m] ⊩ʳz ⊩ʳs ⊩ʳm =
   let [A[m]] = substS {F = ℕ} {G = A}  [Γ] (ℕᵛ [Γ]) [A] [m]
   in  [A[m]] , natrecʳ′ {A = A} {m = m} {z = z} {s = s}

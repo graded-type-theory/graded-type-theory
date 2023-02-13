@@ -62,7 +62,7 @@ private
     t₁ t₂ : Term 0
     v₁ v₂ : T.Term 0
     G : Term (1+ n)
-    p q : Erasure
+    p q q′ : Erasure
     γ δ : Conₘ n
     σ : Subst 0 n
     σ′ : T.Subst 0 n
@@ -238,11 +238,12 @@ prodrecʳ′ : ∀ {l} {Γ : Con Term n}
            ([σ] : ε ⊩ˢ σ ∷ Γ / [Γ] / ε)
            (σ®σ′ : σ ®⟨ l ⟩ σ′ ∷ Γ ◂ p ·ᶜ γ +ᶜ δ / [Γ] / [σ])
            ([σt] : ε ⊩⟨ l ⟩ subst σ t ∷ subst σ (Σᵣ q ▷ F ▹ G) / proj₁ (unwrap [Σ] ε [σ]))
-         → subst σ (prodrec p A t u) ®⟨ l ⟩ T.subst σ′ (erase (prodrec p A t u)) ∷ subst σ (A [ t ]) / proj₁ (unwrap [At] ε [σ])
-prodrecʳ′ {n} {F} {G} {q} {A} {γ} {t} {δ} {r} {u} {σ} {σ′} {l} {Γ}
+         → subst σ (prodrec p q′ A t u) ®⟨ l ⟩ T.subst σ′ (erase (prodrec p q′ A t u)) ∷ subst σ (A [ t ]) / proj₁ (unwrap [At] ε [σ])
+prodrecʳ′ {n} {F} {G} {q} {A} {γ} {t} {δ} {r} {u} {σ} {σ′} {q′} {l} {Γ}
           [Γ] [F] [G] [A] [A₊] ⊩ʳt ⊩ʳu [At] [u] [σ] σ®σ′ (Σₜ p d p≡p (ne x) prop) = PE.⊥-elim (noClosedNe x)
-prodrecʳ′ {n} {F} {G} {q} {A} {γ} {t} {δ} {𝟘} {u} {σ} {σ′} {l} {Γ}
-          [Γ] [F] [G] [A] [A₊] ⊩ʳt ⊩ʳu [At] [u] [σ] σ®σ′ (Σₜ p d p≡p (prodₙ {t = p₁} {u = p₂}) (wk[p₁] , wk[p₂] , PE.refl)) =
+prodrecʳ′ {n} {F} {G} {q} {A} {γ} {t} {δ} {𝟘} {u} {σ} {σ′} {q′} {l} {Γ}
+          [Γ] [F] [G] [A] [A₊] ⊩ʳt ⊩ʳu [At] [u] [σ] σ®σ′
+          (Σₜ p d p≡p (prodₙ {t = p₁} {u = p₂}) (wk[p₁] , wk[p₂] , PE.refl)) =
   let σ®σ′ᵤ = subsumptionSubst {l = l} σ®σ′ (+ᶜ-decreasingʳ (𝟘 ·ᶜ γ) δ)
       [σF] = proj₁ (unwrap [F] ε [σ])
       ⊢σF = escape [σF]
@@ -291,14 +292,15 @@ prodrecʳ′ {n} {F} {G} {q} {A} {γ} {t} {δ} {𝟘} {u} {σ} {σ′} {l} {Γ}
   in  convTermʳ [σ₊A₊] [σAt]
                 (PE.subst₂ (λ x y → ε ⊢ x ≡ y) (substCompProdrec A p₁ p₂ σ)
                            (PE.sym (singleSubstLift A t)) (sym At≡Ap))
-                (PE.subst (λ x → subst σ (prodrec 𝟘 A t u) ®⟨ l ⟩ x
+                (PE.subst (λ x → subst σ (prodrec 𝟘 q′ A t u) ®⟨ l ⟩ x
                                ∷ subst (consSubst (consSubst σ p₁) p₂) (A [ prodᵣ (var (x0 +1)) (var x0) ]↑²)
                                / [σ₊A₊])
                           (PE.sym (PE.trans (TP.doubleSubstLift σ′ (erase u) T.undefined T.undefined)
                                             (TP.doubleSubstComp (erase u) T.undefined T.undefined σ′)))
                           pr®u′)
-prodrecʳ′ {n} {F} {G} {q} {A} {γ} {t} {δ} {ω} {u} {σ} {σ′} {l} {Γ}
-          [Γ] [F] [G] [A] [A₊] ⊩ʳt ⊩ʳu [At] [u] [σ] σ®σ′ (Σₜ p d p≡p prodₙ (wk[p₁]′ , wk[p₂] , PE.refl))
+prodrecʳ′ {n} {F} {G} {q} {A} {γ} {t} {δ} {ω} {u} {σ} {σ′} {q′} {l} {Γ}
+          [Γ] [F] [G] [A] [A₊] ⊩ʳt ⊩ʳu [At] [u] [σ] σ®σ′
+          (Σₜ p d p≡p prodₙ (wk[p₁]′ , wk[p₂] , PE.refl))
           with ⊩ʳt [σ] (subsumptionSubst {l = l} σ®σ′ (≤ᶜ-trans (+ᶜ-decreasingˡ (ω ·ᶜ γ) δ) (≤ᶜ-reflexive (·ᶜ-identityˡ γ))))
 ... | p₁ , p₂ , q₁ , q₂ , t⇒p , v⇒q , wk[p₁] , p₁®q₁ , p₂®q₂
     with whrDet*Term (redₜ d , prodₙ) (t⇒p , prodₙ) | wf (escape (proj₁ (unwrap [F] ε [σ])))
@@ -377,8 +379,8 @@ prodrecʳ : ∀ {l} {Γ : Con Term n}
            (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷ Σᵣ q ▷ F ▹ G / [Γ] / [Σ])
            (⊩ʳu : δ ∙ p ∙ p ▸ Γ ∙ F ∙ G ⊩ʳ⟨ l ⟩ u ∷ A [ prodᵣ (var (x0 +1)) (var x0) ]↑² / [Γ] ∙ [F] ∙ [G] / [A₊])
          → ∃ λ ([At] : Γ ⊩ᵛ⟨ l ⟩ A [ t ] / [Γ])
-         → p ·ᶜ γ +ᶜ δ ▸ Γ ⊩ʳ⟨ l ⟩ prodrec p A t u ∷ A [ t ] / [Γ] / [At]
-prodrecʳ {n} {F} {G} {q} {A} {t} {u} {γ} {δ} {p} {l} {Γ}
+         → p ·ᶜ γ +ᶜ δ ▸ Γ ⊩ʳ⟨ l ⟩ prodrec p q′ A t u ∷ A [ t ] / [Γ] / [At]
+prodrecʳ {n} {F} {G} {q} {A} {t} {u} {γ} {δ} {p} {q′} {l} {Γ}
          [Γ] [F] [G] [Σ] [A] [A₊] [t] [u] ⊩ʳt ⊩ʳu =
   let [At] = substS {F = Σ q ▷ F ▹ G} {A} {t} [Γ] [Σ] [A] [t]
   in  [At] , λ {σ} [σ] σ®σ′ →

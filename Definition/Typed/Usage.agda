@@ -62,11 +62,11 @@ usagePresTerm γ▸t′ (Σ-β₂ x x₁ x₂ x₃ x₄) =
   in  sub η▸u (≤ᶜ-trans γ≤δ δ≤η)
 
 usagePresTerm γ▸natrec (natrec-subst x x₁ x₂ t⇒u) =
-  let invUsageNatrec δ▸z η▸s θ▸n γ≤X = inv-usage-natrec γ▸natrec
-  in  sub (natrecₘ δ▸z η▸s (usagePresTerm θ▸n t⇒u)) γ≤X
+  let invUsageNatrec δ▸z η▸s θ▸n φ▸A γ≤X = inv-usage-natrec γ▸natrec
+  in  sub (natrecₘ δ▸z η▸s (usagePresTerm θ▸n t⇒u) φ▸A) γ≤X
 
 usagePresTerm γ▸natrec (natrec-zero {p = p} {r = r} x x₁ x₂) =
-  let invUsageNatrec {δ = δ} {θ = θ} δ▸z η▸s θ▸n γ≤γ′ = inv-usage-natrec γ▸natrec
+  let invUsageNatrec {δ = δ} {θ = θ} δ▸z η▸s θ▸n φ▸A γ≤γ′ = inv-usage-natrec γ▸natrec
       θ≤𝟘 = inv-usage-zero θ▸n
       γ′≤δ = begin
         (δ ∧ᶜ θ) ⊛ᶜ (_ +ᶜ p ·ᶜ _) ▷ r ≤⟨ ⊛ᶜ-ineq₂ (δ ∧ᶜ θ) _ r ⟩
@@ -77,7 +77,7 @@ usagePresTerm γ▸natrec (natrec-zero {p = p} {r = r} x x₁ x₂) =
   open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
 usagePresTerm {γ = γ} γ▸natrec (natrec-suc {p = p} {r = r} x x₁ x₂ x₃) =
-  let invUsageNatrec {δ = δ} {η} {θ} δ▸z η▸s θ▸sn γ≤γ′ = inv-usage-natrec γ▸natrec
+  let invUsageNatrec {δ = δ} {η} {θ} δ▸z η▸s θ▸sn φ▸A γ≤γ′ = inv-usage-natrec γ▸natrec
       invUsageSuc {δ = θ′} θ′▸n θ≤θ′ = inv-usage-suc θ▸sn
       γ′ = (δ ∧ᶜ θ) ⊛ᶜ (η +ᶜ p ·ᶜ θ) ▷ r
       γ≤γ″ = begin
@@ -90,21 +90,20 @@ usagePresTerm {γ = γ} γ▸natrec (natrec-suc {p = p} {r = r} x x₁ x₂ x₃
         η +ᶜ r ·ᶜ γ′ +ᶜ p ·ᶜ θ
                ≤⟨ +ᶜ-monotoneʳ (+ᶜ-monotoneʳ (·ᶜ-monotoneʳ θ≤θ′)) ⟩
         η +ᶜ r ·ᶜ γ′ +ᶜ p ·ᶜ θ′ ∎
-  in  sub (doubleSubstₘ-lemma η▸s (natrecₘ δ▸z η▸s (sub θ′▸n θ≤θ′)) θ′▸n) γ≤γ″
+  in  sub (doubleSubstₘ-lemma η▸s (natrecₘ δ▸z η▸s (sub θ′▸n θ≤θ′) φ▸A) θ′▸n) γ≤γ″
   where
   open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
 usagePresTerm γ▸prodrec (prodrec-subst x x₁ x₂ x₃ x₄) =
-  let invUsageProdrec δ▸t η▸u P γ≤γ′ = inv-usage-prodrec γ▸prodrec
-  in  sub (prodrecₘ (usagePresTerm δ▸t x₄) η▸u P) γ≤γ′
+  let invUsageProdrec δ▸t η▸u θ▸A P γ≤γ′ = inv-usage-prodrec γ▸prodrec
+  in  sub (prodrecₘ (usagePresTerm δ▸t x₄) η▸u θ▸A P) γ≤γ′
 usagePresTerm {γ = γ} γ▸prodrec (prodrec-β {p = p} {t = t} {t′} {u} x x₁ x₂ x₃ x₄ x₅) =
-  let invUsageProdrec {δ = δ} {η} δ▸t η▸u P γ≤pδ+η = inv-usage-prodrec γ▸prodrec
-      invUsageProdᵣ {δ = δ′} {η′} {θ} δ′▸t₁ η′▸t₂ γ″≡δ′+η′ γ′≤γ″ = inv-usage-prodᵣ δ▸t
+  let invUsageProdrec {δ = δ} {η} δ▸t η▸u θ▸A P γ≤pδ+η = inv-usage-prodrec γ▸prodrec
+      invUsageProdᵣ {δ = δ′} {η′} δ′▸t₁ η′▸t₂ γ′≤γ″ = inv-usage-prodᵣ δ▸t
       le = begin
         γ                      ≤⟨ γ≤pδ+η ⟩
         p ·ᶜ δ +ᶜ η            ≈⟨ +ᶜ-comm (p ·ᶜ δ) η ⟩
         η +ᶜ p ·ᶜ δ            ≤⟨ +ᶜ-monotoneʳ (·ᶜ-monotoneʳ γ′≤γ″) ⟩
-        η +ᶜ (p ·ᶜ θ)          ≡⟨ PE.cong (λ γ → η +ᶜ p ·ᶜ γ) γ″≡δ′+η′ ⟩
         η +ᶜ p ·ᶜ (δ′ +ᶜ η′)   ≈⟨ +ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ p δ′ η′) ⟩
         η +ᶜ p ·ᶜ δ′ +ᶜ p ·ᶜ η′ ≈⟨ +ᶜ-congˡ (+ᶜ-comm (p ·ᶜ δ′) (p ·ᶜ η′)) ⟩
         η +ᶜ p ·ᶜ η′ +ᶜ p ·ᶜ δ′ ∎
@@ -113,8 +112,8 @@ usagePresTerm {γ = γ} γ▸prodrec (prodrec-β {p = p} {t = t} {t′} {u} x x�
   open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
 usagePresTerm γ▸et (Emptyrec-subst x t⇒u) =
-  let invUsageEmptyrec δ▸t γ≤δ = inv-usage-Emptyrec γ▸et
-  in  sub (Emptyrecₘ (usagePresTerm δ▸t t⇒u)) γ≤δ
+  let invUsageEmptyrec δ▸t η▸A γ≤δ = inv-usage-Emptyrec γ▸et
+  in  sub (Emptyrecₘ (usagePresTerm δ▸t t⇒u) η▸A) γ≤δ
 
 -- Type reduction preserves modality usage
 -- If γ ▸ A and Γ ⊢ A ⇒ B, then γ ▸ B

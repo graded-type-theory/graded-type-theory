@@ -548,8 +548,8 @@ natrecSucCase σ F = let F′ = F [ suc (var x0) ]↑ in
   eq x0     = refl
   eq (x +1) = refl
 
-natrecIrrelevantSubstLemma : ∀ p q F z s m (σ : Subst ℓ n) (x : Fin (1+ n))
-  → (sgSubst (natrec p q
+natrecIrrelevantSubstLemma : ∀ p q r F z s m (σ : Subst ℓ n) (x : Fin (1+ n))
+  → (sgSubst (natrec p q r
                (subst (liftSubst σ) F)
                (subst σ z)
                (subst (liftSubstn σ 2) s)
@@ -560,20 +560,20 @@ natrecIrrelevantSubstLemma : ∀ p q F z s m (σ : Subst ℓ n) (x : Fin (1+ n))
      ₛ•  step id
      ₛ•ₛ consSubst (tail idSubst) (suc (var x0))) x
   ≡ (consSubst σ (suc m)) x
-natrecIrrelevantSubstLemma p q F z s m σ x0 =
+natrecIrrelevantSubstLemma p q r F z s m σ x0 =
   cong suc (trans (subst-wk m) (subst-id m))
-natrecIrrelevantSubstLemma p q F z s m σ (x +1) =
+natrecIrrelevantSubstLemma p q r F z s m σ (x +1) =
   trans (subst-wk (wk (step id) (σ x)))
            (trans (subst-wk (σ x))
                      (subst-id (σ x)))
 
-natrecIrrelevantSubst : ∀ p q F z s m (σ : Subst ℓ n)
+natrecIrrelevantSubst : ∀ p q r F z s m (σ : Subst ℓ n)
   → subst (consSubst σ (suc m)) F
   ≡ subst (liftSubst (sgSubst m))
           (subst (liftSubst (liftSubst σ))
                  (wk1 (F [ suc (var x0) ]↑)))
-                  [ natrec p q (subst (liftSubst σ) F) (subst σ z) (subst (liftSubstn σ 2) s) m ]
-natrecIrrelevantSubst p q F z s m σ =
+                  [ natrec p q r (subst (liftSubst σ) F) (subst σ z) (subst (liftSubstn σ 2) s) m ]
+natrecIrrelevantSubst p q r F z s m σ =
   sym (trans (substCompEq (subst (liftSubst (liftSubst σ))
         (wk (step id)
          (subst (consSubst (tail idSubst) (suc (var x0))) F))))
@@ -582,29 +582,29 @@ natrecIrrelevantSubst p q F z s m σ =
         (trans
            (subst-wk (subst (consSubst (tail idSubst) (suc (var x0))) F))
            (trans (substCompEq F)
-                     (substVar-to-subst (natrecIrrelevantSubstLemma p q F z s m σ) F)))))
+                     (substVar-to-subst (natrecIrrelevantSubstLemma p q r F z s m σ) F)))))
 
-natrecIrrelevantSubstLemma′ : ∀ (p q : M) F z s n (x : Fin (1+ m))
-  → (sgSubst (natrec p q F z s n)
+natrecIrrelevantSubstLemma′ : ∀ (p q r : M) F z s n (x : Fin (1+ m))
+  → (sgSubst (natrec p q r F z s n)
      ₛ•ₛ liftSubst (sgSubst n)
      ₛ•  step id
      ₛ•ₛ consSubst (tail idSubst) (suc (var x0))) x
   ≡ (consSubst var (suc n)) x
-natrecIrrelevantSubstLemma′ p q F z s n x0 =
+natrecIrrelevantSubstLemma′ p q r F z s n x0 =
   cong suc (trans (subst-wk n) (subst-id n))
-natrecIrrelevantSubstLemma′ p q F z s n (x +1) = refl
+natrecIrrelevantSubstLemma′ p q r F z s n (x +1) = refl
 
-natrecIrrelevantSubst′ : ∀ p q (F : Term (1+ m)) z s n
+natrecIrrelevantSubst′ : ∀ p q r (F : Term (1+ m)) z s n
   → subst (liftSubst (sgSubst n))
       (wk1 (F [ suc (var x0) ]↑))
-      [ natrec _ _ F z s n ]
+      [ natrec p q r F z s n ]
   ≡ F [ suc n ]
-natrecIrrelevantSubst′ p q F z s n =
+natrecIrrelevantSubst′ p q r F z s n =
   trans (substCompEq (wk (step id)
                          (subst (consSubst (tail idSubst) (suc (var x0))) F)))
         (trans (subst-wk (subst (consSubst (tail idSubst) (suc (var x0))) F))
                (trans (substCompEq F)
-                      (substVar-to-subst (natrecIrrelevantSubstLemma′ p q F z s n) F)))
+                      (substVar-to-subst (natrecIrrelevantSubstLemma′ p q r F z s n) F)))
 
 cons0wkLift1-id : ∀ (σ : Subst m n) G
     → subst (sgSubst (var x0))
