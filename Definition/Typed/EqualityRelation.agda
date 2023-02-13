@@ -17,7 +17,7 @@ open import Tools.Nat
 
 private
   variable
-    p q r p′ q′ r′ p₁ p₂ : M
+    p q r p′ q′ r′ p₁ p₂ q″ : M
     n n′ : Nat
     Γ : Con Term n
     Δ : Con Term n′
@@ -233,8 +233,9 @@ record EqRelSet : Set (lsuc (ℓ ⊔ ℓ′)) where
              → Γ ∙ ℕ ∙ F ⊢ s ≅ s′ ∷ wk1 (F [ suc (var x0) ]↑)
              → Γ         ⊢ n ~ n′ ∷ ℕ
              → p ≈ p′
+             → q ≈ q′
              → r ≈ r′
-             → Γ         ⊢ natrec p r F z s n ~ natrec p′ r′ F′ z′ s′ n′ ∷ F [ n ]
+             → Γ         ⊢ natrec p q r F z s n ~ natrec p′ q′ r′ F′ z′ s′ n′ ∷ F [ n ]
 
     -- Product recursion congruence
     ~-prodrec : ∀ {F G A A′ t t′ u u′}
@@ -244,7 +245,8 @@ record EqRelSet : Set (lsuc (ℓ ⊔ ℓ′)) where
              → Γ                 ⊢ t ~ t′ ∷ Σᵣ q ▷ F ▹ G
              → Γ ∙ F ∙ G         ⊢ u ≅ u′ ∷ A [ prodᵣ (var (x0 +1)) (var x0) ]↑²
              → p ≈ p′
-             → Γ                 ⊢ prodrec p A t u ~ prodrec p′ A′ t′ u′ ∷ A [ t ]
+             → q′ ≈ q″
+             → Γ                 ⊢ prodrec p q′ A t u ~ prodrec p′ q″ A′ t′ u′ ∷ A [ t ]
 
     -- Empty recursion congruence
     ~-Emptyrec : ∀ {n n′ F F′}

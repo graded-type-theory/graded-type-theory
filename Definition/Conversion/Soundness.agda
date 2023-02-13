@@ -39,18 +39,18 @@ mutual
         ⊢ΣFG = proj₁ (syntacticEqTerm p≡)
         ⊢F , ⊢G = syntacticΣ ⊢ΣFG
     in  snd-cong ⊢F ⊢G p≡
-  soundness~↑ (natrec-cong x₁ x₂ x₃ k~l p≈p′ r≈r′) =
+  soundness~↑ (natrec-cong x₁ x₂ x₃ k~l p≈p′ q≈q′ r≈r′) =
     let F≡G = soundnessConv↑ x₁
         ⊢F = proj₁ (syntacticEq F≡G)
     in  natrec-cong ⊢F F≡G (soundnessConv↑Term x₂)
                     (soundnessConv↑Term x₃) (soundness~↓ k~l)
-                    p≈p′ r≈r′
-  soundness~↑ (prodrec-cong x x₁ x₂ p≈p′) =
+                    p≈p′ q≈q′ r≈r′
+  soundness~↑ (prodrec-cong x x₁ x₂ p≈p′ q≈q′) =
     let C≡E = soundnessConv↑ x
         g≡h = soundness~↓ x₁
         u≡v = soundnessConv↑Term x₂
         ⊢F , ⊢G = syntacticΣ (proj₁ (syntacticEqTerm g≡h))
-    in  prodrec-cong ⊢F ⊢G C≡E g≡h u≡v p≈p′
+    in  prodrec-cong ⊢F ⊢G C≡E g≡h u≡v p≈p′ q≈q′
   soundness~↑ (Emptyrec-cong x₁ k~l p≈p′) =
     Emptyrec-cong (soundnessConv↑ x₁) (soundness~↓ k~l) p≈p′
 

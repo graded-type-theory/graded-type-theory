@@ -49,16 +49,16 @@ wk-erase-comm ρ (U.fst t) =
   cong T.fst (wk-erase-comm ρ t)
 wk-erase-comm ρ (U.snd t) =
   cong T.snd (wk-erase-comm ρ t)
-wk-erase-comm ρ (U.prodrec 𝟘 A t u) =
+wk-erase-comm ρ (U.prodrec 𝟘 q A t u) =
   trans (wk-β-doubleSubst (eraseWk ρ) (erase u) undefined undefined)
         (PE.cong (_[ _ , _ ]) (wk-erase-comm (lift (lift ρ)) u))
-wk-erase-comm ρ (U.prodrec ω A t u) =
+wk-erase-comm ρ (U.prodrec ω q A t u) =
   cong₂ T.prodrec (wk-erase-comm ρ t) (wk-erase-comm (lift (lift ρ)) u)
 wk-erase-comm ρ ℕ = refl
 wk-erase-comm ρ U.zero = refl
 wk-erase-comm ρ (U.suc t) =
   cong T.suc (wk-erase-comm ρ t)
-wk-erase-comm ρ (U.natrec p r A z s n) =
+wk-erase-comm ρ (U.natrec p q r A z s n) =
   cong₃ T.natrec (wk-erase-comm ρ z)
                  (wk-erase-comm (lift (lift ρ)) s)
                  (wk-erase-comm ρ n)
@@ -88,16 +88,16 @@ liftSubst-erase-comm {σ = σ} (x +1) with σ x
   cong₂ T.prod (wk-erase-comm (step id) t) (wk-erase-comm (step id) u)
 ... | U.fst t = cong T.fst (wk-erase-comm (step id) t)
 ... | U.snd t = cong T.snd (wk-erase-comm (step id) t)
-... | U.prodrec 𝟘 A t u =
+... | U.prodrec 𝟘 q A t u =
   PE.trans (wk-β-doubleSubst (step id) (erase u) undefined undefined)
            (PE.cong (_[ _ , _ ]) (wk-erase-comm (lift (lift (step id))) u))
-... | U.prodrec ω A t u =
+... | U.prodrec ω q A t u =
   cong₂ Term.prodrec (wk-erase-comm (step id) t)
                      (wk-erase-comm (lift (lift (step id))) u)
 ... | ℕ = refl
 ... | U.zero = refl
 ... | U.suc t = cong T.suc (wk-erase-comm (step id) t)
-... | U.natrec p r A z s n =
+... | U.natrec p q r A z s n =
   cong₃ T.natrec (wk-erase-comm (step id) z)
                  (wk-erase-comm (lift (lift (step id))) s)
                  (wk-erase-comm (step id) n)
@@ -150,18 +150,18 @@ subst-erase-comm σ (prod! t u) =
   cong₂ T.prod (subst-erase-comm σ t) (subst-erase-comm σ u)
 subst-erase-comm σ (U.fst t) = cong T.fst (subst-erase-comm σ t)
 subst-erase-comm σ (U.snd t) = cong T.snd (subst-erase-comm σ t)
-subst-erase-comm σ (U.prodrec 𝟘 A t u) =
+subst-erase-comm σ (U.prodrec 𝟘 q A t u) =
   trans (doubleSubstLift (eraseSubst σ) (erase u) undefined undefined)
         (cong (_[ _ , _ ]) (trans (substVar-to-subst (liftSubsts-erase-comm 2) (erase u))
                                   (subst-erase-comm (U.liftSubstn σ 2) u)))
-subst-erase-comm σ (U.prodrec ω A t u) =
+subst-erase-comm σ (U.prodrec ω q A t u) =
   cong₂ Term.prodrec (subst-erase-comm σ t)
         (trans (substVar-to-subst (liftSubsts-erase-comm 2) (erase u))
                (subst-erase-comm (U.liftSubstn σ 2) u))
 subst-erase-comm σ ℕ = refl
 subst-erase-comm σ U.zero = refl
 subst-erase-comm σ (U.suc t) = cong T.suc (subst-erase-comm σ t)
-subst-erase-comm σ (U.natrec p r A z s n) = cong₃ T.natrec
+subst-erase-comm σ (U.natrec p q r A z s n) = cong₃ T.natrec
   (subst-erase-comm σ z)
   (trans (substVar-to-subst (liftSubsts-erase-comm 2) (erase s))
          (subst-erase-comm (U.liftSubst (U.liftSubst σ)) s))

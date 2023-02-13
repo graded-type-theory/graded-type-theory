@@ -31,7 +31,7 @@ private
     C F H G E : Term n
     a₀ b₀ g h k l t u v : Term n
     x y : Fin n
-    p p′ p₁ p₂ q q′ r r′ : M
+    p p′ p₁ p₂ q q′ q₁ q₂ r r′ : M
     m : SigmaMode
 
 mutual
@@ -59,14 +59,16 @@ mutual
                   → Γ ∙ ℕ ∙ F ⊢ h [conv↑] g ∷ wk1 (F [ suc (var x0) ]↑)
                   → Γ ⊢ k ~ l ↓ ℕ
                   → p ≈ p′
+                  → q ≈ q′
                   → r ≈ r′
-                  → Γ ⊢ natrec p r F a₀ h k ~ natrec p′ r′ G b₀ g l ↑ F [ k ]
+                  → Γ ⊢ natrec p q r F a₀ h k ~ natrec p′ q′ r′ G b₀ g l ↑ F [ k ]
 
     prodrec-cong  : Γ ∙ (Σᵣ q ▷ F ▹ G) ⊢ C [conv↑] E
                   → Γ ⊢ g ~ h ↓ Σᵣ q ▷ F ▹ G
                   → Γ ∙ F ∙ G ⊢ u [conv↑] v ∷ C [ prodᵣ (var (x0 +1)) (var x0) ]↑²
                   → p ≈ p′
-                  → Γ ⊢ prodrec p C g u ~ prodrec p′ E h v ↑ C [ g ]
+                  → q₁ ≈ q₂
+                  → Γ ⊢ prodrec p q₁ C g u ~ prodrec p′ q₂ E h v ↑ C [ g ]
 
     Emptyrec-cong : Γ ⊢ F [conv↑] H
                   → Γ ⊢ k ~ l ↓ Empty

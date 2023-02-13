@@ -28,8 +28,8 @@ private
     m : Nat
     Γ : Con Term m
     A B C : Term m
-    c g k n p u : Term m
-    q r : M
+    c g k n u : Term m
+    p q r : M
     s : SigmaMode
 
 mutual
@@ -39,10 +39,10 @@ mutual
     fstₙ      : {p : Term m}       → NfNeutral p        → NfNeutral (fst p)
     sndₙ      : {p : Term m}       → NfNeutral p        → NfNeutral (snd p)
     natrecₙ   : {C : Term (1+ m)} {c k : Term m} {g : Term (1+ (1+ m))}
-                     → Nf C → Nf c → Nf g → NfNeutral k → NfNeutral (natrec q r C c g k)
+                     → Nf C → Nf c → Nf g → NfNeutral k → NfNeutral (natrec p q r C c g k)
     prodrecₙ  : {C : Term (1+ m)} {t : Term m} {u : Term (1+ (1+ m))}
-                     → Nf C → NfNeutral t → Nf u → NfNeutral (prodrec r C t u)
-    Emptyrecₙ : {C k : Term m}     → Nf C → NfNeutral k → NfNeutral (Emptyrec q C k)
+                     → Nf C → NfNeutral t → Nf u → NfNeutral (prodrec p q C t u)
+    Emptyrecₙ : {C k : Term m}     → Nf C → NfNeutral k → NfNeutral (Emptyrec p C k)
 
   data Nf {m : Nat} : Term m → Set a where
     Uₙ     : Nf U
@@ -100,21 +100,21 @@ mutual
         ⊢ΣFG , _ , _ = syntacticEqTerm p≡p′
         ⊢F , ⊢G = syntacticΣ ⊢ΣFG
     in  snd p′ , sndₙ neP′ , snd-cong ⊢F ⊢G p≡p′
-  fullRedNe (natrec-cong {p = p} {r = r} C z s n p≈p′ r≈r′) =
+  fullRedNe (natrec-cong {p = p} {q = q} {r = r} C z s n p≈p′ q≈q′ r≈r′) =
     let C′ , nfC′ , C≡C′ = fullRed C
         z′ , nfZ′ , z≡z′ = fullRedTerm z
         s′ , nfS′ , s≡s′ = fullRedTerm s
         n′ , nfN′ , n≡n′ = fullRedNe~↓ n
-    in  natrec p r C′ z′ s′ n′ , natrecₙ nfC′ nfZ′ nfS′ nfN′
-     , natrec-cong (proj₁ (syntacticEq C≡C′)) C≡C′ z≡z′ s≡s′ n≡n′ ≈-refl ≈-refl
-  fullRedNe (prodrec-cong {p = p} C g u p≈p′) =
+    in  natrec p q r C′ z′ s′ n′ , natrecₙ nfC′ nfZ′ nfS′ nfN′
+     , natrec-cong (proj₁ (syntacticEq C≡C′)) C≡C′ z≡z′ s≡s′ n≡n′ ≈-refl ≈-refl ≈-refl
+  fullRedNe (prodrec-cong {p = p} {q₁ = q} C g u p≈p′ q≈q′) =
     let C′ , nfC′ , C≡C′ = fullRed C
         g′ , nfg′ , g≡g′ = fullRedNe~↓ g
         u′ , nfu′ , u≡u′ = fullRedTerm u
         ⊢Σ , _ = syntacticEqTerm g≡g′
         ⊢F , ⊢G = syntacticΣ ⊢Σ
-    in  prodrec p C′ g′ u′ , prodrecₙ nfC′ nfg′ nfu′
-     , prodrec-cong ⊢F ⊢G C≡C′ g≡g′ u≡u′ ≈-refl
+    in  prodrec p q C′ g′ u′ , prodrecₙ nfC′ nfg′ nfu′
+     , prodrec-cong ⊢F ⊢G C≡C′ g≡g′ u≡u′ ≈-refl ≈-refl
   fullRedNe (Emptyrec-cong C n p≈p′) =
     let C′ , nfC′ , C≡C′ = fullRed C
         n′ , nfN′ , n≡n′ = fullRedNe~↓ n

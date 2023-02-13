@@ -24,7 +24,7 @@ private
   variable
     n : Nat
     p q r : M
-    γ δ γ′ η : Conₘ n
+    γ δ γ′ η θ : Conₘ n
     A F : Term n
     G : Term (1+ n)
     t u : Term n
@@ -64,8 +64,7 @@ data _▸_ {n : Nat} : (γ : Conₘ n) → Term n → Set (a ⊔ ℓ) where
 
   prodᵣₘ    : γ ▸ t
             → δ ▸ u
-            → γ′ PE.≡ (γ +ᶜ δ)
-            → γ′ ▸ prodᵣ t u
+            → γ +ᶜ δ ▸ prodᵣ t u
 
   prodₚₘ   : γ ▸ t
            → γ ▸ u
@@ -79,8 +78,9 @@ data _▸_ {n : Nat} : (γ : Conₘ n) → Term n → Set (a ⊔ ℓ) where
 
   prodrecₘ  : γ ▸ t
             → δ ∙ p ∙ p ▸ u
+            → η ∙ q ▸ A
             → Prodrec p
-            → p ·ᶜ γ +ᶜ δ ▸ prodrec p A t u
+            → p ·ᶜ γ +ᶜ δ ▸ prodrec p q A t u
 
   zeroₘ     : 𝟘ᶜ ▸ zero
   sucₘ      : γ ▸ t
@@ -90,9 +90,11 @@ data _▸_ {n : Nat} : (γ : Conₘ n) → Term n → Set (a ⊔ ℓ) where
             → γ ▸ z
             → δ ∙ p ∙ r ▸ s
             → η ▸ n
-            → (γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r ▸ natrec p r G z s n
+            → θ ∙ q ▸ G
+            → (γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r ▸ natrec p q r G z s n
 
   Emptyrecₘ : γ ▸ t
+            → δ ▸ A
             → p ·ᶜ γ ▸ Emptyrec p A t
 
   starₘ     : 𝟘ᶜ ▸ star
@@ -119,11 +121,11 @@ mutual
   ⌈ prod Σₚ t u ⌉ = ⌈ t ⌉ ∧ᶜ ⌈ u ⌉
   ⌈ fst t ⌉ = ⌈ t ⌉
   ⌈ snd t ⌉ = ⌈ t ⌉
-  ⌈ prodrec p A t u ⌉ = p ·ᶜ ⌈ t ⌉ +ᶜ tailₘ (tailₘ ⌈ u ⌉)
+  ⌈ prodrec p q A t u ⌉ = p ·ᶜ ⌈ t ⌉ +ᶜ tailₘ (tailₘ ⌈ u ⌉)
   ⌈ ℕ ⌉ = 𝟘ᶜ
   ⌈ zero ⌉ = 𝟘ᶜ
   ⌈ suc t ⌉ = ⌈ t ⌉
-  ⌈ natrec p r A z s n ⌉ =
+  ⌈ natrec p q r A z s n ⌉ =
     let γ  = ⌈ z ⌉
         δ′ = ⌈ s ⌉
         η  = ⌈ n ⌉

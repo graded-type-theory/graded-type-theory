@@ -31,9 +31,10 @@ mutual
   ne~↑ (snd-cong x) =
     let _ , pNe , rNe = ne~↓ x
     in  sndₙ pNe , sndₙ rNe
-  ne~↑ (natrec-cong x x₁ x₂ x₃ _ _) = let _ , q , w = ne~↓ x₃
-                                      in  natrecₙ q , natrecₙ w
-  ne~↑ (prodrec-cong x x₁ x₂ x₃) =
+  ne~↑ (natrec-cong x x₁ x₂ x₃ _ _ _) =
+    let _ , q , w = ne~↓ x₃
+    in  natrecₙ q , natrecₙ w
+  ne~↑ (prodrec-cong x x₁ x₂ x₃ x₄) =
     let _ , gNe , hNe = ne~↓ x₁
     in  prodrecₙ gNe , prodrecₙ hNe
   ne~↑ (Emptyrec-cong x x₁ _) = let _ , q , w = ne~↓ x₁

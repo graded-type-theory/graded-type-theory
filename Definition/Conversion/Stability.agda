@@ -159,20 +159,20 @@ mutual
     fst-cong (stability~↓ Γ≡Δ p~r)
   stability~↑ Γ≡Δ (snd-cong p~r) =
     snd-cong (stability~↓ Γ≡Δ p~r)
-  stability~↑ Γ≡Δ (natrec-cong x₁ x₂ x₃ k~l p≈p′ r≈r′) =
+  stability~↑ Γ≡Δ (natrec-cong x₁ x₂ x₃ k~l p≈p′ q≈q′ r≈r′) =
     let ⊢Γ , _ , _ = contextConvSubst Γ≡Δ
         ⊢F = proj₁ (syntacticEq (soundnessConv↑ x₁))
     in natrec-cong (stabilityConv↑ (Γ≡Δ ∙ (refl (ℕⱼ ⊢Γ))) x₁)
                    (stabilityConv↑Term Γ≡Δ x₂)
                    ((stabilityConv↑Term (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ) ∙ refl ⊢F) x₃))
-                   (stability~↓ Γ≡Δ k~l) p≈p′ r≈r′
-  stability~↑ Γ≡Δ (prodrec-cong x x₁ x₂ p≈p′) =
+                   (stability~↓ Γ≡Δ k~l) p≈p′ q≈q′ r≈r′
+  stability~↑ Γ≡Δ (prodrec-cong x x₁ x₂ p≈p′ q≈q′) =
     let ⊢Σ , _ = syntacticEqTerm (soundness~↓ x₁)
         ⊢F , ⊢G = syntacticΣ ⊢Σ
     in  prodrec-cong (stabilityConv↑ (Γ≡Δ ∙ refl ⊢Σ) x)
                      (stability~↓ Γ≡Δ x₁)
                      (stabilityConv↑Term (Γ≡Δ ∙ refl ⊢F ∙ refl ⊢G) x₂)
-                     p≈p′
+                     p≈p′ q≈q′
   stability~↑ Γ≡Δ (Emptyrec-cong x₁ k~l p≈p′) =
     Emptyrec-cong (stabilityConv↑ Γ≡Δ x₁)
                   (stability~↓ Γ≡Δ k~l) p≈p′

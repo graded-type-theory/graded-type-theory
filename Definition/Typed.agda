@@ -28,7 +28,7 @@ private
     a b f g t u v : Term n
     G E : Term (1+ n)
     x : Fin n
-    p q r p′ q′ r′ p₁ p₂ : M
+    p q r p′ q′ r′ p₁ p₂ q₁ q₂ : M
     m : SigmaMode
 
 -- Well-typed variables
@@ -110,7 +110,7 @@ mutual
               → Γ ∙ (Σᵣ q ▷ F ▹ G) ⊢ A
               → Γ ⊢ t ∷ Σᵣ q ▷ F ▹ G
               → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ (var (x0 +1)) (var x0) ]↑²
-              → Γ ⊢ prodrec p A t u ∷ A [ t ]
+              → Γ ⊢ prodrec p q′ A t u ∷ A [ t ]
     zeroⱼ     : ⊢ Γ
               → Γ ⊢ zero ∷ ℕ
     sucⱼ      : ∀ {n}
@@ -121,7 +121,7 @@ mutual
               → Γ         ⊢ z ∷ G [ zero ]
               → Γ ∙ ℕ ∙ G ⊢ s ∷ wk1 (G [ suc (var x0) ]↑)
               → Γ         ⊢ n ∷ ℕ
-              → Γ         ⊢ natrec p r G z s n ∷ G [ n ]
+              → Γ         ⊢ natrec p q r G z s n ∷ G [ n ]
 
     Emptyrecⱼ : ∀ {A e}
               → Γ ⊢ A → Γ ⊢ e ∷ Empty → Γ ⊢ Emptyrec p A e ∷ A
@@ -258,7 +258,8 @@ mutual
                   → Γ ⊢ t ≡ t′ ∷ Σᵣ q ▷ F ▹ G
                   → Γ ∙ F ∙ G ⊢ u ≡ u′ ∷ A [ prodᵣ (var (x0 +1)) (var x0) ]↑²
                   → p ≈ p′
-                  → Γ ⊢ prodrec p A t u ≡ prodrec p′ A′ t′ u′ ∷ A [ t ]
+                  → q₁ ≈ q₂
+                  → Γ ⊢ prodrec p q₁ A t u ≡ prodrec p′ q₂ A′ t′ u′ ∷ A [ t ]
     prodrec-β     : ∀ {t t′ u F G A}
                   → Γ ⊢ F
                   → Γ ∙ F ⊢ G
@@ -266,7 +267,7 @@ mutual
                   → Γ ⊢ t ∷ F
                   → Γ ⊢ t′ ∷ G [ t ]
                   → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ (var (x0 +1)) (var x0) ]↑²
-                  → Γ ⊢ (prodrec p A (prodᵣ t t′) u) ≡
+                  → Γ ⊢ (prodrec p q′ A (prodᵣ t t′) u) ≡
                         u [ t , t′ ] ∷ A [ prodᵣ t t′ ]
     suc-cong      : ∀ {m n}
                   → Γ ⊢ m ≡ n ∷ ℕ
@@ -278,19 +279,20 @@ mutual
                   → Γ ∙ ℕ ∙ F ⊢ s ≡ s′ ∷ wk1 (F [ suc (var x0) ]↑)
                   → Γ         ⊢ n ≡ n′ ∷ ℕ
                   → p ≈ p′
+                  → q ≈ q′
                   → r ≈ r′
-                  → Γ         ⊢ natrec p r F z s n ≡ natrec p′ r′ F′ z′ s′ n′ ∷ F [ n ]
+                  → Γ         ⊢ natrec p q r F z s n ≡ natrec p′ q′ r′ F′ z′ s′ n′ ∷ F [ n ]
     natrec-zero   : ∀ {z s F}
                   → Γ ∙ ℕ ⊢ F
                   → Γ     ⊢ z ∷ F [ zero ]
                   → Γ ∙ ℕ ∙ F ⊢ s ∷ wk1 (F [ suc (var x0) ]↑)
-                  → Γ     ⊢ natrec p r F z s zero ≡ z ∷ F [ zero ]
+                  → Γ     ⊢ natrec p q r F z s zero ≡ z ∷ F [ zero ]
     natrec-suc    : ∀ {n z s F}
                   → Γ     ⊢ n ∷ ℕ
                   → Γ ∙ ℕ ⊢ F
                   → Γ     ⊢ z ∷ F [ zero ]
                   → Γ ∙ ℕ ∙ F ⊢ s ∷ wk1 (F [ suc (var x0) ]↑)
-                  → Γ     ⊢ natrec p r F z s (suc n) ≡ s [ n , natrec p r F z s n ]
+                  → Γ     ⊢ natrec p q r F z s (suc n) ≡ s [ n , natrec p q r F z s n ]
                                         ∷ F [ suc n ]
     Emptyrec-cong : ∀ {A A' e e'}
                   → Γ ⊢ A ≡ A'
@@ -351,7 +353,7 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set (ℓ
                  → Γ ∙ (Σᵣ q ▷ F ▹ G) ⊢ A
                  → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ (var (x0 +1)) (var x0) ]↑²
                  → Γ ⊢ t ⇒ t′ ∷ Σᵣ q ▷ F ▹ G
-                 → Γ ⊢ prodrec p A t u ⇒ prodrec p A t′ u ∷ A [ t ]
+                 → Γ ⊢ prodrec p q′ A t u ⇒ prodrec p q′ A t′ u ∷ A [ t ]
   prodrec-β      : ∀ {A F G t t′ u}
                  → Γ ⊢ F
                  → Γ ∙ F ⊢ G
@@ -359,26 +361,26 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set (ℓ
                  → Γ ⊢ t ∷ F
                  → Γ ⊢ t′ ∷ G [ t ]
                  → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ (var (x0 +1)) (var x0) ]↑²
-                 → Γ ⊢ prodrec p A (prodᵣ t t′) u ⇒
+                 → Γ ⊢ prodrec p q′ A (prodᵣ t t′) u ⇒
                        u [ t , t′ ] ∷ A [ prodᵣ t t′ ]
   natrec-subst   : ∀ {z s n n′ F}
                  → Γ ∙ ℕ     ⊢ F
                  → Γ         ⊢ z ∷ F [ zero ]
                  → Γ ∙ ℕ ∙ F ⊢ s ∷ wk1 (F [ suc (var x0) ]↑)
                  → Γ         ⊢ n ⇒ n′ ∷ ℕ
-                 → Γ         ⊢ natrec p r F z s n ⇒ natrec p r F z s n′ ∷ F [ n ]
+                 → Γ         ⊢ natrec p q r F z s n ⇒ natrec p q r F z s n′ ∷ F [ n ]
   natrec-zero    : ∀ {z s F}
                  → Γ ∙ ℕ     ⊢ F
                  → Γ         ⊢ z ∷ F [ zero ]
                  → Γ ∙ ℕ ∙ F ⊢ s ∷ wk1 (F [ suc (var x0) ]↑)
-                 → Γ         ⊢ natrec p r F z s zero ⇒ z ∷ F [ zero ]
+                 → Γ         ⊢ natrec p q r F z s zero ⇒ z ∷ F [ zero ]
   natrec-suc     : ∀ {n z s F}
                  → Γ         ⊢ n ∷ ℕ
                  → Γ ∙ ℕ     ⊢ F
                  → Γ         ⊢ z ∷ F [ zero ]
                  → Γ ∙ ℕ ∙ F ⊢ s ∷ wk1 (F [ suc (var x0) ]↑)
-                 → Γ         ⊢ natrec p r F z s (suc n) ⇒
-                               s [ n , natrec p r F z s n ] ∷ F [ suc n ]
+                 → Γ         ⊢ natrec p q r F z s (suc n) ⇒
+                               s [ n , natrec p q r F z s n ] ∷ F [ suc n ]
   Emptyrec-subst : ∀ {n n′ A}
                  → Γ ⊢ A
                  → Γ     ⊢ n ⇒ n′ ∷ Empty
