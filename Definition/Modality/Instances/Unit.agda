@@ -12,6 +12,7 @@ Unit′ : Setoid _ _
 Unit′ = record { Carrier = ⊤ ; _≈_ = _≡_ ; isEquivalence = isEquivalence }
 
 open import Tools.Algebra Unit′
+open import Tools.Sum
 
 open import Definition.Modality Unit′ public
 open import Definition.Modality.Restrictions Unit′
@@ -159,6 +160,11 @@ UnitModalityWithout⊛ = record
   ; ·-distrib-∧ = +-Distributiveˡ , +-Distributiveʳ
   ; +-distrib-∧ = +-Distributiveˡ , +-Distributiveʳ
   ; restrictions = no-restrictions
+  ; is-𝟘? = λ _ → yes refl
+  ; zero-product = λ _ → inj₁ refl
+  ; positiveˡ = λ _ → refl
+  ; 𝟘≮ = λ _ → refl
+  ; ∧≤𝟘ˡ = λ _ → refl
   }
 
 UnitModality : Modality
@@ -170,4 +176,6 @@ UnitModality = record
   ; +-sub-interchangable-⊛ = λ r p q p′ q′ → refl
   ; ·-sub-distribʳ-⊛ = λ r q p p′ → refl
   ; ⊛-sub-distrib-∧ = λ r → (λ p q q′ → refl) , (λ q p p′ → refl)
+  ; ⊛≤𝟘ˡ = λ _ → refl
+  ; ⊛≤𝟘ʳ = λ _ → refl
   }

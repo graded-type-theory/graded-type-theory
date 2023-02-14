@@ -63,3 +63,30 @@ private
     (𝟘 ⊛ 𝟘 ▷ r) · 𝟘       ≤⟨ ·-sub-distribʳ-⊛ r 𝟘 𝟘 𝟘 ⟩
     (𝟘 · 𝟘) ⊛ (𝟘 · 𝟘) ▷ r ≈⟨ ⊛ᵣ-cong (·-zeroˡ 𝟘) (·-zeroˡ 𝟘) ⟩
     𝟘 ⊛ 𝟘 ▷ r ∎
+
+-- If p ⊛ q ▷ r is equivalent to zero, then p is equivalent to zero.
+
+⊛≈𝟘ˡ : p ⊛ q ▷ r ≈ 𝟘 → p ≈ 𝟘
+⊛≈𝟘ˡ {p = p} {q = q} {r = r} p⊛q▷r≈𝟘 = ≤-antisym
+  (⊛≤𝟘ˡ p⊛q▷r≈𝟘)
+  (begin
+     𝟘          ≈˘⟨ p⊛q▷r≈𝟘 ⟩
+     p ⊛ q ▷ r  ≤⟨ ⊛-ineq₂ _ _ _ ⟩
+     p          ∎)
+  where
+  open import Tools.Reasoning.PartialOrder ≤-poset
+
+-- If p ⊛ q ▷ r is equivalent to zero, then q is equivalent to zero.
+
+⊛≈𝟘ʳ : p ⊛ q ▷ r ≈ 𝟘 → q ≈ 𝟘
+⊛≈𝟘ʳ {p = p} {q = q} {r = r} p⊛q▷r≈𝟘 = ≤-antisym
+  (⊛≤𝟘ʳ p⊛q▷r≈𝟘)
+  (begin
+     𝟘                  ≈˘⟨ p⊛q▷r≈𝟘 ⟩
+     p ⊛ q ▷ r          ≤⟨ ⊛-ineq₁ _ _ _ ⟩
+     q + r · p ⊛ q ▷ r  ≈⟨ +-congˡ (·-congˡ p⊛q▷r≈𝟘) ⟩
+     q + r · 𝟘          ≈⟨ +-congˡ (·-zeroʳ _) ⟩
+     q + 𝟘              ≈⟨ +-identityʳ _ ⟩
+     q                  ∎)
+  where
+  open import Tools.Reasoning.PartialOrder ≤-poset

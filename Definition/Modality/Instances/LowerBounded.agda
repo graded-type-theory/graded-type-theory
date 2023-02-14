@@ -18,8 +18,13 @@ open import Definition.Modality.Properties.Multiplication 𝕄
 open import Definition.Modality.Properties.PartialOrder 𝕄
 
 open import Tools.Algebra M′
-open import Tools.Reasoning.PartialOrder ≤-poset
 open import Tools.Product
+import Tools.Reasoning.Equivalence
+import Tools.Reasoning.PartialOrder
+open import Tools.Sum
+
+private variable
+  p q r : M
 
 _⊛_▷_ : Op₃ M
 p ⊛ q ▷ r = ∞ · (p ∧ q)
@@ -40,6 +45,8 @@ p ⊛ q ▷ r = ∞ · (p ∧ q)
   q + (r · ∞) · (p ∧ q) ≈⟨ +-congˡ (·-assoc r ∞ (p ∧ q)) ⟩
   q + r · (∞ · (p ∧ q)) ≡⟨⟩
   q + r · (p ⊛ q ▷ r) ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
 
 ⊛-ineq₂ : (p q r : M) → (p ⊛ q ▷ r) ≤ p
 ⊛-ineq₂ p q r = ≤-trans (·-monotone (∞-min 𝟙) (∧-decreasingˡ p q))
@@ -58,6 +65,8 @@ p ⊛ q ▷ r = ∞ · (p ∧ q)
     ≤⟨ ·-monotoneʳ (∧-monotone (∧-decreasingˡ _ _) (∧-decreasingʳ _ _)) ⟩
   ∞ · ((p + p′) ∧ (q + q′)) ≡⟨⟩
   (p + p′) ⊛ (q + q′) ▷ r ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
 
 ·-sub-distribʳ-⊛ : (r : M) → _·_ SubDistributesOverʳ _⊛_▷ r by _≤_
 ·-sub-distribʳ-⊛ r q p p′ = begin
@@ -66,6 +75,8 @@ p ⊛ q ▷ r = ∞ · (p ∧ q)
   ∞ · (p ∧ p′) · q ≈⟨ ·-congˡ (·-distribʳ-∧ q p p′) ⟩
   ∞ · (p · q ∧ p′ · q) ≡⟨⟩
   (p · q) ⊛ (p′ · q) ▷ r ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
 
 ⊛-sub-distribˡ-∧ : (r : M) → (_⊛_▷ r) SubDistributesOverˡ _∧_ by _≤_
 ⊛-sub-distribˡ-∧ r p q q′ = begin
@@ -86,6 +97,8 @@ p ⊛ q ▷ r = ∞ · (p ∧ q)
     ≈⟨ ·-distribˡ-∧ ∞ (p ∧ q) (p ∧ q′) ⟩
   ∞ · (p ∧ q) ∧ ∞ · (p ∧ q′) ≡⟨⟩
   (p ⊛ q ▷ r) ∧ (p ⊛ q′ ▷ r) ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
 
 ⊛-sub-distribʳ-∧ : (r : M) → (_⊛_▷ r) SubDistributesOverʳ _∧_ by _≤_
 ⊛-sub-distribʳ-∧ r q p p′ = begin
@@ -99,6 +112,28 @@ p ⊛ q ▷ r = ∞ · (p ∧ q)
   ∞ · ((p ∧ q) ∧ (p′ ∧ q)) ≈⟨ ·-distribˡ-∧ ∞ (p ∧ q) (p′ ∧ q) ⟩
   ∞ · (p ∧ q) ∧ ∞ · (p′ ∧ q) ≡⟨⟩
   (p ⊛ q ▷ r) ∧ (p′ ⊛ q ▷ r) ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
+
+⊛≤𝟘ˡ : ∀ r → p ⊛ q ▷ r ≈ 𝟘 → p ≤ 𝟘
+⊛≤𝟘ˡ {p = p} {q = q} r p⊛q▷r≈𝟘 with zero-product p⊛q▷r≈𝟘
+… | inj₂ p∧q≈𝟘 = ∧≤𝟘ˡ p∧q≈𝟘
+… | inj₁ ∞≈𝟘   = ≤-reflexive (𝟘≮ (begin
+  𝟘  ≈˘⟨ ∞≈𝟘 ⟩
+  ∞  ≤⟨ ∞-min _ ⟩
+  p  ∎))
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
+
+⊛≤𝟘ʳ : ∀ r → p ⊛ q ▷ r ≈ 𝟘 → q ≤ 𝟘
+⊛≤𝟘ʳ {p = p} {q = q} r p⊛q▷r≈𝟘 = ⊛≤𝟘ˡ r (begin
+  q ⊛ p ▷ r    ≡⟨⟩
+  ∞ · (q ∧ p)  ≈⟨ ·-congˡ (∧-comm _ _) ⟩
+  ∞ · (p ∧ q)  ≡⟨⟩
+  p ⊛ q ▷ r    ≈⟨ p⊛q▷r≈𝟘 ⟩
+  𝟘            ∎)
+  where
+  open Tools.Reasoning.Equivalence M′
 
 isModality : Modality M′
 isModality = record
@@ -109,4 +144,6 @@ isModality = record
   ; +-sub-interchangable-⊛ = +-sub-interchangable-⊛
   ; ·-sub-distribʳ-⊛ = ·-sub-distribʳ-⊛
   ; ⊛-sub-distrib-∧ = λ r → ⊛-sub-distribˡ-∧ r , ⊛-sub-distribʳ-∧ r
+  ; ⊛≤𝟘ˡ = λ {_ _ r} → ⊛≤𝟘ˡ r
+  ; ⊛≤𝟘ʳ = λ {_ _ r} → ⊛≤𝟘ʳ r
   }

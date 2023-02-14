@@ -16,7 +16,8 @@ open import Definition.Modality.Properties.PartialOrder 𝕄
 open import Tools.Algebra M′
 open import Tools.Nat hiding (_+_)
 open import Tools.Product
-
+import Tools.Reasoning.Equivalence
+import Tools.Reasoning.PartialOrder
 
 private
   variable
@@ -34,7 +35,7 @@ private
   p ∧ r ∧ r ∧ q     ≈⟨ ≈-sym (∧-assoc p r (r ∧ q)) ⟩
   (p ∧ r) ∧ r ∧ q   ≈⟨ ∧-congˡ (∧-comm r q) ⟩
   (p ∧ r) ∧ (q ∧ r) ∎
-  where open import Tools.Reasoning.Equivalence M′
+  where open Tools.Reasoning.Equivalence M′
 
 -- Meet on the right is a monotone function
 -- If p ≤ q then r ∧ p ≤ r ∧ q
@@ -48,7 +49,7 @@ private
   r ∧ p ∧ (q ∧ r)   ≈˘⟨ ∧-assoc r p (q ∧ r) ⟩
   (r ∧ p) ∧ (q ∧ r) ≈⟨ ∧-congˡ (∧-comm q r) ⟩
   (r ∧ p) ∧ (r ∧ q) ∎
-  where open import Tools.Reasoning.Equivalence M′
+  where open Tools.Reasoning.Equivalence M′
 
 -- Meet is a monotone function
 -- If p ≤ p′ and q ≤ q′ then p ∧ q ≤ p′ ∧ q′
@@ -65,7 +66,7 @@ private
   (p ∧ p) ∧ q ≈⟨ ∧-assoc p p q ⟩
   p ∧ (p ∧ q) ≈⟨ ∧-comm p (p ∧ q) ⟩
   (p ∧ q) ∧ p ∎
-  where open import Tools.Reasoning.Equivalence M′
+  where open Tools.Reasoning.Equivalence M′
 
 -- Meet on the right is a decreasing function
 -- p ∧ q ≤ q
@@ -75,4 +76,27 @@ private
   p ∧ q       ≈⟨ ∧-congˡ (≈-sym (∧-idem q)) ⟩
   p ∧ (q ∧ q) ≈˘⟨ ∧-assoc p q q ⟩
   (p ∧ q) ∧ q ∎
-  where open import Tools.Reasoning.Equivalence M′
+  where open Tools.Reasoning.Equivalence M′
+
+-- If p ∧ q is equivalent to 𝟘, then p is equivalent to 𝟘.
+
+∧≈𝟘ˡ : p ∧ q ≈ 𝟘 → p ≈ 𝟘
+∧≈𝟘ˡ {p = p} {q = q} p∧q≈𝟘 = ≤-antisym
+  (∧≤𝟘ˡ p∧q≈𝟘)
+  (begin
+     𝟘      ≈˘⟨ p∧q≈𝟘 ⟩
+     p ∧ q  ≤⟨ ∧-decreasingˡ _ _ ⟩
+     p      ∎)
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
+
+-- If p ∧ q is equivalent to 𝟘, then q is equivalent to 𝟘.
+
+∧≈𝟘ʳ : p ∧ q ≈ 𝟘 → q ≈ 𝟘
+∧≈𝟘ʳ {p = p} {q = q} p∧q≈𝟘 = ∧≈𝟘ˡ
+  (begin
+     q ∧ p  ≈⟨ ∧-comm _ _ ⟩
+     p ∧ q  ≈⟨ p∧q≈𝟘 ⟩
+     𝟘      ∎)
+  where
+  open Tools.Reasoning.Equivalence M′

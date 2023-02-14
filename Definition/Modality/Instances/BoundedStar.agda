@@ -21,13 +21,15 @@ module Definition.Modality.Instances.BoundedStar
 open Setoid M′ renaming (Carrier to M)
 open ModalityWithout⊛ 𝕄
 
+open import Definition.Modality.Properties.Equivalence 𝕄
 open import Definition.Modality.Properties.PartialOrder 𝕄
 open import Definition.Modality.Properties.Addition 𝕄
 open import Definition.Modality.Properties.Meet 𝕄
 open import Definition.Modality.Properties.Multiplication 𝕄
 
-
-open import Tools.Reasoning.PartialOrder ≤-poset
+open import Tools.Function
+import Tools.Reasoning.Equivalence
+import Tools.Reasoning.PartialOrder
 open import Tools.Product
 open import Tools.Algebra M′
 
@@ -51,6 +53,8 @@ p ⊛ q ▷ r = (r *) · (p ∧ q)
   (p ∧ q) + r · ((r *) · (p ∧ q))
      ≤⟨ +-monotoneˡ (∧-decreasingʳ p q) ⟩
   q + r · (p ⊛ q ▷ r) ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
 
 ⊛-ineq₂ : (p q r : M) → p ⊛ q ▷ r ≤ p
 ⊛-ineq₂ p q r with bounds r
@@ -65,10 +69,14 @@ p ⊛ q ▷ r = (r *) · (p ∧ q)
   p + 𝟘 · p               ≈⟨ +-congˡ (·-zeroˡ p) ⟩
   p + 𝟘                   ≈⟨ +-identityʳ p ⟩
   p ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
 ... | inj₂ r*≤𝟙 = begin
   (r *) · (p ∧ q) ≤⟨ ·-monotone r*≤𝟙 (∧-decreasingˡ p q) ⟩
   𝟙 · p           ≈⟨ ·-identityˡ p ⟩
   p ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
 
 ⊛-cong : p ≈ p′ → q ≈ q′ → r ≈ r′ → p ⊛ q ▷ r ≈ p′ ⊛ q′ ▷ r′
 ⊛-cong p≈p′ q≈q′ r≈r′ = ·-cong (*-cong r≈r′) (∧-cong p≈p′ q≈q′)
@@ -86,6 +94,8 @@ p ⊛ q ▷ r = (r *) · (p ∧ q)
      ≤⟨ ·-monotoneʳ (∧-monotone (∧-decreasingˡ _ _) (∧-decreasingʳ _ _)) ⟩
   (r *) · ((p + p′) ∧ (q + q′)) ≡⟨⟩
   (p + p′) ⊛ (q + q′) ▷ r ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
 
 ·-sub-distribʳ-⊛ : (r : M) → _·_ SubDistributesOverʳ _⊛_▷ r by _≤_
 ·-sub-distribʳ-⊛ r q p p′ = begin
@@ -94,6 +104,8 @@ p ⊛ q ▷ r = (r *) · (p ∧ q)
   (r *) · (p ∧ p′) · q ≈⟨ ·-congˡ (·-distribʳ-∧ q p p′) ⟩
   (r *) · (p · q ∧ p′ · q) ≡⟨⟩
   (p · q) ⊛ (p′ · q) ▷ r ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
 
 ⊛-sub-distribˡ-∧ : (r : M) → (_⊛_▷ r) SubDistributesOverˡ _∧_ by _≤_
 ⊛-sub-distribˡ-∧ r p q q′ = begin
@@ -114,6 +126,8 @@ p ⊛ q ▷ r = (r *) · (p ∧ q)
      ≈⟨ ·-distribˡ-∧ (r *) (p ∧ q) (p ∧ q′) ⟩
   (r *) · (p ∧ q) ∧ (r *) · (p ∧ q′) ≡⟨⟩
   (p ⊛ q ▷ r) ∧ (p ⊛ q′ ▷ r) ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
 
 ⊛-sub-distribʳ-∧ : (r : M) → (_⊛_▷ r) SubDistributesOverʳ _∧_ by _≤_
 ⊛-sub-distribʳ-∧ r q p p′ = begin
@@ -127,6 +141,36 @@ p ⊛ q ▷ r = (r *) · (p ∧ q)
   (r *) · ((p ∧ q) ∧ (p′ ∧ q)) ≈⟨ ·-distribˡ-∧ (r *) (p ∧ q) (p′ ∧ q) ⟩
   (r *) · (p ∧ q) ∧ (r *) · (p′ ∧ q) ≡⟨⟩
   (p ⊛ q ▷ r) ∧ (p′ ⊛ q ▷ r) ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
+
+⊛≤𝟘ˡ : p ⊛ q ▷ r ≈ 𝟘 → p ≤ 𝟘
+⊛≤𝟘ˡ {p = p} {q = q} {r = r} p⊛q▷r≈𝟘 =
+  case zero-product r*p≈𝟘 of λ where
+    (inj₂ p≈𝟘)  → ≤-reflexive p≈𝟘
+    (inj₁ r*≈𝟘) → ≈-trivial (positiveˡ (begin
+      𝟙 + r · (r *)  ≈˘⟨ *-rec _ ⟩
+      (r *)          ≈⟨ r*≈𝟘 ⟩
+      𝟘              ∎))
+  where
+  open Tools.Reasoning.Equivalence M′
+
+  r*p≈𝟘 : (r *) · p ≈ 𝟘
+  r*p≈𝟘 = ∧≈𝟘ˡ (begin
+    (r *) · p ∧ (r *) · q  ≈˘⟨ ·-distribˡ-∧ _ _ _ ⟩
+    (r *) · (p ∧ q)        ≡⟨⟩
+    p ⊛ q ▷ r              ≈⟨ p⊛q▷r≈𝟘 ⟩
+    𝟘                      ∎)
+
+⊛≤𝟘ʳ : p ⊛ q ▷ r ≈ 𝟘 → q ≤ 𝟘
+⊛≤𝟘ʳ {p = p} {q = q} {r = r} p⊛q▷r≈𝟘 = ⊛≤𝟘ˡ (begin
+  q ⊛ p ▷ r        ≡⟨⟩
+  (r *) · (q ∧ p)  ≈⟨ ·-congˡ (∧-comm _ _) ⟩
+  (r *) · (p ∧ q)  ≡⟨⟩
+  p ⊛ q ▷ r        ≈⟨ p⊛q▷r≈𝟘 ⟩
+  𝟘                ∎)
+  where
+  open Tools.Reasoning.Equivalence M′
 
 isModality : Modality M′
 isModality = record
@@ -137,4 +181,6 @@ isModality = record
   ; +-sub-interchangable-⊛ = +-sub-interchangable-⊛
   ; ·-sub-distribʳ-⊛ = ·-sub-distribʳ-⊛
   ; ⊛-sub-distrib-∧ = λ r → ⊛-sub-distribˡ-∧ r , ⊛-sub-distribʳ-∧ r
+  ; ⊛≤𝟘ˡ = ⊛≤𝟘ˡ
+  ; ⊛≤𝟘ʳ = ⊛≤𝟘ʳ
   }

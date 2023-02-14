@@ -28,6 +28,11 @@ open import Definition.Modality.Properties.Meet 𝕄
 open import Definition.Modality.Properties.Multiplication 𝕄
 open import Definition.Modality.Properties.PartialOrder 𝕄
 open import Tools.Algebra M′
+import Tools.Reasoning.Equivalence
+import Tools.Reasoning.PartialOrder
+
+private variable
+  p q r : M
 
 _⊛_▷_ : Op₃ M
 _⊛_▷_ = nr (proj₁ nr-fix)
@@ -46,9 +51,8 @@ nr-cong {p} {p′} {q} {q′} {r} {r′} (1+ n) p≈p′ q≈q′ r≈r′ = beg
   p ∧ q + r · nr n p q r       ≈⟨ ∧-cong p≈p′ (+-cong q≈q′ (·-cong r≈r′ (nr-cong n p≈p′ q≈q′ r≈r′))) ⟩
   p′ ∧ q′ + r′ · nr n p′ q′ r′ ≈˘⟨ nr-rec n p′ q′ r′ ⟩
   nr (1+ n) p′ q′ r′ ∎
-  where open import Tools.Reasoning.Equivalence M′
-
-open import Tools.Reasoning.PartialOrder ≤-poset
+  where
+  open Tools.Reasoning.Equivalence M′
 
 +-sub-interchangable-nr : (n : Nat) (r : M) → _+_ SubInterchangable (λ p q → nr n p q r) by _≤_
 +-sub-interchangable-nr 0 r p q p′ q′ = begin
@@ -56,6 +60,8 @@ open import Tools.Reasoning.PartialOrder ≤-poset
   𝟘 + 𝟘                     ≈⟨ +-identityˡ 𝟘 ⟩
   𝟘                         ≈˘⟨ nr-0 (p + p′) (q + q′) r ⟩
   nr 0 (p + p′) (q + q′) r ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
 +-sub-interchangable-nr (1+ n) r p q p′ q′ = begin
   nr (1+ n) p q r + nr (1+ n) p′ q′ r
     ≈⟨ +-cong (nr-rec n p q r) (nr-rec n p′ q′ r) ⟩
@@ -83,6 +89,8 @@ open import Tools.Reasoning.PartialOrder ≤-poset
   (p + p′) ∧ ((q + q′) + (r · nr n (p + p′) (q + q′) r))
     ≈˘⟨ nr-rec n (p + p′) (q + q′) r ⟩
   nr (1+ n) (p + p′) (q + q′) r ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
 
 ·-sub-distribʳ-nr : (n : Nat) (r : M) → _·_ SubDistributesOverʳ (λ p q → nr n p q r) by _≤_
 ·-sub-distribʳ-nr 0 r q p p′ = begin
@@ -90,6 +98,8 @@ open import Tools.Reasoning.PartialOrder ≤-poset
   𝟘 · q           ≈⟨ ·-zeroˡ q ⟩
   𝟘               ≈˘⟨ nr-0 (p · q) (p′ · q) r ⟩
   nr 0 (p · q) (p′ · q) r ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
 ·-sub-distribʳ-nr (1+ n) r q p p′ = begin
   nr (1+ n) p p′ r · q
     ≈⟨ ·-congʳ (nr-rec n p p′ r) ⟩
@@ -104,6 +114,8 @@ open import Tools.Reasoning.PartialOrder ≤-poset
   (p · q) ∧ (p′ · q) + r · nr n (p · q) (p′ · q) r
     ≈˘⟨ nr-rec n (p · q) (p′ · q) r ⟩
   nr (1+ n) (p · q) (p′ · q) r ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
 
 nr-sub-distribˡ-∧ : (n : Nat) (r : M) → (λ p q  → nr n p q r) SubDistributesOverˡ _∧_ by _≤_
 nr-sub-distribˡ-∧ 0 r p q q′ = begin
@@ -111,6 +123,8 @@ nr-sub-distribˡ-∧ 0 r p q q′ = begin
   𝟘                 ≈˘⟨ ∧-idem 𝟘 ⟩
   𝟘 ∧ 𝟘             ≈˘⟨ ∧-cong (nr-0 p q r) (nr-0 p q′ r) ⟩
   nr 0 p q r ∧ nr 0 p q′ r ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
 nr-sub-distribˡ-∧ (1+ n) r p q q′ = begin
   nr (1+ n) p (q ∧ q′) r
     ≈⟨ nr-rec n p (q ∧ q′) r ⟩
@@ -135,6 +149,8 @@ nr-sub-distribˡ-∧ (1+ n) r p q q′ = begin
   (p ∧ q + r · nr n p q r) ∧ (p ∧ q′ + r · nr n p q′ r)
     ≈˘⟨ ∧-cong (nr-rec n p q r) (nr-rec n p q′ r) ⟩
   nr (1+ n) p q r ∧ nr (1+ n) p q′ r ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
 
 nr-sub-distribʳ-∧ : (n : Nat) (r : M) → (λ p q  → nr n p q r) SubDistributesOverʳ _∧_ by _≤_
 nr-sub-distribʳ-∧ 0 r q p p′ = begin
@@ -142,6 +158,8 @@ nr-sub-distribʳ-∧ 0 r q p p′ = begin
   𝟘                 ≈˘⟨ ∧-idem 𝟘 ⟩
   𝟘 ∧ 𝟘             ≈˘⟨ ∧-cong (nr-0 p q r) (nr-0 p′ q r) ⟩
   nr 0 p q r ∧ nr 0 p′ q r ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
 nr-sub-distribʳ-∧ (1+ n) r q p p′ = begin
   nr (1+ n) (p ∧ p′) q r ≈⟨ nr-rec n (p ∧ p′) q r ⟩
   (p ∧ p′) ∧ (q + r · nr n (p ∧ p′) q r) ≤⟨ ∧-monotoneʳ (+-monotoneʳ (·-monotoneʳ (nr-sub-distribʳ-∧ n r q p p′))) ⟩
@@ -154,6 +172,27 @@ nr-sub-distribʳ-∧ (1+ n) r q p p′ = begin
   ((p ∧ (q + r · nr n p q r)) ∧ p′) ∧ (q + r · nr n p′ q r) ≈⟨ ∧-assoc _ _ _ ⟩
   (p ∧ q + r · nr n p q r) ∧ (p′ ∧ q + r · nr n p′ q r) ≈˘⟨ ∧-cong (nr-rec n p q r) (nr-rec n p′ q r) ⟩
   nr (1+ n) p q r ∧ nr (1+ n) p′ q r ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
+
+⊛≤𝟘ˡ : p ⊛ q ▷ r ≈ 𝟘 → p ≤ 𝟘
+⊛≤𝟘ˡ {p = p} {q = q} {r = r} p⊛q▷r≈𝟘 = ∧≤𝟘ˡ (begin
+  p ∧ (q + r · nr (proj₁ nr-fix) p q r)  ≈˘⟨ nr-rec _ _ _ _ ⟩
+  nr (1+ (proj₁ nr-fix)) p q r           ≈⟨ proj₂ nr-fix _ _ _ ⟩
+  nr (proj₁ nr-fix) p q r                ≈⟨ p⊛q▷r≈𝟘 ⟩
+  𝟘                                      ∎)
+  where
+  open Tools.Reasoning.Equivalence M′
+
+⊛≤𝟘ʳ : p ⊛ q ▷ r ≈ 𝟘 → q ≤ 𝟘
+⊛≤𝟘ʳ {p = p} {q = q} {r = r} p⊛q▷r≈𝟘 =
+  ≤-reflexive (positiveˡ (∧≈𝟘ʳ (begin
+    p ∧ (q + r · nr (proj₁ nr-fix) p q r)  ≈˘⟨ nr-rec _ _ _ _ ⟩
+    nr (1+ (proj₁ nr-fix)) p q r           ≈⟨ proj₂ nr-fix _ _ _ ⟩
+    nr (proj₁ nr-fix) p q r                ≈⟨ p⊛q▷r≈𝟘 ⟩
+    𝟘                                      ∎)))
+  where
+  open Tools.Reasoning.Equivalence M′
 
 isModality : Modality M′
 isModality = record
@@ -164,13 +203,11 @@ isModality = record
   ; +-sub-interchangable-⊛ = +-sub-interchangable-nr (proj₁ nr-fix)
   ; ·-sub-distribʳ-⊛ = ·-sub-distribʳ-nr (proj₁ nr-fix)
   ; ⊛-sub-distrib-∧ = λ r → nr-sub-distribˡ-∧ (proj₁ nr-fix) r , nr-sub-distribʳ-∧ (proj₁ nr-fix) r
+  ; ⊛≤𝟘ˡ = ⊛≤𝟘ˡ
+  ; ⊛≤𝟘ʳ = ⊛≤𝟘ʳ
   }
 
 module 𝟘-bound (𝟘-max : (p : M) → p ≤ 𝟘) where
-
-  private
-    variable
-      p q r : M
 
   greatestSolnr : ∀ {x} (n : Nat) → x ≤ q + r · x → x ≤ p → x ≤ nr n p q r
   greatestSolnr 0 x≤q+rx x≤p = ≤-trans (𝟘-max _) (≤-reflexive (sym (nr-0 _ _ _)))
@@ -180,6 +217,8 @@ module 𝟘-bound (𝟘-max : (p : M) → p ≤ 𝟘) where
     p ∧ (q + r · x) ≤⟨ ∧-monotoneʳ (+-monotoneʳ (·-monotoneʳ (greatestSolnr n x≤q+rx x≤p))) ⟩
     p ∧ (q + r · nr n p q r) ≈˘⟨ nr-rec n p q r ⟩
     nr (1+ n) p q r ∎
+    where
+    open Tools.Reasoning.PartialOrder ≤-poset
 
   greatestSol : ∀ {x} → x ≤ q + r · x → x ≤ p → x ≤ p ⊛ q ▷ r
   greatestSol {q} {r} {p} {x} x≤q+rx x≤p = greatestSolnr (proj₁ nr-fix) x≤q+rx x≤p

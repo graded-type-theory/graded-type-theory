@@ -10,6 +10,7 @@ open Setoid M′ renaming (Carrier to M)
 open import Tools.Algebra M′
 open import Tools.Nat hiding (_+_)
 open import Tools.Product
+open import Tools.Sum
 
 open import Definition.Modality.Restrictions M′
 
@@ -44,9 +45,36 @@ record ModalityWithout⊛ : Set (lsuc (a ⊔ ℓ)) where
     -- "Extra" restrictions for certain term/type constructors.
     restrictions : Restrictions
 
+    -- It is decidable whether a value is equivalent to 𝟘.
+    is-𝟘? : (p : M) → Dec (p ≈ 𝟘)
+
+    -- The following two assumptions match assumptions from Bob
+    -- Atkey's "Syntax and Semantics of Quantitative Type Theory".
+
+    -- The semiring has the zero-product property: if p · q is 𝟘, then
+    -- either p is 𝟘 or q is 𝟘.
+    zero-product : {p q : M} → p · q ≈ 𝟘 → (p ≈ 𝟘) ⊎ (q ≈ 𝟘)
+
+    -- The semiring is positive: if p + q is 𝟘, then p and q are 𝟘.
+    -- (The statement that p + q ≈ 𝟘 implies q ≈ 𝟘 follows from the
+    -- one below, see
+    -- Definition.Modality.Properties.Addition.positiveʳ.)
+    positiveˡ : {p q : M} → p + q ≈ 𝟘 → p ≈ 𝟘
+
   -- Semilattice partial ordering relation
   _≤_ : Rel M ℓ
   p ≤ q = p ≈ (p ∧ q)
+
+  field
+    -- The following assumption matches one in Conor McBride's
+    -- "I Got Plenty o’ Nuttin’".
+
+    -- Every value that is "greater than or equal to" 𝟘 is equivalent
+    -- to 𝟘.
+    𝟘≮ : {p : M} → 𝟘 ≤ p → p ≈ 𝟘
+
+    -- If p ∧ q is equivalent to 𝟘, then p ≤ 𝟘.
+    ∧≤𝟘ˡ : {p q : M} → p ∧ q ≈ 𝟘 → p ≤ 𝟘
 
   ·-distribˡ-∧ : _·_ DistributesOverˡ _∧_
   ·-distribˡ-∧ = proj₁ ·-distrib-∧
@@ -128,6 +156,11 @@ record Modality : Set (lsuc (a ⊔ ℓ)) where
     ·-sub-distribʳ-⊛ : (r : M) → _·_ SubDistributesOverʳ (_⊛_▷ r) by _≤_
     -- ⊛ is sub-distributive over meet w.r.t the first two arguments
     ⊛-sub-distrib-∧    : (r : M) → (_⊛_▷ r) SubDistributesOver _∧_ by _≤_
+
+    -- If p ⊛ q ▷ r is equivalent to 𝟘, then p ≤ 𝟘.
+    ⊛≤𝟘ˡ : {p q r : M} → p ⊛ q ▷ r ≈ 𝟘 → p ≤ 𝟘
+    -- If p ⊛ q ▷ r is equivalent to 𝟘, then q ≤ 𝟘.
+    ⊛≤𝟘ʳ : {p q r : M} → p ⊛ q ▷ r ≈ 𝟘 → q ≤ 𝟘
 
   ⊛-ineq₁ : (p q r : M) → p ⊛ q ▷ r ≤ q + r · (p ⊛ q ▷ r)
   ⊛-ineq₁ = proj₁ ⊛-ineq

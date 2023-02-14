@@ -42,6 +42,11 @@ private
 +-monotone : p ≤ p′ → q ≤ q′ → p + q ≤ p′ + q′
 +-monotone p≤p′ q≤q′ = ≤-trans (+-monotoneˡ p≤p′) (+-monotoneʳ q≤q′)
 
+-- If p + q is zero, then q is zero.
+
+positiveʳ : {p q : M} → p + q ≈ 𝟘 → q ≈ 𝟘
+positiveʳ p+q≈𝟘 = positiveˡ (≈-trans (+-comm _ _) p+q≈𝟘)
+
 -- The operation _+_ is sub-interchangeable with _∧_ (with respect
 -- to _≤_).
 
