@@ -9,12 +9,14 @@ module Definition.Modality.Context.Properties.Update {a ℓ}
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties.Equivalence 𝕄
+open import Definition.Modality.Context.Properties.Lookup 𝕄
 open import Definition.Modality.Context.Properties.PartialOrder 𝕄
 open import Definition.Modality.Properties 𝕄
 
 open import Tools.Fin
 open import Tools.Nat hiding (_+_)
 open import Tools.PropositionalEquality as PE
+import Tools.Reasoning.PropositionalEquality
 
 open Modality 𝕄
 open Setoid M′ renaming (Carrier to M)
@@ -32,6 +34,26 @@ private
 update-self : (γ : Conₘ n) (x : Fin n) → (γ , x ≔ (γ ⟨ x ⟩)) ≡ γ
 update-self (γ ∙ p) x0     = PE.refl
 update-self (γ ∙ p) (x +1) = cong (_∙ _) (update-self γ x)
+
+-- Updating a value in 𝟘ᶜ with 𝟘 has no effect.
+
+𝟘ᶜ,≔𝟘 : 𝟘ᶜ , x ≔ 𝟘 ≡ 𝟘ᶜ
+𝟘ᶜ,≔𝟘 {x = x} = begin
+  𝟘ᶜ , x ≔ 𝟘         ≡˘⟨ cong (λ p → 𝟘ᶜ , _ ≔ p) (𝟘ᶜ-lookup x) ⟩
+  𝟘ᶜ , x ≔ 𝟘ᶜ ⟨ x ⟩  ≡⟨ update-self _ _ ⟩
+  𝟘ᶜ                 ∎
+  where
+  open Tools.Reasoning.PropositionalEquality
+
+-- Updating a value in 𝟙ᶜ with 𝟙 has no effect.
+
+𝟙ᶜ,≔𝟙 : 𝟙ᶜ , x ≔ 𝟙 ≡ 𝟙ᶜ
+𝟙ᶜ,≔𝟙 {x = x} = begin
+  𝟙ᶜ , x ≔ 𝟙         ≡˘⟨ cong (λ p → 𝟙ᶜ , _ ≔ p) (𝟙ᶜ-lookup x) ⟩
+  𝟙ᶜ , x ≔ 𝟙ᶜ ⟨ x ⟩  ≡⟨ update-self _ _ ⟩
+  𝟙ᶜ                 ∎
+  where
+  open Tools.Reasoning.PropositionalEquality
 
 -- If a given position is updated twice, then the first update has no
 -- effect.
