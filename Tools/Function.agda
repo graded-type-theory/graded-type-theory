@@ -2,6 +2,8 @@
 
 module Tools.Function where
 
+open import Function.Base using (case_of_) public
+
 -- Identity function
 idᶠ : ∀ {ℓ} → {A : Set ℓ} → A → A
 idᶠ x = x

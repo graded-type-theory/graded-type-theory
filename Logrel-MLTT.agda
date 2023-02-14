@@ -41,6 +41,9 @@ import Definition.Modality.Usage.Weakening
 import Definition.Modality.Substitution
 import Definition.Modality.Substitution.Properties
 
+-- Modes
+import Definition.Mode
+
 -- Grammar of the language
 import Definition.Untyped
 import Definition.Untyped.BindingType

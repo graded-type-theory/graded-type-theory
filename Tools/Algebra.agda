@@ -17,7 +17,8 @@ open import Algebra.Definitions (_≈_)
 open import Algebra.Structures (_≈_)
      using (IsBand; IsCommutativeMonoid; IsMagma; IsMonoid;
             IsSemigroup; IsSemilattice; IsSemiring;
-            IsSemiringWithoutAnnihilatingZero) public
+            IsSemiringWithoutAnnihilatingZero; IsCommutativeSemiring)
+     public
 
 Op₃ : ∀ {ℓ} → Set ℓ → Set ℓ
 Op₃ A = A → A → A → A
