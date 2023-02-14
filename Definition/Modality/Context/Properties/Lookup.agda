@@ -75,6 +75,6 @@ lookup-distrib-⊛ᶜ (γ ∙ p) (δ ∙ q) r (x +1) = lookup-distrib-⊛ᶜ γ 
 -- Lookup is consistent with context updates
 -- (γ , x ≔ p) ⟨ x ⟩ ≡ p
 
-update-lookup : (x : Fin n) → (γ , x ≔ p) ⟨ x ⟩ ≡ p
-update-lookup {γ = γ ∙ p} x0     = PE.refl
-update-lookup {γ = γ ∙ p} (x +1) = update-lookup {γ = γ} x
+update-lookup : (γ : Conₘ n) (x : Fin n) → (γ , x ≔ p) ⟨ x ⟩ ≡ p
+update-lookup (_ ∙ _) x0     = PE.refl
+update-lookup (γ ∙ _) (x +1) = update-lookup γ x

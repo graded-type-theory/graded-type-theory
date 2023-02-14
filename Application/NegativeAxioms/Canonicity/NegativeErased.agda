@@ -72,7 +72,7 @@ private
 neNeg : (d : Γ ⊢ u ∷ A) (n : Neutral u) (f : γ ▸ u) → NegativeType Γ A
 neNeg (var ⊢Γ h          ) (var x      ) γ▸u =
   let γ≤γ′ = inv-usage-var γ▸u
-      γ⟨x⟩≤𝟙 = PE.subst (λ p → γ ⟨ x ⟩ ≤ p) (update-lookup {γ = 𝟘ᶜ} x)
+      γ⟨x⟩≤𝟙 = PE.subst (λ p → γ ⟨ x ⟩ ≤ p) (update-lookup 𝟘ᶜ x)
                         (lookup-monotone x γ≤γ′)
   in  lookupNegative ⊢Γ nΓγ h γ⟨x⟩≤𝟙
 neNeg (d ∘ⱼ ⊢t           ) (∘ₙ n       ) γ▸u =
