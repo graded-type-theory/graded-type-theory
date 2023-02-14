@@ -28,6 +28,7 @@ open import Definition.Typed.Weakening Erasure′
 open import Definition.Typed.Properties Erasure′
 
 open import Definition.Modality.Context ErasureModality
+open import Definition.Mode ErasureModality
 
 open import Tools.Level
 open import Tools.Nat
@@ -42,6 +43,7 @@ private
     A A′ t : Term n
     γ : Conₘ n
     p : Erasure
+    m : Mode
 
 -- Irrelevance of logical relation for erasure using a ShapreView
 
@@ -117,13 +119,13 @@ irrelevanceTerm′ PE.refl [A] [A]′ t®v = irrelevanceTerm [A] [A]′ t®v
 
 -- Irrelevance of quantified logical relation for erasure
 
-irrelevanceQuant : ∀ {l l′ t v A}
+irrelevanceQuant : ∀ {l l′ t v A} p
                  → ([A] : ε ⊩⟨ l ⟩ A)
                  → ([A]′ : ε ⊩⟨ l′ ⟩ A)
                  → t ®⟨ l ⟩ v ∷ A ◂ p / [A]
                  → t ®⟨ l′ ⟩ v ∷ A ◂ p / [A]′
-irrelevanceQuant {𝟘} [A] [A]′ t®v = tt
-irrelevanceQuant {ω} [A] [A]′ t®v = irrelevanceTerm [A] [A]′ t®v
+irrelevanceQuant 𝟘 [A] [A]′ t®v = tt
+irrelevanceQuant ω [A] [A]′ t®v = irrelevanceTerm [A] [A]′ t®v
 
 -- Irrelevance of related substitutions
 
@@ -131,14 +133,17 @@ irrelevanceSubst : ∀ {σ σ′ l}
                  → ([Γ] [Γ]′ : ⊩ᵛ Γ)
                    ([σ] : ε ⊩ˢ σ ∷ Γ / [Γ] / ε)
                    ([σ]′ : ε ⊩ˢ σ ∷ Γ / [Γ]′ / ε)
-                   (σ®σ′ : σ ®⟨ l ⟩ σ′ ∷ Γ ◂ γ / [Γ] / [σ])
-                 → (σ ®⟨ l ⟩ σ′ ∷ Γ ◂ γ / [Γ]′ / [σ]′)
+                   (σ®σ′ : σ ®⟨ l ⟩ σ′ ∷[ m ] Γ ◂ γ / [Γ] / [σ])
+                 → (σ ®⟨ l ⟩ σ′ ∷[ m ] Γ ◂ γ / [Γ]′ / [σ]′)
 irrelevanceSubst {Γ = ε} {γ = ε} ε ε (lift tt) (lift tt) tt = tt
-irrelevanceSubst {Γ = Γ ∙ A} {γ = γ ∙ p} {l = l}
+irrelevanceSubst {Γ = Γ ∙ A} {m = m} {γ = γ ∙ p} {l = l}
                  ([Γ] ∙ [A]) ([Γ]′ ∙ [A]′) ([tailσ] , b) ([tailσ]′ , d) (σ®σ , t®v) =
   let σ®σ′ = irrelevanceSubst {l = l} [Γ] [Γ]′ [tailσ] [tailσ]′ σ®σ
       [σA] = proj₁ (unwrap [A] ε [tailσ])
-      t®v′ = irrelevanceQuant {p = p} (proj₁ (unwrap [A] ε [tailσ])) (proj₁ (unwrap [A]′ ε [tailσ]′)) t®v
+      t®v′ = irrelevanceQuant (⌜ m ⌝ · _)
+               (proj₁ (unwrap [A] ε [tailσ]))
+               (proj₁ (unwrap [A]′ ε [tailσ]′))
+               t®v
   in  σ®σ′ , t®v′
 
 -- Irrelevance of erasure validity
@@ -147,10 +152,13 @@ irrelevance : ∀ {l l′}
             → ([Γ] [Γ]′ : ⊩ᵛ Γ)
               ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ])
               ([A]′ : Γ ⊩ᵛ⟨ l′ ⟩ A / [Γ]′)
-              (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷ A / [Γ] / [A])
-            → (γ ▸ Γ ⊩ʳ⟨ l′ ⟩ t ∷ A / [Γ]′ / [A]′)
-irrelevance {l = l} [Γ] [Γ]′ [A] [A]′ ⊩ʳt [σ]′ σ®σ′ =
+              (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A / [Γ] / [A])
+            → (γ ▸ Γ ⊩ʳ⟨ l′ ⟩ t ∷[ m ] A / [Γ]′ / [A]′)
+irrelevance {m = m} {l = l} [Γ] [Γ]′ [A] [A]′ ⊩ʳt [σ]′ σ®σ′ =
   let [σ] = IS.irrelevanceSubst [Γ]′ [Γ] ε ε [σ]′
       σ®σ = irrelevanceSubst {l = l} [Γ]′ [Γ] [σ]′ [σ] σ®σ′
       t®v = ⊩ʳt [σ] σ®σ
-  in  irrelevanceTerm (proj₁ (unwrap [A] ε [σ])) (proj₁ (unwrap [A]′ ε [σ]′)) t®v
+  in  irrelevanceQuant ⌜ m ⌝
+        (proj₁ (unwrap [A] ε [σ]))
+        (proj₁ (unwrap [A]′ ε [σ]′))
+        t®v

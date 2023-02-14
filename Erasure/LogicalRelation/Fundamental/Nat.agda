@@ -14,6 +14,7 @@ open EqRelSet {{...}}
 open import Erasure.Extraction
 open import Erasure.LogicalRelation restrictions
 open import Erasure.LogicalRelation.Irrelevance restrictions
+open import Erasure.LogicalRelation.Subsumption restrictions
 import Erasure.Target as T
 
 open import Definition.Untyped Erasure hiding (_∷_)
@@ -29,6 +30,7 @@ open import Definition.LogicalRelation.Substitution.Introductions.Nat Erasure′
 
 open import Definition.Modality.Instances.Erasure.Modality restrictions
 open import Definition.Modality.Context ErasureModality
+open import Definition.Mode ErasureModality
 
 open import Tools.Nat
 open import Tools.Product
@@ -39,32 +41,38 @@ private
     γ : Conₘ n
     Γ : Con Term n
     t : Term n
+    m : Mode
 
 ℕʳ : ⊢ Γ
    → ∃ λ ([Γ] : ⊩ᵛ Γ)
    → ∃ λ ([U] : Γ ⊩ᵛ⟨ ¹ ⟩ U / [Γ])
-   → γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ ℕ ∷ U / [Γ] / [U]
-ℕʳ ⊢Γ =
-  let [Γ] = valid ⊢Γ
-      [U] = Uᵛ [Γ]
-  in  [Γ] , [U] , λ [σ] x → Uᵣ (ℕⱼ ε)
+   → γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ ℕ ∷[ m ] U / [Γ] / [U]
+ℕʳ ⊢Γ = [Γ] , [U] , subsumptionMode ℕ [U] (λ _ _ → Uᵣ (ℕⱼ ε))
+  where
+  [Γ] = valid ⊢Γ
+  [U] = Uᵛ [Γ]
 
 zeroʳ : ∀ {l} → ⊢ Γ
       → ∃ λ ([Γ] : ⊩ᵛ Γ)
       → ∃ λ ([ℕ] : Γ ⊩ᵛ⟨ l ⟩ ℕ / [Γ])
-      → γ ▸ Γ ⊩ʳ⟨ l ⟩ zero ∷ ℕ / [Γ] / [ℕ]
+      → γ ▸ Γ ⊩ʳ⟨ l ⟩ zero ∷[ m ] ℕ / [Γ] / [ℕ]
 zeroʳ ⊢Γ =
-  let [Γ] = valid ⊢Γ
-      [ℕ] = ℕᵛ [Γ]
-  in  [Γ] , [ℕ] , λ [σ] x → zeroᵣ (id (zeroⱼ ε)) T.refl
+    [Γ] , [ℕ]
+  , subsumptionMode zero [ℕ] (λ [σ] x → zeroᵣ (id (zeroⱼ ε)) T.refl)
+  where
+  [Γ] = valid ⊢Γ
+  [ℕ] = ℕᵛ [Γ]
 
 sucʳ : ∀ {l}
      → ([Γ] : ⊩ᵛ Γ)
        ([ℕ] : Γ ⊩ᵛ⟨ l ⟩ ℕ / [Γ])
-       (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷ ℕ / [Γ] / [ℕ])
+       (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] ℕ / [Γ] / [ℕ])
      → Γ ⊢ t ∷ ℕ
-     → γ ▸ Γ ⊩ʳ⟨ l ⟩ suc t ∷ ℕ / [Γ] / [ℕ]
-sucʳ {Γ = Γ} {γ = γ} {t = t} {l = l} [Γ] [ℕ] ⊩ʳt Γ⊢t:ℕ {σ = σ} {σ′ = σ′} [σ] σ®σ′ =
+     → γ ▸ Γ ⊩ʳ⟨ l ⟩ suc t ∷[ m ] ℕ / [Γ] / [ℕ]
+sucʳ {m = 𝟘ᵐ} = _
+
+sucʳ {Γ = Γ} {γ = γ} {t = t} {m = 𝟙ᵐ} {l = l}
+     [Γ] [ℕ] ⊩ʳt Γ⊢t:ℕ {σ = σ} {σ′ = σ′} [σ] σ®σ′ =
   let [ℕ]′ = ℕᵛ {l = l} [Γ]
       ⊢t:ℕ = substitutionTerm Γ⊢t:ℕ (wellformedSubst [Γ] ε [σ]) ε
       t®v = ⊩ʳt [σ] σ®σ′

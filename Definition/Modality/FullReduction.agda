@@ -12,9 +12,10 @@ open Modality 𝕄
 open Setoid M′ using (_≈_) renaming (Carrier to M)
 
 open import Tools.Fin
-open import Tools.Nat
+open import Tools.Nat using (Nat)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+import Tools.Reasoning.PartialOrder
 
 open import Definition.Untyped M hiding (_∷_; wk)
 import Definition.Untyped M as U
@@ -39,7 +40,9 @@ open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
 open import Definition.Modality.Usage 𝕄
 open import Definition.Modality.Usage.Inversion 𝕄
+open import Definition.Modality.Usage.Properties 𝕄
 open import Definition.Modality.Usage.Weakening 𝕄
+open import Definition.Mode 𝕄
 
 private
   variable
@@ -47,18 +50,21 @@ private
     Γ : Con Term n
     t t′ A A′ : Term n
     γ : Conₘ n
-
+    m : Mode
 
 mutual
-  fullRedNe : Γ ⊢ t ~ t′ ↑ A → γ ▸ t → ∃ λ u → NfNeutral u × Γ ⊢ t ≡ u ∷ A × γ ▸ u
+  fullRedNe :
+    Γ ⊢ t ~ t′ ↑ A → γ ▸[ m ] t →
+    ∃ λ u → NfNeutral u × Γ ⊢ t ≡ u ∷ A × γ ▸[ m ] u
   fullRedNe (var-refl x _) γ▸t = var _ , var _ , refl x , γ▸t
-  fullRedNe (app-cong t u p≈p₁ p≈p₂) γ▸t =
+  fullRedNe {m = m} (app-cong t u p≈p₁ p≈p₂) γ▸t =
     let invUsageApp δ▸t η▸u γ≤γ′ = inv-usage-app γ▸t
         t′ , nfT′ , t≡t′ , δ▸t′ = fullRedNe~↓ t δ▸t
         u′ , nfU′ , u≡u′ , η▸u′ = fullRedTermConv↑ u η▸u
         p₁≈p₂ = ≈-trans (≈-sym p≈p₁) p≈p₂
     in  t′ ∘ u′ , ∘ₙ nfT′ nfU′ , app-cong t≡t′ u≡u′ p≈p₁ p≈p₂
-      , sub (δ▸t′ ∘ₘ η▸u′) (≤ᶜ-trans γ≤γ′ (≤ᶜ-reflexive (+ᶜ-congˡ (·ᶜ-congʳ p₁≈p₂))))
+      , sub (δ▸t′ ∘ₘ ▸-cong (ᵐ·-cong m p₁≈p₂) η▸u′)
+          (≤ᶜ-trans γ≤γ′ (≤ᶜ-reflexive (+ᶜ-congˡ (·ᶜ-congʳ p₁≈p₂))))
   fullRedNe (fst-cong p~p) γ▸t =
     let invUsageProj δ▸p γ≤δ = inv-usage-fst γ▸t
         p′ , neP′ , p≡p′ , δ▸p′ = fullRedNe~↓ p~p δ▸p
@@ -92,26 +98,33 @@ mutual
     in  prodrec p C′ g′ u′ , prodrecₙ nfC′ nfg′ nfu′
       , prodrec-cong ⊢F ⊢G C≡C′ g≡g′ u≡u′ ≈-refl
       , sub (prodrecₘ δ▸g′ η▸u′ P) γ≤γ′
-  fullRedNe (Emptyrec-cong C n p≈p′) γ▸t =
+  fullRedNe {m = m} (Emptyrec-cong C n p≈p′) γ▸t =
     let invUsageEmptyrec δ▸n γ≤δ = inv-usage-Emptyrec γ▸t
         C′ , nfC′ , C≡C′ = FR.fullRed C
         n′ , nfN′ , n≡n′ , δ▸n′ = fullRedNe~↓ n δ▸n
     in  Emptyrec _ C′ n′ , Emptyrecₙ nfC′ nfN′
       , Emptyrec-cong C≡C′ n≡n′ p≈p′
-      , sub (Emptyrecₘ δ▸n′) (≤ᶜ-trans γ≤δ (≤ᶜ-reflexive (·ᶜ-congʳ p≈p′)))
+      , sub (Emptyrecₘ (▸-cong (ᵐ·-cong m p≈p′) δ▸n′))
+          (≤ᶜ-trans γ≤δ (≤ᶜ-reflexive (·ᶜ-congʳ p≈p′)))
 
-  fullRedNe~↓ : Γ ⊢ t ~ t′ ↓ A → γ ▸ t → ∃ λ u → NfNeutral u × Γ ⊢ t ≡ u ∷ A × γ ▸ u
+  fullRedNe~↓ :
+    Γ ⊢ t ~ t′ ↓ A → γ ▸[ m ] t →
+    ∃ λ u → NfNeutral u × Γ ⊢ t ≡ u ∷ A × γ ▸[ m ] u
   fullRedNe~↓ ([~] A D whnfB k~l) γ▸t =
     let u , nf , t≡u , γ▸u = fullRedNe k~l γ▸t
     in  u , nf , conv t≡u (subset* D) , γ▸u
 
-  fullRedConv↑ : Γ ⊢ A [conv↑] A′ → γ ▸ A → ∃ λ B → Nf B × Γ ⊢ A ≡ B × γ ▸ B
+  fullRedConv↑ :
+    Γ ⊢ A [conv↑] A′ → γ ▸[ m ] A →
+    ∃ λ B → Nf B × Γ ⊢ A ≡ B × γ ▸[ m ] B
   fullRedConv↑ ([↑] A′ B′ D D′ whnfA′ whnfB′ A′<>B′) γ▸A =
     let γ▸A′ = usagePres* γ▸A D
         B″ , nf , B′≡B″ , γ▸B″ = fullRedConv↓ A′<>B′ γ▸A′
     in  B″ , nf , trans (subset* D) B′≡B″ , γ▸B″
 
-  fullRedConv↓ : Γ ⊢ A [conv↓] A′ → γ ▸ A → ∃ λ B → Nf B × Γ ⊢ A ≡ B × γ ▸ B
+  fullRedConv↓ :
+    Γ ⊢ A [conv↓] A′ → γ ▸[ m ] A →
+    ∃ λ B → Nf B × Γ ⊢ A ≡ B × γ ▸[ m ] B
   fullRedConv↓ (U-refl ⊢Γ) γ▸A = U , Uₙ , refl (Uⱼ ⊢Γ) , γ▸A
   fullRedConv↓ (ℕ-refl ⊢Γ) γ▸A = ℕ , ℕₙ , refl (ℕⱼ ⊢Γ) , γ▸A
   fullRedConv↓ (Empty-refl ⊢Γ) γ▸A = Empty , Emptyₙ , refl (Emptyⱼ ⊢Γ) , γ▸A
@@ -119,28 +132,32 @@ mutual
   fullRedConv↓ (ne A) γ▸A =
     let B , nf , A≡B , γ▸B = fullRedNe~↓ A γ▸A
     in  B , ne nf , univ A≡B , γ▸B
-  fullRedConv↓ (Π-cong ⊢F F G p≈p′ q≈q′) γ▸A =
+  fullRedConv↓ {m = m} (Π-cong ⊢F F G p≈p′ q≈q′) γ▸A =
     let invUsageΠ δ▸F η▸G γ≤γ′ = inv-usage-Π γ▸A
         F′ , nfF′ , F≡F′ , δ▸F′ = fullRedConv↑ F δ▸F
         G′ , nfG′ , G≡G′ , η▸G′ = fullRedConv↑ G η▸G
-        η′▸G′ = sub η▸G′ (≤ᶜ-reflexive (≈ᶜ-refl ∙ ≈-sym q≈q′))
+        η′▸G′ = sub η▸G′ (≤ᶜ-reflexive (≈ᶜ-refl ∙ ≈-sym (·-congˡ q≈q′)))
     in  Π _ , _ ▷ F′ ▹ G′ , Πₙ nfF′ nfG′ , Π-cong ⊢F F≡F′ G≡G′ p≈p′ q≈q′
-      , sub (Πₘ δ▸F′ η′▸G′) γ≤γ′
+      , sub (Πₘ (▸-cong (ᵐ·-cong m p≈p′) δ▸F′) η′▸G′) γ≤γ′
   fullRedConv↓ (Σ-cong ⊢F F G q≈q′) γ▸A =
     let invUsageΣ δ▸F η▸G γ≤γ′ = inv-usage-Σ γ▸A
         F′ , nfF′ , F≡F′ , δ▸F′ = fullRedConv↑ F δ▸F
         G′ , nfG′ , G≡G′ , η▸G′ = fullRedConv↑ G η▸G
-        η′▸G′ = sub η▸G′ (≤ᶜ-reflexive (≈ᶜ-refl ∙ ≈-sym q≈q′))
+        η′▸G′ = sub η▸G′ (≤ᶜ-reflexive (≈ᶜ-refl ∙ ≈-sym (·-congˡ q≈q′)))
     in  Σ _ ▷ F′ ▹ G′ , Σₙ nfF′ nfG′ , Σ-cong ⊢F F≡F′ G≡G′ q≈q′
       , sub (Σₘ δ▸F′ η′▸G′) γ≤γ′
 
-  fullRedTermConv↑ : Γ ⊢ t [conv↑] t′ ∷ A → γ ▸ t → ∃ λ u → Nf u × Γ ⊢ t ≡ u ∷ A × γ ▸ u
+  fullRedTermConv↑ :
+    Γ ⊢ t [conv↑] t′ ∷ A → γ ▸[ m ] t →
+    ∃ λ u → Nf u × Γ ⊢ t ≡ u ∷ A × γ ▸[ m ] u
   fullRedTermConv↑ ([↑]ₜ B t′ u′ D d d′ whnfB whnft′ whnfu′ t<>u) γ▸t =
     let γ▸t′ = usagePres*Term γ▸t d
         u″ , nf , u′≡u″ , γ▸u″ = fullRedTermConv↓ t<>u γ▸t′
     in  u″ , nf , conv (trans (subset*Term d) u′≡u″) (sym (subset* D)) , γ▸u″
 
-  fullRedTermConv↓ : Γ ⊢ t [conv↓] t′ ∷ A → γ ▸ t → ∃ λ u → Nf u × Γ ⊢ t ≡ u ∷ A × γ ▸ u
+  fullRedTermConv↓ :
+    Γ ⊢ t [conv↓] t′ ∷ A → γ ▸[ m ] t →
+    ∃ λ u → Nf u × Γ ⊢ t ≡ u ∷ A × γ ▸[ m ] u
   fullRedTermConv↓ (ℕ-ins t) γ▸t =
     let u , nf , t≡u , γ▸u = fullRedNe~↓ t γ▸t
     in  u , ne nf , t≡u , γ▸u
@@ -174,7 +191,7 @@ mutual
         u′ , nfU , u≡u′ , η▸u′ = fullRedTermConv↑ u↑u η▸u
     in  prod! t′ u′ , prodₙ nfT nfU , prod-cong ⊢F ⊢G t≡t′ u≡u′
       , sub (prodᵣₘ δ▸t′ η▸u′ γ″=δ+η) γ≤γ″
-  fullRedTermConv↓ (η-eq {p = p} ⊢t _ _ _ t∘0) γ▸t =
+  fullRedTermConv↓ {γ = γ} {m = m} (η-eq {p = p} ⊢t _ _ _ t∘0) γ▸t =
     let δ▸t∘0 = wkUsage (step id) γ▸t ∘ₘ var
         u , nf , t∘0≡u , δ▸u = fullRedTermConv↑ (t∘0 ≈-refl ≈-refl) δ▸t∘0
         ⊢G , _ , ⊢u = syntacticEqTerm t∘0≡u
@@ -194,8 +211,13 @@ mutual
                        (trans t∘0≡u (PE.subst₂ (λ x y → _ ⊢ x ≡ λu∘0 ∷ y)
                                     (wkSingleSubstId u) (wkSingleSubstId _)
                                     (sym (β-red wk⊢F wk⊢G wk⊢u (var ΓF⊢ here) p≈p₂)))))
-      , lamₘ (sub δ▸u (≤ᶜ-reflexive (≈ᶜ-sym (≈ᶜ-trans (+ᶜ-congˡ (·ᶜ-zeroʳ p) ∙ +-identityˡ _)
-                                                      ((+ᶜ-identityʳ _) ∙ (·-identityʳ p))))))
+      , lamₘ (sub δ▸u (begin
+          γ ∙ ⌜ m ⌝ · p                      ≈⟨ ≈ᶜ-refl ∙ ⌜⌝-·-comm m ⟩
+          γ ∙ p · ⌜ m ⌝                      ≈˘⟨ +ᶜ-identityʳ _ ∙ ·⌜ᵐ·⌝ m ⟩
+          γ +ᶜ 𝟘ᶜ ∙ p · ⌜ m ᵐ· p ⌝           ≈˘⟨ +ᶜ-congˡ (·ᶜ-zeroʳ _) ∙ +-identityˡ _ ⟩
+          γ +ᶜ p ·ᶜ 𝟘ᶜ ∙ 𝟘 + p · ⌜ m ᵐ· p ⌝  ∎))
+    where
+    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
   fullRedTermConv↓ (Σ-η ⊢t _ tProd _ fstConv sndConv) γ▸t =
     let γ▸t₁ = fstₘ γ▸t
         γ▸t₂ = sndₘ γ▸t
@@ -225,8 +247,12 @@ mutual
     γ≤𝟘ᶜ {γ = ε} = ε
     γ≤𝟘ᶜ {γ = γ ∙ p} = γ≤𝟘ᶜ ∙ p≤𝟘 p
 
-fullRed : Γ ⊢ A → γ ▸ A → ∃ λ B → Nf B × Γ ⊢ A ≡ B × γ ▸ B
+fullRed :
+  Γ ⊢ A → γ ▸[ m ] A →
+  ∃ λ B → Nf B × Γ ⊢ A ≡ B × γ ▸[ m ] B
 fullRed ⊢A = fullRedConv↑ (completeEq (refl ⊢A))
 
-fullRedTerm : Γ ⊢ t ∷ A → γ ▸ t → ∃ λ u → Nf u × Γ ⊢ t ≡ u ∷ A × γ ▸ u
+fullRedTerm :
+  Γ ⊢ t ∷ A → γ ▸[ m ] t →
+  ∃ λ u → Nf u × Γ ⊢ t ≡ u ∷ A × γ ▸[ m ] u
 fullRedTerm ⊢t = fullRedTermConv↑ (completeEqTerm (refl ⊢t))

@@ -19,6 +19,7 @@ open import Definition.LogicalRelation Erasure′
 open import Definition.Modality.Instances.Erasure.Modality restrictions
 open import Definition.Modality.Context ErasureModality
 open import Definition.Modality.Usage ErasureModality
+open import Definition.Mode ErasureModality
 
 import Erasure.Target as T
 open import Erasure.Extraction
@@ -87,7 +88,8 @@ soundness-zero′ (sucᵣ t⇒suc v⇒suc t®v) t⇒zero
 -- WH reduction soundness of zero
 -- If t ⇒* zero and ε ▸ t then erase t ⇒* zero
 
-soundness-zero : ε ⊢ t ⇒* zero ∷ ℕ → ε ▸ t → erase t T.⇒* T.zero
+soundness-zero :
+  ε ⊢ t ⇒* zero ∷ ℕ → ε ▸[ 𝟙ᵐ ] t → erase t T.⇒* T.zero
 soundness-zero t⇒zero γ▸t =
   let ⊢t = redFirst*Term t⇒zero
       [ℕ] , t®t′ = fundamental′ ⊢t γ▸t
@@ -109,7 +111,7 @@ soundness-suc′ (sucᵣ {v′ = v′} t⇒suc′ v⇒suc t®v) t⇒suc
 -- WH reduction soundness of suc
 -- If t ⇒* suc t′ and ε ▸ t then erase t ⇒* suc v′ and t′ ® v′ ∷ℕ for some v′
 
-soundness-suc : ε ⊢ t ⇒* suc t′ ∷ ℕ → ε ▸ t
+soundness-suc : ε ⊢ t ⇒* suc t′ ∷ ℕ → ε ▸[ 𝟙ᵐ ] t
               → ∃ λ v′ → erase t T.⇒* T.suc v′ × t′ ® v′ ∷ℕ
 soundness-suc t⇒suc γ▸t =
   let ⊢t = redFirst*Term t⇒suc
@@ -130,7 +132,7 @@ soundness-ℕ′ t®v (sucʷ x whn) =
 -- WH reduction soundness of natural numbers
 -- If ε ⊢ t ∷ ℕ and ε ▸ t and WHℕ n t then WHℕ′ n (erase t)
 
-soundness-ℕ : ε ⊢ t ∷ ℕ → ε ▸ t → WHℕ n t → WHℕ′ n (erase t)
+soundness-ℕ : ε ⊢ t ∷ ℕ → ε ▸[ 𝟙ᵐ ] t → WHℕ n t → WHℕ′ n (erase t)
 soundness-ℕ ⊢t γ▸t whn =
   let [ℕ] , t®t′ = fundamental′ ⊢t γ▸t
       t®t″ = irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ (idRed:*: (ℕⱼ ε))) t®t′
@@ -147,7 +149,8 @@ soundness-ℕ-∃′ (sucᵣ x x₁ t®v) with soundness-ℕ-∃′ t®v
 -- Existensial WH reduction soundness for natural numbers
 -- If ε ⊢ t ∷ ℕ and ε ▸ t then ∃ n such that WHℕ n t and WHℕ′ n (erase t)
 
-soundness-ℕ-∃ : ε ⊢ t ∷ ℕ → ε ▸ t → ∃ λ n → WHℕ n t × WHℕ′ n (erase t)
+soundness-ℕ-∃ :
+  ε ⊢ t ∷ ℕ → ε ▸[ 𝟙ᵐ ] t → ∃ λ n → WHℕ n t × WHℕ′ n (erase t)
 soundness-ℕ-∃ ⊢t ▸t =
   let [ℕ] , t®v = fundamental′ ⊢t ▸t
   in  soundness-ℕ-∃′ (irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ (idRed:*: (ℕⱼ ε))) t®v)
@@ -159,7 +162,8 @@ soundness-star′ (starᵣ _ v⇒star) = v⇒star
 
 -- WH reduction soundness of unit
 
-soundness-star : ε ⊢ t ⇒* star ∷ Unit → ε ▸ t → erase t T.⇒* T.star
+soundness-star :
+  ε ⊢ t ⇒* star ∷ Unit → ε ▸[ 𝟙ᵐ ] t → erase t T.⇒* T.star
 soundness-star t⇒star γ▸t =
   let ⊢t = redFirst*Term t⇒star
       [⊤] , t®t′ = fundamental′ ⊢t γ▸t

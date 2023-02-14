@@ -16,6 +16,7 @@ open import Definition.Untyped M
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Usage 𝕄
 open import Definition.Modality.Usage.Weakening 𝕄
+open import Definition.Mode 𝕄
 
 open import Tools.Fin
 open import Tools.Nat
@@ -66,17 +67,19 @@ addrow (Ψ ⊙ δ) (γ ∙ p) = addrow Ψ γ ⊙ (δ ∙ p)
 
 ---------------------------------------------------------------
 
--- Well formed modality substitutions
--- If ∀ x. γₓ ▸ σ x, where γₓ is the x-th column vector of Ψ, then Ψ ▶ σ
+-- Well-formed modality substitutions: if ∀ x. γ_x ▸[ γ x ] σ x, where
+-- γ_x is the x-th column vector of Ψ, multiplied by ⌜ γ x ⌝, then
+-- Ψ ▶[ γ ] σ.
 
-_▶_ : (Ψ : Substₘ m n) → (σ : Subst m n) → Set (a ⊔ ℓ)
-_▶_ {n = n} Ψ σ = ∀ (x : Fin n) → (Ψ *> (𝟘ᶜ , x ≔ 𝟙)) ▸ (σ x)
+_▶[_]_ : Substₘ m n → Mode-vector n → Subst m n → Set (a ⊔ ℓ)
+_▶[_]_ {n = n} Ψ γ σ =
+  (x : Fin n) → (Ψ *> (𝟘ᶜ , x ≔ ⌜ γ x ⌝)) ▸[ γ x ] σ x
 
 -- Substitution matrix inference
 
-∥_∥ : (σ : Subst m n) → Substₘ m n
-∥_∥ {n = 0}    σ = []
-∥_∥ {n = 1+ n} σ = ∥ tail σ ∥ ⊙ ⌈ head σ ⌉
+∥_∥ : Subst m n → Mode-vector n → Substₘ m n
+∥_∥ {n = 0}    _ _  = []
+∥_∥ {n = 1+ n} σ ms = ∥ tail σ ∥ (tailᵐ ms) ⊙ ⌈ head σ ⌉ (headᵐ ms)
 
 ---------------------------------------------------------------
 -- Modality substitutions corresponding to (term) weakenings --

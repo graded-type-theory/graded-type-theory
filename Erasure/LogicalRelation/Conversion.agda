@@ -24,6 +24,8 @@ open import Definition.LogicalRelation.Substitution Erasure′
 open import Definition.LogicalRelation.Substitution.Properties Erasure′
 import Definition.LogicalRelation.Substitution.Irrelevance Erasure′ as IS
 
+open import Definition.Modality.Instances.Erasure.Modality restrictions
+open import Definition.Mode ErasureModality
 open import Definition.Untyped Erasure
 open import Definition.Untyped.Properties Erasure
 import Definition.Untyped.BindingType Erasure′ as BT
@@ -45,6 +47,8 @@ private
     Γ : Con Term n
     A B t : Term n
     v : T.Term n
+    p : Erasure
+    m : Mode
 
 -- Conversion of logical relation for erasure using ShapeView
 -- If t ® v ∷ A and ε ⊩ A ≡ B then t ® v ∷ B
@@ -123,13 +127,14 @@ convTermʳ′ _ _ A≡B (Bᵥ BΠ! BΣ! BA BB ()) t®v
 -- Conversion of logical relation for erasure
 -- If t ® v ∷ A and ε ⊢ A ≡ B then t ® v ∷ B
 
-convTermʳ : ∀ {l l′ A B t v}
+convTermʳ : ∀ {l l′ A B t v} p
           → ([A] : ε ⊩⟨ l ⟩ A)
             ([B] : ε ⊩⟨ l′ ⟩ B)
           → ε ⊢ A ≡ B
-          → t ®⟨ l ⟩ v ∷ A / [A]
-          → t ®⟨ l′ ⟩ v ∷ B / [B]
-convTermʳ [A] [B] A≡B t®v =
+          → t ®⟨ l ⟩ v ∷ A ◂ p / [A]
+          → t ®⟨ l′ ⟩ v ∷ B ◂ p / [B]
+convTermʳ 𝟘 = _
+convTermʳ ω [A] [B] A≡B t®v =
   let [A]′ , [B]′ , [A≡B]′ = reducibleEq A≡B
       [A≡B] = irrelevanceEq [A]′ [A] [A≡B]′
   in convTermʳ′ [A] [B] A≡B (goodCases [A] [B] [A≡B]) t®v
@@ -142,11 +147,11 @@ convʳ : ∀ {l l′ A B t γ}
         ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ])
         ([B] : Γ ⊩ᵛ⟨ l′ ⟩ B / [Γ])
         (A≡B : Γ ⊢ A ≡ B)
-        (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷ A / [Γ] / [A])
-      → (γ ▸ Γ ⊩ʳ⟨ l′ ⟩ t ∷ B / [Γ] / [B])
-convʳ {A = A} {B = B} [Γ] [A] [B] A≡B ⊩ʳt [σ] σ®σ′ =
+        (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A / [Γ] / [A])
+      → (γ ▸ Γ ⊩ʳ⟨ l′ ⟩ t ∷[ m ] B / [Γ] / [B])
+convʳ {m = m} {A = A} {B = B} [Γ] [A] [B] A≡B ⊩ʳt [σ] σ®σ′ =
   let t®v = ⊩ʳt [σ] σ®σ′
       [σA] = proj₁ (unwrap [A] ε [σ])
       [σB] = proj₁ (unwrap [B] ε [σ])
       σA≡σB = substitutionEq A≡B (wellformedSubstEq [Γ] ε [σ] (reflSubst [Γ] ε [σ])) ε
-  in  convTermʳ [σA] [σB] σA≡σB t®v
+  in  convTermʳ ⌜ m ⌝ [σA] [σB] σA≡σB t®v

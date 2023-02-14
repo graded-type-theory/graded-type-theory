@@ -29,7 +29,9 @@ open import Definition.Modality.Instances.Erasure.Properties
 open import Definition.Modality.Context ErasureModality
 open import Definition.Modality.Usage ErasureModality
 open import Definition.Modality.Usage.Inversion ErasureModality
+open import Definition.Modality.Usage.Properties ErasureModality
 open import Definition.Modality.FullReduction ErasureModality greatest-elem
+open import Definition.Mode ErasureModality
 
 open import Application.NegativeAxioms.NegativeType Erasure′
 open import Erasure.SucRed Erasure′
@@ -67,9 +69,11 @@ private
 -- Main results
 ---------------------------------------------------------------------------
 
--- Lemma: A neutral has negative type in a consistent negative/erased context.
+-- Lemma: A neutral which is well-typed in a negative/erased context,
+-- and which is well-used in the mode 𝟙ᵐ, has a negative type.
 
-neNeg : (d : Γ ⊢ u ∷ A) (n : Neutral u) (f : γ ▸ u) → NegativeType Γ A
+neNeg :
+  (d : Γ ⊢ u ∷ A) (n : Neutral u) (f : γ ▸[ 𝟙ᵐ ] u) → NegativeType Γ A
 neNeg (var ⊢Γ h          ) (var x      ) γ▸u =
   let γ≤γ′ = inv-usage-var γ▸u
       γ⟨x⟩≤𝟙 = PE.subst (λ p → γ ⟨ x ⟩ ≤ p) (update-lookup 𝟘ᶜ x)
@@ -98,14 +102,15 @@ neNeg (prodrecⱼ ⊢A A⊢B _ d _) (prodrecₙ n ) γ▸u =
                               (≤ᶜ-trans (·ᶜ-monotoneˡ (≤-reflexive p≡ω))
                                  (≤ᶜ-reflexive (·ᶜ-identityˡ _)))))
       ⊢Σ = refl (Σⱼ ⊢A ▹ A⊢B)
-  in  ⊥-elim (¬negΣᵣ (neNeg d n γ▸t) ⊢Σ)
+  in  ⊥-elim (¬negΣᵣ (neNeg d n (▸-cong (PE.cong (𝟙ᵐ ᵐ·_) p≡ω) γ▸t)) ⊢Σ)
 neNeg (Emptyrecⱼ _ d     ) (Emptyrecₙ n) γ▸u = ⊥-elim (consistent d)
 neNeg (conv d c          ) n             γ▸u = conv (neNeg d n γ▸u) c
 
--- Lemma: A normal form of type ℕ is a numeral in a consistent negative context.
+-- Lemma: A normal form which has the type ℕ in a negative/erased
+-- context, and which is well-used in the mode 𝟙ᵐ, is a numeral.
 
 nfN : (d : Γ ⊢ u ∷ A)
-    → (m : γ ▸ u)
+    → (m : γ ▸[ 𝟙ᵐ ] u)
     → (n : Nf u)
     → (c : Γ ⊢ A ≡ ℕ)
     → Numeral u
@@ -139,17 +144,18 @@ nfN (starⱼ _)       γ▸u starₙ       c = ⊥-elim (ℕ≢Unitⱼ (sym c))
 
 -- Terms of non-negative types reduce to non-neutrals
 
-¬NeutralNf : Γ ⊢ t ∷ A → γ ▸ t → (NegativeType Γ A → ⊥)
+¬NeutralNf : Γ ⊢ t ∷ A → γ ▸[ 𝟙ᵐ ] t → (NegativeType Γ A → ⊥)
            → ∃ λ u → Γ ⊢ t ⇒* u ∷ A × Whnf u × (Neutral u → ⊥)
 ¬NeutralNf ⊢t γ▸t ¬negA =
   let u , whnfU , d = whNormTerm ⊢t
       γ▸u = usagePres*Term γ▸t (redₜ d)
   in  u , redₜ d , whnfU , λ x → ¬negA (neNeg (⊢u-redₜ d) x γ▸u)
 
--- Canonicity theorem: Any well-typed term Γ ⊢ t ∷ ℕ, γ ▸ t
--- reduces to a numeral under the ⇒ˢ* reduction.
+-- Canonicity theorem: A term which has the type ℕ in a
+-- negative/erased context, and which is well-used in the mode 𝟙ᵐ,
+-- ⇒ˢ*-reduces to a numeral.
 
-canonicityRed′ : ∀ {l} → (⊢Γ : ⊢ Γ) → γ ▸ t
+canonicityRed′ : ∀ {l} → (⊢Γ : ⊢ Γ) → γ ▸[ 𝟙ᵐ ] t
                → Γ ⊩⟨ l ⟩ t ∷ ℕ / ℕᵣ (idRed:*: (ℕⱼ ⊢Γ))
                → ∃ λ v → Numeral v × Γ ⊢ t ⇒ˢ* v ∷ℕ
 canonicityRed′ {l = l} ⊢Γ γ▸t (ℕₜ _ d n≡n (sucᵣ x)) =
@@ -162,7 +168,8 @@ canonicityRed′ ⊢Γ γ▸t (ℕₜ n d n≡n (ne (neNfₜ neK ⊢k k≡k))) =
   let u , d′ , whU , ¬neU = ¬NeutralNf (⊢t-redₜ d) γ▸t λ negℕ → ¬negℕ negℕ (refl (ℕⱼ ⊢Γ))
   in  ⊥-elim (¬neU (PE.subst Neutral (whrDet*Term (redₜ d , ne neK) (d′ , whU)) neK))
 
-canonicityRed : Γ ⊢ t ∷ ℕ → γ ▸ t → ∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ
+canonicityRed :
+  Γ ⊢ t ∷ ℕ → γ ▸[ 𝟙ᵐ ] t → ∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ
 canonicityRed ⊢t γ▸t with reducibleTerm ⊢t
 ... | [ℕ] , [t] =
   let ⊢Γ = wfTerm ⊢t
@@ -170,11 +177,15 @@ canonicityRed ⊢t γ▸t with reducibleTerm ⊢t
       [t]′ = irrelevanceTerm [ℕ] [ℕ]′ [t]
   in  canonicityRed′ {l = ¹} ⊢Γ γ▸t [t]′
 
--- Canonicity theorem: Any well-typed term Γ ⊢ t : ℕ is convertible to a numeral.
+-- Canonicity theorem: A term which has the type ℕ in a
+-- negative/erased context, and which is well-used in the mode 𝟙ᵐ, is
+-- convertible to a numeral.
 
-canonicityEq : (⊢t : Γ ⊢ t ∷ ℕ) → (γ▸t : γ ▸ t) → ∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ
+canonicityEq :
+  (⊢t : Γ ⊢ t ∷ ℕ) → (γ▸t : γ ▸[ 𝟙ᵐ ] t) →
+  ∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ
 canonicityEq ⊢t γ▸t =
   let u , numU , d = canonicityRed ⊢t γ▸t
   in  u , numU , subset*Termˢ d
 
--- Q.E.D. 2023-01-24
+-- Q.E.D.

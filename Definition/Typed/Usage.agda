@@ -16,6 +16,8 @@ open import Definition.Modality.Properties 𝕄
 open import Definition.Modality.Substitution.Properties 𝕄
 open import Definition.Modality.Usage 𝕄
 open import Definition.Modality.Usage.Inversion 𝕄
+open import Definition.Modality.Usage.Properties 𝕄
+open import Definition.Mode 𝕄
 open import Definition.Typed M′
 open import Definition.Untyped M hiding (_∷_)
 
@@ -30,21 +32,21 @@ private
     Γ : Con Term n
     γ δ : Conₘ n
     t u A B : Term n
+    m : Mode
 
 -- Subject reduction properties for modality usage
 
--- Term reduction preserves resource usage
--- If γ ▸ t and Γ ⊢ t ⇒ u ∷ A, then γ ▸ u
+-- Term reduction preserves usage.
 
-usagePresTerm : γ ▸ t → Γ ⊢ t ⇒ u ∷ A → γ ▸ u
+usagePresTerm : γ ▸[ m ] t → Γ ⊢ t ⇒ u ∷ A → γ ▸[ m ] u
 usagePresTerm γ▸t (conv t⇒u x) = usagePresTerm γ▸t t⇒u
 usagePresTerm γ▸t (app-subst t⇒u x) =
   let invUsageApp δ▸t η▸a γ≤δ+pη = inv-usage-app γ▸t
   in  sub ((usagePresTerm δ▸t t⇒u) ∘ₘ η▸a) γ≤δ+pη
-usagePresTerm γ▸λta (β-red x x₁ x₂ x₃ x₄) =
+usagePresTerm {m = m} γ▸λta (β-red x x₁ x₂ x₃ x₄) =
   let invUsageApp δ▸λt η▸a γ≤δ′+pη = inv-usage-app γ▸λta
       invUsageLam δ▸t δ′≤δ = inv-usage-lam δ▸λt
-  in  sub (sgSubstₘ-lemma δ▸t η▸a)
+  in  sub (sgSubstₘ-lemma₂ δ▸t (▸-cong (ᵐ·-cong m (≈-sym x₄)) η▸a))
           (≤ᶜ-trans γ≤δ′+pη (+ᶜ-monotone δ′≤δ (·ᶜ-monotoneˡ (≤-reflexive (≈-sym x₄)))))
 usagePresTerm γ▸t (fst-subst x x₁ t⇒u) =
   let invUsageProj 𝟘▸t γ≤𝟘 = inv-usage-fst γ▸t
@@ -90,7 +92,9 @@ usagePresTerm {γ = γ} γ▸natrec (natrec-suc {p = p} {r = r} x x₁ x₂ x₃
         η +ᶜ r ·ᶜ γ′ +ᶜ p ·ᶜ θ
                ≤⟨ +ᶜ-monotoneʳ (+ᶜ-monotoneʳ (·ᶜ-monotoneʳ θ≤θ′)) ⟩
         η +ᶜ r ·ᶜ γ′ +ᶜ p ·ᶜ θ′ ∎
-  in  sub (doubleSubstₘ-lemma η▸s (natrecₘ δ▸z η▸s (sub θ′▸n θ≤θ′)) θ′▸n) γ≤γ″
+  in  sub (doubleSubstₘ-lemma₃ η▸s
+             (natrecₘ δ▸z η▸s (sub θ′▸n θ≤θ′)) θ′▸n)
+        γ≤γ″
   where
   open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
@@ -108,7 +112,7 @@ usagePresTerm {γ = γ} γ▸prodrec (prodrec-β {p = p} {t = t} {t′} {u} x x�
         η +ᶜ p ·ᶜ (δ′ +ᶜ η′)   ≈⟨ +ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ p δ′ η′) ⟩
         η +ᶜ p ·ᶜ δ′ +ᶜ p ·ᶜ η′ ≈⟨ +ᶜ-congˡ (+ᶜ-comm (p ·ᶜ δ′) (p ·ᶜ η′)) ⟩
         η +ᶜ p ·ᶜ η′ +ᶜ p ·ᶜ δ′ ∎
-  in  sub (doubleSubstₘ-lemma η▸u η′▸t₂ δ′▸t₁) le
+  in  sub (doubleSubstₘ-lemma₂ η▸u η′▸t₂ δ′▸t₁) le
   where
   open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
@@ -116,22 +120,19 @@ usagePresTerm γ▸et (Emptyrec-subst x t⇒u) =
   let invUsageEmptyrec δ▸t γ≤δ = inv-usage-Emptyrec γ▸et
   in  sub (Emptyrecₘ (usagePresTerm δ▸t t⇒u)) γ≤δ
 
--- Type reduction preserves modality usage
--- If γ ▸ A and Γ ⊢ A ⇒ B, then γ ▸ B
+-- Type reduction preserves usage.
 
-usagePres : γ ▸ A → Γ ⊢ A ⇒ B → γ ▸ B
+usagePres : γ ▸[ m ] A → Γ ⊢ A ⇒ B → γ ▸[ m ] B
 usagePres γ▸A (univ A⇒B) = usagePresTerm γ▸A A⇒B
 
--- Term reduction closeure preserves modality usage
--- If γ ▸ t and Γ ⊢ t ⇒* u ∷ A then γ ▸ u
+-- Multi-step term reduction preserves usage.
 
-usagePres*Term : γ ▸ t → Γ ⊢ t ⇒* u ∷ A → γ ▸ u
+usagePres*Term : γ ▸[ m ] t → Γ ⊢ t ⇒* u ∷ A → γ ▸[ m ] u
 usagePres*Term γ▸t (id x) = γ▸t
 usagePres*Term γ▸t (x ⇨ t⇒u) = usagePres*Term (usagePresTerm γ▸t x) t⇒u
 
--- Type reduction closeure preserves modality usage
--- If γ ▸ A and Γ ⊢ A ⇒* B then γ ▸ B
+-- Multi-step type reduction preserves usage.
 
-usagePres* : γ ▸ A → Γ ⊢ A ⇒* B → γ ▸ B
+usagePres* : γ ▸[ m ] A → Γ ⊢ A ⇒* B → γ ▸[ m ] B
 usagePres* γ▸A (id x) = γ▸A
 usagePres* γ▸A (x ⇨ A⇒B) = usagePres* (usagePres γ▸A x) A⇒B

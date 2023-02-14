@@ -14,6 +14,7 @@ open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
 open import Definition.Modality.Properties 𝕄
 open import Definition.Modality.Usage 𝕄
+open import Definition.Mode 𝕄
 open import Definition.Untyped M hiding (_∙_ ; subst)
 
 open import Tools.Fin
@@ -28,6 +29,7 @@ private
     p r : M
     γ δ : Conₘ n
     t : Term n
+    m′ : Mode
 
 -- Weakenings of modality contexts
 
@@ -87,20 +89,23 @@ wk-≤ᶜ {γ = γ ∙ p} {δ ∙ q} (lift ρ) (γ≤δ ∙ p≤q) = wk-≤ᶜ �
 -- Lemma for usage of weakened variables
 
 wkUsageVar : (ρ : Wk m n) → (x : Fin n)
-           → wkConₘ ρ (𝟘ᶜ , x ≔ 𝟙) ≡ 𝟘ᶜ , wkVar ρ x ≔ 𝟙
+           → wkConₘ ρ (𝟘ᶜ , x ≔ p) ≡ 𝟘ᶜ , wkVar ρ x ≔ p
 wkUsageVar id x = PE.refl
 wkUsageVar (step ρ) x = cong (λ γ → γ ∙ 𝟘) (wkUsageVar ρ x)
-wkUsageVar (lift ρ) x0 = cong (λ γ → γ ∙ 𝟙) (wk-𝟘ᶜ ρ)
+wkUsageVar (lift ρ) x0 = cong (λ γ → γ ∙ _) (wk-𝟘ᶜ ρ)
 wkUsageVar (lift ρ) (x +1) = cong (λ γ → γ ∙ 𝟘) (wkUsageVar ρ x)
 
--- Usage of weakened terms
--- If γ ▸ t then wkConₘ ρ γ ▸ wk ρ t
+-- Usage of weakened terms: if γ ▸[ m ] t then
+-- wkConₘ ρ γ ▸[ m ] wk ρ t.
 
-wkUsage : {γ : Conₘ n} → (ρ : Wk m n) → γ ▸ t → wkConₘ ρ γ ▸ wk ρ t
-wkUsage ρ Uₘ = PE.subst (λ γ → γ ▸ U) (PE.sym (wk-𝟘ᶜ ρ)) Uₘ
-wkUsage ρ ℕₘ = PE.subst (λ γ → γ ▸ ℕ) (PE.sym (wk-𝟘ᶜ ρ)) ℕₘ
-wkUsage ρ Emptyₘ = PE.subst (λ γ → γ ▸ Empty) (PE.sym (wk-𝟘ᶜ ρ)) Emptyₘ
-wkUsage ρ Unitₘ = PE.subst (λ γ → γ ▸ Unit) (PE.sym (wk-𝟘ᶜ ρ)) Unitₘ
+wkUsage :
+  {γ : Conₘ n} → (ρ : Wk m n) → γ ▸[ m′ ] t → wkConₘ ρ γ ▸[ m′ ] wk ρ t
+wkUsage ρ Uₘ = PE.subst (λ γ → γ ▸[ _ ] U) (PE.sym (wk-𝟘ᶜ ρ)) Uₘ
+wkUsage ρ ℕₘ = PE.subst (λ γ → γ ▸[ _ ] ℕ) (PE.sym (wk-𝟘ᶜ ρ)) ℕₘ
+wkUsage ρ Emptyₘ =
+  PE.subst (λ γ → γ ▸[ _ ] Empty) (PE.sym (wk-𝟘ᶜ ρ)) Emptyₘ
+wkUsage ρ Unitₘ =
+  PE.subst (λ γ → γ ▸[ _ ] Unit) (PE.sym (wk-𝟘ᶜ ρ)) Unitₘ
 wkUsage ρ (Πₘ γ▸F δ▸G) =
   sub (Πₘ (wkUsage ρ γ▸F) (wkUsage (lift ρ) δ▸G))
       (≤ᶜ-reflexive (wk-+ᶜ ρ))
@@ -108,7 +113,7 @@ wkUsage ρ (Σₘ γ▸F δ▸G) =
   sub (Σₘ (wkUsage ρ γ▸F) (wkUsage (lift ρ) δ▸G))
       (≤ᶜ-reflexive (wk-+ᶜ ρ))
 wkUsage ρ var =
-  PE.subst (λ γ → γ ▸ wk ρ (var _)) (PE.sym (wkUsageVar ρ _)) var
+  PE.subst (λ γ → γ ▸[ _ ] wk ρ (var _)) (PE.sym (wkUsageVar ρ _)) var
 wkUsage ρ (lamₘ γ▸t) = lamₘ (wkUsage (lift ρ) γ▸t)
 wkUsage ρ (γ▸t ∘ₘ δ▸u) =
   sub ((wkUsage ρ γ▸t) ∘ₘ (wkUsage ρ δ▸u))
@@ -122,7 +127,8 @@ wkUsage ρ (sndₘ γ▸t) = sndₘ (wkUsage ρ γ▸t)
 wkUsage ρ (prodrecₘ γ▸t δ▸u P) =
   sub (prodrecₘ (wkUsage ρ γ▸t) (wkUsage (liftn ρ 2) δ▸u ) P)
       (≤ᶜ-reflexive (≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-congʳ (wk-·ᶜ ρ))))
-wkUsage ρ zeroₘ = PE.subst (λ γ → γ ▸ zero) (PE.sym (wk-𝟘ᶜ ρ)) zeroₘ
+wkUsage ρ zeroₘ =
+  PE.subst (λ γ → γ ▸[ _ ] zero) (PE.sym (wk-𝟘ᶜ ρ)) zeroₘ
 wkUsage ρ (sucₘ γ▸t) = sucₘ (wkUsage ρ γ▸t)
 wkUsage ρ (natrecₘ γ▸z δ▸s η▸n) =
   sub (natrecₘ (wkUsage ρ γ▸z) (wkUsage (liftn ρ 2) δ▸s) (wkUsage ρ η▸n))
@@ -131,5 +137,5 @@ wkUsage ρ (natrecₘ γ▸z δ▸s η▸n) =
                                        (≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-congˡ (wk-·ᶜ ρ))))))
 wkUsage ρ (Emptyrecₘ γ▸t) =
   sub (Emptyrecₘ (wkUsage ρ γ▸t)) (≤ᶜ-reflexive (wk-·ᶜ ρ))
-wkUsage ρ starₘ = subst (λ γ → γ ▸ star) (PE.sym (wk-𝟘ᶜ ρ)) starₘ
+wkUsage ρ starₘ = subst (λ γ → γ ▸[ _ ] star) (PE.sym (wk-𝟘ᶜ ρ)) starₘ
 wkUsage ρ (sub γ▸t x) = sub (wkUsage ρ γ▸t) (wk-≤ᶜ ρ x)

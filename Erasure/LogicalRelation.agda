@@ -15,6 +15,7 @@ open import Definition.Modality.Instances.Erasure.Modality restrictions
 open import Definition.LogicalRelation Erasure′
 open import Definition.LogicalRelation.Substitution Erasure′
 open import Definition.Modality.Context ErasureModality
+open import Definition.Mode ErasureModality
 open import Definition.Untyped Erasure as U hiding (_∷_; _∘_)
 open import Definition.Typed Erasure′
 open import Definition.Typed.Weakening Erasure′
@@ -91,18 +92,25 @@ t ®⟨ l ⟩ v ∷ A ◂ ω / [A] = t ®⟨ l ⟩ v ∷ A / [A]
 
 -- Logical relation for substitutions
 
-_®⟨_⟩_∷_◂_/_/_ : (σₜ : U.Subst 0 n) (l : TypeLevel) (σᵥ : T.Subst 0 n) (Γ : Con U.Term n)
-                 (γ : Conₘ n) ([Γ] : ⊩ᵛ Γ) ([σ] : ε ⊩ˢ σₜ ∷ Γ / [Γ] / ε) → Set
-σₜ ®⟨ l ⟩ σᵥ ∷ ε ◂ ε / ε / (lift tt) = ⊤
-σₜ ®⟨ l ⟩ σᵥ ∷ Γ ∙ A ◂ γ ∙ p / _∙_ {l = l₁} [Γ] [A] / ([σ] , [σA]) =
-  ((U.tail σₜ) ®⟨ l ⟩ (T.tail σᵥ) ∷ Γ ◂ γ / [Γ] / [σ]) ×
-  ((U.head σₜ) ®⟨ l₁ ⟩ (T.head σᵥ) ∷ (U.subst (U.tail σₜ) A) ◂ p / proj₁ (unwrap [A] ε [σ]))
+_®⟨_⟩_∷[_]_◂_/_/_ :
+  (σₜ : U.Subst 0 n) (l : TypeLevel)
+  (σᵥ : T.Subst 0 n) (m : Mode) (Γ : Con U.Term n) (γ : Conₘ n)
+  ([Γ] : ⊩ᵛ Γ) ([σ] : ε ⊩ˢ σₜ ∷ Γ / [Γ] / ε) → Set
+σₜ ®⟨ l ⟩ σᵥ ∷[ _ ] ε ◂ ε / ε / (lift tt) = ⊤
+σₜ ®⟨ l ⟩ σᵥ ∷[ m ] Γ ∙ A ◂ γ ∙ p / _∙_ {l = l₁} [Γ] [A] / ([σ] , [σA]) =
+  ((U.tail σₜ) ®⟨ l ⟩ (T.tail σᵥ) ∷[ m ] Γ ◂ γ / [Γ] / [σ]) ×
+  ((U.head σₜ) ®⟨ l₁ ⟩ (T.head σᵥ) ∷ (U.subst (U.tail σₜ) A)
+  ◂ ⌜ m ⌝ · p / proj₁ (unwrap [A] ε [σ]))
 
 -- Validity of erasure
 
-_▸_⊩ʳ⟨_⟩_∷_/_/_ : (γ : Conₘ n) (Γ : Con U.Term n) (l : TypeLevel)
-                   (t A : U.Term n) ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ]) → Set
-γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷ A / [Γ] / [A] =
-  ∀ {σ σ′} → ([σ] : ε ⊩ˢ σ ∷ Γ / [Γ] / ε)
-           → σ ®⟨ l ⟩ σ′ ∷ Γ ◂ γ / [Γ] / [σ]
-           → U.subst σ t ®⟨ l ⟩ T.subst σ′ (erase t) ∷ U.subst σ A / proj₁ (unwrap [A] ε [σ])
+_▸_⊩ʳ⟨_⟩_∷[_]_/_/_ :
+  (γ : Conₘ n) (Γ : Con U.Term n) (l : TypeLevel)
+  (t : U.Term n) (m : Mode) (A : U.Term n)
+  ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ]) → Set
+γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A / [Γ] / [A] =
+  ∀ {σ σ′} →
+  ([σ] : ε ⊩ˢ σ ∷ Γ / [Γ] / ε) →
+  σ ®⟨ l ⟩ σ′ ∷[ m ] Γ ◂ γ / [Γ] / [σ] →
+  U.subst σ t ®⟨ l ⟩ T.subst σ′ (erase t) ∷ U.subst σ A ◂ ⌜ m ⌝ /
+  proj₁ (unwrap [A] ε [σ])
