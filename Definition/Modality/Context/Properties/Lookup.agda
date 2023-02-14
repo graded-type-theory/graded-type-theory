@@ -7,18 +7,22 @@ module Definition.Modality.Context.Properties.Lookup {a ℓ}
   {M′ : Setoid a ℓ} (𝕄 : Modality M′)
   where
 
+open Modality 𝕄
+open Setoid M′ renaming (Carrier to M)
+
 open import Definition.Modality.Context 𝕄
+open import Definition.Modality.Context.Properties.Equivalence 𝕄
+open import Definition.Modality.Context.Properties.PartialOrder 𝕄
+open import Definition.Modality.Properties.PartialOrder modalityWithout⊛
 
 open import Tools.Fin
 open import Tools.Nat hiding (_+_)
 open import Tools.PropositionalEquality as PE
 
-open Modality 𝕄
-open Setoid M′ renaming (Carrier to M)
-
 private
   variable
     n : Nat
+    x : Fin n
     p r : M
     γ δ : Conₘ n
 
@@ -41,6 +45,13 @@ private
 lookup-monotone : (x : Fin n) → γ ≤ᶜ δ → (γ ⟨ x ⟩) ≤ (δ ⟨ x ⟩)
 lookup-monotone {γ = γ ∙ p} {δ ∙ q} x0     (γ≤δ ∙ p≤q) = p≤q
 lookup-monotone {γ = γ ∙ p} {δ ∙ q} (x +1) (γ≤δ ∙ p≤q) = lookup-monotone x γ≤δ
+
+-- The lookup function preserves equivalence.
+
+lookup-cong : γ ≈ᶜ δ → γ ⟨ x ⟩ ≈ δ ⟨ x ⟩
+lookup-cong γ≈δ = ≤-antisym
+  (lookup-monotone _ (≤ᶜ-reflexive γ≈δ))
+  (lookup-monotone _ (≤ᶜ-reflexive (≈ᶜ-sym γ≈δ)))
 
 -- Context lookup distributes over addition
 -- (γ +ᶜ δ)⟨x⟩ ≡ γ⟨x⟩ + δ⟨x⟩
