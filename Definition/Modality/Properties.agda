@@ -11,6 +11,8 @@ module Definition.Modality.Properties {a ℓ}
 open Modality 𝕄
 
 open import Definition.Modality.Properties.Addition modalityWithout⊛ public
+open import Definition.Modality.Properties.Equivalence modalityWithout⊛
+  public
 open import Definition.Modality.Properties.Meet modalityWithout⊛ public
 open import Definition.Modality.Properties.Multiplication modalityWithout⊛ public
 open import Definition.Modality.Properties.PartialOrder modalityWithout⊛ public
