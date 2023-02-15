@@ -17,10 +17,11 @@ open Setoid M′ renaming (Carrier to M)
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Properties 𝕄
 open import Tools.Algebra
-import Tools.Bool as B
+open import Tools.Bool as B using (Bool; true; false; T)
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat using (Nat; 1+)
+open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 import Tools.Reasoning.Equivalence
@@ -28,39 +29,55 @@ import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
 
 private variable
-  n     : Nat
-  p q r : M
-  γ δ   : Conₘ n
+  n          : Nat
+  p q r      : M
+  γ δ        : Conₘ n
+  b          : Bool
+  ok ok₁ ok₂ : T b
 
 ------------------------------------------------------------------------
 -- Definitions
 
 -- Modes.
 
-Mode : Set
-Mode = B.Bool
+data Mode : Set where
+  𝟘ᵐ : ⦃ ok : T 𝟘ᵐ-allowed ⦄ → Mode
+  𝟙ᵐ : Mode
 
--- The two modes.
-
-pattern 𝟘ᵐ = B.false
-pattern 𝟙ᵐ = B.true
+pattern 𝟘ᵐ[_] ok = 𝟘ᵐ ⦃ ok = ok ⦄
 
 private variable
   m m₁ m₁′ m₂ m₂′ m₃ : Mode
+
+private
+
+  -- A function used in the implementation of 𝟘ᵐ?.
+
+  𝟘ᵐ′ : ∀ b → b ≡ 𝟘ᵐ-allowed → Mode
+  𝟘ᵐ′ true  eq = 𝟘ᵐ[ subst T eq _ ]
+  𝟘ᵐ′ false _  = 𝟙ᵐ
+
+-- A mode that is 𝟘ᵐ[ something ] if 𝟘ᵐ-allowed is true, and otherwise
+-- 𝟙ᵐ.
+
+𝟘ᵐ? : Mode
+𝟘ᵐ? = 𝟘ᵐ′ 𝟘ᵐ-allowed PE.refl
 
 -- The join of two modes.
 
 infixr 40 _∨ᵐ_
 
 _∨ᵐ_ : Mode → Mode → Mode
-_∨ᵐ_ = B._∨_
+𝟘ᵐ ∨ᵐ m = m
+𝟙ᵐ ∨ᵐ m = 𝟙ᵐ
 
 -- Multiplication of modes.
 
 infixr 45 _·ᵐ_
 
 _·ᵐ_ : Mode → Mode → Mode
-_·ᵐ_ = B._∧_
+𝟘ᵐ ·ᵐ _ = 𝟘ᵐ
+𝟙ᵐ ·ᵐ m = m
 
 -- Modes can be translated to quantities.
 
@@ -72,7 +89,7 @@ _·ᵐ_ = B._∧_
 
 ⌞_⌟ : M → Mode
 ⌞ p ⌟ = case is-𝟘? p of λ where
-  (yes _) → 𝟘ᵐ
+  (yes _) → 𝟘ᵐ?
   (no _)  → 𝟙ᵐ
 
 -- Modes can be scaled by quantities.
@@ -135,6 +152,91 @@ replicateᵐ m _ = m
 ⌜_⌝ᶜ {n = 1+ _} ρ = ⌜ tailᵐ ρ ⌝ᶜ ∙ ⌜ headᵐ ρ ⌝
 
 ------------------------------------------------------------------------
+-- Properties related to 𝟘ᵐ-allowed
+
+-- If 𝟘ᵐ is not allowed, then every mode is equal to 𝟙ᵐ.
+
+only-𝟙ᵐ-without-𝟘ᵐ : ¬ T 𝟘ᵐ-allowed → m ≡ 𝟙ᵐ
+only-𝟙ᵐ-without-𝟘ᵐ {m = 𝟘ᵐ[ ok ]} not-ok = ⊥-elim (not-ok ok)
+only-𝟙ᵐ-without-𝟘ᵐ {m = 𝟙ᵐ}       _      = PE.refl
+
+-- If 𝟘ᵐ is not allowed, then all modes are equal.
+
+Mode-propositional-without-𝟘ᵐ : ¬ T 𝟘ᵐ-allowed → m₁ ≡ m₂
+Mode-propositional-without-𝟘ᵐ {m₁ = m₁} {m₂ = m₂} not-ok =
+  m₁  ≡⟨ only-𝟙ᵐ-without-𝟘ᵐ not-ok ⟩
+  𝟙ᵐ  ≡˘⟨ only-𝟙ᵐ-without-𝟘ᵐ not-ok ⟩
+  m₂  ∎
+  where
+  open Tools.Reasoning.PropositionalEquality
+
+------------------------------------------------------------------------
+-- Some eliminators or similar principles
+
+-- One can prove that a predicate holds for 𝟘ᵐ-allowed by proving that
+-- it holds given that T 𝟘ᵐ-allowed is inhabited, and that it holds
+-- given that T 𝟘ᵐ-allowed is not inhabited.
+
+𝟘ᵐ-allowed-elim :
+  ∀ {p} {P : Set p} →
+  (T 𝟘ᵐ-allowed → P) →
+  ((not-ok : ¬ T 𝟘ᵐ-allowed) → P) →
+  P
+𝟘ᵐ-allowed-elim t f with 𝟘ᵐ-allowed
+… | true  = t _
+… | false = f (λ ())
+
+-- An eliminator for modes.
+
+Mode-elim :
+  ∀ {p} (P : Mode → Set p) →
+  (⦃ ok : T 𝟘ᵐ-allowed ⦄ → P 𝟘ᵐ[ ok ]) →
+  P 𝟙ᵐ →
+  ∀ m → P m
+Mode-elim _ z o = λ where
+  𝟘ᵐ[ ok ] → z ⦃ ok = ok ⦄
+  𝟙ᵐ       → o
+
+-- One can prove that a predicate holds for 𝟘ᵐ? by proving that it
+-- holds for 𝟘ᵐ[ ok ] (for any ok) and that it holds for 𝟙ᵐ (under the
+-- assumption that T 𝟘ᵐ-allowed is not inhabited).
+
+𝟘ᵐ?-elim :
+  ∀ {p} (P : Mode → Set p) →
+  (⦃ ok : T 𝟘ᵐ-allowed ⦄ → P 𝟘ᵐ) →
+  (¬ T 𝟘ᵐ-allowed → P 𝟙ᵐ) →
+  P 𝟘ᵐ?
+𝟘ᵐ?-elim P z o = lemma _ _
+  where
+  lemma : ∀ b (eq : b ≡ 𝟘ᵐ-allowed) → P (𝟘ᵐ′ b eq)
+  lemma false eq = o (PE.subst T (PE.sym eq))
+  lemma true  eq = z ⦃ ok = PE.subst T eq _ ⦄
+
+------------------------------------------------------------------------
+-- Properties related to 𝟘ᵐ?
+
+-- Any two applications of 𝟘ᵐ[_] are equal.
+
+𝟘ᵐ-cong : 𝟘ᵐ[ ok₁ ] ≡ 𝟘ᵐ[ ok₂ ]
+𝟘ᵐ-cong = PE.cong 𝟘ᵐ[_] B.T-propositional
+
+-- 𝟘ᵐ? is equal to 𝟘ᵐ[ ok ].
+
+𝟘ᵐ?≡𝟘ᵐ : 𝟘ᵐ? ≡ 𝟘ᵐ[ ok ]
+𝟘ᵐ?≡𝟘ᵐ {ok = ok} = 𝟘ᵐ?-elim
+  (λ m → m ≡ 𝟘ᵐ[ ok ])
+  𝟘ᵐ-cong
+  (λ not-ok → ⊥-elim (not-ok ok))
+
+-- If 𝟘ᵐ is not allowed, then 𝟘ᵐ? is equal to 𝟙ᵐ.
+
+𝟘ᵐ?≡𝟙ᵐ : ¬ T 𝟘ᵐ-allowed → 𝟘ᵐ? ≡ 𝟙ᵐ
+𝟘ᵐ?≡𝟙ᵐ not-ok = 𝟘ᵐ?-elim
+  (_≡ 𝟙ᵐ)
+  (λ ⦃ ok = ok ⦄ → ⊥-elim (not-ok ok))
+  (λ _ → PE.refl)
+
+------------------------------------------------------------------------
 -- Properties related to _∨ᵐ_ and _·ᵐ_
 
 -- The multiplication operation is idempotent.
@@ -147,8 +249,91 @@ replicateᵐ m _ = m
 -- a commutative semiring.
 
 ∨ᵐ-·ᵐ-is-commutative-semiring :
-  IsCommutativeSemiring (PE.setoid Mode) _∨ᵐ_ _·ᵐ_ 𝟘ᵐ 𝟙ᵐ
-∨ᵐ-·ᵐ-is-commutative-semiring = B.∨-∧-isCommutativeSemiring
+  IsCommutativeSemiring (PE.setoid Mode) _∨ᵐ_ _·ᵐ_ 𝟘ᵐ? 𝟙ᵐ
+∨ᵐ-·ᵐ-is-commutative-semiring = record
+  { isSemiring = record
+    { isSemiringWithoutAnnihilatingZero = record
+      { +-isCommutativeMonoid = record
+        { isMonoid = record
+          { isSemigroup = record
+            { isMagma = record
+              { isEquivalence = PE.isEquivalence
+              ; ∙-cong        = cong₂ _∨ᵐ_
+              }
+            ; assoc = λ where
+                𝟘ᵐ _ _ → PE.refl
+                𝟙ᵐ _ _ → PE.refl
+            }
+          ; identity =
+                (λ where
+                   𝟘ᵐ[ ok ] →
+                     𝟘ᵐ? ∨ᵐ 𝟘ᵐ  ≡⟨ PE.cong (_∨ᵐ _) (𝟘ᵐ?≡𝟘ᵐ {ok = ok}) ⟩
+                     𝟘ᵐ ∨ᵐ 𝟘ᵐ   ≡⟨⟩
+                     𝟘ᵐ         ∎
+                   𝟙ᵐ → 𝟘ᵐ?-elim
+                     (λ m → m ∨ᵐ 𝟙ᵐ ≡ 𝟙ᵐ)
+                     PE.refl
+                     (λ _ → PE.refl))
+              , (λ where
+                   𝟘ᵐ → 𝟘ᵐ?≡𝟘ᵐ
+                   𝟙ᵐ → PE.refl)
+          }
+        ; comm = λ where
+            𝟘ᵐ 𝟘ᵐ → 𝟘ᵐ-cong
+            𝟘ᵐ 𝟙ᵐ → PE.refl
+            𝟙ᵐ 𝟘ᵐ → PE.refl
+            𝟙ᵐ 𝟙ᵐ → PE.refl
+        }
+      ; *-isMonoid = record
+        { isSemigroup = record
+          { isMagma = record
+            { isEquivalence = PE.isEquivalence
+            ; ∙-cong        = cong₂ _·ᵐ_
+            }
+          ; assoc = λ where
+              𝟘ᵐ _ _ → PE.refl
+              𝟙ᵐ _ _ → PE.refl
+          }
+        ; identity =
+              (λ _ → PE.refl)
+            , (λ where
+                 𝟘ᵐ → PE.refl
+                 𝟙ᵐ → PE.refl)
+        }
+      ; distrib =
+            (λ where
+               𝟘ᵐ _ _ → PE.refl
+               𝟙ᵐ _ _ → PE.refl)
+          , (λ where
+               𝟘ᵐ 𝟘ᵐ _  → PE.refl
+               𝟘ᵐ 𝟙ᵐ 𝟘ᵐ → 𝟘ᵐ-cong
+               𝟘ᵐ 𝟙ᵐ 𝟙ᵐ → PE.refl
+               𝟙ᵐ 𝟘ᵐ _  → PE.refl
+               𝟙ᵐ 𝟙ᵐ _  → PE.refl)
+      }
+    ; zero =
+          (λ where
+             𝟘ᵐ →
+               𝟘ᵐ? ·ᵐ 𝟘ᵐ  ≡⟨ PE.cong (_·ᵐ _) 𝟘ᵐ?≡𝟘ᵐ ⟩
+               𝟘ᵐ ·ᵐ 𝟘ᵐ   ≡⟨⟩
+               𝟘ᵐ         ≡˘⟨ 𝟘ᵐ?≡𝟘ᵐ ⟩
+               𝟘ᵐ?        ∎
+             𝟙ᵐ → 𝟘ᵐ?-elim
+               (λ m → m ·ᵐ 𝟙ᵐ ≡ m)
+               PE.refl
+               (λ _ → PE.refl))
+        , (λ where
+             𝟘ᵐ → PE.sym 𝟘ᵐ?≡𝟘ᵐ
+             𝟙ᵐ → PE.refl)
+    }
+  ; *-comm = λ where
+      𝟘ᵐ 𝟘ᵐ → 𝟘ᵐ-cong
+      𝟘ᵐ 𝟙ᵐ → PE.refl
+      𝟙ᵐ 𝟘ᵐ → PE.refl
+      𝟙ᵐ 𝟙ᵐ → PE.refl
+  }
+  where
+  open Tools.Reasoning.PropositionalEquality
 
 open IsCommutativeSemiring
        (PE.setoid Mode)
@@ -284,12 +469,22 @@ open IsCommutativeSemiring
   x0     → ⌞⌟-cong p≈q
   (x +1) → ⌞⌟ᶜ-cong γ≈δ x
 
--- If p is equivalent to 𝟘, then ⌞ p ⌟ is equal to 𝟘ᵐ.
+-- If p is equivalent to 𝟘, then ⌞ p ⌟ is equal to 𝟘ᵐ?.
 
-≈𝟘→⌞⌟≡𝟘ᵐ : p ≈ 𝟘 → ⌞ p ⌟ ≡ 𝟘ᵐ
-≈𝟘→⌞⌟≡𝟘ᵐ {p = p} p≈𝟘 with is-𝟘? p
+≈𝟘→⌞⌟≡𝟘ᵐ? : p ≈ 𝟘 → ⌞ p ⌟ ≡ 𝟘ᵐ?
+≈𝟘→⌞⌟≡𝟘ᵐ? {p = p} p≈𝟘 with is-𝟘? p
 … | yes _  = PE.refl
 … | no p≉𝟘 = ⊥-elim (p≉𝟘 p≈𝟘)
+
+-- If p is equivalent to 𝟘, then ⌞ p ⌟ is equal to 𝟘ᵐ[ ok ].
+
+≈𝟘→⌞⌟≡𝟘ᵐ : p ≈ 𝟘 → ⌞ p ⌟ ≡ 𝟘ᵐ[ ok ]
+≈𝟘→⌞⌟≡𝟘ᵐ {p = p} {ok = ok} p≈𝟘 =
+  ⌞ p ⌟     ≡⟨ ≈𝟘→⌞⌟≡𝟘ᵐ? p≈𝟘 ⟩
+  𝟘ᵐ?       ≡⟨ 𝟘ᵐ?≡𝟘ᵐ ⟩
+  𝟘ᵐ[ ok ]  ∎
+  where
+  open Tools.Reasoning.PropositionalEquality
 
 -- If p is not equivalent to 𝟘, then ⌞ p ⌟ is equal to 𝟙ᵐ.
 
@@ -298,24 +493,41 @@ open IsCommutativeSemiring
 … | no _    = PE.refl
 … | yes p≈𝟘 = ⊥-elim (p≉𝟘 p≈𝟘)
 
--- If ⌞ p ⌟ is equal to 𝟘ᵐ, then p is equivalent to 𝟘.
+-- If ⌞ p ⌟ is equal to 𝟘ᵐ[ ok ], then p is equivalent to 𝟘.
 
-⌞⌟≡𝟘ᵐ→≈𝟘 : ⌞ p ⌟ ≡ 𝟘ᵐ → p ≈ 𝟘
+⌞⌟≡𝟘ᵐ→≈𝟘 : ⌞ p ⌟ ≡ 𝟘ᵐ[ ok ] → p ≈ 𝟘
 ⌞⌟≡𝟘ᵐ→≈𝟘 {p = p} _  with is-𝟘? p
 ⌞⌟≡𝟘ᵐ→≈𝟘         _  | yes p≈𝟘 = p≈𝟘
 ⌞⌟≡𝟘ᵐ→≈𝟘         () | no _
 
--- If ⌞ p ⌟ is equal to 𝟙ᵐ, then p is not equivalent to 𝟘.
+-- If 𝟘ᵐ is allowed and ⌞ p ⌟ is equal to 𝟙ᵐ, then p is not equivalent
+-- to 𝟘.
 
-⌞⌟≡𝟙ᵐ→≉𝟘 : ⌞ p ⌟ ≡ 𝟙ᵐ → p ≉ 𝟘
-⌞⌟≡𝟙ᵐ→≉𝟘 {p = p} _  with is-𝟘? p
-⌞⌟≡𝟙ᵐ→≉𝟘         _  | no p≉𝟘 = p≉𝟘
-⌞⌟≡𝟙ᵐ→≉𝟘         () | yes _
+⌞⌟≡𝟙ᵐ→≉𝟘 : T 𝟘ᵐ-allowed → ⌞ p ⌟ ≡ 𝟙ᵐ → p ≉ 𝟘
+⌞⌟≡𝟙ᵐ→≉𝟘 {p = p} ok _      with is-𝟘? p
+⌞⌟≡𝟙ᵐ→≉𝟘         ok _      | no p≉𝟘 = p≉𝟘
+⌞⌟≡𝟙ᵐ→≉𝟘         ok 𝟘ᵐ?≡𝟙ᵐ | yes _  =
+  case 𝟘ᵐ[ ok ]  ≡˘⟨ 𝟘ᵐ?≡𝟘ᵐ ⟩
+       𝟘ᵐ?       ≡⟨ 𝟘ᵐ?≡𝟙ᵐ ⟩
+       𝟙ᵐ        ∎
+  of λ ()
+  where
+  open Tools.Reasoning.PropositionalEquality
 
--- The value of ⌞ 𝟘 ⌟ is 𝟘ᵐ.
+-- The value of ⌞ 𝟘 ⌟ is 𝟘ᵐ?.
 
-⌞𝟘⌟ : ⌞ 𝟘 ⌟ ≡ 𝟘ᵐ
-⌞𝟘⌟ = ≈𝟘→⌞⌟≡𝟘ᵐ ≈-refl
+⌞𝟘⌟≡𝟘ᵐ? : ⌞ 𝟘 ⌟ ≡ 𝟘ᵐ?
+⌞𝟘⌟≡𝟘ᵐ? = ≈𝟘→⌞⌟≡𝟘ᵐ? ≈-refl
+
+-- ⌞ 𝟘 ⌟ is equal to 𝟘ᵐ[ ok ].
+
+⌞𝟘⌟ : ⌞ 𝟘 ⌟ ≡ 𝟘ᵐ[ ok ]
+⌞𝟘⌟ {ok = ok} = begin
+  ⌞ 𝟘 ⌟     ≡⟨ ⌞𝟘⌟≡𝟘ᵐ? ⟩
+  𝟘ᵐ?       ≡⟨ 𝟘ᵐ?≡𝟘ᵐ ⟩
+  𝟘ᵐ[ ok ]  ∎
+  where
+  open Tools.Reasoning.PropositionalEquality
 
 -- If 𝟙 ≉ 𝟘, then the value of ⌞ 𝟙 ⌟ is 𝟙ᵐ.
 
@@ -331,9 +543,12 @@ open IsCommutativeSemiring
 
 ⌜⌞⌟⌝-monotone : 𝟙 ≤ 𝟘 → p ≤ q → ⌜ ⌞ p ⌟ ⌝ ≤ ⌜ ⌞ q ⌟ ⌝
 ⌜⌞⌟⌝-monotone {p = p} {q = q} 𝟙≤𝟘 p≤q with is-𝟘? p | is-𝟘? q
-… | yes _   | yes _  = ≤-refl
-… | no _    | no _   = ≤-refl
-… | no _    | yes _  = 𝟙≤𝟘
+… | yes _ | yes _ = ≤-refl
+… | no _  | no _  = ≤-refl
+… | no _  | yes _ = 𝟘ᵐ?-elim
+  (λ m → 𝟙 ≈ 𝟙 ∧ ⌜ m ⌝)
+  𝟙≤𝟘
+  (λ _ → ≤-refl)
 … | yes p≈𝟘 | no q≉𝟘 = ⊥-elim (q≉𝟘 (𝟘≮ (begin
   𝟘  ≈˘⟨ p≈𝟘 ⟩
   p  ≤⟨ p≤q ⟩
@@ -350,10 +565,13 @@ open IsCommutativeSemiring
   p      ∎
   where
   open Tools.Reasoning.Equivalence M′
-… | yes p≈𝟘 = begin
-  p · 𝟘  ≈⟨ ·-zeroʳ _ ⟩
-  𝟘      ≈˘⟨ p≈𝟘 ⟩
-  p      ∎
+… | yes p≈𝟘 = 𝟘ᵐ?-elim
+  (λ m → p · ⌜ m ⌝ ≈ p)
+  (begin
+     p · 𝟘  ≈⟨ ·-zeroʳ _ ⟩
+     𝟘      ≈˘⟨ p≈𝟘 ⟩
+     p      ∎)
+  (λ _ → ·-identityʳ _)
   where
   open Tools.Reasoning.Equivalence M′
 
@@ -367,15 +585,18 @@ open IsCommutativeSemiring
 -- in the image of ⌜_⌝.
 
 ⌜⌞⌜⌝⌟⌝ : ∀ m → ⌜ ⌞ ⌜ m ⌝ ⌟ ⌝ ≈ ⌜ m ⌝
-⌜⌞⌜⌝⌟⌝ 𝟘ᵐ = begin
-  ⌜ ⌞ 𝟘 ⌟ ⌝  ≡⟨ cong ⌜_⌝ ⌞𝟘⌟ ⟩
+⌜⌞⌜⌝⌟⌝ 𝟘ᵐ[ ok ] = begin
+  ⌜ ⌞ 𝟘 ⌟ ⌝  ≡⟨ cong ⌜_⌝ (⌞𝟘⌟ {ok = ok}) ⟩
   ⌜ 𝟘ᵐ ⌝     ≡⟨⟩
   𝟘          ∎
   where
   open Tools.Reasoning.Equivalence M′
 ⌜⌞⌜⌝⌟⌝ 𝟙ᵐ with is-𝟘? 𝟙
 … | no _    = ≈-refl
-… | yes 𝟙≈𝟘 = ≈-sym 𝟙≈𝟘
+… | yes 𝟙≈𝟘 = 𝟘ᵐ?-elim
+  (λ m → ⌜ m ⌝ ≈ 𝟙)
+  (≈-sym 𝟙≈𝟘)
+  (λ _ → ≈-refl)
 
 -- A lemma relating ⌞_⌟, _·_, ⌜_⌝ and _ᵐ·_.
 
@@ -393,9 +614,9 @@ open IsCommutativeSemiring
   where
   open Tools.Reasoning.PropositionalEquality
 
--- If 1 ≈ 𝟘, then ⌞ p ⌟ is equal to 𝟘ᵐ.
+-- If 1 ≈ 𝟘, then ⌞ p ⌟ is equal to 𝟘ᵐ?.
 
-⌞⌟≡𝟘ᵐ : 𝟙 ≈ 𝟘 → ⌞ p ⌟ ≡ 𝟘ᵐ
+⌞⌟≡𝟘ᵐ : 𝟙 ≈ 𝟘 → ⌞ p ⌟ ≡ 𝟘ᵐ?
 ⌞⌟≡𝟘ᵐ {p = p} 𝟙≈𝟘 with is-𝟘? p
 … | yes _  = PE.refl
 … | no p≉𝟘 = ⊥-elim (p≉𝟘 (begin
@@ -417,9 +638,9 @@ open IsCommutativeSemiring
 
 -- 𝟘 is a kind of right zero for _ᵐ·_.
 
-ᵐ·-zeroʳ : ∀ m → m ᵐ· 𝟘 ≡ 𝟘ᵐ
-ᵐ·-zeroʳ 𝟘ᵐ = PE.refl
-ᵐ·-zeroʳ 𝟙ᵐ = ⌞𝟘⌟
+ᵐ·-zeroʳ : ∀ m → m ᵐ· 𝟘 ≡ 𝟘ᵐ?
+ᵐ·-zeroʳ 𝟘ᵐ = PE.sym 𝟘ᵐ?≡𝟘ᵐ
+ᵐ·-zeroʳ 𝟙ᵐ = ⌞𝟘⌟≡𝟘ᵐ?
 
 -- A form of associativity.
 

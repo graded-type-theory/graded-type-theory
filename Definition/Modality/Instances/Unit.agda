@@ -12,6 +12,7 @@ Unit′ : Setoid _ _
 Unit′ = record { Carrier = ⊤ ; _≈_ = _≡_ ; isEquivalence = isEquivalence }
 
 open import Tools.Algebra Unit′
+open import Tools.Bool using (false)
 open import Tools.Sum
 
 open import Definition.Modality Unit′ public
@@ -159,7 +160,9 @@ UnitModalityWithout⊛ = record
   ; ∧-Semilattice = +-Semilattice
   ; ·-distrib-∧ = +-Distributiveˡ , +-Distributiveʳ
   ; +-distrib-∧ = +-Distributiveˡ , +-Distributiveʳ
-  ; restrictions = no-restrictions
+  ; restrictions = record no-restrictions
+    { 𝟘ᵐ-allowed = false
+    }
   ; is-𝟘? = λ _ → yes refl
   ; zero-product = λ _ → inj₁ refl
   ; positiveˡ = λ _ → refl

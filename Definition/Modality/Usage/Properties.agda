@@ -19,9 +19,11 @@ open import Definition.Typed M′ hiding (_∙_)
 open import Definition.Untyped M hiding (_∷_ ; _∙_ ; ε ; subst)
 open import Definition.Usage 𝕄
 
+open import Tools.Bool using (Bool; T)
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat hiding (_+_)
+open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 open import Tools.Sum
@@ -38,6 +40,8 @@ private
     γ δ η : Conₘ n
     p q r : M
     m m₁ m₂ m′ : Mode
+    b : Bool
+    ok : T b
 
 ------------------------------------------------------------------------
 -- Replacing one usage mode with another
@@ -98,6 +102,12 @@ private
   starₘ
 ▸-𝟙≈𝟘 𝟙≈𝟘 (sub γ▸t _) =
   sub (▸-𝟙≈𝟘 𝟙≈𝟘 γ▸t) (≈ᶜ-trivial 𝟙≈𝟘)
+
+-- If 𝟘ᵐ is not allowed, then one can convert usage modes freely.
+
+▸-without-𝟘ᵐ : ¬ T 𝟘ᵐ-allowed → γ ▸[ m ] t → γ ▸[ m′ ] t
+▸-without-𝟘ᵐ not-ok =
+  ▸-cong (Mode-propositional-without-𝟘ᵐ not-ok)
 
 ------------------------------------------------------------------------
 -- The lemma ▸-· and some corollaries
@@ -206,10 +216,10 @@ private
 ▸-·′ : γ ▸[ m ] t → ⌜ m ⌝ ·ᶜ γ ▸[ m ] t
 ▸-·′ ▸t = ▸-cong ·ᵐ-idem (▸-· ▸t)
 
--- If t is well-used, then it is well-used in the mode 𝟘ᵐ, with no
--- usages.
+-- If t is well-used, then it is well-used in the mode 𝟘ᵐ[ ok ], with
+-- no usages.
 
-▸-𝟘 : γ ▸[ m ] t → 𝟘ᶜ ▸[ 𝟘ᵐ ] t
+▸-𝟘 : γ ▸[ m ] t → 𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] t
 ▸-𝟘 {γ = γ} ▸t = sub
   (▸-· ▸t)
   (begin
@@ -221,14 +231,15 @@ private
 -- A form of monotonicity for _▸[_]_.
 
 ▸-≤ : p ≤ q → ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⌟ ] t → ⌜ ⌞ q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ q ⌟ ] t
-▸-≤ {p = p} {q = q} {γ = γ} p≤q ▸t with is-𝟘? p | is-𝟘? q
+▸-≤ {p = p} {q = q} {γ = γ} {t = t} p≤q ▸t with is-𝟘? p | is-𝟘? q
 … | yes _  | yes _   = ▸t
 … | no _   | no _    = ▸t
-… | no p≉𝟘 | yes q≈𝟘 = sub
-  (▸-𝟘 ▸t)
-  (begin
+… | no p≉𝟘 | yes q≈𝟘 = 𝟘ᵐ?-elim
+  (λ m → ⌜ m ⌝ ·ᶜ γ ▸[ m ] t)
+  (sub (▸-𝟘 ▸t) (begin
      𝟘 ·ᶜ γ  ≈⟨ ·ᶜ-zeroˡ _ ⟩
-     𝟘ᶜ      ∎)
+     𝟘ᶜ      ∎))
+  (λ _ → ▸t)
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 … | yes p≈𝟘 | no q≉𝟘 = ⊥-elim (q≉𝟘 (𝟘≮ (begin
@@ -247,14 +258,16 @@ private
   ∃ λ δ → δ ▸[ ⌞ p ⌟ ] t × p ·ᶜ γ ≈ᶜ p ·ᶜ δ
 ▸[𝟙ᵐ]→▸[⌞⌟] {γ = γ} {p = p} ▸t = case is-𝟘? p of λ where
   (no p≉𝟘)  → (_ , ▸-cong (PE.sym (≉𝟘→⌞⌟≡𝟙ᵐ p≉𝟘)) ▸t , ≈ᶜ-refl)
-  (yes p≈𝟘) →
-      _
-    , ▸-cong (PE.sym (≈𝟘→⌞⌟≡𝟘ᵐ p≈𝟘)) (▸-𝟘 ▸t)
-    , (let open Tools.Reasoning.Equivalence Conₘ-setoid in begin
-         p ·ᶜ γ   ≈⟨ ·ᶜ-congʳ p≈𝟘 ⟩
-         𝟘 ·ᶜ γ   ≈⟨ ·ᶜ-zeroˡ _ ⟩
-         𝟘ᶜ       ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
-         p ·ᶜ 𝟘ᶜ  ∎)
+  (yes p≈𝟘) → 𝟘ᵐ-allowed-elim
+    (λ ok →
+         _
+       , ▸-cong (PE.sym (≈𝟘→⌞⌟≡𝟘ᵐ p≈𝟘)) (▸-𝟘 {ok = ok} ▸t)
+       , (let open Tools.Reasoning.Equivalence Conₘ-setoid in begin
+            p ·ᶜ γ   ≈⟨ ·ᶜ-congʳ p≈𝟘 ⟩
+            𝟘 ·ᶜ γ   ≈⟨ ·ᶜ-zeroˡ _ ⟩
+            𝟘ᶜ       ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
+            p ·ᶜ 𝟘ᶜ  ∎))
+    (λ not-ok → _ , ▸-without-𝟘ᵐ not-ok ▸t , ≈ᶜ-refl)
 
 ------------------------------------------------------------------------
 -- Inversion lemmas
@@ -270,7 +283,7 @@ private
     (inj₂ q≈𝟘) → inj₂ (subst (λ m → ⌜ m ⌝ ·ᶜ _ ▸[ m ] _) (lem _ q≈𝟘) ▸t)
   where
   lem = λ p p≈𝟘 →
-    𝟘ᵐ     ≡˘⟨ ⌞𝟘⌟ ⟩
+    𝟘ᵐ?    ≡˘⟨ ⌞𝟘⌟≡𝟘ᵐ? ⟩
     ⌞ 𝟘 ⌟  ≡˘⟨ ⌞⌟-cong p≈𝟘 ⟩
     ⌞ p ⌟  ∎
     where
@@ -289,15 +302,15 @@ private
     where
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
--- If m₂ is 𝟘ᵐ whenever m₁ is 𝟘ᵐ, then one can convert from
--- ⌜ m₁ ⌝ ·ᶜ γ ▸[ m₁ ] t to ⌜ m₂ ⌝ ·ᶜ γ ▸[ m₂ ] t.
+-- If m₂ is 𝟘ᵐ[ ok ] whenever m₁ is 𝟘ᵐ[ ok ], then one can convert
+-- from ⌜ m₁ ⌝ ·ᶜ γ ▸[ m₁ ] t to ⌜ m₂ ⌝ ·ᶜ γ ▸[ m₂ ] t.
 
 ▸-conv :
-  (m₁ ≡ 𝟘ᵐ → m₂ ≡ 𝟘ᵐ) →
+  (∀ ⦃ ok ⦄ → m₁ ≡ 𝟘ᵐ[ ok ] → m₂ ≡ 𝟘ᵐ[ ok ]) →
   ⌜ m₁ ⌝ ·ᶜ γ ▸[ m₁ ] t →
   ⌜ m₂ ⌝ ·ᶜ γ ▸[ m₂ ] t
 ▸-conv {m₁ = 𝟘ᵐ} {m₂ = 𝟘ᵐ} _ ▸t =
-  ▸t
+  ▸-cong 𝟘ᵐ-cong ▸t
 ▸-conv {m₁ = 𝟙ᵐ} {m₂ = 𝟙ᵐ} _ ▸t =
   ▸t
 ▸-conv {m₁ = 𝟘ᵐ} {m₂ = 𝟙ᵐ} 𝟘ᵐ≡𝟘ᵐ→𝟙ᵐ≡𝟘ᵐ ▸t =
@@ -319,7 +332,7 @@ private
   where
   open Tools.Reasoning.PropositionalEquality
 
-  lemma : ⌞ p + q ⌟ ≡ 𝟘ᵐ → ⌞ p ⌟ ≡ 𝟘ᵐ
+  lemma : ∀ ⦃ ok ⦄ → ⌞ p + q ⌟ ≡ 𝟘ᵐ[ ok ] → ⌞ p ⌟ ≡ 𝟘ᵐ[ ok ]
   lemma {p = p} {q = q} _  with is-𝟘? (p + q)
   lemma                 () | no _
   lemma {p = p}         _  | yes p+q≈𝟘 =
@@ -344,7 +357,7 @@ private
   where
   open Tools.Reasoning.PropositionalEquality
 
-  lemma : ⌞ p ∧ q ⌟ ≡ 𝟘ᵐ → ⌞ p ⌟ ≡ 𝟘ᵐ
+  lemma : ∀ ⦃ ok ⦄ → ⌞ p ∧ q ⌟ ≡ 𝟘ᵐ[ ok ] → ⌞ p ⌟ ≡ 𝟘ᵐ[ ok ]
   lemma {p = p} {q = q} _  with is-𝟘? (p ∧ q)
   lemma                 () | no _
   lemma {p = p}         _  | yes p∧q≈𝟘 =
@@ -369,7 +382,7 @@ private
   where
   open Tools.Reasoning.PropositionalEquality
 
-  lemma : ⌞ p ⊛ q ▷ r ⌟ ≡ 𝟘ᵐ → ⌞ p ⌟ ≡ 𝟘ᵐ
+  lemma : ∀ ⦃ ok ⦄ → ⌞ p ⊛ q ▷ r ⌟ ≡ 𝟘ᵐ[ ok ] → ⌞ p ⌟ ≡ 𝟘ᵐ[ ok ]
   lemma {p = p} {q = q} {r = r} _  with is-𝟘? (p ⊛ q ▷ r)
   lemma                         () | no _
   lemma {p = p}                 _  | yes p⊛q▷r≈𝟘 =
@@ -386,7 +399,7 @@ private
   where
   open Tools.Reasoning.PropositionalEquality
 
-  lemma : ⌞ p ⊛ q ▷ r ⌟ ≡ 𝟘ᵐ → ⌞ q ⌟ ≡ 𝟘ᵐ
+  lemma : ∀ ⦃ ok ⦄ → ⌞ p ⊛ q ▷ r ⌟ ≡ 𝟘ᵐ[ ok ] → ⌞ q ⌟ ≡ 𝟘ᵐ[ ok ]
   lemma {p = p} {q = q} {r = r} _  with is-𝟘? (p ⊛ q ▷ r)
   lemma                         () | no _
   lemma         {q = q}         _  | yes p⊛q▷r≈𝟘 =
@@ -682,9 +695,9 @@ usage-inf (Emptyrecₘ γ▸t) = Emptyrecₘ (usage-inf γ▸t)
 usage-inf starₘ = starₘ
 usage-inf (sub γ▸t x) = usage-inf γ▸t
 
--- The context ⌈ t ⌉ 𝟘ᵐ is equivalent to 𝟘ᶜ.
+-- The context ⌈ t ⌉ 𝟘ᵐ[ ok ] is equivalent to 𝟘ᶜ.
 
-⌈⌉-𝟘ᵐ : (t : Term n) → ⌈ t ⌉ 𝟘ᵐ ≈ᶜ 𝟘ᶜ
+⌈⌉-𝟘ᵐ : (t : Term n) → ⌈ t ⌉ 𝟘ᵐ[ ok ] ≈ᶜ 𝟘ᶜ
 ⌈⌉-𝟘ᵐ (var x) = begin
   𝟘ᶜ , x ≔ 𝟘  ≡⟨ 𝟘ᶜ,≔𝟘 ⟩
   𝟘ᶜ          ∎
@@ -692,48 +705,48 @@ usage-inf (sub γ▸t x) = usage-inf γ▸t
   open Tools.Reasoning.Equivalence Conₘ-setoid
 ⌈⌉-𝟘ᵐ U =
   ≈ᶜ-refl
-⌈⌉-𝟘ᵐ (Π p , _ ▷ F ▹ G) = begin
-  (⌈ F ⌉ 𝟘ᵐ +ᶜ tailₘ (⌈ G ⌉ 𝟘ᵐ))  ≈⟨ +ᶜ-cong (⌈⌉-𝟘ᵐ F) (tailₘ-cong (⌈⌉-𝟘ᵐ G)) ⟩
-  𝟘ᶜ +ᶜ 𝟘ᶜ                        ≈⟨ +ᶜ-identityʳ _ ⟩
-  𝟘ᶜ                              ∎
+⌈⌉-𝟘ᵐ {ok = ok} (Π p , _ ▷ F ▹ G) = begin
+  (⌈ F ⌉ 𝟘ᵐ[ ok ] +ᶜ tailₘ (⌈ G ⌉ 𝟘ᵐ[ ok ]))  ≈⟨ +ᶜ-cong (⌈⌉-𝟘ᵐ F) (tailₘ-cong (⌈⌉-𝟘ᵐ G)) ⟩
+  𝟘ᶜ +ᶜ 𝟘ᶜ                                    ≈⟨ +ᶜ-identityʳ _ ⟩
+  𝟘ᶜ                                          ∎
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
 ⌈⌉-𝟘ᵐ (lam _ t) =
   tailₘ-cong (⌈⌉-𝟘ᵐ t)
-⌈⌉-𝟘ᵐ (t ∘⟨ p ⟩ u) = begin
-  ⌈ t ⌉ 𝟘ᵐ +ᶜ p ·ᶜ ⌈ u ⌉ 𝟘ᵐ  ≈⟨ +ᶜ-cong (⌈⌉-𝟘ᵐ t) (·ᶜ-congˡ (⌈⌉-𝟘ᵐ u)) ⟩
-  𝟘ᶜ +ᶜ p ·ᶜ 𝟘ᶜ              ≈⟨ +ᶜ-congˡ (·ᶜ-zeroʳ _) ⟩
-  𝟘ᶜ +ᶜ 𝟘ᶜ                   ≈⟨ +ᶜ-identityˡ _ ⟩
-  𝟘ᶜ                         ∎
+⌈⌉-𝟘ᵐ {ok = ok} (t ∘⟨ p ⟩ u) = begin
+  ⌈ t ⌉ 𝟘ᵐ[ ok ] +ᶜ p ·ᶜ ⌈ u ⌉ 𝟘ᵐ[ ok ]  ≈⟨ +ᶜ-cong (⌈⌉-𝟘ᵐ t) (·ᶜ-congˡ (⌈⌉-𝟘ᵐ u)) ⟩
+  𝟘ᶜ +ᶜ p ·ᶜ 𝟘ᶜ                          ≈⟨ +ᶜ-congˡ (·ᶜ-zeroʳ _) ⟩
+  𝟘ᶜ +ᶜ 𝟘ᶜ                               ≈⟨ +ᶜ-identityˡ _ ⟩
+  𝟘ᶜ                                     ∎
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
-⌈⌉-𝟘ᵐ (Σ _ ▷ F ▹ G) = begin
-  ⌈ F ⌉ 𝟘ᵐ +ᶜ tailₘ (⌈ G ⌉ 𝟘ᵐ)  ≈⟨ +ᶜ-cong (⌈⌉-𝟘ᵐ F) (tailₘ-cong (⌈⌉-𝟘ᵐ G)) ⟩
-  𝟘ᶜ +ᶜ 𝟘ᶜ                      ≈⟨ +ᶜ-identityˡ _ ⟩
-  𝟘ᶜ                            ∎
+⌈⌉-𝟘ᵐ {ok = ok} (Σ _ ▷ F ▹ G) = begin
+  ⌈ F ⌉ 𝟘ᵐ[ ok ] +ᶜ tailₘ (⌈ G ⌉ 𝟘ᵐ[ ok ])  ≈⟨ +ᶜ-cong (⌈⌉-𝟘ᵐ F) (tailₘ-cong (⌈⌉-𝟘ᵐ G)) ⟩
+  𝟘ᶜ +ᶜ 𝟘ᶜ                                  ≈⟨ +ᶜ-identityˡ _ ⟩
+  𝟘ᶜ                                        ∎
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
-⌈⌉-𝟘ᵐ (prod Σᵣ t u) = begin
-  ⌈ t ⌉ 𝟘ᵐ +ᶜ ⌈ u ⌉ 𝟘ᵐ  ≈⟨ +ᶜ-cong (⌈⌉-𝟘ᵐ t) (⌈⌉-𝟘ᵐ u) ⟩
-  𝟘ᶜ +ᶜ 𝟘ᶜ              ≈⟨ +ᶜ-identityˡ _ ⟩
-  𝟘ᶜ                    ∎
+⌈⌉-𝟘ᵐ {ok = ok} (prod Σᵣ t u) = begin
+  ⌈ t ⌉ 𝟘ᵐ[ ok ] +ᶜ ⌈ u ⌉ 𝟘ᵐ[ ok ]  ≈⟨ +ᶜ-cong (⌈⌉-𝟘ᵐ t) (⌈⌉-𝟘ᵐ u) ⟩
+  𝟘ᶜ +ᶜ 𝟘ᶜ                          ≈⟨ +ᶜ-identityˡ _ ⟩
+  𝟘ᶜ                                ∎
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
-⌈⌉-𝟘ᵐ (prod Σₚ t u) = begin
-  ⌈ t ⌉ 𝟘ᵐ ∧ᶜ ⌈ u ⌉ 𝟘ᵐ  ≈⟨ ∧ᶜ-cong (⌈⌉-𝟘ᵐ t) (⌈⌉-𝟘ᵐ u) ⟩
-  𝟘ᶜ ∧ᶜ 𝟘ᶜ              ≈⟨ ∧ᶜ-idem _ ⟩
-  𝟘ᶜ                    ∎
+⌈⌉-𝟘ᵐ {ok = ok} (prod Σₚ t u) = begin
+  ⌈ t ⌉ 𝟘ᵐ[ ok ] ∧ᶜ ⌈ u ⌉ 𝟘ᵐ[ ok ]  ≈⟨ ∧ᶜ-cong (⌈⌉-𝟘ᵐ t) (⌈⌉-𝟘ᵐ u) ⟩
+  𝟘ᶜ ∧ᶜ 𝟘ᶜ                          ≈⟨ ∧ᶜ-idem _ ⟩
+  𝟘ᶜ                                ∎
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
 ⌈⌉-𝟘ᵐ (fst t) =
   ⌈⌉-𝟘ᵐ t
 ⌈⌉-𝟘ᵐ (snd t) =
   ⌈⌉-𝟘ᵐ t
-⌈⌉-𝟘ᵐ (prodrec p _ t u) = begin
-  p ·ᶜ ⌈ t ⌉ 𝟘ᵐ +ᶜ tailₘ (tailₘ (⌈ u ⌉ 𝟘ᵐ))  ≈⟨ +ᶜ-cong (·ᶜ-congˡ (⌈⌉-𝟘ᵐ t)) (tailₘ-cong (tailₘ-cong (⌈⌉-𝟘ᵐ u))) ⟩
-  p ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ                              ≈⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
-  𝟘ᶜ +ᶜ 𝟘ᶜ                                   ≈⟨ +ᶜ-identityˡ _ ⟩
-  𝟘ᶜ                                         ∎
+⌈⌉-𝟘ᵐ {ok = ok} (prodrec p _ t u) = begin
+  p ·ᶜ ⌈ t ⌉ 𝟘ᵐ[ ok ] +ᶜ tailₘ (tailₘ (⌈ u ⌉ 𝟘ᵐ[ ok ]))  ≈⟨ +ᶜ-cong (·ᶜ-congˡ (⌈⌉-𝟘ᵐ t)) (tailₘ-cong (tailₘ-cong (⌈⌉-𝟘ᵐ u))) ⟩
+  p ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ                                          ≈⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
+  𝟘ᶜ +ᶜ 𝟘ᶜ                                               ≈⟨ +ᶜ-identityˡ _ ⟩
+  𝟘ᶜ                                                     ∎
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
 ⌈⌉-𝟘ᵐ ℕ =
@@ -742,15 +755,15 @@ usage-inf (sub γ▸t x) = usage-inf γ▸t
   ≈ᶜ-refl
 ⌈⌉-𝟘ᵐ (suc t) =
   ⌈⌉-𝟘ᵐ t
-⌈⌉-𝟘ᵐ (natrec p r A z s n) = begin
-  (⌈ z ⌉ 𝟘ᵐ ∧ᶜ ⌈ n ⌉ 𝟘ᵐ) ⊛ᶜ
-    tailₘ (tailₘ (⌈ s ⌉ 𝟘ᵐ)) +ᶜ p ·ᶜ ⌈ n ⌉ 𝟘ᵐ ▷ r  ≈⟨ ⊛ᵣᶜ-cong (∧ᶜ-cong (⌈⌉-𝟘ᵐ z) (⌈⌉-𝟘ᵐ n))
-                                                        (+ᶜ-cong (tailₘ-cong (tailₘ-cong (⌈⌉-𝟘ᵐ s)))
-                                                           (·ᶜ-congˡ (⌈⌉-𝟘ᵐ n))) ⟩
-  (𝟘ᶜ ∧ᶜ 𝟘ᶜ) ⊛ᶜ 𝟘ᶜ +ᶜ p ·ᶜ 𝟘ᶜ ▷ r                  ≈⟨ ⊛ᵣᶜ-cong (∧ᶜ-idem _) (+ᶜ-identityˡ _) ⟩
-  𝟘ᶜ ⊛ᶜ p ·ᶜ 𝟘ᶜ ▷ r                                ≈⟨ ⊛ᵣᶜ-congˡ (·ᶜ-zeroʳ _) ⟩
-  𝟘ᶜ ⊛ᶜ 𝟘ᶜ ▷ r                                     ≈⟨ ⊛ᶜ-idem-𝟘ᶜ _ ⟩
-  𝟘ᶜ                                               ∎
+⌈⌉-𝟘ᵐ {ok = ok} (natrec p r A z s n) = begin
+  (⌈ z ⌉ 𝟘ᵐ[ ok ] ∧ᶜ ⌈ n ⌉ 𝟘ᵐ[ ok ]) ⊛ᶜ
+    tailₘ (tailₘ (⌈ s ⌉ 𝟘ᵐ[ ok ])) +ᶜ p ·ᶜ ⌈ n ⌉ 𝟘ᵐ[ ok ] ▷ r  ≈⟨ ⊛ᵣᶜ-cong (∧ᶜ-cong (⌈⌉-𝟘ᵐ z) (⌈⌉-𝟘ᵐ n))
+                                                                    (+ᶜ-cong (tailₘ-cong (tailₘ-cong (⌈⌉-𝟘ᵐ s)))
+                                                                       (·ᶜ-congˡ (⌈⌉-𝟘ᵐ n))) ⟩
+  (𝟘ᶜ ∧ᶜ 𝟘ᶜ) ⊛ᶜ 𝟘ᶜ +ᶜ p ·ᶜ 𝟘ᶜ ▷ r                              ≈⟨ ⊛ᵣᶜ-cong (∧ᶜ-idem _) (+ᶜ-identityˡ _) ⟩
+  𝟘ᶜ ⊛ᶜ p ·ᶜ 𝟘ᶜ ▷ r                                            ≈⟨ ⊛ᵣᶜ-congˡ (·ᶜ-zeroʳ _) ⟩
+  𝟘ᶜ ⊛ᶜ 𝟘ᶜ ▷ r                                                 ≈⟨ ⊛ᶜ-idem-𝟘ᶜ _ ⟩
+  𝟘ᶜ                                                           ∎
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
 ⌈⌉-𝟘ᵐ Unit =
@@ -759,10 +772,10 @@ usage-inf (sub γ▸t x) = usage-inf γ▸t
   ≈ᶜ-refl
 ⌈⌉-𝟘ᵐ Empty =
   ≈ᶜ-refl
-⌈⌉-𝟘ᵐ (Emptyrec p _ t) = begin
-  p ·ᶜ ⌈ t ⌉ 𝟘ᵐ  ≈⟨ ·ᶜ-congˡ (⌈⌉-𝟘ᵐ t) ⟩
-  p ·ᶜ 𝟘ᶜ        ≈⟨ ·ᶜ-zeroʳ _ ⟩
-  𝟘ᶜ             ∎
+⌈⌉-𝟘ᵐ {ok = ok} (Emptyrec p _ t) = begin
+  p ·ᶜ ⌈ t ⌉ 𝟘ᵐ[ ok ]  ≈⟨ ·ᶜ-congˡ (⌈⌉-𝟘ᵐ t) ⟩
+  p ·ᶜ 𝟘ᶜ              ≈⟨ ·ᶜ-zeroʳ _ ⟩
+  𝟘ᶜ                   ∎
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
 
@@ -782,13 +795,13 @@ usage-inf (sub γ▸t x) = usage-inf γ▸t
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
 
--- If γ ▸[ 𝟘ᵐ ] t, then γ ≤ᶜ 𝟘ᶜ.
+-- If γ ▸[ 𝟘ᵐ[ ok ] ] t, then γ ≤ᶜ 𝟘ᶜ.
 
-▸-𝟘ᵐ : γ ▸[ 𝟘ᵐ ] t → γ ≤ᶜ 𝟘ᶜ
-▸-𝟘ᵐ {γ = γ} {t = t} ▸t = begin
-  γ         ≤⟨ usage-upper-bound ▸t ⟩
-  ⌈ t ⌉ 𝟘ᵐ  ≈⟨ ⌈⌉-𝟘ᵐ t ⟩
-  𝟘ᶜ        ∎
+▸-𝟘ᵐ : γ ▸[ 𝟘ᵐ[ ok ] ] t → γ ≤ᶜ 𝟘ᶜ
+▸-𝟘ᵐ {γ = γ} {ok = ok} {t = t} ▸t = begin
+  γ               ≤⟨ usage-upper-bound ▸t ⟩
+  ⌈ t ⌉ 𝟘ᵐ[ ok ]  ≈⟨ ⌈⌉-𝟘ᵐ t ⟩
+  𝟘ᶜ              ∎
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 

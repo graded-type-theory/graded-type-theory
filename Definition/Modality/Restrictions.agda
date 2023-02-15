@@ -10,6 +10,7 @@ module Definition.Modality.Restrictions {a ℓ} (M′ : Setoid a ℓ) where
 
 open Setoid M′ renaming (Carrier to M)
 
+open import Tools.Bool
 open import Tools.Level
 open import Tools.Unit
 
@@ -24,9 +25,13 @@ record Restrictions : Set (lsuc (a ⊔ ℓ)) where
     -- The predicate Prodrec respects equivalence.
     Prodrec-resp : ∀ {p p′} → p ≈ p′ → Prodrec p → Prodrec p′
 
+    -- Is the mode 𝟘ᵐ allowed?
+    𝟘ᵐ-allowed : Bool
+
 -- No restrictions.
 
 no-restrictions : Restrictions
 no-restrictions = record
-  { Prodrec = λ _ → Lift _ ⊤
+  { Prodrec    = λ _ → Lift _ ⊤
+  ; 𝟘ᵐ-allowed = true
   }

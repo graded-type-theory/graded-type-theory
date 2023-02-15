@@ -21,9 +21,11 @@ open import Definition.Mode 𝕄
 open import Definition.Typed M′ using (_⊢_∷_; _⊢ˢ_∷_; _,_)
 open import Definition.Untyped M as U renaming (_[_,_] to _[_,,_])
 
+open import Tools.Bool using (T)
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat hiding (_+_)
+open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 import Tools.Reasoning.Equivalence
@@ -394,23 +396,35 @@ wf-tailSubstₘ Ψ▶σ x =
      (sub (Ψ▶ x) (≤ᶜ-reflexive (·ᶜ-*>-𝟘ᶜ,≔𝟙 Ψ))))
   (≤ᶜ-reflexive (≈ᶜ-sym (·ᶜ-*>-𝟘ᶜ,≔𝟙 Ψ)))
 
+-- A preservation lemma for _▶[_]_ that holds if 𝟘ᵐ is not allowed.
+
+▶-without-𝟘ᵐ :
+  (Ψ : Substₘ m n) →
+  ¬ T 𝟘ᵐ-allowed →
+  Ψ ▶[ mos₁ ] σ → Ψ ▶[ mos₂ ] σ
+▶-without-𝟘ᵐ Ψ not-ok =
+  ▶-cong Ψ (λ _ → Mode-propositional-without-𝟘ᵐ not-ok)
+
 -- An inversion lemma for _▶[_]_ related to multiplication.
 
 ▶-⌞·⌟ :
   (Ψ : Substₘ m n) (γ : Conₘ n) →
   Ψ ▶[ ⌞ p ·ᶜ γ ⌟ᶜ ] σ →
-  (p ≈ 𝟘) ⊎ (Ψ ▶[ ⌞ γ ⌟ᶜ ] σ)
-▶-⌞·⌟ {p = p} Ψ γ Ψ▶ = case is-𝟘? p of λ where
-    (yes p≈𝟘) → inj₁ p≈𝟘
-    (no p≉𝟘)  → inj₂ λ x →
-      case ▸-⌞·⌟
-        (sub (▸-cong (cong ⌞_⌟ (lookup-distrib-·ᶜ γ _ _)) (Ψ▶ x)) (begin
-           ⌜ ⌞ p · γ ⟨ x ⟩ ⌟ ⌝ ·ᶜ Ψ *> (𝟘ᶜ , x ≔ 𝟙)  ≈⟨ ·ᶜ-*>-𝟘ᶜ,≔𝟙 Ψ ⟩
-           Ψ *> (𝟘ᶜ , x ≔ ⌜ ⌞ p · γ ⟨ x ⟩ ⌟ ⌝)       ≡˘⟨ cong (λ p → Ψ *> (𝟘ᶜ , x ≔ ⌜ ⌞ p ⌟ ⌝)) (lookup-distrib-·ᶜ γ _ _) ⟩
-           Ψ *> (𝟘ᶜ , x ≔ ⌜ ⌞ p ·ᶜ γ ⌟ᶜ x ⌝)         ∎))
-      of λ where
-        (inj₂ ▸γx) → sub ▸γx (≤ᶜ-reflexive (≈ᶜ-sym (·ᶜ-*>-𝟘ᶜ,≔𝟙 Ψ)))
-        (inj₁ ▸p)  → lemma _ _ _ (≉𝟘→⌞⌟≡𝟙ᵐ p≉𝟘) ▸p
+  (p ≈ 𝟘 × T 𝟘ᵐ-allowed) ⊎ (Ψ ▶[ ⌞ γ ⌟ᶜ ] σ)
+▶-⌞·⌟ {p = p} {σ = σ} Ψ γ Ψ▶ = 𝟘ᵐ-allowed-elim
+  (λ ok → case is-𝟘? p of λ where
+     (yes p≈𝟘) → inj₁ (p≈𝟘 , ok)
+     (no p≉𝟘)  → inj₂ λ x →
+       case ▸-⌞·⌟
+         (sub (▸-cong (cong ⌞_⌟ (lookup-distrib-·ᶜ γ _ _)) (Ψ▶ x))
+            (begin
+               ⌜ ⌞ p · γ ⟨ x ⟩ ⌟ ⌝ ·ᶜ Ψ *> (𝟘ᶜ , x ≔ 𝟙)  ≈⟨ ·ᶜ-*>-𝟘ᶜ,≔𝟙 Ψ ⟩
+               Ψ *> (𝟘ᶜ , x ≔ ⌜ ⌞ p · γ ⟨ x ⟩ ⌟ ⌝)       ≡˘⟨ cong (λ p → Ψ *> (𝟘ᶜ , x ≔ ⌜ ⌞ p ⌟ ⌝)) (lookup-distrib-·ᶜ γ _ _) ⟩
+               Ψ *> (𝟘ᶜ , x ≔ ⌜ ⌞ p ·ᶜ γ ⌟ᶜ x ⌝)         ∎))
+       of λ where
+         (inj₂ ▸γx) → sub ▸γx (≤ᶜ-reflexive (≈ᶜ-sym (·ᶜ-*>-𝟘ᶜ,≔𝟙 Ψ)))
+         (inj₁ ▸p)  → lemma _ _ _ (≉𝟘→⌞⌟≡𝟙ᵐ p≉𝟘) ▸p)
+  (λ not-ok → inj₂ (▶-without-𝟘ᵐ Ψ not-ok Ψ▶))
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
@@ -582,13 +596,13 @@ wf-tailSubstₘ Ψ▶σ x =
 -- Substitution lemma for modalities --
 ---------------------------------------
 
--- A substitution lemma for the mode 𝟘ᵐ: if σ is well-formed and t is
--- well-used, then U.subst σ t is well-used in the mode 𝟘ᵐ, with no
--- usages.
+-- A substitution lemma for the mode 𝟘ᵐ[ ok ]: if σ is well-formed and
+-- t is well-used, then U.subst σ t is well-used in the mode 𝟘ᵐ[ ok ],
+-- with no usages.
 
 substₘ-lemma₀ :
-  (Ψ : Substₘ m n) →
-  Ψ ▶[ mos ] σ → γ ▸[ mo ] t → 𝟘ᶜ ▸[ 𝟘ᵐ ] U.subst σ t
+  ∀ ⦃ ok ⦄ (Ψ : Substₘ m n) →
+  Ψ ▶[ mos ] σ → γ ▸[ mo ] t → 𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] U.subst σ t
 substₘ-lemma₀ _ _ Uₘ =
   Uₘ
 
@@ -695,9 +709,10 @@ private
   -- Some simple lemmas used in the proof of the substitution lemma
   -- below.
 
-  ≈𝟘→𝟘ᵐ≡ᵐ· : ∀ mo → p ≈ 𝟘 → 𝟘ᵐ ≡ mo ᵐ· p
+  ≈𝟘→𝟘ᵐ≡ᵐ· : ∀ ⦃ ok ⦄ mo → p ≈ 𝟘 → 𝟘ᵐ[ ok ] ≡ mo ᵐ· p
   ≈𝟘→𝟘ᵐ≡ᵐ· {p = p} mo p≈𝟘 =
-    𝟘ᵐ       ≡˘⟨ ᵐ·-zeroʳ mo ⟩
+    𝟘ᵐ       ≡˘⟨ 𝟘ᵐ?≡𝟘ᵐ ⟩
+    𝟘ᵐ?      ≡˘⟨ ᵐ·-zeroʳ mo ⟩
     mo ᵐ· 𝟘  ≡˘⟨ ᵐ·-cong mo p≈𝟘 ⟩
     mo ᵐ· p  ∎
     where
@@ -804,9 +819,10 @@ substₘ-lemma
   {σ = σ} {mo = mo} Ψ Ψ▶σ
   (_∘ₘ_ {γ = γ} {t = t} {δ = δ} {p = p} {u = u} γ▸t δ▸u) =
   case ▶-⌞·⌟ Ψ δ (▶-⌞+ᶜ⌟ʳ Ψ γ Ψ▶σ) of λ where
-    (inj₂ Ψ▶σ) → lemma (substₘ-lemma Ψ Ψ▶σ δ▸u) ≈ᶜ-refl
-    (inj₁ p≈𝟘) → lemma
-      (▸-cong (≈𝟘→𝟘ᵐ≡ᵐ· mo p≈𝟘) (substₘ-lemma₀ Ψ Ψ▶σ δ▸u))
+    (inj₂ Ψ▶σ)        → lemma (substₘ-lemma Ψ Ψ▶σ δ▸u) ≈ᶜ-refl
+    (inj₁ (p≈𝟘 , ok)) → lemma
+      (▸-cong (≈𝟘→𝟘ᵐ≡ᵐ· ⦃ ok = ok ⦄ mo p≈𝟘)
+         (substₘ-lemma₀ ⦃ ok = ok ⦄ Ψ Ψ▶σ δ▸u))
       (≈𝟘→·*>≈·𝟘 Ψ p≈𝟘)
   where
   lemma :
@@ -841,9 +857,10 @@ substₘ-lemma
   {σ = σ} {mo = mo} Ψ Ψ▶σ
   (prodrecₘ {γ = γ} {p = p} {t = t} {δ = δ} {u = u} {A = A} γ▸t δ▸u P) =
   case ▶-⌞·⌟ Ψ γ (▶-⌞+ᶜ⌟ˡ Ψ (_ ·ᶜ γ) Ψ▶σ) of λ where
-    (inj₂ Ψ▶σ) → lemma (substₘ-lemma Ψ Ψ▶σ γ▸t) ≈ᶜ-refl
-    (inj₁ p≈𝟘) → lemma
-      (▸-cong (≈𝟘→𝟘ᵐ≡ᵐ· mo p≈𝟘) (substₘ-lemma₀ Ψ Ψ▶σ γ▸t))
+    (inj₂ Ψ▶σ)        → lemma (substₘ-lemma Ψ Ψ▶σ γ▸t) ≈ᶜ-refl
+    (inj₁ (p≈𝟘 , ok)) → lemma
+      (▸-cong (≈𝟘→𝟘ᵐ≡ᵐ· ⦃ ok = ok ⦄ mo p≈𝟘)
+         (substₘ-lemma₀ ⦃ ok = ok ⦄ Ψ Ψ▶σ γ▸t))
       (≈𝟘→·*>≈·𝟘 Ψ p≈𝟘)
   where
   lemma :
@@ -908,8 +925,9 @@ substₘ-lemma {mo = mo} Ψ Ψ▶σ (Emptyrecₘ {γ = γ} {p = p} γ▸t) =
     (inj₂ Ψ▶σ) → sub
       (Emptyrecₘ (substₘ-lemma Ψ Ψ▶σ γ▸t))
       (≤ᶜ-reflexive (*>-distrib-·ᶜ Ψ _ _))
-    (inj₁ p≈𝟘) → sub
-      (Emptyrecₘ (▸-cong (≈𝟘→𝟘ᵐ≡ᵐ· mo p≈𝟘) (substₘ-lemma₀ Ψ Ψ▶σ γ▸t)))
+    (inj₁ (p≈𝟘 , ok)) → sub
+      (Emptyrecₘ (▸-cong (≈𝟘→𝟘ᵐ≡ᵐ· ⦃ ok = ok ⦄ mo p≈𝟘)
+                    (substₘ-lemma₀ ⦃ ok = ok ⦄ Ψ Ψ▶σ γ▸t)))
       (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
          Ψ *> (p ·ᶜ γ)  ≈⟨ *>-distrib-·ᶜ Ψ _ _ ⟩
          p ·ᶜ Ψ *> γ    ≈⟨ ≈𝟘→·*>≈·𝟘 Ψ p≈𝟘 ⟩
