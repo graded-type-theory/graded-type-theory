@@ -29,6 +29,7 @@ erasureModalityWithout⊛ = record
   ; ·-distrib-∧ = ·-distrib-+
   ; +-distrib-∧ = +-distrib-+
   ; restrictions = restrictions
+  ; 𝟘ᵐ→𝟙≉𝟘 = λ _ ()
   ; is-𝟘? = λ where
       𝟘 → yes refl
       ω → no (λ ())

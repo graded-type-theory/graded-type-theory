@@ -8,6 +8,7 @@ module Definition.Modality {a ℓ} (M′ : Setoid a ℓ) where
 open Setoid M′ renaming (Carrier to M)
 
 open import Tools.Algebra M′
+open import Tools.Bool using (T)
 open import Tools.Nat hiding (_+_)
 open import Tools.Product
 open import Tools.Sum
@@ -44,6 +45,9 @@ record ModalityWithout⊛ : Set (lsuc (a ⊔ ℓ)) where
 
     -- "Extra" restrictions for certain term/type constructors.
     restrictions : Restrictions
+
+    -- If the mode 𝟘ᵐ is allowed, then 𝟙 is not equivalent to 𝟘.
+    𝟘ᵐ→𝟙≉𝟘 : T (Restrictions.𝟘ᵐ-allowed restrictions) → 𝟙 ≉ 𝟘
 
     -- It is decidable whether a value is equivalent to 𝟘.
     is-𝟘? : (p : M) → Dec (p ≈ 𝟘)

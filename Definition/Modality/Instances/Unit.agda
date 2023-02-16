@@ -163,6 +163,7 @@ UnitModalityWithout⊛ = record
   ; restrictions = record no-restrictions
     { 𝟘ᵐ-allowed = false
     }
+  ; 𝟘ᵐ→𝟙≉𝟘 = λ ()
   ; is-𝟘? = λ _ → yes refl
   ; zero-product = λ _ → inj₁ refl
   ; positiveˡ = λ _ → refl
