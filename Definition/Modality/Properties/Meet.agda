@@ -78,6 +78,19 @@ private
   (p ∧ q) ∧ q ∎
   where open Tools.Reasoning.Equivalence M′
 
+-- The result of the meet operation is a greatest lower bound of its
+-- two arguments.
+
+∧-greatest-lower-bound : p ≤ q → p ≤ r → p ≤ q ∧ r
+∧-greatest-lower-bound {p = p} {q = q} {r = r} p≤q p≤r = begin
+  p            ≈⟨ p≤q ⟩
+  p ∧ q        ≈⟨ ∧-congʳ p≤r ⟩
+  (p ∧ r) ∧ q  ≈⟨ ∧-assoc _ _ _ ⟩
+  p ∧ (r ∧ q)  ≈⟨ ∧-congˡ (∧-comm _ _) ⟩
+  p ∧ (q ∧ r)  ∎
+  where
+  open Tools.Reasoning.Equivalence M′
+
 -- If p ∧ q is equivalent to 𝟘, then p is equivalent to 𝟘.
 
 ∧≈𝟘ˡ : p ∧ q ≈ 𝟘 → p ≈ 𝟘
