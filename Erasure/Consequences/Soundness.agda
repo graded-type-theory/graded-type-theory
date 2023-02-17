@@ -46,31 +46,6 @@ sucᵏ′ : (k : Nat) → T.Term n
 sucᵏ′ 0      = T.zero
 sucᵏ′ (1+ n) = T.suc (sucᵏ′ n)
 
--- Weak head representation of natural numbers
-
-data WHℕ : (n : Nat) → Term 0 → Set where
-  zeroʷ : ε ⊢ t ⇒* zero ∷ ℕ → WHℕ 0 t
-  sucʷ  : ε ⊢ t ⇒* suc t′ ∷ ℕ → WHℕ n t′ → WHℕ (1+ n) t
-
-data WHℕ′ : (n : Nat) → T.Term 0 → Set where
-  zeroʷ : v T.⇒* T.zero → WHℕ′ 0 v
-  sucʷ  : v T.⇒* T.suc v′ → WHℕ′ n v′ → WHℕ′ (1+ n) v
-
--- Weak head representations are equivalent to canonical representations
--- when reductions are allowed under the head of suc
-
--- If WHℕ n t then t ⇓ sucᵏ n
-
-WHℕ-canon : WHℕ n t → ε ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
-WHℕ-canon (zeroʷ x) = whred* x
-WHℕ-canon (sucʷ x x₁) = ⇒ˢ*∷ℕ-trans (whred* x) (sucred* (WHℕ-canon x₁))
-
--- If WHℕ′ n v then v ⇓′ sucᵏ′ v
-
-WHℕ′-canon : WHℕ′ n v → v ⇒ˢ* sucᵏ′ n
-WHℕ′-canon (zeroʷ x) = whred*′ x
-WHℕ′-canon (sucʷ x x₁) = ⇒ˢ*-trans (whred*′ x) (sucred*′ (WHℕ′-canon x₁))
-
 -- Helper lemma for WH reduction soundness of zero
 -- If t ® v ∷ℕ  and t ⇒* zero then v ⇒* zero
 
@@ -113,40 +88,23 @@ soundness-suc t⇒suc γ▸t =
       t®t″ = irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ (idRed:*: (ℕⱼ ε))) t®t′
   in  soundness-suc′ t®t″ t⇒suc
 
+-- Helper lemma for soundness of natural numbers
 
--- Helper lemma for WH reduction soundness of natural numbers
--- If t ® v ∷ℕ and WHℕ n t then WHℕ′ n v
+soundness-ℕ′ : t ® v ∷ℕ → ∃ λ n → ε ⊢ t ⇒ˢ* sucᵏ n ∷ℕ × v ⇒ˢ* sucᵏ′ n
+soundness-ℕ′ (zeroᵣ x x₁) = 0 , whred* x , whred*′ x₁
+soundness-ℕ′ (sucᵣ x x₁ t®v) =
+  let n , d , d′ = soundness-ℕ′ t®v
+  in  1+ n , ⇒ˢ*∷ℕ-trans (whred* x) (sucred* d)
+           , ⇒ˢ*-trans (whred*′ x₁) (sucred*′ d′)
 
-soundness-ℕ′ : t ® v ∷ℕ → WHℕ n t → WHℕ′ n v
-soundness-ℕ′ t®v (zeroʷ x) = zeroʷ (soundness-zero′ t®v x)
-soundness-ℕ′ t®v (sucʷ x whn) =
-  let v′ , v⇒suc , t®v′ = soundness-suc′ t®v x
-  in  sucʷ v⇒suc (soundness-ℕ′ t®v′ whn)
+-- Soundness for erasure of natural numbers
+-- Closed, well-typed terms reduce to numerals
 
--- WH reduction soundness of natural numbers
--- If ε ⊢ t ∷ ℕ and ε ▸ t and WHℕ n t then WHℕ′ n (erase t)
-
-soundness-ℕ : ε ⊢ t ∷ ℕ → ε ▸ t → WHℕ n t → WHℕ′ n (erase t)
-soundness-ℕ ⊢t γ▸t whn =
-  let [ℕ] , t®t′ = fundamental′ ⊢t γ▸t
-      t®t″ = irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ (idRed:*: (ℕⱼ ε))) t®t′
-  in  soundness-ℕ′ t®t″ whn
-
--- Helper lemma for existensial WH reduction soundness of natural numbers
--- If t ® v ∷ℕ then ∃ n such that WHℕ n t and WHℕ′ n v
-
-soundness-ℕ-∃′ : t ® v ∷ℕ → ∃ λ n → WHℕ n t × WHℕ′ n v
-soundness-ℕ-∃′ (zeroᵣ x x₁) = 0 , zeroʷ x , zeroʷ x₁
-soundness-ℕ-∃′ (sucᵣ x x₁ t®v) with soundness-ℕ-∃′ t®v
-... | n , y , y₁ = 1+ n , sucʷ x y , sucʷ x₁ y₁
-
--- Existensial WH reduction soundness for natural numbers
--- If ε ⊢ t ∷ ℕ and ε ▸ t then ∃ n such that WHℕ n t and WHℕ′ n (erase t)
-
-soundness-ℕ-∃ : ε ⊢ t ∷ ℕ → ε ▸ t → ∃ λ n → WHℕ n t × WHℕ′ n (erase t)
-soundness-ℕ-∃ ⊢t ▸t =
-  let [ℕ] , t®v = fundamental′ ⊢t ▸t
-  in  soundness-ℕ-∃′ (irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ (idRed:*: (ℕⱼ ε))) t®v)
+soundness-ℕ : ε ⊢ t ∷ ℕ → ε ▸ t
+            → ∃ λ n → ε ⊢ t ⇒ˢ* sucᵏ n ∷ℕ × erase t ⇒ˢ* sucᵏ′ n
+soundness-ℕ ⊢t ε▸t =
+  let [ℕ] , t®v = fundamental′ ⊢t ε▸t
+  in  soundness-ℕ′ (irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ (idRed:*: (ℕⱼ ε))) t®v)
 
 -- Helper lemma for WH reduction soundness of unit
 
