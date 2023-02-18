@@ -169,6 +169,7 @@ UnitModalityWithout⊛ = record
   ; positiveˡ = λ _ → refl
   ; 𝟘≮ = λ _ → refl
   ; ∧≤𝟘ˡ = λ _ → refl
+  ; ≉𝟘→≤𝟙 = λ _ → refl
   }
 
 UnitModality : Modality

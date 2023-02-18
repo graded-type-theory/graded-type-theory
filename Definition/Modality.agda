@@ -80,6 +80,9 @@ record ModalityWithout⊛ : Set (lsuc (a ⊔ ℓ)) where
     -- If p ∧ q is equivalent to 𝟘, then p ≤ 𝟘.
     ∧≤𝟘ˡ : {p q : M} → p ∧ q ≈ 𝟘 → p ≤ 𝟘
 
+    -- Non-zero quantities must be bounded by 1.
+    ≉𝟘→≤𝟙 : {p : M} → p ≉ 𝟘 → p ≤ 𝟙
+
   ·-distribˡ-∧ : _·_ DistributesOverˡ _∧_
   ·-distribˡ-∧ = proj₁ ·-distrib-∧
 

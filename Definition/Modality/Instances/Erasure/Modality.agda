@@ -47,6 +47,9 @@ erasureModalityWithout⊛ = record
   ; ∧≤𝟘ˡ = λ where
       {p = 𝟘} _  → refl
       {p = ω} ()
+  ; ≉𝟘→≤𝟙 = λ where
+      {p = 𝟘} 𝟘≉𝟘 → ⊥-elim (𝟘≉𝟘 refl)
+      {p = ω} _   → refl
   }
 
 ErasureModality : Modality
