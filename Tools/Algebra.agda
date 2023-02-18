@@ -9,6 +9,8 @@ open Setoid S renaming (Carrier to A)
 open import Tools.Level
 open import Tools.Product
 
+open import Algebra.Consequences.Setoid S public
+  using (comm+idˡ⇒idʳ; comm+zeˡ⇒zeʳ; comm+distrˡ⇒distrʳ)
 open import Algebra.Core using (Op₁; Op₂) public
 open import Algebra.Definitions (_≈_)
      using (Associative; Commutative; Congruent₂; _DistributesOver_;

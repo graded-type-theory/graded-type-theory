@@ -31,6 +31,7 @@ import Tools.Reasoning.PropositionalEquality
 import Definition.Modality
 import Definition.Modality.Instances.Erasure
 import Definition.Modality.Instances.Unit
+import Definition.Modality.Instances.Zero-one-many
 import Definition.Modality.Properties
 import Definition.Modality.Context
 import Definition.Modality.Context.Properties
