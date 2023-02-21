@@ -1,5 +1,3 @@
-{-# OPTIONS --without-K --safe #-}
-
 open import Tools.Relation
 
 module Definition.Conversion.Decidable {a ℓ′} (M″ : DecSetoid a ℓ′) where

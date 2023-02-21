@@ -1,5 +1,3 @@
-{-# OPTIONS --without-K --safe #-}
-
 -- A Logical Relation for Dependent Type Theory Formalized in Agda
 
 module Logrel-MLTT where

@@ -1,5 +1,3 @@
-{-# OPTIONS --without-K --safe #-}
-
 open import Tools.Relation
 
 module Definition.Typed.Reduction {ℓ ℓ′} (M′ : Setoid ℓ ℓ′) where

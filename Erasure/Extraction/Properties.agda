@@ -1,5 +1,3 @@
-{-# OPTIONS --without-K --safe #-}
-
 module Erasure.Extraction.Properties where
 
 open import Erasure.Extraction

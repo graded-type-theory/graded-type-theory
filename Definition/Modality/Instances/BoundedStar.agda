@@ -1,5 +1,3 @@
-{-# OPTIONS --without-K --safe #-}
-
 open import Tools.Relation
 open import Definition.Modality
 import Tools.Algebra as A

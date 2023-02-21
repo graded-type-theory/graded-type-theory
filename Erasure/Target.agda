@@ -1,5 +1,3 @@
-{-# OPTIONS --without-K --safe #-}
-
 module Erasure.Target where
 
 open import Tools.Fin

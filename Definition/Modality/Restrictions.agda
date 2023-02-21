@@ -2,8 +2,6 @@
 -- "Extra" restrictions
 ------------------------------------------------------------------------
 
-{-# OPTIONS --without-K --safe #-}
-
 open import Tools.Relation
 
 module Definition.Modality.Restrictions {a ℓ} (M′ : Setoid a ℓ) where

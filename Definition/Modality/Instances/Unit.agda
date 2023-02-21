@@ -1,5 +1,3 @@
-{-# OPTIONS --without-K --safe #-}
-
 module Definition.Modality.Instances.Unit where
 
 open import Tools.Nat hiding (_+_)

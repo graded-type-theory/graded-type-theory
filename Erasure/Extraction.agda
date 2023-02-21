@@ -1,4 +1,3 @@
-{-# OPTIONS --without-K --safe #-}
 module Erasure.Extraction where
 
 open import Definition.Modality.Instances.Erasure

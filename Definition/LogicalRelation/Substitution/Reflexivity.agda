@@ -1,6 +1,3 @@
-
-{-# OPTIONS --without-K --safe #-}
-
 open import Definition.Typed.EqualityRelation
 open import Tools.Relation
 

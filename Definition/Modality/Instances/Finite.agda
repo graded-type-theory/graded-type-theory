@@ -1,5 +1,3 @@
-{-# OPTIONS --without-K --safe #-}
-
 open import Tools.Fin
 open import Tools.Nat
 open import Tools.Product

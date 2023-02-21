@@ -1,5 +1,3 @@
-{-# OPTIONS --without-K --safe #-}
-
 open import Tools.Relation
 
 module Tools.Algebra {a ℓ} (S : Setoid a ℓ) where

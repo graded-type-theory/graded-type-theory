@@ -1,5 +1,3 @@
-{-# OPTIONS --without-K --safe #-}
-
 import Tools.Algebra as A
 open import Tools.Nat hiding (_+_)
 open import Tools.Product

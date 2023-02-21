@@ -1,7 +1,5 @@
 -- Disjoint sum type; also used as logical disjunction.
 
-{-# OPTIONS --without-K --safe #-}
-
 module Tools.Sum where
 
 open import Tools.Level

@@ -1,8 +1,6 @@
 -- Proof that consistent negative axioms do not jeopardize canonicity.
 -- https://www.cs.bham.ac.uk/~mhe/papers/negative-axioms.pdf
 
-{-# OPTIONS --without-K --safe #-}
-
 open import Definition.Modality.Instances.Erasure
 open import Definition.Modality.Restrictions Erasure′
 open import Definition.Modality.Instances.Erasure.Modality

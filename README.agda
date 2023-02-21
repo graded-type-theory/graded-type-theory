@@ -1,5 +1,3 @@
-{-# OPTIONS --without-K --safe  #-}
-
 module README where
 
 -- Formalization for "Decidability of Conversion for Type Theory in Type Theory"

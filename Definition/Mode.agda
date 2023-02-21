@@ -2,8 +2,6 @@
 -- Modes
 ------------------------------------------------------------------------
 
-{-# OPTIONS --without-K --safe #-}
-
 open import Tools.Relation
 open import Definition.Modality
 

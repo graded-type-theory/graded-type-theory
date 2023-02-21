@@ -1,5 +1,3 @@
-{-# OPTIONS --without-K --safe #-}
-
 module Definition.Modality.Instances.Erasure where
 
 open import Tools.Product

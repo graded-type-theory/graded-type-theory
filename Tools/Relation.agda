@@ -1,5 +1,3 @@
-{-# OPTIONS --without-K --safe #-}
-
 module Tools.Relation where
 
 open import Relation.Binary.Core using (Rel) public

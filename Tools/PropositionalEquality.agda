@@ -1,8 +1,6 @@
 -- Martin-Löf identity type without the K axiom
 -- (we do not assume uniqueness of identity proofs).
 
-{-# OPTIONS --without-K --safe #-}
-
 module Tools.PropositionalEquality where
 
 -- We reexport Agda's builtin equality type.

@@ -1,7 +1,5 @@
 -- The natural numbers.
 
-{-# OPTIONS --without-K --safe #-}
-
 module Tools.Nat where
 
 open import Tools.PropositionalEquality

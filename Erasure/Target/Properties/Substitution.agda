@@ -1,5 +1,3 @@
-{-# OPTIONS --without-K --safe #-}
-
 module Erasure.Target.Properties.Substitution where
 
 open import Erasure.Target hiding (refl ; trans)

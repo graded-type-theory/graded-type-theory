@@ -1,5 +1,3 @@
-{-# OPTIONS --without-K --safe #-}
-
 open import Tools.Relation
 
 module Definition.Typed.Consequences.Syntactic {a ℓ} (M′ : Setoid a ℓ) where

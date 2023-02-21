@@ -1,7 +1,5 @@
 -- Algorithmic equality.
 
-{-# OPTIONS --without-K --safe #-}
-
 open import Tools.Relation
 open import Tools.Level
 

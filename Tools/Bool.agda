@@ -1,5 +1,3 @@
-{-# OPTIONS --without-K --safe #-}
-
 module Tools.Bool where
 
 open import Data.Bool.Base

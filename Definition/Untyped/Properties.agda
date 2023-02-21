@@ -1,7 +1,5 @@
 -- Laws for weakenings and substitutions.
 
-{-# OPTIONS --without-K --safe #-}
-
 module Definition.Untyped.Properties {a} (M : Set a) where
 
 open import Definition.Untyped M
