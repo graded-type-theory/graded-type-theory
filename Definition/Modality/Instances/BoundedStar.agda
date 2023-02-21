@@ -1,6 +1,6 @@
-open import Tools.Relation
 open import Definition.Modality
 import Tools.Algebra as A
+open import Tools.PropositionalEquality
 open import Tools.Sum
 
 -- A star-ringoid with a unary operator _* satisfying
@@ -8,15 +8,14 @@ open import Tools.Sum
 -- and p* ≤ 𝟘 or p* ≤ 𝟙 for all p is a modality instance.
 
 module Definition.Modality.Instances.BoundedStar
-  {a ℓ} {M′ : Setoid a ℓ} (𝕄 : ModalityWithout⊛ M′)
-  (_* : A.Op₁ (Setoid.Carrier M′))
-  (*-rec : (p : Setoid.Carrier M′)
-         → (Setoid._≈_ M′ (p *) (ModalityWithout⊛._+_ 𝕄 (ModalityWithout⊛.𝟙 𝕄) (ModalityWithout⊛._·_ 𝕄 p (p *)))))
-  (*-cong : {p p′ : Setoid.Carrier M′} → Setoid._≈_ M′ p p′ → Setoid._≈_ M′ (p *) (p′ *))
-  (bounds : (p : Setoid.Carrier M′) → ModalityWithout⊛._≤_ 𝕄 (p *) (ModalityWithout⊛.𝟘 𝕄)
-                                    ⊎ ModalityWithout⊛._≤_ 𝕄 (p *) (ModalityWithout⊛.𝟙 𝕄)) where
+  {a} {M : Set a} (𝕄 : ModalityWithout⊛ M)
+  (_* : A.Op₁ M)
+  (*-rec : (p : M)
+         → ((p *) ≡ (ModalityWithout⊛._+_ 𝕄 (ModalityWithout⊛.𝟙 𝕄) (ModalityWithout⊛._·_ 𝕄 p (p *)))))
+  (*-cong : {p p′ : M} → p ≡ p′ → (p *) ≡ (p′ *))
+  (bounds : (p : M) → ModalityWithout⊛._≤_ 𝕄 (p *) (ModalityWithout⊛.𝟘 𝕄)
+                    ⊎ ModalityWithout⊛._≤_ 𝕄 (p *) (ModalityWithout⊛.𝟙 𝕄)) where
 
-open Setoid M′ renaming (Carrier to M)
 open ModalityWithout⊛ 𝕄
 
 open import Definition.Modality.Properties.Equivalence 𝕄
@@ -29,7 +28,7 @@ open import Tools.Function
 import Tools.Reasoning.Equivalence
 import Tools.Reasoning.PartialOrder
 open import Tools.Product
-open import Tools.Algebra M′
+open import Tools.Algebra M
 
 private
   variable
@@ -151,7 +150,7 @@ p ⊛ q ▷ r = (r *) · (p ∧ q)
       (r *)          ≈⟨ r*≈𝟘 ⟩
       𝟘              ∎))
   where
-  open Tools.Reasoning.Equivalence M′
+  open Tools.Reasoning.Equivalence (setoid M)
 
   r*p≈𝟘 : (r *) · p ≈ 𝟘
   r*p≈𝟘 = ∧≈𝟘ˡ (begin
@@ -168,9 +167,9 @@ p ⊛ q ▷ r = (r *) · (p ∧ q)
   p ⊛ q ▷ r        ≈⟨ p⊛q▷r≈𝟘 ⟩
   𝟘                ∎)
   where
-  open Tools.Reasoning.Equivalence M′
+  open Tools.Reasoning.Equivalence (setoid M)
 
-isModality : Modality M′
+isModality : Modality M
 isModality = record
   { modalityWithout⊛ = 𝕄
   ; _⊛_▷_ = _⊛_▷_

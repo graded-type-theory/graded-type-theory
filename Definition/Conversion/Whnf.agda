@@ -1,11 +1,8 @@
-open import Tools.Relation
-
-module Definition.Conversion.Whnf {a ℓ} (M′ : Setoid a ℓ) where
-
-open Setoid M′ using () renaming (Carrier to M)
+module Definition.Conversion.Whnf
+  {a} (M : Set a) where
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Conversion M′
+open import Definition.Conversion M
 
 open import Tools.Nat
 open import Tools.Product

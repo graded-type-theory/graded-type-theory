@@ -6,15 +6,12 @@ open import Tools.PropositionalEquality
 open import Tools.Relation
 open import Tools.Unit
 
-Unit′ : Setoid _ _
-Unit′ = record { Carrier = ⊤ ; _≈_ = _≡_ ; isEquivalence = isEquivalence }
-
-open import Tools.Algebra Unit′
+open import Tools.Algebra ⊤
 open import Tools.Bool using (false)
 open import Tools.Sum
 
-open import Definition.Modality Unit′ public
-open import Definition.Modality.Restrictions Unit′
+open import Definition.Modality ⊤ public
+open import Definition.Modality.Restrictions ⊤
 
 -----------------------------------------------
 -- A trivial modality formed by the unit set --

@@ -1,17 +1,14 @@
-open import Tools.Level
-open import Tools.Relation
-
-module Definition.Typed.EqualityRelation {ℓ ℓ′} (M′ : Setoid ℓ ℓ′) where
-
-open Setoid M′ using (_≈_) renaming (Carrier to M)
+module Definition.Typed.EqualityRelation {ℓ} (M : Set ℓ) where
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Untyped.BindingType M′
-open import Definition.Typed M′
-open import Definition.Typed.Weakening M′ using (_∷_⊆_)
+open import Definition.Untyped.BindingType M
+open import Definition.Typed M
+open import Definition.Typed.Weakening M using (_∷_⊆_)
 
 open import Tools.Fin
+open import Tools.Level
 open import Tools.Nat
+open import Tools.PropositionalEquality using (_≈_)
 
 private
   variable
@@ -27,7 +24,7 @@ private
 
 -- Generic equality relation used with the logical relation
 
-record EqRelSet : Set (lsuc (ℓ ⊔ ℓ′)) where
+record EqRelSet : Set (lsuc ℓ) where
   constructor eqRel
   field
     ---------------
@@ -35,13 +32,13 @@ record EqRelSet : Set (lsuc (ℓ ⊔ ℓ′)) where
     ---------------
 
     -- Equality of types
-    _⊢_≅_   : Con Term n → (A B : Term n)   → Set (ℓ ⊔ ℓ′)
+    _⊢_≅_   : Con Term n → (A B : Term n)   → Set ℓ
 
     -- Equality of terms
-    _⊢_≅_∷_ : Con Term n → (t u A : Term n) → Set (ℓ ⊔ ℓ′)
+    _⊢_≅_∷_ : Con Term n → (t u A : Term n) → Set ℓ
 
     -- Equality of neutral terms
-    _⊢_~_∷_ : Con Term n → (t u A : Term n) → Set (ℓ ⊔ ℓ′)
+    _⊢_~_∷_ : Con Term n → (t u A : Term n) → Set ℓ
 
     ----------------
     -- Properties --

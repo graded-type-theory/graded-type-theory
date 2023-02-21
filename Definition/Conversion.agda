@@ -1,18 +1,14 @@
 -- Algorithmic equality.
 
-open import Tools.Relation
-open import Tools.Level
-
-module Definition.Conversion {a ℓ} (M′ : Setoid a ℓ) where
-
-open Setoid M′ renaming (Carrier to M)
+module Definition.Conversion
+  {a} (M : Set a) where
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M′
+open import Definition.Typed M
 
 open import Tools.Fin
 open import Tools.Nat
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE using (_≈_)
 
 
 infix 10 _⊢_~_↑_
@@ -34,7 +30,7 @@ private
 
 mutual
   -- Neutral equality.
-  data _⊢_~_↑_ (Γ : Con Term n) : (k l A : Term n) → Set (a ⊔ ℓ) where
+  data _⊢_~_↑_ (Γ : Con Term n) : (k l A : Term n) → Set a where
 
     var-refl      : Γ ⊢ var x ∷ C
                   → x PE.≡ y
@@ -72,7 +68,7 @@ mutual
                   → Γ ⊢ Emptyrec p F k ~ Emptyrec p′ H l ↑ F
 
   -- Neutral equality with types in WHNF.
-  record _⊢_~_↓_ (Γ : Con Term n) (k l B : Term n) : Set (a ⊔ ℓ) where
+  record _⊢_~_↓_ (Γ : Con Term n) (k l B : Term n) : Set a where
     inductive
     constructor [~]
     field
@@ -82,7 +78,7 @@ mutual
       k~l   : Γ ⊢ k ~ l ↑ A
 
   -- Type equality.
-  record _⊢_[conv↑]_ (Γ : Con Term n) (A B : Term n) : Set (a ⊔ ℓ) where
+  record _⊢_[conv↑]_ (Γ : Con Term n) (A B : Term n) : Set a where
     inductive
     constructor [↑]
     field
@@ -94,7 +90,7 @@ mutual
       A′<>B′ : Γ ⊢ A′ [conv↓] B′
 
   -- Type equality with types in WHNF.
-  data _⊢_[conv↓]_ (Γ : Con Term n) : (A B : Term n) → Set (a ⊔ ℓ) where
+  data _⊢_[conv↓]_ (Γ : Con Term n) : (A B : Term n) → Set a where
 
     U-refl     : ⊢ Γ → Γ ⊢ U [conv↓] U
 
@@ -124,7 +120,7 @@ mutual
                → Γ ⊢ Σ⟨ m ⟩ q ▷ F ▹ G [conv↓] Σ⟨ m ⟩ q′ ▷ H ▹ E
 
   -- Term equality.
-  record _⊢_[conv↑]_∷_ (Γ : Con Term n) (t u A : Term n) : Set (a ⊔ ℓ) where
+  record _⊢_[conv↑]_∷_ (Γ : Con Term n) (t u A : Term n) : Set a where
     inductive
     constructor [↑]ₜ
     field
@@ -138,7 +134,7 @@ mutual
       t<>u    : Γ ⊢ t′ [conv↓] u′ ∷ B
 
   -- Term equality with types and terms in WHNF.
-  data _⊢_[conv↓]_∷_ (Γ : Con Term n) : (t u A : Term n) → Set (a ⊔ ℓ) where
+  data _⊢_[conv↓]_∷_ (Γ : Con Term n) : (t u A : Term n) → Set a where
 
     ℕ-ins     : Γ ⊢ k ~ l ↓ ℕ
               → Γ ⊢ k [conv↓] l ∷ ℕ

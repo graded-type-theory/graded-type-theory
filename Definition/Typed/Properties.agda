@@ -1,17 +1,13 @@
-open import Tools.Relation
-
-module Definition.Typed.Properties {ℓ ℓ′} (M′ : Setoid ℓ ℓ′) where
-
-open Setoid M′ using () renaming (Carrier to M; refl to ≈-refl;
-                                  sym to ≈-sym; trans to ≈-trans)
+module Definition.Typed.Properties {ℓ} (M : Set ℓ) where
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M′
+open import Definition.Typed M
 
 open import Tools.Empty using (⊥; ⊥-elim)
 open import Tools.Nat
 open import Tools.Product
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE
+  using (≈-refl; ≈-sym; ≈-trans)
 
 private
   variable
@@ -96,13 +92,13 @@ subsetTerm (natrec-suc n F z s) = natrec-suc n F z s
 subsetTerm (Emptyrec-subst A n⇒n′) =
   Emptyrec-cong (refl A) (subsetTerm n⇒n′) ≈-refl
 subsetTerm (app-subst t⇒u a) =
-  app-cong (subsetTerm t⇒u) (refl a) (Setoid.refl M′) (Setoid.refl M′)
+  app-cong (subsetTerm t⇒u) (refl a) PE.refl PE.refl
 subsetTerm (β-red A B t a p≈p′) = β-red A B t a p≈p′
 subsetTerm (conv t⇒u A≡B) = conv (subsetTerm t⇒u) A≡B
 subsetTerm (fst-subst F G x) = fst-cong F G (subsetTerm x)
 subsetTerm (snd-subst F G x) = snd-cong F G (subsetTerm x)
 subsetTerm (prodrec-subst F G A u t⇒t′) =
-  prodrec-cong F G (refl A) (subsetTerm t⇒t′) (refl u) (Setoid.refl M′)
+  prodrec-cong F G (refl A) (subsetTerm t⇒t′) (refl u) PE.refl
 subsetTerm (prodrec-β F G A t t′ u) = prodrec-β F G A t t′ u
 subsetTerm (Σ-β₁ F G x x₁ x₂) = Σ-β₁ F G x x₁ x₂
 subsetTerm (Σ-β₂ F G x x₁ x₂) = Σ-β₂ F G x x₁ x₂

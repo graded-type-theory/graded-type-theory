@@ -1,19 +1,16 @@
-open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Properties.Meet {a ℓ}
-  {M′ : Setoid a ℓ}
-  (𝕄 : ModalityWithout⊛ M′)
-  where
+module Definition.Modality.Properties.Meet
+  {a} {M : Set a} (𝕄 : ModalityWithout⊛ M) where
 
 open ModalityWithout⊛ 𝕄
-open Setoid M′ renaming (Carrier to M)
 
 open import Definition.Modality.Properties.PartialOrder 𝕄
 
-open import Tools.Algebra M′
+open import Tools.Algebra M
 open import Tools.Nat hiding (_+_)
 open import Tools.Product
+open import Tools.PropositionalEquality
 import Tools.Reasoning.Equivalence
 import Tools.Reasoning.PartialOrder
 
@@ -33,7 +30,7 @@ private
   p ∧ r ∧ r ∧ q     ≈⟨ ≈-sym (∧-assoc p r (r ∧ q)) ⟩
   (p ∧ r) ∧ r ∧ q   ≈⟨ ∧-congˡ (∧-comm r q) ⟩
   (p ∧ r) ∧ (q ∧ r) ∎
-  where open Tools.Reasoning.Equivalence M′
+  where open Tools.Reasoning.Equivalence (setoid M)
 
 -- Meet on the right is a monotone function
 -- If p ≤ q then r ∧ p ≤ r ∧ q
@@ -47,7 +44,7 @@ private
   r ∧ p ∧ (q ∧ r)   ≈˘⟨ ∧-assoc r p (q ∧ r) ⟩
   (r ∧ p) ∧ (q ∧ r) ≈⟨ ∧-congˡ (∧-comm q r) ⟩
   (r ∧ p) ∧ (r ∧ q) ∎
-  where open Tools.Reasoning.Equivalence M′
+  where open Tools.Reasoning.Equivalence (setoid M)
 
 -- Meet is a monotone function
 -- If p ≤ p′ and q ≤ q′ then p ∧ q ≤ p′ ∧ q′
@@ -64,7 +61,7 @@ private
   (p ∧ p) ∧ q ≈⟨ ∧-assoc p p q ⟩
   p ∧ (p ∧ q) ≈⟨ ∧-comm p (p ∧ q) ⟩
   (p ∧ q) ∧ p ∎
-  where open Tools.Reasoning.Equivalence M′
+  where open Tools.Reasoning.Equivalence (setoid M)
 
 -- Meet on the right is a decreasing function
 -- p ∧ q ≤ q
@@ -74,7 +71,7 @@ private
   p ∧ q       ≈⟨ ∧-congˡ (≈-sym (∧-idem q)) ⟩
   p ∧ (q ∧ q) ≈˘⟨ ∧-assoc p q q ⟩
   (p ∧ q) ∧ q ∎
-  where open Tools.Reasoning.Equivalence M′
+  where open Tools.Reasoning.Equivalence (setoid M)
 
 -- The result of the meet operation is a greatest lower bound of its
 -- two arguments.
@@ -87,7 +84,7 @@ private
   p ∧ (r ∧ q)  ≈⟨ ∧-congˡ (∧-comm _ _) ⟩
   p ∧ (q ∧ r)  ∎
   where
-  open Tools.Reasoning.Equivalence M′
+  open Tools.Reasoning.Equivalence (setoid M)
 
 -- If p ∧ q is equivalent to 𝟘, then p is equivalent to 𝟘.
 
@@ -110,4 +107,4 @@ private
      p ∧ q  ≈⟨ p∧q≈𝟘 ⟩
      𝟘      ∎)
   where
-  open Tools.Reasoning.Equivalence M′
+  open Tools.Reasoning.Equivalence (setoid M)

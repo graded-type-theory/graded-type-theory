@@ -1,7 +1,7 @@
 import Tools.Algebra as A
 open import Tools.Nat hiding (_+_)
 open import Tools.Product
-open import Tools.Relation
+open import Tools.PropositionalEquality
 open import Definition.Modality renaming (ModalityWithout⊛ to MW⊛)
 
 -- A ringoid with the following recursively defined nr operator is a modality instance.
@@ -10,22 +10,21 @@ open import Definition.Modality renaming (ModalityWithout⊛ to MW⊛)
 -- ∃ n → nr (1+ n) p q r ≈ nr n p q r
 
 module Definition.Modality.Instances.Recursive
-  {a ℓ} {M′ : Setoid a ℓ} (𝕄 : MW⊛ M′)
-  (nr : Nat → A.Op₃ M′ (Setoid.Carrier M′))
-  (nr-rec : (n : Nat) (p q r : Setoid.Carrier M′)
-          → Setoid._≈_ M′ (nr (1+ n) p q r)
-                       (MW⊛._∧_ 𝕄 p (MW⊛._+_ 𝕄 q (MW⊛._·_ 𝕄 r (nr n p q r)))))
-  (nr-0 : (p q r : Setoid.Carrier M′) → Setoid._≈_ M′ (nr 0 p q r) (MW⊛.𝟘 𝕄))
-  (nr-fix : ∃ λ n → (p q r : Setoid.Carrier M′) → Setoid._≈_ M′ (nr (1+ n) p q r) (nr n p q r) ) where
+  {a} {M : Set a} (𝕄 : MW⊛ M)
+  (nr : Nat → A.Op₃ M M)
+  (nr-rec : (n : Nat) (p q r : M)
+          → nr (1+ n) p q r ≡
+            MW⊛._∧_ 𝕄 p (MW⊛._+_ 𝕄 q (MW⊛._·_ 𝕄 r (nr n p q r))))
+  (nr-0 : (p q r : M) → nr 0 p q r ≡ MW⊛.𝟘 𝕄)
+  (nr-fix : ∃ λ n → (p q r : M) → nr (1+ n) p q r ≡ nr n p q r) where
 
-open Setoid M′ renaming (Carrier to M)
 open MW⊛ 𝕄
 
 open import Definition.Modality.Properties.Addition 𝕄
 open import Definition.Modality.Properties.Meet 𝕄
 open import Definition.Modality.Properties.Multiplication 𝕄
 open import Definition.Modality.Properties.PartialOrder 𝕄
-open import Tools.Algebra M′
+open import Tools.Algebra M
 import Tools.Reasoning.Equivalence
 import Tools.Reasoning.PartialOrder
 
@@ -50,7 +49,7 @@ nr-cong {p} {p′} {q} {q′} {r} {r′} (1+ n) p≈p′ q≈q′ r≈r′ = beg
   p′ ∧ q′ + r′ · nr n p′ q′ r′ ≈˘⟨ nr-rec n p′ q′ r′ ⟩
   nr (1+ n) p′ q′ r′ ∎
   where
-  open Tools.Reasoning.Equivalence M′
+  open Tools.Reasoning.Equivalence (setoid M)
 
 +-sub-interchangable-nr : (n : Nat) (r : M) → _+_ SubInterchangable (λ p q → nr n p q r) by _≤_
 +-sub-interchangable-nr 0 r p q p′ q′ = begin
@@ -180,7 +179,7 @@ nr-sub-distribʳ-∧ (1+ n) r q p p′ = begin
   nr (proj₁ nr-fix) p q r                ≈⟨ p⊛q▷r≈𝟘 ⟩
   𝟘                                      ∎)
   where
-  open Tools.Reasoning.Equivalence M′
+  open Tools.Reasoning.Equivalence (setoid M)
 
 ⊛≤𝟘ʳ : p ⊛ q ▷ r ≈ 𝟘 → q ≤ 𝟘
 ⊛≤𝟘ʳ {p = p} {q = q} {r = r} p⊛q▷r≈𝟘 =
@@ -190,9 +189,9 @@ nr-sub-distribʳ-∧ (1+ n) r q p p′ = begin
     nr (proj₁ nr-fix) p q r                ≈⟨ p⊛q▷r≈𝟘 ⟩
     𝟘                                      ∎)))
   where
-  open Tools.Reasoning.Equivalence M′
+  open Tools.Reasoning.Equivalence (setoid M)
 
-isModality : Modality M′
+isModality : Modality M
 isModality = record
   { modalityWithout⊛ = 𝕄
   ; _⊛_▷_ = _⊛_▷_

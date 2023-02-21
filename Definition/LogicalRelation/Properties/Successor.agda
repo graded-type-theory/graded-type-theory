@@ -1,17 +1,16 @@
 open import Definition.Typed.EqualityRelation
-open import Tools.Relation
 
-module Definition.LogicalRelation.Properties.Successor {a ℓ} (M′ : Setoid a ℓ)
-                                                       {{eqrel : EqRelSet M′}} where
+module Definition.LogicalRelation.Properties.Successor
+  {a} (M : Set a) {{eqrel : EqRelSet M}} where
+
 open EqRelSet {{...}}
-open Setoid M′ using () renaming (Carrier to M)
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M′
-open import Definition.Typed.Properties M′
-open import Definition.LogicalRelation M′
-open import Definition.LogicalRelation.Irrelevance M′
-open import Definition.LogicalRelation.ShapeView M′
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.ShapeView M
 
 open import Tools.Nat
 open import Tools.Product

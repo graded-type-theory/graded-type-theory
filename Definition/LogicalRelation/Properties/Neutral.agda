@@ -1,26 +1,26 @@
 open import Definition.Typed.EqualityRelation
-open import Tools.Relation
 
-module Definition.LogicalRelation.Properties.Neutral {a ℓ} (M′ : Setoid a ℓ)
-                                                     {{eqrel : EqRelSet M′}} where
+module Definition.LogicalRelation.Properties.Neutral
+  {a} (M : Set a) {{eqrel : EqRelSet M}} where
+
 open EqRelSet {{...}}
-open Setoid M′ using () renaming (Carrier to M; refl to ≈-refl; trans to ≈-trans; sym to ≈-sym)
 
 open import Definition.Untyped M hiding (Wk; _∷_)
 open import Definition.Untyped.Properties M
-open import Definition.Typed M′
-open import Definition.Typed.Properties M′
-import Definition.Typed.Weakening M′ as Wk
-open import Definition.LogicalRelation M′
-open import Definition.LogicalRelation.ShapeView M′
-open import Definition.LogicalRelation.Irrelevance M′
-open import Definition.LogicalRelation.Properties.Reflexivity M′
-open import Definition.LogicalRelation.Properties.Escape M′
-open import Definition.LogicalRelation.Properties.Symmetry M′
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+import Definition.Typed.Weakening M as Wk
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.ShapeView M
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.Properties.Reflexivity M
+open import Definition.LogicalRelation.Properties.Escape M
+open import Definition.LogicalRelation.Properties.Symmetry M
 
 open import Tools.Nat
 open import Tools.Product
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE
+  using (≈-refl; ≈-sym; ≈-trans)
 
 private
   variable

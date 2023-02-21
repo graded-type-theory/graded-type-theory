@@ -1,38 +1,37 @@
-open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.FullReduction {a ℓ}
-       {M′ : Setoid a ℓ} (𝕄 : Modality M′)
-       (p≤𝟘 : (p : Setoid.Carrier M′) → Modality._≤_ 𝕄 p (Modality.𝟘 𝕄))
-       where
+module Definition.Modality.FullReduction
+  {a} {M : Set a} (𝕄 : Modality M)
+  (p≤𝟘 : (p : M) → Modality._≤_ 𝕄 p (Modality.𝟘 𝕄))
+  where
 
 open Modality 𝕄
-open Setoid M′ using (_≈_) renaming (Carrier to M)
 
 open import Tools.Fin
 open import Tools.Nat using (Nat)
 open import Tools.Product
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE
+  using (_≈_; ≈-refl; ≈-sym; ≈-trans)
 import Tools.Reasoning.PartialOrder
 
 open import Definition.Untyped M hiding (_∷_; wk)
 import Definition.Untyped M as U
 open import Definition.Untyped.Properties M
-open import Definition.Typed M′
-open import Definition.Typed.Properties M′
+open import Definition.Typed M
+open import Definition.Typed.Properties M
 open import Definition.Typed.Usage 𝕄
-open import Definition.Typed.Weakening M′
-open import Definition.Typed.Consequences.InverseUniv M′
-open import Definition.Typed.Consequences.NeTypeEq M′
-open import Definition.Typed.Consequences.Substitution M′
-open import Definition.Typed.Consequences.Syntactic M′
+open import Definition.Typed.Weakening M
+open import Definition.Typed.Consequences.InverseUniv M
+open import Definition.Typed.Consequences.NeTypeEq M
+open import Definition.Typed.Consequences.Substitution M
+open import Definition.Typed.Consequences.Syntactic M
 
-open import Definition.Conversion M′
-open import Definition.Conversion.Consequences.Completeness M′
-open import Definition.Conversion.FullReduction M′
+open import Definition.Conversion M
+open import Definition.Conversion.Consequences.Completeness M
+open import Definition.Conversion.FullReduction M
   hiding (fullRedNe; fullRedNe~↓; fullRed; fullRedConv↓; fullRedTerm; fullRedTermConv↓)
-import Definition.Conversion.FullReduction M′ as FR
-open import Definition.Conversion.Whnf M′
+import Definition.Conversion.FullReduction M as FR
+open import Definition.Conversion.Whnf M
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄

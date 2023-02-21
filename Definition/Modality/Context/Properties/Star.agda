@@ -1,9 +1,7 @@
-open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Context.Properties.Star {a ℓ}
-  {M′ : Setoid a ℓ} (𝕄 : Modality M′)
-  where
+module Definition.Modality.Context.Properties.Star
+  {a} {M : Set a} (𝕄 : Modality M) where
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties.Equivalence 𝕄
@@ -12,9 +10,9 @@ open import Definition.Modality.Properties 𝕄
 
 open import Tools.Nat
 open import Tools.Product
+open import Tools.PropositionalEquality
 
 open Modality 𝕄
-open Setoid M′ renaming (Carrier to M)
 
 private
   variable

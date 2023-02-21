@@ -1,22 +1,21 @@
 open import Definition.Typed.EqualityRelation
-open import Tools.Relation
 
-module Definition.LogicalRelation.Irrelevance {a ℓ} (M′ : Setoid a ℓ)
-                                              {{eqrel : EqRelSet M′}} where
+module Definition.LogicalRelation.Irrelevance
+  {a} (M : Set a) {{eqrel : EqRelSet M}} where
+
 open EqRelSet {{...}}
-open Setoid M′ using (_≈_) renaming (Carrier to M)
 
 open import Definition.Untyped M hiding (Wk; _∷_)
-import Definition.Untyped.BindingType M′ as BT
-open import Definition.Typed M′
-import Definition.Typed.Weakening M′ as Wk
-open import Definition.Typed.Properties M′
-open import Definition.LogicalRelation M′
-open import Definition.LogicalRelation.ShapeView M′
+import Definition.Untyped.BindingType M as BT
+open import Definition.Typed M
+import Definition.Typed.Weakening M as Wk
+open import Definition.Typed.Properties M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.ShapeView M
 
 open import Tools.Nat
 open import Tools.Product
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE using (_≈_)
 
 private
   variable

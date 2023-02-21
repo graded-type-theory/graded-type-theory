@@ -1,14 +1,11 @@
-open import Tools.Relation
-
-module Definition.Typed.Consequences.RedSteps {a ℓ} (M′ : Setoid a ℓ) where
-
-open Setoid M′ using () renaming (Carrier to M)
+module Definition.Typed.Consequences.RedSteps
+  {a} (M : Set a) where
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M′
-open import Definition.Typed.Properties M′
-open import Definition.Typed.RedSteps M′
-open import Definition.Typed.Consequences.Substitution M′
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.Typed.RedSteps M
+open import Definition.Typed.Consequences.Substitution M
 
 open import Tools.Nat
 open import Tools.Fin

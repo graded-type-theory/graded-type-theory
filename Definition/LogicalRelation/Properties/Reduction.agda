@@ -1,22 +1,20 @@
 open import Definition.Typed.EqualityRelation
-open import Tools.Level
-open import Tools.Relation
 
-module Definition.LogicalRelation.Properties.Reduction {a ℓ} (M′ : Setoid a ℓ)
-                                                       {{eqrel : EqRelSet M′}} where
+module Definition.LogicalRelation.Properties.Reduction
+  {a} (M : Set a) {{eqrel : EqRelSet M}} where
+
 open EqRelSet {{...}}
-open Setoid M′ using () renaming (Carrier to M)
 
 open import Definition.Untyped M hiding (Wk; _∷_)
-import Definition.Untyped.BindingType M′ as BT
-open import Definition.Typed M′
-open import Definition.Typed.Properties M′
-import Definition.Typed.Weakening M′ as Wk
-open import Definition.Typed.RedSteps M′
-open import Definition.LogicalRelation M′
-open import Definition.LogicalRelation.Properties.Reflexivity M′
-open import Definition.LogicalRelation.Properties.Universe M′
-open import Definition.LogicalRelation.Properties.Escape M′
+import Definition.Untyped.BindingType M as BT
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+import Definition.Typed.Weakening M as Wk
+open import Definition.Typed.RedSteps M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.Properties.Reflexivity M
+open import Definition.LogicalRelation.Properties.Universe M
+open import Definition.LogicalRelation.Properties.Escape M
 
 open import Tools.Nat
 open import Tools.Product
@@ -34,7 +32,7 @@ redSubst* : ∀ {A B : Term n} {l}
           → ∃ λ ([A] : Γ ⊩⟨ l ⟩ A)
           → Γ ⊩⟨ l ⟩ A ≡ B / [A]
 redSubst* D (Uᵣ′ l′ l< ⊢Γ) rewrite redU* D =
-  Uᵣ′ l′ l< ⊢Γ , lift PE.refl
+  Uᵣ′ l′ l< ⊢Γ , PE.refl
 redSubst* D (ℕᵣ [ ⊢B , ⊢ℕ , D′ ]) =
   let ⊢A = redFirst* D
   in  ℕᵣ ([ ⊢A , ⊢ℕ , D ⇨* D′ ]) , D′

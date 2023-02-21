@@ -1,34 +1,34 @@
+open import Tools.PropositionalEquality as PE
+  using (_≈_; ≈-refl; ≈-sym; ≈-trans)
 open import Tools.Relation
 
-module Definition.Conversion.Decidable {a ℓ′} (M″ : DecSetoid a ℓ′) where
-
-open DecSetoid M″ using (_≈_; _≟_) renaming (Carrier to M; setoid to M′; sym to ≈-sym; trans to ≈-trans; refl to ≈-refl)
+module Definition.Conversion.Decidable
+  {a} {M : Set a} (_≟_ : Decidable (_≈_ {A = M})) where
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M′
-open import Definition.Typed.Properties M′
-open import Definition.Conversion M′
-open import Definition.Conversion.Whnf M′
-open import Definition.Conversion.Soundness M′
-open import Definition.Conversion.Symmetry M′
-open import Definition.Conversion.Transitivity M′
-open import Definition.Conversion.Stability M′
-open import Definition.Conversion.Conversion M′
-open import Definition.Typed.Consequences.Syntactic M′
-open import Definition.Typed.Consequences.Substitution M′
-open import Definition.Typed.Consequences.Injectivity M′
-open import Definition.Typed.Consequences.Reduction M′
-open import Definition.Typed.Consequences.Equality M′
-open import Definition.Typed.Consequences.Inequality M′ as IE
-open import Definition.Typed.Consequences.NeTypeEq M′
-open import Definition.Typed.Consequences.SucCong M′
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.Conversion M
+open import Definition.Conversion.Whnf M
+open import Definition.Conversion.Soundness M
+open import Definition.Conversion.Symmetry M
+open import Definition.Conversion.Transitivity M
+open import Definition.Conversion.Stability M
+open import Definition.Conversion.Conversion M
+open import Definition.Typed.Consequences.Syntactic M
+open import Definition.Typed.Consequences.Substitution M
+open import Definition.Typed.Consequences.Injectivity M
+open import Definition.Typed.Consequences.Reduction M
+open import Definition.Typed.Consequences.Equality M
+open import Definition.Typed.Consequences.Inequality M as IE
+open import Definition.Typed.Consequences.NeTypeEq M
+open import Definition.Typed.Consequences.SucCong M
 
 open import Tools.Fin
 open import Tools.Nat hiding (_≟_)
 open import Tools.Product
 open import Tools.Empty
 open import Tools.Nullary
-import Tools.PropositionalEquality as PE
 
 private
   variable

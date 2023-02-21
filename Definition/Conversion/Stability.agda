@@ -1,17 +1,14 @@
-open import Tools.Relation
-
-module Definition.Conversion.Stability {a ℓ} (M′ : Setoid a ℓ) where
-
-open Setoid M′ using () renaming (Carrier to M)
+module Definition.Conversion.Stability
+  {a} (M : Set a) where
 
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Untyped.Properties M
-open import Definition.Typed M′
-open import Definition.Typed.Weakening M′
-open import Definition.Conversion M′
-open import Definition.Conversion.Soundness M′
-open import Definition.Typed.Consequences.Syntactic M′
-open import Definition.Typed.Consequences.Substitution M′
+open import Definition.Typed M
+open import Definition.Typed.Weakening M
+open import Definition.Conversion M
+open import Definition.Conversion.Soundness M
+open import Definition.Typed.Consequences.Syntactic M
+open import Definition.Typed.Consequences.Substitution M
 
 open import Tools.Level
 open import Tools.Nat
@@ -24,7 +21,7 @@ private
     Γ Δ : Con Term n
 
 -- Equality of contexts.
-data ⊢_≡_ : (Γ Δ : Con Term n) → Set (a ⊔ ℓ) where
+data ⊢_≡_ : (Γ Δ : Con Term n) → Set a where
   ε : ⊢ ε ≡ ε
   _∙_ : ∀ {A B} → ⊢ Γ ≡ Δ → Γ ⊢ A ≡ B → ⊢ Γ ∙ A ≡ Δ ∙ B
 

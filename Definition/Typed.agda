@@ -1,16 +1,11 @@
-open import Tools.Level
-open import Tools.Relation
-
-module Definition.Typed {ℓ ℓ′} (M′ : Setoid ℓ ℓ′) where
-
-open Setoid M′ using (_≈_) renaming (Carrier to M)
+module Definition.Typed {ℓ} (M : Set ℓ) where
 
 open import Definition.Untyped M hiding (_∷_)
 
 open import Tools.Fin
 open import Tools.Nat
 open import Tools.Product hiding (_,_)
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE using (_≈_)
 
 
 infixl 30 _∙_
@@ -37,14 +32,14 @@ data _∷_∈_  : {n : Nat} (x : Fin n) (A : Term n) (Γ : Con Term n) → Set �
 
 mutual
   -- Well-formed context
-  data ⊢_ : Con Term n → Set (ℓ ⊔ ℓ′) where
+  data ⊢_ : Con Term n → Set ℓ where
     ε   : ⊢ ε
     _∙_ : ⊢ Γ
         → Γ ⊢ A
         → ⊢ Γ ∙ A
 
   -- Well-formed type
-  data _⊢_ (Γ : Con Term n) : Term n → Set (ℓ ⊔ ℓ′) where
+  data _⊢_ (Γ : Con Term n) : Term n → Set ℓ where
     Uⱼ     : ⊢ Γ → Γ ⊢ U
     ℕⱼ     : ⊢ Γ → Γ ⊢ ℕ
     Emptyⱼ : ⊢ Γ → Γ ⊢ Empty
@@ -59,7 +54,7 @@ mutual
            → Γ ⊢ A
 
   -- Well-formed term of a type
-  data _⊢_∷_ (Γ : Con Term n) : Term n → Term n → Set (ℓ ⊔ ℓ′) where
+  data _⊢_∷_ (Γ : Con Term n) : Term n → Term n → Set ℓ where
     Πⱼ_▹_     : ∀ {F G}
               → Γ     ⊢ F ∷ U
               → Γ ∙ F ⊢ G ∷ U
@@ -132,7 +127,7 @@ mutual
               → Γ ⊢ t ∷ B
 
   -- Type equality
-  data _⊢_≡_ (Γ : Con Term n) : Term n → Term n → Set (ℓ ⊔ ℓ′) where
+  data _⊢_≡_ (Γ : Con Term n) : Term n → Term n → Set ℓ where
     univ   : ∀ {A B}
            → Γ ⊢ A ≡ B ∷ U
            → Γ ⊢ A ≡ B
@@ -161,7 +156,7 @@ mutual
            → Γ     ⊢ Σ⟨ m ⟩ q ▷ F ▹ G ≡ Σ⟨ m ⟩ q′ ▷ H ▹ E
 
   -- Term equality
-  data _⊢_≡_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set (ℓ ⊔ ℓ′) where
+  data _⊢_≡_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ where
     refl          : ∀ {t A}
                   → Γ ⊢ t ∷ A
                   → Γ ⊢ t ≡ t ∷ A
@@ -302,7 +297,7 @@ mutual
 
 
 -- Term reduction
-data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set (ℓ ⊔ ℓ′) where
+data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ where
   conv           : ∀ {A B t u}
                  → Γ ⊢ t ⇒ u ∷ A
                  → Γ ⊢ A ≡ B
@@ -383,13 +378,13 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set (ℓ
                  → Γ     ⊢ Emptyrec p A n ⇒ Emptyrec p A n′ ∷ A
 
 -- Type reduction
-data _⊢_⇒_ (Γ : Con Term n) : Term n → Term n → Set (ℓ ⊔ ℓ′) where
+data _⊢_⇒_ (Γ : Con Term n) : Term n → Term n → Set ℓ where
   univ : ∀ {A B}
        → Γ ⊢ A ⇒ B ∷ U
        → Γ ⊢ A ⇒ B
 
 -- Term reduction closure
-data _⊢_⇒*_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set (ℓ ⊔ ℓ′) where
+data _⊢_⇒*_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ where
   id  : ∀ {A t}
       → Γ ⊢ t ∷ A
       → Γ ⊢ t ⇒* t ∷ A
@@ -399,7 +394,7 @@ data _⊢_⇒*_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set (�
       → Γ ⊢ t  ⇒* u  ∷ A
 
 -- Type reduction closure
-data _⊢_⇒*_ (Γ : Con Term n) : Term n → Term n → Set (ℓ ⊔ ℓ′) where
+data _⊢_⇒*_ (Γ : Con Term n) : Term n → Term n → Set ℓ where
   id  : ∀ {A}
       → Γ ⊢ A
       → Γ ⊢ A ⇒* A
@@ -409,23 +404,23 @@ data _⊢_⇒*_ (Γ : Con Term n) : Term n → Term n → Set (ℓ ⊔ ℓ′) w
       → Γ ⊢ A  ⇒* B
 
 -- Type reduction to whnf
-_⊢_↘_ : (Γ : Con Term n) → Term n → Term n → Set (ℓ ⊔ ℓ′)
+_⊢_↘_ : (Γ : Con Term n) → Term n → Term n → Set ℓ
 Γ ⊢ A ↘ B = Γ ⊢ A ⇒* B × Whnf B
 
 -- Term reduction to whnf
-_⊢_↘_∷_ : (Γ : Con Term n) → Term n → Term n → Term n → Set (ℓ ⊔ ℓ′)
+_⊢_↘_∷_ : (Γ : Con Term n) → Term n → Term n → Term n → Set ℓ
 Γ ⊢ t ↘ u ∷ A = Γ ⊢ t ⇒* u ∷ A × Whnf u
 
 -- Type equality with well-formed types
-_⊢_:≡:_ : (Γ : Con Term n) → Term n → Term n → Set (ℓ ⊔ ℓ′)
+_⊢_:≡:_ : (Γ : Con Term n) → Term n → Term n → Set ℓ
 Γ ⊢ A :≡: B = Γ ⊢ A × Γ ⊢ B × (Γ ⊢ A ≡ B)
 
 -- Term equality with well-formed terms
-_⊢_:≡:_∷_ : (Γ : Con Term n) → Term n → Term n → Term n → Set (ℓ ⊔ ℓ′)
+_⊢_:≡:_∷_ : (Γ : Con Term n) → Term n → Term n → Term n → Set ℓ
 Γ ⊢ t :≡: u ∷ A = (Γ ⊢ t ∷ A) × (Γ ⊢ u ∷ A) × (Γ ⊢ t ≡ u ∷ A)
 
 -- Type reduction closure with well-formed types
-record _⊢_:⇒*:_ (Γ : Con Term n) (A B : Term n) : Set (ℓ ⊔ ℓ′) where
+record _⊢_:⇒*:_ (Γ : Con Term n) (A B : Term n) : Set ℓ where
   constructor [_,_,_]
   field
     ⊢A : Γ ⊢ A
@@ -435,7 +430,7 @@ record _⊢_:⇒*:_ (Γ : Con Term n) (A B : Term n) : Set (ℓ ⊔ ℓ′) wher
 open _⊢_:⇒*:_ using () renaming (D to red; ⊢A to ⊢A-red; ⊢B to ⊢B-red) public
 
 -- Term reduction closure with well-formed terms
-record _⊢_:⇒*:_∷_ (Γ : Con Term n) (t u A : Term n) : Set (ℓ ⊔ ℓ′) where
+record _⊢_:⇒*:_∷_ (Γ : Con Term n) (t u A : Term n) : Set ℓ where
   constructor [_,_,_]
   field
     ⊢t : Γ ⊢ t ∷ A
@@ -445,7 +440,7 @@ record _⊢_:⇒*:_∷_ (Γ : Con Term n) (t u A : Term n) : Set (ℓ ⊔ ℓ′
 open _⊢_:⇒*:_∷_ using () renaming (d to redₜ; ⊢t to ⊢t-redₜ; ⊢u to ⊢u-redₜ) public
 
 -- Well-formed substitutions.
-data _⊢ˢ_∷_ (Δ : Con Term k) : (σ : Subst k n) (Γ : Con Term n) → Set (ℓ ⊔ ℓ′) where
+data _⊢ˢ_∷_ (Δ : Con Term k) : (σ : Subst k n) (Γ : Con Term n) → Set ℓ where
   id  : ∀ {σ} → Δ ⊢ˢ σ ∷ ε
   _,_ : ∀ {A σ}
       → Δ ⊢ˢ tail σ ∷ Γ
@@ -453,7 +448,7 @@ data _⊢ˢ_∷_ (Δ : Con Term k) : (σ : Subst k n) (Γ : Con Term n) → Set 
       → Δ ⊢ˢ σ      ∷ Γ ∙ A
 
 -- Conversion of well-formed substitutions.
-data _⊢ˢ_≡_∷_ (Δ : Con Term k) : (σ σ′ : Subst k n) (Γ : Con Term n) → Set (ℓ ⊔ ℓ′) where
+data _⊢ˢ_≡_∷_ (Δ : Con Term k) : (σ σ′ : Subst k n) (Γ : Con Term n) → Set ℓ where
   id  : ∀ {σ σ′} → Δ ⊢ˢ σ ≡ σ′ ∷ ε
   _,_ : ∀ {A σ σ′}
       → Δ ⊢ˢ tail σ ≡ tail σ′ ∷ Γ

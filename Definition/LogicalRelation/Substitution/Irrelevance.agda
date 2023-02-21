@@ -1,17 +1,16 @@
 open import Definition.Typed.EqualityRelation
-open import Tools.Level
-open import Tools.Relation
 
-module Definition.LogicalRelation.Substitution.Irrelevance {a ℓ} (M′ : Setoid a ℓ)
-                                                           {{eqrel : EqRelSet M′}} where
+module Definition.LogicalRelation.Substitution.Irrelevance
+  {a} (M : Set a) {{eqrel : EqRelSet M}} where
+
 open EqRelSet {{...}}
-open Setoid M′ using () renaming (Carrier to M)
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M′
-import Definition.LogicalRelation.Irrelevance M′ as LR
-open import Definition.LogicalRelation.Substitution M′
+open import Definition.Typed M
+import Definition.LogicalRelation.Irrelevance M as LR
+open import Definition.LogicalRelation.Substitution M
 
+open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
 open import Tools.Unit
@@ -76,7 +75,7 @@ irrelevance [Γ] [Γ]′ [A] = wrap λ ⊢Δ [σ] →
                        (irrelevanceSubst [Γ]′ [Γ] ⊢Δ ⊢Δ [σ′])
                        (irrelevanceSubstEq [Γ]′ [Γ] ⊢Δ ⊢Δ [σ] [σ]′ [σ≡σ′])
 
-open import Definition.LogicalRelation.Properties M′
+open import Definition.LogicalRelation.Properties M
 
 -- Irrelevance of valid types with different derivations of contexts
 -- with lifting of eqaul types

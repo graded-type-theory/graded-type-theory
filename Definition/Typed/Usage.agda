@@ -1,12 +1,9 @@
-open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Typed.Usage {a ℓ}
-  {M′ : Setoid a ℓ} (𝕄 : Modality M′)
-  where
+module Definition.Typed.Usage
+  {a} {M : Set a} (𝕄 : Modality M) where
 
 open Modality 𝕄
-open Setoid M′ renaming (Carrier to M)
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
@@ -16,7 +13,7 @@ open import Definition.Modality.Usage 𝕄
 open import Definition.Modality.Usage.Inversion 𝕄
 open import Definition.Modality.Usage.Properties 𝕄
 open import Definition.Mode 𝕄
-open import Definition.Typed M′
+open import Definition.Typed M
 open import Definition.Untyped M hiding (_∷_)
 
 open import Tools.Nat

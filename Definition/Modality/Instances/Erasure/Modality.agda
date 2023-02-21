@@ -2,15 +2,15 @@ open import Definition.Modality.Instances.Erasure
 open import Definition.Modality.Restrictions
 
 module Definition.Modality.Instances.Erasure.Modality
-  (restrictions : Restrictions Erasure′)
+  (restrictions : Restrictions Erasure)
   where
 
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation
 
-open import Definition.Modality Erasure′ public
-open import Tools.Algebra Erasure′
+open import Definition.Modality Erasure public
+open import Tools.Algebra Erasure
 open import Tools.Sum
 
 -- Erasures form a modality

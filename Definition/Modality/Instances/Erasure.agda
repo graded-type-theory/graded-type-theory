@@ -10,11 +10,8 @@ open import Tools.Relation
 data Erasure : Set where
   𝟘 ω : Erasure
 
-Erasure′ : Setoid _ _
-Erasure′ = record { Carrier = Erasure ; _≈_ = _≡_ ; isEquivalence = isEquivalence }
-
-open import Definition.Modality.Restrictions Erasure′
-open import Tools.Algebra Erasure′
+open import Definition.Modality.Restrictions Erasure
+open import Tools.Algebra Erasure
 
 infixl 40 _+_
 infixl 40 _∧_
@@ -356,9 +353,7 @@ p ≤ q = p ≡ p ∧ q
 
 prodrec-only-for-ω : Restrictions → Restrictions
 prodrec-only-for-ω restrictions = record restrictions
-  { Prodrec      = λ p → Prodrec p × p ≡ ω
-  ; Prodrec-resp = λ where
-      refl (ok , refl) → ok , refl
+  { Prodrec = λ p → Prodrec p × p ≡ ω
   }
   where
   open Restrictions restrictions

@@ -3,23 +3,23 @@ open import Definition.Modality.Restrictions
 open import Definition.Typed.EqualityRelation
 
 module Erasure.LogicalRelation.Fundamental.Lambda
-  (restrictions : Restrictions Erasure′)
-  {{eqrel : EqRelSet Erasure′}}
+  (restrictions : Restrictions Erasure)
+  {{eqrel : EqRelSet Erasure}}
   where
 
 open EqRelSet {{...}}
 
-open import Definition.LogicalRelation Erasure′
-open import Definition.LogicalRelation.Properties.Escape Erasure′
-open import Definition.LogicalRelation.Fundamental Erasure′
-open import Definition.LogicalRelation.Substitution Erasure′
-open import Definition.LogicalRelation.Substitution.Properties Erasure′
-open import Definition.LogicalRelation.Substitution.Introductions.Pi Erasure′
-open import Definition.LogicalRelation.Substitution.Introductions.Universe Erasure′
+open import Definition.LogicalRelation Erasure
+open import Definition.LogicalRelation.Properties.Escape Erasure
+open import Definition.LogicalRelation.Fundamental Erasure
+open import Definition.LogicalRelation.Substitution Erasure
+open import Definition.LogicalRelation.Substitution.Properties Erasure
+open import Definition.LogicalRelation.Substitution.Introductions.Pi Erasure
+open import Definition.LogicalRelation.Substitution.Introductions.Universe Erasure
 
-import Definition.LogicalRelation.Irrelevance Erasure′ as I
-import Definition.LogicalRelation.Weakening Erasure′ as W
-import Definition.LogicalRelation.Substitution.Irrelevance Erasure′ as IS
+import Definition.LogicalRelation.Irrelevance Erasure as I
+import Definition.LogicalRelation.Weakening Erasure as W
+import Definition.LogicalRelation.Substitution.Irrelevance Erasure as IS
 
 open import Definition.Modality.Instances.Erasure.Modality restrictions
 open import Definition.Modality.Context ErasureModality
@@ -27,10 +27,10 @@ open import Definition.Mode ErasureModality
 
 open import Definition.Untyped Erasure as U hiding (_∷_)
 open import Definition.Untyped.Properties Erasure as UP
-open import Definition.Typed Erasure′
-open import Definition.Typed.Weakening Erasure′
-open import Definition.Typed.Consequences.Reduction Erasure′
-open import Definition.Typed.Consequences.Substitution Erasure′
+open import Definition.Typed Erasure
+open import Definition.Typed.Weakening Erasure
+open import Definition.Typed.Consequences.Reduction Erasure
+open import Definition.Typed.Consequences.Substitution Erasure
 
 open import Erasure.Extraction
 open import Erasure.LogicalRelation restrictions

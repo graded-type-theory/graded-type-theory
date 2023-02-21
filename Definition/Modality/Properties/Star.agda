@@ -1,21 +1,17 @@
-open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Properties.Star {a ℓ}
-  {M′ : Setoid a ℓ}
-  (𝕄 : Modality M′)
-  where
+module Definition.Modality.Properties.Star
+  {a} {M : Set a} (𝕄 : Modality M) where
 
 open Modality 𝕄
-open Setoid M′ renaming (Carrier to M)
 
 open import Definition.Modality.Properties.PartialOrder modalityWithout⊛
 open import Definition.Modality.Properties.Meet modalityWithout⊛
 
-open import Tools.Algebra M′
+open import Tools.Algebra M
 open import Tools.Nat hiding (_+_)
 open import Tools.Product
-
+open import Tools.PropositionalEquality
 
 private
   variable

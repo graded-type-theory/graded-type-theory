@@ -1,35 +1,34 @@
 open import Definition.Typed.EqualityRelation
-open import Tools.Level
-open import Tools.Relation
 
-module Definition.LogicalRelation.Fundamental {a ℓ} (M′ : Setoid a ℓ)
-                                              {{eqrel : EqRelSet M′}} where
+module Definition.LogicalRelation.Fundamental
+  {a} (M : Set a) {{eqrel : EqRelSet M}} where
+
 open EqRelSet {{...}}
-open Setoid M′ using () renaming (Carrier to M; refl to ≈-refl)
 
 open import Definition.Untyped M hiding (_∷_) renaming (_[_,_] to _[_,,_])
 open import Definition.Untyped.Properties M
-import Definition.Untyped.BindingType M′ as BT
+import Definition.Untyped.BindingType M as BT
 
-open import Definition.Typed M′
-open import Definition.LogicalRelation M′
-open import Definition.LogicalRelation.Irrelevance M′
-open import Definition.LogicalRelation.Properties M′
-open import Definition.LogicalRelation.Substitution M′
-open import Definition.LogicalRelation.Substitution.Properties M′
-open import Definition.LogicalRelation.Substitution.Conversion M′
-open import Definition.LogicalRelation.Substitution.Reduction M′
-open import Definition.LogicalRelation.Substitution.Reflexivity M′
-open import Definition.LogicalRelation.Substitution.Introductions M′
-open import Definition.LogicalRelation.Substitution.Weakening M′
-import Definition.LogicalRelation.Substitution.Irrelevance M′ as S
+open import Definition.Typed M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.Properties M
+open import Definition.LogicalRelation.Substitution M
+open import Definition.LogicalRelation.Substitution.Properties M
+open import Definition.LogicalRelation.Substitution.Conversion M
+open import Definition.LogicalRelation.Substitution.Reduction M
+open import Definition.LogicalRelation.Substitution.Reflexivity M
+open import Definition.LogicalRelation.Substitution.Introductions M
+open import Definition.LogicalRelation.Substitution.Weakening M
+import Definition.LogicalRelation.Substitution.Irrelevance M as S
 
 
 open import Tools.Fin
+open import Tools.Level
 open import Tools.Product
 open import Tools.Unit
 open import Tools.Nat
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE using (≈-refl)
 
 private
   variable

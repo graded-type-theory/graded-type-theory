@@ -1,28 +1,25 @@
-open import Tools.Relation
-
-module Definition.Typed.Consequences.Injectivity {a ℓ} (M′ : Setoid a ℓ) where
-
-open Setoid M′ using (_≈_) renaming (Carrier to M)
+module Definition.Typed.Consequences.Injectivity
+  {a} (M : Set a) where
 
 open import Definition.Untyped M hiding (wk; _∷_)
 import Definition.Untyped M as U
-import Definition.Untyped.BindingType M′ as BT
+import Definition.Untyped.BindingType M as BT
 open import Definition.Untyped.Properties M
 
-open import Definition.Typed M′
-open import Definition.Typed.Weakening M′
-open import Definition.Typed.Properties M′
-open import Definition.Typed.EqRelInstance M′
-open import Definition.LogicalRelation M′
-open import Definition.LogicalRelation.Irrelevance M′
-open import Definition.LogicalRelation.ShapeView M′
-open import Definition.LogicalRelation.Properties M′
-open import Definition.LogicalRelation.Fundamental.Reducibility M′
+open import Definition.Typed M
+open import Definition.Typed.Weakening M
+open import Definition.Typed.Properties M
+open import Definition.Typed.EqRelInstance M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.ShapeView M
+open import Definition.LogicalRelation.Properties M
+open import Definition.LogicalRelation.Fundamental.Reducibility M
 
 open import Tools.Fin
 open import Tools.Nat
 open import Tools.Product
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE using (_≈_)
 
 private
   variable

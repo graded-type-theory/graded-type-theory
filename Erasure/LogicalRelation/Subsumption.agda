@@ -3,16 +3,16 @@ open import Definition.Modality.Restrictions
 open import Definition.Typed.EqualityRelation
 
 module Erasure.LogicalRelation.Subsumption
-  (restrictions : Restrictions Erasure′)
-  {{eqrel : EqRelSet Erasure′}}
+  (restrictions : Restrictions Erasure)
+  {{eqrel : EqRelSet Erasure}}
   where
 
 open EqRelSet {{...}}
 
 open import Definition.Modality.Instances.Erasure.Modality restrictions
-open import Definition.LogicalRelation.Substitution Erasure′
-import Definition.LogicalRelation.Fundamental Erasure′ as F
-import Definition.LogicalRelation.Irrelevance Erasure′ as I
+open import Definition.LogicalRelation.Substitution Erasure
+import Definition.LogicalRelation.Fundamental Erasure as F
+import Definition.LogicalRelation.Irrelevance Erasure as I
 
 open import Definition.Modality.Context ErasureModality
 open import Definition.Modality.Properties ErasureModality

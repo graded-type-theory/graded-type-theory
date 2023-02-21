@@ -1,39 +1,34 @@
 -- Proof that consistent negative axioms do not jeopardize canonicity.
 -- https://www.cs.bham.ac.uk/~mhe/papers/negative-axioms.pdf
 
-open import Tools.Relation
-
-
 module Application.NegativeAxioms.Canonicity.Negative
-  {a ℓ} (M′ : Setoid a ℓ) where
+  {a} (M : Set a) where
 
   -- {Γ : Con _ _ m}
   -- (nΓ : NegativeContext M′ {m = m} Γ)
   -- (consistent : ∀{t} → _⊢_∷_ M′ Γ t Empty → ⊥) where
 
-open Setoid M′ using () renaming (Carrier to M)
-
-open import Application.NegativeAxioms.NegativeType M′
-open import Erasure.SucRed M′
+open import Application.NegativeAxioms.NegativeType M
+open import Erasure.SucRed M
 
 open import Definition.Untyped M hiding (_∷_; ℕ≢B)
-open import Definition.Typed M′
-open import Definition.Typed.Properties M′
-open import Definition.Typed.EqRelInstance M′
-open import Definition.Typed.Consequences.Consistency M′
-open import Definition.Typed.Consequences.Inequality M′
-open import Definition.Typed.Consequences.Injectivity M′
-open import Definition.Typed.Consequences.Inversion M′
-open import Definition.Typed.Consequences.Reduction M′
-open import Definition.Typed.Consequences.Syntactic M′
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.Typed.EqRelInstance M
+open import Definition.Typed.Consequences.Consistency M
+open import Definition.Typed.Consequences.Inequality M
+open import Definition.Typed.Consequences.Injectivity M
+open import Definition.Typed.Consequences.Inversion M
+open import Definition.Typed.Consequences.Reduction M
+open import Definition.Typed.Consequences.Syntactic M
 
-open import Definition.LogicalRelation M′
-open import Definition.LogicalRelation.Irrelevance M′
-open import Definition.LogicalRelation.Fundamental.Reducibility M′
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.Fundamental.Reducibility M
 
-open import Application.NegativeAxioms.NegativeContext M′
-open import Definition.Conversion.FullReduction M′
-open import Definition.Conversion.Consequences.Completeness M′
+open import Application.NegativeAxioms.NegativeContext M
+open import Definition.Conversion.FullReduction M
+open import Definition.Conversion.Consequences.Completeness M
 
 open import Tools.Empty
 open import Tools.Nat

@@ -1,12 +1,8 @@
-open import Tools.Relation
-
-module Definition.Typed.Weakening {a b} (M′ : Setoid a b) where
-
-open Setoid M′ using () renaming (Carrier to M)
+module Definition.Typed.Weakening {a} (M : Set a) where
 
 open import Definition.Untyped M as U hiding (wk ; _∷_)
 open import Definition.Untyped.Properties M
-open import Definition.Typed M′ hiding (_,_)
+open import Definition.Typed M hiding (_,_)
 
 open import Tools.Fin
 open import Tools.Nat

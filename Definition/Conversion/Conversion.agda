@@ -1,25 +1,22 @@
-open import Tools.Relation
-
-module Definition.Conversion.Conversion {a ℓ} (M′ : Setoid a ℓ) where
-
-open Setoid M′ using () renaming (Carrier to M; trans to ≈-trans; sym to ≈-sym)
+module Definition.Conversion.Conversion
+  {a} (M : Set a) where
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M′
-open import Definition.Typed.RedSteps M′
-open import Definition.Typed.Properties M′
-open import Definition.Conversion M′
-open import Definition.Conversion.Soundness M′
-open import Definition.Conversion.Stability M′
-open import Definition.Typed.Consequences.Syntactic M′
-open import Definition.Typed.Consequences.Substitution M′
-open import Definition.Typed.Consequences.Injectivity M′
-open import Definition.Typed.Consequences.Equality M′
-open import Definition.Typed.Consequences.Reduction M′
+open import Definition.Typed M
+open import Definition.Typed.RedSteps M
+open import Definition.Typed.Properties M
+open import Definition.Conversion M
+open import Definition.Conversion.Soundness M
+open import Definition.Conversion.Stability M
+open import Definition.Typed.Consequences.Syntactic M
+open import Definition.Typed.Consequences.Substitution M
+open import Definition.Typed.Consequences.Injectivity M
+open import Definition.Typed.Consequences.Equality M
+open import Definition.Typed.Consequences.Reduction M
 
 open import Tools.Nat
 open import Tools.Product
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE using (≈-sym; ≈-trans)
 
 private
   variable

@@ -1,25 +1,24 @@
 open import Definition.Typed.EqualityRelation
-open import Tools.Level
-open import Tools.Relation
 
-module Definition.LogicalRelation.Substitution.Properties {a ℓ} (M′ : Setoid a ℓ)
-                                                          {{eqrel : EqRelSet M′}} where
+module Definition.LogicalRelation.Substitution.Properties
+  {a} (M : Set a) {{eqrel : EqRelSet M}} where
+
 open EqRelSet {{...}}
-open Setoid M′ using () renaming (Carrier to M)
 
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
-open import Definition.Typed M′
-open import Definition.Typed.Weakening M′
-open import Definition.LogicalRelation M′
-open import Definition.LogicalRelation.Substitution M′
-open import Definition.LogicalRelation.Substitution.Irrelevance M′
+open import Definition.Typed M
+open import Definition.Typed.Weakening M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.Substitution M
+open import Definition.LogicalRelation.Substitution.Irrelevance M
      using (irrelevanceSubst′)
-open import Definition.LogicalRelation.Irrelevance M′
-open import Definition.LogicalRelation.Properties M′
-import Definition.LogicalRelation.Weakening M′ as LR
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.Properties M
+import Definition.LogicalRelation.Weakening M as LR
 
 open import Tools.Fin
+open import Tools.Level
 open import Tools.Nat
 open import Tools.Unit
 open import Tools.Product

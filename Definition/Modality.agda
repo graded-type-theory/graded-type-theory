@@ -1,20 +1,19 @@
 open import Tools.Level
 open import Tools.Relation
 
-module Definition.Modality {a ℓ} (M′ : Setoid a ℓ) where
+module Definition.Modality {a} (M : Set a) where
 
-open Setoid M′ renaming (Carrier to M)
-
-open import Tools.Algebra M′
+open import Tools.Algebra M
 open import Tools.Bool using (T)
 open import Tools.Nat hiding (_+_)
 open import Tools.Product
+open import Tools.PropositionalEquality
 open import Tools.Sum
 
-open import Definition.Modality.Restrictions M′
+open import Definition.Modality.Restrictions M
 
 -- Modality ringoid
-record ModalityWithout⊛ : Set (lsuc (a ⊔ ℓ)) where
+record ModalityWithout⊛ : Set (lsuc a) where
   infixr 40 _+_
   infixr 40 _∧_
   infixr 45 _·_
@@ -64,7 +63,7 @@ record ModalityWithout⊛ : Set (lsuc (a ⊔ ℓ)) where
     positiveˡ : {p q : M} → p + q ≈ 𝟘 → p ≈ 𝟘
 
   -- Semilattice partial ordering relation
-  _≤_ : Rel M ℓ
+  _≤_ : Rel M a
   p ≤ q = p ≈ (p ∧ q)
 
   field
@@ -130,17 +129,9 @@ record ModalityWithout⊛ : Set (lsuc (a ⊔ ℓ)) where
               assoc to ∧-assoc
              )
 
-  open IsEquivalence ≈-equivalence public
-    using ()
-    renaming (refl to ≈-refl;
-              sym to ≈-sym;
-              trans to ≈-trans;
-              reflexive to ≈-reflexive
-             )
-
   open Restrictions restrictions public
 
-record Modality : Set (lsuc (a ⊔ ℓ)) where
+record Modality : Set (lsuc a) where
   infix  50 _⊛_▷_
   field
     modalityWithout⊛ : ModalityWithout⊛

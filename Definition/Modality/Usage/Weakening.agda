@@ -1,12 +1,9 @@
-open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Usage.Weakening {a ℓ′}
-  {M′ : Setoid a ℓ′} (𝕄 : Modality M′)
-  where
+module Definition.Modality.Usage.Weakening
+  {a} {M : Set a} (𝕄 : Modality M) where
 
 open Modality 𝕄
-open Setoid M′ renaming (Carrier to M)
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄

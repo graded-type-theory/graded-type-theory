@@ -3,24 +3,24 @@ open import Definition.Modality.Restrictions
 open import Definition.Typed.EqualityRelation
 
 module Erasure.LogicalRelation.Fundamental
-  (restrictions : Restrictions Erasure′)
-  {{eqrel : EqRelSet Erasure′}}
+  (restrictions : Restrictions Erasure)
+  {{eqrel : EqRelSet Erasure}}
   where
 
 open EqRelSet {{...}}
 
-open import Definition.LogicalRelation Erasure′
-open import Definition.LogicalRelation.Properties.Escape Erasure′
-open import Definition.LogicalRelation.Substitution Erasure′
-open import Definition.LogicalRelation.Substitution.MaybeEmbed Erasure′
-open import Definition.LogicalRelation.Substitution.Properties Erasure′
-open import Definition.LogicalRelation.Substitution.Weakening Erasure′
-open import Definition.LogicalRelation.Substitution.Introductions.Pi Erasure′
-open import Definition.LogicalRelation.Substitution.Introductions.Nat Erasure′
+open import Definition.LogicalRelation Erasure
+open import Definition.LogicalRelation.Properties.Escape Erasure
+open import Definition.LogicalRelation.Substitution Erasure
+open import Definition.LogicalRelation.Substitution.MaybeEmbed Erasure
+open import Definition.LogicalRelation.Substitution.Properties Erasure
+open import Definition.LogicalRelation.Substitution.Weakening Erasure
+open import Definition.LogicalRelation.Substitution.Introductions.Pi Erasure
+open import Definition.LogicalRelation.Substitution.Introductions.Nat Erasure
 
-import Definition.LogicalRelation.Fundamental Erasure′ as F
-import Definition.LogicalRelation.Irrelevance Erasure′ as I
-import Definition.LogicalRelation.Substitution.Irrelevance Erasure′ as IS
+import Definition.LogicalRelation.Fundamental Erasure as F
+import Definition.LogicalRelation.Irrelevance Erasure as I
+import Definition.LogicalRelation.Substitution.Irrelevance Erasure as IS
 
 open import Definition.Modality.Instances.Erasure.Modality restrictions
 open import Definition.Modality.Context ErasureModality
@@ -33,8 +33,8 @@ open import Definition.Mode ErasureModality
 
 open import Definition.Untyped Erasure hiding (_∷_)
 open import Definition.Untyped.Properties Erasure
-open import Definition.Typed Erasure′
-open import Definition.Typed.Consequences.Syntactic Erasure′
+open import Definition.Typed Erasure
+open import Definition.Typed.Consequences.Syntactic Erasure
 
 open import Erasure.LogicalRelation restrictions
 open import Erasure.LogicalRelation.Conversion restrictions

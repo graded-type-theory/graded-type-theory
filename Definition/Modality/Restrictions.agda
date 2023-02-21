@@ -4,9 +4,7 @@
 
 open import Tools.Relation
 
-module Definition.Modality.Restrictions {a ℓ} (M′ : Setoid a ℓ) where
-
-open Setoid M′ renaming (Carrier to M)
+module Definition.Modality.Restrictions {a} (M : Set a) where
 
 open import Tools.Bool
 open import Tools.Level
@@ -14,14 +12,11 @@ open import Tools.Unit
 
 -- "Extra" restrictions related to usage.
 
-record Restrictions : Set (lsuc (a ⊔ ℓ)) where
+record Restrictions : Set (lsuc a) where
   field
     -- The prodrec constructor's quantity has to satisfy this
     -- predicate.
-    Prodrec : (p : M) → Set (a ⊔ ℓ)
-
-    -- The predicate Prodrec respects equivalence.
-    Prodrec-resp : ∀ {p p′} → p ≈ p′ → Prodrec p → Prodrec p′
+    Prodrec : (p : M) → Set a
 
     -- Is the mode 𝟘ᵐ allowed?
     𝟘ᵐ-allowed : Bool

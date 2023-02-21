@@ -1,13 +1,9 @@
-open import Tools.Level
-open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Substitution {a ℓ}
-  {M′ : Setoid a ℓ} (𝕄 : Modality M′)
-  where
+module Definition.Modality.Substitution
+  {a} {M : Set a} (𝕄 : Modality M) where
 
 open Modality 𝕄
-open Setoid M′ renaming (Carrier to M)
 
 open import Definition.Untyped M
   using (Subst ; tail ; head ; Wk ; id ; step ; lift)
@@ -69,7 +65,7 @@ addrow (Ψ ⊙ δ) (γ ∙ p) = addrow Ψ γ ⊙ (δ ∙ p)
 -- γ_x is the x-th column vector of Ψ, multiplied by ⌜ γ x ⌝, then
 -- Ψ ▶[ γ ] σ.
 
-_▶[_]_ : Substₘ m n → Mode-vector n → Subst m n → Set (a ⊔ ℓ)
+_▶[_]_ : Substₘ m n → Mode-vector n → Subst m n → Set a
 _▶[_]_ {n = n} Ψ γ σ =
   (x : Fin n) → (Ψ *> (𝟘ᶜ , x ≔ ⌜ γ x ⌝)) ▸[ γ x ] σ x
 

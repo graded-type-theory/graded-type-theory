@@ -3,8 +3,8 @@ open import Definition.Modality.Restrictions
 open import Definition.Typed.EqualityRelation
 
 module Erasure.LogicalRelation.Irrelevance
-  (restrictions : Restrictions Erasure′)
-  {{eqrel : EqRelSet Erasure′}}
+  (restrictions : Restrictions Erasure)
+  {{eqrel : EqRelSet Erasure}}
   where
 
 open EqRelSet {{...}}
@@ -12,18 +12,18 @@ open EqRelSet {{...}}
 open import Definition.Modality.Instances.Erasure.Modality restrictions
 open import Erasure.LogicalRelation restrictions
 
-open import Definition.LogicalRelation Erasure′
-open import Definition.LogicalRelation.ShapeView Erasure′
-import Definition.LogicalRelation.Irrelevance Erasure′ as I
-open import Definition.LogicalRelation.Substitution Erasure′
-import Definition.LogicalRelation.Substitution.Irrelevance Erasure′ as IS
+open import Definition.LogicalRelation Erasure
+open import Definition.LogicalRelation.ShapeView Erasure
+import Definition.LogicalRelation.Irrelevance Erasure as I
+open import Definition.LogicalRelation.Substitution Erasure
+import Definition.LogicalRelation.Substitution.Irrelevance Erasure as IS
 
 open import Definition.Untyped Erasure
-import Definition.Untyped.BindingType Erasure′ as BT
+import Definition.Untyped.BindingType Erasure as BT
 
-open import Definition.Typed Erasure′
-open import Definition.Typed.Weakening Erasure′
-open import Definition.Typed.Properties Erasure′
+open import Definition.Typed Erasure
+open import Definition.Typed.Weakening Erasure
+open import Definition.Typed.Properties Erasure
 
 open import Definition.Modality.Context ErasureModality
 open import Definition.Mode ErasureModality

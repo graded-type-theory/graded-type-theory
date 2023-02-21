@@ -2,17 +2,15 @@ open import Definition.Typed.EqualityRelation
 open import Tools.Level
 open import Tools.Relation
 
-module Definition.LogicalRelation.Properties.Escape {a ℓ} (M′ : Setoid a ℓ)
-                                                    {{eqrel : EqRelSet M′}} where
-
-open Setoid M′ using () renaming (Carrier to M)
+module Definition.LogicalRelation.Properties.Escape
+  {a} (M : Set a) {{eqrel : EqRelSet M}} where
 
 open EqRelSet {{...}}
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M′
-open import Definition.Typed.Properties M′
-open import Definition.LogicalRelation M′
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.LogicalRelation M
 
 open import Tools.Nat
 open import Tools.Product
@@ -37,7 +35,7 @@ escape (emb 0<1 A) = escape A
 escapeEq : ∀ {l A B} → ([A] : Γ ⊩⟨ l ⟩ A)
             → Γ ⊩⟨ l ⟩ A ≡ B / [A]
             → Γ ⊢ A ≅ B
-escapeEq (Uᵣ′ l′ l< ⊢Γ) (lift PE.refl) = ≅-Urefl ⊢Γ
+escapeEq (Uᵣ′ l′ l< ⊢Γ) PE.refl = ≅-Urefl ⊢Γ
 escapeEq (ℕᵣ [ ⊢A , ⊢B , D ]) D′ = ≅-red D D′ ℕₙ ℕₙ (≅-ℕrefl (wf ⊢A))
 escapeEq (Emptyᵣ [ ⊢A , ⊢B , D ]) D′ = ≅-red D D′ Emptyₙ Emptyₙ (≅-Emptyrefl (wf ⊢A))
 escapeEq (Unitᵣ [ ⊢A , ⊢B , D ]) D′ = ≅-red D D′ Unitₙ Unitₙ (≅-Unitrefl (wf ⊢A))

@@ -3,20 +3,20 @@ open import Definition.Modality.Restrictions
 open import Definition.Typed.EqualityRelation
 
 module Erasure.LogicalRelation
-  (restrictions : Restrictions Erasure′)
-  {{eqrel : EqRelSet Erasure′}}
+  (restrictions : Restrictions Erasure)
+  {{eqrel : EqRelSet Erasure}}
   where
 
 open EqRelSet {{...}}
 
 open import Definition.Modality.Instances.Erasure.Modality restrictions
-open import Definition.LogicalRelation Erasure′
-open import Definition.LogicalRelation.Substitution Erasure′
+open import Definition.LogicalRelation Erasure
+open import Definition.LogicalRelation.Substitution Erasure
 open import Definition.Modality.Context ErasureModality
 open import Definition.Mode ErasureModality
 open import Definition.Untyped Erasure as U hiding (_∷_; _∘_)
-open import Definition.Typed Erasure′
-open import Definition.Typed.Weakening Erasure′
+open import Definition.Typed Erasure
+open import Definition.Typed.Weakening Erasure
 
 open import Erasure.Target as T hiding (_⇒*_)
 open import Erasure.Extraction

@@ -1,29 +1,26 @@
-open import Tools.Relation
-
-module Definition.Conversion.Transitivity {a ℓ} (M′ : Setoid a ℓ) where
-
-open Setoid M′ using (_≈_) renaming (Carrier to M; trans to ≈-trans; sym to ≈-sym)
+module Definition.Conversion.Transitivity
+  {a} (M : Set a) where
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M′
-open import Definition.Typed.Properties M′
-open import Definition.Typed.RedSteps M′
-open import Definition.Conversion M′
-open import Definition.Conversion.Soundness M′
-open import Definition.Conversion.Stability M′
-open import Definition.Conversion.Whnf M′
-open import Definition.Conversion.Conversion M′
-open import Definition.Typed.Consequences.Syntactic M′
-open import Definition.Typed.Consequences.Injectivity M′
-import Definition.Typed.Consequences.Inequality M′ as WF
-open import Definition.Typed.Consequences.Substitution M′
-open import Definition.Typed.Consequences.NeTypeEq M′
-open import Definition.Typed.Consequences.SucCong M′
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.Typed.RedSteps M
+open import Definition.Conversion M
+open import Definition.Conversion.Soundness M
+open import Definition.Conversion.Stability M
+open import Definition.Conversion.Whnf M
+open import Definition.Conversion.Conversion M
+open import Definition.Typed.Consequences.Syntactic M
+open import Definition.Typed.Consequences.Injectivity M
+import Definition.Typed.Consequences.Inequality M as WF
+open import Definition.Typed.Consequences.Substitution M
+open import Definition.Typed.Consequences.NeTypeEq M
+open import Definition.Typed.Consequences.SucCong M
 
 open import Tools.Nat
 open import Tools.Product
 open import Tools.Empty
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE using (≈-sym; ≈-trans)
 
 
 private

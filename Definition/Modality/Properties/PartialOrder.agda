@@ -1,18 +1,15 @@
-open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Properties.PartialOrder {a ℓ}
-  {M′ : Setoid a ℓ}
-  (𝕄 : ModalityWithout⊛ M′)
-  where
+module Definition.Modality.Properties.PartialOrder
+  {a} {M : Set a} (𝕄 : ModalityWithout⊛ M) where
 
 open ModalityWithout⊛ 𝕄
-open Setoid M′ renaming (Carrier to M)
 
-open import Tools.Algebra M′
+open import Tools.Algebra M
 open import Tools.Nat hiding (_+_)
 open import Tools.Product
-
+open import Tools.PropositionalEquality
+open import Tools.Relation
 
 private
   variable

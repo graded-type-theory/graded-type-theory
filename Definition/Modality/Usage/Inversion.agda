@@ -2,16 +2,12 @@
 -- Inversion lemmata for γ ▸[ m ] t
 ------------------------------------------------------------------------
 
-open import Tools.Level
-open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Usage.Inversion {a ℓ}
-  {M′ : Setoid a ℓ} (𝕄 : Modality M′)
-  where
+module Definition.Modality.Usage.Inversion
+  {a} {M : Set a} (𝕄 : Modality M) where
 
 open Modality 𝕄
-open Setoid M′ renaming (Carrier to M)
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
@@ -60,7 +56,7 @@ inv-usage-Unit (sub γ▸⊤ γ≤δ) = ≤ᶜ-trans γ≤δ (inv-usage-Unit γ�
 
 
 record InvUsageΠ {n} (γ : Conₘ n) (m : Mode) (p q : M)
-                 (F : Term n) (G : Term (1+ n)) : Set (a ⊔ ℓ) where
+                 (F : Term n) (G : Term (1+ n)) : Set a where
   constructor invUsageΠ
   field
     {δ η} : Conₘ n
@@ -78,7 +74,7 @@ inv-usage-Π (sub γ▸Π γ≤γ′) with inv-usage-Π γ▸Π
   invUsageΠ δ▸F η▸G (≤ᶜ-trans γ≤γ′ γ′≤δ+η)
 
 record InvUsageΣ {n} (γ : Conₘ n) (m : Mode) (q : M)
-                 (F : Term n) (G : Term (1+ n)) : Set (a ⊔ ℓ) where
+                 (F : Term n) (G : Term (1+ n)) : Set a where
   constructor invUsageΣ
   field
     {δ η} : Conₘ n
@@ -105,7 +101,7 @@ inv-usage-var (sub γ▸x γ≤γ′) with inv-usage-var γ▸x
 
 record InvUsageLam
          {n} (γ : Conₘ n) (m : Mode) (p : M) (t : Term (1+ n)) :
-         Set (a ⊔ ℓ) where
+         Set a where
   constructor invUsageLam
   field
     {δ} : Conₘ n
@@ -122,7 +118,7 @@ inv-usage-lam (sub γ′▸λpt γ≤γ′) with inv-usage-lam γ′▸λpt
 
 record InvUsageApp
          {n} (γ : Conₘ n) (t : Term n) (m : Mode) (p : M) (u : Term n) :
-         Set (a ⊔ ℓ) where
+         Set a where
   constructor invUsageApp
   field
     {δ η} : Conₘ n
@@ -140,7 +136,7 @@ inv-usage-app (sub γ▸t∘p▷u γ′≤γ) with inv-usage-app γ▸t∘p▷u
 
 
 record InvUsageProdᵣ
-         {n} (γ : Conₘ n) (m : Mode) (t u : Term n) : Set (a ⊔ ℓ) where
+         {n} (γ : Conₘ n) (m : Mode) (t u : Term n) : Set a where
   constructor invUsageProdᵣ
   field
     {δ η γ′} : Conₘ n
@@ -158,7 +154,7 @@ inv-usage-prodᵣ (sub γ▸tu γ≤γ′) with inv-usage-prodᵣ γ▸tu
   invUsageProdᵣ δ▸t η▸u γ″=δ+η (≤ᶜ-trans γ≤γ′ γ′≤γ″)
 
 record InvUsageProdₚ
-         {n} (γ : Conₘ n) (m : Mode) (t u : Term n) : Set (a ⊔ ℓ) where
+         {n} (γ : Conₘ n) (m : Mode) (t u : Term n) : Set a where
   constructor invUsageProdₚ
   field
     {δ} : Conₘ n
@@ -175,7 +171,7 @@ inv-usage-prodₚ (sub δ▸tu γ≤γ′) with inv-usage-prodₚ δ▸tu
 
 
 record InvUsageProj
-         {n} (γ : Conₘ n) (m : Mode) (t : Term n) : Set (a ⊔ ℓ) where
+         {n} (γ : Conₘ n) (m : Mode) (t : Term n) : Set a where
   constructor invUsageProj
   field
     {δ} : Conₘ n
@@ -197,7 +193,7 @@ inv-usage-snd (sub γ▸t₂ γ≤γ′) with inv-usage-snd γ▸t₂
 ... | invUsageProj 𝟘▸t γ′≤𝟘 = invUsageProj 𝟘▸t (≤ᶜ-trans γ≤γ′ γ′≤𝟘)
 
 record InvUsageProdrec {n} (γ : Conₘ n) (m : Mode) (p : M) (t : Term n)
-                       (u : Term (1+ (1+ n))) : Set (a ⊔ ℓ) where
+                       (u : Term (1+ (1+ n))) : Set a where
   constructor invUsageProdrec
   field
     {δ η} : Conₘ n
@@ -222,7 +218,7 @@ inv-usage-zero (sub  δ▸zero γ≤δ) = ≤ᶜ-trans γ≤δ (inv-usage-zero �
 
 
 record InvUsageSuc
-         {n} (γ : Conₘ n) (m : Mode) (t : Term n) : Set (a ⊔ ℓ) where
+         {n} (γ : Conₘ n) (m : Mode) (t : Term n) : Set a where
   constructor invUsageSuc
   field
     {δ} : Conₘ n
@@ -239,7 +235,7 @@ inv-usage-suc (sub γ▸st γ≤γ′) with inv-usage-suc γ▸st
 
 record InvUsageNatrec
          (γ : Conₘ k) (m : Mode) (p r : M) (z : Term k)
-         (s : Term (1+ (1+ k))) (n : Term k) : Set (a ⊔ ℓ) where
+         (s : Term (1+ (1+ k))) (n : Term k) : Set a where
   constructor invUsageNatrec
   field
     {δ η θ} : Conₘ k
@@ -262,7 +258,7 @@ inv-usage-natrec (sub γ▸natrec γ≤γ′) with inv-usage-natrec γ▸natrec
 
 record InvUsageEmptyrec
          {n} (γ : Conₘ n) (m : Mode) (p : M) (t : Term n) :
-         Set (a ⊔ ℓ) where
+         Set a where
   constructor invUsageEmptyrec
   field
     {δ}  : Conₘ n

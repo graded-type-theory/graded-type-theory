@@ -1,13 +1,9 @@
-open import Tools.Level
-open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Usage {a ℓ}
-  {M′ : Setoid a ℓ} (𝕄 : Modality M′)
-  where
+module Definition.Modality.Usage
+  {a} {M : Set a} (𝕄 : Modality M) where
 
 open Modality 𝕄
-open Setoid M′ renaming (Carrier to M)
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Mode 𝕄
@@ -40,7 +36,7 @@ data _◂_∈_  : (x : Fin n) (p : M) (γ : Conₘ n) → Set a where
 --
 -- The definition is partly based on Bob Atkey's "Syntax and Semantics
 -- of Quantitative Type Theory".
-data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set (a ⊔ ℓ) where
+data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
   Uₘ        : 𝟘ᶜ ▸[ m ] U
   ℕₘ        : 𝟘ᶜ ▸[ m ] ℕ
   Emptyₘ    : 𝟘ᶜ ▸[ m ] Empty

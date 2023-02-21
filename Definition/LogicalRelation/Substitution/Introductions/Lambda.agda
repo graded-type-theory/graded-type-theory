@@ -1,31 +1,30 @@
 open import Definition.Typed.EqualityRelation
-open import Tools.Relation
 
-module Definition.LogicalRelation.Substitution.Introductions.Lambda {a ℓ} (M′ : Setoid a ℓ)
-                                                                    {{eqrel : EqRelSet M′}} where
+module Definition.LogicalRelation.Substitution.Introductions.Lambda
+  {a} (M : Set a) {{eqrel : EqRelSet M}} where
+
 open EqRelSet {{...}}
-open Setoid M′ using (_≈_) renaming (Carrier to M; refl to ≈-refl)
 
 open import Definition.Untyped M as U hiding (wk; _∷_)
 open import Definition.Untyped.Properties M
-open import Definition.Typed M′
-open import Definition.Typed.Properties M′
-open import Definition.Typed.Weakening M′ as T hiding (wk; wkTerm; wkEqTerm)
-open import Definition.Typed.RedSteps M′
-open import Definition.LogicalRelation M′
-open import Definition.LogicalRelation.ShapeView M′
-open import Definition.LogicalRelation.Irrelevance M′
-open import Definition.LogicalRelation.Weakening M′
-open import Definition.LogicalRelation.Properties M′
-open import Definition.LogicalRelation.Application M′
-open import Definition.LogicalRelation.Substitution M′
-open import Definition.LogicalRelation.Substitution.Properties M′
-open import Definition.LogicalRelation.Substitution.Introductions.Pi M′
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.Typed.Weakening M as T hiding (wk; wkTerm; wkEqTerm)
+open import Definition.Typed.RedSteps M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.ShapeView M
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.Weakening M
+open import Definition.LogicalRelation.Properties M
+open import Definition.LogicalRelation.Application M
+open import Definition.LogicalRelation.Substitution M
+open import Definition.LogicalRelation.Substitution.Properties M
+open import Definition.LogicalRelation.Substitution.Introductions.Pi M
 
 open import Tools.Fin
 open import Tools.Nat
 open import Tools.Product
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE using (_≈_; ≈-refl)
 
 private
   variable

@@ -1,13 +1,11 @@
-open import Tools.Relation
 open import Definition.Modality
 
 -- A ringoid with a global least element ∞ is a modality instance.
 
 module Definition.Modality.Instances.LowerBounded
-  {a ℓ} {M′ : Setoid a ℓ} (𝕄 : ModalityWithout⊛ M′)
-  (∞ : Setoid.Carrier M′) (∞-min : (p : Setoid.Carrier M′) → ModalityWithout⊛._≤_ 𝕄 ∞ p) where
+  {a} {M : Set a} (𝕄 : ModalityWithout⊛ M)
+  (∞ : M) (∞-min : (p : M) → ModalityWithout⊛._≤_ 𝕄 ∞ p) where
 
-open Setoid M′ renaming (Carrier to M)
 open ModalityWithout⊛ 𝕄
 
 open import Definition.Modality.Properties.Addition 𝕄
@@ -15,8 +13,9 @@ open import Definition.Modality.Properties.Meet 𝕄
 open import Definition.Modality.Properties.Multiplication 𝕄
 open import Definition.Modality.Properties.PartialOrder 𝕄
 
-open import Tools.Algebra M′
+open import Tools.Algebra M
 open import Tools.Product
+open import Tools.PropositionalEquality using (_≈_; setoid)
 import Tools.Reasoning.Equivalence
 import Tools.Reasoning.PartialOrder
 open import Tools.Sum
@@ -131,9 +130,9 @@ p ⊛ q ▷ r = ∞ · (p ∧ q)
   p ⊛ q ▷ r    ≈⟨ p⊛q▷r≈𝟘 ⟩
   𝟘            ∎)
   where
-  open Tools.Reasoning.Equivalence M′
+  open Tools.Reasoning.Equivalence (setoid M)
 
-isModality : Modality M′
+isModality : Modality M
 isModality = record
   { modalityWithout⊛ = 𝕄
   ; _⊛_▷_ = _⊛_▷_

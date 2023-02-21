@@ -42,19 +42,9 @@ data Zero-one-many : Set where
 private variable
   p p₁ p₂ q r : Zero-one-many
 
--- A setoid for Zero-one-many. Propositional equality is used as the
--- equivalence relation.
-
-Zero-one-many-setoid : Setoid _ _
-Zero-one-many-setoid = record
-  { Carrier       = Zero-one-many
-  ; _≈_           = _≡_
-  ; isEquivalence = PE.isEquivalence
-  }
-
-open Definition.Modality              Zero-one-many-setoid public
-open Definition.Modality.Restrictions Zero-one-many-setoid public
-open Tools.Algebra                    Zero-one-many-setoid
+open Definition.Modality              Zero-one-many public
+open Definition.Modality.Restrictions Zero-one-many public
+open Tools.Algebra                    Zero-one-many
 
 ------------------------------------------------------------------------
 -- Meet
@@ -412,7 +402,7 @@ zero-one-many-without-⊛ restrictions = record
         }
       ; distrib =
             ·-distrib-+ˡ
-          , comm+distrˡ⇒distrʳ (cong₂ _+_) ·-comm ·-distrib-+ˡ
+          , comm+distrˡ⇒distrʳ ·-comm ·-distrib-+ˡ
       }
     ; zero =
           (λ _ → refl)
@@ -473,10 +463,10 @@ zero-one-many-without-⊛ restrictions = record
     }
   ; ·-distrib-∧ =
         ·-distrib-∧ˡ
-      , comm+distrˡ⇒distrʳ (cong₂ _∧_) ·-comm ·-distrib-∧ˡ
+      , comm+distrˡ⇒distrʳ ·-comm ·-distrib-∧ˡ
   ; +-distrib-∧ =
         +-distrib-∧ˡ
-      , comm+distrˡ⇒distrʳ (cong₂ _∧_) +-comm +-distrib-∧ˡ
+      , comm+distrˡ⇒distrʳ +-comm +-distrib-∧ˡ
   ; restrictions = restrictions
   ; 𝟘ᵐ→𝟙≉𝟘       = λ _ ()
   ; is-𝟘?        = λ where

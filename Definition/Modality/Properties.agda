@@ -1,10 +1,7 @@
-open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Properties {a ℓ}
-  {M′ : Setoid a ℓ}
-  (𝕄 : Modality M′)
-  where
+module Definition.Modality.Properties
+  {a} {M : Set a} (𝕄 : Modality M) where
 
 open Modality 𝕄
 

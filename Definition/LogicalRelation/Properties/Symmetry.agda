@@ -1,21 +1,19 @@
 open import Definition.Typed.EqualityRelation
-open import Tools.Level
-open import Tools.Relation
 
-module Definition.LogicalRelation.Properties.Symmetry {a ℓ} (M′ : Setoid a ℓ)
-                                                      {{eqrel : EqRelSet M′}} where
+module Definition.LogicalRelation.Properties.Symmetry
+  {a} (M : Set a) {{eqrel : EqRelSet M}} where
+
 open EqRelSet {{...}}
-open Setoid M′ using () renaming (Carrier to M)
 
 open import Definition.Untyped M hiding (_∷_)
-import Definition.Untyped.BindingType M′ as BT
-open import Definition.Typed M′
-open import Definition.Typed.Properties M′
-import Definition.Typed.Weakening M′ as W
-open import Definition.LogicalRelation M′
-open import Definition.LogicalRelation.ShapeView M′
-open import Definition.LogicalRelation.Irrelevance M′
-open import Definition.LogicalRelation.Properties.Conversion M′
+import Definition.Untyped.BindingType M as BT
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+import Definition.Typed.Weakening M as W
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.ShapeView M
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.Properties.Conversion M
 
 open import Tools.Nat
 open import Tools.Product
@@ -66,7 +64,7 @@ mutual
                                   ([G]₁ [ρ] ⊢Δ [a])
                                   (symEq ([G] [ρ] ⊢Δ [a]₁) [ρG′a]
                                          ([G≡G′] [ρ] ⊢Δ [a]₁)))
-  symEqT (Uᵥ (Uᵣ _ _ _) (Uᵣ _ _ _)) A≡B = lift PE.refl
+  symEqT (Uᵥ (Uᵣ _ _ _) (Uᵣ _ _ _)) A≡B = PE.refl
   symEqT (emb⁰¹ x) A≡B = symEqT x A≡B
   symEqT (emb¹⁰ x) A≡B = symEqT x A≡B
 
@@ -136,7 +134,7 @@ symEqTerm (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
           (Σₜ₌ p r d d′ (ne x) (ne y) p≅r [t] [u] p~r) =
   Σₜ₌ r p d′ d (ne y) (ne x) (≅ₜ-sym p≅r) [u] [t] (~-sym p~r)
 symEqTerm (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-          (Σₜ₌ p r d d′ prodₙ (ne y) p≅r [t] [u] (lift ()))
+          (Σₜ₌ p r d d′ prodₙ (ne y) p≅r [t] [u] ())
 symEqTerm (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-          (Σₜ₌ p r d d′ (ne x) prodₙ p≅r [t] [u] (lift ()))
+          (Σₜ₌ p r d d′ (ne x) prodₙ p≅r [t] [u] ())
 symEqTerm (emb 0<1 x) t≡u = symEqTerm x t≡u

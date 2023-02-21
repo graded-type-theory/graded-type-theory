@@ -2,12 +2,12 @@
 -- https://www.cs.bham.ac.uk/~mhe/papers/negative-axioms.pdf
 
 open import Definition.Modality.Instances.Erasure
-open import Definition.Modality.Restrictions Erasure′
+open import Definition.Modality.Restrictions Erasure
 open import Definition.Modality.Instances.Erasure.Modality
   no-restrictions
 open import Application.NegativeAxioms.NegativeErasedContext ErasureModality (λ ())
   hiding (lookupNegative)
-open import Definition.Typed Erasure′
+open import Definition.Typed Erasure
 open import Definition.Untyped Erasure hiding (_∷_; ℕ≢B)
 
 
@@ -23,24 +23,24 @@ open import Definition.Modality.Usage.Inversion ErasureModality
 open import Definition.Modality.FullReduction ErasureModality greatest-elem
 open import Definition.Mode ErasureModality
 
-open import Application.NegativeAxioms.NegativeType Erasure′
-open import Erasure.SucRed Erasure′
+open import Application.NegativeAxioms.NegativeType Erasure
+open import Erasure.SucRed Erasure
 
-open import Definition.Typed.Properties Erasure′
+open import Definition.Typed.Properties Erasure
 open import Definition.Typed.Usage ErasureModality
-open import Definition.Typed.Consequences.Canonicity Erasure′
-open import Definition.Typed.Consequences.Consistency Erasure′
-open import Definition.Typed.Consequences.Inequality Erasure′
-open import Definition.Typed.Consequences.Injectivity Erasure′
-open import Definition.Typed.Consequences.Inversion Erasure′
-open import Definition.Typed.Consequences.Reduction Erasure′
-open import Definition.Typed.Consequences.Substitution Erasure′
-open import Definition.Typed.Consequences.Syntactic Erasure′
+open import Definition.Typed.Consequences.Canonicity Erasure
+open import Definition.Typed.Consequences.Consistency Erasure
+open import Definition.Typed.Consequences.Inequality Erasure
+open import Definition.Typed.Consequences.Injectivity Erasure
+open import Definition.Typed.Consequences.Inversion Erasure
+open import Definition.Typed.Consequences.Reduction Erasure
+open import Definition.Typed.Consequences.Substitution Erasure
+open import Definition.Typed.Consequences.Syntactic Erasure
 
-open import Definition.Conversion Erasure′
-open import Definition.Conversion.FullReduction Erasure′ hiding (fullRedTerm)
-open import Definition.Conversion.Consequences.Completeness Erasure′
-open import Definition.Conversion.EqRelInstance Erasure′
+open import Definition.Conversion Erasure
+open import Definition.Conversion.FullReduction Erasure hiding (fullRedTerm)
+open import Definition.Conversion.Consequences.Completeness Erasure
+open import Definition.Conversion.EqRelInstance Erasure
 
 open import Tools.Fin
 open import Tools.Nat

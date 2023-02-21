@@ -3,11 +3,11 @@
 
 open import Definition.Modality.Instances.Erasure
 import Definition.Modality.Instances.Erasure.Modality
-open import Definition.Modality.Restrictions Erasure′
+open import Definition.Modality.Restrictions Erasure
 import Application.NegativeAxioms.NegativeErasedContext
-open import Definition.Typed Erasure′
+open import Definition.Typed Erasure
 open import Definition.Untyped Erasure hiding (_∷_; ℕ≢B)
-open import Definition.Typed.EqRelInstance Erasure′
+open import Definition.Typed.EqRelInstance Erasure
 
 open import Tools.Empty
 
@@ -31,22 +31,22 @@ open import Definition.Modality.Usage.Properties ErasureModality
 open import Definition.Modality.FullReduction ErasureModality greatest-elem
 open import Definition.Mode ErasureModality
 
-open import Application.NegativeAxioms.NegativeType Erasure′
-open import Erasure.SucRed Erasure′
+open import Application.NegativeAxioms.NegativeType Erasure
+open import Erasure.SucRed Erasure
 
-open import Definition.Typed.Properties Erasure′
+open import Definition.Typed.Properties Erasure
 open import Definition.Typed.Usage ErasureModality
-open import Definition.Typed.Consequences.Consistency Erasure′
-open import Definition.Typed.Consequences.Inequality Erasure′
-open import Definition.Typed.Consequences.Injectivity Erasure′
-open import Definition.Typed.Consequences.Inversion Erasure′
-open import Definition.Typed.Consequences.Reduction Erasure′
-open import Definition.Typed.Consequences.Syntactic Erasure′
+open import Definition.Typed.Consequences.Consistency Erasure
+open import Definition.Typed.Consequences.Inequality Erasure
+open import Definition.Typed.Consequences.Injectivity Erasure
+open import Definition.Typed.Consequences.Inversion Erasure
+open import Definition.Typed.Consequences.Reduction Erasure
+open import Definition.Typed.Consequences.Syntactic Erasure
 
-open import Definition.Conversion.FullReduction Erasure′ hiding (fullRedTerm)
-open import Definition.LogicalRelation Erasure′
-open import Definition.LogicalRelation.Irrelevance Erasure′
-open import Definition.LogicalRelation.Fundamental.Reducibility Erasure′
+open import Definition.Conversion.FullReduction Erasure hiding (fullRedTerm)
+open import Definition.LogicalRelation Erasure
+open import Definition.LogicalRelation.Irrelevance Erasure
+open import Definition.LogicalRelation.Fundamental.Reducibility Erasure
 
 open import Tools.Nat
 import Tools.PropositionalEquality as PE

@@ -1,14 +1,14 @@
-open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Context.Properties.Equivalence {a ℓ}
-  {M′ : Setoid a ℓ} (𝕄 : Modality M′)
-  where
+module Definition.Modality.Context.Properties.Equivalence
+  {a} {M : Set a} (𝕄 : Modality M) where
 
 open import Definition.Modality.Context 𝕄
 
 open import Tools.Level
 open import Tools.Nat
+open import Tools.PropositionalEquality
+open import Tools.Relation
 
 open Modality 𝕄
 
@@ -49,6 +49,6 @@ private
   ; trans = ≈ᶜ-trans
   }
 
-Conₘ-setoid : {n : Nat} → Setoid a (a ⊔ ℓ)
+Conₘ-setoid : {n : Nat} → Setoid a a
 Conₘ-setoid {n} = record
   { Carrier = Conₘ n ; _≈_ = _≈ᶜ_ ; isEquivalence = ≈ᶜ-equivalence }

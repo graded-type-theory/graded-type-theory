@@ -1,9 +1,7 @@
-open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Context.Properties.Addition {a ℓ}
-  {M′ : Setoid a ℓ} (𝕄 : Modality M′)
-  where
+module Definition.Modality.Context.Properties.Addition
+  {a} {M : Set a} (𝕄 : Modality M) where
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties.Equivalence 𝕄
@@ -67,7 +65,7 @@ private
 -- to _≤ᶜ_).
 
 +ᶜ-sub-interchangeable-∧ᶜ :
-  _SubInterchangable_by_ (Conₘ-setoid {n = n}) _+ᶜ_ _∧ᶜ_ _≤ᶜ_
+  _SubInterchangable_by_ (Conₘ n) _+ᶜ_ _∧ᶜ_ _≤ᶜ_
 +ᶜ-sub-interchangeable-∧ᶜ ε       ε       ε       ε       = ε
 +ᶜ-sub-interchangeable-∧ᶜ (_ ∙ _) (_ ∙ _) (_ ∙ _) (_ ∙ _) =
   +ᶜ-sub-interchangeable-∧ᶜ _ _ _ _ ∙ +-sub-interchangeable-∧ _ _ _ _

@@ -1,18 +1,15 @@
-open import Tools.Relation
-
-module Application.NegativeAxioms.NegativeType {a ℓ} (M′ : Setoid a ℓ) where
-
-open Setoid M′ using () renaming (Carrier to M)
+module Application.NegativeAxioms.NegativeType
+  {a} (M : Set a) where
 
 open import Definition.Untyped M as U hiding (_∷_)
 
-open import Definition.Typed M′
-open import Definition.Typed.Properties M′
-open import Definition.Typed.Weakening M′ as T
-open import Definition.Typed.Consequences.Inequality M′
-open import Definition.Typed.Consequences.Injectivity M′
-open import Definition.Typed.Consequences.Inversion M′
-open import Definition.Typed.Consequences.Substitution M′
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.Typed.Weakening M as T
+open import Definition.Typed.Consequences.Inequality M
+open import Definition.Typed.Consequences.Injectivity M
+open import Definition.Typed.Consequences.Inversion M
+open import Definition.Typed.Consequences.Substitution M
 
 open import Tools.Empty
 open import Tools.Level
@@ -40,7 +37,7 @@ private
 -- A type is negative if all of its branches end in ⊥.
 -- The prime example is negation ¬A.
 
-data NegativeType (Γ : Cxt m) : Ty m → Set (a ⊔ ℓ) where
+data NegativeType (Γ : Cxt m) : Ty m → Set a where
 
   empty : NegativeType Γ Empty
 

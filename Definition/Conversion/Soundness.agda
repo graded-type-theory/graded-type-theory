@@ -1,21 +1,19 @@
-open import Tools.Relation
-
-module Definition.Conversion.Soundness {a ℓ} (M′ : Setoid a ℓ) where
-
-open Setoid M′ using () renaming (Carrier to M; refl to ≈-refl; trans to ≈-trans; sym to ≈-sym)
+module Definition.Conversion.Soundness
+  {a} (M : Set a) where
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M′
-open import Definition.Typed.Properties M′
-open import Definition.Conversion M′
-open import Definition.Conversion.Whnf M′
-open import Definition.Typed.Consequences.InverseUniv M′
-open import Definition.Typed.Consequences.Syntactic M′
-open import Definition.Typed.Consequences.NeTypeEq M′
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.Conversion M
+open import Definition.Conversion.Whnf M
+open import Definition.Typed.Consequences.InverseUniv M
+open import Definition.Typed.Consequences.Syntactic M
+open import Definition.Typed.Consequences.NeTypeEq M
 
 open import Tools.Nat
 open import Tools.Product
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE
+  using (≈-refl; ≈-sym; ≈-trans)
 
 private
   variable

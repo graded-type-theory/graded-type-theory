@@ -1,14 +1,11 @@
-open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Properties.Equivalence {a ℓ}
-  {M′ : Setoid a ℓ}
-  (𝕄 : ModalityWithout⊛ M′)
-  where
+module Definition.Modality.Properties.Equivalence
+  {a} {M : Set a} (𝕄 : ModalityWithout⊛ M) where
 
 open ModalityWithout⊛ 𝕄
-open Setoid M′ renaming (Carrier to M)
 
+open import Tools.PropositionalEquality
 import Tools.Reasoning.Equivalence
 
 private variable
@@ -26,7 +23,7 @@ private variable
   𝟘 · p  ≈⟨ ·-zeroˡ _ ⟩
   𝟘      ∎
   where
-  open Tools.Reasoning.Equivalence M′
+  open Tools.Reasoning.Equivalence (setoid M)
 
 -- If 𝟙 ≈ 𝟘, then _≈_ is trivial.
 
@@ -36,4 +33,4 @@ private variable
   𝟘  ≈˘⟨ ≈𝟘 𝟙≈𝟘 ⟩
   q  ∎
   where
-  open Tools.Reasoning.Equivalence M′
+  open Tools.Reasoning.Equivalence (setoid M)

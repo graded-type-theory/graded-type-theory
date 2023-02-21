@@ -1,20 +1,16 @@
-open import Tools.Relation
-
-module Definition.Typed.Consequences.Equality {a ℓ} (M′ : Setoid a ℓ) where
-
-open Setoid M′ using () renaming (Carrier to M)
+module Definition.Typed.Consequences.Equality
+  {a} (M : Set a) where
 
 open import Definition.Untyped M
-open import Definition.Typed M′
-open import Definition.Typed.Properties M′
-open import Definition.Typed.EqRelInstance M′
-open import Definition.Typed.Consequences.Inequality M′
-open import Definition.LogicalRelation M′
-open import Definition.LogicalRelation.Irrelevance M′
-open import Definition.LogicalRelation.ShapeView M′
-open import Definition.LogicalRelation.Fundamental.Reducibility M′
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.Typed.EqRelInstance M
+open import Definition.Typed.Consequences.Inequality M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.ShapeView M
+open import Definition.LogicalRelation.Fundamental.Reducibility M
 
-open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -27,7 +23,7 @@ private
 U≡A′ : ∀ {A l} ([U] : Γ ⊩⟨ l ⟩U)
     → Γ ⊩⟨ l ⟩ U ≡ A / (U-intr [U])
     → A PE.≡ U
-U≡A′ (noemb [U]) (lift A≡U) = A≡U
+U≡A′ (noemb [U]) A≡U = A≡U
 U≡A′ (emb 0<1 [U]) [U≡A] = U≡A′ [U] [U≡A]
 
 -- If A is judgmentally equal to U, then A is propositionally equal to U.

@@ -3,25 +3,25 @@ open import Definition.Modality.Restrictions
 open import Definition.Typed.EqualityRelation
 
 module Erasure.LogicalRelation.Reduction
-  (restrictions : Restrictions Erasure′)
-  {{eqrel : EqRelSet Erasure′}}
+  (restrictions : Restrictions Erasure)
+  {{eqrel : EqRelSet Erasure}}
   where
 
 open EqRelSet {{...}}
 
-open import Definition.LogicalRelation Erasure′
-open import Definition.LogicalRelation.Properties.Escape Erasure′
+open import Definition.LogicalRelation Erasure
+open import Definition.LogicalRelation.Properties.Escape Erasure
 
-import Definition.LogicalRelation.Fundamental Erasure′ as F
-import Definition.LogicalRelation.Irrelevance Erasure′ as I
-import Definition.LogicalRelation.Properties.Reduction Erasure′ as R
+import Definition.LogicalRelation.Fundamental Erasure as F
+import Definition.LogicalRelation.Irrelevance Erasure as I
+import Definition.LogicalRelation.Properties.Reduction Erasure as R
 
-open import Definition.Typed Erasure′
-open import Definition.Typed.Consequences.Syntactic Erasure′
-open import Definition.Typed.Consequences.Reduction Erasure′
-open import Definition.Typed.Properties Erasure′
-open import Definition.Typed.RedSteps Erasure′ as RS
-open import Definition.Typed.Weakening Erasure′
+open import Definition.Typed Erasure
+open import Definition.Typed.Consequences.Syntactic Erasure
+open import Definition.Typed.Consequences.Reduction Erasure
+open import Definition.Typed.Properties Erasure
+open import Definition.Typed.RedSteps Erasure as RS
+open import Definition.Typed.Weakening Erasure
 
 open import Definition.Untyped Erasure as U hiding (_∷_)
 open import Definition.Untyped.Properties Erasure as UP using (wk-id ; wk-lift-id)

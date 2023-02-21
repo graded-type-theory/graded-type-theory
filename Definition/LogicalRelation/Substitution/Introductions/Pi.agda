@@ -1,32 +1,31 @@
 open import Definition.Typed.EqualityRelation
-open import Tools.Relation
 
-module Definition.LogicalRelation.Substitution.Introductions.Pi {a ℓ} (M′ : Setoid a ℓ)
-                                                                {{eqrel : EqRelSet M′}} where
+module Definition.LogicalRelation.Substitution.Introductions.Pi
+  {a} (M : Set a) {{eqrel : EqRelSet M}} where
+
 open EqRelSet {{...}}
-open Setoid M′ using (_≈_) renaming (Carrier to M; refl to ≈-refl)
 
 open import Definition.Untyped M as U hiding (wk ; _∷_)
 open import Definition.Untyped.Properties M
-import Definition.Untyped.BindingType M′ as BT
-open import Definition.Typed M′
-open import Definition.Typed.Weakening M′ using (_∷_⊆_)
-open import Definition.Typed.Properties M′
-open import Definition.LogicalRelation M′
-open import Definition.LogicalRelation.ShapeView M′
-open import Definition.LogicalRelation.Weakening M′
-open import Definition.LogicalRelation.Irrelevance M′
-open import Definition.LogicalRelation.Properties M′
-open import Definition.LogicalRelation.Substitution M′
-open import Definition.LogicalRelation.Substitution.Weakening M′
-open import Definition.LogicalRelation.Substitution.Properties M′
-import Definition.LogicalRelation.Substitution.Irrelevance M′ as S
-open import Definition.LogicalRelation.Substitution.Introductions.Universe M′
+import Definition.Untyped.BindingType M as BT
+open import Definition.Typed M
+open import Definition.Typed.Weakening M using (_∷_⊆_)
+open import Definition.Typed.Properties M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.ShapeView M
+open import Definition.LogicalRelation.Weakening M
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.Properties M
+open import Definition.LogicalRelation.Substitution M
+open import Definition.LogicalRelation.Substitution.Weakening M
+open import Definition.LogicalRelation.Substitution.Properties M
+import Definition.LogicalRelation.Substitution.Irrelevance M as S
+open import Definition.LogicalRelation.Substitution.Introductions.Universe M
 
 open import Tools.Fin
 open import Tools.Nat
 open import Tools.Product
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE using (_≈_; ≈-refl)
 
 private
   variable

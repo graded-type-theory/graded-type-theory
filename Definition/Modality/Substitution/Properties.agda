@@ -1,12 +1,9 @@
-open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Substitution.Properties {a ℓ′}
-  {M′ : Setoid a ℓ′} (𝕄 : Modality M′)
-  where
+module Definition.Modality.Substitution.Properties
+  {a} {M : Set a} (𝕄 : Modality M) where
 
 open Modality 𝕄
-open Setoid M′ renaming (Carrier to M)
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
@@ -16,7 +13,7 @@ open import Definition.Modality.Usage 𝕄
 open import Definition.Modality.Usage.Properties 𝕄
 open import Definition.Modality.Usage.Weakening 𝕄
 open import Definition.Mode 𝕄
-open import Definition.Typed M′ using (_⊢_∷_; _⊢ˢ_∷_; _,_)
+open import Definition.Typed M using (_⊢_∷_; _⊢ˢ_∷_; _,_)
 open import Definition.Untyped M as U renaming (_[_,_] to _[_,,_])
 
 open import Tools.Bool using (T)

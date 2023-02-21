@@ -1,25 +1,22 @@
-open import Tools.Relation
-
-module Definition.Conversion.FullReduction {a ℓ} (M′ : Setoid a ℓ) where
-
-open Setoid M′ using () renaming (Carrier to M; refl to ≈-refl)
+module Definition.Conversion.FullReduction
+  {a} (M : Set a) where
 
 open import Definition.Untyped M as U hiding (wk ; _∷_)
 open import Definition.Untyped.Properties M
-open import Definition.Typed M′
-open import Definition.Typed.Properties M′
-open import Definition.Typed.Weakening M′
-open import Definition.Conversion M′
-open import Definition.Conversion.Whnf M′
-open import Definition.Typed.Consequences.InverseUniv M′
-open import Definition.Typed.Consequences.Syntactic M′
-open import Definition.Typed.Consequences.NeTypeEq M′
-open import Definition.Typed.Consequences.Substitution M′
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.Typed.Weakening M
+open import Definition.Conversion M
+open import Definition.Conversion.Whnf M
+open import Definition.Typed.Consequences.InverseUniv M
+open import Definition.Typed.Consequences.Syntactic M
+open import Definition.Typed.Consequences.NeTypeEq M
+open import Definition.Typed.Consequences.Substitution M
 
 open import Tools.Fin
 open import Tools.Nat
 open import Tools.Product
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE using (≈-refl)
 
 private
   variable

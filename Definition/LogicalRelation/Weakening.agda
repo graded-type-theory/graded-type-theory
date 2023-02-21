@@ -1,19 +1,17 @@
 open import Definition.Typed.EqualityRelation
-open import Tools.Level
-open import Tools.Relation
 
-module Definition.LogicalRelation.Weakening {a ℓ} (M′ : Setoid a ℓ)
-                                            {{eqrel : EqRelSet M′}} where
+module Definition.LogicalRelation.Weakening
+  {a} (M : Set a) {{eqrel : EqRelSet M}} where
+
 open EqRelSet {{...}}
-open Setoid M′ using () renaming (Carrier to M)
 
 open import Definition.Untyped M as U hiding (wk ; _∷_)
 open import Definition.Untyped.Properties M
-open import Definition.Typed M′
-open import Definition.Typed.Properties M′
-open import Definition.Typed.Weakening M′ as T hiding (wk; wkEq; wkTerm; wkEqTerm)
-open import Definition.LogicalRelation M′
-open import Definition.LogicalRelation.Irrelevance M′
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.Typed.Weakening M as T hiding (wk; wkEq; wkTerm; wkEqTerm)
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.Irrelevance M
 
 open import Tools.Nat
 open import Tools.Product
@@ -196,7 +194,7 @@ wkEq : ∀ {A B l} → ([ρ] : ρ ∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ)
        ([A] : Γ ⊩⟨ l ⟩ A)
      → Γ ⊩⟨ l ⟩ A ≡ B / [A]
      → Δ ⊩⟨ l ⟩ U.wk ρ A ≡ U.wk ρ B / wk [ρ] ⊢Δ [A]
-wkEq ρ ⊢Δ (Uᵣ′ _ _ _) (lift PE.refl) = lift PE.refl
+wkEq ρ ⊢Δ (Uᵣ′ _ _ _) PE.refl = PE.refl
 wkEq ρ ⊢Δ (ℕᵣ D) A≡B = wkRed* ρ ⊢Δ A≡B
 wkEq ρ ⊢Δ (Emptyᵣ D) A≡B = wkRed* ρ ⊢Δ A≡B
 wkEq ρ ⊢Δ (Unitᵣ D) A≡B = wkRed* ρ ⊢Δ A≡B

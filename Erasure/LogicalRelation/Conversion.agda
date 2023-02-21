@@ -3,8 +3,8 @@ open import Definition.Modality.Restrictions
 open import Definition.Typed.EqualityRelation
 
 module Erasure.LogicalRelation.Conversion
-  (restrictions : Restrictions Erasure′)
-  {{eqrel : EqRelSet Erasure′}}
+  (restrictions : Restrictions Erasure)
+  {{eqrel : EqRelSet Erasure}}
   where
 
 open EqRelSet {{...}}
@@ -12,28 +12,28 @@ open EqRelSet {{...}}
 open import Erasure.LogicalRelation restrictions
 import Erasure.Target as T
 
-open import Definition.LogicalRelation Erasure′
-open import Definition.LogicalRelation.Irrelevance Erasure′
-open import Definition.LogicalRelation.Fundamental.Reducibility Erasure′
-open import Definition.LogicalRelation.ShapeView Erasure′
-open import Definition.LogicalRelation.Properties.Conversion Erasure′
-open import Definition.LogicalRelation.Properties.Escape Erasure′
-open import Definition.LogicalRelation.Substitution Erasure′
-open import Definition.LogicalRelation.Substitution.Properties Erasure′
-import Definition.LogicalRelation.Substitution.Irrelevance Erasure′ as IS
+open import Definition.LogicalRelation Erasure
+open import Definition.LogicalRelation.Irrelevance Erasure
+open import Definition.LogicalRelation.Fundamental.Reducibility Erasure
+open import Definition.LogicalRelation.ShapeView Erasure
+open import Definition.LogicalRelation.Properties.Conversion Erasure
+open import Definition.LogicalRelation.Properties.Escape Erasure
+open import Definition.LogicalRelation.Substitution Erasure
+open import Definition.LogicalRelation.Substitution.Properties Erasure
+import Definition.LogicalRelation.Substitution.Irrelevance Erasure as IS
 
 open import Definition.Modality.Instances.Erasure.Modality restrictions
 open import Definition.Mode ErasureModality
 open import Definition.Untyped Erasure
 open import Definition.Untyped.Properties Erasure
-import Definition.Untyped.BindingType Erasure′ as BT
+import Definition.Untyped.BindingType Erasure as BT
 
-open import Definition.Typed Erasure′
-open import Definition.Typed.Consequences.Injectivity Erasure′
-open import Definition.Typed.Consequences.Substitution Erasure′
-open import Definition.Typed.Reduction Erasure′
-open import Definition.Typed.RedSteps Erasure′
-open import Definition.Typed.Weakening Erasure′
+open import Definition.Typed Erasure
+open import Definition.Typed.Consequences.Injectivity Erasure
+open import Definition.Typed.Consequences.Substitution Erasure
+open import Definition.Typed.Reduction Erasure
+open import Definition.Typed.RedSteps Erasure
+open import Definition.Typed.Weakening Erasure
 
 open import Tools.Nat
 open import Tools.Product

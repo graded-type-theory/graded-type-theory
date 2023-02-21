@@ -3,8 +3,8 @@ open import Definition.Modality.Restrictions
 open import Definition.Typed.EqualityRelation
 
 module Erasure.LogicalRelation.Fundamental.Application
-  (restrictions : Restrictions Erasure′)
-  {{eqrel : EqRelSet Erasure′}}
+  (restrictions : Restrictions Erasure)
+  {{eqrel : EqRelSet Erasure}}
   where
 
 open EqRelSet {{...}}
@@ -17,21 +17,21 @@ import Erasure.Target as T
 
 open import Definition.Untyped Erasure as U hiding (_∷_)
 open import Definition.Untyped.Properties Erasure
-open import Definition.Typed Erasure′
-open import Definition.Typed.Weakening Erasure′
-open import Definition.Typed.Consequences.Syntactic Erasure′
+open import Definition.Typed Erasure
+open import Definition.Typed.Weakening Erasure
+open import Definition.Typed.Consequences.Syntactic Erasure
 
-open import Definition.LogicalRelation Erasure′
-open import Definition.LogicalRelation.Fundamental Erasure′
-open import Definition.LogicalRelation.Substitution Erasure′
-open import Definition.LogicalRelation.Substitution.Escape Erasure′
-open import Definition.LogicalRelation.Substitution.Properties Erasure′
-open import Definition.LogicalRelation.Substitution.Introductions.Pi Erasure′
-open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst Erasure′
+open import Definition.LogicalRelation Erasure
+open import Definition.LogicalRelation.Fundamental Erasure
+open import Definition.LogicalRelation.Substitution Erasure
+open import Definition.LogicalRelation.Substitution.Escape Erasure
+open import Definition.LogicalRelation.Substitution.Properties Erasure
+open import Definition.LogicalRelation.Substitution.Introductions.Pi Erasure
+open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst Erasure
 
-import Definition.LogicalRelation.Weakening Erasure′ as W
-import Definition.LogicalRelation.Irrelevance Erasure′ as I
-import Definition.LogicalRelation.Substitution.Irrelevance Erasure′ as IS
+import Definition.LogicalRelation.Weakening Erasure as W
+import Definition.LogicalRelation.Irrelevance Erasure as I
+import Definition.LogicalRelation.Substitution.Irrelevance Erasure as IS
 
 open import Definition.Modality.Context ErasureModality
 open import Definition.Modality.Instances.Erasure.Properties

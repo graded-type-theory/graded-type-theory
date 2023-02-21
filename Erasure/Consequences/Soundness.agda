@@ -3,16 +3,16 @@ open import Definition.Modality.Restrictions
 open import Definition.Typed.EqualityRelation
 
 module Erasure.Consequences.Soundness
-  (restrictions : Restrictions Erasure′)
-  {{eqrel : EqRelSet Erasure′}}
+  (restrictions : Restrictions Erasure)
+  {{eqrel : EqRelSet Erasure}}
   where
 
 open EqRelSet {{...}}
 
 open import Definition.Untyped Erasure hiding (_∷_)
-open import Definition.Typed Erasure′
-open import Definition.Typed.Properties Erasure′
-open import Definition.LogicalRelation Erasure′
+open import Definition.Typed Erasure
+open import Definition.Typed.Properties Erasure
+open import Definition.LogicalRelation Erasure
 
 open import Definition.Modality.Instances.Erasure.Modality restrictions
 open import Definition.Modality.Context ErasureModality
@@ -21,7 +21,7 @@ open import Definition.Mode ErasureModality
 
 import Erasure.Target as T
 open import Erasure.Extraction
-open import Erasure.SucRed Erasure′
+open import Erasure.SucRed Erasure
 open import Erasure.LogicalRelation restrictions
 open import Erasure.LogicalRelation.Fundamental restrictions
 open import Erasure.LogicalRelation.Irrelevance restrictions

@@ -2,15 +2,12 @@
 -- Modes
 ------------------------------------------------------------------------
 
-open import Tools.Relation
 open import Definition.Modality
 
 module Definition.Mode
-  {a ℓ} {M′ : Setoid a ℓ} (𝕄 : Modality M′)
-  where
+  {a} {M : Set a} (𝕄 : Modality M) where
 
 open Modality 𝕄
-open Setoid M′ renaming (Carrier to M)
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Properties 𝕄
@@ -247,7 +244,7 @@ Mode-elim _ z o = λ where
 -- a commutative semiring.
 
 ∨ᵐ-·ᵐ-is-commutative-semiring :
-  IsCommutativeSemiring (PE.setoid Mode) _∨ᵐ_ _·ᵐ_ 𝟘ᵐ? 𝟙ᵐ
+  IsCommutativeSemiring Mode _∨ᵐ_ _·ᵐ_ 𝟘ᵐ? 𝟙ᵐ
 ∨ᵐ-·ᵐ-is-commutative-semiring = record
   { isSemiring = record
     { isSemiringWithoutAnnihilatingZero = record
@@ -333,9 +330,7 @@ Mode-elim _ z o = λ where
   where
   open Tools.Reasoning.PropositionalEquality
 
-open IsCommutativeSemiring
-       (PE.setoid Mode)
-       ∨ᵐ-·ᵐ-is-commutative-semiring
+open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
   public
   using
     ()
@@ -368,12 +363,12 @@ open IsCommutativeSemiring
   𝟘           ≈˘⟨ ·-zeroˡ _ ⟩
   𝟘 · ⌜ m₂ ⌝  ∎
   where
-  open Tools.Reasoning.Equivalence M′
+  open Tools.Reasoning.Equivalence (setoid M)
 ⌜·ᵐ⌝ {m₂ = m₂} 𝟙ᵐ = begin
   ⌜ m₂ ⌝      ≈˘⟨ ·-identityˡ _ ⟩
   𝟙 · ⌜ m₂ ⌝  ∎
   where
-  open Tools.Reasoning.Equivalence M′
+  open Tools.Reasoning.Equivalence (setoid M)
 
 -- A form of commutativity.
 
@@ -383,13 +378,13 @@ open IsCommutativeSemiring
   𝟘      ≈˘⟨ ·-zeroʳ _ ⟩
   p · 𝟘  ∎
   where
-  open Tools.Reasoning.Equivalence M′
+  open Tools.Reasoning.Equivalence (setoid M)
 ⌜⌝-·-comm {p = p} 𝟙ᵐ = begin
   𝟙 · p  ≈⟨ ·-identityˡ _ ⟩
   p      ≈˘⟨ ·-identityʳ _ ⟩
   p · 𝟙  ∎
   where
-  open Tools.Reasoning.Equivalence M′
+  open Tools.Reasoning.Equivalence (setoid M)
 
 -- A form of associativity.
 
@@ -399,7 +394,7 @@ open IsCommutativeSemiring
   (⌜ m₁ ⌝ · ⌜ m₂ ⌝) · p  ≈⟨ ·-assoc _ _ _ ⟩
   ⌜ m₁ ⌝ · ⌜ m₂ ⌝ · p    ∎
   where
-  open Tools.Reasoning.Equivalence M′
+  open Tools.Reasoning.Equivalence (setoid M)
 
 -- A form of associativity.
 
@@ -416,9 +411,9 @@ open IsCommutativeSemiring
   p ⊛ q ▷ r            ≈˘⟨ ⊛ᵣ-cong (·-identityˡ _) (·-identityˡ _) ⟩
   (𝟙 · p) ⊛ 𝟙 · q ▷ r  ∎
   where
-  open Tools.Reasoning.Equivalence M′
+  open Tools.Reasoning.Equivalence (setoid M)
 ⌜⌝-·-distribˡ-⊛ {p = p} {q = q} {r = r} 𝟘ᵐ =
-  let open Tools.Reasoning.Equivalence M′ in begin
+  let open Tools.Reasoning.Equivalence (setoid M) in begin
   𝟘 · p ⊛ q ▷ r        ≈⟨ ·-zeroˡ _ ⟩
   𝟘                    ≈˘⟨ ⊛-idem-𝟘 _ ⟩
   𝟘 ⊛ 𝟘 ▷ r            ≈˘⟨ ⊛ᵣ-cong (·-zeroˡ _) (·-zeroˡ _) ⟩
@@ -452,13 +447,13 @@ open IsCommutativeSemiring
   p  ≈⟨ p≈𝟘 ⟩
   𝟘  ∎))
   where
-  open Tools.Reasoning.Equivalence M′
+  open Tools.Reasoning.Equivalence (setoid M)
 … | no p≉𝟘 | yes q≈𝟘 = ⊥-elim (p≉𝟘 (begin
   p  ≈⟨ p≈q ⟩
   q  ≈⟨ q≈𝟘 ⟩
   𝟘  ∎))
   where
-  open Tools.Reasoning.Equivalence M′
+  open Tools.Reasoning.Equivalence (setoid M)
 
 -- The function ⌞_⌟ᶜ preserves "equality".
 
@@ -562,7 +557,7 @@ open IsCommutativeSemiring
   p · 𝟙  ≈⟨ ·-identityʳ _ ⟩
   p      ∎
   where
-  open Tools.Reasoning.Equivalence M′
+  open Tools.Reasoning.Equivalence (setoid M)
 … | yes p≈𝟘 = 𝟘ᵐ?-elim
   (λ m → p · ⌜ m ⌝ ≈ p)
   (begin
@@ -571,7 +566,7 @@ open IsCommutativeSemiring
      p      ∎)
   (λ _ → ·-identityʳ _)
   where
-  open Tools.Reasoning.Equivalence M′
+  open Tools.Reasoning.Equivalence (setoid M)
 
 -- The function ⌞_⌟ is a left inverse of ⌜_⌝ if 𝟙 ≉ 𝟘.
 
@@ -588,7 +583,7 @@ open IsCommutativeSemiring
   ⌜ 𝟘ᵐ ⌝     ≡⟨⟩
   𝟘          ∎
   where
-  open Tools.Reasoning.Equivalence M′
+  open Tools.Reasoning.Equivalence (setoid M)
 ⌜⌞⌜⌝⌟⌝ 𝟙ᵐ with is-𝟘? 𝟙
 … | no _    = ≈-refl
 … | yes 𝟙≈𝟘 = 𝟘ᵐ?-elim
@@ -623,7 +618,7 @@ open IsCommutativeSemiring
   p · 𝟘  ≈⟨ ·-zeroʳ _ ⟩
   𝟘      ∎))
   where
-  open Tools.Reasoning.Equivalence M′
+  open Tools.Reasoning.Equivalence (setoid M)
 
 ------------------------------------------------------------------------
 -- Properties related to _ᵐ·_
@@ -682,7 +677,7 @@ open IsCommutativeSemiring
   p              ≈˘⟨ ·-identityʳ _ ⟩
   p · 𝟙          ∎
   where
-  open Tools.Reasoning.Equivalence M′
+  open Tools.Reasoning.Equivalence (setoid M)
 
 -- If 1 ≈ 𝟘, then m ᵐ· p is equal to m.
 

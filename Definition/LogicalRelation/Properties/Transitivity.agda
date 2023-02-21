@@ -1,20 +1,19 @@
 open import Definition.Typed.EqualityRelation
-open import Tools.Relation
 
-module Definition.LogicalRelation.Properties.Transitivity {a ℓ} (M′ : Setoid a ℓ)
-                                                          {{eqrel : EqRelSet M′}} where
+module Definition.LogicalRelation.Properties.Transitivity
+  {a} (M : Set a) {{eqrel : EqRelSet M}} where
+
 open EqRelSet {{...}}
-open Setoid M′ using () renaming (Carrier to M)
 
 open import Definition.Untyped M hiding (_∷_)
-import Definition.Untyped.BindingType M′ as BT
-open import Definition.Typed M′
-open import Definition.Typed.Properties M′
-import Definition.Typed.Weakening M′ as Weak
-open import Definition.LogicalRelation M′
-open import Definition.LogicalRelation.ShapeView M′
-open import Definition.LogicalRelation.Irrelevance M′
-open import Definition.LogicalRelation.Properties.Conversion M′
+import Definition.Untyped.BindingType M as BT
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+import Definition.Typed.Weakening M as Weak
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.ShapeView M
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.Properties.Conversion M
 
 open import Tools.Level
 open import Tools.Nat
@@ -54,7 +53,7 @@ mutual
         F₁≡F′ , G₁≡G′ , W′≡W‴ = B-PE-injectivity W′ W‴ ΠF₁G₁≡ΠF′G′
         F₂≡F″ , G₂≡G″ , _ = B-PE-injectivity W″ W⁗ (whrDet* (red D₂ , ⟦ W″ ⟧ₙ) (D″ , ⟦ W⁗ ⟧ₙ))
         substLift : ∀ {m n : Nat} {Δ : Con Term m} {l : TypeLevel} {b : Term m}
-                      (ρ : Wk m n) (x : Term (1+ n)) → Set (a ⊔ ℓ)
+                      (ρ : Wk m n) (x : Term (1+ n)) → Set a
         substLift {_} {_} {Δ} {l} {a} ρ x = Δ ⊩⟨ l ⟩ wk (lift ρ) x [ a ]
         [F′] : ∀ {m : Nat} {ρ : Wk m n} {Δ : Con Term m}
                  ([ρ] : ρ Weak.∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ) → Δ ⊩⟨ l′ ⟩ wk ρ F′

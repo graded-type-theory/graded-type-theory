@@ -1,36 +1,34 @@
-open import Tools.Relation
-
-module Definition.Conversion.EqRelInstance {a ℓ} (M′ : Setoid a ℓ) where
-
-open Setoid M′ using (_≈_) renaming (Carrier to M; refl to ≈-refl; sym to ≈-sym; trans to ≈-trans)
+module Definition.Conversion.EqRelInstance
+  {a} (M : Set a) where
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M′
-open import Definition.Typed.Properties M′
-open import Definition.Typed.Weakening M′ using (_∷_⊆_; wkEq)
-open import Definition.Conversion M′
-open import Definition.Conversion.Reduction M′
-open import Definition.Conversion.Universe M′
-open import Definition.Conversion.Stability M′
-open import Definition.Conversion.Soundness M′
-open import Definition.Conversion.Lift M′
-open import Definition.Conversion.Conversion M′
-open import Definition.Conversion.Symmetry M′
-open import Definition.Conversion.Transitivity M′
-open import Definition.Conversion.Weakening M′
-open import Definition.Typed.EqualityRelation M′
-open import Definition.Typed.Consequences.Syntactic M′
-open import Definition.Typed.Consequences.Substitution M′
-open import Definition.Typed.Consequences.Injectivity M′
-open import Definition.Typed.Consequences.Equality M′
-open import Definition.Typed.Consequences.Reduction M′
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.Typed.Weakening M using (_∷_⊆_; wkEq)
+open import Definition.Conversion M
+open import Definition.Conversion.Reduction M
+open import Definition.Conversion.Universe M
+open import Definition.Conversion.Stability M
+open import Definition.Conversion.Soundness M
+open import Definition.Conversion.Lift M
+open import Definition.Conversion.Conversion M
+open import Definition.Conversion.Symmetry M
+open import Definition.Conversion.Transitivity M
+open import Definition.Conversion.Weakening M
+open import Definition.Typed.EqualityRelation M
+open import Definition.Typed.Consequences.Syntactic M
+open import Definition.Typed.Consequences.Substitution M
+open import Definition.Typed.Consequences.Injectivity M
+open import Definition.Typed.Consequences.Equality M
+open import Definition.Typed.Consequences.Reduction M
 
 open import Tools.Fin
 open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
 open import Tools.Function
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE
+  using (_≈_; ≈-refl; ≈-sym; ≈-trans)
 
 private
   variable
@@ -40,7 +38,7 @@ private
     p p₁ p₂ p′ q r r′ : M
 
 -- Algorithmic equality of neutrals with injected conversion.
-record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set (a ⊔ ℓ) where
+record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
   inductive
   constructor ↑
   field
