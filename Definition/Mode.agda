@@ -591,6 +591,12 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
   (≈-sym 𝟙≈𝟘)
   (λ _ → ≈-refl)
 
+-- A lemma relating _·ᵐ_, ⌞_⌟ and _ᵐ·_.
+
+·ᵐ⌞⌟ : m ·ᵐ ⌞ p ⌟ ≡ m ᵐ· p
+·ᵐ⌞⌟ {m = 𝟘ᵐ} = PE.refl
+·ᵐ⌞⌟ {m = 𝟙ᵐ} = PE.refl
+
 -- A lemma relating ⌞_⌟, _·_, ⌜_⌝ and _ᵐ·_.
 
 ⌞⌜⌝·⌟ : ∀ m → ⌞ ⌜ m ⌝ · p ⌟ ≡ m ᵐ· p
