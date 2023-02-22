@@ -685,6 +685,12 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
   where
   open Tools.Reasoning.Equivalence (setoid M)
 
+-- If p is non-zero, then m ᵐ· p is equal to m.
+
+≉𝟘→ᵐ·≡ : p ≉ 𝟘 → m ᵐ· p ≡ m
+≉𝟘→ᵐ·≡ {m = 𝟘ᵐ} _ = PE.refl
+≉𝟘→ᵐ·≡ {m = 𝟙ᵐ}   = ≉𝟘→⌞⌟≡𝟙ᵐ
+
 -- If 1 ≈ 𝟘, then m ᵐ· p is equal to m.
 
 ᵐ·-identityʳ : 𝟙 ≈ 𝟘 → m ᵐ· p ≡ m
