@@ -26,7 +26,7 @@ private
   variable
     m n : Nat
     σ σ′ : Subst m n
-    γ : Conₘ n
+    γ δ : Conₘ n
     t a : Term n
     x : Fin n
     mo : Mode
@@ -157,3 +157,9 @@ valid-var-usage : γ ▸[ 𝟙ᵐ ] var x → x ◂ ω ∈ γ
 valid-var-usage γ▸x with inv-usage-var γ▸x
 valid-var-usage {x = x0} γ▸x | γ≤𝟘ᶜ ∙ p≤ω rewrite least-elem′ _ p≤ω = here
 valid-var-usage {x = x +1} γ▸x | γ≤γ′ ∙ p≤𝟘 = there (valid-var-usage (sub var γ≤γ′))
+
+-- The functions _∧ᶜ_ and _+ᶜ_ are pointwise equivalent.
+
+∧ᶜ≈ᶜ+ᶜ : γ ∧ᶜ δ ≈ᶜ γ +ᶜ δ
+∧ᶜ≈ᶜ+ᶜ {γ = ε}     {δ = ε}     = ≈ᶜ-refl
+∧ᶜ≈ᶜ+ᶜ {γ = _ ∙ _} {δ = _ ∙ _} = ∧ᶜ≈ᶜ+ᶜ ∙ PE.refl
