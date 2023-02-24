@@ -8,6 +8,10 @@ open import Definition.Modality
 module Definition.Modality.FullReduction
   {a} {M : Set a} (𝕄 : Modality M)
   (open Modality 𝕄)
+  -- The following assumption is only used for the unit type with
+  -- η-equality, and only when the mode is 𝟙ᵐ. It might suffice to
+  -- restrict such types so that when the mode is 𝟙ᵐ they may only be
+  -- used if every quantity is bounded from above by 𝟘.
   (p≤𝟘 : (p : M) → p ≤ 𝟘)
   -- The following assumption is only used for quantities p that
   -- correspond to the first quantity of a Σ-type with η-equality, and
@@ -24,6 +28,7 @@ module Definition.Modality.FullReduction
 
 open import Tools.Empty
 open import Tools.Fin
+open import Tools.Function
 open import Tools.Nat using (Nat)
 open import Tools.Product
 import Tools.Reasoning.PartialOrder
@@ -309,12 +314,17 @@ mutual
 
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-  fullRedTermConv↓ (η-unit ⊢t _ tUnit _) γ▸t =
-    star , starₙ , η-unit ⊢t (starⱼ (wfTerm ⊢t)) , sub starₘ γ≤𝟘ᶜ
+  fullRedTermConv↓ {t = t} {γ = γ} {m = m} (η-unit ⊢t _ tUnit _) γ▸t =
+    star , starₙ , η-unit ⊢t (starⱼ (wfTerm ⊢t)) ,
+    sub starₘ (lemma m γ▸t)
     where
-    γ≤𝟘ᶜ : γ ≤ᶜ 𝟘ᶜ
-    γ≤𝟘ᶜ {γ = ε} = ε
-    γ≤𝟘ᶜ {γ = γ ∙ p} = γ≤𝟘ᶜ ∙ p≤𝟘 p
+    lemma : ∀ m → γ ▸[ m ] t → γ ≤ᶜ 𝟘ᶜ
+    lemma 𝟘ᵐ γ▸t = ▸-𝟘ᵐ γ▸t
+    lemma 𝟙ᵐ γ▸t = γ≤𝟘ᶜ
+      where
+      γ≤𝟘ᶜ : {γ : Conₘ n} → γ ≤ᶜ 𝟘ᶜ
+      γ≤𝟘ᶜ {γ = ε}     = ε
+      γ≤𝟘ᶜ {γ = γ ∙ p} = γ≤𝟘ᶜ ∙ p≤𝟘 p
 
 fullRed :
   Γ ⊢ A → γ ▸[ m ] A →
