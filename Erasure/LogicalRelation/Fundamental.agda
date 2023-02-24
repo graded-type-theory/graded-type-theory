@@ -1,4 +1,5 @@
 open import Definition.Modality.Instances.Erasure
+  using (Erasure; ω)
 open import Definition.Modality.Restrictions
 open import Definition.Typed.EqualityRelation
 
@@ -56,6 +57,7 @@ open import Tools.Fin
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+import Tools.Reasoning.PartialOrder
 open import Tools.Relation
 open import Tools.Unit
 
@@ -73,11 +75,18 @@ private
      x : Fin n
      σ′ : T.Subst 0 n
      m : Mode
+     s : SigmaMode
 
-inv-usage-prodₑ : ∀ {s} → γ ▸[ m ] prod s t u → InvUsageProdᵣ γ m t u
-inv-usage-prodₑ {s = Σₚ} γ▸t with inv-usage-prodₚ γ▸t
-... | invUsageProdₚ δ▸t δ▸u γ≤δ =
-  invUsageProdᵣ δ▸t δ▸u PE.refl (PE.subst (_ ≤ᶜ_) (PE.sym (+ᶜ-idem _)) γ≤δ)
+inv-usage-prodₑ : γ ▸[ m ] prod s p t u → InvUsageProdᵣ γ m p t u
+inv-usage-prodₑ {γ = γ} {s = Σₚ} {p = p} γ▸t with inv-usage-prodₚ γ▸t
+... | invUsageProdₚ {δ = δ} {η = η} δ▸t η▸u γ≤pδ∧η =
+  invUsageProdᵣ δ▸t η▸u PE.refl
+    (begin
+       γ            ≤⟨ γ≤pδ∧η ⟩
+       p ·ᶜ δ ∧ᶜ η  ≈⟨ ∧ᶜ≈ᶜ+ᶜ ⟩
+       p ·ᶜ δ +ᶜ η  ∎)
+  where
+  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 inv-usage-prodₑ {s = Σᵣ} γ▸t = inv-usage-prodᵣ γ▸t
 
 fundamentalVar′ : ([Γ] : ⊩ᵛ Γ)
@@ -138,12 +147,12 @@ fundamental : Γ ⊢ t ∷ A → γ ▸[ m ] t
             → ∃ λ ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ])
             → γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A / [Γ] / [A]
 fundamental Γ⊢Π@(Πⱼ Γ⊢F:U ▹ Γ⊢G:U) γ▸t =
-  let invUsageΠ δ▸F _ _ = inv-usage-Π γ▸t
+  let invUsageΠΣ δ▸F _ _ = inv-usage-Π γ▸t
       [Γ] , _ , _ = fundamental Γ⊢F:U δ▸F
       [U] , ⊩ʳΠ = Πʳ [Γ] Γ⊢Π
   in  [Γ] , [U] , ⊩ʳΠ
 fundamental Γ⊢Σ@(Σⱼ Γ⊢F:U ▹ Γ⊢G:U) γ▸t =
-  let invUsageΣ δ▸F _ _ = inv-usage-Σ γ▸t
+  let invUsageΠΣ δ▸F _ _ = inv-usage-Σ γ▸t
       [Γ] , _ , _ = fundamental Γ⊢F:U δ▸F
       [U] , ⊩ʳΣ = Σʳ [Γ] Γ⊢Σ
   in  [Γ] , [U] , ⊩ʳΣ
@@ -189,18 +198,20 @@ fundamental (prodⱼ {F = F} {G = G} {t = t} {u = u} Γ⊢F Γ⊢G Γ⊢t:F Γ�
       [u] = IS.irrelevanceTerm {A = G [ t ]} {t = u} [Γ]₅ [Γ] [G]₅ [G[t]] [u]′
       [Σ] , ⊩ʳp = prodʳ {F = F} {G = G} {t = t} {u = u} [Γ] [F] [G] [G[t]] [t] [u] ⊩ʳt
                         (irrelevance {A = G [ t ]} {t = u} [Γ]₂ [Γ] [G[t]]′ [G[t]] ⊩ʳu)
-  in  [Γ] , [Σ] , subsumption {t = prod! t u} {A = Σ _ ▷ F ▹ G}
-                              [Γ] [Σ] ⊩ʳp (PE.subst (_ ≤ᶜ_) γ′≡δ+η γ≤δ+η)
+  in  [Γ] , [Σ] ,
+      subsumption {t = prod! t u} [Γ] [Σ] ⊩ʳp
+        (PE.subst (_ ≤ᶜ_) γ′≡δ+η γ≤δ+η)
 fundamental (fstⱼ {F = F} {t = t} Γ⊢F Γ⊢G Γ⊢t:Σ) γ▸t =
-  let invUsageProj δ▸t δ≤𝟘 = inv-usage-fst γ▸t
+  let invUsageFst m′ m≡m′ᵐ·p δ▸t γ≤δ ok = inv-usage-fst γ▸t
       [Γ] , [Σ] , ⊩ʳt = fundamental Γ⊢t:Σ δ▸t
       [F] , ⊩ʳt₁ = fstʳ Γ⊢F Γ⊢G Γ⊢t:Σ [Γ] [Σ] ⊩ʳt
-  in  [Γ] , [F] , subsumption {t = fst t} {A = F} [Γ] [F] ⊩ʳt₁ δ≤𝟘
+                     (fstₘ m′ (▸-cong m≡m′ᵐ·p δ▸t) (PE.sym m≡m′ᵐ·p) ok)
+  in  [Γ] , [F] , subsumption {t = fst _ t} [Γ] [F] ⊩ʳt₁ γ≤δ
 fundamental (sndⱼ {G = G} {t = t} Γ⊢F Γ⊢G Γ⊢t:Σ) γ▸t =
-  let invUsageProj δ▸t δ≤𝟘 = inv-usage-snd γ▸t
+  let invUsageSnd δ▸t γ≤δ = inv-usage-snd γ▸t
       [Γ] , [Σ] , ⊩ʳt = fundamental Γ⊢t:Σ δ▸t
       [G] , ⊩ʳt₂ = sndʳ Γ⊢F Γ⊢G Γ⊢t:Σ [Γ] [Σ] ⊩ʳt
-  in  [Γ] , [G] , subsumption {t = snd t} {A = G [ fst t ]} [Γ] [G] ⊩ʳt₂ δ≤𝟘
+  in  [Γ] , [G] , subsumption {t = snd _ t} [Γ] [G] ⊩ʳt₂ γ≤δ
 fundamental (prodrecⱼ {t = t} {u} {F} {G} {A} Γ⊢F Γ⊢G Γ⊢A Γ⊢t Γ⊢u) γ▸prodrec  =
   let invUsageProdrec δ▸t η▸u P γ≤pδ+η = inv-usage-prodrec γ▸prodrec
       [Γ] , [Σ] , ⊩ʳt = fundamental Γ⊢t δ▸t
@@ -210,16 +221,17 @@ fundamental (prodrecⱼ {t = t} {u} {F} {G} {A} Γ⊢F Γ⊢G Γ⊢A Γ⊢t Γ�
       [Γ]₅ , [A]₅ = F.fundamental Γ⊢A
       [Γ]₆ , [Σ]₆ , [t]₆ = F.fundamentalTerm Γ⊢t
       [Γ]₇ , [A₊]₇ , [u]₇ = F.fundamentalTerm Γ⊢u
-      A₊ = A [ prodᵣ (var (x0 +1)) (var x0) ]↑²
+      A₊ = A [ prodᵣ _ (var (x0 +1)) (var x0) ]↑²
       [F] = IS.irrelevance {A = F} [Γ]₃ [Γ] [F]₃
       [G] = IS.irrelevance {A = G} [Γ]₄ ([Γ] ∙ [F]) [G]₄
       [A₊] = IS.irrelevance {A = A₊} [Γ]₂ ([Γ] ∙ [F] ∙ [G]) [A₊]₂
       [A] = IS.irrelevance {A = A} [Γ]₅ ([Γ] ∙ [Σ]) [A]₅
-      [t] = IS.irrelevanceTerm {A = Σ _ ▷ F ▹ G} {t} [Γ]₆ [Γ] [Σ]₆ [Σ] [t]₆
+      [t] = IS.irrelevanceTerm {t = t} [Γ]₆ [Γ] [Σ]₆ [Σ] [t]₆
       [u] = IS.irrelevanceTerm {A = A₊} {u} [Γ]₇ ([Γ] ∙ [F] ∙ [G]) [A₊]₇ [A₊] [u]₇
-      ⊩ʳu′ = irrelevance {A = A [ prodᵣ (var (x0 +1)) (var x0) ]↑²} {t = u} [Γ]₂ ([Γ] ∙ [F] ∙ [G]) [A₊]₂ [A₊] ⊩ʳu
+      ⊩ʳu′ = irrelevance {t = u} [Γ]₂ ([Γ] ∙ [F] ∙ [G]) [A₊]₂ [A₊] ⊩ʳu
       [At] , ⊩ʳprodrec = prodrecʳ {F = F} {G} {A = A} {t} {u} [Γ] [F] [G] [Σ] [A] [A₊] [t] [u] ⊩ʳt ⊩ʳu′
-  in  [Γ] , [At] , subsumption {t = prodrec _ A t u} {A = A [ t ]} [Γ] [At] ⊩ʳprodrec γ≤pδ+η
+  in  [Γ] , [At] ,
+      subsumption {t = prodrec _ _ A t u} [Γ] [At] ⊩ʳprodrec γ≤pδ+η
 fundamental (zeroⱼ ⊢Γ) γ▸t = zeroʳ ⊢Γ
 fundamental (sucⱼ {n = t} Γ⊢t:ℕ) γ▸t =
   let invUsageSuc δ▸t γ≤δ = inv-usage-suc γ▸t

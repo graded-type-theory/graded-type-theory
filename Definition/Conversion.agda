@@ -25,7 +25,7 @@ private
     C F H G E : Term n
     a₀ b₀ g h k l t u v : Term n
     x y : Fin n
-    p p′ p₁ p₂ q q′ r r′ : M
+    p p′ p″ p₁ p₂ q q′ r r′ : M
     m : SigmaMode
 
 mutual
@@ -42,11 +42,11 @@ mutual
                   → p ≈ p₂
                   → Γ ⊢ k ∘⟨ p₁ ⟩ t ~ l ∘⟨ p₂ ⟩ v ↑ G [ t ]
 
-    fst-cong      : Γ ⊢ k ~ l ↓ Σₚ p ▷ F ▹ G
-                  → Γ ⊢ fst k ~ fst l ↑ F
+    fst-cong      : Γ ⊢ k ~ l ↓ Σₚ p , q ▷ F ▹ G
+                  → Γ ⊢ fst p k ~ fst p l ↑ F
 
-    snd-cong      : Γ ⊢ k ~ l ↓ Σₚ p ▷ F ▹ G
-                  → Γ ⊢ snd k ~ snd l ↑ G [ fst k ]
+    snd-cong      : Γ ⊢ k ~ l ↓ Σₚ p , q ▷ F ▹ G
+                  → Γ ⊢ snd p k ~ snd p l ↑ G [ fst p k ]
 
     natrec-cong   : Γ ∙ ℕ ⊢ F [conv↑] G
                   → Γ ⊢ a₀ [conv↑] b₀ ∷ F [ zero ]
@@ -56,11 +56,12 @@ mutual
                   → r ≈ r′
                   → Γ ⊢ natrec p r F a₀ h k ~ natrec p′ r′ G b₀ g l ↑ F [ k ]
 
-    prodrec-cong  : Γ ∙ (Σᵣ q ▷ F ▹ G) ⊢ C [conv↑] E
-                  → Γ ⊢ g ~ h ↓ Σᵣ q ▷ F ▹ G
-                  → Γ ∙ F ∙ G ⊢ u [conv↑] v ∷ C [ prodᵣ (var (x0 +1)) (var x0) ]↑²
+    prodrec-cong  : Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ C [conv↑] E
+                  → Γ ⊢ g ~ h ↓ Σᵣ p , q ▷ F ▹ G
+                  → Γ ∙ F ∙ G ⊢ u [conv↑] v ∷ C [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
+                  → r ≈ r′
                   → p ≈ p′
-                  → Γ ⊢ prodrec p C g u ~ prodrec p′ E h v ↑ C [ g ]
+                  → Γ ⊢ prodrec r p C g u ~ prodrec r′ p′ E h v ↑ C [ g ]
 
     Emptyrec-cong : Γ ⊢ F [conv↑] H
                   → Γ ⊢ k ~ l ↓ Empty
@@ -117,7 +118,7 @@ mutual
                → Γ ⊢ F [conv↑] H
                → Γ ∙ F ⊢ G [conv↑] E
                → q ≈ q′
-               → Γ ⊢ Σ⟨ m ⟩ q ▷ F ▹ G [conv↓] Σ⟨ m ⟩ q′ ▷ H ▹ E
+               → Γ ⊢ Σ⟨ m ⟩ p , q ▷ F ▹ G [conv↓] Σ⟨ m ⟩ p , q′ ▷ H ▹ E
 
   -- Term equality.
   record _⊢_[conv↑]_∷_ (Γ : Con Term n) (t u A : Term n) : Set a where
@@ -145,10 +146,10 @@ mutual
     Unit-ins  : Γ ⊢ k ~ l ↓ Unit
               → Γ ⊢ k [conv↓] l ∷ Unit
 
-    Σᵣ-ins    : Γ ⊢ k ∷ Σᵣ q ▷ F ▹ G
-              → Γ ⊢ l ∷ Σᵣ q ▷ F ▹ G
-              → Γ ⊢ k ~ l ↓ Σᵣ q′ ▷ H ▹ E
-              → Γ ⊢ k [conv↓] l ∷ Σᵣ q ▷ F ▹ G
+    Σᵣ-ins    : Γ ⊢ k ∷ Σᵣ p , q ▷ F ▹ G
+              → Γ ⊢ l ∷ Σᵣ p , q ▷ F ▹ G
+              → Γ ⊢ k ~ l ↓ Σᵣ p′ , q′ ▷ H ▹ E
+              → Γ ⊢ k [conv↓] l ∷ Σᵣ p , q ▷ F ▹ G
 
     ne-ins    : ∀ {k l M N}
               → Γ ⊢ k ∷ N
@@ -174,7 +175,9 @@ mutual
               → Γ ∙ F ⊢ G
               → Γ ⊢ t [conv↑] t′ ∷ F
               → Γ ⊢ u [conv↑] u′ ∷ G [ t ]
-              → Γ ⊢ prodᵣ t u [conv↓] prodᵣ t′ u′ ∷ Σᵣ q ▷ F ▹ G
+              → p ≈ p′
+              → p ≈ p″
+              → Γ ⊢ prodᵣ p t u [conv↓] prodᵣ p′ t′ u′ ∷ Σᵣ p″ , q ▷ F ▹ G
 
     η-eq      : ∀ {f g F G}
               → Γ ⊢ f ∷ Π p , q ▷ F ▹ G
@@ -187,13 +190,13 @@ mutual
                  → Γ ∙ F ⊢ wk1 f ∘⟨ p₁ ⟩ var x0 [conv↑] wk1 g ∘⟨ p₂ ⟩ var x0 ∷ G)
               → Γ ⊢ f [conv↓] g ∷ Π p , q ▷ F ▹ G
 
-    Σ-η       : Γ ⊢ k ∷ Σₚ p ▷ F ▹ G
-              → Γ ⊢ l ∷ Σₚ p ▷ F ▹ G
+    Σ-η       : Γ ⊢ k ∷ Σₚ p , q ▷ F ▹ G
+              → Γ ⊢ l ∷ Σₚ p , q ▷ F ▹ G
               → Product k
               → Product l
-              → Γ ⊢ fst k [conv↑] fst l ∷ F
-              → Γ ⊢ snd k [conv↑] snd l ∷ G [ fst k ]
-              → Γ ⊢ k [conv↓] l ∷ Σₚ p ▷ F ▹ G
+              → Γ ⊢ fst p k [conv↑] fst p l ∷ F
+              → Γ ⊢ snd p k [conv↑] snd p l ∷ G [ fst p k ]
+              → Γ ⊢ k [conv↓] l ∷ Σₚ p , q ▷ F ▹ G
 
     η-unit    : ∀ {k l}
               → Γ ⊢ k ∷ Unit
@@ -201,6 +204,11 @@ mutual
               → Whnf k
               → Whnf l
               → Γ ⊢ k [conv↓] l ∷ Unit
+
+pattern prodrec-cong! {p = p} {q = q} {F = F} {G = G} x₁ x₂ x₃ =
+  prodrec-cong {p = p} {q = q} {F = F} {G = G} x₁ x₂ x₃ PE.refl PE.refl
+pattern prod-cong! {G = G} x₁ x₂ x₃ x₄ =
+  prod-cong {G = G} x₁ x₂ x₃ x₄ PE.refl PE.refl
 
 star-refl : ⊢ Γ → Γ ⊢ star [conv↓] star ∷ Unit
 star-refl ⊢Γ = η-unit (starⱼ ⊢Γ) (starⱼ ⊢Γ) starₙ starₙ

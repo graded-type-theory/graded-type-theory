@@ -16,10 +16,14 @@ open import Definition.Mode 𝕄
 open import Definition.Typed M
 open import Definition.Untyped M hiding (_∷_)
 
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
-
+import Tools.Reasoning.PartialOrder
+import Tools.Reasoning.PropositionalEquality
+open import Tools.Relation
+open import Tools.Sum
 
 private
   variable
@@ -44,19 +48,60 @@ usagePresTerm {m = m} γ▸λta (β-red x x₁ x₂ x₃ x₄) =
   in  sub (sgSubstₘ-lemma₂ δ▸t (▸-cong (ᵐ·-cong m (≈-sym x₄)) η▸a))
           (≤ᶜ-trans γ≤δ′+pη (+ᶜ-monotone δ′≤δ (·ᶜ-monotoneˡ (≤-reflexive (≈-sym x₄)))))
 usagePresTerm γ▸t (fst-subst x x₁ t⇒u) =
-  let invUsageProj 𝟘▸t γ≤𝟘 = inv-usage-fst γ▸t
-  in  sub (fstₘ (usagePresTerm 𝟘▸t t⇒u)) γ≤𝟘
+  let invUsageFst m m≡ ▸t γ≤ ok = inv-usage-fst γ▸t
+  in  sub (fstₘ m (usagePresTerm (▸-cong m≡ ▸t) t⇒u) (PE.sym m≡) ok) γ≤
 usagePresTerm γ▸t (snd-subst x x₁ t⇒u) =
-  let invUsageProj 𝟘▸t γ≤𝟘 = inv-usage-snd γ▸t
-  in  sub (sndₘ (usagePresTerm 𝟘▸t t⇒u)) γ≤𝟘
-usagePresTerm γ▸t′ (Σ-β₁ x x₁ x₂ x₃ x₄) =
-  let invUsageProj δ▸tu γ≤δ = inv-usage-fst γ▸t′
-      invUsageProdₚ η▸t η▸u δ≤η = inv-usage-prodₚ δ▸tu
-  in  sub η▸t (≤ᶜ-trans γ≤δ δ≤η)
-usagePresTerm γ▸t′ (Σ-β₂ x x₁ x₂ x₃ x₄) =
-  let invUsageProj δ▸tu γ≤δ = inv-usage-snd γ▸t′
-      invUsageProdₚ η▸t η▸u δ≤η = inv-usage-prodₚ δ▸tu
-  in  sub η▸u (≤ᶜ-trans γ≤δ δ≤η)
+  let invUsageSnd ▸t γ≤ = inv-usage-snd γ▸t
+  in  sub (sndₘ (usagePresTerm ▸t t⇒u)) γ≤
+usagePresTerm {γ = γ} ▸t′ (Σ-β₁ {p = p} _ _ _ _ _ PE.refl) =
+  case inv-usage-fst ▸t′ of λ where
+    (invUsageFst {δ = δ} m PE.refl ▸tu γ≤δ fst-ok) →
+      case inv-usage-prodₚ ▸tu of λ where
+        (invUsageProdₚ {δ = ζ} {η = η} ▸t ▸u δ≤pζ∧η) →
+          let lemma =
+                let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+                  γ            ≤⟨ γ≤δ ⟩
+                  δ            ≤⟨ δ≤pζ∧η ⟩
+                  p ·ᶜ ζ ∧ᶜ η  ≤⟨ ∧ᶜ-decreasingˡ _ _ ⟩
+                  p ·ᶜ ζ       ∎
+          in case is-𝟘? p of λ where
+            (yes p≈𝟘) → case fst-ok p≈𝟘 of λ where
+              (inj₁ 𝟙≈𝟘) → sub
+                (▸-𝟙≈𝟘 𝟙≈𝟘 ▸t)
+                (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+                   γ  ≈⟨ ≈ᶜ-trivial 𝟙≈𝟘 ⟩
+                   ζ  ∎)
+              (inj₂ 𝟘ᵐ-ok) → sub
+                (▸-cong
+                   (let open Tools.Reasoning.PropositionalEquality in
+                      𝟘ᵐ[ 𝟘ᵐ-ok ]  ≡˘⟨ 𝟘ᵐ?≡𝟘ᵐ ⟩
+                      𝟘ᵐ?          ≡˘⟨ ᵐ·-zeroʳ m ⟩
+                      m ᵐ· 𝟘       ≡˘⟨ ᵐ·-cong m p≈𝟘 ⟩
+                      m ᵐ· p       ∎)
+                   (▸-𝟘 ▸t))
+                (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+                   γ       ≤⟨ lemma ⟩
+                   p ·ᶜ ζ  ≈⟨ ·ᶜ-congʳ p≈𝟘 ⟩
+                   𝟘 ·ᶜ ζ  ≈⟨ ·ᶜ-zeroˡ _ ⟩
+                   𝟘ᶜ      ∎)
+            (no p≉𝟘) → sub
+              (▸-cong (ᵐ·-idem m) ▸t)
+              (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+                 γ       ≤⟨ lemma ⟩
+                 p ·ᶜ ζ  ≤⟨ ·ᶜ-monotoneˡ (≉𝟘→≤𝟙 p≉𝟘) ⟩
+                 𝟙 ·ᶜ ζ  ≈⟨ ·ᶜ-identityˡ _ ⟩
+                 ζ       ∎)
+
+usagePresTerm {γ = γ} ▸t′ (Σ-β₂ {p = p} _ _ _ _ _ PE.refl) =
+  case inv-usage-snd ▸t′ of λ where
+    (invUsageSnd {δ = δ} ▸tu γ≤δ) → case inv-usage-prodₚ ▸tu of λ where
+      (invUsageProdₚ {δ = ζ} {η = η} ▸t ▸u δ≤pζ∧η) → sub ▸u (begin
+        γ            ≤⟨ γ≤δ ⟩
+        δ            ≤⟨ δ≤pζ∧η ⟩
+        p ·ᶜ ζ ∧ᶜ η  ≤⟨ ∧ᶜ-decreasingʳ _ _ ⟩
+        η            ∎)
+  where
+  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
 usagePresTerm γ▸natrec (natrec-subst x x₁ x₂ t⇒u) =
   let invUsageNatrec δ▸z η▸s θ▸n γ≤X = inv-usage-natrec γ▸natrec
@@ -96,18 +141,23 @@ usagePresTerm {γ = γ} γ▸natrec (natrec-suc {p = p} {r = r} x x₁ x₂ x₃
 usagePresTerm γ▸prodrec (prodrec-subst x x₁ x₂ x₃ x₄) =
   let invUsageProdrec δ▸t η▸u P γ≤γ′ = inv-usage-prodrec γ▸prodrec
   in  sub (prodrecₘ (usagePresTerm δ▸t x₄) η▸u P) γ≤γ′
-usagePresTerm {γ = γ} γ▸prodrec (prodrec-β {p = p} {t = t} {t′} {u} x x₁ x₂ x₃ x₄ x₅) =
-  let invUsageProdrec {δ = δ} {η} δ▸t η▸u P γ≤pδ+η = inv-usage-prodrec γ▸prodrec
-      invUsageProdᵣ {δ = δ′} {η′} {θ} δ′▸t₁ η′▸t₂ γ″≡δ′+η′ γ′≤γ″ = inv-usage-prodᵣ δ▸t
-      le = begin
-        γ                      ≤⟨ γ≤pδ+η ⟩
-        p ·ᶜ δ +ᶜ η            ≈⟨ +ᶜ-comm (p ·ᶜ δ) η ⟩
-        η +ᶜ p ·ᶜ δ            ≤⟨ +ᶜ-monotoneʳ (·ᶜ-monotoneʳ γ′≤γ″) ⟩
-        η +ᶜ (p ·ᶜ θ)          ≡⟨ PE.cong (λ γ → η +ᶜ p ·ᶜ γ) γ″≡δ′+η′ ⟩
-        η +ᶜ p ·ᶜ (δ′ +ᶜ η′)   ≈⟨ +ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ p δ′ η′) ⟩
-        η +ᶜ p ·ᶜ δ′ +ᶜ p ·ᶜ η′ ≈⟨ +ᶜ-congˡ (+ᶜ-comm (p ·ᶜ δ′) (p ·ᶜ η′)) ⟩
-        η +ᶜ p ·ᶜ η′ +ᶜ p ·ᶜ δ′ ∎
-  in  sub (doubleSubstₘ-lemma₂ η▸u η′▸t₂ δ′▸t₁) le
+usagePresTerm
+  {γ = γ} {m = m} γ▸prodrec
+  (prodrec-β {p = p} {r = r} {t = t} {t′ = t′} {u = u}
+     _ _ _ _ _ _ PE.refl) =
+  case inv-usage-prodrec γ▸prodrec of λ where
+    (invUsageProdrec {δ = δ} {η = η} ▸t ▸u ok γ≤rδ+η) →
+      case inv-usage-prodᵣ ▸t of λ where
+        (invUsageProdᵣ {δ = δ′} {η = η′} ▸t₁ ▸t₂ PE.refl δ≤pδ′+η′) → sub
+          (doubleSubstₘ-lemma₂ ▸u ▸t₂ (▸-cong (ᵐ·-·-assoc m) ▸t₁))
+          (begin
+             γ                              ≤⟨ γ≤rδ+η ⟩
+             r ·ᶜ δ +ᶜ η                    ≈⟨ +ᶜ-comm _ _ ⟩
+             η +ᶜ r ·ᶜ δ                    ≤⟨ +ᶜ-monotoneʳ (·ᶜ-monotoneʳ δ≤pδ′+η′) ⟩
+             η +ᶜ r ·ᶜ (p ·ᶜ δ′ +ᶜ η′)      ≈⟨ +ᶜ-congˡ (·ᶜ-congˡ (+ᶜ-comm _ _)) ⟩
+             η +ᶜ r ·ᶜ (η′ +ᶜ p ·ᶜ δ′)      ≈⟨ +ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
+             η +ᶜ r ·ᶜ η′ +ᶜ r ·ᶜ p ·ᶜ δ′   ≈˘⟨ +ᶜ-congˡ (+ᶜ-congˡ (·ᶜ-assoc _ _ _)) ⟩
+             η +ᶜ r ·ᶜ η′ +ᶜ (r · p) ·ᶜ δ′  ∎)
   where
   open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
 

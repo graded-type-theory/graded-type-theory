@@ -17,11 +17,11 @@ private
 -- (Modal) Equality of BindingType
 data _≋_ : (W W′ : BindingType) → Set a where
   Π≋Π : (p≈p′ : p ≈ p′) → (q≈q′ : q ≈ q′) → BΠ p q ≋ BΠ p′ q′
-  Σ≋Σ : (q≈q′ : q ≈ q′)                   → BΣ m q ≋ BΣ m q′
+  Σ≋Σ : (q≈q′ : q ≈ q′)                   → BΣ m p q ≋ BΣ m p q′
 
 refl : Reflexive _≋_
-refl {BΠ p q} = Π≋Π ≈-refl ≈-refl
-refl {BΣ _ q} = Σ≋Σ ≈-refl
+refl {x = BΠ p q}   = Π≋Π ≈-refl ≈-refl
+refl {x = BΣ _ _ q} = Σ≋Σ ≈-refl
 
 sym : Symmetric _≋_
 sym (Π≋Π p≈p′ q≈q′) = Π≋Π (≈-sym p≈p′) (≈-sym q≈q′)

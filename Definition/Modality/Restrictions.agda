@@ -14,9 +14,9 @@ open import Tools.Unit
 
 record Restrictions : Set (lsuc a) where
   field
-    -- The prodrec constructor's quantity has to satisfy this
+    -- The prodrec constructor's quantities have to satisfy this
     -- predicate.
-    Prodrec : (p : M) → Set a
+    Prodrec : (p q : M) → Set a
 
     -- Is the mode 𝟘ᵐ allowed?
     𝟘ᵐ-allowed : Bool
@@ -25,6 +25,6 @@ record Restrictions : Set (lsuc a) where
 
 no-restrictions : Restrictions
 no-restrictions = record
-  { Prodrec    = λ _ → Lift _ ⊤
+  { Prodrec    = λ _ _ → Lift _ ⊤
   ; 𝟘ᵐ-allowed = true
   }

@@ -198,7 +198,9 @@ B-elim W [Π] = B-elim′ W (id (escape [Π])) [Π]
 Π-elim : ∀ {F G l} → Γ ⊩⟨ l ⟩ Π p , q ▷ F ▹ G → Γ ⊩⟨ l ⟩B⟨ BΠ p q ⟩ Π p , q ▷ F ▹ G
 Π-elim [Π] = B-elim′ BΠ! (id (escape [Π])) [Π]
 
-Σ-elim : ∀ {F G m l} → Γ ⊩⟨ l ⟩ Σ q ▷ F ▹ G → Γ ⊩⟨ l ⟩B⟨ BΣ m q ⟩ Σ q ▷ F ▹ G
+Σ-elim :
+  ∀ {F G m l} →
+  Γ ⊩⟨ l ⟩ Σ p , q ▷ F ▹ G → Γ ⊩⟨ l ⟩B⟨ BΣ m p q ⟩ Σ p , q ▷ F ▹ G
 Σ-elim [Σ] = B-elim′ BΣ! (id (escape [Σ])) [Σ]
 
 -- Extract a type and a level from a maybe embedding
@@ -333,8 +335,8 @@ goodCases (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
           (B₌ F′₁ G′₁ BΠ! D′₁ () A≡B [F≡F′] [G≡G′])
 goodCases (Bᵣ (BΠ p q) x) (Bᵣ (BΠ p₁ q₁) x₁)
           (B₌ F′ G′ BΣ! D′ () A≡B [F≡F′] [G≡G′])
-goodCases (Bᵣ (BΣ x₂ q) x) (Bᵣ (BΣ x₃ q₁) x₁)
-          (B₌ F′ G′ BΠ! D′ () A≡B [F≡F′] [G≡G′])
+goodCases (Bᵣ (BΣ _ _ _) _) (Bᵣ (BΣ _ _ _) _)
+          (B₌ _ _ BΠ! _ () _ _ _)
 
 -- Construct an shape view between two derivations of the same type
 goodCasesRefl : ∀ {l l′ A} ([A] : Γ ⊩⟨ l ⟩ A) ([A′] : Γ ⊩⟨ l′ ⟩ A)

@@ -94,7 +94,7 @@ mutual
         ⊢Γ = wf ⊢F
 
         wkId = wk-id F
-        wkLiftId = PE.cong (λ x → x [ fst _ ]) (wk-lift-id G)
+        wkLiftId = PE.cong (λ x → x [ fst _ _ ]) (wk-lift-id G)
 
         wk[F] = [F] id ⊢Γ
         wk⊢fst = PE.subst (λ x → _ ⊢ _ ∷ x) (PE.sym wkId) (fstⱼ ⊢F ⊢G ⊢t)

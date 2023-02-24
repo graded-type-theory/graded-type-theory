@@ -19,7 +19,7 @@ private
     n : Nat
 
 infix 22 _▷_▹▹_
-infix 22 _××_
+infix 22 _▷_××_
 
 -- Combined well-typed and usage relations
 
@@ -41,5 +41,5 @@ p ▷ F ▹▹ G = Π p , 𝟘 ▷ F ▹ wk1 G
 
 -- Non-dependent products.
 
-_××_ : {m : SigmaMode} (F G : Term n) → Term n
-_××_ {m = m} F G = Σ⟨ m ⟩ 𝟘 ▷ F ▹ wk1 G
+_▷_××_ : {m : SigmaMode} (p : M) (F G : Term n) → Term n
+_▷_××_ {m = m} p F G = Σ⟨ m ⟩ p , 𝟘 ▷ F ▹ wk1 G

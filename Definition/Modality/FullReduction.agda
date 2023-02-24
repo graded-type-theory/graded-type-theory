@@ -1,18 +1,34 @@
+open import Tools.Bool
+open import Tools.PropositionalEquality as PE
+  using (_≈_; ≈-refl; ≈-sym; ≈-trans)
+open import Tools.Sum using (_⊎_; inj₂)
+
 open import Definition.Modality
 
 module Definition.Modality.FullReduction
   {a} {M : Set a} (𝕄 : Modality M)
-  (p≤𝟘 : (p : M) → Modality._≤_ 𝕄 p (Modality.𝟘 𝕄))
+  (open Modality 𝕄)
+  (p≤𝟘 : (p : M) → p ≤ 𝟘)
+  -- The following assumption is only used for quantities p that
+  -- correspond to the first quantity of a Σ-type with η-equality, and
+  -- only in cases where the mode is 𝟙ᵐ. It might suffice to restrict
+  -- such Σ-types so that when the first quantity is p and the mode is
+  -- 𝟙ᵐ, then q ≤ p · q holds for all quantities q.
+  (·-increasing : {p q : M} → q ≤ p · q)
+  -- The following assumption is only used when the first quantity of
+  -- a Σ-type with η-equality is 𝟘 and the mode is 𝟙ᵐ. It might
+  -- suffice to restrict such Σ-types so that when the first quantity
+  -- is 𝟘 and the mode is 𝟙ᵐ, then (𝟙 ≈ 𝟘) ⊎ T 𝟘ᵐ-allowed holds.
+  (𝟙≈𝟘⊎𝟘ᵐ : (𝟙 ≈ 𝟘) ⊎ T 𝟘ᵐ-allowed)
   where
 
-open Modality 𝕄
-
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Nat using (Nat)
 open import Tools.Product
-open import Tools.PropositionalEquality as PE
-  using (_≈_; ≈-refl; ≈-sym; ≈-trans)
 import Tools.Reasoning.PartialOrder
+import Tools.Reasoning.PropositionalEquality
+open import Tools.Relation
 
 open import Definition.Untyped M hiding (_∷_; wk)
 import Definition.Untyped M as U
@@ -46,6 +62,7 @@ private
     n : Nat
     Γ : Con Term n
     t t′ A A′ : Term n
+    p : M
     γ : Conₘ n
     m : Mode
 
@@ -62,20 +79,24 @@ mutual
     in  t′ ∘ u′ , ∘ₙ nfT′ nfU′ , app-cong t≡t′ u≡u′ p≈p₁ p≈p₂
       , sub (δ▸t′ ∘ₘ ▸-cong (ᵐ·-cong m p₁≈p₂) η▸u′)
           (≤ᶜ-trans γ≤γ′ (≤ᶜ-reflexive (+ᶜ-congˡ (·ᶜ-congʳ p₁≈p₂))))
-  fullRedNe (fst-cong p~p) γ▸t =
-    let invUsageProj δ▸p γ≤δ = inv-usage-fst γ▸t
-        p′ , neP′ , p≡p′ , δ▸p′ = fullRedNe~↓ p~p δ▸p
-        ⊢ΣFG , _ , _ = syntacticEqTerm p≡p′
-        ⊢F , ⊢G = syntacticΣ ⊢ΣFG
-    in  fst p′ , fstₙ neP′ , fst-cong ⊢F ⊢G p≡p′
-      , sub (fstₘ δ▸p′) γ≤δ
-  fullRedNe (snd-cong p~p) γ▸t =
-    let invUsageProj δ▸p γ≤δ = inv-usage-snd γ▸t
-        p′ , neP′ , p≡p′ , δ▸p′ = fullRedNe~↓ p~p δ▸p
-        ⊢ΣFG , _ , _ = syntacticEqTerm p≡p′
-        ⊢F , ⊢G = syntacticΣ ⊢ΣFG
-    in  snd p′ , sndₙ neP′ , snd-cong ⊢F ⊢G p≡p′
-      , sub (sndₘ δ▸p′) γ≤δ
+  fullRedNe {m = m} (fst-cong {p = p} p~p) γ▸ =
+    let invUsageFst m′ m≡m′ᵐ·p δ▸ γ≤δ 𝟘-cond = inv-usage-fst γ▸
+        p′ , neP′ , p≡p′ , δ▸′               = fullRedNe~↓ p~p δ▸
+        ⊢ΣFG , _ , _                         = syntacticEqTerm p≡p′
+        ⊢F , ⊢G                              = syntacticΣ ⊢ΣFG
+    in  fst _ p′
+      , fstₙ neP′
+      , fst-cong ⊢F ⊢G p≡p′
+      , sub (fstₘ m′ (▸-cong m≡m′ᵐ·p δ▸′) (PE.sym m≡m′ᵐ·p) 𝟘-cond) γ≤δ
+  fullRedNe (snd-cong p~p) γ▸ =
+    let invUsageSnd δ▸ γ≤δ     = inv-usage-snd γ▸
+        p′ , neP′ , p≡p′ , δ▸′ = fullRedNe~↓ p~p δ▸
+        ⊢ΣFG , _ , _           = syntacticEqTerm p≡p′
+        ⊢F , ⊢G                = syntacticΣ ⊢ΣFG
+    in  snd _ p′
+      , sndₙ neP′
+      , snd-cong ⊢F ⊢G p≡p′
+      , sub (sndₘ δ▸′) γ≤δ
   fullRedNe (natrec-cong {p = p} {r = r} C z s n p≈p′ r≈r′) γ▸t =
     let invUsageNatrec δ▸z η▸s θ▸n γ≤γ′ = inv-usage-natrec γ▸t
         C′ , nfC′ , C≡C′ = FR.fullRed C
@@ -85,15 +106,15 @@ mutual
     in  natrec p r C′ z′ s′ n′ , natrecₙ nfC′ nfZ′ nfS′ nfN′
       , natrec-cong (proj₁ (syntacticEq C≡C′)) C≡C′ z≡z′ s≡s′ n≡n′ ≈-refl ≈-refl
       , sub (natrecₘ δ▸z′ η▸s′ θ▸n′) γ≤γ′
-  fullRedNe (prodrec-cong {p = p} C g u p≈p′) γ▸t =
+  fullRedNe (prodrec-cong! C g u) γ▸t =
     let invUsageProdrec δ▸g η▸u P γ≤γ′ = inv-usage-prodrec γ▸t
         C′ , nfC′ , C≡C′ = FR.fullRed C
         g′ , nfg′ , g≡g′ , δ▸g′ = fullRedNe~↓ g δ▸g
         u′ , nfu′ , u≡u′ , η▸u′ = fullRedTermConv↑ u η▸u
         ⊢Σ , _ = syntacticEqTerm g≡g′
         ⊢F , ⊢G = syntacticΣ ⊢Σ
-    in  prodrec p C′ g′ u′ , prodrecₙ nfC′ nfg′ nfu′
-      , prodrec-cong ⊢F ⊢G C≡C′ g≡g′ u≡u′ ≈-refl
+    in  prodrec _ _ C′ g′ u′ , prodrecₙ nfC′ nfg′ nfu′
+      , prodrec-cong ⊢F ⊢G C≡C′ g≡g′ u≡u′ PE.refl
       , sub (prodrecₘ δ▸g′ η▸u′ P) γ≤γ′
   fullRedNe {m = m} (Emptyrec-cong C n p≈p′) γ▸t =
     let invUsageEmptyrec δ▸n γ≤δ = inv-usage-Emptyrec γ▸t
@@ -130,18 +151,18 @@ mutual
     let B , nf , A≡B , γ▸B = fullRedNe~↓ A γ▸A
     in  B , ne nf , univ A≡B , γ▸B
   fullRedConv↓ {m = m} (Π-cong ⊢F F G p≈p′ q≈q′) γ▸A =
-    let invUsageΠ δ▸F η▸G γ≤γ′ = inv-usage-Π γ▸A
+    let invUsageΠΣ δ▸F η▸G γ≤γ′ = inv-usage-Π γ▸A
         F′ , nfF′ , F≡F′ , δ▸F′ = fullRedConv↑ F δ▸F
         G′ , nfG′ , G≡G′ , η▸G′ = fullRedConv↑ G η▸G
         η′▸G′ = sub η▸G′ (≤ᶜ-reflexive (≈ᶜ-refl ∙ ≈-sym (·-congˡ q≈q′)))
     in  Π _ , _ ▷ F′ ▹ G′ , Πₙ nfF′ nfG′ , Π-cong ⊢F F≡F′ G≡G′ p≈p′ q≈q′
       , sub (Πₘ (▸-cong (ᵐ·-cong m p≈p′) δ▸F′) η′▸G′) γ≤γ′
-  fullRedConv↓ (Σ-cong ⊢F F G q≈q′) γ▸A =
-    let invUsageΣ δ▸F η▸G γ≤γ′ = inv-usage-Σ γ▸A
+  fullRedConv↓ {m = m} (Σ-cong ⊢F F G q≈q′) γ▸A =
+    let invUsageΠΣ δ▸F η▸G γ≤γ′ = inv-usage-Σ γ▸A
         F′ , nfF′ , F≡F′ , δ▸F′ = fullRedConv↑ F δ▸F
         G′ , nfG′ , G≡G′ , η▸G′ = fullRedConv↑ G η▸G
         η′▸G′ = sub η▸G′ (≤ᶜ-reflexive (≈ᶜ-refl ∙ ≈-sym (·-congˡ q≈q′)))
-    in  Σ _ ▷ F′ ▹ G′ , Σₙ nfF′ nfG′ , Σ-cong ⊢F F≡F′ G≡G′ q≈q′
+    in  Σ _ , _ ▷ F′ ▹ G′ , Σₙ nfF′ nfG′ , Σ-cong ⊢F F≡F′ G≡G′ q≈q′
       , sub (Σₘ δ▸F′ η′▸G′) γ≤γ′
 
   fullRedTermConv↑ :
@@ -182,7 +203,7 @@ mutual
     let invUsageSuc δ▸t γ≤δ = inv-usage-suc γ▸t
         u , nf , t≡u , δ▸u = fullRedTermConv↑ t δ▸t
     in  suc u , sucₙ nf , suc-cong t≡u , sub (sucₘ δ▸u) γ≤δ
-  fullRedTermConv↓ (prod-cong ⊢F ⊢G t↑t u↑u) γ▸t =
+  fullRedTermConv↓ (prod-cong! ⊢F ⊢G t↑t u↑u) γ▸t =
     let invUsageProdᵣ δ▸t η▸u γ″=δ+η γ≤γ″ = inv-usage-prodᵣ γ▸t
         t′ , nfT , t≡t′ , δ▸t′ = fullRedTermConv↑ t↑t δ▸t
         u′ , nfU , u≡u′ , η▸u′ = fullRedTermConv↑ u↑u η▸u
@@ -215,10 +236,12 @@ mutual
           γ +ᶜ p ·ᶜ 𝟘ᶜ ∙ 𝟘 + p · ⌜ m ᵐ· p ⌝  ∎))
     where
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-  fullRedTermConv↓ (Σ-η ⊢t _ tProd _ fstConv sndConv) γ▸t =
-    let γ▸t₁ = fstₘ γ▸t
-        γ▸t₂ = sndₘ γ▸t
-        fst′ , nfFst′ , fst≡fst′ , γ▸u₁ = fullRedTermConv↑ fstConv γ▸t₁
+  fullRedTermConv↓
+    {t = t} {γ = γ} {m = m}
+    (Σ-η {p = p} ⊢t _ tProd _ fstConv sndConv) γ▸t =
+    let δ , δ▸t₁ , γ≤pδ = lemma m γ▸t
+        γ▸t₂            = sndₘ γ▸t
+        fst′ , nfFst′ , fst≡fst′ , δ▸u₁ = fullRedTermConv↑ fstConv δ▸t₁
         snd′ , nfSnd′ , snd≡snd′ , γ▸u₂ = fullRedTermConv↑ sndConv γ▸t₂
         _ , _ , ⊢fst′ = syntacticEqTerm fst≡fst′
         _ , _ , ⊢snd′₁ = syntacticEqTerm snd≡snd′
@@ -229,14 +252,63 @@ mutual
         ⊢snd′ = conv ⊢snd′₁ Gfst≡Gfst′
         ⊢prod = prodⱼ ⊢F ⊢G ⊢fst′ ⊢snd′
 
-        fstprod≡fst′ = Σ-β₁ ⊢F ⊢G ⊢fst′ ⊢snd′ ⊢prod
+        fstprod≡fst′ = Σ-β₁ ⊢F ⊢G ⊢fst′ ⊢snd′ ⊢prod PE.refl
         fst≡fstprod = trans fst≡fst′ (sym fstprod≡fst′)
         Gfst≡Gfstprod = substTypeEq (refl ⊢G) fst≡fstprod
-        sndprod≡snd′ = conv (Σ-β₂ ⊢F ⊢G ⊢fst′ ⊢snd′ ⊢prod) (sym Gfst≡Gfstprod)
+        sndprod≡snd′ = conv (Σ-β₂ ⊢F ⊢G ⊢fst′ ⊢snd′ ⊢prod PE.refl)
+                         (sym Gfst≡Gfstprod)
         snd≡sndprod = trans snd≡snd′ (sym sndprod≡snd′)
     in  prod! fst′ snd′ , prodₙ nfFst′ nfSnd′
       , Σ-η ⊢F ⊢G ⊢t ⊢prod fst≡fstprod snd≡sndprod
-      , prodₚₘ γ▸u₁ γ▸u₂
+      , sub (prodₚₘ δ▸u₁ γ▸u₂)
+          (begin
+             γ            ≤⟨ ∧ᶜ-greatest-lower-bound γ≤pδ ≤ᶜ-refl ⟩
+             p ·ᶜ δ ∧ᶜ γ  ∎)
+    where
+    ·ᶜ-increasing : (γ : Conₘ n) → γ ≤ᶜ p ·ᶜ γ
+    ·ᶜ-increasing ε       = ε
+    ·ᶜ-increasing (γ ∙ p) = ·ᶜ-increasing _ ∙ ·-increasing
+
+    lemma :
+      ∀ m →
+      γ ▸[ m ] t →
+      ∃ λ δ → δ ▸[ m ᵐ· p ] fst p t × γ ≤ᶜ p ·ᶜ δ
+    lemma 𝟘ᵐ[ ok ] γ▸t =
+        𝟘ᶜ
+      , fstₘ 𝟘ᵐ[ ok ] (▸-𝟘 γ▸t) PE.refl (λ _ → inj₂ ok)
+      , (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+           γ        ≤⟨ ▸-𝟘ᵐ γ▸t ⟩
+           𝟘ᶜ       ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
+           p ·ᶜ 𝟘ᶜ  ∎)
+    lemma 𝟙ᵐ γ▸t with is-𝟘? p
+    … | yes PE.refl =
+        ⌜ ⌞ 𝟘 ⌟ ⌝ ·ᶜ γ
+      , fstₘ 𝟙ᵐ
+          (▸-cong
+             (let open Tools.Reasoning.PropositionalEquality in
+                ⌞ p ⌟ ·ᵐ 𝟙ᵐ  ≡⟨ ·ᵐ-comm _ 𝟙ᵐ ⟩
+                𝟙ᵐ ·ᵐ ⌞ p ⌟  ≡⟨⟩
+                ⌞ p ⌟        ∎)
+             (▸-· γ▸t))
+          ⌞𝟘⌟≡𝟘ᵐ?
+          (λ _ → 𝟙≈𝟘⊎𝟘ᵐ)
+      , (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+           γ                     ≤⟨ ·ᶜ-increasing _ ⟩
+           𝟘 ·ᶜ γ                ≈˘⟨ ·ᶜ-congʳ (·-zeroˡ _) ⟩
+           (𝟘 · ⌜ ⌞ 𝟘 ⌟ ⌝) ·ᶜ γ  ≈⟨ ·ᶜ-assoc _ _ _ ⟩
+           𝟘 ·ᶜ ⌜ ⌞ 𝟘 ⌟ ⌝ ·ᶜ γ   ∎)
+    … | no p≉𝟘 =
+        γ
+      , fstₘ 𝟙ᵐ
+          (▸-cong (PE.sym (≉𝟘→⌞⌟≡𝟙ᵐ p≉𝟘)) γ▸t)
+          (≉𝟘→⌞⌟≡𝟙ᵐ p≉𝟘)
+          (λ p≈𝟘 → ⊥-elim (p≉𝟘 p≈𝟘))
+      , (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+           γ       ≤⟨ ·ᶜ-increasing _ ⟩
+           p ·ᶜ γ  ∎)
+
+    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+
   fullRedTermConv↓ (η-unit ⊢t _ tUnit _) γ▸t =
     star , starₙ , η-unit ⊢t (starⱼ (wfTerm ⊢t)) , sub starₘ γ≤𝟘ᶜ
     where

@@ -478,10 +478,11 @@ wk-β-natrec ρ G = let G′ = G [ suc (var x0) ]↑ in
 
 -- A specific equation on eakenings used for the reduction of prodrec.
 
-wk-β-prodrec : ∀ {s}(ρ : Wk m n) (A : Term (1+ n))
-             → wk (lift (lift ρ)) (A [ prod s (var (x0 +1)) (var x0) ]↑²)
-             ≡ wk (lift ρ) A [ prod s (var (x0 +1)) (var x0) ]↑²
-wk-β-prodrec ρ A =
+wk-β-prodrec :
+  ∀ {s} (ρ : Wk m n) (A : Term (1+ n)) →
+  wk (lift (lift ρ)) (A [ prod s p (var (x0 +1)) (var x0) ]↑²) ≡
+  wk (lift ρ) A [ prod s p (var (x0 +1)) (var x0) ]↑²
+wk-β-prodrec {p = p} ρ A =
   begin
        wk (lift (lift ρ)) (subst σₚ′ A)
          ≡⟨ wk-subst A ⟩
@@ -662,8 +663,8 @@ wk2-tail-B′ {n} {σ = σ} W F G = begin
 wk2-tail-B : ∀ (W : BindingType) (F : Term n) (G : Term (1+ n))
            → ⟦ W ⟧ subst σ (wk1 (wk1 F)) ▹ subst (liftSubst σ) (wk (lift (step (step id))) G)
            ≡ subst (tail (tail σ)) (⟦ W ⟧ F ▹ G)
-wk2-tail-B (BΠ p q) F G = wk2-tail-B′ (BΠ p q) F G
-wk2-tail-B (BΣ m q) F G = wk2-tail-B′ (BΣ m q) F G
+wk2-tail-B (BΠ p q)   F G = wk2-tail-B′ (BΠ p q)   F G
+wk2-tail-B (BΣ m p q) F G = wk2-tail-B′ (BΣ m p q) F G
 
 wk1-sgSubst : ∀ (t : Term n) t' → (wk1 t) [ t' ] ≡ t
 wk1-sgSubst t t' rewrite wk1-tailId t =
@@ -674,9 +675,10 @@ wk1-sgSubst t t' rewrite wk1-tailId t =
         (substVar-to-subst (substVar-sgSubst-tail t') t))
       (subst-id t)
 
-subst-β-prodrec : ∀ {s} (A : Term (1+ n)) (σ : Subst m n)
-                → subst (liftSubstn σ 2) (A [ prod s (var (x0 +1)) (var x0) ]↑²)
-                ≡ subst (liftSubst σ) A [ prod s (var (x0 +1)) (var x0) ]↑²
+subst-β-prodrec :
+  ∀ {s} (A : Term (1+ n)) (σ : Subst m n) →
+  subst (liftSubstn σ 2) (A [ prod s p (var (x0 +1)) (var x0) ]↑²) ≡
+  subst (liftSubst σ) A [ prod s p (var (x0 +1)) (var x0) ]↑²
 subst-β-prodrec {n = n} A σ = begin
    subst (liftSubstn σ 2) (A [ t ]↑²)
      ≡⟨ substCompEq A ⟩
@@ -703,9 +705,11 @@ subst-β-prodrec {n = n} A σ = begin
        ≡˘⟨ wk1-tail (σ x) ⟩
      subst (consSubst (λ y → var (y +1 +1)) t′) (wk1 (σ x)) ∎
 
-substCompProdrec : ∀ {s} (A : Term (1+ n)) (t u : Term m) (σ : Subst m n)
-                 → subst (liftSubst σ) A [ prod s t u ]
-                 ≡ subst (consSubst (consSubst σ t) u) (A [ prod s (var (x0 +1)) (var x0) ]↑²)
+substCompProdrec :
+  ∀ {s} (A : Term (1+ n)) (t u : Term m) (σ : Subst m n) →
+  subst (liftSubst σ) A [ prod s p t u ] ≡
+  subst (consSubst (consSubst σ t) u)
+    (A [ prod s p (var (x0 +1)) (var x0) ]↑²)
 substCompProdrec {n = n} A t u σ = begin
    subst (liftSubst σ) A [ prod! t u ]
      ≡⟨ substCompEq A ⟩

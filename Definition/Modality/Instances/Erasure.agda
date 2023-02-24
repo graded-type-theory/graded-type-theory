@@ -348,12 +348,13 @@ p ≤ q = p ≡ p ∧ q
 -- A specific restriction --
 ----------------------------
 
--- The restriction that prodrec may only be used with the quantity ω.
--- Other restrictions are inherited.
+-- The restriction that one of the prodrec quantities (the one that is
+-- not tied to one of the Σ-type's quantities) must be ω. Other
+-- restrictions are inherited.
 
 prodrec-only-for-ω : Restrictions → Restrictions
 prodrec-only-for-ω restrictions = record restrictions
-  { Prodrec = λ p → Prodrec p × p ≡ ω
+  { Prodrec      = λ r p → Prodrec r p × r ≡ ω
   }
   where
   open Restrictions restrictions

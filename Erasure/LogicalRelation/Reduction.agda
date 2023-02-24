@@ -71,8 +71,9 @@ sourceRedSubstTerm (Bᵣ′ (BΠ ω q) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A
       t∘a⇒t′∘w′ = app-subst (conv t⇒t′ (subset* D)) ⊢a′
       t∘a⇒t′∘w = PE.subst (ε ⊢ _ ⇒ _ ∷_) (PE.cong (U._[ a ]) (PE.sym (UP.wk-lift-id G))) t∘a⇒t′∘w′
   in sourceRedSubstTerm ([G] id ε [a]) t®v t∘a⇒t′∘w
-sourceRedSubstTerm (Bᵣ′ (BΣ p m) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext)
-                   (t₁ , t₂ , v₁ , v₂ , t′⇒p , v⇒v′ , [t₁] , t₁®v₁ , t₂®v₂) t⇒t′ =
+sourceRedSubstTerm
+  (Bᵣ′ BΣ! F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext)
+  (t₁ , t₂ , v₁ , v₂ , t′⇒p , v⇒v′ , [t₁] , t₁®v₁ , t₂®v₂) t⇒t′ =
   t₁ , t₂ , v₁ , v₂ , (conv t⇒t′ (subset* D) ⇨ t′⇒p) , v⇒v′ , [t₁] , t₁®v₁ , t₂®v₂
 sourceRedSubstTerm (emb 0<1 [A]) t®v t⇒t′ = sourceRedSubstTerm [A] t®v t⇒t′
 
@@ -108,8 +109,9 @@ targetRedSubstTerm (Bᵣ′ (BΠ ω q) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A
       v∘w⇒v′∘w′ = T.app-subst v⇒v′
       [G[a]] = [G] id ε [a]
   in targetRedSubstTerm [G[a]] t®v v∘w⇒v′∘w′
-targetRedSubstTerm (Bᵣ′ (BΣ q m) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext)
-                   (t₁ , t₂ , v₁ , v₂ , t⇒t′ , v′⇒p , [t₁] , t₁®v₁ , t₂®v₂) v⇒v′ =
+targetRedSubstTerm
+  (Bᵣ′ BΣ! F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext)
+  (t₁ , t₂ , v₁ , v₂ , t⇒t′ , v′⇒p , [t₁] , t₁®v₁ , t₂®v₂) v⇒v′ =
   t₁ , t₂ , v₁ , v₂ , (t⇒t′ , trans v⇒v′ v′⇒p , [t₁] , t₁®v₁ , t₂®v₂)
 targetRedSubstTerm (emb 0<1 [A]) t®v′ v⇒v′ = targetRedSubstTerm [A] t®v′ v⇒v′
 
@@ -173,8 +175,9 @@ sourceRedSubstTerm′ (Bᵣ′ (BΠ ω q) F G D ⊢F ⊢G A≡A [F] [G] G-ext) t
                           (PE.cong (U._[ a ]) (PE.sym (UP.wk-lift-id G)))
                           t∘a⇒t′∘a′
   in  sourceRedSubstTerm′ ([G] id ε [a]) t®v t∘a⇒t′∘a
-sourceRedSubstTerm′ (Bᵣ′ (BΣ q m) F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-                    (t₁ , t₂ , v₁ , v₂ , t⇒p , v⇒v′ , [t₁] , t₁®v₁ , t₂®v₂) t⇒t′ =
+sourceRedSubstTerm′
+  (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+  (t₁ , t₂ , v₁ , v₂ , t⇒p , v⇒v′ , [t₁] , t₁®v₁ , t₂®v₂) t⇒t′ =
   t₁ , t₂ , v₁ , v₂
      , whrDet↘Term (t⇒p , prodₙ) (redMany (conv t⇒t′ (subset* (red D))))
      , v⇒v′ , [t₁] , t₁®v₁ , t₂®v₂
@@ -214,9 +217,10 @@ targetRedSubstTerm′ (Bᵣ′ (BΠ ω q) F G D ⊢F ⊢G A≡A [F] [G] G-ext) t
   let t®v = t®v′ [a] a®w
       v∘w⇒v′∘w = T.app-subst v⇒v′
   in  targetRedSubstTerm′ ([G] id ε [a]) t®v v∘w⇒v′∘w
-targetRedSubstTerm′ (Bᵣ′ (BΣ p m) F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-                    (t₁ , t₂ , v₁ , v₂ , t⇒t′ , v⇒p , [t₁] , t₁®v₁ , t₂®v₂) v⇒v′
-                    with red*Det v⇒p (trans v⇒v′ refl)
+targetRedSubstTerm′
+  (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+  (t₁ , t₂ , v₁ , v₂ , t⇒t′ , v⇒p , [t₁] , t₁®v₁ , t₂®v₂) v⇒v′
+  with red*Det v⇒p (trans v⇒v′ refl)
 ... | inj₂ x = t₁ , t₂ , v₁ , v₂ , t⇒t′ , x , [t₁] , t₁®v₁ , t₂®v₂
 ... | inj₁ x with prod-noRed x
 ... | PE.refl = t₁ , t₂ , v₁ , v₂ , t⇒t′ , refl , [t₁] , t₁®v₁ , t₂®v₂

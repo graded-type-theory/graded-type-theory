@@ -148,14 +148,14 @@ record EqRelSet : Set (lsuc ℓ) where
               → Γ ⊢ F ≅ H
               → Γ ∙ F ⊢ G ≅ E
               → q ≈ q′
-              → Γ ⊢ Σ⟨ s ⟩ q ▷ F ▹ G ≅ Σ⟨ s ⟩ q′ ▷ H ▹ E
+              → Γ ⊢ Σ⟨ s ⟩ p , q ▷ F ▹ G ≅ Σ⟨ s ⟩ p , q′ ▷ H ▹ E
 
     ≅ₜ-Σ-cong : ∀ {F G H E}
               → Γ ⊢ F
               → Γ ⊢ F ≅ H ∷ U
               → Γ ∙ F ⊢ G ≅ E ∷ U
               → q ≈ q′
-              → Γ ⊢ Σ⟨ s ⟩ q ▷ F ▹ G ≅ Σ⟨ s ⟩ q′ ▷ H ▹ E ∷ U
+              → Γ ⊢ Σ⟨ s ⟩ p , q ▷ F ▹ G ≅ Σ⟨ s ⟩ p , q′ ▷ H ▹ E ∷ U
 
     -- Zero reflexivity
     ≅ₜ-zerorefl : ⊢ Γ → Γ ⊢ zero ≅ zero ∷ ℕ
@@ -169,7 +169,7 @@ record EqRelSet : Set (lsuc ℓ) where
                 → Γ ∙ F ⊢ G
                 → Γ ⊢ t ≅ t′ ∷ F
                 → Γ ⊢ u ≅ u′ ∷ G [ t ]
-                → Γ ⊢ prodᵣ t u ≅ prodᵣ t′ u′ ∷ Σᵣ q ▷ F ▹ G
+                → Γ ⊢ prodᵣ p t u ≅ prodᵣ p t′ u′ ∷ Σᵣ p , q ▷ F ▹ G
 
     -- η-equality
     ≅-η-eq : ∀ {f g F G}
@@ -185,16 +185,16 @@ record EqRelSet : Set (lsuc ℓ) where
            → Γ ⊢ f ≅ g ∷ Π p , q ▷ F ▹ G
 
     -- η for product types
-    ≅-Σ-η : ∀ {p r F G}
+    ≅-Σ-η : ∀ {r s F G}
           → Γ ⊢ F
           → Γ ∙ F ⊢ G
-          → Γ ⊢ p ∷ Σₚ q ▷ F ▹ G
-          → Γ ⊢ r ∷ Σₚ q ▷ F ▹ G
-          → Product p
+          → Γ ⊢ r ∷ Σₚ p , q ▷ F ▹ G
+          → Γ ⊢ s ∷ Σₚ p , q ▷ F ▹ G
           → Product r
-          → Γ ⊢ fst p ≅ fst r ∷ F
-          → Γ ⊢ snd p ≅ snd r ∷ G [ fst p ]
-          → Γ ⊢ p ≅ r ∷ Σₚ q ▷ F ▹ G
+          → Product s
+          → Γ ⊢ fst p r ≅ fst p s ∷ F
+          → Γ ⊢ snd p r ≅ snd p s ∷ G [ fst p r ]
+          → Γ ⊢ r ≅ s ∷ Σₚ p , q ▷ F ▹ G
 
     -- Variable reflexivity
     ~-var : ∀ {x A} → Γ ⊢ var x ∷ A → Γ ⊢ var x ~ var x ∷ A
@@ -208,17 +208,17 @@ record EqRelSet : Set (lsuc ℓ) where
           → Γ ⊢ f ∘⟨ p₁ ⟩ a ~ g ∘⟨ p₂ ⟩ b ∷ G [ a ]
 
     -- Product projections congruence
-    ~-fst : ∀ {p r F G}
+    ~-fst : ∀ {r s F G}
           → Γ ⊢ F
           → Γ ∙ F ⊢ G
-          → Γ ⊢ p ~ r ∷ Σₚ q ▷ F ▹ G
-          → Γ ⊢ fst p ~ fst r ∷ F
+          → Γ ⊢ r ~ s ∷ Σₚ p , q ▷ F ▹ G
+          → Γ ⊢ fst p r ~ fst p s ∷ F
 
-    ~-snd : ∀ {p r F G}
+    ~-snd : ∀ {r s F G}
           → Γ ⊢ F
           → Γ ∙ F ⊢ G
-          → Γ ⊢ p ~ r ∷ Σₚ q ▷ F ▹ G
-          → Γ ⊢ snd p ~ snd r ∷ G [ fst p ]
+          → Γ ⊢ r ~ s ∷ Σₚ p , q ▷ F ▹ G
+          → Γ ⊢ snd p r ~ snd p s ∷ G [ fst p r ]
 
     -- Natural recursion congruence
     ~-natrec : ∀ {z z′ s s′ n n′ F F′}
@@ -233,13 +233,13 @@ record EqRelSet : Set (lsuc ℓ) where
 
     -- Product recursion congruence
     ~-prodrec : ∀ {F G A A′ t t′ u u′}
-             → Γ                 ⊢ F
-             → Γ ∙ F             ⊢ G
-             → Γ ∙ (Σᵣ q ▷ F ▹ G) ⊢ A ≅ A′
-             → Γ                 ⊢ t ~ t′ ∷ Σᵣ q ▷ F ▹ G
-             → Γ ∙ F ∙ G         ⊢ u ≅ u′ ∷ A [ prodᵣ (var (x0 +1)) (var x0) ]↑²
-             → p ≈ p′
-             → Γ                 ⊢ prodrec p A t u ~ prodrec p′ A′ t′ u′ ∷ A [ t ]
+             → Γ                      ⊢ F
+             → Γ ∙ F                  ⊢ G
+             → Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ A ≅ A′
+             → Γ                      ⊢ t ~ t′ ∷ Σᵣ p , q ▷ F ▹ G
+             → Γ ∙ F ∙ G              ⊢ u ≅ u′ ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
+             → r ≈ r′
+             → Γ                      ⊢ prodrec r p A t u ~ prodrec r′ p A′ t′ u′ ∷ A [ t ]
 
     -- Empty recursion congruence
     ~-Emptyrec : ∀ {n n′ F F′}
@@ -263,7 +263,7 @@ record EqRelSet : Set (lsuc ℓ) where
           → Γ ∙ F ⊢ G ≅ E
           → Γ ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W′ ⟧ H ▹ E
   ≅-W-cong BΠ! _ (Π≋Π p≈p′ q≈q′) = λ x x₁ x₂ → ≅-Π-cong x x₁ x₂ p≈p′ q≈q′
-  ≅-W-cong BΣ! _ (Σ≋Σ q≈q′)      = λ x x₁ x₂ → ≅-Σ-cong x x₁ x₂ q≈q′
+  ≅-W-cong BΣ! _ (Σ≋Σ      q≈q′) = λ x x₁ x₂ → ≅-Σ-cong x x₁ x₂      q≈q′
 
   ≅ₜ-W-cong : ∀ {F G H E} W W′
             → W ≋ W′
@@ -272,4 +272,4 @@ record EqRelSet : Set (lsuc ℓ) where
             → Γ ∙ F ⊢ G ≅ E ∷ U
             → Γ ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W′ ⟧ H ▹ E ∷ U
   ≅ₜ-W-cong BΠ! _ (Π≋Π p≈p′ q≈q′) = λ x x₁ x₂ → ≅ₜ-Π-cong x x₁ x₂ p≈p′ q≈q′
-  ≅ₜ-W-cong BΣ! _ (Σ≋Σ q≈q′)      = λ x x₁ x₂ → ≅ₜ-Σ-cong x x₁ x₂ q≈q′
+  ≅ₜ-W-cong BΣ! _ (Σ≋Σ      q≈q′) = λ x x₁ x₂ → ≅ₜ-Σ-cong x x₁ x₂      q≈q′

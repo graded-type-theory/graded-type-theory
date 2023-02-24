@@ -120,16 +120,20 @@ symEqTerm (Bᵣ′ BΣₚ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
             ([G] W.id ⊢Γ [fstp]) ([G] W.id ⊢Γ [fstr])
             [Gfstp≡Gfstr]
             (symEqTerm ([G] W.id ⊢Γ [fstp]) [snd≡])))
-symEqTerm (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-          (Σₜ₌ p r d d′ prodₙ prodₙ p≅r [t] [u] ([p₁] , [r₁] , [p₂] , [r₂] , [fst≡] , [snd≡])) =
+symEqTerm
+  (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+  (Σₜ₌ p r d d′ prodₙ prodₙ p≅r [t] [u]
+     (PE.refl , PE.refl ,
+      [p₁] , [r₁] , [p₂] , [r₂] , [fst≡] , [snd≡])) =
   let ⊢Γ = wf ⊢F
       [Gfstp≡Gfstr] = G-ext W.id ⊢Γ [p₁] [r₁] [fst≡]
   in  Σₜ₌ r p d′ d prodₙ prodₙ (≅ₜ-sym p≅r) [u] [t]
-          ([r₁] , [p₁] , [r₂] , [p₂] , (symEqTerm ([F] W.id ⊢Γ) [fst≡]) ,
-          (convEqTerm₁
-            ([G] W.id ⊢Γ [p₁]) ([G] W.id ⊢Γ [r₁])
-            [Gfstp≡Gfstr]
-            (symEqTerm ([G] W.id ⊢Γ [p₁]) [snd≡])))
+        (PE.refl , PE.refl , [r₁] , [p₁] , [r₂] , [p₂] ,
+         symEqTerm ([F] W.id ⊢Γ) [fst≡] ,
+         convEqTerm₁
+           ([G] W.id ⊢Γ [p₁]) ([G] W.id ⊢Γ [r₁])
+           [Gfstp≡Gfstr]
+           (symEqTerm ([G] W.id ⊢Γ [p₁]) [snd≡]))
 symEqTerm (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
           (Σₜ₌ p r d d′ (ne x) (ne y) p≅r [t] [u] p~r) =
   Σₜ₌ r p d′ d (ne y) (ne x) (≅ₜ-sym p≅r) [u] [t] (~-sym p~r)

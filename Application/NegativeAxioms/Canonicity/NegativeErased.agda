@@ -82,11 +82,11 @@ neNeg (d ∘ⱼ ⊢t           ) (∘ₙ n       ) γ▸u =
   in  appNeg (neNeg d n (sub δ▸g (≤ᶜ-trans γ≤γ′ (+ᶜ-decreasingˡ _ _))))
              (refl (syntacticTerm d)) ⊢t
 neNeg (fstⱼ ⊢A A⊢B d     ) (fstₙ n     ) γ▸u =
-  let invUsageProj δ▸t γ≤δ = inv-usage-fst γ▸u
+  let invUsageFst _ _ δ▸t γ≤δ _ = inv-usage-fst γ▸u
   in  fstNeg (neNeg d n (sub δ▸t γ≤δ))
              (refl (Σⱼ ⊢A ▹ A⊢B))
 neNeg (sndⱼ ⊢A A⊢B d     ) (sndₙ n     ) γ▸u =
-  let invUsageProj δ▸t γ≤δ = inv-usage-snd γ▸u
+  let invUsageSnd δ▸t γ≤δ = inv-usage-snd γ▸u
   in  sndNeg (neNeg d n (sub δ▸t γ≤δ))
              (refl (Σⱼ ⊢A ▹ A⊢B)) (fstⱼ ⊢A A⊢B d)
 neNeg (natrecⱼ _ _ _ d   ) (natrecₙ n  ) γ▸u =

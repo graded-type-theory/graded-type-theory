@@ -48,45 +48,50 @@ data _®_∷Empty (t : U.Term 0) (v : T.Term 0) : Set where
 data _®_∷Unit (t : U.Term 0) (v : T.Term 0) : Set where
   starᵣ : ε ⊢ t ∷ Unit → v T.⇒* T.star → t ® v ∷Unit
 
--- Logical relation for erasure
+mutual
 
-_®⟨_⟩_∷_/_ : (t : U.Term 0) (l : TypeLevel) (v : T.Term 0)
-             (A : U.Term 0) ([A] : ε ⊩⟨ l ⟩ A) → Set
-t ®⟨ l ⟩ v ∷ A / Uᵣ x     = t ® v ∷U
-t ®⟨ l ⟩ v ∷ A / ℕᵣ x     = t ® v ∷ℕ
-t ®⟨ l ⟩ v ∷ A / Emptyᵣ x = t ® v ∷Empty
-t ®⟨ l ⟩ v ∷ A / Unitᵣ x  = t ® v ∷Unit
-t ®⟨ l ⟩ v ∷ A / ne′ K D neK K≡K = PE.⊥
+  -- Logical relation for erasure
 
--- Ordinary Π:
-t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΠ ω q) F G D ⊢F ⊢G A≡A [F] [G] G-ext =
-  ∀ {a w} → ([a] : ε ⊩⟨ l ⟩ a ∷ U.wk id F / [F] id ε)
-          → a ®⟨ l ⟩ w ∷ U.wk id F / [F] id ε
-          → (t ∘⟨ ω ⟩ a) ®⟨ l ⟩ v ∘ w ∷ U.wk (lift id) G U.[ a ] / [G] id ε [a]
+  _®⟨_⟩_∷_/_ : (t : U.Term 0) (l : TypeLevel) (v : T.Term 0)
+               (A : U.Term 0) ([A] : ε ⊩⟨ l ⟩ A) → Set
+  t ®⟨ l ⟩ v ∷ A / Uᵣ x     = t ® v ∷U
+  t ®⟨ l ⟩ v ∷ A / ℕᵣ x     = t ® v ∷ℕ
+  t ®⟨ l ⟩ v ∷ A / Emptyᵣ x = t ® v ∷Empty
+  t ®⟨ l ⟩ v ∷ A / Unitᵣ x  = t ® v ∷Unit
+  t ®⟨ l ⟩ v ∷ A / ne′ K D neK K≡K = PE.⊥
 
--- Erased Π:
-t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΠ 𝟘 q) F G D ⊢F ⊢G A≡A [F] [G] G-ext =
-  ∀ {a} → ([a] : ε ⊩⟨ l ⟩ a ∷ U.wk id F / [F] id ε)
-        → (t ∘⟨ 𝟘 ⟩ a) ®⟨ l ⟩ v ∘ undefined ∷ U.wk (lift id) G U.[ a ] / [G] id ε [a]
+  -- Ordinary Π:
+  t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΠ ω q) F G D ⊢F ⊢G A≡A [F] [G] G-ext =
+    ∀ {a w} →
+    ([a] : ε ⊩⟨ l ⟩ a ∷ U.wk id F / [F] id ε) →
+    a ®⟨ l ⟩ w ∷ U.wk id F / [F] id ε →
+    (t ∘⟨ ω ⟩ a) ®⟨ l ⟩ v ∘ w ∷ U.wk (lift id) G U.[ a ] / [G] id ε [a]
 
--- Σ:
-t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΣ m q) F G D ⊢F ⊢G A≡A [F] [G] G-ext =
-  ∃₄ λ t₁ t₂ v₁ v₂
-     → ε ⊢ t ⇒* U.prod m t₁ t₂ ∷ Σ⟨ m ⟩ q ▷ F ▹ G
-     × v T.⇒* T.prod v₁ v₂
-     × Σ (ε ⊩⟨ l ⟩ t₁ ∷ U.wk id F / [F] id ε) λ [t₁]
-     → t₁ ®⟨ l ⟩ v₁ ∷ U.wk id F / [F] id ε
-     × (t₂ ®⟨ l ⟩ v₂ ∷ U.wk (lift id) G U.[ t₁ ] / [G] id ε [t₁])
+  -- Erased Π:
+  t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΠ 𝟘 q) F G D ⊢F ⊢G A≡A [F] [G] G-ext =
+    ∀ {a} →
+    ([a] : ε ⊩⟨ l ⟩ a ∷ U.wk id F / [F] id ε) →
+    (t ∘⟨ 𝟘 ⟩ a) ®⟨ l ⟩ v ∘ undefined ∷ U.wk (lift id) G U.[ a ] /
+      [G] id ε [a]
 
--- Subsumption:
-t ®⟨ ¹ ⟩ v ∷ A / emb 0<1 [A] = t ®⟨ ⁰ ⟩ v ∷ A / [A]
+  -- Σ:
+  t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΣ m p q) F G D ⊢F ⊢G A≡A [F] [G] G-ext =
+    ∃₄ λ t₁ t₂ v₁ v₂ →
+    ε ⊢ t ⇒* U.prod m p t₁ t₂ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G ×
+    v T.⇒* T.prod v₁ v₂ ×
+    Σ (ε ⊩⟨ l ⟩ t₁ ∷ U.wk id F / [F] id ε) λ [t₁] →
+    t₁ ®⟨ l ⟩ v₁ ∷ U.wk id F ◂ p / [F] id ε ×
+    (t₂ ®⟨ l ⟩ v₂ ∷ U.wk (lift id) G U.[ t₁ ] / [G] id ε [t₁])
+
+  -- Subsumption:
+  t ®⟨ ¹ ⟩ v ∷ A / emb 0<1 [A] = t ®⟨ ⁰ ⟩ v ∷ A / [A]
 
 
--- Logical relation for terms of quantified type
-_®⟨_⟩_∷_◂_/_ : (t : U.Term 0) (l : TypeLevel) (v : T.Term 0)
-               (A : U.Term 0) (p : Erasure) ([A] : ε ⊩⟨ l ⟩ A) → Set
-t ®⟨ l ⟩ v ∷ A ◂ 𝟘 / [A] = ⊤
-t ®⟨ l ⟩ v ∷ A ◂ ω / [A] = t ®⟨ l ⟩ v ∷ A / [A]
+  -- Logical relation for terms of quantified type
+  _®⟨_⟩_∷_◂_/_ : (t : U.Term 0) (l : TypeLevel) (v : T.Term 0)
+                 (A : U.Term 0) (p : Erasure) ([A] : ε ⊩⟨ l ⟩ A) → Set
+  t ®⟨ l ⟩ v ∷ A ◂ 𝟘 / [A] = ⊤
+  t ®⟨ l ⟩ v ∷ A ◂ ω / [A] = t ®⟨ l ⟩ v ∷ A / [A]
 
 -- Logical relation for substitutions
 

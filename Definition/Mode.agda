@@ -22,6 +22,7 @@ open import Tools.PropositionalEquality as PE
 import Tools.Reasoning.Equivalence
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
+open import Tools.Sum
 
 private variable
   n          : Nat
@@ -641,11 +642,71 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
 ᵐ·-zeroʳ 𝟘ᵐ = PE.sym 𝟘ᵐ?≡𝟘ᵐ
 ᵐ·-zeroʳ 𝟙ᵐ = ⌞𝟘⌟≡𝟘ᵐ?
 
+-- 𝟘ᵐ? is a left zero for _ᵐ·_.
+
+ᵐ·-zeroˡ : 𝟘ᵐ? ᵐ· p ≡ 𝟘ᵐ?
+ᵐ·-zeroˡ {p = p} = 𝟘ᵐ?-elim
+  (λ m → m ᵐ· p ≡ m)
+  PE.refl
+  only-𝟙ᵐ-without-𝟘ᵐ
+
+-- ⌞_⌟ commutes with _· q/_ᵐ· q.
+
+⌞⌟ᵐ· : ⌞ p ⌟ ᵐ· q ≡ ⌞ p · q ⌟
+⌞⌟ᵐ· {p = p} {q = q} with is-𝟘? p
+… | yes p≈𝟘 =
+  𝟘ᵐ? ᵐ· q   ≡⟨ ᵐ·-zeroˡ ⟩
+  𝟘ᵐ?        ≡˘⟨ ⌞𝟘⌟≡𝟘ᵐ? ⟩
+  ⌞ 𝟘 ⌟      ≡˘⟨ ⌞⌟-cong (·-zeroˡ _) ⟩
+  ⌞ 𝟘 · q ⌟  ≡˘⟨ ⌞⌟-cong (·-congʳ p≈𝟘) ⟩
+  ⌞ p · q ⌟  ∎
+  where
+  open Tools.Reasoning.PropositionalEquality
+… | no p≉𝟘 with is-𝟘? q
+…   | yes q≈𝟘 =
+  𝟘ᵐ?        ≡˘⟨ ⌞𝟘⌟≡𝟘ᵐ? ⟩
+  ⌞ 𝟘 ⌟      ≡˘⟨ ⌞⌟-cong (·-zeroʳ _) ⟩
+  ⌞ p · 𝟘 ⌟  ≡˘⟨ ⌞⌟-cong (·-congˡ q≈𝟘) ⟩
+  ⌞ p · q ⌟  ∎
+  where
+  open Tools.Reasoning.PropositionalEquality
+…   | no q≉𝟘 =
+  𝟙ᵐ         ≡˘⟨ ≉𝟘→⌞⌟≡𝟙ᵐ (λ pq≈𝟘 → ⊥-elim (case zero-product pq≈𝟘 of λ where
+                   (inj₁ p≈𝟘) → p≉𝟘 p≈𝟘
+                   (inj₂ q≈𝟘) → q≉𝟘 q≈𝟘)) ⟩
+  ⌞ p · q ⌟  ∎
+  where
+  open Tools.Reasoning.PropositionalEquality
+
+-- A form of associativity.
+
+ᵐ·-·-assoc : ∀ m → (m ᵐ· p) ᵐ· q ≡ m ᵐ· (p · q)
+ᵐ·-·-assoc 𝟘ᵐ = PE.refl
+ᵐ·-·-assoc 𝟙ᵐ = ⌞⌟ᵐ·
+
 -- A form of associativity.
 
 ·ᵐ-ᵐ·-assoc : ∀ m₁ → (m₁ ·ᵐ m₂) ᵐ· p ≡ m₁ ·ᵐ (m₂ ᵐ· p)
 ·ᵐ-ᵐ·-assoc 𝟘ᵐ = PE.refl
 ·ᵐ-ᵐ·-assoc 𝟙ᵐ = PE.refl
+
+-- A form of idempotence for _ᵐ·_.
+
+⌞⌟·ᵐ-idem : ⌞ p ⌟ ᵐ· p ≡ ⌞ p ⌟
+⌞⌟·ᵐ-idem {p = p} with is-𝟘? p
+… | no p≉𝟘  = ≉𝟘→⌞⌟≡𝟙ᵐ p≉𝟘
+… | yes p≈𝟘 =
+  𝟘ᵐ? ᵐ· p  ≡⟨ ᵐ·-cong 𝟘ᵐ? p≈𝟘 ⟩
+  𝟘ᵐ? ᵐ· 𝟘  ≡⟨ ᵐ·-zeroʳ 𝟘ᵐ? ⟩
+  𝟘ᵐ?       ∎
+  where
+  open Tools.Reasoning.PropositionalEquality
+
+-- The function _ᵐ· p is idempotent.
+
+ᵐ·-idem : ∀ m → (m ᵐ· p) ᵐ· p ≡ m ᵐ· p
+ᵐ·-idem 𝟘ᵐ = PE.refl
+ᵐ·-idem 𝟙ᵐ = ⌞⌟·ᵐ-idem
 
 -- A lemma relating _ᵐ·_ and _·ᵐ_.
 

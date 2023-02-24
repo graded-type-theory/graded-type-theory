@@ -9,9 +9,11 @@ open import Definition.Modality.Context 𝕄
 open import Definition.Mode 𝕄
 open import Definition.Untyped M hiding (_∙_)
 
+open import Tools.Bool
 open import Tools.Fin
 open import Tools.Nat
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE using (_≈_)
+open import Tools.Sum
 
 infix 10 _▸[_]_
 
@@ -24,7 +26,7 @@ private
     G : Term (1+ n)
     t u : Term n
     x : Fin n
-    m : Mode
+    m m′ : Mode
     s : SigmaMode
 
 -- Well-usage of variables
@@ -46,9 +48,9 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → δ ∙ ⌜ m ⌝ · q ▸[ m ] G
             → γ +ᶜ δ ▸[ m ] Π p , q ▷ F ▹ G
 
-  Σₘ        : γ ▸[ m ] F
+  Σₘ        : γ ▸[ m ᵐ· p ] F
             → δ ∙ ⌜ m ⌝ · q ▸[ m ] G
-            → γ +ᶜ δ ▸[ m ] Σ⟨ s ⟩ q ▷ F ▹ G
+            → γ +ᶜ δ ▸[ m ] Σ⟨ s ⟩ p , q ▷ F ▹ G
 
   var       : (𝟘ᶜ , x ≔ ⌜ m ⌝) ▸[ m ] var x
 
@@ -60,25 +62,29 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → δ ▸[ m ᵐ· p ] u
             → γ +ᶜ p ·ᶜ δ ▸[ m ] t ∘⟨ p ⟩ u
 
-  prodᵣₘ    : γ ▸[ m ] t
+  prodᵣₘ    : γ ▸[ m ᵐ· p ] t
             → δ ▸[ m ] u
-            → γ′ PE.≡ γ +ᶜ δ
-            → γ′ ▸[ m ] prodᵣ t u
+            → γ′ PE.≡ p ·ᶜ γ +ᶜ δ
+            → γ′ ▸[ m ] prodᵣ p t u
 
-  prodₚₘ   : γ ▸[ m ] t
-           → γ ▸[ m ] u
-           → γ ▸[ m ] prodₚ t u
+  prodₚₘ   : γ ▸[ m ᵐ· p ] t
+           → δ ▸[ m ] u
+           → p ·ᶜ γ ∧ᶜ δ ▸[ m ] prodₚ p t u
 
-  fstₘ      : γ ▸[ m ] t
-            → γ ▸[ m ] fst t
+  -- Note that p must not be 𝟘 unless 𝟙 ≈ 𝟘 or 𝟘ᵐ-allowed is true.
+  fstₘ      : ∀ m
+            → γ ▸[ m ᵐ· p ] t
+            → m ᵐ· p PE.≡ m′
+            → (p ≈ 𝟘 → (𝟙 ≈ 𝟘) ⊎ T 𝟘ᵐ-allowed)
+            → γ ▸[ m′ ] fst p t
 
   sndₘ      : γ ▸[ m ] t
-            → γ ▸[ m ] snd t
+            → γ ▸[ m ] snd p t
 
-  prodrecₘ  : γ ▸[ m ᵐ· p ] t
-            → δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · p ▸[ m ] u
-            → Prodrec p
-            → p ·ᶜ γ +ᶜ δ ▸[ m ] prodrec p A t u
+  prodrecₘ  : γ ▸[ m ᵐ· r ] t
+            → δ ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u
+            → Prodrec r p
+            → r ·ᶜ γ +ᶜ δ ▸[ m ] prodrec r p A t u
 
   zeroₘ     : 𝟘ᶜ ▸[ m ] zero
   sucₘ      : γ ▸[ m ] t
@@ -112,12 +118,13 @@ mutual
   ⌈ Π p , q ▷ F ▹ G ⌉ m = ⌈ F ⌉ (m ᵐ· p) +ᶜ tailₘ (⌈ G ⌉ m)
   ⌈ lam p t ⌉ m = tailₘ (⌈ t ⌉ m)
   ⌈ t ∘⟨ p ⟩ u ⌉ m = ⌈ t ⌉ m +ᶜ p ·ᶜ ⌈ u ⌉ (m ᵐ· p)
-  ⌈ Σ q ▷ F ▹ G ⌉ m = ⌈ F ⌉ m +ᶜ tailₘ (⌈ G ⌉ m)
-  ⌈ prod Σᵣ t u ⌉ m = ⌈ t ⌉ m +ᶜ ⌈ u ⌉ m
-  ⌈ prod Σₚ t u ⌉ m = ⌈ t ⌉ m ∧ᶜ ⌈ u ⌉ m
-  ⌈ fst t ⌉ m = ⌈ t ⌉ m
-  ⌈ snd t ⌉ m = ⌈ t ⌉ m
-  ⌈ prodrec p A t u ⌉ m = p ·ᶜ ⌈ t ⌉ (m ᵐ· p) +ᶜ tailₘ (tailₘ (⌈ u ⌉ m))
+  ⌈ Σ p , q ▷ F ▹ G ⌉ m = ⌈ F ⌉ (m ᵐ· p) +ᶜ tailₘ (⌈ G ⌉ m)
+  ⌈ prod Σᵣ p t u ⌉ m = p ·ᶜ ⌈ t ⌉ (m ᵐ· p) +ᶜ ⌈ u ⌉ m
+  ⌈ prod Σₚ p t u ⌉ m = p ·ᶜ ⌈ t ⌉ (m ᵐ· p) ∧ᶜ ⌈ u ⌉ m
+  ⌈ fst p t ⌉ m = ⌈ t ⌉ m
+  ⌈ snd p t ⌉ m = ⌈ t ⌉ m
+  ⌈ prodrec r p A t u ⌉ m =
+    r ·ᶜ ⌈ t ⌉ (m ᵐ· r) +ᶜ tailₘ (tailₘ (⌈ u ⌉ m))
   ⌈ ℕ ⌉ _ = 𝟘ᶜ
   ⌈ zero ⌉ _ = 𝟘ᶜ
   ⌈ suc t ⌉ m = ⌈ t ⌉ m

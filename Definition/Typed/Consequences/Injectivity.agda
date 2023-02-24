@@ -69,10 +69,13 @@ injectivity : ∀ {F G H E} → Γ ⊢ Π p , q ▷ F ▹ G ≡ Π p′ , q′ �
 injectivity x with B-injectivity BΠ! BΠ! x
 ... | F≡H , G≡E , BT.Π≋Π p≈p′ q≈q′ = F≡H , G≡E , p≈p′ , q≈q′
 
-Σ-injectivity : ∀ {m m′ F G H E} → Γ ⊢ Σ⟨ m ⟩ q ▷ F ▹ G ≡ Σ⟨ m′ ⟩ q′ ▷ H ▹ E
-              → Γ ⊢ F ≡ H × Γ ∙ F ⊢ G ≡ E × q ≈ q′ × m PE.≡ m′
+Σ-injectivity :
+  ∀ {m m′ F G H E} →
+  Γ ⊢ Σ⟨ m ⟩ p , q ▷ F ▹ G ≡ Σ⟨ m′ ⟩ p′ , q′ ▷ H ▹ E →
+  Γ ⊢ F ≡ H × Γ ∙ F ⊢ G ≡ E × p ≈ p′ × q ≈ q′ × m PE.≡ m′
 Σ-injectivity x with B-injectivity BΣ! BΣ! x
-... | F≡H , G≡E , BT.Σ≋Σ q≈q′ = F≡H , G≡E , q≈q′ , PE.refl
+... | F≡H , G≡E , BT.Σ≋Σ q≈q′ =
+  F≡H , G≡E , PE.refl , q≈q′ , PE.refl
 
 -- Injectivity of suc
 

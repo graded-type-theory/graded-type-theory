@@ -16,6 +16,7 @@ open import Definition.Typed.Consequences.Injectivity M
 open import Definition.Typed.Consequences.Substitution M
 open import Definition.Typed.Consequences.SucCong M
 
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 open import Tools.PropositionalEquality as PE using (≈-sym; ≈-trans)
@@ -46,17 +47,20 @@ mutual
     ,  app-cong (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) ΠF′G′≡B u~t)
                 (convConvTerm (symConv↑Term Γ≡Δ x) (stabilityEq Γ≡Δ F≡F′)) p≈p₂ p≈p₁
   sym~↑ Γ≡Δ (fst-cong p~r) =
-    let B , whnfB , A≡B , r~p = sym~↓ Γ≡Δ p~r
-        q , F′ , G′ , Σ≡ = Σ≡A A≡B whnfB
-        F≡ , G≡ , _ = Σ-injectivity (PE.subst (λ x → _ ⊢ _ ≡ x) Σ≡ A≡B)
-    in  F′ , F≡ , fst-cong (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) Σ≡ r~p)
+    case sym~↓ Γ≡Δ p~r of λ (B , whnfB , A≡B , r~p) →
+    case Σ≡A A≡B whnfB of λ where
+      (_ , _ , F′ , G′ , PE.refl) →
+        case Σ-injectivity A≡B of λ where
+          (F≡ , G≡ , PE.refl , _) →
+            F′ , F≡ , fst-cong r~p
   sym~↑ Γ≡Δ (snd-cong {p} {r} {F} {G} p~r) =
-    let fst≡  = soundness~↑ (fst-cong p~r)
-        B , whnfB , A≡B , r~p = sym~↓ Γ≡Δ p~r
-        q , F′ , G′ , Σ≡ = Σ≡A A≡B whnfB
-        r~p = PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) Σ≡ r~p
-        F≡ , G≡ , _ = Σ-injectivity (PE.subst (λ x → _ ⊢ _ ≡ x) Σ≡ A≡B)
-    in  G′ [ fst r ] , substTypeEq G≡ fst≡ , snd-cong r~p
+    case sym~↓ Γ≡Δ p~r of λ (B , whnfB , A≡B , r~p) →
+    case Σ≡A A≡B whnfB of λ where
+      (_ , _ , F′ , G′ , PE.refl) →
+        case Σ-injectivity A≡B of λ where
+          (F≡ , G≡ , PE.refl , _) →
+            let fst≡ = soundness~↑ (fst-cong p~r) in
+            G′ [ fst _ r ] , substTypeEq G≡ fst≡ , snd-cong r~p
   sym~↑ Γ≡Δ (natrec-cong x x₁ x₂ t~u p≈p′ r≈r′) =
     let ⊢Γ , ⊢Δ , _ = contextConvSubst Γ≡Δ
         B , whnfB , A≡B , u~t = sym~↓ Γ≡Δ t~u
@@ -69,29 +73,31 @@ mutual
                     (convConvTerm (symConv↑Term (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ) ∙ soundnessConv↑ x) x₂) (sucCong′ F≡G))
                     (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡ℕ u~t)
                     (≈-sym p≈p′) (≈-sym r≈r′)
-  sym~↑ {Γ = Γ} {Δ = Δ} Γ≡Δ (prodrec-cong {F = F} {G} C↑E g~h u↑v p≈p′) =
-    let g≡h = soundness~↓ g~h
-        C≡E = soundnessConv↑ C↑E
-        ⊢Σ , _ = syntacticEqTerm g≡h
-        ⊢F , ⊢G = syntacticΣ ⊢Σ
-        B , whnfB , ⊢Σ≡B , h~g = sym~↓ Γ≡Δ g~h
-        q , F′ , G′ , B≡Σ′ = Σ≡A ⊢Σ≡B whnfB
-        ⊢Σ≡Σ′ = PE.subst (λ x → Γ ⊢ _ ≡ x) B≡Σ′ ⊢Σ≡B
-        E↑C = symConv↑ (Γ≡Δ ∙ ⊢Σ≡Σ′) C↑E
-        v↑u = symConv↑Term (Γ≡Δ ∙ refl ⊢F ∙ refl ⊢G) u↑v
-        ⊢Γ , ⊢Δ , ⊢idsubst = contextConvSubst Γ≡Δ
-        ⊢F′ = stability Γ≡Δ ⊢F
-        ⊢G′ = stability (Γ≡Δ ∙ refl ⊢F) ⊢G
-        ⊢F≡F′ , ⊢G≡G′ , _ = Σ-injectivity (stabilityEq Γ≡Δ ⊢Σ≡Σ′)
-        ⊢ΔF = ⊢Δ ∙ ⊢F′
-        ⊢ΔFG = ⊢ΔF ∙ ⊢G′
-        ⊢ρF = W.wk (step (step id)) ⊢ΔFG ⊢F′
-        ⊢ρG = W.wk (lift (step (step id))) (⊢ΔFG ∙ ⊢ρF) ⊢G′
-        C₊≡E₊ = subst↑²TypeEq (stabilityEq (Γ≡Δ ∙ refl ⊢Σ) C≡E)
-    in  _ , substTypeEq C≡E g≡h
-      , prodrec-cong E↑C (PE.subst (λ x → Δ ⊢ _ ~ _ ↓ x) B≡Σ′ h~g)
-                     (convConv↑Term (reflConEq ⊢Δ ∙ ⊢F≡F′ ∙ ⊢G≡G′) C₊≡E₊ v↑u)
-                     (≈-sym p≈p′)
+  sym~↑ {Γ = Γ} {Δ = Δ} Γ≡Δ
+    (prodrec-cong! {F = F} {G = G} C↑E g~h u↑v) =
+    case sym~↓ Γ≡Δ g~h of λ (B , whnfB , ⊢Σ≡B , h~g) →
+    case Σ≡A ⊢Σ≡B whnfB of λ where
+      (_ , q , F′ , G′ , PE.refl) →
+        case Σ-injectivity (stabilityEq Γ≡Δ ⊢Σ≡B) of λ where
+          (⊢F≡F′ , ⊢G≡G′ , PE.refl , _) →
+            let g≡h = soundness~↓ g~h
+                C≡E = soundnessConv↑ C↑E
+                ⊢Σ , _ = syntacticEqTerm g≡h
+                ⊢F , ⊢G = syntacticΣ ⊢Σ
+                E↑C = symConv↑ (Γ≡Δ ∙ ⊢Σ≡B) C↑E
+                v↑u = symConv↑Term (Γ≡Δ ∙ refl ⊢F ∙ refl ⊢G) u↑v
+                ⊢Γ , ⊢Δ , ⊢idsubst = contextConvSubst Γ≡Δ
+                ⊢F′ = stability Γ≡Δ ⊢F
+                ⊢G′ = stability (Γ≡Δ ∙ refl ⊢F) ⊢G
+                ⊢ΔF = ⊢Δ ∙ ⊢F′
+                ⊢ΔFG = ⊢ΔF ∙ ⊢G′
+                ⊢ρF = W.wk (step (step id)) ⊢ΔFG ⊢F′
+                ⊢ρG = W.wk (lift (step (step id))) (⊢ΔFG ∙ ⊢ρF) ⊢G′
+                C₊≡E₊ = subst↑²TypeEq (stabilityEq (Γ≡Δ ∙ refl ⊢Σ) C≡E)
+            in  _ , substTypeEq C≡E g≡h
+              , prodrec-cong! E↑C h~g
+                  (convConv↑Term (reflConEq ⊢Δ ∙ ⊢F≡F′ ∙ ⊢G≡G′)
+                     C₊≡E₊ v↑u)
   sym~↑ Γ≡Δ (Emptyrec-cong x t~u p≈p′) =
     let ⊢Γ , ⊢Δ , _ = contextConvSubst Γ≡Δ
         B , whnfB , A≡B , u~t = sym~↓ Γ≡Δ t~u
@@ -170,10 +176,10 @@ mutual
         B≡Unit = Unit≡A A≡B whnfB
     in  Unit-ins (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡Unit u~t)
   symConv↓Term Γ≡Δ (Σᵣ-ins t u t~u) =
-    let B , whnfB , A≡B , u~t = sym~↓ Γ≡Δ t~u
-        _ , _ , _ , B≡Σ = Σ≡A A≡B whnfB
-    in  Σᵣ-ins (stabilityTerm Γ≡Δ u) (stabilityTerm Γ≡Δ t)
-               (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡Σ u~t)
+    case sym~↓ Γ≡Δ t~u of λ (B , whnfB , A≡B , u~t) →
+    case Σ≡A A≡B whnfB of λ where
+      (_ , _ , _ , B≡Σ , PE.refl) →
+        Σᵣ-ins (stabilityTerm Γ≡Δ u) (stabilityTerm Γ≡Δ t) u~t
   symConv↓Term Γ≡Δ (ne-ins t u x t~u) =
     let B , whnfB , A≡B , u~t = sym~↓ Γ≡Δ t~u
     in  ne-ins (stabilityTerm Γ≡Δ u) (stabilityTerm Γ≡Δ t) x u~t
@@ -183,14 +189,15 @@ mutual
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
     in  zero-refl ⊢Δ
   symConv↓Term Γ≡Δ (suc-cong t<>u) = suc-cong (symConv↑Term Γ≡Δ t<>u)
-  symConv↓Term Γ≡Δ (prod-cong x x₁ x₂ x₃) =
+  symConv↓Term Γ≡Δ (prod-cong! x x₁ x₂ x₃) =
     let Δ⊢F = stability Γ≡Δ x
         Δ⊢G = stability (Γ≡Δ ∙ refl x) x₁
         Δ⊢t′↑t = symConv↑Term Γ≡Δ x₂
         _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
         Δ⊢u′↑u = symConv↑Term Γ≡Δ x₃
         Gt≡Gt′ = substTypeEq (refl Δ⊢G) (sym (soundnessConv↑Term Δ⊢t′↑t))
-    in  prod-cong Δ⊢F Δ⊢G Δ⊢t′↑t (convConv↑Term (reflConEq ⊢Δ) Gt≡Gt′ Δ⊢u′↑u)
+    in  prod-cong! Δ⊢F Δ⊢G Δ⊢t′↑t
+          (convConv↑Term (reflConEq ⊢Δ) Gt≡Gt′ Δ⊢u′↑u)
   symConv↓Term Γ≡Δ (η-eq x₁ x₂ y y₁ t<>u) =
     let ⊢F , _ = syntacticΠ (syntacticTerm x₁)
     in  η-eq (stabilityTerm Γ≡Δ x₂) (stabilityTerm Γ≡Δ x₁)

@@ -366,58 +366,77 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
 
 
     -- Term reducibility of Σ-type
-    _⊩¹Σ_∷_/_ : {q : Mod} {m : SigmaMode} (Γ : Con Term ℓ) (t A : Term ℓ) ([A] : Γ ⊩¹B⟨ BΣ m q ⟩ A) → Set a
-    _⊩¹Σ_∷_/_ {q = q} {m} Γ t A [A]@(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) =
-      ∃ λ p → Γ ⊢ t :⇒*: p ∷ Σ⟨ m ⟩ q ▷ F ▹ G
-            × Γ ⊢ p ≅ p ∷ Σ⟨ m ⟩ q ▷ F ▹ G
-            × Σ (Product p) λ pProd
-            → Σ-prop m p Γ [A] pProd
+    _⊩¹Σ_∷_/_ :
+      {p q : Mod} {m : SigmaMode} (Γ : Con Term ℓ) (t A : Term ℓ)
+      ([A] : Γ ⊩¹B⟨ BΣ m p q ⟩ A) → Set a
+    _⊩¹Σ_∷_/_
+      {p = p} {q = q} {m = m} Γ t A
+      [A]@(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) =
+      ∃ λ u → Γ ⊢ t :⇒*: u ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
+            × Γ ⊢ u ≅ u ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
+            × Σ (Product u) λ pProd
+            → Σ-prop m u Γ [A] pProd
 
-    Σ-prop : ∀ {A q} (m : SigmaMode) (p : Term ℓ) → (Γ : Con Term ℓ)
-           → ([A] : Γ ⊩¹B⟨ BΣ m q ⟩ A) → (Product p) → Set a
-    Σ-prop Σₚ p Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) _ =
-      Σ (Γ ⊩¹ fst p ∷ U.wk id F / [F] id (wf ⊢F)) λ [fst]
-      → Γ ⊩¹ snd p ∷ U.wk (lift id) G [ fst p ] / [G] id (wf ⊢F) [fst]
-    Σ-prop Σᵣ p Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (prodₙ {t = p₁} {u = p₂} {m = m}) =
+    Σ-prop : ∀ {A p q} (m : SigmaMode) (t : Term ℓ) → (Γ : Con Term ℓ)
+           → ([A] : Γ ⊩¹B⟨ BΣ m p q ⟩ A) → (Product t) → Set a
+    Σ-prop {p = p} Σₚ t Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) _ =
+      Σ (Γ ⊩¹ fst p t ∷ U.wk id F / [F] id (wf ⊢F)) λ [fst] →
+      Γ ⊩¹ snd p t ∷ U.wk (lift id) G [ fst p t ] /
+        [G] id (wf ⊢F) [fst]
+    Σ-prop
+      {p = p} Σᵣ t Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+      (prodₙ {p = p′} {t = p₁} {u = p₂} {m = m}) =
+           p ≈ p′ ×
            Σ (Γ ⊩¹ p₁ ∷ U.wk id F / [F] id (wf ⊢F)) λ [p₁]
            → Γ ⊩¹ p₂ ∷ U.wk (lift id) G [ p₁ ] / [G] id (wf ⊢F) [p₁]
            × m PE.≡ Σᵣ
-    Σ-prop {q = q} Σᵣ p Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ne x) =
-           Γ ⊢ p ~ p ∷ Σᵣ q ▷ F ▹ G
+    Σ-prop {p = p} {q = q} Σᵣ t Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ne x) =
+           Γ ⊢ t ~ t ∷ Σᵣ p , q ▷ F ▹ G
 
     -- Term equality of Σ-type
-    _⊩¹Σ_≡_∷_/_ : {q : Mod} {m : SigmaMode} (Γ : Con Term ℓ) (t u A : Term ℓ)
-                  ([A] : Γ ⊩¹B⟨ BΣ m q ⟩ A) → Set a
-    _⊩¹Σ_≡_∷_/_ {q = q} {m} Γ t u A [A]@(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) =
-      ∃₂ λ p r → Γ ⊢ t :⇒*: p ∷ Σ⟨ m ⟩ q ▷ F ▹ G
-               × Γ ⊢ u :⇒*: r ∷ Σ⟨ m ⟩ q ▷ F ▹ G
-               × Γ ⊢ p ≅ r ∷ Σ⟨ m ⟩ q ▷ F ▹ G
-               × Γ ⊩¹Σ t ∷ A / [A]
-               × Γ ⊩¹Σ u ∷ A / [A]
-               × Σ (Product p) λ pProd
-               → Σ (Product r) λ rProd
-               → [Σ]-prop m p r Γ [A] pProd rProd
+    _⊩¹Σ_≡_∷_/_ :
+      {p q : Mod} {m : SigmaMode} (Γ : Con Term ℓ) (t u A : Term ℓ)
+      ([A] : Γ ⊩¹B⟨ BΣ m p q ⟩ A) → Set a
+    _⊩¹Σ_≡_∷_/_
+      {p = p} {q = q} {m} Γ t u A
+      [A]@(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) =
+      ∃₂ λ t′ u′ → Γ ⊢ t :⇒*: t′ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
+                 × Γ ⊢ u :⇒*: u′ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
+                 × Γ ⊢ t′ ≅ u′ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
+                 × Γ ⊩¹Σ t ∷ A / [A]
+                 × Γ ⊩¹Σ u ∷ A / [A]
+                 × Σ (Product t′) λ pProd
+                 → Σ (Product u′) λ rProd
+                 → [Σ]-prop m t′ u′ Γ [A] pProd rProd
 
-    [Σ]-prop : ∀ {A q} (m : SigmaMode) (p r : Term ℓ) → (Γ : Con Term ℓ)
-             → ([A] : Γ ⊩¹B⟨ BΣ m q ⟩ A) → (Product p) → (Product r) → Set a
-    [Σ]-prop Σₚ p r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) _ _ =
-      Σ (Γ ⊩¹ fst p ∷ U.wk id F / [F] id (wf ⊢F)) λ [fstp]
-      → Γ ⊩¹ fst r ∷ U.wk id F / [F] id (wf ⊢F)
-      × Γ ⊩¹ fst p ≡ fst r ∷ U.wk id F / [F] id (wf ⊢F)
-      × Γ ⊩¹ snd p ≡ snd r ∷ U.wk (lift id) G [ fst p ] / [G] id (wf ⊢F) [fstp]
-    [Σ]-prop Σᵣ p r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (prodₙ {t = p₁} {u = p₂}) (prodₙ {t = r₁} {u = r₂}) =
+    [Σ]-prop :
+      ∀ {A p q} (m : SigmaMode) (t r : Term ℓ) (Γ : Con Term ℓ)
+      ([A] : Γ ⊩¹B⟨ BΣ m p q ⟩ A) → Product t → Product r → Set a
+    [Σ]-prop {p = p} Σₚ t r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) _ _ =
+      Σ (Γ ⊩¹ fst p t ∷ U.wk id F / [F] id (wf ⊢F)) λ [fstp]
+      → Γ ⊩¹ fst p r ∷ U.wk id F / [F] id (wf ⊢F)
+      × Γ ⊩¹ fst p t ≡ fst p r ∷ U.wk id F / [F] id (wf ⊢F)
+      × Γ ⊩¹ snd p t ≡ snd p r ∷ U.wk (lift id) G [ fst p t ]
+        / [G] id (wf ⊢F) [fstp]
+    [Σ]-prop
+      {p = p} Σᵣ t r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+      (prodₙ {p = p′} {t = p₁} {u = p₂})
+      (prodₙ {p = p″} {t = r₁} {u = r₂}) =
+             p ≈ p′ × p ≈ p″ ×
              Σ (Γ ⊩¹ p₁ ∷ U.wk id F / [F] id (wf ⊢F)) λ [p₁] →
              Σ (Γ ⊩¹ r₁ ∷ U.wk id F / [F] id (wf ⊢F)) λ [r₁]
              → (Γ ⊩¹ p₂ ∷ U.wk (lift id) G [ p₁ ] / [G] id (wf ⊢F) [p₁])
              × (Γ ⊩¹ r₂ ∷ U.wk (lift id) G [ r₁ ] / [G] id (wf ⊢F) [r₁])
              × (Γ ⊩¹ p₁ ≡ r₁ ∷ U.wk id F / [F] id (wf ⊢F))
              × (Γ ⊩¹ p₂ ≡ r₂ ∷ U.wk (lift id) G [ p₁ ] / [G] id (wf ⊢F) [p₁])
-    [Σ]-prop Σᵣ p r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (prodₙ {t = p₁} {u = p₂}) (ne y) =
+    [Σ]-prop Σᵣ t r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (prodₙ {t = p₁} {u = p₂}) (ne y) =
       Lift a PE.⊥
-    [Σ]-prop Σᵣ p r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ne x) (prodₙ {t = r₁} {u = r₂}) =
+    [Σ]-prop Σᵣ t r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ne x) (prodₙ {t = r₁} {u = r₂}) =
       Lift a PE.⊥
-    [Σ]-prop {q = q} Σᵣ p r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ne x) (ne y) =
-             Γ ⊢ p ~ r ∷ Σᵣ q ▷ F ▹ G
+    [Σ]-prop
+      {p = p} {q = q} Σᵣ t r Γ
+      (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ne x) (ne y) =
+        Γ ⊢ t ~ r ∷ Σᵣ p , q ▷ F ▹ G
 
     -- Logical relation definition
     data _⊩¹_ (Γ : Con Term ℓ) : Term ℓ → Set a where

@@ -629,21 +629,32 @@ substₘ-lemma₀ Ψ Ψ▶σ (_∘ₘ_ {p = p} γ▸t δ▸u) = sub
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-substₘ-lemma₀ Ψ Ψ▶σ (prodᵣₘ γ▸t δ▸u PE.refl) = sub
+substₘ-lemma₀ Ψ Ψ▶σ (prodᵣₘ {p = p} γ▸t δ▸u PE.refl) = sub
   (prodᵣₘ (substₘ-lemma₀ Ψ Ψ▶σ γ▸t) (substₘ-lemma₀ Ψ Ψ▶σ δ▸u)
      PE.refl)
-  (≤ᶜ-reflexive (≈ᶜ-sym (+ᶜ-identityˡ _)))
+  (begin
+     𝟘ᶜ             ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
+     p ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
+     p ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎)
+  where
+  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-substₘ-lemma₀ Ψ Ψ▶σ (prodₚₘ γ▸t γ▸u) =
-  prodₚₘ (substₘ-lemma₀ Ψ Ψ▶σ γ▸t) (substₘ-lemma₀ Ψ Ψ▶σ γ▸u)
+substₘ-lemma₀ Ψ Ψ▶σ (prodₚₘ {p = p} γ▸t γ▸u) = sub
+  (prodₚₘ (substₘ-lemma₀ Ψ Ψ▶σ γ▸t) (substₘ-lemma₀ Ψ Ψ▶σ γ▸u))
+  (begin
+     𝟘ᶜ             ≈˘⟨ ∧ᶜ-idem _ ⟩
+     𝟘ᶜ ∧ᶜ 𝟘ᶜ       ≈˘⟨ ∧ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
+     p ·ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ  ∎)
+  where
+  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-substₘ-lemma₀ Ψ Ψ▶σ (fstₘ γ▸t) =
-  fstₘ (substₘ-lemma₀ Ψ Ψ▶σ γ▸t)
+substₘ-lemma₀ Ψ Ψ▶σ (fstₘ m γ▸t PE.refl ok) =
+  fstₘ 𝟘ᵐ (substₘ-lemma₀ Ψ Ψ▶σ γ▸t) PE.refl ok
 
 substₘ-lemma₀ Ψ Ψ▶σ (sndₘ γ▸t) =
   sndₘ (substₘ-lemma₀ Ψ Ψ▶σ γ▸t)
 
-substₘ-lemma₀ Ψ Ψ▶σ (prodrecₘ {p = p} γ▸t δ▸u P) = sub
+substₘ-lemma₀ Ψ Ψ▶σ (prodrecₘ {r = r} γ▸t δ▸u P) = sub
   (prodrecₘ (substₘ-lemma₀ Ψ Ψ▶σ γ▸t)
      (sub (substₘ-lemma₀ (liftSubstₘ (liftSubstₘ Ψ))
              (wf-liftSubstₘ {mo = 𝟘ᵐ} (wf-liftSubstₘ {mo = 𝟘ᵐ} Ψ▶σ))
@@ -653,7 +664,7 @@ substₘ-lemma₀ Ψ Ψ▶σ (prodrecₘ {p = p} γ▸t δ▸u P) = sub
   (begin
      𝟘ᶜ             ≈˘⟨ +ᶜ-identityˡ _ ⟩
      𝟘ᶜ +ᶜ 𝟘ᶜ       ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
-     p ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎)
+     r ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎)
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
@@ -823,23 +834,9 @@ substₘ-lemma
     where
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-substₘ-lemma Ψ Ψ▶σ (prodᵣₘ {γ = γ} {δ = δ} γ▸t δ▸u PE.refl) = sub
-  (prodᵣₘ (substₘ-lemma Ψ (▶-⌞+ᶜ⌟ˡ Ψ γ Ψ▶σ) γ▸t)
-     (substₘ-lemma Ψ (▶-⌞+ᶜ⌟ʳ Ψ γ Ψ▶σ) δ▸u) PE.refl)
-  (≤ᶜ-reflexive (*>-distrib-+ᶜ Ψ _ _))
-
-substₘ-lemma Ψ Ψ▶σ (prodₚₘ γ▸t γ▸u) =
-  prodₚₘ (substₘ-lemma Ψ Ψ▶σ γ▸t) (substₘ-lemma Ψ Ψ▶σ γ▸u)
-
-substₘ-lemma Ψ Ψ▶σ (fstₘ γ▸t) =
-  fstₘ (substₘ-lemma Ψ Ψ▶σ γ▸t)
-
-substₘ-lemma Ψ Ψ▶σ (sndₘ γ▸t) =
-  sndₘ (substₘ-lemma Ψ Ψ▶σ γ▸t)
-
 substₘ-lemma
   {σ = σ} {mo = mo} Ψ Ψ▶σ
-  (prodrecₘ {γ = γ} {p = p} {t = t} {δ = δ} {u = u} {A = A} γ▸t δ▸u P) =
+  (prodᵣₘ {γ = γ} {p = p} {t = t} {δ = δ} {u = u} γ▸t δ▸u PE.refl) =
   case ▶-⌞·⌟ Ψ γ (▶-⌞+ᶜ⌟ˡ Ψ (_ ·ᶜ γ) Ψ▶σ) of λ where
     (inj₂ Ψ▶σ)        → lemma (substₘ-lemma Ψ Ψ▶σ γ▸t) ≈ᶜ-refl
     (inj₁ (p≈𝟘 , ok)) → lemma
@@ -850,7 +847,62 @@ substₘ-lemma
   lemma :
     η ▸[ mo ᵐ· p ] U.subst σ t →
     p ·ᶜ Ψ *> γ ≈ᶜ p ·ᶜ η →
-    Ψ *> (p ·ᶜ γ +ᶜ δ) ▸[ mo ] U.subst σ (prodrec p A t u)
+    Ψ *> (p ·ᶜ γ +ᶜ δ) ▸[ mo ] U.subst σ (prodᵣ p t u)
+  lemma {η = η} hyp₁ hyp₂ = sub
+    (prodᵣₘ hyp₁ (substₘ-lemma Ψ (▶-⌞+ᶜ⌟ʳ Ψ (_ ·ᶜ γ) Ψ▶σ) δ▸u) PE.refl)
+    (begin
+       Ψ *> (p ·ᶜ γ +ᶜ δ)       ≈⟨ *>-distrib-+ᶜ Ψ _ _ ⟩
+       Ψ *> (p ·ᶜ γ) +ᶜ Ψ *> δ  ≈⟨ +ᶜ-congʳ (*>-distrib-·ᶜ Ψ _ _) ⟩
+       p ·ᶜ Ψ *> γ +ᶜ Ψ *> δ    ≈⟨ +ᶜ-congʳ hyp₂ ⟩
+       p ·ᶜ η +ᶜ Ψ *> δ         ∎)
+    where
+    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+
+substₘ-lemma
+  {σ = σ} {mo = mo} Ψ Ψ▶σ
+  (prodₚₘ {γ = γ} {p = p} {t = t} {δ = δ} {u = u} γ▸t δ▸u) =
+  case ▶-⌞·⌟ Ψ γ (▶-⌞∧ᶜ⌟ˡ Ψ (_ ·ᶜ γ) Ψ▶σ) of λ where
+    (inj₂ Ψ▶σ)        → lemma (substₘ-lemma Ψ Ψ▶σ γ▸t) ≈ᶜ-refl
+    (inj₁ (p≈𝟘 , ok)) → lemma
+      (▸-cong (≈𝟘→𝟘ᵐ≡ᵐ· ⦃ ok = ok ⦄ mo p≈𝟘)
+         (substₘ-lemma₀ ⦃ ok = ok ⦄ Ψ Ψ▶σ γ▸t))
+      (≈𝟘→·*>≈·𝟘 Ψ p≈𝟘)
+  where
+  lemma :
+    η ▸[ mo ᵐ· p ] U.subst σ t →
+    p ·ᶜ Ψ *> γ ≈ᶜ p ·ᶜ η →
+    Ψ *> (p ·ᶜ γ ∧ᶜ δ) ▸[ mo ] U.subst σ (prodₚ p t u)
+  lemma {η = η} hyp₁ hyp₂ = sub
+    (prodₚₘ hyp₁ (substₘ-lemma Ψ (▶-⌞∧ᶜ⌟ʳ Ψ (_ ·ᶜ γ) Ψ▶σ) δ▸u))
+    (begin
+       Ψ *> (p ·ᶜ γ ∧ᶜ δ)       ≤⟨ *>-sub-distrib-∧ᶜ Ψ _ _ ⟩
+       Ψ *> (p ·ᶜ γ) ∧ᶜ Ψ *> δ  ≈⟨ ∧ᶜ-congʳ (*>-distrib-·ᶜ Ψ _ _) ⟩
+       p ·ᶜ Ψ *> γ ∧ᶜ Ψ *> δ    ≈⟨ ∧ᶜ-congʳ hyp₂ ⟩
+       p ·ᶜ η ∧ᶜ Ψ *> δ         ∎)
+    where
+    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+
+substₘ-lemma Ψ Ψ▶σ (fstₘ m γ▸t PE.refl ok) =
+  fstₘ m (substₘ-lemma Ψ Ψ▶σ γ▸t) PE.refl ok
+
+substₘ-lemma Ψ Ψ▶σ (sndₘ γ▸t) =
+  sndₘ (substₘ-lemma Ψ Ψ▶σ γ▸t)
+
+substₘ-lemma
+  {σ = σ} {mo = mo} Ψ Ψ▶σ
+  (prodrecₘ {γ = γ} {r = r} {t = t} {δ = δ} {p = p} {u = u} {A = A}
+     γ▸t δ▸u P) =
+  case ▶-⌞·⌟ Ψ γ (▶-⌞+ᶜ⌟ˡ Ψ (_ ·ᶜ γ) Ψ▶σ) of λ where
+    (inj₂ Ψ▶σ)        → lemma (substₘ-lemma Ψ Ψ▶σ γ▸t) ≈ᶜ-refl
+    (inj₁ (p≈𝟘 , ok)) → lemma
+      (▸-cong (≈𝟘→𝟘ᵐ≡ᵐ· ⦃ ok = ok ⦄ mo p≈𝟘)
+         (substₘ-lemma₀ ⦃ ok = ok ⦄ Ψ Ψ▶σ γ▸t))
+      (≈𝟘→·*>≈·𝟘 Ψ p≈𝟘)
+  where
+  lemma :
+    η ▸[ mo ᵐ· r ] U.subst σ t →
+    r ·ᶜ Ψ *> γ ≈ᶜ r ·ᶜ η →
+    Ψ *> (r ·ᶜ γ +ᶜ δ) ▸[ mo ] U.subst σ (prodrec r p A t u)
   lemma {η = η} hyp₁ hyp₂ = sub
     (prodrecₘ hyp₁
        (sub (substₘ-lemma (liftSubstₘ (liftSubstₘ Ψ))
@@ -865,10 +917,10 @@ substₘ-lemma
           (*>∙∙≤liftSubst-listSubst*>∙∙ Ψ))
        P)
     (begin
-       Ψ *> (p ·ᶜ γ +ᶜ δ)       ≈⟨ *>-distrib-+ᶜ Ψ _ _ ⟩
-       Ψ *> (p ·ᶜ γ) +ᶜ Ψ *> δ  ≈⟨ +ᶜ-congʳ (*>-distrib-·ᶜ Ψ _ _) ⟩
-       p ·ᶜ Ψ *> γ +ᶜ Ψ *> δ    ≈⟨ +ᶜ-congʳ hyp₂ ⟩
-       p ·ᶜ η +ᶜ Ψ *> δ         ∎)
+       Ψ *> (r ·ᶜ γ +ᶜ δ)       ≈⟨ *>-distrib-+ᶜ Ψ _ _ ⟩
+       Ψ *> (r ·ᶜ γ) +ᶜ Ψ *> δ  ≈⟨ +ᶜ-congʳ (*>-distrib-·ᶜ Ψ _ _) ⟩
+       r ·ᶜ Ψ *> γ +ᶜ Ψ *> δ    ≈⟨ +ᶜ-congʳ hyp₂ ⟩
+       r ·ᶜ η +ᶜ Ψ *> δ         ∎)
     where
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 

@@ -188,8 +188,9 @@ mutual
         [F]ₜ′ = S.irrelevanceTerm {A = U} {t = F} [Γ] [Γ] [U] (Uᵛ [Γ]) [F]ₜ
         [G]ₜ′ = S.irrelevanceTerm {A = U} {t = G} [Γ]₁ ([Γ] ∙ [F]) [U]₁ [U]′ [G]ₜ
     in  [Γ] , [U]
-    ,   S.irrelevanceTerm {A = U} {t = Σ _ ▷ F ▹ G} [Γ] [Γ] (Uᵛ [Γ]) [U]
-                          (Σᵗᵛ {F = F} {G} [Γ] [F] [U]′ [F]ₜ′ [G]ₜ′)
+    ,   S.irrelevanceTerm
+          {A = U} {t = Σ _ , _ ▷ F ▹ G} [Γ] [Γ] (Uᵛ [Γ]) [U]
+          (Σᵗᵛ {F = F} {G} [Γ] [F] [U]′ [F]ₜ′ [G]ₜ′)
   fundamentalTerm (var ⊢Γ x∷A) = valid ⊢Γ , fundamentalVar x∷A (valid ⊢Γ)
   fundamentalTerm (lamⱼ {F = F} {G} {t} ⊢F ⊢t)
     with fundamental ⊢F | fundamentalTerm ⊢t
@@ -217,7 +218,7 @@ mutual
   ... | [Γ] , [F] | [Γ]₁ , [G]₁ | [Γ]₂ , [ΣFG]₂ , [t]₂ =
     let [G] = S.irrelevance {A = G} [Γ]₁ ([Γ] ∙ [F]) [G]₁
 
-        [t] = S.irrelevanceTerm {A = Σ _ ▷ F ▹ G} {t = t} [Γ]₂ [Γ]
+        [t] = S.irrelevanceTerm {A = Σ _ , _ ▷ F ▹ G} {t = t} [Γ]₂ [Γ]
                                 [ΣFG]₂ (Σᵛ {F = F} {G} [Γ] [F] [G]) [t]₂
         [fst] = fstᵛ {F = F} {G} {t} [Γ] [F] [G] [t]
     in  [Γ] , [F] , [fst]
@@ -226,7 +227,7 @@ mutual
   ... | [Γ] , [F] | [Γ]₁ , [G]₁ | [Γ]₂ , [ΣFG]₂ , [t]₂ =
     let [G] = S.irrelevance {A = G} [Γ]₁ ([Γ] ∙ [F]) [G]₁
 
-        [t] = S.irrelevanceTerm {A = Σ _ ▷ F ▹ G} {t = t} [Γ]₂ [Γ]
+        [t] = S.irrelevanceTerm {A = Σ _ , _ ▷ F ▹ G} {t = t} [Γ]₂ [Γ]
                                 [ΣFG]₂ (Σᵛ {F = F} {G} [Γ] [F] [G]) [t]₂
         [fst] = fstᵛ {F = F} {G} {t} [Γ] [F] [G] [t]
         [Gfst] = substS {F = F} {G} [Γ] [F] [G] [fst]
@@ -266,19 +267,22 @@ mutual
       ,   convᵛ {t = t} {A} {B} [Γ]′ [A′]₁ [A] [A′≡A] [t]′
   fundamentalTerm (prodrecⱼ ⊢F ⊢G ⊢A ⊢t ⊢u)
     with fundamental ⊢F | fundamental ⊢G | fundamental ⊢A | fundamentalTerm ⊢t | fundamentalTerm ⊢u
-  fundamentalTerm (prodrecⱼ {q = q} {p = p} {t = t} {u} {F} {G} {A} ⊢F ⊢G ⊢t ⊢A ⊢u)
+  fundamentalTerm
+    (prodrecⱼ {q = q} {r = r} {t = t} {u} {F} {G} {A} ⊢F ⊢G ⊢t ⊢A ⊢u)
     | [Γ] , [F] | [Γ]₁ , [G] | [Γ]₂ , [A]
     | [Γ]₃ , [Σ] , [t] | [Γ]₄ , [A₊] , [u] =
       let [G]′ = S.irrelevance {A = G} [Γ]₁ ([Γ] ∙ [F]) [G]
-          [Σ]′ = S.irrelevance {A = Σ q ▷ F ▹ G} [Γ]₃ [Γ] [Σ]
+          [Σ]′ = S.irrelevance {A = Σ _ , q ▷ F ▹ G} [Γ]₃ [Γ] [Σ]
           [A]′ = S.irrelevance {A = A} [Γ]₂ ([Γ] ∙ [Σ]′) [A]
           [A₊]′ = S.irrelevance {A = A [ prod! (var (x0 +1)) (var x0) ]↑²}
                                 [Γ]₄ ([Γ] ∙ [F] ∙ [G]′) [A₊]
-          [t]′ = S.irrelevanceTerm {A = Σ q ▷ F ▹ G} {t = t} [Γ]₃ [Γ] [Σ] [Σ]′ [t]
+          [t]′ = S.irrelevanceTerm
+                   {A = Σ _ , q ▷ F ▹ G} {t = t} [Γ]₃ [Γ] [Σ] [Σ]′ [t]
           [u]′ = S.irrelevanceTerm {A = A [ prod! (var (x0 +1)) (var x0) ]↑²} {t = u}
                                    [Γ]₄ ([Γ] ∙ [F] ∙ [G]′) [A₊] [A₊]′ [u]
-          [Aₜ] = substS {F = Σ q ▷ F ▹ G} {A} {t} [Γ] [Σ]′ [A]′ [t]′
-          [prodrec] = prodrecᵛ {p = p} {F = F} {G} {A} {t} {u} [Γ] [F] [G]′ [Σ]′ [A]′ [A₊]′ [Aₜ] [t]′ [u]′
+          [Aₜ] = substS {F = Σ _ , q ▷ F ▹ G} {A} {t} [Γ] [Σ]′ [A]′ [t]′
+          [prodrec] = prodrecᵛ {r = r} {F = F} {G} {A} {t} {u}
+                        [Γ] [F] [G]′ [Σ]′ [A]′ [A₊]′ [Aₜ] [t]′ [u]′
       in  [Γ] , [Aₜ] , [prodrec]
 
   -- Fundamental theorem for term equality.
@@ -732,15 +736,16 @@ mutual
     let [F] = S.irrelevance {A = F} [Γ]₁ [Γ] [F]₁
         [G] = S.irrelevance {A = G} [Γ]₂ ([Γ] ∙ [F]) [G]₂
 
-        [t]′ = S.irrelevanceTerm {A = Σ _ ▷ F ▹ G} {t = t} [Γ] [Γ]
+        [t]′ = S.irrelevanceTerm {A = Σ _ , _ ▷ F ▹ G} {t = t} [Γ] [Γ]
                                  [ΣFG] (Σᵛ {F = F} {G} [Γ] [F] [G])
                                  [t]
-        [t′]′ = S.irrelevanceTerm {A = Σ _ ▷ F ▹ G} {t = t′} [Γ] [Γ]
+        [t′]′ = S.irrelevanceTerm {A = Σ _ , _ ▷ F ▹ G} {t = t′} [Γ] [Γ]
                                   [ΣFG] (Σᵛ {F = F} {G} [Γ] [F] [G])
                                   [t′]
-        [t≡t′]′ = S.irrelevanceEqTerm {A = Σ _ ▷ F ▹ G} {t = t} {u = t′} [Γ] [Γ]
-                                      [ΣFG] (Σᵛ {F = F} {G} [Γ] [F] [G])
-                                      [t≡t′]
+        [t≡t′]′ = S.irrelevanceEqTerm
+                    {A = Σ _ , _ ▷ F ▹ G} {t = t} {u = t′} [Γ] [Γ]
+                    [ΣFG] (Σᵛ {F = F} {G} [Γ] [F] [G])
+                    [t≡t′]
 
         [fstt] = fstᵛ {F = F} {G} {t} [Γ] [F] [G] [t]′
         [fstt′] = fstᵛ {F = F} {G} {t′} [Γ] [F] [G] [t′]′
@@ -752,28 +757,31 @@ mutual
     let [F] = S.irrelevance {A = F} [Γ]₁ [Γ] [F]₁
         [G] = S.irrelevance {A = G} [Γ]₂ ([Γ] ∙ [F]) [G]₂
 
-        [t]Σ = S.irrelevanceTerm {A = Σ _ ▷ F ▹ G} {t = t} [Γ] [Γ]
+        [t]Σ = S.irrelevanceTerm {A = Σ _ , _ ▷ F ▹ G} {t = t} [Γ] [Γ]
                                  [ΣFG] (Σᵛ {F = F} {G} [Γ] [F] [G])
                                  [t]
-        [t′]Σ = S.irrelevanceTerm {A = Σ _ ▷ F ▹ G} {t = t′} [Γ] [Γ]
+        [t′]Σ = S.irrelevanceTerm {A = Σ _ , _ ▷ F ▹ G} {t = t′} [Γ] [Γ]
                                   [ΣFG] (Σᵛ {F = F} {G} [Γ] [F] [G])
                                   [t′]
-        [t≡t′]Σ = S.irrelevanceEqTerm {A = Σ _ ▷ F ▹ G} {t = t} {u = t′} [Γ] [Γ]
-                                      [ΣFG] (Σᵛ {F = F} {G} [Γ] [F] [G])
-                                      [t≡t′]
+        [t≡t′]Σ = S.irrelevanceEqTerm
+                    {A = Σ _ , _ ▷ F ▹ G} {t = t} {u = t′} [Γ] [Γ]
+                    [ΣFG] (Σᵛ {F = F} {G} [Γ] [F] [G])
+                    [t≡t′]
 
         [fst] = fstᵛ {F = F} {G} {t} [Γ] [F] [G] [t]Σ
         [fst′] = fstᵛ {F = F} {G} {t′} [Γ] [F] [G] [t′]Σ
         [fst≡] = fst-congᵛ {F = F} {G} {t} {t′} [Γ] [F] [G] [t]Σ [t′]Σ [t≡t′]Σ
         [Gfst] = substS {F = F} {G} [Γ] [F] [G] [fst]
         [Gfst′] = substS {F = F} {G} [Γ] [F] [G] [fst′]
-        [Gfst≡] = substSEq {F = F} {F′ = F} {G = G} {G′ = G} {t = fst t} {t′ = fst t′} [Γ]
+        [Gfst≡] = substSEq {F = F} {F′ = F} {G = G} {G′ = G}
+                           {t = fst _ t} {t′ = fst _ t′} [Γ]
                            [F] [F] (reflᵛ {A = F} [Γ] [F])
                            [G] [G] (reflᵛ {Γ = Γ ∙ F} {A = G} ([Γ] ∙ [F]) [G])
                            [fst] [fst′] [fst≡]
         [snd] = sndᵛ {F = F} {G} {t} [Γ] [F] [G] [t]Σ
         [snd′]fst′ = sndᵛ {F = F} {G} {t′} [Γ] [F] [G] [t′]Σ
-        [snd′]fst = conv₂ᵛ {t = snd t′} {A = G [ fst t ]} {B = G [ fst t′ ]}
+        [snd′]fst = conv₂ᵛ {t = snd _ t′}
+                           {A = G [ fst _ t ]} {B = G [ fst _ t′ ]}
                            [Γ] [Gfst] [Gfst′] [Gfst≡] [snd′]fst′
         [snd≡] = snd-congᵛ {F = F} {G} {t} {t′} [Γ] [F] [G] [t]Σ [t′]Σ [t≡t′]Σ
     in  [Γ] , modelsTermEq [Gfst] [snd] [snd′]fst [snd≡]
@@ -803,7 +811,8 @@ mutual
         [prod′] = prodᵛ {F = F} {G} {t′} {u′} [Γ] [F] [G] [t′] [u′]′
         [prod≡] = prod-congᵛ {F = F} {G} {t} {t′} {u} {u′} [Γ] [F] [G] [t] [t′] [t≡t′] [u] [u′]′ [u≡u′]
     in  [Γ] , modelsTermEq [Σ] [prod] [prod′] [prod≡]
-  fundamentalTermEq (Σ-β₁ {q = q} {F = F} {G} {t} {u} ⊢F ⊢G ⊢t ⊢u ⊢p)
+  fundamentalTermEq
+    (Σ-β₁ {q = q} {F = F} {G} {t} {u} ⊢F ⊢G ⊢t ⊢u ⊢p PE.refl)
     with fundamentalTerm ⊢t | fundamental ⊢G | fundamentalTerm ⊢u
   ... | [Γ] , [F] , [t] | [Γ]₁ , [G]₁ | [Γ]₂ , [Gt]₂ , [u]₂ =
     let [G] = S.irrelevance {A = G} [Γ]₁ ([Γ] ∙ [F]) [G]₁
@@ -815,7 +824,8 @@ mutual
         [fst] = fstᵛ {F = F} {G} {prod! t u} [Γ] [F] [G] [prod]
         [fst≡t] = Σ-β₁ᵛ {F = F} {G} {t} {u} {q = q} [Γ] [F] [G] [t] [u]
     in  [Γ] , modelsTermEq [F] [fst] [t] [fst≡t]
-  fundamentalTermEq {Γ = Γ} (Σ-β₂ {q = q} {F = F} {G} {t} {u} ⊢F ⊢G ⊢t ⊢u ⊢p)
+  fundamentalTermEq
+    {Γ = Γ} (Σ-β₂ {q = q} {F = F} {G} {t} {u} ⊢F ⊢G ⊢t ⊢u ⊢p PE.refl)
     with fundamentalTerm ⊢t | fundamental ⊢G | fundamentalTerm ⊢u
   ... | [Γ] , [F] , [t] | [Γ]₁ , [G]₁ | [Γ]₂ , [Gt]₂ , [u]₂ =
     let [G] = S.irrelevance {A = G} [Γ]₁ ([Γ] ∙ [F]) [G]₁
@@ -828,7 +838,8 @@ mutual
         [fst] = fstᵛ {F = F} {G} {prod! t u} [Γ] [F] [G] [prod]
         [fst≡t] = Σ-β₁ᵛ {F = F} {G} {t} {u} {q = q} [Γ] [F] [G] [t] [u]
 
-        [Gfst≡Gt] = substSEq {F = F} {F′ = F} {G = G} {G′ = G} {t = fst (prodₚ t u)} {t′ = t} [Γ]
+        [Gfst≡Gt] = substSEq {F = F} {F′ = F} {G = G} {G′ = G}
+                             {t = fst _ (prodₚ _ t u)} {t′ = t} [Γ]
                              [F] [F] (reflᵛ {A = F} [Γ] [F])
                              [G] [G] (reflᵛ {Γ = Γ ∙ F} {A = G} ([Γ] ∙ [F]) [G])
                              [fst] [t] [fst≡t]
@@ -837,7 +848,8 @@ mutual
         [snd] = sndᵛ {F = F} {G} {prod! t u} [Γ] [F] [G] [prod]
         [snd≡u] = Σ-β₂ᵛ {F = F} {G} {t} {u} [Γ] [F] [G] [t] [u]
 
-        [u]fst = conv₂ᵛ {t = u} {A = G [ fst (prodₚ t u) ]} {B = G [ t ]}
+        [u]fst = conv₂ᵛ {t = u}
+                        {A = G [ fst _ (prodₚ _ t u) ]} {B = G [ t ]}
                         [Γ] [Gfst] [Gt] [Gfst≡Gt] [u]
     in  [Γ] , modelsTermEq [Gfst] [snd] [u]fst [snd≡u]
   fundamentalTermEq (Σ-η {t = p} {r} {F} {G} ⊢F ⊢G ⊢p ⊢r fst≡ snd≡)
@@ -851,40 +863,48 @@ mutual
     let [F] = S.irrelevance {A = F} [Γ]₂ [Γ] [F]₂
         [G] = S.irrelevance {A = G} [Γ]₃ ([Γ] ∙ [F]) [G]₃
         [ΣFG] = Σᵛ {F = F} {G} [Γ] [F] [G]
-        [p] = S.irrelevanceTerm {A = Σ _ ▷ F ▹ G} {t = p} [Γ] [Γ]
+        [p] = S.irrelevanceTerm {A = Σ _ , _ ▷ F ▹ G} {t = p} [Γ] [Γ]
                                 [ΣFG]₀ [ΣFG]
                                 [p]₀
-        [r] = S.irrelevanceTerm {A = Σ _ ▷ F ▹ G} {t = r} [Γ]₁ [Γ]
+        [r] = S.irrelevanceTerm {A = Σ _ , _ ▷ F ▹ G} {t = r} [Γ]₁ [Γ]
                                 [ΣFG]₁ [ΣFG]
                                 [r]₁
 
-        [fst≡] = S.irrelevanceEqTerm {A = F} {t = fst p} {u = fst r} [Γ]₄ [Γ]
-                                     [F]₄ [F]
-                                     [fst≡]₄
+        [fst≡] = S.irrelevanceEqTerm
+                   {A = F} {t = fst _ p} {u = fst _ r} [Γ]₄ [Γ]
+                   [F]₄ [F]
+                   [fst≡]₄
 
         [Gfstp] = substS {F = F} {G} [Γ] [F] [G] (fstᵛ {F = F} {G} {p} [Γ] [F] [G] [p])
-        [snd≡] = S.irrelevanceEqTerm {A = G [ fst p ]} {t = snd p} {u = snd r} [Γ]₅ [Γ]
-                                     [Gfstp]₅ [Gfstp]
-                                     [snd≡]₅
+        [snd≡] = S.irrelevanceEqTerm
+                  {A = G [ fst _ p ]}
+                  {t = snd _ p} {u = snd _ r} [Γ]₅ [Γ]
+                  [Gfstp]₅ [Gfstp]
+                  [snd≡]₅
 
         [p≡r] = Σ-ηᵛ {F = F} {G} {p} {r}
                      [Γ] [F] [G] [p] [r] [fst≡] [snd≡]
     in  [Γ] , modelsTermEq [ΣFG] [p] [r] [p≡r]
-  fundamentalTermEq (prodrec-cong {q = q} {p = p} {p′ = p′} {t = t} {t′} {u} {u′} {F} {G} {A} {A′}
-                                  ⊢F ⊢G ⊢A≡A′ ⊢t≡t′ ⊢u≡u′ p≈p′)
+  fundamentalTermEq
+    (prodrec-cong {q = q} {r = r} {t = t} {t′} {u} {u′} {F} {G} {A} {A′}
+       ⊢F ⊢G ⊢A≡A′ ⊢t≡t′ ⊢u≡u′ PE.refl)
     with fundamental ⊢F | fundamental ⊢G | fundamentalEq ⊢A≡A′ |
          fundamentalTermEq ⊢t≡t′ | fundamentalTermEq ⊢u≡u′
   ... | [Γ] , [F] | [Γ]₁ , [G] | [Γ]₂ , [A] , [A′] , [A≡A′]
       | [Γ]₃ , modelsTermEq [Σ] [t] [t′] [t≡t′]
       | [Γ]₄ , modelsTermEq [A₊] [u] [u′] [u≡u′] =
     let [G]′ = S.irrelevance {A = G} [Γ]₁ ([Γ] ∙ [F]) [G]
-        [Σ]′ = S.irrelevance {A = Σ q ▷ F ▹ G} [Γ]₃ [Γ] [Σ]
+        [Σ]′ = S.irrelevance {A = Σ _ , q ▷ F ▹ G} [Γ]₃ [Γ] [Σ]
         [A]′ = S.irrelevance {A = A} [Γ]₂ ([Γ] ∙ [Σ]′) [A]
         [A′]′ = S.irrelevance {A = A′} [Γ]₂ ([Γ] ∙ [Σ]′) [A′]
         [A≡A′]′ = S.irrelevanceEq {A = A} {B = A′} [Γ]₂ ([Γ] ∙ [Σ]′) [A] [A]′ [A≡A′]
-        [t]′ = S.irrelevanceTerm {A = Σ q ▷ F ▹ G} {t = t} [Γ]₃ [Γ] [Σ] [Σ]′ [t]
-        [t′]′ = S.irrelevanceTerm {A = Σ q ▷ F ▹ G} {t = t′} [Γ]₃ [Γ] [Σ] [Σ]′ [t′]
-        [t≡t′]′ = S.irrelevanceEqTerm {A = Σ q ▷ F ▹ G} {t = t} {u = t′} [Γ]₃ [Γ] [Σ] [Σ]′ [t≡t′]
+        [t]′ = S.irrelevanceTerm {A = Σ _ , q ▷ F ▹ G} {t = t}
+                 [Γ]₃ [Γ] [Σ] [Σ]′ [t]
+        [t′]′ = S.irrelevanceTerm {A = Σ _ , q ▷ F ▹ G} {t = t′}
+                  [Γ]₃ [Γ] [Σ] [Σ]′ [t′]
+        [t≡t′]′ = S.irrelevanceEqTerm
+                    {A = Σ _ , q ▷ F ▹ G} {t = t} {u = t′}
+                    [Γ]₃ [Γ] [Σ] [Σ]′ [t≡t′]
         A₊ = A [ prod! (var (x0 +1)) (var x0) ]↑²
         A′₊ = A′ [ prod! (var (x0 +1)) (var x0) ]↑²
         [A₊]′ = S.irrelevance {A = A₊} [Γ]₄ ([Γ] ∙ [F] ∙ [G]′) [A₊]
@@ -894,23 +914,32 @@ mutual
         [u′]′ = S.irrelevanceTerm {A = A₊} {t = u′} [Γ]₄ ([Γ] ∙ [F] ∙ [G]′) [A₊] [A₊]′ [u′]
         [u′]″ = convᵛ {t = u′} {A₊} {A′₊} (_∙_ {A = G} (_∙_ {A = F} [Γ] [F]) [G]′) [A₊]′ [A′₊] [A₊≡A′₊] [u′]′
         [u≡u′]′ = S.irrelevanceEqTerm {A = A₊} {t = u} {u = u′} [Γ]₄ ([Γ] ∙ [F] ∙ [G]′) [A₊] [A₊]′ [u≡u′]
-        [Aₜ] = substS {F = Σ q ▷ F ▹ G} {A} {t} [Γ] [Σ]′ [A]′ [t]′
-        [A′ₜ′] = substS {F = Σ q ▷ F ▹ G} {A′} {t′} [Γ] [Σ]′ [A′]′ [t′]′
-        [pr] = prodrecᵛ {q = q} {p = p} {F = F} {G} {A} {t} {u} [Γ] [F] [G]′ [Σ]′ [A]′ [A₊]′ [Aₜ] [t]′ [u]′
-        [pr′] = prodrecᵛ {q = q} {p = p′} {F = F} {G} {A′} {t′} {u′} [Γ] [F] [G]′ [Σ]′ [A′]′ [A′₊] [A′ₜ′] [t′]′ [u′]″
-        [Aₜ≡A′ₜ′] = substSEq {F = Σ q ▷ F ▹ G} {Σ q ▷ F ▹ G} {A} {A′} {t} {t′}
-                           [Γ] [Σ]′ [Σ]′ (reflᵛ {A = Σ q ▷ F ▹ G} [Γ] [Σ]′)
-                           [A]′ [A′]′ [A≡A′]′ [t]′ [t′]′ [t≡t′]′
-        [pr′]′ = conv₂ᵛ {t = prodrec _ A′ t′ u′} {A = A [ t ]} {B = A′ [ t′ ]} [Γ] [Aₜ] [A′ₜ′] [Aₜ≡A′ₜ′] [pr′]
+        [Aₜ] = substS {F = Σ _ , q ▷ F ▹ G} {A} {t} [Γ] [Σ]′ [A]′ [t]′
+        [A′ₜ′] = substS {F = Σ _ , q ▷ F ▹ G} {A′} {t′}
+                  [Γ] [Σ]′ [A′]′ [t′]′
+        [pr] = prodrecᵛ {q = q} {r = r} {F = F} {G} {A} {t} {u}
+                 [Γ] [F] [G]′ [Σ]′ [A]′ [A₊]′ [Aₜ] [t]′ [u]′
+        [pr′] = prodrecᵛ {q = q} {r = r} {F = F} {G} {A′} {t′} {u′}
+                  [Γ] [F] [G]′ [Σ]′ [A′]′ [A′₊] [A′ₜ′] [t′]′ [u′]″
+        [Aₜ≡A′ₜ′] = substSEq
+          {F = Σ _ , q ▷ F ▹ G} {Σ _ , q ▷ F ▹ G} {A} {A′} {t} {t′}
+          [Γ] [Σ]′ [Σ]′ (reflᵛ {A = Σ _ , q ▷ F ▹ G} [Γ] [Σ]′)
+          [A]′ [A′]′ [A≡A′]′ [t]′ [t′]′ [t≡t′]′
+        [pr′]′ = conv₂ᵛ
+          {t = prodrec _ _ A′ t′ u′} {A = A [ t ]} {B = A′ [ t′ ]}
+          [Γ] [Aₜ] [A′ₜ′] [Aₜ≡A′ₜ′] [pr′]
         [F≡F] = reflᵛ {A = F} [Γ] [F]
         [G≡G] = reflᵛ {A = G} (_∙_ {A = F} [Γ] [F]) [G]′
-        [Σ≡Σ]′ = reflᵛ {A = Σ q ▷ F ▹ G} [Γ] [Σ]′
-        [pr≡pr′] = prodrec-congᵛ {p = p} {F = F} {F} {G} {G} {A} {A′} {t} {t′} {u} {u′}
-                                 [Γ] [F] [F] [F≡F] [G]′ [G]′ [G≡G] [Σ]′ [Σ]′ [Σ≡Σ]′
-                                 [A]′ [A′]′ [A≡A′]′ [A₊]′ [A′₊] [A₊≡A′₊]
-                                 [Aₜ] [t]′ [t′]′ [t≡t′]′ [u]′ [u′]″ [u≡u′]′ p≈p′
+        [Σ≡Σ]′ = reflᵛ {A = Σ _ , q ▷ F ▹ G} [Γ] [Σ]′
+        [pr≡pr′] = prodrec-congᵛ
+          {r = r} {F = F} {F} {G} {G} {A} {A′} {t} {t′} {u} {u′}
+          [Γ] [F] [F] [F≡F] [G]′ [G]′ [G≡G] [Σ]′ [Σ]′ [Σ≡Σ]′
+          [A]′ [A′]′ [A≡A′]′ [A₊]′ [A′₊] [A₊≡A′₊]
+          [Aₜ] [t]′ [t′]′ [t≡t′]′ [u]′ [u′]″ [u≡u′]′
     in  [Γ] , modelsTermEq [Aₜ] [pr] [pr′]′ [pr≡pr′]
-  fundamentalTermEq (prodrec-β {q = q} {p = p} {t = t} {t′} {u} {F} {G} {A} ⊢F ⊢G ⊢A ⊢t ⊢t′ ⊢u)
+  fundamentalTermEq
+    (prodrec-β {q = q} {r = r} {t = t} {t′} {u} {F} {G} {A}
+       ⊢F ⊢G ⊢A ⊢t ⊢t′ ⊢u PE.refl)
     with fundamental ⊢F | fundamental ⊢G | fundamental ⊢A |
          fundamentalTerm ⊢t | fundamentalTerm ⊢t′ |
          fundamentalTerm ⊢u
@@ -930,7 +959,8 @@ mutual
         [u] = S.irrelevanceTerm {A = A₊} {t = u} [Γ]₅ [ΓFG] [A₊]₅ [A₊] [u]₅
 
         [p] = prodᵛ {F = F} {G} {t} {t′} [Γ] [F] [G] [t] [t′]
-        [A[p]] = substS {F = Σ _ ▷ F ▹ G} {A} {prod! t t′} [Γ] [Σ] [A] [p]
+        [A[p]] = substS {F = Σ _ , _ ▷ F ▹ G} {A} {prod! t t′}
+                   [Γ] [Σ] [A] [p]
         [pr] = prodrecᵛ {F = F} {G} {A} {prod! t t′} {u} [Γ] [F] [G] [Σ] [A] [A₊] [A[p]] [p] [u]
         [u₊] = subst↑²STerm {F = F} {G} {A} {t} {t′} {u} [Γ] [F] [G] [Σ] [A] [A₊] [A[p]] [t] [t′] [u]
 
@@ -945,7 +975,8 @@ mutual
           [σt′] = proj₁ ([t′] ⊢Δ [σ])
           [σG[t]] = proj₁ (unwrap [G[t]] ⊢Δ [σ])
           ⊢σt′ = PE.subst (λ x → Δ ⊢ subst σ t′ ∷ x) (singleSubstLift G t) (escapeTerm [σG[t]] [σt′])
-          [⇑σ]′ = liftSubstS {σ = σ} {F = Σ q ▷ F ▹ G} [Γ] ⊢Δ [Σ] [σ]
+          [⇑σ]′ = liftSubstS {σ = σ} {F = Σ _ , q ▷ F ▹ G}
+                    [Γ] ⊢Δ [Σ] [σ]
           [σΣ] = proj₁ (unwrap [Σ] ⊢Δ [σ])
           ⊢σΣ = escape [σΣ]
           [σA] = proj₁ (unwrap [A] {σ = liftSubst σ} (⊢Δ ∙ ⊢σΣ) [⇑σ]′)
@@ -954,8 +985,8 @@ mutual
           [σu] = proj₁ ([u] {σ = liftSubstn σ 2} (⊢Δ ∙ ⊢σF ∙ ⊢σG) [⇑²σ])
           [σA₊] = proj₁ (unwrap [A₊] {σ = liftSubstn σ 2} (⊢Δ ∙ ⊢σF ∙ ⊢σG) [⇑²σ])
           ⊢σu = PE.subst (λ x → Δ ∙ _ ∙ _ ⊢ _ ∷ x) (subst-β-prodrec A σ) (escapeTerm [σA₊] [σu])
-          red : Δ ⊢ subst σ (prodrec p A (prod! t t′) u) ⇒ _ ∷ _
-          red = prodrec-β ⊢σF ⊢σG ⊢σA ⊢σt ⊢σt′ ⊢σu
+          red : Δ ⊢ subst σ (prodrec r _ A (prod! t t′) u) ⇒ _ ∷ _
+          red = prodrec-β ⊢σF ⊢σG ⊢σA ⊢σt ⊢σt′ ⊢σu PE.refl
           [σA[p]] = proj₁ (unwrap [A[p]] ⊢Δ [σ])
           [σA[p]]′ = irrelevance′ (singleSubstLift A (prod! t t′)) [σA[p]]
           [σu₊] = proj₁ ([u₊] ⊢Δ [σ])

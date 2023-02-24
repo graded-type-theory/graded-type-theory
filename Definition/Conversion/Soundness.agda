@@ -41,12 +41,12 @@ mutual
     in  natrec-cong ⊢F F≡G (soundnessConv↑Term x₂)
                     (soundnessConv↑Term x₃) (soundness~↓ k~l)
                     p≈p′ r≈r′
-  soundness~↑ (prodrec-cong x x₁ x₂ p≈p′) =
+  soundness~↑ (prodrec-cong! x x₁ x₂) =
     let C≡E = soundnessConv↑ x
         g≡h = soundness~↓ x₁
         u≡v = soundnessConv↑Term x₂
         ⊢F , ⊢G = syntacticΣ (proj₁ (syntacticEqTerm g≡h))
-    in  prodrec-cong ⊢F ⊢G C≡E g≡h u≡v p≈p′
+    in  prodrec-cong ⊢F ⊢G C≡E g≡h u≡v PE.refl
   soundness~↑ (Emptyrec-cong x₁ k~l p≈p′) =
     Emptyrec-cong (soundnessConv↑ x₁) (soundness~↓ k~l) p≈p′
 
@@ -98,7 +98,8 @@ mutual
   soundnessConv↓Term (univ x x₁ x₂) = inverseUnivEq x (soundnessConv↓ x₂)
   soundnessConv↓Term (zero-refl ⊢Γ) = refl (zeroⱼ ⊢Γ)
   soundnessConv↓Term (suc-cong c) = suc-cong (soundnessConv↑Term c)
-  soundnessConv↓Term (prod-cong x x₁ x₂ x₃) = prod-cong x x₁ (soundnessConv↑Term x₂) (soundnessConv↑Term x₃)
+  soundnessConv↓Term (prod-cong! x x₁ x₂ x₃) =
+    prod-cong x x₁ (soundnessConv↑Term x₂) (soundnessConv↑Term x₃)
   soundnessConv↓Term (η-eq x x₁ y y₁ c) =
     let ⊢ΠFG = syntacticTerm x
         ⊢F , _ = syntacticΠ ⊢ΠFG

@@ -39,9 +39,9 @@ app-subst* (id x) a₁ = id (x ∘ⱼ a₁)
 app-subst* (x ⇨ t⇒t′) a₁ = app-subst x a₁ ⇨ app-subst* t⇒t′ a₁
 
 -- First projection substitution of reduction closures
-fst-subst* : Γ ⊢ t ⇒* t′ ∷ Σₚ q ▷ A ▹ B
+fst-subst* : Γ ⊢ t ⇒* t′ ∷ Σₚ p , q ▷ A ▹ B
            → Γ ⊢ A
            → Γ ∙ A ⊢ B
-           → Γ ⊢ fst t ⇒* fst t′ ∷ A
+           → Γ ⊢ fst p t ⇒* fst p t′ ∷ A
 fst-subst* (id x) ⊢F ⊢G = id (fstⱼ ⊢F ⊢G x)
 fst-subst* (x ⇨ t⇒t′) ⊢F ⊢G = (fst-subst ⊢F ⊢G x) ⇨ (fst-subst* t⇒t′ ⊢F ⊢G)

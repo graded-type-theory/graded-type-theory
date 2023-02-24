@@ -23,32 +23,33 @@ private
     m : Nat
     Γ : Con Term m
     A B C : Term m
-    c g k n p u : Term m
-    q r : M
+    c g k n t u : Term m
+    p q r : M
     s : SigmaMode
 
 mutual
   data NfNeutral {m : Nat} : Term m → Set a where
     var       : (x : Fin m)                             → NfNeutral (var x)
     ∘ₙ        : {k u : Term m}     → NfNeutral k → Nf u → NfNeutral (k ∘⟨ q ⟩ u)
-    fstₙ      : {p : Term m}       → NfNeutral p        → NfNeutral (fst p)
-    sndₙ      : {p : Term m}       → NfNeutral p        → NfNeutral (snd p)
+    fstₙ      : NfNeutral t → NfNeutral (fst p t)
+    sndₙ      : NfNeutral t → NfNeutral (snd p t)
     natrecₙ   : {C : Term (1+ m)} {c k : Term m} {g : Term (1+ (1+ m))}
                      → Nf C → Nf c → Nf g → NfNeutral k → NfNeutral (natrec q r C c g k)
-    prodrecₙ  : {C : Term (1+ m)} {t : Term m} {u : Term (1+ (1+ m))}
-                     → Nf C → NfNeutral t → Nf u → NfNeutral (prodrec r C t u)
+    prodrecₙ  : Nf C → NfNeutral t → Nf u →
+                NfNeutral (prodrec r p C t u)
     Emptyrecₙ : {C k : Term m}     → Nf C → NfNeutral k → NfNeutral (Emptyrec q C k)
 
   data Nf {m : Nat} : Term m → Set a where
     Uₙ     : Nf U
     Πₙ     : {A : Term m} {B : Term (1+ m)} → Nf A → Nf B → Nf (Π r , q ▷ A ▹ B)
-    Σₙ     : {A : Term m} {B : Term (1+ m)} → Nf A → Nf B → Nf (Σ⟨ s ⟩ q ▷ A ▹ B)
+    Σₙ     : {A : Term m} {B : Term (1+ m)} →
+             Nf A → Nf B → Nf (Σ⟨ s ⟩ p , q ▷ A ▹ B)
     ℕₙ     : Nf ℕ
     Emptyₙ : Nf Empty
     Unitₙ  : Nf Unit
 
     lamₙ   : {t : Term (1+ m)} → Nf t → Nf (lam q t)
-    prodₙ  : {t u : Term m} → Nf t → Nf u → Nf (prod s t u)
+    prodₙ  : Nf t → Nf u → Nf (prod s p t u)
     zeroₙ  : Nf zero
     sucₙ   : {t : Term m} → Nf t → Nf (suc t)
     starₙ  : Nf star
@@ -89,12 +90,12 @@ mutual
     let p′ , neP′ , p≡p′ = fullRedNe~↓ p~p
         ⊢ΣFG , _ , _ = syntacticEqTerm p≡p′
         ⊢F , ⊢G = syntacticΣ ⊢ΣFG
-    in  fst p′ , fstₙ neP′ , fst-cong ⊢F ⊢G p≡p′
+    in  fst _ p′ , fstₙ neP′ , fst-cong ⊢F ⊢G p≡p′
   fullRedNe (snd-cong p~p) =
     let p′ , neP′ , p≡p′ = fullRedNe~↓ p~p
         ⊢ΣFG , _ , _ = syntacticEqTerm p≡p′
         ⊢F , ⊢G = syntacticΣ ⊢ΣFG
-    in  snd p′ , sndₙ neP′ , snd-cong ⊢F ⊢G p≡p′
+    in  snd _ p′ , sndₙ neP′ , snd-cong ⊢F ⊢G p≡p′
   fullRedNe (natrec-cong {p = p} {r = r} C z s n p≈p′ r≈r′) =
     let C′ , nfC′ , C≡C′ = fullRed C
         z′ , nfZ′ , z≡z′ = fullRedTerm z
@@ -102,14 +103,14 @@ mutual
         n′ , nfN′ , n≡n′ = fullRedNe~↓ n
     in  natrec p r C′ z′ s′ n′ , natrecₙ nfC′ nfZ′ nfS′ nfN′
      , natrec-cong (proj₁ (syntacticEq C≡C′)) C≡C′ z≡z′ s≡s′ n≡n′ ≈-refl ≈-refl
-  fullRedNe (prodrec-cong {p = p} C g u p≈p′) =
+  fullRedNe (prodrec-cong! C g u) =
     let C′ , nfC′ , C≡C′ = fullRed C
         g′ , nfg′ , g≡g′ = fullRedNe~↓ g
         u′ , nfu′ , u≡u′ = fullRedTerm u
         ⊢Σ , _ = syntacticEqTerm g≡g′
         ⊢F , ⊢G = syntacticΣ ⊢Σ
-    in  prodrec p C′ g′ u′ , prodrecₙ nfC′ nfg′ nfu′
-     , prodrec-cong ⊢F ⊢G C≡C′ g≡g′ u≡u′ ≈-refl
+    in  prodrec _ _ C′ g′ u′ , prodrecₙ nfC′ nfg′ nfu′
+     , prodrec-cong ⊢F ⊢G C≡C′ g≡g′ u≡u′ PE.refl
   fullRedNe (Emptyrec-cong C n p≈p′) =
     let C′ , nfC′ , C≡C′ = fullRed C
         n′ , nfN′ , n≡n′ = fullRedNe~↓ n
@@ -141,7 +142,7 @@ mutual
   fullRedConv↓ (Σ-cong ⊢F F G q≈q′) =
     let F′ , nfF′ , F≡F′ = fullRed F
         G′ , nfG′ , G≡G′ = fullRed G
-    in  Σ _ ▷ F′ ▹ G′ , Σₙ nfF′ nfG′ , Σ-cong ⊢F F≡F′ G≡G′ q≈q′
+    in  Σ _ , _ ▷ F′ ▹ G′ , Σₙ nfF′ nfG′ , Σ-cong ⊢F F≡F′ G≡G′ q≈q′
 
   fullRedTerm : ∀ {t t′ A} → Γ ⊢ t [conv↑] t′ ∷ A → ∃ λ u → Nf u × Γ ⊢ t ≡ u ∷ A
   fullRedTerm ([↑]ₜ B t′ u′ D d d′ whnfB whnft′ whnfu′ t<>u) =
@@ -175,7 +176,7 @@ mutual
   fullRedTermConv↓ (suc-cong t) =
     let u , nf , t≡u = fullRedTerm t
     in  suc u , sucₙ nf , suc-cong t≡u
-  fullRedTermConv↓ (prod-cong ⊢F ⊢G t↑t u↑u) =
+  fullRedTermConv↓ (prod-cong! ⊢F ⊢G t↑t u↑u) =
     let t′ , nfT , t≡t′ = fullRedTerm t↑t
         u′ , nfU , u≡u′ = fullRedTerm u↑u
     in  prod! t′ u′ , prodₙ nfT nfU , prod-cong ⊢F ⊢G t≡t′ u≡u′
@@ -210,10 +211,11 @@ mutual
         ⊢snd′ = conv ⊢snd′₁ Gfst≡Gfst′
         ⊢prod = prodⱼ ⊢F ⊢G ⊢fst′ ⊢snd′
 
-        fstprod≡fst′ = Σ-β₁ ⊢F ⊢G ⊢fst′ ⊢snd′ ⊢prod
+        fstprod≡fst′ = Σ-β₁ ⊢F ⊢G ⊢fst′ ⊢snd′ ⊢prod PE.refl
         fst≡fstprod = trans fst≡fst′ (sym fstprod≡fst′)
         Gfst≡Gfstprod = substTypeEq (refl ⊢G) fst≡fstprod
-        sndprod≡snd′ = conv (Σ-β₂ ⊢F ⊢G ⊢fst′ ⊢snd′ ⊢prod) (sym Gfst≡Gfstprod)
+        sndprod≡snd′ = conv (Σ-β₂ ⊢F ⊢G ⊢fst′ ⊢snd′ ⊢prod PE.refl)
+                         (sym Gfst≡Gfstprod)
         snd≡sndprod = trans snd≡snd′ (sym sndprod≡snd′)
     in  prod! fst′ snd′ , prodₙ nfFst′ nfSnd′
       , Σ-η ⊢F ⊢G ⊢t ⊢prod fst≡fstprod snd≡sndprod
