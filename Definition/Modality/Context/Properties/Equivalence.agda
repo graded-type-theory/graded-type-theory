@@ -52,3 +52,9 @@ private
 Conₘ-setoid : {n : Nat} → Setoid a a
 Conₘ-setoid {n} = record
   { Carrier = Conₘ n ; _≈_ = _≈ᶜ_ ; isEquivalence = ≈ᶜ-equivalence }
+
+-- Equivalent contexts are equal.
+
+≈ᶜ→≡ : γ ≈ᶜ δ → γ ≡ δ
+≈ᶜ→≡ ε           = refl
+≈ᶜ→≡ (ps ∙ refl) = cong (_∙ _) (≈ᶜ→≡ ps)
