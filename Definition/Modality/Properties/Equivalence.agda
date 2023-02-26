@@ -5,11 +5,27 @@ module Definition.Modality.Properties.Equivalence
 
 open ModalityWithout⊛ 𝕄
 
+open import Definition.Modality.Properties.PartialOrder 𝕄
+
+open import Tools.Function
 open import Tools.PropositionalEquality
 import Tools.Reasoning.Equivalence
+open import Tools.Relation
 
 private variable
   p q : M
+
+------------------------------------------------------------------------
+-- Decision procedures
+
+-- If _≤_ is decidable, then _≈_ is decidable (for M).
+
+≤-decidable→≈-decidable : Decidable _≤_ → Decidable (_≈_ {A = M})
+≤-decidable→≈-decidable _≤?_ p q = case p ≤? q of λ where
+  (no p≰q)  → no λ p≈q → p≰q (≤-reflexive p≈q)
+  (yes p≤q) → case q ≤? p of λ where
+    (no q≰p)  → no λ p≈q → q≰p (≤-reflexive (≈-sym p≈q))
+    (yes q≤p) → yes (≤-antisym p≤q q≤p)
 
 ------------------------------------------------------------------------
 -- Properties that hold if 𝟙 ≈ 𝟘

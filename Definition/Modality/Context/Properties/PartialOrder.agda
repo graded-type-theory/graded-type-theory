@@ -7,6 +7,7 @@ open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties.Equivalence 𝕄
 open import Definition.Modality.Properties 𝕄
 
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Relation
 
@@ -74,3 +75,16 @@ private
   ; _≤_ = _≤ᶜ_
   ; isPartialOrder = ≤ᶜ-partial
   }
+
+-- If _≤_ is decidable, then _≤ᶜ_ is decidable.
+
+≤ᶜ-decidable : Decidable _≤_ → Decidable (_≤ᶜ_ {n = n})
+≤ᶜ-decidable _≤?_ = λ where
+  ε       ε       → yes ε
+  (γ ∙ p) (δ ∙ q) → case p ≤? q of λ where
+    (no p≰q)  → no λ where
+                  (_ ∙ p≤q) → p≰q p≤q
+    (yes p≤q) → case ≤ᶜ-decidable _≤?_ γ δ of λ where
+      (no γ≰δ)  → no λ where
+                    (γ≤δ ∙ _) → γ≰δ γ≤δ
+      (yes γ≤δ) → yes (γ≤δ ∙ p≤q)

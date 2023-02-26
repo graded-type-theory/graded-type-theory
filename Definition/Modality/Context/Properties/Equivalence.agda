@@ -5,6 +5,7 @@ module Definition.Modality.Context.Properties.Equivalence
 
 open import Definition.Modality.Context 𝕄
 
+open import Tools.Function
 open import Tools.Level
 open import Tools.Nat
 open import Tools.PropositionalEquality
@@ -58,3 +59,16 @@ Conₘ-setoid {n} = record
 ≈ᶜ→≡ : γ ≈ᶜ δ → γ ≡ δ
 ≈ᶜ→≡ ε           = refl
 ≈ᶜ→≡ (ps ∙ refl) = cong (_∙ _) (≈ᶜ→≡ ps)
+
+-- If _≈_ is decidable (for M), then _≈ᶜ_ is decidable.
+
+≈ᶜ-decidable : Decidable (_≈_ {A = M}) → Decidable (_≈ᶜ_ {n = n})
+≈ᶜ-decidable _≈?_ = λ where
+  ε       ε       → yes ε
+  (γ ∙ p) (δ ∙ q) → case p ≈? q of λ where
+    (no p≉q)  → no λ where
+                  (_ ∙ p≈q) → p≉q p≈q
+    (yes p≈q) → case ≈ᶜ-decidable _≈?_ γ δ of λ where
+      (no γ≉δ)  → no λ where
+                    (γ≈δ ∙ _) → γ≉δ γ≈δ
+      (yes γ≈δ) → yes (γ≈δ ∙ p≈q)

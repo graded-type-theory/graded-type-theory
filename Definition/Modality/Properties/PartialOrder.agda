@@ -68,3 +68,8 @@ private
   ; _≤_            = _≤_
   ; isPartialOrder = ≤-partial
   }
+
+-- If _≈_ is decidable (for M), then _≤_ is decidable.
+
+≈-decidable→≤-decidable : Decidable (_≈_ {A = M}) → Decidable _≤_
+≈-decidable→≤-decidable _≈?_ p q = p ≈? (p ∧ q)
