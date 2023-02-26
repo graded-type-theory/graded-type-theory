@@ -76,12 +76,12 @@ mutual
 
   -- Σ:
   t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΣ m p q) F G D ⊢F ⊢G A≡A [F] [G] G-ext =
-    ∃₄ λ t₁ t₂ v₁ v₂ →
+    ∃₂ λ t₁ t₂ →
     ε ⊢ t ⇒* U.prod m p t₁ t₂ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G ×
-    v T.⇒* T.prod v₁ v₂ ×
     Σ (ε ⊩⟨ l ⟩ t₁ ∷ U.wk id F / [F] id ε) λ [t₁] →
-    t₁ ®⟨ l ⟩ v₁ ∷ U.wk id F ◂ p / [F] id ε ×
-    (t₂ ®⟨ l ⟩ v₂ ∷ U.wk (lift id) G U.[ t₁ ] / [G] id ε [t₁])
+    ∃ λ v₂ →
+    t₂ ®⟨ l ⟩ v₂ ∷ U.wk (lift id) G U.[ t₁ ] / [G] id ε [t₁] ×
+    Σ-® l F [F] t₁ v v₂ p
 
   -- Subsumption:
   t ®⟨ ¹ ⟩ v ∷ A / emb 0<1 [A] = t ®⟨ ⁰ ⟩ v ∷ A / [A]
@@ -92,6 +92,19 @@ mutual
                  (A : U.Term 0) (p : Erasure) ([A] : ε ⊩⟨ l ⟩ A) → Set
   t ®⟨ l ⟩ v ∷ A ◂ 𝟘 / [A] = ⊤
   t ®⟨ l ⟩ v ∷ A ◂ ω / [A] = t ®⟨ l ⟩ v ∷ A / [A]
+
+  -- Extra data for Σ-types, depending on whether the first component
+  -- is erased or not.
+
+  Σ-® :
+    (l : TypeLevel) (F : U.Term 0) →
+    (∀ {m ρ} {Δ : Con U.Term m} → ρ ∷ Δ ⊆ ε → ⊢ Δ → Δ ⊩⟨ l ⟩ U.wk ρ F) →
+    U.Term 0 → T.Term 0 → T.Term 0 → Erasure → Set
+  Σ-® _ _ _   _  v v₂ 𝟘 = v T.⇒* v₂
+  Σ-® l F [F] t₁ v v₂ ω =
+    ∃ λ v₁ →
+    v T.⇒* T.prod v₁ v₂ ×
+    t₁ ®⟨ l ⟩ v₁ ∷ U.wk id F / [F] id ε
 
 -- Logical relation for substitutions
 
@@ -117,3 +130,27 @@ _▸_⊩ʳ⟨_⟩_∷[_]_/_/_ :
   σ ®⟨ l ⟩ σ′ ∷[ m ] Γ ◂ γ / [Γ] / [σ] →
   U.subst σ t ®⟨ l ⟩ T.subst σ′ (erase t) ∷ U.subst σ A ◂ ⌜ m ⌝ /
   proj₁ (unwrap [A] ε [σ])
+
+-- A different view of the extra data for Σ-types.
+
+data Σ-®′
+  (l : TypeLevel) (F : U.Term 0)
+  ([F] : ∀ {m ρ} {Δ : Con U.Term m} → ρ ∷ Δ ⊆ ε → ⊢ Δ →
+         Δ ⊩⟨ l ⟩ U.wk ρ F)
+  (t₁ : U.Term 0) (v v₂ : T.Term 0) : Erasure → Set where
+  𝟘 : v T.⇒* v₂ → Σ-®′ l F [F] t₁ v v₂ 𝟘
+  ω : ∀ v₁ → v T.⇒* T.prod v₁ v₂ → t₁ ®⟨ l ⟩ v₁ ∷ U.wk id F / [F] id ε →
+      Σ-®′ l F [F] t₁ v v₂ ω
+
+-- A function that provides a different view of the extra data for
+-- Σ-types.
+
+Σ-®-view :
+  ∀ {l F}
+    {[F] : ∀ {m ρ} {Δ : Con U.Term m} →
+           ρ ∷ Δ ⊆ ε → ⊢ Δ → Δ ⊩⟨ l ⟩ U.wk ρ F}
+    {t₁ v v₂ p} →
+  Σ-® l F [F] t₁ v v₂ p →
+  Σ-®′ l F [F] t₁ v v₂ p
+Σ-®-view {p = 𝟘} v⇒*v₂                   = 𝟘 v⇒*v₂
+Σ-®-view {p = ω} (v₁ , v⇒*v₁,v₂ , t₁®v₁) = ω v₁ v⇒*v₁,v₂ t₁®v₁

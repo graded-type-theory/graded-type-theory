@@ -35,6 +35,7 @@ open import Definition.Typed.Reduction Erasure
 open import Definition.Typed.RedSteps Erasure
 open import Definition.Typed.Weakening Erasure
 
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -108,7 +109,7 @@ convTermʳ′
   (Bᵥ (BΣ _ p _) BΣ! (Bᵣ F G [ _ , _ , A⇒Σ ] ⊢F ⊢G A≡A [F] [G] G-ext)
      (Bᵣ F₁ G₁ [ _ , _ , B⇒Σ₁ ] ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁)
      (BT.Σ≋Σ PE.refl))
-  (t₁ , t₂ , v₁ , v₂ , t⇒t′ , v⇒v′ , [t₁] , t₁®v₁ , t₂®v₂) =
+  (t₁ , t₂ , t⇒t′ , [t₁] , v₂ , t₂®v₂ , extra) =
   let Σ≡Σ₁ = reduction′ A⇒Σ B⇒Σ₁ Σₙ Σₙ A≡B
       F≡F₁ , G≡G₁ , _ = Σ-injectivity Σ≡Σ₁
       [F]′ , [F₁]′ , [F≡F₁]′ = reducibleEq F≡F₁
@@ -121,12 +122,17 @@ convTermʳ′
       [Gt₁]′ , [G₁t₁]′ , [Gt₁≡G₁t₁]′ = reducibleEq G[t₁]≡G₁[t₁]
       [Gt₁≡G₁t₁] = irrelevanceEq [Gt₁]′ ([G] id ε [t₁]) [Gt₁≡G₁t₁]′
       t⇒t″ = conv* t⇒t′ Σ≡Σ₁
-      SV₁ = goodCases ([F] id ε) ([F]₁ id ε) [F≡F₁]
       SV₂ = goodCases ([G] id ε [t₁]) ([G]₁ id ε [t₁]′) [Gt₁≡G₁t₁]
-      t₁®v₁′ = convTermʳ′ p ([F] id ε) ([F]₁ id ε) F≡F₁′ SV₁ t₁®v₁
       t₂®v₂′ = convTermʳ′ _ ([G] id ε [t₁]) ([G]₁ id ε [t₁]′)
                  G[t₁]≡G₁[t₁] SV₂ t₂®v₂
-  in  t₁ , t₂ , v₁ , v₂ , t⇒t″ , v⇒v′ , [t₁]′ , t₁®v₁′ , t₂®v₂′
+  in  t₁ , t₂ , t⇒t″ , [t₁]′ , v₂ , t₂®v₂′ ,
+      (case Σ-®-view extra of λ where
+        (𝟘 v⇒v′)          → v⇒v′
+        (ω v₁ v⇒v′ t₁®v₁) →
+          let SV₁    = goodCases ([F] id ε) ([F]₁ id ε) [F≡F₁]
+              t₁®v₁′ = convTermʳ′ p ([F] id ε) ([F]₁ id ε)
+                         F≡F₁′ SV₁ t₁®v₁
+          in v₁ , v⇒v′ , t₁®v₁′)
 convTermʳ′ ω (emb 0<1 [A]) [B] A≡B (emb⁰¹ SV) t®v =
   convTermʳ′ _ [A] [B] A≡B SV t®v
 convTermʳ′ ω [A] (emb 0<1 [B]) A≡B (emb¹⁰ SV) t®v =

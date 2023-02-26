@@ -28,6 +28,7 @@ open import Definition.Typed.Properties Erasure
 open import Definition.Modality.Context ErasureModality
 open import Definition.Mode ErasureModality
 
+open import Tools.Function
 open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
@@ -86,7 +87,7 @@ irrelevanceTermSV
       SV′ = goodCasesRefl ([G] id ε [a]) ([G]₁ id ε [a]′)
       in  irrelevanceTermSV _ ([G] id ε [a]) ([G]₁ id ε [a]′) t®v′ SV′
 irrelevanceTermSV
-  ω [A] [A]′ (t₁ , t₂ , v₁ , v₂ , t⇒t′ , v⇒v′ , [t₁] , t₁®v₁ , t₂®v₂)
+  ω [A] [A]′ (t₁ , t₂ , t⇒t′ , [t₁] , v₂ , t₂®v₂ , extra)
   (Bᵥ (BΣ _ p _) BΣ! (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
      (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁)
      (BT.Σ≋Σ PE.refl))
@@ -98,11 +99,15 @@ irrelevanceTermSV
       [t₁]′ = I.irrelevanceTerm [F]′ [F]₁′ [t₁]
       [Gt₁] = [G] id ε [t₁]
       [Gt₁]₁ = [G]₁ id ε [t₁]′
-      t₁®v₁′ = irrelevanceTermSV p [F]′ [F]₁′ t₁®v₁
-                 (goodCasesRefl [F]′ [F]₁′)
       t₂®v₂′ = irrelevanceTermSV _ [Gt₁] [Gt₁]₁ t₂®v₂
                  (goodCasesRefl [Gt₁] [Gt₁]₁)
-  in  t₁ , t₂ , v₁ , v₂ , t⇒t′ , v⇒v′ , [t₁]′ , t₁®v₁′ , t₂®v₂′
+  in  t₁ , t₂ , t⇒t′ , [t₁]′ , v₂ , t₂®v₂′ ,
+      (case Σ-®-view extra of λ where
+         (𝟘 v⇒v′)          → v⇒v′
+         (ω v₁ v⇒v′ t₁®v₁) →
+           let t₁®v₁′ = irrelevanceTermSV p [F]′ [F]₁′ t₁®v₁
+                          (goodCasesRefl [F]′ [F]₁′)
+           in v₁ , v⇒v′ , t₁®v₁′)
 irrelevanceTermSV ω (emb 0<1 [A]) [A]′ t®v (emb⁰¹ SV) =
   irrelevanceTermSV _ [A] [A]′ t®v SV
 irrelevanceTermSV ω [A] (emb 0<1 [A]′) t®v (emb¹⁰ SV) =
