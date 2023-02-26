@@ -20,7 +20,6 @@ open import Definition.Modality.Instances.Erasure.Properties
 open import Definition.Modality.Context ErasureModality
 open import Definition.Modality.Usage ErasureModality
 open import Definition.Modality.Usage.Inversion ErasureModality
-open import Definition.Modality.FullReduction ErasureModality greatest-elem
 open import Definition.Mode ErasureModality
 
 open import Application.NegativeAxioms.NegativeType Erasure

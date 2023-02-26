@@ -115,6 +115,9 @@ import Definition.Conversion.Decidable
 import Definition.Conversion.EqRelInstance
 import Definition.Conversion.FullReduction
 
+-- A "full reduction" lemma for modalities.
+import Definition.Modality.FullReduction
+
 -- Consequences of the logical relation for algorithmic equality
 import Definition.Conversion.Consequences.Completeness
 
