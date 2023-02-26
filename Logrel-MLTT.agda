@@ -34,6 +34,7 @@ import Definition.Modality.Properties
 import Definition.Modality.Context
 import Definition.Modality.Context.Properties
 import Definition.Modality.Usage
+import Definition.Modality.Usage.Decidable
 import Definition.Modality.Usage.Inversion
 import Definition.Modality.Usage.Properties
 import Definition.Modality.Usage.Weakening
