@@ -58,12 +58,9 @@ private
   Emptyₘ
 ▸-𝟙≈𝟘 _ Unitₘ =
   Unitₘ
-▸-𝟙≈𝟘 𝟙≈𝟘 (Πₘ ▸F ▸G) =
-  Πₘ (▸-𝟙≈𝟘 𝟙≈𝟘 ▸F)
-     (sub (▸-𝟙≈𝟘 𝟙≈𝟘 ▸G) (≈ᶜ-trivial 𝟙≈𝟘))
-▸-𝟙≈𝟘 𝟙≈𝟘 (Σₘ ▸F ▸G) =
-  Σₘ (▸-𝟙≈𝟘 𝟙≈𝟘 ▸F)
-     (sub (▸-𝟙≈𝟘 𝟙≈𝟘 ▸G) (≈ᶜ-trivial 𝟙≈𝟘))
+▸-𝟙≈𝟘 𝟙≈𝟘 (ΠΣₘ ▸F ▸G) =
+  ΠΣₘ (▸-𝟙≈𝟘 𝟙≈𝟘 ▸F)
+      (sub (▸-𝟙≈𝟘 𝟙≈𝟘 ▸G) (≈ᶜ-trivial 𝟙≈𝟘))
 ▸-𝟙≈𝟘 𝟙≈𝟘 var = sub
   var
   (≈ᶜ-trivial 𝟙≈𝟘)
@@ -119,13 +116,9 @@ private
   sub Emptyₘ (≤ᶜ-reflexive (·ᶜ-zeroʳ _))
 ▸-· Unitₘ =
   sub Unitₘ (≤ᶜ-reflexive (·ᶜ-zeroʳ _))
-▸-· {m′ = m′} (Πₘ F G) = sub
-  (Πₘ (▸-cong (PE.sym (·ᵐ-ᵐ·-assoc m′)) (▸-· F))
-      (sub (▸-· G) (≤ᶜ-reflexive (≈ᶜ-refl ∙ ·ᵐ-·-assoc m′))))
-  (≤ᶜ-reflexive (·ᶜ-distribˡ-+ᶜ _ _ _))
-▸-· {m′ = m′} (Σₘ F G) = sub
-  (Σₘ (▸-cong (PE.sym (·ᵐ-ᵐ·-assoc m′)) (▸-· F))
-      (sub (▸-· G) (≤ᶜ-reflexive (≈ᶜ-refl ∙ ·ᵐ-·-assoc m′))))
+▸-· {m′ = m′} (ΠΣₘ F G) = sub
+  (ΠΣₘ (▸-cong (PE.sym (·ᵐ-ᵐ·-assoc m′)) (▸-· F))
+       (sub (▸-· G) (≤ᶜ-reflexive (≈ᶜ-refl ∙ ·ᵐ-·-assoc m′))))
   (≤ᶜ-reflexive (·ᶜ-distribˡ-+ᶜ _ _ _))
 ▸-· {m = m} {m′ = m′} (var {x = x}) = sub var
   (begin
@@ -445,30 +438,17 @@ Conₘ-interchange Unitₘ Unitₘ x =
   subst (_▸[ _ ] _) (PE.sym (update-self 𝟘ᶜ x)) Unitₘ
 
 Conₘ-interchange
-  (Πₘ {γ = γ} {δ = δ} γ▸t δ▸u)
-  (Πₘ {γ = γ′} {δ = δ′} γ′▸t δ′▸u) x =
+  (ΠΣₘ {γ = γ} {δ = δ} γ▸t δ▸u)
+  (ΠΣₘ {γ = γ′} {δ = δ′} γ′▸t δ′▸u) x =
   subst (_▸[ _ ] _)
     (begin
        (γ , x ≔ γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩)  ≡˘⟨ update-distrib-+ᶜ γ _ _ _ x ⟩
        γ +ᶜ δ , x ≔ γ′ ⟨ x ⟩ + δ′ ⟨ x ⟩          ≡˘⟨ cong (_ , x ≔_) (lookup-distrib-+ᶜ γ′ _ _) ⟩
        γ +ᶜ δ , x ≔ (γ′ +ᶜ δ′) ⟨ x ⟩             ∎)
-    (Πₘ (Conₘ-interchange γ▸t γ′▸t x)
+    (ΠΣₘ (Conₘ-interchange γ▸t γ′▸t x)
        (Conₘ-interchange δ▸u δ′▸u (x +1)))
   where
   open Tools.Reasoning.PropositionalEquality
-
-Conₘ-interchange (Σₘ {γ = γ} {δ = δ} γ▸t δ▸u)
-                 (Σₘ {γ = γ′} {δ = δ′} γ′▸t δ′▸u) x =
-  subst (_▸[ _ ] _) eq (Σₘ (Conₘ-interchange γ▸t γ′▸t x)
-                           (Conₘ-interchange δ▸u δ′▸u (x +1)))
-  where
-  open Tools.Reasoning.PropositionalEquality
-  eq = begin
-    (γ , x ≔ γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩)
-      ≡˘⟨ update-distrib-+ᶜ γ δ _ _ x ⟩
-    (γ +ᶜ δ , x ≔ γ′ ⟨ x ⟩ + δ′ ⟨ x ⟩)
-      ≡˘⟨ cong ((γ +ᶜ δ) , x ≔_) (lookup-distrib-+ᶜ γ′ δ′ x) ⟩
-    (γ +ᶜ δ) , x ≔ ((γ′ +ᶜ δ′) ⟨ x ⟩)        ∎
 
 Conₘ-interchange (var {x = y}) var x = subst (_▸[ _ ] _)
   (PE.sym (update-self (𝟘ᶜ , y ≔ _) x)) var
@@ -613,12 +593,7 @@ usage-upper-bound ℕₘ     = ≤ᶜ-refl
 usage-upper-bound Emptyₘ = ≤ᶜ-refl
 usage-upper-bound Unitₘ  = ≤ᶜ-refl
 
-usage-upper-bound (Πₘ {G = G} ▸F ▸G) =
-  +ᶜ-monotone (usage-upper-bound ▸F)
-              (subst (_ ≈ᶜ_) (tailₘ-distrib-∧ᶜ (_ ∙ _) (⌈ G ⌉ _))
-                     (tailₘ-cong (usage-upper-bound ▸G)))
-
-usage-upper-bound (Σₘ {G = G} ▸F ▸G) =
+usage-upper-bound (ΠΣₘ {G = G} ▸F ▸G) =
   +ᶜ-monotone (usage-upper-bound ▸F)
               (subst (_ ≈ᶜ_) (tailₘ-distrib-∧ᶜ (_ ∙ _) (⌈ G ⌉ _))
                      (tailₘ-cong (usage-upper-bound ▸G)))
@@ -670,18 +645,12 @@ usage-inf Uₘ = Uₘ
 usage-inf ℕₘ = ℕₘ
 usage-inf Emptyₘ = Emptyₘ
 usage-inf Unitₘ = Unitₘ
-usage-inf (Πₘ {G = G} γ▸F δ▸G) =
-  Πₘ (usage-inf γ▸F)
-     (sub (usage-inf δ▸G)
-          (subst (tailₘ (⌈ G ⌉ _) ∙ _ ≤ᶜ_)
-                 (headₘ-tailₘ-correct (⌈ G ⌉ _))
-                 (≤ᶜ-refl ∙ headₘ-monotone (usage-upper-bound δ▸G))))
-usage-inf (Σₘ {G = G} γ▸F δ▸G) =
-  Σₘ (usage-inf γ▸F)
-     (sub (usage-inf δ▸G)
-          (subst (tailₘ (⌈ G ⌉ _) ∙ _ ≤ᶜ_)
-                 (headₘ-tailₘ-correct (⌈ G ⌉ _))
-                 (≤ᶜ-refl ∙ headₘ-monotone (usage-upper-bound δ▸G))))
+usage-inf (ΠΣₘ {G = G} γ▸F δ▸G) =
+  ΠΣₘ (usage-inf γ▸F)
+      (sub (usage-inf δ▸G)
+           (subst (tailₘ (⌈ G ⌉ _) ∙ _ ≤ᶜ_)
+                  (headₘ-tailₘ-correct (⌈ G ⌉ _))
+                  (≤ᶜ-refl ∙ headₘ-monotone (usage-upper-bound δ▸G))))
 usage-inf var = var
 usage-inf (lamₘ {p = p} {t = t} γ▸t) =
   lamₘ (sub (usage-inf γ▸t)
@@ -730,7 +699,7 @@ usage-inf (sub γ▸t x) = usage-inf γ▸t
   open Tools.Reasoning.Equivalence Conₘ-setoid
 ⌈⌉-𝟘ᵐ U =
   ≈ᶜ-refl
-⌈⌉-𝟘ᵐ {ok = ok} (Π p , _ ▷ F ▹ G) = begin
+⌈⌉-𝟘ᵐ {ok = ok} (ΠΣ⟨ _ ⟩ _ , _ ▷ F ▹ G) = begin
   (⌈ F ⌉ 𝟘ᵐ[ ok ] +ᶜ tailₘ (⌈ G ⌉ 𝟘ᵐ[ ok ]))  ≈⟨ +ᶜ-cong (⌈⌉-𝟘ᵐ F) (tailₘ-cong (⌈⌉-𝟘ᵐ G)) ⟩
   𝟘ᶜ +ᶜ 𝟘ᶜ                                    ≈⟨ +ᶜ-identityʳ _ ⟩
   𝟘ᶜ                                          ∎
@@ -743,12 +712,6 @@ usage-inf (sub γ▸t x) = usage-inf γ▸t
   𝟘ᶜ +ᶜ p ·ᶜ 𝟘ᶜ                          ≈⟨ +ᶜ-congˡ (·ᶜ-zeroʳ _) ⟩
   𝟘ᶜ +ᶜ 𝟘ᶜ                               ≈⟨ +ᶜ-identityˡ _ ⟩
   𝟘ᶜ                                     ∎
-  where
-  open Tools.Reasoning.Equivalence Conₘ-setoid
-⌈⌉-𝟘ᵐ {ok = ok} (Σ _ , _ ▷ F ▹ G) = begin
-  ⌈ F ⌉ 𝟘ᵐ[ ok ] +ᶜ tailₘ (⌈ G ⌉ 𝟘ᵐ[ ok ])  ≈⟨ +ᶜ-cong (⌈⌉-𝟘ᵐ F) (tailₘ-cong (⌈⌉-𝟘ᵐ G)) ⟩
-  𝟘ᶜ +ᶜ 𝟘ᶜ                                  ≈⟨ +ᶜ-identityˡ _ ⟩
-  𝟘ᶜ                                        ∎
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
 ⌈⌉-𝟘ᵐ {ok = ok} (prod Σᵣ p t u) = begin

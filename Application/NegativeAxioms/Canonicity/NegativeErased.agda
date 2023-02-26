@@ -83,11 +83,11 @@ neNeg (d ∘ⱼ ⊢t           ) (∘ₙ n       ) γ▸u =
 neNeg (fstⱼ ⊢A A⊢B d     ) (fstₙ n     ) γ▸u =
   let invUsageFst _ _ δ▸t γ≤δ _ = inv-usage-fst γ▸u
   in  fstNeg (neNeg d n (sub δ▸t γ≤δ))
-             (refl (Σⱼ ⊢A ▹ A⊢B))
+             (refl (ΠΣⱼ ⊢A ▹ A⊢B))
 neNeg (sndⱼ ⊢A A⊢B d     ) (sndₙ n     ) γ▸u =
   let invUsageSnd δ▸t γ≤δ = inv-usage-snd γ▸u
   in  sndNeg (neNeg d n (sub δ▸t γ≤δ))
-             (refl (Σⱼ ⊢A ▹ A⊢B)) (fstⱼ ⊢A A⊢B d)
+             (refl (ΠΣⱼ ⊢A ▹ A⊢B)) (fstⱼ ⊢A A⊢B d)
 neNeg (natrecⱼ _ _ _ d   ) (natrecₙ n  ) γ▸u =
   let invUsageNatrec _ _ δ▸n γ≤γ′ = inv-usage-natrec γ▸u
       ⊢ℕ = refl (ℕⱼ (wfTerm d))
@@ -98,7 +98,7 @@ neNeg (prodrecⱼ ⊢A A⊢B _ d _) (prodrecₙ n ) γ▸u =
       γ▸t = sub δ▸t (≤ᶜ-trans γ≤γ′ (≤ᶜ-trans (+ᶜ-decreasingˡ _ _)
                               (≤ᶜ-trans (·ᶜ-monotoneˡ (≤-reflexive p≡ω))
                                  (≤ᶜ-reflexive (·ᶜ-identityˡ _)))))
-      ⊢Σ = refl (Σⱼ ⊢A ▹ A⊢B)
+      ⊢Σ = refl (ΠΣⱼ ⊢A ▹ A⊢B)
   in  ⊥-elim (¬negΣᵣ (neNeg d n (▸-cong (PE.cong (𝟙ᵐ ᵐ·_) p≡ω) γ▸t)) ⊢Σ)
 neNeg (Emptyrecⱼ _ d     ) (Emptyrecₙ n) γ▸u = ⊥-elim (consistent d)
 neNeg (conv d c          ) n             γ▸u = conv (neNeg d n γ▸u) c
@@ -127,8 +127,7 @@ nfN (conv d c) γ▸u n c' = nfN d γ▸u n (trans c c')
 -- Impossible cases: type is not ℕ.
 
 -- * Canonical types
-nfN (Πⱼ _ ▹ _)       γ▸u (Πₙ _ _)   c = ⊥-elim (U≢ℕ c)
-nfN (Σⱼ _ ▹ _)       γ▸u (Σₙ _ _)   c = ⊥-elim (U≢ℕ c)
+nfN (ΠΣⱼ _ ▹ _)      γ▸u (ΠΣₙ _ _)  c = ⊥-elim (U≢ℕ c)
 nfN (ℕⱼ _)           γ▸u ℕₙ         c = ⊥-elim (U≢ℕ c)
 nfN (Emptyⱼ _)       γ▸u Emptyₙ     c = ⊥-elim (U≢ℕ c)
 nfN (Unitⱼ _)        γ▸u Unitₙ      c = ⊥-elim (U≢ℕ c)

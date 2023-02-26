@@ -69,7 +69,7 @@ convTermʳ′
      (Bᵣ F₁ G₁ [ _ , _ , B⇒Π₁ ] ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁)
      (BT.Π≋Π PE.refl PE.refl))
   t®v [a]′ =
-  let Π≡Π₁ = reduction′ A⇒Π B⇒Π₁ Πₙ Πₙ A≡B
+  let Π≡Π₁ = reduction′ A⇒Π B⇒Π₁ ΠΣₙ ΠΣₙ A≡B
       F≡F₁ , G≡G₁ , _ , _ = injectivity Π≡Π₁
       [F₁]′ , [F]′ , [F₁≡F]′ = reducibleEq (sym F≡F₁)
       [F₁≡F] = irrelevanceEq″ (PE.sym (wk-id F₁)) (PE.sym (wk-id F))
@@ -88,7 +88,7 @@ convTermʳ′
      (Bᵣ F₁ G₁ [ _ , _ , B⇒Π₁ ] ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁)
      (BT.Π≋Π PE.refl PE.refl))
   t®v [a]′ a®w′ =
-  let Π≡Π₁ = reduction′ A⇒Π B⇒Π₁ Πₙ Πₙ A≡B
+  let Π≡Π₁ = reduction′ A⇒Π B⇒Π₁ ΠΣₙ ΠΣₙ A≡B
       F≡F₁ , G≡G₁ , _ , _ = injectivity Π≡Π₁
       [F₁]′ , [F]′ , [F₁≡F]′ = reducibleEq (sym F≡F₁)
       [F₁≡F] = irrelevanceEq″ (PE.sym (wk-id F₁)) (PE.sym (wk-id F))
@@ -110,7 +110,7 @@ convTermʳ′
      (Bᵣ F₁ G₁ [ _ , _ , B⇒Σ₁ ] ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁)
      (BT.Σ≋Σ PE.refl))
   (t₁ , t₂ , t⇒t′ , [t₁] , v₂ , t₂®v₂ , extra) =
-  let Σ≡Σ₁ = reduction′ A⇒Σ B⇒Σ₁ Σₙ Σₙ A≡B
+  let Σ≡Σ₁ = reduction′ A⇒Σ B⇒Σ₁ ΠΣₙ ΠΣₙ A≡B
       F≡F₁ , G≡G₁ , _ = Σ-injectivity Σ≡Σ₁
       [F]′ , [F₁]′ , [F≡F₁]′ = reducibleEq F≡F₁
       [F≡F₁] = irrelevanceEq″ (PE.sym (wk-id F)) (PE.sym (wk-id F₁))

@@ -50,12 +50,10 @@ mutual
   fundamental (Emptyⱼ x) = valid x , Emptyᵛ (valid x)
   fundamental (Unitⱼ x) = valid x , Unitᵛ (valid x)
   fundamental (Uⱼ x) = valid x , Uᵛ (valid x)
-  fundamental (Πⱼ_▹_ {F} {G} ⊢F ⊢G) with fundamental ⊢F | fundamental ⊢G
-  fundamental (Πⱼ_▹_ {F} {G} ⊢F ⊢G) | [Γ] , [F] | [Γ∙F] , [G] =
-    [Γ] , Πᵛ {F = F} {G} [Γ] [F] (S.irrelevance {A = G} [Γ∙F] ([Γ] ∙ [F]) [G])
-  fundamental (Σⱼ_▹_ {F} {G} ⊢F ⊢G) with fundamental ⊢F | fundamental ⊢G
-  fundamental (Σⱼ_▹_ {F} {G} ⊢F ⊢G) | [Γ] , [F] | [Γ∙F] , [G] =
-    [Γ] , Σᵛ {F = F} {G} [Γ] [F] (S.irrelevance {A = G} [Γ∙F] ([Γ] ∙ [F]) [G])
+  fundamental (ΠΣⱼ ⊢F ▹ ⊢G)
+    with fundamental ⊢F | fundamental ⊢G
+  … | [Γ] , [F] | [Γ∙F] , [G] =
+    [Γ] , ΠΣᵛ [Γ] [F] (S.irrelevance [Γ∙F] ([Γ] ∙ [F]) [G])
   fundamental (univ {A} ⊢A) with fundamentalTerm ⊢A
   fundamental (univ {A} ⊢A) | [Γ] , [U] , [A] =
     [Γ] , univᵛ {A = A} [Γ] [U] [A]
@@ -94,10 +92,9 @@ mutual
                            (irrelevanceEq (proj₁ (unwrap [B₁]₁ ⊢Δ [σ]′))
                                           (proj₁ (unwrap [B₁] ⊢Δ [σ]))
                                           ([B₁≡B] ⊢Δ [σ]′)))
-  fundamentalEq (Π-cong {F = F} {H} {G} {E} ⊢F A≡B A≡B₁ p≈p′ q≈q′)
+  fundamentalEq (ΠΣ-cong {b = BMΠ} {F = F} {H} {G} {E} ⊢F A≡B A≡B₁)
     with fundamentalEq A≡B | fundamentalEq A≡B₁
-  fundamentalEq (Π-cong {F = F} {H} {G} {E} ⊢F A≡B A≡B₁ p≈p′ q≈q′) | [Γ] , [F] , [H] , [F≡H]
-    | [Γ]₁ , [G] , [E] , [G≡E] =
+  … | [Γ] , [F] , [H] , [F≡H] | [Γ]₁ , [G] , [E] , [G≡E] =
       let [G]′ = S.irrelevance {A = G} [Γ]₁ ([Γ] ∙ [F]) [G]
           [E]′ = S.irrelevanceLift {A = E} {F = F} {H = H} [Γ] [F] [H] [F≡H]
                                    (S.irrelevance {A = E} [Γ]₁ ([Γ] ∙ [F]) [E])
@@ -106,11 +103,11 @@ mutual
       in  [Γ]
       ,   Πᵛ {F = F} {G} [Γ] [F] [G]′
       ,   Πᵛ {F = H} {E} [Γ] [H] [E]′
-      ,   Π-congᵛ {F = F} {G} {H} {E} [Γ] [F] [G]′ [H] [E]′ [F≡H] [G≡E]′ (BT.Π≋Π p≈p′ q≈q′)
-  fundamentalEq (Σ-cong {F = F} {H} {G} {E} ⊢F A≡B A≡B₁ q≈q′)
+      ,   Π-congᵛ {F = F} {G} {H} {E} [Γ] [F] [G]′ [H] [E]′ [F≡H] [G≡E]′
+            (BT.Π≋Π PE.refl PE.refl)
+  fundamentalEq (ΠΣ-cong {b = BMΣ _} {F = F} {H} {G} {E} ⊢F A≡B A≡B₁)
     with fundamentalEq A≡B | fundamentalEq A≡B₁
-  fundamentalEq (Σ-cong {F = F} {H} {G} {E} ⊢F A≡B A≡B₁ q≈q′) | [Γ] , [F] , [H] , [F≡H]
-    | [Γ]₁ , [G] , [E] , [G≡E] =
+  … | [Γ] , [F] , [H] , [F≡H] | [Γ]₁ , [G] , [E] , [G≡E] =
       let [G]′ = S.irrelevance {A = G} [Γ]₁ ([Γ] ∙ [F]) [G]
           [E]′ = S.irrelevanceLift {A = E} {F = F} {H = H} [Γ] [F] [H] [F≡H]
                                    (S.irrelevance {A = E} [Γ]₁ ([Γ] ∙ [F]) [E])
@@ -119,7 +116,8 @@ mutual
       in  [Γ]
       ,   Σᵛ {F = F} {G} [Γ] [F] [G]′
       ,   Σᵛ {F = H} {E} [Γ] [H] [E]′
-      ,   Σ-congᵛ {F = F} {G} {H} {E} [Γ] [F] [G]′ [H] [E]′ [F≡H] [G≡E]′ (BT.Σ≋Σ q≈q′)
+      ,   Σ-congᵛ {F = F} {G} {H} {E} [Γ] [F] [G]′ [H] [E]′ [F≡H] [G≡E]′
+            (BT.Σ≋Σ PE.refl)
 
   -- Fundamental theorem for variables.
   fundamentalVar : ∀ {A x}
@@ -170,7 +168,7 @@ mutual
   fundamentalTerm (ℕⱼ x) = valid x , Uᵛ (valid x) , ℕᵗᵛ (valid x)
   fundamentalTerm (Emptyⱼ x) = valid x , Uᵛ (valid x) , Emptyᵗᵛ (valid x)
   fundamentalTerm (Unitⱼ x) = valid x , Uᵛ (valid x) , Unitᵗᵛ (valid x)
-  fundamentalTerm (Πⱼ_▹_ {F = F} {G} ⊢F ⊢G)
+  fundamentalTerm (ΠΣⱼ_▹_ {b = BMΠ} {F = F} {G} ⊢F ⊢G)
     with fundamentalTerm ⊢F | fundamentalTerm ⊢G
   ... | [Γ] , [U] , [F]ₜ | [Γ]₁ , [U]₁ , [G]ₜ =
     let [F]   = univᵛ {A = F} [Γ] [U] [F]ₜ
@@ -180,7 +178,7 @@ mutual
     in  [Γ] , [U]
     ,   S.irrelevanceTerm {A = U} {t = Π _ , _ ▷ F ▹ G} [Γ] [Γ] (Uᵛ [Γ]) [U]
                           (Πᵗᵛ {F = F} {G} [Γ] [F] [U]′ [F]ₜ′ [G]ₜ′)
-  fundamentalTerm (Σⱼ_▹_ {F = F} {G} ⊢F ⊢G)
+  fundamentalTerm (ΠΣⱼ_▹_ {b = BMΣ _} {F = F} {G} ⊢F ⊢G)
     with fundamentalTerm ⊢F | fundamentalTerm ⊢G
   ... | [Γ] , [U] , [F]ₜ | [Γ]₁ , [U]₁ , [G]ₜ =
     let [F]   = univᵛ {A = F} [Γ] [U] [F]ₜ
@@ -330,7 +328,7 @@ mutual
                                               ([t≡u] ⊢Δ [σ]′)
                in  convEqTerm₁ (proj₁ (unwrap [A′]₁ ⊢Δ [σ])) (proj₁ (unwrap [A] ⊢Δ [σ]))
                                ([A′≡A] ⊢Δ [σ]) [t≡u]′)
-  fundamentalTermEq (Π-cong {E = E} {F} {G} {H} ⊢F F≡H G≡E p≈p′ q≈q′)
+  fundamentalTermEq (ΠΣ-cong {b = BMΠ} {E = E} {F} {G} {H} ⊢F F≡H G≡E)
     with fundamental ⊢F | fundamentalTermEq F≡H | fundamentalTermEq G≡E
   ... | [Γ] , [F] | [Γ]₁ , modelsTermEq [U] [F]ₜ [H]ₜ [F≡H]ₜ
       | [Γ]₂ , modelsTermEq [U]₁ [G]ₜ [E]ₜ [G≡E]ₜ =
@@ -358,8 +356,10 @@ mutual
           (Πᵗᵛ {F = F} {G} [Γ] [F] [U]₁′ [F]ₜ′ [G]ₜ′)
           (Πᵗᵛ {F = H} {E} [Γ] [H] [U]₂′ [H]ₜ′ [E]ₜ′)
           (Π-congᵗᵛ {F = F} {G} {H} {E} [Γ] [F] [H] [U]₁′ [U]₂′
-                    [F]ₜ′ [G]ₜ′ [H]ₜ′ [E]ₜ′ [F≡H]ₜ′ [G≡E]ₜ′ (BT.Π≋Π p≈p′ q≈q′))
-  fundamentalTermEq (Σ-cong {E = E} {F = F} {G = G} {H = H} ⊢F F≡H G≡E q≈q′)
+                    [F]ₜ′ [G]ₜ′ [H]ₜ′ [E]ₜ′ [F≡H]ₜ′ [G≡E]ₜ′
+                    (BT.Π≋Π PE.refl PE.refl))
+  fundamentalTermEq
+    (ΠΣ-cong {b = BMΣ _} {E = E} {F = F} {G = G} {H = H} ⊢F F≡H G≡E)
     with fundamental ⊢F | fundamentalTermEq F≡H | fundamentalTermEq G≡E
   ... | [Γ] , [F] | [Γ]₁ , modelsTermEq [U] [F]ₜ [H]ₜ [F≡H]ₜ
       | [Γ]₂ , modelsTermEq [U]₁ [G]ₜ [E]ₜ [G≡E]ₜ =
@@ -387,7 +387,8 @@ mutual
           (Σᵗᵛ {F = F} {G} [Γ] [F] [U]₁′ [F]ₜ′ [G]ₜ′)
           (Σᵗᵛ {F = H} {E} [Γ] [H] [U]₂′ [H]ₜ′ [E]ₜ′)
           (Σ-congᵗᵛ {F = F} {G} {H} {E} [Γ] [F] [H] [U]₁′ [U]₂′
-                    [F]ₜ′ [G]ₜ′ [H]ₜ′ [E]ₜ′ [F≡H]ₜ′ [G≡E]ₜ′ (BT.Σ≋Σ q≈q′))
+                    [F]ₜ′ [G]ₜ′ [H]ₜ′ [E]ₜ′ [F≡H]ₜ′ [G≡E]ₜ′
+                    (BT.Σ≋Σ PE.refl))
   fundamentalTermEq (app-cong {a = a} {b} {f} {g} {F} {G} f≡g a≡b p≈p₁ p≈p₂)
     with fundamentalTermEq f≡g | fundamentalTermEq a≡b
   ... | [Γ] , modelsTermEq [ΠFG] [f] [g] [f≡g]

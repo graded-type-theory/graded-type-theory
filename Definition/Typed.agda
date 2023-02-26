@@ -9,8 +9,7 @@ open import Tools.PropositionalEquality as PE using (_≈_)
 
 
 infixl 30 _∙_
-infix 30 Πⱼ_▹_
-infix 30 Σⱼ_▹_
+infix 30 ΠΣⱼ_▹_
 infix 30 ⟦_⟧ⱼ_▹_
 
 private
@@ -18,10 +17,11 @@ private
     n k : Nat
     Γ  : Con Term n
     A B C F H : Term n
-    a b f g t u v : Term n
+    a f g t u v : Term n
     G E : Term (1+ n)
     x : Fin n
     p q r p′ q′ r′ p₁ p₂ : M
+    b : BinderMode
     m : SigmaMode
 
 -- Well-typed variables
@@ -44,25 +44,18 @@ mutual
     ℕⱼ     : ⊢ Γ → Γ ⊢ ℕ
     Emptyⱼ : ⊢ Γ → Γ ⊢ Empty
     Unitⱼ  : ⊢ Γ → Γ ⊢ Unit
-    Πⱼ_▹_  : Γ     ⊢ F
+    ΠΣⱼ_▹_ : Γ     ⊢ F
            → Γ ∙ F ⊢ G
-           → Γ     ⊢ Π p , q ▷ F ▹ G
-    Σⱼ_▹_  : Γ     ⊢ F
-           → Γ ∙ F ⊢ G
-           → Γ     ⊢ Σ⟨ m ⟩ p , q ▷ F ▹ G
+           → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
     univ   : Γ ⊢ A ∷ U
            → Γ ⊢ A
 
   -- Well-formed term of a type
   data _⊢_∷_ (Γ : Con Term n) : Term n → Term n → Set ℓ where
-    Πⱼ_▹_     : ∀ {F G}
+    ΠΣⱼ_▹_    : ∀ {F G}
               → Γ     ⊢ F ∷ U
               → Γ ∙ F ⊢ G ∷ U
-              → Γ     ⊢ Π p , q ▷ F ▹ G ∷ U
-    Σⱼ_▹_     : ∀ {F G}
-              → Γ     ⊢ F ∷ U
-              → Γ ∙ F ⊢ G ∷ U
-              → Γ     ⊢ Σ⟨ m ⟩ p , q ▷ F ▹ G ∷ U
+              → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ∷ U
     ℕⱼ        : ⊢ Γ → Γ ⊢ ℕ ∷ U
     Emptyⱼ    : ⊢ Γ → Γ ⊢ Empty ∷ U
     Unitⱼ     : ⊢ Γ → Γ ⊢ Unit ∷ U
@@ -141,19 +134,12 @@ mutual
            → Γ ⊢ A ≡ B
            → Γ ⊢ B ≡ C
            → Γ ⊢ A ≡ C
-    Π-cong : ∀ {F H G E}
+    ΠΣ-cong
+           : ∀ {F H G E}
            → Γ     ⊢ F
            → Γ     ⊢ F ≡ H
            → Γ ∙ F ⊢ G ≡ E
-           → p ≈ p′
-           → q ≈ q′
-           → Γ     ⊢ Π p , q ▷ F ▹ G ≡ Π p′ , q′ ▷ H ▹ E
-    Σ-cong : ∀ {F H G E}
-           → Γ     ⊢ F
-           → Γ     ⊢ F ≡ H
-           → Γ ∙ F ⊢ G ≡ E
-           → q ≈ q′
-           → Γ     ⊢ Σ⟨ m ⟩ p , q ▷ F ▹ G ≡ Σ⟨ m ⟩ p , q′ ▷ H ▹ E
+           → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ≡ ΠΣ⟨ b ⟩ p , q ▷ H ▹ E
 
   -- Term equality
   data _⊢_≡_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ where
@@ -171,19 +157,12 @@ mutual
                   → Γ ⊢ t ≡ u ∷ A
                   → Γ ⊢ A ≡ B
                   → Γ ⊢ t ≡ u ∷ B
-    Π-cong        : ∀ {E F G H}
+    ΠΣ-cong       : ∀ {E F G H}
                   → Γ     ⊢ F
-                  → Γ     ⊢ F ≡ H       ∷ U
-                  → Γ ∙ F ⊢ G ≡ E       ∷ U
-                  → p ≈ p′
-                  → q ≈ q′
-                  → Γ     ⊢ Π p , q ▷ F ▹ G ≡ Π p′ , q′ ▷ H ▹ E ∷ U
-    Σ-cong        : ∀ {E F G H}
-                  → Γ     ⊢ F
-                  → Γ     ⊢ F ≡ H       ∷ U
-                  → Γ ∙ F ⊢ G ≡ E       ∷ U
-                  → q ≈ q′
-                  → Γ     ⊢ Σ⟨ m ⟩ p , q ▷ F ▹ G ≡ Σ⟨ m ⟩ p , q′ ▷ H ▹ E ∷ U
+                  → Γ     ⊢ F ≡ H ∷ U
+                  → Γ ∙ F ⊢ G ≡ E ∷ U
+                  → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ≡
+                            ΠΣ⟨ b ⟩ p , q ▷ H ▹ E ∷ U
     app-cong      : ∀ {a b f g F G}
                   → Γ ⊢ f ≡ g ∷ Π p , q ▷ F ▹ G
                   → Γ ⊢ a ≡ b ∷ F
@@ -468,12 +447,12 @@ data _⊢ˢ_≡_∷_ (Δ : Con Term k) : (σ σ′ : Subst k n) (Γ : Con Term n
      → Γ     ⊢ F
      → Γ ∙ F ⊢ G
      → Γ     ⊢ ⟦ W ⟧ F ▹ G
-⟦ BΠ p q   ⟧ⱼ ⊢F ▹ ⊢G = Πⱼ ⊢F ▹ ⊢G
-⟦ BΣ m p q ⟧ⱼ ⊢F ▹ ⊢G = Σⱼ ⊢F ▹ ⊢G
+⟦ BΠ p q   ⟧ⱼ ⊢F ▹ ⊢G = ΠΣⱼ ⊢F ▹ ⊢G
+⟦ BΣ m p q ⟧ⱼ ⊢F ▹ ⊢G = ΠΣⱼ ⊢F ▹ ⊢G
 
 ⟦_⟧ⱼᵤ_▹_ : (W : BindingType) → ∀ {F G}
      → Γ     ⊢ F ∷ U
      → Γ ∙ F ⊢ G ∷ U
      → Γ     ⊢ ⟦ W ⟧ F ▹ G ∷ U
-⟦ BΠ p q   ⟧ⱼᵤ ⊢F ▹ ⊢G = Πⱼ ⊢F ▹ ⊢G
-⟦ BΣ m p q ⟧ⱼᵤ ⊢F ▹ ⊢G = Σⱼ ⊢F ▹ ⊢G
+⟦ BΠ p q   ⟧ⱼᵤ ⊢F ▹ ⊢G = ΠΣⱼ ⊢F ▹ ⊢G
+⟦ BΣ m p q ⟧ⱼᵤ ⊢F ▹ ⊢G = ΠΣⱼ ⊢F ▹ ⊢G

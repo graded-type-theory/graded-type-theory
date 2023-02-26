@@ -238,26 +238,18 @@ eqRelInstance = record {
                                (redₜ u'Red)
                                Unitₙ uWhnf u'Whnf
                                (η-unit [u] [u'] uWhnf u'Whnf);
-  ≅-Π-cong = λ x x₁ x₂ x₃ x₄ → liftConv (Π-cong x x₁ x₂ x₃ x₄);
-  ≅ₜ-Π-cong = λ x x₁ x₂ x₃ x₄ → let _ , F∷U , H∷U = syntacticEqTerm (soundnessConv↑Term x₁)
-                                    _ , G∷U , E∷U = syntacticEqTerm (soundnessConv↑Term x₂)
-                                    ⊢Γ = wfTerm F∷U
-                                    F<>H = univConv↑ x₁
-                                    G<>E = univConv↑ x₂
-                                    F≡H = soundnessConv↑ F<>H
-                                    E∷U′ = stabilityTerm (reflConEq ⊢Γ ∙ F≡H) E∷U
-                               in  liftConvTerm (univ (Πⱼ F∷U ▹ G∷U) (Πⱼ H∷U ▹ E∷U′)
-                                                      (Π-cong x F<>H G<>E x₃ x₄));
-  ≅-Σ-cong = λ x x₁ x₂ x₃ → liftConv (Σ-cong x x₁ x₂ x₃);
-  ≅ₜ-Σ-cong = λ x x₁ x₂ x₃ → let _ , F∷U , H∷U = syntacticEqTerm (soundnessConv↑Term x₁)
-                                 _ , G∷U , E∷U = syntacticEqTerm (soundnessConv↑Term x₂)
-                                 ⊢Γ = wfTerm F∷U
-                                 F<>H = univConv↑ x₁
-                                 G<>E = univConv↑ x₂
-                                 F≡H = soundnessConv↑ F<>H
-                                 E∷U′ = stabilityTerm (reflConEq ⊢Γ ∙ F≡H) E∷U
-                             in  liftConvTerm (univ (Σⱼ F∷U ▹ G∷U) (Σⱼ H∷U ▹ E∷U′)
-                                                    (Σ-cong x F<>H G<>E x₃));
+  ≅-ΠΣ-cong = λ x x₁ x₂ → liftConv (ΠΣ-cong x x₁ x₂);
+  ≅ₜ-ΠΣ-cong = λ x x₁ x₂ →
+    let _ , F∷U , H∷U = syntacticEqTerm (soundnessConv↑Term x₁)
+        _ , G∷U , E∷U = syntacticEqTerm (soundnessConv↑Term x₂)
+        ⊢Γ = wfTerm F∷U
+        F<>H = univConv↑ x₁
+        G<>E = univConv↑ x₂
+        F≡H = soundnessConv↑ F<>H
+        E∷U′ = stabilityTerm (reflConEq ⊢Γ ∙ F≡H) E∷U
+    in
+    liftConvTerm (univ (ΠΣⱼ F∷U ▹ G∷U) (ΠΣⱼ H∷U ▹ E∷U′)
+      (ΠΣ-cong x F<>H G<>E));
   ≅ₜ-zerorefl = liftConvTerm ∘ᶠ zero-refl;
   ≅-suc-cong = liftConvTerm ∘ᶠ suc-cong;
   ≅-prod-cong = λ x x₁ x₂ x₃ → liftConvTerm (prod-cong! x x₁ x₂ x₃);

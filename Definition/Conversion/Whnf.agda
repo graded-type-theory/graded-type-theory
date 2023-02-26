@@ -51,8 +51,7 @@ whnfConv↓ (Empty-refl x) = Emptyₙ , Emptyₙ
 whnfConv↓ (Unit-refl x) = Unitₙ , Unitₙ
 whnfConv↓ (ne x) = let _ , neA , neB = ne~↓ x
                    in  ne neA , ne neB
-whnfConv↓ (Π-cong x x₁ x₂ _ _) = Πₙ , Πₙ
-whnfConv↓ (Σ-cong x x₁ x₂ _) = Σₙ , Σₙ
+whnfConv↓ (ΠΣ-cong x x₁ x₂) = ΠΣₙ , ΠΣₙ
 
 -- Extraction of WHNF from algorithmic equality of terms in WHNF.
 whnfConv↓Term : ∀ {t u A}
@@ -66,14 +65,14 @@ whnfConv↓Term (Unit-ins x) = let _ , neT , neU = ne~↓ x
                              in Unitₙ , ne neT , ne neU
 whnfConv↓Term (Σᵣ-ins x x₁ x₂) =
   let _ , neT , neU = ne~↓ x₂
-  in  Σₙ , ne neT , ne neU
+  in  ΠΣₙ , ne neT , ne neU
 whnfConv↓Term (ne-ins t u x x₁) =
   let _ , neT , neU = ne~↓ x₁
   in ne x , ne neT , ne neU
 whnfConv↓Term (univ x x₁ x₂) = Uₙ , whnfConv↓ x₂
 whnfConv↓Term (zero-refl x) = ℕₙ , zeroₙ , zeroₙ
 whnfConv↓Term (suc-cong x) = ℕₙ , sucₙ , sucₙ
-whnfConv↓Term (prod-cong! x x₁ x₂ x₃) = Σₙ , prodₙ , prodₙ
-whnfConv↓Term (η-eq x₁ x₂ y y₁ x₃) = Πₙ , functionWhnf y , functionWhnf y₁
-whnfConv↓Term (Σ-η _ _ pProd rProd _ _) = Σₙ , productWhnf pProd , productWhnf rProd
+whnfConv↓Term (prod-cong! x x₁ x₂ x₃) = ΠΣₙ , prodₙ , prodₙ
+whnfConv↓Term (η-eq x₁ x₂ y y₁ x₃) = ΠΣₙ , functionWhnf y , functionWhnf y₁
+whnfConv↓Term (Σ-η _ _ pProd rProd _ _) = ΠΣₙ , productWhnf pProd , productWhnf rProd
 whnfConv↓Term (η-unit _ _ tWhnf uWhnf) = Unitₙ , tWhnf , uWhnf

@@ -42,7 +42,7 @@ prod′
   {m = Σₚ} {p = p} {q = q} {Γ = Γ} {F} {G} {t} {u} {l} {l′} {l″}
   [F] [t] [Gt] [u]
   [ΣFG]@(noemb (Bᵣ F₁ G₁ D ⊢F ⊢G A≡A [F]₁ [G]₁ G-ext))
-  with B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) Σₙ)
+  with B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) ΠΣₙ)
 ... | PE.refl , PE.refl , _ =
   let ⊢t = escapeTerm [F] [t]
       ⊢u = escapeTerm [Gt] [u]
@@ -91,7 +91,7 @@ prod′
 
 prod′ {m = Σᵣ} {q = q} {Γ = Γ} {F} {G} {t} {u} {l} {l′} {l″} [F] [t] [Gt] [u]
       [ΣFG]@(noemb (Bᵣ F₁ G₁ D ⊢F ⊢G A≡A [F]₁ [G]₁ G-ext)) with
-        B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) Σₙ)
+        B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) ΠΣₙ)
 ... | PE.refl , PE.refl , _ =
   let ⊢t = escapeTerm [F] [t]
       ⊢u = escapeTerm [Gt] [u]
@@ -141,7 +141,7 @@ prod-cong′
   {m = Σₚ} {p = p} {q = q} {Γ = Γ} {F} {G} {t} {t′} {u} {u′} {l} {l′}
   [F] [t] [t′] [t≡t′] [Gt] [u] [u′] [u≡u′]
   [ΣFG]@(noemb (Bᵣ F₁ G₁ D ⊢F ⊢G A≡A [F]₁ [G]₁ G-ext))
-  with B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) Σₙ)
+  with B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) ΠΣₙ)
 ... | PE.refl , PE.refl , _ =
   let [prod] = prod′ {m = Σₚ} [F] [t] [Gt] [u] [ΣFG]
 
@@ -259,7 +259,7 @@ prod-cong′
 prod-cong′ {m = Σᵣ} {q = q} {Γ = Γ} {F} {G} {t} {t′} {u} {u′} {l} {l′}
            [F] [t] [t′] [t≡t′] [Gt] [u] [u′] [u≡u′]
            [ΣFG]@(noemb (Bᵣ F₁ G₁ D ⊢F ⊢G A≡A [F]₁ [G]₁ G-ext)) with
-             B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) Σₙ)
+             B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) ΠΣₙ)
 ... | PE.refl , PE.refl , _ =
   let ⊢Γ = wf ⊢F
       wk[F] = [F]₁ id ⊢Γ

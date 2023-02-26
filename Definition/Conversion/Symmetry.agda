@@ -142,18 +142,11 @@ mutual
     let B , whnfB , U≡B , B~A = sym~↓ Γ≡Δ A~B
         B≡U = U≡A U≡B
     in  ne (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡U B~A)
-  symConv↓ Γ≡Δ (Π-cong x A<>B A<>B₁ p≈p′ q≈q′) =
+  symConv↓ Γ≡Δ (ΠΣ-cong x A<>B A<>B₁) =
     let F≡H = soundnessConv↑ A<>B
         _ , ⊢H = syntacticEq (stabilityEq Γ≡Δ F≡H)
-    in  Π-cong ⊢H (symConv↑ Γ≡Δ A<>B)
-                  (symConv↑ (Γ≡Δ ∙ F≡H) A<>B₁)
-                  (≈-sym p≈p′) (≈-sym q≈q′)
-  symConv↓ Γ≡Δ (Σ-cong x A<>B A<>B₁ q≈q′) =
-    let F≡H = soundnessConv↑ A<>B
-        _ , ⊢H = syntacticEq (stabilityEq Γ≡Δ F≡H)
-    in  Σ-cong ⊢H (symConv↑ Γ≡Δ A<>B)
-                  (symConv↑ (Γ≡Δ ∙ F≡H) A<>B₁)
-                  (≈-sym q≈q′)
+    in  ΠΣ-cong ⊢H (symConv↑ Γ≡Δ A<>B)
+          (symConv↑ (Γ≡Δ ∙ F≡H) A<>B₁)
 
   -- Symmetry of algorithmic equality of terms.
   symConv↑Term : ∀ {t u A} → ⊢ Γ ≡ Δ → Γ ⊢ t [conv↑] u ∷ A → Δ ⊢ u [conv↑] t ∷ A

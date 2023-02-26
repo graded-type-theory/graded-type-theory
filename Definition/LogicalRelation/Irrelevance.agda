@@ -141,7 +141,7 @@ mutual
   irrelevanceTermT {Γ = Γ} {t = t} (Bᵥ BΠ! BΠ! (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                                    (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) Π≋Π′)
                    (Πₜ f d funcF f≡f [f] [f]₁) =
-    case whrDet* (red D , Πₙ) (red D₁ , Πₙ) of λ ΠFG≡ΠF₁G₁ →
+    case whrDet* (red D , ΠΣₙ) (red D₁ , ΠΣₙ) of λ ΠFG≡ΠF₁G₁ →
     case B-PE-injectivity BΠ! BΠ! ΠFG≡ΠF₁G₁ of λ (F≡F₁ , G≡G₁ , W≡W₁) →
     case BΠ-PE-injectivity W≡W₁ of λ where
       (PE.refl , PE.refl) →
@@ -169,7 +169,7 @@ mutual
        (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁)
        (BT.Σ≋Σ q≈q′))
     (Σₜ p d p≅p pProd ([fstt] , [sndt])) =
-    let ΣFG≡ΣF₁G₁       = whrDet* (red D , Σₙ) (red D₁ , Σₙ)
+    let ΣFG≡ΣF₁G₁       = whrDet* (red D , ΠΣₙ) (red D₁ , ΠΣₙ)
         F≡F₁ , G≡G₁ , _ = B-PE-injectivity BΣ! BΣ! ΣFG≡ΣF₁G₁
         [fstt]′ = irrelevanceTerm′ (PE.cong (wk id) F≡F₁) ([F] Wk.id (wf ⊢F))
                                  ([F]₁ Wk.id (wf ⊢F₁)) [fstt]
@@ -183,7 +183,7 @@ mutual
        (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁)
        (BT.Σ≋Σ q≈q′))
     (Σₜ p d p≅p prodₙ (PE.refl , [t₁] , [t₂] , PE.refl)) =
-    let ΣFG≡ΣF₁G₁       = whrDet* (red D , Σₙ) (red D₁ , Σₙ)
+    let ΣFG≡ΣF₁G₁       = whrDet* (red D , ΠΣₙ) (red D₁ , ΠΣₙ)
         F≡F₁ , G≡G₁ , _ = B-PE-injectivity BΣ! BΣ! ΣFG≡ΣF₁G₁
         [t₁]′ = irrelevanceTerm′ (PE.cong (wk id) F≡F₁) ([F] Wk.id (wf ⊢F))
                                  ([F]₁ Wk.id (wf ⊢F₁)) [t₁]
@@ -198,7 +198,7 @@ mutual
        (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁)
        (BT.Σ≋Σ q≈q′))
     (Σₜ p d p≅p (ne x) p~p) =
-    let ΣFG≡ΣF₁G₁       = whrDet* (red D , Σₙ) (red D₁ , Σₙ)
+    let ΣFG≡ΣF₁G₁       = whrDet* (red D , ΠΣₙ) (red D₁ , ΠΣₙ)
     in  Σₜ p (PE.subst (λ x → Γ ⊢ t :⇒*: p ∷ x) ΣFG≡ΣF₁G₁ d)
            (PE.subst (λ x →  Γ ⊢ p ≅ p ∷ x) ΣFG≡ΣF₁G₁ p≅p) (ne x)
            (PE.subst (λ x → Γ ⊢ p ~ p ∷ x) ΣFG≡ΣF₁G₁ p~p)
@@ -249,7 +249,7 @@ mutual
     (Πₜ₌ f g d d′ funcF funcG f≡g [f] [g] [f≡g]) =
     case irrelevanceTerm (Bᵣ BΠ! x) (Bᵣ BΠ! x₁) [f] of λ [f]′ →
     case irrelevanceTerm (Bᵣ BΠ! x) (Bᵣ BΠ! x₁) [g] of λ [g]′ →
-    case whrDet* (red D , Πₙ) (red D₁ , Πₙ) of λ where
+    case whrDet* (red D , ΠΣₙ) (red D₁ , ΠΣₙ) of λ where
       PE.refl → Πₜ₌ f g d d′ funcF funcG f≡g [f]′ [g]′
         λ {_} {ρ} {Δ} {a} [ρ] ⊢Δ [a]₁ →
           let [a] = irrelevanceTerm ([F]₁ [ρ] ⊢Δ) ([F] [ρ] ⊢Δ) [a]₁ in
@@ -262,7 +262,7 @@ mutual
        (BT.Σ≋Σ q≈q′))
     (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u]
        ([fstp] , [fstr] , [fst≡] , [snd≡])) =
-    let ΣFG≡ΣF₁G₁       = whrDet* (red D , Σₙ) (red D₁ , Σₙ)
+    let ΣFG≡ΣF₁G₁       = whrDet* (red D , ΠΣₙ) (red D₁ , ΠΣₙ)
         F≡F₁ , G≡G₁ , _ = B-PE-injectivity BΣ! BΣ! ΣFG≡ΣF₁G₁
         [A]             = Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext
         [A]₁            = Bᵣ′ BΣ! F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁
@@ -292,7 +292,7 @@ mutual
     (Σₜ₌ p r d d′ prodₙ prodₙ p≅r [t] [u]
        (PE.refl , PE.refl ,
         [p₁] , [r₁] , [p₂] , [r₂] , [fst≡] , [snd≡])) =
-    let ΣFG≡ΣF₁G₁       = whrDet* (red D , Σₙ) (red D₁ , Σₙ)
+    let ΣFG≡ΣF₁G₁       = whrDet* (red D , ΠΣₙ) (red D₁ , ΠΣₙ)
         F≡F₁ , G≡G₁ , _ = B-PE-injectivity BΣ! BΣ! ΣFG≡ΣF₁G₁
         [A]             = Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext
         [A]₁            = Bᵣ′ BΣ! F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁
@@ -326,7 +326,7 @@ mutual
        (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁)
        (BT.Σ≋Σ q≈q′))
     (Σₜ₌ p r d d′ (ne x) (ne y) p≅r [t] [u] p~r) =
-    let ΣFG≡ΣF₁G₁       = whrDet* (red D , Σₙ) (red D₁ , Σₙ)
+    let ΣFG≡ΣF₁G₁       = whrDet* (red D , ΠΣₙ) (red D₁ , ΠΣₙ)
         F≡F₁ , G≡G₁ , _ = B-PE-injectivity BΣ! BΣ! ΣFG≡ΣF₁G₁
         [A]             = Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext
         [A]₁            = Bᵣ′ BΣ! F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁

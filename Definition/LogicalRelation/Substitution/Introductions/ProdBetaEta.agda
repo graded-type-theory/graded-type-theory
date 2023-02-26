@@ -142,7 +142,7 @@ private
      [r]@(Σₜ r′ dᵣ r′≅r′ rProd r′Prop)
      [fst≡]
      [snd≡]
-       with B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) Σₙ)
+       with B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) ΠΣₙ)
 ... | PE.refl , PE.refl , _ =
   let [ΣFG] = B-intr BΣ! [ΣFG]₁
       ⊢Γ = wf ⊢F

@@ -76,15 +76,17 @@ private
     σ : Subst 0 n
     σ′ : T.Subst 0 n
     s : SigmaMode
+    b : BinderMode
     m : Mode
 
-Σʳ : ([Γ] : ⊩ᵛ Γ) → Γ ⊢ Σ p , q ▷ F ▹ G ∷ U
-   → ∃ λ ([U] : Γ ⊩ᵛ⟨ ¹ ⟩ U / [Γ])
-   → γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ Σ⟨ s ⟩ p , q ▷ F ▹ G ∷[ m ] U / [Γ] / [U]
-Σʳ {F = F} {G = G} [Γ] ⊢Σ =
+ΠΣʳ :
+  ([Γ] : ⊩ᵛ Γ) → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ∷ U →
+  ∃ λ ([U] : Γ ⊩ᵛ⟨ ¹ ⟩ U / [Γ]) →
+  γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ∷[ m ] U / [Γ] / [U]
+ΠΣʳ {F = F} {G = G} [Γ] ⊢ΠΣ =
     [U]
-  , subsumptionMode (Σ⟨ _ ⟩ _ , _ ▷ F ▹ G) [U]
-      (λ [σ] _ → Uᵣ (substitutionTerm ⊢Σ (wellformedSubst [Γ] ε [σ]) ε))
+  , subsumptionMode (ΠΣ⟨ _ ⟩ _ , _ ▷ F ▹ G) [U] λ [σ] _ →
+      Uᵣ (substitutionTerm ⊢ΠΣ (wellformedSubst [Γ] ε [σ]) ε)
   where
   [U] = Uᵛ [Γ]
 

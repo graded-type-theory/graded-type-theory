@@ -59,14 +59,14 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   neNeg (d ∘ⱼ ⊢t           ) (∘ₙ n       ) =
     appNeg (neNeg d n) (refl (syntacticTerm d)) ⊢t
   neNeg (fstⱼ ⊢A A⊢B d     ) (fstₙ n     ) =
-    fstNeg (neNeg d n) (refl (Σⱼ ⊢A ▹ A⊢B))
+    fstNeg (neNeg d n) (refl (ΠΣⱼ ⊢A ▹ A⊢B))
   neNeg (sndⱼ ⊢A A⊢B d     ) (sndₙ n     ) =
-    sndNeg (neNeg d n) (refl (Σⱼ ⊢A ▹ A⊢B)) (fstⱼ ⊢A A⊢B d)
+    sndNeg (neNeg d n) (refl (ΠΣⱼ ⊢A ▹ A⊢B)) (fstⱼ ⊢A A⊢B d)
   neNeg (natrecⱼ _ _ _ d   ) (natrecₙ n  ) =
     let ⊢ℕ = refl (ℕⱼ (wfTerm d))
     in  ⊥-elim (¬negℕ (neNeg d n) ⊢ℕ)
   neNeg (prodrecⱼ ⊢A A⊢B _ d _) (prodrecₙ n) =
-    let ⊢Σ = refl (Σⱼ ⊢A ▹ A⊢B)
+    let ⊢Σ = refl (ΠΣⱼ ⊢A ▹ A⊢B)
     in  ⊥-elim (¬negΣᵣ (neNeg d n) ⊢Σ)
   neNeg (Emptyrecⱼ _ d     ) (Emptyrecₙ n) =
     ⊥-elim (consistent d)
@@ -93,8 +93,7 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   -- Impossible cases: type is not ℕ.
 
   -- * Canonical types
-  nfN (Πⱼ _ ▹ _)       (Πₙ _ _)   c = ⊥-elim (U≢ℕ c)
-  nfN (Σⱼ _ ▹ _)       (Σₙ _ _)   c = ⊥-elim (U≢ℕ c)
+  nfN (ΠΣⱼ _ ▹ _)      (ΠΣₙ _ _)  c = ⊥-elim (U≢ℕ c)
   nfN (ℕⱼ _)           ℕₙ         c = ⊥-elim (U≢ℕ c)
   nfN (Emptyⱼ _)       Emptyₙ     c = ⊥-elim (U≢ℕ c)
   nfN (Unitⱼ _)        Unitₙ      c = ⊥-elim (U≢ℕ c)

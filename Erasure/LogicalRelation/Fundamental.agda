@@ -146,16 +146,11 @@ fundamental : Γ ⊢ t ∷ A → γ ▸[ m ] t
             → ∃ λ ([Γ] : ⊩ᵛ Γ)
             → ∃ λ ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ])
             → γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A / [Γ] / [A]
-fundamental Γ⊢Π@(Πⱼ Γ⊢F:U ▹ Γ⊢G:U) γ▸t =
-  let invUsageΠΣ δ▸F _ _ = inv-usage-Π γ▸t
+fundamental Γ⊢Π@(ΠΣⱼ Γ⊢F:U ▹ Γ⊢G:U) γ▸t =
+  let invUsageΠΣ δ▸F _ _ = inv-usage-ΠΣ γ▸t
       [Γ] , _ , _ = fundamental Γ⊢F:U δ▸F
-      [U] , ⊩ʳΠ = Πʳ [Γ] Γ⊢Π
+      [U] , ⊩ʳΠ = ΠΣʳ [Γ] Γ⊢Π
   in  [Γ] , [U] , ⊩ʳΠ
-fundamental Γ⊢Σ@(Σⱼ Γ⊢F:U ▹ Γ⊢G:U) γ▸t =
-  let invUsageΠΣ δ▸F _ _ = inv-usage-Σ γ▸t
-      [Γ] , _ , _ = fundamental Γ⊢F:U δ▸F
-      [U] , ⊩ʳΣ = Σʳ [Γ] Γ⊢Σ
-  in  [Γ] , [U] , ⊩ʳΣ
 fundamental (ℕⱼ ⊢Γ) γ▸t = ℕʳ ⊢Γ
 fundamental (Emptyⱼ ⊢Γ) γ▸t = Emptyʳ ⊢Γ
 fundamental (Unitⱼ ⊢Γ) γ▸t = Unitʳ ⊢Γ

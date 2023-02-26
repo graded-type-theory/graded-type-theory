@@ -19,7 +19,9 @@ private
   variable
     n : Nat
     Γ : Con Term n
+    F G K : Term n
     p p′ q q′ : M
+    b : BinderMode
 
 A≢B : ∀ {A B Γ} (_⊩′⟨_⟩A_ _⊩′⟨_⟩B_ : Con Term n → TypeLevel → Term n → Set a)
       (A-intr : ∀ {l} → Γ ⊩′⟨ l ⟩A A → Γ ⊩⟨ l ⟩ A)
@@ -343,6 +345,10 @@ B≢ne W neK W≡K =
 Σ≢ne : ∀ {Γ : Con Term n} {F G K p q m} → _
 Σ≢ne {Γ = Γ} {F} {G} {K} {p} {q} {m} =
   B≢ne {Γ = Γ} {F} {G} {K} (BΣ m p q)
+
+ΠΣ≢ne : Neutral K → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ≡ K → ⊥
+ΠΣ≢ne {b = BMΠ}   = B≢ne (BΠ _ _)
+ΠΣ≢ne {b = BMΣ _} = B≢ne (BΣ _ _ _)
 
 -- Π and Σ
 Π≢Σ′ : ∀ {A B l l′ p q q′ m}

@@ -15,6 +15,7 @@ private
 
 infixl 30 _∙_
 infixr 5 _∷_
+infix 30 ΠΣ⟨_⟩_,_▷_▹_
 infix 30 Π_,_▷_▹_
 infix 30 Σ_,_▷_▹_
 infix 30 Σₚ_,_▷_▹_
@@ -46,17 +47,26 @@ data GenTs (A : Nat → Set a) : Nat → List Nat → Set a where
 data SigmaMode : Set where
   Σₚ Σᵣ : SigmaMode
 
+-- Π- or Σ-types.
+
+data BinderMode : Set where
+  BMΠ : BinderMode
+  BMΣ : (s : SigmaMode) → BinderMode
+
+private variable
+  b : BinderMode
+
 -- Kinds are indexed on the number of expected sub terms
 -- and the number of new variables bound by each sub term
 
 data Kind : (ns : List Nat) → Set a where
   Ukind : Kind []
 
-  Pikind  : (p q : M) → Kind (0 ∷ 1 ∷ [])
+  Binderkind : (b : BinderMode) (p q : M) → Kind (0 ∷ 1 ∷ [])
+
   Lamkind : (p : M)   → Kind (1 ∷ [])
   Appkind : (p : M)   → Kind (0 ∷ 0 ∷ [])
 
-  Sigmakind   : SigmaMode → (p q : M) → Kind (0 ∷ 1 ∷ [])
   Prodkind    : SigmaMode → (p : M) → Kind (0 ∷ 0 ∷ [])
   Fstkind     : (p : M) → Kind (0 ∷ [])
   Sndkind     : (p : M) → Kind (0 ∷ [])
@@ -98,11 +108,13 @@ pattern ℕ = gen Natkind []
 pattern Empty = gen Emptykind []
 pattern Unit = gen Unitkind []
 
-pattern Π_,_▷_▹_ p q F G = gen (Pikind p q) (F ∷ G ∷ [])
-pattern Σₚ_,_▷_▹_ p q F G = gen (Sigmakind Σₚ p q) (F ∷ G ∷ [])
-pattern Σᵣ_,_▷_▹_ p q F G = gen (Sigmakind Σᵣ p q) (F ∷ G ∷ [])
-pattern Σ_,_▷_▹_ p q F G = gen (Sigmakind _ p q) (F ∷ G ∷ [])
-pattern Σ⟨_⟩_,_▷_▹_ m p q F G = gen (Sigmakind m p q) (F ∷ G ∷ [])
+pattern ΠΣ⟨_⟩_,_▷_▹_ b p q F G = gen (Binderkind b p q) (F ∷ G ∷ [])
+pattern Π_,_▷_▹_ p q F G = gen (Binderkind BMΠ p q) (F ∷ G ∷ [])
+pattern Σₚ_,_▷_▹_ p q F G = gen (Binderkind (BMΣ Σₚ) p q) (F ∷ G ∷ [])
+pattern Σᵣ_,_▷_▹_ p q F G = gen (Binderkind (BMΣ Σᵣ) p q) (F ∷ G ∷ [])
+pattern Σ_,_▷_▹_ p q F G = gen (Binderkind (BMΣ _) p q) (F ∷ G ∷ [])
+pattern Σ⟨_⟩_,_▷_▹_ s p q F G =
+  gen (Binderkind (BMΣ s) p q) (F ∷ G ∷ [])
 
 pattern lam p t = gen (Lamkind p) (t ∷ [])
 pattern _∘⟨_⟩_ t p u = gen (Appkind p) (t ∷ u ∷ [])
@@ -125,10 +137,11 @@ pattern Emptyrec p A t = gen (Emptyreckind p) (A ∷ t ∷ [])
 
 
 data BindingType : Set a where
-  BΠ : (p q : M) → BindingType
-  BΣ : SigmaMode → (p q : M) → BindingType
+  BM : BinderMode → (p q : M) → BindingType
 
+pattern BΠ p q = BM BMΠ p q
 pattern BΠ! = BΠ _ _
+pattern BΣ s p q = BM (BMΣ s) p q
 pattern BΣ! = BΣ _ _ _
 pattern BΣᵣ = BΣ Σᵣ _ _
 pattern BΣₚ = BΣ Σₚ _ _
@@ -191,8 +204,7 @@ data Whnf {n : Nat} : Term n → Set a where
 
   -- Type constructors are whnfs.
   Uₙ     : Whnf U
-  Πₙ     : Whnf (Π p , q ▷ A ▹ B)
-  Σₙ     : ∀ {m} → Whnf (Σ⟨ m ⟩ p , q ▷ A ▹ B)
+  ΠΣₙ    : Whnf (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
   ℕₙ     : Whnf ℕ
   Unitₙ  : Whnf Unit
   Emptyₙ : Whnf Empty
@@ -274,16 +286,15 @@ data Natural {n : Nat} : Term n → Set a where
 -- Large types could also be U.
 
 data Type {n : Nat} : Term n → Set a where
-  Πₙ     :             Type (Π p , q ▷ A ▹ B)
-  Σₙ     : ∀ {m} →     Type (Σ⟨ m ⟩ p , q ▷ A ▹ B)
+  ΠΣₙ    :             Type (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
   ℕₙ     :             Type ℕ
   Emptyₙ :             Type Empty
   Unitₙ  :             Type Unit
   ne     : Neutral t → Type t
 
 ⟦_⟧-type : ∀ (W : BindingType) → Type (⟦ W ⟧ F ▹ G)
-⟦ BΠ p q ⟧-type = Πₙ
-⟦ BΣ m p q ⟧-type = Σₙ
+⟦ BΠ p q ⟧-type = ΠΣₙ
+⟦ BΣ m p q ⟧-type = ΠΣₙ
 
 -- A whnf of type Π A ▹ B is either lam t or neutral.
 
@@ -307,8 +318,7 @@ naturalWhnf zeroₙ  = zeroₙ
 naturalWhnf (ne x) = ne x
 
 typeWhnf : Type A → Whnf A
-typeWhnf Πₙ     = Πₙ
-typeWhnf Σₙ     = Σₙ
+typeWhnf ΠΣₙ    = ΠΣₙ
 typeWhnf ℕₙ     = ℕₙ
 typeWhnf Emptyₙ = Emptyₙ
 typeWhnf Unitₙ  = Unitₙ
@@ -323,8 +333,8 @@ productWhnf prodₙ  = prodₙ
 productWhnf (ne x) = ne x
 
 ⟦_⟧ₙ : (W : BindingType) → Whnf (⟦ W ⟧ F ▹ G)
-⟦_⟧ₙ (BΠ p q) = Πₙ
-⟦_⟧ₙ (BΣ m p q) = Σₙ
+⟦_⟧ₙ (BΠ p q) = ΠΣₙ
+⟦_⟧ₙ (BΣ m p q) = ΠΣₙ
 
 -- Fully normalized natural numbers
 
@@ -414,8 +424,7 @@ wkNatural ρ zeroₙ  = zeroₙ
 wkNatural ρ (ne x) = ne (wkNeutral ρ x)
 
 wkType : ∀ ρ → Type t → Type {n = n} (wk ρ t)
-wkType ρ Πₙ     = Πₙ
-wkType ρ Σₙ     = Σₙ
+wkType ρ ΠΣₙ    = ΠΣₙ
 wkType ρ ℕₙ     = ℕₙ
 wkType ρ Emptyₙ = Emptyₙ
 wkType ρ Unitₙ  = Unitₙ
@@ -431,8 +440,7 @@ wkProduct ρ (ne x) = ne (wkNeutral ρ x)
 
 wkWhnf : ∀ ρ → Whnf t → Whnf {n = n} (wk ρ t)
 wkWhnf ρ Uₙ      = Uₙ
-wkWhnf ρ Πₙ      = Πₙ
-wkWhnf ρ Σₙ      = Σₙ
+wkWhnf ρ ΠΣₙ     = ΠΣₙ
 wkWhnf ρ ℕₙ      = ℕₙ
 wkWhnf ρ Emptyₙ  = Emptyₙ
 wkWhnf ρ Unitₙ   = Unitₙ

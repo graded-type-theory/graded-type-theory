@@ -30,9 +30,12 @@ open import Tools.PropositionalEquality as PE using (_≈_; ≈-refl)
 private
   variable
     n : Nat
+    l : TypeLevel
     F : Term n
     G : Term (1+ n)
     Γ : Con Term n
+    p q : M
+    b : BinderMode
 
 -- Validity of W.
 ⟦_⟧ᵛ : ∀ W {n} {Γ : Con Term n} {F G l}
@@ -156,6 +159,15 @@ private
                                              (wkSubstS [Γ] ⊢Δ ⊢Δ₁ [ρ] [σ′] , [a]″)
                                              [ρσa≡ρσ′a])))
 
+-- A variant of ⟦_⟧ᵛ.
+ΠΣᵛ :
+  ([Γ] : ⊩ᵛ Γ)
+  ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ]) →
+  Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F] →
+  Γ ⊩ᵛ⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G / [Γ]
+ΠΣᵛ {b = BMΠ}   = ⟦ BΠ _ _ ⟧ᵛ
+ΠΣᵛ {b = BMΣ _} = ⟦ BΣ _ _ _ ⟧ᵛ
+
 -- Validity of W-congruence.
 W-congᵛ : ∀ {F G H E l} W W′
           ([Γ] : ⊩ᵛ Γ)
@@ -167,8 +179,10 @@ W-congᵛ : ∀ {F G H E l} W W′
           ([G≡E] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G ≡ E / [Γ] ∙ [F] / [G])
         → W BT.≋ W′
         → Γ ⊩ᵛ⟨ l ⟩ ⟦ W ⟧ F ▹ G ≡ ⟦ W′ ⟧ H ▹ E / [Γ] / ⟦ W ⟧ᵛ {F = F} {G} [Γ] [F] [G]
-W-congᵛ {Γ = Γ} {F} {G} {H} {E} {l} (BΠ p q) (BΠ p′ q′)
-        [Γ] [F] [G] [H] [E] [F≡H] [G≡E] W≋W′@(BT.Π≋Π p≈p′ q≈q′) {σ = σ} ⊢Δ [σ] =
+W-congᵛ
+  {Γ = Γ} {F} {G} {H} {E} {l} (BΠ p q) (BΠ p′ q′)
+  [Γ] [F] [G] [H] [E] [F≡H] [G≡E] W≋W′@(BT.Π≋Π PE.refl PE.refl)
+  {σ = σ} ⊢Δ [σ] =
   let [ΠFG] = ⟦ BΠ p q ⟧ᵛ {F = F} {G} [Γ] [F] [G]
       [σΠFG] = proj₁ (unwrap [ΠFG] ⊢Δ [σ])
       l′ , Bᵣ F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext′ = extractMaybeEmb (Π-elim [σΠFG])
@@ -180,7 +194,7 @@ W-congᵛ {Γ = Γ} {F} {G} {H} {E} {l} (BΠ p q) (BΠ p′ q′)
       ⊢σF≡σH = escapeEq [σF] ([F≡H] ⊢Δ [σ])
       ⊢σG≡σE = escapeEq [σG] ([G≡E] (⊢Δ ∙ ⊢σF) (liftSubstS {F = F} [Γ] ⊢Δ [F] [σ]))
   in  B₌ (subst σ H) (subst (liftSubst σ) E) (BΠ p′ q′)
-         (id (Πⱼ ⊢σH ▹ ⊢σE)) W≋W′ (≅-Π-cong ⊢σF ⊢σF≡σH ⊢σG≡σE p≈p′ q≈q′)
+         (id (ΠΣⱼ ⊢σH ▹ ⊢σE)) W≋W′ (≅-ΠΣ-cong ⊢σF ⊢σF≡σH ⊢σG≡σE)
          (λ ρ ⊢Δ₁ →
            let [ρσ] = wkSubstS [Γ] ⊢Δ ⊢Δ₁ ρ [σ]
                eqA = PE.sym (wk-subst F)
@@ -204,7 +218,7 @@ W-congᵛ {Γ = Γ} {F} {G} {H} {E} {l} (BΠ p q) (BΠ p′ q′)
 
 W-congᵛ
   {Γ = Γ} {F = F} {G} {H} {E} {l} (BΣ m p q) (BΣ m′ _ q′)
-  [Γ] [F] [G] [H] [E] [F≡H] [G≡E] W≋W′@(BT.Σ≋Σ q≈q′)
+  [Γ] [F] [G] [H] [E] [F≡H] [G≡E] W≋W′@(BT.Σ≋Σ PE.refl)
   {σ = σ} ⊢Δ [σ] =
   let [ΠFG] = ⟦ BΣ m p q ⟧ᵛ {F = F} {G} [Γ] [F] [G]
       [σΠFG] = proj₁ (unwrap [ΠFG] ⊢Δ [σ])
@@ -217,8 +231,8 @@ W-congᵛ
       ⊢σF≡σH = escapeEq [σF] ([F≡H] ⊢Δ [σ])
       ⊢σG≡σE = escapeEq [σG] ([G≡E] (⊢Δ ∙ ⊢σF) (liftSubstS {F = F} [Γ] ⊢Δ [F] [σ]))
   in  B₌ (subst σ H) (subst (liftSubst σ) E) (BΣ m′ p q′)
-         (id (Σⱼ ⊢σH ▹ ⊢σE)) W≋W′
-         (≅-Σ-cong ⊢σF ⊢σF≡σH ⊢σG≡σE q≈q′)
+         (id (ΠΣⱼ ⊢σH ▹ ⊢σE)) W≋W′
+         (≅-ΠΣ-cong ⊢σF ⊢σF≡σH ⊢σG≡σE)
          (λ ρ ⊢Δ₁ → let [ρσ] = wkSubstS [Γ] ⊢Δ ⊢Δ₁ ρ [σ]
                         eqA = PE.sym (wk-subst F)
                         eqB = PE.sym (wk-subst H)

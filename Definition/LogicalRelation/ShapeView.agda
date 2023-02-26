@@ -180,13 +180,13 @@ B-elim′ W D (Unitᵣ D′) =
   ⊥-elim (Unit≢B W (whrDet* (red D′ , Unitₙ) (D , ⟦ W ⟧ₙ)))
 B-elim′ W D (ne′ K D′ neK K≡K) =
   ⊥-elim (B≢ne W neK (whrDet* (D , ⟦ W ⟧ₙ) (red D′ , ne neK)))
-B-elim′ BΠ! D (Bᵣ′ BΣ! F G D′ ⊢F ⊢G A≡A [F] [G] G-ext) with whrDet* (D , Πₙ) (red D′ , Σₙ)
+B-elim′ BΠ! D (Bᵣ′ BΣ! F G D′ ⊢F ⊢G A≡A [F] [G] G-ext) with whrDet* (D , ΠΣₙ) (red D′ , ΠΣₙ)
 ... | ()
-B-elim′ BΣ! D (Bᵣ′ BΠ! F G D′ ⊢F ⊢G A≡A [F] [G] G-ext) with whrDet* (D , Σₙ) (red D′ , Πₙ)
+B-elim′ BΣ! D (Bᵣ′ BΠ! F G D′ ⊢F ⊢G A≡A [F] [G] G-ext) with whrDet* (D , ΠΣₙ) (red D′ , ΠΣₙ)
 ... | ()
-B-elim′ BΠ! D (Bᵣ′ BΠ! F G D′ ⊢F ⊢G A≡A [F] [G] G-ext) with whrDet* (D , Πₙ) (red D′ , Πₙ)
+B-elim′ BΠ! D (Bᵣ′ BΠ! F G D′ ⊢F ⊢G A≡A [F] [G] G-ext) with whrDet* (D , ΠΣₙ) (red D′ , ΠΣₙ)
 ... | PE.refl = noemb (Bᵣ F G D′ ⊢F ⊢G A≡A [F] [G] G-ext)
-B-elim′ BΣ! D (Bᵣ′ BΣ! F G D′ ⊢F ⊢G A≡A [F] [G] G-ext) with whrDet* (D , Σₙ) (red D′ , Σₙ)
+B-elim′ BΣ! D (Bᵣ′ BΣ! F G D′ ⊢F ⊢G A≡A [F] [G] G-ext) with whrDet* (D , ΠΣₙ) (red D′ , ΠΣₙ)
 ... | PE.refl = noemb (Bᵣ F G D′ ⊢F ⊢G A≡A [F] [G] G-ext)
 B-elim′ W D (emb 0<1 x) with B-elim′ W D x
 B-elim′ W D (emb 0<1 x) | noemb x₁ = emb 0<1 (noemb x₁)
@@ -235,10 +235,10 @@ goodCases (Emptyᵣ EmptyA) (Emptyᵣ EmptyB) A≡B = Emptyᵥ EmptyA EmptyB
 goodCases (Unitᵣ UnitA) (Unitᵣ UnitB) A≡B = Unitᵥ UnitA UnitB
 goodCases (ne neA) (ne neB) A≡B = ne neA neB
 goodCases (Bᵣ BΠ! ΠA) (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-          (B₌ F′ G′ BΠ! D′ W≋W′ A≡B [F≡F′] [G≡G′]) with whrDet* (red D , Πₙ) (D′ , Πₙ)
+          (B₌ F′ G′ BΠ! D′ W≋W′ A≡B [F≡F′] [G≡G′]) with whrDet* (red D , ΠΣₙ) (D′ , ΠΣₙ)
 ... | PE.refl = Bᵥ BΠ! BΠ! ΠA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) W≋W′
 goodCases (Bᵣ BΣ! ΣA) (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-          (B₌ F′ G′ BΣ! D′  W≋W′ A≡B [F≡F′] [G≡G′]) with whrDet* (red D , Σₙ) (D′ , Σₙ)
+          (B₌ F′ G′ BΣ! D′  W≋W′ A≡B [F≡F′] [G≡G′]) with whrDet* (red D , ΠΣₙ) (D′ , ΠΣₙ)
 ... | PE.refl = Bᵥ BΣ! BΣ! ΣA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) W≋W′
 
 
@@ -322,11 +322,11 @@ goodCases (Bᵣ W x) (ne′ K D neK K≡K) (B₌ F′ G′ W′ D′ W≋W′ A�
 goodCases (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
           (Bᵣ′ BΣ! F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext′)
           (B₌ F′₁ G′₁ BΠ! D′₁ W≋W′ A≡B [F≡F′] [G≡G′]) =
-  ⊥-elim (Π≢Σ (whrDet* (D′₁ , Πₙ) (red D′ , Σₙ)))
+  ⊥-elim (Π≢Σ (whrDet* (D′₁ , ΠΣₙ) (red D′ , ΠΣₙ)))
 goodCases (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
           (Bᵣ′ BΠ! F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext′)
           (B₌ F′₁ G′₁ BΣ! D′₁ W≋W′ A≡B [F≡F′] [G≡G′]) =
-  ⊥-elim (Π≢Σ (whrDet* (red D′ , Πₙ) (D′₁ , Σₙ)))
+  ⊥-elim (Π≢Σ (whrDet* (red D′ , ΠΣₙ) (D′₁ , ΠΣₙ)))
 goodCases (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
           (Bᵣ′ BΣ! F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext′)
           (B₌ F′₁ G′₁ BΣ! D′₁ () A≡B [F≡F′] [G≡G′])
@@ -383,11 +383,11 @@ combine (Unitᵥ UnitA₁ UnitB₁) (Unitᵥ UnitA UnitB) = Unitᵥ UnitA₁ Uni
 combine (ne neA₁ neB₁) (ne neA neB) = ne neA₁ neB₁ neB
 combine (Bᵥ W BΠ! ΠA₁ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) W≋Π)
         (Bᵥ BΠ! W′ (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) ΠB Π≋W′)
-        with whrDet* (red D , Πₙ) (red D₁ , Πₙ)
+        with whrDet* (red D , ΠΣₙ) (red D₁ , ΠΣₙ)
 ... | PE.refl = Bᵥ W BΠ! W′ ΠA₁ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) ΠB
 combine (Bᵥ W BΣ! ΣA₁ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) W≋Σ)
         (Bᵥ BΣ! W′ (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) ΣB Σ≋W′)
-        with whrDet* (red D , Σₙ) (red D₁ , Σₙ)
+        with whrDet* (red D , ΠΣₙ) (red D₁ , ΠΣₙ)
 ... | PE.refl = Bᵥ W BΣ! W′ ΣA₁ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) ΣB
 combine (emb⁰¹ [AB]) [BC] = emb⁰¹¹ (combine [AB] [BC])
 combine (emb¹⁰ [AB]) [BC] = emb¹⁰¹ (combine [AB] [BC])
@@ -468,7 +468,7 @@ combine (Bᵥ W W′ BA (Bᵣ F G D₁ ⊢F ⊢G A≡A [F] [G] G-ext) W≋W′) 
   ⊥-elim (B≢ne W′ neK (whrDet* (red D₁ , ⟦ W′ ⟧ₙ) (red D , ne neK)))
 combine (Bᵥ W BΠ! ΠA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) W≋Π) (Bᵥ BΣ! W′
         (Bᵣ F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext′) ΣA  Σ≋W′) =
-  ⊥-elim (Π≢Σ (whrDet* (red D , Πₙ) (red D′ , Σₙ)))
+  ⊥-elim (Π≢Σ (whrDet* (red D , ΠΣₙ) (red D′ , ΠΣₙ)))
 combine (Bᵥ W BΣ! ΣA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) W≋Σ) (Bᵥ BΠ! W′
         (Bᵣ F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext′) ΠA Π≋W′) =
-  ⊥-elim (Π≢Σ (whrDet* (red D′ , Πₙ) (red D , Σₙ)))
+  ⊥-elim (Π≢Σ (whrDet* (red D′ , ΠΣₙ) (red D , ΠΣₙ)))

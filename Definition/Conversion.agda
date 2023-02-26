@@ -26,7 +26,7 @@ private
     a₀ b₀ g h k l t u v : Term n
     x y : Fin n
     p p′ p″ p₁ p₂ q q′ r r′ : M
-    m : SigmaMode
+    b : BinderMode
 
 mutual
   -- Neutral equality.
@@ -105,20 +105,11 @@ mutual
                → Γ ⊢ K ~ L ↓ U
                → Γ ⊢ K [conv↓] L
 
-    Π-cong     : ∀ {F G H E}
+    ΠΣ-cong    : ∀ {F G H E}
                → Γ ⊢ F
                → Γ ⊢ F [conv↑] H
                → Γ ∙ F ⊢ G [conv↑] E
-               → p ≈ p′
-               → q ≈ q′
-               → Γ ⊢ Π p , q ▷ F ▹ G [conv↓] Π p′ , q′ ▷ H ▹ E
-
-    Σ-cong     : ∀ {F G H E}
-               → Γ ⊢ F
-               → Γ ⊢ F [conv↑] H
-               → Γ ∙ F ⊢ G [conv↑] E
-               → q ≈ q′
-               → Γ ⊢ Σ⟨ m ⟩ p , q ▷ F ▹ G [conv↓] Σ⟨ m ⟩ p , q′ ▷ H ▹ E
+               → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G [conv↓] ΠΣ⟨ b ⟩ p , q ▷ H ▹ E
 
   -- Term equality.
   record _⊢_[conv↑]_∷_ (Γ : Con Term n) (t u A : Term n) : Set a where

@@ -98,9 +98,9 @@ mutual
                   a≡b = escapeTermEq ([F] [ρ] ⊢Δ) [a≡b]
                   ⊢ρF = Wk.wk [ρ] ⊢Δ ⊢F
                   ⊢ρG = Wk.wk (Wk.lift [ρ]) (⊢Δ ∙ ⊢ρF) ⊢G
-                  A≡ΠFG₁ = trans A≡ΠFG (Π-cong ⊢F (refl ⊢F) (refl ⊢G) ≈-refl ≈-refl)
-                  ρA≡ρΠFG₁ = trans ρA≡ρΠFG (Π-cong ⊢ρF (refl ⊢ρF) (refl ⊢ρG) ≈-refl ≈-refl)
-                  ρA≡ρΠFG₂ = trans ρA≡ρΠFG (Π-cong ⊢ρF (refl ⊢ρF) (refl ⊢ρG) ≈-refl ≈-refl)
+                  A≡ΠFG₁ = trans A≡ΠFG (ΠΣ-cong ⊢F (refl ⊢F) (refl ⊢G))
+                  ρA≡ρΠFG₁ = trans ρA≡ρΠFG (ΠΣ-cong ⊢ρF (refl ⊢ρF) (refl ⊢ρG))
+                  ρA≡ρΠFG₂ = trans ρA≡ρΠFG (ΠΣ-cong ⊢ρF (refl ⊢ρF) (refl ⊢ρG))
                   ρn₁ = conv (Wk.wkTerm [ρ] ⊢Δ n) ρA≡ρΠFG₁
                   ρn₂ = conv (Wk.wkTerm [ρ] ⊢Δ n) ρA≡ρΠFG₂
                   neN∘a = ∘ₙ (wkNeutral ρ neN)
@@ -116,9 +116,9 @@ mutual
                   a≡a = escapeTermEq ([F] [ρ] ⊢Δ) (reflEqTerm ([F] [ρ] ⊢Δ) [a])
                   ⊢ρF = Wk.wk [ρ] ⊢Δ ⊢F
                   ⊢ρG = Wk.wk (Wk.lift [ρ]) (⊢Δ ∙ ⊢ρF) ⊢G
-                  A≡ΠFG′ = trans A≡ΠFG (Π-cong ⊢F (refl ⊢F) (refl ⊢G) ≈-refl ≈-refl)
+                  A≡ΠFG′ = trans A≡ΠFG (ΠΣ-cong ⊢F (refl ⊢F) (refl ⊢G))
                   ρA≡ρΠFG′ = trans ρA≡ρΠFG
-                                   (Π-cong ⊢ρF (refl ⊢ρF) (refl ⊢ρG) ≈-refl ≈-refl)
+                               (ΠΣ-cong ⊢ρF (refl ⊢ρF) (refl ⊢ρG))
                in  neuTerm ([G] [ρ] ⊢Δ [a]) (∘ₙ (wkNeutral ρ neN))
                            (conv (Wk.wkTerm [ρ] ⊢Δ n) ρA≡ρΠFG′ ∘ⱼ a)
                            (~-app (~-wk [ρ] ⊢Δ (~-conv n~n A≡ΠFG′)) a≡a ≈-refl ≈-refl))
@@ -210,9 +210,9 @@ mutual
                    neN′∙a′ = ∘ₙ (wkNeutral ρ neN′)
                    ⊢ρF = Wk.wk [ρ] ⊢Δ ⊢F
                    ⊢ρG = Wk.wk (Wk.lift [ρ]) (⊢Δ ∙ ⊢ρF) ⊢G
-                   ρA≡ρΠp₁FG = trans ρA≡ρΠFG (Π-cong ⊢ρF (refl ⊢ρF) (refl ⊢ρG) ≈-refl ≈-refl)
-                   ρA≡ρΠp₂FG = trans ρA≡ρΠFG (Π-cong ⊢ρF (refl ⊢ρF) (refl ⊢ρG) ≈-refl ≈-refl)
-                   ΠpFG≡Πp₁FG = Π-cong ⊢F (refl ⊢F) (refl ⊢G) ≈-refl ≈-refl
+                   ρA≡ρΠp₁FG = trans ρA≡ρΠFG (ΠΣ-cong ⊢ρF (refl ⊢ρF) (refl ⊢ρG))
+                   ρA≡ρΠp₂FG = trans ρA≡ρΠFG (ΠΣ-cong ⊢ρF (refl ⊢ρF) (refl ⊢ρG))
+                   ΠpFG≡Πp₁FG = ΠΣ-cong ⊢F (refl ⊢F) (refl ⊢G)
 
                in  neuEqTerm ([G] [ρ] ⊢Δ [a]) neN∙a neN′∙a′
                      (conv ρn ρA≡ρΠp₁FG ∘ⱼ a)

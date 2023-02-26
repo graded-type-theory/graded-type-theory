@@ -25,6 +25,7 @@ private
     A B C : Term m
     c g k n t u : Term m
     p q r : M
+    b : BinderMode
     s : SigmaMode
 
 mutual
@@ -41,9 +42,8 @@ mutual
 
   data Nf {m : Nat} : Term m → Set a where
     Uₙ     : Nf U
-    Πₙ     : {A : Term m} {B : Term (1+ m)} → Nf A → Nf B → Nf (Π r , q ▷ A ▹ B)
-    Σₙ     : {A : Term m} {B : Term (1+ m)} →
-             Nf A → Nf B → Nf (Σ⟨ s ⟩ p , q ▷ A ▹ B)
+    ΠΣₙ    : {A : Term m} {B : Term (1+ m)} →
+             Nf A → Nf B → Nf (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
     ℕₙ     : Nf ℕ
     Emptyₙ : Nf Empty
     Unitₙ  : Nf Unit
@@ -67,8 +67,7 @@ nfNeutral (Emptyrecₙ x n) = Emptyrecₙ (nfNeutral n)
 
 nfWhnf : Nf n → Whnf n
 nfWhnf Uₙ = Uₙ
-nfWhnf (Πₙ n n₁) = Πₙ
-nfWhnf (Σₙ n n₁) = Σₙ
+nfWhnf (ΠΣₙ n n₁) = ΠΣₙ
 nfWhnf ℕₙ = ℕₙ
 nfWhnf Emptyₙ = Emptyₙ
 nfWhnf Unitₙ = Unitₙ
@@ -135,14 +134,10 @@ mutual
   fullRedConv↓ (ne A) =
     let B , nf , A≡B = fullRedNe~↓ A
     in  B , ne nf , univ A≡B
-  fullRedConv↓ (Π-cong ⊢F F G p≈p′ q≈q′) =
+  fullRedConv↓ (ΠΣ-cong ⊢F F G) =
     let F′ , nfF′ , F≡F′ = fullRed F
         G′ , nfG′ , G≡G′ = fullRed G
-    in  Π _ , _ ▷ F′ ▹ G′ , Πₙ nfF′ nfG′ , Π-cong ⊢F F≡F′ G≡G′ p≈p′ q≈q′
-  fullRedConv↓ (Σ-cong ⊢F F G q≈q′) =
-    let F′ , nfF′ , F≡F′ = fullRed F
-        G′ , nfG′ , G≡G′ = fullRed G
-    in  Σ _ , _ ▷ F′ ▹ G′ , Σₙ nfF′ nfG′ , Σ-cong ⊢F F≡F′ G≡G′ q≈q′
+    in  ΠΣ⟨ _ ⟩ _ , _ ▷ F′ ▹ G′ , ΠΣₙ nfF′ nfG′ , ΠΣ-cong ⊢F F≡F′ G≡G′
 
   fullRedTerm : ∀ {t t′ A} → Γ ⊢ t [conv↑] t′ ∷ A → ∃ λ u → Nf u × Γ ⊢ t ≡ u ∷ A
   fullRedTerm ([↑]ₜ B t′ u′ D d d′ whnfB whnft′ whnfu′ t<>u) =

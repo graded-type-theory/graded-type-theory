@@ -88,12 +88,9 @@ mutual
   wkConv↓ ρ ⊢Δ (Empty-refl x) = Empty-refl ⊢Δ
   wkConv↓ ρ ⊢Δ (Unit-refl x) = Unit-refl ⊢Δ
   wkConv↓ ρ ⊢Δ (ne x) = ne (wk~↓ ρ ⊢Δ x)
-  wkConv↓ ρ ⊢Δ (Π-cong x A<>B A<>B₁ p≈p′ q≈q′) =
+  wkConv↓ ρ ⊢Δ (ΠΣ-cong x A<>B A<>B₁) =
     let ⊢ρF = wk ρ ⊢Δ x
-    in  Π-cong ⊢ρF (wkConv↑ ρ ⊢Δ A<>B) (wkConv↑ (lift ρ) (⊢Δ ∙ ⊢ρF) A<>B₁) p≈p′ q≈q′
-  wkConv↓ ρ ⊢Δ (Σ-cong x A<>B A<>B₁ q≈q′) =
-    let ⊢ρF = wk ρ ⊢Δ x
-    in  Σ-cong ⊢ρF (wkConv↑ ρ ⊢Δ A<>B) (wkConv↑ (lift ρ) (⊢Δ ∙ ⊢ρF) A<>B₁) q≈q′
+    in  ΠΣ-cong ⊢ρF (wkConv↑ ρ ⊢Δ A<>B) (wkConv↑ (lift ρ) (⊢Δ ∙ ⊢ρF) A<>B₁)
 
   -- Weakening of algorithmic equality of terms.
   wkConv↑Term : ∀ {t u A Γ Δ} ([ρ] : ρ ∷ Δ ⊆ Γ) → ⊢ Δ

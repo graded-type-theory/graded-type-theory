@@ -64,7 +64,7 @@ irrelevanceTermSV
      (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁)
      (BT.Π≋Π PE.refl PE.refl))
   [a]′
-  with whrDet* (red D , Πₙ) (red D₁ , Πₙ)
+  with whrDet* (red D , ΠΣₙ) (red D₁ , ΠΣₙ)
 ... | Π≡Π′ with B-PE-injectivity (BΠ 𝟘 q) (BΠ 𝟘 q) Π≡Π′
 ... | PE.refl , PE.refl , _ =
   let [a] = I.irrelevanceTerm ([F]₁ id ε) ([F] id ε) [a]′
@@ -77,7 +77,7 @@ irrelevanceTermSV
      (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁)
      (BT.Π≋Π PE.refl PE.refl))
   [a]′ a®w′
-  with whrDet* (red D , Πₙ) (red D₁ , Πₙ)
+  with whrDet* (red D , ΠΣₙ) (red D₁ , ΠΣₙ)
 ... | Π≡Π′ with B-PE-injectivity (BΠ ω q) (BΠ ω q) Π≡Π′
 ... | PE.refl , PE.refl , _ =
   let [a] = I.irrelevanceTerm ([F]₁ id ε) ([F] id ε) [a]′
@@ -91,7 +91,7 @@ irrelevanceTermSV
   (Bᵥ (BΣ _ p _) BΣ! (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
      (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁)
      (BT.Σ≋Σ PE.refl))
-  with whrDet* (red D , Σₙ) (red D₁ , Σₙ)
+  with whrDet* (red D , ΠΣₙ) (red D₁ , ΠΣₙ)
 ... | Σ≡Σ′ with B-PE-injectivity BΣ! BΣ! Σ≡Σ′
 ... | PE.refl , PE.refl , _ =
   let [F]′ = [F] id ε

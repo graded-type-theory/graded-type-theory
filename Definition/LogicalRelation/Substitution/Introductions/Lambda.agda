@@ -389,8 +389,8 @@ lamᵛ {n} {Γ = Γ} {p = p} {q = q} {F = F} {G} {t} {l} [Γ] [F] [G] [t] {k} {�
                            [ρσΠFG] [ρf]′ [a] ≈-refl
                  [g∘u] = appTerm ([F]′ [ρ] ⊢Δ₁) ([G]′ [ρ] ⊢Δ₁ [a])
                            [ρσΠFG] [ρg]′ [a] ≈-refl
-                 d′ = conv* d (Π-cong ⊢F (refl ⊢F) (refl ⊢G) ≈-refl ≈-refl)
-                 d₁′ = conv* d₁ (Π-cong ⊢F (refl ⊢F) (refl ⊢G) ≈-refl ≈-refl)
+                 d′ = conv* d (ΠΣ-cong ⊢F (refl ⊢F) (refl ⊢G))
+                 d₁′ = conv* d₁ (ΠΣ-cong ⊢F (refl ⊢F) (refl ⊢G))
                  [tu≡fu] = proj₂ (redSubst*Term (app-subst* (wkRed*Term [ρ] ⊢Δ₁ d′)
                                                             (escapeTerm ([F]′ [ρ] ⊢Δ₁) [a]))
                                                 ([G]′ [ρ] ⊢Δ₁ [a]) [f∘u])

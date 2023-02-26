@@ -27,8 +27,8 @@ whNorm′ (ℕᵣ D) = ℕ , ℕₙ , D
 whNorm′ (Emptyᵣ D) = Empty , Emptyₙ , D
 whNorm′ (Unitᵣ D) = Unit , Unitₙ , D
 whNorm′ (ne′ K D neK K≡K) = K , ne neK , D
-whNorm′ (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext) = Π _ , _ ▷ F ▹ G , Πₙ , D
-whNorm′ (Σᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext) = Σ _ , _ ▷ F ▹ G , Σₙ , D
+whNorm′ (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext) = Π _ , _ ▷ F ▹ G , ΠΣₙ , D
+whNorm′ (Σᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext) = Σ _ , _ ▷ F ▹ G , ΠΣₙ , D
 whNorm′ (emb 0<1 [A]) = whNorm′ [A]
 
 -- Well-formed types can all be reduced to WHNF.

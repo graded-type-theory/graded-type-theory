@@ -30,6 +30,7 @@ private
     A F t u z n' : Term n
     G : Term (1+ n)
     m : Mode
+    b : BinderMode
     s : SigmaMode
 
 -- If γ ▸[ m ] U then γ ≤ᶜ 𝟘ᶜ.
@@ -66,21 +67,12 @@ record InvUsageΠΣ {n} (γ : Conₘ n) (m : Mode) (p q : M)
     η▸G   : η ∙ ⌜ m ⌝ · q ▸[ m ] G
     γ≤δ+η : γ ≤ᶜ δ +ᶜ η
 
--- If γ ▸[ m ] Π p , q ▷ F ▹ G then δ ▸[ m ᵐ· p ] F,
+-- If γ ▸[ m ] ⟨ b ⟩ p , q ▷ F ▹ G then δ ▸[ m ᵐ· p ] F,
 -- η ∙ ⌜ m ⌝ · q ▸[ m ] G and γ ≤ᶜ δ +ᶜ η.
 
-inv-usage-Π : γ ▸[ m ] Π p , q ▷ F ▹ G → InvUsageΠΣ γ m p q F G
-inv-usage-Π (Πₘ γ▸F δ▸G) = invUsageΠΣ γ▸F δ▸G ≤ᶜ-refl
-inv-usage-Π (sub γ▸Π γ≤γ′) with inv-usage-Π γ▸Π
-… | invUsageΠΣ δ▸F η▸G γ′≤δ+η =
-  invUsageΠΣ δ▸F η▸G (≤ᶜ-trans γ≤γ′ γ′≤δ+η)
-
--- If γ ▸[ m ] Σ⟨ s ⟩ p , q ▷ F ▹ G then
--- δ ▸[ m ᵐ· p ] F, η ∙ ⌜ m ⌝ · q ▸[ m ] G and γ ≤ᶜ δ +ᶜ η.
-
-inv-usage-Σ : γ ▸[ m ] Σ⟨ s ⟩ p , q ▷ F ▹ G → InvUsageΠΣ γ m p q F G
-inv-usage-Σ (Σₘ γ▸F δ▸G) = invUsageΠΣ γ▸F δ▸G ≤ᶜ-refl
-inv-usage-Σ (sub γ▸Σ γ≤γ′) with inv-usage-Σ γ▸Σ
+inv-usage-ΠΣ : γ ▸[ m ] ΠΣ⟨ b ⟩ p , q ▷ F ▹ G → InvUsageΠΣ γ m p q F G
+inv-usage-ΠΣ (ΠΣₘ γ▸F δ▸G) = invUsageΠΣ γ▸F δ▸G ≤ᶜ-refl
+inv-usage-ΠΣ (sub γ▸Π γ≤γ′) with inv-usage-ΠΣ γ▸Π
 … | invUsageΠΣ δ▸F η▸G γ′≤δ+η =
   invUsageΠΣ δ▸F η▸G (≤ᶜ-trans γ≤γ′ γ′≤δ+η)
 

@@ -66,10 +66,8 @@ mutual
   soundnessConv↓ (Empty-refl ⊢Γ) = refl (Emptyⱼ ⊢Γ)
   soundnessConv↓ (Unit-refl ⊢Γ) = refl (Unitⱼ ⊢Γ)
   soundnessConv↓ (ne x) = univ (soundness~↓ x)
-  soundnessConv↓ (Π-cong F c c₁ p≈p′ q≈q′) =
-    Π-cong F (soundnessConv↑ c) (soundnessConv↑ c₁) p≈p′ q≈q′
-  soundnessConv↓ (Σ-cong F c c₁ q≈q′) =
-    Σ-cong F (soundnessConv↑ c) (soundnessConv↑ c₁) q≈q′
+  soundnessConv↓ (ΠΣ-cong F c c₁) =
+    ΠΣ-cong F (soundnessConv↑ c) (soundnessConv↑ c₁)
 
   -- Algorithmic equality of terms is well-formed.
   soundnessConv↑Term : ∀ {a b A} → Γ ⊢ a [conv↑] b ∷ A → Γ ⊢ a ≡ b ∷ A

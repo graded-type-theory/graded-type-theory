@@ -8,7 +8,7 @@ open import Definition.Typed.Weakening M using (_∷_⊆_)
 open import Tools.Fin
 open import Tools.Level
 open import Tools.Nat
-open import Tools.PropositionalEquality using (_≈_)
+open import Tools.PropositionalEquality using (_≈_; refl)
 
 private
   variable
@@ -21,6 +21,7 @@ private
     a a′ b b′ e e′ : Term n
     k l m t u v : Term n
     s : SigmaMode
+    bm : BinderMode
 
 -- Generic equality relation used with the logical relation
 
@@ -123,39 +124,20 @@ record EqRelSet : Set (lsuc ℓ) where
               → Γ ⊢ e′ ∷ Unit
               → Γ ⊢ e ≅ e′ ∷ Unit
 
-    -- Π-congruence
+    -- Π- and Σ-congruence
 
-    ≅-Π-cong  : ∀ {F G H E}
+    ≅-ΠΣ-cong : ∀ {F G H E}
               → Γ ⊢ F
               → Γ ⊢ F ≅ H
               → Γ ∙ F ⊢ G ≅ E
-              → p ≈ p′
-              → q ≈ q′
-              → Γ ⊢ Π p , q ▷ F ▹ G ≅ Π p′ , q′ ▷ H ▹ E
+              → Γ ⊢ ΠΣ⟨ bm ⟩ p , q ▷ F ▹ G ≅ ΠΣ⟨ bm ⟩ p , q ▷ H ▹ E
 
-    ≅ₜ-Π-cong : ∀ {F G H E}
+    ≅ₜ-ΠΣ-cong
+              : ∀ {F G H E}
               → Γ ⊢ F
               → Γ ⊢ F ≅ H ∷ U
               → Γ ∙ F ⊢ G ≅ E ∷ U
-              → p ≈ p′
-              → q ≈ q′
-              → Γ ⊢ Π p , q ▷ F ▹ G ≅ Π p′ , q′ ▷ H ▹ E ∷ U
-
-    -- Σ-congruence
-
-    ≅-Σ-cong  : ∀ {F G H E}
-              → Γ ⊢ F
-              → Γ ⊢ F ≅ H
-              → Γ ∙ F ⊢ G ≅ E
-              → q ≈ q′
-              → Γ ⊢ Σ⟨ s ⟩ p , q ▷ F ▹ G ≅ Σ⟨ s ⟩ p , q′ ▷ H ▹ E
-
-    ≅ₜ-Σ-cong : ∀ {F G H E}
-              → Γ ⊢ F
-              → Γ ⊢ F ≅ H ∷ U
-              → Γ ∙ F ⊢ G ≅ E ∷ U
-              → q ≈ q′
-              → Γ ⊢ Σ⟨ s ⟩ p , q ▷ F ▹ G ≅ Σ⟨ s ⟩ p , q′ ▷ H ▹ E ∷ U
+              → Γ ⊢ ΠΣ⟨ bm ⟩ p , q ▷ F ▹ G ≅ ΠΣ⟨ bm ⟩ p , q ▷ H ▹ E ∷ U
 
     -- Zero reflexivity
     ≅ₜ-zerorefl : ⊢ Γ → Γ ⊢ zero ≅ zero ∷ ℕ
@@ -262,8 +244,8 @@ record EqRelSet : Set (lsuc ℓ) where
           → Γ ⊢ F ≅ H
           → Γ ∙ F ⊢ G ≅ E
           → Γ ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W′ ⟧ H ▹ E
-  ≅-W-cong BΠ! _ (Π≋Π p≈p′ q≈q′) = λ x x₁ x₂ → ≅-Π-cong x x₁ x₂ p≈p′ q≈q′
-  ≅-W-cong BΣ! _ (Σ≋Σ      q≈q′) = λ x x₁ x₂ → ≅-Σ-cong x x₁ x₂      q≈q′
+  ≅-W-cong BΠ! _ (Π≋Π refl refl) = ≅-ΠΣ-cong
+  ≅-W-cong BΣ! _ (Σ≋Σ refl)      = ≅-ΠΣ-cong
 
   ≅ₜ-W-cong : ∀ {F G H E} W W′
             → W ≋ W′
@@ -271,5 +253,5 @@ record EqRelSet : Set (lsuc ℓ) where
             → Γ ⊢ F ≅ H ∷ U
             → Γ ∙ F ⊢ G ≅ E ∷ U
             → Γ ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W′ ⟧ H ▹ E ∷ U
-  ≅ₜ-W-cong BΠ! _ (Π≋Π p≈p′ q≈q′) = λ x x₁ x₂ → ≅ₜ-Π-cong x x₁ x₂ p≈p′ q≈q′
-  ≅ₜ-W-cong BΣ! _ (Σ≋Σ      q≈q′) = λ x x₁ x₂ → ≅ₜ-Σ-cong x x₁ x₂      q≈q′
+  ≅ₜ-W-cong BΠ! _ (Π≋Π refl refl) = ≅ₜ-ΠΣ-cong
+  ≅ₜ-W-cong BΣ! _ (Σ≋Σ refl)      = ≅ₜ-ΠΣ-cong

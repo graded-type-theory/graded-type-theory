@@ -155,20 +155,12 @@ mutual
   fullRedConv↓ (ne A) γ▸A =
     let B , nf , A≡B , γ▸B = fullRedNe~↓ A γ▸A
     in  B , ne nf , univ A≡B , γ▸B
-  fullRedConv↓ {m = m} (Π-cong ⊢F F G p≈p′ q≈q′) γ▸A =
-    let invUsageΠΣ δ▸F η▸G γ≤γ′ = inv-usage-Π γ▸A
+  fullRedConv↓ (ΠΣ-cong ⊢F F G) γ▸A =
+    let invUsageΠΣ δ▸F η▸G γ≤γ′ = inv-usage-ΠΣ γ▸A
         F′ , nfF′ , F≡F′ , δ▸F′ = fullRedConv↑ F δ▸F
         G′ , nfG′ , G≡G′ , η▸G′ = fullRedConv↑ G η▸G
-        η′▸G′ = sub η▸G′ (≤ᶜ-reflexive (≈ᶜ-refl ∙ ≈-sym (·-congˡ q≈q′)))
-    in  Π _ , _ ▷ F′ ▹ G′ , Πₙ nfF′ nfG′ , Π-cong ⊢F F≡F′ G≡G′ p≈p′ q≈q′
-      , sub (Πₘ (▸-cong (ᵐ·-cong m p≈p′) δ▸F′) η′▸G′) γ≤γ′
-  fullRedConv↓ {m = m} (Σ-cong ⊢F F G q≈q′) γ▸A =
-    let invUsageΠΣ δ▸F η▸G γ≤γ′ = inv-usage-Σ γ▸A
-        F′ , nfF′ , F≡F′ , δ▸F′ = fullRedConv↑ F δ▸F
-        G′ , nfG′ , G≡G′ , η▸G′ = fullRedConv↑ G η▸G
-        η′▸G′ = sub η▸G′ (≤ᶜ-reflexive (≈ᶜ-refl ∙ ≈-sym (·-congˡ q≈q′)))
-    in  Σ _ , _ ▷ F′ ▹ G′ , Σₙ nfF′ nfG′ , Σ-cong ⊢F F≡F′ G≡G′ q≈q′
-      , sub (Σₘ δ▸F′ η′▸G′) γ≤γ′
+    in  ΠΣ⟨ _ ⟩ _ , _ ▷ F′ ▹ G′ , ΠΣₙ nfF′ nfG′ , ΠΣ-cong ⊢F F≡F′ G≡G′
+      , sub (ΠΣₘ δ▸F′ η▸G′) γ≤γ′
 
   fullRedTermConv↑ :
     Γ ⊢ t [conv↑] t′ ∷ A → γ ▸[ m ] t →

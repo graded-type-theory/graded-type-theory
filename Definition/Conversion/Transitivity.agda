@@ -136,22 +136,18 @@ mutual
   transConv↓ (ne x) (ne x₁) =
     let A~C , U≡U = trans~↓ x x₁
     in  ne A~C
-  transConv↓ (Π-cong x x₁ x₂ p≈p′ q≈q′) (Π-cong x₃ x₄ x₅ p′≈p″ q′≈q″) =
-    Π-cong x (transConv↑ x₁ x₄)
-           (transConv↑′ (reflConEq (wf x) ∙ soundnessConv↑ x₁) x₂ x₅) (≈-trans p≈p′ p′≈p″) (≈-trans q≈q′ q′≈q″)
-  transConv↓ (Σ-cong x x₁ x₂ q≈q′) (Σ-cong x₃ x₄ x₅ q′≈q″) =
-    Σ-cong x (transConv↑ x₁ x₄) (transConv↑′ (reflConEq (wf x) ∙ soundnessConv↑ x₁) x₂ x₅) (≈-trans q≈q′ q′≈q″)
+  transConv↓ (ΠΣ-cong x x₁ x₂) (ΠΣ-cong x₃ x₄ x₅) =
+    ΠΣ-cong x (transConv↑ x₁ x₄)
+      (transConv↑′ (reflConEq (wf x) ∙ soundnessConv↑ x₁) x₂ x₅)
   -- Refutable cases
   transConv↓ (U-refl x) (ne ([~] A D whnfB ()))
   transConv↓ (ℕ-refl x) (ne ([~] A D whnfB ()))
   transConv↓ (Empty-refl x) (ne ([~] A D whnfB ()))
-  transConv↓ (Π-cong x x₁ x₂ _ _) (ne ([~] A D whnfB ()))
-  transConv↓ (Σ-cong x x₁ x₂ _) (ne ([~] A D whnfB ()))
+  transConv↓ (ΠΣ-cong _ _ _) (ne ([~] _ _ _ ()))
   transConv↓ (ne ([~] A₁ D whnfB ())) (U-refl x₁)
   transConv↓ (ne ([~] A₁ D whnfB ())) (ℕ-refl x₁)
   transConv↓ (ne ([~] A₁ D whnfB ())) (Empty-refl x₁)
-  transConv↓ (ne ([~] A₁ D whnfB ())) (Π-cong x₁ x₂ x₃ _ _)
-  transConv↓ (ne ([~] A₁ D whnfB ())) (Σ-cong x₁ x₂ x₃ _)
+  transConv↓ (ne ([~] _ _ _ ()))      (ΠΣ-cong _ _ _)
 
   -- Transitivity of algorithmic equality of terms.
   transConv↑Term : ∀ {t u v A B}

@@ -35,7 +35,7 @@ fst′ : ∀ {F G t l l′}
        ([t] : Γ ⊩⟨ l ⟩ t ∷ Σ p , q ▷ F ▹ G / B-intr BΣ! [ΣFG])
        → Γ ⊩⟨ l′ ⟩ fst p t ∷ F / [F]
 fst′ {Γ = Γ} {q = q} {F = F} {t = t} [F] (noemb [Σ]@(Bᵣ F' G' D ⊢F ⊢G A≡A [F'] [G'] G-ext))
-     [t]@(Σₜ p d p≅p prodP propP) with B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) Σₙ)
+     [t]@(Σₜ p d p≅p prodP propP) with B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) ΠΣₙ)
 ... | PE.refl , PE.refl , _ =
   let [fstp]′ = proj₁ propP
       [fstp] : Γ ⊩⟨ _ ⟩ fst _ p ∷ F / [F]
@@ -65,7 +65,7 @@ fst-cong′ :
 fst-cong′ {Γ = Γ} {q = q} {F = F} {G = G} [F]
           [ΣFG]@(noemb [Σ]@(Bᵣ F' G' D ⊢F ⊢G A≡A [F'] [G'] G-ext))
           [t≡t′]@(Σₜ₌ p p′ d d′ prodP prodP′ p≅p′ [t] [t′] prop)
-          with B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) Σₙ)
+          with B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) ΠΣₙ)
 ... | PE.refl , PE.refl , _ =
   let ⊢Γ = wf ⊢F
       [F]′ = [F'] id ⊢Γ

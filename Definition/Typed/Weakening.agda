@@ -67,10 +67,8 @@ mutual
   wk ρ ⊢Δ (Emptyⱼ ⊢Γ) = Emptyⱼ ⊢Δ
   wk ρ ⊢Δ (Unitⱼ ⊢Γ) = Unitⱼ ⊢Δ
   wk ρ ⊢Δ (Uⱼ ⊢Γ) = Uⱼ ⊢Δ
-  wk ρ ⊢Δ (Πⱼ F ▹ G) = let ρF = wk ρ ⊢Δ F
-                       in  Πⱼ ρF ▹ (wk (lift ρ) (⊢Δ ∙ ρF) G)
-  wk ρ ⊢Δ (Σⱼ F ▹ G) = let ρF = wk ρ ⊢Δ F
-                       in  Σⱼ ρF ▹ (wk (lift ρ) (⊢Δ ∙ ρF) G)
+  wk ρ ⊢Δ (ΠΣⱼ F ▹ G) = let ρF = wk ρ ⊢Δ F
+                        in ΠΣⱼ ρF ▹ wk (lift ρ) (⊢Δ ∙ ρF) G
   wk ρ ⊢Δ (univ A) = univ (wkTerm ρ ⊢Δ A)
 
   wkTerm : {Δ : Con Term m} {ρ : Wk m n} → ρ ∷ Δ ⊆ Γ →
@@ -80,10 +78,8 @@ mutual
   wkTerm ρ ⊢Δ (ℕⱼ ⊢Γ) = ℕⱼ ⊢Δ
   wkTerm ρ ⊢Δ (Emptyⱼ ⊢Γ) = Emptyⱼ ⊢Δ
   wkTerm ρ ⊢Δ (Unitⱼ ⊢Γ) = Unitⱼ ⊢Δ
-  wkTerm ρ ⊢Δ (Πⱼ F ▹ G) = let ρF = wkTerm ρ ⊢Δ F
-                           in  Πⱼ ρF ▹ (wkTerm (lift ρ) (⊢Δ ∙ univ ρF) G)
-  wkTerm ρ ⊢Δ (Σⱼ F ▹ G) = let ρF = wkTerm ρ ⊢Δ F
-                           in  Σⱼ ρF ▹ (wkTerm (lift ρ) (⊢Δ ∙ univ ρF) G)
+  wkTerm ρ ⊢Δ (ΠΣⱼ F ▹ G) = let ρF = wkTerm ρ ⊢Δ F
+                            in ΠΣⱼ ρF ▹ wkTerm (lift ρ) (⊢Δ ∙ univ ρF) G
   wkTerm ρ ⊢Δ (var ⊢Γ x) = var ⊢Δ (wkIndex ρ ⊢Δ x)
   wkTerm ρ ⊢Δ (lamⱼ F t) = let ρF = wk ρ ⊢Δ F
                            in lamⱼ ρF (wkTerm (lift ρ) (⊢Δ ∙ ρF) t)
@@ -122,7 +118,7 @@ mutual
   wkTerm {Δ = Δ} {ρ = ρ} [ρ] ⊢Δ (prodrecⱼ {A = A} ⊢F ⊢G ⊢A ⊢t ⊢u) =
     let ⊢ρF = wk [ρ] ⊢Δ ⊢F
         ⊢ρG = wk (lift [ρ]) (⊢Δ ∙ ⊢ρF) ⊢G
-        ⊢ρA = wk (lift [ρ]) (⊢Δ ∙ (Σⱼ ⊢ρF ▹ ⊢ρG)) ⊢A
+        ⊢ρA = wk (lift [ρ]) (⊢Δ ∙ (ΠΣⱼ ⊢ρF ▹ ⊢ρG)) ⊢A
         ⊢ρt = wkTerm [ρ] ⊢Δ ⊢t
         ⊢ρu = wkTerm (lift (lift [ρ])) (⊢Δ ∙ ⊢ρF ∙ ⊢ρG) ⊢u
     in  PE.subst (λ x → _ ⊢ prodrec _ _ _ _ _ ∷ x) (PE.sym (wk-β A))
@@ -142,14 +138,9 @@ mutual
   wkEq ρ ⊢Δ (refl A) = refl (wk ρ ⊢Δ A)
   wkEq ρ ⊢Δ (sym A≡B) = sym (wkEq ρ ⊢Δ A≡B)
   wkEq ρ ⊢Δ (trans A≡B B≡C) = trans (wkEq ρ ⊢Δ A≡B) (wkEq ρ ⊢Δ B≡C)
-  wkEq ρ ⊢Δ (Π-cong F F≡H G≡E p≈p′ q≈q′) = let ρF = wk ρ ⊢Δ F
-                                           in  Π-cong ρF (wkEq ρ ⊢Δ F≡H)
-                                                      (wkEq (lift ρ) (⊢Δ ∙ ρF) G≡E)
-                                                      p≈p′ q≈q′
-  wkEq ρ ⊢Δ (Σ-cong F F≡H G≡E p≈p′) = let ρF = wk ρ ⊢Δ F
-                                      in  Σ-cong ρF (wkEq ρ ⊢Δ F≡H)
-                                                 (wkEq (lift ρ) (⊢Δ ∙ ρF) G≡E)
-                                                 p≈p′
+  wkEq ρ ⊢Δ (ΠΣ-cong F F≡H G≡E) = let ρF = wk ρ ⊢Δ F
+                                  in  ΠΣ-cong ρF (wkEq ρ ⊢Δ F≡H)
+                                        (wkEq (lift ρ) (⊢Δ ∙ ρF) G≡E)
 
   wkEqTerm : {Δ : Con Term m} {ρ : Wk m n} → ρ ∷ Δ ⊆ Γ →
            let ρA = U.wk ρ A
@@ -160,16 +151,10 @@ mutual
   wkEqTerm ρ ⊢Δ (sym t≡u) = sym (wkEqTerm ρ ⊢Δ t≡u)
   wkEqTerm ρ ⊢Δ (trans t≡u u≡r) = trans (wkEqTerm ρ ⊢Δ t≡u) (wkEqTerm ρ ⊢Δ u≡r)
   wkEqTerm ρ ⊢Δ (conv t≡u A≡B) = conv (wkEqTerm ρ ⊢Δ t≡u) (wkEq ρ ⊢Δ A≡B)
-  wkEqTerm ρ ⊢Δ (Π-cong F F≡H G≡E p≈p′ q≈q′) =
+  wkEqTerm ρ ⊢Δ (ΠΣ-cong F F≡H G≡E) =
     let ρF = wk ρ ⊢Δ F
-    in  Π-cong ρF (wkEqTerm ρ ⊢Δ F≡H)
-                  (wkEqTerm (lift ρ) (⊢Δ ∙ ρF) G≡E)
-                  p≈p′ q≈q′
-  wkEqTerm ρ ⊢Δ (Σ-cong F F≡H G≡E q≈q′) =
-    let ρF = wk ρ ⊢Δ F
-    in  Σ-cong ρF (wkEqTerm ρ ⊢Δ F≡H)
-                  (wkEqTerm (lift ρ) (⊢Δ ∙ ρF) G≡E)
-                  q≈q′
+    in  ΠΣ-cong ρF (wkEqTerm ρ ⊢Δ F≡H)
+          (wkEqTerm (lift ρ) (⊢Δ ∙ ρF) G≡E)
   wkEqTerm ρ ⊢Δ (app-cong {G = G} f≡g a≡b p≈p₁ p≈p₂) =
     PE.subst (λ x → _ ⊢ _ ≡ _ ∷ x)
              (PE.sym (wk-β G))
@@ -280,7 +265,7 @@ mutual
     [ρ] ⊢Δ (prodrec-cong {A = A} ⊢F ⊢G A≡A′ t≡t′ u≡u′ r≈r′) =
     let ρF = wk [ρ] ⊢Δ ⊢F
         ρG = wk (lift [ρ]) (⊢Δ ∙ ρF) ⊢G
-        ρA≡A′ = wkEq (lift [ρ]) (⊢Δ ∙ (Σⱼ ρF ▹ ρG)) A≡A′
+        ρA≡A′ = wkEq (lift [ρ]) (⊢Δ ∙ (ΠΣⱼ ρF ▹ ρG)) A≡A′
         ρt≡t′ = wkEqTerm [ρ] ⊢Δ t≡t′
         ρu≡u′ = wkEqTerm (lift (lift [ρ])) (⊢Δ ∙ ρF ∙ ρG) u≡u′
     in  PE.subst (λ x → Δ ⊢ prodrec _ _ _ _ _ ≡ _ ∷ x) (PE.sym (wk-β A))
@@ -293,7 +278,7 @@ mutual
     (prodrec-β {u = u} {G = G} {A = A} ⊢F ⊢G ⊢A ⊢t ⊢t′ ⊢u p≈p′) =
     let ρF = wk [ρ] ⊢Δ ⊢F
         ρG = wk (lift [ρ]) (⊢Δ ∙ ρF) ⊢G
-        ρA = wk (lift [ρ]) (⊢Δ ∙ (Σⱼ ρF ▹ ρG)) ⊢A
+        ρA = wk (lift [ρ]) (⊢Δ ∙ (ΠΣⱼ ρF ▹ ρG)) ⊢A
         ρt = wkTerm [ρ] ⊢Δ ⊢t
         ρt′ = wkTerm [ρ] ⊢Δ ⊢t′
         ρu = wkTerm (lift (lift [ρ])) (⊢Δ ∙ ρF ∙ ρG) ⊢u
@@ -367,7 +352,7 @@ mutual
   wkRedTerm {Δ = Δ} {ρ = ρ} [ρ] ⊢Δ (prodrec-subst {A = A} ⊢F ⊢G ⊢A ⊢u t⇒t′) =
     let ρF = wk [ρ] ⊢Δ ⊢F
         ρG = wk (lift [ρ]) (⊢Δ ∙ ρF) ⊢G
-        ρA = wk (lift [ρ]) (⊢Δ ∙ (Σⱼ ρF ▹ ρG)) ⊢A
+        ρA = wk (lift [ρ]) (⊢Δ ∙ (ΠΣⱼ ρF ▹ ρG)) ⊢A
         ρt⇒t′ = wkRedTerm [ρ] ⊢Δ t⇒t′
         ρu = wkTerm (lift (lift [ρ])) (⊢Δ ∙ ρF ∙ ρG) ⊢u
     in  PE.subst (λ x → Δ ⊢ prodrec _ _ _ _ _ ⇒ _ ∷ x) (PE.sym (wk-β A))
@@ -380,7 +365,7 @@ mutual
     (prodrec-β {A = A} {G = G} {u = u} ⊢F ⊢G ⊢A ⊢t ⊢t′ ⊢u p≈p′) =
     let ρF = wk [ρ] ⊢Δ ⊢F
         ρG = wk (lift [ρ]) (⊢Δ ∙ ρF) ⊢G
-        ρA = wk (lift [ρ]) (⊢Δ ∙ (Σⱼ ρF ▹ ρG)) ⊢A
+        ρA = wk (lift [ρ]) (⊢Δ ∙ (ΠΣⱼ ρF ▹ ρG)) ⊢A
         ρt = wkTerm [ρ] ⊢Δ ⊢t
         ρt′ = wkTerm [ρ] ⊢Δ ⊢t′
         ρu = wkTerm (lift (lift [ρ])) (⊢Δ ∙ ρF ∙ ρG) ⊢u

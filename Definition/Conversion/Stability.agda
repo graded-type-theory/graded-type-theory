@@ -117,12 +117,12 @@ stabilityRedTerm Γ≡Δ (natrec-suc x x₁ x₂ x₃) =
                  (stabilityTerm (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ) ∙ refl x₁) x₃)
 stabilityRedTerm Γ≡Δ (prodrec-subst x x₁ x₂ x₃ d) =
   prodrec-subst (stability Γ≡Δ x) (stability (Γ≡Δ ∙ (refl x)) x₁)
-                (stability (Γ≡Δ ∙ refl (Σⱼ x ▹ x₁)) x₂)
+                (stability (Γ≡Δ ∙ refl (ΠΣⱼ x ▹ x₁)) x₂)
                 (stabilityTerm (Γ≡Δ ∙ refl x ∙ refl x₁) x₃)
                 (stabilityRedTerm Γ≡Δ d)
 stabilityRedTerm Γ≡Δ (prodrec-β x x₁ x₂ x₃ x₄ x₅ x₆) =
   prodrec-β (stability Γ≡Δ x) (stability (Γ≡Δ ∙ refl x) x₁)
-            (stability (Γ≡Δ ∙ refl (Σⱼ x ▹ x₁)) x₂)
+            (stability (Γ≡Δ ∙ refl (ΠΣⱼ x ▹ x₁)) x₂)
             (stabilityTerm Γ≡Δ x₃) (stabilityTerm Γ≡Δ x₄)
             (stabilityTerm (Γ≡Δ ∙ refl x ∙ refl x₁) x₅)
             x₆
@@ -210,12 +210,9 @@ mutual
     in  Unit-refl ⊢Δ
   stabilityConv↓ Γ≡Δ (ne x) =
     ne (stability~↓ Γ≡Δ x)
-  stabilityConv↓ Γ≡Δ (Π-cong F A<>B A<>B₁ p≈p′ q≈q′) =
-    Π-cong (stability Γ≡Δ F) (stabilityConv↑ Γ≡Δ A<>B)
-           (stabilityConv↑ (Γ≡Δ ∙ refl F) A<>B₁) p≈p′ q≈q′
-  stabilityConv↓ Γ≡Δ (Σ-cong F A<>B A<>B₁ q≈q′) =
-    Σ-cong (stability Γ≡Δ F) (stabilityConv↑ Γ≡Δ A<>B)
-           (stabilityConv↑ (Γ≡Δ ∙ refl F) A<>B₁) q≈q′
+  stabilityConv↓ Γ≡Δ (ΠΣ-cong F A<>B A<>B₁) =
+    ΠΣ-cong (stability Γ≡Δ F) (stabilityConv↑ Γ≡Δ A<>B)
+      (stabilityConv↑ (Γ≡Δ ∙ refl F) A<>B₁)
 
   -- Stability of algorithmic equality of terms.
   stabilityConv↑Term : ∀ {t u A}

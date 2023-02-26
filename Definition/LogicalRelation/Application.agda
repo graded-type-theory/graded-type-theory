@@ -39,7 +39,7 @@ appTerm′ : ∀ {F G t u l l′ l″}
 appTerm′ {n} {Γ = Γ} {p = p} {q = q} {p′ = p′} {F = F} {G} {t} {u}
          [F] [G[u]] (noemb (Bᵣ F′ G′ D ⊢F ⊢G A≡A [F′] [G′] G-ext))
          (Πₜ f d funcF f≡f [f] [f]₁) [u] PE.refl =
-  let ΠFG≡ΠF′G′ = whnfRed* (red D) Πₙ
+  let ΠFG≡ΠF′G′ = whnfRed* (red D) ΠΣₙ
       F≡F′ , G≡G′ , _ = B-PE-injectivity BΠ! BΠ! ΠFG≡ΠF′G′
       F≡idF′ = PE.trans F≡F′ (PE.sym (wk-id _))
       idG′ᵤ≡Gᵤ = PE.cong (λ x → x [ u ]) (PE.trans (wk-lift-id G′) (PE.sym G≡G′))
@@ -53,7 +53,7 @@ appTerm′ {n} {Γ = Γ} {p = p} {q = q} {p′ = p′} {F = F} {G} {t} {u}
              (PE.cong₂ (λ F G → Π p′ , q ▷ F ▹ G)
                        (PE.sym F≡F′) (PE.sym G≡G′))
              (conv* (redₜ d)
-                (Π-cong ⊢F (refl ⊢F) (refl ⊢G) ≈-refl ≈-refl))
+                (ΠΣ-cong ⊢F (refl ⊢F) (refl ⊢G)))
   in  proj₁ (redSubst*Term (app-subst* d′ ⊢u) [G[u]] [f∘u])
 appTerm′ [F] [G[u]] (emb 0<1 x) [t] [u] = appTerm′ [F] [G[u]] x [t] [u]
 
@@ -89,7 +89,7 @@ app-congTerm′ {n} {p = p} {q = q} {p₁ = p₁} {p₂ = p₂} {Γ = Γ} {F′}
                    (Πₜ g′ [ _ , ⊢g′ , d‴ ] funcG′ g≡g [g] [g]₁) [t≡u])
               [a] [a′] [a≡a′] PE.refl PE.refl =
   let [ΠFG] = Πᵣ′ F G D ⊢F ⊢G A≡A [F]₁ [G] G-ext
-      ΠFG≡ΠF′G′ = whnfRed* (red D) Πₙ
+      ΠFG≡ΠF′G′ = whnfRed* (red D) ΠΣₙ
       F≡F′ , G≡G′ , _ = B-PE-injectivity BΠ! BΠ! ΠFG≡ΠF′G′
       f≡f′ = whrDet*Term (d , functionWhnf funcF) (d″ , functionWhnf funcF′)
       g≡g′ = whrDet*Term (d′ , functionWhnf funcG) (d‴ , functionWhnf funcG′)
@@ -132,9 +132,9 @@ app-congTerm′ {n} {p = p} {q = q} {p₁ = p₁} {p₂ = p₂} {Γ = Γ} {F′}
       ΠFG≡ΠF′G′₂ = PE.cong₂ (λ (F : Term n) (G : Term (1+ n)) → Π p₂ , q ▷ F ▹ G)
                             (PE.sym F≡F′) (PE.sym G≡G′)
       d₁ = PE.subst (λ x → Γ ⊢ t ⇒* f ∷ x) ΠFG≡ΠF′G′₁
-             (conv* d (Π-cong ⊢F (refl ⊢F) (refl ⊢G) ≈-refl ≈-refl))
+             (conv* d (ΠΣ-cong ⊢F (refl ⊢F) (refl ⊢G)))
       d₂ = PE.subst (λ x → Γ ⊢ t′ ⇒* g ∷ x) ΠFG≡ΠF′G′₂
-             (conv* d′ (Π-cong ⊢F (refl ⊢F) (refl ⊢G) ≈-refl ≈-refl))
+             (conv* d′ (ΠΣ-cong ⊢F (refl ⊢F) (refl ⊢G)))
       [tu≡fu] = proj₂ (redSubst*Term (app-subst* d₁ (escapeTerm [F] [a]))
                                      [G[u]] [f∘u])
       [gu′≡t′u′] = convEqTerm₂ [G[u]] [G[u′]] [G[u≡u′]]

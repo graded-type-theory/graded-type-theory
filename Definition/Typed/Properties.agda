@@ -22,7 +22,7 @@ wfTerm : Γ ⊢ t ∷ A → ⊢ Γ
 wfTerm (ℕⱼ ⊢Γ) = ⊢Γ
 wfTerm (Emptyⱼ ⊢Γ) = ⊢Γ
 wfTerm (Unitⱼ ⊢Γ) = ⊢Γ
-wfTerm (Πⱼ F ▹ G) = wfTerm F
+wfTerm (ΠΣⱼ F ▹ G) = wfTerm F
 wfTerm (var ⊢Γ x₁) = ⊢Γ
 wfTerm (lamⱼ F t) with wfTerm t
 wfTerm (lamⱼ F t) | ⊢Γ ∙ F′ = ⊢Γ
@@ -34,7 +34,6 @@ wfTerm (prodrecⱼ F G A t u) = wfTerm t
 wfTerm (Emptyrecⱼ A e) = wfTerm e
 wfTerm (starⱼ ⊢Γ) = ⊢Γ
 wfTerm (conv t A≡B) = wfTerm t
-wfTerm (Σⱼ a ▹ a₁) = wfTerm a
 wfTerm (prodⱼ F G a a₁) = wfTerm a
 wfTerm (fstⱼ _ _ a) = wfTerm a
 wfTerm (sndⱼ _ _ a) = wfTerm a
@@ -44,8 +43,7 @@ wf (ℕⱼ ⊢Γ) = ⊢Γ
 wf (Emptyⱼ ⊢Γ) = ⊢Γ
 wf (Unitⱼ ⊢Γ) = ⊢Γ
 wf (Uⱼ ⊢Γ) = ⊢Γ
-wf (Πⱼ F ▹ G) = wf F
-wf (Σⱼ F ▹ G) = wf F
+wf (ΠΣⱼ F ▹ G) = wf F
 wf (univ A) = wfTerm A
 
 wfEqTerm : Γ ⊢ t ≡ u ∷ A → ⊢ Γ
@@ -53,7 +51,7 @@ wfEqTerm (refl t) = wfTerm t
 wfEqTerm (sym t≡u) = wfEqTerm t≡u
 wfEqTerm (trans t≡u u≡r) = wfEqTerm t≡u
 wfEqTerm (conv t≡u A≡B) = wfEqTerm t≡u
-wfEqTerm (Π-cong F F≡H G≡E _ _) = wfEqTerm F≡H
+wfEqTerm (ΠΣ-cong F F≡H G≡E) = wfEqTerm F≡H
 wfEqTerm (app-cong f≡g a≡b p≈p₁ p≈p₂) = wfEqTerm f≡g
 wfEqTerm (β-red F G t a p≡q) = wfTerm a
 wfEqTerm (η-eq F f g f0≡g0) = wfTerm f
@@ -63,7 +61,6 @@ wfEqTerm (natrec-zero F z s) = wfTerm z
 wfEqTerm (natrec-suc n F z s) = wfTerm n
 wfEqTerm (Emptyrec-cong A≡A' e≡e' _) = wfEqTerm e≡e'
 wfEqTerm (η-unit e e') = wfTerm e
-wfEqTerm (Σ-cong F _ _ _) = wf F
 wfEqTerm (prod-cong F _ _ _) = wf F
 wfEqTerm (fst-cong _ _ a) = wfEqTerm a
 wfEqTerm (snd-cong _ _ a) = wfEqTerm a
@@ -78,8 +75,7 @@ wfEq (univ A≡B) = wfEqTerm A≡B
 wfEq (refl A) = wf A
 wfEq (sym A≡B) = wfEq A≡B
 wfEq (trans A≡B B≡C) = wfEq A≡B
-wfEq (Π-cong F F≡H G≡E _ _) = wf F
-wfEq (Σ-cong F x₁ x₂ _) = wf F
+wfEq (ΠΣ-cong F F≡H G≡E) = wf F
 
 
 -- Reduction is a subset of conversion
@@ -120,8 +116,8 @@ subset* (A⇒A′ ⇨ A′⇒*B) = trans (subset A⇒A′) (subset* A′⇒*B)
 redFirstTerm :{Γ : Con Term n} → Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ∷ A
 redFirstTerm (conv t⇒u A≡B) = conv (redFirstTerm t⇒u) A≡B
 redFirstTerm (app-subst t⇒u a) = (redFirstTerm t⇒u) ∘ⱼ a
-redFirstTerm (β-red {p} A B t a p≈p′) =
-  _∘ⱼ_ {q = p} (conv (lamⱼ A t) (Π-cong A (refl A) (refl B) p≈p′ ≈-refl)) a
+redFirstTerm (β-red {p} A B t a PE.refl) =
+  _∘ⱼ_ {q = p} (conv (lamⱼ A t) (ΠΣ-cong A (refl A) (refl B))) a
 redFirstTerm (natrec-subst F z s n⇒n′) = natrecⱼ F z s (redFirstTerm n⇒n′)
 redFirstTerm (natrec-zero F z s) = natrecⱼ F z s (zeroⱼ (wfTerm z))
 redFirstTerm (natrec-suc n F z s) = natrecⱼ F z s (sucⱼ n)
@@ -131,14 +127,14 @@ redFirstTerm (snd-subst F G x) = sndⱼ F G (redFirstTerm x)
 redFirstTerm (prodrec-subst F G A u t⇒t′) = prodrecⱼ F G A (redFirstTerm t⇒t′) u
 redFirstTerm (prodrec-β F G A t t′ u PE.refl) =
   prodrecⱼ F G A
-    (conv (prodⱼ F G t t′) (Σ-cong F (refl F) (refl G) ≈-refl))
+    (conv (prodⱼ F G t t′) (ΠΣ-cong F (refl F) (refl G)))
     u
 redFirstTerm (Σ-β₁ {q = q} F G x x₁ x₂ PE.refl) =
   fstⱼ {q = q} F G
-    (conv (prodⱼ F G x x₁) (Σ-cong F (refl F) (refl G) ≈-refl))
+    (conv (prodⱼ F G x x₁) (ΠΣ-cong F (refl F) (refl G)))
 redFirstTerm (Σ-β₂ {q = q} F G x x₁ x₂ PE.refl) =
   sndⱼ {q = q} F G
-    (conv (prodⱼ F G x x₁) (Σ-cong F (refl F) (refl G) ≈-refl))
+    (conv (prodⱼ F G x x₁) (ΠΣ-cong F (refl F) (refl G)))
 
 redFirst :{Γ : Con Term n} → Γ ⊢ A ⇒ B → Γ ⊢ A
 redFirst (univ A⇒B) = univ (redFirstTerm A⇒B)
@@ -205,8 +201,7 @@ whnfRed (univ x) w = whnfRedTerm x w
 
 whnfRed*Term : (d : Γ ⊢ t ⇒* u ∷ A) (w : Whnf t) → t PE.≡ u
 whnfRed*Term (id x) Uₙ = PE.refl
-whnfRed*Term (id x) Πₙ = PE.refl
-whnfRed*Term (id x) Σₙ = PE.refl
+whnfRed*Term (id x) ΠΣₙ = PE.refl
 whnfRed*Term (id x) ℕₙ = PE.refl
 whnfRed*Term (id x) Emptyₙ = PE.refl
 whnfRed*Term (id x) Unitₙ = PE.refl
@@ -306,7 +301,7 @@ UnotInA[t] : t [ a ] PE.≡ U
          → ⊥
 UnotInA[t] () x₁ (ℕⱼ x₂)
 UnotInA[t] () x₁ (Emptyⱼ x₂)
-UnotInA[t] () x₁ (Πⱼ x₂ ▹ x₃)
+UnotInA[t] () _  (ΠΣⱼ _ ▹ _)
 UnotInA[t] x₁ x₂ (var x₃ here) rewrite x₁ = UnotInA x₂
 UnotInA[t] () x₂ (var x₃ (there x₄))
 UnotInA[t] () x₁ (lamⱼ x₂ x₃)

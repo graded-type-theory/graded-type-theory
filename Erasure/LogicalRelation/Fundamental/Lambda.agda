@@ -58,16 +58,6 @@ private
      σ′ : T.Subst 0 n
      m : Mode
 
-Πʳ : ([Γ] : ⊩ᵛ Γ) → Γ ⊢ Π p , q ▷ F ▹ G ∷ U
-   → ∃ λ ([U] : Γ ⊩ᵛ⟨ ¹ ⟩ U / [Γ])
-   → γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ Π p , q ▷ F ▹ G ∷[ m ] U / [Γ] / [U]
-Πʳ {F = F} {G = G} [Γ] ⊢Π =
-    [U]
-  , subsumptionMode (Π _ , _ ▷ F ▹ G) [U]
-      (λ [σ] _ → Uᵣ (substitutionTerm ⊢Π (wellformedSubst [Γ] ε [σ]) ε))
-  where
-  [U] = Uᵛ [Γ]
-
 lamʳ′ : ∀ {l} {Γ : Con Term n}
       → ([Γ] : ⊩ᵛ Γ)
         ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])

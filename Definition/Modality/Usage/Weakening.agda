@@ -101,11 +101,8 @@ wkUsage ρ Emptyₘ =
   PE.subst (λ γ → γ ▸[ _ ] Empty) (PE.sym (wk-𝟘ᶜ ρ)) Emptyₘ
 wkUsage ρ Unitₘ =
   PE.subst (λ γ → γ ▸[ _ ] Unit) (PE.sym (wk-𝟘ᶜ ρ)) Unitₘ
-wkUsage ρ (Πₘ γ▸F δ▸G) =
-  sub (Πₘ (wkUsage ρ γ▸F) (wkUsage (lift ρ) δ▸G))
-      (≤ᶜ-reflexive (wk-+ᶜ ρ))
-wkUsage ρ (Σₘ γ▸F δ▸G) =
-  sub (Σₘ (wkUsage ρ γ▸F) (wkUsage (lift ρ) δ▸G))
+wkUsage ρ (ΠΣₘ γ▸F δ▸G) =
+  sub (ΠΣₘ (wkUsage ρ γ▸F) (wkUsage (lift ρ) δ▸G))
       (≤ᶜ-reflexive (wk-+ᶜ ρ))
 wkUsage ρ var =
   PE.subst (λ γ → γ ▸[ _ ] wk ρ (var _)) (PE.sym (wkUsageVar ρ _)) var
