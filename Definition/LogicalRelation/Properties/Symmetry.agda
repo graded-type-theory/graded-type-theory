@@ -109,7 +109,7 @@ symEqTerm (ne′ K D neK K≡K) (neₜ₌ k m d d′ nf) =
 symEqTerm (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
           (Πₜ₌ f g d d′ funcF funcG f≡g [f] [g] [f≡g]) =
   Πₜ₌ g f d′ d funcG funcF (≅ₜ-sym f≡g) [g] [f]
-      (λ ρ ⊢Δ [a] p≈p₁ p≈p₂ → symEqTerm ([G] ρ ⊢Δ [a]) ([f≡g] ρ ⊢Δ [a] p≈p₂ p≈p₁))
+      (λ ρ ⊢Δ [a] → symEqTerm ([G] ρ ⊢Δ [a]) ([f≡g] ρ ⊢Δ [a]))
 symEqTerm (Bᵣ′ BΣₚ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
           (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] ([fstp] , [fstr] , [fst≡] , [snd≡])) =
   let ⊢Γ = wf ⊢F

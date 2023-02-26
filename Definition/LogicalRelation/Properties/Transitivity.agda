@@ -206,9 +206,8 @@ transEqTerm (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
             rewrite whrDet*Term (redₜ d′ , functionWhnf funcG)
                             (redₜ d₁ , functionWhnf funcF₁) =
   Πₜ₌ f g₁ d d₁′ funcF funcG₁ (≅ₜ-trans f≡g f≡g₁) [f] [g]₁
-                (λ ρ ⊢Δ [a] p≈p₁ p≈p₂ → transEqTerm ([G] ρ ⊢Δ [a])
-                                                ([f≡g] ρ ⊢Δ [a] p≈p₁ p≈p₁)
-                                                ([f≡g]₁ ρ ⊢Δ [a] p≈p₁ p≈p₂))
+                (λ ρ ⊢Δ [a] → transEqTerm ([G] ρ ⊢Δ [a])
+                                ([f≡g] ρ ⊢Δ [a]) ([f≡g]₁ ρ ⊢Δ [a]))
 transEqTerm
   {n = n} {Γ = Γ} (Bᵣ′ (BΣ Σₚ p′ q) F G D ⊢F ⊢G A≡A [F] [G] G-ext)
   (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u]
