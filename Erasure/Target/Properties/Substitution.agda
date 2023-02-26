@@ -13,7 +13,7 @@ private
     ℓ m n : Nat
     ρ ρ′ : Wk m n
     σ σ′ : Subst m n
-
+    t : Term n
 
 -- Substitution properties.
 
@@ -229,6 +229,23 @@ wk-comp-subst {a = a} ρ ρ′ G =
 wk-β : ∀ {a : Term m} t → wk ρ (t [ a ]) ≡ wk (lift ρ) t [ wk ρ a ]
 wk-β t = trans (wk-subst t) (sym (trans (subst-wk t)
                (substVar-to-subst (λ { x0 → refl ; (x +1) → refl}) t)))
+
+-- Pushing a lifted weakening into a lifted single substitution.
+
+wk-lift-β :
+  ∀ u →
+  wk (lift ρ) (subst (liftSubst (sgSubst t)) u) ≡
+  subst (liftSubst (sgSubst (wk ρ t))) (wk (lift (lift ρ)) u)
+wk-lift-β {ρ = ρ} {t = t} u =
+  wk (lift ρ) (subst (liftSubst (sgSubst t)) u)                ≡⟨ wk-subst u ⟩
+  subst (lift ρ •ₛ liftSubst (sgSubst t)) u                    ≡˘⟨ substVar-to-subst
+                                                                     (λ where
+                                                                        x0          → refl
+                                                                        (x0 +1)     → wk1-wk≡lift-wk1 _ _
+                                                                        ((_ +1) +1) → refl)
+                                                                     u ⟩
+  subst (liftSubst (sgSubst (wk ρ t)) ₛ• lift (lift ρ)) u      ≡˘⟨ subst-wk u ⟩
+  subst (liftSubst (sgSubst (wk ρ t))) (wk (lift (lift ρ)) u)  ∎
 
 -- Pushing a weakening into a double substitution
 -- ρ (t[a,b]) = ((lift (lift ρ)) t) [ ρ a , ρ b ]
