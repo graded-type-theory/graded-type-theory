@@ -378,3 +378,24 @@ doubleSubstComp {n = n} A t u σ = begin
   varEq (x0 +1) = refl
   varEq (x +1 +1) = trans (wk1-tail (wk1 (σ x)))
                           (trans (wk1-tail (σ x)) (subst-id (σ x)))
+
+-- Lifted substitutions kind of commute with lifted single
+-- substitutions.
+
+subst-liftSubst-sgSubst :
+  ∀ u →
+  subst (liftSubst σ) (subst (liftSubst (sgSubst t)) u) ≡
+  subst (liftSubst (sgSubst (subst σ t)))
+    (subst (liftSubst (liftSubst σ)) u)
+subst-liftSubst-sgSubst {σ = σ} {t = t} u =
+  subst (liftSubst σ) (subst (liftSubst (sgSubst t)) u)                  ≡⟨ substCompEq u ⟩
+  subst (liftSubst σ ₛ•ₛ liftSubst (sgSubst t)) u                        ≡⟨ substVar-to-subst substCompLift u ⟩
+  subst (liftSubst (σ ₛ•ₛ sgSubst t)) u                                  ≡˘⟨ substVar-to-subst
+                                                                               (substVar-lift λ where
+                                                                                  x0     → refl
+                                                                                  (_ +1) → wk1-sgSubst _ _)
+                                                                               u ⟩
+  subst (liftSubst (sgSubst (subst σ t) ₛ•ₛ liftSubst σ)) u              ≡˘⟨ substVar-to-subst substCompLift u ⟩
+  subst (liftSubst (sgSubst (subst σ t)) ₛ•ₛ liftSubst (liftSubst σ)) u  ≡˘⟨ substCompEq u ⟩
+  subst (liftSubst (sgSubst (subst σ t)))
+    (subst (liftSubst (liftSubst σ)) u)                                  ∎
