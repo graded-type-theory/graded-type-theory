@@ -4,15 +4,13 @@ open import Definition.Modality.Instances.Erasure
 
 module Definition.Modality.Instances.Erasure.Modality (Prodrec : (p : Erasure) → Set) where
 
-
-
 open import Tools.Product
 open import Tools.PropositionalEquality
 
 open import Definition.Modality Erasure′ public
 open import Tools.Algebra Erasure′
 
--- Erasures form a modality
+-- Erasure forms a modality
 
 erasureModalityWithout⊛ : ModalityWithout⊛
 erasureModalityWithout⊛ = record

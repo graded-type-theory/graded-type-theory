@@ -41,13 +41,13 @@ _·_ : Op₂ Erasure
 _∧_ : Op₂ Erasure
 _∧_ = _+_
 
--- Natrec recurrence function
+-- Natrec-star operators
 
 _⊛_▷_ : Op₃ Erasure
 p ⊛ q ▷ r = p + q
 
 
--- Ordering relation for erasures
+-- Ordering relation for erasure
 -- Reflexive closure of ω ≤ 𝟘
 
 _≤_ : (p q : Erasure) → Set
