@@ -22,7 +22,6 @@ open import Definition.Modality.Usage ErasureModality
 open import Definition.Modality.Usage.Inversion ErasureModality
 open import Definition.Mode ErasureModality
 
-open import Application.NegativeAxioms.NegativeType Erasure
 open import Erasure.SucRed Erasure
 
 open import Definition.Typed.Properties Erasure
