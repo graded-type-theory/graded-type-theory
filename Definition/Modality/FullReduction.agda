@@ -156,11 +156,11 @@ mutual
     let B , nf , A≡B , γ▸B = fullRedNe~↓ A γ▸A
     in  B , ne nf , univ A≡B , γ▸B
   fullRedConv↓ (ΠΣ-cong ⊢F F G) γ▸A =
-    let invUsageΠΣ δ▸F η▸G γ≤γ′ = inv-usage-ΠΣ γ▸A
+    let invUsageΠΣ δ▸F η▸G γ≤γ′ ok = inv-usage-ΠΣ γ▸A
         F′ , nfF′ , F≡F′ , δ▸F′ = fullRedConv↑ F δ▸F
         G′ , nfG′ , G≡G′ , η▸G′ = fullRedConv↑ G η▸G
     in  ΠΣ⟨ _ ⟩ _ , _ ▷ F′ ▹ G′ , ΠΣₙ nfF′ nfG′ , ΠΣ-cong ⊢F F≡F′ G≡G′
-      , sub (ΠΣₘ δ▸F′ η▸G′) γ≤γ′
+      , sub (ΠΣₘ δ▸F′ η▸G′ ok) γ≤γ′
 
   fullRedTermConv↑ :
     Γ ⊢ t [conv↑] t′ ∷ A → γ ▸[ m ] t →

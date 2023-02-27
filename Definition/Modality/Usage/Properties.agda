@@ -58,9 +58,10 @@ private
   Emptyₘ
 ▸-𝟙≈𝟘 _ Unitₘ =
   Unitₘ
-▸-𝟙≈𝟘 𝟙≈𝟘 (ΠΣₘ ▸F ▸G) =
+▸-𝟙≈𝟘 𝟙≈𝟘 (ΠΣₘ ▸F ▸G ok) =
   ΠΣₘ (▸-𝟙≈𝟘 𝟙≈𝟘 ▸F)
       (sub (▸-𝟙≈𝟘 𝟙≈𝟘 ▸G) (≈ᶜ-trivial 𝟙≈𝟘))
+      ok
 ▸-𝟙≈𝟘 𝟙≈𝟘 var = sub
   var
   (≈ᶜ-trivial 𝟙≈𝟘)
@@ -116,9 +117,10 @@ private
   sub Emptyₘ (≤ᶜ-reflexive (·ᶜ-zeroʳ _))
 ▸-· Unitₘ =
   sub Unitₘ (≤ᶜ-reflexive (·ᶜ-zeroʳ _))
-▸-· {m′ = m′} (ΠΣₘ F G) = sub
+▸-· {m′ = m′} (ΠΣₘ F G ok) = sub
   (ΠΣₘ (▸-cong (PE.sym (·ᵐ-ᵐ·-assoc m′)) (▸-· F))
-       (sub (▸-· G) (≤ᶜ-reflexive (≈ᶜ-refl ∙ ·ᵐ-·-assoc m′))))
+       (sub (▸-· G) (≤ᶜ-reflexive (≈ᶜ-refl ∙ ·ᵐ-·-assoc m′)))
+       ok)
   (≤ᶜ-reflexive (·ᶜ-distribˡ-+ᶜ _ _ _))
 ▸-· {m = m} {m′ = m′} (var {x = x}) = sub var
   (begin
@@ -438,15 +440,16 @@ Conₘ-interchange Unitₘ Unitₘ x =
   subst (_▸[ _ ] _) (PE.sym (update-self 𝟘ᶜ x)) Unitₘ
 
 Conₘ-interchange
-  (ΠΣₘ {γ = γ} {δ = δ} γ▸t δ▸u)
-  (ΠΣₘ {γ = γ′} {δ = δ′} γ′▸t δ′▸u) x =
+  (ΠΣₘ {γ = γ} {δ = δ} γ▸t δ▸u ok)
+  (ΠΣₘ {γ = γ′} {δ = δ′} γ′▸t δ′▸u _) x =
   subst (_▸[ _ ] _)
     (begin
        (γ , x ≔ γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩)  ≡˘⟨ update-distrib-+ᶜ γ _ _ _ x ⟩
        γ +ᶜ δ , x ≔ γ′ ⟨ x ⟩ + δ′ ⟨ x ⟩          ≡˘⟨ cong (_ , x ≔_) (lookup-distrib-+ᶜ γ′ _ _) ⟩
        γ +ᶜ δ , x ≔ (γ′ +ᶜ δ′) ⟨ x ⟩             ∎)
     (ΠΣₘ (Conₘ-interchange γ▸t γ′▸t x)
-       (Conₘ-interchange δ▸u δ′▸u (x +1)))
+       (Conₘ-interchange δ▸u δ′▸u (x +1))
+       ok)
   where
   open Tools.Reasoning.PropositionalEquality
 
@@ -593,7 +596,7 @@ usage-upper-bound ℕₘ     = ≤ᶜ-refl
 usage-upper-bound Emptyₘ = ≤ᶜ-refl
 usage-upper-bound Unitₘ  = ≤ᶜ-refl
 
-usage-upper-bound (ΠΣₘ {G = G} ▸F ▸G) =
+usage-upper-bound (ΠΣₘ {G = G} ▸F ▸G _) =
   +ᶜ-monotone (usage-upper-bound ▸F)
               (subst (_ ≈ᶜ_) (tailₘ-distrib-∧ᶜ (_ ∙ _) (⌈ G ⌉ _))
                      (tailₘ-cong (usage-upper-bound ▸G)))
@@ -645,12 +648,13 @@ usage-inf Uₘ = Uₘ
 usage-inf ℕₘ = ℕₘ
 usage-inf Emptyₘ = Emptyₘ
 usage-inf Unitₘ = Unitₘ
-usage-inf (ΠΣₘ {G = G} γ▸F δ▸G) =
+usage-inf (ΠΣₘ {G = G} γ▸F δ▸G ok) =
   ΠΣₘ (usage-inf γ▸F)
       (sub (usage-inf δ▸G)
            (subst (tailₘ (⌈ G ⌉ _) ∙ _ ≤ᶜ_)
                   (headₘ-tailₘ-correct (⌈ G ⌉ _))
                   (≤ᶜ-refl ∙ headₘ-monotone (usage-upper-bound δ▸G))))
+      ok
 usage-inf var = var
 usage-inf (lamₘ {p = p} {t = t} γ▸t) =
   lamₘ (sub (usage-inf γ▸t)

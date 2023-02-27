@@ -47,6 +47,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
 
   ΠΣₘ       : γ ▸[ m ᵐ· p ] F
             → δ ∙ ⌜ m ⌝ · q ▸[ m ] G
+            → Binder b p q
             → γ +ᶜ δ ▸[ m ] ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
 
   var       : (𝟘ᶜ , x ≔ ⌜ m ⌝) ▸[ m ] var x

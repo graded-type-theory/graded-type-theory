@@ -58,7 +58,7 @@ inv-usage-Unit Unitₘ = ≤ᶜ-refl
 inv-usage-Unit (sub γ▸⊤ γ≤δ) = ≤ᶜ-trans γ≤δ (inv-usage-Unit γ▸⊤)
 
 
-record InvUsageΠΣ {n} (γ : Conₘ n) (m : Mode) (p q : M)
+record InvUsageΠΣ {n} (γ : Conₘ n) (m : Mode) (b : BinderMode) (p q : M)
                  (F : Term n) (G : Term (1+ n)) : Set a where
   constructor invUsageΠΣ
   field
@@ -66,15 +66,16 @@ record InvUsageΠΣ {n} (γ : Conₘ n) (m : Mode) (p q : M)
     δ▸F   : δ ▸[ m ᵐ· p ] F
     η▸G   : η ∙ ⌜ m ⌝ · q ▸[ m ] G
     γ≤δ+η : γ ≤ᶜ δ +ᶜ η
+    ok    : Binder b p q
 
 -- If γ ▸[ m ] ⟨ b ⟩ p , q ▷ F ▹ G then δ ▸[ m ᵐ· p ] F,
--- η ∙ ⌜ m ⌝ · q ▸[ m ] G and γ ≤ᶜ δ +ᶜ η.
+-- η ∙ ⌜ m ⌝ · q ▸[ m ] G, γ ≤ᶜ δ +ᶜ η and Binder b p q.
 
-inv-usage-ΠΣ : γ ▸[ m ] ΠΣ⟨ b ⟩ p , q ▷ F ▹ G → InvUsageΠΣ γ m p q F G
-inv-usage-ΠΣ (ΠΣₘ γ▸F δ▸G) = invUsageΠΣ γ▸F δ▸G ≤ᶜ-refl
+inv-usage-ΠΣ : γ ▸[ m ] ΠΣ⟨ b ⟩ p , q ▷ F ▹ G → InvUsageΠΣ γ m b p q F G
+inv-usage-ΠΣ (ΠΣₘ γ▸F δ▸G ok) = invUsageΠΣ γ▸F δ▸G ≤ᶜ-refl ok
 inv-usage-ΠΣ (sub γ▸Π γ≤γ′) with inv-usage-ΠΣ γ▸Π
-… | invUsageΠΣ δ▸F η▸G γ′≤δ+η =
-  invUsageΠΣ δ▸F η▸G (≤ᶜ-trans γ≤γ′ γ′≤δ+η)
+… | invUsageΠΣ δ▸F η▸G γ′≤δ+η ok =
+  invUsageΠΣ δ▸F η▸G (≤ᶜ-trans γ≤γ′ γ′≤δ+η) ok
 
 -- If γ ▸[ m ] var x then γ ≤ᶜ (𝟘ᶜ , x ≔ ⌜ m ⌝).
 

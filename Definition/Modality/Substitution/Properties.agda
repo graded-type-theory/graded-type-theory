@@ -599,11 +599,12 @@ substₘ-lemma₀ _ _ Emptyₘ =
 substₘ-lemma₀ _ _ Unitₘ =
   Unitₘ
 
-substₘ-lemma₀ Ψ Ψ▶σ (ΠΣₘ {p = p} γ▸F δ▸G) = sub
+substₘ-lemma₀ Ψ Ψ▶σ (ΠΣₘ {p = p} γ▸F δ▸G ok) = sub
   (ΠΣₘ (substₘ-lemma₀ Ψ Ψ▶σ γ▸F)
      (sub (substₘ-lemma₀ (liftSubstₘ Ψ) (wf-liftSubstₘ {mo = 𝟘ᵐ} Ψ▶σ)
              δ▸G)
-        (≤ᶜ-reflexive (≈ᶜ-refl ∙ ·-zeroˡ _))))
+        (≤ᶜ-reflexive (≈ᶜ-refl ∙ ·-zeroˡ _)))
+     ok)
   (≤ᶜ-reflexive (≈ᶜ-sym (+ᶜ-identityˡ _)))
 
 substₘ-lemma₀ Ψ Ψ▶σ (var {x = x}) = ▸-𝟘 (Ψ▶σ x)
@@ -743,7 +744,7 @@ substₘ-lemma Ψ _ Emptyₘ =
 substₘ-lemma Ψ _ Unitₘ =
   sub Unitₘ (≤ᶜ-reflexive (*>-zeroʳ Ψ))
 
-substₘ-lemma Ψ Ψ▶σ (ΠΣₘ {γ = γ} γ▸F δ▸G) = sub
+substₘ-lemma Ψ Ψ▶σ (ΠΣₘ {γ = γ} γ▸F δ▸G ok) = sub
   (ΠΣₘ (substₘ-lemma Ψ (▶-⌞+ᶜ⌟ˡ Ψ γ Ψ▶σ) γ▸F)
      (sub (substₘ-lemma (liftSubstₘ Ψ)
              (▶-cong (liftSubstₘ Ψ)
@@ -752,7 +753,8 @@ substₘ-lemma Ψ Ψ▶σ (ΠΣₘ {γ = γ} γ▸F δ▸G) = sub
                    x0     → PE.refl)
                 (wf-liftSubstₘ (▶-⌞+ᶜ⌟ʳ Ψ γ Ψ▶σ)))
              δ▸G)
-        (≤ᶜ-reflexive (≈ᶜ-sym (liftSubstₘ-app Ψ _ _)))))
+        (≤ᶜ-reflexive (≈ᶜ-sym (liftSubstₘ-app Ψ _ _))))
+     ok)
   (≤ᶜ-reflexive (*>-distrib-+ᶜ Ψ _ _))
 
 substₘ-lemma {σ = σ} {mo = mo} Ψ Ψ▶σ (var {x = x}) =

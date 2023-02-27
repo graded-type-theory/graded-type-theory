@@ -147,7 +147,7 @@ fundamental : Γ ⊢ t ∷ A → γ ▸[ m ] t
             → ∃ λ ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ])
             → γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A / [Γ] / [A]
 fundamental Γ⊢Π@(ΠΣⱼ Γ⊢F:U ▹ Γ⊢G:U) γ▸t =
-  let invUsageΠΣ δ▸F _ _ = inv-usage-ΠΣ γ▸t
+  let invUsageΠΣ δ▸F _ _ _ = inv-usage-ΠΣ γ▸t
       [Γ] , _ , _ = fundamental Γ⊢F:U δ▸F
       [U] , ⊩ʳΠ = ΠΣʳ [Γ] Γ⊢Π
   in  [Γ] , [U] , ⊩ʳΠ

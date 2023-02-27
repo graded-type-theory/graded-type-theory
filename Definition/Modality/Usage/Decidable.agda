@@ -12,6 +12,8 @@ module Definition.Modality.Usage.Decidable
   (_≟_ : Decidable (_≡_ {A = M}))
   -- The Prodrec relation is assumed to be decidable.
   (Prodrec? : Decidable Prodrec)
+  -- The Binder relation is assumed to be decidable.
+  (Binder? : ∀ b p q → Dec (Binder b p q))
   where
 
 open import Definition.Modality.Context 𝕄
@@ -160,22 +162,28 @@ infix 10 ⌈⌉▸[_]?_
     where
     open Tools.Reasoning.PropositionalEquality
 
-⌈⌉▸[ m ]? ΠΣ⟨ _ ⟩ p , q ▷ F ▹ G = case ⌈⌉▸[ m ᵐ· p ]? F of λ where
+⌈⌉▸[ m ]? ΠΣ⟨ b ⟩ p , q ▷ F ▹ G = case ⌈⌉▸[ m ᵐ· p ]? F of λ where
     (inj₂ ¬▸F) → inj₂ λ _ ▸ΠΣ →
-      case inv-usage-ΠΣ ▸ΠΣ of λ (invUsageΠΣ ▸F _ _) →
+      case inv-usage-ΠΣ ▸ΠΣ of λ (invUsageΠΣ ▸F _ _ _) →
       ¬▸F _ ▸F
     (inj₁ ▸F) → case ⌈⌉▸[ m ]? G of λ where
       (inj₂ ¬▸G) → inj₂ λ _ ▸ΠΣ →
-        case inv-usage-ΠΣ ▸ΠΣ of λ (invUsageΠΣ _ ▸G _) →
+        case inv-usage-ΠΣ ▸ΠΣ of λ (invUsageΠΣ _ ▸G _ _) →
         ¬▸G _ ▸G
       (inj₁ ▸G) → case ⌜ m ⌝ · q ≤? headₘ (⌈ G ⌉ m) of λ where
         (no mq≰) → inj₂ λ _ ▸ΠΣ →
-          case inv-usage-ΠΣ ▸ΠΣ of λ (invUsageΠΣ _ ▸G′ _) →
+          case inv-usage-ΠΣ ▸ΠΣ of λ (invUsageΠΣ _ ▸G′ _ _) →
           mq≰ (headₘ-monotone (usage-upper-bound ▸G′))
-        (yes mq≤) → inj₁ (ΠΣₘ ▸F (sub ▸G (begin
-          tailₘ (⌈ G ⌉ m) ∙ ⌜ m ⌝ · q        ≤⟨ ≤ᶜ-refl ∙ mq≤ ⟩
-          tailₘ (⌈ G ⌉ m) ∙ headₘ (⌈ G ⌉ m)  ≡⟨ headₘ-tailₘ-correct _ ⟩
-          ⌈ G ⌉ m                            ∎)))
+        (yes mq≤) → case Binder? b p q of λ where
+          (no not-ok) → inj₂ λ _ ▸ΠΣ →
+            case inv-usage-ΠΣ ▸ΠΣ of λ (invUsageΠΣ _ _ _ ok) →
+            not-ok ok
+          (yes ok) →
+            let lemma = begin
+                  tailₘ (⌈ G ⌉ m) ∙ ⌜ m ⌝ · q        ≤⟨ ≤ᶜ-refl ∙ mq≤ ⟩
+                  tailₘ (⌈ G ⌉ m) ∙ headₘ (⌈ G ⌉ m)  ≡⟨ headₘ-tailₘ-correct _ ⟩
+                  ⌈ G ⌉ m                            ∎
+            in inj₁ (ΠΣₘ ▸F (sub ▸G lemma) ok)
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
