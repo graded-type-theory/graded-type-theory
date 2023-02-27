@@ -12,7 +12,7 @@ open import Definition.Typed M
 open import Definition.Typed.Weakening M
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Usage 𝕄
-open import Application.NegativeAxioms.NegativeType M
+open import Application.NegativeAxioms.NegativeOrErasedType 𝕄
 
 
 open import Tools.Fin

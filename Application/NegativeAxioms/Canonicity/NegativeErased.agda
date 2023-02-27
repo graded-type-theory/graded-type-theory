@@ -22,6 +22,8 @@ module Application.NegativeAxioms.Canonicity.NegativeErased
   (consistent : ∀{t} → Γ ⊢ t ∷ Empty → ⊥)
   where
 
+open Restrictions restrictions
+
 open import Definition.Modality.Instances.Erasure.Properties
   (prodrec-only-for-ω restrictions)
 open import Definition.Modality.Context ErasureModality
@@ -30,7 +32,8 @@ open import Definition.Modality.Usage.Inversion ErasureModality
 open import Definition.Modality.Usage.Properties ErasureModality
 open import Definition.Mode ErasureModality
 
-open import Application.NegativeAxioms.NegativeType Erasure
+open import Application.NegativeAxioms.NegativeOrErasedType
+  ErasureModality
 open import Erasure.SucRed Erasure
 
 open import Definition.Typed.Properties Erasure
@@ -47,10 +50,12 @@ open import Definition.LogicalRelation Erasure
 open import Definition.LogicalRelation.Irrelevance Erasure
 open import Definition.LogicalRelation.Fundamental.Reducibility Erasure
 
+open import Tools.Bool
+open import Tools.Function
 open import Tools.Nat
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE using (_≢_)
 open import Tools.Product
-
+open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 -- Preliminaries
 ---------------------------------------------------------------------------
@@ -80,10 +85,21 @@ neNeg (d ∘ⱼ ⊢t           ) (∘ₙ n       ) γ▸u =
   let invUsageApp δ▸g η▸a γ≤γ′ = inv-usage-app γ▸u
   in  appNeg (neNeg d n (sub δ▸g (≤ᶜ-trans γ≤γ′ (+ᶜ-decreasingˡ _ _))))
              (refl (syntacticTerm d)) ⊢t
-neNeg (fstⱼ ⊢A A⊢B d     ) (fstₙ n     ) γ▸u =
-  let invUsageFst _ _ δ▸t γ≤δ _ = inv-usage-fst γ▸u
+neNeg (fstⱼ ⊢A A⊢B d) (fstₙ {p = p} n) γ▸u =
+  let invUsageFst m 𝟙ᵐ≡mᵐ·p δ▸t γ≤δ ok = inv-usage-fst γ▸u
   in  fstNeg (neNeg d n (sub δ▸t γ≤δ))
              (refl (ΠΣⱼ ⊢A ▹ A⊢B))
+             (𝟘≢p m 𝟙ᵐ≡mᵐ·p ok)
+  where
+  𝟘≢p :
+    ∀ m →
+    𝟙ᵐ PE.≡ m ᵐ· p →
+    (p PE.≡ 𝟘 → (ω PE.≡ 𝟘) ⊎ T 𝟘ᵐ-allowed) →
+    𝟘 ≢ p
+  𝟘≢p 𝟘ᵐ ()
+  𝟘≢p 𝟙ᵐ 𝟙ᵐ≡⌞𝟘⌟ ok PE.refl = case ok PE.refl of λ where
+    (inj₁ ())
+    (inj₂ 𝟘ᵐ-ok) → ⌞⌟≡𝟙ᵐ→≉𝟘 𝟘ᵐ-ok (PE.sym 𝟙ᵐ≡⌞𝟘⌟) PE.refl
 neNeg (sndⱼ ⊢A A⊢B d     ) (sndₙ n     ) γ▸u =
   let invUsageSnd δ▸t γ≤δ = inv-usage-snd γ▸u
   in  sndNeg (neNeg d n (sub δ▸t γ≤δ))
