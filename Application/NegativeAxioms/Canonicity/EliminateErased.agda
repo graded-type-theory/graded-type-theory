@@ -88,7 +88,7 @@ lem′ ([↑]ₜ _ _ _ D d d′ whnfB whnft′ whnfu′ (ne-ins x x₁ x₂ ()))
   | PE.refl | PE.refl | PE.refl
 
 cEx : ∃₄ λ (m : Nat) (Γ : Con Term m) (γ : Conₘ m) (t : Term m)
-    → Γ ⊢ t ∷ ℕ × 𝟘ᶜ ▸[ 𝟙ᵐ ] t
+    → Γ ⊢ t ∷ ℕ × γ ▸[ 𝟙ᵐ ] t
     × NegativeErasedContext Γ γ
     × (∀ {u} → Γ ⊢ u ∷ Empty → ⊥)
     × ((∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ) → ⊥)
