@@ -42,6 +42,7 @@ open import Definition.Conversion.EqRelInstance Erasure
 
 open import Tools.Fin
 open import Tools.Nat
+open import Tools.Nullary
 import Tools.PropositionalEquality as PE
 open import Tools.Product
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
@@ -111,3 +112,18 @@ cEx = _ , ε ∙ (Σᵣ ω , 𝟘 ▷ ℕ ▹ ℕ) , ε ∙ 𝟘 , prodrec 𝟘 
     ⊢εΣΣ = ⊢εΣ ∙ εΣ⊢Σ
     εΣΣ⊢ℕ = ℕⱼ ⊢εΣΣ
     ⊢εΣℕℕ = ⊢εΣℕ ∙ εΣℕ⊢ℕ
+
+-- If one drops the restriction related to prodrec from the statement
+-- of
+-- Application.NegativeAxioms.Canonicity.NegativeErased.canonicityEq,
+-- then the lemma cannot be proved (assuming that Agda is consistent).
+
+not-canonicityEq :
+  ¬ (∀ {n} {Γ : Con Term n} {t γ} →
+     NegativeErasedContext Γ γ →
+     (∀ {t} → Γ ⊢ t ∷ Empty → ⊥) →
+     Γ ⊢ t ∷ ℕ → γ ▸[ 𝟙ᵐ ] t →
+     ∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ)
+not-canonicityEq hyp =
+  let _ , _ , _ , _ , ⊢t , ▸t , nec , con , not-numeral = cEx in
+  not-numeral (hyp nec con ⊢t ▸t)
