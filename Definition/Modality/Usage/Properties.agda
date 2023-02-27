@@ -33,6 +33,14 @@ private
     G : Term (1+ n)
     γ δ η : Conₘ n
     p q r : M
+    x : Fin n
+
+-- Variables only have one annotation in a context
+
+unique-var-usage : x ◂ p ∈ γ → x ◂ q ∈ γ → p PE.≡ q
+unique-var-usage here here = PE.refl
+unique-var-usage (there x) (there y) = unique-var-usage x y
+
 
 -- The contents of two valid modality contexts can be freely interchanged
 -- If γ ▸ t and δ ▸ t then, for any x, (γ , x ≔ δ⟨x⟩) ▸ t

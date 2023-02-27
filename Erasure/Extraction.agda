@@ -19,25 +19,25 @@ private
 
 erase : U.Term n → T.Term n
 erase (var x) = T.var x
-erase U = undefined
-erase (Π p , q ▷ F ▹ G) = undefined
+erase U = ↯
+erase (Π p , q ▷ F ▹ G) = ↯
 erase (U.lam p t) = T.lam (erase t)
-erase (t ∘⟨ 𝟘 ⟩ u) = erase t T.∘ undefined
+erase (t ∘⟨ 𝟘 ⟩ u) = erase t T.∘ ↯
 erase (t ∘⟨ ω ⟩ u) = erase t T.∘ erase u
-erase (Σ q ▷ F ▹ G) = undefined
+erase (Σ q ▷ F ▹ G) = ↯
 erase (prod! t u) = T.prod (erase t) (erase u)
 erase (U.fst t) = T.fst (erase t)
 erase (U.snd t) = T.snd (erase t)
-erase (U.prodrec 𝟘 q A t u) = (erase u) T.[ undefined , undefined ]
+erase (U.prodrec 𝟘 q A t u) = T.prodrec (T.prod ↯ ↯) (erase u)
 erase (U.prodrec ω q A t u) = T.prodrec (erase t) (erase u)
-erase ℕ = undefined
+erase ℕ = ↯
 erase U.zero = T.zero
 erase (U.suc t) = T.suc (erase t)
 erase (U.natrec p q r A z s n) = T.natrec (erase z) (erase s) (erase n)
-erase Unit = undefined
+erase Unit = ↯
 erase U.star = T.star
-erase Empty = undefined
-erase (Emptyrec p A t) = undefined
+erase Empty = ↯
+erase (Emptyrec p A t) = ↯
 
 eraseSubst : U.Subst m n → T.Subst m n
 eraseSubst σ x = erase (σ x)
