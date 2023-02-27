@@ -22,6 +22,7 @@ open import Definition.Modality.Usage ErasureModality
 open import Definition.Modality.Usage.Inversion ErasureModality
 open import Definition.Mode ErasureModality
 
+open import Erasure.Extraction
 open import Erasure.SucRed Erasure
 
 open import Definition.Typed.Properties Erasure
@@ -92,13 +93,18 @@ cEx : ∃₄ λ (m : Nat) (Γ : Con Term m) (γ : Conₘ m) (t : Term m)
     × NegativeErasedContext Γ γ
     × (∀ {u} → Γ ⊢ u ∷ Empty → ⊥)
     × ((∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ) → ⊥)
+    × (∃ λ u → Numeral u × erase t ⇒ˢ* erase u)
+    × (∃ λ u → Γ ⊢ t ⇒* u ∷ ℕ × Whnf u × Neutral u)
 cEx = _ , ε ∙ (Σᵣ ω , 𝟘 ▷ ℕ ▹ ℕ) , ε ∙ 𝟘 , prodrec 𝟘 ω ℕ (var x0) zero
-    , prodrecⱼ εΣ⊢ℕ εΣℕ⊢ℕ εΣΣ⊢ℕ (var ⊢εΣ here) (zeroⱼ ⊢εΣℕℕ)
+    , ⊢prodrec
     , prodrecₘ var zeroₘ _
     , ε ∙𝟘
     , (λ ⊢t → ¬Empty (substTerm ⊢t (prodⱼ ε⊢ℕ εℕ⊢ℕ (zeroⱼ ε) (zeroⱼ ε))))
-    , λ { (.zero , zeroₙ , t≡u) → lem (completeEqTerm t≡u)
-        ; (.(suc _) , sucₙ numU , t≡u) → lem′ (completeEqTerm t≡u)}
+    , (λ { (.zero , zeroₙ , t≡u) → lem (completeEqTerm t≡u)
+         ; (.(suc _) , sucₙ numU , t≡u) → lem′ (completeEqTerm t≡u)
+         })
+    , (zero , zeroₙ , refl)
+    , (_ , id ⊢prodrec , ne neutral , neutral)
     where
     ε⊢ℕ = ℕⱼ ε
     ⊢εℕ = ε ∙ ε⊢ℕ
@@ -112,6 +118,8 @@ cEx = _ , ε ∙ (Σᵣ ω , 𝟘 ▷ ℕ ▹ ℕ) , ε ∙ 𝟘 , prodrec 𝟘 
     ⊢εΣΣ = ⊢εΣ ∙ εΣ⊢Σ
     εΣΣ⊢ℕ = ℕⱼ ⊢εΣΣ
     ⊢εΣℕℕ = ⊢εΣℕ ∙ εΣℕ⊢ℕ
+    ⊢prodrec = prodrecⱼ εΣ⊢ℕ εΣℕ⊢ℕ εΣΣ⊢ℕ (var ⊢εΣ here) (zeroⱼ ⊢εΣℕℕ)
+    neutral = prodrecₙ (var _)
 
 -- If one drops the restriction related to prodrec from the statement
 -- of
@@ -125,5 +133,5 @@ not-canonicityEq :
      Γ ⊢ t ∷ ℕ → γ ▸[ 𝟙ᵐ ] t →
      ∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ)
 not-canonicityEq hyp =
-  let _ , _ , _ , _ , ⊢t , ▸t , nec , con , not-numeral = cEx in
+  let _ , _ , _ , _ , ⊢t , ▸t , nec , con , not-numeral , _ = cEx in
   not-numeral (hyp nec con ⊢t ▸t)
