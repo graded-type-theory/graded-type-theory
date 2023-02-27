@@ -24,10 +24,15 @@ private
   variable
     m n : Nat
     σ σ′ : Subst m n
-    γ : Conₘ n
+    γ δ : Conₘ n
     t a : Term n
     x : Fin n
 
+-- Context equality is propositional equality
+
+≈ᶜ-eq : γ ≈ᶜ δ → γ PE.≡ δ
+≈ᶜ-eq ε = PE.refl
+≈ᶜ-eq (γ≈δ ∙ PE.refl) = PE.cong (_∙ _) (≈ᶜ-eq γ≈δ)
 
 -- Addition on the left is a decreasing function
 -- γ + δ ≤ᶜ γ
@@ -46,7 +51,6 @@ private
 +-decreasingʳ 𝟘 ω = PE.refl
 +-decreasingʳ ω 𝟘 = PE.refl
 +-decreasingʳ ω ω = PE.refl
-
 
 -- Addition on the left is a decreasing function
 -- γ +ᶜ δ ≤ᶜ γ
@@ -155,3 +159,9 @@ valid-var-usage : γ ▸ var x → x ◂ ω ∈ γ
 valid-var-usage γ▸x with inv-usage-var γ▸x
 valid-var-usage {x = x0} γ▸x | γ≤𝟘ᶜ ∙ p≤ω rewrite least-elem′ _ p≤ω = here
 valid-var-usage {x = x +1} γ▸x | γ≤γ′ ∙ p≤𝟘 = there (valid-var-usage (sub var γ≤γ′))
+
+-- Subsumption for erased variables
+
+erased-var-sub : x ◂ 𝟘 ∈ γ → γ ≤ᶜ δ → x ◂ 𝟘 ∈ δ
+erased-var-sub {δ = δ ∙ q} here (γ≤δ ∙ PE.refl) = here
+erased-var-sub {δ = δ ∙ q} (there x◂𝟘) (γ≤δ ∙ p≤q) = there (erased-var-sub x◂𝟘 γ≤δ)
