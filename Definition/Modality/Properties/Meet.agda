@@ -11,6 +11,7 @@ module Definition.Modality.Properties.Meet {a ℓ}
 open ModalityWithout⊛ 𝕄
 open Setoid M′ renaming (Carrier to M)
 
+open import Definition.Modality.Properties.Addition 𝕄
 open import Definition.Modality.Properties.PartialOrder 𝕄
 
 open import Tools.Algebra M′
@@ -76,3 +77,13 @@ private
   p ∧ (q ∧ q) ≈˘⟨ ∧-assoc p q q ⟩
   (p ∧ q) ∧ q ∎
   where open import Tools.Reasoning.Equivalence M′
+
++-sub-interchangable-∧ : _+_ SubInterchangable _∧_ by _≤_
++-sub-interchangable-∧ p q p′ q′ = begin
+  (p ∧ q) + (p′ ∧ q′)
+    ≈⟨ +-distribˡ-∧ (p ∧ q) p′ q′ ⟩
+  ((p ∧ q) + p′) ∧ ((p ∧ q) + q′)
+    ≤⟨ ∧-monotone (+-monotoneˡ (∧-decreasingˡ p q)) (+-monotoneˡ (∧-decreasingʳ p q)) ⟩
+  (p + p′) ∧ (q + q′) ∎
+  where
+  open import Tools.Reasoning.PartialOrder ≤-poset
