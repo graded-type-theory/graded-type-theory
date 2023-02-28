@@ -69,7 +69,7 @@ redDet (prodrec a a₁) (prodrec-subst u⇒t) (prodrec-subst u⇒t′) =
   PE.cong (λ z → prodrec z a₁) (redDet a u⇒t u⇒t′)
 redDet (prodrec .(prod _ _) a) prodrec-β prodrec-β = PE.refl
 redDet star () u⇒t′
-redDet undefined () u⇒t′
+redDet ↯ () u⇒t′
 
 -- Reduction closure is deterministic
 -- (there is only one reduction path)
@@ -84,8 +84,8 @@ red*Det {u = u} (trans x u⇒t) (trans x₁ u⇒t′)
 
 -- Non-reducible terms
 
-undefined-noRed : undefined ⇒* t → t PE.≡ undefined
-undefined-noRed refl = PE.refl
+↯-noRed : ↯ ⇒* t → t PE.≡ ↯
+↯-noRed refl = PE.refl
 
 zero-noRed : zero ⇒* t → t PE.≡ zero
 zero-noRed refl = PE.refl

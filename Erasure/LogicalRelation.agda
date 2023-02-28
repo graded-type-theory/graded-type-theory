@@ -65,7 +65,7 @@ t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΠ ω q) F G D ⊢F ⊢G A≡A [F] [G] G-ext =
 -- Erased Π:
 t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΠ 𝟘 q) F G D ⊢F ⊢G A≡A [F] [G] G-ext =
   ∀ {a} → ([a] : Δ ⊩⟨ l ⟩ a ∷ U.wk id F / [F] id ⊢Δ)
-        → (t ∘⟨ 𝟘 ⟩ a) ®⟨ l ⟩ v ∘ undefined ∷ U.wk (lift id) G U.[ a ] / [G] id ⊢Δ [a]
+        → (t ∘⟨ 𝟘 ⟩ a) ®⟨ l ⟩ v ∘ ↯ ∷ U.wk (lift id) G U.[ a ] / [G] id ⊢Δ [a]
 
 -- Σ:
 t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΣ m q) F G D ⊢F ⊢G A≡A [F] [G] G-ext =

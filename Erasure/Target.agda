@@ -97,7 +97,7 @@ wk ρ (fst t) = fst (wk ρ t)
 wk ρ (snd t) = snd (wk ρ t)
 wk ρ (prodrec t u) = prodrec (wk ρ t) (wk (lift (lift ρ)) u)
 wk ρ star = star
-wk ρ undefined = undefined
+wk ρ ↯ = ↯
 
 -- Shift all variables in a term up by one
 
@@ -172,7 +172,7 @@ subst σ (fst t) = fst (subst σ t)
 subst σ (snd t) = snd (subst σ t)
 subst σ (prodrec t u) = prodrec (subst σ t) (subst (liftSubst (liftSubst σ)) u)
 subst σ star = star
-subst σ undefined = undefined
+subst σ ↯ = ↯
 
 -- Compose two substitutions.
 
