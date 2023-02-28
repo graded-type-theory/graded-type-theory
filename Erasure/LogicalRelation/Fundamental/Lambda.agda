@@ -149,6 +149,6 @@ lamʳ {F = F} {G = G} {t = t} {p = 𝟘} {q = q}
                                    (proj₁ (unwrap [G] ⊢Δ ((wkSubstS [Γ] ⊢Δ ⊢Δ id [σ]) , [a]″)))
          eq = PE.trans (PE.cong (_[ a ]) (UP.wk-lift-id ((subst (liftSubst σ) G))))
                        (UP.singleSubstComp a σ G)
-         λtu®λvw = lamʳ′ {F = F} {G = G} {p = 𝟘} {t = t} {u = a} {w = T.undefined}
+         λtu®λvw = lamʳ′ {F = F} {G = G} {p = 𝟘} {t = t} {u = a} {w = T.↯}
                          [Γ] [F] [G] ⊩ʳt [σ] σ®σ′ [t] [a]′ tt
      in  irrelevanceTerm′ (PE.sym eq) [σaG] [ρσG[a]] λtu®λvw
