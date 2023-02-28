@@ -2,16 +2,16 @@
 
 open import Definition.Modality.Instances.Erasure
 open import Definition.Typed.EqualityRelation
-
-module Erasure.LogicalRelation.Fundamental.Unit
-  (Prodrec : Erasure → Set) {{eqrel : EqRelSet Erasure′}} where
-open EqRelSet {{...}}
-
-open import Erasure.LogicalRelation Prodrec
-import Erasure.Target as T
-
 open import Definition.Untyped Erasure
 open import Definition.Typed Erasure′
+
+module Erasure.LogicalRelation.Fundamental.Unit {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ)
+                                                (Prodrec : Erasure → Set)
+                                                {{eqrel : EqRelSet Erasure′}} where
+open EqRelSet {{...}}
+
+open import Erasure.LogicalRelation ⊢Δ Prodrec
+import Erasure.Target as T
 
 open import Definition.LogicalRelation Erasure′
 open import Definition.LogicalRelation.Fundamental Erasure′
@@ -38,7 +38,7 @@ Unitʳ : ⊢ Γ
 Unitʳ ⊢Γ =
   let [Γ] = valid ⊢Γ
       [U] = Uᵛ [Γ]
-  in  [Γ] , [U] , λ [σ] x → Uᵣ (Unitⱼ ε)
+  in  [Γ] , [U] , λ [σ] x → Uᵣ (Unitⱼ ⊢Δ)
 
 starʳ : ∀ {l} → ⊢ Γ
       → ∃ λ ([Γ] : ⊩ᵛ Γ)
@@ -47,4 +47,4 @@ starʳ : ∀ {l} → ⊢ Γ
 starʳ ⊢Γ =
   let [Γ] = valid ⊢Γ
       [Unit] = Unitᵛ [Γ]
-  in  [Γ] , [Unit] , λ [σ] x → starᵣ (starⱼ ε) T.refl
+  in  [Γ] , [Unit] , λ [σ] x → starᵣ (starⱼ ⊢Δ) T.refl

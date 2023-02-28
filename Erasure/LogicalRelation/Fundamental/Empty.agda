@@ -2,17 +2,20 @@
 
 open import Definition.Modality.Instances.Erasure
 open import Definition.Typed.EqualityRelation
+open import Definition.Untyped Erasure hiding (_∷_)
+open import Definition.Typed Erasure′
+open import Tools.Empty
 
-module Erasure.LogicalRelation.Fundamental.Empty
-  (Prodrec : Erasure → Set) {{eqrel : EqRelSet Erasure′}} where
+module Erasure.LogicalRelation.Fundamental.Empty {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ)
+                                                 (consistent : ∀ {t} → Δ ⊢ t ∷ Empty → ⊥)
+                                                 (Prodrec : Erasure → Set)
+                                                 {{eqrel : EqRelSet Erasure′}} where
 open EqRelSet {{...}}
 
-open import Erasure.LogicalRelation Prodrec
+open import Erasure.LogicalRelation ⊢Δ Prodrec
 import Erasure.Target as T
 
-open import Definition.Untyped Erasure
 open import Definition.Untyped.Properties Erasure
-open import Definition.Typed Erasure′
 
 open import Definition.LogicalRelation Erasure′
 open import Definition.LogicalRelation.Fundamental Erasure′
@@ -43,15 +46,15 @@ Emptyʳ : ⊢ Γ
 Emptyʳ ⊢Γ =
   let [Γ] = valid ⊢Γ
       [U] = Uᵛ [Γ]
-  in  [Γ] , [U] , λ [σ] x → Uᵣ (Emptyⱼ ε)
+  in  [Γ] , [U] , λ [σ] x → Uᵣ (Emptyⱼ ⊢Δ)
 
 
 Emptyrecʳ′ : ∀ {l p} → ([Γ] : ⊩ᵛ Γ)
           → ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ])
           → ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ Empty / [Γ] / Emptyᵛ [Γ])
           → γ ▸ Γ ⊩ʳ⟨ l ⟩ Emptyrec p A t ∷ A / [Γ] / [A]
-Emptyrecʳ′ [Γ] [A] [t] [σ] σ®σ′ with proj₁ ([t] ε [σ])
-... | Emptyₜ n d n≡n (ne (neNfₜ neK ⊢k k≡k)) = ⊥-elim (noClosedNe neK)
+Emptyrecʳ′ [Γ] [A] [t] [σ] σ®σ′ with proj₁ ([t] ⊢Δ [σ])
+... | Emptyₜ n d n≡n (ne (neNfₜ neK ⊢k k≡k)) = ⊥-elim (consistent ⊢k)
 
 
 Emptyrecʳ : ∀ {l p} → ([Γ] : ⊩ᵛ Γ)

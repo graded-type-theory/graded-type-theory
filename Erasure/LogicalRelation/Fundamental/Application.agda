@@ -2,20 +2,21 @@
 
 open import Definition.Modality.Instances.Erasure
 open import Definition.Typed.EqualityRelation
+open import Definition.Untyped Erasure as U hiding (_∷_)
+open import Definition.Typed Erasure′
 
-module Erasure.LogicalRelation.Fundamental.Application
-  (Prodrec : Erasure → Set) {{eqrel : EqRelSet Erasure′}} where
+module Erasure.LogicalRelation.Fundamental.Application {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ)
+                                                       (Prodrec : Erasure → Set)
+                                                       {{eqrel : EqRelSet Erasure′}} where
 open EqRelSet {{...}}
 
 open import Definition.Modality.Instances.Erasure.Modality Prodrec
-open import Erasure.LogicalRelation Prodrec
-open import Erasure.LogicalRelation.Subsumption Prodrec
-open import Erasure.LogicalRelation.Irrelevance Prodrec
+open import Erasure.LogicalRelation ⊢Δ Prodrec
+open import Erasure.LogicalRelation.Subsumption ⊢Δ Prodrec
+open import Erasure.LogicalRelation.Irrelevance ⊢Δ Prodrec
 import Erasure.Target as T
 
-open import Definition.Untyped Erasure as U hiding (_∷_)
 open import Definition.Untyped.Properties Erasure
-open import Definition.Typed Erasure′
 open import Definition.Typed.Weakening Erasure′
 open import Definition.Typed.Consequences.Syntactic Erasure′
 
@@ -58,29 +59,29 @@ appʳ′ : ∀ {l} {Γ : Con Term n}
 appʳ′ {F = F} {G} {u} {γ} {t} {p = 𝟘} {q} {δ}
       [Γ] [F] [G] [G[u]] [u] ⊩ʳt ⊩ʳu {σ = σ} [σ] σ®σ′ =
   let [Π] = Πᵛ {F = F} {G = G} {p = 𝟘} {q = q} [Γ] [F] [G]
-      [σF] = proj₁ (unwrap [F] ε [σ])
-      [ρσF] = W.wk id ε [σF]
-      [σu] = proj₁ ([u] ε [σ])
+      [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
+      [ρσF] = W.wk id ⊢Δ [σF]
+      [σu] = proj₁ ([u] ⊢Δ [σ])
       [σu]′ = I.irrelevanceTerm′ (PE.sym (wk-id (subst σ F))) [σF] [ρσF] [σu]
       [σu]″ = I.irrelevanceTerm′ (wk-subst F) [ρσF]
-                                 (proj₁ (unwrap [F] ε (wkSubstS [Γ] ε ε id [σ]))) [σu]′
+                                 (proj₁ (unwrap [F] ⊢Δ (wkSubstS [Γ] ⊢Δ ⊢Δ id [σ]))) [σu]′
       ⊩ʳt′ = subsumption {t = t} {A = Π 𝟘 , q ▷ F ▹ G} [Γ] [Π] ⊩ʳt (+ᶜ-decreasingˡ γ (𝟘 ·ᶜ δ))
       t∘u®v∘w = ⊩ʳt′ [σ] σ®σ′ [σu]′
       [σG[u]] = I.irrelevance′ (PE.sym (singleSubstWkComp (subst σ u) σ G))
-                               (proj₁ (unwrap [G] ε (wkSubstS [Γ] ε ε id [σ] , [σu]″)))
+                               (proj₁ (unwrap [G] ⊢Δ (wkSubstS [Γ] ⊢Δ ⊢Δ id [σ] , [σu]″)))
   in  irrelevanceTerm′ (PE.trans (PE.cong (_[ subst σ u ]) (wk-lift-id (subst (liftSubst σ) G)))
                                  (PE.sym (singleSubstLift G u)))
-                       [σG[u]] (proj₁ (unwrap [G[u]] ε [σ])) t∘u®v∘w
+                       [σG[u]] (proj₁ (unwrap [G[u]] ⊢Δ [σ])) t∘u®v∘w
 
 appʳ′ {F = F} {G} {u} {γ = γ} {t = t} {p = ω} {q = q} {δ = δ}
       [Γ] [F] [G] [G[u]] [u] ⊩ʳt ⊩ʳu {σ = σ} {σ′ = σ′} [σ] σ®σ′ =
   let [Π] = Πᵛ {F = F} {G = G} {p = ω} {q = q} [Γ] [F] [G]
-      [σF] = proj₁ (unwrap [F] ε [σ])
-      [ρσF] = W.wk id ε [σF]
-      [σu] = proj₁ ([u] ε [σ])
+      [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
+      [ρσF] = W.wk id ⊢Δ [σF]
+      [σu] = proj₁ ([u] ⊢Δ [σ])
       [σu]′ = I.irrelevanceTerm′ (PE.sym (wk-id (subst σ F))) [σF] [ρσF] [σu]
       [σu]″ = I.irrelevanceTerm′ (wk-subst F) [ρσF]
-                                 (proj₁ (unwrap [F] ε (wkSubstS [Γ] ε ε id [σ]))) [σu]′
+                                 (proj₁ (unwrap [F] ⊢Δ (wkSubstS [Γ] ⊢Δ ⊢Δ id [σ]))) [σu]′
       ⊩ʳt′ = subsumption {t = t} {A = Π ω , q ▷ F ▹ G} [Γ] [Π] ⊩ʳt (+ᶜ-decreasingˡ γ (ω ·ᶜ δ))
       ⊩ʳu′ = subsumption {t = u} {A = F} [Γ] [F] ⊩ʳu
                          (≤ᶜ-trans (+ᶜ-decreasingʳ γ (ω ·ᶜ δ))
@@ -89,11 +90,11 @@ appʳ′ {F = F} {G} {u} {γ = γ} {t = t} {p = ω} {q = q} {δ = δ}
       u®w = irrelevanceTerm′ (PE.sym (wk-id (subst σ F))) [σF] [ρσF] u®w′
       t∘u®v∘w = ⊩ʳt′ [σ] σ®σ′ [σu]′ u®w
       [σG[u]] = I.irrelevance′ (PE.sym (singleSubstWkComp (subst σ u) σ G))
-                               (proj₁ (unwrap [G] ε (wkSubstS [Γ] ε ε id [σ] , [σu]″)))
+                               (proj₁ (unwrap [G] ⊢Δ (wkSubstS [Γ] ⊢Δ ⊢Δ id [σ] , [σu]″)))
   in  irrelevanceTerm′ (PE.trans (PE.cong (_[ subst σ u ])
                                           (wk-lift-id (subst (liftSubst σ) G)))
                                  (PE.sym (singleSubstLift G u)))
-                       [σG[u]] (proj₁ (unwrap [G[u]] ε [σ])) t∘u®v∘w
+                       [σG[u]] (proj₁ (unwrap [G[u]] ⊢Δ [σ])) t∘u®v∘w
 
 
 appʳ : ∀ {Γ : Con Term n}

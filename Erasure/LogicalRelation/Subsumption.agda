@@ -2,8 +2,11 @@
 
 open import Definition.Modality.Instances.Erasure
 open import Definition.Typed.EqualityRelation
+open import Definition.Untyped Erasure as U hiding (_∷_)
+open import Definition.Typed Erasure′
 
-module Erasure.LogicalRelation.Subsumption (Prodrec : Erasure → Set)
+module Erasure.LogicalRelation.Subsumption {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ)
+                                           (Prodrec : Erasure → Set)
                                            {{eqrel : EqRelSet Erasure′}} where
 open EqRelSet {{...}}
 
@@ -13,9 +16,9 @@ import Definition.LogicalRelation.Fundamental Erasure′ as F
 import Definition.LogicalRelation.Irrelevance Erasure′ as I
 
 open import Definition.Modality.Context ErasureModality
-open import Definition.Untyped Erasure as U hiding (_∷_)
 
-open import Erasure.LogicalRelation Prodrec
+
+open import Erasure.LogicalRelation ⊢Δ Prodrec
 open import Erasure.Target as T hiding (_⇒_; _⇒*_)
 
 open import Tools.Level
@@ -27,8 +30,8 @@ open import Tools.Unit
 private
   variable
     n : Nat
-    t t′ A : U.Term 0
-    v v′ : T.Term 0
+    t t′ A : U.Term n
+    v v′ : T.Term n
     Γ : Con U.Term n
     F G : U.Term n
     p q : Erasure
@@ -67,3 +70,13 @@ subsumption : ∀ {l} {Γ : Con U.Term n} {t A : U.Term n}
             → δ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷ A / [Γ] / [A]
 subsumption {l = l} [Γ] [A] γ⊩ʳt δ≤γ [σ] σ®σ′ =
   γ⊩ʳt [σ] (subsumptionSubst {l = l} σ®σ′ δ≤γ)
+
+-- Under erased contexts, any substitutions are related
+
+erasedSubst : ∀ {l σ σ′}
+            → ([Γ] : ⊩ᵛ Γ)
+            → ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
+            → σ ®⟨ l ⟩ σ′ ∷ Γ ◂ 𝟘ᶜ / [Γ] / [σ]
+erasedSubst ε (lift tt) = tt
+erasedSubst (_∙_ {l = l} [Γ] [A]) ([σ] , [t]) =
+  erasedSubst {l = l} [Γ] [σ] , tt

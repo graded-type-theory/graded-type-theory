@@ -25,7 +25,7 @@ private
     m n : Nat
     σ σ′ : Subst m n
     γ δ : Conₘ n
-    t a : Term n
+    t u a : Term n
     x : Fin n
 
 -- Context equality is propositional equality
@@ -165,3 +165,11 @@ valid-var-usage {x = x +1} γ▸x | γ≤γ′ ∙ p≤𝟘 = there (valid-var-u
 erased-var-sub : x ◂ 𝟘 ∈ γ → γ ≤ᶜ δ → x ◂ 𝟘 ∈ δ
 erased-var-sub {δ = δ ∙ q} here (γ≤δ ∙ PE.refl) = here
 erased-var-sub {δ = δ ∙ q} (there x◂𝟘) (γ≤δ ∙ p≤q) = there (erased-var-sub x◂𝟘 γ≤δ)
+
+-- Inversion lemma for any products
+
+inv-usage-prodₑ : ∀ {m} → γ ▸ prod m t u → InvUsageProdᵣ γ t u
+inv-usage-prodₑ {m = Σₚ} γ▸t with inv-usage-prodₚ γ▸t
+... | invUsageProdₚ δ▸t δ▸u γ≤δ =
+  invUsageProdᵣ δ▸t δ▸u (PE.subst (_ ≤ᶜ_) (PE.sym (+ᶜ-idem _)) γ≤δ)
+inv-usage-prodₑ {m = Σᵣ} γ▸t = inv-usage-prodᵣ γ▸t
