@@ -55,3 +55,7 @@ lookupNegative ⊢Γ∙A (nΓγ ∙𝟘) here p≤𝟙 =
   ⊥-elim (𝟘≰𝟙 p≤𝟙)
 lookupNegative ⊢Γ∙A@(⊢Γ ∙ Γ⊢A) (nΓγ ∙𝟘) (there h) p≤𝟙 =
   wkNeg (step id) ⊢Γ∙A (lookupNegative ⊢Γ nΓγ h p≤𝟙)
+
+erasedContext : NegativeErasedContext Γ 𝟘ᶜ
+erasedContext {Γ = ε} = ε
+erasedContext {Γ = Γ ∙ A} = erasedContext ∙𝟘

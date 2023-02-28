@@ -151,5 +151,6 @@ import Application.NegativeAxioms.Canonicity.Negative
 
 -- Application: consistent negative/erased axioms preserve canonicity
 import Application.NegativeAxioms.Canonicity.NegativeErased
+import Application.NegativeAxioms.Canonicity.Erased
 -- ... but not if matching is allowed on erased pairs
 import Application.NegativeAxioms.Canonicity.EliminateErased

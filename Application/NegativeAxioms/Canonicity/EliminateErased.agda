@@ -35,11 +35,6 @@ open import Definition.Typed.Consequences.Reduction Erasure′
 open import Definition.Typed.Consequences.Substitution Erasure′
 open import Definition.Typed.Consequences.Syntactic Erasure′
 
-open import Definition.Conversion Erasure′
-open import Definition.Conversion.FullReduction Erasure′ hiding (fullRedTerm)
-open import Definition.Conversion.Consequences.Completeness Erasure′
-open import Definition.Conversion.EqRelInstance Erasure′
-
 open import Tools.Fin
 open import Tools.Nat
 import Tools.PropositionalEquality as PE
@@ -60,38 +55,18 @@ private
     t u   : Term m
     p q   : Erasure
 
-lem : ε ∙ (Σᵣ 𝟘 ▷ ℕ ▹ ℕ) ⊢ prodrec 𝟘 ℕ (var x0) zero [conv↑] zero ∷ ℕ → ⊥
-lem ([↑]ₜ B t′ u′ D d d′ whnfB whnft′ whnfu′ t<>u)
-  with whnfRed*Term d (ne (prodrecₙ (var x0)))
-     | whnfRed*Term d′ zeroₙ
-     | whnfRed* D ℕₙ
-lem ([↑]ₜ _ _ _ D d d′ whnfB whnft′ whnfu′ (ℕ-ins ()))
-  | PE.refl | PE.refl | PE.refl
-lem ([↑]ₜ _ _ _ D d d′ whnfB whnft′ whnfu′ (ne-ins x x₁ x₂ ()))
-  | PE.refl | PE.refl | PE.refl
+-- Counterexample to canonicity when erased eliminations are allowed
 
-lem′ : ε ∙ (Σᵣ 𝟘 ▷ ℕ ▹ ℕ) ⊢ prodrec 𝟘 ℕ (var x0) zero [conv↑] suc t ∷ ℕ → ⊥
-lem′ ([↑]ₜ B t′ u′ D d d′ whnfB whnft′ whnfu′ t<>u)
-  with whnfRed*Term d (ne (prodrecₙ (var x0)))
-     | whnfRed*Term d′ sucₙ
-     | whnfRed* D ℕₙ
-lem′ ([↑]ₜ _ _ _ D d d′ whnfB whnft′ whnfu′ (ℕ-ins ()))
-  | PE.refl | PE.refl | PE.refl
-lem′ ([↑]ₜ _ _ _ D d d′ whnfB whnft′ whnfu′ (ne-ins x x₁ x₂ ()))
-  | PE.refl | PE.refl | PE.refl
-
-cEx : ∃₄ λ (m : Nat) (Γ : Con Term m) (γ : Conₘ m) (t : Term m)
-    → Γ ⊢ t ∷ ℕ × 𝟘ᶜ ▸ t
-    × NegativeErasedContext Γ γ
+cEx : ∃₃ λ (m : Nat) (Γ : Con Term m) (t : Term m)
+    → Γ ⊢ t ∷ ℕ
+    × 𝟘ᶜ ▸ t
     × (∀ {u} → Γ ⊢ u ∷ Empty → ⊥)
-    × ((∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ) → ⊥)
-cEx = _ , ε ∙ (Σᵣ 𝟘 ▷ ℕ ▹ ℕ) , ε ∙ 𝟘 , prodrec 𝟘 ℕ (var x0) zero
+    × ((∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ) → ⊥)
+cEx = _ , ε ∙ (Σᵣ 𝟘 ▷ ℕ ▹ ℕ) , prodrec 𝟘 𝟘 ℕ (var x0) zero
     , prodrecⱼ εΣ⊢ℕ εΣℕ⊢ℕ εΣΣ⊢ℕ (var ⊢εΣ here) (zeroⱼ ⊢εΣℕℕ)
-    , prodrecₘ var zeroₘ PE.refl
-    , ε ∙𝟘
+    , prodrecₘ var zeroₘ ℕₘ PE.refl
     , (λ ⊢t → ¬Empty (substTerm ⊢t (prodⱼ ε⊢ℕ εℕ⊢ℕ (zeroⱼ ε) (zeroⱼ ε))))
-    , λ { (.zero , zeroₙ , t≡u) → lem (completeEqTerm t≡u)
-        ; (.(suc _) , sucₙ numU , t≡u) → lem′ (completeEqTerm t≡u)}
+    , λ { (u , numU , (whred x ⇨ˢ d)) → neRedTerm x (prodrecₙ (var x0))}
     where
     ε⊢ℕ = ℕⱼ ε
     ⊢εℕ = ε ∙ ε⊢ℕ

@@ -73,32 +73,32 @@ mutual
         ⊢F , ⊢G = syntacticΣ ⊢ΣFG
     in  snd p′ , sndₙ neP′ , snd-cong ⊢F ⊢G p≡p′
       , sub (sndₘ δ▸p′) γ≤δ
-  fullRedNe (natrec-cong {p = p} {r = r} C z s n p≈p′ r≈r′) γ▸t =
-    let invUsageNatrec δ▸z η▸s θ▸n γ≤γ′ = inv-usage-natrec γ▸t
-        C′ , nfC′ , C≡C′ = FR.fullRed C
+  fullRedNe (natrec-cong {p = p} {q = q} {r = r} C z s n p≈p′ q≈q′ r≈r′) γ▸t =
+    let invUsageNatrec δ▸z η▸s θ▸n ψ▸C γ≤γ′ = inv-usage-natrec γ▸t
+        C′ , nfC′ , C≡C′ , ψ▸C′ = fullRedConv↑ C ψ▸C
         z′ , nfZ′ , z≡z′ , δ▸z′ = fullRedTermConv↑ z δ▸z
         s′ , nfS′ , s≡s′ , η▸s′ = fullRedTermConv↑ s η▸s
         n′ , nfN′ , n≡n′ , θ▸n′ = fullRedNe~↓ n θ▸n
-    in  natrec p r C′ z′ s′ n′ , natrecₙ nfC′ nfZ′ nfS′ nfN′
-      , natrec-cong (proj₁ (syntacticEq C≡C′)) C≡C′ z≡z′ s≡s′ n≡n′ ≈-refl ≈-refl
-      , sub (natrecₘ δ▸z′ η▸s′ θ▸n′) γ≤γ′
-  fullRedNe (prodrec-cong {p = p} C g u p≈p′) γ▸t =
-    let invUsageProdrec δ▸g η▸u P γ≤γ′ = inv-usage-prodrec γ▸t
-        C′ , nfC′ , C≡C′ = FR.fullRed C
+    in  natrec p q r C′ z′ s′ n′ , natrecₙ nfC′ nfZ′ nfS′ nfN′
+      , natrec-cong (proj₁ (syntacticEq C≡C′)) C≡C′ z≡z′ s≡s′ n≡n′ ≈-refl ≈-refl ≈-refl
+      , sub (natrecₘ δ▸z′ η▸s′ θ▸n′ ψ▸C′) γ≤γ′
+  fullRedNe (prodrec-cong {p = p} C g u p≈p′ q≈q′) γ▸t =
+    let invUsageProdrec δ▸g η▸u θ▸C P γ≤γ′ = inv-usage-prodrec γ▸t
+        C′ , nfC′ , C≡C′ , θ▸C′ = fullRedConv↑ C θ▸C
         g′ , nfg′ , g≡g′ , δ▸g′ = fullRedNe~↓ g δ▸g
         u′ , nfu′ , u≡u′ , η▸u′ = fullRedTermConv↑ u η▸u
         ⊢Σ , _ = syntacticEqTerm g≡g′
         ⊢F , ⊢G = syntacticΣ ⊢Σ
-    in  prodrec p C′ g′ u′ , prodrecₙ nfC′ nfg′ nfu′
-      , prodrec-cong ⊢F ⊢G C≡C′ g≡g′ u≡u′ ≈-refl
-      , sub (prodrecₘ δ▸g′ η▸u′ P) γ≤γ′
+    in  prodrec p _ C′ g′ u′ , prodrecₙ nfC′ nfg′ nfu′
+      , prodrec-cong ⊢F ⊢G C≡C′ g≡g′ u≡u′ ≈-refl ≈-refl
+      , sub (prodrecₘ δ▸g′ η▸u′ θ▸C′ P) γ≤γ′
   fullRedNe (Emptyrec-cong C n p≈p′) γ▸t =
-    let invUsageEmptyrec δ▸n γ≤δ = inv-usage-Emptyrec γ▸t
-        C′ , nfC′ , C≡C′ = FR.fullRed C
+    let invUsageEmptyrec δ▸n η▸C γ≤δ = inv-usage-Emptyrec γ▸t
+        C′ , nfC′ , C≡C′ , η▸C′ = fullRedConv↑ C η▸C
         n′ , nfN′ , n≡n′ , δ▸n′ = fullRedNe~↓ n δ▸n
     in  Emptyrec _ C′ n′ , Emptyrecₙ nfC′ nfN′
       , Emptyrec-cong C≡C′ n≡n′ p≈p′
-      , sub (Emptyrecₘ δ▸n′) (≤ᶜ-trans γ≤δ (≤ᶜ-reflexive (·ᶜ-congʳ p≈p′)))
+      , sub (Emptyrecₘ δ▸n′ η▸C′) (≤ᶜ-trans γ≤δ (≤ᶜ-reflexive (·ᶜ-congʳ p≈p′)))
 
   fullRedNe~↓ : Γ ⊢ t ~ t′ ↓ A → γ ▸ t → ∃ λ u → NfNeutral u × Γ ⊢ t ≡ u ∷ A × γ ▸ u
   fullRedNe~↓ ([~] A D whnfB k~l) γ▸t =
@@ -169,11 +169,11 @@ mutual
         u , nf , t≡u , δ▸u = fullRedTermConv↑ t δ▸t
     in  suc u , sucₙ nf , suc-cong t≡u , sub (sucₘ δ▸u) γ≤δ
   fullRedTermConv↓ (prod-cong ⊢F ⊢G t↑t u↑u) γ▸t =
-    let invUsageProdᵣ δ▸t η▸u γ″=δ+η γ≤γ″ = inv-usage-prodᵣ γ▸t
+    let invUsageProdᵣ δ▸t η▸u γ≤γ″ = inv-usage-prodᵣ γ▸t
         t′ , nfT , t≡t′ , δ▸t′ = fullRedTermConv↑ t↑t δ▸t
         u′ , nfU , u≡u′ , η▸u′ = fullRedTermConv↑ u↑u η▸u
     in  prod! t′ u′ , prodₙ nfT nfU , prod-cong ⊢F ⊢G t≡t′ u≡u′
-      , sub (prodᵣₘ δ▸t′ η▸u′ γ″=δ+η) γ≤γ″
+      , sub (prodᵣₘ δ▸t′ η▸u′) γ≤γ″
   fullRedTermConv↓ (η-eq {p = p} ⊢t _ _ _ t∘0) γ▸t =
     let δ▸t∘0 = wkUsage (step id) γ▸t ∘ₘ var
         u , nf , t∘0≡u , δ▸u = fullRedTermConv↑ (t∘0 ≈-refl ≈-refl) δ▸t∘0
@@ -225,8 +225,8 @@ mutual
     γ≤𝟘ᶜ {γ = ε} = ε
     γ≤𝟘ᶜ {γ = γ ∙ p} = γ≤𝟘ᶜ ∙ p≤𝟘 p
 
-fullRed : Γ ⊢ A → γ ▸ A → ∃ λ B → Nf B × Γ ⊢ A ≡ B × γ ▸ B
-fullRed ⊢A = fullRedConv↑ (completeEq (refl ⊢A))
+  fullRed : Γ ⊢ A → γ ▸ A → ∃ λ B → Nf B × Γ ⊢ A ≡ B × γ ▸ B
+  fullRed ⊢A = fullRedConv↑ (completeEq (refl ⊢A))
 
 fullRedTerm : Γ ⊢ t ∷ A → γ ▸ t → ∃ λ u → Nf u × Γ ⊢ t ≡ u ∷ A × γ ▸ u
 fullRedTerm ⊢t = fullRedTermConv↑ (completeEqTerm (refl ⊢t))

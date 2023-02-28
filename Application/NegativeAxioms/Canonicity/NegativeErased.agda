@@ -4,7 +4,7 @@
 {-# OPTIONS --without-K --safe #-}
 
 open import Definition.Modality.Instances.Erasure
-open import Definition.Modality.Instances.Erasure.Modality (_≤ ω)
+open import Definition.Modality.Instances.Erasure.Modality NoErasedMatching
 open import Application.NegativeAxioms.NegativeErasedContext ErasureModality (λ ())
 open import Definition.Typed Erasure′
 open import Definition.Untyped Erasure hiding (_∷_; ℕ≢B)
@@ -15,7 +15,7 @@ open import Tools.Empty
 module Application.NegativeAxioms.Canonicity.NegativeErased {m} {Γ : Con Term m} {γ}
   (nΓγ : NegativeErasedContext Γ γ) (consistent : ∀{t} → Γ ⊢ t ∷ Empty → ⊥) where
 
-open import Definition.Modality.Instances.Erasure.Properties (_≤ ω)
+open import Definition.Modality.Instances.Erasure.Properties NoErasedMatching
 open import Definition.Modality.Context ErasureModality
 open import Definition.Modality.Usage ErasureModality
 open import Definition.Modality.Usage.Inversion ErasureModality
@@ -78,14 +78,15 @@ neNeg (sndⱼ ⊢A A⊢B d     ) (sndₙ n     ) γ▸u =
   in  sndNeg (neNeg d n (sub δ▸t γ≤δ))
              (refl (Σⱼ ⊢A ▹ A⊢B)) (fstⱼ ⊢A A⊢B d)
 neNeg (natrecⱼ _ _ _ d   ) (natrecₙ n  ) γ▸u =
-  let invUsageNatrec _ _ δ▸n γ≤γ′ = inv-usage-natrec γ▸u
+  let invUsageNatrec _ _ δ▸n _ γ≤γ′ = inv-usage-natrec γ▸u
       ⊢ℕ = refl (ℕⱼ (wfTerm d))
       γ▸n = sub δ▸n (≤ᶜ-trans γ≤γ′ (≤ᶜ-trans (⊛ᶜ-ineq₂ _ _ _) (∧ᶜ-decreasingʳ _ _)))
   in  ⊥-elim (¬negℕ (neNeg d n γ▸n) ⊢ℕ)
-neNeg (prodrecⱼ ⊢A A⊢B _ d _) (prodrecₙ n ) γ▸u =
-  let invUsageProdrec δ▸t η▸u p≤ω γ≤γ′ = inv-usage-prodrec γ▸u
-      γ▸t = sub δ▸t (≤ᶜ-trans γ≤γ′ (≤ᶜ-trans (+ᶜ-decreasingˡ _ _)
-                              (≤ᶜ-trans (·ᶜ-monotoneˡ p≤ω) (≤ᶜ-reflexive (·ᶜ-identityˡ _)))))
+neNeg (prodrecⱼ ⊢A A⊢B _ d _) (prodrecₙ n ) γ▸u
+  with inv-usage-prodrec γ▸u
+... | invUsageProdrec δ▸t η▸u _ PE.refl γ≤γ′ =
+  let γ▸t = sub δ▸t (≤ᶜ-trans γ≤γ′ (≤ᶜ-trans (+ᶜ-decreasingˡ _ _)
+                              (≤ᶜ-reflexive (·ᶜ-identityˡ _))))
       ⊢Σ = refl (Σⱼ ⊢A ▹ A⊢B)
   in  ⊥-elim (¬negΣᵣ (neNeg d n γ▸t) ⊢Σ)
 neNeg (Emptyrecⱼ _ d     ) (Emptyrecₙ n) γ▸u = ⊥-elim (consistent d)
