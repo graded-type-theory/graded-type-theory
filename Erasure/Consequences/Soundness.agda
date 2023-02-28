@@ -51,11 +51,11 @@ sucᵏ′ (1+ n) = T.suc (sucᵏ′ n)
 
 -- Weak head representation of natural numbers
 
-data WHℕ : (n : Nat) → Term 0 → Set where
+data WHℕ : Nat → Term n → Set where
   zeroʷ : ε ⊢ t ⇒* zero ∷ ℕ → WHℕ 0 t
   sucʷ  : ε ⊢ t ⇒* suc t′ ∷ ℕ → WHℕ n t′ → WHℕ (1+ n) t
 
-data WHℕ′ : (n : Nat) → T.Term 0 → Set where
+data WHℕ′ : Nat → T.Term n → Set where
   zeroʷ : v T.⇒* T.zero → WHℕ′ 0 v
   sucʷ  : v T.⇒* T.suc v′ → WHℕ′ n v′ → WHℕ′ (1+ n) v
 
