@@ -18,6 +18,7 @@ open import Application.NegativeAxioms.NegativeOrErasedType 𝕄
 open import Tools.Fin
 open import Tools.Level
 open import Tools.Nat
+import Tools.PropositionalEquality as PE
 
 private
   Ctx = Con Term
@@ -26,7 +27,7 @@ private
     Γ : Ctx m
     A : Term m
     x : Fin m
-    γ : Conₘ m
+    γ δ : Conₘ m
     p : M
 
 -- Negative or Erased contexts
@@ -51,3 +52,21 @@ lookupNegative ⊢Γ∙A (nΓγ ∙𝟘) here p≤𝟙 =
   ⊥-elim (𝟘≰𝟙 p≤𝟙)
 lookupNegative ⊢Γ∙A@(⊢Γ ∙ Γ⊢A) (nΓγ ∙𝟘) (there h) p≤𝟙 =
   wkNeg (step id) ⊢Γ∙A (lookupNegative ⊢Γ nΓγ h p≤𝟙)
+
+-- NegativeErasedContext is upwards closed in its second argument.
+
+NegativeErasedContext-upwards-closed :
+  γ ≤ᶜ δ →
+  NegativeErasedContext Γ γ →
+  NegativeErasedContext Γ δ
+NegativeErasedContext-upwards-closed
+  {γ = ε} {δ = ε} ε ε =
+  ε
+NegativeErasedContext-upwards-closed
+  {γ = _ ∙ _} {δ = _ ∙ _} (γ≤δ ∙ _) (neΓγ ∙ neg) =
+  NegativeErasedContext-upwards-closed γ≤δ neΓγ ∙ neg
+NegativeErasedContext-upwards-closed
+  {γ = _ ∙ _} {δ = _ ∙ _} (γ≤δ ∙ 𝟘≤p) (neΓγ ∙𝟘) =
+  PE.subst (λ p → NegativeErasedContext _ (_ ∙ p))
+    (PE.sym (𝟘≮ 𝟘≤p))
+    (NegativeErasedContext-upwards-closed γ≤δ neΓγ ∙𝟘)
