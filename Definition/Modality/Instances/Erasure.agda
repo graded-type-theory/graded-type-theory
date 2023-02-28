@@ -5,6 +5,7 @@ module Definition.Modality.Instances.Erasure where
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation
+open import Tools.Unit
 
 -- The set of erasure annotations with 𝟘 corresponding to no usage
 -- and ω to any usage.
@@ -23,6 +24,9 @@ infixl 45 _·_
 infix  10 _≤_
 infix  50 _⊛_▷_
 
+---------------------------------------
+-- Operations for erasure anntations --
+---------------------------------------
 
 -- Addition of erasure annotations
 
@@ -52,6 +56,16 @@ p ⊛ q ▷ r = p + q
 
 _≤_ : (p q : Erasure) → Set
 p ≤ q = p ≡ p ∧ q
+
+-------------------
+-- Prodrec modes --
+-------------------
+
+NoErasedMatching : Erasure → Set
+NoErasedMatching p = p ≡ ω
+
+ErasedMatching : Erasure → Set
+ErasedMatching p = ⊤
 
 ---------------------------------------
 -- Properties of addition (and meet) --

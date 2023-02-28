@@ -2,18 +2,19 @@
 
 open import Definition.Modality.Instances.Erasure
 open import Definition.Typed.EqualityRelation
+open import Definition.Untyped Erasure hiding (_∷_)
+open import Definition.Typed Erasure′
 
-module Erasure.LogicalRelation.Fundamental.Nat
-  (Prodrec : Erasure → Set) {{eqrel : EqRelSet Erasure′}} where
+module Erasure.LogicalRelation.Fundamental.Nat {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ)
+                                               (Prodrec : Erasure → Set)
+                                               {{eqrel : EqRelSet Erasure′}} where
 open EqRelSet {{...}}
 
 open import Erasure.Extraction
-open import Erasure.LogicalRelation Prodrec
-open import Erasure.LogicalRelation.Irrelevance Prodrec
+open import Erasure.LogicalRelation ⊢Δ Prodrec
+open import Erasure.LogicalRelation.Irrelevance ⊢Δ Prodrec
 import Erasure.Target as T
 
-open import Definition.Untyped Erasure hiding (_∷_)
-open import Definition.Typed Erasure′
 open import Definition.Typed.Consequences.Substitution Erasure′
 
 open import Definition.LogicalRelation Erasure′
@@ -43,7 +44,7 @@ private
 ℕʳ ⊢Γ =
   let [Γ] = valid ⊢Γ
       [U] = Uᵛ [Γ]
-  in  [Γ] , [U] , λ [σ] x → Uᵣ (ℕⱼ ε)
+  in  [Γ] , [U] , λ [σ] x → Uᵣ (ℕⱼ ⊢Δ)
 
 zeroʳ : ∀ {l} → ⊢ Γ
       → ∃ λ ([Γ] : ⊩ᵛ Γ)
@@ -52,7 +53,7 @@ zeroʳ : ∀ {l} → ⊢ Γ
 zeroʳ ⊢Γ =
   let [Γ] = valid ⊢Γ
       [ℕ] = ℕᵛ [Γ]
-  in  [Γ] , [ℕ] , λ [σ] x → zeroᵣ (id (zeroⱼ ε)) T.refl
+  in  [Γ] , [ℕ] , λ [σ] x → zeroᵣ (id (zeroⱼ ⊢Δ)) T.refl
 
 sucʳ : ∀ {l}
      → ([Γ] : ⊩ᵛ Γ)
@@ -62,9 +63,9 @@ sucʳ : ∀ {l}
      → γ ▸ Γ ⊩ʳ⟨ l ⟩ suc t ∷ ℕ / [Γ] / [ℕ]
 sucʳ {Γ = Γ} {γ = γ} {t = t} {l = l} [Γ] [ℕ] ⊩ʳt Γ⊢t:ℕ {σ = σ} {σ′ = σ′} [σ] σ®σ′ =
   let [ℕ]′ = ℕᵛ {l = l} [Γ]
-      ⊢t:ℕ = substitutionTerm Γ⊢t:ℕ (wellformedSubst [Γ] ε [σ]) ε
+      ⊢t:ℕ = substitutionTerm Γ⊢t:ℕ (wellformedSubst [Γ] ⊢Δ [σ]) ⊢Δ
       t®v = ⊩ʳt [σ] σ®σ′
-      t®v∷ℕ = irrelevanceTerm (proj₁ (unwrap [ℕ] ε [σ])) (proj₁ (unwrap [ℕ]′ ε [σ])) t®v
-      suct®sucv : suc (subst σ t) ®⟨ _ ⟩ T.suc (T.subst σ′ (erase t)) ∷ ℕ / proj₁ (unwrap [ℕ]′ ε [σ])
+      t®v∷ℕ = irrelevanceTerm (proj₁ (unwrap [ℕ] ⊢Δ [σ])) (proj₁ (unwrap [ℕ]′ ⊢Δ [σ])) t®v
+      suct®sucv : suc (subst σ t) ®⟨ _ ⟩ T.suc (T.subst σ′ (erase t)) ∷ ℕ / proj₁ (unwrap [ℕ]′ ⊢Δ [σ])
       suct®sucv = sucᵣ (id (sucⱼ ⊢t:ℕ)) T.refl t®v∷ℕ
-  in  irrelevanceTerm (proj₁ (unwrap [ℕ]′ ε [σ])) (proj₁ (unwrap [ℕ] ε [σ])) suct®sucv
+  in  irrelevanceTerm (proj₁ (unwrap [ℕ]′ ⊢Δ [σ])) (proj₁ (unwrap [ℕ] ⊢Δ [σ])) suct®sucv
