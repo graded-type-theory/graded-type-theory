@@ -150,6 +150,7 @@ import Erasure.LogicalRelation.Irrelevance
 import Erasure.LogicalRelation.Reduction
 import Erasure.LogicalRelation.Subsumption
 import Erasure.LogicalRelation.Fundamental
+import Erasure.LogicalRelation.Fundamental.Counterexample
 
 -- Soundness of Extraction function
 
