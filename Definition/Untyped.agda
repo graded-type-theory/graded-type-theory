@@ -324,6 +324,12 @@ productWhnf (ne x) = ne x
 ⟦_⟧ₙ (BΠ p q) = Πₙ
 ⟦_⟧ₙ (BΣ m q) = Σₙ
 
+-- Fully normalized natural numbers
+
+data Numeral {n : Nat} : Term n → Set a where
+  zeroₙ : Numeral zero
+  sucₙ : Numeral t → Numeral (suc t)
+
 ------------------------------------------------------------------------
 -- Weakening
 

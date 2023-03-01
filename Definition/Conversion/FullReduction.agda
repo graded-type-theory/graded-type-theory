@@ -60,6 +60,28 @@ mutual
 
     ne     : {n : Term m} → NfNeutral n → Nf n
 
+nfNeutral : NfNeutral n → Neutral n
+nfNeutral (var x) = var x
+nfNeutral (∘ₙ n x) = ∘ₙ (nfNeutral n)
+nfNeutral (fstₙ n) = fstₙ (nfNeutral n)
+nfNeutral (sndₙ n) = sndₙ (nfNeutral n)
+nfNeutral (natrecₙ x x₁ x₂ n) = natrecₙ (nfNeutral n)
+nfNeutral (prodrecₙ x n x₁) = prodrecₙ (nfNeutral n)
+nfNeutral (Emptyrecₙ x n) = Emptyrecₙ (nfNeutral n)
+
+nfWhnf : Nf n → Whnf n
+nfWhnf Uₙ = Uₙ
+nfWhnf (Πₙ n n₁) = Πₙ
+nfWhnf (Σₙ n n₁) = Σₙ
+nfWhnf ℕₙ = ℕₙ
+nfWhnf Emptyₙ = Emptyₙ
+nfWhnf Unitₙ = Unitₙ
+nfWhnf (lamₙ n) = lamₙ
+nfWhnf (prodₙ n n₁) = prodₙ
+nfWhnf zeroₙ = zeroₙ
+nfWhnf (sucₙ n) = sucₙ
+nfWhnf starₙ = starₙ
+nfWhnf (ne x) = ne (nfNeutral x)
 
 mutual
   fullRedNe : ∀ {t t′ A} → Γ ⊢ t ~ t′ ↑ A → ∃ λ u → NfNeutral u × Γ ⊢ t ≡ u ∷ A

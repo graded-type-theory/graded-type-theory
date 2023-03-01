@@ -2,7 +2,6 @@
 
 module Definition.Modality.Instances.Unit where
 
-open import Tools.Nat hiding (_+_)
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation

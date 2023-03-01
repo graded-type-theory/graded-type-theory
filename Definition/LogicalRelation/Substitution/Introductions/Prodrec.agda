@@ -22,12 +22,9 @@ open import Definition.LogicalRelation.Irrelevance M′
 open import Definition.LogicalRelation.Properties M′
 open import Definition.LogicalRelation.Substitution M′
 open import Definition.LogicalRelation.Substitution.Introductions.Pi M′
-open import Definition.LogicalRelation.Substitution.Introductions.Prod M′
-open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst M′
 import Definition.LogicalRelation.Substitution.Irrelevance M′ as S
 open import Definition.LogicalRelation.Substitution.Properties M′
 open import Definition.LogicalRelation.Substitution.Reflexivity M′
-open import Definition.LogicalRelation.Substitution.Weakening M′
 import Definition.LogicalRelation.Weakening M′ as W
 
 open import Tools.Fin

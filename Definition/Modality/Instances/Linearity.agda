@@ -6,7 +6,6 @@ module Definition.Modality.Instances.Linearity (Prodrec : 𝟘𝟙ω → Set)  w
 
 open import Tools.Product
 open import Tools.PropositionalEquality
-open import Tools.Relation
 
 open import Definition.Modality.Instances.ZeroOneOmega
   renaming (𝟘𝟙ω to Linearity; 𝟘𝟙ω′ to Linearity′) public

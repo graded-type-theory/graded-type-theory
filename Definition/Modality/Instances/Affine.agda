@@ -6,7 +6,6 @@ module Definition.Modality.Instances.Affine (Prodrec : 𝟘𝟙ω → Set)  wher
 
 open import Tools.Product
 open import Tools.PropositionalEquality
-open import Tools.Relation
 
 open import Definition.Modality.Instances.ZeroOneOmega
   renaming (𝟘𝟙ω to Affine; 𝟘𝟙ω′ to Affine′) public

@@ -8,7 +8,6 @@ open import Tools.Product
 open import Tools.PropositionalEquality
 
 open import Definition.Modality Erasure′ public
-open import Tools.Algebra Erasure′
 
 -- Erasure forms a modality
 

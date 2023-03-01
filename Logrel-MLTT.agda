@@ -29,8 +29,6 @@ import Tools.Reasoning.PropositionalEquality
 
 -- Modality structure
 import Definition.Modality
-import Definition.Modality.Instances.Erasure
-import Definition.Modality.Instances.Unit
 import Definition.Modality.Properties
 import Definition.Modality.Context
 import Definition.Modality.Context.Properties
@@ -40,6 +38,17 @@ import Definition.Modality.Usage.Properties
 import Definition.Modality.Usage.Weakening
 import Definition.Modality.Substitution
 import Definition.Modality.Substitution.Properties
+
+-- Instances
+import Definition.Modality.Instances.Erasure.Modality
+import Definition.Modality.Instances.Unit
+import Definition.Modality.Instances.Affine
+import Definition.Modality.Instances.Linearity
+import Definition.Modality.Instances.BoundedStar
+import Definition.Modality.Instances.Finite
+import Definition.Modality.Instances.LowerBounded
+import Definition.Modality.Instances.Recursive
+
 
 -- Grammar of the language
 import Definition.Untyped
@@ -145,3 +154,12 @@ import Erasure.LogicalRelation.Fundamental
 -- Soundness of Extraction function
 
 import Erasure.Consequences.Soundness
+
+-- Application: consistent negative axioms preserve canonicity
+import Application.NegativeAxioms.Canonicity.Negative
+
+-- Application: consistent negative/erased axioms preserve canonicity
+import Application.NegativeAxioms.Canonicity.NegativeErased
+import Application.NegativeAxioms.Canonicity.Erased
+-- ... but not if matching is allowed on erased pairs
+import Application.NegativeAxioms.Canonicity.EliminateErased

@@ -18,7 +18,6 @@ open import Definition.Untyped M hiding (_∙_ ; subst)
 
 open import Tools.Fin
 open import Tools.Nat renaming (_+_ to _+ⁿ_)
-open import Tools.Product
 open import Tools.PropositionalEquality as PE
 
 private

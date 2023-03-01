@@ -11,7 +11,7 @@ open import Tools.Nat
 
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Typed M′
-open import Definition.Typed.RedSteps M′
+open import Definition.Typed.Properties M′
 
 import Erasure.Target as T
 
@@ -42,6 +42,14 @@ whred* (x ⇨ d) = whred x ⇨ˢ whred* d
 sucred* : Γ ⊢ t ⇒ˢ* u ∷ℕ → Γ ⊢ suc t ⇒ˢ* suc u ∷ℕ
 sucred* (id x) = id (sucⱼ x)
 sucred* (x ⇨ˢ d) = (sucred x) ⇨ˢ (sucred* d)
+
+subsetTermˢ : Γ ⊢ t ⇒ˢ u ∷ℕ → Γ ⊢ t ≡ u ∷ ℕ
+subsetTermˢ (whred x) = subsetTerm x
+subsetTermˢ (sucred d) = suc-cong (subsetTermˢ d)
+
+subset*Termˢ : Γ ⊢ t ⇒ˢ* u ∷ℕ → Γ ⊢ t ≡ u ∷ ℕ
+subset*Termˢ (id x) = refl x
+subset*Termˢ (x ⇨ˢ d) = trans (subsetTermˢ x) (subset*Termˢ d)
 
 data _⇒ˢ_ : (v w : T.Term n) → Set where
   whred : v T.⇒ w → v ⇒ˢ w

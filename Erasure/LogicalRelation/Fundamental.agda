@@ -54,7 +54,6 @@ open import Tools.Fin
 open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
-open import Tools.Unit
 import Tools.PropositionalEquality as PE
 
 private
