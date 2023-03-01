@@ -15,7 +15,6 @@ open import Definition.Untyped M
 open import Definition.Typed M′
 open import Definition.Typed.Weakening M′
 open import Definition.Modality.Context 𝕄
-open import Definition.Modality.Usage 𝕄
 open import Application.NegativeAxioms.NegativeType M′
 
 

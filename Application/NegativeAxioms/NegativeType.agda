@@ -13,7 +13,6 @@ open import Definition.Typed.Properties M′
 open import Definition.Typed.Weakening M′ as T
 open import Definition.Typed.Consequences.Inequality M′
 open import Definition.Typed.Consequences.Injectivity M′
-open import Definition.Typed.Consequences.Inversion M′
 open import Definition.Typed.Consequences.Substitution M′
 
 open import Tools.Empty

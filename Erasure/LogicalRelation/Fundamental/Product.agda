@@ -49,10 +49,8 @@ open import Erasure.Extraction
 import Erasure.Target as T
 import Erasure.Target.Properties as TP
 
-open import Tools.Fin
 open import Tools.Nat
 open import Tools.Product
-open import Tools.Unit
 import Tools.PropositionalEquality as PE
 
 private

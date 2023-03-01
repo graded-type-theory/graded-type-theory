@@ -15,9 +15,6 @@ open import Definition.Modality.Properties.Addition 𝕄
 open import Definition.Modality.Properties.PartialOrder 𝕄
 
 open import Tools.Algebra M′
-open import Tools.Nat hiding (_+_)
-open import Tools.Product
-
 
 private
   variable

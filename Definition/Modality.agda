@@ -8,7 +8,6 @@ module Definition.Modality {a ℓ} (M′ : Setoid a ℓ) where
 open Setoid M′ renaming (Carrier to M)
 
 open import Tools.Algebra M′
-open import Tools.Nat hiding (_+_)
 open import Tools.Product
 
 -- Modality ringoid

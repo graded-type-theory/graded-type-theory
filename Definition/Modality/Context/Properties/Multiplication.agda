@@ -13,7 +13,6 @@ open import Definition.Modality.Context.Properties.PartialOrder 𝕄
 open import Definition.Modality.Properties 𝕄
 
 open import Tools.Nat hiding (_+_)
-open import Tools.Product
 
 open Modality 𝕄
 open Setoid M′ renaming (Carrier to M)

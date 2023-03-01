@@ -12,12 +12,8 @@ open Setoid M′ renaming (Carrier to M)
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
-open import Definition.Modality.Properties 𝕄
 open import Definition.Modality.Usage 𝕄
-open import Definition.Modality.Usage.Inversion 𝕄
-open import Definition.Typed M′ hiding (_∙_)
 open import Definition.Untyped M hiding (_∷_ ; _∙_ ; ε ; subst)
-open import Definition.Usage 𝕄
 
 open import Tools.Fin
 open import Tools.Nat hiding (_+_)

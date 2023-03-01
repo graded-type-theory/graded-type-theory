@@ -12,7 +12,6 @@ open import Tools.Nat
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Typed M′
 open import Definition.Typed.Properties M′
-open import Definition.Typed.RedSteps M′
 
 import Erasure.Target as T
 

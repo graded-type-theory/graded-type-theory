@@ -11,11 +11,6 @@ module Definition.Modality.Properties.PartialOrder {a ℓ}
 open ModalityWithout⊛ 𝕄
 open Setoid M′ renaming (Carrier to M)
 
-open import Tools.Algebra M′
-open import Tools.Nat hiding (_+_)
-open import Tools.Product
-
-
 private
   variable
     p p′ q q′ r r′ : M

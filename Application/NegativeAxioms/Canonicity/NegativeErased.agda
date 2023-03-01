@@ -19,17 +19,13 @@ open import Definition.Modality.Instances.Erasure.Properties NoErasedMatching
 open import Definition.Modality.Context ErasureModality
 open import Definition.Modality.Usage ErasureModality
 open import Definition.Modality.Usage.Inversion ErasureModality
-open import Definition.Modality.FullReduction ErasureModality greatest-elem
 
 open import Application.NegativeAxioms.NegativeType Erasure′
 open import Erasure.SucRed Erasure′
 
 open import Definition.Typed.Properties Erasure′
 open import Definition.Typed.Usage ErasureModality
-open import Definition.Typed.Consequences.Consistency Erasure′
 open import Definition.Typed.Consequences.Inequality Erasure′
-open import Definition.Typed.Consequences.Injectivity Erasure′
-open import Definition.Typed.Consequences.Inversion Erasure′
 open import Definition.Typed.Consequences.Reduction Erasure′
 open import Definition.Typed.Consequences.Syntactic Erasure′
 
@@ -38,7 +34,6 @@ open import Definition.LogicalRelation Erasure′
 open import Definition.LogicalRelation.Irrelevance Erasure′
 open import Definition.LogicalRelation.Fundamental.Reducibility Erasure′
 
-open import Tools.Nat
 import Tools.PropositionalEquality as PE
 open import Tools.Product
 

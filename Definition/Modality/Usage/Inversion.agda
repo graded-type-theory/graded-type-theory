@@ -17,7 +17,6 @@ open import Definition.Modality.Usage 𝕄
 open import Definition.Untyped M hiding (_∙_)
 
 open import Tools.Nat
-open import Tools.PropositionalEquality as PE
 
 private
   variable

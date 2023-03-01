@@ -13,11 +13,6 @@ open Setoid M′ renaming (Carrier to M)
 
 open import Definition.Modality.Properties.PartialOrder 𝕄
 
-open import Tools.Algebra M′
-open import Tools.Nat hiding (_+_)
-open import Tools.Product
-
-
 private
   variable
     p p′ q q′ r r′ : M

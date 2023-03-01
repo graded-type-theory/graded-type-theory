@@ -15,8 +15,6 @@ open EqRelSet {{...}}
 open import Erasure.LogicalRelation ⊢Δ Prodrec
 import Erasure.Target as T
 
-open import Definition.Untyped.Properties Erasure
-
 open import Definition.LogicalRelation Erasure′
 open import Definition.LogicalRelation.Fundamental Erasure′
 open import Definition.LogicalRelation.Substitution Erasure′
@@ -29,7 +27,6 @@ open import Definition.Modality.Context ErasureModality
 
 open import Tools.Nat
 open import Tools.Product
-open import Tools.PropositionalEquality
 
 private
   variable

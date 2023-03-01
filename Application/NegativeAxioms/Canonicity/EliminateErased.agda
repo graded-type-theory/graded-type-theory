@@ -3,43 +3,30 @@
 
 {-# OPTIONS --without-K --safe #-}
 
+module Application.NegativeAxioms.Canonicity.EliminateErased where
+
 open import Definition.Modality.Instances.Erasure
-open import Definition.Modality.Instances.Erasure.Modality (_≤ 𝟘)
+open import Definition.Modality.Instances.Erasure.Modality ErasedMatching
+open import Definition.Modality.Context ErasureModality
+open import Definition.Modality.Usage ErasureModality
+
 open import Application.NegativeAxioms.NegativeErasedContext ErasureModality (λ ())
   hiding (lookupNegative)
 open import Definition.Typed Erasure′
 open import Definition.Untyped Erasure hiding (_∷_; ℕ≢B)
 
-
-open import Tools.Empty
-
-module Application.NegativeAxioms.Canonicity.EliminateErased where
-
-open import Definition.Modality.Instances.Erasure.Properties (_≤ ω)
-open import Definition.Modality.Context ErasureModality
-open import Definition.Modality.Usage ErasureModality
-open import Definition.Modality.Usage.Inversion ErasureModality
-open import Definition.Modality.FullReduction ErasureModality greatest-elem
-
-open import Application.NegativeAxioms.NegativeType Erasure′
 open import Erasure.SucRed Erasure′
 
 open import Definition.Typed.Properties Erasure′
-open import Definition.Typed.Usage ErasureModality
 open import Definition.Typed.Consequences.Canonicity Erasure′
-open import Definition.Typed.Consequences.Consistency Erasure′
-open import Definition.Typed.Consequences.Inequality Erasure′
-open import Definition.Typed.Consequences.Injectivity Erasure′
-open import Definition.Typed.Consequences.Inversion Erasure′
-open import Definition.Typed.Consequences.Reduction Erasure′
 open import Definition.Typed.Consequences.Substitution Erasure′
-open import Definition.Typed.Consequences.Syntactic Erasure′
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Nat
 import Tools.PropositionalEquality as PE
 open import Tools.Product
-open import Tools.Sum using (_⊎_; inj₁; inj₂)
+open import Tools.Unit
 
 
 -- Preliminaries
@@ -64,7 +51,7 @@ cEx : ∃₃ λ (m : Nat) (Γ : Con Term m) (t : Term m)
     × ((∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ) → ⊥)
 cEx = _ , ε ∙ (Σᵣ 𝟘 ▷ ℕ ▹ ℕ) , prodrec 𝟘 𝟘 ℕ (var x0) zero
     , prodrecⱼ εΣ⊢ℕ εΣℕ⊢ℕ εΣΣ⊢ℕ (var ⊢εΣ here) (zeroⱼ ⊢εΣℕℕ)
-    , prodrecₘ var zeroₘ ℕₘ PE.refl
+    , prodrecₘ var zeroₘ ℕₘ tt
     , (λ ⊢t → ¬Empty (substTerm ⊢t (prodⱼ ε⊢ℕ εℕ⊢ℕ (zeroⱼ ε) (zeroⱼ ε))))
     , λ { (u , numU , (whred x ⇨ˢ d)) → neRedTerm x (prodrecₙ (var x0))}
     where

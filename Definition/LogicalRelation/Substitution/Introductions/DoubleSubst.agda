@@ -10,7 +10,6 @@ open Setoid M′ using () renaming (Carrier to M)
 
 open import Definition.Untyped M as U hiding (_∷_)
 open import Definition.Untyped.Properties M
-open import Definition.Typed M′
 open import Definition.LogicalRelation M′
 open import Definition.LogicalRelation.Irrelevance M′
 open import Definition.LogicalRelation.Properties M′

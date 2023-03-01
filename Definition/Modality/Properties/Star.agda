@@ -15,9 +15,6 @@ open import Definition.Modality.Properties.PartialOrder modalityWithout⊛
 open import Definition.Modality.Properties.Meet modalityWithout⊛
 
 open import Tools.Algebra M′
-open import Tools.Nat hiding (_+_)
-open import Tools.Product
-
 
 private
   variable
