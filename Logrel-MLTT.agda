@@ -33,11 +33,13 @@ import Definition.Modality.Properties
 import Definition.Modality.Context
 import Definition.Modality.Context.Properties
 import Definition.Modality.Usage
+import Definition.Modality.Usage.Decidable
 import Definition.Modality.Usage.Inversion
 import Definition.Modality.Usage.Properties
 import Definition.Modality.Usage.Weakening
 import Definition.Modality.Substitution
 import Definition.Modality.Substitution.Properties
+import Definition.Modality.Substitution.Decidable
 
 -- Instances
 import Definition.Modality.Instances.Erasure.Modality
