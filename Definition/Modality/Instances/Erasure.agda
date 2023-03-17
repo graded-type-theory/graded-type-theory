@@ -3,6 +3,7 @@ module Definition.Modality.Instances.Erasure where
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation
+open import Tools.Unit
 
 -- The set of erasure annotations with 𝟘 corresponding to no usage
 -- and ω to any usage.
@@ -19,6 +20,9 @@ infixl 45 _·_
 infix  10 _≤_
 infix  50 _⊛_▷_
 
+---------------------------------------
+-- Operations for erasure anntations --
+---------------------------------------
 
 -- Addition of erasure annotations
 
@@ -37,17 +41,27 @@ _·_ : Op₂ Erasure
 _∧_ : Op₂ Erasure
 _∧_ = _+_
 
--- Natrec recurrence function
+-- Natrec-star operators
 
 _⊛_▷_ : Op₃ Erasure
 p ⊛ q ▷ r = p + q
 
 
--- Ordering relation for erasures
+-- Ordering relation for erasure
 -- Reflexive closure of ω ≤ 𝟘
 
 _≤_ : (p q : Erasure) → Set
 p ≤ q = p ≡ p ∧ q
+
+-------------------
+-- Prodrec modes --
+-------------------
+
+NoErasedMatching : Erasure → Set
+NoErasedMatching p = p ≡ ω
+
+ErasedMatching : Erasure → Set
+ErasedMatching p = ⊤
 
 ---------------------------------------
 -- Properties of addition (and meet) --
@@ -354,7 +368,7 @@ p ≤ q = p ≡ p ∧ q
 
 prodrec-only-for-ω : Restrictions → Restrictions
 prodrec-only-for-ω restrictions = record restrictions
-  { Prodrec      = λ r p → Prodrec r p × r ≡ ω
+  { Prodrec      = λ r p q → Prodrec r p q × r ≡ ω
   }
   where
   open Restrictions restrictions

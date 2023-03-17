@@ -1,8 +1,11 @@
 open import Definition.Modality.Instances.Erasure
 open import Definition.Modality.Restrictions
 open import Definition.Typed.EqualityRelation
+open import Definition.Untyped Erasure as U hiding (_∷_)
+open import Definition.Typed Erasure
 
 module Erasure.LogicalRelation.Subsumption
+  {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   (restrictions : Restrictions Erasure)
   {{eqrel : EqRelSet Erasure}}
   where
@@ -17,9 +20,8 @@ import Definition.LogicalRelation.Irrelevance Erasure as I
 open import Definition.Modality.Context ErasureModality
 open import Definition.Modality.Properties ErasureModality
 open import Definition.Mode ErasureModality
-open import Definition.Untyped Erasure as U hiding (_∷_)
 
-open import Erasure.LogicalRelation restrictions
+open import Erasure.LogicalRelation ⊢Δ restrictions
 open import Erasure.Target as T hiding (_⇒_; _⇒*_)
 
 open import Tools.Level
@@ -28,11 +30,13 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Unit
 
+open Modality ErasureModality using (·-zeroʳ)
+
 private
   variable
     n : Nat
-    t t′ A : U.Term 0
-    v v′ : T.Term 0
+    t t′ A : U.Term n
+    v v′ : T.Term n
     Γ : Con U.Term n
     F G : U.Term n
     p q : Erasure
@@ -83,3 +87,17 @@ subsumptionMode :
   γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A / [Γ] / [A]
 subsumptionMode {m = 𝟘ᵐ}        = _
 subsumptionMode {m = 𝟙ᵐ} _ _ ok = ok
+
+-- Under erased contexts, any substitutions are related
+
+erasedSubst : ∀ {l σ σ′}
+            → ([Γ] : ⊩ᵛ Γ)
+            → ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
+            → σ ®⟨ l ⟩ σ′ ∷[ m ] Γ ◂ 𝟘ᶜ / [Γ] / [σ]
+erasedSubst ε (lift tt) = tt
+erasedSubst {m = m} (_∙_ {l = l} [Γ] [A]) ([σ] , [t]) =
+  erasedSubst {l = l} [Γ] [σ] ,
+  PE.subst
+    (λ p → _ ®⟨ _ ⟩ _ ∷ _ ◂ p / _)
+    (PE.sym (·-zeroʳ ⌜ m ⌝))
+    tt

@@ -54,14 +54,15 @@ mutual
                   → Γ ⊢ k ~ l ↓ ℕ
                   → p ≈ p′
                   → r ≈ r′
-                  → Γ ⊢ natrec p r F a₀ h k ~ natrec p′ r′ G b₀ g l ↑ F [ k ]
+                  → Γ ⊢ natrec p q r F a₀ h k ~ natrec p′ q r′ G b₀ g l ↑ F [ k ]
 
     prodrec-cong  : Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ C [conv↑] E
                   → Γ ⊢ g ~ h ↓ Σᵣ p , q ▷ F ▹ G
                   → Γ ∙ F ∙ G ⊢ u [conv↑] v ∷ C [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
                   → r ≈ r′
                   → p ≈ p′
-                  → Γ ⊢ prodrec r p C g u ~ prodrec r′ p′ E h v ↑ C [ g ]
+                  → q ≈ q′
+                  → Γ ⊢ prodrec r p q C g u ~ prodrec r′ p′ q′ E h v ↑ C [ g ]
 
     Emptyrec-cong : Γ ⊢ F [conv↑] H
                   → Γ ⊢ k ~ l ↓ Empty
@@ -197,7 +198,8 @@ mutual
               → Γ ⊢ k [conv↓] l ∷ Unit
 
 pattern prodrec-cong! {p = p} {q = q} {F = F} {G = G} x₁ x₂ x₃ =
-  prodrec-cong {p = p} {q = q} {F = F} {G = G} x₁ x₂ x₃ PE.refl PE.refl
+  prodrec-cong {p = p} {q = q} {F = F} {G = G} x₁ x₂ x₃
+    PE.refl PE.refl PE.refl
 pattern prod-cong! {G = G} x₁ x₂ x₃ x₄ =
   prod-cong {G = G} x₁ x₂ x₃ x₄ PE.refl PE.refl
 

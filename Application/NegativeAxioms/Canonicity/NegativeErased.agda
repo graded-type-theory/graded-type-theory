@@ -105,12 +105,12 @@ neNeg (sndⱼ ⊢A A⊢B d     ) (sndₙ n     ) γ▸u =
   in  sndNeg (neNeg d n (sub δ▸t γ≤δ))
              (refl (ΠΣⱼ ⊢A ▹ A⊢B)) (fstⱼ ⊢A A⊢B d)
 neNeg (natrecⱼ _ _ _ d   ) (natrecₙ n  ) γ▸u =
-  let invUsageNatrec _ _ δ▸n γ≤γ′ = inv-usage-natrec γ▸u
+  let invUsageNatrec _ _ δ▸n _ γ≤γ′ = inv-usage-natrec γ▸u
       ⊢ℕ = refl (ℕⱼ (wfTerm d))
       γ▸n = sub δ▸n (≤ᶜ-trans γ≤γ′ (≤ᶜ-trans (⊛ᶜ-ineq₂ _ _ _) (∧ᶜ-decreasingʳ _ _)))
   in  ⊥-elim (¬negℕ (neNeg d n γ▸n) ⊢ℕ)
 neNeg (prodrecⱼ ⊢A A⊢B _ d _) (prodrecₙ n ) γ▸u =
-  let invUsageProdrec δ▸t η▸u (_ , p≡ω) γ≤γ′ = inv-usage-prodrec γ▸u
+  let invUsageProdrec δ▸t η▸u _ (_ , p≡ω) γ≤γ′ = inv-usage-prodrec γ▸u
       γ▸t = sub δ▸t (≤ᶜ-trans γ≤γ′ (≤ᶜ-trans (+ᶜ-decreasingˡ _ _)
                               (≤ᶜ-trans (·ᶜ-monotoneˡ (≤-reflexive p≡ω))
                                  (≤ᶜ-reflexive (·ᶜ-identityˡ _)))))

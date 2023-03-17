@@ -2,6 +2,7 @@ module Erasure.Target where
 
 open import Tools.Fin
 open import Tools.Nat
+import Tools.PropositionalEquality as PE
 
 infixl 25 _[_]
 infixl 25 _[_,_]
@@ -28,10 +29,29 @@ data Term : Nat → Set where
   star      : Term n
   undefined : Term n
 
+pattern ↯ = undefined
+
 private
   variable
     s t t′ u z : Term n
 
+-- Does a term contain a variable?
+
+data HasX (x : Fin n) : (t : Term n) → Set where
+  varₓ : HasX x (var x)
+  lamₓ : HasX (x +1) t → HasX x (lam t)
+  ∘ₓˡ : HasX x t → HasX x (t ∘ u)
+  ∘ₓʳ : HasX x u → HasX x (t ∘ u)
+  sucₓ : HasX x t → HasX x (suc t)
+  natrecₓᶻ : HasX x z → HasX x (natrec z s t)
+  natrecₓˢ : HasX (x +1 +1) s → HasX x (natrec z s t)
+  natrecₓⁿ : HasX x t → HasX x (natrec z s t)
+  prodₓˡ : HasX x t → HasX x (prod t u)
+  prodₓʳ : HasX x u → HasX x (prod t u)
+  fstₓ : HasX x t → HasX x (fst t)
+  sndₓ : HasX x t → HasX x (snd t)
+  prodrecₓˡ : HasX x t → HasX x (prodrec t u)
+  prodrecₓʳ : HasX (x +1 +1) u → HasX x (prodrec t u)
 
 -- Weakenings in the same style as the source language
 
@@ -75,7 +95,7 @@ wk ρ (fst t) = fst (wk ρ t)
 wk ρ (snd t) = snd (wk ρ t)
 wk ρ (prodrec t u) = prodrec (wk ρ t) (wk (lift (lift ρ)) u)
 wk ρ star = star
-wk ρ undefined = undefined
+wk ρ ↯ = ↯
 
 -- Shift all variables in a term up by one
 
@@ -150,7 +170,7 @@ subst σ (fst t) = fst (subst σ t)
 subst σ (snd t) = snd (subst σ t)
 subst σ (prodrec t u) = prodrec (subst σ t) (subst (liftSubst (liftSubst σ)) u)
 subst σ star = star
-subst σ undefined = undefined
+subst σ ↯ = ↯
 
 -- Compose two substitutions.
 

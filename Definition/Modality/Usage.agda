@@ -21,7 +21,7 @@ private
   variable
     n : Nat
     p q r : M
-    γ δ γ′ η : Conₘ n
+    γ δ γ′ η θ : Conₘ n
     A F : Term n
     G : Term (1+ n)
     t u : Term n
@@ -62,8 +62,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
 
   prodᵣₘ    : γ ▸[ m ᵐ· p ] t
             → δ ▸[ m ] u
-            → γ′ PE.≡ p ·ᶜ γ +ᶜ δ
-            → γ′ ▸[ m ] prodᵣ p t u
+            → p ·ᶜ γ +ᶜ δ ▸[ m ] prodᵣ p t u
 
   prodₚₘ   : γ ▸[ m ᵐ· p ] t
            → δ ▸[ m ] u
@@ -81,8 +80,9 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
 
   prodrecₘ  : γ ▸[ m ᵐ· r ] t
             → δ ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u
-            → Prodrec r p
-            → r ·ᶜ γ +ᶜ δ ▸[ m ] prodrec r p A t u
+            → η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
+            → Prodrec r p q
+            → r ·ᶜ γ +ᶜ δ ▸[ m ] prodrec r p q A t u
 
   zeroₘ     : 𝟘ᶜ ▸[ m ] zero
   sucₘ      : γ ▸[ m ] t
@@ -92,9 +92,11 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → γ ▸[ m ] z
             → δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s
             → η ▸[ m ] n
-            → (γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r ▸[ m ] natrec p r G z s n
+            → θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] G
+            → (γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r ▸[ m ] natrec p q r G z s n
 
   Emptyrecₘ : γ ▸[ m ᵐ· p ] t
+            → δ ▸[ 𝟘ᵐ? ] A
             → p ·ᶜ γ ▸[ m ] Emptyrec p A t
 
   starₘ     : 𝟘ᶜ ▸[ m ] star
@@ -120,12 +122,12 @@ mutual
   ⌈ prod Σₚ p t u ⌉ m = p ·ᶜ ⌈ t ⌉ (m ᵐ· p) ∧ᶜ ⌈ u ⌉ m
   ⌈ fst p t ⌉ m = ⌈ t ⌉ m
   ⌈ snd p t ⌉ m = ⌈ t ⌉ m
-  ⌈ prodrec r p A t u ⌉ m =
+  ⌈ prodrec r p _ A t u ⌉ m =
     r ·ᶜ ⌈ t ⌉ (m ᵐ· r) +ᶜ tailₘ (tailₘ (⌈ u ⌉ m))
   ⌈ ℕ ⌉ _ = 𝟘ᶜ
   ⌈ zero ⌉ _ = 𝟘ᶜ
   ⌈ suc t ⌉ m = ⌈ t ⌉ m
-  ⌈ natrec p r A z s n ⌉ m =
+  ⌈ natrec p _ r A z s n ⌉ m =
     let γ  = ⌈ z ⌉ m
         δ′ = ⌈ s ⌉ m
         η  = ⌈ n ⌉ m

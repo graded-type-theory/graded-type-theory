@@ -79,7 +79,7 @@ mutual
     case Σ≡A ⊢Σ≡B whnfB of λ where
       (_ , q , F′ , G′ , PE.refl) →
         case Σ-injectivity (stabilityEq Γ≡Δ ⊢Σ≡B) of λ where
-          (⊢F≡F′ , ⊢G≡G′ , PE.refl , _) →
+          (⊢F≡F′ , ⊢G≡G′ , PE.refl , PE.refl , _) →
             let g≡h = soundness~↓ g~h
                 C≡E = soundnessConv↑ C↑E
                 ⊢Σ , _ = syntacticEqTerm g≡h

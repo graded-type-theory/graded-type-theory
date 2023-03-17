@@ -35,7 +35,7 @@ private
     m n : Nat
     Γ : Con Term n
     ρ : Wk m n
-    p p₁ p₂ p′ q r r′ : M
+    p p₁ p₂ p′ q q′ q₁ q₂ r r′ : M
 
 -- Algorithmic equality of neutrals with injected conversion.
 record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
@@ -112,9 +112,10 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
       Γ ∙ ℕ ∙ F ⊢ s [conv↑] s′ ∷ wk1 (F [ suc (var x0) ]↑) →
       Γ ⊢ n ~ n′ ∷ ℕ →
       p ≈ p′ →
+      q ≈ q′ →
       r ≈ r′ →
-      Γ ⊢ natrec p r F z s n ~ natrec p′ r′ F′ z′ s′ n′ ∷ (F [ n ])
-~-natrec _ x x₁ x₂ (↑ A≡B x₄) p≈p′ r≈r′ =
+      Γ ⊢ natrec p q r F z s n ~ natrec p′ q′ r′ F′ z′ s′ n′ ∷ (F [ n ])
+~-natrec _ x x₁ x₂ (↑ A≡B x₄) p≈p′ PE.refl r≈r′ =
   let _ , ⊢B = syntacticEq A≡B
       B′ , whnfB′ , D = whNorm ⊢B
       ℕ≡B′ = trans A≡B (subset* (red D))
@@ -134,7 +135,7 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
   Γ ⊢ t ~ t′ ∷ (Σᵣ p , q ▷ F ▹ G) →
   Γ ∙ F ∙ G ⊢ u [conv↑] u′ ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑² →
   r ≈ r′ →
-  Γ ⊢ prodrec r p A t u ~ prodrec r′ p A′ t′ u′ ∷ (A [ t ])
+  Γ ⊢ prodrec r p q A t u ~ prodrec r′ p q A′ t′ u′ ∷ (A [ t ])
 ~-prodrec x x₁ x₂ (↑ A≡B k~↑l) x₄ PE.refl =
   case syntacticEq A≡B of λ (_ , ⊢B) →
   case whNorm ⊢B of λ (B′ , whnfB′ , D) →
@@ -142,7 +143,7 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
   case Σ≡A (trans A≡B (subset* (red D))) whnfB′ of λ where
     (_ , q′ , F′ , G′ , PE.refl) →
       case Σ-injectivity Σ≡Σ′ of λ where
-        (F≡F′ , G≡G′ , PE.refl , _) →
+        (F≡F′ , G≡G′ , PE.refl , PE.refl , _) →
           let t~t′       = [~] _ (red D) whnfB′ k~↑l
               ⊢Γ         = wf ⊢B
               ⊢Γ≡Γ       = reflConEq ⊢Γ

@@ -35,10 +35,11 @@ mutual
     fstₙ      : NfNeutral t → NfNeutral (fst p t)
     sndₙ      : NfNeutral t → NfNeutral (snd p t)
     natrecₙ   : {C : Term (1+ m)} {c k : Term m} {g : Term (1+ (1+ m))}
-                     → Nf C → Nf c → Nf g → NfNeutral k → NfNeutral (natrec q r C c g k)
-    prodrecₙ  : Nf C → NfNeutral t → Nf u →
-                NfNeutral (prodrec r p C t u)
-    Emptyrecₙ : {C k : Term m}     → Nf C → NfNeutral k → NfNeutral (Emptyrec q C k)
+                     → Nf C → Nf c → Nf g → NfNeutral k → NfNeutral (natrec p q r C c g k)
+    prodrecₙ  : {C : Term (1+ m)} {t : Term m} {u : Term (1+ (1+ m))} →
+                Nf C → NfNeutral t → Nf u →
+                NfNeutral (prodrec r p q C t u)
+    Emptyrecₙ : {C k : Term m}     → Nf C → NfNeutral k → NfNeutral (Emptyrec p C k)
 
   data Nf {m : Nat} : Term m → Set a where
     Uₙ     : Nf U
@@ -95,20 +96,21 @@ mutual
         ⊢ΣFG , _ , _ = syntacticEqTerm p≡p′
         ⊢F , ⊢G = syntacticΣ ⊢ΣFG
     in  snd _ p′ , sndₙ neP′ , snd-cong ⊢F ⊢G p≡p′
-  fullRedNe (natrec-cong {p = p} {r = r} C z s n p≈p′ r≈r′) =
+  fullRedNe (natrec-cong C z s n p≈p′ r≈r′) =
     let C′ , nfC′ , C≡C′ = fullRed C
         z′ , nfZ′ , z≡z′ = fullRedTerm z
         s′ , nfS′ , s≡s′ = fullRedTerm s
         n′ , nfN′ , n≡n′ = fullRedNe~↓ n
-    in  natrec p r C′ z′ s′ n′ , natrecₙ nfC′ nfZ′ nfS′ nfN′
-     , natrec-cong (proj₁ (syntacticEq C≡C′)) C≡C′ z≡z′ s≡s′ n≡n′ ≈-refl ≈-refl
+    in  natrec _ _ _ C′ z′ s′ n′ , natrecₙ nfC′ nfZ′ nfS′ nfN′
+     , natrec-cong (proj₁ (syntacticEq C≡C′)) C≡C′ z≡z′ s≡s′ n≡n′
+         ≈-refl ≈-refl ≈-refl
   fullRedNe (prodrec-cong! C g u) =
     let C′ , nfC′ , C≡C′ = fullRed C
         g′ , nfg′ , g≡g′ = fullRedNe~↓ g
         u′ , nfu′ , u≡u′ = fullRedTerm u
         ⊢Σ , _ = syntacticEqTerm g≡g′
         ⊢F , ⊢G = syntacticΣ ⊢Σ
-    in  prodrec _ _ C′ g′ u′ , prodrecₙ nfC′ nfg′ nfu′
+    in  prodrec _ _ _ C′ g′ u′ , prodrecₙ nfC′ nfg′ nfu′
      , prodrec-cong ⊢F ⊢G C≡C′ g≡g′ u≡u′ PE.refl
   fullRedNe (Emptyrec-cong C n p≈p′) =
     let C′ , nfC′ , C≡C′ = fullRed C

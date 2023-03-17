@@ -13,7 +13,7 @@ open import Definition.Modality Erasure public
 open import Tools.Algebra Erasure
 open import Tools.Sum
 
--- Erasures form a modality
+-- Erasure forms a modality
 
 erasureModalityWithout⊛ : ModalityWithout⊛
 erasureModalityWithout⊛ = record

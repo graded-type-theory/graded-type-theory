@@ -20,7 +20,7 @@ record Restrictions : Set (lsuc a) where
   field
     -- The prodrec constructor's quantities have to satisfy this
     -- predicate.
-    Prodrec : (p q : M) → Set a
+    Prodrec : (r p q : M) → Set a
 
     -- The quantities of binders have to satisfy this predicate.
     Binder : BinderMode → M → M → Set a
@@ -32,7 +32,7 @@ record Restrictions : Set (lsuc a) where
 
 no-restrictions : Restrictions
 no-restrictions = record
-  { Prodrec    = λ _ _ → Lift _ ⊤
+  { Prodrec    = λ _ _ _ → Lift _ ⊤
   ; Binder     = λ _ _ _ → Lift _ ⊤
   ; 𝟘ᵐ-allowed = true
   }

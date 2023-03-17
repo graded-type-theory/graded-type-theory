@@ -34,10 +34,13 @@ mutual
     PE.subst (λ x → _ ⊢ _ ~ _ ↑ x)
              (PE.sym (wk-β G))
              (snd-cong (wk~↓ ρ ⊢Δ p~r))
-  wk~↑ {ρ = ρ} {Δ = Δ} [ρ] ⊢Δ (natrec-cong {F = F} {G} {a₀} {b₀} {h} {g} {k} {l} {p} {r = r} x x₁ x₂ t~u p≈p′ r≈r′) =
+  wk~↑ {ρ = ρ} {Δ = Δ} [ρ] ⊢Δ
+    (natrec-cong
+       {F = F} {G} {a₀} {b₀} {h} {g} {k} {l} {p} {r = r} {q = q}
+       x x₁ x₂ t~u p≈p′ r≈r′) =
     let ⊢Δℕ = ⊢Δ ∙ (ℕⱼ ⊢Δ)
         Δℕ⊢F = wk (lift [ρ]) ⊢Δℕ (proj₁ (syntacticEq (soundnessConv↑ x)))
-    in  PE.subst (λ x → _ ⊢ U.wk ρ (natrec p r F a₀ h k) ~ _ ↑ x) (PE.sym (wk-β F))
+    in  PE.subst (λ x → _ ⊢ U.wk ρ (natrec p q r F a₀ h k) ~ _ ↑ x) (PE.sym (wk-β F))
                  (natrec-cong (wkConv↑ (lift [ρ]) (⊢Δ ∙ ℕⱼ ⊢Δ) x)
                               (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x) (wk-β F)
                                         (wkConv↑Term [ρ] ⊢Δ x₁))
@@ -49,15 +52,15 @@ mutual
   wk~↑
     {ρ = ρ} {Δ = Δ} [ρ] ⊢Δ
     (prodrec-cong {C = C} {E} {g} {h} {u} {v}
-       x g~h x₁ PE.refl PE.refl) =
+       x g~h x₁ PE.refl PE.refl PE.refl) =
     let ρg~ρh = wk~↓ [ρ] ⊢Δ g~h
         ⊢ρΣ , _ , _ = syntacticEqTerm (soundness~↓ ρg~ρh)
         ⊢ρF , ⊢ρG = syntacticΣ ⊢ρΣ
         u↓v = PE.subst (λ x → _ ⊢ U.wk (liftn ρ 2) u [conv↑] U.wk (liftn ρ 2) v ∷ x)
                        (wk-β-prodrec ρ C)
                        (wkConv↑Term (lift (lift [ρ])) (⊢Δ ∙ ⊢ρF ∙ ⊢ρG) x₁)
-    in  PE.subst  (λ x → _ ⊢ U.wk ρ (prodrec _ _ C g u) ~
-                           U.wk ρ (prodrec _ _ E h v) ↑ x)
+    in  PE.subst  (λ x → _ ⊢ U.wk ρ (prodrec _ _ _ C g u) ~
+                           U.wk ρ (prodrec _ _ _ E h v) ↑ x)
                   (PE.sym (wk-β C))
                   (prodrec-cong! (wkConv↑ (lift [ρ]) (⊢Δ ∙ ⊢ρΣ) x)
                      ρg~ρh u↓v)

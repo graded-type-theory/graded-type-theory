@@ -21,14 +21,16 @@ open import Definition.Untyped Erasure
 open import Tools.Fin
 open import Tools.Nat hiding (_+_)
 import Tools.PropositionalEquality as PE
+import Tools.Reasoning.PartialOrder
 
 private
   variable
     m n : Nat
     σ σ′ : Subst m n
     γ δ : Conₘ n
-    t a : Term n
+    t u a : Term n
     x : Fin n
+    p : Erasure
     mo : Mode
 
 -- Addition on the left is a decreasing function
@@ -48,7 +50,6 @@ private
 +-decreasingʳ 𝟘 ω = PE.refl
 +-decreasingʳ ω 𝟘 = PE.refl
 +-decreasingʳ ω ω = PE.refl
-
 
 -- Addition on the left is a decreasing function
 -- γ +ᶜ δ ≤ᶜ γ
@@ -163,3 +164,23 @@ valid-var-usage {x = x +1} γ▸x | γ≤γ′ ∙ p≤𝟘 = there (valid-var-u
 ∧ᶜ≈ᶜ+ᶜ : γ ∧ᶜ δ ≈ᶜ γ +ᶜ δ
 ∧ᶜ≈ᶜ+ᶜ {γ = ε}     {δ = ε}     = ≈ᶜ-refl
 ∧ᶜ≈ᶜ+ᶜ {γ = _ ∙ _} {δ = _ ∙ _} = ∧ᶜ≈ᶜ+ᶜ ∙ PE.refl
+
+-- Subsumption for erased variables
+
+erased-var-sub : x ◂ 𝟘 ∈ γ → γ ≤ᶜ δ → x ◂ 𝟘 ∈ δ
+erased-var-sub {δ = δ ∙ q} here (γ≤δ ∙ PE.refl) = here
+erased-var-sub {δ = δ ∙ q} (there x◂𝟘) (γ≤δ ∙ p≤q) = there (erased-var-sub x◂𝟘 γ≤δ)
+
+-- Inversion lemma for any products
+
+inv-usage-prodₑ :
+  ∀ {m} → γ ▸[ mo ] prod m p t u → InvUsageProdᵣ γ mo p t u
+inv-usage-prodₑ {γ = γ} {p = p} {m = Σₚ} γ▸t with inv-usage-prodₚ γ▸t
+... | invUsageProdₚ {δ = δ} {η = η} δ▸t δ▸u γ≤ =
+  invUsageProdᵣ δ▸t δ▸u (begin
+    γ            ≤⟨ γ≤ ⟩
+    p ·ᶜ δ ∧ᶜ η  ≈⟨ ∧ᶜ≈ᶜ+ᶜ ⟩
+    p ·ᶜ δ +ᶜ η  ∎)
+  where
+  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+inv-usage-prodₑ {m = Σᵣ} γ▸t = inv-usage-prodᵣ γ▸t

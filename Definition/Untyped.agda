@@ -70,12 +70,12 @@ data Kind : (ns : List Nat) → Set a where
   Prodkind    : SigmaMode → (p : M) → Kind (0 ∷ 0 ∷ [])
   Fstkind     : (p : M) → Kind (0 ∷ [])
   Sndkind     : (p : M) → Kind (0 ∷ [])
-  Prodreckind : (p q : M) → Kind (1 ∷ 0 ∷ 2 ∷ [])
+  Prodreckind : (r p q : M) → Kind (1 ∷ 0 ∷ 2 ∷ [])
 
   Natkind    : Kind []
   Zerokind   : Kind []
   Suckind    : Kind (0 ∷ [])
-  Natreckind : (p r : M) → Kind (1 ∷ 0 ∷ 2 ∷ 0 ∷ [])
+  Natreckind : (p q r : M) → Kind (1 ∷ 0 ∷ 2 ∷ 0 ∷ [])
 
   Unitkind : Kind []
   Starkind : Kind []
@@ -126,11 +126,11 @@ pattern prod m p t u = gen (Prodkind m p) (t ∷ u ∷ [])
 pattern prod! t u = gen (Prodkind _ _) (t ∷ u ∷ [])
 pattern fst p t = gen (Fstkind p) (t ∷ [])
 pattern snd p t = gen (Sndkind p) (t ∷ [])
-pattern prodrec p q A t u = gen (Prodreckind p q) (A ∷ t ∷ u ∷ [])
+pattern prodrec r p q A t u = gen (Prodreckind r p q) (A ∷ t ∷ u ∷ [])
 
 pattern zero = gen Zerokind []
 pattern suc t = gen Suckind (t ∷ [])
-pattern natrec p r A z s n = gen (Natreckind p r) (A ∷ z ∷ s ∷ n ∷ [])
+pattern natrec p q r A z s n = gen (Natreckind p q r) (A ∷ z ∷ s ∷ n ∷ [])
 
 pattern star = gen Starkind []
 pattern Emptyrec p A t = gen (Emptyreckind p) (A ∷ t ∷ [])
@@ -191,8 +191,8 @@ data Neutral : Term n → Set a where
   ∘ₙ        : Neutral t   → Neutral (t ∘⟨ p ⟩ u)
   fstₙ      : Neutral t   → Neutral (fst p t)
   sndₙ      : Neutral t   → Neutral (snd p t)
-  natrecₙ   : Neutral v   → Neutral (natrec p r G t u v)
-  prodrecₙ  : Neutral t   → Neutral (prodrec r p A t u)
+  natrecₙ   : Neutral v   → Neutral (natrec p q r G t u v)
+  prodrecₙ  : Neutral t   → Neutral (prodrec r p q A t u)
   Emptyrecₙ : Neutral t   → Neutral (Emptyrec p A t)
 
 

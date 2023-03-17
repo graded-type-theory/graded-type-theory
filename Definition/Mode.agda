@@ -434,6 +434,16 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
 ⌜⌝ᶜ⟨⟩ x0     = PE.refl
 ⌜⌝ᶜ⟨⟩ (x +1) = ⌜⌝ᶜ⟨⟩ x
 
+-- If 𝟘ᵐ is allowed, then ⌜ 𝟘ᵐ? ⌝ is equal to 𝟘.
+
+⌜𝟘ᵐ?⌝≈𝟘 : T 𝟘ᵐ-allowed → ⌜ 𝟘ᵐ? ⌝ ≡ 𝟘
+⌜𝟘ᵐ?⌝≈𝟘 ok =
+  ⌜ 𝟘ᵐ? ⌝       ≡⟨ cong ⌜_⌝ (𝟘ᵐ?≡𝟘ᵐ {ok = ok}) ⟩
+  ⌜ 𝟘ᵐ[ ok ] ⌝  ≡⟨⟩
+  𝟘             ∎
+  where
+  open Tools.Reasoning.PropositionalEquality
+
 ------------------------------------------------------------------------
 -- Properties related to ⌞_⌟ and ⌞_⌟ᶜ
 

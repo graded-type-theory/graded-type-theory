@@ -54,9 +54,10 @@ prodrec-subst* :
   ([t′] : Δ ⊩⟨ l ⟩ t′ ∷ subst σ (Σᵣ p , q ▷ F ▹ G) /
             proj₁ (unwrap [Σ] ⊢Δ [σ])) →
   Δ ⊢ t ⇒* t′ ∷ subst σ (Σᵣ p , q ▷ F ▹ G) →
-  Δ ⊢ prodrec r p (subst (liftSubst σ) A) t (subst (liftSubstn σ 2) u)
-    ⇒*
-    prodrec r p (subst (liftSubst σ) A) t′ (subst (liftSubstn σ 2) u) ∷
+  Δ ⊢ prodrec r p q (subst (liftSubst σ) A) t
+        (subst (liftSubstn σ 2) u) ⇒*
+    prodrec r p q (subst (liftSubst σ) A) t′
+      (subst (liftSubstn σ 2) u) ∷
     subst (liftSubst σ) A [ t ]
 prodrec-subst* {q = q} {l = l} {t} {.t} {u} {A} {F} {G} {σ}
                [Γ] [F] [G] [Σ] [A] [A₊] [u] ⊢Δ [σ] [t′] (id x) =
@@ -122,7 +123,7 @@ prodrecTerm :
   ([σt] : Δ ⊩⟨ l ⟩ t ∷ subst σ (Σᵣ p , q ▷ F ▹ G) /
             proj₁ (unwrap [Σ] ⊢Δ [σ])) →
   ∃ λ [A[t]] →
-  Δ ⊩⟨ l ⟩ prodrec r p (subst (liftSubst σ) A) t
+  Δ ⊩⟨ l ⟩ prodrec r p q (subst (liftSubst σ) A) t
              (subst (liftSubstn σ 2) u) ∷
     subst (liftSubst σ) A [ t ] / [A[t]]
 prodrecTerm
@@ -303,9 +304,9 @@ prodrecCong :
   ([σt≡σt′] : Δ ⊩⟨ l ⟩ t ≡ t′ ∷ subst σ (Σᵣ p , q ▷ F ▹ G) /
                 proj₁ (unwrap [Σ] ⊢Δ [σ])) →
   ∃ λ [A[t]] →
-  Δ ⊩⟨ l ⟩ prodrec r p (subst (liftSubst σ) A) t
+  Δ ⊩⟨ l ⟩ prodrec r p q (subst (liftSubst σ) A) t
              (subst (liftSubstn σ 2) u) ≡
-    prodrec r p (subst (liftSubst σ′) A′) t′
+    prodrec r p q (subst (liftSubst σ′) A′) t′
       (subst (liftSubstn σ′ 2) u′) ∷
     subst (liftSubst σ) A [ t ] / [A[t]]
 prodrecCong {n = n} {m = m} {p = p′} {q = q} {Δ = Δ} {r = r}
@@ -873,7 +874,7 @@ prodrecᵛ :
   ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ Σ p , q ▷ F ▹ G / [Γ] / [Σ])
   ([u] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ u ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑² /
            [Γ] ∙ [F] ∙ [G] / [A₊]) →
-  Γ ⊩ᵛ⟨ l ⟩ prodrec r p A t u ∷ A [ t ] / [Γ] / [Aₜ]
+  Γ ⊩ᵛ⟨ l ⟩ prodrec r p q A t u ∷ A [ t ] / [Γ] / [Aₜ]
 prodrecᵛ {n = n} {q = q} {r = r} {Γ = Γ} {F} {G} {A} {t} {u} {l}
          [Γ] [F] [G] [Σ] [A] [A₊] [Aₜ] [t] [u]
          {k} {Δ} {σ} ⊢Δ [σ] =
@@ -946,7 +947,7 @@ prodrec-congᵛ :
   ([u≡u′] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ u ≡ u′ ∷
               A [ prodᵣ p (var (x0 +1)) (var x0) ]↑² /
               [Γ] ∙ [F] ∙ [G] / [A₊]) →
-  Γ ⊩ᵛ⟨ l ⟩ prodrec r p A t u ≡ prodrec r p A′ t′ u′ ∷
+  Γ ⊩ᵛ⟨ l ⟩ prodrec r p q A t u ≡ prodrec r p q A′ t′ u′ ∷
     A [ t ] / [Γ] / [Aₜ]
 prodrec-congᵛ {Γ = Γ} {q = q} {r = r}
               {F = F} {F′} {G} {G′} {A} {A′} {t} {t′} {u} {u′}

@@ -127,20 +127,19 @@ record InvUsageProdᵣ
          Set a where
   constructor invUsageProdᵣ
   field
-    {δ η γ′} : Conₘ n
-    δ▸t     : δ ▸[ m ᵐ· p ] t
-    η▸u     : η ▸[ m ] u
-    γ′=δ+η  : γ′ ≡ p ·ᶜ δ +ᶜ η
-    γ≤γ′    : γ ≤ᶜ γ′
+    {δ η} : Conₘ n
+    δ▸t   : δ ▸[ m ᵐ· p ] t
+    η▸u   : η ▸[ m ] u
+    γ≤γ′  : γ ≤ᶜ p ·ᶜ δ +ᶜ η
 
 -- If γ ▸[ m ] prodᵣ p t u then δ ▸[ m ᵐ· p ] t, η ▸[ m ] u and
 -- γ ≤ᶜ p ·ᶜ δ +ᶜ η.
 
 inv-usage-prodᵣ : γ ▸[ m ] prodᵣ p t u → InvUsageProdᵣ γ m p t u
-inv-usage-prodᵣ (prodᵣₘ γ▸t δ▸u PE.refl) = invUsageProdᵣ γ▸t δ▸u PE.refl ≤ᶜ-refl
+inv-usage-prodᵣ (prodᵣₘ γ▸t δ▸u) = invUsageProdᵣ γ▸t δ▸u ≤ᶜ-refl
 inv-usage-prodᵣ (sub γ▸tu γ≤γ′) with inv-usage-prodᵣ γ▸tu
-... | invUsageProdᵣ δ▸t η▸u γ″=δ+η γ′≤γ″ =
-  invUsageProdᵣ δ▸t η▸u γ″=δ+η (≤ᶜ-trans γ≤γ′ γ′≤γ″)
+... | invUsageProdᵣ δ▸t η▸u γ′≤γ″ =
+  invUsageProdᵣ δ▸t η▸u (≤ᶜ-trans γ≤γ′ γ′≤γ″)
 
 record InvUsageProdₚ
          {n} (γ : Conₘ n) (m : Mode) (p : M) (t u : Term n) :
@@ -199,25 +198,26 @@ inv-usage-snd (sub ▸t γ≤γ′) with inv-usage-snd ▸t
 ... | invUsageSnd ▸t γ′≤ = invUsageSnd ▸t (≤ᶜ-trans γ≤γ′ γ′≤)
 
 record InvUsageProdrec
-         {n} (γ : Conₘ n) (m : Mode) (r p : M) (t : Term n)
-         (u : Term (1+ (1+ n))) : Set a where
+         {n} (γ : Conₘ n) (m : Mode) (r p q : M) (A : Term (1+ n))
+         (t : Term n) (u : Term (1+ (1+ n))) : Set a where
   constructor invUsageProdrec
   field
-    {δ η} : Conₘ n
+    {δ η θ} : Conₘ n
     δ▸t : δ ▸[ m ᵐ· r ] t
     η▸u : η ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u
-    P : Prodrec r p
+    θ▸A : θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
+    P : Prodrec r p q
     γ≤γ′ : γ ≤ᶜ r ·ᶜ δ +ᶜ η
 
--- If γ ▸[ m ] prodrec r p A t u then δ ▸[ m ᵐ· r ] t,
--- η ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u, Prodrec r p and
--- γ ≤ᶜ r ·ᶜ δ +ᶜ η.
+-- If γ ▸[ m ] prodrec r p q A t u then δ ▸[ m ᵐ· r ] t,
+-- η ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u, θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A,
+-- Prodrec r p and γ ≤ᶜ r ·ᶜ δ +ᶜ η.
 
 inv-usage-prodrec :
-  γ ▸[ m ] prodrec r p A t u → InvUsageProdrec γ m r p t u
-inv-usage-prodrec (prodrecₘ γ▸t δ▸u P) = invUsageProdrec γ▸t δ▸u P ≤ᶜ-refl
+  γ ▸[ m ] prodrec r p q A t u → InvUsageProdrec γ m r p q A t u
+inv-usage-prodrec (prodrecₘ γ▸t δ▸u η▸A P) = invUsageProdrec γ▸t δ▸u η▸A P ≤ᶜ-refl
 inv-usage-prodrec (sub γ▸t γ≤γ′) with inv-usage-prodrec γ▸t
-... | invUsageProdrec δ▸t η▸u P γ′≤γ″ = invUsageProdrec δ▸t η▸u P (≤ᶜ-trans γ≤γ′ γ′≤γ″)
+... | invUsageProdrec δ▸t η▸u θ▸A P γ′≤γ″ = invUsageProdrec δ▸t η▸u θ▸A P (≤ᶜ-trans γ≤γ′ γ′≤γ″)
 
 -- If γ ▸[ m ] zero then γ ≤ᶜ 𝟘ᶜ.
 
@@ -243,44 +243,47 @@ inv-usage-suc (sub γ▸st γ≤γ′) with inv-usage-suc γ▸st
 
 
 record InvUsageNatrec
-         (γ : Conₘ k) (m : Mode) (p r : M) (z : Term k)
-         (s : Term (1+ (1+ k))) (n : Term k) : Set a where
+         (γ : Conₘ k) (m : Mode) (p q r : M) (A : Term (1+ k))
+         (z : Term k) (s : Term (1+ (1+ k))) (n : Term k) : Set a where
   constructor invUsageNatrec
   field
-    {δ η θ} : Conₘ k
+    {δ η θ φ} : Conₘ k
     δ▸z  : δ ▸[ m ] z
     η▸s  : η ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s
     θ▸n  : θ ▸[ m ] n
+    φ▸A  : φ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
     γ≤γ′ : γ ≤ᶜ (δ ∧ᶜ θ) ⊛ᶜ (η +ᶜ p ·ᶜ θ) ▷ r
 
 -- If γ ▸[ m ] natrec p r G z s n, then δ ▸[ m ] z,
--- η ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s, θ ▸[ m ] n and
--- γ ≤ᶜ (δ ∧ᶜ θ) ⊛ᶜ (η +ᶜ p ·ᶜ θ) ▷ r.
+-- η ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s, θ ▸[ m ] n,
+-- φ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A and γ ≤ᶜ (δ ∧ᶜ θ) ⊛ᶜ (η +ᶜ p ·ᶜ θ) ▷ r.
 
 inv-usage-natrec :
   {s : Term (1+ (1+ k))} {n : Term k} →
-  γ ▸[ m ] natrec p r G z s n → InvUsageNatrec γ m p r z s n
-inv-usage-natrec (natrecₘ δ▸z δ▸s η▸n) = invUsageNatrec δ▸z δ▸s η▸n ≤ᶜ-refl
+  γ ▸[ m ] natrec p q r G z s n → InvUsageNatrec γ m p q r G z s n
+inv-usage-natrec (natrecₘ δ▸z δ▸s η▸n θ▸A) = invUsageNatrec δ▸z δ▸s η▸n θ▸A ≤ᶜ-refl
 inv-usage-natrec (sub γ▸natrec γ≤γ′) with inv-usage-natrec γ▸natrec
-... | invUsageNatrec δ▸z δ▸s η▸n γ′≤γ″ = invUsageNatrec δ▸z δ▸s η▸n (≤ᶜ-trans γ≤γ′ γ′≤γ″)
+... | invUsageNatrec δ▸z η▸s θ▸n φ▸A γ′≤γ″ = invUsageNatrec δ▸z η▸s θ▸n φ▸A (≤ᶜ-trans γ≤γ′ γ′≤γ″)
 
 
 record InvUsageEmptyrec
-         {n} (γ : Conₘ n) (m : Mode) (p : M) (t : Term n) :
+         {n} (γ : Conₘ n) (m : Mode) (p : M) (A t : Term n) :
          Set a where
   constructor invUsageEmptyrec
   field
-    {δ}  : Conₘ n
+    {δ η} : Conₘ n
     δ▸t  : δ ▸[ m ᵐ· p ] t
+    η▸A  : η ▸[ 𝟘ᵐ? ] A
     γ≤pδ : γ ≤ᶜ p ·ᶜ δ
 
--- If γ ▸[ m ] Emptyrec p A t then δ ▸[ m ᵐ· p ] t and γ ≤ᶜ p ·ᶜ δ.
+-- If γ ▸[ m ] Emptyrec p A t then δ ▸[ m ᵐ· p ] t, η ▸[ 𝟘ᵐ? ] A and
+-- γ ≤ᶜ p ·ᶜ δ.
 
-inv-usage-Emptyrec : γ ▸[ m ] Emptyrec p A t → InvUsageEmptyrec γ m p t
-inv-usage-Emptyrec (Emptyrecₘ δ▸t) = invUsageEmptyrec δ▸t ≤ᶜ-refl
+inv-usage-Emptyrec :
+  γ ▸[ m ] Emptyrec p A t → InvUsageEmptyrec γ m p A t
+inv-usage-Emptyrec (Emptyrecₘ δ▸t η▸A) = invUsageEmptyrec δ▸t η▸A ≤ᶜ-refl
 inv-usage-Emptyrec (sub γ▸et γ≤γ′) with inv-usage-Emptyrec γ▸et
-... | invUsageEmptyrec δ▸t γ′≤ =
-  invUsageEmptyrec δ▸t (≤ᶜ-trans γ≤γ′ γ′≤)
+... | invUsageEmptyrec δ▸t η▸A γ′≤δ = invUsageEmptyrec δ▸t η▸A (≤ᶜ-trans γ≤γ′ γ′≤δ)
 
 -- If γ ▸[ m ] star then γ ≤ᶜ 𝟘ᶜ.
 

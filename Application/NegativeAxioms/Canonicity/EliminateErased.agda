@@ -24,6 +24,7 @@ open import Definition.Mode ErasureModality
 
 open import Erasure.Extraction
 open import Erasure.SucRed Erasure
+import Erasure.Target as T
 
 open import Definition.Typed.Properties Erasure
 open import Definition.Typed.Usage ErasureModality
@@ -64,7 +65,7 @@ private
 
 lem :
   ε ∙ (Σᵣ ω , 𝟘 ▷ ℕ ▹ ℕ) ⊢
-    prodrec 𝟘 ω ℕ (var x0) zero [conv↑] zero ∷ ℕ →
+    prodrec 𝟘 ω 𝟘 ℕ (var x0) zero [conv↑] zero ∷ ℕ →
   ⊥
 lem ([↑]ₜ B t′ u′ D d d′ whnfB whnft′ whnfu′ t<>u)
   with whnfRed*Term d (ne (prodrecₙ (var x0)))
@@ -77,7 +78,7 @@ lem ([↑]ₜ _ _ _ D d d′ whnfB whnft′ whnfu′ (ne-ins x x₁ x₂ ()))
 
 lem′ :
   ε ∙ (Σᵣ ω , 𝟘 ▷ ℕ ▹ ℕ) ⊢
-    prodrec 𝟘 ω ℕ (var x0) zero [conv↑] suc t ∷ ℕ →
+    prodrec 𝟘 ω 𝟘 ℕ (var x0) zero [conv↑] suc t ∷ ℕ →
   ⊥
 lem′ ([↑]ₜ B t′ u′ D d d′ whnfB whnft′ whnfu′ t<>u)
   with whnfRed*Term d (ne (prodrecₙ (var x0)))
@@ -95,15 +96,15 @@ cEx : ∃₄ λ (m : Nat) (Γ : Con Term m) (γ : Conₘ m) (t : Term m)
     × ((∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ) → ⊥)
     × (∃ λ u → Numeral u × erase t ⇒ˢ* erase u)
     × (∃ λ u → Γ ⊢ t ⇒* u ∷ ℕ × Whnf u × Neutral u)
-cEx = _ , ε ∙ (Σᵣ ω , 𝟘 ▷ ℕ ▹ ℕ) , ε ∙ 𝟘 , prodrec 𝟘 ω ℕ (var x0) zero
+cEx = _ , ε ∙ (Σᵣ ω , 𝟘 ▷ ℕ ▹ ℕ) , ε ∙ 𝟘 , prodrec 𝟘 ω 𝟘 ℕ (var x0) zero
     , ⊢prodrec
-    , prodrecₘ var zeroₘ _
+    , prodrecₘ var zeroₘ ℕₘ _
     , ε ∙𝟘
     , (λ ⊢t → ¬Empty (substTerm ⊢t (prodⱼ ε⊢ℕ εℕ⊢ℕ (zeroⱼ ε) (zeroⱼ ε))))
     , (λ { (.zero , zeroₙ , t≡u) → lem (completeEqTerm t≡u)
          ; (.(suc _) , sucₙ numU , t≡u) → lem′ (completeEqTerm t≡u)
          })
-    , (zero , zeroₙ , refl)
+    , (zero , zeroₙ , trans (whred T.prodrec-β) refl)
     , (_ , id ⊢prodrec , ne neutral , neutral)
     where
     ε⊢ℕ = ℕⱼ ε

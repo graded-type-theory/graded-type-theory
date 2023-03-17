@@ -56,7 +56,7 @@ wfEqTerm (app-cong f≡g a≡b p≈p₁ p≈p₂) = wfEqTerm f≡g
 wfEqTerm (β-red F G t a p≡q) = wfTerm a
 wfEqTerm (η-eq F f g f0≡g0) = wfTerm f
 wfEqTerm (suc-cong n) = wfEqTerm n
-wfEqTerm (natrec-cong _ F≡F′ z≡z′ s≡s′ n≡n′ _ _) = wfEqTerm z≡z′
+wfEqTerm (natrec-cong _ F≡F′ z≡z′ s≡s′ n≡n′ _ _ _) = wfEqTerm z≡z′
 wfEqTerm (natrec-zero F z s) = wfTerm z
 wfEqTerm (natrec-suc n F z s) = wfTerm n
 wfEqTerm (Emptyrec-cong A≡A' e≡e' _) = wfEqTerm e≡e'
@@ -64,7 +64,7 @@ wfEqTerm (η-unit e e') = wfTerm e
 wfEqTerm (prod-cong F _ _ _) = wf F
 wfEqTerm (fst-cong _ _ a) = wfEqTerm a
 wfEqTerm (snd-cong _ _ a) = wfEqTerm a
-wfEqTerm (prodrec-cong F G _ _ _ _) = wf F
+wfEqTerm (prodrec-cong F _ _ _ _ _) = wf F
 wfEqTerm (prodrec-β F _ _ _ _ _ _) = wf F
 wfEqTerm (Σ-η _ _ x _ _ _) = wfTerm x
 wfEqTerm (Σ-β₁ _ _ x _ _ _) = wfTerm x
@@ -82,7 +82,7 @@ wfEq (ΠΣ-cong F F≡H G≡E) = wf F
 
 subsetTerm : Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ≡ u ∷ A
 subsetTerm (natrec-subst F z s n⇒n′) =
-  natrec-cong F (refl F) (refl z) (refl s) (subsetTerm n⇒n′) ≈-refl ≈-refl
+  natrec-cong F (refl F) (refl z) (refl s) (subsetTerm n⇒n′) ≈-refl ≈-refl ≈-refl
 subsetTerm (natrec-zero F z s) = natrec-zero F z s
 subsetTerm (natrec-suc n F z s) = natrec-suc n F z s
 subsetTerm (Emptyrec-subst A n⇒n′) =

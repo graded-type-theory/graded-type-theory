@@ -19,7 +19,7 @@ private
     G : Term (1+ n)
     t t′ : Term n
     u : Term (1+ (1+ n))
-    p q r : M
+    p q q′ r : M
 
 -- Second projector substitution of reduction closures
 
@@ -39,7 +39,7 @@ natrec-subst* : ∀ {z s} → Γ ⊢ t ⇒* t′ ∷ ℕ
               → Γ ∙ ℕ ⊢ A
               → Γ ⊢ z ∷ A [ zero ]
               → Γ ∙ ℕ ∙ A ⊢ s ∷ wk1 (A [ suc (var x0) ]↑)
-              → Γ ⊢ natrec p r A z s t ⇒* natrec p r A z s t′ ∷ A [ t ]
+              → Γ ⊢ natrec p q r A z s t ⇒* natrec p q r A z s t′ ∷ A [ t ]
 natrec-subst* (id x) ⊢A ⊢z ⊢s = id (natrecⱼ ⊢A ⊢z ⊢s x)
 natrec-subst* (x ⇨ t⇒t′) ⊢A ⊢z ⊢s =
   natrec-subst ⊢A ⊢z ⊢s x ⇨ conv* (natrec-subst* t⇒t′ ⊢A ⊢z ⊢s)
@@ -50,7 +50,7 @@ prodrec-subst* : Γ ⊢ t ⇒* t′ ∷ Σᵣ p , q ▷ F ▹ G
                → Γ ∙ F ⊢ G
                → Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ A
                → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
-               → Γ ⊢ prodrec r p A t u ⇒* prodrec r p A t′ u ∷ A [ t ]
+               → Γ ⊢ prodrec r p q A t u ⇒* prodrec r p q A t′ u ∷ A [ t ]
 prodrec-subst* (id x) ⊢F ⊢G ⊢A ⊢u = id (prodrecⱼ ⊢F ⊢G ⊢A x ⊢u)
 prodrec-subst* (x ⇨ t⇒t′) ⊢F ⊢G ⊢A ⊢u =
   prodrec-subst ⊢F ⊢G ⊢A ⊢u x ⇨ conv* (prodrec-subst* t⇒t′ ⊢F ⊢G ⊢A ⊢u)

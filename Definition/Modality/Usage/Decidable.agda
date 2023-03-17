@@ -11,7 +11,7 @@ module Definition.Modality.Usage.Decidable
   -- Equality is assumed to be decidable for M.
   (_≟_ : Decidable (_≡_ {A = M}))
   -- The Prodrec relation is assumed to be decidable.
-  (Prodrec? : Decidable Prodrec)
+  (Prodrec? : ∀ r p q → Dec (Prodrec r p q))
   -- The Binder relation is assumed to be decidable.
   (Binder? : ∀ b p q → Dec (Binder b p q))
   where
@@ -84,11 +84,15 @@ infix 10 ⌈⌉▸[_]?_
     case inv-usage-suc ▸suc of λ (invUsageSuc ▸t _) →
     ¬▸t _ ▸t
 
-⌈⌉▸[ m ]? Emptyrec p _ t = case ⌈⌉▸[ m ᵐ· p ]? t of λ where
-  (inj₁ ▸t)  → inj₁ (Emptyrecₘ ▸t)
+⌈⌉▸[ m ]? Emptyrec p A t = case ⌈⌉▸[ m ᵐ· p ]? t of λ where
   (inj₂ ¬▸t) → inj₂ λ _ ▸er →
-    case inv-usage-Emptyrec ▸er of λ (invUsageEmptyrec ▸t δ≤) →
+    case inv-usage-Emptyrec ▸er of λ (invUsageEmptyrec ▸t _ _) →
     ¬▸t _ ▸t
+  (inj₁ ▸t) → case ⌈⌉▸[ 𝟘ᵐ? ]? A of λ where
+    (inj₂ ¬▸A) → inj₂ λ _ ▸er →
+      case inv-usage-Emptyrec ▸er of λ (invUsageEmptyrec _ ▸A _) →
+      ¬▸A _ ▸A
+    (inj₁ ▸A) → inj₁ (Emptyrecₘ ▸t ▸A)
 
 ⌈⌉▸[ m ]? lam p t = case ⌈⌉▸[ m ]? t of λ where
     (inj₂ ¬▸t) → inj₂ λ _ ▸lam →
@@ -189,13 +193,13 @@ infix 10 ⌈⌉▸[_]?_
 
 ⌈⌉▸[ m ]? prod Σᵣ p t u = case ⌈⌉▸[ m ᵐ· p ]? t of λ where
   (inj₂ ¬▸t) → inj₂ λ _ ▸prod →
-    case inv-usage-prodᵣ ▸prod of λ (invUsageProdᵣ ▸t _ _ _) →
+    case inv-usage-prodᵣ ▸prod of λ (invUsageProdᵣ ▸t _ _) →
     ¬▸t _ ▸t
   (inj₁ ▸t) → case ⌈⌉▸[ m ]? u of λ where
     (inj₂ ¬▸u) → inj₂ λ _ ▸prod →
-      case inv-usage-prodᵣ ▸prod of λ (invUsageProdᵣ _ ▸u _ _) →
+      case inv-usage-prodᵣ ▸prod of λ (invUsageProdᵣ _ ▸u _) →
       ¬▸u _ ▸u
-    (inj₁ ▸u) → inj₁ (prodᵣₘ ▸t ▸u refl)
+    (inj₁ ▸u) → inj₁ (prodᵣₘ ▸t ▸u)
 
 ⌈⌉▸[ m ]? prod Σₚ p t u = case ⌈⌉▸[ m ᵐ· p ]? t of λ where
   (inj₂ ¬▸t) → inj₂ λ _ ▸prod →
@@ -207,79 +211,122 @@ infix 10 ⌈⌉▸[_]?_
       ¬▸u _ ▸u
     (inj₁ ▸u) → inj₁ (prodₚₘ ▸t ▸u)
 
-⌈⌉▸[ m ]? prodrec r p _ t u = case Prodrec? r p of λ where
-    (no not-ok) → inj₂ λ _ ▸pr →
-      case inv-usage-prodrec ▸pr of λ (invUsageProdrec _ _ ok _) →
-      not-ok ok
-    (yes ok) → case ⌈⌉▸[ m ᵐ· r ]? t of λ where
-      (inj₂ ¬▸t) → inj₂ λ _ ▸pr →
-        case inv-usage-prodrec ▸pr of λ (invUsageProdrec ▸t _ _ _) →
-        ¬▸t _ ▸t
-      (inj₁ ▸t) → case ⌈⌉▸[ m ]? u of λ where
-        (inj₂ ¬▸u) → inj₂ λ _ ▸pr →
-          case inv-usage-prodrec ▸pr of λ (invUsageProdrec _ ▸u _ _) →
-          ¬▸u _ ▸u
-        (inj₁ ▸u) →
-          case ⌜ m ⌝ · r · p ≤? headₘ (tailₘ (⌈ u ⌉ m)) of λ where
-            (no mrp≰) → inj₂ λ _ ▸pr →
+⌈⌉▸[ m ]? prodrec r p q A t u = case Prodrec? r p q of λ where
+  (no not-ok) → inj₂ λ _ ▸pr →
+    case inv-usage-prodrec ▸pr of λ (invUsageProdrec _ _ _ ok _) →
+    not-ok ok
+  (yes ok) → case ⌈⌉▸[ m ᵐ· r ]? t of λ where
+    (inj₂ ¬▸t) → inj₂ λ _ ▸pr →
+      case inv-usage-prodrec ▸pr of λ (invUsageProdrec ▸t _ _ _ _) →
+      ¬▸t _ ▸t
+    (inj₁ ▸t) → case ⌈⌉▸[ m ]? u of λ where
+      (inj₂ ¬▸u) → inj₂ λ _ ▸pr →
+        case inv-usage-prodrec ▸pr of λ (invUsageProdrec _ ▸u _ _ _) →
+        ¬▸u _ ▸u
+      (inj₁ ▸u) →
+        case ⌜ m ⌝ · r · p ≤? headₘ (tailₘ (⌈ u ⌉ m)) of λ where
+          (no mrp≰) → inj₂ λ _ ▸pr →
+            case inv-usage-prodrec ▸pr of
+              λ (invUsageProdrec _ ▸u′ _ _ _) →
+            mrp≰ (headₘ-monotone
+                    (tailₘ-monotone (usage-upper-bound ▸u′)))
+          (yes mrp≤) → case ⌜ m ⌝ · r ≤? headₘ (⌈ u ⌉ m) of λ where
+            (no mr≰) → inj₂ λ _ ▸pr →
               case inv-usage-prodrec ▸pr of
-                λ (invUsageProdrec _ ▸u′ _ _) →
-              mrp≰ (headₘ-monotone
-                      (tailₘ-monotone (usage-upper-bound ▸u′)))
-            (yes mrp≤) → case ⌜ m ⌝ · r ≤? headₘ (⌈ u ⌉ m) of λ where
-              (no mr≰) → inj₂ λ _ ▸pr →
-                case inv-usage-prodrec ▸pr of
-                  λ (invUsageProdrec _ ▸u′ _ _) →
-                mr≰ (headₘ-monotone (usage-upper-bound ▸u′))
-              (yes mr≤) →
-                let lemma = begin
-                      tailₘ (tailₘ (⌈ u ⌉ m)) ∙ ⌜ m ⌝ · r · p ∙
-                      ⌜ m ⌝ · r                                            ≤⟨ ≤ᶜ-refl ∙ mrp≤ ∙ mr≤ ⟩
+                λ (invUsageProdrec _ ▸u′ _ _ _) →
+              mr≰ (headₘ-monotone (usage-upper-bound ▸u′))
+            (yes mr≤) → case ⌈⌉▸[ 𝟘ᵐ? ]? A of λ where
+              (inj₂ ¬▸A) → inj₂ λ _ ▸nr →
+                case inv-usage-prodrec ▸nr of
+                  λ (invUsageProdrec _ _ ▸A _ _) →
+                ¬▸A _ ▸A
+              (inj₁ ▸A) →
+                case ⌜ 𝟘ᵐ? ⌝ · q ≤? headₘ (⌈ A ⌉ 𝟘ᵐ?) of λ where
+                  (no q≰) → inj₂ λ _ ▸nr →
+                    case inv-usage-prodrec ▸nr of
+                      λ (invUsageProdrec _ _ ▸A′ _ _) →
+                    q≰ (headₘ-monotone (usage-upper-bound ▸A′))
+                  (yes q≤) →
+                    let lemma₁ =
+                          let open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+                          in begin
+                          tailₘ (tailₘ (⌈ u ⌉ m)) ∙
+                          ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r          ≤⟨ ≤ᶜ-refl ∙ mrp≤ ∙ mr≤ ⟩
 
-                      tailₘ (tailₘ (⌈ u ⌉ m)) ∙ headₘ (tailₘ (⌈ u ⌉ m)) ∙
-                      headₘ (⌈ u ⌉ m)                                      ≡⟨ cong (_∙ headₘ (⌈ u ⌉ m)) (headₘ-tailₘ-correct _) ⟩
+                          tailₘ (tailₘ (⌈ u ⌉ m)) ∙
+                          headₘ (tailₘ (⌈ u ⌉ m)) ∙
+                          headₘ (⌈ u ⌉ m)                    ≡⟨ cong (_∙ headₘ (⌈ u ⌉ m)) (headₘ-tailₘ-correct _) ⟩
 
-                      tailₘ (⌈ u ⌉ m) ∙ headₘ (⌈ u ⌉ m)                    ≡⟨ headₘ-tailₘ-correct _ ⟩
+                          tailₘ (⌈ u ⌉ m) ∙ headₘ (⌈ u ⌉ m)  ≡⟨ headₘ-tailₘ-correct _ ⟩
 
-                      ⌈ u ⌉ m                                              ∎
-                in inj₁ (prodrecₘ ▸t (sub ▸u lemma) ok)
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+                          ⌈ u ⌉ m                            ∎
 
-⌈⌉▸[ m ]? natrec p r _ z s n = case ⌈⌉▸[ m ]? z of λ where
-    (inj₂ ¬▸z) → inj₂ λ _ ▸nr →
-      case inv-usage-natrec ▸nr of λ (invUsageNatrec ▸z _ _ _) →
-      ¬▸z _ ▸z
-    (inj₁ ▸z) → case ⌈⌉▸[ m ]? s of λ where
-      (inj₂ ¬▸s) → inj₂ λ _ ▸nr →
-        case inv-usage-natrec ▸nr of λ (invUsageNatrec _ ▸s _ _) →
-        ¬▸s _ ▸s
-      (inj₁ ▸s) → case ⌜ m ⌝ · p ≤? headₘ (tailₘ (⌈ s ⌉ m)) of λ where
-        (no mp≰) → inj₂ λ _ ▸nr →
-          case inv-usage-natrec ▸nr of λ (invUsageNatrec _ ▸s′ _ _) →
-          mp≰ (headₘ-monotone
-                 (tailₘ-monotone (usage-upper-bound ▸s′)))
-        (yes mp≤) → case ⌜ m ⌝ · r ≤? headₘ (⌈ s ⌉ m) of λ where
-          (no mr≰) → inj₂ λ _ ▸nr →
-            case inv-usage-natrec ▸nr of λ (invUsageNatrec _ ▸s′ _ _) →
-            mr≰ (headₘ-monotone (usage-upper-bound ▸s′))
-          (yes mr≤) → case ⌈⌉▸[ m ]? n of λ where
-            (inj₂ ¬▸n) → inj₂ λ _ ▸nr →
-              case inv-usage-natrec ▸nr of λ (invUsageNatrec _ _ ▸n _) →
-              ¬▸n _ ▸n
-            (inj₁ ▸n) →
-              let lemma = begin
-                    tailₘ (tailₘ (⌈ s ⌉ m)) ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r      ≤⟨ ≤ᶜ-refl ∙ mp≤ ∙ mr≤ ⟩
+                        lemma₂ =
+                          let open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+                          in begin
+                          tailₘ (⌈ A ⌉ 𝟘ᵐ?) ∙ ⌜ 𝟘ᵐ? ⌝ · q        ≤⟨ ≤ᶜ-refl ∙ q≤ ⟩
+                          tailₘ (⌈ A ⌉ 𝟘ᵐ?) ∙ headₘ (⌈ A ⌉ 𝟘ᵐ?)  ≡⟨ headₘ-tailₘ-correct _ ⟩
+                          ⌈ A ⌉ 𝟘ᵐ?                              ∎
+                    in
+                    inj₁ (prodrecₘ ▸t (sub ▸u lemma₁)
+                            (sub ▸A lemma₂) ok)
 
-                    tailₘ (tailₘ (⌈ s ⌉ m)) ∙ headₘ (tailₘ (⌈ s ⌉ m)) ∙
-                    headₘ (⌈ s ⌉ m)                                      ≡⟨ cong (_∙ headₘ (⌈ s ⌉ m)) (headₘ-tailₘ-correct _) ⟩
+⌈⌉▸[ m ]? natrec p q r A z s n = case ⌈⌉▸[ m ]? z of λ where
+  (inj₂ ¬▸z) → inj₂ λ _ ▸nr →
+    case inv-usage-natrec ▸nr of λ (invUsageNatrec ▸z _ _ _ _) →
+    ¬▸z _ ▸z
+  (inj₁ ▸z) → case ⌈⌉▸[ m ]? s of λ where
+    (inj₂ ¬▸s) → inj₂ λ _ ▸nr →
+      case inv-usage-natrec ▸nr of λ (invUsageNatrec _ ▸s _ _ _) →
+      ¬▸s _ ▸s
+    (inj₁ ▸s) → case ⌜ m ⌝ · p ≤? headₘ (tailₘ (⌈ s ⌉ m)) of λ where
+      (no mp≰) → inj₂ λ _ ▸nr →
+        case inv-usage-natrec ▸nr of λ (invUsageNatrec _ ▸s′ _ _ _) →
+        mp≰ (headₘ-monotone
+               (tailₘ-monotone (usage-upper-bound ▸s′)))
+      (yes mp≤) → case ⌜ m ⌝ · r ≤? headₘ (⌈ s ⌉ m) of λ where
+        (no mr≰) → inj₂ λ _ ▸nr →
+          case inv-usage-natrec ▸nr of λ (invUsageNatrec _ ▸s′ _ _ _) →
+          mr≰ (headₘ-monotone (usage-upper-bound ▸s′))
+        (yes mr≤) → case ⌈⌉▸[ m ]? n of λ where
+          (inj₂ ¬▸n) → inj₂ λ _ ▸nr →
+            case inv-usage-natrec ▸nr of
+              λ (invUsageNatrec _ _ ▸n _ _) →
+            ¬▸n _ ▸n
+          (inj₁ ▸n) → case ⌈⌉▸[ 𝟘ᵐ? ]? A of λ where
+            (inj₂ ¬▸A) → inj₂ λ _ ▸nr →
+              case inv-usage-natrec ▸nr of
+                λ (invUsageNatrec _ _ _ ▸A _) →
+              ¬▸A _ ▸A
+            (inj₁ ▸A) →
+              case ⌜ 𝟘ᵐ? ⌝ · q ≤? headₘ (⌈ A ⌉ 𝟘ᵐ?) of λ where
+                (no q≰) → inj₂ λ _ ▸nr →
+                  case inv-usage-natrec ▸nr of
+                    λ (invUsageNatrec _ _ _ ▸A′ _) →
+                  q≰ (headₘ-monotone (usage-upper-bound ▸A′))
+                (yes q≤) →
+                  let lemma₁ =
+                        let open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+                        in begin
+                        tailₘ (tailₘ (⌈ s ⌉ m)) ∙
+                        ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r              ≤⟨ ≤ᶜ-refl ∙ mp≤ ∙ mr≤ ⟩
 
-                    tailₘ (⌈ s ⌉ m) ∙ headₘ (⌈ s ⌉ m)                    ≡⟨ headₘ-tailₘ-correct _ ⟩
+                        tailₘ (tailₘ (⌈ s ⌉ m)) ∙
+                        headₘ (tailₘ (⌈ s ⌉ m)) ∙
+                        headₘ (⌈ s ⌉ m)                    ≡⟨ cong (_∙ headₘ (⌈ s ⌉ m)) (headₘ-tailₘ-correct _) ⟩
 
-                    ⌈ s ⌉ m                                              ∎
-              in inj₁ (natrecₘ ▸z (sub ▸s lemma) ▸n)
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+                        tailₘ (⌈ s ⌉ m) ∙ headₘ (⌈ s ⌉ m)  ≡⟨ headₘ-tailₘ-correct _ ⟩
+
+                        ⌈ s ⌉ m                            ∎
+
+                      lemma₂ =
+                        let open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+                        in begin
+                        tailₘ (⌈ A ⌉ 𝟘ᵐ?) ∙ ⌜ 𝟘ᵐ? ⌝ · q        ≤⟨ ≤ᶜ-refl ∙ q≤ ⟩
+                        tailₘ (⌈ A ⌉ 𝟘ᵐ?) ∙ headₘ (⌈ A ⌉ 𝟘ᵐ?)  ≡⟨ headₘ-tailₘ-correct _ ⟩
+                        ⌈ A ⌉ 𝟘ᵐ?                              ∎
+                  in
+                  inj₁ (natrecₘ ▸z (sub ▸s lemma₁) ▸n (sub ▸A lemma₂))
 
 -- It is decidable whether a term is well-resourced with respect to a
 -- given mode, and in that case a greatest usage context for which the

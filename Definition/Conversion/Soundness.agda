@@ -40,7 +40,7 @@ mutual
         ⊢F = proj₁ (syntacticEq F≡G)
     in  natrec-cong ⊢F F≡G (soundnessConv↑Term x₂)
                     (soundnessConv↑Term x₃) (soundness~↓ k~l)
-                    p≈p′ r≈r′
+                    p≈p′ PE.refl r≈r′
   soundness~↑ (prodrec-cong! x x₁ x₂) =
     let C≡E = soundnessConv↑ x
         g≡h = soundness~↓ x₁
