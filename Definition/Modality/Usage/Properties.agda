@@ -249,6 +249,13 @@ unique-var-usage (there x) (there y) = unique-var-usage x y
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
+private
+
+  -- A lemma used below.
+
+  𝟙ᵐ′-cast : ⌜ 𝟙ᵐ′ ⌝ ·ᶜ γ ▸[ 𝟙ᵐ′ ] t → 𝟙 ·ᶜ γ ▸[ 𝟙ᵐ ] t
+  𝟙ᵐ′-cast ▸t rewrite 𝟙ᵐ′≡𝟙ᵐ = ▸t
+
 -- A form of monotonicity for _▸[_]_.
 
 ▸-≤ : p ≤ q → ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⌟ ] t → ⌜ ⌞ q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ q ⌟ ] t
@@ -260,7 +267,7 @@ unique-var-usage (there x) (there y) = unique-var-usage x y
   (sub (▸-𝟘 ▸t) (begin
      𝟘 ·ᶜ γ  ≈⟨ ·ᶜ-zeroˡ _ ⟩
      𝟘ᶜ      ∎))
-  (λ _ → ▸t)
+  (λ _ → 𝟙ᵐ′-cast ▸t)
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 … | yes p≈𝟘 | no q≉𝟘 = ⊥-elim (q≉𝟘 (𝟘≮ (begin
@@ -309,7 +316,7 @@ unique-var-usage (there x) (there y) = unique-var-usage x y
     ⌞ p ⌟  ∎
     where
     open Tools.Reasoning.PropositionalEquality
-… | no _ = inj₁ (sub (▸-cong eq (▸-· {m′ = ⌞ p ⌟} ▸t)) leq)
+… | no _ = inj₁ (sub (▸-cong eq (▸-· {m′ = ⌞ p ⌟} (𝟙ᵐ′-cast ▸t))) leq)
   where
   eq =
     ⌞ p ⌟ ·ᵐ 𝟙ᵐ  ≡⟨ ·ᵐ-identityʳ _ ⟩
@@ -354,9 +361,9 @@ unique-var-usage (there x) (there y) = unique-var-usage x y
   open Tools.Reasoning.PropositionalEquality
 
   lemma : ∀ ⦃ ok ⦄ → ⌞ p + q ⌟ ≡ 𝟘ᵐ[ ok ] → ⌞ p ⌟ ≡ 𝟘ᵐ[ ok ]
-  lemma {p = p} {q = q} _  with is-𝟘? (p + q)
-  lemma                 () | no _
-  lemma {p = p}         _  | yes p+q≈𝟘 =
+  lemma {p = p} {q = q} _      with is-𝟘? (p + q)
+  lemma                 𝟙ᵐ′≡𝟘ᵐ | no _      = ⊥-elim (𝟙ᵐ′≢𝟘ᵐ 𝟙ᵐ′≡𝟘ᵐ)
+  lemma {p = p}         _      | yes p+q≈𝟘 =
     ⌞ p ⌟  ≡⟨ ⌞⌟-cong (positiveˡ p+q≈𝟘) ⟩
     ⌞ 𝟘 ⌟  ≡⟨ ⌞𝟘⌟ ⟩
     𝟘ᵐ     ∎
@@ -379,9 +386,9 @@ unique-var-usage (there x) (there y) = unique-var-usage x y
   open Tools.Reasoning.PropositionalEquality
 
   lemma : ∀ ⦃ ok ⦄ → ⌞ p ∧ q ⌟ ≡ 𝟘ᵐ[ ok ] → ⌞ p ⌟ ≡ 𝟘ᵐ[ ok ]
-  lemma {p = p} {q = q} _  with is-𝟘? (p ∧ q)
-  lemma                 () | no _
-  lemma {p = p}         _  | yes p∧q≈𝟘 =
+  lemma {p = p} {q = q} _      with is-𝟘? (p ∧ q)
+  lemma                 𝟙ᵐ′≡𝟘ᵐ | no _      = ⊥-elim (𝟙ᵐ′≢𝟘ᵐ 𝟙ᵐ′≡𝟘ᵐ)
+  lemma {p = p}         _      | yes p∧q≈𝟘 =
     ⌞ p ⌟  ≡⟨ ⌞⌟-cong (∧≈𝟘ˡ p∧q≈𝟘) ⟩
     ⌞ 𝟘 ⌟  ≡⟨ ⌞𝟘⌟ ⟩
     𝟘ᵐ     ∎
@@ -404,9 +411,10 @@ unique-var-usage (there x) (there y) = unique-var-usage x y
   open Tools.Reasoning.PropositionalEquality
 
   lemma : ∀ ⦃ ok ⦄ → ⌞ p ⊛ q ▷ r ⌟ ≡ 𝟘ᵐ[ ok ] → ⌞ p ⌟ ≡ 𝟘ᵐ[ ok ]
-  lemma {p = p} {q = q} {r = r} _  with is-𝟘? (p ⊛ q ▷ r)
-  lemma                         () | no _
-  lemma {p = p}                 _  | yes p⊛q▷r≈𝟘 =
+  lemma {p = p} {q = q} {r = r} _      with is-𝟘? (p ⊛ q ▷ r)
+  lemma                         𝟙ᵐ′≡𝟘ᵐ | no _ =
+                                         ⊥-elim (𝟙ᵐ′≢𝟘ᵐ 𝟙ᵐ′≡𝟘ᵐ)
+  lemma {p = p}                 _      | yes p⊛q▷r≈𝟘 =
     ⌞ p ⌟  ≡⟨ ⌞⌟-cong (⊛≈𝟘ˡ p⊛q▷r≈𝟘) ⟩
     ⌞ 𝟘 ⌟  ≡⟨ ⌞𝟘⌟ ⟩
     𝟘ᵐ     ∎
@@ -421,9 +429,10 @@ unique-var-usage (there x) (there y) = unique-var-usage x y
   open Tools.Reasoning.PropositionalEquality
 
   lemma : ∀ ⦃ ok ⦄ → ⌞ p ⊛ q ▷ r ⌟ ≡ 𝟘ᵐ[ ok ] → ⌞ q ⌟ ≡ 𝟘ᵐ[ ok ]
-  lemma {p = p} {q = q} {r = r} _  with is-𝟘? (p ⊛ q ▷ r)
-  lemma                         () | no _
-  lemma         {q = q}         _  | yes p⊛q▷r≈𝟘 =
+  lemma {p = p} {q = q} {r = r} _      with is-𝟘? (p ⊛ q ▷ r)
+  lemma                         𝟙ᵐ′≡𝟘ᵐ | no _ =
+                                         ⊥-elim (𝟙ᵐ′≢𝟘ᵐ 𝟙ᵐ′≡𝟘ᵐ)
+  lemma         {q = q}         _      | yes p⊛q▷r≈𝟘 =
     ⌞ q ⌟  ≡⟨ ⌞⌟-cong (⊛≈𝟘ʳ p⊛q▷r≈𝟘) ⟩
     ⌞ 𝟘 ⌟  ≡⟨ ⌞𝟘⌟ ⟩
     𝟘ᵐ     ∎

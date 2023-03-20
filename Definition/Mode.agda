@@ -32,7 +32,7 @@ private variable
   ok ok₁ ok₂ : T b
 
 ------------------------------------------------------------------------
--- Definitions
+-- The mode type
 
 -- Modes.
 
@@ -45,19 +45,97 @@ pattern 𝟘ᵐ[_] ok = 𝟘ᵐ ⦃ ok = ok ⦄
 private variable
   m m₁ m₁′ m₂ m₂′ m₃ : Mode
 
+------------------------------------------------------------------------
+-- Some eliminators or similar principles
+
 private
 
-  -- A function used in the implementation of 𝟘ᵐ?.
+  -- A lemma used in the implementation of 𝟘ᵐ-allowed-elim.
 
-  𝟘ᵐ′ : ∀ b → b ≡ 𝟘ᵐ-allowed → Mode
-  𝟘ᵐ′ true  eq = 𝟘ᵐ[ subst T eq _ ]
-  𝟘ᵐ′ false _  = 𝟙ᵐ
+  𝟘ᵐ-allowed-elim-helper :
+    ∀ {p} {P : Set p} (b : Bool) →
+    (T b → P) →
+    ((not-ok : ¬ T b) → P) →
+    P
+  𝟘ᵐ-allowed-elim-helper true  t f = t _
+  𝟘ᵐ-allowed-elim-helper false t f = f (λ ())
+
+-- One can prove that a predicate holds for 𝟘ᵐ-allowed by proving that
+-- it holds given that T 𝟘ᵐ-allowed is inhabited, and that it holds
+-- given that T 𝟘ᵐ-allowed is not inhabited.
+
+𝟘ᵐ-allowed-elim :
+  ∀ {p} {P : Set p} →
+  (T 𝟘ᵐ-allowed → P) →
+  ((not-ok : ¬ T 𝟘ᵐ-allowed) → P) →
+  P
+𝟘ᵐ-allowed-elim = 𝟘ᵐ-allowed-elim-helper 𝟘ᵐ-allowed
+
+-- An eliminator for modes.
+
+Mode-elim :
+  ∀ {p} (P : Mode → Set p) →
+  (⦃ ok : T 𝟘ᵐ-allowed ⦄ → P 𝟘ᵐ[ ok ]) →
+  P 𝟙ᵐ →
+  ∀ m → P m
+Mode-elim _ z o = λ where
+  𝟘ᵐ[ ok ] → z ⦃ ok = ok ⦄
+  𝟙ᵐ       → o
+
+------------------------------------------------------------------------
+-- 𝟘ᵐ? and 𝟙ᵐ′
 
 -- A mode that is 𝟘ᵐ[ something ] if 𝟘ᵐ-allowed is true, and otherwise
 -- 𝟙ᵐ.
 
 𝟘ᵐ? : Mode
-𝟘ᵐ? = 𝟘ᵐ′ 𝟘ᵐ-allowed PE.refl
+𝟘ᵐ? = 𝟘ᵐ-allowed-elim 𝟘ᵐ[_] (λ _ → 𝟙ᵐ)
+
+-- One can prove that a predicate holds for 𝟘ᵐ? by proving that it
+-- holds for 𝟘ᵐ[ ok ] (for any ok) and that it holds for 𝟙ᵐ (under the
+-- assumption that T 𝟘ᵐ-allowed is not inhabited).
+
+𝟘ᵐ?-elim :
+  ∀ {p} (P : Mode → Set p) →
+  (⦃ ok : T 𝟘ᵐ-allowed ⦄ → P 𝟘ᵐ) →
+  (¬ T 𝟘ᵐ-allowed → P 𝟙ᵐ) →
+  P 𝟘ᵐ?
+𝟘ᵐ?-elim P = lemma _ refl
+  where
+  lemma :
+    ∀ b (eq : b ≡ 𝟘ᵐ-allowed)
+    (z : ⦃ ok : T b ⦄ → P 𝟘ᵐ[ subst T eq ok ])
+    (o : ¬ T b → P 𝟙ᵐ) →
+    P (𝟘ᵐ-allowed-elim-helper b (λ ok → 𝟘ᵐ[ subst T eq ok ]) (λ _ → 𝟙ᵐ))
+  lemma true  _ z _ = z ⦃ ok = _ ⦄
+  lemma false _ _ o = o (λ ())
+
+-- A variant of 𝟙ᵐ.
+
+𝟙ᵐ′ : Mode
+𝟙ᵐ′ = 𝟘ᵐ-allowed-elim (λ _ → 𝟙ᵐ) (λ _ → 𝟙ᵐ)
+
+-- 𝟙ᵐ′ is equal to 𝟙ᵐ.
+
+𝟙ᵐ′≡𝟙ᵐ : 𝟙ᵐ′ ≡ 𝟙ᵐ
+𝟙ᵐ′≡𝟙ᵐ with 𝟘ᵐ-allowed
+… | true  = refl
+… | false = refl
+
+-- 𝟙ᵐ′ is not equal to 𝟘ᵐ[ ok ].
+
+𝟙ᵐ′≢𝟘ᵐ : 𝟙ᵐ′ ≢ 𝟘ᵐ[ ok ]
+𝟙ᵐ′≢𝟘ᵐ 𝟙ᵐ′≡𝟘ᵐ =
+  case
+    𝟙ᵐ       ≡˘⟨ 𝟙ᵐ′≡𝟙ᵐ ⟩
+    𝟙ᵐ′      ≡⟨ 𝟙ᵐ′≡𝟘ᵐ ⟩
+    𝟘ᵐ[ _ ]  ∎
+  of λ ()
+  where
+  open Tools.Reasoning.PropositionalEquality
+
+------------------------------------------------------------------------
+-- Basic definitions
 
 -- The join of two modes.
 
@@ -81,12 +159,19 @@ _·ᵐ_ : Mode → Mode → Mode
 ⌜ 𝟘ᵐ ⌝ = 𝟘
 ⌜ 𝟙ᵐ ⌝ = 𝟙
 
+private
+
+  -- A function used in the implementation of ⌞_⌟.
+
+  ⌞_⌟′ : M → T 𝟘ᵐ-allowed → Mode
+  ⌞ p ⌟′ ok = case is-𝟘? p of λ where
+    (yes _) → 𝟘ᵐ[ ok ]
+    (no _)  → 𝟙ᵐ
+
 -- Quantities can be translated to modes (in a potentially lossy way).
 
 ⌞_⌟ : M → Mode
-⌞ p ⌟ = case is-𝟘? p of λ where
-  (yes _) → 𝟘ᵐ?
-  (no _)  → 𝟙ᵐ
+⌞ p ⌟ = 𝟘ᵐ-allowed-elim ⌞ p ⌟′ (λ _ → 𝟙ᵐ)
 
 -- Modes can be scaled by quantities.
 --
@@ -165,48 +250,6 @@ Mode-propositional-without-𝟘ᵐ {m₁ = m₁} {m₂ = m₂} not-ok =
   m₂  ∎
   where
   open Tools.Reasoning.PropositionalEquality
-
-------------------------------------------------------------------------
--- Some eliminators or similar principles
-
--- One can prove that a predicate holds for 𝟘ᵐ-allowed by proving that
--- it holds given that T 𝟘ᵐ-allowed is inhabited, and that it holds
--- given that T 𝟘ᵐ-allowed is not inhabited.
-
-𝟘ᵐ-allowed-elim :
-  ∀ {p} {P : Set p} →
-  (T 𝟘ᵐ-allowed → P) →
-  ((not-ok : ¬ T 𝟘ᵐ-allowed) → P) →
-  P
-𝟘ᵐ-allowed-elim t f with 𝟘ᵐ-allowed
-… | true  = t _
-… | false = f (λ ())
-
--- An eliminator for modes.
-
-Mode-elim :
-  ∀ {p} (P : Mode → Set p) →
-  (⦃ ok : T 𝟘ᵐ-allowed ⦄ → P 𝟘ᵐ[ ok ]) →
-  P 𝟙ᵐ →
-  ∀ m → P m
-Mode-elim _ z o = λ where
-  𝟘ᵐ[ ok ] → z ⦃ ok = ok ⦄
-  𝟙ᵐ       → o
-
--- One can prove that a predicate holds for 𝟘ᵐ? by proving that it
--- holds for 𝟘ᵐ[ ok ] (for any ok) and that it holds for 𝟙ᵐ (under the
--- assumption that T 𝟘ᵐ-allowed is not inhabited).
-
-𝟘ᵐ?-elim :
-  ∀ {p} (P : Mode → Set p) →
-  (⦃ ok : T 𝟘ᵐ-allowed ⦄ → P 𝟘ᵐ) →
-  (¬ T 𝟘ᵐ-allowed → P 𝟙ᵐ) →
-  P 𝟘ᵐ?
-𝟘ᵐ?-elim P z o = lemma _ _
-  where
-  lemma : ∀ b (eq : b ≡ 𝟘ᵐ-allowed) → P (𝟘ᵐ′ b eq)
-  lemma false eq = o (PE.subst T (PE.sym eq))
-  lemma true  eq = z ⦃ ok = PE.subst T eq _ ⦄
 
 ------------------------------------------------------------------------
 -- Properties related to 𝟘ᵐ?
@@ -494,15 +537,17 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
 
 ≉𝟘→⌞⌟≡𝟙ᵐ : p ≉ 𝟘 → ⌞ p ⌟ ≡ 𝟙ᵐ
 ≉𝟘→⌞⌟≡𝟙ᵐ {p = p} p≉𝟘 with is-𝟘? p
-… | no _    = PE.refl
 … | yes p≈𝟘 = ⊥-elim (p≉𝟘 p≈𝟘)
+… | no _    with 𝟘ᵐ-allowed
+…   | false = refl
+…   | true  = refl
 
 -- If ⌞ p ⌟ is equal to 𝟘ᵐ[ ok ], then p is equivalent to 𝟘.
 
 ⌞⌟≡𝟘ᵐ→≈𝟘 : ⌞ p ⌟ ≡ 𝟘ᵐ[ ok ] → p ≈ 𝟘
-⌞⌟≡𝟘ᵐ→≈𝟘 {p = p} _  with is-𝟘? p
-⌞⌟≡𝟘ᵐ→≈𝟘         _  | yes p≈𝟘 = p≈𝟘
-⌞⌟≡𝟘ᵐ→≈𝟘         () | no _
+⌞⌟≡𝟘ᵐ→≈𝟘 {p = p} _   with is-𝟘? p
+⌞⌟≡𝟘ᵐ→≈𝟘         _   | yes p≈𝟘 = p≈𝟘
+⌞⌟≡𝟘ᵐ→≈𝟘         ≡𝟘ᵐ | no _    = ⊥-elim (𝟙ᵐ′≢𝟘ᵐ ≡𝟘ᵐ)
 
 -- If 𝟘ᵐ is allowed and ⌞ p ⌟ is equal to 𝟙ᵐ, then p is not equivalent
 -- to 𝟘.
@@ -549,10 +594,12 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
 ⌜⌞⌟⌝-monotone {p = p} {q = q} 𝟙≤𝟘 p≤q with is-𝟘? p | is-𝟘? q
 … | yes _ | yes _ = ≤-refl
 … | no _  | no _  = ≤-refl
-… | no _  | yes _ = 𝟘ᵐ?-elim
-  (λ m → 𝟙 ≈ 𝟙 ∧ ⌜ m ⌝)
-  𝟙≤𝟘
-  (λ _ → ≤-refl)
+… | no _  | yes _ = begin
+  ⌜ 𝟙ᵐ′ ⌝  ≡⟨ cong ⌜_⌝ 𝟙ᵐ′≡𝟙ᵐ ⟩
+  𝟙        ≤⟨ 𝟘ᵐ?-elim (λ m → 𝟙 ≤ ⌜ m ⌝) 𝟙≤𝟘 (λ _ → ≤-refl) ⟩
+  ⌜ 𝟘ᵐ? ⌝  ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
 … | yes p≈𝟘 | no q≉𝟘 = ⊥-elim (q≉𝟘 (𝟘≮ (begin
   𝟘  ≈˘⟨ p≈𝟘 ⟩
   p  ≤⟨ p≤q ⟩
@@ -565,8 +612,9 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
 ·⌜⌞⌟⌝ : p · ⌜ ⌞ p ⌟ ⌝ ≈ p
 ·⌜⌞⌟⌝ {p = p} with is-𝟘? p
 … | no _ = begin
-  p · 𝟙  ≈⟨ ·-identityʳ _ ⟩
-  p      ∎
+  p · ⌜ 𝟙ᵐ′ ⌝  ≡⟨ cong (λ m → p · ⌜ m ⌝) 𝟙ᵐ′≡𝟙ᵐ ⟩
+  p · 𝟙        ≈⟨ ·-identityʳ _ ⟩
+  p            ∎
   where
   open Tools.Reasoning.Equivalence (setoid M)
 … | yes p≈𝟘 = 𝟘ᵐ?-elim
@@ -596,7 +644,11 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
   where
   open Tools.Reasoning.Equivalence (setoid M)
 ⌜⌞⌜⌝⌟⌝ 𝟙ᵐ with is-𝟘? 𝟙
-… | no _    = ≈-refl
+… | no _ =
+  ⌜ 𝟙ᵐ′ ⌝  ≡⟨ cong ⌜_⌝ 𝟙ᵐ′≡𝟙ᵐ ⟩
+  𝟙        ∎
+  where
+  open Tools.Reasoning.PropositionalEquality
 … | yes 𝟙≈𝟘 = 𝟘ᵐ?-elim
   (λ m → ⌜ m ⌝ ≈ 𝟙)
   (≈-sym 𝟙≈𝟘)
@@ -672,19 +724,26 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
   ⌞ p · q ⌟  ∎
   where
   open Tools.Reasoning.PropositionalEquality
-… | no p≉𝟘 with is-𝟘? q
-…   | yes q≈𝟘 =
-  𝟘ᵐ?        ≡˘⟨ ⌞𝟘⌟≡𝟘ᵐ? ⟩
-  ⌞ 𝟘 ⌟      ≡˘⟨ ⌞⌟-cong (·-zeroʳ _) ⟩
-  ⌞ p · 𝟘 ⌟  ≡˘⟨ ⌞⌟-cong (·-congˡ q≈𝟘) ⟩
-  ⌞ p · q ⌟  ∎
+… | no p≉𝟘 with is-𝟘? (p · q)
+…   | yes pq≈𝟘 =
+  𝟙ᵐ′ ᵐ· q  ≡⟨ cong (_ᵐ· _) 𝟙ᵐ′≡𝟙ᵐ ⟩
+  ⌞ q ⌟     ≡⟨ ≈𝟘→⌞⌟≡𝟘ᵐ?
+                 (case zero-product pq≈𝟘 of λ where
+                    (inj₁ p≈𝟘) → ⊥-elim (p≉𝟘 p≈𝟘)
+                    (inj₂ q≈𝟘) → q≈𝟘) ⟩
+  𝟘ᵐ?       ∎
   where
   open Tools.Reasoning.PropositionalEquality
-…   | no q≉𝟘 =
-  𝟙ᵐ         ≡˘⟨ ≉𝟘→⌞⌟≡𝟙ᵐ (λ pq≈𝟘 → ⊥-elim (case zero-product pq≈𝟘 of λ where
-                   (inj₁ p≈𝟘) → p≉𝟘 p≈𝟘
-                   (inj₂ q≈𝟘) → q≉𝟘 q≈𝟘)) ⟩
-  ⌞ p · q ⌟  ∎
+…   | no pq≉𝟘 =
+  𝟙ᵐ′ ᵐ· q  ≡⟨ cong (_ᵐ· _) 𝟙ᵐ′≡𝟙ᵐ ⟩
+  ⌞ q ⌟     ≡⟨ ≉𝟘→⌞⌟≡𝟙ᵐ (λ q≈𝟘 → pq≉𝟘 (
+
+    p · q        ≡⟨ ·-congˡ q≈𝟘 ⟩
+    p · 𝟘        ≡⟨ ·-zeroʳ _ ⟩
+    𝟘            ∎)) ⟩
+
+  𝟙ᵐ        ≡˘⟨ 𝟙ᵐ′≡𝟙ᵐ ⟩
+  𝟙ᵐ′       ∎
   where
   open Tools.Reasoning.PropositionalEquality
 
@@ -704,7 +763,13 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
 
 ⌞⌟·ᵐ-idem : ⌞ p ⌟ ᵐ· p ≡ ⌞ p ⌟
 ⌞⌟·ᵐ-idem {p = p} with is-𝟘? p
-… | no p≉𝟘  = ≉𝟘→⌞⌟≡𝟙ᵐ p≉𝟘
+… | no p≉𝟘  =
+  𝟙ᵐ′ ᵐ· p  ≡⟨ cong (_ᵐ· _) 𝟙ᵐ′≡𝟙ᵐ ⟩
+  ⌞ p ⌟     ≡⟨ ≉𝟘→⌞⌟≡𝟙ᵐ p≉𝟘 ⟩
+  𝟙ᵐ        ≡˘⟨ 𝟙ᵐ′≡𝟙ᵐ ⟩
+  𝟙ᵐ′       ∎
+  where
+  open Tools.Reasoning.PropositionalEquality
 … | yes p≈𝟘 =
   𝟘ᵐ? ᵐ· p  ≡⟨ ᵐ·-cong 𝟘ᵐ? p≈𝟘 ⟩
   𝟘ᵐ? ᵐ· 𝟘  ≡⟨ ᵐ·-zeroʳ 𝟘ᵐ? ⟩

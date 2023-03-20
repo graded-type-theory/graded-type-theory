@@ -215,7 +215,7 @@ fundamental (prodrecⱼ {r = 𝟘} {t = t} {u} {F} {G} {A} Γ⊢F Γ⊢G Γ⊢A 
 fundamental {m = 𝟙ᵐ}
   (prodrecⱼ {r = ω} {t = t} {u} {F} {G} {A} Γ⊢F Γ⊢G Γ⊢A Γ⊢t Γ⊢u)
   γ▸prodrec =
-  let invUsageProdrec δ▸t η▸u _ P γ≤pδ+η = inv-usage-prodrec γ▸prodrec
+  let invUsageProdrec {δ = δ} δ▸t η▸u _ P γ≤pδ+η = inv-usage-prodrec γ▸prodrec
       [Γ] , [Σ] , ⊩ʳt = fundamental Γ⊢t δ▸t
       [Γ]₂ , [A₊]₂ , ⊩ʳu = fundamental Γ⊢u η▸u
       [Γ]₃ , [F]₃ = F.fundamental Γ⊢F
@@ -231,7 +231,10 @@ fundamental {m = 𝟙ᵐ}
       [t] = IS.irrelevanceTerm {t = t} [Γ]₆ [Γ] [Σ]₆ [Σ] [t]₆
       [u] = IS.irrelevanceTerm {A = A₊} {u} [Γ]₇ ([Γ] ∙ [F] ∙ [G]) [A₊]₇ [A₊] [u]₇
       ⊩ʳu′ = irrelevance {t = u} [Γ]₂ ([Γ] ∙ [F] ∙ [G]) [A₊]₂ [A₊] ⊩ʳu
-      [At] , ⊩ʳprodrec = prodrecωʳ {F = F} {G} {A = A} {t} {u} [Γ] [F] [G] [Σ] [A] [A₊] [t] [u] ⊩ʳt ⊩ʳu′
+      [At] , ⊩ʳprodrec =
+        prodrecωʳ [Γ] [F] [G] [Σ] [A] [A₊] [t] [u]
+          (PE.subst (δ ▸ _ ⊩ʳ⟨ _ ⟩ t ∷[_] _ / _ / [Σ]) ⌞ω⌟≡𝟙ᵐ ⊩ʳt)
+          ⊩ʳu′
   in  [Γ] , [At] ,
       subsumption {t = prodrec _ _ _ A t u} [Γ] [At] ⊩ʳprodrec γ≤pδ+η
 fundamental (zeroⱼ ⊢Γ) γ▸t = zeroʳ ⊢Γ

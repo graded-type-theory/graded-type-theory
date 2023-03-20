@@ -42,6 +42,7 @@ open import Definition.Mode ErasureModality
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+import Tools.Reasoning.PropositionalEquality
 
 private
   variable
@@ -83,7 +84,8 @@ appʳ′
 
 appʳ′
   {F = F} {G = G} {u = u} {γ = γ} {t = t} {m = 𝟙ᵐ} {p = ω} {q = q}
-  {δ = δ} [Γ] [F] [G] [G[u]] [u] ⊩ʳt ⊩ʳu {σ = σ} {σ′ = σ′} [σ] σ®σ′ =
+  {δ = δ} {l = l} [Γ] [F] [G] [G[u]] [u] ⊩ʳt ⊩ʳu
+  {σ = σ} {σ′ = σ′} [σ] σ®σ′ =
   let [Π] = Πᵛ {F = F} {G = G} {p = ω} {q = q} [Γ] [F] [G]
       [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
       [ρσF] = W.wk id ⊢Δ [σF]
@@ -95,8 +97,12 @@ appʳ′
       ⊩ʳu′ = subsumption {t = u} {A = F} [Γ] [F] ⊩ʳu
                          (≤ᶜ-trans (+ᶜ-decreasingʳ γ (ω ·ᶜ δ))
                                    (≤ᶜ-reflexive (·ᶜ-identityˡ δ)))
-      u®w′ = ⊩ʳu′ [σ] σ®σ′
-      u®w = irrelevanceTerm′ (PE.sym (wk-id (subst σ F))) [σF] [ρσF] u®w′
+      u®w′ = ⊩ʳu′ [σ] (subsumptionSubstMode l σ®σ′)
+      u®w = irrelevanceTerm′ (PE.sym (wk-id (subst σ F))) [σF] [ρσF]
+              (PE.subst (_ ®⟨ _ ⟩ _ ∷ _ ◂_/ _)
+                 (⌜ ⌞ ω ⌟ ⌝  ≡⟨ ⌜⌞⌜⌝⌟⌝ 𝟙ᵐ ⟩
+                  ω          ∎)
+                 u®w′)
       t∘u®v∘w = ⊩ʳt′ [σ] σ®σ′ [σu]′ u®w
       [σG[u]] = I.irrelevance′ (PE.sym (singleSubstWkComp (subst σ u) σ G))
                                (proj₁ (unwrap [G] ⊢Δ (wkSubstS [Γ] ⊢Δ ⊢Δ id [σ] , [σu]″)))
@@ -104,6 +110,8 @@ appʳ′
                                           (wk-lift-id (subst (liftSubst σ) G)))
                                  (PE.sym (singleSubstLift G u)))
                        [σG[u]] (proj₁ (unwrap [G[u]] ⊢Δ [σ])) t∘u®v∘w
+  where
+  open Tools.Reasoning.PropositionalEquality
 
 
 appʳ : ∀ {Γ : Con Term n}

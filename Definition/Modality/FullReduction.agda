@@ -299,7 +299,10 @@ mutual
         γ
       , fstₘ 𝟙ᵐ
           (▸-cong (PE.sym (≉𝟘→⌞⌟≡𝟙ᵐ p≉𝟘)) γ▸t)
-          (≉𝟘→⌞⌟≡𝟙ᵐ p≉𝟘)
+          (let open Tools.Reasoning.PropositionalEquality in
+             ⌞ p ⌟  ≡⟨ ≉𝟘→⌞⌟≡𝟙ᵐ p≉𝟘 ⟩
+             𝟙ᵐ     ≡˘⟨ 𝟙ᵐ′≡𝟙ᵐ ⟩
+             𝟙ᵐ′    ∎)
           (λ p≈𝟘 → ⊥-elim (p≉𝟘 p≈𝟘))
       , (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
            γ       ≤⟨ ·ᶜ-increasing _ ⟩

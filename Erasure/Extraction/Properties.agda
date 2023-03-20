@@ -252,7 +252,7 @@ erased-hasX erased (_∘ₘ_ {γ = γ} {δ = δ} {p = ω} γ▸t δ▸u) (∘ₓ
   erased-hasX erased (sub γ▸t (+ᶜ-decreasingˡ γ δ)) hasX
 erased-hasX erased (_∘ₘ_ {γ = γ} {δ = δ} {p = ω} γ▸t δ▸u) (∘ₓʳ hasX)
   rewrite ≈ᶜ→≡ (·ᶜ-identityˡ δ) =
-  erased-hasX erased (sub δ▸u (+ᶜ-decreasingʳ γ δ)) hasX
+  erased-hasX erased (sub (▸-cong ⌞ω⌟≡𝟙ᵐ δ▸u) (+ᶜ-decreasingʳ γ δ)) hasX
 
 erased-hasX erased (prodᵣₘ {γ = γ} {p = 𝟘} {δ = δ} _ δ▸) hasX =
   erased-hasX
@@ -267,7 +267,7 @@ erased-hasX erased (prodᵣₘ {γ = γ} {p = 𝟘} {δ = δ} _ δ▸) hasX =
   open Tools.Reasoning.Equivalence Conₘ-setoid
 erased-hasX erased (prodᵣₘ {γ = γ} {p = ω} {δ = δ} γ▸ _) (prodₓˡ hasX) =
   erased-hasX erased
-    (sub γ▸ (begin
+    (sub (▸-cong ⌞ω⌟≡𝟙ᵐ γ▸) (begin
        ω ·ᶜ γ +ᶜ δ  ≤⟨ +ᶜ-decreasingˡ _ _ ⟩
        ω ·ᶜ γ       ≈⟨ ·ᶜ-identityˡ _ ⟩
        γ            ∎))
@@ -291,7 +291,7 @@ erased-hasX erased (prodₚₘ {γ = γ} {p = 𝟘} {δ = δ} _ γ▸u) hasX =
   open Tools.Reasoning.Equivalence Conₘ-setoid
 erased-hasX erased (prodₚₘ {γ = γ} {p = ω} {δ = δ} γ▸ _) (prodₓˡ hasX) =
   erased-hasX erased
-    (sub γ▸ (begin
+    (sub (▸-cong ⌞ω⌟≡𝟙ᵐ γ▸) (begin
        ω ·ᶜ γ ∧ᶜ δ  ≤⟨ ∧ᶜ-decreasingˡ _ _ ⟩
        ω ·ᶜ γ       ≈⟨ ·ᶜ-identityˡ _ ⟩
        γ            ∎))
@@ -304,7 +304,7 @@ erased-hasX erased (prodₚₘ {p = ω} _ δ▸) (prodₓʳ hasX) =
 erased-hasX _      (fstₘ {p = 𝟘} _  _  _  _) ()
 erased-hasX _      (fstₘ {p = ω} 𝟘ᵐ _  () _)
 erased-hasX erased (fstₘ {p = ω} 𝟙ᵐ γ▸ _  _) (fstₓ hasX) =
-  erased-hasX erased γ▸ hasX
+  erased-hasX erased (▸-cong ⌞ω⌟≡𝟙ᵐ γ▸) hasX
 
 erased-hasX erased (sndₘ {p = 𝟘} γ▸) hasX =
   erased-hasX erased γ▸ hasX
@@ -335,7 +335,7 @@ erased-hasX erased
   (prodrecₘ {γ = γ} {r = ω} {δ = δ} {p = 𝟘} γ▸ _ _ _)
   (prodrecₓˡ (prodₓʳ hasX)) =
   erased-hasX erased
-    (sub γ▸ (begin
+    (sub (▸-cong ⌞ω⌟≡𝟙ᵐ γ▸) (begin
        ω ·ᶜ γ +ᶜ δ  ≤⟨ +ᶜ-decreasingˡ _ _ ⟩
        ω ·ᶜ γ       ≈⟨ ·ᶜ-identityˡ _ ⟩
        γ            ∎))
@@ -345,7 +345,7 @@ erased-hasX erased
 erased-hasX erased (prodrecₘ {γ = γ} {r = ω} {δ = δ} {p = ω} γ▸ _ _ _)
   (prodrecₓˡ hasX) =
   erased-hasX erased
-    (sub γ▸ (begin
+    (sub (▸-cong ⌞ω⌟≡𝟙ᵐ γ▸) (begin
        ω ·ᶜ γ +ᶜ δ  ≤⟨ +ᶜ-decreasingˡ _ _ ⟩
        ω ·ᶜ γ       ≈⟨ ·ᶜ-identityˡ _ ⟩
        γ            ∎))

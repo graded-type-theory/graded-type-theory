@@ -55,6 +55,8 @@ open import Tools.Function
 open import Tools.Nat
 open import Tools.PropositionalEquality as PE using (_≢_)
 open import Tools.Product
+import Tools.Reasoning.PartialOrder
+import Tools.Reasoning.PropositionalEquality
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 -- Preliminaries
@@ -109,13 +111,22 @@ neNeg (natrecⱼ _ _ _ d   ) (natrecₙ n  ) γ▸u =
       ⊢ℕ = refl (ℕⱼ (wfTerm d))
       γ▸n = sub δ▸n (≤ᶜ-trans γ≤γ′ (≤ᶜ-trans (⊛ᶜ-ineq₂ _ _ _) (∧ᶜ-decreasingʳ _ _)))
   in  ⊥-elim (¬negℕ (neNeg d n γ▸n) ⊢ℕ)
-neNeg (prodrecⱼ ⊢A A⊢B _ d _) (prodrecₙ n ) γ▸u =
-  let invUsageProdrec δ▸t η▸u _ (_ , p≡ω) γ≤γ′ = inv-usage-prodrec γ▸u
-      γ▸t = sub δ▸t (≤ᶜ-trans γ≤γ′ (≤ᶜ-trans (+ᶜ-decreasingˡ _ _)
-                              (≤ᶜ-trans (·ᶜ-monotoneˡ (≤-reflexive p≡ω))
-                                 (≤ᶜ-reflexive (·ᶜ-identityˡ _)))))
+neNeg (prodrecⱼ {r = r} ⊢A A⊢B _ d _) (prodrecₙ n ) γ▸u =
+  let invUsageProdrec {δ = δ} {η = η} δ▸t η▸u _ (_ , r≡ω) γ≤ =
+        inv-usage-prodrec γ▸u
+      γ▸t = sub δ▸t
+        (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+           γ            ≤⟨ γ≤ ⟩
+           r ·ᶜ δ +ᶜ η  ≤⟨ +ᶜ-decreasingˡ _ _ ⟩
+           r ·ᶜ δ       ≈⟨ ·ᶜ-congʳ r≡ω ⟩
+           ω ·ᶜ δ       ≈⟨ ·ᶜ-identityˡ _ ⟩
+           δ            ∎)
       ⊢Σ = refl (ΠΣⱼ ⊢A ▹ A⊢B)
-  in  ⊥-elim (¬negΣᵣ (neNeg d n (▸-cong (PE.cong (𝟙ᵐ ᵐ·_) p≡ω) γ▸t)) ⊢Σ)
+      lemma = let open Tools.Reasoning.PropositionalEquality in
+        ⌞ r ⌟  ≡⟨ PE.cong ⌞_⌟ r≡ω ⟩
+        ⌞ ω ⌟  ≡⟨ ⌞ω⌟≡𝟙ᵐ ⟩
+        𝟙ᵐ     ∎
+  in  ⊥-elim (¬negΣᵣ (neNeg d n (▸-cong lemma γ▸t)) ⊢Σ)
 neNeg (Emptyrecⱼ _ d     ) (Emptyrecₙ n) γ▸u = ⊥-elim (consistent d)
 neNeg (conv d c          ) n             γ▸u = conv (neNeg d n γ▸u) c
 

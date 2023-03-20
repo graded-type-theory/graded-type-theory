@@ -155,10 +155,18 @@ prodʳ
             T.subst σ′ (erase t)
           , T.refl
           , irrelevanceTerm′ (PE.sym (wk-id (subst σ F))) [σF] [σF]′
-              (⊩ʳt [σ]
-                 (PE.subst (λ γ → _ ®⟨ l ⟩ _ ∷[ _ ] _ ◂ γ / _ / _)
-                    (≈ᶜ→≡ (·ᶜ-identityˡ _))
-                    σ®σ′))
+              (PE.subst
+                 (_ ®⟨ _ ⟩ _ ∷ _ ◂_/ _)
+                 (⌜ ⌞ ω ⌟ ⌝  ≡⟨ PE.cong ⌜_⌝ ⌞ω⌟≡𝟙ᵐ ⟩
+                  ω          ∎)
+                 (⊩ʳt [σ]
+                    (PE.subst₂
+                       (λ m γ → _ ®⟨ l ⟩ σ′ ∷[ m ] _ ◂ γ / _ / _)
+                       (PE.sym ⌞ω⌟≡𝟙ᵐ)
+                       (≈ᶜ→≡ (·ᶜ-identityˡ _))
+                       σ®σ′)))
+          where
+          open Tools.Reasoning.PropositionalEquality
 
 fstʳ′ : ∀ {l} {Γ : Con Term n}
       → ([Γ] : ⊩ᵛ Γ)

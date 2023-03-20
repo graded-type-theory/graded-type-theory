@@ -20,7 +20,7 @@ open import Definition.Untyped Erasure
 
 open import Tools.Fin
 open import Tools.Nat hiding (_+_)
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE using (_≡_)
 import Tools.Reasoning.PartialOrder
 
 private
@@ -184,3 +184,8 @@ inv-usage-prodₑ {γ = γ} {p = p} {m = Σₚ} γ▸t with inv-usage-prodₚ γ
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 inv-usage-prodₑ {m = Σᵣ} γ▸t = inv-usage-prodᵣ γ▸t
+
+-- The mode corresponding to ω is 𝟙ᵐ.
+
+⌞ω⌟≡𝟙ᵐ : ⌞ ω ⌟ ≡ 𝟙ᵐ
+⌞ω⌟≡𝟙ᵐ = 𝟙ᵐ′≡𝟙ᵐ
