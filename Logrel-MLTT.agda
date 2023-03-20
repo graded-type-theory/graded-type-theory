@@ -27,9 +27,16 @@ import Tools.Reasoning.PropositionalEquality
 
 -- Modality structure
 import Definition.Modality
+import Definition.Modality.Instances.Affine
+import Definition.Modality.Instances.BoundedStar
 import Definition.Modality.Instances.Erasure
+import Definition.Modality.Instances.Finite
+import Definition.Modality.Instances.Linearity
+import Definition.Modality.Instances.LowerBounded
+import Definition.Modality.Instances.Recursive
 import Definition.Modality.Instances.Unit
 import Definition.Modality.Instances.Zero-one-many
+import Definition.Modality.Instances.ZeroOneOmega
 import Definition.Modality.Properties
 import Definition.Modality.Context
 import Definition.Modality.Context.Properties
