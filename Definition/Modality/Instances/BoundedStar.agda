@@ -174,7 +174,6 @@ isModality = record
   { modalityWithout⊛ = 𝕄
   ; _⊛_▷_ = _⊛_▷_
   ; ⊛-ineq = ⊛-ineq₁ , ⊛-ineq₂
-  ; ⊛-cong = ⊛-cong
   ; +-sub-interchangable-⊛ = +-sub-interchangable-⊛
   ; ·-sub-distribʳ-⊛ = ·-sub-distribʳ-⊛
   ; ⊛-sub-distrib-∧ = λ r → ⊛-sub-distribˡ-∧ r , ⊛-sub-distribʳ-∧ r

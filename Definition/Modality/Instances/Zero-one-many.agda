@@ -910,8 +910,6 @@ zero-one-many-greatest restrictions = record
   { modalityWithout⊛       = modalityWithout⊛
   ; _⊛_▷_                  = _⊛_▷_
   ; ⊛-ineq                 = ⊛-ineq₁ , ⊛-ineq₂
-  ; ⊛-cong                 = λ where
-                               refl refl refl → refl
   ; +-sub-interchangable-⊛ = +-sub-interchangeable-⊛
   ; ·-sub-distribʳ-⊛       = ·-sub-distribʳ-⊛
   ; ⊛-sub-distrib-∧        = λ _ → ⊛-sub-distrib-∧ˡ _

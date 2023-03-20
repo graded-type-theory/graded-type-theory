@@ -557,7 +557,6 @@ module ⊛ (_∧_ : Op₂ 𝟘𝟙ω) (∧-Semilattice : IsSemilattice _∧_)
     { modalityWithout⊛ = 𝟘𝟙ωMod
     ; _⊛_▷_ = _⊛_▷_
     ; ⊛-ineq = ⊛-ineq₁ , ⊛-ineq₂
-    ; ⊛-cong = cong₃ _⊛_▷_
     ; +-sub-interchangable-⊛ = +-sub-interchangable-⊛
     ; ·-sub-distribʳ-⊛ = λ r q p p′ → ≤-reflexive (·-distribʳ-⊛ r q p p′)
     ; ⊛-sub-distrib-∧ = λ r → (λ p q q′ → ≤-reflexive (⊛-distribˡ-∧ r p q q′))

@@ -196,7 +196,6 @@ isModality = record
   { modalityWithout⊛ = 𝕄
   ; _⊛_▷_ = _⊛_▷_
   ; ⊛-ineq = solvesIneqs
-  ; ⊛-cong = nr-cong (proj₁ nr-fix)
   ; +-sub-interchangable-⊛ = +-sub-interchangable-nr (proj₁ nr-fix)
   ; ·-sub-distribʳ-⊛ = ·-sub-distribʳ-nr (proj₁ nr-fix)
   ; ⊛-sub-distrib-∧ = λ r → nr-sub-distribˡ-∧ (proj₁ nr-fix) r , nr-sub-distribʳ-∧ (proj₁ nr-fix) r

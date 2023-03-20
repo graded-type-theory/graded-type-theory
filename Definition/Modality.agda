@@ -143,8 +143,6 @@ record Modality : Set (lsuc a) where
     -- ⊛ is a solution to the following system of inequalities
     ⊛-ineq : ((p q r : M) → p ⊛ q ▷ r ≤ q + r · p ⊛ q ▷ r)
            × ((p q r : M) → p ⊛ q ▷ r ≤ p)
-    -- ⊛ respects the equivalence relation
-    ⊛-cong : ∀ {p p′ q q′ r r′} → p ≈ p′ → q ≈ q′ → r ≈ r′ → p ⊛ q ▷ r ≈ p′ ⊛ q′ ▷ r′
 
     -- addition is sub-interchangable over ⊛ w.r.t the first two arguments
     +-sub-interchangable-⊛ : (r : M) → _+_ SubInterchangable (_⊛_▷ r) by _≤_
