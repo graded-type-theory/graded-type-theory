@@ -139,7 +139,7 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
 ~-prodrec x x₁ x₂ (↑ A≡B k~↑l) x₄ PE.refl =
   case syntacticEq A≡B of λ (_ , ⊢B) →
   case whNorm ⊢B of λ (B′ , whnfB′ , D) →
-  case trans A≡B (subset* (red D)) of λ Σ≡Σ′ →
+  case _⊢_≡_.trans A≡B (subset* (red D)) of λ Σ≡Σ′ →
   case Σ≡A (trans A≡B (subset* (red D))) whnfB′ of λ where
     (_ , q′ , F′ , G′ , PE.refl) →
       case Σ-injectivity Σ≡Σ′ of λ where
