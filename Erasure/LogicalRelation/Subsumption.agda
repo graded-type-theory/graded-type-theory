@@ -54,6 +54,16 @@ subsumptionTerm {p = 𝟘} {𝟘} t®v q≤p = t®v
 subsumptionTerm {p = ω} {𝟘} t®v q≤p = tt
 subsumptionTerm {p = ω} {ω} t®v q≤p = t®v
 
+-- If t ®⟨ l ⟩ v ∷ A ◂ p / [A] holds when p is ω, then it holds for
+-- any quantity.
+
+subsumptionTermErasure :
+  ∀ {l [A]} p →
+  t ®⟨ l ⟩ v ∷ A ◂ ω / [A] →
+  t ®⟨ l ⟩ v ∷ A ◂ p / [A]
+subsumptionTermErasure 𝟘     = _
+subsumptionTermErasure ω t®v = t®v
+
 -- Subsumption of related substitutions
 -- If σ ® σ′ ∷ Γ ◂ γ and γ ≤ᶜ δ then σ ® σ′ ∷ Γ ◂ δ
 
@@ -66,6 +76,20 @@ subsumptionSubst {m = m} {Γ = Γ ∙ x} {γ ∙ p} {δ ∙ q} {l = l}
                  {[Γ] = [Γ] ∙ [A]} {_ , _} (σ®σ′ , t®v) (γ≤δ ∙ p≤q) =
     subsumptionSubst {l = l} σ®σ′ γ≤δ
   , subsumptionTerm t®v (·-monotoneʳ {r = ⌜ m ⌝} p≤q)
+
+-- If σₜ ®⟨ l ⟩ σᵥ ∷[ m ] Γ ◂ γ / [Γ] / [σ] holds when m is 𝟙ᵐ, then
+-- it holds for any mode.
+
+subsumptionSubstMode :
+  ∀ {σₜ σᵥ [Γ] [σ]} l →
+  σₜ ®⟨ l ⟩ σᵥ ∷[ 𝟙ᵐ ] Γ ◂ γ / [Γ] / [σ] →
+  σₜ ®⟨ l ⟩ σᵥ ∷[ m ] Γ ◂ γ / [Γ] / [σ]
+subsumptionSubstMode {m = 𝟙ᵐ} _ ok =
+  ok
+subsumptionSubstMode {γ = ε} {[Γ] = ε} =
+  _
+subsumptionSubstMode {γ = _ ∙ _} {m = 𝟘ᵐ} {[Γ] = _ ∙ _} l (ok₁ , _) =
+  subsumptionSubstMode l ok₁ , _
 
 -- Subsumption of erasure validity
 -- If γ ▸ Γ ⊩ʳ t ∷ A and δ ≤ᶜ γ then δ ▸ Γ ⊩ʳ t ∷ A
