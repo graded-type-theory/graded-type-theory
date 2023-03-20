@@ -333,16 +333,6 @@ _·_ : Op₂ 𝟘𝟙ω
       {p = 𝟙} {q = 𝟘} ()
       {p = 𝟙} {q = 𝟙} ()
       {p = 𝟙} {q = ω} ()
-  ; 𝟘≮ = λ where
-      {p = 𝟘} _     → refl
-      {p = 𝟙} 𝟘≡𝟘∧𝟙 → ⊥-elim (𝟘≰𝟙 𝟘≡𝟘∧𝟙)
-      {p = ω} 𝟘≡𝟘∧ω →
-        case
-          ω      ≡⟨ ω≤𝟘 ⟩
-          ω ∧ 𝟘  ≡⟨ S.comm _ _ ⟩
-          𝟘 ∧ ω  ≡˘⟨ 𝟘≡𝟘∧ω ⟩
-          𝟘      ∎
-        of λ ()
   ; ∧≤𝟘ˡ = λ where
       {p = 𝟘} _ →
         𝟘      ≡˘⟨ S.idem _ ⟩
@@ -537,19 +527,6 @@ module ⊛ (_∧_ : Op₂ 𝟘𝟙ω) (∧-Semilattice : IsSemilattice _∧_)
   ⊛-distribʳ-∧ ω q p p′ rewrite ⊛-distribʳ-∧ 𝟘 q p p′ =
     ·-distribˡ-∧ ω (p ∧ q) (p′ ∧ q)
 
-  -- If p ⊛ q ▷ r is equal to 𝟘, then p and q are equal to 𝟘.
-
-  ⊛≈𝟘 : ∀ p q r → p ⊛ q ▷ r ≡ 𝟘 → p ≡ 𝟘 × q ≡ 𝟘
-  ⊛≈𝟘 = λ where
-    p q 𝟘 p∧q≡𝟘  → ∧≈𝟘ˡ p∧q≡𝟘 , ∧≈𝟘ʳ p∧q≡𝟘
-    p q 𝟙 p+ωq≡𝟘 →
-        positiveˡ p+ωq≡𝟘
-      , (case zero-product {p = ω} {q = q} (positiveʳ p+ωq≡𝟘) of λ where
-           (inj₂ q≡𝟘) → q≡𝟘)
-    p q ω ω[p∧q]≡𝟘 → case zero-product ω[p∧q]≡𝟘 of λ where
-      (inj₁ ())
-      (inj₂ p∧q≡𝟘) → ∧≈𝟘ˡ p∧q≡𝟘 , ∧≈𝟘ʳ p∧q≡𝟘
-
   -- 𝟘𝟙ω forms a modality
 
   𝟘𝟙ωModality : Modality
@@ -561,6 +538,4 @@ module ⊛ (_∧_ : Op₂ 𝟘𝟙ω) (∧-Semilattice : IsSemilattice _∧_)
     ; ·-sub-distribʳ-⊛ = λ r q p p′ → ≤-reflexive (·-distribʳ-⊛ r q p p′)
     ; ⊛-sub-distrib-∧ = λ r → (λ p q q′ → ≤-reflexive (⊛-distribˡ-∧ r p q q′))
                             , (λ q p p′ → ≤-reflexive (⊛-distribʳ-∧ r q p p′))
-    ; ⊛≤𝟘ˡ = λ {r = r} eq → ≤-reflexive (⊛≈𝟘 _ _ r eq .proj₁)
-    ; ⊛≤𝟘ʳ = λ {r = r} eq → ≤-reflexive (⊛≈𝟘 _ _ r eq .proj₂)
     }

@@ -112,26 +112,6 @@ p ⊛ q ▷ r = ∞ · (p ∧ q)
   where
   open Tools.Reasoning.PartialOrder ≤-poset
 
-⊛≤𝟘ˡ : ∀ r → p ⊛ q ▷ r ≈ 𝟘 → p ≤ 𝟘
-⊛≤𝟘ˡ {p = p} {q = q} r p⊛q▷r≈𝟘 with zero-product p⊛q▷r≈𝟘
-… | inj₂ p∧q≈𝟘 = ∧≤𝟘ˡ p∧q≈𝟘
-… | inj₁ ∞≈𝟘   = ≤-reflexive (𝟘≮ (begin
-  𝟘  ≈˘⟨ ∞≈𝟘 ⟩
-  ∞  ≤⟨ ∞-min _ ⟩
-  p  ∎))
-  where
-  open Tools.Reasoning.PartialOrder ≤-poset
-
-⊛≤𝟘ʳ : ∀ r → p ⊛ q ▷ r ≈ 𝟘 → q ≤ 𝟘
-⊛≤𝟘ʳ {p = p} {q = q} r p⊛q▷r≈𝟘 = ⊛≤𝟘ˡ r (begin
-  q ⊛ p ▷ r    ≡⟨⟩
-  ∞ · (q ∧ p)  ≈⟨ ·-congˡ (∧-comm _ _) ⟩
-  ∞ · (p ∧ q)  ≡⟨⟩
-  p ⊛ q ▷ r    ≈⟨ p⊛q▷r≈𝟘 ⟩
-  𝟘            ∎)
-  where
-  open Tools.Reasoning.Equivalence (setoid M)
-
 isModality : Modality M
 isModality = record
   { modalityWithout⊛ = 𝕄
@@ -140,6 +120,4 @@ isModality = record
   ; +-sub-interchangable-⊛ = +-sub-interchangable-⊛
   ; ·-sub-distribʳ-⊛ = ·-sub-distribʳ-⊛
   ; ⊛-sub-distrib-∧ = λ r → ⊛-sub-distribˡ-∧ r , ⊛-sub-distribʳ-∧ r
-  ; ⊛≤𝟘ˡ = λ {_ _ r} → ⊛≤𝟘ˡ r
-  ; ⊛≤𝟘ʳ = λ {_ _ r} → ⊛≤𝟘ʳ r
   }

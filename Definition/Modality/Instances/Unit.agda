@@ -162,7 +162,6 @@ UnitModalityWithout⊛ = record
   ; is-𝟘? = λ _ → yes refl
   ; zero-product = λ _ → inj₁ refl
   ; positiveˡ = λ _ → refl
-  ; 𝟘≮ = λ _ → refl
   ; ∧≤𝟘ˡ = λ _ → refl
   ; ≉𝟘→≤𝟙 = λ _ → refl
   }
@@ -175,6 +174,4 @@ UnitModality = record
   ; +-sub-interchangable-⊛ = λ r p q p′ q′ → refl
   ; ·-sub-distribʳ-⊛ = λ r q p p′ → refl
   ; ⊛-sub-distrib-∧ = λ r → (λ p q q′ → refl) , (λ q p p′ → refl)
-  ; ⊛≤𝟘ˡ = λ _ → refl
-  ; ⊛≤𝟘ʳ = λ _ → refl
   }

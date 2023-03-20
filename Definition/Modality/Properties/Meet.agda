@@ -108,3 +108,17 @@ private
      𝟘      ∎)
   where
   open Tools.Reasoning.Equivalence (setoid M)
+
+-- Every value that is "greater than or equal to" 𝟘 is equivalent
+-- to 𝟘.
+--
+-- This property matches one of the assumptions in Conor McBride's "I
+-- Got Plenty o’ Nuttin’".
+
+𝟘≮ : 𝟘 ≤ p → p ≈ 𝟘
+𝟘≮ {p = p} 𝟘≤p = ∧≈𝟘ˡ (begin
+  p ∧ 𝟘  ≈⟨ ∧-comm _ _ ⟩
+  𝟘 ∧ p  ≈˘⟨ 𝟘≤p ⟩
+  𝟘      ∎)
+  where
+  open Tools.Reasoning.Equivalence (setoid M)

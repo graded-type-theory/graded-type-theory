@@ -67,13 +67,6 @@ record ModalityWithout⊛ : Set (lsuc a) where
   p ≤ q = p ≈ (p ∧ q)
 
   field
-    -- The following assumption matches one in Conor McBride's
-    -- "I Got Plenty o’ Nuttin’".
-
-    -- Every value that is "greater than or equal to" 𝟘 is equivalent
-    -- to 𝟘.
-    𝟘≮ : {p : M} → 𝟘 ≤ p → p ≈ 𝟘
-
     -- If p ∧ q is equivalent to 𝟘, then p ≤ 𝟘.
     ∧≤𝟘ˡ : {p q : M} → p ∧ q ≈ 𝟘 → p ≤ 𝟘
 
@@ -150,11 +143,6 @@ record Modality : Set (lsuc a) where
     ·-sub-distribʳ-⊛ : (r : M) → _·_ SubDistributesOverʳ (_⊛_▷ r) by _≤_
     -- ⊛ is sub-distributive over meet w.r.t the first two arguments
     ⊛-sub-distrib-∧    : (r : M) → (_⊛_▷ r) SubDistributesOver _∧_ by _≤_
-
-    -- If p ⊛ q ▷ r is equivalent to 𝟘, then p ≤ 𝟘.
-    ⊛≤𝟘ˡ : {p q r : M} → p ⊛ q ▷ r ≈ 𝟘 → p ≤ 𝟘
-    -- If p ⊛ q ▷ r is equivalent to 𝟘, then q ≤ 𝟘.
-    ⊛≤𝟘ʳ : {p q r : M} → p ⊛ q ▷ r ≈ 𝟘 → q ≤ 𝟘
 
   ⊛-ineq₁ : (p q r : M) → p ⊛ q ▷ r ≤ q + r · (p ⊛ q ▷ r)
   ⊛-ineq₁ = proj₁ ⊛-ineq

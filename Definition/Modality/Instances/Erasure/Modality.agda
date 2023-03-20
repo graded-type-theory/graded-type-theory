@@ -40,8 +40,6 @@ erasureModalityWithout⊛ = record
       {p = 𝟘}         _  → refl
       {p = ω} {q = 𝟘} ()
       {p = ω} {q = ω} ()
-  ; 𝟘≮ = λ where
-      refl → refl
   ; ∧≤𝟘ˡ = λ where
       {p = 𝟘} _  → refl
       {p = ω} ()
@@ -58,11 +56,4 @@ ErasureModality = record
   ; +-sub-interchangable-⊛ = +-sub-interchangable-⊛
   ; ·-sub-distribʳ-⊛ = ·-sub-distribʳ-⊛
   ; ⊛-sub-distrib-∧ = λ r → ⊛-sub-distribˡ-∧ r , ⊛-sub-distribʳ-∧ r
-  ; ⊛≤𝟘ˡ = λ where
-      {p = 𝟘} _  → refl
-      {p = ω} ()
-  ; ⊛≤𝟘ʳ = λ where
-      {p = _} {q = 𝟘} _  → refl
-      {p = 𝟘} {q = ω} ()
-      {p = ω} {q = ω} ()
   }

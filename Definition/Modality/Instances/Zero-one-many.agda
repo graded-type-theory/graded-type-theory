@@ -480,9 +480,6 @@ zero-one-many-without-⊛ restrictions = record
       {p = 𝟘} {q = 𝟘} _  → refl
       {p = 𝟘} {q = 𝟙} ()
       {p = 𝟘} {q = ω} ()
-  ; 𝟘≮ = λ where
-      {p = 𝟘} _   → refl
-      {p = 𝟙} 𝟘≤𝟙 → 𝟘-maximal 𝟘≤𝟙
   ; ∧≤𝟘ˡ = λ where
       {p = 𝟘} {q = 𝟘} _     → refl
       {p = 𝟘} {q = 𝟙} _     → refl
@@ -914,9 +911,6 @@ zero-one-many-greatest restrictions = record
   ; ·-sub-distribʳ-⊛       = ·-sub-distribʳ-⊛
   ; ⊛-sub-distrib-∧        = λ _ → ⊛-sub-distrib-∧ˡ _
                                  , ⊛-sub-distrib-∧ʳ _
-  ; ⊛≤𝟘ˡ                   = λ eq → ≤-reflexive (⊛≈𝟘 _ _ _ eq .proj₁)
-  ; ⊛≤𝟘ʳ                   = λ {p = p} eq →
-                               ≤-reflexive (⊛≈𝟘 p _ _ eq .proj₂)
   }
   where
   modalityWithout⊛ = zero-one-many-without-⊛ restrictions
@@ -969,22 +963,6 @@ zero-one-many-greatest restrictions = record
     𝟙 𝟘 𝟘 → begin
       𝟘∧𝟙  ≤⟨ ∧-decreasingʳ 𝟘 𝟙 ⟩
       𝟙    ∎
-
-  ⊛≈𝟘 : ∀ p q r → p ⊛ q ▷ r ≡ 𝟘 → p ≡ 𝟘 × q ≡ 𝟘
-  ⊛≈𝟘 = λ where
-    𝟘 𝟘 _ _     → refl , refl
-    𝟘 𝟙 𝟘 𝟘∧𝟙≡𝟘 → ⊥-elim (𝟘∧𝟙≢𝟘 𝟘∧𝟙≡𝟘)
-    𝟙 𝟘 𝟘 𝟘∧𝟙≡𝟘 → ⊥-elim (𝟘∧𝟙≢𝟘 𝟘∧𝟙≡𝟘)
-    ω _ _ ()
-    𝟘 ω _ ()
-    𝟙 ω _ ()
-    𝟘 𝟙 ω ()
-    𝟙 𝟘 ω ()
-    𝟙 𝟙 ω ()
-    𝟘 𝟙 𝟙 ()
-    𝟙 𝟙 𝟙 ()
-    𝟙 𝟘 𝟙 ()
-    𝟙 𝟙 𝟘 ()
 
   ·-sub-distribʳ-⊛ : ∀ r → _·_ SubDistributesOverʳ (_⊛_▷ r) by _≤_
   ·-sub-distribʳ-⊛ = λ where

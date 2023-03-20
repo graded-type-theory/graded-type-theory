@@ -172,25 +172,6 @@ nr-sub-distribʳ-∧ (1+ n) r q p p′ = begin
   where
   open Tools.Reasoning.PartialOrder ≤-poset
 
-⊛≤𝟘ˡ : p ⊛ q ▷ r ≈ 𝟘 → p ≤ 𝟘
-⊛≤𝟘ˡ {p = p} {q = q} {r = r} p⊛q▷r≈𝟘 = ∧≤𝟘ˡ (begin
-  p ∧ (q + r · nr (proj₁ nr-fix) p q r)  ≈˘⟨ nr-rec _ _ _ _ ⟩
-  nr (1+ (proj₁ nr-fix)) p q r           ≈⟨ proj₂ nr-fix _ _ _ ⟩
-  nr (proj₁ nr-fix) p q r                ≈⟨ p⊛q▷r≈𝟘 ⟩
-  𝟘                                      ∎)
-  where
-  open Tools.Reasoning.Equivalence (setoid M)
-
-⊛≤𝟘ʳ : p ⊛ q ▷ r ≈ 𝟘 → q ≤ 𝟘
-⊛≤𝟘ʳ {p = p} {q = q} {r = r} p⊛q▷r≈𝟘 =
-  ≤-reflexive (positiveˡ (∧≈𝟘ʳ (begin
-    p ∧ (q + r · nr (proj₁ nr-fix) p q r)  ≈˘⟨ nr-rec _ _ _ _ ⟩
-    nr (1+ (proj₁ nr-fix)) p q r           ≈⟨ proj₂ nr-fix _ _ _ ⟩
-    nr (proj₁ nr-fix) p q r                ≈⟨ p⊛q▷r≈𝟘 ⟩
-    𝟘                                      ∎)))
-  where
-  open Tools.Reasoning.Equivalence (setoid M)
-
 isModality : Modality M
 isModality = record
   { modalityWithout⊛ = 𝕄
@@ -199,8 +180,6 @@ isModality = record
   ; +-sub-interchangable-⊛ = +-sub-interchangable-nr (proj₁ nr-fix)
   ; ·-sub-distribʳ-⊛ = ·-sub-distribʳ-nr (proj₁ nr-fix)
   ; ⊛-sub-distrib-∧ = λ r → nr-sub-distribˡ-∧ (proj₁ nr-fix) r , nr-sub-distribʳ-∧ (proj₁ nr-fix) r
-  ; ⊛≤𝟘ˡ = ⊛≤𝟘ˡ
-  ; ⊛≤𝟘ʳ = ⊛≤𝟘ʳ
   }
 
 module 𝟘-bound (𝟘-max : (p : M) → p ≤ 𝟘) where

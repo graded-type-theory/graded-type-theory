@@ -141,34 +141,6 @@ p ⊛ q ▷ r = (r *) · (p ∧ q)
   where
   open Tools.Reasoning.PartialOrder ≤-poset
 
-⊛≤𝟘ˡ : p ⊛ q ▷ r ≈ 𝟘 → p ≤ 𝟘
-⊛≤𝟘ˡ {p = p} {q = q} {r = r} p⊛q▷r≈𝟘 =
-  case zero-product r*p≈𝟘 of λ where
-    (inj₂ p≈𝟘)  → ≤-reflexive p≈𝟘
-    (inj₁ r*≈𝟘) → ≈-trivial (positiveˡ (begin
-      𝟙 + r · (r *)  ≈˘⟨ *-rec _ ⟩
-      (r *)          ≈⟨ r*≈𝟘 ⟩
-      𝟘              ∎))
-  where
-  open Tools.Reasoning.Equivalence (setoid M)
-
-  r*p≈𝟘 : (r *) · p ≈ 𝟘
-  r*p≈𝟘 = ∧≈𝟘ˡ (begin
-    (r *) · p ∧ (r *) · q  ≈˘⟨ ·-distribˡ-∧ _ _ _ ⟩
-    (r *) · (p ∧ q)        ≡⟨⟩
-    p ⊛ q ▷ r              ≈⟨ p⊛q▷r≈𝟘 ⟩
-    𝟘                      ∎)
-
-⊛≤𝟘ʳ : p ⊛ q ▷ r ≈ 𝟘 → q ≤ 𝟘
-⊛≤𝟘ʳ {p = p} {q = q} {r = r} p⊛q▷r≈𝟘 = ⊛≤𝟘ˡ (begin
-  q ⊛ p ▷ r        ≡⟨⟩
-  (r *) · (q ∧ p)  ≈⟨ ·-congˡ (∧-comm _ _) ⟩
-  (r *) · (p ∧ q)  ≡⟨⟩
-  p ⊛ q ▷ r        ≈⟨ p⊛q▷r≈𝟘 ⟩
-  𝟘                ∎)
-  where
-  open Tools.Reasoning.Equivalence (setoid M)
-
 isModality : Modality M
 isModality = record
   { modalityWithout⊛ = 𝕄
@@ -177,6 +149,4 @@ isModality = record
   ; +-sub-interchangable-⊛ = +-sub-interchangable-⊛
   ; ·-sub-distribʳ-⊛ = ·-sub-distribʳ-⊛
   ; ⊛-sub-distrib-∧ = λ r → ⊛-sub-distribˡ-∧ r , ⊛-sub-distribʳ-∧ r
-  ; ⊛≤𝟘ˡ = ⊛≤𝟘ˡ
-  ; ⊛≤𝟘ʳ = ⊛≤𝟘ʳ
   }
