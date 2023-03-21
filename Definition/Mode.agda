@@ -578,10 +578,12 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
   where
   open Tools.Reasoning.PropositionalEquality
 
--- If 𝟙 ≉ 𝟘, then the value of ⌞ 𝟙 ⌟ is 𝟙ᵐ.
+-- ⌞ 𝟙 ⌟ is equal to 𝟙ᵐ.
 
-⌞𝟙⌟ : 𝟙 ≉ 𝟘 → ⌞ 𝟙 ⌟ ≡ 𝟙ᵐ
-⌞𝟙⌟ = ≉𝟘→⌞⌟≡𝟙ᵐ
+⌞𝟙⌟ : ⌞ 𝟙 ⌟ ≡ 𝟙ᵐ
+⌞𝟙⌟ = 𝟘ᵐ-allowed-elim
+  (λ ok → ≉𝟘→⌞⌟≡𝟙ᵐ (𝟘ᵐ→𝟙≉𝟘 ok))
+  only-𝟙ᵐ-without-𝟘ᵐ
 
 -- The function taking p to ⌜ ⌞ p ⌟ ⌝ preserves equivalence.
 
@@ -627,32 +629,11 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
   where
   open Tools.Reasoning.Equivalence (setoid M)
 
--- The function ⌞_⌟ is a left inverse of ⌜_⌝ if 𝟙 ≉ 𝟘.
+-- The function ⌞_⌟ is a left inverse of ⌜_⌝.
 
-⌞⌜⌝⌟ : 𝟙 ≉ 𝟘 → ∀ m → ⌞ ⌜ m ⌝ ⌟ ≡ m
-⌞⌜⌝⌟ _   𝟘ᵐ = ⌞𝟘⌟
-⌞⌜⌝⌟ 𝟙≉𝟘 𝟙ᵐ = ⌞𝟙⌟ 𝟙≉𝟘
-
--- The function ⌜_⌝ is a left inverse of ⌞_⌟ (up to _≈_) for arguments
--- in the image of ⌜_⌝.
-
-⌜⌞⌜⌝⌟⌝ : ∀ m → ⌜ ⌞ ⌜ m ⌝ ⌟ ⌝ ≈ ⌜ m ⌝
-⌜⌞⌜⌝⌟⌝ 𝟘ᵐ[ ok ] = begin
-  ⌜ ⌞ 𝟘 ⌟ ⌝  ≡⟨ cong ⌜_⌝ (⌞𝟘⌟ {ok = ok}) ⟩
-  ⌜ 𝟘ᵐ ⌝     ≡⟨⟩
-  𝟘          ∎
-  where
-  open Tools.Reasoning.Equivalence (setoid M)
-⌜⌞⌜⌝⌟⌝ 𝟙ᵐ with is-𝟘? 𝟙
-… | no _ =
-  ⌜ 𝟙ᵐ′ ⌝  ≡⟨ cong ⌜_⌝ 𝟙ᵐ′≡𝟙ᵐ ⟩
-  𝟙        ∎
-  where
-  open Tools.Reasoning.PropositionalEquality
-… | yes 𝟙≈𝟘 = 𝟘ᵐ?-elim
-  (λ m → ⌜ m ⌝ ≈ 𝟙)
-  (≈-sym 𝟙≈𝟘)
-  (λ _ → ≈-refl)
+⌞⌜⌝⌟ : ∀ m → ⌞ ⌜ m ⌝ ⌟ ≡ m
+⌞⌜⌝⌟ 𝟘ᵐ = ⌞𝟘⌟
+⌞⌜⌝⌟ 𝟙ᵐ = ⌞𝟙⌟
 
 -- A lemma relating _·ᵐ_, ⌞_⌟ and _ᵐ·_.
 

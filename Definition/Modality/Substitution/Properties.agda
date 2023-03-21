@@ -966,27 +966,16 @@ substₘ-lemma Ψ Ψ▶σ (ΠΣₘ {γ = γ} γ▸F δ▸G ok) = sub
      ok)
   (≤ᶜ-reflexive (*>-distrib-+ᶜ Ψ _ _))
 
-substₘ-lemma {σ = σ} {mo = mo} Ψ Ψ▶σ (var {x = x}) =
-  lemma₂ mo (is-𝟘? 𝟙) lemma₁
-  where
-  lemma₁ : Ψ *> (𝟘ᶜ , x ≔ ⌜ mo ⌝) ▸[ ⌞ ⌜ mo ⌝ ⌟ ] σ x
-  lemma₁ = sub
-    (▸-cong (let open Tools.Reasoning.PropositionalEquality in
-               ⌞ (𝟘ᶜ , x ≔ ⌜ mo ⌝) ⟨ x ⟩ ⌟  ≡⟨ cong ⌞_⌟ (update-lookup 𝟘ᶜ x) ⟩
-               ⌞ ⌜ mo ⌝ ⌟                   ∎)
-       (Ψ▶σ x))
-    (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-       Ψ *> (𝟘ᶜ , x ≔ ⌜ mo ⌝)                           ≈˘⟨ *>-cong Ψ (update-congʳ (⌜⌞⌜⌝⌟⌝ mo)) ⟩
-       Ψ *> (𝟘ᶜ , x ≔ ⌜ ⌞ ⌜ mo ⌝ ⌟ ⌝)                   ≡˘⟨ cong (λ p → Ψ *> (_ , _ ≔ ⌜ ⌞ p ⌟ ⌝)) (update-lookup 𝟘ᶜ x) ⟩
-       Ψ *> (𝟘ᶜ , x ≔ ⌜ ⌞ (𝟘ᶜ , x ≔ ⌜ mo ⌝) ⟨ x ⟩ ⌟ ⌝)  ∎)
-
-  lemma₂ :
-    ∀ mo → Dec (𝟙 ≈ 𝟘) →
-    Ψ *> (𝟘ᶜ , x ≔ ⌜ mo ⌝) ▸[ ⌞ ⌜ mo ⌝ ⌟ ] σ x →
-    Ψ *> (𝟘ᶜ , x ≔ ⌜ mo ⌝) ▸[ mo ] σ x
-  lemma₂ 𝟘ᵐ _         = ▸-cong ⌞𝟘⌟
-  lemma₂ 𝟙ᵐ (no 𝟙≉𝟘)  = ▸-cong (⌞⌜⌝⌟ 𝟙≉𝟘 _)
-  lemma₂ 𝟙ᵐ (yes 𝟙≈𝟘) = ▸-𝟙≈𝟘 𝟙≈𝟘
+substₘ-lemma {σ = σ} {mo = mo} Ψ Ψ▶σ (var {x = x}) = sub
+  (▸-cong (let open Tools.Reasoning.PropositionalEquality in
+             ⌞ (𝟘ᶜ , x ≔ ⌜ mo ⌝) ⟨ x ⟩ ⌟  ≡⟨ cong ⌞_⌟ (update-lookup 𝟘ᶜ x) ⟩
+             ⌞ ⌜ mo ⌝ ⌟                   ≡⟨ ⌞⌜⌝⌟ _ ⟩
+             mo                           ∎)
+     (Ψ▶σ x))
+  (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+     Ψ *> (𝟘ᶜ , x ≔ ⌜ mo ⌝)                           ≈˘⟨ *>-cong Ψ (update-congʳ (cong ⌜_⌝ (⌞⌜⌝⌟ mo))) ⟩
+     Ψ *> (𝟘ᶜ , x ≔ ⌜ ⌞ ⌜ mo ⌝ ⌟ ⌝)                   ≡˘⟨ cong (λ p → Ψ *> (_ , _ ≔ ⌜ ⌞ p ⌟ ⌝)) (update-lookup 𝟘ᶜ x) ⟩
+     Ψ *> (𝟘ᶜ , x ≔ ⌜ ⌞ (𝟘ᶜ , x ≔ ⌜ mo ⌝) ⟨ x ⟩ ⌟ ⌝)  ∎)
 
 substₘ-lemma {mo = mo} Ψ Ψ▶σ (lamₘ {p = p} γ▸t) = lamₘ
   (sub (substₘ-lemma (liftSubstₘ Ψ)
