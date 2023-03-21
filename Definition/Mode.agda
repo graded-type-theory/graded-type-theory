@@ -267,14 +267,6 @@ Mode-propositional-without-𝟘ᵐ {m₁ = m₁} {m₂ = m₂} not-ok =
   𝟘ᵐ-cong
   (λ not-ok → ⊥-elim (not-ok ok))
 
--- If 𝟘ᵐ is not allowed, then 𝟘ᵐ? is equal to 𝟙ᵐ.
-
-𝟘ᵐ?≡𝟙ᵐ : ¬ T 𝟘ᵐ-allowed → 𝟘ᵐ? ≡ 𝟙ᵐ
-𝟘ᵐ?≡𝟙ᵐ not-ok = 𝟘ᵐ?-elim
-  (_≡ 𝟙ᵐ)
-  (λ ⦃ ok = ok ⦄ → ⊥-elim (not-ok ok))
-  (λ _ → PE.refl)
-
 ------------------------------------------------------------------------
 -- Properties related to _∨ᵐ_ and _·ᵐ_
 
@@ -814,7 +806,7 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
 ᵐ·-identityʳ {m = 𝟘ᵐ}         _   = PE.refl
 ᵐ·-identityʳ {m = 𝟙ᵐ} {p = p} 𝟙≈𝟘 =
   ⌞ p ⌟  ≡⟨ ⌞⌟≡𝟘ᵐ 𝟙≈𝟘 ⟩
-  𝟘ᵐ?    ≡⟨ 𝟘ᵐ?≡𝟙ᵐ (λ ok → 𝟘ᵐ→𝟙≉𝟘 ok 𝟙≈𝟘) ⟩
+  𝟘ᵐ?    ≡⟨ only-𝟙ᵐ-without-𝟘ᵐ (λ ok → 𝟘ᵐ→𝟙≉𝟘 ok 𝟙≈𝟘) ⟩
   𝟙ᵐ     ∎
   where
   open Tools.Reasoning.PropositionalEquality
