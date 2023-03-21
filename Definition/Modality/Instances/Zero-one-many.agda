@@ -65,15 +65,16 @@ Meet-requirements _∧_ =
   (𝟙 ∧ 𝟘 ≢ 𝟘)
 
 -- The meet operation of a "ModalityWithout⊛" for Zero-one-many-setoid
--- for which the zero is 𝟘 and the one is 𝟙 has to satisfy the
--- Meet-requirements.
+-- for which the zero is 𝟘, the one is 𝟙 and 𝟘ᵐ is allowed has to
+-- satisfy the Meet-requirements.
 
 Meet-requirements-required :
   (M : ModalityWithout⊛) →
-  ModalityWithout⊛.𝟘 M ≡ 𝟘 →
-  ModalityWithout⊛.𝟙 M ≡ 𝟙 →
+  ModalityWithout⊛.𝟘          M ≡ 𝟘 →
+  ModalityWithout⊛.𝟙          M ≡ 𝟙 →
+  ModalityWithout⊛.𝟘ᵐ-allowed M ≡ true →
   Meet-requirements (ModalityWithout⊛._∧_ M)
-Meet-requirements-required M refl refl =
+Meet-requirements-required M refl refl refl =
     (𝟘 ∧ 𝟘  ≡⟨ ∧-idem _ ⟩
      𝟘      ∎)
   , (𝟙 ∧ 𝟙  ≡⟨ ∧-idem _ ⟩
@@ -85,9 +86,9 @@ Meet-requirements-required M refl refl =
      𝟘 ∧ ω  ≡⟨ 𝟘∧ω≡ω ⟩
      ω      ∎)
   , (𝟙 ∧ ω  ≡⟨ ∧-comm _ _ ⟩
-     ω ∧ 𝟙  ≡˘⟨ ≉𝟘→≤𝟙 {p = ω} (λ ()) ⟩
+     ω ∧ 𝟙  ≡˘⟨ ≉𝟘→≤𝟙 _ {p = ω} (λ ()) ⟩
      ω      ∎)
-  , (ω ∧ 𝟙  ≡˘⟨ ≉𝟘→≤𝟙 {p = ω} (λ ()) ⟩
+  , (ω ∧ 𝟙  ≡˘⟨ ≉𝟘→≤𝟙 _ {p = ω} (λ ()) ⟩
      ω      ∎)
   , 𝟘∧𝟙≢𝟘
   , (λ 𝟙∧𝟘≡𝟘 → 𝟘∧𝟙≢𝟘 (
@@ -105,7 +106,7 @@ Meet-requirements-required M refl refl =
     lemma : ∀ p → p ≡ 𝟘 ∧ ω → p ≡ ω
     lemma ω _  = refl
     lemma 𝟘 eq =
-      𝟘  ≡˘⟨ 𝟘≮ eq ⟩
+      𝟘  ≡˘⟨ 𝟘≮ _ eq ⟩
       ω  ∎
       where
       open Tools.Reasoning.PropositionalEquality
@@ -114,7 +115,7 @@ Meet-requirements-required M refl refl =
          𝟙      ≡⟨ eq ⟩
          𝟘 ∧ ω  ≤⟨ ∧-decreasingʳ _ _ ⟩
          ω      ∎)
-      (≉𝟘→≤𝟙 λ ())
+      (≉𝟘→≤𝟙 _ λ ())
       where
       open Tools.Reasoning.PartialOrder ≤-poset
 
@@ -122,7 +123,7 @@ Meet-requirements-required M refl refl =
 
   𝟘∧𝟙≢𝟘 : 𝟘 ∧ 𝟙 ≢ 𝟘
   𝟘∧𝟙≢𝟘 𝟘∧𝟙≡𝟘 with
-    𝟙  ≡⟨ 𝟘≮ (sym 𝟘∧𝟙≡𝟘) ⟩
+    𝟙  ≡⟨ 𝟘≮ _ (sym 𝟘∧𝟙≡𝟘) ⟩
     𝟘  ∎
   … | ()
 
@@ -209,16 +210,17 @@ Order-requirements : (Zero-one-many → Zero-one-many → Set) → Set
 Order-requirements _≤_ = (ω ≤ 𝟙) × (ω ≤ 𝟘) × ¬ (𝟘 ≤ 𝟙)
 
 -- The ordering relation of a "ModalityWithout⊛" for
--- Zero-one-many-setoid for which the zero is 𝟘 and the one is 𝟙 has
--- to satisfy the Order-requirements.
+-- Zero-one-many-setoid for which the zero is 𝟘, the one is 𝟙 and 𝟘ᵐ
+-- is allowed has to satisfy the Order-requirements.
 
 Order-requirements-required :
   (M : ModalityWithout⊛) →
-  ModalityWithout⊛.𝟘 M ≡ 𝟘 →
-  ModalityWithout⊛.𝟙 M ≡ 𝟙 →
+  ModalityWithout⊛.𝟘          M ≡ 𝟘 →
+  ModalityWithout⊛.𝟙          M ≡ 𝟙 →
+  ModalityWithout⊛.𝟘ᵐ-allowed M ≡ true →
   Order-requirements (ModalityWithout⊛._≤_ M)
-Order-requirements-required M refl refl =
-  case Meet-requirements-required M refl refl of λ where
+Order-requirements-required M refl refl refl =
+  case Meet-requirements-required M refl refl refl of λ where
     (_ , _ , _ , _ , ω⊓𝟘≡ω , _ , ω⊓𝟙≡ω , 𝟘⊓𝟙≢𝟘 , _) →
         (ω      ≡˘⟨ ω⊓𝟙≡ω ⟩
          ω ⊓ 𝟙  ∎)
@@ -469,18 +471,18 @@ zero-one-many-without-⊛ restrictions = record
       , comm+distrˡ⇒distrʳ +-comm +-distrib-∧ˡ
   ; restrictions = restrictions
   ; 𝟘ᵐ→𝟙≉𝟘       = λ _ ()
-  ; is-𝟘?        = λ where
+  ; is-𝟘?        = λ _ → λ where
       𝟘 → yes refl
       𝟙 → no (λ ())
       ω → no (λ ())
-  ; zero-product = λ where
+  ; zero-product = λ _ → λ where
       {p = 𝟘} _ → inj₁ refl
       {q = 𝟘} _ → inj₂ refl
-  ; positiveˡ = λ where
+  ; positiveˡ = λ _ → λ where
       {p = 𝟘} {q = 𝟘} _  → refl
       {p = 𝟘} {q = 𝟙} ()
       {p = 𝟘} {q = ω} ()
-  ; ∧≤𝟘ˡ = λ where
+  ; ∧≤𝟘ˡ = λ _ → λ where
       {p = 𝟘} {q = 𝟘} _     → refl
       {p = 𝟘} {q = 𝟙} _     → refl
       {p = 𝟙} {q = 𝟘} 𝟘∧𝟙≡𝟘 → ⊥-elim (
@@ -488,7 +490,7 @@ zero-one-many-without-⊛ restrictions = record
           𝟙  ≡⟨ 𝟘-maximal (sym 𝟘∧𝟙≡𝟘) ⟩
           𝟘  ∎
         of λ ())
-  ; ≉𝟘→≤𝟙 = λ where
+  ; ≉𝟘→≤𝟙 = λ _ → λ where
       {p = 𝟘} 𝟘≢𝟘 → ⊥-elim (𝟘≢𝟘 refl)
       {p = 𝟙} _   → refl
       {p = ω} _   → refl
@@ -606,18 +608,19 @@ Star-requirements _⊛_▷_ _∧_ =
                                 ((𝟙 ⊛ 𝟙 ▷ 𝟘) ≤ 𝟙)
 
 -- A star operation for a ModalityWithout⊛ for Zero-one-many-setoid
--- for which the zero is 𝟘, the one is 𝟙, addition is _+_,
--- multiplication is _·_, and the meet operation is _∧_ has to satisfy
--- the Star-requirements (for _∧_) if certain conditions are
+-- for which the zero is 𝟘, the one is 𝟙, 𝟘ᵐ is allowed, addition is
+-- _+_, multiplication is _·_, and the meet operation is _∧_ has to
+-- satisfy the Star-requirements (for _∧_) if certain conditions are
 -- satisfied.
 
 Star-requirements-required′ :
   (M : ModalityWithout⊛) →
-  ModalityWithout⊛.𝟘   M ≡ 𝟘 →
-  ModalityWithout⊛.𝟙   M ≡ 𝟙 →
-  ModalityWithout⊛._+_ M ≡ _+_ →
-  ModalityWithout⊛._·_ M ≡ _·_ →
-  ModalityWithout⊛._∧_ M ≡ _∧_ →
+  ModalityWithout⊛.𝟘          M ≡ 𝟘 →
+  ModalityWithout⊛.𝟙          M ≡ 𝟙 →
+  ModalityWithout⊛.𝟘ᵐ-allowed M ≡ true →
+  ModalityWithout⊛._+_        M ≡ _+_ →
+  ModalityWithout⊛._·_        M ≡ _·_ →
+  ModalityWithout⊛._∧_        M ≡ _∧_ →
   (_⊛_▷_ :
    Zero-one-many → Zero-one-many → Zero-one-many → Zero-one-many) →
   (∀ p q r → (p ⊛ q ▷ r) ≤ q + r · (p ⊛ q ▷ r)) →
@@ -626,8 +629,8 @@ Star-requirements-required′ :
   (∀ p q r → p ⊛ q ▷ r ≡ 𝟘 → p ≡ 𝟘 × q ≡ 𝟘) →
   Star-requirements _⊛_▷_ _∧_
 Star-requirements-required′
-  M refl refl refl refl refl star ⊛-ineq₁ ⊛-ineq₂ ⊛-idem-𝟘 ⊛≈𝟘 =
-  case Meet-requirements-required M refl refl of λ where
+  M refl refl refl refl refl refl star ⊛-ineq₁ ⊛-ineq₂ ⊛-idem-𝟘 ⊛≈𝟘 =
+  case Meet-requirements-required M refl refl refl of λ where
     (_ , _ , ω⊓ω≡ω , _ , ω⊓𝟘≡ω , _ , ω⊓𝟙≡ω , _ , _) →
         (λ {_ _} → ω⊛▷)
       , (λ {_ _} → ⊛ω▷)
@@ -704,26 +707,27 @@ Star-requirements-required′
     (ω≤ (𝟙 ⊛ 𝟘 ▷ ω))
 
 -- The star operation of a modality for Zero-one-many-setoid for which
--- the zero is 𝟘, the one is 𝟙, addition is _+_, multiplication is
--- _·_, and the meet operation is _∧_ has to satisfy the
--- Star-requirements (for _∧_).
+-- the zero is 𝟘, the one is 𝟙, 𝟘ᵐ is allowed, addition is _+_,
+-- multiplication is _·_, and the meet operation is _∧_ has to satisfy
+-- the Star-requirements (for _∧_).
 
 Star-requirements-required :
   (M : Modality) →
-  Modality.𝟘   M ≡ 𝟘 →
-  Modality.𝟙   M ≡ 𝟙 →
-  Modality._+_ M ≡ _+_ →
-  Modality._·_ M ≡ _·_ →
-  Modality._∧_ M ≡ _∧_ →
+  Modality.𝟘          M ≡ 𝟘 →
+  Modality.𝟙          M ≡ 𝟙 →
+  Modality.𝟘ᵐ-allowed M ≡ true →
+  Modality._+_        M ≡ _+_ →
+  Modality._·_        M ≡ _·_ →
+  Modality._∧_        M ≡ _∧_ →
   Star-requirements (Modality._⊛_▷_ M) _∧_
-Star-requirements-required M refl refl refl refl refl =
+Star-requirements-required M refl refl refl refl refl refl =
   Star-requirements-required′
-    modalityWithout⊛ refl refl refl refl refl
+    modalityWithout⊛ refl refl refl refl refl refl
     _⊛_▷_
     ⊛-ineq₁
     ⊛-ineq₂
     ⊛-idem-𝟘
-    (λ _ _ _ eq → ⊛≈𝟘ˡ eq , ⊛≈𝟘ʳ eq)
+    (λ _ _ _ eq → ⊛≈𝟘ˡ _ eq , ⊛≈𝟘ʳ _ eq)
   where
   open Modality M
   open Star M
@@ -843,19 +847,20 @@ lower-bounded≢greatest rs hyp =
 
 -- The star operation returns results that are at least as large as
 -- those of the star operation of any modality for
--- Zero-one-many-setoid for which the zero is 𝟘, the one is 𝟙,
--- addition is _+_, multiplication is _·_, and the meet operation is
--- _∧_.
+-- Zero-one-many-setoid for which the zero is 𝟘, the one is 𝟙, 𝟘ᵐ is
+-- allowed, addition is _+_, multiplication is _·_, and the meet
+-- operation is _∧_.
 
 ⊛-greatest :
   (M : Modality) →
-  Modality.𝟘   M ≡ 𝟘 →
-  Modality.𝟙   M ≡ 𝟙 →
-  Modality._+_ M ≡ _+_ →
-  Modality._·_ M ≡ _·_ →
-  Modality._∧_ M ≡ _∧_ →
+  Modality.𝟘          M ≡ 𝟘 →
+  Modality.𝟙          M ≡ 𝟙 →
+  Modality.𝟘ᵐ-allowed M ≡ true →
+  Modality._+_        M ≡ _+_ →
+  Modality._·_        M ≡ _·_ →
+  Modality._∧_        M ≡ _∧_ →
   ∀ p q r → Modality._⊛_▷_ M p q r ≤ p ⊛ q ▷ r
-⊛-greatest M refl refl refl refl refl = λ where
+⊛-greatest M refl refl refl refl refl refl = λ where
     ω q r → begin
       ω ⊛ q ▷′ r  ≈⟨ reqs .proj₁ ⟩
       ω           ∎
@@ -896,7 +901,7 @@ lower-bounded≢greatest rs hyp =
   open Tools.Reasoning.PartialOrder ≤-poset
 
   reqs : Star-requirements _⊛_▷′_ _∧_
-  reqs = Star-requirements-required M refl refl refl refl refl
+  reqs = Star-requirements-required M refl refl refl refl refl refl
 
 -- The zero-one-many modality (with arbitrary "restrictions").
 --

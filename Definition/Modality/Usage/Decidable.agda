@@ -123,7 +123,7 @@ infix 10 ⌈⌉▸[_]?_
     (no p-not-ok) → inj₂ λ _ ▸fst →
       case inv-usage-fst ▸fst of λ (invUsageFst _ _ _ _ p-ok) →
       p-not-ok p-ok
-    (yes p-ok) → case m-ok p-ok m of λ where
+    (yes p-ok) → case m-ok m of λ where
       (no m-not-ok) → inj₂ λ _ ▸fst →
         case inv-usage-fst ▸fst of λ (invUsageFst m′ m′-ok _ _ _) →
         m-not-ok (m′ , sym m′-ok)
@@ -134,26 +134,21 @@ infix 10 ⌈⌉▸[_]?_
             case inv-usage-fst ▸fst of λ (invUsageFst _ _ ▸t _ _) →
             ¬▸t _ ▸t
   where
-  p-ok : Dec (p ≈ 𝟘 → (𝟙 ≈ 𝟘) ⊎ T 𝟘ᵐ-allowed)
-  p-ok = case is-𝟘? p of λ where
-    (no p≉𝟘)  → yes (λ p≈𝟘 → ⊥-elim (p≉𝟘 p≈𝟘))
-    (yes p≈𝟘) → case 𝟙 ≟ 𝟘 of λ where
-      (yes 𝟙≈𝟘) → yes (λ _ → inj₁ 𝟙≈𝟘)
-      (no 𝟙≉𝟘)  → 𝟘ᵐ-allowed-elim
-        (λ ok → yes (λ _ → inj₂ ok))
-        (λ not-ok → no λ ok → case ok p≈𝟘 of λ where
-          (inj₁ 𝟙≈𝟘) → 𝟙≉𝟘 𝟙≈𝟘
-          (inj₂ ok)  → not-ok ok)
+  p-ok : Dec ((p ≤ 𝟙) ⊎ T 𝟘ᵐ-allowed)
+  p-ok = case ≈-decidable→≤-decidable _≟_ p 𝟙 of λ where
+    (yes p≤𝟙) → yes (inj₁ p≤𝟙)
+    (no p≰𝟙)  → 𝟘ᵐ-allowed-elim
+      (λ ok → yes (inj₂ ok))
+      (λ not-ok → no λ where
+        (inj₁ p≤𝟙) → p≰𝟙 p≤𝟙
+        (inj₂ ok)  → not-ok ok)
 
-  m-ok :
-    (p ≈ 𝟘 → (𝟙 ≈ 𝟘) ⊎ T 𝟘ᵐ-allowed) →
-    ∀ m → Dec (∃ λ m′ → m′ ᵐ· p ≡ m)
-  m-ok _    𝟘ᵐ = yes (𝟘ᵐ , refl)
-  m-ok p-ok 𝟙ᵐ = case is-𝟘? p of λ where
+  m-ok : ∀ m → Dec (∃ λ m′ → m′ ᵐ· p ≡ m)
+  m-ok 𝟘ᵐ = yes (𝟘ᵐ , refl)
+  m-ok 𝟙ᵐ = case p ≟ 𝟘 of λ where
       (no p≉𝟘)  → yes (𝟙ᵐ , ≉𝟘→⌞⌟≡𝟙ᵐ p≉𝟘)
-      (yes p≈𝟘) → case p-ok p≈𝟘 of λ where
-        (inj₁ 𝟙≈𝟘) → yes (𝟙ᵐ , ᵐ·-identityʳ 𝟙≈𝟘)
-        (inj₂ ok)  → no λ where
+      (yes p≈𝟘) → 𝟘ᵐ-allowed-elim
+        (λ ok → no λ where
           (𝟘ᵐ , ())
           (𝟙ᵐ , ⌞p⌟≈𝟙) →
             case
@@ -162,7 +157,9 @@ infix 10 ⌈⌉▸[_]?_
               ⌞ 𝟘 ⌟     ≡˘⟨ cong ⌞_⌟ p≈𝟘 ⟩
               ⌞ p ⌟     ≡⟨ ⌞p⌟≈𝟙 ⟩
               𝟙ᵐ        ∎
-            of λ ()
+            of λ ())
+        (λ not-ok →
+           yes (𝟙ᵐ , Mode-propositional-without-𝟘ᵐ not-ok))
     where
     open Tools.Reasoning.PropositionalEquality
 

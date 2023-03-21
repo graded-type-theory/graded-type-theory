@@ -249,33 +249,28 @@ unique-var-usage (there x) (there y) = unique-var-usage x y
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-private
-
-  -- A lemma used below.
-
-  𝟙ᵐ′-cast : ⌜ 𝟙ᵐ′ ⌝ ·ᶜ γ ▸[ 𝟙ᵐ′ ] t → 𝟙 ·ᶜ γ ▸[ 𝟙ᵐ ] t
-  𝟙ᵐ′-cast ▸t rewrite 𝟙ᵐ′≡𝟙ᵐ = ▸t
-
 -- A form of monotonicity for _▸[_]_.
 
 ▸-≤ : p ≤ q → ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⌟ ] t → ⌜ ⌞ q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ q ⌟ ] t
-▸-≤ {p = p} {q = q} {γ = γ} {t = t} p≤q ▸t with is-𝟘? p | is-𝟘? q
-… | yes _  | yes _   = ▸t
-… | no _   | no _    = ▸t
-… | no p≉𝟘 | yes q≈𝟘 = 𝟘ᵐ?-elim
-  (λ m → ⌜ m ⌝ ·ᶜ γ ▸[ m ] t)
-  (sub (▸-𝟘 ▸t) (begin
-     𝟘 ·ᶜ γ  ≈⟨ ·ᶜ-zeroˡ _ ⟩
-     𝟘ᶜ      ∎))
-  (λ _ → 𝟙ᵐ′-cast ▸t)
+▸-≤ {p = p} {q = q} {γ = γ} {t = t} p≤q = lemma _ _ refl refl
   where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-… | yes p≈𝟘 | no q≉𝟘 = ⊥-elim (q≉𝟘 (𝟘≮ (begin
-    𝟘  ≈˘⟨ p≈𝟘 ⟩
-    p  ≤⟨ p≤q ⟩
-    q  ∎)))
-  where
-  open Tools.Reasoning.PartialOrder ≤-poset
+  lemma :
+    ∀ m₁ m₂ → ⌞ p ⌟ ≡ m₁ → ⌞ q ⌟ ≡ m₂ →
+    ⌜ m₁ ⌝ ·ᶜ γ ▸[ m₁ ] t → ⌜ m₂ ⌝ ·ᶜ γ ▸[ m₂ ] t
+  lemma 𝟘ᵐ 𝟘ᵐ _ _ ▸t = ▸-cong 𝟘ᵐ-cong ▸t
+  lemma 𝟙ᵐ 𝟙ᵐ _ _ ▸t = ▸t
+  lemma 𝟙ᵐ 𝟘ᵐ _ _ ▸t = sub (▸-𝟘 ▸t) (begin
+    𝟘 ·ᶜ γ  ≈⟨ ·ᶜ-zeroˡ _ ⟩
+    𝟘ᶜ      ∎)
+    where
+    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+  lemma 𝟘ᵐ[ ok ] 𝟙ᵐ ⌞p⌟≡𝟘ᵐ ⌞q⌟≡𝟙ᵐ ▸t =
+    ⊥-elim (⌞⌟≡𝟙ᵐ→≉𝟘 ok ⌞q⌟≡𝟙ᵐ (𝟘≮ ok (begin
+      𝟘  ≈˘⟨ ⌞⌟≡𝟘ᵐ→≈𝟘 ⌞p⌟≡𝟘ᵐ ⟩
+      p  ≤⟨ p≤q ⟩
+      q  ∎)))
+    where
+    open Tools.Reasoning.PartialOrder ≤-poset
 
 -- If t is well-used in the mode 𝟙ᵐ with usage vector γ, then t is
 -- well-used in the mode ⌞ p ⌟ with some usage vector δ for which
@@ -284,18 +279,18 @@ private
 ▸[𝟙ᵐ]→▸[⌞⌟] :
   γ ▸[ 𝟙ᵐ ] t →
   ∃ λ δ → δ ▸[ ⌞ p ⌟ ] t × p ·ᶜ γ ≈ᶜ p ·ᶜ δ
-▸[𝟙ᵐ]→▸[⌞⌟] {γ = γ} {p = p} ▸t = case is-𝟘? p of λ where
-  (no p≉𝟘)  → (_ , ▸-cong (PE.sym (≉𝟘→⌞⌟≡𝟙ᵐ p≉𝟘)) ▸t , ≈ᶜ-refl)
-  (yes p≈𝟘) → 𝟘ᵐ-allowed-elim
-    (λ ok →
-         _
-       , ▸-cong (PE.sym (≈𝟘→⌞⌟≡𝟘ᵐ p≈𝟘)) (▸-𝟘 {ok = ok} ▸t)
-       , (let open Tools.Reasoning.Equivalence Conₘ-setoid in begin
-            p ·ᶜ γ   ≈⟨ ·ᶜ-congʳ p≈𝟘 ⟩
-            𝟘 ·ᶜ γ   ≈⟨ ·ᶜ-zeroˡ _ ⟩
-            𝟘ᶜ       ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
-            p ·ᶜ 𝟘ᶜ  ∎))
-    (λ not-ok → _ , ▸-without-𝟘ᵐ not-ok ▸t , ≈ᶜ-refl)
+▸[𝟙ᵐ]→▸[⌞⌟] {γ = γ} {t = t} {p = p} ▸t = lemma _ refl
+  where
+  lemma : ∀ m → ⌞ p ⌟ ≡ m → ∃ λ δ → δ ▸[ m ] t × p ·ᶜ γ ≈ᶜ p ·ᶜ δ
+  lemma 𝟙ᵐ       _      = _ , ▸t , ≈ᶜ-refl
+  lemma 𝟘ᵐ[ ok ] ⌞p⌟≡𝟘ᵐ =
+      _
+    , ▸-𝟘 ▸t
+    , (let open Tools.Reasoning.Equivalence Conₘ-setoid in begin
+         p ·ᶜ γ   ≈⟨ ·ᶜ-congʳ (⌞⌟≡𝟘ᵐ→≈𝟘 ⌞p⌟≡𝟘ᵐ) ⟩
+         𝟘 ·ᶜ γ   ≈⟨ ·ᶜ-zeroˡ _ ⟩
+         𝟘ᶜ       ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
+         p ·ᶜ 𝟘ᶜ  ∎)
 
 ------------------------------------------------------------------------
 -- Inversion lemmas
@@ -305,36 +300,23 @@ private
 ▸-⌞·⌟ :
   ⌜ ⌞ p · q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p · q ⌟ ] t →
   (⌜ ⌞ p ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⌟ ] t) ⊎ (⌜ ⌞ q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ q ⌟ ] t)
-▸-⌞·⌟ {p = p} {q = q} {γ = γ} ▸t with is-𝟘? (p · q)
-… | yes p·q≈𝟘 = case zero-product p·q≈𝟘 of λ where
-    (inj₁ p≈𝟘) → inj₁ (subst (λ m → ⌜ m ⌝ ·ᶜ _ ▸[ m ] _) (lem _ p≈𝟘) ▸t)
-    (inj₂ q≈𝟘) → inj₂ (subst (λ m → ⌜ m ⌝ ·ᶜ _ ▸[ m ] _) (lem _ q≈𝟘) ▸t)
+▸-⌞·⌟ {p = p} {q = q} {γ = γ} ▸t =
+  lemma _ _ refl refl
+    (subst (λ m → ⌜ m ⌝ ·ᶜ _ ▸[ m ] _) (PE.sym ⌞⌟·ᵐ) ▸t)
   where
-  lem = λ p p≈𝟘 →
-    𝟘ᵐ?    ≡˘⟨ ⌞𝟘⌟≡𝟘ᵐ? ⟩
-    ⌞ 𝟘 ⌟  ≡˘⟨ ⌞⌟-cong p≈𝟘 ⟩
-    ⌞ p ⌟  ∎
-    where
-    open Tools.Reasoning.PropositionalEquality
-… | no _ = inj₁ (sub (▸-cong eq (▸-· {m′ = ⌞ p ⌟} (𝟙ᵐ′-cast ▸t))) leq)
-  where
-  eq =
-    ⌞ p ⌟ ·ᵐ 𝟙ᵐ  ≡⟨ ·ᵐ-identityʳ _ ⟩
-    ⌞ p ⌟        ∎
-    where
-    open Tools.Reasoning.PropositionalEquality
-
-  leq = begin
-    ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ       ≈˘⟨ ·ᶜ-congˡ (·ᶜ-identityˡ _) ⟩
-    ⌜ ⌞ p ⌟ ⌝ ·ᶜ 𝟙 ·ᶜ γ  ∎
-    where
-    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+  lemma :
+    ∀ m₁ m₂ → ⌞ p ⌟ ≡ m₁ → ⌞ q ⌟ ≡ m₂ →
+    ⌜ m₁ ·ᵐ m₂ ⌝ ·ᶜ γ ▸[ m₁ ·ᵐ m₂ ] t →
+    (⌜ m₁ ⌝ ·ᶜ γ ▸[ m₁ ] t) ⊎ (⌜ m₂ ⌝ ·ᶜ γ ▸[ m₂ ] t)
+  lemma 𝟘ᵐ _  _ _ ▸t = inj₁ ▸t
+  lemma 𝟙ᵐ 𝟘ᵐ _ _ ▸t = inj₂ ▸t
+  lemma 𝟙ᵐ 𝟙ᵐ _ _ ▸t = inj₁ ▸t
 
 -- If m₂ is 𝟘ᵐ[ ok ] whenever m₁ is 𝟘ᵐ[ ok ], then one can convert
 -- from ⌜ m₁ ⌝ ·ᶜ γ ▸[ m₁ ] t to ⌜ m₂ ⌝ ·ᶜ γ ▸[ m₂ ] t.
 
 ▸-conv :
-  (∀ ⦃ ok ⦄ → m₁ ≡ 𝟘ᵐ[ ok ] → m₂ ≡ 𝟘ᵐ[ ok ]) →
+  (∀ ok → m₁ ≡ 𝟘ᵐ[ ok ] → m₂ ≡ 𝟘ᵐ[ ok ]) →
   ⌜ m₁ ⌝ ·ᶜ γ ▸[ m₁ ] t →
   ⌜ m₂ ⌝ ·ᶜ γ ▸[ m₂ ] t
 ▸-conv {m₁ = 𝟘ᵐ} {m₂ = 𝟘ᵐ} _ ▸t =
@@ -342,7 +324,7 @@ private
 ▸-conv {m₁ = 𝟙ᵐ} {m₂ = 𝟙ᵐ} _ ▸t =
   ▸t
 ▸-conv {m₁ = 𝟘ᵐ} {m₂ = 𝟙ᵐ} 𝟘ᵐ≡𝟘ᵐ→𝟙ᵐ≡𝟘ᵐ ▸t =
-  case 𝟘ᵐ≡𝟘ᵐ→𝟙ᵐ≡𝟘ᵐ PE.refl of λ ()
+  case 𝟘ᵐ≡𝟘ᵐ→𝟙ᵐ≡𝟘ᵐ _ PE.refl of λ ()
 ▸-conv {m₁ = 𝟙ᵐ} {m₂ = 𝟘ᵐ} {γ = γ} hyp ▸t = sub
   (▸-· {m′ = 𝟘ᵐ} ▸t)
   (begin
@@ -356,17 +338,8 @@ private
 ▸-⌞+⌟ˡ :
   ⌜ ⌞ p + q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p + q ⌟ ] t →
   ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⌟ ] t
-▸-⌞+⌟ˡ = ▸-conv lemma
-  where
-  open Tools.Reasoning.PropositionalEquality
-
-  lemma : ∀ ⦃ ok ⦄ → ⌞ p + q ⌟ ≡ 𝟘ᵐ[ ok ] → ⌞ p ⌟ ≡ 𝟘ᵐ[ ok ]
-  lemma {p = p} {q = q} _      with is-𝟘? (p + q)
-  lemma                 𝟙ᵐ′≡𝟘ᵐ | no _      = ⊥-elim (𝟙ᵐ′≢𝟘ᵐ 𝟙ᵐ′≡𝟘ᵐ)
-  lemma {p = p}         _      | yes p+q≈𝟘 =
-    ⌞ p ⌟  ≡⟨ ⌞⌟-cong (positiveˡ p+q≈𝟘) ⟩
-    ⌞ 𝟘 ⌟  ≡⟨ ⌞𝟘⌟ ⟩
-    𝟘ᵐ     ∎
+▸-⌞+⌟ˡ = ▸-conv λ ok ⌞p+q⌟≡𝟘ᵐ →
+  ≈𝟘→⌞⌟≡𝟘ᵐ (positiveˡ ok (⌞⌟≡𝟘ᵐ→≈𝟘 ⌞p+q⌟≡𝟘ᵐ))
 
 -- A kind of inversion lemma for _▸[_]_ related to addition.
 
@@ -381,17 +354,8 @@ private
 ▸-⌞∧⌟ˡ :
   ⌜ ⌞ p ∧ q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ∧ q ⌟ ] t →
   ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⌟ ] t
-▸-⌞∧⌟ˡ = ▸-conv lemma
-  where
-  open Tools.Reasoning.PropositionalEquality
-
-  lemma : ∀ ⦃ ok ⦄ → ⌞ p ∧ q ⌟ ≡ 𝟘ᵐ[ ok ] → ⌞ p ⌟ ≡ 𝟘ᵐ[ ok ]
-  lemma {p = p} {q = q} _      with is-𝟘? (p ∧ q)
-  lemma                 𝟙ᵐ′≡𝟘ᵐ | no _      = ⊥-elim (𝟙ᵐ′≢𝟘ᵐ 𝟙ᵐ′≡𝟘ᵐ)
-  lemma {p = p}         _      | yes p∧q≈𝟘 =
-    ⌞ p ⌟  ≡⟨ ⌞⌟-cong (∧≈𝟘ˡ p∧q≈𝟘) ⟩
-    ⌞ 𝟘 ⌟  ≡⟨ ⌞𝟘⌟ ⟩
-    𝟘ᵐ     ∎
+▸-⌞∧⌟ˡ = ▸-conv λ ok ⌞p∧q⌟≡𝟘ᵐ →
+  ≈𝟘→⌞⌟≡𝟘ᵐ (∧≈𝟘ˡ ok (⌞⌟≡𝟘ᵐ→≈𝟘 ⌞p∧q⌟≡𝟘ᵐ))
 
 -- A kind of inversion lemma for _▸[_]_ related to the meet operation.
 
@@ -406,36 +370,16 @@ private
 ▸-⌞⊛⌟ˡ :
   ⌜ ⌞ p ⊛ q ▷ r ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⊛ q ▷ r ⌟ ] t →
   ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⌟ ] t
-▸-⌞⊛⌟ˡ = ▸-conv lemma
-  where
-  open Tools.Reasoning.PropositionalEquality
-
-  lemma : ∀ ⦃ ok ⦄ → ⌞ p ⊛ q ▷ r ⌟ ≡ 𝟘ᵐ[ ok ] → ⌞ p ⌟ ≡ 𝟘ᵐ[ ok ]
-  lemma {p = p} {q = q} {r = r} _      with is-𝟘? (p ⊛ q ▷ r)
-  lemma                         𝟙ᵐ′≡𝟘ᵐ | no _ =
-                                         ⊥-elim (𝟙ᵐ′≢𝟘ᵐ 𝟙ᵐ′≡𝟘ᵐ)
-  lemma {p = p}                 _      | yes p⊛q▷r≈𝟘 =
-    ⌞ p ⌟  ≡⟨ ⌞⌟-cong (⊛≈𝟘ˡ p⊛q▷r≈𝟘) ⟩
-    ⌞ 𝟘 ⌟  ≡⟨ ⌞𝟘⌟ ⟩
-    𝟘ᵐ     ∎
+▸-⌞⊛⌟ˡ = ▸-conv λ ok ⌞p⊛q▷r⌟≡𝟘ᵐ →
+  ≈𝟘→⌞⌟≡𝟘ᵐ (⊛≈𝟘ˡ ok (⌞⌟≡𝟘ᵐ→≈𝟘 ⌞p⊛q▷r⌟≡𝟘ᵐ))
 
 -- A kind of inversion lemma for _▸[_]_ related to the star operation.
 
 ▸-⌞⊛⌟ʳ :
   ⌜ ⌞ p ⊛ q ▷ r ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⊛ q ▷ r ⌟ ] t →
   ⌜ ⌞ q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ q ⌟ ] t
-▸-⌞⊛⌟ʳ = ▸-conv lemma
-  where
-  open Tools.Reasoning.PropositionalEquality
-
-  lemma : ∀ ⦃ ok ⦄ → ⌞ p ⊛ q ▷ r ⌟ ≡ 𝟘ᵐ[ ok ] → ⌞ q ⌟ ≡ 𝟘ᵐ[ ok ]
-  lemma {p = p} {q = q} {r = r} _      with is-𝟘? (p ⊛ q ▷ r)
-  lemma                         𝟙ᵐ′≡𝟘ᵐ | no _ =
-                                         ⊥-elim (𝟙ᵐ′≢𝟘ᵐ 𝟙ᵐ′≡𝟘ᵐ)
-  lemma         {q = q}         _      | yes p⊛q▷r≈𝟘 =
-    ⌞ q ⌟  ≡⟨ ⌞⌟-cong (⊛≈𝟘ʳ p⊛q▷r≈𝟘) ⟩
-    ⌞ 𝟘 ⌟  ≡⟨ ⌞𝟘⌟ ⟩
-    𝟘ᵐ     ∎
+▸-⌞⊛⌟ʳ = ▸-conv λ ok ⌞p⊛q▷r⌟≡𝟘ᵐ →
+  ≈𝟘→⌞⌟≡𝟘ᵐ (⊛≈𝟘ʳ ok (⌞⌟≡𝟘ᵐ→≈𝟘 ⌞p⊛q▷r⌟≡𝟘ᵐ))
 
 ------------------------------------------------------------------------
 -- The lemma Conₘ-interchange

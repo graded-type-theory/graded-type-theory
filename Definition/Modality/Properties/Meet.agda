@@ -8,6 +8,7 @@ open ModalityWithout⊛ 𝕄
 open import Definition.Modality.Properties.PartialOrder 𝕄
 
 open import Tools.Algebra M
+open import Tools.Bool using (T)
 open import Tools.Nat hiding (_+_)
 open import Tools.Product
 open import Tools.PropositionalEquality
@@ -86,11 +87,12 @@ private
   where
   open Tools.Reasoning.Equivalence (setoid M)
 
--- If p ∧ q is equivalent to 𝟘, then p is equivalent to 𝟘.
+-- If the mode 𝟘ᵐ is allowed and p ∧ q is equal to 𝟘, then p is equal
+-- to 𝟘.
 
-∧≈𝟘ˡ : p ∧ q ≈ 𝟘 → p ≈ 𝟘
-∧≈𝟘ˡ {p = p} {q = q} p∧q≈𝟘 = ≤-antisym
-  (∧≤𝟘ˡ p∧q≈𝟘)
+∧≈𝟘ˡ : T 𝟘ᵐ-allowed → p ∧ q ≈ 𝟘 → p ≈ 𝟘
+∧≈𝟘ˡ {p = p} {q = q} ok p∧q≈𝟘 = ≤-antisym
+  (∧≤𝟘ˡ ok p∧q≈𝟘)
   (begin
      𝟘      ≈˘⟨ p∧q≈𝟘 ⟩
      p ∧ q  ≤⟨ ∧-decreasingˡ _ _ ⟩
@@ -98,10 +100,11 @@ private
   where
   open Tools.Reasoning.PartialOrder ≤-poset
 
--- If p ∧ q is equivalent to 𝟘, then q is equivalent to 𝟘.
+-- If the mode 𝟘ᵐ is allowed and p ∧ q is equal to 𝟘, then q is equal
+-- to 𝟘.
 
-∧≈𝟘ʳ : p ∧ q ≈ 𝟘 → q ≈ 𝟘
-∧≈𝟘ʳ {p = p} {q = q} p∧q≈𝟘 = ∧≈𝟘ˡ
+∧≈𝟘ʳ : T 𝟘ᵐ-allowed → p ∧ q ≈ 𝟘 → q ≈ 𝟘
+∧≈𝟘ʳ {p = p} {q = q} ok p∧q≈𝟘 = ∧≈𝟘ˡ ok
   (begin
      q ∧ p  ≈⟨ ∧-comm _ _ ⟩
      p ∧ q  ≈⟨ p∧q≈𝟘 ⟩
@@ -109,14 +112,14 @@ private
   where
   open Tools.Reasoning.Equivalence (setoid M)
 
--- Every value that is "greater than or equal to" 𝟘 is equivalent
--- to 𝟘.
+-- If the mode 𝟘ᵐ is allowed then every value that is "greater than or
+-- equal to" 𝟘 is equivalent to 𝟘.
 --
 -- This property matches one of the assumptions in Conor McBride's "I
--- Got Plenty o’ Nuttin’".
+-- Got Plenty o’ Nuttin’" (except for the part about the mode).
 
-𝟘≮ : 𝟘 ≤ p → p ≈ 𝟘
-𝟘≮ {p = p} 𝟘≤p = ∧≈𝟘ˡ (begin
+𝟘≮ : T 𝟘ᵐ-allowed → 𝟘 ≤ p → p ≈ 𝟘
+𝟘≮ {p = p} ok 𝟘≤p = ∧≈𝟘ˡ ok (begin
   p ∧ 𝟘  ≈⟨ ∧-comm _ _ ⟩
   𝟘 ∧ p  ≈˘⟨ 𝟘≤p ⟩
   𝟘      ∎)

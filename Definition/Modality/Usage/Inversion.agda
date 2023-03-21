@@ -170,10 +170,10 @@ record InvUsageFst
     m≡m′ᵐ·p     : m ≡ m′ ᵐ· p
     δ▸t         : δ ▸[ m ] t
     γ≤δ         : γ ≤ᶜ δ
-    𝟘-condition : p ≈ 𝟘 → (𝟙 ≈ 𝟘) ⊎ T 𝟘ᵐ-allowed
+    𝟘-condition : (p ≤ 𝟙) ⊎ T 𝟘ᵐ-allowed
 
--- If γ ▸[ m ] fst t then m ≡ m′ ᵐ· p, δ ▸[ m ] t and γ ≤ᶜ δ, and if
--- p ≈ 𝟘, then either 𝟙 ≈ 𝟘 or 𝟘ᵐ-allowed is true.
+-- If γ ▸[ m ] fst t then m ≡ m′ ᵐ· p, δ ▸[ m ] t and γ ≤ᶜ δ, and
+-- furthermore one of p ≤ 𝟙 and T 𝟘ᵐ-allowed hold.
 
 inv-usage-fst : γ ▸[ m ] fst p t → InvUsageFst γ m p t
 inv-usage-fst (fstₘ m ▸t PE.refl ok) =

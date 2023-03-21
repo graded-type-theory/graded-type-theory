@@ -68,11 +68,11 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
            → δ ▸[ m ] u
            → p ·ᶜ γ ∧ᶜ δ ▸[ m ] prodₚ p t u
 
-  -- Note that p must not be 𝟘 unless 𝟙 ≈ 𝟘 or 𝟘ᵐ-allowed is true.
+  -- Note that either p ≤ 𝟙 or 𝟘̂ᵐ is allowed.
   fstₘ      : ∀ m
             → γ ▸[ m ᵐ· p ] t
             → m ᵐ· p PE.≡ m′
-            → (p ≈ 𝟘 → (𝟙 ≈ 𝟘) ⊎ T 𝟘ᵐ-allowed)
+            → (p ≤ 𝟙) ⊎ T 𝟘ᵐ-allowed
             → γ ▸[ m′ ] fst p t
 
   sndₘ      : γ ▸[ m ] t

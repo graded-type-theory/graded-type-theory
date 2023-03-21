@@ -159,11 +159,11 @@ UnitModalityWithout⊛ = record
     { 𝟘ᵐ-allowed = false
     }
   ; 𝟘ᵐ→𝟙≉𝟘 = λ ()
-  ; is-𝟘? = λ _ → yes refl
-  ; zero-product = λ _ → inj₁ refl
-  ; positiveˡ = λ _ → refl
-  ; ∧≤𝟘ˡ = λ _ → refl
-  ; ≉𝟘→≤𝟙 = λ _ → refl
+  ; is-𝟘? = λ _ _ → yes refl
+  ; zero-product = λ _ _ → inj₁ refl
+  ; positiveˡ = λ _ _ → refl
+  ; ∧≤𝟘ˡ = λ _ _ → refl
+  ; ≉𝟘→≤𝟙 = λ _ _ → refl
   }
 
 UnitModality : Modality

@@ -43,35 +43,43 @@ record ModalityWithout⊛ : Set (lsuc a) where
     -- "Extra" restrictions for certain term/type constructors.
     restrictions : Restrictions
 
+  open Restrictions restrictions public
+
+  field
+
     -- If the mode 𝟘ᵐ is allowed, then 𝟙 is not equivalent to 𝟘.
-    𝟘ᵐ→𝟙≉𝟘 : T (Restrictions.𝟘ᵐ-allowed restrictions) → 𝟙 ≉ 𝟘
+    𝟘ᵐ→𝟙≉𝟘 : T 𝟘ᵐ-allowed → 𝟙 ≉ 𝟘
 
-    -- It is decidable whether a value is equivalent to 𝟘.
-    is-𝟘? : (p : M) → Dec (p ≈ 𝟘)
+    -- If the mode 𝟘ᵐ is allowed, then it is decidable whether a value
+    -- is equivalent to 𝟘.
+    is-𝟘? : T 𝟘ᵐ-allowed → (p : M) → Dec (p ≈ 𝟘)
 
-    -- The following two assumptions match assumptions from Bob
+    -- The following two assumptions are based on assumptions from Bob
     -- Atkey's "Syntax and Semantics of Quantitative Type Theory".
 
-    -- The semiring has the zero-product property: if p · q is 𝟘, then
-    -- either p is 𝟘 or q is 𝟘.
-    zero-product : {p q : M} → p · q ≈ 𝟘 → (p ≈ 𝟘) ⊎ (q ≈ 𝟘)
+    -- If the mode 𝟘ᵐ is allowed, then the semiring has the
+    -- zero-product property: if p · q is 𝟘, then either p is 𝟘 or q
+    -- is 𝟘.
+    zero-product :
+      T 𝟘ᵐ-allowed → {p q : M} → p · q ≈ 𝟘 → (p ≈ 𝟘) ⊎ (q ≈ 𝟘)
 
-    -- The semiring is positive: if p + q is 𝟘, then p and q are 𝟘.
-    -- (The statement that p + q ≈ 𝟘 implies q ≈ 𝟘 follows from the
-    -- one below, see
+    -- If the mode 𝟘ᵐ is allowed, then the semiring is positive: if
+    -- p + q is 𝟘, then p and q are 𝟘. (The statement that p + q ≈ 𝟘
+    -- implies q ≈ 𝟘 follows from the one below, see
     -- Definition.Modality.Properties.Addition.positiveʳ.)
-    positiveˡ : {p q : M} → p + q ≈ 𝟘 → p ≈ 𝟘
+    positiveˡ : T 𝟘ᵐ-allowed → {p q : M} → p + q ≈ 𝟘 → p ≈ 𝟘
 
   -- Semilattice partial ordering relation
   _≤_ : Rel M a
   p ≤ q = p ≈ (p ∧ q)
 
   field
-    -- If p ∧ q is equivalent to 𝟘, then p ≤ 𝟘.
-    ∧≤𝟘ˡ : {p q : M} → p ∧ q ≈ 𝟘 → p ≤ 𝟘
+    -- If the mode 𝟘ᵐ is allowed and p ∧ q is equal to 𝟘, then p ≤ 𝟘.
+    ∧≤𝟘ˡ : T 𝟘ᵐ-allowed → {p q : M} → p ∧ q ≈ 𝟘 → p ≤ 𝟘
 
-    -- Non-zero quantities must be bounded by 1.
-    ≉𝟘→≤𝟙 : {p : M} → p ≉ 𝟘 → p ≤ 𝟙
+    -- If the mode 𝟘ᵐ is allowed, then non-zero quantities must be
+    -- bounded by 1.
+    ≉𝟘→≤𝟙 : T 𝟘ᵐ-allowed → {p : M} → p ≉ 𝟘 → p ≤ 𝟙
 
   ·-distribˡ-∧ : _·_ DistributesOverˡ _∧_
   ·-distribˡ-∧ = proj₁ ·-distrib-∧
@@ -121,8 +129,6 @@ record ModalityWithout⊛ : Set (lsuc a) where
               idem to ∧-idem;
               assoc to ∧-assoc
              )
-
-  open Restrictions restrictions public
 
 record Modality : Set (lsuc a) where
   infix  50 _⊛_▷_

@@ -182,14 +182,13 @@ fstʳ′ {m = 𝟘ᵐ} = _
 fstʳ′ {p = 𝟘} {m = 𝟙ᵐ} _ _ _ _ _ γ▸fst =
   case inv-usage-fst γ▸fst of λ where
     (invUsageFst 𝟘ᵐ () _ _ _)
-    (invUsageFst 𝟙ᵐ 𝟙ᵐ≡ᵐ𝟘ᵐ? _ _ ok) → case ok PE.refl of λ where
-      (inj₁ ())
-      (inj₂ ok) →
-        case
-          𝟙ᵐ        ≡⟨ 𝟙ᵐ≡ᵐ𝟘ᵐ? ⟩
-          𝟘ᵐ?       ≡⟨ 𝟘ᵐ?≡𝟘ᵐ ⟩
-          𝟘ᵐ[ ok ]  ∎
-        of λ ()
+    (invUsageFst 𝟙ᵐ _ _ _ (inj₁ ()))
+    (invUsageFst 𝟙ᵐ 𝟙ᵐ≡ᵐ𝟘ᵐ? _ _ (inj₂ ok)) →
+      case
+        𝟙ᵐ        ≡⟨ 𝟙ᵐ≡ᵐ𝟘ᵐ? ⟩
+        𝟘ᵐ?       ≡⟨ 𝟘ᵐ?≡𝟘ᵐ ⟩
+        𝟘ᵐ[ ok ]  ∎
+      of λ ()
   where
   open Tools.Reasoning.PropositionalEquality
 

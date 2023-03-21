@@ -9,6 +9,7 @@ open import Definition.Modality.Properties.PartialOrder modalityWithout⊛
 open import Definition.Modality.Properties.Meet modalityWithout⊛
 
 open import Tools.Algebra M
+open import Tools.Bool using (T)
 open import Tools.Nat hiding (_+_)
 open import Tools.Product
 open import Tools.PropositionalEquality
@@ -61,20 +62,22 @@ private
     (𝟘 · 𝟘) ⊛ (𝟘 · 𝟘) ▷ r ≈⟨ ⊛ᵣ-cong (·-zeroˡ 𝟘) (·-zeroˡ 𝟘) ⟩
     𝟘 ⊛ 𝟘 ▷ r ∎
 
--- If p ⊛ q ▷ r is equivalent to zero, then p is equivalent to zero.
+-- If the mode 𝟘ᵐ is allowed and p ⊛ q ▷ r is equal to zero, then p is
+-- equal to zero.
 
-⊛≈𝟘ˡ : p ⊛ q ▷ r ≈ 𝟘 → p ≈ 𝟘
-⊛≈𝟘ˡ {p = p} {q = q} {r = r} p⊛q▷r≈𝟘 = 𝟘≮ (begin
+⊛≈𝟘ˡ : T 𝟘ᵐ-allowed → p ⊛ q ▷ r ≈ 𝟘 → p ≈ 𝟘
+⊛≈𝟘ˡ {p = p} {q = q} {r = r} ok p⊛q▷r≈𝟘 = 𝟘≮ ok (begin
   𝟘          ≈˘⟨ p⊛q▷r≈𝟘 ⟩
   p ⊛ q ▷ r  ≤⟨ ⊛-ineq₂ _ _ _ ⟩
   p          ∎)
   where
   open import Tools.Reasoning.PartialOrder ≤-poset
 
--- If p ⊛ q ▷ r is equivalent to zero, then q is equivalent to zero.
+-- If the mode 𝟘ᵐ is allowed and p ⊛ q ▷ r is equal to zero, then q is
+-- equal to zero.
 
-⊛≈𝟘ʳ : p ⊛ q ▷ r ≈ 𝟘 → q ≈ 𝟘
-⊛≈𝟘ʳ {p = p} {q = q} {r = r} p⊛q▷r≈𝟘 = positiveˡ (𝟘≮ (begin
+⊛≈𝟘ʳ : T 𝟘ᵐ-allowed → p ⊛ q ▷ r ≈ 𝟘 → q ≈ 𝟘
+⊛≈𝟘ʳ {p = p} {q = q} {r = r} ok p⊛q▷r≈𝟘 = positiveˡ ok (𝟘≮ ok (begin
   𝟘                  ≈˘⟨ p⊛q▷r≈𝟘 ⟩
   p ⊛ q ▷ r          ≤⟨ ⊛-ineq₁ _ _ _ ⟩
   q + r · p ⊛ q ▷ r  ∎))

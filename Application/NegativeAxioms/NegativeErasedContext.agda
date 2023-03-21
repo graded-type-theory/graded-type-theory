@@ -15,7 +15,7 @@ open import Definition.Modality.Properties 𝕄
 open import Definition.Modality.Usage 𝕄
 open import Application.NegativeAxioms.NegativeOrErasedType 𝕄
 
-
+open import Tools.Bool
 open import Tools.Fin
 open import Tools.Level
 open import Tools.Nat
@@ -54,20 +54,22 @@ lookupNegative ⊢Γ∙A (nΓγ ∙𝟘) here p≤𝟙 =
 lookupNegative ⊢Γ∙A@(⊢Γ ∙ Γ⊢A) (nΓγ ∙𝟘) (there h) p≤𝟙 =
   wkNeg (step id) ⊢Γ∙A (lookupNegative ⊢Γ nΓγ h p≤𝟙)
 
--- NegativeErasedContext is upwards closed in its second argument.
+-- If 𝟘ᵐ is allowed, then NegativeErasedContext is upwards closed in
+-- its second argument.
 
 NegativeErasedContext-upwards-closed :
+  T 𝟘ᵐ-allowed →
   γ ≤ᶜ δ →
   NegativeErasedContext Γ γ →
   NegativeErasedContext Γ δ
 NegativeErasedContext-upwards-closed
-  {γ = ε} {δ = ε} ε ε =
+  {γ = ε} {δ = ε} _ ε ε =
   ε
 NegativeErasedContext-upwards-closed
-  {γ = _ ∙ _} {δ = _ ∙ _} (γ≤δ ∙ _) (neΓγ ∙ neg) =
-  NegativeErasedContext-upwards-closed γ≤δ neΓγ ∙ neg
+  {γ = _ ∙ _} {δ = _ ∙ _} ok (γ≤δ ∙ _) (neΓγ ∙ neg) =
+  NegativeErasedContext-upwards-closed ok γ≤δ neΓγ ∙ neg
 NegativeErasedContext-upwards-closed
-  {γ = _ ∙ _} {δ = _ ∙ _} (γ≤δ ∙ 𝟘≤p) (neΓγ ∙𝟘) =
+  {γ = _ ∙ _} {δ = _ ∙ _} ok (γ≤δ ∙ 𝟘≤p) (neΓγ ∙𝟘) =
   PE.subst (λ p → NegativeErasedContext _ (_ ∙ p))
-    (PE.sym (𝟘≮ 𝟘≤p))
-    (NegativeErasedContext-upwards-closed γ≤δ neΓγ ∙𝟘)
+    (PE.sym (𝟘≮ ok 𝟘≤p))
+    (NegativeErasedContext-upwards-closed ok γ≤δ neΓγ ∙𝟘)
