@@ -1,228 +1,355 @@
-{-# OPTIONS --without-K --safe #-}
-
 ------------------------------------------------------------------------
 -- The usage relation can be decided (given certain assumptions)
 ------------------------------------------------------------------------
 
 open import Definition.Modality
-open import Tools.Nullary
+open import Tools.PropositionalEquality
 open import Tools.Relation
 
 module Definition.Modality.Usage.Decidable
-  {a ℓ} {M′ : Setoid a ℓ} (𝕄 : Modality M′)
-  (open Setoid M′ renaming (Carrier to M)) (open Modality 𝕄)
+  {a} {M : Set a} (𝕄 : Modality M) (open Modality 𝕄)
   -- Equality is assumed to be decidable for M.
-  (_≟_ : Decidable (_≈_))
+  (_≟_ : Decidable (_≡_ {A = M}))
   -- The Prodrec relation is assumed to be decidable.
-  (Prodrec? : ∀ p → Dec (Prodrec p))
+  (Prodrec? : ∀ r p q → Dec (Prodrec r p q))
+  -- The Binder relation is assumed to be decidable.
+  (Binder? : ∀ b p q → Dec (Binder b p q))
   where
-
-open import Definition.Untyped M
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
+open import Definition.Modality.Properties 𝕄
 open import Definition.Modality.Usage 𝕄
 open import Definition.Modality.Usage.Inversion 𝕄
 open import Definition.Modality.Usage.Properties 𝕄
+open import Definition.Mode 𝕄
+open import Definition.Untyped M
 
-open import Tools.Nat hiding (_≟_)
-import Tools.PropositionalEquality as PE
+open import Tools.Bool
+open import Tools.Function
+open import Tools.Level
+open import Tools.Nat using (Nat)
+open import Tools.Nullary
+open import Tools.Product
+import Tools.Reasoning.PartialOrder
+import Tools.Reasoning.PropositionalEquality
+open import Tools.Sum using (_⊎_; inj₁; inj₂)
+open import Tools.Unit
+
+private variable
+  n : Nat
 
 private
-  variable
-    n : Nat
-    γ : Conₘ n
-    t : Term n
-    p q : M
 
-_≤?_ : Decidable _≤_
-p ≤? q = p ≟ p ∧ q
+  -- Inequality is decidable.
 
-_≤ᶜ?_ : Decidable (_≤ᶜ_ {n = n})
-ε ≤ᶜ? ε = yes ε
-(γ ∙ p) ≤ᶜ? (δ ∙ q) with γ ≤ᶜ? δ | p ≤? q
-... | _ | no p≰q = no λ { (γ≤δ ∙ p≤q) → p≰q p≤q}
-... | no γ≰δ | _ = no λ { (γ≤δ ∙ p≤q) → γ≰δ γ≤δ}
-... | yes γ≤δ | yes p≤q = yes (γ≤δ ∙ p≤q)
+  _≤?_ : Decidable _≤_
+  _≤?_ = ≈-decidable→≤-decidable _≟_
 
-sub′ : γ ▸ t → p ≤ headₘ γ → tailₘ γ ∙ p ▸ t
-sub′ {γ = γ} {t = t} γ▸t p≤q =
-  sub (PE.subst (λ γ → γ ▸ t) (PE.sym (headₘ-tailₘ-correct γ)) γ▸t)
-      (≤ᶜ-refl ∙ p≤q)
+  -- Context inequality is decidable.
 
-sub″ : γ ▸ t → p ≤ headₘ γ → q ≤ headₘ (tailₘ γ) → tailₘ (tailₘ γ) ∙ q ∙ p ▸ t
-sub″ {γ = γ} {t = t} γ▸t p≤p′ q≤q′ =
-  sub (PE.subst (λ γ → γ ▸ t) (PE.sym (PE.trans (PE.cong (λ δ → δ ∙ headₘ γ)
-                                                         (headₘ-tailₘ-correct (tailₘ γ)))
-                                                (headₘ-tailₘ-correct γ))) γ▸t)
-      (≤ᶜ-refl ∙ q≤q′ ∙ p≤p′)
+  _≤ᶜ?_ : Decidable (_≤ᶜ_ {n = n})
+  _≤ᶜ?_ = ≤ᶜ-decidable _≤?_
 
+-- A given term is either well-resourced with respect to a given mode
+-- and the usage context computed by ⌈_⌉, or it is not well-resourced
+-- with respect to any usage context (and the given mode).
 
-⌈⌉▸?_ : (t : Term n) → Dec (⌈ t ⌉ ▸ t)
--- True cases
-⌈⌉▸? U = yes Uₘ
-⌈⌉▸? ℕ = yes ℕₘ
-⌈⌉▸? Empty = yes Emptyₘ
-⌈⌉▸? Unit = yes Unitₘ
-⌈⌉▸? zero = yes zeroₘ
-⌈⌉▸? star = yes starₘ
-⌈⌉▸? (var x) = yes var
+infix 10 ⌈⌉▸[_]?_
 
--- Inspective cases
+⌈⌉▸[_]?_ : ∀ m (t : Term n) → (⌈ t ⌉ m ▸[ m ] t) ⊎ (∀ γ → ¬ γ ▸[ m ] t)
+⌈⌉▸[ m ]? U       = inj₁ Uₘ
 
-⌈⌉▸? (Π p , q ▷ F ▹ G)
-  with ⌈⌉▸? F | ⌈⌉▸? G
-... | no ¬F | _ = no λ γ▸Π →
-  let invUsageΠΣ δ▸F _ _ = inv-usage-Π γ▸Π
-  in  ¬F (usage-inf δ▸F)
-... | _ | no ¬G = no λ γ▸Π →
-  let invUsageΠΣ _ δ▸G _ = inv-usage-Π γ▸Π
-  in  ¬G (usage-inf δ▸G)
-... | yes ▸F | yes ▸G with q ≤? headₘ ⌈ G ⌉
-... | yes q≤q′ = yes (Πₘ ▸F (sub′ ▸G q≤q′))
-... | no q≰q′ = no λ γ▸Π →
-  let invUsageΠΣ _ δ▸G _ = inv-usage-Π γ▸Π
-  in  q≰q′ (headₘ-monotone (usage-upper-bound δ▸G))
+⌈⌉▸[ m ]? ℕ       = inj₁ ℕₘ
 
-⌈⌉▸? (Σ⟨ _ ⟩ q ▷ F ▹ G)
-  with ⌈⌉▸? F | ⌈⌉▸? G
-... | no ¬F | _ = no λ γ▸Σ →
-  let invUsageΠΣ δ▸F _ _ = inv-usage-Σ γ▸Σ
-  in  ¬F (usage-inf δ▸F)
-... | _ | no ¬G = no λ γ▸Σ →
-  let invUsageΠΣ _ δ▸G _ = inv-usage-Σ γ▸Σ
-  in  ¬G (usage-inf δ▸G)
-... | yes ▸F | yes ▸G with q ≤? headₘ ⌈ G ⌉
-... | yes q≤q′ = yes (Σₘ ▸F (sub′ ▸G q≤q′))
-... | no q≰q′ = no λ γ▸Σ →
-  let invUsageΠΣ _ δ▸G _ = inv-usage-Σ γ▸Σ
-  in  q≰q′ (headₘ-monotone (usage-upper-bound δ▸G))
+⌈⌉▸[ m ]? Unit    = inj₁ Unitₘ
 
-⌈⌉▸? (lam p t) with ⌈⌉▸? t
-... | no ¬t = no λ γ▸λt →
-  let invUsageLam δ▸t _ = inv-usage-lam γ▸λt
-  in  ¬t (usage-inf δ▸t)
-... | yes ▸t with p ≤? headₘ ⌈ t ⌉
-... | yes p≤p′ = yes (lamₘ (sub′ ▸t p≤p′))
-... | no p≰p′ = no λ γ▸λt →
-  let invUsageLam δ▸t _ = inv-usage-lam γ▸λt
-  in  p≰p′ (headₘ-monotone (usage-upper-bound δ▸t))
+⌈⌉▸[ m ]? Empty   = inj₁ Emptyₘ
 
-⌈⌉▸? (t ∘ u) with ⌈⌉▸? t | ⌈⌉▸? u
-... | no ¬t | _ = no λ γ▸tu →
-  let invUsageApp δ▸t _ _ = inv-usage-app γ▸tu
-  in  ¬t (usage-inf δ▸t)
-... | _ | no ¬u = no λ γ▸tu →
-  let invUsageApp _ δ▸u _ = inv-usage-app γ▸tu
-  in  ¬u (usage-inf δ▸u)
-... | yes ▸t | yes ▸u = yes (▸t ∘ₘ ▸u)
+⌈⌉▸[ m ]? zero    = inj₁ zeroₘ
 
-⌈⌉▸? (prodᵣ t u) with ⌈⌉▸? t | ⌈⌉▸? u
-... | no ¬t | _ = no λ γ▸tu →
-  let invUsageProdᵣ δ▸t _ _ = inv-usage-prodᵣ γ▸tu
-  in  ¬t (usage-inf δ▸t)
-... | _ | no ¬u = no λ γ▸tu →
-  let invUsageProdᵣ _ δ▸u _ = inv-usage-prodᵣ γ▸tu
-  in  ¬u (usage-inf δ▸u)
-... | yes ▸t | yes ▸u = yes (prodᵣₘ ▸t ▸u)
+⌈⌉▸[ m ]? star    = inj₁ starₘ
 
-⌈⌉▸? (prodₚ t u) with ⌈⌉▸? t | ⌈⌉▸? u
-... | no ¬t | _ = no λ γ▸tu →
-  let invUsageProdₚ δ▸t _ _ = inv-usage-prodₚ γ▸tu
-  in  ¬t (usage-inf δ▸t)
-... | _ | no ¬u = no λ γ▸tu →
-  let invUsageProdₚ _ δ▸u _ = inv-usage-prodₚ γ▸tu
-  in  ¬u (usage-inf δ▸u)
-... | yes ▸t | yes ▸u =
-  yes (prodₚₘ (sub ▸t (∧ᶜ-decreasingˡ ⌈ t ⌉ ⌈ u ⌉))
-              (sub ▸u (∧ᶜ-decreasingʳ ⌈ t ⌉ ⌈ u ⌉)))
+⌈⌉▸[ m ]? var _   = inj₁ var
 
-⌈⌉▸? (fst t) with ⌈⌉▸? t
-... | no ¬t = no λ γ▸t₁ →
-  let invUsageProj δ▸t _ = inv-usage-fst γ▸t₁
-  in  ¬t (usage-inf δ▸t)
-... | yes ▸t = yes (fstₘ ▸t)
+⌈⌉▸[ m ]? snd _ t = case ⌈⌉▸[ m ]? t of λ where
+  (inj₁ ▸t)  → inj₁ (sndₘ ▸t)
+  (inj₂ ¬▸t) → inj₂ λ _ ▸snd →
+    case inv-usage-snd ▸snd of λ (invUsageSnd ▸t _) →
+    ¬▸t _ ▸t
 
-⌈⌉▸? (snd t) with ⌈⌉▸? t
-... | no ¬t = no λ γ▸t₁ →
-  let invUsageProj δ▸t _ = inv-usage-snd γ▸t₁
-  in  ¬t (usage-inf δ▸t)
-... | yes ▸t = yes (sndₘ ▸t)
+⌈⌉▸[ m ]? suc t = case ⌈⌉▸[ m ]? t of λ where
+  (inj₁ ▸t)  → inj₁ (sucₘ ▸t)
+  (inj₂ ¬▸t) → inj₂ λ _ ▸suc →
+    case inv-usage-suc ▸suc of λ (invUsageSuc ▸t _) →
+    ¬▸t _ ▸t
 
-⌈⌉▸? (suc t) with ⌈⌉▸? t
-... | no ¬t = no λ γ▸t₁ →
-  let invUsageSuc δ▸t _ = inv-usage-suc γ▸t₁
-  in  ¬t (usage-inf δ▸t)
-... | yes ▸t = yes (sucₘ ▸t)
+⌈⌉▸[ m ]? Emptyrec p A t = case ⌈⌉▸[ m ᵐ· p ]? t of λ where
+  (inj₂ ¬▸t) → inj₂ λ _ ▸er →
+    case inv-usage-Emptyrec ▸er of λ (invUsageEmptyrec ▸t _ _) →
+    ¬▸t _ ▸t
+  (inj₁ ▸t) → case ⌈⌉▸[ 𝟘ᵐ? ]? A of λ where
+    (inj₂ ¬▸A) → inj₂ λ _ ▸er →
+      case inv-usage-Emptyrec ▸er of λ (invUsageEmptyrec _ ▸A _) →
+      ¬▸A _ ▸A
+    (inj₁ ▸A) → inj₁ (Emptyrecₘ ▸t ▸A)
 
-⌈⌉▸? (prodrec p q A t u) with Prodrec? p | ⌈⌉▸? A | ⌈⌉▸? t | ⌈⌉▸? u
-... | no ¬P | _ | _ | _ = no λ γ▸pr →
-  let invUsageProdrec _ _ _ P _ = inv-usage-prodrec γ▸pr
-  in  ¬P P
-... | _ | no ¬A | _ | _ = no λ γ▸pr →
-  let invUsageProdrec _ _ δ▸A _ _ = inv-usage-prodrec γ▸pr
-  in  ¬A (usage-inf δ▸A)
-... | _ | _ | no ¬t | _ = no λ γ▸pr →
-  let invUsageProdrec δ▸t _ _ _ _ = inv-usage-prodrec γ▸pr
-  in  ¬t (usage-inf δ▸t)
-... | _ | _ | _ | no ¬u = no λ γ▸pr →
-  let invUsageProdrec _ δ▸u _ _ _ = inv-usage-prodrec γ▸pr
-  in  ¬u (usage-inf δ▸u)
-... | yes P | yes ▸A | yes ▸t | yes ▸u
-  with p ≤? headₘ ⌈ u ⌉ | p ≤? headₘ (tailₘ ⌈ u ⌉) | q ≤? headₘ ⌈ A ⌉
-... | no p≰p₁ | _ | _ = no λ γ▸pr →
-  let invUsageProdrec _ δ▸u _ _ _ = inv-usage-prodrec γ▸pr
-  in  p≰p₁ (headₘ-monotone (usage-upper-bound δ▸u))
-... | _ | no p≰p₂ | _ = no λ γ▸pr →
-  let invUsageProdrec _ δ▸u _ _ _ = inv-usage-prodrec γ▸pr
-  in  p≰p₂ (headₘ-monotone (tailₘ-monotone (usage-upper-bound δ▸u)))
-... | _ | _ | no q≰q′ = no λ γ▸pr →
-  let invUsageProdrec _ _ δ▸A _ _ = inv-usage-prodrec γ▸pr
-  in  q≰q′ (headₘ-monotone (usage-upper-bound δ▸A))
-... | yes p≤p₁ | yes p≤p₂ | yes q≤q′ =
-  yes (prodrecₘ ▸t (sub″ ▸u p≤p₁ p≤p₂)
-                (sub′ ▸A q≤q′) P)
+⌈⌉▸[ m ]? lam p t = case ⌈⌉▸[ m ]? t of λ where
+    (inj₂ ¬▸t) → inj₂ λ _ ▸lam →
+      case inv-usage-lam ▸lam of λ (invUsageLam ▸t _) →
+      ¬▸t _ ▸t
+    (inj₁ ▸t) → case ⌜ m ⌝ · p ≤? headₘ (⌈ t ⌉ m) of λ where
+      (yes mp≤) → inj₁ (lamₘ (sub ▸t (begin
+        tailₘ (⌈ t ⌉ m) ∙ ⌜ m ⌝ · p        ≤⟨ ≤ᶜ-refl ∙ mp≤ ⟩
+        tailₘ (⌈ t ⌉ m) ∙ headₘ (⌈ t ⌉ m)  ≡⟨ headₘ-tailₘ-correct _ ⟩
+        ⌈ t ⌉ m                            ∎)))
+      (no mp≰) → inj₂ λ _ ▸lam →
+        case inv-usage-lam ▸lam of λ (invUsageLam ▸t′ _) →
+        mp≰ (headₘ-monotone (usage-upper-bound ▸t′))
+  where
+  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-⌈⌉▸? (natrec p q r A z s n) with ⌈⌉▸? A | ⌈⌉▸? z | ⌈⌉▸? s | ⌈⌉▸? n
-... | no ¬A | _ | _ | _ = no λ γ▸nr →
-  let invUsageNatrec _ _ _ δ▸A _ = inv-usage-natrec γ▸nr
-  in  ¬A (usage-inf δ▸A)
-... | _ | no ¬z | _ | _ = no λ γ▸nr →
-  let invUsageNatrec δ▸z _ _ _ _ = inv-usage-natrec γ▸nr
-  in  ¬z (usage-inf δ▸z)
-... | _ | _ | no ¬s | _ = no λ γ▸nr →
-  let invUsageNatrec _ δ▸s _ _ _ = inv-usage-natrec γ▸nr
-  in  ¬s (usage-inf δ▸s)
-... | _ | _ | _ | no ¬n = no λ γ▸nr →
-  let invUsageNatrec _ _ δ▸n _ _ = inv-usage-natrec γ▸nr
-  in  ¬n (usage-inf δ▸n)
-... | yes ▸A | yes ▸z | yes ▸s | yes ▸n
-  with p ≤? headₘ (tailₘ ⌈ s ⌉) | q ≤? headₘ ⌈ A ⌉ | r ≤? headₘ ⌈ s ⌉
-... | _ | _ | no r≰r′ = no λ γ▸nr →
-  let invUsageNatrec _ δ▸s _ _ _ = inv-usage-natrec γ▸nr
-  in  r≰r′ (headₘ-monotone (usage-upper-bound δ▸s))
-... | _ | no q≰q′ | _ =  no λ γ▸nr →
-  let invUsageNatrec _ _ _ δ▸A _ = inv-usage-natrec γ▸nr
-  in  q≰q′ (headₘ-monotone (usage-upper-bound δ▸A))
-... | no p≰p′ | _ | _ =  no λ γ▸nr →
-  let invUsageNatrec _ δ▸s _ _ _ = inv-usage-natrec γ▸nr
-  in  p≰p′ (headₘ-monotone (tailₘ-monotone (usage-upper-bound δ▸s)))
-... | yes p≤p′ | yes q≤q′ | yes r≤r′ =
-  yes (natrecₘ ▸z (sub″ ▸s r≤r′ p≤p′) ▸n (sub′ ▸A q≤q′))
+⌈⌉▸[ m ]? t ∘⟨ p ⟩ u = case ⌈⌉▸[ m ]? t of λ where
+  (inj₂ ¬▸t) → inj₂ λ _ ▸app →
+    case inv-usage-app ▸app of λ (invUsageApp ▸t _ _) →
+    ¬▸t _ ▸t
+  (inj₁ ▸t) → case ⌈⌉▸[ m ᵐ· p ]? u of λ where
+    (inj₁ ▸u)  → inj₁ (▸t ∘ₘ ▸u)
+    (inj₂ ¬▸u) → inj₂ λ _ ▸app →
+      case inv-usage-app ▸app of λ (invUsageApp _ ▸u _) →
+      ¬▸u _ ▸u
 
-⌈⌉▸? (Emptyrec p A t) with ⌈⌉▸? A | ⌈⌉▸? t
-... | _ | no ¬t =  no λ γ▸er →
-  let invUsageEmptyrec δ▸t _ _ = inv-usage-Emptyrec γ▸er
-  in  ¬t (usage-inf δ▸t)
-... | no ¬A | _ = no λ γ▸er →
-  let invUsageEmptyrec _ δ▸A _ = inv-usage-Emptyrec γ▸er
-  in  ¬A (usage-inf δ▸A)
-... | yes ▸A | yes ▸t = yes (Emptyrecₘ ▸t ▸A)
+⌈⌉▸[ m ]? fst p t = case p-ok of λ where
+    (no p-not-ok) → inj₂ λ _ ▸fst →
+      case inv-usage-fst ▸fst of λ (invUsageFst _ _ _ _ p-ok) →
+      p-not-ok p-ok
+    (yes p-ok) → case m-ok m of λ where
+      (no m-not-ok) → inj₂ λ _ ▸fst →
+        case inv-usage-fst ▸fst of λ (invUsageFst m′ m′-ok _ _ _) →
+        m-not-ok (m′ , sym m′-ok)
+      (yes (m′ , m′-ok)) →
+        case ⌈⌉▸[ m ]? t of λ where
+          (inj₁ ▸t)  → inj₁ (fstₘ m′ (▸-cong (sym m′-ok) ▸t) m′-ok p-ok)
+          (inj₂ ¬▸t) → inj₂ λ _ ▸fst →
+            case inv-usage-fst ▸fst of λ (invUsageFst _ _ ▸t _ _) →
+            ¬▸t _ ▸t
+  where
+  p-ok : Dec ((p ≤ 𝟙) ⊎ T 𝟘ᵐ-allowed)
+  p-ok = case ≈-decidable→≤-decidable _≟_ p 𝟙 of λ where
+    (yes p≤𝟙) → yes (inj₁ p≤𝟙)
+    (no p≰𝟙)  → 𝟘ᵐ-allowed-elim
+      (λ ok → yes (inj₂ ok))
+      (λ not-ok → no λ where
+        (inj₁ p≤𝟙) → p≰𝟙 p≤𝟙
+        (inj₂ ok)  → not-ok ok)
 
+  m-ok : ∀ m → Dec (∃ λ m′ → m′ ᵐ· p ≡ m)
+  m-ok 𝟘ᵐ = yes (𝟘ᵐ , refl)
+  m-ok 𝟙ᵐ = case p ≟ 𝟘 of λ where
+      (no p≉𝟘)  → yes (𝟙ᵐ , ≉𝟘→⌞⌟≡𝟙ᵐ p≉𝟘)
+      (yes p≈𝟘) → 𝟘ᵐ-allowed-elim
+        (λ ok → no λ where
+          (𝟘ᵐ , ())
+          (𝟙ᵐ , ⌞p⌟≈𝟙) →
+            case
+              𝟘ᵐ[ ok ]  ≡˘⟨ 𝟘ᵐ?≡𝟘ᵐ ⟩
+              𝟘ᵐ?       ≡˘⟨ ⌞𝟘⌟≡𝟘ᵐ? ⟩
+              ⌞ 𝟘 ⌟     ≡˘⟨ cong ⌞_⌟ p≈𝟘 ⟩
+              ⌞ p ⌟     ≡⟨ ⌞p⌟≈𝟙 ⟩
+              𝟙ᵐ        ∎
+            of λ ())
+        (λ not-ok →
+           yes (𝟙ᵐ , Mode-propositional-without-𝟘ᵐ not-ok))
+    where
+    open Tools.Reasoning.PropositionalEquality
 
-_▸?_ : (γ : Conₘ n) (t : Term n) → Dec (γ ▸ t)
-γ ▸? t with ⌈⌉▸? t
-... | no ¬t = no (λ γ▸t → ¬t (usage-inf γ▸t))
-... | yes ▸t with γ ≤ᶜ? ⌈ t ⌉
-... | no γ≰γ′ = no (λ γ▸t → γ≰γ′ (usage-upper-bound γ▸t))
-... | yes γ≤γ′ = yes (sub ▸t γ≤γ′)
+⌈⌉▸[ m ]? ΠΣ⟨ b ⟩ p , q ▷ F ▹ G = case ⌈⌉▸[ m ᵐ· p ]? F of λ where
+    (inj₂ ¬▸F) → inj₂ λ _ ▸ΠΣ →
+      case inv-usage-ΠΣ ▸ΠΣ of λ (invUsageΠΣ ▸F _ _ _) →
+      ¬▸F _ ▸F
+    (inj₁ ▸F) → case ⌈⌉▸[ m ]? G of λ where
+      (inj₂ ¬▸G) → inj₂ λ _ ▸ΠΣ →
+        case inv-usage-ΠΣ ▸ΠΣ of λ (invUsageΠΣ _ ▸G _ _) →
+        ¬▸G _ ▸G
+      (inj₁ ▸G) → case ⌜ m ⌝ · q ≤? headₘ (⌈ G ⌉ m) of λ where
+        (no mq≰) → inj₂ λ _ ▸ΠΣ →
+          case inv-usage-ΠΣ ▸ΠΣ of λ (invUsageΠΣ _ ▸G′ _ _) →
+          mq≰ (headₘ-monotone (usage-upper-bound ▸G′))
+        (yes mq≤) → case Binder? b p q of λ where
+          (no not-ok) → inj₂ λ _ ▸ΠΣ →
+            case inv-usage-ΠΣ ▸ΠΣ of λ (invUsageΠΣ _ _ _ ok) →
+            not-ok ok
+          (yes ok) →
+            let lemma = begin
+                  tailₘ (⌈ G ⌉ m) ∙ ⌜ m ⌝ · q        ≤⟨ ≤ᶜ-refl ∙ mq≤ ⟩
+                  tailₘ (⌈ G ⌉ m) ∙ headₘ (⌈ G ⌉ m)  ≡⟨ headₘ-tailₘ-correct _ ⟩
+                  ⌈ G ⌉ m                            ∎
+            in inj₁ (ΠΣₘ ▸F (sub ▸G lemma) ok)
+  where
+  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+
+⌈⌉▸[ m ]? prod Σᵣ p t u = case ⌈⌉▸[ m ᵐ· p ]? t of λ where
+  (inj₂ ¬▸t) → inj₂ λ _ ▸prod →
+    case inv-usage-prodᵣ ▸prod of λ (invUsageProdᵣ ▸t _ _) →
+    ¬▸t _ ▸t
+  (inj₁ ▸t) → case ⌈⌉▸[ m ]? u of λ where
+    (inj₂ ¬▸u) → inj₂ λ _ ▸prod →
+      case inv-usage-prodᵣ ▸prod of λ (invUsageProdᵣ _ ▸u _) →
+      ¬▸u _ ▸u
+    (inj₁ ▸u) → inj₁ (prodᵣₘ ▸t ▸u)
+
+⌈⌉▸[ m ]? prod Σₚ p t u = case ⌈⌉▸[ m ᵐ· p ]? t of λ where
+  (inj₂ ¬▸t) → inj₂ λ _ ▸prod →
+    case inv-usage-prodₚ ▸prod of λ (invUsageProdₚ ▸t _ _) →
+    ¬▸t _ ▸t
+  (inj₁ ▸t) → case ⌈⌉▸[ m ]? u of λ where
+    (inj₂ ¬▸u) → inj₂ λ _ ▸prod →
+      case inv-usage-prodₚ ▸prod of λ (invUsageProdₚ _ ▸u _) →
+      ¬▸u _ ▸u
+    (inj₁ ▸u) → inj₁ (prodₚₘ ▸t ▸u)
+
+⌈⌉▸[ m ]? prodrec r p q A t u = case Prodrec? r p q of λ where
+  (no not-ok) → inj₂ λ _ ▸pr →
+    case inv-usage-prodrec ▸pr of λ (invUsageProdrec _ _ _ ok _) →
+    not-ok ok
+  (yes ok) → case ⌈⌉▸[ m ᵐ· r ]? t of λ where
+    (inj₂ ¬▸t) → inj₂ λ _ ▸pr →
+      case inv-usage-prodrec ▸pr of λ (invUsageProdrec ▸t _ _ _ _) →
+      ¬▸t _ ▸t
+    (inj₁ ▸t) → case ⌈⌉▸[ m ]? u of λ where
+      (inj₂ ¬▸u) → inj₂ λ _ ▸pr →
+        case inv-usage-prodrec ▸pr of λ (invUsageProdrec _ ▸u _ _ _) →
+        ¬▸u _ ▸u
+      (inj₁ ▸u) →
+        case ⌜ m ⌝ · r · p ≤? headₘ (tailₘ (⌈ u ⌉ m)) of λ where
+          (no mrp≰) → inj₂ λ _ ▸pr →
+            case inv-usage-prodrec ▸pr of
+              λ (invUsageProdrec _ ▸u′ _ _ _) →
+            mrp≰ (headₘ-monotone
+                    (tailₘ-monotone (usage-upper-bound ▸u′)))
+          (yes mrp≤) → case ⌜ m ⌝ · r ≤? headₘ (⌈ u ⌉ m) of λ where
+            (no mr≰) → inj₂ λ _ ▸pr →
+              case inv-usage-prodrec ▸pr of
+                λ (invUsageProdrec _ ▸u′ _ _ _) →
+              mr≰ (headₘ-monotone (usage-upper-bound ▸u′))
+            (yes mr≤) → case ⌈⌉▸[ 𝟘ᵐ? ]? A of λ where
+              (inj₂ ¬▸A) → inj₂ λ _ ▸nr →
+                case inv-usage-prodrec ▸nr of
+                  λ (invUsageProdrec _ _ ▸A _ _) →
+                ¬▸A _ ▸A
+              (inj₁ ▸A) →
+                case ⌜ 𝟘ᵐ? ⌝ · q ≤? headₘ (⌈ A ⌉ 𝟘ᵐ?) of λ where
+                  (no q≰) → inj₂ λ _ ▸nr →
+                    case inv-usage-prodrec ▸nr of
+                      λ (invUsageProdrec _ _ ▸A′ _ _) →
+                    q≰ (headₘ-monotone (usage-upper-bound ▸A′))
+                  (yes q≤) →
+                    let lemma₁ =
+                          let open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+                          in begin
+                          tailₘ (tailₘ (⌈ u ⌉ m)) ∙
+                          ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r          ≤⟨ ≤ᶜ-refl ∙ mrp≤ ∙ mr≤ ⟩
+
+                          tailₘ (tailₘ (⌈ u ⌉ m)) ∙
+                          headₘ (tailₘ (⌈ u ⌉ m)) ∙
+                          headₘ (⌈ u ⌉ m)                    ≡⟨ cong (_∙ headₘ (⌈ u ⌉ m)) (headₘ-tailₘ-correct _) ⟩
+
+                          tailₘ (⌈ u ⌉ m) ∙ headₘ (⌈ u ⌉ m)  ≡⟨ headₘ-tailₘ-correct _ ⟩
+
+                          ⌈ u ⌉ m                            ∎
+
+                        lemma₂ =
+                          let open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+                          in begin
+                          tailₘ (⌈ A ⌉ 𝟘ᵐ?) ∙ ⌜ 𝟘ᵐ? ⌝ · q        ≤⟨ ≤ᶜ-refl ∙ q≤ ⟩
+                          tailₘ (⌈ A ⌉ 𝟘ᵐ?) ∙ headₘ (⌈ A ⌉ 𝟘ᵐ?)  ≡⟨ headₘ-tailₘ-correct _ ⟩
+                          ⌈ A ⌉ 𝟘ᵐ?                              ∎
+                    in
+                    inj₁ (prodrecₘ ▸t (sub ▸u lemma₁)
+                            (sub ▸A lemma₂) ok)
+
+⌈⌉▸[ m ]? natrec p q r A z s n = case ⌈⌉▸[ m ]? z of λ where
+  (inj₂ ¬▸z) → inj₂ λ _ ▸nr →
+    case inv-usage-natrec ▸nr of λ (invUsageNatrec ▸z _ _ _ _) →
+    ¬▸z _ ▸z
+  (inj₁ ▸z) → case ⌈⌉▸[ m ]? s of λ where
+    (inj₂ ¬▸s) → inj₂ λ _ ▸nr →
+      case inv-usage-natrec ▸nr of λ (invUsageNatrec _ ▸s _ _ _) →
+      ¬▸s _ ▸s
+    (inj₁ ▸s) → case ⌜ m ⌝ · p ≤? headₘ (tailₘ (⌈ s ⌉ m)) of λ where
+      (no mp≰) → inj₂ λ _ ▸nr →
+        case inv-usage-natrec ▸nr of λ (invUsageNatrec _ ▸s′ _ _ _) →
+        mp≰ (headₘ-monotone
+               (tailₘ-monotone (usage-upper-bound ▸s′)))
+      (yes mp≤) → case ⌜ m ⌝ · r ≤? headₘ (⌈ s ⌉ m) of λ where
+        (no mr≰) → inj₂ λ _ ▸nr →
+          case inv-usage-natrec ▸nr of λ (invUsageNatrec _ ▸s′ _ _ _) →
+          mr≰ (headₘ-monotone (usage-upper-bound ▸s′))
+        (yes mr≤) → case ⌈⌉▸[ m ]? n of λ where
+          (inj₂ ¬▸n) → inj₂ λ _ ▸nr →
+            case inv-usage-natrec ▸nr of
+              λ (invUsageNatrec _ _ ▸n _ _) →
+            ¬▸n _ ▸n
+          (inj₁ ▸n) → case ⌈⌉▸[ 𝟘ᵐ? ]? A of λ where
+            (inj₂ ¬▸A) → inj₂ λ _ ▸nr →
+              case inv-usage-natrec ▸nr of
+                λ (invUsageNatrec _ _ _ ▸A _) →
+              ¬▸A _ ▸A
+            (inj₁ ▸A) →
+              case ⌜ 𝟘ᵐ? ⌝ · q ≤? headₘ (⌈ A ⌉ 𝟘ᵐ?) of λ where
+                (no q≰) → inj₂ λ _ ▸nr →
+                  case inv-usage-natrec ▸nr of
+                    λ (invUsageNatrec _ _ _ ▸A′ _) →
+                  q≰ (headₘ-monotone (usage-upper-bound ▸A′))
+                (yes q≤) →
+                  let lemma₁ =
+                        let open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+                        in begin
+                        tailₘ (tailₘ (⌈ s ⌉ m)) ∙
+                        ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r              ≤⟨ ≤ᶜ-refl ∙ mp≤ ∙ mr≤ ⟩
+
+                        tailₘ (tailₘ (⌈ s ⌉ m)) ∙
+                        headₘ (tailₘ (⌈ s ⌉ m)) ∙
+                        headₘ (⌈ s ⌉ m)                    ≡⟨ cong (_∙ headₘ (⌈ s ⌉ m)) (headₘ-tailₘ-correct _) ⟩
+
+                        tailₘ (⌈ s ⌉ m) ∙ headₘ (⌈ s ⌉ m)  ≡⟨ headₘ-tailₘ-correct _ ⟩
+
+                        ⌈ s ⌉ m                            ∎
+
+                      lemma₂ =
+                        let open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+                        in begin
+                        tailₘ (⌈ A ⌉ 𝟘ᵐ?) ∙ ⌜ 𝟘ᵐ? ⌝ · q        ≤⟨ ≤ᶜ-refl ∙ q≤ ⟩
+                        tailₘ (⌈ A ⌉ 𝟘ᵐ?) ∙ headₘ (⌈ A ⌉ 𝟘ᵐ?)  ≡⟨ headₘ-tailₘ-correct _ ⟩
+                        ⌈ A ⌉ 𝟘ᵐ?                              ∎
+                  in
+                  inj₁ (natrecₘ ▸z (sub ▸s lemma₁) ▸n (sub ▸A lemma₂))
+
+-- It is decidable whether a term is well-resourced with respect to a
+-- given mode, and in that case a greatest usage context for which the
+-- term is well-resourced (with respect to the given mode) can be
+-- computed.
+
+infix 10 ▸[_]?_
+
+▸[_]?_ :
+  ∀ m (t : Term n) →
+  ∃ λ (d : Dec (∃ λ γ → γ ▸[ m ] t)) →
+    case d of λ where
+      (yes (γ , _)) → ∀ δ → δ ▸[ m ] t → δ ≤ᶜ γ
+      (no _)        → Lift _ ⊤
+▸[ m ]? t = case ⌈⌉▸[ m ]? t of λ where
+  (inj₁ ▸t)  → yes (⌈ t ⌉ m , ▸t) , λ _ → usage-upper-bound
+  (inj₂ ¬▸t) → no (λ (_ , ▸t) → ¬▸t _ ▸t) , _
+
+-- It is decidable whether a term is well-resourced with respect to a
+-- given context and mode.
+
+infix 10 _▸[_]?_
+
+_▸[_]?_ : ∀ γ m (t : Term n) → Dec (γ ▸[ m ] t)
+γ ▸[ m ]? t = case ▸[ m ]? t of λ where
+  (no ¬▸t , _)        → no λ ▸t → ¬▸t (_ , ▸t)
+  (yes (δ , δ▸) , ≤δ) → case γ ≤ᶜ? δ of λ where
+    (no γ≰δ)  → no λ ▸t → γ≰δ (≤δ _ ▸t)
+    (yes γ≤δ) → yes (sub δ▸ γ≤δ)

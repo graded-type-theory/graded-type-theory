@@ -1,19 +1,14 @@
-{-# OPTIONS --without-K --safe #-}
-
-open import Tools.Relation
-
-module Definition.Typed.Consequences.Inequality {a ℓ} (M′ : Setoid a ℓ) where
-
-open Setoid M′ using () renaming (Carrier to M)
+module Definition.Typed.Consequences.Inequality
+  {a} (M : Set a) where
 
 open import Definition.Untyped M hiding (U≢ne; ℕ≢ne; B≢ne; U≢B; ℕ≢B)
-open import Definition.Typed M′
-open import Definition.Typed.EqRelInstance M′
-open import Definition.LogicalRelation M′
-open import Definition.LogicalRelation.Irrelevance M′
-open import Definition.LogicalRelation.ShapeView M′
-open import Definition.LogicalRelation.Fundamental.Reducibility M′
-open import Definition.Typed.Consequences.Syntactic M′
+open import Definition.Typed M
+open import Definition.Typed.EqRelInstance M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.ShapeView M
+open import Definition.LogicalRelation.Fundamental.Reducibility M
+open import Definition.Typed.Consequences.Syntactic M
 
 open import Tools.Level
 open import Tools.Nat
@@ -24,9 +19,11 @@ private
   variable
     n : Nat
     Γ : Con Term n
-    p q q′ : M
+    F G K : Term n
+    p p′ q q′ : M
+    b : BinderMode
 
-A≢B : ∀ {A B Γ} (_⊩′⟨_⟩A_ _⊩′⟨_⟩B_ : Con Term n → TypeLevel → Term n → Set (a ⊔ ℓ))
+A≢B : ∀ {A B Γ} (_⊩′⟨_⟩A_ _⊩′⟨_⟩B_ : Con Term n → TypeLevel → Term n → Set a)
       (A-intr : ∀ {l} → Γ ⊩′⟨ l ⟩A A → Γ ⊩⟨ l ⟩ A)
       (B-intr : ∀ {l} → Γ ⊩′⟨ l ⟩B B → Γ ⊩⟨ l ⟩ B)
       (A-elim : ∀ {l} → Γ ⊩⟨ l ⟩ A → ∃ λ l′ → Γ ⊩′⟨ l′ ⟩A A)
@@ -175,8 +172,8 @@ U≢B W U≡W =
 
 U≢Π : ∀ {Γ : Con Term n} {F G p q} → _
 U≢Π {Γ = Γ} {F} {G} {p} {q} = U≢B {Γ = Γ} {F} {G} (BΠ p q)
-U≢Σ : ∀ {Γ : Con Term n} {F G q m} → _
-U≢Σ {Γ = Γ} {F} {G} {q} {m} = U≢B {Γ = Γ} {F} {G} (BΣ q m)
+U≢Σ : ∀ {Γ : Con Term n} {F G p q m} → _
+U≢Σ {Γ = Γ} {F} {G} {p} {q} {m} = U≢B {Γ = Γ} {F} {G} (BΣ m p q)
 
 U≢ne′ : ∀ {K l l′}
        ([U] : Γ ⊩′⟨ l ⟩U)
@@ -217,8 +214,8 @@ U≢ne neK U≡K =
 
 ℕ≢Π : ∀ {Γ : Con Term n} {F G p q} → _
 ℕ≢Π {Γ = Γ} {F} {G} {p} {q} = ℕ≢B {Γ = Γ} {F} {G} (BΠ p q)
-ℕ≢Σ : ∀ {Γ : Con Term n} {F G q m} → _
-ℕ≢Σ {Γ = Γ} {F} {G} {q} {m} = ℕ≢B {Γ = Γ} {F} {G} (BΣ q m)
+ℕ≢Σ : ∀ {Γ : Con Term n} {F G p q m} → _
+ℕ≢Σ {Γ = Γ} {F} {G} {p} {q} {m} = ℕ≢B {Γ = Γ} {F} {G} (BΣ m p q)
 
 -- Empty and Π
 Empty≢B′ : ∀ {A B l l′} W
@@ -241,8 +238,9 @@ Empty≢Bⱼ W Empty≡W =
 
 Empty≢Πⱼ : ∀ {Γ : Con Term n} {F G p q} → _
 Empty≢Πⱼ {Γ = Γ} {F} {G} {p} {q} = Empty≢Bⱼ {Γ = Γ} {F} {G} (BΠ p q)
-Empty≢Σⱼ : ∀ {Γ : Con Term n} {F G q m} → _
-Empty≢Σⱼ {Γ = Γ} {F} {G} {q} {m} = Empty≢Bⱼ {Γ = Γ} {F} {G} (BΣ q m)
+Empty≢Σⱼ : ∀ {Γ : Con Term n} {F G p q m} → _
+Empty≢Σⱼ {Γ = Γ} {F} {G} {p} {q} {m} =
+  Empty≢Bⱼ {Γ = Γ} {F} {G} (BΣ m p q)
 
 -- Unit and Π
 Unit≢B′ : ∀ {A B l l′} W
@@ -265,8 +263,8 @@ Unit≢Bⱼ W Unit≡W =
 
 Unit≢Πⱼ : ∀ {Γ : Con Term n} {F G p q} → _
 Unit≢Πⱼ {Γ = Γ} {F} {G} {p} {q} = Unit≢Bⱼ {Γ = Γ} {F} {G} (BΠ p q)
-Unit≢Σⱼ : ∀ {Γ : Con Term n} {F G q m} → _
-Unit≢Σⱼ {Γ = Γ} {F} {G} {q} {m} = Unit≢Bⱼ {Γ = Γ} {F} {G} (BΣ m q)
+Unit≢Σⱼ : ∀ {Γ : Con Term n} {F G p q m} → _
+Unit≢Σⱼ {Γ = Γ} {F} {G} {p} {q} {m} = Unit≢Bⱼ {Γ = Γ} {F} {G} (BΣ m p q)
 
 ℕ≢ne′ : ∀ {A K l l′}
        ([ℕ] : Γ ⊩ℕ A)
@@ -344,37 +342,44 @@ B≢ne W neK W≡K =
 
 Π≢ne : ∀ {Γ : Con Term n} {F G K p q} → _
 Π≢ne {Γ = Γ} {F} {G} {K} {p} {q} = B≢ne {Γ = Γ} {F} {G} {K} (BΠ p q)
-Σ≢ne : ∀ {Γ : Con Term n} {F G K q m} → _
-Σ≢ne {Γ = Γ} {F} {G} {K} {q} {m} = B≢ne {Γ = Γ} {F} {G} {K} (BΣ q m)
+Σ≢ne : ∀ {Γ : Con Term n} {F G K p q m} → _
+Σ≢ne {Γ = Γ} {F} {G} {K} {p} {q} {m} =
+  B≢ne {Γ = Γ} {F} {G} {K} (BΣ m p q)
+
+ΠΣ≢ne : Neutral K → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ≡ K → ⊥
+ΠΣ≢ne {b = BMΠ}   = B≢ne (BΠ _ _)
+ΠΣ≢ne {b = BMΣ _} = B≢ne (BΣ _ _ _)
 
 -- Π and Σ
 Π≢Σ′ : ∀ {A B l l′ p q q′ m}
        ([A] : Γ ⊩′⟨ l ⟩B⟨ BΠ p q ⟩ A)
-       ([B] : Γ ⊩′⟨ l′ ⟩B⟨ BΣ q′ m ⟩ B)
-     → ShapeView Γ l l′ _ _ (Bᵣ (BΠ p q) [A]) (Bᵣ (BΣ q′ m) [B]) → ⊥
-Π≢Σ′ a b (Bᵥ .(BΠ _ _) .(BΣ _ _) .a .b ())
+       ([B] : Γ ⊩′⟨ l′ ⟩B⟨ BΣ m p′ q′ ⟩ B)
+     → ShapeView Γ l l′ _ _ (Bᵣ (BΠ p q) [A]) (Bᵣ (BΣ m p′ q′) [B]) → ⊥
+Π≢Σ′ a b (Bᵥ .(BΠ _ _) .(BΣ _ _ _) .a .b ())
 
 Π≢Σ-red : ∀ {A B F G H E m} → Γ ⊢ A ⇒* Π p , q ▷ F ▹ G
-         → Γ ⊢ B ⇒* Σ⟨ m ⟩ q′ ▷ H ▹ E → Γ ⊢ A ≡ B → ⊥
-Π≢Σ-red {q′ = q′} {m = m} D D′ = A≢B (λ Γ l A → Γ ⊩′⟨ l ⟩B⟨ BΠ! ⟩ A)
-                   (λ Γ l A → Γ ⊩′⟨ l ⟩B⟨ BΣ m q′ ⟩ A) (Bᵣ BΠ!) (Bᵣ BΣ!)
-                   (λ x → extractMaybeEmb (B-elim′ BΠ! D x))
-                   (λ x → extractMaybeEmb (B-elim′ BΣ! D′ x))
-                   Π≢Σ′
+         → Γ ⊢ B ⇒* Σ⟨ m ⟩ p′ , q′ ▷ H ▹ E → Γ ⊢ A ≡ B → ⊥
+Π≢Σ-red {p′ = p′} {q′ = q′} {m = m} D D′ = A≢B
+  (λ Γ l A → Γ ⊩′⟨ l ⟩B⟨ BΠ! ⟩ A)
+  (λ Γ l A → Γ ⊩′⟨ l ⟩B⟨ BΣ m p′ q′ ⟩ A) (Bᵣ BΠ!) (Bᵣ BΣ!)
+  (λ x → extractMaybeEmb (B-elim′ BΠ! D x))
+  (λ x → extractMaybeEmb (B-elim′ BΣ! D′ x))
+  Π≢Σ′
 
-Π≢Σⱼ : ∀ {F G H E m} → Γ ⊢ Π p , q ▷ F ▹ G ≡ Σ⟨ m ⟩ q′ ▷ H ▹ E → ⊥
+Π≢Σⱼ : ∀ {F G H E m} → Γ ⊢ Π p , q ▷ F ▹ G ≡ Σ⟨ m ⟩ p′ , q′ ▷ H ▹ E → ⊥
 Π≢Σⱼ Π≡Σ =
   let ⊢Π , ⊢Σ = syntacticEq Π≡Σ
   in  Π≢Σ-red (id ⊢Π) (id ⊢Σ) Π≡Σ
 
-Σₚ≢Σᵣ′ : ∀ {A B l l′ q q′}
-         ([A] : Γ ⊩′⟨ l ⟩B⟨ BΣ Σₚ q ⟩ A)
-         ([B] : Γ ⊩′⟨ l′ ⟩B⟨ BΣ Σᵣ q′ ⟩ B)
-       → ShapeView Γ l l′ _ _ (Bᵣ (BΣ Σₚ q) [A]) (Bᵣ (BΣ Σᵣ q′) [B]) → ⊥
+Σₚ≢Σᵣ′ :
+  ∀ {A B l l′ q q′}
+  ([A] : Γ ⊩′⟨ l ⟩B⟨ BΣ Σₚ p q ⟩ A)
+  ([B] : Γ ⊩′⟨ l′ ⟩B⟨ BΣ Σᵣ p′ q′ ⟩ B) →
+  ShapeView Γ l l′ _ _ (Bᵣ (BΣ Σₚ p q) [A]) (Bᵣ (BΣ Σᵣ p′ q′) [B]) → ⊥
 Σₚ≢Σᵣ′ [A] [B] (Bᵥ .BΣₚ .BΣᵣ .[A] .[B] ())
 
-Σₚ≢Σᵣ-red : ∀ {A B F G H E} → Γ ⊢ A ⇒* Σₚ q ▷ F ▹ G
-          → Γ ⊢ B ⇒* Σᵣ q′ ▷ H ▹ E → Γ ⊢ A ≡ B → ⊥
+Σₚ≢Σᵣ-red : ∀ {A B F G H E} → Γ ⊢ A ⇒* Σₚ p , q ▷ F ▹ G
+          → Γ ⊢ B ⇒* Σᵣ p′ , q′ ▷ H ▹ E → Γ ⊢ A ≡ B → ⊥
 Σₚ≢Σᵣ-red D D′ = A≢B (λ Γ l A → Γ ⊩′⟨ l ⟩B⟨ BΣₚ ⟩ A)
                      (λ Γ l B → Γ ⊩′⟨ l ⟩B⟨ BΣᵣ ⟩ B)
                      (Bᵣ BΣ!) (Bᵣ BΣ!)
@@ -382,7 +387,7 @@ B≢ne W neK W≡K =
                      (λ x → extractMaybeEmb (B-elim′ BΣ! D′ x))
                      Σₚ≢Σᵣ′
 
-Σₚ≢Σᵣⱼ : ∀ {F G H E} → Γ ⊢ Σₚ q ▷ F ▹ G ≡ Σᵣ q′ ▷ H ▹ E → ⊥
+Σₚ≢Σᵣⱼ : ∀ {F G H E} → Γ ⊢ Σₚ p , q ▷ F ▹ G ≡ Σᵣ p′ , q′ ▷ H ▹ E → ⊥
 Σₚ≢Σᵣⱼ Σₚ≡Σᵣ =
   let ⊢Σₚ , ⊢Σᵣ = syntacticEq Σₚ≡Σᵣ
   in  Σₚ≢Σᵣ-red (id ⊢Σₚ) (id ⊢Σᵣ) Σₚ≡Σᵣ

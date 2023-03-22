@@ -1,15 +1,9 @@
-{-# OPTIONS --without-K --safe #-}
+module Definition.Typed.EqRelInstance {a} (M : Set a) where
 
-open import Tools.Relation
-
-module Definition.Typed.EqRelInstance {a ℓ} (M′ : Setoid a ℓ) where
-
-open Setoid M′ using () renaming (Carrier to M)
-
-open import Definition.Typed M′
-open import Definition.Typed.Weakening M′
-open import Definition.Typed.Reduction M′
-open import Definition.Typed.EqualityRelation M′
+open import Definition.Typed M
+open import Definition.Typed.Weakening M
+open import Definition.Typed.Reduction M
+open import Definition.Typed.EqualityRelation M
 
 open import Tools.Function
 
@@ -46,10 +40,8 @@ eqRelInstance = record {
   ≅-Unitrefl = refl ∘ᶠ Unitⱼ;
   ≅ₜ-Unitrefl = refl ∘ᶠ Unitⱼ;
   ≅ₜ-η-unit = η-unit;
-  ≅-Π-cong = Π-cong;
-  ≅ₜ-Π-cong = Π-cong;
-  ≅-Σ-cong = Σ-cong;
-  ≅ₜ-Σ-cong = Σ-cong;
+  ≅-ΠΣ-cong = ΠΣ-cong;
+  ≅ₜ-ΠΣ-cong = ΠΣ-cong;
   ≅ₜ-zerorefl = refl ∘ᶠ zeroⱼ;
   ≅-suc-cong = suc-cong;
   ≅-prod-cong = prod-cong;

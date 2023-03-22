@@ -1,26 +1,27 @@
-{-# OPTIONS --without-K --safe #-}
-
-open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Properties.Star {a ℓ}
-  {M′ : Setoid a ℓ}
-  (𝕄 : Modality M′)
-  where
+module Definition.Modality.Properties.Star
+  {a} {M : Set a} (𝕄 : Modality M) where
 
 open Modality 𝕄
-open Setoid M′ renaming (Carrier to M)
 
 open import Definition.Modality.Properties.PartialOrder modalityWithout⊛
 open import Definition.Modality.Properties.Meet modalityWithout⊛
 
-open import Tools.Algebra M′
+open import Tools.Algebra M
+open import Tools.Bool using (T)
+open import Tools.Nat hiding (_+_)
+open import Tools.Product
+open import Tools.PropositionalEquality
 
 private
   variable
     p p′ q q′ r r′ : M
 
 -- Variants of ⊛-congurence
+
+⊛-cong : p ≈ p′ → q ≈ q′ → r ≈ r′ → p ⊛ q ▷ r ≈ p′ ⊛ q′ ▷ r′
+⊛-cong = cong₃ _⊛_▷_
 
 ⊛ᵣ-cong : p ≈ p′ → q ≈ q′ → p ⊛ q ▷ r ≈ p′ ⊛ q′ ▷ r
 ⊛ᵣ-cong p≈p′ q≈q′ = ⊛-cong p≈p′ q≈q′ ≈-refl
@@ -60,3 +61,25 @@ private
     (𝟘 ⊛ 𝟘 ▷ r) · 𝟘       ≤⟨ ·-sub-distribʳ-⊛ r 𝟘 𝟘 𝟘 ⟩
     (𝟘 · 𝟘) ⊛ (𝟘 · 𝟘) ▷ r ≈⟨ ⊛ᵣ-cong (·-zeroˡ 𝟘) (·-zeroˡ 𝟘) ⟩
     𝟘 ⊛ 𝟘 ▷ r ∎
+
+-- If the mode 𝟘ᵐ is allowed and p ⊛ q ▷ r is equal to zero, then p is
+-- equal to zero.
+
+⊛≈𝟘ˡ : T 𝟘ᵐ-allowed → p ⊛ q ▷ r ≈ 𝟘 → p ≈ 𝟘
+⊛≈𝟘ˡ {p = p} {q = q} {r = r} ok p⊛q▷r≈𝟘 = 𝟘≮ ok (begin
+  𝟘          ≈˘⟨ p⊛q▷r≈𝟘 ⟩
+  p ⊛ q ▷ r  ≤⟨ ⊛-ineq₂ _ _ _ ⟩
+  p          ∎)
+  where
+  open import Tools.Reasoning.PartialOrder ≤-poset
+
+-- If the mode 𝟘ᵐ is allowed and p ⊛ q ▷ r is equal to zero, then q is
+-- equal to zero.
+
+⊛≈𝟘ʳ : T 𝟘ᵐ-allowed → p ⊛ q ▷ r ≈ 𝟘 → q ≈ 𝟘
+⊛≈𝟘ʳ {p = p} {q = q} {r = r} ok p⊛q▷r≈𝟘 = positiveˡ ok (𝟘≮ ok (begin
+  𝟘                  ≈˘⟨ p⊛q▷r≈𝟘 ⟩
+  p ⊛ q ▷ r          ≤⟨ ⊛-ineq₁ _ _ _ ⟩
+  q + r · p ⊛ q ▷ r  ∎))
+  where
+  open import Tools.Reasoning.PartialOrder ≤-poset

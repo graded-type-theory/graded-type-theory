@@ -1,34 +1,37 @@
-{-# OPTIONS --without-K --safe #-}
-
 open import Definition.Modality.Instances.Erasure
+open import Definition.Modality.Restrictions
 open import Definition.Typed.EqualityRelation
 open import Definition.Untyped Erasure as U hiding (_∷_)
-open import Definition.Typed Erasure′
+open import Definition.Typed Erasure
 
-module Erasure.LogicalRelation.Reduction {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ)
-                                         (Prodrec : Erasure → Set)
-                                         {{eqrel : EqRelSet Erasure′}} where
+module Erasure.LogicalRelation.Reduction
+  {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ)
+  (restrictions : Restrictions Erasure)
+  {{eqrel : EqRelSet Erasure}}
+  where
+
 open EqRelSet {{...}}
 
-open import Definition.LogicalRelation Erasure′
-open import Definition.LogicalRelation.Properties.Escape Erasure′
+open import Definition.LogicalRelation Erasure
+open import Definition.LogicalRelation.Properties.Escape Erasure
 
-import Definition.LogicalRelation.Fundamental Erasure′ as F
-import Definition.LogicalRelation.Irrelevance Erasure′ as I
-import Definition.LogicalRelation.Properties.Reduction Erasure′ as R
+import Definition.LogicalRelation.Fundamental Erasure as F
+import Definition.LogicalRelation.Irrelevance Erasure as I
+import Definition.LogicalRelation.Properties.Reduction Erasure as R
 
-open import Definition.Typed.Consequences.Syntactic Erasure′
-open import Definition.Typed.Consequences.Reduction Erasure′
-open import Definition.Typed.Properties Erasure′
-open import Definition.Typed.RedSteps Erasure′ as RS
-open import Definition.Typed.Weakening Erasure′
+open import Definition.Typed.Consequences.Syntactic Erasure
+open import Definition.Typed.Consequences.Reduction Erasure
+open import Definition.Typed.Properties Erasure
+open import Definition.Typed.RedSteps Erasure as RS
+open import Definition.Typed.Weakening Erasure
 
 open import Definition.Untyped.Properties Erasure as UP using (wk-id ; wk-lift-id)
 
-open import Erasure.LogicalRelation ⊢Δ Prodrec
+open import Erasure.LogicalRelation ⊢Δ restrictions
 open import Erasure.Target as T hiding (_⇒_; _⇒*_)
 open import Erasure.Target.Properties as TP
 
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -70,9 +73,10 @@ sourceRedSubstTerm (Bᵣ′ (BΠ ω q) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A
       t∘a⇒t′∘w′ = app-subst (conv t⇒t′ (subset* D)) ⊢a′
       t∘a⇒t′∘w = PE.subst (Δ ⊢ _ ⇒ _ ∷_) (PE.cong (U._[ a ]) (PE.sym (UP.wk-lift-id G))) t∘a⇒t′∘w′
   in sourceRedSubstTerm ([G] id ⊢Δ [a]) t®v t∘a⇒t′∘w
-sourceRedSubstTerm (Bᵣ′ (BΣ p m) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext)
-                   (t₁ , t₂ , v₁ , v₂ , t′⇒p , v⇒v′ , [t₁] , t₁®v₁ , t₂®v₂) t⇒t′ =
-  t₁ , t₂ , v₁ , v₂ , (conv t⇒t′ (subset* D) ⇨ t′⇒p) , v⇒v′ , [t₁] , t₁®v₁ , t₂®v₂
+sourceRedSubstTerm
+  (Bᵣ′ BΣ! F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext)
+  (t₁ , t₂ , t′⇒p , [t₁] , v₂ , t₂®v₂ , extra) t⇒t′ =
+  t₁ , t₂ , conv t⇒t′ (subset* D) ⇨ t′⇒p , [t₁] , v₂ , t₂®v₂ , extra
 sourceRedSubstTerm (emb 0<1 [A]) t®v t⇒t′ = sourceRedSubstTerm [A] t®v t⇒t′
 
 
@@ -107,9 +111,13 @@ targetRedSubstTerm (Bᵣ′ (BΠ ω q) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A
       v∘w⇒v′∘w′ = T.app-subst v⇒v′
       [G[a]] = [G] id ⊢Δ [a]
   in targetRedSubstTerm [G[a]] t®v v∘w⇒v′∘w′
-targetRedSubstTerm (Bᵣ′ (BΣ q m) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext)
-                   (t₁ , t₂ , v₁ , v₂ , t⇒t′ , v′⇒p , [t₁] , t₁®v₁ , t₂®v₂) v⇒v′ =
-  t₁ , t₂ , v₁ , v₂ , (t⇒t′ , trans v⇒v′ v′⇒p , [t₁] , t₁®v₁ , t₂®v₂)
+targetRedSubstTerm
+  (Bᵣ′ BΣ! F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext)
+  (t₁ , t₂ , v₂ , t⇒t′ , [t₁] , t₂®v₂ , extra) v⇒v′ =
+  t₁ , t₂ , v₂ , t⇒t′ , [t₁] , t₂®v₂ ,
+  (case Σ-®-view extra of λ where
+     (𝟘 v′⇒p)          → trans v⇒v′ v′⇒p
+     (ω v₁ v′⇒p t₁®v₁) → v₁ , trans v⇒v′ v′⇒p , t₁®v₁)
 targetRedSubstTerm (emb 0<1 [A]) t®v′ v⇒v′ = targetRedSubstTerm [A] t®v′ v⇒v′
 
 
@@ -172,11 +180,12 @@ sourceRedSubstTerm′ (Bᵣ′ (BΠ ω q) F G D ⊢F ⊢G A≡A [F] [G] G-ext) t
                           (PE.cong (U._[ a ]) (PE.sym (UP.wk-lift-id G)))
                           t∘a⇒t′∘a′
   in  sourceRedSubstTerm′ ([G] id ⊢Δ [a]) t®v t∘a⇒t′∘a
-sourceRedSubstTerm′ (Bᵣ′ (BΣ q m) F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-                    (t₁ , t₂ , v₁ , v₂ , t⇒p , v⇒v′ , [t₁] , t₁®v₁ , t₂®v₂) t⇒t′ =
-  t₁ , t₂ , v₁ , v₂
+sourceRedSubstTerm′
+  (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+  (t₁ , t₂ , t⇒p , [t₁] , v₂ , t₂®v₂ , extra) t⇒t′ =
+  t₁ , t₂
      , whrDet↘Term (t⇒p , prodₙ) (redMany (conv t⇒t′ (subset* (red D))))
-     , v⇒v′ , [t₁] , t₁®v₁ , t₂®v₂
+     , [t₁] , v₂ , t₂®v₂ , extra
 sourceRedSubstTerm′ (emb 0<1 [A]) t®v t⇒t′ = sourceRedSubstTerm′ [A] t®v t⇒t′
 
 
@@ -189,6 +198,12 @@ sourceRedSubstTerm*′ [A] t®v (id x) = t®v
 sourceRedSubstTerm*′ [A] t®v (x ⇨ t⇒t′) =
   sourceRedSubstTerm*′ [A] (sourceRedSubstTerm′ [A] t®v x) t⇒t′
 
+-- The logical relation for erasure is preserved under reduction of
+-- the target language term.
+
+targetRedSubstTerm*′ :
+  ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A] →
+  v T.⇒* v′ → t ®⟨ l ⟩ v′ ∷ A / [A]
 
 -- Logical relation for erasure is preserved under one reduction step on the target language term
 -- If t ® v ∷ A and v ⇒ v′  then t ® v′ ∷ A
@@ -213,21 +228,26 @@ targetRedSubstTerm′ (Bᵣ′ (BΠ ω q) F G D ⊢F ⊢G A≡A [F] [G] G-ext) t
   let t®v = t®v′ [a] a®w
       v∘w⇒v′∘w = T.app-subst v⇒v′
   in  targetRedSubstTerm′ ([G] id ⊢Δ [a]) t®v v∘w⇒v′∘w
-targetRedSubstTerm′ (Bᵣ′ (BΣ p m) F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-                    (t₁ , t₂ , v₁ , v₂ , t⇒t′ , v⇒p , [t₁] , t₁®v₁ , t₂®v₂) v⇒v′
-                    with red*Det v⇒p (trans v⇒v′ refl)
-... | inj₂ x = t₁ , t₂ , v₁ , v₂ , t⇒t′ , x , [t₁] , t₁®v₁ , t₂®v₂
-... | inj₁ x with prod-noRed x
-... | PE.refl = t₁ , t₂ , v₁ , v₂ , t⇒t′ , refl , [t₁] , t₁®v₁ , t₂®v₂
+targetRedSubstTerm′
+  {v′ = v′}
+  (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+  (t₁ , t₂ , t⇒t′ , [t₁] , v₂ , t₂®v₂ , extra) v⇒v′ =
+  t₁ , t₂ , t⇒t′ , [t₁] ,
+  (case Σ-®-view extra of λ where
+     (𝟘 v⇒v₂) →
+       case red*Det v⇒v₂ (trans v⇒v′ refl) of λ where
+         (inj₂ v′⇒v₂) → v₂ , t₂®v₂ , v′⇒v₂
+         (inj₁ v₂⇒v′) →
+           v′ , targetRedSubstTerm*′ ([G] id ⊢Δ [t₁]) t₂®v₂ v₂⇒v′ , refl
+     (ω v₁ v⇒v₁,v₂ t₁®v₁) →
+       case red*Det v⇒v₁,v₂ (trans v⇒v′ refl) of λ where
+         (inj₂ v′⇒v₁,v₂) → v₂ , t₂®v₂ , v₁ , v′⇒v₁,v₂ , t₁®v₁
+         (inj₁ v₁,v₂⇒v′) → case prod-noRed v₁,v₂⇒v′ of λ where
+           PE.refl → v₂ , t₂®v₂ , v₁ , refl , t₁®v₁)
 
 targetRedSubstTerm′ (emb 0<1 [A]) t®v v⇒v′ = targetRedSubstTerm′ [A] t®v v⇒v′
 
 
--- Logical relation for erasure is preserved under reduction closure on the target language term
--- If t ® v ∷ A and v ⇒* v′ then t ® v′ ∷ A
-
-targetRedSubstTerm*′ : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A]
-                     → v T.⇒* v′ → t ®⟨ l ⟩ v′ ∷ A / [A]
 targetRedSubstTerm*′ [A] t®v refl = t®v
 targetRedSubstTerm*′ [A] t®v (trans x v⇒v′) =
   targetRedSubstTerm*′ [A] (targetRedSubstTerm′ [A] t®v x) v⇒v′

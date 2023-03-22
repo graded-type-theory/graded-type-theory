@@ -1,17 +1,18 @@
-{-# OPTIONS --without-K --safe #-}
-
-open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Properties.Multiplication {a ℓ}
-  {M′ : Setoid a ℓ}
-  (𝕄 : ModalityWithout⊛ M′)
-  where
+module Definition.Modality.Properties.Multiplication
+  {a} {M : Set a} (𝕄 : ModalityWithout⊛ M) where
 
 open ModalityWithout⊛ 𝕄
-open Setoid M′ renaming (Carrier to M)
 
+open import Definition.Modality.Properties.Meet 𝕄
 open import Definition.Modality.Properties.PartialOrder 𝕄
+
+open import Tools.Algebra M
+open import Tools.Nat hiding (_+_)
+open import Tools.Product
+open import Tools.PropositionalEquality
+import Tools.Reasoning.PartialOrder
 
 private
   variable
@@ -34,3 +35,15 @@ private
 
 ·-monotone : p ≤ p′ → q ≤ q′ → p · q ≤ p′ · q′
 ·-monotone p≤p′ q≤q′ = ≤-trans (·-monotoneˡ p≤p′) (·-monotoneʳ q≤q′)
+
+-- The operation _·_ is sub-interchangeable with _∧_ (with respect
+-- to _≤_).
+
+·-sub-interchangeable-∧ : _·_ SubInterchangable _∧_ by _≤_
+·-sub-interchangeable-∧ p q p′ q′ = begin
+  (p ∧ q) · (p′ ∧ q′)                            ≈⟨ ·-distribˡ-∧ _ _ _ ⟩
+  ((p ∧ q) · p′) ∧ ((p ∧ q) · q′)                ≈⟨ ∧-cong (·-distribʳ-∧ _ _ _) (·-distribʳ-∧ _ _ _) ⟩
+  ((p · p′) ∧ (q · p′)) ∧ ((p · q′) ∧ (q · q′))  ≤⟨ ∧-monotone (∧-decreasingˡ _ _) (∧-decreasingʳ _ _) ⟩
+  (p · p′) ∧ (q · q′)                            ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset

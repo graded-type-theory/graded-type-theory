@@ -1,7 +1,5 @@
 -- Raw terms, weakening (renaming) and substitution.
 
-{-# OPTIONS --without-K --safe #-}
-
 module Definition.Untyped {a} (M : Set a) where
 
 open import Tools.Fin
@@ -12,16 +10,17 @@ import Tools.PropositionalEquality as PE
 
 private
   variable
-    p q r : M
+    p p′ p₁ p₂ q q₁ q₂ r : M
     n m ℓ : Nat
 
 infixl 30 _∙_
 infixr 5 _∷_
+infix 30 ΠΣ⟨_⟩_,_▷_▹_
 infix 30 Π_,_▷_▹_
-infix 30 Σ_▷_▹_
-infix 30 Σₚ_▷_▹_
-infix 30 Σᵣ_▷_▹_
-infix 30 Σ⟨_⟩_▷_▹_
+infix 30 Σ_,_▷_▹_
+infix 30 Σₚ_,_▷_▹_
+infix 30 Σᵣ_,_▷_▹_
+infix 30 Σ⟨_⟩_,_▷_▹_
 infix 30 ⟦_⟧_▹_
 infixl 30 _ₛ•ₛ_ _•ₛ_ _ₛ•_
 infix 25 _[_]
@@ -48,21 +47,30 @@ data GenTs (A : Nat → Set a) : Nat → List Nat → Set a where
 data SigmaMode : Set where
   Σₚ Σᵣ : SigmaMode
 
+-- Π- or Σ-types.
+
+data BinderMode : Set where
+  BMΠ : BinderMode
+  BMΣ : (s : SigmaMode) → BinderMode
+
+private variable
+  b : BinderMode
+
 -- Kinds are indexed on the number of expected sub terms
 -- and the number of new variables bound by each sub term
 
 data Kind : (ns : List Nat) → Set a where
   Ukind : Kind []
 
-  Pikind  : (p q : M) → Kind (0 ∷ 1 ∷ [])
+  Binderkind : (b : BinderMode) (p q : M) → Kind (0 ∷ 1 ∷ [])
+
   Lamkind : (p : M)   → Kind (1 ∷ [])
   Appkind : (p : M)   → Kind (0 ∷ 0 ∷ [])
 
-  Sigmakind   : SigmaMode → (q : M) → Kind (0 ∷ 1 ∷ [])
-  Prodkind    : SigmaMode → Kind (0 ∷ 0 ∷ [])
-  Fstkind     : Kind (0 ∷ [])
-  Sndkind     : Kind (0 ∷ [])
-  Prodreckind : (p q : M) → Kind (1 ∷ 0 ∷ 2 ∷ [])
+  Prodkind    : SigmaMode → (p : M) → Kind (0 ∷ 0 ∷ [])
+  Fstkind     : (p : M) → Kind (0 ∷ [])
+  Sndkind     : (p : M) → Kind (0 ∷ [])
+  Prodreckind : (r p q : M) → Kind (1 ∷ 0 ∷ 2 ∷ [])
 
   Natkind    : Kind []
   Zerokind   : Kind []
@@ -100,23 +108,25 @@ pattern ℕ = gen Natkind []
 pattern Empty = gen Emptykind []
 pattern Unit = gen Unitkind []
 
-pattern Π_,_▷_▹_ p q F G = gen (Pikind p q) (F ∷ G ∷ [])
-pattern Σₚ_▷_▹_ q F G = gen (Sigmakind Σₚ q) (F ∷ G ∷ [])
-pattern Σᵣ_▷_▹_ q F G = gen (Sigmakind Σᵣ q) (F ∷ G ∷ [])
-pattern Σ_▷_▹_ q F G = gen (Sigmakind _ q) (F ∷ G ∷ [])
-pattern Σ⟨_⟩_▷_▹_ m q F G = gen (Sigmakind m q) (F ∷ G ∷ [])
+pattern ΠΣ⟨_⟩_,_▷_▹_ b p q F G = gen (Binderkind b p q) (F ∷ G ∷ [])
+pattern Π_,_▷_▹_ p q F G = gen (Binderkind BMΠ p q) (F ∷ G ∷ [])
+pattern Σₚ_,_▷_▹_ p q F G = gen (Binderkind (BMΣ Σₚ) p q) (F ∷ G ∷ [])
+pattern Σᵣ_,_▷_▹_ p q F G = gen (Binderkind (BMΣ Σᵣ) p q) (F ∷ G ∷ [])
+pattern Σ_,_▷_▹_ p q F G = gen (Binderkind (BMΣ _) p q) (F ∷ G ∷ [])
+pattern Σ⟨_⟩_,_▷_▹_ s p q F G =
+  gen (Binderkind (BMΣ s) p q) (F ∷ G ∷ [])
 
 pattern lam p t = gen (Lamkind p) (t ∷ [])
 pattern _∘⟨_⟩_ t p u = gen (Appkind p) (t ∷ u ∷ [])
 pattern _∘_ t u = gen (Appkind _) (t ∷ u ∷ [])
 
-pattern prodₚ t u = gen (Prodkind Σₚ) (t ∷ u ∷ [])
-pattern prodᵣ t u = gen (Prodkind Σᵣ) (t ∷ u ∷ [])
-pattern prod m t u = gen (Prodkind m) (t ∷ u ∷ [])
-pattern prod! t u = gen (Prodkind _) (t ∷ u ∷ [])
-pattern fst t = gen Fstkind (t ∷ [])
-pattern snd t = gen Sndkind (t ∷ [])
-pattern prodrec p q A t u = gen (Prodreckind p q) (A ∷ t ∷ u ∷ [])
+pattern prodₚ p t u = gen (Prodkind Σₚ p) (t ∷ u ∷ [])
+pattern prodᵣ p t u = gen (Prodkind Σᵣ p) (t ∷ u ∷ [])
+pattern prod m p t u = gen (Prodkind m p) (t ∷ u ∷ [])
+pattern prod! t u = gen (Prodkind _ _) (t ∷ u ∷ [])
+pattern fst p t = gen (Fstkind p) (t ∷ [])
+pattern snd p t = gen (Sndkind p) (t ∷ [])
+pattern prodrec r p q A t u = gen (Prodreckind r p q) (A ∷ t ∷ u ∷ [])
 
 pattern zero = gen Zerokind []
 pattern suc t = gen Suckind (t ∷ [])
@@ -127,17 +137,18 @@ pattern Emptyrec p A t = gen (Emptyreckind p) (A ∷ t ∷ [])
 
 
 data BindingType : Set a where
-  BΠ : (p q : M) → BindingType
-  BΣ : SigmaMode → (q : M) → BindingType
+  BM : BinderMode → (p q : M) → BindingType
 
+pattern BΠ p q = BM BMΠ p q
 pattern BΠ! = BΠ _ _
-pattern BΣ! = BΣ _ _
-pattern BΣᵣ = BΣ Σᵣ _
-pattern BΣₚ = BΣ Σₚ _
+pattern BΣ s p q = BM (BMΣ s) p q
+pattern BΣ! = BΣ _ _ _
+pattern BΣᵣ = BΣ Σᵣ _ _
+pattern BΣₚ = BΣ Σₚ _ _
 
 ⟦_⟧_▹_ : BindingType → Term n → Term (1+ n) → Term n
-⟦ BΠ p q ⟧ F ▹ G = Π p , q ▷ F ▹ G
-⟦ BΣ m q ⟧ F ▹ G = Σ⟨ m ⟩ q ▷ F ▹ G
+⟦ BΠ p q   ⟧ F ▹ G = Π p , q ▷ F ▹ G
+⟦ BΣ m p q ⟧ F ▹ G = Σ⟨ m ⟩ p , q ▷ F ▹ G
 
 -- Injectivity of term constructors w.r.t. propositional equality.
 
@@ -145,14 +156,18 @@ pattern BΣₚ = BΣ Σₚ _
 
 B-PE-injectivity : ∀ W W' → ⟦ W ⟧ F ▹ G PE.≡ ⟦ W' ⟧ H ▹ E
                  → F PE.≡ H × G PE.≡ E × W PE.≡ W'
-B-PE-injectivity (BΠ p q) (BΠ .p .q) PE.refl = PE.refl , PE.refl , PE.refl
-B-PE-injectivity (BΣ q m) (BΣ .q .m) PE.refl = PE.refl , PE.refl , PE.refl
+B-PE-injectivity (BΠ p q) (BΠ .p .q) PE.refl =
+  PE.refl , PE.refl , PE.refl
+B-PE-injectivity (BΣ p q m) (BΣ .p .q .m) PE.refl =
+  PE.refl , PE.refl , PE.refl
 
 BΠ-PE-injectivity : ∀ {p p′ q q′} → BΠ p q PE.≡ BΠ p′ q′ → p PE.≡ p′ × q PE.≡ q′
 BΠ-PE-injectivity PE.refl = PE.refl , PE.refl
 
-BΣ-PE-injectivity : ∀ {q q′ m m′} → BΣ m q PE.≡ BΣ m′ q′ → q PE.≡ q′ × m PE.≡ m′
-BΣ-PE-injectivity PE.refl = PE.refl , PE.refl
+BΣ-PE-injectivity :
+  ∀ {p p′ q q′ m m′} →
+  BΣ m p q PE.≡ BΣ m′ p′ q′ → p PE.≡ p′ × q PE.≡ q′ × m PE.≡ m′
+BΣ-PE-injectivity PE.refl = PE.refl , PE.refl , PE.refl
 
 -- If  suc n = suc m  then  n = m.
 
@@ -161,9 +176,9 @@ suc-PE-injectivity PE.refl = PE.refl
 
 -- If prod t u = prod t′ u′ then t = t′ and u = u′
 
-prod-PE-injectivity : ∀ {m m′} → prod m t u PE.≡ prod m′ t′ u′
-                    → m PE.≡ m′ × t PE.≡ t′ × u PE.≡ u′
-prod-PE-injectivity PE.refl = PE.refl , PE.refl , PE.refl
+prod-PE-injectivity : ∀ {m m′} → prod m p t u PE.≡ prod m′ p′ t′ u′
+                    → m PE.≡ m′ × p PE.≡ p′ × t PE.≡ t′ × u PE.≡ u′
+prod-PE-injectivity PE.refl = PE.refl , PE.refl , PE.refl , PE.refl
 
 
 -- Neutral terms.
@@ -174,10 +189,10 @@ prod-PE-injectivity PE.refl = PE.refl , PE.refl , PE.refl
 data Neutral : Term n → Set a where
   var       : (x : Fin n) → Neutral (var x)
   ∘ₙ        : Neutral t   → Neutral (t ∘⟨ p ⟩ u)
-  fstₙ      : Neutral t   → Neutral (fst t)
-  sndₙ      : Neutral t   → Neutral (snd t)
+  fstₙ      : Neutral t   → Neutral (fst p t)
+  sndₙ      : Neutral t   → Neutral (snd p t)
   natrecₙ   : Neutral v   → Neutral (natrec p q r G t u v)
-  prodrecₙ  : Neutral t   → Neutral (prodrec p q A t u)
+  prodrecₙ  : Neutral t   → Neutral (prodrec r p q A t u)
   Emptyrecₙ : Neutral t   → Neutral (Emptyrec p A t)
 
 
@@ -189,8 +204,7 @@ data Whnf {n : Nat} : Term n → Set a where
 
   -- Type constructors are whnfs.
   Uₙ     : Whnf U
-  Πₙ     : Whnf (Π p , q ▷ A ▹ B)
-  Σₙ     : ∀ {m} → Whnf (Σ⟨ m ⟩ q ▷ A ▹ B)
+  ΠΣₙ    : Whnf (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
   ℕₙ     : Whnf ℕ
   Unitₙ  : Whnf Unit
   Emptyₙ : Whnf Empty
@@ -200,7 +214,7 @@ data Whnf {n : Nat} : Term n → Set a where
   zeroₙ : Whnf zero
   sucₙ  : Whnf (suc t)
   starₙ : Whnf star
-  prodₙ : ∀ {m} → Whnf (prod m t u)
+  prodₙ : ∀ {m} → Whnf (prod m p t u)
 
   -- Neutrals are whnfs.
   ne    : Neutral t → Whnf t
@@ -225,28 +239,28 @@ Unit≢ne () PE.refl
 
 B≢ne : ∀ W → Neutral A → ⟦ W ⟧ F ▹ G PE.≢ A
 B≢ne (BΠ p q) () PE.refl
-B≢ne (BΣ m q) () PE.refl
+B≢ne (BΣ m p q) () PE.refl
 
 U≢B : ∀ W → U PE.≢ ⟦ W ⟧ F ▹ G
 U≢B (BΠ p q) ()
-U≢B (BΣ m q) ()
+U≢B (BΣ m p q) ()
 
 ℕ≢B : ∀ W → ℕ PE.≢ ⟦ W ⟧ F ▹ G
 ℕ≢B (BΠ p q) ()
-ℕ≢B (BΣ m q) ()
+ℕ≢B (BΣ m p q) ()
 
 Empty≢B : ∀ W → Empty PE.≢ ⟦ W ⟧ F ▹ G
 Empty≢B (BΠ p q) ()
-Empty≢B (BΣ m q) ()
+Empty≢B (BΣ m p q) ()
 
 Unit≢B : ∀ W → Unit PE.≢ ⟦ W ⟧ F ▹ G
 Unit≢B (BΠ p q) ()
-Unit≢B (BΣ m q) ()
+Unit≢B (BΣ m p q) ()
 
-Π≢Σ : ∀ {m} → Π p , q ▷ F ▹ G PE.≢ Σ⟨ m ⟩ r ▷ H ▹ E
+Π≢Σ : ∀ {m} → Π p₁ , q₁ ▷ F ▹ G PE.≢ Σ⟨ m ⟩ p₂ , q₂ ▷ H ▹ E
 Π≢Σ ()
 
-Σₚ≢Σᵣ : Σₚ q ▷ F ▹ G PE.≢ Σᵣ r ▷ H ▹ E
+Σₚ≢Σᵣ : Σₚ p₁ , q₁ ▷ F ▹ G PE.≢ Σᵣ p₂ , q₂ ▷ H ▹ E
 Σₚ≢Σᵣ ()
 
 zero≢ne : Neutral t → zero PE.≢ t
@@ -255,7 +269,7 @@ zero≢ne () PE.refl
 suc≢ne : Neutral t → suc u PE.≢ t
 suc≢ne () PE.refl
 
-prod≢ne : ∀ {m} → Neutral v → prod m t u PE.≢ v
+prod≢ne : ∀ {m} → Neutral v → prod m p t u PE.≢ v
 prod≢ne () PE.refl
 
 -- Several views on whnfs (note: not recursive).
@@ -272,16 +286,15 @@ data Natural {n : Nat} : Term n → Set a where
 -- Large types could also be U.
 
 data Type {n : Nat} : Term n → Set a where
-  Πₙ     :             Type (Π p , q ▷ A ▹ B)
-  Σₙ     : ∀ {m} →     Type (Σ⟨ m ⟩ p ▷ A ▹ B)
+  ΠΣₙ    :             Type (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
   ℕₙ     :             Type ℕ
   Emptyₙ :             Type Empty
   Unitₙ  :             Type Unit
   ne     : Neutral t → Type t
 
 ⟦_⟧-type : ∀ (W : BindingType) → Type (⟦ W ⟧ F ▹ G)
-⟦ BΠ p q ⟧-type = Πₙ
-⟦ BΣ m q ⟧-type = Σₙ
+⟦ BΠ p q ⟧-type = ΠΣₙ
+⟦ BΣ m p q ⟧-type = ΠΣₙ
 
 -- A whnf of type Π A ▹ B is either lam t or neutral.
 
@@ -292,7 +305,7 @@ data Function {n : Nat} : Term n → Set a where
 -- A whnf of type Σ A ▹ B is either prod t u or neutral.
 
 data Product {n : Nat} : Term n → Set a where
-  prodₙ : ∀ {m} → Product (prod m t u)
+  prodₙ : ∀ {m} → Product (prod m p t u)
   ne    : Neutral t → Product t
 
 
@@ -305,8 +318,7 @@ naturalWhnf zeroₙ  = zeroₙ
 naturalWhnf (ne x) = ne x
 
 typeWhnf : Type A → Whnf A
-typeWhnf Πₙ     = Πₙ
-typeWhnf Σₙ     = Σₙ
+typeWhnf ΠΣₙ    = ΠΣₙ
 typeWhnf ℕₙ     = ℕₙ
 typeWhnf Emptyₙ = Emptyₙ
 typeWhnf Unitₙ  = Unitₙ
@@ -321,8 +333,8 @@ productWhnf prodₙ  = prodₙ
 productWhnf (ne x) = ne x
 
 ⟦_⟧ₙ : (W : BindingType) → Whnf (⟦ W ⟧ F ▹ G)
-⟦_⟧ₙ (BΠ p q) = Πₙ
-⟦_⟧ₙ (BΣ m q) = Σₙ
+⟦_⟧ₙ (BΠ p q) = ΠΣₙ
+⟦_⟧ₙ (BΣ m p q) = ΠΣₙ
 
 -- Fully normalized natural numbers
 
@@ -412,8 +424,7 @@ wkNatural ρ zeroₙ  = zeroₙ
 wkNatural ρ (ne x) = ne (wkNeutral ρ x)
 
 wkType : ∀ ρ → Type t → Type {n = n} (wk ρ t)
-wkType ρ Πₙ     = Πₙ
-wkType ρ Σₙ     = Σₙ
+wkType ρ ΠΣₙ    = ΠΣₙ
 wkType ρ ℕₙ     = ℕₙ
 wkType ρ Emptyₙ = Emptyₙ
 wkType ρ Unitₙ  = Unitₙ
@@ -429,8 +440,7 @@ wkProduct ρ (ne x) = ne (wkNeutral ρ x)
 
 wkWhnf : ∀ ρ → Whnf t → Whnf {n = n} (wk ρ t)
 wkWhnf ρ Uₙ      = Uₙ
-wkWhnf ρ Πₙ      = Πₙ
-wkWhnf ρ Σₙ      = Σₙ
+wkWhnf ρ ΠΣₙ     = ΠΣₙ
 wkWhnf ρ ℕₙ      = ℕₙ
 wkWhnf ρ Emptyₙ  = Emptyₙ
 wkWhnf ρ Unitₙ   = Unitₙ
@@ -604,4 +614,4 @@ t [ s ]↑² = subst (consSubst (wk1Subst (wk1Subst idSubst)) s) t
 B-subst : (σ : Subst m n) (W : BindingType) (F : Term n) (G : Term (1+ n))
         → subst σ (⟦ W ⟧ F ▹ G) PE.≡ ⟦ W ⟧ (subst σ F) ▹ (subst (liftSubst σ) G)
 B-subst σ (BΠ p q) F G = PE.refl
-B-subst σ (BΣ m q) F G = PE.refl
+B-subst σ (BΣ m p q) F G = PE.refl

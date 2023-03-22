@@ -1,26 +1,23 @@
-{-# OPTIONS --without-K --safe #-}
-
 open import Definition.Typed.EqualityRelation
-open import Tools.Relation
 
-module Definition.LogicalRelation.Substitution.Introductions.SingleSubst {a ℓ} (M′ : Setoid a ℓ)
-                                                                         {{eqrel : EqRelSet M′}} where
+module Definition.LogicalRelation.Substitution.Introductions.SingleSubst
+  {a} (M : Set a) {{eqrel : EqRelSet M}} where
+
 open EqRelSet {{...}}
-open Setoid M′ using () renaming (Carrier to M)
 
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Untyped.Properties M
-open import Definition.Typed M′
-open import Definition.Typed.Weakening M′ using (id)
-open import Definition.Typed.Properties M′
-open import Definition.LogicalRelation M′
-open import Definition.LogicalRelation.ShapeView M′
-open import Definition.LogicalRelation.Irrelevance M′
-open import Definition.LogicalRelation.Properties M′
-open import Definition.LogicalRelation.Substitution M′
-open import Definition.LogicalRelation.Substitution.Properties M′
-open import Definition.LogicalRelation.Substitution.Conversion M′
-open import Definition.LogicalRelation.Substitution.Weakening M′
+open import Definition.Typed M
+open import Definition.Typed.Weakening M using (id)
+open import Definition.Typed.Properties M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.ShapeView M
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.Properties M
+open import Definition.LogicalRelation.Substitution M
+open import Definition.LogicalRelation.Substitution.Properties M
+open import Definition.LogicalRelation.Substitution.Conversion M
+open import Definition.LogicalRelation.Substitution.Weakening M
 
 open import Tools.Nat
 open import Tools.Product
@@ -319,10 +316,10 @@ substSΠEq {F = F} {G} {F′} {G′} {t} {u} BΠ! [Γ] [F] [F′] [ΠFG] [ΠF′
            [t] [u] [t≡u] {Δ = Δ} {σ = σ} ⊢Δ [σ] =
   let [σΠFG] = proj₁ (unwrap [ΠFG] ⊢Δ [σ])
       _ , Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ = extractMaybeEmb (Π-elim [σΠFG])
-      F≡F₁ , G≡G₁ , _ = B-PE-injectivity BΠ! BΠ! (whnfRed* (red D₁) Πₙ)
+      F≡F₁ , G≡G₁ , _ = B-PE-injectivity BΠ! BΠ! (whnfRed* (red D₁) ΠΣₙ)
       [σΠF′G′] = proj₁ (unwrap [ΠF′G′] ⊢Δ [σ])
       _ , Bᵣ F₂ G₂ D₂ ⊢F₂ ⊢G₂ A≡A₂ [F]₂ [G]₂ G-ext₂ = extractMaybeEmb (Π-elim [σΠF′G′])
-      F′≡F₂ , G′≡G₂ , _ = B-PE-injectivity BΠ! BΠ! (whnfRed* (red D₂) Πₙ)
+      F′≡F₂ , G′≡G₂ , _ = B-PE-injectivity BΠ! BΠ! (whnfRed* (red D₂) ΠΣₙ)
       [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
       [σF′] = proj₁ (unwrap [F′] ⊢Δ [σ])
       [σt] = proj₁ ([t] ⊢Δ [σ])
@@ -354,10 +351,10 @@ substSΠEq {F = F} {G} {F′} {G′} {t} {u} BΣ! [Γ] [F] [F′] [ΣFG] [ΣF′
            [t] [u] [t≡u] {Δ = Δ} {σ = σ} ⊢Δ [σ] =
   let [σΣFG] = proj₁ (unwrap [ΣFG] ⊢Δ [σ])
       _ , Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ = extractMaybeEmb (Σ-elim [σΣFG])
-      F≡F₁ , G≡G₁ , _ = B-PE-injectivity BΣ! BΣ! (whnfRed* (red D₁) Σₙ)
+      F≡F₁ , G≡G₁ , _ = B-PE-injectivity BΣ! BΣ! (whnfRed* (red D₁) ΠΣₙ)
       [σΣF′G′] = proj₁ (unwrap [ΣF′G′] ⊢Δ [σ])
       _ , Bᵣ F₂ G₂ D₂ ⊢F₂ ⊢G₂ A≡A₂ [F]₂ [G]₂ G-ext₂ = extractMaybeEmb (Σ-elim [σΣF′G′])
-      F′≡F₂ , G′≡G₂ , _ = B-PE-injectivity BΣ! BΣ! (whnfRed* (red D₂) Σₙ)
+      F′≡F₂ , G′≡G₂ , _ = B-PE-injectivity BΣ! BΣ! (whnfRed* (red D₂) ΠΣₙ)
       [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
       [σF′] = proj₁ (unwrap [F′] ⊢Δ [σ])
       [σt] = proj₁ ([t] ⊢Δ [σ])

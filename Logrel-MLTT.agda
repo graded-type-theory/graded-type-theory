@@ -1,5 +1,3 @@
-{-# OPTIONS --without-K --safe #-}
-
 -- A Logical Relation for Dependent Type Theory Formalized in Agda
 
 module Logrel-MLTT where
@@ -50,7 +48,11 @@ import Definition.Modality.Instances.BoundedStar
 import Definition.Modality.Instances.Finite
 import Definition.Modality.Instances.LowerBounded
 import Definition.Modality.Instances.Recursive
+import Definition.Modality.Instances.Zero-one-many
 
+
+-- Modes
+import Definition.Mode
 
 -- Grammar of the language
 import Definition.Untyped
@@ -123,6 +125,9 @@ import Definition.Conversion.Whnf
 import Definition.Conversion.Decidable
 import Definition.Conversion.EqRelInstance
 import Definition.Conversion.FullReduction
+
+-- A "full reduction" lemma for modalities.
+import Definition.Modality.FullReduction
 
 -- Consequences of the logical relation for algorithmic equality
 import Definition.Conversion.Consequences.Completeness

@@ -1,38 +1,34 @@
-{-# OPTIONS --without-K --safe #-}
-
-open import Tools.Relation
-
-module Definition.Conversion.EqRelInstance {a ℓ} (M′ : Setoid a ℓ) where
-
-open Setoid M′ using (_≈_) renaming (Carrier to M; refl to ≈-refl; sym to ≈-sym; trans to ≈-trans)
+module Definition.Conversion.EqRelInstance
+  {a} (M : Set a) where
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M′
-open import Definition.Typed.Properties M′
-open import Definition.Typed.Weakening M′ using (_∷_⊆_; wkEq)
-open import Definition.Conversion M′
-open import Definition.Conversion.Reduction M′
-open import Definition.Conversion.Universe M′
-open import Definition.Conversion.Stability M′
-open import Definition.Conversion.Soundness M′
-open import Definition.Conversion.Lift M′
-open import Definition.Conversion.Conversion M′
-open import Definition.Conversion.Symmetry M′
-open import Definition.Conversion.Transitivity M′
-open import Definition.Conversion.Weakening M′
-open import Definition.Typed.EqualityRelation M′
-open import Definition.Typed.Consequences.Syntactic M′
-open import Definition.Typed.Consequences.Substitution M′
-open import Definition.Typed.Consequences.Injectivity M′
-open import Definition.Typed.Consequences.Equality M′
-open import Definition.Typed.Consequences.Reduction M′
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.Typed.Weakening M using (_∷_⊆_; wkEq)
+open import Definition.Conversion M
+open import Definition.Conversion.Reduction M
+open import Definition.Conversion.Universe M
+open import Definition.Conversion.Stability M
+open import Definition.Conversion.Soundness M
+open import Definition.Conversion.Lift M
+open import Definition.Conversion.Conversion M
+open import Definition.Conversion.Symmetry M
+open import Definition.Conversion.Transitivity M
+open import Definition.Conversion.Weakening M
+open import Definition.Typed.EqualityRelation M
+open import Definition.Typed.Consequences.Syntactic M
+open import Definition.Typed.Consequences.Substitution M
+open import Definition.Typed.Consequences.Injectivity M
+open import Definition.Typed.Consequences.Equality M
+open import Definition.Typed.Consequences.Reduction M
 
 open import Tools.Fin
 open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
 open import Tools.Function
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE
+  using (_≈_; ≈-refl; ≈-sym; ≈-trans)
 
 private
   variable
@@ -42,7 +38,7 @@ private
     p p₁ p₂ p′ q q′ q₁ q₂ r r′ : M
 
 -- Algorithmic equality of neutrals with injected conversion.
-record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set (a ⊔ ℓ) where
+record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
   inductive
   constructor ↑
   field
@@ -76,36 +72,38 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set (a ⊔ ℓ) where
                             ([~] _ (red D) whnfB′ x))
         (convConvTerm x₁ F≡H) (≈-trans (≈-sym p≈p′) p≈p₁) (≈-trans (≈-sym p≈p′) p≈p₂))
 
-~-fst : ∀ {p r F G}
-      → Γ ⊢ p ~ r ∷ Σ q ▷ F ▹ G
-      → Γ ⊢ fst p ~ fst r ∷ F
+~-fst :
+  ∀ {p r F G} →
+  Γ ⊢ p ~ r ∷ Σₚ p′ , q ▷ F ▹ G →
+  Γ ⊢ fst p′ p ~ fst p′ r ∷ F
 ~-fst (↑ A≡B p~r) =
-  let _ , ⊢B = syntacticEq A≡B
-      B′ , whnfB′ , D = whNorm ⊢B
-      ΣFG≡B′ = trans A≡B (subset* (red D))
-      q , H , E , B≡ΣHE = Σ≡A ΣFG≡B′ whnfB′
-      F≡H , G≡E , _ = Σ-injectivity (PE.subst (λ x → _ ⊢ _ ≡ x) B≡ΣHE ΣFG≡B′)
-      p~r↓ = PE.subst (λ x → _ ⊢ _ ~ _ ↓ x)
-                      B≡ΣHE
-                      ([~] _ (red D) whnfB′ p~r)
-  in  ↑ F≡H (fst-cong p~r↓)
+  case syntacticEq A≡B of λ (_ , ⊢B) →
+  case whNorm ⊢B of λ (B′ , whnfB′ , D) →
+  case trans A≡B (subset* (red D)) of λ ΣFG≡B′ →
+  case Σ≡A ΣFG≡B′ whnfB′ of λ where
+    (_ , _ , H , _ , PE.refl) →
+      case Σ-injectivity ΣFG≡B′ of λ where
+        (F≡H , _ , PE.refl , _) →
+          ↑ F≡H (fst-cong ([~] _ (red D) whnfB′ p~r))
 
-~-snd : ∀ {p r F G}
-      → Γ ⊢ p ~ r ∷ Σ q ▷ F ▹ G
-      → Γ ⊢ snd p ~ snd r ∷ G [ fst p ]
+~-snd :
+  ∀ {p r F G} →
+  Γ ⊢ p ~ r ∷ Σ p′ , q ▷ F ▹ G →
+  Γ ⊢ snd p′ p ~ snd p′ r ∷ G [ fst p′ p ]
 ~-snd (↑ A≡B p~r) =
-  let ⊢ΣFG , ⊢B = syntacticEq A≡B
-      B′ , whnfB′ , D = whNorm ⊢B
-      ΣFG≡B′ = trans A≡B (subset* (red D))
-      q , H , E , B≡ΣHE = Σ≡A ΣFG≡B′ whnfB′
-      F≡H , G≡E , _ = Σ-injectivity (PE.subst (λ x → _ ⊢ _ ≡ x) B≡ΣHE ΣFG≡B′)
-      p~r↓ = PE.subst (λ x → _ ⊢ _ ~ _ ↓ x)
-                      B≡ΣHE
-                      ([~] _ (red D) whnfB′ p~r)
-      ⊢F , ⊢G = syntacticΣ ⊢ΣFG
-      _ , ⊢p , _ = syntacticEqTerm (soundness~↑ p~r)
-      ⊢fst = fstⱼ ⊢F ⊢G (conv ⊢p (sym A≡B))
-  in  ↑ (substTypeEq G≡E (refl ⊢fst)) (snd-cong p~r↓)
+  case syntacticEq A≡B of λ (⊢ΣFG , ⊢B) →
+  case whNorm ⊢B of λ (B′ , whnfB′ , D) →
+  case trans A≡B (subset* (red D)) of λ ΣFG≡B′ →
+  case Σ≡A ΣFG≡B′ whnfB′ of λ where
+    (_ , _ , _ , E , PE.refl) →
+      case Σ-injectivity ΣFG≡B′ of λ where
+        (_ , G≡E , PE.refl , _) →
+          let p~r↓       = [~] _ (red D) whnfB′ p~r
+              ⊢F , ⊢G    = syntacticΣ ⊢ΣFG
+              _ , ⊢p , _ = syntacticEqTerm (soundness~↑ p~r)
+              ⊢fst       = fstⱼ ⊢F ⊢G (conv ⊢p (sym A≡B))
+          in
+          ↑ (substTypeEq G≡E (refl ⊢fst)) (snd-cong p~r↓)
 
 ~-natrec : ∀ {z z′ s s′ n n′ F F′}
          → Γ ∙ ℕ ⊢ F
@@ -117,7 +115,7 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set (a ⊔ ℓ) where
       q ≈ q′ →
       r ≈ r′ →
       Γ ⊢ natrec p q r F z s n ~ natrec p′ q′ r′ F′ z′ s′ n′ ∷ (F [ n ])
-~-natrec _ x x₁ x₂ (↑ A≡B x₄) p≈p′ q≈q′ r≈r′ =
+~-natrec _ x x₁ x₂ (↑ A≡B x₄) p≈p′ PE.refl r≈r′ =
   let _ , ⊢B = syntacticEq A≡B
       B′ , whnfB′ , D = whNorm ⊢B
       ℕ≡B′ = trans A≡B (subset* (red D))
@@ -127,32 +125,34 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set (a ⊔ ℓ) where
       ⊢F , _ = syntacticEq (soundnessConv↑ x)
       _ , ⊢n , _ = syntacticEqTerm (soundness~↓ k~l′)
   in  ↑ (refl (substType ⊢F ⊢n))
-        (natrec-cong x x₁ x₂ k~l′ p≈p′ q≈q′ r≈r′)
+        (natrec-cong x x₁ x₂ k~l′ p≈p′ r≈r′)
 
-~-prodrec : ∀ {F G A A′ t t′ u u′}
-          → Γ ⊢ F
-          → Γ ∙ F ⊢ G
-          → Γ ∙ (Σᵣ q ▷ F ▹ G) ⊢ A [conv↑] A′
-          → Γ ⊢ t ~ t′ ∷ (Σᵣ q ▷ F ▹ G)
-          → Γ ∙ F ∙ G ⊢ u [conv↑] u′ ∷ A [ prodᵣ (var (x0 +1)) (var x0) ]↑²
-          → p ≈ p′
-          → q₁ ≈ q₂
-          → Γ ⊢ prodrec p q₁ A t u ~ prodrec p′ q₂ A′ t′ u′ ∷ (A [ t ])
-~-prodrec x x₁ x₂ (↑ A≡B k~↑l) x₄ x₅ x₆ =
-  let _ , ⊢B = syntacticEq A≡B
-      B′ , whnfB′ , D = whNorm ⊢B
-      t~t′ = [~] _ (red D) whnfB′ k~↑l
-      q′ , F′ , G′ , B≡Σ = Σ≡A (trans A≡B (subset* (red D))) whnfB′
-      ⊢Γ = wf ⊢B
-      ⊢Γ≡Γ = reflConEq ⊢Γ
-      Σ≡Σ′ = PE.subst (λ x → _ ⊢ _ ≡ x) B≡Σ (trans A≡B (subset* (red D)))
-      F≡F′ , G≡G′ , _ = Σ-injectivity Σ≡Σ′
-      ⊢A , _ = syntacticEq (soundnessConv↑ x₂)
-      _ , ⊢t , _ = syntacticEqTerm (soundness~↑ k~↑l)
-  in  ↑ (refl (substType ⊢A (conv ⊢t (sym A≡B))))
-        (prodrec-cong (stabilityConv↑ (⊢Γ≡Γ ∙ Σ≡Σ′) x₂)
-                      (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡Σ t~t′)
-                      (stabilityConv↑Term (⊢Γ≡Γ ∙ F≡F′ ∙ G≡G′) x₄) x₅ x₆)
+~-prodrec :
+  ∀ {F G A A′ t t′ u u′} →
+  Γ ⊢ F →
+  Γ ∙ F ⊢ G →
+  Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ A [conv↑] A′ →
+  Γ ⊢ t ~ t′ ∷ (Σᵣ p , q ▷ F ▹ G) →
+  Γ ∙ F ∙ G ⊢ u [conv↑] u′ ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑² →
+  r ≈ r′ →
+  Γ ⊢ prodrec r p q A t u ~ prodrec r′ p q A′ t′ u′ ∷ (A [ t ])
+~-prodrec x x₁ x₂ (↑ A≡B k~↑l) x₄ PE.refl =
+  case syntacticEq A≡B of λ (_ , ⊢B) →
+  case whNorm ⊢B of λ (B′ , whnfB′ , D) →
+  case _⊢_≡_.trans A≡B (subset* (red D)) of λ Σ≡Σ′ →
+  case Σ≡A (trans A≡B (subset* (red D))) whnfB′ of λ where
+    (_ , q′ , F′ , G′ , PE.refl) →
+      case Σ-injectivity Σ≡Σ′ of λ where
+        (F≡F′ , G≡G′ , PE.refl , PE.refl , _) →
+          let t~t′       = [~] _ (red D) whnfB′ k~↑l
+              ⊢Γ         = wf ⊢B
+              ⊢Γ≡Γ       = reflConEq ⊢Γ
+              ⊢A , _     = syntacticEq (soundnessConv↑ x₂)
+              _ , ⊢t , _ = syntacticEqTerm (soundness~↑ k~↑l)
+          in
+          ↑ (refl (substType ⊢A (conv ⊢t (sym A≡B))))
+            (prodrec-cong! (stabilityConv↑ (⊢Γ≡Γ ∙ Σ≡Σ′) x₂)
+               t~t′ (stabilityConv↑Term (⊢Γ≡Γ ∙ F≡F′ ∙ G≡G′) x₄))
 
 ~-Emptyrec : ∀ {n n′ F F′}
          → Γ ⊢ F [conv↑] F′ →
@@ -239,29 +239,21 @@ eqRelInstance = record {
                                (redₜ u'Red)
                                Unitₙ uWhnf u'Whnf
                                (η-unit [u] [u'] uWhnf u'Whnf);
-  ≅-Π-cong = λ x x₁ x₂ x₃ x₄ → liftConv (Π-cong x x₁ x₂ x₃ x₄);
-  ≅ₜ-Π-cong = λ x x₁ x₂ x₃ x₄ → let _ , F∷U , H∷U = syntacticEqTerm (soundnessConv↑Term x₁)
-                                    _ , G∷U , E∷U = syntacticEqTerm (soundnessConv↑Term x₂)
-                                    ⊢Γ = wfTerm F∷U
-                                    F<>H = univConv↑ x₁
-                                    G<>E = univConv↑ x₂
-                                    F≡H = soundnessConv↑ F<>H
-                                    E∷U′ = stabilityTerm (reflConEq ⊢Γ ∙ F≡H) E∷U
-                               in  liftConvTerm (univ (Πⱼ F∷U ▹ G∷U) (Πⱼ H∷U ▹ E∷U′)
-                                                      (Π-cong x F<>H G<>E x₃ x₄));
-  ≅-Σ-cong = λ x x₁ x₂ x₃ → liftConv (Σ-cong x x₁ x₂ x₃);
-  ≅ₜ-Σ-cong = λ x x₁ x₂ x₃ → let _ , F∷U , H∷U = syntacticEqTerm (soundnessConv↑Term x₁)
-                                 _ , G∷U , E∷U = syntacticEqTerm (soundnessConv↑Term x₂)
-                                 ⊢Γ = wfTerm F∷U
-                                 F<>H = univConv↑ x₁
-                                 G<>E = univConv↑ x₂
-                                 F≡H = soundnessConv↑ F<>H
-                                 E∷U′ = stabilityTerm (reflConEq ⊢Γ ∙ F≡H) E∷U
-                             in  liftConvTerm (univ (Σⱼ F∷U ▹ G∷U) (Σⱼ H∷U ▹ E∷U′)
-                                                    (Σ-cong x F<>H G<>E x₃));
+  ≅-ΠΣ-cong = λ x x₁ x₂ → liftConv (ΠΣ-cong x x₁ x₂);
+  ≅ₜ-ΠΣ-cong = λ x x₁ x₂ →
+    let _ , F∷U , H∷U = syntacticEqTerm (soundnessConv↑Term x₁)
+        _ , G∷U , E∷U = syntacticEqTerm (soundnessConv↑Term x₂)
+        ⊢Γ = wfTerm F∷U
+        F<>H = univConv↑ x₁
+        G<>E = univConv↑ x₂
+        F≡H = soundnessConv↑ F<>H
+        E∷U′ = stabilityTerm (reflConEq ⊢Γ ∙ F≡H) E∷U
+    in
+    liftConvTerm (univ (ΠΣⱼ F∷U ▹ G∷U) (ΠΣⱼ H∷U ▹ E∷U′)
+      (ΠΣ-cong x F<>H G<>E));
   ≅ₜ-zerorefl = liftConvTerm ∘ᶠ zero-refl;
   ≅-suc-cong = liftConvTerm ∘ᶠ suc-cong;
-  ≅-prod-cong = λ x x₁ x₂ x₃ → liftConvTerm (prod-cong x x₁ x₂ x₃);
+  ≅-prod-cong = λ x x₁ x₂ x₃ → liftConvTerm (prod-cong! x x₁ x₂ x₃);
   ≅-η-eq = λ x x₁ x₂ x₃ x₄ x₅ → liftConvTerm (η-eq x₁ x₂ x₃ x₄ x₅);
   ≅-Σ-η = λ x x₁ x₂ x₃ x₄ x₅ x₆ x₇ → (liftConvTerm (Σ-η x₂ x₃ x₄ x₅ x₆ x₇));
   ~-var = ~-var;

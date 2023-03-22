@@ -1,17 +1,12 @@
-{-# OPTIONS --without-K --safe #-}
-
-open import Tools.Relation
-
-module Erasure.SucRed {a ℓ} (M′ : Setoid a ℓ) where
-
-open Setoid M′ using () renaming (Carrier to M)
+module Erasure.SucRed
+  {a} (M : Set a) where
 
 open import Tools.Level
 open import Tools.Nat
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M′
-open import Definition.Typed.Properties M′
+open import Definition.Typed M
+open import Definition.Typed.Properties M
 
 import Erasure.Target as T
 
@@ -23,11 +18,11 @@ private
     t t′ u : Term n
     v v′ w : T.Term n
 
-data _⊢_⇒ˢ_∷ℕ (Γ : Con Term n) : (t u : Term n) → Set (a ⊔ ℓ) where
+data _⊢_⇒ˢ_∷ℕ (Γ : Con Term n) : (t u : Term n) → Set a where
   whred : Γ ⊢ t ⇒ u ∷ ℕ → Γ ⊢ t ⇒ˢ u ∷ℕ
   sucred : Γ ⊢ t ⇒ˢ u ∷ℕ → Γ ⊢ suc t ⇒ˢ suc u ∷ℕ
 
-data _⊢_⇒ˢ*_∷ℕ (Γ : Con Term n) : (t u : Term n) → Set (a ⊔ ℓ) where
+data _⊢_⇒ˢ*_∷ℕ (Γ : Con Term n) : (t u : Term n) → Set a where
   id : Γ ⊢ t ∷ ℕ → Γ ⊢ t ⇒ˢ* t ∷ℕ
   _⇨ˢ_ : Γ ⊢ t ⇒ˢ t′ ∷ℕ → Γ ⊢ t′ ⇒ˢ* u ∷ℕ → Γ ⊢ t ⇒ˢ* u ∷ℕ
 

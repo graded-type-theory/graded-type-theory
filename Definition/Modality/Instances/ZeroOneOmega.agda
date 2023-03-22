@@ -1,21 +1,21 @@
-{-# OPTIONS --without-K --safe #-}
-
 module Definition.Modality.Instances.ZeroOneOmega where
 
+open import Definition.Modality.Restrictions
+
+open import Tools.Function
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
+import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
+open import Tools.Sum
 
 -- The three element set, forming the basis for several modalities
 
 data 𝟘𝟙ω : Set where
   𝟘 𝟙 ω : 𝟘𝟙ω
 
-𝟘𝟙ω′ : Setoid _ _
-𝟘𝟙ω′ = record { Carrier = 𝟘𝟙ω ; _≈_ = _≡_ ; isEquivalence = isEquivalence }
-
-open import Tools.Algebra 𝟘𝟙ω′
-open import Definition.Modality 𝟘𝟙ω′
+open import Tools.Algebra 𝟘𝟙ω
+open import Definition.Modality 𝟘𝟙ω
 
 infixl 40 _+_
 infixl 45 _·_
@@ -295,15 +295,21 @@ _·_ : Op₂ 𝟘𝟙ω
   ; zero = ·-zero
   }
 
--- 𝟘𝟙ω is a modality given a lawful semilattice
+-- 𝟘𝟙ω is a modality given a lawful semilattice satisfying some extra
+-- properties.
 
-𝟘𝟙ωModalityWithout⊛ : {_∧_ : Op₂ 𝟘𝟙ω} (∧-Semilattice : IsSemilattice _∧_)
-                      (·-distrib-∧ : _·_ DistributesOver _∧_)
-                      (+-distrib-∧ : _+_ DistributesOver _∧_)
-                      (Prodrec : 𝟘𝟙ω → Set)
-                    → ModalityWithout⊛
-𝟘𝟙ωModalityWithout⊛ {_∧_ = _∧_} ∧-Semilattice
-                    ·-distrib-∧ +-distrib-∧ Prodrec = record
+𝟘𝟙ωModalityWithout⊛ :
+  {_∧_ : Op₂ 𝟘𝟙ω} →
+  IsSemilattice _∧_ →
+  _·_ DistributesOver _∧_ →
+  _+_ DistributesOver _∧_ →
+  ω ≡ (ω ∧ 𝟙) →
+  𝟘 ≢ (𝟘 ∧ 𝟙) →
+  Restrictions 𝟘𝟙ω →
+  ModalityWithout⊛
+𝟘𝟙ωModalityWithout⊛
+  {_∧_ = _∧_}
+  ∧-Semilattice ·-distrib-∧ +-distrib-∧ ω≤𝟙 𝟘≰𝟙 restrictions = record
   { _+_ = _+_
   ; _·_ = _·_
   ; _∧_ = _∧_
@@ -313,8 +319,79 @@ _·_ : Op₂ 𝟘𝟙ω
   ; ∧-Semilattice = ∧-Semilattice
   ; ·-distrib-∧ = ·-distrib-∧
   ; +-distrib-∧ = +-distrib-∧
-  ; Prodrec = Prodrec
+  ; restrictions = restrictions
+  ; 𝟘ᵐ→𝟙≉𝟘 = λ _ ()
+  ; is-𝟘? = λ _ → λ where
+      𝟘 → yes refl
+      𝟙 → no (λ ())
+      ω → no (λ ())
+  ; zero-product = λ _ → λ where
+      {p = 𝟘} _ → inj₁ refl
+      {q = 𝟘} _ → inj₂ refl
+  ; positiveˡ = λ _ → λ where
+      {p = 𝟘}         _  → refl
+      {p = 𝟙} {q = 𝟘} ()
+      {p = 𝟙} {q = 𝟙} ()
+      {p = 𝟙} {q = ω} ()
+  ; ∧≤𝟘ˡ = λ _ → λ where
+      {p = 𝟘} _ →
+        𝟘      ≡˘⟨ S.idem _ ⟩
+        𝟘 ∧ 𝟘  ∎
+      {p = 𝟙} {q = 𝟘} 𝟙∧𝟘≡𝟘 → ⊥-elim (𝟘≰𝟙 (
+        𝟘      ≡˘⟨ 𝟙∧𝟘≡𝟘 ⟩
+        𝟙 ∧ 𝟘  ≡⟨ S.comm _ _ ⟩
+        𝟘 ∧ 𝟙  ∎))
+      {p = 𝟙} {q = 𝟙} 𝟙∧𝟙≡𝟘 →
+        case
+          𝟙      ≡˘⟨ S.idem _ ⟩
+          𝟙 ∧ 𝟙  ≡⟨ 𝟙∧𝟙≡𝟘 ⟩
+          𝟘      ∎
+        of λ ()
+      {p = 𝟙} {q = ω} 𝟙∧ω≡𝟘 →
+        case
+          ω      ≡⟨ ω≤𝟙 ⟩
+          ω ∧ 𝟙  ≡⟨ S.comm _ _ ⟩
+          𝟙 ∧ ω  ≡⟨ 𝟙∧ω≡𝟘 ⟩
+          𝟘      ∎
+        of λ ()
+      {p = ω} _ →
+        ω      ≡⟨ ω≤𝟘 ⟩
+        ω ∧ 𝟘  ∎
+  ; ≉𝟘→≤𝟙 = λ _ → λ where
+      {p = 𝟘} 𝟘≢𝟘 → ⊥-elim (𝟘≢𝟘 refl)
+      {p = 𝟙} _   →
+        𝟙      ≡˘⟨ S.idem _ ⟩
+        𝟙 ∧ 𝟙  ∎
+      {p = ω} _ →
+        ω      ≡⟨ ω≤𝟙 ⟩
+        ω ∧ 𝟙  ∎
   }
+  where
+  module S = IsSemilattice ∧-Semilattice
+  open Tools.Reasoning.PropositionalEquality
+
+  ω∧𝟙∧𝟘≡ω : ω ∧ (𝟙 ∧ 𝟘) ≡ ω
+  ω∧𝟙∧𝟘≡ω = helper (𝟙 ∧ 𝟘) refl
+    where
+    helper : ∀ p → 𝟙 ∧ 𝟘 ≡ p → ω ∧ p ≡ ω
+    helper 𝟘 𝟙∧𝟘≡𝟘 =
+      ⊥-elim (𝟘≰𝟙 (
+        𝟘      ≡˘⟨ 𝟙∧𝟘≡𝟘 ⟩
+        𝟙 ∧ 𝟘  ≡⟨ S.comm _ _ ⟩
+        𝟘 ∧ 𝟙  ∎))
+    helper 𝟙 _ =
+      ω ∧ 𝟙  ≡˘⟨ ω≤𝟙 ⟩
+      ω      ∎
+    helper ω _ =
+      ω ∧ ω  ≡⟨ S.idem _ ⟩
+      ω      ∎
+
+  ω≤𝟘 : ω ≡ ω ∧ 𝟘
+  ω≤𝟘 =
+    ω            ≡˘⟨ ω∧𝟙∧𝟘≡ω ⟩
+    ω ∧ (𝟙 ∧ 𝟘)  ≡˘⟨ S.assoc _ _ _ ⟩
+    (ω ∧ 𝟙) ∧ 𝟘  ≡˘⟨ cong (_∧ _) ω≤𝟙 ⟩
+    ω ∧ 𝟘        ∎
 
 -- Meet-dependent implementation of ⊛
 
@@ -322,12 +399,19 @@ module ⊛ (_∧_ : Op₂ 𝟘𝟙ω) (∧-Semilattice : IsSemilattice _∧_)
          (·-distrib-∧ : _·_ DistributesOver _∧_)
          (+-distrib-∧ : _+_ DistributesOver _∧_)
          (ω∧ : (p : 𝟘𝟙ω) → ω ∧ p ≡ ω)
-         (Prodrec : 𝟘𝟙ω → Set) where
+         (𝟘≰𝟙 : 𝟘 ≢ (𝟘 ∧ 𝟙))
+         (restrictions : Restrictions 𝟘𝟙ω) where
 
   open IsSemilattice ∧-Semilattice
 
   𝟘𝟙ωMod : ModalityWithout⊛
-  𝟘𝟙ωMod = 𝟘𝟙ωModalityWithout⊛ ∧-Semilattice ·-distrib-∧ +-distrib-∧ Prodrec
+  𝟘𝟙ωMod = 𝟘𝟙ωModalityWithout⊛
+    ∧-Semilattice ·-distrib-∧ +-distrib-∧
+    (ω      ≡˘⟨ ω∧ _ ⟩
+     ω ∧ 𝟙  ∎)
+    𝟘≰𝟙 restrictions
+    where
+    open Tools.Reasoning.PropositionalEquality
 
   open ModalityWithout⊛ 𝟘𝟙ωMod hiding (𝟘; 𝟙; _+_; _·_; _∧_; ·-distribˡ-+; ·-distribʳ-+)
 
@@ -371,7 +455,7 @@ module ⊛ (_∧_ : Op₂ 𝟘𝟙ω) (∧-Semilattice : IsSemilattice _∧_)
   -- (p ⊛ᵣ q) + (p′ ⊛ᵣ q′) ≤ (p + p′) ⊛ᵣ (q + q′)
 
   +-sub-interchangable-⊛ : (r : 𝟘𝟙ω) → _+_ SubInterchangable (_⊛_▷ r) by _≤_
-  +-sub-interchangable-⊛ 𝟘 p q p′ q′ = +-sub-interchangable-∧ p q p′ q′
+  +-sub-interchangable-⊛ 𝟘 p q p′ q′ = +-sub-interchangeable-∧ p q p′ q′
   +-sub-interchangable-⊛ 𝟙 p q p′ q′ = begin
     p + ω · q + (p′ + ω · q′)
       ≈⟨ +-assoc p (ω · q) (p′ + ω · q′) ⟩
@@ -391,7 +475,7 @@ module ⊛ (_∧_ : Op₂ 𝟘𝟙ω) (∧-Semilattice : IsSemilattice _∧_)
     ω · (p ∧ q) + ω · (p′ ∧ q′)
       ≈˘⟨ ·-distribˡ-+ ω (p ∧ q) (p′ ∧ q′) ⟩
     ω · ((p ∧ q) + (p′ ∧ q′))
-      ≤⟨ ·-monotoneʳ (+-sub-interchangable-∧ p q p′ q′) ⟩
+      ≤⟨ ·-monotoneʳ (+-sub-interchangeable-∧ p q p′ q′) ⟩
     ω · ((p + p′) ∧ (q + q′)) ∎
     where open import Tools.Reasoning.PartialOrder ≤-poset
 
@@ -420,7 +504,7 @@ module ⊛ (_∧_ : Op₂ 𝟘𝟙ω) (∧-Semilattice : IsSemilattice _∧_)
     p ∧ (q ∧ (p ∧ q′))
       ≈˘⟨ ∧-assoc p q (p ∧ q′) ⟩
     (p ∧ q) ∧ (p ∧ q′) ∎
-    where open import Tools.Reasoning.Equivalence 𝟘𝟙ω′
+    where open import Tools.Reasoning.Equivalence (PE.setoid 𝟘𝟙ω)
   ⊛-distribˡ-∧ 𝟙 p q q′ rewrite ·-distribˡ-∧ ω q q′ =
     +-distribˡ-∧ p (ω · q) (ω · q′)
   ⊛-distribˡ-∧ ω p q q′ rewrite ⊛-distribˡ-∧ 𝟘 p q q′ =
@@ -438,7 +522,7 @@ module ⊛ (_∧_ : Op₂ 𝟘𝟙ω) (∧-Semilattice : IsSemilattice _∧_)
     (q ∧ p) ∧ (q ∧ p′)
       ≈⟨ cong₂ _∧_ (∧-comm q p) (∧-comm q p′) ⟩
     (p ∧ q) ∧ (p′ ∧ q) ∎
-    where open import Tools.Reasoning.Equivalence 𝟘𝟙ω′
+    where open import Tools.Reasoning.Equivalence (PE.setoid 𝟘𝟙ω)
   ⊛-distribʳ-∧ 𝟙 q p p′ = +-distribʳ-∧ (ω · q) p p′
   ⊛-distribʳ-∧ ω q p p′ rewrite ⊛-distribʳ-∧ 𝟘 q p p′ =
     ·-distribˡ-∧ ω (p ∧ q) (p′ ∧ q)
@@ -450,7 +534,6 @@ module ⊛ (_∧_ : Op₂ 𝟘𝟙ω) (∧-Semilattice : IsSemilattice _∧_)
     { modalityWithout⊛ = 𝟘𝟙ωMod
     ; _⊛_▷_ = _⊛_▷_
     ; ⊛-ineq = ⊛-ineq₁ , ⊛-ineq₂
-    ; ⊛-cong = cong₃ _⊛_▷_
     ; +-sub-interchangable-⊛ = +-sub-interchangable-⊛
     ; ·-sub-distribʳ-⊛ = λ r q p p′ → ≤-reflexive (·-distribʳ-⊛ r q p p′)
     ; ⊛-sub-distrib-∧ = λ r → (λ p q q′ → ≤-reflexive (⊛-distribˡ-∧ r p q q′))

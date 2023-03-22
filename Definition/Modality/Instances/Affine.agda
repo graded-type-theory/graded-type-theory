@@ -1,16 +1,17 @@
-{-# OPTIONS --without-K --safe #-}
-
 open import Definition.Modality.Instances.ZeroOneOmega
+open import Definition.Modality.Restrictions
 
-module Definition.Modality.Instances.Affine (Prodrec : 𝟘𝟙ω → Set)  where
+module Definition.Modality.Instances.Affine
+  (restrictions : Restrictions 𝟘𝟙ω)
+  where
 
 open import Tools.Product
 open import Tools.PropositionalEquality
 
 open import Definition.Modality.Instances.ZeroOneOmega
-  renaming (𝟘𝟙ω to Affine; 𝟘𝟙ω′ to Affine′) public
-open import Definition.Modality Affine′
-open import Tools.Algebra Affine′
+  renaming (𝟘𝟙ω to Affine) public
+open import Definition.Modality Affine
+open import Tools.Algebra Affine
 
 
 infixl 40 _∧_
@@ -87,7 +88,7 @@ _∧_ : Op₂ Affine
   (p · q) ∧ (p · r)
     ≈⟨ cong₂ _∧_ (·-Commutative p q) (·-Commutative p r) ⟩
   (q · p) ∧ (r · p) ∎
-  where open import Tools.Reasoning.Equivalence Affine′
+  where open import Tools.Reasoning.Equivalence (setoid Affine)
 
 -- Multiplication is distributive over addition
 -- p · (q ∧ r) ≡ (p · q) ∧ (p · r) and (q ∧ r) · p ≡ (q · p) ∧ (r · p)
@@ -121,7 +122,7 @@ _∧_ : Op₂ Affine
   (p + q) ∧ (p + r)
     ≈⟨ cong₂ _∧_ (+-Commutative p q) (+-Commutative p r) ⟩
   (q + p) ∧ (r + p) ∎
-  where open import Tools.Reasoning.Equivalence Affine′
+  where open import Tools.Reasoning.Equivalence (setoid Affine)
 
 -- Addition is distributive over meet
 -- p + (q ∧ r) ≡ (p + q) ∧ (p + r) and (q ∧ r) + p ≡ (q + p) ∧ (r + p)
@@ -168,4 +169,6 @@ _∧_ : Op₂ Affine
 -- Affine forms a modality
 
 affineModality : Modality
-affineModality = ⊛.𝟘𝟙ωModality _∧_ ∧-Semilattice ·-distrib-∧ +-distrib-∧ (λ _ → refl) Prodrec
+affineModality =
+  ⊛.𝟘𝟙ωModality _∧_ ∧-Semilattice ·-distrib-∧ +-distrib-∧ (λ _ → refl)
+    (λ ()) restrictions

@@ -1,23 +1,15 @@
-{-# OPTIONS --without-K --safe #-}
-
-open import Tools.Level
-open import Tools.Relation
-
-module Definition.Typed {ℓ ℓ′} (M′ : Setoid ℓ ℓ′) where
-
-open Setoid M′ using (_≈_) renaming (Carrier to M)
+module Definition.Typed {ℓ} (M : Set ℓ) where
 
 open import Definition.Untyped M hiding (_∷_)
 
 open import Tools.Fin
 open import Tools.Nat
 open import Tools.Product hiding (_,_)
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE using (_≈_)
 
 
 infixl 30 _∙_
-infix 30 Πⱼ_▹_
-infix 30 Σⱼ_▹_
+infix 30 ΠΣⱼ_▹_
 infix 30 ⟦_⟧ⱼ_▹_
 
 private
@@ -25,10 +17,11 @@ private
     n k : Nat
     Γ  : Con Term n
     A B C F H : Term n
-    a b f g t u v : Term n
+    a f g t u v : Term n
     G E : Term (1+ n)
     x : Fin n
-    p q r p′ q′ r′ p₁ p₂ q₁ q₂ : M
+    p q r p′ q′ r′ p₁ p₂ : M
+    b : BinderMode
     m : SigmaMode
 
 -- Well-typed variables
@@ -39,37 +32,30 @@ data _∷_∈_  : {n : Nat} (x : Fin n) (A : Term n) (Γ : Con Term n) → Set �
 
 mutual
   -- Well-formed context
-  data ⊢_ : Con Term n → Set (ℓ ⊔ ℓ′) where
+  data ⊢_ : Con Term n → Set ℓ where
     ε   : ⊢ ε
     _∙_ : ⊢ Γ
         → Γ ⊢ A
         → ⊢ Γ ∙ A
 
   -- Well-formed type
-  data _⊢_ (Γ : Con Term n) : Term n → Set (ℓ ⊔ ℓ′) where
+  data _⊢_ (Γ : Con Term n) : Term n → Set ℓ where
     Uⱼ     : ⊢ Γ → Γ ⊢ U
     ℕⱼ     : ⊢ Γ → Γ ⊢ ℕ
     Emptyⱼ : ⊢ Γ → Γ ⊢ Empty
     Unitⱼ  : ⊢ Γ → Γ ⊢ Unit
-    Πⱼ_▹_  : Γ     ⊢ F
+    ΠΣⱼ_▹_ : Γ     ⊢ F
            → Γ ∙ F ⊢ G
-           → Γ     ⊢ Π p , q ▷ F ▹ G
-    Σⱼ_▹_  : Γ     ⊢ F
-           → Γ ∙ F ⊢ G
-           → Γ     ⊢ Σ⟨ m ⟩ q ▷ F ▹ G
+           → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
     univ   : Γ ⊢ A ∷ U
            → Γ ⊢ A
 
   -- Well-formed term of a type
-  data _⊢_∷_ (Γ : Con Term n) : Term n → Term n → Set (ℓ ⊔ ℓ′) where
-    Πⱼ_▹_     : ∀ {F G}
+  data _⊢_∷_ (Γ : Con Term n) : Term n → Term n → Set ℓ where
+    ΠΣⱼ_▹_    : ∀ {F G}
               → Γ     ⊢ F ∷ U
               → Γ ∙ F ⊢ G ∷ U
-              → Γ     ⊢ Π p , q ▷ F ▹ G ∷ U
-    Σⱼ_▹_     : ∀ {F G}
-              → Γ     ⊢ F ∷ U
-              → Γ ∙ F ⊢ G ∷ U
-              → Γ     ⊢ Σ⟨ m ⟩ q ▷ F ▹ G ∷ U
+              → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ∷ U
     ℕⱼ        : ⊢ Γ → Γ ⊢ ℕ ∷ U
     Emptyⱼ    : ⊢ Γ → Γ ⊢ Empty ∷ U
     Unitⱼ     : ⊢ Γ → Γ ⊢ Unit ∷ U
@@ -93,24 +79,24 @@ mutual
               → Γ ∙ F ⊢ G
               → Γ ⊢ t ∷ F
               → Γ ⊢ u ∷ G [ t ]
-              → Γ ⊢ prod m t u ∷ Σ⟨ m ⟩ q ▷ F ▹ G
+              → Γ ⊢ prod m p t u ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
     fstⱼ      : ∀ {F G t}
               → Γ ⊢ F
               → Γ ∙ F ⊢ G
-              → Γ ⊢ t ∷ Σₚ q ▷ F ▹ G
-              → Γ ⊢ fst t ∷ F
+              → Γ ⊢ t ∷ Σₚ p , q ▷ F ▹ G
+              → Γ ⊢ fst p t ∷ F
     sndⱼ      : ∀ {F G t}
               → Γ ⊢ F
               → Γ ∙ F ⊢ G
-              → Γ ⊢ t ∷ Σₚ q ▷ F ▹ G
-              → Γ ⊢ snd t ∷ G [ fst t ]
+              → Γ ⊢ t ∷ Σₚ p , q ▷ F ▹ G
+              → Γ ⊢ snd p t ∷ G [ fst p t ]
     prodrecⱼ  : ∀ {t u F G A}
               → Γ ⊢ F
               → Γ ∙ F ⊢ G
-              → Γ ∙ (Σᵣ q ▷ F ▹ G) ⊢ A
-              → Γ ⊢ t ∷ Σᵣ q ▷ F ▹ G
-              → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ (var (x0 +1)) (var x0) ]↑²
-              → Γ ⊢ prodrec p q′ A t u ∷ A [ t ]
+              → Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ A
+              → Γ ⊢ t ∷ Σᵣ p , q ▷ F ▹ G
+              → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
+              → Γ ⊢ prodrec r p q A t u ∷ A [ t ]
     zeroⱼ     : ⊢ Γ
               → Γ ⊢ zero ∷ ℕ
     sucⱼ      : ∀ {n}
@@ -134,7 +120,7 @@ mutual
               → Γ ⊢ t ∷ B
 
   -- Type equality
-  data _⊢_≡_ (Γ : Con Term n) : Term n → Term n → Set (ℓ ⊔ ℓ′) where
+  data _⊢_≡_ (Γ : Con Term n) : Term n → Term n → Set ℓ where
     univ   : ∀ {A B}
            → Γ ⊢ A ≡ B ∷ U
            → Γ ⊢ A ≡ B
@@ -148,22 +134,15 @@ mutual
            → Γ ⊢ A ≡ B
            → Γ ⊢ B ≡ C
            → Γ ⊢ A ≡ C
-    Π-cong : ∀ {F H G E}
+    ΠΣ-cong
+           : ∀ {F H G E}
            → Γ     ⊢ F
            → Γ     ⊢ F ≡ H
            → Γ ∙ F ⊢ G ≡ E
-           → p ≈ p′
-           → q ≈ q′
-           → Γ     ⊢ Π p , q ▷ F ▹ G ≡ Π p′ , q′ ▷ H ▹ E
-    Σ-cong : ∀ {F H G E}
-           → Γ     ⊢ F
-           → Γ     ⊢ F ≡ H
-           → Γ ∙ F ⊢ G ≡ E
-           → q ≈ q′
-           → Γ     ⊢ Σ⟨ m ⟩ q ▷ F ▹ G ≡ Σ⟨ m ⟩ q′ ▷ H ▹ E
+           → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ≡ ΠΣ⟨ b ⟩ p , q ▷ H ▹ E
 
   -- Term equality
-  data _⊢_≡_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set (ℓ ⊔ ℓ′) where
+  data _⊢_≡_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ where
     refl          : ∀ {t A}
                   → Γ ⊢ t ∷ A
                   → Γ ⊢ t ≡ t ∷ A
@@ -178,19 +157,12 @@ mutual
                   → Γ ⊢ t ≡ u ∷ A
                   → Γ ⊢ A ≡ B
                   → Γ ⊢ t ≡ u ∷ B
-    Π-cong        : ∀ {E F G H}
+    ΠΣ-cong       : ∀ {E F G H}
                   → Γ     ⊢ F
-                  → Γ     ⊢ F ≡ H       ∷ U
-                  → Γ ∙ F ⊢ G ≡ E       ∷ U
-                  → p ≈ p′
-                  → q ≈ q′
-                  → Γ     ⊢ Π p , q ▷ F ▹ G ≡ Π p′ , q′ ▷ H ▹ E ∷ U
-    Σ-cong        : ∀ {E F G H}
-                  → Γ     ⊢ F
-                  → Γ     ⊢ F ≡ H       ∷ U
-                  → Γ ∙ F ⊢ G ≡ E       ∷ U
-                  → q ≈ q′
-                  → Γ     ⊢ Σ⟨ m ⟩ q ▷ F ▹ G ≡ Σ⟨ m ⟩ q′ ▷ H ▹ E ∷ U
+                  → Γ     ⊢ F ≡ H ∷ U
+                  → Γ ∙ F ⊢ G ≡ E ∷ U
+                  → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ≡
+                            ΠΣ⟨ b ⟩ p , q ▷ H ▹ E ∷ U
     app-cong      : ∀ {a b f g F G}
                   → Γ ⊢ f ≡ g ∷ Π p , q ▷ F ▹ G
                   → Γ ⊢ a ≡ b ∷ F
@@ -216,59 +188,61 @@ mutual
     fst-cong      : ∀ {t t' F G}
                   → Γ ⊢ F
                   → Γ ∙ F ⊢ G
-                  → Γ ⊢ t ≡ t' ∷ Σₚ q ▷ F ▹ G
-                  → Γ ⊢ fst t ≡ fst t' ∷ F
+                  → Γ ⊢ t ≡ t' ∷ Σₚ p , q ▷ F ▹ G
+                  → Γ ⊢ fst p t ≡ fst p t' ∷ F
     snd-cong      : ∀ {t t' F G}
                   → Γ ⊢ F
                   → Γ ∙ F ⊢ G
-                  → Γ ⊢ t ≡ t' ∷ Σₚ q ▷ F ▹ G
-                  → Γ ⊢ snd t ≡ snd t' ∷ G [ fst t ]
+                  → Γ ⊢ t ≡ t' ∷ Σₚ p , q ▷ F ▹ G
+                  → Γ ⊢ snd p t ≡ snd p t' ∷ G [ fst p t ]
     prod-cong     : ∀ {F G t t′ u u′}
                   → Γ ⊢ F
                   → Γ ∙ F ⊢ G
                   → Γ ⊢ t ≡ t′ ∷ F
                   → Γ ⊢ u ≡ u′ ∷ G [ t ]
-                  → Γ ⊢ prod m t u ≡ prod m t′ u′ ∷ Σ⟨ m ⟩ q ▷ F ▹ G
+                  → Γ ⊢ prod m p t u ≡ prod m p t′ u′ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
     Σ-β₁          : ∀ {F G t u}
                   → Γ ⊢ F
                   → Γ ∙ F ⊢ G
                   → Γ ⊢ t ∷ F
                   → Γ ⊢ u ∷ G [ t ]
-                  → Γ ⊢ prodₚ t u ∷ Σₚ q ▷ F ▹ G
-                  → Γ ⊢ fst (prodₚ t u) ≡ t ∷ F
+                  → Γ ⊢ prodₚ p′ t u ∷ Σₚ p′ , q ▷ F ▹ G
+                  → p ≈ p′
+                  → Γ ⊢ fst p (prodₚ p′ t u) ≡ t ∷ F
     Σ-β₂          : ∀ {F G t u}
                   → Γ ⊢ F
                   → Γ ∙ F ⊢ G
                   → Γ ⊢ t ∷ F
                   → Γ ⊢ u ∷ G [ t ]
-                  → Γ ⊢ prodₚ t u ∷ Σₚ q ▷ F ▹ G
-                  → Γ ⊢ snd (prodₚ t u) ≡ u ∷ G [ fst (prodₚ t u) ]
+                  → Γ ⊢ prodₚ p′ t u ∷ Σₚ p′ , q ▷ F ▹ G
+                  → p ≈ p′
+                  → Γ ⊢ snd p (prodₚ p′ t u) ≡ u ∷ G [ fst p (prodₚ p′ t u) ]
     Σ-η           : ∀ {t u F G}
                   → Γ ⊢ F
                   → Γ ∙ F ⊢ G
-                  → Γ ⊢ t ∷ Σₚ q ▷ F ▹ G
-                  → Γ ⊢ u ∷ Σₚ q ▷ F ▹ G
-                  → Γ ⊢ fst t ≡ fst u ∷ F
-                  → Γ ⊢ snd t ≡ snd u ∷ G [ fst t ]
-                  → Γ ⊢ t ≡ u ∷ Σₚ q ▷ F ▹ G
+                  → Γ ⊢ t ∷ Σₚ p , q ▷ F ▹ G
+                  → Γ ⊢ u ∷ Σₚ p , q ▷ F ▹ G
+                  → Γ ⊢ fst p t ≡ fst p u ∷ F
+                  → Γ ⊢ snd p t ≡ snd p u ∷ G [ fst p t ]
+                  → Γ ⊢ t ≡ u ∷ Σₚ p , q ▷ F ▹ G
     prodrec-cong  : ∀ {t t′ u u′ F G A A′}
                   → Γ ⊢ F
                   → Γ ∙ F ⊢ G
-                  → Γ ∙ (Σᵣ q ▷ F ▹ G) ⊢ A ≡ A′
-                  → Γ ⊢ t ≡ t′ ∷ Σᵣ q ▷ F ▹ G
-                  → Γ ∙ F ∙ G ⊢ u ≡ u′ ∷ A [ prodᵣ (var (x0 +1)) (var x0) ]↑²
-                  → p ≈ p′
-                  → q₁ ≈ q₂
-                  → Γ ⊢ prodrec p q₁ A t u ≡ prodrec p′ q₂ A′ t′ u′ ∷ A [ t ]
+                  → Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ A ≡ A′
+                  → Γ ⊢ t ≡ t′ ∷ Σᵣ p , q ▷ F ▹ G
+                  → Γ ∙ F ∙ G ⊢ u ≡ u′ ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
+                  → r ≈ r′
+                  → Γ ⊢ prodrec r p q A t u ≡ prodrec r′ p q A′ t′ u′ ∷ A [ t ]
     prodrec-β     : ∀ {t t′ u F G A}
                   → Γ ⊢ F
                   → Γ ∙ F ⊢ G
-                  → Γ ∙ (Σᵣ q ▷ F ▹ G) ⊢ A
+                  → Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ A
                   → Γ ⊢ t ∷ F
                   → Γ ⊢ t′ ∷ G [ t ]
-                  → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ (var (x0 +1)) (var x0) ]↑²
-                  → Γ ⊢ (prodrec p q′ A (prodᵣ t t′) u) ≡
-                        u [ t , t′ ] ∷ A [ prodᵣ t t′ ]
+                  → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
+                  → p ≈ p′
+                  → Γ ⊢ prodrec r p q A (prodᵣ p′ t t′) u ≡
+                        u [ t , t′ ] ∷ A [ prodᵣ p′ t t′ ]
     suc-cong      : ∀ {m n}
                   → Γ ⊢ m ≡ n ∷ ℕ
                   → Γ ⊢ suc m ≡ suc n ∷ ℕ
@@ -306,7 +280,7 @@ mutual
 
 
 -- Term reduction
-data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set (ℓ ⊔ ℓ′) where
+data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ where
   conv           : ∀ {A B t u}
                  → Γ ⊢ t ⇒ u ∷ A
                  → Γ ⊢ A ≡ B
@@ -325,44 +299,47 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set (ℓ
   fst-subst      : ∀ {t t' F G}
                  → Γ ⊢ F
                  → Γ ∙ F ⊢ G
-                 → Γ ⊢ t ⇒ t' ∷ Σₚ q ▷ F ▹ G
-                 → Γ ⊢ fst t ⇒ fst t' ∷ F
+                 → Γ ⊢ t ⇒ t' ∷ Σₚ p , q ▷ F ▹ G
+                 → Γ ⊢ fst p t ⇒ fst p t' ∷ F
   snd-subst      : ∀ {t t' F G}
                  → Γ ⊢ F
                  → Γ ∙ F ⊢ G
-                 → Γ ⊢ t ⇒ t' ∷ Σₚ q ▷ F ▹ G
-                 → Γ ⊢ snd t ⇒ snd t' ∷ G [ fst t ]
+                 → Γ ⊢ t ⇒ t' ∷ Σₚ p , q ▷ F ▹ G
+                 → Γ ⊢ snd p t ⇒ snd p t' ∷ G [ fst p t ]
   Σ-β₁           : ∀ {F G t u}
                  → Γ ⊢ F
                  → Γ ∙ F ⊢ G
                  → Γ ⊢ t ∷ F
                  → Γ ⊢ u ∷ G [ t ]
-                 → Γ ⊢ (prodₚ t u) ∷ Σₚ q ▷ F ▹ G
-                 → Γ ⊢ fst (prodₚ t u) ⇒ t ∷ F
+                 → Γ ⊢ prodₚ p′ t u ∷ Σₚ p′ , q ▷ F ▹ G
+                 → p ≈ p′
+                 → Γ ⊢ fst p (prodₚ p′ t u) ⇒ t ∷ F
   Σ-β₂           : ∀ {F G t u}
                  → Γ ⊢ F
                  → Γ ∙ F ⊢ G
                  → Γ ⊢ t ∷ F
                  → Γ ⊢ u ∷ G [ t ]
-                 → Γ ⊢ (prodₚ t u) ∷ Σₚ q ▷ F ▹ G
+                 → Γ ⊢ prodₚ p′ t u ∷ Σₚ p′ , q ▷ F ▹ G
                  -- TODO(WN): Prove that 𝔍 ∷ G [ t ] is admissible
-                 → Γ ⊢ snd (prodₚ t u) ⇒ u ∷ G [ fst (prodₚ t u) ]
+                 → p ≈ p′
+                 → Γ ⊢ snd p (prodₚ p′ t u) ⇒ u ∷ G [ fst p (prodₚ p′ t u) ]
   prodrec-subst  : ∀ {t t′ F G A}
                  → Γ ⊢ F
                  → Γ ∙ F ⊢ G
-                 → Γ ∙ (Σᵣ q ▷ F ▹ G) ⊢ A
-                 → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ (var (x0 +1)) (var x0) ]↑²
-                 → Γ ⊢ t ⇒ t′ ∷ Σᵣ q ▷ F ▹ G
-                 → Γ ⊢ prodrec p q′ A t u ⇒ prodrec p q′ A t′ u ∷ A [ t ]
+                 → Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ A
+                 → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
+                 → Γ ⊢ t ⇒ t′ ∷ Σᵣ p , q ▷ F ▹ G
+                 → Γ ⊢ prodrec r p q A t u ⇒ prodrec r p q A t′ u ∷ A [ t ]
   prodrec-β      : ∀ {A F G t t′ u}
                  → Γ ⊢ F
                  → Γ ∙ F ⊢ G
-                 → Γ ∙ (Σᵣ q ▷ F ▹ G) ⊢ A
+                 → Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ A
                  → Γ ⊢ t ∷ F
                  → Γ ⊢ t′ ∷ G [ t ]
-                 → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ (var (x0 +1)) (var x0) ]↑²
-                 → Γ ⊢ prodrec p q′ A (prodᵣ t t′) u ⇒
-                       u [ t , t′ ] ∷ A [ prodᵣ t t′ ]
+                 → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
+                 → p ≈ p′
+                 → Γ ⊢ prodrec r p q A (prodᵣ p′ t t′) u ⇒
+                       u [ t , t′ ] ∷ A [ prodᵣ p′ t t′ ]
   natrec-subst   : ∀ {z s n n′ F}
                  → Γ ∙ ℕ     ⊢ F
                  → Γ         ⊢ z ∷ F [ zero ]
@@ -387,13 +364,13 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set (ℓ
                  → Γ     ⊢ Emptyrec p A n ⇒ Emptyrec p A n′ ∷ A
 
 -- Type reduction
-data _⊢_⇒_ (Γ : Con Term n) : Term n → Term n → Set (ℓ ⊔ ℓ′) where
+data _⊢_⇒_ (Γ : Con Term n) : Term n → Term n → Set ℓ where
   univ : ∀ {A B}
        → Γ ⊢ A ⇒ B ∷ U
        → Γ ⊢ A ⇒ B
 
 -- Term reduction closure
-data _⊢_⇒*_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set (ℓ ⊔ ℓ′) where
+data _⊢_⇒*_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ where
   id  : ∀ {A t}
       → Γ ⊢ t ∷ A
       → Γ ⊢ t ⇒* t ∷ A
@@ -403,7 +380,7 @@ data _⊢_⇒*_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set (�
       → Γ ⊢ t  ⇒* u  ∷ A
 
 -- Type reduction closure
-data _⊢_⇒*_ (Γ : Con Term n) : Term n → Term n → Set (ℓ ⊔ ℓ′) where
+data _⊢_⇒*_ (Γ : Con Term n) : Term n → Term n → Set ℓ where
   id  : ∀ {A}
       → Γ ⊢ A
       → Γ ⊢ A ⇒* A
@@ -413,23 +390,23 @@ data _⊢_⇒*_ (Γ : Con Term n) : Term n → Term n → Set (ℓ ⊔ ℓ′) w
       → Γ ⊢ A  ⇒* B
 
 -- Type reduction to whnf
-_⊢_↘_ : (Γ : Con Term n) → Term n → Term n → Set (ℓ ⊔ ℓ′)
+_⊢_↘_ : (Γ : Con Term n) → Term n → Term n → Set ℓ
 Γ ⊢ A ↘ B = Γ ⊢ A ⇒* B × Whnf B
 
 -- Term reduction to whnf
-_⊢_↘_∷_ : (Γ : Con Term n) → Term n → Term n → Term n → Set (ℓ ⊔ ℓ′)
+_⊢_↘_∷_ : (Γ : Con Term n) → Term n → Term n → Term n → Set ℓ
 Γ ⊢ t ↘ u ∷ A = Γ ⊢ t ⇒* u ∷ A × Whnf u
 
 -- Type equality with well-formed types
-_⊢_:≡:_ : (Γ : Con Term n) → Term n → Term n → Set (ℓ ⊔ ℓ′)
+_⊢_:≡:_ : (Γ : Con Term n) → Term n → Term n → Set ℓ
 Γ ⊢ A :≡: B = Γ ⊢ A × Γ ⊢ B × (Γ ⊢ A ≡ B)
 
 -- Term equality with well-formed terms
-_⊢_:≡:_∷_ : (Γ : Con Term n) → Term n → Term n → Term n → Set (ℓ ⊔ ℓ′)
+_⊢_:≡:_∷_ : (Γ : Con Term n) → Term n → Term n → Term n → Set ℓ
 Γ ⊢ t :≡: u ∷ A = (Γ ⊢ t ∷ A) × (Γ ⊢ u ∷ A) × (Γ ⊢ t ≡ u ∷ A)
 
 -- Type reduction closure with well-formed types
-record _⊢_:⇒*:_ (Γ : Con Term n) (A B : Term n) : Set (ℓ ⊔ ℓ′) where
+record _⊢_:⇒*:_ (Γ : Con Term n) (A B : Term n) : Set ℓ where
   constructor [_,_,_]
   field
     ⊢A : Γ ⊢ A
@@ -439,7 +416,7 @@ record _⊢_:⇒*:_ (Γ : Con Term n) (A B : Term n) : Set (ℓ ⊔ ℓ′) wher
 open _⊢_:⇒*:_ using () renaming (D to red; ⊢A to ⊢A-red; ⊢B to ⊢B-red) public
 
 -- Term reduction closure with well-formed terms
-record _⊢_:⇒*:_∷_ (Γ : Con Term n) (t u A : Term n) : Set (ℓ ⊔ ℓ′) where
+record _⊢_:⇒*:_∷_ (Γ : Con Term n) (t u A : Term n) : Set ℓ where
   constructor [_,_,_]
   field
     ⊢t : Γ ⊢ t ∷ A
@@ -449,7 +426,7 @@ record _⊢_:⇒*:_∷_ (Γ : Con Term n) (t u A : Term n) : Set (ℓ ⊔ ℓ′
 open _⊢_:⇒*:_∷_ using () renaming (d to redₜ; ⊢t to ⊢t-redₜ; ⊢u to ⊢u-redₜ) public
 
 -- Well-formed substitutions.
-data _⊢ˢ_∷_ (Δ : Con Term k) : (σ : Subst k n) (Γ : Con Term n) → Set (ℓ ⊔ ℓ′) where
+data _⊢ˢ_∷_ (Δ : Con Term k) : (σ : Subst k n) (Γ : Con Term n) → Set ℓ where
   id  : ∀ {σ} → Δ ⊢ˢ σ ∷ ε
   _,_ : ∀ {A σ}
       → Δ ⊢ˢ tail σ ∷ Γ
@@ -457,7 +434,7 @@ data _⊢ˢ_∷_ (Δ : Con Term k) : (σ : Subst k n) (Γ : Con Term n) → Set 
       → Δ ⊢ˢ σ      ∷ Γ ∙ A
 
 -- Conversion of well-formed substitutions.
-data _⊢ˢ_≡_∷_ (Δ : Con Term k) : (σ σ′ : Subst k n) (Γ : Con Term n) → Set (ℓ ⊔ ℓ′) where
+data _⊢ˢ_≡_∷_ (Δ : Con Term k) : (σ σ′ : Subst k n) (Γ : Con Term n) → Set ℓ where
   id  : ∀ {σ σ′} → Δ ⊢ˢ σ ≡ σ′ ∷ ε
   _,_ : ∀ {A σ σ′}
       → Δ ⊢ˢ tail σ ≡ tail σ′ ∷ Γ
@@ -471,12 +448,12 @@ data _⊢ˢ_≡_∷_ (Δ : Con Term k) : (σ σ′ : Subst k n) (Γ : Con Term n
      → Γ     ⊢ F
      → Γ ∙ F ⊢ G
      → Γ     ⊢ ⟦ W ⟧ F ▹ G
-⟦ BΠ p q ⟧ⱼ ⊢F ▹ ⊢G = Πⱼ ⊢F ▹ ⊢G
-⟦ BΣ m q ⟧ⱼ ⊢F ▹ ⊢G = Σⱼ ⊢F ▹ ⊢G
+⟦ BΠ p q   ⟧ⱼ ⊢F ▹ ⊢G = ΠΣⱼ ⊢F ▹ ⊢G
+⟦ BΣ m p q ⟧ⱼ ⊢F ▹ ⊢G = ΠΣⱼ ⊢F ▹ ⊢G
 
 ⟦_⟧ⱼᵤ_▹_ : (W : BindingType) → ∀ {F G}
      → Γ     ⊢ F ∷ U
      → Γ ∙ F ⊢ G ∷ U
      → Γ     ⊢ ⟦ W ⟧ F ▹ G ∷ U
-⟦ BΠ p q ⟧ⱼᵤ ⊢F ▹ ⊢G = Πⱼ ⊢F ▹ ⊢G
-⟦ BΣ m q ⟧ⱼᵤ ⊢F ▹ ⊢G = Σⱼ ⊢F ▹ ⊢G
+⟦ BΠ p q   ⟧ⱼᵤ ⊢F ▹ ⊢G = ΠΣⱼ ⊢F ▹ ⊢G
+⟦ BΣ m p q ⟧ⱼᵤ ⊢F ▹ ⊢G = ΠΣⱼ ⊢F ▹ ⊢G

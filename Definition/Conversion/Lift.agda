@@ -1,31 +1,26 @@
-{-# OPTIONS --without-K --safe #-}
-
-open import Tools.Relation
-
-module Definition.Conversion.Lift {a ℓ} (M′ : Setoid a ℓ) where
-
-open Setoid M′ using () renaming (Carrier to M; refl to ≈-refl)
+module Definition.Conversion.Lift
+  {a} (M : Set a) where
 
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Untyped.Properties M
-open import Definition.Typed M′
-open import Definition.Typed.Weakening M′
-open import Definition.Typed.Properties M′
-open import Definition.Typed.EqRelInstance M′
-open import Definition.Conversion M′
-open import Definition.Conversion.Whnf M′
-open import Definition.Conversion.Soundness M′
-open import Definition.Conversion.Weakening M′
-open import Definition.LogicalRelation M′
-open import Definition.LogicalRelation.Properties M′
-open import Definition.LogicalRelation.Fundamental.Reducibility M′
-open import Definition.Typed.Consequences.Syntactic M′
-open import Definition.Typed.Consequences.Reduction M′
+open import Definition.Typed M
+open import Definition.Typed.Weakening M
+open import Definition.Typed.Properties M
+open import Definition.Typed.EqRelInstance M
+open import Definition.Conversion M
+open import Definition.Conversion.Whnf M
+open import Definition.Conversion.Soundness M
+open import Definition.Conversion.Weakening M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.Properties M
+open import Definition.LogicalRelation.Fundamental.Reducibility M
+open import Definition.Typed.Consequences.Syntactic M
+open import Definition.Typed.Consequences.Reduction M
 
 open import Tools.Fin
 open import Tools.Nat
 open import Tools.Product
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE using (≈-refl)
 
 private
   variable
@@ -76,8 +71,8 @@ mutual
         A≡K = subset* D₂
     in  ne-ins (conv ⊢t A≡K) (conv ⊢u A≡K) neK ([~] A D₂ (ne neK) k~l)
   lift~toConv↓′ (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext) D₁ ([~] A D₂ whnfB k~l)
-                rewrite PE.sym (whrDet* (red D , Πₙ) (D₁ , whnfB)) =
-    let ⊢ΠFG , ⊢t , ⊢u = syntacticEqTerm (soundness~↓ ([~] A D₂ Πₙ k~l))
+                rewrite PE.sym (whrDet* (red D , ΠΣₙ) (D₁ , whnfB)) =
+    let ⊢ΠFG , ⊢t , ⊢u = syntacticEqTerm (soundness~↓ ([~] A D₂ ΠΣₙ k~l))
         ⊢F , ⊢G = syntacticΠ ⊢ΠFG
         neT , neU = ne~↑ k~l
         ⊢Γ = wf ⊢F
@@ -88,18 +83,18 @@ mutual
              (λ a b → PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x)
                                (wkSingleSubstId _)
                                (lift~toConv↑′ ([G] (step id) (⊢Γ ∙ ⊢F) var0)
-                                              (app-cong (wk~↓ (step id) (⊢Γ ∙ ⊢F) ([~] A D₂ Πₙ k~l))
+                                              (app-cong (wk~↓ (step id) (⊢Γ ∙ ⊢F) ([~] A D₂ ΠΣₙ k~l))
                                                         0≡0 a b)))
   lift~toConv↓′ (Bᵣ′ BΣₚ F G D ⊢F ⊢G Σ≡Σ [F] [G] G-ext) D₁ ([~] A″ D₂ whnfA t~u)
-                rewrite PE.sym (whrDet* (red D , Σₙ) (D₁ , whnfA)) {- Σ F ▹ G ≡ A -} =
+                rewrite PE.sym (whrDet* (red D , ΠΣₙ) (D₁ , whnfA)) {- Σ F ▹ G ≡ A -} =
     let neT , neU = ne~↑ t~u
-        t~u↓ = [~] A″ D₂ Σₙ t~u
+        t~u↓ = [~] A″ D₂ ΠΣₙ t~u
         ⊢ΣFG , ⊢t , ⊢u = syntacticEqTerm (soundness~↓ t~u↓)
         ⊢F , ⊢G = syntacticΣ ⊢ΣFG
         ⊢Γ = wf ⊢F
 
         wkId = wk-id F
-        wkLiftId = PE.cong (λ x → x [ fst _ ]) (wk-lift-id G)
+        wkLiftId = PE.cong (λ x → x [ fst _ _ ]) (wk-lift-id G)
 
         wk[F] = [F] id ⊢Γ
         wk⊢fst = PE.subst (λ x → _ ⊢ _ ∷ x) (PE.sym wkId) (fstⱼ ⊢F ⊢G ⊢t)
@@ -115,8 +110,8 @@ mutual
             (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x) wkLiftId
                       (lift~toConv↑′ wk[Gfst] wksnd~))
   lift~toConv↓′ (Bᵣ′ BΣᵣ F G D ⊢F ⊢G Σ≡Σ [F] [G] G-ext) D₁ ([~] A″ D₂ whnfA t~u)
-                rewrite PE.sym (whrDet* (red D , Σₙ) (D₁ , whnfA)) {- Σ F ▹ G ≡ A -} =
-    let t~u↓ = [~] A″ D₂ Σₙ t~u
+                rewrite PE.sym (whrDet* (red D , ΠΣₙ) (D₁ , whnfA)) {- Σ F ▹ G ≡ A -} =
+    let t~u↓ = [~] A″ D₂ ΠΣₙ t~u
         _ , ⊢t , ⊢u = syntacticEqTerm (soundness~↓ t~u↓)
     in  Σᵣ-ins ⊢t ⊢u t~u↓
 

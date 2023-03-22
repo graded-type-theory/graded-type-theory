@@ -1,30 +1,25 @@
-{-# OPTIONS --without-K --safe #-}
-
-open import Tools.Relation
-
-module Definition.Typed.Consequences.Injectivity {a ℓ} (M′ : Setoid a ℓ) where
-
-open Setoid M′ using (_≈_) renaming (Carrier to M)
+module Definition.Typed.Consequences.Injectivity
+  {a} (M : Set a) where
 
 open import Definition.Untyped M hiding (wk; _∷_)
 import Definition.Untyped M as U
-import Definition.Untyped.BindingType M′ as BT
+import Definition.Untyped.BindingType M as BT
 open import Definition.Untyped.Properties M
 
-open import Definition.Typed M′
-open import Definition.Typed.Weakening M′
-open import Definition.Typed.Properties M′
-open import Definition.Typed.EqRelInstance M′
-open import Definition.LogicalRelation M′
-open import Definition.LogicalRelation.Irrelevance M′
-open import Definition.LogicalRelation.ShapeView M′
-open import Definition.LogicalRelation.Properties M′
-open import Definition.LogicalRelation.Fundamental.Reducibility M′
+open import Definition.Typed M
+open import Definition.Typed.Weakening M
+open import Definition.Typed.Properties M
+open import Definition.Typed.EqRelInstance M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.ShapeView M
+open import Definition.LogicalRelation.Properties M
+open import Definition.LogicalRelation.Fundamental.Reducibility M
 
 open import Tools.Fin
 open import Tools.Nat
 open import Tools.Product
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE using (_≈_)
 
 private
   variable
@@ -74,10 +69,13 @@ injectivity : ∀ {F G H E} → Γ ⊢ Π p , q ▷ F ▹ G ≡ Π p′ , q′ �
 injectivity x with B-injectivity BΠ! BΠ! x
 ... | F≡H , G≡E , BT.Π≋Π p≈p′ q≈q′ = F≡H , G≡E , p≈p′ , q≈q′
 
-Σ-injectivity : ∀ {m m′ F G H E} → Γ ⊢ Σ⟨ m ⟩ q ▷ F ▹ G ≡ Σ⟨ m′ ⟩ q′ ▷ H ▹ E
-              → Γ ⊢ F ≡ H × Γ ∙ F ⊢ G ≡ E × q ≈ q′ × m PE.≡ m′
+Σ-injectivity :
+  ∀ {m m′ F G H E} →
+  Γ ⊢ Σ⟨ m ⟩ p , q ▷ F ▹ G ≡ Σ⟨ m′ ⟩ p′ , q′ ▷ H ▹ E →
+  Γ ⊢ F ≡ H × Γ ∙ F ⊢ G ≡ E × p ≈ p′ × q ≈ q′ × m PE.≡ m′
 Σ-injectivity x with B-injectivity BΣ! BΣ! x
-... | F≡H , G≡E , BT.Σ≋Σ q≈q′ = F≡H , G≡E , q≈q′ , PE.refl
+... | F≡H , G≡E , BT.Σ≋Σ q≈q′ =
+  F≡H , G≡E , PE.refl , q≈q′ , PE.refl
 
 -- Injectivity of suc
 

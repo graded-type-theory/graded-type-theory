@@ -1,18 +1,13 @@
-{-# OPTIONS --without-K --safe #-}
-
-open import Tools.Relation
-
-module Definition.Typed.Consequences.Inversion {a ℓ} (M′ : Setoid a ℓ) where
-
-open Setoid M′ using () renaming (Carrier to M)
+module Definition.Typed.Consequences.Inversion
+  {a} (M : Set a) where
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M′
-open import Definition.Typed.Properties M′
+open import Definition.Typed M
+open import Definition.Typed.Properties M
 
-open import Definition.Typed.Consequences.Syntactic M′
-open import Definition.Typed.Consequences.Substitution M′
-open import Definition.Typed.Consequences.Inequality M′
+open import Definition.Typed.Consequences.Syntactic M
+open import Definition.Typed.Consequences.Substitution M
+open import Definition.Typed.Consequences.Inequality M
 
 open import Tools.Fin
 open import Tools.Nat
@@ -23,7 +18,8 @@ private
   variable
     n : Nat
     Γ : Con Term n
-    p q q′ r : M
+    p p′ q q′ r : M
+    b : BinderMode
 
 -- Inversion of U (it has no type).
 inversion-U : ∀ {C} → Γ ⊢ U ∷ C → ⊥
@@ -44,18 +40,15 @@ inversion-Unit : ∀ {C} → Γ ⊢ Unit ∷ C → Γ ⊢ C ≡ U
 inversion-Unit (Unitⱼ x) = refl (Uⱼ x)
 inversion-Unit (conv x x₁) = trans (sym x₁) (inversion-Unit x)
 
--- Inversion of Π-types.
-inversion-Π : ∀ {F G C}
-            → Γ ⊢ Π p , q ▷ F ▹ G ∷ C → Γ ⊢ F ∷ U × Γ ∙ F ⊢ G ∷ U × Γ ⊢ C ≡ U
-inversion-Π (Πⱼ x ▹ x₁) = x , x₁ , refl (Uⱼ (wfTerm x))
-inversion-Π (conv x x₁) = let a , b , c = inversion-Π x
-                          in  a , b , trans (sym x₁) c
-
-inversion-Σ : ∀ {F G C m}
-            → Γ ⊢ Σ⟨ m ⟩ q ▷ F ▹ G ∷ C → Γ ⊢ F ∷ U × Γ ∙ F ⊢ G ∷ U × Γ ⊢ C ≡ U
-inversion-Σ (Σⱼ x ▹ x₁) = x , x₁ , refl (Uⱼ (wfTerm x))
-inversion-Σ (conv x x₁) = let a , b , c = inversion-Σ x
-                          in  a , b , trans (sym x₁) c
+-- Inversion of Π- and Σ-types.
+inversion-ΠΣ :
+  ∀ {F G C} →
+  Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ∷ C →
+  Γ ⊢ F ∷ U × Γ ∙ F ⊢ G ∷ U × Γ ⊢ C ≡ U
+inversion-ΠΣ (ΠΣⱼ x ▹ x₁) = x , x₁ , refl (Uⱼ (wfTerm x))
+inversion-ΠΣ (conv x x₁)  =
+  let a , b , c = inversion-ΠΣ x
+  in  a , b , trans (sym x₁) c
 
 -- Inversion of variables
 inversion-var : ∀ {x C} → Γ ⊢ var x ∷ C → ∃ λ A → x ∷ A ∈ Γ × Γ ⊢ C ≡ A
@@ -99,30 +92,40 @@ inversion-app (conv d x) = let a , b , c , d , e , f = inversion-app d
 -- Inversion of lambda.
 inversion-lam : ∀ {t A} → Γ ⊢ lam p t ∷ A →
   ∃₃ λ F G q → Γ ⊢ F × (Γ ∙ F ⊢ t ∷ G × Γ ⊢ A ≡ Π p , q ▷ F ▹ G)
-inversion-lam (lamⱼ x x₁) = _ , _ , _ , x , x₁ , refl (Πⱼ x ▹ (syntacticTerm x₁))
+inversion-lam (lamⱼ x x₁) = _ , _ , _ , x , x₁ , refl (ΠΣⱼ x ▹ (syntacticTerm x₁))
 inversion-lam (conv x x₁) = let a , b , c , d , e , f = inversion-lam x
                             in  a , b , c , d , e , trans (sym x₁) f
 
 -- Inversion of products.
-inversion-prod : ∀ {t u A m} → Γ ⊢ prod m t u ∷ A →
-  ∃₃ λ F G q → Γ ⊢ F × (Γ ∙ F ⊢ G × (Γ ⊢ t ∷ F × Γ ⊢ u ∷ G [ t ] × Γ ⊢ A ≡ Σ⟨ m ⟩ q ▷ F ▹ G))
+inversion-prod :
+  ∀ {t u A m} →
+  Γ ⊢ prod m p t u ∷ A →
+  ∃₃ λ F G q →
+    (Γ ⊢ F) ×
+    (Γ ∙ F ⊢ G) ×
+    (Γ ⊢ t ∷ F) ×
+    (Γ ⊢ u ∷ G [ t ]) ×
+    Γ ⊢ A ≡ Σ⟨ m ⟩ p , q ▷ F ▹ G
   -- NOTE fundamental theorem not required since prodⱼ has inversion built-in.
-inversion-prod (prodⱼ ⊢F ⊢G ⊢t ⊢u) = _ , _ , _ , ⊢F , ⊢G , ⊢t , ⊢u , refl (Σⱼ ⊢F ▹ ⊢G)
+inversion-prod (prodⱼ ⊢F ⊢G ⊢t ⊢u) = _ , _ , _ , ⊢F , ⊢G , ⊢t , ⊢u , refl (ΠΣⱼ ⊢F ▹ ⊢G)
 inversion-prod (conv x x₁) =
   let F , G , q , a , b , c , d , e = inversion-prod x
   in F , G , q , a , b , c , d , trans (sym x₁) e
 
-
 -- Inversion of projections
-inversion-fst : ∀ {t A} → Γ ⊢ fst t ∷ A →
-  ∃₃ λ F G q → Γ ⊢ F × Γ ∙ F ⊢ G × (Γ ⊢ t ∷ Σₚ q ▷ F ▹ G) × (Γ ⊢ A ≡ F)
+inversion-fst : ∀ {t A} → Γ ⊢ fst p t ∷ A →
+  ∃₃ λ F G q →
+    Γ ⊢ F × Γ ∙ F ⊢ G ×
+    (Γ ⊢ t ∷ Σₚ p , q ▷ F ▹ G) × (Γ ⊢ A ≡ F)
 inversion-fst (fstⱼ ⊢F ⊢G ⊢t) = _ , _ , _ , ⊢F , ⊢G , ⊢t , refl ⊢F
 inversion-fst (conv ⊢t x) =
   let F , G , q , a , b , c , d = inversion-fst ⊢t
   in  F , G , q , a , b , c , trans (sym x) d
 
-inversion-snd : ∀ {t A} → Γ ⊢ snd t ∷ A →
-  ∃₃ λ F G q → Γ ⊢ F × Γ ∙ F ⊢ G × (Γ ⊢ t ∷ Σₚ q ▷ F ▹ G) × (Γ ⊢ A ≡ G [ fst t ])
+inversion-snd : ∀ {t A} → Γ ⊢ snd p t ∷ A →
+  ∃₃ λ F G q →
+    Γ ⊢ F × Γ ∙ F ⊢ G ×
+    (Γ ⊢ t ∷ Σₚ p , q ▷ F ▹ G) × (Γ ⊢ A ≡ G [ fst p t ])
 inversion-snd (sndⱼ ⊢F ⊢G ⊢t) =
   _ , _ , _ , ⊢F , ⊢G , ⊢t , refl (substType ⊢G (fstⱼ ⊢F ⊢G ⊢t))
 inversion-snd (conv ⊢t x) =
@@ -130,14 +133,16 @@ inversion-snd (conv ⊢t x) =
   in  F , G , q , a , b , c , trans (sym x) d
 
 -- Inversion of prodrec
-inversion-prodrec : ∀ {t u A C} → Γ ⊢ prodrec p q′ C t u ∷ A
-                  → ∃₃ λ F G q
-                  → (Γ ⊢ F)
-                  × (Γ ∙ F ⊢ G)
-                  × (Γ ∙ (Σᵣ q ▷ F ▹ G) ⊢ C)
-                  × Γ ⊢ t ∷ Σᵣ q ▷ F ▹ G
-                  × Γ ∙ F ∙ G ⊢ u ∷ C [ prodᵣ (var (x0 +1)) (var x0) ]↑²
-                  × Γ ⊢ A ≡ C [ t ]
+inversion-prodrec :
+  ∀ {t u A C} →
+  Γ ⊢ prodrec r p q′ C t u ∷ A →
+  ∃₃ λ F G q →
+    (Γ ⊢ F) ×
+    (Γ ∙ F ⊢ G) ×
+    (Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ C) ×
+    Γ ⊢ t ∷ Σᵣ p , q ▷ F ▹ G ×
+    Γ ∙ F ∙ G ⊢ u ∷ C [ prodᵣ p (var (x0 +1)) (var x0) ]↑² ×
+    Γ ⊢ A ≡ C [ t ]
 inversion-prodrec (prodrecⱼ ⊢F ⊢G ⊢C ⊢t ⊢u) =
   _ , _ , _ , ⊢F , ⊢G , ⊢C , ⊢t , ⊢u , refl (substType ⊢C ⊢t)
 inversion-prodrec (conv x x₁) =
@@ -158,16 +163,15 @@ inversion-Emptyrec (conv ⊢t x) =
   in  q , w , trans (sym x) e
 
 -- Inversion of products in WHNF.
-whnfProduct : ∀ {p F G m} → Γ ⊢ p ∷ Σ⟨ m ⟩ q ▷ F ▹ G → Whnf p → Product p
+whnfProduct :
+  ∀ {p F G m} →
+  Γ ⊢ p ∷ Σ⟨ m ⟩ p′ , q ▷ F ▹ G → Whnf p → Product p
 whnfProduct x prodₙ = prodₙ
 whnfProduct x (ne pNe) = ne pNe
 
 whnfProduct x Uₙ = ⊥-elim (inversion-U x)
-whnfProduct x Πₙ =
-  let _ , _ , Σ≡U = inversion-Π x
-  in  ⊥-elim (U≢Σ (sym Σ≡U))
-whnfProduct x Σₙ =
-  let _ , _ , Σ≡U = inversion-Σ x
+whnfProduct x ΠΣₙ =
+  let _ , _ , Σ≡U = inversion-ΠΣ x
   in  ⊥-elim (U≢Σ (sym Σ≡U))
 whnfProduct x ℕₙ = ⊥-elim (U≢Σ (sym (inversion-ℕ x)))
 whnfProduct x Unitₙ = ⊥-elim (U≢Σ (sym (inversion-Unit x)))

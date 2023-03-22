@@ -1,11 +1,7 @@
-{-# OPTIONS --without-K --safe #-}
-
-open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Context.Properties.Meet {a ℓ}
-  {M′ : Setoid a ℓ} (𝕄 : Modality M′)
-  where
+module Definition.Modality.Context.Properties.Meet
+  {a} {M : Set a} (𝕄 : Modality M) where
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties.Equivalence 𝕄
@@ -97,3 +93,13 @@ private
 ∧ᶜ-decreasingʳ : (γ δ : Conₘ n) → γ ∧ᶜ δ ≤ᶜ δ
 ∧ᶜ-decreasingʳ ε ε = ≤ᶜ-refl
 ∧ᶜ-decreasingʳ (γ ∙ p) (δ ∙ q) = (∧ᶜ-decreasingʳ γ δ) ∙ (∧-decreasingʳ p q)
+
+-- The result of the meet operation is a greatest lower bound of its
+-- two arguments.
+
+∧ᶜ-greatest-lower-bound : γ ≤ᶜ δ → γ ≤ᶜ η → γ ≤ᶜ δ ∧ᶜ η
+∧ᶜ-greatest-lower-bound {γ = ε} {δ = ε} {η = ε} ε ε =
+  ε
+∧ᶜ-greatest-lower-bound
+  {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} (γ≤δ ∙ p≤q) (γ≤η ∙ p≤r) =
+  ∧ᶜ-greatest-lower-bound γ≤δ γ≤η ∙ ∧-greatest-lower-bound p≤q p≤r

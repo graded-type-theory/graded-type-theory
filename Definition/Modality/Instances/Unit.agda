@@ -1,5 +1,3 @@
-{-# OPTIONS --without-K --safe #-}
-
 module Definition.Modality.Instances.Unit where
 
 open import Tools.Product
@@ -7,12 +5,12 @@ open import Tools.PropositionalEquality
 open import Tools.Relation
 open import Tools.Unit
 
-Unit′ : Setoid _ _
-Unit′ = record { Carrier = ⊤ ; _≈_ = _≡_ ; isEquivalence = isEquivalence }
+open import Tools.Algebra ⊤
+open import Tools.Bool using (false)
+open import Tools.Sum
 
-open import Tools.Algebra Unit′
-
-open import Definition.Modality Unit′ public
+open import Definition.Modality ⊤ public
+open import Definition.Modality.Restrictions ⊤
 
 -----------------------------------------------
 -- A trivial modality formed by the unit set --
@@ -156,7 +154,15 @@ UnitModalityWithout⊛ = record
   ; ∧-Semilattice = +-Semilattice
   ; ·-distrib-∧ = +-Distributiveˡ , +-Distributiveʳ
   ; +-distrib-∧ = +-Distributiveˡ , +-Distributiveʳ
-  ; Prodrec = λ _ → ⊤
+  ; restrictions = record no-restrictions
+    { 𝟘ᵐ-allowed = false
+    }
+  ; 𝟘ᵐ→𝟙≉𝟘 = λ ()
+  ; is-𝟘? = λ _ _ → yes refl
+  ; zero-product = λ _ _ → inj₁ refl
+  ; positiveˡ = λ _ _ → refl
+  ; ∧≤𝟘ˡ = λ _ _ → refl
+  ; ≉𝟘→≤𝟙 = λ _ _ → refl
   }
 
 UnitModality : Modality
@@ -164,7 +170,6 @@ UnitModality = record
   { modalityWithout⊛ = UnitModalityWithout⊛
   ; _⊛_▷_ = _⊛_▷_
   ; ⊛-ineq = (λ p q r → refl) , (λ p q r → refl)
-  ; ⊛-cong = cong₃ _⊛_▷_
   ; +-sub-interchangable-⊛ = λ r p q p′ q′ → refl
   ; ·-sub-distribʳ-⊛ = λ r q p p′ → refl
   ; ⊛-sub-distrib-∧ = λ r → (λ p q q′ → refl) , (λ q p p′ → refl)

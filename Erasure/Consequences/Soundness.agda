@@ -1,29 +1,38 @@
-{-# OPTIONS --without-K --safe #-}
-
 open import Definition.Modality.Instances.Erasure
+open import Definition.Modality.Restrictions
 open import Definition.Typed.EqualityRelation
 open import Definition.Untyped Erasure hiding (_∷_)
-open import Definition.Typed Erasure′
+open import Definition.Typed Erasure
 open import Tools.Empty
 
-module Erasure.Consequences.Soundness {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ)
-                                      (consistent : ∀ {t} → Δ ⊢ t ∷ Empty → ⊥)
-                                      {{eqrel : EqRelSet Erasure′}} where
+module Erasure.Consequences.Soundness
+  {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ)
+  (consistent : ∀ {t} → Δ ⊢ t ∷ Empty → ⊥)
+  (restrictions : Restrictions Erasure)
+  {{eqrel : EqRelSet Erasure}}
+  where
+
 open EqRelSet {{...}}
+
+open import Definition.Typed.Properties Erasure
+open import Definition.LogicalRelation Erasure
+
+private
+  no-erased-matching = prodrec-only-for-ω restrictions
+
+open import Definition.Modality.Instances.Erasure.Modality
+  no-erased-matching
+open import Definition.Modality.Context ErasureModality
+open import Definition.Modality.Usage ErasureModality
+open import Definition.Mode ErasureModality
 
 import Erasure.Target as T
 open import Erasure.Extraction
-open import Erasure.SucRed Erasure′
-open import Erasure.LogicalRelation.Fundamental ⊢Δ consistent
-open import Erasure.LogicalRelation ⊢Δ NoErasedMatching
-open import Erasure.LogicalRelation.Irrelevance ⊢Δ NoErasedMatching
-
-open import Definition.Typed.Properties Erasure′
-open import Definition.LogicalRelation Erasure′
-
-open import Definition.Modality.Instances.Erasure.Modality NoErasedMatching
-open import Definition.Modality.Context ErasureModality
-open import Definition.Modality.Usage ErasureModality
+open import Erasure.SucRed Erasure
+open import Erasure.LogicalRelation ⊢Δ no-erased-matching
+open import Erasure.LogicalRelation.Fundamental
+  ⊢Δ consistent restrictions
+open import Erasure.LogicalRelation.Irrelevance ⊢Δ no-erased-matching
 
 open import Tools.Nat
 open import Tools.Product
@@ -60,7 +69,8 @@ soundness-zero′ (sucᵣ t⇒suc v⇒suc t®v) t⇒zero
 -- WH reduction soundness of zero
 -- If t ⇒* zero and 𝟘ᶜ ▸ t then erase t ⇒* zero
 
-soundness-zero : Δ ⊢ t ⇒* zero ∷ ℕ → 𝟘ᶜ ▸ t → erase t T.⇒* T.zero
+soundness-zero :
+  Δ ⊢ t ⇒* zero ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t → erase t T.⇒* T.zero
 soundness-zero t⇒zero 𝟘▸t =
   let ⊢t = redFirst*Term t⇒zero
       [ℕ] , t®t′ = fundamentalErased ⊢t 𝟘▸t
@@ -82,7 +92,7 @@ soundness-suc′ (sucᵣ {v′ = v′} t⇒suc′ v⇒suc t®v) t⇒suc
 -- WH reduction soundness of suc
 -- If t ⇒* suc t′ and 𝟘ᶜ ▸ t then erase t ⇒* suc v′ and t′ ® v′ ∷ℕ for some v′
 
-soundness-suc : Δ ⊢ t ⇒* suc t′ ∷ ℕ → 𝟘ᶜ ▸ t
+soundness-suc : Δ ⊢ t ⇒* suc t′ ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t
               → ∃ λ v′ → erase t T.⇒* T.suc v′ × t′ ® v′ ∷ℕ
 soundness-suc t⇒suc 𝟘▸t =
   let ⊢t = redFirst*Term t⇒suc
@@ -102,7 +112,7 @@ soundness-ℕ′ (sucᵣ x x₁ t®v) =
 -- Soundness for erasure of natural numbers
 -- Closed, well-typed terms reduce to numerals
 
-soundness-ℕ : Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸ t
+soundness-ℕ : Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t
             → ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ × erase t ⇒ˢ* sucᵏ′ n
 soundness-ℕ ⊢t 𝟘▸t =
   let [ℕ] , t®v = fundamentalErased ⊢t 𝟘▸t
@@ -115,7 +125,8 @@ soundness-star′ (starᵣ _ v⇒star) = v⇒star
 
 -- WH reduction soundness of unit
 
-soundness-star : Δ ⊢ t ⇒* star ∷ Unit → 𝟘ᶜ ▸ t → erase t T.⇒* T.star
+soundness-star :
+  Δ ⊢ t ⇒* star ∷ Unit → 𝟘ᶜ ▸[ 𝟙ᵐ ] t → erase t T.⇒* T.star
 soundness-star t⇒star γ▸t =
   let ⊢t = redFirst*Term t⇒star
       [⊤] , t®t′ = fundamentalErased ⊢t γ▸t

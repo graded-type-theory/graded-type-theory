@@ -1,26 +1,25 @@
-{-# OPTIONS --without-K --safe #-}
-
-open import Tools.Relation
 open import Definition.Modality
 open import Tools.Empty
 
 module Application.NegativeAxioms.NegativeErasedContext
-  {a ℓ} {M′ : Setoid a ℓ} (𝕄 : Modality M′)
+  {a} {M : Set a} (𝕄 : Modality M)
   (𝟘≰𝟙 : Modality._≤_ 𝕄 (Modality.𝟘 𝕄) (Modality.𝟙 𝕄) → ⊥) where
 
-open Setoid M′ using () renaming (Carrier to M)
 open Modality 𝕄
 
 open import Definition.Untyped M
-open import Definition.Typed M′
-open import Definition.Typed.Weakening M′
+open import Definition.Typed M
+open import Definition.Typed.Weakening M
 open import Definition.Modality.Context 𝕄
-open import Application.NegativeAxioms.NegativeType M′
+open import Definition.Modality.Properties 𝕄
+open import Definition.Modality.Usage 𝕄
+open import Application.NegativeAxioms.NegativeOrErasedType 𝕄
 
-
+open import Tools.Bool
 open import Tools.Fin
 open import Tools.Level
 open import Tools.Nat
+import Tools.PropositionalEquality as PE
 
 private
   Ctx = Con Term
@@ -29,7 +28,7 @@ private
     Γ : Ctx m
     A : Term m
     x : Fin m
-    γ : Conₘ m
+    γ δ : Conₘ m
     p : M
 
 -- Negative or Erased contexts
@@ -37,7 +36,7 @@ private
 
 -- A context is negative or erased if all of its type entries are negative or erased.
 
-data NegativeErasedContext : Ctx m → Conₘ m → Set (a ⊔ ℓ) where
+data NegativeErasedContext : Ctx m → Conₘ m → Set a where
   ε   : NegativeErasedContext ε ε
   _∙_ : NegativeErasedContext Γ γ → NegativeType Γ A → NegativeErasedContext (Γ ∙ A) (γ ∙ p)
   _∙𝟘 : NegativeErasedContext Γ γ → NegativeErasedContext (Γ ∙ A) (γ ∙ 𝟘)
@@ -58,3 +57,23 @@ lookupNegative ⊢Γ∙A@(⊢Γ ∙ Γ⊢A) (nΓγ ∙𝟘) (there h) p≤𝟙 =
 erasedContext : NegativeErasedContext Γ 𝟘ᶜ
 erasedContext {Γ = ε} = ε
 erasedContext {Γ = Γ ∙ A} = erasedContext ∙𝟘
+
+-- If 𝟘ᵐ is allowed, then NegativeErasedContext is upwards closed in
+-- its second argument.
+
+NegativeErasedContext-upwards-closed :
+  T 𝟘ᵐ-allowed →
+  γ ≤ᶜ δ →
+  NegativeErasedContext Γ γ →
+  NegativeErasedContext Γ δ
+NegativeErasedContext-upwards-closed
+  {γ = ε} {δ = ε} _ ε ε =
+  ε
+NegativeErasedContext-upwards-closed
+  {γ = _ ∙ _} {δ = _ ∙ _} ok (γ≤δ ∙ _) (neΓγ ∙ neg) =
+  NegativeErasedContext-upwards-closed ok γ≤δ neΓγ ∙ neg
+NegativeErasedContext-upwards-closed
+  {γ = _ ∙ _} {δ = _ ∙ _} ok (γ≤δ ∙ 𝟘≤p) (neΓγ ∙𝟘) =
+  PE.subst (λ p → NegativeErasedContext _ (_ ∙ p))
+    (PE.sym (𝟘≮ ok 𝟘≤p))
+    (NegativeErasedContext-upwards-closed ok γ≤δ neΓγ ∙𝟘)

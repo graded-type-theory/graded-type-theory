@@ -1,15 +1,10 @@
-{-# OPTIONS --without-K --safe #-}
-
-open import Tools.Relation
-
-module Application.NegativeAxioms.NegativeContext {a ℓ} (M′ : Setoid a ℓ) where
-
-open Setoid M′ using () renaming (Carrier to M)
+module Application.NegativeAxioms.NegativeContext
+  {a} (M : Set a) where
 
 open import Definition.Untyped M
-open import Definition.Typed M′
-open import Definition.Typed.Weakening M′
-open import Application.NegativeAxioms.NegativeType M′
+open import Definition.Typed M
+open import Definition.Typed.Weakening M
+open import Application.NegativeAxioms.NegativeType M
 
 open import Tools.Fin
 open import Tools.Level
@@ -28,7 +23,7 @@ private
 
 -- A context is negative if all of its type entries are negative.
 
-data NegativeContext : Ctx m → Set (a ⊔ ℓ) where
+data NegativeContext : Ctx m → Set a where
   ε   : NegativeContext ε
   _∙_ : NegativeContext Γ → NegativeType Γ A → NegativeContext (Γ ∙ A)
 

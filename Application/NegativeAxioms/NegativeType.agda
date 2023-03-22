@@ -1,19 +1,14 @@
-{-# OPTIONS --without-K --safe #-}
-
-open import Tools.Relation
-
-module Application.NegativeAxioms.NegativeType {a ℓ} (M′ : Setoid a ℓ) where
-
-open Setoid M′ using () renaming (Carrier to M)
+module Application.NegativeAxioms.NegativeType
+  {a} (M : Set a) where
 
 open import Definition.Untyped M as U hiding (_∷_)
 
-open import Definition.Typed M′
-open import Definition.Typed.Properties M′
-open import Definition.Typed.Weakening M′ as T
-open import Definition.Typed.Consequences.Inequality M′
-open import Definition.Typed.Consequences.Injectivity M′
-open import Definition.Typed.Consequences.Substitution M′
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.Typed.Weakening M as T
+open import Definition.Typed.Consequences.Inequality M
+open import Definition.Typed.Consequences.Injectivity M
+open import Definition.Typed.Consequences.Substitution M
 
 open import Tools.Empty
 open import Tools.Level
@@ -41,7 +36,7 @@ private
 -- A type is negative if all of its branches end in ⊥.
 -- The prime example is negation ¬A.
 
-data NegativeType (Γ : Cxt m) : Ty m → Set (a ⊔ ℓ) where
+data NegativeType (Γ : Cxt m) : Ty m → Set a where
 
   empty : NegativeType Γ Empty
 
@@ -52,7 +47,7 @@ data NegativeType (Γ : Cxt m) : Ty m → Set (a ⊔ ℓ) where
   sigma : Γ ⊢ A
         → NegativeType Γ A
         → NegativeType (Γ ∙ A) B
-        → NegativeType Γ (Σₚ q ▷ A ▹ B)
+        → NegativeType Γ (Σₚ p , q ▷ A ▹ B)
 
   conv  : NegativeType Γ A
         → Γ ⊢ A ≡ B
@@ -99,7 +94,10 @@ subNeg1 n ⊢t = subNeg n (singleSubst ⊢t) (wfTerm ⊢t)
 
 -- Lemma: The first component of a negative Σ-type is negative.
 
-fstNeg : NegativeType Γ C → Γ ⊢ C ≡ Σₚ q ▷ A ▹ B → NegativeType Γ A
+fstNeg :
+  NegativeType Γ C →
+  Γ ⊢ C ≡ Σₚ p , q ▷ A ▹ B →
+  NegativeType Γ A
 fstNeg empty          c = ⊥-elim (Empty≢Σⱼ c)
 fstNeg (pi _ _)       c = ⊥-elim (Π≢Σⱼ c)
 fstNeg (sigma _ nA _) c = conv nA (proj₁ (Σ-injectivity c))
@@ -107,7 +105,11 @@ fstNeg (conv n c)    c' = fstNeg n (trans c c')
 
 -- Lemma: Any instance of the second component of a negative Σ-type is negative.
 
-sndNeg : NegativeType Γ C → Γ ⊢ C ≡ Σₚ q ▷ A ▹ B → Γ ⊢ t ∷ A → NegativeType Γ (B [ t ])
+sndNeg :
+  NegativeType Γ C →
+  Γ ⊢ C ≡ Σₚ p , q ▷ A ▹ B →
+  Γ ⊢ t ∷ A →
+  NegativeType Γ (B [ t ])
 sndNeg empty          c = ⊥-elim (Empty≢Σⱼ c)
 sndNeg (pi _ _)       c = ⊥-elim (Π≢Σⱼ c)
 sndNeg (sigma _ _ nB) c ⊢t = let (cA , cB , _ , _) = Σ-injectivity c in
@@ -133,7 +135,7 @@ appNeg (conv n c)    c' = appNeg n (trans c c')
 
 -- Lemma: The type Σᵣ is not negative
 
-¬negΣᵣ : NegativeType Γ C → Γ ⊢ C ≡ Σᵣ q ▷ A ▹ B → ⊥
+¬negΣᵣ : NegativeType Γ C → Γ ⊢ C ≡ Σᵣ p , q ▷ A ▹ B → ⊥
 ¬negΣᵣ empty         c = Empty≢Bⱼ BΣ! c
 ¬negΣᵣ (pi _ _)      c = Π≢Σⱼ c
 ¬negΣᵣ (sigma _ _ _) c = Σₚ≢Σᵣⱼ c

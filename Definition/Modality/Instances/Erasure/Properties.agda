@@ -1,10 +1,11 @@
-{-# OPTIONS --without-K --safe #-}
-
 open import Definition.Modality.Instances.Erasure
+open import Definition.Modality.Restrictions
 
-module Definition.Modality.Instances.Erasure.Properties (Prodrec : Erasure → Set) where
+module Definition.Modality.Instances.Erasure.Properties
+  (restrictions : Restrictions Erasure)
+  where
 
-open import Definition.Modality.Instances.Erasure.Modality Prodrec
+open import Definition.Modality.Instances.Erasure.Modality restrictions
 
 open import Definition.Modality.Context ErasureModality
 open import Definition.Modality.Context.Properties ErasureModality public
@@ -13,12 +14,14 @@ open import Definition.Modality.Properties ErasureModality public
 
 open import Definition.Modality.Usage ErasureModality
 open import Definition.Modality.Usage.Inversion ErasureModality
+open import Definition.Mode ErasureModality
 
 open import Definition.Untyped Erasure
 
 open import Tools.Fin
 open import Tools.Nat hiding (_+_)
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE using (_≡_)
+import Tools.Reasoning.PartialOrder
 
 private
   variable
@@ -27,12 +30,8 @@ private
     γ δ : Conₘ n
     t u a : Term n
     x : Fin n
-
--- Context equality is propositional equality
-
-≈ᶜ-eq : γ ≈ᶜ δ → γ PE.≡ δ
-≈ᶜ-eq ε = PE.refl
-≈ᶜ-eq (γ≈δ ∙ PE.refl) = PE.cong (_∙ _) (≈ᶜ-eq γ≈δ)
+    p : Erasure
+    mo : Mode
 
 -- Addition on the left is a decreasing function
 -- γ + δ ≤ᶜ γ
@@ -152,13 +151,19 @@ least-elemᶜ : (γ : Conₘ n) → 𝟙ᶜ ≤ᶜ γ
 least-elemᶜ ε = ε
 least-elemᶜ (γ ∙ p) = (least-elemᶜ γ) ∙ (least-elem p)
 
--- Variables are always annotated with ω
--- If γ ▸ var x then x ◂ ω ∈ γ
+-- If a variable is well-used in the mode 𝟙ᵐ, with usage vector γ,
+-- then the variable's usage in γ is ω.
 
-valid-var-usage : γ ▸ var x → x ◂ ω ∈ γ
+valid-var-usage : γ ▸[ 𝟙ᵐ ] var x → x ◂ ω ∈ γ
 valid-var-usage γ▸x with inv-usage-var γ▸x
 valid-var-usage {x = x0} γ▸x | γ≤𝟘ᶜ ∙ p≤ω rewrite least-elem′ _ p≤ω = here
 valid-var-usage {x = x +1} γ▸x | γ≤γ′ ∙ p≤𝟘 = there (valid-var-usage (sub var γ≤γ′))
+
+-- The functions _∧ᶜ_ and _+ᶜ_ are pointwise equivalent.
+
+∧ᶜ≈ᶜ+ᶜ : γ ∧ᶜ δ ≈ᶜ γ +ᶜ δ
+∧ᶜ≈ᶜ+ᶜ {γ = ε}     {δ = ε}     = ≈ᶜ-refl
+∧ᶜ≈ᶜ+ᶜ {γ = _ ∙ _} {δ = _ ∙ _} = ∧ᶜ≈ᶜ+ᶜ ∙ PE.refl
 
 -- Subsumption for erased variables
 
@@ -168,8 +173,19 @@ erased-var-sub {δ = δ ∙ q} (there x◂𝟘) (γ≤δ ∙ p≤q) = there (era
 
 -- Inversion lemma for any products
 
-inv-usage-prodₑ : ∀ {m} → γ ▸ prod m t u → InvUsageProdᵣ γ t u
-inv-usage-prodₑ {m = Σₚ} γ▸t with inv-usage-prodₚ γ▸t
-... | invUsageProdₚ δ▸t δ▸u γ≤δ =
-  invUsageProdᵣ δ▸t δ▸u (PE.subst (_ ≤ᶜ_) (PE.sym (+ᶜ-idem _)) γ≤δ)
+inv-usage-prodₑ :
+  ∀ {m} → γ ▸[ mo ] prod m p t u → InvUsageProdᵣ γ mo p t u
+inv-usage-prodₑ {γ = γ} {p = p} {m = Σₚ} γ▸t with inv-usage-prodₚ γ▸t
+... | invUsageProdₚ {δ = δ} {η = η} δ▸t δ▸u γ≤ =
+  invUsageProdᵣ δ▸t δ▸u (begin
+    γ            ≤⟨ γ≤ ⟩
+    p ·ᶜ δ ∧ᶜ η  ≈⟨ ∧ᶜ≈ᶜ+ᶜ ⟩
+    p ·ᶜ δ +ᶜ η  ∎)
+  where
+  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 inv-usage-prodₑ {m = Σᵣ} γ▸t = inv-usage-prodᵣ γ▸t
+
+-- The mode corresponding to ω is 𝟙ᵐ.
+
+⌞ω⌟≡𝟙ᵐ : ⌞ ω ⌟ ≡ 𝟙ᵐ
+⌞ω⌟≡𝟙ᵐ = 𝟙ᵐ′≡𝟙ᵐ

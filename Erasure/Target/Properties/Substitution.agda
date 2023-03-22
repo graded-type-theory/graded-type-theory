@@ -1,5 +1,3 @@
-{-# OPTIONS --without-K --safe #-}
-
 module Erasure.Target.Properties.Substitution where
 
 open import Erasure.Target hiding (refl ; trans)
@@ -15,7 +13,7 @@ private
     ℓ m n : Nat
     ρ ρ′ : Wk m n
     σ σ′ : Subst m n
-
+    t : Term n
 
 -- Substitution properties.
 
@@ -232,6 +230,23 @@ wk-β : ∀ {a : Term m} t → wk ρ (t [ a ]) ≡ wk (lift ρ) t [ wk ρ a ]
 wk-β t = trans (wk-subst t) (sym (trans (subst-wk t)
                (substVar-to-subst (λ { x0 → refl ; (x +1) → refl}) t)))
 
+-- Pushing a lifted weakening into a lifted single substitution.
+
+wk-lift-β :
+  ∀ u →
+  wk (lift ρ) (subst (liftSubst (sgSubst t)) u) ≡
+  subst (liftSubst (sgSubst (wk ρ t))) (wk (lift (lift ρ)) u)
+wk-lift-β {ρ = ρ} {t = t} u =
+  wk (lift ρ) (subst (liftSubst (sgSubst t)) u)                ≡⟨ wk-subst u ⟩
+  subst (lift ρ •ₛ liftSubst (sgSubst t)) u                    ≡˘⟨ substVar-to-subst
+                                                                     (λ where
+                                                                        x0          → refl
+                                                                        (x0 +1)     → wk1-wk≡lift-wk1 _ _
+                                                                        ((_ +1) +1) → refl)
+                                                                     u ⟩
+  subst (liftSubst (sgSubst (wk ρ t)) ₛ• lift (lift ρ)) u      ≡˘⟨ subst-wk u ⟩
+  subst (liftSubst (sgSubst (wk ρ t))) (wk (lift (lift ρ)) u)  ∎
+
 -- Pushing a weakening into a double substitution
 -- ρ (t[a,b]) = ((lift (lift ρ)) t) [ ρ a , ρ b ]
 
@@ -363,3 +378,24 @@ doubleSubstComp {n = n} A t u σ = begin
   varEq (x0 +1) = refl
   varEq (x +1 +1) = trans (wk1-tail (wk1 (σ x)))
                           (trans (wk1-tail (σ x)) (subst-id (σ x)))
+
+-- Lifted substitutions kind of commute with lifted single
+-- substitutions.
+
+subst-liftSubst-sgSubst :
+  ∀ u →
+  subst (liftSubst σ) (subst (liftSubst (sgSubst t)) u) ≡
+  subst (liftSubst (sgSubst (subst σ t)))
+    (subst (liftSubst (liftSubst σ)) u)
+subst-liftSubst-sgSubst {σ = σ} {t = t} u =
+  subst (liftSubst σ) (subst (liftSubst (sgSubst t)) u)                  ≡⟨ substCompEq u ⟩
+  subst (liftSubst σ ₛ•ₛ liftSubst (sgSubst t)) u                        ≡⟨ substVar-to-subst substCompLift u ⟩
+  subst (liftSubst (σ ₛ•ₛ sgSubst t)) u                                  ≡˘⟨ substVar-to-subst
+                                                                               (substVar-lift λ where
+                                                                                  x0     → refl
+                                                                                  (_ +1) → wk1-sgSubst _ _)
+                                                                               u ⟩
+  subst (liftSubst (sgSubst (subst σ t) ₛ•ₛ liftSubst σ)) u              ≡˘⟨ substVar-to-subst substCompLift u ⟩
+  subst (liftSubst (sgSubst (subst σ t)) ₛ•ₛ liftSubst (liftSubst σ)) u  ≡˘⟨ substCompEq u ⟩
+  subst (liftSubst (sgSubst (subst σ t)))
+    (subst (liftSubst (liftSubst σ)) u)                                  ∎

@@ -1,24 +1,27 @@
-{-# OPTIONS --without-K --safe #-}
-
 open import Definition.Modality.Instances.Erasure
+open import Definition.Modality.Restrictions
 open import Definition.Typed.EqualityRelation
 open import Definition.Untyped Erasure as U hiding (_∷_)
-open import Definition.Typed Erasure′
+open import Definition.Typed Erasure
 
-module Erasure.LogicalRelation.Subsumption {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ)
-                                           (Prodrec : Erasure → Set)
-                                           {{eqrel : EqRelSet Erasure′}} where
+module Erasure.LogicalRelation.Subsumption
+  {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ)
+  (restrictions : Restrictions Erasure)
+  {{eqrel : EqRelSet Erasure}}
+  where
+
 open EqRelSet {{...}}
 
-open import Definition.Modality.Instances.Erasure.Modality Prodrec
-open import Definition.LogicalRelation.Substitution Erasure′
-import Definition.LogicalRelation.Fundamental Erasure′ as F
-import Definition.LogicalRelation.Irrelevance Erasure′ as I
+open import Definition.Modality.Instances.Erasure.Modality restrictions
+open import Definition.LogicalRelation.Substitution Erasure
+import Definition.LogicalRelation.Fundamental Erasure as F
+import Definition.LogicalRelation.Irrelevance Erasure as I
 
 open import Definition.Modality.Context ErasureModality
+open import Definition.Modality.Properties ErasureModality
+open import Definition.Mode ErasureModality
 
-
-open import Erasure.LogicalRelation ⊢Δ Prodrec
+open import Erasure.LogicalRelation ⊢Δ restrictions
 open import Erasure.Target as T hiding (_⇒_; _⇒*_)
 
 open import Tools.Level
@@ -26,6 +29,8 @@ open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Unit
+
+open Modality ErasureModality using (·-zeroʳ)
 
 private
   variable
@@ -36,6 +41,7 @@ private
     F G : U.Term n
     p q : Erasure
     γ δ : Conₘ n
+    m : Mode
 
 -- Subsumption of quantified logical relation
 -- If t ® v ◂ p and p ≤ q then t ® v ◂ q
@@ -48,35 +54,74 @@ subsumptionTerm {p = 𝟘} {𝟘} t®v q≤p = t®v
 subsumptionTerm {p = ω} {𝟘} t®v q≤p = tt
 subsumptionTerm {p = ω} {ω} t®v q≤p = t®v
 
+-- If t ®⟨ l ⟩ v ∷ A ◂ p / [A] holds when p is ω, then it holds for
+-- any quantity.
+
+subsumptionTermErasure :
+  ∀ {l [A]} p →
+  t ®⟨ l ⟩ v ∷ A ◂ ω / [A] →
+  t ®⟨ l ⟩ v ∷ A ◂ p / [A]
+subsumptionTermErasure 𝟘     = _
+subsumptionTermErasure ω t®v = t®v
+
 -- Subsumption of related substitutions
 -- If σ ® σ′ ∷ Γ ◂ γ and γ ≤ᶜ δ then σ ® σ′ ∷ Γ ◂ δ
 
 subsumptionSubst : ∀ {l σₜ σᵥ [Γ] [σ]}
-                 → σₜ ®⟨ l ⟩ σᵥ ∷ Γ ◂ γ / [Γ] / [σ]
+                 → σₜ ®⟨ l ⟩ σᵥ ∷[ m ] Γ ◂ γ / [Γ] / [σ]
                  → γ ≤ᶜ δ
-                 → σₜ ®⟨ l ⟩ σᵥ ∷ Γ ◂ δ / [Γ] / [σ]
+                 → σₜ ®⟨ l ⟩ σᵥ ∷[ m ] Γ ◂ δ / [Γ] / [σ]
 subsumptionSubst {Γ = ε} {ε} {ε} {[Γ] = ε} {lift tt} tt ε = tt
-subsumptionSubst {Γ = Γ ∙ x} {γ ∙ p} {δ ∙ q} {l = l}
+subsumptionSubst {m = m} {Γ = Γ ∙ x} {γ ∙ p} {δ ∙ q} {l = l}
                  {[Γ] = [Γ] ∙ [A]} {_ , _} (σ®σ′ , t®v) (γ≤δ ∙ p≤q) =
-  subsumptionSubst {l = l} σ®σ′ γ≤δ , subsumptionTerm t®v p≤q
+    subsumptionSubst {l = l} σ®σ′ γ≤δ
+  , subsumptionTerm t®v (·-monotoneʳ {r = ⌜ m ⌝} p≤q)
+
+-- If σₜ ®⟨ l ⟩ σᵥ ∷[ m ] Γ ◂ γ / [Γ] / [σ] holds when m is 𝟙ᵐ, then
+-- it holds for any mode.
+
+subsumptionSubstMode :
+  ∀ {σₜ σᵥ [Γ] [σ]} l →
+  σₜ ®⟨ l ⟩ σᵥ ∷[ 𝟙ᵐ ] Γ ◂ γ / [Γ] / [σ] →
+  σₜ ®⟨ l ⟩ σᵥ ∷[ m ] Γ ◂ γ / [Γ] / [σ]
+subsumptionSubstMode {m = 𝟙ᵐ} _ ok =
+  ok
+subsumptionSubstMode {γ = ε} {[Γ] = ε} =
+  _
+subsumptionSubstMode {γ = _ ∙ _} {m = 𝟘ᵐ} {[Γ] = _ ∙ _} l (ok₁ , _) =
+  subsumptionSubstMode l ok₁ , _
 
 -- Subsumption of erasure validity
 -- If γ ▸ Γ ⊩ʳ t ∷ A and δ ≤ᶜ γ then δ ▸ Γ ⊩ʳ t ∷ A
 
 subsumption : ∀ {l} {Γ : Con U.Term n} {t A : U.Term n}
             → ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ])
-            → γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷ A / [Γ] / [A]
+            → γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A / [Γ] / [A]
             → δ ≤ᶜ γ
-            → δ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷ A / [Γ] / [A]
+            → δ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A / [Γ] / [A]
 subsumption {l = l} [Γ] [A] γ⊩ʳt δ≤γ [σ] σ®σ′ =
   γ⊩ʳt [σ] (subsumptionSubst {l = l} σ®σ′ δ≤γ)
+
+-- If erasure is valid for the mode 𝟙ᵐ, then it is valid for any mode.
+
+subsumptionMode :
+  ∀ {l} {Γ : Con U.Term n} {[Γ] : ⊩ᵛ Γ}
+  (t {A} : U.Term n) ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ]) →
+  γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ 𝟙ᵐ ] A / [Γ] / [A] →
+  γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A / [Γ] / [A]
+subsumptionMode {m = 𝟘ᵐ}        = _
+subsumptionMode {m = 𝟙ᵐ} _ _ ok = ok
 
 -- Under erased contexts, any substitutions are related
 
 erasedSubst : ∀ {l σ σ′}
             → ([Γ] : ⊩ᵛ Γ)
             → ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
-            → σ ®⟨ l ⟩ σ′ ∷ Γ ◂ 𝟘ᶜ / [Γ] / [σ]
+            → σ ®⟨ l ⟩ σ′ ∷[ m ] Γ ◂ 𝟘ᶜ / [Γ] / [σ]
 erasedSubst ε (lift tt) = tt
-erasedSubst (_∙_ {l = l} [Γ] [A]) ([σ] , [t]) =
-  erasedSubst {l = l} [Γ] [σ] , tt
+erasedSubst {m = m} (_∙_ {l = l} [Γ] [A]) ([σ] , [t]) =
+  erasedSubst {l = l} [Γ] [σ] ,
+  PE.subst
+    (λ p → _ ®⟨ _ ⟩ _ ∷ _ ◂ p / _)
+    (PE.sym (·-zeroʳ ⌜ m ⌝))
+    tt

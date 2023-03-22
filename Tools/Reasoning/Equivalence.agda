@@ -1,5 +1,3 @@
-{-# OPTIONS --without-K --safe #-}
-
 open import Tools.Relation
 
 -- Reasoning for equivalence relations using preorder relation syntax

@@ -1,6 +1,6 @@
-{-# OPTIONS --without-K --safe #-}
-
 module Tools.Function where
+
+open import Function.Base using (case_of_; flip) public
 
 -- Identity function
 idᶠ : ∀ {ℓ} → {A : Set ℓ} → A → A

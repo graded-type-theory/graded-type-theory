@@ -1,21 +1,19 @@
-{-# OPTIONS --without-K --safe #-}
-
 open import Definition.Typed.EqualityRelation
 open import Tools.Level
 open import Tools.Relation
 
-module Definition.LogicalRelation.ShapeView {a ℓ} (M′ : Setoid a ℓ)
-                                            {{eqrel : EqRelSet M′}} where
+module Definition.LogicalRelation.ShapeView
+  {a} (M : Set a) {{eqrel : EqRelSet M}} where
+
 open EqRelSet {{...}}
-open Setoid M′ using () renaming (Carrier to M)
 
 open import Definition.Untyped M
-open import Definition.Untyped.BindingType M′
-open import Definition.Typed M′
-open import Definition.Typed.Properties M′
-open import Definition.LogicalRelation M′
-open import Definition.LogicalRelation.Properties.Escape M′
-open import Definition.LogicalRelation.Properties.Reflexivity M′
+open import Definition.Untyped.BindingType M
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.Properties.Escape M
+open import Definition.LogicalRelation.Properties.Reflexivity M
 
 open import Tools.Nat
 open import Tools.Product
@@ -36,22 +34,22 @@ data MaybeEmb {ℓ′} (l : TypeLevel) (⊩⟨_⟩ : TypeLevel → Set ℓ′) :
 
 -- Specific reducible types with possible embedding
 
-_⊩⟨_⟩U : (Γ : Con Term n) (l : TypeLevel) → Set (a ⊔ ℓ)
+_⊩⟨_⟩U : (Γ : Con Term n) (l : TypeLevel) → Set a
 Γ ⊩⟨ l ⟩U = MaybeEmb l (λ l′ → Γ ⊩′⟨ l′ ⟩U)
 
-_⊩⟨_⟩ℕ_ : (Γ : Con Term n) (l : TypeLevel) (A : Term n) → Set (a ⊔ ℓ)
+_⊩⟨_⟩ℕ_ : (Γ : Con Term n) (l : TypeLevel) (A : Term n) → Set a
 Γ ⊩⟨ l ⟩ℕ A = MaybeEmb l (λ l′ → Γ ⊩ℕ A)
 
-_⊩⟨_⟩Empty_ : (Γ : Con Term n) (l : TypeLevel) (A : Term n) → Set (a ⊔ ℓ)
+_⊩⟨_⟩Empty_ : (Γ : Con Term n) (l : TypeLevel) (A : Term n) → Set a
 Γ ⊩⟨ l ⟩Empty A = MaybeEmb l (λ l′ → Γ ⊩Empty A)
 
-_⊩⟨_⟩Unit_ : (Γ : Con Term n) (l : TypeLevel) (A : Term n) → Set (a ⊔ ℓ)
+_⊩⟨_⟩Unit_ : (Γ : Con Term n) (l : TypeLevel) (A : Term n) → Set a
 Γ ⊩⟨ l ⟩Unit A = MaybeEmb l (λ l′ → Γ ⊩Unit A)
 
-_⊩⟨_⟩ne_ : (Γ : Con Term n) (l : TypeLevel) (A : Term n) → Set (a ⊔ ℓ)
+_⊩⟨_⟩ne_ : (Γ : Con Term n) (l : TypeLevel) (A : Term n) → Set a
 Γ ⊩⟨ l ⟩ne A = MaybeEmb l (λ l′ → Γ ⊩ne A)
 
-_⊩⟨_⟩B⟨_⟩_ : (Γ : Con Term n) (l : TypeLevel) (W : BindingType) (A : Term n) → Set (a ⊔ ℓ)
+_⊩⟨_⟩B⟨_⟩_ : (Γ : Con Term n) (l : TypeLevel) (W : BindingType) (A : Term n) → Set a
 Γ ⊩⟨ l ⟩B⟨ W ⟩ A = MaybeEmb l (λ l′ → Γ ⊩′⟨ l′ ⟩B⟨ W ⟩ A)
 
 -- Construct a general reducible type from a specific
@@ -182,13 +180,13 @@ B-elim′ W D (Unitᵣ D′) =
   ⊥-elim (Unit≢B W (whrDet* (red D′ , Unitₙ) (D , ⟦ W ⟧ₙ)))
 B-elim′ W D (ne′ K D′ neK K≡K) =
   ⊥-elim (B≢ne W neK (whrDet* (D , ⟦ W ⟧ₙ) (red D′ , ne neK)))
-B-elim′ BΠ! D (Bᵣ′ BΣ! F G D′ ⊢F ⊢G A≡A [F] [G] G-ext) with whrDet* (D , Πₙ) (red D′ , Σₙ)
+B-elim′ BΠ! D (Bᵣ′ BΣ! F G D′ ⊢F ⊢G A≡A [F] [G] G-ext) with whrDet* (D , ΠΣₙ) (red D′ , ΠΣₙ)
 ... | ()
-B-elim′ BΣ! D (Bᵣ′ BΠ! F G D′ ⊢F ⊢G A≡A [F] [G] G-ext) with whrDet* (D , Σₙ) (red D′ , Πₙ)
+B-elim′ BΣ! D (Bᵣ′ BΠ! F G D′ ⊢F ⊢G A≡A [F] [G] G-ext) with whrDet* (D , ΠΣₙ) (red D′ , ΠΣₙ)
 ... | ()
-B-elim′ BΠ! D (Bᵣ′ BΠ! F G D′ ⊢F ⊢G A≡A [F] [G] G-ext) with whrDet* (D , Πₙ) (red D′ , Πₙ)
+B-elim′ BΠ! D (Bᵣ′ BΠ! F G D′ ⊢F ⊢G A≡A [F] [G] G-ext) with whrDet* (D , ΠΣₙ) (red D′ , ΠΣₙ)
 ... | PE.refl = noemb (Bᵣ F G D′ ⊢F ⊢G A≡A [F] [G] G-ext)
-B-elim′ BΣ! D (Bᵣ′ BΣ! F G D′ ⊢F ⊢G A≡A [F] [G] G-ext) with whrDet* (D , Σₙ) (red D′ , Σₙ)
+B-elim′ BΣ! D (Bᵣ′ BΣ! F G D′ ⊢F ⊢G A≡A [F] [G] G-ext) with whrDet* (D , ΠΣₙ) (red D′ , ΠΣₙ)
 ... | PE.refl = noemb (Bᵣ F G D′ ⊢F ⊢G A≡A [F] [G] G-ext)
 B-elim′ W D (emb 0<1 x) with B-elim′ W D x
 B-elim′ W D (emb 0<1 x) | noemb x₁ = emb 0<1 (noemb x₁)
@@ -200,16 +198,18 @@ B-elim W [Π] = B-elim′ W (id (escape [Π])) [Π]
 Π-elim : ∀ {F G l} → Γ ⊩⟨ l ⟩ Π p , q ▷ F ▹ G → Γ ⊩⟨ l ⟩B⟨ BΠ p q ⟩ Π p , q ▷ F ▹ G
 Π-elim [Π] = B-elim′ BΠ! (id (escape [Π])) [Π]
 
-Σ-elim : ∀ {F G m l} → Γ ⊩⟨ l ⟩ Σ q ▷ F ▹ G → Γ ⊩⟨ l ⟩B⟨ BΣ m q ⟩ Σ q ▷ F ▹ G
+Σ-elim :
+  ∀ {F G m l} →
+  Γ ⊩⟨ l ⟩ Σ p , q ▷ F ▹ G → Γ ⊩⟨ l ⟩B⟨ BΣ m p q ⟩ Σ p , q ▷ F ▹ G
 Σ-elim [Σ] = B-elim′ BΣ! (id (escape [Σ])) [Σ]
 
 -- Extract a type and a level from a maybe embedding
-extractMaybeEmb : ∀ {l ⊩⟨_⟩} → MaybeEmb {ℓ′ = a ⊔ ℓ} l ⊩⟨_⟩ → ∃ λ l′ → ⊩⟨ l′ ⟩
+extractMaybeEmb : ∀ {l ⊩⟨_⟩} → MaybeEmb {ℓ′ = a} l ⊩⟨_⟩ → ∃ λ l′ → ⊩⟨ l′ ⟩
 extractMaybeEmb (noemb x) = _ , x
 extractMaybeEmb (emb 0<1 x) = extractMaybeEmb x
 
 -- A view for constructor equality of types where embeddings are ignored
-data ShapeView (Γ : Con Term n) : ∀ l l′ A B (p : Γ ⊩⟨ l ⟩ A) (q : Γ ⊩⟨ l′ ⟩ B) → Set (a ⊔ ℓ) where
+data ShapeView (Γ : Con Term n) : ∀ l l′ A B (p : Γ ⊩⟨ l ⟩ A) (q : Γ ⊩⟨ l′ ⟩ B) → Set a where
   Uᵥ : ∀ {l l′} UA UB → ShapeView Γ l l′ U U (Uᵣ UA) (Uᵣ UB)
   ℕᵥ : ∀ {A B l l′} ℕA ℕB → ShapeView Γ l l′ A B (ℕᵣ ℕA) (ℕᵣ ℕB)
   Emptyᵥ : ∀ {A B l l′} EmptyA EmptyB → ShapeView Γ l l′ A B (Emptyᵣ EmptyA) (Emptyᵣ EmptyB)
@@ -235,10 +235,10 @@ goodCases (Emptyᵣ EmptyA) (Emptyᵣ EmptyB) A≡B = Emptyᵥ EmptyA EmptyB
 goodCases (Unitᵣ UnitA) (Unitᵣ UnitB) A≡B = Unitᵥ UnitA UnitB
 goodCases (ne neA) (ne neB) A≡B = ne neA neB
 goodCases (Bᵣ BΠ! ΠA) (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-          (B₌ F′ G′ BΠ! D′ W≋W′ A≡B [F≡F′] [G≡G′]) with whrDet* (red D , Πₙ) (D′ , Πₙ)
+          (B₌ F′ G′ BΠ! D′ W≋W′ A≡B [F≡F′] [G≡G′]) with whrDet* (red D , ΠΣₙ) (D′ , ΠΣₙ)
 ... | PE.refl = Bᵥ BΠ! BΠ! ΠA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) W≋W′
 goodCases (Bᵣ BΣ! ΣA) (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-          (B₌ F′ G′ BΣ! D′  W≋W′ A≡B [F≡F′] [G≡G′]) with whrDet* (red D , Σₙ) (D′ , Σₙ)
+          (B₌ F′ G′ BΣ! D′  W≋W′ A≡B [F≡F′] [G≡G′]) with whrDet* (red D , ΠΣₙ) (D′ , ΠΣₙ)
 ... | PE.refl = Bᵥ BΣ! BΣ! ΣA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) W≋W′
 
 
@@ -249,15 +249,15 @@ goodCases {l′ = l} (emb 0<1 x) [B] A≡B =
 
 -- Refutable cases
 -- U ≡ _
-goodCases (Uᵣ′ _ _ ⊢Γ) (ℕᵣ D) (lift PE.refl) with whnfRed* (red D) Uₙ
+goodCases (Uᵣ′ _ _ ⊢Γ) (ℕᵣ D) PE.refl with whnfRed* (red D) Uₙ
 ... | ()
-goodCases (Uᵣ′ _ _ ⊢Γ) (Emptyᵣ D) (lift PE.refl) with whnfRed* (red D) Uₙ
+goodCases (Uᵣ′ _ _ ⊢Γ) (Emptyᵣ D) PE.refl with whnfRed* (red D) Uₙ
 ... | ()
-goodCases (Uᵣ′ _ _ ⊢Γ) (Unitᵣ D) (lift PE.refl) with whnfRed* (red D) Uₙ
+goodCases (Uᵣ′ _ _ ⊢Γ) (Unitᵣ D) PE.refl with whnfRed* (red D) Uₙ
 ... | ()
-goodCases (Uᵣ′ _ _ ⊢Γ) (ne′ K D neK K≡K) (lift PE.refl) =
+goodCases (Uᵣ′ _ _ ⊢Γ) (ne′ K D neK K≡K) PE.refl =
   ⊥-elim (U≢ne neK (whnfRed* (red D) Uₙ))
-goodCases (Uᵣ′ _ _ ⊢Γ) (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) (lift PE.refl) =
+goodCases (Uᵣ′ _ _ ⊢Γ) (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) PE.refl =
   ⊥-elim (U≢B W (whnfRed* (red D) Uₙ))
 
 -- ℕ ≡ _
@@ -322,11 +322,11 @@ goodCases (Bᵣ W x) (ne′ K D neK K≡K) (B₌ F′ G′ W′ D′ W≋W′ A�
 goodCases (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
           (Bᵣ′ BΣ! F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext′)
           (B₌ F′₁ G′₁ BΠ! D′₁ W≋W′ A≡B [F≡F′] [G≡G′]) =
-  ⊥-elim (Π≢Σ (whrDet* (D′₁ , Πₙ) (red D′ , Σₙ)))
+  ⊥-elim (Π≢Σ (whrDet* (D′₁ , ΠΣₙ) (red D′ , ΠΣₙ)))
 goodCases (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
           (Bᵣ′ BΠ! F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext′)
           (B₌ F′₁ G′₁ BΣ! D′₁ W≋W′ A≡B [F≡F′] [G≡G′]) =
-  ⊥-elim (Π≢Σ (whrDet* (red D′ , Πₙ) (D′₁ , Σₙ)))
+  ⊥-elim (Π≢Σ (whrDet* (red D′ , ΠΣₙ) (D′₁ , ΠΣₙ)))
 goodCases (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
           (Bᵣ′ BΣ! F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext′)
           (B₌ F′₁ G′₁ BΣ! D′₁ () A≡B [F≡F′] [G≡G′])
@@ -335,8 +335,8 @@ goodCases (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
           (B₌ F′₁ G′₁ BΠ! D′₁ () A≡B [F≡F′] [G≡G′])
 goodCases (Bᵣ (BΠ p q) x) (Bᵣ (BΠ p₁ q₁) x₁)
           (B₌ F′ G′ BΣ! D′ () A≡B [F≡F′] [G≡G′])
-goodCases (Bᵣ (BΣ x₂ q) x) (Bᵣ (BΣ x₃ q₁) x₁)
-          (B₌ F′ G′ BΠ! D′ () A≡B [F≡F′] [G≡G′])
+goodCases (Bᵣ (BΣ _ _ _) _) (Bᵣ (BΣ _ _ _) _)
+          (B₌ _ _ BΠ! _ () _ _ _)
 
 -- Construct an shape view between two derivations of the same type
 goodCasesRefl : ∀ {l l′ A} ([A] : Γ ⊩⟨ l ⟩ A) ([A′] : Γ ⊩⟨ l′ ⟩ A)
@@ -348,7 +348,7 @@ goodCasesRefl [A] [A′] = goodCases [A] [A′] (reflEq [A])
 data ShapeView₃ (Γ : Con Term n) : ∀ l l′ l″ A B C
                  (p : Γ ⊩⟨ l  ⟩ A)
                  (q : Γ ⊩⟨ l′ ⟩ B)
-                 (r : Γ ⊩⟨ l″ ⟩ C) → Set (a ⊔ ℓ) where
+                 (r : Γ ⊩⟨ l″ ⟩ C) → Set a where
   Uᵥ : ∀ {l l′ l″} UA UB UC → ShapeView₃ Γ l l′ l″ U U U (Uᵣ UA) (Uᵣ UB) (Uᵣ UC)
   ℕᵥ : ∀ {A B C l l′ l″} ℕA ℕB ℕC
     → ShapeView₃ Γ l l′ l″ A B C (ℕᵣ ℕA) (ℕᵣ ℕB) (ℕᵣ ℕC)
@@ -383,11 +383,11 @@ combine (Unitᵥ UnitA₁ UnitB₁) (Unitᵥ UnitA UnitB) = Unitᵥ UnitA₁ Uni
 combine (ne neA₁ neB₁) (ne neA neB) = ne neA₁ neB₁ neB
 combine (Bᵥ W BΠ! ΠA₁ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) W≋Π)
         (Bᵥ BΠ! W′ (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) ΠB Π≋W′)
-        with whrDet* (red D , Πₙ) (red D₁ , Πₙ)
+        with whrDet* (red D , ΠΣₙ) (red D₁ , ΠΣₙ)
 ... | PE.refl = Bᵥ W BΠ! W′ ΠA₁ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) ΠB
 combine (Bᵥ W BΣ! ΣA₁ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) W≋Σ)
         (Bᵥ BΣ! W′ (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) ΣB Σ≋W′)
-        with whrDet* (red D , Σₙ) (red D₁ , Σₙ)
+        with whrDet* (red D , ΠΣₙ) (red D₁ , ΠΣₙ)
 ... | PE.refl = Bᵥ W BΣ! W′ ΣA₁ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) ΣB
 combine (emb⁰¹ [AB]) [BC] = emb⁰¹¹ (combine [AB] [BC])
 combine (emb¹⁰ [AB]) [BC] = emb¹⁰¹ (combine [AB] [BC])
@@ -468,7 +468,7 @@ combine (Bᵥ W W′ BA (Bᵣ F G D₁ ⊢F ⊢G A≡A [F] [G] G-ext) W≋W′) 
   ⊥-elim (B≢ne W′ neK (whrDet* (red D₁ , ⟦ W′ ⟧ₙ) (red D , ne neK)))
 combine (Bᵥ W BΠ! ΠA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) W≋Π) (Bᵥ BΣ! W′
         (Bᵣ F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext′) ΣA  Σ≋W′) =
-  ⊥-elim (Π≢Σ (whrDet* (red D , Πₙ) (red D′ , Σₙ)))
+  ⊥-elim (Π≢Σ (whrDet* (red D , ΠΣₙ) (red D′ , ΠΣₙ)))
 combine (Bᵥ W BΣ! ΣA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) W≋Σ) (Bᵥ BΠ! W′
         (Bᵣ F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext′) ΠA Π≋W′) =
-  ⊥-elim (Π≢Σ (whrDet* (red D′ , Πₙ) (red D , Σₙ)))
+  ⊥-elim (Π≢Σ (whrDet* (red D′ , ΠΣₙ) (red D , ΠΣₙ)))

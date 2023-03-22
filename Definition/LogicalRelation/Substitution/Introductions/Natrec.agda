@@ -1,32 +1,29 @@
-{-# OPTIONS --without-K --safe #-}
-
 open import Definition.Typed.EqualityRelation
-open import Tools.Relation
 
-module Definition.LogicalRelation.Substitution.Introductions.Natrec {a ℓ} (M′ : Setoid a ℓ)
-                                                                    {{eqrel : EqRelSet M′}} where
+module Definition.LogicalRelation.Substitution.Introductions.Natrec
+  {a} (M : Set a) {{eqrel : EqRelSet M}} where
+
 open EqRelSet {{...}}
-open Setoid M′ using (_≈_) renaming (Carrier to M; refl to ≈-refl)
 
 open import Definition.Untyped M hiding (_∷_) renaming (_[_,_] to _[_,,_])
 open import Definition.Untyped.Properties M
-open import Definition.Typed M′ hiding (_,_)
-open import Definition.Typed.Properties M′
-open import Definition.Typed.RedSteps M′
-open import Definition.LogicalRelation M′
-open import Definition.LogicalRelation.Irrelevance M′
-open import Definition.LogicalRelation.Properties M′
-open import Definition.LogicalRelation.Substitution M′
-open import Definition.LogicalRelation.Substitution.Properties M′
-import Definition.LogicalRelation.Substitution.Irrelevance M′ as S
-open import Definition.LogicalRelation.Substitution.Reflexivity M′
-open import Definition.LogicalRelation.Substitution.Introductions.Nat M′
+open import Definition.Typed M hiding (_,_)
+open import Definition.Typed.Properties M
+open import Definition.Typed.RedSteps M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.Properties M
+open import Definition.LogicalRelation.Substitution M
+open import Definition.LogicalRelation.Substitution.Properties M
+import Definition.LogicalRelation.Substitution.Irrelevance M as S
+open import Definition.LogicalRelation.Substitution.Reflexivity M
+open import Definition.LogicalRelation.Substitution.Introductions.Nat M
 
 open import Tools.Fin
 open import Tools.Nat
 open import Tools.Product
 open import Tools.Empty
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE using (_≈_; ≈-refl)
 
 private
   variable

@@ -1,19 +1,14 @@
-{-# OPTIONS --without-K --safe #-}
-
-open import Tools.Relation
-
-module Definition.Typed.Consequences.Reduction {a ℓ} (M′ : Setoid a ℓ) where
-
-open Setoid M′ using () renaming (Carrier to M)
+module Definition.Typed.Consequences.Reduction
+  {a} (M : Set a) where
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M′
-open import Definition.Typed.Properties M′
-open import Definition.Typed.EqRelInstance M′
-open import Definition.Typed.Consequences.Syntactic M′
-open import Definition.LogicalRelation M′
-open import Definition.LogicalRelation.Properties M′
-open import Definition.LogicalRelation.Fundamental.Reducibility M′
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.Typed.EqRelInstance M
+open import Definition.Typed.Consequences.Syntactic M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.Properties M
+open import Definition.LogicalRelation.Fundamental.Reducibility M
 
 open import Tools.Nat
 open import Tools.Product
@@ -32,8 +27,8 @@ whNorm′ (ℕᵣ D) = ℕ , ℕₙ , D
 whNorm′ (Emptyᵣ D) = Empty , Emptyₙ , D
 whNorm′ (Unitᵣ D) = Unit , Unitₙ , D
 whNorm′ (ne′ K D neK K≡K) = K , ne neK , D
-whNorm′ (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext) = Π _ , _ ▷ F ▹ G , Πₙ , D
-whNorm′ (Σᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext) = Σ _ ▷ F ▹ G , Σₙ , D
+whNorm′ (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext) = Π _ , _ ▷ F ▹ G , ΠΣₙ , D
+whNorm′ (Σᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext) = Σ _ , _ ▷ F ▹ G , ΠΣₙ , D
 whNorm′ (emb 0<1 [A]) = whNorm′ [A]
 
 -- Well-formed types can all be reduced to WHNF.

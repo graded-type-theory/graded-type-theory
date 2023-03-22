@@ -1,16 +1,17 @@
-{-# OPTIONS --without-K --safe #-}
-
 open import Definition.Modality.Instances.ZeroOneOmega
+open import Definition.Modality.Restrictions
 
-module Definition.Modality.Instances.Linearity (Prodrec : 𝟘𝟙ω → Set)  where
+module Definition.Modality.Instances.Linearity
+  (restrictions : Restrictions 𝟘𝟙ω)
+  where
 
 open import Tools.Product
 open import Tools.PropositionalEquality
 
 open import Definition.Modality.Instances.ZeroOneOmega
-  renaming (𝟘𝟙ω to Linearity; 𝟘𝟙ω′ to Linearity′) public
-open import Definition.Modality Linearity′
-open import Tools.Algebra Linearity′
+  renaming (𝟘𝟙ω to Linearity) public
+open import Definition.Modality Linearity
+open import Tools.Algebra Linearity
 
 
 infixl 40 _∧_
@@ -99,7 +100,7 @@ _∧_ : Op₂ Linearity
   (p · q) ∧ (p · r)
     ≈⟨ cong₂ _∧_ (·-Commutative p q) (·-Commutative p r) ⟩
   (q · p) ∧ (r · p) ∎
-  where open import Tools.Reasoning.Equivalence Linearity′
+  where open import Tools.Reasoning.Equivalence (setoid Linearity)
 
 -- Multiplication is distributive over addition
 -- p · (q ∧ r) ≡ (p · q) ∧ (p · r) and (q ∧ r) · p ≡ (q · p) ∧ (r · p)
@@ -133,7 +134,7 @@ _∧_ : Op₂ Linearity
   (p + q) ∧ (p + r)
     ≈⟨ cong₂ _∧_ (+-Commutative p q) (+-Commutative p r) ⟩
   (q + p) ∧ (r + p) ∎
-  where open import Tools.Reasoning.Equivalence Linearity′
+  where open import Tools.Reasoning.Equivalence (setoid Linearity)
 
 -- Addition is distributive over meet
 -- p + (q ∧ r) ≡ (p + q) ∧ (p + r) and (q ∧ r) + p ≡ (q + p) ∧ (r + p)
@@ -180,4 +181,6 @@ _∧_ : Op₂ Linearity
 -- Linearity forms a modality
 
 linearityModality : Modality
-linearityModality = ⊛.𝟘𝟙ωModality _∧_ ∧-Semilattice ·-distrib-∧ +-distrib-∧ (λ _ → refl) Prodrec
+linearityModality =
+  ⊛.𝟘𝟙ωModality _∧_ ∧-Semilattice ·-distrib-∧ +-distrib-∧ (λ _ → refl)
+    (λ ()) restrictions
