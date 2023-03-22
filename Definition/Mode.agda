@@ -136,7 +136,7 @@ Mode-elim _ z o = λ where
   open Tools.Reasoning.PropositionalEquality
 
 ------------------------------------------------------------------------
--- Basic definitions
+-- Some basic definitions
 
 -- The join of two modes.
 
