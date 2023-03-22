@@ -1325,7 +1325,7 @@ substₘ-calc-col {mos = mos} σ (x +1) = begin
 -- terms are well-resourced (for suitable modes).
 
 substₘ-calc-correct :
-  {Γ : Con Term m} (σ : Subst m n) →
+  (σ : Subst m n) →
   (∀ x → ∃ λ γ → γ ▸[ mos x ] σ x) → ∥ σ ∥ mos ▶[ mos ] σ
 substₘ-calc-correct {mos = mos} σ prop x with prop x
 ... | γ , γ▸σx = sub
