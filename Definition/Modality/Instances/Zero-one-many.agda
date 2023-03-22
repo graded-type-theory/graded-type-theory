@@ -66,9 +66,9 @@ Meet-requirements _∧_ =
   (𝟘 ∧ 𝟙 ≢ 𝟘) ×
   (𝟙 ∧ 𝟘 ≢ 𝟘)
 
--- The meet operation of a "ModalityWithout⊛" for Zero-one-many-setoid
--- for which the zero is 𝟘, the one is 𝟙 and 𝟘ᵐ is allowed has to
--- satisfy the Meet-requirements.
+-- The meet operation of a "ModalityWithout⊛" for Zero-one-many for
+-- which the zero is 𝟘, the one is 𝟙 and 𝟘ᵐ is allowed has to satisfy
+-- the Meet-requirements.
 
 Meet-requirements-required :
   (M : ModalityWithout⊛) →
@@ -211,9 +211,9 @@ _ ∧ _ = ω
 Order-requirements : (Zero-one-many → Zero-one-many → Set) → Set
 Order-requirements _≤_ = (ω ≤ 𝟙) × (ω ≤ 𝟘) × ¬ (𝟘 ≤ 𝟙)
 
--- The ordering relation of a "ModalityWithout⊛" for
--- Zero-one-many-setoid for which the zero is 𝟘, the one is 𝟙 and 𝟘ᵐ
--- is allowed has to satisfy the Order-requirements.
+-- The ordering relation of a "ModalityWithout⊛" for Zero-one-many for
+-- which the zero is 𝟘, the one is 𝟙 and 𝟘ᵐ is allowed has to satisfy
+-- the Order-requirements.
 
 Order-requirements-required :
   (M : ModalityWithout⊛) →
@@ -628,10 +628,10 @@ Star-requirements _⊛_▷_ _∧_ =
                                 ((𝟙 ⊛ 𝟘 ▷ 𝟙) ≤ 𝟙) ×
                                 ((𝟙 ⊛ 𝟙 ▷ 𝟘) ≤ 𝟙)
 
--- A star operation for a ModalityWithout⊛ for Zero-one-many-setoid
--- for which the zero is 𝟘, the one is 𝟙, 𝟘ᵐ is allowed, addition is
--- _+_, multiplication is _·_, and the meet operation is _∧_ has to
--- satisfy the Star-requirements (for _∧_) if certain conditions are
+-- A star operation for a ModalityWithout⊛ for Zero-one-many for which
+-- the zero is 𝟘, the one is 𝟙, 𝟘ᵐ is allowed, addition is _+_,
+-- multiplication is _·_, and the meet operation is _∧_ has to satisfy
+-- the Star-requirements (for _∧_) if certain conditions are
 -- satisfied.
 
 Star-requirements-required′ :
@@ -727,8 +727,8 @@ Star-requirements-required′
        ω              ∎)
     (ω≤ (𝟙 ⊛ 𝟘 ▷ ω))
 
--- The star operation of a modality for Zero-one-many-setoid for which
--- the zero is 𝟘, the one is 𝟙, 𝟘ᵐ is allowed, addition is _+_,
+-- The star operation of a modality for Zero-one-many for which the
+-- zero is 𝟘, the one is 𝟙, 𝟘ᵐ is allowed, addition is _+_,
 -- multiplication is _·_, and the meet operation is _∧_ has to satisfy
 -- the Star-requirements (for _∧_).
 
@@ -888,10 +888,9 @@ lower-bounded≢greatest rs hyp =
   (λ _ → refl)
 
 -- The star operation returns results that are at least as large as
--- those of the star operation of any modality for
--- Zero-one-many-setoid for which the zero is 𝟘, the one is 𝟙, 𝟘ᵐ is
--- allowed, addition is _+_, multiplication is _·_, and the meet
--- operation is _∧_.
+-- those of the star operation of any modality for Zero-one-many for
+-- which the zero is 𝟘, the one is 𝟙, 𝟘ᵐ is allowed, addition is _+_,
+-- multiplication is _·_, and the meet operation is _∧_.
 
 ⊛-greatest :
   (M : Modality) →
