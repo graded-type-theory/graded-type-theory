@@ -44,6 +44,7 @@ import Definition.Modality.Instances.Erasure.Modality
 import Definition.Modality.Instances.Unit
 import Definition.Modality.Instances.Affine
 import Definition.Modality.Instances.Linearity
+import Definition.Modality.Instances.Linear-or-affine
 import Definition.Modality.Instances.BoundedStar
 import Definition.Modality.Instances.Finite
 import Definition.Modality.Instances.LowerBounded
