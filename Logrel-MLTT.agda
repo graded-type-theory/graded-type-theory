@@ -135,6 +135,11 @@ import Definition.Conversion.Consequences.Completeness
 -- Decidability of conversion
 import Definition.Typed.Decidable
 
+-- The type Erased.
+import Definition.Untyped.Erased
+import Definition.Modality.Usage.Erased
+import Definition.Typed.Erased
+
 -- Erasure
 
 import Definition.Modality.Instances.Erasure.Properties
