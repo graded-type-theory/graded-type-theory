@@ -5,21 +5,29 @@ module Definition.Typed.Usage
 
 open Modality 𝕄
 
+open import Definition.Conversion.FullReduction M
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
 open import Definition.Modality.Properties 𝕄
 open import Definition.Modality.Substitution.Properties 𝕄
 open import Definition.Modality.Usage 𝕄
+open import Definition.Modality.Usage.Erased 𝕄
 open import Definition.Modality.Usage.Inversion 𝕄
 open import Definition.Modality.Usage.Properties 𝕄
 open import Definition.Mode 𝕄
 open import Definition.Typed M
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Typed.Consequences.DerivedRules M
+open import Definition.Typed.Erased 𝕄
+open import Definition.Untyped M hiding (_∷_; _[_])
+open import Definition.Untyped.Erased 𝕄
 
+open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
+open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
+  using (≈-sym)
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
@@ -186,3 +194,42 @@ usagePres*Term γ▸t (x ⇨ t⇒u) = usagePres*Term (usagePresTerm γ▸t x) t�
 usagePres* : γ ▸[ m ] A → Γ ⊢ A ⇒* B → γ ▸[ m ] B
 usagePres* γ▸A (id x) = γ▸A
 usagePres* γ▸A (x ⇨ A⇒B) = usagePres* (usagePres γ▸A x) A⇒B
+
+-- Note that reduction does not include η-expansion. If 𝟙 ≰ 𝟘, then
+-- there is a well-resourced, closed term in normal form which is
+-- definitionally equal to a term in normal form which is not
+-- well-resourced.
+
+counterexample :
+  ¬ 𝟙 ≤ 𝟘 →
+  ∃₂ λ t u →
+    ε ⊢ t ∷ Π 𝟙 , 𝟙 ▷ Erased ℕ ▹ Erased ℕ ×
+    𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
+    Nf t ×
+    Nf u ×
+    ε ⊢ t ≡ u ∷ Π 𝟙 , 𝟙 ▷ Erased ℕ ▹ Erased ℕ ×
+    ¬ ∃ λ γ → γ ▸[ 𝟙ᵐ ] u
+counterexample 𝟙≰𝟘 =
+    lam 𝟙 (var x0)
+  , lam 𝟙 [ erased (var x0) ]
+  , lamⱼ ⊢E-ℕ ⊢0
+  , lamₘ (sub var
+            (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+               𝟘ᶜ ∙ 𝟙 · 𝟙  ≈⟨ ≈ᶜ-refl ∙ ·-identityʳ _ ⟩
+               𝟘ᶜ ∙ 𝟙      ∎))
+  , lamₙ (ne (var _))
+  , lamₙ (prodₙ (ne (fstₙ (var _))) starₙ)
+  , lam-cong (_⊢_≡_∷_.sym ([erased] ⊢0))
+  , (λ (_ , ▸λ[e0]) →
+       case inv-usage-lam ▸λ[e0] of
+         λ (invUsageLam ▸[e0] _) →
+       case inv-usage-[] ▸[e0] of λ where
+         (_ , _ ∙ 𝟙·𝟙≤𝟘) →
+           let open Tools.Reasoning.PartialOrder ≤-poset in
+           𝟙≰𝟘 (begin
+             𝟙      ≡˘⟨ ·-identityʳ _ ⟩
+             𝟙 · 𝟙  ≤⟨ 𝟙·𝟙≤𝟘 ⟩
+             𝟘      ∎))
+  where
+  ⊢E-ℕ = Erasedⱼ (ℕⱼ ε)
+  ⊢0   = var (ε ∙ ⊢E-ℕ) here
