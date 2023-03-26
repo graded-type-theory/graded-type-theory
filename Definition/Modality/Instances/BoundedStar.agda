@@ -12,7 +12,6 @@ module Definition.Modality.Instances.BoundedStar
   (_* : A.Op₁ M)
   (*-rec : (p : M)
          → ((p *) ≡ (ModalityWithout⊛._+_ 𝕄 (ModalityWithout⊛.𝟙 𝕄) (ModalityWithout⊛._·_ 𝕄 p (p *)))))
-  (*-cong : {p p′ : M} → p ≡ p′ → (p *) ≡ (p′ *))
   (bounds : (p : M) → ModalityWithout⊛._≤_ 𝕄 (p *) (ModalityWithout⊛.𝟘 𝕄)
                     ⊎ ModalityWithout⊛._≤_ 𝕄 (p *) (ModalityWithout⊛.𝟙 𝕄)) where
 
@@ -76,7 +75,7 @@ p ⊛ q ▷ r = (r *) · (p ∧ q)
   open Tools.Reasoning.PartialOrder ≤-poset
 
 ⊛-cong : p ≈ p′ → q ≈ q′ → r ≈ r′ → p ⊛ q ▷ r ≈ p′ ⊛ q′ ▷ r′
-⊛-cong p≈p′ q≈q′ r≈r′ = ·-cong (*-cong r≈r′) (∧-cong p≈p′ q≈q′)
+⊛-cong p≈p′ q≈q′ r≈r′ = ·-cong (cong _* r≈r′) (∧-cong p≈p′ q≈q′)
 
 +-sub-interchangable-⊛ : (r : M) → _+_ SubInterchangable _⊛_▷ r by _≤_
 +-sub-interchangable-⊛ r p q p′ q′ = begin
