@@ -1,39 +1,28 @@
 open import Tools.Bool
-open import Tools.PropositionalEquality as PE
-  using (_≈_; _≉_; ≈-refl; ≈-sym; ≈-trans)
-open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 open import Definition.Modality
 
 module Definition.Modality.FullReduction
   {a} {M : Set a} (𝕄 : Modality M)
-  (open Modality 𝕄 hiding (is-𝟘?; ≉𝟘→≤𝟙))
-  -- One can decide whether a quantity is equal to 𝟘.
-  (is-𝟘? : ∀ p → Dec (p ≈ 𝟘))
-  -- Non-zero quantities are bounded by 1.
-  --
-  -- This assumption is only used when the first quantity of a Σ-type
-  -- with η-equality is distinct from 𝟘 and the mode is 𝟙ᵐ. It might
-  -- suffice to restrict such Σ-types so that when the first quantity
-  -- p is distinct from 𝟘 and the mode is 𝟙ᵐ, then p ≤ 𝟙 holds.
-  (≉𝟘→≤𝟙 : {p : M} → p ≉ 𝟘 → p ≤ 𝟙)
-  -- The following assumption is only used for the unit type with
-  -- η-equality, and only when the mode is 𝟙ᵐ. It might suffice to
-  -- restrict such types so that when the mode is 𝟙ᵐ they may only be
-  -- used if every quantity is bounded from above by 𝟘.
-  (p≤𝟘 : (p : M) → p ≤ 𝟘)
+  (open Modality 𝕄)
+  -- The following assumption is only used for quantities p that
+  -- correspond to the first quantity of a Σ-type with η-equality, and
+  -- only in cases where the mode is 𝟙ᵐ. It might suffice to restrict
+  -- such Σ-types so that when the first quantity is p and the mode is
+  -- 𝟙ᵐ, then (p ≤ 𝟙) ⊎ T 𝟘ᵐ-allowed holds.
+  (≤𝟙⊎𝟘ᵐ : (p : M) → (p ≤ 𝟙) ⊎ T 𝟘ᵐ-allowed)
   -- The following assumption is only used for quantities p that
   -- correspond to the first quantity of a Σ-type with η-equality, and
   -- only in cases where the mode is 𝟙ᵐ. It might suffice to restrict
   -- such Σ-types so that when the first quantity is p and the mode is
   -- 𝟙ᵐ, then q ≤ p · q holds for all quantities q.
-  (·-increasing : {p q : M} → q ≤ p · q)
-  -- The following assumption is only used when the first quantity of
-  -- a Σ-type with η-equality is 𝟘 and the mode is 𝟙ᵐ. It might
-  -- suffice to restrict such Σ-types so that when the first quantity
-  -- is 𝟘 and the mode is 𝟙ᵐ, then (𝟘 ≤ 𝟙) ⊎ T 𝟘ᵐ-allowed holds.
-  (𝟘≤𝟙⊎𝟘ᵐ : (𝟘 ≤ 𝟙) ⊎ T 𝟘ᵐ-allowed)
+  (·-increasing : (p {q} : M) → q ≤ p · q)
+  -- The following assumption is only used for the unit type with
+  -- η-equality, and only when the mode is 𝟙ᵐ. It might suffice to
+  -- restrict such types so that when the mode is 𝟙ᵐ they may only be
+  -- used if every quantity is bounded from above by 𝟘.
+  (p≤𝟘 : (p : M) → p ≤ 𝟘)
   where
 
 open import Tools.Empty
@@ -41,6 +30,8 @@ open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat using (Nat)
 open import Tools.Product
+open import Tools.PropositionalEquality as PE
+  using (≈-refl; ≈-sym; ≈-trans)
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
 
@@ -272,10 +263,6 @@ mutual
              γ            ≤⟨ ∧ᶜ-greatest-lower-bound γ≤pδ ≤ᶜ-refl ⟩
              p ·ᶜ δ ∧ᶜ γ  ∎)
     where
-    ·ᶜ-increasing : (γ : Conₘ n) → γ ≤ᶜ p ·ᶜ γ
-    ·ᶜ-increasing ε       = ε
-    ·ᶜ-increasing (γ ∙ p) = ·ᶜ-increasing _ ∙ ·-increasing
-
     lemma :
       ∀ m →
       γ ▸[ m ] t →
@@ -287,32 +274,25 @@ mutual
            γ        ≤⟨ ▸-𝟘ᵐ γ▸t ⟩
            𝟘ᶜ       ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
            p ·ᶜ 𝟘ᶜ  ∎)
-    lemma 𝟙ᵐ γ▸t = case is-𝟘? p of λ where
-      (yes PE.refl) →
-          ⌜ ⌞ 𝟘 ⌟ ⌝ ·ᶜ γ
-        , fstₘ 𝟙ᵐ
-            (▸-cong
-               (let open Tools.Reasoning.PropositionalEquality in
-                  ⌞ p ⌟ ·ᵐ 𝟙ᵐ  ≡⟨ ·ᵐ-comm _ 𝟙ᵐ ⟩
-                  𝟙ᵐ ·ᵐ ⌞ p ⌟  ≡⟨⟩
-                  ⌞ p ⌟        ∎)
-               (▸-· γ▸t))
-            PE.refl
-            𝟘≤𝟙⊎𝟘ᵐ
-        , (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-             γ                     ≤⟨ ·ᶜ-increasing _ ⟩
-             𝟘 ·ᶜ γ                ≈˘⟨ ·ᶜ-congʳ (·-zeroˡ _) ⟩
-             (𝟘 · ⌜ ⌞ 𝟘 ⌟ ⌝) ·ᶜ γ  ≈⟨ ·ᶜ-assoc _ _ _ ⟩
-             𝟘 ·ᶜ ⌜ ⌞ 𝟘 ⌟ ⌝ ·ᶜ γ   ∎)
-      (no p≉𝟘) →
-          γ
-        , fstₘ 𝟙ᵐ
-            (▸-cong (PE.sym (≉𝟘→⌞⌟≡𝟙ᵐ p≉𝟘)) γ▸t)
-            PE.refl
-            (inj₁ (≉𝟘→≤𝟙 p≉𝟘))
-        , (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-             γ       ≤⟨ ·ᶜ-increasing _ ⟩
-             p ·ᶜ γ  ∎)
+    lemma 𝟙ᵐ γ▸t =
+        ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ
+      , fstₘ 𝟙ᵐ
+          (▸-cong
+             (let open Tools.Reasoning.PropositionalEquality in
+                ⌞ p ⌟ ·ᵐ 𝟙ᵐ  ≡⟨ ·ᵐ-identityʳ _ ⟩
+                ⌞ p ⌟        ∎)
+             (▸-· γ▸t))
+          PE.refl
+          (≤𝟙⊎𝟘ᵐ p)
+      , (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+           γ                     ≤⟨ ·ᶜ-increasing _ ⟩
+           p ·ᶜ γ                ≈˘⟨ ·ᶜ-congʳ ·⌜⌞⌟⌝ ⟩
+           (p · ⌜ ⌞ p ⌟ ⌝) ·ᶜ γ  ≈⟨ ·ᶜ-assoc _ _ _ ⟩
+           p ·ᶜ ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ   ∎)
+      where
+      ·ᶜ-increasing : (γ : Conₘ n) → γ ≤ᶜ p ·ᶜ γ
+      ·ᶜ-increasing ε       = ε
+      ·ᶜ-increasing (_ ∙ _) = ·ᶜ-increasing _ ∙ ·-increasing p
 
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
