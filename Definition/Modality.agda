@@ -143,8 +143,8 @@ record Modality : Set (lsuc a) where
     ⊛-ineq : ((p q r : M) → p ⊛ q ▷ r ≤ q + r · p ⊛ q ▷ r)
            × ((p q r : M) → p ⊛ q ▷ r ≤ p)
 
-    -- addition is sub-interchangable over ⊛ w.r.t the first two arguments
-    +-sub-interchangable-⊛ : (r : M) → _+_ SubInterchangable (_⊛_▷ r) by _≤_
+    -- addition is sub-interchangeable over ⊛ w.r.t the first two arguments
+    +-sub-interchangeable-⊛ : (r : M) → _+_ SubInterchangeable (_⊛_▷ r) by _≤_
     -- multiplication is right sub-distributive over ⊛ w.r.t the first two arguments
     ·-sub-distribʳ-⊛ : (r : M) → _·_ SubDistributesOverʳ (_⊛_▷ r) by _≤_
     -- ⊛ is sub-distributive over meet w.r.t the first two arguments

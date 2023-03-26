@@ -39,7 +39,7 @@ private
 -- The operation _·_ is sub-interchangeable with _∧_ (with respect
 -- to _≤_).
 
-·-sub-interchangeable-∧ : _·_ SubInterchangable _∧_ by _≤_
+·-sub-interchangeable-∧ : _·_ SubInterchangeable _∧_ by _≤_
 ·-sub-interchangeable-∧ p q p′ q′ = begin
   (p ∧ q) · (p′ ∧ q′)                            ≈⟨ ·-distribˡ-∧ _ _ _ ⟩
   ((p ∧ q) · p′) ∧ ((p ∧ q) · q′)                ≈⟨ ∧-cong (·-distribʳ-∧ _ _ _) (·-distribʳ-∧ _ _ _) ⟩

@@ -36,6 +36,6 @@ _SubDistributesOver_by_ : Op₂ A → Op₂ A → Rel A a → Set a
 * SubDistributesOver + by ≤ =
   * SubDistributesOverˡ + by ≤ × * SubDistributesOverʳ + by ≤
 
--- Sub-interchangable
-_SubInterchangable_by_ : Op₂ A → Op₂ A → Rel A a → Set _
-_∘_ SubInterchangable _∙_ by _≤_ = ∀ w x y z → ((w ∙ x) ∘ (y ∙ z)) ≤ ((w ∘ y) ∙ (x ∘ z))
+-- Sub-interchangeable
+_SubInterchangeable_by_ : Op₂ A → Op₂ A → Rel A a → Set _
+_∘_ SubInterchangeable _∙_ by _≤_ = ∀ w x y z → ((w ∙ x) ∘ (y ∙ z)) ≤ ((w ∘ y) ∙ (x ∘ z))

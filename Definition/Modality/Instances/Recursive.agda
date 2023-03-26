@@ -51,15 +51,15 @@ nr-cong {p} {p′} {q} {q′} {r} {r′} (1+ n) p≈p′ q≈q′ r≈r′ = beg
   where
   open Tools.Reasoning.Equivalence (setoid M)
 
-+-sub-interchangable-nr : (n : Nat) (r : M) → _+_ SubInterchangable (λ p q → nr n p q r) by _≤_
-+-sub-interchangable-nr 0 r p q p′ q′ = begin
++-sub-interchangeable-nr : (n : Nat) (r : M) → _+_ SubInterchangeable (λ p q → nr n p q r) by _≤_
++-sub-interchangeable-nr 0 r p q p′ q′ = begin
   nr 0 p q r + nr 0 p′ q′ r ≈⟨ +-cong (nr-0 p q r) (nr-0 p′ q′ r) ⟩
   𝟘 + 𝟘                     ≈⟨ +-identityˡ 𝟘 ⟩
   𝟘                         ≈˘⟨ nr-0 (p + p′) (q + q′) r ⟩
   nr 0 (p + p′) (q + q′) r ∎
   where
   open Tools.Reasoning.PartialOrder ≤-poset
-+-sub-interchangable-nr (1+ n) r p q p′ q′ = begin
++-sub-interchangeable-nr (1+ n) r p q p′ q′ = begin
   nr (1+ n) p q r + nr (1+ n) p′ q′ r
     ≈⟨ +-cong (nr-rec n p q r) (nr-rec n p′ q′ r) ⟩
   (p ∧ (q + r · nr n p q r)) + (p′ ∧ (q′ + r · nr n p′ q′ r))
@@ -82,7 +82,7 @@ nr-cong {p} {p′} {q} {q′} {r} {r′} (1+ n) p≈p′ q≈q′ r≈r′ = beg
   (p + p′) ∧ ((q + q′) + (r · nr n p q r + r · nr n p′ q′ r))
     ≈˘⟨ ∧-congˡ (+-congˡ (·-distribˡ-+ _ _ _)) ⟩
   (p + p′) ∧ ((q + q′) + (r · (nr n p q r + nr n p′ q′ r)))
-    ≤⟨ ∧-monotoneʳ (+-monotoneʳ (·-monotoneʳ (+-sub-interchangable-nr n r p q p′ q′))) ⟩
+    ≤⟨ ∧-monotoneʳ (+-monotoneʳ (·-monotoneʳ (+-sub-interchangeable-nr n r p q p′ q′))) ⟩
   (p + p′) ∧ ((q + q′) + (r · nr n (p + p′) (q + q′) r))
     ≈˘⟨ nr-rec n (p + p′) (q + q′) r ⟩
   nr (1+ n) (p + p′) (q + q′) r ∎
@@ -177,7 +177,7 @@ isModality = record
   { modalityWithout⊛ = 𝕄
   ; _⊛_▷_ = _⊛_▷_
   ; ⊛-ineq = solvesIneqs
-  ; +-sub-interchangable-⊛ = +-sub-interchangable-nr (proj₁ nr-fix)
+  ; +-sub-interchangeable-⊛ = +-sub-interchangeable-nr (proj₁ nr-fix)
   ; ·-sub-distribʳ-⊛ = ·-sub-distribʳ-nr (proj₁ nr-fix)
   ; ⊛-sub-distrib-∧ = λ r → nr-sub-distribˡ-∧ (proj₁ nr-fix) r , nr-sub-distribʳ-∧ (proj₁ nr-fix) r
   }

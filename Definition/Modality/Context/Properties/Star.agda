@@ -54,14 +54,14 @@ private
 ·ᶜ-sub-distribʳ-⊛ p q r ε = ≤ᶜ-refl
 ·ᶜ-sub-distribʳ-⊛ p q r (γ ∙ p′) = (·ᶜ-sub-distribʳ-⊛ p q r γ) ∙ ·-sub-distribʳ-⊛ r p′ p q
 
--- Addition is sub-interchangable over ⊛ᶜ w.r.t the first two arguments
+-- Addition is sub-interchangeable over ⊛ᶜ w.r.t the first two arguments
 -- (γ ⊛ᵣ δ) + (γ′ ⊛ᵣ δ′) ≤ (γ + γ′) ⊛ᵣ (δ + δ′)
 
-+ᶜ-sub-interchangable-⊛ᶜ : (r : M) → (γ δ γ′ δ′ : Conₘ n)
++ᶜ-sub-interchangeable-⊛ᶜ : (r : M) → (γ δ γ′ δ′ : Conₘ n)
                          → (γ ⊛ᶜ δ ▷ r) +ᶜ (γ′ ⊛ᶜ δ′ ▷ r) ≤ᶜ (γ +ᶜ γ′) ⊛ᶜ (δ +ᶜ δ′) ▷ r
-+ᶜ-sub-interchangable-⊛ᶜ r ε ε ε ε = ε
-+ᶜ-sub-interchangable-⊛ᶜ  r (γ ∙ p) (δ ∙ q) (γ′ ∙ p′) (δ′ ∙ q′) =
-  +ᶜ-sub-interchangable-⊛ᶜ r γ δ γ′ δ′ ∙ +-sub-interchangable-⊛ r p q p′ q′
++ᶜ-sub-interchangeable-⊛ᶜ r ε ε ε ε = ε
++ᶜ-sub-interchangeable-⊛ᶜ  r (γ ∙ p) (δ ∙ q) (γ′ ∙ p′) (δ′ ∙ q′) =
+  +ᶜ-sub-interchangeable-⊛ᶜ r γ δ γ′ δ′ ∙ +-sub-interchangeable-⊛ r p q p′ q′
 
 -- Congruence of ⊛ᶜ
 ⊛ᶜ-cong : γ ≈ᶜ γ′ → δ ≈ᶜ δ′ → r ≈ r′ → γ ⊛ᶜ δ ▷ r ≈ᶜ γ′ ⊛ᶜ δ′ ▷ r′

@@ -128,7 +128,7 @@ private
   p ⊛ q ▷ r ·ᶜ η +ᶜ Ψ *> (γ ⊛ᶜ δ ▷ r)
       ≤⟨ +ᶜ-monotone (·ᶜ-sub-distribʳ-⊛ p q r η) (*>-sub-distrib-⊛ᶜ Ψ γ δ r) ⟩
   (p ·ᶜ η) ⊛ᶜ (q ·ᶜ η) ▷ r +ᶜ (Ψ *> γ) ⊛ᶜ (Ψ *> δ) ▷ r
-      ≤⟨ +ᶜ-sub-interchangable-⊛ᶜ r (p ·ᶜ η) (q ·ᶜ η) (Ψ *> γ) (Ψ *> δ) ⟩
+      ≤⟨ +ᶜ-sub-interchangeable-⊛ᶜ r (p ·ᶜ η) (q ·ᶜ η) (Ψ *> γ) (Ψ *> δ) ⟩
   (p ·ᶜ η +ᶜ Ψ *> γ) ⊛ᶜ (q ·ᶜ η +ᶜ Ψ *> δ) ▷ r
       ≡⟨⟩
   ((Ψ ⊙ η) *> (γ ∙ p)) ⊛ᶜ ((Ψ ⊙ η) *> (δ ∙ q)) ▷ r ∎

@@ -65,7 +65,7 @@ private
 -- to _≤ᶜ_).
 
 +ᶜ-sub-interchangeable-∧ᶜ :
-  _SubInterchangable_by_ (Conₘ n) _+ᶜ_ _∧ᶜ_ _≤ᶜ_
+  _SubInterchangeable_by_ (Conₘ n) _+ᶜ_ _∧ᶜ_ _≤ᶜ_
 +ᶜ-sub-interchangeable-∧ᶜ ε       ε       ε       ε       = ε
 +ᶜ-sub-interchangeable-∧ᶜ (_ ∙ _) (_ ∙ _) (_ ∙ _) (_ ∙ _) =
   +ᶜ-sub-interchangeable-∧ᶜ _ _ _ _ ∙ +-sub-interchangeable-∧ _ _ _ _

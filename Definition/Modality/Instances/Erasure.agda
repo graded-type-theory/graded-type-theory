@@ -168,15 +168,15 @@ p ≤ q = p ≡ p ∧ q
 ⊛-ineq₂ 𝟘 ω r = refl
 ⊛-ineq₂ ω q r = refl
 
--- Addition is sub-interchangable with ⊛ᵣ
+-- Addition is sub-interchangeable with ⊛ᵣ
 -- (p ⊛ᵣ q) + (p′ ⊛ᵣ q′) ≤ (p + p′) ⊛ᵣ (q + q′)
 
-+-sub-interchangable-⊛ : (r : Erasure) → _+_ SubInterchangable (_⊛_▷ r) by _≤_
-+-sub-interchangable-⊛ r 𝟘 𝟘 𝟘 𝟘 = refl
-+-sub-interchangable-⊛ r 𝟘 𝟘 𝟘 ω = refl
-+-sub-interchangable-⊛ r 𝟘 𝟘 ω q′ = refl
-+-sub-interchangable-⊛ r 𝟘 ω p′ q′ = refl
-+-sub-interchangable-⊛ r ω q p′ q′ = refl
++-sub-interchangeable-⊛ : (r : Erasure) → _+_ SubInterchangeable (_⊛_▷ r) by _≤_
++-sub-interchangeable-⊛ r 𝟘 𝟘 𝟘 𝟘 = refl
++-sub-interchangeable-⊛ r 𝟘 𝟘 𝟘 ω = refl
++-sub-interchangeable-⊛ r 𝟘 𝟘 ω q′ = refl
++-sub-interchangeable-⊛ r 𝟘 ω p′ q′ = refl
++-sub-interchangeable-⊛ r ω q p′ q′ = refl
 
 -- Multiplation right sub-distributes over ⊛ᵣ
 -- (p ⊛ᵣ p′) · q ≤ (p · q) ⊛ᵣ (p′ · q)

@@ -53,7 +53,7 @@ ErasureModality = record
   { modalityWithout⊛ = erasureModalityWithout⊛
   ; _⊛_▷_ = _⊛_▷_
   ; ⊛-ineq = ⊛-ineq₁ , ⊛-ineq₂
-  ; +-sub-interchangable-⊛ = +-sub-interchangable-⊛
+  ; +-sub-interchangeable-⊛ = +-sub-interchangeable-⊛
   ; ·-sub-distribʳ-⊛ = ·-sub-distribʳ-⊛
   ; ⊛-sub-distrib-∧ = λ r → ⊛-sub-distribˡ-∧ r , ⊛-sub-distribʳ-∧ r
   }

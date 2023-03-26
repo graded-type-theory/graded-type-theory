@@ -49,8 +49,8 @@ p ⊛ q ▷ r = ∞ · (p ∧ q)
 ⊛-ineq₂ p q r = ≤-trans (·-monotone (∞-min 𝟙) (∧-decreasingˡ p q))
                         (≤-reflexive (·-identityˡ p))
 
-+-sub-interchangable-⊛ : (r : M) → _+_ SubInterchangable _⊛_▷ r by _≤_
-+-sub-interchangable-⊛ r p q p′ q′ = begin
++-sub-interchangeable-⊛ : (r : M) → _+_ SubInterchangeable _⊛_▷ r by _≤_
++-sub-interchangeable-⊛ r p q p′ q′ = begin
   (p ⊛ q ▷ r) + (p′ ⊛ q′ ▷ r) ≡⟨⟩
   ∞ · (p ∧ q) + ∞ · (p′ ∧ q′)
     ≈˘⟨ ·-distribˡ-+ ∞ _ _ ⟩
@@ -117,7 +117,7 @@ isModality = record
   { modalityWithout⊛ = 𝕄
   ; _⊛_▷_ = _⊛_▷_
   ; ⊛-ineq = ⊛-ineq₁ , ⊛-ineq₂
-  ; +-sub-interchangable-⊛ = +-sub-interchangable-⊛
+  ; +-sub-interchangeable-⊛ = +-sub-interchangeable-⊛
   ; ·-sub-distribʳ-⊛ = ·-sub-distribʳ-⊛
   ; ⊛-sub-distrib-∧ = λ r → ⊛-sub-distribˡ-∧ r , ⊛-sub-distribʳ-∧ r
   }

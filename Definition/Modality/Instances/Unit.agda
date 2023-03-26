@@ -170,7 +170,7 @@ UnitModality = record
   { modalityWithout⊛ = UnitModalityWithout⊛
   ; _⊛_▷_ = _⊛_▷_
   ; ⊛-ineq = (λ p q r → refl) , (λ p q r → refl)
-  ; +-sub-interchangable-⊛ = λ r p q p′ q′ → refl
+  ; +-sub-interchangeable-⊛ = λ r p q p′ q′ → refl
   ; ·-sub-distribʳ-⊛ = λ r q p p′ → refl
   ; ⊛-sub-distrib-∧ = λ r → (λ p q q′ → refl) , (λ q p p′ → refl)
   }

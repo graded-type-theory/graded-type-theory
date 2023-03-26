@@ -953,13 +953,13 @@ lower-bounded≢greatest rs hyp =
 
 zero-one-many-greatest : Restrictions → Modality
 zero-one-many-greatest restrictions = record
-  { modalityWithout⊛       = modalityWithout⊛
-  ; _⊛_▷_                  = _⊛_▷_
-  ; ⊛-ineq                 = ⊛-ineq₁ , ⊛-ineq₂
-  ; +-sub-interchangable-⊛ = +-sub-interchangeable-⊛
-  ; ·-sub-distribʳ-⊛       = λ r _ _ _ →
-                               ≤-reflexive (·-distribʳ-⊛ r _ _ _)
-  ; ⊛-sub-distrib-∧        = λ r →
+  { modalityWithout⊛        = modalityWithout⊛
+  ; _⊛_▷_                   = _⊛_▷_
+  ; ⊛-ineq                  = ⊛-ineq₁ , ⊛-ineq₂
+  ; +-sub-interchangeable-⊛ = +-sub-interchangeable-⊛
+  ; ·-sub-distribʳ-⊛        = λ r _ _ _ →
+                                ≤-reflexive (·-distribʳ-⊛ r _ _ _)
+  ; ⊛-sub-distrib-∧         = λ r →
       (λ _ _ _ → ≤-reflexive (⊛-distribˡ-∧ r _ _ _))
     , (λ _ _ _ → ≤-reflexive (⊛-distribʳ-∧ r _ _ _))
   }
@@ -1034,7 +1034,7 @@ zero-one-many-greatest restrictions = record
     where
     open Tools.Reasoning.PartialOrder ≤-poset
 
-  +-sub-interchangeable-⊛ : ∀ r → _+_ SubInterchangable (_⊛_▷ r) by _≤_
+  +-sub-interchangeable-⊛ : ∀ r → _+_ SubInterchangeable (_⊛_▷ r) by _≤_
   +-sub-interchangeable-⊛ = λ where
       𝟘 p q p′ q′ → begin
         (p ∧ q) + (p′ ∧ q′)  ≤⟨ +-sub-interchangeable-∧ p _ _ _ ⟩

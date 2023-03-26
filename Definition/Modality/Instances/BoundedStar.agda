@@ -77,8 +77,8 @@ p ⊛ q ▷ r = (r *) · (p ∧ q)
 ⊛-cong : p ≈ p′ → q ≈ q′ → r ≈ r′ → p ⊛ q ▷ r ≈ p′ ⊛ q′ ▷ r′
 ⊛-cong p≈p′ q≈q′ r≈r′ = ·-cong (cong _* r≈r′) (∧-cong p≈p′ q≈q′)
 
-+-sub-interchangable-⊛ : (r : M) → _+_ SubInterchangable _⊛_▷ r by _≤_
-+-sub-interchangable-⊛ r p q p′ q′ = begin
++-sub-interchangeable-⊛ : (r : M) → _+_ SubInterchangeable _⊛_▷ r by _≤_
++-sub-interchangeable-⊛ r p q p′ q′ = begin
   (p ⊛ q ▷ r) + (p′ ⊛ q′ ▷ r) ≡⟨⟩
   (r *) · (p ∧ q) + (r *) · (p′ ∧ q′)
      ≈˘⟨ ·-distribˡ-+ (r *) _ _ ⟩
@@ -145,7 +145,7 @@ isModality = record
   { modalityWithout⊛ = 𝕄
   ; _⊛_▷_ = _⊛_▷_
   ; ⊛-ineq = ⊛-ineq₁ , ⊛-ineq₂
-  ; +-sub-interchangable-⊛ = +-sub-interchangable-⊛
+  ; +-sub-interchangeable-⊛ = +-sub-interchangeable-⊛
   ; ·-sub-distribʳ-⊛ = ·-sub-distribʳ-⊛
   ; ⊛-sub-distrib-∧ = λ r → ⊛-sub-distribˡ-∧ r , ⊛-sub-distribʳ-∧ r
   }
