@@ -277,8 +277,8 @@ Mode-propositional-without-𝟘ᵐ {m₁ = m₁} {m₂ = m₂} not-ok =
 ·ᵐ-idem {m = 𝟘ᵐ} = PE.refl
 ·ᵐ-idem {m = 𝟙ᵐ} = PE.refl
 
--- The operations _∨ᵐ_ and _·ᵐ_, along with the values 𝟘ᵐ and 𝟙ᵐ, form
--- a commutative semiring.
+-- The operations _∨ᵐ_ and _·ᵐ_, along with the values 𝟘ᵐ? and 𝟙ᵐ,
+-- form a commutative semiring.
 
 ∨ᵐ-·ᵐ-is-commutative-semiring :
   IsCommutativeSemiring Mode _∨ᵐ_ _·ᵐ_ 𝟘ᵐ? 𝟙ᵐ
