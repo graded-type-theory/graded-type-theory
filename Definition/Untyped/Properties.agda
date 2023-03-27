@@ -175,6 +175,22 @@ substVar-lifts eq 0 x           = eq x
 substVar-lifts eq (1+ n) x0     = refl
 substVar-lifts eq (1+ n) (x +1) = cong wk1 (substVar-lifts eq n x)
 
+-- If σ = σ′ then consSubst σ t = consSubst σ′ t.
+
+consSubst-cong :
+  ∀ {t} →
+  (∀ x → σ x ≡ σ′ x) →
+  ∀ x → consSubst σ t x ≡ consSubst σ′ t x
+consSubst-cong eq x0     = refl
+consSubst-cong eq (x +1) = eq x
+
+-- If σ = σ′ then wk1Subst σ = wk1Subst σ′.
+
+wk1Subst-cong :
+  (∀ x → σ x ≡ σ′ x) →
+  ∀ x → wk1Subst σ x ≡ wk1Subst σ′ x
+wk1Subst-cong eq x = cong wk1 (eq x)
+
 -- If  σ = σ′  then  subst σ t = subst σ′ t.
 
 mutual
