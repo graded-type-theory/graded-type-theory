@@ -16,7 +16,7 @@ record ModalityWithout⊛ : Set (lsuc a) where
   infixr 40 _+_
   infixr 40 _∧_
   infixr 45 _·_
-  infix  10 _≤_
+  infix  10 _≤_ _<_
 
 
   field
@@ -71,6 +71,10 @@ record ModalityWithout⊛ : Set (lsuc a) where
   -- Semilattice partial ordering relation
   _≤_ : Rel M a
   p ≤ q = p ≈ (p ∧ q)
+
+  -- A strict variant of the ordering relation.
+  _<_ : Rel M a
+  p < q = p ≤ q × p ≢ q
 
   field
     -- If the mode 𝟘ᵐ is allowed and p ∧ q is equal to 𝟘, then p ≤ 𝟘.
