@@ -6,7 +6,7 @@ open import Tools.Fin
 open import Tools.Nat
 open import Tools.Product
 open import Tools.List
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE hiding (subst)
 
 -- Some definitions that do not depend on M are re-exported from
 -- Definition.Untyped.NotParametrised.
@@ -18,6 +18,8 @@ private
     p p′ p₁ p₂ q q₁ q₂ r : M
     n m ℓ : Nat
     b : BinderMode
+    bs bs′ : List _
+    ts ts′ : GenTs _ _ _
 
 infix 30 ΠΣ⟨_⟩_,_▷_▹_
 infix 30 Π_,_▷_▹_
@@ -71,6 +73,7 @@ private
   variable
     A F H t u t′ u′ v : Term n
     B E G             : Term (1+ n)
+    k k′              : Kind _
 
 -- The Grammar of our language.
 
@@ -550,3 +553,23 @@ B-subst : (σ : Subst m n) (W : BindingType) (F : Term n) (G : Term (1+ n))
         → subst σ (⟦ W ⟧ F ▹ G) PE.≡ ⟦ W ⟧ (subst σ F) ▹ (subst (liftSubst σ) G)
 B-subst σ (BΠ p q) F G = PE.refl
 B-subst σ (BΣ m p q) F G = PE.refl
+
+------------------------------------------------------------------------
+-- Some inversion lemmas
+
+-- Inversion of equality for gen.
+
+gen-cong⁻¹ :
+  gen {bs = bs} k ts ≡ gen {bs = bs′} k′ ts′ →
+  ∃ λ (eq : bs ≡ bs′) →
+    PE.subst Kind eq k ≡ k′ ×
+    PE.subst (GenTs Term _) eq ts ≡ ts′
+gen-cong⁻¹ refl = refl , refl , refl
+
+-- Inversion of equality for _∷_.
+
+∷-cong⁻¹ :
+  ∀ {b} {t t′ : Term (b + n)} →
+  GenTs._∷_ {A = Term} {b = b} t ts ≡ t′ ∷ ts′ →
+  t ≡ t′ × ts ≡ ts′
+∷-cong⁻¹ refl = refl , refl

@@ -51,6 +51,9 @@ import Definition.Modality.Instances.LowerBounded
 import Definition.Modality.Instances.Recursive
 import Definition.Modality.Instances.Zero-one-many
 
+-- Modality morphisms
+import Definition.Modality.Morphism
+
 
 -- Modes
 import Definition.Mode
@@ -69,6 +72,13 @@ import Definition.Typed.RedSteps
 import Definition.Typed.EqualityRelation
 import Definition.Typed.EqRelInstance
 import Definition.Typed.Usage
+
+-- Quantity translation.
+import Definition.Untyped.QuantityTranslation
+import Definition.Typed.QuantityTranslation
+import Definition.Modality.Context.QuantityTranslation
+import Definition.Mode.QuantityTranslation
+import Definition.Modality.Usage.QuantityTranslation
 
 -- Combined usage and typing relations
 import Definition.Usage
