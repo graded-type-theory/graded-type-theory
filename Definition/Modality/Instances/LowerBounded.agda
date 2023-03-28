@@ -1,15 +1,11 @@
-{-# OPTIONS --without-K --safe #-}
-
-open import Tools.Relation
 open import Definition.Modality
 
 -- A ringoid with a global least element ∞ is a modality instance.
 
 module Definition.Modality.Instances.LowerBounded
-  {a ℓ} {M′ : Setoid a ℓ} (𝕄 : ModalityWithout⊛ M′)
-  (∞ : Setoid.Carrier M′) (∞-min : (p : Setoid.Carrier M′) → ModalityWithout⊛._≤_ 𝕄 ∞ p) where
+  {a} {M : Set a} (𝕄 : ModalityWithout⊛ M)
+  (∞ : M) (∞-min : (p : M) → ModalityWithout⊛._≤_ 𝕄 ∞ p) where
 
-open Setoid M′ renaming (Carrier to M)
 open ModalityWithout⊛ 𝕄
 
 open import Definition.Modality.Properties.Addition 𝕄
@@ -17,9 +13,15 @@ open import Definition.Modality.Properties.Meet 𝕄
 open import Definition.Modality.Properties.Multiplication 𝕄
 open import Definition.Modality.Properties.PartialOrder 𝕄
 
-open import Tools.Algebra M′
-open import Tools.Reasoning.PartialOrder ≤-poset
+open import Tools.Algebra M
 open import Tools.Product
+open import Tools.PropositionalEquality using (_≈_; setoid)
+import Tools.Reasoning.Equivalence
+import Tools.Reasoning.PartialOrder
+open import Tools.Sum
+
+private variable
+  p q r : M
 
 _⊛_▷_ : Op₃ M
 p ⊛ q ▷ r = ∞ · (p ∧ q)
@@ -40,13 +42,15 @@ p ⊛ q ▷ r = ∞ · (p ∧ q)
   q + (r · ∞) · (p ∧ q) ≈⟨ +-congˡ (·-assoc r ∞ (p ∧ q)) ⟩
   q + r · (∞ · (p ∧ q)) ≡⟨⟩
   q + r · (p ⊛ q ▷ r) ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
 
 ⊛-ineq₂ : (p q r : M) → (p ⊛ q ▷ r) ≤ p
 ⊛-ineq₂ p q r = ≤-trans (·-monotone (∞-min 𝟙) (∧-decreasingˡ p q))
                         (≤-reflexive (·-identityˡ p))
 
-+-sub-interchangable-⊛ : (r : M) → _+_ SubInterchangable _⊛_▷ r by _≤_
-+-sub-interchangable-⊛ r p q p′ q′ = begin
++-sub-interchangeable-⊛ : (r : M) → _+_ SubInterchangeable _⊛_▷ r by _≤_
++-sub-interchangeable-⊛ r p q p′ q′ = begin
   (p ⊛ q ▷ r) + (p′ ⊛ q′ ▷ r) ≡⟨⟩
   ∞ · (p ∧ q) + ∞ · (p′ ∧ q′)
     ≈˘⟨ ·-distribˡ-+ ∞ _ _ ⟩
@@ -58,6 +62,8 @@ p ⊛ q ▷ r = ∞ · (p ∧ q)
     ≤⟨ ·-monotoneʳ (∧-monotone (∧-decreasingˡ _ _) (∧-decreasingʳ _ _)) ⟩
   ∞ · ((p + p′) ∧ (q + q′)) ≡⟨⟩
   (p + p′) ⊛ (q + q′) ▷ r ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
 
 ·-sub-distribʳ-⊛ : (r : M) → _·_ SubDistributesOverʳ _⊛_▷ r by _≤_
 ·-sub-distribʳ-⊛ r q p p′ = begin
@@ -66,6 +72,8 @@ p ⊛ q ▷ r = ∞ · (p ∧ q)
   ∞ · (p ∧ p′) · q ≈⟨ ·-congˡ (·-distribʳ-∧ q p p′) ⟩
   ∞ · (p · q ∧ p′ · q) ≡⟨⟩
   (p · q) ⊛ (p′ · q) ▷ r ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
 
 ⊛-sub-distribˡ-∧ : (r : M) → (_⊛_▷ r) SubDistributesOverˡ _∧_ by _≤_
 ⊛-sub-distribˡ-∧ r p q q′ = begin
@@ -86,6 +94,8 @@ p ⊛ q ▷ r = ∞ · (p ∧ q)
     ≈⟨ ·-distribˡ-∧ ∞ (p ∧ q) (p ∧ q′) ⟩
   ∞ · (p ∧ q) ∧ ∞ · (p ∧ q′) ≡⟨⟩
   (p ⊛ q ▷ r) ∧ (p ⊛ q′ ▷ r) ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
 
 ⊛-sub-distribʳ-∧ : (r : M) → (_⊛_▷ r) SubDistributesOverʳ _∧_ by _≤_
 ⊛-sub-distribʳ-∧ r q p p′ = begin
@@ -99,14 +109,15 @@ p ⊛ q ▷ r = ∞ · (p ∧ q)
   ∞ · ((p ∧ q) ∧ (p′ ∧ q)) ≈⟨ ·-distribˡ-∧ ∞ (p ∧ q) (p′ ∧ q) ⟩
   ∞ · (p ∧ q) ∧ ∞ · (p′ ∧ q) ≡⟨⟩
   (p ⊛ q ▷ r) ∧ (p′ ⊛ q ▷ r) ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
 
-isModality : Modality M′
+isModality : Modality M
 isModality = record
   { modalityWithout⊛ = 𝕄
   ; _⊛_▷_ = _⊛_▷_
   ; ⊛-ineq = ⊛-ineq₁ , ⊛-ineq₂
-  ; ⊛-cong = λ p≈p′ q≈q′ r≈r′ → ·-congˡ (∧-cong p≈p′ q≈q′)
-  ; +-sub-interchangable-⊛ = +-sub-interchangable-⊛
+  ; +-sub-interchangeable-⊛ = +-sub-interchangeable-⊛
   ; ·-sub-distribʳ-⊛ = ·-sub-distribʳ-⊛
   ; ⊛-sub-distrib-∧ = λ r → ⊛-sub-distribˡ-∧ r , ⊛-sub-distribʳ-∧ r
   }

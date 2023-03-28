@@ -1,5 +1,3 @@
-{-# OPTIONS --without-K --safe #-}
-
 module Definition.Modality.Instances.Erasure where
 
 open import Tools.Product
@@ -13,10 +11,8 @@ open import Tools.Unit
 data Erasure : Set where
   𝟘 ω : Erasure
 
-Erasure′ : Setoid _ _
-Erasure′ = record { Carrier = Erasure ; _≈_ = _≡_ ; isEquivalence = isEquivalence }
-
-open import Tools.Algebra Erasure′
+open import Definition.Modality.Restrictions Erasure
+open import Tools.Algebra Erasure
 
 infixl 40 _+_
 infixl 40 _∧_
@@ -56,16 +52,6 @@ p ⊛ q ▷ r = p + q
 
 _≤_ : (p q : Erasure) → Set
 p ≤ q = p ≡ p ∧ q
-
--------------------
--- Prodrec modes --
--------------------
-
-NoErasedMatching : Erasure → Set
-NoErasedMatching p = p ≡ ω
-
-ErasedMatching : Erasure → Set
-ErasedMatching p = ⊤
 
 ---------------------------------------
 -- Properties of addition (and meet) --
@@ -182,15 +168,15 @@ ErasedMatching p = ⊤
 ⊛-ineq₂ 𝟘 ω r = refl
 ⊛-ineq₂ ω q r = refl
 
--- Addition is sub-interchangable with ⊛ᵣ
+-- Addition is sub-interchangeable with ⊛ᵣ
 -- (p ⊛ᵣ q) + (p′ ⊛ᵣ q′) ≤ (p + p′) ⊛ᵣ (q + q′)
 
-+-sub-interchangable-⊛ : (r : Erasure) → _+_ SubInterchangable (_⊛_▷ r) by _≤_
-+-sub-interchangable-⊛ r 𝟘 𝟘 𝟘 𝟘 = refl
-+-sub-interchangable-⊛ r 𝟘 𝟘 𝟘 ω = refl
-+-sub-interchangable-⊛ r 𝟘 𝟘 ω q′ = refl
-+-sub-interchangable-⊛ r 𝟘 ω p′ q′ = refl
-+-sub-interchangable-⊛ r ω q p′ q′ = refl
++-sub-interchangeable-⊛ : (r : Erasure) → _+_ SubInterchangeable (_⊛_▷ r) by _≤_
++-sub-interchangeable-⊛ r 𝟘 𝟘 𝟘 𝟘 = refl
++-sub-interchangeable-⊛ r 𝟘 𝟘 𝟘 ω = refl
++-sub-interchangeable-⊛ r 𝟘 𝟘 ω q′ = refl
++-sub-interchangeable-⊛ r 𝟘 ω p′ q′ = refl
++-sub-interchangeable-⊛ r ω q p′ q′ = refl
 
 -- Multiplation right sub-distributes over ⊛ᵣ
 -- (p ⊛ᵣ p′) · q ≤ (p · q) ⊛ᵣ (p′ · q)
@@ -361,3 +347,18 @@ ErasedMatching p = ⊤
   { isSemiringWithoutAnnihilatingZero = +-·-SemiringWithoutAnnihilatingZero
   ; zero = ·-zero
   }
+
+----------------------------
+-- A specific restriction --
+----------------------------
+
+-- The restriction that one of the prodrec quantities (the one that is
+-- not tied to one of the Σ-type's quantities) must be ω. Other
+-- restrictions are inherited.
+
+prodrec-only-for-ω : Restrictions → Restrictions
+prodrec-only-for-ω restrictions = record restrictions
+  { Prodrec      = λ r p q → Prodrec r p q × r ≡ ω
+  }
+  where
+  open Restrictions restrictions

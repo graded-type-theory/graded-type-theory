@@ -1,7 +1,5 @@
 -- Some proposition constructors.
 
-{-# OPTIONS --without-K --safe #-}
-
 module Tools.Nullary where
 
 open import Relation.Nullary using (¬_; Dec; yes; no) public

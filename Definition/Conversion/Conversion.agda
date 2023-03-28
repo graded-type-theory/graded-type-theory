@@ -1,27 +1,22 @@
-{-# OPTIONS --without-K --safe #-}
-
-open import Tools.Relation
-
-module Definition.Conversion.Conversion {a ℓ} (M′ : Setoid a ℓ) where
-
-open Setoid M′ using () renaming (Carrier to M; trans to ≈-trans; sym to ≈-sym)
+module Definition.Conversion.Conversion
+  {a} (M : Set a) where
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M′
-open import Definition.Typed.RedSteps M′
-open import Definition.Typed.Properties M′
-open import Definition.Conversion M′
-open import Definition.Conversion.Soundness M′
-open import Definition.Conversion.Stability M′
-open import Definition.Typed.Consequences.Syntactic M′
-open import Definition.Typed.Consequences.Substitution M′
-open import Definition.Typed.Consequences.Injectivity M′
-open import Definition.Typed.Consequences.Equality M′
-open import Definition.Typed.Consequences.Reduction M′
+open import Definition.Typed M
+open import Definition.Typed.RedSteps M
+open import Definition.Typed.Properties M
+open import Definition.Conversion M
+open import Definition.Conversion.Soundness M
+open import Definition.Conversion.Stability M
+open import Definition.Typed.Consequences.Syntactic M
+open import Definition.Typed.Consequences.Substitution M
+open import Definition.Typed.Consequences.Injectivity M
+open import Definition.Typed.Consequences.Equality M
+open import Definition.Typed.Consequences.Reduction M
 
 open import Tools.Nat
 open import Tools.Product
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE using (≈-sym; ≈-trans)
 
 private
   variable
@@ -58,7 +53,7 @@ mutual
   convConv↓Term Γ≡Δ A≡B whnfB (Unit-ins x) rewrite Unit≡A A≡B whnfB =
     Unit-ins (stability~↓ Γ≡Δ x)
   convConv↓Term Γ≡Δ  A≡B whnfB (Σᵣ-ins x x₁ x₂) with Σ≡A A≡B whnfB
-  ... | _ , _ , _ , PE.refl =
+  ... | _ , _ , _ , _ , PE.refl =
     Σᵣ-ins (stabilityTerm Γ≡Δ (conv x A≡B))
            (stabilityTerm Γ≡Δ (conv x₁ A≡B))
            (stability~↓ Γ≡Δ x₂)
@@ -73,15 +68,16 @@ mutual
     in  zero-refl ⊢Δ
   convConv↓Term Γ≡Δ A≡B whnfB (suc-cong x) rewrite ℕ≡A A≡B whnfB =
     suc-cong (stabilityConv↑Term Γ≡Δ x)
-  convConv↓Term Γ≡Δ A≡B whnfB (prod-cong x x₁ x₂ x₃) with Σ≡A A≡B whnfB
-  convConv↓Term Γ≡Δ A≡B whnfB (prod-cong x x₁ x₂ x₃) | q , F′ , G′ , PE.refl =
-    let F≡F′ , G≡G′ , _ = Σ-injectivity A≡B
-        _ , ⊢F′ = syntacticEq F≡F′
+  convConv↓Term Γ≡Δ A≡B whnfB (prod-cong! x x₁ x₂ x₃)
+    with Σ≡A A≡B whnfB
+  ... | _ , q , F′ , G′ , PE.refl with Σ-injectivity A≡B
+  ...   | F≡F′ , G≡G′ , PE.refl , _ =
+    let _ , ⊢F′ = syntacticEq F≡F′
         _ , ⊢G′ = syntacticEq G≡G′
         _ , ⊢t , _ = syntacticEqTerm (soundnessConv↑Term x₂)
         Gt≡G′t = substTypeEq G≡G′ (refl ⊢t)
-    in  prod-cong (stability Γ≡Δ ⊢F′) (stability (Γ≡Δ ∙ F≡F′) ⊢G′)
-                  (convConv↑Term Γ≡Δ F≡F′ x₂) (convConv↑Term Γ≡Δ Gt≡G′t x₃)
+    in  prod-cong! (stability Γ≡Δ ⊢F′) (stability (Γ≡Δ ∙ F≡F′) ⊢G′)
+          (convConv↑Term Γ≡Δ F≡F′ x₂) (convConv↑Term Γ≡Δ Gt≡G′t x₃)
   convConv↓Term Γ≡Δ A≡B whnfB (η-eq x₁ x₂ y y₁ x₃) with Π≡A A≡B whnfB
   convConv↓Term Γ≡Δ A≡B whnfB (η-eq x₁ x₂ y y₁ x₃) | p , q , F′ , G′ , PE.refl =
     let F≡F′ , G≡G′ , p′≈p , _ = injectivity A≡B
@@ -91,9 +87,9 @@ mutual
              λ x x₄ → convConv↑Term (Γ≡Δ ∙ F≡F′) G≡G′ (x₃ (≈-trans p′≈p x) (≈-trans p′≈p x₄))
   convConv↓Term Γ≡Δ A≡B whnfB (Σ-η ⊢p ⊢r pProd rProd fstConv sndConv)
     with Σ≡A A≡B whnfB
-  ... | q , F , G , PE.refl =
-    let F≡ , G≡ , _ = Σ-injectivity A≡B
-        ⊢F = proj₁ (syntacticEq F≡)
+  ... | _ , q , F , G , PE.refl with Σ-injectivity A≡B
+  ...   | F≡ , G≡ , PE.refl , _ =
+    let ⊢F = proj₁ (syntacticEq F≡)
         ⊢G = proj₁ (syntacticEq G≡)
         ⊢fst = fstⱼ ⊢F ⊢G ⊢p
     in  Σ-η (stabilityTerm Γ≡Δ (conv ⊢p A≡B))

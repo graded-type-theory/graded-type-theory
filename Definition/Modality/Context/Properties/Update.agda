@@ -1,28 +1,27 @@
-{-# OPTIONS --without-K --safe #-}
-
-open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Context.Properties.Update {a ℓ}
-  {M′ : Setoid a ℓ} (𝕄 : Modality M′)
-  where
+module Definition.Modality.Context.Properties.Update
+  {a} {M : Set a} (𝕄 : Modality M) where
 
 open import Definition.Modality.Context 𝕄
+open import Definition.Modality.Context.Properties.Equivalence 𝕄
+open import Definition.Modality.Context.Properties.Lookup 𝕄
 open import Definition.Modality.Context.Properties.PartialOrder 𝕄
 open import Definition.Modality.Properties 𝕄
 
 open import Tools.Fin
 open import Tools.Nat hiding (_+_)
 open import Tools.PropositionalEquality as PE
+import Tools.Reasoning.PropositionalEquality
 
 open Modality 𝕄
-open Setoid M′ renaming (Carrier to M)
 
 private
   variable
     n : Nat
     p q : M
     γ δ : Conₘ n
+    x : Fin n
 
 -- Updating a context with its own content has no effect
 -- (γ , x ≔ (γ ⟨ x ⟩)) ≡ γ
@@ -30,6 +29,33 @@ private
 update-self : (γ : Conₘ n) (x : Fin n) → (γ , x ≔ (γ ⟨ x ⟩)) ≡ γ
 update-self (γ ∙ p) x0     = PE.refl
 update-self (γ ∙ p) (x +1) = cong (_∙ _) (update-self γ x)
+
+-- Updating a value in 𝟘ᶜ with 𝟘 has no effect.
+
+𝟘ᶜ,≔𝟘 : 𝟘ᶜ , x ≔ 𝟘 ≡ 𝟘ᶜ
+𝟘ᶜ,≔𝟘 {x = x} = begin
+  𝟘ᶜ , x ≔ 𝟘         ≡˘⟨ cong (λ p → 𝟘ᶜ , _ ≔ p) (𝟘ᶜ-lookup x) ⟩
+  𝟘ᶜ , x ≔ 𝟘ᶜ ⟨ x ⟩  ≡⟨ update-self _ _ ⟩
+  𝟘ᶜ                 ∎
+  where
+  open Tools.Reasoning.PropositionalEquality
+
+-- Updating a value in 𝟙ᶜ with 𝟙 has no effect.
+
+𝟙ᶜ,≔𝟙 : 𝟙ᶜ , x ≔ 𝟙 ≡ 𝟙ᶜ
+𝟙ᶜ,≔𝟙 {x = x} = begin
+  𝟙ᶜ , x ≔ 𝟙         ≡˘⟨ cong (λ p → 𝟙ᶜ , _ ≔ p) (𝟙ᶜ-lookup x) ⟩
+  𝟙ᶜ , x ≔ 𝟙ᶜ ⟨ x ⟩  ≡⟨ update-self _ _ ⟩
+  𝟙ᶜ                 ∎
+  where
+  open Tools.Reasoning.PropositionalEquality
+
+-- If a given position is updated twice, then the first update has no
+-- effect.
+
+update-twice : (γ , x ≔ p) , x ≔ q ≡ γ , x ≔ q
+update-twice {γ = _ ∙ _} {x = x0}   = PE.refl
+update-twice {γ = _ ∙ _} {x = x +1} = cong (_∙ _) update-twice
 
 -- Context update is a monotone function with regards to the context
 -- If γ ≤ᶜ δ then (γ , x ≔ p) ≤ᶜ (δ , x ≔ p)
@@ -44,6 +70,27 @@ update-monotoneˡ {γ = γ ∙ p} {δ ∙ q} (_+1 x) (γ≤δ ∙ p≤q) = (upda
 update-monotoneʳ : (x : Fin n) → p ≤ q → (γ , x ≔ p) ≤ᶜ (γ , x ≔ q)
 update-monotoneʳ {γ = γ ∙ p} x0 p≤q     = ≤ᶜ-refl ∙ p≤q
 update-monotoneʳ {γ = γ ∙ p} (x +1) p≤q = (update-monotoneʳ x p≤q) ∙ ≤-refl
+
+-- The update operation preserves equivalence in its first argument.
+
+update-congˡ : γ ≈ᶜ δ → (γ , x ≔ p) ≈ᶜ (δ , x ≔ p)
+update-congˡ γ≈δ =
+  ≤ᶜ-antisym (update-monotoneˡ _ (≤ᶜ-reflexive γ≈δ))
+    (update-monotoneˡ _ (≤ᶜ-reflexive (≈ᶜ-sym γ≈δ)))
+
+-- The update operation preserves equivalence in its third argument.
+
+update-congʳ : p ≈ q → (γ , x ≔ p) ≈ᶜ (γ , x ≔ q)
+update-congʳ p≈q =
+  ≤ᶜ-antisym (update-monotoneʳ _ (≤-reflexive p≈q))
+    (update-monotoneʳ _ (≤-reflexive (≈-sym p≈q)))
+
+-- The update operation preserves equivalence in its first and third
+-- arguments.
+
+update-cong : γ ≈ᶜ δ → p ≈ q → (γ , x ≔ p) ≈ᶜ (δ , x ≔ q)
+update-cong γ≈δ p≈q =
+  ≈ᶜ-trans (update-congˡ γ≈δ) (update-congʳ p≈q)
 
 -- Context update distributes over addition
 -- (γ +ᶜ δ) , x ≔ (p + q) ≡ (γ , x ≔ p) +ᶜ (δ , x ≔ q)

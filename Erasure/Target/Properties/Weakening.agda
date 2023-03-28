@@ -1,4 +1,3 @@
-{-# OPTIONS --without-K --safe #-}
 module Erasure.Target.Properties.Weakening where
 
 open import Erasure.Target renaming (refl to ⇒*-refl; trans to ⇒*-trans)

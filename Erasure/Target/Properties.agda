@@ -1,5 +1,3 @@
-{-# OPTIONS --without-K --safe #-}
-
 module Erasure.Target.Properties where
 
 open import Erasure.Target.Properties.Reduction public

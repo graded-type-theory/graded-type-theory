@@ -1,20 +1,19 @@
-{-# OPTIONS --without-K --safe #-}
-
-open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Properties.Meet {a ℓ}
-  {M′ : Setoid a ℓ}
-  (𝕄 : ModalityWithout⊛ M′)
-  where
+module Definition.Modality.Properties.Meet
+  {a} {M : Set a} (𝕄 : ModalityWithout⊛ M) where
 
 open ModalityWithout⊛ 𝕄
-open Setoid M′ renaming (Carrier to M)
 
-open import Definition.Modality.Properties.Addition 𝕄
 open import Definition.Modality.Properties.PartialOrder 𝕄
 
-open import Tools.Algebra M′
+open import Tools.Algebra M
+open import Tools.Bool using (T)
+open import Tools.Nat hiding (_+_)
+open import Tools.Product
+open import Tools.PropositionalEquality
+import Tools.Reasoning.Equivalence
+import Tools.Reasoning.PartialOrder
 
 private
   variable
@@ -32,7 +31,7 @@ private
   p ∧ r ∧ r ∧ q     ≈⟨ ≈-sym (∧-assoc p r (r ∧ q)) ⟩
   (p ∧ r) ∧ r ∧ q   ≈⟨ ∧-congˡ (∧-comm r q) ⟩
   (p ∧ r) ∧ (q ∧ r) ∎
-  where open import Tools.Reasoning.Equivalence M′
+  where open Tools.Reasoning.Equivalence (setoid M)
 
 -- Meet on the right is a monotone function
 -- If p ≤ q then r ∧ p ≤ r ∧ q
@@ -46,7 +45,7 @@ private
   r ∧ p ∧ (q ∧ r)   ≈˘⟨ ∧-assoc r p (q ∧ r) ⟩
   (r ∧ p) ∧ (q ∧ r) ≈⟨ ∧-congˡ (∧-comm q r) ⟩
   (r ∧ p) ∧ (r ∧ q) ∎
-  where open import Tools.Reasoning.Equivalence M′
+  where open Tools.Reasoning.Equivalence (setoid M)
 
 -- Meet is a monotone function
 -- If p ≤ p′ and q ≤ q′ then p ∧ q ≤ p′ ∧ q′
@@ -63,7 +62,7 @@ private
   (p ∧ p) ∧ q ≈⟨ ∧-assoc p p q ⟩
   p ∧ (p ∧ q) ≈⟨ ∧-comm p (p ∧ q) ⟩
   (p ∧ q) ∧ p ∎
-  where open import Tools.Reasoning.Equivalence M′
+  where open Tools.Reasoning.Equivalence (setoid M)
 
 -- Meet on the right is a decreasing function
 -- p ∧ q ≤ q
@@ -73,14 +72,56 @@ private
   p ∧ q       ≈⟨ ∧-congˡ (≈-sym (∧-idem q)) ⟩
   p ∧ (q ∧ q) ≈˘⟨ ∧-assoc p q q ⟩
   (p ∧ q) ∧ q ∎
-  where open import Tools.Reasoning.Equivalence M′
+  where open Tools.Reasoning.Equivalence (setoid M)
 
-+-sub-interchangable-∧ : _+_ SubInterchangable _∧_ by _≤_
-+-sub-interchangable-∧ p q p′ q′ = begin
-  (p ∧ q) + (p′ ∧ q′)
-    ≈⟨ +-distribˡ-∧ (p ∧ q) p′ q′ ⟩
-  ((p ∧ q) + p′) ∧ ((p ∧ q) + q′)
-    ≤⟨ ∧-monotone (+-monotoneˡ (∧-decreasingˡ p q)) (+-monotoneˡ (∧-decreasingʳ p q)) ⟩
-  (p + p′) ∧ (q + q′) ∎
+-- The result of the meet operation is a greatest lower bound of its
+-- two arguments.
+
+∧-greatest-lower-bound : p ≤ q → p ≤ r → p ≤ q ∧ r
+∧-greatest-lower-bound {p = p} {q = q} {r = r} p≤q p≤r = begin
+  p            ≈⟨ p≤q ⟩
+  p ∧ q        ≈⟨ ∧-congʳ p≤r ⟩
+  (p ∧ r) ∧ q  ≈⟨ ∧-assoc _ _ _ ⟩
+  p ∧ (r ∧ q)  ≈⟨ ∧-congˡ (∧-comm _ _) ⟩
+  p ∧ (q ∧ r)  ∎
   where
-  open import Tools.Reasoning.PartialOrder ≤-poset
+  open Tools.Reasoning.Equivalence (setoid M)
+
+-- If the mode 𝟘ᵐ is allowed and p ∧ q is equal to 𝟘, then p is equal
+-- to 𝟘.
+
+∧≈𝟘ˡ : T 𝟘ᵐ-allowed → p ∧ q ≈ 𝟘 → p ≈ 𝟘
+∧≈𝟘ˡ {p = p} {q = q} ok p∧q≈𝟘 = ≤-antisym
+  (∧≤𝟘ˡ ok p∧q≈𝟘)
+  (begin
+     𝟘      ≈˘⟨ p∧q≈𝟘 ⟩
+     p ∧ q  ≤⟨ ∧-decreasingˡ _ _ ⟩
+     p      ∎)
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
+
+-- If the mode 𝟘ᵐ is allowed and p ∧ q is equal to 𝟘, then q is equal
+-- to 𝟘.
+
+∧≈𝟘ʳ : T 𝟘ᵐ-allowed → p ∧ q ≈ 𝟘 → q ≈ 𝟘
+∧≈𝟘ʳ {p = p} {q = q} ok p∧q≈𝟘 = ∧≈𝟘ˡ ok
+  (begin
+     q ∧ p  ≈⟨ ∧-comm _ _ ⟩
+     p ∧ q  ≈⟨ p∧q≈𝟘 ⟩
+     𝟘      ∎)
+  where
+  open Tools.Reasoning.Equivalence (setoid M)
+
+-- If the mode 𝟘ᵐ is allowed then every value that is "greater than or
+-- equal to" 𝟘 is equivalent to 𝟘.
+--
+-- This property matches one of the assumptions in Conor McBride's "I
+-- Got Plenty o’ Nuttin’" (except for the part about the mode).
+
+𝟘≮ : T 𝟘ᵐ-allowed → 𝟘 ≤ p → p ≈ 𝟘
+𝟘≮ {p = p} ok 𝟘≤p = ∧≈𝟘ˡ ok (begin
+  p ∧ 𝟘  ≈⟨ ∧-comm _ _ ⟩
+  𝟘 ∧ p  ≈˘⟨ 𝟘≤p ⟩
+  𝟘      ∎)
+  where
+  open Tools.Reasoning.Equivalence (setoid M)

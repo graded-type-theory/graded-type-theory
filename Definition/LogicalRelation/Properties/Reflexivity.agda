@@ -1,20 +1,14 @@
-{-# OPTIONS --without-K --safe #-}
-
 open import Definition.Typed.EqualityRelation
-open import Tools.Level
-open import Tools.Relation
 
-module Definition.LogicalRelation.Properties.Reflexivity {a ℓ} (M′ : Setoid a ℓ)
-                                                         {{eqrel : EqRelSet M′}} where
-
-open Setoid M′ using () renaming (Carrier to M)
+module Definition.LogicalRelation.Properties.Reflexivity
+  {a} (M : Set a) {{eqrel : EqRelSet M}} where
 
 open import Definition.Untyped M hiding (_∷_)
-import Definition.Untyped.BindingType M′ as BT
-open import Definition.Typed M′
-open import Definition.Typed.Weakening M′
-open import Definition.Typed.Properties M′
-open import Definition.LogicalRelation M′
+import Definition.Untyped.BindingType M as BT
+open import Definition.Typed M
+open import Definition.Typed.Weakening M
+open import Definition.Typed.Properties M
+open import Definition.LogicalRelation M
 
 open import Tools.Nat
 open import Tools.Product
@@ -27,7 +21,7 @@ private
 
 -- Reflexivity of reducible types.
 reflEq : ∀ {l A} ([A] : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ A ≡ A / [A]
-reflEq (Uᵣ′ l′ l< ⊢Γ) = lift PE.refl
+reflEq (Uᵣ′ l′ l< ⊢Γ) = PE.refl
 reflEq (ℕᵣ D) = red D
 reflEq (Emptyᵣ D) = red D
 reflEq (Unitᵣ D) = red D
@@ -75,9 +69,11 @@ reflEqTerm (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext) [t]@(Πₜ f d fun
 reflEqTerm (Bᵣ′ BΣₚ F G D ⊢F ⊢G A≡A [F] [G] G-ext) [t]@(Σₜ p d p≅p prodP ([fstp] , [sndp])) =
   Σₜ₌ p p d d prodP prodP p≅p [t] [t]
       ([fstp] , [fstp] , reflEqTerm ([F] id (wf ⊢F)) [fstp] , reflEqTerm ([G] id (wf ⊢F) [fstp]) [sndp])
-reflEqTerm (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) [t]@(Σₜ p d p≅p prodₙ ([p₁] , [p₂] , PE.refl)) =
+reflEqTerm
+  (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+  [t]@(Σₜ p d p≅p prodₙ (PE.refl , [p₁] , [p₂] , PE.refl)) =
   Σₜ₌ p p d d prodₙ prodₙ p≅p [t] [t]
-      ([p₁] , [p₁] , [p₂] , [p₂] ,
+      (PE.refl , PE.refl , [p₁] , [p₁] , [p₂] , [p₂] ,
         reflEqTerm ([F] id (wf ⊢F)) [p₁] ,
         reflEqTerm ([G] id (wf ⊢F) [p₁]) [p₂])
 reflEqTerm (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) [t]@(Σₜ p d p≅p (ne x) p~p) =

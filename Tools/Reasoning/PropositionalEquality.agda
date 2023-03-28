@@ -1,5 +1,3 @@
-{-# OPTIONS --without-K --safe #-}
-
 module Tools.Reasoning.PropositionalEquality where
 
 import Relation.Binary.PropositionalEquality as Eq

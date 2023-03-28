@@ -1,19 +1,14 @@
-{-# OPTIONS --without-K --safe  #-}
-
-open import Tools.Relation
-
-module Definition.Conversion.Consequences.Completeness {a ℓ} (M′ : Setoid a ℓ) where
-
-open Setoid M′ using () renaming (Carrier to M)
+module Definition.Conversion.Consequences.Completeness
+  {a} (M : Set a) where
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M′
-open import Definition.Conversion M′
+open import Definition.Typed M
+open import Definition.Conversion M
 
-open import Definition.Conversion.EqRelInstance M′
-open import Definition.LogicalRelation.Substitution M′
-open import Definition.LogicalRelation.Substitution.Escape M′
-open import Definition.LogicalRelation.Fundamental M′
+open import Definition.Conversion.EqRelInstance M
+open import Definition.LogicalRelation.Substitution M
+open import Definition.LogicalRelation.Substitution.Escape M
+open import Definition.LogicalRelation.Fundamental M
 
 open import Tools.Nat
 open import Tools.Product

@@ -1,24 +1,21 @@
-{-# OPTIONS --without-K --safe #-}
-
 open import Tools.Fin
 open import Tools.Nat
 open import Tools.Product
-open import Tools.Relation
+open import Tools.PropositionalEquality
 open import Definition.Modality
 
 -- A finite ringoid is a modality instance.
 
 module Definition.Modality.Instances.Finite
-  {a ℓ} {M′ : Setoid a ℓ} (𝕄 : ModalityWithout⊛ M′)
-  (fin : ∃ λ n → Σ (Fin (1+ n) → Setoid.Carrier M′)
-                 λ f → Σ (Setoid.Carrier M′ → Fin (1+ n))
-                 λ f⁻¹ → ((p : Setoid.Carrier M′) → Setoid._≈_ M′ (f (f⁻¹ p)) p)) where
+  {a} {M : Set a} (𝕄 : ModalityWithout⊛ M)
+  (fin : ∃ λ n → Σ (Fin (1+ n) → M)
+                 λ f → Σ (M → Fin (1+ n))
+                 λ f⁻¹ → ((p : M) → f (f⁻¹ p) ≡ p)) where
 
 private
   variable
     n : Nat
 
-open Setoid M′ renaming (Carrier to M)
 open ModalityWithout⊛ 𝕄
 
 open import Definition.Modality.Properties.Meet 𝕄
@@ -61,6 +58,6 @@ f-f⁻¹ = proj₂ (proj₂ (proj₂ fin))
 
 -- Since M′ has a least element, it is a modality
 
-isModality : Modality M′
+isModality : Modality M
 isModality = LB.isModality
   where import Definition.Modality.Instances.LowerBounded 𝕄 ∞ ∞-min as LB

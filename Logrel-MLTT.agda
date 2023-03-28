@@ -1,5 +1,3 @@
-{-# OPTIONS --without-K --safe #-}
-
 -- A Logical Relation for Dependent Type Theory Formalized in Agda
 
 module Logrel-MLTT where
@@ -46,11 +44,16 @@ import Definition.Modality.Instances.Erasure.Modality
 import Definition.Modality.Instances.Unit
 import Definition.Modality.Instances.Affine
 import Definition.Modality.Instances.Linearity
+import Definition.Modality.Instances.Linear-or-affine
 import Definition.Modality.Instances.BoundedStar
 import Definition.Modality.Instances.Finite
 import Definition.Modality.Instances.LowerBounded
 import Definition.Modality.Instances.Recursive
+import Definition.Modality.Instances.Zero-one-many
 
+
+-- Modes
+import Definition.Mode
 
 -- Grammar of the language
 import Definition.Untyped
@@ -97,6 +100,7 @@ import Definition.LogicalRelation.Fundamental.Reducibility
 import Definition.Typed.Consequences.Canonicity
 import Definition.Typed.Consequences.Injectivity
 import Definition.Typed.Consequences.Syntactic
+import Definition.Typed.Consequences.DerivedRules
 import Definition.Typed.Consequences.Inversion
 import Definition.Typed.Consequences.Inequality
 import Definition.Typed.Consequences.Substitution
@@ -124,11 +128,19 @@ import Definition.Conversion.Decidable
 import Definition.Conversion.EqRelInstance
 import Definition.Conversion.FullReduction
 
+-- A "full reduction" lemma for modalities.
+import Definition.Modality.FullReduction
+
 -- Consequences of the logical relation for algorithmic equality
 import Definition.Conversion.Consequences.Completeness
 
 -- Decidability of conversion
 import Definition.Typed.Decidable
+
+-- The type Erased.
+import Definition.Untyped.Erased
+import Definition.Modality.Usage.Erased
+import Definition.Typed.Erased
 
 -- Erasure
 

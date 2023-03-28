@@ -1,11 +1,7 @@
-{-# OPTIONS --without-K --safe #-}
-
-open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Context.Properties.Star {a ℓ}
-  {M′ : Setoid a ℓ} (𝕄 : Modality M′)
-  where
+module Definition.Modality.Context.Properties.Star
+  {a} {M : Set a} (𝕄 : Modality M) where
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties.Equivalence 𝕄
@@ -14,9 +10,9 @@ open import Definition.Modality.Properties 𝕄
 
 open import Tools.Nat
 open import Tools.Product
+open import Tools.PropositionalEquality
 
 open Modality 𝕄
-open Setoid M′ renaming (Carrier to M)
 
 private
   variable
@@ -58,14 +54,14 @@ private
 ·ᶜ-sub-distribʳ-⊛ p q r ε = ≤ᶜ-refl
 ·ᶜ-sub-distribʳ-⊛ p q r (γ ∙ p′) = (·ᶜ-sub-distribʳ-⊛ p q r γ) ∙ ·-sub-distribʳ-⊛ r p′ p q
 
--- Addition is sub-interchangable over ⊛ᶜ w.r.t the first two arguments
+-- Addition is sub-interchangeable over ⊛ᶜ w.r.t the first two arguments
 -- (γ ⊛ᵣ δ) + (γ′ ⊛ᵣ δ′) ≤ (γ + γ′) ⊛ᵣ (δ + δ′)
 
-+ᶜ-sub-interchangable-⊛ᶜ : (r : M) → (γ δ γ′ δ′ : Conₘ n)
++ᶜ-sub-interchangeable-⊛ᶜ : (r : M) → (γ δ γ′ δ′ : Conₘ n)
                          → (γ ⊛ᶜ δ ▷ r) +ᶜ (γ′ ⊛ᶜ δ′ ▷ r) ≤ᶜ (γ +ᶜ γ′) ⊛ᶜ (δ +ᶜ δ′) ▷ r
-+ᶜ-sub-interchangable-⊛ᶜ r ε ε ε ε = ε
-+ᶜ-sub-interchangable-⊛ᶜ  r (γ ∙ p) (δ ∙ q) (γ′ ∙ p′) (δ′ ∙ q′) =
-  +ᶜ-sub-interchangable-⊛ᶜ r γ δ γ′ δ′ ∙ +-sub-interchangable-⊛ r p q p′ q′
++ᶜ-sub-interchangeable-⊛ᶜ r ε ε ε ε = ε
++ᶜ-sub-interchangeable-⊛ᶜ  r (γ ∙ p) (δ ∙ q) (γ′ ∙ p′) (δ′ ∙ q′) =
+  +ᶜ-sub-interchangeable-⊛ᶜ r γ δ γ′ δ′ ∙ +-sub-interchangeable-⊛ r p q p′ q′
 
 -- Congruence of ⊛ᶜ
 ⊛ᶜ-cong : γ ≈ᶜ γ′ → δ ≈ᶜ δ′ → r ≈ r′ → γ ⊛ᶜ δ ▷ r ≈ᶜ γ′ ⊛ᶜ δ′ ▷ r′

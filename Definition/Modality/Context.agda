@@ -1,18 +1,15 @@
-{-# OPTIONS --without-K --safe #-}
-
 open import Tools.Level
 open import Tools.Relation
 open import Definition.Modality
 
-module Definition.Modality.Context {a ℓ}
-       {M′ : Setoid a ℓ} (𝕄 : Modality M′)
-       where
+module Definition.Modality.Context
+  {a} {M : Set a} (𝕄 : Modality M) where
 
 open Modality 𝕄
-open Setoid M′ renaming (Carrier to M)
 
 open import Tools.Fin
 open import Tools.Nat renaming (_+_ to _+ⁿ_)
+open import Tools.PropositionalEquality
 
 infixl 30 _∙_
 infixr 40 _+ᶜ_
@@ -37,7 +34,7 @@ data Conₘ : Nat → Set a where
 
 -- Modality equality lifted pointwise to contexts
 
-data _≈ᶜ_ : (γ δ : Conₘ n) → Set (a ⊔ ℓ) where
+data _≈ᶜ_ : (γ δ : Conₘ n) → Set a where
   ε : ε ≈ᶜ ε
   _∙_ : {γ δ : Conₘ n} {p q : M} → γ ≈ᶜ δ → p ≈ q → (γ ∙ p) ≈ᶜ (δ ∙ q)
 
@@ -87,7 +84,7 @@ p ·ᶜ (γ ∙ q) = (p ·ᶜ γ) ∙ (p · q)
 
 -- Partial order of modality contexts
 
-_≤ᶜ_ : (γ δ : Conₘ n) → Set (a ⊔ ℓ)
+_≤ᶜ_ : (γ δ : Conₘ n) → Set a
 γ ≤ᶜ δ = γ ≈ᶜ γ ∧ᶜ δ
 
 -- ⊛ lifted to modality contexts
