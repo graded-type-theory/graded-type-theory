@@ -1,16 +1,26 @@
-module Definition.Modality.Instances.Unit where
+open import Tools.Bool
+open import Tools.Nullary
+open import Tools.Unit
 
+open import Definition.Modality.Restrictions ⊤
+
+module Definition.Modality.Instances.Unit
+  -- The modality uses the given restrictions.
+  (restrictions : Restrictions)
+  (open Restrictions restrictions)
+  -- 𝟘ᵐ must not be allowed.
+  (not-ok : ¬ T 𝟘ᵐ-allowed)
+  where
+
+open import Tools.Function
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation
-open import Tools.Unit
 
 open import Tools.Algebra ⊤
-open import Tools.Bool using (false)
 open import Tools.Sum
 
 open import Definition.Modality ⊤ public
-open import Definition.Modality.Restrictions ⊤
 
 -----------------------------------------------
 -- A trivial modality formed by the unit set --
@@ -154,10 +164,8 @@ UnitModalityWithout⊛ = record
   ; ∧-Semilattice = +-Semilattice
   ; ·-distrib-∧ = +-Distributiveˡ , +-Distributiveʳ
   ; +-distrib-∧ = +-Distributiveˡ , +-Distributiveʳ
-  ; restrictions = record no-restrictions
-    { 𝟘ᵐ-allowed = false
-    }
-  ; 𝟘ᵐ→𝟙≉𝟘 = λ ()
+  ; restrictions = restrictions
+  ; 𝟘ᵐ→𝟙≉𝟘 = ⊥-elim ∘→ not-ok
   ; is-𝟘? = λ _ _ → yes refl
   ; zero-product = λ _ _ → inj₁ refl
   ; positiveˡ = λ _ _ → refl
