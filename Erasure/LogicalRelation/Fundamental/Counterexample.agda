@@ -41,7 +41,6 @@ open import Erasure.LogicalRelation.Subsumption ⊢Δ no-restrictions
 
 open import Tools.Fin
 open import Tools.Product
-open import Tools.Unit
 
 -- The fundamental lemma does not hold if erased matching is allowed
 

@@ -1,6 +1,4 @@
 open import Definition.Typed.EqualityRelation
-open import Tools.Level
-open import Tools.Relation
 
 module Definition.LogicalRelation.Properties.Escape
   {a} (M : Set a) {{eqrel : EqRelSet M}} where

@@ -5,7 +5,6 @@ module Definition.Modality {a} (M : Set a) where
 
 open import Tools.Algebra M
 open import Tools.Bool using (T)
-open import Tools.Nat hiding (_+_)
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Sum

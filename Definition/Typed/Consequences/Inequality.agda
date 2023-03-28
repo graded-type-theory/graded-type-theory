@@ -10,7 +10,6 @@ open import Definition.LogicalRelation.ShapeView M
 open import Definition.LogicalRelation.Fundamental.Reducibility M
 open import Definition.Typed.Consequences.Syntactic M
 
-open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
 open import Tools.Empty

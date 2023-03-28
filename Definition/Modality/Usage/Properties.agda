@@ -1,4 +1,3 @@
-open import Tools.Relation
 open import Definition.Modality
 
 module Definition.Modality.Usage.Properties

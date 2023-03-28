@@ -18,7 +18,6 @@ open import Definition.LogicalRelation.Fundamental Erasure
 open import Definition.LogicalRelation.Substitution Erasure
 open import Definition.LogicalRelation.Substitution.Properties Erasure
 open import Definition.LogicalRelation.Substitution.Introductions.Pi Erasure
-open import Definition.LogicalRelation.Substitution.Introductions.Universe Erasure
 
 import Definition.LogicalRelation.Irrelevance Erasure as I
 import Definition.LogicalRelation.Weakening Erasure as W
@@ -31,13 +30,11 @@ open import Definition.Mode ErasureModality
 open import Definition.Untyped.Properties Erasure as UP
 open import Definition.Typed.Weakening Erasure
 open import Definition.Typed.Consequences.Reduction Erasure
-open import Definition.Typed.Consequences.Substitution Erasure
 
 open import Erasure.Extraction
 open import Erasure.LogicalRelation ⊢Δ restrictions
 open import Erasure.LogicalRelation.Irrelevance ⊢Δ restrictions
 open import Erasure.LogicalRelation.Reduction ⊢Δ restrictions
-open import Erasure.LogicalRelation.Subsumption ⊢Δ restrictions
 open import Erasure.Target.Properties as TP
 import Erasure.Target as T
 

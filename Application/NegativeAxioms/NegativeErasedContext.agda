@@ -12,12 +12,10 @@ open import Definition.Typed M
 open import Definition.Typed.Weakening M
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Properties 𝕄
-open import Definition.Modality.Usage 𝕄
 open import Application.NegativeAxioms.NegativeOrErasedType 𝕄
 
 open import Tools.Bool
 open import Tools.Fin
-open import Tools.Level
 open import Tools.Nat
 import Tools.PropositionalEquality as PE
 

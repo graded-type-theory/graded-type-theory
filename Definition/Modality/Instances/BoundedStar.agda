@@ -17,13 +17,11 @@ module Definition.Modality.Instances.BoundedStar
 
 open ModalityWithout⊛ 𝕄
 
-open import Definition.Modality.Properties.Equivalence 𝕄
 open import Definition.Modality.Properties.PartialOrder 𝕄
 open import Definition.Modality.Properties.Addition 𝕄
 open import Definition.Modality.Properties.Meet 𝕄
 open import Definition.Modality.Properties.Multiplication 𝕄
 
-open import Tools.Function
 import Tools.Reasoning.Equivalence
 import Tools.Reasoning.PartialOrder
 open import Tools.Product

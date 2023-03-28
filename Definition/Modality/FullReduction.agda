@@ -25,9 +25,7 @@ module Definition.Modality.FullReduction
   (p≤𝟘 : (p : M) → p ≤ 𝟘)
   where
 
-open import Tools.Empty
 open import Tools.Fin
-open import Tools.Function
 open import Tools.Nat using (Nat)
 open import Tools.Product
 open import Tools.PropositionalEquality as PE

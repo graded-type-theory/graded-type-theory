@@ -30,7 +30,6 @@ open import Tools.PropositionalEquality as PE
   using (≈-sym)
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
-open import Tools.Relation
 open import Tools.Sum
 
 private

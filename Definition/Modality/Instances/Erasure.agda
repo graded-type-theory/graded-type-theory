@@ -2,8 +2,6 @@ module Definition.Modality.Instances.Erasure where
 
 open import Tools.Product
 open import Tools.PropositionalEquality
-open import Tools.Relation
-open import Tools.Unit
 
 -- The set of erasure annotations with 𝟘 corresponding to no usage
 -- and ω to any usage.

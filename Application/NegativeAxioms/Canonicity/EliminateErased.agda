@@ -33,8 +33,6 @@ open import Tools.Nat
 open import Tools.Nullary
 import Tools.PropositionalEquality as PE
 open import Tools.Product
-open import Tools.Unit
-
 
 -- Preliminaries
 ---------------------------------------------------------------------------

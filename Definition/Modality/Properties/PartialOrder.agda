@@ -5,9 +5,6 @@ module Definition.Modality.Properties.PartialOrder
 
 open ModalityWithout⊛ 𝕄
 
-open import Tools.Algebra M
-open import Tools.Nat hiding (_+_)
-open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation
 

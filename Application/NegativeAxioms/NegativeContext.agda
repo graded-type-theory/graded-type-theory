@@ -7,7 +7,6 @@ open import Definition.Typed.Weakening M
 open import Application.NegativeAxioms.NegativeType M
 
 open import Tools.Fin
-open import Tools.Level
 open import Tools.Nat
 
 private

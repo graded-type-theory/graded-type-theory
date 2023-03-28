@@ -1,6 +1,5 @@
 module Definition.Untyped.BindingType {a} (M : Set a) where
 
-open import Tools.Level
 open import Tools.PropositionalEquality as PE
   using (_≈_; ≈-refl; ≈-sym; ≈-trans)
 open import Tools.Relation

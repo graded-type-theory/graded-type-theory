@@ -55,12 +55,10 @@ open import Erasure.Extraction
 import Erasure.Target as T
 import Erasure.Target.Properties as TP
 
-open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 open import Tools.Sum using (inj₁; inj₂)
-open import Tools.Unit
 import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PropositionalEquality
 

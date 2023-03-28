@@ -2,8 +2,6 @@
 -- "Extra" restrictions
 ------------------------------------------------------------------------
 
-open import Tools.Relation
-
 module Definition.Modality.Restrictions {a} (M : Set a) where
 
 open import Definition.Untyped M

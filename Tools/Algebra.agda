@@ -2,7 +2,6 @@ open import Tools.Relation
 
 module Tools.Algebra {a} (A : Set a) where
 
-open import Tools.Level
 open import Tools.Product
 open import Tools.PropositionalEquality
 

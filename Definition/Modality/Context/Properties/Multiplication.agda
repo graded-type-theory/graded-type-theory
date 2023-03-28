@@ -9,7 +9,6 @@ open import Definition.Modality.Context.Properties.PartialOrder 𝕄
 open import Definition.Modality.Properties 𝕄
 
 open import Tools.Nat hiding (_+_)
-open import Tools.Product
 open import Tools.PropositionalEquality
 
 open Modality 𝕄

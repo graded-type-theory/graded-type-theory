@@ -11,9 +11,7 @@ open Modality 𝕄
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
-open import Definition.Modality.Properties 𝕄
 open import Definition.Modality.Usage 𝕄
-open import Definition.Modality.Usage.Properties 𝕄
 open import Definition.Mode 𝕄
 open import Definition.Untyped M hiding (_∙_)
 

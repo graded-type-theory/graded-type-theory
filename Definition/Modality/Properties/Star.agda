@@ -10,8 +10,6 @@ open import Definition.Modality.Properties.Meet modalityWithout⊛
 
 open import Tools.Algebra M
 open import Tools.Bool using (T)
-open import Tools.Nat hiding (_+_)
-open import Tools.Product
 open import Tools.PropositionalEquality
 
 private

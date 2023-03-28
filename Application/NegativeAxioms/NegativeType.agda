@@ -11,7 +11,6 @@ open import Definition.Typed.Consequences.Injectivity M
 open import Definition.Typed.Consequences.Substitution M
 
 open import Tools.Empty
-open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
 

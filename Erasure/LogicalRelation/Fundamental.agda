@@ -63,13 +63,10 @@ import Erasure.Target.Properties as TP
 
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PartialOrder
-open import Tools.Relation
-open import Tools.Unit
 import Tools.PropositionalEquality as PE
 
 open Modality ErasureModality

@@ -23,7 +23,6 @@ open import Definition.Typed.Consequences.Equality M
 open import Definition.Typed.Consequences.Reduction M
 
 open import Tools.Fin
-open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
 open import Tools.Function

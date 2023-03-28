@@ -1,7 +1,6 @@
 module Erasure.SucRed
   {a} (M : Set a) where
 
-open import Tools.Level
 open import Tools.Nat
 
 open import Definition.Untyped M hiding (_∷_)

@@ -15,10 +15,8 @@ open import Definition.Modality.Properties.PartialOrder 𝕄
 
 open import Tools.Algebra M
 open import Tools.Product
-open import Tools.PropositionalEquality using (_≈_; setoid)
 import Tools.Reasoning.Equivalence
 import Tools.Reasoning.PartialOrder
-open import Tools.Sum
 
 private variable
   p q r : M

@@ -4,8 +4,6 @@ open import Definition.Typed.EqualityRelation
 open import Definition.Untyped Erasure as U hiding (_∷_)
 open import Definition.Typed Erasure
 
-open import Tools.Empty
-
 module Erasure.LogicalRelation.Fundamental.Prodrec
   {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   (restrictions : Restrictions Erasure)
@@ -23,7 +21,6 @@ open import Definition.Typed.Consequences.RedSteps Erasure
 open import Definition.Typed.Consequences.Reduction Erasure
 
 open import Definition.LogicalRelation Erasure
-open import Definition.LogicalRelation.Fundamental Erasure
 open import Definition.LogicalRelation.Properties.Escape Erasure
 open import Definition.LogicalRelation.Substitution Erasure
 open import Definition.LogicalRelation.Substitution.Properties Erasure

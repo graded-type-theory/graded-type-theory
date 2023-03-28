@@ -10,7 +10,6 @@ open import Definition.Conversion.Soundness M
 open import Definition.Typed.Consequences.Syntactic M
 open import Definition.Typed.Consequences.Substitution M
 
-open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE

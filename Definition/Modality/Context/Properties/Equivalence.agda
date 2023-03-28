@@ -6,7 +6,6 @@ module Definition.Modality.Context.Properties.Equivalence
 open import Definition.Modality.Context 𝕄
 
 open import Tools.Function
-open import Tools.Level
 open import Tools.Nat
 open import Tools.PropositionalEquality
 open import Tools.Relation

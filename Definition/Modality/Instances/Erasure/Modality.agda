@@ -10,7 +10,6 @@ open import Tools.PropositionalEquality
 open import Tools.Relation
 
 open import Definition.Modality Erasure public
-open import Tools.Algebra Erasure
 open import Tools.Sum
 
 -- Erasure forms a modality
