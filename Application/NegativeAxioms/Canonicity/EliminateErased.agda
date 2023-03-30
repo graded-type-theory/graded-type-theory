@@ -1,20 +1,27 @@
 -- Proof that consistent negative axioms do not jeopardize canonicity.
 -- https://www.cs.bham.ac.uk/~mhe/papers/negative-axioms.pdf
 
-module Application.NegativeAxioms.Canonicity.EliminateErased where
+open import Tools.Bool
+
+module Application.NegativeAxioms.Canonicity.EliminateErased
+  -- Is 𝟘ᵐ allowed?
+  (𝟘ᵐ-allowed : Bool)
+  where
 
 open import Definition.Modality.Instances.Erasure
 
 open import Definition.Modality.Restrictions Erasure
 
 open import Definition.Modality.Instances.Erasure.Modality
-  no-restrictions
+  (𝟘ᵐ-allowed-if 𝟘ᵐ-allowed)
 open import Application.NegativeAxioms.NegativeErasedContext ErasureModality (λ ())
   hiding (lookupNegative)
 open import Definition.Typed Erasure
 open import Definition.Untyped Erasure hiding (_∷_; ℕ≢B)
 
 open import Definition.Modality.Context ErasureModality
+open import Definition.Modality.Context.Properties ErasureModality
+open import Definition.Modality.Properties ErasureModality
 open import Definition.Modality.Usage ErasureModality
 open import Definition.Mode ErasureModality
 
@@ -33,6 +40,9 @@ open import Tools.Nat
 open import Tools.Nullary
 import Tools.PropositionalEquality as PE
 open import Tools.Product
+
+private
+  module EM = Modality ErasureModality
 
 -- Preliminaries
 ---------------------------------------------------------------------------
@@ -86,7 +96,8 @@ cEx : ∃₄ λ (m : Nat) (Γ : Con Term m) (γ : Conₘ m) (t : Term m)
     × (∃ λ u → Γ ⊢ t ⇒* u ∷ ℕ × Whnf u × Neutral u)
 cEx = _ , ε ∙ (Σᵣ ω , 𝟘 ▷ ℕ ▹ ℕ) , _ , prodrec 𝟘 ω 𝟘 ℕ (var x0) zero
     , ⊢prodrec
-    , prodrecₘ var zeroₘ ℕₘ _
+    , prodrecₘ {η = 𝟘ᶜ} var zeroₘ
+        (sub ℕₘ (≤ᶜ-refl ∙ ≤-reflexive (EM.·-zeroʳ _))) _
     , PE.refl
     , ε ∙𝟘
     , (λ ⊢t → ¬Empty (substTerm ⊢t (prodⱼ ε⊢ℕ εℕ⊢ℕ (zeroⱼ ε) (zeroⱼ ε))))

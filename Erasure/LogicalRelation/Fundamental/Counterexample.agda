@@ -4,9 +4,12 @@ open import Definition.Modality.Instances.Erasure
 open import Definition.Typed.EqualityRelation
 open import Definition.Untyped Erasure hiding (_∷_)
 open import Definition.Typed Erasure
+open import Tools.Bool
 open import Tools.Empty
 
 module Erasure.LogicalRelation.Fundamental.Counterexample
+  -- Is 𝟘ᵐ allowed?
+  (𝟘ᵐ-allowed : Bool)
   {{eqrel : EqRelSet Erasure}}
   where
 
@@ -14,10 +17,17 @@ open EqRelSet {{...}}
 
 open import Definition.Modality.Restrictions Erasure
 
-open import Definition.Modality.Instances.Erasure.Modality
-  no-restrictions
+private
+  r = 𝟘ᵐ-allowed-if 𝟘ᵐ-allowed
+
+open import Definition.Modality.Instances.Erasure.Modality r
+
+private
+  module EM = Modality ErasureModality
 
 open import Definition.Modality.Context ErasureModality
+open import Definition.Modality.Context.Properties ErasureModality
+open import Definition.Modality.Properties ErasureModality
 open import Definition.Modality.Usage ErasureModality
 open import Definition.Mode ErasureModality
 
@@ -35,9 +45,9 @@ import Definition.LogicalRelation.Substitution.Irrelevance Erasure as IS
 ⊢Δ = ε ∙ (ΠΣⱼ (ℕⱼ ε) ▹ (ℕⱼ (ε ∙ ℕⱼ ε)))
 
 import Erasure.Target as T
-open import Erasure.LogicalRelation ⊢Δ no-restrictions
-open import Erasure.LogicalRelation.Irrelevance ⊢Δ no-restrictions
-open import Erasure.LogicalRelation.Subsumption ⊢Δ no-restrictions
+open import Erasure.LogicalRelation ⊢Δ r
+open import Erasure.LogicalRelation.Irrelevance ⊢Δ r
+open import Erasure.LogicalRelation.Subsumption ⊢Δ r
 
 open import Tools.Fin
 open import Tools.Product
@@ -78,7 +88,8 @@ cEx = _
     , prodrec 𝟘 ω 𝟘 ℕ (var x0) zero , ℕ , ε ∙ (Σᵣ ω , 𝟘 ▷ ℕ ▹ ℕ)
     , ε ∙ 𝟘
     , prodrecⱼ Δ⊢ℕ Δℕ⊢ℕ ΔΣ⊢ℕ (var ⊢Δ here) (zeroⱼ ⊢Δℕℕ)
-    , prodrecₘ var zeroₘ ℕₘ _
+    , prodrecₘ {η = 𝟘ᶜ} var zeroₘ
+        (sub ℕₘ (≤ᶜ-refl ∙ ≤-reflexive (EM.·-zeroʳ _))) _
     , λ {([Γ] , [A] , ⊩ʳpr) → cEx′ [Γ] [A] ⊩ʳpr}
     where
     Δ⊢ℕ = ℕⱼ ⊢Δ

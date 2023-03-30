@@ -26,14 +26,20 @@ record Restrictions : Set (lsuc a) where
     -- Is the mode 𝟘ᵐ allowed?
     𝟘ᵐ-allowed : Bool
 
+-- No restrictions, except that 𝟘ᵐ is only allowed if the given
+-- boolean is true.
+
+𝟘ᵐ-allowed-if : Bool → Restrictions
+𝟘ᵐ-allowed-if b = record
+  { Prodrec    = λ _ _ _ → Lift _ ⊤
+  ; Binder     = λ _ _ _ → Lift _ ⊤
+  ; 𝟘ᵐ-allowed = b
+  }
+
 -- No restrictions.
 
 no-restrictions : Restrictions
-no-restrictions = record
-  { Prodrec    = λ _ _ _ → Lift _ ⊤
-  ; Binder     = λ _ _ _ → Lift _ ⊤
-  ; 𝟘ᵐ-allowed = true
-  }
+no-restrictions = 𝟘ᵐ-allowed-if true
 
 -- Adds the restriction that the two quantities on a Π- or Σ-type have
 -- to be equal.
