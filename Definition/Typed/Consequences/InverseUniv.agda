@@ -54,7 +54,7 @@ noUNe (Emptyrecₙ neA) ()
 pilem :
   (¬ UFull (ΠΣ⟨ b ⟩ p , q ▷ F ▹ G)) ⊎
     (¬ UFull (ΠΣ⟨ b ⟩ p′ , q′ ▷ H ▹ E)) →
-  (¬ UFull F) ⊎ (¬ UFull H) × (¬ UFull G) ⊎ (¬ UFull E)
+  (¬ UFull F ⊎ ¬ UFull H) × (¬ UFull G ⊎ ¬ UFull E)
 pilem (inj₁ x) = inj₁ (λ x₁ → x (∃ΠΣ₁ x₁)) , inj₁ (λ x₁ → x (∃ΠΣ₂ x₁))
 pilem (inj₂ x) = inj₂ (λ x₁ → x (∃ΠΣ₁ x₁)) , inj₂ (λ x₁ → x (∃ΠΣ₂ x₁))
 

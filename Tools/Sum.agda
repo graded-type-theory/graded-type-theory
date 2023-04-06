@@ -4,9 +4,7 @@ module Tools.Sum where
 
 open import Tools.Level
 
-data _⊎_ {a b} (A : Set a) (B : Set b) : Set (a ⊔ b) where
-  inj₁ : A → A ⊎ B
-  inj₂ : B → A ⊎ B
+open import Data.Sum.Base public using (_⊎_; inj₁; inj₂)
 
 -- Idempotency.
 
