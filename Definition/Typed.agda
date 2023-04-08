@@ -20,7 +20,7 @@ private
     a f g t u v : Term n
     G E : Term (1+ n)
     x : Fin n
-    p q r p′ q′ r′ p₁ p₂ : M
+    p p′ q r : M
     b : BinderMode
     m : SigmaMode
 
@@ -166,9 +166,7 @@ mutual
     app-cong      : ∀ {a b f g F G}
                   → Γ ⊢ f ≡ g ∷ Π p , q ▷ F ▹ G
                   → Γ ⊢ a ≡ b ∷ F
-                  → p ≈ p₁
-                  → p ≈ p₂
-                  → Γ ⊢ f ∘⟨ p₁ ⟩ a ≡ g ∘⟨ p₂ ⟩ b ∷ G [ a ]
+                  → Γ ⊢ f ∘⟨ p ⟩ a ≡ g ∘⟨ p ⟩ b ∷ G [ a ]
     β-red         : ∀ {a t F G}
                   → Γ     ⊢ F
                   → Γ ∙ F ⊢ G
@@ -226,8 +224,7 @@ mutual
                   → Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ A ≡ A′
                   → Γ ⊢ t ≡ t′ ∷ Σᵣ p , q ▷ F ▹ G
                   → Γ ∙ F ∙ G ⊢ u ≡ u′ ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
-                  → r ≈ r′
-                  → Γ ⊢ prodrec r p q A t u ≡ prodrec r′ p q A′ t′ u′ ∷ A [ t ]
+                  → Γ ⊢ prodrec r p q A t u ≡ prodrec r p q A′ t′ u′ ∷ A [ t ]
     prodrec-β     : ∀ {t t′ u F G A}
                   → Γ ⊢ F
                   → Γ ∙ F ⊢ G
@@ -247,10 +244,7 @@ mutual
                   → Γ         ⊢ z ≡ z′ ∷ F [ zero ]
                   → Γ ∙ ℕ ∙ F ⊢ s ≡ s′ ∷ wk1 (F [ suc (var x0) ]↑)
                   → Γ         ⊢ n ≡ n′ ∷ ℕ
-                  → p ≈ p′
-                  → q ≈ q′
-                  → r ≈ r′
-                  → Γ         ⊢ natrec p q r F z s n ≡ natrec p′ q′ r′ F′ z′ s′ n′ ∷ F [ n ]
+                  → Γ         ⊢ natrec p q r F z s n ≡ natrec p q r F′ z′ s′ n′ ∷ F [ n ]
     natrec-zero   : ∀ {z s F}
                   → Γ ∙ ℕ ⊢ F
                   → Γ     ⊢ z ∷ F [ zero ]
@@ -266,8 +260,7 @@ mutual
     Emptyrec-cong : ∀ {A A' e e'}
                   → Γ ⊢ A ≡ A'
                   → Γ ⊢ e ≡ e' ∷ Empty
-                  → p ≈ p′
-                  → Γ ⊢ Emptyrec p A e ≡ Emptyrec p′ A' e' ∷ A
+                  → Γ ⊢ Emptyrec p A e ≡ Emptyrec p A' e' ∷ A
     η-unit        : ∀ {e e'}
                   → Γ ⊢ e ∷ Unit
                   → Γ ⊢ e' ∷ Unit

@@ -108,7 +108,7 @@ mutual
               in  neuEqTerm ([G] [ρ] ⊢Δ [a]) neN∘a neN∘b
                             (ρn₁ ∘ⱼ a) (conv (ρn₂ ∘ⱼ b) (≅-eq G[a]≡G[b]))
                             (~-app (~-wk [ρ] ⊢Δ (~-conv n~n A≡ΠFG₁))
-                                   a≡b ≈-refl ≈-refl))
+                                   a≡b))
 
            (λ {_} {ρ} [ρ] ⊢Δ [a] →
               let ρA≡ρΠFG = Wk.wkEq [ρ] ⊢Δ (subset* (red D))
@@ -121,7 +121,7 @@ mutual
                                (ΠΣ-cong ⊢ρF (refl ⊢ρF) (refl ⊢ρG))
                in  neuTerm ([G] [ρ] ⊢Δ [a]) (∘ₙ (wkNeutral ρ neN))
                            (conv (Wk.wkTerm [ρ] ⊢Δ n) ρA≡ρΠFG′ ∘ⱼ a)
-                           (~-app (~-wk [ρ] ⊢Δ (~-conv n~n A≡ΠFG′)) a≡a ≈-refl ≈-refl))
+                           (~-app (~-wk [ρ] ⊢Δ (~-conv n~n A≡ΠFG′)) a≡a))
   neuTerm (Bᵣ′ (BΣ Σₚ _ q) F G D ⊢F ⊢G A≡A [F] [G] G-ext) neN ⊢n n~n =
     let A≡ΣFG = subset* (red D)
         ⊢Γ = wf ⊢F
@@ -217,7 +217,7 @@ mutual
                in  neuEqTerm ([G] [ρ] ⊢Δ [a]) neN∙a neN′∙a′
                      (conv ρn ρA≡ρΠp₁FG ∘ⱼ a)
                      (conv ρn′ ρA≡ρΠp₂FG ∘ⱼ a)
-                     (~-app (~-wk [ρ] ⊢Δ (~-conv n~n′₁ ΠpFG≡Πp₁FG)) a≡a ≈-refl ≈-refl))
+                     (~-app (~-wk [ρ] ⊢Δ (~-conv n~n′₁ ΠpFG≡Πp₁FG)) a≡a))
   neuEqTerm [ΣFG]@(Bᵣ′ BΣₚ F G [ ⊢A , ⊢B , D ] ⊢F ⊢G A≡A [F] [G] G-ext) neN neN′ ⊢n ⊢n′ n~n′ =
     let A≡ΣFG = subset* D
         n~n = ~-trans n~n′ (~-sym n~n′)

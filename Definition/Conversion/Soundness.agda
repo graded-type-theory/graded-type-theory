@@ -24,7 +24,8 @@ mutual
   -- Algorithmic equality of neutrals is well-formed.
   soundness~↑ : ∀ {k l A} → Γ ⊢ k ~ l ↑ A → Γ ⊢ k ≡ l ∷ A
   soundness~↑ (var-refl x x≡y) = PE.subst (λ y → _ ⊢ _ ≡ var y ∷ _) x≡y (refl x)
-  soundness~↑ (app-cong k~l x₁ p≈p₁ p≈p₂) = app-cong (soundness~↓ k~l) (soundnessConv↑Term x₁) p≈p₁ p≈p₂
+  soundness~↑ (app-cong k~l x₁) =
+    app-cong (soundness~↓ k~l) (soundnessConv↑Term x₁)
   soundness~↑ (fst-cong x) =
     let p≡ = soundness~↓ x
         ⊢ΣFG = proj₁ (syntacticEqTerm p≡)
@@ -35,20 +36,19 @@ mutual
         ⊢ΣFG = proj₁ (syntacticEqTerm p≡)
         ⊢F , ⊢G = syntacticΣ ⊢ΣFG
     in  snd-cong ⊢F ⊢G p≡
-  soundness~↑ (natrec-cong x₁ x₂ x₃ k~l p≈p′ r≈r′) =
+  soundness~↑ (natrec-cong x₁ x₂ x₃ k~l) =
     let F≡G = soundnessConv↑ x₁
         ⊢F = proj₁ (syntacticEq F≡G)
     in  natrec-cong ⊢F F≡G (soundnessConv↑Term x₂)
                     (soundnessConv↑Term x₃) (soundness~↓ k~l)
-                    p≈p′ PE.refl r≈r′
-  soundness~↑ (prodrec-cong! x x₁ x₂) =
+  soundness~↑ (prodrec-cong x x₁ x₂) =
     let C≡E = soundnessConv↑ x
         g≡h = soundness~↓ x₁
         u≡v = soundnessConv↑Term x₂
         ⊢F , ⊢G = syntacticΣ (proj₁ (syntacticEqTerm g≡h))
-    in  prodrec-cong ⊢F ⊢G C≡E g≡h u≡v PE.refl
-  soundness~↑ (Emptyrec-cong x₁ k~l p≈p′) =
-    Emptyrec-cong (soundnessConv↑ x₁) (soundness~↓ k~l) p≈p′
+    in  prodrec-cong ⊢F ⊢G C≡E g≡h u≡v
+  soundness~↑ (Emptyrec-cong x₁ k~l) =
+    Emptyrec-cong (soundnessConv↑ x₁) (soundness~↓ k~l)
 
   -- Algorithmic equality of neutrals in WHNF is well-formed.
   soundness~↓ : ∀ {k l A} → Γ ⊢ k ~ l ↓ A → Γ ⊢ k ≡ l ∷ A
@@ -96,7 +96,7 @@ mutual
   soundnessConv↓Term (univ x x₁ x₂) = inverseUnivEq x (soundnessConv↓ x₂)
   soundnessConv↓Term (zero-refl ⊢Γ) = refl (zeroⱼ ⊢Γ)
   soundnessConv↓Term (suc-cong c) = suc-cong (soundnessConv↑Term c)
-  soundnessConv↓Term (prod-cong! x x₁ x₂ x₃) =
+  soundnessConv↓Term (prod-cong x x₁ x₂ x₃) =
     prod-cong x x₁ (soundnessConv↑Term x₂) (soundnessConv↑Term x₃)
   soundnessConv↓Term (η-eq x x₁ y y₁ c) =
     let ⊢ΠFG = syntacticTerm x

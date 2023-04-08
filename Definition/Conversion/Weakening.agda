@@ -26,9 +26,9 @@ mutual
       → Γ ⊢ t ~ u ↑ A
       → Δ ⊢ U.wk ρ t ~ U.wk ρ u ↑ U.wk ρ A
   wk~↑ {ρ = ρ} [ρ] ⊢Δ (var-refl x₁ x≡y) = var-refl (wkTerm [ρ] ⊢Δ x₁) (PE.cong (wkVar ρ) x≡y)
-  wk~↑ ρ ⊢Δ (app-cong {G = G} t~u x p≈p₁ p≈p₂) =
+  wk~↑ ρ ⊢Δ (app-cong {G = G} t~u x) =
     PE.subst (λ x → _ ⊢ _ ~ _ ↑ x) (PE.sym (wk-β G))
-             (app-cong (wk~↓ ρ ⊢Δ t~u) (wkConv↑Term ρ ⊢Δ x) p≈p₁ p≈p₂)
+             (app-cong (wk~↓ ρ ⊢Δ t~u) (wkConv↑Term ρ ⊢Δ x))
   wk~↑ ρ ⊢Δ (fst-cong p~r) =
     fst-cong (wk~↓ ρ ⊢Δ p~r)
   wk~↑ ρ ⊢Δ (snd-cong {G = G} p~r) =
@@ -37,8 +37,8 @@ mutual
              (snd-cong (wk~↓ ρ ⊢Δ p~r))
   wk~↑ {ρ = ρ} {Δ = Δ} [ρ] ⊢Δ
     (natrec-cong
-       {F = F} {G} {a₀} {b₀} {h} {g} {k} {l} {p} {r = r} {q = q}
-       x x₁ x₂ t~u p≈p′ r≈r′) =
+       {F = F} {G} {a₀} {b₀} {h} {g} {k} {l} {p} {q = q} {r = r}
+       x x₁ x₂ t~u) =
     let ⊢Δℕ = ⊢Δ ∙ (ℕⱼ ⊢Δ)
         Δℕ⊢F = wk (lift [ρ]) ⊢Δℕ (proj₁ (syntacticEq (soundnessConv↑ x)))
     in  PE.subst (λ x → _ ⊢ U.wk ρ (natrec p q r F a₀ h k) ~ _ ↑ x) (PE.sym (wk-β F))
@@ -49,11 +49,10 @@ mutual
                                              [conv↑] U.wk (lift (lift ρ)) g ∷ x)
                               (wk-β-natrec _ F) (wkConv↑Term (lift (lift [ρ]))
                                                              (⊢Δℕ ∙ Δℕ⊢F) x₂))
-                              (wk~↓ [ρ] ⊢Δ t~u) p≈p′ r≈r′)
+                              (wk~↓ [ρ] ⊢Δ t~u))
   wk~↑
     {ρ = ρ} {Δ = Δ} [ρ] ⊢Δ
-    (prodrec-cong {C = C} {E} {g} {h} {u} {v}
-       x g~h x₁ PE.refl PE.refl PE.refl) =
+    (prodrec-cong {C = C} {E} {g} {h} {u} {v} x g~h x₁) =
     let ρg~ρh = wk~↓ [ρ] ⊢Δ g~h
         ⊢ρΣ , _ , _ = syntacticEqTerm (soundness~↓ ρg~ρh)
         ⊢ρF , ⊢ρG = syntacticΣ ⊢ρΣ
@@ -63,10 +62,10 @@ mutual
     in  PE.subst  (λ x → _ ⊢ U.wk ρ (prodrec _ _ _ C g u) ~
                            U.wk ρ (prodrec _ _ _ E h v) ↑ x)
                   (PE.sym (wk-β C))
-                  (prodrec-cong! (wkConv↑ (lift [ρ]) (⊢Δ ∙ ⊢ρΣ) x)
+                  (prodrec-cong (wkConv↑ (lift [ρ]) (⊢Δ ∙ ⊢ρΣ) x)
                      ρg~ρh u↓v)
-  wk~↑ {ρ} {Δ = Δ} [ρ] ⊢Δ (Emptyrec-cong {k} {l} {F} {G} x t~u p≈p′) =
-    Emptyrec-cong (wkConv↑ [ρ] ⊢Δ x) (wk~↓ [ρ] ⊢Δ t~u) p≈p′
+  wk~↑ {ρ} {Δ = Δ} [ρ] ⊢Δ (Emptyrec-cong {k} {l} {F} {G} x t~u) =
+    Emptyrec-cong (wkConv↑ [ρ] ⊢Δ x) (wk~↓ [ρ] ⊢Δ t~u)
 
   -- Weakening of algorithmic equality of neutrals in WHNF.
   wk~↓ : ∀ {t u A Γ Δ} ([ρ] : ρ ∷ Δ ⊆ Γ) → ⊢ Δ
@@ -124,10 +123,10 @@ mutual
     univ (wkTerm ρ ⊢Δ x) (wkTerm ρ ⊢Δ x₁) (wkConv↓ ρ ⊢Δ x₂)
   wkConv↓Term ρ ⊢Δ (zero-refl x) = zero-refl ⊢Δ
   wkConv↓Term ρ ⊢Δ (suc-cong t<>u) = suc-cong (wkConv↑Term ρ ⊢Δ t<>u)
-  wkConv↓Term ρ ⊢Δ (prod-cong! {G = G} x x₁ x₂ x₃) =
+  wkConv↓Term ρ ⊢Δ (prod-cong {G = G} x x₁ x₂ x₃) =
     let ⊢ρF = wk ρ ⊢Δ x
         ⊢ρG = wk (lift ρ) (⊢Δ ∙ ⊢ρF) x₁
-    in  prod-cong! ⊢ρF ⊢ρG (wkConv↑Term ρ ⊢Δ x₂)
+    in  prod-cong ⊢ρF ⊢ρG (wkConv↑Term ρ ⊢Δ x₂)
           (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x) (wk-β G)
              (wkConv↑Term ρ ⊢Δ x₃))
   wkConv↓Term {ρ = ρ} {Δ = Δ} [ρ] ⊢Δ (η-eq {F = F} {G = G} x₁ x₂ y y₁ t<>u) =

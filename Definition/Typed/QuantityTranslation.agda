@@ -128,9 +128,9 @@ mutual
     conv (tr-⊢≡∷ t≡u) (tr-⊢≡ A≡B)
   tr-⊢≡∷ (ΠΣ-cong A A≡B C≡D) =
     ΠΣ-cong (tr-⊢′ A) (tr-⊢≡∷ A≡B) (tr-⊢≡∷ C≡D)
-  tr-⊢≡∷ (app-cong {G = P} t≡u v≡w PE.refl PE.refl) =
+  tr-⊢≡∷ (app-cong {G = P} t≡u v≡w) =
     PE.subst (_ T₂.⊢ _ ≡ _ ∷_) (tr-Term-[] P)
-      (app-cong (tr-⊢≡∷ t≡u) (tr-⊢≡∷ v≡w) PE.refl PE.refl)
+      (app-cong (tr-⊢≡∷ t≡u) (tr-⊢≡∷ v≡w))
   tr-⊢≡∷ (β-red {t = t} {G = P} A ⊢P ⊢t u PE.refl) =
     PE.subst₂
       (_ T₂.⊢ _ ∘⟨ _ ⟩ _ ≡_∷_)
@@ -164,12 +164,11 @@ mutual
     Σ-η (tr-⊢′ A) (tr-⊢′ ⊢P) (tr-⊢∷ t) (tr-⊢∷ u) (tr-⊢≡∷ t₁≡u₁)
       (PE.subst (_ T₂.⊢ _ ≡ _ ∷_) (PE.sym (tr-Term-[] P))
          (tr-⊢≡∷ t₂≡u₂))
-  tr-⊢≡∷ (prodrec-cong {A = Q} A P Q≡R t≡u v≡w PE.refl) =
+  tr-⊢≡∷ (prodrec-cong {A = Q} A P Q≡R t≡u v≡w) =
     PE.subst (_ T₂.⊢ prodrec _ _ _ _ _ _ ≡ _ ∷_) (tr-Term-[] Q)
       (prodrec-cong (tr-⊢′ A) (tr-⊢′ P) (tr-⊢≡ Q≡R) (tr-⊢≡∷ t≡u)
          (PE.subst (_ T₂.⊢ _ ≡ _ ∷_) (PE.sym (tr-Term-[]↑² Q))
-            (tr-⊢≡∷ v≡w))
-         PE.refl)
+            (tr-⊢≡∷ v≡w)))
   tr-⊢≡∷ (prodrec-β {u = v} {G = P} {A = Q} A ⊢P ⊢Q t u ⊢v PE.refl) =
     PE.subst₂ (_ T₂.⊢ prodrec _ _ _ _ _ _ ≡_∷_)
       (tr-Term-[,] v)
@@ -180,8 +179,7 @@ mutual
          PE.refl)
   tr-⊢≡∷ (suc-cong t≡u) =
     suc-cong (tr-⊢≡∷ t≡u)
-  tr-⊢≡∷ (natrec-cong {F = P} ⊢P P≡P′ z≡z′ s≡s′ n≡n′
-            PE.refl PE.refl PE.refl) =
+  tr-⊢≡∷ (natrec-cong {F = P} ⊢P P≡P′ z≡z′ s≡s′ n≡n′) =
     PE.subst (_ T₂.⊢ natrec _ _ _ _ _ _ _ ≡ _ ∷_) (tr-Term-[] P)
       (natrec-cong (tr-⊢′ ⊢P) (tr-⊢≡ P≡P′)
          (PE.subst (_ T₂.⊢ _ ≡ _ ∷_) (PE.sym (tr-Term-[] P))
@@ -191,7 +189,7 @@ mutual
              U₂.wk1 (tr-Term (P U₁.[ suc (var x0) ]↑))  ≡˘⟨ PE.cong U₂.wk1 (tr-Term-[]↑ P) ⟩
              U₂.wk1 (tr-Term P U₂.[ suc (var x0) ]↑)    ∎)
             (tr-⊢≡∷ s≡s′))
-         (tr-⊢≡∷ n≡n′) PE.refl PE.refl PE.refl)
+         (tr-⊢≡∷ n≡n′))
   tr-⊢≡∷ (natrec-zero {F = P} ⊢P z s) =
     PE.subst (_ T₂.⊢ natrec _ _ _ (tr-Term P) _ _ _ ≡ _ ∷_)
       (tr-Term-[] P)
@@ -213,8 +211,8 @@ mutual
              U₂.wk1 (tr-Term (P U₁.[ suc (var x0) ]↑))  ≡˘⟨ PE.cong U₂.wk1 (tr-Term-[]↑ P) ⟩
              U₂.wk1 (tr-Term P U₂.[ suc (var x0) ]↑)    ∎)
             (tr-⊢∷ ⊢s)))
-  tr-⊢≡∷ (Emptyrec-cong A≡B t≡u PE.refl) =
-    Emptyrec-cong (tr-⊢≡ A≡B) (tr-⊢≡∷ t≡u) PE.refl
+  tr-⊢≡∷ (Emptyrec-cong A≡B t≡u) =
+    Emptyrec-cong (tr-⊢≡ A≡B) (tr-⊢≡∷ t≡u)
   tr-⊢≡∷ (η-unit t u) =
     η-unit (tr-⊢∷ t) (tr-⊢∷ u)
 

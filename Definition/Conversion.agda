@@ -8,7 +8,8 @@ open import Definition.Typed M
 
 open import Tools.Fin
 open import Tools.Nat
-open import Tools.PropositionalEquality as PE using (_≈_)
+open import Tools.Product
+open import Tools.PropositionalEquality
 
 
 infix 10 _⊢_~_↑_
@@ -25,7 +26,7 @@ private
     C F H G E : Term n
     a₀ b₀ g h k l t u v : Term n
     x y : Fin n
-    p p′ p″ p₁ p₂ q q′ r r′ : M
+    p p′ p″ q q′ r : M
     b : BinderMode
 
 mutual
@@ -33,14 +34,12 @@ mutual
   data _⊢_~_↑_ (Γ : Con Term n) : (k l A : Term n) → Set a where
 
     var-refl      : Γ ⊢ var x ∷ C
-                  → x PE.≡ y
+                  → x ≡ y
                   → Γ ⊢ var x ~ var y ↑ C
 
     app-cong      : Γ ⊢ k ~ l ↓ Π p , q ▷ F ▹ G
                   → Γ ⊢ t [conv↑] v ∷ F
-                  → p ≈ p₁
-                  → p ≈ p₂
-                  → Γ ⊢ k ∘⟨ p₁ ⟩ t ~ l ∘⟨ p₂ ⟩ v ↑ G [ t ]
+                  → Γ ⊢ k ∘⟨ p ⟩ t ~ l ∘⟨ p ⟩ v ↑ G [ t ]
 
     fst-cong      : Γ ⊢ k ~ l ↓ Σₚ p , q ▷ F ▹ G
                   → Γ ⊢ fst p k ~ fst p l ↑ F
@@ -52,22 +51,16 @@ mutual
                   → Γ ⊢ a₀ [conv↑] b₀ ∷ F [ zero ]
                   → Γ ∙ ℕ ∙ F ⊢ h [conv↑] g ∷ wk1 (F [ suc (var x0) ]↑)
                   → Γ ⊢ k ~ l ↓ ℕ
-                  → p ≈ p′
-                  → r ≈ r′
-                  → Γ ⊢ natrec p q r F a₀ h k ~ natrec p′ q r′ G b₀ g l ↑ F [ k ]
+                  → Γ ⊢ natrec p q r F a₀ h k ~ natrec p q r G b₀ g l ↑ F [ k ]
 
     prodrec-cong  : Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ C [conv↑] E
                   → Γ ⊢ g ~ h ↓ Σᵣ p , q ▷ F ▹ G
                   → Γ ∙ F ∙ G ⊢ u [conv↑] v ∷ C [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
-                  → r ≈ r′
-                  → p ≈ p′
-                  → q ≈ q′
-                  → Γ ⊢ prodrec r p q C g u ~ prodrec r′ p′ q′ E h v ↑ C [ g ]
+                  → Γ ⊢ prodrec r p q C g u ~ prodrec r p q E h v ↑ C [ g ]
 
     Emptyrec-cong : Γ ⊢ F [conv↑] H
                   → Γ ⊢ k ~ l ↓ Empty
-                  → p ≈ p′
-                  → Γ ⊢ Emptyrec p F k ~ Emptyrec p′ H l ↑ F
+                  → Γ ⊢ Emptyrec p F k ~ Emptyrec p H l ↑ F
 
   -- Neutral equality with types in WHNF.
   record _⊢_~_↓_ (Γ : Con Term n) (k l B : Term n) : Set a where
@@ -167,9 +160,7 @@ mutual
               → Γ ∙ F ⊢ G
               → Γ ⊢ t [conv↑] t′ ∷ F
               → Γ ⊢ u [conv↑] u′ ∷ G [ t ]
-              → p ≈ p′
-              → p ≈ p″
-              → Γ ⊢ prodᵣ p t u [conv↓] prodᵣ p′ t′ u′ ∷ Σᵣ p″ , q ▷ F ▹ G
+              → Γ ⊢ prodᵣ p t u [conv↓] prodᵣ p t′ u′ ∷ Σᵣ p , q ▷ F ▹ G
 
     η-eq      : ∀ {f g F G}
               → Γ ⊢ f ∷ Π p , q ▷ F ▹ G
@@ -194,11 +185,18 @@ mutual
               → Whnf l
               → Γ ⊢ k [conv↓] l ∷ Unit
 
-pattern prodrec-cong! {p = p} {q = q} {F = F} {G = G} x₁ x₂ x₃ =
-  prodrec-cong {p = p} {q = q} {F = F} {G = G} x₁ x₂ x₃
-    PE.refl PE.refl PE.refl
-pattern prod-cong! {G = G} x₁ x₂ x₃ x₄ =
-  prod-cong {G = G} x₁ x₂ x₃ x₄ PE.refl PE.refl
-
 star-refl : ⊢ Γ → Γ ⊢ star [conv↓] star ∷ Unit
 star-refl ⊢Γ = η-unit (starⱼ ⊢Γ) (starⱼ ⊢Γ) starₙ starₙ
+
+-- An inversion lemma for prod-cong.
+
+prod-cong⁻¹ :
+  ∀ {t′ u′} →
+  Γ ⊢ prodᵣ p t u [conv↓] prodᵣ p′ t′ u′ ∷ Σᵣ p″ , q ▷ F ▹ G →
+  p ≡ p′ ×
+  p ≡ p″ ×
+  Γ ⊢ F ×
+  Γ ∙ F ⊢ G ×
+  (Γ ⊢ t [conv↑] t′ ∷ F) ×
+  (Γ ⊢ u [conv↑] u′ ∷ G [ t ])
+prod-cong⁻¹ (prod-cong F G t u) = refl , refl , F , G , t , u

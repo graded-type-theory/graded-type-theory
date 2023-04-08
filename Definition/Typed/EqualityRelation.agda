@@ -12,7 +12,7 @@ open import Tools.PropositionalEquality using (_≈_; refl)
 
 private
   variable
-    p q r p′ q′ r′ p₁ p₂ q″ : M
+    p q r : M
     n n′ : Nat
     Γ : Con Term n
     Δ : Con Term n′
@@ -182,9 +182,7 @@ record EqRelSet : Set (lsuc ℓ) where
     ~-app : ∀ {a b f g F G}
           → Γ ⊢ f ~ g ∷ Π p , q ▷ F ▹ G
           → Γ ⊢ a ≅ b ∷ F
-          → p ≈ p₁
-          → p ≈ p₂
-          → Γ ⊢ f ∘⟨ p₁ ⟩ a ~ g ∘⟨ p₂ ⟩ b ∷ G [ a ]
+          → Γ ⊢ f ∘⟨ p ⟩ a ~ g ∘⟨ p ⟩ b ∷ G [ a ]
 
     -- Product projections congruence
     ~-fst : ∀ {r s F G}
@@ -206,10 +204,7 @@ record EqRelSet : Set (lsuc ℓ) where
              → Γ         ⊢ z ≅ z′ ∷ F [ zero ]
              → Γ ∙ ℕ ∙ F ⊢ s ≅ s′ ∷ wk1 (F [ suc (var x0) ]↑)
              → Γ         ⊢ n ~ n′ ∷ ℕ
-             → p ≈ p′
-             → q ≈ q′
-             → r ≈ r′
-             → Γ         ⊢ natrec p q r F z s n ~ natrec p′ q′ r′ F′ z′ s′ n′ ∷ F [ n ]
+             → Γ         ⊢ natrec p q r F z s n ~ natrec p q r F′ z′ s′ n′ ∷ F [ n ]
 
     -- Product recursion congruence
     ~-prodrec : ∀ {F G A A′ t t′ u u′}
@@ -218,15 +213,13 @@ record EqRelSet : Set (lsuc ℓ) where
              → Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ A ≅ A′
              → Γ                      ⊢ t ~ t′ ∷ Σᵣ p , q ▷ F ▹ G
              → Γ ∙ F ∙ G              ⊢ u ≅ u′ ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
-             → r ≈ r′
-             → Γ                      ⊢ prodrec r p q A t u ~ prodrec r′ p q A′ t′ u′ ∷ A [ t ]
+             → Γ                      ⊢ prodrec r p q A t u ~ prodrec r p q A′ t′ u′ ∷ A [ t ]
 
     -- Empty recursion congruence
     ~-Emptyrec : ∀ {n n′ F F′}
                → Γ ⊢ F ≅ F′
                → Γ ⊢ n ~ n′ ∷ Empty
-               → p ≈ p′
-               → Γ ⊢ Emptyrec p F n ~ Emptyrec p′ F′ n′ ∷ F
+               → Γ ⊢ Emptyrec p F n ~ Emptyrec p F′ n′ ∷ F
 
   -- Star reflexivity
   ≅ₜ-starrefl : ⊢ Γ → Γ ⊢ star ≅ star ∷ Unit

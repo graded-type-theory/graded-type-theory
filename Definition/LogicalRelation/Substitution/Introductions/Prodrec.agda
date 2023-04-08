@@ -246,8 +246,7 @@ prodrecTerm
         [Γ] [F] [G] [Σ] [A] [A₊] [u] ⊢Δ [σ] [p] (redₜ t⇒p)
       prodrecT′ = neuTerm
         [σA[p]] (prodrecₙ {r = r} x) (prodrecⱼ ⊢σF ⊢σG ⊢σA ⊢p ⊢σu′)
-        (~-prodrec ⊢σF ⊢σG (escapeEq [σA] (reflEq [σA])) p~p ⊢u≡u′
-           PE.refl)
+        (~-prodrec ⊢σF ⊢σG (escapeEq [σA] (reflEq [σA])) p~p ⊢u≡u′)
       prodrecT = convTerm₂ [σA[t]] [σA[p]] A[t]≡A[p]′ prodrecT′
   in  [σA[t]] , proj₁ (redSubst*Term reduction [σA[t]] prodrecT)
 
@@ -590,7 +589,7 @@ prodrecCong {n = n} {m = m} {p = p′} {q = q} {Δ = Δ} {r = r}
         {q = q} {r = r} {A = subst (liftSubst σ) A}
         {subst (liftSubst σ) A′} {pₜ} {rₜ}
         {subst (liftSubstn σ 2) u} {subst (liftSubstn σ 2) u′}
-        ⊢σF ⊢σG ⊢σA≅σA′ p~r′ ⊢σu≅σu″ PE.refl
+        ⊢σF ⊢σG ⊢σA≅σA′ p~r′ ⊢σu≅σu″
 
       [⇑σ]′ = liftSubstS {σ = σ} {F = Σ _ , _ ▷ F′ ▹ G′} [Γ] ⊢Δ [Σ′] [σ]
       [↑σ′]′ : Δ ∙ subst σ (Σ _ , q ▷ F′ ▹ G′) ⊩ˢ wk1Subst σ′ ∷ Γ /
@@ -697,7 +696,7 @@ prodrecCong {n = n} {m = m} {p = p′} {q = q} {Δ = Δ} {r = r}
         (PE.subst
            (λ (x : Term m) → Δ ⊢ x ~ x ∷ subst σ (Σᵣ _ , q ▷ F′ ▹ G′))
            r≡r′ r~r)
-        ⊢σu′≅σ′u′ PE.refl
+        ⊢σu′≅σ′u′
 
 
       [A[t]]′ = proj₁ (unwrap [A] {σ = consSubst σ t} ⊢Δ ([σ] , [t]))

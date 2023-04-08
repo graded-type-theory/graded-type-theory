@@ -55,21 +55,22 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
 ~-app : ∀ {f g a b F G}
       → Γ ⊢ f ~ g ∷ Π p , q ▷ F ▹ G
       → Γ ⊢ a [conv↑] b ∷ F
-      → p ≈ p₁
-      → p ≈ p₂
-      → Γ ⊢ f ∘⟨ p₁ ⟩ a ~ g ∘⟨ p₂ ⟩ b ∷ G [ a ]
-~-app (↑ A≡B x) x₁ p≈p₁ p≈p₂ =
+      → Γ ⊢ f ∘⟨ p ⟩ a ~ g ∘⟨ p ⟩ b ∷ G [ a ]
+~-app (↑ A≡B x) x₁ =
   let _ , ⊢B = syntacticEq A≡B
       B′ , whnfB′ , D = whNorm ⊢B
       ΠFG≡B′ = trans A≡B (subset* (red D))
-      p′ , q′ , H , E , B≡ΠHE = Π≡A ΠFG≡B′ whnfB′
-      F≡H , G≡E , p≈p′ , _ = injectivity (PE.subst (λ x → _ ⊢ _ ≡ x) B≡ΠHE ΠFG≡B′)
       _ , ⊢f , _ = syntacticEqTerm (soundnessConv↑Term x₁)
-  in  ↑ (substTypeEq G≡E (refl ⊢f))
-        (app-cong (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x)
-                            B≡ΠHE
-                            ([~] _ (red D) whnfB′ x))
-        (convConvTerm x₁ F≡H) (≈-trans (≈-sym p≈p′) p≈p₁) (≈-trans (≈-sym p≈p′) p≈p₂))
+  in
+  case Π≡A ΠFG≡B′ whnfB′ of λ {
+    (p′ , q′ , H , E , B≡ΠHE) →
+  case injectivity (PE.subst (λ x → _ ⊢ _ ≡ x) B≡ΠHE ΠFG≡B′) of λ {
+    (F≡H , G≡E , PE.refl , _) →
+  ↑ (substTypeEq G≡E (refl ⊢f))
+    (app-cong
+       (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡ΠHE
+          ([~] _ (red D) whnfB′ x))
+       (convConvTerm x₁ F≡H)) }}
 
 ~-fst :
   ∀ {p r F G} →
@@ -110,11 +111,8 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
       Γ ⊢ z [conv↑] z′ ∷ (F [ zero ]) →
       Γ ∙ ℕ ∙ F ⊢ s [conv↑] s′ ∷ wk1 (F [ suc (var x0) ]↑) →
       Γ ⊢ n ~ n′ ∷ ℕ →
-      p ≈ p′ →
-      q ≈ q′ →
-      r ≈ r′ →
-      Γ ⊢ natrec p q r F z s n ~ natrec p′ q′ r′ F′ z′ s′ n′ ∷ (F [ n ])
-~-natrec _ x x₁ x₂ (↑ A≡B x₄) p≈p′ PE.refl r≈r′ =
+      Γ ⊢ natrec p q r F z s n ~ natrec p q r F′ z′ s′ n′ ∷ (F [ n ])
+~-natrec _ x x₁ x₂ (↑ A≡B x₄) =
   let _ , ⊢B = syntacticEq A≡B
       B′ , whnfB′ , D = whNorm ⊢B
       ℕ≡B′ = trans A≡B (subset* (red D))
@@ -124,7 +122,7 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
       ⊢F , _ = syntacticEq (soundnessConv↑ x)
       _ , ⊢n , _ = syntacticEqTerm (soundness~↓ k~l′)
   in  ↑ (refl (substType ⊢F ⊢n))
-        (natrec-cong x x₁ x₂ k~l′ p≈p′ r≈r′)
+        (natrec-cong x x₁ x₂ k~l′)
 
 ~-prodrec :
   ∀ {F G A A′ t t′ u u′} →
@@ -133,9 +131,8 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
   Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ A [conv↑] A′ →
   Γ ⊢ t ~ t′ ∷ (Σᵣ p , q ▷ F ▹ G) →
   Γ ∙ F ∙ G ⊢ u [conv↑] u′ ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑² →
-  r ≈ r′ →
-  Γ ⊢ prodrec r p q A t u ~ prodrec r′ p q A′ t′ u′ ∷ (A [ t ])
-~-prodrec x x₁ x₂ (↑ A≡B k~↑l) x₄ PE.refl =
+  Γ ⊢ prodrec r p q A t u ~ prodrec r p q A′ t′ u′ ∷ (A [ t ])
+~-prodrec x x₁ x₂ (↑ A≡B k~↑l) x₄ =
   case syntacticEq A≡B of λ (_ , ⊢B) →
   case whNorm ⊢B of λ (B′ , whnfB′ , D) →
   case _⊢_≡_.trans A≡B (subset* (red D)) of λ Σ≡Σ′ →
@@ -150,15 +147,14 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
               _ , ⊢t , _ = syntacticEqTerm (soundness~↑ k~↑l)
           in
           ↑ (refl (substType ⊢A (conv ⊢t (sym A≡B))))
-            (prodrec-cong! (stabilityConv↑ (⊢Γ≡Γ ∙ Σ≡Σ′) x₂)
+            (prodrec-cong (stabilityConv↑ (⊢Γ≡Γ ∙ Σ≡Σ′) x₂)
                t~t′ (stabilityConv↑Term (⊢Γ≡Γ ∙ F≡F′ ∙ G≡G′) x₄))
 
 ~-Emptyrec : ∀ {n n′ F F′}
          → Γ ⊢ F [conv↑] F′ →
       Γ ⊢ n ~ n′ ∷ Empty →
-      p ≈ p′ →
-      Γ ⊢ Emptyrec p F n ~ Emptyrec p′ F′ n′ ∷ F
-~-Emptyrec x (↑ A≡B x₄) p≈p′ =
+      Γ ⊢ Emptyrec p F n ~ Emptyrec p F′ n′ ∷ F
+~-Emptyrec x (↑ A≡B x₄) =
   let _ , ⊢B = syntacticEq A≡B
       B′ , whnfB′ , D = whNorm ⊢B
       Empty≡B′ = trans A≡B (subset* (red D))
@@ -168,7 +164,7 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
       ⊢F , _ = syntacticEq (soundnessConv↑ x)
       _ , ⊢n , _ = syntacticEqTerm (soundness~↓ k~l′)
   in  ↑ (refl ⊢F)
-        (Emptyrec-cong x k~l′ p≈p′)
+        (Emptyrec-cong x k~l′)
 
 ~-sym : ∀ {k l A} → Γ ⊢ k ~ l ∷ A → Γ ⊢ l ~ k ∷ A
 ~-sym (↑ A≡B x) =
@@ -252,7 +248,7 @@ eqRelInstance = record {
       (ΠΣ-cong x F<>H G<>E));
   ≅ₜ-zerorefl = liftConvTerm ∘ᶠ zero-refl;
   ≅-suc-cong = liftConvTerm ∘ᶠ suc-cong;
-  ≅-prod-cong = λ x x₁ x₂ x₃ → liftConvTerm (prod-cong! x x₁ x₂ x₃);
+  ≅-prod-cong = λ x x₁ x₂ x₃ → liftConvTerm (prod-cong x x₁ x₂ x₃);
   ≅-η-eq = λ x x₁ x₂ x₃ x₄ x₅ → liftConvTerm (η-eq x₁ x₂ x₃ x₄ x₅);
   ≅-Σ-η = λ x x₁ x₂ x₃ x₄ x₅ x₆ x₇ → (liftConvTerm (Σ-η x₂ x₃ x₄ x₅ x₆ x₇));
   ~-var = ~-var;

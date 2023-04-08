@@ -148,28 +148,28 @@ mutual
               → Δ ⊢ k ~ l ↑ A
   stability~↑ Γ≡Δ (var-refl x x≡y) =
     var-refl (stabilityTerm Γ≡Δ x) x≡y
-  stability~↑ Γ≡Δ (app-cong k~l x p≈p₁ p≈p₂) =
-    app-cong (stability~↓ Γ≡Δ k~l) (stabilityConv↑Term Γ≡Δ x) p≈p₁ p≈p₂
+  stability~↑ Γ≡Δ (app-cong k~l x) =
+    app-cong (stability~↓ Γ≡Δ k~l) (stabilityConv↑Term Γ≡Δ x)
   stability~↑ Γ≡Δ (fst-cong p~r) =
     fst-cong (stability~↓ Γ≡Δ p~r)
   stability~↑ Γ≡Δ (snd-cong p~r) =
     snd-cong (stability~↓ Γ≡Δ p~r)
-  stability~↑ Γ≡Δ (natrec-cong x₁ x₂ x₃ k~l p≈p′ r≈r′) =
+  stability~↑ Γ≡Δ (natrec-cong x₁ x₂ x₃ k~l) =
     let ⊢Γ , _ , _ = contextConvSubst Γ≡Δ
         ⊢F = proj₁ (syntacticEq (soundnessConv↑ x₁))
     in natrec-cong (stabilityConv↑ (Γ≡Δ ∙ (refl (ℕⱼ ⊢Γ))) x₁)
                    (stabilityConv↑Term Γ≡Δ x₂)
                    ((stabilityConv↑Term (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ) ∙ refl ⊢F) x₃))
-                   (stability~↓ Γ≡Δ k~l) p≈p′ r≈r′
-  stability~↑ Γ≡Δ (prodrec-cong! x x₁ x₂) =
+                   (stability~↓ Γ≡Δ k~l)
+  stability~↑ Γ≡Δ (prodrec-cong x x₁ x₂) =
     let ⊢Σ , _ = syntacticEqTerm (soundness~↓ x₁)
         ⊢F , ⊢G = syntacticΣ ⊢Σ
-    in  prodrec-cong! (stabilityConv↑ (Γ≡Δ ∙ refl ⊢Σ) x)
+    in  prodrec-cong (stabilityConv↑ (Γ≡Δ ∙ refl ⊢Σ) x)
           (stability~↓ Γ≡Δ x₁)
           (stabilityConv↑Term (Γ≡Δ ∙ refl ⊢F ∙ refl ⊢G) x₂)
-  stability~↑ Γ≡Δ (Emptyrec-cong x₁ k~l p≈p′) =
+  stability~↑ Γ≡Δ (Emptyrec-cong x₁ k~l) =
     Emptyrec-cong (stabilityConv↑ Γ≡Δ x₁)
-                  (stability~↓ Γ≡Δ k~l) p≈p′
+                  (stability~↓ Γ≡Δ k~l)
 
   -- Stability of algorithmic equality of neutrals of types in WHNF.
   stability~↓ : ∀ {k l A}
@@ -242,8 +242,8 @@ mutual
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
     in  zero-refl ⊢Δ
   stabilityConv↓Term Γ≡Δ (suc-cong t<>u) = suc-cong (stabilityConv↑Term Γ≡Δ t<>u)
-  stabilityConv↓Term Γ≡Δ (prod-cong! x x₁ x₂ x₃) =
-    prod-cong! (stability Γ≡Δ x) (stability (Γ≡Δ ∙ refl x) x₁)
+  stabilityConv↓Term Γ≡Δ (prod-cong x x₁ x₂ x₃) =
+    prod-cong (stability Γ≡Δ x) (stability (Γ≡Δ ∙ refl x) x₁)
       (stabilityConv↑Term Γ≡Δ x₂) (stabilityConv↑Term Γ≡Δ x₃)
   stabilityConv↓Term Γ≡Δ (η-eq x x₁ y y₁ t<>u) =
     let ⊢F , ⊢G = syntacticΠ (syntacticTerm x)

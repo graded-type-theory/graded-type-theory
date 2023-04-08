@@ -30,9 +30,8 @@ appᵛ : ∀ {F G t u l}
        ([ΠFG] : Γ ⊩ᵛ⟨ l ⟩ Π p , q ▷ F ▹ G / [Γ])
        ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ Π _ , _ ▷ F ▹ G / [Γ] / [ΠFG])
        ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ F / [Γ] / [F])
-     → p ≈ p′
-     → Γ ⊩ᵛ⟨ l ⟩ t ∘⟨ p′ ⟩ u ∷ G [ u ] / [Γ] / substSΠ {F = F} {G} {u} BΠ! [Γ] [F] [ΠFG] [u]
-appᵛ {F = F} {G} {t} {u} [Γ] [F] [ΠFG] [t] [u] p≈p′ {σ = σ} ⊢Δ [σ] =
+     → Γ ⊩ᵛ⟨ l ⟩ t ∘⟨ p ⟩ u ∷ G [ u ] / [Γ] / substSΠ {F = F} {G} {u} BΠ! [Γ] [F] [ΠFG] [u]
+appᵛ {F = F} {G} {t} {u} [Γ] [F] [ΠFG] [t] [u] {σ = σ} ⊢Δ [σ] =
   let [G[u]] = substSΠ {F = F} {G} {u} BΠ! [Γ] [F] [ΠFG] [u]
       [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
       [σΠFG] = proj₁ (unwrap [ΠFG] ⊢Δ [σ])
@@ -42,18 +41,17 @@ appᵛ {F = F} {G} {t} {u} [Γ] [F] [ΠFG] [t] [u] p≈p′ {σ = σ} ⊢Δ [σ]
       [σG[u]]′ = irrelevance′ (singleSubstLift G u) [σG[u]]
   in  irrelevanceTerm′ (PE.sym (singleSubstLift G u))
                        [σG[u]]′ [σG[u]]
-                       (appTerm [σF] [σG[u]]′ [σΠFG] [σt] [σu] p≈p′)
+                       (appTerm [σF] [σG[u]]′ [σΠFG] [σt] [σu])
   ,   (λ [σ′] [σ≡σ′] →
          let [σu′] = convTerm₂ [σF] (proj₁ (unwrap [F] ⊢Δ [σ′]))
                                (proj₂ (unwrap [F] ⊢Δ [σ]) [σ′] [σ≡σ′])
                                (proj₁ ([u] ⊢Δ [σ′]))
          in  irrelevanceEqTerm′ (PE.sym (singleSubstLift G u))
-                                [σG[u]]′ [σG[u]]
-                                (app-congTerm [σF] [σG[u]]′ [σΠFG]
-                                              (proj₂ ([t] ⊢Δ [σ]) [σ′] [σ≡σ′])
-                                              [σu] [σu′]
-                                              (proj₂ ([u] ⊢Δ [σ]) [σ′] [σ≡σ′])
-                                              p≈p′ p≈p′))
+               [σG[u]]′ [σG[u]]
+               (app-congTerm [σF] [σG[u]]′ [σΠFG]
+                  (proj₂ ([t] ⊢Δ [σ]) [σ′] [σ≡σ′])
+                  [σu] [σu′]
+                  (proj₂ ([u] ⊢Δ [σ]) [σ′] [σ≡σ′])))
 
 -- Application congruence of valid terms.
 app-congᵛ : ∀ {F G t u a b l}
@@ -64,11 +62,9 @@ app-congᵛ : ∀ {F G t u a b l}
             ([a] : Γ ⊩ᵛ⟨ l ⟩ a ∷ F / [Γ] / [F])
             ([b] : Γ ⊩ᵛ⟨ l ⟩ b ∷ F / [Γ] / [F])
             ([a≡b] : Γ ⊩ᵛ⟨ l ⟩ a ≡ b ∷ F / [Γ] / [F])
-          → p ≈ p₁
-          → p ≈ p₂
-          → Γ ⊩ᵛ⟨ l ⟩ t ∘⟨ p₁ ⟩ a ≡ u ∘⟨ p₂ ⟩ b ∷ G [ a ] / [Γ]
+          → Γ ⊩ᵛ⟨ l ⟩ t ∘⟨ p ⟩ a ≡ u ∘⟨ p ⟩ b ∷ G [ a ] / [Γ]
               / substSΠ {F = F} {G} {a} BΠ! [Γ] [F] [ΠFG] [a]
-app-congᵛ {F = F} {G} {a = a} [Γ] [F] [ΠFG] [t≡u] [a] [b] [a≡b] p≈p₁ p≈p₂ ⊢Δ [σ] =
+app-congᵛ {F = F} {G} {a = a} [Γ] [F] [ΠFG] [t≡u] [a] [b] [a≡b] ⊢Δ [σ] =
   let [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
       [G[a]]  = proj₁ (unwrap (substSΠ {F = F} {G} {a} BΠ! [Γ] [F] [ΠFG] [a]) ⊢Δ [σ])
       [G[a]]′ = irrelevance′ (singleSubstLift G a) [G[a]]
@@ -77,4 +73,4 @@ app-congᵛ {F = F} {G} {a = a} [Γ] [F] [ΠFG] [t≡u] [a] [b] [a≡b] p≈p₁
       [σb] = proj₁ ([b] ⊢Δ [σ])
   in  irrelevanceEqTerm′ (PE.sym (singleSubstLift G a)) [G[a]]′ [G[a]]
                          (app-congTerm [σF] [G[a]]′ [σΠFG] ([t≡u] ⊢Δ [σ])
-                                       [σa] [σb] ([a≡b] ⊢Δ [σ]) p≈p₁ p≈p₂)
+                                       [σa] [σb] ([a≡b] ⊢Δ [σ]))

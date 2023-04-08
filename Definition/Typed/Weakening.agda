@@ -155,10 +155,10 @@ mutual
     let ρF = wk ρ ⊢Δ F
     in  ΠΣ-cong ρF (wkEqTerm ρ ⊢Δ F≡H)
           (wkEqTerm (lift ρ) (⊢Δ ∙ ρF) G≡E)
-  wkEqTerm ρ ⊢Δ (app-cong {G = G} f≡g a≡b p≈p₁ p≈p₂) =
+  wkEqTerm ρ ⊢Δ (app-cong {G = G} f≡g a≡b) =
     PE.subst (λ x → _ ⊢ _ ≡ _ ∷ x)
              (PE.sym (wk-β G))
-             (app-cong (wkEqTerm ρ ⊢Δ f≡g) (wkEqTerm ρ ⊢Δ a≡b) p≈p₁ p≈p₂)
+             (app-cong (wkEqTerm ρ ⊢Δ f≡g) (wkEqTerm ρ ⊢Δ a≡b))
   wkEqTerm ρ ⊢Δ (β-red {a = a} {t = t} {G = G} F ⊢G ⊢t ⊢a x) =
     let ρF = wk ρ ⊢Δ F
         ⊢ρG = wk (lift ρ) (⊢Δ ∙ ρF) ⊢G
@@ -220,7 +220,7 @@ mutual
       (Σ-β₂ ρF ρG ρt ρu p≈p′)
   wkEqTerm ρ ⊢Δ (suc-cong m≡n) = suc-cong (wkEqTerm ρ ⊢Δ m≡n)
   wkEqTerm {Δ = Δ} {ρ = ρ} [ρ] ⊢Δ (natrec-cong {s = s} {s′ = s′} {F = F}
-                                     ⊢F F≡F′ z≡z′ s≡s′ n≡n′ p≈p′ q≈q′ r≈r′) =
+                                     ⊢F F≡F′ z≡z′ s≡s′ n≡n′) =
               PE.subst (λ x → Δ ⊢ natrec _ _ _ _ _ _ _ ≡ _ ∷ x) (PE.sym (wk-β F))
                        (natrec-cong (wk (lift [ρ]) (⊢Δ ∙ (ℕⱼ ⊢Δ)) ⊢F)
                           (wkEq (lift [ρ]) (⊢Δ ∙ ℕⱼ ⊢Δ) F≡F′)
@@ -233,7 +233,7 @@ mutual
                                     (wkEqTerm (lift (lift [ρ]))
                                               ((⊢Δ ∙ (ℕⱼ ⊢Δ)) ∙
                                               (wk (lift [ρ]) (⊢Δ ∙ ℕⱼ ⊢Δ) ⊢F)) s≡s′))
-                          (wkEqTerm [ρ] ⊢Δ n≡n′) p≈p′ q≈q′ r≈r′)
+                          (wkEqTerm [ρ] ⊢Δ n≡n′))
   wkEqTerm {Δ = Δ} {ρ = ρ} [ρ] ⊢Δ (natrec-zero {z = z} {s = s} {F = F} ⊢F ⊢z ⊢s) =
     PE.subst (λ x → Δ ⊢ natrec _ _ _ (U.wk (lift _) F) _ _ _ ≡ _ ∷ x)
              (PE.sym (wk-β F))
@@ -262,7 +262,7 @@ mutual
                                                      ⊢s))))
   wkEqTerm
     {Δ = Δ} {ρ = ρ}
-    [ρ] ⊢Δ (prodrec-cong {A = A} ⊢F ⊢G A≡A′ t≡t′ u≡u′ r≈r′) =
+    [ρ] ⊢Δ (prodrec-cong {A = A} ⊢F ⊢G A≡A′ t≡t′ u≡u′) =
     let ρF = wk [ρ] ⊢Δ ⊢F
         ρG = wk (lift [ρ]) (⊢Δ ∙ ρF) ⊢G
         ρA≡A′ = wkEq (lift [ρ]) (⊢Δ ∙ (ΠΣⱼ ρF ▹ ρG)) A≡A′
@@ -271,8 +271,7 @@ mutual
     in  PE.subst (λ x → Δ ⊢ prodrec _ _ _ _ _ _ ≡ _ ∷ x) (PE.sym (wk-β A))
                  (prodrec-cong ρF ρG ρA≡A′ ρt≡t′
                                (PE.subst (λ x → _ ⊢ _ ≡ _ ∷ x)
-                                         (wk-β-prodrec ρ A) ρu≡u′)
-                               r≈r′)
+                                         (wk-β-prodrec ρ A) ρu≡u′))
   wkEqTerm
     {Δ = Δ} {ρ = ρ} [ρ] ⊢Δ
     (prodrec-β {u = u} {G = G} {A = A} ⊢F ⊢G ⊢A ⊢t ⊢t′ ⊢u p≈p′) =
@@ -292,9 +291,9 @@ mutual
                     (PE.subst (λ x → _ ⊢ _ ∷ x) (wk-β-prodrec ρ A) ρu)
                     p≈p′)
   wkEqTerm {Δ = Δ} {ρ = ρ} [ρ] ⊢Δ (Emptyrec-cong {A = A} {A' = A'} {e = e} {e' = e'}
-                                  A≡A' e≡e' p≈p′) =
+                                  A≡A' e≡e') =
     (Emptyrec-cong (wkEq [ρ] ⊢Δ A≡A')
-                   (wkEqTerm [ρ] ⊢Δ e≡e') p≈p′)
+                   (wkEqTerm [ρ] ⊢Δ e≡e'))
   wkEqTerm ρ ⊢Δ (η-unit e e') = η-unit (wkTerm ρ ⊢Δ e) (wkTerm ρ ⊢Δ e')
 
 mutual

@@ -18,21 +18,21 @@ mutual
        → Γ ⊢ t ~ u ↑ A
        → Neutral t × Neutral u
   ne~↑ (var-refl x₁ x≡y) = var _ , var _
-  ne~↑ (app-cong x x₁ _ _) = let _ , q , w = ne~↓ x
-                             in  ∘ₙ q , ∘ₙ w
+  ne~↑ (app-cong x x₁) = let _ , q , w = ne~↓ x
+                         in  ∘ₙ q , ∘ₙ w
   ne~↑ (fst-cong x) =
     let _ , pNe , rNe = ne~↓ x
     in  fstₙ pNe , fstₙ rNe
   ne~↑ (snd-cong x) =
     let _ , pNe , rNe = ne~↓ x
     in  sndₙ pNe , sndₙ rNe
-  ne~↑ (natrec-cong x x₁ x₂ x₃ _ _) = let _ , q , w = ne~↓ x₃
-                                      in  natrecₙ q , natrecₙ w
-  ne~↑ (prodrec-cong! x x₁ x₂) =
+  ne~↑ (natrec-cong x x₁ x₂ x₃) = let _ , q , w = ne~↓ x₃
+                                  in  natrecₙ q , natrecₙ w
+  ne~↑ (prodrec-cong x x₁ x₂) =
     let _ , gNe , hNe = ne~↓ x₁
     in  prodrecₙ gNe , prodrecₙ hNe
-  ne~↑ (Emptyrec-cong x x₁ _) = let _ , q , w = ne~↓ x₁
-                                in Emptyrecₙ q , Emptyrecₙ w
+  ne~↑ (Emptyrec-cong x x₁) = let _ , q , w = ne~↓ x₁
+                              in Emptyrecₙ q , Emptyrecₙ w
 
   -- Extraction of neutrality and WHNF from algorithmic equality of neutrals
   -- with type in WHNF.
@@ -72,7 +72,7 @@ whnfConv↓Term (ne-ins t u x x₁) =
 whnfConv↓Term (univ x x₁ x₂) = Uₙ , whnfConv↓ x₂
 whnfConv↓Term (zero-refl x) = ℕₙ , zeroₙ , zeroₙ
 whnfConv↓Term (suc-cong x) = ℕₙ , sucₙ , sucₙ
-whnfConv↓Term (prod-cong! x x₁ x₂ x₃) = ΠΣₙ , prodₙ , prodₙ
+whnfConv↓Term (prod-cong x x₁ x₂ x₃) = ΠΣₙ , prodₙ , prodₙ
 whnfConv↓Term (η-eq x₁ x₂ y y₁ x₃) = ΠΣₙ , functionWhnf y , functionWhnf y₁
 whnfConv↓Term (Σ-η _ _ pProd rProd _ _) = ΠΣₙ , productWhnf pProd , productWhnf rProd
 whnfConv↓Term (η-unit _ _ tWhnf uWhnf) = Unitₙ , tWhnf , uWhnf

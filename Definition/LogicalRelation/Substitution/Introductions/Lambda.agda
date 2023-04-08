@@ -357,14 +357,14 @@ lamᵛ {n} {Γ = Γ} {p = p} {q = q} {F = F} {G} {t} {l} [Γ] [F] [G] [t] {k} {�
               app-congTerm [wk1F] [σG]′
                 (wk (step id) (⊢Δ ∙ ⊢F) [σΠFG])
                 (wkEqTerm (step id) (⊢Δ ∙ ⊢F) [σΠFG] f≡f₁′)
-                var0 var0 var0≡0 PE.refl PE.refl) $
+                var0 var0 var0≡0) $
            ≅ₜ-trans σf0≡σg0′ $
            escapeTermEq [σG] $
            irrelevanceEqTerm′ (cons0wkLift1-id σ G) [σG]′ [σG] $
            app-congTerm [wk1F] [σG]′
              (wk (step id) (⊢Δ ∙ ⊢F) [σΠFG])
              (wkEqTerm (step id) (⊢Δ ∙ ⊢F) [σΠFG] g≡g₁′)
-             var0 var0 var0≡0 PE.refl PE.refl)
+             var0 var0 var0≡0)
           (Πₜ f₁ [d] funcF f≡f [f] [f]₁)
           (Πₜ g₁ [d′] funcG g≡g [g] [g]₁)
           (λ {m} {ρ} {Δ₁} {a} [ρ] ⊢Δ₁ [a] →
@@ -393,9 +393,9 @@ lamᵛ {n} {Γ = Γ} {p = p} {q = q} {F = F} {G} {t} {l} [Γ] [F] [G] [t] {k} {�
                  [g]′ = Πₜ g₁ (idRedTerm:*: ⊢u₁) funcG g≡g [g] [g]₁
                  [ρg]′ = wkTerm [ρ] ⊢Δ₁ [σΠFG] [g]′
                  [f∘u] = appTerm ([F]′ [ρ] ⊢Δ₁) ([G]′ [ρ] ⊢Δ₁ [a])
-                           [ρσΠFG] [ρf]′ [a] ≈-refl
+                           [ρσΠFG] [ρf]′ [a]
                  [g∘u] = appTerm ([F]′ [ρ] ⊢Δ₁) ([G]′ [ρ] ⊢Δ₁ [a])
-                           [ρσΠFG] [ρg]′ [a] ≈-refl
+                           [ρσΠFG] [ρg]′ [a]
                  d′ = conv* d (ΠΣ-cong ⊢F (refl ⊢F) (refl ⊢G))
                  d₁′ = conv* d₁ (ΠΣ-cong ⊢F (refl ⊢F) (refl ⊢G))
                  [tu≡fu] = proj₂ (redSubst*Term (app-subst* (wkRed*Term [ρ] ⊢Δ₁ d′)
@@ -410,11 +410,9 @@ lamᵛ {n} {Γ = Γ} {p = p} {q = q} {F = F} {G} {t} {l} [Γ] [F] [G] [t] {k} {�
                  [fu≡fu′] = app-congTerm ([F]′ [ρ] ⊢Δ₁) ([G]′ [ρ] ⊢Δ₁ [a]) [ρσΠFG]
                                          (reflEqTerm [ρσΠFG] [ρσf])
                                          [a] [a] (reflEqTerm ([F]′ [ρ] ⊢Δ₁) [a])
-                                         ≈-refl ≈-refl
                  [gu≡gu′] = app-congTerm ([F]′ [ρ] ⊢Δ₁) ([G]′ [ρ] ⊢Δ₁ [a]) [ρσΠFG]
                                          (reflEqTerm [ρσΠFG] [ρσg])
                                          [a] [a] (reflEqTerm ([F]′ [ρ] ⊢Δ₁) [a])
-                                         ≈-refl ≈-refl
              in  transEqTerm [G[a]] (symEqTerm [G[a]] [tu≡fu])
                              (transEqTerm [G[a]] [fu≡fu′]
                              (transEqTerm [G[a]] f≡g
