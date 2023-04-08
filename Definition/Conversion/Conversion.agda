@@ -14,6 +14,7 @@ open import Definition.Typed.Consequences.Injectivity M
 open import Definition.Typed.Consequences.Equality M
 open import Definition.Typed.Consequences.Reduction M
 
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 open import Tools.PropositionalEquality as PE using (≈-sym; ≈-trans)
@@ -80,11 +81,12 @@ mutual
           (convConv↑Term Γ≡Δ F≡F′ x₂) (convConv↑Term Γ≡Δ Gt≡G′t x₃)
   convConv↓Term Γ≡Δ A≡B whnfB (η-eq x₁ x₂ y y₁ x₃) with Π≡A A≡B whnfB
   convConv↓Term Γ≡Δ A≡B whnfB (η-eq x₁ x₂ y y₁ x₃) | p , q , F′ , G′ , PE.refl =
-    let F≡F′ , G≡G′ , p′≈p , _ = injectivity A≡B
-    in  η-eq (stabilityTerm Γ≡Δ (conv x₁ A≡B))
-             (stabilityTerm Γ≡Δ (conv x₂ A≡B))
-             y y₁
-             λ x x₄ → convConv↑Term (Γ≡Δ ∙ F≡F′) G≡G′ (x₃ (≈-trans p′≈p x) (≈-trans p′≈p x₄))
+    case injectivity A≡B of λ {
+      (F≡F′ , G≡G′ , PE.refl , _) →
+    η-eq (stabilityTerm Γ≡Δ (conv x₁ A≡B))
+         (stabilityTerm Γ≡Δ (conv x₂ A≡B))
+         y y₁
+         (convConv↑Term (Γ≡Δ ∙ F≡F′) G≡G′ x₃) }
   convConv↓Term Γ≡Δ A≡B whnfB (Σ-η ⊢p ⊢r pProd rProd fstConv sndConv)
     with Σ≡A A≡B whnfB
   ... | _ , q , F , G , PE.refl with Σ-injectivity A≡B

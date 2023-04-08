@@ -26,22 +26,21 @@ private variable
 lam-cong :
   Γ ∙ A ⊢ t ≡ u ∷ B →
   Γ ⊢ lam p t ≡ lam p u ∷ Π p , q ▷ A ▹ B
-lam-cong {B = B} t≡u = η-eq ⊢A (lamⱼ ⊢A ⊢t) (lamⱼ ⊢A ⊢u) λ where
-    PE.refl PE.refl →
-      _⊢_≡_∷_.trans
-        (PE.subst (_ ⊢ _ ≡ _ ∷_)
-           (wkSingleSubstId _)
-           (β-red A⊢A A∙A⊢B (wkTerm ρ ⊢∙A∙A ⊢t) (var ⊢∙A here)
-              PE.refl)) $
-      _⊢_≡_∷_.trans
-        (PE.subst₂ (_ ⊢_≡_∷ _)
-          (PE.sym (wkSingleSubstId _))
-          (PE.sym (wkSingleSubstId _))
-          t≡u) $
-      _⊢_≡_∷_.sym $
-      PE.subst (_ ⊢ _ ≡ _ ∷_)
-        (wkSingleSubstId _)
-        (β-red A⊢A A∙A⊢B (wkTerm ρ ⊢∙A∙A ⊢u) (var ⊢∙A here) PE.refl)
+lam-cong {B = B} t≡u = η-eq ⊢A (lamⱼ ⊢A ⊢t) (lamⱼ ⊢A ⊢u) $
+  _⊢_≡_∷_.trans
+    (PE.subst (_ ⊢ _ ≡ _ ∷_)
+       (wkSingleSubstId _)
+       (β-red A⊢A A∙A⊢B (wkTerm ρ ⊢∙A∙A ⊢t) (var ⊢∙A here)
+          PE.refl)) $
+  _⊢_≡_∷_.trans
+    (PE.subst₂ (_ ⊢_≡_∷ _)
+      (PE.sym (wkSingleSubstId _))
+      (PE.sym (wkSingleSubstId _))
+      t≡u) $
+  _⊢_≡_∷_.sym $
+  PE.subst (_ ⊢ _ ≡ _ ∷_)
+    (wkSingleSubstId _)
+    (β-red A⊢A A∙A⊢B (wkTerm ρ ⊢∙A∙A ⊢u) (var ⊢∙A here) PE.refl)
   where
   ρ     = lift (step id)
   ⊢t    = syntacticEqTerm t≡u .proj₂ .proj₁

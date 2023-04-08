@@ -18,6 +18,7 @@ open import Definition.Typed.Consequences.Syntactic M
 open import Definition.Typed.Consequences.Reduction M
 
 open import Tools.Fin
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 open import Tools.PropositionalEquality as PE using (≈-refl)
@@ -80,11 +81,10 @@ mutual
                        (refl (var (⊢Γ ∙ ⊢F) here))
         0≡0 = lift~toConv↑′ ([F] (step id) (⊢Γ ∙ ⊢F)) (var-refl (var (⊢Γ ∙ ⊢F) here) PE.refl)
     in  η-eq ⊢t ⊢u (ne neT) (ne neU)
-             (λ a b → PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x)
-                               (wkSingleSubstId _)
-                               (lift~toConv↑′ ([G] (step id) (⊢Γ ∙ ⊢F) var0)
-                                              (app-cong (wk~↓ (step id) (⊢Γ ∙ ⊢F) ([~] A D₂ ΠΣₙ k~l))
-                                                        0≡0 a b)))
+          (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x) (wkSingleSubstId _) $
+           lift~toConv↑′ ([G] (step id) (⊢Γ ∙ ⊢F) var0) $
+           app-cong (wk~↓ (step id) (⊢Γ ∙ ⊢F) ([~] A D₂ ΠΣₙ k~l)) 0≡0
+             PE.refl PE.refl)
   lift~toConv↓′ (Bᵣ′ BΣₚ F G D ⊢F ⊢G Σ≡Σ [F] [G] G-ext) D₁ ([~] A″ D₂ whnfA t~u)
                 rewrite PE.sym (whrDet* (red D , ΠΣₙ) (D₁ , whnfA)) {- Σ F ▹ G ≡ A -} =
     let neT , neU = ne~↑ t~u

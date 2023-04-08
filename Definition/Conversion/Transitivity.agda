@@ -17,6 +17,7 @@ open import Definition.Typed.Consequences.Substitution M
 open import Definition.Typed.Consequences.NeTypeEq M
 open import Definition.Typed.Consequences.SucCong M
 
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 open import Tools.Empty
@@ -217,10 +218,10 @@ mutual
     in  prod-cong! x x₁ (transConv↑Term F≡F′ x₂ x₆)
           (transConv↑Term Gt≡G′t′ x₃ x₇)
   transConv↓Term A≡B (η-eq x₁ x₂ y y₁ x₃) (η-eq x₅ x₆ y₂ y₃ x₇) =
-    let F₁≡F , G₁≡G , p≈p′ , _ = injectivity A≡B
-    in  η-eq x₁ (conv x₆ (sym A≡B)) y y₃
-             λ x x₄ → transConv↑Term′ (reflConEq (wfEq F₁≡F) ∙ F₁≡F) G₁≡G
-                                      (x₃ x x₄) (x₇ (≈-trans (≈-sym p≈p′) x₄) (≈-trans (≈-sym p≈p′) x₄))
+    case injectivity A≡B of λ {
+      (F₁≡F , G₁≡G , PE.refl , _) →
+    η-eq x₁ (conv x₆ (sym A≡B)) y y₃
+      (transConv↑Term′ (reflConEq (wfEq F₁≡F) ∙ F₁≡F) G₁≡G x₃ x₇) }
   transConv↓Term A≡B
     (Σ-η ⊢p ⊢r pProd rProd fstConv sndConv)
     (Σ-η ⊢r′ ⊢q _ qProd fstConv′ sndConv′)

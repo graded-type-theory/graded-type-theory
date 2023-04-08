@@ -207,7 +207,7 @@ mutual
       , sub (prodᵣₘ δ▸t′ η▸u′) γ≤γ″
   fullRedTermConv↓ {γ = γ} {m = m} (η-eq {p = p} ⊢t _ _ _ t∘0) γ▸t =
     let δ▸t∘0 = wkUsage (step id) γ▸t ∘ₘ var
-        u , nf , t∘0≡u , δ▸u = fullRedTermConv↑ (t∘0 ≈-refl ≈-refl) δ▸t∘0
+        u , nf , t∘0≡u , δ▸u = fullRedTermConv↑ t∘0 δ▸t∘0
         ⊢G , _ , ⊢u = syntacticEqTerm t∘0≡u
         ⊢F , _ = syntacticΠ (syntacticTerm ⊢t)
         ΓF⊢ = wf ⊢F ∙ ⊢F
@@ -218,13 +218,13 @@ mutual
         wk⊢t = wkTerm (step id) ΓF⊢ ⊢t
         λu∘0 = lam p (U.wk (lift (step id)) u) ∘⟨ p ⟩ var x0
     in  lam _ u , lamₙ nf
-      , η-eq ⊢F ⊢t (lamⱼ ⊢F ⊢u) (λ {p₁} {p₂} p≈p₁ p≈p₂ →
-             let λu∘0 = lam p (U.wk (lift (step id)) u) ∘⟨ p₂ ⟩ var x0
-             in  trans (PE.subst (λ x → _ ⊢ _ ≡ _ ∷ x) (wkSingleSubstId _)
-                                 (app-cong (refl wk⊢t) (refl (var ΓF⊢ here)) p≈p₁ ≈-refl))
-                       (trans t∘0≡u (PE.subst₂ (λ x y → _ ⊢ x ≡ λu∘0 ∷ y)
-                                    (wkSingleSubstId u) (wkSingleSubstId _)
-                                    (sym (β-red wk⊢F wk⊢G wk⊢u (var ΓF⊢ here) p≈p₂)))))
+      , η-eq ⊢F ⊢t (lamⱼ ⊢F ⊢u)
+          (trans (PE.subst (λ x → _ ⊢ _ ≡ _ ∷ x) (wkSingleSubstId _)
+                    (app-cong (refl wk⊢t) (refl (var ΓF⊢ here))
+                       PE.refl PE.refl))
+             (trans t∘0≡u (PE.subst₂ (λ x y → _ ⊢ x ≡ λu∘0 ∷ y)
+                (wkSingleSubstId u) (wkSingleSubstId _)
+                (sym (β-red wk⊢F wk⊢G wk⊢u (var ΓF⊢ here) PE.refl)))))
       , lamₘ (sub δ▸u (begin
           γ ∙ ⌜ m ⌝ · p                      ≈⟨ ≈ᶜ-refl ∙ ⌜⌝-·-comm m ⟩
           γ ∙ p · ⌜ m ⌝                      ≈˘⟨ +ᶜ-identityʳ _ ∙ ·⌜ᵐ·⌝ m ⟩

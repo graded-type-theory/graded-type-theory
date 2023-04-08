@@ -101,7 +101,7 @@ mutual
   soundnessConv↓Term (η-eq x x₁ y y₁ c) =
     let ⊢ΠFG = syntacticTerm x
         ⊢F , _ = syntacticΠ ⊢ΠFG
-    in  η-eq ⊢F x x₁ λ x₂ x₃ → soundnessConv↑Term (c x₂ x₃)
+    in  η-eq ⊢F x x₁ (soundnessConv↑Term c)
   soundnessConv↓Term (Σ-η ⊢p ⊢r pProd rProd fstConv sndConv) =
     let ⊢ΣFG = syntacticTerm ⊢p
         ⊢F , ⊢G = syntacticΣ ⊢ΣFG

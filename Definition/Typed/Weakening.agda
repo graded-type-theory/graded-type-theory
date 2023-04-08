@@ -172,10 +172,10 @@ mutual
     let ρF = wk ρ ⊢Δ F
     in  η-eq ρF (wkTerm ρ ⊢Δ f)
                 (wkTerm ρ ⊢Δ g)
-                λ x x₁ → PE.subst₂ (λ t u → _ ⊢ t ∘ _ ≡ u ∘ _ ∷ _)
-                                  (PE.sym (wk1-wk≡lift-wk1 _ _))
-                                  (PE.sym (wk1-wk≡lift-wk1 _ _))
-                                  (wkEqTerm (lift ρ) (⊢Δ ∙ ρF) (f0≡g0 x x₁))
+                (PE.subst₂ (λ t u → _ ⊢ t ∘ _ ≡ u ∘ _ ∷ _)
+                           (PE.sym (wk1-wk≡lift-wk1 _ _))
+                           (PE.sym (wk1-wk≡lift-wk1 _ _))
+                           (wkEqTerm (lift ρ) (⊢Δ ∙ ρF) f0≡g0))
   wkEqTerm ρ ⊢Δ (fst-cong ⊢F ⊢G t≡t') =
     let ρF = wk ρ ⊢Δ ⊢F
         ρG = wk (lift ρ) (⊢Δ ∙ ρF) ⊢G

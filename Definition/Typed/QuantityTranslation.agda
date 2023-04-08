@@ -138,12 +138,11 @@ mutual
       (tr-Term-[] P)
       (β-red (tr-⊢′ A) (tr-⊢′ ⊢P) (tr-⊢∷ ⊢t) (tr-⊢∷ u) PE.refl)
   tr-⊢≡∷ {Γ = Γ} (η-eq {F = A} {G = P} ⊢A t u t≡u) =
-    η-eq (tr-⊢′ ⊢A) (tr-⊢∷ t) (tr-⊢∷ u) λ where
-      PE.refl PE.refl →
-        PE.subst₂ (tr-Con (Γ ∙ A) T₂.⊢_≡_∷ tr-Term P)
-          (PE.sym (PE.cong (_∘⟨ _ ⟩ _ ) tr-Term-wk))
-          (PE.sym (PE.cong (_∘⟨ _ ⟩ _ ) tr-Term-wk))
-          (tr-⊢≡∷ (t≡u PE.refl PE.refl))
+    η-eq (tr-⊢′ ⊢A) (tr-⊢∷ t) (tr-⊢∷ u)
+      (PE.subst₂ (tr-Con (Γ ∙ A) T₂.⊢_≡_∷ tr-Term P)
+         (PE.sym (PE.cong (_∘⟨ _ ⟩ _ ) tr-Term-wk))
+         (PE.sym (PE.cong (_∘⟨ _ ⟩ _ ) tr-Term-wk))
+         (tr-⊢≡∷ t≡u))
   tr-⊢≡∷ (fst-cong A P t≡u) =
     fst-cong (tr-⊢′ A) (tr-⊢′ P) (tr-⊢≡∷ t≡u)
   tr-⊢≡∷ (snd-cong {G = P} A ⊢P t≡u) =

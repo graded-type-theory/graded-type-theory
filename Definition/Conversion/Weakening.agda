@@ -9,6 +9,7 @@ open import Definition.Typed.Consequences.Syntactic M
 open import Definition.Conversion M
 open import Definition.Conversion.Soundness M
 
+open import Tools.Function
 open import Tools.Nat
 import Tools.PropositionalEquality as PE
 open import Tools.Product
@@ -132,13 +133,14 @@ mutual
   wkConv↓Term {ρ = ρ} {Δ = Δ} [ρ] ⊢Δ (η-eq {F = F} {G = G} x₁ x₂ y y₁ t<>u) =
     let ⊢F , _ = syntacticΠ (syntacticTerm x₁)
         ⊢ρF = wk [ρ] ⊢Δ ⊢F
-    in  η-eq (wkTerm [ρ] ⊢Δ x₁) (wkTerm [ρ] ⊢Δ x₂)
-             (wkFunction ρ y) (wkFunction ρ y₁)
-             λ x x₃ → (PE.subst₃ (λ x y z → Δ ∙ U.wk ρ F ⊢ x [conv↑] y ∷ z)
-                                 (PE.cong₃ _∘⟨_⟩_ (PE.sym (wk1-wk≡lift-wk1 _ _)) PE.refl PE.refl)
-                                 (PE.cong₃ _∘⟨_⟩_ (PE.sym (wk1-wk≡lift-wk1 _ _)) PE.refl PE.refl)
-                                 PE.refl
-                                 (wkConv↑Term (lift [ρ]) (⊢Δ ∙ ⊢ρF) (t<>u x x₃)))
+    in
+    η-eq (wkTerm [ρ] ⊢Δ x₁) (wkTerm [ρ] ⊢Δ x₂)
+      (wkFunction ρ y) (wkFunction ρ y₁) $
+    PE.subst₃ (λ x y z → Δ ∙ U.wk ρ F ⊢ x [conv↑] y ∷ z)
+      (PE.cong₃ _∘⟨_⟩_ (PE.sym (wk1-wk≡lift-wk1 _ _)) PE.refl PE.refl)
+      (PE.cong₃ _∘⟨_⟩_ (PE.sym (wk1-wk≡lift-wk1 _ _)) PE.refl PE.refl)
+      PE.refl $
+    wkConv↑Term (lift [ρ]) (⊢Δ ∙ ⊢ρF) t<>u
   wkConv↓Term {ρ = ρ} [ρ] ⊢Δ (Σ-η {G = G} ⊢p ⊢r pProd rProd fstConv sndConv) =
     Σ-η (wkTerm [ρ] ⊢Δ ⊢p)
         (wkTerm [ρ] ⊢Δ ⊢r)

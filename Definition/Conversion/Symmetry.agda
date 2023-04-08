@@ -194,7 +194,7 @@ mutual
   symConv↓Term Γ≡Δ (η-eq x₁ x₂ y y₁ t<>u) =
     let ⊢F , _ = syntacticΠ (syntacticTerm x₁)
     in  η-eq (stabilityTerm Γ≡Δ x₂) (stabilityTerm Γ≡Δ x₁)
-             y₁ y (λ a b → symConv↑Term (Γ≡Δ ∙ refl ⊢F) (t<>u b a))
+             y₁ y (symConv↑Term (Γ≡Δ ∙ refl ⊢F) t<>u)
   symConv↓Term Γ≡Δ (Σ-η ⊢p ⊢r pProd rProd fstConv sndConv) =
     let Δ⊢p = stabilityTerm Γ≡Δ ⊢p
         Δ⊢r = stabilityTerm Γ≡Δ ⊢r

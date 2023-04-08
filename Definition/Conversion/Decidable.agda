@@ -682,17 +682,19 @@ mutual
   decConv↓Term (prod-cong! _ _ _ _) (prod-cong! _ _ _ _) | no ¬P =
     no (λ { (prod-cong _ _ y _ _ _) → ¬P y })
   decConv↓Term (η-eq {p = p} {f = t} x₁ x₂ x₃ x₄ x₅) (η-eq {f = u} x₇ x₈ x₉ x₁₀ x₁₁)
-    with decConv↑Term (x₅ ≈-refl ≈-refl) (x₁₁ ≈-refl ≈-refl)
-  ... | yes P = yes (η-eq x₁ x₇ x₃ x₉ (λ x x₆ →
+    with decConv↑Term x₅ x₁₁
+  ... | yes P =
     let ⊢F , ⊢G = syntacticΠ (syntacticTerm x₁)
         G≡G = refl ⊢G
-    in  transConv↑Term G≡G (x₅ x ≈-refl)
-                       (transConv↑Term G≡G (symConvTerm (x₅ ≈-refl ≈-refl))
-                       (transConv↑Term G≡G P
-                       (transConv↑Term G≡G (x₁₁ ≈-refl x₆)
-                       (symConvTerm (x₁₁ x₆ x₆)))))))
+    in
+    yes (η-eq x₁ x₇ x₃ x₉ $
+         transConv↑Term G≡G x₅
+           (transConv↑Term G≡G (symConvTerm x₅)
+           (transConv↑Term G≡G P
+           (transConv↑Term G≡G x₁₁
+           (symConvTerm x₁₁)))))
   ... | no ¬P = no (λ { (ne-ins x₁₂ x₁₃ () x₁₅)
-                      ; (η-eq x₁₃ x₁₄ x₁₅ x₁₆ x₁₇) → ¬P (x₁₇ ≈-refl ≈-refl) })
+                      ; (η-eq x₁₃ x₁₄ x₁₅ x₁₆ x₁₇) → ¬P x₁₇ })
 
   -- False cases
   decConv↓Term  (ℕ-ins x) (zero-refl x₁) =
