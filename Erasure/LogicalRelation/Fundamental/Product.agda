@@ -206,7 +206,7 @@ fstʳ′ {F = F} {G = G} {t = t} {p = ω} {q = q} {m = 𝟙ᵐ}
       ⊢t₁′ = conv ⊢t₁ (sym F≡F′)
       ⊢t₂′ = conv ⊢t₂ (substTypeEq (sym G≡G′) (refl ⊢t₁′))
       fstt⇒t₁ = fst-subst* t⇒t′ ⊢σF ⊢σG ⇨∷* redMany
-                  (Σ-β₁ ⊢σF ⊢σG ⊢t₁′ ⊢t₂′ ⊢t′ PE.refl)
+                  (Σ-β₁ ⊢σF ⊢σG ⊢t₁′ ⊢t₂′ PE.refl)
       fstt⇒t₁′ = PE.subst (λ x → Δ ⊢ _ ⇒* _ ∷ x) (PE.sym (wk-id (subst σ F))) fstt⇒t₁
       fstv⇒v₁ = TP.red*concat (TP.fst-subst* v⇒v′) (T.trans T.Σ-β₁ T.refl)
       fstt®fstv = redSubstTerm* [σF]′ t₁®v₁ fstt⇒t₁′ fstv⇒v₁
@@ -272,10 +272,10 @@ sndʳ′ {F = F} {G = G} {t = t} {p = p} {q = q} {m = m} {l = l} {Γ = Γ}
           eq₂′ = substitutionEq eq₂ (substRefl (singleSubst ⊢t₁′)) ⊢Δ
           ⊢t₂′ = conv ⊢t₂ (sym eq₂′)
           t≡t₁ = subset*Term
-                   (redMany (Σ-β₁ ⊢σF ⊢σG ⊢t₁′ ⊢t₂′ ⊢t′ PE.refl))
+                   (redMany (Σ-β₁ ⊢σF ⊢σG ⊢t₁′ ⊢t₂′ PE.refl))
           t′≡t₁ = subset*Term
                     (fst-subst* t⇒t′ ⊢σF ⊢σG ⇨∷*
-                     redMany (Σ-β₁ ⊢σF ⊢σG ⊢t₁′ ⊢t₂′ ⊢t′ PE.refl))
+                     redMany (Σ-β₁ ⊢σF ⊢σG ⊢t₁′ ⊢t₂′ PE.refl))
           G[t]≡G[t₁] = substTypeEq (refl ⊢σG) t≡t₁
           G[t]≡G[t₁]′ = PE.subst (Δ ⊢ subst (liftSubst σ) G [ _ ] ≡_)
                                  (PE.cong (_[ t₁ ])
@@ -289,7 +289,7 @@ sndʳ′ {F = F} {G = G} {t = t} {p = p} {q = q} {m = m} {l = l} {Γ = Γ}
             (sym G[t′]≡G[t₁])
           t⇒u = conv* (snd-subst* t⇒t′ ⊢σF ⊢σG)
                       (substTypeEq (refl ⊢σG) (fst-cong ⊢σF ⊢σG (subset*Term t⇒t′)))
-          t⇒u′ = t⇒u ⇨∷* redMany (Σ-β₂ ⊢σF ⊢σG ⊢t₁′ ⊢t₂′ ⊢t′ PE.refl)
+          t⇒u′ = t⇒u ⇨∷* redMany (Σ-β₂ ⊢σF ⊢σG ⊢t₁′ ⊢t₂′ PE.refl)
           t⇒u″ = conv* t⇒u′ G[t]≡G[t₁]′
           v⇒w = case Σ-®-view extra of λ where
             (𝟘 v⇒v′)     → v⇒v′

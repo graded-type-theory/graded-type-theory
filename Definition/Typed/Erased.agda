@@ -107,14 +107,10 @@ erased-cong t≡u = fst-cong ⊢A (Unitⱼ (wf ⊢A ∙ ⊢A)) t≡u
 Erased-β :
   Γ ⊢ t ∷ A →
   Γ ⊢ erased [ t ] ≡ t ∷ A
-Erased-β ⊢t =
-  Σ-β₁ {q = 𝟘} ⊢A (Unitⱼ ⊢ΓA) ⊢t (starⱼ ⊢Γ)
-    (prodⱼ ⊢A (Unitⱼ ⊢ΓA) ⊢t (starⱼ ⊢Γ))
-    PE.refl
+Erased-β ⊢t = Σ-β₁ ⊢A (Unitⱼ (⊢Γ ∙ ⊢A)) ⊢t (starⱼ ⊢Γ) PE.refl
   where
-  ⊢A  = syntacticTerm ⊢t
-  ⊢Γ  = wf ⊢A
-  ⊢ΓA = ⊢Γ ∙ ⊢A
+  ⊢A = syntacticTerm ⊢t
+  ⊢Γ = wf ⊢A
 
 -- An η-rule for Erased.
 
@@ -280,8 +276,7 @@ inversion-erased ⊢erased =
   ⊢erased-t′ = fstⱼ (ℕⱼ ε) (ℕⱼ ⊢Γ′∙ℕ) ⊢t′₁
 
   erased-t′≡zero : Γ′ ⊢ erased t′ ≡ zero ∷ A′
-  erased-t′≡zero =
-    Σ-β₁ (ℕⱼ ε) (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) ⊢t′₁ PE.refl
+  erased-t′≡zero = Σ-β₁ (ℕⱼ ε) (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) PE.refl
 
   ⊢t′₂ : ∃ λ q → Γ′ ⊢ t′ ∷ Σₚ 𝟘 , q ▷ A′ ▹ Unit
   ⊢t′₂ = inversion-erased ⊢erased-t′

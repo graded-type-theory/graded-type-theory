@@ -813,7 +813,7 @@ mutual
         [prod≡] = prod-congᵛ {F = F} {G} {t} {t′} {u} {u′} [Γ] [F] [G] [t] [t′] [t≡t′] [u] [u′]′ [u≡u′]
     in  [Γ] , modelsTermEq [Σ] [prod] [prod′] [prod≡]
   fundamentalTermEq
-    (Σ-β₁ {q = q} {F = F} {G} {t} {u} ⊢F ⊢G ⊢t ⊢u ⊢p PE.refl)
+    (Σ-β₁ {p = p} {F = F} {G} {t} {u} ⊢F ⊢G ⊢t ⊢u PE.refl)
     with fundamentalTerm ⊢t | fundamental ⊢G | fundamentalTerm ⊢u
   ... | [Γ] , [F] , [t] | [Γ]₁ , [G]₁ | [Γ]₂ , [Gt]₂ , [u]₂ =
     let [G] = S.irrelevance {A = G} [Γ]₁ ([Γ] ∙ [F]) [G]₁
@@ -821,12 +821,12 @@ mutual
                                 [Gt]₂ (substS {F = F} {G} [Γ] [F] [G] [t])
                                 [u]₂
 
-        [prod] = prodᵛ {q = q} {F = F} {G} {t} {u} [Γ] [F] [G] [t] [u]
+        [prod] = prodᵛ {q = p} {F = F} {G} {t} {u} [Γ] [F] [G] [t] [u]
         [fst] = fstᵛ {F = F} {G} {prod! t u} [Γ] [F] [G] [prod]
-        [fst≡t] = Σ-β₁ᵛ {F = F} {G} {t} {u} {q = q} [Γ] [F] [G] [t] [u]
+        [fst≡t] = Σ-β₁ᵛ {F = F} {G} {t} {u} [Γ] [F] [G] [t] [u]
     in  [Γ] , modelsTermEq [F] [fst] [t] [fst≡t]
   fundamentalTermEq
-    {Γ = Γ} (Σ-β₂ {q = q} {F = F} {G} {t} {u} ⊢F ⊢G ⊢t ⊢u ⊢p PE.refl)
+    {Γ = Γ} (Σ-β₂ {p = p} {F = F} {G} {t} {u} ⊢F ⊢G ⊢t ⊢u PE.refl)
     with fundamentalTerm ⊢t | fundamental ⊢G | fundamentalTerm ⊢u
   ... | [Γ] , [F] , [t] | [Γ]₁ , [G]₁ | [Γ]₂ , [Gt]₂ , [u]₂ =
     let [G] = S.irrelevance {A = G} [Γ]₁ ([Γ] ∙ [F]) [G]₁
@@ -835,9 +835,9 @@ mutual
                                 [Gt]₂ [Gt]
                                 [u]₂
 
-        [prod] = prodᵛ {q = q} {F = F} {G} {t} {u} [Γ] [F] [G] [t] [u]
+        [prod] = prodᵛ {q = p} {F = F} {G} {t} {u} [Γ] [F] [G] [t] [u]
         [fst] = fstᵛ {F = F} {G} {prod! t u} [Γ] [F] [G] [prod]
-        [fst≡t] = Σ-β₁ᵛ {F = F} {G} {t} {u} {q = q} [Γ] [F] [G] [t] [u]
+        [fst≡t] = Σ-β₁ᵛ {F = F} {G} {t} {u} [Γ] [F] [G] [t] [u]
 
         [Gfst≡Gt] = substSEq {F = F} {F′ = F} {G = G} {G′ = G}
                              {t = fst _ (prodₚ _ t u)} {t′ = t} [Γ]

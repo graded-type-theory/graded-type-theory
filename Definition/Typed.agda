@@ -206,7 +206,6 @@ mutual
                   → Γ ∙ F ⊢ G
                   → Γ ⊢ t ∷ F
                   → Γ ⊢ u ∷ G [ t ]
-                  → Γ ⊢ prodₚ p′ t u ∷ Σₚ p′ , q ▷ F ▹ G
                   → p ≈ p′
                   → Γ ⊢ fst p (prodₚ p′ t u) ≡ t ∷ F
     Σ-β₂          : ∀ {F G t u}
@@ -214,7 +213,6 @@ mutual
                   → Γ ∙ F ⊢ G
                   → Γ ⊢ t ∷ F
                   → Γ ⊢ u ∷ G [ t ]
-                  → Γ ⊢ prodₚ p′ t u ∷ Σₚ p′ , q ▷ F ▹ G
                   → p ≈ p′
                   → Γ ⊢ snd p (prodₚ p′ t u) ≡ u ∷ G [ fst p (prodₚ p′ t u) ]
     Σ-η           : ∀ {t u F G}
@@ -311,7 +309,6 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                  → Γ ∙ F ⊢ G
                  → Γ ⊢ t ∷ F
                  → Γ ⊢ u ∷ G [ t ]
-                 → Γ ⊢ prodₚ p′ t u ∷ Σₚ p′ , q ▷ F ▹ G
                  → p ≈ p′
                  → Γ ⊢ fst p (prodₚ p′ t u) ⇒ t ∷ F
   Σ-β₂           : ∀ {F G t u}
@@ -319,7 +316,6 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                  → Γ ∙ F ⊢ G
                  → Γ ⊢ t ∷ F
                  → Γ ⊢ u ∷ G [ t ]
-                 → Γ ⊢ prodₚ p′ t u ∷ Σₚ p′ , q ▷ F ▹ G
                  -- TODO(WN): Prove that 𝔍 ∷ G [ t ] is admissible
                  → p ≈ p′
                  → Γ ⊢ snd p (prodₚ p′ t u) ⇒ u ∷ G [ fst p (prodₚ p′ t u) ]

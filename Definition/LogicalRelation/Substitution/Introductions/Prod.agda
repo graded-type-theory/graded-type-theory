@@ -50,7 +50,7 @@ prod′
       ⊢prod = prodⱼ ⊢F ⊢G ⊢t ⊢u
 
       fst⇒t : Γ ⊢ fst _ (prodₚ _ t u) ⇒ t ∷ F
-      fst⇒t = Σ-β₁ {q = q} ⊢F ⊢G ⊢t ⊢u (prodⱼ ⊢F ⊢G ⊢t ⊢u) PE.refl
+      fst⇒t = Σ-β₁ ⊢F ⊢G ⊢t ⊢u PE.refl
       [fstprod] , [fstprod≡t] = redSubstTerm fst⇒t [F] [t]
       [fstprod]′ = irrelevanceTerm′ (PE.sym (wk-id F))
                                     [F] ([F]₁ id ⊢Γ)
@@ -75,7 +75,7 @@ prod′
       [u]′ = convTerm₂ [Gfst]′ [Gt] [Gfst≡Gt] [u]
 
       snd⇒u : Γ ⊢ snd _ (prodₚ _ t u) ⇒ u ∷ G [ fst _ (prodₚ _ t u) ]
-      snd⇒u = Σ-β₂ {q = q} ⊢F ⊢G ⊢t ⊢u (prodⱼ ⊢F ⊢G ⊢t ⊢u) PE.refl
+      snd⇒u = Σ-β₂ ⊢F ⊢G ⊢t ⊢u PE.refl
       [sndprod] , [sndprod≡u] = redSubstTerm snd⇒u [Gfst]′ [u]′
       [sndprod]′ = irrelevanceTerm′ (PE.cong (_[ _ ]) (PE.sym (wk-lift-id G)))
                                     [Gfst]′ [Gfst] [sndprod]
@@ -172,9 +172,9 @@ prod-cong′
       ⊢u = escapeTerm [Gt] [u]
       ⊢u′ = escapeTerm [Gt′] [u′]Gt′
 
-      fst⇒t = Σ-β₁ {q = q} ⊢F ⊢G ⊢t ⊢u (prodⱼ ⊢F ⊢G ⊢t ⊢u) PE.refl
+      fst⇒t = Σ-β₁ ⊢F ⊢G ⊢t ⊢u PE.refl
       [fst] , [fst≡t] = redSubstTerm fst⇒t [F] [t]
-      fst⇒t′ = Σ-β₁ {q = q} ⊢F ⊢G ⊢t′ ⊢u′ (prodⱼ ⊢F ⊢G ⊢t′ ⊢u′) PE.refl
+      fst⇒t′ = Σ-β₁ ⊢F ⊢G ⊢t′ ⊢u′ PE.refl
       [fst′] , [fst≡t′] = redSubstTerm fst⇒t′ [F] [t′]
 
       wk[fst≡t] = irrelevanceEqTerm′ (PE.sym (wk-id F))
@@ -208,7 +208,7 @@ prod-cong′
                                  (G-ext id ⊢Γ wk[fst] wk[t] wk[fst≡t])
 
       [u]fst = convTerm₂ [Gfst] [Gt] [Gfst≡Gt] [u]
-      snd⇒u = Σ-β₂ {q = q} ⊢F ⊢G ⊢t ⊢u (prodⱼ ⊢F ⊢G ⊢t ⊢u) PE.refl
+      snd⇒u = Σ-β₂ ⊢F ⊢G ⊢t ⊢u PE.refl
       [snd] , [snd≡u] = redSubstTerm snd⇒u [Gfst] [u]fst
 
       -- u ≡ u′ ∷ G [ fst (prod t u) ]
@@ -224,7 +224,7 @@ prod-cong′
                                    wk[Gfst′] [Gfst′]
                                    (G-ext id ⊢Γ wk[fst′] wk[t′] wk[fst≡t′])
 
-      snd⇒u′ = Σ-β₂ {q = q} ⊢F ⊢G ⊢t′ ⊢u′ (prodⱼ ⊢F ⊢G ⊢t′ ⊢u′) PE.refl
+      snd⇒u′ = Σ-β₂ ⊢F ⊢G ⊢t′ ⊢u′ PE.refl
 
       [u′]Gfst′ = convTerm₂ [Gfst′] [Gt′] [Gfst′≡Gt′] [u′]Gt′
       [snd≡u′]Gfst′ = proj₂ (redSubstTerm snd⇒u′ [Gfst′] [u′]Gfst′)

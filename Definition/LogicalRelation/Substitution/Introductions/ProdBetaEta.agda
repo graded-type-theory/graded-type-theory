@@ -36,14 +36,14 @@ private
     Γ      : Con Term n
     p p′ q : M
 
-Σ-β₁ᵛ : ∀ {F G t u l} {q : M}
+Σ-β₁ᵛ : ∀ {F G t u l}
         ([Γ] : ⊩ᵛ Γ)
         ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
         ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
         ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ F / [Γ] / [F])
         ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ G [ t ] / [Γ] / substS {F = F} {G} [Γ] [F] [G] [t])
       → Γ ⊩ᵛ⟨ l ⟩ fst p (prodₚ p t u) ≡ t ∷ F / [Γ] / [F]
-Σ-β₁ᵛ {Γ = Γ} {F = F} {G} {t} {u} {l} {q} [Γ] [F] [G] [t] [u] =
+Σ-β₁ᵛ {Γ = Γ} {F = F} {G} {t} {u} {l} [Γ] [F] [G] [t] [u] =
   let [Gt] = substS {F = F} {G} {t} [Γ] [F] [G] [t]
       fst⇒t : Γ ⊩ᵛ fst _ (prodₚ _ t u) ⇒ t ∷ F / [Γ]
       fst⇒t = (λ {_} {Δ} {σ} ⊢Δ [σ] →
@@ -64,8 +64,7 @@ private
                     ⊩σu₁ = proj₁ ([u] ⊢Δ [σ])
                     ⊩σu = irrelevanceTerm′ (singleSubstLift G t) ⊩σGt₁ ⊩σGt ⊩σu₁
                     ⊢σu = escapeTerm ⊩σGt ⊩σu
-                in  Σ-β₁ {q = q} ⊢σF ⊢σG ⊢σt ⊢σu (prodⱼ ⊢σF ⊢σG ⊢σt ⊢σu)
-                      PE.refl)
+                in  Σ-β₁ ⊢σF ⊢σG ⊢σt ⊢σu PE.refl)
   in  redSubstTermᵛ {A = F} {fst _ (prodₚ _ t u)} {t} [Γ] fst⇒t [F] [t]
         .proj₂
 
@@ -80,12 +79,12 @@ private
     substS {F = F} {G} [Γ] [F] [G]
       (fstᵛ {q = q} {t = prodₚ p t u} [Γ] [F] [G]
          (prodᵛ {t = t} {u} [Γ] [F] [G] [t] [u]))
-Σ-β₂ᵛ {Γ = Γ} {q = q} {F = F} {G} {t} {u} {l} [Γ] [F] [G] [t] [u] =
+Σ-β₂ᵛ {Γ = Γ} {F = F} {G} {t} {u} {l} [Γ] [F] [G] [t] [u] =
   let [Gt] = substS {F = F} {G} {t} [Γ] [F] [G] [t]
       [prod] = prodᵛ {F = F} {G} {t} {u} [Γ] [F] [G] [t] [u]
       [fst] = fstᵛ {t = prodₚ _ t u} [Γ] [F] [G] [prod]
       [Gfst] = substS [Γ] [F] [G] [fst]
-      [fst≡t] = Σ-β₁ᵛ {F = F} {G} {t} {u} {q = q} [Γ] [F] [G] [t] [u]
+      [fst≡t] = Σ-β₁ᵛ {F = F} {G} {t} {u} [Γ] [F] [G] [t] [u]
       [Gfst≡Gt] = substSEq [Γ] [F] [F] (reflᵛ {A = F} [Γ] [F])
                                [G] [G] (reflᵛ {Γ = Γ ∙ F} {A = G} ([Γ] ∙ [F]) [G])
                                [fst] [t] [fst≡t]
@@ -114,8 +113,7 @@ private
                     ⊢σu = escapeTerm ⊩σGt ⊩σu
 
                     snd⇒t : Δ ⊢ _ ⇒ _ ∷ _
-                    snd⇒t = Σ-β₂ {q = q} ⊢σF ⊢σG ⊢σt ⊢σu
-                              (prodⱼ ⊢σF ⊢σG ⊢σt ⊢σu) PE.refl
+                    snd⇒t = Σ-β₂ ⊢σF ⊢σG ⊢σt ⊢σu PE.refl
                     σGfst≡σGfst = PE.subst
                       (λ x →
                          Δ ⊢ x ≡ subst σ (G [ fst _ (prodₚ _ t u) ]))

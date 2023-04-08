@@ -208,10 +208,10 @@ mutual
         ⊢snd′ = conv ⊢snd′₁ Gfst≡Gfst′
         ⊢prod = prodⱼ ⊢F ⊢G ⊢fst′ ⊢snd′
 
-        fstprod≡fst′ = Σ-β₁ ⊢F ⊢G ⊢fst′ ⊢snd′ ⊢prod PE.refl
+        fstprod≡fst′ = Σ-β₁ ⊢F ⊢G ⊢fst′ ⊢snd′ PE.refl
         fst≡fstprod = trans fst≡fst′ (sym fstprod≡fst′)
         Gfst≡Gfstprod = substTypeEq (refl ⊢G) fst≡fstprod
-        sndprod≡snd′ = conv (Σ-β₂ ⊢F ⊢G ⊢fst′ ⊢snd′ ⊢prod PE.refl)
+        sndprod≡snd′ = conv (Σ-β₂ ⊢F ⊢G ⊢fst′ ⊢snd′ PE.refl)
                          (sym Gfst≡Gfstprod)
         snd≡sndprod = trans snd≡snd′ (sym sndprod≡snd′)
     in  prod! fst′ snd′ , prodₙ nfFst′ nfSnd′

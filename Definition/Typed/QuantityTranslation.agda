@@ -152,15 +152,15 @@ mutual
   tr-⊢≡∷ (prod-cong {G = P} A ⊢P t≡u v≡w) =
     prod-cong (tr-⊢′ A) (tr-⊢′ ⊢P) (tr-⊢≡∷ t≡u)
       (PE.subst (_ T₂.⊢ _ ≡ _ ∷_) (PE.sym (tr-Term-[] P)) (tr-⊢≡∷ v≡w))
-  tr-⊢≡∷ (Σ-β₁ {G = P} A ⊢P t u t,u PE.refl) =
+  tr-⊢≡∷ (Σ-β₁ {G = P} A ⊢P t u PE.refl) =
     Σ-β₁ (tr-⊢′ A) (tr-⊢′ ⊢P) (tr-⊢∷ t)
       (PE.subst (_ T₂.⊢ _ ∷_) (PE.sym (tr-Term-[] P)) (tr-⊢∷ u))
-      (tr-⊢∷ t,u) PE.refl
-  tr-⊢≡∷ (Σ-β₂ {G = P} A ⊢P t u t,u PE.refl) =
+      PE.refl
+  tr-⊢≡∷ (Σ-β₂ {G = P} A ⊢P t u PE.refl) =
     PE.subst (_ T₂.⊢ _ ≡ _ ∷_) (tr-Term-[] P)
       (Σ-β₂ (tr-⊢′ A) (tr-⊢′ ⊢P) (tr-⊢∷ t)
          (PE.subst (_ T₂.⊢ _ ∷_) (PE.sym (tr-Term-[] P)) (tr-⊢∷ u))
-         (tr-⊢∷ t,u) PE.refl)
+         PE.refl)
   tr-⊢≡∷ (Σ-η {G = P} A ⊢P t u t₁≡u₁ t₂≡u₂) =
     Σ-η (tr-⊢′ A) (tr-⊢′ ⊢P) (tr-⊢∷ t) (tr-⊢∷ u) (tr-⊢≡∷ t₁≡u₁)
       (PE.subst (_ T₂.⊢ _ ≡ _ ∷_) (PE.sym (tr-Term-[] P))
@@ -239,15 +239,15 @@ tr-⊢⇒∷ (fst-subst A P t⇒u) =
 tr-⊢⇒∷ (snd-subst {G = P} A ⊢P t⇒u) =
   PE.subst (_ T₂.⊢ _ ⇒ _ ∷_) (tr-Term-[] P)
     (snd-subst (tr-⊢′ A) (tr-⊢′ ⊢P) (tr-⊢⇒∷ t⇒u))
-tr-⊢⇒∷ (Σ-β₁ {G = P} A ⊢P t u t,u PE.refl) =
+tr-⊢⇒∷ (Σ-β₁ {G = P} A ⊢P t u PE.refl) =
   Σ-β₁ (tr-⊢′ A) (tr-⊢′ ⊢P) (tr-⊢∷ t)
     (PE.subst (_ T₂.⊢ _ ∷_) (PE.sym (tr-Term-[] P)) (tr-⊢∷ u))
-    (tr-⊢∷ t,u) PE.refl
-tr-⊢⇒∷ (Σ-β₂ {G = P} A ⊢P t u t,u PE.refl) =
+    PE.refl
+tr-⊢⇒∷ (Σ-β₂ {G = P} A ⊢P t u PE.refl) =
   PE.subst (_ T₂.⊢ _ ⇒ _ ∷_) (tr-Term-[] P)
     (Σ-β₂ (tr-⊢′ A) (tr-⊢′ ⊢P) (tr-⊢∷ t)
        (PE.subst (_ T₂.⊢ _ ∷_) (PE.sym (tr-Term-[] P)) (tr-⊢∷ u))
-       (tr-⊢∷ t,u) PE.refl)
+       PE.refl)
 tr-⊢⇒∷ (prodrec-subst {A = Q} A P ⊢Q v t⇒u) =
   PE.subst (_ T₂.⊢ prodrec _ _ _ _ _ _ ⇒ _ ∷_) (tr-Term-[] Q)
     (prodrec-subst (tr-⊢′ A) (tr-⊢′ P) (tr-⊢′ ⊢Q)

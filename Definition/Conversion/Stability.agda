@@ -84,19 +84,17 @@ stabilityRedTerm Γ≡Δ (snd-subst ⊢F ⊢G t⇒) =
   snd-subst (stability Γ≡Δ ⊢F)
             (stability (Γ≡Δ ∙ refl ⊢F) ⊢G)
             (stabilityRedTerm Γ≡Δ t⇒)
-stabilityRedTerm Γ≡Δ (Σ-β₁ ⊢F ⊢G ⊢t ⊢u ⊢Σ p≈p′) =
+stabilityRedTerm Γ≡Δ (Σ-β₁ ⊢F ⊢G ⊢t ⊢u p≈p′) =
   Σ-β₁ (stability Γ≡Δ ⊢F)
        (stability (Γ≡Δ ∙ refl ⊢F) ⊢G)
        (stabilityTerm Γ≡Δ ⊢t)
        (stabilityTerm Γ≡Δ ⊢u)
-       (stabilityTerm Γ≡Δ ⊢Σ)
        p≈p′
-stabilityRedTerm Γ≡Δ (Σ-β₂ ⊢F ⊢G ⊢t ⊢u ⊢Σ p≈p′) =
+stabilityRedTerm Γ≡Δ (Σ-β₂ ⊢F ⊢G ⊢t ⊢u p≈p′) =
   Σ-β₂ (stability Γ≡Δ ⊢F)
        (stability (Γ≡Δ ∙ refl ⊢F) ⊢G)
        (stabilityTerm Γ≡Δ ⊢t)
        (stabilityTerm Γ≡Δ ⊢u)
-       (stabilityTerm Γ≡Δ ⊢Σ)
        p≈p′
 stabilityRedTerm Γ≡Δ (β-red x x₁ x₂ x₃ x₄) =
   β-red (stability Γ≡Δ x) (stability (Γ≡Δ ∙ refl x) x₁)
