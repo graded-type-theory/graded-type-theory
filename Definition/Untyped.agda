@@ -18,6 +18,7 @@ private
     p p′ p₁ p₂ q q₁ q₂ r : M
     n m ℓ : Nat
     b : BinderMode
+    s : SigmaMode
     bs bs′ : List _
     ts ts′ : GenTs _ _ _
 
@@ -193,7 +194,7 @@ data Whnf {n : Nat} : Term n → Set a where
   zeroₙ : Whnf zero
   sucₙ  : Whnf (suc t)
   starₙ : Whnf star
-  prodₙ : ∀ {m} → Whnf (prod m p t u)
+  prodₙ : Whnf (prod s p t u)
 
   -- Neutrals are whnfs.
   ne    : Neutral t → Whnf t
