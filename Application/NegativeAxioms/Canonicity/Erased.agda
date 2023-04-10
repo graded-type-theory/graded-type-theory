@@ -4,6 +4,7 @@ import Definition.Modality.Instances.Erasure.Modality
 open import Definition.Modality.Instances.Erasure
 
 open import Definition.Modality.Restrictions Erasure
+open import Definition.Modality.Restrictions.Definitions
 open import Definition.Typed Erasure
 open import Definition.Untyped Erasure hiding (_∷_)
 
@@ -13,7 +14,7 @@ module Application.NegativeAxioms.Canonicity.Erased
   (restrictions : Restrictions)
   (-- In this module prodrec is restricted to the quantity ω.
    open Definition.Modality.Instances.Erasure.Modality
-          (prodrec-only-for-ω restrictions))
+          (modify-term-restrictions prodrec-only-for-ω restrictions))
   {m} {Γ : Con Term m} (consistent : ∀{t} → Γ ⊢ t ∷ Empty → ⊥)
   where
 

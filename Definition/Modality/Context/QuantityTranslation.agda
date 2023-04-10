@@ -24,8 +24,9 @@ open import Tools.Sum
 open import Definition.Modality.Context using (Conₘ; ε; _∙_)
 import Definition.Modality.Context.Properties
 open import Definition.Modality.Morphism as M
-  using (Is-morphism; Is-order-embedding)
-  hiding (module Is-morphism; module Is-order-embedding)
+  using (Is-morphism; Is-order-embedding; Is-Σₚ-order-embedding)
+  hiding (module Is-morphism; module Is-order-embedding;
+          module Is-Σₚ-order-embedding)
 
 private
   module C₁  = Definition.Modality.Context 𝕄₁
@@ -135,6 +136,28 @@ module Is-morphism (m : Is-morphism 𝕄₁ 𝕄₂ tr) where
   tr-Conₘ-⊛ᶜ {γ = _ ∙ _} {δ = _ ∙ _} = tr-Conₘ-⊛ᶜ ∙ tr-⊛
 
 ------------------------------------------------------------------------
+-- Lemmas that hold if there is a function that is an order embedding
+-- for Σₚ with respect to tr
+
+module Is-Σₚ-order-embedding
+  {tr-Σₚ : M₁ → M₂}
+  (m : Is-Σₚ-order-embedding 𝕄₁ 𝕄₂ tr tr-Σₚ)
+  where
+
+  open M.Is-Σₚ-order-embedding m
+
+  -- A variant of tr-≤-tr-Σₚ-→ for usage contexts.
+
+  tr-Conₘ-≤ᶜ-tr-Σₚ-·ᶜ :
+    tr-Conₘ γ C₂.≤ᶜ tr-Σₚ p C₂.·ᶜ δ →
+    ∃ λ δ′ → tr-Conₘ δ′ C₂.≤ᶜ δ × γ C₁.≤ᶜ p C₁.·ᶜ δ′
+  tr-Conₘ-≤ᶜ-tr-Σₚ-·ᶜ {γ = ε}     {δ = ε}     _             = ε , ε , ε
+  tr-Conₘ-≤ᶜ-tr-Σₚ-·ᶜ {γ = _ ∙ _} {δ = _ ∙ _} (hyp₁ ∙ hyp₂) =
+    case tr-Conₘ-≤ᶜ-tr-Σₚ-·ᶜ hyp₁ of λ (_ , ≤δ , γ≤) →
+    case tr-≤-tr-Σₚ-→ hyp₂ of λ (_ , ≤q , p≤) →
+    _ , ≤δ ∙ ≤q , γ≤ ∙ p≤
+
+------------------------------------------------------------------------
 -- Lemmas that hold if the translation is an order embedding
 
 module Is-order-embedding (m : Is-order-embedding 𝕄₁ 𝕄₂ tr) where
@@ -142,6 +165,10 @@ module Is-order-embedding (m : Is-order-embedding 𝕄₁ 𝕄₂ tr) where
   open M.Is-order-embedding m
 
   open Is-morphism tr-morphism public
+  open Is-Σₚ-order-embedding
+         (M.Is-order-embedding→Is-Σₚ-order-embedding m)
+    public
+    renaming (tr-Conₘ-≤ᶜ-tr-Σₚ-·ᶜ to tr-Conₘ-≤ᶜ-·ᶜ)
 
   -- The function tr-Conₘ is order-reflecting.
 
@@ -194,17 +221,6 @@ module Is-order-embedding (m : Is-order-embedding 𝕄₁ 𝕄₂ tr) where
     case tr-Conₘ-≤ᶜ-+ᶜ hyp₁ of λ (_ , _ , ≤δ , ≤η , γ≤) →
     case tr-≤-+ hyp₂ of λ (_ , _ , ≤q , ≤r , p≤) →
     _ , _ , ≤δ ∙ ≤q , ≤η ∙ ≤r , γ≤ ∙ p≤
-
-  -- A variant of tr-≤-· for usage contexts.
-
-  tr-Conₘ-≤ᶜ-·ᶜ :
-    tr-Conₘ γ C₂.≤ᶜ tr p C₂.·ᶜ δ →
-    ∃ λ δ′ → tr-Conₘ δ′ C₂.≤ᶜ δ × γ C₁.≤ᶜ p C₁.·ᶜ δ′
-  tr-Conₘ-≤ᶜ-·ᶜ {γ = ε}     {δ = ε}     _             = ε , ε , ε
-  tr-Conₘ-≤ᶜ-·ᶜ {γ = _ ∙ _} {δ = _ ∙ _} (hyp₁ ∙ hyp₂) =
-    case tr-Conₘ-≤ᶜ-·ᶜ hyp₁ of λ (_ , ≤δ , γ≤) →
-    case tr-≤-· hyp₂ of λ (_ , ≤q , p≤) →
-    _ , ≤δ ∙ ≤q , γ≤ ∙ p≤
 
   -- A variant of tr-≤-∧ for usage contexts.
 

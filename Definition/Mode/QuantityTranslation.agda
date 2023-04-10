@@ -3,18 +3,20 @@
 ------------------------------------------------------------------------
 
 open import Definition.Modality
+open import Definition.Modality.Morphism as M
+  using (Is-morphism; Is-order-embedding; Is-Σₚ-morphism)
+  hiding (module Is-morphism; module Is-order-embedding)
 
 module Definition.Mode.QuantityTranslation
   {a₁ a₂} {M₁ : Set a₁} {M₂ : Set a₂}
   (𝕄₁ : Modality M₁) (𝕄₂ : Modality M₂)
-  (tr : M₁ → M₂)
+  (tr tr-Σₚ : M₁ → M₂)
   where
 
-open import Definition.Modality.Morphism as M
-  using (Is-morphism; Is-order-embedding)
-  hiding (module Is-morphism; module Is-order-embedding)
 open import Definition.Modality.Properties 𝕄₂
 open import Definition.Mode
+open import Definition.Untyped
+open import Definition.Untyped.QuantityTranslation tr tr-Σₚ
 
 private
   module Mo₁ = Definition.Mode 𝕄₁
@@ -33,11 +35,15 @@ private variable
   m m′ : Mode _
 
 ------------------------------------------------------------------------
--- Definitions that require tr to be a morphism
+-- Definitions that are made under the assumptions that tr is a
+-- morphism and tr-Σₚ is a Σₚ-morphism with respect to tr
 
-module Is-morphism (mor : Is-morphism 𝕄₁ 𝕄₂ tr) where
+module Is-morphism
+  (m    : Is-morphism 𝕄₁ 𝕄₂ tr)
+  (m-Σₚ : Is-Σₚ-morphism 𝕄₁ 𝕄₂ tr tr-Σₚ)
+  where
 
-  open M.Is-morphism mor
+  open M.Is-morphism m
 
   open Modality 𝕄₂ using (_≤_)
 
@@ -69,44 +75,60 @@ module Is-morphism (mor : Is-morphism 𝕄₁ 𝕄₂ tr) where
     where
     open Tools.Reasoning.PropositionalEquality
 
-  -- Translation commutes with _ᵐ·_.
+  -- Translation commutes with _ᵐ·_ in a certain way.
 
-  tr-Mode-ᵐ· : ∀ m → tr-Mode (m Mo₁.ᵐ· p) ≡ (tr-Mode m Mo₂.ᵐ· tr p)
-  tr-Mode-ᵐ·         𝟘ᵐ = refl
-  tr-Mode-ᵐ· {p = p} 𝟙ᵐ = lemma _ _ refl refl
+  tr-Mode-ᵐ· :
+    ∀ m b → tr-Mode (m Mo₁.ᵐ· p) ≡ (tr-Mode m Mo₂.ᵐ· tr-BinderMode b p)
+  tr-Mode-ᵐ·         𝟘ᵐ = λ _ → refl
+  tr-Mode-ᵐ· {p = p} 𝟙ᵐ = λ where
+      BMΠ      → lemma (M.Is-morphism→Is-Σₚ-morphism m) _ _ refl refl
+      (BMΣ Σᵣ) → lemma (M.Is-morphism→Is-Σₚ-morphism m) _ _ refl refl
+      (BMΣ Σₚ) → lemma m-Σₚ                             _ _ refl refl
     where
-    open Tools.Reasoning.PropositionalEquality
+    module _
+      {tr′ : M₁ → M₂}
+      (m′ : Is-Σₚ-morphism 𝕄₁ 𝕄₂ tr tr′)
+      where
 
-    lemma :
-      ∀ m₁ m₂ → Mo₁.⌞ p ⌟ ≡ m₁ → Mo₂.⌞ tr p ⌟ ≡ m₂ → tr-Mode m₁ ≡ m₂
-    lemma 𝟘ᵐ       𝟘ᵐ _  _     = Mo₂.𝟘ᵐ-cong
-    lemma 𝟙ᵐ       𝟙ᵐ _  _     = refl
-    lemma 𝟘ᵐ[ ok ] 𝟙ᵐ p≡ tr-p≡ =
-      ⊥-elim (Mo₂.⌞⌟≡𝟙ᵐ→≉𝟘 (𝟘ᵐ-in-second-if-in-first ok) tr-p≡ (
-        tr p     ≡⟨ cong tr (Mo₁.⌞⌟≡𝟘ᵐ→≈𝟘 p≡) ⟩
-        tr M₁.𝟘  ≡⟨ tr-𝟘-≡ ok ⟩
-        M₂.𝟘     ∎))
-    lemma 𝟙ᵐ 𝟘ᵐ[ ok ] p≡ tr-p≡ = Mo₁.𝟘ᵐ-allowed-elim
-      (λ ok →
-         ⊥-elim $
-         Mo₁.⌞⌟≡𝟙ᵐ→≉𝟘 ok p≡ $
-         tr-≡-𝟘-⇔ ok .proj₁ $
-         Mo₂.⌞⌟≡𝟘ᵐ→≈𝟘 tr-p≡)
-      (λ not-ok →
-         case
-           Mo₂.𝟙ᵐ        ≡˘⟨ Mo₂.≉𝟘→⌞⌟≡𝟙ᵐ (tr-<-𝟘 not-ok ok .proj₂) ⟩
-           Mo₂.⌞ tr p ⌟  ≡⟨ tr-p≡ ⟩
-           Mo₂.𝟘ᵐ        ∎
-         of λ ())
+      open Is-Σₚ-morphism m′
+      open Tools.Reasoning.PropositionalEquality
+
+      lemma :
+        ∀ m₁ m₂ → Mo₁.⌞ p ⌟ ≡ m₁ → Mo₂.⌞ tr′ p ⌟ ≡ m₂ → tr-Mode m₁ ≡ m₂
+      lemma 𝟘ᵐ       𝟘ᵐ _  _     = Mo₂.𝟘ᵐ-cong
+      lemma 𝟙ᵐ       𝟙ᵐ _  _     = refl
+      lemma 𝟘ᵐ[ ok ] 𝟙ᵐ p≡ tr-p≡ =
+        ⊥-elim (Mo₂.⌞⌟≡𝟙ᵐ→≉𝟘 (𝟘ᵐ-in-second-if-in-first ok) tr-p≡ (
+          tr′ p     ≡⟨ cong tr′ (Mo₁.⌞⌟≡𝟘ᵐ→≈𝟘 p≡) ⟩
+          tr′ M₁.𝟘  ≡⟨ tr-Σₚ-𝟘-≡ m ok ⟩
+          M₂.𝟘      ∎))
+      lemma 𝟙ᵐ 𝟘ᵐ[ ok ] p≡ tr-p≡ = Mo₁.𝟘ᵐ-allowed-elim
+        (λ ok →
+           ⊥-elim $
+           Mo₁.⌞⌟≡𝟙ᵐ→≉𝟘 ok p≡ $
+           proj₂ $
+           tr-Σₚ-≡-𝟘-→ (𝟘ᵐ-in-second-if-in-first ok) $
+           Mo₂.⌞⌟≡𝟘ᵐ→≈𝟘 tr-p≡)
+        (λ not-ok →
+           case
+             Mo₂.𝟙ᵐ         ≡˘⟨ Mo₂.≉𝟘→⌞⌟≡𝟙ᵐ (tr-Σₚ-≢-𝟘 not-ok ok) ⟩
+             Mo₂.⌞ tr′ p ⌟  ≡⟨ tr-p≡ ⟩
+             Mo₂.𝟘ᵐ         ∎
+           of λ ())
 
 ------------------------------------------------------------------------
--- Definitions that require tr to be an order embedding
+-- Definitions that are made under the assumptions that tr is an order
+-- embedding and tr-Σₚ is a Σₚ-morphism with respect to tr
 
-module Is-order-embedding (emb : Is-order-embedding 𝕄₁ 𝕄₂ tr) where
+module Is-order-embedding
+  (tr-emb  : Is-order-embedding 𝕄₁ 𝕄₂ tr)
+  (tr-Σₚ-m : Is-Σₚ-morphism 𝕄₁ 𝕄₂ tr tr-Σₚ)
+  where
 
-  open M.Is-order-embedding emb
+  open M.Is-order-embedding tr-emb
+  open M.Is-Σₚ-morphism tr-Σₚ-m
 
-  open Is-morphism tr-morphism public
+  open Is-morphism tr-morphism tr-Σₚ-m public
 
   -- If the translation of p is bounded by Mo₂.⌜ tr-Mode m ⌝, then p
   -- is bounded by Mo₁.⌜ m ⌝.
@@ -120,18 +142,20 @@ module Is-order-embedding (emb : Is-order-embedding 𝕄₁ 𝕄₂ tr) where
     where
     open Tools.Reasoning.PartialOrder ≤-poset
 
-  -- If the translation of m′ is m ᵐ· tr p, then there is some m″ such
-  -- that the translation of m″ is m and m′ is equal to m″ ᵐ· p.
+  -- If the translation of m′ is m ᵐ· tr-Σₚ p, then there is some m″
+  -- such that the translation of m″ is m and m′ is equal to m″ ᵐ· p.
 
   tr-Mode-≡-ᵐ· :
-    m Mo₂.ᵐ· tr p ≡ tr-Mode m′ →
+    m Mo₂.ᵐ· tr-Σₚ p ≡ tr-Mode m′ →
     ∃ λ m″ → tr-Mode m″ ≡ m × m″ Mo₁.ᵐ· p ≡ m′
   tr-Mode-≡-ᵐ· {m = 𝟘ᵐ} {m′ = 𝟘ᵐ} _ =
     𝟘ᵐ , Mo₂.𝟘ᵐ-cong , refl
   tr-Mode-≡-ᵐ· {m = 𝟙ᵐ} {p = p} {m′ = 𝟘ᵐ[ ok ]} ⌞tr-p⌟≡𝟘 =
       𝟙ᵐ
     , refl
-    , (Mo₁.⌞ p ⌟  ≡⟨ Mo₁.≈𝟘→⌞⌟≡𝟘ᵐ (tr-≡-𝟘-⇔ ok .proj₁ (Mo₂.⌞⌟≡𝟘ᵐ→≈𝟘 ⌞tr-p⌟≡𝟘)) ⟩
+    , (Mo₁.⌞ p ⌟  ≡⟨ Mo₁.≈𝟘→⌞⌟≡𝟘ᵐ
+                       (tr-Σₚ-≡-𝟘-→ (𝟘ᵐ-in-second-if-in-first ok)
+                          (Mo₂.⌞⌟≡𝟘ᵐ→≈𝟘 ⌞tr-p⌟≡𝟘) .proj₂) ⟩
        𝟘ᵐ         ∎)
     where
     open Tools.Reasoning.PropositionalEquality
@@ -141,8 +165,9 @@ module Is-order-embedding (emb : Is-order-embedding 𝕄₁ 𝕄₂ tr) where
     , Mo₁.𝟘ᵐ-allowed-elim
         (λ ok →
            Mo₁.⌞ p ⌟  ≡⟨ Mo₁.≉𝟘→⌞⌟≡𝟙ᵐ
-                           (Mo₂.⌞⌟≡𝟙ᵐ→≉𝟘 (𝟘ᵐ-in-second-if-in-first ok) ⌞tr-p⌟≡𝟙 ∘→
-                            tr-≡-𝟘-⇔ ok .proj₂) ⟩
+                           (λ { refl →
+                                Mo₂.⌞⌟≡𝟙ᵐ→≉𝟘 (𝟘ᵐ-in-second-if-in-first ok) ⌞tr-p⌟≡𝟙
+                                  (tr-Σₚ-𝟘-≡ tr-morphism ok) }) ⟩
            𝟙ᵐ         ∎)
         Mo₁.Mode-propositional-without-𝟘ᵐ
     where

@@ -354,9 +354,9 @@ p ≤ q = p ≡ p ∧ q
 -- not tied to one of the Σ-type's quantities) must be ω. Other
 -- restrictions are inherited.
 
-prodrec-only-for-ω : Restrictions → Restrictions
-prodrec-only-for-ω restrictions = record restrictions
-  { Prodrec      = λ r p q → Prodrec r p q × r ≡ ω
+prodrec-only-for-ω : Term-restrictions → Term-restrictions
+prodrec-only-for-ω r = record r
+  { Prodrec = λ r p q → Prodrec r p q × r ≡ ω
   }
   where
-  open Restrictions restrictions
+  open Term-restrictions r

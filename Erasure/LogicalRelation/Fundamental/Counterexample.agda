@@ -16,8 +16,10 @@ module Erasure.LogicalRelation.Fundamental.Counterexample
 open EqRelSet {{...}}
 
 open import Definition.Modality.Restrictions Erasure
+open import Definition.Modality.Restrictions.Definitions
 
 private
+  r : Restrictions
   r = 𝟘ᵐ-allowed-if 𝟘ᵐ-allowed
 
 open import Definition.Modality.Instances.Erasure.Modality r

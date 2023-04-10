@@ -4,6 +4,7 @@
 open import Definition.Modality.Instances.Erasure
 import Definition.Modality.Instances.Erasure.Modality
 open import Definition.Modality.Restrictions Erasure
+open import Definition.Modality.Restrictions.Definitions
 import Application.NegativeAxioms.NegativeErasedContext
 open import Definition.Typed Erasure
 open import Definition.Untyped Erasure hiding (_∷_; ℕ≢B)
@@ -15,7 +16,7 @@ module Application.NegativeAxioms.Canonicity.NegativeErased
   (restrictions : Restrictions)
   (-- In this module prodrec is restricted to the quantity ω.
    open Definition.Modality.Instances.Erasure.Modality
-          (prodrec-only-for-ω restrictions))
+          (modify-term-restrictions prodrec-only-for-ω restrictions))
   (open Application.NegativeAxioms.NegativeErasedContext ErasureModality (λ ()))
   {m} {Γ : Con Term m} {γ}
   (nΓγ : NegativeErasedContext Γ γ)
@@ -25,7 +26,7 @@ module Application.NegativeAxioms.Canonicity.NegativeErased
 open Restrictions restrictions
 
 open import Definition.Modality.Instances.Erasure.Properties
-  (prodrec-only-for-ω restrictions)
+  (modify-term-restrictions prodrec-only-for-ω restrictions)
 open import Definition.Modality.Context ErasureModality
 open import Definition.Modality.Usage ErasureModality
 open import Definition.Modality.Usage.Inversion ErasureModality

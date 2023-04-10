@@ -10,7 +10,7 @@ module Application.NegativeAxioms.Canonicity.EliminateErased
 
 open import Definition.Modality.Instances.Erasure
 
-open import Definition.Modality.Restrictions Erasure
+open import Definition.Modality.Restrictions.Definitions
 
 open import Definition.Modality.Instances.Erasure.Modality
   (𝟘ᵐ-allowed-if 𝟘ᵐ-allowed)

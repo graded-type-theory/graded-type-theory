@@ -16,9 +16,11 @@ open EqRelSet {{...}}
 
 open import Definition.Typed.Properties Erasure
 open import Definition.LogicalRelation Erasure
+open import Definition.Modality.Restrictions.Definitions
 
 private
-  no-erased-matching = prodrec-only-for-ω restrictions
+  no-erased-matching =
+    modify-term-restrictions prodrec-only-for-ω restrictions
 
 open import Definition.Modality.Instances.Erasure.Modality
   no-erased-matching

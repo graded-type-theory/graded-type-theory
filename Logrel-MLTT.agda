@@ -27,6 +27,7 @@ import Tools.Reasoning.PropositionalEquality
 
 -- Modality structure
 import Definition.Modality.Restrictions
+import Definition.Modality.Restrictions.Definitions
 import Definition.Modality
 import Definition.Modality.Properties
 import Definition.Modality.Context

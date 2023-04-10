@@ -5,7 +5,7 @@
 
 module Definition.Typed.QuantityTranslation
   {a₁ a₂} {M₁ : Set a₁} {M₂ : Set a₂}
-  (tr : M₁ → M₂)
+  (tr tr-Σₚ : M₁ → M₂)
   where
 
 open import Tools.Fin
@@ -15,7 +15,7 @@ open import Tools.Reasoning.PropositionalEquality
 
 open import Definition.Typed
 open import Definition.Untyped hiding (_∷_)
-open import Definition.Untyped.QuantityTranslation tr
+open import Definition.Untyped.QuantityTranslation tr tr-Σₚ
 
 private
   module T₁ = Definition.Typed M₁

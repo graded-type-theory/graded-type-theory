@@ -8,13 +8,11 @@ open import Definition.Untyped M
 
 open import Tools.Bool
 open import Tools.Level
-open import Tools.Product
-open import Tools.PropositionalEquality
-open import Tools.Unit
 
--- "Extra" restrictions related to usage.
+-- "Extra" restrictions related to usage for some type/term
+-- constructors.
 
-record Restrictions : Set (lsuc a) where
+record Term-restrictions : Set (lsuc a) where
   field
     -- The prodrec constructor's quantities have to satisfy this
     -- predicate.
@@ -23,30 +21,14 @@ record Restrictions : Set (lsuc a) where
     -- The quantities of binders have to satisfy this predicate.
     Binder : BinderMode → M → M → Set a
 
+-- "Extra" restrictions related to usage.
+
+record Restrictions : Set (lsuc a) where
+  field
+    -- Type/term restrictions.
+    term-restrictions : Term-restrictions
+
     -- Is the mode 𝟘ᵐ allowed?
     𝟘ᵐ-allowed : Bool
 
--- No restrictions, except that 𝟘ᵐ is only allowed if the given
--- boolean is true.
-
-𝟘ᵐ-allowed-if : Bool → Restrictions
-𝟘ᵐ-allowed-if b = record
-  { Prodrec    = λ _ _ _ → Lift _ ⊤
-  ; Binder     = λ _ _ _ → Lift _ ⊤
-  ; 𝟘ᵐ-allowed = b
-  }
-
--- No restrictions.
-
-no-restrictions : Restrictions
-no-restrictions = 𝟘ᵐ-allowed-if true
-
--- Adds the restriction that the two quantities on a Π- or Σ-type have
--- to be equal.
-
-equal-binder-quantities : Restrictions → Restrictions
-equal-binder-quantities r = record r
-  { Binder = λ b p q → Binder b p q × p ≡ q
-  }
-  where
-  open Restrictions r
+  open Term-restrictions term-restrictions public

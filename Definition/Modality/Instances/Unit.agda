@@ -5,11 +5,8 @@ open import Tools.Unit
 open import Definition.Modality.Restrictions ⊤
 
 module Definition.Modality.Instances.Unit
-  -- The modality uses the given restrictions.
-  (restrictions : Restrictions)
-  (open Restrictions restrictions)
-  -- 𝟘ᵐ must not be allowed.
-  (not-ok : ¬ T 𝟘ᵐ-allowed)
+  -- The modality uses the given term restrictions.
+  (restrictions : Term-restrictions)
   where
 
 open import Tools.Function
@@ -164,13 +161,16 @@ UnitModalityWithout⊛ = record
   ; ∧-Semilattice = +-Semilattice
   ; ·-distrib-∧ = +-Distributiveˡ , +-Distributiveʳ
   ; +-distrib-∧ = +-Distributiveˡ , +-Distributiveʳ
-  ; restrictions = restrictions
-  ; 𝟘ᵐ→𝟙≉𝟘 = ⊥-elim ∘→ not-ok
-  ; is-𝟘? = λ _ _ → yes refl
-  ; zero-product = λ _ _ → inj₁ refl
-  ; positiveˡ = λ _ _ → refl
-  ; ∧≤𝟘ˡ = λ _ _ → refl
-  ; ≉𝟘→≤𝟙 = λ _ _ → refl
+  ; restrictions = record
+    { 𝟘ᵐ-allowed        = false
+    ; term-restrictions = restrictions
+    }
+  ; 𝟘ᵐ→𝟙≉𝟘 = λ ()
+  ; is-𝟘? = λ ()
+  ; zero-product = λ ()
+  ; positiveˡ = λ ()
+  ; ∧≤𝟘ˡ = λ ()
+  ; ≉𝟘→≤𝟙 = λ ()
   }
 
 UnitModality : Modality
