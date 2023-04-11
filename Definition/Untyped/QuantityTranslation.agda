@@ -6,11 +6,10 @@
 module Definition.Untyped.QuantityTranslation
   {a₁ a₂} {M₁ : Set a₁} {M₂ : Set a₂}
   -- A translation function used for quantities other than those
-  -- corresponding to the first components of Σ-types with η-equality.
+  -- corresponding to the first components of Σ-types.
   (tr : M₁ → M₂)
-  -- A translation function used for the first components of Σ-types
-  -- with η-equality.
-  (tr-Σₚ : M₁ → M₂)
+  -- A translation function used for the first components of Σ-types.
+  (tr-Σ : M₁ → M₂)
   where
 
 open import Tools.Fin
@@ -48,15 +47,9 @@ private variable
 
 -- Mode-dependent translation of quantities.
 
-tr-SigmaMode : SigmaMode → M₁ → M₂
-tr-SigmaMode Σₚ = tr-Σₚ
-tr-SigmaMode Σᵣ = tr
-
--- Mode-dependent translation of quantities.
-
 tr-BinderMode : BinderMode → M₁ → M₂
 tr-BinderMode BMΠ     = tr
-tr-BinderMode (BMΣ s) = tr-SigmaMode s
+tr-BinderMode (BMΣ _) = tr-Σ
 
 -- Translation of kinds.
 
@@ -65,10 +58,10 @@ tr-Kind Ukind               = Ukind
 tr-Kind (Binderkind b p q)  = Binderkind b (tr-BinderMode b p) (tr q)
 tr-Kind (Lamkind p)         = Lamkind (tr p)
 tr-Kind (Appkind p)         = Appkind (tr p)
-tr-Kind (Prodkind s p)      = Prodkind s (tr-SigmaMode s p)
-tr-Kind (Fstkind p)         = Fstkind (tr-Σₚ p)
-tr-Kind (Sndkind p)         = Sndkind (tr-Σₚ p)
-tr-Kind (Prodreckind r p q) = Prodreckind (tr r) (tr p) (tr q)
+tr-Kind (Prodkind s p)      = Prodkind s (tr-Σ p)
+tr-Kind (Fstkind p)         = Fstkind (tr-Σ p)
+tr-Kind (Sndkind p)         = Sndkind (tr-Σ p)
+tr-Kind (Prodreckind r p q) = Prodreckind (tr r) (tr-Σ p) (tr q)
 tr-Kind Natkind             = Natkind
 tr-Kind Zerokind            = Zerokind
 tr-Kind Suckind             = Suckind
@@ -104,21 +97,15 @@ tr-Subst : U₁.Subst m n → U₂.Subst m n
 tr-Subst σ x = tr-Term (σ x)
 
 ------------------------------------------------------------------------
--- Some lemmas that apply when tr-Σₚ is pointwise equal to tr
+-- A lemma that applies when tr-Σ is pointwise equal to tr
 
-module _ (tr-Σₚ≡tr : ∀ {p} → tr-Σₚ p ≡ tr p) where
-
-  -- The function tr-SigmaMode s is pointwise equal to tr.
-
-  tr-SigmaMode-one-function : ∀ {p} → tr-SigmaMode s p ≡ tr p
-  tr-SigmaMode-one-function {s = Σₚ} = tr-Σₚ≡tr
-  tr-SigmaMode-one-function {s = Σᵣ} = refl
+module _ (tr-Σ≡tr : ∀ {p} → tr-Σ p ≡ tr p) where
 
   -- The function tr-BinderMode b is pointwise equal to tr.
 
   tr-BinderMode-one-function : ∀ {p} b → tr-BinderMode b p ≡ tr p
   tr-BinderMode-one-function BMΠ     = refl
-  tr-BinderMode-one-function (BMΣ _) = tr-SigmaMode-one-function
+  tr-BinderMode-one-function (BMΣ _) = tr-Σ≡tr
 
 ------------------------------------------------------------------------
 -- Translation preserves various things
@@ -137,20 +124,18 @@ tr-Neutral (Emptyrecₙ n) = Emptyrecₙ (tr-Neutral n)
 -- The function tr-Term takes WHNFs to WHNFs.
 
 tr-Whnf : U₁.Whnf t → U₂.Whnf (tr-Term t)
-tr-Whnf Uₙ                 = Uₙ
-tr-Whnf (ΠΣₙ {b = BMΠ})    = ΠΣₙ
-tr-Whnf (ΠΣₙ {b = BMΣ Σₚ}) = ΠΣₙ
-tr-Whnf (ΠΣₙ {b = BMΣ Σᵣ}) = ΠΣₙ
-tr-Whnf ℕₙ                 = ℕₙ
-tr-Whnf Unitₙ              = Unitₙ
-tr-Whnf Emptyₙ             = Emptyₙ
-tr-Whnf lamₙ               = lamₙ
-tr-Whnf zeroₙ              = zeroₙ
-tr-Whnf sucₙ               = sucₙ
-tr-Whnf starₙ              = starₙ
-tr-Whnf (prodₙ {s = Σₚ})   = prodₙ
-tr-Whnf (prodₙ {s = Σᵣ})   = prodₙ
-tr-Whnf (ne n)             = ne (tr-Neutral n)
+tr-Whnf Uₙ                = Uₙ
+tr-Whnf (ΠΣₙ {b = BMΠ})   = ΠΣₙ
+tr-Whnf (ΠΣₙ {b = BMΣ _}) = ΠΣₙ
+tr-Whnf ℕₙ                = ℕₙ
+tr-Whnf Unitₙ             = Unitₙ
+tr-Whnf Emptyₙ            = Emptyₙ
+tr-Whnf lamₙ              = lamₙ
+tr-Whnf zeroₙ             = zeroₙ
+tr-Whnf sucₙ              = sucₙ
+tr-Whnf starₙ             = starₙ
+tr-Whnf prodₙ             = prodₙ
+tr-Whnf (ne n)            = ne (tr-Neutral n)
 
 ------------------------------------------------------------------------
 -- Translation commutes with various things
@@ -382,14 +367,14 @@ tr-Term-prod {t = prod _ _ _ _} refl =
 
 tr-Term-fst :
   tr-Term t ≡ fst p u →
-  ∃₂ λ p′ u′ → t ≡ fst p′ u′ × tr-Σₚ p′ ≡ p × tr-Term u′ ≡ u
+  ∃₂ λ p′ u′ → t ≡ fst p′ u′ × tr-Σ p′ ≡ p × tr-Term u′ ≡ u
 tr-Term-fst {t = fst _ _} refl = _ # _ # refl # refl # refl
 
 -- Inversion for snd.
 
 tr-Term-snd :
   tr-Term t ≡ snd p u →
-  ∃₂ λ p′ u′ → t ≡ snd p′ u′ × tr-Σₚ p′ ≡ p × tr-Term u′ ≡ u
+  ∃₂ λ p′ u′ → t ≡ snd p′ u′ × tr-Σ p′ ≡ p × tr-Term u′ ≡ u
 tr-Term-snd {t = snd _ _} refl = _ # _ # refl # refl # refl
 
 -- Inversion for prodrec.
@@ -397,8 +382,8 @@ tr-Term-snd {t = snd _ _} refl = _ # _ # refl # refl # refl
 tr-Term-prodrec :
   tr-Term t ≡ prodrec r p q A u v →
   ∃₃ λ r′ p′ q′ → ∃₃ λ A′ u′ v′ →
-     t ≡ prodrec r′ p′ q′ A′ u′ v′ × tr r′ ≡ r × tr p′ ≡ p × tr q′ ≡ q ×
-     tr-Term A′ ≡ A × tr-Term u′ ≡ u × tr-Term v′ ≡ v
+     t ≡ prodrec r′ p′ q′ A′ u′ v′ × tr r′ ≡ r × tr-Σ p′ ≡ p ×
+     tr q′ ≡ q × tr-Term A′ ≡ A × tr-Term u′ ≡ u × tr-Term v′ ≡ v
 tr-Term-prodrec {t = prodrec _ _ _ _ _ _} refl =
   _ # _ # _ # _ # _ # _ # refl # refl # refl # refl # refl # refl # refl
 
@@ -483,31 +468,24 @@ mutual
 
 ------------------------------------------------------------------------
 -- Results that are proved under the assumption that the translation
--- functions tr and tr-Σₚ are injective
+-- functions tr and tr-Σ are injective
 
 module Injective
   -- The function tr is injective.
   (tr-injective : ∀ {p q} → tr p ≡ tr q → p ≡ q)
-  -- The function tr-Σₚ is injective.
-  (tr-Σₚ-injective : ∀ {p q} → tr-Σₚ p ≡ tr-Σₚ q → p ≡ q)
+  -- The function tr-Σ is injective.
+  (tr-Σ-injective : ∀ {p q} → tr-Σ p ≡ tr-Σ q → p ≡ q)
   where
 
   ----------------------------------------------------------------------
   -- Certain functions are injective
-
-  -- The function tr-SigmaMode s is injective.
-
-  tr-SigmaMode-injective :
-    ∀ {p q} → tr-SigmaMode s p ≡ tr-SigmaMode s q → p ≡ q
-  tr-SigmaMode-injective {s = Σₚ} = tr-Σₚ-injective
-  tr-SigmaMode-injective {s = Σᵣ} = tr-injective
 
   -- The function tr-BinderMode b is injective.
 
   tr-BinderMode-injective :
     ∀ {p q} b → tr-BinderMode b p ≡ tr-BinderMode b q → p ≡ q
   tr-BinderMode-injective BMΠ     = tr-injective
-  tr-BinderMode-injective (BMΣ _) = tr-SigmaMode-injective
+  tr-BinderMode-injective (BMΣ _) = tr-Σ-injective
 
   -- The function tr-Kind is injective.
 
@@ -535,21 +513,21 @@ module Injective
   tr-Kind-injective refl | _ =
     cong Appkind (tr-injective tr-p≡)
   tr-Kind-injective {k = Prodkind s p} {l = Prodkind _ _} eq
-    with tr-SigmaMode s p in tr-p≡
+    with tr-Σ p in tr-p≡
   tr-Kind-injective refl | _ =
-    cong (Prodkind _) (tr-SigmaMode-injective tr-p≡)
+    cong (Prodkind _) (tr-Σ-injective tr-p≡)
   tr-Kind-injective {k = Fstkind p} {l = Fstkind _} eq
-    with tr-Σₚ p in tr-p≡
+    with tr-Σ p in tr-p≡
   tr-Kind-injective refl | _ =
-    cong Fstkind (tr-Σₚ-injective tr-p≡)
+    cong Fstkind (tr-Σ-injective tr-p≡)
   tr-Kind-injective {k = Sndkind p} {l = Sndkind _} eq
-    with tr-Σₚ p in tr-p≡
+    with tr-Σ p in tr-p≡
   tr-Kind-injective refl | _ =
-    cong Sndkind (tr-Σₚ-injective tr-p≡)
+    cong Sndkind (tr-Σ-injective tr-p≡)
   tr-Kind-injective {k = Prodreckind r p q} {l = Prodreckind _ _ _} eq
-    with tr r in tr-r≡ | tr p in tr-p≡ | tr q in tr-q≡
+    with tr r in tr-r≡ | tr-Σ p in tr-p≡ | tr q in tr-q≡
   tr-Kind-injective refl | _ | _ | _ =
-    cong₃ Prodreckind (tr-injective tr-r≡) (tr-injective tr-p≡)
+    cong₃ Prodreckind (tr-injective tr-r≡) (tr-Σ-injective tr-p≡)
       (tr-injective tr-q≡)
   tr-Kind-injective {k = Natreckind p q r} {l = Natreckind _ _ _} eq
     with tr p in tr-p≡ | tr q in tr-q≡ | tr r in tr-r≡

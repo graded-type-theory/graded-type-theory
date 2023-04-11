@@ -42,15 +42,15 @@ open import Definition.Untyped.NotParametrised
 open import Definition.Untyped.QuantityTranslation
 
 private variable
-  a₁ a₂                          : Level
-  𝟙≤𝟘 ok                         : Bool
-  not-ok                         : ¬ T _
-  rt rt₁ rt₂ rt₃                 : Term-restrictions _
-  r r₁ r₂                        : Restrictions _
-  M₁ M₂                          : Set _
-  𝕄 𝕄₁ 𝕄₂ 𝕄₃                     : Modality _
-  b                              : BinderMode
-  tr tr₁ tr₂ tr-Σₚ tr-Σₚ₁ tr-Σₚ₂ : M₁ → M₂
+  a₁ a₂                       : Level
+  𝟙≤𝟘 ok                      : Bool
+  not-ok                      : ¬ T _
+  rt rt₁ rt₂ rt₃              : Term-restrictions _
+  r r₁ r₂                     : Restrictions _
+  M₁ M₂                       : Set _
+  𝕄 𝕄₁ 𝕄₂ 𝕄₃                  : Modality _
+  b                           : BinderMode
+  tr tr₁ tr₂ tr-Σ tr-Σ₁ tr-Σ₂ : M₁ → M₂
 
 ------------------------------------------------------------------------
 -- Morphisms
@@ -217,164 +217,190 @@ record Is-order-embedding
     module P₁ = Definition.Modality.Properties 𝕄₁
     module P₂ = Definition.Modality.Properties 𝕄₂
 
--- The property of being a Σₚ-morphism (with respect to a given
+-- The property of being a Σ-morphism (with respect to a given
 -- function).
 --
--- Note that Σₚ-morphisms do not have to be morphisms (see
--- Σₚ-order-embedding-but-not-order-embedding below).
+-- Note that Σ-morphisms do not have to be morphisms (see
+-- Σ-order-embedding-but-not-order-embedding below).
 
-record Is-Σₚ-morphism
+record Is-Σ-morphism
   {M₁ : Set a₁} {M₂ : Set a₂}
   (𝕄₁ : Modality M₁) (𝕄₂ : Modality M₂)
-  (tr tr-Σₚ : M₁ → M₂) : Set (a₁ ⊔ a₂) where
+  (tr tr-Σ : M₁ → M₂) : Set (a₁ ⊔ a₂) where
   private
     module M₁ = Modality 𝕄₁
     module M₂ = Modality 𝕄₂
 
   field
     -- The regular translation function tr is bounded by the
-    -- Σₚ-translation tr-Σₚ.
-    tr-≤-tr-Σₚ : ∀ {p} → tr p M₂.≤ tr-Σₚ p
+    -- Σ-translation tr-Σ.
+    tr-≤-tr-Σ : ∀ {p} → tr p M₂.≤ tr-Σ p
 
-    -- If 𝟘ᵐ is allowed in the target modality and tr-Σₚ p is equal
+    -- If 𝟘ᵐ is allowed in the target modality and tr-Σ p is equal
     -- to 𝟘, then 𝟘ᵐ is allowed in the source modality and p is equal
     -- to 𝟘.
-    tr-Σₚ-≡-𝟘-→ :
+    tr-Σ-≡-𝟘-→ :
       ∀ {p} →
-      T M₂.𝟘ᵐ-allowed → tr-Σₚ p ≡ M₂.𝟘 → T M₁.𝟘ᵐ-allowed × p ≡ M₁.𝟘
+      T M₂.𝟘ᵐ-allowed → tr-Σ p ≡ M₂.𝟘 → T M₁.𝟘ᵐ-allowed × p ≡ M₁.𝟘
 
-    -- If p is bounded by 𝟙, then tr-Σₚ p is bounded by 𝟙.
-    tr-Σₚ-≤-𝟙 : ∀ {p} → p M₁.≤ M₁.𝟙 → tr-Σₚ p M₂.≤ M₂.𝟙
+    -- If p is bounded by 𝟙, then tr-Σ p is bounded by 𝟙.
+    tr-Σ-≤-𝟙 : ∀ {p} → p M₁.≤ M₁.𝟙 → tr-Σ p M₂.≤ M₂.𝟙
+
+    -- The quantity tr p · tr-Σ q is bounded by the translation of
+    -- p · q.
+    tr-·-tr-Σ-≤ : ∀ {p q} → tr p M₂.· tr-Σ q M₂.≤ tr (p M₁.· q)
 
   -- If 𝟘ᵐ is allowed in the target modality but not the source
-  -- modality, then tr-Σₚ translates quantities to quantities that are
+  -- modality, then tr-Σ translates quantities to quantities that are
   -- not equal to 𝟘.
 
-  tr-Σₚ-≢-𝟘 :
-    ∀ {p} → ¬ T M₁.𝟘ᵐ-allowed → T M₂.𝟘ᵐ-allowed → tr-Σₚ p ≢ M₂.𝟘
-  tr-Σₚ-≢-𝟘 not-ok ok tr-p≡𝟘 = not-ok (tr-Σₚ-≡-𝟘-→ ok tr-p≡𝟘 .proj₁)
+  tr-Σ-≢-𝟘 :
+    ∀ {p} → ¬ T M₁.𝟘ᵐ-allowed → T M₂.𝟘ᵐ-allowed → tr-Σ p ≢ M₂.𝟘
+  tr-Σ-≢-𝟘 not-ok ok tr-p≡𝟘 = not-ok (tr-Σ-≡-𝟘-→ ok tr-p≡𝟘 .proj₁)
 
-  -- If 𝟘ᵐ is allowed in the source and target modalities, then tr-Σₚ
+  -- If 𝟘ᵐ is allowed in the source and target modalities, then tr-Σ
   -- translates 𝟘 to 𝟘 (assuming that tr is a morphism from 𝕄₁ to 𝕄₂).
 
-  tr-Σₚ-𝟘-≡ :
+  tr-Σ-𝟘-≡ :
     Is-morphism 𝕄₁ 𝕄₂ tr →
-    T M₁.𝟘ᵐ-allowed → tr-Σₚ M₁.𝟘 ≡ M₂.𝟘
-  tr-Σₚ-𝟘-≡ m ok = 𝟘≮ (𝟘ᵐ-in-second-if-in-first ok) (begin
-    M₂.𝟘        ≡˘⟨ tr-𝟘-≡ ok ⟩
-    tr M₁.𝟘     ≤⟨ tr-≤-tr-Σₚ ⟩
-    tr-Σₚ M₁.𝟘  ∎)
+    T M₁.𝟘ᵐ-allowed → tr-Σ M₁.𝟘 ≡ M₂.𝟘
+  tr-Σ-𝟘-≡ m ok = 𝟘≮ (𝟘ᵐ-in-second-if-in-first ok) (begin
+    M₂.𝟘       ≡˘⟨ tr-𝟘-≡ ok ⟩
+    tr M₁.𝟘    ≤⟨ tr-≤-tr-Σ ⟩
+    tr-Σ M₁.𝟘  ∎)
     where
     open Is-morphism m
     open Definition.Modality.Properties 𝕄₂
     open Tools.Reasoning.PartialOrder ≤-poset
 
-  -- If tr-Σₚ p is bounded by 𝟙, then p is bounded by 𝟙 (assuming that
+  -- If tr-Σ p is bounded by 𝟙, then p is bounded by 𝟙 (assuming that
   -- tr is an order embedding from 𝕄₁ to 𝕄₂).
 
-  tr-Σₚ-≤-𝟙-→ :
+  tr-Σ-≤-𝟙-→ :
     ∀ {p} →
     Is-order-embedding 𝕄₁ 𝕄₂ tr →
-    tr-Σₚ p M₂.≤ M₂.𝟙 → p M₁.≤ M₁.𝟙
-  tr-Σₚ-≤-𝟙-→ {p = p} m tr-Σₚ-p≤𝟙 = Is-order-embedding.tr-≤-𝟙 m (begin
-    tr p     ≤⟨ tr-≤-tr-Σₚ ⟩
-    tr-Σₚ p  ≤⟨ tr-Σₚ-p≤𝟙 ⟩
-    M₂.𝟙     ∎)
+    tr-Σ p M₂.≤ M₂.𝟙 → p M₁.≤ M₁.𝟙
+  tr-Σ-≤-𝟙-→ {p = p} m tr-Σ-p≤𝟙 = Is-order-embedding.tr-≤-𝟙 m (begin
+    tr p    ≤⟨ tr-≤-tr-Σ ⟩
+    tr-Σ p  ≤⟨ tr-Σ-p≤𝟙 ⟩
+    M₂.𝟙    ∎)
     where
     open Definition.Modality.Properties 𝕄₂
     open Tools.Reasoning.PartialOrder ≤-poset
 
--- The property of being an order embedding for Σₚ (with respect to a
+  -- The quantity tr p · tr-Σ q is equal to the translation of p · q
+  -- (assuming that tr is a morphism from 𝕄₁ to 𝕄₂).
+
+  tr-·-tr-Σ-≡ :
+    ∀ {p q} →
+    Is-morphism 𝕄₁ 𝕄₂ tr →
+    tr p M₂.· tr-Σ q ≡ tr (p M₁.· q)
+  tr-·-tr-Σ-≡ {p = p} {q = q} m = ≤-antisym
+    tr-·-tr-Σ-≤
+    (begin
+       tr (p M₁.· q)     ≡⟨ Is-morphism.tr-· m ⟩
+       tr p M₂.· tr q    ≤⟨ ·-monotoneʳ tr-≤-tr-Σ ⟩
+       tr p M₂.· tr-Σ q  ∎)
+    where
+    open Definition.Modality.Properties 𝕄₂
+    open Tools.Reasoning.PartialOrder ≤-poset
+
+-- The property of being an order embedding for Σ (with respect to a
 -- given function).
 --
 -- Note that these "order embeddings" do not need to be order
--- embeddings (see Σₚ-order-embedding-but-not-order-embedding below).
+-- embeddings (see Σ-order-embedding-but-not-order-embedding below).
 
-record Is-Σₚ-order-embedding
+record Is-Σ-order-embedding
   {M₁ : Set a₁} {M₂ : Set a₂}
   (𝕄₁ : Modality M₁) (𝕄₂ : Modality M₂)
-  (tr tr-Σₚ : M₁ → M₂) : Set (a₁ ⊔ a₂) where
+  (tr tr-Σ : M₁ → M₂) : Set (a₁ ⊔ a₂) where
   private
     module M₁ = Modality 𝕄₁
     module M₂ = Modality 𝕄₂
 
   field
-    -- The translation function tr-Σₚ is a Σₚ-morphism with respect to
+    -- The translation function tr-Σ is a Σ-morphism with respect to
     -- tr.
-    tr-Σₚ-morphism : Is-Σₚ-morphism 𝕄₁ 𝕄₂ tr tr-Σₚ
+    tr-Σ-morphism : Is-Σ-morphism 𝕄₁ 𝕄₂ tr tr-Σ
 
-    -- If the regular translation of p is bounded by tr-Σₚ q · r, then
+    -- If the regular translation of p is bounded by tr-Σ q · r, then
     -- there is some r′ such that the regular translation of r′ is r
     -- and p is bounded by q · r′.
-    tr-≤-tr-Σₚ-→ :
+    tr-≤-tr-Σ-→ :
       ∀ {p q r} →
-      tr p M₂.≤ tr-Σₚ q M₂.· r → ∃ λ r′ → tr r′ M₂.≤ r × p M₁.≤ q M₁.· r′
+      tr p M₂.≤ tr-Σ q M₂.· r → ∃ λ r′ → tr r′ M₂.≤ r × p M₁.≤ q M₁.· r′
 
-  open Is-Σₚ-morphism tr-Σₚ-morphism public
+  open Is-Σ-morphism tr-Σ-morphism public
 
 -- The property of preserving Term-restrictions.
 
 record Are-preserving-term-restrictions
          {a₁ a₂} {M₁ : Set a₁} {M₂ : Set a₂}
          (r₁ : Term-restrictions M₁) (r₂ : Term-restrictions M₂)
-         (tr tr-Σₚ : M₁ → M₂) : Set (a₁ ⊔ a₂) where
+         (tr tr-Σ : M₁ → M₂) : Set (a₁ ⊔ a₂) where
   private
     module R₁ = Term-restrictions r₁
     module R₂ = Term-restrictions r₂
 
   field
-    -- The functions tr and tr-Σₚ preserve the Binder property in a
+    -- The functions tr and tr-Σ preserve the Binder property in a
     -- certain way.
     Binder-preserved :
       ∀ {p q} →
-      R₁.Binder b p q → R₂.Binder b (tr-BinderMode tr tr-Σₚ b p) (tr q)
+      R₁.Binder b p q → R₂.Binder b (tr-BinderMode tr tr-Σ b p) (tr q)
 
-    -- The function tr preserves the Prodrec property.
+    -- The functions tr and tr-Σ preserve the Prodrec property in a
+    -- certain way.
     Prodrec-preserved :
-      ∀ {p q r} → R₁.Prodrec p q r → R₂.Prodrec (tr p) (tr q) (tr r)
+      ∀ {r p q} → R₁.Prodrec r p q → R₂.Prodrec (tr r) (tr-Σ p) (tr q)
 
 -- The property of reflecting Term-restrictions.
 
 record Are-reflecting-term-restrictions
          {a₁ a₂} {M₁ : Set a₁} {M₂ : Set a₂}
          (r₁ : Term-restrictions M₁) (r₂ : Term-restrictions M₂)
-         (tr tr-Σₚ : M₁ → M₂) : Set (a₁ ⊔ a₂) where
+         (tr tr-Σ : M₁ → M₂) : Set (a₁ ⊔ a₂) where
   private
     module R₁ = Term-restrictions r₁
     module R₂ = Term-restrictions r₂
 
   field
-    -- The functions tr and tr-Σₚ reflect the Binder property in a
+    -- The functions tr and tr-Σ reflect the Binder property in a
     -- certain way.
     Binder-reflected :
       ∀ {p q} →
-      R₂.Binder b (tr-BinderMode tr tr-Σₚ b p) (tr q) → R₁.Binder b p q
+      R₂.Binder b (tr-BinderMode tr tr-Σ b p) (tr q) → R₁.Binder b p q
 
-    -- The function tr reflects the Prodrec property.
+    -- The functions tr and tr-Σ reflect the Prodrec property in a
+    -- certain way.
     Prodrec-reflected :
-      ∀ {p q r} → R₂.Prodrec (tr p) (tr q) (tr r) → R₁.Prodrec p q r
+      ∀ {r p q} → R₂.Prodrec (tr r) (tr-Σ p) (tr q) → R₁.Prodrec r p q
 
 ------------------------------------------------------------------------
--- Morphisms are Σₚ-morphisms with respect to themselves, and order
--- embeddings are order embeddings for Σₚ with respect to themselves
+-- Morphisms are Σ-morphisms with respect to themselves, and order
+-- embeddings are order embeddings for Σ with respect to themselves
 
--- If tr is a morphism, then it is a Σₚ-morphism with respect to
+-- If tr is a morphism, then it is a Σ-morphism with respect to
 -- itself.
 
-Is-morphism→Is-Σₚ-morphism :
+Is-morphism→Is-Σ-morphism :
   Is-morphism 𝕄₁ 𝕄₂ tr →
-  Is-Σₚ-morphism 𝕄₁ 𝕄₂ tr tr
-Is-morphism→Is-Σₚ-morphism {𝕄₁ = 𝕄₁} {𝕄₂ = 𝕄₂} {tr = tr} m = λ where
-    .Is-Σₚ-morphism.tr-≤-tr-Σₚ →
+  Is-Σ-morphism 𝕄₁ 𝕄₂ tr tr
+Is-morphism→Is-Σ-morphism {𝕄₁ = 𝕄₁} {𝕄₂ = 𝕄₂} {tr = tr} m = λ where
+    .Is-Σ-morphism.tr-≤-tr-Σ →
       MP₂.≤-refl
-    .Is-Σₚ-morphism.tr-Σₚ-≡-𝟘-→ ok tr-p≡𝟘 →
+    .Is-Σ-morphism.tr-Σ-≡-𝟘-→ ok tr-p≡𝟘 →
       𝟘ᵐ-allowed-elim 𝕄₁
         (λ ok → ok , tr-≡-𝟘-⇔ ok .proj₁ tr-p≡𝟘)
         (λ not-ok → ⊥-elim (tr-<-𝟘 not-ok ok .proj₂ tr-p≡𝟘))
-    .Is-Σₚ-morphism.tr-Σₚ-≤-𝟙 {p = p} p≤𝟙 → begin
+    .Is-Σ-morphism.tr-Σ-≤-𝟙 {p = p} p≤𝟙 → begin
       tr p     ≤⟨ tr-monotone p≤𝟙 ⟩
       tr M₁.𝟙  ≤⟨ tr-𝟙 ⟩
       M₂.𝟙     ∎
+    .Is-Σ-morphism.tr-·-tr-Σ-≤ {p = p} {q = q} → begin
+      tr p M₂.· tr q  ≡˘⟨ tr-· ⟩
+      tr (p M₁.· q)   ∎
   where
   module M₁  = Modality 𝕄₁
   module M₂  = Modality 𝕄₂
@@ -382,16 +408,16 @@ Is-morphism→Is-Σₚ-morphism {𝕄₁ = 𝕄₁} {𝕄₂ = 𝕄₂} {tr = tr
   open Is-morphism m
   open Tools.Reasoning.PartialOrder MP₂.≤-poset
 
--- If tr is an order embedding, then it is an order embedding for Σₚ
+-- If tr is an order embedding, then it is an order embedding for Σ
 -- with respect to itself.
 
-Is-order-embedding→Is-Σₚ-order-embedding :
+Is-order-embedding→Is-Σ-order-embedding :
   Is-order-embedding 𝕄₁ 𝕄₂ tr →
-  Is-Σₚ-order-embedding 𝕄₁ 𝕄₂ tr tr
-Is-order-embedding→Is-Σₚ-order-embedding m = λ where
-    .Is-Σₚ-order-embedding.tr-Σₚ-morphism →
-      Is-morphism→Is-Σₚ-morphism tr-morphism
-    .Is-Σₚ-order-embedding.tr-≤-tr-Σₚ-→ →
+  Is-Σ-order-embedding 𝕄₁ 𝕄₂ tr tr
+Is-order-embedding→Is-Σ-order-embedding m = λ where
+    .Is-Σ-order-embedding.tr-Σ-morphism →
+      Is-morphism→Is-Σ-morphism tr-morphism
+    .Is-Σ-order-embedding.tr-≤-tr-Σ-→ →
       tr-≤-·
   where
   open Is-order-embedding m
@@ -434,10 +460,9 @@ Is-order-embedding-id {𝕄 = 𝕄} = λ where
 Are-preserving-term-restrictions-id :
   Are-preserving-term-restrictions rt rt idᶠ idᶠ
 Are-preserving-term-restrictions-id {rt = rt} = λ where
-    .Prodrec-preserved             → idᶠ
-    .Binder-preserved {b = BMΠ}    → idᶠ
-    .Binder-preserved {b = BMΣ Σₚ} → idᶠ
-    .Binder-preserved {b = BMΣ Σᵣ} → idᶠ
+    .Prodrec-preserved            → idᶠ
+    .Binder-preserved {b = BMΠ}   → idᶠ
+    .Binder-preserved {b = BMΣ _} → idᶠ
   where
   open Are-preserving-term-restrictions
   open Term-restrictions rt
@@ -448,10 +473,9 @@ Are-preserving-term-restrictions-id {rt = rt} = λ where
 Are-reflecting-term-restrictions-id :
   Are-reflecting-term-restrictions rt rt idᶠ idᶠ
 Are-reflecting-term-restrictions-id {rt = rt} = λ where
-    .Prodrec-reflected             → idᶠ
-    .Binder-reflected {b = BMΠ}    → idᶠ
-    .Binder-reflected {b = BMΣ Σₚ} → idᶠ
-    .Binder-reflected {b = BMΣ Σᵣ} → idᶠ
+    .Prodrec-reflected            → idᶠ
+    .Binder-reflected {b = BMΠ}   → idᶠ
+    .Binder-reflected {b = BMΣ _} → idᶠ
   where
   open Are-reflecting-term-restrictions
   open Term-restrictions rt
@@ -634,48 +658,55 @@ Is-order-embedding-∘
   module F   = Is-order-embedding f
   module G   = Is-order-embedding g
 
--- Composition preserves Is-Σₚ-morphism given a certain assumption.
+-- Composition preserves Is-Σ-morphism given a certain assumption.
 
-Is-Σₚ-morphism-∘ :
+Is-Σ-morphism-∘ :
   Is-morphism 𝕄₂ 𝕄₃ tr₁ →
-  Is-Σₚ-morphism 𝕄₂ 𝕄₃ tr₁ tr-Σₚ₁ →
-  Is-Σₚ-morphism 𝕄₁ 𝕄₂ tr₂ tr-Σₚ₂ →
-  Is-Σₚ-morphism 𝕄₁ 𝕄₃ (tr₁ ∘→ tr₂) (tr-Σₚ₁ ∘→ tr-Σₚ₂)
-Is-Σₚ-morphism-∘
-  {𝕄₃ = 𝕄₃} {tr₁ = tr₁} {tr-Σₚ₁ = tr-Σₚ₁} {tr₂ = tr₂} {tr-Σₚ₂ = tr-Σₚ₂}
-  m f g = record
-  { tr-≤-tr-Σₚ = λ {p = p} → begin
-      tr₁ (tr₂ p)        ≤⟨ Is-morphism.tr-monotone m G.tr-≤-tr-Σₚ ⟩
-      tr₁ (tr-Σₚ₂ p)     ≤⟨ F.tr-≤-tr-Σₚ ⟩
-      tr-Σₚ₁ (tr-Σₚ₂ p)  ∎
-  ; tr-Σₚ-≡-𝟘-→ =
-      curry (uncurry G.tr-Σₚ-≡-𝟘-→ ∘→ uncurry F.tr-Σₚ-≡-𝟘-→)
-  ; tr-Σₚ-≤-𝟙 =
-      F.tr-Σₚ-≤-𝟙 ∘→ G.tr-Σₚ-≤-𝟙
+  Is-Σ-morphism 𝕄₂ 𝕄₃ tr₁ tr-Σ₁ →
+  Is-Σ-morphism 𝕄₁ 𝕄₂ tr₂ tr-Σ₂ →
+  Is-Σ-morphism 𝕄₁ 𝕄₃ (tr₁ ∘→ tr₂) (tr-Σ₁ ∘→ tr-Σ₂)
+Is-Σ-morphism-∘
+  {𝕄₂ = 𝕄₂} {𝕄₃ = 𝕄₃} {tr₁ = tr₁} {tr-Σ₁ = tr-Σ₁} {𝕄₁ = 𝕄₁} {tr₂ = tr₂}
+  {tr-Σ₂ = tr-Σ₂} m f g = record
+  { tr-≤-tr-Σ = λ {p = p} → begin
+      tr₁ (tr₂ p)      ≤⟨ Is-morphism.tr-monotone m G.tr-≤-tr-Σ ⟩
+      tr₁ (tr-Σ₂ p)    ≤⟨ F.tr-≤-tr-Σ ⟩
+      tr-Σ₁ (tr-Σ₂ p)  ∎
+  ; tr-Σ-≡-𝟘-→ =
+      curry (uncurry G.tr-Σ-≡-𝟘-→ ∘→ uncurry F.tr-Σ-≡-𝟘-→)
+  ; tr-Σ-≤-𝟙 =
+      F.tr-Σ-≤-𝟙 ∘→ G.tr-Σ-≤-𝟙
+  ; tr-·-tr-Σ-≤ = λ {p = p} {q = q} → begin
+      tr₁ (tr₂ p) M₃.· tr-Σ₁ (tr-Σ₂ q)  ≤⟨ F.tr-·-tr-Σ-≤ ⟩
+      tr₁ (tr₂ p M₂.· tr-Σ₂ q)          ≤⟨ Is-morphism.tr-monotone m G.tr-·-tr-Σ-≤ ⟩
+      tr₁ (tr₂ (p M₁.· q))              ∎
   }
   where
-  module F = Is-Σₚ-morphism f
-  module G = Is-Σₚ-morphism g
+  module M₁ = Modality 𝕄₁
+  module M₂ = Modality 𝕄₂
+  module M₃ = Modality 𝕄₃
+  module F  = Is-Σ-morphism f
+  module G  = Is-Σ-morphism g
   open Definition.Modality.Properties 𝕄₃
   open Tools.Reasoning.PartialOrder ≤-poset
 
--- Composition preserves Is-Σₚ-order-embedding given a certain
+-- Composition preserves Is-Σ-order-embedding given a certain
 -- assumption.
 
-Is-Σₚ-order-embedding-∘ :
+Is-Σ-order-embedding-∘ :
   Is-morphism 𝕄₂ 𝕄₃ tr₁ →
-  Is-Σₚ-order-embedding 𝕄₂ 𝕄₃ tr₁ tr-Σₚ₁ →
-  Is-Σₚ-order-embedding 𝕄₁ 𝕄₂ tr₂ tr-Σₚ₂ →
-  Is-Σₚ-order-embedding 𝕄₁ 𝕄₃ (tr₁ ∘→ tr₂) (tr-Σₚ₁ ∘→ tr-Σₚ₂)
-Is-Σₚ-order-embedding-∘
-  {𝕄₃ = 𝕄₃} {tr₁ = tr₁} {tr-Σₚ₁ = tr-Σₚ₁} {tr₂ = tr₂} {tr-Σₚ₂ = tr-Σₚ₂}
+  Is-Σ-order-embedding 𝕄₂ 𝕄₃ tr₁ tr-Σ₁ →
+  Is-Σ-order-embedding 𝕄₁ 𝕄₂ tr₂ tr-Σ₂ →
+  Is-Σ-order-embedding 𝕄₁ 𝕄₃ (tr₁ ∘→ tr₂) (tr-Σ₁ ∘→ tr-Σ₂)
+Is-Σ-order-embedding-∘
+  {𝕄₃ = 𝕄₃} {tr₁ = tr₁} {tr-Σ₁ = tr-Σ₁} {tr₂ = tr₂} {tr-Σ₂ = tr-Σ₂}
   m f g = record
-  { tr-Σₚ-morphism =
-      Is-Σₚ-morphism-∘ m F.tr-Σₚ-morphism G.tr-Σₚ-morphism
-  ; tr-≤-tr-Σₚ-→ = λ {p = _} {q = _} {r = r} tr-p≤tr-q·r →
-      case F.tr-≤-tr-Σₚ-→ tr-p≤tr-q·r of
+  { tr-Σ-morphism =
+      Is-Σ-morphism-∘ m F.tr-Σ-morphism G.tr-Σ-morphism
+  ; tr-≤-tr-Σ-→ = λ {p = _} {q = _} {r = r} tr-p≤tr-q·r →
+      case F.tr-≤-tr-Σ-→ tr-p≤tr-q·r of
         λ (r′ , tr-r′≤r , tr-p≤tr-q·r′) →
-      case G.tr-≤-tr-Σₚ-→ tr-p≤tr-q·r′ of
+      case G.tr-≤-tr-Σ-→ tr-p≤tr-q·r′ of
         λ (r″ , tr-r″≤r′ , p≤q·r″) →
         r″
       , (begin
@@ -685,26 +716,24 @@ Is-Σₚ-order-embedding-∘
       , p≤q·r″
   }
   where
-  module F = Is-Σₚ-order-embedding f
-  module G = Is-Σₚ-order-embedding g
+  module F = Is-Σ-order-embedding f
+  module G = Is-Σ-order-embedding g
   open Definition.Modality.Properties 𝕄₃
   open Tools.Reasoning.PartialOrder ≤-poset
 
 -- Composition preserves Are-preserving-term-restrictions.
 
 Are-preserving-term-restrictions-∘ :
-  Are-preserving-term-restrictions rt₂ rt₃ tr₁ tr-Σₚ₁ →
-  Are-preserving-term-restrictions rt₁ rt₂ tr₂ tr-Σₚ₂ →
+  Are-preserving-term-restrictions rt₂ rt₃ tr₁ tr-Σ₁ →
+  Are-preserving-term-restrictions rt₁ rt₂ tr₂ tr-Σ₂ →
   Are-preserving-term-restrictions
-    rt₁ rt₃ (tr₁ ∘→ tr₂) (tr-Σₚ₁ ∘→ tr-Σₚ₂)
+    rt₁ rt₃ (tr₁ ∘→ tr₂) (tr-Σ₁ ∘→ tr-Σ₂)
 Are-preserving-term-restrictions-∘ m₁ m₂ = λ where
     .Prodrec-preserved →
       M₁.Prodrec-preserved ∘→ M₂.Prodrec-preserved
     .Binder-preserved {b = BMΠ} →
       M₁.Binder-preserved ∘→ M₂.Binder-preserved
-    .Binder-preserved {b = BMΣ Σₚ} →
-      M₁.Binder-preserved ∘→ M₂.Binder-preserved
-    .Binder-preserved {b = BMΣ Σᵣ} →
+    .Binder-preserved {b = BMΣ _} →
       M₁.Binder-preserved ∘→ M₂.Binder-preserved
   where
   open Are-preserving-term-restrictions
@@ -714,18 +743,15 @@ Are-preserving-term-restrictions-∘ m₁ m₂ = λ where
 -- Composition preserves Are-reflecting-term-restrictions.
 
 Are-reflecting-term-restrictions-∘ :
-  Are-reflecting-term-restrictions rt₂ rt₃ tr₁ tr-Σₚ₁ →
-  Are-reflecting-term-restrictions rt₁ rt₂ tr₂ tr-Σₚ₂ →
-  Are-reflecting-term-restrictions
-    rt₁ rt₃ (tr₁ ∘→ tr₂) (tr-Σₚ₁ ∘→ tr-Σₚ₂)
+  Are-reflecting-term-restrictions rt₂ rt₃ tr₁ tr-Σ₁ →
+  Are-reflecting-term-restrictions rt₁ rt₂ tr₂ tr-Σ₂ →
+  Are-reflecting-term-restrictions rt₁ rt₃ (tr₁ ∘→ tr₂) (tr-Σ₁ ∘→ tr-Σ₂)
 Are-reflecting-term-restrictions-∘ m₁ m₂ = λ where
     .Prodrec-reflected →
       M₂.Prodrec-reflected ∘→ M₁.Prodrec-reflected
     .Binder-reflected {b = BMΠ} →
       M₂.Binder-reflected ∘→ M₁.Binder-reflected
-    .Binder-reflected {b = BMΣ Σₚ} →
-      M₂.Binder-reflected ∘→ M₁.Binder-reflected
-    .Binder-reflected {b = BMΣ Σᵣ} →
+    .Binder-reflected {b = BMΣ _} →
       M₂.Binder-reflected ∘→ M₁.Binder-reflected
   where
   open Are-reflecting-term-restrictions
@@ -782,7 +808,7 @@ Are-reflecting-term-restrictions-equal-binder-quantities
   open Are-reflecting-term-restrictions r
   open Tools.Reasoning.PropositionalEquality
 
--- If the functions tr and tr-Σₚ preserve term restrictions for two
+-- If the functions tr and tr-Σ preserve term restrictions for two
 -- modalities, then they also do this for certain term restrictions
 -- obtained using second-ΠΣ-quantities-𝟘, assuming that tr maps 𝟘
 -- to 𝟘.
@@ -792,11 +818,11 @@ Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘 :
   Are-preserving-term-restrictions
     (Modality.term-restrictions 𝕄₁)
     (Modality.term-restrictions 𝕄₂)
-    tr tr-Σₚ →
+    tr tr-Σ →
   Are-preserving-term-restrictions
     (second-ΠΣ-quantities-𝟘 𝕄₁)
     (second-ΠΣ-quantities-𝟘 𝕄₂)
-    tr tr-Σₚ
+    tr tr-Σ
 Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘 tr-𝟘 r = record
   { Prodrec-preserved = Prodrec-preserved
   ; Binder-preserved  = λ where
@@ -805,7 +831,7 @@ Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘 tr-𝟘 r = record
   where
   open Are-preserving-term-restrictions r
 
--- If the functions tr and tr-Σₚ reflect term restrictions for two
+-- If the functions tr and tr-Σ reflect term restrictions for two
 -- modalities, then they also do this for certain term restrictions
 -- obtained using second-ΠΣ-quantities-𝟘, assuming that tr only maps 𝟘
 -- to 𝟘.
@@ -815,11 +841,11 @@ Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘 :
   Are-reflecting-term-restrictions
     (Modality.term-restrictions 𝕄₁)
     (Modality.term-restrictions 𝕄₂)
-    tr tr-Σₚ →
+    tr tr-Σ →
   Are-reflecting-term-restrictions
     (second-ΠΣ-quantities-𝟘 𝕄₁)
     (second-ΠΣ-quantities-𝟘 𝕄₂)
-    tr tr-Σₚ
+    tr tr-Σ
 Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘 tr-𝟘 r = record
   { Prodrec-reflected = Prodrec-reflected
   ; Binder-reflected  = λ (b , eq) → Binder-reflected b , tr-𝟘 eq
@@ -827,7 +853,7 @@ Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘 tr-𝟘 r = record
   where
   open Are-reflecting-term-restrictions r
 
--- If the functions tr and tr-Σₚ preserve term restrictions for two
+-- If the functions tr and tr-Σ preserve term restrictions for two
 -- modalities, then they also do this for certain term restrictions
 -- obtained using second-ΠΣ-quantities-𝟘-or-ω, given that certain
 -- assumptions hold.
@@ -835,25 +861,25 @@ Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘 tr-𝟘 r = record
 Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω :
   ∀ {ω₁ ω₂} →
   Is-morphism 𝕄₁ 𝕄₂ tr →
-  Is-Σₚ-morphism 𝕄₁ 𝕄₂ tr tr-Σₚ →
+  Is-Σ-morphism 𝕄₁ 𝕄₂ tr tr-Σ →
   (¬ T (Modality.𝟘ᵐ-allowed 𝕄₁) →
    (∀ {p} → tr p ≡ Modality.𝟘 𝕄₂ ⇔ p ≡ Modality.𝟘 𝕄₁) ×
-   (∀ {p} → tr-Σₚ p ≡ Modality.𝟘 𝕄₂ ⇔ p ≡ Modality.𝟘 𝕄₁)) →
+   (∀ {p} → tr-Σ p ≡ Modality.𝟘 𝕄₂ ⇔ p ≡ Modality.𝟘 𝕄₁)) →
   tr ω₁ ≡ ω₂ →
   Are-preserving-term-restrictions
     (Modality.term-restrictions 𝕄₁)
     (Modality.term-restrictions 𝕄₂)
-    tr tr-Σₚ →
+    tr tr-Σ →
   Are-preserving-term-restrictions
     (second-ΠΣ-quantities-𝟘-or-ω ω₁ 𝕄₁)
     (second-ΠΣ-quantities-𝟘-or-ω ω₂ 𝕄₂)
-    tr tr-Σₚ
+    tr tr-Σ
 Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-  {𝕄₁ = 𝕄₁} {𝕄₂ = 𝕄₂} {tr = tr} {tr-Σₚ = tr-Σₚ} {ω₁ = ω₁} {ω₂ = ω₂}
-  m m-Σₚ tr-𝟘 tr-ω r = record
+  {𝕄₁ = 𝕄₁} {𝕄₂ = 𝕄₂} {tr = tr} {tr-Σ = tr-Σ} {ω₁ = ω₁} {ω₂ = ω₂}
+  m m-Σ tr-𝟘 tr-ω r = record
   { Prodrec-preserved = Prodrec-preserved
   ; Binder-preserved  = λ {b = b} (bn , is-𝟘 , not-𝟘) →
-      Binder-preserved bn , lemma₂ b is-𝟘 , lemma₄ b not-𝟘
+      Binder-preserved bn , lemma₁ b is-𝟘 , lemma₂ b not-𝟘
   }
   where
   module M₁ = Modality 𝕄₁
@@ -861,63 +887,49 @@ Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω
   open Are-preserving-term-restrictions r
   open Definition.Modality.Properties 𝕄₁
   open Is-morphism m
-  open Is-Σₚ-morphism m-Σₚ
+  open Is-Σ-morphism m-Σ
 
   tr-≡-𝟘-⇔′ : ∀ {p} → tr p ≡ M₂.𝟘 ⇔ p ≡ M₁.𝟘
   tr-≡-𝟘-⇔′ = Mode.𝟘ᵐ-allowed-elim 𝕄₁
     tr-≡-𝟘-⇔
     (λ not-ok → tr-𝟘 not-ok .proj₁)
 
-  tr-Σₚ-≡-𝟘-⇔ : ∀ {p} → tr-Σₚ p ≡ M₂.𝟘 ⇔ p ≡ M₁.𝟘
-  tr-Σₚ-≡-𝟘-⇔ = Mode.𝟘ᵐ-allowed-elim 𝕄₁
+  tr-Σ-≡-𝟘-⇔ : ∀ {p} → tr-Σ p ≡ M₂.𝟘 ⇔ p ≡ M₁.𝟘
+  tr-Σ-≡-𝟘-⇔ = Mode.𝟘ᵐ-allowed-elim 𝕄₁
     (λ ok →
-         (λ hyp → tr-Σₚ-≡-𝟘-→ (𝟘ᵐ-in-second-if-in-first ok) hyp .proj₂)
-       , (λ { refl → tr-Σₚ-𝟘-≡ m ok }))
+         (λ hyp → tr-Σ-≡-𝟘-→ (𝟘ᵐ-in-second-if-in-first ok) hyp .proj₂)
+       , (λ { refl → tr-Σ-𝟘-≡ m ok }))
     (λ not-ok → tr-𝟘 not-ok .proj₂)
 
   lemma₁ :
-    ∀ {p q} →
+    ∀ {p q} b →
     (p ≡ M₁.𝟘 → q ≡ M₁.𝟘) →
-    tr p ≡ M₂.𝟘 → tr q ≡ M₂.𝟘
-  lemma₁ {p = p} {q = q} hyp =
+    tr-BinderMode tr tr-Σ b p ≡ M₂.𝟘 → tr q ≡ M₂.𝟘
+  lemma₁ {p = p} {q = q} BMΠ hyp =
     tr p ≡ M₂.𝟘  →⟨ tr-≡-𝟘-⇔′ .proj₁ ⟩
     p ≡ M₁.𝟘     →⟨ hyp ⟩
     q ≡ M₁.𝟘     →⟨ tr-≡-𝟘-⇔′ .proj₂ ⟩
     tr q ≡ M₂.𝟘  □
+  lemma₁ {p = p} {q = q} (BMΣ _) hyp =
+    tr-Σ p ≡ M₂.𝟘  →⟨ tr-Σ-≡-𝟘-⇔ .proj₁ ⟩
+    p ≡ M₁.𝟘       →⟨ hyp ⟩
+    q ≡ M₁.𝟘       →⟨ tr-≡-𝟘-⇔′ .proj₂ ⟩
+    tr q ≡ M₂.𝟘    □
 
   lemma₂ :
     ∀ {p q} b →
-    (p ≡ M₁.𝟘 → q ≡ M₁.𝟘) →
-    tr-BinderMode tr tr-Σₚ b p ≡ M₂.𝟘 → tr q ≡ M₂.𝟘
-  lemma₂                 BMΠ      = lemma₁
-  lemma₂                 (BMΣ Σᵣ) = lemma₁
-  lemma₂ {p = p} {q = q} (BMΣ Σₚ) = λ hyp →
-    tr-Σₚ p ≡ M₂.𝟘  →⟨ tr-Σₚ-≡-𝟘-⇔ .proj₁ ⟩
-    p ≡ M₁.𝟘        →⟨ hyp ⟩
-    q ≡ M₁.𝟘        →⟨ tr-≡-𝟘-⇔′ .proj₂ ⟩
-    tr q ≡ M₂.𝟘     □
-
-  lemma₃ :
-    ∀ {p q} →
     (p ≢ M₁.𝟘 → q ≡ ω₁) →
-    tr p ≢ M₂.𝟘 → tr q ≡ ω₂
-  lemma₃ {p = p} {q = q} hyp =
+    tr-BinderMode tr tr-Σ b p ≢ M₂.𝟘 → tr q ≡ ω₂
+  lemma₂ {p = p} {q = q} BMΠ hyp =
     tr p ≢ M₂.𝟘  →⟨ _∘→ tr-≡-𝟘-⇔′ .proj₂ ⟩
     p ≢ M₁.𝟘     →⟨ hyp ⟩
     q ≡ ω₁       →⟨ (λ { refl → tr-ω }) ⟩
     tr q ≡ ω₂    □
-
-  lemma₄ :
-    ∀ {p q} b →
-    (p ≢ M₁.𝟘 → q ≡ ω₁) →
-    tr-BinderMode tr tr-Σₚ b p ≢ M₂.𝟘 → tr q ≡ ω₂
-  lemma₄                 BMΠ      = lemma₃
-  lemma₄                 (BMΣ Σᵣ) = lemma₃
-  lemma₄ {p = p} {q = q} (BMΣ Σₚ) = λ hyp →
-    tr-Σₚ p ≢ M₂.𝟘  →⟨ _∘→ tr-Σₚ-≡-𝟘-⇔ .proj₂ ⟩
-    p ≢ M₁.𝟘        →⟨ hyp ⟩
-    q ≡ ω₁          →⟨ (λ { refl → tr-ω }) ⟩
-    tr q ≡ ω₂       □
+  lemma₂ {p = p} {q = q} (BMΣ _) hyp =
+    tr-Σ p ≢ M₂.𝟘  →⟨ _∘→ tr-Σ-≡-𝟘-⇔ .proj₂ ⟩
+    p ≢ M₁.𝟘       →⟨ hyp ⟩
+    q ≡ ω₁         →⟨ (λ { refl → tr-ω }) ⟩
+    tr q ≡ ω₂      □
 
 -- A variant of
 -- Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω with
@@ -926,20 +938,20 @@ Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω
 Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω′ :
   ∀ {ω₁ ω₂} →
   Is-order-embedding 𝕄₁ 𝕄₂ tr →
-  Is-Σₚ-morphism 𝕄₁ 𝕄₂ tr tr-Σₚ →
-  (¬ T (Modality.𝟘ᵐ-allowed 𝕄₁) → ∀ {p} → tr-Σₚ p ≡ tr p) →
+  Is-Σ-morphism 𝕄₁ 𝕄₂ tr tr-Σ →
+  (¬ T (Modality.𝟘ᵐ-allowed 𝕄₁) → ∀ {p} → tr-Σ p ≡ tr p) →
   tr ω₁ ≡ ω₂ →
   Are-preserving-term-restrictions
     (Modality.term-restrictions 𝕄₁)
     (Modality.term-restrictions 𝕄₂)
-    tr tr-Σₚ →
+    tr tr-Σ →
   Are-preserving-term-restrictions
     (second-ΠΣ-quantities-𝟘-or-ω ω₁ 𝕄₁)
     (second-ΠΣ-quantities-𝟘-or-ω ω₂ 𝕄₂)
-    tr tr-Σₚ
+    tr tr-Σ
 Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
-  {𝕄₁ = 𝕄₁} {𝕄₂ = 𝕄₂} {tr = tr} {tr-Σₚ = tr-Σₚ} {ω₁ = ω₁} {ω₂ = ω₂}
-  emb m tr-Σₚ≡tr tr-ω r = record
+  {𝕄₁ = 𝕄₁} {𝕄₂ = 𝕄₂} {tr = tr} {tr-Σ = tr-Σ} {ω₁ = ω₁} {ω₂ = ω₂}
+  emb m tr-Σ≡tr tr-ω r = record
   { Prodrec-preserved = Prodrec-preserved
   ; Binder-preserved  = λ {b = b} (bn , is-𝟘 , not-𝟘) →
       Binder-preserved bn , lemma₂ b is-𝟘 , lemma₄ b not-𝟘
@@ -950,7 +962,7 @@ Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
   open Are-preserving-term-restrictions r
   open Definition.Modality.Properties 𝕄₁
   open Is-order-embedding emb
-  open Is-Σₚ-morphism m
+  open Is-Σ-morphism m
 
   lemma₁ :
     ∀ {p q} →
@@ -971,20 +983,19 @@ Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
   lemma₂ :
     ∀ {p q} b →
     (p ≡ M₁.𝟘 → q ≡ M₁.𝟘) →
-    tr-BinderMode tr tr-Σₚ b p ≡ M₂.𝟘 → tr q ≡ M₂.𝟘
-  lemma₂                 BMΠ      = lemma₁
-  lemma₂                 (BMΣ Σᵣ) = lemma₁
-  lemma₂ {p = p} {q = q} (BMΣ Σₚ) = λ hyp →
+    tr-BinderMode tr tr-Σ b p ≡ M₂.𝟘 → tr q ≡ M₂.𝟘
+  lemma₂                 BMΠ     = lemma₁
+  lemma₂ {p = p} {q = q} (BMΣ _) = λ hyp →
     Mode.𝟘ᵐ-allowed-elim 𝕄₁
       (λ ok →
-         tr-Σₚ p ≡ M₂.𝟘  →⟨ (λ hyp → tr-Σₚ-≡-𝟘-→ (𝟘ᵐ-in-second-if-in-first ok) hyp .proj₂) ⟩
-         p ≡ M₁.𝟘        →⟨ hyp ⟩
-         q ≡ M₁.𝟘        →⟨ tr-≡-𝟘-⇔ ok .proj₂ ⟩
-         tr q ≡ M₂.𝟘     □)
+         tr-Σ p ≡ M₂.𝟘  →⟨ (λ hyp → tr-Σ-≡-𝟘-→ (𝟘ᵐ-in-second-if-in-first ok) hyp .proj₂) ⟩
+         p ≡ M₁.𝟘       →⟨ hyp ⟩
+         q ≡ M₁.𝟘       →⟨ tr-≡-𝟘-⇔ ok .proj₂ ⟩
+         tr q ≡ M₂.𝟘    □)
       (λ not-ok →
-         tr-Σₚ p ≡ M₂.𝟘  ≡⟨ cong (_≡ _) (tr-Σₚ≡tr not-ok) ⟩→
-         tr p ≡ M₂.𝟘     →⟨ lemma₁ hyp ⟩
-         tr q ≡ M₂.𝟘     □)
+         tr-Σ p ≡ M₂.𝟘  ≡⟨ cong (_≡ _) (tr-Σ≡tr not-ok) ⟩→
+         tr p ≡ M₂.𝟘    →⟨ lemma₁ hyp ⟩
+         tr q ≡ M₂.𝟘    □)
 
   lemma₃ :
     ∀ {p q} →
@@ -1006,22 +1017,21 @@ Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
   lemma₄ :
     ∀ {p q} b →
     (p ≢ M₁.𝟘 → q ≡ ω₁) →
-    tr-BinderMode tr tr-Σₚ b p ≢ M₂.𝟘 → tr q ≡ ω₂
-  lemma₄                 BMΠ      = lemma₃
-  lemma₄                 (BMΣ Σᵣ) = lemma₃
-  lemma₄ {p = p} {q = q} (BMΣ Σₚ) = λ hyp →
+    tr-BinderMode tr tr-Σ b p ≢ M₂.𝟘 → tr q ≡ ω₂
+  lemma₄                 BMΠ     = lemma₃
+  lemma₄ {p = p} {q = q} (BMΣ Σ) = λ hyp →
     Mode.𝟘ᵐ-allowed-elim 𝕄₁
       (λ ok →
-         tr-Σₚ p ≢ M₂.𝟘  →⟨ _∘→ (λ { refl → tr-Σₚ-𝟘-≡ tr-morphism ok }) ⟩
-         p ≢ M₁.𝟘        →⟨ hyp ⟩
-         q ≡ ω₁          →⟨ (λ { refl → tr-ω }) ⟩
-         tr q ≡ ω₂       □)
+         tr-Σ p ≢ M₂.𝟘  →⟨ _∘→ (λ { refl → tr-Σ-𝟘-≡ tr-morphism ok }) ⟩
+         p ≢ M₁.𝟘       →⟨ hyp ⟩
+         q ≡ ω₁         →⟨ (λ { refl → tr-ω }) ⟩
+         tr q ≡ ω₂      □)
       (λ not-ok →
-         tr-Σₚ p ≢ M₂.𝟘  ≡⟨ cong (_≢ _) (tr-Σₚ≡tr not-ok) ⟩→
-         tr p ≢ M₂.𝟘     →⟨ lemma₃ hyp ⟩
-         tr q ≡ ω₂       □)
+         tr-Σ p ≢ M₂.𝟘  ≡⟨ cong (_≢ _) (tr-Σ≡tr not-ok) ⟩→
+         tr p ≢ M₂.𝟘    →⟨ lemma₃ hyp ⟩
+         tr q ≡ ω₂      □)
 
--- If the functions tr and tr-Σₚ reflect term restrictions for two
+-- If the functions tr and tr-Σ reflect term restrictions for two
 -- modalities, then they also do this for certain term restrictions
 -- obtained using second-ΠΣ-quantities-𝟘-or-ω, given that certain
 -- assumptions hold.
@@ -1029,25 +1039,25 @@ Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
 Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω :
   ∀ {ω₁ ω₂} →
   Is-morphism 𝕄₁ 𝕄₂ tr →
-  Is-Σₚ-morphism 𝕄₁ 𝕄₂ tr tr-Σₚ →
+  Is-Σ-morphism 𝕄₁ 𝕄₂ tr tr-Σ →
   (¬ T (Modality.𝟘ᵐ-allowed 𝕄₁) →
    (∀ {p} → tr p ≡ Modality.𝟘 𝕄₂ ⇔ p ≡ Modality.𝟘 𝕄₁) ×
-   (∀ {p} → tr-Σₚ p ≡ Modality.𝟘 𝕄₂ ⇔ p ≡ Modality.𝟘 𝕄₁)) →
+   (∀ {p} → tr-Σ p ≡ Modality.𝟘 𝕄₂ ⇔ p ≡ Modality.𝟘 𝕄₁)) →
   (∀ {p} → tr p ≡ ω₂ → p ≡ ω₁) →
   Are-reflecting-term-restrictions
     (Modality.term-restrictions 𝕄₁)
     (Modality.term-restrictions 𝕄₂)
-    tr tr-Σₚ →
+    tr tr-Σ →
   Are-reflecting-term-restrictions
     (second-ΠΣ-quantities-𝟘-or-ω ω₁ 𝕄₁)
     (second-ΠΣ-quantities-𝟘-or-ω ω₂ 𝕄₂)
-    tr tr-Σₚ
+    tr tr-Σ
 Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-  {𝕄₁ = 𝕄₁} {𝕄₂ = 𝕄₂} {tr = tr} {tr-Σₚ = tr-Σₚ} {ω₁ = ω₁} {ω₂ = ω₂}
-  m m-Σₚ tr-𝟘 tr-ω r = record
+  {𝕄₁ = 𝕄₁} {𝕄₂ = 𝕄₂} {tr = tr} {tr-Σ = tr-Σ} {ω₁ = ω₁} {ω₂ = ω₂}
+  m m-Σ tr-𝟘 tr-ω r = record
   { Prodrec-reflected = Prodrec-reflected
   ; Binder-reflected  = λ {b = b} (bn , is-𝟘 , not-𝟘) →
-      Binder-reflected bn , lemma₂ b is-𝟘 , lemma₄ b not-𝟘
+      Binder-reflected bn , lemma₁ b is-𝟘 , lemma₂ b not-𝟘
   }
   where
   module M₁ = Modality 𝕄₁
@@ -1055,63 +1065,49 @@ Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω
   open Are-reflecting-term-restrictions r
   open Definition.Modality.Properties 𝕄₁
   open Is-morphism m
-  open Is-Σₚ-morphism m-Σₚ
+  open Is-Σ-morphism m-Σ
 
   tr-≡-𝟘-⇔′ : ∀ {p} → tr p ≡ M₂.𝟘 ⇔ p ≡ M₁.𝟘
   tr-≡-𝟘-⇔′ = Mode.𝟘ᵐ-allowed-elim 𝕄₁
     tr-≡-𝟘-⇔
     (λ not-ok → tr-𝟘 not-ok .proj₁)
 
-  tr-Σₚ-≡-𝟘-⇔ : ∀ {p} → tr-Σₚ p ≡ M₂.𝟘 ⇔ p ≡ M₁.𝟘
-  tr-Σₚ-≡-𝟘-⇔ = Mode.𝟘ᵐ-allowed-elim 𝕄₁
+  tr-Σ-≡-𝟘-⇔ : ∀ {p} → tr-Σ p ≡ M₂.𝟘 ⇔ p ≡ M₁.𝟘
+  tr-Σ-≡-𝟘-⇔ = Mode.𝟘ᵐ-allowed-elim 𝕄₁
     (λ ok →
-         (λ hyp → tr-Σₚ-≡-𝟘-→ (𝟘ᵐ-in-second-if-in-first ok) hyp .proj₂)
-       , (λ { refl → tr-Σₚ-𝟘-≡ m ok }))
+         (λ hyp → tr-Σ-≡-𝟘-→ (𝟘ᵐ-in-second-if-in-first ok) hyp .proj₂)
+       , (λ { refl → tr-Σ-𝟘-≡ m ok }))
     (λ not-ok → tr-𝟘 not-ok .proj₂)
 
   lemma₁ :
-    ∀ {p q} →
-    (tr p ≡ M₂.𝟘 → tr q ≡ M₂.𝟘) →
+    ∀ {p q} b →
+    (tr-BinderMode tr tr-Σ b p ≡ M₂.𝟘 → tr q ≡ M₂.𝟘) →
     p ≡ M₁.𝟘 → q ≡ M₁.𝟘
-  lemma₁ {p = p} {q = q} hyp =
+  lemma₁ {p = p} {q = q} BMΠ hyp =
     p ≡ M₁.𝟘     →⟨ tr-≡-𝟘-⇔′ .proj₂ ⟩
     tr p ≡ M₂.𝟘  →⟨ hyp ⟩
     tr q ≡ M₂.𝟘  →⟨ tr-≡-𝟘-⇔′ .proj₁ ⟩
     q ≡ M₁.𝟘     □
+  lemma₁ {p = p} {q = q} (BMΣ _) hyp =
+    p ≡ M₁.𝟘       →⟨ tr-Σ-≡-𝟘-⇔ .proj₂ ⟩
+    tr-Σ p ≡ M₂.𝟘  →⟨ hyp ⟩
+    tr q ≡ M₂.𝟘    →⟨ tr-≡-𝟘-⇔′ .proj₁ ⟩
+    q ≡ M₁.𝟘       □
 
   lemma₂ :
     ∀ {p q} b →
-    (tr-BinderMode tr tr-Σₚ b p ≡ M₂.𝟘 → tr q ≡ M₂.𝟘) →
-    p ≡ M₁.𝟘 → q ≡ M₁.𝟘
-  lemma₂                 BMΠ      = lemma₁
-  lemma₂                 (BMΣ Σᵣ) = lemma₁
-  lemma₂ {p = p} {q = q} (BMΣ Σₚ) = λ hyp →
-    p ≡ M₁.𝟘        →⟨ tr-Σₚ-≡-𝟘-⇔ .proj₂ ⟩
-    tr-Σₚ p ≡ M₂.𝟘  →⟨ hyp ⟩
-    tr q ≡ M₂.𝟘     →⟨ tr-≡-𝟘-⇔′ .proj₁ ⟩
-    q ≡ M₁.𝟘        □
-
-  lemma₃ :
-    ∀ {p q} →
-    (tr p ≢ M₂.𝟘 → tr q ≡ ω₂) →
+    (tr-BinderMode tr tr-Σ b p ≢ M₂.𝟘 → tr q ≡ ω₂) →
     p ≢ M₁.𝟘 → q ≡ ω₁
-  lemma₃ {p = p} {q = q} hyp =
+  lemma₂ {p = p} {q = q} BMΠ hyp =
     p ≢ M₁.𝟘     →⟨ _∘→ tr-≡-𝟘-⇔′ .proj₁ ⟩
     tr p ≢ M₂.𝟘  →⟨ hyp ⟩
     tr q ≡ ω₂    →⟨ tr-ω ⟩
     q ≡ ω₁       □
-
-  lemma₄ :
-    ∀ {p q} b →
-    (tr-BinderMode tr tr-Σₚ b p ≢ M₂.𝟘 → tr q ≡ ω₂) →
-    p ≢ M₁.𝟘 → q ≡ ω₁
-  lemma₄                 BMΠ      = lemma₃
-  lemma₄                 (BMΣ Σᵣ) = lemma₃
-  lemma₄ {p = p} {q = q} (BMΣ Σₚ) = λ hyp →
-    p ≢ M₁.𝟘        →⟨ _∘→ tr-Σₚ-≡-𝟘-⇔ .proj₁ ⟩
-    tr-Σₚ p ≢ M₂.𝟘  →⟨ hyp ⟩
-    tr q ≡ ω₂       →⟨ tr-ω ⟩
-    q ≡ ω₁          □
+  lemma₂ {p = p} {q = q} (BMΣ _) hyp =
+    p ≢ M₁.𝟘       →⟨ _∘→ tr-Σ-≡-𝟘-⇔ .proj₁ ⟩
+    tr-Σ p ≢ M₂.𝟘  →⟨ hyp ⟩
+    tr q ≡ ω₂      →⟨ tr-ω ⟩
+    q ≡ ω₁         □
 
 -- A variant of
 -- Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω with
@@ -1120,20 +1116,20 @@ Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω
 Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω′ :
   ∀ {ω₁ ω₂} →
   Is-order-embedding 𝕄₁ 𝕄₂ tr →
-  Is-Σₚ-morphism 𝕄₁ 𝕄₂ tr tr-Σₚ →
-  (¬ T (Modality.𝟘ᵐ-allowed 𝕄₁) → ∀ {p} → tr-Σₚ p ≡ tr p) →
+  Is-Σ-morphism 𝕄₁ 𝕄₂ tr tr-Σ →
+  (¬ T (Modality.𝟘ᵐ-allowed 𝕄₁) → ∀ {p} → tr-Σ p ≡ tr p) →
   (∀ {p} → tr p ≡ ω₂ → p ≡ ω₁) →
   Are-reflecting-term-restrictions
     (Modality.term-restrictions 𝕄₁)
     (Modality.term-restrictions 𝕄₂)
-    tr tr-Σₚ →
+    tr tr-Σ →
   Are-reflecting-term-restrictions
     (second-ΠΣ-quantities-𝟘-or-ω ω₁ 𝕄₁)
     (second-ΠΣ-quantities-𝟘-or-ω ω₂ 𝕄₂)
-    tr tr-Σₚ
+    tr tr-Σ
 Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
-  {𝕄₁ = 𝕄₁} {𝕄₂ = 𝕄₂} {tr = tr} {tr-Σₚ = tr-Σₚ} {ω₁ = ω₁} {ω₂ = ω₂}
-  emb m tr-Σₚ≡tr tr-ω r = record
+  {𝕄₁ = 𝕄₁} {𝕄₂ = 𝕄₂} {tr = tr} {tr-Σ = tr-Σ} {ω₁ = ω₁} {ω₂ = ω₂}
+  emb m tr-Σ≡tr tr-ω r = record
   { Prodrec-reflected = Prodrec-reflected
   ; Binder-reflected  = λ {b = b} (bn , is-𝟘 , not-𝟘) →
       Binder-reflected bn , lemma₂ b is-𝟘 , lemma₄ b not-𝟘
@@ -1144,7 +1140,7 @@ Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
   open Are-reflecting-term-restrictions r
   open Definition.Modality.Properties 𝕄₁
   open Is-order-embedding emb
-  open Is-Σₚ-morphism m
+  open Is-Σ-morphism m
 
   lemma₁ :
     ∀ {p q} →
@@ -1164,21 +1160,20 @@ Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
 
   lemma₂ :
     ∀ {p q} b →
-    (tr-BinderMode tr tr-Σₚ b p ≡ M₂.𝟘 → tr q ≡ M₂.𝟘) →
+    (tr-BinderMode tr tr-Σ b p ≡ M₂.𝟘 → tr q ≡ M₂.𝟘) →
     p ≡ M₁.𝟘 → q ≡ M₁.𝟘
-  lemma₂                 BMΠ      = lemma₁
-  lemma₂                 (BMΣ Σᵣ) = lemma₁
-  lemma₂ {p = p} {q = q} (BMΣ Σₚ) = λ hyp →
+  lemma₂                 BMΠ     = lemma₁
+  lemma₂ {p = p} {q = q} (BMΣ _) = λ hyp →
     Mode.𝟘ᵐ-allowed-elim 𝕄₁
       (λ ok →
-         p ≡ M₁.𝟘        →⟨ (λ { refl → tr-Σₚ-𝟘-≡ tr-morphism ok }) ⟩
-         tr-Σₚ p ≡ M₂.𝟘  →⟨ hyp ⟩
-         tr q ≡ M₂.𝟘     →⟨ tr-≡-𝟘-⇔ ok .proj₁ ⟩
-         q ≡ M₁.𝟘        □)
+         p ≡ M₁.𝟘       →⟨ (λ { refl → tr-Σ-𝟘-≡ tr-morphism ok }) ⟩
+         tr-Σ p ≡ M₂.𝟘  →⟨ hyp ⟩
+         tr q ≡ M₂.𝟘    →⟨ tr-≡-𝟘-⇔ ok .proj₁ ⟩
+         q ≡ M₁.𝟘       □)
       (λ not-ok → lemma₁ (
-         tr p ≡ M₂.𝟘     ≡⟨ cong (_≡ _) (sym (tr-Σₚ≡tr not-ok)) ⟩→
-         tr-Σₚ p ≡ M₂.𝟘  →⟨ hyp ⟩
-         tr q ≡ M₂.𝟘     □))
+         tr p ≡ M₂.𝟘    ≡⟨ cong (_≡ _) (sym (tr-Σ≡tr not-ok)) ⟩→
+         tr-Σ p ≡ M₂.𝟘  →⟨ hyp ⟩
+         tr q ≡ M₂.𝟘    □))
 
   lemma₃ :
     ∀ {p q} →
@@ -1198,21 +1193,20 @@ Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
 
   lemma₄ :
     ∀ {p q} b →
-    (tr-BinderMode tr tr-Σₚ b p ≢ M₂.𝟘 → tr q ≡ ω₂) →
+    (tr-BinderMode tr tr-Σ b p ≢ M₂.𝟘 → tr q ≡ ω₂) →
     p ≢ M₁.𝟘 → q ≡ ω₁
-  lemma₄                 BMΠ      = lemma₃
-  lemma₄                 (BMΣ Σᵣ) = lemma₃
-  lemma₄ {p = p} {q = q} (BMΣ Σₚ) = λ hyp →
+  lemma₄                 BMΠ     = lemma₃
+  lemma₄ {p = p} {q = q} (BMΣ _) = λ hyp →
     Mode.𝟘ᵐ-allowed-elim 𝕄₁
       (λ ok →
-         p ≢ M₁.𝟘        →⟨ _∘→ (λ hyp → tr-Σₚ-≡-𝟘-→ (𝟘ᵐ-in-second-if-in-first ok) hyp .proj₂) ⟩
-         tr-Σₚ p ≢ M₂.𝟘  →⟨ hyp ⟩
-         tr q ≡ ω₂       →⟨ tr-ω ⟩
+         p ≢ M₁.𝟘       →⟨ _∘→ (λ hyp → tr-Σ-≡-𝟘-→ (𝟘ᵐ-in-second-if-in-first ok) hyp .proj₂) ⟩
+         tr-Σ p ≢ M₂.𝟘  →⟨ hyp ⟩
+         tr q ≡ ω₂      →⟨ tr-ω ⟩
          q ≡ ω₁          □)
       (λ not-ok → lemma₃ (
-         tr p ≢ M₂.𝟘     ≡⟨ cong (_≢ _) (sym (tr-Σₚ≡tr not-ok)) ⟩→
-         tr-Σₚ p ≢ M₂.𝟘  →⟨ hyp ⟩
-         tr q ≡ ω₂       □))
+         tr p ≢ M₂.𝟘    ≡⟨ cong (_≢ _) (sym (tr-Σ≡tr not-ok)) ⟩→
+         tr-Σ p ≢ M₂.𝟘  →⟨ hyp ⟩
+         tr q ≡ ω₂      □))
 
 ------------------------------------------------------------------------
 -- Some translation functions
@@ -1235,10 +1229,10 @@ erasure→zero-one-many = λ where
   ω → ω
 
 -- A translation from Erasure to Zero-one-many, intended to be used
--- for the first components of Σ-types with η-equality.
+-- for the first components of Σ-types.
 
-erasure→zero-one-many-Σₚ : Erasure → Zero-one-many 𝟙≤𝟘
-erasure→zero-one-many-Σₚ = λ where
+erasure→zero-one-many-Σ : Erasure → Zero-one-many 𝟙≤𝟘
+erasure→zero-one-many-Σ = λ where
   𝟘 → 𝟘
   ω → 𝟙
 
@@ -1275,10 +1269,10 @@ affine→linear-or-affine = λ where
   ω → ≤ω
 
 -- A translation from Affine to Linear-or-affine, intended to be used
--- for the first components of Σ-types with η-equality.
+-- for the first components of Σ-types.
 
-affine→linear-or-affine-Σₚ : Affine → Linear-or-affine
-affine→linear-or-affine-Σₚ = λ where
+affine→linear-or-affine-Σ : Affine → Linear-or-affine
+affine→linear-or-affine-Σ = λ where
   𝟘 → 𝟘
   𝟙 → 𝟙
   ω → ≤ω
@@ -1300,9 +1294,9 @@ affine→linearity =
 
 -- A translation from Affine to Linearity.
 
-affine→linearity-Σₚ : Affine → Linearity
-affine→linearity-Σₚ =
-  linear-or-affine→linearity ∘→ affine→linear-or-affine-Σₚ
+affine→linearity-Σ : Affine → Linearity
+affine→linearity-Σ =
+  linear-or-affine→linearity ∘→ affine→linear-or-affine-Σ
 
 -- A translation from Linearity to Affine.
 
@@ -4755,33 +4749,37 @@ linearity⇨affine {r₂ = r₂} refl = λ where
     λ ()
 
 ------------------------------------------------------------------------
--- Σₚ-morphisms and order embeddings for Σₚ
+-- Σ-morphisms and order embeddings for Σ
 
--- The function erasure→zero-one-many-Σₚ is an order embedding for Σₚ
+-- The function erasure→zero-one-many-Σ is an order embedding for Σ
 -- (with respect to erasure→zero-one-many) from an erasure modality to
 -- a zero-one-many-greatest modality, given that if the second
 -- modality allows 𝟘ᵐ, then the first also does this. The
 -- zero-one-many-greatest modality can be defined with either 𝟙 ≤ 𝟘 or
 -- 𝟙 ≰ 𝟘.
 
-erasure⇨zero-one-many-Σₚ :
+erasure⇨zero-one-many-Σ :
   (T (Restrictions.𝟘ᵐ-allowed r₂) → T (Restrictions.𝟘ᵐ-allowed r₁)) →
-  Is-Σₚ-order-embedding
+  Is-Σ-order-embedding
     (ErasureModality r₁)
     (zero-one-many-greatest 𝟙≤𝟘 r₂)
     erasure→zero-one-many
-    erasure→zero-one-many-Σₚ
-erasure⇨zero-one-many-Σₚ {𝟙≤𝟘 = 𝟙≤𝟘} ok₂₁ = record
-  { tr-Σₚ-morphism = record
-    { tr-≤-tr-Σₚ = λ where
+    erasure→zero-one-many-Σ
+erasure⇨zero-one-many-Σ {𝟙≤𝟘 = 𝟙≤𝟘} ok₂₁ = record
+  { tr-Σ-morphism = record
+    { tr-≤-tr-Σ = λ where
         {p = 𝟘} → refl
         {p = ω} → refl
-    ; tr-Σₚ-≡-𝟘-→ = λ where
+    ; tr-Σ-≡-𝟘-→ = λ where
         {p = 𝟘} ok₂ _ → ok₂₁ ok₂ , refl
-    ; tr-Σₚ-≤-𝟙 = λ where
+    ; tr-Σ-≤-𝟙 = λ where
         {p = ω} _ → refl
+    ; tr-·-tr-Σ-≤ = λ where
+        {p = 𝟘} {q = _} → refl
+        {p = ω} {q = 𝟘} → refl
+        {p = ω} {q = ω} → refl
     }
-  ; tr-≤-tr-Σₚ-→ = λ where
+  ; tr-≤-tr-Σ-→ = λ where
       {p = 𝟘} {q = 𝟘}         _     → ω , refl , refl
       {p = 𝟘} {q = ω} {r = 𝟘} _     → 𝟘 , refl , refl
       {p = 𝟘} {q = ω} {r = 𝟙} 𝟘≡𝟘∧𝟙 → ⊥-elim (𝟘𝟙ω.𝟘∧𝟙≢𝟘 (sym 𝟘≡𝟘∧𝟙))
@@ -4790,60 +4788,68 @@ erasure⇨zero-one-many-Σₚ {𝟙≤𝟘 = 𝟙≤𝟘} ok₂₁ = record
   where
   module 𝟘𝟙ω = ZOM 𝟙≤𝟘
 
--- The function erasure→zero-one-many-Σₚ is an order embedding for Σₚ
+-- The function erasure→zero-one-many-Σ is an order embedding for Σ
 -- (with respect to erasure→zero-one-many) from an erasure modality to
 -- a linear types modality, given that if the second modality allows
 -- 𝟘ᵐ, then the first also does this.
 
-erasure⇨linearity-Σₚ :
+erasure⇨linearity-Σ :
   (T (Restrictions.𝟘ᵐ-allowed r₂) → T (Restrictions.𝟘ᵐ-allowed r₁)) →
-  Is-Σₚ-order-embedding (ErasureModality r₁) (linearityModality r₂)
-    erasure→zero-one-many erasure→zero-one-many-Σₚ
-erasure⇨linearity-Σₚ = erasure⇨zero-one-many-Σₚ
+  Is-Σ-order-embedding (ErasureModality r₁) (linearityModality r₂)
+    erasure→zero-one-many erasure→zero-one-many-Σ
+erasure⇨linearity-Σ = erasure⇨zero-one-many-Σ
 
--- The function erasure→zero-one-many-Σₚ is not monotone with respect
+-- The function erasure→zero-one-many-Σ is not monotone with respect
 -- to the erasure and linear types orderings.
 
-erasure⇨linearity-Σₚ-not-monotone :
+erasure⇨linearity-Σ-not-monotone :
   ¬ (∀ {p q} →
      p E.≤ q →
-     erasure→zero-one-many-Σₚ p L.≤ erasure→zero-one-many-Σₚ q)
-erasure⇨linearity-Σₚ-not-monotone mono =
+     erasure→zero-one-many-Σ p L.≤ erasure→zero-one-many-Σ q)
+erasure⇨linearity-Σ-not-monotone mono =
   case mono {p = ω} {q = 𝟘} refl of λ ()
 
--- The function erasure→zero-one-many-Σₚ is an order embedding for Σₚ
+-- The function erasure→zero-one-many-Σ is an order embedding for Σ
 -- (with respect to erasure→zero-one-many) from an erasure modality to
 -- an affine types modality, given that if the second modality allows
 -- 𝟘ᵐ, then the first also does this.
 
-erasure⇨affine-Σₚ :
+erasure⇨affine-Σ :
   (T (Restrictions.𝟘ᵐ-allowed r₂) → T (Restrictions.𝟘ᵐ-allowed r₁)) →
-  Is-Σₚ-order-embedding (ErasureModality r₁) (affineModality r₂)
-    erasure→zero-one-many erasure→zero-one-many-Σₚ
-erasure⇨affine-Σₚ = erasure⇨zero-one-many-Σₚ
+  Is-Σ-order-embedding (ErasureModality r₁) (affineModality r₂)
+    erasure→zero-one-many erasure→zero-one-many-Σ
+erasure⇨affine-Σ = erasure⇨zero-one-many-Σ
 
--- The function affine→linear-or-affine-Σₚ is an order embedding for
--- Σₚ (with respect to affine→linear-or-affine) from an affine types
+-- The function affine→linear-or-affine-Σ is an order embedding for Σ
+-- (with respect to affine→linear-or-affine) from an affine types
 -- modality to a linear or affine types modality, given that if the
 -- second modality allows 𝟘ᵐ, then the first also does this.
 
-affine⇨linear-or-affine-Σₚ :
+affine⇨linear-or-affine-Σ :
   (T (Restrictions.𝟘ᵐ-allowed r₂) → T (Restrictions.𝟘ᵐ-allowed r₁)) →
-  Is-Σₚ-order-embedding (affineModality r₁) (linear-or-affine r₂)
-    affine→linear-or-affine affine→linear-or-affine-Σₚ
-affine⇨linear-or-affine-Σₚ {r₂ = r₂} ok₂₁ = record
-  { tr-Σₚ-morphism = record
-    { tr-≤-tr-Σₚ = λ where
+  Is-Σ-order-embedding (affineModality r₁) (linear-or-affine r₂)
+    affine→linear-or-affine affine→linear-or-affine-Σ
+affine⇨linear-or-affine-Σ {r₂ = r₂} ok₂₁ = record
+  { tr-Σ-morphism = record
+    { tr-≤-tr-Σ = λ where
         {p = 𝟘} → refl
         {p = 𝟙} → refl
         {p = ω} → refl
-    ; tr-Σₚ-≡-𝟘-→ = λ where
+    ; tr-Σ-≡-𝟘-→ = λ where
         {p = 𝟘} ok₂ _ → ok₂₁ ok₂ , refl
-    ; tr-Σₚ-≤-𝟙 = λ where
+    ; tr-Σ-≤-𝟙 = λ where
         {p = 𝟙} _ → refl
         {p = ω} _ → refl
+    ; tr-·-tr-Σ-≤ = λ where
+        {p = 𝟘} {q = _} → refl
+        {p = 𝟙} {q = 𝟘} → refl
+        {p = 𝟙} {q = 𝟙} → refl
+        {p = 𝟙} {q = ω} → refl
+        {p = ω} {q = 𝟘} → refl
+        {p = ω} {q = 𝟙} → refl
+        {p = ω} {q = ω} → refl
     }
-  ; tr-≤-tr-Σₚ-→ = λ where
+  ; tr-≤-tr-Σ-→ = λ where
       {p = 𝟘} {q = 𝟘}          _ → ω , refl , refl
       {p = 𝟘} {q = 𝟙} {r = 𝟘}  _ → 𝟘 , refl , refl
       {p = 𝟘} {q = ω} {r = 𝟘}  _ → 𝟘 , refl , refl
@@ -4855,83 +4861,91 @@ affine⇨linear-or-affine-Σₚ {r₂ = r₂} ok₂₁ = record
       {p = ω}                  _ → ω , refl , refl
   }
 
--- The function affine→linear-or-affine-Σₚ is not monotone with
--- respect to the affine types and linear or affine types orderings.
+-- The function affine→linear-or-affine-Σ is not monotone with respect
+-- to the affine types and linear or affine types orderings.
 
-affine→linear-or-affine-Σₚ-not-monotone :
+affine→linear-or-affine-Σ-not-monotone :
   ¬ (∀ {p q} →
      p A.≤ q →
-     affine→linear-or-affine-Σₚ p LA.≤ affine→linear-or-affine-Σₚ q)
-affine→linear-or-affine-Σₚ-not-monotone mono =
+     affine→linear-or-affine-Σ p LA.≤ affine→linear-or-affine-Σ q)
+affine→linear-or-affine-Σ-not-monotone mono =
   case mono {p = 𝟙} {q = 𝟘} refl of λ ()
 
--- There is a function tr-Σₚ that is a Σₚ-morphism and an order
--- embedding for Σₚ for two modalities (with respect to a function
--- that is an order embedding for those modalities), but neither a
--- morphism nor an order embedding for those modalities.
+-- There is a function tr-Σ that is a Σ-morphism and an order
+-- embedding for Σ for two modalities (with respect to a function that
+-- is an order embedding for those modalities), but neither a morphism
+-- nor an order embedding for those modalities.
 
-Σₚ-order-embedding-but-not-order-embedding :
+Σ-order-embedding-but-not-order-embedding :
   ∃₂ λ (M₁ M₂ : Set) →
   ∃₂ λ (𝕄₁ : Modality M₁) (𝕄₂ : Modality M₂) →
-  ∃₂ λ (tr tr-Σₚ : M₁ → M₂) →
+  ∃₂ λ (tr tr-Σ : M₁ → M₂) →
   Is-order-embedding 𝕄₁ 𝕄₂ tr ×
-  Is-Σₚ-morphism 𝕄₁ 𝕄₂ tr tr-Σₚ ×
-  Is-Σₚ-order-embedding 𝕄₁ 𝕄₂ tr tr-Σₚ ×
-  ¬ Is-morphism 𝕄₁ 𝕄₂ tr-Σₚ ×
-  ¬ Is-order-embedding 𝕄₁ 𝕄₂ tr-Σₚ
-Σₚ-order-embedding-but-not-order-embedding =
+  Is-Σ-morphism 𝕄₁ 𝕄₂ tr tr-Σ ×
+  Is-Σ-order-embedding 𝕄₁ 𝕄₂ tr tr-Σ ×
+  ¬ Is-morphism 𝕄₁ 𝕄₂ tr-Σ ×
+  ¬ Is-order-embedding 𝕄₁ 𝕄₂ tr-Σ
+Σ-order-embedding-but-not-order-embedding =
     Affine , Linear-or-affine
   , affineModality no-restrictions
   , linear-or-affine no-restrictions
-  , affine→linear-or-affine , affine→linear-or-affine-Σₚ
+  , affine→linear-or-affine , affine→linear-or-affine-Σ
   , affine⇨linear-or-affine refl
-  , Is-Σₚ-order-embedding.tr-Σₚ-morphism (affine⇨linear-or-affine-Σₚ _)
-  , affine⇨linear-or-affine-Σₚ _
-  , affine→linear-or-affine-Σₚ-not-monotone ∘→ Is-morphism.tr-monotone
-  , affine→linear-or-affine-Σₚ-not-monotone ∘→
+  , Is-Σ-order-embedding.tr-Σ-morphism (affine⇨linear-or-affine-Σ _)
+  , affine⇨linear-or-affine-Σ _
+  , affine→linear-or-affine-Σ-not-monotone ∘→ Is-morphism.tr-monotone
+  , affine→linear-or-affine-Σ-not-monotone ∘→
     Is-order-embedding.tr-monotone
 
--- The function affine→linearity-Σₚ is a Σₚ-morphism (with respect to
+-- The function affine→linearity-Σ is a Σ-morphism (with respect to
 -- affine→linearity) from an affine types modality to a linear types
 -- modality, given that if the second modality allows 𝟘ᵐ, then the
 -- first also does this.
 
-affine⇨linearity-Σₚ :
+affine⇨linearity-Σ :
   (T (Restrictions.𝟘ᵐ-allowed r₂) → T (Restrictions.𝟘ᵐ-allowed r₁)) →
-  Is-Σₚ-morphism (affineModality r₁) (linearityModality r₂)
-    affine→linearity affine→linearity-Σₚ
-affine⇨linearity-Σₚ {r₂ = r₂} ok₂₁ = record
-  { tr-≤-tr-Σₚ = λ where
+  Is-Σ-morphism (affineModality r₁) (linearityModality r₂)
+    affine→linearity affine→linearity-Σ
+affine⇨linearity-Σ {r₂ = r₂} ok₂₁ = record
+  { tr-≤-tr-Σ = λ where
       {p = 𝟘} → refl
       {p = 𝟙} → refl
       {p = ω} → refl
-  ; tr-Σₚ-≡-𝟘-→ = λ where
+  ; tr-Σ-≡-𝟘-→ = λ where
       {p = 𝟘} ok₂ _ → ok₂₁ ok₂ , refl
-  ; tr-Σₚ-≤-𝟙 = λ where
+  ; tr-Σ-≤-𝟙 = λ where
       {p = 𝟙} _ → refl
       {p = ω} _ → refl
+  ; tr-·-tr-Σ-≤ = λ where
+      {p = 𝟘} {q = _} → refl
+      {p = 𝟙} {q = 𝟘} → refl
+      {p = 𝟙} {q = 𝟙} → refl
+      {p = 𝟙} {q = ω} → refl
+      {p = ω} {q = 𝟘} → refl
+      {p = ω} {q = 𝟙} → refl
+      {p = ω} {q = ω} → refl
   }
 
--- The function affine→linearity-Σₚ is not monotone with respect to
--- the affine types and linear types orderings.
+-- The function affine→linearity-Σ is not monotone with respect to the
+-- affine types and linear types orderings.
 
-affine→linearity-Σₚ-not-monotone :
+affine→linearity-Σ-not-monotone :
   ¬ (∀ {p q} →
      p A.≤ q →
-     affine→linearity-Σₚ p L.≤ affine→linearity-Σₚ q)
-affine→linearity-Σₚ-not-monotone mono =
+     affine→linearity-Σ p L.≤ affine→linearity-Σ q)
+affine→linearity-Σ-not-monotone mono =
   case mono {p = 𝟙} {q = 𝟘} refl of λ ()
 
--- The function affine→linearity-Σₚ is not an order embedding for Σₚ
+-- The function affine→linearity-Σ is not an order embedding for Σ
 -- (with respect to affine→linearity) from an affine types modality to
 -- a linear types modality.
 
-¬affine⇨linearity-Σₚ :
-  ¬ Is-Σₚ-order-embedding (affineModality r₁) (linearityModality r₂)
-      affine→linearity affine→linearity-Σₚ
-¬affine⇨linearity-Σₚ m =
+¬affine⇨linearity-Σ :
+  ¬ Is-Σ-order-embedding (affineModality r₁) (linearityModality r₂)
+      affine→linearity affine→linearity-Σ
+¬affine⇨linearity-Σ m =
   case
-    Is-Σₚ-order-embedding.tr-≤-tr-Σₚ-→ m {p = 𝟙} {q = ω} {r = ω} refl
+    Is-Σ-order-embedding.tr-≤-tr-Σ-→ m {p = 𝟙} {q = ω} {r = ω} refl
   of λ where
     (𝟘 , () , _)
     (𝟙 , _  , ())
@@ -4941,30 +4955,30 @@ affine→linearity-Σₚ-not-monotone mono =
 -- Some lemmas related to equal-binder-quantities and concrete
 -- translation functions
 
--- The functions erasure→zero-one-many and erasure→zero-one-many-Σₚ do
+-- The functions erasure→zero-one-many and erasure→zero-one-many-Σ do
 -- not preserve certain term restrictions obtained using
 -- equal-binder-quantities.
 
-¬-erasure→zero-one-many-Σₚ-preserves-equal-binder-quantities :
+¬-erasure→zero-one-many-Σ-preserves-equal-binder-quantities :
   ¬ Are-preserving-term-restrictions
       (equal-binder-quantities no-term-restrictions)
       (equal-binder-quantities rt)
-      erasure→zero-one-many erasure→zero-one-many-Σₚ
-¬-erasure→zero-one-many-Σₚ-preserves-equal-binder-quantities r =
+      erasure→zero-one-many erasure→zero-one-many-Σ
+¬-erasure→zero-one-many-Σ-preserves-equal-binder-quantities r =
   case Binder-preserved {b = BMΣ Σₚ} {p = ω} (_ , refl) .proj₂ of λ ()
   where
   open Are-preserving-term-restrictions r
 
--- The functions affine→linear-or-affine and
--- affine→linear-or-affine-Σₚ do not preserve certain term
--- restrictions obtained using equal-binder-quantities.
+-- The functions affine→linear-or-affine and affine→linear-or-affine-Σ
+-- do not preserve certain term restrictions obtained using
+-- equal-binder-quantities.
 
-¬-affine→linear-or-affine-Σₚ-preserves-equal-binder-quantities :
+¬-affine→linear-or-affine-Σ-preserves-equal-binder-quantities :
   ¬ Are-preserving-term-restrictions
       (equal-binder-quantities no-term-restrictions)
       (equal-binder-quantities rt)
-      affine→linear-or-affine affine→linear-or-affine-Σₚ
-¬-affine→linear-or-affine-Σₚ-preserves-equal-binder-quantities r =
+      affine→linear-or-affine affine→linear-or-affine-Σ
+¬-affine→linear-or-affine-Σ-preserves-equal-binder-quantities r =
   case Binder-preserved {b = BMΣ Σₚ} {p = 𝟙} (_ , refl) .proj₂ of λ ()
   where
   open Are-preserving-term-restrictions r
@@ -4989,7 +5003,7 @@ unit→erasure-preserves-second-ΠΣ-quantities-𝟘-or-ω {r = r} =
   Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
     {𝕄₂ = ErasureModality r}
     unit⇨erasure
-    (Is-morphism→Is-Σₚ-morphism $
+    (Is-morphism→Is-Σ-morphism $
      Is-order-embedding.tr-morphism unit⇨erasure)
     (λ _ → refl)
     refl
@@ -5010,7 +5024,7 @@ unit→erasure-reflects-second-ΠΣ-quantities-𝟘-or-ω {r = r} =
   Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
     {𝕄₂ = ErasureModality r}
     unit⇨erasure
-    (Is-morphism→Is-Σₚ-morphism $
+    (Is-morphism→Is-Σ-morphism $
      Is-order-embedding.tr-morphism unit⇨erasure)
     (λ _ → refl)
     (λ _ → refl)
@@ -5074,7 +5088,7 @@ erasure→zero-one-many-preserves-second-ΠΣ-quantities-𝟘-or-ω :
 erasure→zero-one-many-preserves-second-ΠΣ-quantities-𝟘-or-ω eq =
   Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
     m
-    (Is-morphism→Is-Σₚ-morphism $ Is-order-embedding.tr-morphism m)
+    (Is-morphism→Is-Σ-morphism $ Is-order-embedding.tr-morphism m)
     (λ _ → refl)
     refl
   where
@@ -5099,36 +5113,35 @@ erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω :
 erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω eq =
   Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
     m
-    (Is-morphism→Is-Σₚ-morphism $ Is-order-embedding.tr-morphism m)
+    (Is-morphism→Is-Σ-morphism $ Is-order-embedding.tr-morphism m)
     (λ _ → refl)
     (λ where
        {p = ω} _ → refl)
   where
   m = erasure⇨zero-one-many eq
 
--- If the functions erasure→zero-one-many and erasure→zero-one-many-Σₚ
+-- If the functions erasure→zero-one-many and erasure→zero-one-many-Σ
 -- preserve term restrictions for an erasure modality and a
 -- zero-one-many-greatest modality, and 𝟘ᵐ is either allowed in both
 -- modalities or none, then the functions preserve certain term
 -- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
-erasure→zero-one-many-Σₚ-preserves-second-ΠΣ-quantities-𝟘-or-ω :
+erasure→zero-one-many-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω :
   Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
   Are-preserving-term-restrictions
     (Restrictions.term-restrictions r₁)
     (Restrictions.term-restrictions r₂)
-    erasure→zero-one-many erasure→zero-one-many-Σₚ →
+    erasure→zero-one-many erasure→zero-one-many-Σ →
   Are-preserving-term-restrictions
     (second-ΠΣ-quantities-𝟘-or-ω ω (ErasureModality r₁))
     (second-ΠΣ-quantities-𝟘-or-ω ω (zero-one-many-greatest 𝟙≤𝟘 r₂))
-    erasure→zero-one-many erasure→zero-one-many-Σₚ
-erasure→zero-one-many-Σₚ-preserves-second-ΠΣ-quantities-𝟘-or-ω
+    erasure→zero-one-many erasure→zero-one-many-Σ
+erasure→zero-one-many-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω
  {r₁ = r₁} refl =
   Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω
     {𝕄₁ = ErasureModality r₁}
     (Is-order-embedding.tr-morphism $ erasure⇨zero-one-many refl)
-    (Is-Σₚ-order-embedding.tr-Σₚ-morphism
-       (erasure⇨zero-one-many-Σₚ idᶠ))
+    (Is-Σ-order-embedding.tr-Σ-morphism $ erasure⇨zero-one-many-Σ idᶠ)
     (λ _ →
          (λ where
             {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
@@ -5138,29 +5151,28 @@ erasure→zero-one-many-Σₚ-preserves-second-ΠΣ-quantities-𝟘-or-ω
             {p = ω} → (λ ()) , (λ ())))
     refl
 
--- If the functions erasure→zero-one-many and erasure→zero-one-many-Σₚ
+-- If the functions erasure→zero-one-many and erasure→zero-one-many-Σ
 -- reflect term restrictions for an erasure modality and a
 -- zero-one-many-greatest modality, and 𝟘ᵐ is either allowed in both
 -- modalities or none, then the functions reflect certain term
 -- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
-erasure→zero-one-many-Σₚ-reflects-second-ΠΣ-quantities-𝟘-or-ω :
+erasure→zero-one-many-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω :
   Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
   Are-reflecting-term-restrictions
     (Restrictions.term-restrictions r₁)
     (Restrictions.term-restrictions r₂)
-    erasure→zero-one-many erasure→zero-one-many-Σₚ →
+    erasure→zero-one-many erasure→zero-one-many-Σ →
   Are-reflecting-term-restrictions
     (second-ΠΣ-quantities-𝟘-or-ω ω (ErasureModality r₁))
     (second-ΠΣ-quantities-𝟘-or-ω ω (zero-one-many-greatest 𝟙≤𝟘 r₂))
-    erasure→zero-one-many erasure→zero-one-many-Σₚ
-erasure→zero-one-many-Σₚ-reflects-second-ΠΣ-quantities-𝟘-or-ω
+    erasure→zero-one-many erasure→zero-one-many-Σ
+erasure→zero-one-many-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω
   {r₁ = r₁} refl =
   Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω
     {𝕄₁ = ErasureModality r₁}
     (Is-order-embedding.tr-morphism $ erasure⇨zero-one-many refl)
-    (Is-Σₚ-order-embedding.tr-Σₚ-morphism $
-     erasure⇨zero-one-many-Σₚ idᶠ)
+    (Is-Σ-order-embedding.tr-Σ-morphism $ erasure⇨zero-one-many-Σ idᶠ)
     (λ _ →
          (λ where
             {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
@@ -5190,7 +5202,7 @@ zero-one-many→erasure-preserves-second-ΠΣ-quantities-𝟘-or-ω :
 zero-one-many→erasure-preserves-second-ΠΣ-quantities-𝟘-or-ω eq =
   Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω
     m
-    (Is-morphism→Is-Σₚ-morphism m)
+    (Is-morphism→Is-Σ-morphism m)
     (λ _ →
          (λ where
             {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
@@ -5242,7 +5254,7 @@ linearity→linear-or-affine-preserves-second-ΠΣ-quantities-𝟘-or-ω :
 linearity→linear-or-affine-preserves-second-ΠΣ-quantities-𝟘-or-ω eq =
   Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
     m
-    (Is-morphism→Is-Σₚ-morphism $ Is-order-embedding.tr-morphism m)
+    (Is-morphism→Is-Σ-morphism $ Is-order-embedding.tr-morphism m)
     (λ _ → refl)
     refl
   where
@@ -5267,7 +5279,7 @@ linearity→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω :
 linearity→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω eq =
   Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
     m
-    (Is-morphism→Is-Σₚ-morphism $ Is-order-embedding.tr-morphism m)
+    (Is-morphism→Is-Σ-morphism $ Is-order-embedding.tr-morphism m)
     (λ _ → refl)
     (λ where
        {p = ω} _ → refl)
@@ -5294,7 +5306,7 @@ linear-or-affine→linearity-preserves-second-ΠΣ-quantities-𝟘-or-ω :
 linear-or-affine→linearity-preserves-second-ΠΣ-quantities-𝟘-or-ω eq =
   Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω
     m
-    (Is-morphism→Is-Σₚ-morphism m)
+    (Is-morphism→Is-Σ-morphism m)
     (λ _ →
          (λ where
             {p = 𝟘}  → (λ _ → refl) , (λ _ → refl)
@@ -5348,7 +5360,7 @@ affine→linear-or-affine-preserves-second-ΠΣ-quantities-𝟘-or-ω :
 affine→linear-or-affine-preserves-second-ΠΣ-quantities-𝟘-or-ω eq =
   Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
     m
-    (Is-morphism→Is-Σₚ-morphism $ Is-order-embedding.tr-morphism m)
+    (Is-morphism→Is-Σ-morphism $ Is-order-embedding.tr-morphism m)
     (λ _ → refl)
     refl
   where
@@ -5373,7 +5385,7 @@ affine→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω :
 affine→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω eq =
   Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
     m
-    (Is-morphism→Is-Σₚ-morphism $ Is-order-embedding.tr-morphism m)
+    (Is-morphism→Is-Σ-morphism $ Is-order-embedding.tr-morphism m)
     (λ _ → refl)
     (λ where
        {p = ω} _ → refl)
@@ -5381,29 +5393,28 @@ affine→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω eq =
   m = affine⇨linear-or-affine eq
 
 -- If the functions affine→linear-or-affine and
--- affine→linear-or-affine-Σₚ preserve term restrictions for an affine
+-- affine→linear-or-affine-Σ preserve term restrictions for an affine
 -- types modality and a linear or affine types modality, and 𝟘ᵐ is
 -- either allowed in both modalities or none, then the functions
 -- preserve certain term restrictions obtained using
 -- second-ΠΣ-quantities-𝟘-or-ω.
 
-affine→linear-or-affine-Σₚ-preserves-second-ΠΣ-quantities-𝟘-or-ω :
+affine→linear-or-affine-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω :
   Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
   Are-preserving-term-restrictions
     (Restrictions.term-restrictions r₁)
     (Restrictions.term-restrictions r₂)
-    affine→linear-or-affine affine→linear-or-affine-Σₚ →
+    affine→linear-or-affine affine→linear-or-affine-Σ →
   Are-preserving-term-restrictions
     (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality r₁))
     (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine r₂))
-    affine→linear-or-affine affine→linear-or-affine-Σₚ
-affine→linear-or-affine-Σₚ-preserves-second-ΠΣ-quantities-𝟘-or-ω
+    affine→linear-or-affine affine→linear-or-affine-Σ
+affine→linear-or-affine-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω
   {r₁ = r₁} refl =
   Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω
     {𝕄₁ = affineModality r₁}
     (Is-order-embedding.tr-morphism $ affine⇨linear-or-affine refl)
-    (Is-Σₚ-order-embedding.tr-Σₚ-morphism $
-     affine⇨linear-or-affine-Σₚ idᶠ)
+    (Is-Σ-order-embedding.tr-Σ-morphism $ affine⇨linear-or-affine-Σ idᶠ)
     (λ _ →
          (λ where
             {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
@@ -5416,29 +5427,28 @@ affine→linear-or-affine-Σₚ-preserves-second-ΠΣ-quantities-𝟘-or-ω
     refl
 
 -- If the functions affine→linear-or-affine and
--- affine→linear-or-affine-Σₚ reflect term restrictions for an affine
+-- affine→linear-or-affine-Σ reflect term restrictions for an affine
 -- types modality and a linear or affine types modality, and 𝟘ᵐ is
 -- either allowed in both modalities or none, then the functions
 -- reflect certain term restrictions obtained using
 -- second-ΠΣ-quantities-𝟘-or-ω.
 
-affine→linear-or-affine-Σₚ-reflects-second-ΠΣ-quantities-𝟘-or-ω :
+affine→linear-or-affine-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω :
   Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
   Are-reflecting-term-restrictions
     (Restrictions.term-restrictions r₁)
     (Restrictions.term-restrictions r₂)
-    affine→linear-or-affine affine→linear-or-affine-Σₚ →
+    affine→linear-or-affine affine→linear-or-affine-Σ →
   Are-reflecting-term-restrictions
     (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality r₁))
     (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine r₂))
-    affine→linear-or-affine affine→linear-or-affine-Σₚ
-affine→linear-or-affine-Σₚ-reflects-second-ΠΣ-quantities-𝟘-or-ω
+    affine→linear-or-affine affine→linear-or-affine-Σ
+affine→linear-or-affine-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω
   {r₁ = r₁} refl =
   Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω
     {𝕄₁ = affineModality r₁}
     (Is-order-embedding.tr-morphism $ affine⇨linear-or-affine refl)
-    (Is-Σₚ-order-embedding.tr-Σₚ-morphism $
-     affine⇨linear-or-affine-Σₚ idᶠ)
+    (Is-Σ-order-embedding.tr-Σ-morphism $ affine⇨linear-or-affine-Σ idᶠ)
     (λ _ →
          (λ where
             {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
@@ -5470,7 +5480,7 @@ linear-or-affine→affine-preserves-second-ΠΣ-quantities-𝟘-or-ω :
 linear-or-affine→affine-preserves-second-ΠΣ-quantities-𝟘-or-ω eq =
   Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω
     m
-    (Is-morphism→Is-Σₚ-morphism m)
+    (Is-morphism→Is-Σ-morphism m)
     (λ _ →
          (λ where
             {p = 𝟘}  → (λ _ → refl) , (λ _ → refl)
@@ -5505,7 +5515,7 @@ linear-or-affine→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω :
 linear-or-affine→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω eq =
   Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω
     m
-    (Is-morphism→Is-Σₚ-morphism m)
+    (Is-morphism→Is-Σ-morphism m)
     (λ _ →
          (λ where
             {p = 𝟘}  → (λ _ → refl) , (λ _ → refl)
@@ -5541,7 +5551,7 @@ affine→linearity-preserves-second-ΠΣ-quantities-𝟘-or-ω :
 affine→linearity-preserves-second-ΠΣ-quantities-𝟘-or-ω eq =
   Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω
     m
-    (Is-morphism→Is-Σₚ-morphism m)
+    (Is-morphism→Is-Σ-morphism m)
     (λ _ →
          (λ where
             {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
@@ -5574,28 +5584,28 @@ affine→linearity-preserves-second-ΠΣ-quantities-𝟘-or-ω eq =
   where
   open Are-reflecting-term-restrictions r
 
--- If the functions affine→linearity and affine→linearity-Σₚ preserve
+-- If the functions affine→linearity and affine→linearity-Σ preserve
 -- term restrictions for an affine types modality and a linear types
 -- modality, and 𝟘ᵐ is either allowed in both modalities or none, then
 -- the functions preserve certain term restrictions obtained using
 -- second-ΠΣ-quantities-𝟘-or-ω.
 
-affine→linearity-Σₚ-preserves-second-ΠΣ-quantities-𝟘-or-ω :
+affine→linearity-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω :
   Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
   Are-preserving-term-restrictions
     (Restrictions.term-restrictions r₁)
     (Restrictions.term-restrictions r₂)
-    affine→linearity affine→linearity-Σₚ →
+    affine→linearity affine→linearity-Σ →
   Are-preserving-term-restrictions
     (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality r₁))
     (second-ΠΣ-quantities-𝟘-or-ω ω (linearityModality r₂))
-    affine→linearity affine→linearity-Σₚ
-affine→linearity-Σₚ-preserves-second-ΠΣ-quantities-𝟘-or-ω
+    affine→linearity affine→linearity-Σ
+affine→linearity-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω
   {r₁ = r₁} refl =
   Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω
     {𝕄₁ = affineModality r₁}
     (affine⇨linearity refl)
-    (affine⇨linearity-Σₚ idᶠ)
+    (affine⇨linearity-Σ idᶠ)
     (λ _ →
          (λ where
             {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
@@ -5607,17 +5617,17 @@ affine→linearity-Σₚ-preserves-second-ΠΣ-quantities-𝟘-or-ω
             {p = ω} → (λ ()) , (λ ())))
     refl
 
--- The functions affine→linearity and affine→linearity-Σₚ do not
+-- The functions affine→linearity and affine→linearity-Σ do not
 -- reflect certain term restrictions obtained using
 -- second-ΠΣ-quantities-𝟘-or-ω.
 
-¬-affine→linearity-Σₚ-reflects-second-ΠΣ-quantities-𝟘-or-ω :
+¬-affine→linearity-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω :
   ¬ Are-reflecting-term-restrictions
       (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality r))
       (second-ΠΣ-quantities-𝟘-or-ω ω
          (linearityModality (𝟘ᵐ-allowed-if ok)))
-      affine→linearity affine→linearity-Σₚ
-¬-affine→linearity-Σₚ-reflects-second-ΠΣ-quantities-𝟘-or-ω r =
+      affine→linearity affine→linearity-Σ
+¬-affine→linearity-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω r =
   case
     Binder-reflected {b = BMΠ} {p = ω} {q = 𝟙}
       (_ , (λ ()) , (λ _ → refl))
@@ -5646,7 +5656,7 @@ linearity→affine-preserves-second-ΠΣ-quantities-𝟘-or-ω :
 linearity→affine-preserves-second-ΠΣ-quantities-𝟘-or-ω eq =
   Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω
     m
-    (Is-morphism→Is-Σₚ-morphism m)
+    (Is-morphism→Is-Σ-morphism m)
     (λ _ →
          (λ where
             {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
@@ -5679,7 +5689,7 @@ linearity→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω :
 linearity→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω eq =
   Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω
     m
-    (Is-morphism→Is-Σₚ-morphism m)
+    (Is-morphism→Is-Σ-morphism m)
     (λ _ →
          (λ where
             {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
