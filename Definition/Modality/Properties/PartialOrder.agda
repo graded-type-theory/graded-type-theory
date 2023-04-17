@@ -5,6 +5,8 @@ module Definition.Modality.Properties.PartialOrder
 
 open ModalityWithout⊛ 𝕄
 
+open import Tools.Function
+open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation
 
@@ -70,3 +72,12 @@ private
 
 ≈-decidable→≤-decidable : Decidable (_≈_ {A = M}) → Decidable _≤_
 ≈-decidable→≤-decidable _≈?_ p q = p ≈? (p ∧ q)
+
+-- If _≈_ is decidable (for M), then _<_ is decidable.
+
+≈-decidable→<-decidable : Decidable (_≈_ {A = M}) → Decidable _<_
+≈-decidable→<-decidable _≈?_ p q with ≈-decidable→≤-decidable _≈?_ p q
+… | no p≰q  = no (p≰q ∘→ proj₁)
+… | yes p≤q with p ≈? q
+…   | no p≉q  = yes (p≤q , p≉q)
+…   | yes p≈q = no ((_$ p≈q) ∘→ proj₂)
