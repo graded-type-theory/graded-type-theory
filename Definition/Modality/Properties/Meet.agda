@@ -8,9 +8,11 @@ open ModalityWithout⊛ 𝕄
 open import Definition.Modality.Properties.PartialOrder 𝕄
 
 open import Tools.Bool using (T)
+open import Tools.Product
 open import Tools.PropositionalEquality
 import Tools.Reasoning.Equivalence
 import Tools.Reasoning.PartialOrder
+import Tools.Reasoning.PropositionalEquality
 
 private
   variable
@@ -83,6 +85,27 @@ private
   p ∧ (q ∧ r)  ∎
   where
   open Tools.Reasoning.Equivalence (setoid M)
+
+-- If p is strictly below q ∧ r, then p is strictly below q.
+
+<∧ˡ : p < q ∧ r → p < q
+<∧ˡ {p = p} {q = q} {r = r} (p≤q∧r , p≢q∧r) =
+    (let open Tools.Reasoning.PartialOrder ≤-poset in begin
+       p      ≤⟨ p≤q∧r ⟩
+       q ∧ r  ≤⟨ ∧-decreasingˡ _ _ ⟩
+       q      ∎)
+  , (let open Tools.Reasoning.PropositionalEquality in λ p≡q →
+     p≢q∧r (
+       p            ≡⟨ p≤q∧r ⟩
+       p ∧ (q ∧ r)  ≡˘⟨ ∧-assoc _ _ _ ⟩
+       (p ∧ q) ∧ r  ≡⟨ cong (λ p → (p ∧ _) ∧ _) p≡q ⟩
+       (q ∧ q) ∧ r  ≡⟨ cong (_∧ _) (∧-idem _) ⟩
+       q ∧ r        ∎))
+
+-- If p is strictly below q ∧ r, then p is strictly below r.
+
+<∧ʳ : p < q ∧ r → p < r
+<∧ʳ p<q∧r = <∧ˡ (subst (_ <_) (∧-comm _ _) p<q∧r)
 
 -- If the mode 𝟘ᵐ is allowed and p ∧ q is equal to 𝟘, then p is equal
 -- to 𝟘.
