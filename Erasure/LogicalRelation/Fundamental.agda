@@ -1,6 +1,7 @@
-open import Definition.Modality.Instances.Erasure
-  using (Erasure; ω; 𝟘; prodrec-only-for-ω)
+open import Definition.Modality.Instances.Erasure using (Erasure; ω; 𝟘)
+import Definition.Modality.Instances.Erasure.Modality
 open import Definition.Modality.Restrictions
+open import Definition.Modality.Restrictions.Definitions
 open import Definition.Typed.EqualityRelation
 open import Definition.Untyped Erasure hiding (_∷_)
 open import Definition.Typed Erasure
@@ -10,6 +11,9 @@ module Erasure.LogicalRelation.Fundamental
   {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   (consistent : ∀ {t} → Δ ⊢ t ∷ Empty → ⊥)
   (restrictions : Restrictions Erasure)
+  (open Definition.Modality.Instances.Erasure.Modality restrictions)
+  -- Erased matches are not allowed.
+  (no-erased-matches : No-erased-matches ErasureModality)
   {{eqrel : EqRelSet Erasure}}
   where
 
@@ -28,17 +32,9 @@ import Definition.LogicalRelation.Fundamental Erasure as F
 import Definition.LogicalRelation.Irrelevance Erasure as I
 import Definition.LogicalRelation.Substitution.Irrelevance Erasure as IS
 
-open import Definition.Modality.Restrictions.Definitions
-
-private
-  no-erased-matching =
-    modify-term-restrictions prodrec-only-for-ω restrictions
-
-open import Definition.Modality.Instances.Erasure.Modality
-  no-erased-matching
 open import Definition.Modality.Context ErasureModality
 open import Definition.Modality.Instances.Erasure.Properties
-  no-erased-matching
+  restrictions
 open import Definition.Modality.Usage ErasureModality
 open import Definition.Modality.Usage.Inversion ErasureModality
 open import Definition.Modality.Usage.Properties ErasureModality
@@ -47,18 +43,18 @@ open import Definition.Mode ErasureModality
 open import Definition.Untyped.Properties Erasure
 open import Definition.Typed.Consequences.Syntactic Erasure
 
-open import Erasure.LogicalRelation ⊢Δ no-erased-matching
-open import Erasure.LogicalRelation.Conversion ⊢Δ no-erased-matching
-open import Erasure.LogicalRelation.Fundamental.Application ⊢Δ no-erased-matching
-open import Erasure.LogicalRelation.Fundamental.Empty ⊢Δ consistent no-erased-matching
-open import Erasure.LogicalRelation.Fundamental.Lambda ⊢Δ no-erased-matching
-open import Erasure.LogicalRelation.Fundamental.Nat ⊢Δ no-erased-matching
-open import Erasure.LogicalRelation.Fundamental.Natrec ⊢Δ no-erased-matching
-open import Erasure.LogicalRelation.Fundamental.Prodrec ⊢Δ no-erased-matching
-open import Erasure.LogicalRelation.Fundamental.Product ⊢Δ no-erased-matching
-open import Erasure.LogicalRelation.Fundamental.Unit ⊢Δ no-erased-matching
-open import Erasure.LogicalRelation.Irrelevance ⊢Δ no-erased-matching
-open import Erasure.LogicalRelation.Subsumption ⊢Δ no-erased-matching
+open import Erasure.LogicalRelation ⊢Δ restrictions
+open import Erasure.LogicalRelation.Conversion ⊢Δ restrictions
+open import Erasure.LogicalRelation.Fundamental.Application ⊢Δ restrictions
+open import Erasure.LogicalRelation.Fundamental.Empty ⊢Δ consistent restrictions
+open import Erasure.LogicalRelation.Fundamental.Lambda ⊢Δ restrictions
+open import Erasure.LogicalRelation.Fundamental.Nat ⊢Δ restrictions
+open import Erasure.LogicalRelation.Fundamental.Natrec ⊢Δ restrictions
+open import Erasure.LogicalRelation.Fundamental.Prodrec ⊢Δ restrictions
+open import Erasure.LogicalRelation.Fundamental.Product ⊢Δ restrictions
+open import Erasure.LogicalRelation.Fundamental.Unit ⊢Δ restrictions
+open import Erasure.LogicalRelation.Irrelevance ⊢Δ restrictions
+open import Erasure.LogicalRelation.Subsumption ⊢Δ restrictions
 
 import Erasure.Target as T
 open import Erasure.Extraction
@@ -211,7 +207,8 @@ fundamental (sndⱼ {G = G} {t = t} Γ⊢F Γ⊢G Γ⊢t:Σ) γ▸t =
   in  [Γ] , [G] , subsumption {t = snd _ t} [Γ] [G] ⊩ʳt₂ γ≤δ
 fundamental (prodrecⱼ {r = 𝟘} {t = t} {u} {F} {G} {A} Γ⊢F Γ⊢G Γ⊢A Γ⊢t Γ⊢u) γ▸prodrec
   with inv-usage-prodrec γ▸prodrec
-... | invUsageProdrec _ _ _ () _
+... | invUsageProdrec _ _ _ p _ =
+  ⊥-elim (no-erased-matches (λ ()) p PE.refl)
 fundamental {m = 𝟙ᵐ}
   (prodrecⱼ {r = ω} {t = t} {u} {F} {G} {A} Γ⊢F Γ⊢G Γ⊢A Γ⊢t Γ⊢u)
   γ▸prodrec =

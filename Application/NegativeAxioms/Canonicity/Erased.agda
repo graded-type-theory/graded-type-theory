@@ -12,16 +12,17 @@ open import Tools.Empty
 
 module Application.NegativeAxioms.Canonicity.Erased
   (restrictions : Restrictions)
-  (-- In this module prodrec is restricted to the quantity ω.
-   open Definition.Modality.Instances.Erasure.Modality
-          (modify-term-restrictions prodrec-only-for-ω restrictions))
+  (open Definition.Modality.Instances.Erasure.Modality restrictions)
+  -- Erased matches are not allowed.
+  (no-erased-matches : No-erased-matches ErasureModality)
   {m} {Γ : Con Term m} (consistent : ∀{t} → Γ ⊢ t ∷ Empty → ⊥)
   where
 
 open import Definition.Modality.Context ErasureModality
 open import Definition.Modality.Usage ErasureModality
 open import Definition.Mode ErasureModality
-import Application.NegativeAxioms.Canonicity.NegativeErased restrictions
+import Application.NegativeAxioms.Canonicity.NegativeErased
+  restrictions no-erased-matches
   as NE
 open import Application.NegativeAxioms.NegativeErasedContext ErasureModality (λ ())
 open import Erasure.SucRed Erasure

@@ -18,9 +18,10 @@ open import Definition.Mode ErasureModality
 
 open import Definition.Untyped Erasure
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Nat hiding (_+_)
-open import Tools.PropositionalEquality as PE using (_≡_)
+open import Tools.PropositionalEquality as PE using (_≡_; _≢_)
 import Tools.Reasoning.PartialOrder
 
 private
@@ -189,3 +190,9 @@ inv-usage-prodₑ {m = Σᵣ} γ▸t = inv-usage-prodᵣ γ▸t
 
 ⌞ω⌟≡𝟙ᵐ : ⌞ ω ⌟ ≡ 𝟙ᵐ
 ⌞ω⌟≡𝟙ᵐ = 𝟙ᵐ′≡𝟙ᵐ
+
+-- If p is not equal to 𝟘, then p is equal to ω.
+
+≢𝟘→≡ω : p ≢ 𝟘 → p ≡ ω
+≢𝟘→≡ω {p = 𝟘} 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 PE.refl)
+≢𝟘→≡ω {p = ω} _   = PE.refl

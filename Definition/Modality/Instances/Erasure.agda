@@ -9,7 +9,6 @@ open import Tools.PropositionalEquality
 data Erasure : Set where
   𝟘 ω : Erasure
 
-open import Definition.Modality.Restrictions Erasure
 open import Tools.Algebra Erasure
 
 infixl 40 _+_
@@ -345,18 +344,3 @@ p ≤ q = p ≡ p ∧ q
   { isSemiringWithoutAnnihilatingZero = +-·-SemiringWithoutAnnihilatingZero
   ; zero = ·-zero
   }
-
-----------------------------
--- A specific restriction --
-----------------------------
-
--- The restriction that one of the prodrec quantities (the one that is
--- not tied to one of the Σ-type's quantities) must be ω. Other
--- restrictions are inherited.
-
-prodrec-only-for-ω : Term-restrictions → Term-restrictions
-prodrec-only-for-ω r = record r
-  { Prodrec = λ r p q → Prodrec r p q × r ≡ ω
-  }
-  where
-  open Term-restrictions r

@@ -1,5 +1,8 @@
 open import Definition.Modality.Instances.Erasure
+import Definition.Modality.Instances.Erasure.Modality
 open import Definition.Modality.Restrictions
+open import Definition.Modality.Restrictions.Definitions
+  using (No-erased-matches)
 open import Definition.Typed.EqualityRelation
 open import Definition.Untyped Erasure hiding (_∷_)
 open import Definition.Typed Erasure
@@ -9,6 +12,9 @@ module Erasure.Consequences.Soundness
   {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   (consistent : ∀ {t} → Δ ⊢ t ∷ Empty → ⊥)
   (restrictions : Restrictions Erasure)
+  (open Definition.Modality.Instances.Erasure.Modality restrictions)
+  -- Erased matches are not allowed.
+  (no-erased-matches : No-erased-matches ErasureModality)
   {{eqrel : EqRelSet Erasure}}
   where
 
@@ -16,14 +22,7 @@ open EqRelSet {{...}}
 
 open import Definition.Typed.Properties Erasure
 open import Definition.LogicalRelation Erasure
-open import Definition.Modality.Restrictions.Definitions
 
-private
-  no-erased-matching =
-    modify-term-restrictions prodrec-only-for-ω restrictions
-
-open import Definition.Modality.Instances.Erasure.Modality
-  no-erased-matching
 open import Definition.Modality.Context ErasureModality
 open import Definition.Modality.Usage ErasureModality
 open import Definition.Mode ErasureModality
@@ -31,10 +30,10 @@ open import Definition.Mode ErasureModality
 import Erasure.Target as T
 open import Erasure.Extraction
 open import Erasure.SucRed Erasure
-open import Erasure.LogicalRelation ⊢Δ no-erased-matching
+open import Erasure.LogicalRelation ⊢Δ restrictions
 open import Erasure.LogicalRelation.Fundamental
-  ⊢Δ consistent restrictions
-open import Erasure.LogicalRelation.Irrelevance ⊢Δ no-erased-matching
+  ⊢Δ consistent restrictions no-erased-matches
+open import Erasure.LogicalRelation.Irrelevance ⊢Δ restrictions
 
 open import Tools.Nat
 open import Tools.Product

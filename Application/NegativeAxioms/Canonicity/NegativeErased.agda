@@ -14,9 +14,9 @@ open import Tools.Empty
 
 module Application.NegativeAxioms.Canonicity.NegativeErased
   (restrictions : Restrictions)
-  (-- In this module prodrec is restricted to the quantity ω.
-   open Definition.Modality.Instances.Erasure.Modality
-          (modify-term-restrictions prodrec-only-for-ω restrictions))
+  (open Definition.Modality.Instances.Erasure.Modality restrictions)
+  -- Erased matches are not allowed.
+  (no-erased-matches : No-erased-matches ErasureModality)
   (open Application.NegativeAxioms.NegativeErasedContext ErasureModality (λ ()))
   {m} {Γ : Con Term m} {γ}
   (nΓγ : NegativeErasedContext Γ γ)
@@ -26,7 +26,7 @@ module Application.NegativeAxioms.Canonicity.NegativeErased
 open Restrictions restrictions
 
 open import Definition.Modality.Instances.Erasure.Properties
-  (modify-term-restrictions prodrec-only-for-ω restrictions)
+  restrictions
 open import Definition.Modality.Context ErasureModality
 open import Definition.Modality.Usage ErasureModality
 open import Definition.Modality.Usage.Inversion ErasureModality
@@ -108,19 +108,18 @@ neNeg (natrecⱼ _ _ _ d   ) (natrecₙ n  ) γ▸u =
       γ▸n = sub δ▸n (≤ᶜ-trans γ≤γ′ (≤ᶜ-trans (⊛ᶜ-ineq₂ _ _ _) (∧ᶜ-decreasingʳ _ _)))
   in  ⊥-elim (¬negℕ (neNeg d n γ▸n) ⊢ℕ)
 neNeg (prodrecⱼ {r = r} ⊢A A⊢B _ d _) (prodrecₙ n ) γ▸u =
-  let invUsageProdrec {δ = δ} {η = η} δ▸t η▸u _ (_ , r≡ω) γ≤ =
+  let invUsageProdrec {δ = δ} {η = η} δ▸t η▸u _ p γ≤ =
         inv-usage-prodrec γ▸u
       γ▸t = sub δ▸t
         (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
            γ            ≤⟨ γ≤ ⟩
            r ·ᶜ δ +ᶜ η  ≤⟨ +ᶜ-decreasingˡ _ _ ⟩
-           r ·ᶜ δ       ≈⟨ ·ᶜ-congʳ r≡ω ⟩
+           r ·ᶜ δ       ≈⟨ ·ᶜ-congʳ (≢𝟘→≡ω (no-erased-matches (λ ()) p)) ⟩
            ω ·ᶜ δ       ≈⟨ ·ᶜ-identityˡ _ ⟩
            δ            ∎)
       ⊢Σ = refl (ΠΣⱼ ⊢A ▹ A⊢B)
       lemma = let open Tools.Reasoning.PropositionalEquality in
-        ⌞ r ⌟  ≡⟨ PE.cong ⌞_⌟ r≡ω ⟩
-        ⌞ ω ⌟  ≡⟨ ⌞ω⌟≡𝟙ᵐ ⟩
+        ⌞ r ⌟  ≡⟨ ≉𝟘→⌞⌟≡𝟙ᵐ (no-erased-matches (λ ()) p) ⟩
         𝟙ᵐ     ∎
   in  ⊥-elim (¬negΣᵣ (neNeg d n (▸-cong lemma γ▸t)) ⊢Σ)
 neNeg (Emptyrecⱼ _ d     ) (Emptyrecₙ n) γ▸u = ⊥-elim (consistent d)

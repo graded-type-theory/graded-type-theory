@@ -1208,6 +1208,77 @@ Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
          tr-Σ p ≢ M₂.𝟘  →⟨ hyp ⟩
          tr q ≡ ω₂      □))
 
+-- If the functions tr and tr-Σ preserve term restrictions for two
+-- modalities, then they also do this for certain term restrictions
+-- obtained using no-erased-matches, given that a certain assumption
+-- holds.
+
+Are-preserving-term-restrictions-no-erased-matches :
+  ∀ 𝕄₁ 𝕄₂ →
+  (Modality.𝟙 𝕄₂ ≢ Modality.𝟘 𝕄₂ →
+   Modality.𝟙 𝕄₁ ≢ Modality.𝟘 𝕄₁ ×
+   (∀ {p} → tr p ≡ Modality.𝟘 𝕄₂ → p ≡ Modality.𝟘 𝕄₁) ⊎
+   (∀ {p} → tr p ≢ Modality.𝟘 𝕄₂)) →
+  Are-preserving-term-restrictions
+    (Modality.term-restrictions 𝕄₁)
+    (Modality.term-restrictions 𝕄₂)
+    tr tr-Σ →
+  Are-preserving-term-restrictions
+    (no-erased-matches 𝕄₁)
+    (no-erased-matches 𝕄₂)
+    tr tr-Σ
+Are-preserving-term-restrictions-no-erased-matches
+  {tr = tr} 𝕄₁ 𝕄₂ hyp r = record
+  { Binder-preserved  = Binder-preserved
+  ; Prodrec-preserved = λ {r = r} (p , ≢𝟘) →
+        Prodrec-preserved p
+      , (λ 𝟙≢𝟘 → case hyp 𝟙≢𝟘 of λ where
+           (inj₁ (𝟙≢𝟘 , tr-≡-𝟘-→)) →
+             tr r ≡ M₂.𝟘  →⟨ tr-≡-𝟘-→ ⟩
+             r ≡ M₁.𝟘     →⟨ ≢𝟘 𝟙≢𝟘 ⟩
+             ⊥            □
+           (inj₂ ≢𝟘) →
+             tr r ≡ M₂.𝟘  →⟨ ≢𝟘 ⟩
+             ⊥            □)
+  }
+  where
+  module M₁ = Modality 𝕄₁
+  module M₂ = Modality 𝕄₂
+  open Are-preserving-term-restrictions r
+
+-- If the functions tr and tr-Σ reflect term restrictions for two
+-- modalities, then they also do this for certain term restrictions
+-- obtained using no-erased-matches, given that a certain assumption
+-- holds.
+
+Are-reflecting-term-restrictions-no-erased-matches :
+  ∀ 𝕄₁ 𝕄₂ →
+  (Modality.𝟙 𝕄₁ ≢ Modality.𝟘 𝕄₁ →
+   Modality.𝟙 𝕄₂ ≢ Modality.𝟘 𝕄₂ ×
+   (∀ {p} → p ≡ Modality.𝟘 𝕄₁ → tr p ≡ Modality.𝟘 𝕄₂)) →
+  Are-reflecting-term-restrictions
+    (Modality.term-restrictions 𝕄₁)
+    (Modality.term-restrictions 𝕄₂)
+    tr tr-Σ →
+  Are-reflecting-term-restrictions
+    (no-erased-matches 𝕄₁)
+    (no-erased-matches 𝕄₂)
+    tr tr-Σ
+Are-reflecting-term-restrictions-no-erased-matches
+  {tr = tr} 𝕄₁ 𝕄₂ hyp r = record
+  { Binder-reflected  = Binder-reflected
+  ; Prodrec-reflected = λ {r = r} (p , ≢𝟘) →
+        Prodrec-reflected p
+      , (λ 𝟙≢𝟘 →
+           r ≡ M₁.𝟘     →⟨ hyp 𝟙≢𝟘 .proj₂ ⟩
+           tr r ≡ M₂.𝟘  →⟨ ≢𝟘 (hyp 𝟙≢𝟘 .proj₁) ⟩
+           ⊥            □)
+  }
+  where
+  module M₁ = Modality 𝕄₁
+  module M₂ = Modality 𝕄₂
+  open Are-reflecting-term-restrictions r
+
 ------------------------------------------------------------------------
 -- Some translation functions
 
@@ -5703,3 +5774,454 @@ linearity→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω eq =
        {p = ω} _ → refl)
   where
   m = linearity⇨affine eq
+
+------------------------------------------------------------------------
+-- Some lemmas related to no-erased-matches and concrete translation
+-- functions
+
+-- If the functions unit→erasure and tr preserve term restrictions for
+-- a unit modality and an erasure modality, then they also do this for
+-- certain term restrictions obtained using no-erased-matches.
+
+unit→erasure-preserves-no-erased-matches :
+  Are-preserving-term-restrictions
+    rt (Restrictions.term-restrictions r) unit→erasure tr →
+  Are-preserving-term-restrictions
+    (no-erased-matches (UnitModality rt))
+    (no-erased-matches (ErasureModality r))
+    unit→erasure tr
+unit→erasure-preserves-no-erased-matches {rt = rt} {r = r} =
+  Are-preserving-term-restrictions-no-erased-matches
+    (UnitModality rt)
+    (ErasureModality r)
+    (λ _ → inj₂ (λ ()))
+
+-- If the functions unit→erasure and tr reflect term restrictions for
+-- a unit modality and an erasure modality, then they also do this for
+-- certain term restrictions obtained using no-erased-matches.
+
+unit→erasure-reflects-no-erased-matches :
+  Are-reflecting-term-restrictions
+    rt (Restrictions.term-restrictions r) unit→erasure tr →
+  Are-reflecting-term-restrictions
+    (no-erased-matches (UnitModality rt))
+    (no-erased-matches (ErasureModality r))
+    unit→erasure tr
+unit→erasure-reflects-no-erased-matches {rt = rt} {r = r} =
+  Are-reflecting-term-restrictions-no-erased-matches
+    (UnitModality rt)
+    (ErasureModality r)
+    (λ tt≢tt → ⊥-elim $ tt≢tt refl)
+
+-- If the functions erasure→unit and tr preserve term restrictions for
+-- an erasure modality and a unit modality, then they also do this for
+-- certain term restrictions obtained using no-erased-matches.
+
+erasure→unit-preserves-no-erased-matches :
+  Are-preserving-term-restrictions
+    (Restrictions.term-restrictions r) rt erasure→unit tr →
+  Are-preserving-term-restrictions
+    (no-erased-matches (ErasureModality r))
+    (no-erased-matches (UnitModality rt))
+    erasure→unit tr
+erasure→unit-preserves-no-erased-matches {r = r} {rt = rt} =
+  Are-preserving-term-restrictions-no-erased-matches
+    (ErasureModality r)
+    (UnitModality rt)
+    (λ tt≢tt → ⊥-elim $ tt≢tt refl)
+
+-- The functions erasure→unit and tr do not reflect certain term
+-- restrictions obtained using no-erased-matches.
+
+¬-erasure→unit-reflects-no-erased-matches :
+  ¬ Are-reflecting-term-restrictions
+      (no-erased-matches (ErasureModality r))
+      (no-erased-matches
+         (UnitModality no-term-restrictions))
+      erasure→unit tr
+¬-erasure→unit-reflects-no-erased-matches r =
+  Prodrec-reflected {r = 𝟘} {p = 𝟘} {q = 𝟘} (_ , idᶠ) .proj₂ (λ ()) refl
+  where
+  open Are-reflecting-term-restrictions r
+
+-- If the functions erasure→zero-one-many and tr preserve term
+-- restrictions for an erasure modality and a zero-one-many-greatest
+-- modality, then they also do this for certain term restrictions
+-- obtained using no-erased-matches.
+
+erasure→zero-one-many-preserves-no-erased-matches :
+  Are-preserving-term-restrictions
+    (Restrictions.term-restrictions r₁)
+    (Restrictions.term-restrictions r₂)
+    erasure→zero-one-many tr →
+  Are-preserving-term-restrictions
+    (no-erased-matches (ErasureModality r₁))
+    (no-erased-matches (zero-one-many-greatest 𝟙≤𝟘 r₂))
+    erasure→zero-one-many tr
+erasure→zero-one-many-preserves-no-erased-matches {r₁ = r₁} {r₂ = r₂} =
+  Are-preserving-term-restrictions-no-erased-matches
+    (ErasureModality r₁)
+    (zero-one-many-greatest _ r₂)
+    (λ _ → inj₁
+       ( (λ ())
+       , (λ where
+            {p = 𝟘} _ → refl)
+       ))
+
+-- If the functions erasure→zero-one-many and tr reflect term
+-- restrictions for an erasure modality and a zero-one-many-greatest
+-- modality, then they also do this for certain term restrictions
+-- obtained using no-erased-matches.
+
+erasure→zero-one-many-reflects-no-erased-matches :
+  Are-reflecting-term-restrictions
+    (Restrictions.term-restrictions r₁)
+    (Restrictions.term-restrictions r₂)
+    erasure→zero-one-many tr →
+  Are-reflecting-term-restrictions
+    (no-erased-matches (ErasureModality r₁))
+    (no-erased-matches (zero-one-many-greatest 𝟙≤𝟘 r₂))
+    erasure→zero-one-many tr
+erasure→zero-one-many-reflects-no-erased-matches {r₁ = r₁} {r₂ = r₂} =
+  Are-reflecting-term-restrictions-no-erased-matches
+    (ErasureModality r₁)
+    (zero-one-many-greatest _ r₂)
+    (λ _ →
+         (λ ())
+       , (λ where
+            {p = 𝟘} _ → refl))
+
+-- If the functions zero-one-many→erasure and tr preserve term
+-- restrictions for a zero-one-many-greatest modality and an erasure
+-- modality, then they also do this for certain term restrictions
+-- obtained using no-erased-matches.
+
+zero-one-many→erasure-preserves-no-erased-matches :
+  Are-preserving-term-restrictions
+    (Restrictions.term-restrictions r₁)
+    (Restrictions.term-restrictions r₂)
+    zero-one-many→erasure tr →
+  Are-preserving-term-restrictions
+    (no-erased-matches (zero-one-many-greatest 𝟙≤𝟘 r₁))
+    (no-erased-matches (ErasureModality r₂))
+    zero-one-many→erasure tr
+zero-one-many→erasure-preserves-no-erased-matches {r₁ = r₁} {r₂ = r₂} =
+  Are-preserving-term-restrictions-no-erased-matches
+    (zero-one-many-greatest _ r₁)
+    (ErasureModality r₂)
+    (λ _ → inj₁
+       ( (λ ())
+       , (λ where
+            {p = 𝟘} _ → refl)
+       ))
+
+-- If the functions zero-one-many→erasure and tr reflect term
+-- restrictions for a zero-one-many-greatest modality and an erasure
+-- modality, then they also do this for certain term restrictions
+-- obtained using no-erased-matches.
+
+zero-one-many→erasure-reflects-no-erased-matches :
+  Are-reflecting-term-restrictions
+    (Restrictions.term-restrictions r₁)
+    (Restrictions.term-restrictions r₂)
+    zero-one-many→erasure tr →
+  Are-reflecting-term-restrictions
+    (no-erased-matches (zero-one-many-greatest 𝟙≤𝟘 r₁))
+    (no-erased-matches (ErasureModality r₂))
+    zero-one-many→erasure tr
+zero-one-many→erasure-reflects-no-erased-matches {r₁ = r₁} {r₂ = r₂} =
+  Are-reflecting-term-restrictions-no-erased-matches
+    (zero-one-many-greatest _ r₁)
+    (ErasureModality r₂)
+    (λ _ →
+         (λ ())
+       , (λ where
+            {p = 𝟘} _ → refl))
+
+-- If the functions linearity→linear-or-affine and tr preserve term
+-- restrictions for a linear types modality and a linear or affine
+-- types modality, then they also do this for certain term
+-- restrictions obtained using no-erased-matches.
+
+linearity→linear-or-affine-preserves-no-erased-matches :
+  Are-preserving-term-restrictions
+    (Restrictions.term-restrictions r₁)
+    (Restrictions.term-restrictions r₂)
+    linearity→linear-or-affine tr →
+  Are-preserving-term-restrictions
+    (no-erased-matches (linearityModality r₁))
+    (no-erased-matches (linear-or-affine r₂))
+    linearity→linear-or-affine tr
+linearity→linear-or-affine-preserves-no-erased-matches
+  {r₁ = r₁} {r₂ = r₂} =
+  Are-preserving-term-restrictions-no-erased-matches
+    (linearityModality r₁)
+    (linear-or-affine r₂)
+    (λ _ → inj₁
+       ( (λ ())
+       , (λ where
+            {p = 𝟘} _ → refl)
+       ))
+
+-- If the functions linearity→linear-or-affine and tr reflect term
+-- restrictions for a linear types modality and a linear or affine
+-- types modality, then they also do this for certain term
+-- restrictions obtained using no-erased-matches.
+
+linearity→linear-or-affine-reflects-no-erased-matches :
+  Are-reflecting-term-restrictions
+    (Restrictions.term-restrictions r₁)
+    (Restrictions.term-restrictions r₂)
+    linearity→linear-or-affine tr →
+  Are-reflecting-term-restrictions
+    (no-erased-matches (linearityModality r₁))
+    (no-erased-matches (linear-or-affine r₂))
+    linearity→linear-or-affine tr
+linearity→linear-or-affine-reflects-no-erased-matches
+  {r₁ = r₁} {r₂ = r₂} =
+  Are-reflecting-term-restrictions-no-erased-matches
+    (linearityModality r₁)
+    (linear-or-affine r₂)
+    (λ _ →
+         (λ ())
+       , (λ where
+            {p = 𝟘} _ → refl))
+
+-- If the functions linear-or-affine→linearity and tr preserve term
+-- restrictions for a linear or affine types modality and a linear
+-- types modality, then they also do this for certain term
+-- restrictions obtained using no-erased-matches.
+
+linear-or-affine→linearity-preserves-no-erased-matches :
+  Are-preserving-term-restrictions
+    (Restrictions.term-restrictions r₁)
+    (Restrictions.term-restrictions r₂)
+    linear-or-affine→linearity tr →
+  Are-preserving-term-restrictions
+    (no-erased-matches (linear-or-affine r₁))
+    (no-erased-matches (linearityModality r₂))
+    linear-or-affine→linearity tr
+linear-or-affine→linearity-preserves-no-erased-matches
+  {r₁ = r₁} {r₂ = r₂} =
+  Are-preserving-term-restrictions-no-erased-matches
+    (linear-or-affine r₁)
+    (linearityModality r₂)
+    (λ _ → inj₁
+       ( (λ ())
+       , (λ where
+            {p = 𝟘} _ → refl)
+       ))
+
+-- If the functions linear-or-affine→linearity and tr reflect term
+-- restrictions for a linear or affine types modality and a linear
+-- types modality, then they also do this for certain term
+-- restrictions obtained using no-erased-matches.
+
+linear-or-affine→linearity-reflects-no-erased-matches :
+  Are-reflecting-term-restrictions
+    (Restrictions.term-restrictions r₁)
+    (Restrictions.term-restrictions r₂)
+    linear-or-affine→linearity tr →
+  Are-reflecting-term-restrictions
+    (no-erased-matches (linear-or-affine r₁))
+    (no-erased-matches (linearityModality r₂))
+    linear-or-affine→linearity tr
+linear-or-affine→linearity-reflects-no-erased-matches
+  {r₁ = r₁} {r₂ = r₂} =
+  Are-reflecting-term-restrictions-no-erased-matches
+    (linear-or-affine r₁)
+    (linearityModality r₂)
+    (λ _ →
+         (λ ())
+       , (λ where
+            {p = 𝟘} _ → refl))
+
+-- If the functions affine→linear-or-affine and tr preserve term
+-- restrictions for an affine types modality and a linear or affine
+-- types modality, then they also do this for certain term
+-- restrictions obtained using no-erased-matches.
+
+affine→linear-or-affine-preserves-no-erased-matches :
+  Are-preserving-term-restrictions
+    (Restrictions.term-restrictions r₁)
+    (Restrictions.term-restrictions r₂)
+    affine→linear-or-affine tr →
+  Are-preserving-term-restrictions
+    (no-erased-matches (affineModality r₁))
+    (no-erased-matches (linear-or-affine r₂))
+    affine→linear-or-affine tr
+affine→linear-or-affine-preserves-no-erased-matches
+  {r₁ = r₁} {r₂ = r₂} =
+  Are-preserving-term-restrictions-no-erased-matches
+    (affineModality r₁)
+    (linear-or-affine r₂)
+    (λ _ → inj₁
+       ( (λ ())
+       , (λ where
+            {p = 𝟘} _ → refl)
+       ))
+
+-- If the functions affine→linear-or-affine and tr reflect term
+-- restrictions for an affine types modality and a linear or affine
+-- types modality, then they also do this for certain term
+-- restrictions obtained using no-erased-matches.
+
+affine→linear-or-affine-reflects-no-erased-matches :
+  Are-reflecting-term-restrictions
+    (Restrictions.term-restrictions r₁)
+    (Restrictions.term-restrictions r₂)
+    affine→linear-or-affine tr →
+  Are-reflecting-term-restrictions
+    (no-erased-matches (affineModality r₁))
+    (no-erased-matches (linear-or-affine r₂))
+    affine→linear-or-affine tr
+affine→linear-or-affine-reflects-no-erased-matches {r₁ = r₁} {r₂ = r₂} =
+  Are-reflecting-term-restrictions-no-erased-matches
+    (affineModality r₁)
+    (linear-or-affine r₂)
+    (λ _ →
+         (λ ())
+       , (λ where
+            {p = 𝟘} _ → refl))
+
+-- If the functions linear-or-affine→affine and tr preserve term
+-- restrictions for a linear or affine types modality and an affine
+-- types modality, then they also do this for certain term
+-- restrictions obtained using no-erased-matches.
+
+linear-or-affine→affine-preserves-no-erased-matches :
+  Are-preserving-term-restrictions
+    (Restrictions.term-restrictions r₁)
+    (Restrictions.term-restrictions r₂)
+    linear-or-affine→affine tr →
+  Are-preserving-term-restrictions
+    (no-erased-matches (linear-or-affine r₁))
+    (no-erased-matches (affineModality r₂))
+    linear-or-affine→affine tr
+linear-or-affine→affine-preserves-no-erased-matches
+  {r₁ = r₁} {r₂ = r₂} =
+  Are-preserving-term-restrictions-no-erased-matches
+    (linear-or-affine r₁)
+    (affineModality r₂)
+    (λ _ → inj₁
+       ( (λ ())
+       , (λ where
+            {p = 𝟘} _ → refl)
+       ))
+
+-- If the functions linear-or-affine→affine and tr reflect term
+-- restrictions for a linear or affine types modality and an affine
+-- types modality, then they also do this for certain term
+-- restrictions obtained using no-erased-matches.
+
+linear-or-affine→affine-reflects-no-erased-matches :
+  Are-reflecting-term-restrictions
+    (Restrictions.term-restrictions r₁)
+    (Restrictions.term-restrictions r₂)
+    linear-or-affine→affine tr →
+  Are-reflecting-term-restrictions
+    (no-erased-matches (linear-or-affine r₁))
+    (no-erased-matches (affineModality r₂))
+    linear-or-affine→affine tr
+linear-or-affine→affine-reflects-no-erased-matches {r₁ = r₁} {r₂ = r₂} =
+  Are-reflecting-term-restrictions-no-erased-matches
+    (linear-or-affine r₁)
+    (affineModality r₂)
+    (λ _ →
+         (λ ())
+       , (λ where
+            {p = 𝟘} _ → refl))
+
+-- If the functions affine→linearity and tr preserve term restrictions
+-- for an affine types modality and a linear types modality, then they
+-- also do this for certain term restrictions obtained using
+-- no-erased-matches.
+
+affine→linearity-preserves-no-erased-matches :
+  Are-preserving-term-restrictions
+    (Restrictions.term-restrictions r₁)
+    (Restrictions.term-restrictions r₂)
+    affine→linearity tr →
+  Are-preserving-term-restrictions
+    (no-erased-matches (affineModality r₁))
+    (no-erased-matches (linearityModality r₂))
+    affine→linearity tr
+affine→linearity-preserves-no-erased-matches {r₁ = r₁} {r₂ = r₂} =
+  Are-preserving-term-restrictions-no-erased-matches
+    (affineModality r₁)
+    (linearityModality r₂)
+    (λ _ → inj₁
+       ( (λ ())
+       , (λ where
+            {p = 𝟘} _ → refl)
+       ))
+
+-- If the functions affine→linearity and tr reflect term restrictions
+-- for an affine types modality and a linear types modality, then they
+-- also do this for certain term restrictions obtained using
+-- no-erased-matches.
+
+affine→linearity-reflects-no-erased-matches :
+  Are-reflecting-term-restrictions
+    (Restrictions.term-restrictions r₁)
+    (Restrictions.term-restrictions r₂)
+    affine→linearity tr →
+  Are-reflecting-term-restrictions
+    (no-erased-matches (affineModality r₁))
+    (no-erased-matches (linearityModality r₂))
+    affine→linearity tr
+affine→linearity-reflects-no-erased-matches {r₁ = r₁} {r₂ = r₂} =
+  Are-reflecting-term-restrictions-no-erased-matches
+    (affineModality r₁)
+    (linearityModality r₂)
+    (λ _ →
+         (λ ())
+       , (λ where
+            {p = 𝟘} _ → refl))
+
+-- If the functions linearity→affine and tr preserve term restrictions
+-- for a linear types modality and an affine types modality, then they
+-- also do this for certain term restrictions obtained using
+-- no-erased-matches.
+
+linearity→affine-preserves-no-erased-matches :
+  Are-preserving-term-restrictions
+    (Restrictions.term-restrictions r₁)
+    (Restrictions.term-restrictions r₂)
+    linearity→affine tr →
+  Are-preserving-term-restrictions
+    (no-erased-matches (linearityModality r₁))
+    (no-erased-matches (affineModality r₂))
+    linearity→affine tr
+linearity→affine-preserves-no-erased-matches {r₁ = r₁} {r₂ = r₂} =
+  Are-preserving-term-restrictions-no-erased-matches
+    (linearityModality r₁)
+    (affineModality r₂)
+    (λ _ → inj₁
+       ( (λ ())
+       , (λ where
+            {p = 𝟘} _ → refl)
+       ))
+
+-- If the functions linearity→affine and tr reflect term restrictions
+-- for a linear types modality and an affine types modality, then they
+-- also do this for certain term restrictions obtained using
+-- no-erased-matches.
+
+linearity→affine-reflects-no-erased-matches :
+  Are-reflecting-term-restrictions
+    (Restrictions.term-restrictions r₁)
+    (Restrictions.term-restrictions r₂)
+    linearity→affine tr →
+  Are-reflecting-term-restrictions
+    (no-erased-matches (linearityModality r₁))
+    (no-erased-matches (affineModality r₂))
+    linearity→affine tr
+linearity→affine-reflects-no-erased-matches {r₁ = r₁} {r₂ = r₂} =
+  Are-reflecting-term-restrictions-no-erased-matches
+    (linearityModality r₁)
+    (affineModality r₂)
+    (λ _ →
+         (λ ())
+       , (λ where
+            {p = 𝟘} _ → refl))
