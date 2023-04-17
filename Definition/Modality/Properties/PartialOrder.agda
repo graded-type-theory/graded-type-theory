@@ -6,6 +6,7 @@ module Definition.Modality.Properties.PartialOrder
 open ModalityWithout⊛ 𝕄
 
 open import Tools.Function
+open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation
@@ -81,3 +82,8 @@ private
 … | yes p≤q with p ≈? q
 …   | no p≉q  = yes (p≤q , p≉q)
 …   | yes p≈q = no ((_$ p≈q) ∘→ proj₂)
+
+-- If p is strictly below q, then q is not bounded by p.
+
+<→≰ : p < q → ¬ q ≤ p
+<→≰ (p≤q , p≢q) q≤p = p≢q (≤-antisym p≤q q≤p)
