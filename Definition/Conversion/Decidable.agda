@@ -26,7 +26,7 @@ open import Definition.Typed.Consequences.SucCong M
 
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat hiding (_≟_)
+open import Tools.Nat
 open import Tools.Product
 open import Tools.Empty
 open import Tools.Nullary
@@ -183,42 +183,44 @@ decConv↓Term-Σ-η ⊢t ⊢u tProd uProd fstConv (no ¬Q) =
 
 -- Helper function for prodrec
 dec~↑-prodrec :
-  ∀ {F G C E t t′ u v F′ G′} →
+  ∀ {F G C E t t′ u v F′ G′ q″} →
   Dec (Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ C [conv↑] E) →
   (Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ C ≡ E →
-  Dec (Γ ∙ F ∙ G ⊢ u [conv↑] v ∷
-         C [ prodᵣ p (var (x0 +1)) (var x0) ]↑²)) →
-  Γ ⊢ t ~ t′ ↓ Σᵣ p , q′ ▷ F′ ▹ G′ →
-  Γ ⊢ Σᵣ p , q ▷ F ▹ G ≡ Σᵣ p , q′ ▷ F′ ▹ G′ →
-  r ≈ r′ →
+    Dec (Γ ∙ F ∙ G ⊢ u [conv↑] v ∷
+      C [ prodᵣ p (var (x0 +1)) (var x0) ]↑²)) →
+  Γ ⊢ t ~ t′ ↓ Σᵣ p , q ▷ F′ ▹ G′ →
+  Γ ⊢ Σᵣ p , q ▷ F ▹ G ≡ Σᵣ p , q ▷ F′ ▹ G′ →
   p ≈ p′ →
-  Dec (∃ λ B → Γ ⊢ prodrec r p q C t u ~ prodrec r′ p′ q′ E t′ v ↑ B)
-dec~↑-prodrec {q = q} {q′ = q′} (yes P) u<?>v t~t′ ⊢Σ≡Σ′ _ _
-  with u<?>v (soundnessConv↑ P) | q ≟ q′
-... | no ¬Q | _ = no (λ { (B , prodrec-cong x x₁ x₂) →
-    let _ , ⊢t , _ = syntacticEqTerm (soundness~↓ t~t′)
-        _ , ⊢t₁ , _ = syntacticEqTerm (soundness~↓ x₁)
-        _ , neT , _ = ne~↓ t~t′
-        ⊢Σ′≡Σ″ = neTypeEq neT ⊢t ⊢t₁
-        ⊢Γ≡Γ = reflConEq (wfEq ⊢Σ≡Σ′)
-        ⊢F″≡F , ⊢G″≡G , _ = Σ-injectivity (sym (trans ⊢Σ≡Σ′ ⊢Σ′≡Σ″))
-    in  ¬Q (stabilityConv↑Term (⊢Γ≡Γ ∙ ⊢F″≡F ∙ ⊢G″≡G) x₂) })
-... | _ | no q≉q′ =
-  no (λ { (_ , prodrec-cong _ _ _) → q≉q′ PE.refl })
-dec~↑-prodrec (yes P) _ t~t′ ⊢Σ≡Σ′ PE.refl PE.refl
-  | yes Q | yes PE.refl =
-  let ⊢Γ≡Γ = reflConEq (wfEq ⊢Σ≡Σ′)
-      ⊢F≡F′ , ⊢G≡G′ , _ = Σ-injectivity ⊢Σ≡Σ′
-  in  yes (_ , prodrec-cong (stabilityConv↑ (⊢Γ≡Γ ∙ ⊢Σ≡Σ′) P) t~t′
-                 (stabilityConv↑Term (⊢Γ≡Γ ∙ ⊢F≡F′ ∙ ⊢G≡G′) Q))
-dec~↑-prodrec (no ¬P) u<?>v t~t′ ⊢Σ≡Σ′ _ _ =
-  no (λ { (B , prodrec-cong x x₁ x₂) →
-    let _ , ⊢t , _ = syntacticEqTerm (soundness~↓ t~t′)
-        _ , ⊢t₁ , _ = syntacticEqTerm (soundness~↓ x₁)
-        _ , neT , _ = ne~↓ t~t′
-        ⊢Σ′≡Σ″ = neTypeEq neT ⊢t ⊢t₁
-        ⊢Γ≡Γ = reflConEq (wfEq ⊢Σ≡Σ′)
-    in  ¬P (stabilityConv↑ (⊢Γ≡Γ ∙ sym (trans ⊢Σ≡Σ′ ⊢Σ′≡Σ″)) x) })
+  q′ ≈ q″ →
+  r ≈ r′ →
+  Dec (∃ λ B → Γ ⊢ prodrec r p q′ C t u ~ prodrec r′ p′ q″ E t′ v ↑ B)
+dec~↑-prodrec (yes C<>E) u<?>v t~t′ ⊢Σ≡Σ′ p≈p′ q≈q′ r≈r′ =
+  case u<?>v (soundnessConv↑ C<>E) of λ where
+    (yes u<>v) → case p≈p′ of λ where
+      PE.refl → case q≈q′ of λ where
+        PE.refl → case r≈r′ of λ where
+          PE.refl → case reflConEq (wfEq ⊢Σ≡Σ′) of λ ⊢Γ≡Γ →
+                    case stabilityConv↑ (⊢Γ≡Γ ∙ ⊢Σ≡Σ′) C<>E of λ C<>E′ →
+                    case Σ-injectivity ⊢Σ≡Σ′ of λ (⊢F≡F′ , ⊢G≡G′ , _) →
+                    case stabilityConv↑Term (⊢Γ≡Γ ∙ ⊢F≡F′ ∙ ⊢G≡G′) u<>v of λ u<>v′ →
+                      yes (_ , prodrec-cong C<>E′ t~t′ u<>v′)
+    (no ¬u<>v) → no λ where
+      (_ , prodrec-cong x x₁ x₂) →
+        case syntacticEqTerm (soundness~↓ t~t′) of λ (_ , ⊢t , _) →
+        case syntacticEqTerm (soundness~↓ x₁)   of λ (_ , ⊢t₁ , _) →
+        case ne~↓ t~t′ of λ (_ , neT , _) →
+        case neTypeEq neT ⊢t₁ ⊢t of λ ⊢Σ″≡Σ′ →
+        case reflConEq (wfEq ⊢Σ″≡Σ′) of λ ⊢Γ≡Γ →
+        case Σ-injectivity (trans ⊢Σ″≡Σ′ (sym ⊢Σ≡Σ′)) of λ (⊢F″≡F , ⊢G″≡G , _) →
+          ¬u<>v (stabilityConv↑Term (⊢Γ≡Γ ∙ ⊢F″≡F ∙ ⊢G″≡G) x₂)
+dec~↑-prodrec (no ¬C<>E) u<?>v t~t′ ⊢Σ≡Σ′ _ _ _ =  no λ where
+      (_ , prodrec-cong x x₁ x₂) →
+        case syntacticEqTerm (soundness~↓ t~t′) of λ (_ , ⊢t , _) →
+        case syntacticEqTerm (soundness~↓ x₁)   of λ (_ , ⊢t₁ , _) →
+        case ne~↓ t~t′ of λ (_ , neT , _) →
+        case neTypeEq neT ⊢t₁ ⊢t of λ ⊢Σ″≡Σ′ →
+        case reflConEq (wfEq ⊢Σ″≡Σ′) of λ ⊢Γ≡Γ →
+          ¬C<>E (stabilityConv↑ (⊢Γ≡Γ ∙ trans ⊢Σ″≡Σ′ (sym ⊢Σ≡Σ′)) x)
 
 dec~↑-var : ∀ {k k′ A}
           → (x : Fin _)
@@ -379,8 +381,8 @@ mutual
                  (λ z → decConv↑TermConv z x₂) (dec~↓ x₃)
 
   dec~↑
-    (prodrec-cong {p = p}  {q = q}  {r = r}  x  x₁ x₂)
-    (prodrec-cong {p = p′} {q = q′} {r = r′} x₃ x₄ x₅)
+    (prodrec-cong {p = p}  {r = r}  {q′ = q}  x  x₁ x₂)
+    (prodrec-cong {p = p′} {r = r′} {q′ = q′} x₃ x₄ x₅)
     with dec~↓ x₁ x₄ | r ≟ r′ | p ≟ p′ | q ≟ q′
   ... | yes (B , t~t′) | yes PE.refl | yes PE.refl | yes PE.refl =
     case ne~↓ t~t′ of λ (whnfB , neT , neT′) →
@@ -392,15 +394,14 @@ mutual
     case Σ≡A (sym ⊢B≡Σ) whnfB of λ where
       (_ , _ , _ , _ , PE.refl) →
         case trans (sym ⊢B≡Σ′) ⊢B≡Σ of λ ⊢Σ′≡Σ →
-        case Σ-injectivity ⊢Σ′≡Σ of λ (⊢F′≡F , ⊢G′≡G , _) →
-        case Σ-injectivity ⊢B≡Σ′ of λ where
-          (_ , _ , PE.refl , PE.refl , _) →
-            case reflConEq (wf ⊢B) of λ ⊢Γ≡Γ →
-              dec~↑-prodrec
-                (decConv↑ x (stabilityConv↑ (⊢Γ≡Γ ∙ ⊢Σ′≡Σ) x₃))
-                (λ C≡C′ → decConv↑TermConv (subst↑²TypeEq C≡C′) x₂
-                   (stabilityConv↑Term (⊢Γ≡Γ ∙ ⊢F′≡F ∙ ⊢G′≡G) x₅))
-                t~t′ (sym ⊢B≡Σ) PE.refl PE.refl
+        case Σ-injectivity ⊢Σ′≡Σ of λ where
+          (⊢F′≡F , ⊢G′≡G , _ , PE.refl , _) → case Σ-injectivity ⊢B≡Σ′ of  λ where
+            (⊢F′≡F″ , _ , PE.refl , PE.refl , _) →
+              case reflConEq (wf ⊢B) of λ ⊢Γ≡Γ →
+                dec~↑-prodrec (decConv↑ x (stabilityConv↑ (⊢Γ≡Γ ∙ ⊢Σ′≡Σ) x₃))
+                              (λ C≡C′ → decConv↑TermConv (subst↑²TypeEq C≡C′) x₂
+                                 (stabilityConv↑Term (⊢Γ≡Γ ∙ ⊢F′≡F ∙ ⊢G′≡G) x₅))
+                              t~t′ (sym ⊢B≡Σ) PE.refl PE.refl PE.refl
   ... | no ¬P | _ | _ | _ =
     no (λ { (_ , prodrec-cong _ x _) → ¬P (_ , x) })
   ... | _ | no ¬r≈r′ | _ | _ =

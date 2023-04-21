@@ -26,7 +26,7 @@ private
     C F H G E : Term n
     a₀ b₀ g h k l t u v : Term n
     x y : Fin n
-    p p′ p″ q q′ r : M
+    p p′ p″ p₁ p₂ q q′ q″ r r′ : M
     b : BinderMode
 
 mutual
@@ -56,7 +56,7 @@ mutual
     prodrec-cong  : Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ C [conv↑] E
                   → Γ ⊢ g ~ h ↓ Σᵣ p , q ▷ F ▹ G
                   → Γ ∙ F ∙ G ⊢ u [conv↑] v ∷ C [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
-                  → Γ ⊢ prodrec r p q C g u ~ prodrec r p q E h v ↑ C [ g ]
+                  → Γ ⊢ prodrec r p q′ C g u ~ prodrec r p q′ E h v ↑ C [ g ]
 
     Emptyrec-cong : Γ ⊢ F [conv↑] H
                   → Γ ⊢ k ~ l ↓ Empty

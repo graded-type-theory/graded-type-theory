@@ -12,7 +12,7 @@ open import Tools.PropositionalEquality using (_≈_; refl)
 
 private
   variable
-    p q r : M
+    p q q′ r : M
     n n′ : Nat
     Γ : Con Term n
     Δ : Con Term n′
@@ -213,7 +213,7 @@ record EqRelSet : Set (lsuc ℓ) where
              → Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ A ≅ A′
              → Γ                      ⊢ t ~ t′ ∷ Σᵣ p , q ▷ F ▹ G
              → Γ ∙ F ∙ G              ⊢ u ≅ u′ ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
-             → Γ                      ⊢ prodrec r p q A t u ~ prodrec r p q A′ t′ u′ ∷ A [ t ]
+             → Γ                      ⊢ prodrec r p q′ A t u ~ prodrec r p q′ A′ t′ u′ ∷ A [ t ]
 
     -- Empty recursion congruence
     ~-Emptyrec : ∀ {n n′ F F′}
