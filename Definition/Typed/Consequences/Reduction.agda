@@ -40,13 +40,15 @@ whNorm : ∀ {A} → Γ ⊢ A → ∃ λ B → Whnf B × Γ ⊢ A :⇒*: B
 whNorm A = whNorm′ (reducible A)
 
 ΠNorm : ∀ {A F G} → Γ ⊢ A → Γ ⊢ A ≡ Π p , q ▷ F ▹ G
-      → ∃₄ λ p′ q′ F′ G′ → Γ ⊢ A ⇒* Π p′ , q′ ▷ F′ ▹ G′ × Γ ⊢ F ≡ F′
-         × Γ ∙ F ⊢ G ≡ G′ × p PE.≈ p′ × q PE.≈ q′
-ΠNorm ⊢A A≡ΠFG with whNorm ⊢A
+      → ∃₂ λ F′ G′ → Γ ⊢ A ⇒* Π p , q ▷ F′ ▹ G′ × Γ ⊢ F ≡ F′
+         × Γ ∙ F ⊢ G ≡ G′
+ΠNorm {A = A} ⊢A A≡ΠFG with whNorm ⊢A
 ... | _ , Uₙ , D = PE.⊥-elim (U≢Π (trans (sym (subset* (red D))) A≡ΠFG))
 ... | _ , ΠΣₙ {b = BMΠ} , D =
   let Π≡Π′ = trans (sym A≡ΠFG) (subset* (red D))
-  in  _ , _ , _ , _ , red D , injectivity Π≡Π′
+      F≡F′ , G≡G′ , p≡p′ , q≡q′ = injectivity Π≡Π′
+      D′ = PE.subst₂ (λ p q → _ ⊢ A ⇒* Π p , q ▷ _ ▹ _) (PE.sym p≡p′) (PE.sym q≡q′) (red D)
+  in  _ , _ , D′ , F≡F′ , G≡G′
 ... | _ , ΠΣₙ {b = BMΣ s} , D = PE.⊥-elim (Π≢Σⱼ (trans (sym A≡ΠFG) (subset* (red D))))
 ... | _ , ℕₙ , D = PE.⊥-elim (ℕ≢Π (trans (sym (subset* (red D))) A≡ΠFG))
 ... | _ , Unitₙ , D = PE.⊥-elim (Unit≢Πⱼ (trans (sym (subset* (red D))) A≡ΠFG))
@@ -63,17 +65,17 @@ whNorm A = whNorm′ (reducible A)
 ... | _ , ne x , D = PE.⊥-elim (Π≢ne x (trans (sym A≡ΠFG) (subset* (red D))))
 
 ΣNorm : ∀ {A F G m} → Γ ⊢ A → Γ ⊢ A ≡ Σ⟨ m ⟩ p , q ▷ F ▹ G
-      → ∃₄ λ p′ q′ F′ G′ → Γ ⊢ A ⇒* Σ⟨ m ⟩ p′ , q′ ▷ F′ ▹ G′
-         × Γ ⊢ F ≡ F′ × Γ ∙ F ⊢ G ≡ G′ × p PE.≈ p′ × q PE.≈ q′
-ΣNorm ⊢A A≡ΣFG with whNorm ⊢A
+      → ∃₂ λ F′ G′ → Γ ⊢ A ⇒* Σ⟨ m ⟩ p , q ▷ F′ ▹ G′
+         × Γ ⊢ F ≡ F′ × Γ ∙ F ⊢ G ≡ G′
+ΣNorm {A = A} ⊢A A≡ΣFG with whNorm ⊢A
 ... | _ , Uₙ , D = PE.⊥-elim (U≢Σ (trans (sym (subset* (red D))) A≡ΣFG))
 ... | _ , (ΠΣₙ {b = BMΠ}) , D = PE.⊥-elim (Π≢Σⱼ (trans (sym (subset* (red D))) A≡ΣFG))
 ... | _ , (ΠΣₙ {b = BMΣ m}) , D =
   let Σ≡Σ′ = trans (sym A≡ΣFG) (subset* (red D))
       F≡F′ , G≡G′ , p≈p′ , q≈q′ , m≡m′ = Σ-injectivity Σ≡Σ′
-  in  _ , _ , _ , _
-   , PE.subst (λ m → _ ⊢ _ ⇒* Σ⟨ m ⟩ _ , _ ▷ _ ▹ _) (PE.sym m≡m′) (red D)
-   , F≡F′ , G≡G′ , p≈p′ , q≈q′
+      D′ = PE.subst₃ (λ m p q → _ ⊢ A ⇒* Σ⟨ m ⟩ p , q ▷ _ ▹ _)
+                     (PE.sym m≡m′) (PE.sym p≈p′) (PE.sym q≈q′) (red D)
+  in  _ , _ , D′ , F≡F′ , G≡G′
 ... | _ , ℕₙ , D = PE.⊥-elim (ℕ≢Σ (trans (sym (subset* (red D))) A≡ΣFG))
 ... | _ , Unitₙ , D = PE.⊥-elim (Unit≢Σⱼ (trans (sym (subset* (red D))) A≡ΣFG))
 ... | _ , Emptyₙ , D = PE.⊥-elim (Empty≢Σⱼ (trans (sym (subset* (red D))) A≡ΣFG))

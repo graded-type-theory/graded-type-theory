@@ -63,7 +63,7 @@ private
     t₁ t₂ : Term n
     v₁ v₂ : T.Term n
     G : Term (1+ n)
-    p q r : Erasure
+    p q q′ r : Erasure
     γ δ : Conₘ n
     σ : Subst k n
     σ′ : T.Subst k n
@@ -92,8 +92,8 @@ prodrecωʳ′-𝟘 :
   T.subst σ′ (erase t) T.⇒* v₂ →
   t₂ ®⟨ l ⟩ v₂ ∷ subst (consSubst σ t₁) G /
     [G] .unwrap ⊢Δ ([σ] , [t₁]) .proj₁ →
-  subst σ (prodrec ω 𝟘 q A t u) ®⟨ l ⟩
-    T.subst σ′ (erase (prodrec ω 𝟘 q A t u)) ∷ subst σ (A [ t ]) /
+  subst σ (prodrec ω 𝟘 q′ A t u) ®⟨ l ⟩
+    T.subst σ′ (erase (prodrec ω 𝟘 q′ A t u)) ∷ subst σ (A [ t ]) /
     [At] .unwrap ⊢Δ [σ] .proj₁
 prodrecωʳ′-𝟘
   {l = l} {G = G} {A = A} {δ = δ} {u = u} {t = t} {σ = σ} {σ′ = σ′}
@@ -201,8 +201,8 @@ prodrecωʳ′-ω :
   t₁ ®⟨ l ⟩ v₁ ∷ subst σ F / [F] .unwrap ⊢Δ [σ] .proj₁ →
   t₂ ®⟨ l ⟩ v₂ ∷ subst (consSubst σ t₁) G /
     [G] .unwrap ⊢Δ ([σ] , [t₁]) .proj₁ →
-  subst σ (prodrec ω ω q A t u) ®⟨ l ⟩
-    T.subst σ′ (erase (prodrec ω ω q A t u)) ∷ subst σ (A [ t ]) /
+  subst σ (prodrec ω ω q′ A t u) ®⟨ l ⟩
+    T.subst σ′ (erase (prodrec ω ω q′ A t u)) ∷ subst σ (A [ t ]) /
     [At] .unwrap ⊢Δ [σ] .proj₁
 prodrecωʳ′-ω
   {l = l} {F = F} {G = G} {q = q} {A = A} {δ = δ} {u = u} {t = t}
@@ -281,8 +281,8 @@ prodrecωʳ′ :
     [Σ] .unwrap ⊢Δ [σ] .proj₁ →
   subst σ t ®⟨ l ⟩ T.subst σ′ (erase t) ∷ subst σ (Σᵣ p , q ▷ F ▹ G) /
     [Σ] .unwrap ⊢Δ [σ] .proj₁ →
-  subst σ (prodrec ω p q A t u) ®⟨ l ⟩
-    T.subst σ′ (erase (prodrec ω p q A t u)) ∷
+  subst σ (prodrec ω p q′ A t u) ®⟨ l ⟩
+    T.subst σ′ (erase (prodrec ω p q′ A t u)) ∷
     subst σ (A [ t ]) / [At] .unwrap ⊢Δ [σ] .proj₁
 prodrecωʳ′
   {n = n} {l = l} {F = F} {G = G} {q = q} {A = A} {δ = δ} {u = u}
@@ -321,8 +321,7 @@ prodrecωʳ′
                                 [Gt₁]₁′ [Gt₁] t₂®v₂
   in
   case Σ-®-view extra of λ where
-    (𝟘 d′) →
-      prodrecωʳ′-𝟘 {u = u} [Γ] [F] [G] [A] [A₊] ⊩ʳu [At] [u] [σ] σ®σ′
+    (𝟘 d′) → prodrecωʳ′-𝟘 {u = u} [Γ] [F] [G] [A] [A₊] ⊩ʳu [At] [u] [σ] σ®σ′
         [t₁]′ [t₂]′ d d′ t₂®v₂′
     (ω v₁ d′ t₁®v₁) →
       let t₁®v₁′ = irrelevanceTerm′ (wk-id (subst σ F)) [σF]′ [σF] t₁®v₁
@@ -348,7 +347,7 @@ prodrecωʳ :
   δ ∙ p ∙ ω ▸ Γ ∙ F ∙ G ⊩ʳ⟨ l ⟩ u ∷[ 𝟙ᵐ ]
     A [ prodᵣ p (var (x0 +1)) (var x0) ]↑² / [Γ] ∙ [F] ∙ [G] / [A₊] →
   ∃ λ ([At] : Γ ⊩ᵛ⟨ l ⟩ A [ t ] / [Γ]) →
-    ω ·ᶜ γ +ᶜ δ ▸ Γ ⊩ʳ⟨ l ⟩ prodrec ω p q A t u ∷[ 𝟙ᵐ ] A [ t ] / [Γ] /
+    ω ·ᶜ γ +ᶜ δ ▸ Γ ⊩ʳ⟨ l ⟩ prodrec ω p q′ A t u ∷[ 𝟙ᵐ ] A [ t ] / [Γ] /
       [At]
 prodrecωʳ
   {l = l} {t = t} {γ = γ} {δ = δ}

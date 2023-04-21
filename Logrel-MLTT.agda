@@ -95,6 +95,13 @@ import Definition.Modality.Usage.QuantityTranslation
 -- Combined usage and typing relations
 import Definition.Usage
 
+-- Bi-directional typechecking
+import Definition.Typechecking
+import Definition.Typechecking.Deterministic
+import Definition.Typechecking.Soundness
+import Definition.Typechecking.Completeness
+import Definition.Typechecking.Decidable
+
 -- Logical relation
 import Definition.LogicalRelation
 import Definition.LogicalRelation.ShapeView

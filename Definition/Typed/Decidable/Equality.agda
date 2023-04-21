@@ -1,16 +1,16 @@
-{-# OPTIONS --without-K --safe #-}
-
 open import Tools.Relation
+open import Tools.PropositionalEquality as PE
+  using (_≈_; ≈-refl; ≈-sym; ≈-trans)
 
-module Definition.Typed.Decidable.Equality {a ℓ} (M″ : DecSetoid a ℓ) where
+module Definition.Typed.Decidable.Equality
+  {a} {M : Set a} (_≟_ : Decidable (_≈_ {A = M})) where
 
-open DecSetoid M″ using () renaming (Carrier to M; setoid to M′)
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M′
-open import Definition.Conversion.Decidable M″
-open import Definition.Conversion.Soundness M′
-open import Definition.Conversion.Consequences.Completeness M′
+open import Definition.Typed M
+open import Definition.Conversion.Decidable _≟_
+open import Definition.Conversion.Soundness M
+open import Definition.Conversion.Consequences.Completeness M
 
 open import Tools.Nat
 open import Tools.Nullary

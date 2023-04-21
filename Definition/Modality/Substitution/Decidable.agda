@@ -32,7 +32,7 @@ open import Definition.Mode 𝕄
 
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat hiding (_≟_)
+open import Tools.Nat
 import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PartialOrder
 open import Tools.Sum

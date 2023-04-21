@@ -6,6 +6,7 @@ module Definition.Conversion.Decidable
   {a} {M : Set a} (_≟_ : Decidable (_≈_ {A = M})) where
 
 open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped.Properties M
 open import Definition.Typed M
 open import Definition.Typed.Properties M
 open import Definition.Conversion M
@@ -42,24 +43,6 @@ private
 -- Algorithmic equality of variables infers propositional equality.
 strongVarEq : ∀ {m n A} → Γ ⊢ var n ~ var m ↑ A → n PE.≡ m
 strongVarEq (var-refl x x≡y) = x≡y
-
--- Decidability of SigmaMode equality
-decSigmaMode : (m m′ : SigmaMode) → Dec (m PE.≡ m′)
-decSigmaMode Σₚ Σₚ = yes PE.refl
-decSigmaMode Σₚ Σᵣ = no λ{()}
-decSigmaMode Σᵣ Σₚ = no λ{()}
-decSigmaMode Σᵣ Σᵣ = yes PE.refl
-
--- Decidability of equality for BinderMode.
-decBinderMode : Decidable (PE._≡_ {A = BinderMode})
-decBinderMode = λ where
-  BMΠ      BMΠ      → yes PE.refl
-  BMΠ      (BMΣ _)  → no (λ ())
-  (BMΣ _)  BMΠ      → no (λ ())
-  (BMΣ s₁) (BMΣ s₂) → case decSigmaMode s₁ s₂ of λ where
-    (yes PE.refl) → yes PE.refl
-    (no s₁≢s₂)    → no λ where
-      PE.refl → s₁≢s₂ PE.refl
 
 -- Helper function for decidability of applications.
 dec~↑-app : ∀ {k k₁ l l₁ F F₁ G G₁ B}

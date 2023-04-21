@@ -6,15 +6,15 @@ module Definition.Typed.Decidable
 
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Typed M
-open import Definition.Conversion.Decidable _≟_
-open import Definition.Conversion.Soundness M
-open import Definition.Conversion.Consequences.Completeness M
+open import Definition.Typechecking M
+open import Definition.Typechecking.Soundness M
+open import Definition.Typechecking.Completeness M
+open import Definition.Typechecking.Decidable _≟_
 
-open import Tools.Level
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Nullary
 open import Tools.Product
-open import Tools.Unit
 
 private
   variable
@@ -23,7 +23,7 @@ private
     A t : Term n
 
 -- Re-export decidability of type and term equality
-open import Definition.Typed.Decidable.Equality M″ public
+open import Definition.Typed.Decidable.Equality _≟_ public
 
 -- Decidability of well-formed types
 
@@ -42,16 +42,18 @@ decTermᵢ ⊢Γ t = map (λ { (A , t⇉A) → A , (proj₂ (soundness⇉ ⊢Γ 
                     (λ { (A , ⊢t)  → _ , (proj₁ (proj₂ (completeness⇉ t ⊢t)))})
                     (dec⇉ ⊢Γ t)
 
--- Decidability of well-formed contexts consisting of normal form types
+-- Decidability of well-formed contexts consisting of checkable types
 
-CheckableCon : (Γ : Con Term n) → Set a
-CheckableCon ε = Lift a ⊤
-CheckableCon (Γ ∙ A) = Checkable A × CheckableCon Γ
+data CheckableCon : (Γ : Con Term n) → Set a where
+  ε : CheckableCon ε
+  _∙_ : CheckableCon Γ → Checkable A → CheckableCon (Γ ∙ A)
 
 decWfCon : CheckableCon Γ → Dec (⊢ Γ)
-decWfCon {Γ = ε} (lift tt) = yes ε
-decWfCon {Γ = Γ ∙ A} (NfA , NfΓ) with decWfCon NfΓ
-decWfCon {Γ = Γ ∙ A} (NfA , NfΓ) | yes ⊢Γ with dec ⊢Γ NfA
-decWfCon {Γ = Γ ∙ A} (NfA , NfΓ) | yes ⊢Γ | yes ⊢A = yes (⊢Γ ∙ ⊢A)
-decWfCon {Γ = Γ ∙ A} (NfA , NfΓ) | yes ⊢Γ | no ⊬A = no λ { (_ ∙ ⊢A) → ⊬A ⊢A}
-decWfCon {Γ = Γ ∙ A} (NfA , NfΓ) | no ⊬Γ = no (λ { (⊢Γ ∙ _) → ⊬Γ ⊢Γ})
+decWfCon ε = yes ε
+decWfCon (Γ ∙ A) = case decWfCon Γ of λ where
+  (yes ⊢Γ) → case dec ⊢Γ A of λ where
+    (yes ⊢A) → yes (⊢Γ ∙ ⊢A)
+    (no ⊬A) → no λ where
+      (⊢Γ ∙ ⊢A) → ⊬A ⊢A
+  (no ⊬Γ) → no λ where
+    (⊢Γ ∙ ⊢A) → ⊬Γ ⊢Γ

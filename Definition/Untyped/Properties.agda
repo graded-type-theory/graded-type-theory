@@ -5,7 +5,9 @@ module Definition.Untyped.Properties {a} (M : Set a) where
 open import Definition.Untyped M
 
 open import Tools.Fin
+open import Tools.Function
 open import Tools.Nat
+open import Tools.Relation
 open import Tools.PropositionalEquality hiding (subst)
 open import Tools.Reasoning.PropositionalEquality
 
@@ -769,3 +771,21 @@ noClosedNe (sndₙ net) = noClosedNe net
 noClosedNe (natrecₙ net) = noClosedNe net
 noClosedNe (prodrecₙ net) = noClosedNe net
 noClosedNe (Emptyrecₙ net) = noClosedNe net
+
+-- Decidability of SigmaMode equality
+decSigmaMode : Decidable (_≡_ {A = SigmaMode})
+decSigmaMode Σₚ Σₚ = yes refl
+decSigmaMode Σₚ Σᵣ = no λ{()}
+decSigmaMode Σᵣ Σₚ = no λ{()}
+decSigmaMode Σᵣ Σᵣ = yes refl
+
+-- Decidability of equality for BinderMode.
+decBinderMode : Decidable (_≡_ {A = BinderMode})
+decBinderMode = λ where
+  BMΠ      BMΠ      → yes refl
+  BMΠ      (BMΣ _)  → no (λ ())
+  (BMΣ _)  BMΠ      → no (λ ())
+  (BMΣ s₁) (BMΣ s₂) → case decSigmaMode s₁ s₂ of λ where
+    (yes refl) → yes refl
+    (no s₁≢s₂)    → no λ where
+      refl → s₁≢s₂ refl

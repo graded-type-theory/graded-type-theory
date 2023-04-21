@@ -1,18 +1,15 @@
-{-# OPTIONS --without-K --safe #-}
-
+import Tools.PropositionalEquality as PE
 open import Tools.Relation
 
-module Definition.Typed.Decidable.Reduction {a ℓ} (M″ : DecSetoid a ℓ) where
-
-open DecSetoid M″ using () renaming (Carrier to M; setoid to M′)
+module Definition.Typed.Decidable.Reduction {a} {M : Set a} (_≟_ : Decidable (PE._≡_ {A = M})) where
 
 open import Definition.Untyped M hiding (_∷_; U≢B; ℕ≢B; B≢ne)
-open import Definition.Typed M′
-open import Definition.Typed.Properties M′
-open import Definition.Typed.EqRelInstance M′
-open import Definition.Typed.Consequences.Inequality M′
-open import Definition.LogicalRelation M′
-open import Definition.LogicalRelation.Fundamental.Reducibility M′
+open import Definition.Typed M
+open import Definition.Typed.Properties M
+open import Definition.Typed.EqRelInstance M
+open import Definition.Typed.Consequences.Inequality M
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.Fundamental.Reducibility M
 
 open import Tools.Nat
 open import Tools.Nullary
@@ -43,25 +40,25 @@ isB ⊢A = isB′ (reducible ⊢A)
 isΠ : Γ ⊢ A → Dec (∃₄ λ F G p q → (Γ ⊢ F) × (Γ ∙ F ⊢ G) × Γ ⊢ A ⇒* (Π p , q ▷ F ▹ G))
 isΠ ⊢A with isB ⊢A
 ... | yes (F , G , BΠ p q , ⊢F , ⊢G , A⇒Π) = yes (F , G , p , q , ⊢F , ⊢G , A⇒Π)
-... | yes (F , G , BΣ p x , ⊢F , ⊢G , A⇒Σ) = no (λ {(F′ , G′ , p′ , q′ , ⊢F , ⊢G , A⇒Π) → Π≢Σ (trans (sym (subset* A⇒Π)) (subset* A⇒Σ))})
+... | yes (F , G , BΣ p q x , ⊢F , ⊢G , A⇒Σ) = no (λ {(F′ , G′ , p′ , q′ , ⊢F , ⊢G , A⇒Π) → Π≢Σⱼ (trans (sym (subset* A⇒Π)) (subset* A⇒Σ))})
 ... | no ¬isB = no (λ {(F′ , G′ , p′ , q′ , ⊢F , ⊢G , A⇒Π) → ¬isB (F′ , G′ , BΠ p′ q′ , ⊢F , ⊢G , A⇒Π)})
 
 -- Decidability of being (reducing to) a Σ-type
 
-isΣ : Γ ⊢ A → Dec (∃₄ λ F G m q → (Γ ⊢ F) × (Γ ∙ F ⊢ G) × Γ ⊢ A ⇒* (Σ⟨ m ⟩ q ▷ F ▹ G))
+isΣ : Γ ⊢ A → Dec (∃₄ λ F G m p → ∃ λ q → (Γ ⊢ F) × (Γ ∙ F ⊢ G) × Γ ⊢ A ⇒* (Σ⟨ m ⟩ p , q ▷ F ▹ G))
 isΣ ⊢A with isB ⊢A
-... | yes (F , G , BΣ q m , ⊢F , ⊢G , A⇒Σ) = yes (F , G , m , q , ⊢F , ⊢G , A⇒Σ)
-... | yes (F , G , BΠ p q , ⊢F , ⊢G , A⇒Π) = no (λ {(F′ , G′ , p′ , q′ , ⊢F , ⊢G , A⇒Σ) → Π≢Σ (trans (sym (subset* A⇒Π)) (subset* A⇒Σ))})
-... | no ¬isB = no (λ {(F′ , G′ , m , q′ , ⊢F , ⊢G , A⇒Π) → ¬isB (F′ , G′ , BΣ q′ m , ⊢F , ⊢G , A⇒Π)})
+... | yes (F , G , BΣ m p q , ⊢F , ⊢G , A⇒Σ) = yes (F , G , m , p , q , ⊢F , ⊢G , A⇒Σ)
+... | yes (F , G , BΠ p q , ⊢F , ⊢G , A⇒Π) = no (λ {(F′ , G′ , m′ , p′ , q′ , ⊢F , ⊢G , A⇒Σ) → Π≢Σⱼ (trans (sym (subset* A⇒Π)) (subset* A⇒Σ))})
+... | no ¬isB = no (λ {(F′ , G′ , m , p′ , q′ , ⊢F , ⊢G , A⇒Π) → ¬isB (F′ , G′ , BΣ m p′ q′ , ⊢F , ⊢G , A⇒Π)})
 
-isΣₚ : Γ ⊢ A → Dec (∃₃ λ F G q → (Γ ⊢ F) × (Γ ∙ F ⊢ G) × Γ ⊢ A ⇒* (Σₚ q ▷ F ▹ G))
+isΣₚ : Γ ⊢ A → Dec (∃₄ λ F G p q → (Γ ⊢ F) × (Γ ∙ F ⊢ G) × Γ ⊢ A ⇒* (Σₚ p , q ▷ F ▹ G))
 isΣₚ ⊢A with isΣ ⊢A
-... | yes (F , G , Σₚ , q , ⊢F , ⊢G , A⇒Σ) = yes (F , G , q , ⊢F , ⊢G , A⇒Σ)
-... | yes (F , G , Σᵣ , q , ⊢F , ⊢G , A⇒Σ) = no (λ {(F′ , G′ , q′ , ⊢F′ , ⊢G′ , A⇒Σ′) → Σₚ≢Σᵣ (trans (sym (subset* A⇒Σ′)) (subset* A⇒Σ))})
-... | no ¬isΣ = no (λ {(F′ , G′ , q′ , ⊢F′ , ⊢G′ , A⇒Σ′) → ¬isΣ (F′ , G′ , Σₚ , q′ , ⊢F′ , ⊢G′ , A⇒Σ′)})
+... | yes (F , G , Σₚ , p , q , ⊢F , ⊢G , A⇒Σ) = yes (F , G , p , q , ⊢F , ⊢G , A⇒Σ)
+... | yes (F , G , Σᵣ , p , q , ⊢F , ⊢G , A⇒Σ) = no (λ {(F′ , G′ , p′ , q′ , ⊢F′ , ⊢G′ , A⇒Σ′) → Σₚ≢Σᵣⱼ (trans (sym (subset* A⇒Σ′)) (subset* A⇒Σ))})
+... | no ¬isΣ = no (λ {(F′ , G′ , p′ , q′ , ⊢F′ , ⊢G′ , A⇒Σ′) → ¬isΣ (F′ , G′ , Σₚ , p′ , q′ , ⊢F′ , ⊢G′ , A⇒Σ′)})
 
-isΣᵣ : Γ ⊢ A → Dec (∃₃ λ F G q → (Γ ⊢ F) × (Γ ∙ F ⊢ G) × Γ ⊢ A ⇒* (Σᵣ q ▷ F ▹ G))
+isΣᵣ : Γ ⊢ A → Dec (∃₄ λ F G p q → (Γ ⊢ F) × (Γ ∙ F ⊢ G) × Γ ⊢ A ⇒* (Σᵣ p , q ▷ F ▹ G))
 isΣᵣ ⊢A with isΣ ⊢A
-... | yes (F , G , Σₚ , q , ⊢F , ⊢G , A⇒Σ) = no (λ {(F′ , G′ , q′ , ⊢F′ , ⊢G′ , A⇒Σ′) → Σₚ≢Σᵣ (trans (sym (subset* A⇒Σ)) (subset* A⇒Σ′))})
-... | yes (F , G , Σᵣ , q , ⊢F , ⊢G , A⇒Σ) = yes (F , G , q , ⊢F , ⊢G , A⇒Σ)
-... | no ¬isΣ = no (λ {(F′ , G′ , q′ , ⊢F′ , ⊢G′ , A⇒Σ′) → ¬isΣ (F′ , G′ , Σᵣ , q′ , ⊢F′ , ⊢G′ , A⇒Σ′)})
+... | yes (F , G , Σₚ , p , q , ⊢F , ⊢G , A⇒Σ) = no (λ {(F′ , G′ , p′ , q′ , ⊢F′ , ⊢G′ , A⇒Σ′) → Σₚ≢Σᵣⱼ (trans (sym (subset* A⇒Σ)) (subset* A⇒Σ′))})
+... | yes (F , G , Σᵣ , p , q , ⊢F , ⊢G , A⇒Σ) = yes (F , G , p , q , ⊢F , ⊢G , A⇒Σ)
+... | no ¬isΣ = no (λ {(F′ , G′ , p′ , q′ , ⊢F′ , ⊢G′ , A⇒Σ′) → ¬isΣ (F′ , G′ , Σᵣ , p′ , q′ , ⊢F′ , ⊢G′ , A⇒Σ′)})
