@@ -44,10 +44,6 @@ decTermᵢ ⊢Γ t = map (λ { (A , t⇉A) → A , (proj₂ (soundness⇉ ⊢Γ 
 
 -- Decidability of well-formed contexts consisting of checkable types
 
-data CheckableCon : (Γ : Con Term n) → Set a where
-  ε : CheckableCon ε
-  _∙_ : CheckableCon Γ → Checkable A → CheckableCon (Γ ∙ A)
-
 decWfCon : CheckableCon Γ → Dec (⊢ Γ)
 decWfCon ε = yes ε
 decWfCon (Γ ∙ A) = case decWfCon Γ of λ where

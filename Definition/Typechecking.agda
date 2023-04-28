@@ -109,6 +109,12 @@ mutual
     prodᶜ : ∀ {m} → Checkable t → Checkable u → Checkable (prod m p t u)
     infᶜ : Inferable t → Checkable t
 
+-- CheckableCon Γ means that the types in Γ are checkable.
+
+data CheckableCon : (Γ : Con Term n) → Set a where
+  ε   : CheckableCon ε
+  _∙_ : CheckableCon Γ → Checkable A → CheckableCon (Γ ∙ A)
+
 -- The bi-directional type checking relations imply the syntactic notion of Inferable and Checkable
 
 mutual
