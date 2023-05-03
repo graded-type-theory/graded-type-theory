@@ -92,9 +92,6 @@ import Definition.Modality.Context.QuantityTranslation
 import Definition.Mode.QuantityTranslation
 import Definition.Modality.Usage.QuantityTranslation
 
--- Combined usage and typing relations
-import Definition.Usage
-
 -- Bi-directional typechecking
 import Definition.Typechecking
 import Definition.Typechecking.Deterministic
