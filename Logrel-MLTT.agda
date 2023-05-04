@@ -178,6 +178,11 @@ import Definition.Untyped.Erased
 import Definition.Modality.Usage.Erased
 import Definition.Typed.Erased
 
+-- The type Unrestricted (defined using a Σ-type with η-equality).
+import Definition.Untyped.Unrestricted.Eta
+import Definition.Modality.Usage.Unrestricted.Eta
+import Definition.Typed.Unrestricted.Eta
+
 -- Erasure
 
 import Definition.Modality.Instances.Erasure.Properties
