@@ -11,16 +11,20 @@ open import Definition.Modality.Context.Properties 𝕄
 open import Definition.Modality.Properties 𝕄
 open import Definition.Modality.Substitution.Properties 𝕄
 open import Definition.Modality.Usage 𝕄
-open import Definition.Modality.Usage.Erased 𝕄
+import Definition.Modality.Usage.Erased 𝕄 as EU
+import Definition.Modality.Usage.Unrestricted.Eta 𝕄 as UU
 open import Definition.Modality.Usage.Inversion 𝕄
 open import Definition.Modality.Usage.Properties 𝕄
 open import Definition.Mode 𝕄
 open import Definition.Typed M
 open import Definition.Typed.Consequences.DerivedRules M
-open import Definition.Typed.Erased 𝕄
+import Definition.Typed.Erased 𝕄 as ET
+import Definition.Typed.Unrestricted.Eta 𝕄 as UT
 open import Definition.Untyped M hiding (_∷_; _[_])
-open import Definition.Untyped.Erased 𝕄
+open import Definition.Untyped.Erased 𝕄 as E using (Erased)
+import Definition.Untyped.Unrestricted.Eta 𝕄 as U
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
@@ -199,7 +203,7 @@ usagePres* γ▸A (x ⇨ A⇒B) = usagePres* (usagePres γ▸A x) A⇒B
 -- definitionally equal to a term in normal form which is not
 -- well-resourced.
 
-counterexample :
+counterexample₁ :
   ¬ 𝟙 ≤ 𝟘 →
   ∃₂ λ t u →
     (∀ p → ε ⊢ t ∷ Π 𝟙 , p ▷ Erased ℕ ▹ Erased ℕ) ×
@@ -208,7 +212,7 @@ counterexample :
     Nf u ×
     (∀ p → ε ⊢ t ≡ u ∷ Π 𝟙 , p ▷ Erased ℕ ▹ Erased ℕ) ×
     ¬ ∃ λ γ → γ ▸[ 𝟙ᵐ ] u
-counterexample 𝟙≰𝟘 =
+counterexample₁ 𝟙≰𝟘 =
     lam 𝟙 (var x0)
   , lam 𝟙 [ erased (var x0) ]
   , (λ _ → lamⱼ ⊢E-ℕ ⊢0)
@@ -230,5 +234,67 @@ counterexample 𝟙≰𝟘 =
              𝟙 · 𝟙  ≤⟨ 𝟙·𝟙≤𝟘 ⟩
              𝟘      ∎))
   where
+  open E
+  open ET
+  open EU
+
   ⊢E-ℕ = Erasedⱼ (ℕⱼ ε)
+  ⊢0   = var (ε ∙ ⊢E-ℕ) here
+
+-- A variant of the previous property. If there is some quantity
+-- strictly below both 𝟘 and some quantity that is bounded by 𝟙, then
+-- there is a well-resourced, closed term in normal form which is
+-- definitionally equal to a term in normal form which is not
+-- well-resourced.
+
+counterexample₂ :
+  ∀ ω → ω < 𝟘 →
+  ∀ p → ω < p → p ≤ 𝟙 →
+  let open U ω in
+  ∃₂ λ t u →
+    (∀ q → ε ⊢ t ∷ Π p , q ▷ Unrestricted ℕ ▹ Unrestricted ℕ) ×
+    𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
+    Nf t ×
+    Nf u ×
+    (∀ q → ε ⊢ t ≡ u ∷ Π p , q ▷ Unrestricted ℕ ▹ Unrestricted ℕ) ×
+    ¬ ∃ λ γ → γ ▸[ 𝟙ᵐ ] u
+counterexample₂ ω ω<𝟘 p ω<p p≤𝟙 =
+    lam p (var x0)
+  , lam p [ unbox (var x0) ]
+  , (λ _ → lamⱼ ⊢E-ℕ ⊢0)
+  , lamₘ (sub var
+            (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+               𝟘ᶜ ∙ 𝟙 · p  ≈⟨ ≈ᶜ-refl ∙ ·-identityˡ _ ⟩
+               𝟘ᶜ ∙ p      ≤⟨ ≤ᶜ-refl ∙ p≤𝟙 ⟩
+               𝟘ᶜ ∙ 𝟙      ∎))
+  , lamₙ (ne (var _))
+  , lamₙ (prodₙ (ne (fstₙ (var _))) starₙ)
+  , (λ _ → lam-cong (_⊢_≡_∷_.sym ([unbox] ⊢0)))
+  , (λ (_ , ▸λ[e0]) →
+       let open Tools.Reasoning.PartialOrder ≤-poset in
+       case inv-usage-lam ▸λ[e0] of
+         λ (invUsageLam ▸[e0] _) →
+       case inv-usage-[] ▸[e0] of λ {
+         (_ ∙ q , ▸unbox , _ ∙ 𝟙·p≤ω·q) →
+              $⟨ begin
+                   p      ≈˘⟨ ·-identityˡ _ ⟩
+                   𝟙 · p  ≤⟨ 𝟙·p≤ω·q ⟩
+                   ω · q  ≤⟨ ·-monotoneʳ (headₘ-monotone (inv-usage-var (inv-usage-unbox ▸unbox))) ⟩
+                   ω · 𝟙  ≈⟨ ·-identityʳ _ ⟩
+                   ω      ∎ ⟩
+       p ≤ ω  →⟨ <→≰ ω<p ⟩
+       ⊥      □ })
+  where
+  ω≤𝟙 = begin
+    ω  ≤⟨ ω<p .proj₁ ⟩
+    p  ≤⟨ p≤𝟙 ⟩
+    𝟙  ∎
+    where
+    open Tools.Reasoning.PartialOrder ≤-poset
+
+  open U ω
+  open UT ω
+  open UU ω ω<𝟘 ω≤𝟙
+
+  ⊢E-ℕ = Unrestrictedⱼ (ℕⱼ ε)
   ⊢0   = var (ε ∙ ⊢E-ℕ) here
