@@ -202,23 +202,23 @@ usagePres* γ▸A (x ⇨ A⇒B) = usagePres* (usagePres γ▸A x) A⇒B
 counterexample :
   ¬ 𝟙 ≤ 𝟘 →
   ∃₂ λ t u →
-    ε ⊢ t ∷ Π 𝟙 , 𝟙 ▷ Erased ℕ ▹ Erased ℕ ×
+    (∀ p → ε ⊢ t ∷ Π 𝟙 , p ▷ Erased ℕ ▹ Erased ℕ) ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     Nf t ×
     Nf u ×
-    ε ⊢ t ≡ u ∷ Π 𝟙 , 𝟙 ▷ Erased ℕ ▹ Erased ℕ ×
+    (∀ p → ε ⊢ t ≡ u ∷ Π 𝟙 , p ▷ Erased ℕ ▹ Erased ℕ) ×
     ¬ ∃ λ γ → γ ▸[ 𝟙ᵐ ] u
 counterexample 𝟙≰𝟘 =
     lam 𝟙 (var x0)
   , lam 𝟙 [ erased (var x0) ]
-  , lamⱼ ⊢E-ℕ ⊢0
+  , (λ _ → lamⱼ ⊢E-ℕ ⊢0)
   , lamₘ (sub var
             (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
                𝟘ᶜ ∙ 𝟙 · 𝟙  ≈⟨ ≈ᶜ-refl ∙ ·-identityʳ _ ⟩
                𝟘ᶜ ∙ 𝟙      ∎))
   , lamₙ (ne (var _))
   , lamₙ (prodₙ (ne (fstₙ (var _))) starₙ)
-  , lam-cong (_⊢_≡_∷_.sym ([erased] ⊢0))
+  , (λ _ → lam-cong (_⊢_≡_∷_.sym ([erased] ⊢0)))
   , (λ (_ , ▸λ[e0]) →
        case inv-usage-lam ▸λ[e0] of
          λ (invUsageLam ▸[e0] _) →
