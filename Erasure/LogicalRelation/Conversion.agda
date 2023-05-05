@@ -1,45 +1,47 @@
-open import Definition.Modality.Instances.Erasure
-open import Definition.Modality.Restrictions
 open import Definition.Typed.EqualityRelation
-open import Definition.Untyped Erasure
-open import Definition.Typed Erasure
+import Definition.Typed as T
+import Definition.Untyped as U
+open import Definition.Modality
+open import Tools.Nullary
+import Tools.PropositionalEquality as PE
 
 module Erasure.LogicalRelation.Conversion
-  {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ)
-  (restrictions : Restrictions Erasure)
-  {{eqrel : EqRelSet Erasure}}
+  {a k} {M : Set a} (𝕄 : Modality M)
+  (open U M) (open T M) (open Modality 𝕄)
+  {Δ : Con Term k} (⊢Δ : ⊢ Δ)
+  (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘))
+  {{eqrel : EqRelSet M}}
   where
 
 open EqRelSet {{...}}
 
-open import Erasure.LogicalRelation ⊢Δ restrictions
+open import Erasure.LogicalRelation 𝕄 ⊢Δ is-𝟘?
 import Erasure.Target as T
 
-open import Definition.LogicalRelation Erasure
-open import Definition.LogicalRelation.Irrelevance Erasure
-open import Definition.LogicalRelation.Fundamental.Reducibility Erasure
-open import Definition.LogicalRelation.ShapeView Erasure
-open import Definition.LogicalRelation.Properties.Conversion Erasure
-open import Definition.LogicalRelation.Properties.Escape Erasure
-open import Definition.LogicalRelation.Substitution Erasure
-open import Definition.LogicalRelation.Substitution.Properties Erasure
-import Definition.LogicalRelation.Substitution.Irrelevance Erasure as IS
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.Irrelevance M
+open import Definition.LogicalRelation.Fundamental.Reducibility M
+open import Definition.LogicalRelation.ShapeView M
+open import Definition.LogicalRelation.Properties.Conversion M
+open import Definition.LogicalRelation.Properties.Escape M
+open import Definition.LogicalRelation.Substitution M
+open import Definition.LogicalRelation.Substitution.Properties M
+import Definition.LogicalRelation.Substitution.Irrelevance M as IS
+open import Definition.Mode 𝕄
+open import Definition.Untyped.Properties M
+import Definition.Untyped.BindingType M as BT
 
-open import Definition.Modality.Instances.Erasure.Modality restrictions
-open import Definition.Mode ErasureModality
-open import Definition.Untyped.Properties Erasure
-import Definition.Untyped.BindingType Erasure as BT
-
-open import Definition.Typed.Consequences.Injectivity Erasure
-open import Definition.Typed.Consequences.Substitution Erasure
-open import Definition.Typed.Reduction Erasure
-open import Definition.Typed.RedSteps Erasure
-open import Definition.Typed.Weakening Erasure
+open import Definition.Typed.Consequences.Injectivity M
+open import Definition.Typed.Consequences.Substitution M
+open import Definition.Typed.Reduction M
+open import Definition.Typed.RedSteps M
+open import Definition.Typed.Weakening M hiding (wk)
 
 open import Tools.Function
+open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
-import Tools.PropositionalEquality as PE
+open import Tools.Unit
 
 private
   variable
@@ -47,29 +49,29 @@ private
     Γ : Con Term n
     A B t : Term n
     v : T.Term n
-    p : Erasure
+    p : M
     m : Mode
 
 -- Conversion of logical relation for erasure using ShapeView
 -- If t ® v ∷ A and Δ ⊩ A ≡ B then t ® v ∷ B
 
-convTermʳ′ : ∀ {l l′} p
+convTermʳ′ : ∀ {l l′}
            → ([A] : Δ ⊩⟨ l ⟩ A)
              ([B] : Δ ⊩⟨ l′ ⟩ B)
            → Δ ⊢ A ≡ B
            → ShapeView Δ l l′ A B [A] [B]
-           → t ®⟨ l ⟩ v ∷ A ◂ p / [A]
-           → t ®⟨ l′ ⟩ v ∷ B ◂ p / [B]
-convTermʳ′ 𝟘 = _
-convTermʳ′ ω _ _ A≡B (Uᵥ UA UB) t®v = t®v
-convTermʳ′ ω _ _ A≡B (ℕᵥ ℕA ℕB) t®v = t®v
-convTermʳ′ ω _ _ A≡B (Unitᵥ UnitA UnitB) t®v = t®v
+           → t ®⟨ l ⟩ v ∷ A / [A]
+           → t ®⟨ l′ ⟩ v ∷ B / [B]
+convTermʳ′ _ _ A≡B (Uᵥ UA UB) t®v = t®v
+convTermʳ′ _ _ A≡B (ℕᵥ ℕA ℕB) t®v = t®v
+convTermʳ′ _ _ A≡B (Unitᵥ UnitA UnitB) t®v = t®v
 convTermʳ′
-  ω [A] [B] A≡B
-  (Bᵥ (BΠ 𝟘 q) BΠ! (Bᵣ F G [ _ , _ , A⇒Π ] ⊢F ⊢G A≡A [F] [G] G-ext)
+  [A] [B] A≡B
+  (Bᵥ (BΠ p q) BΠ! (Bᵣ F G [ _ , _ , A⇒Π ] ⊢F ⊢G A≡A [F] [G] G-ext)
      (Bᵣ F₁ G₁ [ _ , _ , B⇒Π₁ ] ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁)
-     (BT.Π≋Π PE.refl PE.refl))
-  t®v [a]′ =
+     (BT.Π≋Π PE.refl PE.refl)) t®v
+     with is-𝟘? p
+... | yes PE.refl = λ [a]′ →
   let Π≡Π₁ = reduction′ A⇒Π B⇒Π₁ ΠΣₙ ΠΣₙ A≡B
       F≡F₁ , G≡G₁ , _ , _ = injectivity Π≡Π₁
       [F₁]′ , [F]′ , [F₁≡F]′ = reducibleEq (sym F≡F₁)
@@ -82,13 +84,8 @@ convTermʳ′
       [Ga≡G₁a] = irrelevanceEq [Ga]′ ([G] id ⊢Δ [a]) [Ga≡G₁a]′
       t®v′ = t®v [a]
       SV = goodCases ([G] id ⊢Δ [a]) ([G]₁ id ⊢Δ [a]′) [Ga≡G₁a]
-  in  convTermʳ′ _ ([G] id ⊢Δ [a]) ([G]₁ id ⊢Δ [a]′) G[a]≡G₁[a] SV t®v′
-convTermʳ′
-  ω [A] [B] A≡B
-  (Bᵥ (BΠ ω q) BΠ! (Bᵣ F G [ _ , _ , A⇒Π ] ⊢F ⊢G A≡A [F] [G] G-ext)
-     (Bᵣ F₁ G₁ [ _ , _ , B⇒Π₁ ] ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁)
-     (BT.Π≋Π PE.refl PE.refl))
-  t®v [a]′ a®w′ =
+  in  convTermʳ′ ([G] id ⊢Δ [a]) ([G]₁ id ⊢Δ [a]′) G[a]≡G₁[a] SV t®v′
+... | no p≢𝟘 = λ [a]′ a®w′ →
   let Π≡Π₁ = reduction′ A⇒Π B⇒Π₁ ΠΣₙ ΠΣₙ A≡B
       F≡F₁ , G≡G₁ , _ , _ = injectivity Π≡Π₁
       [F₁]′ , [F]′ , [F₁≡F]′ = reducibleEq (sym F≡F₁)
@@ -101,62 +98,75 @@ convTermʳ′
       [Ga≡G₁a] = irrelevanceEq [Ga]′ ([G] id ⊢Δ [a]) [Ga≡G₁a]′
       SV = goodCases ([F]₁ id ⊢Δ) ([F] id ⊢Δ) [F₁≡F]
       F₁≡F = PE.subst₂ (Δ ⊢_≡_) (PE.sym (wk-id F₁)) (PE.sym (wk-id F)) (sym F≡F₁)
-      a®w = convTermʳ′ _ ([F]₁ id ⊢Δ) ([F] id ⊢Δ) F₁≡F SV a®w′
+      a®w = convTermʳ′ ([F]₁ id ⊢Δ) ([F] id ⊢Δ) F₁≡F SV a®w′
       t®v′ = t®v [a] a®w
       SV′ = goodCases ([G] id ⊢Δ [a]) ([G]₁ id ⊢Δ [a]′) [Ga≡G₁a]
-  in  convTermʳ′ _ ([G] id ⊢Δ [a]) ([G]₁ id ⊢Δ [a]′) G[a]≡G₁[a] SV′ t®v′
-convTermʳ′
-  ω [A] [B] A≡B
+  in  convTermʳ′ ([G] id ⊢Δ [a]) ([G]₁ id ⊢Δ [a]′) G[a]≡G₁[a] SV′ t®v′
+convTermʳ′ {v = v}
+  [A] [B] A≡B
   (Bᵥ (BΣ _ p _) BΣ! (Bᵣ F G [ _ , _ , A⇒Σ ] ⊢F ⊢G A≡A [F] [G] G-ext)
      (Bᵣ F₁ G₁ [ _ , _ , B⇒Σ₁ ] ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁)
      (BT.Σ≋Σ PE.refl))
   (t₁ , t₂ , t⇒t′ , [t₁] , v₂ , t₂®v₂ , extra) =
   let Σ≡Σ₁ = reduction′ A⇒Σ B⇒Σ₁ ΠΣₙ ΠΣₙ A≡B
       F≡F₁ , G≡G₁ , _ = Σ-injectivity Σ≡Σ₁
-      [F]′ , [F₁]′ , [F≡F₁]′ = reducibleEq F≡F₁
+      [F]′ = [F] id ⊢Δ
+      [F]₁′ = [F]₁ id ⊢Δ
+      [F]″ , [F₁]″ , [F≡F₁]′ = reducibleEq F≡F₁
       [F≡F₁] = irrelevanceEq″ (PE.sym (wk-id F)) (PE.sym (wk-id F₁))
-                              [F]′ ([F] id ⊢Δ) [F≡F₁]′
+                              [F]″ [F]′ [F≡F₁]′
       F≡F₁′ = PE.subst₂ (Δ ⊢_≡_) (PE.sym (wk-id F)) (PE.sym (wk-id F₁)) F≡F₁
-      [t₁]′ = convTerm₁ ([F] id ⊢Δ) ([F]₁ id ⊢Δ) [F≡F₁] [t₁]
-      G≡G₁′ = wkEq (lift id) (⊢Δ ∙ escape ([F] id ⊢Δ)) G≡G₁
-      G[t₁]≡G₁[t₁] = substTypeEq G≡G₁′ (refl (escapeTerm ([F] id ⊢Δ) [t₁]))
+      [t₁]′ = convTerm₁ [F]′ [F]₁′ [F≡F₁] [t₁]
+      G≡G₁′ = wkEq (lift id) (⊢Δ ∙ escape [F]′) G≡G₁
+      G[t₁]≡G₁[t₁] = substTypeEq G≡G₁′ (refl (escapeTerm [F]′ [t₁]))
+      [Gt₁] = [G] id ⊢Δ [t₁]
+      [Gt₁]₁ = [G]₁ id ⊢Δ [t₁]′
       [Gt₁]′ , [G₁t₁]′ , [Gt₁≡G₁t₁]′ = reducibleEq G[t₁]≡G₁[t₁]
-      [Gt₁≡G₁t₁] = irrelevanceEq [Gt₁]′ ([G] id ⊢Δ [t₁]) [Gt₁≡G₁t₁]′
+      [Gt₁≡G₁t₁] = irrelevanceEq [Gt₁]′ [Gt₁] [Gt₁≡G₁t₁]′
       t⇒t″ = conv* t⇒t′ Σ≡Σ₁
-      SV₂ = goodCases ([G] id ⊢Δ [t₁]) ([G]₁ id ⊢Δ [t₁]′) [Gt₁≡G₁t₁]
-      t₂®v₂′ = convTermʳ′ _ ([G] id ⊢Δ [t₁]) ([G]₁ id ⊢Δ [t₁]′)
-                 G[t₁]≡G₁[t₁] SV₂ t₂®v₂
-  in  t₁ , t₂ , t⇒t″ , [t₁]′ , v₂ , t₂®v₂′ ,
-      (case Σ-®-view extra of λ where
-        (𝟘 v⇒v′)          → v⇒v′
-        (ω v₁ v⇒v′ t₁®v₁) →
-          let SV₁    = goodCases ([F] id ⊢Δ) ([F]₁ id ⊢Δ) [F≡F₁]
-              t₁®v₁′ = convTermʳ′ p ([F] id ⊢Δ) ([F]₁ id ⊢Δ)
-                         F≡F₁′ SV₁ t₁®v₁
-          in v₁ , v⇒v′ , t₁®v₁′)
-convTermʳ′ ω (emb 0<1 [A]) [B] A≡B (emb⁰¹ SV) t®v =
-  convTermʳ′ _ [A] [B] A≡B SV t®v
-convTermʳ′ ω [A] (emb 0<1 [B]) A≡B (emb¹⁰ SV) t®v =
-  convTermʳ′ _ [A] [B] A≡B SV t®v
+      SV₂ = goodCases [Gt₁] [Gt₁]₁ [Gt₁≡G₁t₁]
+      t₂®v₂′ = convTermʳ′ [Gt₁] [Gt₁]₁ G[t₁]≡G₁[t₁] SV₂ t₂®v₂
+      SV₁ = goodCases [F]′ [F]₁′ [F≡F₁]
+      extra′ =
+        Σ-®-elim (λ _ → Σ-® _ _ [F]₁′ t₁ v v₂ p) extra
+                 Σ-®-intro-𝟘
+                 λ v₁ v⇒p t₁®v₁ →
+                   let t₁®v₁′ = convTermʳ′ [F]′ [F]₁′ F≡F₁′ SV₁ t₁®v₁
+                   in  Σ-®-intro-ω v₁ v⇒p t₁®v₁′
+  in  t₁ , t₂ , t⇒t″ , [t₁]′ , v₂ , t₂®v₂′ , extra′
+convTermʳ′ (emb 0<1 [A]) [B] A≡B (emb⁰¹ SV) t®v =
+  convTermʳ′ [A] [B] A≡B SV t®v
+convTermʳ′ [A] (emb 0<1 [B]) A≡B (emb¹⁰ SV) t®v =
+  convTermʳ′ [A] [B] A≡B SV t®v
 -- Impossible cases
-convTermʳ′ ω _ _ _ (Emptyᵥ _ _) ()
-convTermʳ′ ω _ _ _ (ne _ _) ()
-convTermʳ′ ω _ _ _ (Bᵥ BΣ! BΠ! _ _ ())
-convTermʳ′ ω _ _ _ (Bᵥ BΠ! BΣ! _ _ ())
+convTermʳ′ _ _ _ (Emptyᵥ _ _) ()
+convTermʳ′ _ _ _ (ne _ _) ()
+convTermʳ′ _ _ _ (Bᵥ BΣ! BΠ! _ _ ())
+convTermʳ′ _ _ _ (Bᵥ BΠ! BΣ! _ _ ())
 
 -- Conversion of logical relation for erasure
 -- If t ® v ∷ A and Δ ⊢ A ≡ B then t ® v ∷ B
 
-convTermʳ : ∀ {l l′ A B t v} p
+convTermʳ : ∀ {l l′ A B t v}
           → ([A] : Δ ⊩⟨ l ⟩ A)
             ([B] : Δ ⊩⟨ l′ ⟩ B)
           → Δ ⊢ A ≡ B
-          → t ®⟨ l ⟩ v ∷ A ◂ p / [A]
-          → t ®⟨ l′ ⟩ v ∷ B ◂ p / [B]
-convTermʳ p [A] [B] A≡B t®v =
+          → t ®⟨ l ⟩ v ∷ A / [A]
+          → t ®⟨ l′ ⟩ v ∷ B / [B]
+convTermʳ [A] [B] A≡B t®v =
   let [A]′ , [B]′ , [A≡B]′ = reducibleEq A≡B
       [A≡B] = irrelevanceEq [A]′ [A] [A≡B]′
-  in convTermʳ′ p [A] [B] A≡B (goodCases [A] [B] [A≡B]) t®v
+  in convTermʳ′ [A] [B] A≡B (goodCases [A] [B] [A≡B]) t®v
+
+convTermQuantʳ : ∀ {l l′ A B t v} p
+               → ([A] : Δ ⊩⟨ l ⟩ A)
+                 ([B] : Δ ⊩⟨ l′ ⟩ B)
+               → Δ ⊢ A ≡ B
+               → t ®⟨ l ⟩ v ∷ A ◂ p / [A]
+               → t ®⟨ l′ ⟩ v ∷ B ◂ p / [B]
+convTermQuantʳ p [A] [B] A≡B t®v with is-𝟘? p
+... | yes PE.refl = lift tt
+... | no p≢𝟘 = convTermʳ [A] [B] A≡B t®v
 
 -- Conversion of erasure validity
 -- If γ ▸ Γ ⊩ʳ t ∷ A and Γ ⊩ᵛ A ≡ B then γ ▸ Γ ⊩ʳ t ∷ B
@@ -173,4 +183,4 @@ convʳ {m = m} {A = A} {B = B} [Γ] [A] [B] A≡B ⊩ʳt [σ] σ®σ′ =
       [σA] = proj₁ (unwrap [A] ⊢Δ [σ])
       [σB] = proj₁ (unwrap [B] ⊢Δ [σ])
       σA≡σB = substitutionEq A≡B (wellformedSubstEq [Γ] ⊢Δ [σ] (reflSubst [Γ] ⊢Δ [σ])) ⊢Δ
-  in  convTermʳ ⌜ m ⌝ [σA] [σB] σA≡σB t®v
+  in  convTermQuantʳ ⌜ m ⌝ [σA] [σB] σA≡σB t®v

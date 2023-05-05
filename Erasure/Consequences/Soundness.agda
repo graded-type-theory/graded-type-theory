@@ -1,43 +1,52 @@
-open import Definition.Modality.Instances.Erasure
-import Definition.Modality.Instances.Erasure.Modality
-open import Definition.Modality.Restrictions
+open import Definition.Modality
+-- import Definition.Modality.Instances.Erasure.Modality
+-- open import Definition.Modality.Restrictions
 open import Definition.Modality.Restrictions.Definitions
   using (No-erased-matches)
 open import Definition.Typed.EqualityRelation
-open import Definition.Untyped Erasure hiding (_∷_)
-open import Definition.Typed Erasure
+import Definition.Untyped as U hiding (_∷_)
+import Definition.Typed as T′
 open import Tools.Empty
+open import Tools.Nullary
+open import Tools.PropositionalEquality
+open import Tools.Sum
 
 module Erasure.Consequences.Soundness
-  {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ)
+  {a k} {M : Set a} (𝕄 : Modality M)
+  (open U M) (open T′ M) (open Modality 𝕄)
+  {Δ : Con Term k} (⊢Δ : ⊢ Δ)
+  (is-𝟘? : (p : M) → Dec (p ≡ 𝟘))
+  (𝟙≉𝟘 : 𝟙 ≢ 𝟘)
+  (positiveˡ : {p q : M} → p + q ≡ 𝟘 → p ≡ 𝟘)
+  (zero-product : {p q : M} → p · q ≡ 𝟘 → p ≡ 𝟘 ⊎ q ≡ 𝟘)
+  (∧≤𝟘ˡ : ∀ {p q} → p ∧ q ≡ 𝟘 → p ≤ 𝟘)
   (consistent : ∀ {t} → Δ ⊢ t ∷ Empty → ⊥)
-  (restrictions : Restrictions Erasure)
-  (open Definition.Modality.Instances.Erasure.Modality restrictions)
   -- Erased matches are not allowed.
-  (no-erased-matches : No-erased-matches ErasureModality)
-  {{eqrel : EqRelSet Erasure}}
+  (no-erased-matches : No-erased-matches 𝕄)
+  {{eqrel : EqRelSet M}}
   where
 
 open EqRelSet {{...}}
 
-open import Definition.Typed.Properties Erasure
-open import Definition.LogicalRelation Erasure
+open import Definition.Typed.Properties M
+open import Definition.LogicalRelation M
 
-open import Definition.Modality.Context ErasureModality
-open import Definition.Modality.Usage ErasureModality
-open import Definition.Mode ErasureModality
+open import Definition.Modality.Context 𝕄
+open import Definition.Modality.Usage 𝕄
+open import Definition.Mode 𝕄
 
 import Erasure.Target as T
-open import Erasure.Extraction
-open import Erasure.SucRed Erasure
-open import Erasure.LogicalRelation ⊢Δ restrictions
-open import Erasure.LogicalRelation.Fundamental
-  ⊢Δ consistent restrictions no-erased-matches
-open import Erasure.LogicalRelation.Irrelevance ⊢Δ restrictions
+open import Erasure.Extraction 𝕄 is-𝟘?
+open import Erasure.SucRed M
+open import Erasure.LogicalRelation 𝕄 ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Fundamental 𝕄 ⊢Δ is-𝟘?
+  𝟙≉𝟘 positiveˡ zero-product ∧≤𝟘ˡ consistent no-erased-matches
+open import Erasure.LogicalRelation.Irrelevance 𝕄 ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Subsumption 𝕄 ⊢Δ is-𝟘?
 
 open import Tools.Nat
 open import Tools.Product
-open import Tools.PropositionalEquality
+
 
 private
   variable
@@ -75,7 +84,7 @@ soundness-zero :
 soundness-zero t⇒zero 𝟘▸t =
   let ⊢t = redFirst*Term t⇒zero
       [ℕ] , t®t′ = fundamentalErased ⊢t 𝟘▸t
-      t®t″ = irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ (idRed:*: (ℕⱼ ⊢Δ))) t®t′
+      t®t″ = irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ (idRed:*: (ℕⱼ ⊢Δ))) (t®t′ ◀≢𝟘 𝟙≉𝟘)
   in  soundness-zero′ t®t″ t⇒zero
 
 -- Helper lemma for WH reduction soundness of suc
@@ -98,7 +107,7 @@ soundness-suc : Δ ⊢ t ⇒* suc t′ ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t
 soundness-suc t⇒suc 𝟘▸t =
   let ⊢t = redFirst*Term t⇒suc
       [ℕ] , t®t′ = fundamentalErased ⊢t 𝟘▸t
-      t®t″ = irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ (idRed:*: (ℕⱼ ⊢Δ))) t®t′
+      t®t″ = irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ (idRed:*: (ℕⱼ ⊢Δ))) (t®t′ ◀≢𝟘 𝟙≉𝟘)
   in  soundness-suc′ t®t″ t⇒suc
 
 -- Helper lemma for soundness of natural numbers
@@ -117,7 +126,7 @@ soundness-ℕ : Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t
             → ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ × erase t ⇒ˢ* sucᵏ′ n
 soundness-ℕ ⊢t 𝟘▸t =
   let [ℕ] , t®v = fundamentalErased ⊢t 𝟘▸t
-  in  soundness-ℕ′ (irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ (idRed:*: (ℕⱼ ⊢Δ))) t®v)
+  in  soundness-ℕ′ (irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ (idRed:*: (ℕⱼ ⊢Δ))) (t®v ◀≢𝟘 𝟙≉𝟘))
 
 -- Helper lemma for WH reduction soundness of unit
 
@@ -131,5 +140,5 @@ soundness-star :
 soundness-star t⇒star γ▸t =
   let ⊢t = redFirst*Term t⇒star
       [⊤] , t®t′ = fundamentalErased ⊢t γ▸t
-      t®t″ = irrelevanceTerm {l′ = ¹} [⊤] (Unitᵣ (idRed:*: (Unitⱼ ⊢Δ))) t®t′
+      t®t″ = irrelevanceTerm {l′ = ¹} [⊤] (Unitᵣ (idRed:*: (Unitⱼ ⊢Δ))) (t®t′ ◀≢𝟘 𝟙≉𝟘)
   in  soundness-star′ t®t″

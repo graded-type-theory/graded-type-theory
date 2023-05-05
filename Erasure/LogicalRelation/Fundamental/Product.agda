@@ -1,65 +1,70 @@
-open import Definition.Modality.Instances.Erasure
-open import Definition.Modality.Restrictions
+open import Definition.Modality
 open import Definition.Typed.EqualityRelation
-open import Definition.Untyped Erasure as U hiding (_∷_)
-open import Definition.Typed Erasure
+import Definition.Typed as T′
+import Definition.Untyped as U hiding (_∷_)
+open import Tools.Nullary
+import Tools.PropositionalEquality as PE
+open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 module Erasure.LogicalRelation.Fundamental.Product
-  {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ)
-  (restrictions : Restrictions Erasure)
-  {{eqrel : EqRelSet Erasure}}
+  {a k} {M : Set a} (𝕄 : Modality M)
+  (open U M) (open T′ M) (open Modality 𝕄)
+  {Δ : Con Term k} (⊢Δ : ⊢ Δ)
+  (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘))
+  (𝟙≉𝟘 : 𝟙 PE.≢ 𝟘)
+  (zero-product : {p q : M} → p · q PE.≡ 𝟘 → p PE.≡ 𝟘 ⊎ q PE.≡ 𝟘)
+  (𝟘≰𝟙 : 𝟘 ≤ 𝟙 → PE.⊥)
+  {{eqrel : EqRelSet M}}
   where
-
 open EqRelSet {{...}}
 
-open import Definition.Untyped.Properties Erasure
-open import Definition.Typed.Properties Erasure
-open import Definition.Typed.RedSteps Erasure
-open import Definition.Typed.Weakening Erasure
-open import Definition.Typed.Consequences.Inversion Erasure
-open import Definition.Typed.Consequences.Injectivity Erasure
-open import Definition.Typed.Consequences.Substitution Erasure
-open import Definition.Typed.Consequences.Syntactic Erasure
-open import Definition.Typed.Consequences.RedSteps Erasure
-open import Definition.Typed.Consequences.Reduction Erasure
+open import Definition.Untyped.Properties M
+open import Definition.Typed.Properties M
+open import Definition.Typed.RedSteps M
+open import Definition.Typed.Weakening M hiding (wk)
+open import Definition.Typed.Consequences.Inversion M
+open import Definition.Typed.Consequences.Injectivity M
+open import Definition.Typed.Consequences.Substitution M
+open import Definition.Typed.Consequences.Syntactic M
+open import Definition.Typed.Consequences.RedSteps M
+open import Definition.Typed.Consequences.Reduction M
 
-open import Definition.LogicalRelation Erasure
-open import Definition.LogicalRelation.Fundamental Erasure
-open import Definition.LogicalRelation.Properties.Escape Erasure
-open import Definition.LogicalRelation.Substitution Erasure
-open import Definition.LogicalRelation.Substitution.Properties Erasure
-open import Definition.LogicalRelation.Substitution.Introductions.Fst Erasure
-open import Definition.LogicalRelation.Substitution.Introductions.Pi Erasure
-open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst Erasure
-open import Definition.LogicalRelation.Substitution.Introductions.Universe Erasure
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.Fundamental M
+open import Definition.LogicalRelation.Properties.Escape M
+open import Definition.LogicalRelation.Substitution M
+open import Definition.LogicalRelation.Substitution.Properties M
+open import Definition.LogicalRelation.Substitution.Introductions.Fst M
+open import Definition.LogicalRelation.Substitution.Introductions.Pi M
+open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst M
+open import Definition.LogicalRelation.Substitution.Introductions.Universe M
 
-import Definition.LogicalRelation.Irrelevance Erasure as I
-import Definition.LogicalRelation.Weakening Erasure as W
-import Definition.LogicalRelation.Substitution.Irrelevance Erasure as IS
+import Definition.LogicalRelation.Irrelevance M as I
+import Definition.LogicalRelation.Weakening M as W
+import Definition.LogicalRelation.Substitution.Irrelevance M as IS
 
-open import Definition.Modality.Instances.Erasure.Modality restrictions
-open import Definition.Modality.Context ErasureModality
-open import Definition.Modality.Instances.Erasure.Properties
-  restrictions
-open import Definition.Modality.Usage ErasureModality
-open import Definition.Modality.Usage.Inversion ErasureModality
-open import Definition.Mode ErasureModality
+open import Definition.Modality.Context 𝕄
+open import Definition.Modality.Context.Properties 𝕄
+open import Definition.Modality.Properties 𝕄
+open import Definition.Modality.Usage 𝕄
+open import Definition.Modality.Usage.Inversion 𝕄
+open import Definition.Mode 𝕄
 
-open import Erasure.LogicalRelation ⊢Δ restrictions
-open import Erasure.LogicalRelation.Conversion ⊢Δ restrictions
-open import Erasure.LogicalRelation.Reduction ⊢Δ restrictions
-open import Erasure.LogicalRelation.Subsumption ⊢Δ restrictions
-open import Erasure.LogicalRelation.Irrelevance ⊢Δ restrictions
+open import Erasure.LogicalRelation 𝕄 ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Conversion 𝕄 ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Reduction 𝕄 ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Subsumption 𝕄 ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Irrelevance 𝕄 ⊢Δ is-𝟘?
 
-open import Erasure.Extraction
+open import Erasure.Extraction 𝕄 is-𝟘?
+open import Erasure.Extraction.Properties 𝕄 𝟘-well-behaved
 import Erasure.Target as T
 import Erasure.Target.Properties as TP
 
 open import Tools.Function
+open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
-open import Tools.Sum using (inj₁; inj₂)
-import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PropositionalEquality
 
 private
@@ -70,7 +75,7 @@ private
     t₁ t₂ : Term n
     v₁ v₂ : T.Term n
     G : Term (1+ n)
-    p q r : Erasure
+    p q r : M
     γ δ : Conₘ n
     σ : Subst k n
     σ′ : T.Subst k n
@@ -82,15 +87,14 @@ private
   ([Γ] : ⊩ᵛ Γ) → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ∷ U →
   ∃ λ ([U] : Γ ⊩ᵛ⟨ ¹ ⟩ U / [Γ]) →
   γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ∷[ m ] U / [Γ] / [U]
-ΠΣʳ {F = F} {G = G} [Γ] ⊢ΠΣ =
-    [U]
-  , subsumptionMode (ΠΣ⟨ _ ⟩ _ , _ ▷ F ▹ G) [U] λ [σ] _ →
-      Uᵣ (substitutionTerm ⊢ΠΣ (wellformedSubst [Γ] ⊢Δ [σ]) ⊢Δ)
+ΠΣʳ {F = F} {G = G} {m = m} [Γ] ⊢ΠΣ =
+    [U] , λ [σ] σ®σ′ → Uᵣ (substitutionTerm ⊢ΠΣ (wellformedSubst [Γ] ⊢Δ [σ]) ⊢Δ) ◀ ⌜ m ⌝
   where
   [U] = Uᵛ [Γ]
 
 prodʳ :
   ∀ {l} →
+  {_⊕ᶜ_ : Conₘ n → Conₘ n → Conₘ n} →
   ([Γ] : ⊩ᵛ Γ)
   ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
   ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
@@ -99,72 +103,77 @@ prodʳ :
   ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ G [ t ] / [Γ] / [G[t]])
   (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ᵐ· p ] F / [Γ] / [F])
   (⊩ʳu : δ ▸ Γ ⊩ʳ⟨ l ⟩ u ∷[ m ] G [ t ] / [Γ] / [G[t]]) →
+  (∀ {x γ δ} → (γ ⊕ᶜ δ) ⟨ x ⟩ PE.≡ 𝟘 → γ ⟨ x ⟩ PE.≡ 𝟘) →
+  (∀ {x γ δ} → (γ ⊕ᶜ δ) ⟨ x ⟩ PE.≡ 𝟘 → δ ⟨ x ⟩ PE.≡ 𝟘) →
   ∃ λ ([Σ] : Γ ⊩ᵛ⟨ l ⟩ Σ⟨ s ⟩ p , q ▷ F ▹ G / [Γ]) →
-    p ·ᶜ γ +ᶜ δ ▸ Γ ⊩ʳ⟨ l ⟩ prod s p t u ∷[ m ] Σ p , q ▷ F ▹ G / [Γ] /
+    ((p ·ᶜ γ) ⊕ᶜ δ) ▸ Γ ⊩ʳ⟨ l ⟩ prod s p t u ∷[ m ] Σ p , q ▷ F ▹ G / [Γ] /
       [Σ]
 prodʳ
-  {Γ = Γ} {F = F} {G = G} {t = t} {u = u} {γ = γ} {m = m} {p = p}
-  {δ = δ} {s = s} {q = q} {l = l} [Γ] [F] [G] [G[t]] [t] [u] ⊩ʳt ⊩ʳu =
-  [Σ] , lemma m ⊩ʳt ⊩ʳu
+  {Γ = Γ} {F = F} {G = G} {t = t} {u = u} {γ = γ} {m = 𝟘ᵐ} {p = p}
+  {δ = δ} {s = s} {q = q} {l = l} [Γ] [F] [G] [G[t]] [t] [u] ⊩ʳt ⊩ʳu _ _
+    with is-𝟘? 𝟘
+... | yes 𝟘≡𝟘 = Σᵛ [Γ] [F] [G] , _
+... | no 𝟘≢𝟘 = PE.⊥-elim (𝟘≢𝟘 PE.refl)
+prodʳ
+  {Γ = Γ} {F = F} {G = G} {t = t} {u = u} {γ = γ} {m = 𝟙ᵐ} {p = p}
+  {δ = δ} {s = s} {q = q} {l = l} {_⊕ᶜ_} [Γ] [F] [G] [G[t]] [t] [u] ⊩ʳt ⊩ʳu
+    propˡ propʳ =
+    [Σ] , lemma ⊩ʳt ⊩ʳu
   where
   [Σ] = Σᵛ [Γ] [F] [G]
 
   lemma :
-    ∀ m →
-    (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ᵐ· p ] F / [Γ] / [F])
-    (⊩ʳu : δ ▸ Γ ⊩ʳ⟨ l ⟩ u ∷[ m ] G [ t ] / [Γ] / [G[t]]) →
-    p ·ᶜ γ +ᶜ δ ▸ Γ ⊩ʳ⟨ l ⟩ prod s p t u ∷[ m ] Σ p , q ▷ F ▹ G / [Γ] /
-      [Σ]
-  lemma 𝟘ᵐ = _
-
-  lemma 𝟙ᵐ ⊩ʳt ⊩ʳu {σ = σ} {σ′ = σ′} [σ] σ®σ′ =
-      subst σ t , subst σ u , id ⊢prod , [σt]′
-    , T.subst σ′ (erase u) , u®u″
-    , lemma′ p ⊩ʳt σ®σ′ₜ
+    (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ ⌞ p ⌟ ] F / [Γ] / [F])
+    (⊩ʳu : δ ▸ Γ ⊩ʳ⟨ l ⟩ u ∷[ 𝟙ᵐ ] G [ t ] / [Γ] / [G[t]]) →
+    (p ·ᶜ γ ⊕ᶜ δ) ▸ Γ ⊩ʳ⟨ l ⟩ prod s p t u ∷[ 𝟙ᵐ ] Σ p , q ▷ F ▹ G / [Γ] / [Σ]
+  lemma ⊩ʳt ⊩ʳu {σ = σ} {σ′ = σ′} [σ] σ®σ′ =
+    (subst σ t , subst σ u , id ⊢prod , [σt]′ , T.subst σ′ (erase u) , u®u″ , extra) ◀ 𝟙
     where
-        σ®σ′ₜ = subsumptionSubst {l = l} σ®σ′ (+ᶜ-decreasingˡ _ δ)
-        σ®σ′ᵤ = subsumptionSubst {l = l} σ®σ′ (+ᶜ-decreasingʳ _ δ)
-        u®u′ = ⊩ʳu [σ] σ®σ′ᵤ
-        [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
-        [σF]′ = W.wk id ⊢Δ [σF]
-        [σG[t]] = proj₁ (unwrap [G[t]] ⊢Δ [σ])
-        [σt] = proj₁ ([t] ⊢Δ [σ])
-        [σt]′ = I.irrelevanceTerm′ (PE.sym (wk-id (subst σ F))) [σF] [σF]′ [σt]
-        [σt]″ = I.irrelevanceTerm′ (wk-subst F) [σF]′ (proj₁ (unwrap [F] ⊢Δ (wkSubstS [Γ] ⊢Δ ⊢Δ id [σ]))) [σt]′
-        [σG[t]]′ = proj₁ (unwrap [G] ⊢Δ (wkSubstS [Γ] ⊢Δ ⊢Δ id [σ] , [σt]″))
-        [σG[t]]″ = I.irrelevance′ (PE.sym (singleSubstWkComp (subst σ t) σ G)) [σG[t]]′
-        ⊢σF = escape [σF]
-        ⊢σG = escape (proj₁ (unwrap [G] (⊢Δ ∙ ⊢σF) (liftSubstS {σ = σ} {F = F} [Γ] ⊢Δ [F] [σ])))
-        ⊢σt = escapeTerm [σF] [σt]
-        ⊢σu = escapeTerm [σG[t]] (proj₁ ([u] ⊢Δ [σ]))
-        ⊢prod = prodⱼ ⊢σF ⊢σG ⊢σt (PE.subst (λ x → Δ ⊢ subst σ u ∷ x) (singleSubstLift G t) ⊢σu)
-        u®u″ = irrelevanceTerm′ (PE.trans (singleSubstLift G t)
-                                          (PE.cong (_[ _ ]) (PE.sym (wk-lift-id (subst (liftSubst σ) G)))))
-                                [σG[t]] [σG[t]]″ u®u′
+    σ®σ′ᵤ = subsumptionSubst {l = l} σ®σ′ λ _ → propʳ
+    u®u′ = ⊩ʳu [σ] σ®σ′ᵤ
+    [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
+    [σF]′ = W.wk id ⊢Δ [σF]
+    [σG[t]] = proj₁ (unwrap [G[t]] ⊢Δ [σ])
+    [σt] = proj₁ ([t] ⊢Δ [σ])
+    [σt]′ = I.irrelevanceTerm′ (PE.sym (wk-id (subst σ F))) [σF] [σF]′ [σt]
+    [σt]″ = I.irrelevanceTerm′ (wk-subst F) [σF]′ (proj₁ (unwrap [F] ⊢Δ (wkSubstS [Γ] ⊢Δ ⊢Δ id [σ]))) [σt]′
+    [σG[t]]′ = proj₁ (unwrap [G] ⊢Δ (wkSubstS [Γ] ⊢Δ ⊢Δ id [σ] , [σt]″))
+    [σG[t]]″ = I.irrelevance′ (PE.sym (singleSubstWkComp (subst σ t) σ G)) [σG[t]]′
+    ⊢σF = escape [σF]
+    ⊢σG = escape (proj₁ (unwrap [G] (⊢Δ ∙ ⊢σF) (liftSubstS {σ = σ} {F = F} [Γ] ⊢Δ [F] [σ])))
+    ⊢σt = escapeTerm [σF] [σt]
+    ⊢σu = escapeTerm [σG[t]] (proj₁ ([u] ⊢Δ [σ]))
+    ⊢prod = prodⱼ ⊢σF ⊢σG ⊢σt (PE.subst (λ x → Δ ⊢ subst σ u ∷ x) (singleSubstLift G t) ⊢σu)
+    σGt≡ρσGt = PE.trans (singleSubstLift G t)
+                        (PE.cong (_[ _ ]) (PE.sym (wk-lift-id (subst (liftSubst σ) G))))
+    u®u″ = irrelevanceQuant′ _ σGt≡ρσGt [σG[t]] [σG[t]]″ u®u′ ◀≢𝟘 𝟙≉𝟘
+    open Tools.Reasoning.PropositionalEquality
+    extra = case is-𝟘? p of λ where
+              (yes p≡𝟘) →
+                let d = PE.subst (λ x → T.subst σ′ x T.⇒* _)
+                                 (PE.sym (prod-𝟘 {k = s} p≡𝟘))
+                                 T.refl
+                in  Σ-®-intro-𝟘 d p≡𝟘
+              (no p≢𝟘) →
+                let d = PE.subst (λ x → T.subst σ′ x T.⇒* _)
+                                 (PE.sym (prod-ω {k = s} p≢𝟘))
+                                 T.refl
+                    σ®σ′ₜ = subsumptionSubst {l = l} σ®σ′ λ x pγ⊕δ≡𝟘 →
+                      case PE.trans (PE.sym (lookup-distrib-·ᶜ γ p x))
+                                    (propˡ pγ⊕δ≡𝟘) of λ pγ≡𝟘 →
+                      case zero-product pγ≡𝟘 of λ where
+                        (inj₁ p≡𝟘) → PE.⊥-elim (p≢𝟘 p≡𝟘)
+                        (inj₂ γx≡𝟘) → γx≡𝟘
+                    t₁®v₁ = ⊩ʳt [σ] (subsumptionSubstMode l σ®σ′ₜ)
+                    t₁®v₁′ = irrelevanceQuant′ _ (PE.sym (wk-id _)) [σF] [σF]′ t₁®v₁
+                    t₁®v₁″ = t₁®v₁′ ◀≢𝟘 λ ⌞p⌟≡𝟘 → 𝟙≉𝟘
+                      (begin
+                        𝟙         ≡˘⟨ PE.cong ⌜_⌝ (≉𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) ⟩
+                        ⌜ ⌞ p ⌟ ⌝ ≡⟨ ⌞p⌟≡𝟘 ⟩
+                        𝟘 ∎)
+                in  Σ-®-intro-ω (T.subst σ′ (erase t))
+                                d t₁®v₁″ p≢𝟘
 
-        lemma′ :
-          ∀ p →
-          γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ ⌞ p ⌟ ] F / [Γ] / [F] →
-          σ ®⟨ l ⟩ σ′ ∷[ 𝟙ᵐ ] Γ ◂ p ·ᶜ γ / [Γ] / [σ] →
-          Σ-® _ _ _ _
-            (T.subst σ′ (erase (prod s p t u))) (T.subst σ′ (erase u)) p
-        lemma′ 𝟘 _   _    = T.refl
-        lemma′ ω ⊩ʳt σ®σ′ =
-            T.subst σ′ (erase t)
-          , T.refl
-          , irrelevanceTerm′ (PE.sym (wk-id (subst σ F))) [σF] [σF]′
-              (PE.subst
-                 (_ ®⟨ _ ⟩ _ ∷ _ ◂_/ _)
-                 (⌜ ⌞ ω ⌟ ⌝  ≡⟨ PE.cong ⌜_⌝ ⌞ω⌟≡𝟙ᵐ ⟩
-                  ω          ∎)
-                 (⊩ʳt [σ]
-                    (PE.subst₂
-                       (λ m γ → _ ®⟨ l ⟩ σ′ ∷[ m ] _ ◂ γ / _ / _)
-                       (PE.sym ⌞ω⌟≡𝟙ᵐ)
-                       (≈ᶜ→≡ (·ᶜ-identityˡ _))
-                       σ®σ′)))
-          where
-          open Tools.Reasoning.PropositionalEquality
 
 fstʳ′ : ∀ {l} {Γ : Con Term n}
       → ([Γ] : ⊩ᵛ Γ)
@@ -175,23 +184,27 @@ fstʳ′ : ∀ {l} {Γ : Con Term n}
                / [Γ] / Σᵛ [Γ] [F] [G])
       → γ ▸[ m ] fst p t
       → γ ▸ Γ ⊩ʳ⟨ l ⟩ fst p t ∷[ m ] F / [Γ] / [F]
-fstʳ′ {m = 𝟘ᵐ} = _
-
-fstʳ′ {p = 𝟘} {m = 𝟙ᵐ} _ _ _ _ _ γ▸fst =
+fstʳ′ {m = 𝟘ᵐ} with is-𝟘? 𝟘
+... | yes 𝟘≡𝟘 = _
+... | no 𝟘≢𝟘 = PE.⊥-elim (𝟘≢𝟘 PE.refl)
+fstʳ′ {F = F} {G = G} {t = t} {p = p} {q = q} {m = 𝟙ᵐ}
+      [Γ] [F] [G] [t] ⊩ʳt γ▸fst {σ = σ} [σ] σ®σ′ with is-𝟘? 𝟙
+... | yes 𝟙≡𝟘 = _
+... | no 𝟙≢𝟘 with is-𝟘? p
+... | yes PE.refl =
   case inv-usage-fst γ▸fst of λ where
     (invUsageFst 𝟘ᵐ () _ _ _)
-    (invUsageFst 𝟙ᵐ _ _ _ (inj₁ ()))
+    (invUsageFst 𝟙ᵐ _ _ _ (inj₁ 𝟘≤𝟙)) →
+      PE.⊥-elim (𝟘≰𝟙 𝟘≤𝟙)
     (invUsageFst 𝟙ᵐ 𝟙ᵐ≡ᵐ𝟘ᵐ? _ _ (inj₂ ok)) →
       case
         𝟙ᵐ        ≡⟨ 𝟙ᵐ≡ᵐ𝟘ᵐ? ⟩
-        𝟘ᵐ?       ≡⟨ 𝟘ᵐ?≡𝟘ᵐ ⟩
+        ⌞ 𝟘 ⌟       ≡⟨ ⌞𝟘⌟ ⟩
         𝟘ᵐ[ ok ]  ∎
       of λ ()
   where
   open Tools.Reasoning.PropositionalEquality
-
-fstʳ′ {F = F} {G = G} {t = t} {p = ω} {q = q} {m = 𝟙ᵐ}
-      [Γ] [F] [G] [t] ⊩ʳt γ▸fst {σ = σ} [σ] σ®σ′ =
+... | no p≢𝟘 =
   let [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
       [σF]′ = W.wk id ⊢Δ [σF]
       ⊢σF = escape [σF]
@@ -233,6 +246,7 @@ fstʳ
                [Γ] [Γ] [Σ] [Σ]′ ⊩ʳt
   in  [F] , fstʳ′ {F = F} {G = G} {t = t} [Γ] [F] [G] [t] ⊩ʳt′ γ▸fst
 
+
 sndʳ′ :
   ∀ {l} {Γ : Con Term n}
   ([Γ] : ⊩ᵛ Γ)
@@ -252,13 +266,13 @@ sndʳ′ {F = F} {G = G} {t = t} {p = p} {q = q} {m = m} {l = l} {Γ = Γ}
   [G[t₁]] = substSΠ (BΣ Σₚ p q) [Γ] [F] [Σ] [t₁]
 
   lemma :
-    ∀ m
+    ∀ m →
     (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] Σₚ p , q ▷ F ▹ G / [Γ] /
              Σᵛ [Γ] [F] [G]) →
     γ ▸ Γ ⊩ʳ⟨ l ⟩ snd p t ∷[ m ] G [ fst p t ] / [Γ] / [G[t₁]]
-  lemma 𝟘ᵐ = _
-
-  lemma 𝟙ᵐ ⊩ʳt {σ = σ} [σ] σ®σ′ =
+  lemma m ⊩ʳt {σ = σ} {σ′ = σ′} [σ] σ®σ′ with is-𝟘? ⌜ m ⌝
+  ... | yes m≡𝟘 = _
+  ... | no m≢𝟘 =
       let t₁ , t₂ , t⇒t′ , [t₁] , v₂ , t₂®v₂ , extra = ⊩ʳt [σ] σ®σ′
           [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
           ⊢σF = escape [σF]
@@ -272,7 +286,7 @@ sndʳ′ {F = F} {G = G} {t = t} {p = p} {q = q} {m = m} {l = l} {Γ = Γ}
           eq₂′ = substitutionEq eq₂ (substRefl (singleSubst ⊢t₁′)) ⊢Δ
           ⊢t₂′ = conv ⊢t₂ (sym eq₂′)
           t≡t₁ = subset*Term
-                   (redMany (Σ-β₁ ⊢σF ⊢σG ⊢t₁′ ⊢t₂′ PE.refl))
+                   (redMany (Σ-β₁ {p = p} ⊢σF ⊢σG ⊢t₁′ ⊢t₂′ PE.refl))
           t′≡t₁ = subset*Term
                     (fst-subst* t⇒t′ ⊢σF ⊢σG ⇨∷*
                      redMany (Σ-β₁ ⊢σF ⊢σG ⊢t₁′ ⊢t₂′ PE.refl))
@@ -290,19 +304,28 @@ sndʳ′ {F = F} {G = G} {t = t} {p = p} {q = q} {m = m} {l = l} {Γ = Γ}
           t⇒u = conv* (snd-subst* t⇒t′ ⊢σF ⊢σG)
                       (substTypeEq (refl ⊢σG) (fst-cong ⊢σF ⊢σG (subset*Term t⇒t′)))
           t⇒u′ = t⇒u ⇨∷* redMany (Σ-β₂ ⊢σF ⊢σG ⊢t₁′ ⊢t₂′ PE.refl)
-          t⇒u″ = conv* t⇒u′ G[t]≡G[t₁]′
-          v⇒w = case Σ-®-view extra of λ where
-            (𝟘 v⇒v′)     → v⇒v′
-            (ω _ v⇒v′ _) →
-              TP.red*concat (TP.snd-subst* v⇒v′)
-                (T.trans T.Σ-β₂ T.refl)
+          t⇒u″ = PE.subst (λ x → Δ ⊢ subst σ (snd p t) ⇒* t₂ ∷ x) (PE.sym (singleSubstLift G (fst p t)))
+                          (conv* t⇒u′ (trans G[t]≡G[t₁] (sym G[t′]≡G[t₁])))
           wk[σ] = wkSubstS {σ = σ} [Γ] ⊢Δ ⊢Δ id [σ]
           wk[σF] = W.wk id ⊢Δ [σF]
           wk[t₁] = I.irrelevanceTerm′ (wk-subst F) wk[σF] (proj₁ (unwrap [F] ⊢Δ wk[σ])) [t₁]
           wk[Gt₁] = I.irrelevance′ (PE.sym (singleSubstWkComp t₁ σ G)) (proj₁ (unwrap [G] ⊢Δ (wk[σ] , wk[t₁])))
-          t₂®v₂′ = redSubstTerm* wk[Gt₁] t₂®v₂ t⇒u″ v⇒w
-      in  convTermʳ _ wk[Gt₁] (proj₁ (unwrap [G[t₁]] ⊢Δ [σ]))
-            G[t′]≡G[t₁]′ t₂®v₂′
+          [σGt₁] = proj₁ (unwrap [G[t₁]] ⊢Δ [σ])
+          t₂®v₂′ = convTermʳ wk[Gt₁] [σGt₁] G[t′]≡G[t₁]′ t₂®v₂
+          sndt = snd p t
+      in  Σ-®-elim
+            (λ _ →
+               subst σ sndt ®⟨ l ⟩ T.subst σ′ (erase sndt) ∷
+               subst σ (G [ fst p t ]) / [σGt₁])
+            extra
+            (λ v⇒v′ p≡𝟘 → PE.subst (λ x → subst σ sndt ®⟨ l ⟩ T.subst σ′ x ∷ subst σ (G [ fst p t ]) / [σGt₁])
+                                   (PE.sym (snd-𝟘 p≡𝟘))
+                                   (redSubstTerm* [σGt₁] t₂®v₂′ t⇒u″ v⇒v′))
+            λ v₁ v⇒v′ t₁®v₁ p≢𝟘 →
+              let v⇒v″ = TP.red*concat (TP.snd-subst* v⇒v′) (T.trans T.Σ-β₂ T.refl)
+              in  PE.subst (λ x → subst σ (snd p t) ®⟨ l ⟩ T.subst σ′ x ∷ subst σ (G [ fst p t ]) / [σGt₁])
+                           (PE.sym (snd-ω p≢𝟘))
+                           (redSubstTerm* [σGt₁] t₂®v₂′ t⇒u″ v⇒v″)
 
 sndʳ : Γ ⊢ F → Γ ∙ F ⊢ G → Γ ⊢ t ∷ Σₚ p , q ▷ F ▹ G
      → ([Γ] : ⊩ᵛ Γ) ([Σ] : Γ ⊩ᵛ⟨ ¹ ⟩ Σₚ p , q ▷ F ▹ G / [Γ])

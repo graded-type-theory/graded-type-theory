@@ -25,6 +25,8 @@ import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
 open import Tools.Sum
 
+open 𝟘ᵐ→∧-Positive
+
 private variable
   n          : Nat
   p q r      : M

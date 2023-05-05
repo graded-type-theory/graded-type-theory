@@ -1,55 +1,62 @@
-open import Definition.Modality.Instances.Erasure
-open import Definition.Modality.Restrictions
+open import Definition.Modality
 open import Definition.Typed.EqualityRelation
-open import Definition.Untyped Erasure as U hiding (_∷_)
-open import Definition.Typed Erasure
+import Definition.Typed as T′
+import Definition.Untyped as U hiding (_∷_)
+open import Tools.Nullary
+import Tools.PropositionalEquality as PE
 
 module Erasure.LogicalRelation.Fundamental.Natrec
-  {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ)
-  (restrictions : Restrictions Erasure)
-  {{eqrel : EqRelSet Erasure}}
+  {a k} {M : Set a} (𝕄 : Modality M)
+  (open U M) (open T′ M) (open Modality 𝕄)
+  {Δ : Con Term k} (⊢Δ : ⊢ Δ)
+  (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘))
+  (𝟙≉𝟘 : 𝟙 PE.≢ 𝟘)
+  (positiveˡ : ∀ {p q} → p + q PE.≡ 𝟘 → p PE.≡ 𝟘)
+  (∧≤𝟘ˡ : ∀ {p q} → p ∧ q PE.≡ 𝟘 → p ≤ 𝟘)
+  {{eqrel : EqRelSet M}}
   where
 
 open EqRelSet {{...}}
 
-open import Definition.Untyped.Properties Erasure
-open import Definition.Typed.Properties Erasure
-open import Definition.Typed.RedSteps Erasure
-open import Definition.Typed.Consequences.RedSteps Erasure
-open import Definition.Typed.Consequences.Inversion Erasure
-open import Definition.Typed.Consequences.Reduction Erasure
-open import Definition.Typed.Consequences.Substitution Erasure
-open import Definition.Typed.Consequences.Syntactic Erasure
+open import Definition.Untyped.Properties M
+open import Definition.Typed.Properties M
+open import Definition.Typed.RedSteps M
+open import Definition.Typed.Consequences.RedSteps M
+open import Definition.Typed.Consequences.Inversion M
+open import Definition.Typed.Consequences.Reduction M
+open import Definition.Typed.Consequences.Substitution M
+open import Definition.Typed.Consequences.Syntactic M
 
-open import Definition.LogicalRelation Erasure
-open import Definition.LogicalRelation.Fundamental.Reducibility Erasure
-open import Definition.LogicalRelation.Substitution Erasure
-open import Definition.LogicalRelation.Substitution.Properties Erasure
-open import Definition.LogicalRelation.Substitution.Introductions.Nat Erasure
-open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst Erasure
-open import Definition.LogicalRelation.Properties.Escape Erasure
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.Fundamental.Reducibility M
+open import Definition.LogicalRelation.Substitution M
+open import Definition.LogicalRelation.Substitution.Properties M
+open import Definition.LogicalRelation.Substitution.Introductions.Nat M
+open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst M
+open import Definition.LogicalRelation.Properties.Escape M
 
-import Definition.LogicalRelation.Irrelevance Erasure as I
+import Definition.LogicalRelation.Irrelevance M as I
 
-open import Definition.Modality.Instances.Erasure.Modality restrictions
-open import Definition.Modality.Context ErasureModality
-open import Definition.Modality.Instances.Erasure.Properties
-  restrictions
-open import Definition.Mode ErasureModality
+open import Definition.Modality.Context 𝕄
+open import Definition.Modality.Context.Properties 𝕄
+open import Definition.Modality.Properties 𝕄
+open import Definition.Mode 𝕄
 
-open import Erasure.LogicalRelation ⊢Δ restrictions
-open import Erasure.LogicalRelation.Conversion ⊢Δ restrictions
-open import Erasure.LogicalRelation.Irrelevance ⊢Δ restrictions
-open import Erasure.LogicalRelation.Subsumption ⊢Δ restrictions
-open import Erasure.LogicalRelation.Reduction ⊢Δ restrictions
-open import Erasure.Extraction
+open ∧-Positive ∧≤𝟘ˡ
+open ⊛-Positive positiveˡ ∧≤𝟘ˡ
+
+open import Erasure.LogicalRelation 𝕄 ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Conversion 𝕄 ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Irrelevance 𝕄 ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Subsumption 𝕄 ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Reduction 𝕄 ⊢Δ is-𝟘?
+open import Erasure.Extraction 𝕄 is-𝟘?
 import Erasure.Target as T
 import Erasure.Target.Properties as TP
 
 open import Tools.Fin
 open import Tools.Nat hiding (_+_)
 open import Tools.Product
-import Tools.PropositionalEquality as PE
 
 private
   variable
@@ -59,11 +66,31 @@ private
     A : Term (1+ n)
     s : Term (1+ (1+ n))
     v w : T.Term n
-    p q r : Erasure
+    p q r : M
     γ δ η : Conₘ n
     σ : Subst k n
     σ′ : T.Subst k n
     mo : Mode
+
+private
+
+  lemma₁ : (x : Fin n) → ((γ ∧ᶜ η) ⊛ᶜ δ +ᶜ p ·ᶜ η ▷ r) ⟨ x ⟩ PE.≡ 𝟘
+             → γ ⟨ x ⟩ PE.≡ 𝟘
+  lemma₁ {γ = γ} {η} {δ} {p} {r} x eq =
+    let γ∧η≡𝟘 = ⊛≈𝟘ˡ (PE.trans (PE.sym ((lookup-distrib-⊛ᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r x))) eq)
+    in  ∧≈𝟘ˡ (PE.trans (PE.sym (lookup-distrib-∧ᶜ γ η x)) γ∧η≡𝟘)
+
+  lemma₂ : (x : Fin n) → ((γ ∧ᶜ η) ⊛ᶜ δ +ᶜ p ·ᶜ η ▷ r) ⟨ x ⟩ PE.≡ 𝟘
+             → δ ⟨ x ⟩ PE.≡ 𝟘
+  lemma₂ {γ = γ} {η} {δ} {p} {r} x eq =
+    let δ+pη≡𝟘 = ⊛≈𝟘ʳ (PE.trans (PE.sym ((lookup-distrib-⊛ᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r x))) eq)
+    in  positiveˡ (PE.trans (PE.sym (lookup-distrib-+ᶜ δ (p ·ᶜ η) x)) δ+pη≡𝟘)
+
+  lemma₃ : (x : Fin n) → ((γ ∧ᶜ η) ⊛ᶜ δ +ᶜ p ·ᶜ η ▷ r) ⟨ x ⟩ PE.≡ 𝟘
+             → η ⟨ x ⟩ PE.≡ 𝟘
+  lemma₃ {γ = γ} {η} {δ} {p} {r} x eq =
+    let γ∧η≡𝟘 =  ⊛≈𝟘ˡ (PE.trans (PE.sym ((lookup-distrib-⊛ᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r x))) eq)
+    in  ∧≈𝟘ʳ (PE.trans (PE.sym (lookup-distrib-∧ᶜ γ η x)) γ∧η≡𝟘)
 
 natrecʳ″ : ∀ {l m w} {Γ : Con Term n}
          → ([Γ] : ⊩ᵛ Γ)
@@ -87,12 +114,17 @@ natrecʳ″ : ∀ {l m w} {Γ : Con Term n}
            ®⟨ l ⟩ T.natrec (T.subst σ′ (erase z)) (T.subst (T.liftSubstn σ′ 2) (erase s)) w
            ∷ subst (consSubst σ m) A ◂ ⌜ mo ⌝
            / proj₁ (unwrap [A] ⊢Δ ([σ] , [m]))
-natrecʳ″ {mo = 𝟘ᵐ} = _
+natrecʳ″ {mo = 𝟘ᵐ} with is-𝟘? 𝟘
+... | yes _ = _
+... | no 𝟘≢𝟘 = PE.⊥-elim (𝟘≢𝟘 PE.refl)
 
 natrecʳ″
   {n = n} {A = A} {z = z} {s = s} {σ = σ} {σ′ = σ′} {mo = 𝟙ᵐ} {γ = γ}
   {η = η} {δ = δ} {p = p} {r = r} {l = l} {m = m} {w = w} {Γ = Γ}
-  [Γ] [A] [A₊] [A₀] [z] [s] [σ] σ®σ′ ⊩ʳz ⊩ʳs [m] (zeroᵣ m⇒zero w⇒zero) =
+  [Γ] [A] [A₊] [A₀] [z] [s] [σ] σ®σ′ ⊩ʳz ⊩ʳs [m] (zeroᵣ m⇒zero w⇒zero)
+  with is-𝟘? 𝟙
+... | yes 𝟙≡𝟘 = _
+... | no 𝟙≢𝟘 =
   let [ℕ] = ℕᵛ {l = l} [Γ]
       [σA₀] = proj₁ (unwrap [A₀] ⊢Δ [σ])
       [σz] = proj₁ ([z] ⊢Δ [σ])
@@ -116,22 +148,23 @@ natrecʳ″
       nrm⇒z = nrm⇒nr0′ ⇨∷* redMany nr0⇒z
       nrw⇒nr0 = TP.natrec-subst* {s = T.subst (T.liftSubst (T.liftSubst σ′)) (erase s)} w⇒zero
       nrw⇒z = TP.red*concat nrw⇒nr0 (T.trans T.natrec-zero T.refl)
-      z®z′ = ⊩ʳz [σ] (subsumptionSubst {l = l} σ®σ′
-                                       (≤ᶜ-trans (⊛ᶜ-decreasingˡ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r)
-                                                 (∧ᶜ-decreasingˡ γ η)))
+      z®z′ = ⊩ʳz [σ] (subsumptionSubst {l = l} σ®σ′ (lemma₁ {γ = γ} {η} {δ} {p} {r}))
       [σA₀]′ = I.irrelevance′ (singleSubstLift A zero) [σA₀]
       z®z″ = irrelevanceTerm′ (singleSubstLift A zero) [σA₀] [σA₀]′ z®z′
       nr®nr = redSubstTerm* [σA₀]′ z®z″ nrm⇒z nrw⇒z
       [σA₀]″ = I.irrelevance′ (singleSubstComp zero σ A) [σA₀]′
       [σA[m]]′ = I.irrelevance′ (PE.sym (singleSubstComp m σ A)) [σA[m]]
-      nr®nr′ = convTermʳ _ [σA₀]′ [σA[m]]′ (sym A[m]≡A[0]) nr®nr
+      nr®nr′ = convTermʳ [σA₀]′ [σA[m]]′ (sym A[m]≡A[0]) nr®nr
   in  irrelevanceTerm′ (singleSubstComp m σ A) [σA[m]]′ [σA[m]] nr®nr′
 natrecʳ″
   {n = n} {A = A} {z = z} {s = s} {σ = σ} {σ′ = σ′} {mo = 𝟙ᵐ} {γ = γ}
   {η = η} {δ = δ} {p = p} {r = r} {q = q} {l = l} {m = m} {w = w}
   {Γ = Γ}
   [Γ] [A] [A₊] [A₀] [z] [s] [σ] σ®σ′ ⊩ʳz ⊩ʳs [m]
-  (sucᵣ {t′ = m′} {v′ = w′} m⇒sucm′ w⇒sucw′ m′®w′) =
+  (sucᵣ {t′ = m′} {v′ = w′} m⇒sucm′ w⇒sucw′ m′®w′)
+  with is-𝟘? 𝟙
+... | yes 𝟘≡𝟙 = _
+... | no 𝟘≢𝟙 =
   let [ℕ] = ℕᵛ {l = l} [Γ]
       σnrm = natrec p q r (subst (liftSubst σ) A) (subst σ z) (subst (liftSubstn σ 2) s) m
       σnrm′ = natrec p q r (subst (liftSubst σ) A) (subst σ z) (subst (liftSubstn σ 2) s) m′
@@ -174,18 +207,17 @@ natrecʳ″
                                      {s = T.subst (T.liftSubst (T.liftSubst σ′)) (erase s)}
                                      w⇒sucw′
       nrw⇒s = TP.red*concat nrw⇒nrsucw′ (T.trans T.natrec-suc T.refl)
-      σ®σ′ₛ = subsumptionSubst {l = l} σ®σ′
-                               (≤ᶜ-trans (⊛ᶜ-decreasingʳ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r)
-                                         (+ᶜ-decreasingˡ δ (p ·ᶜ η)))
+      σ®σ′ₛ = subsumptionSubst {l = l} σ®σ′ (lemma₂ {γ = γ} {η} {δ} {p} {r})
       nrm′®nrw′ = natrecʳ″ {A = A} {z = z} {s = s}
-                           [Γ] [A] [A₊] [A₀] [z] [s] [σ] σ®σ′ ⊩ʳz ⊩ʳs [m′] m′®w′
+                           [Γ] [A] [A₊] [A₀] [z] [s] [σ] σ®σ′
+                           (subsumption′ {t = z} [Γ] [A₀] ⊩ʳz)
+                           (subsumption′ {t = s} ([Γ] ∙ [ℕ] ∙ [A]) [A₊] ⊩ʳs)
+                           [m′] m′®w′
       s®s′ = ⊩ʳs {σ = consSubst (consSubst σ m′) σnrm′}
                  {σ′ = T.consSubst (T.consSubst σ′ w′) σnrw′}
                  (([σ] , [m′]) , [nrm′])
-                 ( ( σ®σ′ₛ
-                   , subsumptionTerm {q = p} m′®w′ (least-elem p)
-                   )
-                 , subsumptionTerm {q = r} nrm′®nrw′ (least-elem r)
+                 ( ( σ®σ′ₛ , m′®w′ ◀ _)
+                 , subsumptionTerm nrm′®nrw′ (λ 1≡𝟘 → PE.⊥-elim (𝟙≉𝟘 1≡𝟘))
                  )
       s®s″ = irrelevanceTerm′ (PE.trans (wk1-tail (A [ suc (var x0) ]↑))
                                         (PE.trans (substCompEq A)
@@ -198,7 +230,7 @@ natrecʳ″
                                  (PE.sym (TP.substCompEq (erase s))))
                        s®s″
       nrm®nrw = redSubstTerm* [A[sucm′]]′ s®s‴ nrm⇒s nrw⇒s
-      nrm®nrw′ = convTermʳ _ [A[sucm′]]′ [σA[m]]′ (sym A[m]≡A[sucm′])
+      nrm®nrw′ = convTermʳ [A[sucm′]]′ [σA[m]]′ (sym A[m]≡A[sucm′])
                    nrm®nrw
   in  irrelevanceTerm′ (singleSubstComp m σ A) [σA[m]]′ [σA[m]] nrm®nrw′
   where
@@ -248,20 +280,27 @@ natrecʳ′ : ∀ {l} {Γ : Con Term n}
          → (⊩ʳm : η ▸ Γ ⊩ʳ⟨ l ⟩ m ∷[ mo ] ℕ / [Γ] / [ℕ])
          → (γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r ▸ Γ
              ⊩ʳ⟨ l ⟩ natrec p q r A z s m ∷[ mo ] A [ m ] / [Γ] / [A[m]]
-natrecʳ′ {mo = 𝟘ᵐ} = _
+natrecʳ′ {mo = 𝟘ᵐ} with is-𝟘? 𝟘
+... | yes _ = _
+... | no 𝟘≢𝟘 = PE.⊥-elim (𝟘≢𝟘 PE.refl)
 
 natrecʳ′
   {n = n} {A = A} {m = m} {z = z} {s = s} {γ = γ} {mo = 𝟙ᵐ} {δ = δ}
   {p = p} {r = r} {η = η} {l = l} {Γ = Γ}
-  [Γ] [A] [A₊] [A₀] [A[m]] [z] [s] [m] ⊩ʳz ⊩ʳs ⊩ʳm {σ} {σ′} [σ] σ®σ′ =
+  [Γ] [A] [A₊] [A₀] [A[m]] [z] [s] [m] ⊩ʳz ⊩ʳs ⊩ʳm {σ} {σ′} [σ] σ®σ′
+  with is-𝟘? 𝟙
+... | yes 𝟙≡𝟘 = _
+... | no 𝟙≢𝟘 =
   let [σm] = proj₁ ([m] ⊢Δ [σ])
-      m®w = ⊩ʳm [σ] (subsumptionSubst {l = l} σ®σ′
-                                      (≤ᶜ-trans (⊛ᶜ-decreasingˡ (γ ∧ᶜ η) _ r)
-                                                (∧ᶜ-decreasingʳ γ η)))
+      m®w = ⊩ʳm [σ] (subsumptionSubst {l = l} σ®σ′ (lemma₃ {γ = γ} {η} {δ} {p} {r}))
       nr®nr = natrecʳ″ {A = A} {z = z} {s = s}
-                       [Γ] [A] [A₊] [A₀] [z] [s] [σ] σ®σ′ ⊩ʳz ⊩ʳs [σm] m®w
+                       [Γ] [A] [A₊] [A₀] [z] [s] [σ] σ®σ′
+                       (subsumption′ {t = z} [Γ] [A₀] ⊩ʳz)
+                       (subsumption′ {t = s} ([Γ] ∙ _ ∙ [A]) [A₊] ⊩ʳs)
+                       [σm] m®w
   in  irrelevanceTerm′ (PE.sym (PE.trans (singleSubstLift A m) (singleSubstComp (subst σ m) σ A)))
-                       (proj₁ (unwrap [A] ⊢Δ ([σ] , [σm]))) (proj₁ (unwrap [A[m]] ⊢Δ [σ])) nr®nr
+                       (proj₁ (unwrap [A] ⊢Δ ([σ] , [σm]))) (proj₁ (unwrap [A[m]] ⊢Δ [σ]))
+                       (nr®nr ◀≢𝟘 𝟙≉𝟘)
 
 natrecʳ : ∀ {l} {Γ : Con Term n}
          → ([Γ] : ⊩ᵛ Γ)

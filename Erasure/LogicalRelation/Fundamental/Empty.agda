@@ -1,33 +1,35 @@
-open import Definition.Modality.Instances.Erasure
-open import Definition.Modality.Restrictions
+open import Definition.Modality
 open import Definition.Typed.EqualityRelation
-open import Definition.Untyped Erasure hiding (_∷_)
-open import Definition.Typed Erasure
+import Definition.Typed as T′
+import Definition.Untyped as U hiding (_∷_)
 open import Tools.Empty
+open import Tools.Nullary
+open import Tools.PropositionalEquality
 
 module Erasure.LogicalRelation.Fundamental.Empty
-  {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ)
+  {a k} {M : Set a} (𝕄 : Modality M)
+  (open U M) (open T′ M) (open Modality 𝕄)
+  {Δ : Con Term k} (⊢Δ : ⊢ Δ)
+  (is-𝟘? : (p : M) → Dec (p ≡ 𝟘))
   (consistent : ∀ {t} → Δ ⊢ t ∷ Empty → ⊥)
-  (restrictions : Restrictions Erasure)
-  {{eqrel : EqRelSet Erasure}}
+  {{eqrel : EqRelSet M}}
   where
 
 open EqRelSet {{...}}
 
-open import Erasure.LogicalRelation ⊢Δ restrictions
-open import  Erasure.LogicalRelation.Subsumption ⊢Δ restrictions
+open import Erasure.LogicalRelation 𝕄 ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Subsumption 𝕄 ⊢Δ is-𝟘?
 import Erasure.Target as T
 
-open import Definition.LogicalRelation Erasure
-open import Definition.LogicalRelation.Fundamental Erasure
-open import Definition.LogicalRelation.Substitution Erasure
-open import Definition.LogicalRelation.Substitution.Irrelevance Erasure
-open import Definition.LogicalRelation.Substitution.Introductions.Universe Erasure
-open import Definition.LogicalRelation.Substitution.Introductions.Empty Erasure
+open import Definition.LogicalRelation M
+open import Definition.LogicalRelation.Fundamental M
+open import Definition.LogicalRelation.Substitution M
+open import Definition.LogicalRelation.Substitution.Irrelevance M
+open import Definition.LogicalRelation.Substitution.Introductions.Universe M
+open import Definition.LogicalRelation.Substitution.Introductions.Empty M
 
-open import Definition.Modality.Instances.Erasure.Modality restrictions
-open import Definition.Modality.Context ErasureModality
-open import Definition.Mode ErasureModality
+open import Definition.Modality.Context 𝕄
+open import Definition.Mode 𝕄
 
 open import Tools.Nat
 open import Tools.Product
@@ -45,8 +47,8 @@ Emptyʳ : ⊢ Γ
       → ∃ λ ([Γ] : ⊩ᵛ Γ)
       → ∃ λ ([U] : Γ ⊩ᵛ⟨ ¹ ⟩ U / [Γ])
       → γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ Empty ∷[ m ] U / [Γ] / [U]
-Emptyʳ ⊢Γ =
-  [Γ] , [U] , subsumptionMode Empty [U] (λ _ _ → Uᵣ (Emptyⱼ ⊢Δ))
+Emptyʳ {m = m} ⊢Γ =
+  [Γ] , [U] , λ _ _ → Uᵣ (Emptyⱼ ⊢Δ) ◀ ⌜ m ⌝
   where
   [Γ] = valid ⊢Γ
   [U] = Uᵛ [Γ]

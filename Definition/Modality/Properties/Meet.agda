@@ -123,40 +123,50 @@ private
   where
   open Tools.Reasoning.PropositionalEquality
 
--- If the mode 𝟘ᵐ is allowed and p ∧ q is equal to 𝟘, then p is equal
--- to 𝟘.
+-- Properties that hold when meet is "positive"
 
-∧≈𝟘ˡ : T 𝟘ᵐ-allowed → p ∧ q ≈ 𝟘 → p ≈ 𝟘
-∧≈𝟘ˡ {p = p} {q = q} ok p∧q≈𝟘 = ≤-antisym
-  (∧≤𝟘ˡ ok p∧q≈𝟘)
-  (begin
-     𝟘      ≈˘⟨ p∧q≈𝟘 ⟩
-     p ∧ q  ≤⟨ ∧-decreasingˡ _ _ ⟩
-     p      ∎)
-  where
-  open Tools.Reasoning.PartialOrder ≤-poset
+module ∧-Positive (∧≤𝟘ˡ : ∀ {p q} → p ∧ q ≈ 𝟘 → p ≤ 𝟘) where
 
--- If the mode 𝟘ᵐ is allowed and p ∧ q is equal to 𝟘, then q is equal
--- to 𝟘.
+  -- If p ∧ q is equal to 𝟘, then p is equal
+  -- to 𝟘.
 
-∧≈𝟘ʳ : T 𝟘ᵐ-allowed → p ∧ q ≈ 𝟘 → q ≈ 𝟘
-∧≈𝟘ʳ {p = p} {q = q} ok p∧q≈𝟘 = ∧≈𝟘ˡ ok
-  (begin
-     q ∧ p  ≈⟨ ∧-comm _ _ ⟩
-     p ∧ q  ≈⟨ p∧q≈𝟘 ⟩
-     𝟘      ∎)
-  where
-  open Tools.Reasoning.Equivalence (setoid M)
+  ∧≈𝟘ˡ : p ∧ q ≈ 𝟘 → p ≈ 𝟘
+  ∧≈𝟘ˡ {p = p} {q = q} p∧q≈𝟘 = ≤-antisym
+    (∧≤𝟘ˡ p∧q≈𝟘)
+    (begin
+       𝟘      ≈˘⟨ p∧q≈𝟘 ⟩
+       p ∧ q  ≤⟨ ∧-decreasingˡ _ _ ⟩
+       p      ∎)
+    where
+    open Tools.Reasoning.PartialOrder ≤-poset
 
--- If the mode 𝟘ᵐ is allowed then every value that is "greater than or
--- equal to" 𝟘 is equivalent to 𝟘.
---
--- This property matches one of the assumptions in Conor McBride's "I
--- Got Plenty o’ Nuttin’" (except for the part about the mode).
+  -- If p ∧ q is equal to 𝟘, then q is equal
+  -- to 𝟘.
 
-𝟘≮ : T 𝟘ᵐ-allowed → 𝟘 ≤ p → p ≈ 𝟘
-𝟘≮ {p = p} ok 𝟘≤p = ∧≈𝟘ʳ ok (begin
-  𝟘 ∧ p  ≈˘⟨ 𝟘≤p ⟩
-  𝟘      ∎)
-  where
-  open Tools.Reasoning.Equivalence (setoid M)
+  ∧≈𝟘ʳ : p ∧ q ≈ 𝟘 → q ≈ 𝟘
+  ∧≈𝟘ʳ {p = p} {q = q} p∧q≈𝟘 = ∧≈𝟘ˡ
+    (begin
+       q ∧ p  ≈⟨ ∧-comm _ _ ⟩
+       p ∧ q  ≈⟨ p∧q≈𝟘 ⟩
+       𝟘      ∎)
+    where
+    open Tools.Reasoning.Equivalence (setoid M)
+
+  -- Every value that is "greater than or
+  -- equal to" 𝟘 is equivalent to 𝟘.
+  --
+  -- This property matches one of the assumptions in Conor McBride's "I
+  -- Got Plenty o’ Nuttin’".
+
+  𝟘≮ : 𝟘 ≤ p → p ≈ 𝟘
+  𝟘≮ {p = p} 𝟘≤p = ∧≈𝟘ˡ (begin
+    p ∧ 𝟘  ≈⟨ ∧-comm _ _ ⟩
+    𝟘 ∧ p  ≈˘⟨ 𝟘≤p ⟩
+    𝟘      ∎)
+    where
+    open Tools.Reasoning.Equivalence (setoid M)
+
+-- If the mode 𝟘ᵐ is allowed then meet is "positive"
+
+module 𝟘ᵐ→∧-Positive (𝟘ᵐ-ok : T 𝟘ᵐ-allowed) where
+  open ∧-Positive (∧≤𝟘ˡ 𝟘ᵐ-ok) public

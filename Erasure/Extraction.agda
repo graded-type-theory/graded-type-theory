@@ -1,10 +1,16 @@
-module Erasure.Extraction where
+open import Definition.Modality
+open import Tools.Nullary
+open import Tools.PropositionalEquality
 
-open import Definition.Modality.Instances.Erasure
+module Erasure.Extraction {a} {M : Set a} (𝕄 : Modality M)
+                          (open Modality 𝕄)
+                          (is-𝟘? : (p : M) → Dec (p ≡ 𝟘)) where
 
+open import Tools.Function
 open import Tools.Nat
+open import Tools.PropositionalEquality
 
-open import Definition.Untyped Erasure as U
+open import Definition.Untyped M as U
 open import Erasure.Target as T
 
 private
@@ -13,7 +19,15 @@ private
     Γ : Con U.Term n
     A t t′ u : U.Term n
     v v′ w : T.Term n
-    p : Erasure
+    p : M
+
+
+
+erase-prodrecω : (p : M) (t : T.Term n) (u : T.Term (1+ (1+ n)))
+               → T.Term n
+erase-prodrecω p t u = case is-𝟘? p of λ where
+    (yes p≡𝟘) → T.prodrec (T.prod ↯ t) u
+    (no p≢𝟘) → T.prodrec t u
 
 
 erase : U.Term n → T.Term n
@@ -21,17 +35,21 @@ erase (var x) = T.var x
 erase U = ↯
 erase (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = ↯
 erase (U.lam p t) = T.lam (erase t)
-erase (t ∘⟨ 𝟘 ⟩ u) = erase t T.∘ ↯
-erase (t ∘⟨ ω ⟩ u) = erase t T.∘ erase u
-erase (U.prod _ 𝟘 _ u) = erase u
-erase (U.prod _ ω t u) = T.prod (erase t) (erase u)
-erase (U.fst 𝟘 _) = ↯
-erase (U.fst ω t) = T.fst (erase t)
-erase (U.snd 𝟘 t) = erase t
-erase (U.snd ω t) = T.snd (erase t)
-erase (U.prodrec 𝟘 _ _ _ _ u) = T.prodrec (T.prod ↯ ↯) (erase u)
-erase (U.prodrec ω 𝟘 _ _ t u) = T.prodrec (T.prod ↯ (erase t)) (erase u)
-erase (U.prodrec ω ω _ _ t u) = T.prodrec (erase t) (erase u)
+erase (t ∘⟨ p ⟩ u) = case is-𝟘? p of λ where
+  (yes p≡𝟘) → erase t T.∘ ↯
+  (no p≢𝟘) → erase t T.∘ erase u
+erase (U.prod _ p t u) = case is-𝟘? p of λ where
+  (yes p≡𝟘) → erase u
+  (no p≢𝟘) → T.prod (erase t) (erase u)
+erase (U.fst p t) = case is-𝟘? p of λ where
+  (yes p≡𝟘) → ↯
+  (no p≢𝟘) → T.fst (erase t)
+erase (U.snd p t) = case is-𝟘? p of λ where
+  (yes p≡𝟘) → erase t
+  (no p≢𝟘) → T.snd (erase t)
+erase (U.prodrec r p _ _ t u) = case is-𝟘? r of λ where
+  (yes r≡𝟘) → T.prodrec (T.prod ↯ ↯) (erase u)
+  (no r≢𝟘) → erase-prodrecω p (erase t) (erase u)
 erase ℕ = ↯
 erase U.zero = T.zero
 erase (U.suc t) = T.suc (erase t)

@@ -60,24 +60,36 @@ private
     (𝟘 · 𝟘) ⊛ (𝟘 · 𝟘) ▷ r ≈⟨ ⊛ᵣ-cong (·-zeroˡ 𝟘) (·-zeroˡ 𝟘) ⟩
     𝟘 ⊛ 𝟘 ▷ r ∎
 
--- If the mode 𝟘ᵐ is allowed and p ⊛ q ▷ r is equal to zero, then p is
--- equal to zero.
+-- If addition and meet are positive then ⊛ is positive
 
-⊛≈𝟘ˡ : T 𝟘ᵐ-allowed → p ⊛ q ▷ r ≈ 𝟘 → p ≈ 𝟘
-⊛≈𝟘ˡ {p = p} {q = q} {r = r} ok p⊛q▷r≈𝟘 = 𝟘≮ ok (begin
-  𝟘          ≈˘⟨ p⊛q▷r≈𝟘 ⟩
-  p ⊛ q ▷ r  ≤⟨ ⊛-ineq₂ _ _ _ ⟩
-  p          ∎)
-  where
-  open import Tools.Reasoning.PartialOrder ≤-poset
+module ⊛-Positive (positiveˡ : ∀ {p q} → p + q ≈ 𝟘 → p ≈ 𝟘)
+                  (∧≤𝟘ˡ : ∀ {p q} → p ∧ q ≈ 𝟘 → p ≤ 𝟘) where
 
--- If the mode 𝟘ᵐ is allowed and p ⊛ q ▷ r is equal to zero, then q is
--- equal to zero.
+  open ∧-Positive ∧≤𝟘ˡ
 
-⊛≈𝟘ʳ : T 𝟘ᵐ-allowed → p ⊛ q ▷ r ≈ 𝟘 → q ≈ 𝟘
-⊛≈𝟘ʳ {p = p} {q = q} {r = r} ok p⊛q▷r≈𝟘 = positiveˡ ok (𝟘≮ ok (begin
-  𝟘                  ≈˘⟨ p⊛q▷r≈𝟘 ⟩
-  p ⊛ q ▷ r          ≤⟨ ⊛-ineq₁ _ _ _ ⟩
-  q + r · p ⊛ q ▷ r  ∎))
-  where
-  open import Tools.Reasoning.PartialOrder ≤-poset
+  -- If the mode 𝟘ᵐ is allowed and p ⊛ q ▷ r is equal to zero, then p is
+  -- equal to zero.
+
+  ⊛≈𝟘ˡ : p ⊛ q ▷ r ≈ 𝟘 → p ≈ 𝟘
+  ⊛≈𝟘ˡ {p = p} {q = q} {r = r} p⊛q▷r≈𝟘 = 𝟘≮ (begin
+    𝟘          ≈˘⟨ p⊛q▷r≈𝟘 ⟩
+    p ⊛ q ▷ r  ≤⟨ ⊛-ineq₂ _ _ _ ⟩
+    p          ∎)
+    where
+    open import Tools.Reasoning.PartialOrder ≤-poset
+
+  -- If the mode 𝟘ᵐ is allowed and p ⊛ q ▷ r is equal to zero, then q is
+  -- equal to zero.
+
+  ⊛≈𝟘ʳ : p ⊛ q ▷ r ≈ 𝟘 → q ≈ 𝟘
+  ⊛≈𝟘ʳ {p = p} {q = q} {r = r} p⊛q▷r≈𝟘 = positiveˡ (𝟘≮ (begin
+    𝟘                  ≈˘⟨ p⊛q▷r≈𝟘 ⟩
+    p ⊛ q ▷ r          ≤⟨ ⊛-ineq₁ _ _ _ ⟩
+    q + r · p ⊛ q ▷ r  ∎))
+    where
+    open import Tools.Reasoning.PartialOrder ≤-poset
+
+-- If the mode 𝟘ᵐ is allowed then ⊛ is positive
+
+module 𝟘ᵐ→⊛-Positive (𝟘ᵐ-ok : T 𝟘ᵐ-allowed) where
+  open ⊛-Positive (positiveˡ 𝟘ᵐ-ok) (∧≤𝟘ˡ 𝟘ᵐ-ok) public
