@@ -184,6 +184,11 @@ import Definition.Untyped.Unrestricted.Eta
 import Definition.Modality.Usage.Unrestricted.Eta
 import Definition.Typed.Unrestricted.Eta
 
+-- An investigation of to what degree weak Σ-types can emulate strong
+-- Σ-types, and vice versa.
+
+import Definition.Sigma
+
 -- Erasure
 
 import Definition.Modality.Instances.Erasure.Properties
