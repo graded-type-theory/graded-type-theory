@@ -74,6 +74,7 @@ import Definition.Modality.Instances.Recursive
 import Definition.Untyped
 import Definition.Untyped.BindingType
 import Definition.Untyped.Properties
+import Definition.Untyped.Inversion
 
 -- Typing and conversion rules of language
 import Definition.Typed
