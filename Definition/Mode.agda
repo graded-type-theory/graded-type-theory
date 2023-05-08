@@ -390,6 +390,12 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
     ; zeroˡ         to ·ᵐ-zeroˡ
     )
 
+-- 𝟘ᵐ is a right zero for _·ᵐ_.
+
+·ᵐ-zeroʳ-𝟘ᵐ : m ·ᵐ 𝟘ᵐ[ ok ] ≡ 𝟘ᵐ[ ok ]
+·ᵐ-zeroʳ-𝟘ᵐ {m = 𝟘ᵐ} = 𝟘ᵐ-cong
+·ᵐ-zeroʳ-𝟘ᵐ {m = 𝟙ᵐ} = refl
+
 ------------------------------------------------------------------------
 -- Properties related to ⌜_⌝ and ⌜_⌝ᶜ
 
