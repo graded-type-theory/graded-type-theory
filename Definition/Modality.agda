@@ -81,7 +81,7 @@ record ModalityWithout⊛ : Set (lsuc a) where
     ∧≤𝟘ˡ : T 𝟘ᵐ-allowed → {p q : M} → p ∧ q ≈ 𝟘 → p ≤ 𝟘
 
     -- If the mode 𝟘ᵐ is allowed, then non-zero quantities must be
-    -- bounded by 1.
+    -- bounded by 𝟙.
     ≉𝟘→≤𝟙 : T 𝟘ᵐ-allowed → {p : M} → p ≉ 𝟘 → p ≤ 𝟙
 
   ·-distribˡ-∧ : _·_ DistributesOverˡ _∧_
