@@ -10,6 +10,7 @@ open import Definition.Typed.Consequences.Substitution M
 open import Definition.Typed.Consequences.Inequality M
 
 open import Tools.Fin
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 open import Tools.Empty using (⊥; ⊥-elim)
@@ -20,6 +21,7 @@ private
     Γ : Con Term n
     p p′ q q′ r : M
     b : BinderMode
+    A B : Term _
 
 -- Inversion of U (it has no type).
 inversion-U : ∀ {C} → Γ ⊢ U ∷ C → ⊥
@@ -40,15 +42,24 @@ inversion-Unit : ∀ {C} → Γ ⊢ Unit ∷ C → Γ ⊢ C ≡ U
 inversion-Unit (Unitⱼ x) = refl (Uⱼ x)
 inversion-Unit (conv x x₁) = trans (sym x₁) (inversion-Unit x)
 
--- Inversion of Π- and Σ-types.
-inversion-ΠΣ :
+-- Inversion for terms that are Π- or Σ-types.
+inversion-ΠΣ-U :
   ∀ {F G C} →
   Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ∷ C →
   Γ ⊢ F ∷ U × Γ ∙ F ⊢ G ∷ U × Γ ⊢ C ≡ U
-inversion-ΠΣ (ΠΣⱼ x ▹ x₁) = x , x₁ , refl (Uⱼ (wfTerm x))
-inversion-ΠΣ (conv x x₁)  =
-  let a , b , c = inversion-ΠΣ x
+inversion-ΠΣ-U (ΠΣⱼ x ▹ x₁) = x , x₁ , refl (Uⱼ (wfTerm x))
+inversion-ΠΣ-U (conv x x₁)  =
+  let a , b , c = inversion-ΠΣ-U x
   in  a , b , trans (sym x₁) c
+
+-- Inversion for Π- and Σ-types.
+inversion-ΠΣ :
+  Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B →
+  Γ ⊢ A × Γ ∙ A ⊢ B
+inversion-ΠΣ = λ where
+  (ΠΣⱼ ⊢A ▹ ⊢B) → ⊢A , ⊢B
+  (univ ⊢ΠΣAB)  → case inversion-ΠΣ-U ⊢ΠΣAB of λ where
+    (⊢A , ⊢B , _) → univ ⊢A , univ ⊢B
 
 -- Inversion of variables
 inversion-var : ∀ {x C} → Γ ⊢ var x ∷ C → ∃ λ A → x ∷ A ∈ Γ × Γ ⊢ C ≡ A
@@ -171,7 +182,7 @@ whnfProduct x (ne pNe) = ne pNe
 
 whnfProduct x Uₙ = ⊥-elim (inversion-U x)
 whnfProduct x ΠΣₙ =
-  let _ , _ , Σ≡U = inversion-ΠΣ x
+  let _ , _ , Σ≡U = inversion-ΠΣ-U x
   in  ⊥-elim (U≢Σ (sym Σ≡U))
 whnfProduct x ℕₙ = ⊥-elim (U≢Σ (sym (inversion-ℕ x)))
 whnfProduct x Unitₙ = ⊥-elim (U≢Σ (sym (inversion-Unit x)))

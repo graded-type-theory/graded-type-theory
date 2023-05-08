@@ -89,18 +89,14 @@ Erased-cong-U A≡B =
 erasedⱼ : Γ ⊢ t ∷ Erased A → Γ ⊢ erased t ∷ A
 erasedⱼ ⊢t = fstⱼ ⊢A (Unitⱼ (wf ⊢A ∙ ⊢A)) ⊢t
   where
-  ⊢A = case syntacticTerm ⊢t of λ where
-    (ΠΣⱼ ⊢A ▹ _) → ⊢A
-    (univ ⊢E-A)  → univ (inversion-ΠΣ ⊢E-A .proj₁)
+  ⊢A = inversion-ΠΣ (syntacticTerm ⊢t) .proj₁
 
 -- A corresponding congruence rule.
 
 erased-cong : Γ ⊢ t ≡ u ∷ Erased A → Γ ⊢ erased t ≡ erased u ∷ A
 erased-cong t≡u = fst-cong ⊢A (Unitⱼ (wf ⊢A ∙ ⊢A)) t≡u
   where
-  ⊢A = case syntacticEqTerm t≡u .proj₁ of λ where
-    (ΠΣⱼ ⊢A ▹ _) → ⊢A
-    (univ ⊢E-A)  → univ (inversion-ΠΣ ⊢E-A .proj₁)
+  ⊢A = inversion-ΠΣ (syntacticEqTerm t≡u .proj₁) .proj₁
 
 -- A β-rule for Erased.
 
@@ -144,15 +140,13 @@ inversion-Erased-∷ :
   Γ ⊢ Erased A ∷ B →
   Γ ⊢ A ∷ U × Γ ⊢ B ≡ U
 inversion-Erased-∷ ⊢Erased =
-  case inversion-ΠΣ ⊢Erased of λ (⊢A , _ , B≡) →
+  case inversion-ΠΣ-U ⊢Erased of λ (⊢A , _ , B≡) →
   ⊢A , B≡
 
 -- Another inversion lemma for Erased.
 
 inversion-Erased : Γ ⊢ Erased A → Γ ⊢ A
-inversion-Erased (ΠΣⱼ ⊢A ▹ _)   = ⊢A
-inversion-Erased (univ ⊢Erased) =
-  univ (inversion-Erased-∷ ⊢Erased .proj₁)
+inversion-Erased ⊢Erased = inversion-ΠΣ ⊢Erased .proj₁
 
 -- An inversion lemma for [_].
 --

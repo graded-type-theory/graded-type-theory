@@ -92,18 +92,14 @@ Unrestricted-cong-U A≡B =
 unboxⱼ : Γ ⊢ t ∷ Unrestricted A → Γ ⊢ unbox t ∷ A
 unboxⱼ ⊢t = fstⱼ ⊢A (Unitⱼ (wf ⊢A ∙ ⊢A)) ⊢t
   where
-  ⊢A = case syntacticTerm ⊢t of λ where
-    (ΠΣⱼ ⊢A ▹ _) → ⊢A
-    (univ ⊢E-A)  → univ (inversion-ΠΣ ⊢E-A .proj₁)
+  ⊢A = inversion-ΠΣ (syntacticTerm ⊢t) .proj₁
 
 -- A corresponding congruence rule.
 
 unbox-cong : Γ ⊢ t ≡ u ∷ Unrestricted A → Γ ⊢ unbox t ≡ unbox u ∷ A
 unbox-cong t≡u = fst-cong ⊢A (Unitⱼ (wf ⊢A ∙ ⊢A)) t≡u
   where
-  ⊢A = case syntacticEqTerm t≡u .proj₁ of λ where
-    (ΠΣⱼ ⊢A ▹ _) → ⊢A
-    (univ ⊢E-A)  → univ (inversion-ΠΣ ⊢E-A .proj₁)
+  ⊢A = inversion-ΠΣ (syntacticEqTerm t≡u .proj₁) .proj₁
 
 -- A β-rule for Unrestricted.
 
@@ -147,7 +143,7 @@ inversion-Unrestricted-∷ :
   Γ ⊢ Unrestricted A ∷ B →
   Γ ⊢ A ∷ U × Γ ⊢ B ≡ U
 inversion-Unrestricted-∷ ⊢Unrestricted =
-  case inversion-ΠΣ ⊢Unrestricted of λ (⊢A , _ , B≡) →
+  case inversion-ΠΣ-U ⊢Unrestricted of λ (⊢A , _ , B≡) →
   ⊢A , B≡
 
 -- Another inversion lemma for Unrestricted.

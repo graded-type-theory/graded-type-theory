@@ -42,7 +42,7 @@ mutual
   completeness⇉ : Inferable t → Γ ⊢ t ∷ A → ∃ λ B → Γ ⊢ t ⇉ B × Γ ⊢ A ≡ B
   completeness⇉ Uᵢ ⊢t = PE.⊥-elim (inversion-U ⊢t)
   completeness⇉ (ΠΣᵢ F G) ⊢t =
-    let ⊢F , ⊢G , A≡U = inversion-ΠΣ ⊢t
+    let ⊢F , ⊢G , A≡U = inversion-ΠΣ-U ⊢t
         F⇇U = completeness⇇ F ⊢F
         G⇇U = completeness⇇ G ⊢G
     in  _ , ΠΣᵢ F⇇U G⇇U , A≡U
