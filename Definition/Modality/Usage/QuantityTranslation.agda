@@ -357,7 +357,7 @@ module Is-order-embedding
     tr-▸⁻¹-𝟙≡𝟘′ (fst p _) (fstₘ m ▸t ≡𝟘ᵐ ok) = fstₘ
       𝟙ᵐ
       (tr-▸⁻¹-𝟙≡𝟘′ _ ▸t)
-      (Mo₁.Mode-propositional-without-𝟘ᵐ (flip M₁.𝟘ᵐ→𝟙≉𝟘 𝟙≡𝟘))
+      (Mo₁.Mode-propositional-if-𝟙≡𝟘 𝟙≡𝟘)
       (inj₁ (MP₁.≈-trivial 𝟙≡𝟘))
 
     tr-▸⁻¹-𝟙≡𝟘′ (prodrec _ _ _ _ _ _) (prodrecₘ ▸t ▸u ▸Q ok) = sub

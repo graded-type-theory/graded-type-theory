@@ -252,6 +252,12 @@ Mode-propositional-without-𝟘ᵐ {m₁ = m₁} {m₂ = m₂} not-ok =
   where
   open Tools.Reasoning.PropositionalEquality
 
+-- If 𝟙 ≡ 𝟘, then all modes are equal.
+
+Mode-propositional-if-𝟙≡𝟘 : 𝟙 ≡ 𝟘 → m₁ ≡ m₂
+Mode-propositional-if-𝟙≡𝟘 𝟙≡𝟘 =
+  Mode-propositional-without-𝟘ᵐ (flip 𝟘ᵐ→𝟙≉𝟘 𝟙≡𝟘)
+
 ------------------------------------------------------------------------
 -- Properties related to 𝟘ᵐ?
 
@@ -654,16 +660,6 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
   ⌞ 𝟙 · p ⌟  ≡⟨ ⌞⌟-cong (·-identityˡ _) ⟩
   ⌞ p ⌟      ≡⟨⟩
   𝟙ᵐ ᵐ· p    ∎
-  where
-  open Tools.Reasoning.PropositionalEquality
-
--- If 1 ≈ 𝟘, then ⌞ p ⌟ is equal to 𝟘ᵐ?.
-
-⌞⌟≡𝟘ᵐ : 𝟙 ≈ 𝟘 → ⌞ p ⌟ ≡ 𝟘ᵐ?
-⌞⌟≡𝟘ᵐ {p = p} 𝟙≈𝟘 =
-  ⌞ p ⌟  ≡⟨ ⌞⌟-cong (≈-trivial 𝟙≈𝟘) ⟩
-  ⌞ 𝟘 ⌟  ≡⟨ ⌞𝟘⌟≡𝟘ᵐ? ⟩
-  𝟘ᵐ?    ∎
   where
   open Tools.Reasoning.PropositionalEquality
 
