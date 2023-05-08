@@ -14,6 +14,7 @@ open import Tools.Reasoning.PropositionalEquality
 private
   variable
     ℓ m n : Nat
+    t u v : Term _
     ρ ρ′ : Wk m n
     η : Wk n ℓ
     σ σ′ : Subst m n
@@ -693,24 +694,60 @@ wk1-sgSubst t t' rewrite wk1-tailId t =
         (substVar-to-subst (substVar-sgSubst-tail t') t))
       (subst-id t)
 
+-- Applying _[ u ]↑ to a doubly weakened term amounts to the same
+-- thing as doing nothing.
+
+wk1-wk1-[]↑ : wk1 (wk1 t) [ u ]↑ ≡ wk1 (wk1 t)
+wk1-wk1-[]↑ {t = t} {u = u} =
+  wk1 (wk1 t) [ u ]↑                                             ≡⟨⟩
+  subst (consSubst (wk1Subst idSubst) u) (wk (step id) (wk1 t))  ≡⟨ subst-wk (wk1 t) ⟩
+  subst (consSubst (wk1Subst idSubst) u ₛ• step id) (wk1 t)      ≡⟨ subst-wk t ⟩
+  subst (toSubst (step (step id))) t                             ≡˘⟨ wk≡subst _ _ ⟩
+  wk (step (step id)) t                                          ≡˘⟨ wk1-wk _ _ ⟩
+  wk1 (wk1 t)                                                    ∎
+
+-- Substituting variable one into t using _[_]↑² amounts to the same
+-- thing as applying wk1 to t.
+
+[1]↑² : t [ var (x0 +1) ]↑² ≡ wk1 t
+[1]↑² {t = t} =
+  subst (consSubst (λ x → var (x +1 +1)) (var (x0 +1))) t  ≡⟨ (flip substVar-to-subst t λ where
+                                                                 x0     → refl
+                                                                 (_ +1) → refl) ⟩
+  subst (λ x → var (x +1)) t                               ≡˘⟨ wk≡subst _ _ ⟩
+  wk1 t                                                    ∎
+
+-- Substituting something into wk1 t using _[_]↑² amounts to the same
+-- thing as applying wk1 once more.
+
+wk1-[]↑² : wk1 t [ u ]↑² ≡ wk1 (wk1 t)
+wk1-[]↑² {t = t} {u = u} =
+  wk1 t [ u ]↑²                                                       ≡⟨⟩
+  subst (consSubst (wk1Subst (wk1Subst idSubst)) u) (wk (step id) t)  ≡⟨ subst-wk t ⟩
+  subst (consSubst (wk1Subst (wk1Subst idSubst)) u ₛ• step id) t      ≡⟨⟩
+  subst (toSubst (step (step id))) t                                  ≡˘⟨ wk≡subst _ _ ⟩
+  wk (step (step id)) t                                               ≡˘⟨ wk1-wk _ _ ⟩
+  wk1 (wk1 t)                                                         ∎
+
 subst-β-prodrec :
   ∀ {s} (A : Term (1+ n)) (σ : Subst m n) →
   subst (liftSubstn σ 2) (A [ prod s p (var (x0 +1)) (var x0) ]↑²) ≡
   subst (liftSubst σ) A [ prod s p (var (x0 +1)) (var x0) ]↑²
 subst-β-prodrec {n = n} A σ = begin
-   subst (liftSubstn σ 2) (A [ t ]↑²)
+   subst (liftSubstn σ 2) (A [ t₁ ]↑²)
      ≡⟨ substCompEq A ⟩
-   subst (liftSubstn σ 2 ₛ•ₛ consSubst (wk1Subst (wk1Subst idSubst)) t) A
+   subst (liftSubstn σ 2 ₛ•ₛ consSubst (wk1Subst (wk1Subst idSubst)) t₁) A
      ≡⟨ substVar-to-subst varEq A ⟩
-   subst (consSubst (wk1Subst (wk1Subst idSubst)) t′ ₛ•ₛ liftSubst σ) A
+   subst (consSubst (wk1Subst (wk1Subst idSubst)) t₂ ₛ•ₛ liftSubst σ) A
      ≡˘⟨ substCompEq A ⟩
-   subst (liftSubst σ) A [ t′ ]↑² ∎
+   subst (liftSubst σ) A [ t₂ ]↑² ∎
    where
-   t = prod! (var (x0 +1)) (var x0)
-   t′ = prod! (var (x0 +1)) (var x0)
-   varEq : (x : Fin (1+ n))
-         → (liftSubstn σ 2 ₛ•ₛ consSubst (wk1Subst (wk1Subst idSubst)) t) x
-         ≡ (consSubst (wk1Subst (wk1Subst idSubst)) t′ ₛ•ₛ liftSubst σ) x
+   t₁ = prod! (var (x0 +1)) (var x0)
+   t₂ = prod! (var (x0 +1)) (var x0)
+   varEq :
+     (x : Fin (1+ n)) →
+     (liftSubstn σ 2 ₛ•ₛ consSubst (wk1Subst (wk1Subst idSubst)) t₁) x ≡
+     (consSubst (wk1Subst (wk1Subst idSubst)) t₂ ₛ•ₛ liftSubst σ) x
    varEq x0 = refl
    varEq (x +1) = begin
      wk1 (wk1 (σ x))
@@ -721,7 +758,7 @@ subst-β-prodrec {n = n} A σ = begin
        ≡⟨ substVar-to-subst (λ x₁ → refl) (σ x) ⟩
      subst (λ y → var (y +1 +1)) (σ x)
        ≡˘⟨ wk1-tail (σ x) ⟩
-     subst (consSubst (λ y → var (y +1 +1)) t′) (wk1 (σ x)) ∎
+     subst (consSubst (λ y → var (y +1 +1)) t₂) (wk1 (σ x)) ∎
 
 substCompProdrec :
   ∀ {s} (A : Term (1+ n)) (t u : Term m) (σ : Subst m n) →
@@ -743,6 +780,20 @@ substCompProdrec {n = n} A t u σ = begin
          ≡ (consSubst (consSubst σ t) u ₛ•ₛ consSubst (wk1Subst (wk1Subst idSubst)) px) x
    varEq x0 = refl
    varEq (x +1) = trans (wk1-tail (σ x)) (subst-id (σ x))
+
+-- A variant of the previous lemma.
+
+[1,0]↑²[,] :
+  (t : Term (1+ n)) →
+  t [ prodₚ p (var (x0 +1)) (var x0) ]↑² [ u , v ] ≡
+  t [ prodₚ p u v ]
+[1,0]↑²[,] {p = p} {u = u} {v = v} t =
+  t [ prodₚ p (var (x0 +1)) (var x0) ]↑² [ u , v ]  ≡˘⟨ substCompProdrec t _ _ _ ⟩
+
+  subst (liftSubst idSubst) t [ prodₚ p u v ]       ≡⟨ cong _[ _ ] $
+                                                       trans (substVar-to-subst subst-lift-id t) $
+                                                       subst-id t ⟩
+  t [ prodₚ p u v ]                                 ∎
 
 doubleSubstComp : (A : Term (1+ (1+ n))) (t u : Term m) (σ : Subst m n)
                 → subst (liftSubstn σ 2) A [ t , u ]
