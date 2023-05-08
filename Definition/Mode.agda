@@ -812,13 +812,8 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
 ≉𝟘→ᵐ·≡ {m = 𝟘ᵐ} _ = PE.refl
 ≉𝟘→ᵐ·≡ {m = 𝟙ᵐ}   = ≉𝟘→⌞⌟≡𝟙ᵐ
 
--- If 1 ≈ 𝟘, then m ᵐ· p is equal to m.
+-- 𝟙 is a right identity for _ᵐ·_.
 
-ᵐ·-identityʳ : 𝟙 ≈ 𝟘 → m ᵐ· p ≡ m
-ᵐ·-identityʳ {m = 𝟘ᵐ}         _   = PE.refl
-ᵐ·-identityʳ {m = 𝟙ᵐ} {p = p} 𝟙≈𝟘 =
-  ⌞ p ⌟  ≡⟨ ⌞⌟≡𝟘ᵐ 𝟙≈𝟘 ⟩
-  𝟘ᵐ?    ≡⟨ only-𝟙ᵐ-without-𝟘ᵐ (λ ok → 𝟘ᵐ→𝟙≉𝟘 ok 𝟙≈𝟘) ⟩
-  𝟙ᵐ     ∎
-  where
-  open Tools.Reasoning.PropositionalEquality
+ᵐ·-identityʳ : m ᵐ· 𝟙 ≡ m
+ᵐ·-identityʳ {m = 𝟘ᵐ} = refl
+ᵐ·-identityʳ {m = 𝟙ᵐ} = ⌞𝟙⌟
