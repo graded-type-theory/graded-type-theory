@@ -107,6 +107,22 @@ private
 <∧ʳ : p < q ∧ r → p < r
 <∧ʳ p<q∧r = <∧ˡ (subst (_ <_) (∧-comm _ _) p<q∧r)
 
+-- If _+_ is pointwise bounded by _∧_, then 𝟘 is larger than all other
+-- quantities.
+
++≤∧→≤𝟘 :
+  (∀ p q → p + q ≤ p ∧ q) →
+  (∀ p → p ≤ 𝟘)
++≤∧→≤𝟘 +≤∧ p =
+  p                  ≡˘⟨ +-identityʳ _ ⟩
+  p + 𝟘              ≡⟨ +≤∧ _ _ ⟩
+  (p + 𝟘) ∧ (p ∧ 𝟘)  ≡⟨ ∧-congʳ (+-identityʳ _) ⟩
+  p ∧ (p ∧ 𝟘)        ≡˘⟨ ∧-assoc _ _ _ ⟩
+  (p ∧ p) ∧ 𝟘        ≡⟨ ∧-congʳ (∧-idem _) ⟩
+  p ∧ 𝟘              ∎
+  where
+  open Tools.Reasoning.PropositionalEquality
+
 -- If the mode 𝟘ᵐ is allowed and p ∧ q is equal to 𝟘, then p is equal
 -- to 𝟘.
 
