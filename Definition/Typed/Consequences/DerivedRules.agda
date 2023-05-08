@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------
--- Derived typing rules (at the time of writing just one)
+-- Derived typing rules
 ------------------------------------------------------------------------
 
 module Definition.Typed.Consequences.DerivedRules
@@ -10,6 +10,7 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 open import Definition.Typed M
+open import Definition.Typed.Consequences.Inversion M
 open import Definition.Typed.Consequences.Syntactic M
 open import Definition.Typed.Properties M
 open import Definition.Typed.Weakening M
@@ -52,3 +53,22 @@ lam-cong {B = B} t≡u = η-eq ⊢A (lamⱼ ⊢A ⊢t) (lamⱼ ⊢A ⊢u) $
   A⊢A   = wk (step id) ⊢∙A ⊢A
   ⊢∙A∙A = ⊢∙A ∙ A⊢A
   A∙A⊢B = wk (lift (step id)) ⊢∙A∙A ⊢B
+
+-- An η-rule for strong Σ-types.
+
+Σ-η-prod-fst-snd :
+  Γ ⊢ t ∷ Σₚ p , q ▷ A ▹ B →
+  Γ ⊢ prodₚ p (fst p t) (snd p t) ≡ t ∷ Σₚ p , q ▷ A ▹ B
+Σ-η-prod-fst-snd ⊢t = Σ-η
+  ⊢A
+  ⊢B
+  (prodⱼ ⊢A ⊢B ⊢fst ⊢snd)
+  ⊢t
+  (Σ-β₁ ⊢A ⊢B ⊢fst ⊢snd PE.refl)
+  (Σ-β₂ ⊢A ⊢B ⊢fst ⊢snd PE.refl)
+  where
+  ⊢A,⊢B = inversion-ΠΣ (syntacticTerm ⊢t)
+  ⊢A    = ⊢A,⊢B .proj₁
+  ⊢B    = ⊢A,⊢B .proj₂
+  ⊢fst  = fstⱼ ⊢A ⊢B ⊢t
+  ⊢snd  = sndⱼ ⊢A ⊢B ⊢t
