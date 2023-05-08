@@ -139,8 +139,7 @@ private
 -- Got Plenty o’ Nuttin’" (except for the part about the mode).
 
 𝟘≮ : T 𝟘ᵐ-allowed → 𝟘 ≤ p → p ≈ 𝟘
-𝟘≮ {p = p} ok 𝟘≤p = ∧≈𝟘ˡ ok (begin
-  p ∧ 𝟘  ≈⟨ ∧-comm _ _ ⟩
+𝟘≮ {p = p} ok 𝟘≤p = ∧≈𝟘ʳ ok (begin
   𝟘 ∧ p  ≈˘⟨ 𝟘≤p ⟩
   𝟘      ∎)
   where
