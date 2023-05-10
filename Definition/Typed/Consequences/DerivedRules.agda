@@ -5,6 +5,7 @@
 module Definition.Typed.Consequences.DerivedRules
   {a} (M : Set a) where
 
+open import Tools.Fin
 open import Tools.Function
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -13,8 +14,8 @@ open import Definition.Typed M
 open import Definition.Typed.Consequences.Inversion M
 open import Definition.Typed.Consequences.Syntactic M
 open import Definition.Typed.Properties M
-open import Definition.Typed.Weakening M
-open import Definition.Untyped M hiding (_∷_; wk)
+open import Definition.Typed.Weakening M as W hiding (wk)
+open import Definition.Untyped M hiding (_∷_)
 open import Definition.Untyped.Properties M
 
 private variable
@@ -50,9 +51,64 @@ lam-cong {B = B} t≡u = η-eq ⊢A (lamⱼ ⊢A ⊢t) (lamⱼ ⊢A ⊢u) $
   ⊢∙A   = wf ⊢B
   ⊢A    = case ⊢∙A of λ where
             (_ ∙ ⊢A) → ⊢A
-  A⊢A   = wk (step id) ⊢∙A ⊢A
+  A⊢A   = W.wk (step id) ⊢∙A ⊢A
   ⊢∙A∙A = ⊢∙A ∙ A⊢A
-  A∙A⊢B = wk (lift (step id)) ⊢∙A∙A ⊢B
+  A∙A⊢B = W.wk (lift (step id)) ⊢∙A∙A ⊢B
+
+-- An η-rule for Π-types.
+
+Π-η :
+  Γ ⊢ t ∷ Π p , q ▷ A ▹ B →
+  Γ ⊢ lam p (wk1 t ∘⟨ p ⟩ var x0) ≡ t ∷ Π p , q ▷ A ▹ B
+Π-η {Γ = Γ} {t = t} {p = p} {q = q} {A = A} {B = B} ⊢t = η-eq
+  ⊢A
+  (                                                                $⟨ ⊢wkt0 ⟩
+   Γ ∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ wk (lift (step id)) B [ var x0 ]  →⟨ flip conv B[0]≡B ⟩
+   Γ ∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ B                                 →⟨ lamⱼ ⊢A ⟩
+   Γ ⊢ lam p (wk1 t ∘⟨ p ⟩ var x0) ∷ Π p , q ▷ A ▹ B               □)
+  ⊢t
+  (                                                                     $⟨ ⊢wkt0 ⟩
+
+   Γ ∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ wk (lift (step id)) B [ var x0 ]       →⟨ PE.subst (λ t → _ ⊢ t ∘⟨ _ ⟩ _ ≡ wk1 _ ∘⟨ _ ⟩ _ ∷ _)
+                                                                             (PE.sym (wk1-sgSubst _ _)) ∘→
+                                                                           refl ⟩
+   Γ ∙ A ⊢
+     (wk1 (wk1 t) ∘⟨ p ⟩ var x0) [ var x0 ] ≡
+     wk1 t ∘⟨ p ⟩ var x0 ∷
+     wk (lift (step id)) B [ var x0 ]                                   →⟨ _⊢_≡_∷_.trans $
+                                                                           β-red ⊢wkA ⊢wkB
+                                                                             (_⊢_∷_.conv (wkTerm (step id) ⊢ΓAA ⊢wkt ∘ⱼ var ⊢ΓAA here) $
+                                                                              PE.subst₂ (_ ⊢_≡_) (PE.sym (wkSingleSubstId _)) PE.refl (refl ⊢wkB))
+                                                                             (var ⊢ΓA here)
+                                                                             PE.refl ⟩
+   Γ ∙ A ⊢
+     lam p (wk1 (wk1 t) ∘⟨ p ⟩ var x0) ∘⟨ p ⟩ var x0 ≡
+     wk1 t ∘⟨ p ⟩ var x0 ∷
+     wk (lift (step id)) B [ var x0 ]                                   →⟨ PE.subst (λ t → _ ⊢ lam _ (t ∘⟨ _ ⟩ _) ∘⟨ _ ⟩ _ ≡ wk1 _ ∘⟨ _ ⟩ _ ∷ _) $
+                                                                           wk1-wk≡lift-wk1 _ _ ⟩
+   Γ ∙ A ⊢
+     lam p (wk (lift (step id)) (wk1 t) ∘⟨ p ⟩ var x0) ∘⟨ p ⟩ var x0 ≡
+     wk1 t ∘⟨ p ⟩ var x0 ∷
+     wk (lift (step id)) B [ var x0 ]                                   →⟨ flip conv B[0]≡B ⟩
+
+   Γ ∙ A ⊢
+     wk1 (lam p (wk1 t ∘⟨ p ⟩ var x0)) ∘⟨ p ⟩ var x0 ≡
+     wk1 t ∘⟨ p ⟩ var x0 ∷
+     B                                                                  □)
+  where
+  ⊢A,⊢B = inversion-ΠΣ (syntacticTerm ⊢t)
+  ⊢A    = ⊢A,⊢B .proj₁
+  ⊢B    = ⊢A,⊢B .proj₂
+  ⊢Γ    = wfTerm ⊢t
+  ⊢ΓA   = ⊢Γ ∙ ⊢A
+  ⊢wkt  = wkTerm (step id) ⊢ΓA ⊢t
+  ⊢wkt0 = ⊢wkt ∘ⱼ var ⊢ΓA here
+  ⊢wkA  = W.wk (step id) ⊢ΓA ⊢A
+  ⊢ΓAA  = ⊢ΓA ∙ ⊢wkA
+  ⊢wkB  = W.wk (lift (step id)) ⊢ΓAA ⊢B
+
+  B[0]≡B : Γ ∙ A ⊢ wk (lift (step id)) B [ var x0 ] ≡ B
+  B[0]≡B = PE.subst (_ ⊢_≡ _) (PE.sym (wkSingleSubstId _)) (refl ⊢B)
 
 -- An η-rule for strong Σ-types.
 
