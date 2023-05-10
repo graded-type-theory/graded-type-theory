@@ -66,31 +66,33 @@ Meet-requirements _∧_ =
   (𝟘 ∧ 𝟙 ≢ 𝟘) ×
   (𝟙 ∧ 𝟘 ≢ 𝟘)
 
--- The meet operation of a "ModalityWithout⊛" for Zero-one-many for
--- which the zero is 𝟘, the one is 𝟙 and 𝟘ᵐ is allowed has to satisfy
--- the Meet-requirements.
+-- The meet operation of a "Semiring-with-meet" for Zero-one-many for
+-- which the zero is 𝟘, the one is 𝟙, ω ≤ p for all p
+-- and 𝟘 ∧ 𝟙 ≢ 𝟘 has to satisfy the Meet-requirements.
 
 Meet-requirements-required :
-  (M : ModalityWithout⊛) →
-  ModalityWithout⊛.𝟘          M ≡ 𝟘 →
-  ModalityWithout⊛.𝟙          M ≡ 𝟙 →
-  ModalityWithout⊛.𝟘ᵐ-allowed M ≡ true →
-  Meet-requirements (ModalityWithout⊛._∧_ M)
-Meet-requirements-required M refl refl refl =
+  (M : Semiring-with-meet) →
+  Semiring-with-meet.𝟘          M ≡ 𝟘 →
+  Semiring-with-meet.𝟙          M ≡ 𝟙 →
+  Semiring-with-meet._∧_ M    𝟘 𝟙 ≢ 𝟘 →
+  (∀ p → Semiring-with-meet._≤_ M ω p) →
+  Meet-requirements (Semiring-with-meet._∧_ M)
+Meet-requirements-required M refl refl 𝟘∧𝟙≢𝟘 ω≤ =
     (𝟘 ∧ 𝟘  ≡⟨ ∧-idem _ ⟩
      𝟘      ∎)
   , (𝟙 ∧ 𝟙  ≡⟨ ∧-idem _ ⟩
      𝟙      ∎)
   , (ω ∧ ω  ≡⟨ ∧-idem _ ⟩
      ω      ∎)
-  , 𝟘∧ω≡ω
-  , (ω ∧ 𝟘  ≡⟨ ∧-comm _ _ ⟩
-     𝟘 ∧ ω  ≡⟨ 𝟘∧ω≡ω ⟩
+  , (𝟘 ∧ ω  ≡⟨ ∧-comm _ _ ⟩
+     ω ∧ 𝟘  ≡˘⟨ ω≤ 𝟘 ⟩
+     ω      ∎)
+  , (ω ∧ 𝟘  ≡˘⟨ ω≤ 𝟘 ⟩
      ω      ∎)
   , (𝟙 ∧ ω  ≡⟨ ∧-comm _ _ ⟩
-     ω ∧ 𝟙  ≡˘⟨ ≉𝟘→≤𝟙 _ {p = ω} (λ ()) ⟩
+     ω ∧ 𝟙  ≡˘⟨ ω≤ 𝟙 ⟩
      ω      ∎)
-  , (ω ∧ 𝟙  ≡˘⟨ ≉𝟘→≤𝟙 _ {p = ω} (λ ()) ⟩
+  , (ω ∧ 𝟙  ≡˘⟨ ω≤ 𝟙 ⟩
      ω      ∎)
   , 𝟘∧𝟙≢𝟘
   , (λ 𝟙∧𝟘≡𝟘 → 𝟘∧𝟙≢𝟘 (
@@ -98,36 +100,10 @@ Meet-requirements-required M refl refl refl =
        𝟙 ∧ 𝟘  ≡⟨ 𝟙∧𝟘≡𝟘 ⟩
        𝟘      ∎))
   where
-  open ModalityWithout⊛ M hiding (𝟘; 𝟙)
+  open Semiring-with-meet M hiding (𝟘; 𝟙)
   open Meet M
   open PartialOrder M
-
-  𝟘∧ω≡ω : 𝟘 ∧ ω ≡ ω
-  𝟘∧ω≡ω = lemma _ refl
-    where
-    lemma : ∀ p → p ≡ 𝟘 ∧ ω → p ≡ ω
-    lemma ω _  = refl
-    lemma 𝟘 eq =
-      𝟘  ≡˘⟨ 𝟘≮ _ eq ⟩
-      ω  ∎
-      where
-      open Tools.Reasoning.PropositionalEquality
-    lemma 𝟙 eq = ≤-antisym
-      (begin
-         𝟙      ≡⟨ eq ⟩
-         𝟘 ∧ ω  ≤⟨ ∧-decreasingʳ _ _ ⟩
-         ω      ∎)
-      (≉𝟘→≤𝟙 _ λ ())
-      where
-      open Tools.Reasoning.PartialOrder ≤-poset
-
   open Tools.Reasoning.PropositionalEquality
-
-  𝟘∧𝟙≢𝟘 : 𝟘 ∧ 𝟙 ≢ 𝟘
-  𝟘∧𝟙≢𝟘 𝟘∧𝟙≡𝟘 with
-    𝟙  ≡⟨ 𝟘≮ _ (sym 𝟘∧𝟙≡𝟘) ⟩
-    𝟘  ∎
-  … | ()
 
 -- The result of 𝟘 ∧ 𝟙 and 𝟙 ∧ 𝟘.
 
@@ -211,18 +187,19 @@ _ ∧ _ = ω
 Order-requirements : (Zero-one-many → Zero-one-many → Set) → Set
 Order-requirements _≤_ = (ω ≤ 𝟙) × (ω ≤ 𝟘) × ¬ (𝟘 ≤ 𝟙)
 
--- The ordering relation of a "ModalityWithout⊛" for Zero-one-many for
--- which the zero is 𝟘, the one is 𝟙 and 𝟘ᵐ is allowed has to satisfy
--- the Order-requirements.
+-- The ordering relation of a "Semiring-with-meet" for Zero-one-many for
+-- which the zero is 𝟘, the one is 𝟙 and p ∧ ω equals ω for all p
+-- has to satisfy the Order-requirements.
 
 Order-requirements-required :
-  (M : ModalityWithout⊛) →
-  ModalityWithout⊛.𝟘          M ≡ 𝟘 →
-  ModalityWithout⊛.𝟙          M ≡ 𝟙 →
-  ModalityWithout⊛.𝟘ᵐ-allowed M ≡ true →
-  Order-requirements (ModalityWithout⊛._≤_ M)
-Order-requirements-required M refl refl refl =
-  case Meet-requirements-required M refl refl refl of λ where
+  (M : Semiring-with-meet) →
+  Semiring-with-meet.𝟘          M ≡ 𝟘 →
+  Semiring-with-meet.𝟙          M ≡ 𝟙 →
+  Semiring-with-meet._∧_ M    𝟘 𝟙 ≢ 𝟘 →
+  (∀ p → Semiring-with-meet._≤_ M ω p) →
+  Order-requirements (Semiring-with-meet._≤_ M)
+Order-requirements-required M refl refl 𝟘∧𝟙≢𝟘 ω≤ =
+  case Meet-requirements-required M refl refl 𝟘∧𝟙≢𝟘 ω≤ of λ where
     (_ , _ , _ , _ , ω⊓𝟘≡ω , _ , ω⊓𝟙≡ω , 𝟘⊓𝟙≢𝟘 , _) →
         (ω      ≡˘⟨ ω⊓𝟙≡ω ⟩
          ω ⊓ 𝟙  ∎)
@@ -232,7 +209,7 @@ Order-requirements-required M refl refl refl =
            𝟘 ⊓ 𝟙  ≡˘⟨ 𝟘≡𝟘⊓𝟙 ⟩
            𝟘      ∎))
   where
-  open ModalityWithout⊛ M using () renaming (_∧_ to _⊓_)
+  open Semiring-with-meet M using () renaming (_∧_ to _⊓_)
   open Tools.Reasoning.PropositionalEquality
 
 -- The inferred ordering relation.
@@ -367,11 +344,10 @@ _ · _ = ω
 ------------------------------------------------------------------------
 -- The modality without the star operation
 
--- The zero-one-many modality without the star operation (with
--- arbitrary "restrictions").
+-- The zero-one-many semiring with meet
 
-zero-one-many-without-⊛ : Restrictions → ModalityWithout⊛
-zero-one-many-without-⊛ restrictions = record
+zero-one-many-semiring-with-meet : Semiring-with-meet
+zero-one-many-semiring-with-meet = record
   { _+_          = _+_
   ; _·_          = _·_
   ; _∧_          = _∧_
@@ -495,31 +471,6 @@ zero-one-many-without-⊛ restrictions = record
   ; +-distrib-∧ =
         +-distrib-∧ˡ
       , comm+distrˡ⇒distrʳ +-comm +-distrib-∧ˡ
-  ; restrictions = restrictions
-  ; 𝟘ᵐ→𝟙≉𝟘       = λ _ ()
-  ; is-𝟘?        = λ _ → λ where
-      𝟘 → yes refl
-      𝟙 → no (λ ())
-      ω → no (λ ())
-  ; zero-product = λ _ → λ where
-      {p = 𝟘} _ → inj₁ refl
-      {q = 𝟘} _ → inj₂ refl
-  ; positiveˡ = λ _ → λ where
-      {p = 𝟘} {q = 𝟘} _  → refl
-      {p = 𝟘} {q = 𝟙} ()
-      {p = 𝟘} {q = ω} ()
-  ; ∧≤𝟘ˡ = λ _ → λ where
-      {p = 𝟘} {q = 𝟘} _     → refl
-      {p = 𝟘} {q = 𝟙} _     → refl
-      {p = 𝟙} {q = 𝟘} 𝟘∧𝟙≡𝟘 → ⊥-elim (
-        case
-          𝟙  ≡⟨ 𝟘-maximal (sym 𝟘∧𝟙≡𝟘) ⟩
-          𝟘  ∎
-        of λ ())
-  ; ≉𝟘→≤𝟙 = λ _ → λ where
-      {p = 𝟘} 𝟘≢𝟘 → ⊥-elim (𝟘≢𝟘 refl)
-      {p = 𝟙} _   → refl
-      {p = ω} _   → refl
   }
   where
   open Tools.Reasoning.PropositionalEquality
@@ -610,6 +561,32 @@ zero-one-many-without-⊛ restrictions = record
     𝟙 ω _ → refl
     ω _ _ → refl
 
+zero-one-many-has-well-behaved-zero : Has-well-behaved-zero zero-one-many-semiring-with-meet
+zero-one-many-has-well-behaved-zero = record
+  { 𝟙≉𝟘 = λ ()
+  ; is-𝟘? = λ where
+      𝟘 → yes refl
+      𝟙 → no (λ ())
+      ω → no (λ ())
+  ; zero-product =  λ where
+      {p = 𝟘} _ → inj₁ refl
+      {q = 𝟘} _ → inj₂ refl
+  ; positiveˡ =  λ where
+      {p = 𝟘} {q = 𝟘} _  → refl
+      {p = 𝟘} {q = 𝟙} ()
+      {p = 𝟘} {q = ω} ()
+  ; ∧≤𝟘ˡ = λ where
+      {p = 𝟘} {q = 𝟘} _     → refl
+      {p = 𝟘} {q = 𝟙} _     → refl
+      {p = 𝟙} {q = 𝟘} 𝟘∧𝟙≡𝟘 →
+        PE.⊥-elim (
+          case
+            𝟙  ≡⟨ 𝟘-maximal (sym 𝟘∧𝟙≡𝟘) ⟩
+            𝟘  ∎
+          of λ ())
+  }
+  where open Tools.Reasoning.PropositionalEquality
+
 ------------------------------------------------------------------------
 -- Star
 
@@ -633,20 +610,19 @@ Star-requirements _⊛_▷_ _∧_ =
                                 ((𝟙 ⊛ 𝟘 ▷ 𝟙) ≤ 𝟙) ×
                                 ((𝟙 ⊛ 𝟙 ▷ 𝟘) ≤ 𝟙)
 
--- A star operation for a ModalityWithout⊛ for Zero-one-many for which
--- the zero is 𝟘, the one is 𝟙, 𝟘ᵐ is allowed, addition is _+_,
+-- A star operation for a Semiring-with-meet for Zero-one-many for which
+-- the zero is 𝟘, the one is 𝟙, addition is _+_,
 -- multiplication is _·_, and the meet operation is _∧_ has to satisfy
 -- the Star-requirements (for _∧_) if certain conditions are
 -- satisfied.
 
 Star-requirements-required′ :
-  (M : ModalityWithout⊛) →
-  ModalityWithout⊛.𝟘          M ≡ 𝟘 →
-  ModalityWithout⊛.𝟙          M ≡ 𝟙 →
-  ModalityWithout⊛.𝟘ᵐ-allowed M ≡ true →
-  ModalityWithout⊛._+_        M ≡ _+_ →
-  ModalityWithout⊛._·_        M ≡ _·_ →
-  ModalityWithout⊛._∧_        M ≡ _∧_ →
+  (M : Semiring-with-meet) →
+  Semiring-with-meet.𝟘          M ≡ 𝟘 →
+  Semiring-with-meet.𝟙          M ≡ 𝟙 →
+  Semiring-with-meet._+_        M ≡ _+_ →
+  Semiring-with-meet._·_        M ≡ _·_ →
+  Semiring-with-meet._∧_        M ≡ _∧_ →
   (_⊛_▷_ :
    Zero-one-many → Zero-one-many → Zero-one-many → Zero-one-many) →
   (∀ p q r → (p ⊛ q ▷ r) ≤ q + r · (p ⊛ q ▷ r)) →
@@ -655,8 +631,8 @@ Star-requirements-required′ :
   (∀ p q r → p ⊛ q ▷ r ≡ 𝟘 → p ≡ 𝟘 × q ≡ 𝟘) →
   Star-requirements _⊛_▷_ _∧_
 Star-requirements-required′
-  M refl refl refl refl refl refl star ⊛-ineq₁ ⊛-ineq₂ ⊛-idem-𝟘 ⊛≈𝟘 =
-  case Meet-requirements-required M refl refl refl of λ where
+  M refl refl refl refl refl star ⊛-ineq₁ ⊛-ineq₂ ⊛-idem-𝟘 ⊛≈𝟘 =
+  case Meet-requirements-required M refl refl 𝟘∧𝟙≢𝟘 ω≤ of λ where
     (_ , _ , ω⊓ω≡ω , _ , ω⊓𝟘≡ω , _ , ω⊓𝟙≡ω , _ , _) →
         (λ {_ _} → ω⊛▷)
       , (λ {_ _} → ⊛ω▷)
@@ -683,7 +659,7 @@ Star-requirements-required′
       , ⊛-ineq₂ _ _ _
       , ⊛-ineq₂ _ _ _
   where
-  open ModalityWithout⊛ M hiding (𝟘; 𝟙; _+_; _·_; _∧_; _≤_)
+  open Semiring-with-meet M hiding (𝟘; 𝟙; _+_; _·_; _∧_; _≤_)
   open PartialOrder M
   open Meet M
   open Tools.Reasoning.PartialOrder ≤-poset
@@ -733,7 +709,7 @@ Star-requirements-required′
     (ω≤ (𝟙 ⊛ 𝟘 ▷ ω))
 
 -- The star operation of a modality for Zero-one-many for which the
--- zero is 𝟘, the one is 𝟙, 𝟘ᵐ is allowed, addition is _+_,
+-- zero is 𝟘, the one is 𝟙, 𝟘 is well behaved, addition is _+_,
 -- multiplication is _·_, and the meet operation is _∧_ has to satisfy
 -- the Star-requirements (for _∧_).
 
@@ -741,22 +717,24 @@ Star-requirements-required :
   (M : Modality) →
   Modality.𝟘          M ≡ 𝟘 →
   Modality.𝟙          M ≡ 𝟙 →
-  Modality.𝟘ᵐ-allowed M ≡ true →
   Modality._+_        M ≡ _+_ →
   Modality._·_        M ≡ _·_ →
   Modality._∧_        M ≡ _∧_ →
+  Has-well-behaved-zero (Modality.semiring-with-meet M) →
   Star-requirements (Modality._⊛_▷_ M) _∧_
-Star-requirements-required M refl refl refl refl refl refl =
+Star-requirements-required M refl refl refl refl refl 𝟘-wb =
   Star-requirements-required′
-    modalityWithout⊛ refl refl refl refl refl refl
+    semiring-with-meet refl refl refl refl refl
     _⊛_▷_
     ⊛-ineq₁
     ⊛-ineq₂
     ⊛-idem-𝟘
-    (λ _ _ _ eq → ⊛≈𝟘ˡ _ eq , ⊛≈𝟘ʳ _ eq)
+    λ _ _ _ eq → ⊛≈𝟘ˡ eq , ⊛≈𝟘ʳ eq
   where
   open Modality M
-  open Star M
+  open Star semiring-with-meet-and-star
+  open import Definition.Modality.Properties.Has-well-behaved-zero
+    semiring-with-meet-and-star 𝟘-wb
 
 ------------------------------------------------------------------------
 -- One variant of the modality
@@ -767,9 +745,9 @@ Star-requirements-required M refl refl refl refl refl refl =
 -- Definition.Modality.Instances.LowerBounded.
 
 zero-one-many-lower-bounded : Restrictions → Modality
-zero-one-many-lower-bounded restrictions =
-  LowerBounded.isModality
-    (zero-one-many-without-⊛ restrictions) ω ω≤
+zero-one-many-lower-bounded restrictions = LowerBounded.isModality
+  zero-one-many-semiring-with-meet ω ω≤ restrictions
+  λ _ → zero-one-many-has-well-behaved-zero
 
 -- With this definition the result of p ⊛ q ▷ r is 𝟘 when p and q are
 -- 𝟘, and ω otherwise.
@@ -843,7 +821,7 @@ lower-bounded≢greatest rs hyp =
       ω            ∎
   where
   open Tools.Reasoning.PropositionalEquality
-  module M = ModalityWithout⊛ (zero-one-many-without-⊛ no-restrictions)
+  module M = Semiring-with-meet zero-one-many-semiring-with-meet
 
 -- A simplification lemma for the star operation.
 
@@ -901,14 +879,15 @@ lower-bounded≢greatest rs hyp =
   (M : Modality) →
   Modality.𝟘          M ≡ 𝟘 →
   Modality.𝟙          M ≡ 𝟙 →
-  Modality.𝟘ᵐ-allowed M ≡ true →
+  -- Modality.𝟘ᵐ-allowed M ≡ true →
   Modality._+_        M ≡ _+_ →
   Modality._·_        M ≡ _·_ →
   Modality._∧_        M ≡ _∧_ →
+  Has-well-behaved-zero (Modality.semiring-with-meet M) →
   ∀ p q r → Modality._⊛_▷_ M p q r ≤ p ⊛ q ▷ r
-⊛-greatest M refl refl refl refl refl refl =
+⊛-greatest M refl refl refl refl refl 𝟘-wb =
   case Star-requirements-required
-         M refl refl refl refl refl refl of λ where
+         M refl refl refl refl refl 𝟘-wb of λ where
     (ω⊛▷′ , ⊛ω▷′ , ⊛▷′ω ,
      𝟘⊛𝟘▷′ , ⊛𝟙▷′𝟙 , 𝟘⊛𝟙▷′𝟘 , 𝟙⊛𝟘▷′𝟘 , 𝟙⊛𝟘▷′𝟙 , 𝟙⊛𝟙▷′𝟘) → λ where
       ω q r → begin
@@ -948,17 +927,17 @@ lower-bounded≢greatest rs hyp =
         𝟙 ⊛ 𝟙 ▷′ 𝟘  ≤⟨ 𝟙⊛𝟙▷′𝟘 ⟩
         𝟙           ∎
   where
-  open Modality M using (modalityWithout⊛) renaming (_⊛_▷_ to _⊛_▷′_)
-  open PartialOrder modalityWithout⊛
+  open Modality M using (semiring-with-meet) renaming (_⊛_▷_ to _⊛_▷′_)
+  open PartialOrder semiring-with-meet
   open Tools.Reasoning.PartialOrder ≤-poset
 
--- The zero-one-many modality (with arbitrary "restrictions").
+-- The zero-one-many semiring with meet and star
 --
 -- The star operation is the "greatest" one defined above.
 
-zero-one-many-greatest : Restrictions → Modality
-zero-one-many-greatest restrictions = record
-  { modalityWithout⊛        = modalityWithout⊛
+zero-one-many-greatest-star : Semiring-with-meet-and-star
+zero-one-many-greatest-star = record
+  { semiring-with-meet        = semiring-with-meet
   ; _⊛_▷_                   = _⊛_▷_
   ; ⊛-ineq                  = ⊛-ineq₁ , ⊛-ineq₂
   ; +-sub-interchangeable-⊛ = +-sub-interchangeable-⊛
@@ -969,14 +948,14 @@ zero-one-many-greatest restrictions = record
     , (λ _ _ _ → ≤-reflexive (⊛-distribʳ-∧ r _ _ _))
   }
   where
-  modalityWithout⊛ = zero-one-many-without-⊛ restrictions
+  semiring-with-meet = zero-one-many-semiring-with-meet
 
-  open ModalityWithout⊛ modalityWithout⊛
+  open Semiring-with-meet semiring-with-meet
     hiding (𝟘; 𝟙; _+_; _·_; _∧_; _≤_)
-  open PartialOrder modalityWithout⊛
-  open Addition modalityWithout⊛
-  open Meet modalityWithout⊛
-  open Multiplication modalityWithout⊛
+  open PartialOrder semiring-with-meet
+  open Addition semiring-with-meet
+  open Meet semiring-with-meet
+  open Multiplication semiring-with-meet
 
   ⊛-ineq₁ : ∀ p q r → p ⊛ q ▷ r ≤ q + r · p ⊛ q ▷ r
   ⊛-ineq₁ p = λ where
@@ -1118,3 +1097,14 @@ zero-one-many-greatest restrictions = record
       q ∧ (p ∧ p′)        ≡⟨ ⊛-distribˡ-∧ 𝟘 q _ _ ⟩
       (q ∧ p) ∧ (q ∧ p′)  ≡⟨ cong₂ _∧_ (∧-comm q _) (∧-comm q _) ⟩
       (p ∧ q) ∧ (p′ ∧ q)  ∎
+
+-- The zero-one-many modality (with arbitrary "restrictions").
+--
+-- The star operation is the "greatest" one defined above.
+
+zero-one-many-greatest : Restrictions → Modality
+zero-one-many-greatest restrictions = record
+  { semiring-with-meet-and-star = zero-one-many-greatest-star
+  ; restrictions = restrictions
+  ; 𝟘-well-behaved = λ _ → zero-one-many-has-well-behaved-zero
+  }

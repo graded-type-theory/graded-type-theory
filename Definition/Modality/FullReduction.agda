@@ -5,18 +5,21 @@
 
 open import Tools.Bool
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
+import Tools.PropositionalEquality as PE
 
 open import Definition.Modality
+import Definition.Mode
 
 module Definition.Modality.FullReduction
   {a} {M : Set a} (𝕄 : Modality M)
   (open Modality 𝕄)
+  (open Definition.Mode 𝕄)
   -- The following assumption is only used for quantities p that
   -- correspond to the first quantity of a Σ-type with η-equality, and
   -- only in cases where the mode is 𝟙ᵐ. It might suffice to restrict
   -- such Σ-types so that when the first quantity is p and the mode is
-  -- 𝟙ᵐ, then (p ≤ 𝟙) ⊎ T 𝟘ᵐ-allowed holds.
-  (≤𝟙⊎𝟘ᵐ : (p : M) → (p ≤ 𝟙) ⊎ T 𝟘ᵐ-allowed)
+  -- 𝟙ᵐ, then ⌞ p ⌟ ≡ 𝟙ᵐ → p ≤ 𝟙 holds.
+  (⌞p⌟≡𝟙→p≤𝟙 : (p : M) → ⌞ p ⌟ PE.≡ 𝟙ᵐ → p ≤ 𝟙)
   -- The following assumption is only used for quantities p that
   -- correspond to the first quantity of a Σ-type with η-equality, and
   -- only in cases where the mode is 𝟙ᵐ. It might suffice to restrict
@@ -35,7 +38,6 @@ open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat using (Nat)
 open import Tools.Product
-import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
 
@@ -68,8 +70,6 @@ open import Definition.Modality.Usage 𝕄
 open import Definition.Modality.Usage.Inversion 𝕄
 open import Definition.Modality.Usage.Properties 𝕄
 open import Definition.Modality.Usage.Weakening 𝕄
-
-open import Definition.Mode 𝕄
 
 private
   variable
@@ -107,7 +107,7 @@ private
   Σ-η-lemma {γ = γ} {p = p} = λ where
       𝟘ᵐ[ ok ] ▸t →
           𝟘ᶜ
-        , fstₘ 𝟘ᵐ[ ok ] (▸-𝟘 ▸t) PE.refl (inj₂ ok)
+        , fstₘ 𝟘ᵐ[ ok ] (▸-𝟘 ▸t) PE.refl (λ ())
         , (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
              γ        ≤⟨ ▸-𝟘ᵐ ▸t ⟩
              𝟘ᶜ       ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
@@ -121,7 +121,7 @@ private
                   ⌞ p ⌟        ∎)
                (▸-· ▸t))
             PE.refl
-            (≤𝟙⊎𝟘ᵐ p)
+            (⌞p⌟≡𝟙→p≤𝟙 p)
         , (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
              γ                     ≤⟨ ·ᶜ-increasing _ ⟩
              p ·ᶜ γ                ≈˘⟨ ·ᶜ-congʳ ·⌜⌞⌟⌝ ⟩

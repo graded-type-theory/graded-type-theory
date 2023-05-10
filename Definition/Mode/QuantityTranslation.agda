@@ -115,6 +115,12 @@ module Is-morphism
              Mo₂.𝟘ᵐ         ∎
            of λ ())
 
+  -- Translation is injective
+
+  tr-Mode-injective : ∀ {m m′} → tr-Mode m ≡ tr-Mode m′ → m ≡ m′
+  tr-Mode-injective {m = 𝟘ᵐ} {𝟘ᵐ} eq = 𝟘ᵐ-cong 𝕄₁
+  tr-Mode-injective {m = 𝟙ᵐ} {𝟙ᵐ} eq = refl
+
 ------------------------------------------------------------------------
 -- Definitions that are made under the assumptions that tr is an order
 -- embedding and that tr-Σ is a Σ-morphism with respect to tr

@@ -34,11 +34,8 @@ modify-term-restrictions-Modality :
   (Modality → Term-restrictions) →
   Modality → Modality
 modify-term-restrictions-Modality f 𝕄 = record 𝕄
-  { modalityWithout⊛ = record modalityWithout⊛
-    { restrictions = record restrictions
-      { term-restrictions = f 𝕄
-      }
-    }
+  { restrictions = record restrictions
+    { term-restrictions = f 𝕄 }
   }
   where
   open Modality 𝕄

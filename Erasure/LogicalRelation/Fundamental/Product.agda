@@ -10,10 +10,7 @@ module Erasure.LogicalRelation.Fundamental.Product
   {a k} {M : Set a} (𝕄 : Modality M)
   (open U M) (open T′ M) (open Modality 𝕄)
   {Δ : Con Term k} (⊢Δ : ⊢ Δ)
-  (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘))
-  (𝟙≉𝟘 : 𝟙 PE.≢ 𝟘)
-  (zero-product : {p q : M} → p · q PE.≡ 𝟘 → p PE.≡ 𝟘 ⊎ q PE.≡ 𝟘)
-  (𝟘≰𝟙 : 𝟘 ≤ 𝟙 → PE.⊥)
+  (𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet)
   {{eqrel : EqRelSet M}}
   where
 open EqRelSet {{...}}
@@ -45,7 +42,8 @@ import Definition.LogicalRelation.Substitution.Irrelevance M as IS
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
-open import Definition.Modality.Properties 𝕄
+open import Definition.Modality.Properties.Has-well-behaved-zero
+  semiring-with-meet-and-star 𝟘-well-behaved
 open import Definition.Modality.Usage 𝕄
 open import Definition.Modality.Usage.Inversion 𝕄
 open import Definition.Mode 𝕄
@@ -194,16 +192,8 @@ fstʳ′ {F = F} {G = G} {t = t} {p = p} {q = q} {m = 𝟙ᵐ}
 ... | yes PE.refl =
   case inv-usage-fst γ▸fst of λ where
     (invUsageFst 𝟘ᵐ () _ _ _)
-    (invUsageFst 𝟙ᵐ _ _ _ (inj₁ 𝟘≤𝟙)) →
-      PE.⊥-elim (𝟘≰𝟙 𝟘≤𝟙)
-    (invUsageFst 𝟙ᵐ 𝟙ᵐ≡ᵐ𝟘ᵐ? _ _ (inj₂ ok)) →
-      case
-        𝟙ᵐ        ≡⟨ 𝟙ᵐ≡ᵐ𝟘ᵐ? ⟩
-        ⌞ 𝟘 ⌟       ≡⟨ ⌞𝟘⌟ ⟩
-        𝟘ᵐ[ ok ]  ∎
-      of λ ()
-  where
-  open Tools.Reasoning.PropositionalEquality
+    (invUsageFst 𝟙ᵐ _ _ _ fst-ok) →
+      PE.⊥-elim (𝟘≰𝟙 (fst-ok PE.refl))
 ... | no p≢𝟘 =
   let [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
       [σF]′ = W.wk id ⊢Δ [σF]

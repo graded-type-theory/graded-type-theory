@@ -163,15 +163,15 @@ record InvUsageFst
          Set a where
   constructor invUsageFst
   field
-    {δ}         : Conₘ n
-    m′          : Mode
-    m≡m′ᵐ·p     : m ≡ m′ ᵐ· p
-    δ▸t         : δ ▸[ m ] t
-    γ≤δ         : γ ≤ᶜ δ
-    𝟘-condition : (p ≤ 𝟙) ⊎ T 𝟘ᵐ-allowed
+    {δ}          : Conₘ n
+    m′           : Mode
+    m≡m′ᵐ·p      : m ≡ m′ ᵐ· p
+    δ▸t          : δ ▸[ m ] t
+    γ≤δ          : γ ≤ᶜ δ
+    mp-condition : m PE.≡ 𝟙ᵐ → p ≤ 𝟙
 
 -- If γ ▸[ m ] fst t then m ≡ m′ ᵐ· p, δ ▸[ m ] t and γ ≤ᶜ δ, and
--- furthermore one of p ≤ 𝟙 and T 𝟘ᵐ-allowed hold.
+-- furthermore if m ≡ 𝟙 then p ≤ 𝟙.
 
 inv-usage-fst : γ ▸[ m ] fst p t → InvUsageFst γ m p t
 inv-usage-fst (fstₘ m ▸t PE.refl ok) =

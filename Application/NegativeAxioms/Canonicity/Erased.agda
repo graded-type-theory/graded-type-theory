@@ -1,5 +1,3 @@
-{-# OPTIONS --without-K --safe #-}
-
 import Definition.Modality.Instances.Erasure.Modality
 open import Definition.Modality.Instances.Erasure
 

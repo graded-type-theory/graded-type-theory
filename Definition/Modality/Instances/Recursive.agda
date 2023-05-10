@@ -1,8 +1,10 @@
 import Tools.Algebra as A
+open import Tools.Bool hiding (_∧_)
 open import Tools.Nat hiding (_+_)
 open import Tools.Product
 open import Tools.PropositionalEquality
-open import Definition.Modality renaming (ModalityWithout⊛ to MW⊛)
+open import Definition.Modality
+open import Definition.Modality.Restrictions
 
 -- A ringoid with the following recursively defined nr operator is a modality instance.
 -- nr 0 p q r = 𝟘
@@ -10,15 +12,16 @@ open import Definition.Modality renaming (ModalityWithout⊛ to MW⊛)
 -- ∃ n → nr (1+ n) p q r ≈ nr n p q r
 
 module Definition.Modality.Instances.Recursive
-  {a} {M : Set a} (𝕄 : MW⊛ M)
+  {a} {M : Set a} (𝕄 : Semiring-with-meet M)
+  (open Semiring-with-meet 𝕄)
   (nr : Nat → A.Op₃ M M)
   (nr-rec : (n : Nat) (p q r : M)
-          → nr (1+ n) p q r ≡
-            MW⊛._∧_ 𝕄 p (MW⊛._+_ 𝕄 q (MW⊛._·_ 𝕄 r (nr n p q r))))
-  (nr-0 : (p q r : M) → nr 0 p q r ≡ MW⊛.𝟘 𝕄)
-  (nr-fix : ∃ λ n → (p q r : M) → nr (1+ n) p q r ≡ nr n p q r) where
-
-open MW⊛ 𝕄
+          → nr (1+ n) p q r ≡ p ∧ (q + r · (nr n p q r)))
+  (nr-0 : (p q r : M) → nr 0 p q r ≡ 𝟘)
+  (nr-fix : ∃ λ n → (p q r : M) → nr (1+ n) p q r ≡ nr n p q r)
+  (restrictions : Restrictions M)
+  (open Restrictions restrictions)
+  (𝟘-well-behaved : T 𝟘ᵐ-allowed → Has-well-behaved-zero M 𝕄) where
 
 open import Definition.Modality.Properties.Addition 𝕄
 open import Definition.Modality.Properties.Meet 𝕄
@@ -172,14 +175,21 @@ nr-sub-distribʳ-∧ (1+ n) r q p p′ = begin
   where
   open Tools.Reasoning.PartialOrder ≤-poset
 
-isModality : Modality M
-isModality = record
-  { modalityWithout⊛ = 𝕄
+is-semiring-with-meet-and-star : Semiring-with-meet-and-star M
+is-semiring-with-meet-and-star = record
+  { semiring-with-meet = 𝕄
   ; _⊛_▷_ = _⊛_▷_
   ; ⊛-ineq = solvesIneqs
   ; +-sub-interchangeable-⊛ = +-sub-interchangeable-nr (proj₁ nr-fix)
   ; ·-sub-distribʳ-⊛ = ·-sub-distribʳ-nr (proj₁ nr-fix)
   ; ⊛-sub-distrib-∧ = λ r → nr-sub-distribˡ-∧ (proj₁ nr-fix) r , nr-sub-distribʳ-∧ (proj₁ nr-fix) r
+  }
+
+isModality : Modality M
+isModality = record
+  { semiring-with-meet-and-star = is-semiring-with-meet-and-star
+  ; restrictions = restrictions
+  ; 𝟘-well-behaved = 𝟘-well-behaved
   }
 
 module 𝟘-bound (𝟘-max : (p : M) → p ≤ 𝟘) where

@@ -8,6 +8,7 @@ open Modality 𝕄
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
 open import Definition.Modality.Substitution 𝕄
+open import Definition.Modality.Properties 𝕄
 open import Definition.Modality.Usage 𝕄
 open import Definition.Modality.Usage.Properties 𝕄
 open import Definition.Modality.Usage.Weakening 𝕄
@@ -640,7 +641,7 @@ substₘ-lemma₀ Ψ Ψ▶σ (prodₚₘ {p = p} γ▸t γ▸u) = sub
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
 substₘ-lemma₀ Ψ Ψ▶σ (fstₘ m γ▸t PE.refl ok) =
-  fstₘ 𝟘ᵐ (substₘ-lemma₀ Ψ Ψ▶σ γ▸t) PE.refl ok
+  fstₘ 𝟘ᵐ (substₘ-lemma₀ Ψ Ψ▶σ γ▸t) PE.refl λ ()
 
 substₘ-lemma₀ Ψ Ψ▶σ (sndₘ γ▸t) =
   sndₘ (substₘ-lemma₀ Ψ Ψ▶σ γ▸t)
@@ -794,7 +795,7 @@ substₘ-lemma₁
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-substₘ-lemma₁ not-ok Ψ Ψ▶σ (fstₘ m γ▸t _ ok) =
+substₘ-lemma₁ {mo = 𝟙ᵐ} not-ok Ψ Ψ▶σ (fstₘ m γ▸t _ ok) =
   fstₘ m (▸-without-𝟘ᵐ not-ok (substₘ-lemma₁ not-ok Ψ Ψ▶σ γ▸t))
     (only-𝟙ᵐ-without-𝟘ᵐ not-ok) ok
 

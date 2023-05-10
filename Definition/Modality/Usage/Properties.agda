@@ -24,9 +24,6 @@ import Tools.Reasoning.Equivalence
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
 
-open 𝟘ᵐ→∧-Positive
-open 𝟘ᵐ→⊛-Positive
-
 private
   variable
     n : Nat
@@ -129,7 +126,7 @@ unique-var-usage (there x) (there y) = unique-var-usage x y
   (m′ ·ᵐ m)
   (▸-cong (PE.sym (·ᵐ-ᵐ·-assoc m′)) (▸-· t))
   (·ᵐ-ᵐ·-assoc m′)
-  ok
+  λ m′·m≡𝟙 → ok (·ᵐ-𝟙ʳ m′·m≡𝟙)
 ▸-· (sndₘ t) =
   sndₘ (▸-· t)
 ▸-· {m′ = m′} (prodrecₘ {γ = γ} {m = m} {r = r} {δ = δ} t u A P) = sub

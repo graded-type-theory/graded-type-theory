@@ -64,49 +64,37 @@ usagePresTerm γ▸t (fst-subst x x₁ t⇒u) =
 usagePresTerm γ▸t (snd-subst x x₁ t⇒u) =
   let invUsageSnd ▸t γ≤ = inv-usage-snd γ▸t
   in  sub (sndₘ (usagePresTerm ▸t t⇒u)) γ≤
-usagePresTerm {γ = γ} ▸t′ (Σ-β₁ {p = p} _ _ _ _ PE.refl) =
+usagePresTerm {γ = γ} {m′} ▸t′ (Σ-β₁ {p = p} {t = t} _ _ _ _ PE.refl) =
   case inv-usage-fst ▸t′ of λ where
     (invUsageFst {δ = δ} m PE.refl ▸tu γ≤δ fst-ok) →
       case inv-usage-prodₚ ▸tu of λ where
         (invUsageProdₚ {δ = ζ} {η = η} ▸t ▸u δ≤pζ∧η) →
-          let lemma =
-                let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+         let γ≤pζ =
+                begin
                   γ            ≤⟨ γ≤δ ⟩
                   δ            ≤⟨ δ≤pζ∧η ⟩
                   p ·ᶜ ζ ∧ᶜ η  ≤⟨ ∧ᶜ-decreasingˡ _ _ ⟩
                   p ·ᶜ ζ       ∎
-          in case fst-ok of λ where
-            (inj₁ p≤𝟙) → sub
-              (▸-cong (ᵐ·-idem m) ▸t)
-              (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
-               begin
-                 γ       ≤⟨ lemma ⟩
-                 p ·ᶜ ζ  ≤⟨ ·ᶜ-monotoneˡ p≤𝟙 ⟩
-                 𝟙 ·ᶜ ζ  ≈⟨ ·ᶜ-identityˡ _ ⟩
-                 ζ       ∎)
-            (inj₂ ok) → case is-𝟘? ok p of λ where
-              (yes p≈𝟘) → sub
-                  (▸-cong
-                     (let open Tools.Reasoning.PropositionalEquality in
-                        𝟘ᵐ[ ok ]  ≡˘⟨ 𝟘ᵐ?≡𝟘ᵐ ⟩
-                        𝟘ᵐ?       ≡˘⟨ ᵐ·-zeroʳ m ⟩
-                        m ᵐ· 𝟘    ≡˘⟨ ᵐ·-cong m p≈𝟘 ⟩
-                        m ᵐ· p    ∎)
-                     (▸-𝟘 ▸t))
-                  (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
-                   begin
-                     γ       ≤⟨ lemma ⟩
-                     p ·ᶜ ζ  ≈⟨ ·ᶜ-congʳ p≈𝟘 ⟩
-                     𝟘 ·ᶜ ζ  ≈⟨ ·ᶜ-zeroˡ _ ⟩
-                     𝟘ᶜ      ∎)
-              (no p≉𝟘) → sub
-                (▸-cong (ᵐ·-idem m) ▸t)
-                (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
-                 begin
-                   γ       ≤⟨ lemma ⟩
-                   p ·ᶜ ζ  ≤⟨ ·ᶜ-monotoneˡ (≉𝟘→≤𝟙 ok p≉𝟘) ⟩
-                   𝟙 ·ᶜ ζ  ≈⟨ ·ᶜ-identityˡ _ ⟩
-                   ζ       ∎)
+         in  lemma (m ᵐ· p) (▸-cong (ᵐ·-idem m) ▸t) γ≤pζ fst-ok
+         where
+         open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+         lemma : ∀ {γ δ} m → δ ▸[ m ] t
+               → γ ≤ᶜ p ·ᶜ δ
+               → (m PE.≡ 𝟙ᵐ → p ≤ 𝟙)
+               → γ ▸[ m ] t
+         lemma {γ = γ} {δ} 𝟘ᵐ δ▸t γ≤pδ fst-ok =
+           sub (▸-𝟘 δ▸t)
+               (begin
+                 γ       ≤⟨ γ≤pδ ⟩
+                 p ·ᶜ δ  ≤⟨ ·ᶜ-monotoneʳ (▸-𝟘ᵐ δ▸t) ⟩
+                 p ·ᶜ 𝟘ᶜ ≈⟨ ·ᶜ-zeroʳ p ⟩
+                 𝟘ᶜ ∎)
+         lemma {γ = γ} {δ} 𝟙ᵐ δ▸t γ≤pδ fst-ok =
+           sub δ▸t (begin
+             γ      ≤⟨ γ≤pδ ⟩
+             p ·ᶜ δ ≤⟨ ·ᶜ-monotoneˡ (fst-ok PE.refl) ⟩
+             𝟙 ·ᶜ δ ≈⟨ ·ᶜ-identityˡ δ ⟩
+             δ ∎)
 
 usagePresTerm {γ = γ} ▸t′ (Σ-β₂ {p = p} _ _ _ _ PE.refl) =
   case inv-usage-snd ▸t′ of λ where

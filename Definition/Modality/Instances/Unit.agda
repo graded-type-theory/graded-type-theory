@@ -150,8 +150,8 @@ _ ⊛ _ ▷ _ = tt
 
 -- ⊤ form a modality with + as addition, multiplication and meet
 
-UnitModalityWithout⊛ : ModalityWithout⊛
-UnitModalityWithout⊛ = record
+unit-semiring-with-meet : Semiring-with-meet
+unit-semiring-with-meet = record
   { _+_ = _+_
   ; _·_ = _+_
   ; _∧_ = _+_
@@ -161,24 +161,24 @@ UnitModalityWithout⊛ = record
   ; ∧-Semilattice = +-Semilattice
   ; ·-distrib-∧ = +-Distributiveˡ , +-Distributiveʳ
   ; +-distrib-∧ = +-Distributiveˡ , +-Distributiveʳ
-  ; restrictions = record
-    { 𝟘ᵐ-allowed        = false
-    ; term-restrictions = restrictions
-    }
-  ; 𝟘ᵐ→𝟙≉𝟘 = λ ()
-  ; is-𝟘? = λ ()
-  ; zero-product = λ ()
-  ; positiveˡ = λ ()
-  ; ∧≤𝟘ˡ = λ ()
-  ; ≉𝟘→≤𝟙 = λ ()
   }
 
-UnitModality : Modality
-UnitModality = record
-  { modalityWithout⊛ = UnitModalityWithout⊛
+unit-semiring-with-meet-and-star : Semiring-with-meet-and-star
+unit-semiring-with-meet-and-star = record
+  { semiring-with-meet = unit-semiring-with-meet
   ; _⊛_▷_ = _⊛_▷_
   ; ⊛-ineq = (λ p q r → refl) , (λ p q r → refl)
   ; +-sub-interchangeable-⊛ = λ r p q p′ q′ → refl
   ; ·-sub-distribʳ-⊛ = λ r q p p′ → refl
   ; ⊛-sub-distrib-∧ = λ r → (λ p q q′ → refl) , (λ q p p′ → refl)
+  }
+
+UnitModality : Modality
+UnitModality = record
+  { semiring-with-meet-and-star = unit-semiring-with-meet-and-star
+  ; restrictions = record
+    { term-restrictions = restrictions
+    ; 𝟘ᵐ-allowed = false
+    }
+  ; 𝟘-well-behaved = λ ()
   }

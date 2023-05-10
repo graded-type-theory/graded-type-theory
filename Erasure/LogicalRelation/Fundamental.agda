@@ -12,11 +12,7 @@ module Erasure.LogicalRelation.Fundamental
   {a k} {M : Set a} (𝕄 : Modality M)
   (open U M) (open T′ M) (open Modality 𝕄)
   {Δ : Con Term k} (⊢Δ : ⊢ Δ)
-  (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘))
-  (𝟙≉𝟘 : 𝟙 PE.≢ 𝟘)
-  (positiveˡ : {p q : M} → p + q PE.≡ 𝟘 → p PE.≡ 𝟘)
-  (zero-product : {p q : M} → p · q PE.≡ 𝟘 → p PE.≡ 𝟘 ⊎ q PE.≡ 𝟘)
-  (∧≤𝟘ˡ : ∀ {p q} → p ∧ q PE.≡ 𝟘 → p ≤ 𝟘)
+  (𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet)
   (consistent : ∀ {t} → Δ ⊢ t ∷ Empty → ⊥)
   -- Erased matches are not allowed.
   (no-erased-matches : No-erased-matches 𝕄)
@@ -41,26 +37,26 @@ import Definition.LogicalRelation.Substitution.Irrelevance M as IS
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
-open import Definition.Modality.Properties 𝕄
+open import Definition.Modality.Properties.PartialOrder semiring-with-meet
+open import Definition.Modality.Properties.Has-well-behaved-zero
+  semiring-with-meet-and-star 𝟘-well-behaved
 open import Definition.Modality.Usage 𝕄
 open import Definition.Modality.Usage.Inversion 𝕄
 open import Definition.Modality.Usage.Properties 𝕄
 open import Definition.Mode 𝕄
 
-open +-Positive positiveˡ
-open ∧-Positive ∧≤𝟘ˡ
 
 open import Definition.Untyped.Properties M
 open import Definition.Typed.Consequences.Syntactic M
 
 open import Erasure.LogicalRelation 𝕄 ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Fundamental.Application 𝕄 ⊢Δ is-𝟘? 𝟙≉𝟘 positiveˡ zero-product
+open import Erasure.LogicalRelation.Fundamental.Application 𝕄 ⊢Δ 𝟘-well-behaved
 open import Erasure.LogicalRelation.Fundamental.Empty 𝕄 ⊢Δ is-𝟘? consistent
 open import Erasure.LogicalRelation.Fundamental.Lambda 𝕄 ⊢Δ is-𝟘? 𝟙≉𝟘
 open import Erasure.LogicalRelation.Fundamental.Nat 𝕄 ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Fundamental.Natrec 𝕄 ⊢Δ is-𝟘? 𝟙≉𝟘 positiveˡ ∧≤𝟘ˡ
-open import Erasure.LogicalRelation.Fundamental.Prodrec 𝕄 ⊢Δ is-𝟘? 𝟙≉𝟘 positiveˡ zero-product
-open import Erasure.LogicalRelation.Fundamental.Product 𝕄 ⊢Δ is-𝟘? 𝟙≉𝟘 zero-product (λ 𝟘≤𝟙 → 𝟙≉𝟘 (𝟘≮ 𝟘≤𝟙))
+open import Erasure.LogicalRelation.Fundamental.Natrec 𝕄 ⊢Δ 𝟘-well-behaved
+open import Erasure.LogicalRelation.Fundamental.Prodrec 𝕄 ⊢Δ 𝟘-well-behaved
+open import Erasure.LogicalRelation.Fundamental.Product 𝕄 ⊢Δ 𝟘-well-behaved
 open import Erasure.LogicalRelation.Fundamental.Unit 𝕄 ⊢Δ is-𝟘?
 open import Erasure.LogicalRelation.Conversion 𝕄 ⊢Δ is-𝟘?
 open import Erasure.LogicalRelation.Irrelevance 𝕄 ⊢Δ is-𝟘?

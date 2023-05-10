@@ -1,21 +1,23 @@
 open import Definition.Modality
+open import Definition.Modality.Restrictions
 import Tools.Algebra as A
 open import Tools.PropositionalEquality
 open import Tools.Sum
+open import Tools.Bool hiding (_∧_)
 
 -- A star-ringoid with a unary operator _* satisfying
 -- p * ≈ 𝟙 + p p*
 -- and p* ≤ 𝟘 or p* ≤ 𝟙 for all p is a modality instance.
 
 module Definition.Modality.Instances.BoundedStar
-  {a} {M : Set a} (𝕄 : ModalityWithout⊛ M)
+  {a} {M : Set a} (𝕄 : Semiring-with-meet M)
+  (open Semiring-with-meet 𝕄)
   (_* : A.Op₁ M)
-  (*-rec : (p : M)
-         → ((p *) ≡ (ModalityWithout⊛._+_ 𝕄 (ModalityWithout⊛.𝟙 𝕄) (ModalityWithout⊛._·_ 𝕄 p (p *)))))
-  (bounds : (p : M) → ModalityWithout⊛._≤_ 𝕄 (p *) (ModalityWithout⊛.𝟘 𝕄)
-                    ⊎ ModalityWithout⊛._≤_ 𝕄 (p *) (ModalityWithout⊛.𝟙 𝕄)) where
-
-open ModalityWithout⊛ 𝕄
+  (*-rec : (p : M) → ((p *) ≡ 𝟙 + p · (p *)))
+  (bounds : (p : M) → (p *) ≤ 𝟘 ⊎ (p *) ≤ 𝟙)
+  (restrictions : Restrictions M)
+  (open Restrictions restrictions)
+  (𝟘-well-behaved : T 𝟘ᵐ-allowed → Has-well-behaved-zero M 𝕄) where
 
 open import Definition.Modality.Properties.PartialOrder 𝕄
 open import Definition.Modality.Properties.Addition 𝕄
@@ -138,12 +140,19 @@ p ⊛ q ▷ r = (r *) · (p ∧ q)
   where
   open Tools.Reasoning.PartialOrder ≤-poset
 
-isModality : Modality M
-isModality = record
-  { modalityWithout⊛ = 𝕄
+is-semiring-with-meet-and-star : Semiring-with-meet-and-star M
+is-semiring-with-meet-and-star = record
+  { semiring-with-meet = 𝕄
   ; _⊛_▷_ = _⊛_▷_
   ; ⊛-ineq = ⊛-ineq₁ , ⊛-ineq₂
   ; +-sub-interchangeable-⊛ = +-sub-interchangeable-⊛
   ; ·-sub-distribʳ-⊛ = ·-sub-distribʳ-⊛
   ; ⊛-sub-distrib-∧ = λ r → ⊛-sub-distribˡ-∧ r , ⊛-sub-distribʳ-∧ r
+  }
+
+isModality : Modality M
+isModality = record
+  { semiring-with-meet-and-star = is-semiring-with-meet-and-star
+  ; restrictions = restrictions
+  ; 𝟘-well-behaved = 𝟘-well-behaved
   }

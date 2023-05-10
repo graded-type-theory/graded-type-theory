@@ -188,11 +188,10 @@ p ≤ q = p ≡ p ∧ q
 ------------------------------------------------------------------------
 -- The modality without the star operation
 
--- The "linear or affine types" modality without the star operation
--- (with arbitrary "restrictions").
+-- The "linear or affine types" semiring with meet
 
-linear-or-affine-without-⊛ : Restrictions → ModalityWithout⊛
-linear-or-affine-without-⊛ restrictions = record
+linear-or-affine-semiring-with-meet : Semiring-with-meet
+linear-or-affine-semiring-with-meet  = record
   { _+_          = _+_
   ; _·_          = _·_
   ; _∧_          = _∧_
@@ -258,31 +257,6 @@ linear-or-affine-without-⊛ restrictions = record
   ; +-distrib-∧ =
         +-distribˡ-∧
       , comm+distrˡ⇒distrʳ +-comm +-distribˡ-∧
-  ; restrictions = restrictions
-  ; 𝟘ᵐ→𝟙≉𝟘       = λ _ ()
-  ; is-𝟘?        = λ _ → λ where
-      𝟘  → yes refl
-      𝟙  → no (λ ())
-      ≤𝟙 → no (λ ())
-      ≤ω → no (λ ())
-  ; zero-product = λ _ → λ where
-      {p = 𝟘} _ → inj₁ refl
-      {q = 𝟘} _ → inj₂ refl
-  ; positiveˡ = λ _ → λ where
-      {p = 𝟘} {q = 𝟘}  _  → refl
-      {p = 𝟘} {q = 𝟙}  ()
-      {p = 𝟘} {q = ≤𝟙} ()
-      {p = 𝟘} {q = ≤ω} ()
-  ; ∧≤𝟘ˡ = λ _ → λ where
-      {p = 𝟘} {q = 𝟘}  _  → refl
-      {p = 𝟘} {q = 𝟙}  _  → refl
-      {p = 𝟘} {q = ≤𝟙} ()
-      {p = 𝟘} {q = ≤ω} ()
-  ; ≉𝟘→≤𝟙 = λ _ → λ where
-      {p = 𝟘}  𝟘≢𝟘 → ⊥-elim (𝟘≢𝟘 refl)
-      {p = 𝟙}  _   → refl
-      {p = ≤𝟙} _   → refl
-      {p = ≤ω} _   → refl
   }
   where
   +-assoc : Associative _+_
@@ -660,6 +634,31 @@ linear-or-affine-without-⊛ restrictions = record
     ≤ω ≤ω ≤𝟙 → refl
     ≤ω ≤ω ≤ω → refl
 
+-- The semiring has a well behaved zero
+
+linear-or-affine-has-well-behaved-zero : Has-well-behaved-zero linear-or-affine-semiring-with-meet
+linear-or-affine-has-well-behaved-zero = record
+  { 𝟙≉𝟘 = λ ()
+  ; is-𝟘? = λ where
+      𝟘  → yes refl
+      𝟙  → no (λ ())
+      ≤𝟙 → no (λ ())
+      ≤ω → no (λ ())
+  ; zero-product = λ where
+      {p = 𝟘} _ → inj₁ refl
+      {q = 𝟘} _ → inj₂ refl
+  ; positiveˡ = λ where
+      {p = 𝟘} {q = 𝟘}  _  → refl
+      {p = 𝟘} {q = 𝟙}  _  → refl
+      {p = 𝟘} {q = ≤𝟙} ()
+      {p = 𝟘} {q = ≤ω} ()
+  ; ∧≤𝟘ˡ = λ where
+      {p = 𝟘} {q = 𝟘}  _  → refl
+      {p = 𝟘} {q = 𝟙}  _  → refl
+      {p = 𝟘} {q = ≤𝟙} ()
+      {p = 𝟘} {q = ≤ω} ()
+  }
+
 ------------------------------------------------------------------------
 -- Star
 
@@ -697,12 +696,12 @@ Star-requirements _⊛_▷_ =
 -- Star-requirements if certain conditions are satisfied.
 
 Star-requirements-required′ :
-  (M : ModalityWithout⊛) →
-  ModalityWithout⊛.𝟘   M ≡ 𝟘 →
-  ModalityWithout⊛.𝟙   M ≡ 𝟙 →
-  ModalityWithout⊛._+_ M ≡ _+_ →
-  ModalityWithout⊛._·_ M ≡ _·_ →
-  ModalityWithout⊛._∧_ M ≡ _∧_ →
+  (M : Semiring-with-meet) →
+  Semiring-with-meet.𝟘   M ≡ 𝟘 →
+  Semiring-with-meet.𝟙   M ≡ 𝟙 →
+  Semiring-with-meet._+_ M ≡ _+_ →
+  Semiring-with-meet._·_ M ≡ _·_ →
+  Semiring-with-meet._∧_ M ≡ _∧_ →
   (_⊛_▷_ :
    Linear-or-affine → Linear-or-affine → Linear-or-affine →
    Linear-or-affine) →
@@ -845,7 +844,7 @@ Star-requirements-required′
     (≤ω≤ (≤𝟙 ⊛ 𝟘 ▷ ≤ω))
 
 -- The star operation of a modality for Linear-or-affine for which the
--- zero is 𝟘, the one is 𝟙, 𝟘ᵐ is allowed, addition is _+_,
+-- zero is 𝟘, the one is 𝟙, 𝟘 is well behaved, addition is _+_,
 -- multiplication is _·_, and the meet operation is _∧_ has to satisfy
 -- the Star-requirements.
 
@@ -853,19 +852,21 @@ Star-requirements-required :
   (M : Modality) →
   Modality.𝟘          M ≡ 𝟘 →
   Modality.𝟙          M ≡ 𝟙 →
-  Modality.𝟘ᵐ-allowed M ≡ true →
   Modality._+_        M ≡ _+_ →
   Modality._·_        M ≡ _·_ →
   Modality._∧_        M ≡ _∧_ →
+  Has-well-behaved-zero (Modality.semiring-with-meet M) →
   Star-requirements (Modality._⊛_▷_ M)
-Star-requirements-required M refl refl refl refl refl refl =
+Star-requirements-required M refl refl refl refl refl 𝟘-wb =
   Star-requirements-required′
-    modalityWithout⊛ refl refl refl refl refl
+    semiring-with-meet refl refl refl refl refl
     _⊛_▷_ ⊛-ineq₁ ⊛-ineq₂ ⊛-idem-𝟘
-    (λ _ _ _ eq → ⊛≈𝟘ˡ _ eq , ⊛≈𝟘ʳ _ eq)
+    (λ _ _ _ eq → ⊛≈𝟘ˡ eq , ⊛≈𝟘ʳ eq)
   where
   open Modality M
-  open Star M
+  open Star semiring-with-meet-and-star
+  open import Definition.Modality.Properties.Has-well-behaved-zero
+       semiring-with-meet-and-star 𝟘-wb
 
 -- A "greatest" definition of the star operation.
 
@@ -973,21 +974,21 @@ p ⊛ q ▷ ≤ω = ≤ω · (p ∧ q)
 
 -- The star operation returns results that are at least as large as
 -- those of the star operation of any modality for Linear-or-affine
--- for which the zero is 𝟘, the one is 𝟙, 𝟘ᵐ is allowed, addition is
+-- for which the zero is 𝟘, the one is 𝟙, 𝟘 is well behaved, addition is
 -- _+_, multiplication is _·_, and the meet operation is _∧_.
 
 ⊛-greatest :
   (M : Modality) →
   Modality.𝟘          M ≡ 𝟘 →
   Modality.𝟙          M ≡ 𝟙 →
-  Modality.𝟘ᵐ-allowed M ≡ true →
   Modality._+_        M ≡ _+_ →
   Modality._·_        M ≡ _·_ →
   Modality._∧_        M ≡ _∧_ →
+  Has-well-behaved-zero (Modality.semiring-with-meet M) →
   ∀ p q r → Modality._⊛_▷_ M p q r ≤ p ⊛ q ▷ r
-⊛-greatest M refl refl refl refl refl refl =
+⊛-greatest M refl refl refl refl refl 𝟘-wb =
   case Star-requirements-required
-         M refl refl refl refl refl refl of
+         M refl refl refl refl refl 𝟘-wb of
     λ (≤ω⊛▷′ , ⊛≤ω▷′ , ⊛▷′≤ω , 𝟘⊛𝟘▷′ ,
        ⊛𝟙▷′𝟙 , ⊛𝟙▷′≤𝟙 , ⊛≤𝟙▷′𝟙 , ⊛≤𝟙▷′≤𝟙 ,
        𝟘⊛𝟙▷′𝟘 , 𝟘⊛≤𝟙▷′𝟘 , 𝟙⊛𝟘▷′𝟘 , ≤𝟙⊛𝟘▷′𝟘 ,
@@ -1074,19 +1075,16 @@ p ⊛ q ▷ ≤ω = ≤ω · (p ∧ q)
       ≤𝟙 ⊛ ≤𝟙 ▷′ 𝟘  ≤⟨ ≤𝟙⊛≤𝟙▷′𝟘 ⟩
       ≤𝟙            ∎
   where
-  open Modality M using (modalityWithout⊛) renaming (_⊛_▷_ to _⊛_▷′_)
-  open PartialOrder modalityWithout⊛
+  open Modality M using (semiring-with-meet) renaming (_⊛_▷_ to _⊛_▷′_)
+  open PartialOrder semiring-with-meet
   open Tools.Reasoning.PartialOrder ≤-poset
 
-------------------------------------------------------------------------
--- The modality
 
--- The "linear or affine types" modality (with arbitrary
--- "restrictions").
+-- The "linear or affine types" semiring with meet and star
 
-linear-or-affine : Restrictions → Modality
-linear-or-affine restrictions = record
-  { modalityWithout⊛        = modalityWithout⊛
+linear-or-affine-semiring-with-meet-and-star : Semiring-with-meet-and-star
+linear-or-affine-semiring-with-meet-and-star = record
+  { semiring-with-meet      = semiring-with-meet
   ; _⊛_▷_                   = _⊛_▷_
   ; ⊛-ineq                  = ⊛-ineq₁ , ⊛-ineq₂
   ; +-sub-interchangeable-⊛ = +-sub-interchangeable-⊛
@@ -1097,13 +1095,13 @@ linear-or-affine restrictions = record
     , (λ _ _ _ → ≤-reflexive (⊛-distribʳ-∧ r _ _ _))
   }
   where
-  modalityWithout⊛ = linear-or-affine-without-⊛ restrictions
+  semiring-with-meet = linear-or-affine-semiring-with-meet
 
-  open ModalityWithout⊛ modalityWithout⊛
+  open Semiring-with-meet semiring-with-meet
     hiding (𝟘; 𝟙; _+_; _·_; _∧_; _≤_)
-  open PartialOrder modalityWithout⊛
-  open Addition modalityWithout⊛
-  open Multiplication modalityWithout⊛
+  open PartialOrder semiring-with-meet
+  open Addition semiring-with-meet
+  open Multiplication semiring-with-meet
 
   ⊛-ineq₁ : ∀ p q r → p ⊛ q ▷ r ≤ q + r · p ⊛ q ▷ r
   ⊛-ineq₁ = λ where
@@ -1331,3 +1329,16 @@ linear-or-affine restrictions = record
       q ∧ (p ∧ p′)        ≡⟨ ⊛-distribˡ-∧ 𝟘 q _ _ ⟩
       (q ∧ p) ∧ (q ∧ p′)  ≡⟨ cong₂ _∧_ (∧-comm q _) (∧-comm q _) ⟩
       (p ∧ q) ∧ (p′ ∧ q)  ∎
+
+------------------------------------------------------------------------
+-- The modality
+
+-- The "linear or affine types" modality (with arbitrary
+-- "restrictions").
+
+linear-or-affine : Restrictions → Modality
+linear-or-affine restrictions = record
+  { semiring-with-meet-and-star = linear-or-affine-semiring-with-meet-and-star
+  ; restrictions = restrictions
+  ; 𝟘-well-behaved = λ _ → linear-or-affine-has-well-behaved-zero
+  }

@@ -21,7 +21,6 @@ import Definition.LogicalRelation.Fundamental M as F
 import Definition.LogicalRelation.Irrelevance M as I
 
 open import Definition.Modality.Context 𝕄
-open import Definition.Modality.Properties 𝕄
 open import Definition.Mode 𝕄
 
 open import Erasure.Extraction 𝕄 is-𝟘?

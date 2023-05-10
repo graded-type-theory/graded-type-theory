@@ -55,6 +55,7 @@ import Tools.Reasoning.PropositionalEquality
 open import Tools.Sum using (inj₁; inj₂)
 
 private
+  module R₁      = Tools.Reasoning.PartialOrder MP₁.≤-poset
   module R₂      = Tools.Reasoning.PartialOrder ≤-poset
   module CR₁ {n} = Tools.Reasoning.PartialOrder (CP₁.≤ᶜ-poset {n = n})
   module CR₂ {n} = Tools.Reasoning.PartialOrder (CP₂.≤ᶜ-poset {n = n})
@@ -159,9 +160,7 @@ module Is-morphism
       (tr-Mode m)
       (▸-cong (tr-Mode-ᵐ· m (BMΣ Σₚ)) (tr-▸ ▸t))
       (sym (tr-Mode-ᵐ· m (BMΣ Σₚ)))
-      (case ok′ of λ where
-         (inj₂ ok)  → inj₂ (𝟘ᵐ-in-second-if-in-first ok)
-         (inj₁ p≤𝟙) → inj₁ (tr-Σ-≤-𝟙 p≤𝟙))
+      λ mp≡𝟙 → tr-Σ-≤-𝟙 (ok′ (tr-Mode-injective mp≡𝟙))
     tr-▸ (sndₘ ▸t) =
       sndₘ (tr-▸ ▸t)
     tr-▸
@@ -302,7 +301,7 @@ module Is-order-embedding
 
   tr-▸⁻¹-𝟙≡𝟘 :
     M₁.𝟙 ≡ M₁.𝟘 → γ U₂.▸[ m ] tr-Term t → C₁.𝟘ᶜ U₁.▸[ 𝟙ᵐ ] t
-  tr-▸⁻¹-𝟙≡𝟘 𝟙≡𝟘 = tr-▸⁻¹-𝟙≡𝟘′ _
+  tr-▸⁻¹-𝟙≡𝟘 {m = m₁} 𝟙≡𝟘 = tr-▸⁻¹-𝟙≡𝟘′ _
     where mutual
     tr-▸⁻¹-𝟙≡𝟘′ : ∀ t → γ U₂.▸[ m ] tr-Term t → C₁.𝟘ᶜ U₁.▸[ m′ ] t
     tr-▸⁻¹-𝟙≡𝟘′ U Uₘ =
@@ -354,11 +353,11 @@ module Is-order-embedding
       (prodₚₘ (tr-▸⁻¹-𝟙≡𝟘′ _ ▸t) (tr-▸⁻¹-𝟙≡𝟘′ _ ▸u))
       (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
 
-    tr-▸⁻¹-𝟙≡𝟘′ (fst p _) (fstₘ m ▸t ≡𝟘ᵐ ok) = fstₘ
+    tr-▸⁻¹-𝟙≡𝟘′ {m = m} {m′ = m′} (fst p _) (fstₘ m″ ▸t mp≡m₂ ok) = fstₘ
       𝟙ᵐ
       (tr-▸⁻¹-𝟙≡𝟘′ _ ▸t)
-      (Mo₁.Mode-propositional-if-𝟙≡𝟘 𝟙≡𝟘)
-      (inj₁ (MP₁.≈-trivial 𝟙≡𝟘))
+      (Mo₁.Mode-propositional-without-𝟘ᵐ (flip MP₁.𝟘ᵐ→𝟙≉𝟘 𝟙≡𝟘))
+      λ {refl → MP₁.≤-reflexive (MP₁.≈-trivial 𝟙≡𝟘)}
 
     tr-▸⁻¹-𝟙≡𝟘′ (prodrec _ _ _ _ _ _) (prodrecₘ ▸t ▸u ▸Q ok) = sub
       (prodrecₘ {δ = C₁.𝟘ᶜ} {η = C₁.𝟘ᶜ}
@@ -529,16 +528,7 @@ module Is-order-embedding
               tr-Mode (m″ Mo₁.ᵐ· p)     ∎)
            ≤γ′)
         ≡m
-        (case ok of λ where
-           (inj₁ p≤𝟙) → inj₁ (tr-Σ-≤-𝟙-→ tr-emb p≤𝟙)
-           (inj₂ ok)  →
-             Mo₁.𝟘ᵐ-allowed-elim inj₂ λ not-ok →
-             let ≢𝟘 : tr p ≢ M₂.𝟘
-                 ≢𝟘 = tr-<-𝟘 not-ok ok .proj₂
-
-                 ≤𝟙 : tr p M₂.≤ M₂.𝟙
-                 ≤𝟙 = M₂.≉𝟘→≤𝟙 ok ≢𝟘
-             in inj₁ (tr-≤-𝟙 ≤𝟙))
+        λ {refl → tr-Σ-≤-𝟙-→ tr-emb (ok refl)}
 
     tr-▸⁻¹′
       {m = m} {γ = γ} (prodrec r p _ _ _ _)

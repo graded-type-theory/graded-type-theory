@@ -25,8 +25,6 @@ import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
 open import Tools.Sum
 
-open 𝟘ᵐ→∧-Positive
-
 private variable
   n          : Nat
   p q r      : M
@@ -285,6 +283,17 @@ Mode-propositional-if-𝟙≡𝟘 𝟙≡𝟘 =
 ·ᵐ-idem {m = 𝟘ᵐ} = PE.refl
 ·ᵐ-idem {m = 𝟙ᵐ} = PE.refl
 
+-- If m₁ ·ᵐ m₂ ≡ 𝟙ᵐ then m₁ ≡ 𝟙ᵐ
+
+·ᵐ-𝟙ˡ : m₁ ·ᵐ m₂ ≡ 𝟙ᵐ → m₁ ≡ 𝟙ᵐ
+·ᵐ-𝟙ˡ {m₁ = 𝟙ᵐ} eq = PE.refl
+
+-- If m₁ ·ᵐ m₂ ≡ 𝟙ᵐ then m₂ ≡ 𝟙ᵐ
+
+·ᵐ-𝟙ʳ : m₁ ·ᵐ m₂ ≡ 𝟙ᵐ → m₂ ≡ 𝟙ᵐ
+·ᵐ-𝟙ʳ {m₁ = 𝟙ᵐ} eq = eq
+
+
 -- The operations _∨ᵐ_ and _·ᵐ_, along with the values 𝟘ᵐ? and 𝟙ᵐ,
 -- form a commutative semiring.
 
@@ -523,6 +532,7 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
   lemma true refl with is-𝟘? tt 𝟘
   … | yes _  = refl
   … | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 refl)
+
 
 -- If p is equal to 𝟘, then ⌞ p ⌟ is equal to 𝟘ᵐ[ ok ].
 

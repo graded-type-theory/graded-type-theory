@@ -87,7 +87,7 @@ private
   𝟘ᵐ[ ok ]
   (▸-cong (PE.sym lemma) (▸-𝟘 ▸t))
   lemma
-  (inj₂ ok)
+  λ ()
   where
   open Tools.Reasoning.PropositionalEquality
 

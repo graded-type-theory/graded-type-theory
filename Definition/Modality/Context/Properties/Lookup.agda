@@ -8,7 +8,7 @@ open Modality 𝕄
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties.Equivalence 𝕄
 open import Definition.Modality.Context.Properties.PartialOrder 𝕄
-open import Definition.Modality.Properties.PartialOrder modalityWithout⊛
+open import Definition.Modality.Properties.PartialOrder semiring-with-meet
 
 open import Tools.Fin
 open import Tools.Nat hiding (_+_)

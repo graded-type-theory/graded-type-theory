@@ -1,22 +1,27 @@
+open import Tools.Bool hiding (_∧_)
 open import Tools.Fin
 open import Tools.Nat
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Definition.Modality
+open import Definition.Modality.Restrictions
 
 -- A finite ringoid is a modality instance.
 
 module Definition.Modality.Instances.Finite
-  {a} {M : Set a} (𝕄 : ModalityWithout⊛ M)
+  {a} {M : Set a} (𝕄 : Semiring-with-meet M)
   (fin : ∃ λ n → Σ (Fin (1+ n) → M)
                  λ f → Σ (M → Fin (1+ n))
-                 λ f⁻¹ → ((p : M) → f (f⁻¹ p) ≡ p)) where
+                 λ f⁻¹ → ((p : M) → f (f⁻¹ p) ≡ p))
+  (restrictions : Restrictions M)
+  (open Restrictions restrictions)
+  (𝟘-well-behaved : T 𝟘ᵐ-allowed → Has-well-behaved-zero M 𝕄) where
 
 private
   variable
     n : Nat
 
-open ModalityWithout⊛ 𝕄
+open Semiring-with-meet 𝕄
 
 open import Definition.Modality.Properties.Meet 𝕄
 open import Definition.Modality.Properties.PartialOrder 𝕄
@@ -60,4 +65,5 @@ f-f⁻¹ = proj₂ (proj₂ (proj₂ fin))
 
 isModality : Modality M
 isModality = LB.isModality
-  where import Definition.Modality.Instances.LowerBounded 𝕄 ∞ ∞-min as LB
+  where import Definition.Modality.Instances.LowerBounded
+               𝕄 ∞ ∞-min restrictions 𝟘-well-behaved as LB

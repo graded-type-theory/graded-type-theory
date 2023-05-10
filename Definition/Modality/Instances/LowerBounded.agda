@@ -1,12 +1,16 @@
 open import Definition.Modality
+open import Definition.Modality.Restrictions
+open import Tools.Bool hiding (_∧_)
 
 -- A ringoid with a global least element ∞ is a modality instance.
 
 module Definition.Modality.Instances.LowerBounded
-  {a} {M : Set a} (𝕄 : ModalityWithout⊛ M)
-  (∞ : M) (∞-min : (p : M) → ModalityWithout⊛._≤_ 𝕄 ∞ p) where
-
-open ModalityWithout⊛ 𝕄
+  {a} {M : Set a} (𝕄 : Semiring-with-meet M)
+  (open Semiring-with-meet 𝕄)
+  (∞ : M) (∞-min : (p : M) → ∞ ≤ p)
+  (restrictions : Restrictions M)
+  (open Restrictions restrictions)
+  (𝟘-well-behaved : T 𝟘ᵐ-allowed → Has-well-behaved-zero M 𝕄) where
 
 open import Definition.Modality.Properties.Addition 𝕄
 open import Definition.Modality.Properties.Meet 𝕄
@@ -110,12 +114,19 @@ p ⊛ q ▷ r = ∞ · (p ∧ q)
   where
   open Tools.Reasoning.PartialOrder ≤-poset
 
-isModality : Modality M
-isModality = record
-  { modalityWithout⊛ = 𝕄
+is-semiring-with-meet-and-star : Semiring-with-meet-and-star M
+is-semiring-with-meet-and-star = record
+  { semiring-with-meet = 𝕄
   ; _⊛_▷_ = _⊛_▷_
   ; ⊛-ineq = ⊛-ineq₁ , ⊛-ineq₂
   ; +-sub-interchangeable-⊛ = +-sub-interchangeable-⊛
   ; ·-sub-distribʳ-⊛ = ·-sub-distribʳ-⊛
   ; ⊛-sub-distrib-∧ = λ r → ⊛-sub-distribˡ-∧ r , ⊛-sub-distribʳ-∧ r
+  }
+
+isModality : Modality M
+isModality = record
+  { semiring-with-meet-and-star = is-semiring-with-meet-and-star
+  ; restrictions = restrictions
+  ; 𝟘-well-behaved = 𝟘-well-behaved
   }

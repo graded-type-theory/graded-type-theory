@@ -119,7 +119,8 @@ infix 10 ⌈⌉▸[_]?_
       case inv-usage-app ▸app of λ (invUsageApp _ ▸u _) →
       ¬▸u _ ▸u
 
-⌈⌉▸[ m ]? fst p t = case p-ok of λ where
+⌈⌉▸[ m ]? fst p t =
+  case p-ok m of λ where
     (no p-not-ok) → inj₂ λ _ ▸fst →
       case inv-usage-fst ▸fst of λ (invUsageFst _ _ _ _ p-ok) →
       p-not-ok p-ok
@@ -129,19 +130,16 @@ infix 10 ⌈⌉▸[_]?_
         m-not-ok (m′ , sym m′-ok)
       (yes (m′ , m′-ok)) →
         case ⌈⌉▸[ m ]? t of λ where
-          (inj₁ ▸t)  → inj₁ (fstₘ m′ (▸-cong (sym m′-ok) ▸t) m′-ok p-ok)
+          (inj₁ ▸t) → inj₁ (fstₘ m′ (▸-cong (sym m′-ok) ▸t) m′-ok p-ok)
           (inj₂ ¬▸t) → inj₂ λ _ ▸fst →
             case inv-usage-fst ▸fst of λ (invUsageFst _ _ ▸t _ _) →
             ¬▸t _ ▸t
   where
-  p-ok : Dec ((p ≤ 𝟙) ⊎ T 𝟘ᵐ-allowed)
-  p-ok = case ≈-decidable→≤-decidable _≟_ p 𝟙 of λ where
-    (yes p≤𝟙) → yes (inj₁ p≤𝟙)
-    (no p≰𝟙)  → 𝟘ᵐ-allowed-elim
-      (λ ok → yes (inj₂ ok))
-      (λ not-ok → no λ where
-        (inj₁ p≤𝟙) → p≰𝟙 p≤𝟙
-        (inj₂ ok)  → not-ok ok)
+  p-ok : ∀ m → Dec (m ≡ 𝟙ᵐ → p ≤ 𝟙)
+  p-ok 𝟘ᵐ = yes λ ()
+  p-ok 𝟙ᵐ = case ≈-decidable→≤-decidable _≟_ p 𝟙 of λ where
+    (yes p≤𝟙) → yes λ _ → p≤𝟙
+    (no p≰𝟙) → no (λ p≤𝟙 → p≰𝟙 (p≤𝟙 refl))
 
   m-ok : ∀ m → Dec (∃ λ m′ → m′ ᵐ· p ≡ m)
   m-ok 𝟘ᵐ = yes (𝟘ᵐ , refl)

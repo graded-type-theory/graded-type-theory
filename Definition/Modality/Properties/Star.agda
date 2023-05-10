@@ -1,12 +1,12 @@
 open import Definition.Modality
 
 module Definition.Modality.Properties.Star
-  {a} {M : Set a} (𝕄 : Modality M) where
+  {a} {M : Set a} (𝕄 : Semiring-with-meet-and-star M) where
 
-open Modality 𝕄
+open Semiring-with-meet-and-star 𝕄
 
-open import Definition.Modality.Properties.PartialOrder modalityWithout⊛
-open import Definition.Modality.Properties.Meet modalityWithout⊛
+open import Definition.Modality.Properties.PartialOrder semiring-with-meet
+open import Definition.Modality.Properties.Meet semiring-with-meet
 
 open import Tools.Algebra M
 open import Tools.Bool using (T)
@@ -59,37 +59,3 @@ private
     (𝟘 ⊛ 𝟘 ▷ r) · 𝟘       ≤⟨ ·-sub-distribʳ-⊛ r 𝟘 𝟘 𝟘 ⟩
     (𝟘 · 𝟘) ⊛ (𝟘 · 𝟘) ▷ r ≈⟨ ⊛ᵣ-cong (·-zeroˡ 𝟘) (·-zeroˡ 𝟘) ⟩
     𝟘 ⊛ 𝟘 ▷ r ∎
-
--- If addition and meet are positive then ⊛ is positive
-
-module ⊛-Positive (positiveˡ : ∀ {p q} → p + q ≈ 𝟘 → p ≈ 𝟘)
-                  (∧≤𝟘ˡ : ∀ {p q} → p ∧ q ≈ 𝟘 → p ≤ 𝟘) where
-
-  open ∧-Positive ∧≤𝟘ˡ
-
-  -- If the mode 𝟘ᵐ is allowed and p ⊛ q ▷ r is equal to zero, then p is
-  -- equal to zero.
-
-  ⊛≈𝟘ˡ : p ⊛ q ▷ r ≈ 𝟘 → p ≈ 𝟘
-  ⊛≈𝟘ˡ {p = p} {q = q} {r = r} p⊛q▷r≈𝟘 = 𝟘≮ (begin
-    𝟘          ≈˘⟨ p⊛q▷r≈𝟘 ⟩
-    p ⊛ q ▷ r  ≤⟨ ⊛-ineq₂ _ _ _ ⟩
-    p          ∎)
-    where
-    open import Tools.Reasoning.PartialOrder ≤-poset
-
-  -- If the mode 𝟘ᵐ is allowed and p ⊛ q ▷ r is equal to zero, then q is
-  -- equal to zero.
-
-  ⊛≈𝟘ʳ : p ⊛ q ▷ r ≈ 𝟘 → q ≈ 𝟘
-  ⊛≈𝟘ʳ {p = p} {q = q} {r = r} p⊛q▷r≈𝟘 = positiveˡ (𝟘≮ (begin
-    𝟘                  ≈˘⟨ p⊛q▷r≈𝟘 ⟩
-    p ⊛ q ▷ r          ≤⟨ ⊛-ineq₁ _ _ _ ⟩
-    q + r · p ⊛ q ▷ r  ∎))
-    where
-    open import Tools.Reasoning.PartialOrder ≤-poset
-
--- If the mode 𝟘ᵐ is allowed then ⊛ is positive
-
-module 𝟘ᵐ→⊛-Positive (𝟘ᵐ-ok : T 𝟘ᵐ-allowed) where
-  open ⊛-Positive (positiveˡ 𝟘ᵐ-ok) (∧≤𝟘ˡ 𝟘ᵐ-ok) public

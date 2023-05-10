@@ -1,9 +1,9 @@
 open import Definition.Modality
 
 module Definition.Modality.Properties.Addition
-  {a} {M : Set a} (𝕄 : ModalityWithout⊛ M) where
+  {a} {M : Set a} (𝕄 : Semiring-with-meet M) where
 
-open ModalityWithout⊛ 𝕄
+open Semiring-with-meet 𝕄
 
 open import Definition.Modality.Properties.Meet 𝕄
 open import Definition.Modality.Properties.PartialOrder 𝕄
@@ -46,17 +46,3 @@ private
   (p + p′) ∧ (q + q′)                            ∎
   where
   open Tools.Reasoning.PartialOrder ≤-poset
-
--- If addition is left positive then it is right positive
-
-module +-Positive (positiveˡ : ∀ {p q} → p + q ≡ 𝟘 → p ≡ 𝟘) where
-
-  -- If p + q is zero, then q is zero.
-
-  positiveʳ : p + q ≈ 𝟘 → q ≈ 𝟘
-  positiveʳ p+q≡𝟘 = positiveˡ (trans (+-comm _ _) p+q≡𝟘)
-
--- If the mode 𝟘ᵐ is allowed then addition is positive
-
-module 𝟘ᵐ→+-Positive (𝟘ᵐ-ok : T 𝟘ᵐ-allowed) where
-  open +-Positive (positiveˡ 𝟘ᵐ-ok) public

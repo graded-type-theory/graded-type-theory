@@ -1,9 +1,9 @@
 open import Definition.Modality
 
 module Definition.Modality.Properties.PartialOrder
-  {a} {M : Set a} (𝕄 : ModalityWithout⊛ M) where
+  {a} {M : Set a} (𝕄 : Semiring-with-meet M) where
 
-open ModalityWithout⊛ 𝕄
+open Semiring-with-meet 𝕄
 
 open import Tools.Function
 open import Tools.Nullary

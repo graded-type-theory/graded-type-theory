@@ -11,8 +11,8 @@ open import Tools.Sum
 
 open import Definition.Modality.Restrictions M
 
--- Modality ringoid
-record ModalityWithout⊛ : Set (lsuc a) where
+-- Semiring with meet
+record Semiring-with-meet : Set a where
   infixr 40 _+_
   infixr 40 _∧_
   infixr 45 _·_
@@ -39,35 +39,6 @@ record ModalityWithout⊛ : Set (lsuc a) where
     -- Addition distributes over meet
     +-distrib-∧         : _+_ DistributesOver _∧_
 
-    -- "Extra" restrictions for certain term/type constructors.
-    restrictions : Restrictions
-
-  open Restrictions restrictions public
-
-  field
-
-    -- If the mode 𝟘ᵐ is allowed, then 𝟙 is not equivalent to 𝟘.
-    𝟘ᵐ→𝟙≉𝟘 : T 𝟘ᵐ-allowed → 𝟙 ≉ 𝟘
-
-    -- If the mode 𝟘ᵐ is allowed, then it is decidable whether a value
-    -- is equivalent to 𝟘.
-    is-𝟘? : T 𝟘ᵐ-allowed → (p : M) → Dec (p ≈ 𝟘)
-
-    -- The following two assumptions are based on assumptions from Bob
-    -- Atkey's "Syntax and Semantics of Quantitative Type Theory".
-
-    -- If the mode 𝟘ᵐ is allowed, then the semiring has the
-    -- zero-product property: if p · q is 𝟘, then either p is 𝟘 or q
-    -- is 𝟘.
-    zero-product :
-      T 𝟘ᵐ-allowed → {p q : M} → p · q ≈ 𝟘 → (p ≈ 𝟘) ⊎ (q ≈ 𝟘)
-
-    -- If the mode 𝟘ᵐ is allowed, then the semiring is positive: if
-    -- p + q is 𝟘, then p and q are 𝟘. (The statement that p + q ≈ 𝟘
-    -- implies q ≈ 𝟘 follows from the one below, see
-    -- Definition.Modality.Properties.Addition.positiveʳ.)
-    positiveˡ : T 𝟘ᵐ-allowed → {p q : M} → p + q ≈ 𝟘 → p ≈ 𝟘
-
   -- Semilattice partial ordering relation
   _≤_ : Rel M a
   p ≤ q = p ≈ (p ∧ q)
@@ -76,13 +47,8 @@ record ModalityWithout⊛ : Set (lsuc a) where
   _<_ : Rel M a
   p < q = p ≤ q × p ≢ q
 
-  field
-    -- If the mode 𝟘ᵐ is allowed and p ∧ q is equal to 𝟘, then p ≤ 𝟘.
-    ∧≤𝟘ˡ : T 𝟘ᵐ-allowed → {p q : M} → p ∧ q ≈ 𝟘 → p ≤ 𝟘
+  -- field
 
-    -- If the mode 𝟘ᵐ is allowed, then non-zero quantities must be
-    -- bounded by 𝟙.
-    ≉𝟘→≤𝟙 : T 𝟘ᵐ-allowed → {p : M} → p ≉ 𝟘 → p ≤ 𝟙
 
   ·-distribˡ-∧ : _·_ DistributesOverˡ _∧_
   ·-distribˡ-∧ = proj₁ ·-distrib-∧
@@ -133,15 +99,43 @@ record ModalityWithout⊛ : Set (lsuc a) where
               assoc to ∧-assoc
              )
 
-record Modality : Set (lsuc a) where
+-- Meet-Semirings with well-behaved zero
+record Has-well-behaved-zero (𝕄 : Semiring-with-meet) : Set a where
+  open Semiring-with-meet 𝕄
+  field
+    -- 𝟙 is not equivalent to 𝟘.
+    𝟙≉𝟘 : 𝟙 ≉ 𝟘
+
+    -- It is decidable whether a value is equivalent to 𝟘.
+    is-𝟘? : (p : M) → Dec (p ≈ 𝟘)
+
+    -- The following two assumptions are based on assumptions from Bob
+    -- Atkey's "Syntax and Semantics of Quantitative Type Theory".
+
+    -- The semiring has the zero-product property:
+    -- if p · q is 𝟘, then either p is 𝟘 or q is 𝟘.
+    zero-product : {p q : M} → p · q ≈ 𝟘 → (p ≈ 𝟘) ⊎ (q ≈ 𝟘)
+
+    -- The semiring is positive:
+    -- if p + q is 𝟘, then p and q are 𝟘. (The statement that p + q ≈ 𝟘
+    -- implies q ≈ 𝟘 follows from the one below, see
+    -- Definition.Modality.Properties.Addition.positiveʳ.)
+    positiveˡ : {p q : M} → p + q ≈ 𝟘 → p ≈ 𝟘
+
+    -- If p ∧ q is equal to 𝟘, then p ≤ 𝟘.
+    ∧≤𝟘ˡ : {p q : M} → p ∧ q ≈ 𝟘 → p ≤ 𝟘
+
+-- Semirings with meet and a tertiary star operator
+record Semiring-with-meet-and-star : Set a where
   infix  50 _⊛_▷_
   field
-    modalityWithout⊛ : ModalityWithout⊛
-  open ModalityWithout⊛ modalityWithout⊛ public
+    semiring-with-meet : Semiring-with-meet
+  open Semiring-with-meet semiring-with-meet public
 
   field
-    -- ... one tertiary operator...
+    -- The tertiary "star"-operator
     _⊛_▷_ : Op₃ M
+
     -- ⊛ is a solution to the following system of inequalities
     ⊛-ineq : ((p q r : M) → p ⊛ q ▷ r ≤ q + r · p ⊛ q ▷ r)
            × ((p q r : M) → p ⊛ q ▷ r ≤ p)
@@ -164,3 +158,21 @@ record Modality : Set (lsuc a) where
 
   ⊛-sub-distribʳ-∧ : (r : M) → (_⊛_▷ r) SubDistributesOverʳ _∧_ by _≤_
   ⊛-sub-distribʳ-∧ r = proj₂ (⊛-sub-distrib-∧ r)
+
+-- The modality structure
+record Modality : Set (lsuc a) where
+  field
+    semiring-with-meet-and-star : Semiring-with-meet-and-star
+  open Semiring-with-meet-and-star semiring-with-meet-and-star public
+
+  field
+    -- "Extra" restrictions for certain term/type constructors.
+    restrictions : Restrictions
+  open Restrictions restrictions public
+
+  field
+    -- If the mode 𝟘ᵐ is allowed, then the zero is well-behaved
+    𝟘-well-behaved : T 𝟘ᵐ-allowed → Has-well-behaved-zero semiring-with-meet
+
+-- module 𝟘ᵐ→𝟘-well-behaved (𝕄 : Modality) (open Modality 𝕄) (ok : T 𝟘ᵐ-allowed) where
+  -- open Has-well-behaved-zero (𝟘-well-behaved ok) public renaming (𝟙≉𝟘 to 𝟘ᵐ→𝟙≉𝟘)

@@ -9,10 +9,7 @@ module Erasure.LogicalRelation.Fundamental.Natrec
   {a k} {M : Set a} (𝕄 : Modality M)
   (open U M) (open T′ M) (open Modality 𝕄)
   {Δ : Con Term k} (⊢Δ : ⊢ Δ)
-  (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘))
-  (𝟙≉𝟘 : 𝟙 PE.≢ 𝟘)
-  (positiveˡ : ∀ {p q} → p + q PE.≡ 𝟘 → p PE.≡ 𝟘)
-  (∧≤𝟘ˡ : ∀ {p q} → p ∧ q PE.≡ 𝟘 → p ≤ 𝟘)
+  (𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet)
   {{eqrel : EqRelSet M}}
   where
 
@@ -39,11 +36,9 @@ import Definition.LogicalRelation.Irrelevance M as I
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
-open import Definition.Modality.Properties 𝕄
+open import Definition.Modality.Properties.Has-well-behaved-zero
+  semiring-with-meet-and-star 𝟘-well-behaved
 open import Definition.Mode 𝕄
-
-open ∧-Positive ∧≤𝟘ˡ
-open ⊛-Positive positiveˡ ∧≤𝟘ˡ
 
 open import Erasure.LogicalRelation 𝕄 ⊢Δ is-𝟘?
 open import Erasure.LogicalRelation.Conversion 𝕄 ⊢Δ is-𝟘?
