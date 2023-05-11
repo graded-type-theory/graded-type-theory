@@ -35,14 +35,11 @@ open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat using (Nat)
 open import Tools.Product
-open import Tools.PropositionalEquality as PE
-  using (≈-refl; ≈-sym; ≈-trans)
+import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
 
-open import Definition.Untyped M hiding (_∷_; wk)
-import Definition.Untyped M as U
-open import Definition.Untyped.Properties M
+open import Definition.Untyped M as U hiding (_∷_)
 open import Definition.Typed M
 open import Definition.Typed.Properties M
 open import Definition.Typed.Usage 𝕄
@@ -57,11 +54,13 @@ open import Definition.Typed.Consequences.Syntactic M
 open import Definition.Conversion M
 open import Definition.Conversion.Consequences.Completeness M
 open import Definition.Conversion.FullReduction M
-  hiding (fullRedNe; fullRedNe~↓; fullRed; fullRedConv↓; fullRedTerm; fullRedTermConv↓)
-import Definition.Conversion.FullReduction M as FR
+  using (NfNeutral; Nf)
 open import Definition.Conversion.Soundness M
 open import Definition.Conversion.Stability M
 open import Definition.Conversion.Whnf M
+
+open NfNeutral
+open Nf
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
@@ -69,6 +68,7 @@ open import Definition.Modality.Usage 𝕄
 open import Definition.Modality.Usage.Inversion 𝕄
 open import Definition.Modality.Usage.Properties 𝕄
 open import Definition.Modality.Usage.Weakening 𝕄
+
 open import Definition.Mode 𝕄
 
 private
