@@ -1,43 +1,30 @@
 ------------------------------------------------------------------------
--- Well-resourced terms have well-resourced η-long normal forms (given
--- certain assumptions)
+-- A well-resourced term has a well-resourced η-long normal form
+-- (given a certain assumption)
 ------------------------------------------------------------------------
-
-import Tools.PropositionalEquality as PE
 
 open import Definition.Modality
 import Definition.Mode
 
 module Definition.Modality.FullReduction
   {a} {M : Set a} (𝕄 : Modality M)
-  (open Modality 𝕄)
-  (open Definition.Mode 𝕄)
-  -- The following assumption is only used for quantities p that
-  -- correspond to the first quantity of a Σ-type with η-equality, and
-  -- only in cases where the mode is 𝟙ᵐ. It might suffice to restrict
-  -- such Σ-types so that when the first quantity is p and the mode is
-  -- 𝟙ᵐ, then ⌞ p ⌟ ≡ 𝟙ᵐ → p ≤ 𝟙 holds.
-  (⌞p⌟≡𝟙→p≤𝟙 : (p : M) → ⌞ p ⌟ PE.≡ 𝟙ᵐ → p ≤ 𝟙)
-  -- The following assumption is only used for quantities p that
-  -- correspond to the first quantity of a Σ-type with η-equality, and
-  -- only in cases where the mode is 𝟙ᵐ. It might suffice to restrict
-  -- such Σ-types so that when the first quantity is p and the mode is
-  -- 𝟙ᵐ, then q ≤ p · q holds for all quantities q.
-  (·-increasing : (p {q} : M) → q ≤ p · q)
-  -- The following assumption is only used for the unit type with
-  -- η-equality, and only when the mode is 𝟙ᵐ. It might suffice to
-  -- restrict such types so that when the mode is 𝟙ᵐ they may only be
-  -- used if every quantity is bounded from above by 𝟘.
-  (p≤𝟘 : (p : M) → p ≤ 𝟘)
   where
 
+open Modality 𝕄
+
+open import Tools.Bool
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
+open import Tools.Level
 open import Tools.Nat using (Nat)
+open import Tools.Nullary
 open import Tools.Product
+import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
+open import Tools.Sum using (_⊎_; inj₂)
+open import Tools.Unit
 
 open import Definition.Untyped M as U hiding (_∷_)
 open import Definition.Typed M
@@ -69,6 +56,8 @@ open import Definition.Modality.Usage.Inversion 𝕄
 open import Definition.Modality.Usage.Properties 𝕄
 open import Definition.Modality.Usage.Weakening 𝕄
 
+open import Definition.Mode 𝕄
+
 private
   variable
     n : Nat
@@ -80,47 +69,6 @@ private
     m : Mode
     b : BinderMode
     s : SigmaMode
-
-------------------------------------------------------------------------
--- Some lemmas used below
-
-private
-
-  -- If t has the usage context γ, then γ is bounded by 𝟘ᶜ.
-
-  ≤ᶜ𝟘ᶜ′ : ∀ m → γ ▸[ m ] t → γ ≤ᶜ 𝟘ᶜ
-  ≤ᶜ𝟘ᶜ′ 𝟘ᵐ γ▸t = ▸-𝟘ᵐ γ▸t
-  ≤ᶜ𝟘ᶜ′ 𝟙ᵐ _   = ≤ᶜ𝟘ᶜ (p≤𝟘 _)
-
-  -- A lemma used in the Σ-η case of fullRedTermConv↓.
-
-  Σ-η-lemma :
-    ∀ m →
-    γ ▸[ m ] t →
-    ∃ λ δ → δ ▸[ m ᵐ· p ] fst p t × γ ≤ᶜ p ·ᶜ δ
-  Σ-η-lemma {γ = γ} {p = p} = λ where
-      𝟘ᵐ[ ok ] ▸t →
-          𝟘ᶜ
-        , fstₘ 𝟘ᵐ[ ok ] (▸-𝟘 ▸t) PE.refl (λ ())
-        , (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-             γ        ≤⟨ ▸-𝟘ᵐ ▸t ⟩
-             𝟘ᶜ       ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
-             p ·ᶜ 𝟘ᶜ  ∎)
-      𝟙ᵐ ▸t →
-          ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ
-        , fstₘ 𝟙ᵐ
-            (▸-cong
-               (let open Tools.Reasoning.PropositionalEquality in
-                  ⌞ p ⌟ ·ᵐ 𝟙ᵐ  ≡⟨ ·ᵐ-identityʳ _ ⟩
-                  ⌞ p ⌟        ∎)
-               (▸-· ▸t))
-            PE.refl
-            (⌞p⌟≡𝟙→p≤𝟙 p)
-        , (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-             γ                     ≤⟨ ·ᶜ-increasing (·-increasing p) ⟩
-             p ·ᶜ γ                ≈˘⟨ ·ᶜ-congʳ ·⌜⌞⌟⌝ ⟩
-             (p · ⌜ ⌞ p ⌟ ⌝) ·ᶜ γ  ≈⟨ ·ᶜ-assoc _ _ _ ⟩
-             p ·ᶜ ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ   ∎)
 
 ------------------------------------------------------------------------
 -- Definitions of η-long normal types and terms and some associated
@@ -440,29 +388,192 @@ mutual
     ⊢Δ = contextConvSubst Γ≡Δ .proj₂ .proj₁
 
 ------------------------------------------------------------------------
--- The full reduction theorems
+-- Predicates used to state the full reduction lemmas and theorems
 
 mutual
 
-  -- Lemmas used to prove the main theorems below.
+  -- The full reduction lemmas hold for derivations that satisfy the
+  -- following predicates (if the mode is 𝟙ᵐ).
+  --
+  -- The three main cases below impose certain requirements:
+  -- * If unit types (with η-equality) are used (in a certain way),
+  --   then 𝟘 must be the largest quantity.
+  -- * If a Σ-type with η-equality and the "first component
+  --   quantity" p is used (in a certain way), then p ·_ must be
+  --   increasing, and if ⌞ p ⌟ is 𝟙ᵐ, then p ≤ 𝟙 must hold.
+
+  OK-⊢[conv↓]∷ : Γ ⊢ t [conv↓] u ∷ A → Set a
+  OK-⊢[conv↓]∷ = λ where
+
+    -- The following three cases are the main ones.
+
+    (Unit-ins _) →
+      (p : M) → p ≤ 𝟘
+    (η-unit _ _ _ _) →
+      (p : M) → p ≤ 𝟘
+    (Σ-η {p = p} _ _ _ _ fst-t↑ snd-t↑) →
+      (⌞ p ⌟ PE.≡ 𝟙ᵐ → OK-⊢[conv↑]∷ fst-t↑) ×
+      OK-⊢[conv↑]∷ snd-t↑ ×
+      (⌞ p ⌟ PE.≡ 𝟙ᵐ → p ≤ 𝟙) ×
+      ((q : M) → q ≤ p · q)
+
+    (ℕ-ins t~) →
+      OK-⊢~↓ t~
+    (Empty-ins t~) →
+      OK-⊢~↓ t~
+    (Σᵣ-ins _ _ t~) →
+      OK-⊢~↓ t~
+    (ne-ins _ _ _ t~) →
+      OK-⊢~↓ t~
+    (univ _ _ A↓) →
+      OK-⊢[conv↓] A↓
+    (zero-refl _) →
+      Lift _ ⊤
+    (suc-cong t↑) →
+      OK-⊢[conv↑]∷ t↑
+    (prod-cong {p = p} _ _ t↑ u↑) →
+      (⌞ p ⌟ PE.≡ 𝟙ᵐ → OK-⊢[conv↑]∷ t↑) ×
+      OK-⊢[conv↑]∷ u↑
+    (η-eq _ _ _ _ t0≡u0) →
+      OK-⊢[conv↑]∷ t0≡u0
+
+  OK-⊢[conv↑]∷ : Γ ⊢ t [conv↑] u ∷ A → Set a
+  OK-⊢[conv↑]∷ ([↑]ₜ _ _ _ _ _ _ _ _ _ t′↓) =
+    OK-⊢[conv↓]∷ t′↓
+
+  OK-⊢[conv↓] : Γ ⊢ A [conv↓] B → Set a
+  OK-⊢[conv↓] = λ where
+    (ne A~) →
+      OK-⊢~↓ A~
+    (ΠΣ-cong {p = p} _ A↑ B↑) →
+      (⌞ p ⌟ PE.≡ 𝟙ᵐ → OK-⊢[conv↑] A↑) ×
+      OK-⊢[conv↑] B↑
+    _ →
+      Lift _ ⊤
+
+  OK-⊢[conv↑] : Γ ⊢ A [conv↑] B → Set a
+  OK-⊢[conv↑] ([↑] _ _ _ _ _ _ A′↓) =
+    OK-⊢[conv↓] A′↓
+
+  OK-⊢~↓ : Γ ⊢ t ~ u ↓ A → Set a
+  OK-⊢~↓ ([~] _ _ _ t~) =
+    OK-⊢~↑ t~
+
+  OK-⊢~↑ : Γ ⊢ t ~ t′ ↑ A → Set a
+  OK-⊢~↑ = λ where
+    (var-refl _ _) →
+      Lift _ ⊤
+    (app-cong {p = p} t~ u↑) →
+      OK-⊢~↓ t~ ×
+      (⌞ p ⌟ PE.≡ 𝟙ᵐ → OK-⊢[conv↑]∷ u↑)
+    (fst-cong t~) →
+      OK-⊢~↓ t~
+    (snd-cong t~) →
+      OK-⊢~↓ t~
+    (natrec-cong A↑ t↑ u↑ v~) →
+      (¬ T 𝟘ᵐ-allowed → OK-⊢[conv↑] A↑) ×
+      OK-⊢[conv↑]∷ t↑ ×
+      OK-⊢[conv↑]∷ u↑ ×
+      OK-⊢~↓ v~
+    (prodrec-cong {r = r} C↑ u~ v↑) →
+      (¬ T 𝟘ᵐ-allowed → OK-⊢[conv↑] C↑) ×
+      (⌞ r ⌟ PE.≡ 𝟙ᵐ → OK-⊢~↓ u~) ×
+      OK-⊢[conv↑]∷ v↑
+    (Emptyrec-cong {p = p} A↑ t~) →
+      (¬ T 𝟘ᵐ-allowed → OK-⊢[conv↑] A↑) ×
+      (⌞ p ⌟ PE.≡ 𝟙ᵐ → OK-⊢~↓ t~)
+
+private
+
+  -- Some lemmas used to propagate the "OK" predicate information.
+
+  ᵐ·≡𝟙ᵐ→ :
+    {A : Set a} →
+    (m PE.≡ 𝟙ᵐ → ⌞ p ⌟ PE.≡ 𝟙ᵐ → A) →
+    m ᵐ· p PE.≡ 𝟙ᵐ → A
+  ᵐ·≡𝟙ᵐ→ {m = 𝟙ᵐ} = _$ PE.refl
+
+  𝟘ᵐ?≡𝟙ᵐ→ :
+    {A : Set a} →
+    (m PE.≡ 𝟙ᵐ → ¬ T 𝟘ᵐ-allowed → A) →
+    𝟘ᵐ? PE.≡ 𝟙ᵐ → A
+  𝟘ᵐ?≡𝟙ᵐ→ {A = A} hyp = 𝟘ᵐ?-elim
+    (λ m → m PE.≡ 𝟙ᵐ → A)
+    (λ ())
+    (λ not-ok _ → hyp (only-𝟙ᵐ-without-𝟘ᵐ not-ok) not-ok)
+
+------------------------------------------------------------------------
+-- The full reduction lemmas
+
+private
+
+  -- A lemma used in the Unit-ins and η-unit cases of
+  -- fullRedTermConv↓.
+
+  ▸→≤ᶜ𝟘ᶜ :
+    ∀ {t : Term n} m →
+    (m PE.≡ 𝟙ᵐ → (p : M) → p ≤ 𝟘) →
+    γ ▸[ m ] t → γ ≤ᶜ 𝟘ᶜ
+  ▸→≤ᶜ𝟘ᶜ 𝟘ᵐ _  γ▸t = ▸-𝟘ᵐ γ▸t
+  ▸→≤ᶜ𝟘ᶜ 𝟙ᵐ ≤𝟘 _   = ≤ᶜ𝟘ᶜ (≤𝟘 PE.refl _)
+
+  -- A lemma used in the Σ-η case of fullRedTermConv↓.
+
+  Σ-η-lemma :
+    ∀ m →
+    (m PE.≡ 𝟙ᵐ →
+     (⌞ p ⌟ PE.≡ 𝟙ᵐ → p ≤ 𝟙) ×
+     ((q : M) → q ≤ p · q)) →
+    γ ▸[ m ] t →
+    ∃ λ δ → δ ▸[ m ᵐ· p ] fst p t × γ ≤ᶜ p ·ᶜ δ
+  Σ-η-lemma {p = p} {γ = γ} = λ where
+    𝟘ᵐ[ ok ] _ ▸t →
+        𝟘ᶜ
+      , fstₘ 𝟘ᵐ[ ok ] (▸-𝟘 ▸t) PE.refl (λ ())
+      , (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+           γ        ≤⟨ ▸-𝟘ᵐ ▸t ⟩
+           𝟘ᶜ       ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
+           p ·ᶜ 𝟘ᶜ  ∎)
+    𝟙ᵐ ok ▸t →
+      case ok PE.refl of λ {
+        (p≤𝟙 , p·-increasing) →
+        ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ
+      , fstₘ 𝟙ᵐ
+          (▸-cong
+             (let open Tools.Reasoning.PropositionalEquality in
+                ⌞ p ⌟ ·ᵐ 𝟙ᵐ  ≡⟨ ·ᵐ-identityʳ _ ⟩
+                ⌞ p ⌟        ∎)
+             (▸-· ▸t))
+          PE.refl
+          p≤𝟙
+      , (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+           γ                     ≤⟨ ·ᶜ-increasing (p·-increasing _) ⟩
+           p ·ᶜ γ                ≈˘⟨ ·ᶜ-congʳ ·⌜⌞⌟⌝ ⟩
+           (p · ⌜ ⌞ p ⌟ ⌝) ·ᶜ γ  ≈⟨ ·ᶜ-assoc _ _ _ ⟩
+           p ·ᶜ ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ   ∎) }
+
+mutual
+
+  -- The full reduction lemmas, used to prove the main theorems below.
 
   fullRedNe :
-    Γ ⊢ t ~ t′ ↑ A → γ ▸[ m ] t →
+    (t~ : Γ ⊢ t ~ t′ ↑ A) → γ ▸[ m ] t →
+    (m PE.≡ 𝟙ᵐ → OK-⊢~↑ t~) →
     ∃ λ u → Γ ⊢ne u ∷ A × Γ ⊢ t ≡ u ∷ A × γ ▸[ m ] u
   fullRedNe {Γ = Γ} = λ where
-    (var-refl {x = x} ⊢x _) ▸x →
+    (var-refl {x = x} ⊢x _) ▸x _ →
       case inversion-var ⊢x of λ {
         (_ , x∈ , A≡B) →
         var x
       , convₙ (varₙ (wfEq A≡B) x∈) (sym A≡B)
       , refl ⊢x
       , ▸x }
-    (app-cong {G = B} {t = u} t~ u↑) ▸tu →
+    (app-cong {G = B} {t = u} t~ u↑) ▸tu ok →
       case inv-usage-app ▸tu of λ {
         (invUsageApp ▸t ▸u γ≤) →
-      case fullRedNe~↓ t~ ▸t of λ {
+      case fullRedNe~↓ t~ ▸t (proj₁ ∘→ ok) of λ {
         (t′ , t′-ne , t≡t′ , ▸t′) →
-      case fullRedTermConv↑ u↑ ▸u of λ {
+      case fullRedTermConv↑ u↑ ▸u (ᵐ·≡𝟙ᵐ→ (proj₂ ∘→ ok)) of λ {
         (u′ , u′-nf , u≡u′ , ▸u′) →
       case inversion-ΠΣ (syntacticEqTerm t≡t′ .proj₁) .proj₂ of λ {
         ⊢B →
@@ -473,21 +584,21 @@ mutual
          Γ ⊢ne t′ ∘ u′ ∷ B [ u ]   □)
       , app-cong t≡t′ u≡u′
       , sub (▸t′ ∘ₘ ▸u′) γ≤ }}}}
-    (fst-cong {p = p} t~) ▸fst-t →
+    (fst-cong {p = p} t~) ▸fst-t ok →
       case inv-usage-fst ▸fst-t of λ {
-        (invUsageFst m′ PE.refl ▸t γ≤ ok) →
-      case fullRedNe~↓ t~ ▸t of λ {
+        (invUsageFst m′ PE.refl ▸t γ≤ fst-ok) →
+      case fullRedNe~↓ t~ ▸t ok of λ {
         (t′ , t′-ne , t≡t′ , ▸t′) →
       case inversion-ΠΣ (syntacticEqTerm t≡t′ .proj₁) of λ {
         (⊢A , ⊢B) →
         fst p t′
       , fstₙ ⊢A ⊢B t′-ne
       , fst-cong ⊢A ⊢B t≡t′
-      , sub (fstₘ m′ ▸t′ PE.refl ok) γ≤ }}}
-    (snd-cong {k = t} {p = p} {G = B} t~) ▸snd-t →
+      , sub (fstₘ m′ ▸t′ PE.refl fst-ok) γ≤ }}}
+    (snd-cong {k = t} {p = p} {G = B} t~) ▸snd-t ok →
       case inv-usage-snd ▸snd-t of λ {
         (invUsageSnd ▸t γ≤) →
-      case fullRedNe~↓ t~ ▸t of λ {
+      case fullRedNe~↓ t~ ▸t ok of λ {
         (t′ , t′-ne , t≡t′ , ▸t′) →
       case inversion-ΠΣ (syntacticEqTerm t≡t′ .proj₁) of λ {
         (⊢A , ⊢B) →
@@ -498,16 +609,17 @@ mutual
          Γ ⊢ne snd p t′ ∷ B [ fst p t ]   □)
       , snd-cong ⊢A ⊢B t≡t′
       , sub (sndₘ ▸t′) γ≤ }}}
-    (natrec-cong {F = A} {k = v} {p = p} {q = q} {r = r} A↑ t↑ u↑ v~) ▸natrec →
+    (natrec-cong {F = A} {k = v} {p = p} {q = q} {r = r} A↑ t↑ u↑ v~)
+      ▸natrec ok →
       case inv-usage-natrec ▸natrec of λ {
         (invUsageNatrec ▸t ▸u ▸v ▸A γ≤) →
-      case fullRedConv↑ A↑ ▸A of λ {
+      case fullRedConv↑ A↑ ▸A (𝟘ᵐ?≡𝟙ᵐ→ (proj₁ ∘→ ok)) of λ {
         (A′ , A′-nf , A≡A′ , ▸A′) →
-      case fullRedTermConv↑ t↑ ▸t of λ {
+      case fullRedTermConv↑ t↑ ▸t (proj₁ ∘→ proj₂ ∘→ ok) of λ {
         (t′ , t′-nf , t≡t′ , ▸t′) →
-      case fullRedTermConv↑ u↑ ▸u of λ {
+      case fullRedTermConv↑ u↑ ▸u (proj₁ ∘→ proj₂ ∘→ proj₂ ∘→ ok) of λ {
         (u′ , u′-nf , u≡u′ , ▸u′) →
-      case fullRedNe~↓ v~ ▸v of λ {
+      case fullRedNe~↓ v~ ▸v (proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ ok) of λ {
         (v′ , v′-ne , v≡v′ , ▸v′) →
       case syntacticEq A≡A′ of λ {
         (⊢A , ⊢A′) →
@@ -534,14 +646,14 @@ mutual
     (prodrec-cong
        {p = p} {F = A} {G = B} {C = C} {g = u} {r = r} {q′ = q}
        C↑ u~ v↑)
-      ▸prodrec →
+      ▸prodrec ok →
       case inv-usage-prodrec ▸prodrec of λ {
-        (invUsageProdrec ▸u ▸v ▸C ok γ≤) →
-      case fullRedConv↑ C↑ ▸C of λ {
+        (invUsageProdrec ▸u ▸v ▸C prodrec-ok γ≤) →
+      case fullRedConv↑ C↑ ▸C (𝟘ᵐ?≡𝟙ᵐ→ (proj₁ ∘→ ok)) of λ {
         (C′ , C′-nf , C≡C′ , ▸C′) →
-      case fullRedNe~↓ u~ ▸u of λ {
+      case fullRedNe~↓ u~ ▸u (ᵐ·≡𝟙ᵐ→ (proj₁ ∘→ proj₂ ∘→ ok)) of λ {
         (u′ , u′-ne , u≡u′ , ▸u′) →
-      case fullRedTermConv↑ v↑ ▸v of λ {
+      case fullRedTermConv↑ v↑ ▸v (proj₂ ∘→ proj₂ ∘→ ok) of λ {
         (v′ , v′-nf , v≡v′ , ▸v′) →
       case inversion-ΠΣ (syntacticEqTerm u≡u′ .proj₁) of λ {
         (⊢A , ⊢B) →
@@ -554,13 +666,13 @@ mutual
                                                                         substTypeEq C≡C′ u≡u′ ⟩
          Γ ⊢ne prodrec r p q C′ u′ v′ ∷ C [ u ]                      □)
       , prodrec-cong ⊢A ⊢B C≡C′ u≡u′ v≡v′
-      , sub (prodrecₘ ▸u′ ▸v′ ▸C′ ok) γ≤ }}}}}
-    (Emptyrec-cong {F = A} {p = p} A↑ t~) ▸Emptyrec →
+      , sub (prodrecₘ ▸u′ ▸v′ ▸C′ prodrec-ok) γ≤ }}}}}
+    (Emptyrec-cong {F = A} {p = p} A↑ t~) ▸Emptyrec ok →
       case inv-usage-Emptyrec ▸Emptyrec of λ {
         (invUsageEmptyrec ▸t ▸A γ≤) →
-      case fullRedConv↑ A↑ ▸A of λ {
+      case fullRedConv↑ A↑ ▸A (𝟘ᵐ?≡𝟙ᵐ→ (proj₁ ∘→ ok)) of λ {
         (A′ , A′-nf , A≡A′ , ▸A′) →
-      case fullRedNe~↓ t~ ▸t of λ {
+      case fullRedNe~↓ t~ ▸t (ᵐ·≡𝟙ᵐ→ (proj₂ ∘→ ok)) of λ {
         (t′ , t′-ne , t≡t′ , ▸t′) →
         Emptyrec p A′ t′
       , (                             $⟨ Emptyrecₙ A′-nf t′-ne ⟩
@@ -570,69 +682,75 @@ mutual
       , sub (Emptyrecₘ ▸t′ ▸A′) γ≤ }}}
 
   fullRedNe~↓ :
-    Γ ⊢ t ~ t′ ↓ A → γ ▸[ m ] t →
+    (t~ : Γ ⊢ t ~ t′ ↓ A) → γ ▸[ m ] t →
+    (m PE.≡ 𝟙ᵐ → OK-⊢~↓ t~) →
     ∃ λ u → Γ ⊢ne u ∷ A × Γ ⊢ t ≡ u ∷ A × γ ▸[ m ] u
-  fullRedNe~↓ ([~] A D whnfB k~l) γ▸t =
-    let u , A-ne , t≡u , γ▸u = fullRedNe k~l γ▸t
+  fullRedNe~↓ ([~] A D whnfB k~l) γ▸t ok =
+    let u , A-ne , t≡u , γ▸u = fullRedNe k~l γ▸t ok
     in  u , convₙ A-ne A≡ , conv t≡u A≡ , γ▸u
     where
     A≡ = subset* D
 
   fullRedConv↑ :
-    Γ ⊢ A [conv↑] A′ → γ ▸[ m ] A →
+    (A↑ : Γ ⊢ A [conv↑] A′) → γ ▸[ m ] A →
+    (m PE.≡ 𝟙ᵐ → OK-⊢[conv↑] A↑) →
     ∃ λ B → Γ ⊢nf B × Γ ⊢ A ≡ B × γ ▸[ m ] B
-  fullRedConv↑ ([↑] A′ B′ D D′ whnfA′ whnfB′ A′<>B′) γ▸A =
+  fullRedConv↑ ([↑] A′ B′ D D′ whnfA′ whnfB′ A′<>B′) γ▸A ok =
     let γ▸A′ = usagePres* γ▸A D
-        B″ , nf , B′≡B″ , γ▸B″ = fullRedConv↓ A′<>B′ γ▸A′
+        B″ , nf , B′≡B″ , γ▸B″ = fullRedConv↓ A′<>B′ γ▸A′ ok
     in  B″ , nf , trans (subset* D) B′≡B″ , γ▸B″
 
   fullRedConv↓ :
-    Γ ⊢ A [conv↓] A′ → γ ▸[ m ] A →
+    (A↓ : Γ ⊢ A [conv↓] A′) → γ ▸[ m ] A →
+    (m PE.≡ 𝟙ᵐ → OK-⊢[conv↓] A↓) →
     ∃ λ B → Γ ⊢nf B × Γ ⊢ A ≡ B × γ ▸[ m ] B
   fullRedConv↓ = λ where
-    (U-refl     ⊢Γ) ▸U → U     , Uₙ     ⊢Γ , refl (Uⱼ     ⊢Γ) , ▸U
-    (ℕ-refl     ⊢Γ) ▸ℕ → ℕ     , ℕₙ     ⊢Γ , refl (ℕⱼ     ⊢Γ) , ▸ℕ
-    (Empty-refl ⊢Γ) ▸⊥ → Empty , Emptyₙ ⊢Γ , refl (Emptyⱼ ⊢Γ) , ▸⊥
-    (Unit-refl  ⊢Γ) ▸⊤ → Unit  , Unitₙ  ⊢Γ , refl (Unitⱼ  ⊢Γ) , ▸⊤
-    (ne A~)         ▸A →
-      case fullRedNe~↓ A~ ▸A of λ {
+    (U-refl     ⊢Γ) ▸U _  → U     , Uₙ     ⊢Γ , refl (Uⱼ     ⊢Γ) , ▸U
+    (ℕ-refl     ⊢Γ) ▸ℕ _  → ℕ     , ℕₙ     ⊢Γ , refl (ℕⱼ     ⊢Γ) , ▸ℕ
+    (Empty-refl ⊢Γ) ▸⊥ _  → Empty , Emptyₙ ⊢Γ , refl (Emptyⱼ ⊢Γ) , ▸⊥
+    (Unit-refl  ⊢Γ) ▸⊤ _  → Unit  , Unitₙ  ⊢Γ , refl (Unitⱼ  ⊢Γ) , ▸⊤
+    (ne A~)         ▸A ok →
+      case fullRedNe~↓ A~ ▸A ok of λ {
         (B , B-ne , A≡B , ▸B) →
       B , univₙ (neₙ Uₙ B-ne) , univ A≡B , ▸B }
-    (ΠΣ-cong ⊢A A↑ B↑) ▸ΠΣAB →
+    (ΠΣ-cong ⊢A A↑ B↑) ▸ΠΣAB ok →
       case inv-usage-ΠΣ ▸ΠΣAB of λ {
-        (invUsageΠΣ ▸A ▸B γ≤ ok) →
-      case fullRedConv↑ A↑ ▸A of λ {
+        (invUsageΠΣ ▸A ▸B γ≤ ΠΣ-ok) →
+      case fullRedConv↑ A↑ ▸A (ᵐ·≡𝟙ᵐ→ (proj₁ ∘→ ok)) of λ {
         (A′ , A′-nf , A≡A′ , ▸A′) →
-      case fullRedConv↑ B↑ ▸B of λ {
+      case fullRedConv↑ B↑ ▸B (proj₂ ∘→ ok) of λ {
         (B′ , B′-nf , B≡B′ , ▸B′) →
       ΠΣ⟨ _ ⟩ _ , _ ▷ A′ ▹ B′ ,
       ΠΣₙ A′-nf (⊢nf-stable (reflConEq (wfEq A≡A′) ∙ A≡A′) B′-nf) ,
       ΠΣ-cong ⊢A A≡A′ B≡B′ ,
-      sub (ΠΣₘ ▸A′ ▸B′ ok) γ≤ }}}
+      sub (ΠΣₘ ▸A′ ▸B′ ΠΣ-ok) γ≤ }}}
 
   fullRedTermConv↑ :
-    Γ ⊢ t [conv↑] t′ ∷ A → γ ▸[ m ] t →
+    (t↑ : Γ ⊢ t [conv↑] t′ ∷ A) → γ ▸[ m ] t →
+    (m PE.≡ 𝟙ᵐ → OK-⊢[conv↑]∷ t↑) →
     ∃ λ u → Γ ⊢nf u ∷ A × Γ ⊢ t ≡ u ∷ A × γ ▸[ m ] u
-  fullRedTermConv↑ ([↑]ₜ B t′ u′ D d d′ whnfB whnft′ whnfu′ t<>u) γ▸t =
+  fullRedTermConv↑
+    ([↑]ₜ B t′ u′ D d d′ whnfB whnft′ whnfu′ t<>u) γ▸t ok =
     let γ▸t′ = usagePres*Term γ▸t d
-        u″ , nf , u′≡u″ , γ▸u″ = fullRedTermConv↓ t<>u γ▸t′
+        u″ , nf , u′≡u″ , γ▸u″ = fullRedTermConv↓ t<>u γ▸t′ ok
     in  u″ , convₙ nf B≡A , conv (trans (subset*Term d) u′≡u″) B≡A , γ▸u″
     where
     B≡A = sym (subset* D)
 
   fullRedTermConv↓ :
-    Γ ⊢ t [conv↓] t′ ∷ A → γ ▸[ m ] t →
+    (t↓ : Γ ⊢ t [conv↓] t′ ∷ A) → γ ▸[ m ] t →
+    (m PE.≡ 𝟙ᵐ → OK-⊢[conv↓]∷ t↓) →
     ∃ λ u → Γ ⊢nf u ∷ A × Γ ⊢ t ≡ u ∷ A × γ ▸[ m ] u
   fullRedTermConv↓ {Γ = Γ} {t = t} {γ = γ} {m = m} = λ where
-    (ℕ-ins t~) ▸t →
-      case fullRedNe~↓ t~ ▸t of λ {
+    (ℕ-ins t~) ▸t ok →
+      case fullRedNe~↓ t~ ▸t ok of λ {
         (u , u-nf , t≡u , ▸u) →
       u , neₙ ℕₙ u-nf , t≡u , ▸u }
-    (Empty-ins t~) ▸t →
-      case fullRedNe~↓ t~ ▸t of λ {
+    (Empty-ins t~) ▸t ok →
+      case fullRedNe~↓ t~ ▸t ok of λ {
         (u , u-nf , t≡u , ▸u) →
       u , neₙ Emptyₙ u-nf , t≡u , ▸u }
-    (Unit-ins t~) ▸t →
+    (Unit-ins t~) ▸t ok →
       case syntacticEqTerm (soundness~↓ t~) of λ {
         (Γ⊢ , ⊢t , _) →
       case wf Γ⊢ of λ {
@@ -640,9 +758,9 @@ mutual
         star
       , starₙ ⊢Γ
       , η-unit ⊢t (starⱼ ⊢Γ)
-      , sub starₘ (≤ᶜ𝟘ᶜ′ _ ▸t) }}
-    (Σᵣ-ins ⊢t∷ΣAB _ t~) ▸t →
-      case fullRedNe~↓ t~ ▸t of λ {
+      , sub starₘ (▸→≤ᶜ𝟘ᶜ _ ok ▸t) }}
+    (Σᵣ-ins ⊢t∷ΣAB _ t~) ▸t ok →
+      case fullRedNe~↓ t~ ▸t ok of λ {
         (v , v-ne , t≡v , ▸v) →
       case syntacticEqTerm t≡v of λ {
         (_ , ⊢t∷ΣCD , _) →
@@ -656,8 +774,8 @@ mutual
       , neₙ Σᵣₙ (convₙ v-ne ΣCD≡ΣAB)
       , conv t≡v ΣCD≡ΣAB
       , ▸v }}}}}
-    (ne-ins ⊢t∷A _ A-ne t~↓B) ▸t →
-      case fullRedNe~↓ t~↓B ▸t of λ {
+    (ne-ins ⊢t∷A _ A-ne t~↓B) ▸t ok →
+      case fullRedNe~↓ t~↓B ▸t ok of λ {
         (u , u-ne , t≡u∷B , ▸u) →
       case syntacticEqTerm t≡u∷B of λ {
         (_ , ⊢t∷B , _) →
@@ -669,8 +787,8 @@ mutual
       , neₙ (neₙ A-ne) (convₙ u-ne B≡A)
       , conv t≡u∷B B≡A
       , ▸u }}}}
-    (univ {A = A} ⊢A _ A↓) ▸A →
-      case fullRedConv↓ A↓ ▸A of λ {
+    (univ {A = A} ⊢A _ A↓) ▸A ok →
+      case fullRedConv↓ A↓ ▸A ok of λ {
         (B , B-nf , A≡B , ▸B) →
         B
       , (               $⟨ A≡B ⟩
@@ -680,21 +798,21 @@ mutual
          Γ ⊢nf B ∷ U    □)
       , inverseUnivEq ⊢A A≡B
       , ▸B }
-    (zero-refl ⊢Γ) ▸zero →
+    (zero-refl ⊢Γ) ▸zero _ →
       zero , zeroₙ ⊢Γ , refl (zeroⱼ ⊢Γ) , ▸zero
-    (suc-cong t↑) ▸suc-t →
+    (suc-cong t↑) ▸suc-t ok →
       case inv-usage-suc ▸suc-t of λ {
         (invUsageSuc ▸t γ≤) →
-      case fullRedTermConv↑ t↑ ▸t of λ {
+      case fullRedTermConv↑ t↑ ▸t ok of λ {
         (u , u-nf , t≡u , ▸u) →
       suc u , sucₙ u-nf , suc-cong t≡u , sub (sucₘ ▸u) γ≤ }}
     (prod-cong {p = p} {q = q} {F = A} {G = B} {t = t} ⊢A ⊢B t↑ u↑)
-      ▸t,u →
+      ▸t,u ok →
       case inv-usage-prodᵣ ▸t,u of λ {
         (invUsageProdᵣ ▸t ▸u γ≤) →
-      case fullRedTermConv↑ t↑ ▸t of λ {
+      case fullRedTermConv↑ t↑ ▸t (ᵐ·≡𝟙ᵐ→ (proj₁ ∘→ ok)) of λ {
         (t′ , t′-nf , t≡t′ , ▸t′) →
-      case fullRedTermConv↑ u↑ ▸u of λ {
+      case fullRedTermConv↑ u↑ ▸u (proj₂ ∘→ ok) of λ {
         (u′ , u′-nf , u≡u′ , ▸u′) →
         prod! t′ u′
       , (                                      $⟨ u′-nf ⟩
@@ -704,8 +822,10 @@ mutual
          Γ ⊢nf prod! t′ u′ ∷ Σᵣ p , q ▷ A ▹ B  □)
       , prod-cong ⊢A ⊢B t≡t′ u≡u′
       , sub (prodᵣₘ ▸t′ ▸u′) γ≤ }}}
-    (η-eq {p = p} {q = q} {f = t} {F = A} {G = B} ⊢t _ _ _ t0≡u0) ▸t →
-      case fullRedTermConv↑ t0≡u0 (wkUsage (step id) ▸t ∘ₘ var) of λ {
+    (η-eq {p = p} {q = q} {f = t} {F = A} {G = B} ⊢t _ _ _ t0≡u0)
+      ▸t ok →
+      case fullRedTermConv↑ t0≡u0
+             (wkUsage (step id) ▸t ∘ₘ var) ok of λ {
         (u , u-nf , t0≡u , ▸u) →
         lam p u
       , lamₙ (inversion-ΠΣ (syntacticTerm ⊢t) .proj₁) u-nf
@@ -718,12 +838,13 @@ mutual
            γ ∙ p · ⌜ m ⌝                      ≈˘⟨ +ᶜ-identityʳ _ ∙ ·⌜ᵐ·⌝ m ⟩
            γ +ᶜ 𝟘ᶜ ∙ p · ⌜ m ᵐ· p ⌝           ≈˘⟨ +ᶜ-congˡ (·ᶜ-zeroʳ _) ∙ +-identityˡ _ ⟩
            γ +ᶜ p ·ᶜ 𝟘ᶜ ∙ 𝟘 + p · ⌜ m ᵐ· p ⌝  ∎) }
-    (Σ-η {p = p} {q = q} {F = A} {G = B} ⊢t _ _ _ fst-t↑ snd-t↑) ▸t →
-      case Σ-η-lemma m ▸t of λ {
+    (Σ-η {p = p} {q = q} {F = A} {G = B} ⊢t _ _ _ fst-t↑ snd-t↑) ▸t ok →
+      case Σ-η-lemma m (proj₂ ∘→ proj₂ ∘→ ok) ▸t of λ {
         (δ , ▸fst-t , γ≤) →
-      case fullRedTermConv↑ fst-t↑ ▸fst-t of λ {
+      case fullRedTermConv↑ fst-t↑ ▸fst-t (ᵐ·≡𝟙ᵐ→ (proj₁ ∘→ ok)) of λ {
         (u₁ , u₁-nf , fst-t≡u₁ , ▸u₁) →
-      case fullRedTermConv↑ snd-t↑ (sndₘ ▸t) of λ {
+      case fullRedTermConv↑ snd-t↑ (sndₘ ▸t)
+             (proj₁ ∘→ proj₂ ∘→ ok) of λ {
         (u₂ , u₂-nf , snd-t≡u₂ , ▸u₂) →
       case inversion-ΠΣ (syntacticTerm ⊢t) of λ {
         (⊢A , ⊢B) →
@@ -741,28 +862,33 @@ mutual
          sub (prodₚₘ ▸u₁ ▸u₂) $ begin
            γ            ≤⟨ ∧ᶜ-greatest-lower-bound γ≤ ≤ᶜ-refl ⟩
            p ·ᶜ δ ∧ᶜ γ  ∎) }}}}
-    (η-unit ⊢t _ _ _) ▸t →
+    (η-unit ⊢t _ _ _) ▸t ok →
       case wfTerm ⊢t of λ {
         ⊢Γ →
         star
       , starₙ ⊢Γ
       , η-unit ⊢t (starⱼ ⊢Γ)
-      , sub starₘ (≤ᶜ𝟘ᶜ′ _ ▸t) }
+      , sub starₘ (▸→≤ᶜ𝟘ᶜ _ ok ▸t) }
+
+------------------------------------------------------------------------
+-- The full reduction theorems
 
 -- If a type is well-formed and well-resourced, then it is
--- definitionally equal to a well-resourced type in η-long normal
--- form.
+-- definitionally equal to a well-resourced type in η-long normal form
+-- (given a certain assumption).
 
 fullRed :
-  Γ ⊢ A → γ ▸[ m ] A →
+  (⊢A : Γ ⊢ A) → γ ▸[ m ] A →
+  (m PE.≡ 𝟙ᵐ → OK-⊢[conv↑] (completeEq (refl ⊢A))) →
   ∃ λ B → Γ ⊢nf B × Γ ⊢ A ≡ B × γ ▸[ m ] B
 fullRed ⊢A = fullRedConv↑ (completeEq (refl ⊢A))
 
 -- If a term is well-formed and well-resourced, then it is
 -- definitionally equal to a well-resourced term in η-long normal
--- form.
+-- form (given a certain assumption).
 
 fullRedTerm :
-  Γ ⊢ t ∷ A → γ ▸[ m ] t →
+  (⊢t : Γ ⊢ t ∷ A) → γ ▸[ m ] t →
+  (m PE.≡ 𝟙ᵐ → OK-⊢[conv↑]∷ (completeEqTerm (refl ⊢t))) →
   ∃ λ u → Γ ⊢nf u ∷ A × Γ ⊢ t ≡ u ∷ A × γ ▸[ m ] u
 fullRedTerm ⊢t = fullRedTermConv↑ (completeEqTerm (refl ⊢t))
