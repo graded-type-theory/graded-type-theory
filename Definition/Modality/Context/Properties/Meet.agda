@@ -12,7 +12,7 @@ open import Definition.Modality.Context.Properties.Equivalence 𝕄
 open import Definition.Modality.Context.Properties.PartialOrder 𝕄
 open import Definition.Modality.Properties 𝕄
 
-open import Tools.Nat
+open import Tools.Nat using (Nat)
 
 open Modality 𝕄
 
@@ -107,3 +107,21 @@ private
 ∧ᶜ-greatest-lower-bound
   {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} (γ≤δ ∙ p≤q) (γ≤η ∙ p≤r) =
   ∧ᶜ-greatest-lower-bound γ≤δ γ≤η ∙ ∧-greatest-lower-bound p≤q p≤r
+
+-- If _+_ is pointwise bounded by _∧_, then _+ᶜ_ is pointwise bounded
+-- by _∧ᶜ_.
+
++ᶜ≤ᶜ∧ᶜ :
+  (∀ p q → p + q ≤ p ∧ q) →
+  γ +ᶜ δ ≤ᶜ γ ∧ᶜ δ
++ᶜ≤ᶜ∧ᶜ {γ = ε}     {δ = ε}     _   = ε
++ᶜ≤ᶜ∧ᶜ {γ = _ ∙ _} {δ = _ ∙ _} +≤∧ = +ᶜ≤ᶜ∧ᶜ +≤∧ ∙ +≤∧ _ _
+
+-- If _∧_ is pointwise bounded by _+_, then _∧ᶜ_ is pointwise bounded
+-- by _+ᶜ_.
+
+∧ᶜ≤ᶜ+ᶜ :
+  (∀ p q → p ∧ q ≤ p + q) →
+  γ ∧ᶜ δ ≤ᶜ γ +ᶜ δ
+∧ᶜ≤ᶜ+ᶜ {γ = ε}     {δ = ε}     _   = ε
+∧ᶜ≤ᶜ+ᶜ {γ = _ ∙ _} {δ = _ ∙ _} ∧≤+ = ∧ᶜ≤ᶜ+ᶜ ∧≤+ ∙ ∧≤+ _ _

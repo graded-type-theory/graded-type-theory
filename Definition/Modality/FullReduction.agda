@@ -88,13 +88,9 @@ private
 
   -- If t has the usage context γ, then γ is bounded by 𝟘ᶜ.
 
-  ≤ᶜ𝟘ᶜ : ∀ m → γ ▸[ m ] t → γ ≤ᶜ 𝟘ᶜ
-  ≤ᶜ𝟘ᶜ 𝟘ᵐ γ▸t = ▸-𝟘ᵐ γ▸t
-  ≤ᶜ𝟘ᶜ 𝟙ᵐ γ▸t = ≤ᶜ𝟘ᶜ′
-    where
-    ≤ᶜ𝟘ᶜ′ : {γ : Conₘ n} → γ ≤ᶜ 𝟘ᶜ
-    ≤ᶜ𝟘ᶜ′ {γ = ε}     = ε
-    ≤ᶜ𝟘ᶜ′ {γ = γ ∙ p} = ≤ᶜ𝟘ᶜ′ ∙ p≤𝟘 p
+  ≤ᶜ𝟘ᶜ′ : ∀ m → γ ▸[ m ] t → γ ≤ᶜ 𝟘ᶜ
+  ≤ᶜ𝟘ᶜ′ 𝟘ᵐ γ▸t = ▸-𝟘ᵐ γ▸t
+  ≤ᶜ𝟘ᶜ′ 𝟙ᵐ _   = ≤ᶜ𝟘ᶜ (p≤𝟘 _)
 
   -- A lemma used in the Σ-η case of fullRedTermConv↓.
 
@@ -121,14 +117,10 @@ private
             PE.refl
             (⌞p⌟≡𝟙→p≤𝟙 p)
         , (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-             γ                     ≤⟨ ·ᶜ-increasing _ ⟩
+             γ                     ≤⟨ ·ᶜ-increasing (·-increasing p) ⟩
              p ·ᶜ γ                ≈˘⟨ ·ᶜ-congʳ ·⌜⌞⌟⌝ ⟩
              (p · ⌜ ⌞ p ⌟ ⌝) ·ᶜ γ  ≈⟨ ·ᶜ-assoc _ _ _ ⟩
              p ·ᶜ ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ   ∎)
-    where
-    ·ᶜ-increasing : (γ : Conₘ n) → γ ≤ᶜ p ·ᶜ γ
-    ·ᶜ-increasing ε       = ε
-    ·ᶜ-increasing (_ ∙ _) = ·ᶜ-increasing _ ∙ ·-increasing p
 
 ------------------------------------------------------------------------
 -- Definitions of η-long normal types and terms and some associated
@@ -648,7 +640,7 @@ mutual
         star
       , starₙ ⊢Γ
       , η-unit ⊢t (starⱼ ⊢Γ)
-      , sub starₘ (≤ᶜ𝟘ᶜ _ ▸t) }}
+      , sub starₘ (≤ᶜ𝟘ᶜ′ _ ▸t) }}
     (Σᵣ-ins ⊢t∷ΣAB _ t~) ▸t →
       case fullRedNe~↓ t~ ▸t of λ {
         (v , v-ne , t≡v , ▸v) →
@@ -755,7 +747,7 @@ mutual
         star
       , starₙ ⊢Γ
       , η-unit ⊢t (starⱼ ⊢Γ)
-      , sub starₘ (≤ᶜ𝟘ᶜ _ ▸t) }
+      , sub starₘ (≤ᶜ𝟘ᶜ′ _ ▸t) }
 
 -- If a type is well-formed and well-resourced, then it is
 -- definitionally equal to a well-resourced type in η-long normal

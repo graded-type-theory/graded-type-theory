@@ -118,3 +118,10 @@ private
 ·ᶜ-monotone : γ ≤ᶜ δ → p ≤ q → p ·ᶜ γ ≤ᶜ q ·ᶜ δ
 ·ᶜ-monotone {γ = ε} {ε} ε p≤q = ≤ᶜ-refl
 ·ᶜ-monotone {γ = γ ∙ p} {δ ∙ q} (γ≤δ ∙ p≤q) p′≤q′ = (·ᶜ-monotone γ≤δ p′≤q′) ∙ (·-monotone p′≤q′ p≤q)
+
+-- If p ·_ is increasing, then p ·ᶜ_ is increasing.
+
+·ᶜ-increasing : (∀ {q} → q ≤ p · q) → γ ≤ᶜ p ·ᶜ γ
+·ᶜ-increasing {γ = ε}     _            = ε
+·ᶜ-increasing {γ = _ ∙ _} ·-increasing =
+  ·ᶜ-increasing ·-increasing ∙ ·-increasing
