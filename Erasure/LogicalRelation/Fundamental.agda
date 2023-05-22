@@ -14,8 +14,9 @@ module Erasure.LogicalRelation.Fundamental
   {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   (𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet)
   (consistent : ∀ {t} → Δ ⊢ t ∷ Empty → ⊥)
-  -- Erased matches are not allowed.
-  (no-erased-matches : No-erased-matches 𝕄)
+  -- Erased matches are not allowed unless the context
+  -- is empty
+  (no-erased-matches : No-erased-matches 𝕄 ⊎ k PE.≡ 0)
   {{eqrel : EqRelSet M}}
   where
 
@@ -269,11 +270,13 @@ fundamental (prodrecⱼ {r = r} {t = t} {u} {F} {G} {A} Γ⊢F Γ⊢G Γ⊢A Γ�
       [t] = IS.irrelevanceTerm {t = t} [Γ]₆ [Γ] [Σ]₆ [Σ] [t]₆
       [u] = IS.irrelevanceTerm {A = A₊} {u} [Γ]₇ ([Γ] ∙ [F] ∙ [G]) [A₊]₇ [A₊] [u]₇
       ⊩ʳu′ = irrelevance {t = u} [Γ]₂ ([Γ] ∙ [F] ∙ [G]) [A₊]₂ [A₊] ⊩ʳu
-      r≢𝟘 = no-erased-matches 𝟙≉𝟘 P
+      r≡𝟘→k≡0 = case no-erased-matches of λ where
+        (inj₁ nem) → λ r≡𝟘 → PE.⊥-elim (nem 𝟙≉𝟘 P r≡𝟘)
+        (inj₂ k≡0) → λ _ → k≡0
       [At] , ⊩ʳprodrec =
-        prodrecωʳ [Γ] [F] [G] [Σ] [A] [A₊] [t] [u]
-                  (PE.subst (δ ▸ _ ⊩ʳ⟨ _ ⟩ t ∷[_] _ / _ / [Σ]) (≉𝟘→ᵐ·≡ r≢𝟘) ⊩ʳt)
-                  ⊩ʳu′ r≢𝟘
+        prodrecʳ [Γ] [F] [G] [Σ] [A] [A₊] [t] [u]
+                 (λ r≢𝟘 → PE.subst (δ ▸ _ ⊩ʳ⟨ _ ⟩ t ∷[_] _ / _ / [Σ]) (≉𝟘→ᵐ·≡ r≢𝟘) ⊩ʳt)
+                 ⊩ʳu′ r≡𝟘→k≡0
   in  [Γ] , [At] ,
       subsumption-≤ {t = prodrec _ _ _ A t u} [Γ] [At] ⊩ʳprodrec γ≤pδ+η
 fundamental (zeroⱼ ⊢Γ) γ▸t = zeroʳ ⊢Γ

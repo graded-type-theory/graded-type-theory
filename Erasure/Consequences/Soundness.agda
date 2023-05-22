@@ -15,8 +15,9 @@ module Erasure.Consequences.Soundness
   {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   (𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet)
   (consistent : ∀ {t} → Δ ⊢ t ∷ Empty → ⊥)
-  -- Erased matches are not allowed.
-  (no-erased-matches : No-erased-matches 𝕄)
+  -- Erased matches are not allowed unless the context
+  -- is empty
+  (no-erased-matches : No-erased-matches 𝕄 ⊎ k ≡ 0)
   {{eqrel : EqRelSet M}}
   where
 
