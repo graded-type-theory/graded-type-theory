@@ -46,25 +46,25 @@ mutual
     case sym~↓ Γ≡Δ t~u of λ {
       (B , whnfB , A≡B , u~t) →
     case Π≡A A≡B whnfB of λ {
-      (p , q , F′ , G′ , ΠF′G′≡B) →
+      (F′ , G′ , ΠF′G′≡B) →
     case injectivity (PE.subst (λ x → _ ⊢ _ ≡ x) ΠF′G′≡B A≡B) of λ {
-      (F≡F′ , G≡G′ , PE.refl , _) →
+      (F≡F′ , G≡G′ , _ , _) →
     _ , substTypeEq G≡G′ (soundnessConv↑Term x) ,
     app-cong (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) ΠF′G′≡B u~t)
       (convConvTerm (symConv↑Term Γ≡Δ x) (stabilityEq Γ≡Δ F≡F′)) }}}}
   sym~↑ Γ≡Δ (fst-cong p~r) =
     case sym~↓ Γ≡Δ p~r of λ (B , whnfB , A≡B , r~p) →
     case Σ≡A A≡B whnfB of λ where
-      (_ , _ , F′ , G′ , PE.refl) →
+      (F′ , G′ , PE.refl) →
         case Σ-injectivity A≡B of λ where
-          (F≡ , G≡ , PE.refl , _) →
+          (F≡ , G≡ , _ , _) →
             F′ , F≡ , fst-cong r~p
   sym~↑ Γ≡Δ (snd-cong {p} {r} {F} {G} p~r) =
     case sym~↓ Γ≡Δ p~r of λ (B , whnfB , A≡B , r~p) →
     case Σ≡A A≡B whnfB of λ where
-      (_ , _ , F′ , G′ , PE.refl) →
+      (F′ , G′ , PE.refl) →
         case Σ-injectivity A≡B of λ where
-          (F≡ , G≡ , PE.refl , _) →
+          (F≡ , G≡ , _ , _) →
             let fst≡ = soundness~↑ (fst-cong p~r) in
             G′ [ fst _ r ] , substTypeEq G≡ fst≡ , snd-cong r~p
   sym~↑ Γ≡Δ (natrec-cong x x₁ x₂ t~u) =
@@ -82,9 +82,9 @@ mutual
     (prodrec-cong {F = F} {G = G} C↑E g~h u↑v) =
     case sym~↓ Γ≡Δ g~h of λ (B , whnfB , ⊢Σ≡B , h~g) →
     case Σ≡A ⊢Σ≡B whnfB of λ where
-      (_ , q , F′ , G′ , PE.refl) →
+      (F′ , G′ , PE.refl) →
         case Σ-injectivity (stabilityEq Γ≡Δ ⊢Σ≡B) of λ where
-          (⊢F≡F′ , ⊢G≡G′ , PE.refl , PE.refl , _) →
+          (⊢F≡F′ , ⊢G≡G′ , _ , _ , _) →
             let g≡h = soundness~↓ g~h
                 C≡E = soundnessConv↑ C↑E
                 ⊢Σ , _ = syntacticEqTerm g≡h
@@ -175,7 +175,7 @@ mutual
   symConv↓Term Γ≡Δ (Σᵣ-ins t u t~u) =
     case sym~↓ Γ≡Δ t~u of λ (B , whnfB , A≡B , u~t) →
     case Σ≡A A≡B whnfB of λ where
-      (_ , _ , _ , B≡Σ , PE.refl) →
+      (_ , B≡Σ , PE.refl) →
         Σᵣ-ins (stabilityTerm Γ≡Δ u) (stabilityTerm Γ≡Δ t) u~t
   symConv↓Term Γ≡Δ (ne-ins t u x t~u) =
     let B , whnfB , A≡B , u~t = sym~↓ Γ≡Δ t~u

@@ -8,7 +8,6 @@ module Definition.LogicalRelation.Properties.Reflexivity
   {a} (M : Set a) {{eqrel : EqRelSet M}} where
 
 open import Definition.Untyped M hiding (_∷_)
-import Definition.Untyped.BindingType M as BT
 open import Definition.Typed M
 open import Definition.Typed.Weakening M
 open import Definition.Typed.Properties M
@@ -32,7 +31,7 @@ reflEq (Unitᵣ D) = red D
 reflEq (ne′ K [ ⊢A , ⊢B , D ] neK K≡K) =
    ne₌ _ [ ⊢A , ⊢B , D ] neK K≡K
 reflEq (Bᵣ′ W F G [ ⊢A , ⊢B , D ] ⊢F ⊢G A≡A [F] [G] G-ext) =
-   B₌ _ _ W D BT.refl A≡A
+   B₌ _ _ D A≡A
       (λ ρ ⊢Δ → reflEq ([F] ρ ⊢Δ))
       (λ ρ ⊢Δ [a] → reflEq ([G] ρ ⊢Δ [a]))
 reflEq (emb 0<1 [A]) = reflEq [A]

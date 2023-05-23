@@ -27,8 +27,6 @@ import Definition.LogicalRelation.Irrelevance M as I
 open import Definition.LogicalRelation.Substitution M
 import Definition.LogicalRelation.Substitution.Irrelevance M as IS
 
-import Definition.Untyped.BindingType M as BT
-
 open import Definition.Typed.Weakening M hiding (wk)
 open import Definition.Typed.Properties M
 
@@ -64,9 +62,8 @@ irrelevanceTermSV
   t®v
 irrelevanceTermSV
   [A] [A]′ t®v
-  (Bᵥ (BΠ p q) BΠ! (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-     (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁)
-     (BT.Π≋Π PE.refl PE.refl))
+  (Bᵥ (BΠ p q) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+     (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁))
        with B-PE-injectivity BΠ! BΠ! (whrDet* (red D , ΠΣₙ) (red D₁ , ΠΣₙ))
 ... | PE.refl , PE.refl , _
        with is-𝟘? p
@@ -84,9 +81,8 @@ irrelevanceTermSV
   in  irrelevanceTermSV ([G] id ⊢Δ [a]) ([G]₁ id ⊢Δ [a]′) t®v′ SV′
 irrelevanceTermSV {v = v}
   [A] [A]′ (t₁ , t₂ , t⇒t′ , [t₁] , v₂ , t₂®v₂ , extra)
-  (Bᵥ (BΣ _ p _) BΣ! (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-     (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁)
-     (BT.Σ≋Σ PE.refl))
+  (Bᵥ (BΣ _ p _) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+     (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁))
   with B-PE-injectivity BΣ! BΣ! (whrDet* (red D , ΠΣₙ) (red D₁ , ΠΣₙ))
 ... | PE.refl , PE.refl , _ =
   let [F]′ = [F] id ⊢Δ
@@ -109,8 +105,6 @@ irrelevanceTermSV [A] (emb 0<1 [A]′) t®v (emb¹⁰ SV) =
 -- Impossible cases
 irrelevanceTermSV _ _ () (Emptyᵥ _ _)
 irrelevanceTermSV _ _ () (ne _ _)
-irrelevanceTermSV _ _ _ (Bᵥ BΣ! BΠ! _ _ ())
-irrelevanceTermSV _ _ _ (Bᵥ BΠ! BΣ! _ _ ())
 
 -- Irrelevance of logical relation for erasure
 

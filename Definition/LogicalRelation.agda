@@ -10,7 +10,6 @@ module Definition.LogicalRelation
 open EqRelSet {{...}}
 
 open import Definition.Untyped Mod as U hiding (_∷_)
-open import Definition.Untyped.BindingType Mod
 open import Definition.Typed.Properties Mod
 open import Definition.Typed Mod
 open import Definition.Typed.Weakening Mod
@@ -317,10 +316,8 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
       field
         F′     : Term ℓ
         G′     : Term (1+ ℓ)
-        W′     : BindingType
-        D′     : Γ ⊢ B ⇒* ⟦ W′ ⟧ F′ ▹ G′
-        W≋W′   : W ≋ W′
-        A≡B    : Γ ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W′ ⟧ F′ ▹ G′
+        D′     : Γ ⊢ B ⇒* ⟦ W ⟧ F′ ▹ G′
+        A≡B    : Γ ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W ⟧ F′ ▹ G′
         [F≡F′] : {m : Nat} {ρ : Wk m ℓ} {Δ : Con Term m}
                → ([ρ] : ρ ∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ)
                → Δ ⊩¹ U.wk ρ F ≡ U.wk ρ F′ / [F] [ρ] ⊢Δ

@@ -44,8 +44,8 @@ escapeEq (Unitᵣ [ ⊢A , ⊢B , D ]) D′ = ≅-red D D′ Unitₙ Unitₙ (�
 escapeEq (ne′ K D neK K≡K) (ne₌ M D′ neM K≡M) =
   ≅-red (red D) (red D′) (ne neK) (ne neM) (~-to-≅ K≡M)
 escapeEq (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-             (B₌ F′ G′ W′ D′ W≋W′ A≡B [F≡F′] [G≡G′]) =
-  ≅-red (red D) D′ ⟦ W ⟧ₙ ⟦ W′ ⟧ₙ A≡B
+             (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
+  ≅-red (red D) D′ ⟦ W ⟧ₙ ⟦ W ⟧ₙ A≡B
 escapeEq (emb 0<1 A) A≡B = escapeEq A A≡B
 
 -- Reducible terms are well-formed.

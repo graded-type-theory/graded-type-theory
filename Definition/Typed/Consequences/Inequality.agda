@@ -358,7 +358,7 @@ B≢ne W neK W≡K =
        ([A] : Γ ⊩′⟨ l ⟩B⟨ BΠ p q ⟩ A)
        ([B] : Γ ⊩′⟨ l′ ⟩B⟨ BΣ m p′ q′ ⟩ B)
      → ShapeView Γ l l′ _ _ (Bᵣ (BΠ p q) [A]) (Bᵣ (BΣ m p′ q′) [B]) → ⊥
-Π≢Σ′ a b (Bᵥ .(BΠ _ _) .(BΣ _ _ _) .a .b ())
+Π≢Σ′ _ _ ()
 
 Π≢Σ-red : ∀ {A B F G H E m} → Γ ⊢ A ⇒* Π p , q ▷ F ▹ G
          → Γ ⊢ B ⇒* Σ⟨ m ⟩ p′ , q′ ▷ H ▹ E → Γ ⊢ A ≡ B → ⊥
@@ -379,7 +379,7 @@ B≢ne W neK W≡K =
   ([A] : Γ ⊩′⟨ l ⟩B⟨ BΣ Σₚ p q ⟩ A)
   ([B] : Γ ⊩′⟨ l′ ⟩B⟨ BΣ Σᵣ p′ q′ ⟩ B) →
   ShapeView Γ l l′ _ _ (Bᵣ (BΣ Σₚ p q) [A]) (Bᵣ (BΣ Σᵣ p′ q′) [B]) → ⊥
-Σₚ≢Σᵣ′ [A] [B] (Bᵥ .BΣₚ .BΣᵣ .[A] .[B] ())
+Σₚ≢Σᵣ′ _ _ ()
 
 Σₚ≢Σᵣ-red : ∀ {A B F G H E} → Γ ⊢ A ⇒* Σₚ p , q ▷ F ▹ G
           → Γ ⊢ B ⇒* Σᵣ p′ , q′ ▷ H ▹ E → Γ ⊢ A ≡ B → ⊥

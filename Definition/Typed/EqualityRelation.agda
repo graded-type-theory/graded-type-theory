@@ -6,14 +6,13 @@
 module Definition.Typed.EqualityRelation {ℓ} (M : Set ℓ) where
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Untyped.BindingType M
 open import Definition.Typed M
 open import Definition.Typed.Weakening M using (_∷_⊆_)
 
 open import Tools.Fin
 open import Tools.Level
 open import Tools.Nat
-open import Tools.PropositionalEquality using (_≈_; refl)
+open import Tools.PropositionalEquality as PE using (_≈_; refl)
 
 private
   variable
@@ -234,20 +233,18 @@ record EqRelSet : Set (lsuc ℓ) where
   ~-to-≅ : ∀ {k l} → Γ ⊢ k ~ l ∷ U → Γ ⊢ k ≅ l
   ~-to-≅ k~l = ≅-univ (~-to-≅ₜ k~l)
 
-  ≅-W-cong : ∀ {F G H E} W W′
-          → W ≋ W′
+  ≅-W-cong : ∀ {F G H E} W
           → Γ ⊢ F
           → Γ ⊢ F ≅ H
           → Γ ∙ F ⊢ G ≅ E
-          → Γ ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W′ ⟧ H ▹ E
-  ≅-W-cong BΠ! _ (Π≋Π refl refl) = ≅-ΠΣ-cong
-  ≅-W-cong BΣ! _ (Σ≋Σ refl)      = ≅-ΠΣ-cong
+          → Γ ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W ⟧ H ▹ E
+  ≅-W-cong BΠ! = ≅-ΠΣ-cong
+  ≅-W-cong BΣ! = ≅-ΠΣ-cong
 
-  ≅ₜ-W-cong : ∀ {F G H E} W W′
-            → W ≋ W′
+  ≅ₜ-W-cong : ∀ {F G H E} W
             → Γ ⊢ F
             → Γ ⊢ F ≅ H ∷ U
             → Γ ∙ F ⊢ G ≅ E ∷ U
-            → Γ ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W′ ⟧ H ▹ E ∷ U
-  ≅ₜ-W-cong BΠ! _ (Π≋Π refl refl) = ≅ₜ-ΠΣ-cong
-  ≅ₜ-W-cong BΣ! _ (Σ≋Σ refl)      = ≅ₜ-ΠΣ-cong
+            → Γ ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W ⟧ H ▹ E ∷ U
+  ≅ₜ-W-cong BΠ! = ≅ₜ-ΠΣ-cong
+  ≅ₜ-W-cong BΣ! = ≅ₜ-ΠΣ-cong

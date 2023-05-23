@@ -28,7 +28,6 @@ import Tools.Reasoning.PropositionalEquality
 -- Grammar of the language
 import Definition.Untyped.NotParametrised
 import Definition.Untyped
-import Definition.Untyped.BindingType
 
 -- Properties of the untyped syntax
 import Definition.Untyped.Inversion

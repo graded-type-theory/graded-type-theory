@@ -62,9 +62,9 @@ dec~↑-app k k₁ k~k₁ PE.refl (yes p) =
       ΠFG₁≡A = neTypeEq neK k ⊢k
   in
   case Π≡A ΠFG₁≡A whnfA of λ {
-    (p′ , q′ , H , E , A≡ΠHE) →
+    (H , E , A≡ΠHE) →
   case injectivity (PE.subst (λ x → _ ⊢ _ ≡ x) A≡ΠHE ΠFG₁≡A) of λ {
-    (F≡H , G₁≡E , PE.refl , PE.refl) →
+    (F≡H , G₁≡E , _ , _) →
   yes (E [ _ ] , app-cong (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) A≡ΠHE k~k₁)
                    (convConvTerm p F≡H)) }}
 dec~↑-app k₂ k₃ k~k₁ _ (no ¬p) =
@@ -266,12 +266,10 @@ dec~↑-fst k~k dec (fst-cong l~l) with dec l~l
   case neTypeEq neK ⊢k₁ ⊢k of λ ΣFG≡A →
   case neTypeEq neL ⊢l₁ ⊢l of λ ΣF′G′≡A →
   case Σ≡A ΣFG≡A whnfA of λ where
-    (_ , _ , F , _ , PE.refl) →
-      case Σ-injectivity ΣFG≡A of λ where
+    (F , _ , PE.refl) →
+      case Σ-injectivity ΣF′G′≡A of λ where
         (_ , _ , PE.refl , _ , _) →
-          case Σ-injectivity ΣF′G′≡A of λ where
-            (_ , _ , PE.refl , _ , _) →
-              yes (F , fst-cong k~l)
+          yes (F , fst-cong k~l)
 ... | no ¬p = no (λ { (_ , fst-cong x) → ¬p (_ , x) })
 dec~↑-fst _ _ (var-refl _ _)        = no λ { (_ , ()) }
 dec~↑-fst _ _ (app-cong _ _)        = no λ { (_ , ()) }
@@ -294,12 +292,10 @@ dec~↑-snd {k = k} k~k dec (snd-cong l~l) with dec l~l
   case neTypeEq neK ⊢k₁ ⊢k of λ ΣFG≡A →
   case neTypeEq neL ⊢l₁ ⊢l of λ ΣF′G′≡A →
   case Σ≡A ΣFG≡A whnfA of λ where
-    (_ , _ , _ , G , PE.refl) →
-      case Σ-injectivity ΣFG≡A of λ where
+    (_ , G , PE.refl) →
+      case Σ-injectivity ΣF′G′≡A of λ where
         (_ , _ , PE.refl , _ , _) →
-          case Σ-injectivity ΣF′G′≡A of λ where
-            (_ , _ , PE.refl , _ , _) →
-              yes (G [ fst _ k ] , snd-cong k~l)
+          yes (G [ fst _ k ] , snd-cong k~l)
 ... | no ¬p = no (λ { (_ , snd-cong x₂) → ¬p (_ , x₂) })
 dec~↑-snd _ _ (var-refl _ _)        = no λ { (_ , ()) }
 dec~↑-snd _ _ (app-cong _ _)        = no λ { (_ , ()) }
@@ -379,11 +375,11 @@ mutual
     case neTypeEq neT ⊢t ⊢t₁ of λ ⊢B≡Σ →
     case neTypeEq neT′ ⊢t′ ⊢t′₁ of λ ⊢B≡Σ′ →
     case Σ≡A (sym ⊢B≡Σ) whnfB of λ where
-      (_ , _ , _ , _ , PE.refl) →
+      (_ , _ , PE.refl) →
         case trans (sym ⊢B≡Σ′) ⊢B≡Σ of λ ⊢Σ′≡Σ →
         case Σ-injectivity ⊢Σ′≡Σ of λ where
           (⊢F′≡F , ⊢G′≡G , _ , PE.refl , _) → case Σ-injectivity ⊢B≡Σ′ of  λ where
-            (⊢F′≡F″ , _ , PE.refl , PE.refl , _) →
+            (⊢F′≡F″ , _ , _ , _ , _) →
               case reflConEq (wf ⊢B) of λ ⊢Γ≡Γ →
                 dec~↑-prodrec (decConv↑ x (stabilityConv↑ (⊢Γ≡Γ ∙ ⊢Σ′≡Σ) x₃))
                               (λ C≡C′ → decConv↑TermConv (subst↑²TypeEq C≡C′) x₂
@@ -640,7 +636,7 @@ mutual
     let ⊢B , ⊢t , ⊢u = syntacticEqTerm (soundness~↓ t~u)
         whnfB , neT , _ = ne~↓ t~u
         Σ≡B = neTypeEq neT x ⊢t
-        _ , _ , _ , _ , B≡Σ′ = Σ≡A Σ≡B whnfB
+        _ , _ , B≡Σ′ = Σ≡A Σ≡B whnfB
     in  yes (Σᵣ-ins x x₃ (PE.subst (λ x →  _ ⊢ _ ~ _ ↓ x) B≡Σ′ t~u))
   ... | no ¬p = no (λ x₆ → ¬p (decConv↓Term-Σᵣ-ins x₆ x₂))
   decConv↓Term (ne-ins x x₁ x₂ x₃) (ne-ins x₄ x₅ x₆ x₇)

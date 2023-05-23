@@ -10,7 +10,6 @@ module Definition.LogicalRelation.Properties.Transitivity
 open EqRelSet {{...}}
 
 open import Definition.Untyped M hiding (_∷_)
-import Definition.Untyped.BindingType M as BT
 open import Definition.Typed M
 open import Definition.Typed.Properties M
 import Definition.Typed.Weakening M as Weak
@@ -19,6 +18,7 @@ open import Definition.LogicalRelation.ShapeView M
 open import Definition.LogicalRelation.Irrelevance M
 open import Definition.LogicalRelation.Properties.Conversion M
 
+open import Tools.Function
 open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
@@ -51,61 +51,23 @@ mutual
            (Bᵥ W W′ W″ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                  (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁)
                  (Bᵣ F₂ G₂ D₂ ⊢F₂ ⊢G₂ A≡A₂ [F]₂ [G]₂ G-ext₂))
-           (B₌ F′ G′ W‴ D′ W≋W′ A≡B [F≡F′] [G≡G′])
-           (B₌ F″ G″ W⁗ D″ W′≋W″ A≡B₁ [F≡F′]₁ [G≡G′]₁) =
-    let ΠF₁G₁≡ΠF′G′ = whrDet* (red D₁ , ⟦ W′ ⟧ₙ) (D′  , ⟦ W‴ ⟧ₙ)
-        F₁≡F′ , G₁≡G′ , W′≡W‴ = B-PE-injectivity W′ W‴ ΠF₁G₁≡ΠF′G′
-        F₂≡F″ , G₂≡G″ , _ = B-PE-injectivity W″ W⁗ (whrDet* (red D₂ , ⟦ W″ ⟧ₙ) (D″ , ⟦ W⁗ ⟧ₙ))
-        substLift : ∀ {m n : Nat} {Δ : Con Term m} {l : TypeLevel} {b : Term m}
-                      (ρ : Wk m n) (x : Term (1+ n)) → Set a
-        substLift {_} {_} {Δ} {l} {a} ρ x = Δ ⊩⟨ l ⟩ wk (lift ρ) x [ a ]
-        [F′] : ∀ {m : Nat} {ρ : Wk m n} {Δ : Con Term m}
-                 ([ρ] : ρ Weak.∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ) → Δ ⊩⟨ l′ ⟩ wk ρ F′
-        [F′] {_} {ρ} {Δ} [ρ] ⊢Δ = PE.subst (λ (x : Term n) → Δ ⊩⟨ l′ ⟩ wk ρ x) F₁≡F′ ([F]₁ [ρ] ⊢Δ)
-        [F″] : ∀ {m : Nat} {ρ : Wk m n} {Δ : Con Term m}
-                 ([ρ] : ρ Weak.∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ) → Δ ⊩⟨ l″ ⟩ wk ρ F″
-        [F″] {_} {ρ} {Δ} [ρ] ⊢Δ = PE.subst (λ (x : Term n) → Δ ⊩⟨ l″ ⟩ wk ρ x) F₂≡F″ ([F]₂ [ρ] ⊢Δ)
-        [F′≡F″] : ∀ {m : Nat} {ρ : Wk m n} {Δ : Con Term m}
-                    ([ρ] : ρ Weak.∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ) → Δ ⊩⟨ l′ ⟩ wk ρ F′ ≡ wk ρ F″ / [F′] [ρ] ⊢Δ
-        [F′≡F″] {_} {ρ} [ρ] ⊢Δ = irrelevanceEq′ (PE.cong (wk ρ) F₁≡F′)
-                                      ([F]₁ [ρ] ⊢Δ) ([F′] [ρ] ⊢Δ) ([F≡F′]₁ [ρ] ⊢Δ)
-        [G′] : ∀ {m : Nat} {ρ : Wk m n} {Δ : Con Term m} {a : Term m}
-                 ([ρ] : ρ Weak.∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ)
-             → Δ ⊩⟨ l′ ⟩ a ∷ wk ρ F′ / [F′] [ρ] ⊢Δ
-             → Δ ⊩⟨ l′ ⟩ wk (lift ρ) G′ [ a ]
-        [G′] {m} {ρ} [ρ] ⊢Δ [a] =
-          let [a′] = irrelevanceTerm′ (PE.cong (wk ρ) (PE.sym F₁≡F′))
-                                      ([F′] [ρ] ⊢Δ) ([F]₁ [ρ] ⊢Δ) [a]
-          in  PE.subst (substLift ρ) G₁≡G′ ([G]₁ [ρ] ⊢Δ [a′])
-        [G″] : ∀ {m} {ρ : Wk m n} {Δ : Con Term m} {a : Term m}
-                 ([ρ] : ρ Weak.∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ)
-             → Δ ⊩⟨ l″ ⟩ a ∷ wk ρ F″ / [F″] [ρ] ⊢Δ
-             → Δ ⊩⟨ l″ ⟩ wk (lift ρ) G″ [ a ]
-        [G″] {_} {ρ} [ρ] ⊢Δ [a] =
-          let [a″] = irrelevanceTerm′ (PE.cong (wk ρ) (PE.sym F₂≡F″))
-                                      ([F″] [ρ] ⊢Δ) ([F]₂ [ρ] ⊢Δ) [a]
-          in  PE.subst (substLift ρ) G₂≡G″ ([G]₂ [ρ] ⊢Δ [a″])
-        [G′≡G″] : ∀ {m : Nat} {ρ : Wk m n} {Δ : Con Term m} {a : Term m}
-                  ([ρ] : ρ Weak.∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ)
-                  ([a] : Δ ⊩⟨ l′ ⟩ a ∷ wk ρ F′ / [F′] [ρ] ⊢Δ)
-                → Δ ⊩⟨ l′ ⟩ wk (lift ρ) G′  [ a ]
-                          ≡ wk (lift ρ) G″ [ a ] / [G′] [ρ] ⊢Δ [a]
-        [G′≡G″] {_} {ρ} {Δ} {a₁} [ρ] ⊢Δ [a′] =
-          let [a]₁ = irrelevanceTerm′ (PE.cong (wk ρ) (PE.sym F₁≡F′))
-                                      ([F′] [ρ] ⊢Δ) ([F]₁ [ρ] ⊢Δ) [a′]
-          in  irrelevanceEq′ (PE.cong (λ (x : Term (1+ n)) → wk (lift ρ) x [ a₁ ]) G₁≡G′)
-                             ([G]₁ [ρ] ⊢Δ [a]₁) ([G′] [ρ] ⊢Δ [a′])
-                             ([G≡G′]₁ [ρ] ⊢Δ [a]₁)
-        W≋W⁗ = BT.trans W≋W′ (PE.subst (λ (W : BindingType) → W BT.≋ W⁗) W′≡W‴ W′≋W″)
-        A≡B₁ = ≅-trans A≡B (PE.subst (λ (x : Term n) → Γ ⊢ x ≅ ⟦ W⁗ ⟧ F″ ▹ G″) ΠF₁G₁≡ΠF′G′ A≡B₁)
-        in  B₌ F″ G″ W⁗ D″ W≋W⁗ A≡B₁
-               (λ ρ ⊢Δ → transEq ([F] ρ ⊢Δ) ([F′] ρ ⊢Δ) ([F″] ρ ⊢Δ)
-                                 ([F≡F′] ρ ⊢Δ) ([F′≡F″] ρ ⊢Δ))
-                λ ρ ⊢Δ [a] →
-                  let [a′] = convTerm₁ ([F] ρ ⊢Δ) ([F′] ρ ⊢Δ) ([F≡F′] ρ ⊢Δ) [a]
-                      [a″] = convTerm₁ ([F′] ρ ⊢Δ) ([F″] ρ ⊢Δ) ([F′≡F″] ρ ⊢Δ) [a′]
-                  in  transEq ([G] ρ ⊢Δ [a]) ([G′] ρ ⊢Δ [a′]) ([G″] ρ ⊢Δ [a″])
-                              ([G≡G′] ρ ⊢Δ [a]) ([G′≡G″] ρ ⊢Δ [a′])
+           (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
+           (B₌ F″ G″ D″ A≡B₁ [F≡F′]₁ [G≡G′]₁) =
+    case B-PE-injectivity W′ W
+           (whrDet* (red D₁ , ⟦ W′ ⟧ₙ) (D′ , ⟦ W ⟧ₙ)) of λ {
+      (PE.refl , PE.refl , PE.refl) →
+    case B-PE-injectivity W″ W′
+           (whrDet* (red D₂ , ⟦ W″ ⟧ₙ) (D″ , ⟦ W′ ⟧ₙ)) of λ {
+      (PE.refl , PE.refl , PE.refl) →
+    B₌ F″ G″ D″ (≅-trans A≡B A≡B₁)
+      (λ ρ ⊢Δ → transEq ([F] ρ ⊢Δ) ([F]₁ ρ ⊢Δ) ([F]₂ ρ ⊢Δ)
+                  ([F≡F′] ρ ⊢Δ) ([F≡F′]₁ ρ ⊢Δ))
+      (λ ρ ⊢Δ [a] →
+         let [a′] = convTerm₁ ([F] ρ ⊢Δ) ([F]₁ ρ ⊢Δ) ([F≡F′] ρ ⊢Δ) [a]
+             [a″] = convTerm₁ ([F]₁ ρ ⊢Δ) ([F]₂ ρ ⊢Δ) ([F≡F′]₁ ρ ⊢Δ)
+                      [a′]
+         in  transEq ([G] ρ ⊢Δ [a]) ([G]₁ ρ ⊢Δ [a′]) ([G]₂ ρ ⊢Δ [a″])
+                     ([G≡G′] ρ ⊢Δ [a]) ([G≡G′]₁ ρ ⊢Δ [a′])) }}
   transEqT (Uᵥ ⊢Γ ⊢Γ₁ ⊢Γ₂) A≡B B≡C = A≡B
   transEqT (emb⁰¹¹ AB) A≡B B≡C = transEqT AB A≡B B≡C
   transEqT (emb¹⁰¹ AB) A≡B B≡C = transEqT AB A≡B B≡C

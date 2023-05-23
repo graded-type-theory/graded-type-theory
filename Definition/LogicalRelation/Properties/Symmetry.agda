@@ -10,7 +10,6 @@ module Definition.LogicalRelation.Properties.Symmetry
 open EqRelSet {{...}}
 
 open import Definition.Untyped M hiding (_∷_)
-import Definition.Untyped.BindingType M as BT
 open import Definition.Typed M
 open import Definition.Typed.Properties M
 import Definition.Typed.Weakening M as W
@@ -41,11 +40,13 @@ mutual
          rewrite whrDet* (red D′ , ne neM) (red D₁ , ne neK₁) =
     ne₌ _ D neK
         (~-sym K≡M)
-  symEqT {n} {Γ = Γ} {l′ = l′} (Bᵥ W W′ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-                       (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) W≋W′)
-         (B₌ F′ G′ W″ D′ W≋W″ A≡B [F≡F′] [G≡G′]) =
-    let ΠF₁G₁≡ΠF′G′       = whrDet* (red D₁ , ⟦ W′ ⟧ₙ) (D′ , ⟦ W″ ⟧ₙ)
-        F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity W′ W″ ΠF₁G₁≡ΠF′G′
+  symEqT
+    {n} {Γ = Γ} {l′ = l′}
+    (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+       (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁))
+    (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
+    let ΠF₁G₁≡ΠF′G′       = whrDet* (red D₁ , ⟦ W ⟧ₙ) (D′ , ⟦ W ⟧ₙ)
+        F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity W W ΠF₁G₁≡ΠF′G′
         [F₁≡F] : ∀ {ℓ : Nat} {Δ : Con Term ℓ} {ρ : Wk ℓ n} ([ρ] : ρ W.∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ)
                → Δ ⊩⟨ l′ ⟩ (wk ρ F₁) ≡ (wk ρ F) / [F]₁ [ρ] ⊢Δ
         [F₁≡F] {_} {Δ} {ρ} [ρ] ⊢Δ =
@@ -55,7 +56,7 @@ mutual
                              ([ρF′] [ρ] ⊢Δ) ([F]₁ [ρ] ⊢Δ)
                              (symEq ([F] [ρ] ⊢Δ) ([ρF′] [ρ] ⊢Δ)
                                     ([F≡F′] [ρ] ⊢Δ))
-    in  B₌ _ _ W (red D) (BT.sym W≋W′)
+    in  B₌ _ _ (red D)
           (≅-sym (PE.subst (λ (x : Term n) → Γ ⊢ ⟦ W ⟧ F ▹ G ≅ x) (PE.sym ΠF₁G₁≡ΠF′G′) A≡B))
           [F₁≡F]
           (λ {_} {ρ} {Δ} {a} [ρ] ⊢Δ [a] →

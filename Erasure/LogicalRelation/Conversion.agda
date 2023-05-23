@@ -33,7 +33,6 @@ open import Definition.LogicalRelation.Substitution.Properties M
 import Definition.LogicalRelation.Substitution.Irrelevance M as IS
 open import Definition.Mode 𝕄
 open import Definition.Untyped.Properties M
-import Definition.Untyped.BindingType M as BT
 
 open import Definition.Typed.Consequences.Injectivity M
 open import Definition.Typed.Consequences.Substitution M
@@ -70,9 +69,9 @@ convTermʳ′ _ _ A≡B (ℕᵥ ℕA ℕB) t®v = t®v
 convTermʳ′ _ _ A≡B (Unitᵥ UnitA UnitB) t®v = t®v
 convTermʳ′
   [A] [B] A≡B
-  (Bᵥ (BΠ p q) BΠ! (Bᵣ F G [ _ , _ , A⇒Π ] ⊢F ⊢G A≡A [F] [G] G-ext)
-     (Bᵣ F₁ G₁ [ _ , _ , B⇒Π₁ ] ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁)
-     (BT.Π≋Π PE.refl PE.refl)) t®v
+  (Bᵥ (BΠ p q) (Bᵣ F G [ _ , _ , A⇒Π ] ⊢F ⊢G A≡A [F] [G] G-ext)
+     (Bᵣ F₁ G₁ [ _ , _ , B⇒Π₁ ] ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁))
+  t®v
      with is-𝟘? p
 ... | yes PE.refl = λ [a]′ →
   let Π≡Π₁ = reduction′ A⇒Π B⇒Π₁ ΠΣₙ ΠΣₙ A≡B
@@ -107,9 +106,8 @@ convTermʳ′
   in  convTermʳ′ ([G] id ⊢Δ [a]) ([G]₁ id ⊢Δ [a]′) G[a]≡G₁[a] SV′ t®v′
 convTermʳ′ {v = v}
   [A] [B] A≡B
-  (Bᵥ (BΣ _ p _) BΣ! (Bᵣ F G [ _ , _ , A⇒Σ ] ⊢F ⊢G A≡A [F] [G] G-ext)
-     (Bᵣ F₁ G₁ [ _ , _ , B⇒Σ₁ ] ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁)
-     (BT.Σ≋Σ PE.refl))
+  (Bᵥ (BΣ _ p _) (Bᵣ F G [ _ , _ , A⇒Σ ] ⊢F ⊢G A≡A [F] [G] G-ext)
+     (Bᵣ F₁ G₁ [ _ , _ , B⇒Σ₁ ] ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁))
   (t₁ , t₂ , t⇒t′ , [t₁] , v₂ , t₂®v₂ , extra) =
   let Σ≡Σ₁ = reduction′ A⇒Σ B⇒Σ₁ ΠΣₙ ΠΣₙ A≡B
       F≡F₁ , G≡G₁ , _ = Σ-injectivity Σ≡Σ₁
@@ -144,8 +142,6 @@ convTermʳ′ [A] (emb 0<1 [B]) A≡B (emb¹⁰ SV) t®v =
 -- Impossible cases
 convTermʳ′ _ _ _ (Emptyᵥ _ _) ()
 convTermʳ′ _ _ _ (ne _ _) ()
-convTermʳ′ _ _ _ (Bᵥ BΣ! BΠ! _ _ ())
-convTermʳ′ _ _ _ (Bᵥ BΠ! BΣ! _ _ ())
 
 -- Conversion of logical relation for erasure
 -- If t ® v ∷ A and Δ ⊢ A ≡ B then t ® v ∷ B

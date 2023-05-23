@@ -10,7 +10,6 @@ module Definition.LogicalRelation.Properties.Reduction
 open EqRelSet {{...}}
 
 open import Definition.Untyped M hiding (Wk; _∷_)
-import Definition.Untyped.BindingType M as BT
 open import Definition.Typed M
 open import Definition.Typed.Properties M
 import Definition.Typed.Weakening M as Wk
@@ -53,7 +52,7 @@ redSubst* D (ne′ K [ ⊢B , ⊢K , D′ ] neK K≡K) =
 redSubst* D (Bᵣ′ W F G [ ⊢B , ⊢ΠFG , D′ ] ⊢F ⊢G A≡A [F] [G] G-ext) =
   let ⊢A = redFirst* D
   in  (Bᵣ′ W F G [ ⊢A , ⊢ΠFG , D ⇨* D′ ] ⊢F ⊢G A≡A [F] [G] G-ext)
-  ,   (B₌ _ _ _ D′ BT.refl A≡A (λ ρ ⊢Δ → reflEq ([F] ρ ⊢Δ))
+  ,   (B₌ _ _ D′ A≡A (λ ρ ⊢Δ → reflEq ([F] ρ ⊢Δ))
         (λ ρ ⊢Δ [a] → reflEq ([G] ρ ⊢Δ [a])))
 redSubst* D (emb 0<1 x) with redSubst* D x
 redSubst* D (emb 0<1 x) | y , y₁ = emb 0<1 y , y₁

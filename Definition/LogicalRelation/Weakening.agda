@@ -206,8 +206,9 @@ wkEq {ρ = ρ} [ρ] ⊢Δ (ne′ _ _ _ _) (ne₌ M D′ neM K≡M) =
   ne₌ (U.wk ρ M) (wkRed:*: [ρ] ⊢Δ D′)
       (wkNeutral ρ neM) (~-wk [ρ] ⊢Δ K≡M)
 wkEq {ρ = ρ} [ρ] ⊢Δ (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-                (B₌ F′ G′ BΠ! D′ W≋W′ A≡B [F≡F′] [G≡G′]) =
-  B₌ (U.wk ρ F′) (U.wk (lift ρ) G′) BΠ! (T.wkRed* [ρ] ⊢Δ D′) W≋W′ (≅-wk [ρ] ⊢Δ A≡B)
+                (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
+  B₌ (U.wk ρ F′)
+     (U.wk (lift ρ) G′) (T.wkRed* [ρ] ⊢Δ D′) (≅-wk [ρ] ⊢Δ A≡B)
      (λ {_} {ρ₁} [ρ₁] ⊢Δ₁ → irrelevanceEq″ (PE.sym (wk-comp ρ₁ ρ F))
                                  (PE.sym (wk-comp ρ₁ ρ F′))
                                  ([F] ([ρ₁] •ₜ [ρ]) ⊢Δ₁)
@@ -226,8 +227,9 @@ wkEq {ρ = ρ} [ρ] ⊢Δ (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                                           ([G] ([ρ₁] •ₜ [ρ]) ⊢Δ₁ [a]′))
                             ([G≡G′] ([ρ₁] •ₜ [ρ]) ⊢Δ₁ [a]′))
 wkEq {ρ = ρ} [ρ] ⊢Δ (Σᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-                (B₌ F′ G′ BΣ! D′ W≋W′ A≡B [F≡F′] [G≡G′]) =
-  B₌ (U.wk ρ F′) (U.wk (lift ρ) G′) BΣ! (T.wkRed* [ρ] ⊢Δ D′) W≋W′ (≅-wk [ρ] ⊢Δ A≡B)
+                (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
+  B₌ (U.wk ρ F′) (U.wk (lift ρ) G′) (T.wkRed* [ρ] ⊢Δ D′)
+     (≅-wk [ρ] ⊢Δ A≡B)
      (λ {_} {ρ₁} [ρ₁] ⊢Δ₁ → irrelevanceEq″ (PE.sym (wk-comp ρ₁ ρ F))
                                  (PE.sym (wk-comp ρ₁ ρ F′))
                                  ([F] ([ρ₁] •ₜ [ρ]) ⊢Δ₁)
@@ -246,9 +248,6 @@ wkEq {ρ = ρ} [ρ] ⊢Δ (Σᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                                           ([G] ([ρ₁] •ₜ [ρ]) ⊢Δ₁ [a]′))
                             ([G≡G′] ([ρ₁] •ₜ [ρ]) ⊢Δ₁ [a]′))
 wkEq ρ ⊢Δ (emb 0<1 x) A≡B = wkEq ρ ⊢Δ x A≡B
--- Impossible cases
-wkEq ρ ⊢Δ (Bᵣ BΣ! x) (B₌ F′ G′ BΠ! D′ () A≡B [F≡F′] [G≡G′])
-wkEq ρ ⊢Δ (Bᵣ BΠ! x) (B₌ F′ G′ BΣ! D′ () A≡B [F≡F′] [G≡G′])
 
 wkTerm : ∀ {A t l} ([ρ] : ρ ∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ)
          ([A] : Γ ⊩⟨ l ⟩ A)

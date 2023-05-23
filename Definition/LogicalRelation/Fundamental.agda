@@ -11,7 +11,6 @@ open EqRelSet {{...}}
 
 open import Definition.Untyped M hiding (_∷_) renaming (_[_,_] to _[_,,_])
 open import Definition.Untyped.Properties M
-import Definition.Untyped.BindingType M as BT
 
 open import Definition.Typed M
 open import Definition.LogicalRelation M
@@ -108,7 +107,6 @@ mutual
       ,   Πᵛ {F = F} {G} [Γ] [F] [G]′
       ,   Πᵛ {F = H} {E} [Γ] [H] [E]′
       ,   Π-congᵛ {F = F} {G} {H} {E} [Γ] [F] [G]′ [H] [E]′ [F≡H] [G≡E]′
-            (BT.Π≋Π PE.refl PE.refl)
   fundamentalEq (ΠΣ-cong {b = BMΣ _} {F = F} {H} {G} {E} ⊢F A≡B A≡B₁)
     with fundamentalEq A≡B | fundamentalEq A≡B₁
   … | [Γ] , [F] , [H] , [F≡H] | [Γ]₁ , [G] , [E] , [G≡E] =
@@ -121,7 +119,6 @@ mutual
       ,   Σᵛ {F = F} {G} [Γ] [F] [G]′
       ,   Σᵛ {F = H} {E} [Γ] [H] [E]′
       ,   Σ-congᵛ {F = F} {G} {H} {E} [Γ] [F] [G]′ [H] [E]′ [F≡H] [G≡E]′
-            (BT.Σ≋Σ PE.refl)
 
   -- Fundamental theorem for variables.
   fundamentalVar : ∀ {A x}
@@ -360,8 +357,7 @@ mutual
           (Πᵗᵛ {F = F} {G} [Γ] [F] [U]₁′ [F]ₜ′ [G]ₜ′)
           (Πᵗᵛ {F = H} {E} [Γ] [H] [U]₂′ [H]ₜ′ [E]ₜ′)
           (Π-congᵗᵛ {F = F} {G} {H} {E} [Γ] [F] [H] [U]₁′ [U]₂′
-                    [F]ₜ′ [G]ₜ′ [H]ₜ′ [E]ₜ′ [F≡H]ₜ′ [G≡E]ₜ′
-                    (BT.Π≋Π PE.refl PE.refl))
+                    [F]ₜ′ [G]ₜ′ [H]ₜ′ [E]ₜ′ [F≡H]ₜ′ [G≡E]ₜ′)
   fundamentalTermEq
     (ΠΣ-cong {b = BMΣ _} {E = E} {F = F} {G = G} {H = H} ⊢F F≡H G≡E)
     with fundamental ⊢F | fundamentalTermEq F≡H | fundamentalTermEq G≡E
@@ -391,8 +387,7 @@ mutual
           (Σᵗᵛ {F = F} {G} [Γ] [F] [U]₁′ [F]ₜ′ [G]ₜ′)
           (Σᵗᵛ {F = H} {E} [Γ] [H] [U]₂′ [H]ₜ′ [E]ₜ′)
           (Σ-congᵗᵛ {F = F} {G} {H} {E} [Γ] [F] [H] [U]₁′ [U]₂′
-                    [F]ₜ′ [G]ₜ′ [H]ₜ′ [E]ₜ′ [F≡H]ₜ′ [G≡E]ₜ′
-                    (BT.Σ≋Σ PE.refl))
+                    [F]ₜ′ [G]ₜ′ [H]ₜ′ [E]ₜ′ [F≡H]ₜ′ [G≡E]ₜ′)
   fundamentalTermEq (app-cong {a = a} {b} {f} {g} {F} {G} f≡g a≡b)
     with fundamentalTermEq f≡g | fundamentalTermEq a≡b
   ... | [Γ] , modelsTermEq [ΠFG] [f] [g] [f≡g]

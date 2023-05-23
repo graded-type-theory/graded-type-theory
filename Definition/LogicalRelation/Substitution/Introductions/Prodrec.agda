@@ -11,7 +11,6 @@ open EqRelSet {{...}}
 
 open import Definition.Untyped M as U hiding (wk; _∷_)
 open import Definition.Untyped.Properties M
-import Definition.Untyped.BindingType M as BT
 
 open import Definition.Typed M
 open import Definition.Typed.Properties M
@@ -496,7 +495,8 @@ prodrecCong {n = n} {m = m} {p = p′} {q = q} {Δ = Δ} {r = r}
       [u₊≡u′₊] = transEqTerm [σ₊A₊] [uₚ≡uᵣ] [uᵣ≡u′ᵣ]′
 
       [σ′Σ] = proj₁ (unwrap [Σ] ⊢Δ [σ′])
-      [Σ≡Σ′] = Σ-congᵛ {F = F} {G} {F′} {G′} {q = q} [Γ] [F] [G] [F′] [G′] [F≡F′] [G≡G′] BT.refl
+      [Σ≡Σ′] = Σ-congᵛ {F = F} {G} {F′} {G′} {q = q}
+                 [Γ] [F] [G] [F′] [G′] [F≡F′] [G≡G′]
       [σ′Σ≡σ′Σ′] = [Σ≡Σ′] ⊢Δ [σ′]
       [t′]′ = convTerm₂ [σ′Σ] [σ′Σ′] [σ′Σ≡σ′Σ′] [t′]
       [σ′At′] = proj₁ (unwrap [A] {σ = consSubst σ′ t′} ⊢Δ ([σ′] , [t′]′))
@@ -543,7 +543,8 @@ prodrecCong {n = n} {m = m} {p = p′} {q = q} {Δ = Δ} {r = r}
             [t≡t′]@(Σₜ₌ _ _ d d′ (ne x) (ne y) p≅r wk[t] wk[t′] p~r) =
   let [Σ] = Σᵛ {F = F} {G = G} {q = q} {m = Σᵣ} [Γ] [F] [G]
       [Σ′] = Σᵛ {F = F′} {G = G′} {q = q} {m = Σᵣ} [Γ] [F′] [G′]
-      [Σ≡Σ′] = Σ-congᵛ {F = F} {G} {F′} {G′} {q = q} {m = Σᵣ} [Γ] [F] [G] [F′] [G′] [F≡F′] [G≡G′] BT.refl
+      [Σ≡Σ′] = Σ-congᵛ {F = F} {G} {F′} {G′} {q = q} {m = Σᵣ}
+                 [Γ] [F] [G] [F′] [G′] [F≡F′] [G≡G′]
       σΣ = subst σ (Σᵣ p′ , q ▷ F ▹ G)
       σΣ′ = subst σ (Σᵣ _ , q ▷ F′ ▹ G′)
       σ′Σ′ = subst σ′ (Σᵣ p′ , q ▷ F′ ▹ G′)
@@ -974,7 +975,8 @@ prodrec-congᵛ {Γ = Γ} {q = q} {r = r}
       [σt′] = proj₁ ([t′]′ ⊢Δ [σ])
       [σt≡σt′] = [t≡t′] ⊢Δ [σ]
       [σt≡σt′]′ = irrelevanceEqTerm (proj₁ (unwrap [Σ] ⊢Δ [σ])) (proj₁ (unwrap [Σ]′ ⊢Δ [σ])) [σt≡σt′]
-      [Σ≡Σ′] = Σ-congᵛ {F = F} {G} {F′} {G′} {q = q} [Γ] [F] [G] [F′] [G′] [F≡F′] [G≡G′] BT.refl
+      [Σ≡Σ′] = Σ-congᵛ {F = F} {G} {F′} {G′} {q = q}
+                 [Γ] [F] [G] [F′] [G′] [F≡F′] [G≡G′]
       [σΣ≡σΣ′] = [Σ≡Σ′] ⊢Δ [σ]
       ⊢σΣ≡σΣ′ = ≅-eq (escapeEq (proj₁ (unwrap [Σ]′ ⊢Δ [σ])) [σΣ≡σΣ′])
       -- TODO: Slow!
