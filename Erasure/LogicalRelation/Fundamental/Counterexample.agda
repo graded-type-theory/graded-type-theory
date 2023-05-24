@@ -2,8 +2,6 @@ open import Definition.Modality
 open import Definition.Typed.EqualityRelation
 open import Tools.Nullary
 open import Tools.PropositionalEquality as PE
--- open import Tools.Bool
--- open import Tools.Empty
 
 module Erasure.LogicalRelation.Fundamental.Counterexample
   {a} {M : Set a} (𝕄 : Modality M)
@@ -43,7 +41,6 @@ open import Erasure.LogicalRelation 𝕄 ⊢Δ is-𝟘?
 open import Erasure.LogicalRelation.Irrelevance 𝕄 ⊢Δ is-𝟘?
 open import Erasure.LogicalRelation.Subsumption 𝕄 ⊢Δ is-𝟘?
 
-open import Tools.Empty
 open import Tools.Fin
 open import Tools.Product
 

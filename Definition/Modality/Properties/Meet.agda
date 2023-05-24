@@ -7,7 +7,6 @@ open Semiring-with-meet 𝕄
 
 open import Definition.Modality.Properties.PartialOrder 𝕄
 
-open import Tools.Bool using (T)
 open import Tools.Product
 open import Tools.PropositionalEquality
 import Tools.Reasoning.Equivalence

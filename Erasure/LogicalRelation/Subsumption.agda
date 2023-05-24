@@ -28,12 +28,9 @@ open import Erasure.LogicalRelation 𝕄 ⊢Δ is-𝟘?
 open import Erasure.Target as T hiding (_⇒_; _⇒*_)
 
 open import Tools.Fin
-open import Tools.Function
 open import Tools.Level
 open import Tools.Nat
-open import Tools.Nullary
 open import Tools.Product
-open import Tools.Sum
 open import Tools.Unit
 
 -- open Modality ErasureModality using (·-zeroʳ)

@@ -27,7 +27,6 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
-open import Tools.Sum
 
 private variable
   A t : Term _

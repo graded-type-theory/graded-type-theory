@@ -22,7 +22,6 @@ open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
-open import Tools.Nullary
 
 open PE using (_≈_)
 

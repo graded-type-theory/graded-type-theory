@@ -48,12 +48,10 @@ open import Definition.LogicalRelation Erasure
 open import Definition.LogicalRelation.Irrelevance Erasure
 open import Definition.LogicalRelation.Fundamental.Reducibility Erasure
 
-open import Tools.Bool
 open import Tools.PropositionalEquality as PE using (_≢_)
 open import Tools.Product
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
-open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 -- Preliminaries
 ---------------------------------------------------------------------------

@@ -37,7 +37,6 @@ import Definition.LogicalRelation.Substitution.Irrelevance M as IS
 
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
 import Tools.Reasoning.PropositionalEquality

@@ -20,12 +20,10 @@ open import Definition.Untyped M as U hiding (Wk; Term; wk; wkVar; _[_]; _[_,_];
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
 open import Definition.Modality.Usage 𝕄
-open import Definition.Modality.Usage.Inversion 𝕄
 open import Definition.Modality.Usage.Properties 𝕄
 open import Definition.Mode 𝕄
 
 open import Tools.Fin
-open import Tools.Function
 open import Tools.Nat renaming (_+_ to _+ⁿ_)
 
 import Tools.Reasoning.Equivalence

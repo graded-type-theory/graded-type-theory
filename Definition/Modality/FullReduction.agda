@@ -3,8 +3,6 @@
 -- certain assumptions)
 ------------------------------------------------------------------------
 
-open import Tools.Bool
-open import Tools.Sum using (_⊎_; inj₁; inj₂)
 import Tools.PropositionalEquality as PE
 
 open import Definition.Modality

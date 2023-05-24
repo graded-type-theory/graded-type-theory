@@ -4,8 +4,6 @@
 ------------------------------------------------------------------------
 
 open import Definition.Modality
-open import Tools.Bool
-open import Tools.Sum
 
 module Definition.Modality.Usage.Unrestricted.Eta
   {a} {M : Set a}

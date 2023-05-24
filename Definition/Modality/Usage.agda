@@ -9,11 +9,9 @@ open import Definition.Modality.Context 𝕄
 open import Definition.Mode 𝕄
 open import Definition.Untyped M hiding (_∙_)
 
-open import Tools.Bool
 open import Tools.Fin
 open import Tools.Nat
 open import Tools.PropositionalEquality as PE using (_≈_)
-open import Tools.Sum
 
 infix 10 _▸[_]_
 

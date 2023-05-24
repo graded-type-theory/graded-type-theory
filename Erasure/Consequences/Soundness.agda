@@ -4,8 +4,6 @@ open import Definition.Modality.Restrictions.Definitions
 open import Definition.Typed.EqualityRelation
 import Definition.Untyped as U hiding (_∷_)
 import Definition.Typed as T′
-open import Tools.Empty
-open import Tools.Nullary
 open import Tools.PropositionalEquality
 open import Tools.Sum
 

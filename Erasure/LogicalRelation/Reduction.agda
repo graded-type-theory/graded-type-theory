@@ -36,7 +36,6 @@ open import Erasure.Target as T hiding (_⇒_; _⇒*_)
 open import Erasure.Target.Properties as TP
 
 open import Tools.Function
-open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
 open import Tools.Sum hiding (id ; sym)

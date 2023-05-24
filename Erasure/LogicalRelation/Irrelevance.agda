@@ -31,7 +31,6 @@ open import Definition.Typed.Properties M
 open import Definition.Modality.Context 𝕄
 open import Definition.Mode 𝕄
 
-open import Tools.Function
 open import Tools.Level
 open import Tools.Nat
 open import Tools.Product

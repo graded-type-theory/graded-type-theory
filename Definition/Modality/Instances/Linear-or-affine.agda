@@ -16,7 +16,6 @@ import Definition.Modality.Properties.Star as Star
 import Definition.Modality.Restrictions
 
 import Tools.Algebra
-open import Tools.Bool using (true)
 open import Tools.Function
 open import Tools.Nullary
 open import Tools.Product

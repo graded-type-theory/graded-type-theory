@@ -18,7 +18,6 @@ open EqRelSet {{...}}
 
 open import Definition.LogicalRelation M
 open import Definition.LogicalRelation.Properties.Escape M
-open import Definition.LogicalRelation.Fundamental M
 open import Definition.LogicalRelation.Substitution M
 open import Definition.LogicalRelation.Substitution.Properties M
 open import Definition.LogicalRelation.Substitution.Introductions.Pi M
@@ -44,8 +43,6 @@ import Erasure.Target as T
 
 open import Tools.Nat
 open import Tools.Product
-open import Tools.Unit
-open import Tools.Reasoning.PropositionalEquality
 
 private
   variable

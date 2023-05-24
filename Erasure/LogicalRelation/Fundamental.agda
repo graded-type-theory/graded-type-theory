@@ -4,7 +4,6 @@ open import Definition.Typed.EqualityRelation
 import Definition.Typed as T′
 import Definition.Untyped as U hiding (_∷_)
 open import Tools.Empty
-open import Tools.Nullary
 open import Tools.Sum hiding (id)
 import Tools.PropositionalEquality as PE
 

@@ -2,8 +2,6 @@
 
 module Tools.Sum where
 
-open import Tools.Level
-
 open import Data.Sum.Base public using (_⊎_; inj₁; inj₂)
 
 -- Idempotency.

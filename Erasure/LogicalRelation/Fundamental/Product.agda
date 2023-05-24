@@ -60,7 +60,6 @@ import Erasure.Target as T
 import Erasure.Target.Properties as TP
 
 open import Tools.Function
-open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
 import Tools.Reasoning.PropositionalEquality

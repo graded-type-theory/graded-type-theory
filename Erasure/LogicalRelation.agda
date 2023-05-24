@@ -30,8 +30,6 @@ open import Tools.Function
 open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
-
-open import Tools.Sum hiding (id)
 open import Tools.Unit
 
 

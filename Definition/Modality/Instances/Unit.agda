@@ -1,5 +1,4 @@
 open import Tools.Bool
-open import Tools.Nullary
 open import Tools.Unit
 
 open import Definition.Modality.Restrictions ⊤
@@ -9,13 +8,10 @@ module Definition.Modality.Instances.Unit
   (restrictions : Term-restrictions)
   where
 
-open import Tools.Function
 open import Tools.Product
 open import Tools.PropositionalEquality
-open import Tools.Relation
 
 open import Tools.Algebra ⊤
-open import Tools.Sum
 
 open import Definition.Modality ⊤ public
 

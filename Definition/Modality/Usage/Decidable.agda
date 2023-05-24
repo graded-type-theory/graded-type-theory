@@ -25,7 +25,6 @@ open import Definition.Modality.Usage.Properties 𝕄
 open import Definition.Mode 𝕄
 open import Definition.Untyped M
 
-open import Tools.Bool
 open import Tools.Function
 open import Tools.Level
 open import Tools.Nat using (Nat)

@@ -22,7 +22,6 @@ import Definition.Modality.Properties.Multiplication as Multiplication
 import Definition.Modality.Properties.PartialOrder as PartialOrder
 import Definition.Modality.Properties.Star as Star
 import Definition.Modality.Restrictions
-open import Definition.Modality.Restrictions.Definitions
 
 import Tools.Algebra
 open import Tools.Function

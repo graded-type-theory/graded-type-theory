@@ -15,10 +15,8 @@ open import Definition.Modality.Usage 𝕄
 open import Definition.Mode 𝕄
 open import Definition.Untyped M hiding (_∙_)
 
-open import Tools.Bool
 open import Tools.Nat
 open import Tools.PropositionalEquality as PE
-open import Tools.Sum
 
 private
   variable

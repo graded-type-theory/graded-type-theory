@@ -9,7 +9,6 @@ open import Definition.Modality.Properties.Meet 𝕄
 open import Definition.Modality.Properties.PartialOrder 𝕄
 
 open import Tools.Algebra M
-open import Tools.Bool using (T)
 open import Tools.PropositionalEquality
 import Tools.Reasoning.PartialOrder
 

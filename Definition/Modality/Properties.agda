@@ -14,7 +14,6 @@ open import Definition.Modality.Properties.PartialOrder semiring-with-meet publi
 open import Definition.Modality.Properties.Star semiring-with-meet-and-star public
 
 open import Tools.Bool
-open import Tools.PropositionalEquality
 
 -- Export properties that hold if 𝟘 is well behaved
 -- under the assumption that 𝟘ᵐ is allowed.

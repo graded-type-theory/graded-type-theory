@@ -9,7 +9,6 @@ open import Definition.Modality.Properties.PartialOrder semiring-with-meet
 open import Definition.Modality.Properties.Meet semiring-with-meet
 
 open import Tools.Algebra M
-open import Tools.Bool using (T)
 open import Tools.PropositionalEquality
 
 private

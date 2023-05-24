@@ -8,7 +8,6 @@ module Erasure.Extraction {a} {M : Set a} (𝕄 : Modality M)
 
 open import Tools.Function
 open import Tools.Nat
-open import Tools.PropositionalEquality
 
 open import Definition.Untyped M as U
 open import Erasure.Target as T

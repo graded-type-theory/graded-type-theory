@@ -37,7 +37,6 @@ open import Definition.Typed.Reduction M
 open import Definition.Typed.RedSteps M
 open import Definition.Typed.Weakening M hiding (wk)
 
-open import Tools.Function
 open import Tools.Level
 open import Tools.Nat
 open import Tools.Product

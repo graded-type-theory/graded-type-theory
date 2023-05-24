@@ -12,7 +12,6 @@ open import Definition.LogicalRelation M
 open import Definition.LogicalRelation.Fundamental.Reducibility M
 
 open import Tools.Nat
-open import Tools.Nullary
 open import Tools.Product
 
 private
