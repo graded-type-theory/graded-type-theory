@@ -1,225 +1,414 @@
+--------------------------------------------------------------------------
+
+--------------------------------------------------------------------------
+
+-- The code does not follow the paper exactly. Notably, the formalization
+-- covers both the main one used in majority of the paper and the
+-- extended one used in section 8.
+
+-- This is done achieved through a type of restrictions
+-- (Definition.Modality.Restrictions) bundled with the modality semiring.
+-- In particular, the system without modes is retrieved by disallowing
+-- the zero mode and requireing that the extra Σ-type annotation equals
+-- 𝟙. The moded system is converesly retrieved by allowing the zero mode.
+
+-- This affects a number of other definitions and theorems which mention
+-- modes. When the zero mode is disallowed, these reduce to the statments
+-- found in the paper for the system without modes.
+
+-- In addition, some parts of the code have been updated no longer match
+-- the paper. Such differences are noted below.
+-- TODO: Note such differences below.
+
+
 module README where
 
--- Formalization for "Decidability of Conversion for Type Theory in Type Theory"
--- Git repository: https://github.com/mr-ohman/logrel-mltt
+import Definition.Modality
+import Definition.Modality.Context
+import Definition.Modality.FullReduction
+import Definition.Modality.Instances.Unit
+import Definition.Modality.Instances.Erasure
+import Definition.Modality.Instances.Erasure.Modality
+import Definition.Modality.Instances.Erasure.Properties
+import Definition.Modality.Instances.Affine
+import Definition.Modality.Instances.Linearity
+import Definition.Modality.Instances.LowerBounded
+import Definition.Modality.Instances.Recursive
+import Definition.Modality.Instances.BoundedStar
+import Definition.Modality.Usage
+import Definition.Modality.Usage.Decidable
+import Definition.Modality.Usage.Properties
+import Definition.Modality.Substitution
+import Definition.Modality.Substitution.Properties
 
-
-------------------
--- INTRODUCTION --
-------------------
-
--- A minimal library necessary for formalization:
-
--- The empty type and its elimination rule.
-import Tools.Empty
-
--- The unit type.
-import Tools.Unit
-
--- Sum type.
-import Tools.Sum
-
--- Product type.
-import Tools.Product
-
--- Identity function and composition.
-import Tools.Function
-
--- Negation and decidability type.
-import Tools.Nullary
-
--- Propositional equality and its properties.
-import Tools.PropositionalEquality
-
--- Natural numbers and decidability of equality.
-import Tools.Nat
-
-
----------------------------
--- LANGUAGE INTRODUCTION --
----------------------------
-
--- Syntax and semantics of weakening and substitution.
 import Definition.Untyped
-
--- Propositional equality properties: Equalities between expressions,
--- weakenings, substitutions and their combined composition.
--- (These lemmas are not in the paper.)
-import Definition.Untyped.Properties
-
--- Judgements: Typing rules, conversion, reduction rules
--- and well-formed substitutions and respective equality.
 import Definition.Typed
-
--- Well-formed context extraction and reduction properties.
 import Definition.Typed.Properties
-
--- Well-formed weakening and its properties.
-import Definition.Typed.Weakening
-
-
-------------------------------
--- KRIPKE LOGICAL RELATIONS --
-------------------------------
-
--- Generic equality relation definition.
-import Definition.Typed.EqualityRelation
-
--- The judgemental instance of the generic equality.
-import Definition.Typed.EqRelInstance
-
--- Logical relations definitions.
+import Definition.Typed.Usage
 import Definition.LogicalRelation
-
--- Properties of logical relation:
-
--- Reflexivity of the logical relation.
-import Definition.LogicalRelation.Properties.Reflexivity
-
--- Escape lemma for the logical relation.
-import Definition.LogicalRelation.Properties.Escape
-
--- Shape view of two or more types.
-import Definition.LogicalRelation.ShapeView
-
--- Proof irrelevance for the logical relation.
-import Definition.LogicalRelation.Irrelevance
-
--- Weakening of logical relation judgements.
-import Definition.LogicalRelation.Weakening
-
--- Conversion of the logical relation.
-import Definition.LogicalRelation.Properties.Conversion
-
--- Symmetry of the logical relation.
-import Definition.LogicalRelation.Properties.Symmetry
-
--- Transitvity of the logical relation.
-import Definition.LogicalRelation.Properties.Transitivity
-
--- Neutral introduction in the logical relation.
-import Definition.LogicalRelation.Properties.Neutral
-
--- Weak head expansion of the logical relation.
-import Definition.LogicalRelation.Properties.Reduction
-
--- Application in the logical relation.
-import Definition.LogicalRelation.Application
-
--- Validity judgements definitions
-import Definition.LogicalRelation.Substitution
-
--- Properties of validity judgements:
-
--- Proof irrelevance for the validity judgements.
-import Definition.LogicalRelation.Substitution.Irrelevance
-
--- Properties about valid substitutions:
--- * Substitution well-formedness.
--- * Substitution weakening.
--- * Substitution lifting.
--- * Identity substitution.
--- * Reflexivity, symmetry and transitivity of substitution equality.
-import Definition.LogicalRelation.Substitution.Properties
-
--- Single term substitution of validity judgements.
-import Definition.LogicalRelation.Substitution.Introductions.SingleSubst
-
--- The fundamental theorem.
 import Definition.LogicalRelation.Fundamental
-
--- Certain cases of the logical relation:
-
--- Validity of Π-types.
-import Definition.LogicalRelation.Substitution.Introductions.Pi
-
--- Validity of applications.
-import Definition.LogicalRelation.Substitution.Introductions.Application
-
--- Validity of λ-terms.
-import Definition.LogicalRelation.Substitution.Introductions.Lambda
-
--- Validity of natural recursion of natural numbers.
-import Definition.LogicalRelation.Substitution.Introductions.Natrec
-
-
--- Reducibility of well-formedness.
 import Definition.LogicalRelation.Fundamental.Reducibility
+import Definition.LogicalRelation.Substitution
+import Definition.Mode
 
--- Consequences of the fundamental theorem:
+import Erasure.Target
+import Erasure.Extraction
+import Erasure.Extraction.Properties
+import Erasure.LogicalRelation
+import Erasure.LogicalRelation.Reduction
+import Erasure.LogicalRelation.Subsumption
+import Erasure.LogicalRelation.Fundamental
+import Erasure.LogicalRelation.Fundamental.Counterexample
+import Erasure.SucRed
+import Erasure.Consequences.Soundness
 
--- Canonicity of the system.
-import Definition.Typed.Consequences.Canonicity
+import Application.NegativeAxioms.Canonicity.Erased
+import Application.NegativeAxioms.Canonicity.EliminateErased
 
--- Injectivity of Π-types.
-import Definition.Typed.Consequences.Injectivity
+------------------------------------------------------------------------
+-- 3: Modalities as grades in an ordered semiring
 
--- Syntactic validitiy of the system.
-import Definition.Typed.Consequences.Syntactic
+-- Definition 3.1: The modality semiring
+-- Note that for the definition given here, the restrictions should be
+-- set to disallow the zero mode.
 
--- All types and terms fully reduce to WHNF.
-import Definition.Typed.Consequences.Reduction
+Modality = Definition.Modality.Modality
 
--- Strong equality of types.
-import Definition.Typed.Consequences.Equality
+-- Operations on modality contexts are lifted to act pointwise
 
--- Syntactic inequality of types.
-import Definition.Typed.Consequences.Inequality
+_+_ = Definition.Modality.Context._+ᶜ_
+_·_ = Definition.Modality.Context._·ᶜ_
+_∧_ = Definition.Modality.Context._∧ᶜ_
+_⊛_▷_ = Definition.Modality.Context._⊛ᶜ_▷_
+_≤_ = Definition.Modality.Context._≤ᶜ_
 
--- Substiution in judgements and substitution composition.
-import Definition.Typed.Consequences.Substitution
+-- The trivial (one element) modality
 
--- Uniqueness of the types of neutral terms.
-import Definition.Typed.Consequences.NeTypeEq
+unitModality = Definition.Modality.Instances.Unit.UnitModality
 
--- Universe membership of types.
-import Definition.Typed.Consequences.InverseUniv
+-- An erasure modality
 
--- Consistency of the type theory.
-import Definition.Typed.Consequences.Consistency
+erasureModality = Definition.Modality.Instances.Erasure.Modality.ErasureModality
 
+-- An "affine types" modality
 
-------------------
--- DECIDABILITY --
-------------------
+affineModality = Definition.Modality.Instances.Affine.affineModality
 
--- Conversion algorithm definition.
-import Definition.Conversion
+-- A "linear types" modality.
 
--- Properties of conversion algorithm:
+linearityModality = Definition.Modality.Instances.Linearity.linearityModality
 
--- Context equality and its properties:
--- * Context conversion of typing judgements.
--- * Context conversion of reductions and algorithmic equality.
--- * Reflexivity and symmetry of context equality.
-import Definition.Conversion.Stability
+------------------------------------------------------------------------
+-- 4: Type theory with grades
 
--- Soundness of the conversion algorithm.
-import Definition.Conversion.Soundness
+-- The grammar of the language
 
--- Conversion property of algorithmic equality.
-import Definition.Conversion.Conversion
+grammar = Definition.Untyped.Term
 
--- Decidability of the conversion algorithm.
-import Definition.Conversion.Decidable
+-- Weakenings
 
--- Symmetry of the conversion algorithm.
-import Definition.Conversion.Symmetry
+Wk = Definition.Untyped.Wk
 
--- Transitivity of the conversion algorithm.
-import Definition.Conversion.Transitivity
+-- Substitutions
 
--- Weakening of the conversion algorithm.
-import Definition.Conversion.Weakening
+Subst = Definition.Untyped.Subst
 
--- WHNF and neutral lifting of the conversion algorithm.
-import Definition.Conversion.Lift
+-- The typing relations
 
--- Generic equality relation instance for the conversion algorithm.
-import Definition.Conversion.EqRelInstance
+⊢_ = Definition.Typed.⊢_
+_⊢_ = Definition.Typed._⊢_
+_⊢_∷_ = Definition.Typed._⊢_∷_
+_⊢_≡_ = Definition.Typed._⊢_≡_
+_⊢_≡_∷_ = Definition.Typed._⊢_≡_∷_
 
--- Completeness of conversion algorithm.
-import Definition.Conversion.Consequences.Completeness
+-- Typing contexts
 
--- Decidability of judgemental conversion.
-import Definition.Typed.Decidable
+Con = Definition.Untyped.Con
+
+-- Reduction relations
+
+_⊢_⇒_ = Definition.Typed._⊢_⇒_
+_⊢_⇒_∷_ = Definition.Typed._⊢_⇒_∷_
+_⊢_⇒*_ = Definition.Typed._⊢_⇒*_
+_⊢_⇒*_∷_ = Definition.Typed._⊢_⇒*_∷_
+
+-- Theorem 4.3
+
+Theorem-4-3a = Definition.Typed.Properties.whnfRed*Term
+Theorem-4-3b = Definition.Typed.Properties.whnfRed*
+
+-- Theorem 4.4
+
+Theorem-4-4a = Definition.Typed.Properties.whrDet*Term
+Theorem-4-4b = Definition.Typed.Properties.whrDet*
+
+------------------------------------------------------------------------
+-- 5: Assigning grades
+
+-- Note that for the definitions and theorems in this section,
+-- a modality with the zero mode disallowed should be used and the
+-- extra annotation on Σ-types should be 𝟙
+
+-- Definition 5.1: The usage relation
+
+_▸_ = Definition.Modality.Usage._▸[_]_
+
+-- Definition 5.2
+
+_▶_ = Definition.Modality.Substitution._▶[_]_
+
+-- Theorem 5.3: Substitution lemma for grade usage
+
+Theorem-5-3 = Definition.Modality.Substitution.Properties.substₘ-lemma₁
+
+-- Theorem 5.4: Subject reduction for grade usage
+
+Theorem-5-4 = Definition.Typed.Usage.usagePresTerm
+
+------------------------------------------------------------------------
+-- 6: Erasure case study
+
+-- Note that for the definitions and theorems in this section,
+-- the modality has the zero mode disallowed and the extra annotation
+-- on Σ-types is required to be 𝟙
+
+-- Definition 6.1
+
+𝟘ω = Definition.Modality.Instances.Erasure.Erasure
+
+-- Theorem 6.2
+
+Theorem-62 = Definition.Modality.Instances.Erasure.Modality.ErasureModality
+
+-- Theorem 6.3
+
+Theorem-63 = Definition.Modality.Instances.Erasure.Properties.valid-var-usage
+
+-- The grammar of the untyped target language
+
+target = Erasure.Target.Term
+
+-- Definition 6.5: The extraction function
+
+_• = Erasure.Extraction.erase
+
+-- Theorem 6.6
+
+Theorem-66 = Erasure.Extraction.Properties.erased-hasX
+
+-- Reducibility logical relation for types
+
+_⊩′⟨_⟩_ = Definition.LogicalRelation._⊩⟨_⟩_
+
+-- Reducibility logical relation for terms
+
+_⊩′⟨_⟩_∷_/_ = Definition.LogicalRelation._⊩⟨_⟩_∷_/_
+
+-- The fundamental lemma of the reducibility relation
+
+fundamentalReducible = Definition.LogicalRelation.Fundamental.fundamental
+
+-- Definition 6.7: The logical relation for erasure
+
+_®⟨_⟩_∷_/_ = Erasure.LogicalRelation._®⟨_⟩_∷_/_
+
+-- Valid substitutions
+
+_⊩ˢ_∷_/_ = Definition.LogicalRelation.Substitution._⊩ˢ_∷_/_/_
+
+-- Definition 6.8: The logical relation for substitutions
+
+_®⟨_⟩_∷_◂_/_/_ = Erasure.LogicalRelation._®⟨_⟩_∷[_]_◂_/_/_
+
+-- Definition 6.9: Erasure validity
+
+_▸_⊩ʳ⟨_⟩_∷_/_/_ = Erasure.LogicalRelation._▸_⊩ʳ⟨_⟩_∷[_]_/_/_
+
+-- Theorem 6.10: Backwards closure of logical relation under reduction
+
+Theorem-610 = Erasure.LogicalRelation.Reduction.redSubstTerm*
+
+-- Theorem 6.11: Subsumption of the logical relation
+
+Theorem-611a = Erasure.LogicalRelation.Subsumption.subsumptionSubst
+Theorem-611b = Erasure.LogicalRelation.Subsumption.subsumption
+
+-- Theorem 6.12: The fundamental lemma
+
+fundamental = Erasure.LogicalRelation.Fundamental.fundamental
+
+-- Theorem 6.13: All substitutions are related under erased contexts
+
+Theorem-613 = Erasure.LogicalRelation.Subsumption.erasedSubst
+
+-- Theorem 6.14: The fundamental lemma for fully erased terms
+
+Theorem-614 = Erasure.LogicalRelation.Fundamental.fundamentalErased
+
+-- Extended reduction relations
+_⊢_⇒ˢ_∷ℕ = Erasure.SucRed._⊢_⇒ˢ_∷ℕ
+_⊢_⇒ˢ*_∷ℕ = Erasure.SucRed._⊢_⇒ˢ*_∷ℕ
+_⇒ˢ_ = Erasure.SucRed._⇒ˢ_
+_⇒ˢ*_ = Erasure.SucRed._⇒ˢ*_
+
+-- Theorem 6.15: Soundness of the extraction function
+
+soundness = Erasure.Consequences.Soundness.soundness-ℕ
+
+------------------------------------------------------------------------
+-- 7: Discussion
+
+-- A lawful definition of ⊛ᵣ for lower bounded structures
+
+⊛ᵣ-lower-bounded = Definition.Modality.Instances.LowerBounded._⊛_▷_
+
+-- A lawful definition of ⊛ᵣ defined recursively
+
+⊛ᵣ-recursive = Definition.Modality.Instances.Recursive._⊛_▷_
+
+-- A lawful definition of ⊛ᵣ for bounded star-semirings
+
+⊛ᵣ-star-semiring = Definition.Modality.Instances.BoundedStar._⊛_▷_
+
+-- Theorem 7.1
+
+theorem-71 = Application.NegativeAxioms.Canonicity.Erased.canonicityRed
+
+-- A counteraxample to theorem 7.1 if erased matches are allowed
+
+counterexample₁ = Application.NegativeAxioms.Canonicity.EliminateErased.cEx
+
+-- A counterexample to the fundamental lemma if erased matches are allowed
+
+counterexample₂ = Erasure.LogicalRelation.Fundamental.Counterexample.cEx
+
+-- The existence of η-long normal forms
+
+η-long-normal-forms = Definition.Modality.FullReduction.fullRedTerm
+
+------------------------------------------------------------------------
+-- 8: Extension: modes and graded Σ-types
+
+-- Note that for the definitions and theorems in this section,
+-- a modality with the zero mode allowed should be used.
+
+-- Modes
+
+Mode = Definition.Mode.Mode
+
+-- Definition 8.1: The extended modality structure
+
+ExtendedModality = Definition.Modality.Modality
+
+-- The modality structures for erasure, affine and linear types
+-- satisfy the conditions of the extended modality definition
+
+erasureModalityₑ = Definition.Modality.Instances.Erasure.Modality.ErasureModality
+affineModalityₑ = Definition.Modality.Instances.Affine.affineModality
+linearityModalityₑ = Definition.Modality.Instances.Linearity.linearityModality
+
+-- Subject reduction for the extended grade usage relation
+
+subjectReduction = Definition.Typed.Usage.usagePresTerm
+
+-- Translating modes into grades
+
+⌜_⌝ = Definition.Mode.⌜_⌝
+
+-- Translating grades into modes
+
+⌞_⌟ = Definition.Mode.⌞_⌟
+
+-- Scaling modes by grades
+
+_⊙_ = Definition.Mode._ᵐ·_
+
+-- The usage relation with modes
+
+_▸[_]_ = Definition.Modality.Usage._▸[_]_
+
+-- Theorem 8.3: Subject reduction for the usage relation with modes
+
+Theorem-83 = Definition.Typed.Usage.usagePresTerm
+
+-- The extraction function
+-- Note that this has been updated to no longer use substitutions
+
+_◦ = Erasure.Extraction.erase
+
+-- Theorem 8.4: Soundness of the extraction function
+
+Theorem-84 = Erasure.Consequences.Soundness.soundness-ℕ
+
+------------------------------------------------------------------------
+-- A: Logical relation for reducibility
+
+-- Combined reduction and typing relations
+
+_⊢_:⇒*:_∷_ = Definition.Typed._⊢_:⇒*:_∷_
+_⊢_:⇒*:_ = Definition.Typed._⊢_:⇒*:_
+
+-- Definition A.1: Reducibility of types
+
+_⊩⟨_⟩_ = Definition.LogicalRelation._⊩⟨_⟩_
+
+-- Definition A.2: Reducibility of terms
+
+_⊩⟨_⟩_∷_/_ = Definition.LogicalRelation._⊩⟨_⟩_∷_/_
+
+-- Definition A.3: Equality of reducible types
+
+_⊩⟨_⟩_≡_/_ = Definition.LogicalRelation._⊩⟨_⟩_≡_/_
+
+-- Definition A.4: Equality of reducible terms
+
+_⊩⟨_⟩_≡_∷_/_ = Definition.LogicalRelation._⊩⟨_⟩_≡_∷_/_
+
+-- Definition A.6: Validity of contexts
+
+⊩ᵛ_ = Definition.LogicalRelation.Substitution.⊩ᵛ_
+
+-- Definition A.7: Validity of substitutions and equality of
+-- valid substitutions
+
+_⊩ˢ_∷_/_/_ = Definition.LogicalRelation.Substitution._⊩ˢ_∷_/_/_
+
+-- Definition A.8: Validity of types, terms and equality of
+-- valid types and terms
+
+_⊩ᵛ⟨_⟩_/_ = Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_/_
+_⊩ᵛ⟨_⟩_∷_/_/_ = Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_∷_/_/_
+_⊩ᵛ⟨_⟩_≡_/_/_ = Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_≡_/_/_
+_⊩ᵛ⟨_⟩_≡_∷_/_/_ = Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_≡_∷_/_/_
+
+-- Theorem A.9: The fundamental lemma
+
+fundamentalType = Definition.LogicalRelation.Fundamental.Reducibility.reducible
+fundamentalTerm = Definition.LogicalRelation.Fundamental.Reducibility.reducibleTerm
+fundamentalTypeEq = Definition.LogicalRelation.Fundamental.Reducibility.reducibleEq
+fundamentalTermEq = Definition.LogicalRelation.Fundamental.Reducibility.reducibleEqTerm
+
+------------------------------------------------------------------------
+-- B: Usage inference
+
+-- Definition B.1: Usage inference
+
+∣_∣ = Definition.Modality.Usage.⌈_⌉
+
+-- Theorem B.2
+
+Theorem-B2a = Definition.Modality.Usage.Properties.usage-inf
+Theorem-B2b = Definition.Modality.Usage.Properties.usage-upper-bound
+
+-- Theorem B.3: Decidability of the usage relation
+
+Theorem-B3a = Definition.Modality.Usage.Decidable.⌈⌉▸[_]?_
+Theorem-B3b = Definition.Modality.Usage.Decidable._▸[_]?_
+
+-- Definition B.4: Substitution matrix inference
+
+∥_∥ = Definition.Modality.Substitution.∥_∥
+
+-- Theorem B.5
+
+Theorem-B5 = Definition.Modality.Substitution.Properties.subst-calc-correct′
