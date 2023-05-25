@@ -1,5 +1,6 @@
 --------------------------------------------------------------------------
-
+-- Code related to the paper "A Graded Modal Dependent Type Theory with a
+-- Universe and Erasure, Formalized"
 --------------------------------------------------------------------------
 
 -- The code does not follow the paper exactly. Notably, the formalization
@@ -209,6 +210,10 @@ _⊩′⟨_⟩_∷_/_ = Definition.LogicalRelation._⊩⟨_⟩_∷_/_
 fundamentalReducible = Definition.LogicalRelation.Fundamental.fundamental
 
 -- Definition 6.7: The logical relation for erasure
+-- In the paper, the logical relation is defined specifically for the
+-- erasure modality but is here generalized to hold in more general
+-- cases, assuming that the zero of the semiring is sufficiently
+-- well behaved.
 
 _®⟨_⟩_∷_/_ = Erasure.LogicalRelation._®⟨_⟩_∷_/_
 
@@ -229,6 +234,10 @@ _▸_⊩ʳ⟨_⟩_∷_/_/_ = Erasure.LogicalRelation._▸_⊩ʳ⟨_⟩_∷[_]_/_
 Theorem-610 = Erasure.LogicalRelation.Reduction.redSubstTerm*
 
 -- Theorem 6.11: Subsumption of the logical relation
+-- The subsumption properties differ from the ones in the paper as
+-- a consequence of the generalization of the logical relation.
+-- For the erasure modality, these theorems are equivallent to the
+-- ones stated in the paper.
 
 Theorem-611a = Erasure.LogicalRelation.Subsumption.subsumptionSubst
 Theorem-611b = Erasure.LogicalRelation.Subsumption.subsumption
@@ -242,6 +251,8 @@ fundamental = Erasure.LogicalRelation.Fundamental.fundamental
 Theorem-613 = Erasure.LogicalRelation.Subsumption.erasedSubst
 
 -- Theorem 6.14: The fundamental lemma for fully erased terms
+-- The theorem has been updated to either require that erased matches
+-- are not allowed, or that the context is empty.
 
 Theorem-614 = Erasure.LogicalRelation.Fundamental.fundamentalErased
 
@@ -252,6 +263,8 @@ _⇒ˢ_ = Erasure.SucRed._⇒ˢ_
 _⇒ˢ*_ = Erasure.SucRed._⇒ˢ*_
 
 -- Theorem 6.15: Soundness of the extraction function
+-- The theorem has been to either require that erased matches
+-- are not allowed, or that the context is empty.
 
 soundness = Erasure.Consequences.Soundness.soundness-ℕ
 
