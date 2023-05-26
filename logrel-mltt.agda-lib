@@ -1,3 +1,4 @@
+name: graded-type-theory
 depend: standard-library
 include: .
 flags:
