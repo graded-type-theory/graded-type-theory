@@ -1,13 +1,15 @@
+------------------------------------------------------------------------
+-- A star-semiring with a unary operator _* satisfying
+-- p * ≈ 𝟙 + p p*
+-- and p* ≤ 𝟘 or p* ≤ 𝟙 for all p is a modality instance.
+------------------------------------------------------------------------
+
 open import Definition.Modality
 open import Definition.Modality.Restrictions
 import Tools.Algebra as A
 open import Tools.PropositionalEquality
 open import Tools.Sum
 open import Tools.Bool hiding (_∧_)
-
--- A star-ringoid with a unary operator _* satisfying
--- p * ≈ 𝟙 + p p*
--- and p* ≤ 𝟘 or p* ≤ 𝟙 for all p is a modality instance.
 
 module Definition.Modality.Instances.BoundedStar
   {a} {M : Set a} (𝕄 : Semiring-with-meet M)

@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- A modality for affine types.
+------------------------------------------------------------------------
+
 open import Tools.Bool
 
 open import Definition.Modality.Instances.Zero-one-many true as 𝟘𝟙ω

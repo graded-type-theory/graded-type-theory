@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- A finite semiring is a modality instance.
+------------------------------------------------------------------------
+
 open import Tools.Bool hiding (_∧_)
 open import Tools.Fin
 open import Tools.Nat
@@ -5,8 +9,6 @@ open import Tools.Product
 open import Tools.PropositionalEquality
 open import Definition.Modality
 open import Definition.Modality.Restrictions
-
--- A finite ringoid is a modality instance.
 
 module Definition.Modality.Instances.Finite
   {a} {M : Set a} (𝕄 : Semiring-with-meet M)

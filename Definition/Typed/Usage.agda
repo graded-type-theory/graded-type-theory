@@ -1,3 +1,8 @@
+------------------------------------------------------------------------
+-- Properties related to the usage relation and reduction.
+-- Notably, subject reduction.
+------------------------------------------------------------------------
+
 open import Definition.Modality
 
 module Definition.Typed.Usage

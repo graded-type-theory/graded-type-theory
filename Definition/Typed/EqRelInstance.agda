@@ -1,3 +1,8 @@
+------------------------------------------------------------------------
+-- The typing relation is an instance of the abstract set of
+-- equality relations.
+------------------------------------------------------------------------
+
 module Definition.Typed.EqRelInstance {a} (M : Set a) where
 
 open import Definition.Typed M

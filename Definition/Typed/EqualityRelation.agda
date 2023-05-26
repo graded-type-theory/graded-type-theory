@@ -1,3 +1,8 @@
+------------------------------------------------------------------------
+-- An abstract set of equality relations over which the logical relation
+-- is parameterized.
+------------------------------------------------------------------------
+
 module Definition.Typed.EqualityRelation {ℓ} (M : Set ℓ) where
 
 open import Definition.Untyped M hiding (_∷_)

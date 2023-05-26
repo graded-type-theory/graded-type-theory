@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Properties for the reduction relation of the target language.
+------------------------------------------------------------------------
+
 module Erasure.Target.Properties.Reduction where
 
 open import Erasure.Target

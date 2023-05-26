@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Properties of the star operator.
+------------------------------------------------------------------------
+
 open import Definition.Modality
 
 module Definition.Modality.Properties.Star

@@ -1,5 +1,6 @@
 ------------------------------------------------------------------------
--- The usage relation can be decided (given certain assumptions)
+-- The usage relation for substitutions can be decided
+-- (given certain assumptions)
 ------------------------------------------------------------------------
 
 open import Definition.Modality

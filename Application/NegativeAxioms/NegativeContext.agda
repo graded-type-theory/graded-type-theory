@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Negative contexts (contexts containing only negative types).
+------------------------------------------------------------------------
+
 module Application.NegativeAxioms.NegativeContext
   {a} (M : Set a) where
 

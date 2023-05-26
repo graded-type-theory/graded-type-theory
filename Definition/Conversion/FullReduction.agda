@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Every term is equal to a fully reduced term.
+------------------------------------------------------------------------
+
 module Definition.Conversion.FullReduction
   {a} (M : Set a) where
 

@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Irrelevance lemmata for the logical relation
+------------------------------------------------------------------------
+
 open import Definition.Typed.EqualityRelation
 import Definition.Typed as T
 import Definition.Untyped as U

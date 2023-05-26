@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Properties of the reduction relation.
+------------------------------------------------------------------------
+
 module Definition.Typed.Consequences.Reduction
   {a} (M : Set a) where
 

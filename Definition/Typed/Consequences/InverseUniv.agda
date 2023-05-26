@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Well-formed types are terms of type U if they do not contain U.
+------------------------------------------------------------------------
+
 module Definition.Typed.Consequences.InverseUniv
   {a} (M : Set a) where
 

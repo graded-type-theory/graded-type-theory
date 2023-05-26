@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Erasure validity of prodrec.
+------------------------------------------------------------------------
+
 open import Definition.Modality
 open import Definition.Typed.EqualityRelation
 import Definition.Typed as T′

@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- The logical relation for validity
+------------------------------------------------------------------------
+
 open import Definition.Typed.EqualityRelation
 
 module Definition.LogicalRelation.Substitution

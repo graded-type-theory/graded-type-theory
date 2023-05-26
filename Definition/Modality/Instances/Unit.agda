@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- The trivial (unit) modality
+------------------------------------------------------------------------
+
 open import Tools.Bool
 open import Tools.Unit
 
@@ -14,10 +18,6 @@ open import Tools.PropositionalEquality
 open import Tools.Algebra ⊤
 
 open import Definition.Modality ⊤ public
-
------------------------------------------------
--- A trivial modality formed by the unit set --
------------------------------------------------
 
 -- Trivial addition (and multiplication and meet) operation
 

@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Weak head expansion of equality
+------------------------------------------------------------------------
+
 module Definition.Typed.Reduction {ℓ} (M : Set ℓ) where
 
 open import Definition.Untyped M hiding (_∷_)

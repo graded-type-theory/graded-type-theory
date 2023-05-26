@@ -1,8 +1,10 @@
+------------------------------------------------------------------------
+-- A semiring with a global least element ∞ is a modality instance.
+------------------------------------------------------------------------
+
 open import Definition.Modality
 open import Definition.Modality.Restrictions
 open import Tools.Bool hiding (_∧_)
-
--- A ringoid with a global least element ∞ is a modality instance.
 
 module Definition.Modality.Instances.LowerBounded
   {a} {M : Set a} (𝕄 : Semiring-with-meet M)

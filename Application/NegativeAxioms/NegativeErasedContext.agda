@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Contexts in which all types either are negative or erased.
+------------------------------------------------------------------------
+
 open import Definition.Modality
 open import Tools.Empty
 

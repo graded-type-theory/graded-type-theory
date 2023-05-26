@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Stability of typing, reduction and algorithmic equality.
+------------------------------------------------------------------------
+
 module Definition.Conversion.Stability
   {a} (M : Set a) where
 

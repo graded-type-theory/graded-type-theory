@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Type conversion lemmata for the logical relation
+------------------------------------------------------------------------
+
 open import Definition.Typed.EqualityRelation
 
 module Definition.LogicalRelation.Properties.Conversion

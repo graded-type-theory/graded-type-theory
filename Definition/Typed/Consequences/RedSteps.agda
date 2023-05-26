@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Substitution theorems for reduction closures.
+------------------------------------------------------------------------
+
 module Definition.Typed.Consequences.RedSteps
   {a} (M : Set a) where
 
@@ -44,6 +48,8 @@ natrec-subst* (id x) ⊢A ⊢z ⊢s = id (natrecⱼ ⊢A ⊢z ⊢s x)
 natrec-subst* (x ⇨ t⇒t′) ⊢A ⊢z ⊢s =
   natrec-subst ⊢A ⊢z ⊢s x ⇨ conv* (natrec-subst* t⇒t′ ⊢A ⊢z ⊢s)
                                     (substTypeEq (refl ⊢A) (sym (subsetTerm x)))
+
+-- Prodrec substitution of reduction closures
 
 prodrec-subst* : Γ ⊢ t ⇒* t′ ∷ Σᵣ p , q ▷ F ▹ G
                → Γ ⊢ F

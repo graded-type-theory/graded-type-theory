@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Erasure validity of products and projections.
+------------------------------------------------------------------------
+
 open import Definition.Modality
 open import Definition.Typed.EqualityRelation
 import Definition.Typed as T′

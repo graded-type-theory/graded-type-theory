@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Type conversion lemmata for the algorithmic equality relations.
+------------------------------------------------------------------------
+
 module Definition.Conversion.Conversion
   {a} (M : Set a) where
 

@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Properties of the modality semiring.
+------------------------------------------------------------------------
+
 open import Definition.Modality
 
 module Definition.Modality.Properties

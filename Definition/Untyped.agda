@@ -1,4 +1,6 @@
+------------------------------------------------------------------------
 -- Raw terms, weakening (renaming) and substitution.
+------------------------------------------------------------------------
 
 module Definition.Untyped {a} (M : Set a) where
 

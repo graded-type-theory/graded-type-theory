@@ -1,5 +1,6 @@
+------------------------------------------------------------------------
 -- Proof that consistent negative axioms do not jeopardize canonicity.
--- https://www.cs.bham.ac.uk/~mhe/papers/negative-axioms.pdf
+------------------------------------------------------------------------
 
 module Application.NegativeAxioms.Canonicity.Negative
   {a} (M : Set a) where

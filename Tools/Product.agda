@@ -1,5 +1,7 @@
+------------------------------------------------------------------------
 -- Σ type (also used as existential) and
 -- cartesian product (also used as conjunction).
+------------------------------------------------------------------------
 
 module Tools.Product where
 

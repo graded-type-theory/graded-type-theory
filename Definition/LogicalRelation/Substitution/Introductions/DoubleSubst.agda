@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Validity of some two-variable substitutions.
+------------------------------------------------------------------------
+
 open import Definition.Typed.EqualityRelation
 
 module Definition.LogicalRelation.Substitution.Introductions.DoubleSubst

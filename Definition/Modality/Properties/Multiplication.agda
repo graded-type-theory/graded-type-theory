@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Properties of multiplication.
+------------------------------------------------------------------------
+
 open import Definition.Modality
 
 module Definition.Modality.Properties.Multiplication

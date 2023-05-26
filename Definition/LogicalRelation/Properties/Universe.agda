@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Lemmata relating to terms of the universe type
+------------------------------------------------------------------------
+
 open import Definition.Typed.EqualityRelation
 
 module Definition.LogicalRelation.Properties.Universe

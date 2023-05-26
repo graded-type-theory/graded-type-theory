@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Application of reducible terms is reducible
+------------------------------------------------------------------------
+
 open import Definition.Typed.EqualityRelation
 
 module Definition.LogicalRelation.Application

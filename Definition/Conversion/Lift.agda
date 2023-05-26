@@ -1,3 +1,8 @@
+------------------------------------------------------------------------
+-- Translations (liftings) between different algorithmic equality
+-- relations.
+------------------------------------------------------------------------
+
 module Definition.Conversion.Lift
   {a} (M : Set a) where
 

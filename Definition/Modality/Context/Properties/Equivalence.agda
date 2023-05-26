@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Properties of equality.
+------------------------------------------------------------------------
+
 open import Definition.Modality
 
 module Definition.Modality.Context.Properties.Equivalence

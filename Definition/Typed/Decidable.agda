@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Decidability of typing.
+------------------------------------------------------------------------
+
 open import Tools.PropositionalEquality as PE using (_≈_)
 open import Tools.Relation
 

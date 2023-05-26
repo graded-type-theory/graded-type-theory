@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Validity of the natural numbers type.
+------------------------------------------------------------------------
+
 open import Definition.Typed.EqualityRelation
 
 module Definition.LogicalRelation.Substitution.Introductions.Nat

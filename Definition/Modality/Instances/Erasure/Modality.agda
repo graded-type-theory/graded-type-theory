@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- The erasure modality.
+------------------------------------------------------------------------
+
 open import Definition.Modality.Instances.Erasure
 open import Definition.Modality.Restrictions
 

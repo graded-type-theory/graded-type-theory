@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Syntactic validity of the typing and reduction relations.
+------------------------------------------------------------------------
+
 module Definition.Typed.Consequences.Syntactic
   {a} (M : Set a) where
 

@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Properties of addition.
+------------------------------------------------------------------------
+
 open import Definition.Modality
 
 module Definition.Modality.Context.Properties.Addition

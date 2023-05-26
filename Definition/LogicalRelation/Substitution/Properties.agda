@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Lemmata on valid substitutions
+------------------------------------------------------------------------
+
 open import Definition.Typed.EqualityRelation
 
 module Definition.LogicalRelation.Substitution.Properties

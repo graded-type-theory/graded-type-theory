@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Consistency of equality of natural numbers.
+------------------------------------------------------------------------
+
 module Definition.Typed.Consequences.Consistency
   {a} (M : Set a) where
 

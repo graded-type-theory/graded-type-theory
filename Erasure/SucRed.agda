@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Extended reduction relations allowing reduction under suc.
+------------------------------------------------------------------------
+
 module Erasure.SucRed
   {a} (M : Set a) where
 

@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Properties of context scaling.
+------------------------------------------------------------------------
+
 open import Definition.Modality
 
 module Definition.Modality.Context.Properties.Multiplication

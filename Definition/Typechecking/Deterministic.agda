@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Type inference is deterministic.
+------------------------------------------------------------------------
+
 module Definition.Typechecking.Deterministic {a} (M : Set a) where
 
 open import Definition.Typechecking M

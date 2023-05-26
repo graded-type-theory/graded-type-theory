@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- If a natural number is in the logical relation, so is its successor.
+------------------------------------------------------------------------
+
 open import Definition.Typed.EqualityRelation
 
 module Definition.LogicalRelation.Properties.Successor

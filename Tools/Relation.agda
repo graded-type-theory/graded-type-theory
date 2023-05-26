@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Relations
+------------------------------------------------------------------------
+
 module Tools.Relation where
 
 open import Relation.Binary.Core using (Rel) public

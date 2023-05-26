@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- The algorithmic equality is decidable.
+------------------------------------------------------------------------
+
 open import Tools.PropositionalEquality as PE
   using (_≈_; ≈-refl; ≈-sym; ≈-trans)
 open import Tools.Relation

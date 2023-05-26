@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Soundness of the extraction function.
+------------------------------------------------------------------------
+
 open import Definition.Modality
 open import Definition.Modality.Restrictions.Definitions
   using (No-erased-matches)

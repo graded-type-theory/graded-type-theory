@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Validity of beta and eta equality of pairs.
+------------------------------------------------------------------------
+
 open import Definition.Typed.EqualityRelation
 
 module Definition.LogicalRelation.Substitution.Introductions.ProdBetaEta

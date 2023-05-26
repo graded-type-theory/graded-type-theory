@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Decidability of reducing to Π and Σ-types.
+------------------------------------------------------------------------
+
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 

@@ -1,3 +1,8 @@
+------------------------------------------------------------------------
+-- Proof that consistent erased axioms do not jeopardize canonicity
+-- if erased matches are not allowed.
+------------------------------------------------------------------------
+
 import Definition.Modality.Instances.Erasure.Modality
 open import Definition.Modality.Instances.Erasure
 

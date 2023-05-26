@@ -1,4 +1,7 @@
+------------------------------------------------------------------------
+-- Properties of the untyped syntax
 -- Laws for weakenings and substitutions.
+------------------------------------------------------------------------
 
 module Definition.Untyped.Properties {a} (M : Set a) where
 

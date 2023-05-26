@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- The algorithmic equality is closed under weakening.
+------------------------------------------------------------------------
+
 module Definition.Conversion.Weakening
   {a} (M : Set a) where
 

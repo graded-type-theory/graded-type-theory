@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Embedding of the logical relation into higher type levels
+------------------------------------------------------------------------
+
 open import Definition.Typed.EqualityRelation
 
 module Definition.LogicalRelation.Properties.MaybeEmb

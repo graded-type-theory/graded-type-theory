@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Completeness of the algorithmic equality
+------------------------------------------------------------------------
+
 module Definition.Conversion.Consequences.Completeness
   {a} (M : Set a) where
 

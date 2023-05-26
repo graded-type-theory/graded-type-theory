@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Equational resoning for equivalences
+------------------------------------------------------------------------
+
 open import Tools.Relation
 
 -- Reasoning for equivalence relations using preorder relation syntax

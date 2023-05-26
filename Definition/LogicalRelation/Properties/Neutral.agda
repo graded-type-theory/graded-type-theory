@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Neutral terms are in the logical relation (given some assumptions)
+------------------------------------------------------------------------
+
 open import Definition.Typed.EqualityRelation
 
 module Definition.LogicalRelation.Properties.Neutral

@@ -1,3 +1,8 @@
+------------------------------------------------------------------------
+-- The algorithmic equality is an instance of the abstract set of
+-- equality relations.
+------------------------------------------------------------------------
+
 module Definition.Conversion.EqRelInstance
   {a} (M : Set a) where
 

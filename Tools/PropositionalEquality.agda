@@ -1,5 +1,7 @@
+------------------------------------------------------------------------
 -- Martin-Löf identity type without the K axiom
 -- (we do not assume uniqueness of identity proofs).
+------------------------------------------------------------------------
 
 module Tools.PropositionalEquality where
 
@@ -13,7 +15,6 @@ open Eq using
   (_≡_; _≢_; refl; sym; trans; cong; cong₂; subst; subst₂;
    isEquivalence; setoid)
   public
--- open Eq.≡-Reasoning public
 
 -- Non-dependent congruence rules.
 

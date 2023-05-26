@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Finite sets
+------------------------------------------------------------------------
+
 module Tools.Fin where
 
 open import Data.Fin.Properties using () renaming (_≟_ to _≟ⱽ_) public

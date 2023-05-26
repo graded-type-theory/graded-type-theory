@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Negative types (types for which all branches end in ⊥).
+------------------------------------------------------------------------
+
 module Application.NegativeAxioms.NegativeType
   {a} (M : Set a) where
 

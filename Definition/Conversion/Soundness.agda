@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Soundness of algorithmic equality.
+------------------------------------------------------------------------
+
 module Definition.Conversion.Soundness
   {a} (M : Set a) where
 

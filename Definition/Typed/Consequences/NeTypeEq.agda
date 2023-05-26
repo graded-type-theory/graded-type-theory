@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Neutral terms have only one type (up to type equality).
+------------------------------------------------------------------------
+
 module Definition.Typed.Consequences.NeTypeEq
   {a} (M : Set a) where
 

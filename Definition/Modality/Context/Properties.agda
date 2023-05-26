@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Properties of moodality (grade) contexts.
+------------------------------------------------------------------------
+
 open import Definition.Modality
 
 module Definition.Modality.Context.Properties

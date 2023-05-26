@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- The fundamental lemma of the logical relation.
+------------------------------------------------------------------------
+
 open import Definition.Modality
 open import Definition.Modality.Restrictions.Definitions
 open import Definition.Typed.EqualityRelation

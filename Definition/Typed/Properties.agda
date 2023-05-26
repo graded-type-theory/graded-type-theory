@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Properties of the typing and reduction relations
+------------------------------------------------------------------------
+
 module Definition.Typed.Properties {ℓ} (M : Set ℓ) where
 
 open import Definition.Untyped M hiding (_∷_)

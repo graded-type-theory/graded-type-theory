@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- The logical relation is closed under weakening
+------------------------------------------------------------------------
+
 open import Definition.Typed.EqualityRelation
 
 module Definition.LogicalRelation.Weakening

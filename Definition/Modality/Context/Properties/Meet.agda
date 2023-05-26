@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Properties of meet.
+------------------------------------------------------------------------
+
 open import Definition.Modality
 
 module Definition.Modality.Context.Properties.Meet

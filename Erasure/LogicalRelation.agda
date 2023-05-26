@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- The Logical relation for erasure.
+------------------------------------------------------------------------
+
 open import Definition.Typed.EqualityRelation
 import Definition.Untyped as U′ using (Con; Term)
 import Definition.Typed as T′

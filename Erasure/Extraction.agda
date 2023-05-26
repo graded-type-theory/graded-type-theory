@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- The extraction function.
+------------------------------------------------------------------------
+
 open import Definition.Modality
 open import Tools.Nullary
 open import Tools.PropositionalEquality

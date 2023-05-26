@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- The logical relation is clsoed under reduction (in both directions).
+------------------------------------------------------------------------
+
 open import Definition.Typed.EqualityRelation
 import Definition.Typed as T
 import Definition.Untyped as U′ using (Con; Term)

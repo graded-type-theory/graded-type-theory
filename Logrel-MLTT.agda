@@ -1,4 +1,6 @@
--- A Logical Relation for Dependent Type Theory Formalized in Agda
+------------------------------------------------------------------------
+-- Graded modal type theory formalized in Agda
+------------------------------------------------------------------------
 
 module Logrel-MLTT where
 

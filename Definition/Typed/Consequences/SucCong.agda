@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Congruence of the type of the successor case in natrec.
+------------------------------------------------------------------------
+
 module Definition.Typed.Consequences.SucCong
   {a} (M : Set a) where
 

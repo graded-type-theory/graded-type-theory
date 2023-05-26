@@ -1,3 +1,11 @@
+------------------------------------------------------------------------
+-- Equality of BindingTypes
+--
+-- Some code was previously developed using setoids, but is now (at
+-- the time of writing) using propositional equality. The equality
+-- defined here could now be replaced with propositional equality.
+------------------------------------------------------------------------
+
 module Definition.Untyped.BindingType {a} (M : Set a) where
 
 open import Tools.PropositionalEquality as PE

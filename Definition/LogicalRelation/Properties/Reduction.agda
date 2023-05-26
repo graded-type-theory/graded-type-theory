@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- The logical relation is backwards-closed under reductions
+------------------------------------------------------------------------
+
 open import Definition.Typed.EqualityRelation
 
 module Definition.LogicalRelation.Properties.Reduction

@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Properties of the target language.
+------------------------------------------------------------------------
+
 module Erasure.Target.Properties where
 
 open import Erasure.Target.Properties.Reduction public

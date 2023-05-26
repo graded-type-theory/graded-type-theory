@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Properties of context lookup.
+------------------------------------------------------------------------
+
 open import Definition.Modality
 
 module Definition.Modality.Context.Properties.Lookup

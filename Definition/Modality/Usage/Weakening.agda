@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- The usage relation is closed under weakening.
+------------------------------------------------------------------------
+
 open import Definition.Modality
 
 module Definition.Modality.Usage.Weakening

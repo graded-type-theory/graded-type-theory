@@ -1,5 +1,7 @@
--- Proof that consistent negative axioms do not jeopardize canonicity.
--- https://www.cs.bham.ac.uk/~mhe/papers/negative-axioms.pdf
+------------------------------------------------------------------------
+-- Proof that consistent negative or erased axioms do not jeopardize
+-- canonicity if erased matches are not allowed.
+------------------------------------------------------------------------
 
 open import Definition.Modality.Instances.Erasure
 import Definition.Modality.Instances.Erasure.Modality

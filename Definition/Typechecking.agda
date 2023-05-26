@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Bi-directional typechecking
+------------------------------------------------------------------------
+
 module Definition.Typechecking {a} (M : Set a) where
 
 open import Definition.Untyped M

@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Equational resoning for partial orders
+------------------------------------------------------------------------
+
 open import Tools.Relation
 
 module Tools.Reasoning.PartialOrder

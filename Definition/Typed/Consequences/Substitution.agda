@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- The typing and reduction relations are closed under substitutions.
+------------------------------------------------------------------------
+
 module Definition.Typed.Consequences.Substitution
   {a} (M : Set a) where
 

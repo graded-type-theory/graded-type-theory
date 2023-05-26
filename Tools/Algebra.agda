@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Algebraic structures and properties
+------------------------------------------------------------------------
+
 open import Tools.Relation
 
 module Tools.Algebra {a} (A : Set a) where

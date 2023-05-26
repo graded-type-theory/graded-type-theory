@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Equal terms of type U are equal types.
+------------------------------------------------------------------------
+
 module Definition.Conversion.Universe
   {a} (M : Set a) where
 

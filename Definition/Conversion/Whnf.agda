@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Extraction of WHNF from algorithmic equality of types in WHNF.
+------------------------------------------------------------------------
+
 module Definition.Conversion.Whnf
   {a} (M : Set a) where
 

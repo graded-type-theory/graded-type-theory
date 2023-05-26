@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Term constructors are injective.
+------------------------------------------------------------------------
+
 module Definition.Typed.Consequences.Injectivity
   {a} (M : Set a) where
 

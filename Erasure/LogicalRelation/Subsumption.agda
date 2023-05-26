@@ -1,3 +1,8 @@
+------------------------------------------------------------------------
+-- Subsumption properties (changing the quantity or mode of the logical
+-- relation is allowed in some cases).
+------------------------------------------------------------------------
+
 open import Definition.Typed.EqualityRelation
 import Definition.Typed as T
 import Definition.Untyped as U′ using (Con; Term)

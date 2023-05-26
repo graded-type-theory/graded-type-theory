@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Weak head expansion of algorithmic equality.
+------------------------------------------------------------------------
+
 module Definition.Conversion.Reduction
   {a} (M : Set a) where
 

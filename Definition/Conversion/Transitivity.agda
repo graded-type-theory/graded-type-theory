@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- The algorithmic equality is transitive.
+------------------------------------------------------------------------
+
 module Definition.Conversion.Transitivity
   {a} (M : Set a) where
 

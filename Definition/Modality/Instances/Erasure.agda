@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- The erasure modality semiring.
+------------------------------------------------------------------------
+
 module Definition.Modality.Instances.Erasure where
 
 open import Tools.Product

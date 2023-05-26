@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Inversion lemmata for the typing relation.
+------------------------------------------------------------------------
+
 module Definition.Typed.Consequences.Inversion
   {a} (M : Set a) where
 

@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Equality in the logical relation is reflexive
+------------------------------------------------------------------------
+
 open import Definition.Typed.EqualityRelation
 
 module Definition.LogicalRelation.Properties.Reflexivity

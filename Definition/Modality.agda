@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- The modality structure.
+------------------------------------------------------------------------
+
 open import Tools.Level
 open import Tools.Relation
 
@@ -46,9 +50,6 @@ record Semiring-with-meet : Set a where
   -- A strict variant of the ordering relation.
   _<_ : Rel M a
   p < q = p ≤ q × p ≢ q
-
-  -- field
-
 
   ·-distribˡ-∧ : _·_ DistributesOverˡ _∧_
   ·-distribˡ-∧ = proj₁ ·-distrib-∧

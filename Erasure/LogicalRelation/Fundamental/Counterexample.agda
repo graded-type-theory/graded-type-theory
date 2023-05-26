@@ -1,3 +1,8 @@
+------------------------------------------------------------------------
+-- The fundamental lemma does not hold of erased matches are allowed
+-- for open contexts.
+------------------------------------------------------------------------
+
 open import Definition.Modality
 open import Definition.Typed.EqualityRelation
 open import Tools.Nullary

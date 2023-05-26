@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- The usage relation.
+------------------------------------------------------------------------
+
 open import Definition.Modality
 
 module Definition.Modality.Usage

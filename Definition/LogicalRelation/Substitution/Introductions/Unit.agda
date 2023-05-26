@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Validity of the unit type.
+------------------------------------------------------------------------
+
 open import Definition.Typed.EqualityRelation
 
 module Definition.LogicalRelation.Substitution.Introductions.Unit

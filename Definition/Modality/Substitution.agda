@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Substitution matrices (action of substitutions on modality contexts).
+------------------------------------------------------------------------
+
 open import Definition.Modality
 
 module Definition.Modality.Substitution

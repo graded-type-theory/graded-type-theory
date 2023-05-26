@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Validity of the first projection.
+------------------------------------------------------------------------
+
 open import Definition.Typed.EqualityRelation
 
 module Definition.LogicalRelation.Substitution.Introductions.Fst

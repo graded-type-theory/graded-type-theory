@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- A modality for linear types.
+------------------------------------------------------------------------
+
 open import Tools.Bool
 
 open import Definition.Modality.Instances.Zero-one-many false as 𝟘𝟙ω

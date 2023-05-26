@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Modality (grade) contexts.
+------------------------------------------------------------------------
+
 open import Definition.Modality
 
 module Definition.Modality.Context

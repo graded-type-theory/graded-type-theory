@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Properties of substitution matrices.
+------------------------------------------------------------------------
+
 open import Definition.Modality
 
 module Definition.Modality.Substitution.Properties

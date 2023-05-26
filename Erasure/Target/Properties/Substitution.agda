@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Laws for substiutions in the target language.
+------------------------------------------------------------------------
+
 module Erasure.Target.Properties.Substitution where
 
 open import Erasure.Target hiding (refl ; trans)

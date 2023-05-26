@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- The logical relation for subsumes the relation for reducibility.
+------------------------------------------------------------------------
+
 open import Definition.Typed.EqualityRelation
 
 module Definition.LogicalRelation.Substitution.Reducibility

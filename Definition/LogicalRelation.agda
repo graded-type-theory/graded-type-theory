@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- The logical relation for reducibility
+------------------------------------------------------------------------
+
 open import Definition.Typed.EqualityRelation
 
 module Definition.LogicalRelation

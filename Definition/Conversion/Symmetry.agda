@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- The algorithmic equality is symmetric.
+------------------------------------------------------------------------
+
 module Definition.Conversion.Symmetry
   {a} (M : Set a) where
 

@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Properties of the modality semiring that hold if 𝟘 is well-behaved.
+------------------------------------------------------------------------
+
 open import Definition.Modality
 
 module Definition.Modality.Properties.Has-well-behaved-zero

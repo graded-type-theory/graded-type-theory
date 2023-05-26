@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Completeness of the bi-directional typechecking relations.
+------------------------------------------------------------------------
+
 module Definition.Typechecking.Completeness {a} (M : Set a) where
 
 open import Definition.Conversion.Stability M

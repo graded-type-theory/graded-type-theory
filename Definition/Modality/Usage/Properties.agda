@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Properties of the usage relation.
+------------------------------------------------------------------------
+
 open import Definition.Modality
 
 module Definition.Modality.Usage.Properties

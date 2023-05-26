@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Properties of the partial order relation.
+------------------------------------------------------------------------
+
 open import Definition.Modality
 
 module Definition.Modality.Properties.PartialOrder

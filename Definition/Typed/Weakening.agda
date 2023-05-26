@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Typing and reduction are closed under weakenings
+------------------------------------------------------------------------
+
 module Definition.Typed.Weakening {a} (M : Set a) where
 
 open import Definition.Untyped M as U hiding (wk ; _∷_)
@@ -26,7 +30,7 @@ data _∷_⊆_ : Wk m n → Con Term m → Con Term n → Set a where
   lift : ρ ∷ Δ ⊆ Γ → lift ρ ∷ Δ ∙ U.wk ρ A ⊆ Γ ∙ A
 
 
--- -- Weakening composition
+-- Weakening composition
 
 _•ₜ_ : ρ ∷ Γ ⊆ Δ → ρ′ ∷ Δ ⊆ Δ′ → ρ • ρ′ ∷ Γ ⊆ Δ′
 id     •ₜ η′ = η′

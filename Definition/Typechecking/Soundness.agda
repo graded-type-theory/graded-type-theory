@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Soundness of the bi-directional typechecking relations.
+------------------------------------------------------------------------
+
 module Definition.Typechecking.Soundness {a} (M : Set a) where
 
 open import Definition.Typechecking M

@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Properties of context updates.
+------------------------------------------------------------------------
+
 open import Definition.Modality
 
 module Definition.Modality.Context.Properties.Update

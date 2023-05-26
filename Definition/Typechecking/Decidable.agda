@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Decidability of bi-derectional typechecking.
+------------------------------------------------------------------------
+
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 

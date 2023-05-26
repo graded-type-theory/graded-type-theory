@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- ShapeView: A view for constructor equality for the logical relation
+------------------------------------------------------------------------
+
 open import Definition.Typed.EqualityRelation
 
 module Definition.LogicalRelation.ShapeView

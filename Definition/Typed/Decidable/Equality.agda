@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Decidability of type and term equality.
+------------------------------------------------------------------------
+
 open import Tools.Relation
 open import Tools.PropositionalEquality as PE
   using (_≈_; ≈-refl; ≈-sym; ≈-trans)

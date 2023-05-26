@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Validity of Π and Σ-types.
+------------------------------------------------------------------------
+
 open import Definition.Typed.EqualityRelation
 
 module Definition.LogicalRelation.Substitution.Introductions.Pi

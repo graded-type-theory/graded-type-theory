@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- The fundamental lemma of the logical relation for validity.
+------------------------------------------------------------------------
+
 open import Definition.Typed.EqualityRelation
 
 module Definition.LogicalRelation.Fundamental

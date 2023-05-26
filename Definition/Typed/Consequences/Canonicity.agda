@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Canonicity theorems for natural numbers and the empty type
+------------------------------------------------------------------------
+
 module Definition.Typed.Consequences.Canonicity
   {a} (M : Set a) where
 

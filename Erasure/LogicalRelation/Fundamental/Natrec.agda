@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Erasure validity of natrec.
+------------------------------------------------------------------------
+
 open import Definition.Modality
 open import Definition.Typed.EqualityRelation
 import Definition.Typed as T′

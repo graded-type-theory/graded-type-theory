@@ -1,3 +1,11 @@
+------------------------------------------------------------------------
+-- Properties of reduction closures
+--
+-- Further substitution theorems for reduction closures follow from
+-- the fundamental lemma. These are located in
+-- Definition.Typed.Consequeces.RedSteps
+------------------------------------------------------------------------
+
 module Definition.Typed.RedSteps {ℓ} (M : Set ℓ) where
 
 open import Definition.Untyped M hiding (_∷_)
