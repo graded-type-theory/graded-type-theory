@@ -47,6 +47,12 @@ unique-var-usage : x ◂ p ∈ γ → x ◂ q ∈ γ → p PE.≡ q
 unique-var-usage here here = PE.refl
 unique-var-usage (there x) (there y) = unique-var-usage x y
 
+-- Variable lookup and the usage relation for variables match
+
+var-usage-lookup : x ◂ p ∈ γ → γ ⟨ x ⟩ ≡ p
+var-usage-lookup here = PE.refl
+var-usage-lookup (there x) = var-usage-lookup x
+
 ------------------------------------------------------------------------
 -- Replacing one usage mode with another
 
@@ -729,6 +735,14 @@ usage-inf (sub γ▸t x) = usage-inf γ▸t
 module _ (𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet) where
   import Definition.Modality.Properties.Has-well-behaved-zero
     semiring-with-meet-and-star 𝟘-well-behaved as P
+  open import Definition.Modality.Usage.Inversion 𝕄
+
+  valid-var-usage : γ ▸[ 𝟙ᵐ ] var x → γ ⟨ x ⟩ ≢ 𝟘
+  valid-var-usage γ▸x γ⟨x⟩≡𝟘 = P.𝟘≰𝟙 (lemma _ (inv-usage-var γ▸x) γ⟨x⟩≡𝟘)
+    where
+    lemma : ∀ x → γ ≤ᶜ 𝟘ᶜ , x ≔ 𝟙 → γ ⟨ x ⟩ ≡ 𝟘 → 𝟘 ≤ 𝟙
+    lemma x0 (_ ∙ γ⟨x⟩≤𝟙) PE.refl = γ⟨x⟩≤𝟙
+    lemma (x +1) (γ≤eᵢ ∙ _) γ⟨x⟩≡𝟘 = lemma x γ≤eᵢ γ⟨x⟩≡𝟘
 
   x◂𝟘∈γ+δˡ : p ≡ 𝟘 → x ◂ p ∈ γ +ᶜ δ → x ◂ 𝟘 ∈ γ
   x◂𝟘∈γ+δˡ {x = ()} {ε} _

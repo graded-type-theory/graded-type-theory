@@ -293,13 +293,10 @@ erase-consSubst σ a t = substVar-to-subst (erase-consSubst-var σ a) t
 
 -- Erased variables do not occur after extraction
 
-erased-hasX-var : x ◂ 𝟘 ∈ (𝟘ᶜ , x ≔ 𝟙) → ⊥
-erased-hasX-var {x = x0} here = 𝟙≉𝟘 refl
-erased-hasX-var (there x) = erased-hasX-var x
-
 erased-hasX : x ◂ 𝟘 ∈ γ → γ ▸[ 𝟙ᵐ ] t → HasX x (erase t) → ⊥
 
-erased-hasX erased γ▸t@var varₓ = erased-hasX-var erased
+erased-hasX erased γ▸t@var varₓ =
+  valid-var-usage 𝟘-wb γ▸t (var-usage-lookup erased)
 
 erased-hasX erased (lamₘ γ▸t) (lamₓ hasX) = erased-hasX (there erased) γ▸t hasX
 
