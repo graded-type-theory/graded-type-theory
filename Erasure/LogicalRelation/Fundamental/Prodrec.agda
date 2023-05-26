@@ -188,7 +188,7 @@ prodrecωʳ′-𝟘
                 (PE.sym lemma)
                 T.refl)
   σ®σ′ᵤ  = subsumptionSubst {l = l} σ®σ′ λ x rγ+δ≡𝟘 →
-             positiveʳ (PE.trans (PE.sym (lookup-distrib-+ᶜ (r ·ᶜ γ) δ x)) rγ+δ≡𝟘)
+             +-positiveʳ (PE.trans (PE.sym (lookup-distrib-+ᶜ (r ·ᶜ γ) δ x)) rγ+δ≡𝟘)
   t₁®v₁ = subsumptionTerm {p = p} t®v◂𝟘 λ _ → PE.trans (·-identityˡ (r · 𝟘)) (·-zeroʳ r)
   t₂®v₂′ = targetRedSubstTerm* [σGt₁] t₂®v₂ d′ ◀ _
   σ₊®σ′₊ = (σ®σ′ᵤ , t₁®v₁) , t₂®v₂′
@@ -232,7 +232,7 @@ prodrecωʳ′-ω
 ... | yes p≡𝟘 = PE.⊥-elim (p≢𝟘 p≡𝟘)
 ... | no _ =
   let σ®σ′ᵤ = subsumptionSubst {l = l} σ®σ′ λ x rγ+δ≡𝟘 →
-                positiveʳ (PE.trans (PE.sym (lookup-distrib-+ᶜ (r ·ᶜ γ) δ x)) rγ+δ≡𝟘)
+                +-positiveʳ (PE.trans (PE.sym (lookup-distrib-+ᶜ (r ·ᶜ γ) δ x)) rγ+δ≡𝟘)
       σ₊ = consSubst (consSubst σ t₁) t₂
       t₁®v₁′ = t₁®v₁ ◀ _
       t₂®v₂′ = t₂®v₂ ◀ _
@@ -524,7 +524,7 @@ prodrecʳ
     lemma : (r PE.≢ 𝟘) → (x : Fin _) → (r ·ᶜ γ +ᶜ δ) ⟨ x ⟩ PE.≡ 𝟘 → γ ⟨ x ⟩ PE.≡ 𝟘
     lemma r≢𝟘 x rγ+δ≡𝟘 =
       case zero-product (PE.trans (PE.sym (lookup-distrib-·ᶜ γ r x))
-                        (positiveˡ (PE.trans (PE.sym (lookup-distrib-+ᶜ (r ·ᶜ γ) δ x))
+                        (+-positiveˡ (PE.trans (PE.sym (lookup-distrib-+ᶜ (r ·ᶜ γ) δ x))
                                              rγ+δ≡𝟘))) of λ where
         (inj₁ r≡𝟘) → PE.⊥-elim (r≢𝟘 r≡𝟘)
         (inj₂ γx≡𝟘) → γx≡𝟘

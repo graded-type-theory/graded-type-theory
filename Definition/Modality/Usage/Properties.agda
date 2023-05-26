@@ -299,7 +299,7 @@ var-usage-lookup (there x) = var-usage-lookup x
   ⌜ ⌞ p + q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p + q ⌟ ] t →
   ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⌟ ] t
 ▸-⌞+⌟ˡ = ▸-conv λ ok ⌞p+q⌟≡𝟘ᵐ →
-  ≈𝟘→⌞⌟≡𝟘ᵐ (positiveˡ ok (⌞⌟≡𝟘ᵐ→≈𝟘 ⌞p+q⌟≡𝟘ᵐ))
+  ≈𝟘→⌞⌟≡𝟘ᵐ (+-positiveˡ ok (⌞⌟≡𝟘ᵐ→≈𝟘 ⌞p+q⌟≡𝟘ᵐ))
 
 -- A kind of inversion lemma for _▸[_]_ related to addition.
 
@@ -315,7 +315,7 @@ var-usage-lookup (there x) = var-usage-lookup x
   ⌜ ⌞ p ∧ q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ∧ q ⌟ ] t →
   ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⌟ ] t
 ▸-⌞∧⌟ˡ = ▸-conv λ ok ⌞p∧q⌟≡𝟘ᵐ →
-  ≈𝟘→⌞⌟≡𝟘ᵐ (∧≈𝟘ˡ ok (⌞⌟≡𝟘ᵐ→≈𝟘 ⌞p∧q⌟≡𝟘ᵐ))
+  ≈𝟘→⌞⌟≡𝟘ᵐ (∧-positiveˡ ok (⌞⌟≡𝟘ᵐ→≈𝟘 ⌞p∧q⌟≡𝟘ᵐ))
 
 -- A kind of inversion lemma for _▸[_]_ related to the meet operation.
 
@@ -747,7 +747,7 @@ module _ (𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet) where
   x◂𝟘∈γ+δˡ : p ≡ 𝟘 → x ◂ p ∈ γ +ᶜ δ → x ◂ 𝟘 ∈ γ
   x◂𝟘∈γ+δˡ {x = ()} {ε} _
   x◂𝟘∈γ+δˡ {x = x0} {γ ∙ p} {δ ∙ q} p+q≡𝟘 here =
-    PE.subst (λ x → x0 ◂ x ∈ (γ ∙ p)) (P.positiveˡ p+q≡𝟘) here
+    PE.subst (λ x → x0 ◂ x ∈ (γ ∙ p)) (P.+-positiveˡ p+q≡𝟘) here
   x◂𝟘∈γ+δˡ {x = x +1} {γ ∙ p} {δ ∙ q} eq (there d) = there (x◂𝟘∈γ+δˡ eq d)
 
   x◂𝟘∈γ+δʳ : p ≡ 𝟘 → x ◂ p ∈ γ +ᶜ δ → x ◂ 𝟘 ∈ δ
@@ -765,7 +765,7 @@ module _ (𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet) where
   x◂𝟘∈γ∧δˡ : p ≡ 𝟘 → x ◂ p ∈ γ ∧ᶜ δ → x ◂ 𝟘 ∈ γ
   x◂𝟘∈γ∧δˡ {x = ()} {ε} _
   x◂𝟘∈γ∧δˡ {x = x0} {γ ∙ p} {δ ∙ q} p∧q≡𝟘 here =
-    PE.subst (λ x → x0 ◂ x ∈ (γ ∙ p)) (P.∧≈𝟘ˡ p∧q≡𝟘) here
+    PE.subst (λ x → x0 ◂ x ∈ (γ ∙ p)) (P.∧-positiveˡ p∧q≡𝟘) here
   x◂𝟘∈γ∧δˡ {x = x +1} {γ ∙ p} {δ ∙ q} eq (there d) =
     there (x◂𝟘∈γ∧δˡ eq d)
 

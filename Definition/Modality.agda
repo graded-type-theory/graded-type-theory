@@ -120,11 +120,13 @@ record Has-well-behaved-zero (𝕄 : Semiring-with-meet) : Set a where
     -- The semiring is positive:
     -- if p + q is 𝟘, then p and q are 𝟘. (The statement that p + q ≈ 𝟘
     -- implies q ≈ 𝟘 follows from the one below, see
-    -- Definition.Modality.Properties.Addition.positiveʳ.)
-    positiveˡ : {p q : M} → p + q ≈ 𝟘 → p ≈ 𝟘
+    -- Definition.Modality.Properties.Has-well-behaved-zero.+-positiveʳ.)
+    +-positiveˡ : {p q : M} → p + q ≈ 𝟘 → p ≈ 𝟘
 
-    -- If p ∧ q is equal to 𝟘, then p ≤ 𝟘.
-    ∧≤𝟘ˡ : {p q : M} → p ∧ q ≈ 𝟘 → p ≤ 𝟘
+    -- If p ∧ q is equal to 𝟘, then p ≈ 𝟘.  (The statement that p ∧ q ≈ 𝟘
+    -- implies q ≈ 𝟘 follows from the one below, see
+    -- Definition.Modality.Properties.Has-well-behaved-zero.∧-positiveʳ.)
+    ∧-positiveˡ : {p q : M} → p ∧ q ≈ 𝟘 → p ≈ 𝟘
 
 -- Semirings with meet and a tertiary star operator
 record Semiring-with-meet-and-star : Set a where

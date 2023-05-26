@@ -88,7 +88,7 @@ appʳ′
       [σu]″ = I.irrelevanceTerm′ (wk-subst F) [ρσF]
                                  (proj₁ (unwrap [F] ⊢Δ (wkSubstS [Γ] ⊢Δ ⊢Δ id [σ]))) [σu]′
       tu®v↯ = ⊩ʳt [σ] (subsumptionSubst {l = l} σ®σ′ λ x γ+pδ≡𝟘 →
-                        positiveˡ (PE.trans (PE.sym (lookup-distrib-+ᶜ γ _ x)) γ+pδ≡𝟘))
+                        +-positiveˡ (PE.trans (PE.sym (lookup-distrib-+ᶜ γ _ x)) γ+pδ≡𝟘))
                   [σu]′
       [σG[u]] = I.irrelevance′ (PE.sym (singleSubstWkComp (subst σ u) σ G))
                                (proj₁ (unwrap [G] ⊢Δ (wkSubstS [Γ] ⊢Δ ⊢Δ id [σ] , [σu]″)))
@@ -111,7 +111,7 @@ appʳ′
                              (u®w′ ◀≢𝟘 (λ ⌜⌞p⌟⌝≡𝟘 →
                                    𝟙≉𝟘 (PE.trans (PE.cong ⌜_⌝ (PE.sym (≉𝟘→⌞⌟≡𝟙ᵐ p≢𝟘))) ⌜⌞p⌟⌝≡𝟘)))
       σ®σ′ₜ = subsumptionSubst {l = l} σ®σ′ λ x γ+pδ≡𝟘 →
-                positiveˡ (PE.trans (PE.sym (lookup-distrib-+ᶜ γ _ x)) γ+pδ≡𝟘)
+                +-positiveˡ (PE.trans (PE.sym (lookup-distrib-+ᶜ γ _ x)) γ+pδ≡𝟘)
       t∘u®v∘w = ⊩ʳt [σ] (subsumptionSubstMode l σ®σ′ₜ)
                     [σu]′ u®w
       [σG[u]] = I.irrelevance′ (PE.sym (singleSubstWkComp (subst σ u) σ G))
@@ -122,7 +122,7 @@ appʳ′
                        [σG[u]] (proj₁ (unwrap [G[u]] ⊢Δ [σ])) t∘u®v∘w
   where
   lem : ∀ {a b} → a + p · b PE.≡ 𝟘 → b PE.≡ 𝟘
-  lem eq = case (zero-product (positiveʳ eq)) of λ where
+  lem eq = case (zero-product (+-positiveʳ eq)) of λ where
     (inj₁ p≡𝟘) → PE.⊥-elim (p≢𝟘 p≡𝟘)
     (inj₂ b≡𝟘) → b≡𝟘
 

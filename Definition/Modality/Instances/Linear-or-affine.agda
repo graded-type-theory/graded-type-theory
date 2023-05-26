@@ -646,12 +646,12 @@ linear-or-affine-has-well-behaved-zero = record
   ; zero-product = λ where
       {p = 𝟘} _ → inj₁ refl
       {q = 𝟘} _ → inj₂ refl
-  ; positiveˡ = λ where
+  ; +-positiveˡ = λ where
       {p = 𝟘} {q = 𝟘}  _  → refl
       {p = 𝟘} {q = 𝟙}  _  → refl
       {p = 𝟘} {q = ≤𝟙} ()
       {p = 𝟘} {q = ≤ω} ()
-  ; ∧≤𝟘ˡ = λ where
+  ; ∧-positiveˡ = λ where
       {p = 𝟘} {q = 𝟘}  _  → refl
       {p = 𝟘} {q = 𝟙}  _  → refl
       {p = 𝟘} {q = ≤𝟙} ()

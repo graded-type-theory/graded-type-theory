@@ -44,11 +44,11 @@ erasure-has-well-behaved-zero = record
       {p = 𝟘} {q = ω} _  → inj₁ refl
       {p = ω} {q = 𝟘} _  → inj₂ refl
       {p = ω} {q = ω} ()
-  ; positiveˡ = λ where
+  ; +-positiveˡ = λ where
       {p = 𝟘}         _  → refl
       {p = ω} {q = 𝟘} ()
       {p = ω} {q = ω} ()
-  ; ∧≤𝟘ˡ = λ where
+  ; ∧-positiveˡ = λ where
       {p = 𝟘} _ → refl
       {p = ω} ()
   }

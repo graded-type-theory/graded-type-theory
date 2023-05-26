@@ -77,19 +77,19 @@ private
              → γ ⟨ x ⟩ PE.≡ 𝟘
   lemma₁ {γ = γ} {η} {δ} {p} {r} x eq =
     let γ∧η≡𝟘 = ⊛≈𝟘ˡ (PE.trans (PE.sym ((lookup-distrib-⊛ᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r x))) eq)
-    in  ∧≈𝟘ˡ (PE.trans (PE.sym (lookup-distrib-∧ᶜ γ η x)) γ∧η≡𝟘)
+    in  ∧-positiveˡ (PE.trans (PE.sym (lookup-distrib-∧ᶜ γ η x)) γ∧η≡𝟘)
 
   lemma₂ : (x : Fin n) → ((γ ∧ᶜ η) ⊛ᶜ δ +ᶜ p ·ᶜ η ▷ r) ⟨ x ⟩ PE.≡ 𝟘
              → δ ⟨ x ⟩ PE.≡ 𝟘
   lemma₂ {γ = γ} {η} {δ} {p} {r} x eq =
     let δ+pη≡𝟘 = ⊛≈𝟘ʳ (PE.trans (PE.sym ((lookup-distrib-⊛ᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r x))) eq)
-    in  positiveˡ (PE.trans (PE.sym (lookup-distrib-+ᶜ δ (p ·ᶜ η) x)) δ+pη≡𝟘)
+    in  +-positiveˡ (PE.trans (PE.sym (lookup-distrib-+ᶜ δ (p ·ᶜ η) x)) δ+pη≡𝟘)
 
   lemma₃ : (x : Fin n) → ((γ ∧ᶜ η) ⊛ᶜ δ +ᶜ p ·ᶜ η ▷ r) ⟨ x ⟩ PE.≡ 𝟘
              → η ⟨ x ⟩ PE.≡ 𝟘
   lemma₃ {γ = γ} {η} {δ} {p} {r} x eq =
     let γ∧η≡𝟘 =  ⊛≈𝟘ˡ (PE.trans (PE.sym ((lookup-distrib-⊛ᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r x))) eq)
-    in  ∧≈𝟘ʳ (PE.trans (PE.sym (lookup-distrib-∧ᶜ γ η x)) γ∧η≡𝟘)
+    in  ∧-positiveʳ (PE.trans (PE.sym (lookup-distrib-∧ᶜ γ η x)) γ∧η≡𝟘)
 
 natrecʳ″ : ∀ {l m w} {Γ : Con Term n}
          → ([Γ] : ⊩ᵛ Γ)

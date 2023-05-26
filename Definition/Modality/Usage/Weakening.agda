@@ -190,8 +190,8 @@ wkConₘ-+ᶜ {δ = _ ∙ _} {η = _ ∙ _} ok (step _) (leq₁ ∙ leq₂) =
   case wkConₘ-+ᶜ ok _ leq₁ of λ {
     (_ , _ , leq₁ , leq₃ , leq₄) →
   _ , _ , leq₁ ,
-  leq₃ ∙ ≤-reflexive (PE.sym (positiveˡ ok (𝟘≮ ok leq₂))) ,
-  leq₄ ∙ ≤-reflexive (PE.sym (positiveʳ ok (𝟘≮ ok leq₂))) }
+  leq₃ ∙ ≤-reflexive (PE.sym (+-positiveˡ ok (𝟘≮ ok leq₂))) ,
+  leq₄ ∙ ≤-reflexive (PE.sym (+-positiveʳ ok (𝟘≮ ok leq₂))) }
 wkConₘ-+ᶜ
   {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} ok (lift ρ) (leq₁ ∙ leq₂) =
   case wkConₘ-+ᶜ ok ρ leq₁ of λ {
@@ -210,8 +210,8 @@ wkConₘ-∧ᶜ {δ = _ ∙ _} {η = _ ∙ _} ok (step _) (leq₁ ∙ leq₂) =
   case wkConₘ-∧ᶜ ok _ leq₁ of λ {
     (_ , _ , leq₁ , leq₃ , leq₄) →
   _ , _ , leq₁ ,
-  leq₃ ∙ ≤-reflexive (PE.sym (∧≈𝟘ˡ ok (𝟘≮ ok leq₂))) ,
-  leq₄ ∙ ≤-reflexive (PE.sym (∧≈𝟘ʳ ok (𝟘≮ ok leq₂))) }
+  leq₃ ∙ ≤-reflexive (PE.sym (∧-positiveˡ ok (𝟘≮ ok leq₂))) ,
+  leq₄ ∙ ≤-reflexive (PE.sym (∧-positiveʳ ok (𝟘≮ ok leq₂))) }
 wkConₘ-∧ᶜ
   {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} ok (lift ρ) (leq₁ ∙ leq₂) =
   case wkConₘ-∧ᶜ ok ρ leq₁ of λ {
@@ -294,26 +294,26 @@ wkConₘ-⊛ᶜ′ ok id leq =
   inj₂ (_ , _ , _ , leq , ≤ᶜ-refl , ≤ᶜ-refl , ≤ᶜ-refl)
 wkConₘ-⊛ᶜ′ {δ = _ ∙ _} {θ = _ ∙ _} {η = η ∙ _}
   ok (step ρ) (leq₁ ∙ leq₂) =
-  case zero-product ok (positiveʳ ok (⊛≈𝟘ʳ ok (𝟘≮ ok leq₂))) of λ where
+  case zero-product ok (+-positiveʳ ok (⊛≈𝟘ʳ ok (𝟘≮ ok leq₂))) of λ where
     (inj₂ refl) →
       case wkConₘ-⊛ᶜ′ ok ρ leq₁ of λ where
         (inj₂ (_ , _ , _ , leq₁ , leq₃ , leq₄ , leq₅)) → inj₂
           (_ , _ , _ , leq₁ ,
            leq₃
              ∙
-           ≤-reflexive (PE.sym (∧≈𝟘ˡ ok (⊛≈𝟘ˡ ok (𝟘≮ ok leq₂)))) ,
+           ≤-reflexive (PE.sym (∧-positiveˡ ok (⊛≈𝟘ˡ ok (𝟘≮ ok leq₂)))) ,
            leq₄
              ∙
-           ≤-reflexive (PE.sym (positiveˡ ok (⊛≈𝟘ʳ ok (𝟘≮ ok leq₂)))) ,
+           ≤-reflexive (PE.sym (+-positiveˡ ok (⊛≈𝟘ʳ ok (𝟘≮ ok leq₂)))) ,
            leq₅ ∙ ≤-refl)
         (inj₁ (refl , _ , _ , _ , leq₁ , leq₃ , leq₄ , leq₅)) → inj₁
           (refl , _ , _ , _ , leq₁ ,
            leq₃
              ∙
-           ≤-reflexive (PE.sym (∧≈𝟘ˡ ok (⊛≈𝟘ˡ ok (𝟘≮ ok leq₂)))) ,
+           ≤-reflexive (PE.sym (∧-positiveˡ ok (⊛≈𝟘ˡ ok (𝟘≮ ok leq₂)))) ,
            leq₄
              ∙
-           ≤-reflexive (PE.sym (positiveˡ ok (⊛≈𝟘ʳ ok (𝟘≮ ok leq₂)))) ,
+           ≤-reflexive (PE.sym (+-positiveˡ ok (⊛≈𝟘ʳ ok (𝟘≮ ok leq₂)))) ,
            leq₅ ∙ ≤-refl)
     (inj₁ refl) →
       case wkConₘ-⊛ᶜ′ ok ρ leq₁ of λ where
@@ -321,28 +321,28 @@ wkConₘ-⊛ᶜ′ {δ = _ ∙ _} {θ = _ ∙ _} {η = η ∙ _}
           (refl , _ , _ , _ , leq₁ ,
            leq₃
              ∙
-           ≤-reflexive (PE.sym (∧≈𝟘ˡ ok (⊛≈𝟘ˡ ok (𝟘≮ ok leq₂)))) ,
+           ≤-reflexive (PE.sym (∧-positiveˡ ok (⊛≈𝟘ˡ ok (𝟘≮ ok leq₂)))) ,
            (begin
               wkConₘ ρ (η′ +ᶜ 𝟘 ·ᶜ θ′)  ≡⟨ cong (wkConₘ ρ) (≈ᶜ→≡ (+ᶜ-congˡ (·ᶜ-zeroˡ _))) ⟩
               wkConₘ ρ (η′ +ᶜ 𝟘ᶜ)       ≡⟨ cong (wkConₘ ρ) (≈ᶜ→≡ (+ᶜ-identityʳ _)) ⟩
               wkConₘ ρ η′               ≤⟨ leq₄ ⟩
               η                         ∎)
              ∙
-           ≤-reflexive (PE.sym (positiveˡ ok (⊛≈𝟘ʳ ok (𝟘≮ ok leq₂)))) ,
+           ≤-reflexive (PE.sym (+-positiveˡ ok (⊛≈𝟘ʳ ok (𝟘≮ ok leq₂)))) ,
            leq₅
              ∙
-           ≤-reflexive (PE.sym (∧≈𝟘ʳ ok (⊛≈𝟘ˡ ok (𝟘≮ ok leq₂)))))
+           ≤-reflexive (PE.sym (∧-positiveʳ ok (⊛≈𝟘ˡ ok (𝟘≮ ok leq₂)))))
         (inj₁ (_ , _ , _ , _ , leq₁ , leq₃ , leq₄ , leq₅)) → inj₁
           (refl , _ , _ , _ , leq₁ ,
            leq₃
              ∙
-           ≤-reflexive (PE.sym (∧≈𝟘ˡ ok (⊛≈𝟘ˡ ok (𝟘≮ ok leq₂)))) ,
+           ≤-reflexive (PE.sym (∧-positiveˡ ok (⊛≈𝟘ˡ ok (𝟘≮ ok leq₂)))) ,
            leq₄
              ∙
-           ≤-reflexive (PE.sym (positiveˡ ok (⊛≈𝟘ʳ ok (𝟘≮ ok leq₂)))) ,
+           ≤-reflexive (PE.sym (+-positiveˡ ok (⊛≈𝟘ʳ ok (𝟘≮ ok leq₂)))) ,
            leq₅
              ∙
-           ≤-reflexive (PE.sym (∧≈𝟘ʳ ok (⊛≈𝟘ˡ ok (𝟘≮ ok leq₂)))))
+           ≤-reflexive (PE.sym (∧-positiveʳ ok (⊛≈𝟘ˡ ok (𝟘≮ ok leq₂)))))
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 wkConₘ-⊛ᶜ′

@@ -223,8 +223,8 @@ fundamental (prodⱼ {Σₚ} {F = F} {G = G} {t = t} {u = u} Γ⊢F Γ⊢G Γ⊢
       [u] = IS.irrelevanceTerm {A = G [ t ]} {t = u} [Γ]₅ [Γ] [G]₅ [G[t]] [u]′
       [Σ] , ⊩ʳp = prodʳ  {F = F} {G = G} {t = t} {u = u} {_⊕ᶜ_ = _∧ᶜ_} [Γ] [F] [G] [G[t]] [t] [u] ⊩ʳt
                         (irrelevance {A = G [ t ]} {t = u} [Γ]₂ [Γ] [G[t]]′ [G[t]] ⊩ʳu)
-                        (λ {x} {γ} {δ} γ∧δ≡𝟘 → ∧≈𝟘ˡ (PE.trans (PE.sym (lookup-distrib-∧ᶜ γ δ x)) γ∧δ≡𝟘))
-                        (λ {x} {γ} {δ} γ∧δ≡𝟘 → ∧≈𝟘ʳ (PE.trans (PE.sym (lookup-distrib-∧ᶜ γ δ x)) γ∧δ≡𝟘))
+                        (λ {x} {γ} {δ} γ∧δ≡𝟘 → ∧-positiveˡ (PE.trans (PE.sym (lookup-distrib-∧ᶜ γ δ x)) γ∧δ≡𝟘))
+                        (λ {x} {γ} {δ} γ∧δ≡𝟘 → ∧-positiveʳ (PE.trans (PE.sym (lookup-distrib-∧ᶜ γ δ x)) γ∧δ≡𝟘))
   in  [Γ] , [Σ] ,
       subsumption-≤ {t = prod! t u} [Γ] [Σ] ⊩ʳp γ≤pδ∧η
 fundamental (prodⱼ {Σᵣ} {F = F} {G = G} {t = t} {u = u} Γ⊢F Γ⊢G Γ⊢t:F Γ⊢u:G) γ▸t =
@@ -241,8 +241,8 @@ fundamental (prodⱼ {Σᵣ} {F = F} {G = G} {t = t} {u = u} Γ⊢F Γ⊢G Γ⊢
       [u] = IS.irrelevanceTerm {A = G [ t ]} {t = u} [Γ]₅ [Γ] [G]₅ [G[t]] [u]′
       [Σ] , ⊩ʳp = prodʳ {F = F} {G = G} {t = t} {u = u} {_⊕ᶜ_ = _+ᶜ_} [Γ] [F] [G] [G[t]] [t] [u] ⊩ʳt
                         (irrelevance {A = G [ t ]} {t = u} [Γ]₂ [Γ] [G[t]]′ [G[t]] ⊩ʳu)
-                        (λ {x} {γ} {δ} γ∧δ≡𝟘 → positiveˡ (PE.trans (PE.sym (lookup-distrib-+ᶜ γ δ x)) γ∧δ≡𝟘))
-                        (λ {x} {γ} {δ} γ∧δ≡𝟘 → positiveʳ (PE.trans (PE.sym (lookup-distrib-+ᶜ γ δ x)) γ∧δ≡𝟘))
+                        (λ {x} {γ} {δ} γ∧δ≡𝟘 → +-positiveˡ (PE.trans (PE.sym (lookup-distrib-+ᶜ γ δ x)) γ∧δ≡𝟘))
+                        (λ {x} {γ} {δ} γ∧δ≡𝟘 → +-positiveʳ (PE.trans (PE.sym (lookup-distrib-+ᶜ γ δ x)) γ∧δ≡𝟘))
   in  [Γ] , [Σ] ,
       subsumption-≤ {t = prod! t u} [Γ] [Σ] ⊩ʳp γ≤pδ+η
 fundamental (fstⱼ {F = F} {t = t} Γ⊢F Γ⊢G Γ⊢t:Σ) γ▸t =

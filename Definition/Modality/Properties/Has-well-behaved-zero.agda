@@ -25,33 +25,13 @@ private
 
 -- If p + q is zero, then q is zero.
 
-positiveʳ : p + q ≈ 𝟘 → q ≈ 𝟘
-positiveʳ p+q≡𝟘 = positiveˡ (trans (+-comm _ _) p+q≡𝟘)
++-positiveʳ : p + q ≈ 𝟘 → q ≈ 𝟘
++-positiveʳ p+q≡𝟘 = +-positiveˡ (trans (+-comm _ _) p+q≡𝟘)
 
--- If p ∧ q is equal to 𝟘, then p is equal
--- to 𝟘.
+-- If p ∧ q is zero, then q is zero.
 
-∧≈𝟘ˡ : p ∧ q ≈ 𝟘 → p ≈ 𝟘
-∧≈𝟘ˡ {p = p} {q = q} p∧q≈𝟘 = ≤-antisym
-  (∧≤𝟘ˡ p∧q≈𝟘)
-  (begin
-     𝟘      ≈˘⟨ p∧q≈𝟘 ⟩
-     p ∧ q  ≤⟨ ∧-decreasingˡ _ _ ⟩
-     p      ∎)
-  where
-  open Tools.Reasoning.PartialOrder ≤-poset
-
--- If p ∧ q is equal to 𝟘, then q is equal
--- to 𝟘.
-
-∧≈𝟘ʳ : p ∧ q ≈ 𝟘 → q ≈ 𝟘
-∧≈𝟘ʳ {p = p} {q = q} p∧q≈𝟘 = ∧≈𝟘ˡ
-  (begin
-     q ∧ p  ≈⟨ ∧-comm _ _ ⟩
-     p ∧ q  ≈⟨ p∧q≈𝟘 ⟩
-     𝟘      ∎)
-  where
-  open Tools.Reasoning.Equivalence (setoid M)
+∧-positiveʳ : p ∧ q ≈ 𝟘 → q ≈ 𝟘
+∧-positiveʳ p∧q≡𝟘 = ∧-positiveˡ (trans (∧-comm _ _) p∧q≡𝟘)
 
 -- Every value that is "greater than or
 -- equal to" 𝟘 is equivalent to 𝟘.
@@ -60,7 +40,7 @@ positiveʳ p+q≡𝟘 = positiveˡ (trans (+-comm _ _) p+q≡𝟘)
 -- Got Plenty o’ Nuttin’".
 
 𝟘≮ : 𝟘 ≤ p → p ≈ 𝟘
-𝟘≮ {p = p} 𝟘≤p = ∧≈𝟘ˡ (begin
+𝟘≮ {p = p} 𝟘≤p = ∧-positiveˡ (begin
   p ∧ 𝟘  ≈⟨ ∧-comm _ _ ⟩
   𝟘 ∧ p  ≈˘⟨ 𝟘≤p ⟩
   𝟘      ∎)
@@ -87,7 +67,7 @@ positiveʳ p+q≡𝟘 = positiveˡ (trans (+-comm _ _) p+q≡𝟘)
 -- equal to zero.
 
 ⊛≈𝟘ʳ : p ⊛ q ▷ r ≈ 𝟘 → q ≈ 𝟘
-⊛≈𝟘ʳ {p = p} {q = q} {r = r} p⊛q▷r≈𝟘 = positiveˡ (𝟘≮ (begin
+⊛≈𝟘ʳ {p = p} {q = q} {r = r} p⊛q▷r≈𝟘 = +-positiveˡ (𝟘≮ (begin
   𝟘                  ≈˘⟨ p⊛q▷r≈𝟘 ⟩
   p ⊛ q ▷ r          ≤⟨ ⊛-ineq₁ _ _ _ ⟩
   q + r · p ⊛ q ▷ r  ∎))
