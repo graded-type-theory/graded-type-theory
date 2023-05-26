@@ -4,30 +4,36 @@
 
 open import Definition.Modality
 open import Definition.Typed.EqualityRelation
-import Definition.Typed as T′
-import Definition.Untyped as U
+import Definition.Typed
+open import Definition.Typed.Restrictions
+import Definition.Untyped
 open import Tools.Nullary
 open import Tools.PropositionalEquality
 
 module Erasure.LogicalRelation.Fundamental.Unit
-  {a k} {M : Set a} (𝕄 : Modality M)
-  (open U M) (open T′ M) (open Modality 𝕄)
+  {a k} {M : Set a}
+  (open Definition.Untyped M)
+  (𝕄 : Modality M)
+  (open Modality 𝕄)
+  (R : Type-restrictions M)
+  (open Definition.Typed R)
   {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   (is-𝟘? : (p : M) → Dec (p ≡ 𝟘))
-  {{eqrel : EqRelSet M}}
+  {{eqrel : EqRelSet R}}
   where
 
 open EqRelSet {{...}}
+open Type-restrictions R
 
-open import Erasure.LogicalRelation 𝕄 ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Subsumption 𝕄 ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation 𝕄 R ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Subsumption 𝕄 R ⊢Δ is-𝟘?
 import Erasure.Target as T
 
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.Fundamental M
-open import Definition.LogicalRelation.Substitution M
-open import Definition.LogicalRelation.Substitution.Introductions.Universe M
-open import Definition.LogicalRelation.Substitution.Introductions.Unit M
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Fundamental R
+open import Definition.LogicalRelation.Substitution R
+open import Definition.LogicalRelation.Substitution.Introductions.Universe R
+open import Definition.LogicalRelation.Substitution.Introductions.Unit R
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Mode 𝕄
@@ -43,22 +49,25 @@ private
     m : Mode
 
 Unitʳ : ⊢ Γ
+      → Unit-restriction
       → ∃ λ ([Γ] : ⊩ᵛ Γ)
       → ∃ λ ([U] : Γ ⊩ᵛ⟨ ¹ ⟩ U / [Γ])
       → γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ Unit ∷[ m ] U / [Γ] / [U]
-Unitʳ {m = m} ⊢Γ =
-  [Γ] , [U] , λ _ _ → Uᵣ (Unitⱼ ⊢Δ) ◀ ⌜ m ⌝
+Unitʳ {m = m} ⊢Γ ok =
+  [Γ] , [U] , λ _ _ → Uᵣ (Unitⱼ ⊢Δ ok) ◀ ⌜ m ⌝
   where
   [Γ] = valid ⊢Γ
   [U] = Uᵛ [Γ]
 
-starʳ : ∀ {l} → ⊢ Γ
+starʳ : ∀ {l}
+      → ⊢ Γ
+      → Unit-restriction
       → ∃ λ ([Γ] : ⊩ᵛ Γ)
       → ∃ λ ([Unit] : Γ ⊩ᵛ⟨ l ⟩ Unit / [Γ])
       → γ ▸ Γ ⊩ʳ⟨ l ⟩ star ∷[ m ] Unit / [Γ] / [Unit]
-starʳ {m = m} ⊢Γ =
+starʳ {m = m} ⊢Γ ok =
     [Γ] , [Unit]
-  , λ _ _ → starᵣ (starⱼ ⊢Δ) T.refl ◀ ⌜ m ⌝
+  , λ _ _ → starᵣ (starⱼ ⊢Δ ok) T.refl ◀ ⌜ m ⌝
   where
   [Γ]    = valid ⊢Γ
-  [Unit] = Unitᵛ [Γ]
+  [Unit] = Unitᵛ [Γ] ok

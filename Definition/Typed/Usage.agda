@@ -4,13 +4,18 @@
 ------------------------------------------------------------------------
 
 open import Definition.Modality
+open import Definition.Typed.Restrictions
 
 module Definition.Typed.Usage
-  {a} {M : Set a} (𝕄 : Modality M) where
+  {a} {M : Set a}
+  (𝕄 : Modality M)
+  (R : Type-restrictions M)
+  where
 
 open Modality 𝕄
+open Type-restrictions R
 
-open import Definition.Conversion.FullReduction M
+open import Definition.Conversion.FullReduction R
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
 open import Definition.Modality.Properties 𝕄
@@ -21,10 +26,10 @@ import Definition.Modality.Usage.Unrestricted.Eta 𝕄 as UU
 open import Definition.Modality.Usage.Inversion 𝕄
 open import Definition.Modality.Usage.Properties 𝕄
 open import Definition.Mode 𝕄
-open import Definition.Typed M
-open import Definition.Typed.Consequences.DerivedRules M
-import Definition.Typed.Erased 𝕄 as ET
-import Definition.Typed.Unrestricted.Eta 𝕄 as UT
+open import Definition.Typed R
+open import Definition.Typed.Consequences.DerivedRules R
+import Definition.Typed.Erased 𝕄 R as ET
+import Definition.Typed.Unrestricted.Eta 𝕄 R as UT
 open import Definition.Untyped M hiding (_∷_; _[_])
 open import Definition.Untyped.Erased 𝕄 as E using (Erased)
 import Definition.Untyped.Unrestricted.Eta 𝕄 as U
@@ -68,7 +73,8 @@ usagePresTerm γ▸t (fst-subst x x₁ t⇒u) =
 usagePresTerm γ▸t (snd-subst x x₁ t⇒u) =
   let invUsageSnd ▸t γ≤ = inv-usage-snd γ▸t
   in  sub (sndₘ (usagePresTerm ▸t t⇒u)) γ≤
-usagePresTerm {γ = γ} {m′} ▸t′ (Σ-β₁ {p = p} {t = t} _ _ _ _ PE.refl) =
+usagePresTerm
+  {γ = γ} {m′} ▸t′ (Σ-β₁ {p = p} {t = t} _ _ _ _ PE.refl _) =
   case inv-usage-fst ▸t′ of λ where
     (invUsageFst {δ = δ} m PE.refl ▸tu γ≤δ fst-ok) →
       case inv-usage-prodₚ ▸tu of λ where
@@ -100,7 +106,7 @@ usagePresTerm {γ = γ} {m′} ▸t′ (Σ-β₁ {p = p} {t = t} _ _ _ _ PE.refl
              𝟙 ·ᶜ δ ≈⟨ ·ᶜ-identityˡ δ ⟩
              δ ∎)
 
-usagePresTerm {γ = γ} ▸t′ (Σ-β₂ {p = p} _ _ _ _ PE.refl) =
+usagePresTerm {γ = γ} ▸t′ (Σ-β₂ {p = p} _ _ _ _ PE.refl _) =
   case inv-usage-snd ▸t′ of λ where
     (invUsageSnd {δ = δ} ▸tu γ≤δ) → case inv-usage-prodₚ ▸tu of λ where
       (invUsageProdₚ {δ = ζ} {η = η} ▸t ▸u δ≤pζ∧η) → sub ▸u (begin
@@ -190,13 +196,17 @@ usagePres* : γ ▸[ m ] A → Γ ⊢ A ⇒* B → γ ▸[ m ] B
 usagePres* γ▸A (id x) = γ▸A
 usagePres* γ▸A (x ⇨ A⇒B) = usagePres* (usagePres γ▸A x) A⇒B
 
--- Note that reduction does not include η-expansion. If 𝟙 ≰ 𝟘, then
--- there is a well-resourced, closed term in normal form which is
--- definitionally equal to a term in normal form which is not
+-- Note that reduction does not include η-expansion (given certain
+-- assumptions). If 𝟙 ≰ 𝟘, the Unit type with η-equality is allowed,
+-- and Σ-types with η-equality are allowed when the first quantity
+-- is 𝟘, then there is a well-resourced, closed term in normal form
+-- which is definitionally equal to a term in normal form which is not
 -- well-resourced.
 
 counterexample₁ :
   ¬ 𝟙 ≤ 𝟘 →
+  Unit-restriction →
+  Σₚ-restriction 𝟘 →
   ∃₂ λ t u →
     (∀ p → ε ⊢ t ∷ Π 𝟙 , p ▷ Erased ℕ ▹ Erased ℕ) ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
@@ -204,7 +214,7 @@ counterexample₁ :
     Nf u ×
     (∀ p → ε ⊢ t ≡ u ∷ Π 𝟙 , p ▷ Erased ℕ ▹ Erased ℕ) ×
     ¬ ∃ λ γ → γ ▸[ 𝟙ᵐ ] u
-counterexample₁ 𝟙≰𝟘 =
+counterexample₁ 𝟙≰𝟘 Unit-ok Σₚ-ok =
     lam 𝟙 (var x0)
   , lam 𝟙 [ erased (var x0) ]
   , (λ _ → lamⱼ ⊢E-ℕ ⊢0)
@@ -227,14 +237,16 @@ counterexample₁ 𝟙≰𝟘 =
              𝟘      ∎))
   where
   open E
-  open ET
+  open ET Unit-ok Σₚ-ok
   open EU
 
   ⊢E-ℕ = Erasedⱼ (ℕⱼ ε)
   ⊢0   = var (ε ∙ ⊢E-ℕ) here
 
--- A variant of the previous property. If there is some quantity
--- strictly below both 𝟘 and some quantity that is bounded by 𝟙, then
+-- A variant of the previous lemma. If there is some quantity ω
+-- strictly below both 𝟘 and some quantity that is bounded by 𝟙, and
+-- furthermore the Unit type with η-equality is allowed and Σ-types
+-- with η-equality are allowed when the first quantity is ω, then
 -- there is a well-resourced, closed term in normal form which is
 -- definitionally equal to a term in normal form which is not
 -- well-resourced.
@@ -242,6 +254,8 @@ counterexample₁ 𝟙≰𝟘 =
 counterexample₂ :
   ∀ ω → ω < 𝟘 →
   ∀ p → ω < p → p ≤ 𝟙 →
+  Unit-restriction →
+  Σₚ-restriction ω →
   let open U ω in
   ∃₂ λ t u →
     (∀ q → ε ⊢ t ∷ Π p , q ▷ Unrestricted ℕ ▹ Unrestricted ℕ) ×
@@ -250,7 +264,7 @@ counterexample₂ :
     Nf u ×
     (∀ q → ε ⊢ t ≡ u ∷ Π p , q ▷ Unrestricted ℕ ▹ Unrestricted ℕ) ×
     ¬ ∃ λ γ → γ ▸[ 𝟙ᵐ ] u
-counterexample₂ ω ω<𝟘 p ω<p p≤𝟙 =
+counterexample₂ ω ω<𝟘 p ω<p p≤𝟙 Unit-ok Σₚ-ok =
     lam p (var x0)
   , lam p [ unbox (var x0) ]
   , (λ _ → lamⱼ ⊢E-ℕ ⊢0)
@@ -285,7 +299,7 @@ counterexample₂ ω ω<𝟘 p ω<p p≤𝟙 =
     open Tools.Reasoning.PartialOrder ≤-poset
 
   open U ω
-  open UT ω
+  open UT ω Unit-ok Σₚ-ok
   open UU ω ω<𝟘 ω≤𝟙
 
   ⊢E-ℕ = Unrestrictedⱼ (ℕⱼ ε)

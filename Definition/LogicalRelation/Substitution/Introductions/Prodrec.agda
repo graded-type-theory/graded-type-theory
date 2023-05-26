@@ -3,29 +3,33 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.EqualityRelation
+open import Definition.Typed.Restrictions
 
 module Definition.LogicalRelation.Substitution.Introductions.Prodrec
-  {a} (M : Set a) {{eqrel : EqRelSet M}} where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  {{eqrel : EqRelSet R}}
+  where
 
 open EqRelSet {{...}}
 
 open import Definition.Untyped M as U hiding (wk; _∷_)
 open import Definition.Untyped.Properties M
 
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-open import Definition.Typed.RedSteps M
-open import Definition.Typed.Weakening M
+open import Definition.Typed R
+open import Definition.Typed.Properties R
+open import Definition.Typed.RedSteps R
+open import Definition.Typed.Weakening R
 
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.Irrelevance M
-open import Definition.LogicalRelation.Properties M
-open import Definition.LogicalRelation.Substitution M
-open import Definition.LogicalRelation.Substitution.Introductions.Pi M
-import Definition.LogicalRelation.Substitution.Irrelevance M as S
-open import Definition.LogicalRelation.Substitution.Properties M
-open import Definition.LogicalRelation.Substitution.Reflexivity M
-import Definition.LogicalRelation.Weakening M as W
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Irrelevance R
+open import Definition.LogicalRelation.Properties R
+open import Definition.LogicalRelation.Substitution R
+open import Definition.LogicalRelation.Substitution.Introductions.Pi R
+import Definition.LogicalRelation.Substitution.Irrelevance R as S
+open import Definition.LogicalRelation.Substitution.Properties R
+open import Definition.LogicalRelation.Substitution.Reflexivity R
+import Definition.LogicalRelation.Weakening R as W
 
 open import Tools.Fin
 open import Tools.Nat
@@ -112,7 +116,7 @@ prodrecTerm :
   ([Γ] : ⊩ᵛ Γ)
   ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
   ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F]) →
-  let [Σ] = Σᵛ {m = Σᵣ} [Γ] [F] [G] in
+  let [Σ] = Σᵛ {m = Σᵣ} [Γ] [F] [G] _ in
   ([A] : Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊩ᵛ⟨ l ⟩ A / [Γ] ∙ [Σ])
   ([A₊] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑² /
             [Γ] ∙ [F] ∙ [G])
@@ -132,7 +136,7 @@ prodrecTerm
   [Γ] [F] [G] [A] [A₊] [u] ⊢Δ [σ]
   [σt]@(Σₜ p t⇒p p≅p (prodₙ {p = p″} {t = p₁} {u = p₂})
           (PE.refl , [p₁] , [p₂] , PE.refl)) =
-  let [Σ] = Σᵛ {F = F} {G = G} {q = q} {m = Σᵣ} [Γ] [F] [G]
+  let [Σ] = Σᵛ {F = F} {G = G} {q = q} {m = Σᵣ} [Γ] [F] [G] _
       [σΣ] = proj₁ (unwrap [Σ] ⊢Δ [σ])
       [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
       ⊢σF = escape [σF]
@@ -205,7 +209,7 @@ prodrecTerm
   {Γ = Γ} {q = q} {Δ = Δ} {r = r} {F = F} {G} {A} {t} {u} {σ} {l}
   [Γ] [F] [G] [A] [A₊] [u] ⊢Δ [σ]
   [σt]@(Σₜ p t⇒p p≅p (ne x) p~p) =
-  let [Σ] = Σᵛ {F = F} {G = G} {q = q} {m = Σᵣ} [Γ] [F] [G]
+  let [Σ] = Σᵛ {F = F} {G = G} {q = q} {m = Σᵣ} [Γ] [F] [G] _
       [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
       ⊢σF = escape [σF]
       [σG] = proj₁ (unwrap [G] {σ = liftSubst σ} (⊢Δ ∙ ⊢σF) (liftSubstS {F = F} [Γ] ⊢Δ [F] [σ]))
@@ -270,8 +274,8 @@ prodrecCong :
   ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
   ([G′] : Γ ∙ F′ ⊩ᵛ⟨ l ⟩ G′ / [Γ] ∙ [F′])
   ([G≡G′] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G ≡ G′ / [Γ] ∙ [F] / [G]) →
-  let [Σ] = Σᵛ {F = F} {G = G} {m = Σᵣ} [Γ] [F] [G]
-      [Σ′] = Σᵛ {F = F′} {G = G′} {m = Σᵣ} [Γ] [F′] [G′]
+  let [Σ] = Σᵛ {F = F} {G = G} {m = Σᵣ} [Γ] [F] [G] _
+      [Σ′] = Σᵛ {F = F′} {G = G′} {m = Σᵣ} [Γ] [F′] [G′] _
   in
   ([A] : Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊩ᵛ⟨ l ⟩ A / [Γ] ∙ [Σ])
   ([A′] : Γ ∙ (Σᵣ p , q ▷ F′ ▹ G′) ⊩ᵛ⟨ l ⟩ A′ / [Γ] ∙ [Σ′])
@@ -322,8 +326,8 @@ prodrecCong {n = n} {m = m} {p = p′} {q = q} {Δ = Δ} {r = r}
                       (PE.refl , PE.refl ,
                        wk[p₁′] , wk[r₁′] , wk[p₂′] , wk[r₂′] ,
                        wk[p₁≡r₁] , wk[p₂≡r₂])) =
-  let [Σ] = Σᵛ {F = F} {G = G} {q = q} {m = Σᵣ} [Γ] [F] [G]
-      [Σ′] = Σᵛ {F = F′} {G = G′} {q = q} {m = Σᵣ} [Γ] [F′] [G′]
+  let [Σ] = Σᵛ {F = F} {G = G} {q = q} {m = Σᵣ} [Γ] [F] [G] _
+      [Σ′] = Σᵛ {F = F′} {G = G′} {q = q} {m = Σᵣ} [Γ] [F′] [G′] _
       [⇑σ] = liftSubstS {σ = σ} {F = F} [Γ] ⊢Δ [F] [σ]
       [⇑σ′] = liftSubstS {σ = σ′} {F = F′} [Γ] ⊢Δ [F′] [σ′]
       [σ≡σ] = reflSubst {σ = σ} [Γ] ⊢Δ [σ]
@@ -496,7 +500,7 @@ prodrecCong {n = n} {m = m} {p = p′} {q = q} {Δ = Δ} {r = r}
 
       [σ′Σ] = proj₁ (unwrap [Σ] ⊢Δ [σ′])
       [Σ≡Σ′] = Σ-congᵛ {F = F} {G} {F′} {G′} {q = q}
-                 [Γ] [F] [G] [F′] [G′] [F≡F′] [G≡G′]
+                 [Γ] [F] [G] [F′] [G′] [F≡F′] [G≡G′] _
       [σ′Σ≡σ′Σ′] = [Σ≡Σ′] ⊢Δ [σ′]
       [t′]′ = convTerm₂ [σ′Σ] [σ′Σ′] [σ′Σ≡σ′Σ′] [t′]
       [σ′At′] = proj₁ (unwrap [A] {σ = consSubst σ′ t′} ⊢Δ ([σ′] , [t′]′))
@@ -541,10 +545,10 @@ prodrecCong {n = n} {m = m} {p = p′} {q = q} {Δ = Δ} {r = r}
             [t]@(Σₜ pₜ dₜ p≅p (ne xₜ) pProp)
             [t′]@(Σₜ rₜ d′ₜ r≅r (ne yₜ) rProp)
             [t≡t′]@(Σₜ₌ _ _ d d′ (ne x) (ne y) p≅r wk[t] wk[t′] p~r) =
-  let [Σ] = Σᵛ {F = F} {G = G} {q = q} {m = Σᵣ} [Γ] [F] [G]
-      [Σ′] = Σᵛ {F = F′} {G = G′} {q = q} {m = Σᵣ} [Γ] [F′] [G′]
+  let [Σ] = Σᵛ {F = F} {G = G} {q = q} {m = Σᵣ} [Γ] [F] [G] _
+      [Σ′] = Σᵛ {F = F′} {G = G′} {q = q} {m = Σᵣ} [Γ] [F′] [G′] _
       [Σ≡Σ′] = Σ-congᵛ {F = F} {G} {F′} {G′} {q = q} {m = Σᵣ}
-                 [Γ] [F] [G] [F′] [G′] [F≡F′] [G≡G′]
+                 [Γ] [F] [G] [F′] [G′] [F≡F′] [G≡G′] _
       σΣ = subst σ (Σᵣ p′ , q ▷ F ▹ G)
       σΣ′ = subst σ (Σᵣ _ , q ▷ F′ ▹ G′)
       σ′Σ′ = subst σ′ (Σᵣ p′ , q ▷ F′ ▹ G′)
@@ -879,7 +883,7 @@ prodrecᵛ :
 prodrecᵛ {n = n} {q = q} {r = r} {Γ = Γ} {F} {G} {A} {t} {u} {l}
          [Γ] [F] [G] [Σ] [A] [A₊] [Aₜ] [t] [u]
          {k} {Δ} {σ} ⊢Δ [σ] =
-  let [Σ]′ = Σᵛ {F = F} {G = G} {q = q} {m = Σᵣ} [Γ] [F] [G]
+  let [Σ]′ = Σᵛ {F = F} {G = G} {q = q} {m = Σᵣ} [Γ] [F] [G] _
       [A]′ = S.irrelevance {A = A} (_∙_ {A = Σᵣ _ , q ▷ F ▹ G} [Γ] [Σ])
                ([Γ] ∙ [Σ]′) [A]
       [σt] = proj₁ ([t] ⊢Δ [σ])
@@ -955,8 +959,8 @@ prodrec-congᵛ {Γ = Γ} {q = q} {r = r}
               [Γ] [F] [F′] [F≡F′] [G] [G′] [G≡G′] [Σ] [Σ′] [Σ≡Σ′]
               [A] [A′] [A≡A′] [A₊] [A′₊] [A₊≡A′₊] [Aₜ]
               [t] [t′] [t≡t′] [u] [u′] [u≡u′] {k} {Δ} {σ} ⊢Δ [σ] =
-  let [Σ]′ = Σᵛ {F = F} {G = G} {q = q} {m = Σᵣ} [Γ] [F] [G]
-      [Σ′]′ = Σᵛ {F = F′} {G = G′} {q = q} {m = Σᵣ} [Γ] [F′] [G′]
+  let [Σ]′ = Σᵛ {F = F} {G = G} {q = q} {m = Σᵣ} [Γ] [F] [G] _
+      [Σ′]′ = Σᵛ {F = F′} {G = G′} {q = q} {m = Σᵣ} [Γ] [F′] [G′] _
       [A]′ = S.irrelevance {A = A} (_∙_ {A = Σᵣ _ , q ▷ F ▹ G} [Γ] [Σ])
                ([Γ] ∙ [Σ]′) [A]
       [A′]′ = S.irrelevance {A = A′}
@@ -976,7 +980,7 @@ prodrec-congᵛ {Γ = Γ} {q = q} {r = r}
       [σt≡σt′] = [t≡t′] ⊢Δ [σ]
       [σt≡σt′]′ = irrelevanceEqTerm (proj₁ (unwrap [Σ] ⊢Δ [σ])) (proj₁ (unwrap [Σ]′ ⊢Δ [σ])) [σt≡σt′]
       [Σ≡Σ′] = Σ-congᵛ {F = F} {G} {F′} {G′} {q = q}
-                 [Γ] [F] [G] [F′] [G′] [F≡F′] [G≡G′]
+                 [Γ] [F] [G] [F′] [G′] [F≡F′] [G≡G′] _
       [σΣ≡σΣ′] = [Σ≡Σ′] ⊢Δ [σ]
       ⊢σΣ≡σΣ′ = ≅-eq (escapeEq (proj₁ (unwrap [Σ]′ ⊢Δ [σ])) [σΣ≡σΣ′])
       -- TODO: Slow!

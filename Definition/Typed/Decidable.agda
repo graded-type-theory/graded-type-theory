@@ -2,18 +2,29 @@
 -- Decidability of typing.
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
 open import Tools.PropositionalEquality as PE using (_≈_)
 open import Tools.Relation
 
 module Definition.Typed.Decidable
-  {a} {M : Set a} (_≟_ : Decidable (_≈_ {A = M})) where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  (open Type-restrictions R)
+  -- Equality is assumed to be decidable for M.
+  (_≟_ : Decidable (PE._≡_ {A = M}))
+  -- It is decidable whether the Unit restriction holds.
+  (Unit-ok? : Dec Unit-restriction)
+  -- It is decidable whether the Σₚ restriction holds for a given
+  -- quantity.
+  (Σₚ-ok? : ∀ p → Dec (Σₚ-restriction p))
+  where
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
-open import Definition.Typechecking M
-open import Definition.Typechecking.Soundness M
-open import Definition.Typechecking.Completeness M
-open import Definition.Typechecking.Decidable _≟_
+open import Definition.Typed R
+open import Definition.Typechecking R
+open import Definition.Typechecking.Soundness R
+open import Definition.Typechecking.Completeness R
+open import Definition.Typechecking.Decidable R _≟_ Unit-ok? Σₚ-ok?
 
 open import Tools.Function
 open import Tools.Nat
@@ -27,7 +38,7 @@ private
     A t : Term n
 
 -- Re-export decidability of type and term equality
-open import Definition.Typed.Decidable.Equality _≟_ public
+open import Definition.Typed.Decidable.Equality R _≟_ public
 
 -- Decidability of well-formed types
 

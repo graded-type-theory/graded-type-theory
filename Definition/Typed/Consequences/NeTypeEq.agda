@@ -2,14 +2,18 @@
 -- Neutral terms have only one type (up to type equality).
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
+
 module Definition.Typed.Consequences.NeTypeEq
-  {a} (M : Set a) where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  where
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
-open import Definition.Typed.Consequences.Syntactic M
-open import Definition.Typed.Consequences.Injectivity M
-open import Definition.Typed.Consequences.Substitution M
+open import Definition.Typed R
+open import Definition.Typed.Consequences.Syntactic R
+open import Definition.Typed.Consequences.Injectivity R
+open import Definition.Typed.Consequences.Substitution R
 
 open import Tools.Nat
 open import Tools.Product

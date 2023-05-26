@@ -2,17 +2,21 @@
 -- Soundness of algorithmic equality.
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
+
 module Definition.Conversion.Soundness
-  {a} (M : Set a) where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  where
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-open import Definition.Conversion M
-open import Definition.Conversion.Whnf M
-open import Definition.Typed.Consequences.InverseUniv M
-open import Definition.Typed.Consequences.Syntactic M
-open import Definition.Typed.Consequences.NeTypeEq M
+open import Definition.Typed R
+open import Definition.Typed.Properties R
+open import Definition.Conversion R
+open import Definition.Conversion.Whnf R
+open import Definition.Typed.Consequences.InverseUniv R
+open import Definition.Typed.Consequences.Syntactic R
+open import Definition.Typed.Consequences.NeTypeEq R
 
 open import Tools.Nat
 open import Tools.Product
@@ -68,10 +72,10 @@ mutual
   soundnessConv↓ (U-refl ⊢Γ) = refl (Uⱼ ⊢Γ)
   soundnessConv↓ (ℕ-refl ⊢Γ) = refl (ℕⱼ ⊢Γ)
   soundnessConv↓ (Empty-refl ⊢Γ) = refl (Emptyⱼ ⊢Γ)
-  soundnessConv↓ (Unit-refl ⊢Γ) = refl (Unitⱼ ⊢Γ)
+  soundnessConv↓ (Unit-refl ⊢Γ ok) = refl (Unitⱼ ⊢Γ ok)
   soundnessConv↓ (ne x) = univ (soundness~↓ x)
-  soundnessConv↓ (ΠΣ-cong F c c₁) =
-    ΠΣ-cong F (soundnessConv↑ c) (soundnessConv↑ c₁)
+  soundnessConv↓ (ΠΣ-cong F c c₁ ok) =
+    ΠΣ-cong F (soundnessConv↑ c) (soundnessConv↑ c₁) ok
 
   -- Algorithmic equality of terms is well-formed.
   soundnessConv↑Term : ∀ {a b A} → Γ ⊢ a [conv↑] b ∷ A → Γ ⊢ a ≡ b ∷ A
@@ -101,7 +105,7 @@ mutual
   soundnessConv↓Term (zero-refl ⊢Γ) = refl (zeroⱼ ⊢Γ)
   soundnessConv↓Term (suc-cong c) = suc-cong (soundnessConv↑Term c)
   soundnessConv↓Term (prod-cong x x₁ x₂ x₃) =
-    prod-cong x x₁ (soundnessConv↑Term x₂) (soundnessConv↑Term x₃)
+    prod-cong x x₁ (soundnessConv↑Term x₂) (soundnessConv↑Term x₃) _
   soundnessConv↓Term (η-eq x x₁ y y₁ c) =
     let ⊢ΠFG = syntacticTerm x
         ⊢F , _ = syntacticΠ ⊢ΠFG

@@ -6,27 +6,35 @@ open import Definition.Modality
 open import Definition.Modality.Restrictions.Definitions
   using (No-erased-matches)
 open import Definition.Typed.EqualityRelation
-import Definition.Untyped as U hiding (_∷_)
-import Definition.Typed as T′
+import Definition.Untyped hiding (_∷_)
+open import Definition.Typed.Restrictions
+import Definition.Typed
+open import Tools.Empty
 open import Tools.PropositionalEquality
 open import Tools.Sum
 
 module Erasure.Consequences.Soundness
-  {a k} {M : Set a} (𝕄 : Modality M)
-  (open U M) (open T′ M) (open Modality 𝕄)
+  {a k} {M : Set a}
+  (open Definition.Untyped M)
+  (𝕄 : Modality M)
+  (open Modality 𝕄)
+  (R : Type-restrictions M)
+  (open Definition.Typed R)
   {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   (𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet)
   (consistent : ∀ {t} → Δ ⊢ t ∷ Empty → ⊥)
   -- Erased matches are not allowed unless the context
   -- is empty
   (no-erased-matches : No-erased-matches 𝕄 ⊎ k ≡ 0)
-  {{eqrel : EqRelSet M}}
+  {{eqrel : EqRelSet R}}
   where
 
 open EqRelSet {{...}}
 
-open import Definition.Typed.Properties M
-open import Definition.LogicalRelation M
+open import Definition.Typed.Consequences.Inversion R
+open import Definition.Typed.Consequences.Syntactic R
+open import Definition.Typed.Properties R
+open import Definition.LogicalRelation R
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Usage 𝕄
@@ -36,12 +44,12 @@ open import Definition.Mode 𝕄
 
 import Erasure.Target as T
 open import Erasure.Extraction 𝕄 is-𝟘?
-open import Erasure.SucRed M
-open import Erasure.LogicalRelation 𝕄 ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Fundamental 𝕄 ⊢Δ 𝟘-well-behaved
-                                                consistent no-erased-matches
-open import Erasure.LogicalRelation.Irrelevance 𝕄 ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Subsumption 𝕄 ⊢Δ is-𝟘?
+open import Erasure.SucRed R
+open import Erasure.LogicalRelation 𝕄 R ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Fundamental
+  𝕄 R ⊢Δ 𝟘-well-behaved consistent no-erased-matches
+open import Erasure.LogicalRelation.Irrelevance 𝕄 R ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Subsumption 𝕄 R ⊢Δ is-𝟘?
 
 open import Tools.Nat
 open import Tools.Product
@@ -140,5 +148,8 @@ soundness-star :
 soundness-star t⇒star γ▸t =
   let ⊢t = redFirst*Term t⇒star
       [⊤] , t®t′ = fundamentalErased ⊢t γ▸t
-      t®t″ = irrelevanceTerm {l′ = ¹} [⊤] (Unitᵣ (idRed:*: (Unitⱼ ⊢Δ))) (t®t′ ◀≢𝟘 𝟙≉𝟘)
+      ok = inversion-Unit (syntacticTerm ⊢t)
+      t®t″ = irrelevanceTerm {l′ = ¹}
+               [⊤] (Unitᵣ (Unitₜ (idRed:*: (Unitⱼ ⊢Δ ok)) ok))
+               (t®t′ ◀≢𝟘 𝟙≉𝟘)
   in  soundness-star′ t®t″

@@ -2,20 +2,26 @@
 -- The typing and reduction relations are closed under substitutions.
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
+
 module Definition.Typed.Consequences.Substitution
-  {a} (M : Set a) where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  where
+
+open Type-restrictions R
 
 open import Definition.Untyped M hiding (_∷_; wk)
 open import Definition.Untyped.Properties M
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-open import Definition.Typed.EqRelInstance M
-open import Definition.Typed.Weakening M
-open import Definition.Typed.Consequences.Syntactic M
-open import Definition.LogicalRelation.Properties M
-open import Definition.LogicalRelation.Substitution M
-open import Definition.LogicalRelation.Substitution.Irrelevance M
-open import Definition.LogicalRelation.Fundamental M
+open import Definition.Typed R
+open import Definition.Typed.Properties R
+open import Definition.Typed.EqRelInstance R
+open import Definition.Typed.Weakening R
+open import Definition.Typed.Consequences.Syntactic R
+open import Definition.LogicalRelation.Properties R
+open import Definition.LogicalRelation.Substitution R
+open import Definition.LogicalRelation.Substitution.Irrelevance R
+open import Definition.LogicalRelation.Fundamental R
 
 open import Tools.Fin
 open import Tools.Nat
@@ -187,8 +193,9 @@ subst↑TypeEq ⊢G ⊢t = substitutionEq ⊢G (singleSubst↑Eq ⊢t) (wfEqTerm
 
 subst↑²Type : ∀ {m F G A}
             → Γ ∙ (Σ⟨ m ⟩ p , q ▷ F ▹ G) ⊢ A
+            → Σ-restriction m p
             → Γ ∙ F ∙ G ⊢ A [ prod m p (var (x0 +1)) (var x0) ]↑²
-subst↑²Type {Γ = Γ} {F = F} {G} {A} ⊢A =
+subst↑²Type {Γ = Γ} {F = F} {G} {A} ⊢A ok =
   let ⊢ΓΣ = wf ⊢A
       ⊢Γ , ⊢Σ = splitCon ⊢ΓΣ
       ⊢F , ⊢G = syntacticΣ ⊢Σ
@@ -214,7 +221,7 @@ subst↑²Type {Γ = Γ} {F = F} {G} {A} ⊢A =
                       (var ⊢ΓFG here)
   in  substitution ⊢A
                    (wk1Subst′ ⊢Γ (⊢Γ ∙ ⊢F) ⊢G (wk1Subst′ ⊢Γ ⊢Γ ⊢F (idSubst′ ⊢Γ))
-                   , prodⱼ ⊢ρF′ ⊢ρG′ var1 var0)
+                   , prodⱼ ⊢ρF′ ⊢ρG′ var1 var0 ok)
                    ⊢ΓFG
   where
   splitCon : ∀ {Γ : Con Term n} {F} → ⊢ (Γ ∙ F) → ⊢ Γ × Γ ⊢ F
@@ -222,9 +229,10 @@ subst↑²Type {Γ = Γ} {F = F} {G} {A} ⊢A =
 
 subst↑²TypeEq : ∀ {m F G A B}
               → Γ ∙ (Σ⟨ m ⟩ p , q ▷ F ▹ G) ⊢ A ≡ B
+              → Σ-restriction m p
               → Γ ∙ F ∙ G ⊢ A [ prod m p (var (x0 +1)) (var x0) ]↑²
                           ≡ B [ prod m p (var (x0 +1)) (var x0) ]↑²
-subst↑²TypeEq {Γ = Γ} {F = F} {G} {A} {B} A≡B =
+subst↑²TypeEq {Γ = Γ} {F = F} {G} {A} {B} A≡B ok =
   let ⊢A , ⊢B = syntacticEq A≡B
       ⊢ΓΣ = wf ⊢A
       ⊢Γ , ⊢Σ = splitCon ⊢ΓΣ
@@ -253,7 +261,7 @@ subst↑²TypeEq {Γ = Γ} {F = F} {G} {A} {B} A≡B =
                      (substRefl (wk1Subst′ ⊢Γ (⊢Γ ∙ ⊢F) ⊢G
                                            (wk1Subst′ ⊢Γ ⊢Γ ⊢F
                                                       (idSubst′ ⊢Γ))
-                                , prodⱼ ⊢ρF′ ⊢ρG′ var1 var0))
+                                , prodⱼ ⊢ρF′ ⊢ρG′ var1 var0 ok))
                      ⊢ΓFG
   where
   splitCon : ∀ {Γ : Con Term n} {F} → ⊢ (Γ ∙ F) → ⊢ Γ × Γ ⊢ F

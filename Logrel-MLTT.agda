@@ -34,6 +34,7 @@ import Definition.Untyped.Inversion
 import Definition.Untyped.Properties
 
 -- Typing and conversion rules of language
+import Definition.Typed.Restrictions
 import Definition.Typed
 import Definition.Typed.Properties
 import Definition.Typed.Weakening

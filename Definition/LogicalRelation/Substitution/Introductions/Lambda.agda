@@ -3,27 +3,31 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.EqualityRelation
+open import Definition.Typed.Restrictions
 
 module Definition.LogicalRelation.Substitution.Introductions.Lambda
-  {a} (M : Set a) {{eqrel : EqRelSet M}} where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  {{eqrel : EqRelSet R}}
+  where
 
 open EqRelSet {{...}}
 
 open import Definition.Untyped M as U hiding (wk; _∷_)
 open import Definition.Untyped.Properties M
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-open import Definition.Typed.Weakening M as T hiding (wk; wkTerm; wkEqTerm)
-open import Definition.Typed.RedSteps M
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.ShapeView M
-open import Definition.LogicalRelation.Irrelevance M
-open import Definition.LogicalRelation.Weakening M
-open import Definition.LogicalRelation.Properties M
-open import Definition.LogicalRelation.Application M
-open import Definition.LogicalRelation.Substitution M
-open import Definition.LogicalRelation.Substitution.Properties M
-open import Definition.LogicalRelation.Substitution.Introductions.Pi M
+open import Definition.Typed R
+open import Definition.Typed.Properties R
+open import Definition.Typed.Weakening R as T hiding (wk; wkTerm; wkEqTerm)
+open import Definition.Typed.RedSteps R
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.ShapeView R
+open import Definition.LogicalRelation.Irrelevance R
+open import Definition.LogicalRelation.Weakening R
+open import Definition.LogicalRelation.Properties R
+open import Definition.LogicalRelation.Application R
+open import Definition.LogicalRelation.Substitution R
+open import Definition.LogicalRelation.Substitution.Properties R
+open import Definition.LogicalRelation.Substitution.Introductions.Pi R
 
 open import Tools.Fin
 open import Tools.Function
@@ -50,7 +54,7 @@ lamᵛ {n} {Γ = Γ} {p = p} {q = q} {F = F} {G} {t} {l} [Γ] [F] [G] [t] {k} {�
   let ⊢F = escape (proj₁ (unwrap [F] ⊢Δ [σ]))
       [liftσ] = liftSubstS {F = F} [Γ] ⊢Δ [F] [σ]
       [ΠFG] = Πᵛ {F = F} {G} {p = p} {q = q} [Γ] [F] [G]
-      _ , Bᵣ F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext =
+      _ , Bᵣ F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext _ =
         extractMaybeEmb (Π-elim (proj₁ (unwrap [ΠFG] ⊢Δ [σ])))
       lamt : ∀ {k : Nat} {Δ : Con Term k} {σ : Subst k n} (⊢Δ : ⊢ Δ) ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
            → Δ ⊩⟨ l ⟩ subst σ (lam p t) ∷ subst σ (Π p , q ▷ F ▹ G) / proj₁ (unwrap [ΠFG] ⊢Δ [σ])
@@ -74,7 +78,7 @@ lamᵛ {n} {Γ = Γ} {p = p} {q = q} {F = F} {G} {t} {l} [Γ] [F] [G] [t] {k} {�
                               (β-red ⊢wk1F ⊢wk1G (T.wkTerm (lift (step id))
                                                      (⊢Δ ∙ ⊢F ∙ ⊢wk1F) ⊢t)
                                                      (var (⊢Δ ∙ ⊢F) here) p≈p′)
-            _ , Bᵣ F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext =
+            _ , Bᵣ F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext _ =
               extractMaybeEmb (Π-elim (proj₁ (unwrap [ΠFG] ⊢Δ [σ])))
         in  Πₜ (lam p (subst (liftSubst σ) t)) (idRedTerm:*: (lamⱼ ⊢F ⊢t)) lamₙ
                (≅-η-eq ⊢F (lamⱼ ⊢F ⊢t) (lamⱼ ⊢F ⊢t) lamₙ lamₙ $
@@ -170,7 +174,7 @@ lamᵛ {n} {Γ = Γ} {p = p} {q = q} {F = F} {G} {t} {l} [Γ] [F] [G] [t] {k} {�
   in  lamt ⊢Δ [σ]
   ,   (λ {σ′} [σ′] [σ≡σ′] →
          let [liftσ′] = liftSubstS {F = F} [Γ] ⊢Δ [F] [σ′]
-             _ , Bᵣ F″ G″ D″ ⊢F″ ⊢G″ A≡A″ [F]″ [G]″ G-ext′ =
+             _ , Bᵣ F″ G″ D″ ⊢F″ ⊢G″ A≡A″ [F]″ [G]″ G-ext′ _ =
                extractMaybeEmb (Π-elim (proj₁ (unwrap [ΠFG] ⊢Δ [σ′])))
              ⊢F′ = escape (proj₁ (unwrap [F] ⊢Δ [σ′]))
              [G]₁ = proj₁ (unwrap [G] {σ = liftSubst σ} (⊢Δ ∙ ⊢F) [liftσ])
@@ -330,7 +334,8 @@ lamᵛ {n} {Γ = Γ} {p = p} {q = q} {F = F} {G} {t} {l} [Γ] [F] [G] [t] {k} {�
       [d′] = [ ⊢t₁ , ⊢u₁ , d₁ ]
       [ΠFG] = Πᵛ {F = F} {G} {p = p} {q = q} [Γ] [F] [G]
       [σΠFG] = proj₁ (unwrap [ΠFG] ⊢Δ [σ])
-      _ , Bᵣ F′ G′ D′ ⊢F ⊢G A≡A [F]′ [G]′ G-ext = extractMaybeEmb (Π-elim [σΠFG])
+      _ , Bᵣ F′ G′ D′ ⊢F ⊢G A≡A [F]′ [G]′ G-ext ok =
+        extractMaybeEmb (Π-elim [σΠFG])
       [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
       [wk1F] = wk (step id) (⊢Δ ∙ ⊢F) [σF]
       var0′ = var (⊢Δ ∙ ⊢F) here
@@ -400,8 +405,8 @@ lamᵛ {n} {Γ = Γ} {p = p} {q = q} {F = F} {G} {t} {l} [Γ] [F] [G] [t] {k} {�
                            [ρσΠFG] [ρf]′ [a]
                  [g∘u] = appTerm ([F]′ [ρ] ⊢Δ₁) ([G]′ [ρ] ⊢Δ₁ [a])
                            [ρσΠFG] [ρg]′ [a]
-                 d′ = conv* d (ΠΣ-cong ⊢F (refl ⊢F) (refl ⊢G))
-                 d₁′ = conv* d₁ (ΠΣ-cong ⊢F (refl ⊢F) (refl ⊢G))
+                 d′ = conv* d (ΠΣ-cong ⊢F (refl ⊢F) (refl ⊢G) ok)
+                 d₁′ = conv* d₁ (ΠΣ-cong ⊢F (refl ⊢F) (refl ⊢G) ok)
                  [tu≡fu] = proj₂ (redSubst*Term (app-subst* (wkRed*Term [ρ] ⊢Δ₁ d′)
                                                             (escapeTerm ([F]′ [ρ] ⊢Δ₁) [a]))
                                                 ([G]′ [ρ] ⊢Δ₁ [a]) [f∘u])

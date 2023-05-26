@@ -2,10 +2,17 @@
 -- Bi-directional typechecking
 ------------------------------------------------------------------------
 
-module Definition.Typechecking {a} (M : Set a) where
+open import Definition.Typed.Restrictions
+
+module Definition.Typechecking
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  where
+
+open Type-restrictions R
 
 open import Definition.Untyped M
-open import Definition.Typed M
+open import Definition.Typed R
 
 open import Tools.Fin
 open import Tools.Nat
@@ -25,10 +32,12 @@ mutual
   data _⊢_⇇Type (Γ : Con Term n) : (A : Term n) → Set a where
     Uᶜ : Γ ⊢ U ⇇Type
     ℕᶜ : Γ ⊢ ℕ ⇇Type
-    Unitᶜ : Γ ⊢ Unit ⇇Type
+    Unitᶜ : Unit-restriction
+          → Γ ⊢ Unit ⇇Type
     Emptyᶜ : Γ ⊢ Empty ⇇Type
     ΠΣᶜ : Γ ⊢ F ⇇Type
        → Γ ∙ F ⊢ G ⇇Type
+       → ΠΣ-restriction b p
        → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ⇇Type
     univᶜ : Γ ⊢ A ⇇ U
           → Γ ⊢ A ⇇Type
@@ -36,6 +45,7 @@ mutual
   data _⊢_⇉_ (Γ : Con Term n) : (t A : Term n) → Set a where
     ΠΣᵢ : Γ ⊢ F ⇇ U
        → Γ ∙ F ⊢ G ⇇ U
+       → ΠΣ-restriction b p
        → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ⇉ U
     varᵢ : ∀ {x}
          → x ∷ A ∈ Γ
@@ -65,8 +75,10 @@ mutual
             → Γ ∙ ℕ ∙ A ⊢ s ⇇ wk1 (A [ suc (var x0) ]↑)
             → Γ ⊢ n ⇇ ℕ
             → Γ ⊢ natrec p q r A z s n ⇉ A [ n ]
-    Unitᵢ : Γ ⊢ Unit ⇉ U
-    starᵢ : Γ ⊢ star ⇉ Unit
+    Unitᵢ : Unit-restriction
+          → Γ ⊢ Unit ⇉ U
+    starᵢ : Unit-restriction
+          → Γ ⊢ star ⇉ Unit
     Emptyᵢ : Γ ⊢ Empty ⇉ U
     Emptyrecᵢ : Γ ⊢ A ⇇Type
               → Γ ⊢ t ⇇ Empty
@@ -126,9 +138,9 @@ mutual
   Checkable⇇Type : Γ ⊢ A ⇇Type → Checkable A
   Checkable⇇Type Uᶜ = infᶜ Uᵢ
   Checkable⇇Type ℕᶜ = infᶜ ℕᵢ
-  Checkable⇇Type Unitᶜ = infᶜ Unitᵢ
+  Checkable⇇Type (Unitᶜ _) = infᶜ Unitᵢ
   Checkable⇇Type Emptyᶜ = infᶜ Emptyᵢ
-  Checkable⇇Type (ΠΣᶜ F⇇Type G⇇Type) =
+  Checkable⇇Type (ΠΣᶜ F⇇Type G⇇Type _) =
     infᶜ (ΠΣᵢ (Checkable⇇Type F⇇Type) (Checkable⇇Type G⇇Type))
   Checkable⇇Type (univᶜ x) = Checkable⇇ x
 
@@ -138,7 +150,7 @@ mutual
   Checkable⇇ (infᶜ x x₁) = infᶜ (Inferable⇉ x)
 
   Inferable⇉ : Γ ⊢ t ⇉ A → Inferable t
-  Inferable⇉ (ΠΣᵢ x x₁) = ΠΣᵢ (Checkable⇇ x) (Checkable⇇ x₁)
+  Inferable⇉ (ΠΣᵢ x x₁ _) = ΠΣᵢ (Checkable⇇ x) (Checkable⇇ x₁)
   Inferable⇉ (varᵢ x) = varᵢ
   Inferable⇉ (appᵢ t⇉A x x₁) = ∘ᵢ (Inferable⇉ t⇉A) (Checkable⇇ x₁)
   Inferable⇉ (fstᵢ t⇉A x) = fstᵢ (Inferable⇉ t⇉A)
@@ -148,7 +160,7 @@ mutual
   Inferable⇉ zeroᵢ = zeroᵢ
   Inferable⇉ (sucᵢ x) = sucᵢ (Checkable⇇ x)
   Inferable⇉ (natrecᵢ x x₁ x₂ x₃) = natrecᵢ (Checkable⇇Type x) (Checkable⇇ x₁) (Checkable⇇ x₂) (Checkable⇇ x₃)
-  Inferable⇉ Unitᵢ = Unitᵢ
-  Inferable⇉ starᵢ = starᵢ
+  Inferable⇉ (Unitᵢ _) = Unitᵢ
+  Inferable⇉ (starᵢ _) = starᵢ
   Inferable⇉ Emptyᵢ = Emptyᵢ
   Inferable⇉ (Emptyrecᵢ x x₁) = Emptyrecᵢ (Checkable⇇Type x) (Checkable⇇ x₁)

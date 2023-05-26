@@ -3,17 +3,24 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.EqualityRelation
+open import Definition.Typed.Restrictions
 
 module Definition.LogicalRelation.Properties.Escape
-  {a} (M : Set a) {{eqrel : EqRelSet M}} where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  {{eqrel : EqRelSet R}}
+  where
 
 open EqRelSet {{...}}
+open Type-restrictions R
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-open import Definition.LogicalRelation M
+open import Definition.Typed R
+open import Definition.Typed.Properties R
+open import Definition.LogicalRelation R
 
+open import Tools.Empty
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -22,15 +29,19 @@ private
   variable
     n : Nat
     Γ : Con Term n
+    A B : Term n
+    l : TypeLevel
+    b : BinderMode
+    p q : M
 
 -- Reducible types are well-formed.
 escape : ∀ {l A} → Γ ⊩⟨ l ⟩ A → Γ ⊢ A
 escape (Uᵣ′ l′ l< ⊢Γ) = Uⱼ ⊢Γ
 escape (ℕᵣ [ ⊢A , ⊢B , D ]) = ⊢A
 escape (Emptyᵣ [ ⊢A , ⊢B , D ]) = ⊢A
-escape (Unitᵣ [ ⊢A , ⊢B , D ]) = ⊢A
+escape (Unitᵣ (Unitₜ [ ⊢A , ⊢B , D ] _)) = ⊢A
 escape (ne′ K [ ⊢A , ⊢B , D ] neK K≡K) = ⊢A
-escape (Bᵣ′ W F G [ ⊢A , ⊢B , D ] ⊢F ⊢G A≡A [F] [G] G-ext) = ⊢A
+escape (Bᵣ′ _ _ _ [ ⊢A , _ , _ ] _ _ _ _ _ _ _) = ⊢A
 escape (emb 0<1 A) = escape A
 
 -- Reducible type equality respect the equality relation.
@@ -40,11 +51,11 @@ escapeEq : ∀ {l A B} → ([A] : Γ ⊩⟨ l ⟩ A)
 escapeEq (Uᵣ′ l′ l< ⊢Γ) PE.refl = ≅-Urefl ⊢Γ
 escapeEq (ℕᵣ [ ⊢A , ⊢B , D ]) D′ = ≅-red D D′ ℕₙ ℕₙ (≅-ℕrefl (wf ⊢A))
 escapeEq (Emptyᵣ [ ⊢A , ⊢B , D ]) D′ = ≅-red D D′ Emptyₙ Emptyₙ (≅-Emptyrefl (wf ⊢A))
-escapeEq (Unitᵣ [ ⊢A , ⊢B , D ]) D′ = ≅-red D D′ Unitₙ Unitₙ (≅-Unitrefl (wf ⊢A))
+escapeEq (Unitᵣ (Unitₜ [ ⊢A , ⊢B , D ] ok)) D′ =
+  ≅-red D D′ Unitₙ Unitₙ (≅-Unitrefl (wf ⊢A) ok)
 escapeEq (ne′ K D neK K≡K) (ne₌ M D′ neM K≡M) =
   ≅-red (red D) (red D′) (ne neK) (ne neM) (~-to-≅ K≡M)
-escapeEq (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-             (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
+escapeEq (Bᵣ′ W _ _ D _ _ _ _ _ _ _) (B₌ _ _ D′ A≡B _ _) =
   ≅-red (red D) D′ ⟦ W ⟧ₙ ⟦ W ⟧ₙ A≡B
 escapeEq (emb 0<1 A) A≡B = escapeEq A A≡B
 
@@ -57,15 +68,13 @@ escapeTerm (ℕᵣ D) (ℕₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
   conv ⊢t (sym (subset* (red D)))
 escapeTerm (Emptyᵣ D) (Emptyₜ e [ ⊢t , ⊢u , d ] t≡t prop) =
   conv ⊢t (sym (subset* (red D)))
-escapeTerm (Unitᵣ D) (Unitₜ e [ ⊢t , ⊢u , d ] prop) =
+escapeTerm (Unitᵣ (Unitₜ D _)) (Unitₜ e [ ⊢t , ⊢u , d ] prop) =
   conv ⊢t (sym (subset* (red D)))
 escapeTerm (ne′ K D neK K≡K) (neₜ k [ ⊢t , ⊢u , d ] nf) =
   conv ⊢t (sym (subset* (red D)))
-escapeTerm (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-               (Πₜ f [ ⊢t , ⊢u , d ] funcF f≡f [f] [f]₁) =
+escapeTerm (Bᵣ′ BΠ! _ _ D _ _ _ _ _ _ _) (Πₜ _ [ ⊢t , _ , _ ] _ _ _ _) =
   conv ⊢t (sym (subset* (red D)))
-escapeTerm (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-               (Σₜ p [ ⊢t , ⊢u , d ] p≅p pProd prop) =
+escapeTerm (Bᵣ′ BΣ! _ _ D _ _ _ _ _ _ _) (Σₜ _ [ ⊢t , _ , _ ] _ _ _) =
   conv ⊢t (sym (subset* (red D)))
 escapeTerm (emb 0<1 A) t = escapeTerm A t
 
@@ -83,7 +92,7 @@ escapeTermEq (Emptyᵣ D) (Emptyₜ₌ k k′ d d′ k≡k′ prop) =
   let natK , natK′ = esplit prop
   in  ≅ₜ-red (red D) (redₜ d) (redₜ d′) Emptyₙ
              (ne natK) (ne natK′) k≡k′
-escapeTermEq {l} {Γ} {A} {t} {u} (Unitᵣ D) (Unitₜ₌ ⊢t ⊢u) =
+escapeTermEq {l} {Γ} {A} {t} {u} (Unitᵣ (Unitₜ D _)) (Unitₜ₌ ⊢t ⊢u) =
   let t≅u = ≅ₜ-η-unit ⊢t ⊢u
       A≡Unit = subset* (red D)
   in  ≅-conv t≅u (sym A≡Unit)
@@ -91,12 +100,69 @@ escapeTermEq (ne′ K D neK K≡K)
                  (neₜ₌ k m d d′ (neNfₜ₌ neT neU t≡u)) =
   ≅ₜ-red (red D) (redₜ d) (redₜ d′) (ne neK) (ne neT) (ne neU)
          (~-to-≅ₜ t≡u)
-escapeTermEq (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-                 (Πₜ₌ f g d d′ funcF funcG f≡g [f] [g] [f≡g]) =
+escapeTermEq
+  (Bᵣ′ BΠ! _ _ D _ _ _ _ _ _ _) (Πₜ₌ _ _ d d′ funcF funcG f≡g _ _ _) =
   ≅ₜ-red (red D) (redₜ d) (redₜ d′) ΠΣₙ
     (functionWhnf funcF) (functionWhnf funcG) f≡g
-escapeTermEq (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-                 (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] prop) =
+escapeTermEq
+  (Bᵣ′ BΣ! _ _ D _ _ _ _ _ _ _) (Σₜ₌ _ _ d d′ pProd rProd p≅r _ _ _) =
   ≅ₜ-red (red D) (redₜ d) (redₜ d′) ΠΣₙ
     (productWhnf pProd) (productWhnf rProd) p≅r
 escapeTermEq (emb 0<1 A) t≡u = escapeTermEq A t≡u
+
+-- If the type Unit is in the logical relation, then the Unit
+-- restriction holds.
+
+⊩Unit→Unit-restriction :
+  Γ ⊩⟨ l ⟩ Unit → Unit-restriction
+⊩Unit→Unit-restriction {Γ = Γ} = λ where
+  (ℕᵣ [ ⊢Unit , _ , D ]) →
+                      $⟨ D , ℕₙ ⟩
+    Γ ⊢ Unit ↘ ℕ      →⟨ flip whrDet* (id ⊢Unit , Unitₙ) ⟩
+    ℕ PE.≡ Unit       →⟨ (case_of λ ()) ⟩
+    Unit-restriction  □
+  (Emptyᵣ [ ⊢Unit , _ , D ]) →
+                      $⟨ D , Emptyₙ ⟩
+    Γ ⊢ Unit ↘ Empty  →⟨ flip whrDet* (id ⊢Unit , Unitₙ) ⟩
+    Empty PE.≡ Unit   →⟨ (case_of λ ()) ⟩
+    Unit-restriction  □
+  (Unitᵣ (Unitₜ _ ok)) →
+    ok
+  (ne (ne A [ ⊢Unit , _ , D ] neA _)) →
+                      $⟨ D , ne neA ⟩
+    Γ ⊢ Unit ↘ A      →⟨ whrDet* (id ⊢Unit , Unitₙ) ⟩
+    Unit PE.≡ A       →⟨ ⊥-elim ∘→ Unit≢ne neA ⟩
+    Unit-restriction  □
+  (Bᵣ′ b A B [ ⊢Unit , _ , D ] _ _ _ _ _ _ _) →
+                            $⟨ D , ⟦ b ⟧ₙ ⟩
+    Γ ⊢ Unit ↘ ⟦ b ⟧ A ▹ B  →⟨ whrDet* (id ⊢Unit , Unitₙ) ⟩
+    Unit PE.≡ ⟦ b ⟧ A ▹ B   →⟨ ⊥-elim ∘→ Unit≢B b ⟩
+    Unit-restriction        □
+  (emb 0<1 [Unit]) →
+    ⊩Unit→Unit-restriction [Unit]
+
+-- If the type ΠΣ⟨ b ⟩ p , q ▷ A ▹ B is in the logical relation, then
+-- the ΠΣ restriction holds for b and p.
+
+⊩ΠΣ→ΠΣ-restriction :
+  Γ ⊩⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B →
+  ΠΣ-restriction b p
+⊩ΠΣ→ΠΣ-restriction {b = b} = λ where
+  (ℕᵣ [ ⊢ΠAB , _ , D ]) →
+    ⊥-elim (ℕ≢ΠΣ b (whrDet* (D , ℕₙ) (id ⊢ΠAB , ΠΣₙ)))
+  (Emptyᵣ [ ⊢ΠAB , _ , D ]) →
+    ⊥-elim (Empty≢ΠΣ b (whrDet* (D , Emptyₙ) (id ⊢ΠAB , ΠΣₙ)))
+  (Unitᵣ (Unitₜ [ ⊢ΠAB , _ , D ] _)) →
+    ⊥-elim (Unit≢ΠΣ b (whrDet* (D , Unitₙ) (id ⊢ΠAB , ΠΣₙ)))
+  (ne (ne _ [ ⊢ΠAB , _ , D ] neK _)) →
+    ⊥-elim (ΠΣ≢ne b neK (whrDet* (id ⊢ΠAB , ΠΣₙ) (D , ne neK)))
+  (Bᵣ′ (BM BMΠ _ _) _ _ [ ⊢ΠAB , _ , D ] _ _ _ _ _ _ ok) →
+    case whrDet* (id ⊢ΠAB , ΠΣₙ) (D , ΠΣₙ) of λ {
+      PE.refl →
+    ok }
+  (Bᵣ′ (BM (BMΣ _) _ _) _ _ [ ⊢ΠAB , _ , D ] _ _ _ _ _ _ ok) →
+    case whrDet* (id ⊢ΠAB , ΠΣₙ) (D , ΠΣₙ) of λ {
+      PE.refl →
+    ok }
+  (emb 0<1 [ΠΣ]) →
+    ⊩ΠΣ→ΠΣ-restriction [ΠΣ]

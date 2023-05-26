@@ -3,21 +3,25 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.EqualityRelation
+open import Definition.Typed.Restrictions
 
 module Definition.LogicalRelation.Properties.Reduction
-  {a} (M : Set a) {{eqrel : EqRelSet M}} where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  {{eqrel : EqRelSet R}}
+  where
 
 open EqRelSet {{...}}
 
 open import Definition.Untyped M hiding (Wk; _∷_)
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-import Definition.Typed.Weakening M as Wk
-open import Definition.Typed.RedSteps M
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.Properties.Reflexivity M
-open import Definition.LogicalRelation.Properties.Universe M
-open import Definition.LogicalRelation.Properties.Escape M
+open import Definition.Typed R
+open import Definition.Typed.Properties R
+import Definition.Typed.Weakening R as Wk
+open import Definition.Typed.RedSteps R
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Properties.Reflexivity R
+open import Definition.LogicalRelation.Properties.Universe R
+open import Definition.LogicalRelation.Properties.Escape R
 
 open import Tools.Nat
 open import Tools.Product
@@ -42,16 +46,16 @@ redSubst* D (ℕᵣ [ ⊢B , ⊢ℕ , D′ ]) =
 redSubst* D (Emptyᵣ [ ⊢B , ⊢Empty , D′ ]) =
   let ⊢A = redFirst* D
   in  Emptyᵣ ([ ⊢A , ⊢Empty , D ⇨* D′ ]) , D′
-redSubst* D (Unitᵣ [ ⊢B , ⊢Unit , D′ ]) =
+redSubst* D (Unitᵣ (Unitₜ [ ⊢B , ⊢Unit , D′ ] ok)) =
   let ⊢A = redFirst* D
-  in  Unitᵣ ([ ⊢A , ⊢Unit , D ⇨* D′ ]) , D′
+  in  Unitᵣ (Unitₜ [ ⊢A , ⊢Unit , D ⇨* D′ ] ok) , D′
 redSubst* D (ne′ K [ ⊢B , ⊢K , D′ ] neK K≡K) =
   let ⊢A = redFirst* D
   in  (ne′ K [ ⊢A , ⊢K , D ⇨* D′ ] neK K≡K)
   ,   (ne₌ _ [ ⊢B , ⊢K , D′ ] neK K≡K)
-redSubst* D (Bᵣ′ W F G [ ⊢B , ⊢ΠFG , D′ ] ⊢F ⊢G A≡A [F] [G] G-ext) =
+redSubst* D (Bᵣ′ W F G [ ⊢B , ⊢ΠFG , D′ ] ⊢F ⊢G A≡A [F] [G] G-ext ok) =
   let ⊢A = redFirst* D
-  in  (Bᵣ′ W F G [ ⊢A , ⊢ΠFG , D ⇨* D′ ] ⊢F ⊢G A≡A [F] [G] G-ext)
+  in  (Bᵣ′ W F G [ ⊢A , ⊢ΠFG , D ⇨* D′ ] ⊢F ⊢G A≡A [F] [G] G-ext ok)
   ,   (B₌ _ _ D′ A≡A (λ ρ ⊢Δ → reflEq ([F] ρ ⊢Δ))
         (λ ρ ⊢Δ [a] → reflEq ([G] ρ ⊢Δ [a])))
 redSubst* D (emb 0<1 x) with redSubst* D x
@@ -84,7 +88,7 @@ redSubst*Term t⇒u (Emptyᵣ D) (Emptyₜ n [ ⊢u , ⊢n , d ] n≡n prop) =
   in  Emptyₜ n [ ⊢t , ⊢n , t⇒u′ ⇨∷* d ] n≡n prop
   ,   Emptyₜ₌ n n [ ⊢t , ⊢n , t⇒u′ ⇨∷* d ] [ ⊢u , ⊢n , d ]
           n≡n (reflEmpty-prop prop)
-redSubst*Term t⇒u (Unitᵣ D) (Unitₜ n [ ⊢u , ⊢n , d ] prop) =
+redSubst*Term t⇒u (Unitᵣ (Unitₜ D _)) (Unitₜ n [ ⊢u , ⊢n , d ] prop) =
   let A≡Unit  = subset* (red D)
       ⊢t   = conv (redFirst*Term t⇒u) A≡Unit
       t⇒u′ = conv* t⇒u A≡Unit
@@ -95,8 +99,10 @@ redSubst*Term t⇒u (ne′ K D neK K≡K) (neₜ k [ ⊢t , ⊢u , d ] (neNfₜ 
       [d]  = [ ⊢t , ⊢u , d ]
       [d′] = [ conv (redFirst*Term t⇒u) A≡K , ⊢u , conv* t⇒u A≡K ⇨∷* d ]
   in  neₜ k [d′] (neNfₜ neK₁ ⊢k k≡k) , neₜ₌ k k [d′] [d] (neNfₜ₌ neK₁ neK₁ k≡k)
-redSubst*Term {Γ = Γ} {A = A} {t} {u} {l} t⇒u (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-                  [u]@(Πₜ f [d]@([ ⊢t , ⊢u , d ]) funcF f≡f [f] [f]₁) =
+redSubst*Term
+  {Γ = Γ} {A = A} {t} {u} {l}
+  t⇒u (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
+  [u]@(Πₜ f [d]@([ ⊢t , ⊢u , d ]) funcF f≡f [f] [f]₁) =
   let A≡ΠFG = subset* (red D)
       t⇒u′  = conv* t⇒u A≡ΠFG
       [d′] = [ conv (redFirst*Term t⇒u) A≡ΠFG , ⊢u , t⇒u′ ⇨∷* d ]
@@ -104,8 +110,10 @@ redSubst*Term {Γ = Γ} {A = A} {t} {u} {l} t⇒u (Πᵣ′ F G D ⊢F ⊢G A≡
   in  [u′]
   ,   Πₜ₌ f f [d′] [d] funcF funcF f≡f [u′] [u] λ [ρ] ⊢Δ [a] →
         [f] [ρ] ⊢Δ [a] [a] (reflEqTerm ([F] [ρ] ⊢Δ) [a])
-redSubst*Term {Γ = Γ} {A} {t} {u} {l} t⇒u (Bᵣ′ BΣₚ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-                  [u]@(Σₜ p [d]@([ ⊢t , ⊢u , d ]) p≅p pProd pProp) =
+redSubst*Term
+  {Γ = Γ} {A} {t} {u} {l}
+  t⇒u (Bᵣ′ BΣₚ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
+  [u]@(Σₜ p [d]@([ ⊢t , ⊢u , d ]) p≅p pProd pProp) =
 
   let A≡ΣFG = subset* (red D)
       t⇒u′  = conv* t⇒u A≡ΣFG
@@ -115,8 +123,10 @@ redSubst*Term {Γ = Γ} {A} {t} {u} {l} t⇒u (Bᵣ′ BΣₚ F G D ⊢F ⊢G A�
   in  [u′] , Σₜ₌ p p [d′] [d] pProd pProd p≅p [u′] [u]
                  ([fstp] , [fstp] , reflEqTerm ([F] Wk.id (wf ⊢F)) [fstp] ,
                    reflEqTerm ([G] Wk.id (wf ⊢F) [fstp]) [sndp])
-redSubst*Term {Γ = Γ} {A} {t} {u} {l} t⇒u (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-                 [u]@(Σₜ p [d]@([ ⊢t , ⊢u , d ]) p≅p prodₙ pProp) =
+redSubst*Term
+  {Γ = Γ} {A} {t} {u} {l}
+  t⇒u (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
+  [u]@(Σₜ p [d]@([ ⊢t , ⊢u , d ]) p≅p prodₙ pProp) =
   let A≡ΣFG = subset* (red D)
       t⇒u′  = conv* t⇒u A≡ΣFG
       [d′] = [ conv (redFirst*Term t⇒u) A≡ΣFG , ⊢u , conv* t⇒u A≡ΣFG ⇨∷* d ]
@@ -127,8 +137,10 @@ redSubst*Term {Γ = Γ} {A} {t} {u} {l} t⇒u (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A�
   in  [u′] ,
       Σₜ₌ p p [d′] [d] prodₙ prodₙ p≅p [u′] [u]
         (p′≈p″ , p′≈p″ , [p₁] , [p₁] , [p₂] , [p₂] , [p₁≡p₁] , [p₂≡p₂])
-redSubst*Term {Γ = Γ} {A} {t} {u} {l} t⇒u (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-                 [u]@(Σₜ p [d]@([ ⊢t , ⊢u , d ]) p≅p (ne x) p~p) =
+redSubst*Term
+  {Γ = Γ} {A} {t} {u} {l}
+  t⇒u (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
+  [u]@(Σₜ p [d]@([ ⊢t , ⊢u , d ]) p≅p (ne x) p~p) =
   let A≡ΣFG = subset* (red D)
       t⇒u′  = conv* t⇒u A≡ΣFG
       [d′] = [ conv (redFirst*Term t⇒u) A≡ΣFG , ⊢u , conv* t⇒u A≡ΣFG ⇨∷* d ]

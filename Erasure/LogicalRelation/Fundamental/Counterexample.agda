@@ -5,17 +5,20 @@
 
 open import Definition.Modality
 open import Definition.Typed.EqualityRelation
+open import Definition.Typed.Restrictions
 open import Tools.Nullary
 open import Tools.PropositionalEquality as PE
 
 module Erasure.LogicalRelation.Fundamental.Counterexample
-  {a} {M : Set a} (𝕄 : Modality M)
+  {a} {M : Set a}
+  (𝕄 : Modality M)
   (open Modality 𝕄)
+  (R : Type-restrictions M)
   (is-𝟘? : (p : M) → Dec (p ≡ 𝟘))
   (𝟙≉𝟘 : 𝟙 ≢ 𝟘)
   -- Erased matches is allowed
   (P₀₁₀ : Prodrec 𝟘 𝟙 𝟘)
-  {{eqrel : EqRelSet M}}
+  {{eqrel : EqRelSet R}}
   where
 
 open EqRelSet {{...}}
@@ -28,23 +31,23 @@ open import Definition.Modality.Usage 𝕄
 open import Definition.Mode 𝕄
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.Substitution M
-open import Definition.LogicalRelation.Substitution.Properties M
-import Definition.LogicalRelation.Substitution.Irrelevance M as IS
+open import Definition.Typed R
+open import Definition.Typed.Properties R
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Substitution R
+open import Definition.LogicalRelation.Substitution.Properties R
+import Definition.LogicalRelation.Substitution.Irrelevance R as IS
 
 Δ : Con Term 1
 Δ = ε ∙ (Σᵣ 𝟙 , 𝟘 ▷ ℕ ▹ ℕ)
 
 ⊢Δ : ⊢ Δ
-⊢Δ = ε ∙ (ΠΣⱼ (ℕⱼ ε) ▹ (ℕⱼ (ε ∙ ℕⱼ ε)))
+⊢Δ = ε ∙ ΠΣⱼ (ℕⱼ ε) (ℕⱼ (ε ∙ ℕⱼ ε)) _
 
 import Erasure.Target as T
-open import Erasure.LogicalRelation 𝕄 ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Irrelevance 𝕄 ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Subsumption 𝕄 ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation 𝕄 R ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Irrelevance 𝕄 R ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Subsumption 𝕄 R ⊢Δ is-𝟘?
 
 open import Tools.Fin
 open import Tools.Product
@@ -91,7 +94,7 @@ cEx = _
     Δ⊢ℕ = ℕⱼ ⊢Δ
     ⊢Δℕ = ⊢Δ ∙ Δ⊢ℕ
     Δℕ⊢ℕ = ℕⱼ ⊢Δℕ
-    Δ⊢Σ = ΠΣⱼ Δ⊢ℕ ▹ Δℕ⊢ℕ
+    Δ⊢Σ = ΠΣⱼ Δ⊢ℕ Δℕ⊢ℕ _
     ⊢ΔΣ = ⊢Δ ∙ Δ⊢Σ
     ΔΣ⊢ℕ = ℕⱼ ⊢ΔΣ
     ⊢Δℕℕ = ⊢Δ ∙ Δ⊢ℕ ∙ Δℕ⊢ℕ

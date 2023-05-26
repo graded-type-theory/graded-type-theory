@@ -3,20 +3,26 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.EqualityRelation
+open import Definition.Typed.Restrictions
 
 module Definition.LogicalRelation.Substitution.Introductions.Unit
-  {a} (M : Set a) {{eqrel : EqRelSet M}} where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  {{eqrel : EqRelSet R}}
+  where
 
 open EqRelSet {{...}}
+open Type-restrictions R
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.Properties M
-open import Definition.LogicalRelation.Substitution M
-open import Definition.LogicalRelation.Substitution.Introductions.Universe M
-open import Definition.LogicalRelation.Irrelevance M
+open import Definition.Typed R
+open import Definition.Typed.Properties R
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Properties R
+open import Definition.LogicalRelation.Substitution R
+open import Definition.LogicalRelation.Substitution.Escape R
+open import Definition.LogicalRelation.Substitution.Introductions.Universe R
+open import Definition.LogicalRelation.Irrelevance R
 
 open import Tools.Nat
 open import Tools.Product
@@ -27,24 +33,38 @@ private
     Γ : Con Term n
 
 -- Validity of the Unit type.
-Unitᵛ : ∀ {l} ([Γ] : ⊩ᵛ Γ) → Γ ⊩ᵛ⟨ l ⟩ Unit / [Γ]
-Unitᵛ [Γ] = wrap λ ⊢Δ [σ] → Unitᵣ (idRed:*: (Unitⱼ ⊢Δ)) , λ _ x₂ → id (Unitⱼ ⊢Δ)
+Unitᵛ :
+  ∀ {l} ([Γ] : ⊩ᵛ Γ) → Unit-restriction → Γ ⊩ᵛ⟨ l ⟩ Unit / [Γ]
+Unitᵛ _ ok =
+  wrap λ ⊢Δ _ →
+    Unitᵣ (Unitₜ (idRed:*: (Unitⱼ ⊢Δ ok)) ok)
+  , λ _ _ → id (Unitⱼ ⊢Δ ok)
 
 -- Validity of the Unit type as a term.
-Unitᵗᵛ : ([Γ] : ⊩ᵛ Γ)
-    → Γ ⊩ᵛ⟨ ¹ ⟩ Unit ∷ U / [Γ] / Uᵛ [Γ]
-Unitᵗᵛ [Γ] ⊢Δ [σ] = let ⊢Unit  = Unitⱼ ⊢Δ
-                        [Unit] = Unitᵣ (idRed:*: (Unitⱼ ⊢Δ))
-                    in  Uₜ Unit (idRedTerm:*: ⊢Unit) Unitₙ (≅ₜ-Unitrefl ⊢Δ) [Unit]
-                    ,   (λ x x₁ → Uₜ₌ Unit Unit (idRedTerm:*: ⊢Unit) (idRedTerm:*: ⊢Unit) Unitₙ Unitₙ
-                                      (≅ₜ-Unitrefl ⊢Δ) [Unit] [Unit] (id (Unitⱼ ⊢Δ)))
+Unitᵗᵛ :
+  ([Γ] : ⊩ᵛ Γ) →
+  Unit-restriction →
+  Γ ⊩ᵛ⟨ ¹ ⟩ Unit ∷ U / [Γ] / Uᵛ [Γ]
+Unitᵗᵛ _ ok ⊢Δ _ =
+    Uₜ Unit (idRedTerm:*: ⊢Unit) Unitₙ Unit≅Unit [Unit]
+  , (λ _ _ →
+       Uₜ₌ Unit Unit (idRedTerm:*: ⊢Unit) (idRedTerm:*: ⊢Unit)
+         Unitₙ Unitₙ Unit≅Unit [Unit] [Unit] (id ⊢Unit′))
+  where
+  ⊢Unit     = Unitⱼ ⊢Δ ok
+  ⊢Unit′    = univ ⊢Unit
+  Unit≅Unit = ≅ₜ-Unitrefl ⊢Δ ok
+  [Unit]    = Unitᵣ (Unitₜ (idRed:*: ⊢Unit′) ok)
 
 -- Validity of star.
-starᵛ : ∀ {l} ([Γ] : ⊩ᵛ Γ)
-      → Γ ⊩ᵛ⟨ l ⟩ star ∷ Unit / [Γ] / Unitᵛ [Γ]
-starᵛ [Γ] ⊢Δ [σ] =
-  Unitₜ star (idRedTerm:*: (starⱼ ⊢Δ)) starₙ
-    , (λ _ x₁ → Unitₜ₌ (starⱼ ⊢Δ) (starⱼ ⊢Δ))
+starᵛ :
+  ∀ {l} ([Γ] : ⊩ᵛ Γ) (ok : Unit-restriction) →
+  Γ ⊩ᵛ⟨ l ⟩ star ∷ Unit / [Γ] / Unitᵛ [Γ] ok
+starᵛ [Γ] ok ⊢Δ _ =
+    Unitₜ star (idRedTerm:*: ⊢star) starₙ
+  , (λ _ _ → Unitₜ₌ ⊢star ⊢star)
+  where
+  ⊢star = starⱼ ⊢Δ ok
 
 -- Validity of η-unit.
 η-unitᵛ : ∀ {l e e'} ([Γ] : ⊩ᵛ Γ)
@@ -56,8 +76,9 @@ starᵛ [Γ] ⊢Δ [σ] =
   let J = proj₁ (unwrap [Unit] ⊢Δ [σ])
       [σe] = proj₁ ([e] ⊢Δ [σ])
       [σe'] = proj₁ ([e'] ⊢Δ [σ])
+      ok = ⊩ᵛUnit→Unit-restriction [Unit]
       UnitJ : Δ ⊩⟨ l ⟩ Unit
-      UnitJ = Unitᵣ (idRed:*: (Unitⱼ ⊢Δ))
+      UnitJ = Unitᵣ (Unitₜ (idRed:*: (Unitⱼ ⊢Δ ok)) ok)
       [σe] = irrelevanceTerm J UnitJ [σe]
       [σe'] = irrelevanceTerm J UnitJ [σe']
       ⊢σe = escapeTerm UnitJ [σe]

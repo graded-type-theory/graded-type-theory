@@ -2,18 +2,22 @@
 -- Equality lemmata.
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
+
 module Definition.Typed.Consequences.Equality
-  {a} (M : Set a) where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  where
 
 open import Definition.Untyped M
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-open import Definition.Typed.EqRelInstance M
-open import Definition.Typed.Consequences.Inequality M
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.Irrelevance M
-open import Definition.LogicalRelation.ShapeView M
-open import Definition.LogicalRelation.Fundamental.Reducibility M
+open import Definition.Typed R
+open import Definition.Typed.Properties R
+open import Definition.Typed.EqRelInstance R
+open import Definition.Typed.Consequences.Inequality R
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Irrelevance R
+open import Definition.LogicalRelation.ShapeView R
+open import Definition.LogicalRelation.Fundamental.Reducibility R
 
 open import Tools.Nat
 open import Tools.Product

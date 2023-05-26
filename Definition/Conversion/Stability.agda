@@ -2,17 +2,21 @@
 -- Stability of typing, reduction and algorithmic equality.
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
+
 module Definition.Conversion.Stability
-  {a} (M : Set a) where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  where
 
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Untyped.Properties M
-open import Definition.Typed M
-open import Definition.Typed.Weakening M
-open import Definition.Conversion M
-open import Definition.Conversion.Soundness M
-open import Definition.Typed.Consequences.Syntactic M
-open import Definition.Typed.Consequences.Substitution M
+open import Definition.Typed R
+open import Definition.Typed.Weakening R
+open import Definition.Conversion R
+open import Definition.Conversion.Soundness R
+open import Definition.Typed.Consequences.Syntactic R
+open import Definition.Typed.Consequences.Substitution R
 
 open import Tools.Nat
 open import Tools.Product
@@ -88,18 +92,18 @@ stabilityRedTerm Γ≡Δ (snd-subst ⊢F ⊢G t⇒) =
   snd-subst (stability Γ≡Δ ⊢F)
             (stability (Γ≡Δ ∙ refl ⊢F) ⊢G)
             (stabilityRedTerm Γ≡Δ t⇒)
-stabilityRedTerm Γ≡Δ (Σ-β₁ ⊢F ⊢G ⊢t ⊢u p≈p′) =
+stabilityRedTerm Γ≡Δ (Σ-β₁ ⊢F ⊢G ⊢t ⊢u p≈p′ ok) =
   Σ-β₁ (stability Γ≡Δ ⊢F)
        (stability (Γ≡Δ ∙ refl ⊢F) ⊢G)
        (stabilityTerm Γ≡Δ ⊢t)
        (stabilityTerm Γ≡Δ ⊢u)
-       p≈p′
-stabilityRedTerm Γ≡Δ (Σ-β₂ ⊢F ⊢G ⊢t ⊢u p≈p′) =
+       p≈p′ ok
+stabilityRedTerm Γ≡Δ (Σ-β₂ ⊢F ⊢G ⊢t ⊢u p≈p′ ok) =
   Σ-β₂ (stability Γ≡Δ ⊢F)
        (stability (Γ≡Δ ∙ refl ⊢F) ⊢G)
        (stabilityTerm Γ≡Δ ⊢t)
        (stabilityTerm Γ≡Δ ⊢u)
-       p≈p′
+       p≈p′ ok
 stabilityRedTerm Γ≡Δ (β-red x x₁ x₂ x₃ x₄) =
   β-red (stability Γ≡Δ x) (stability (Γ≡Δ ∙ refl x) x₁)
         (stabilityTerm (Γ≡Δ ∙ refl x) x₂) (stabilityTerm Γ≡Δ x₃) x₄
@@ -118,12 +122,12 @@ stabilityRedTerm Γ≡Δ (natrec-suc x x₁ x₂ x₃) =
                  (stabilityTerm (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ) ∙ refl x₁) x₃)
 stabilityRedTerm Γ≡Δ (prodrec-subst x x₁ x₂ x₃ d) =
   prodrec-subst (stability Γ≡Δ x) (stability (Γ≡Δ ∙ (refl x)) x₁)
-                (stability (Γ≡Δ ∙ refl (ΠΣⱼ x ▹ x₁)) x₂)
+                (stability (Γ≡Δ ∙ refl (ΠΣⱼ x x₁ _)) x₂)
                 (stabilityTerm (Γ≡Δ ∙ refl x ∙ refl x₁) x₃)
                 (stabilityRedTerm Γ≡Δ d)
 stabilityRedTerm Γ≡Δ (prodrec-β x x₁ x₂ x₃ x₄ x₅ x₆) =
   prodrec-β (stability Γ≡Δ x) (stability (Γ≡Δ ∙ refl x) x₁)
-            (stability (Γ≡Δ ∙ refl (ΠΣⱼ x ▹ x₁)) x₂)
+            (stability (Γ≡Δ ∙ refl (ΠΣⱼ x x₁ _)) x₂)
             (stabilityTerm Γ≡Δ x₃) (stabilityTerm Γ≡Δ x₄)
             (stabilityTerm (Γ≡Δ ∙ refl x ∙ refl x₁) x₅)
             x₆
@@ -206,14 +210,14 @@ mutual
   stabilityConv↓ Γ≡Δ (Empty-refl x) =
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
     in  Empty-refl ⊢Δ
-  stabilityConv↓ Γ≡Δ (Unit-refl x) =
+  stabilityConv↓ Γ≡Δ (Unit-refl x ok) =
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
-    in  Unit-refl ⊢Δ
+    in  Unit-refl ⊢Δ ok
   stabilityConv↓ Γ≡Δ (ne x) =
     ne (stability~↓ Γ≡Δ x)
-  stabilityConv↓ Γ≡Δ (ΠΣ-cong F A<>B A<>B₁) =
+  stabilityConv↓ Γ≡Δ (ΠΣ-cong F A<>B A<>B₁ ok) =
     ΠΣ-cong (stability Γ≡Δ F) (stabilityConv↑ Γ≡Δ A<>B)
-      (stabilityConv↑ (Γ≡Δ ∙ refl F) A<>B₁)
+      (stabilityConv↑ (Γ≡Δ ∙ refl F) A<>B₁) ok
 
   -- Stability of algorithmic equality of terms.
   stabilityConv↑Term : ∀ {t u A}

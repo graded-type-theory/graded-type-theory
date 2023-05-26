@@ -2,16 +2,20 @@
 -- The algorithmic equality is closed under weakening.
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
+
 module Definition.Conversion.Weakening
-  {a} (M : Set a) where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  where
 
 open import Definition.Untyped M as U hiding (wk ; _∷_)
 open import Definition.Untyped.Properties M
-open import Definition.Typed M
-open import Definition.Typed.Weakening M
-open import Definition.Typed.Consequences.Syntactic M
-open import Definition.Conversion M
-open import Definition.Conversion.Soundness M
+open import Definition.Typed R
+open import Definition.Typed.Weakening R
+open import Definition.Typed.Consequences.Syntactic R
+open import Definition.Conversion R
+open import Definition.Conversion.Soundness R
 
 open import Tools.Function
 open import Tools.Nat
@@ -93,11 +97,12 @@ mutual
   wkConv↓ ρ ⊢Δ (U-refl x) = U-refl ⊢Δ
   wkConv↓ ρ ⊢Δ (ℕ-refl x) = ℕ-refl ⊢Δ
   wkConv↓ ρ ⊢Δ (Empty-refl x) = Empty-refl ⊢Δ
-  wkConv↓ ρ ⊢Δ (Unit-refl x) = Unit-refl ⊢Δ
+  wkConv↓ ρ ⊢Δ (Unit-refl x ok) = Unit-refl ⊢Δ ok
   wkConv↓ ρ ⊢Δ (ne x) = ne (wk~↓ ρ ⊢Δ x)
-  wkConv↓ ρ ⊢Δ (ΠΣ-cong x A<>B A<>B₁) =
+  wkConv↓ ρ ⊢Δ (ΠΣ-cong x A<>B A<>B₁ ok) =
     let ⊢ρF = wk ρ ⊢Δ x
-    in  ΠΣ-cong ⊢ρF (wkConv↑ ρ ⊢Δ A<>B) (wkConv↑ (lift ρ) (⊢Δ ∙ ⊢ρF) A<>B₁)
+    in  ΠΣ-cong ⊢ρF (wkConv↑ ρ ⊢Δ A<>B)
+          (wkConv↑ (lift ρ) (⊢Δ ∙ ⊢ρF) A<>B₁) ok
 
   -- Weakening of algorithmic equality of terms.
   wkConv↑Term : ∀ {t u A Γ Δ} ([ρ] : ρ ∷ Δ ⊆ Γ) → ⊢ Δ

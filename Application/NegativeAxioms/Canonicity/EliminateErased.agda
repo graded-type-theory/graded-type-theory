@@ -3,22 +3,24 @@
 -- canonicity.
 ------------------------------------------------------------------------
 
+open import Definition.Modality.Instances.Erasure
+open import Definition.Typed.Restrictions Erasure
 open import Tools.Bool
 
 module Application.NegativeAxioms.Canonicity.EliminateErased
+  (R : Type-restrictions)
   -- Is 𝟘ᵐ allowed?
   (𝟘ᵐ-allowed : Bool)
   where
-
-open import Definition.Modality.Instances.Erasure
 
 open import Definition.Modality.Restrictions.Definitions
 
 open import Definition.Modality.Instances.Erasure.Modality
   (𝟘ᵐ-allowed-if 𝟘ᵐ-allowed)
-open import Application.NegativeAxioms.NegativeErasedContext ErasureModality (λ ())
+open import Application.NegativeAxioms.NegativeErasedContext
+  ErasureModality R (λ ())
   hiding (lookupNegative)
-open import Definition.Typed Erasure
+open import Definition.Typed R
 open import Definition.Untyped Erasure hiding (_∷_; ℕ≢B)
 
 open import Definition.Modality.Context ErasureModality
@@ -27,17 +29,18 @@ open import Definition.Modality.Properties ErasureModality
 open import Definition.Modality.Usage ErasureModality
 open import Definition.Mode ErasureModality
 
-open import Erasure.SucRed Erasure
+open import Erasure.SucRed R
 
-open import Definition.Typed.Properties Erasure
-open import Definition.Typed.Consequences.Canonicity Erasure
-open import Definition.Typed.Consequences.Substitution Erasure
+open import Definition.Typed.Properties R
+open import Definition.Typed.Consequences.Canonicity R
+open import Definition.Typed.Consequences.Substitution R
 
-open import Definition.Conversion Erasure
-open import Definition.Conversion.Consequences.Completeness Erasure
+open import Definition.Conversion R
+open import Definition.Conversion.Consequences.Completeness R
 
 open import Tools.Empty
 open import Tools.Fin
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Nullary
 import Tools.PropositionalEquality as PE
@@ -102,7 +105,8 @@ cEx = _ , ε ∙ (Σᵣ ω , 𝟘 ▷ ℕ ▹ ℕ) , _ , prodrec 𝟘 ω 𝟘 �
         (sub ℕₘ (≤ᶜ-refl ∙ ≤-reflexive (EM.·-zeroʳ _))) _
     , PE.refl
     , ε ∙𝟘
-    , (λ ⊢t → ¬Empty (substTerm ⊢t (prodⱼ ε⊢ℕ εℕ⊢ℕ (zeroⱼ ε) (zeroⱼ ε))))
+    , (λ ⊢t → ¬Empty $
+              substTerm ⊢t (prodⱼ ε⊢ℕ εℕ⊢ℕ (zeroⱼ ε) (zeroⱼ ε) _))
     , (λ { (.zero , zeroₙ , t≡u) → lem (completeEqTerm t≡u)
          ; (.(suc _) , sucₙ numU , t≡u) → lem′ (completeEqTerm t≡u)
          })
@@ -112,12 +116,12 @@ cEx = _ , ε ∙ (Σᵣ ω , 𝟘 ▷ ℕ ▹ ℕ) , _ , prodrec 𝟘 ω 𝟘 �
     ε⊢ℕ = ℕⱼ ε
     ⊢εℕ = ε ∙ ε⊢ℕ
     εℕ⊢ℕ = ℕⱼ ⊢εℕ
-    ε⊢Σ = ΠΣⱼ ε⊢ℕ ▹ εℕ⊢ℕ
+    ε⊢Σ = ΠΣⱼ ε⊢ℕ εℕ⊢ℕ _
     ⊢εΣ = ε ∙ ε⊢Σ
     εΣ⊢ℕ = ℕⱼ ⊢εΣ
     ⊢εΣℕ = ⊢εΣ ∙ εΣ⊢ℕ
     εΣℕ⊢ℕ = ℕⱼ ⊢εΣℕ
-    εΣ⊢Σ = ΠΣⱼ εΣ⊢ℕ ▹ εΣℕ⊢ℕ
+    εΣ⊢Σ = ΠΣⱼ εΣ⊢ℕ εΣℕ⊢ℕ _
     ⊢εΣΣ = ⊢εΣ ∙ εΣ⊢Σ
     εΣΣ⊢ℕ = ℕⱼ ⊢εΣΣ
     ⊢εΣℕℕ = ⊢εΣℕ ∙ εΣℕ⊢ℕ

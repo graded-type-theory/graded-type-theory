@@ -3,24 +3,29 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.EqualityRelation
+open import Definition.Typed.Restrictions
 
 module Definition.LogicalRelation.Substitution.Introductions.Fst
-  {a} (M : Set a) {{eqrel : EqRelSet M}} where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  {{eqrel : EqRelSet R}}
+  where
 
 open EqRelSet {{...}}
+open Type-restrictions R
 
 open import Definition.Untyped M as U hiding (Wk; wk; _∷_)
 open import Definition.Untyped.Properties M
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-open import Definition.Typed.Weakening M as Wk hiding (wk; wkTerm; wkEqTerm)
-open import Definition.Typed.RedSteps M
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.ShapeView M
-open import Definition.LogicalRelation.Irrelevance M
-open import Definition.LogicalRelation.Properties M
-open import Definition.LogicalRelation.Substitution M
-open import Definition.LogicalRelation.Substitution.Introductions.Pi M
+open import Definition.Typed R
+open import Definition.Typed.Properties R
+open import Definition.Typed.Weakening R as Wk hiding (wk; wkTerm; wkEqTerm)
+open import Definition.Typed.RedSteps R
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.ShapeView R
+open import Definition.LogicalRelation.Irrelevance R
+open import Definition.LogicalRelation.Properties R
+open import Definition.LogicalRelation.Substitution R
+open import Definition.LogicalRelation.Substitution.Introductions.Pi R
 
 open import Tools.Nat
 open import Tools.Product
@@ -38,8 +43,11 @@ fst′ : ∀ {F G t l l′}
        ([ΣFG] : Γ ⊩⟨ l ⟩B⟨ BΣ Σₚ p q ⟩ Σₚ p , q ▷ F ▹ G)
        ([t] : Γ ⊩⟨ l ⟩ t ∷ Σ p , q ▷ F ▹ G / B-intr BΣ! [ΣFG])
        → Γ ⊩⟨ l′ ⟩ fst p t ∷ F / [F]
-fst′ {Γ = Γ} {q = q} {F = F} {t = t} [F] (noemb [Σ]@(Bᵣ F' G' D ⊢F ⊢G A≡A [F'] [G'] G-ext))
-     [t]@(Σₜ p d p≅p prodP propP) with B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) ΠΣₙ)
+fst′
+  {Γ = Γ} {q = q} {F = F} {t = t} [F]
+  (noemb [Σ]@(Bᵣ F' G' D ⊢F ⊢G A≡A [F'] [G'] G-ext _))
+  [t]@(Σₜ p d p≅p prodP propP)
+  with B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) ΠΣₙ)
 ... | PE.refl , PE.refl , _ =
   let [fstp]′ = proj₁ propP
       [fstp] : Γ ⊩⟨ _ ⟩ fst _ p ∷ F / [F]
@@ -67,7 +75,7 @@ fst-cong′ :
   ([t≡t′] : Γ ⊩⟨ l ⟩ t ≡ t′ ∷ Σ p , q ▷ F ▹ G / B-intr BΣ! [ΣFG]) →
   Γ ⊩⟨ l′ ⟩ fst p t ≡ fst p t′ ∷ F / [F]
 fst-cong′ {Γ = Γ} {q = q} {F = F} {G = G} [F]
-          [ΣFG]@(noemb [Σ]@(Bᵣ F' G' D ⊢F ⊢G A≡A [F'] [G'] G-ext))
+          [ΣFG]@(noemb [Σ]@(Bᵣ F' G' D ⊢F ⊢G A≡A [F'] [G'] G-ext _))
           [t≡t′]@(Σₜ₌ p p′ d d′ prodP prodP′ p≅p′ [t] [t′] prop)
           with B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) ΠΣₙ)
 ... | PE.refl , PE.refl , _ =
@@ -97,13 +105,14 @@ fst-congᵛ :
   ([Γ] : ⊩ᵛ Γ)
   ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
   ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
-  ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ Σₚ p , q ▷ F ▹ G / [Γ] / Σᵛ [Γ] [F] [G])
-  ([t′] : Γ ⊩ᵛ⟨ l ⟩ t′ ∷ Σₚ p , q ▷ F ▹ G / [Γ] / Σᵛ [Γ] [F] [G])
+  (ok : Σₚ-restriction p)
+  ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ Σₚ p , q ▷ F ▹ G / [Γ] / Σᵛ [Γ] [F] [G] ok)
+  ([t′] : Γ ⊩ᵛ⟨ l ⟩ t′ ∷ Σₚ p , q ▷ F ▹ G / [Γ] / Σᵛ [Γ] [F] [G] ok)
   ([t≡t′] : Γ ⊩ᵛ⟨ l ⟩ t ≡ t′ ∷ Σₚ p , q ▷ F ▹ G / [Γ] /
-              Σᵛ [Γ] [F] [G]) →
+              Σᵛ [Γ] [F] [G] ok) →
   Γ ⊩ᵛ⟨ l ⟩ fst p t ≡ fst p t′ ∷ F / [Γ] / [F]
-fst-congᵛ {F = F} {G} [Γ] [F] [G] [t] [t′] [t≡t′] ⊢Δ [σ] =
-  let [ΣFG] = Σᵛ {F = F} {G} [Γ] [F] [G]
+fst-congᵛ {F = F} {G} [Γ] [F] [G] ok [t] [t′] [t≡t′] ⊢Δ [σ] =
+  let [ΣFG] = Σᵛ {F = F} {G} [Γ] [F] [G] ok
       ⊩σF = proj₁ (unwrap [F] ⊢Δ [σ])
       ⊩σΣFG = proj₁ (unwrap [ΣFG] ⊢Δ [σ])
       ⊩σt≡t′ = [t≡t′] ⊢Δ [σ]
@@ -114,10 +123,11 @@ fstᵛ : ∀ {Γ : Con Term n} {F : Term n} {G t l}
        ([Γ] : ⊩ᵛ Γ)
        ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
        ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
-       ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ Σₚ p , q ▷ F ▹ G / [Γ] / Σᵛ [Γ] [F] [G])
+       (ok : Σₚ-restriction p)
+       ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ Σₚ p , q ▷ F ▹ G / [Γ] / Σᵛ [Γ] [F] [G] ok)
        → Γ ⊩ᵛ⟨ l ⟩ fst p t ∷ F / [Γ] / [F]
-fstᵛ {Γ = Γ} {F} {G} {t} {l} [Γ] [F] [G] [t] {Δ = Δ} {σ = σ} ⊢Δ [σ] =
-  let [ΣFG] = Σᵛ {F = F} {G} [Γ] [F] [G]
+fstᵛ {Γ = Γ} {F} {G} {t} {l} [Γ] [F] [G] ok [t] {Δ = Δ} {σ = σ} ⊢Δ [σ] =
+  let [ΣFG] = Σᵛ {F = F} {G} [Γ] [F] [G] ok
       σfst :
         ∀ {Δ σ} (⊢Δ : ⊢ Δ) ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ) →
         Δ ⊩⟨ l ⟩ subst σ (fst _ t) ∷ subst σ F /

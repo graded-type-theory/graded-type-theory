@@ -2,16 +2,22 @@
 -- Inversion lemmata for the typing relation.
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
+
 module Definition.Typed.Consequences.Inversion
-  {a} (M : Set a) where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  where
+
+open Type-restrictions R
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
-open import Definition.Typed.Properties M
+open import Definition.Typed R
+open import Definition.Typed.Properties R
 
-open import Definition.Typed.Consequences.Syntactic M
-open import Definition.Typed.Consequences.Substitution M
-open import Definition.Typed.Consequences.Inequality M
+open import Definition.Typed.Consequences.Syntactic R
+open import Definition.Typed.Consequences.Substitution R
+open import Definition.Typed.Consequences.Inequality R
 
 open import Tools.Fin
 open import Tools.Function
@@ -25,7 +31,7 @@ private
     Γ : Con Term n
     p p′ q q′ r : M
     b : BinderMode
-    A B : Term _
+    A B C : Term _
 
 -- Inversion of U (it has no type).
 inversion-U : ∀ {C} → Γ ⊢ U ∷ C → ⊥
@@ -41,29 +47,39 @@ inversion-Empty : ∀ {C} → Γ ⊢ Empty ∷ C → Γ ⊢ C ≡ U
 inversion-Empty (Emptyⱼ x) = refl (Uⱼ x)
 inversion-Empty (conv x x₁) = trans (sym x₁) (inversion-Empty x)
 
--- Inversion of Unit.
-inversion-Unit : ∀ {C} → Γ ⊢ Unit ∷ C → Γ ⊢ C ≡ U
-inversion-Unit (Unitⱼ x) = refl (Uⱼ x)
-inversion-Unit (conv x x₁) = trans (sym x₁) (inversion-Unit x)
+-- Inversion for the term Unit.
+inversion-Unit-U : Γ ⊢ Unit ∷ C → Γ ⊢ C ≡ U × Unit-restriction
+inversion-Unit-U (Unitⱼ ⊢Γ ok) = refl (Uⱼ ⊢Γ) , ok
+inversion-Unit-U (conv ⊢Unit A≡B) =
+  case inversion-Unit-U ⊢Unit of λ {
+    (A≡U , ok) →
+  trans (sym A≡B) A≡U , ok }
+
+-- Inversion for the Unit type.
+inversion-Unit : Γ ⊢ Unit → Unit-restriction
+inversion-Unit = λ where
+  (Unitⱼ _ ok) → ok
+  (univ ⊢Unit) → case inversion-Unit-U ⊢Unit of λ where
+    (_ , ok) → ok
 
 -- Inversion for terms that are Π- or Σ-types.
 inversion-ΠΣ-U :
   ∀ {F G C} →
   Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ∷ C →
-  Γ ⊢ F ∷ U × Γ ∙ F ⊢ G ∷ U × Γ ⊢ C ≡ U
-inversion-ΠΣ-U (ΠΣⱼ x ▹ x₁) = x , x₁ , refl (Uⱼ (wfTerm x))
+  Γ ⊢ F ∷ U × Γ ∙ F ⊢ G ∷ U × Γ ⊢ C ≡ U × ΠΣ-restriction b p
+inversion-ΠΣ-U (ΠΣⱼ x x₁ ok) = x , x₁ , refl (Uⱼ (wfTerm x)) , ok
 inversion-ΠΣ-U (conv x x₁)  =
-  let a , b , c = inversion-ΠΣ-U x
-  in  a , b , trans (sym x₁) c
+  let a , b , c , ok = inversion-ΠΣ-U x
+  in  a , b , trans (sym x₁) c , ok
 
 -- Inversion for Π- and Σ-types.
 inversion-ΠΣ :
   Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B →
-  Γ ⊢ A × Γ ∙ A ⊢ B
+  Γ ⊢ A × Γ ∙ A ⊢ B × ΠΣ-restriction b p
 inversion-ΠΣ = λ where
-  (ΠΣⱼ ⊢A ▹ ⊢B) → ⊢A , ⊢B
+  (ΠΣⱼ ⊢A ⊢B ok) → ⊢A , ⊢B , ok
   (univ ⊢ΠΣAB)  → case inversion-ΠΣ-U ⊢ΠΣAB of λ where
-    (⊢A , ⊢B , _) → univ ⊢A , univ ⊢B
+    (⊢A , ⊢B , _ , ok) → univ ⊢A , univ ⊢B , ok
 
 -- Inversion of variables
 inversion-var : ∀ {x C} → Γ ⊢ var x ∷ C → ∃ λ A → x ∷ A ∈ Γ × Γ ⊢ C ≡ A
@@ -107,7 +123,8 @@ inversion-app (conv d x) = let a , b , c , d , e , f = inversion-app d
 -- Inversion of lambda.
 inversion-lam : ∀ {t A} → Γ ⊢ lam p t ∷ A →
   ∃₃ λ F G q → Γ ⊢ F × (Γ ∙ F ⊢ t ∷ G × Γ ⊢ A ≡ Π p , q ▷ F ▹ G)
-inversion-lam (lamⱼ x x₁) = _ , _ , _ , x , x₁ , refl (ΠΣⱼ x ▹ (syntacticTerm x₁))
+inversion-lam (lamⱼ x x₁) =
+  _ , _ , _ , x , x₁ , refl (ΠΣⱼ x (syntacticTerm x₁) _)
 inversion-lam (conv x x₁) = let a , b , c , d , e , f = inversion-lam x
                             in  a , b , c , d , e , trans (sym x₁) f
 
@@ -120,12 +137,14 @@ inversion-prod :
     (Γ ∙ F ⊢ G) ×
     (Γ ⊢ t ∷ F) ×
     (Γ ⊢ u ∷ G [ t ]) ×
-    Γ ⊢ A ≡ Σ⟨ m ⟩ p , q ▷ F ▹ G
+    Γ ⊢ A ≡ Σ⟨ m ⟩ p , q ▷ F ▹ G ×
+    Σ-restriction m p
   -- NOTE fundamental theorem not required since prodⱼ has inversion built-in.
-inversion-prod (prodⱼ ⊢F ⊢G ⊢t ⊢u) = _ , _ , _ , ⊢F , ⊢G , ⊢t , ⊢u , refl (ΠΣⱼ ⊢F ▹ ⊢G)
+inversion-prod (prodⱼ ⊢F ⊢G ⊢t ⊢u ok) =
+  _ , _ , _ , ⊢F , ⊢G , ⊢t , ⊢u , refl (ΠΣⱼ ⊢F ⊢G ok) , ok
 inversion-prod (conv x x₁) =
-  let F , G , q , a , b , c , d , e = inversion-prod x
-  in F , G , q , a , b , c , d , trans (sym x₁) e
+  let F , G , q , a , b , c , d , e , ok = inversion-prod x
+  in F , G , q , a , b , c , d , trans (sym x₁) e , ok
 
 -- Inversion of projections
 inversion-fst : ∀ {t A} → Γ ⊢ fst p t ∷ A →
@@ -165,9 +184,12 @@ inversion-prodrec (conv x x₁) =
   in  F , G , q , a , b , c , d , e , trans (sym x₁) f
 
 -- Inversion of star.
-inversion-star : ∀ {C} → Γ ⊢ star ∷ C → Γ ⊢ C ≡ Unit
-inversion-star (starⱼ x) = refl (Unitⱼ x)
-inversion-star (conv x x₁) = trans (sym x₁) (inversion-star x)
+inversion-star : Γ ⊢ star ∷ C → Γ ⊢ C ≡ Unit × Unit-restriction
+inversion-star (starⱼ ⊢Γ ok) = refl (Unitⱼ ⊢Γ ok) , ok
+inversion-star (conv ⊢star A≡B) =
+  case inversion-star ⊢star of λ {
+    (A≡Unit , ok) →
+  trans (sym A≡B) A≡Unit , ok }
 
 -- Inversion of Emptyrec
 inversion-Emptyrec : ∀ {C A t} → Γ ⊢ Emptyrec p A t ∷ C
@@ -186,10 +208,10 @@ whnfProduct x (ne pNe) = ne pNe
 
 whnfProduct x Uₙ = ⊥-elim (inversion-U x)
 whnfProduct x ΠΣₙ =
-  let _ , _ , Σ≡U = inversion-ΠΣ-U x
+  let _ , _ , Σ≡U , _ = inversion-ΠΣ-U x
   in  ⊥-elim (U≢Σ (sym Σ≡U))
 whnfProduct x ℕₙ = ⊥-elim (U≢Σ (sym (inversion-ℕ x)))
-whnfProduct x Unitₙ = ⊥-elim (U≢Σ (sym (inversion-Unit x)))
+whnfProduct x Unitₙ = ⊥-elim (U≢Σ (sym (inversion-Unit-U x .proj₁)))
 whnfProduct x Emptyₙ = ⊥-elim (U≢Σ (sym (inversion-Empty x)))
 whnfProduct x lamₙ =
   let _ , _ , _ , _ , _ , Σ≡Π = inversion-lam x
@@ -198,4 +220,4 @@ whnfProduct x zeroₙ = ⊥-elim (ℕ≢Σ (sym (inversion-zero x)))
 whnfProduct x sucₙ =
   let _ , A≡ℕ = inversion-suc x
   in  ⊥-elim (ℕ≢Σ (sym A≡ℕ))
-whnfProduct x starₙ = ⊥-elim (Unit≢Σⱼ (sym (inversion-star x)))
+whnfProduct x starₙ = ⊥-elim (Unit≢Σⱼ (sym (inversion-star x .proj₁)))

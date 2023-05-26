@@ -4,32 +4,37 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.EqualityRelation
-import Definition.Typed as T
-import Definition.Untyped as U′ using (Con; Term)
+import Definition.Typed
+open import Definition.Typed.Restrictions
+import Definition.Untyped using (Con; Term)
 open import Definition.Modality
 open import Tools.Nullary
 import Tools.PropositionalEquality as PE
 
 module Erasure.LogicalRelation.Subsumption
-  {a k} {M : Set a} (𝕄 : Modality M)
-  (open U′ M) (open T M) (open Modality 𝕄)
+  {a k} {M : Set a}
+  (open Definition.Untyped M)
+  (𝕄 : Modality M)
+  (open Modality 𝕄)
+  (R : Type-restrictions M)
+  (open Definition.Typed R)
   {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘))
-  {{eqrel : EqRelSet M}}
+  {{eqrel : EqRelSet R}}
   where
 
 open EqRelSet {{...}}
 
 open import Definition.Untyped M as U
-open import Definition.LogicalRelation.Substitution M
-import Definition.LogicalRelation.Fundamental M as F
-import Definition.LogicalRelation.Irrelevance M as I
+open import Definition.LogicalRelation.Substitution R
+import Definition.LogicalRelation.Fundamental R as F
+import Definition.LogicalRelation.Irrelevance R as I
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Mode 𝕄
 
 open import Erasure.Extraction 𝕄 is-𝟘?
-open import Erasure.LogicalRelation 𝕄 ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation 𝕄 R ⊢Δ is-𝟘?
 open import Erasure.Target as T hiding (_⇒_; _⇒*_)
 
 open import Tools.Fin

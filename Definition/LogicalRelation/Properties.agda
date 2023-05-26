@@ -3,17 +3,21 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.EqualityRelation
+open import Definition.Typed.Restrictions
 
 module Definition.LogicalRelation.Properties
-  {a} (M : Set a) {{eqrel : EqRelSet M}} where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  {{eqrel : EqRelSet R}}
+  where
 
-open import Definition.LogicalRelation.Properties.Reflexivity M public
-open import Definition.LogicalRelation.Properties.Symmetry M public
-open import Definition.LogicalRelation.Properties.Transitivity M public
-open import Definition.LogicalRelation.Properties.Conversion M public
-open import Definition.LogicalRelation.Properties.Escape M public
-open import Definition.LogicalRelation.Properties.Universe M public
-open import Definition.LogicalRelation.Properties.Neutral M public
-open import Definition.LogicalRelation.Properties.Reduction M public
-open import Definition.LogicalRelation.Properties.Successor M public
-open import Definition.LogicalRelation.Properties.MaybeEmb M public
+open import Definition.LogicalRelation.Properties.Reflexivity R public
+open import Definition.LogicalRelation.Properties.Symmetry R public
+open import Definition.LogicalRelation.Properties.Transitivity R public
+open import Definition.LogicalRelation.Properties.Conversion R public
+open import Definition.LogicalRelation.Properties.Escape R public
+open import Definition.LogicalRelation.Properties.Universe R public
+open import Definition.LogicalRelation.Properties.Neutral R public
+open import Definition.LogicalRelation.Properties.Reduction R public
+open import Definition.LogicalRelation.Properties.Successor R public
+open import Definition.LogicalRelation.Properties.MaybeEmb R public

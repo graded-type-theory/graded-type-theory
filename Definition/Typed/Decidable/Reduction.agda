@@ -2,18 +2,23 @@
 -- Decidability of reducing to Π and Σ-types.
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 
-module Definition.Typed.Decidable.Reduction {a} {M : Set a} (_≟_ : Decidable (PE._≡_ {A = M})) where
+module Definition.Typed.Decidable.Reduction
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  (_≟_ : Decidable (PE._≡_ {A = M}))
+  where
 
 open import Definition.Untyped M hiding (_∷_; U≢B; ℕ≢B; B≢ne)
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-open import Definition.Typed.EqRelInstance M
-open import Definition.Typed.Consequences.Inequality M
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.Fundamental.Reducibility M
+open import Definition.Typed R
+open import Definition.Typed.Properties R
+open import Definition.Typed.EqRelInstance R
+open import Definition.Typed.Consequences.Inequality R
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Fundamental.Reducibility R
 
 open import Tools.Nat
 open import Tools.Product
@@ -30,9 +35,12 @@ isB′ : ∀ {l} → Γ ⊩⟨ l ⟩ A → Dec (∃₃ λ F G W → (Γ ⊢ F) �
 isB′ (Uᵣ′ l′ l< ⊢Γ) = no (λ {(F , G , W , ⊢F , ⊢G , U⇒W) → U≢B W (subset* U⇒W)})
 isB′ (ℕᵣ x) = no (λ {(F , G , W , ⊢F , ⊢G , A⇒W) → ℕ≢B W (trans (sym (subset* (red x))) (subset* A⇒W))})
 isB′ (Emptyᵣ x) = no (λ {(F , G , W , ⊢F , ⊢G , A⇒W) → Empty≢Bⱼ W (trans (sym (subset* (red x))) (subset* A⇒W))})
-isB′ (Unitᵣ x) = no (λ {(F , G , W , ⊢F , ⊢G , A⇒W) → Unit≢Bⱼ W (trans (sym (subset* (red x))) (subset* A⇒W))})
+isB′ (Unitᵣ (Unitₜ x _)) =
+  no (λ { (_ , _ , W , _ , _ , A⇒W) →
+          Unit≢Bⱼ W (trans (sym (subset* (red x))) (subset* A⇒W)) })
 isB′ (ne′ K D neK K≡K) = no (λ {(F , G , W , ⊢F , ⊢G , A⇒W) → B≢ne W neK (trans (sym (subset* A⇒W)) (subset* (red D)))})
-isB′ (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) = yes (F , G , W , ⊢F , ⊢G , red D)
+isB′ (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext _) =
+  yes (F , G , W , ⊢F , ⊢G , red D)
 isB′ (emb 0<1 [A]) = isB′ [A]
 
 isB : Γ ⊢ A → Dec (∃₃ λ F G W → (Γ ⊢ F) × (Γ ∙ F ⊢ G) × Γ ⊢ A ⇒* (⟦ W ⟧ F ▹ G))

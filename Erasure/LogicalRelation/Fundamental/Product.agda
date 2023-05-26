@@ -4,45 +4,52 @@
 
 open import Definition.Modality
 open import Definition.Typed.EqualityRelation
-import Definition.Typed as T′
-import Definition.Untyped as U hiding (_∷_)
+import Definition.Typed
+open import Definition.Typed.Restrictions
+import Definition.Untyped hiding (_∷_)
 open import Tools.Nullary
 import Tools.PropositionalEquality as PE
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 module Erasure.LogicalRelation.Fundamental.Product
-  {a k} {M : Set a} (𝕄 : Modality M)
-  (open U M) (open T′ M) (open Modality 𝕄)
+  {a k} {M : Set a}
+  (open Definition.Untyped M)
+  (𝕄 : Modality M)
+  (open Modality 𝕄)
+  (R : Type-restrictions M)
+  (open Definition.Typed R)
   {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   (𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet)
-  {{eqrel : EqRelSet M}}
+  {{eqrel : EqRelSet R}}
   where
 open EqRelSet {{...}}
+open Type-restrictions R
 
 open import Definition.Untyped.Properties M
-open import Definition.Typed.Properties M
-open import Definition.Typed.RedSteps M
-open import Definition.Typed.Weakening M hiding (wk)
-open import Definition.Typed.Consequences.Inversion M
-open import Definition.Typed.Consequences.Injectivity M
-open import Definition.Typed.Consequences.Substitution M
-open import Definition.Typed.Consequences.Syntactic M
-open import Definition.Typed.Consequences.RedSteps M
-open import Definition.Typed.Consequences.Reduction M
+open import Definition.Typed.Properties R
+open import Definition.Typed.RedSteps R
+open import Definition.Typed.Weakening R hiding (wk)
+open import Definition.Typed.Consequences.Inversion R
+open import Definition.Typed.Consequences.Injectivity R
+open import Definition.Typed.Consequences.Substitution R
+open import Definition.Typed.Consequences.Syntactic R
+open import Definition.Typed.Consequences.RedSteps R
+open import Definition.Typed.Consequences.Reduction R
 
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.Fundamental M
-open import Definition.LogicalRelation.Properties.Escape M
-open import Definition.LogicalRelation.Substitution M
-open import Definition.LogicalRelation.Substitution.Properties M
-open import Definition.LogicalRelation.Substitution.Introductions.Fst M
-open import Definition.LogicalRelation.Substitution.Introductions.Pi M
-open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst M
-open import Definition.LogicalRelation.Substitution.Introductions.Universe M
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Fundamental R
+open import Definition.LogicalRelation.Properties.Escape R
+open import Definition.LogicalRelation.Substitution R
+open import Definition.LogicalRelation.Substitution.Escape R
+open import Definition.LogicalRelation.Substitution.Properties R
+open import Definition.LogicalRelation.Substitution.Introductions.Fst R
+open import Definition.LogicalRelation.Substitution.Introductions.Pi R
+open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst R
+open import Definition.LogicalRelation.Substitution.Introductions.Universe R
 
-import Definition.LogicalRelation.Irrelevance M as I
-import Definition.LogicalRelation.Weakening M as W
-import Definition.LogicalRelation.Substitution.Irrelevance M as IS
+import Definition.LogicalRelation.Irrelevance R as I
+import Definition.LogicalRelation.Weakening R as W
+import Definition.LogicalRelation.Substitution.Irrelevance R as IS
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
@@ -52,11 +59,11 @@ open import Definition.Modality.Usage 𝕄
 open import Definition.Modality.Usage.Inversion 𝕄
 open import Definition.Mode 𝕄
 
-open import Erasure.LogicalRelation 𝕄 ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Conversion 𝕄 ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Reduction 𝕄 ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Subsumption 𝕄 ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Irrelevance 𝕄 ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation 𝕄 R ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Conversion 𝕄 R ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Reduction 𝕄 R ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Subsumption 𝕄 R ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Irrelevance 𝕄 R ⊢Δ is-𝟘?
 
 open import Erasure.Extraction 𝕄 is-𝟘?
 open import Erasure.Extraction.Properties 𝕄 𝟘-well-behaved
@@ -106,22 +113,24 @@ prodʳ :
   (⊩ʳu : δ ▸ Γ ⊩ʳ⟨ l ⟩ u ∷[ m ] G [ t ] / [Γ] / [G[t]]) →
   (∀ {x γ δ} → (γ ⊕ᶜ δ) ⟨ x ⟩ PE.≡ 𝟘 → γ ⟨ x ⟩ PE.≡ 𝟘) →
   (∀ {x γ δ} → (γ ⊕ᶜ δ) ⟨ x ⟩ PE.≡ 𝟘 → δ ⟨ x ⟩ PE.≡ 𝟘) →
+  Σ-restriction s p →
   ∃ λ ([Σ] : Γ ⊩ᵛ⟨ l ⟩ Σ⟨ s ⟩ p , q ▷ F ▹ G / [Γ]) →
     ((p ·ᶜ γ) ⊕ᶜ δ) ▸ Γ ⊩ʳ⟨ l ⟩ prod s p t u ∷[ m ] Σ p , q ▷ F ▹ G / [Γ] /
       [Σ]
 prodʳ
   {Γ = Γ} {F = F} {G = G} {t = t} {u = u} {γ = γ} {m = 𝟘ᵐ} {p = p}
-  {δ = δ} {s = s} {q = q} {l = l} [Γ] [F] [G] [G[t]] [t] [u] ⊩ʳt ⊩ʳu _ _
+  {δ = δ} {s = s} {q = q} {l = l}
+  [Γ] [F] [G] [G[t]] [t] [u] ⊩ʳt ⊩ʳu _ _ ok
     with is-𝟘? 𝟘
-... | yes 𝟘≡𝟘 = Σᵛ [Γ] [F] [G] , _
+... | yes 𝟘≡𝟘 = Σᵛ [Γ] [F] [G] ok , _
 ... | no 𝟘≢𝟘 = PE.⊥-elim (𝟘≢𝟘 PE.refl)
 prodʳ
   {Γ = Γ} {F = F} {G = G} {t = t} {u = u} {γ = γ} {m = 𝟙ᵐ} {p = p}
-  {δ = δ} {s = s} {q = q} {l = l} {_⊕ᶜ_} [Γ] [F] [G] [G[t]] [t] [u] ⊩ʳt ⊩ʳu
-    propˡ propʳ =
-    [Σ] , lemma ⊩ʳt ⊩ʳu
+  {δ = δ} {s = s} {q = q} {l = l} {_⊕ᶜ_}
+  [Γ] [F] [G] [G[t]] [t] [u] ⊩ʳt ⊩ʳu propˡ propʳ ok =
+  [Σ] , lemma ⊩ʳt ⊩ʳu
   where
-  [Σ] = Σᵛ [Γ] [F] [G]
+  [Σ] = Σᵛ [Γ] [F] [G] ok
 
   lemma :
     (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ ⌞ p ⌟ ] F / [Γ] / [F])
@@ -144,7 +153,10 @@ prodʳ
     ⊢σG = escape (proj₁ (unwrap [G] (⊢Δ ∙ ⊢σF) (liftSubstS {σ = σ} {F = F} [Γ] ⊢Δ [F] [σ])))
     ⊢σt = escapeTerm [σF] [σt]
     ⊢σu = escapeTerm [σG[t]] (proj₁ ([u] ⊢Δ [σ]))
-    ⊢prod = prodⱼ ⊢σF ⊢σG ⊢σt (PE.subst (λ x → Δ ⊢ subst σ u ∷ x) (singleSubstLift G t) ⊢σu)
+    ⊢prod = prodⱼ ⊢σF ⊢σG ⊢σt
+              (PE.subst (λ x → Δ ⊢ subst σ u ∷ x)
+                 (singleSubstLift G t) ⊢σu)
+              ok
     σGt≡ρσGt = PE.trans (singleSubstLift G t)
                         (PE.cong (_[ _ ]) (PE.sym (wk-lift-id (subst (liftSubst σ) G))))
     u®u″ = irrelevanceQuant′ _ σGt≡ρσGt [σG[t]] [σG[t]]″ u®u′ ◀≢𝟘 𝟙≉𝟘
@@ -180,16 +192,17 @@ fstʳ′ : ∀ {l} {Γ : Con Term n}
       → ([Γ] : ⊩ᵛ Γ)
         ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
         ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
-        ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ Σₚ p , q ▷ F ▹ G / [Γ] / Σᵛ [Γ] [F] [G])
+        (ok : Σₚ-restriction p)
+        ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ Σₚ p , q ▷ F ▹ G / [Γ] / Σᵛ [Γ] [F] [G] ok)
         (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] Σₚ p , q ▷ F ▹ G
-               / [Γ] / Σᵛ [Γ] [F] [G])
+               / [Γ] / Σᵛ [Γ] [F] [G] ok)
       → γ ▸[ m ] fst p t
       → γ ▸ Γ ⊩ʳ⟨ l ⟩ fst p t ∷[ m ] F / [Γ] / [F]
 fstʳ′ {m = 𝟘ᵐ} with is-𝟘? 𝟘
 ... | yes 𝟘≡𝟘 = _
 ... | no 𝟘≢𝟘 = PE.⊥-elim (𝟘≢𝟘 PE.refl)
-fstʳ′ {F = F} {G = G} {t = t} {p = p} {q = q} {m = 𝟙ᵐ}
-      [Γ] [F] [G] [t] ⊩ʳt γ▸fst {σ = σ} [σ] σ®σ′ with is-𝟘? 𝟙
+fstʳ′ {F = F} {G = G} {p = p} {t = t} {q = q} {m = 𝟙ᵐ}
+      [Γ] [F] [G] ok [t] ⊩ʳt γ▸fst {σ = σ} [σ] σ®σ′ with is-𝟘? 𝟙
 ... | yes 𝟙≡𝟘 = _
 ... | no 𝟙≢𝟘 with is-𝟘? p
 ... | yes PE.refl =
@@ -207,19 +220,19 @@ fstʳ′ {F = F} {G = G} {t = t} {p = p} {q = q} {m = 𝟙ᵐ}
       t₁ , t₂ , t⇒t′ , [t₁] , v₂ , t₂®v₂ , v₁ , v⇒v′ , t₁®v₁ =
         ⊩ʳt [σ] σ®σ′
       _ , _ , ⊢t′ = syntacticRedTerm t⇒t′
-      _ , _ , _ , _ , _ , ⊢t₁ , ⊢t₂ , Σ≡Σ′ = inversion-prod ⊢t′
+      _ , _ , _ , _ , _ , ⊢t₁ , ⊢t₂ , Σ≡Σ′ , _ = inversion-prod ⊢t′
       F≡F′ , G≡G′ , _ = Σ-injectivity Σ≡Σ′
       ⊢t₁′ = conv ⊢t₁ (sym F≡F′)
       ⊢t₂′ = conv ⊢t₂ (substTypeEq (sym G≡G′) (refl ⊢t₁′))
       fstt⇒t₁ = fst-subst* t⇒t′ ⊢σF ⊢σG ⇨∷* redMany
-                  (Σ-β₁ ⊢σF ⊢σG ⊢t₁′ ⊢t₂′ PE.refl)
+                  (Σ-β₁ ⊢σF ⊢σG ⊢t₁′ ⊢t₂′ PE.refl ok)
       fstt⇒t₁′ = PE.subst (λ x → Δ ⊢ _ ⇒* _ ∷ x) (PE.sym (wk-id (subst σ F))) fstt⇒t₁
       fstv⇒v₁ = TP.red*concat (TP.fst-subst* v⇒v′) (T.trans T.Σ-β₁ T.refl)
       fstt®fstv = redSubstTerm* [σF]′ t₁®v₁ fstt⇒t₁′ fstv⇒v₁
   in  irrelevanceTerm′ (wk-id (subst σ F)) [σF]′ [σF] fstt®fstv
 
-fstʳ : Γ ⊢ F → Γ ∙ F ⊢ G → Γ ⊢ t ∷ Σ p , q ▷ F ▹ G
-     → ([Γ] : ⊩ᵛ Γ) ([Σ] : Γ ⊩ᵛ⟨ ¹ ⟩ Σ p , q ▷ F ▹ G / [Γ])
+fstʳ : Γ ⊢ F → Γ ∙ F ⊢ G → Γ ⊢ t ∷ Σₚ p , q ▷ F ▹ G
+     → ([Γ] : ⊩ᵛ Γ) ([Σ] : Γ ⊩ᵛ⟨ ¹ ⟩ Σₚ p , q ▷ F ▹ G / [Γ])
      → (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] Σ p , q ▷ F ▹ G / [Γ] / [Σ])
      → γ ▸[ m ] fst p t
      → ∃ λ ([F] : Γ ⊩ᵛ⟨ ¹ ⟩ F / [Γ])
@@ -231,13 +244,14 @@ fstʳ
       [Γ]₂ , [G]′ = fundamental Γ⊢G
       [F] = IS.irrelevance {A = F} [Γ]₁ [Γ] [F]′
       [G] = IS.irrelevance {A = G} [Γ]₂ ([Γ] ∙ [F]) [G]′
-      [Σ]′ = Σᵛ {F = F} {G = G} {q = q} [Γ] [F] [G]
+      ok = ⊩ᵛΠΣ→ΠΣ-restriction [Σ]
+      [Σ]′ = Σᵛ {F = F} {G = G} {q = q} [Γ] [F] [G] ok
       [Γ]₃ , [Σ]″ , [t]′ = fundamentalTerm Γ⊢t:Σ
       [t] = IS.irrelevanceTerm {A = Σ p , q ▷ F ▹ G} {t = t}
               [Γ]₃ [Γ] [Σ]″ [Σ]′ [t]′
       ⊩ʳt′ = irrelevance {A = Σ p , q ▷ F ▹ G} {t = t}
                [Γ] [Γ] [Σ] [Σ]′ ⊩ʳt
-  in  [F] , fstʳ′ {F = F} {G = G} {t = t} [Γ] [F] [G] [t] ⊩ʳt′ γ▸fst
+  in  [F] , fstʳ′ {F = F} {G = G} {t = t} [Γ] [F] [G] ok [t] ⊩ʳt′ γ▸fst
 
 
 sndʳ′ :
@@ -245,23 +259,24 @@ sndʳ′ :
   ([Γ] : ⊩ᵛ Γ)
   ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
   ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
-  ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ Σₚ p , q ▷ F ▹ G / [Γ] / Σᵛ [Γ] [F] [G])
+  (ok : Σₚ-restriction p)
+  ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ Σₚ p , q ▷ F ▹ G / [Γ] / Σᵛ [Γ] [F] [G] ok)
   (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] Σₚ p , q ▷ F ▹ G / [Γ] /
-           Σᵛ [Γ] [F] [G]) →
+           Σᵛ [Γ] [F] [G] ok) →
   ∃ λ ([G] : Γ ⊩ᵛ⟨ l ⟩ G [ fst p t ] / [Γ]) →
     γ ▸ Γ ⊩ʳ⟨ l ⟩ snd p t ∷[ m ] G [ fst p t ] / [Γ] / [G]
-sndʳ′ {F = F} {G = G} {t = t} {p = p} {q = q} {m = m} {l = l} {Γ = Γ}
-      [Γ] [F] [G] [t] ⊩ʳt =
+sndʳ′ {F = F} {G = G} {p = p} {t = t} {q = q} {m = m} {l = l} {Γ = Γ}
+      [Γ] [F] [G] ok [t] ⊩ʳt =
   [G[t₁]] , lemma m ⊩ʳt
   where
-  [Σ] = Σᵛ [Γ] [F] [G]
-  [t₁] = fstᵛ {t = t} [Γ] [F] [G] [t]
+  [Σ] = Σᵛ [Γ] [F] [G] ok
+  [t₁] = fstᵛ {t = t} [Γ] [F] [G] ok [t]
   [G[t₁]] = substSΠ (BΣ Σₚ p q) [Γ] [F] [Σ] [t₁]
 
   lemma :
     ∀ m →
     (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] Σₚ p , q ▷ F ▹ G / [Γ] /
-             Σᵛ [Γ] [F] [G]) →
+             Σᵛ [Γ] [F] [G] ok) →
     γ ▸ Γ ⊩ʳ⟨ l ⟩ snd p t ∷[ m ] G [ fst p t ] / [Γ] / [G[t₁]]
   lemma m ⊩ʳt {σ = σ} {σ′ = σ′} [σ] σ®σ′ with is-𝟘? ⌜ m ⌝
   ... | yes m≡𝟘 = _
@@ -273,16 +288,16 @@ sndʳ′ {F = F} {G = G} {t = t} {p = p} {q = q} {m = m} {l = l} {Γ = Γ}
           [σG] = proj₁ (unwrap [G] {σ = liftSubst σ} (⊢Δ ∙ ⊢σF) [⇑σ])
           ⊢σG = escape [σG]
           _ , _ , ⊢t′ = syntacticRedTerm t⇒t′
-          _ , _ , _ , _ , _ , ⊢t₁ , ⊢t₂ , eq = inversion-prod ⊢t′
+          _ , _ , _ , _ , _ , ⊢t₁ , ⊢t₂ , eq , _ = inversion-prod ⊢t′
           eq₁ , eq₂ , _ = Σ-injectivity eq
           ⊢t₁′ = conv ⊢t₁ (sym eq₁)
           eq₂′ = substitutionEq eq₂ (substRefl (singleSubst ⊢t₁′)) ⊢Δ
           ⊢t₂′ = conv ⊢t₂ (sym eq₂′)
           t≡t₁ = subset*Term
-                   (redMany (Σ-β₁ {p = p} ⊢σF ⊢σG ⊢t₁′ ⊢t₂′ PE.refl))
+                   (redMany (Σ-β₁ {p = p} ⊢σF ⊢σG ⊢t₁′ ⊢t₂′ PE.refl ok))
           t′≡t₁ = subset*Term
                     (fst-subst* t⇒t′ ⊢σF ⊢σG ⇨∷*
-                     redMany (Σ-β₁ ⊢σF ⊢σG ⊢t₁′ ⊢t₂′ PE.refl))
+                     redMany (Σ-β₁ ⊢σF ⊢σG ⊢t₁′ ⊢t₂′ PE.refl ok))
           G[t]≡G[t₁] = substTypeEq (refl ⊢σG) t≡t₁
           G[t]≡G[t₁]′ = PE.subst (Δ ⊢ subst (liftSubst σ) G [ _ ] ≡_)
                                  (PE.cong (_[ t₁ ])
@@ -296,7 +311,7 @@ sndʳ′ {F = F} {G = G} {t = t} {p = p} {q = q} {m = m} {l = l} {Γ = Γ}
             (sym G[t′]≡G[t₁])
           t⇒u = conv* (snd-subst* t⇒t′ ⊢σF ⊢σG)
                       (substTypeEq (refl ⊢σG) (fst-cong ⊢σF ⊢σG (subset*Term t⇒t′)))
-          t⇒u′ = t⇒u ⇨∷* redMany (Σ-β₂ ⊢σF ⊢σG ⊢t₁′ ⊢t₂′ PE.refl)
+          t⇒u′ = t⇒u ⇨∷* redMany (Σ-β₂ ⊢σF ⊢σG ⊢t₁′ ⊢t₂′ PE.refl ok)
           t⇒u″ = PE.subst (λ x → Δ ⊢ subst σ (snd p t) ⇒* t₂ ∷ x) (PE.sym (singleSubstLift G (fst p t)))
                           (conv* t⇒u′ (trans G[t]≡G[t₁] (sym G[t′]≡G[t₁])))
           wk[σ] = wkSubstS {σ = σ} [Γ] ⊢Δ ⊢Δ id [σ]
@@ -330,8 +345,9 @@ sndʳ {t = t} Γ⊢F Γ⊢G Γ⊢t:Σ [Γ] [Σ] ⊩ʳt =
       [Γ]₂ , [G]′ = fundamental Γ⊢G
       [F] = IS.irrelevance [Γ]₁ [Γ] [F]′
       [G] = IS.irrelevance [Γ]₂ ([Γ] ∙ [F]) [G]′
-      [Σ]′ = Σᵛ [Γ] [F] [G]
+      ok = ⊩ᵛΠΣ→ΠΣ-restriction [Σ]
+      [Σ]′ = Σᵛ [Γ] [F] [G] ok
       ⊩ʳt′ = irrelevance {t = t} [Γ] [Γ] [Σ] [Σ]′ ⊩ʳt
       [Γ]₃ , [Σ]″ , [t]′ = fundamentalTerm Γ⊢t:Σ
       [t] = IS.irrelevanceTerm {t = t} [Γ]₃ [Γ] [Σ]″ [Σ]′ [t]′
-  in  sndʳ′ {t = t} [Γ] [F] [G] [t] ⊩ʳt′
+  in  sndʳ′ {t = t} [Γ] [F] [G] ok [t] ⊩ʳt′

@@ -8,27 +8,29 @@ import Definition.Modality.Instances.Erasure.Modality
 open import Definition.Modality.Restrictions Erasure
 open import Definition.Modality.Restrictions.Definitions
 import Application.NegativeAxioms.NegativeErasedContext
-open import Definition.Typed Erasure
+import Definition.Typed
+open import Definition.Typed.Restrictions Erasure
 open import Definition.Untyped Erasure hiding (_∷_; ℕ≢B)
-open import Definition.Typed.EqRelInstance Erasure
 
 open import Tools.Empty
 
 module Application.NegativeAxioms.Canonicity.NegativeErased
-  (restrictions : Restrictions)
-  (open Definition.Modality.Instances.Erasure.Modality restrictions)
+  (R : Restrictions)
+  (open Definition.Modality.Instances.Erasure.Modality R)
   -- Erased matches are not allowed.
   (no-erased-matches : No-erased-matches ErasureModality)
-  (open Application.NegativeAxioms.NegativeErasedContext ErasureModality (λ ()))
+  (TR : Type-restrictions)
+  (open Definition.Typed TR)
+  (open Application.NegativeAxioms.NegativeErasedContext
+     ErasureModality TR (λ ()))
   {m} {Γ : Con Term m} {γ}
   (nΓγ : NegativeErasedContext Γ γ)
   (consistent : ∀{t} → Γ ⊢ t ∷ Empty → ⊥)
   where
 
-open Restrictions restrictions
+open Restrictions R
 
-open import Definition.Modality.Instances.Erasure.Properties
-  restrictions
+open import Definition.Modality.Instances.Erasure.Properties R
 open import Definition.Modality.Context ErasureModality
 open import Definition.Modality.Usage ErasureModality
 open import Definition.Modality.Usage.Inversion ErasureModality
@@ -36,19 +38,21 @@ open import Definition.Modality.Usage.Properties ErasureModality
 open import Definition.Mode ErasureModality
 
 open import Application.NegativeAxioms.NegativeOrErasedType
-  ErasureModality
-open import Erasure.SucRed Erasure
+  ErasureModality TR
+open import Erasure.SucRed TR
 
-open import Definition.Typed.Properties Erasure
-open import Definition.Typed.Usage ErasureModality
-open import Definition.Typed.Consequences.Inequality Erasure
-open import Definition.Typed.Consequences.Reduction Erasure
-open import Definition.Typed.Consequences.Syntactic Erasure
+open import Definition.Typed.EqRelInstance TR
+open import Definition.Typed.Properties TR
+open import Definition.Typed.Usage ErasureModality TR
+open import Definition.Typed.Consequences.Inequality TR
+open import Definition.Typed.Consequences.Inversion TR
+open import Definition.Typed.Consequences.Reduction TR
+open import Definition.Typed.Consequences.Syntactic TR
 
-open import Definition.Conversion.FullReduction Erasure hiding (fullRedTerm)
-open import Definition.LogicalRelation Erasure
-open import Definition.LogicalRelation.Irrelevance Erasure
-open import Definition.LogicalRelation.Fundamental.Reducibility Erasure
+open import Definition.Conversion.FullReduction TR hiding (fullRedTerm)
+open import Definition.LogicalRelation TR
+open import Definition.LogicalRelation.Irrelevance TR
+open import Definition.LogicalRelation.Fundamental.Reducibility TR
 
 open import Tools.PropositionalEquality as PE using (_≢_)
 open import Tools.Product
@@ -84,10 +88,11 @@ neNeg (d ∘ⱼ ⊢t           ) (∘ₙ n       ) γ▸u =
   in  appNeg (neNeg d n (sub δ▸g (≤ᶜ-trans γ≤γ′ (+ᶜ-decreasingˡ _ _))))
              (refl (syntacticTerm d)) ⊢t
 neNeg (fstⱼ ⊢A A⊢B d) (fstₙ {p = p} n) γ▸u =
-  let invUsageFst m 𝟙ᵐ≡mᵐ·p δ▸t γ≤δ ok = inv-usage-fst γ▸u
+  let _ , _ , ok₁ = inversion-ΠΣ (syntacticTerm d)
+      invUsageFst m 𝟙ᵐ≡mᵐ·p δ▸t γ≤δ ok₂ = inv-usage-fst γ▸u
   in  fstNeg (neNeg d n (sub δ▸t γ≤δ))
-             (refl (ΠΣⱼ ⊢A ▹ A⊢B))
-             (𝟘≢p m 𝟙ᵐ≡mᵐ·p (ok PE.refl))
+             (refl (ΠΣⱼ ⊢A A⊢B ok₁))
+             (𝟘≢p m 𝟙ᵐ≡mᵐ·p (ok₂ PE.refl))
   where
   𝟘≢p :
     ∀ m →
@@ -97,9 +102,10 @@ neNeg (fstⱼ ⊢A A⊢B d) (fstₙ {p = p} n) γ▸u =
   𝟘≢p 𝟘ᵐ ()
   𝟘≢p 𝟙ᵐ _ () PE.refl
 neNeg (sndⱼ ⊢A A⊢B d     ) (sndₙ n     ) γ▸u =
-  let invUsageSnd δ▸t γ≤δ = inv-usage-snd γ▸u
+  let _ , _ , ok = inversion-ΠΣ (syntacticTerm d)
+      invUsageSnd δ▸t γ≤δ = inv-usage-snd γ▸u
   in  sndNeg (neNeg d n (sub δ▸t γ≤δ))
-             (refl (ΠΣⱼ ⊢A ▹ A⊢B)) (fstⱼ ⊢A A⊢B d)
+             (refl (ΠΣⱼ ⊢A A⊢B ok)) (fstⱼ ⊢A A⊢B d)
 neNeg (natrecⱼ _ _ _ d   ) (natrecₙ n  ) γ▸u =
   let invUsageNatrec _ _ δ▸n _ γ≤γ′ = inv-usage-natrec γ▸u
       ⊢ℕ = refl (ℕⱼ (wfTerm d))
@@ -115,7 +121,7 @@ neNeg (prodrecⱼ {r = r} ⊢A A⊢B _ d _) (prodrecₙ n ) γ▸u =
            r ·ᶜ δ       ≈⟨ ·ᶜ-congʳ (≢𝟘→≡ω (no-erased-matches (λ ()) p)) ⟩
            ω ·ᶜ δ       ≈⟨ ·ᶜ-identityˡ _ ⟩
            δ            ∎)
-      ⊢Σ = refl (ΠΣⱼ ⊢A ▹ A⊢B)
+      ⊢Σ = refl (ΠΣⱼ ⊢A A⊢B _)
       lemma = let open Tools.Reasoning.PropositionalEquality in
         ⌞ r ⌟  ≡⟨ ≉𝟘→⌞⌟≡𝟙ᵐ (no-erased-matches (λ ()) p) ⟩
         𝟙ᵐ     ∎
@@ -147,15 +153,15 @@ nfN (conv d c) γ▸u n c' = nfN d γ▸u n (trans c c')
 -- Impossible cases: type is not ℕ.
 
 -- * Canonical types
-nfN (ΠΣⱼ _ ▹ _)      γ▸u (ΠΣₙ _ _)  c = ⊥-elim (U≢ℕ c)
-nfN (ℕⱼ _)           γ▸u ℕₙ         c = ⊥-elim (U≢ℕ c)
-nfN (Emptyⱼ _)       γ▸u Emptyₙ     c = ⊥-elim (U≢ℕ c)
-nfN (Unitⱼ _)        γ▸u Unitₙ      c = ⊥-elim (U≢ℕ c)
+nfN (ΠΣⱼ _ _ _) _ (ΠΣₙ _ _) c = ⊥-elim (U≢ℕ c)
+nfN (ℕⱼ _)      _ ℕₙ        c = ⊥-elim (U≢ℕ c)
+nfN (Emptyⱼ _)  _ Emptyₙ    c = ⊥-elim (U≢ℕ c)
+nfN (Unitⱼ _ _) _ Unitₙ     c = ⊥-elim (U≢ℕ c)
 
 -- * Canonical forms
-nfN (lamⱼ _ _)      γ▸u (lamₙ _)    c = ⊥-elim (ℕ≢Π (sym c))
-nfN (prodⱼ _ _ _ _) γ▸u (prodₙ _ _) c = ⊥-elim (ℕ≢Σ (sym c))
-nfN (starⱼ _)       γ▸u starₙ       c = ⊥-elim (ℕ≢Unitⱼ (sym c))
+nfN (lamⱼ _ _)        _ (lamₙ _)    c = ⊥-elim (ℕ≢Π (sym c))
+nfN (prodⱼ _ _ _ _ _) _ (prodₙ _ _) c = ⊥-elim (ℕ≢Σ (sym c))
+nfN (starⱼ _ _)       _ starₙ       c = ⊥-elim (ℕ≢Unitⱼ (sym c))
 -- q.e.d
 
 -- Terms of non-negative types reduce to non-neutrals

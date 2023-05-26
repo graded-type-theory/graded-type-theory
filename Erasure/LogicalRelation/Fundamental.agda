@@ -5,39 +5,44 @@
 open import Definition.Modality
 open import Definition.Modality.Restrictions.Definitions
 open import Definition.Typed.EqualityRelation
-import Definition.Typed as T′
-import Definition.Untyped as U hiding (_∷_)
+import Definition.Typed
+open import Definition.Typed.Restrictions
+import Definition.Untyped hiding (_∷_)
 open import Tools.Empty
 open import Tools.Sum hiding (id)
 import Tools.PropositionalEquality as PE
 
 module Erasure.LogicalRelation.Fundamental
-  {a k} {M : Set a} (𝕄 : Modality M)
-  (open U M) (open T′ M) (open Modality 𝕄)
+  {a k} {M : Set a}
+  (open Definition.Untyped M)
+  (𝕄 : Modality M)
+  (open Modality 𝕄)
+  (R : Type-restrictions M)
+  (open Definition.Typed R)
   {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   (𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet)
   (consistent : ∀ {t} → Δ ⊢ t ∷ Empty → ⊥)
   -- Erased matches are not allowed unless the context
   -- is empty
   (no-erased-matches : No-erased-matches 𝕄 ⊎ k PE.≡ 0)
-  {{eqrel : EqRelSet M}}
+  {{eqrel : EqRelSet R}}
   where
 
 
 open EqRelSet {{...}}
 
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.Properties.Escape M
-open import Definition.LogicalRelation.Substitution M
-open import Definition.LogicalRelation.Substitution.MaybeEmbed M
-open import Definition.LogicalRelation.Substitution.Properties M
-open import Definition.LogicalRelation.Substitution.Weakening M
-open import Definition.LogicalRelation.Substitution.Introductions.Pi M
-open import Definition.LogicalRelation.Substitution.Introductions.Nat M
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Properties.Escape R
+open import Definition.LogicalRelation.Substitution R
+open import Definition.LogicalRelation.Substitution.MaybeEmbed R
+open import Definition.LogicalRelation.Substitution.Properties R
+open import Definition.LogicalRelation.Substitution.Weakening R
+open import Definition.LogicalRelation.Substitution.Introductions.Pi R
+open import Definition.LogicalRelation.Substitution.Introductions.Nat R
 
-import Definition.LogicalRelation.Fundamental M as F
-import Definition.LogicalRelation.Irrelevance M as I
-import Definition.LogicalRelation.Substitution.Irrelevance M as IS
+import Definition.LogicalRelation.Fundamental R as F
+import Definition.LogicalRelation.Irrelevance R as I
+import Definition.LogicalRelation.Substitution.Irrelevance R as IS
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
@@ -51,20 +56,20 @@ open import Definition.Mode 𝕄
 
 
 open import Definition.Untyped.Properties M
-open import Definition.Typed.Consequences.Syntactic M
+open import Definition.Typed.Consequences.Syntactic R
 
-open import Erasure.LogicalRelation 𝕄 ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Fundamental.Application 𝕄 ⊢Δ 𝟘-well-behaved
-open import Erasure.LogicalRelation.Fundamental.Empty 𝕄 ⊢Δ is-𝟘? consistent
-open import Erasure.LogicalRelation.Fundamental.Lambda 𝕄 ⊢Δ is-𝟘? 𝟙≉𝟘
-open import Erasure.LogicalRelation.Fundamental.Nat 𝕄 ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Fundamental.Natrec 𝕄 ⊢Δ 𝟘-well-behaved
-open import Erasure.LogicalRelation.Fundamental.Prodrec 𝕄 ⊢Δ 𝟘-well-behaved
-open import Erasure.LogicalRelation.Fundamental.Product 𝕄 ⊢Δ 𝟘-well-behaved
-open import Erasure.LogicalRelation.Fundamental.Unit 𝕄 ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Conversion 𝕄 ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Irrelevance 𝕄 ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Subsumption 𝕄 ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation 𝕄 R ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Fundamental.Application 𝕄 R ⊢Δ 𝟘-well-behaved
+open import Erasure.LogicalRelation.Fundamental.Empty 𝕄 R ⊢Δ is-𝟘? consistent
+open import Erasure.LogicalRelation.Fundamental.Lambda 𝕄 R ⊢Δ is-𝟘? 𝟙≉𝟘
+open import Erasure.LogicalRelation.Fundamental.Nat 𝕄 R ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Fundamental.Natrec 𝕄 R ⊢Δ 𝟘-well-behaved
+open import Erasure.LogicalRelation.Fundamental.Prodrec 𝕄 R ⊢Δ 𝟘-well-behaved
+open import Erasure.LogicalRelation.Fundamental.Product 𝕄 R ⊢Δ 𝟘-well-behaved
+open import Erasure.LogicalRelation.Fundamental.Unit 𝕄 R ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Conversion 𝕄 R ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Irrelevance 𝕄 R ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Subsumption 𝕄 R ⊢Δ is-𝟘?
 
 import Erasure.Target as T
 open import Erasure.Extraction 𝕄 is-𝟘?
@@ -176,14 +181,14 @@ fundamental {m = 𝟘ᵐ} ⊢t _ with is-𝟘? 𝟘
   case F.fundamental (syntacticTerm ⊢t) of λ ([Γ] , [A]) →
     [Γ] , [A] , _
 ... | no 𝟘≢𝟘 = PE.⊥-elim (𝟘≢𝟘 PE.refl)
-fundamental Γ⊢ΠΣ@(ΠΣⱼ Γ⊢F:U ▹ _) γ▸t =
+fundamental Γ⊢ΠΣ@(ΠΣⱼ Γ⊢F:U _ _) γ▸t =
   let invUsageΠΣ δ▸F _ _ _ = inv-usage-ΠΣ γ▸t
       [Γ] , _ , _ = fundamental Γ⊢F:U δ▸F
       [U] , ⊩ʳΠΣ = ΠΣʳ [Γ] Γ⊢ΠΣ
   in  [Γ] , [U] , ⊩ʳΠΣ
 fundamental (ℕⱼ ⊢Γ) γ▸t = ℕʳ ⊢Γ
 fundamental (Emptyⱼ ⊢Γ) γ▸t = Emptyʳ ⊢Γ
-fundamental (Unitⱼ ⊢Γ) γ▸t = Unitʳ ⊢Γ
+fundamental (Unitⱼ ⊢Γ ok) _ = Unitʳ ⊢Γ ok
 fundamental (var ⊢Γ x∷A∈Γ) γ▸t =
   let [Γ] = F.valid ⊢Γ
       [A] , ⊩ʳx = fundamentalVar [Γ] x∷A∈Γ γ▸t
@@ -209,7 +214,9 @@ fundamental (_∘ⱼ_ {p = p} {q = q} {g = t} {a = u} {F = F} {G = G} Γ⊢t:Π 
       [u] = IS.irrelevanceTerm {A = F} {t = u} [Γ]″ [Γ] [F]′ [F] [u]′
       [G[u]] , ⊩ʳt∘u = appʳ {F = F} {G = G} {u = u} {t = t} [Γ] [F] [Π] [u] ⊩ʳt ⊩ʳu
   in  [Γ] , [G[u]] , subsumption-≤ {A = G [ u ]} {t = t ∘⟨ p ⟩ u} [Γ] [G[u]] ⊩ʳt∘u γ≤δ+pη
-fundamental (prodⱼ {Σₚ} {F = F} {G = G} {t = t} {u = u} Γ⊢F Γ⊢G Γ⊢t:F Γ⊢u:G) γ▸t =
+fundamental
+  (prodⱼ {Σₚ} {F = F} {G = G} {t = t} {u = u} Γ⊢F Γ⊢G Γ⊢t:F Γ⊢u:G ok)
+  γ▸t =
   let invUsageProdₚ δ▸t η▸u γ≤pδ∧η = inv-usage-prodₚ γ▸t
       [Γ]₁ , [F] , ⊩ʳt = fundamental Γ⊢t:F δ▸t
       [Γ]₂ , [G[t]]′ , ⊩ʳu = fundamental Γ⊢u:G η▸u
@@ -225,9 +232,12 @@ fundamental (prodⱼ {Σₚ} {F = F} {G = G} {t = t} {u = u} Γ⊢F Γ⊢G Γ⊢
                         (irrelevance {A = G [ t ]} {t = u} [Γ]₂ [Γ] [G[t]]′ [G[t]] ⊩ʳu)
                         (λ {x} {γ} {δ} γ∧δ≡𝟘 → ∧-positiveˡ (PE.trans (PE.sym (lookup-distrib-∧ᶜ γ δ x)) γ∧δ≡𝟘))
                         (λ {x} {γ} {δ} γ∧δ≡𝟘 → ∧-positiveʳ (PE.trans (PE.sym (lookup-distrib-∧ᶜ γ δ x)) γ∧δ≡𝟘))
+                        ok
   in  [Γ] , [Σ] ,
       subsumption-≤ {t = prod! t u} [Γ] [Σ] ⊩ʳp γ≤pδ∧η
-fundamental (prodⱼ {Σᵣ} {F = F} {G = G} {t = t} {u = u} Γ⊢F Γ⊢G Γ⊢t:F Γ⊢u:G) γ▸t =
+fundamental
+  (prodⱼ {Σᵣ} {F = F} {G = G} {t = t} {u = u} Γ⊢F Γ⊢G Γ⊢t:F Γ⊢u:G ok)
+  γ▸t =
   let invUsageProdᵣ δ▸t η▸u γ≤pδ+η = inv-usage-prodᵣ γ▸t
       [Γ]₁ , [F] , ⊩ʳt = fundamental Γ⊢t:F δ▸t
       [Γ]₂ , [G[t]]′ , ⊩ʳu = fundamental Γ⊢u:G η▸u
@@ -243,6 +253,7 @@ fundamental (prodⱼ {Σᵣ} {F = F} {G = G} {t = t} {u = u} Γ⊢F Γ⊢G Γ⊢
                         (irrelevance {A = G [ t ]} {t = u} [Γ]₂ [Γ] [G[t]]′ [G[t]] ⊩ʳu)
                         (λ {x} {γ} {δ} γ∧δ≡𝟘 → +-positiveˡ (PE.trans (PE.sym (lookup-distrib-+ᶜ γ δ x)) γ∧δ≡𝟘))
                         (λ {x} {γ} {δ} γ∧δ≡𝟘 → +-positiveʳ (PE.trans (PE.sym (lookup-distrib-+ᶜ γ δ x)) γ∧δ≡𝟘))
+                        ok
   in  [Γ] , [Σ] ,
       subsumption-≤ {t = prod! t u} [Γ] [Σ] ⊩ʳp γ≤pδ+η
 fundamental (fstⱼ {F = F} {t = t} Γ⊢F Γ⊢G Γ⊢t:Σ) γ▸t =
@@ -323,7 +334,7 @@ fundamental {Γ = Γ} {γ = γ} (Emptyrecⱼ {p = p} {A = A} {e = t} ⊢A Γ⊢t
       [t] = IS.irrelevanceTerm {A = Empty} {t = t} [Γ]″ [Γ] [Empty]′ [Empty] [t]′
       γ⊩ʳEmptyrec = Emptyrecʳ {A = A} {t = t} {p = p} [Γ] [Empty] [A] [t]
   in  [Γ] , [A] , γ⊩ʳEmptyrec
-fundamental (starⱼ ⊢Γ) γ▸t = starʳ ⊢Γ
+fundamental (starⱼ ⊢Γ ok) _ = starʳ ⊢Γ ok
 fundamental (conv {t = t} {A = A} {B = B} Γ⊢t:A A≡B) γ▸t =
   let [Γ] , [A] , ⊩ʳt = fundamental Γ⊢t:A γ▸t
       Γ⊢B = syntacticTerm (conv Γ⊢t:A A≡B)

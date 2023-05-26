@@ -2,17 +2,21 @@
 -- Completeness of the algorithmic equality
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
+
 module Definition.Conversion.Consequences.Completeness
-  {a} (M : Set a) where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  where
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
-open import Definition.Conversion M
+open import Definition.Typed R
+open import Definition.Conversion R
 
-open import Definition.Conversion.EqRelInstance M
-open import Definition.LogicalRelation.Substitution M
-open import Definition.LogicalRelation.Substitution.Escape M
-open import Definition.LogicalRelation.Fundamental M
+open import Definition.Conversion.EqRelInstance R
+open import Definition.LogicalRelation.Substitution R
+open import Definition.LogicalRelation.Substitution.Escape R
+open import Definition.LogicalRelation.Fundamental R
 
 open import Tools.Nat
 open import Tools.Product

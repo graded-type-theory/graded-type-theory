@@ -4,37 +4,42 @@
 
 open import Definition.Modality
 open import Definition.Typed.EqualityRelation
-import Definition.Typed as T′
-import Definition.Untyped as U
+import Definition.Typed
+open import Definition.Typed.Restrictions
+import Definition.Untyped
 open import Tools.Nullary
 open import Tools.Sum hiding (id)
 import Tools.PropositionalEquality as PE
 
 module Erasure.LogicalRelation.Fundamental.Application
-  {a k} {M : Set a} (𝕄 : Modality M)
-  (open U M) (open T′ M) (open Modality 𝕄)
+  {a k} {M : Set a}
+  (open Definition.Untyped M)
+  (𝕄 : Modality M)
+  (open Modality 𝕄)
+  (R : Type-restrictions M)
+  (open Definition.Typed R)
   {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   (𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet)
-  {{eqrel : EqRelSet M}}
+  {{eqrel : EqRelSet R}}
   where
 
 open EqRelSet {{...}}
 
 open import Definition.Untyped.Properties M
-open import Definition.Typed.Weakening M
-open import Definition.Typed.Consequences.Syntactic M
+open import Definition.Typed.Weakening R
+open import Definition.Typed.Consequences.Syntactic R
 
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.Fundamental M
-open import Definition.LogicalRelation.Substitution M
-open import Definition.LogicalRelation.Substitution.Escape M
-open import Definition.LogicalRelation.Substitution.Properties M
-open import Definition.LogicalRelation.Substitution.Introductions.Pi M
-open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst M
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Fundamental R
+open import Definition.LogicalRelation.Substitution R
+open import Definition.LogicalRelation.Substitution.Escape R
+open import Definition.LogicalRelation.Substitution.Properties R
+open import Definition.LogicalRelation.Substitution.Introductions.Pi R
+open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst R
 
-import Definition.LogicalRelation.Weakening M as W
-import Definition.LogicalRelation.Irrelevance M as I
-import Definition.LogicalRelation.Substitution.Irrelevance M as IS
+import Definition.LogicalRelation.Weakening R as W
+import Definition.LogicalRelation.Irrelevance R as I
+import Definition.LogicalRelation.Substitution.Irrelevance R as IS
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
@@ -42,9 +47,9 @@ open import Definition.Modality.Properties.Has-well-behaved-zero
   semiring-with-meet-and-star 𝟘-well-behaved
 open import Definition.Mode 𝕄
 
-open import Erasure.LogicalRelation 𝕄 ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Subsumption 𝕄 ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Irrelevance 𝕄 ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation 𝕄 R ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Subsumption 𝕄 R ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Irrelevance 𝕄 R ⊢Δ is-𝟘?
 import Erasure.Target as T
 
 open import Tools.Function

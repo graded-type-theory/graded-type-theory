@@ -2,14 +2,18 @@
 -- Extended reduction relations allowing reduction under suc.
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
+
 module Erasure.SucRed
-  {a} (M : Set a) where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  where
 
 open import Tools.Nat
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
-open import Definition.Typed.Properties M
+open import Definition.Typed R
+open import Definition.Typed.Properties R
 
 import Erasure.Target as T
 

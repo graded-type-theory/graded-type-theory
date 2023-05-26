@@ -3,39 +3,44 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.EqualityRelation
-import Definition.Typed as T
-import Definition.Untyped as U′ using (Con; Term)
+import Definition.Typed
+open import Definition.Typed.Restrictions
+import Definition.Untyped using (Con; Term)
 open import Definition.Modality
 open import Tools.Nullary
 import Tools.PropositionalEquality as PE
 
 module Erasure.LogicalRelation.Reduction
-  {a k} {M : Set a} (𝕄 : Modality M)
-  (open U′ M) (open T M) (open Modality 𝕄)
+  {a k} {M : Set a}
+  (open Definition.Untyped M)
+  (𝕄 : Modality M)
+  (open Modality 𝕄)
+  (R : Type-restrictions M)
+  (open Definition.Typed R)
   {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘))
-  {{eqrel : EqRelSet M}}
+  {{eqrel : EqRelSet R}}
   where
 
 open EqRelSet {{...}}
 
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.Properties.Escape M
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Properties.Escape R
 
-import Definition.LogicalRelation.Fundamental M as F
-import Definition.LogicalRelation.Irrelevance M as I
-import Definition.LogicalRelation.Properties.Reduction M as R
+import Definition.LogicalRelation.Fundamental R as F
+import Definition.LogicalRelation.Irrelevance R as I
+import Definition.LogicalRelation.Properties.Reduction R as R
 
 open import Definition.Untyped M as U hiding (_∷_)
-open import Definition.Typed.Consequences.Syntactic M
-open import Definition.Typed.Consequences.Reduction M
-open import Definition.Typed.Properties M
-open import Definition.Typed.RedSteps M as RS
-open import Definition.Typed.Weakening M
+open import Definition.Typed.Consequences.Syntactic R
+open import Definition.Typed.Consequences.Reduction R
+open import Definition.Typed.Properties R
+open import Definition.Typed.RedSteps R as RS
+open import Definition.Typed.Weakening R
 
 open import Definition.Untyped.Properties M as UP using (wk-id ; wk-lift-id)
 
-open import Erasure.LogicalRelation 𝕄 ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation 𝕄 R ⊢Δ is-𝟘?
 open import Erasure.Target as T hiding (_⇒_; _⇒*_)
 open import Erasure.Target.Properties as TP
 
@@ -62,10 +67,12 @@ sourceRedSubstTerm (ℕᵣ ([ ⊢A , ⊢B , D ])) (zeroᵣ t′⇒zero v⇒v′)
   zeroᵣ ((conv t⇒t′ (subset* D)) ⇨ t′⇒zero) v⇒v′
 sourceRedSubstTerm (ℕᵣ ([ ⊢A , ⊢B , D ])) (sucᵣ t′⇒suc v⇒v′ t®v) t⇒t′ =
   sucᵣ ((conv t⇒t′ (subset* D)) ⇨ t′⇒suc) v⇒v′ t®v
-sourceRedSubstTerm (Unitᵣ ([ ⊢A , ⊢B , D ])) (starᵣ x v⇒star) t⇒t′ =
+sourceRedSubstTerm
+  (Unitᵣ (Unitₜ [ _ , _ , D ] _)) (starᵣ _ v⇒star) t⇒t′ =
   starᵣ (conv (redFirstTerm t⇒t′) (subset* D)) v⇒star
-sourceRedSubstTerm (Bᵣ′ (BΠ p q) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext)
-                   t®v′ t⇒t′ {a = a} [a] with is-𝟘? p
+sourceRedSubstTerm
+  (Bᵣ′ (BΠ p q) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext _)
+  t®v′ t⇒t′ {a = a} [a] with is-𝟘? p
 ... | yes PE.refl =
   let t®v = t®v′ [a]
       ⊢a = escapeTerm ([F] id ⊢Δ) [a]
@@ -81,7 +88,7 @@ sourceRedSubstTerm (Bᵣ′ (BΠ p q) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A 
       t∘a⇒t′∘w = PE.subst (Δ ⊢ _ ⇒ _ ∷_) (PE.cong (U._[ a ]) (PE.sym (UP.wk-lift-id G))) t∘a⇒t′∘w′
   in  sourceRedSubstTerm ([G] id ⊢Δ [a]) t®v t∘a⇒t′∘w
 sourceRedSubstTerm
-  (Bᵣ′ BΣ! F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext)
+  (Bᵣ′ BΣ! F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext _)
   (t₁ , t₂ , t′⇒p , [t₁] , v₂ , t₂®v₂ , extra) t⇒t′ =
   t₁ , t₂ , conv t⇒t′ (subset* D) ⇨ t′⇒p , [t₁] , v₂ , t₂®v₂ , extra
 sourceRedSubstTerm (emb 0<1 [A]) t®v t⇒t′ = sourceRedSubstTerm [A] t®v t⇒t′
@@ -106,8 +113,9 @@ targetRedSubstTerm (Uᵣ x) (Uᵣ x₁) v⇒v′ = Uᵣ x₁
 targetRedSubstTerm (ℕᵣ x) (zeroᵣ t′⇒zero v′⇒zero) v⇒v′ = zeroᵣ t′⇒zero (trans v⇒v′ v′⇒zero)
 targetRedSubstTerm (ℕᵣ x) (sucᵣ t′⇒suc v′⇒suc t®v) v⇒v′ = sucᵣ t′⇒suc (trans v⇒v′ v′⇒suc) t®v
 targetRedSubstTerm (Unitᵣ x) (starᵣ x₁ v′⇒star) v⇒v′ = starᵣ x₁ (trans v⇒v′ v′⇒star)
-targetRedSubstTerm (Bᵣ′ (BΠ p q) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext)
-                   t®v′ v⇒v′ {a = a} [a] with is-𝟘? p
+targetRedSubstTerm
+  (Bᵣ′ (BΠ p q) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext _)
+  t®v′ v⇒v′ {a = a} [a] with is-𝟘? p
 ... | yes PE.refl =
   let t®v = t®v′ [a]
       v∘w⇒v′∘w′ = T.app-subst v⇒v′
@@ -119,7 +127,7 @@ targetRedSubstTerm (Bᵣ′ (BΠ p q) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A 
       [G[a]] = [G] id ⊢Δ [a]
   in  targetRedSubstTerm [G[a]] t®v v∘w⇒v′∘w′
 targetRedSubstTerm {A = A} {t = t} {v = v}
-  [Σ]@(Bᵣ′ (BΣ _ p _) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext)
+  [Σ]@(Bᵣ′ (BΣ _ p _) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext _)
   (t₁ , t₂ , t⇒t′ , [t₁] , v₂ , t₂®v₂ , extra) v⇒v′ =
     t₁ , t₂ , t⇒t′ , [t₁] , v₂ , t₂®v₂ , extra′
   where
@@ -170,10 +178,11 @@ sourceRedSubstTerm′ (ℕᵣ [ ⊢A , ⊢B , D ]) (zeroᵣ t⇒zero v⇒zero) t
 sourceRedSubstTerm′ (ℕᵣ [ ⊢A , ⊢B , D ]) (sucᵣ t⇒suc v⇒suc t®v) t⇒t′
   with whrDet↘Term (t⇒suc , sucₙ) (conv* (redMany t⇒t′) (subset* D))
 ... | t′⇒suc = sucᵣ t′⇒suc v⇒suc t®v
-sourceRedSubstTerm′ (Unitᵣ x) (starᵣ x₁ v⇒star) t⇒t′
+sourceRedSubstTerm′ (Unitᵣ (Unitₜ x _)) (starᵣ _ v⇒star) t⇒t′
   with syntacticRedTerm (redMany t⇒t′)
 ... | _ , _ , Δ⊢t′∷Unit = starᵣ (conv Δ⊢t′∷Unit (subset* (red x))) v⇒star
-sourceRedSubstTerm′ (Bᵣ′ (BΠ p q) F G D ⊢F ⊢G A≡A [F] [G] G-ext) t®v′ t⇒t′ {a = a} [a]
+sourceRedSubstTerm′
+  (Bᵣ′ (BΠ p q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _) t®v′ t⇒t′ {a = a} [a]
   with is-𝟘? p
 ... | yes PE.refl =
   let t®v = t®v′ [a]
@@ -194,7 +203,7 @@ sourceRedSubstTerm′ (Bᵣ′ (BΠ p q) F G D ⊢F ⊢G A≡A [F] [G] G-ext) t�
                           t∘a⇒t′∘a′
   in  sourceRedSubstTerm′ ([G] id ⊢Δ [a]) t®v t∘a⇒t′∘a
 sourceRedSubstTerm′
-  (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+  (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
   (t₁ , t₂ , t⇒p , [t₁] , v₂ , t₂®v₂ , extra) t⇒t′ =
   t₁ , t₂
      , whrDet↘Term (t⇒p , prodₙ) (redMany (conv t⇒t′ (subset* (red D))))
@@ -233,7 +242,8 @@ targetRedSubstTerm′ (ℕᵣ x) (sucᵣ x₁ v⇒suc t®v) v⇒v′ with red*De
 targetRedSubstTerm′ (Unitᵣ x) (starᵣ x₁ v⇒star) v⇒v′ with red*Det v⇒star (T.trans v⇒v′ T.refl)
 ... | inj₁ x₂ rewrite star-noRed x₂ = starᵣ x₁ T.refl
 ... | inj₂ x₂ = starᵣ x₁ x₂
-targetRedSubstTerm′ (Bᵣ′ (BΠ p q) F G D ⊢F ⊢G A≡A [F] [G] G-ext) t®v′ v⇒v′ [a]
+targetRedSubstTerm′
+  (Bᵣ′ (BΠ p q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _) t®v′ v⇒v′ [a]
   with is-𝟘? p
 ... | yes PE.refl =
   let t®v = t®v′ [a]
@@ -245,7 +255,7 @@ targetRedSubstTerm′ (Bᵣ′ (BΠ p q) F G D ⊢F ⊢G A≡A [F] [G] G-ext) t�
   in  targetRedSubstTerm′ ([G] id ⊢Δ [a]) t®v v∘w⇒v′∘w
 targetRedSubstTerm′
   {v′ = v′}
-  (Bᵣ′ (BΣ _ p _) F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+  (Bᵣ′ (BΣ _ p _) F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
   (t₁ , t₂ , t⇒t′ , [t₁] , v₂ , t₂®v₂ , extra) v⇒v′ =
   let [Gt₁] = [G] id ⊢Δ [t₁]
   in  t₁ , t₂ , t⇒t′ , [t₁]

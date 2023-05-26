@@ -3,25 +3,30 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.EqualityRelation
+open import Definition.Typed.Restrictions
 
 module Definition.LogicalRelation.Substitution.Introductions.Prod
-  {a} (M : Set a) {{eqrel : EqRelSet M}} where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  {{eqrel : EqRelSet R}}
+  where
 
 open EqRelSet {{...}}
+open Type-restrictions R
 
 open import Definition.Untyped M as U hiding (wk ; _∷_)
 open import Definition.Untyped.Properties M
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-open import Definition.Typed.Weakening M as T hiding (wk; wkTerm; wkEqTerm)
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.ShapeView M
-open import Definition.LogicalRelation.Irrelevance M
-open import Definition.LogicalRelation.Properties M
-open import Definition.LogicalRelation.Substitution M
-open import Definition.LogicalRelation.Substitution.Reflexivity M
-open import Definition.LogicalRelation.Substitution.Introductions.Pi M
-open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst M
+open import Definition.Typed R
+open import Definition.Typed.Properties R
+open import Definition.Typed.Weakening R as T hiding (wk; wkTerm; wkEqTerm)
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.ShapeView R
+open import Definition.LogicalRelation.Irrelevance R
+open import Definition.LogicalRelation.Properties R
+open import Definition.LogicalRelation.Substitution R
+open import Definition.LogicalRelation.Substitution.Reflexivity R
+open import Definition.LogicalRelation.Substitution.Introductions.Pi R
+open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst R
 
 open import Tools.Nat
 open import Tools.Product
@@ -45,16 +50,16 @@ prod′ : ∀ {Γ : Con Term n} {F : Term n} {G t u l l′ l″}
 prod′
   {m = Σₚ} {p = p} {q = q} {Γ = Γ} {F} {G} {t} {u} {l} {l′} {l″}
   [F] [t] [Gt] [u]
-  [ΣFG]@(noemb (Bᵣ F₁ G₁ D ⊢F ⊢G A≡A [F]₁ [G]₁ G-ext))
+  [ΣFG]@(noemb (Bᵣ F₁ G₁ D ⊢F ⊢G A≡A [F]₁ [G]₁ G-ext ok))
   with B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) ΠΣₙ)
 ... | PE.refl , PE.refl , _ =
   let ⊢t = escapeTerm [F] [t]
       ⊢u = escapeTerm [Gt] [u]
       ⊢Γ = wf ⊢F
-      ⊢prod = prodⱼ ⊢F ⊢G ⊢t ⊢u
+      ⊢prod = prodⱼ ⊢F ⊢G ⊢t ⊢u ok
 
       fst⇒t : Γ ⊢ fst _ (prodₚ _ t u) ⇒ t ∷ F
-      fst⇒t = Σ-β₁ ⊢F ⊢G ⊢t ⊢u PE.refl
+      fst⇒t = Σ-β₁ ⊢F ⊢G ⊢t ⊢u PE.refl ok
       [fstprod] , [fstprod≡t] = redSubstTerm fst⇒t [F] [t]
       [fstprod]′ = irrelevanceTerm′ (PE.sym (wk-id F))
                                     [F] ([F]₁ id ⊢Γ)
@@ -79,7 +84,7 @@ prod′
       [u]′ = convTerm₂ [Gfst]′ [Gt] [Gfst≡Gt] [u]
 
       snd⇒u : Γ ⊢ snd _ (prodₚ _ t u) ⇒ u ∷ G [ fst _ (prodₚ _ t u) ]
-      snd⇒u = Σ-β₂ ⊢F ⊢G ⊢t ⊢u PE.refl
+      snd⇒u = Σ-β₂ ⊢F ⊢G ⊢t ⊢u PE.refl ok
       [sndprod] , [sndprod≡u] = redSubstTerm snd⇒u [Gfst]′ [u]′
       [sndprod]′ = irrelevanceTerm′ (PE.cong (_[ _ ]) (PE.sym (wk-lift-id G)))
                                     [Gfst]′ [Gfst] [sndprod]
@@ -94,13 +99,13 @@ prod′
          prodₙ ([fstprod]′ , [sndprod]′)
 
 prod′ {m = Σᵣ} {q = q} {Γ = Γ} {F} {G} {t} {u} {l} {l′} {l″} [F] [t] [Gt] [u]
-      [ΣFG]@(noemb (Bᵣ F₁ G₁ D ⊢F ⊢G A≡A [F]₁ [G]₁ G-ext)) with
+      [ΣFG]@(noemb (Bᵣ F₁ G₁ D ⊢F ⊢G A≡A [F]₁ [G]₁ G-ext ok)) with
         B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) ΠΣₙ)
 ... | PE.refl , PE.refl , _ =
   let ⊢t = escapeTerm [F] [t]
       ⊢u = escapeTerm [Gt] [u]
       ⊢Γ = wf ⊢F
-      ⊢prod = prodⱼ ⊢F ⊢G ⊢t ⊢u
+      ⊢prod = prodⱼ ⊢F ⊢G ⊢t ⊢u ok
 
       [t≡t] = reflEqTerm [F] [t]
       [u≡u] = reflEqTerm [Gt] [u]
@@ -144,7 +149,7 @@ prod-cong′ :
 prod-cong′
   {m = Σₚ} {p = p} {q = q} {Γ = Γ} {F} {G} {t} {t′} {u} {u′} {l} {l′}
   [F] [t] [t′] [t≡t′] [Gt] [u] [u′] [u≡u′]
-  [ΣFG]@(noemb (Bᵣ F₁ G₁ D ⊢F ⊢G A≡A [F]₁ [G]₁ G-ext))
+  [ΣFG]@(noemb (Bᵣ F₁ G₁ D ⊢F ⊢G A≡A [F]₁ [G]₁ G-ext ok))
   with B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) ΠΣₙ)
 ... | PE.refl , PE.refl , _ =
   let [prod] = prod′ {m = Σₚ} [F] [t] [Gt] [u] [ΣFG]
@@ -176,9 +181,9 @@ prod-cong′
       ⊢u = escapeTerm [Gt] [u]
       ⊢u′ = escapeTerm [Gt′] [u′]Gt′
 
-      fst⇒t = Σ-β₁ ⊢F ⊢G ⊢t ⊢u PE.refl
+      fst⇒t = Σ-β₁ ⊢F ⊢G ⊢t ⊢u PE.refl ok
       [fst] , [fst≡t] = redSubstTerm fst⇒t [F] [t]
-      fst⇒t′ = Σ-β₁ ⊢F ⊢G ⊢t′ ⊢u′ PE.refl
+      fst⇒t′ = Σ-β₁ ⊢F ⊢G ⊢t′ ⊢u′ PE.refl ok
       [fst′] , [fst≡t′] = redSubstTerm fst⇒t′ [F] [t′]
 
       wk[fst≡t] = irrelevanceEqTerm′ (PE.sym (wk-id F))
@@ -212,7 +217,7 @@ prod-cong′
                                  (G-ext id ⊢Γ wk[fst] wk[t] wk[fst≡t])
 
       [u]fst = convTerm₂ [Gfst] [Gt] [Gfst≡Gt] [u]
-      snd⇒u = Σ-β₂ ⊢F ⊢G ⊢t ⊢u PE.refl
+      snd⇒u = Σ-β₂ ⊢F ⊢G ⊢t ⊢u PE.refl ok
       [snd] , [snd≡u] = redSubstTerm snd⇒u [Gfst] [u]fst
 
       -- u ≡ u′ ∷ G [ fst (prod t u) ]
@@ -228,7 +233,7 @@ prod-cong′
                                    wk[Gfst′] [Gfst′]
                                    (G-ext id ⊢Γ wk[fst′] wk[t′] wk[fst≡t′])
 
-      snd⇒u′ = Σ-β₂ ⊢F ⊢G ⊢t′ ⊢u′ PE.refl
+      snd⇒u′ = Σ-β₂ ⊢F ⊢G ⊢t′ ⊢u′ PE.refl ok
 
       [u′]Gfst′ = convTerm₂ [Gfst′] [Gt′] [Gfst′≡Gt′] [u′]Gt′
       [snd≡u′]Gfst′ = proj₂ (redSubstTerm snd⇒u′ [Gfst′] [u′]Gfst′)
@@ -262,7 +267,7 @@ prod-cong′
 
 prod-cong′ {m = Σᵣ} {q = q} {Γ = Γ} {F} {G} {t} {t′} {u} {u′} {l} {l′}
            [F] [t] [t′] [t≡t′] [Gt] [u] [u′] [u≡u′]
-           [ΣFG]@(noemb (Bᵣ F₁ G₁ D ⊢F ⊢G A≡A [F]₁ [G]₁ G-ext)) with
+           [ΣFG]@(noemb (Bᵣ F₁ G₁ D ⊢F ⊢G A≡A [F]₁ [G]₁ G-ext _)) with
              B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) ΠΣₙ)
 ... | PE.refl , PE.refl , _ =
   let ⊢Γ = wf ⊢F
@@ -315,7 +320,8 @@ prod-cong″ :
   ([ΣFG] : Γ ⊩⟨ l′ ⟩ Σ⟨ m ⟩ p , q ▷ F ▹ G) →
   Γ ⊩⟨ l′ ⟩ prod m p t u ≡ prod m p t′ u′ ∷ Σ p , q ▷ F ▹ G / [ΣFG]
 prod-cong″ {m = m} [F] [t] [t′] [t≡t′] [Gt] [u] [u′] [u≡u′] [ΣFG] =
-  let [prod≡] = prod-cong′ {m = m} [F] [t] [t′] [t≡t′] [Gt] [u] [u′] [u≡u′] (B-elim BΣ! [ΣFG])
+  let [prod≡] = prod-cong′ {m = m} [F] [t] [t′] [t≡t′] [Gt] [u] [u′]
+                  [u≡u′] (B-elim BΣ! [ΣFG])
   in  irrelevanceEqTerm (B-intr BΣ! (B-elim BΣ! [ΣFG])) [ΣFG] [prod≡]
 
 prod-congᵛ :
@@ -328,10 +334,13 @@ prod-congᵛ :
   ([t≡t′] : Γ ⊩ᵛ⟨ l ⟩ t ≡ t′ ∷ F / [Γ] / [F])
   ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ G [ t ] / [Γ] / substS [Γ] [F] [G] [t])
   ([u′] : Γ ⊩ᵛ⟨ l ⟩ u′ ∷ G [ t′ ] / [Γ] / substS [Γ] [F] [G] [t′])
-  ([u≡u′] : Γ ⊩ᵛ⟨ l ⟩ u ≡ u′ ∷ G [ t ] / [Γ] / substS [Γ] [F] [G] [t]) →
+  ([u≡u′] : Γ ⊩ᵛ⟨ l ⟩ u ≡ u′ ∷ G [ t ] / [Γ] / substS [Γ] [F] [G] [t])
+  (ok : Σ-restriction m p) →
   Γ ⊩ᵛ⟨ l ⟩ prod m p t u ≡ prod m p t′ u′ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G / [Γ] /
-    Σᵛ [Γ] [F] [G]
-prod-congᵛ {Γ = Γ} {F} {G} {t} {t′} {u} {u′} [Γ] [F] [G] [t] [t′] [t≡t′] [u] [u′] [u≡u′] {Δ = Δ} {σ} ⊢Δ [σ] =
+    Σᵛ [Γ] [F] [G] ok
+prod-congᵛ
+  {Γ = Γ} {F} {G} {t} {t′} {u} {u′}
+  [Γ] [F] [G] [t] [t′] [t≡t′] [u] [u′] [u≡u′] ok {Δ = Δ} {σ} ⊢Δ [σ] =
   let ⊩σF = proj₁ (unwrap [F] ⊢Δ [σ])
       ⊩σt = proj₁ ([t] ⊢Δ [σ])
       ⊩σt′ = proj₁ ([t′] ⊢Δ [σ])
@@ -360,7 +369,7 @@ prod-congᵛ {Γ = Γ} {F} {G} {t} {t′} {u} {u′} [Γ] [F] [G] [t] [t′] [t�
                                   ⊩σGt₁ ⊩σGt
                                   ([u≡u′] ⊢Δ [σ])
 
-      ⊩σΣFG = proj₁ (unwrap (Σᵛ {F = F} {G} [Γ] [F] [G]) ⊢Δ [σ])
+      ⊩σΣFG = proj₁ (unwrap (Σᵛ {F = F} {G} [Γ] [F] [G] ok) ⊢Δ [σ])
   in prod-cong″ ⊩σF ⊩σt ⊩σt′ σt≡σt′ ⊩σGt ⊩σu ⊩σu′ σu≡σu′ ⊩σΣFG
 
 prodᵛ :
@@ -369,11 +378,15 @@ prodᵛ :
   ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
   ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
   ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ F / [Γ] / [F])
-  ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ G [ t ] / [Γ] / substS [Γ] [F] [G] [t]) →
-  Γ ⊩ᵛ⟨ l ⟩ prod m p t u ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G / [Γ] / Σᵛ [Γ] [F] [G]
-prodᵛ {Γ = Γ} {F} {G} {t} {u} {l} [Γ] [F] [G] [t] [u] {Δ = Δ} {σ = σ} ⊢Δ [σ] =
+  ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ G [ t ] / [Γ] / substS [Γ] [F] [G] [t])
+  (ok : Σ-restriction m p) →
+  Γ ⊩ᵛ⟨ l ⟩ prod m p t u ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G / [Γ] /
+    Σᵛ [Γ] [F] [G] ok
+prodᵛ
+  {Γ = Γ} {F} {G} {t} {u} {l} [Γ] [F] [G] [t] [u] ok
+  {Δ = Δ} {σ = σ} ⊢Δ [σ] =
   let [Gt] = substS {F = F} {G} [Γ] [F] [G] [t]
-      [ΣFG] = Σᵛ {F = F} {G} [Γ] [F] [G]
+      [ΣFG] = Σᵛ {F = F} {G} [Γ] [F] [G] ok
 
       ⊩σF = proj₁ (unwrap [F] ⊢Δ [σ])
       ⊢σF = escape ⊩σF

@@ -2,23 +2,27 @@
 -- The algorithmic equality is symmetric.
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
+
 module Definition.Conversion.Symmetry
-  {a} (M : Set a) where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  where
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-open import Definition.Typed.Weakening M as W hiding (wk)
-open import Definition.Conversion M
-open import Definition.Conversion.Stability M
-open import Definition.Conversion.Soundness M
-open import Definition.Conversion.Conversion M
-open import Definition.Typed.Consequences.Syntactic M
-open import Definition.Typed.Consequences.Equality M
-open import Definition.Typed.Consequences.Reduction M
-open import Definition.Typed.Consequences.Injectivity M
-open import Definition.Typed.Consequences.Substitution M
-open import Definition.Typed.Consequences.SucCong M
+open import Definition.Typed R
+open import Definition.Typed.Properties R
+open import Definition.Typed.Weakening R as W hiding (wk)
+open import Definition.Conversion R
+open import Definition.Conversion.Stability R
+open import Definition.Conversion.Soundness R
+open import Definition.Conversion.Conversion R
+open import Definition.Typed.Consequences.Syntactic R
+open import Definition.Typed.Consequences.Equality R
+open import Definition.Typed.Consequences.Reduction R
+open import Definition.Typed.Consequences.Injectivity R
+open import Definition.Typed.Consequences.Substitution R
+open import Definition.Typed.Consequences.SucCong R
 
 open import Tools.Function
 open import Tools.Nat
@@ -99,6 +103,7 @@ mutual
                 ⊢ρF = W.wk (step (step id)) ⊢ΔFG ⊢F′
                 ⊢ρG = W.wk (lift (step (step id))) (⊢ΔFG ∙ ⊢ρF) ⊢G′
                 C₊≡E₊ = subst↑²TypeEq (stabilityEq (Γ≡Δ ∙ refl ⊢Σ) C≡E)
+                          _
             in  _ , substTypeEq C≡E g≡h
               , prodrec-cong E↑C h~g
                   (convConv↑Term (reflConEq ⊢Δ ∙ ⊢F≡F′ ∙ ⊢G≡G′)
@@ -139,18 +144,18 @@ mutual
   symConv↓ Γ≡Δ (Empty-refl x) =
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
     in  Empty-refl ⊢Δ
-  symConv↓ Γ≡Δ (Unit-refl x) =
+  symConv↓ Γ≡Δ (Unit-refl x ok) =
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
-    in  Unit-refl ⊢Δ
+    in  Unit-refl ⊢Δ ok
   symConv↓ Γ≡Δ (ne A~B) =
     let B , whnfB , U≡B , B~A = sym~↓ Γ≡Δ A~B
         B≡U = U≡A U≡B
     in  ne (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡U B~A)
-  symConv↓ Γ≡Δ (ΠΣ-cong x A<>B A<>B₁) =
+  symConv↓ Γ≡Δ (ΠΣ-cong x A<>B A<>B₁ ok) =
     let F≡H = soundnessConv↑ A<>B
         _ , ⊢H = syntacticEq (stabilityEq Γ≡Δ F≡H)
     in  ΠΣ-cong ⊢H (symConv↑ Γ≡Δ A<>B)
-          (symConv↑ (Γ≡Δ ∙ F≡H) A<>B₁)
+          (symConv↑ (Γ≡Δ ∙ F≡H) A<>B₁) ok
 
   -- Symmetry of algorithmic equality of terms.
   symConv↑Term : ∀ {t u A} → ⊢ Γ ≡ Δ → Γ ⊢ t [conv↑] u ∷ A → Δ ⊢ u [conv↑] t ∷ A
@@ -212,7 +217,7 @@ mutual
   symConv↓Term Γ≡Δ (η-unit [t] [u] tUnit uUnit) =
     let [t] = stabilityTerm Γ≡Δ [t]
         [u] = stabilityTerm Γ≡Δ [u]
-    in  (η-unit [u] [t] uUnit tUnit)
+    in  η-unit [u] [t] uUnit tUnit
 
 symConv↓Term′ : ∀ {t u A} → Γ ⊢ t [conv↓] u ∷ A → Γ ⊢ u [conv↓] t ∷ A
 symConv↓Term′ tConvU =

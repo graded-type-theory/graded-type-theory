@@ -3,16 +3,20 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.EqualityRelation
+open import Definition.Typed.Restrictions
 
 module Definition.LogicalRelation.Substitution.Irrelevance
-  {a} (M : Set a) {{eqrel : EqRelSet M}} where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  {{eqrel : EqRelSet R}}
+  where
 
 open EqRelSet {{...}}
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
-import Definition.LogicalRelation.Irrelevance M as LR
-open import Definition.LogicalRelation.Substitution M
+open import Definition.Typed R
+import Definition.LogicalRelation.Irrelevance R as LR
+open import Definition.LogicalRelation.Substitution R
 
 open import Tools.Level
 open import Tools.Nat
@@ -79,7 +83,7 @@ irrelevance [Γ] [Γ]′ [A] = wrap λ ⊢Δ [σ] →
                        (irrelevanceSubst [Γ]′ [Γ] ⊢Δ ⊢Δ [σ′])
                        (irrelevanceSubstEq [Γ]′ [Γ] ⊢Δ ⊢Δ [σ] [σ]′ [σ≡σ′])
 
-open import Definition.LogicalRelation.Properties M
+open import Definition.LogicalRelation.Properties R
 
 -- Irrelevance of valid types with different derivations of contexts
 -- with lifting of eqaul types

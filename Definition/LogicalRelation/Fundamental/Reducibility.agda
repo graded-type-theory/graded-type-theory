@@ -3,18 +3,22 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.EqualityRelation
+open import Definition.Typed.Restrictions
 
 module Definition.LogicalRelation.Fundamental.Reducibility
-  {a} (M : Set a) {{eqrel : EqRelSet M}} where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  {{eqrel : EqRelSet R}}
+  where
 
 open EqRelSet {{...}}
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.Substitution M
-open import Definition.LogicalRelation.Substitution.Reducibility M
-open import Definition.LogicalRelation.Fundamental M
+open import Definition.Typed R
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Substitution R
+open import Definition.LogicalRelation.Substitution.Reducibility R
+open import Definition.LogicalRelation.Fundamental R
 
 open import Tools.Nat
 open import Tools.Product

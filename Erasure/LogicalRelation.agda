@@ -4,28 +4,32 @@
 
 open import Definition.Typed.EqualityRelation
 import Definition.Untyped as U′ using (Con; Term)
-import Definition.Typed as T′
+import Definition.Typed
+open import Definition.Typed.Restrictions
 open import Definition.Modality
 import Tools.PropositionalEquality as PE
 open import Tools.Nullary
 
 module Erasure.LogicalRelation
-  {a k} {M : Set a} (𝕄 : Modality M)
-  (open T′ M) (open Modality 𝕄)
+  {a k} {M : Set a}
+  (𝕄 : Modality M)
+  (open Modality 𝕄)
+  (R : Type-restrictions M)
+  (open Definition.Typed R)
   {Δ : U′.Con (U′.Term M) k} (⊢Δ : ⊢ Δ)
   (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘))
-  {{eqrel : EqRelSet M}}
+  {{eqrel : EqRelSet R}}
   where
 
 open EqRelSet {{...}}
 
 open import Definition.Untyped M as U hiding (_∷_; _∘_)
 
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.Substitution M
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Substitution R
 open import Definition.Modality.Context 𝕄
 open import Definition.Mode 𝕄
-open import Definition.Typed.Weakening M
+open import Definition.Typed.Weakening R
 
 open import Erasure.Target as T hiding (_⇒*_)
 open import Erasure.Extraction 𝕄 is-𝟘?
@@ -70,12 +74,12 @@ mutual
   t ®⟨ l ⟩ v ∷ A / Unitᵣ x  = t ® v ∷Unit
   t ®⟨ l ⟩ v ∷ A / ne′ K D neK K≡K = Lift a PE.⊥
 
-  t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΠ p q) F G D ⊢F ⊢G A≡A [F] [G] G-ext =
+  t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΠ p q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _ =
     ∀ {a} → ([a] : Δ ⊩⟨ l ⟩ a ∷ U.wk id F / [F] id ⊢Δ)
           → Π-® l F G t a v ([F] id ⊢Δ) ([G] id ⊢Δ [a]) p (is-𝟘? p)
 
   -- Σ:
-  t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΣ m p q) F G D ⊢F ⊢G A≡A [F] [G] G-ext =
+  t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΣ m p q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _ =
     ∃₂ λ t₁ t₂ →
     Δ ⊢ t ⇒* U.prod m p t₁ t₂ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G ×
     Σ (Δ ⊩⟨ l ⟩ t₁ ∷ U.wk id F / [F] id ⊢Δ) λ [t₁] →

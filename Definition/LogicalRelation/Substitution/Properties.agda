@@ -3,23 +3,27 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.EqualityRelation
+open import Definition.Typed.Restrictions
 
 module Definition.LogicalRelation.Substitution.Properties
-  {a} (M : Set a) {{eqrel : EqRelSet M}} where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  {{eqrel : EqRelSet R}}
+  where
 
 open EqRelSet {{...}}
 
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
-open import Definition.Typed M
-open import Definition.Typed.Weakening M
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.Substitution M
-open import Definition.LogicalRelation.Substitution.Irrelevance M
+open import Definition.Typed R
+open import Definition.Typed.Weakening R
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Substitution R
+open import Definition.LogicalRelation.Substitution.Irrelevance R
      using (irrelevanceSubst′)
-open import Definition.LogicalRelation.Irrelevance M
-open import Definition.LogicalRelation.Properties M
-import Definition.LogicalRelation.Weakening M as LR
+open import Definition.LogicalRelation.Irrelevance R
+open import Definition.LogicalRelation.Properties R
+import Definition.LogicalRelation.Weakening R as LR
 
 open import Tools.Fin
 open import Tools.Level

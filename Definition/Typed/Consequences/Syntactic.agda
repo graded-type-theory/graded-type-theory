@@ -2,18 +2,22 @@
 -- Syntactic validity of the typing and reduction relations.
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
+
 module Definition.Typed.Consequences.Syntactic
-  {a} (M : Set a) where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  where
 
 open import Definition.Untyped M hiding (_∷_; wk)
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-open import Definition.Typed.EqRelInstance M
-open import Definition.Typed.Weakening M
-open import Definition.LogicalRelation.Substitution M
-open import Definition.LogicalRelation.Substitution.Escape M
-open import Definition.LogicalRelation.Fundamental M
-open import Definition.Typed.Consequences.Injectivity M
+open import Definition.Typed R
+open import Definition.Typed.Properties R
+open import Definition.Typed.EqRelInstance R
+open import Definition.Typed.Weakening R
+open import Definition.LogicalRelation.Substitution R
+open import Definition.LogicalRelation.Substitution.Escape R
+open import Definition.LogicalRelation.Fundamental R
+open import Definition.Typed.Consequences.Injectivity R
 
 open import Tools.Nat
 open import Tools.Product

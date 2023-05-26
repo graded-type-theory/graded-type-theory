@@ -4,44 +4,49 @@
 
 open import Definition.Modality
 open import Definition.Typed.EqualityRelation
-import Definition.Typed as T′
-import Definition.Untyped as U hiding (_∷_)
+import Definition.Typed
+open import Definition.Typed.Restrictions
+import Definition.Untyped hiding (_∷_)
 open import Tools.Nullary
 import Tools.PropositionalEquality as PE
 
 module Erasure.LogicalRelation.Fundamental.Lambda
-  {a k} {M : Set a} (𝕄 : Modality M)
-  (open U M) (open T′ M) (open Modality 𝕄)
+  {a k} {M : Set a}
+  (open Definition.Untyped M)
+  (𝕄 : Modality M)
+  (open Modality 𝕄)
+  (R : Type-restrictions M)
+  (open Definition.Typed R)
   {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘))
   (𝟙≉𝟘 : 𝟙 PE.≢ 𝟘)
-  {{eqrel : EqRelSet M}}
+  {{eqrel : EqRelSet R}}
   where
 
 open EqRelSet {{...}}
 
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.Properties.Escape M
-open import Definition.LogicalRelation.Substitution M
-open import Definition.LogicalRelation.Substitution.Properties M
-open import Definition.LogicalRelation.Substitution.Introductions.Pi M
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Properties.Escape R
+open import Definition.LogicalRelation.Substitution R
+open import Definition.LogicalRelation.Substitution.Properties R
+open import Definition.LogicalRelation.Substitution.Introductions.Pi R
 
-import Definition.LogicalRelation.Irrelevance M as I
-import Definition.LogicalRelation.Weakening M as W
-import Definition.LogicalRelation.Substitution.Irrelevance M as IS
+import Definition.LogicalRelation.Irrelevance R as I
+import Definition.LogicalRelation.Weakening R as W
+import Definition.LogicalRelation.Substitution.Irrelevance R as IS
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Mode 𝕄
 
 open import Definition.Untyped.Properties M as UP
-open import Definition.Typed.Weakening M hiding (wk)
-open import Definition.Typed.Consequences.Reduction M
+open import Definition.Typed.Weakening R hiding (wk)
+open import Definition.Typed.Consequences.Reduction R
 
 open import Erasure.Extraction 𝕄 is-𝟘?
-open import Erasure.LogicalRelation 𝕄 ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Irrelevance 𝕄 ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Reduction 𝕄 ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Subsumption 𝕄 ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation 𝕄 R ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Irrelevance 𝕄 R ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Reduction 𝕄 R ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Subsumption 𝕄 R ⊢Δ is-𝟘?
 open import Erasure.Target.Properties as TP
 import Erasure.Target as T
 

@@ -2,13 +2,17 @@
 -- Negative contexts (contexts containing only negative types).
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
+
 module Application.NegativeAxioms.NegativeContext
-  {a} (M : Set a) where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  where
 
 open import Definition.Untyped M
-open import Definition.Typed M
-open import Definition.Typed.Weakening M
-open import Application.NegativeAxioms.NegativeType M
+open import Definition.Typed R
+open import Definition.Typed.Weakening R
+open import Application.NegativeAxioms.NegativeType R
 
 open import Tools.Fin
 open import Tools.Nat

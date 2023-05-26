@@ -4,40 +4,45 @@
 
 open import Definition.Modality
 open import Definition.Typed.EqualityRelation
-import Definition.Typed as T′
-import Definition.Untyped as U hiding (_∷_)
+import Definition.Typed
+open import Definition.Typed.Restrictions
+import Definition.Untyped hiding (_∷_)
 open import Tools.Nullary
 open import Tools.Sum hiding (id; sym)
 import Tools.PropositionalEquality as PE
 
 module Erasure.LogicalRelation.Fundamental.Prodrec
-  {a k} {M : Set a} (𝕄 : Modality M)
-  (open U M) (open T′ M) (open Modality 𝕄)
+  {a k} {M : Set a}
+  (open Definition.Untyped M)
+  (𝕄 : Modality M)
+  (open Modality 𝕄)
+  (R : Type-restrictions M)
+  (open Definition.Typed R)
   {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   (𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet)
-  {{eqrel : EqRelSet M}}
+  {{eqrel : EqRelSet R}}
   where
 
 open EqRelSet {{...}}
 
 open import Definition.Untyped.Properties M
-open import Definition.Typed.Properties M
-open import Definition.Typed.RedSteps M
-open import Definition.Typed.Weakening M
-open import Definition.Typed.Consequences.Substitution M
-open import Definition.Typed.Consequences.RedSteps M
-open import Definition.Typed.Consequences.Reduction M
+open import Definition.Typed.Properties R
+open import Definition.Typed.RedSteps R
+open import Definition.Typed.Weakening R
+open import Definition.Typed.Consequences.Substitution R
+open import Definition.Typed.Consequences.RedSteps R
+open import Definition.Typed.Consequences.Reduction R
 
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.Properties.Escape M
-open import Definition.LogicalRelation.Substitution M
-open import Definition.LogicalRelation.Substitution.Properties M
-open import Definition.LogicalRelation.Substitution.Introductions.Pi M
-open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst M
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Properties.Escape R
+open import Definition.LogicalRelation.Substitution R
+open import Definition.LogicalRelation.Substitution.Properties R
+open import Definition.LogicalRelation.Substitution.Introductions.Pi R
+open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst R
 
-import Definition.LogicalRelation.Irrelevance M as I
-import Definition.LogicalRelation.Weakening M as W
-import Definition.LogicalRelation.Substitution.Irrelevance M as IS
+import Definition.LogicalRelation.Irrelevance R as I
+import Definition.LogicalRelation.Weakening R as W
+import Definition.LogicalRelation.Substitution.Irrelevance R as IS
 
 open import Tools.Fin
 open import Tools.Function
@@ -51,11 +56,11 @@ open import Definition.Modality.Properties.Has-well-behaved-zero
   semiring-with-meet-and-star 𝟘-well-behaved
 open import Definition.Mode 𝕄
 
-open import Erasure.LogicalRelation 𝕄 ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Conversion 𝕄 ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Reduction 𝕄 ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Subsumption 𝕄 ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Irrelevance 𝕄 ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation 𝕄 R ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Conversion 𝕄 R ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Reduction 𝕄 R ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Subsumption 𝕄 R ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Irrelevance 𝕄 R ⊢Δ is-𝟘?
 
 open import Erasure.Extraction 𝕄 is-𝟘?
 open import Erasure.Extraction.Properties 𝕄 𝟘-well-behaved
@@ -83,7 +88,7 @@ prodrecωʳ′-𝟘 :
   ([Γ] : ⊩ᵛ Γ)
   ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
   ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F]) →
-  Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊩ᵛ⟨ l ⟩ A / [Γ] ∙ Σᵛ [Γ] [F] [G] →
+  Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊩ᵛ⟨ l ⟩ A / [Γ] ∙ Σᵛ [Γ] [F] [G] _ →
   ([A₊] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑² /
             [Γ] ∙ [F] ∙ [G]) →
   δ ∙ (r · p) ∙ r ▸ Γ ∙ F ∙ G ⊩ʳ⟨ l ⟩ u ∷[ 𝟙ᵐ ]
@@ -126,7 +131,7 @@ prodrecωʳ′-𝟘
   [σG]   = [G] .unwrap {σ = liftSubst σ} (⊢Δ ∙ ⊢σF) [⇑σ] .proj₁
   ⊢σG    = escape [σG]
   [σGt₁] = [G] .unwrap ⊢Δ ([σ] , [t₁]) .proj₁
-  [Σ]    = Σᵛ [Γ] [F] [G]
+  [Σ]    = Σᵛ [Γ] [F] [G] _
   [σΣ]   = [Σ] .unwrap ⊢Δ [σ] .proj₁
   ⊢σΣ    = escape [σΣ]
   [σA]   = [A] .unwrap {σ = liftSubst σ} (⊢Δ ∙ ⊢σΣ)
@@ -200,7 +205,7 @@ prodrecωʳ′-ω :
   ([Γ] : ⊩ᵛ Γ)
   ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
   ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F]) →
-  Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊩ᵛ⟨ l ⟩ A / [Γ] ∙ Σᵛ [Γ] [F] [G] →
+  Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊩ᵛ⟨ l ⟩ A / [Γ] ∙ Σᵛ [Γ] [F] [G] _ →
   ([A₊] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑² /
             [Γ] ∙ [F] ∙ [G]) →
   δ ∙ (r · p) ∙ r ▸ Γ ∙ F ∙ G ⊩ʳ⟨ l ⟩ u ∷[ 𝟙ᵐ ]
@@ -249,7 +254,7 @@ prodrecωʳ′-ω
       [σG] = proj₁ (unwrap [G] {σ = liftSubst σ} (⊢Δ ∙ ⊢σF) [⇑σ])
       ⊢σG = escape [σG]
       [σGt₁] = proj₁ (unwrap [G] ⊢Δ ([σ] , [t₁]))
-      [Σ] = Σᵛ {F = F} {G} {q = q} {m = Σᵣ} [Γ] [F] [G]
+      [Σ] = Σᵛ {F = F} {G} {q = q} {m = Σᵣ} [Γ] [F] [G] _
       [σΣ] = proj₁ (unwrap [Σ] ⊢Δ [σ])
       ⊢σΣ = escape [σΣ]
       [σA] = [A] .unwrap {σ = liftSubst σ} (⊢Δ ∙ ⊢σΣ)
@@ -291,7 +296,7 @@ prodrecωʳ′ :
   ([Γ] : ⊩ᵛ Γ)
   ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
   ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F]) →
-  let [Σ] = Σᵛ [Γ] [F] [G] in
+  let [Σ] = Σᵛ [Γ] [F] [G] _ in
   Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊩ᵛ⟨ l ⟩ A / [Γ] ∙ [Σ] →
   ([A₊] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑² /
             [Γ] ∙ [F] ∙ [G]) →
@@ -373,7 +378,7 @@ prodrecωʳ′ _ _ _ _ _ _ _ _ _ _ _ (Σₜ _ t⇒p _ (ne x) _) (_ , _ , d , _)
 prodrec𝟘ʳ : ([Γ] : ⊩ᵛ Γ)
   ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
   ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F]) →
-  let [Σ] = Σᵛ [Γ] [F] [G] in
+  let [Σ] = Σᵛ [Γ] [F] [G] _ in
   Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊩ᵛ⟨ l ⟩ A / [Γ] ∙ [Σ] →
   ([A₊] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑² /
             [Γ] ∙ [F] ∙ [G]) →
@@ -395,7 +400,7 @@ prodrec𝟘ʳ  {n} {Γ} {l} {F} {G} {p} {q} {A} {δ} {u} {t} {r} {σ} {σ′} {q
           [Γ] [F] [G] [A] [A₊] ⊩ʳu [At] [u] r≡𝟘 PE.refl [σ] σ®σ′
           (Σₜ t′ t⇒t′ p≅p (prodₙ {t = t₁} {u = t₂}) (PE.refl , [t₁]′ , [t₂]′ , PE.refl)) with is-𝟘? r
 ... | yes _ =
-  let [Σ] = Σᵛ [Γ] [F] [G]
+  let [Σ] = Σᵛ [Γ] [F] [G] _
       [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
       ⊢σF = escape [σF]
       [⇑σ] = liftSubstS [Γ] ⊢Δ [F] [σ]
@@ -498,7 +503,7 @@ prodrecʳ
 ... | no 1≢𝟘 =
   let [At] = substS [Γ] [Σ] [A] [t]
   in  [At] , λ {σ} [σ] σ®σ′ →
-    let [Σ]′ = Σᵛ [Γ] [F] [G]
+    let [Σ]′ = Σᵛ [Γ] [F] [G] _
         [A]′ = IS.irrelevance ([Γ] ∙ [Σ]) ([Γ] ∙ [Σ]′) [A]
         [t]′ = IS.irrelevanceTerm {t = t} [Γ] [Γ] [Σ] [Σ]′ [t]
         [σt] = proj₁ ([t]′ ⊢Δ [σ])

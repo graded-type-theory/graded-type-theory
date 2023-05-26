@@ -3,42 +3,47 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.EqualityRelation
-import Definition.Typed as T
-import Definition.Untyped as U
+import Definition.Typed
+open import Definition.Typed.Restrictions
+import Definition.Untyped
 open import Definition.Modality
 open import Tools.Nullary
 import Tools.PropositionalEquality as PE
 
 module Erasure.LogicalRelation.Conversion
-  {a k} {M : Set a} (𝕄 : Modality M)
-  (open U M) (open T M) (open Modality 𝕄)
+  {a k} {M : Set a}
+  (open Definition.Untyped M)
+  (𝕄 : Modality M)
+  (open Modality 𝕄)
+  (R : Type-restrictions M)
+  (open Definition.Typed R)
   {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘))
-  {{eqrel : EqRelSet M}}
+  {{eqrel : EqRelSet R}}
   where
 
 open EqRelSet {{...}}
 
-open import Erasure.LogicalRelation 𝕄 ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation 𝕄 R ⊢Δ is-𝟘?
 import Erasure.Target as T
 
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.Irrelevance M
-open import Definition.LogicalRelation.Fundamental.Reducibility M
-open import Definition.LogicalRelation.ShapeView M
-open import Definition.LogicalRelation.Properties.Conversion M
-open import Definition.LogicalRelation.Properties.Escape M
-open import Definition.LogicalRelation.Substitution M
-open import Definition.LogicalRelation.Substitution.Properties M
-import Definition.LogicalRelation.Substitution.Irrelevance M as IS
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Irrelevance R
+open import Definition.LogicalRelation.Fundamental.Reducibility R
+open import Definition.LogicalRelation.ShapeView R
+open import Definition.LogicalRelation.Properties.Conversion R
+open import Definition.LogicalRelation.Properties.Escape R
+open import Definition.LogicalRelation.Substitution R
+open import Definition.LogicalRelation.Substitution.Properties R
+import Definition.LogicalRelation.Substitution.Irrelevance R as IS
 open import Definition.Mode 𝕄
 open import Definition.Untyped.Properties M
 
-open import Definition.Typed.Consequences.Injectivity M
-open import Definition.Typed.Consequences.Substitution M
-open import Definition.Typed.Reduction M
-open import Definition.Typed.RedSteps M
-open import Definition.Typed.Weakening M hiding (wk)
+open import Definition.Typed.Consequences.Injectivity R
+open import Definition.Typed.Consequences.Substitution R
+open import Definition.Typed.Reduction R
+open import Definition.Typed.RedSteps R
+open import Definition.Typed.Weakening R hiding (wk)
 
 open import Tools.Level
 open import Tools.Nat
@@ -69,8 +74,8 @@ convTermʳ′ _ _ A≡B (ℕᵥ ℕA ℕB) t®v = t®v
 convTermʳ′ _ _ A≡B (Unitᵥ UnitA UnitB) t®v = t®v
 convTermʳ′
   [A] [B] A≡B
-  (Bᵥ (BΠ p q) (Bᵣ F G [ _ , _ , A⇒Π ] ⊢F ⊢G A≡A [F] [G] G-ext)
-     (Bᵣ F₁ G₁ [ _ , _ , B⇒Π₁ ] ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁))
+  (Bᵥ (BΠ p q) (Bᵣ F G [ _ , _ , A⇒Π ] ⊢F ⊢G A≡A [F] [G] G-ext _)
+     (Bᵣ F₁ G₁ [ _ , _ , B⇒Π₁ ] ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
   t®v
      with is-𝟘? p
 ... | yes PE.refl = λ [a]′ →
@@ -106,8 +111,8 @@ convTermʳ′
   in  convTermʳ′ ([G] id ⊢Δ [a]) ([G]₁ id ⊢Δ [a]′) G[a]≡G₁[a] SV′ t®v′
 convTermʳ′ {v = v}
   [A] [B] A≡B
-  (Bᵥ (BΣ _ p _) (Bᵣ F G [ _ , _ , A⇒Σ ] ⊢F ⊢G A≡A [F] [G] G-ext)
-     (Bᵣ F₁ G₁ [ _ , _ , B⇒Σ₁ ] ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁))
+  (Bᵥ (BΣ _ p _) (Bᵣ F G [ _ , _ , A⇒Σ ] ⊢F ⊢G A≡A [F] [G] G-ext _)
+     (Bᵣ F₁ G₁ [ _ , _ , B⇒Σ₁ ] ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
   (t₁ , t₂ , t⇒t′ , [t₁] , v₂ , t₂®v₂ , extra) =
   let Σ≡Σ₁ = reduction′ A⇒Σ B⇒Σ₁ ΠΣₙ ΠΣₙ A≡B
       F≡F₁ , G≡G₁ , _ = Σ-injectivity Σ≡Σ₁

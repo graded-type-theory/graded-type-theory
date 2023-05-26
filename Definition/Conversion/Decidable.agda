@@ -2,32 +2,36 @@
 -- The algorithmic equality is decidable.
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
 open import Tools.PropositionalEquality as PE
   using (_≈_; ≈-refl; ≈-sym; ≈-trans)
 open import Tools.Relation
 
 module Definition.Conversion.Decidable
-  {a} {M : Set a} (_≟_ : Decidable (_≈_ {A = M})) where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  (_≟_ : Decidable (_≈_ {A = M}))
+  where
 
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Untyped.Properties M
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-open import Definition.Conversion M
-open import Definition.Conversion.Whnf M
-open import Definition.Conversion.Soundness M
-open import Definition.Conversion.Symmetry M
-open import Definition.Conversion.Transitivity M
-open import Definition.Conversion.Stability M
-open import Definition.Conversion.Conversion M
-open import Definition.Typed.Consequences.Syntactic M
-open import Definition.Typed.Consequences.Substitution M
-open import Definition.Typed.Consequences.Injectivity M
-open import Definition.Typed.Consequences.Reduction M
-open import Definition.Typed.Consequences.Equality M
-open import Definition.Typed.Consequences.Inequality M as IE
-open import Definition.Typed.Consequences.NeTypeEq M
-open import Definition.Typed.Consequences.SucCong M
+open import Definition.Typed R
+open import Definition.Typed.Properties R
+open import Definition.Conversion R
+open import Definition.Conversion.Whnf R
+open import Definition.Conversion.Soundness R
+open import Definition.Conversion.Symmetry R
+open import Definition.Conversion.Transitivity R
+open import Definition.Conversion.Stability R
+open import Definition.Conversion.Conversion R
+open import Definition.Typed.Consequences.Syntactic R
+open import Definition.Typed.Consequences.Substitution R
+open import Definition.Typed.Consequences.Injectivity R
+open import Definition.Typed.Consequences.Reduction R
+open import Definition.Typed.Consequences.Equality R
+open import Definition.Typed.Consequences.Inequality R as IE
+open import Definition.Typed.Consequences.NeTypeEq R
+open import Definition.Typed.Consequences.SucCong R
 
 open import Tools.Fin
 open import Tools.Function
@@ -381,10 +385,11 @@ mutual
           (⊢F′≡F , ⊢G′≡G , _ , PE.refl , _) → case Σ-injectivity ⊢B≡Σ′ of  λ where
             (⊢F′≡F″ , _ , _ , _ , _) →
               case reflConEq (wf ⊢B) of λ ⊢Γ≡Γ →
-                dec~↑-prodrec (decConv↑ x (stabilityConv↑ (⊢Γ≡Γ ∙ ⊢Σ′≡Σ) x₃))
-                              (λ C≡C′ → decConv↑TermConv (subst↑²TypeEq C≡C′) x₂
-                                 (stabilityConv↑Term (⊢Γ≡Γ ∙ ⊢F′≡F ∙ ⊢G′≡G) x₅))
-                              t~t′ (sym ⊢B≡Σ) PE.refl PE.refl PE.refl
+                dec~↑-prodrec
+                  (decConv↑ x (stabilityConv↑ (⊢Γ≡Γ ∙ ⊢Σ′≡Σ) x₃))
+                  (λ C≡C′ → decConv↑TermConv (subst↑²TypeEq C≡C′ _) x₂
+                     (stabilityConv↑Term (⊢Γ≡Γ ∙ ⊢F′≡F ∙ ⊢G′≡G) x₅))
+                  t~t′ (sym ⊢B≡Σ) PE.refl PE.refl PE.refl
   ... | no ¬P | _ | _ | _ =
     no (λ { (_ , prodrec-cong _ x _) → ¬P (_ , x) })
   ... | _ | no ¬r≈r′ | _ | _ =
@@ -471,7 +476,7 @@ mutual
   decConv↓ (U-refl x) (U-refl x₁) = yes (U-refl x)
   decConv↓ (ℕ-refl x) (ℕ-refl x₁) = yes (ℕ-refl x)
   decConv↓ (Empty-refl x) (Empty-refl x₁) = yes (Empty-refl x)
-  decConv↓ (Unit-refl x) (Unit-refl x₁) = yes (Unit-refl x)
+  decConv↓ (Unit-refl x ok) (Unit-refl _ _) = yes (Unit-refl x ok)
 
   -- Inspective cases
   decConv↓ (ne x) (ne x₁) with dec~↓ x x₁
@@ -486,54 +491,54 @@ mutual
   decConv↓ (ne x) (ne x₁) | no ¬p = no (λ x₂ → ¬p (U , (decConv↓-ne x₂ x)))
 
   decConv↓
-    (ΠΣ-cong {b = b₁} {p = p′} {q = q′} x x₁ x₂)
-    (ΠΣ-cong {b = b₂} {p = p″} {q = q″} x₃ x₄ x₅)
+    (ΠΣ-cong {b = b₁} {p = p′} {q = q′} x x₁ x₂ ok)
+    (ΠΣ-cong {b = b₂} {p = p″} {q = q″} x₃ x₄ x₅ _)
            with decConv↑ x₁ x₄
   ... | yes p
     with decConv↑′ (reflConEq (wf x) ∙ soundnessConv↑ p) x₂ x₅
        | p′ ≟ p″ | q′ ≟ q″ | decBinderMode b₁ b₂
   ... | yes p₁ | yes PE.refl | yes PE.refl | yes PE.refl =
-    yes (ΠΣ-cong x p p₁)
+    yes (ΠΣ-cong x p p₁ ok)
   ... | no ¬p | _ | _ | _ =
-    no (λ { (ne ([~] _ _ _ ())); (ΠΣ-cong _ _ p) → ¬p p })
+    no (λ { (ne ([~] _ _ _ ())); (ΠΣ-cong _ _ p _) → ¬p p })
   ... | _ | no ¬p′≈p″ | _ | _ =
-    no (λ { (ne ([~] _ _ _ ())); (ΠΣ-cong _ _ _) → ¬p′≈p″ PE.refl })
+    no (λ { (ne ([~] _ _ _ ())); (ΠΣ-cong _ _ _ _) → ¬p′≈p″ PE.refl })
   ... | _ | _ | no ¬q′≈q″ | _ =
-    no (λ { (ne ([~] _ _ _ ())); (ΠΣ-cong _ _ _) → ¬q′≈q″ PE.refl })
+    no (λ { (ne ([~] _ _ _ ())); (ΠΣ-cong _ _ _ _) → ¬q′≈q″ PE.refl })
   ... | _ | _ | _ | no b₁≢b₂ =
-    no λ { (ne ([~] _ _ _ ())); (ΠΣ-cong _ _ _) → b₁≢b₂ PE.refl }
-  decConv↓ (ΠΣ-cong x x₁ x₂) (ΠΣ-cong x₃ x₄ x₅) | no ¬p =
-    no (λ { (ne ([~] A D whnfB ())) ; (ΠΣ-cong x₆ x₇ x₈) → ¬p x₇ })
+    no λ { (ne ([~] _ _ _ ())); (ΠΣ-cong _ _ _ _) → b₁≢b₂ PE.refl }
+  decConv↓ (ΠΣ-cong _ _ _ _) (ΠΣ-cong _ _ _ _) | no ¬p =
+    no (λ { (ne ([~] _ _ _ ())) ; (ΠΣ-cong _ p _ _) → ¬p p })
 
   -- False cases
   decConv↓ (U-refl x) (ℕ-refl x₁) = no (λ { (ne ([~] A D whnfB ())) })
   decConv↓ (U-refl x) (Empty-refl x₁) = no (λ { (ne ([~] A D whnfB ())) })
-  decConv↓ (U-refl x) (Unit-refl x₁) = no (λ { (ne ([~] A D whnfB ())) })
+  decConv↓ (U-refl _) (Unit-refl _ _) = no (λ { (ne ([~] _ _ _ ())) })
   decConv↓ (U-refl x) (ne x₁) =
     no (λ x₂ → let whnfA , neK , neL = ne~↓ x₁
                in  ⊥-elim (IE.U≢ne neK (soundnessConv↓ x₂)))
-  decConv↓ (U-refl x) (ΠΣ-cong x₁ x₂ x₃) = no (λ { (ne ([~] A D whnfB ())) })
+  decConv↓ (U-refl _) (ΠΣ-cong _ _ _ _) = no (λ { (ne ([~] _ _ _ ())) })
   decConv↓ (ℕ-refl x) (U-refl x₁) = no (λ { (ne ([~] A D whnfB ())) })
   decConv↓ (ℕ-refl x) (Empty-refl x₁) = no (λ { (ne ([~] A D whnfB ())) })
-  decConv↓ (ℕ-refl x) (Unit-refl x₁) = no (λ { (ne ([~] A D whnfB ())) })
+  decConv↓ (ℕ-refl _) (Unit-refl _ _) = no (λ { (ne ([~] _ _ _ ())) })
   decConv↓ (ℕ-refl x) (ne x₁) =
     no (λ x₂ → let whnfA , neK , neL = ne~↓ x₁
                in  ⊥-elim (IE.ℕ≢ne neK (soundnessConv↓ x₂)))
-  decConv↓ (ℕ-refl x) (ΠΣ-cong x₁ x₂ x₃) = no (λ { (ne ([~] A D whnfB ())) })
+  decConv↓ (ℕ-refl _) (ΠΣ-cong _ _ _ _) = no (λ { (ne ([~] _ _ _ ())) })
   decConv↓ (Empty-refl x) (U-refl x₁) = no (λ { (ne ([~] A D whnfB ())) })
   decConv↓ (Empty-refl x) (ℕ-refl x₁) = no (λ { (ne ([~] A D whnfB ())) })
-  decConv↓ (Empty-refl x) (Unit-refl x₁) = no (λ { (ne ([~] A D whnfB ())) })
+  decConv↓ (Empty-refl _) (Unit-refl _ _) = no (λ { (ne ([~] _ _ _ ())) })
   decConv↓ (Empty-refl x) (ne x₁) =
     no (λ x₂ → let whnfA , neK , neL = ne~↓ x₁
                in  ⊥-elim (IE.Empty≢neⱼ neK (soundnessConv↓ x₂)))
-  decConv↓ (Empty-refl x) (ΠΣ-cong x₁ x₂ x₃) = no (λ { (ne ([~] A D whnfB ())) })
-  decConv↓ (Unit-refl x) (U-refl x₁) = no (λ { (ne ([~] A D whnfB ())) })
-  decConv↓ (Unit-refl x) (ℕ-refl x₁) = no (λ { (ne ([~] A D whnfB ())) })
-  decConv↓ (Unit-refl x) (Empty-refl x₁) = no (λ { (ne ([~] A D whnfB ())) })
-  decConv↓ (Unit-refl x) (ne x₁) =
-    no (λ x₂ → let whnfA , neK , neL = ne~↓ x₁
-               in  ⊥-elim (IE.Unit≢neⱼ neK (soundnessConv↓ x₂)))
-  decConv↓ (Unit-refl x) (ΠΣ-cong x₁ x₂ x₃) = no (λ { (ne ([~] A D whnfB ())) })
+  decConv↓ (Empty-refl _) (ΠΣ-cong _ _ _ _) = no (λ { (ne ([~] _ _ _ ())) })
+  decConv↓ (Unit-refl _ _) (U-refl _) = no (λ { (ne ([~] _ _ _ ())) })
+  decConv↓ (Unit-refl _ _) (ℕ-refl _) = no (λ { (ne ([~] _ _ _ ())) })
+  decConv↓ (Unit-refl _ _) (Empty-refl _) = no (λ { (ne ([~] _ _ _ ())) })
+  decConv↓ (Unit-refl _ _) (ne x) =
+    no (λ y → let _ , neK , _ = ne~↓ x
+              in  ⊥-elim (IE.Unit≢neⱼ neK (soundnessConv↓ y)))
+  decConv↓ (Unit-refl _ _) (ΠΣ-cong _ _ _ _) = no (λ { (ne ([~] _ _ _ ())) })
   decConv↓ (ne x) (U-refl x₁) =
     no (λ x₂ → let whnfA , neK , neL = ne~↓ x
                in  ⊥-elim (IE.U≢ne neK (sym (soundnessConv↓ x₂))))
@@ -543,19 +548,19 @@ mutual
   decConv↓ (ne x) (Empty-refl x₁) =
     no (λ x₂ → let whnfA , neK , neL = ne~↓ x
                in  ⊥-elim (IE.Empty≢neⱼ neK (sym (soundnessConv↓ x₂))))
-  decConv↓ (ne x) (Unit-refl x₁) =
-    no (λ x₂ → let whnfA , neK , neL = ne~↓ x
-               in  ⊥-elim (IE.Unit≢neⱼ neK (sym (soundnessConv↓ x₂))))
-  decConv↓ (ne x) (ΠΣ-cong x₁ x₂ x₃) =
-    no (λ x₄ → let whnfA , neK , neL = ne~↓ x
-               in  ⊥-elim (IE.ΠΣ≢ne neK (sym (soundnessConv↓ x₄))))
-  decConv↓ (ΠΣ-cong x x₁ x₂) (U-refl x₃) = no (λ { (ne ([~] A D whnfB ())) })
-  decConv↓ (ΠΣ-cong x x₁ x₂) (ℕ-refl x₃) = no (λ { (ne ([~] A D whnfB ())) })
-  decConv↓ (ΠΣ-cong x x₁ x₂) (Empty-refl x₃) = no (λ { (ne ([~] A D whnfB ())) })
-  decConv↓ (ΠΣ-cong x x₁ x₂) (Unit-refl x₃) = no (λ { (ne ([~] A D whnfB ())) })
-  decConv↓ (ΠΣ-cong x x₁ x₂) (ne x₃) =
-    no (λ x₄ → let whnfA , neK , neL = ne~↓ x₃
-               in  ⊥-elim (IE.ΠΣ≢ne neK (soundnessConv↓ x₄)))
+  decConv↓ (ne x) (Unit-refl _ _) =
+    no (λ y → let whnfA , neK , neL = ne~↓ x
+              in  ⊥-elim (IE.Unit≢neⱼ neK (sym (soundnessConv↓ y))))
+  decConv↓ (ne x) (ΠΣ-cong _ _ _ _) =
+    no (λ y → let whnfA , neK , neL = ne~↓ x
+              in  ⊥-elim (IE.ΠΣ≢ne neK (sym (soundnessConv↓ y))))
+  decConv↓ (ΠΣ-cong _ _ _ _) (U-refl _) = no (λ { (ne ([~] _ _ _ ())) })
+  decConv↓ (ΠΣ-cong _ _ _ _) (ℕ-refl _) = no (λ { (ne ([~] _ _ _ ())) })
+  decConv↓ (ΠΣ-cong _ _ _ _) (Empty-refl _) = no (λ { (ne ([~] _ _ _ ())) })
+  decConv↓ (ΠΣ-cong _ _ _ _) (Unit-refl _ _) = no (λ { (ne ([~] _ _ _ ())) })
+  decConv↓ (ΠΣ-cong _ _ _ _) (ne x) =
+    no (λ y → let whnfA , neK , neL = ne~↓ x
+              in  ⊥-elim (IE.ΠΣ≢ne neK (soundnessConv↓ y)))
 
   -- Helper function for decidability of neutral types.
   decConv↓-ne : ∀ {A B A′}
@@ -566,8 +571,8 @@ mutual
   decConv↓-ne (ℕ-refl x) ()
   decConv↓-ne (Empty-refl x) ()
   decConv↓-ne (ne x) A~A = x
-  decConv↓-ne (ΠΣ-cong x x₁ x₂) ([~] A D whnfB ())
-  decConv↓-ne (Unit-refl x) ()
+  decConv↓-ne (ΠΣ-cong _ _ _ _) ([~] _ _ _ ())
+  decConv↓-ne (Unit-refl _ _) ()
 
   -- Decidability of algorithmic equality of terms.
   decConv↑Term : ∀ {t u A t′ u′}

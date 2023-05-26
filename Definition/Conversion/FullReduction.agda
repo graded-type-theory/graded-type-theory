@@ -2,20 +2,25 @@
 -- Every term is equal to a fully reduced term.
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
+
 module Definition.Conversion.FullReduction
-  {a} (M : Set a) where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  where
 
 open import Definition.Untyped M as U hiding (wk ; _∷_)
 open import Definition.Untyped.Properties M
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-open import Definition.Typed.Weakening M
-open import Definition.Conversion M
-open import Definition.Conversion.Whnf M
-open import Definition.Typed.Consequences.InverseUniv M
-open import Definition.Typed.Consequences.Syntactic M
-open import Definition.Typed.Consequences.NeTypeEq M
-open import Definition.Typed.Consequences.Substitution M
+open import Definition.Typed R
+open import Definition.Typed.Properties R
+open import Definition.Typed.Weakening R
+open import Definition.Conversion R
+open import Definition.Conversion.Whnf R
+open import Definition.Typed.Consequences.InverseUniv R
+open import Definition.Typed.Consequences.Inversion R
+open import Definition.Typed.Consequences.Syntactic R
+open import Definition.Typed.Consequences.NeTypeEq R
+open import Definition.Typed.Consequences.Substitution R
 
 open import Tools.Fin
 open import Tools.Nat
@@ -135,14 +140,15 @@ mutual
   fullRedConv↓ (U-refl ⊢Γ) = U , Uₙ , refl (Uⱼ ⊢Γ)
   fullRedConv↓ (ℕ-refl ⊢Γ) = ℕ , ℕₙ , refl (ℕⱼ ⊢Γ)
   fullRedConv↓ (Empty-refl ⊢Γ) = Empty , Emptyₙ , refl (Emptyⱼ ⊢Γ)
-  fullRedConv↓ (Unit-refl ⊢Γ) = Unit , Unitₙ , refl (Unitⱼ ⊢Γ)
+  fullRedConv↓ (Unit-refl ⊢Γ ok) = Unit , Unitₙ , refl (Unitⱼ ⊢Γ ok)
   fullRedConv↓ (ne A) =
     let B , nf , A≡B = fullRedNe~↓ A
     in  B , ne nf , univ A≡B
-  fullRedConv↓ (ΠΣ-cong ⊢F F G) =
+  fullRedConv↓ (ΠΣ-cong ⊢F F G ok) =
     let F′ , nfF′ , F≡F′ = fullRed F
         G′ , nfG′ , G≡G′ = fullRed G
-    in  ΠΣ⟨ _ ⟩ _ , _ ▷ F′ ▹ G′ , ΠΣₙ nfF′ nfG′ , ΠΣ-cong ⊢F F≡F′ G≡G′
+    in  ΠΣ⟨ _ ⟩ _ , _ ▷ F′ ▹ G′ , ΠΣₙ nfF′ nfG′ ,
+        ΠΣ-cong ⊢F F≡F′ G≡G′ ok
 
   fullRedTerm : ∀ {t t′ A} → Γ ⊢ t [conv↑] t′ ∷ A → ∃ λ u → Nf u × Γ ⊢ t ≡ u ∷ A
   fullRedTerm ([↑]ₜ B t′ u′ D d d′ whnfB whnft′ whnfu′ t<>u) =
@@ -179,7 +185,7 @@ mutual
   fullRedTermConv↓ (prod-cong ⊢F ⊢G t↑t u↑u) =
     let t′ , nfT , t≡t′ = fullRedTerm t↑t
         u′ , nfU , u≡u′ = fullRedTerm u↑u
-    in  prod! t′ u′ , prodₙ nfT nfU , prod-cong ⊢F ⊢G t≡t′ u≡u′
+    in  prod! t′ u′ , prodₙ nfT nfU , prod-cong ⊢F ⊢G t≡t′ u≡u′ _
   fullRedTermConv↓ (η-eq {p = p} ⊢t _ _ _ t∘0) =
     let u , nf , t∘0≡u = fullRedTerm t∘0
         ⊢G , _ , ⊢u = syntacticEqTerm t∘0≡u
@@ -206,20 +212,21 @@ mutual
         snd′ , nfSnd′ , snd≡snd′ = fullRedTerm sndConv
         _ , _ , ⊢fst′ = syntacticEqTerm fst≡fst′
         _ , _ , ⊢snd′₁ = syntacticEqTerm snd≡snd′
-        ⊢ΣFG = syntacticTerm ⊢t
-        ⊢F , ⊢G = syntacticΣ ⊢ΣFG
+        ⊢F , ⊢G , ok = inversion-ΠΣ (syntacticTerm ⊢t)
 
         Gfst≡Gfst′ = substTypeEq (refl ⊢G) fst≡fst′
         ⊢snd′ = conv ⊢snd′₁ Gfst≡Gfst′
-        ⊢prod = prodⱼ ⊢F ⊢G ⊢fst′ ⊢snd′
+        ⊢prod = prodⱼ ⊢F ⊢G ⊢fst′ ⊢snd′ ok
 
-        fstprod≡fst′ = Σ-β₁ ⊢F ⊢G ⊢fst′ ⊢snd′ PE.refl
+        fstprod≡fst′ = Σ-β₁ ⊢F ⊢G ⊢fst′ ⊢snd′ PE.refl ok
         fst≡fstprod = trans fst≡fst′ (sym fstprod≡fst′)
         Gfst≡Gfstprod = substTypeEq (refl ⊢G) fst≡fstprod
-        sndprod≡snd′ = conv (Σ-β₂ ⊢F ⊢G ⊢fst′ ⊢snd′ PE.refl)
+        sndprod≡snd′ = conv (Σ-β₂ ⊢F ⊢G ⊢fst′ ⊢snd′ PE.refl ok)
                          (sym Gfst≡Gfstprod)
         snd≡sndprod = trans snd≡snd′ (sym sndprod≡snd′)
     in  prod! fst′ snd′ , prodₙ nfFst′ nfSnd′
       , Σ-η ⊢F ⊢G ⊢t ⊢prod fst≡fstprod snd≡sndprod
   fullRedTermConv↓ (η-unit ⊢t _ tUnit _) =
-    star , starₙ , η-unit ⊢t (starⱼ (wfTerm ⊢t))
+    star , starₙ , η-unit ⊢t (starⱼ (wfTerm ⊢t) ok)
+    where
+    ok = inversion-Unit (syntacticTerm ⊢t)

@@ -2,19 +2,23 @@
 -- Derived typing rules
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
+
 module Definition.Typed.Consequences.DerivedRules
-  {a} (M : Set a) where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  where
 
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 
-open import Definition.Typed M
-open import Definition.Typed.Consequences.Inversion M
-open import Definition.Typed.Consequences.Syntactic M
-open import Definition.Typed.Properties M
-open import Definition.Typed.Weakening M as W hiding (wk)
+open import Definition.Typed R
+open import Definition.Typed.Consequences.Inversion R
+open import Definition.Typed.Consequences.Syntactic R
+open import Definition.Typed.Properties R
+open import Definition.Typed.Weakening R as W hiding (wk)
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Untyped.Properties M
 
@@ -98,7 +102,7 @@ lam-cong {B = B} t≡u = η-eq ⊢A (lamⱼ ⊢A ⊢t) (lamⱼ ⊢A ⊢u) $
   where
   ⊢A,⊢B = inversion-ΠΣ (syntacticTerm ⊢t)
   ⊢A    = ⊢A,⊢B .proj₁
-  ⊢B    = ⊢A,⊢B .proj₂
+  ⊢B    = ⊢A,⊢B .proj₂ .proj₁
   ⊢Γ    = wfTerm ⊢t
   ⊢ΓA   = ⊢Γ ∙ ⊢A
   ⊢wkt  = wkTerm (step id) ⊢ΓA ⊢t
@@ -118,13 +122,14 @@ lam-cong {B = B} t≡u = η-eq ⊢A (lamⱼ ⊢A ⊢t) (lamⱼ ⊢A ⊢u) $
 Σ-η-prod-fst-snd ⊢t = Σ-η
   ⊢A
   ⊢B
-  (prodⱼ ⊢A ⊢B ⊢fst ⊢snd)
+  (prodⱼ ⊢A ⊢B ⊢fst ⊢snd ok)
   ⊢t
-  (Σ-β₁ ⊢A ⊢B ⊢fst ⊢snd PE.refl)
-  (Σ-β₂ ⊢A ⊢B ⊢fst ⊢snd PE.refl)
+  (Σ-β₁ ⊢A ⊢B ⊢fst ⊢snd PE.refl ok)
+  (Σ-β₂ ⊢A ⊢B ⊢fst ⊢snd PE.refl ok)
   where
-  ⊢A,⊢B = inversion-ΠΣ (syntacticTerm ⊢t)
-  ⊢A    = ⊢A,⊢B .proj₁
-  ⊢B    = ⊢A,⊢B .proj₂
-  ⊢fst  = fstⱼ ⊢A ⊢B ⊢t
-  ⊢snd  = sndⱼ ⊢A ⊢B ⊢t
+  ⊢A,⊢B,ok = inversion-ΠΣ (syntacticTerm ⊢t)
+  ⊢A       = ⊢A,⊢B,ok .proj₁
+  ⊢B       = ⊢A,⊢B,ok .proj₂ .proj₁
+  ok       = ⊢A,⊢B,ok .proj₂ .proj₂
+  ⊢fst     = fstⱼ ⊢A ⊢B ⊢t
+  ⊢snd     = sndⱼ ⊢A ⊢B ⊢t

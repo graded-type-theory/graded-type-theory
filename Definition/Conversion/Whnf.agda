@@ -2,11 +2,15 @@
 -- Extraction of WHNF from algorithmic equality of types in WHNF.
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
+
 module Definition.Conversion.Whnf
-  {a} (M : Set a) where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  where
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Conversion M
+open import Definition.Conversion R
 
 open import Tools.Nat
 open import Tools.Product
@@ -52,10 +56,10 @@ whnfConv↓ : ∀ {A B}
 whnfConv↓ (U-refl x) = Uₙ , Uₙ
 whnfConv↓ (ℕ-refl x) = ℕₙ , ℕₙ
 whnfConv↓ (Empty-refl x) = Emptyₙ , Emptyₙ
-whnfConv↓ (Unit-refl x) = Unitₙ , Unitₙ
+whnfConv↓ (Unit-refl x _) = Unitₙ , Unitₙ
 whnfConv↓ (ne x) = let _ , neA , neB = ne~↓ x
                    in  ne neA , ne neB
-whnfConv↓ (ΠΣ-cong x x₁ x₂) = ΠΣₙ , ΠΣₙ
+whnfConv↓ (ΠΣ-cong _ _ _ _) = ΠΣₙ , ΠΣₙ
 
 -- Extraction of WHNF from algorithmic equality of terms in WHNF.
 whnfConv↓Term : ∀ {t u A}

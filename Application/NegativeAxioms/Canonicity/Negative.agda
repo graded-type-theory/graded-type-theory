@@ -2,26 +2,31 @@
 -- Proof that consistent negative axioms do not jeopardize canonicity.
 ------------------------------------------------------------------------
 
-module Application.NegativeAxioms.Canonicity.Negative
-  {a} (M : Set a) where
+open import Definition.Typed.Restrictions
 
-open import Application.NegativeAxioms.NegativeType M
-open import Erasure.SucRed M
+module Application.NegativeAxioms.Canonicity.Negative
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  where
+
+open import Application.NegativeAxioms.NegativeType R
+open import Erasure.SucRed R
 
 open import Definition.Untyped M hiding (_∷_; ℕ≢B)
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-open import Definition.Typed.EqRelInstance M
-open import Definition.Typed.Consequences.Inequality M
-open import Definition.Typed.Consequences.Reduction M
-open import Definition.Typed.Consequences.Syntactic M
+open import Definition.Typed R
+open import Definition.Typed.Properties R
+open import Definition.Typed.EqRelInstance R
+open import Definition.Typed.Consequences.Inequality R
+open import Definition.Typed.Consequences.Inversion R
+open import Definition.Typed.Consequences.Reduction R
+open import Definition.Typed.Consequences.Syntactic R
 
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.Irrelevance M
-open import Definition.LogicalRelation.Fundamental.Reducibility M
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Irrelevance R
+open import Definition.LogicalRelation.Fundamental.Reducibility R
 
-open import Application.NegativeAxioms.NegativeContext M
-open import Definition.Conversion.FullReduction M
+open import Application.NegativeAxioms.NegativeContext R
+open import Definition.Conversion.FullReduction R
 
 open import Tools.Empty
 open import Tools.Nat
@@ -51,14 +56,17 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   neNeg (d ∘ⱼ ⊢t           ) (∘ₙ n       ) =
     appNeg (neNeg d n) (refl (syntacticTerm d)) ⊢t
   neNeg (fstⱼ ⊢A A⊢B d     ) (fstₙ n     ) =
-    fstNeg (neNeg d n) (refl (ΠΣⱼ ⊢A ▹ A⊢B))
+    fstNeg (neNeg d n)
+      (refl (ΠΣⱼ ⊢A A⊢B (inversion-ΠΣ (syntacticTerm d) .proj₂ .proj₂)))
   neNeg (sndⱼ ⊢A A⊢B d     ) (sndₙ n     ) =
-    sndNeg (neNeg d n) (refl (ΠΣⱼ ⊢A ▹ A⊢B)) (fstⱼ ⊢A A⊢B d)
+    sndNeg (neNeg d n)
+      (refl (ΠΣⱼ ⊢A A⊢B (inversion-ΠΣ (syntacticTerm d) .proj₂ .proj₂)))
+      (fstⱼ ⊢A A⊢B d)
   neNeg (natrecⱼ _ _ _ d   ) (natrecₙ n  ) =
     let ⊢ℕ = refl (ℕⱼ (wfTerm d))
     in  ⊥-elim (¬negℕ (neNeg d n) ⊢ℕ)
   neNeg (prodrecⱼ ⊢A A⊢B _ d _) (prodrecₙ n) =
-    let ⊢Σ = refl (ΠΣⱼ ⊢A ▹ A⊢B)
+    let ⊢Σ = refl (ΠΣⱼ ⊢A A⊢B _)
     in  ⊥-elim (¬negΣᵣ (neNeg d n) ⊢Σ)
   neNeg (Emptyrecⱼ _ d     ) (Emptyrecₙ n) =
     ⊥-elim (consistent d)
@@ -85,15 +93,15 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   -- Impossible cases: type is not ℕ.
 
   -- * Canonical types
-  nfN (ΠΣⱼ _ ▹ _)      (ΠΣₙ _ _)  c = ⊥-elim (U≢ℕ c)
-  nfN (ℕⱼ _)           ℕₙ         c = ⊥-elim (U≢ℕ c)
-  nfN (Emptyⱼ _)       Emptyₙ     c = ⊥-elim (U≢ℕ c)
-  nfN (Unitⱼ _)        Unitₙ      c = ⊥-elim (U≢ℕ c)
+  nfN (ΠΣⱼ _ _ _) (ΠΣₙ _ _) c = ⊥-elim (U≢ℕ c)
+  nfN (ℕⱼ _)      ℕₙ        c = ⊥-elim (U≢ℕ c)
+  nfN (Emptyⱼ _)  Emptyₙ    c = ⊥-elim (U≢ℕ c)
+  nfN (Unitⱼ _ _) Unitₙ     c = ⊥-elim (U≢ℕ c)
 
   -- * Canonical forms
-  nfN (lamⱼ _ _)      (lamₙ _)    c = ⊥-elim (ℕ≢Π (sym c))
-  nfN (prodⱼ _ _ _ _) (prodₙ _ _) c = ⊥-elim (ℕ≢Σ (sym c))
-  nfN (starⱼ _)       starₙ       c = ⊥-elim (ℕ≢Unitⱼ (sym c))
+  nfN (lamⱼ _ _)        (lamₙ _)    c = ⊥-elim (ℕ≢Π (sym c))
+  nfN (prodⱼ _ _ _ _ _) (prodₙ _ _) c = ⊥-elim (ℕ≢Σ (sym c))
+  nfN (starⱼ _ _)       starₙ       c = ⊥-elim (ℕ≢Unitⱼ (sym c))
   -- q.e.d
 
    -- Terms of non-negative types reduce to non-neutrals

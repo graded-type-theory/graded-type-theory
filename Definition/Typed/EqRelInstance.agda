@@ -3,12 +3,17 @@
 -- equality relations.
 ------------------------------------------------------------------------
 
-module Definition.Typed.EqRelInstance {a} (M : Set a) where
+open import Definition.Typed.Restrictions
 
-open import Definition.Typed M
-open import Definition.Typed.Weakening M
-open import Definition.Typed.Reduction M
-open import Definition.Typed.EqualityRelation M
+module Definition.Typed.EqRelInstance
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  where
+
+open import Definition.Typed R
+open import Definition.Typed.Weakening R
+open import Definition.Typed.Reduction R
+open import Definition.Typed.EqualityRelation R
 
 open import Tools.Function
 
@@ -42,16 +47,16 @@ eqRelInstance = record {
   ≅ₜ-ℕrefl = refl ∘ᶠ ℕⱼ;
   ≅-Emptyrefl = refl ∘ᶠ Emptyⱼ;
   ≅ₜ-Emptyrefl = refl ∘ᶠ Emptyⱼ;
-  ≅-Unitrefl = refl ∘ᶠ Unitⱼ;
-  ≅ₜ-Unitrefl = refl ∘ᶠ Unitⱼ;
+  ≅-Unitrefl = λ ⊢Γ → refl ∘ᶠ Unitⱼ ⊢Γ;
+  ≅ₜ-Unitrefl = λ ⊢Γ → refl ∘ᶠ Unitⱼ ⊢Γ;
   ≅ₜ-η-unit = η-unit;
   ≅-ΠΣ-cong = ΠΣ-cong;
   ≅ₜ-ΠΣ-cong = ΠΣ-cong;
   ≅ₜ-zerorefl = refl ∘ᶠ zeroⱼ;
   ≅-suc-cong = suc-cong;
-  ≅-prod-cong = prod-cong;
+  ≅-prod-cong = λ ⊢A ⊢B t₁≅t₂ u₁≅u₂ → prod-cong ⊢A ⊢B t₁≅t₂ u₁≅u₂ _;
   ≅-η-eq = λ x x₁ x₂ x₃ x₄ x₅ → η-eq x x₁ x₂ x₅;
-  ≅-Σ-η = λ ⊢F ⊢G ⊢p ⊢r pProd rProd fst≡ snd≡ → Σ-η ⊢F ⊢G ⊢p ⊢r fst≡ snd≡;
+  ≅-Σ-η = λ ⊢F ⊢G ⊢p ⊢r _ _ fst≡ snd≡ → Σ-η ⊢F ⊢G ⊢p ⊢r fst≡ snd≡;
   ~-var = refl;
   ~-app = app-cong;
   ~-fst = fst-cong;

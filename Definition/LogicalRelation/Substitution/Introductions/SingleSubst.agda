@@ -3,25 +3,29 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.EqualityRelation
+open import Definition.Typed.Restrictions
 
 module Definition.LogicalRelation.Substitution.Introductions.SingleSubst
-  {a} (M : Set a) {{eqrel : EqRelSet M}} where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  {{eqrel : EqRelSet R}}
+  where
 
 open EqRelSet {{...}}
 
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Untyped.Properties M
-open import Definition.Typed M
-open import Definition.Typed.Weakening M using (id)
-open import Definition.Typed.Properties M
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.ShapeView M
-open import Definition.LogicalRelation.Irrelevance M
-open import Definition.LogicalRelation.Properties M
-open import Definition.LogicalRelation.Substitution M
-open import Definition.LogicalRelation.Substitution.Properties M
-open import Definition.LogicalRelation.Substitution.Conversion M
-open import Definition.LogicalRelation.Substitution.Weakening M
+open import Definition.Typed R
+open import Definition.Typed.Weakening R using (id)
+open import Definition.Typed.Properties R
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.ShapeView R
+open import Definition.LogicalRelation.Irrelevance R
+open import Definition.LogicalRelation.Properties R
+open import Definition.LogicalRelation.Substitution R
+open import Definition.LogicalRelation.Substitution.Properties R
+open import Definition.LogicalRelation.Substitution.Conversion R
+open import Definition.LogicalRelation.Substitution.Weakening R
 
 open import Tools.Nat
 open import Tools.Product
@@ -184,7 +188,8 @@ substSΠ₁′ : ∀ {F G t l l′} W
            ([F] : Γ ⊩⟨ l′ ⟩ F)
            ([t] : Γ ⊩⟨ l′ ⟩ t ∷ F / [F])
          → Γ ⊩⟨ l ⟩ G [ t ]
-substSΠ₁′ {t = t} W (noemb (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) [F]₁ [t] =
+substSΠ₁′
+  {t = t} W (noemb (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)) [F]₁ [t] =
   let F≡F′ , G≡G′ , _ = B-PE-injectivity W W (whnfRed* (red D) ⟦ W ⟧ₙ)
       Feq = PE.trans F≡F′ (PE.sym (wk-id _))
       Geq = PE.cong (λ x → x [ _ ]) (PE.trans (wk-lift-id _) (PE.sym G≡G′))
@@ -213,7 +218,7 @@ substSΠ₂′ : ∀ {F F′ G G′ t t′ l l′ l″ l‴} W
            ([G[t]] : Γ ⊩⟨ l″ ⟩ G [ t ])
            ([G′[t′]] : Γ ⊩⟨ l‴ ⟩ G′ [ t′ ])
          → Γ ⊩⟨ l″ ⟩ G [ t ] ≡ G′ [ t′ ] / [G[t]]
-substSΠ₂′ W (noemb (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext))
+substSΠ₂′ W (noemb (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _))
           (B₌ F″ G″ D′ A≡B [F≡F′] [G≡G′])
           [F]₁ [F′] [t] [t′] [t≡t′] [G[t]] [G′[t′]] =
   let F≡F′  , G≡G′  , _ = B-PE-injectivity W W (whnfRed* (red D) (⟦ W ⟧ₙ))
@@ -319,10 +324,12 @@ substSΠEq : ∀ {F G F′ G′ t u l} W
 substSΠEq {F = F} {G} {F′} {G′} {t} {u} BΠ! [Γ] [F] [F′] [ΠFG] [ΠF′G′] [ΠFG≡ΠF′G′]
            [t] [u] [t≡u] {Δ = Δ} {σ = σ} ⊢Δ [σ] =
   let [σΠFG] = proj₁ (unwrap [ΠFG] ⊢Δ [σ])
-      _ , Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ = extractMaybeEmb (Π-elim [σΠFG])
+      _ , Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _ =
+        extractMaybeEmb (Π-elim [σΠFG])
       F≡F₁ , G≡G₁ , _ = B-PE-injectivity BΠ! BΠ! (whnfRed* (red D₁) ΠΣₙ)
       [σΠF′G′] = proj₁ (unwrap [ΠF′G′] ⊢Δ [σ])
-      _ , Bᵣ F₂ G₂ D₂ ⊢F₂ ⊢G₂ A≡A₂ [F]₂ [G]₂ G-ext₂ = extractMaybeEmb (Π-elim [σΠF′G′])
+      _ , Bᵣ F₂ G₂ D₂ ⊢F₂ ⊢G₂ A≡A₂ [F]₂ [G]₂ G-ext₂ _ =
+        extractMaybeEmb (Π-elim [σΠF′G′])
       F′≡F₂ , G′≡G₂ , _ = B-PE-injectivity BΠ! BΠ! (whnfRed* (red D₂) ΠΣₙ)
       [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
       [σF′] = proj₁ (unwrap [F′] ⊢Δ [σ])
@@ -354,10 +361,12 @@ substSΠEq {F = F} {G} {F′} {G′} {t} {u} BΠ! [Γ] [F] [F′] [ΠFG] [ΠF′
 substSΠEq {F = F} {G} {F′} {G′} {t} {u} BΣ! [Γ] [F] [F′] [ΣFG] [ΣF′G′] [ΣFG≡ΣF′G′]
            [t] [u] [t≡u] {Δ = Δ} {σ = σ} ⊢Δ [σ] =
   let [σΣFG] = proj₁ (unwrap [ΣFG] ⊢Δ [σ])
-      _ , Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ = extractMaybeEmb (Σ-elim [σΣFG])
+      _ , Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _ =
+        extractMaybeEmb (Σ-elim [σΣFG])
       F≡F₁ , G≡G₁ , _ = B-PE-injectivity BΣ! BΣ! (whnfRed* (red D₁) ΠΣₙ)
       [σΣF′G′] = proj₁ (unwrap [ΣF′G′] ⊢Δ [σ])
-      _ , Bᵣ F₂ G₂ D₂ ⊢F₂ ⊢G₂ A≡A₂ [F]₂ [G]₂ G-ext₂ = extractMaybeEmb (Σ-elim [σΣF′G′])
+      _ , Bᵣ F₂ G₂ D₂ ⊢F₂ ⊢G₂ A≡A₂ [F]₂ [G]₂ G-ext₂ _ =
+        extractMaybeEmb (Σ-elim [σΣF′G′])
       F′≡F₂ , G′≡G₂ , _ = B-PE-injectivity BΣ! BΣ! (whnfRed* (red D₂) ΠΣₙ)
       [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
       [σF′] = proj₁ (unwrap [F′] ⊢Δ [σ])

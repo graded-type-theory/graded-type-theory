@@ -3,31 +3,36 @@
 -- equality relations.
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
+
 module Definition.Conversion.EqRelInstance
-  {a} (M : Set a) where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  where
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-open import Definition.Typed.Weakening M using (_∷_⊆_; wkEq)
-open import Definition.Conversion M
-open import Definition.Conversion.Reduction M
-open import Definition.Conversion.Universe M
-open import Definition.Conversion.Stability M
-open import Definition.Conversion.Soundness M
-open import Definition.Conversion.Lift M
-open import Definition.Conversion.Conversion M
-open import Definition.Conversion.Symmetry M
-open import Definition.Conversion.Transitivity M
-open import Definition.Conversion.Weakening M
-open import Definition.Typed.EqualityRelation M
-open import Definition.Typed.Consequences.Syntactic M
-open import Definition.Typed.Consequences.Substitution M
-open import Definition.Typed.Consequences.Injectivity M
-open import Definition.Typed.Consequences.Equality M
-open import Definition.Typed.Consequences.Reduction M
+open import Definition.Typed R
+open import Definition.Typed.Properties R
+open import Definition.Typed.Weakening R using (_∷_⊆_; wkEq)
+open import Definition.Conversion R
+open import Definition.Conversion.Reduction R
+open import Definition.Conversion.Universe R
+open import Definition.Conversion.Stability R
+open import Definition.Conversion.Soundness R
+open import Definition.Conversion.Lift R
+open import Definition.Conversion.Conversion R
+open import Definition.Conversion.Symmetry R
+open import Definition.Conversion.Transitivity R
+open import Definition.Conversion.Weakening R
+open import Definition.Typed.EqualityRelation R
+open import Definition.Typed.Consequences.Syntactic R
+open import Definition.Typed.Consequences.Substitution R
+open import Definition.Typed.Consequences.Injectivity R
+open import Definition.Typed.Consequences.Equality R
+open import Definition.Typed.Consequences.Reduction R
 
 open import Tools.Fin
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 open import Tools.Function
@@ -227,8 +232,10 @@ eqRelInstance = record {
   ≅ₜ-ℕrefl = λ x → liftConvTerm (univ (ℕⱼ x) (ℕⱼ x) (ℕ-refl x));
   ≅-Emptyrefl = liftConv ∘ᶠ Empty-refl;
   ≅ₜ-Emptyrefl = λ x → liftConvTerm (univ (Emptyⱼ x) (Emptyⱼ x) (Empty-refl x));
-  ≅-Unitrefl = liftConv ∘ᶠ Unit-refl;
-  ≅ₜ-Unitrefl = λ ⊢Γ → liftConvTerm (univ (Unitⱼ ⊢Γ) (Unitⱼ ⊢Γ) (Unit-refl ⊢Γ));
+  ≅-Unitrefl = λ ⊢Γ → liftConv ∘→ Unit-refl ⊢Γ;
+  ≅ₜ-Unitrefl = λ ⊢Γ ok →
+                  liftConvTerm $
+                  univ (Unitⱼ ⊢Γ ok) (Unitⱼ ⊢Γ ok) (Unit-refl ⊢Γ ok);
   ≅ₜ-η-unit = λ [e] [e'] → let u , uWhnf , uRed = whNormTerm [e]
                                u' , u'Whnf , u'Red = whNormTerm [e']
                                [u] = ⊢u-redₜ uRed
@@ -239,8 +246,8 @@ eqRelInstance = record {
                                (redₜ u'Red)
                                Unitₙ uWhnf u'Whnf
                                (η-unit [u] [u'] uWhnf u'Whnf);
-  ≅-ΠΣ-cong = λ x x₁ x₂ → liftConv (ΠΣ-cong x x₁ x₂);
-  ≅ₜ-ΠΣ-cong = λ x x₁ x₂ →
+  ≅-ΠΣ-cong = λ x x₁ x₂ ok → liftConv (ΠΣ-cong x x₁ x₂ ok);
+  ≅ₜ-ΠΣ-cong = λ x x₁ x₂ ok →
     let _ , F∷U , H∷U = syntacticEqTerm (soundnessConv↑Term x₁)
         _ , G∷U , E∷U = syntacticEqTerm (soundnessConv↑Term x₂)
         ⊢Γ = wfTerm F∷U
@@ -249,8 +256,8 @@ eqRelInstance = record {
         F≡H = soundnessConv↑ F<>H
         E∷U′ = stabilityTerm (reflConEq ⊢Γ ∙ F≡H) E∷U
     in
-    liftConvTerm (univ (ΠΣⱼ F∷U ▹ G∷U) (ΠΣⱼ H∷U ▹ E∷U′)
-      (ΠΣ-cong x F<>H G<>E));
+    liftConvTerm $
+    univ (ΠΣⱼ F∷U G∷U ok) (ΠΣⱼ H∷U E∷U′ ok) (ΠΣ-cong x F<>H G<>E ok);
   ≅ₜ-zerorefl = liftConvTerm ∘ᶠ zero-refl;
   ≅-suc-cong = liftConvTerm ∘ᶠ suc-cong;
   ≅-prod-cong = λ x x₁ x₂ x₃ → liftConvTerm (prod-cong x x₁ x₂ x₃);

@@ -2,7 +2,14 @@
 -- Typing and reduction relations
 ------------------------------------------------------------------------
 
-module Definition.Typed {ℓ} (M : Set ℓ) where
+open import Definition.Typed.Restrictions
+
+module Definition.Typed
+  {ℓ} {M : Set ℓ}
+  (R : Type-restrictions M)
+  where
+
+open Type-restrictions R
 
 open import Definition.Untyped M hiding (_∷_)
 
@@ -13,8 +20,6 @@ open import Tools.PropositionalEquality as PE using (_≈_)
 
 
 infixl 30 _∙_
-infix 30 ΠΣⱼ_▹_
-infix 30 ⟦_⟧ⱼ_▹_
 
 private
   variable
@@ -47,22 +52,24 @@ mutual
     Uⱼ     : ⊢ Γ → Γ ⊢ U
     ℕⱼ     : ⊢ Γ → Γ ⊢ ℕ
     Emptyⱼ : ⊢ Γ → Γ ⊢ Empty
-    Unitⱼ  : ⊢ Γ → Γ ⊢ Unit
-    ΠΣⱼ_▹_ : Γ     ⊢ F
+    Unitⱼ  : ⊢ Γ → Unit-restriction → Γ ⊢ Unit
+    ΠΣⱼ    : Γ     ⊢ F
            → Γ ∙ F ⊢ G
+           → ΠΣ-restriction b p
            → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
     univ   : Γ ⊢ A ∷ U
            → Γ ⊢ A
 
   -- Well-formed term of a type
   data _⊢_∷_ (Γ : Con Term n) : Term n → Term n → Set ℓ where
-    ΠΣⱼ_▹_    : ∀ {F G}
+    ΠΣⱼ       : ∀ {F G}
               → Γ     ⊢ F ∷ U
               → Γ ∙ F ⊢ G ∷ U
+              → ΠΣ-restriction b p
               → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ∷ U
     ℕⱼ        : ⊢ Γ → Γ ⊢ ℕ ∷ U
     Emptyⱼ    : ⊢ Γ → Γ ⊢ Empty ∷ U
-    Unitⱼ     : ⊢ Γ → Γ ⊢ Unit ∷ U
+    Unitⱼ     : ⊢ Γ → Unit-restriction → Γ ⊢ Unit ∷ U
 
     var       : ∀ {A x}
               → ⊢ Γ
@@ -83,6 +90,7 @@ mutual
               → Γ ∙ F ⊢ G
               → Γ ⊢ t ∷ F
               → Γ ⊢ u ∷ G [ t ]
+              → Σ-restriction m p
               → Γ ⊢ prod m p t u ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
     fstⱼ      : ∀ {F G t}
               → Γ ⊢ F
@@ -116,7 +124,7 @@ mutual
     Emptyrecⱼ : ∀ {A e}
               → Γ ⊢ A → Γ ⊢ e ∷ Empty → Γ ⊢ Emptyrec p A e ∷ A
 
-    starⱼ     : ⊢ Γ → Γ ⊢ star ∷ Unit
+    starⱼ     : ⊢ Γ → Unit-restriction → Γ ⊢ star ∷ Unit
 
     conv      : ∀ {t A B}
               → Γ ⊢ t ∷ A
@@ -143,6 +151,7 @@ mutual
            → Γ     ⊢ F
            → Γ     ⊢ F ≡ H
            → Γ ∙ F ⊢ G ≡ E
+           → ΠΣ-restriction b p
            → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ≡ ΠΣ⟨ b ⟩ p , q ▷ H ▹ E
 
   -- Term equality
@@ -165,6 +174,7 @@ mutual
                   → Γ     ⊢ F
                   → Γ     ⊢ F ≡ H ∷ U
                   → Γ ∙ F ⊢ G ≡ E ∷ U
+                  → ΠΣ-restriction b p
                   → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ≡
                             ΠΣ⟨ b ⟩ p , q ▷ H ▹ E ∷ U
     app-cong      : ∀ {a b f g F G}
@@ -199,6 +209,7 @@ mutual
                   → Γ ∙ F ⊢ G
                   → Γ ⊢ t ≡ t′ ∷ F
                   → Γ ⊢ u ≡ u′ ∷ G [ t ]
+                  → Σ-restriction m p
                   → Γ ⊢ prod m p t u ≡ prod m p t′ u′ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
     Σ-β₁          : ∀ {F G t u}
                   → Γ ⊢ F
@@ -206,6 +217,7 @@ mutual
                   → Γ ⊢ t ∷ F
                   → Γ ⊢ u ∷ G [ t ]
                   → p ≈ p′
+                  → Σₚ-restriction p
                   → Γ ⊢ fst p (prodₚ p′ t u) ≡ t ∷ F
     Σ-β₂          : ∀ {F G t u}
                   → Γ ⊢ F
@@ -213,6 +225,7 @@ mutual
                   → Γ ⊢ t ∷ F
                   → Γ ⊢ u ∷ G [ t ]
                   → p ≈ p′
+                  → Σₚ-restriction p
                   → Γ ⊢ snd p (prodₚ p′ t u) ≡ u ∷ G [ fst p (prodₚ p′ t u) ]
     Σ-η           : ∀ {t u F G}
                   → Γ ⊢ F
@@ -304,6 +317,7 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                  → Γ ⊢ t ∷ F
                  → Γ ⊢ u ∷ G [ t ]
                  → p ≈ p′
+                 → Σₚ-restriction p
                  → Γ ⊢ fst p (prodₚ p′ t u) ⇒ t ∷ F
   Σ-β₂           : ∀ {F G t u}
                  → Γ ⊢ F
@@ -312,6 +326,7 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                  → Γ ⊢ u ∷ G [ t ]
                  -- TODO(WN): Prove that 𝔍 ∷ G [ t ] is admissible
                  → p ≈ p′
+                 → Σₚ-restriction p
                  → Γ ⊢ snd p (prodₚ p′ t u) ⇒ u ∷ G [ fst p (prodₚ p′ t u) ]
   prodrec-subst  : ∀ {t t′ F G A}
                  → Γ ⊢ F
@@ -434,16 +449,18 @@ data _⊢ˢ_≡_∷_ (Δ : Con Term k) : (σ σ′ : Subst k n) (Γ : Con Term n
 -- Note that we cannot use the well-formed substitutions.
 -- For that, we need to prove the fundamental theorem for substitutions.
 
-⟦_⟧ⱼ_▹_ : (W : BindingType) → ∀ {F G}
+⟦_⟧ⱼ : (W : BindingType) → ∀ {F G}
      → Γ     ⊢ F
      → Γ ∙ F ⊢ G
+     → BindingType-restriction W
      → Γ     ⊢ ⟦ W ⟧ F ▹ G
-⟦ BΠ p q   ⟧ⱼ ⊢F ▹ ⊢G = ΠΣⱼ ⊢F ▹ ⊢G
-⟦ BΣ m p q ⟧ⱼ ⊢F ▹ ⊢G = ΠΣⱼ ⊢F ▹ ⊢G
+⟦ BΠ p q   ⟧ⱼ = ΠΣⱼ
+⟦ BΣ m p q ⟧ⱼ = ΠΣⱼ
 
-⟦_⟧ⱼᵤ_▹_ : (W : BindingType) → ∀ {F G}
+⟦_⟧ⱼᵤ : (W : BindingType) → ∀ {F G}
      → Γ     ⊢ F ∷ U
      → Γ ∙ F ⊢ G ∷ U
+     → BindingType-restriction W
      → Γ     ⊢ ⟦ W ⟧ F ▹ G ∷ U
-⟦ BΠ p q   ⟧ⱼᵤ ⊢F ▹ ⊢G = ΠΣⱼ ⊢F ▹ ⊢G
-⟦ BΣ m p q ⟧ⱼᵤ ⊢F ▹ ⊢G = ΠΣⱼ ⊢F ▹ ⊢G
+⟦ BΠ p q   ⟧ⱼᵤ = ΠΣⱼ
+⟦ BΣ m p q ⟧ⱼᵤ = ΠΣⱼ

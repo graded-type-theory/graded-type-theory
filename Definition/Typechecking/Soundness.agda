@@ -2,14 +2,20 @@
 -- Soundness of the bi-directional typechecking relations.
 ------------------------------------------------------------------------
 
-module Definition.Typechecking.Soundness {a} (M : Set a) where
+open import Definition.Typed.Restrictions
 
-open import Definition.Typechecking M
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-import Definition.Typed.Weakening M as W
-open import Definition.Typed.Consequences.Syntactic M
-open import Definition.Typed.Consequences.Substitution M
+module Definition.Typechecking.Soundness
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  where
+
+open import Definition.Typechecking R
+open import Definition.Typed R
+open import Definition.Typed.Properties R
+import Definition.Typed.Weakening R as W
+open import Definition.Typed.Consequences.Inversion R
+open import Definition.Typed.Consequences.Syntactic R
+open import Definition.Typed.Consequences.Substitution R
 open import Definition.Untyped M hiding (_∷_)
 
 open import Tools.Nat
@@ -33,18 +39,18 @@ mutual
   soundness⇇Type : ⊢ Γ → Γ ⊢ A ⇇Type → Γ ⊢ A
   soundness⇇Type ⊢Γ Uᶜ = Uⱼ ⊢Γ
   soundness⇇Type ⊢Γ ℕᶜ = ℕⱼ ⊢Γ
-  soundness⇇Type ⊢Γ Unitᶜ = Unitⱼ ⊢Γ
+  soundness⇇Type ⊢Γ (Unitᶜ ok) = Unitⱼ ⊢Γ ok
   soundness⇇Type ⊢Γ Emptyᶜ = Emptyⱼ ⊢Γ
-  soundness⇇Type ⊢Γ (ΠΣᶜ x x₁) =
-    let ⊢F = soundness⇇Type ⊢Γ x
-    in  ΠΣⱼ ⊢F ▹ soundness⇇Type (⊢Γ ∙ ⊢F) x₁
+  soundness⇇Type ⊢Γ (ΠΣᶜ ⊢A ⊢B ok) =
+    let ⊢F = soundness⇇Type ⊢Γ ⊢A
+    in  ΠΣⱼ ⊢F (soundness⇇Type (⊢Γ ∙ ⊢F) ⊢B) ok
   soundness⇇Type ⊢Γ (univᶜ x) = univ (soundness⇇ ⊢Γ x)
 
   soundness⇉ : ⊢ Γ → Γ ⊢ t ⇉ A → (Γ ⊢ A) × (Γ ⊢ t ∷ A)
-  soundness⇉ ⊢Γ (ΠΣᵢ F⇇U G⇇U) =
+  soundness⇉ ⊢Γ (ΠΣᵢ F⇇U G⇇U ok) =
     let ⊢F = soundness⇇ ⊢Γ F⇇U
         ⊢G = soundness⇇ (⊢Γ ∙ univ ⊢F) G⇇U
-    in  Uⱼ ⊢Γ , ΠΣⱼ ⊢F ▹ ⊢G
+    in  Uⱼ ⊢Γ , ΠΣⱼ ⊢F ⊢G ok
   soundness⇉ ⊢Γ (varᵢ x∷A∈Γ) = soundness⇉-var ⊢Γ x∷A∈Γ
   soundness⇉ ⊢Γ (appᵢ t⇉A (A⇒ΠFG , _) u⇇F) =
     let ⊢A , ⊢t = soundness⇉ ⊢Γ t⇉A
@@ -85,8 +91,8 @@ mutual
         ⊢s = soundness⇇ (⊢Γ ∙ ⊢ℕ ∙ ⊢A) s⇇A₊
         ⊢n = soundness⇇ ⊢Γ n⇇ℕ
     in  substType ⊢A ⊢n , (natrecⱼ ⊢A ⊢z ⊢s ⊢n)
-  soundness⇉ ⊢Γ Unitᵢ = (Uⱼ ⊢Γ) , (Unitⱼ ⊢Γ)
-  soundness⇉ ⊢Γ starᵢ = (Unitⱼ ⊢Γ) , (starⱼ ⊢Γ)
+  soundness⇉ ⊢Γ (Unitᵢ ok) = Uⱼ ⊢Γ , Unitⱼ ⊢Γ ok
+  soundness⇉ ⊢Γ (starᵢ ok) = Unitⱼ ⊢Γ ok , starⱼ ⊢Γ ok
   soundness⇉ ⊢Γ Emptyᵢ = (Uⱼ ⊢Γ) , (Emptyⱼ ⊢Γ)
   soundness⇉ ⊢Γ (Emptyrecᵢ A⇇Type t⇇Empty) =
     let ⊢A = soundness⇇Type ⊢Γ A⇇Type
@@ -102,8 +108,8 @@ mutual
   soundness⇇ ⊢Γ (prodᶜ A↘ΣFG t⇇F u⇇Gt) =
     let A≡ΣFG = subset* (proj₁ A↘ΣFG)
         _ , ⊢ΣFG = syntacticEq A≡ΣFG
-        ⊢F , ⊢G = syntacticΣ ⊢ΣFG
+        ⊢F , ⊢G , ok = inversion-ΠΣ ⊢ΣFG
         ⊢t = soundness⇇ ⊢Γ t⇇F
         ⊢u = soundness⇇ ⊢Γ u⇇Gt
-    in  conv (prodⱼ ⊢F ⊢G ⊢t ⊢u) (sym A≡ΣFG)
+    in  conv (prodⱼ ⊢F ⊢G ⊢t ⊢u ok) (sym A≡ΣFG)
   soundness⇇ ⊢Γ (infᶜ t⇉B A≡B) = conv (proj₂ (soundness⇉ ⊢Γ t⇉B)) A≡B

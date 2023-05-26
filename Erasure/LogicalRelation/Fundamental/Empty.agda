@@ -4,32 +4,38 @@
 
 open import Definition.Modality
 open import Definition.Typed.EqualityRelation
-import Definition.Typed as T′
-import Definition.Untyped as U hiding (_∷_)
+import Definition.Typed
+open import Definition.Typed.Restrictions
+import Definition.Untyped hiding (_∷_)
+open import Tools.Empty
 open import Tools.Nullary
 open import Tools.PropositionalEquality
 
 module Erasure.LogicalRelation.Fundamental.Empty
-  {a k} {M : Set a} (𝕄 : Modality M)
-  (open U M) (open T′ M) (open Modality 𝕄)
+  {a k} {M : Set a}
+  (open Definition.Untyped M)
+  (𝕄 : Modality M)
+  (open Modality 𝕄)
+  (R : Type-restrictions M)
+  (open Definition.Typed R)
   {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   (is-𝟘? : (p : M) → Dec (p ≡ 𝟘))
   (consistent : ∀ {t} → Δ ⊢ t ∷ Empty → ⊥)
-  {{eqrel : EqRelSet M}}
+  {{eqrel : EqRelSet R}}
   where
 
 open EqRelSet {{...}}
 
-open import Erasure.LogicalRelation 𝕄 ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Subsumption 𝕄 ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation 𝕄 R ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Subsumption 𝕄 R ⊢Δ is-𝟘?
 import Erasure.Target as T
 
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.Fundamental M
-open import Definition.LogicalRelation.Substitution M
-open import Definition.LogicalRelation.Substitution.Irrelevance M
-open import Definition.LogicalRelation.Substitution.Introductions.Universe M
-open import Definition.LogicalRelation.Substitution.Introductions.Empty M
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Fundamental R
+open import Definition.LogicalRelation.Substitution R
+open import Definition.LogicalRelation.Substitution.Irrelevance R
+open import Definition.LogicalRelation.Substitution.Introductions.Universe R
+open import Definition.LogicalRelation.Substitution.Introductions.Empty R
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Mode 𝕄

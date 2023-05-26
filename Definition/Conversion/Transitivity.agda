@@ -2,24 +2,28 @@
 -- The algorithmic equality is transitive.
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
+
 module Definition.Conversion.Transitivity
-  {a} (M : Set a) where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  where
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-open import Definition.Typed.RedSteps M
-open import Definition.Conversion M
-open import Definition.Conversion.Soundness M
-open import Definition.Conversion.Stability M
-open import Definition.Conversion.Whnf M
-open import Definition.Conversion.Conversion M
-open import Definition.Typed.Consequences.Syntactic M
-open import Definition.Typed.Consequences.Injectivity M
-import Definition.Typed.Consequences.Inequality M as WF
-open import Definition.Typed.Consequences.Substitution M
-open import Definition.Typed.Consequences.NeTypeEq M
-open import Definition.Typed.Consequences.SucCong M
+open import Definition.Typed R
+open import Definition.Typed.Properties R
+open import Definition.Typed.RedSteps R
+open import Definition.Conversion R
+open import Definition.Conversion.Soundness R
+open import Definition.Conversion.Stability R
+open import Definition.Conversion.Whnf R
+open import Definition.Conversion.Conversion R
+open import Definition.Typed.Consequences.Syntactic R
+open import Definition.Typed.Consequences.Injectivity R
+import Definition.Typed.Consequences.Inequality R as WF
+open import Definition.Typed.Consequences.Substitution R
+open import Definition.Typed.Consequences.NeTypeEq R
+open import Definition.Typed.Consequences.SucCong R
 
 open import Tools.Function
 open import Tools.Nat
@@ -85,7 +89,7 @@ mutual
         u<>v′ = stabilityConv↑Term (Γ≡Γ ∙ F≡F′ ∙ G≡G′) u<>v
         _ , ⊢ΓFG , _ = contextConvSubst (Γ≡Γ ∙ F≡F′ ∙ G≡G′)
         A≡B = soundnessConv↑ A<>B
-        A₊≡B₊ = subst↑²TypeEq A≡B
+        A₊≡B₊ = subst↑²TypeEq A≡B _
         t<>v = transConv↑Term A₊≡B₊ t<>u u<>v′
         a≡b = soundness~↓ a~b
         Aa≡Bb = substTypeEq A≡B a≡b
@@ -138,22 +142,22 @@ mutual
   transConv↓ (U-refl x) (U-refl x₁) = U-refl x
   transConv↓ (ℕ-refl x) (ℕ-refl x₁) = ℕ-refl x
   transConv↓ (Empty-refl x) (Empty-refl x₁) = Empty-refl x
-  transConv↓ (Unit-refl x) (Unit-refl x₁) = Unit-refl x
+  transConv↓ (Unit-refl x ok) (Unit-refl x₁ _) = Unit-refl x ok
   transConv↓ (ne x) (ne x₁) =
     let A~C , U≡U = trans~↓ x x₁
     in  ne A~C
-  transConv↓ (ΠΣ-cong x x₁ x₂) (ΠΣ-cong x₃ x₄ x₅) =
+  transConv↓ (ΠΣ-cong x x₁ x₂ ok) (ΠΣ-cong x₃ x₄ x₅ _) =
     ΠΣ-cong x (transConv↑ x₁ x₄)
-      (transConv↑′ (reflConEq (wf x) ∙ soundnessConv↑ x₁) x₂ x₅)
+      (transConv↑′ (reflConEq (wf x) ∙ soundnessConv↑ x₁) x₂ x₅) ok
   -- Refutable cases
   transConv↓ (U-refl x) (ne ([~] A D whnfB ()))
   transConv↓ (ℕ-refl x) (ne ([~] A D whnfB ()))
   transConv↓ (Empty-refl x) (ne ([~] A D whnfB ()))
-  transConv↓ (ΠΣ-cong _ _ _) (ne ([~] _ _ _ ()))
+  transConv↓ (ΠΣ-cong _ _ _ _) (ne ([~] _ _ _ ()))
   transConv↓ (ne ([~] A₁ D whnfB ())) (U-refl x₁)
   transConv↓ (ne ([~] A₁ D whnfB ())) (ℕ-refl x₁)
   transConv↓ (ne ([~] A₁ D whnfB ())) (Empty-refl x₁)
-  transConv↓ (ne ([~] _ _ _ ()))      (ΠΣ-cong _ _ _)
+  transConv↓ (ne ([~] _ _ _ ()))      (ΠΣ-cong _ _ _ _)
 
   -- Transitivity of algorithmic equality of terms.
   transConv↑Term : ∀ {t u v A B}

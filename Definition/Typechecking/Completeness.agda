@@ -2,20 +2,26 @@
 -- Completeness of the bi-directional typechecking relations.
 ------------------------------------------------------------------------
 
-module Definition.Typechecking.Completeness {a} (M : Set a) where
+open import Definition.Typed.Restrictions
 
-open import Definition.Conversion.Stability M
-open import Definition.Typechecking M
-open import Definition.Typechecking.Soundness M
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-import Definition.Typed.Weakening M as W
-open import Definition.Typed.Consequences.Inversion M
-open import Definition.Typed.Consequences.Reduction M
-open import Definition.Typed.Consequences.Substitution  M
-open import Definition.Typed.Consequences.Syntactic M
+module Definition.Typechecking.Completeness
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  where
+
+open import Definition.Conversion.Stability R
+open import Definition.Typechecking R
+open import Definition.Typechecking.Soundness R
+open import Definition.Typed R
+open import Definition.Typed.Properties R
+import Definition.Typed.Weakening R as W
+open import Definition.Typed.Consequences.Inversion R
+open import Definition.Typed.Consequences.Reduction R
+open import Definition.Typed.Consequences.Substitution  R
+open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Untyped M hiding (_∷_)
 
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -37,8 +43,9 @@ mutual
   completeness⇇Type A (Uⱼ x) = Uᶜ
   completeness⇇Type A (ℕⱼ x) = ℕᶜ
   completeness⇇Type A (Emptyⱼ x) = Emptyᶜ
-  completeness⇇Type A (Unitⱼ x) = Unitᶜ
-  completeness⇇Type (infᶜ (ΠΣᵢ F G)) (ΠΣⱼ ⊢F ▹ ⊢G) = ΠΣᶜ (completeness⇇Type F ⊢F) (completeness⇇Type G ⊢G)
+  completeness⇇Type A (Unitⱼ x ok) = Unitᶜ ok
+  completeness⇇Type (infᶜ (ΠΣᵢ F G)) (ΠΣⱼ ⊢F ⊢G ok) =
+    ΠΣᶜ (completeness⇇Type F ⊢F) (completeness⇇Type G ⊢G) ok
   completeness⇇Type A (univ x) = univᶜ (completeness⇇ A x)
 
   -- Completeness of type inference
@@ -46,10 +53,10 @@ mutual
   completeness⇉ : Inferable t → Γ ⊢ t ∷ A → ∃ λ B → Γ ⊢ t ⇉ B × Γ ⊢ A ≡ B
   completeness⇉ Uᵢ ⊢t = PE.⊥-elim (inversion-U ⊢t)
   completeness⇉ (ΠΣᵢ F G) ⊢t =
-    let ⊢F , ⊢G , A≡U = inversion-ΠΣ-U ⊢t
+    let ⊢F , ⊢G , A≡U , ok = inversion-ΠΣ-U ⊢t
         F⇇U = completeness⇇ F ⊢F
         G⇇U = completeness⇇ G ⊢G
-    in  _ , ΠΣᵢ F⇇U G⇇U , A≡U
+    in  _ , ΠΣᵢ F⇇U G⇇U ok , A≡U
   completeness⇉ varᵢ ⊢t =
     let B , x∷B∈Γ , A≡B = inversion-var ⊢t
     in  _ , varᵢ x∷B∈Γ , A≡B
@@ -75,7 +82,9 @@ mutual
         B , t⇉B , ΣFG≡B = completeness⇉ t ⊢t
         F′ , G′ , B⇒Σ′ , F≡F′ , G≡G′ = ΣNorm (proj₁ (soundness⇉ (wfTerm ⊢t) t⇉B)) (sym ΣFG≡B)
         u⇇C₊ = completeness⇇ u (stabilityTerm ((reflConEq (wf ⊢F)) ∙ F≡F′ ∙ G≡G′) ⊢u)
-        C⇇Type = completeness⇇Type C (stability (reflConEq (wf ⊢F) ∙ ΠΣ-cong ⊢F F≡F′ G≡G′) ⊢C)
+        C⇇Type = completeness⇇Type C $
+                 stability
+                   (reflConEq (wf ⊢F) ∙ ΠΣ-cong ⊢F F≡F′ G≡G′ _) ⊢C
     in  _ , prodrecᵢ C⇇Type t⇉B (B⇒Σ′ , ΠΣₙ) u⇇C₊ , A≡Ct
   completeness⇉ ℕᵢ ⊢t = _ , ℕᵢ , inversion-ℕ ⊢t
   completeness⇉ zeroᵢ ⊢t = _ , zeroᵢ , inversion-zero ⊢t
@@ -90,8 +99,14 @@ mutual
         n⇇ℕ = completeness⇇ n ⊢n
         C⇇Type = completeness⇇Type C ⊢C
     in  _ , natrecᵢ C⇇Type z⇇C₀ s⇇C₊ n⇇ℕ , A≡Cn
-  completeness⇉ Unitᵢ ⊢t = _ , Unitᵢ , inversion-Unit ⊢t
-  completeness⇉ starᵢ ⊢t = _ , starᵢ , inversion-star ⊢t
+  completeness⇉ Unitᵢ ⊢t =
+    case inversion-Unit-U ⊢t of λ {
+      (≡U , ok) →
+    _ , Unitᵢ ok , ≡U }
+  completeness⇉ starᵢ ⊢t =
+    case inversion-star ⊢t of λ {
+      (≡Unit , ok) →
+    _ , starᵢ ok , ≡Unit }
   completeness⇉ Emptyᵢ ⊢t = _ , Emptyᵢ , inversion-Empty ⊢t
   completeness⇉ (Emptyrecᵢ C t) ⊢t =
     let ⊢C , ⊢t , A≡C = inversion-Emptyrec ⊢t
@@ -109,7 +124,7 @@ mutual
         t⇇G = completeness⇇ t (stabilityTerm (reflConEq (wf ⊢F) ∙ F≡F′) (conv ⊢t G≡G′))
     in  lamᶜ (A⇒ΠF′G′ , ΠΣₙ) t⇇G
   completeness⇇ (prodᶜ t u) ⊢t =
-    let F , G , m , ⊢F , ⊢G , ⊢t , ⊢u , A≡ΣFG = inversion-prod ⊢t
+    let F , G , m , ⊢F , ⊢G , ⊢t , ⊢u , A≡ΣFG , _ = inversion-prod ⊢t
         ⊢A , _ = syntacticEq A≡ΣFG
         F′ , G′ , A⇒ΣF′G′ , F≡F′ , G≡G′ = ΣNorm ⊢A A≡ΣFG
         t⇇F = completeness⇇ t (conv ⊢t F≡F′)

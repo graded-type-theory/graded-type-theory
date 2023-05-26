@@ -3,22 +3,27 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.EqualityRelation
+open import Definition.Typed.Restrictions
 
 module Definition.LogicalRelation.Substitution.Introductions.DoubleSubst
-  {a} (M : Set a) {{eqrel : EqRelSet M}} where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  {{eqrel : EqRelSet R}}
+  where
 
 open EqRelSet {{...}}
+open Type-restrictions R
 
 open import Definition.Untyped M as U hiding (_∷_)
 open import Definition.Untyped.Properties M
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.Irrelevance M
-open import Definition.LogicalRelation.Properties M
-open import Definition.LogicalRelation.Substitution M
-open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst M
-open import Definition.LogicalRelation.Substitution.Introductions.Prod M
-open import Definition.LogicalRelation.Substitution.Introductions.Pi M
-open import Definition.LogicalRelation.Substitution.Weakening M
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Irrelevance R
+open import Definition.LogicalRelation.Properties R
+open import Definition.LogicalRelation.Substitution R
+open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst R
+open import Definition.LogicalRelation.Substitution.Introductions.Prod R
+open import Definition.LogicalRelation.Substitution.Introductions.Pi R
+open import Definition.LogicalRelation.Substitution.Weakening R
 
 open import Tools.Fin
 open import Tools.Nat
@@ -39,10 +44,12 @@ subst↑²S :
   ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
   ([Σ] : Γ ⊩ᵛ⟨ l ⟩ Σ⟨ m ⟩ p , q ▷ F ▹ G / [Γ])
   ([A] : Γ ∙ (Σ p , q ▷ F ▹ G) ⊩ᵛ⟨ l ⟩ A / [Γ] ∙ [Σ]) →
+  Σ-restriction m p →
   Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A [ prod m p (var (x0 +1)) (var x0) ]↑² /
     [Γ] ∙ [F] ∙ [G]
 subst↑²S
-  {n = n} {q = q} {Γ = Γ} {F = F} {G} {A} {m} {l} [Γ] [F] [G] [Σ] [A] =
+  {n = n} {q = q} {Γ = Γ} {F = F} {G} {A} {m} {l}
+  [Γ] [F] [G] [Σ] [A] ok =
   wrap λ {k} {Δ} {σ} ⊢Δ [σ]@(([σ₋] , [σ₁]) , [σ₀]) →
   let [σF] = proj₁ (unwrap [F] ⊢Δ [σ₋])
       ⊢σF = escape [σF]
@@ -115,9 +122,10 @@ subst↑²S
 
       [x1x0] = prodᵛ {m = m} {q = q} {F = wk1 (wk1 F)}
                      {U.wk (lift (step (step id))) G} {var (x0 +1)} {var x0}
-                     [ΓFG] wk2[F] wk[G] [x1] [x0]
+                     [ΓFG] wk2[F] wk[G] [x1] [x0] ok
       [σx1x0] = proj₁ ([x1x0] {σ = σ} ⊢Δ [σ])
-      wk[Σ] = Σᵛ {F = wk1 (wk1 F)} {U.wk (lift (step (step id))) G} {q = q} {m} [ΓFG] wk2[F] wk[G]
+      wk[Σ] = Σᵛ {F = wk1 (wk1 F)} {U.wk (lift (step (step id))) G}
+                {q = q} {m} [ΓFG] wk2[F] wk[G] ok
       σwk[Σ] = proj₁ (unwrap wk[Σ] {σ = σ} ⊢Δ [σ])
       [σΣ] = proj₁ (unwrap [Σ] ⊢Δ [σ₋])
       [σx1x0]′ = irrelevanceTerm′ (wk2-tail-B {σ = σ} (BΣ m _ q) F G)
@@ -176,11 +184,12 @@ subst↑²SEq :
   ([A≡A′] : Γ ∙ (Σ p , q ▷ F ▹ G) ⊩ᵛ⟨ l ⟩ A ≡ A′ / [Γ] ∙ [Σ] / [A])
   ([A₊] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A [ prod m p (var (x0 +1)) (var x0) ]↑² /
             [Γ] ∙ [F] ∙ [G]) →
+  Σ-restriction m p →
   Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A  [ prod m p (var (x0 +1)) (var x0) ]↑² ≡
     A′ [ prod m p (var (x0 +1)) (var x0) ]↑² / [Γ] ∙ [F] ∙ [G] / [A₊]
 subst↑²SEq
   {n = n} {q = q} {Γ = Γ} {F} {G} {A} {A′} {m} {l}
-  [Γ] [F] [G] [Σ] [A] [A′] [A≡A′] [A₊] {k} {Δ} {σ}
+  [Γ] [F] [G] [Σ] [A] [A′] [A≡A′] [A₊] ok {k} {Δ} {σ}
   ⊢Δ [σ]@(([σ₋] , [σ₁]) , [σ₀]) =
   let [σF] = proj₁ (unwrap [F] ⊢Δ [σ₋])
       ⊢σF = escape [σF]
@@ -251,8 +260,10 @@ subst↑²SEq
 
       [x1x0] = prodᵛ {m = m} {q = q} {F = wk1 (wk1 F)} {U.wk (lift (step (step id))) G}
                      {var (x0 +1)} {var x0} [ΓFG] wk2[F] wk[G] [x1] [x0]
+                     ok
       [σx1x0] = proj₁ ([x1x0] {σ = σ} ⊢Δ [σ])
-      wk[Σ] = Σᵛ {F = wk1 (wk1 F)} {U.wk (lift (step (step id))) G} {q = q} {m} [ΓFG] wk2[F] wk[G]
+      wk[Σ] = Σᵛ {F = wk1 (wk1 F)} {U.wk (lift (step (step id))) G}
+                {q = q} {m} [ΓFG] wk2[F] wk[G] ok
       σwk[Σ] = proj₁ (unwrap wk[Σ] {σ = σ} ⊢Δ [σ])
       [σΣ] = proj₁ (unwrap [Σ] ⊢Δ [σ₋])
       [σx1x0]′ = irrelevanceTerm′ (wk2-tail-B {σ = σ} (BΣ m _ q) F G)

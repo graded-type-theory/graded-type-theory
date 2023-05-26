@@ -2,15 +2,19 @@
 -- Equal terms of type U are equal types.
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
+
 module Definition.Conversion.Universe
-  {a} (M : Set a) where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  where
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed.Properties M
-open import Definition.Typed.RedSteps M
-open import Definition.Conversion M
-open import Definition.Conversion.Reduction M
-open import Definition.Conversion.Lift M
+open import Definition.Typed.Properties R
+open import Definition.Typed.RedSteps R
+open import Definition.Conversion R
+open import Definition.Conversion.Reduction R
+open import Definition.Conversion.Lift R
 
 open import Tools.Nat
 import Tools.PropositionalEquality as PE

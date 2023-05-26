@@ -2,19 +2,23 @@
 -- Decidability of type and term equality.
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
 open import Tools.Relation
 open import Tools.PropositionalEquality as PE
   using (_≈_; ≈-refl; ≈-sym; ≈-trans)
 
 module Definition.Typed.Decidable.Equality
-  {a} {M : Set a} (_≟_ : Decidable (_≈_ {A = M})) where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  (_≟_ : Decidable (_≈_ {A = M}))
+  where
 
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
-open import Definition.Conversion.Decidable _≟_
-open import Definition.Conversion.Soundness M
-open import Definition.Conversion.Consequences.Completeness M
+open import Definition.Typed R
+open import Definition.Conversion.Decidable R _≟_
+open import Definition.Conversion.Soundness R
+open import Definition.Conversion.Consequences.Completeness R
 
 open import Tools.Nat
 open import Tools.Nullary

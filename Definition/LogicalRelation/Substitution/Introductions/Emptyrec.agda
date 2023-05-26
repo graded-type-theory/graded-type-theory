@@ -3,25 +3,29 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.EqualityRelation
+open import Definition.Typed.Restrictions
 
 module Definition.LogicalRelation.Substitution.Introductions.Emptyrec
-  {a} (M : Set a) {{eqrel : EqRelSet M}} where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  {{eqrel : EqRelSet R}}
+  where
 
 open EqRelSet {{...}}
 
 open import Definition.Untyped M as U hiding (wk ; _∷_)
-open import Definition.Typed M
-import Definition.Typed.Weakening M as T
-open import Definition.Typed.Properties M
-open import Definition.Typed.RedSteps M
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.Irrelevance M
-open import Definition.LogicalRelation.Properties M
-open import Definition.LogicalRelation.Substitution M
-open import Definition.LogicalRelation.Substitution.Properties M
-import Definition.LogicalRelation.Substitution.Irrelevance M as S
-open import Definition.LogicalRelation.Substitution.Reflexivity M
-open import Definition.LogicalRelation.Substitution.Introductions.Empty M
+open import Definition.Typed R
+import Definition.Typed.Weakening R as T
+open import Definition.Typed.Properties R
+open import Definition.Typed.RedSteps R
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Irrelevance R
+open import Definition.LogicalRelation.Properties R
+open import Definition.LogicalRelation.Substitution R
+open import Definition.LogicalRelation.Substitution.Properties R
+import Definition.LogicalRelation.Substitution.Irrelevance R as S
+open import Definition.LogicalRelation.Substitution.Reflexivity R
+open import Definition.LogicalRelation.Substitution.Introductions.Empty R
 
 open import Tools.Product
 open import Tools.Nat

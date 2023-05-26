@@ -3,23 +3,27 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.EqualityRelation
+open import Definition.Typed.Restrictions
 
 module Definition.LogicalRelation.Substitution.Introductions
-  {a} (M : Set a) {{eqrel : EqRelSet M}} where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  {{eqrel : EqRelSet R}}
+  where
 
-open import Definition.LogicalRelation.Substitution.Introductions.Pi M public
-open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst M public
-open import Definition.LogicalRelation.Substitution.Introductions.Lambda M public
-open import Definition.LogicalRelation.Substitution.Introductions.Application M public
-open import Definition.LogicalRelation.Substitution.Introductions.Prod M public
-open import Definition.LogicalRelation.Substitution.Introductions.Fst M public
-open import Definition.LogicalRelation.Substitution.Introductions.Snd M public
-open import Definition.LogicalRelation.Substitution.Introductions.ProdBetaEta M public
-open import Definition.LogicalRelation.Substitution.Introductions.Prodrec M public
-open import Definition.LogicalRelation.Substitution.Introductions.DoubleSubst M public
-open import Definition.LogicalRelation.Substitution.Introductions.Nat M public
-open import Definition.LogicalRelation.Substitution.Introductions.Natrec M public
-open import Definition.LogicalRelation.Substitution.Introductions.Empty M public
-open import Definition.LogicalRelation.Substitution.Introductions.Emptyrec M public
-open import Definition.LogicalRelation.Substitution.Introductions.Unit M public
-open import Definition.LogicalRelation.Substitution.Introductions.Universe M public
+open import Definition.LogicalRelation.Substitution.Introductions.Pi R public
+open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst R public
+open import Definition.LogicalRelation.Substitution.Introductions.Lambda R public
+open import Definition.LogicalRelation.Substitution.Introductions.Application R public
+open import Definition.LogicalRelation.Substitution.Introductions.Prod R public
+open import Definition.LogicalRelation.Substitution.Introductions.Fst R public
+open import Definition.LogicalRelation.Substitution.Introductions.Snd R public
+open import Definition.LogicalRelation.Substitution.Introductions.ProdBetaEta R public
+open import Definition.LogicalRelation.Substitution.Introductions.Prodrec R public
+open import Definition.LogicalRelation.Substitution.Introductions.DoubleSubst R public
+open import Definition.LogicalRelation.Substitution.Introductions.Nat R public
+open import Definition.LogicalRelation.Substitution.Introductions.Natrec R public
+open import Definition.LogicalRelation.Substitution.Introductions.Empty R public
+open import Definition.LogicalRelation.Substitution.Introductions.Emptyrec R public
+open import Definition.LogicalRelation.Substitution.Introductions.Unit R public
+open import Definition.LogicalRelation.Substitution.Introductions.Universe R public

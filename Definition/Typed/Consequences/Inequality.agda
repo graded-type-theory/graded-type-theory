@@ -2,17 +2,22 @@
 -- Inequality lemmata.
 ------------------------------------------------------------------------
 
-module Definition.Typed.Consequences.Inequality
-  {a} (M : Set a) where
+open import Definition.Typed.Restrictions
 
-open import Definition.Untyped M hiding (U≢ne; ℕ≢ne; B≢ne; U≢B; ℕ≢B)
-open import Definition.Typed M
-open import Definition.Typed.EqRelInstance M
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.Irrelevance M
-open import Definition.LogicalRelation.ShapeView M
-open import Definition.LogicalRelation.Fundamental.Reducibility M
-open import Definition.Typed.Consequences.Syntactic M
+module Definition.Typed.Consequences.Inequality
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  where
+
+open import Definition.Untyped M
+  hiding (U≢ne; ℕ≢ne; B≢ne; ΠΣ≢ne; U≢B; ℕ≢B)
+open import Definition.Typed R
+open import Definition.Typed.EqRelInstance R
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Irrelevance R
+open import Definition.LogicalRelation.ShapeView R
+open import Definition.LogicalRelation.Fundamental.Reducibility R
+open import Definition.Typed.Consequences.Syntactic R
 
 open import Tools.Nat
 open import Tools.Product

@@ -3,20 +3,24 @@
 ------------------------------------------------------------------------
 
 open import Definition.Modality
+open import Definition.Typed.Restrictions
 open import Tools.Empty
 
 module Application.NegativeAxioms.NegativeErasedContext
-  {a} {M : Set a} (𝕄 : Modality M)
-  (𝟘≰𝟙 : Modality._≤_ 𝕄 (Modality.𝟘 𝕄) (Modality.𝟙 𝕄) → ⊥) where
+  {a} {M : Set a}
+  (𝕄 : Modality M)
+  (R : Type-restrictions M)
+  (𝟘≰𝟙 : Modality._≤_ 𝕄 (Modality.𝟘 𝕄) (Modality.𝟙 𝕄) → ⊥)
+  where
 
 open Modality 𝕄
 
 open import Definition.Untyped M
-open import Definition.Typed M
-open import Definition.Typed.Weakening M
+open import Definition.Typed R
+open import Definition.Typed.Weakening R
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Properties 𝕄 hiding (𝟘≰𝟙)
-open import Application.NegativeAxioms.NegativeOrErasedType 𝕄
+open import Application.NegativeAxioms.NegativeOrErasedType 𝕄 R
 
 open import Tools.Bool
 open import Tools.Fin

@@ -6,10 +6,15 @@
 -- Definition.Typed.Consequeces.RedSteps
 ------------------------------------------------------------------------
 
-module Definition.Typed.RedSteps {ℓ} (M : Set ℓ) where
+open import Definition.Typed.Restrictions
+
+module Definition.Typed.RedSteps
+  {ℓ} {M : Set ℓ}
+  (R : Type-restrictions M)
+  where
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
+open import Definition.Typed R
 open import Tools.Nat
 
 private

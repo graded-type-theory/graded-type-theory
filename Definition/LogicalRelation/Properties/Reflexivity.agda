@@ -3,15 +3,19 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.EqualityRelation
+open import Definition.Typed.Restrictions
 
 module Definition.LogicalRelation.Properties.Reflexivity
-  {a} (M : Set a) {{eqrel : EqRelSet M}} where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  {{eqrel : EqRelSet R}}
+  where
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
-open import Definition.Typed.Weakening M
-open import Definition.Typed.Properties M
-open import Definition.LogicalRelation M
+open import Definition.Typed R
+open import Definition.Typed.Weakening R
+open import Definition.Typed.Properties R
+open import Definition.LogicalRelation R
 
 open import Tools.Nat
 open import Tools.Product
@@ -27,10 +31,10 @@ reflEq : ∀ {l A} ([A] : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ A ≡ A / [A]
 reflEq (Uᵣ′ l′ l< ⊢Γ) = PE.refl
 reflEq (ℕᵣ D) = red D
 reflEq (Emptyᵣ D) = red D
-reflEq (Unitᵣ D) = red D
+reflEq (Unitᵣ (Unitₜ D _)) = red D
 reflEq (ne′ K [ ⊢A , ⊢B , D ] neK K≡K) =
    ne₌ _ [ ⊢A , ⊢B , D ] neK K≡K
-reflEq (Bᵣ′ W F G [ ⊢A , ⊢B , D ] ⊢F ⊢G A≡A [F] [G] G-ext) =
+reflEq (Bᵣ′ _ _ _ [ _ , _ , D ] _ _ A≡A [F] [G] _ _) =
    B₌ _ _ D A≡A
       (λ ρ ⊢Δ → reflEq ([F] ρ ⊢Δ))
       (λ ρ ⊢Δ [a] → reflEq ([G] ρ ⊢Δ [a]))
@@ -66,19 +70,22 @@ reflEqTerm (Unitᵣ D) (Unitₜ n [ ⊢t , ⊢u , d ] prop) =
   Unitₜ₌ ⊢t ⊢t
 reflEqTerm (ne′ K D neK K≡K) (neₜ k d (neNfₜ neK₁ ⊢k k≡k)) =
   neₜ₌ k k d d (neNfₜ₌ neK₁ neK₁ k≡k)
-reflEqTerm (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext) [t]@(Πₜ f d funcF f≡f [f] [f]₁) =
+reflEqTerm
+  (Bᵣ′ BΠ! _ _ _ _ _ _ [F] _ _ _) [t]@(Πₜ f d funcF f≡f [f] _) =
   Πₜ₌ f f d d funcF funcF f≡f [t] [t]
       (λ ρ ⊢Δ [a] → [f] ρ ⊢Δ [a] [a] (reflEqTerm ([F] ρ ⊢Δ) [a]))
-reflEqTerm (Bᵣ′ BΣₚ F G D ⊢F ⊢G A≡A [F] [G] G-ext) [t]@(Σₜ p d p≅p prodP ([fstp] , [sndp])) =
+reflEqTerm
+  (Bᵣ′ BΣₚ _ _ _ ⊢F _ _ [F] [G] _ _)
+  [t]@(Σₜ p d p≅p prodP ([fstp] , [sndp])) =
   Σₜ₌ p p d d prodP prodP p≅p [t] [t]
       ([fstp] , [fstp] , reflEqTerm ([F] id (wf ⊢F)) [fstp] , reflEqTerm ([G] id (wf ⊢F) [fstp]) [sndp])
 reflEqTerm
-  (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+  (Bᵣ′ BΣᵣ _ _ _ ⊢F _ _ [F] [G] _ _)
   [t]@(Σₜ p d p≅p prodₙ (PE.refl , [p₁] , [p₂] , PE.refl)) =
   Σₜ₌ p p d d prodₙ prodₙ p≅p [t] [t]
       (PE.refl , PE.refl , [p₁] , [p₁] , [p₂] , [p₂] ,
         reflEqTerm ([F] id (wf ⊢F)) [p₁] ,
         reflEqTerm ([G] id (wf ⊢F) [p₁]) [p₂])
-reflEqTerm (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) [t]@(Σₜ p d p≅p (ne x) p~p) =
+reflEqTerm (Bᵣ′ BΣᵣ _ _ _ _ _ _ _ _ _ _) [t]@(Σₜ p d p≅p (ne x) p~p) =
   Σₜ₌ p p d d (ne x) (ne x) p≅p [t] [t] p~p
 reflEqTerm (emb 0<1 [A]) t = reflEqTerm [A] t

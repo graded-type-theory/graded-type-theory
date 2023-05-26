@@ -4,36 +4,41 @@
 
 open import Definition.Modality
 open import Definition.Typed.EqualityRelation
-import Definition.Typed as T′
+import Definition.Typed as T
+open import Definition.Typed.Restrictions
 import Definition.Untyped as U hiding (_∷_)
 open import Tools.Nullary
 open import Tools.PropositionalEquality
 
 module Erasure.LogicalRelation.Fundamental.Nat
-  {a k} {M : Set a} (𝕄 : Modality M)
-  (open U M) (open T′ M) (open Modality 𝕄)
+  {a k} {M : Set a}
+  (open U M)
+  (𝕄 : Modality M)
+  (open Modality 𝕄)
+  (R : Type-restrictions M)
+  (open T R)
   {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   (is-𝟘? : (p : M) → Dec (p ≡ 𝟘))
-  {{eqrel : EqRelSet M}}
+  {{eqrel : EqRelSet R}}
   where
 
 
 open EqRelSet {{...}}
 
-open import Erasure.LogicalRelation 𝕄 ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Irrelevance 𝕄 ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Subsumption 𝕄 ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation 𝕄 R ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Irrelevance 𝕄 R ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Subsumption 𝕄 R ⊢Δ is-𝟘?
 import Erasure.Target as T
 
-open import Definition.Typed.Consequences.Substitution M
-open import Definition.Typed.Properties M
+open import Definition.Typed.Consequences.Substitution R
+open import Definition.Typed.Properties R
 
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.Fundamental M
-open import Definition.LogicalRelation.Substitution M
-open import Definition.LogicalRelation.Substitution.Properties M
-open import Definition.LogicalRelation.Substitution.Introductions.Universe M
-open import Definition.LogicalRelation.Substitution.Introductions.Nat M
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Fundamental R
+open import Definition.LogicalRelation.Substitution R
+open import Definition.LogicalRelation.Substitution.Properties R
+open import Definition.LogicalRelation.Substitution.Introductions.Universe R
+open import Definition.LogicalRelation.Substitution.Introductions.Nat R
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Mode 𝕄

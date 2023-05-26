@@ -3,16 +3,21 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.EqualityRelation
+open import Definition.Typed.Restrictions
 
 module Definition.LogicalRelation
-  {a} (Mod : Set a) {{eqrel : EqRelSet Mod}} where
+  {a} {Mod : Set a}
+  (R : Type-restrictions Mod)
+  {{eqrel : EqRelSet R}}
+  where
 
 open EqRelSet {{...}}
+open Type-restrictions R
 
 open import Definition.Untyped Mod as U hiding (_∷_)
-open import Definition.Typed.Properties Mod
-open import Definition.Typed Mod
-open import Definition.Typed.Weakening Mod
+open import Definition.Typed.Properties R
+open import Definition.Typed R
+open import Definition.Typed.Weakening R
 
 open import Tools.Level
 open import Tools.Nat
@@ -193,8 +198,13 @@ esplit (ne (neNfₜ₌ neK neM k≡m)) = neK , neM
 -- Reducibility of Unit
 
 -- Unit type
-_⊩Unit_ : (Γ : Con Term ℓ) (A : Term ℓ) → Set a
-Γ ⊩Unit A = Γ ⊢ A :⇒*: Unit
+record _⊩Unit_ (Γ : Con Term ℓ) (A : Term ℓ) : Set a where
+  no-eta-equality
+  pattern
+  constructor Unitₜ
+  field
+    ⇒*-Unit : Γ ⊢ A :⇒*: Unit
+    ok      : Unit-restriction
 
 -- Unit type equality
 _⊩Unit_≡_ : (Γ : Con Term ℓ) (A B : Term ℓ) → Set a
@@ -306,6 +316,7 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
               → ([b] : Δ ⊩¹ b ∷ U.wk ρ F / [F] [ρ] ⊢Δ)
               → Δ ⊩¹ a ≡ b ∷ U.wk ρ F / [F] [ρ] ⊢Δ
               → Δ ⊩¹ U.wk (lift ρ) G [ a ] ≡ U.wk (lift ρ) G [ b ] / [G] [ρ] ⊢Δ [a]
+        ok : BindingType-restriction W
 
     -- B-type equality
     record _⊩¹B⟨_⟩_≡_/_ (Γ : Con Term ℓ) (W : BindingType) (A B : Term ℓ) ([A] : Γ ⊩¹B⟨ W ⟩ A) : Set a where
@@ -328,7 +339,7 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
 
     -- Term reducibility of Π-type
     _⊩¹Π_∷_/_ : {ℓ : Nat} {p q : Mod} (Γ : Con Term ℓ) (t A : Term ℓ) ([A] : Γ ⊩¹B⟨ BΠ p q ⟩ A) → Set a
-    _⊩¹Π_∷_/_ {ℓ} {p} {q} Γ t A (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) =
+    _⊩¹Π_∷_/_ {ℓ} {p} {q} Γ t A (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) =
       ∃ λ f → Γ ⊢ t :⇒*: f ∷ Π p , q ▷ F ▹ G
             × Function f
             × Γ ⊢ f ≅ f ∷ Π p , q ▷ F ▹ G
@@ -349,7 +360,8 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
 
     -- Term equality of Π-type
     _⊩¹Π_≡_∷_/_ : {ℓ : Nat} {p q : Mod} (Γ : Con Term ℓ) (t u A : Term ℓ) ([A] : Γ ⊩¹B⟨ BΠ p q ⟩ A) → Set a
-    _⊩¹Π_≡_∷_/_  {ℓ} {p} {q} Γ t u A [A]@(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) =
+    _⊩¹Π_≡_∷_/_
+      {ℓ} {p} {q} Γ t u A [A]@(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) =
       ∃₂ λ f g → Γ ⊢ t :⇒*: f ∷ Π p , q ▷ F ▹ G
                × Γ ⊢ u :⇒*: g ∷ Π p , q ▷ F ▹ G
                × Function f
@@ -369,7 +381,7 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
       ([A] : Γ ⊩¹B⟨ BΣ m p q ⟩ A) → Set a
     _⊩¹Σ_∷_/_
       {p = p} {q = q} {m = m} Γ t A
-      [A]@(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) =
+      [A]@(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) =
       ∃ λ u → Γ ⊢ t :⇒*: u ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
             × Γ ⊢ u ≅ u ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
             × Σ (Product u) λ pProd
@@ -377,19 +389,21 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
 
     Σ-prop : ∀ {A p q} (m : SigmaMode) (t : Term ℓ) → (Γ : Con Term ℓ)
            → ([A] : Γ ⊩¹B⟨ BΣ m p q ⟩ A) → (Product t) → Set a
-    Σ-prop {p = p} Σₚ t Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) _ =
+    Σ-prop {p = p} Σₚ t Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) _ =
       Σ (Γ ⊩¹ fst p t ∷ U.wk id F / [F] id (wf ⊢F)) λ [fst] →
       Γ ⊩¹ snd p t ∷ U.wk (lift id) G [ fst p t ] /
         [G] id (wf ⊢F) [fst]
     Σ-prop
-      {p = p} Σᵣ t Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+      {p = p} Σᵣ t Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
       (prodₙ {p = p′} {t = p₁} {u = p₂} {m = m}) =
            p ≈ p′ ×
            Σ (Γ ⊩¹ p₁ ∷ U.wk id F / [F] id (wf ⊢F)) λ [p₁]
            → Γ ⊩¹ p₂ ∷ U.wk (lift id) G [ p₁ ] / [G] id (wf ⊢F) [p₁]
            × m PE.≡ Σᵣ
-    Σ-prop {p = p} {q = q} Σᵣ t Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ne x) =
-           Γ ⊢ t ~ t ∷ Σᵣ p , q ▷ F ▹ G
+    Σ-prop
+      {p = p} {q = q}
+      Σᵣ t Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) (ne x) =
+      Γ ⊢ t ~ t ∷ Σᵣ p , q ▷ F ▹ G
 
     -- Term equality of Σ-type
     _⊩¹Σ_≡_∷_/_ :
@@ -397,7 +411,7 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
       ([A] : Γ ⊩¹B⟨ BΣ m p q ⟩ A) → Set a
     _⊩¹Σ_≡_∷_/_
       {p = p} {q = q} {m} Γ t u A
-      [A]@(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) =
+      [A]@(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) =
       ∃₂ λ t′ u′ → Γ ⊢ t :⇒*: t′ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
                  × Γ ⊢ u :⇒*: u′ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
                  × Γ ⊢ t′ ≅ u′ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
@@ -410,14 +424,14 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
     [Σ]-prop :
       ∀ {A p q} (m : SigmaMode) (t r : Term ℓ) (Γ : Con Term ℓ)
       ([A] : Γ ⊩¹B⟨ BΣ m p q ⟩ A) → Product t → Product r → Set a
-    [Σ]-prop {p = p} Σₚ t r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) _ _ =
+    [Σ]-prop {p = p} Σₚ t r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) _ _ =
       Σ (Γ ⊩¹ fst p t ∷ U.wk id F / [F] id (wf ⊢F)) λ [fstp]
       → Γ ⊩¹ fst p r ∷ U.wk id F / [F] id (wf ⊢F)
       × Γ ⊩¹ fst p t ≡ fst p r ∷ U.wk id F / [F] id (wf ⊢F)
       × Γ ⊩¹ snd p t ≡ snd p r ∷ U.wk (lift id) G [ fst p t ]
         / [G] id (wf ⊢F) [fstp]
     [Σ]-prop
-      {p = p} Σᵣ t r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+      {p = p} Σᵣ t r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
       (prodₙ {p = p′} {t = p₁} {u = p₂})
       (prodₙ {p = p″} {t = r₁} {u = r₂}) =
              p ≈ p′ × p ≈ p″ ×
@@ -427,13 +441,17 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
              × (Γ ⊩¹ r₂ ∷ U.wk (lift id) G [ r₁ ] / [G] id (wf ⊢F) [r₁])
              × (Γ ⊩¹ p₁ ≡ r₁ ∷ U.wk id F / [F] id (wf ⊢F))
              × (Γ ⊩¹ p₂ ≡ r₂ ∷ U.wk (lift id) G [ p₁ ] / [G] id (wf ⊢F) [p₁])
-    [Σ]-prop Σᵣ t r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (prodₙ {t = p₁} {u = p₂}) (ne y) =
+    [Σ]-prop
+      Σᵣ t r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
+      (prodₙ {t = p₁} {u = p₂}) (ne y) =
       Lift a PE.⊥
-    [Σ]-prop Σᵣ t r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ne x) (prodₙ {t = r₁} {u = r₂}) =
+    [Σ]-prop
+      Σᵣ t r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok)
+      (ne x) (prodₙ {t = r₁} {u = r₂}) =
       Lift a PE.⊥
     [Σ]-prop
       {p = p} {q = q} Σᵣ t r Γ
-      (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ne x) (ne y) =
+      (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) (ne x) (ne y) =
         Γ ⊢ t ~ r ∷ Σᵣ p , q ▷ F ▹ G
 
     -- Logical relation definition
@@ -493,9 +511,9 @@ pattern Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] prop = p , r , d , d′ , 
 
 pattern Uᵣ′ a b c = Uᵣ (Uᵣ a b c)
 pattern ne′ a b c d = ne (ne a b c d)
-pattern Bᵣ′ W a b c d e f g h i = Bᵣ W (Bᵣ a b c d e f g h i)
-pattern Πᵣ′ a b c d e f g h i = Bᵣ′ BΠ! a b c d e f g h i
-pattern Σᵣ′ a b c d e f g h i = Bᵣ′ BΣ! a b c d e f g h i
+pattern Bᵣ′ W a b c d e f g h i j = Bᵣ W (Bᵣ a b c d e f g h i j)
+pattern Πᵣ′ a b c d e f g h i j = Bᵣ′ BΠ! a b c d e f g h i j
+pattern Σᵣ′ a b c d e f g h i j = Bᵣ′ BΣ! a b c d e f g h i j
 
 logRelRec : ∀ l {l′} → l′ < l → LogRelKit
 logRelRec ⁰ = λ ()

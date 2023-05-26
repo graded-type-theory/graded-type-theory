@@ -3,22 +3,26 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.EqualityRelation
+open import Definition.Typed.Restrictions
 
 module Definition.LogicalRelation.Application
-  {a} (M : Set a) {{eqrel : EqRelSet M}} where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  {{eqrel : EqRelSet R}}
+  where
 
 open EqRelSet {{...}}
 
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Untyped.Properties M
-open import Definition.Typed M
-open import Definition.Typed.Weakening M using (id)
-open import Definition.Typed.Properties M
-open import Definition.Typed.RedSteps M
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.ShapeView M
-open import Definition.LogicalRelation.Irrelevance M
-open import Definition.LogicalRelation.Properties M
+open import Definition.Typed R
+open import Definition.Typed.Weakening R using (id)
+open import Definition.Typed.Properties R
+open import Definition.Typed.RedSteps R
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.ShapeView R
+open import Definition.LogicalRelation.Irrelevance R
+open import Definition.LogicalRelation.Properties R
 
 open import Tools.Nat
 open import Tools.Product
@@ -40,7 +44,7 @@ appTerm′ : ∀ {F G t u l l′ l″}
           ([u] : Γ ⊩⟨ l″ ⟩ u ∷ F / [F])
         → Γ ⊩⟨ l′ ⟩ t ∘⟨ p ⟩ u ∷ G [ u ] / [G[u]]
 appTerm′ {n} {Γ = Γ} {p = p} {q = q} {F = F} {G} {t} {u}
-         [F] [G[u]] (noemb (Bᵣ F′ G′ D ⊢F ⊢G A≡A [F′] [G′] G-ext))
+         [F] [G[u]] (noemb (Bᵣ F′ G′ D ⊢F ⊢G A≡A [F′] [G′] G-ext ok))
          (Πₜ f d funcF f≡f [f] [f]₁) [u] =
   let ΠFG≡ΠF′G′ = whnfRed* (red D) ΠΣₙ
       F≡F′ , G≡G′ , _ = B-PE-injectivity BΠ! BΠ! ΠFG≡ΠF′G′
@@ -56,7 +60,7 @@ appTerm′ {n} {Γ = Γ} {p = p} {q = q} {F = F} {G} {t} {u}
              (PE.cong₂ (λ F G → Π p , q ▷ F ▹ G)
                        (PE.sym F≡F′) (PE.sym G≡G′))
              (conv* (redₜ d)
-                (ΠΣ-cong ⊢F (refl ⊢F) (refl ⊢G)))
+                (ΠΣ-cong ⊢F (refl ⊢F) (refl ⊢G) ok))
   in  proj₁ (redSubst*Term (app-subst* d′ ⊢u) [G[u]] [f∘u])
 appTerm′ [F] [G[u]] (emb 0<1 x) [t] [u] = appTerm′ [F] [G[u]] x [t] [u]
 
@@ -83,12 +87,12 @@ app-congTerm′ : ∀ {Γ : Con Term n} {F G t t′ u u′ l l′}
           ([u≡u′] : Γ ⊩⟨ l′ ⟩ u ≡ u′ ∷ F / [F])
         → Γ ⊩⟨ l′ ⟩ t ∘⟨ p ⟩ u ≡ t′ ∘⟨ p ⟩ u′ ∷ G [ u ] / [G[u]]
 app-congTerm′ {n} {p = p} {q = q} {Γ = Γ} {F′} {G′} {t = t} {t′ = t′}
-              [F] [G[u]] (noemb (Bᵣ F G D ⊢F ⊢G A≡A [F]₁ [G] G-ext))
+              [F] [G[u]] (noemb (Bᵣ F G D ⊢F ⊢G A≡A [F]₁ [G] G-ext ok))
               (Πₜ₌ f g [ ⊢t , ⊢f , d ] [ ⊢t′ , ⊢g , d′ ] funcF funcG t≡u
                    (Πₜ f′ [ _ , ⊢f′ , d″ ] funcF′ f≡f [f] [f]₁)
                    (Πₜ g′ [ _ , ⊢g′ , d‴ ] funcG′ g≡g [g] [g]₁) [t≡u])
               [a] [a′] [a≡a′] =
-  let [ΠFG] = Πᵣ′ F G D ⊢F ⊢G A≡A [F]₁ [G] G-ext
+  let [ΠFG] = Πᵣ′ F G D ⊢F ⊢G A≡A [F]₁ [G] G-ext ok
       ΠFG≡ΠF′G′ = whnfRed* (red D) ΠΣₙ
       F≡F′ , G≡G′ , _ = B-PE-injectivity BΠ! BΠ! ΠFG≡ΠF′G′
       f≡f′ = whrDet*Term (d , functionWhnf funcF) (d″ , functionWhnf funcF′)
@@ -132,9 +136,9 @@ app-congTerm′ {n} {p = p} {q = q} {Γ = Γ} {F′} {G′} {t = t} {t′ = t′
       ΠFG≡ΠF′G′₂ = PE.cong₂ (λ (F : Term n) (G : Term (1+ n)) → Π p , q ▷ F ▹ G)
                             (PE.sym F≡F′) (PE.sym G≡G′)
       d₁ = PE.subst (λ x → Γ ⊢ t ⇒* f ∷ x) ΠFG≡ΠF′G′₁
-             (conv* d (ΠΣ-cong ⊢F (refl ⊢F) (refl ⊢G)))
+             (conv* d (ΠΣ-cong ⊢F (refl ⊢F) (refl ⊢G) ok))
       d₂ = PE.subst (λ x → Γ ⊢ t′ ⇒* g ∷ x) ΠFG≡ΠF′G′₂
-             (conv* d′ (ΠΣ-cong ⊢F (refl ⊢F) (refl ⊢G)))
+             (conv* d′ (ΠΣ-cong ⊢F (refl ⊢F) (refl ⊢G) ok))
       [tu≡fu] = proj₂ (redSubst*Term (app-subst* d₁ (escapeTerm [F] [a]))
                                      [G[u]] [f∘u])
       [gu′≡t′u′] = convEqTerm₂ [G[u]] [G[u′]] [G[u≡u′]]

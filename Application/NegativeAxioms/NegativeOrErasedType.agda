@@ -3,21 +3,24 @@
 ------------------------------------------------------------------------
 
 open import Definition.Modality
+open import Definition.Typed.Restrictions
 
 module Application.NegativeAxioms.NegativeOrErasedType
-  {a} {M : Set a} (𝕄 : Modality M)
+  {a} {M : Set a}
+  (𝕄 : Modality M)
+  (R : Type-restrictions M)
   where
 
 open Modality 𝕄
 
 open import Definition.Untyped M as U hiding (_∷_)
 
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-open import Definition.Typed.Weakening M as T
-open import Definition.Typed.Consequences.Inequality M
-open import Definition.Typed.Consequences.Injectivity M
-open import Definition.Typed.Consequences.Substitution M
+open import Definition.Typed R
+open import Definition.Typed.Properties R
+open import Definition.Typed.Weakening R as T
+open import Definition.Typed.Consequences.Inequality R
+open import Definition.Typed.Consequences.Injectivity R
+open import Definition.Typed.Consequences.Substitution R
 
 open import Tools.Empty
 open import Tools.Nat

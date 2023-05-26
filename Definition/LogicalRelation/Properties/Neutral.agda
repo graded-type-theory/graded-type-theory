@@ -3,23 +3,27 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.EqualityRelation
+open import Definition.Typed.Restrictions
 
 module Definition.LogicalRelation.Properties.Neutral
-  {a} (M : Set a) {{eqrel : EqRelSet M}} where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  {{eqrel : EqRelSet R}}
+  where
 
 open EqRelSet {{...}}
 
 open import Definition.Untyped M hiding (Wk; _∷_)
 open import Definition.Untyped.Properties M
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-import Definition.Typed.Weakening M as Wk
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.ShapeView M
-open import Definition.LogicalRelation.Irrelevance M
-open import Definition.LogicalRelation.Properties.Reflexivity M
-open import Definition.LogicalRelation.Properties.Escape M
-open import Definition.LogicalRelation.Properties.Symmetry M
+open import Definition.Typed R
+open import Definition.Typed.Properties R
+import Definition.Typed.Weakening R as Wk
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.ShapeView R
+open import Definition.LogicalRelation.Irrelevance R
+open import Definition.LogicalRelation.Properties.Reflexivity R
+open import Definition.LogicalRelation.Properties.Escape R
+open import Definition.LogicalRelation.Properties.Symmetry R
 
 open import Tools.Nat
 open import Tools.Product
@@ -80,7 +84,7 @@ mutual
         n~n′ = ~-conv n~n A≡Empty
         n≡n  = ~-to-≅ₜ n~n′
     in  Emptyₜ _ (idRedTerm:*: (conv n A≡Empty)) n≡n (ne (neNfₜ neN (conv n A≡Empty) n~n′))
-  neuTerm (Unitᵣ [ ⊢A , ⊢B , D ]) neN n n~n =
+  neuTerm (Unitᵣ (Unitₜ [ ⊢A , ⊢B , D ] _)) neN n n~n =
     let A≡Unit  = subset* D
         n~n′ = ~-conv n~n A≡Unit
     in  Unitₜ _ (idRedTerm:*: (conv n A≡Unit)) (ne neN)
@@ -88,7 +92,7 @@ mutual
     let A≡K = subset* D
     in  neₜ _ (idRedTerm:*: (conv n A≡K)) (neNfₜ neN (conv n A≡K)
             (~-conv n~n A≡K))
-  neuTerm (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext) neN n n~n =
+  neuTerm (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok) neN n n~n =
     let A≡ΠFG = subset* (red D)
     in  Πₜ _ (idRedTerm:*: (conv n A≡ΠFG)) (ne neN) (~-to-≅ₜ (~-conv n~n A≡ΠFG))
            (λ {_} {ρ} [ρ] ⊢Δ [a] [b] [a≡b] →
@@ -102,9 +106,12 @@ mutual
                   a≡b = escapeTermEq ([F] [ρ] ⊢Δ) [a≡b]
                   ⊢ρF = Wk.wk [ρ] ⊢Δ ⊢F
                   ⊢ρG = Wk.wk (Wk.lift [ρ]) (⊢Δ ∙ ⊢ρF) ⊢G
-                  A≡ΠFG₁ = trans A≡ΠFG (ΠΣ-cong ⊢F (refl ⊢F) (refl ⊢G))
-                  ρA≡ρΠFG₁ = trans ρA≡ρΠFG (ΠΣ-cong ⊢ρF (refl ⊢ρF) (refl ⊢ρG))
-                  ρA≡ρΠFG₂ = trans ρA≡ρΠFG (ΠΣ-cong ⊢ρF (refl ⊢ρF) (refl ⊢ρG))
+                  A≡ΠFG₁ = trans A≡ΠFG
+                             (ΠΣ-cong ⊢F (refl ⊢F) (refl ⊢G) ok)
+                  ρA≡ρΠFG₁ = trans ρA≡ρΠFG
+                               (ΠΣ-cong ⊢ρF (refl ⊢ρF) (refl ⊢ρG) ok)
+                  ρA≡ρΠFG₂ = trans ρA≡ρΠFG
+                               (ΠΣ-cong ⊢ρF (refl ⊢ρF) (refl ⊢ρG) ok)
                   ρn₁ = conv (Wk.wkTerm [ρ] ⊢Δ n) ρA≡ρΠFG₁
                   ρn₂ = conv (Wk.wkTerm [ρ] ⊢Δ n) ρA≡ρΠFG₂
                   neN∘a = ∘ₙ (wkNeutral ρ neN)
@@ -120,13 +127,14 @@ mutual
                   a≡a = escapeTermEq ([F] [ρ] ⊢Δ) (reflEqTerm ([F] [ρ] ⊢Δ) [a])
                   ⊢ρF = Wk.wk [ρ] ⊢Δ ⊢F
                   ⊢ρG = Wk.wk (Wk.lift [ρ]) (⊢Δ ∙ ⊢ρF) ⊢G
-                  A≡ΠFG′ = trans A≡ΠFG (ΠΣ-cong ⊢F (refl ⊢F) (refl ⊢G))
+                  A≡ΠFG′ = trans A≡ΠFG
+                             (ΠΣ-cong ⊢F (refl ⊢F) (refl ⊢G) ok)
                   ρA≡ρΠFG′ = trans ρA≡ρΠFG
-                               (ΠΣ-cong ⊢ρF (refl ⊢ρF) (refl ⊢ρG))
+                               (ΠΣ-cong ⊢ρF (refl ⊢ρF) (refl ⊢ρG) ok)
                in  neuTerm ([G] [ρ] ⊢Δ [a]) (∘ₙ (wkNeutral ρ neN))
                            (conv (Wk.wkTerm [ρ] ⊢Δ n) ρA≡ρΠFG′ ∘ⱼ a)
                            (~-app (~-wk [ρ] ⊢Δ (~-conv n~n A≡ΠFG′)) a≡a))
-  neuTerm (Bᵣ′ (BΣ Σₚ _ q) F G D ⊢F ⊢G A≡A [F] [G] G-ext) neN ⊢n n~n =
+  neuTerm (Bᵣ′ (BΣ Σₚ _ q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _) neN ⊢n n~n =
     let A≡ΣFG = subset* (red D)
         ⊢Γ = wf ⊢F
         ⊢n = conv ⊢n A≡ΣFG
@@ -155,7 +163,7 @@ mutual
                              (PE.sym (wk-lift-id G)))
                           (~-snd ⊢F ⊢G n~n))
     in  Σₜ _ (idRedTerm:*: ⊢n) (~-to-≅ₜ n~n) (ne neN) ([fst] , [snd])
-  neuTerm (Bᵣ′ (BΣ Σᵣ _ q) F G D ⊢F ⊢G A≡A [F] [G] G-ext) neN ⊢n n~n =
+  neuTerm (Bᵣ′ (BΣ Σᵣ _ q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _) neN ⊢n n~n =
     let A≡ΣFG = subset* (red D)
         ⊢Γ = wf ⊢F
         ⊢n = conv ⊢n A≡ΣFG
@@ -187,15 +195,17 @@ mutual
         n≡n′ = ~-to-≅ₜ n~n′₁
     in  Emptyₜ₌ _ _ (idRedTerm:*: (conv n A≡Empty)) (idRedTerm:*: (conv n′ A≡Empty))
             n≡n′ (ne (neNfₜ₌ neN neN′ n~n′₁))
-  neuEqTerm (Unitᵣ [ ⊢A , ⊢B , D ]) neN neN′ n n′ n~n′ =
+  neuEqTerm (Unitᵣ (Unitₜ [ ⊢A , ⊢B , D ] _)) neN neN′ n n′ n~n′ =
     let A≡Unit = subset* D
     in  Unitₜ₌ (conv n A≡Unit) (conv n′ A≡Unit)
   neuEqTerm (ne (ne K [ ⊢A , ⊢B , D ] neK K≡K)) neN neN′ n n′ n~n′ =
     let A≡K = subset* D
     in  neₜ₌ _ _ (idRedTerm:*: (conv n A≡K)) (idRedTerm:*: (conv n′ A≡K))
              (neNfₜ₌ neN neN′ (~-conv n~n′ A≡K))
-  neuEqTerm (Πᵣ′ F G [ ⊢A , ⊢B , D ] ⊢F ⊢G A≡A [F] [G] G-ext) neN neN′ n n′ n~n′ =
-    let [ΠFG] = Πᵣ′ F G [ ⊢A , ⊢B , D ] ⊢F ⊢G A≡A [F] [G] G-ext
+  neuEqTerm
+    (Πᵣ′ F G [ ⊢A , ⊢B , D ] ⊢F ⊢G A≡A [F] [G] G-ext ok)
+    neN neN′ n n′ n~n′ =
+    let [ΠFG] = Πᵣ′ F G [ ⊢A , ⊢B , D ] ⊢F ⊢G A≡A [F] [G] G-ext ok
         A≡ΠFG = subset* D
         n~n′₁ = ~-conv n~n′ A≡ΠFG
         n≡n′ = ~-to-≅ₜ n~n′₁
@@ -214,15 +224,19 @@ mutual
                    neN′∙a′ = ∘ₙ (wkNeutral ρ neN′)
                    ⊢ρF = Wk.wk [ρ] ⊢Δ ⊢F
                    ⊢ρG = Wk.wk (Wk.lift [ρ]) (⊢Δ ∙ ⊢ρF) ⊢G
-                   ρA≡ρΠp₁FG = trans ρA≡ρΠFG (ΠΣ-cong ⊢ρF (refl ⊢ρF) (refl ⊢ρG))
-                   ρA≡ρΠp₂FG = trans ρA≡ρΠFG (ΠΣ-cong ⊢ρF (refl ⊢ρF) (refl ⊢ρG))
-                   ΠpFG≡Πp₁FG = ΠΣ-cong ⊢F (refl ⊢F) (refl ⊢G)
+                   ρA≡ρΠp₁FG = trans ρA≡ρΠFG
+                                 (ΠΣ-cong ⊢ρF (refl ⊢ρF) (refl ⊢ρG) ok)
+                   ρA≡ρΠp₂FG = trans ρA≡ρΠFG
+                                 (ΠΣ-cong ⊢ρF (refl ⊢ρF) (refl ⊢ρG) ok)
+                   ΠpFG≡Πp₁FG = ΠΣ-cong ⊢F (refl ⊢F) (refl ⊢G) ok
 
                in  neuEqTerm ([G] [ρ] ⊢Δ [a]) neN∙a neN′∙a′
                      (conv ρn ρA≡ρΠp₁FG ∘ⱼ a)
                      (conv ρn′ ρA≡ρΠp₂FG ∘ⱼ a)
                      (~-app (~-wk [ρ] ⊢Δ (~-conv n~n′₁ ΠpFG≡Πp₁FG)) a≡a))
-  neuEqTerm [ΣFG]@(Bᵣ′ BΣₚ F G [ ⊢A , ⊢B , D ] ⊢F ⊢G A≡A [F] [G] G-ext) neN neN′ ⊢n ⊢n′ n~n′ =
+  neuEqTerm
+    [ΣFG]@(Bᵣ′ BΣₚ F G [ ⊢A , ⊢B , D ] ⊢F ⊢G A≡A [F] [G] G-ext _)
+    neN neN′ ⊢n ⊢n′ n~n′ =
     let A≡ΣFG = subset* D
         n~n = ~-trans n~n′ (~-sym n~n′)
         n′~n′ = ~-trans (~-sym n~n′) n~n′
@@ -288,7 +302,9 @@ mutual
             (ne neN) (ne neN′) (~-to-≅ₜ n~n′Σ)
             (neuTerm [ΣFG] neN ⊢n n~n) (neuTerm [ΣFG] neN′ ⊢n′ n′~n′)
             ([fstn] , [fstn′] , [fstn≡fstn′] , [sndn≡sndn′])
-  neuEqTerm [ΣFG]@(Bᵣ′ BΣᵣ F G [ ⊢A , ⊢B , D ] ⊢F ⊢G A≡A [F] [G] G-ext) neN neN′ ⊢n ⊢n′ n~n′ =
+  neuEqTerm
+    [ΣFG]@(Bᵣ′ BΣᵣ F G [ ⊢A , ⊢B , D ] ⊢F ⊢G A≡A [F] [G] G-ext _)
+    neN neN′ ⊢n ⊢n′ n~n′ =
     let A≡ΣFG = subset* D
         n~n = ~-trans n~n′ (~-sym n~n′)
         n′~n′ = ~-trans (~-sym n~n′) n~n′

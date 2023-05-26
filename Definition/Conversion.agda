@@ -2,11 +2,17 @@
 -- Algorithmic equality.
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
+
 module Definition.Conversion
-  {a} (M : Set a) where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  where
+
+open Type-restrictions R
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
+open import Definition.Typed R
 
 open import Tools.Fin
 open import Tools.Nat
@@ -95,7 +101,7 @@ mutual
 
     Empty-refl : ⊢ Γ → Γ ⊢ Empty [conv↓] Empty
 
-    Unit-refl  : ⊢ Γ → Γ ⊢ Unit [conv↓] Unit
+    Unit-refl  : ⊢ Γ → Unit-restriction → Γ ⊢ Unit [conv↓] Unit
 
     ne         : ∀ {K L}
                → Γ ⊢ K ~ L ↓ U
@@ -105,6 +111,7 @@ mutual
                → Γ ⊢ F
                → Γ ⊢ F [conv↑] H
                → Γ ∙ F ⊢ G [conv↑] E
+               → ΠΣ-restriction b p
                → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G [conv↓] ΠΣ⟨ b ⟩ p , q ▷ H ▹ E
 
   -- Term equality.
@@ -187,8 +194,8 @@ mutual
               → Whnf l
               → Γ ⊢ k [conv↓] l ∷ Unit
 
-star-refl : ⊢ Γ → Γ ⊢ star [conv↓] star ∷ Unit
-star-refl ⊢Γ = η-unit (starⱼ ⊢Γ) (starⱼ ⊢Γ) starₙ starₙ
+star-refl : ⊢ Γ → Unit-restriction → Γ ⊢ star [conv↓] star ∷ Unit
+star-refl ⊢Γ ok = η-unit (starⱼ ⊢Γ ok) (starⱼ ⊢Γ ok) starₙ starₙ
 
 -- An inversion lemma for prod-cong.
 

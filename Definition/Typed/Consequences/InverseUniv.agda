@@ -2,12 +2,16 @@
 -- Well-formed types are terms of type U if they do not contain U.
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
+
 module Definition.Typed.Consequences.InverseUniv
-  {a} (M : Set a) where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  where
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
-open import Definition.Typed.Consequences.Syntactic M
+open import Definition.Typed R
+open import Definition.Typed.Consequences.Syntactic R
 
 open import Tools.Nat
 import Tools.Sum as Sum
@@ -35,8 +39,8 @@ data UFull : Term n → Set a where
 noU : ∀ {t A} → Γ ⊢ t ∷ A → ¬ (UFull t)
 noU (ℕⱼ x) ()
 noU (Emptyⱼ x) ()
-noU (ΠΣⱼ t ▹ t₁) (∃ΠΣ₁ ufull) = noU t ufull
-noU (ΠΣⱼ t ▹ t₁) (∃ΠΣ₂ ufull) = noU t₁ ufull
+noU (ΠΣⱼ t _ _) (∃ΠΣ₁ ufull) = noU t ufull
+noU (ΠΣⱼ _ t _) (∃ΠΣ₂ ufull) = noU t ufull
 noU (var x₁ x₂) ()
 noU (lamⱼ x t₁) ()
 noU (t ∘ⱼ t₁) ()
@@ -66,11 +70,12 @@ pilem (inj₂ x) = inj₂ (λ x₁ → x (∃ΠΣ₁ x₁)) , inj₂ (λ x₁ �
 inverseUniv : ∀ {A} → ¬ (UFull A) → Γ ⊢ A → Γ ⊢ A ∷ U
 inverseUniv q (ℕⱼ x) = ℕⱼ x
 inverseUniv q (Emptyⱼ x) = Emptyⱼ x
-inverseUniv q (Unitⱼ x) = Unitⱼ x
+inverseUniv q (Unitⱼ x ok) = Unitⱼ x ok
 inverseUniv q (Uⱼ x) = ⊥-elim (q ∃U)
-inverseUniv q (ΠΣⱼ A ▹ A₁) =
-  ΠΣⱼ inverseUniv (λ x → q (∃ΠΣ₁ x)) A ▹
-      inverseUniv (λ x → q (∃ΠΣ₂ x)) A₁
+inverseUniv q (ΠΣⱼ A B ok) =
+  ΠΣⱼ (inverseUniv (λ x → q (∃ΠΣ₁ x)) A)
+    (inverseUniv (λ x → q (∃ΠΣ₂ x)) B)
+    ok
 inverseUniv q (univ x) = x
 
 -- If A is a neutral type, then A can be a term of U.
@@ -93,9 +98,9 @@ inverseUnivEq′ (inj₂ x) (trans A≡B A≡B₁) =
       _ , t , _ = syntacticEqTerm w
       y = noU t
   in  trans (inverseUnivEq′ (inj₂ y) A≡B) w
-inverseUnivEq′ q (ΠΣ-cong x A≡B A≡B₁) =
+inverseUnivEq′ q (ΠΣ-cong x A≡B A≡B₁ ok) =
   let w , e = pilem q
-  in  ΠΣ-cong x (inverseUnivEq′ w A≡B) (inverseUnivEq′ e A≡B₁)
+  in  ΠΣ-cong x (inverseUnivEq′ w A≡B) (inverseUnivEq′ e A≡B₁) ok
 
 -- If A is a term of U, then the equality of types is an equality of terms of type U.
 inverseUnivEq : ∀ {A B} → Γ ⊢ A ∷ U → Γ ⊢ A ≡ B → Γ ⊢ A ≡ B ∷ U

@@ -2,15 +2,19 @@
 -- Congruence of the type of the successor case in natrec.
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
+
 module Definition.Typed.Consequences.SucCong
-  {a} (M : Set a) where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  where
 
 open import Definition.Untyped M
-open import Definition.Typed M
-open import Definition.Typed.Weakening M
-open import Definition.Typed.Properties M
-open import Definition.Typed.Consequences.Syntactic M
-open import Definition.Typed.Consequences.Substitution M
+open import Definition.Typed R
+open import Definition.Typed.Weakening R
+open import Definition.Typed.Properties R
+open import Definition.Typed.Consequences.Syntactic R
+open import Definition.Typed.Consequences.Substitution R
 
 open import Tools.Fin
 open import Tools.Nat

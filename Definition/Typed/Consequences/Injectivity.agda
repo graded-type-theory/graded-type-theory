@@ -2,22 +2,26 @@
 -- Term constructors are injective.
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
+
 module Definition.Typed.Consequences.Injectivity
-  {a} (M : Set a) where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  where
 
 open import Definition.Untyped M hiding (wk; _∷_)
 import Definition.Untyped M as U
 open import Definition.Untyped.Properties M
 
-open import Definition.Typed M
-open import Definition.Typed.Weakening M
-open import Definition.Typed.Properties M
-open import Definition.Typed.EqRelInstance M
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.Irrelevance M
-open import Definition.LogicalRelation.ShapeView M
-open import Definition.LogicalRelation.Properties M
-open import Definition.LogicalRelation.Fundamental.Reducibility M
+open import Definition.Typed R
+open import Definition.Typed.Weakening R
+open import Definition.Typed.Properties R
+open import Definition.Typed.EqRelInstance R
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Irrelevance R
+open import Definition.LogicalRelation.ShapeView R
+open import Definition.LogicalRelation.Properties R
+open import Definition.LogicalRelation.Fundamental.Reducibility R
 
 open import Tools.Fin
 open import Tools.Function
@@ -39,7 +43,7 @@ injectivity′ : ∀ {F G H E l} W W′
              × Γ ∙ F ⊢ G ≡ E
              × W PE.≡ W′
 injectivity′
-  W W′ (noemb (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext))
+  W W′ (noemb (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _))
   (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
   case B-PE-injectivity W W (whnfRed* (red D) ⟦ W ⟧ₙ) of λ {
     (PE.refl , PE.refl , _) →

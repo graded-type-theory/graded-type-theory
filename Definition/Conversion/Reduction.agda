@@ -2,14 +2,18 @@
 -- Weak head expansion of algorithmic equality.
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
+
 module Definition.Conversion.Reduction
-  {a} (M : Set a) where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  where
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-open import Definition.Typed.RedSteps M
-open import Definition.Conversion M
+open import Definition.Typed R
+open import Definition.Typed.Properties R
+open import Definition.Typed.RedSteps R
+open import Definition.Conversion R
 
 open import Tools.Nat
 

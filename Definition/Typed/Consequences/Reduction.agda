@@ -2,20 +2,24 @@
 -- Properties of the reduction relation.
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
+
 module Definition.Typed.Consequences.Reduction
-  {a} (M : Set a) where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  where
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
-open import Definition.Typed.Properties M
-open import Definition.Typed.EqRelInstance M
-open import Definition.Typed.Consequences.Inequality M
-open import Definition.Typed.Consequences.Injectivity M
-open import Definition.Typed.Consequences.Inversion M
-open import Definition.Typed.Consequences.Syntactic M
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.Properties M
-open import Definition.LogicalRelation.Fundamental.Reducibility M
+open import Definition.Typed R
+open import Definition.Typed.Properties R
+open import Definition.Typed.EqRelInstance R
+open import Definition.Typed.Consequences.Inequality R
+open import Definition.Typed.Consequences.Injectivity R
+open import Definition.Typed.Consequences.Inversion R
+open import Definition.Typed.Consequences.Syntactic R
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Properties R
+open import Definition.LogicalRelation.Fundamental.Reducibility R
 
 open import Tools.Nat
 open import Tools.Product
@@ -33,10 +37,10 @@ whNorm′ : ∀ {A l} ([A] : Γ ⊩⟨ l ⟩ A)
 whNorm′ (Uᵣ′ .⁰ 0<1 ⊢Γ) = U , Uₙ , idRed:*: (Uⱼ ⊢Γ)
 whNorm′ (ℕᵣ D) = ℕ , ℕₙ , D
 whNorm′ (Emptyᵣ D) = Empty , Emptyₙ , D
-whNorm′ (Unitᵣ D) = Unit , Unitₙ , D
+whNorm′ (Unitᵣ (Unitₜ D _)) = Unit , Unitₙ , D
 whNorm′ (ne′ K D neK K≡K) = K , ne neK , D
-whNorm′ (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext) = Π _ , _ ▷ F ▹ G , ΠΣₙ , D
-whNorm′ (Σᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext) = Σ _ , _ ▷ F ▹ G , ΠΣₙ , D
+whNorm′ (Πᵣ′ F G D _ _ _ _ _ _ _) = Π _ , _ ▷ F ▹ G , ΠΣₙ , D
+whNorm′ (Σᵣ′ F G D _ _ _ _ _ _ _) = Σ _ , _ ▷ F ▹ G , ΠΣₙ , D
 whNorm′ (emb 0<1 [A]) = whNorm′ [A]
 
 -- Well-formed types can all be reduced to WHNF.
@@ -62,9 +66,10 @@ whNorm A = whNorm′ (reducible A)
   in  PE.⊥-elim (U≢Π U≡Π)
 ... | _ , zeroₙ , [ ⊢A , univ ⊢B , A⇒B ] = PE.⊥-elim (U≢ℕ (inversion-zero ⊢B))
 ... | _ , sucₙ , [ ⊢A , univ ⊢B , A⇒B ] = PE.⊥-elim (U≢ℕ (proj₂ (inversion-suc ⊢B)))
-... | _ , starₙ , [ ⊢A , univ ⊢B , A⇒B ] = PE.⊥-elim (U≢Unitⱼ (inversion-star ⊢B))
-... | _ , prodₙ , [ ⊢A , univ ⊢B , A⇒B ] =
-  let F , G , q , ⊢F , ⊢G , ⊢t , ⊢u , U≡Σ = inversion-prod ⊢B
+... | _ , starₙ , [ _ , univ ⊢B , _ ] =
+  PE.⊥-elim (U≢Unitⱼ (inversion-star ⊢B .proj₁))
+... | _ , prodₙ , [ _ , univ ⊢B , _ ] =
+  let _ , _ , _ , _ , _ , _ , _ , U≡Σ , _ = inversion-prod ⊢B
   in  PE.⊥-elim (U≢Σ U≡Σ)
 ... | _ , ne x , D = PE.⊥-elim (Π≢ne x (trans (sym A≡ΠFG) (subset* (red D))))
 
@@ -88,9 +93,10 @@ whNorm A = whNorm′ (reducible A)
   in  PE.⊥-elim (U≢Π U≡Π)
 ... | _ , zeroₙ , [ ⊢A , univ ⊢B , A⇒B ] = PE.⊥-elim (U≢ℕ (inversion-zero ⊢B))
 ... | _ , sucₙ , [ ⊢A , univ ⊢B , A⇒B ] = PE.⊥-elim (U≢ℕ (proj₂ (inversion-suc ⊢B)))
-... | _ , starₙ , [ ⊢A , univ ⊢B , A⇒B ] = PE.⊥-elim (U≢Unitⱼ (inversion-star ⊢B))
-... | _ , prodₙ , [ ⊢A , univ ⊢B , A⇒B ] =
-  let F , G , q , ⊢F , ⊢G , ⊢t , ⊢u , U≡Σ = inversion-prod ⊢B
+... | _ , starₙ , [ _ , univ ⊢B , _ ] =
+  PE.⊥-elim (U≢Unitⱼ (inversion-star ⊢B .proj₁))
+... | _ , prodₙ , [ _ , univ ⊢B , _ ] =
+  let _ , _ , _ , _ , _ , _ , _ , U≡Σ , _ = inversion-prod ⊢B
   in  PE.⊥-elim (U≢Σ U≡Σ)
 ... | _ , ne x , D = PE.⊥-elim (Σ≢ne x (trans (sym A≡ΣFG) (subset* (red D))))
 
@@ -104,13 +110,13 @@ whNormTerm′ (ℕᵣ x) (ℕₜ n d n≡n prop) =
 whNormTerm′ (Emptyᵣ x) (Emptyₜ n d n≡n prop) =
   let emptyN = empty prop
   in  n , ne emptyN , convRed:*: d (sym (subset* (red x)))
-whNormTerm′ (Unitᵣ x) (Unitₜ n d prop) =
+whNormTerm′ (Unitᵣ (Unitₜ x _)) (Unitₜ n d prop) =
   n , prop , convRed:*: d (sym (subset* (red x)))
 whNormTerm′ (ne (ne K D neK K≡K)) (neₜ k d (neNfₜ neK₁ ⊢k k≡k)) =
   k , ne neK₁ , convRed:*: d (sym (subset* (red D)))
-whNormTerm′ (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Πₜ f d funcF f≡f [f] [f]₁) =
+whNormTerm′ (Πᵣ′ _ _ D _ _ _ _ _ _ _) (Πₜ f d funcF _ _ _) =
   f , functionWhnf funcF , convRed:*: d (sym (subset* (red D)))
-whNormTerm′ (Σᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Σₜ p d p≡p pProd pProp) =
+whNormTerm′ (Σᵣ′ _ _ D _ _ _ _ _ _ _) (Σₜ p d _ pProd _) =
   p , productWhnf pProd , convRed:*: d (sym (subset* (red D)))
 whNormTerm′ (emb 0<1 [A]) [a] = whNormTerm′ [A] [a]
 

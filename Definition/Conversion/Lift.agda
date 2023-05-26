@@ -3,24 +3,28 @@
 -- relations.
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
+
 module Definition.Conversion.Lift
-  {a} (M : Set a) where
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  where
 
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Untyped.Properties M
-open import Definition.Typed M
-open import Definition.Typed.Weakening M
-open import Definition.Typed.Properties M
-open import Definition.Typed.EqRelInstance M
-open import Definition.Conversion M
-open import Definition.Conversion.Whnf M
-open import Definition.Conversion.Soundness M
-open import Definition.Conversion.Weakening M
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.Properties M
-open import Definition.LogicalRelation.Fundamental.Reducibility M
-open import Definition.Typed.Consequences.Syntactic M
-open import Definition.Typed.Consequences.Reduction M
+open import Definition.Typed R
+open import Definition.Typed.Weakening R
+open import Definition.Typed.Properties R
+open import Definition.Typed.EqRelInstance R
+open import Definition.Conversion R
+open import Definition.Conversion.Whnf R
+open import Definition.Conversion.Soundness R
+open import Definition.Conversion.Weakening R
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Properties R
+open import Definition.LogicalRelation.Fundamental.Reducibility R
+open import Definition.Typed.Consequences.Syntactic R
+open import Definition.Typed.Consequences.Reduction R
 
 open import Tools.Fin
 open import Tools.Function
@@ -68,7 +72,7 @@ mutual
   lift~toConv↓′ (Emptyᵣ D) D₁ ([~] A D₂ whnfB k~l)
                 rewrite PE.sym (whrDet* (red D , Emptyₙ) (D₁ , whnfB)) =
     Empty-ins ([~] A D₂ Emptyₙ k~l)
-  lift~toConv↓′ (Unitᵣ D) D₁ ([~] A D₂ whnfB k~l)
+  lift~toConv↓′ (Unitᵣ (Unitₜ D _)) D₁ ([~] A D₂ whnfB k~l)
                 rewrite PE.sym (whrDet* (red D , Unitₙ) (D₁ , whnfB)) =
     Unit-ins ([~] A D₂ Unitₙ k~l)
   lift~toConv↓′ (ne′ K D neK K≡K) D₁ ([~] A D₂ whnfB k~l)
@@ -76,8 +80,9 @@ mutual
     let _ , ⊢t , ⊢u = syntacticEqTerm (soundness~↑ k~l)
         A≡K = subset* D₂
     in  ne-ins (conv ⊢t A≡K) (conv ⊢u A≡K) neK ([~] A D₂ (ne neK) k~l)
-  lift~toConv↓′ (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext) D₁ ([~] A D₂ whnfB k~l)
-                rewrite PE.sym (whrDet* (red D , ΠΣₙ) (D₁ , whnfB)) =
+  lift~toConv↓′
+    (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) D₁ ([~] A D₂ whnfB k~l)
+    rewrite PE.sym (whrDet* (red D , ΠΣₙ) (D₁ , whnfB)) =
     let ⊢ΠFG , ⊢t , ⊢u = syntacticEqTerm (soundness~↓ ([~] A D₂ ΠΣₙ k~l))
         ⊢F , ⊢G = syntacticΠ ⊢ΠFG
         neT , neU = ne~↑ k~l
@@ -89,8 +94,11 @@ mutual
           (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x) (wkSingleSubstId _) $
            lift~toConv↑′ ([G] (step id) (⊢Γ ∙ ⊢F) var0) $
            app-cong (wk~↓ (step id) (⊢Γ ∙ ⊢F) ([~] A D₂ ΠΣₙ k~l)) 0≡0)
-  lift~toConv↓′ (Bᵣ′ BΣₚ F G D ⊢F ⊢G Σ≡Σ [F] [G] G-ext) D₁ ([~] A″ D₂ whnfA t~u)
-                rewrite PE.sym (whrDet* (red D , ΠΣₙ) (D₁ , whnfA)) {- Σ F ▹ G ≡ A -} =
+  lift~toConv↓′
+    (Bᵣ′ BΣₚ F G D ⊢F ⊢G Σ≡Σ [F] [G] G-ext _) D₁ ([~] A″ D₂ whnfA t~u)
+    rewrite
+      -- Σ F ▹ G ≡ A.
+      PE.sym (whrDet* (red D , ΠΣₙ) (D₁ , whnfA)) =
     let neT , neU = ne~↑ t~u
         t~u↓ = [~] A″ D₂ ΠΣₙ t~u
         ⊢ΣFG , ⊢t , ⊢u = syntacticEqTerm (soundness~↓ t~u↓)
@@ -113,8 +121,11 @@ mutual
                       (lift~toConv↑′ wk[F] wkfst~))
             (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x) wkLiftId
                       (lift~toConv↑′ wk[Gfst] wksnd~))
-  lift~toConv↓′ (Bᵣ′ BΣᵣ F G D ⊢F ⊢G Σ≡Σ [F] [G] G-ext) D₁ ([~] A″ D₂ whnfA t~u)
-                rewrite PE.sym (whrDet* (red D , ΠΣₙ) (D₁ , whnfA)) {- Σ F ▹ G ≡ A -} =
+  lift~toConv↓′
+    (Bᵣ′ BΣᵣ F G D ⊢F ⊢G Σ≡Σ [F] [G] G-ext _) D₁ ([~] A″ D₂ whnfA t~u)
+    rewrite
+      -- Σ F ▹ G ≡ A.
+      PE.sym (whrDet* (red D , ΠΣₙ) (D₁ , whnfA)) =
     let t~u↓ = [~] A″ D₂ ΠΣₙ t~u
         _ , ⊢t , ⊢u = syntacticEqTerm (soundness~↓ t~u↓)
     in  Σᵣ-ins ⊢t ⊢u t~u↓

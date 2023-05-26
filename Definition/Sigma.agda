@@ -7,13 +7,16 @@
 -- reviewer.
 
 open import Definition.Modality
+open import Definition.Typed.Restrictions
 
 module Definition.Sigma
   {a} {M : Set a}
   (𝕄 : Modality M)
+  (R : Type-restrictions M)
   where
 
 open Modality 𝕄
+open Type-restrictions R
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
@@ -26,13 +29,13 @@ open import Definition.Modality.Substitution.Properties 𝕄
 
 open import Definition.Mode 𝕄
 
-open import Definition.Typed M
-open import Definition.Typed.Consequences.DerivedRules M
-open import Definition.Typed.Consequences.Inversion M
-open import Definition.Typed.Consequences.Substitution M
-open import Definition.Typed.Consequences.Syntactic M
-open import Definition.Typed.Properties M
-open import Definition.Typed.Weakening M as W
+open import Definition.Typed R
+open import Definition.Typed.Consequences.DerivedRules R
+open import Definition.Typed.Consequences.Inversion R
+open import Definition.Typed.Consequences.Substitution R
+open import Definition.Typed.Consequences.Syntactic R
+open import Definition.Typed.Properties R
+open import Definition.Typed.Weakening R as W
 
 open import Definition.Untyped M as U
   hiding (_∷_) renaming (_[_,_] to _[_∣_])
@@ -355,7 +358,7 @@ prodrecₚⱼ
   ⊢Γ    = wfTerm ⊢t
   ⊢A,⊢B = inversion-ΠΣ (syntacticTerm ⊢t)
   ⊢A    = ⊢A,⊢B .proj₁
-  ⊢B    = ⊢A,⊢B .proj₂
+  ⊢B    = ⊢A,⊢B .proj₂ .proj₁
 
 -- An equality rule for prodrecₚ.
 
@@ -363,11 +366,12 @@ prodrecₚ-β :
   Γ ⊢ t ∷ A →
   Γ ⊢ u ∷ B [ t ] →
   Γ ∙ A ∙ B ⊢ v ∷ C [ prodₚ p (var (x0 +1)) (var x0) ]↑² →
+  Σₚ-restriction p →
   Γ ⊢ prodrecₚ p (prodₚ p t u) v ≡ v [ t ∣ u ] ∷ C [ prodₚ p t u ]
 prodrecₚ-β
   {Γ = Γ} {t = t} {A = A} {u = u} {B = B} {v = v} {C = C} {p = p}
-  ⊢t ⊢u ⊢v =                                                        $⟨ Σ-β₁ ⊢A ⊢B ⊢t ⊢u PE.refl
-                                                                     , Σ-β₂ ⊢A ⊢B ⊢t ⊢u PE.refl
+  ⊢t ⊢u ⊢v ok =                                                     $⟨ Σ-β₁ ⊢A ⊢B ⊢t ⊢u PE.refl ok
+                                                                     , Σ-β₂ ⊢A ⊢B ⊢t ⊢u PE.refl ok
                                                                      ⟩
   Γ ⊢ fst p (prodₚ p t u) ≡ t ∷ A ×
   Γ ⊢ snd p (prodₚ p t u) ≡ u ∷ B [ fst p (prodₚ p t u) ]           →⟨ (λ (hyp₁ , hyp₂) →
@@ -825,7 +829,7 @@ private
   Σ⊢wk1 :
     Γ ∙ A ⊢ B →
     Γ ∙ (Σᵣ p , q ▷ A ▹ B) ⊢ wk1 A
-  Σ⊢wk1 ⊢B = ⊢wk1 (ΠΣⱼ ⊢A ▹ ⊢B) ⊢A
+  Σ⊢wk1 ⊢B = ⊢wk1 (ΠΣⱼ ⊢A ⊢B _) ⊢A
     where
     ⊢A = case wf ⊢B of λ where
            (_ ∙ ⊢A) → ⊢A
@@ -942,7 +946,7 @@ fstᵣⱼ {Γ = Γ} {t = t} {p = p} {q = q} {A = A} {B = B} ⊢t =              
   where
   ⊢A,⊢B = inversion-ΠΣ (syntacticTerm ⊢t)
   ⊢A    = ⊢A,⊢B .proj₁
-  ⊢B    = ⊢A,⊢B .proj₂
+  ⊢B    = ⊢A,⊢B .proj₂ .proj₁
 
 -- A reduction rule for fstᵣ.
 
@@ -998,7 +1002,7 @@ fstᵣ-cong :
   Γ ⊢ fstᵣ p A₁ t₁ ≡ fstᵣ p A₂ t₂ ∷ A₁
 fstᵣ-cong
   {Γ = Γ} {A₁ = A₁} {A₂ = A₂} {B₁ = B₁} {t₁ = t₁} {t₂ = t₂}
-  {p = p} {q = q} A₁≡A₂ ⊢B₁ t₁≡t₂ =                $⟨ W.wkEq (step id) (wfEq A₁≡A₂ ∙ (ΠΣⱼ ⊢A₁ ▹ ⊢B₁)) A₁≡A₂
+  {p = p} {q = q} A₁≡A₂ ⊢B₁ t₁≡t₂ =                $⟨ W.wkEq (step id) (wfEq A₁≡A₂ ∙ ΠΣⱼ ⊢A₁ ⊢B₁ _) A₁≡A₂
                                                     , 1∷wk1[1,0] ⊢B₁
                                                     ⟩
   (Γ ∙ (Σᵣ p , q ▷ A₁ ▹ B₁) ⊢ wk1 A₁ ≡ wk1 A₂) ×
@@ -1052,7 +1056,7 @@ private
     (Γ ⊢ B [ fstᵣ p (wk1 A) (var x0) ]↑ [ t ] ≡ B [ fstᵣ p A t ])  □
     where
     ⊢Γ = wfTerm ⊢t
-    ⊢B = inversion-ΠΣ (syntacticTerm ⊢t) .proj₂
+    ⊢B = inversion-ΠΣ (syntacticTerm ⊢t) .proj₂ .proj₁
 
   [fstᵣ-0]↑[1,0]↑² :
     ∀ B →
@@ -1183,7 +1187,7 @@ private
     where
     ⊢A₁     = syntacticEq A₁≡A₂ .proj₁
     ⊢B₁     = syntacticEq B₁≡B₂ .proj₁
-    ⊢ΣA₁B₁  = ΠΣⱼ ⊢A₁ ▹ ⊢B₁
+    ⊢ΣA₁B₁  = ΠΣⱼ ⊢A₁ ⊢B₁ _
     ⊢ΓΣA₁B₁ = wf ⊢A₁ ∙ ⊢ΣA₁B₁
 
   ⊢[fstᵣ-0]↑ :
@@ -1386,7 +1390,7 @@ sndᵣⱼ {Γ = Γ} {t = t} {p = p} {q = q} {A = A} {B = B} ⊢t =   $⟨ prodre
   where
   ⊢A,⊢B = inversion-ΠΣ (syntacticTerm ⊢t)
   ⊢A    = ⊢A,⊢B .proj₁
-  ⊢B    = ⊢A,⊢B .proj₂
+  ⊢B    = ⊢A,⊢B .proj₂ .proj₁
 
 -- A reduction rule for sndᵣ.
 
@@ -1399,7 +1403,7 @@ sndᵣ-β-⇒
   {Γ = Γ} {A = A} {B = B} {t = t} {u = u} {p = p} {q = q} ⊢B ⊢t ⊢u =
                                                     $⟨ prodrec-β ⊢A ⊢B (⊢[fstᵣ-0]↑ {q = q} ⊢B) ⊢t ⊢u (⊢0∷[fstᵣ-0]↑[1,0]↑² ⊢B) PE.refl ⟩
   Γ ⊢ sndᵣ p q A B (prodᵣ p t u) ⇒ u ∷
-    B [ fstᵣ p (wk1 A) (var x0) ]↑ [ prodᵣ p t u ]  →⟨ flip conv (⊢≡[fstᵣ] (prodⱼ {q = q} ⊢A ⊢B ⊢t ⊢u)) ⟩
+    B [ fstᵣ p (wk1 A) (var x0) ]↑ [ prodᵣ p t u ]  →⟨ flip conv (⊢≡[fstᵣ] (prodⱼ {q = q} ⊢A ⊢B ⊢t ⊢u _)) ⟩
 
   Γ ⊢ sndᵣ p q A B (prodᵣ p t u) ⇒ u ∷
     B [ fstᵣ p A (prodᵣ p t u) ]                    □
@@ -1423,7 +1427,7 @@ sndᵣ-subst
   ⊢t₁   = syntacticEqTerm (subsetTerm t₁⇒t₂) .proj₂ .proj₁
   ⊢A,⊢B = inversion-ΠΣ (syntacticTerm ⊢t₁)
   ⊢A    = ⊢A,⊢B .proj₁
-  ⊢B    = ⊢A,⊢B .proj₂
+  ⊢B    = ⊢A,⊢B .proj₂ .proj₁
 
 -- An equality rule for sndᵣ.
 
@@ -1454,7 +1458,7 @@ sndᵣ-cong
   ⊢t₁   = syntacticEqTerm t₁≡t₂ .proj₂ .proj₁
   ⊢A,⊢B = inversion-ΠΣ (syntacticTerm ⊢t₁)
   ⊢A    = ⊢A,⊢B .proj₁
-  ⊢B    = ⊢A,⊢B .proj₂
+  ⊢B    = ⊢A,⊢B .proj₂ .proj₁
 
 -- Presumably it is possible to prove that the following η-rule does
 -- not hold in general:

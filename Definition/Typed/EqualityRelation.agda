@@ -3,11 +3,18 @@
 -- is parameterized.
 ------------------------------------------------------------------------
 
-module Definition.Typed.EqualityRelation {ℓ} (M : Set ℓ) where
+open import Definition.Typed.Restrictions
+
+module Definition.Typed.EqualityRelation
+  {ℓ} {M : Set ℓ}
+  (R : Type-restrictions M)
+  where
+
+open Type-restrictions R
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed M
-open import Definition.Typed.Weakening M using (_∷_⊆_)
+open import Definition.Typed R
+open import Definition.Typed.Weakening R using (_∷_⊆_)
 
 open import Tools.Fin
 open import Tools.Level
@@ -120,8 +127,8 @@ record EqRelSet : Set (lsuc ℓ) where
     ≅ₜ-Emptyrefl  : ⊢ Γ → Γ ⊢ Empty ≅ Empty ∷ U
 
     -- Unit type reflexivity
-    ≅-Unitrefl   : ⊢ Γ → Γ ⊢ Unit ≅ Unit
-    ≅ₜ-Unitrefl  : ⊢ Γ → Γ ⊢ Unit ≅ Unit ∷ U
+    ≅-Unitrefl   : ⊢ Γ → Unit-restriction → Γ ⊢ Unit ≅ Unit
+    ≅ₜ-Unitrefl  : ⊢ Γ → Unit-restriction → Γ ⊢ Unit ≅ Unit ∷ U
 
     -- Unit η-equality
     ≅ₜ-η-unit : Γ ⊢ e ∷ Unit
@@ -134,6 +141,7 @@ record EqRelSet : Set (lsuc ℓ) where
               → Γ ⊢ F
               → Γ ⊢ F ≅ H
               → Γ ∙ F ⊢ G ≅ E
+              → ΠΣ-restriction bm p
               → Γ ⊢ ΠΣ⟨ bm ⟩ p , q ▷ F ▹ G ≅ ΠΣ⟨ bm ⟩ p , q ▷ H ▹ E
 
     ≅ₜ-ΠΣ-cong
@@ -141,6 +149,7 @@ record EqRelSet : Set (lsuc ℓ) where
               → Γ ⊢ F
               → Γ ⊢ F ≅ H ∷ U
               → Γ ∙ F ⊢ G ≅ E ∷ U
+              → ΠΣ-restriction bm p
               → Γ ⊢ ΠΣ⟨ bm ⟩ p , q ▷ F ▹ G ≅ ΠΣ⟨ bm ⟩ p , q ▷ H ▹ E ∷ U
 
     -- Zero reflexivity
@@ -226,8 +235,8 @@ record EqRelSet : Set (lsuc ℓ) where
                → Γ ⊢ Emptyrec p F n ~ Emptyrec p F′ n′ ∷ F
 
   -- Star reflexivity
-  ≅ₜ-starrefl : ⊢ Γ → Γ ⊢ star ≅ star ∷ Unit
-  ≅ₜ-starrefl [Γ] = ≅ₜ-η-unit (starⱼ [Γ]) (starⱼ [Γ])
+  ≅ₜ-starrefl : ⊢ Γ → Unit-restriction → Γ ⊢ star ≅ star ∷ Unit
+  ≅ₜ-starrefl [Γ] ok = ≅ₜ-η-unit (starⱼ [Γ] ok) (starⱼ [Γ] ok)
 
   -- Composition of universe and generic equality compatibility
   ~-to-≅ : ∀ {k l} → Γ ⊢ k ~ l ∷ U → Γ ⊢ k ≅ l
@@ -237,6 +246,7 @@ record EqRelSet : Set (lsuc ℓ) where
           → Γ ⊢ F
           → Γ ⊢ F ≅ H
           → Γ ∙ F ⊢ G ≅ E
+          → BindingType-restriction W
           → Γ ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W ⟧ H ▹ E
   ≅-W-cong BΠ! = ≅-ΠΣ-cong
   ≅-W-cong BΣ! = ≅-ΠΣ-cong
@@ -245,6 +255,7 @@ record EqRelSet : Set (lsuc ℓ) where
             → Γ ⊢ F
             → Γ ⊢ F ≅ H ∷ U
             → Γ ∙ F ⊢ G ≅ E ∷ U
+            → BindingType-restriction W
             → Γ ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W ⟧ H ▹ E ∷ U
   ≅ₜ-W-cong BΠ! = ≅ₜ-ΠΣ-cong
   ≅ₜ-W-cong BΣ! = ≅ₜ-ΠΣ-cong

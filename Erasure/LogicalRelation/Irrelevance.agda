@@ -3,32 +3,37 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.EqualityRelation
-import Definition.Typed as T
-import Definition.Untyped as U
+import Definition.Typed
+open import Definition.Typed.Restrictions
+import Definition.Untyped
 open import Definition.Modality
 open import Tools.Nullary
 import Tools.PropositionalEquality as PE
 
 module Erasure.LogicalRelation.Irrelevance
-  {a k} {M : Set a} (𝕄 : Modality M)
-  (open U M) (open T M) (open Modality 𝕄)
+  {a k} {M : Set a}
+  (open Definition.Untyped M)
+  (𝕄 : Modality M)
+  (open Modality 𝕄)
+  (R : Type-restrictions M)
+  (open Definition.Typed R)
   {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘))
-  {{eqrel : EqRelSet M}}
+  {{eqrel : EqRelSet R}}
   where
 
 open EqRelSet {{...}}
 
-open import Erasure.LogicalRelation 𝕄 ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation 𝕄 R ⊢Δ is-𝟘?
 
-open import Definition.LogicalRelation M
-open import Definition.LogicalRelation.ShapeView M
-import Definition.LogicalRelation.Irrelevance M as I
-open import Definition.LogicalRelation.Substitution M
-import Definition.LogicalRelation.Substitution.Irrelevance M as IS
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.ShapeView R
+import Definition.LogicalRelation.Irrelevance R as I
+open import Definition.LogicalRelation.Substitution R
+import Definition.LogicalRelation.Substitution.Irrelevance R as IS
 
-open import Definition.Typed.Weakening M hiding (wk)
-open import Definition.Typed.Properties M
+open import Definition.Typed.Weakening R hiding (wk)
+open import Definition.Typed.Properties R
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Mode 𝕄
@@ -62,8 +67,8 @@ irrelevanceTermSV
   t®v
 irrelevanceTermSV
   [A] [A]′ t®v
-  (Bᵥ (BΠ p q) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-     (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁))
+  (Bᵥ (BΠ p q) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
+     (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
        with B-PE-injectivity BΠ! BΠ! (whrDet* (red D , ΠΣₙ) (red D₁ , ΠΣₙ))
 ... | PE.refl , PE.refl , _
        with is-𝟘? p
@@ -81,8 +86,8 @@ irrelevanceTermSV
   in  irrelevanceTermSV ([G] id ⊢Δ [a]) ([G]₁ id ⊢Δ [a]′) t®v′ SV′
 irrelevanceTermSV {v = v}
   [A] [A]′ (t₁ , t₂ , t⇒t′ , [t₁] , v₂ , t₂®v₂ , extra)
-  (Bᵥ (BΣ _ p _) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-     (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁))
+  (Bᵥ (BΣ _ p _) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
+     (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
   with B-PE-injectivity BΣ! BΣ! (whrDet* (red D , ΠΣₙ) (red D₁ , ΠΣₙ))
 ... | PE.refl , PE.refl , _ =
   let [F]′ = [F] id ⊢Δ
