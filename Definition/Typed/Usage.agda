@@ -197,13 +197,100 @@ usagePres* γ▸A (id x) = γ▸A
 usagePres* γ▸A (x ⇨ A⇒B) = usagePres* (usagePres γ▸A x) A⇒B
 
 -- Note that reduction does not include η-expansion (given certain
--- assumptions). If 𝟙 ≰ 𝟘, the Unit type with η-equality is allowed,
--- and Σ-types with η-equality are allowed when the first quantity
--- is 𝟘, then there is a well-resourced, closed term in normal form
--- which is definitionally equal to a term in normal form which is not
+-- assumptions). If there is a quantity that is bounded by 𝟙 but
+-- not 𝟘, and the Unit type with η-equality is allowed, then there is
+-- a well-resourced, closed term in normal form which is
+-- definitionally equal to a term in normal form which is not
 -- well-resourced.
 
 counterexample₁ :
+  ∀ p → p ≤ 𝟙 → ¬ p ≤ 𝟘 →
+  Unit-restriction →
+  ∃₂ λ t u →
+    (∀ q → ε ⊢ t ∷ Π p , q ▷ Unit ▹ Unit) ×
+    𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
+    Nf t ×
+    Nf u ×
+    (∀ q → ε ⊢ t ≡ u ∷ Π p , q ▷ Unit ▹ Unit) ×
+    ¬ ∃ λ γ → γ ▸[ 𝟙ᵐ ] u
+counterexample₁ p p≤𝟙 p≰𝟘 ok =
+    lam p (var x0)
+  , lam p star
+  , (λ _ → lamⱼ ⊢Unit ⊢0)
+  , lamₘ (sub var
+            (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+               𝟘ᶜ ∙ 𝟙 · p  ≈⟨ ≈ᶜ-refl ∙ ·-identityˡ _ ⟩
+               𝟘ᶜ ∙ p      ≤⟨ ≤ᶜ-refl ∙ p≤𝟙 ⟩
+               𝟘ᶜ ∙ 𝟙      ∎))
+  , lamₙ (ne (var _))
+  , lamₙ starₙ
+  , (λ _ → lam-cong (_⊢_≡_∷_.sym (Unit-η ⊢0)))
+  , (λ (_ , ▸λ*) →
+       case inv-usage-lam ▸λ* of λ {
+         (invUsageLam ▸* _) →
+       case inv-usage-star ▸* of λ {
+         (_ ∙ 𝟙·p≤𝟘) →
+           let open Tools.Reasoning.PartialOrder ≤-poset in
+           p≰𝟘 (begin
+             p      ≡˘⟨ ·-identityˡ _ ⟩
+             𝟙 · p  ≤⟨ 𝟙·p≤𝟘 ⟩
+             𝟘      ∎) }})
+  where
+  ⊢Unit = Unitⱼ ε ok
+  ⊢0   = var (ε ∙ ⊢Unit) here
+
+-- A variant of the previous lemma. If there is a quantity that is
+-- bounded by 𝟙 but not 𝟘, and Σ-types with η-equality are allowed
+-- when the first quantity is 𝟘, then there is a well-resourced,
+-- closed term in normal form which is definitionally equal to a term
+-- in normal form which is not well-resourced.
+
+counterexample₂ :
+  ∀ p → p ≤ 𝟙 → ¬ p ≤ 𝟘 →
+  Σₚ-restriction 𝟘 →
+  ∃₂ λ t u →
+    let A r = Σₚ 𝟘 , r ▷ ℕ ▹ ℕ in
+    (∀ q r → ε ⊢ t ∷ Π p , q ▷ A r ▹ wk1 (A r)) ×
+    𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
+    Nf t ×
+    Nf u ×
+    (∀ q r → ε ⊢ t ≡ u ∷ Π p , q ▷ A r ▹ wk1 (A r)) ×
+    ¬ ∃ λ γ → γ ▸[ 𝟙ᵐ ] u
+counterexample₂ p p≤𝟙 p≰𝟘 ok =
+    lam p (var x0)
+  , lam p (prodₚ 𝟘 (fst 𝟘 (var x0)) (snd 𝟘 (var x0)))
+  , (λ _ r → lamⱼ (Σℕℕ r) (⊢0 r))
+  , lamₘ (sub var
+            (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+               𝟘ᶜ ∙ 𝟙 · p  ≈⟨ ≈ᶜ-refl ∙ ·-identityˡ _ ⟩
+               𝟘ᶜ ∙ p      ≤⟨ ≤ᶜ-refl ∙ p≤𝟙 ⟩
+               𝟘ᶜ ∙ 𝟙      ∎))
+  , lamₙ (ne (var _))
+  , lamₙ (prodₙ (ne (fstₙ (var _))) (ne (sndₙ (var _))))
+  , (λ _ r → lam-cong (sym (Σ-η-prod-fst-snd (⊢0 r))))
+  , (λ (_ , ▸λ1,2) →
+       case inv-usage-lam ▸λ1,2 of λ {
+         (invUsageLam ▸1,2 _) →
+       case inv-usage-prodₚ ▸1,2 of λ {
+         (invUsageProdₚ {δ = _ ∙ r₁} {η = _ ∙ r₂} _ _ (_ ∙ 𝟙p≤𝟘r₁∧r₂)) →
+       let open Tools.Reasoning.PartialOrder ≤-poset in
+       p≰𝟘 (begin
+         p            ≡˘⟨ ·-identityˡ _ ⟩
+         𝟙 · p        ≤⟨ 𝟙p≤𝟘r₁∧r₂ ⟩
+         𝟘 · r₁ ∧ r₂  ≤⟨ ∧-decreasingˡ _ _ ⟩
+         𝟘 · r₁       ≡⟨ ·-zeroˡ _ ⟩
+         𝟘            ∎) }})
+  where
+  Σℕℕ = λ _ → ΠΣⱼ (ℕⱼ ε) (ℕⱼ (ε ∙ ℕⱼ ε)) ok
+  ⊢0  = λ q → var (ε ∙ Σℕℕ q) here
+
+-- A variant of the previous two lemmas. If 𝟙 ≰ 𝟘, the Unit type with
+-- η-equality is allowed, and Σ-types with η-equality are allowed when
+-- the first quantity is 𝟘, then there is a well-resourced, closed
+-- term in normal form which is definitionally equal to a term in
+-- normal form which is not well-resourced.
+
+counterexample₃ :
   ¬ 𝟙 ≤ 𝟘 →
   Unit-restriction →
   Σₚ-restriction 𝟘 →
@@ -214,7 +301,7 @@ counterexample₁ :
     Nf u ×
     (∀ p → ε ⊢ t ≡ u ∷ Π 𝟙 , p ▷ Erased ℕ ▹ Erased ℕ) ×
     ¬ ∃ λ γ → γ ▸[ 𝟙ᵐ ] u
-counterexample₁ 𝟙≰𝟘 Unit-ok Σₚ-ok =
+counterexample₃ 𝟙≰𝟘 Unit-ok Σₚ-ok =
     lam 𝟙 (var x0)
   , lam 𝟙 [ erased (var x0) ]
   , (λ _ → lamⱼ ⊢E-ℕ ⊢0)
@@ -243,15 +330,15 @@ counterexample₁ 𝟙≰𝟘 Unit-ok Σₚ-ok =
   ⊢E-ℕ = Erasedⱼ (ℕⱼ ε)
   ⊢0   = var (ε ∙ ⊢E-ℕ) here
 
--- A variant of the previous lemma. If there is some quantity ω
--- strictly below both 𝟘 and some quantity that is bounded by 𝟙, and
+-- A variant of the last three lemmas above. If there is some quantity
+-- ω strictly below both 𝟘 and some quantity that is bounded by 𝟙, and
 -- furthermore the Unit type with η-equality is allowed and Σ-types
 -- with η-equality are allowed when the first quantity is ω, then
 -- there is a well-resourced, closed term in normal form which is
 -- definitionally equal to a term in normal form which is not
 -- well-resourced.
 
-counterexample₂ :
+counterexample₄ :
   ∀ ω → ω < 𝟘 →
   ∀ p → ω < p → p ≤ 𝟙 →
   Unit-restriction →
@@ -264,7 +351,7 @@ counterexample₂ :
     Nf u ×
     (∀ q → ε ⊢ t ≡ u ∷ Π p , q ▷ Unrestricted ℕ ▹ Unrestricted ℕ) ×
     ¬ ∃ λ γ → γ ▸[ 𝟙ᵐ ] u
-counterexample₂ ω ω<𝟘 p ω<p p≤𝟙 Unit-ok Σₚ-ok =
+counterexample₄ ω ω<𝟘 p ω<p p≤𝟙 Unit-ok Σₚ-ok =
     lam p (var x0)
   , lam p [ unbox (var x0) ]
   , (λ _ → lamⱼ ⊢E-ℕ ⊢0)
