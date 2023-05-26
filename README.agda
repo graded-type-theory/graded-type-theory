@@ -28,11 +28,11 @@ import Definition.Modality
 import Definition.Modality.Context
 import Definition.Modality.FullReduction
 import Definition.Modality.Instances.Unit
-import Definition.Modality.Instances.Erasure
 import Definition.Modality.Instances.Erasure.Modality
 import Definition.Modality.Instances.Erasure.Properties
 import Definition.Modality.Instances.Affine
 import Definition.Modality.Instances.Linearity
+import Definition.Modality.Instances.Linear-or-affine
 import Definition.Modality.Instances.LowerBounded
 import Definition.Modality.Instances.Recursive
 import Definition.Modality.Instances.BoundedStar
@@ -98,6 +98,10 @@ affineModality = Definition.Modality.Instances.Affine.affineModality
 -- A "linear types" modality.
 
 linearityModality = Definition.Modality.Instances.Linearity.linearityModality
+
+-- A combined modality for affine or linear types.
+
+linearOrAffineModality = Definition.Modality.Instances.Linear-or-affine.linear-or-affine
 
 ------------------------------------------------------------------------
 -- 4: Type theory with grades
@@ -175,15 +179,20 @@ Theorem-5-4 = Definition.Typed.Usage.usagePresTerm
 
 -- Definition 6.1
 
-𝟘ω = Definition.Modality.Instances.Erasure.Erasure
+Has-well-behaved-zero = Definition.Modality.Has-well-behaved-zero
+
+erasure-has-well-behaved-zero =
+  Definition.Modality.Instances.Erasure.Modality.erasure-has-well-behaved-zero
+linearity-has-well-behaved-zero =
+  Definition.Modality.Instances.Linearity.zero-one-many-has-well-behaved-zero
+affine-has-well-behaved-zero =
+  Definition.Modality.Instances.Affine.zero-one-many-has-well-behaved-zero
+linear-or-affine-has-well-behaved-zero =
+  Definition.Modality.Instances.Linear-or-affine.linear-or-affine-has-well-behaved-zero
 
 -- Theorem 6.2
 
-Theorem-62 = Definition.Modality.Instances.Erasure.Modality.ErasureModality
-
--- Theorem 6.3
-
-Theorem-63 = Definition.Modality.Instances.Erasure.Properties.valid-var-usage
+Theorem-62 = Definition.Modality.Usage.Properties.valid-var-usage
 
 -- The grammar of the untyped target language
 
@@ -194,13 +203,13 @@ target = Erasure.Target.Term
 _⇒_ = Erasure.Target._⇒_
 _⇒*_ = Erasure.Target._⇒*_
 
--- Definition 6.5: The extraction function
+-- Definition 6.3: The extraction function
 
 _• = Erasure.Extraction.erase
 
--- Theorem 6.6
+-- Theorem 6.4
 
-Theorem-66 = Erasure.Extraction.Properties.erased-hasX
+Theorem-64 = Erasure.Extraction.Properties.erased-hasX
 
 -- Reducibility logical relation for types
 -- In the paper, the type level is denoted with a subscript instead of within braces.
@@ -217,7 +226,7 @@ _⊩′⟨_⟩_∷_/_ = Definition.LogicalRelation._⊩⟨_⟩_∷_/_
 fundamentalReducibleType = Definition.LogicalRelation.Fundamental.Reducibility.reducible
 fundamentalReducibleTerm = Definition.LogicalRelation.Fundamental.Reducibility.reducibleTerm
 
--- Definition 6.7: The logical relation for erasure
+-- Definition 6.5: The logical relation for erasure
 -- In the paper, the logical relation is defined specifically for the
 -- erasure modality but is here generalized to hold in more general
 -- cases, assuming that the zero of the semiring is sufficiently
@@ -232,53 +241,46 @@ _®⟨_⟩_∷_/_ = Erasure.LogicalRelation._®⟨_⟩_∷_/_
 
 _⊩ˢ_∷_/_ = Definition.LogicalRelation.Substitution._⊩ˢ_∷_/_/_
 
--- Definition 6.8: The logical relation for substitutions
+-- Definition 6.6: The logical relation for substitutions
 -- In the paper, the type level is denoted with a subscript instead of within braces.
 
 _®⟨_⟩_∷_◂_/_/_ = Erasure.LogicalRelation._®⟨_⟩_∷[_]_◂_/_/_
 
 
--- Definition 6.9: Erasure validity
+-- Definition 6.7: Erasure validity
 -- In the paper, the type level is denoted with a subscript instead of within braces.
 
 _▸_⊩ʳ⟨_⟩_∷_/_/_ = Erasure.LogicalRelation._▸_⊩ʳ⟨_⟩_∷[_]_/_/_
 
--- Theorem 6.10: Backwards closure of logical relation under reduction
+-- Theorem 6.8: Backwards closure of logical relation under reduction
 
-Theorem-610 = Erasure.LogicalRelation.Reduction.redSubstTerm*
+Theorem-68 = Erasure.LogicalRelation.Reduction.redSubstTerm*
 
--- Theorem 6.11: Subsumption of the logical relation
--- The subsumption properties differ from the ones in the paper as
--- a consequence of the generalization of the logical relation.
--- For the erasure modality, these theorems are equivalent to the
--- ones stated in the paper.
+-- Theorem 6.9: Subsumption of the logical relation
 
-Theorem-611a = Erasure.LogicalRelation.Subsumption.subsumptionSubst
-Theorem-611b = Erasure.LogicalRelation.Subsumption.subsumption
+Theorem-69a = Erasure.LogicalRelation.Subsumption.subsumptionSubst
+Theorem-69b = Erasure.LogicalRelation.Subsumption.subsumption
 
--- Theorem 6.12: The fundamental lemma
+-- Theorem 6.10: The fundamental lemma
 
 fundamental = Erasure.LogicalRelation.Fundamental.fundamental
 
--- Theorem 6.13: All substitutions are related under erased contexts
+-- Theorem 6.11: All substitutions are related under erased contexts
 
-Theorem-613 = Erasure.LogicalRelation.Subsumption.erasedSubst
+Theorem-611 = Erasure.LogicalRelation.Subsumption.erasedSubst
 
--- Theorem 6.14: The fundamental lemma for fully erased terms
--- The theorem has been updated to either require that erased matches
--- are not allowed, or that the context is empty.
+-- Theorem 6.12: The fundamental lemma for fully erased terms
 
-Theorem-614 = Erasure.LogicalRelation.Fundamental.fundamentalErased
+Theorem-612 = Erasure.LogicalRelation.Fundamental.fundamentalErased
 
 -- Extended reduction relations
+
 _⊢_⇒ˢ_∷ℕ = Erasure.SucRed._⊢_⇒ˢ_∷ℕ
 _⊢_⇒ˢ*_∷ℕ = Erasure.SucRed._⊢_⇒ˢ*_∷ℕ
 _⇒ˢ_ = Erasure.SucRed._⇒ˢ_
 _⇒ˢ*_ = Erasure.SucRed._⇒ˢ*_
 
--- Theorem 6.15: Soundness of the extraction function
--- The theorem has been to either require that erased matches
--- are not allowed, or that the context is empty.
+-- Theorem 6.13: Soundness of the extraction function
 
 soundness = Erasure.Consequences.Soundness.soundness-ℕ
 
