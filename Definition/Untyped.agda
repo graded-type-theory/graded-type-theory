@@ -223,21 +223,41 @@ B≢ne : ∀ W → Neutral A → ⟦ W ⟧ F ▹ G PE.≢ A
 B≢ne (BΠ p q) () PE.refl
 B≢ne (BΣ m p q) () PE.refl
 
+ΠΣ≢ne : ∀ b → Neutral A → ΠΣ⟨ b ⟩ p , q ▷ F ▹ G PE.≢ A
+ΠΣ≢ne BMΠ () PE.refl
+ΠΣ≢ne (BMΣ s) () PE.refl
+
 U≢B : ∀ W → U PE.≢ ⟦ W ⟧ F ▹ G
 U≢B (BΠ p q) ()
 U≢B (BΣ m p q) ()
+
+U≢ΠΣ : ∀ b → U PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
+U≢ΠΣ BMΠ ()
+U≢ΠΣ (BMΣ s) ()
 
 ℕ≢B : ∀ W → ℕ PE.≢ ⟦ W ⟧ F ▹ G
 ℕ≢B (BΠ p q) ()
 ℕ≢B (BΣ m p q) ()
 
+ℕ≢ΠΣ : ∀ b → ℕ PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
+ℕ≢ΠΣ BMΠ ()
+ℕ≢ΠΣ (BMΣ s) ()
+
 Empty≢B : ∀ W → Empty PE.≢ ⟦ W ⟧ F ▹ G
 Empty≢B (BΠ p q) ()
 Empty≢B (BΣ m p q) ()
 
+Empty≢ΠΣ : ∀ b → Empty PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
+Empty≢ΠΣ BMΠ ()
+Empty≢ΠΣ (BMΣ _) ()
+
 Unit≢B : ∀ W → Unit PE.≢ ⟦ W ⟧ F ▹ G
 Unit≢B (BΠ p q) ()
 Unit≢B (BΣ m p q) ()
+
+Unit≢ΠΣ : ∀ b → Unit PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
+Unit≢ΠΣ BMΠ ()
+Unit≢ΠΣ (BMΣ _) ()
 
 Π≢Σ : ∀ {m} → Π p₁ , q₁ ▷ F ▹ G PE.≢ Σ⟨ m ⟩ p₂ , q₂ ▷ H ▹ E
 Π≢Σ ()
