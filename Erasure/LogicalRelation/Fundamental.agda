@@ -170,8 +170,7 @@ fundamentalVar {Γ = Γ} {x = x} {A = A} {γ = γ} {m = m} [Γ] x∷A∈Γ γ▸
      in  irrelevanceTerm (proj₁ (unwrap [A]′ ⊢Δ [σ]))
            (proj₁ (unwrap [A] ⊢Δ [σ])) t®v
 
--- Fundamental lemma for the erasure relation
--- Does not allow matching on erased pairs
+-- The fundamental lemma for the erasure relation.
 
 fundamental : Γ ⊢ t ∷ A → γ ▸[ m ] t
             → ∃₂ λ ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ])
