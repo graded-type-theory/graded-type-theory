@@ -145,7 +145,6 @@ prodrecTerm
       [σ⇑⇑] = liftSubstS {σ = liftSubst σ} {F = G} (_∙_ {A = F} [Γ] [F]) (⊢Δ ∙ ⊢σF) [G]
                           (liftSubstS {σ = σ} {F = F} [Γ] ⊢Δ [F] [σ])
       ⊢σΣ = escape [σΣ]
-      -- TODO: Slow!
       [σA] = proj₁ (unwrap [A] {σ = liftSubst σ} (⊢Δ ∙ ⊢σΣ)
                       (liftSubstS {σ = σ} {F = Σᵣ _ , q ▷ F ▹ G}
                          [Γ] ⊢Δ [Σ] [σ]))
@@ -197,7 +196,6 @@ prodrecTerm
         (Δ ⊢_≡_) (PE.sym (singleSubstComp (prodᵣ _ p₁ p₂) σ A))
         (PE.sym (singleSubstComp t σ A)) (sym ⊢A[t]≡A[p])
       [u₊]″ = convTerm₂ [σA[t]]′ [σA₊′]′ A[t]≡A[p]′ [u₊]′
-      -- TODO: Slow!
       reduction₁ = prodrec-subst* {r = r} {u = u} {A} {F} {G} {σ}
                                   [Γ] [F] [G] [Σ] [A] [A₊] [u] ⊢Δ [σ] [p] (redₜ t⇒p)
       reduction₂ : _ ⊢ _ ⇒* _ ∷ _
@@ -218,7 +216,6 @@ prodrecTerm
                          (liftSubstS {σ = σ} {F = F} [Γ] ⊢Δ [F] [σ])
       [σΣ] = proj₁ (unwrap [Σ] ⊢Δ [σ])
       ⊢σΣ = escape [σΣ]
-      -- TODO: Slow!
       [σA] = proj₁ (unwrap [A] {σ = liftSubst σ} (⊢Δ ∙ ⊢σΣ)
                         (liftSubstS {σ = σ} {F = Σᵣ _ , q ▷ F ▹ G}
                            [Γ] ⊢Δ [Σ] [σ]))
@@ -247,7 +244,6 @@ prodrecTerm
       A[t]≡A[p]′ = irrelevanceEq″ (PE.sym (singleSubstComp t σ A))
                                    (PE.sym (singleSubstComp p σ A))
                                    [σA[t]]′ [σA[t]] A[t]≡A[p]
-      -- TODO: Slow!
       reduction = prodrec-subst*
         {r = r} {u = u} {A} {F} {G} {σ}
         [Γ] [F] [G] [Σ] [A] [A₊] [u] ⊢Δ [σ] [p] (redₜ t⇒p)
@@ -888,7 +884,6 @@ prodrecᵛ {n = n} {q = q} {r = r} {Γ = Γ} {F} {G} {A} {t} {u} {l}
                ([Γ] ∙ [Σ]′) [A]
       [σt] = proj₁ ([t] ⊢Δ [σ])
       [σt]′ = irrelevanceTerm (proj₁ (unwrap [Σ] ⊢Δ [σ])) (proj₁ (unwrap [Σ]′ ⊢Δ [σ])) [σt]
-      -- TODO: Slow!
       [A[t]] , [σpr] = prodrecTerm
         {r = r} {F = F} {G} {A} {subst σ t} {u} {σ}
         [Γ] [F] [G] [A]′ [A₊] [u] ⊢Δ [σ] [σt]′
@@ -902,7 +897,6 @@ prodrecᵛ {n = n} {q = q} {r = r} {Γ = Γ} {F} {G} {A} {t} {u} {l}
             [σt≡σ′t]′ = irrelevanceEqTerm (proj₁ (unwrap [Σ] ⊢Δ [σ])) (proj₁ (unwrap [Σ]′ ⊢Δ [σ])) [σt≡σ′t]
             [σΣ≡σ′Σ] = proj₂ (unwrap [Σ]′ ⊢Δ [σ]) [σ′] [σ≡σ′]
             ⊢σΣ≡σ′Σ = ≅-eq (escapeEq (proj₁ (unwrap [Σ]′ ⊢Δ [σ])) [σΣ≡σ′Σ])
-            -- TODO: Slow!
             [A[t]]′ , [σpr≡σ′pr] = prodrecCong
               {q = q} {r = r} {F = F} {F} {G} {G} {A} {A}
               {subst σ t} {subst σ′ t} {u} {u} {σ} {σ′}
@@ -966,7 +960,6 @@ prodrec-congᵛ {Γ = Γ} {q = q} {r = r}
       [A′]′ = S.irrelevance {A = A′}
                 (_∙_ {A = Σᵣ _ , q ▷ F′ ▹ G′} [Γ] [Σ′])
                 ([Γ] ∙ [Σ′]′) [A′]
-      -- TODO: Slow!
       [A≡A′]′ = S.irrelevanceEq {A = A} {B = A′}
                   (_∙_ {A = Σᵣ _ , q ▷ F ▹ G} [Γ] [Σ])
                   (_∙_ {A = Σᵣ _ , q ▷ F ▹ G} [Γ] [Σ]′)
@@ -983,7 +976,6 @@ prodrec-congᵛ {Γ = Γ} {q = q} {r = r}
                  [Γ] [F] [G] [F′] [G′] [F≡F′] [G≡G′] _
       [σΣ≡σΣ′] = [Σ≡Σ′] ⊢Δ [σ]
       ⊢σΣ≡σΣ′ = ≅-eq (escapeEq (proj₁ (unwrap [Σ]′ ⊢Δ [σ])) [σΣ≡σΣ′])
-      -- TODO: Slow!
       [Aₜ]′ , [pr≡pr] = prodrecCong
         {F = F} {F′} {G} {G′} {A} {A′} {subst σ t} {subst σ t′} {u} {u′}
         [Γ] [F] [F′] [F≡F′] [G] [G′] [G≡G′] [A]′ [A′]′ [A≡A′]′
