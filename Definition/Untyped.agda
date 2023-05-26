@@ -401,7 +401,7 @@ wkWhnf ρ (ne x)  = ne (wkNeutral ρ x)
 -- The substitution operation  subst σ t  replaces the free de Bruijn indices
 -- of term t by chosen terms as specified by σ.
 
--- The substitution σ itself is a map from natural numbers to terms.
+-- The substitution σ itself is a map from Fin n to terms.
 
 Subst : Nat → Nat → Set a
 Subst m n = Fin n → Term m
@@ -416,7 +416,7 @@ Subst m n = Fin n → Term m
 -- Although substitutions are untyped, typing helps us
 -- to understand the operation on substitutions.
 
--- We may view σ as the infinite stream σ 0, σ 1, ...
+-- We may view σ as the finite stream σ 0, σ 1, ..., σ n
 
 -- Extract the substitution of the first variable.
 --

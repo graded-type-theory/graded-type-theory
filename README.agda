@@ -152,7 +152,7 @@ Theorem-4-4b = Definition.Typed.Properties.whrDet*
 
 -- Definition 5.1: The usage relation
 
-_▸_ = Definition.Modality.Usage._▸[_]_
+_▹_ = Definition.Modality.Usage._▸[_]_
 
 -- Definition 5.2
 
@@ -189,6 +189,11 @@ Theorem-63 = Definition.Modality.Instances.Erasure.Properties.valid-var-usage
 
 target = Erasure.Target.Term
 
+-- The reduction relation of the target language
+
+_⇒_ = Erasure.Target._⇒_
+_⇒*_ = Erasure.Target._⇒*_
+
 -- Definition 6.5: The extraction function
 
 _• = Erasure.Extraction.erase
@@ -198,16 +203,19 @@ _• = Erasure.Extraction.erase
 Theorem-66 = Erasure.Extraction.Properties.erased-hasX
 
 -- Reducibility logical relation for types
+-- In the paper, the type level is denoted with a subscript instead of within braces.
 
 _⊩′⟨_⟩_ = Definition.LogicalRelation._⊩⟨_⟩_
 
 -- Reducibility logical relation for terms
+-- In the paper, the type level is denoted with a subscript instead of within braces.
 
 _⊩′⟨_⟩_∷_/_ = Definition.LogicalRelation._⊩⟨_⟩_∷_/_
 
 -- The fundamental lemma of the reducibility relation
 
-fundamentalReducible = Definition.LogicalRelation.Fundamental.fundamental
+fundamentalReducibleType = Definition.LogicalRelation.Fundamental.Reducibility.reducible
+fundamentalReducibleTerm = Definition.LogicalRelation.Fundamental.Reducibility.reducibleTerm
 
 -- Definition 6.7: The logical relation for erasure
 -- In the paper, the logical relation is defined specifically for the
@@ -216,16 +224,22 @@ fundamentalReducible = Definition.LogicalRelation.Fundamental.fundamental
 -- well behaved.
 
 _®⟨_⟩_∷_/_ = Erasure.LogicalRelation._®⟨_⟩_∷_/_
+-- In the paper, the type level is denoted with a subscript instead of within braces.
 
 -- Valid substitutions
+-- The argument for the target context being well-formed is not included in the
+-- paper since the context is fixed and assumed to be well-formed.
 
 _⊩ˢ_∷_/_ = Definition.LogicalRelation.Substitution._⊩ˢ_∷_/_/_
 
 -- Definition 6.8: The logical relation for substitutions
+-- In the paper, the type level is denoted with a subscript instead of within braces.
 
 _®⟨_⟩_∷_◂_/_/_ = Erasure.LogicalRelation._®⟨_⟩_∷[_]_◂_/_/_
 
+
 -- Definition 6.9: Erasure validity
+-- In the paper, the type level is denoted with a subscript instead of within braces.
 
 _▸_⊩ʳ⟨_⟩_∷_/_/_ = Erasure.LogicalRelation._▸_⊩ʳ⟨_⟩_∷[_]_/_/_
 
@@ -236,7 +250,7 @@ Theorem-610 = Erasure.LogicalRelation.Reduction.redSubstTerm*
 -- Theorem 6.11: Subsumption of the logical relation
 -- The subsumption properties differ from the ones in the paper as
 -- a consequence of the generalization of the logical relation.
--- For the erasure modality, these theorems are equivallent to the
+-- For the erasure modality, these theorems are equivalent to the
 -- ones stated in the paper.
 
 Theorem-611a = Erasure.LogicalRelation.Subsumption.subsumptionSubst
@@ -325,10 +339,12 @@ linearityModalityₑ = Definition.Modality.Instances.Linearity.linearityModality
 subjectReduction = Definition.Typed.Usage.usagePresTerm
 
 -- Translating modes into grades
+-- In the paper, this function is denoted by an overbar.
 
 ⌜_⌝ = Definition.Mode.⌜_⌝
 
 -- Translating grades into modes
+-- In the paper, this function is denoted by an underline.
 
 ⌞_⌟ = Definition.Mode.⌞_⌟
 
@@ -337,6 +353,7 @@ subjectReduction = Definition.Typed.Usage.usagePresTerm
 _⊙_ = Definition.Mode._ᵐ·_
 
 -- The usage relation with modes
+-- In the paper, the mode is denoted with a superscript instead of within braces.
 
 _▸[_]_ = Definition.Modality.Usage._▸[_]_
 
@@ -362,18 +379,22 @@ _⊢_:⇒*:_∷_ = Definition.Typed._⊢_:⇒*:_∷_
 _⊢_:⇒*:_ = Definition.Typed._⊢_:⇒*:_
 
 -- Definition A.1: Reducibility of types
+-- In the paper, the type level is denoted with a subscript instead of within braces.
 
 _⊩⟨_⟩_ = Definition.LogicalRelation._⊩⟨_⟩_
 
 -- Definition A.2: Reducibility of terms
+-- In the paper, the type level is denoted with a subscript instead of within braces.
 
 _⊩⟨_⟩_∷_/_ = Definition.LogicalRelation._⊩⟨_⟩_∷_/_
 
 -- Definition A.3: Equality of reducible types
+-- In the paper, the type level is denoted with a subscript instead of within braces.
 
 _⊩⟨_⟩_≡_/_ = Definition.LogicalRelation._⊩⟨_⟩_≡_/_
 
 -- Definition A.4: Equality of reducible terms
+-- In the paper, the type level is denoted with a subscript instead of within braces.
 
 _⊩⟨_⟩_≡_∷_/_ = Definition.LogicalRelation._⊩⟨_⟩_≡_∷_/_
 
@@ -388,6 +409,7 @@ _⊩ˢ_∷_/_/_ = Definition.LogicalRelation.Substitution._⊩ˢ_∷_/_/_
 
 -- Definition A.8: Validity of types, terms and equality of
 -- valid types and terms
+-- In the paper, the type levels are denoted with a subscript instead of within braces.
 
 _⊩ᵛ⟨_⟩_/_ = Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_/_
 _⊩ᵛ⟨_⟩_∷_/_/_ = Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_∷_/_/_

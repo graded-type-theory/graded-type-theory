@@ -16,7 +16,7 @@ open import Tools.Relation
 open import Definition.Modality Erasure public
 open import Tools.Sum
 
--- Erasure forms a modality
+-- Erasure annotations forms a semiring with meet
 
 erasure-semiring-with-meet : Semiring-with-meet
 erasure-semiring-with-meet = record
@@ -30,6 +30,8 @@ erasure-semiring-with-meet = record
   ; ·-distrib-∧ = ·-distrib-+
   ; +-distrib-∧ = +-distrib-+
   }
+
+-- The zero of the erasure semiring is well-behaved
 
 erasure-has-well-behaved-zero : Has-well-behaved-zero erasure-semiring-with-meet
 erasure-has-well-behaved-zero = record
@@ -51,6 +53,8 @@ erasure-has-well-behaved-zero = record
       {p = ω} ()
   }
 
+-- Erasure annotations forms a semiring with meet and star
+
 erasure-semiring-with-meet-and-star : Semiring-with-meet-and-star
 erasure-semiring-with-meet-and-star = record
   { semiring-with-meet = erasure-semiring-with-meet
@@ -60,6 +64,8 @@ erasure-semiring-with-meet-and-star = record
   ; ·-sub-distribʳ-⊛ = ·-sub-distribʳ-⊛
   ; ⊛-sub-distrib-∧ = λ r → ⊛-sub-distribˡ-∧ r , ⊛-sub-distribʳ-∧ r
   }
+
+-- The erasure modality instance
 
 ErasureModality : Modality
 ErasureModality = record

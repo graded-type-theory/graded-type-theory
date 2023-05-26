@@ -146,6 +146,8 @@ _▸_⊩ʳ⟨_⟩_∷[_]_/_/_ :
   U.subst σ t ®⟨ l ⟩ T.subst σ′ (erase t) ∷ U.subst σ A ◂ ⌜ m ⌝ /
     proj₁ (unwrap [A] ⊢Δ [σ])
 
+-- Helper introduction and elimination lemmata for Σ-®
+
 Σ-®-intro-𝟘 : ∀ {l F [F] t₁ v v₂ p}
             → v T.⇒* v₂ → p PE.≡ 𝟘
             → Σ-® l F [F] t₁ v v₂ p

@@ -49,8 +49,6 @@ open import Erasure.LogicalRelation.Subsumption 𝕄 ⊢Δ is-𝟘?
 open import Tools.Fin
 open import Tools.Product
 
--- The fundamental lemma does not hold if erased matches is allowed
-
 cEx″ : ∀ {v} → prodrec 𝟘 𝟙 𝟘 ℕ (var x0) zero ® v ∷ℕ → ⊥
 cEx″ (zeroᵣ x x₁) with whnfRed*Term x (ne (prodrecₙ (var x0)))
 ... | ()
@@ -73,6 +71,8 @@ cEx′ [Δ] [A] ⊩ʳpr =
       [ℕ] = ℕᵣ {l = ¹} (idRed:*: (ℕⱼ ⊢Δ))
       pr®pr′ = irrelevanceTerm [σA] [ℕ] (pr®pr ◀≢𝟘 𝟙≉𝟘)
   in  cEx″ pr®pr′
+
+-- The fundamental lemma does not hold if erased matches are allowed
 
 cEx : ∃ λ n
     → ∃₄ λ (t A : Term n) (Γ : Con Term n) (γ : Conₘ n)

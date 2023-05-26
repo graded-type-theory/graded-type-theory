@@ -119,7 +119,8 @@ soundness-ℕ′ (sucᵣ x x₁ t®v) =
            , ⇒ˢ*-trans (whred*′ x₁) (sucred*′ d′)
 
 -- Soundness for erasure of natural numbers
--- Closed, well-typed terms reduce to numerals
+-- Well-typed terms of the natural number type reduce to numerals
+-- if erased matches are disallowed or the term is closed.
 
 soundness-ℕ : Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t
             → ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ × erase t ⇒ˢ* sucᵏ′ n

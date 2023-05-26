@@ -21,9 +21,15 @@ private
     t t′ u : Term n
     v v′ w : T.Term n
 
+-- Extended reduction relation for natural numbers.
+-- Allows reduction under suc
+
 data _⊢_⇒ˢ_∷ℕ (Γ : Con Term n) : (t u : Term n) → Set a where
   whred : Γ ⊢ t ⇒ u ∷ ℕ → Γ ⊢ t ⇒ˢ u ∷ℕ
   sucred : Γ ⊢ t ⇒ˢ u ∷ℕ → Γ ⊢ suc t ⇒ˢ suc u ∷ℕ
+
+-- Extended reduction relation closure for natural numbers.
+-- Allows reduction under suc
 
 data _⊢_⇒ˢ*_∷ℕ (Γ : Con Term n) : (t u : Term n) → Set a where
   id : Γ ⊢ t ∷ ℕ → Γ ⊢ t ⇒ˢ* t ∷ℕ
@@ -49,9 +55,15 @@ subset*Termˢ : Γ ⊢ t ⇒ˢ* u ∷ℕ → Γ ⊢ t ≡ u ∷ ℕ
 subset*Termˢ (id x) = refl x
 subset*Termˢ (x ⇨ˢ d) = trans (subsetTermˢ x) (subset*Termˢ d)
 
+-- Extended reduction relation for the target language
+-- Allows reduction under suc
+
 data _⇒ˢ_ : (v w : T.Term n) → Set where
   whred : v T.⇒ w → v ⇒ˢ w
   sucred : v ⇒ˢ w → T.suc v ⇒ˢ T.suc w
+
+-- Extended reduction relation closure for the target language
+-- Allows reduction under suc
 
 data _⇒ˢ*_ : (v w : T.Term n) → Set where
   refl : v ⇒ˢ* v

@@ -1343,6 +1343,9 @@ substₘ-calc-correct {mos = mos} σ prop x with prop x
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
+-- If any substitution matrix is well-formed then
+-- the inferred substitution matrix is well-formed (for suitable modes).
+
 subst-calc-correct′ :
   (Ψ : Substₘ m n) →
   Ψ ▶[ mos ] σ → ∥ σ ∥ mos ▶[ mos ] σ

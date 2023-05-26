@@ -24,7 +24,7 @@ private
     v v′ w : T.Term n
     p : M
 
-
+-- Extraction of prodrec when the argument is not erased.
 
 erase-prodrecω : (p : M) (t : T.Term n) (u : T.Term (1+ (1+ n)))
                → T.Term n
@@ -32,6 +32,7 @@ erase-prodrecω p t u = case is-𝟘? p of λ where
     (yes p≡𝟘) → T.prodrec (T.prod ↯ t) u
     (no p≢𝟘) → T.prodrec t u
 
+-- The extraction function.
 
 erase : U.Term n → T.Term n
 erase (var x) = T.var x
@@ -62,8 +63,12 @@ erase U.star = T.star
 erase Empty = ↯
 erase (Emptyrec p A t) = ↯
 
+-- Extraction of substitutions.
+
 eraseSubst : U.Subst m n → T.Subst m n
 eraseSubst σ x = erase (σ x)
+
+-- Extraction of weakenings.
 
 eraseWk : U.Wk m n → T.Wk m n
 eraseWk id = id

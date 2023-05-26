@@ -144,7 +144,7 @@ _ ⊛ _ ▷ _ = tt
   ; zero = (λ x → refl) , (λ x → refl)
   }
 
--- ⊤ form a modality with + as addition, multiplication and meet
+-- The trivial semiring with meet
 
 unit-semiring-with-meet : Semiring-with-meet
 unit-semiring-with-meet = record
@@ -159,6 +159,8 @@ unit-semiring-with-meet = record
   ; +-distrib-∧ = +-Distributiveˡ , +-Distributiveʳ
   }
 
+-- The trivial semiring with and star
+
 unit-semiring-with-meet-and-star : Semiring-with-meet-and-star
 unit-semiring-with-meet-and-star = record
   { semiring-with-meet = unit-semiring-with-meet
@@ -168,6 +170,8 @@ unit-semiring-with-meet-and-star = record
   ; ·-sub-distribʳ-⊛ = λ r q p p′ → refl
   ; ⊛-sub-distrib-∧ = λ r → (λ p q q′ → refl) , (λ q p p′ → refl)
   }
+
+-- The trivial modality
 
 UnitModality : Modality
 UnitModality = record
