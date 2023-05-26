@@ -174,6 +174,3 @@ record Modality : Set (lsuc a) where
   field
     -- If the mode 𝟘ᵐ is allowed, then the zero is well-behaved
     𝟘-well-behaved : T 𝟘ᵐ-allowed → Has-well-behaved-zero semiring-with-meet
-
--- module 𝟘ᵐ→𝟘-well-behaved (𝕄 : Modality) (open Modality 𝕄) (ok : T 𝟘ᵐ-allowed) where
-  -- open Has-well-behaved-zero (𝟘-well-behaved ok) public renaming (𝟙≉𝟘 to 𝟘ᵐ→𝟙≉𝟘)
