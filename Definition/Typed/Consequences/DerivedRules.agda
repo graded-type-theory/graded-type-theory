@@ -133,3 +133,12 @@ lam-cong {B = B} t≡u = η-eq ⊢A (lamⱼ ⊢A ⊢t) (lamⱼ ⊢A ⊢u) $
   ok       = ⊢A,⊢B,ok .proj₂ .proj₂
   ⊢fst     = fstⱼ ⊢A ⊢B ⊢t
   ⊢snd     = sndⱼ ⊢A ⊢B ⊢t
+
+-- An η-rule for the Unit type.
+
+Unit-η :
+  Γ ⊢ t ∷ Unit →
+  Γ ⊢ star ≡ t ∷ Unit
+Unit-η ⊢t = η-unit
+  (starⱼ (wfTerm ⊢t) (inversion-Unit (syntacticTerm ⊢t)))
+  ⊢t
