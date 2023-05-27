@@ -88,11 +88,10 @@ neNeg (d ∘ⱼ ⊢t           ) (∘ₙ n       ) γ▸u =
   in  appNeg (neNeg d n (sub δ▸g (≤ᶜ-trans γ≤γ′ (+ᶜ-decreasingˡ _ _))))
              (refl (syntacticTerm d)) ⊢t
 neNeg (fstⱼ ⊢A A⊢B d) (fstₙ {p = p} n) γ▸u =
-  let _ , _ , ok₁ = inversion-ΠΣ (syntacticTerm d)
-      invUsageFst m 𝟙ᵐ≡mᵐ·p δ▸t γ≤δ ok₂ = inv-usage-fst γ▸u
+  let invUsageFst m 𝟙ᵐ≡mᵐ·p δ▸t γ≤δ ok = inv-usage-fst γ▸u
   in  fstNeg (neNeg d n (sub δ▸t γ≤δ))
-             (refl (ΠΣⱼ ⊢A A⊢B ok₁))
-             (𝟘≢p m 𝟙ᵐ≡mᵐ·p (ok₂ PE.refl))
+             (refl (ΠΣⱼ ⊢A A⊢B (⊢∷ΠΣ→ΠΣ-restriction d)))
+             (𝟘≢p m 𝟙ᵐ≡mᵐ·p (ok PE.refl))
   where
   𝟘≢p :
     ∀ m →
@@ -102,10 +101,10 @@ neNeg (fstⱼ ⊢A A⊢B d) (fstₙ {p = p} n) γ▸u =
   𝟘≢p 𝟘ᵐ ()
   𝟘≢p 𝟙ᵐ _ () PE.refl
 neNeg (sndⱼ ⊢A A⊢B d     ) (sndₙ n     ) γ▸u =
-  let _ , _ , ok = inversion-ΠΣ (syntacticTerm d)
-      invUsageSnd δ▸t γ≤δ = inv-usage-snd γ▸u
+  let invUsageSnd δ▸t γ≤δ = inv-usage-snd γ▸u
   in  sndNeg (neNeg d n (sub δ▸t γ≤δ))
-             (refl (ΠΣⱼ ⊢A A⊢B ok)) (fstⱼ ⊢A A⊢B d)
+             (refl (ΠΣⱼ ⊢A A⊢B (⊢∷ΠΣ→ΠΣ-restriction d)))
+             (fstⱼ ⊢A A⊢B d)
 neNeg (natrecⱼ _ _ _ d   ) (natrecₙ n  ) γ▸u =
   let invUsageNatrec _ _ δ▸n _ γ≤γ′ = inv-usage-natrec γ▸u
       ⊢ℕ = refl (ℕⱼ (wfTerm d))

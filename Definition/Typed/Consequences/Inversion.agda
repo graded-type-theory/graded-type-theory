@@ -31,7 +31,7 @@ private
     Γ : Con Term n
     p p′ q q′ r : M
     b : BinderMode
-    A B C : Term _
+    A B C t : Term _
 
 -- Inversion of U (it has no type).
 inversion-U : ∀ {C} → Γ ⊢ U ∷ C → ⊥
@@ -62,6 +62,13 @@ inversion-Unit = λ where
   (univ ⊢Unit) → case inversion-Unit-U ⊢Unit of λ where
     (_ , ok) → ok
 
+-- If a term has type Unit, then Unit-restriction holds.
+⊢∷Unit→Unit-restriction : Γ ⊢ t ∷ Unit → Unit-restriction
+⊢∷Unit→Unit-restriction {Γ = Γ} {t = t} =
+  Γ ⊢ t ∷ Unit      →⟨ syntacticTerm ⟩
+  Γ ⊢ Unit          →⟨ inversion-Unit ⟩
+  Unit-restriction  □
+
 -- Inversion for terms that are Π- or Σ-types.
 inversion-ΠΣ-U :
   ∀ {F G C} →
@@ -80,6 +87,16 @@ inversion-ΠΣ = λ where
   (ΠΣⱼ ⊢A ⊢B ok) → ⊢A , ⊢B , ok
   (univ ⊢ΠΣAB)  → case inversion-ΠΣ-U ⊢ΠΣAB of λ where
     (⊢A , ⊢B , _ , ok) → univ ⊢A , univ ⊢B , ok
+
+-- If a term has type ΠΣ⟨ b ⟩ p , q ▷ A ▹ B, then ΠΣ-restriction b p
+-- holds.
+⊢∷ΠΣ→ΠΣ-restriction :
+  Γ ⊢ t ∷ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B → ΠΣ-restriction b p
+⊢∷ΠΣ→ΠΣ-restriction
+  {Γ = Γ} {t = t} {b = b} {p = p} {q = q} {A = A} {B = B} =
+  Γ ⊢ t ∷ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B  →⟨ syntacticTerm ⟩
+  Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B      →⟨ proj₂ ∘→ proj₂ ∘→ inversion-ΠΣ ⟩
+  ΠΣ-restriction b p             □
 
 -- Inversion of variables
 inversion-var : ∀ {x C} → Γ ⊢ var x ∷ C → ∃ λ A → x ∷ A ∈ Γ × Γ ⊢ C ≡ A

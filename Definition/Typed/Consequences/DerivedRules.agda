@@ -140,5 +140,5 @@ Unit-η :
   Γ ⊢ t ∷ Unit →
   Γ ⊢ star ≡ t ∷ Unit
 Unit-η ⊢t = η-unit
-  (starⱼ (wfTerm ⊢t) (inversion-Unit (syntacticTerm ⊢t)))
+  (starⱼ (wfTerm ⊢t) (⊢∷Unit→Unit-restriction ⊢t))
   ⊢t

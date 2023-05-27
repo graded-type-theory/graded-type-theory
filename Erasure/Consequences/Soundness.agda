@@ -148,7 +148,7 @@ soundness-star :
 soundness-star t⇒star γ▸t =
   let ⊢t = redFirst*Term t⇒star
       [⊤] , t®t′ = fundamentalErased ⊢t γ▸t
-      ok = inversion-Unit (syntacticTerm ⊢t)
+      ok = ⊢∷Unit→Unit-restriction ⊢t
       t®t″ = irrelevanceTerm {l′ = ¹}
                [⊤] (Unitᵣ (Unitₜ (idRed:*: (Unitⱼ ⊢Δ ok)) ok))
                (t®t′ ◀≢𝟘 𝟙≉𝟘)

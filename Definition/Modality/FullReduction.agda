@@ -328,7 +328,7 @@ module _ (as : Full-reduction-assumptions) where
           (Γ⊢ , ⊢t , _) →
         case wf Γ⊢ of λ {
           ⊢Γ →
-        case inversion-Unit (syntacticTerm ⊢t) of λ {
+        case ⊢∷Unit→Unit-restriction ⊢t of λ {
           ok →
           star
         , starₙ ⊢Γ ok
@@ -437,7 +437,7 @@ module _ (as : Full-reduction-assumptions) where
       (η-unit ⊢t _ _ _) ▸t →
         case wfTerm ⊢t of λ {
           ⊢Γ →
-        case inversion-Unit (syntacticTerm ⊢t) of λ {
+        case ⊢∷Unit→Unit-restriction ⊢t of λ {
           ok →
           star
         , starₙ ⊢Γ ok

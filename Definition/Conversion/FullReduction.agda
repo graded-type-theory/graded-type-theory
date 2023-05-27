@@ -229,4 +229,4 @@ mutual
   fullRedTermConv↓ (η-unit ⊢t _ tUnit _) =
     star , starₙ , η-unit ⊢t (starⱼ (wfTerm ⊢t) ok)
     where
-    ok = inversion-Unit (syntacticTerm ⊢t)
+    ok = ⊢∷Unit→Unit-restriction ⊢t

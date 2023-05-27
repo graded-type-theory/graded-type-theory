@@ -56,11 +56,9 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   neNeg (d ∘ⱼ ⊢t           ) (∘ₙ n       ) =
     appNeg (neNeg d n) (refl (syntacticTerm d)) ⊢t
   neNeg (fstⱼ ⊢A A⊢B d     ) (fstₙ n     ) =
-    fstNeg (neNeg d n)
-      (refl (ΠΣⱼ ⊢A A⊢B (inversion-ΠΣ (syntacticTerm d) .proj₂ .proj₂)))
+    fstNeg (neNeg d n) (refl (ΠΣⱼ ⊢A A⊢B (⊢∷ΠΣ→ΠΣ-restriction d)))
   neNeg (sndⱼ ⊢A A⊢B d     ) (sndₙ n     ) =
-    sndNeg (neNeg d n)
-      (refl (ΠΣⱼ ⊢A A⊢B (inversion-ΠΣ (syntacticTerm d) .proj₂ .proj₂)))
+    sndNeg (neNeg d n) (refl (ΠΣⱼ ⊢A A⊢B (⊢∷ΠΣ→ΠΣ-restriction d)))
       (fstⱼ ⊢A A⊢B d)
   neNeg (natrecⱼ _ _ _ d   ) (natrecₙ n  ) =
     let ⊢ℕ = refl (ℕⱼ (wfTerm d))
