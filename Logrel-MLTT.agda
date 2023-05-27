@@ -216,6 +216,7 @@ import Definition.Typed.Unrestricted.Eta
 import Definition.Typed.Usage
 
 -- A "full reduction" lemma for modalities.
+import Definition.Modality.FullReduction.Assumptions
 import Definition.Modality.FullReduction
 
 -- Modality morphisms and quantity translations
