@@ -129,6 +129,9 @@ import Definition.Conversion.FullReduction
 -- Consequences of the logical relation for algorithmic equality
 import Definition.Conversion.Consequences.Completeness
 
+-- Eta-long normal forms
+import Definition.Typed.Eta-long-normal-form
+
 -- Bi-directional typechecking
 import Definition.Typechecking
 import Definition.Typechecking.Deterministic
