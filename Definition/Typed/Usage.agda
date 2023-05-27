@@ -197,12 +197,13 @@ usagePres* : γ ▸[ m ] A → Γ ⊢ A ⇒* B → γ ▸[ m ] B
 usagePres* γ▸A (id x) = γ▸A
 usagePres* γ▸A (x ⇨ A⇒B) = usagePres* (usagePres γ▸A x) A⇒B
 
--- Note that reduction does not include η-expansion (given certain
--- assumptions). If there is a quantity that is bounded by 𝟙 but
--- not 𝟘, and the Unit type with η-equality is allowed, then there is
--- a well-resourced, closed term in normal form which is
--- definitionally equal to a term in η-long normal form which is not
--- well-resourced.
+-- Note that reduction does not include η-expansion (for WHNFs, see
+-- no-η-expansion-Unit and no-η-expansion-Σₚ in
+-- Definition.Typed.Properties). If there is a quantity that is
+-- bounded by 𝟙 but not 𝟘, and the Unit type with η-equality is
+-- allowed, then there is a well-resourced, closed term in normal form
+-- which is definitionally equal to a term in η-long normal form which
+-- is not well-resourced.
 
 counterexample₁ :
   ∀ p → p ≤ 𝟙 → ¬ p ≤ 𝟘 →
