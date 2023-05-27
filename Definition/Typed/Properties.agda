@@ -13,6 +13,7 @@ open import Definition.Untyped M hiding (_∷_)
 open import Definition.Typed R
 
 open import Tools.Empty using (⊥; ⊥-elim)
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
@@ -23,7 +24,8 @@ private
     n : Nat
     Γ : Con Term n
     A A′ B B′ C U′ : Term n
-    a b t u u′ : Term n
+    a b t u u′ v : Term n
+    p p′ q : M
 
 -- Escape context extraction
 
@@ -292,6 +294,23 @@ whrDet* (A⇒A′ ⇨ A′⇒*B , whnfB) (A⇒A″ ⇨ A″⇒*B′ , whnfB′) 
   whrDet* (A′⇒*B , whnfB) (PE.subst (λ x → _ ⊢ x ↘ _)
                                      (whrDet A⇒A″ A⇒A′)
                                      (A″⇒*B′ , whnfB′))
+
+-- Reduction does not include η-expansion for the unit type with
+-- η-equality (for WHNFs): if a WHNF t reduces to star (at type Unit),
+-- then t is equal to star.
+
+no-η-expansion-Unit : Whnf t → Γ ⊢ t ⇒* star ∷ Unit → t PE.≡ star
+no-η-expansion-Unit = flip whnfRed*Term
+
+-- Reduction does not include η-expansion for Σ-types with η-equality
+-- (for WHNFs): if a WHNF t reduces to prodₚ p u v (at type
+-- Σₚ p′ , q ▷ A ▹ B), then t is equal to prodₚ p u v.
+
+no-η-expansion-Σₚ :
+  Whnf t →
+  Γ ⊢ t ⇒* prodₚ p u v ∷ Σₚ p′ , q ▷ A ▹ B →
+  t PE.≡ prodₚ p u v
+no-η-expansion-Σₚ = flip whnfRed*Term
 
 -- Identity of syntactic reduction
 
