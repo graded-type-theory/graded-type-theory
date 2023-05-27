@@ -21,19 +21,13 @@ open import Definition.Modality.Context.Properties 𝕄
 open import Definition.Modality.Properties 𝕄
 open import Definition.Modality.Substitution.Properties 𝕄
 open import Definition.Modality.Usage 𝕄
-import Definition.Modality.Usage.Erased 𝕄 as EU
-import Definition.Modality.Usage.Unrestricted.Eta 𝕄 as UU
 open import Definition.Modality.Usage.Inversion 𝕄
 open import Definition.Modality.Usage.Properties 𝕄
 open import Definition.Mode 𝕄
 open import Definition.Typed R
 open import Definition.Typed.Consequences.DerivedRules R
 open import Definition.Typed.Eta-long-normal-form R
-import Definition.Typed.Erased 𝕄 R as ET
-import Definition.Typed.Unrestricted.Eta 𝕄 R as UT
-open import Definition.Untyped M hiding (_∷_; _[_])
-open import Definition.Untyped.Erased 𝕄 as E using (Erased)
-import Definition.Untyped.Unrestricted.Eta 𝕄 as U
+open import Definition.Untyped M hiding (_∷_)
 
 open import Tools.Empty
 open import Tools.Fin
@@ -199,220 +193,110 @@ usagePres* γ▸A (x ⇨ A⇒B) = usagePres* (usagePres γ▸A x) A⇒B
 
 -- Note that reduction does not include η-expansion (for WHNFs, see
 -- no-η-expansion-Unit and no-η-expansion-Σₚ in
--- Definition.Typed.Properties). If there is a quantity that is
--- bounded by 𝟙 but not 𝟘, and the Unit type with η-equality is
--- allowed, then there is a well-resourced, closed term in normal form
--- which is definitionally equal to a term in η-long normal form which
--- is not well-resourced.
+-- Definition.Typed.Properties). In Definition.Modality.FullReduction
+-- it is proved that a well-resourced term has a well-resourced η-long
+-- normal form, *given certain assumptions*. Here it is proved that,
+-- given certain assumptions, the type
+-- Well-resourced-normal-form-ill-resourced-η-long-normal-form is
+-- inhabited: there is a type A and two closed terms t and u such that
+-- t is a normal form of type A, u is an η-long normal form of type A,
+-- t is definitionally equal to u, t is well-resourced, and u is *not*
+-- well-resourced.
 
-counterexample₁ :
-  ∀ p → p ≤ 𝟙 → ¬ p ≤ 𝟘 →
+Well-resourced-normal-form-ill-resourced-η-long-normal-form : Set a
+Well-resourced-normal-form-ill-resourced-η-long-normal-form =
+  ∃₃ λ A t u →
+    ε ⊢ t ∷ A × Nf t ×
+    ε ⊢nf u ∷ A ×
+    ε ⊢ t ≡ u ∷ A ×
+    ε ▸[ 𝟙ᵐ ] t ×
+    ¬ ε ▸[ 𝟙ᵐ ] u
+
+-- The type
+-- Well-resourced-normal-form-ill-resourced-η-long-normal-form is
+-- inhabited if the Unit type with η-equality is allowed and 𝟙 is not
+-- bounded by 𝟘.
+
+well-resourced-normal-form-ill-resourced-η-long-normal-form-Unit :
+  ¬ 𝟙 ≤ 𝟘 →
   Unit-restriction →
-  ∃₂ λ t u →
-    (∀ q → ε ⊢ t ∷ Π p , q ▷ Unit ▹ Unit) ×
-    𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
-    Nf t ×
-    (∀ q → ε ⊢nf u ∷ Π p , q ▷ Unit ▹ Unit) ×
-    (∀ q → ε ⊢ t ≡ u ∷ Π p , q ▷ Unit ▹ Unit) ×
-    ¬ ∃ λ γ → γ ▸[ 𝟙ᵐ ] u
-counterexample₁ p p≤𝟙 p≰𝟘 ok =
-    lam p (var x0)
-  , lam p star
-  , (λ _ → lamⱼ ⊢Unit ⊢0)
+  Well-resourced-normal-form-ill-resourced-η-long-normal-form
+well-resourced-normal-form-ill-resourced-η-long-normal-form-Unit
+  𝟙≰𝟘 ok =
+    Π 𝟙 , 𝟙 ▷ Unit ▹ Unit
+  , lam 𝟙 (var x0)
+  , lam 𝟙 star
+  , lamⱼ ⊢Unit ⊢0
+  , lamₙ (ne (var _))
+  , lamₙ ⊢Unit (starₙ (ε ∙ ⊢Unit) ok)
+  , lam-cong (sym (Unit-η ⊢0))
   , lamₘ (sub var
             (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-               𝟘ᶜ ∙ 𝟙 · p  ≈⟨ ≈ᶜ-refl ∙ ·-identityˡ _ ⟩
-               𝟘ᶜ ∙ p      ≤⟨ ≤ᶜ-refl ∙ p≤𝟙 ⟩
+               𝟘ᶜ ∙ 𝟙 · 𝟙  ≈⟨ ≈ᶜ-refl ∙ ·-identityˡ _ ⟩
                𝟘ᶜ ∙ 𝟙      ∎))
-  , lamₙ (ne (var _))
-  , (λ _ → lamₙ ⊢Unit (starₙ (ε ∙ ⊢Unit) ok))
-  , (λ _ → lam-cong (sym (Unit-η ⊢0)))
-  , (λ (_ , ▸λ*) →
+  , (λ ▸λ* →
        case inv-usage-lam ▸λ* of λ {
          (invUsageLam ▸* _) →
        case inv-usage-star ▸* of λ {
-         (_ ∙ 𝟙·p≤𝟘) →
+         (_ ∙ 𝟙·𝟙≤𝟘) →
            let open Tools.Reasoning.PartialOrder ≤-poset in
-           p≰𝟘 (begin
-             p      ≡˘⟨ ·-identityˡ _ ⟩
-             𝟙 · p  ≤⟨ 𝟙·p≤𝟘 ⟩
+           𝟙≰𝟘 (begin
+             𝟙      ≡˘⟨ ·-identityˡ _ ⟩
+             𝟙 · 𝟙  ≤⟨ 𝟙·𝟙≤𝟘 ⟩
              𝟘      ∎) }})
   where
   ⊢Unit = Unitⱼ ε ok
   ⊢0   = var (ε ∙ ⊢Unit) here
 
--- A variant of the previous lemma. If there is a quantity that is
--- bounded by 𝟙 but not 𝟘, and Σ-types with η-equality are allowed
--- when the first quantity is 𝟘, then there is a well-resourced,
--- closed term in normal form which is definitionally equal to a term
--- in η-long normal form which is not well-resourced.
+-- The type
+-- Well-resourced-normal-form-ill-resourced-η-long-normal-form is
+-- inhabited if Σ-types with η-equality are allowed when the first
+-- quantity is p, for a quantity p that is not an upper bound of 𝟙.
 
-counterexample₂ :
-  ∀ p → p ≤ 𝟙 → ¬ p ≤ 𝟘 →
-  Σₚ-restriction 𝟘 →
-  ∃₂ λ t u →
-    let A r = Σₚ 𝟘 , r ▷ ℕ ▹ ℕ in
-    (∀ q r → ε ⊢ t ∷ Π p , q ▷ A r ▹ wk1 (A r)) ×
-    𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
-    Nf t ×
-    (∀ q r → ε ⊢nf u ∷ Π p , q ▷ A r ▹ wk1 (A r)) ×
-    (∀ q r → ε ⊢ t ≡ u ∷ Π p , q ▷ A r ▹ wk1 (A r)) ×
-    ¬ ∃ λ γ → γ ▸[ 𝟙ᵐ ] u
-counterexample₂ p p≤𝟙 p≰𝟘 ok =
-    lam p (var x0)
-  , lam p (prodₚ 𝟘 (fst 𝟘 (var x0)) (snd 𝟘 (var x0)))
-  , (λ _ r → lamⱼ (⊢Σℕℕ r) (⊢0 r))
+well-resourced-normal-form-ill-resourced-η-long-normal-form-Σₚ :
+  ∀ p → ¬ 𝟙 ≤ p →
+  Σₚ-restriction p →
+  Well-resourced-normal-form-ill-resourced-η-long-normal-form
+well-resourced-normal-form-ill-resourced-η-long-normal-form-Σₚ
+  p 𝟙≰p ok =
+    Π 𝟙 , 𝟙 ▷ Σₚ p , p ▷ ℕ ▹ ℕ ▹ Σₚ p , p ▷ ℕ ▹ ℕ
+  , lam 𝟙 (var x0)
+  , lam 𝟙 (prodₚ p (fst p (var x0)) (snd p (var x0)))
+  , lamⱼ ⊢Σℕℕ ⊢0
+  , lamₙ (ne (var _))
+  , lamₙ ⊢Σℕℕ
+      (prodₙ Σℕℕ⊢ℕ (ℕⱼ ε∙Σℕℕ∙ℕ)
+         (neₙ ℕₙ (fstₙ Σℕℕ⊢ℕ Σℕℕ∙ℕ⊢ℕ (varₙ (ε ∙ ⊢Σℕℕ) here)))
+         (neₙ ℕₙ (sndₙ Σℕℕ⊢ℕ Σℕℕ∙ℕ⊢ℕ (varₙ (ε ∙ ⊢Σℕℕ) here)))
+         ok)
+  , lam-cong (sym (Σ-η-prod-fst-snd ⊢0))
   , lamₘ (sub var
             (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-               𝟘ᶜ ∙ 𝟙 · p  ≈⟨ ≈ᶜ-refl ∙ ·-identityˡ _ ⟩
-               𝟘ᶜ ∙ p      ≤⟨ ≤ᶜ-refl ∙ p≤𝟙 ⟩
+               𝟘ᶜ ∙ 𝟙 · 𝟙  ≈⟨ ≈ᶜ-refl ∙ ·-identityˡ _ ⟩
                𝟘ᶜ ∙ 𝟙      ∎))
-  , lamₙ (ne (var _))
-  , (λ _ r →
-       _⊢nf_∷_.lamₙ (⊢Σℕℕ r) $
-       prodₙ (Σℕℕ⊢ℕ r) (ℕⱼ (ε∙Σℕℕ∙ℕ r))
-         (neₙ ℕₙ (fstₙ (Σℕℕ⊢ℕ r) (Σℕℕ∙ℕ⊢ℕ r) (varₙ (⊢ε∙Σℕℕ r) here)))
-         (neₙ ℕₙ (sndₙ (Σℕℕ⊢ℕ r) (Σℕℕ∙ℕ⊢ℕ r) (varₙ (⊢ε∙Σℕℕ r) here)))
-         ok)
-  , (λ _ r → lam-cong (sym (Σ-η-prod-fst-snd (⊢0 r))))
-  , (λ (_ , ▸λ1,2) →
+  , (λ ▸λ1,2 →
+       let open Tools.Reasoning.PartialOrder ≤-poset in
        case inv-usage-lam ▸λ1,2 of λ {
          (invUsageLam ▸1,2 _) →
        case inv-usage-prodₚ ▸1,2 of λ {
-         (invUsageProdₚ {δ = _ ∙ r₁} {η = _ ∙ r₂} _ _ (_ ∙ 𝟙p≤𝟘r₁∧r₂)) →
-       let open Tools.Reasoning.PartialOrder ≤-poset in
-       p≰𝟘 (begin
-         p            ≡˘⟨ ·-identityˡ _ ⟩
-         𝟙 · p        ≤⟨ 𝟙p≤𝟘r₁∧r₂ ⟩
-         𝟘 · r₁ ∧ r₂  ≤⟨ ∧-decreasingˡ _ _ ⟩
-         𝟘 · r₁       ≡⟨ ·-zeroˡ _ ⟩
-         𝟘            ∎) }})
-  where
-  ⊢Σℕℕ    = λ _ → ΠΣⱼ (ℕⱼ ε) (ℕⱼ (ε ∙ ℕⱼ ε)) ok
-  ⊢ε∙Σℕℕ  = λ r → ε ∙ ⊢Σℕℕ r
-  Σℕℕ⊢ℕ   = λ r → ℕⱼ (⊢ε∙Σℕℕ r)
-  ε∙Σℕℕ∙ℕ = λ r → ⊢ε∙Σℕℕ r ∙ Σℕℕ⊢ℕ r
-  Σℕℕ∙ℕ⊢ℕ = λ r → ℕⱼ (ε∙Σℕℕ∙ℕ r)
-  ⊢0      = λ r → var (⊢ε∙Σℕℕ r) here
-
--- A variant of the previous two lemmas. If 𝟙 ≰ 𝟘, the Unit type with
--- η-equality is allowed, and Σ-types with η-equality are allowed when
--- the first quantity is 𝟘, then there is a well-resourced, closed
--- term in normal form which is definitionally equal to a term in
--- η-long normal form which is not well-resourced.
-
-counterexample₃ :
-  ¬ 𝟙 ≤ 𝟘 →
-  Unit-restriction →
-  Σₚ-restriction 𝟘 →
-  ∃₂ λ t u →
-    (∀ p → ε ⊢ t ∷ Π 𝟙 , p ▷ Erased ℕ ▹ Erased ℕ) ×
-    𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
-    Nf t ×
-    (∀ p → ε ⊢nf u ∷ Π 𝟙 , p ▷ Erased ℕ ▹ Erased ℕ) ×
-    (∀ p → ε ⊢ t ≡ u ∷ Π 𝟙 , p ▷ Erased ℕ ▹ Erased ℕ) ×
-    ¬ ∃ λ γ → γ ▸[ 𝟙ᵐ ] u
-counterexample₃ 𝟙≰𝟘 Unit-ok Σₚ-ok =
-    lam 𝟙 (var x0)
-  , lam 𝟙 [ erased (var x0) ]
-  , (λ _ → lamⱼ ⊢E-ℕ ⊢0)
-  , lamₘ (sub var
-            (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-               𝟘ᶜ ∙ 𝟙 · 𝟙  ≈⟨ ≈ᶜ-refl ∙ ·-identityʳ _ ⟩
-               𝟘ᶜ ∙ 𝟙      ∎))
-  , lamₙ (ne (var _))
-  , (λ _ →
-       _⊢nf_∷_.lamₙ ⊢E-ℕ $
-       prodₙ E-ℕ⊢ℕ E-ℕ∙ℕ⊢Unit
-         (neₙ ℕₙ (fstₙ E-ℕ⊢ℕ E-ℕ∙ℕ⊢Unit (varₙ (ε ∙ ⊢E-ℕ) here)))
-         (starₙ (ε ∙ ⊢E-ℕ) Unit-ok)
-         Σₚ-ok)
-  , (λ _ → lam-cong (sym ([erased] ⊢0)))
-  , (λ (_ , ▸λ[e0]) →
-       case inv-usage-lam ▸λ[e0] of
-         λ (invUsageLam ▸[e0] _) →
-       case inv-usage-[] ▸[e0] of λ where
-         (_ , _ ∙ 𝟙·𝟙≤𝟘) →
-           let open Tools.Reasoning.PartialOrder ≤-poset in
-           𝟙≰𝟘 (begin
-             𝟙      ≡˘⟨ ·-identityʳ _ ⟩
-             𝟙 · 𝟙  ≤⟨ 𝟙·𝟙≤𝟘 ⟩
-             𝟘      ∎))
-  where
-  open E
-  open ET Unit-ok Σₚ-ok
-  open EU
-
-  ⊢E-ℕ       = Erasedⱼ (ℕⱼ ε)
-  E-ℕ⊢ℕ      = ℕⱼ (ε ∙ ⊢E-ℕ)
-  E-ℕ∙ℕ⊢Unit = Unitⱼ (ε ∙ ⊢E-ℕ ∙ E-ℕ⊢ℕ) Unit-ok
-  ⊢0         = var (ε ∙ ⊢E-ℕ) here
-
--- A variant of the last three lemmas above. If there is some quantity
--- ω strictly below both 𝟘 and some quantity that is bounded by 𝟙, and
--- furthermore the Unit type with η-equality is allowed and Σ-types
--- with η-equality are allowed when the first quantity is ω, then
--- there is a well-resourced, closed term in normal form which is
--- definitionally equal to a term in η-long normal form which is not
--- well-resourced.
-
-counterexample₄ :
-  ∀ ω → ω < 𝟘 →
-  ∀ p → ω < p → p ≤ 𝟙 →
-  Unit-restriction →
-  Σₚ-restriction ω →
-  let open U ω in
-  ∃₂ λ t u →
-    (∀ q → ε ⊢ t ∷ Π p , q ▷ Unrestricted ℕ ▹ Unrestricted ℕ) ×
-    𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
-    Nf t ×
-    (∀ q → ε ⊢nf u ∷ Π p , q ▷ Unrestricted ℕ ▹ Unrestricted ℕ) ×
-    (∀ q → ε ⊢ t ≡ u ∷ Π p , q ▷ Unrestricted ℕ ▹ Unrestricted ℕ) ×
-    ¬ ∃ λ γ → γ ▸[ 𝟙ᵐ ] u
-counterexample₄ ω ω<𝟘 p ω<p p≤𝟙 Unit-ok Σₚ-ok =
-    lam p (var x0)
-  , lam p [ unbox (var x0) ]
-  , (λ _ → lamⱼ ⊢U-ℕ ⊢0)
-  , lamₘ (sub var
-            (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-               𝟘ᶜ ∙ 𝟙 · p  ≈⟨ ≈ᶜ-refl ∙ ·-identityˡ _ ⟩
-               𝟘ᶜ ∙ p      ≤⟨ ≤ᶜ-refl ∙ p≤𝟙 ⟩
-               𝟘ᶜ ∙ 𝟙      ∎))
-  , lamₙ (ne (var _))
-  , (λ _ →
-       _⊢nf_∷_.lamₙ ⊢U-ℕ $
-       prodₙ U-ℕ⊢ℕ U-ℕ∙ℕ⊢Unit
-         (neₙ ℕₙ (fstₙ U-ℕ⊢ℕ U-ℕ∙ℕ⊢Unit (varₙ (ε ∙ ⊢U-ℕ) here)))
-         (starₙ (ε ∙ ⊢U-ℕ) Unit-ok)
-         Σₚ-ok)
-  , (λ _ → lam-cong (sym ([unbox] ⊢0)))
-  , (λ (_ , ▸λ[u0]) →
-       let open Tools.Reasoning.PartialOrder ≤-poset in
-       case inv-usage-lam ▸λ[u0] of
-         λ (invUsageLam ▸[u0] _) →
-       case inv-usage-[] ▸[u0] of λ {
-         (_ ∙ q , ▸unbox , _ ∙ 𝟙·p≤ω·q) →
+         (invUsageProdₚ {δ = _ ∙ q₁} {η = _ ∙ q₂} ▸1 _ (_ ∙ 𝟙𝟙≤pq₁∧q₂)) →
+       case inv-usage-fst ▸1 of λ {
+         (invUsageFst {δ = _ ∙ q₃} _ _ ▸0 (_ ∙ q₁≤q₃) _) →
+       case inv-usage-var ▸0 of λ {
+         (_ ∙ q₃≤⌜⌞p⌟⌝) →
               $⟨ begin
-                   p      ≈˘⟨ ·-identityˡ _ ⟩
-                   𝟙 · p  ≤⟨ 𝟙·p≤ω·q ⟩
-                   ω · q  ≤⟨ ·-monotoneʳ (headₘ-monotone (inv-usage-var (inv-usage-unbox ▸unbox))) ⟩
-                   ω · 𝟙  ≈⟨ ·-identityʳ _ ⟩
-                   ω      ∎ ⟩
-       p ≤ ω  →⟨ <→≰ ω<p ⟩
-       ⊥      □ })
+                   𝟙              ≡˘⟨ ·-identityˡ _ ⟩
+                   𝟙 · 𝟙          ≤⟨ 𝟙𝟙≤pq₁∧q₂ ⟩
+                   p · q₁ ∧ q₂    ≤⟨ ∧-decreasingˡ _ _ ⟩
+                   p · q₁         ≤⟨ ·-monotoneʳ q₁≤q₃ ⟩
+                   p · q₃         ≤⟨ ·-monotoneʳ q₃≤⌜⌞p⌟⌝ ⟩
+                   p · ⌜ ⌞ p ⌟ ⌝  ≡⟨ ·⌜⌞⌟⌝ ⟩
+                   p              ∎ ⟩
+       𝟙 ≤ p  →⟨ 𝟙≰p ⟩
+       ⊥      □ }}}})
   where
-  ω≤𝟙 = begin
-    ω  ≤⟨ ω<p .proj₁ ⟩
-    p  ≤⟨ p≤𝟙 ⟩
-    𝟙  ∎
-    where
-    open Tools.Reasoning.PartialOrder ≤-poset
-
-  open U ω
-  open UT ω Unit-ok Σₚ-ok
-  open UU ω ω<𝟘 ω≤𝟙
-
-  ⊢U-ℕ       = Unrestrictedⱼ (ℕⱼ ε)
-  U-ℕ⊢ℕ      = ℕⱼ (ε ∙ ⊢U-ℕ)
-  U-ℕ∙ℕ⊢Unit = Unitⱼ (ε ∙ ⊢U-ℕ ∙ U-ℕ⊢ℕ) Unit-ok
-  ⊢0         = var (ε ∙ ⊢U-ℕ) here
+  ⊢Σℕℕ    = ΠΣⱼ (ℕⱼ ε) (ℕⱼ (ε ∙ ℕⱼ ε)) ok
+  Σℕℕ⊢ℕ   = ℕⱼ (ε ∙ ⊢Σℕℕ)
+  ε∙Σℕℕ∙ℕ = ε ∙ ⊢Σℕℕ ∙ Σℕℕ⊢ℕ
+  Σℕℕ∙ℕ⊢ℕ = ℕⱼ ε∙Σℕℕ∙ℕ
+  ⊢0      = var (ε ∙ ⊢Σℕℕ) here
