@@ -9,10 +9,14 @@ module Definition.Modality.Instances.Erasure.Properties
   (restrictions : Restrictions Erasure)
   where
 
+open Restrictions restrictions
+
 open import Definition.Modality.Instances.Erasure.Modality restrictions
 
 open import Definition.Modality.Context ErasureModality
 open import Definition.Modality.Context.Properties ErasureModality public
+
+open import Definition.Modality.FullReduction.Assumptions
 
 open import Definition.Modality.Properties ErasureModality public
 
@@ -20,13 +24,22 @@ open import Definition.Modality.Usage ErasureModality
 open import Definition.Modality.Usage.Inversion ErasureModality
 open import Definition.Mode ErasureModality
 
+open import Definition.Typed.Restrictions Erasure
+
 open import Definition.Untyped Erasure
 
+open import Tools.Bool
 open import Tools.Empty
 open import Tools.Fin
+open import Tools.Function
 open import Tools.Nat hiding (_+_)
+open import Tools.Nullary
 open import Tools.PropositionalEquality as PE using (_≡_; _≢_)
 import Tools.Reasoning.PartialOrder
+open import Tools.Unit
+
+private
+  module EM = Modality ErasureModality
 
 private
   variable
@@ -200,3 +213,42 @@ inv-usage-prodₑ {m = Σᵣ} γ▸t = inv-usage-prodᵣ γ▸t
 ≢𝟘→≡ω : p ≢ 𝟘 → p ≡ ω
 ≢𝟘→≡ω {p = 𝟘} 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 PE.refl)
 ≢𝟘→≡ω {p = ω} _   = PE.refl
+
+-- Type restrictions that disallow the following types:
+-- * If 𝟘ᵐ is not allowed: Σ-types with η-equality for which the first
+--   component's quantity is 𝟘.
+
+erasure-restrictions : Type-restrictions
+erasure-restrictions = record
+  { Unit-restriction = ⊤
+  ; Σₚ-restriction   = λ where
+      𝟘 → T 𝟘ᵐ-allowed
+      ω → ⊤
+  }
+
+-- The full reduction assumptions hold for ErasureModality and
+-- erasure-restrictions.
+
+full-reduction-assumptions :
+  Full-reduction-assumptions ErasureModality erasure-restrictions
+full-reduction-assumptions = record
+  { ≤𝟘           = λ _ → greatest-elem _
+  ; ·-increasing = λ where
+      {p = p} {q = 𝟘} _ → begin
+        𝟘      ≡˘⟨ EM.·-zeroʳ _ ⟩
+        p · 𝟘  ∎
+      {p = p} {q = ω} _ → begin
+        ω      ≤⟨ least-elem p ⟩
+        p · ω  ∎
+  ; ⌞⌟≡𝟙ᵐ→≤𝟙 = λ where
+      {p = ω} _ _ → begin
+        ω  ≡⟨⟩
+        ω  ∎
+      {p = 𝟘} ok →
+        ⌞ 𝟘 ⌟ ≡ 𝟙ᵐ      →⟨ (λ hyp ok → ⌞⌟≡𝟙ᵐ→≉𝟘 ok hyp PE.refl) ⟩
+        ¬ T 𝟘ᵐ-allowed  →⟨ _$ ok ⟩
+        ⊥               →⟨ ⊥-elim ⟩
+        𝟘 ≤ ω           □
+  }
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset

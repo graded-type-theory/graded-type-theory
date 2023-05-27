@@ -18,6 +18,9 @@ open import Tools.PropositionalEquality
 open import Tools.Algebra ⊤
 
 open import Definition.Modality ⊤ public
+open import Definition.Modality.FullReduction.Assumptions
+
+open import Definition.Typed.Restrictions ⊤
 
 -- Trivial addition (and multiplication and meet) operation
 
@@ -181,4 +184,15 @@ UnitModality = record
     ; 𝟘ᵐ-allowed = false
     }
   ; 𝟘-well-behaved = λ ()
+  }
+
+-- The full reduction assumptions hold for UnitModality without any
+-- type restrictions.
+
+full-reduction-assumptions :
+  Full-reduction-assumptions UnitModality no-restrictions
+full-reduction-assumptions = record
+  { ≤𝟘           = λ _ → refl
+  ; ·-increasing = λ _ → refl
+  ; ⌞⌟≡𝟙ᵐ→≤𝟙     = λ _ _ → refl
   }

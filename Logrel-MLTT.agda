@@ -186,6 +186,10 @@ import Definition.Modality.Substitution
 import Definition.Modality.Substitution.Properties
 import Definition.Modality.Substitution.Decidable
 
+-- Assumptions used to state the theorems in
+-- Definition.Modality.FullReduction
+import Definition.Modality.FullReduction.Assumptions
+
 -- Modality pseudo-instances
 import Definition.Modality.Instances.BoundedStar
 import Definition.Modality.Instances.LowerBounded
@@ -216,7 +220,6 @@ import Definition.Typed.Unrestricted.Eta
 import Definition.Typed.Usage
 
 -- A "full reduction" lemma for modalities.
-import Definition.Modality.FullReduction.Assumptions
 import Definition.Modality.FullReduction
 
 -- Modality morphisms and quantity translations

@@ -8,12 +8,16 @@
 module Definition.Modality.Instances.Linear-or-affine where
 
 import Definition.Modality
+open import Definition.Modality.FullReduction.Assumptions
+import Definition.Modality.Properties
 import Definition.Modality.Properties.Addition as Addition
 import Definition.Modality.Properties.Meet as Meet
 import Definition.Modality.Properties.Multiplication as Multiplication
 import Definition.Modality.Properties.PartialOrder as PartialOrder
 import Definition.Modality.Properties.Star as Star
 import Definition.Modality.Restrictions
+
+open import Definition.Typed.Restrictions
 
 import Tools.Algebra
 open import Tools.Function
@@ -23,6 +27,7 @@ open import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
 open import Tools.Sum
+open import Tools.Unit
 
 ------------------------------------------------------------------------
 -- The type
@@ -32,12 +37,13 @@ open import Tools.Sum
 data Linear-or-affine : Set where
   𝟘 𝟙 ≤𝟙 ≤ω : Linear-or-affine
 
-private variable
-  p q r : Linear-or-affine
-
 open Definition.Modality              Linear-or-affine
 open Definition.Modality.Restrictions Linear-or-affine
 open Tools.Algebra                    Linear-or-affine
+
+private variable
+  p q r : Linear-or-affine
+  rs    : Restrictions
 
 ------------------------------------------------------------------------
 -- Basic operations
@@ -1341,3 +1347,49 @@ linear-or-affine restrictions = record
   ; restrictions = restrictions
   ; 𝟘-well-behaved = λ _ → linear-or-affine-has-well-behaved-zero
   }
+
+------------------------------------------------------------------------
+-- Type restrictions for which Full-reduction-assumptions hold
+
+-- Type restrictions that disallow the following types:
+-- * Unit types with η-equality.
+-- * Σ-types with η-equality for which the first component's quantity
+--   is 𝟘, ≤𝟙 or ≤ω.
+
+linear-or-affine-restrictions : Type-restrictions Linear-or-affine
+linear-or-affine-restrictions = record
+  { Unit-restriction = ⊥
+  ; Σₚ-restriction   = λ where
+      𝟘  → ⊥
+      ≤𝟙 → ⊥
+      ≤ω → ⊥
+      𝟙  → ⊤
+  }
+
+-- The full reduction assumptions hold for linear-or-affine rs and
+-- linear-or-affine-restrictions.
+
+full-reduction-assumptions :
+  Full-reduction-assumptions (linear-or-affine rs)
+    linear-or-affine-restrictions
+full-reduction-assumptions {rs = rs} = record
+  { ≤𝟘           = λ ()
+  ; ·-increasing = λ where
+      {p = 𝟘}         ()
+      {p = ≤𝟙}        ()
+      {p = ≤ω}        ()
+      {p = 𝟙} {q = q} _  → begin
+        q      ≡˘⟨ ·-identityˡ _ ⟩
+        𝟙 · q  ∎
+  ; ⌞⌟≡𝟙ᵐ→≤𝟙 = λ where
+      {p = 𝟘}  ()
+      {p = ≤𝟙} ()
+      {p = ≤ω} ()
+      {p = 𝟙}  _  _ → begin
+        𝟙  ≡⟨⟩
+        𝟙  ∎
+  }
+  where
+  open Definition.Modality.Properties (linear-or-affine rs)
+  open Modality (linear-or-affine rs) using (·-identityˡ)
+  open Tools.Reasoning.PartialOrder ≤-poset
