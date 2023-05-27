@@ -224,7 +224,7 @@ counterexample₁ p p≤𝟙 p≰𝟘 ok =
                𝟘ᶜ ∙ 𝟙      ∎))
   , lamₙ (ne (var _))
   , lamₙ starₙ
-  , (λ _ → lam-cong (_⊢_≡_∷_.sym (Unit-η ⊢0)))
+  , (λ _ → lam-cong (sym (Unit-η ⊢0)))
   , (λ (_ , ▸λ*) →
        case inv-usage-lam ▸λ* of λ {
          (invUsageLam ▸* _) →
@@ -311,7 +311,7 @@ counterexample₃ 𝟙≰𝟘 Unit-ok Σₚ-ok =
                𝟘ᶜ ∙ 𝟙      ∎))
   , lamₙ (ne (var _))
   , lamₙ (prodₙ (ne (fstₙ (var _))) starₙ)
-  , (λ _ → lam-cong (_⊢_≡_∷_.sym ([erased] ⊢0)))
+  , (λ _ → lam-cong (sym ([erased] ⊢0)))
   , (λ (_ , ▸λ[e0]) →
        case inv-usage-lam ▸λ[e0] of
          λ (invUsageLam ▸[e0] _) →
@@ -354,7 +354,7 @@ counterexample₄ :
 counterexample₄ ω ω<𝟘 p ω<p p≤𝟙 Unit-ok Σₚ-ok =
     lam p (var x0)
   , lam p [ unbox (var x0) ]
-  , (λ _ → lamⱼ ⊢E-ℕ ⊢0)
+  , (λ _ → lamⱼ ⊢U-ℕ ⊢0)
   , lamₘ (sub var
             (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
                𝟘ᶜ ∙ 𝟙 · p  ≈⟨ ≈ᶜ-refl ∙ ·-identityˡ _ ⟩
@@ -362,12 +362,12 @@ counterexample₄ ω ω<𝟘 p ω<p p≤𝟙 Unit-ok Σₚ-ok =
                𝟘ᶜ ∙ 𝟙      ∎))
   , lamₙ (ne (var _))
   , lamₙ (prodₙ (ne (fstₙ (var _))) starₙ)
-  , (λ _ → lam-cong (_⊢_≡_∷_.sym ([unbox] ⊢0)))
-  , (λ (_ , ▸λ[e0]) →
+  , (λ _ → lam-cong (sym ([unbox] ⊢0)))
+  , (λ (_ , ▸λ[u0]) →
        let open Tools.Reasoning.PartialOrder ≤-poset in
-       case inv-usage-lam ▸λ[e0] of
-         λ (invUsageLam ▸[e0] _) →
-       case inv-usage-[] ▸[e0] of λ {
+       case inv-usage-lam ▸λ[u0] of
+         λ (invUsageLam ▸[u0] _) →
+       case inv-usage-[] ▸[u0] of λ {
          (_ ∙ q , ▸unbox , _ ∙ 𝟙·p≤ω·q) →
               $⟨ begin
                    p      ≈˘⟨ ·-identityˡ _ ⟩
@@ -389,5 +389,5 @@ counterexample₄ ω ω<𝟘 p ω<p p≤𝟙 Unit-ok Σₚ-ok =
   open UT ω Unit-ok Σₚ-ok
   open UU ω ω<𝟘 ω≤𝟙
 
-  ⊢E-ℕ = Unrestrictedⱼ (ℕⱼ ε)
-  ⊢0   = var (ε ∙ ⊢E-ℕ) here
+  ⊢U-ℕ = Unrestrictedⱼ (ℕⱼ ε)
+  ⊢0   = var (ε ∙ ⊢U-ℕ) here
