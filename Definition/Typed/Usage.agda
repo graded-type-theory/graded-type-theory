@@ -38,13 +38,12 @@ open import Tools.Product
 open import Tools.PropositionalEquality as PE
   using (≈-sym)
 import Tools.Reasoning.PartialOrder
-import Tools.Reasoning.PropositionalEquality
 
 private
   variable
     n : Nat
     Γ : Con Term n
-    γ δ : Conₘ n
+    γ : Conₘ n
     t u A B : Term n
     m : Mode
 
