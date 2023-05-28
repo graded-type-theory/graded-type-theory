@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+      - ci-*
+    tags:
+      - '*'
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+env:
+  AGDA_VERSION: 2.6.3
+  STDLIB_VERSION: 1.7.1
+  DEPLOY_DIR: ${{ github.ref_name }}
+  HTML_DIR: html/${{ github.ref_name }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # Checkout to $HOME empties $HOME so we have to do it before we put stuff there.
+      - uses: actions/checkout@v3
+
+      - name: Setup Agda
+        uses: wenkokke/setup-agda@latest
+        id:   setup
+        with:
+          agda-version: ${{ env.AGDA_VERSION }}
+          agda-stdlib-version: ${{ env.STDLIB_VERSION }}
+
+      - name: Cache build
+        uses: actions/cache@v3
+        id:   cache
+        with:
+          key: agda-${{ steps.setup.outputs.agda-version }}-stdlib-${{ env.STDLIB_VERSION }}
+          path: |
+            _build
+            ~/.agda/libraries.d
+
+      - name: Run Agda
+        run: agda README.agda
+
+########################################################################
+## DOC DEPLOYMENT
+########################################################################
+
+      # We start by retrieving the currently deployed docs
+      # We remove the content that is in the directory we are going to populate
+      # so that stale files corresponding to deleted modules do not accumulate.
+      # We then generate the docs in the AGDA_HTML_DIR subdirectory
+      - name: Generate HTML
+        run: |
+          git clone --depth 1 --single-branch --branch gh-pages https://github.com/graded-type-theory/graded-type-theory.git html
+          rm -f '${{ env.HTML_DIR }}'/*.html
+          rm -f '${{ env.HTML_DIR }}'/*.css
+          ln -s README.agda index.agda
+          agda --html --html-dir="${{ env.HTML_DIR }}" index.agda
+
+      - name: Deploy HTML
+        uses: JamesIves/github-pages-deploy-action@4.1.3
+        # if: ${{ success() && env.AGDA_DEPLOY }}
+
+        with:
+          branch: gh-pages
+          folder: html
+          git-config-name: Github Actions
+
+      - uses: actions/upload-pages-artifact@v1
+        with:
+          path: html
