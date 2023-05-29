@@ -1,0 +1,43 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Definition.Modality.FullReduction.Assumptions</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- Assumptions used to state the theorems in</a>
+<a id="119" class="Comment">-- Definition.Modality.FullReduction</a>
+<a id="156" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="230" class="Keyword">open</a> <a id="235" class="Keyword">import</a> <a id="242" href="Definition.Modality.html" class="Module">Definition.Modality</a>
+<a id="262" class="Keyword">open</a> <a id="267" class="Keyword">import</a> <a id="274" href="Definition.Typed.Restrictions.html" class="Module">Definition.Typed.Restrictions</a>
+
+<a id="305" class="Keyword">module</a> <a id="312" href="Definition.Modality.FullReduction.Assumptions.html" class="Module">Definition.Modality.FullReduction.Assumptions</a>
+  <a id="360" class="Symbol">{</a><a id="361" href="Definition.Modality.FullReduction.Assumptions.html#361" class="Bound">a</a><a id="362" class="Symbol">}</a> <a id="364" class="Symbol">{</a><a id="365" href="Definition.Modality.FullReduction.Assumptions.html#365" class="Bound">M</a> <a id="367" class="Symbol">:</a> <a id="369" href="Agda.Primitive.html#320" class="Primitive">Set</a> <a id="373" href="Definition.Modality.FullReduction.Assumptions.html#361" class="Bound">a</a><a id="374" class="Symbol">}</a>
+  <a id="378" class="Symbol">(</a><a id="379" href="Definition.Modality.FullReduction.Assumptions.html#379" class="Bound">𝕄</a> <a id="381" class="Symbol">:</a> <a id="383" href="Definition.Modality.html#5116" class="Record">Modality</a> <a id="392" href="Definition.Modality.FullReduction.Assumptions.html#365" class="Bound">M</a><a id="393" class="Symbol">)</a>
+  <a id="397" class="Symbol">(</a><a id="398" href="Definition.Modality.FullReduction.Assumptions.html#398" class="Bound">R</a> <a id="400" class="Symbol">:</a> <a id="402" href="Definition.Typed.Restrictions.html#379" class="Record">Type-restrictions</a> <a id="420" href="Definition.Modality.FullReduction.Assumptions.html#365" class="Bound">M</a><a id="421" class="Symbol">)</a>
+  <a id="425" class="Keyword">where</a>
+
+<a id="432" class="Keyword">open</a> <a id="437" href="Definition.Modality.html#5116" class="Module">Modality</a> <a id="446" href="Definition.Modality.FullReduction.Assumptions.html#379" class="Bound">𝕄</a>
+<a id="448" class="Keyword">open</a> <a id="453" href="Definition.Typed.Restrictions.html#379" class="Module">Type-restrictions</a> <a id="471" href="Definition.Modality.FullReduction.Assumptions.html#398" class="Bound">R</a>
+
+<a id="474" class="Keyword">open</a> <a id="479" class="Keyword">import</a> <a id="486" href="Definition.Mode.html" class="Module">Definition.Mode</a> <a id="502" href="Definition.Modality.FullReduction.Assumptions.html#379" class="Bound">𝕄</a>
+
+<a id="505" class="Keyword">open</a> <a id="510" class="Keyword">import</a> <a id="517" href="Tools.PropositionalEquality.html" class="Module">Tools.PropositionalEquality</a>
+
+<a id="546" class="Keyword">private</a> <a id="554" class="Keyword">variable</a>
+  <a id="565" href="Definition.Modality.FullReduction.Assumptions.html#565" class="Generalizable">p</a> <a id="567" href="Definition.Modality.FullReduction.Assumptions.html#567" class="Generalizable">q</a> <a id="569" class="Symbol">:</a> <a id="571" href="Definition.Modality.FullReduction.Assumptions.html#365" class="Bound">M</a>
+
+<a id="574" class="Comment">-- The theorems in Definition.Modality.FullReduction are proved under</a>
+<a id="644" class="Comment">-- the assumption that the following property holds.</a>
+
+<a id="698" class="Keyword">record</a> <a id="Full-reduction-assumptions"></a><a id="705" href="Definition.Modality.FullReduction.Assumptions.html#705" class="Record">Full-reduction-assumptions</a> <a id="732" class="Symbol">:</a> <a id="734" href="Agda.Primitive.html#320" class="Primitive">Set</a> <a id="738" href="Definition.Modality.FullReduction.Assumptions.html#361" class="Bound">a</a> <a id="740" class="Keyword">where</a>
+  <a id="748" class="Keyword">no-eta-equality</a>
+  <a id="766" class="Keyword">field</a>
+    <a id="776" class="Comment">-- If the unit type (with η-equality) is used (in certain ways),</a>
+    <a id="845" class="Comment">-- then 𝟘 must be the largest quantity.</a>
+    <a id="Full-reduction-assumptions.≤𝟘"></a><a id="889" href="Definition.Modality.FullReduction.Assumptions.html#889" class="Field">≤𝟘</a> <a id="892" class="Symbol">:</a> <a id="894" href="Definition.Typed.Restrictions.html#511" class="Field">Unit-restriction</a> <a id="911" class="Symbol">→</a> <a id="913" href="Definition.Modality.FullReduction.Assumptions.html#565" class="Generalizable">p</a> <a id="915" href="Definition.Modality.html#1247" class="Function Operator">≤</a> <a id="917" href="Definition.Modality.html#813" class="Function">𝟘</a>
+
+    <a id="924" class="Comment">-- If a Σ-type with η-equality and the &quot;first component quantity&quot; p</a>
+    <a id="996" class="Comment">-- is used (in certain ways), then p ·_ must be increasing.</a>
+    <a id="Full-reduction-assumptions.·-increasing"></a><a id="1060" href="Definition.Modality.FullReduction.Assumptions.html#1060" class="Field">·-increasing</a> <a id="1073" class="Symbol">:</a> <a id="1075" href="Definition.Typed.Restrictions.html#670" class="Field">Σₚ-restriction</a> <a id="1090" href="Definition.Modality.FullReduction.Assumptions.html#565" class="Generalizable">p</a> <a id="1092" class="Symbol">→</a> <a id="1094" href="Definition.Modality.FullReduction.Assumptions.html#567" class="Generalizable">q</a> <a id="1096" href="Definition.Modality.html#1247" class="Function Operator">≤</a> <a id="1098" href="Definition.Modality.FullReduction.Assumptions.html#565" class="Generalizable">p</a> <a id="1100" href="Definition.Modality.html#718" class="Function Operator">·</a> <a id="1102" href="Definition.Modality.FullReduction.Assumptions.html#567" class="Generalizable">q</a>
+
+    <a id="1109" class="Comment">-- If a Σ-type with η-equality and the &quot;first component quantity&quot; p</a>
+    <a id="1181" class="Comment">-- is used (in certain ways), and ⌞ p ⌟ is 𝟙ᵐ, then p ≤ 𝟙 must hold.</a>
+    <a id="Full-reduction-assumptions.⌞⌟≡𝟙ᵐ→≤𝟙"></a><a id="1254" href="Definition.Modality.FullReduction.Assumptions.html#1254" class="Field">⌞⌟≡𝟙ᵐ→≤𝟙</a> <a id="1263" class="Symbol">:</a> <a id="1265" href="Definition.Typed.Restrictions.html#670" class="Field">Σₚ-restriction</a> <a id="1280" href="Definition.Modality.FullReduction.Assumptions.html#565" class="Generalizable">p</a> <a id="1282" class="Symbol">→</a> <a id="1284" href="Definition.Mode.html#3902" class="Function Operator">⌞</a> <a id="1286" href="Definition.Modality.FullReduction.Assumptions.html#565" class="Generalizable">p</a> <a id="1288" href="Definition.Mode.html#3902" class="Function Operator">⌟</a> <a id="1290" href="Agda.Builtin.Equality.html#133" class="Datatype Operator">≡</a> <a id="1292" href="Definition.Mode.html#1066" class="InductiveConstructor">𝟙ᵐ</a> <a id="1295" class="Symbol">→</a> <a id="1297" href="Definition.Modality.FullReduction.Assumptions.html#565" class="Generalizable">p</a> <a id="1299" href="Definition.Modality.html#1247" class="Function Operator">≤</a> <a id="1301" href="Definition.Modality.html#823" class="Function">𝟙</a>
+</pre></body></html>
