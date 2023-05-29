@@ -94,11 +94,11 @@ escapeEqTermᵛ [Γ] [A] [t≡u] =
   Unit-restriction                                            □
 
 -- If the type ΠΣ⟨ b ⟩ p , q ▷ A ▹ B is valid, then the ΠΣ restriction
--- holds for b and p.
+-- holds for b, p and q.
 
 ⊩ᵛΠΣ→ΠΣ-restriction :
   Γ ⊩ᵛ⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B / [Γ] →
-  ΠΣ-restriction b p
+  ΠΣ-restriction b p q
 ⊩ᵛΠΣ→ΠΣ-restriction
   {Γ = Γ} {l = l} {b = b} {p = p} {q = q} {A = A} {B = B} {[Γ] = [Γ]} =
   Γ ⊩ᵛ⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B / [Γ]             →⟨ (λ hyp _ σ → proj₁ (unwrap hyp _ σ)) ⟩
@@ -108,4 +108,4 @@ escapeEqTermᵛ [Γ] [A] [t≡u] =
 
   Γ ⊩⟨ l ⟩ subst idSubst (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)    →⟨ ⊩ΠΣ→ΠΣ-restriction ⟩
 
-  ΠΣ-restriction b p                                □
+  ΠΣ-restriction b p q                              □

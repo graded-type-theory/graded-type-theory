@@ -62,7 +62,7 @@ whNorm A = whNorm′ (reducible A)
 ... | _ , Unitₙ , D = PE.⊥-elim (Unit≢Πⱼ (trans (sym (subset* (red D))) A≡ΠFG))
 ... | _ , Emptyₙ , D = PE.⊥-elim (Empty≢Πⱼ (trans (sym (subset* (red D))) A≡ΠFG))
 ... | _ , lamₙ , [ ⊢A , univ ⊢B , A⇒B ] =
-  let F , G , q , ⊢F , ⊢t , U≡Π = inversion-lam ⊢B
+  let _ , _ , _ , _ , _ , U≡Π , _ = inversion-lam ⊢B
   in  PE.⊥-elim (U≢Π U≡Π)
 ... | _ , zeroₙ , [ ⊢A , univ ⊢B , A⇒B ] = PE.⊥-elim (U≢ℕ (inversion-zero ⊢B))
 ... | _ , sucₙ , [ ⊢A , univ ⊢B , A⇒B ] = PE.⊥-elim (U≢ℕ (proj₂ (inversion-suc ⊢B)))
@@ -89,7 +89,7 @@ whNorm A = whNorm′ (reducible A)
 ... | _ , Unitₙ , D = PE.⊥-elim (Unit≢Σⱼ (trans (sym (subset* (red D))) A≡ΣFG))
 ... | _ , Emptyₙ , D = PE.⊥-elim (Empty≢Σⱼ (trans (sym (subset* (red D))) A≡ΣFG))
 ... | _ , lamₙ , [ ⊢A , univ ⊢B , A⇒B ] =
-  let F , G , q , ⊢F , ⊢t , U≡Π = inversion-lam ⊢B
+  let _ , _ , _ , _ , _ , U≡Π , _ = inversion-lam ⊢B
   in  PE.⊥-elim (U≢Π U≡Π)
 ... | _ , zeroₙ , [ ⊢A , univ ⊢B , A⇒B ] = PE.⊥-elim (U≢ℕ (inversion-zero ⊢B))
 ... | _ , sucₙ , [ ⊢A , univ ⊢B , A⇒B ] = PE.⊥-elim (U≢ℕ (proj₂ (inversion-suc ⊢B)))

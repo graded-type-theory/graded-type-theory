@@ -3,7 +3,7 @@
 ------------------------------------------------------------------------
 
 open import Definition.Modality
-open import Definition.Modality.Restrictions.Definitions
+open import Definition.Modality.Type-restrictions
   using (No-erased-matches)
 open import Definition.Typed.EqualityRelation
 import Definition.Untyped hiding (_∷_)
@@ -25,7 +25,7 @@ module Erasure.Consequences.Soundness
   (consistent : ∀ {t} → Δ ⊢ t ∷ Empty → ⊥)
   -- Erased matches are not allowed unless the context
   -- is empty
-  (no-erased-matches : No-erased-matches 𝕄 ⊎ k ≡ 0)
+  (no-erased-matches : No-erased-matches 𝕄 R ⊎ k ≡ 0)
   {{eqrel : EqRelSet R}}
   where
 

@@ -46,6 +46,7 @@ private
     γ : Conₘ n
     t u A B : Term n
     m : Mode
+    p q r : M
 
 -- Subject reduction properties for modality usage
 
@@ -56,7 +57,7 @@ usagePresTerm γ▸t (conv t⇒u x) = usagePresTerm γ▸t t⇒u
 usagePresTerm γ▸t (app-subst t⇒u x) =
   let invUsageApp δ▸t η▸a γ≤δ+pη = inv-usage-app γ▸t
   in  sub ((usagePresTerm δ▸t t⇒u) ∘ₘ η▸a) γ≤δ+pη
-usagePresTerm {m = m} γ▸λta (β-red x x₁ x₂ x₃ x₄) =
+usagePresTerm {m = m} γ▸λta (β-red x x₁ x₂ x₃ x₄ _) =
   let invUsageApp δ▸λt η▸a γ≤δ′+pη = inv-usage-app γ▸λta
       invUsageLam δ▸t δ′≤δ = inv-usage-lam δ▸λt
   in  sub (sgSubstₘ-lemma₂ δ▸t (▸-cong (ᵐ·-cong m (≈-sym x₄)) η▸a))
@@ -146,15 +147,15 @@ usagePresTerm {γ = γ} γ▸natrec (natrec-suc {p = p} {r = r} x x₁ x₂ x₃
   where
   open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-usagePresTerm γ▸prodrec (prodrec-subst x x₁ x₂ x₃ x₄) =
-  let invUsageProdrec δ▸t η▸u θ▸A P γ≤γ′ = inv-usage-prodrec γ▸prodrec
-  in  sub (prodrecₘ (usagePresTerm δ▸t x₄) η▸u θ▸A P) γ≤γ′
+usagePresTerm γ▸prodrec (prodrec-subst x x₁ x₂ x₃ x₄ _ _) =
+  let invUsageProdrec δ▸t η▸u θ▸A γ≤γ′ = inv-usage-prodrec γ▸prodrec
+  in  sub (prodrecₘ (usagePresTerm δ▸t x₄) η▸u θ▸A) γ≤γ′
 usagePresTerm
   {γ = γ} {m = m} γ▸prodrec
   (prodrec-β {p = p} {r = r} {t = t} {t′ = t′} {u = u}
-     _ _ _ _ _ _ PE.refl) =
+     _ _ _ _ _ _ PE.refl _ _) =
   case inv-usage-prodrec γ▸prodrec of λ where
-    (invUsageProdrec {δ = δ} {η = η} ▸t ▸u _ ok γ≤rδ+η) →
+    (invUsageProdrec {δ = δ} {η = η} ▸t ▸u _ γ≤rδ+η) →
       case inv-usage-prodᵣ ▸t of λ where
         (invUsageProdᵣ {δ = δ′} {η = η′} ▸t₁ ▸t₂ δ≤pδ′+η′) → sub
           (doubleSubstₘ-lemma₂ ▸u ▸t₂ (▸-cong (ᵐ·-·-assoc m) ▸t₁))
@@ -213,22 +214,23 @@ Well-resourced-normal-form-ill-resourced-η-long-normal-form =
 
 -- The type
 -- Well-resourced-normal-form-ill-resourced-η-long-normal-form is
--- inhabited if the Unit type with η-equality is allowed and 𝟙 is not
--- bounded by 𝟘.
+-- inhabited if the Unit type with η-equality is allowed, 𝟙 is not
+-- bounded by 𝟘, and Π-restriction 𝟙 q holds for some q.
 
 well-resourced-normal-form-ill-resourced-η-long-normal-form-Unit :
   ¬ 𝟙 ≤ 𝟘 →
   Unit-restriction →
+  Π-restriction 𝟙 q →
   Well-resourced-normal-form-ill-resourced-η-long-normal-form
 well-resourced-normal-form-ill-resourced-η-long-normal-form-Unit
-  𝟙≰𝟘 ok =
-    Π 𝟙 , 𝟙 ▷ Unit ▹ Unit
+  {q = q} 𝟙≰𝟘 ok₁ ok₂ =
+    Π 𝟙 , q ▷ Unit ▹ Unit
   , lam 𝟙 (var x0)
   , lam 𝟙 star
-  , lamⱼ ⊢Unit ⊢0
+  , lamⱼ ⊢Unit ⊢0 ok₂
   , lamₙ (ne (var _))
-  , lamₙ ⊢Unit (starₙ (ε ∙ ⊢Unit) ok)
-  , lam-cong (sym (Unit-η ⊢0))
+  , lamₙ ⊢Unit (starₙ (ε ∙ ⊢Unit) ok₁) ok₂
+  , lam-cong (sym (Unit-η ⊢0)) ok₂
   , lamₘ (sub var
             (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
                𝟘ᶜ ∙ 𝟙 · 𝟙  ≈⟨ ≈ᶜ-refl ∙ ·-identityˡ _ ⟩
@@ -244,31 +246,33 @@ well-resourced-normal-form-ill-resourced-η-long-normal-form-Unit
              𝟙 · 𝟙  ≤⟨ 𝟙·𝟙≤𝟘 ⟩
              𝟘      ∎) }})
   where
-  ⊢Unit = Unitⱼ ε ok
+  ⊢Unit = Unitⱼ ε ok₁
   ⊢0    = var (ε ∙ ⊢Unit) here
 
 -- The type
 -- Well-resourced-normal-form-ill-resourced-η-long-normal-form is
--- inhabited if Σ-types with η-equality are allowed when the first
--- quantity is p, for a quantity p that is not an upper bound of 𝟙.
+-- inhabited if Σₚ-restriction p q holds for a quantity p that is not
+-- an upper bound of 𝟙, and furthermore Π-restriction 𝟙 r holds.
 
 well-resourced-normal-form-ill-resourced-η-long-normal-form-Σₚ :
-  ∀ p → ¬ 𝟙 ≤ p →
-  Σₚ-restriction p →
+  ¬ 𝟙 ≤ p →
+  Σₚ-restriction p q →
+  Π-restriction 𝟙 r →
   Well-resourced-normal-form-ill-resourced-η-long-normal-form
 well-resourced-normal-form-ill-resourced-η-long-normal-form-Σₚ
-  p 𝟙≰p ok =
-    Π 𝟙 , 𝟙 ▷ Σₚ p , p ▷ ℕ ▹ ℕ ▹ Σₚ p , p ▷ ℕ ▹ ℕ
+  {p = p} {q = q} {r = r} 𝟙≰p ok₁ ok₂ =
+    Π 𝟙 , r ▷ Σₚ p , q ▷ ℕ ▹ ℕ ▹ Σₚ p , q ▷ ℕ ▹ ℕ
   , lam 𝟙 (var x0)
   , lam 𝟙 (prodₚ p (fst p (var x0)) (snd p (var x0)))
-  , lamⱼ ⊢Σℕℕ ⊢0
+  , lamⱼ ⊢Σℕℕ ⊢0 ok₂
   , lamₙ (ne (var _))
   , lamₙ ⊢Σℕℕ
       (prodₙ Σℕℕ⊢ℕ (ℕⱼ ε∙Σℕℕ∙ℕ)
          (neₙ ℕₙ (fstₙ Σℕℕ⊢ℕ Σℕℕ∙ℕ⊢ℕ (varₙ (ε ∙ ⊢Σℕℕ) here)))
          (neₙ ℕₙ (sndₙ Σℕℕ⊢ℕ Σℕℕ∙ℕ⊢ℕ (varₙ (ε ∙ ⊢Σℕℕ) here)))
-         ok)
-  , lam-cong (sym (Σ-η-prod-fst-snd ⊢0))
+         ok₁)
+      ok₂
+  , lam-cong (sym (Σ-η-prod-fst-snd ⊢0)) ok₂
   , lamₘ (sub var
             (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
                𝟘ᶜ ∙ 𝟙 · 𝟙  ≈⟨ ≈ᶜ-refl ∙ ·-identityˡ _ ⟩
@@ -294,7 +298,7 @@ well-resourced-normal-form-ill-resourced-η-long-normal-form-Σₚ
        𝟙 ≤ p  →⟨ 𝟙≰p ⟩
        ⊥      □ }}}})
   where
-  ⊢Σℕℕ    = ΠΣⱼ (ℕⱼ ε) (ℕⱼ (ε ∙ ℕⱼ ε)) ok
+  ⊢Σℕℕ    = ΠΣⱼ (ℕⱼ ε) (ℕⱼ (ε ∙ ℕⱼ ε)) ok₁
   Σℕℕ⊢ℕ   = ℕⱼ (ε ∙ ⊢Σℕℕ)
   ε∙Σℕℕ∙ℕ = ε ∙ ⊢Σℕℕ ∙ Σℕℕ⊢ℕ
   Σℕℕ∙ℕ⊢ℕ = ℕⱼ ε∙Σℕℕ∙ℕ

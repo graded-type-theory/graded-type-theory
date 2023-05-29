@@ -15,9 +15,11 @@ import Definition.Modality.Properties.Meet as Meet
 import Definition.Modality.Properties.Multiplication as Multiplication
 import Definition.Modality.Properties.PartialOrder as PartialOrder
 import Definition.Modality.Properties.Star as Star
-import Definition.Modality.Restrictions
+import Definition.Modality.Type-restrictions
 
-open import Definition.Typed.Restrictions
+open import Definition.Mode.Restrictions
+
+import Definition.Typed.Restrictions
 
 import Tools.Algebra
 open import Tools.Function
@@ -37,13 +39,14 @@ open import Tools.Unit
 data Linear-or-affine : Set where
   𝟘 𝟙 ≤𝟙 ≤ω : Linear-or-affine
 
-open Definition.Modality              Linear-or-affine
-open Definition.Modality.Restrictions Linear-or-affine
-open Tools.Algebra                    Linear-or-affine
+open Definition.Modality           Linear-or-affine
+open Definition.Typed.Restrictions Linear-or-affine
+open Tools.Algebra                 Linear-or-affine
 
 private variable
   p q r : Linear-or-affine
-  rs    : Restrictions
+  mrs   : Mode-restrictions
+  trs   : Type-restrictions
 
 ------------------------------------------------------------------------
 -- Basic operations
@@ -1338,58 +1341,78 @@ linear-or-affine-semiring-with-meet-and-star = record
 ------------------------------------------------------------------------
 -- The modality
 
--- The "linear or affine types" modality (with arbitrary
--- "restrictions").
+-- The "linear or affine types" modality (with arbitrary mode
+-- restrictions).
 
-linear-or-affine : Restrictions → Modality
-linear-or-affine restrictions = record
+linear-or-affine : Mode-restrictions → Modality
+linear-or-affine rs = record
   { semiring-with-meet-and-star = linear-or-affine-semiring-with-meet-and-star
-  ; restrictions = restrictions
+  ; mode-restrictions = rs
   ; 𝟘-well-behaved = λ _ → linear-or-affine-has-well-behaved-zero
   }
 
 ------------------------------------------------------------------------
--- Type restrictions for which Full-reduction-assumptions hold
+-- Instances of Full-reduction-assumptions
 
--- Type restrictions that disallow the following types:
--- * Unit types with η-equality.
--- * Σ-types with η-equality for which the first component's quantity
---   is 𝟘, ≤𝟙 or ≤ω.
+-- An instance of Type-restrictions is suitable for the full reduction
+-- theorem if
+-- * Unit-restriction does not hold,
+-- * Σₚ-restriction 𝟘 p does not hold,
+-- * Σₚ-restriction ≤𝟙 p does not hold, and
+-- * Σₚ-restriction ≤ω p does not hold.
 
-linear-or-affine-restrictions : Type-restrictions Linear-or-affine
-linear-or-affine-restrictions = record
-  { Unit-restriction = ⊥
-  ; Σₚ-restriction   = λ where
-      𝟘  → ⊥
-      ≤𝟙 → ⊥
-      ≤ω → ⊥
-      𝟙  → ⊤
-  }
+Suitable-for-full-reduction :
+  Type-restrictions → Set
+Suitable-for-full-reduction rs =
+  ¬ Unit-restriction ×
+  (∀ p → ¬ Σₚ-restriction 𝟘 p) ×
+  (∀ p → ¬ Σₚ-restriction ≤𝟙 p) ×
+  (∀ p → ¬ Σₚ-restriction ≤ω p)
+  where
+  open Type-restrictions rs
 
--- The full reduction assumptions hold for linear-or-affine rs and
--- linear-or-affine-restrictions.
+-- Given an instance of Type-restrictions one can create a "suitable"
+-- instance.
+
+suitable-for-full-reduction :
+  Type-restrictions → ∃ Suitable-for-full-reduction
+suitable-for-full-reduction rs =
+    record rs
+      { Unit-restriction = ⊥
+      ; ΠΣ-restriction   = λ b p q →
+          ΠΣ-restriction b p q × p ≢ 𝟘 × p ≢ ≤𝟙 × p ≢ ≤ω
+      }
+  , idᶠ
+  , (λ _ → (_$ refl) ∘→ proj₁ ∘→ proj₂)
+  , (λ _ → (_$ refl) ∘→ proj₁ ∘→ proj₂ ∘→ proj₂)
+  , (λ _ → (_$ refl) ∘→ proj₂ ∘→ proj₂ ∘→ proj₂)
+  where
+  open Type-restrictions rs
+
+-- The full reduction assumptions hold for linear-or-affine mrs and
+-- any "suitable" Type-restrictions.
 
 full-reduction-assumptions :
-  Full-reduction-assumptions (linear-or-affine rs)
-    linear-or-affine-restrictions
-full-reduction-assumptions {rs = rs} = record
-  { ≤𝟘           = λ ()
+  Suitable-for-full-reduction trs →
+  Full-reduction-assumptions (linear-or-affine mrs) trs
+full-reduction-assumptions {mrs = mrs} (¬Unit , ¬𝟘 , ¬≤𝟙 , ¬≤ω) = record
+  { ≤𝟘           = ⊥-elim ∘→ ¬Unit
   ; ·-increasing = λ where
-      {p = 𝟘}         ()
-      {p = ≤𝟙}        ()
-      {p = ≤ω}        ()
-      {p = 𝟙} {q = q} _  → begin
+      {p = 𝟘}         ok → ⊥-elim (¬𝟘 _ ok)
+      {p = ≤𝟙}        ok → ⊥-elim (¬≤𝟙 _ ok)
+      {p = ≤ω}        ok → ⊥-elim (¬≤ω _ ok)
+      {p = 𝟙} {r = q} _  → begin
         q      ≡˘⟨ ·-identityˡ _ ⟩
         𝟙 · q  ∎
   ; ⌞⌟≡𝟙ᵐ→≤𝟙 = λ where
-      {p = 𝟘}  ()
-      {p = ≤𝟙} ()
-      {p = ≤ω} ()
+      {p = 𝟘}  ok   → ⊥-elim (¬𝟘 _ ok)
+      {p = ≤𝟙} ok   → ⊥-elim (¬≤𝟙 _ ok)
+      {p = ≤ω} ok   → ⊥-elim (¬≤ω _ ok)
       {p = 𝟙}  _  _ → begin
         𝟙  ≡⟨⟩
         𝟙  ∎
   }
   where
-  open Definition.Modality.Properties (linear-or-affine rs)
-  open Modality (linear-or-affine rs) using (·-identityˡ)
+  open Definition.Modality.Properties (linear-or-affine mrs)
+  open Modality (linear-or-affine mrs) using (·-identityˡ)
   open Tools.Reasoning.PartialOrder ≤-poset

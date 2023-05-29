@@ -20,7 +20,7 @@ open import Definition.Mode 𝕄
 open import Tools.PropositionalEquality
 
 private variable
-  p q : M
+  p q r : M
 
 -- The theorems in Definition.Modality.FullReduction are proved under
 -- the assumption that the following property holds.
@@ -34,8 +34,8 @@ record Full-reduction-assumptions : Set a where
 
     -- If a Σ-type with η-equality and the "first component quantity" p
     -- is used (in certain ways), then p ·_ must be increasing.
-    ·-increasing : Σₚ-restriction p → q ≤ p · q
+    ·-increasing : Σₚ-restriction p q → r ≤ p · r
 
     -- If a Σ-type with η-equality and the "first component quantity" p
     -- is used (in certain ways), and ⌞ p ⌟ is 𝟙ᵐ, then p ≤ 𝟙 must hold.
-    ⌞⌟≡𝟙ᵐ→≤𝟙 : Σₚ-restriction p → ⌞ p ⌟ ≡ 𝟙ᵐ → p ≤ 𝟙
+    ⌞⌟≡𝟙ᵐ→≤𝟙 : Σₚ-restriction p q → ⌞ p ⌟ ≡ 𝟙ᵐ → p ≤ 𝟙

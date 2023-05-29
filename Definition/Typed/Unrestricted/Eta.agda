@@ -15,8 +15,8 @@ module Definition.Typed.Unrestricted.Eta
   (ω : M)
   -- The Unit restriction is assumed to hold.
   (Unit-ok : Unit-restriction)
-  -- The Σₚ restriction is assumed to hold for ω.
-  (Σₚ-ok : Σₚ-restriction ω)
+  -- The Σₚ restriction is assumed to hold for ω and ω.
+  (Σₚ-ok : Σₚ-restriction ω ω)
   where
 
 open Modality 𝕄
@@ -201,7 +201,7 @@ inversion-[]′ ⊢[] =
   where
   Γ′ = ε
   t′ = zero
-  A′ = Σₚ ω , 𝟙 ▷ ℕ ▹ natrec 𝟙 𝟙 𝟙 U Unit ℕ (var x0)
+  A′ = Σₚ ω , ω ▷ ℕ ▹ natrec 𝟙 𝟙 𝟙 U Unit ℕ (var x0)
 
   ⊢Γ′∙ℕ : ⊢ Γ′ ∙ ℕ
   ⊢Γ′∙ℕ = ε ∙ ℕⱼ ε
@@ -262,7 +262,10 @@ inversion-unbox :
   ∃₂ λ q B → Γ ⊢ t ∷ Σₚ ω , q ▷ A ▹ B
 inversion-unbox ⊢unbox =
   case inversion-fst ⊢unbox of λ (_ , C , q , ⊢B , ⊢C , ⊢t , ≡B) →
-  q , C , conv ⊢t (ΠΣ-cong ⊢B (_⊢_≡_.sym ≡B) (refl ⊢C) Σₚ-ok)
+    q
+  , C
+  , conv ⊢t
+      (ΠΣ-cong ⊢B (_⊢_≡_.sym ≡B) (refl ⊢C) (⊢∷ΠΣ→ΠΣ-restriction ⊢t))
 
 -- A certain form of inversion for unbox does not hold.
 
@@ -279,7 +282,7 @@ inversion-unbox ⊢unbox =
   ⊢Γ′∙ℕ : ⊢ Γ′ ∙ ℕ
   ⊢Γ′∙ℕ = ε ∙ ℕⱼ ε
 
-  ⊢t′₁ : Γ′ ⊢ t′ ∷ Σ ω , 𝟙 ▷ ℕ ▹ ℕ
+  ⊢t′₁ : Γ′ ⊢ t′ ∷ Σ ω , ω ▷ ℕ ▹ ℕ
   ⊢t′₁ = prodⱼ (ℕⱼ ε) (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) Σₚ-ok
 
   ⊢unbox-t′ : Γ′ ⊢ unbox t′ ∷ A′

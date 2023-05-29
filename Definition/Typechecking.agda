@@ -37,7 +37,7 @@ mutual
     Emptyᶜ : Γ ⊢ Empty ⇇Type
     ΠΣᶜ : Γ ⊢ F ⇇Type
        → Γ ∙ F ⊢ G ⇇Type
-       → ΠΣ-restriction b p
+       → ΠΣ-restriction b p q
        → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ⇇Type
     univᶜ : Γ ⊢ A ⇇ U
           → Γ ⊢ A ⇇Type
@@ -45,7 +45,7 @@ mutual
   data _⊢_⇉_ (Γ : Con Term n) : (t A : Term n) → Set a where
     ΠΣᵢ : Γ ⊢ F ⇇ U
        → Γ ∙ F ⊢ G ⇇ U
-       → ΠΣ-restriction b p
+       → ΠΣ-restriction b p q
        → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ⇉ U
     varᵢ : ∀ {x}
          → x ∷ A ∈ Γ
@@ -64,6 +64,7 @@ mutual
              → Γ ⊢ t ⇉ B
              → Γ ⊢ B ↘ Σᵣ p , q ▷ F ▹ G
              → Γ ∙ F ∙ G ⊢ u ⇇ (A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²)
+             → Prodrec-restriction r p q′
              → Γ ⊢ prodrec r p q′ A t u ⇉ A [ t ]
     ℕᵢ : Γ ⊢ ℕ ⇉ U
     zeroᵢ : Γ ⊢ zero ⇉ ℕ
@@ -155,7 +156,8 @@ mutual
   Inferable⇉ (appᵢ t⇉A x x₁) = ∘ᵢ (Inferable⇉ t⇉A) (Checkable⇇ x₁)
   Inferable⇉ (fstᵢ t⇉A x) = fstᵢ (Inferable⇉ t⇉A)
   Inferable⇉ (sndᵢ t⇉A x) = sndᵢ (Inferable⇉ t⇉A)
-  Inferable⇉ (prodrecᵢ x t⇉A x₁ x₂) = prodrecᵢ (Checkable⇇Type x) (Inferable⇉ t⇉A) (Checkable⇇ x₂)
+  Inferable⇉ (prodrecᵢ x t⇉A x₁ x₂ _) =
+    prodrecᵢ (Checkable⇇Type x) (Inferable⇉ t⇉A) (Checkable⇇ x₂)
   Inferable⇉ ℕᵢ = ℕᵢ
   Inferable⇉ zeroᵢ = zeroᵢ
   Inferable⇉ (sucᵢ x) = sucᵢ (Checkable⇇ x)

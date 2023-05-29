@@ -142,11 +142,11 @@ escapeTermEq (emb 0<1 A) t≡u = escapeTermEq A t≡u
     ⊩Unit→Unit-restriction [Unit]
 
 -- If the type ΠΣ⟨ b ⟩ p , q ▷ A ▹ B is in the logical relation, then
--- the ΠΣ restriction holds for b and p.
+-- the ΠΣ restriction holds for b, p and q.
 
 ⊩ΠΣ→ΠΣ-restriction :
   Γ ⊩⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B →
-  ΠΣ-restriction b p
+  ΠΣ-restriction b p q
 ⊩ΠΣ→ΠΣ-restriction {b = b} = λ where
   (ℕᵣ [ ⊢ΠAB , _ , D ]) →
     ⊥-elim (ℕ≢ΠΣ b (whrDet* (D , ℕₙ) (id ⊢ΠAB , ΠΣₙ)))

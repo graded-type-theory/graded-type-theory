@@ -13,6 +13,8 @@ module Definition.Conversion.Decidable
   (_≟_ : Decidable (_≈_ {A = M}))
   where
 
+open Type-restrictions R
+
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
@@ -27,6 +29,7 @@ open import Definition.Conversion.Conversion R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Consequences.Substitution R
 open import Definition.Typed.Consequences.Injectivity R
+open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Reduction R
 open import Definition.Typed.Consequences.Equality R
 open import Definition.Typed.Consequences.Inequality R as IE
@@ -103,7 +106,7 @@ decConv↓Term-Σᵣ-ins : ∀ {t t′ u F G H E}
                     → Γ ⊢ t ~ t′ ↓ Σᵣ p′ , q′ ▷ H ▹ E
                     → ∃ λ B → Γ ⊢ t ~ u ↓ B
 decConv↓Term-Σᵣ-ins (Σᵣ-ins x x₁ x₂) t~t = _ , x₂
-decConv↓Term-Σᵣ-ins (prod-cong x x₁ x₂ x₃) ()
+decConv↓Term-Σᵣ-ins (prod-cong _ _ _ _ _) ()
 decConv↓Term-Σᵣ-ins (ne-ins x x₁ () x₃) t~t
 
 -- Helper function for decidability for neutrals of a neutral type.
@@ -120,7 +123,7 @@ decConv↓Term-ne-ins () (suc-cong x)
 decConv↓Term-ne-ins () (η-eq x₁ x₂ x₃ x₄ x₅)
 decConv↓Term-ne-ins () (Unit-ins x)
 decConv↓Term-ne-ins () (Σᵣ-ins x x₁ x₂)
-decConv↓Term-ne-ins () (prod-cong x x₁ x₂ x₃)
+decConv↓Term-ne-ins () (prod-cong _ _ _ _ _)
 decConv↓Term-ne-ins () (Σ-η x x₁ x₂ x₃ x₄ x₅)
 decConv↓Term-ne-ins () (η-unit x x₁ x₂ x₃)
 
@@ -142,7 +145,7 @@ decConv↓Term-Σᵣ : ∀ {t u t′ F G F′ G′}
                 → (∀ {B} → ¬ (Γ ⊢ t ~ u ↓ B))
                 → ⊥
 decConv↓Term-Σᵣ (Σᵣ-ins x x₁ x₂) t~t ¬u~u = ¬u~u x₂
-decConv↓Term-Σᵣ (prod-cong x x₁ x₂ x₃) () ¬u~u
+decConv↓Term-Σᵣ (prod-cong _ _ _ _ _) ()
 decConv↓Term-Σᵣ (ne-ins x x₁ () x₃) t~t ¬u~u
 
 -- Helper function for extensional equality of Unit.
@@ -184,8 +187,9 @@ dec~↑-prodrec :
   p ≈ p′ →
   q′ ≈ q″ →
   r ≈ r′ →
+  Prodrec-restriction r p q′ →
   Dec (∃ λ B → Γ ⊢ prodrec r p q′ C t u ~ prodrec r′ p′ q″ E t′ v ↑ B)
-dec~↑-prodrec (yes C<>E) u<?>v t~t′ ⊢Σ≡Σ′ p≈p′ q≈q′ r≈r′ =
+dec~↑-prodrec (yes C<>E) u<?>v t~t′ ⊢Σ≡Σ′ p≈p′ q≈q′ r≈r′ ok =
   case u<?>v (soundnessConv↑ C<>E) of λ where
     (yes u<>v) → case p≈p′ of λ where
       PE.refl → case q≈q′ of λ where
@@ -194,9 +198,9 @@ dec~↑-prodrec (yes C<>E) u<?>v t~t′ ⊢Σ≡Σ′ p≈p′ q≈q′ r≈r′
                     case stabilityConv↑ (⊢Γ≡Γ ∙ ⊢Σ≡Σ′) C<>E of λ C<>E′ →
                     case Σ-injectivity ⊢Σ≡Σ′ of λ (⊢F≡F′ , ⊢G≡G′ , _) →
                     case stabilityConv↑Term (⊢Γ≡Γ ∙ ⊢F≡F′ ∙ ⊢G≡G′) u<>v of λ u<>v′ →
-                      yes (_ , prodrec-cong C<>E′ t~t′ u<>v′)
+                      yes (_ , prodrec-cong C<>E′ t~t′ u<>v′ ok)
     (no ¬u<>v) → no λ where
-      (_ , prodrec-cong x x₁ x₂) →
+      (_ , prodrec-cong x x₁ x₂ _) →
         case syntacticEqTerm (soundness~↓ t~t′) of λ (_ , ⊢t , _) →
         case syntacticEqTerm (soundness~↓ x₁)   of λ (_ , ⊢t₁ , _) →
         case ne~↓ t~t′ of λ (_ , neT , _) →
@@ -204,8 +208,8 @@ dec~↑-prodrec (yes C<>E) u<?>v t~t′ ⊢Σ≡Σ′ p≈p′ q≈q′ r≈r′
         case reflConEq (wfEq ⊢Σ″≡Σ′) of λ ⊢Γ≡Γ →
         case Σ-injectivity (trans ⊢Σ″≡Σ′ (sym ⊢Σ≡Σ′)) of λ (⊢F″≡F , ⊢G″≡G , _) →
           ¬u<>v (stabilityConv↑Term (⊢Γ≡Γ ∙ ⊢F″≡F ∙ ⊢G″≡G) x₂)
-dec~↑-prodrec (no ¬C<>E) u<?>v t~t′ ⊢Σ≡Σ′ _ _ _ =  no λ where
-      (_ , prodrec-cong x x₁ x₂) →
+dec~↑-prodrec (no ¬C<>E) u<?>v t~t′ ⊢Σ≡Σ′ _ _ _ _ = no λ where
+      (_ , prodrec-cong x x₁ x₂ _) →
         case syntacticEqTerm (soundness~↓ t~t′) of λ (_ , ⊢t , _) →
         case syntacticEqTerm (soundness~↓ x₁)   of λ (_ , ⊢t₁ , _) →
         case ne~↓ t~t′ of λ (_ , neT , _) →
@@ -224,7 +228,7 @@ dec~↑-var x (app-cong _ _) = no λ { (_ , ())}
 dec~↑-var x (fst-cong _) = no λ { (_ , ())}
 dec~↑-var x (snd-cong _) = no λ { (_ , ())}
 dec~↑-var x (natrec-cong _ _ _ _) = no λ { (_ , ())}
-dec~↑-var x (prodrec-cong _ _ _) = no λ { (_ , ())}
+dec~↑-var x (prodrec-cong _ _ _ _) = no λ { (_ , ())}
 dec~↑-var x (Emptyrec-cong _ _) = no λ { (_ , ())}
 
 dec~↑-app′ : ∀ {k l l′ a A F G}
@@ -253,7 +257,7 @@ dec~↑-app′ (var-refl x x₁) _ _ _ _ = no λ { (_ , ())}
 dec~↑-app′ (fst-cong x) _ _ _ _ = no λ { (_ , ())}
 dec~↑-app′ (snd-cong x) _ _ _ _ = no λ { (_ , ())}
 dec~↑-app′ (natrec-cong x x₁ x₂ x₃) _ _ _ _ = no λ { (_ , ())}
-dec~↑-app′ (prodrec-cong x x₁ x₂) _ _ _ _ = no λ { (_ , ())}
+dec~↑-app′ (prodrec-cong _ _ _ _) _ _ _ _ = no λ { (_ , ())}
 dec~↑-app′ (Emptyrec-cong x x₁) _ _ _ _ = no λ { (_ , ())}
 
 dec~↑-fst :
@@ -275,12 +279,12 @@ dec~↑-fst k~k dec (fst-cong l~l) with dec l~l
         (_ , _ , PE.refl , _ , _) →
           yes (F , fst-cong k~l)
 ... | no ¬p = no (λ { (_ , fst-cong x) → ¬p (_ , x) })
-dec~↑-fst _ _ (var-refl _ _)        = no λ { (_ , ()) }
-dec~↑-fst _ _ (app-cong _ _)        = no λ { (_ , ()) }
-dec~↑-fst _ _ (snd-cong _)          = no λ { (_ , ()) }
-dec~↑-fst _ _ (natrec-cong _ _ _ _) = no λ { (_ , ()) }
-dec~↑-fst _ _ (prodrec-cong _ _ _)  = no λ { (_ , ()) }
-dec~↑-fst _ _ (Emptyrec-cong _ _)   = no λ { (_ , ()) }
+dec~↑-fst _ _ (var-refl _ _)         = no λ { (_ , ()) }
+dec~↑-fst _ _ (app-cong _ _)         = no λ { (_ , ()) }
+dec~↑-fst _ _ (snd-cong _)           = no λ { (_ , ()) }
+dec~↑-fst _ _ (natrec-cong _ _ _ _)  = no λ { (_ , ()) }
+dec~↑-fst _ _ (prodrec-cong _ _ _ _) = no λ { (_ , ()) }
+dec~↑-fst _ _ (Emptyrec-cong _ _)    = no λ { (_ , ()) }
 
 dec~↑-snd :
   Γ ⊢ k ~ k′ ↓ Σₚ p , q ▷ F ▹ G →
@@ -301,12 +305,12 @@ dec~↑-snd {k = k} k~k dec (snd-cong l~l) with dec l~l
         (_ , _ , PE.refl , _ , _) →
           yes (G [ fst _ k ] , snd-cong k~l)
 ... | no ¬p = no (λ { (_ , snd-cong x₂) → ¬p (_ , x₂) })
-dec~↑-snd _ _ (var-refl _ _)        = no λ { (_ , ()) }
-dec~↑-snd _ _ (app-cong _ _)        = no λ { (_ , ()) }
-dec~↑-snd _ _ (fst-cong _)          = no λ { (_ , ()) }
-dec~↑-snd _ _ (natrec-cong _ _ _ _) = no λ { (_ , ()) }
-dec~↑-snd _ _ (prodrec-cong _ _ _)  = no λ { (_ , ()) }
-dec~↑-snd _ _ (Emptyrec-cong _ _)   = no λ { (_ , ()) }
+dec~↑-snd _ _ (var-refl _ _)         = no λ { (_ , ()) }
+dec~↑-snd _ _ (app-cong _ _)         = no λ { (_ , ()) }
+dec~↑-snd _ _ (fst-cong _)           = no λ { (_ , ()) }
+dec~↑-snd _ _ (natrec-cong _ _ _ _)  = no λ { (_ , ()) }
+dec~↑-snd _ _ (prodrec-cong _ _ _ _) = no λ { (_ , ()) }
+dec~↑-snd _ _ (Emptyrec-cong _ _)    = no λ { (_ , ()) }
 
 dec~↑-natrec : ∀ {l l′ A C z s n}
              → Γ ⊢ l ~ l′ ↑ A
@@ -342,12 +346,12 @@ dec~↑-natrec (natrec-cong _ _ _ x₃) _ _ _ _ _
       A≡ℕ = ℕ≡A ⊢ℕ≡A whnfA
       n~n″ = PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) A≡ℕ n~n′
   in  yes (_ , natrec-cong C<>C′ z<>z′ s<>s′ n~n″)
-dec~↑-natrec (var-refl _ _) _ _ _ _ _       = no λ {(_ , ())}
-dec~↑-natrec (app-cong _ _) _ _ _ _ _       = no λ {(_ , ())}
-dec~↑-natrec (fst-cong _) _ _ _ _ _         = no λ {(_ , ())}
-dec~↑-natrec (snd-cong _) _ _ _ _ _         = no λ {(_ , ())}
-dec~↑-natrec (prodrec-cong _ _ _) _ _ _ _ _ = no λ {(_ , ())}
-dec~↑-natrec (Emptyrec-cong _ _) _ _ _ _ _  = no λ {(_ , ())}
+dec~↑-natrec (var-refl _ _) _ _ _ _ _         = no λ {(_ , ())}
+dec~↑-natrec (app-cong _ _) _ _ _ _ _         = no λ {(_ , ())}
+dec~↑-natrec (fst-cong _) _ _ _ _ _           = no λ {(_ , ())}
+dec~↑-natrec (snd-cong _) _ _ _ _ _           = no λ {(_ , ())}
+dec~↑-natrec (prodrec-cong _ _ _ _) _ _ _ _ _ = no λ {(_ , ())}
+dec~↑-natrec (Emptyrec-cong _ _) _ _ _ _ _    = no λ {(_ , ())}
 
 mutual
   -- Decidability of algorithmic equality of neutrals.
@@ -368,8 +372,8 @@ mutual
                  (λ z → decConv↑TermConv z x₂) (dec~↓ x₃)
 
   dec~↑
-    (prodrec-cong {p = p}  {r = r}  {q′ = q}  x  x₁ x₂)
-    (prodrec-cong {p = p′} {r = r′} {q′ = q′} x₃ x₄ x₅)
+    (prodrec-cong {p = p}  {r = r}  {q′ = q}  x  x₁ x₂ ok)
+    (prodrec-cong {p = p′} {r = r′} {q′ = q′} x₃ x₄ x₅ _)
     with dec~↓ x₁ x₄ | r ≟ r′ | p ≟ p′ | q ≟ q′
   ... | yes (B , t~t′) | yes PE.refl | yes PE.refl | yes PE.refl =
     case ne~↓ t~t′ of λ (whnfB , neT , neT′) →
@@ -387,23 +391,25 @@ mutual
               case reflConEq (wf ⊢B) of λ ⊢Γ≡Γ →
                 dec~↑-prodrec
                   (decConv↑ x (stabilityConv↑ (⊢Γ≡Γ ∙ ⊢Σ′≡Σ) x₃))
-                  (λ C≡C′ → decConv↑TermConv (subst↑²TypeEq C≡C′ _) x₂
+                  (λ C≡C′ → decConv↑TermConv
+                     (subst↑²TypeEq C≡C′ (⊢∷ΠΣ→ΠΣ-restriction ⊢t₁))
+                     x₂
                      (stabilityConv↑Term (⊢Γ≡Γ ∙ ⊢F′≡F ∙ ⊢G′≡G) x₅))
-                  t~t′ (sym ⊢B≡Σ) PE.refl PE.refl PE.refl
+                  t~t′ (sym ⊢B≡Σ) PE.refl PE.refl PE.refl ok
   ... | no ¬P | _ | _ | _ =
-    no (λ { (_ , prodrec-cong _ x _) → ¬P (_ , x) })
+    no (λ { (_ , prodrec-cong _ x _ _) → ¬P (_ , x) })
   ... | _ | no ¬r≈r′ | _ | _ =
-    no (λ { (_ , prodrec-cong _ _ _) → ¬r≈r′ PE.refl })
+    no (λ { (_ , prodrec-cong _ _ _ _) → ¬r≈r′ PE.refl })
   ... | _ | _ | no ¬p≈p′ | _ =
-    no (λ { (_ , prodrec-cong _ _ _) → ¬p≈p′ PE.refl })
+    no (λ { (_ , prodrec-cong _ _ _ _) → ¬p≈p′ PE.refl })
   ... | _ | _ | _ | no ¬q≈q′ =
-    no (λ { (_ , prodrec-cong _ _ _) → ¬q≈q′ PE.refl })
-  dec~↑ (prodrec-cong _ _ _) (var-refl _ _) = no λ { (_ , ()) }
-  dec~↑ (prodrec-cong _ _ _) (app-cong _ _) = no λ { (_ , ()) }
-  dec~↑ (prodrec-cong _ _ _) (fst-cong _) = no λ { (_ , ()) }
-  dec~↑ (prodrec-cong _ _ _) (snd-cong _) = no λ { (_ , ()) }
-  dec~↑ (prodrec-cong _ _ _) (natrec-cong _ _ _ _) = no λ { (_ , ()) }
-  dec~↑ (prodrec-cong _ _ _) (Emptyrec-cong _ _) = no λ { (_ , ()) }
+    no (λ { (_ , prodrec-cong _ _ _ _) → ¬q≈q′ PE.refl })
+  dec~↑ (prodrec-cong _ _ _ _) (var-refl _ _) = no λ { (_ , ()) }
+  dec~↑ (prodrec-cong _ _ _ _) (app-cong _ _) = no λ { (_ , ()) }
+  dec~↑ (prodrec-cong _ _ _ _) (fst-cong _) = no λ { (_ , ()) }
+  dec~↑ (prodrec-cong _ _ _ _) (snd-cong _) = no λ { (_ , ()) }
+  dec~↑ (prodrec-cong _ _ _ _) (natrec-cong _ _ _ _) = no λ { (_ , ()) }
+  dec~↑ (prodrec-cong _ _ _ _) (Emptyrec-cong _ _) = no λ { (_ , ()) }
 
   dec~↑ (Emptyrec-cong {p = p′} x x₁) (Emptyrec-cong {p = p″} x₄ x₅)
         with decConv↑ x x₄ | dec~↓ x₁ x₅ | p′ ≟ p″
@@ -425,7 +431,7 @@ mutual
   dec~↑ (Emptyrec-cong _ _) (snd-cong _) = no (λ { (_ , ()) })
   dec~↑ (Emptyrec-cong _ _) (app-cong _ _) = no (λ { (_ , ()) })
   dec~↑ (Emptyrec-cong _ _) (natrec-cong _ _ _ _) = no (λ { (_ , ()) })
-  dec~↑ (Emptyrec-cong _ _) (prodrec-cong _ _ _) = no λ{(_ , ())}
+  dec~↑ (Emptyrec-cong _ _) (prodrec-cong _ _ _ _) = no λ{(_ , ())}
 
   dec~↑′ : ∀ {k l R T}
         → ⊢ Γ ≡ Δ
@@ -673,14 +679,14 @@ mutual
                     sndConv = decConv↑TermConv Gfstt≡Gfstu sndConvT sndConvU
                 in  decConv↓Term-Σ-η ⊢t ⊢u tProd uProd P sndConv
   ... | no ¬P = no (λ { (Σ-η _ _ _ _ P _) → ¬P P } )
-  decConv↓Term (prod-cong x x₁ x₂ x₃) (prod-cong x₄ x₅ x₆ x₇)
+  decConv↓Term (prod-cong x x₁ x₂ x₃ ok) (prod-cong x₄ x₅ x₆ x₇ _)
     with decConv↑Term x₂ x₆
   ... | no ¬P = no λ eq → case prod-cong⁻¹ eq of λ
     (_ , _ , _ , _ , t , _) → ¬P t
   ... | yes P with decConv↑TermConv (substTypeEq (refl x₁) (soundnessConv↑Term P)) x₃ x₇
-  ... | yes Q = yes (prod-cong x x₁ P Q)
+  ... | yes Q = yes (prod-cong x x₁ P Q ok)
   ... | no ¬Q = no λ eq → case prod-cong⁻¹ eq of λ
-    (_ , _ , _ , _ , _ , u) → ¬Q u
+    (_ , _ , _ , _ , _ , u , _) → ¬Q u
   decConv↓Term (η-eq {p = p} {f = t} x₁ x₂ x₃ x₄ x₅) (η-eq {f = u} x₇ x₈ x₉ x₁₀ x₁₁)
     with decConv↑Term x₅ x₁₁
   ... | yes P =
@@ -709,9 +715,9 @@ mutual
     no (λ x₂ → decConv↓Term-ℕ (symConv↓Term′ x₂) x₁ (λ { ([~] A D whnfB ()) }))
   decConv↓Term  (suc-cong x) (zero-refl x₁) =
     no (λ { (ℕ-ins ([~] A D whnfB ())) ; (ne-ins x₂ x₃ () x₅) })
-  decConv↓Term (Σᵣ-ins x x₁ x₂) (prod-cong x₃ x₄ x₅ x₆) =
+  decConv↓Term (Σᵣ-ins x x₁ x₂) (prod-cong x₃ x₄ x₅ x₆ _) =
     no λ x₇ → decConv↓Term-Σᵣ x₇ x₂ (λ{ ()})
-  decConv↓Term (prod-cong x x₁ x₂ x₃) (Σᵣ-ins x₄ x₅ x₆) =
+  decConv↓Term (prod-cong x x₁ x₂ x₃ _) (Σᵣ-ins x₄ x₅ x₆) =
     no (λ x₇ → decConv↓Term-Σᵣ (symConv↓Term′ x₇) x₆ (λ{ ()}))
 
   -- Impossible cases
@@ -725,14 +731,14 @@ mutual
   decConv↓Term (ne-ins x x₁ () x₃) (univ x₄ x₅ x₆)
   decConv↓Term (ne-ins x x₁ () x₃) (zero-refl x₄)
   decConv↓Term (ne-ins x x₁ () x₃) (suc-cong x₄)
-  decConv↓Term (ne-ins x x₁ () x₃) (prod-cong x₄ x₅ x₆ x₇)
+  decConv↓Term (ne-ins x x₁ () x₃) (prod-cong x₄ x₅ x₆ x₇ _)
   decConv↓Term (ne-ins x x₁ () x₃) (η-eq x₄ x₅ x₆ x₇ x₈)
   decConv↓Term (ne-ins x x₁ () x₃) (Σ-η x₄ x₅ x₆ x₇ x₈ x₉)
   decConv↓Term (ne-ins x x₁ () x₃) (η-unit x₄ x₅ x₆ x₇)
   decConv↓Term (univ x x₁ x₂) (ne-ins x₃ x₄ () x₆)
   decConv↓Term (zero-refl x) (ne-ins x₁ x₂ () x₄)
   decConv↓Term (suc-cong x) (ne-ins x₁ x₂ () x₄)
-  decConv↓Term (prod-cong x x₁ x₂ x₃) (ne-ins x₄ x₅ () x₇)
+  decConv↓Term (prod-cong x x₁ x₂ x₃ _) (ne-ins x₄ x₅ () x₇)
   decConv↓Term (η-eq x x₁ x₂ x₃ x₄) (ne-ins x₅ x₆ () x₈)
   decConv↓Term (Σ-η x x₁ x₂ x₃ x₄ x₅) (ne-ins x₆ x₇ () x₉)
 

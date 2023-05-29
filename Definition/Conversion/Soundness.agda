@@ -15,6 +15,7 @@ open import Definition.Typed.Properties R
 open import Definition.Conversion R
 open import Definition.Conversion.Whnf R
 open import Definition.Typed.Consequences.InverseUniv R
+open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Consequences.NeTypeEq R
 
@@ -49,12 +50,12 @@ mutual
         ⊢F = proj₁ (syntacticEq F≡G)
     in  natrec-cong ⊢F F≡G (soundnessConv↑Term x₂)
                     (soundnessConv↑Term x₃) (soundness~↓ k~l)
-  soundness~↑ (prodrec-cong x x₁ x₂) =
+  soundness~↑ (prodrec-cong x x₁ x₂ ok₂) =
     let C≡E = soundnessConv↑ x
         g≡h = soundness~↓ x₁
         u≡v = soundnessConv↑Term x₂
-        ⊢F , ⊢G = syntacticΣ (proj₁ (syntacticEqTerm g≡h))
-    in  prodrec-cong ⊢F ⊢G C≡E g≡h u≡v
+        ⊢F , ⊢G , ok₁ = inversion-ΠΣ (proj₁ (syntacticEqTerm g≡h))
+    in  prodrec-cong ⊢F ⊢G C≡E g≡h u≡v ok₁ ok₂
   soundness~↑ (Emptyrec-cong x₁ k~l) =
     Emptyrec-cong (soundnessConv↑ x₁) (soundness~↓ k~l)
 
@@ -104,8 +105,8 @@ mutual
   soundnessConv↓Term (univ x x₁ x₂) = inverseUnivEq x (soundnessConv↓ x₂)
   soundnessConv↓Term (zero-refl ⊢Γ) = refl (zeroⱼ ⊢Γ)
   soundnessConv↓Term (suc-cong c) = suc-cong (soundnessConv↑Term c)
-  soundnessConv↓Term (prod-cong x x₁ x₂ x₃) =
-    prod-cong x x₁ (soundnessConv↑Term x₂) (soundnessConv↑Term x₃) _
+  soundnessConv↓Term (prod-cong x x₁ x₂ x₃ ok) =
+    prod-cong x x₁ (soundnessConv↑Term x₂) (soundnessConv↑Term x₃) ok
   soundnessConv↓Term (η-eq x x₁ y y₁ c) =
     let ⊢ΠFG = syntacticTerm x
         ⊢F , _ = syntacticΠ ⊢ΠFG

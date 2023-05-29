@@ -73,7 +73,7 @@ inversion-Unit = λ where
 inversion-ΠΣ-U :
   ∀ {F G C} →
   Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ∷ C →
-  Γ ⊢ F ∷ U × Γ ∙ F ⊢ G ∷ U × Γ ⊢ C ≡ U × ΠΣ-restriction b p
+  Γ ⊢ F ∷ U × Γ ∙ F ⊢ G ∷ U × Γ ⊢ C ≡ U × ΠΣ-restriction b p q
 inversion-ΠΣ-U (ΠΣⱼ x x₁ ok) = x , x₁ , refl (Uⱼ (wfTerm x)) , ok
 inversion-ΠΣ-U (conv x x₁)  =
   let a , b , c , ok = inversion-ΠΣ-U x
@@ -82,21 +82,21 @@ inversion-ΠΣ-U (conv x x₁)  =
 -- Inversion for Π- and Σ-types.
 inversion-ΠΣ :
   Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B →
-  Γ ⊢ A × Γ ∙ A ⊢ B × ΠΣ-restriction b p
+  Γ ⊢ A × Γ ∙ A ⊢ B × ΠΣ-restriction b p q
 inversion-ΠΣ = λ where
   (ΠΣⱼ ⊢A ⊢B ok) → ⊢A , ⊢B , ok
   (univ ⊢ΠΣAB)  → case inversion-ΠΣ-U ⊢ΠΣAB of λ where
     (⊢A , ⊢B , _ , ok) → univ ⊢A , univ ⊢B , ok
 
--- If a term has type ΠΣ⟨ b ⟩ p , q ▷ A ▹ B, then ΠΣ-restriction b p
+-- If a term has type ΠΣ⟨ b ⟩ p , q ▷ A ▹ B, then ΠΣ-restriction b p q
 -- holds.
 ⊢∷ΠΣ→ΠΣ-restriction :
-  Γ ⊢ t ∷ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B → ΠΣ-restriction b p
+  Γ ⊢ t ∷ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B → ΠΣ-restriction b p q
 ⊢∷ΠΣ→ΠΣ-restriction
   {Γ = Γ} {t = t} {b = b} {p = p} {q = q} {A = A} {B = B} =
   Γ ⊢ t ∷ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B  →⟨ syntacticTerm ⟩
   Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B      →⟨ proj₂ ∘→ proj₂ ∘→ inversion-ΠΣ ⟩
-  ΠΣ-restriction b p             □
+  ΠΣ-restriction b p q           □
 
 -- Inversion of variables
 inversion-var : ∀ {x C} → Γ ⊢ var x ∷ C → ∃ λ A → x ∷ A ∈ Γ × Γ ⊢ C ≡ A
@@ -139,11 +139,16 @@ inversion-app (conv d x) = let a , b , c , d , e , f = inversion-app d
 
 -- Inversion of lambda.
 inversion-lam : ∀ {t A} → Γ ⊢ lam p t ∷ A →
-  ∃₃ λ F G q → Γ ⊢ F × (Γ ∙ F ⊢ t ∷ G × Γ ⊢ A ≡ Π p , q ▷ F ▹ G)
-inversion-lam (lamⱼ x x₁) =
-  _ , _ , _ , x , x₁ , refl (ΠΣⱼ x (syntacticTerm x₁) _)
-inversion-lam (conv x x₁) = let a , b , c , d , e , f = inversion-lam x
-                            in  a , b , c , d , e , trans (sym x₁) f
+  ∃₃ λ F G q →
+     (Γ ⊢ F) ×
+     Γ ∙ F ⊢ t ∷ G ×
+     Γ ⊢ A ≡ Π p , q ▷ F ▹ G ×
+     Π-restriction p q
+inversion-lam (lamⱼ ⊢F ⊢G ok) =
+  _ , _ , _ , ⊢F , ⊢G , refl (ΠΣⱼ ⊢F (syntacticTerm ⊢G) ok) , ok
+inversion-lam (conv x x₁) =
+  let a , b , c , d , e , f , g = inversion-lam x
+  in  a , b , c , d , e , trans (sym x₁) f , g
 
 -- Inversion of products.
 inversion-prod :
@@ -155,7 +160,7 @@ inversion-prod :
     (Γ ⊢ t ∷ F) ×
     (Γ ⊢ u ∷ G [ t ]) ×
     Γ ⊢ A ≡ Σ⟨ m ⟩ p , q ▷ F ▹ G ×
-    Σ-restriction m p
+    Σ-restriction m p q
   -- NOTE fundamental theorem not required since prodⱼ has inversion built-in.
 inversion-prod (prodⱼ ⊢F ⊢G ⊢t ⊢u ok) =
   _ , _ , _ , ⊢F , ⊢G , ⊢t , ⊢u , refl (ΠΣⱼ ⊢F ⊢G ok) , ok
@@ -193,12 +198,13 @@ inversion-prodrec :
     (Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ C) ×
     Γ ⊢ t ∷ Σᵣ p , q ▷ F ▹ G ×
     Γ ∙ F ∙ G ⊢ u ∷ C [ prodᵣ p (var (x0 +1)) (var x0) ]↑² ×
-    Γ ⊢ A ≡ C [ t ]
-inversion-prodrec (prodrecⱼ ⊢F ⊢G ⊢C ⊢t ⊢u) =
-  _ , _ , _ , ⊢F , ⊢G , ⊢C , ⊢t , ⊢u , refl (substType ⊢C ⊢t)
+    Γ ⊢ A ≡ C [ t ] ×
+    Prodrec-restriction r p q′
+inversion-prodrec (prodrecⱼ ⊢F ⊢G ⊢C ⊢t ⊢u _ ok) =
+  _ , _ , _ , ⊢F , ⊢G , ⊢C , ⊢t , ⊢u , refl (substType ⊢C ⊢t) , ok
 inversion-prodrec (conv x x₁) =
-  let F , G , q , a , b , c , d , e , f = inversion-prodrec x
-  in  F , G , q , a , b , c , d , e , trans (sym x₁) f
+  let F , G , q , a , b , c , d , e , f , g = inversion-prodrec x
+  in  F , G , q , a , b , c , d , e , trans (sym x₁) f , g
 
 -- Inversion of star.
 inversion-star : Γ ⊢ star ∷ C → Γ ⊢ C ≡ Unit × Unit-restriction
@@ -231,7 +237,7 @@ whnfProduct x ℕₙ = ⊥-elim (U≢Σ (sym (inversion-ℕ x)))
 whnfProduct x Unitₙ = ⊥-elim (U≢Σ (sym (inversion-Unit-U x .proj₁)))
 whnfProduct x Emptyₙ = ⊥-elim (U≢Σ (sym (inversion-Empty x)))
 whnfProduct x lamₙ =
-  let _ , _ , _ , _ , _ , Σ≡Π = inversion-lam x
+  let _ , _ , _ , _ , _ , Σ≡Π , _ = inversion-lam x
   in  ⊥-elim (Π≢Σⱼ (sym Σ≡Π))
 whnfProduct x zeroₙ = ⊥-elim (ℕ≢Σ (sym (inversion-zero x)))
 whnfProduct x sucₙ =

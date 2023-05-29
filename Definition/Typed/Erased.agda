@@ -13,8 +13,8 @@ module Definition.Typed.Erased
   (open Type-restrictions R)
   -- The Unit restriction is assumed to hold.
   (Unit-ok : Unit-restriction)
-  -- The Σₚ restriction is assumed to hold for 𝟘.
-  (Σₚ-ok : Σₚ-restriction 𝟘)
+  -- The Σₚ restriction is assumed to hold for 𝟘 and 𝟘.
+  (Σₚ-ok : Σₚ-restriction 𝟘 𝟘)
   where
 
 open import Definition.Typed R
@@ -28,12 +28,20 @@ open import Definition.Typed.Properties R
 open import Definition.Untyped M as U hiding (_∷_; _[_])
 open import Definition.Untyped.Erased 𝕄
 
+open import Definition.Modality.Context 𝕄
+open import Definition.Modality.Properties 𝕄
+open import Definition.Modality.Usage 𝕄
+open import Definition.Modality.Usage.Inversion 𝕄
+
+open import Definition.Mode 𝕄
+
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nullary
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+import Tools.Reasoning.PartialOrder
 
 private variable
   Γ       : Con Term _
@@ -195,7 +203,36 @@ inversion-[]′ ⊢[] =
   where
   Γ′ = ε
   t′ = zero
-  A′ = Σₚ 𝟘 , 𝟙 ▷ ℕ ▹ natrec 𝟙 𝟙 𝟙 U Unit ℕ (var x0)
+  A′ = Σₚ 𝟘 , 𝟘 ▷ ℕ ▹ natrec 𝟙 𝟙 𝟙 U Unit ℕ (var x0)
+
+  -- As an aside, note that if A′ is well-resourced then 𝟙 is equal
+  -- to 𝟘.
+
+  A′-well-resourced→𝟙≡𝟘 : ∀ {γ} → γ ▸[ 𝟙ᵐ ] A′ → 𝟙 PE.≡ 𝟘
+  A′-well-resourced→𝟙≡𝟘 ▸A′ =
+    case inv-usage-ΠΣ ▸A′ of λ {
+      (invUsageΠΣ _ ▸nr _) →
+    case inv-usage-natrec ▸nr of λ {
+      (invUsageNatrec {δ = _ ∙ a} {η = _ ∙ b} {θ = _ ∙ c}
+         _ ▸ℕ ▸0 _ (_ ∙ 𝟙𝟘≤a∧c⊛b+𝟙c▷𝟙)) →
+    case inv-usage-ℕ ▸ℕ of λ {
+      (_ ∙ _ ∙ 𝟙𝟙≤𝟘 ∙ _) →
+    case inv-usage-var ▸0 of λ {
+      (_ ∙ c≤𝟙) →
+    ≤-antisym
+      (begin
+        𝟙      ≡˘⟨ ·-identityʳ _ ⟩
+        𝟙 · 𝟙  ≤⟨ 𝟙𝟙≤𝟘 ⟩
+        𝟘      ∎)
+      (begin
+         𝟘                        ≡˘⟨ ·-zeroʳ _ ⟩
+         𝟙 · 𝟘                    ≤⟨ 𝟙𝟘≤a∧c⊛b+𝟙c▷𝟙 ⟩
+         (a ∧ c) ⊛ b + 𝟙 · c ▷ 𝟙  ≤⟨ ⊛-ineq₂ _ _ _ ⟩
+         a ∧ c                    ≤⟨ ∧-decreasingʳ _ _ ⟩
+         c                        ≤⟨ c≤𝟙 ⟩
+         𝟙                        ∎) }}}}
+    where
+    open Tools.Reasoning.PartialOrder ≤-poset
 
   ⊢Γ′∙ℕ : ⊢ Γ′ ∙ ℕ
   ⊢Γ′∙ℕ = ε ∙ ℕⱼ ε
@@ -256,7 +293,10 @@ inversion-erased :
   ∃₂ λ q B → Γ ⊢ t ∷ Σₚ 𝟘 , q ▷ A ▹ B
 inversion-erased ⊢erased =
   case inversion-fst ⊢erased of λ (_ , C , q , ⊢B , ⊢C , ⊢t , ≡B) →
-  q , C , conv ⊢t (ΠΣ-cong ⊢B (_⊢_≡_.sym ≡B) (refl ⊢C) Σₚ-ok)
+    q
+  , C
+  , conv ⊢t
+      (ΠΣ-cong ⊢B (_⊢_≡_.sym ≡B) (refl ⊢C) (⊢∷ΠΣ→ΠΣ-restriction ⊢t))
 
 -- A certain form of inversion for erased does not hold.
 
@@ -273,7 +313,7 @@ inversion-erased ⊢erased =
   ⊢Γ′∙ℕ : ⊢ Γ′ ∙ ℕ
   ⊢Γ′∙ℕ = ε ∙ ℕⱼ ε
 
-  ⊢t′₁ : Γ′ ⊢ t′ ∷ Σ 𝟘 , 𝟙 ▷ ℕ ▹ ℕ
+  ⊢t′₁ : Γ′ ⊢ t′ ∷ Σ 𝟘 , 𝟘 ▷ ℕ ▹ ℕ
   ⊢t′₁ = prodⱼ (ℕⱼ ε) (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) Σₚ-ok
 
   ⊢erased-t′ : Γ′ ⊢ erased t′ ∷ A′

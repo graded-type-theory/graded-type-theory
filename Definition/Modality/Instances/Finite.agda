@@ -8,15 +8,15 @@ open import Tools.Nat
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Definition.Modality
-open import Definition.Modality.Restrictions
+open import Definition.Mode.Restrictions
 
 module Definition.Modality.Instances.Finite
   {a} {M : Set a} (𝕄 : Semiring-with-meet M)
   (fin : ∃ λ n → Σ (Fin (1+ n) → M)
                  λ f → Σ (M → Fin (1+ n))
                  λ f⁻¹ → ((p : M) → f (f⁻¹ p) ≡ p))
-  (restrictions : Restrictions M)
-  (open Restrictions restrictions)
+  (rs : Mode-restrictions)
+  (open Mode-restrictions rs)
   (𝟘-well-behaved : T 𝟘ᵐ-allowed → Has-well-behaved-zero M 𝕄) where
 
 private
@@ -68,4 +68,4 @@ f-f⁻¹ = proj₂ (proj₂ (proj₂ fin))
 isModality : Modality M
 isModality = LB.isModality
   where import Definition.Modality.Instances.LowerBounded
-               𝕄 ∞ ∞-min restrictions 𝟘-well-behaved as LB
+               𝕄 ∞ ∞-min rs 𝟘-well-behaved as LB

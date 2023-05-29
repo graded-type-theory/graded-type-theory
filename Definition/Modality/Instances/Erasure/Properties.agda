@@ -3,15 +3,15 @@
 ------------------------------------------------------------------------
 
 open import Definition.Modality.Instances.Erasure
-open import Definition.Modality.Restrictions
+open import Definition.Mode.Restrictions
 
 module Definition.Modality.Instances.Erasure.Properties
-  (restrictions : Restrictions Erasure)
+  (mrs : Mode-restrictions)
   where
 
-open Restrictions restrictions
+open Mode-restrictions mrs
 
-open import Definition.Modality.Instances.Erasure.Modality restrictions
+open import Definition.Modality.Instances.Erasure.Modality mrs
 
 open import Definition.Modality.Context ErasureModality
 open import Definition.Modality.Context.Properties ErasureModality public
@@ -34,6 +34,7 @@ open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat hiding (_+_)
 open import Tools.Nullary
+open import Tools.Product
 open import Tools.PropositionalEquality as PE using (_≡_; _≢_)
 import Tools.Reasoning.PartialOrder
 open import Tools.Unit
@@ -50,6 +51,7 @@ private
     x : Fin n
     p : Erasure
     mo : Mode
+    rs : Type-restrictions
 
 -- Addition on the left is a decreasing function
 -- γ + δ ≤ᶜ γ
@@ -214,30 +216,43 @@ inv-usage-prodₑ {m = Σᵣ} γ▸t = inv-usage-prodᵣ γ▸t
 ≢𝟘→≡ω {p = 𝟘} 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 PE.refl)
 ≢𝟘→≡ω {p = ω} _   = PE.refl
 
--- Type restrictions that disallow the following types:
--- * If 𝟘ᵐ is not allowed: Σ-types with η-equality for which the first
---   component's quantity is 𝟘.
+-- An instance of Type-restrictions is suitable for the full reduction
+-- theorem if Σₚ-restriction 𝟘 p implies that 𝟘ᵐ is allowed.
 
-erasure-restrictions : Type-restrictions
-erasure-restrictions = record
-  { Unit-restriction = ⊤
-  ; Σₚ-restriction   = λ where
-      𝟘 → T 𝟘ᵐ-allowed
-      ω → ⊤
-  }
+Suitable-for-full-reduction :
+  Type-restrictions → Set
+Suitable-for-full-reduction rs =
+  ∀ p → Σₚ-restriction 𝟘 p → T 𝟘ᵐ-allowed
+  where
+  open Type-restrictions rs
 
--- The full reduction assumptions hold for ErasureModality and
--- erasure-restrictions.
+-- Given an instance of Type-restrictions one can create a "suitable"
+-- instance.
+
+suitable-for-full-reduction :
+  Type-restrictions → ∃ Suitable-for-full-reduction
+suitable-for-full-reduction rs =
+    record rs
+      { ΠΣ-restriction = λ b p q →
+          ΠΣ-restriction b p q × T 𝟘ᵐ-allowed
+      }
+  , (λ _ → proj₂)
+  where
+  open Type-restrictions rs
+
+-- The full reduction assumptions hold for ErasureModality and any
+-- "suitable" Type-restrictions.
 
 full-reduction-assumptions :
-  Full-reduction-assumptions ErasureModality erasure-restrictions
-full-reduction-assumptions = record
+  Suitable-for-full-reduction rs →
+  Full-reduction-assumptions ErasureModality rs
+full-reduction-assumptions {rs = rs} 𝟘→𝟘ᵐ = record
   { ≤𝟘           = λ _ → greatest-elem _
   ; ·-increasing = λ where
-      {p = p} {q = 𝟘} _ → begin
+      {p = p} {r = 𝟘} _ → begin
         𝟘      ≡˘⟨ EM.·-zeroʳ _ ⟩
         p · 𝟘  ∎
-      {p = p} {q = ω} _ → begin
+      {p = p} {r = ω} _ → begin
         ω      ≤⟨ least-elem p ⟩
         p · ω  ∎
   ; ⌞⌟≡𝟙ᵐ→≤𝟙 = λ where
@@ -246,7 +261,7 @@ full-reduction-assumptions = record
         ω  ∎
       {p = 𝟘} ok →
         ⌞ 𝟘 ⌟ ≡ 𝟙ᵐ      →⟨ (λ hyp ok → ⌞⌟≡𝟙ᵐ→≉𝟘 ok hyp PE.refl) ⟩
-        ¬ T 𝟘ᵐ-allowed  →⟨ _$ ok ⟩
+        ¬ T 𝟘ᵐ-allowed  →⟨ _$ 𝟘→𝟘ᵐ _ ok ⟩
         ⊥               →⟨ ⊥-elim ⟩
         𝟘 ≤ ω           □
   }

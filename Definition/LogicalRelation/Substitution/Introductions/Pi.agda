@@ -175,7 +175,7 @@ private
   ([Γ] : ⊩ᵛ Γ)
   ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ]) →
   Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F] →
-  ΠΣ-restriction b p →
+  ΠΣ-restriction b p q →
   Γ ⊩ᵛ⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G / [Γ]
 ΠΣᵛ {b = BMΠ}   = ⟦ BΠ _ _ ⟧ᵛ
 ΠΣᵛ {b = BMΣ _} = ⟦ BΣ _ _ _ ⟧ᵛ
@@ -435,8 +435,9 @@ nd-congᵛ
   ([Γ] : ⊩ᵛ Γ)
   ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ]) →
   Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F] →
+  Π-restriction p q →
   Γ ⊩ᵛ⟨ l ⟩ Π p , q ▷ F ▹ G / [Γ]
-Πᵛ [Γ] [F] [G] = ⟦ BΠ _ _ ⟧ᵛ [Γ] [F] [G] _
+Πᵛ = ⟦ BΠ _ _ ⟧ᵛ
 
 Π-congᵛ :
   ([Γ] : ⊩ᵛ Γ)
@@ -446,9 +447,9 @@ nd-congᵛ
   Γ ∙ H ⊩ᵛ⟨ l ⟩ E / [Γ] ∙ [H] →
   Γ ⊩ᵛ⟨ l ⟩ F ≡ H / [Γ] / [F] →
   Γ ∙ F ⊩ᵛ⟨ l ⟩ G ≡ E / [Γ] ∙ [F] / [G] →
-  Γ ⊩ᵛ⟨ l ⟩ Π p , q ▷ F ▹ G ≡ Π p , q ▷ H ▹ E / [Γ] / Πᵛ [Γ] [F] [G]
-Π-congᵛ [Γ] [F] [G] [H] [E] [F≡H] [G≡E] =
-  W-congᵛ (BΠ _ _) [Γ] [F] [G] [H] [E] [F≡H] [G≡E] _
+  (ok : Π-restriction p q) →
+  Γ ⊩ᵛ⟨ l ⟩ Π p , q ▷ F ▹ G ≡ Π p , q ▷ H ▹ E / [Γ] / Πᵛ [Γ] [F] [G] ok
+Π-congᵛ = W-congᵛ (BΠ _ _)
 
 Πᵗᵛ :
   ([Γ] : ⊩ᵛ Γ)
@@ -456,9 +457,9 @@ nd-congᵛ
   ([U] : Γ ∙ F ⊩ᵛ⟨ ¹ ⟩ U / [Γ] ∙ [F]) →
   Γ ⊩ᵛ⟨ ¹ ⟩ F ∷ U / [Γ] / Uᵛ [Γ] →
   Γ ∙ F ⊩ᵛ⟨ ¹ ⟩ G ∷ U / [Γ] ∙ [F] / [U] →
+  Π-restriction p q →
   Γ ⊩ᵛ⟨ ¹ ⟩ Π p , q ▷ F ▹ G ∷ U / [Γ] / Uᵛ [Γ]
-Πᵗᵛ {G = G} [Γ] [F] [U] [Fₜ] [Gₜ] =
-  Wᵗᵛ {G = G} (BΠ _ _) [Γ] [F] [U] [Fₜ] [Gₜ] _
+Πᵗᵛ {G = G} = Wᵗᵛ {G = G} (BΠ _ _)
 
 Π-congᵗᵛ :
   ([Γ] : ⊩ᵛ_ {n = n} Γ)
@@ -472,19 +473,17 @@ nd-congᵛ
   Γ ∙ H ⊩ᵛ⟨ ¹ ⟩ E ∷ U / [Γ] ∙ [H] / [UH] →
   Γ ⊩ᵛ⟨ ¹ ⟩ F ≡ H ∷ U / [Γ] / Uᵛ [Γ] →
   Γ ∙ F ⊩ᵛ⟨ ¹ ⟩ G ≡ E ∷ U / [Γ] ∙ [F] / [UF] →
+  Π-restriction p q →
   Γ ⊩ᵛ⟨ ¹ ⟩ Π p , q ▷ F ▹ G ≡ Π p , q ▷ H ▹ E ∷ U / [Γ] / Uᵛ [Γ]
-Π-congᵗᵛ
-  {G = G} {E = E}
-  [Γ] [F] [H] [UF] [UH] [F]ₜ [G]ₜ [H]ₜ [E]ₜ [F≡H]ₜ [G≡E]ₜ =
-  W-congᵗᵛ {G = G} {E = E} (BΠ _ _) [Γ] [F] [H] [UF] [UH] [F]ₜ [G]ₜ
-    [H]ₜ [E]ₜ [F≡H]ₜ [G≡E]ₜ _
+Π-congᵗᵛ {G = G} {E = E} = W-congᵗᵛ {G = G} {E = E} (BΠ _ _)
 
 ▹▹ᵛ :
   ([Γ] : ⊩ᵛ Γ) →
   Γ ⊩ᵛ⟨ l ⟩ F / [Γ] →
   Γ ⊩ᵛ⟨ l ⟩ G / [Γ] →
+  Π-restriction p q →
   Γ ⊩ᵛ⟨ l ⟩ Π p , q ▷ F ▹ wk1 G / [Γ]
-▹▹ᵛ [Γ] [F] [G] = ndᵛ (BΠ _ _) [Γ] [F] [G] _
+▹▹ᵛ = ndᵛ (BΠ _ _)
 
 ▹▹-congᵛ :
   ([Γ] : ⊩ᵛ Γ)
@@ -494,10 +493,10 @@ nd-congᵛ
   ([G] : Γ ⊩ᵛ⟨ l ⟩ G / [Γ]) →
   Γ ⊩ᵛ⟨ l ⟩ G′ / [Γ] →
   Γ ⊩ᵛ⟨ l ⟩ G ≡ G′ / [Γ] / [G] →
+  (ok : Π-restriction p q) →
   Γ ⊩ᵛ⟨ l ⟩ Π p , q ▷ F ▹ wk1 G ≡ Π p , q ▷ F′ ▹ wk1 G′ / [Γ] /
-    ▹▹ᵛ [Γ] [F] [G]
-▹▹-congᵛ [Γ] [F] [F′] [F≡F′] [G] [G′] [G≡G′] =
-  nd-congᵛ (BΠ _ _) [Γ] [F] [F′] [F≡F′] [G] [G′] [G≡G′] _
+    ▹▹ᵛ [Γ] [F] [G] ok
+▹▹-congᵛ = nd-congᵛ (BΠ _ _)
 
 Σᵛ : ∀ {Γ : Con Term n} {F G l p q m} → _
 Σᵛ {Γ = Γ} {F} {G} {l} {p} {q} {m} = ⟦ BΣ m p q ⟧ᵛ {Γ = Γ} {F} {G} {l}

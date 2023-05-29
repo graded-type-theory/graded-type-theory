@@ -52,17 +52,15 @@ private
 -- A usage rule for Erased.
 
 ▸Erased :
-  Binder (BMΣ Σₚ) 𝟘 𝟘 →
   γ ▸[ 𝟘ᵐ[ ok ] ] A →
   𝟘ᶜ ▸[ m ] Erased A
-▸Erased {γ = γ} {ok = ok} {m = m} 𝟘-𝟘-ok ▸A = sub
+▸Erased {γ = γ} {ok = ok} {m = m} ▸A = sub
   (ΠΣₘ
      (▸-cong (PE.sym (ᵐ·𝟘≡𝟘ᵐ m ok)) (▸-𝟘 ▸A))
      (sub Unitₘ
         (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
            𝟘ᶜ ∙ ⌜ m ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
-           𝟘ᶜ              ∎))
-     𝟘-𝟘-ok)
+           𝟘ᶜ              ∎)))
   (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
      𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
      𝟘ᶜ +ᶜ 𝟘ᶜ  ∎)
@@ -102,7 +100,7 @@ private
 inv-usage-Erased : γ ▸[ m ] Erased A → 𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] A × γ ≤ᶜ 𝟘ᶜ
 inv-usage-Erased {γ = γ} {m = m} {ok = ok} ▸Erased =
   case inv-usage-ΠΣ ▸Erased of
-    λ (invUsageΠΣ {δ = δ} {η = η} ▸A ▸Unit γ≤ _) →
+    λ (invUsageΠΣ {δ = δ} {η = η} ▸A ▸Unit γ≤) →
     ▸-𝟘 ▸A
   , (begin
        γ        ≤⟨ γ≤ ⟩

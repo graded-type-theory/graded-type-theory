@@ -14,9 +14,10 @@ module Definition.Typed.Decidable
   (_≟_ : Decidable (PE._≡_ {A = M}))
   -- It is decidable whether the Unit restriction holds.
   (Unit-ok? : Dec Unit-restriction)
-  -- It is decidable whether the Σₚ restriction holds for a given
-  -- quantity.
-  (Σₚ-ok? : ∀ p → Dec (Σₚ-restriction p))
+  -- ΠΣ-restriction is pointwise decidable.
+  (ΠΣ-ok? : ∀ b p q → Dec (ΠΣ-restriction b p q))
+  -- Prodrec-restriction is pointwise decidable.
+  (Prodrec-ok? : ∀ r p q → Dec (Prodrec-restriction r p q))
   where
 
 open import Definition.Untyped M hiding (_∷_)
@@ -24,7 +25,8 @@ open import Definition.Typed R
 open import Definition.Typechecking R
 open import Definition.Typechecking.Soundness R
 open import Definition.Typechecking.Completeness R
-open import Definition.Typechecking.Decidable R _≟_ Unit-ok? Σₚ-ok?
+open import Definition.Typechecking.Decidable
+  R _≟_ Unit-ok? ΠΣ-ok? Prodrec-ok?
 
 open import Tools.Function
 open import Tools.Nat

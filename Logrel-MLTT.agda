@@ -145,9 +145,12 @@ import Definition.Typechecking.Decidable
 import Definition.Typed.Decidable
 
 -- Modality structure
-import Definition.Modality.Restrictions
+import Definition.Mode.Restrictions
 import Definition.Modality
-import Definition.Modality.Restrictions.Definitions
+import Definition.Modality.Type-restrictions
+
+-- Usage modes
+import Definition.Mode
 
 -- Properties of the modality semiring
 import Definition.Modality.Properties.PartialOrder
@@ -170,9 +173,6 @@ import Definition.Modality.Context.Properties.Star
 import Definition.Modality.Context.Properties.Lookup
 import Definition.Modality.Context.Properties.Update
 import Definition.Modality.Context.Properties
-
--- Usage modes
-import Definition.Mode
 
 -- The usage relation and its properties
 import Definition.Modality.Usage
@@ -225,6 +225,7 @@ import Definition.Modality.FullReduction
 -- Modality morphisms and quantity translations
 import Definition.Untyped.QuantityTranslation
 import Definition.Modality.Morphism
+import Definition.Modality.Morphism.Type-restrictions
 import Definition.Typed.QuantityTranslation
 import Definition.Modality.Context.QuantityTranslation
 import Definition.Mode.QuantityTranslation
@@ -270,8 +271,9 @@ import Erasure.LogicalRelation.Fundamental.Product
 import Erasure.LogicalRelation.Fundamental.Unit
 import Erasure.LogicalRelation.Fundamental
 
--- The fundamental lemma does not hold if erased matches
--- is allowed for open contexts
+-- The fundamental lemma does not hold in general without the
+-- assumption that erased matches are disallowed or the context is
+-- empty
 import Erasure.LogicalRelation.Fundamental.Counterexample
 
 -- Soundness of Extraction function

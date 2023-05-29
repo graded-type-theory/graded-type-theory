@@ -24,6 +24,7 @@ module Erasure.LogicalRelation.Fundamental.Lambda
   where
 
 open EqRelSet {{...}}
+open Type-restrictions R
 
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Properties.Escape R
@@ -78,10 +79,12 @@ lamʳ′ : ∀ {l} {Γ : Con Term n}
         ([t] : Γ ∙ F ⊩ᵛ⟨ l ⟩ t ∷ G / [Γ] ∙ [F] / [G])
         ([u] : Δ ⊩⟨ l ⟩ u ∷ subst σ F / proj₁ (unwrap [F] ⊢Δ [σ]))
         (u®w : u ®⟨ l ⟩ w ∷ subst σ F ◂ p / proj₁ (unwrap [F] ⊢Δ [σ]))
+      → Π-restriction p q
       → ((subst σ (lam p t)) ∘⟨ p ⟩ u) ®⟨ l ⟩ (T.subst σ′ (T.lam (erase t))) T.∘ w
         ∷ subst (consSubst σ u) G / proj₁ (unwrap [G] ⊢Δ ([σ] , [u]))
 lamʳ′ {F = F} {G = G} {γ = γ} {p = p} {t = t} {σ = σ} {σ′ = σ′}
-      {u = u} {w = w} {l = l} {Γ} [Γ] [F] [G] ⊩ʳt [σ] σ®σ′ [t] [u] u®w =
+      {u = u} {w = w} {l = l} {Γ}
+      [Γ] [F] [G] ⊩ʳt [σ] σ®σ′ [t] [u] u®w ok =
   let [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
       ⊢σF = escape [σF]
       [σG] = proj₁ (unwrap [G] {σ = liftSubst σ} (⊢Δ ∙ ⊢σF)
@@ -94,7 +97,7 @@ lamʳ′ {F = F} {G = G} {γ = γ} {p = p} {t = t} {σ = σ} {σ′ = σ′}
 
       t⇒t′ : Δ ⊢ lam p (subst (liftSubst σ) t) ∘⟨ p ⟩ u ⇒*
                subst (liftSubst σ) t [ u ] ∷ (subst (liftSubst σ) G [ u ])
-      t⇒t′ = redMany (β-red ⊢σF ⊢σG ⊢σt ⊢u PE.refl)
+      t⇒t′ = redMany (β-red ⊢σF ⊢σG ⊢σt ⊢u PE.refl ok)
       t⇒t″ = PE.subst (λ G → Δ ⊢ _ ⇒* _ ∷ G) (UP.singleSubstComp u σ G) t⇒t′
       v⇒v′ = T.trans (T.β-red {t = T.subst (T.liftSubst σ′) (erase t)} {u = w}) T.refl
 
@@ -112,16 +115,17 @@ lamʳ : ∀ {l} {Γ : Con Term n} → ([Γ] : ⊩ᵛ Γ) ([F] : Γ ⊩ᵛ⟨ l �
        ([t] : Γ ∙ F ⊩ᵛ⟨ l ⟩ t ∷ G / [Γ] ∙ [F] / [G])
        (⊩ʳt : γ ∙ ⌜ m ⌝ · p ▸ Γ ∙ F ⊩ʳ⟨ l ⟩ t ∷[ m ]
               G / [Γ] ∙ [F] / [G])
+       (ok : Π-restriction p q)
      → γ ▸ Γ ⊩ʳ⟨ l ⟩ lam p t ∷[ m ] Π p , q ▷ F ▹ G / [Γ] /
-       Πᵛ {F = F} {G = G} [Γ] [F] [G]
+       Πᵛ [Γ] [F] [G] ok
 
 lamʳ {F = F} {G = G} {t = t} {m = 𝟘ᵐ} {p = p} {q = q}
-     [Γ] [F] [G] [t] ⊩ʳt {σ = σ} {σ′ = σ′} [σ] σ®σ′
+     [Γ] [F] [G] [t] ⊩ʳt _ {σ = σ} {σ′ = σ′} [σ] σ®σ′
      with is-𝟘? 𝟘
 ... | yes _ = _
 ... | no 𝟘≢𝟘 = PE.⊥-elim (𝟘≢𝟘 PE.refl)
 lamʳ {F = F} {G = G} {t = t} {m = 𝟙ᵐ} {p = p} {q = q}
-     [Γ] [F] [G] [t] ⊩ʳt {σ = σ} {σ′ = σ′} [σ] σ®σ′
+     [Γ] [F] [G] [t] ⊩ʳt ok {σ = σ} {σ′ = σ′} [σ] σ®σ′
      with is-𝟘? ⌜ 𝟙ᵐ ⌝
 ... | yes 𝟙≡𝟘 = _
 ... | no 𝟙≢𝟘 with is-𝟘? p
@@ -139,7 +143,7 @@ lamʳ {F = F} {G = G} {t = t} {m = 𝟙ᵐ} {p = p} {q = q}
       ⊩ʳt′ = PE.subst (λ x → _ ∙ x ▸ _ ∙ F ⊩ʳ⟨ _ ⟩ t ∷[ 𝟙ᵐ ] G / [Γ] ∙ [F] / [G])
                       (·-identityˡ 𝟘) (subsumption′ {t = t} ([Γ] ∙ [F]) [G] ⊩ʳt)
       λta®λv↯ = lamʳ′ {t = t} {w = T.↯} [Γ] [F] [G] ⊩ʳt′
-                      [σ] σ®σ′ [t] [a]′ t®v◂𝟘
+                      [σ] σ®σ′ [t] [a]′ t®v◂𝟘 ok
   in  irrelevanceTerm′ (PE.sym (PE.trans (PE.cong (subst (sgSubst _))
                                                   (UP.wk-lift-id (subst (liftSubst σ) G)))
                                          (UP.singleSubstComp _ σ G)))
@@ -159,7 +163,7 @@ lamʳ {F = F} {G = G} {t = t} {m = 𝟙ᵐ} {p = p} {q = q}
       ⊩ʳt′ = PE.subst (λ x → _ ∙ x ▸ _ ∙ F ⊩ʳ⟨ _ ⟩ t ∷[ 𝟙ᵐ ] G / [Γ] ∙ [F] / [G])
                       (·-identityˡ p) (subsumption′ {t = t} ([Γ] ∙ [F]) [G] ⊩ʳt)
       λta®λvw = lamʳ′ {t = t} {w = w} [Γ] [F] [G] ⊩ʳt′
-                      [σ] σ®σ′ [t] [a]′ (a®w′ ◀ p)
+                      [σ] σ®σ′ [t] [a]′ (a®w′ ◀ p) ok
   in  irrelevanceTerm′ (PE.sym (PE.trans (PE.cong (subst (sgSubst _))
                                                   (UP.wk-lift-id (subst (liftSubst σ) G)))
                                          (UP.singleSubstComp _ σ G)))

@@ -86,10 +86,9 @@ var-usage-lookup (there x) = var-usage-lookup x
   sub Emptyₘ (≤ᶜ-reflexive (·ᶜ-zeroʳ _))
 ▸-· Unitₘ =
   sub Unitₘ (≤ᶜ-reflexive (·ᶜ-zeroʳ _))
-▸-· {m′ = m′} (ΠΣₘ F G ok) = sub
+▸-· {m′ = m′} (ΠΣₘ F G) = sub
   (ΠΣₘ (▸-cong (PE.sym (·ᵐ-ᵐ·-assoc m′)) (▸-· F))
-       (sub (▸-· G) (≤ᶜ-reflexive (≈ᶜ-refl ∙ ·ᵐ-·-assoc m′)))
-       ok)
+       (sub (▸-· G) (≤ᶜ-reflexive (≈ᶜ-refl ∙ ·ᵐ-·-assoc m′))))
   (≤ᶜ-reflexive (·ᶜ-distribˡ-+ᶜ _ _ _))
 ▸-· {m = m} {m′ = m′} (var {x = x}) = sub var
   (begin
@@ -139,13 +138,12 @@ var-usage-lookup (there x) = var-usage-lookup x
   λ m′·m≡𝟙 → ok (·ᵐ-𝟙ʳ m′·m≡𝟙)
 ▸-· (sndₘ t) =
   sndₘ (▸-· t)
-▸-· {m′ = m′} (prodrecₘ {γ = γ} {m = m} {r = r} {δ = δ} t u A P) = sub
+▸-· {m′ = m′} (prodrecₘ {γ = γ} {m = m} {r = r} {δ = δ} t u A) = sub
   (prodrecₘ
      (▸-cong (PE.sym (·ᵐ-ᵐ·-assoc m′)) (▸-· t))
      (sub (▸-· u)
         (≤ᶜ-reflexive (≈ᶜ-refl ∙ ·ᵐ-·-assoc m′ ∙ ·ᵐ-·-assoc m′)))
-     A
-     P)
+     A)
   (begin
      ⌜ m′ ⌝ ·ᶜ (r ·ᶜ γ +ᶜ δ)          ≈⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
      ⌜ m′ ⌝ ·ᶜ r ·ᶜ γ +ᶜ ⌜ m′ ⌝ ·ᶜ δ  ≈⟨ +ᶜ-congʳ
@@ -365,16 +363,15 @@ Conₘ-interchange Unitₘ Unitₘ x =
   subst (_▸[ _ ] _) (PE.sym (update-self 𝟘ᶜ x)) Unitₘ
 
 Conₘ-interchange
-  (ΠΣₘ {γ = γ} {δ = δ} γ▸t δ▸u ok)
-  (ΠΣₘ {γ = γ′} {δ = δ′} γ′▸t δ′▸u _) x =
+  (ΠΣₘ {γ = γ} {δ = δ} γ▸t δ▸u)
+  (ΠΣₘ {γ = γ′} {δ = δ′} γ′▸t δ′▸u) x =
   subst (_▸[ _ ] _)
     (begin
        (γ , x ≔ γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩)  ≡˘⟨ update-distrib-+ᶜ γ _ _ _ x ⟩
        γ +ᶜ δ , x ≔ γ′ ⟨ x ⟩ + δ′ ⟨ x ⟩          ≡˘⟨ cong (_ , x ≔_) (lookup-distrib-+ᶜ γ′ _ _) ⟩
        γ +ᶜ δ , x ≔ (γ′ +ᶜ δ′) ⟨ x ⟩             ∎)
     (ΠΣₘ (Conₘ-interchange γ▸t γ′▸t x)
-       (Conₘ-interchange δ▸u δ′▸u (x +1))
-       ok)
+       (Conₘ-interchange δ▸u δ′▸u (x +1)))
   where
   open Tools.Reasoning.PropositionalEquality
 
@@ -435,8 +432,8 @@ Conₘ-interchange (sndₘ γ▸t) (sndₘ δ▸t) x =
   sndₘ (Conₘ-interchange γ▸t δ▸t x)
 
 Conₘ-interchange
-  (prodrecₘ {γ = γ} {r = r} {δ = δ} γ▸t δ▸t η▸A P)
-  (prodrecₘ {γ = γ′} {δ = δ′} γ▸t₁ δ▸t₁ _ Q)
+  (prodrecₘ {γ = γ} {r = r} {δ = δ} γ▸t δ▸t η▸A)
+  (prodrecₘ {γ = γ′} {δ = δ′} γ▸t₁ δ▸t₁ _)
   x = subst (_▸[ _ ] _)
     (begin
        r ·ᶜ (γ , x ≔ γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩)      ≡˘⟨ cong (_+ᶜ _) (update-distrib-·ᶜ _ _ _ _) ⟩
@@ -447,8 +444,7 @@ Conₘ-interchange
     (prodrecₘ
        (Conₘ-interchange γ▸t γ▸t₁ x)
        (Conₘ-interchange δ▸t δ▸t₁ (x +1 +1))
-       η▸A
-       Q)
+       η▸A)
   where
   open Tools.Reasoning.PropositionalEquality
 
@@ -524,7 +520,7 @@ usage-upper-bound ℕₘ     = ≤ᶜ-refl
 usage-upper-bound Emptyₘ = ≤ᶜ-refl
 usage-upper-bound Unitₘ  = ≤ᶜ-refl
 
-usage-upper-bound (ΠΣₘ {G = G} ▸F ▸G _) =
+usage-upper-bound (ΠΣₘ {G = G} ▸F ▸G) =
   +ᶜ-monotone (usage-upper-bound ▸F)
               (subst (_ ≈ᶜ_) (tailₘ-distrib-∧ᶜ (_ ∙ _) (⌈ G ⌉ _))
                      (tailₘ-cong (usage-upper-bound ▸G)))
@@ -546,7 +542,7 @@ usage-upper-bound (prodₚₘ t u) =
     (usage-upper-bound u)
 usage-upper-bound (fstₘ _ t PE.refl _) = usage-upper-bound t
 usage-upper-bound (sndₘ t) = usage-upper-bound t
-usage-upper-bound (prodrecₘ t u A P) =
+usage-upper-bound (prodrecₘ t u A) =
   +ᶜ-monotone (·ᶜ-monotoneʳ (usage-upper-bound t))
               (tailₘ-monotone (tailₘ-monotone (usage-upper-bound u)))
 
@@ -576,13 +572,12 @@ usage-inf Uₘ = Uₘ
 usage-inf ℕₘ = ℕₘ
 usage-inf Emptyₘ = Emptyₘ
 usage-inf Unitₘ = Unitₘ
-usage-inf (ΠΣₘ {G = G} γ▸F δ▸G ok) =
+usage-inf (ΠΣₘ {G = G} γ▸F δ▸G) =
   ΠΣₘ (usage-inf γ▸F)
       (sub (usage-inf δ▸G)
            (subst (tailₘ (⌈ G ⌉ _) ∙ _ ≤ᶜ_)
                   (headₘ-tailₘ-correct (⌈ G ⌉ _))
                   (≤ᶜ-refl ∙ headₘ-monotone (usage-upper-bound δ▸G))))
-      ok
 usage-inf var = var
 usage-inf (lamₘ {p = p} {t = t} γ▸t) =
   lamₘ (sub (usage-inf γ▸t)
@@ -595,7 +590,7 @@ usage-inf (prodₚₘ γ▸t γ▸t₁) = prodₚₘ (usage-inf γ▸t) (usage-i
 usage-inf (fstₘ m γ▸t PE.refl ok) =
   fstₘ m (usage-inf γ▸t) PE.refl ok
 usage-inf (sndₘ γ▸t) = sndₘ (usage-inf γ▸t)
-usage-inf (prodrecₘ {p = p} {u = u} γ▸t δ▸u η▸A P) =
+usage-inf (prodrecₘ {p = p} {u = u} γ▸t δ▸u η▸A) =
   prodrecₘ (usage-inf γ▸t)
            (sub (usage-inf δ▸u)
                 (subst (tailₘ (tailₘ (⌈ u ⌉ _)) ∙ _ ∙ _ ≤ᶜ_)
@@ -605,7 +600,6 @@ usage-inf (prodrecₘ {p = p} {u = u} γ▸t δ▸u η▸A P) =
                           (headₘ-tailₘ-correct (⌈ u ⌉ _)))
                        (≤ᶜ-refl ∙ headₘ-monotone (tailₘ-monotone (usage-upper-bound δ▸u)) ∙ headₘ-monotone (usage-upper-bound δ▸u))))
            η▸A
-           P
 usage-inf zeroₘ = zeroₘ
 usage-inf (sucₘ γ▸t) = sucₘ (usage-inf γ▸t)
 usage-inf (natrecₘ {p = p} {r = r} {s = s} γ▸z δ▸s η▸n θ▸A) =

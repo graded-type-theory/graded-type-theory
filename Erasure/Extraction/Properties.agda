@@ -350,22 +350,22 @@ erased-hasX erased (sndₘ {p = p} γ▸) hasX with is-𝟘? p
 erased-hasX erased (sndₘ {p = _} γ▸) (sndₓ hasX) | no _ =
   erased-hasX erased γ▸ hasX
 
-erased-hasX erased (prodrecₘ {r = r} {p = p} ▸t ▸u _ P) hasX with is-𝟘? r
-erased-hasX erased (prodrecₘ {r = _} {p = _} ▸t ▸u _ P) (prodrecₓˡ (prodₓˡ ())) | yes _
-erased-hasX erased (prodrecₘ {r = _} {p = _} ▸t ▸u _ P) (prodrecₓˡ (prodₓʳ ())) | yes _
-erased-hasX erased (prodrecₘ {r = _} {p = _} ▸t ▸u _ P) (prodrecₓʳ hasX) | yes _ =
+erased-hasX erased (prodrecₘ {r = r} {p = p} ▸t ▸u _) hasX with is-𝟘? r
+erased-hasX erased (prodrecₘ ▸t ▸u _) (prodrecₓˡ (prodₓˡ ())) | yes _
+erased-hasX erased (prodrecₘ ▸t ▸u _) (prodrecₓˡ (prodₓʳ ())) | yes _
+erased-hasX erased (prodrecₘ ▸t ▸u _) (prodrecₓʳ hasX) | yes _ =
   erased-hasX (there (there (x◂𝟘∈γ+δʳ 𝟘-wb refl erased))) ▸u hasX
 ... | no _ with is-𝟘? p
-erased-hasX erased (prodrecₘ {r = _} {p = _} ▸t ▸u _ P)
+erased-hasX erased (prodrecₘ ▸t ▸u _)
             (prodrecₓˡ (prodₓʳ hasX)) | no r≢𝟘 | yes _ =
   erased-hasX (x◂𝟘∈pγ 𝟘-wb refl r≢𝟘 (x◂𝟘∈γ+δˡ 𝟘-wb refl erased))
               (▸-cong (≉𝟘→⌞⌟≡𝟙ᵐ r≢𝟘) ▸t) hasX
-erased-hasX erased (prodrecₘ {r = _} {p = _} ▸t ▸u _ P) (prodrecₓʳ hasX) | no _ | yes _ =
+erased-hasX erased (prodrecₘ ▸t ▸u _) (prodrecₓʳ hasX) | no _ | yes _ =
   erased-hasX (there (there (x◂𝟘∈γ+δʳ 𝟘-wb refl erased))) ▸u hasX
-erased-hasX erased (prodrecₘ {r = _} {p = _} ▸t ▸u _ P) (prodrecₓˡ hasX) | no r≢𝟘 | no _ =
+erased-hasX erased (prodrecₘ ▸t ▸u _) (prodrecₓˡ hasX) | no r≢𝟘 | no _ =
   erased-hasX (x◂𝟘∈pγ 𝟘-wb refl r≢𝟘 (x◂𝟘∈γ+δˡ 𝟘-wb refl erased))
               (▸-cong (≉𝟘→⌞⌟≡𝟙ᵐ r≢𝟘) ▸t) hasX
-erased-hasX erased (prodrecₘ {r = _} {p = _} ▸t ▸u _ P) (prodrecₓʳ hasX) | no _ | no _ =
+erased-hasX erased (prodrecₘ ▸t ▸u _) (prodrecₓʳ hasX) | no _ | no _ =
   erased-hasX (there (there (x◂𝟘∈γ+δʳ 𝟘-wb refl erased))) ▸u hasX
 
 erased-hasX erased (sucₘ γ▸t) (sucₓ hasX) =

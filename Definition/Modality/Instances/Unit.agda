@@ -5,12 +5,7 @@
 open import Tools.Bool
 open import Tools.Unit
 
-open import Definition.Modality.Restrictions ⊤
-
-module Definition.Modality.Instances.Unit
-  -- The modality uses the given term restrictions.
-  (restrictions : Term-restrictions)
-  where
+module Definition.Modality.Instances.Unit where
 
 open import Tools.Product
 open import Tools.PropositionalEquality
@@ -21,6 +16,9 @@ open import Definition.Modality ⊤ public
 open import Definition.Modality.FullReduction.Assumptions
 
 open import Definition.Typed.Restrictions ⊤
+
+private variable
+  rs : Type-restrictions
 
 -- Trivial addition (and multiplication and meet) operation
 
@@ -179,18 +177,17 @@ unit-semiring-with-meet-and-star = record
 UnitModality : Modality
 UnitModality = record
   { semiring-with-meet-and-star = unit-semiring-with-meet-and-star
-  ; restrictions = record
-    { term-restrictions = restrictions
-    ; 𝟘ᵐ-allowed = false
+  ; mode-restrictions = record
+    { 𝟘ᵐ-allowed = false
     }
   ; 𝟘-well-behaved = λ ()
   }
 
--- The full reduction assumptions hold for UnitModality without any
--- type restrictions.
+-- The full reduction assumptions hold for UnitModality and any type
+-- restrictions.
 
 full-reduction-assumptions :
-  Full-reduction-assumptions UnitModality no-restrictions
+  Full-reduction-assumptions UnitModality rs
 full-reduction-assumptions = record
   { ≤𝟘           = λ _ → refl
   ; ·-increasing = λ _ → refl

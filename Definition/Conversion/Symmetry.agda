@@ -21,6 +21,7 @@ open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Consequences.Equality R
 open import Definition.Typed.Consequences.Reduction R
 open import Definition.Typed.Consequences.Injectivity R
+open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Substitution R
 open import Definition.Typed.Consequences.SucCong R
 
@@ -83,7 +84,7 @@ mutual
                     (convConvTerm (symConv↑Term (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ) ∙ soundnessConv↑ x) x₂) (sucCong′ F≡G))
                     (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡ℕ u~t)
   sym~↑ {Γ = Γ} {Δ = Δ} Γ≡Δ
-    (prodrec-cong {F = F} {G = G} C↑E g~h u↑v) =
+    (prodrec-cong {F = F} {G = G} C↑E g~h u↑v ok₂) =
     case sym~↓ Γ≡Δ g~h of λ (B , whnfB , ⊢Σ≡B , h~g) →
     case Σ≡A ⊢Σ≡B whnfB of λ where
       (F′ , G′ , PE.refl) →
@@ -92,7 +93,7 @@ mutual
             let g≡h = soundness~↓ g~h
                 C≡E = soundnessConv↑ C↑E
                 ⊢Σ , _ = syntacticEqTerm g≡h
-                ⊢F , ⊢G = syntacticΣ ⊢Σ
+                ⊢F , ⊢G , ok₁ = inversion-ΠΣ ⊢Σ
                 E↑C = symConv↑ (Γ≡Δ ∙ ⊢Σ≡B) C↑E
                 v↑u = symConv↑Term (Γ≡Δ ∙ refl ⊢F ∙ refl ⊢G) u↑v
                 ⊢Γ , ⊢Δ , ⊢idsubst = contextConvSubst Γ≡Δ
@@ -103,11 +104,12 @@ mutual
                 ⊢ρF = W.wk (step (step id)) ⊢ΔFG ⊢F′
                 ⊢ρG = W.wk (lift (step (step id))) (⊢ΔFG ∙ ⊢ρF) ⊢G′
                 C₊≡E₊ = subst↑²TypeEq (stabilityEq (Γ≡Δ ∙ refl ⊢Σ) C≡E)
-                          _
+                          ok₁
             in  _ , substTypeEq C≡E g≡h
               , prodrec-cong E↑C h~g
                   (convConv↑Term (reflConEq ⊢Δ ∙ ⊢F≡F′ ∙ ⊢G≡G′)
                      C₊≡E₊ v↑u)
+                  ok₂
   sym~↑ Γ≡Δ (Emptyrec-cong x t~u) =
     let ⊢Γ , ⊢Δ , _ = contextConvSubst Γ≡Δ
         B , whnfB , A≡B , u~t = sym~↓ Γ≡Δ t~u
@@ -191,7 +193,7 @@ mutual
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
     in  zero-refl ⊢Δ
   symConv↓Term Γ≡Δ (suc-cong t<>u) = suc-cong (symConv↑Term Γ≡Δ t<>u)
-  symConv↓Term Γ≡Δ (prod-cong x x₁ x₂ x₃) =
+  symConv↓Term Γ≡Δ (prod-cong x x₁ x₂ x₃ ok) =
     let Δ⊢F = stability Γ≡Δ x
         Δ⊢G = stability (Γ≡Δ ∙ refl x) x₁
         Δ⊢t′↑t = symConv↑Term Γ≡Δ x₂
@@ -199,7 +201,7 @@ mutual
         Δ⊢u′↑u = symConv↑Term Γ≡Δ x₃
         Gt≡Gt′ = substTypeEq (refl Δ⊢G) (sym (soundnessConv↑Term Δ⊢t′↑t))
     in  prod-cong Δ⊢F Δ⊢G Δ⊢t′↑t
-          (convConv↑Term (reflConEq ⊢Δ) Gt≡Gt′ Δ⊢u′↑u)
+          (convConv↑Term (reflConEq ⊢Δ) Gt≡Gt′ Δ⊢u′↑u) ok
   symConv↓Term Γ≡Δ (η-eq x₁ x₂ y y₁ t<>u) =
     let ⊢F , _ = syntacticΠ (syntacticTerm x₁)
     in  η-eq (stabilityTerm Γ≡Δ x₂) (stabilityTerm Γ≡Δ x₁)

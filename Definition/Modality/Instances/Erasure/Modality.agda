@@ -3,10 +3,10 @@
 ------------------------------------------------------------------------
 
 open import Definition.Modality.Instances.Erasure
-open import Definition.Modality.Restrictions
+open import Definition.Mode.Restrictions
 
 module Definition.Modality.Instances.Erasure.Modality
-  (restrictions : Restrictions Erasure)
+  (rs : Mode-restrictions)
   where
 
 open import Tools.Product
@@ -70,6 +70,6 @@ erasure-semiring-with-meet-and-star = record
 ErasureModality : Modality
 ErasureModality = record
   { semiring-with-meet-and-star = erasure-semiring-with-meet-and-star
-  ; restrictions = restrictions
+  ; mode-restrictions = rs
   ; 𝟘-well-behaved = λ _ → erasure-has-well-behaved-zero
   }

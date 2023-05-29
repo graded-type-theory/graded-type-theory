@@ -42,7 +42,7 @@ noU (Emptyⱼ x) ()
 noU (ΠΣⱼ t _ _) (∃ΠΣ₁ ufull) = noU t ufull
 noU (ΠΣⱼ _ t _) (∃ΠΣ₂ ufull) = noU t ufull
 noU (var x₁ x₂) ()
-noU (lamⱼ x t₁) ()
+noU (lamⱼ _ _ _) ()
 noU (t ∘ⱼ t₁) ()
 noU (zeroⱼ x) ()
 noU (sucⱼ t) ()

@@ -14,9 +14,10 @@ module Definition.Typechecking.Decidable
   (_≟_ : Decidable (PE._≡_ {A = M}))
   -- It is decidable whether the Unit restriction holds.
   (Unit-ok? : Dec Unit-restriction)
-  -- It is decidable whether the Σₚ restriction holds for a given
-  -- quantity.
-  (Σₚ-ok? : ∀ p → Dec (Σₚ-restriction p))
+  -- ΠΣ-restriction is pointwise decidable.
+  (ΠΣ-ok? : ∀ b p q → Dec (ΠΣ-restriction b p q))
+  -- Prodrec-restriction is pointwise decidable.
+  (Prodrec-ok? : ∀ r p q → Dec (Prodrec-restriction r p q))
   where
 
 open import Definition.Typechecking R
@@ -26,6 +27,7 @@ open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Weakening R as W
 open import Definition.Typed.Consequences.Inequality R
+open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Consequences.Substitution R
 open import Definition.Typed.Decidable.Equality R _≟_
@@ -47,24 +49,6 @@ private
     Γ : Con Term n
     t u A B : Term n
     p q r : M
-
-private
-
-  -- It is decidable whether the Σ restriction holds for a given
-  -- SigmaMode and quantity.
-
-  Σ-ok? : ∀ s p → Dec (Σ-restriction s p)
-  Σ-ok? = λ where
-    Σₚ → Σₚ-ok?
-    Σᵣ → λ _ → yes _
-
-  -- It is decidable whether the ΠΣ restriction holds for a given
-  -- BinderMode and quantity.
-
-  ΠΣ-ok? : ∀ b p → Dec (ΠΣ-restriction b p)
-  ΠΣ-ok? = λ where
-    BMΠ     → λ _ → yes _
-    (BMΣ s) → Σ-ok? s
 
 dec⇉-var : (x : Fin n) → ∃ λ A → x ∷ A ∈ Γ
 dec⇉-var {Γ = Γ ∙ A} x0 = _ , here
@@ -317,41 +301,48 @@ mutual
 
   dec⇉-prodrec : ⊢ Γ → Checkable A → Inferable t → Checkable u
                → Dec (∃ λ B → Γ ⊢ prodrec r p q A t u ⇉ B)
-  dec⇉-prodrec {p = p′} ⊢Γ A t u = case dec⇉ ⊢Γ t of λ where
-    (yes (B , t⇉B)) → case isΣᵣ (proj₁ (soundness⇉ ⊢Γ t⇉B)) of λ where
-      (yes (F , G , p , q , ⊢F , ⊢G , B⇒Σ)) →
-        case dec⇇Type (⊢Γ ∙ ΠΣⱼ ⊢F ⊢G _) A of λ where
-          (yes A⇇Type) →
-            let ⊢ΓΣ = ⊢Γ ∙ ΠΣⱼ {p = p} ⊢F ⊢G _
-                ⊢A = soundness⇇Type ⊢ΓΣ A⇇Type
-                ⊢A₊ = subst↑²Type ⊢A _
-            in  case dec⇇ (⊢Γ ∙ ⊢F ∙ ⊢G) u ⊢A₊ of λ where
-              (yes u⇇A₊) → case p ≟ p′ of λ where
-                (yes PE.refl) →
-                  yes (_ , prodrecᵢ A⇇Type t⇉B (B⇒Σ , ΠΣₙ) u⇇A₊)
-                (no p≉p′) → no λ where
-                  (_ , prodrecᵢ _ x₁ x₂ _) →
+  dec⇉-prodrec {r = r} {p = p′} {q = q} ⊢Γ A t u =
+    case dec⇉ ⊢Γ t of λ where
+      (yes (B , t⇉B)) → case isΣᵣ (proj₁ (soundness⇉ ⊢Γ t⇉B)) of λ where
+        (yes (F , G , p , _ , ⊢F , ⊢G , B⇒Σ)) →
+          case inversion-ΠΣ (syntacticRed B⇒Σ .proj₂) of λ {
+            (_ , _ , ok₁) →
+          case dec⇇Type (⊢Γ ∙ ΠΣⱼ ⊢F ⊢G ok₁) A of λ where
+            (yes A⇇Type) →
+              let ⊢ΓΣ = ⊢Γ ∙ ΠΣⱼ {p = p} ⊢F ⊢G ok₁
+                  ⊢A = soundness⇇Type ⊢ΓΣ A⇇Type
+                  ⊢A₊ = subst↑²Type ⊢A ok₁
+              in  case dec⇇ (⊢Γ ∙ ⊢F ∙ ⊢G) u ⊢A₊ of λ where
+                (yes u⇇A₊) → case p ≟ p′ of λ where
+                  (yes PE.refl) → case Prodrec-ok? r p q of λ where
+                    (yes ok₂) →
+                      yes (_ , prodrecᵢ A⇇Type t⇉B (B⇒Σ , ΠΣₙ) u⇇A₊ ok₂)
+                    (no not-ok₂) → no λ where
+                      (_ , prodrecᵢ _ _ _ _ ok₂) → not-ok₂ ok₂
+                  (no p≉p′) → no λ where
+                    (_ , prodrecᵢ _ x₁ x₂ _ _) →
+                      case deterministic⇉ t⇉B x₁ of λ where
+                        PE.refl → case whrDet* (B⇒Σ , ΠΣₙ) x₂ of λ where
+                          PE.refl → p≉p′ PE.refl
+                (no ¬u⇇A₊) → no λ where
+                  (_ , prodrecᵢ _ x₁ x₂ x₃ _) →
                     case deterministic⇉ t⇉B x₁ of λ where
-                      PE.refl → case whrDet* (B⇒Σ , ΠΣₙ) x₂ of λ where
-                        PE.refl → p≉p′ PE.refl
-              (no ¬u⇇A₊) → no λ where
-                (_ , prodrecᵢ _ x₁ x₂ x₃) →
-                  case deterministic⇉ t⇉B x₁ of λ where
-                     PE.refl → case whrDet* (B⇒Σ , ΠΣₙ) x₂ of λ where
-                       PE.refl → ¬u⇇A₊ x₃
-          (no ¬A⇇Type) → no λ where
-            (_ , prodrecᵢ x x₁ x₂ _) →
-              case deterministic⇉ t⇉B x₁ of λ where
-                PE.refl → case whrDet* (B⇒Σ , ΠΣₙ) x₂ of λ where
-                  PE.refl → ¬A⇇Type x
-      (no ¬isΣ) → no λ where
-        (_ , prodrecᵢ x x₁ x₂ x₃) → case deterministic⇉ t⇉B x₁ of λ where
-           PE.refl →
-             let _ , ⊢Σ = syntacticRed (proj₁ x₂)
-                 ⊢F , ⊢G = syntacticΣ ⊢Σ
-             in  ¬isΣ (_ , _ , _ , _ , ⊢F , ⊢G , proj₁ x₂)
-    (no ¬t⇉B) → no λ where
-      (_ , prodrecᵢ x x₁ x₂ x₃) → ¬t⇉B (_ , x₁)
+                       PE.refl → case whrDet* (B⇒Σ , ΠΣₙ) x₂ of λ where
+                         PE.refl → ¬u⇇A₊ x₃
+            (no ¬A⇇Type) → no λ where
+              (_ , prodrecᵢ x x₁ x₂ _ _) →
+                case deterministic⇉ t⇉B x₁ of λ where
+                  PE.refl → case whrDet* (B⇒Σ , ΠΣₙ) x₂ of λ where
+                    PE.refl → ¬A⇇Type x }
+        (no ¬isΣ) → no λ where
+          (_ , prodrecᵢ _ x₁ x₂ _ _) →
+            case deterministic⇉ t⇉B x₁ of λ where
+              PE.refl →
+                let _ , ⊢Σ = syntacticRed (proj₁ x₂)
+                    ⊢F , ⊢G = syntacticΣ ⊢Σ
+                in  ¬isΣ (_ , _ , _ , _ , ⊢F , ⊢G , proj₁ x₂)
+      (no ¬t⇉B) → no λ where
+        (_ , prodrecᵢ x x₁ x₂ x₃ _) → ¬t⇉B (_ , x₁)
 
   dec⇉-Emptyrec : ⊢ Γ → Checkable A → Checkable t → Dec (∃ λ B → Γ ⊢ Emptyrec p A t ⇉ B)
   dec⇉-Emptyrec ⊢Γ A t = case dec⇇Type ⊢Γ A of λ where
@@ -366,19 +357,21 @@ mutual
 
   dec⇉Type : ⊢ Γ → Inferable A → Dec (Γ ⊢ A ⇇Type)
   dec⇉Type ⊢Γ Uᵢ = yes Uᶜ
-  dec⇉Type ⊢Γ (ΠΣᵢ {b = b} {p = p} F G) = case dec⇇Type ⊢Γ F of λ where
-    (yes F⇇Type) → case dec⇇Type (⊢Γ ∙ soundness⇇Type ⊢Γ F⇇Type) G of λ where
-      (yes G⇇Type) → case ΠΣ-ok? b p of λ where
-        (yes ok)    → yes (ΠΣᶜ F⇇Type G⇇Type ok)
-        (no not-ok) → no λ where
-          (ΠΣᶜ _ _ ok)                  → not-ok ok
-          (univᶜ (infᶜ (ΠΣᵢ _ _ ok) _)) → not-ok ok
-      (no ¬G⇇Type) → no λ where
-        (ΠΣᶜ _ x _)                  → ¬G⇇Type x
-        (univᶜ (infᶜ (ΠΣᵢ _ x _) _)) → ¬G⇇Type (univᶜ x)
-    (no ¬F⇇Type) → no λ where
-      (ΠΣᶜ x _ _)                  → ¬F⇇Type x
-      (univᶜ (infᶜ (ΠΣᵢ x _ _) _)) → ¬F⇇Type (univᶜ x)
+  dec⇉Type ⊢Γ (ΠΣᵢ {b = b} {p = p} {q = q} F G) =
+    case dec⇇Type ⊢Γ F of λ where
+      (yes F⇇Type) →
+        case dec⇇Type (⊢Γ ∙ soundness⇇Type ⊢Γ F⇇Type) G of λ where
+          (yes G⇇Type) → case ΠΣ-ok? b p q of λ where
+            (yes ok)    → yes (ΠΣᶜ F⇇Type G⇇Type ok)
+            (no not-ok) → no λ where
+              (ΠΣᶜ _ _ ok)                  → not-ok ok
+              (univᶜ (infᶜ (ΠΣᵢ _ _ ok) _)) → not-ok ok
+          (no ¬G⇇Type) → no λ where
+            (ΠΣᶜ _ x _)                  → ¬G⇇Type x
+            (univᶜ (infᶜ (ΠΣᵢ _ x _) _)) → ¬G⇇Type (univᶜ x)
+      (no ¬F⇇Type) → no λ where
+        (ΠΣᶜ x _ _)                  → ¬F⇇Type x
+        (univᶜ (infᶜ (ΠΣᵢ x _ _) _)) → ¬F⇇Type (univᶜ x)
   dec⇉Type ⊢Γ (varᵢ {x = x}) = case dec⇇-var x (Uⱼ ⊢Γ) of λ where
     (yes x⇇U) → yes (univᶜ x⇇U)
     (no ¬x⇇U) → no λ where
@@ -458,18 +451,19 @@ mutual
 
   dec⇉ : ⊢ Γ → Inferable t → Dec (∃ λ A → Γ ⊢ t ⇉ A)
   dec⇉ ⊢Γ Uᵢ = no λ where (A , ())
-  dec⇉ ⊢Γ (ΠΣᵢ {b = b} {p = p} F G) = case dec⇇ ⊢Γ F (Uⱼ ⊢Γ) of λ where
-    (yes F⇇U) →
-      let ⊢F = soundness⇇ ⊢Γ F⇇U
-      in  case dec⇇ (⊢Γ ∙ univ ⊢F) G (Uⱼ (⊢Γ ∙ univ ⊢F)) of λ where
-        (yes G⇇U) → case ΠΣ-ok? b p of λ where
-          (yes ok)    → yes (_ , ΠΣᵢ F⇇U G⇇U ok)
-          (no not-ok) → no λ where
-            (_ , ΠΣᵢ _ _ ok) → not-ok ok
-        (no ¬G⇇U) → no λ where
-          (_ , ΠΣᵢ _ x _) → ¬G⇇U x
-    (no ¬F⇇U) → no λ where
-      (_ , ΠΣᵢ x _ _) → ¬F⇇U x
+  dec⇉ ⊢Γ (ΠΣᵢ {b = b} {p = p} {q = q} F G) =
+    case dec⇇ ⊢Γ F (Uⱼ ⊢Γ) of λ where
+      (yes F⇇U) →
+        let ⊢F = soundness⇇ ⊢Γ F⇇U
+        in  case dec⇇ (⊢Γ ∙ univ ⊢F) G (Uⱼ (⊢Γ ∙ univ ⊢F)) of λ where
+          (yes G⇇U) → case ΠΣ-ok? b p q of λ where
+            (yes ok)    → yes (_ , ΠΣᵢ F⇇U G⇇U ok)
+            (no not-ok) → no λ where
+              (_ , ΠΣᵢ _ _ ok) → not-ok ok
+          (no ¬G⇇U) → no λ where
+            (_ , ΠΣᵢ _ x _) → ¬G⇇U x
+      (no ¬F⇇U) → no λ where
+        (_ , ΠΣᵢ x _ _) → ¬F⇇U x
   dec⇉ ⊢Γ varᵢ = yes (_ , varᵢ (proj₂ (dec⇉-var _)))
   dec⇉ ⊢Γ (∘ᵢ t u) = dec⇉-app ⊢Γ t u
   dec⇉ ⊢Γ (fstᵢ t) = dec⇉-fst ⊢Γ t

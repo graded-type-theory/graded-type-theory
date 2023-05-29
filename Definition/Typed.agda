@@ -55,7 +55,7 @@ mutual
     Unitⱼ  : ⊢ Γ → Unit-restriction → Γ ⊢ Unit
     ΠΣⱼ    : Γ     ⊢ F
            → Γ ∙ F ⊢ G
-           → ΠΣ-restriction b p
+           → ΠΣ-restriction b p q
            → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
     univ   : Γ ⊢ A ∷ U
            → Γ ⊢ A
@@ -65,7 +65,7 @@ mutual
     ΠΣⱼ       : ∀ {F G}
               → Γ     ⊢ F ∷ U
               → Γ ∙ F ⊢ G ∷ U
-              → ΠΣ-restriction b p
+              → ΠΣ-restriction b p q
               → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ∷ U
     ℕⱼ        : ⊢ Γ → Γ ⊢ ℕ ∷ U
     Emptyⱼ    : ⊢ Γ → Γ ⊢ Empty ∷ U
@@ -79,6 +79,7 @@ mutual
     lamⱼ      : ∀ {F G t}
               → Γ     ⊢ F
               → Γ ∙ F ⊢ t ∷ G
+              → Π-restriction p q
               → Γ     ⊢ lam p t ∷ Π p , q ▷ F ▹ G
     _∘ⱼ_      : ∀ {g a F G}
               → Γ ⊢     g ∷ Π p , q ▷ F ▹ G
@@ -90,7 +91,7 @@ mutual
               → Γ ∙ F ⊢ G
               → Γ ⊢ t ∷ F
               → Γ ⊢ u ∷ G [ t ]
-              → Σ-restriction m p
+              → Σ-restriction m p q
               → Γ ⊢ prod m p t u ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
     fstⱼ      : ∀ {F G t}
               → Γ ⊢ F
@@ -108,6 +109,8 @@ mutual
               → Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ A
               → Γ ⊢ t ∷ Σᵣ p , q ▷ F ▹ G
               → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
+              → Σᵣ-restriction p q
+              → Prodrec-restriction r p q′
               → Γ ⊢ prodrec r p q′ A t u ∷ A [ t ]
     zeroⱼ     : ⊢ Γ
               → Γ ⊢ zero ∷ ℕ
@@ -151,7 +154,7 @@ mutual
            → Γ     ⊢ F
            → Γ     ⊢ F ≡ H
            → Γ ∙ F ⊢ G ≡ E
-           → ΠΣ-restriction b p
+           → ΠΣ-restriction b p q
            → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ≡ ΠΣ⟨ b ⟩ p , q ▷ H ▹ E
 
   -- Term equality
@@ -174,7 +177,7 @@ mutual
                   → Γ     ⊢ F
                   → Γ     ⊢ F ≡ H ∷ U
                   → Γ ∙ F ⊢ G ≡ E ∷ U
-                  → ΠΣ-restriction b p
+                  → ΠΣ-restriction b p q
                   → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ≡
                             ΠΣ⟨ b ⟩ p , q ▷ H ▹ E ∷ U
     app-cong      : ∀ {a b f g F G}
@@ -187,6 +190,8 @@ mutual
                   → Γ ∙ F ⊢ t ∷ G
                   → Γ     ⊢ a ∷ F
                   → p ≈ p′
+                  → -- Note that q can be chosen arbitrarily.
+                    Π-restriction p q
                   → Γ     ⊢ lam p t ∘⟨ p′ ⟩ a ≡ t [ a ] ∷ G [ a ]
     η-eq          : ∀ {f g F G}
                   → Γ     ⊢ F
@@ -209,7 +214,7 @@ mutual
                   → Γ ∙ F ⊢ G
                   → Γ ⊢ t ≡ t′ ∷ F
                   → Γ ⊢ u ≡ u′ ∷ G [ t ]
-                  → Σ-restriction m p
+                  → Σ-restriction m p q
                   → Γ ⊢ prod m p t u ≡ prod m p t′ u′ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
     Σ-β₁          : ∀ {F G t u}
                   → Γ ⊢ F
@@ -217,7 +222,8 @@ mutual
                   → Γ ⊢ t ∷ F
                   → Γ ⊢ u ∷ G [ t ]
                   → p ≈ p′
-                  → Σₚ-restriction p
+                  → -- Note that q can be chosen arbitrarily.
+                    Σₚ-restriction p q
                   → Γ ⊢ fst p (prodₚ p′ t u) ≡ t ∷ F
     Σ-β₂          : ∀ {F G t u}
                   → Γ ⊢ F
@@ -225,7 +231,8 @@ mutual
                   → Γ ⊢ t ∷ F
                   → Γ ⊢ u ∷ G [ t ]
                   → p ≈ p′
-                  → Σₚ-restriction p
+                  → -- Note that q can be chosen arbitrarily.
+                    Σₚ-restriction p q
                   → Γ ⊢ snd p (prodₚ p′ t u) ≡ u ∷ G [ fst p (prodₚ p′ t u) ]
     Σ-η           : ∀ {t u F G}
                   → Γ ⊢ F
@@ -241,6 +248,8 @@ mutual
                   → Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ A ≡ A′
                   → Γ ⊢ t ≡ t′ ∷ Σᵣ p , q ▷ F ▹ G
                   → Γ ∙ F ∙ G ⊢ u ≡ u′ ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
+                  → Σᵣ-restriction p q
+                  → Prodrec-restriction r p q′
                   → Γ ⊢ prodrec r p q′ A t u ≡ prodrec r p q′ A′ t′ u′ ∷ A [ t ]
     prodrec-β     : ∀ {t t′ u F G A}
                   → Γ ⊢ F
@@ -250,6 +259,8 @@ mutual
                   → Γ ⊢ t′ ∷ G [ t ]
                   → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
                   → p ≈ p′
+                  → Σᵣ-restriction p q
+                  → Prodrec-restriction r p q′
                   → Γ ⊢ prodrec r p q′ A (prodᵣ p′ t t′) u ≡
                         u [ t , t′ ] ∷ A [ prodᵣ p′ t t′ ]
     suc-cong      : ∀ {m n}
@@ -300,6 +311,8 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                  → Γ ∙ A ⊢ t ∷ B
                  → Γ     ⊢ a ∷ A
                  → p ≈ p′
+                 → -- Note that q can be chosen arbitrarily.
+                   Π-restriction p q
                  → Γ     ⊢ lam p t ∘⟨ p′ ⟩ a ⇒ t [ a ] ∷ B [ a ]
   fst-subst      : ∀ {t t' F G}
                  → Γ ⊢ F
@@ -317,7 +330,8 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                  → Γ ⊢ t ∷ F
                  → Γ ⊢ u ∷ G [ t ]
                  → p ≈ p′
-                 → Σₚ-restriction p
+                 → -- Note that q can be chosen arbitrarily.
+                   Σₚ-restriction p q
                  → Γ ⊢ fst p (prodₚ p′ t u) ⇒ t ∷ F
   Σ-β₂           : ∀ {F G t u}
                  → Γ ⊢ F
@@ -326,7 +340,8 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                  → Γ ⊢ u ∷ G [ t ]
                  -- TODO(WN): Prove that 𝔍 ∷ G [ t ] is admissible
                  → p ≈ p′
-                 → Σₚ-restriction p
+                 → -- Note that q can be chosen arbitrarily.
+                   Σₚ-restriction p q
                  → Γ ⊢ snd p (prodₚ p′ t u) ⇒ u ∷ G [ fst p (prodₚ p′ t u) ]
   prodrec-subst  : ∀ {t t′ F G A}
                  → Γ ⊢ F
@@ -334,6 +349,8 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                  → Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ A
                  → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
                  → Γ ⊢ t ⇒ t′ ∷ Σᵣ p , q ▷ F ▹ G
+                 → Σᵣ-restriction p q
+                 → Prodrec-restriction r p q′
                  → Γ ⊢ prodrec r p q′ A t u ⇒ prodrec r p q′ A t′ u ∷ A [ t ]
   prodrec-β      : ∀ {A F G t t′ u}
                  → Γ ⊢ F
@@ -343,6 +360,8 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                  → Γ ⊢ t′ ∷ G [ t ]
                  → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
                  → p ≈ p′
+                 → Σᵣ-restriction p q
+                 → Prodrec-restriction r p q′
                  → Γ ⊢ prodrec r p q′ A (prodᵣ p′ t t′) u ⇒
                        u [ t , t′ ] ∷ A [ prodᵣ p′ t t′ ]
   natrec-subst   : ∀ {z s n n′ F}

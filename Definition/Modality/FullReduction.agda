@@ -65,6 +65,7 @@ private
     p : M
     γ : Conₘ n
     m : Mode
+    q : M
 
 -- The lemmas below are proved under the assumption that
 -- Full-reduction-assumptions holds.
@@ -99,7 +100,7 @@ module _ (as : Full-reduction-assumptions) where
 
     Σ-η-lemma :
       ∀ m →
-      Σₚ-restriction p →
+      Σₚ-restriction p q →
       γ ▸[ m ] t →
       ∃ λ δ → δ ▸[ m ᵐ· p ] fst p t × γ ≤ᶜ p ·ᶜ δ
     Σ-η-lemma {p = p} {γ = γ} = λ where
@@ -218,10 +219,10 @@ module _ (as : Full-reduction-assumptions) where
         , sub (natrecₘ ▸t′ ▸u′ ▸v′ ▸A′) γ≤ }}}}}}}}
       (prodrec-cong
          {p = p} {F = A} {G = B} {C = C} {g = u} {r = r} {q′ = q}
-         C↑ u~ v↑)
+         C↑ u~ v↑ ok₂)
         ▸prodrec →
         case inv-usage-prodrec ▸prodrec of λ {
-          (invUsageProdrec ▸u ▸v ▸C ok γ≤) →
+          (invUsageProdrec ▸u ▸v ▸C γ≤) →
         case fullRedConv↑ C↑ ▸C of λ {
           (C′ , C′-nf , C≡C′ , ▸C′) →
         case fullRedNe~↓ u~ ▸u of λ {
@@ -229,17 +230,17 @@ module _ (as : Full-reduction-assumptions) where
         case fullRedTermConv↑ v↑ ▸v of λ {
           (v′ , v′-nf , v≡v′ , ▸v′) →
         case inversion-ΠΣ (syntacticEqTerm u≡u′ .proj₁) of λ {
-          (⊢A , ⊢B , _) →
+          (⊢A , ⊢B , ok₁) →
           prodrec r p q C′ u′ v′
         , (                                                            $⟨ v′-nf ⟩
            Γ ∙ A ∙ B ⊢nf v′ ∷ C [ prodᵣ p (var (x0 +1)) (var x0) ]↑²   →⟨ flip _⊢nf_∷_.convₙ $
-                                                                          subst↑²TypeEq C≡C′ _ ⟩
-           Γ ∙ A ∙ B ⊢nf v′ ∷ C′ [ prodᵣ p (var (x0 +1)) (var x0) ]↑²  →⟨ prodrecₙ ⊢A ⊢B C′-nf u′-ne ⟩
+                                                                          subst↑²TypeEq C≡C′ ok₁ ⟩
+           Γ ∙ A ∙ B ⊢nf v′ ∷ C′ [ prodᵣ p (var (x0 +1)) (var x0) ]↑²  →⟨ (λ hyp → prodrecₙ ⊢A ⊢B C′-nf u′-ne hyp ok₁ ok₂) ⟩
            Γ ⊢ne prodrec r p q C′ u′ v′ ∷ C′ [ u′ ]                    →⟨ flip _⊢ne_∷_.convₙ $ _⊢_≡_.sym $
                                                                           substTypeEq C≡C′ u≡u′ ⟩
            Γ ⊢ne prodrec r p q C′ u′ v′ ∷ C [ u ]                      □)
-        , prodrec-cong ⊢A ⊢B C≡C′ u≡u′ v≡v′
-        , sub (prodrecₘ ▸u′ ▸v′ ▸C′ ok) γ≤ }}}}}
+        , prodrec-cong ⊢A ⊢B C≡C′ u≡u′ v≡v′ ok₁ ok₂
+        , sub (prodrecₘ ▸u′ ▸v′ ▸C′) γ≤ }}}}}
       (Emptyrec-cong {F = A} {p = p} A↑ t~) ▸Emptyrec →
         case inv-usage-Emptyrec ▸Emptyrec of λ {
           (invUsageEmptyrec ▸t ▸A γ≤) →
@@ -284,18 +285,17 @@ module _ (as : Full-reduction-assumptions) where
         case fullRedNe~↓ A~ ▸A of λ {
           (B , B-ne , A≡B , ▸B) →
         B , univₙ (neₙ Uₙ B-ne) , univ A≡B , ▸B }
-      (ΠΣ-cong ⊢A A↑ B↑ ok₁) ▸ΠΣAB →
+      (ΠΣ-cong ⊢A A↑ B↑ ok) ▸ΠΣAB →
         case inv-usage-ΠΣ ▸ΠΣAB of λ {
-          (invUsageΠΣ ▸A ▸B γ≤ ok₂) →
+          (invUsageΠΣ ▸A ▸B γ≤) →
         case fullRedConv↑ A↑ ▸A of λ {
           (A′ , A′-nf , A≡A′ , ▸A′) →
         case fullRedConv↑ B↑ ▸B of λ {
           (B′ , B′-nf , B≡B′ , ▸B′) →
         ΠΣ⟨ _ ⟩ _ , _ ▷ A′ ▹ B′ ,
-        ΠΣₙ A′-nf (⊢nf-stable (reflConEq (wfEq A≡A′) ∙ A≡A′) B′-nf)
-          ok₁ ,
-        ΠΣ-cong ⊢A A≡A′ B≡B′ ok₁ ,
-        sub (ΠΣₘ ▸A′ ▸B′ ok₂) γ≤ }}}
+        ΠΣₙ A′-nf (⊢nf-stable (reflConEq (wfEq A≡A′) ∙ A≡A′) B′-nf) ok ,
+        ΠΣ-cong ⊢A A≡A′ B≡B′ ok ,
+        sub (ΠΣₘ ▸A′ ▸B′) γ≤ }}}
 
     fullRedTermConv↑ :
       Γ ⊢ t [conv↑] t′ ∷ A → γ ▸[ m ] t →
@@ -381,7 +381,7 @@ module _ (as : Full-reduction-assumptions) where
         case fullRedTermConv↑ t↑ ▸t of λ {
           (u , u-nf , t≡u , ▸u) →
         suc u , sucₙ u-nf , suc-cong t≡u , sub (sucₘ ▸u) γ≤ }}
-      (prod-cong {p = p} {q = q} {F = A} {G = B} {t = t} ⊢A ⊢B t↑ u↑)
+      (prod-cong {p = p} {q = q} {F = A} {G = B} {t = t} ⊢A ⊢B t↑ u↑ ok)
         ▸t,u →
         case inv-usage-prodᵣ ▸t,u of λ {
           (invUsageProdᵣ ▸t ▸u γ≤) →
@@ -393,24 +393,26 @@ module _ (as : Full-reduction-assumptions) where
         , (                                      $⟨ u′-nf ⟩
            Γ ⊢nf u′ ∷ B [ t ]                    →⟨ flip _⊢nf_∷_.convₙ $
                                                     substTypeEq (refl ⊢B) t≡t′ ⟩
-           Γ ⊢nf u′ ∷ B [ t′ ]                   →⟨ flip (_⊢nf_∷_.prodₙ ⊢A ⊢B t′-nf) _ ⟩
+           Γ ⊢nf u′ ∷ B [ t′ ]                   →⟨ flip (_⊢nf_∷_.prodₙ ⊢A ⊢B t′-nf) ok ⟩
            Γ ⊢nf prod! t′ u′ ∷ Σᵣ p , q ▷ A ▹ B  □)
-        , prod-cong ⊢A ⊢B t≡t′ u≡u′ _
+        , prod-cong ⊢A ⊢B t≡t′ u≡u′ ok
         , sub (prodᵣₘ ▸t′ ▸u′) γ≤ }}}
       (η-eq {p = p} {q = q} {f = t} {F = A} {G = B} ⊢t _ _ _ t0≡u0) ▸t →
         case fullRedTermConv↑ t0≡u0 (wkUsage (step id) ▸t ∘ₘ var) of λ {
           (u , u-nf , t0≡u , ▸u) →
+        case ⊢∷ΠΣ→ΠΣ-restriction ⊢t of λ {
+          ok →
           lam p u
-        , lamₙ (inversion-ΠΣ (syntacticTerm ⊢t) .proj₁) u-nf
+        , lamₙ (inversion-ΠΣ (syntacticTerm ⊢t) .proj₁) u-nf ok
         , (                                                       $⟨ sym (Π-η ⊢t) ⟩
-           Γ ⊢ t ≡ lam p (wk1 t ∘⟨ p ⟩ var x0) ∷ Π p , q ▷ A ▹ B  →⟨ flip _⊢_≡_∷_.trans (lam-cong t0≡u) ⟩
+           Γ ⊢ t ≡ lam p (wk1 t ∘⟨ p ⟩ var x0) ∷ Π p , q ▷ A ▹ B  →⟨ flip _⊢_≡_∷_.trans (lam-cong t0≡u ok) ⟩
            Γ ⊢ t ≡ lam p u ∷ Π p , q ▷ A ▹ B                      □)
         , (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
            lamₘ $ sub ▸u $ begin
              γ ∙ ⌜ m ⌝ · p                      ≈⟨ ≈ᶜ-refl ∙ ⌜⌝-·-comm m ⟩
              γ ∙ p · ⌜ m ⌝                      ≈˘⟨ +ᶜ-identityʳ _ ∙ ·⌜ᵐ·⌝ m ⟩
              γ +ᶜ 𝟘ᶜ ∙ p · ⌜ m ᵐ· p ⌝           ≈˘⟨ +ᶜ-congˡ (·ᶜ-zeroʳ _) ∙ +-identityˡ _ ⟩
-             γ +ᶜ p ·ᶜ 𝟘ᶜ ∙ 𝟘 + p · ⌜ m ᵐ· p ⌝  ∎) }
+             γ +ᶜ p ·ᶜ 𝟘ᶜ ∙ 𝟘 + p · ⌜ m ᵐ· p ⌝  ∎) }}
       (Σ-η {p = p} {q = q} {F = A} {G = B} ⊢t _ _ _ fst-t↑ snd-t↑) ▸t →
         case inversion-ΠΣ (syntacticTerm ⊢t) of λ {
           (⊢A , ⊢B , ok) →

@@ -67,7 +67,7 @@ mutual
              Γ ⊢nf A
     ΠΣₙ    : Γ ⊢nf A →
              Γ ∙ A ⊢nf B →
-             ΠΣ-restriction b p →
+             ΠΣ-restriction b p q →
              Γ ⊢nf ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
     Emptyₙ : ⊢ Γ →
              Γ ⊢nf Empty
@@ -88,16 +88,17 @@ mutual
              Γ ⊢nf t ∷ B
     ΠΣₙ    : Γ ⊢nf A ∷ U →
              Γ ∙ A ⊢nf B ∷ U →
-             ΠΣ-restriction b p →
+             ΠΣ-restriction b p q →
              Γ ⊢nf ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ U
     lamₙ   : Γ ⊢ A →
              Γ ∙ A ⊢nf t ∷ B →
+             Π-restriction p q →
              Γ ⊢nf lam p t ∷ Π p , q ▷ A ▹ B
     prodₙ  : Γ ⊢ A →
              Γ ∙ A ⊢ B →
              Γ ⊢nf t ∷ A →
              Γ ⊢nf u ∷ B [ t ] →
-             Σ-restriction s p →
+             Σ-restriction s p q →
              Γ ⊢nf prod s p t u ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B
     Emptyₙ : ⊢ Γ →
              Γ ⊢nf Empty ∷ U
@@ -147,6 +148,8 @@ mutual
                 Γ ⊢ne t ∷ Σᵣ p , q′ ▷ A ▹ B →
                 Γ ∙ A ∙ B ⊢nf u ∷
                   C [ prodᵣ p (var (x0 +1)) (var x0) ]↑² →
+                Σᵣ-restriction p q′ →
+                Prodrec-restriction r p q →
                 Γ ⊢ne prodrec r p q C t u ∷ C [ t ]
     Emptyrecₙ : Γ ⊢nf A →
                 Γ ⊢ne t ∷ Empty →
@@ -196,7 +199,7 @@ mutual
   ⊢nf∷→⊢∷ = λ where
     (convₙ ⊢t A≡B)         → conv (⊢nf∷→⊢∷ ⊢t) A≡B
     (ΠΣₙ ⊢A ⊢B ok)         → ΠΣⱼ (⊢nf∷→⊢∷ ⊢A) (⊢nf∷→⊢∷ ⊢B) ok
-    (lamₙ ⊢A ⊢t)           → lamⱼ ⊢A (⊢nf∷→⊢∷ ⊢t)
+    (lamₙ ⊢A ⊢t ok)        → lamⱼ ⊢A (⊢nf∷→⊢∷ ⊢t) ok
     (prodₙ ⊢A ⊢B ⊢t ⊢u ok) → prodⱼ ⊢A ⊢B (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u) ok
     (Emptyₙ ⊢Γ)            → Emptyⱼ ⊢Γ
     (Unitₙ ⊢Γ ok)          → Unitⱼ ⊢Γ ok
@@ -210,16 +213,18 @@ mutual
 
   ⊢ne∷→⊢∷ : Γ ⊢ne t ∷ A → Γ ⊢ t ∷ A
   ⊢ne∷→⊢∷ = λ where
-    (convₙ ⊢t A≡B)            → conv (⊢ne∷→⊢∷ ⊢t) A≡B
-    (varₙ ⊢Γ x∈)              → var ⊢Γ x∈
-    (∘ₙ ⊢t ⊢u)                → ⊢ne∷→⊢∷ ⊢t ∘ⱼ ⊢nf∷→⊢∷ ⊢u
-    (fstₙ ⊢A ⊢B ⊢t)           → fstⱼ ⊢A ⊢B (⊢ne∷→⊢∷ ⊢t)
-    (sndₙ ⊢A ⊢B ⊢t)           → sndⱼ ⊢A ⊢B (⊢ne∷→⊢∷ ⊢t)
-    (prodrecₙ ⊢A ⊢B ⊢C ⊢t ⊢u) → prodrecⱼ ⊢A ⊢B (⊢nf→⊢ ⊢C) (⊢ne∷→⊢∷ ⊢t)
-                                 (⊢nf∷→⊢∷ ⊢u)
-    (Emptyrecₙ ⊢A ⊢t)         → Emptyrecⱼ (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t)
-    (natrecₙ ⊢A ⊢t ⊢u ⊢v)     → natrecⱼ (⊢nf→⊢ ⊢A) (⊢nf∷→⊢∷ ⊢t)
-                                 (⊢nf∷→⊢∷ ⊢u) (⊢ne∷→⊢∷ ⊢v)
+    (convₙ ⊢t A≡B)                    → conv (⊢ne∷→⊢∷ ⊢t) A≡B
+    (varₙ ⊢Γ x∈)                      → var ⊢Γ x∈
+    (∘ₙ ⊢t ⊢u)                        → ⊢ne∷→⊢∷ ⊢t ∘ⱼ ⊢nf∷→⊢∷ ⊢u
+    (fstₙ ⊢A ⊢B ⊢t)                   → fstⱼ ⊢A ⊢B (⊢ne∷→⊢∷ ⊢t)
+    (sndₙ ⊢A ⊢B ⊢t)                   → sndⱼ ⊢A ⊢B (⊢ne∷→⊢∷ ⊢t)
+    (prodrecₙ ⊢A ⊢B ⊢C ⊢t ⊢u ok₁ ok₂) → prodrecⱼ ⊢A ⊢B (⊢nf→⊢ ⊢C)
+                                          (⊢ne∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u)
+                                          ok₁ ok₂
+    (Emptyrecₙ ⊢A ⊢t)                 → Emptyrecⱼ (⊢nf→⊢ ⊢A)
+                                          (⊢ne∷→⊢∷ ⊢t)
+    (natrecₙ ⊢A ⊢t ⊢u ⊢v)             → natrecⱼ (⊢nf→⊢ ⊢A) (⊢nf∷→⊢∷ ⊢t)
+                                          (⊢nf∷→⊢∷ ⊢u) (⊢ne∷→⊢∷ ⊢v)
 
 mutual
 
@@ -240,7 +245,7 @@ mutual
   ⊢nf∷→Nf = λ where
     (convₙ ⊢t _)        → ⊢nf∷→Nf ⊢t
     (ΠΣₙ ⊢A ⊢B _)       → ΠΣₙ (⊢nf∷→Nf ⊢A) (⊢nf∷→Nf ⊢B)
-    (lamₙ _ ⊢t)         → lamₙ (⊢nf∷→Nf ⊢t)
+    (lamₙ _ ⊢t _)       → lamₙ (⊢nf∷→Nf ⊢t)
     (prodₙ _ _ ⊢t ⊢u _) → prodₙ (⊢nf∷→Nf ⊢t) (⊢nf∷→Nf ⊢u)
     (Emptyₙ _)          → Emptyₙ
     (Unitₙ _ _)         → Unitₙ
@@ -254,16 +259,17 @@ mutual
 
   ⊢ne∷→NfNeutral : Γ ⊢ne t ∷ A → NfNeutral t
   ⊢ne∷→NfNeutral = λ where
-    (convₙ ⊢t _)            → ⊢ne∷→NfNeutral ⊢t
-    (varₙ _ _)              → var _
-    (∘ₙ ⊢t ⊢u)              → ∘ₙ (⊢ne∷→NfNeutral ⊢t) (⊢nf∷→Nf ⊢u)
-    (fstₙ _ _ ⊢t)           → fstₙ (⊢ne∷→NfNeutral ⊢t)
-    (sndₙ _ _ ⊢t)           → sndₙ (⊢ne∷→NfNeutral ⊢t)
-    (prodrecₙ _ _ ⊢C ⊢t ⊢u) → prodrecₙ (⊢nf→Nf ⊢C) (⊢ne∷→NfNeutral ⊢t)
-                                (⊢nf∷→Nf ⊢u)
-    (Emptyrecₙ ⊢A ⊢t)       → Emptyrecₙ (⊢nf→Nf ⊢A) (⊢ne∷→NfNeutral ⊢t)
-    (natrecₙ ⊢A ⊢t ⊢u ⊢v)   → natrecₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t)
-                                (⊢nf∷→Nf ⊢u) (⊢ne∷→NfNeutral ⊢v)
+    (convₙ ⊢t _)                → ⊢ne∷→NfNeutral ⊢t
+    (varₙ _ _)                  → var _
+    (∘ₙ ⊢t ⊢u)                  → ∘ₙ (⊢ne∷→NfNeutral ⊢t) (⊢nf∷→Nf ⊢u)
+    (fstₙ _ _ ⊢t)               → fstₙ (⊢ne∷→NfNeutral ⊢t)
+    (sndₙ _ _ ⊢t)               → sndₙ (⊢ne∷→NfNeutral ⊢t)
+    (prodrecₙ _ _ ⊢C ⊢t ⊢u _ _) → prodrecₙ (⊢nf→Nf ⊢C)
+                                    (⊢ne∷→NfNeutral ⊢t) (⊢nf∷→Nf ⊢u)
+    (Emptyrecₙ ⊢A ⊢t)           → Emptyrecₙ (⊢nf→Nf ⊢A)
+                                    (⊢ne∷→NfNeutral ⊢t)
+    (natrecₙ ⊢A ⊢t ⊢u ⊢v)       → natrecₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t)
+                                    (⊢nf∷→Nf ⊢u) (⊢ne∷→NfNeutral ⊢v)
 
 ------------------------------------------------------------------------
 -- Stability
@@ -299,9 +305,10 @@ mutual
         (⊢nf∷-stable Γ≡Δ ⊢A)
         (⊢nf∷-stable (Γ≡Δ ∙ refl (⊢nf→⊢ (univₙ ⊢A))) ⊢B)
         ok
-      (lamₙ ⊢A ⊢t) → lamₙ
+      (lamₙ ⊢A ⊢t ok) → lamₙ
         (stability Γ≡Δ ⊢A)
         (⊢nf∷-stable (Γ≡Δ ∙ refl ⊢A) ⊢t)
+        ok
       (prodₙ ⊢A ⊢B ⊢t ⊢u ok) → prodₙ
         (stability Γ≡Δ ⊢A)
         (stability (Γ≡Δ ∙ refl ⊢A) ⊢B)
@@ -345,12 +352,14 @@ mutual
         (stability Γ≡Δ ⊢A)
         (stability (Γ≡Δ ∙ refl ⊢A) ⊢B)
         (⊢ne∷-stable Γ≡Δ ⊢t)
-      (prodrecₙ ⊢A ⊢B ⊢C ⊢t ⊢u) → prodrecₙ
+      (prodrecₙ ⊢A ⊢B ⊢C ⊢t ⊢u ok₁ ok₂) → prodrecₙ
         (stability Γ≡Δ ⊢A)
         (stability (Γ≡Δ ∙ refl ⊢A) ⊢B)
-        (⊢nf-stable (Γ≡Δ ∙ refl (ΠΣⱼ ⊢A ⊢B _)) ⊢C)
+        (⊢nf-stable (Γ≡Δ ∙ refl (ΠΣⱼ ⊢A ⊢B ok₁)) ⊢C)
         (⊢ne∷-stable Γ≡Δ ⊢t)
         (⊢nf∷-stable (Γ≡Δ ∙ refl ⊢A ∙ refl ⊢B) ⊢u)
+        ok₁
+        ok₂
       (Emptyrecₙ ⊢A ⊢t) → Emptyrecₙ
         (⊢nf-stable Γ≡Δ ⊢A)
         (⊢ne∷-stable Γ≡Δ ⊢t)

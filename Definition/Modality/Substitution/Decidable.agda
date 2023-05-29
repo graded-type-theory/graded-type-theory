@@ -13,10 +13,6 @@ module Definition.Modality.Substitution.Decidable
   (open Modality 𝕄)
   -- Equality is assumed to be decidable for M.
   (_≟_ : Decidable (_≡_ {A = M}))
-  -- The Prodrec relation is assumed to be decidable.
-  (Prodrec? : ∀ r p q → Dec (Prodrec r p q))
-  -- The Binder relation is assumed to be decidable.
-  (Binder? : ∀ b p q → Dec (Binder b p q))
   where
 
 open import Definition.Untyped M
@@ -27,7 +23,7 @@ open import Definition.Modality.Substitution.Properties 𝕄
 open import Definition.Modality.Context.Properties 𝕄
 open import Definition.Modality.Properties 𝕄
 open import Definition.Modality.Usage 𝕄
-open import Definition.Modality.Usage.Decidable 𝕄 _≟_ Prodrec? Binder?
+open import Definition.Modality.Usage.Decidable 𝕄 _≟_
 open import Definition.Modality.Usage.Properties 𝕄
 open import Definition.Mode 𝕄
 

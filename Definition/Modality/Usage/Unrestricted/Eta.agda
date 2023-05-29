@@ -70,18 +70,16 @@ private
 -- A usage rule for Unrestricted.
 
 ▸Unrestricted :
-  Binder (BMΣ Σₚ) ω ω →
   ⌜ m ⌝ · ω ≤ 𝟘 →
   γ ▸[ m ] A →
   γ ▸[ m ] Unrestricted A
-▸Unrestricted {m = m} {γ = γ} ω-ω-ok mω≤𝟘 ▸A = sub
+▸Unrestricted {m = m} {γ = γ} mω≤𝟘 ▸A = sub
   (ΠΣₘ
      (▸-cong (PE.sym ᵐ·-identityʳ′) ▸A)
      (sub Unitₘ
         (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
            𝟘ᶜ ∙ ⌜ m ⌝ · ω  ≤⟨ ≤ᶜ-refl ∙ mω≤𝟘 ⟩
-           𝟘ᶜ              ∎))
-     ω-ω-ok)
+           𝟘ᶜ              ∎)))
   (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
      γ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
      γ +ᶜ 𝟘ᶜ  ∎)
@@ -113,14 +111,13 @@ private
 
 inv-usage-Unrestricted :
   γ ▸[ m ] Unrestricted A →
-  Binder (BMΣ Σₚ) ω ω × ⌜ m ⌝ · ω ≤ 𝟘 × γ ▸[ m ] A
+  ⌜ m ⌝ · ω ≤ 𝟘 × γ ▸[ m ] A
 inv-usage-Unrestricted {γ = γ} {m = m} ▸Unrestricted =
   case inv-usage-ΠΣ ▸Unrestricted of λ {
-    (invUsageΠΣ {δ = δ} {η = η} ▸A ▸Unit γ≤ ok) →
+    (invUsageΠΣ {δ = δ} {η = η} ▸A ▸Unit γ≤) →
   case inv-usage-Unit ▸Unit of λ {
     (η≤𝟘 ∙ mω≤𝟘) →
-      ok
-    , mω≤𝟘
+      mω≤𝟘
     , sub (▸-cong ᵐ·-identityʳ′ ▸A) (begin
        γ        ≤⟨ γ≤ ⟩
        δ +ᶜ η   ≤⟨ +ᶜ-monotoneʳ η≤𝟘 ⟩

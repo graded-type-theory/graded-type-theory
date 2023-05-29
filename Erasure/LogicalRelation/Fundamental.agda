@@ -3,7 +3,7 @@
 ------------------------------------------------------------------------
 
 open import Definition.Modality
-open import Definition.Modality.Restrictions.Definitions
+open import Definition.Modality.Type-restrictions
 open import Definition.Typed.EqualityRelation
 import Definition.Typed
 open import Definition.Typed.Restrictions
@@ -24,7 +24,7 @@ module Erasure.LogicalRelation.Fundamental
   (consistent : ∀ {t} → Δ ⊢ t ∷ Empty → ⊥)
   -- Erased matches are not allowed unless the context
   -- is empty
-  (no-erased-matches : No-erased-matches 𝕄 ⊎ k PE.≡ 0)
+  (no-erased-matches : No-erased-matches 𝕄 R ⊎ k PE.≡ 0)
   {{eqrel : EqRelSet R}}
   where
 
@@ -181,7 +181,7 @@ fundamental {m = 𝟘ᵐ} ⊢t _ with is-𝟘? 𝟘
     [Γ] , [A] , _
 ... | no 𝟘≢𝟘 = PE.⊥-elim (𝟘≢𝟘 PE.refl)
 fundamental Γ⊢ΠΣ@(ΠΣⱼ Γ⊢F:U _ _) γ▸t =
-  let invUsageΠΣ δ▸F _ _ _ = inv-usage-ΠΣ γ▸t
+  let invUsageΠΣ δ▸F _ _ = inv-usage-ΠΣ γ▸t
       [Γ] , _ , _ = fundamental Γ⊢F:U δ▸F
       [U] , ⊩ʳΠΣ = ΠΣʳ [Γ] Γ⊢ΠΣ
   in  [Γ] , [U] , ⊩ʳΠΣ
@@ -192,7 +192,8 @@ fundamental (var ⊢Γ x∷A∈Γ) γ▸t =
   let [Γ] = F.valid ⊢Γ
       [A] , ⊩ʳx = fundamentalVar [Γ] x∷A∈Γ γ▸t
   in  [Γ] , [A] , ⊩ʳx
-fundamental (lamⱼ {p = p} {q = q} {F = F} {G = G} {t = t} Γ⊢F Γ⊢t:G) γ▸t =
+fundamental
+  (lamⱼ {p = p} {q = q} {F = F} {G = G} {t = t} Γ⊢F Γ⊢t:G ok) γ▸t =
   let invUsageLam {δ = δ} δ▸t δ≤γ = inv-usage-lam γ▸t
       [ΓF] , [G]′ , ⊩ʳt = fundamental Γ⊢t:G δ▸t
       [Γ] , [F] = F.fundamental Γ⊢F
@@ -200,8 +201,8 @@ fundamental (lamⱼ {p = p} {q = q} {F = F} {G = G} {t = t} Γ⊢F Γ⊢t:G) γ�
       [Γ]′ , [G]″ , [t]′ = F.fundamentalTerm Γ⊢t:G
       [t] = IS.irrelevanceTerm {A = G} {t = t} [Γ]′ ([Γ] ∙ [F]) [G]″ [G] [t]′
       ⊩ʳt′ = irrelevance {A = G} {t = t} [ΓF] ([Γ] ∙ [F]) [G]′ [G] ⊩ʳt
-      ⊩ʳλt = lamʳ {F = F} {G = G} {t = t} {γ = δ} {p = p} {q = q} [Γ] [F] [G] [t] ⊩ʳt′
-      [Π] = Πᵛ {F = F} {G = G} [Γ] [F] [G]
+      ⊩ʳλt = lamʳ {t = t} [Γ] [F] [G] [t] ⊩ʳt′ ok
+      [Π] = Πᵛ [Γ] [F] [G] ok
   in  [Γ] , [Π] , subsumption-≤ {A = Π p , q ▷ F ▹ G} {t = lam p t} [Γ] [Π] ⊩ʳλt δ≤γ
 fundamental (_∘ⱼ_ {p = p} {q = q} {g = t} {a = u} {F = F} {G = G} Γ⊢t:Π Γ⊢u:F) γ▸t =
   let invUsageApp δ▸t η▸u γ≤δ+pη = inv-usage-app γ▸t
@@ -266,8 +267,11 @@ fundamental (sndⱼ {G = G} {t = t} Γ⊢F Γ⊢G Γ⊢t:Σ) γ▸t =
       [Γ] , [Σ] , ⊩ʳt = fundamental Γ⊢t:Σ δ▸t
       [G] , ⊩ʳt₂ = sndʳ Γ⊢F Γ⊢G Γ⊢t:Σ [Γ] [Σ] ⊩ʳt
   in  [Γ] , [G] , subsumption-≤ {t = snd _ t} [Γ] [G] ⊩ʳt₂ γ≤δ
-fundamental (prodrecⱼ {r = r} {t = t} {u} {F} {G} {A} Γ⊢F Γ⊢G Γ⊢A Γ⊢t Γ⊢u) γ▸prodrec =
-  let invUsageProdrec {δ = δ} δ▸t η▸u _ P γ≤pδ+η = inv-usage-prodrec γ▸prodrec
+fundamental
+  (prodrecⱼ {r = r} {t = t} {u} {F} {G} {A} Γ⊢F Γ⊢G Γ⊢A Γ⊢t Γ⊢u _ ok)
+  γ▸prodrec =
+  let invUsageProdrec {δ = δ} δ▸t η▸u _ γ≤pδ+η =
+        inv-usage-prodrec γ▸prodrec
       [Γ] , [Σ] , ⊩ʳt = fundamental Γ⊢t δ▸t
       [Γ]₂ , [A₊]₂ , ⊩ʳu = fundamental Γ⊢u η▸u
       [Γ]₃ , [F]₃ = F.fundamental Γ⊢F
@@ -284,12 +288,12 @@ fundamental (prodrecⱼ {r = r} {t = t} {u} {F} {G} {A} Γ⊢F Γ⊢G Γ⊢A Γ�
       [u] = IS.irrelevanceTerm {A = A₊} {u} [Γ]₇ ([Γ] ∙ [F] ∙ [G]) [A₊]₇ [A₊] [u]₇
       ⊩ʳu′ = irrelevance {t = u} [Γ]₂ ([Γ] ∙ [F] ∙ [G]) [A₊]₂ [A₊] ⊩ʳu
       r≡𝟘→k≡0 = case no-erased-matches of λ where
-        (inj₁ nem) → λ r≡𝟘 → PE.⊥-elim (nem 𝟙≉𝟘 P r≡𝟘)
+        (inj₁ nem) → λ r≡𝟘 → PE.⊥-elim (nem 𝟙≉𝟘 ok r≡𝟘)
         (inj₂ k≡0) → λ _ → k≡0
       [At] , ⊩ʳprodrec =
         prodrecʳ [Γ] [F] [G] [Σ] [A] [A₊] [t] [u]
                  (λ r≢𝟘 → PE.subst (δ ▸ _ ⊩ʳ⟨ _ ⟩ t ∷[_] _ / _ / [Σ]) (≉𝟘→ᵐ·≡ r≢𝟘) ⊩ʳt)
-                 ⊩ʳu′ r≡𝟘→k≡0
+                 ⊩ʳu′ r≡𝟘→k≡0 ok
   in  [Γ] , [At] ,
       subsumption-≤ {t = prodrec _ _ _ A t u} [Γ] [At] ⊩ʳprodrec γ≤pδ+η
 fundamental (zeroⱼ ⊢Γ) γ▸t = zeroʳ ⊢Γ

@@ -10,6 +10,8 @@ module Definition.Conversion.EqRelInstance
   (R : Type-restrictions M)
   where
 
+open Type-restrictions R
+
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Typed R
 open import Definition.Typed.Properties R
@@ -141,8 +143,9 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
   Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ A [conv↑] A′ →
   Γ ⊢ t ~ t′ ∷ (Σᵣ p , q ▷ F ▹ G) →
   Γ ∙ F ∙ G ⊢ u [conv↑] u′ ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑² →
+  Prodrec-restriction r p q′ →
   Γ ⊢ prodrec r p q′ A t u ~ prodrec r p q′ A′ t′ u′ ∷ (A [ t ])
-~-prodrec x x₁ x₂ (↑ A≡B k~↑l) x₄ =
+~-prodrec x x₁ x₂ (↑ A≡B k~↑l) x₄ ok =
   case syntacticEq A≡B of λ (_ , ⊢B) →
   case whNorm ⊢B of λ (B′ , whnfB′ , D) →
   case _⊢_≡_.trans A≡B (subset* (red D)) of λ Σ≡Σ′ →
@@ -158,7 +161,7 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
           in
           ↑ (refl (substType ⊢A (conv ⊢t (sym A≡B))))
             (prodrec-cong (stabilityConv↑ (⊢Γ≡Γ ∙ Σ≡Σ′) x₂)
-               t~t′ (stabilityConv↑Term (⊢Γ≡Γ ∙ F≡F′ ∙ G≡G′) x₄))
+               t~t′ (stabilityConv↑Term (⊢Γ≡Γ ∙ F≡F′ ∙ G≡G′) x₄) ok)
 
 ~-Emptyrec : ∀ {n n′ F F′}
          → Γ ⊢ F [conv↑] F′ →
@@ -260,7 +263,8 @@ eqRelInstance = record {
     univ (ΠΣⱼ F∷U G∷U ok) (ΠΣⱼ H∷U E∷U′ ok) (ΠΣ-cong x F<>H G<>E ok);
   ≅ₜ-zerorefl = liftConvTerm ∘ᶠ zero-refl;
   ≅-suc-cong = liftConvTerm ∘ᶠ suc-cong;
-  ≅-prod-cong = λ x x₁ x₂ x₃ → liftConvTerm (prod-cong x x₁ x₂ x₃);
+  ≅-prod-cong = λ x x₁ x₂ x₃ x₄ →
+                  liftConvTerm (prod-cong x x₁ x₂ x₃ x₄);
   ≅-η-eq = λ x x₁ x₂ x₃ x₄ x₅ → liftConvTerm (η-eq x₁ x₂ x₃ x₄ x₅);
   ≅-Σ-η = λ x x₁ x₂ x₃ x₄ x₅ x₆ x₇ → (liftConvTerm (Σ-η x₂ x₃ x₄ x₅ x₆ x₇));
   ~-var = ~-var;
@@ -268,5 +272,6 @@ eqRelInstance = record {
   ~-fst = λ x x₁ x₂ → ~-fst x₂;
   ~-snd = λ x x₁ x₂ → ~-snd x₂;
   ~-natrec = ~-natrec;
-  ~-prodrec = ~-prodrec;
+  ~-prodrec = λ ⊢A ⊢B C↑D t₁~t₂ u₁↑u₂ _ ok →
+                ~-prodrec ⊢A ⊢B C↑D t₁~t₂ u₁↑u₂ ok;
   ~-Emptyrec = ~-Emptyrec }

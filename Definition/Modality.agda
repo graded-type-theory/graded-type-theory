@@ -13,7 +13,7 @@ open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Sum
 
-open import Definition.Modality.Restrictions M
+open import Definition.Mode.Restrictions
 
 -- Semiring with meet
 record Semiring-with-meet : Set a where
@@ -169,9 +169,9 @@ record Modality : Set (lsuc a) where
   open Semiring-with-meet-and-star semiring-with-meet-and-star public
 
   field
-    -- "Extra" restrictions for certain term/type constructors.
-    restrictions : Restrictions
-  open Restrictions restrictions public
+    -- Restrictions on modes.
+    mode-restrictions : Mode-restrictions
+  open Mode-restrictions mode-restrictions public
 
   field
     -- If the mode 𝟘ᵐ is allowed, then the zero is well-behaved

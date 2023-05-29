@@ -21,7 +21,8 @@ import Definition.Modality.Properties.Meet as Meet
 import Definition.Modality.Properties.Multiplication as Multiplication
 import Definition.Modality.Properties.PartialOrder as PartialOrder
 import Definition.Modality.Properties.Star as Star
-import Definition.Modality.Restrictions
+
+open import Definition.Mode.Restrictions
 
 import Tools.Algebra
 open import Tools.Function
@@ -43,9 +44,8 @@ data Zero-one-many : Set where
 private variable
   p p₁ p₂ q r : Zero-one-many
 
-open Definition.Modality              Zero-one-many
-open Definition.Modality.Restrictions Zero-one-many
-open Tools.Algebra                    Zero-one-many
+open Definition.Modality Zero-one-many
+open Tools.Algebra       Zero-one-many
 
 ------------------------------------------------------------------------
 -- Meet
@@ -738,21 +738,21 @@ Star-requirements-required M refl refl refl refl refl 𝟘-wb =
 ------------------------------------------------------------------------
 -- One variant of the modality
 
--- A zero-one-many modality (with arbitrary "restrictions").
+-- A zero-one-many modality (with arbitrary mode restrictions).
 --
 -- The star operation is defined using the construction in
 -- Definition.Modality.Instances.LowerBounded.
 
-zero-one-many-lower-bounded : Restrictions → Modality
-zero-one-many-lower-bounded restrictions = LowerBounded.isModality
-  zero-one-many-semiring-with-meet ω ω≤ restrictions
+zero-one-many-lower-bounded : Mode-restrictions → Modality
+zero-one-many-lower-bounded rs = LowerBounded.isModality
+  zero-one-many-semiring-with-meet ω ω≤ rs
   λ _ → zero-one-many-has-well-behaved-zero
 
 -- With this definition the result of p ⊛ q ▷ r is 𝟘 when p and q are
 -- 𝟘, and ω otherwise.
 
 zero-one-many-lower-bounded-⊛ :
-  (rs : Restrictions) →
+  (rs : Mode-restrictions) →
   let open Modality (zero-one-many-lower-bounded rs) hiding (𝟘) in
   (∀ r → 𝟘 ⊛ 𝟘 ▷ r ≡ 𝟘) ×
   (∀ p q r → ¬ (p ≡ 𝟘 × q ≡ 𝟘) → p ⊛ q ▷ r ≡ ω)
@@ -790,7 +790,7 @@ p ⊛ q ▷ ω = ω · (p ∧ q)
 -- zero-one-many-lower-bounded.
 
 lower-bounded≢greatest :
-  (rs : Restrictions) →
+  (rs : Mode-restrictions) →
   Modality._⊛_▷_ (zero-one-many-lower-bounded rs) ≢ _⊛_▷_
 lower-bounded≢greatest rs hyp =
   case cong (λ f → f 𝟙 𝟙 𝟘) hyp of λ ()
@@ -1101,9 +1101,9 @@ zero-one-many-greatest-star = record
 --
 -- The star operation is the "greatest" one defined above.
 
-zero-one-many-greatest : Restrictions → Modality
-zero-one-many-greatest restrictions = record
+zero-one-many-greatest : Mode-restrictions → Modality
+zero-one-many-greatest rs = record
   { semiring-with-meet-and-star = zero-one-many-greatest-star
-  ; restrictions = restrictions
+  ; mode-restrictions = rs
   ; 𝟘-well-behaved = λ _ → zero-one-many-has-well-behaved-zero
   }

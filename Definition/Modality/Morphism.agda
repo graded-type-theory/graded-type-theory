@@ -33,8 +33,11 @@ open import Definition.Modality.Instances.Unit using (UnitModality)
 open import Definition.Modality.Instances.Zero-one-many as ZOM
   using (Zero-one-many; 𝟘; 𝟙; ω; zero-one-many-greatest)
 import Definition.Modality.Properties
-open import Definition.Modality.Restrictions
-open import Definition.Modality.Restrictions.Definitions
+open import Definition.Modality.Type-restrictions
+
+open import Definition.Mode.Restrictions
+
+open Mode-restrictions
 
 open import Definition.Mode as Mode hiding (module Mode)
 
@@ -45,8 +48,7 @@ private variable
   a₁ a₂                       : Level
   𝟙≤𝟘 ok                      : Bool
   not-ok                      : ¬ T _
-  rt rt₁ rt₂ rt₃              : Term-restrictions _
-  r r₁ r₂                     : Restrictions _
+  rs rs₁ rs₂                  : Mode-restrictions
   M₁ M₂                       : Set _
   𝕄 𝕄₁ 𝕄₂ 𝕄₃                  : Modality _
   b                           : BinderMode
@@ -333,50 +335,6 @@ record Is-Σ-order-embedding
 
   open Is-Σ-morphism tr-Σ-morphism public
 
--- The property of preserving Term-restrictions.
-
-record Are-preserving-term-restrictions
-         {a₁ a₂} {M₁ : Set a₁} {M₂ : Set a₂}
-         (r₁ : Term-restrictions M₁) (r₂ : Term-restrictions M₂)
-         (tr tr-Σ : M₁ → M₂) : Set (a₁ ⊔ a₂) where
-  private
-    module R₁ = Term-restrictions r₁
-    module R₂ = Term-restrictions r₂
-
-  field
-    -- The functions tr and tr-Σ preserve the Binder property in a
-    -- certain way.
-    Binder-preserved :
-      ∀ {p q} →
-      R₁.Binder b p q → R₂.Binder b (tr-BinderMode tr tr-Σ b p) (tr q)
-
-    -- The functions tr and tr-Σ preserve the Prodrec property in a
-    -- certain way.
-    Prodrec-preserved :
-      ∀ {r p q} → R₁.Prodrec r p q → R₂.Prodrec (tr r) (tr-Σ p) (tr q)
-
--- The property of reflecting Term-restrictions.
-
-record Are-reflecting-term-restrictions
-         {a₁ a₂} {M₁ : Set a₁} {M₂ : Set a₂}
-         (r₁ : Term-restrictions M₁) (r₂ : Term-restrictions M₂)
-         (tr tr-Σ : M₁ → M₂) : Set (a₁ ⊔ a₂) where
-  private
-    module R₁ = Term-restrictions r₁
-    module R₂ = Term-restrictions r₂
-
-  field
-    -- The functions tr and tr-Σ reflect the Binder property in a
-    -- certain way.
-    Binder-reflected :
-      ∀ {p q} →
-      R₂.Binder b (tr-BinderMode tr tr-Σ b p) (tr q) → R₁.Binder b p q
-
-    -- The functions tr and tr-Σ reflect the Prodrec property in a
-    -- certain way.
-    Prodrec-reflected :
-      ∀ {r p q} → R₂.Prodrec (tr r) (tr-Σ p) (tr q) → R₁.Prodrec r p q
-
 ------------------------------------------------------------------------
 -- Morphisms are Σ-morphisms with respect to themselves, and order
 -- embeddings are order embeddings for Σ with respect to themselves
@@ -453,32 +411,6 @@ Is-order-embedding-id {𝕄 = 𝕄} = λ where
   open Definition.Modality.Properties 𝕄
   open Is-morphism
   open Is-order-embedding
-
--- For every value rt of type Term-restrictions the identity function
--- preserves Term-restrictions for rt and rt.
-
-Are-preserving-term-restrictions-id :
-  Are-preserving-term-restrictions rt rt idᶠ idᶠ
-Are-preserving-term-restrictions-id {rt = rt} = λ where
-    .Prodrec-preserved            → idᶠ
-    .Binder-preserved {b = BMΠ}   → idᶠ
-    .Binder-preserved {b = BMΣ _} → idᶠ
-  where
-  open Are-preserving-term-restrictions
-  open Term-restrictions rt
-
--- For every value rt of type Term-restrictions the identity function
--- reflects Term-restrictions for rt and rt.
-
-Are-reflecting-term-restrictions-id :
-  Are-reflecting-term-restrictions rt rt idᶠ idᶠ
-Are-reflecting-term-restrictions-id {rt = rt} = λ where
-    .Prodrec-reflected            → idᶠ
-    .Binder-reflected {b = BMΠ}   → idᶠ
-    .Binder-reflected {b = BMΣ _} → idᶠ
-  where
-  open Are-reflecting-term-restrictions
-  open Term-restrictions rt
 
 ------------------------------------------------------------------------
 -- Composition
@@ -721,564 +653,6 @@ Is-Σ-order-embedding-∘
   open Definition.Modality.Properties 𝕄₃
   open Tools.Reasoning.PartialOrder ≤-poset
 
--- Composition preserves Are-preserving-term-restrictions.
-
-Are-preserving-term-restrictions-∘ :
-  Are-preserving-term-restrictions rt₂ rt₃ tr₁ tr-Σ₁ →
-  Are-preserving-term-restrictions rt₁ rt₂ tr₂ tr-Σ₂ →
-  Are-preserving-term-restrictions
-    rt₁ rt₃ (tr₁ ∘→ tr₂) (tr-Σ₁ ∘→ tr-Σ₂)
-Are-preserving-term-restrictions-∘ m₁ m₂ = λ where
-    .Prodrec-preserved →
-      M₁.Prodrec-preserved ∘→ M₂.Prodrec-preserved
-    .Binder-preserved {b = BMΠ} →
-      M₁.Binder-preserved ∘→ M₂.Binder-preserved
-    .Binder-preserved {b = BMΣ _} →
-      M₁.Binder-preserved ∘→ M₂.Binder-preserved
-  where
-  open Are-preserving-term-restrictions
-  module M₁ = Are-preserving-term-restrictions m₁
-  module M₂ = Are-preserving-term-restrictions m₂
-
--- Composition preserves Are-reflecting-term-restrictions.
-
-Are-reflecting-term-restrictions-∘ :
-  Are-reflecting-term-restrictions rt₂ rt₃ tr₁ tr-Σ₁ →
-  Are-reflecting-term-restrictions rt₁ rt₂ tr₂ tr-Σ₂ →
-  Are-reflecting-term-restrictions rt₁ rt₃ (tr₁ ∘→ tr₂) (tr-Σ₁ ∘→ tr-Σ₂)
-Are-reflecting-term-restrictions-∘ m₁ m₂ = λ where
-    .Prodrec-reflected →
-      M₂.Prodrec-reflected ∘→ M₁.Prodrec-reflected
-    .Binder-reflected {b = BMΠ} →
-      M₂.Binder-reflected ∘→ M₁.Binder-reflected
-    .Binder-reflected {b = BMΣ _} →
-      M₂.Binder-reflected ∘→ M₁.Binder-reflected
-  where
-  open Are-reflecting-term-restrictions
-  module M₁ = Are-reflecting-term-restrictions m₁
-  module M₂ = Are-reflecting-term-restrictions m₂
-
-------------------------------------------------------------------------
--- Preserving/reflecting term restrictions
-
--- If tr preserves term restrictions for rt₁ and rt₂, then it also
--- does this for equal-binder-quantities M₁ rt₁ and
--- equal-binder-quantities M₂ rt₂.
-
-Are-preserving-term-restrictions-equal-binder-quantities :
-  Are-preserving-term-restrictions rt₁ rt₂ tr tr →
-  Are-preserving-term-restrictions
-    (equal-binder-quantities rt₁)
-    (equal-binder-quantities rt₂)
-    tr tr
-Are-preserving-term-restrictions-equal-binder-quantities {tr = tr} r =
-  record
-    { Prodrec-preserved = R.Prodrec-preserved
-    ; Binder-preserved  = λ {b = b} → λ where
-        (bn , refl) →
-            R.Binder-preserved bn
-          , tr-BinderMode-one-function _ _ refl b
-    }
-  where
-  module R = Are-preserving-term-restrictions r
-
--- If tr reflects term restrictions for rt₁ and rt₂, then it also does
--- this for equal-binder-quantities M₁ rt₁ and
--- equal-binder-quantities M₂ rt₂, assuming that the function is
--- injective.
-
-Are-reflecting-term-restrictions-equal-binder-quantities :
-  (∀ {p q} → tr p ≡ tr q → p ≡ q) →
-  Are-reflecting-term-restrictions rt₁ rt₂ tr tr →
-  Are-reflecting-term-restrictions
-    (equal-binder-quantities rt₁)
-    (equal-binder-quantities rt₂)
-    tr tr
-Are-reflecting-term-restrictions-equal-binder-quantities
-  {tr = tr} inj r = record
-  { Prodrec-reflected = Prodrec-reflected
-  ; Binder-reflected  = λ {b = b} {p = p} {q = q} (bn , eq) →
-        Binder-reflected bn
-      , inj (
-          tr p                     ≡˘⟨ tr-BinderMode-one-function _ _ refl b ⟩
-          tr-BinderMode tr tr b p  ≡⟨ eq ⟩
-          tr q                     ∎)
-  }
-  where
-  open Are-reflecting-term-restrictions r
-  open Tools.Reasoning.PropositionalEquality
-
--- If the functions tr and tr-Σ preserve term restrictions for two
--- modalities, then they also do this for certain term restrictions
--- obtained using second-ΠΣ-quantities-𝟘, assuming that tr maps 𝟘
--- to 𝟘.
-
-Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘 :
-  tr (Modality.𝟘 𝕄₁) ≡ Modality.𝟘 𝕄₂ →
-  Are-preserving-term-restrictions
-    (Modality.term-restrictions 𝕄₁)
-    (Modality.term-restrictions 𝕄₂)
-    tr tr-Σ →
-  Are-preserving-term-restrictions
-    (second-ΠΣ-quantities-𝟘 𝕄₁)
-    (second-ΠΣ-quantities-𝟘 𝕄₂)
-    tr tr-Σ
-Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘 tr-𝟘 r = record
-  { Prodrec-preserved = Prodrec-preserved
-  ; Binder-preserved  = λ where
-      (b , refl) → Binder-preserved b , tr-𝟘
-  }
-  where
-  open Are-preserving-term-restrictions r
-
--- If the functions tr and tr-Σ reflect term restrictions for two
--- modalities, then they also do this for certain term restrictions
--- obtained using second-ΠΣ-quantities-𝟘, assuming that tr only maps 𝟘
--- to 𝟘.
-
-Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘 :
-  (∀ {p} → tr p ≡ Modality.𝟘 𝕄₂ → p ≡ Modality.𝟘 𝕄₁) →
-  Are-reflecting-term-restrictions
-    (Modality.term-restrictions 𝕄₁)
-    (Modality.term-restrictions 𝕄₂)
-    tr tr-Σ →
-  Are-reflecting-term-restrictions
-    (second-ΠΣ-quantities-𝟘 𝕄₁)
-    (second-ΠΣ-quantities-𝟘 𝕄₂)
-    tr tr-Σ
-Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘 tr-𝟘 r = record
-  { Prodrec-reflected = Prodrec-reflected
-  ; Binder-reflected  = λ (b , eq) → Binder-reflected b , tr-𝟘 eq
-  }
-  where
-  open Are-reflecting-term-restrictions r
-
--- If the functions tr and tr-Σ preserve term restrictions for two
--- modalities, then they also do this for certain term restrictions
--- obtained using second-ΠΣ-quantities-𝟘-or-ω, given that certain
--- assumptions hold.
-
-Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω :
-  ∀ {ω₁ ω₂} →
-  Is-morphism 𝕄₁ 𝕄₂ tr →
-  Is-Σ-morphism 𝕄₁ 𝕄₂ tr tr-Σ →
-  (¬ T (Modality.𝟘ᵐ-allowed 𝕄₁) →
-   (∀ {p} → tr p ≡ Modality.𝟘 𝕄₂ ⇔ p ≡ Modality.𝟘 𝕄₁) ×
-   (∀ {p} → tr-Σ p ≡ Modality.𝟘 𝕄₂ ⇔ p ≡ Modality.𝟘 𝕄₁)) →
-  tr ω₁ ≡ ω₂ →
-  Are-preserving-term-restrictions
-    (Modality.term-restrictions 𝕄₁)
-    (Modality.term-restrictions 𝕄₂)
-    tr tr-Σ →
-  Are-preserving-term-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ω₁ 𝕄₁)
-    (second-ΠΣ-quantities-𝟘-or-ω ω₂ 𝕄₂)
-    tr tr-Σ
-Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-  {𝕄₁ = 𝕄₁} {𝕄₂ = 𝕄₂} {tr = tr} {tr-Σ = tr-Σ} {ω₁ = ω₁} {ω₂ = ω₂}
-  m m-Σ tr-𝟘 tr-ω r = record
-  { Prodrec-preserved = Prodrec-preserved
-  ; Binder-preserved  = λ {b = b} (bn , is-𝟘 , not-𝟘) →
-      Binder-preserved bn , lemma₁ b is-𝟘 , lemma₂ b not-𝟘
-  }
-  where
-  module M₁ = Modality 𝕄₁
-  module M₂ = Modality 𝕄₂
-  open Are-preserving-term-restrictions r
-  open Definition.Modality.Properties 𝕄₁
-  open Is-morphism m
-  open Is-Σ-morphism m-Σ
-
-  tr-≡-𝟘-⇔′ : ∀ {p} → tr p ≡ M₂.𝟘 ⇔ p ≡ M₁.𝟘
-  tr-≡-𝟘-⇔′ = Mode.𝟘ᵐ-allowed-elim 𝕄₁
-    tr-≡-𝟘-⇔
-    (λ not-ok → tr-𝟘 not-ok .proj₁)
-
-  tr-Σ-≡-𝟘-⇔ : ∀ {p} → tr-Σ p ≡ M₂.𝟘 ⇔ p ≡ M₁.𝟘
-  tr-Σ-≡-𝟘-⇔ = Mode.𝟘ᵐ-allowed-elim 𝕄₁
-    (λ ok →
-         (λ hyp → tr-Σ-≡-𝟘-→ (𝟘ᵐ-in-second-if-in-first ok) hyp .proj₂)
-       , (λ { refl → tr-Σ-𝟘-≡ m ok }))
-    (λ not-ok → tr-𝟘 not-ok .proj₂)
-
-  lemma₁ :
-    ∀ {p q} b →
-    (p ≡ M₁.𝟘 → q ≡ M₁.𝟘) →
-    tr-BinderMode tr tr-Σ b p ≡ M₂.𝟘 → tr q ≡ M₂.𝟘
-  lemma₁ {p = p} {q = q} BMΠ hyp =
-    tr p ≡ M₂.𝟘  →⟨ tr-≡-𝟘-⇔′ .proj₁ ⟩
-    p ≡ M₁.𝟘     →⟨ hyp ⟩
-    q ≡ M₁.𝟘     →⟨ tr-≡-𝟘-⇔′ .proj₂ ⟩
-    tr q ≡ M₂.𝟘  □
-  lemma₁ {p = p} {q = q} (BMΣ _) hyp =
-    tr-Σ p ≡ M₂.𝟘  →⟨ tr-Σ-≡-𝟘-⇔ .proj₁ ⟩
-    p ≡ M₁.𝟘       →⟨ hyp ⟩
-    q ≡ M₁.𝟘       →⟨ tr-≡-𝟘-⇔′ .proj₂ ⟩
-    tr q ≡ M₂.𝟘    □
-
-  lemma₂ :
-    ∀ {p q} b →
-    (p ≢ M₁.𝟘 → q ≡ ω₁) →
-    tr-BinderMode tr tr-Σ b p ≢ M₂.𝟘 → tr q ≡ ω₂
-  lemma₂ {p = p} {q = q} BMΠ hyp =
-    tr p ≢ M₂.𝟘  →⟨ _∘→ tr-≡-𝟘-⇔′ .proj₂ ⟩
-    p ≢ M₁.𝟘     →⟨ hyp ⟩
-    q ≡ ω₁       →⟨ (λ { refl → tr-ω }) ⟩
-    tr q ≡ ω₂    □
-  lemma₂ {p = p} {q = q} (BMΣ _) hyp =
-    tr-Σ p ≢ M₂.𝟘  →⟨ _∘→ tr-Σ-≡-𝟘-⇔ .proj₂ ⟩
-    p ≢ M₁.𝟘       →⟨ hyp ⟩
-    q ≡ ω₁         →⟨ (λ { refl → tr-ω }) ⟩
-    tr q ≡ ω₂      □
-
--- A variant of
--- Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω with
--- different assumptions.
-
-Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω′ :
-  ∀ {ω₁ ω₂} →
-  Is-order-embedding 𝕄₁ 𝕄₂ tr →
-  Is-Σ-morphism 𝕄₁ 𝕄₂ tr tr-Σ →
-  (¬ T (Modality.𝟘ᵐ-allowed 𝕄₁) → ∀ {p} → tr-Σ p ≡ tr p) →
-  tr ω₁ ≡ ω₂ →
-  Are-preserving-term-restrictions
-    (Modality.term-restrictions 𝕄₁)
-    (Modality.term-restrictions 𝕄₂)
-    tr tr-Σ →
-  Are-preserving-term-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ω₁ 𝕄₁)
-    (second-ΠΣ-quantities-𝟘-or-ω ω₂ 𝕄₂)
-    tr tr-Σ
-Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
-  {𝕄₁ = 𝕄₁} {𝕄₂ = 𝕄₂} {tr = tr} {tr-Σ = tr-Σ} {ω₁ = ω₁} {ω₂ = ω₂}
-  emb m tr-Σ≡tr tr-ω r = record
-  { Prodrec-preserved = Prodrec-preserved
-  ; Binder-preserved  = λ {b = b} (bn , is-𝟘 , not-𝟘) →
-      Binder-preserved bn , lemma₂ b is-𝟘 , lemma₄ b not-𝟘
-  }
-  where
-  module M₁ = Modality 𝕄₁
-  module M₂ = Modality 𝕄₂
-  open Are-preserving-term-restrictions r
-  open Definition.Modality.Properties 𝕄₁
-  open Is-order-embedding emb
-  open Is-Σ-morphism m
-
-  lemma₁ :
-    ∀ {p q} →
-    (p ≡ M₁.𝟘 → q ≡ M₁.𝟘) →
-    tr p ≡ M₂.𝟘 → tr q ≡ M₂.𝟘
-  lemma₁ {p = p} {q = q} hyp =
-    case trivial-⊎-tr-𝟘 of λ where
-      (inj₁ 𝟙≡𝟘) →
-        tr p ≡ M₂.𝟘  ≡⟨ cong (λ p → tr p ≡ _) (≈-trivial 𝟙≡𝟘) ⟩→
-        tr q ≡ M₂.𝟘  □
-      (inj₂ tr-𝟘) →
-        tr p ≡ M₂.𝟘     ≡⟨ cong (_ ≡_) (sym tr-𝟘) ⟩→
-        tr p ≡ tr M₁.𝟘  →⟨ tr-injective ⟩
-        p ≡ M₁.𝟘        →⟨ hyp ⟩
-        q ≡ M₁.𝟘        →⟨ (λ { refl → tr-𝟘 }) ⟩
-        tr q ≡ M₂.𝟘     □
-
-  lemma₂ :
-    ∀ {p q} b →
-    (p ≡ M₁.𝟘 → q ≡ M₁.𝟘) →
-    tr-BinderMode tr tr-Σ b p ≡ M₂.𝟘 → tr q ≡ M₂.𝟘
-  lemma₂                 BMΠ     = lemma₁
-  lemma₂ {p = p} {q = q} (BMΣ _) = λ hyp →
-    Mode.𝟘ᵐ-allowed-elim 𝕄₁
-      (λ ok →
-         tr-Σ p ≡ M₂.𝟘  →⟨ (λ hyp → tr-Σ-≡-𝟘-→ (𝟘ᵐ-in-second-if-in-first ok) hyp .proj₂) ⟩
-         p ≡ M₁.𝟘       →⟨ hyp ⟩
-         q ≡ M₁.𝟘       →⟨ tr-≡-𝟘-⇔ ok .proj₂ ⟩
-         tr q ≡ M₂.𝟘    □)
-      (λ not-ok →
-         tr-Σ p ≡ M₂.𝟘  ≡⟨ cong (_≡ _) (tr-Σ≡tr not-ok) ⟩→
-         tr p ≡ M₂.𝟘    →⟨ lemma₁ hyp ⟩
-         tr q ≡ M₂.𝟘    □)
-
-  lemma₃ :
-    ∀ {p q} →
-    (p ≢ M₁.𝟘 → q ≡ ω₁) →
-    tr p ≢ M₂.𝟘 → tr q ≡ ω₂
-  lemma₃ {p = p} {q = q} hyp =
-    case trivial-⊎-tr-𝟘 of λ where
-      (inj₁ 𝟙≡𝟘) →
-        tr p ≢ M₂.𝟘  →⟨ (λ _ → ≈-trivial 𝟙≡𝟘) ⟩
-        q ≡ ω₁       →⟨ (λ { refl → tr-ω }) ⟩
-        tr q ≡ ω₂    □
-      (inj₂ tr-𝟘) →
-        tr p ≢ M₂.𝟘     ≡⟨ cong (_ ≢_) (sym tr-𝟘) ⟩→
-        tr p ≢ tr M₁.𝟘  →⟨ _∘→ cong tr ⟩
-        p ≢ M₁.𝟘        →⟨ hyp ⟩
-        q ≡ ω₁          →⟨ (λ { refl → tr-ω }) ⟩
-        tr q ≡ ω₂       □
-
-  lemma₄ :
-    ∀ {p q} b →
-    (p ≢ M₁.𝟘 → q ≡ ω₁) →
-    tr-BinderMode tr tr-Σ b p ≢ M₂.𝟘 → tr q ≡ ω₂
-  lemma₄                 BMΠ     = lemma₃
-  lemma₄ {p = p} {q = q} (BMΣ Σ) = λ hyp →
-    Mode.𝟘ᵐ-allowed-elim 𝕄₁
-      (λ ok →
-         tr-Σ p ≢ M₂.𝟘  →⟨ _∘→ (λ { refl → tr-Σ-𝟘-≡ tr-morphism ok }) ⟩
-         p ≢ M₁.𝟘       →⟨ hyp ⟩
-         q ≡ ω₁         →⟨ (λ { refl → tr-ω }) ⟩
-         tr q ≡ ω₂      □)
-      (λ not-ok →
-         tr-Σ p ≢ M₂.𝟘  ≡⟨ cong (_≢ _) (tr-Σ≡tr not-ok) ⟩→
-         tr p ≢ M₂.𝟘    →⟨ lemma₃ hyp ⟩
-         tr q ≡ ω₂      □)
-
--- If the functions tr and tr-Σ reflect term restrictions for two
--- modalities, then they also do this for certain term restrictions
--- obtained using second-ΠΣ-quantities-𝟘-or-ω, given that certain
--- assumptions hold.
-
-Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω :
-  ∀ {ω₁ ω₂} →
-  Is-morphism 𝕄₁ 𝕄₂ tr →
-  Is-Σ-morphism 𝕄₁ 𝕄₂ tr tr-Σ →
-  (¬ T (Modality.𝟘ᵐ-allowed 𝕄₁) →
-   (∀ {p} → tr p ≡ Modality.𝟘 𝕄₂ ⇔ p ≡ Modality.𝟘 𝕄₁) ×
-   (∀ {p} → tr-Σ p ≡ Modality.𝟘 𝕄₂ ⇔ p ≡ Modality.𝟘 𝕄₁)) →
-  (∀ {p} → tr p ≡ ω₂ → p ≡ ω₁) →
-  Are-reflecting-term-restrictions
-    (Modality.term-restrictions 𝕄₁)
-    (Modality.term-restrictions 𝕄₂)
-    tr tr-Σ →
-  Are-reflecting-term-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ω₁ 𝕄₁)
-    (second-ΠΣ-quantities-𝟘-or-ω ω₂ 𝕄₂)
-    tr tr-Σ
-Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-  {𝕄₁ = 𝕄₁} {𝕄₂ = 𝕄₂} {tr = tr} {tr-Σ = tr-Σ} {ω₁ = ω₁} {ω₂ = ω₂}
-  m m-Σ tr-𝟘 tr-ω r = record
-  { Prodrec-reflected = Prodrec-reflected
-  ; Binder-reflected  = λ {b = b} (bn , is-𝟘 , not-𝟘) →
-      Binder-reflected bn , lemma₁ b is-𝟘 , lemma₂ b not-𝟘
-  }
-  where
-  module M₁ = Modality 𝕄₁
-  module M₂ = Modality 𝕄₂
-  open Are-reflecting-term-restrictions r
-  open Definition.Modality.Properties 𝕄₁
-  open Is-morphism m
-  open Is-Σ-morphism m-Σ
-
-  tr-≡-𝟘-⇔′ : ∀ {p} → tr p ≡ M₂.𝟘 ⇔ p ≡ M₁.𝟘
-  tr-≡-𝟘-⇔′ = Mode.𝟘ᵐ-allowed-elim 𝕄₁
-    tr-≡-𝟘-⇔
-    (λ not-ok → tr-𝟘 not-ok .proj₁)
-
-  tr-Σ-≡-𝟘-⇔ : ∀ {p} → tr-Σ p ≡ M₂.𝟘 ⇔ p ≡ M₁.𝟘
-  tr-Σ-≡-𝟘-⇔ = Mode.𝟘ᵐ-allowed-elim 𝕄₁
-    (λ ok →
-         (λ hyp → tr-Σ-≡-𝟘-→ (𝟘ᵐ-in-second-if-in-first ok) hyp .proj₂)
-       , (λ { refl → tr-Σ-𝟘-≡ m ok }))
-    (λ not-ok → tr-𝟘 not-ok .proj₂)
-
-  lemma₁ :
-    ∀ {p q} b →
-    (tr-BinderMode tr tr-Σ b p ≡ M₂.𝟘 → tr q ≡ M₂.𝟘) →
-    p ≡ M₁.𝟘 → q ≡ M₁.𝟘
-  lemma₁ {p = p} {q = q} BMΠ hyp =
-    p ≡ M₁.𝟘     →⟨ tr-≡-𝟘-⇔′ .proj₂ ⟩
-    tr p ≡ M₂.𝟘  →⟨ hyp ⟩
-    tr q ≡ M₂.𝟘  →⟨ tr-≡-𝟘-⇔′ .proj₁ ⟩
-    q ≡ M₁.𝟘     □
-  lemma₁ {p = p} {q = q} (BMΣ _) hyp =
-    p ≡ M₁.𝟘       →⟨ tr-Σ-≡-𝟘-⇔ .proj₂ ⟩
-    tr-Σ p ≡ M₂.𝟘  →⟨ hyp ⟩
-    tr q ≡ M₂.𝟘    →⟨ tr-≡-𝟘-⇔′ .proj₁ ⟩
-    q ≡ M₁.𝟘       □
-
-  lemma₂ :
-    ∀ {p q} b →
-    (tr-BinderMode tr tr-Σ b p ≢ M₂.𝟘 → tr q ≡ ω₂) →
-    p ≢ M₁.𝟘 → q ≡ ω₁
-  lemma₂ {p = p} {q = q} BMΠ hyp =
-    p ≢ M₁.𝟘     →⟨ _∘→ tr-≡-𝟘-⇔′ .proj₁ ⟩
-    tr p ≢ M₂.𝟘  →⟨ hyp ⟩
-    tr q ≡ ω₂    →⟨ tr-ω ⟩
-    q ≡ ω₁       □
-  lemma₂ {p = p} {q = q} (BMΣ _) hyp =
-    p ≢ M₁.𝟘       →⟨ _∘→ tr-Σ-≡-𝟘-⇔ .proj₁ ⟩
-    tr-Σ p ≢ M₂.𝟘  →⟨ hyp ⟩
-    tr q ≡ ω₂      →⟨ tr-ω ⟩
-    q ≡ ω₁         □
-
--- A variant of
--- Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω with
--- different assumptions.
-
-Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω′ :
-  ∀ {ω₁ ω₂} →
-  Is-order-embedding 𝕄₁ 𝕄₂ tr →
-  Is-Σ-morphism 𝕄₁ 𝕄₂ tr tr-Σ →
-  (¬ T (Modality.𝟘ᵐ-allowed 𝕄₁) → ∀ {p} → tr-Σ p ≡ tr p) →
-  (∀ {p} → tr p ≡ ω₂ → p ≡ ω₁) →
-  Are-reflecting-term-restrictions
-    (Modality.term-restrictions 𝕄₁)
-    (Modality.term-restrictions 𝕄₂)
-    tr tr-Σ →
-  Are-reflecting-term-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ω₁ 𝕄₁)
-    (second-ΠΣ-quantities-𝟘-or-ω ω₂ 𝕄₂)
-    tr tr-Σ
-Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
-  {𝕄₁ = 𝕄₁} {𝕄₂ = 𝕄₂} {tr = tr} {tr-Σ = tr-Σ} {ω₁ = ω₁} {ω₂ = ω₂}
-  emb m tr-Σ≡tr tr-ω r = record
-  { Prodrec-reflected = Prodrec-reflected
-  ; Binder-reflected  = λ {b = b} (bn , is-𝟘 , not-𝟘) →
-      Binder-reflected bn , lemma₂ b is-𝟘 , lemma₄ b not-𝟘
-  }
-  where
-  module M₁ = Modality 𝕄₁
-  module M₂ = Modality 𝕄₂
-  open Are-reflecting-term-restrictions r
-  open Definition.Modality.Properties 𝕄₁
-  open Is-order-embedding emb
-  open Is-Σ-morphism m
-
-  lemma₁ :
-    ∀ {p q} →
-    (tr p ≡ M₂.𝟘 → tr q ≡ M₂.𝟘) →
-    p ≡ M₁.𝟘 → q ≡ M₁.𝟘
-  lemma₁ {p = p} {q = q} hyp =
-    case trivial-⊎-tr-𝟘 of λ where
-      (inj₁ 𝟙≡𝟘) →
-        p ≡ M₁.𝟘  →⟨ (λ _ → ≈-trivial 𝟙≡𝟘) ⟩
-        q ≡ M₁.𝟘  □
-      (inj₂ tr-𝟘) →
-        p ≡ M₁.𝟘        →⟨ (λ { refl → tr-𝟘 }) ⟩
-        tr p ≡ M₂.𝟘     →⟨ hyp ⟩
-        tr q ≡ M₂.𝟘     ≡⟨ cong (_ ≡_) (sym tr-𝟘) ⟩→
-        tr q ≡ tr M₁.𝟘  →⟨ tr-injective ⟩
-        q ≡ M₁.𝟘        □
-
-  lemma₂ :
-    ∀ {p q} b →
-    (tr-BinderMode tr tr-Σ b p ≡ M₂.𝟘 → tr q ≡ M₂.𝟘) →
-    p ≡ M₁.𝟘 → q ≡ M₁.𝟘
-  lemma₂                 BMΠ     = lemma₁
-  lemma₂ {p = p} {q = q} (BMΣ _) = λ hyp →
-    Mode.𝟘ᵐ-allowed-elim 𝕄₁
-      (λ ok →
-         p ≡ M₁.𝟘       →⟨ (λ { refl → tr-Σ-𝟘-≡ tr-morphism ok }) ⟩
-         tr-Σ p ≡ M₂.𝟘  →⟨ hyp ⟩
-         tr q ≡ M₂.𝟘    →⟨ tr-≡-𝟘-⇔ ok .proj₁ ⟩
-         q ≡ M₁.𝟘       □)
-      (λ not-ok → lemma₁ (
-         tr p ≡ M₂.𝟘    ≡⟨ cong (_≡ _) (sym (tr-Σ≡tr not-ok)) ⟩→
-         tr-Σ p ≡ M₂.𝟘  →⟨ hyp ⟩
-         tr q ≡ M₂.𝟘    □))
-
-  lemma₃ :
-    ∀ {p q} →
-    (tr p ≢ M₂.𝟘 → tr q ≡ ω₂) →
-    p ≢ M₁.𝟘 → q ≡ ω₁
-  lemma₃ {p = p} {q = q} hyp =
-    case trivial-⊎-tr-𝟘 of λ where
-      (inj₁ 𝟙≡𝟘) →
-        p ≢ M₁.𝟘  →⟨ (λ _ → ≈-trivial 𝟙≡𝟘) ⟩
-        q ≡ ω₁    □
-      (inj₂ tr-𝟘) →
-        p ≢ M₁.𝟘        →⟨ _∘→ tr-injective ⟩
-        tr p ≢ tr M₁.𝟘  ≡⟨ cong (_ ≢_) tr-𝟘 ⟩→
-        tr p ≢ M₂.𝟘     →⟨ hyp ⟩
-        tr q ≡ ω₂       →⟨ tr-ω ⟩
-        q ≡ ω₁          □
-
-  lemma₄ :
-    ∀ {p q} b →
-    (tr-BinderMode tr tr-Σ b p ≢ M₂.𝟘 → tr q ≡ ω₂) →
-    p ≢ M₁.𝟘 → q ≡ ω₁
-  lemma₄                 BMΠ     = lemma₃
-  lemma₄ {p = p} {q = q} (BMΣ _) = λ hyp →
-    Mode.𝟘ᵐ-allowed-elim 𝕄₁
-      (λ ok →
-         p ≢ M₁.𝟘       →⟨ _∘→ (λ hyp → tr-Σ-≡-𝟘-→ (𝟘ᵐ-in-second-if-in-first ok) hyp .proj₂) ⟩
-         tr-Σ p ≢ M₂.𝟘  →⟨ hyp ⟩
-         tr q ≡ ω₂      →⟨ tr-ω ⟩
-         q ≡ ω₁          □)
-      (λ not-ok → lemma₃ (
-         tr p ≢ M₂.𝟘    ≡⟨ cong (_≢ _) (sym (tr-Σ≡tr not-ok)) ⟩→
-         tr-Σ p ≢ M₂.𝟘  →⟨ hyp ⟩
-         tr q ≡ ω₂      □))
-
--- If the functions tr and tr-Σ preserve term restrictions for two
--- modalities, then they also do this for certain term restrictions
--- obtained using no-erased-matches, given that a certain assumption
--- holds.
-
-Are-preserving-term-restrictions-no-erased-matches :
-  ∀ 𝕄₁ 𝕄₂ →
-  (Modality.𝟙 𝕄₂ ≢ Modality.𝟘 𝕄₂ →
-   Modality.𝟙 𝕄₁ ≢ Modality.𝟘 𝕄₁ ×
-   (∀ {p} → tr p ≡ Modality.𝟘 𝕄₂ → p ≡ Modality.𝟘 𝕄₁) ⊎
-   (∀ {p} → tr p ≢ Modality.𝟘 𝕄₂)) →
-  Are-preserving-term-restrictions
-    (Modality.term-restrictions 𝕄₁)
-    (Modality.term-restrictions 𝕄₂)
-    tr tr-Σ →
-  Are-preserving-term-restrictions
-    (no-erased-matches 𝕄₁)
-    (no-erased-matches 𝕄₂)
-    tr tr-Σ
-Are-preserving-term-restrictions-no-erased-matches
-  {tr = tr} 𝕄₁ 𝕄₂ hyp r = record
-  { Binder-preserved  = Binder-preserved
-  ; Prodrec-preserved = λ {r = r} (p , ≢𝟘) →
-        Prodrec-preserved p
-      , (λ 𝟙≢𝟘 → case hyp 𝟙≢𝟘 of λ where
-           (inj₁ (𝟙≢𝟘 , tr-≡-𝟘-→)) →
-             tr r ≡ M₂.𝟘  →⟨ tr-≡-𝟘-→ ⟩
-             r ≡ M₁.𝟘     →⟨ ≢𝟘 𝟙≢𝟘 ⟩
-             ⊥            □
-           (inj₂ ≢𝟘) →
-             tr r ≡ M₂.𝟘  →⟨ ≢𝟘 ⟩
-             ⊥            □)
-  }
-  where
-  module M₁ = Modality 𝕄₁
-  module M₂ = Modality 𝕄₂
-  open Are-preserving-term-restrictions r
-
--- If the functions tr and tr-Σ reflect term restrictions for two
--- modalities, then they also do this for certain term restrictions
--- obtained using no-erased-matches, given that a certain assumption
--- holds.
-
-Are-reflecting-term-restrictions-no-erased-matches :
-  ∀ 𝕄₁ 𝕄₂ →
-  (Modality.𝟙 𝕄₁ ≢ Modality.𝟘 𝕄₁ →
-   Modality.𝟙 𝕄₂ ≢ Modality.𝟘 𝕄₂ ×
-   (∀ {p} → p ≡ Modality.𝟘 𝕄₁ → tr p ≡ Modality.𝟘 𝕄₂)) →
-  Are-reflecting-term-restrictions
-    (Modality.term-restrictions 𝕄₁)
-    (Modality.term-restrictions 𝕄₂)
-    tr tr-Σ →
-  Are-reflecting-term-restrictions
-    (no-erased-matches 𝕄₁)
-    (no-erased-matches 𝕄₂)
-    tr tr-Σ
-Are-reflecting-term-restrictions-no-erased-matches
-  {tr = tr} 𝕄₁ 𝕄₂ hyp r = record
-  { Binder-reflected  = Binder-reflected
-  ; Prodrec-reflected = λ {r = r} (p , ≢𝟘) →
-        Prodrec-reflected p
-      , (λ 𝟙≢𝟘 →
-           r ≡ M₁.𝟘     →⟨ hyp 𝟙≢𝟘 .proj₂ ⟩
-           tr r ≡ M₂.𝟘  →⟨ ≢𝟘 (hyp 𝟙≢𝟘 .proj₁) ⟩
-           ⊥            □)
-  }
-  where
-  module M₁ = Modality 𝕄₁
-  module M₂ = Modality 𝕄₂
-  open Are-reflecting-term-restrictions r
-
 ------------------------------------------------------------------------
 -- Some translation functions
 
@@ -1382,7 +756,7 @@ linearity→affine =
 -- modality to an erasure modality.
 
 unit⇨erasure :
-  Is-order-embedding (UnitModality rt) (ErasureModality r) unit→erasure
+  Is-order-embedding UnitModality (ErasureModality rs) unit→erasure
 unit⇨erasure = λ where
     .tr-order-reflecting _    → refl
     .trivial _ _              → refl
@@ -1410,8 +784,8 @@ unit⇨erasure = λ where
 -- allow 𝟘ᵐ.
 
 erasure⇨unit :
-  ¬ T (Restrictions.𝟘ᵐ-allowed r) →
-  Is-morphism (ErasureModality r) (UnitModality rt) erasure→unit
+  ¬ T (Mode-restrictions.𝟘ᵐ-allowed rs) →
+  Is-morphism (ErasureModality rs) UnitModality erasure→unit
 erasure⇨unit not-ok = λ where
     .tr-𝟘-≤                      → refl
     .tr-≡-𝟘-⇔ ok                 → ⊥-elim (not-ok ok)
@@ -1428,8 +802,7 @@ erasure⇨unit not-ok = λ where
 -- modality to a unit modality.
 
 ¬erasure⇨unit :
-  ¬ Is-order-embedding (ErasureModality r) (UnitModality rt)
-      erasure→unit
+  ¬ Is-order-embedding (ErasureModality rs) UnitModality erasure→unit
 ¬erasure⇨unit m =
   case Is-order-embedding.tr-injective m {p = 𝟘} {q = ω} refl of λ ()
 
@@ -1440,12 +813,12 @@ erasure⇨unit not-ok = λ where
 -- 𝟙 ≰ 𝟘.
 
 erasure⇨zero-one-many :
-  Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
+  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
   Is-order-embedding
-    (ErasureModality r₁)
-    (zero-one-many-greatest 𝟙≤𝟘 r₂)
+    (ErasureModality rs₁)
+    (zero-one-many-greatest 𝟙≤𝟘 rs₂)
     erasure→zero-one-many
-erasure⇨zero-one-many {𝟙≤𝟘 = 𝟙≤𝟘} {r₂ = r₂} refl = λ where
+erasure⇨zero-one-many {rs₂ = rs₂} {𝟙≤𝟘 = 𝟙≤𝟘} refl = λ where
     .Is-order-embedding.trivial not-ok ok   → ⊥-elim (not-ok ok)
     .Is-order-embedding.trivial-⊎-tr-𝟘      → inj₂ refl
     .Is-order-embedding.tr-≤                → ω , refl
@@ -1469,7 +842,7 @@ erasure⇨zero-one-many {𝟙≤𝟘 = 𝟙≤𝟘} {r₂ = r₂} refl = λ wher
       .Is-morphism.𝟘ᵐ-in-second-if-in-first → idᶠ
   where
   module 𝟘𝟙ω = ZOM 𝟙≤𝟘
-  open Definition.Modality.Properties (zero-one-many-greatest 𝟙≤𝟘 r₂)
+  open Definition.Modality.Properties (zero-one-many-greatest 𝟙≤𝟘 rs₂)
   open Tools.Reasoning.PartialOrder ≤-poset
 
   tr′ = erasure→zero-one-many
@@ -1624,10 +997,10 @@ erasure⇨zero-one-many {𝟙≤𝟘 = 𝟙≤𝟘} {r₂ = r₂} refl = λ wher
 -- 𝟙 ≰ 𝟘.
 
 zero-one-many⇨erasure :
-  Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
-  Is-morphism (zero-one-many-greatest 𝟙≤𝟘 r₁) (ErasureModality r₂)
+  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
+  Is-morphism (zero-one-many-greatest 𝟙≤𝟘 rs₁) (ErasureModality rs₂)
     zero-one-many→erasure
-zero-one-many⇨erasure {𝟙≤𝟘 = 𝟙≤𝟘} {r₂ = r₂} refl = λ where
+zero-one-many⇨erasure {rs₂ = rs₂} {𝟙≤𝟘 = 𝟙≤𝟘} refl = λ where
     .Is-morphism.tr-𝟘-≤                   → refl
     .Is-morphism.tr-≡-𝟘-⇔ _               → tr-≡-𝟘 _ , λ { refl → refl }
     .Is-morphism.tr-<-𝟘 not-ok ok         → ⊥-elim (not-ok ok)
@@ -1639,7 +1012,7 @@ zero-one-many⇨erasure {𝟙≤𝟘 = 𝟙≤𝟘} {r₂ = r₂} refl = λ wher
     .Is-morphism.𝟘ᵐ-in-second-if-in-first → idᶠ
   where
   module 𝟘𝟙ω = ZOM 𝟙≤𝟘
-  open Definition.Modality.Properties (ErasureModality r₂)
+  open Definition.Modality.Properties (ErasureModality rs₂)
 
   tr′ = zero-one-many→erasure
 
@@ -1722,8 +1095,8 @@ zero-one-many⇨erasure {𝟙≤𝟘 = 𝟙≤𝟘} {r₂ = r₂} refl = λ wher
 
 ¬zero-one-many⇨erasure :
   ¬ Is-order-embedding
-      (zero-one-many-greatest 𝟙≤𝟘 r₁)
-      (ErasureModality r₂)
+      (zero-one-many-greatest 𝟙≤𝟘 rs₁)
+      (ErasureModality rs₂)
       zero-one-many→erasure
 ¬zero-one-many⇨erasure m =
   case Is-order-embedding.tr-injective m {p = 𝟙} {q = ω} refl of λ ()
@@ -1733,8 +1106,8 @@ zero-one-many⇨erasure {𝟙≤𝟘 = 𝟙≤𝟘} {r₂ = r₂} refl = λ wher
 -- modalities allow 𝟘ᵐ, or none of them do.
 
 erasure⇨linearity :
-  Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
-  Is-order-embedding (ErasureModality r₁) (linearityModality r₂)
+  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
+  Is-order-embedding (ErasureModality rs₁) (linearityModality rs₂)
     erasure→zero-one-many
 erasure⇨linearity = erasure⇨zero-one-many
 
@@ -1743,8 +1116,8 @@ erasure⇨linearity = erasure⇨zero-one-many
 -- modalities allow 𝟘ᵐ, or none of them do.
 
 linearity⇨erasure :
-  Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
-  Is-morphism (linearityModality r₁) (ErasureModality r₂)
+  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
+  Is-morphism (linearityModality rs₁) (ErasureModality rs₂)
     zero-one-many→erasure
 linearity⇨erasure = zero-one-many⇨erasure
 
@@ -1752,7 +1125,7 @@ linearity⇨erasure = zero-one-many⇨erasure
 -- linear types modality to an erasure modality.
 
 ¬linearity⇨erasure :
-  ¬ Is-order-embedding (linearityModality r₁) (ErasureModality r₂)
+  ¬ Is-order-embedding (linearityModality rs₁) (ErasureModality rs₂)
       zero-one-many→erasure
 ¬linearity⇨erasure = ¬zero-one-many⇨erasure
 
@@ -1761,8 +1134,8 @@ linearity⇨erasure = zero-one-many⇨erasure
 -- both modalities allow 𝟘ᵐ, or none of them do.
 
 erasure⇨affine :
-  Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
-  Is-order-embedding (ErasureModality r₁) (affineModality r₂)
+  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
+  Is-order-embedding (ErasureModality rs₁) (affineModality rs₂)
     erasure→zero-one-many
 erasure⇨affine = erasure⇨zero-one-many
 
@@ -1771,8 +1144,8 @@ erasure⇨affine = erasure⇨zero-one-many
 -- modalities allow 𝟘ᵐ, or none of them do.
 
 affine⇨erasure :
-  Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
-  Is-morphism (affineModality r₁) (ErasureModality r₂)
+  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
+  Is-morphism (affineModality rs₁) (ErasureModality rs₂)
     zero-one-many→erasure
 affine⇨erasure = zero-one-many⇨erasure
 
@@ -1780,7 +1153,7 @@ affine⇨erasure = zero-one-many⇨erasure
 -- an affine types modality to an erasure modality.
 
 ¬affine⇨erasure :
-  ¬ Is-order-embedding (affineModality r₁) (ErasureModality r₂)
+  ¬ Is-order-embedding (affineModality rs₁) (ErasureModality rs₂)
       zero-one-many→erasure
 ¬affine⇨erasure = ¬zero-one-many⇨erasure
 
@@ -1789,10 +1162,10 @@ affine⇨erasure = zero-one-many⇨erasure
 -- that either both modalities allow 𝟘ᵐ, or none of them do.
 
 linearity⇨linear-or-affine :
-  Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
-  Is-order-embedding (linearityModality r₁) (linear-or-affine r₂)
+  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
+  Is-order-embedding (linearityModality rs₁) (linear-or-affine rs₂)
     linearity→linear-or-affine
-linearity⇨linear-or-affine {r₂ = r₂} refl = λ where
+linearity⇨linear-or-affine {rs₂ = rs₂} refl = λ where
     .Is-order-embedding.trivial not-ok ok   → ⊥-elim (not-ok ok)
     .Is-order-embedding.trivial-⊎-tr-𝟘      → inj₂ refl
     .Is-order-embedding.tr-≤                → ω , refl
@@ -1814,7 +1187,7 @@ linearity⇨linear-or-affine {r₂ = r₂} refl = λ where
       .Is-morphism.tr-⊛ {r = r}             → tr-⊛ _ _ r
       .Is-morphism.𝟘ᵐ-in-second-if-in-first → idᶠ
   where
-  open Definition.Modality.Properties (linear-or-affine r₂)
+  open Definition.Modality.Properties (linear-or-affine rs₂)
 
   tr′ = linearity→linear-or-affine
 
@@ -2994,10 +2367,10 @@ linearity⇨linear-or-affine {r₂ = r₂} refl = λ where
 -- either both modalities allow 𝟘ᵐ, or none of them do.
 
 linear-or-affine⇨linearity :
-  Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
-  Is-morphism (linear-or-affine r₁) (linearityModality r₂)
+  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
+  Is-morphism (linear-or-affine rs₁) (linearityModality rs₂)
     linear-or-affine→linearity
-linear-or-affine⇨linearity {r₂ = r₂} refl = λ where
+linear-or-affine⇨linearity {rs₂ = rs₂} refl = λ where
     .Is-morphism.tr-𝟘-≤                   → refl
     .Is-morphism.tr-≡-𝟘-⇔ _               → tr-≡-𝟘 _ , λ { refl → refl }
     .Is-morphism.tr-<-𝟘 not-ok ok         → ⊥-elim (not-ok ok)
@@ -3008,7 +2381,7 @@ linear-or-affine⇨linearity {r₂ = r₂} refl = λ where
     .Is-morphism.tr-⊛ {r = r}             → ≤-reflexive (tr-⊛ _ _ r)
     .Is-morphism.𝟘ᵐ-in-second-if-in-first → idᶠ
   where
-  open Definition.Modality.Properties (linearityModality r₂)
+  open Definition.Modality.Properties (linearityModality rs₂)
 
   tr′ = linear-or-affine→linearity
 
@@ -3139,7 +2512,7 @@ linear-or-affine⇨linearity {r₂ = r₂} refl = λ where
 -- from a linear or affine types modality to a linear types modality.
 
 ¬linear-or-affine⇨linearity :
-  ¬ Is-order-embedding (linear-or-affine r₁) (linearityModality r₂)
+  ¬ Is-order-embedding (linear-or-affine rs₁) (linearityModality rs₂)
       linear-or-affine→linearity
 ¬linear-or-affine⇨linearity m =
   case Is-order-embedding.tr-injective m {p = ≤𝟙} {q = ≤ω} refl of λ ()
@@ -3149,10 +2522,10 @@ linear-or-affine⇨linearity {r₂ = r₂} refl = λ where
 -- that either both modalities allow 𝟘ᵐ, or none of them do.
 
 affine⇨linear-or-affine :
-  Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
-  Is-order-embedding (affineModality r₁) (linear-or-affine r₂)
+  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
+  Is-order-embedding (affineModality rs₁) (linear-or-affine rs₂)
     affine→linear-or-affine
-affine⇨linear-or-affine {r₂ = r₂} refl = λ where
+affine⇨linear-or-affine {rs₂ = rs₂} refl = λ where
     .Is-order-embedding.trivial not-ok ok   → ⊥-elim (not-ok ok)
     .Is-order-embedding.trivial-⊎-tr-𝟘      → inj₂ refl
     .Is-order-embedding.tr-≤                → ω , refl
@@ -3174,7 +2547,7 @@ affine⇨linear-or-affine {r₂ = r₂} refl = λ where
       .Is-morphism.tr-⊛ {r = r}             → ≤-reflexive (tr-⊛ _ _ r)
       .Is-morphism.𝟘ᵐ-in-second-if-in-first → idᶠ
   where
-  open Definition.Modality.Properties (linear-or-affine r₂)
+  open Definition.Modality.Properties (linear-or-affine rs₂)
 
   tr′ = affine→linear-or-affine
 
@@ -4474,10 +3847,10 @@ affine⇨linear-or-affine {r₂ = r₂} refl = λ where
 -- either both modalities allow 𝟘ᵐ, or none of them do.
 
 linear-or-affine⇨affine :
-  Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
-  Is-morphism (linear-or-affine r₁) (affineModality r₂)
+  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
+  Is-morphism (linear-or-affine rs₁) (affineModality rs₂)
     linear-or-affine→affine
-linear-or-affine⇨affine {r₂ = r₂} refl = λ where
+linear-or-affine⇨affine {rs₂ = rs₂} refl = λ where
     .Is-morphism.tr-𝟘-≤                   → refl
     .Is-morphism.tr-≡-𝟘-⇔ _               → tr-≡-𝟘 _ , λ { refl → refl }
     .Is-morphism.tr-<-𝟘 not-ok ok         → ⊥-elim (not-ok ok)
@@ -4488,7 +3861,7 @@ linear-or-affine⇨affine {r₂ = r₂} refl = λ where
     .Is-morphism.tr-⊛ {r = r}             → ≤-reflexive (tr-⊛ _ _ r)
     .Is-morphism.𝟘ᵐ-in-second-if-in-first → idᶠ
   where
-  open Definition.Modality.Properties (affineModality r₂)
+  open Definition.Modality.Properties (affineModality rs₂)
 
   tr′ = linear-or-affine→affine
 
@@ -4619,7 +3992,7 @@ linear-or-affine⇨affine {r₂ = r₂} refl = λ where
 -- a linear or affine types modality to an affine types modality.
 
 ¬linear-or-affine⇨affine :
-  ¬ Is-order-embedding (linear-or-affine r₁) (affineModality r₂)
+  ¬ Is-order-embedding (linear-or-affine rs₁) (affineModality rs₂)
       linear-or-affine→affine
 ¬linear-or-affine⇨affine m =
   case Is-order-embedding.tr-injective m {p = 𝟙} {q = ≤𝟙} refl of λ ()
@@ -4629,10 +4002,10 @@ linear-or-affine⇨affine {r₂ = r₂} refl = λ where
 -- modalities allow 𝟘ᵐ, or none of them do.
 
 affine⇨linearity :
-  Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
-  Is-morphism (affineModality r₁) (linearityModality r₂)
+  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
+  Is-morphism (affineModality rs₁) (linearityModality rs₂)
     affine→linearity
-affine⇨linearity {r₂ = r₂} refl = λ where
+affine⇨linearity {rs₂ = rs₂} refl = λ where
     .Is-morphism.tr-𝟘-≤                   → refl
     .Is-morphism.tr-≡-𝟘-⇔ _               → tr-≡-𝟘 _ , λ { refl → refl }
     .Is-morphism.tr-<-𝟘 not-ok ok         → ⊥-elim (not-ok ok)
@@ -4643,7 +4016,7 @@ affine⇨linearity {r₂ = r₂} refl = λ where
     .Is-morphism.tr-⊛ {r = r}             → ≤-reflexive (tr-⊛ _ _ r)
     .Is-morphism.𝟘ᵐ-in-second-if-in-first → idᶠ
   where
-  open Definition.Modality.Properties (linearityModality r₂)
+  open Definition.Modality.Properties (linearityModality rs₂)
 
   tr′ = affine→linearity
 
@@ -4716,7 +4089,7 @@ affine⇨linearity {r₂ = r₂} refl = λ where
 -- affine types modality to a linear types modality.
 
 ¬affine⇨linearity :
-  ¬ Is-order-embedding (affineModality r₁) (linearityModality r₂)
+  ¬ Is-order-embedding (affineModality rs₁) (linearityModality rs₂)
       affine→linearity
 ¬affine⇨linearity m =
   case Is-order-embedding.tr-injective m {p = 𝟙} {q = ω} refl of λ ()
@@ -4726,10 +4099,10 @@ affine⇨linearity {r₂ = r₂} refl = λ where
 -- modalities allow 𝟘ᵐ, or none of them do.
 
 linearity⇨affine :
-  Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
-  Is-morphism (linearityModality r₁) (affineModality r₂)
+  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
+  Is-morphism (linearityModality rs₁) (affineModality rs₂)
     linearity→affine
-linearity⇨affine {r₂ = r₂} refl = λ where
+linearity⇨affine {rs₂ = rs₂} refl = λ where
     .Is-morphism.tr-𝟘-≤                   → refl
     .Is-morphism.tr-≡-𝟘-⇔ _               → tr-≡-𝟘 _ , λ { refl → refl }
     .Is-morphism.tr-<-𝟘 not-ok ok         → ⊥-elim (not-ok ok)
@@ -4740,7 +4113,7 @@ linearity⇨affine {r₂ = r₂} refl = λ where
     .Is-morphism.tr-⊛ {r = r}             → tr-⊛ _ _ r
     .Is-morphism.𝟘ᵐ-in-second-if-in-first → idᶠ
   where
-  open Definition.Modality.Properties (affineModality r₂)
+  open Definition.Modality.Properties (affineModality rs₂)
 
   tr′ = linearity→affine
 
@@ -4813,7 +4186,7 @@ linearity⇨affine {r₂ = r₂} refl = λ where
 -- linear types modality to an affine types modality.
 
 ¬linearity⇨affine :
-  ¬ Is-order-embedding (linearityModality r₁) (affineModality r₂)
+  ¬ Is-order-embedding (linearityModality rs₁) (affineModality rs₂)
       linearity→affine
 ¬linearity⇨affine m =
   case Is-order-embedding.tr-order-reflecting m {p = 𝟙} {q = 𝟘} refl of
@@ -4830,10 +4203,10 @@ linearity⇨affine {r₂ = r₂} refl = λ where
 -- 𝟙 ≰ 𝟘.
 
 erasure⇨zero-one-many-Σ :
-  (T (Restrictions.𝟘ᵐ-allowed r₂) → T (Restrictions.𝟘ᵐ-allowed r₁)) →
+  (T (𝟘ᵐ-allowed rs₂) → T (𝟘ᵐ-allowed rs₁)) →
   Is-Σ-order-embedding
-    (ErasureModality r₁)
-    (zero-one-many-greatest 𝟙≤𝟘 r₂)
+    (ErasureModality rs₁)
+    (zero-one-many-greatest 𝟙≤𝟘 rs₂)
     erasure→zero-one-many
     erasure→zero-one-many-Σ
 erasure⇨zero-one-many-Σ {𝟙≤𝟘 = 𝟙≤𝟘} ok₂₁ = record
@@ -4865,8 +4238,8 @@ erasure⇨zero-one-many-Σ {𝟙≤𝟘 = 𝟙≤𝟘} ok₂₁ = record
 -- 𝟘ᵐ, then the first also does this.
 
 erasure⇨linearity-Σ :
-  (T (Restrictions.𝟘ᵐ-allowed r₂) → T (Restrictions.𝟘ᵐ-allowed r₁)) →
-  Is-Σ-order-embedding (ErasureModality r₁) (linearityModality r₂)
+  (T (𝟘ᵐ-allowed rs₂) → T (𝟘ᵐ-allowed rs₁)) →
+  Is-Σ-order-embedding (ErasureModality rs₁) (linearityModality rs₂)
     erasure→zero-one-many erasure→zero-one-many-Σ
 erasure⇨linearity-Σ = erasure⇨zero-one-many-Σ
 
@@ -4886,8 +4259,8 @@ erasure⇨linearity-Σ-not-monotone mono =
 -- 𝟘ᵐ, then the first also does this.
 
 erasure⇨affine-Σ :
-  (T (Restrictions.𝟘ᵐ-allowed r₂) → T (Restrictions.𝟘ᵐ-allowed r₁)) →
-  Is-Σ-order-embedding (ErasureModality r₁) (affineModality r₂)
+  (T (𝟘ᵐ-allowed rs₂) → T (𝟘ᵐ-allowed rs₁)) →
+  Is-Σ-order-embedding (ErasureModality rs₁) (affineModality rs₂)
     erasure→zero-one-many erasure→zero-one-many-Σ
 erasure⇨affine-Σ = erasure⇨zero-one-many-Σ
 
@@ -4897,10 +4270,10 @@ erasure⇨affine-Σ = erasure⇨zero-one-many-Σ
 -- second modality allows 𝟘ᵐ, then the first also does this.
 
 affine⇨linear-or-affine-Σ :
-  (T (Restrictions.𝟘ᵐ-allowed r₂) → T (Restrictions.𝟘ᵐ-allowed r₁)) →
-  Is-Σ-order-embedding (affineModality r₁) (linear-or-affine r₂)
+  (T (𝟘ᵐ-allowed rs₂) → T (𝟘ᵐ-allowed rs₁)) →
+  Is-Σ-order-embedding (affineModality rs₁) (linear-or-affine rs₂)
     affine→linear-or-affine affine→linear-or-affine-Σ
-affine⇨linear-or-affine-Σ {r₂ = r₂} ok₂₁ = record
+affine⇨linear-or-affine-Σ ok₂₁ = record
   { tr-Σ-morphism = record
     { tr-≤-tr-Σ = λ where
         {p = 𝟘} → refl
@@ -4958,8 +4331,8 @@ affine→linear-or-affine-Σ-not-monotone mono =
   ¬ Is-order-embedding 𝕄₁ 𝕄₂ tr-Σ
 Σ-order-embedding-but-not-order-embedding =
     Affine , Linear-or-affine
-  , affineModality no-restrictions
-  , linear-or-affine no-restrictions
+  , affineModality (𝟘ᵐ-allowed-if true)
+  , linear-or-affine (𝟘ᵐ-allowed-if true)
   , affine→linear-or-affine , affine→linear-or-affine-Σ
   , affine⇨linear-or-affine refl
   , Is-Σ-order-embedding.tr-Σ-morphism (affine⇨linear-or-affine-Σ _)
@@ -4974,10 +4347,10 @@ affine→linear-or-affine-Σ-not-monotone mono =
 -- first also does this.
 
 affine⇨linearity-Σ :
-  (T (Restrictions.𝟘ᵐ-allowed r₂) → T (Restrictions.𝟘ᵐ-allowed r₁)) →
-  Is-Σ-morphism (affineModality r₁) (linearityModality r₂)
+  (T (𝟘ᵐ-allowed rs₂) → T (𝟘ᵐ-allowed rs₁)) →
+  Is-Σ-morphism (affineModality rs₁) (linearityModality rs₂)
     affine→linearity affine→linearity-Σ
-affine⇨linearity-Σ {r₂ = r₂} ok₂₁ = record
+affine⇨linearity-Σ ok₂₁ = record
   { tr-≤-tr-Σ = λ where
       {p = 𝟘} → refl
       {p = 𝟙} → refl
@@ -5012,7 +4385,7 @@ affine→linearity-Σ-not-monotone mono =
 -- a linear types modality.
 
 ¬affine⇨linearity-Σ :
-  ¬ Is-Σ-order-embedding (affineModality r₁) (linearityModality r₂)
+  ¬ Is-Σ-order-embedding (affineModality rs₁) (linearityModality rs₂)
       affine→linearity affine→linearity-Σ
 ¬affine⇨linearity-Σ m =
   case
@@ -5021,1207 +4394,3 @@ affine→linearity-Σ-not-monotone mono =
     (𝟘 , () , _)
     (𝟙 , _  , ())
     (ω , _  , ())
-
-------------------------------------------------------------------------
--- Some lemmas related to equal-binder-quantities and concrete
--- translation functions
-
--- The functions erasure→zero-one-many and erasure→zero-one-many-Σ do
--- not preserve certain term restrictions obtained using
--- equal-binder-quantities.
-
-¬-erasure→zero-one-many-Σ-preserves-equal-binder-quantities :
-  ¬ Are-preserving-term-restrictions
-      (equal-binder-quantities no-term-restrictions)
-      (equal-binder-quantities rt)
-      erasure→zero-one-many erasure→zero-one-many-Σ
-¬-erasure→zero-one-many-Σ-preserves-equal-binder-quantities r =
-  case Binder-preserved {b = BMΣ Σₚ} {p = ω} (_ , refl) .proj₂ of λ ()
-  where
-  open Are-preserving-term-restrictions r
-
--- The functions affine→linear-or-affine and affine→linear-or-affine-Σ
--- do not preserve certain term restrictions obtained using
--- equal-binder-quantities.
-
-¬-affine→linear-or-affine-Σ-preserves-equal-binder-quantities :
-  ¬ Are-preserving-term-restrictions
-      (equal-binder-quantities no-term-restrictions)
-      (equal-binder-quantities rt)
-      affine→linear-or-affine affine→linear-or-affine-Σ
-¬-affine→linear-or-affine-Σ-preserves-equal-binder-quantities r =
-  case Binder-preserved {b = BMΣ Σₚ} {p = 𝟙} (_ , refl) .proj₂ of λ ()
-  where
-  open Are-preserving-term-restrictions r
-
-------------------------------------------------------------------------
--- Some lemmas related to second-ΠΣ-quantities-𝟘-or-ω and concrete
--- translation functions
-
--- If the function unit→erasure preserves term restrictions for a unit
--- modality and an erasure modality, then it also does this for
--- certain term restrictions obtained using
--- second-ΠΣ-quantities-𝟘-or-ω.
-
-unit→erasure-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  Are-preserving-term-restrictions
-    rt (Restrictions.term-restrictions r) unit→erasure unit→erasure →
-  Are-preserving-term-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω tt (UnitModality rt))
-    (second-ΠΣ-quantities-𝟘-or-ω ω (ErasureModality r))
-    unit→erasure unit→erasure
-unit→erasure-preserves-second-ΠΣ-quantities-𝟘-or-ω {r = r} =
-  Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
-    {𝕄₂ = ErasureModality r}
-    unit⇨erasure
-    (Is-morphism→Is-Σ-morphism $
-     Is-order-embedding.tr-morphism unit⇨erasure)
-    (λ _ → refl)
-    refl
-
--- If the function unit→erasure reflects term restrictions for a unit
--- modality and an erasure modality, then it also does this for
--- certain term restrictions obtained using
--- second-ΠΣ-quantities-𝟘-or-ω.
-
-unit→erasure-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  Are-reflecting-term-restrictions
-    rt (Restrictions.term-restrictions r) unit→erasure unit→erasure →
-  Are-reflecting-term-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω tt (UnitModality rt))
-    (second-ΠΣ-quantities-𝟘-or-ω ω (ErasureModality r))
-    unit→erasure unit→erasure
-unit→erasure-reflects-second-ΠΣ-quantities-𝟘-or-ω {r = r} =
-  Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
-    {𝕄₂ = ErasureModality r}
-    unit⇨erasure
-    (Is-morphism→Is-Σ-morphism $
-     Is-order-embedding.tr-morphism unit⇨erasure)
-    (λ _ → refl)
-    (λ _ → refl)
-
--- If the function erasure→unit preserves term restrictions for an
--- erasure modality and a unit modality, then it also does this for
--- certain term restrictions obtained using
--- second-ΠΣ-quantities-𝟘-or-ω.
-
-erasure→unit-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  Are-preserving-term-restrictions
-    (Restrictions.term-restrictions r) rt erasure→unit erasure→unit →
-  Are-preserving-term-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ω (ErasureModality r))
-    (second-ΠΣ-quantities-𝟘-or-ω tt (UnitModality rt))
-    erasure→unit erasure→unit
-erasure→unit-preserves-second-ΠΣ-quantities-𝟘-or-ω r =
-  record
-    { Prodrec-preserved = Prodrec-preserved
-    ; Binder-preserved  = λ (b , _) →
-        Binder-preserved b , (λ _ → refl) , (λ _ → refl)
-    }
-  where
-  open Are-preserving-term-restrictions r
-
--- The function erasure→unit does not reflect certain term
--- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
-
-¬-erasure→unit-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  ¬ Are-reflecting-term-restrictions
-      (second-ΠΣ-quantities-𝟘-or-ω ω (ErasureModality r))
-      (second-ΠΣ-quantities-𝟘-or-ω tt
-         (UnitModality no-term-restrictions))
-      erasure→unit erasure→unit
-¬-erasure→unit-reflects-second-ΠΣ-quantities-𝟘-or-ω r =
-  case
-    Binder-reflected {b = BMΠ} {p = 𝟘} {q = ω}
-      (_ , (λ _ → refl) , (λ _ → refl))
-  of
-    λ (_ , eq , _) →
-  case eq refl of λ ()
-  where
-  open Are-reflecting-term-restrictions r
-
--- If the function erasure→zero-one-many preserves term restrictions
--- for an erasure modality and a zero-one-many-greatest modality, and
--- 𝟘ᵐ is either allowed in both modalities or none, then the function
--- preserves certain term restrictions obtained using
--- second-ΠΣ-quantities-𝟘-or-ω.
-
-erasure→zero-one-many-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
-  Are-preserving-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    erasure→zero-one-many erasure→zero-one-many →
-  Are-preserving-term-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ω (ErasureModality r₁))
-    (second-ΠΣ-quantities-𝟘-or-ω ω (zero-one-many-greatest 𝟙≤𝟘 r₂))
-    erasure→zero-one-many erasure→zero-one-many
-erasure→zero-one-many-preserves-second-ΠΣ-quantities-𝟘-or-ω eq =
-  Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
-    m
-    (Is-morphism→Is-Σ-morphism $ Is-order-embedding.tr-morphism m)
-    (λ _ → refl)
-    refl
-  where
-  m = erasure⇨zero-one-many eq
-
--- If the function erasure→zero-one-many reflects term restrictions
--- for an erasure modality and a zero-one-many-greatest modality, and
--- 𝟘ᵐ is either allowed in both modalities or none, then the function
--- reflects certain term restrictions obtained using
--- second-ΠΣ-quantities-𝟘-or-ω.
-
-erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
-  Are-reflecting-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    erasure→zero-one-many erasure→zero-one-many →
-  Are-reflecting-term-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ω (ErasureModality r₁))
-    (second-ΠΣ-quantities-𝟘-or-ω ω (zero-one-many-greatest 𝟙≤𝟘 r₂))
-    erasure→zero-one-many erasure→zero-one-many
-erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω eq =
-  Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
-    m
-    (Is-morphism→Is-Σ-morphism $ Is-order-embedding.tr-morphism m)
-    (λ _ → refl)
-    (λ where
-       {p = ω} _ → refl)
-  where
-  m = erasure⇨zero-one-many eq
-
--- If the functions erasure→zero-one-many and erasure→zero-one-many-Σ
--- preserve term restrictions for an erasure modality and a
--- zero-one-many-greatest modality, and 𝟘ᵐ is either allowed in both
--- modalities or none, then the functions preserve certain term
--- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
-
-erasure→zero-one-many-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
-  Are-preserving-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    erasure→zero-one-many erasure→zero-one-many-Σ →
-  Are-preserving-term-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ω (ErasureModality r₁))
-    (second-ΠΣ-quantities-𝟘-or-ω ω (zero-one-many-greatest 𝟙≤𝟘 r₂))
-    erasure→zero-one-many erasure→zero-one-many-Σ
-erasure→zero-one-many-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω
- {r₁ = r₁} refl =
-  Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-    {𝕄₁ = ErasureModality r₁}
-    (Is-order-embedding.tr-morphism $ erasure⇨zero-one-many refl)
-    (Is-Σ-order-embedding.tr-Σ-morphism $ erasure⇨zero-one-many-Σ idᶠ)
-    (λ _ →
-         (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = ω} → (λ ()) , (λ ()))
-       , (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = ω} → (λ ()) , (λ ())))
-    refl
-
--- If the functions erasure→zero-one-many and erasure→zero-one-many-Σ
--- reflect term restrictions for an erasure modality and a
--- zero-one-many-greatest modality, and 𝟘ᵐ is either allowed in both
--- modalities or none, then the functions reflect certain term
--- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
-
-erasure→zero-one-many-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
-  Are-reflecting-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    erasure→zero-one-many erasure→zero-one-many-Σ →
-  Are-reflecting-term-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ω (ErasureModality r₁))
-    (second-ΠΣ-quantities-𝟘-or-ω ω (zero-one-many-greatest 𝟙≤𝟘 r₂))
-    erasure→zero-one-many erasure→zero-one-many-Σ
-erasure→zero-one-many-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω
-  {r₁ = r₁} refl =
-  Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-    {𝕄₁ = ErasureModality r₁}
-    (Is-order-embedding.tr-morphism $ erasure⇨zero-one-many refl)
-    (Is-Σ-order-embedding.tr-Σ-morphism $ erasure⇨zero-one-many-Σ idᶠ)
-    (λ _ →
-         (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = ω} → (λ ()) , (λ ()))
-       , (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = ω} → (λ ()) , (λ ())))
-    (λ where
-       {p = ω} _ → refl)
-
--- If the function zero-one-many→erasure preserves term restrictions
--- for a zero-one-many-greatest modality and an erasure modality, and
--- 𝟘ᵐ is either allowed in both modalities or none, then the function
--- also preserves term restrictions for certain term restrictions
--- obtained using second-ΠΣ-quantities-𝟘-or-ω.
-
-zero-one-many→erasure-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
-  Are-preserving-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    zero-one-many→erasure zero-one-many→erasure →
-  Are-preserving-term-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ω (zero-one-many-greatest 𝟙≤𝟘 r₁))
-    (second-ΠΣ-quantities-𝟘-or-ω ω (ErasureModality r₂))
-    zero-one-many→erasure zero-one-many→erasure
-zero-one-many→erasure-preserves-second-ΠΣ-quantities-𝟘-or-ω eq =
-  Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-    m
-    (Is-morphism→Is-Σ-morphism m)
-    (λ _ →
-         (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙} → (λ ()) , (λ ())
-            {p = ω} → (λ ()) , (λ ()))
-       , (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙} → (λ ()) , (λ ())
-            {p = ω} → (λ ()) , (λ ())))
-    refl
-  where
-  m = zero-one-many⇨erasure eq
-
--- The function zero-one-many→erasure does not reflect certain term
--- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
-
-¬-zero-one-many→erasure-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  ¬ Are-reflecting-term-restrictions
-      (second-ΠΣ-quantities-𝟘-or-ω ω (zero-one-many-greatest 𝟙≤𝟘 r))
-      (second-ΠΣ-quantities-𝟘-or-ω ω
-         (ErasureModality (𝟘ᵐ-allowed-if ok)))
-      zero-one-many→erasure zero-one-many→erasure
-¬-zero-one-many→erasure-reflects-second-ΠΣ-quantities-𝟘-or-ω r =
-  case
-    Binder-reflected {b = BMΠ} {p = ω} {q = 𝟙}
-      (_ , (λ ()) , (λ _ → refl))
-  of
-    λ (_ , _ , eq) →
-  case eq (λ ()) of λ ()
-  where
-  open Are-reflecting-term-restrictions r
-
--- If the function linearity→linear-or-affine preserves term
--- restrictions for a linear types modality and a linear or affine
--- types modality, and 𝟘ᵐ is either allowed in both modalities or
--- none, then the function preserves certain term restrictions
--- obtained using second-ΠΣ-quantities-𝟘-or-ω.
-
-linearity→linear-or-affine-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
-  Are-preserving-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    linearity→linear-or-affine linearity→linear-or-affine →
-  Are-preserving-term-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ω (linearityModality r₁))
-    (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine r₂))
-    linearity→linear-or-affine linearity→linear-or-affine
-linearity→linear-or-affine-preserves-second-ΠΣ-quantities-𝟘-or-ω eq =
-  Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
-    m
-    (Is-morphism→Is-Σ-morphism $ Is-order-embedding.tr-morphism m)
-    (λ _ → refl)
-    refl
-  where
-  m = linearity⇨linear-or-affine eq
-
--- If the function linearity→linear-or-affine reflects term
--- restrictions for a linear types modality and a linear or affine
--- types modality, and 𝟘ᵐ is either allowed in both modalities or
--- none, then the function reflects certain term restrictions obtained
--- using second-ΠΣ-quantities-𝟘-or-ω.
-
-linearity→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
-  Are-reflecting-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    linearity→linear-or-affine linearity→linear-or-affine →
-  Are-reflecting-term-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ω (linearityModality r₁))
-    (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine r₂))
-    linearity→linear-or-affine linearity→linear-or-affine
-linearity→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω eq =
-  Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
-    m
-    (Is-morphism→Is-Σ-morphism $ Is-order-embedding.tr-morphism m)
-    (λ _ → refl)
-    (λ where
-       {p = ω} _ → refl)
-  where
-  m = linearity⇨linear-or-affine eq
-
--- If the function linear-or-affine→linearity preserves term
--- restrictions for a linear or affine types modality and a linear
--- types modality, and 𝟘ᵐ is either allowed in both modalities or
--- none, then the function also preserves term restrictions for
--- certain term restrictions obtained using
--- second-ΠΣ-quantities-𝟘-or-ω.
-
-linear-or-affine→linearity-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
-  Are-preserving-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    linear-or-affine→linearity linear-or-affine→linearity →
-  Are-preserving-term-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine r₁))
-    (second-ΠΣ-quantities-𝟘-or-ω ω (linearityModality r₂))
-    linear-or-affine→linearity linear-or-affine→linearity
-linear-or-affine→linearity-preserves-second-ΠΣ-quantities-𝟘-or-ω eq =
-  Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-    m
-    (Is-morphism→Is-Σ-morphism m)
-    (λ _ →
-         (λ where
-            {p = 𝟘}  → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙}  → (λ ()) , (λ ())
-            {p = ≤𝟙} → (λ ()) , (λ ())
-            {p = ≤ω} → (λ ()) , (λ ()))
-       , (λ where
-            {p = 𝟘}  → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙}  → (λ ()) , (λ ())
-            {p = ≤𝟙} → (λ ()) , (λ ())
-            {p = ≤ω} → (λ ()) , (λ ())))
-    refl
-  where
-  m = linear-or-affine⇨linearity eq
-
--- The function linear-or-affine→linearity does not reflect certain
--- term restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
-
-¬-linear-or-affine→linearity-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  ¬ Are-reflecting-term-restrictions
-      (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine r))
-      (second-ΠΣ-quantities-𝟘-or-ω ω
-         (linearityModality (𝟘ᵐ-allowed-if ok)))
-      linear-or-affine→linearity linear-or-affine→linearity
-¬-linear-or-affine→linearity-reflects-second-ΠΣ-quantities-𝟘-or-ω r =
-  case
-    Binder-reflected {b = BMΠ} {p = ≤ω} {q = ≤𝟙}
-      (_ , (λ ()) , (λ _ → refl))
-  of
-    λ (_ , _ , eq) →
-  case eq (λ ()) of λ ()
-  where
-  open Are-reflecting-term-restrictions r
-
--- If the function affine→linear-or-affine preserves term restrictions
--- for an affine types modality and a linear or affine types modality,
--- and 𝟘ᵐ is either allowed in both modalities or none, then the
--- function preserves certain term restrictions obtained using
--- second-ΠΣ-quantities-𝟘-or-ω.
-
-affine→linear-or-affine-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
-  Are-preserving-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    affine→linear-or-affine affine→linear-or-affine →
-  Are-preserving-term-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality r₁))
-    (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine r₂))
-    affine→linear-or-affine affine→linear-or-affine
-affine→linear-or-affine-preserves-second-ΠΣ-quantities-𝟘-or-ω eq =
-  Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
-    m
-    (Is-morphism→Is-Σ-morphism $ Is-order-embedding.tr-morphism m)
-    (λ _ → refl)
-    refl
-  where
-  m = affine⇨linear-or-affine eq
-
--- If the function affine→linear-or-affine reflects term restrictions
--- for an affine types modality and a linear or affine types modality,
--- and 𝟘ᵐ is either allowed in both modalities or none, then the
--- function reflects certain term restrictions obtained using
--- second-ΠΣ-quantities-𝟘-or-ω.
-
-affine→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
-  Are-reflecting-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    affine→linear-or-affine affine→linear-or-affine →
-  Are-reflecting-term-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality r₁))
-    (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine r₂))
-    affine→linear-or-affine affine→linear-or-affine
-affine→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω eq =
-  Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
-    m
-    (Is-morphism→Is-Σ-morphism $ Is-order-embedding.tr-morphism m)
-    (λ _ → refl)
-    (λ where
-       {p = ω} _ → refl)
-  where
-  m = affine⇨linear-or-affine eq
-
--- If the functions affine→linear-or-affine and
--- affine→linear-or-affine-Σ preserve term restrictions for an affine
--- types modality and a linear or affine types modality, and 𝟘ᵐ is
--- either allowed in both modalities or none, then the functions
--- preserve certain term restrictions obtained using
--- second-ΠΣ-quantities-𝟘-or-ω.
-
-affine→linear-or-affine-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
-  Are-preserving-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    affine→linear-or-affine affine→linear-or-affine-Σ →
-  Are-preserving-term-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality r₁))
-    (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine r₂))
-    affine→linear-or-affine affine→linear-or-affine-Σ
-affine→linear-or-affine-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω
-  {r₁ = r₁} refl =
-  Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-    {𝕄₁ = affineModality r₁}
-    (Is-order-embedding.tr-morphism $ affine⇨linear-or-affine refl)
-    (Is-Σ-order-embedding.tr-Σ-morphism $ affine⇨linear-or-affine-Σ idᶠ)
-    (λ _ →
-         (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙} → (λ ()) , (λ ())
-            {p = ω} → (λ ()) , (λ ()))
-       , (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙} → (λ ()) , (λ ())
-            {p = ω} → (λ ()) , (λ ())))
-    refl
-
--- If the functions affine→linear-or-affine and
--- affine→linear-or-affine-Σ reflect term restrictions for an affine
--- types modality and a linear or affine types modality, and 𝟘ᵐ is
--- either allowed in both modalities or none, then the functions
--- reflect certain term restrictions obtained using
--- second-ΠΣ-quantities-𝟘-or-ω.
-
-affine→linear-or-affine-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
-  Are-reflecting-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    affine→linear-or-affine affine→linear-or-affine-Σ →
-  Are-reflecting-term-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality r₁))
-    (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine r₂))
-    affine→linear-or-affine affine→linear-or-affine-Σ
-affine→linear-or-affine-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω
-  {r₁ = r₁} refl =
-  Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-    {𝕄₁ = affineModality r₁}
-    (Is-order-embedding.tr-morphism $ affine⇨linear-or-affine refl)
-    (Is-Σ-order-embedding.tr-Σ-morphism $ affine⇨linear-or-affine-Σ idᶠ)
-    (λ _ →
-         (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙} → (λ ()) , (λ ())
-            {p = ω} → (λ ()) , (λ ()))
-       , (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙} → (λ ()) , (λ ())
-            {p = ω} → (λ ()) , (λ ())))
-    (λ where
-       {p = ω} _ → refl)
-
--- If the function linear-or-affine→affine preserves term restrictions
--- for a linear or affine types modality and an affine types modality,
--- and 𝟘ᵐ is either allowed in both modalities or none, then the
--- function also preserves term restrictions for certain term
--- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
-
-linear-or-affine→affine-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
-  Are-preserving-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    linear-or-affine→affine linear-or-affine→affine →
-  Are-preserving-term-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine r₁))
-    (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality r₂))
-    linear-or-affine→affine linear-or-affine→affine
-linear-or-affine→affine-preserves-second-ΠΣ-quantities-𝟘-or-ω eq =
-  Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-    m
-    (Is-morphism→Is-Σ-morphism m)
-    (λ _ →
-         (λ where
-            {p = 𝟘}  → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙}  → (λ ()) , (λ ())
-            {p = ≤𝟙} → (λ ()) , (λ ())
-            {p = ≤ω} → (λ ()) , (λ ()))
-       , (λ where
-            {p = 𝟘}  → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙}  → (λ ()) , (λ ())
-            {p = ≤𝟙} → (λ ()) , (λ ())
-            {p = ≤ω} → (λ ()) , (λ ())))
-    refl
-  where
-  m = linear-or-affine⇨affine eq
-
--- If the function linear-or-affine→affine reflects term restrictions
--- for a linear or affine types modality and an affine types modality,
--- and 𝟘ᵐ is either allowed in both modalities or none, then the
--- function also reflects term restrictions for certain term
--- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
-
-linear-or-affine→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
-  Are-reflecting-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    linear-or-affine→affine linear-or-affine→affine →
-  Are-reflecting-term-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine r₁))
-    (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality r₂))
-    linear-or-affine→affine linear-or-affine→affine
-linear-or-affine→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω eq =
-  Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-    m
-    (Is-morphism→Is-Σ-morphism m)
-    (λ _ →
-         (λ where
-            {p = 𝟘}  → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙}  → (λ ()) , (λ ())
-            {p = ≤𝟙} → (λ ()) , (λ ())
-            {p = ≤ω} → (λ ()) , (λ ()))
-       , (λ where
-            {p = 𝟘}  → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙}  → (λ ()) , (λ ())
-            {p = ≤𝟙} → (λ ()) , (λ ())
-            {p = ≤ω} → (λ ()) , (λ ())))
-    (λ where
-       {p = ≤ω} _ → refl)
-  where
-  m = linear-or-affine⇨affine eq
-
--- If the function affine→linearity preserves term restrictions for an
--- affine types modality and a linear types modality, and 𝟘ᵐ is either
--- allowed in both modalities or none, then the function preserves
--- certain term restrictions obtained using
--- second-ΠΣ-quantities-𝟘-or-ω.
-
-affine→linearity-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
-  Are-preserving-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    affine→linearity affine→linearity →
-  Are-preserving-term-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality r₁))
-    (second-ΠΣ-quantities-𝟘-or-ω ω (linearityModality r₂))
-    affine→linearity affine→linearity
-affine→linearity-preserves-second-ΠΣ-quantities-𝟘-or-ω eq =
-  Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-    m
-    (Is-morphism→Is-Σ-morphism m)
-    (λ _ →
-         (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙} → (λ ()) , (λ ())
-            {p = ω} → (λ ()) , (λ ()))
-       , (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙} → (λ ()) , (λ ())
-            {p = ω} → (λ ()) , (λ ())))
-    refl
-  where
-  m = affine⇨linearity eq
-
--- The function affine→linearity does not reflect certain term
--- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
-
-¬-affine→linearity-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  ¬ Are-reflecting-term-restrictions
-      (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality r))
-      (second-ΠΣ-quantities-𝟘-or-ω ω
-         (linearityModality (𝟘ᵐ-allowed-if ok)))
-      affine→linearity affine→linearity
-¬-affine→linearity-reflects-second-ΠΣ-quantities-𝟘-or-ω r =
-  case
-    Binder-reflected {b = BMΠ} {p = ω} {q = 𝟙}
-      (_ , (λ ()) , (λ _ → refl))
-  of
-    λ (_ , _ , eq) →
-  case eq (λ ()) of λ ()
-  where
-  open Are-reflecting-term-restrictions r
-
--- If the functions affine→linearity and affine→linearity-Σ preserve
--- term restrictions for an affine types modality and a linear types
--- modality, and 𝟘ᵐ is either allowed in both modalities or none, then
--- the functions preserve certain term restrictions obtained using
--- second-ΠΣ-quantities-𝟘-or-ω.
-
-affine→linearity-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
-  Are-preserving-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    affine→linearity affine→linearity-Σ →
-  Are-preserving-term-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality r₁))
-    (second-ΠΣ-quantities-𝟘-or-ω ω (linearityModality r₂))
-    affine→linearity affine→linearity-Σ
-affine→linearity-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω
-  {r₁ = r₁} refl =
-  Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-    {𝕄₁ = affineModality r₁}
-    (affine⇨linearity refl)
-    (affine⇨linearity-Σ idᶠ)
-    (λ _ →
-         (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙} → (λ ()) , (λ ())
-            {p = ω} → (λ ()) , (λ ()))
-       , (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙} → (λ ()) , (λ ())
-            {p = ω} → (λ ()) , (λ ())))
-    refl
-
--- The functions affine→linearity and affine→linearity-Σ do not
--- reflect certain term restrictions obtained using
--- second-ΠΣ-quantities-𝟘-or-ω.
-
-¬-affine→linearity-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  ¬ Are-reflecting-term-restrictions
-      (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality r))
-      (second-ΠΣ-quantities-𝟘-or-ω ω
-         (linearityModality (𝟘ᵐ-allowed-if ok)))
-      affine→linearity affine→linearity-Σ
-¬-affine→linearity-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω r =
-  case
-    Binder-reflected {b = BMΠ} {p = ω} {q = 𝟙}
-      (_ , (λ ()) , (λ _ → refl))
-  of
-    λ (_ , _ , eq) →
-  case eq (λ ()) of λ ()
-  where
-  open Are-reflecting-term-restrictions r
-
--- If the function linearity→affine preserves term restrictions for a
--- linear types modality and an affine types modality, and 𝟘ᵐ is
--- either allowed in both modalities or none, then the function also
--- preserves term restrictions for certain term restrictions obtained
--- using second-ΠΣ-quantities-𝟘-or-ω.
-
-linearity→affine-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
-  Are-preserving-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    linearity→affine linearity→affine →
-  Are-preserving-term-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ω (linearityModality r₁))
-    (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality r₂))
-    linearity→affine linearity→affine
-linearity→affine-preserves-second-ΠΣ-quantities-𝟘-or-ω eq =
-  Are-preserving-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-    m
-    (Is-morphism→Is-Σ-morphism m)
-    (λ _ →
-         (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙} → (λ ()) , (λ ())
-            {p = ω} → (λ ()) , (λ ()))
-       , (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙} → (λ ()) , (λ ())
-            {p = ω} → (λ ()) , (λ ())))
-    refl
-  where
-  m = linearity⇨affine eq
-
--- If the function linearity→affine reflects term restrictions for a
--- linear types modality and an affine types modality, and 𝟘ᵐ is
--- either allowed in both modalities or none, then the function also
--- reflects term restrictions for certain term restrictions obtained
--- using second-ΠΣ-quantities-𝟘-or-ω.
-
-linearity→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  Restrictions.𝟘ᵐ-allowed r₁ ≡ Restrictions.𝟘ᵐ-allowed r₂ →
-  Are-reflecting-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    linearity→affine linearity→affine →
-  Are-reflecting-term-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ω (linearityModality r₁))
-    (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality r₂))
-    linearity→affine linearity→affine
-linearity→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω eq =
-  Are-reflecting-term-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-    m
-    (Is-morphism→Is-Σ-morphism m)
-    (λ _ →
-         (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙} → (λ ()) , (λ ())
-            {p = ω} → (λ ()) , (λ ()))
-       , (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙} → (λ ()) , (λ ())
-            {p = ω} → (λ ()) , (λ ())))
-    (λ where
-       {p = ω} _ → refl)
-  where
-  m = linearity⇨affine eq
-
-------------------------------------------------------------------------
--- Some lemmas related to no-erased-matches and concrete translation
--- functions
-
--- If the functions unit→erasure and tr preserve term restrictions for
--- a unit modality and an erasure modality, then they also do this for
--- certain term restrictions obtained using no-erased-matches.
-
-unit→erasure-preserves-no-erased-matches :
-  Are-preserving-term-restrictions
-    rt (Restrictions.term-restrictions r) unit→erasure tr →
-  Are-preserving-term-restrictions
-    (no-erased-matches (UnitModality rt))
-    (no-erased-matches (ErasureModality r))
-    unit→erasure tr
-unit→erasure-preserves-no-erased-matches {rt = rt} {r = r} =
-  Are-preserving-term-restrictions-no-erased-matches
-    (UnitModality rt)
-    (ErasureModality r)
-    (λ _ → inj₂ (λ ()))
-
--- If the functions unit→erasure and tr reflect term restrictions for
--- a unit modality and an erasure modality, then they also do this for
--- certain term restrictions obtained using no-erased-matches.
-
-unit→erasure-reflects-no-erased-matches :
-  Are-reflecting-term-restrictions
-    rt (Restrictions.term-restrictions r) unit→erasure tr →
-  Are-reflecting-term-restrictions
-    (no-erased-matches (UnitModality rt))
-    (no-erased-matches (ErasureModality r))
-    unit→erasure tr
-unit→erasure-reflects-no-erased-matches {rt = rt} {r = r} =
-  Are-reflecting-term-restrictions-no-erased-matches
-    (UnitModality rt)
-    (ErasureModality r)
-    (λ tt≢tt → ⊥-elim $ tt≢tt refl)
-
--- If the functions erasure→unit and tr preserve term restrictions for
--- an erasure modality and a unit modality, then they also do this for
--- certain term restrictions obtained using no-erased-matches.
-
-erasure→unit-preserves-no-erased-matches :
-  Are-preserving-term-restrictions
-    (Restrictions.term-restrictions r) rt erasure→unit tr →
-  Are-preserving-term-restrictions
-    (no-erased-matches (ErasureModality r))
-    (no-erased-matches (UnitModality rt))
-    erasure→unit tr
-erasure→unit-preserves-no-erased-matches {r = r} {rt = rt} =
-  Are-preserving-term-restrictions-no-erased-matches
-    (ErasureModality r)
-    (UnitModality rt)
-    (λ tt≢tt → ⊥-elim $ tt≢tt refl)
-
--- The functions erasure→unit and tr do not reflect certain term
--- restrictions obtained using no-erased-matches.
-
-¬-erasure→unit-reflects-no-erased-matches :
-  ¬ Are-reflecting-term-restrictions
-      (no-erased-matches (ErasureModality r))
-      (no-erased-matches
-         (UnitModality no-term-restrictions))
-      erasure→unit tr
-¬-erasure→unit-reflects-no-erased-matches r =
-  Prodrec-reflected {r = 𝟘} {p = 𝟘} {q = 𝟘} (_ , idᶠ) .proj₂ (λ ()) refl
-  where
-  open Are-reflecting-term-restrictions r
-
--- If the functions erasure→zero-one-many and tr preserve term
--- restrictions for an erasure modality and a zero-one-many-greatest
--- modality, then they also do this for certain term restrictions
--- obtained using no-erased-matches.
-
-erasure→zero-one-many-preserves-no-erased-matches :
-  Are-preserving-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    erasure→zero-one-many tr →
-  Are-preserving-term-restrictions
-    (no-erased-matches (ErasureModality r₁))
-    (no-erased-matches (zero-one-many-greatest 𝟙≤𝟘 r₂))
-    erasure→zero-one-many tr
-erasure→zero-one-many-preserves-no-erased-matches {r₁ = r₁} {r₂ = r₂} =
-  Are-preserving-term-restrictions-no-erased-matches
-    (ErasureModality r₁)
-    (zero-one-many-greatest _ r₂)
-    (λ _ → inj₁
-       ( (λ ())
-       , (λ where
-            {p = 𝟘} _ → refl)
-       ))
-
--- If the functions erasure→zero-one-many and tr reflect term
--- restrictions for an erasure modality and a zero-one-many-greatest
--- modality, then they also do this for certain term restrictions
--- obtained using no-erased-matches.
-
-erasure→zero-one-many-reflects-no-erased-matches :
-  Are-reflecting-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    erasure→zero-one-many tr →
-  Are-reflecting-term-restrictions
-    (no-erased-matches (ErasureModality r₁))
-    (no-erased-matches (zero-one-many-greatest 𝟙≤𝟘 r₂))
-    erasure→zero-one-many tr
-erasure→zero-one-many-reflects-no-erased-matches {r₁ = r₁} {r₂ = r₂} =
-  Are-reflecting-term-restrictions-no-erased-matches
-    (ErasureModality r₁)
-    (zero-one-many-greatest _ r₂)
-    (λ _ →
-         (λ ())
-       , (λ where
-            {p = 𝟘} _ → refl))
-
--- If the functions zero-one-many→erasure and tr preserve term
--- restrictions for a zero-one-many-greatest modality and an erasure
--- modality, then they also do this for certain term restrictions
--- obtained using no-erased-matches.
-
-zero-one-many→erasure-preserves-no-erased-matches :
-  Are-preserving-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    zero-one-many→erasure tr →
-  Are-preserving-term-restrictions
-    (no-erased-matches (zero-one-many-greatest 𝟙≤𝟘 r₁))
-    (no-erased-matches (ErasureModality r₂))
-    zero-one-many→erasure tr
-zero-one-many→erasure-preserves-no-erased-matches {r₁ = r₁} {r₂ = r₂} =
-  Are-preserving-term-restrictions-no-erased-matches
-    (zero-one-many-greatest _ r₁)
-    (ErasureModality r₂)
-    (λ _ → inj₁
-       ( (λ ())
-       , (λ where
-            {p = 𝟘} _ → refl)
-       ))
-
--- If the functions zero-one-many→erasure and tr reflect term
--- restrictions for a zero-one-many-greatest modality and an erasure
--- modality, then they also do this for certain term restrictions
--- obtained using no-erased-matches.
-
-zero-one-many→erasure-reflects-no-erased-matches :
-  Are-reflecting-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    zero-one-many→erasure tr →
-  Are-reflecting-term-restrictions
-    (no-erased-matches (zero-one-many-greatest 𝟙≤𝟘 r₁))
-    (no-erased-matches (ErasureModality r₂))
-    zero-one-many→erasure tr
-zero-one-many→erasure-reflects-no-erased-matches {r₁ = r₁} {r₂ = r₂} =
-  Are-reflecting-term-restrictions-no-erased-matches
-    (zero-one-many-greatest _ r₁)
-    (ErasureModality r₂)
-    (λ _ →
-         (λ ())
-       , (λ where
-            {p = 𝟘} _ → refl))
-
--- If the functions linearity→linear-or-affine and tr preserve term
--- restrictions for a linear types modality and a linear or affine
--- types modality, then they also do this for certain term
--- restrictions obtained using no-erased-matches.
-
-linearity→linear-or-affine-preserves-no-erased-matches :
-  Are-preserving-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    linearity→linear-or-affine tr →
-  Are-preserving-term-restrictions
-    (no-erased-matches (linearityModality r₁))
-    (no-erased-matches (linear-or-affine r₂))
-    linearity→linear-or-affine tr
-linearity→linear-or-affine-preserves-no-erased-matches
-  {r₁ = r₁} {r₂ = r₂} =
-  Are-preserving-term-restrictions-no-erased-matches
-    (linearityModality r₁)
-    (linear-or-affine r₂)
-    (λ _ → inj₁
-       ( (λ ())
-       , (λ where
-            {p = 𝟘} _ → refl)
-       ))
-
--- If the functions linearity→linear-or-affine and tr reflect term
--- restrictions for a linear types modality and a linear or affine
--- types modality, then they also do this for certain term
--- restrictions obtained using no-erased-matches.
-
-linearity→linear-or-affine-reflects-no-erased-matches :
-  Are-reflecting-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    linearity→linear-or-affine tr →
-  Are-reflecting-term-restrictions
-    (no-erased-matches (linearityModality r₁))
-    (no-erased-matches (linear-or-affine r₂))
-    linearity→linear-or-affine tr
-linearity→linear-or-affine-reflects-no-erased-matches
-  {r₁ = r₁} {r₂ = r₂} =
-  Are-reflecting-term-restrictions-no-erased-matches
-    (linearityModality r₁)
-    (linear-or-affine r₂)
-    (λ _ →
-         (λ ())
-       , (λ where
-            {p = 𝟘} _ → refl))
-
--- If the functions linear-or-affine→linearity and tr preserve term
--- restrictions for a linear or affine types modality and a linear
--- types modality, then they also do this for certain term
--- restrictions obtained using no-erased-matches.
-
-linear-or-affine→linearity-preserves-no-erased-matches :
-  Are-preserving-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    linear-or-affine→linearity tr →
-  Are-preserving-term-restrictions
-    (no-erased-matches (linear-or-affine r₁))
-    (no-erased-matches (linearityModality r₂))
-    linear-or-affine→linearity tr
-linear-or-affine→linearity-preserves-no-erased-matches
-  {r₁ = r₁} {r₂ = r₂} =
-  Are-preserving-term-restrictions-no-erased-matches
-    (linear-or-affine r₁)
-    (linearityModality r₂)
-    (λ _ → inj₁
-       ( (λ ())
-       , (λ where
-            {p = 𝟘} _ → refl)
-       ))
-
--- If the functions linear-or-affine→linearity and tr reflect term
--- restrictions for a linear or affine types modality and a linear
--- types modality, then they also do this for certain term
--- restrictions obtained using no-erased-matches.
-
-linear-or-affine→linearity-reflects-no-erased-matches :
-  Are-reflecting-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    linear-or-affine→linearity tr →
-  Are-reflecting-term-restrictions
-    (no-erased-matches (linear-or-affine r₁))
-    (no-erased-matches (linearityModality r₂))
-    linear-or-affine→linearity tr
-linear-or-affine→linearity-reflects-no-erased-matches
-  {r₁ = r₁} {r₂ = r₂} =
-  Are-reflecting-term-restrictions-no-erased-matches
-    (linear-or-affine r₁)
-    (linearityModality r₂)
-    (λ _ →
-         (λ ())
-       , (λ where
-            {p = 𝟘} _ → refl))
-
--- If the functions affine→linear-or-affine and tr preserve term
--- restrictions for an affine types modality and a linear or affine
--- types modality, then they also do this for certain term
--- restrictions obtained using no-erased-matches.
-
-affine→linear-or-affine-preserves-no-erased-matches :
-  Are-preserving-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    affine→linear-or-affine tr →
-  Are-preserving-term-restrictions
-    (no-erased-matches (affineModality r₁))
-    (no-erased-matches (linear-or-affine r₂))
-    affine→linear-or-affine tr
-affine→linear-or-affine-preserves-no-erased-matches
-  {r₁ = r₁} {r₂ = r₂} =
-  Are-preserving-term-restrictions-no-erased-matches
-    (affineModality r₁)
-    (linear-or-affine r₂)
-    (λ _ → inj₁
-       ( (λ ())
-       , (λ where
-            {p = 𝟘} _ → refl)
-       ))
-
--- If the functions affine→linear-or-affine and tr reflect term
--- restrictions for an affine types modality and a linear or affine
--- types modality, then they also do this for certain term
--- restrictions obtained using no-erased-matches.
-
-affine→linear-or-affine-reflects-no-erased-matches :
-  Are-reflecting-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    affine→linear-or-affine tr →
-  Are-reflecting-term-restrictions
-    (no-erased-matches (affineModality r₁))
-    (no-erased-matches (linear-or-affine r₂))
-    affine→linear-or-affine tr
-affine→linear-or-affine-reflects-no-erased-matches {r₁ = r₁} {r₂ = r₂} =
-  Are-reflecting-term-restrictions-no-erased-matches
-    (affineModality r₁)
-    (linear-or-affine r₂)
-    (λ _ →
-         (λ ())
-       , (λ where
-            {p = 𝟘} _ → refl))
-
--- If the functions linear-or-affine→affine and tr preserve term
--- restrictions for a linear or affine types modality and an affine
--- types modality, then they also do this for certain term
--- restrictions obtained using no-erased-matches.
-
-linear-or-affine→affine-preserves-no-erased-matches :
-  Are-preserving-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    linear-or-affine→affine tr →
-  Are-preserving-term-restrictions
-    (no-erased-matches (linear-or-affine r₁))
-    (no-erased-matches (affineModality r₂))
-    linear-or-affine→affine tr
-linear-or-affine→affine-preserves-no-erased-matches
-  {r₁ = r₁} {r₂ = r₂} =
-  Are-preserving-term-restrictions-no-erased-matches
-    (linear-or-affine r₁)
-    (affineModality r₂)
-    (λ _ → inj₁
-       ( (λ ())
-       , (λ where
-            {p = 𝟘} _ → refl)
-       ))
-
--- If the functions linear-or-affine→affine and tr reflect term
--- restrictions for a linear or affine types modality and an affine
--- types modality, then they also do this for certain term
--- restrictions obtained using no-erased-matches.
-
-linear-or-affine→affine-reflects-no-erased-matches :
-  Are-reflecting-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    linear-or-affine→affine tr →
-  Are-reflecting-term-restrictions
-    (no-erased-matches (linear-or-affine r₁))
-    (no-erased-matches (affineModality r₂))
-    linear-or-affine→affine tr
-linear-or-affine→affine-reflects-no-erased-matches {r₁ = r₁} {r₂ = r₂} =
-  Are-reflecting-term-restrictions-no-erased-matches
-    (linear-or-affine r₁)
-    (affineModality r₂)
-    (λ _ →
-         (λ ())
-       , (λ where
-            {p = 𝟘} _ → refl))
-
--- If the functions affine→linearity and tr preserve term restrictions
--- for an affine types modality and a linear types modality, then they
--- also do this for certain term restrictions obtained using
--- no-erased-matches.
-
-affine→linearity-preserves-no-erased-matches :
-  Are-preserving-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    affine→linearity tr →
-  Are-preserving-term-restrictions
-    (no-erased-matches (affineModality r₁))
-    (no-erased-matches (linearityModality r₂))
-    affine→linearity tr
-affine→linearity-preserves-no-erased-matches {r₁ = r₁} {r₂ = r₂} =
-  Are-preserving-term-restrictions-no-erased-matches
-    (affineModality r₁)
-    (linearityModality r₂)
-    (λ _ → inj₁
-       ( (λ ())
-       , (λ where
-            {p = 𝟘} _ → refl)
-       ))
-
--- If the functions affine→linearity and tr reflect term restrictions
--- for an affine types modality and a linear types modality, then they
--- also do this for certain term restrictions obtained using
--- no-erased-matches.
-
-affine→linearity-reflects-no-erased-matches :
-  Are-reflecting-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    affine→linearity tr →
-  Are-reflecting-term-restrictions
-    (no-erased-matches (affineModality r₁))
-    (no-erased-matches (linearityModality r₂))
-    affine→linearity tr
-affine→linearity-reflects-no-erased-matches {r₁ = r₁} {r₂ = r₂} =
-  Are-reflecting-term-restrictions-no-erased-matches
-    (affineModality r₁)
-    (linearityModality r₂)
-    (λ _ →
-         (λ ())
-       , (λ where
-            {p = 𝟘} _ → refl))
-
--- If the functions linearity→affine and tr preserve term restrictions
--- for a linear types modality and an affine types modality, then they
--- also do this for certain term restrictions obtained using
--- no-erased-matches.
-
-linearity→affine-preserves-no-erased-matches :
-  Are-preserving-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    linearity→affine tr →
-  Are-preserving-term-restrictions
-    (no-erased-matches (linearityModality r₁))
-    (no-erased-matches (affineModality r₂))
-    linearity→affine tr
-linearity→affine-preserves-no-erased-matches {r₁ = r₁} {r₂ = r₂} =
-  Are-preserving-term-restrictions-no-erased-matches
-    (linearityModality r₁)
-    (affineModality r₂)
-    (λ _ → inj₁
-       ( (λ ())
-       , (λ where
-            {p = 𝟘} _ → refl)
-       ))
-
--- If the functions linearity→affine and tr reflect term restrictions
--- for a linear types modality and an affine types modality, then they
--- also do this for certain term restrictions obtained using
--- no-erased-matches.
-
-linearity→affine-reflects-no-erased-matches :
-  Are-reflecting-term-restrictions
-    (Restrictions.term-restrictions r₁)
-    (Restrictions.term-restrictions r₂)
-    linearity→affine tr →
-  Are-reflecting-term-restrictions
-    (no-erased-matches (linearityModality r₁))
-    (no-erased-matches (affineModality r₂))
-    linearity→affine tr
-linearity→affine-reflects-no-erased-matches {r₁ = r₁} {r₂ = r₂} =
-  Are-reflecting-term-restrictions-no-erased-matches
-    (linearityModality r₁)
-    (affineModality r₂)
-    (λ _ →
-         (λ ())
-       , (λ where
-            {p = 𝟘} _ → refl))

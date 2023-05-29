@@ -7,11 +7,12 @@
 -- covers both the main one used in majority of the paper and the
 -- extended one used in section 8.
 
--- This is done achieved through a type of restrictions
--- (Definition.Modality.Restrictions) bundled with the modality semiring.
--- In particular, the system without modes is retrieved by disallowing
--- the zero mode and requireing that the extra Σ-type annotation equals
--- 𝟙. The moded system is converesly retrieved by allowing the zero mode.
+-- This is achieved through two types of restrictions
+-- (Definition.Mode.Restrictions.Mode-restrictions and
+-- Definition.Typed.Restrictions.Type-restrictions). The system
+-- without modes can be obtained by disallowing the zero mode and
+-- requiring that the extra Σ-type annotation equals 𝟙. The moded
+-- system can be obtained by allowing the zero mode.
 
 -- This affects a number of other definitions and theorems which mention
 -- modes. When the zero mode is disallowed, these reduce to the statments
@@ -305,7 +306,8 @@ theorem-71 = Application.NegativeAxioms.Canonicity.Erased.canonicityRed
 
 -- A counteraxample to theorem 7.1 if erased matches are allowed
 
-counterexample₁ = Application.NegativeAxioms.Canonicity.EliminateErased.cEx
+counterexample₁ =
+  Application.NegativeAxioms.Canonicity.EliminateErased.Counterexample.cEx
 
 -- A counterexample to the fundamental lemma if erased matches are allowed
 

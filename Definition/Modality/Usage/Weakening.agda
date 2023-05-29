@@ -112,8 +112,8 @@ wkUsage ρ Emptyₘ =
   PE.subst (λ γ → γ ▸[ _ ] Empty) (PE.sym (wk-𝟘ᶜ ρ)) Emptyₘ
 wkUsage ρ Unitₘ =
   PE.subst (λ γ → γ ▸[ _ ] Unit) (PE.sym (wk-𝟘ᶜ ρ)) Unitₘ
-wkUsage ρ (ΠΣₘ γ▸F δ▸G ok) =
-  sub (ΠΣₘ (wkUsage ρ γ▸F) (wkUsage (lift ρ) δ▸G) ok)
+wkUsage ρ (ΠΣₘ γ▸F δ▸G) =
+  sub (ΠΣₘ (wkUsage ρ γ▸F) (wkUsage (lift ρ) δ▸G))
       (≤ᶜ-reflexive (wk-+ᶜ ρ))
 wkUsage ρ var =
   PE.subst (λ γ → γ ▸[ _ ] wk ρ (var _)) (PE.sym (wkUsageVar ρ _)) var
@@ -129,8 +129,9 @@ wkUsage ρ (prodₚₘ γ▸t γ▸u) = sub
   (≤ᶜ-reflexive (≈ᶜ-trans (wk-∧ᶜ ρ) (∧ᶜ-congʳ (wk-·ᶜ ρ))))
 wkUsage ρ (fstₘ m γ▸t PE.refl ok) = fstₘ m (wkUsage ρ γ▸t) PE.refl ok
 wkUsage ρ (sndₘ γ▸t) = sndₘ (wkUsage ρ γ▸t)
-wkUsage ρ (prodrecₘ γ▸t δ▸u η▸A P) =
-  sub (prodrecₘ (wkUsage ρ γ▸t) (wkUsage (liftn ρ 2) δ▸u) (wkUsage (lift ρ) η▸A) P)
+wkUsage ρ (prodrecₘ γ▸t δ▸u η▸A) =
+  sub (prodrecₘ (wkUsage ρ γ▸t) (wkUsage (liftn ρ 2) δ▸u)
+         (wkUsage (lift ρ) η▸A))
       (≤ᶜ-reflexive (≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-congʳ (wk-·ᶜ ρ))))
 wkUsage ρ zeroₘ =
   PE.subst (λ γ → γ ▸[ _ ] zero) (PE.sym (wk-𝟘ᶜ ρ)) zeroₘ
@@ -399,7 +400,7 @@ wkUsage⁻¹ 𝟘ᵐ-ok = λ ▸t → wkUsage⁻¹′ ▸t ≤ᶜ-refl
         case wk-Unit eq of λ {
           refl →
         sub Unitₘ (wkConₘ-𝟘 leq) }
-      (ΠΣₘ ▸A ▸B ok) leq eq →
+      (ΠΣₘ ▸A ▸B) leq eq →
         case wk-ΠΣ eq of λ {
           (_ , _ , refl , refl , refl) →
         case wkConₘ-+ᶜ 𝟘ᵐ-ok ρ leq of λ {
@@ -408,7 +409,7 @@ wkUsage⁻¹ 𝟘ᵐ-ok = λ ▸t → wkUsage⁻¹′ ▸t ≤ᶜ-refl
           ▸A →
         case wkUsage⁻¹′ ▸B (leq₃ ∙ ≤-refl) of λ {
           ▸B →
-        sub (ΠΣₘ ▸A ▸B ok) leq₁ }}}}
+        sub (ΠΣₘ ▸A ▸B) leq₁ }}}}
       var leq eq →
         case wk-var eq of λ {
           (x , refl , refl) →
@@ -488,7 +489,7 @@ wkUsage⁻¹ 𝟘ᵐ-ok = λ ▸t → wkUsage⁻¹′ ▸t ≤ᶜ-refl
         case wk-snd eq of λ {
           (_ , refl , refl) →
         sndₘ (wkUsage⁻¹′ ▸t leq) }
-      (prodrecₘ {r = r} ▸t ▸u ▸A ok) leq eq →
+      (prodrecₘ {r = r} ▸t ▸u ▸A) leq eq →
         case wk-prodrec eq of λ {
           (_ , _ , _ , refl , refl , refl , refl) →
         case wkConₘ-+ᶜ 𝟘ᵐ-ok ρ leq of λ {
@@ -498,8 +499,7 @@ wkUsage⁻¹ 𝟘ᵐ-ok = λ ▸t → wkUsage⁻¹′ ▸t ≤ᶜ-refl
             (prodrecₘ
                (wkUsage⁻¹′ ▸t leq₄)
                (wkUsage⁻¹′ ▸u (leq₃ ∙ ≤-refl ∙ ≤-refl))
-               (wkUsage⁻¹-𝟘ᵐ?-∙ ▸A)
-               ok)
+               (wkUsage⁻¹-𝟘ᵐ?-∙ ▸A))
             (begin
                γ            ≤⟨ leq₁ ⟩
                δ +ᶜ η       ≤⟨ +ᶜ-monotoneˡ leq₂ ⟩
@@ -508,8 +508,7 @@ wkUsage⁻¹ 𝟘ᵐ-ok = λ ▸t → wkUsage⁻¹′ ▸t ≤ᶜ-refl
             (prodrecₘ
                (wkUsage⁻¹-ᵐ·𝟘 m′ ▸t)
                (wkUsage⁻¹′ ▸u (leq₃ ∙ ≤-refl ∙ ≤-refl))
-               (wkUsage⁻¹-𝟘ᵐ?-∙ ▸A)
-               ok)
+               (wkUsage⁻¹-𝟘ᵐ?-∙ ▸A))
             (begin
                γ             ≤⟨ leq₁ ⟩
                δ +ᶜ η        ≤⟨ +ᶜ-monotoneˡ leq₂ ⟩

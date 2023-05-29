@@ -116,7 +116,7 @@ prod′ {m = Σᵣ} {q = q} {Γ = Γ} {F} {G} {t} {u} {l} {l′} {l″} [F] [t] 
 
   in  Σₜ (prodᵣ _ t u) (idRedTerm:*: ⊢prod)
          (≅-prod-cong ⊢F ⊢G (escapeTermEq [F] [t≡t])
-            (escapeTermEq [Gt] [u≡u]))
+            (escapeTermEq [Gt] [u≡u]) ok)
          prodₙ
          (PE.refl , [t]′ , [u]′ , PE.refl)
 prod′ {Γ = Γ} {F} {G} {t} {u} {l} {l′} [F] [t] [Gt] [u]
@@ -267,8 +267,8 @@ prod-cong′
 
 prod-cong′ {m = Σᵣ} {q = q} {Γ = Γ} {F} {G} {t} {t′} {u} {u′} {l} {l′}
            [F] [t] [t′] [t≡t′] [Gt] [u] [u′] [u≡u′]
-           [ΣFG]@(noemb (Bᵣ F₁ G₁ D ⊢F ⊢G A≡A [F]₁ [G]₁ G-ext _)) with
-             B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) ΠΣₙ)
+           [ΣFG]@(noemb (Bᵣ F₁ G₁ D ⊢F ⊢G A≡A [F]₁ [G]₁ G-ext ok))
+           with B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) ΠΣₙ)
 ... | PE.refl , PE.refl , _ =
   let ⊢Γ = wf ⊢F
       wk[F] = [F]₁ id ⊢Γ
@@ -300,7 +300,8 @@ prod-cong′ {m = Σᵣ} {q = q} {Γ = Γ} {F} {G} {t} {t′} {u} {u′} {l} {l�
           (idRedTerm:*: ⊢prod′)
           prodₙ prodₙ
           (≅-prod-cong ⊢F ⊢G
-             (escapeTermEq [F] [t≡t′]) (escapeTermEq [Gt] [u≡u′]))
+             (escapeTermEq [F] [t≡t′]) (escapeTermEq [Gt] [u≡u′])
+             ok)
           [prod] [prod′]
           (PE.refl , PE.refl ,
            wk[t] , wk[t′] , wk[u] , wk[u′] , wk[t≡t′] , wk[u≡u′])
@@ -335,7 +336,7 @@ prod-congᵛ :
   ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ G [ t ] / [Γ] / substS [Γ] [F] [G] [t])
   ([u′] : Γ ⊩ᵛ⟨ l ⟩ u′ ∷ G [ t′ ] / [Γ] / substS [Γ] [F] [G] [t′])
   ([u≡u′] : Γ ⊩ᵛ⟨ l ⟩ u ≡ u′ ∷ G [ t ] / [Γ] / substS [Γ] [F] [G] [t])
-  (ok : Σ-restriction m p) →
+  (ok : Σ-restriction m p q) →
   Γ ⊩ᵛ⟨ l ⟩ prod m p t u ≡ prod m p t′ u′ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G / [Γ] /
     Σᵛ [Γ] [F] [G] ok
 prod-congᵛ
@@ -379,7 +380,7 @@ prodᵛ :
   ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
   ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ F / [Γ] / [F])
   ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ G [ t ] / [Γ] / substS [Γ] [F] [G] [t])
-  (ok : Σ-restriction m p) →
+  (ok : Σ-restriction m p q) →
   Γ ⊩ᵛ⟨ l ⟩ prod m p t u ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G / [Γ] /
     Σᵛ [Γ] [F] [G] ok
 prodᵛ

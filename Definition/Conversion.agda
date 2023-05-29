@@ -64,6 +64,7 @@ mutual
     prodrec-cong  : Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ C [conv↑] E
                   → Γ ⊢ g ~ h ↓ Σᵣ p , q ▷ F ▹ G
                   → Γ ∙ F ∙ G ⊢ u [conv↑] v ∷ C [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
+                  → Prodrec-restriction r p q′
                   → Γ ⊢ prodrec r p q′ C g u ~ prodrec r p q′ E h v ↑ C [ g ]
 
     Emptyrec-cong : Γ ⊢ F [conv↑] H
@@ -111,7 +112,7 @@ mutual
                → Γ ⊢ F
                → Γ ⊢ F [conv↑] H
                → Γ ∙ F ⊢ G [conv↑] E
-               → ΠΣ-restriction b p
+               → ΠΣ-restriction b p q
                → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G [conv↓] ΠΣ⟨ b ⟩ p , q ▷ H ▹ E
 
   -- Term equality.
@@ -169,6 +170,7 @@ mutual
               → Γ ∙ F ⊢ G
               → Γ ⊢ t [conv↑] t′ ∷ F
               → Γ ⊢ u [conv↑] u′ ∷ G [ t ]
+              → Σᵣ-restriction p q
               → Γ ⊢ prodᵣ p t u [conv↓] prodᵣ p t′ u′ ∷ Σᵣ p , q ▷ F ▹ G
 
     η-eq      : ∀ {f g F G}
@@ -207,5 +209,6 @@ prod-cong⁻¹ :
   Γ ⊢ F ×
   Γ ∙ F ⊢ G ×
   (Γ ⊢ t [conv↑] t′ ∷ F) ×
-  (Γ ⊢ u [conv↑] u′ ∷ G [ t ])
-prod-cong⁻¹ (prod-cong F G t u) = refl , refl , F , G , t , u
+  (Γ ⊢ u [conv↑] u′ ∷ G [ t ]) ×
+  Σᵣ-restriction p q
+prod-cong⁻¹ (prod-cong F G t u ok) = refl , refl , F , G , t , u , ok

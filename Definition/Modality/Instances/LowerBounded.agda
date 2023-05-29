@@ -3,15 +3,15 @@
 ------------------------------------------------------------------------
 
 open import Definition.Modality
-open import Definition.Modality.Restrictions
+open import Definition.Mode.Restrictions
 open import Tools.Bool hiding (_∧_)
 
 module Definition.Modality.Instances.LowerBounded
   {a} {M : Set a} (𝕄 : Semiring-with-meet M)
   (open Semiring-with-meet 𝕄)
   (∞ : M) (∞-min : (p : M) → ∞ ≤ p)
-  (restrictions : Restrictions M)
-  (open Restrictions restrictions)
+  (rs : Mode-restrictions)
+  (open Mode-restrictions rs)
   (𝟘-well-behaved : T 𝟘ᵐ-allowed → Has-well-behaved-zero M 𝕄) where
 
 open import Definition.Modality.Properties.Addition 𝕄
@@ -129,6 +129,6 @@ is-semiring-with-meet-and-star = record
 isModality : Modality M
 isModality = record
   { semiring-with-meet-and-star = is-semiring-with-meet-and-star
-  ; restrictions = restrictions
+  ; mode-restrictions = rs
   ; 𝟘-well-behaved = 𝟘-well-behaved
   }

@@ -24,6 +24,7 @@ module Erasure.LogicalRelation.Fundamental.Application
   where
 
 open EqRelSet {{...}}
+open Type-restrictions R
 
 open import Definition.Untyped.Properties M
 open import Definition.Typed.Weakening R
@@ -71,16 +72,17 @@ appʳ′ : ∀ {l} {Γ : Con Term n}
       → ([Γ] : ⊩ᵛ Γ) ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ]) ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
        ([G[u]] : Γ ⊩ᵛ⟨ l ⟩ G [ u ] / [Γ])
        ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ F / [Γ] / [F])
+       (ok : Π-restriction p q)
        (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] Π p , q ▷ F ▹ G / [Γ] /
-              Πᵛ {F = F} {G = G} [Γ] [F] [G])
+              Πᵛ [Γ] [F] [G] ok)
        (⊩ʳu : δ ▸ Γ ⊩ʳ⟨ l ⟩ u ∷[ m ᵐ· p ] F / [Γ] / [F])
      → γ +ᶜ p ·ᶜ δ ▸ Γ ⊩ʳ⟨ l ⟩ t ∘⟨ p ⟩ u ∷[ m ] G [ u ] / [Γ] / [G[u]]
 appʳ′ {m = 𝟘ᵐ} with is-𝟘? 𝟘
 ... | yes m≡𝟘 = _
 ... | no m≢𝟘 = PE.⊥-elim (m≢𝟘 PE.refl)
 appʳ′
-  {F = F} {G = G} {u = u} {γ = γ} {t = t} {m = 𝟙ᵐ} {p = p} {q = q}
-  {δ = δ} {l = l} [Γ] [F] [G] [G[u]] [u] ⊩ʳt ⊩ʳu {σ = σ} [σ] σ®σ′
+  {F = F} {G = G} {u = u} {p = p} {q = q} {γ = γ} {t = t} {m = 𝟙ᵐ}
+  {δ = δ} {l = l} [Γ] [F] [G] [G[u]] [u] _ ⊩ʳt ⊩ʳu {σ = σ} [σ] σ®σ′
   with is-𝟘? 𝟙
 ... | yes 𝟙≡𝟘 = _
 ... | no 𝟙≢𝟘
@@ -148,7 +150,9 @@ appʳ {F = F} {p} {q} {G} {u} {γ} {t} {δ}
       [Γ]′ , [G]′ = fundamental Γ⊢G
       [G] = IS.irrelevance {A = G} [Γ]′ ([Γ] ∙ [F]) [G]′
       [G[u]] = substSΠ {F = F} {G = G} {t = u} (BΠ p q) [Γ] [F] [Π] [u]
-      [Π]′ = Πᵛ {F = F} {G = G} {p = p} {q = q} [Γ] [F] [G]
+      ok = ⊩ᵛΠΣ→ΠΣ-restriction [Π]
+      [Π]′ = Πᵛ {F = F} {G = G} {p = p} {q = q} [Γ] [F] [G] ok
       ⊩ʳt′ = irrelevance {A = Π p , q ▷ F ▹ G} {t = t} [Γ] [Γ] [Π] [Π]′ ⊩ʳt
-      ⊩ʳt∘u = appʳ′ {F = F} {G = G} {u = u} {t = t} {p = p} [Γ] [F] [G] [G[u]] [u] ⊩ʳt′ ⊩ʳu
+      ⊩ʳt∘u = appʳ′ {F = F} {G = G} {u = u} {p = p} {t = t}
+                [Γ] [F] [G] [G[u]] [u] ok ⊩ʳt′ ⊩ʳu
   in  [G[u]] , ⊩ʳt∘u

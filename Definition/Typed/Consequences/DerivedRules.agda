@@ -9,6 +9,8 @@ module Definition.Typed.Consequences.DerivedRules
   (R : Type-restrictions M)
   where
 
+open Type-restrictions R
+
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Product
@@ -31,13 +33,14 @@ private variable
 
 lam-cong :
   Γ ∙ A ⊢ t ≡ u ∷ B →
+  Π-restriction p q →
   Γ ⊢ lam p t ≡ lam p u ∷ Π p , q ▷ A ▹ B
-lam-cong {B = B} t≡u = η-eq ⊢A (lamⱼ ⊢A ⊢t) (lamⱼ ⊢A ⊢u) $
+lam-cong {B = B} t≡u ok = η-eq ⊢A (lamⱼ ⊢A ⊢t ok) (lamⱼ ⊢A ⊢u ok) $
   _⊢_≡_∷_.trans
     (PE.subst (_ ⊢ _ ≡ _ ∷_)
        (wkSingleSubstId _)
        (β-red A⊢A A∙A⊢B (wkTerm ρ ⊢∙A∙A ⊢t) (var ⊢∙A here)
-          PE.refl)) $
+          PE.refl ok)) $
   _⊢_≡_∷_.trans
     (PE.subst₂ (_ ⊢_≡_∷ _)
       (PE.sym (wkSingleSubstId _))
@@ -46,7 +49,7 @@ lam-cong {B = B} t≡u = η-eq ⊢A (lamⱼ ⊢A ⊢t) (lamⱼ ⊢A ⊢u) $
   _⊢_≡_∷_.sym $
   PE.subst (_ ⊢ _ ≡ _ ∷_)
     (wkSingleSubstId _)
-    (β-red A⊢A A∙A⊢B (wkTerm ρ ⊢∙A∙A ⊢u) (var ⊢∙A here) PE.refl)
+    (β-red A⊢A A∙A⊢B (wkTerm ρ ⊢∙A∙A ⊢u) (var ⊢∙A here) PE.refl ok)
   where
   ρ     = lift (step id)
   ⊢t    = syntacticEqTerm t≡u .proj₂ .proj₁
@@ -68,7 +71,7 @@ lam-cong {B = B} t≡u = η-eq ⊢A (lamⱼ ⊢A ⊢t) (lamⱼ ⊢A ⊢u) $
   ⊢A
   (                                                                $⟨ ⊢wkt0 ⟩
    Γ ∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ wk (lift (step id)) B [ var x0 ]  →⟨ flip conv B[0]≡B ⟩
-   Γ ∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ B                                 →⟨ lamⱼ ⊢A ⟩
+   Γ ∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ B                                 →⟨ flip (lamⱼ ⊢A) ok ⟩
    Γ ⊢ lam p (wk1 t ∘⟨ p ⟩ var x0) ∷ Π p , q ▷ A ▹ B               □)
   ⊢t
   (                                                                     $⟨ ⊢wkt0 ⟩
@@ -84,7 +87,7 @@ lam-cong {B = B} t≡u = η-eq ⊢A (lamⱼ ⊢A ⊢t) (lamⱼ ⊢A ⊢u) $
                                                                              (_⊢_∷_.conv (wkTerm (step id) ⊢ΓAA ⊢wkt ∘ⱼ var ⊢ΓAA here) $
                                                                               PE.subst₂ (_ ⊢_≡_) (PE.sym (wkSingleSubstId _)) PE.refl (refl ⊢wkB))
                                                                              (var ⊢ΓA here)
-                                                                             PE.refl ⟩
+                                                                             PE.refl ok ⟩
    Γ ∙ A ⊢
      lam p (wk1 (wk1 t) ∘⟨ p ⟩ var x0) ∘⟨ p ⟩ var x0 ≡
      wk1 t ∘⟨ p ⟩ var x0 ∷
@@ -100,16 +103,17 @@ lam-cong {B = B} t≡u = η-eq ⊢A (lamⱼ ⊢A ⊢t) (lamⱼ ⊢A ⊢u) $
      wk1 t ∘⟨ p ⟩ var x0 ∷
      B                                                                  □)
   where
-  ⊢A,⊢B = inversion-ΠΣ (syntacticTerm ⊢t)
-  ⊢A    = ⊢A,⊢B .proj₁
-  ⊢B    = ⊢A,⊢B .proj₂ .proj₁
-  ⊢Γ    = wfTerm ⊢t
-  ⊢ΓA   = ⊢Γ ∙ ⊢A
-  ⊢wkt  = wkTerm (step id) ⊢ΓA ⊢t
-  ⊢wkt0 = ⊢wkt ∘ⱼ var ⊢ΓA here
-  ⊢wkA  = W.wk (step id) ⊢ΓA ⊢A
-  ⊢ΓAA  = ⊢ΓA ∙ ⊢wkA
-  ⊢wkB  = W.wk (lift (step id)) ⊢ΓAA ⊢B
+  ⊢A,⊢B,ok = inversion-ΠΣ (syntacticTerm ⊢t)
+  ⊢A       = ⊢A,⊢B,ok .proj₁
+  ⊢B       = ⊢A,⊢B,ok .proj₂ .proj₁
+  ok       = ⊢A,⊢B,ok .proj₂ .proj₂
+  ⊢Γ       = wfTerm ⊢t
+  ⊢ΓA      = ⊢Γ ∙ ⊢A
+  ⊢wkt     = wkTerm (step id) ⊢ΓA ⊢t
+  ⊢wkt0    = ⊢wkt ∘ⱼ var ⊢ΓA here
+  ⊢wkA     = W.wk (step id) ⊢ΓA ⊢A
+  ⊢ΓAA     = ⊢ΓA ∙ ⊢wkA
+  ⊢wkB     = W.wk (lift (step id)) ⊢ΓAA ⊢B
 
   B[0]≡B : Γ ∙ A ⊢ wk (lift (step id)) B [ var x0 ] ≡ B
   B[0]≡B = PE.subst (_ ⊢_≡ _) (PE.sym (wkSingleSubstId _)) (refl ⊢B)

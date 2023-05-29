@@ -112,14 +112,14 @@ mutual
         n′ , nfN′ , n≡n′ = fullRedNe~↓ n
     in  natrec _ _ _ C′ z′ s′ n′ , natrecₙ nfC′ nfZ′ nfS′ nfN′
      , natrec-cong (proj₁ (syntacticEq C≡C′)) C≡C′ z≡z′ s≡s′ n≡n′
-  fullRedNe (prodrec-cong C g u) =
+  fullRedNe (prodrec-cong C g u ok₂) =
     let C′ , nfC′ , C≡C′ = fullRed C
         g′ , nfg′ , g≡g′ = fullRedNe~↓ g
         u′ , nfu′ , u≡u′ = fullRedTerm u
         ⊢Σ , _ = syntacticEqTerm g≡g′
-        ⊢F , ⊢G = syntacticΣ ⊢Σ
+        ⊢F , ⊢G , ok₁ = inversion-ΠΣ ⊢Σ
     in  prodrec _ _ _ C′ g′ u′ , prodrecₙ nfC′ nfg′ nfu′
-     , prodrec-cong ⊢F ⊢G C≡C′ g≡g′ u≡u′
+     , prodrec-cong ⊢F ⊢G C≡C′ g≡g′ u≡u′ ok₁ ok₂
   fullRedNe (Emptyrec-cong C n) =
     let C′ , nfC′ , C≡C′ = fullRed C
         n′ , nfN′ , n≡n′ = fullRedNe~↓ n
@@ -182,10 +182,10 @@ mutual
   fullRedTermConv↓ (suc-cong t) =
     let u , nf , t≡u = fullRedTerm t
     in  suc u , sucₙ nf , suc-cong t≡u
-  fullRedTermConv↓ (prod-cong ⊢F ⊢G t↑t u↑u) =
+  fullRedTermConv↓ (prod-cong ⊢F ⊢G t↑t u↑u ok) =
     let t′ , nfT , t≡t′ = fullRedTerm t↑t
         u′ , nfU , u≡u′ = fullRedTerm u↑u
-    in  prod! t′ u′ , prodₙ nfT nfU , prod-cong ⊢F ⊢G t≡t′ u≡u′ _
+    in  prod! t′ u′ , prodₙ nfT nfU , prod-cong ⊢F ⊢G t≡t′ u≡u′ ok
   fullRedTermConv↓ (η-eq {p = p} ⊢t _ _ _ t∘0) =
     let u , nf , t∘0≡u = fullRedTerm t∘0
         ⊢G , _ , ⊢u = syntacticEqTerm t∘0≡u
@@ -197,8 +197,9 @@ mutual
         wk⊢u = wkTerm (lift (step id)) ΓFF'⊢ ⊢u
         wk⊢t = wkTerm (step id) ΓF⊢ ⊢t
         λu∘0 = lam p (U.wk (lift (step id)) u) ∘⟨ p ⟩ var x0
+        ok = ⊢∷ΠΣ→ΠΣ-restriction ⊢t
     in  lam _ u , lamₙ nf
-     ,  η-eq ⊢F ⊢t (lamⱼ ⊢F ⊢u)
+     ,  η-eq ⊢F ⊢t (lamⱼ ⊢F ⊢u ok)
           (trans
              (PE.subst (λ x → _ ⊢ _ ≡ _ ∷ x) (wkSingleSubstId _)
                 (app-cong (refl wk⊢t) (refl (var ΓF⊢ here))))
@@ -206,7 +207,7 @@ mutual
                 (PE.subst₂ (λ x y → _ ⊢ x ≡ λu∘0 ∷ y)
                    (wkSingleSubstId u) (wkSingleSubstId _)
                    (sym (β-red wk⊢F wk⊢G wk⊢u
-                           (var ΓF⊢ here) PE.refl)))))
+                           (var ΓF⊢ here) PE.refl ok)))))
   fullRedTermConv↓ (Σ-η ⊢t _ tProd _ fstConv sndConv) =
     let fst′ , nfFst′ , fst≡fst′ = fullRedTerm fstConv
         snd′ , nfSnd′ , snd≡snd′ = fullRedTerm sndConv

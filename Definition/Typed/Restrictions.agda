@@ -8,6 +8,7 @@ module Definition.Typed.Restrictions
 
 open import Definition.Untyped M
 
+open import Tools.Function
 open import Tools.Level
 open import Tools.Unit
 
@@ -19,36 +20,36 @@ record Type-restrictions : Set (lsuc a) where
     -- Restrictions imposed upon unit types (with η-equality).
     Unit-restriction : Set a
 
-    -- Restrictions imposed upon Σ-types with η-equality. The
-    -- argument is the annotation of the Σ-type's first component.
-    Σₚ-restriction : M → Set a
+    -- Restrictions imposed upon Π- and Σ-types.
+    ΠΣ-restriction : BinderMode → (p q : M) → Set a
 
-  -- Restrictions imposed upon Σ-types. No restrictions are imposed
-  -- upon Σ-types without η-equality.
+    -- The prodrec constructor's quantities have to satisfy this
+    -- predicate.
+    Prodrec-restriction : (r p q : M) → Set a
 
-  Σ-restriction : SigmaMode → M → Set a
-  Σ-restriction = λ where
-    Σₚ → Σₚ-restriction
-    Σᵣ → λ _ → Lift _ ⊤
+  -- Restrictions imposed upon Π-types.
 
-  -- Restrictions imposed upon Π- and Σ-types. No restrictions are
-  -- imposed upon Π-types or Σ-types without η-equality.
+  Π-restriction : M → M → Set a
+  Π-restriction = ΠΣ-restriction BMΠ
 
-  ΠΣ-restriction : BinderMode → M → Set a
-  ΠΣ-restriction = λ where
-    BMΠ     → λ _ → Lift _ ⊤
-    (BMΣ s) → Σ-restriction s
+  -- Restrictions imposed upon Σ-types.
+
+  Σ-restriction : SigmaMode → M → M → Set a
+  Σ-restriction = ΠΣ-restriction ∘→ BMΣ
+
+  -- Restrictions imposed upon Σ-types with η-equality.
+
+  Σₚ-restriction : M → M → Set a
+  Σₚ-restriction = Σ-restriction Σₚ
+
+  -- Restrictions imposed upon Σ-types without η-equality.
+
+  Σᵣ-restriction : M → M → Set a
+  Σᵣ-restriction = Σ-restriction Σᵣ
 
   -- A variant of ΠΣ-restriction for BindingType.
 
   BindingType-restriction : BindingType → Set a
-  BindingType-restriction (BM b p _) = ΠΣ-restriction b p
+  BindingType-restriction (BM b p q) = ΠΣ-restriction b p q
 
 open Type-restrictions
-
--- No restrictions.
-
-no-restrictions : Type-restrictions
-no-restrictions = λ where
-  .Unit-restriction → Lift _ ⊤
-  .Σₚ-restriction   → λ _ → Lift _ ⊤

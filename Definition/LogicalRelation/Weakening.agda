@@ -122,7 +122,7 @@ wk {ρ = ρ} [ρ] ⊢Δ (ne′ K D neK K≡K) =
   ne′ (U.wk ρ K) (wkRed:*: [ρ] ⊢Δ D) (wkNeutral ρ neK) (~-wk [ρ] ⊢Δ K≡K)
 wk
   {m = m} {ρ} {Γ} {Δ} {A} {l} [ρ] ⊢Δ
-  (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) =
+  (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok) =
   let ⊢ρF = T.wk [ρ] ⊢Δ ⊢F
       [F]′ : ∀ {k} {ρ : Wk k m} {ρ′ E} ([ρ] : ρ ∷ E ⊆ Δ) ([ρ′] : ρ′ ∷ Δ ⊆ Γ) (⊢E : ⊢ E)
            → E ⊩⟨ l ⟩ U.wk ρ (U.wk ρ′ F)
@@ -160,7 +160,7 @@ wk
                                          ([a]′ [ρ₁] [ρ] ⊢Δ₁ [a])
                                          ([a]′ [ρ₁] [ρ] ⊢Δ₁ [b])
                                          [a≡b]′))
-           _
+           ok
 wk
   {m = m} {ρ} {Γ} {Δ} {A} {l} [ρ] ⊢Δ
   (Σᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok) =

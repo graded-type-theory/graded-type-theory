@@ -63,8 +63,8 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   neNeg (natrecⱼ _ _ _ d   ) (natrecₙ n  ) =
     let ⊢ℕ = refl (ℕⱼ (wfTerm d))
     in  ⊥-elim (¬negℕ (neNeg d n) ⊢ℕ)
-  neNeg (prodrecⱼ ⊢A A⊢B _ d _) (prodrecₙ n) =
-    let ⊢Σ = refl (ΠΣⱼ ⊢A A⊢B _)
+  neNeg (prodrecⱼ ⊢A A⊢B _ d _ ok _) (prodrecₙ n) =
+    let ⊢Σ = refl (ΠΣⱼ ⊢A A⊢B ok)
     in  ⊥-elim (¬negΣᵣ (neNeg d n) ⊢Σ)
   neNeg (Emptyrecⱼ _ d     ) (Emptyrecₙ n) =
     ⊥-elim (consistent d)
@@ -97,7 +97,7 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   nfN (Unitⱼ _ _) Unitₙ     c = ⊥-elim (U≢ℕ c)
 
   -- * Canonical forms
-  nfN (lamⱼ _ _)        (lamₙ _)    c = ⊥-elim (ℕ≢Π (sym c))
+  nfN (lamⱼ _ _ _)      (lamₙ _)    c = ⊥-elim (ℕ≢Π (sym c))
   nfN (prodⱼ _ _ _ _ _) (prodₙ _ _) c = ⊥-elim (ℕ≢Σ (sym c))
   nfN (starⱼ _ _)       starₙ       c = ⊥-elim (ℕ≢Unitⱼ (sym c))
   -- q.e.d

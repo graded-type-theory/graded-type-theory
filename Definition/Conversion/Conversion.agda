@@ -77,7 +77,7 @@ mutual
     in  zero-refl ⊢Δ
   convConv↓Term Γ≡Δ A≡B whnfB (suc-cong x) rewrite ℕ≡A A≡B whnfB =
     suc-cong (stabilityConv↑Term Γ≡Δ x)
-  convConv↓Term Γ≡Δ A≡B whnfB (prod-cong x x₁ x₂ x₃)
+  convConv↓Term Γ≡Δ A≡B whnfB (prod-cong x x₁ x₂ x₃ ok)
     with Σ≡A A≡B whnfB
   ... | F′ , G′ , PE.refl with Σ-injectivity A≡B
   ...   | F≡F′ , G≡G′ , _ , _ =
@@ -86,7 +86,7 @@ mutual
         _ , ⊢t , _ = syntacticEqTerm (soundnessConv↑Term x₂)
         Gt≡G′t = substTypeEq G≡G′ (refl ⊢t)
     in  prod-cong (stability Γ≡Δ ⊢F′) (stability (Γ≡Δ ∙ F≡F′) ⊢G′)
-          (convConv↑Term Γ≡Δ F≡F′ x₂) (convConv↑Term Γ≡Δ Gt≡G′t x₃)
+          (convConv↑Term Γ≡Δ F≡F′ x₂) (convConv↑Term Γ≡Δ Gt≡G′t x₃) ok
   convConv↓Term Γ≡Δ A≡B whnfB (η-eq x₁ x₂ y y₁ x₃) with Π≡A A≡B whnfB
   convConv↓Term Γ≡Δ A≡B whnfB (η-eq x₁ x₂ y y₁ x₃) | F′ , G′ , PE.refl =
     case injectivity A≡B of λ {

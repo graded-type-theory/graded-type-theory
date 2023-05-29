@@ -1,6 +1,7 @@
 ------------------------------------------------------------------------
--- The fundamental lemma does not hold of erased matches are allowed
--- for open contexts.
+-- The fundamental lemma does not hold in general without the
+-- assumption that erased matches are disallowed or the context is
+-- empty
 ------------------------------------------------------------------------
 
 open import Definition.Modality
@@ -14,10 +15,12 @@ module Erasure.LogicalRelation.Fundamental.Counterexample
   (𝕄 : Modality M)
   (open Modality 𝕄)
   (R : Type-restrictions M)
+  (open Type-restrictions R)
   (is-𝟘? : (p : M) → Dec (p ≡ 𝟘))
   (𝟙≉𝟘 : 𝟙 ≢ 𝟘)
   -- Erased matches is allowed
-  (P₀₁₀ : Prodrec 𝟘 𝟙 𝟘)
+  (P₀₁₀ : Prodrec-restriction 𝟘 𝟙 𝟘)
+  (Σᵣ-𝟙-𝟘 : Σᵣ-restriction 𝟙 𝟘)
   {{eqrel : EqRelSet R}}
   where
 
@@ -42,7 +45,7 @@ import Definition.LogicalRelation.Substitution.Irrelevance R as IS
 Δ = ε ∙ (Σᵣ 𝟙 , 𝟘 ▷ ℕ ▹ ℕ)
 
 ⊢Δ : ⊢ Δ
-⊢Δ = ε ∙ ΠΣⱼ (ℕⱼ ε) (ℕⱼ (ε ∙ ℕⱼ ε)) _
+⊢Δ = ε ∙ ΠΣⱼ (ℕⱼ ε) (ℕⱼ (ε ∙ ℕⱼ ε)) Σᵣ-𝟙-𝟘
 
 import Erasure.Target as T
 open import Erasure.LogicalRelation 𝕄 R ⊢Δ is-𝟘?
@@ -87,17 +90,17 @@ cEx : ∃ λ n
 cEx = _
     , prodrec 𝟘 𝟙 𝟘 ℕ (var x0) zero , ℕ , ε ∙ (Σᵣ 𝟙 , 𝟘 ▷ ℕ ▹ ℕ)
     , ε ∙ 𝟘
-    , prodrecⱼ Δ⊢ℕ Δℕ⊢ℕ ΔΣ⊢ℕ (var ⊢Δ here) (zeroⱼ ⊢Δℕℕ)
+    , prodrecⱼ Δ⊢ℕ Δℕ⊢ℕ ΔΣ⊢ℕ (var ⊢Δ here) (zeroⱼ ⊢Δℕℕ) Σᵣ-𝟙-𝟘 P₀₁₀
     , sub ▸pr (≤ᶜ-reflexive (≈ᶜ-refl ∙ PE.sym (PE.trans (+-identityʳ _) (·-zeroˡ _))))
     , λ {([Γ] , [A] , ⊩ʳpr) → cEx′ [Γ] [A] ⊩ʳpr}
     where
     Δ⊢ℕ = ℕⱼ ⊢Δ
     ⊢Δℕ = ⊢Δ ∙ Δ⊢ℕ
     Δℕ⊢ℕ = ℕⱼ ⊢Δℕ
-    Δ⊢Σ = ΠΣⱼ Δ⊢ℕ Δℕ⊢ℕ _
+    Δ⊢Σ = ΠΣⱼ Δ⊢ℕ Δℕ⊢ℕ Σᵣ-𝟙-𝟘
     ⊢ΔΣ = ⊢Δ ∙ Δ⊢Σ
     ΔΣ⊢ℕ = ℕⱼ ⊢ΔΣ
     ⊢Δℕℕ = ⊢Δ ∙ Δ⊢ℕ ∙ Δℕ⊢ℕ
     ▸zero = sub zeroₘ (≤ᶜ-reflexive (≈ᶜ-refl ∙ PE.trans (·-congˡ (·-zeroˡ 𝟙)) (·-zeroʳ 𝟙) ∙ ·-zeroʳ _))
     ▸ℕ = sub ℕₘ (≤ᶜ-refl ∙ ≤-reflexive (·-zeroʳ _))
-    ▸pr = prodrecₘ {η = 𝟘ᶜ} var ▸zero ▸ℕ P₀₁₀
+    ▸pr = prodrecₘ {η = 𝟘ᶜ} var ▸zero ▸ℕ

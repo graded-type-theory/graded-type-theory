@@ -3,40 +3,37 @@
 -- canonicity.
 ------------------------------------------------------------------------
 
-open import Definition.Modality.Instances.Erasure
-open import Definition.Typed.Restrictions Erasure
-open import Tools.Bool
+open import Definition.Mode.Restrictions
 
 module Application.NegativeAxioms.Canonicity.EliminateErased
-  (R : Type-restrictions)
-  -- Is 𝟘ᵐ allowed?
-  (𝟘ᵐ-allowed : Bool)
+  (mrs : Mode-restrictions)
   where
 
-open import Definition.Modality.Restrictions.Definitions
+open import Definition.Mode.Restrictions
 
-open import Definition.Modality.Instances.Erasure.Modality
-  (𝟘ᵐ-allowed-if 𝟘ᵐ-allowed)
+open import Definition.Modality.Instances.Erasure
+open import Definition.Modality.Instances.Erasure.Modality mrs
 open import Application.NegativeAxioms.NegativeErasedContext
-  ErasureModality R (λ ())
-  hiding (lookupNegative)
-open import Definition.Typed R
-open import Definition.Untyped Erasure hiding (_∷_; ℕ≢B)
+  ErasureModality (λ ())
+import Definition.Typed
+open import Definition.Untyped Erasure hiding (_∷_)
 
 open import Definition.Modality.Context ErasureModality
 open import Definition.Modality.Context.Properties ErasureModality
 open import Definition.Modality.Properties ErasureModality
+open import Definition.Modality.Type-restrictions {M = Erasure}
 open import Definition.Modality.Usage ErasureModality
 open import Definition.Mode ErasureModality
 
-open import Erasure.SucRed R
+import Erasure.SucRed
 
-open import Definition.Typed.Properties R
-open import Definition.Typed.Consequences.Canonicity R
-open import Definition.Typed.Consequences.Substitution R
+import Definition.Typed.Properties
+open import Definition.Typed.Restrictions Erasure
+import Definition.Typed.Consequences.Canonicity
+import Definition.Typed.Consequences.Substitution
 
-open import Definition.Conversion R
-open import Definition.Conversion.Consequences.Completeness R
+import Definition.Conversion
+import Definition.Conversion.Consequences.Completeness
 
 open import Tools.Empty
 open import Tools.Fin
@@ -49,60 +46,41 @@ open import Tools.Product
 private
   module EM = Modality ErasureModality
 
--- Preliminaries
----------------------------------------------------------------------------
+private variable
+  m : Nat
+  t : Term m
 
-private
-  Ty  = Term
-  Cxt = Con Ty
-  variable
-    m  : Nat
-    Γ   : Con Term m
-    A B C : Term m
-    t u   : Term m
-    p q   : Erasure
+module Counterexample where
 
-lem :
-  ε ∙ (Σᵣ ω , 𝟘 ▷ ℕ ▹ ℕ) ⊢
-    prodrec 𝟘 ω 𝟘 ℕ (var x0) zero [conv↑] zero ∷ ℕ →
-  ⊥
-lem ([↑]ₜ B t′ u′ D d d′ whnfB whnft′ whnfu′ t<>u)
-  with whnfRed*Term d (ne (prodrecₙ (var x0)))
-     | whnfRed*Term d′ zeroₙ
-     | whnfRed* D ℕₙ
-lem ([↑]ₜ _ _ _ D d d′ whnfB whnft′ whnfu′ (ℕ-ins ()))
-  | PE.refl | PE.refl | PE.refl
-lem ([↑]ₜ _ _ _ D d d′ whnfB whnft′ whnfu′ (ne-ins x x₁ x₂ ()))
-  | PE.refl | PE.refl | PE.refl
+  open Definition.Conversion no-type-restrictions
+  open Definition.Conversion.Consequences.Completeness
+    no-type-restrictions
+  open Definition.Typed no-type-restrictions
+  open Definition.Typed.Consequences.Canonicity no-type-restrictions
+  open Definition.Typed.Consequences.Substitution no-type-restrictions
+  open Definition.Typed.Properties no-type-restrictions
+  open Erasure.SucRed no-type-restrictions
 
-lem′ :
-  ε ∙ (Σᵣ ω , 𝟘 ▷ ℕ ▹ ℕ) ⊢
-    prodrec 𝟘 ω 𝟘 ℕ (var x0) zero [conv↑] suc t ∷ ℕ →
-  ⊥
-lem′ ([↑]ₜ B t′ u′ D d d′ whnfB whnft′ whnfu′ t<>u)
-  with whnfRed*Term d (ne (prodrecₙ (var x0)))
-     | whnfRed*Term d′ sucₙ
-     | whnfRed* D ℕₙ
-lem′ ([↑]ₜ _ _ _ D d d′ whnfB whnft′ whnfu′ (ℕ-ins ()))
-  | PE.refl | PE.refl | PE.refl
-lem′ ([↑]ₜ _ _ _ D d d′ whnfB whnft′ whnfu′ (ne-ins x x₁ x₂ ()))
-  | PE.refl | PE.refl | PE.refl
+  -- A counterexample to canonicity. Note that the use of
+  -- no-type-restrictions above means that erased eliminations are
+  -- allowed.
 
--- Counterexample to canonicity when erased eliminations are allowed
-
-cEx : ∃₄ λ (m : Nat) (Γ : Con Term m) (γ : Conₘ m) (t : Term m)
+  cEx :
+    ∃₄ λ (m : Nat) (Γ : Con Term m) (γ : Conₘ m) (t : Term m)
     → Γ ⊢ t ∷ ℕ
     × γ ▸[ 𝟙ᵐ ] t
     × γ PE.≡ 𝟘ᶜ
-    × NegativeErasedContext Γ γ
+    × NegativeErasedContext no-type-restrictions Γ γ
     × (∀ {u} → Γ ⊢ u ∷ Empty → ⊥)
     × ((∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ) → ⊥)
     × ((∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ) → ⊥)
     × (∃ λ u → Γ ⊢ t ⇒* u ∷ ℕ × Whnf u × Neutral u)
-cEx = _ , ε ∙ (Σᵣ ω , 𝟘 ▷ ℕ ▹ ℕ) , _ , prodrec 𝟘 ω 𝟘 ℕ (var x0) zero
+  cEx =
+      _
+    , ε ∙ (Σᵣ ω , 𝟘 ▷ ℕ ▹ ℕ) , _ , prodrec 𝟘 ω 𝟘 ℕ (var x0) zero
     , ⊢prodrec
     , prodrecₘ {η = 𝟘ᶜ} var zeroₘ
-        (sub ℕₘ (≤ᶜ-refl ∙ ≤-reflexive (EM.·-zeroʳ _))) _
+        (sub ℕₘ (≤ᶜ-refl ∙ ≤-reflexive (EM.·-zeroʳ _)))
     , PE.refl
     , ε ∙𝟘
     , (λ ⊢t → ¬Empty $
@@ -113,6 +91,32 @@ cEx = _ , ε ∙ (Σᵣ ω , 𝟘 ▷ ℕ ▹ ℕ) , _ , prodrec 𝟘 ω 𝟘 �
     , (λ { (u , numU , (whred x ⇨ˢ d)) → neRedTerm x (prodrecₙ (var x0))})
     , (_ , id ⊢prodrec , ne neutral , neutral)
     where
+    lem :
+      ε ∙ (Σᵣ ω , 𝟘 ▷ ℕ ▹ ℕ) ⊢
+        prodrec 𝟘 ω 𝟘 ℕ (var x0) zero [conv↑] zero ∷ ℕ →
+      ⊥
+    lem ([↑]ₜ B t′ u′ D d d′ whnfB whnft′ whnfu′ t<>u)
+      with whnfRed*Term d (ne (prodrecₙ (var x0)))
+         | whnfRed*Term d′ zeroₙ
+         | whnfRed* D ℕₙ
+    lem ([↑]ₜ _ _ _ D d d′ whnfB whnft′ whnfu′ (ℕ-ins ()))
+      | PE.refl | PE.refl | PE.refl
+    lem ([↑]ₜ _ _ _ D d d′ whnfB whnft′ whnfu′ (ne-ins x x₁ x₂ ()))
+      | PE.refl | PE.refl | PE.refl
+
+    lem′ :
+      ε ∙ (Σᵣ ω , 𝟘 ▷ ℕ ▹ ℕ) ⊢
+        prodrec 𝟘 ω 𝟘 ℕ (var x0) zero [conv↑] suc t ∷ ℕ →
+      ⊥
+    lem′ ([↑]ₜ B t′ u′ D d d′ whnfB whnft′ whnfu′ t<>u)
+      with whnfRed*Term d (ne (prodrecₙ (var x0)))
+         | whnfRed*Term d′ sucₙ
+         | whnfRed* D ℕₙ
+    lem′ ([↑]ₜ _ _ _ D d d′ whnfB whnft′ whnfu′ (ℕ-ins ()))
+      | PE.refl | PE.refl | PE.refl
+    lem′ ([↑]ₜ _ _ _ D d d′ whnfB whnft′ whnfu′ (ne-ins x x₁ x₂ ()))
+      | PE.refl | PE.refl | PE.refl
+
     ε⊢ℕ = ℕⱼ ε
     ⊢εℕ = ε ∙ ε⊢ℕ
     εℕ⊢ℕ = ℕⱼ ⊢εℕ
@@ -127,19 +131,23 @@ cEx = _ , ε ∙ (Σᵣ ω , 𝟘 ▷ ℕ ▹ ℕ) , _ , prodrec 𝟘 ω 𝟘 �
     ⊢εΣℕℕ = ⊢εΣℕ ∙ εΣℕ⊢ℕ
     ⊢prodrec =
       prodrecⱼ {r = 𝟘} εΣ⊢ℕ εΣℕ⊢ℕ εΣΣ⊢ℕ (var ⊢εΣ here) (zeroⱼ ⊢εΣℕℕ)
+        _ _
     neutral = prodrecₙ (var _)
 
--- If one drops the restriction related to prodrec from the statement
+-- If one drops the assumption about erased matches from the statement
 -- of
 -- Application.NegativeAxioms.Canonicity.NegativeErased.canonicityEq,
 -- then the lemma cannot be proved (assuming that Agda is consistent).
 
 not-canonicityEq :
-  ¬ (∀ {n} {Γ : Con Term n} {t γ} →
-     NegativeErasedContext Γ γ →
+  ¬ ((R : Type-restrictions) →
+     let open Definition.Typed R in
+     ∀ {n} {Γ : Con Term n} {γ} →
+     NegativeErasedContext R Γ γ →
      (∀ {t} → Γ ⊢ t ∷ Empty → ⊥) →
-     Γ ⊢ t ∷ ℕ → γ ▸[ 𝟙ᵐ ] t →
+     ∀ {t} → Γ ⊢ t ∷ ℕ → γ ▸[ 𝟙ᵐ ] t →
      ∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ)
 not-canonicityEq hyp =
-  let _ , _ , _ , _ , ⊢t , ▸t , _ , nec , con , not-numeral , _ = cEx in
-  not-numeral (hyp nec con ⊢t ▸t)
+  let _ , _ , _ , _ , ⊢t , ▸t , _ , nec , con , not-numeral , _ =
+        Counterexample.cEx
+  in not-numeral (hyp no-type-restrictions nec con ⊢t ▸t)

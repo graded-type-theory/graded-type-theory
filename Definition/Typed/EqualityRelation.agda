@@ -141,7 +141,7 @@ record EqRelSet : Set (lsuc ℓ) where
               → Γ ⊢ F
               → Γ ⊢ F ≅ H
               → Γ ∙ F ⊢ G ≅ E
-              → ΠΣ-restriction bm p
+              → ΠΣ-restriction bm p q
               → Γ ⊢ ΠΣ⟨ bm ⟩ p , q ▷ F ▹ G ≅ ΠΣ⟨ bm ⟩ p , q ▷ H ▹ E
 
     ≅ₜ-ΠΣ-cong
@@ -149,7 +149,7 @@ record EqRelSet : Set (lsuc ℓ) where
               → Γ ⊢ F
               → Γ ⊢ F ≅ H ∷ U
               → Γ ∙ F ⊢ G ≅ E ∷ U
-              → ΠΣ-restriction bm p
+              → ΠΣ-restriction bm p q
               → Γ ⊢ ΠΣ⟨ bm ⟩ p , q ▷ F ▹ G ≅ ΠΣ⟨ bm ⟩ p , q ▷ H ▹ E ∷ U
 
     -- Zero reflexivity
@@ -164,6 +164,7 @@ record EqRelSet : Set (lsuc ℓ) where
                 → Γ ∙ F ⊢ G
                 → Γ ⊢ t ≅ t′ ∷ F
                 → Γ ⊢ u ≅ u′ ∷ G [ t ]
+                → Σᵣ-restriction p q
                 → Γ ⊢ prodᵣ p t u ≅ prodᵣ p t′ u′ ∷ Σᵣ p , q ▷ F ▹ G
 
     -- η-equality
@@ -226,6 +227,8 @@ record EqRelSet : Set (lsuc ℓ) where
              → Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ A ≅ A′
              → Γ                      ⊢ t ~ t′ ∷ Σᵣ p , q ▷ F ▹ G
              → Γ ∙ F ∙ G              ⊢ u ≅ u′ ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
+             → Σᵣ-restriction p q
+             → Prodrec-restriction r p q′
              → Γ                      ⊢ prodrec r p q′ A t u ~ prodrec r p q′ A′ t′ u′ ∷ A [ t ]
 
     -- Empty recursion congruence
