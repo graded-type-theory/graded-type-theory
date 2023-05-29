@@ -1,0 +1,36 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Definition.Modality.Restrictions</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- &quot;Extra&quot; restrictions</a>
+<a id="98" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="172" class="Keyword">module</a> <a id="179" href="Definition.Modality.Restrictions.html" class="Module">Definition.Modality.Restrictions</a> <a id="212" class="Symbol">{</a><a id="213" href="Definition.Modality.Restrictions.html#213" class="Bound">a</a><a id="214" class="Symbol">}</a> <a id="216" class="Symbol">(</a><a id="217" href="Definition.Modality.Restrictions.html#217" class="Bound">M</a> <a id="219" class="Symbol">:</a> <a id="221" href="Agda.Primitive.html#320" class="Primitive">Set</a> <a id="225" href="Definition.Modality.Restrictions.html#213" class="Bound">a</a><a id="226" class="Symbol">)</a> <a id="228" class="Keyword">where</a>
+
+<a id="235" class="Keyword">open</a> <a id="240" class="Keyword">import</a> <a id="247" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="266" href="Definition.Modality.Restrictions.html#217" class="Bound">M</a>
+
+<a id="269" class="Keyword">open</a> <a id="274" class="Keyword">import</a> <a id="281" href="Tools.Bool.html" class="Module">Tools.Bool</a>
+<a id="292" class="Keyword">open</a> <a id="297" class="Keyword">import</a> <a id="304" href="Tools.Level.html" class="Module">Tools.Level</a>
+
+<a id="317" class="Comment">-- &quot;Extra&quot; restrictions related to usage for some type/term</a>
+<a id="377" class="Comment">-- constructors.</a>
+
+<a id="395" class="Keyword">record</a> <a id="Term-restrictions"></a><a id="402" href="Definition.Modality.Restrictions.html#402" class="Record">Term-restrictions</a> <a id="420" class="Symbol">:</a> <a id="422" href="Agda.Primitive.html#320" class="Primitive">Set</a> <a id="426" class="Symbol">(</a><a id="427" href="Agda.Primitive.html#774" class="Primitive">lsuc</a> <a id="432" href="Definition.Modality.Restrictions.html#213" class="Bound">a</a><a id="433" class="Symbol">)</a> <a id="435" class="Keyword">where</a>
+  <a id="443" class="Keyword">field</a>
+    <a id="453" class="Comment">-- The prodrec constructor&#39;s quantities have to satisfy this</a>
+    <a id="518" class="Comment">-- predicate.</a>
+    <a id="Term-restrictions.Prodrec"></a><a id="536" href="Definition.Modality.Restrictions.html#536" class="Field">Prodrec</a> <a id="544" class="Symbol">:</a> <a id="546" class="Symbol">(</a><a id="547" href="Definition.Modality.Restrictions.html#547" class="Bound">r</a> <a id="549" href="Definition.Modality.Restrictions.html#549" class="Bound">p</a> <a id="551" href="Definition.Modality.Restrictions.html#551" class="Bound">q</a> <a id="553" class="Symbol">:</a> <a id="555" href="Definition.Modality.Restrictions.html#217" class="Bound">M</a><a id="556" class="Symbol">)</a> <a id="558" class="Symbol">→</a> <a id="560" href="Agda.Primitive.html#320" class="Primitive">Set</a> <a id="564" href="Definition.Modality.Restrictions.html#213" class="Bound">a</a>
+
+    <a id="571" class="Comment">-- The quantities of binders have to satisfy this predicate.</a>
+    <a id="Term-restrictions.Binder"></a><a id="636" href="Definition.Modality.Restrictions.html#636" class="Field">Binder</a> <a id="643" class="Symbol">:</a> <a id="645" href="Definition.Untyped.NotParametrised.html#1372" class="Datatype">BinderMode</a> <a id="656" class="Symbol">→</a> <a id="658" href="Definition.Modality.Restrictions.html#217" class="Bound">M</a> <a id="660" class="Symbol">→</a> <a id="662" href="Definition.Modality.Restrictions.html#217" class="Bound">M</a> <a id="664" class="Symbol">→</a> <a id="666" href="Agda.Primitive.html#320" class="Primitive">Set</a> <a id="670" href="Definition.Modality.Restrictions.html#213" class="Bound">a</a>
+
+<a id="673" class="Comment">-- &quot;Extra&quot; restrictions related to usage.</a>
+
+<a id="716" class="Keyword">record</a> <a id="Restrictions"></a><a id="723" href="Definition.Modality.Restrictions.html#723" class="Record">Restrictions</a> <a id="736" class="Symbol">:</a> <a id="738" href="Agda.Primitive.html#320" class="Primitive">Set</a> <a id="742" class="Symbol">(</a><a id="743" href="Agda.Primitive.html#774" class="Primitive">lsuc</a> <a id="748" href="Definition.Modality.Restrictions.html#213" class="Bound">a</a><a id="749" class="Symbol">)</a> <a id="751" class="Keyword">where</a>
+  <a id="759" class="Keyword">field</a>
+    <a id="769" class="Comment">-- Type/term restrictions.</a>
+    <a id="Restrictions.term-restrictions"></a><a id="800" href="Definition.Modality.Restrictions.html#800" class="Field">term-restrictions</a> <a id="818" class="Symbol">:</a> <a id="820" href="Definition.Modality.Restrictions.html#402" class="Record">Term-restrictions</a>
+
+    <a id="843" class="Comment">-- Is the mode 𝟘ᵐ allowed?</a>
+    <a id="Restrictions.𝟘ᵐ-allowed"></a><a id="874" href="Definition.Modality.Restrictions.html#874" class="Field">𝟘ᵐ-allowed</a> <a id="885" class="Symbol">:</a> <a id="887" href="Agda.Builtin.Bool.html#156" class="Datatype">Bool</a>
+
+  <a id="895" class="Keyword">open</a> <a id="900" href="Definition.Modality.Restrictions.html#402" class="Module">Term-restrictions</a> <a id="918" href="Definition.Modality.Restrictions.html#800" class="Field">term-restrictions</a> <a id="936" class="Keyword">public</a>
+</pre></body></html>
