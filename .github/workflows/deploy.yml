@@ -43,7 +43,8 @@ jobs:
         uses: actions/cache/restore@v3
         id:   cache
         with:
-          key: agda-${{ steps.setup.outputs.agda-version }}-stdlib-${{ env.STDLIB_VERSION }}
+          key: agda-${{ steps.setup.outputs.agda-version }}-stdlib-${{ env.STDLIB_VERSION }}-commit-${{ github.sha }}
+          restore-keys: agda-${{ steps.setup.outputs.agda-version }}-stdlib-${{ env.STDLIB_VERSION }}
           path: |
             _build
             ~/.agda/libraries.d
@@ -52,7 +53,8 @@ jobs:
         run: agda README.agda
 
       - name: Save cache
-        if:   ${{ !steps.cache.outputs.cache-hit }}
+        # Primary cache key is unique, so we can always save.
+        # if:   ${{ !steps.cache.outputs.cache-hit }}
         uses: actions/cache/save@v3
         with:
           key: ${{ steps.cache.outputs.cache-primary-key }}
