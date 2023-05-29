@@ -171,39 +171,11 @@ least-elemᶜ : (γ : Conₘ n) → 𝟙ᶜ ≤ᶜ γ
 least-elemᶜ ε = ε
 least-elemᶜ (γ ∙ p) = (least-elemᶜ γ) ∙ (least-elem p)
 
--- If a variable is well-used in the mode 𝟙ᵐ, with usage vector γ,
--- then the variable's usage in γ is ω.
-
-valid-var-usage : γ ▸[ 𝟙ᵐ ] var x → x ◂ ω ∈ γ
-valid-var-usage γ▸x with inv-usage-var γ▸x
-valid-var-usage {x = x0} γ▸x | γ≤𝟘ᶜ ∙ p≤ω rewrite least-elem′ _ p≤ω = here
-valid-var-usage {x = x +1} γ▸x | γ≤γ′ ∙ p≤𝟘 = there (valid-var-usage (sub var γ≤γ′))
-
 -- The functions _∧ᶜ_ and _+ᶜ_ are pointwise equivalent.
 
 ∧ᶜ≈ᶜ+ᶜ : γ ∧ᶜ δ ≈ᶜ γ +ᶜ δ
 ∧ᶜ≈ᶜ+ᶜ {γ = ε}     {δ = ε}     = ≈ᶜ-refl
 ∧ᶜ≈ᶜ+ᶜ {γ = _ ∙ _} {δ = _ ∙ _} = ∧ᶜ≈ᶜ+ᶜ ∙ PE.refl
-
--- Subsumption for erased variables
-
-erased-var-sub : x ◂ 𝟘 ∈ γ → γ ≤ᶜ δ → x ◂ 𝟘 ∈ δ
-erased-var-sub {δ = δ ∙ q} here (γ≤δ ∙ PE.refl) = here
-erased-var-sub {δ = δ ∙ q} (there x◂𝟘) (γ≤δ ∙ p≤q) = there (erased-var-sub x◂𝟘 γ≤δ)
-
--- Inversion lemma for any products
-
-inv-usage-prodₑ :
-  ∀ {m} → γ ▸[ mo ] prod m p t u → InvUsageProdᵣ γ mo p t u
-inv-usage-prodₑ {γ = γ} {p = p} {m = Σₚ} γ▸t with inv-usage-prodₚ γ▸t
-... | invUsageProdₚ {δ = δ} {η = η} δ▸t δ▸u γ≤ =
-  invUsageProdᵣ δ▸t δ▸u (begin
-    γ            ≤⟨ γ≤ ⟩
-    p ·ᶜ δ ∧ᶜ η  ≈⟨ ∧ᶜ≈ᶜ+ᶜ ⟩
-    p ·ᶜ δ +ᶜ η  ∎)
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-inv-usage-prodₑ {m = Σᵣ} γ▸t = inv-usage-prodᵣ γ▸t
 
 -- The mode corresponding to ω is 𝟙ᵐ.
 
