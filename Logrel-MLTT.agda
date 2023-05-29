@@ -4,7 +4,9 @@
 
 module Logrel-MLTT where
 
--- Minimal library
+------------------------------------------------------------------------
+-- A small library
+
 import Tools.Level
 import Tools.Empty
 import Tools.Unit
@@ -24,6 +26,9 @@ import Tools.Reasoning.Preorder
 import Tools.Reasoning.Equivalence
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
+
+------------------------------------------------------------------------
+-- The type theory
 
 -- Grammar of the language
 import Definition.Untyped.NotParametrised
@@ -144,6 +149,9 @@ import Definition.Typed.Decidable.Reduction
 import Definition.Typechecking.Decidable
 import Definition.Typed.Decidable
 
+------------------------------------------------------------------------
+-- Modalities and usage
+
 -- Modality structure
 import Definition.Mode.Restrictions
 import Definition.Modality
@@ -239,8 +247,8 @@ import Definition.Modality.Usage.QuantityTranslation
 -- Σ-types, and vice versa.
 import Definition.Sigma
 
--- The erasure case study
----------------------------------
+------------------------------------------------------------------------
+-- A case study: erasure
 
 -- Target language
 
@@ -283,6 +291,9 @@ import Erasure.LogicalRelation.Fundamental.Counterexample
 -- Soundness of Extraction function
 import Erasure.SucRed
 import Erasure.Consequences.Soundness
+
+------------------------------------------------------------------------
+-- Some applications
 
 -- Application: consistent negative axioms preserve canonicity
 import Application.NegativeAxioms.NegativeType
