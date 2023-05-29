@@ -3,19 +3,21 @@
 ------------------------------------------------------------------------
 
 open import Definition.Modality
+open import Definition.Modality.Usage.Restrictions
 
 module Definition.Modality.Usage.Erased
   {a} {M : Set a}
   (𝕄 : Modality M)
+  (R : Usage-restrictions M)
   where
 
 open Modality 𝕄
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
-open import Definition.Modality.Usage 𝕄
-open import Definition.Modality.Usage.Inversion 𝕄
-open import Definition.Modality.Usage.Properties 𝕄
+open import Definition.Modality.Usage 𝕄 R
+open import Definition.Modality.Usage.Inversion 𝕄 R
+open import Definition.Modality.Usage.Properties 𝕄 R
 open import Definition.Mode 𝕄
 
 open import Definition.Untyped M hiding (_∷_)

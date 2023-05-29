@@ -30,8 +30,9 @@ open import Definition.Untyped.Erased 𝕄
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Properties 𝕄
-open import Definition.Modality.Usage 𝕄
-open import Definition.Modality.Usage.Inversion 𝕄
+import Definition.Modality.Usage 𝕄 as MU
+import Definition.Modality.Usage.Inversion 𝕄 as MUI
+open import Definition.Modality.Usage.Restrictions M
 
 open import Definition.Mode 𝕄
 
@@ -208,8 +209,11 @@ inversion-[]′ ⊢[] =
   -- As an aside, note that if A′ is well-resourced then 𝟙 is equal
   -- to 𝟘.
 
-  A′-well-resourced→𝟙≡𝟘 : ∀ {γ} → γ ▸[ 𝟙ᵐ ] A′ → 𝟙 PE.≡ 𝟘
-  A′-well-resourced→𝟙≡𝟘 ▸A′ =
+  A′-well-resourced→𝟙≡𝟘 :
+    (R : Usage-restrictions) →
+    let open MU R in
+    ∀ {γ} → γ ▸[ 𝟙ᵐ ] A′ → 𝟙 PE.≡ 𝟘
+  A′-well-resourced→𝟙≡𝟘 R ▸A′ =
     case inv-usage-ΠΣ ▸A′ of λ {
       (invUsageΠΣ _ ▸nr _) →
     case inv-usage-natrec ▸nr of λ {
@@ -233,6 +237,7 @@ inversion-[]′ ⊢[] =
          𝟙                        ∎) }}}}
     where
     open Tools.Reasoning.PartialOrder ≤-poset
+    open MUI R
 
   ⊢Γ′∙ℕ : ⊢ Γ′ ∙ ℕ
   ⊢Γ′∙ℕ = ε ∙ ℕⱼ ε

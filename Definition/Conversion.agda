@@ -64,7 +64,6 @@ mutual
     prodrec-cong  : Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ C [conv↑] E
                   → Γ ⊢ g ~ h ↓ Σᵣ p , q ▷ F ▹ G
                   → Γ ∙ F ∙ G ⊢ u [conv↑] v ∷ C [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
-                  → Prodrec-restriction r p q′
                   → Γ ⊢ prodrec r p q′ C g u ~ prodrec r p q′ E h v ↑ C [ g ]
 
     Emptyrec-cong : Γ ⊢ F [conv↑] H

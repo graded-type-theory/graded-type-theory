@@ -4,16 +4,18 @@
 ------------------------------------------------------------------------
 
 open import Definition.Modality
+open import Definition.Modality.Usage.Restrictions
 open import Definition.Typed.Restrictions
 
 module Definition.Modality.FullReduction
   {a} {M : Set a}
   (𝕄 : Modality M)
-  (R : Type-restrictions M)
+  (TR : Type-restrictions M)
+  (UR : Usage-restrictions M)
   where
 
 open Modality 𝕄
-open Type-restrictions R
+open Type-restrictions TR
 
 open import Tools.Bool
 open import Tools.Fin
@@ -29,31 +31,31 @@ open import Tools.Sum using (_⊎_; inj₂)
 open import Tools.Unit
 
 open import Definition.Untyped M as U hiding (_∷_)
-open import Definition.Typed R
-open import Definition.Typed.Eta-long-normal-form R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Usage 𝕄 R
-open import Definition.Typed.Weakening R
-open import Definition.Typed.Consequences.DerivedRules R
-open import Definition.Typed.Consequences.InverseUniv R
-open import Definition.Typed.Consequences.Inversion R
-open import Definition.Typed.Consequences.NeTypeEq R
-open import Definition.Typed.Consequences.Substitution R
-open import Definition.Typed.Consequences.Syntactic R
+open import Definition.Typed TR
+open import Definition.Typed.Eta-long-normal-form TR
+open import Definition.Typed.Properties TR
+open import Definition.Typed.Usage 𝕄 TR UR
+open import Definition.Typed.Weakening TR
+open import Definition.Typed.Consequences.DerivedRules TR
+open import Definition.Typed.Consequences.InverseUniv TR
+open import Definition.Typed.Consequences.Inversion TR
+open import Definition.Typed.Consequences.NeTypeEq TR
+open import Definition.Typed.Consequences.Substitution TR
+open import Definition.Typed.Consequences.Syntactic TR
 
-open import Definition.Conversion R
-open import Definition.Conversion.Consequences.Completeness R
-open import Definition.Conversion.Soundness R
-open import Definition.Conversion.Stability R
-open import Definition.Conversion.Whnf R
+open import Definition.Conversion TR
+open import Definition.Conversion.Consequences.Completeness TR
+open import Definition.Conversion.Soundness TR
+open import Definition.Conversion.Stability TR
+open import Definition.Conversion.Whnf TR
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
-open import Definition.Modality.FullReduction.Assumptions 𝕄 R
-open import Definition.Modality.Usage 𝕄
-open import Definition.Modality.Usage.Inversion 𝕄
-open import Definition.Modality.Usage.Properties 𝕄
-open import Definition.Modality.Usage.Weakening 𝕄
+open import Definition.Modality.FullReduction.Assumptions 𝕄 TR
+open import Definition.Modality.Usage 𝕄 UR
+open import Definition.Modality.Usage.Inversion 𝕄 UR
+open import Definition.Modality.Usage.Properties 𝕄 UR
+open import Definition.Modality.Usage.Weakening 𝕄 UR
 
 open import Definition.Mode 𝕄
 
@@ -219,10 +221,10 @@ module _ (as : Full-reduction-assumptions) where
         , sub (natrecₘ ▸t′ ▸u′ ▸v′ ▸A′) γ≤ }}}}}}}}
       (prodrec-cong
          {p = p} {F = A} {G = B} {C = C} {g = u} {r = r} {q′ = q}
-         C↑ u~ v↑ ok₂)
+         C↑ u~ v↑)
         ▸prodrec →
         case inv-usage-prodrec ▸prodrec of λ {
-          (invUsageProdrec ▸u ▸v ▸C γ≤) →
+          (invUsageProdrec ▸u ▸v ▸C ok₁ γ≤) →
         case fullRedConv↑ C↑ ▸C of λ {
           (C′ , C′-nf , C≡C′ , ▸C′) →
         case fullRedNe~↓ u~ ▸u of λ {
@@ -230,17 +232,17 @@ module _ (as : Full-reduction-assumptions) where
         case fullRedTermConv↑ v↑ ▸v of λ {
           (v′ , v′-nf , v≡v′ , ▸v′) →
         case inversion-ΠΣ (syntacticEqTerm u≡u′ .proj₁) of λ {
-          (⊢A , ⊢B , ok₁) →
+          (⊢A , ⊢B , ok₂) →
           prodrec r p q C′ u′ v′
         , (                                                            $⟨ v′-nf ⟩
            Γ ∙ A ∙ B ⊢nf v′ ∷ C [ prodᵣ p (var (x0 +1)) (var x0) ]↑²   →⟨ flip _⊢nf_∷_.convₙ $
-                                                                          subst↑²TypeEq C≡C′ ok₁ ⟩
-           Γ ∙ A ∙ B ⊢nf v′ ∷ C′ [ prodᵣ p (var (x0 +1)) (var x0) ]↑²  →⟨ (λ hyp → prodrecₙ ⊢A ⊢B C′-nf u′-ne hyp ok₁ ok₂) ⟩
+                                                                          subst↑²TypeEq C≡C′ ok₂ ⟩
+           Γ ∙ A ∙ B ⊢nf v′ ∷ C′ [ prodᵣ p (var (x0 +1)) (var x0) ]↑²  →⟨ flip (prodrecₙ ⊢A ⊢B C′-nf u′-ne) ok₂ ⟩
            Γ ⊢ne prodrec r p q C′ u′ v′ ∷ C′ [ u′ ]                    →⟨ flip _⊢ne_∷_.convₙ $ _⊢_≡_.sym $
                                                                           substTypeEq C≡C′ u≡u′ ⟩
            Γ ⊢ne prodrec r p q C′ u′ v′ ∷ C [ u ]                      □)
-        , prodrec-cong ⊢A ⊢B C≡C′ u≡u′ v≡v′ ok₁ ok₂
-        , sub (prodrecₘ ▸u′ ▸v′ ▸C′) γ≤ }}}}}
+        , prodrec-cong ⊢A ⊢B C≡C′ u≡u′ v≡v′ ok₂
+        , sub (prodrecₘ ▸u′ ▸v′ ▸C′ ok₁) γ≤ }}}}}
       (Emptyrec-cong {F = A} {p = p} A↑ t~) ▸Emptyrec →
         case inv-usage-Emptyrec ▸Emptyrec of λ {
           (invUsageEmptyrec ▸t ▸A γ≤) →

@@ -3,19 +3,23 @@
 ------------------------------------------------------------------------
 
 open import Definition.Modality
+open import Definition.Modality.Usage.Restrictions
 
 module Definition.Modality.Substitution.Properties
-  {a} {M : Set a} (𝕄 : Modality M) where
+  {a} {M : Set a}
+  (𝕄 : Modality M)
+  (R : Usage-restrictions M)
+  where
 
 open Modality 𝕄
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
-open import Definition.Modality.Substitution 𝕄
+open import Definition.Modality.Substitution 𝕄 R
 open import Definition.Modality.Properties 𝕄
-open import Definition.Modality.Usage 𝕄
-open import Definition.Modality.Usage.Properties 𝕄
-open import Definition.Modality.Usage.Weakening 𝕄
+open import Definition.Modality.Usage 𝕄 R
+open import Definition.Modality.Usage.Properties 𝕄 R
+open import Definition.Modality.Usage.Weakening 𝕄 R
 open import Definition.Mode 𝕄
 open import Definition.Untyped M as U renaming (_[_,_] to _[_,,_])
 
@@ -649,8 +653,7 @@ substₘ-lemma₀ Ψ Ψ▶σ (fstₘ m γ▸t PE.refl ok) =
 substₘ-lemma₀ Ψ Ψ▶σ (sndₘ γ▸t) =
   sndₘ (substₘ-lemma₀ Ψ Ψ▶σ γ▸t)
 
-substₘ-lemma₀
-  ⦃ ok = ok ⦄ Ψ Ψ▶σ (prodrecₘ {r = r} {q = q} γ▸t δ▸u η▸A) = sub
+substₘ-lemma₀ ⦃ ok = ok ⦄ Ψ Ψ▶σ (prodrecₘ {r = r} {q = q} γ▸t δ▸u η▸A P) = sub
   (prodrecₘ (substₘ-lemma₀ Ψ Ψ▶σ γ▸t)
      (sub (substₘ-lemma₀ (liftSubstₘ (liftSubstₘ Ψ))
              (wf-liftSubstₘ {mo = 𝟘ᵐ} (wf-liftSubstₘ {mo = 𝟘ᵐ} Ψ▶σ))
@@ -662,7 +665,8 @@ substₘ-lemma₀
         (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
            𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · q  ≈⟨ ≈ᶜ-refl ∙ ·-congʳ (⌜𝟘ᵐ?⌝≈𝟘 ok) ⟩
            𝟘ᶜ ∙ 𝟘 · q        ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
-           𝟘ᶜ                ∎)))
+           𝟘ᶜ                ∎))
+     P)
   (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
      𝟘ᶜ             ≈˘⟨ +ᶜ-identityˡ _ ⟩
      𝟘ᶜ +ᶜ 𝟘ᶜ       ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
@@ -807,7 +811,7 @@ substₘ-lemma₁ not-ok Ψ Ψ▶σ (sndₘ γ▸t) =
 substₘ-lemma₁
   {mo = 𝟙ᵐ} not-ok Ψ Ψ▶σ
   (prodrecₘ {γ = γ} {r = r} {δ = δ} {η = η} {q = q}
-     γ▸t δ▸u η▸A) = sub
+     γ▸t δ▸u η▸A P) = sub
   (prodrecₘ (▸-without-𝟘ᵐ not-ok (substₘ-lemma₁ not-ok Ψ Ψ▶σ γ▸t))
      (sub (substₘ-lemma₁ not-ok (liftSubstₘ (liftSubstₘ Ψ))
              (wf-liftSubstₘ {mo = 𝟙ᵐ} (wf-liftSubstₘ {mo = 𝟙ᵐ} Ψ▶σ))
@@ -819,7 +823,8 @@ substₘ-lemma₁
                 η▸A))
         (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
            Ψ *> η ∙ ⌜ 𝟘ᵐ? ⌝ · q               ≈˘⟨ liftSubstₘ-app Ψ _ _ ⟩
-           liftSubstₘ Ψ *> (η ∙ ⌜ 𝟘ᵐ? ⌝ · q)  ∎)))
+           liftSubstₘ Ψ *> (η ∙ ⌜ 𝟘ᵐ? ⌝ · q)  ∎))
+     P)
   (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
      Ψ *> (r ·ᶜ γ +ᶜ δ)       ≈⟨ *>-distrib-+ᶜ Ψ _ _ ⟩
      Ψ *> (r ·ᶜ γ) +ᶜ Ψ *> δ  ≈⟨ +ᶜ-congʳ (*>-distrib-·ᶜ Ψ _ _) ⟩
@@ -1072,7 +1077,7 @@ substₘ-lemma
   {σ = σ} {mo = mo} Ψ Ψ▶σ
   (prodrecₘ
      {γ = γ} {r = r} {t = t} {δ = δ} {p = p} {u = u} {η = η} {q = q}
-     {A = A} γ▸t δ▸u η▸A) =
+     {A = A} γ▸t δ▸u η▸A P) =
   case ▶-⌞·⌟ Ψ γ (▶-⌞+ᶜ⌟ˡ Ψ (_ ·ᶜ γ) Ψ▶σ) of λ where
     (inj₂ Ψ▶σ)        → lemma (substₘ-lemma Ψ Ψ▶σ γ▸t) ≈ᶜ-refl
     (inj₁ (p≈𝟘 , ok)) → lemma
@@ -1096,7 +1101,8 @@ substₘ-lemma
                      (wf-liftSubstₘ (▶-⌞+ᶜ⌟ʳ Ψ (_ ·ᶜ γ) Ψ▶σ))))
                δ▸u)
           (*>∙∙≤liftSubst-listSubst*>∙∙ Ψ))
-       (substₘ-lemma-∙⌜𝟘ᵐ?⌝·▸[𝟘ᵐ?] Ψ Ψ▶σ η▸A .proj₂))
+       (substₘ-lemma-∙⌜𝟘ᵐ?⌝·▸[𝟘ᵐ?] Ψ Ψ▶σ η▸A .proj₂)
+       P)
     (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
        Ψ *> (r ·ᶜ γ +ᶜ δ)       ≈⟨ *>-distrib-+ᶜ Ψ _ _ ⟩
        Ψ *> (r ·ᶜ γ) +ᶜ Ψ *> δ  ≈⟨ +ᶜ-congʳ (*>-distrib-·ᶜ Ψ _ _) ⟩

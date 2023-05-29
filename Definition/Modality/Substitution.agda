@@ -3,17 +3,21 @@
 ------------------------------------------------------------------------
 
 open import Definition.Modality
+open import Definition.Modality.Usage.Restrictions
 
 module Definition.Modality.Substitution
-  {a} {M : Set a} (𝕄 : Modality M) where
+  {a} {M : Set a}
+  (𝕄 : Modality M)
+  (R : Usage-restrictions M)
+  where
 
 open Modality 𝕄
 
 open import Definition.Untyped M
   using (Subst ; tail ; head ; Wk ; id ; step ; lift)
 open import Definition.Modality.Context 𝕄
-open import Definition.Modality.Usage 𝕄
-open import Definition.Modality.Usage.Weakening 𝕄
+open import Definition.Modality.Usage 𝕄 R
+open import Definition.Modality.Usage.Weakening 𝕄 R
 open import Definition.Mode 𝕄
 
 open import Tools.Fin

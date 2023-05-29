@@ -3,7 +3,8 @@
 ------------------------------------------------------------------------
 
 open import Definition.Modality
-open import Definition.Modality.Type-restrictions
+open import Definition.Modality.Restrictions
+open import Definition.Modality.Usage.Restrictions
 open import Definition.Typed.EqualityRelation
 import Definition.Typed
 open import Definition.Typed.Restrictions
@@ -17,59 +18,60 @@ module Erasure.LogicalRelation.Fundamental
   (open Definition.Untyped M)
   (𝕄 : Modality M)
   (open Modality 𝕄)
-  (R : Type-restrictions M)
-  (open Definition.Typed R)
+  (TR : Type-restrictions M)
+  (open Definition.Typed TR)
+  (UR : Usage-restrictions M)
   {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   (𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet)
   (consistent : ∀ {t} → Δ ⊢ t ∷ Empty → ⊥)
   -- Erased matches are not allowed unless the context
   -- is empty
-  (no-erased-matches : No-erased-matches 𝕄 R ⊎ k PE.≡ 0)
-  {{eqrel : EqRelSet R}}
+  (no-erased-matches : No-erased-matches 𝕄 UR ⊎ k PE.≡ 0)
+  {{eqrel : EqRelSet TR}}
   where
 
 
 open EqRelSet {{...}}
 
-open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Properties.Escape R
-open import Definition.LogicalRelation.Substitution R
-open import Definition.LogicalRelation.Substitution.MaybeEmbed R
-open import Definition.LogicalRelation.Substitution.Properties R
-open import Definition.LogicalRelation.Substitution.Weakening R
-open import Definition.LogicalRelation.Substitution.Introductions.Pi R
-open import Definition.LogicalRelation.Substitution.Introductions.Nat R
+open import Definition.LogicalRelation TR
+open import Definition.LogicalRelation.Properties.Escape TR
+open import Definition.LogicalRelation.Substitution TR
+open import Definition.LogicalRelation.Substitution.MaybeEmbed TR
+open import Definition.LogicalRelation.Substitution.Properties TR
+open import Definition.LogicalRelation.Substitution.Weakening TR
+open import Definition.LogicalRelation.Substitution.Introductions.Pi TR
+open import Definition.LogicalRelation.Substitution.Introductions.Nat TR
 
-import Definition.LogicalRelation.Fundamental R as F
-import Definition.LogicalRelation.Irrelevance R as I
-import Definition.LogicalRelation.Substitution.Irrelevance R as IS
+import Definition.LogicalRelation.Fundamental TR as F
+import Definition.LogicalRelation.Irrelevance TR as I
+import Definition.LogicalRelation.Substitution.Irrelevance TR as IS
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
 open import Definition.Modality.Properties.PartialOrder semiring-with-meet
 open import Definition.Modality.Properties.Has-well-behaved-zero
   semiring-with-meet-and-star 𝟘-well-behaved
-open import Definition.Modality.Usage 𝕄
-open import Definition.Modality.Usage.Inversion 𝕄
-open import Definition.Modality.Usage.Properties 𝕄
+open import Definition.Modality.Usage 𝕄 UR
+open import Definition.Modality.Usage.Inversion 𝕄 UR
+open import Definition.Modality.Usage.Properties 𝕄 UR
 open import Definition.Mode 𝕄
 
 
 open import Definition.Untyped.Properties M
-open import Definition.Typed.Consequences.Syntactic R
+open import Definition.Typed.Consequences.Syntactic TR
 
-open import Erasure.LogicalRelation 𝕄 R ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Fundamental.Application 𝕄 R ⊢Δ 𝟘-well-behaved
-open import Erasure.LogicalRelation.Fundamental.Empty 𝕄 R ⊢Δ is-𝟘? consistent
-open import Erasure.LogicalRelation.Fundamental.Lambda 𝕄 R ⊢Δ is-𝟘? 𝟙≉𝟘
-open import Erasure.LogicalRelation.Fundamental.Nat 𝕄 R ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Fundamental.Natrec 𝕄 R ⊢Δ 𝟘-well-behaved
-open import Erasure.LogicalRelation.Fundamental.Prodrec 𝕄 R ⊢Δ 𝟘-well-behaved
-open import Erasure.LogicalRelation.Fundamental.Product 𝕄 R ⊢Δ 𝟘-well-behaved
-open import Erasure.LogicalRelation.Fundamental.Unit 𝕄 R ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Conversion 𝕄 R ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Irrelevance 𝕄 R ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Subsumption 𝕄 R ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation 𝕄 TR ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Fundamental.Application 𝕄 TR ⊢Δ 𝟘-well-behaved
+open import Erasure.LogicalRelation.Fundamental.Empty 𝕄 TR ⊢Δ is-𝟘? consistent
+open import Erasure.LogicalRelation.Fundamental.Lambda 𝕄 TR ⊢Δ is-𝟘? 𝟙≉𝟘
+open import Erasure.LogicalRelation.Fundamental.Nat 𝕄 TR ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Fundamental.Natrec 𝕄 TR ⊢Δ 𝟘-well-behaved
+open import Erasure.LogicalRelation.Fundamental.Prodrec 𝕄 TR ⊢Δ 𝟘-well-behaved
+open import Erasure.LogicalRelation.Fundamental.Product 𝕄 TR UR ⊢Δ 𝟘-well-behaved
+open import Erasure.LogicalRelation.Fundamental.Unit 𝕄 TR ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Conversion 𝕄 TR ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Irrelevance 𝕄 TR ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Subsumption 𝕄 TR ⊢Δ is-𝟘?
 
 import Erasure.Target as T
 open import Erasure.Extraction 𝕄 is-𝟘?
@@ -268,9 +270,9 @@ fundamental (sndⱼ {G = G} {t = t} Γ⊢F Γ⊢G Γ⊢t:Σ) γ▸t =
       [G] , ⊩ʳt₂ = sndʳ Γ⊢F Γ⊢G Γ⊢t:Σ [Γ] [Σ] ⊩ʳt
   in  [Γ] , [G] , subsumption-≤ {t = snd _ t} [Γ] [G] ⊩ʳt₂ γ≤δ
 fundamental
-  (prodrecⱼ {r = r} {t = t} {u} {F} {G} {A} Γ⊢F Γ⊢G Γ⊢A Γ⊢t Γ⊢u _ ok)
+  (prodrecⱼ {r = r} {t = t} {u} {F} {G} {A} Γ⊢F Γ⊢G Γ⊢A Γ⊢t Γ⊢u _)
   γ▸prodrec =
-  let invUsageProdrec {δ = δ} δ▸t η▸u _ γ≤pδ+η =
+  let invUsageProdrec {δ = δ} δ▸t η▸u _ ok γ≤pδ+η =
         inv-usage-prodrec γ▸prodrec
       [Γ] , [Σ] , ⊩ʳt = fundamental Γ⊢t δ▸t
       [Γ]₂ , [A₊]₂ , ⊩ʳu = fundamental Γ⊢u η▸u
@@ -293,7 +295,7 @@ fundamental
       [At] , ⊩ʳprodrec =
         prodrecʳ [Γ] [F] [G] [Σ] [A] [A₊] [t] [u]
                  (λ r≢𝟘 → PE.subst (δ ▸ _ ⊩ʳ⟨ _ ⟩ t ∷[_] _ / _ / [Σ]) (≉𝟘→ᵐ·≡ r≢𝟘) ⊩ʳt)
-                 ⊩ʳu′ r≡𝟘→k≡0 ok
+                 ⊩ʳu′ r≡𝟘→k≡0
   in  [Γ] , [At] ,
       subsumption-≤ {t = prodrec _ _ _ A t u} [Γ] [At] ⊩ʳprodrec γ≤pδ+η
 fundamental (zeroⱼ ⊢Γ) γ▸t = zeroʳ ⊢Γ

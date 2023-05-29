@@ -9,8 +9,6 @@ module Definition.Typed.Consequences.RedSteps
   (R : Type-restrictions M)
   where
 
-open Type-restrictions R
-
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Typed R
 open import Definition.Typed.Properties R
@@ -63,15 +61,14 @@ prodrec-subst* : Γ ⊢ t ⇒* t′ ∷ Σᵣ p , q ▷ F ▹ G
                → Γ ∙ F ⊢ G
                → Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ A
                → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
-               → Prodrec-restriction r p q′
                → Γ ⊢ prodrec r p q′ A t u ⇒* prodrec r p q′ A t′ u ∷ A [ t ]
-prodrec-subst* (id x) ⊢F ⊢G ⊢A ⊢u ok₂ =
-  id (prodrecⱼ ⊢F ⊢G ⊢A x ⊢u ok₁ ok₂)
+prodrec-subst* (id x) ⊢F ⊢G ⊢A ⊢u =
+  id (prodrecⱼ ⊢F ⊢G ⊢A x ⊢u ok)
   where
-  ok₁ = ⊢∷ΠΣ→ΠΣ-restriction (var (wf ⊢A) here)
-prodrec-subst* (x ⇨ t⇒t′) ⊢F ⊢G ⊢A ⊢u ok₂ =
-  prodrec-subst ⊢F ⊢G ⊢A ⊢u x ok₁ ok₂ ⇨
-  conv* (prodrec-subst* t⇒t′ ⊢F ⊢G ⊢A ⊢u ok₂)
+  ok = ⊢∷ΠΣ→ΠΣ-restriction (var (wf ⊢A) here)
+prodrec-subst* (x ⇨ t⇒t′) ⊢F ⊢G ⊢A ⊢u =
+  prodrec-subst ⊢F ⊢G ⊢A ⊢u x ok ⇨
+  conv* (prodrec-subst* t⇒t′ ⊢F ⊢G ⊢A ⊢u)
     (substTypeEq (refl ⊢A) (sym (subsetTerm x)))
   where
-  ok₁ = ⊢∷ΠΣ→ΠΣ-restriction (var (wf ⊢A) here)
+  ok = ⊢∷ΠΣ→ΠΣ-restriction (var (wf ⊢A) here)

@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------
--- Definitions related to type restrictions
+-- Definitions related to type and usage restrictions
 ------------------------------------------------------------------------
 
-module Definition.Modality.Type-restrictions {a} {M : Set a} where
+module Definition.Modality.Restrictions {a} {M : Set a} where
 
 open import Tools.Bool
 open import Tools.Function
@@ -12,6 +12,7 @@ open import Tools.PropositionalEquality
 open import Tools.Unit
 
 open import Definition.Modality M
+open import Definition.Modality.Usage.Restrictions M
 
 open import Definition.Typed.Restrictions M
 
@@ -21,9 +22,16 @@ no-type-restrictions : Type-restrictions
 no-type-restrictions = λ where
     .Unit-restriction    → Lift _ ⊤
     .ΠΣ-restriction      → λ _ _ _ → Lift _ ⊤
-    .Prodrec-restriction → λ _ _ _ → Lift _ ⊤
   where
   open Type-restrictions
+
+-- No usage restrictions.
+
+no-usage-restrictions : Usage-restrictions
+no-usage-restrictions = λ where
+    .Prodrec-restriction → λ _ _ _ → Lift _ ⊤
+  where
+  open Usage-restrictions
 
 -- The function adds the restriction that the two quantities on a Π-
 -- or Σ-type have to be equal.
@@ -68,24 +76,24 @@ second-ΠΣ-quantities-𝟘-or-ω ω 𝕄 R = record R
 --
 -- "Erased" matches are allowed for trivial modalities.
 
-No-erased-matches : Modality → Type-restrictions → Set a
+No-erased-matches : Modality → Usage-restrictions → Set a
 No-erased-matches 𝕄 R =
   𝟙 ≢ 𝟘 → ∀ {r p q} → Prodrec-restriction r p q → r ≢ 𝟘
   where
   open Modality 𝕄
-  open Type-restrictions R
+  open Usage-restrictions R
 
 -- The function adds the restriction that erased matches are not
 -- allowed (for non-trivial modalities).
 
-no-erased-matches : Modality → Type-restrictions → Type-restrictions
+no-erased-matches : Modality → Usage-restrictions → Usage-restrictions
 no-erased-matches 𝕄 R = record R
   { Prodrec-restriction = λ r p q →
       Prodrec-restriction r p q × (𝟙 ≢ 𝟘 → r ≢ 𝟘)
   }
   where
   open Modality 𝕄
-  open Type-restrictions R
+  open Usage-restrictions R
 
 -- The modalities obtained from no-erased-matches satisfy
 -- No-erased-matches.
@@ -99,4 +107,4 @@ No-erased-matches-no-erased-matches
   r ≢ 𝟘                                        □
   where
   open Modality 𝕄
-  open Type-restrictions R
+  open Usage-restrictions R

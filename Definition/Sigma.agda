@@ -7,36 +7,39 @@
 -- reviewer.
 
 open import Definition.Modality
+open import Definition.Modality.Usage.Restrictions
 open import Definition.Typed.Restrictions
 
 module Definition.Sigma
   {a} {M : Set a}
   (𝕄 : Modality M)
-  (R : Type-restrictions M)
+  (TR : Type-restrictions M)
+  (UR : Usage-restrictions M)
   where
 
 open Modality 𝕄
-open Type-restrictions R
+open Type-restrictions TR
+open Usage-restrictions UR
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
 open import Definition.Modality.Properties 𝕄
-open import Definition.Modality.Usage 𝕄
-open import Definition.Modality.Usage.Inversion 𝕄
-open import Definition.Modality.Usage.Properties 𝕄
-open import Definition.Modality.Usage.Weakening 𝕄
-open import Definition.Modality.Substitution.Properties 𝕄
+open import Definition.Modality.Usage 𝕄 UR
+open import Definition.Modality.Usage.Inversion 𝕄 UR
+open import Definition.Modality.Usage.Properties 𝕄 UR
+open import Definition.Modality.Usage.Weakening 𝕄 UR
+open import Definition.Modality.Substitution.Properties 𝕄 UR
 
 open import Definition.Mode 𝕄
 
-open import Definition.Typed R
-open import Definition.Typed.Consequences.DerivedRules R
-open import Definition.Typed.Consequences.Inversion R
-open import Definition.Typed.Consequences.Reduction R
-open import Definition.Typed.Consequences.Substitution R
-open import Definition.Typed.Consequences.Syntactic R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Weakening R as W
+open import Definition.Typed TR
+open import Definition.Typed.Consequences.DerivedRules TR
+open import Definition.Typed.Consequences.Inversion TR
+open import Definition.Typed.Consequences.Reduction TR
+open import Definition.Typed.Consequences.Substitution TR
+open import Definition.Typed.Consequences.Syntactic TR
+open import Definition.Typed.Properties TR
+open import Definition.Typed.Weakening TR as W
 
 open import Definition.Untyped M as U
   hiding (_∷_) renaming (_[_,_] to _[_∣_])
@@ -476,10 +479,11 @@ inv-usage-fstᵣ′ :
     δ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] wk1 A ×
     (⦃ ok : T 𝟘ᵐ-allowed ⦄ → δ ▸[ 𝟘ᵐ ] A) ×
     ⌜ m ⌝ · r · p ≤ ⌜ m ⌝ ×
-    ⌜ m ⌝ · r ≤ 𝟘
+    ⌜ m ⌝ · r ≤ 𝟘 ×
+    Prodrec-restriction r p q
 inv-usage-fstᵣ′ {γ = γ} {m = m} {r = r} {p = p} {q = q} ▸fstᵣ′ =
   case inv-usage-prodrec ▸fstᵣ′ of λ {
-    (invUsageProdrec {δ = δ} {η = η} {θ = θ} ▸t ▸var ▸A γ≤rδ+η) →
+    (invUsageProdrec {δ = δ} {η = η} {θ = θ} ▸t ▸var ▸A ok γ≤rδ+η) →
   case inv-usage-var ▸var of λ {
     (η≤𝟘 ∙ mrp≤m ∙ mr≤𝟘) →
     δ
@@ -499,7 +503,8 @@ inv-usage-fstᵣ′ {γ = γ} {m = m} {r = r} {p = p} {q = q} ▸fstᵣ′ =
        θ ∙ 𝟘 · q        ≈˘⟨ ≈ᶜ-refl ∙ ·-congʳ (PE.cong ⌜_⌝ (𝟘ᵐ?≡𝟘ᵐ {ok = ok})) ⟩
        θ ∙ ⌜ 𝟘ᵐ? ⌝ · q  ∎)
   , mrp≤m
-  , mr≤𝟘 }}
+  , mr≤𝟘
+  , ok }}
 
 -- An inversion lemma for fstᵣ′ with the mode set to 𝟙ᵐ.
 
@@ -511,10 +516,11 @@ inv-usage-fstᵣ′-𝟙ᵐ :
     δ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] wk1 A ×
     (⦃ ok : T 𝟘ᵐ-allowed ⦄ → δ ▸[ 𝟘ᵐ ] A) ×
     r · p ≤ 𝟙 ×
-    r ≤ 𝟘
+    r ≤ 𝟘 ×
+    Prodrec-restriction r p q
 inv-usage-fstᵣ′-𝟙ᵐ {r = r} {p = p} ▸fstᵣ′ =
   case inv-usage-fstᵣ′ ▸fstᵣ′ of λ {
-    (_ , _ , leq₁ , ▸t , ▸A , ▸A′ , leq₂ , leq₃) →
+    (_ , _ , leq₁ , ▸t , ▸A , ▸A′ , leq₂ , leq₃ , ok) →
   _ , _ , leq₁ , ▸t , ▸A , ▸A′ ,
   (begin
      r · p      ≡˘⟨ ·-identityˡ _ ⟩
@@ -523,7 +529,8 @@ inv-usage-fstᵣ′-𝟙ᵐ {r = r} {p = p} ▸fstᵣ′ =
   (begin
      r      ≡˘⟨ ·-identityˡ _ ⟩
      𝟙 · r  ≤⟨ leq₃ ⟩
-     𝟘      ∎) }
+     𝟘      ∎) ,
+  ok }
   where
   open Tools.Reasoning.PartialOrder ≤-poset
 
@@ -546,7 +553,7 @@ inv-usage-fstᵣ′-𝟙ᵐ {r = r} {p = p} ▸fstᵣ′ =
   ¬ 𝟙 ≤ 𝟘 →
   ¬ γ ▸[ 𝟙ᵐ ] fstᵣ′ 𝟙 p q A t
 𝟙≰𝟘→fstᵣ′-𝟙-not-ok {γ = γ} {p = p} {q = q} {A = A} {t = t} 𝟙≰𝟘 =
-  γ ▸[ 𝟙ᵐ ] fstᵣ′ 𝟙 p q A t  →⟨ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ inv-usage-fstᵣ′-𝟙ᵐ ⟩
+  γ ▸[ 𝟙ᵐ ] fstᵣ′ 𝟙 p q A t  →⟨ proj₁ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ inv-usage-fstᵣ′-𝟙ᵐ ⟩
   𝟙 ≤ 𝟘                      →⟨ 𝟙≰𝟘 ⟩
   ⊥                          □
 
@@ -562,17 +569,18 @@ inv-usage-fstᵣ′-≢𝟘-𝟙ᵐ :
     δ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] wk1 A ×
     (⦃ ok : T 𝟘ᵐ-allowed ⦄ → δ ▸[ 𝟘ᵐ ] A) ×
     r · p ≤ 𝟙 ×
-    r ≤ 𝟘
+    r ≤ 𝟘 ×
+    Prodrec-restriction r p q
 inv-usage-fstᵣ′-≢𝟘-𝟙ᵐ r≢𝟘⊎𝟙≡𝟘 ▸fstᵣ′ =
   case inv-usage-fstᵣ′-𝟙ᵐ ▸fstᵣ′ of λ {
-    (_ , _ , leq₁ , ▸t , ▸A , ▸A′ , leq₂ , leq₃) →
+    (_ , _ , leq₁ , ▸t , ▸A , ▸A′ , leq₂ , leq₃ , ok) →
   _ , _ , leq₁ ,
   ▸-cong
     (case r≢𝟘⊎𝟙≡𝟘 of λ where
        (inj₁ r≢𝟘) → ≉𝟘→⌞⌟≡𝟙ᵐ r≢𝟘
        (inj₂ 𝟙≡𝟘) → Mode-propositional-if-𝟙≡𝟘 𝟙≡𝟘)
     ▸t ,
-  ▸A , ▸A′ , leq₂ , leq₃ }
+  ▸A , ▸A′ , leq₂ , leq₃ , ok }
 
 -- An inversion lemma for fstᵣ′ with the mode set to 𝟙ᵐ, r set to
 -- 𝟘 ∧ 𝟙, and either 𝟘 ≰ 𝟙 or 𝟙 ≡ 𝟘.
@@ -584,10 +592,11 @@ inv-usage-fstᵣ′-𝟘∧𝟙-𝟙ᵐ :
     γ ≤ᶜ 𝟘ᶜ ∧ᶜ η × η ▸[ 𝟙ᵐ ] t ×
     δ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] wk1 A ×
     (⦃ ok : T 𝟘ᵐ-allowed ⦄ → δ ▸[ 𝟘ᵐ ] A) ×
-    𝟘 ∧ p ≤ 𝟙
+    𝟘 ∧ p ≤ 𝟙 ×
+    Prodrec-restriction (𝟘 ∧ 𝟙) p q
 inv-usage-fstᵣ′-𝟘∧𝟙-𝟙ᵐ {γ = γ} {p = p} 𝟘≰𝟙⊎𝟙≡𝟘 ▸fstᵣ′ =
   case inv-usage-fstᵣ′-≢𝟘-𝟙ᵐ 𝟘∧𝟙≢𝟘⊎𝟙≡𝟘 ▸fstᵣ′ of λ {
-    (η , _ , leq₁ , ▸t , ▸A , ▸A′ , leq₂ , _) →
+    (η , _ , leq₁ , ▸t , ▸A , ▸A′ , leq₂ , _ , ok) →
   _ , _ ,
   (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
      γ             ≤⟨ leq₁ ⟩
@@ -597,7 +606,8 @@ inv-usage-fstᵣ′-𝟘∧𝟙-𝟙ᵐ {γ = γ} {p = p} 𝟘≰𝟙⊎𝟙≡�
   (let open Tools.Reasoning.PartialOrder ≤-poset in begin
      𝟘 ∧ p        ≡˘⟨ [𝟘∧𝟙]·≡𝟘∧ ⟩
      (𝟘 ∧ 𝟙) · p  ≤⟨ leq₂ ⟩
-     𝟙            ∎) }
+     𝟙            ∎) ,
+  ok }
   where
   𝟘∧𝟙≢𝟘⊎𝟙≡𝟘 = case 𝟘≰𝟙⊎𝟙≡𝟘 of λ where
     (inj₁ 𝟘≰𝟙) → inj₁ (𝟘≰𝟙→𝟘∧𝟙≢𝟘 𝟘≰𝟙)
@@ -623,10 +633,11 @@ inv-usage-fstᵣ :
     γ ≤ᶜ 𝟘ᶜ ∧ᶜ η × η ▸[ m ] t ×
     δ ∙ 𝟘 ▸[ 𝟘ᵐ? ] wk1 A ×
     (⦃ ok : T 𝟘ᵐ-allowed ⦄ → δ ▸[ 𝟘ᵐ ] A) ×
-    𝟘 ∧ ⌜ m ⌝ · p ≤ ⌜ m ⌝
+    𝟘 ∧ ⌜ m ⌝ · p ≤ ⌜ m ⌝ ×
+    Prodrec-restriction (𝟘 ∧ 𝟙) p 𝟘
 inv-usage-fstᵣ {m = m} {γ = γ} {p = p} 𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ ▸fstᵣ =
   case inv-usage-fstᵣ′ ▸fstᵣ of λ {
-    (η , δ , leq₁ , ▸t , ▸A , ▸A′ , leq₂ , leq₃) →
+    (η , δ , leq₁ , ▸t , ▸A , ▸A′ , leq₂ , leq₃ , ok) →
   _ , _ ,
   (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
      γ             ≤⟨ leq₁ ⟩
@@ -641,7 +652,8 @@ inv-usage-fstᵣ {m = m} {γ = γ} {p = p} 𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙�
   (let open Tools.Reasoning.PartialOrder ≤-poset in begin
      𝟘 ∧ ⌜ m ⌝ · p        ≡˘⟨ ·[𝟘∧𝟙]·≡𝟘∧· ⟩
      ⌜ m ⌝ · (𝟘 ∧ 𝟙) · p  ≤⟨ leq₂ ⟩
-     ⌜ m ⌝                ∎) }
+     ⌜ m ⌝                ∎) ,
+  ok }
 
 -- An inversion lemma for fstᵣ with the mode set to 𝟘ᵐ.
 
@@ -650,10 +662,11 @@ inv-usage-fstᵣ-𝟘ᵐ :
   γ ▸[ 𝟘ᵐ ] fstᵣ p A t →
   ∃ λ δ →
     γ ≤ᶜ 𝟘ᶜ × 𝟘ᶜ ▸[ 𝟘ᵐ ] t ×
-    δ ▸[ 𝟘ᵐ ] A
+    δ ▸[ 𝟘ᵐ ] A ×
+    Prodrec-restriction (𝟘 ∧ 𝟙) p 𝟘
 inv-usage-fstᵣ-𝟘ᵐ {γ = γ} ▸fstᵣ =
   case inv-usage-fstᵣ (inj₂ (inj₂ (λ ()))) ▸fstᵣ of λ {
-    (η , _ , leq₁ , ▸t , _ , ▸A , leq₂) →
+    (η , _ , leq₁ , ▸t , _ , ▸A , leq₂ , ok) →
   _ ,
   (begin
      γ        ≤⟨ leq₁ ⟩
@@ -663,7 +676,7 @@ inv-usage-fstᵣ-𝟘ᵐ {γ = γ} ▸fstᵣ =
   (sub (▸-· {m′ = 𝟘ᵐ} ▸t) $ begin
      𝟘ᶜ      ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
      𝟘 ·ᶜ η  ∎) ,
-  ▸A }
+  ▸A , ok }
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
@@ -676,15 +689,17 @@ inv-usage-fstᵣ-𝟙ᵐ :
     γ ≤ᶜ 𝟘ᶜ ∧ᶜ η × η ▸[ 𝟙ᵐ ] t ×
     δ ∙ 𝟘 ▸[ 𝟘ᵐ? ] wk1 A ×
     (⦃ ok : T 𝟘ᵐ-allowed ⦄ → δ ▸[ 𝟘ᵐ ] A) ×
-    𝟘 ∧ p ≤ 𝟙
+    𝟘 ∧ p ≤ 𝟙 ×
+    Prodrec-restriction (𝟘 ∧ 𝟙) p 𝟘
 inv-usage-fstᵣ-𝟙ᵐ {p = p} 𝟘≰𝟙⊎𝟙≡𝟘 ▸fstᵣ =
   case inv-usage-fstᵣ 𝟘≰𝟙⊎𝟙≡𝟘⊎𝟙ᵐ≢𝟙ᵐ ▸fstᵣ of λ {
-    (_ , _ , leq₁ , ▸t , ▸A , ▸A′ , leq₂) →
+    (_ , _ , leq₁ , ▸t , ▸A , ▸A′ , leq₂ , ok) →
   _ , _ , leq₁ , ▸t , ▸A , ▸A′ ,
   (begin
      𝟘 ∧ p      ≡˘⟨ ∧-congˡ (·-identityˡ _) ⟩
      𝟘 ∧ 𝟙 · p  ≤⟨ leq₂ ⟩
-     𝟙          ∎) }
+     𝟙          ∎) ,
+  ok }
   where
   open Tools.Reasoning.PartialOrder ≤-poset
 
@@ -700,10 +715,11 @@ inv-usage-fstᵣ-𝟙ᵐ {p = p} 𝟘≰𝟙⊎𝟙≡𝟘 ▸fstᵣ =
 fstᵣₘ :
   ¬ 𝟘 ≤ 𝟙 ⊎ 𝟙 PE.≡ 𝟘 ⊎ m ≢ 𝟙ᵐ →
   𝟘 ∧ ⌜ m ⌝ · p ≤ ⌜ m ⌝ →
+  Prodrec-restriction (𝟘 ∧ 𝟙) p 𝟘 →
   γ ▸[ m ] t →
   δ ▸[ 𝟘ᵐ? ] A →
   𝟘ᶜ ∧ᶜ γ ▸[ m ] fstᵣ p A t
-fstᵣₘ {m = m} {p = p} {γ = γ} {δ = δ} 𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ 𝟘∧mp≤m ▸t ▸A = sub
+fstᵣₘ {m = m} {p = p} {γ = γ} {δ = δ} 𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ 𝟘∧mp≤m ok ▸t ▸A = sub
   (prodrecₘ
      (▸-cong (PE.sym (𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ→ᵐ·[𝟘∧𝟙]≡ _ 𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ)) ▸t)
      (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
@@ -714,7 +730,8 @@ fstᵣₘ {m = m} {p = p} {γ = γ} {δ = δ} 𝟘≰𝟙⊎𝟙≡𝟘⊎≢�
      (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
       sub (wkUsage (step id) ▸A) $ begin
         δ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
-        δ ∙ 𝟘            ∎))
+        δ ∙ 𝟘            ∎)
+     ok)
   (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
      𝟘ᶜ ∧ᶜ γ             ≡˘⟨ [𝟘∧𝟙]·ᶜ≡𝟘ᶜ∧ᶜ ⟩
      (𝟘 ∧ 𝟙) ·ᶜ γ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
@@ -724,16 +741,18 @@ fstᵣₘ {m = m} {p = p} {γ = γ} {δ = δ} 𝟘≰𝟙⊎𝟙≡𝟘⊎≢�
 
 fstᵣₘ-𝟘ᵐ :
   ⦃ ok : T 𝟘ᵐ-allowed ⦄ →
+  Prodrec-restriction (𝟘 ∧ 𝟙) p 𝟘 →
   γ ▸[ 𝟘ᵐ ] t →
   δ ▸[ 𝟘ᵐ ] A →
   γ ▸[ 𝟘ᵐ ] fstᵣ p A t
-fstᵣₘ-𝟘ᵐ {γ = γ} {δ = δ} {p = p} ▸t ▸A = sub
+fstᵣₘ-𝟘ᵐ {p = p} {γ = γ} {δ = δ} ok ▸t ▸A = sub
   (fstᵣₘ
      (inj₂ (inj₂ (λ ())))
      (let open Tools.Reasoning.PartialOrder ≤-poset in begin
         𝟘 ∧ 𝟘 · p  ≡⟨ ∧-congˡ (·-zeroˡ _) ⟩
         𝟘 ∧ 𝟘      ≡⟨ ∧-idem _ ⟩
         𝟘          ∎)
+     ok
      ▸t
      (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸A))
   (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
@@ -745,6 +764,7 @@ fstᵣₘ-𝟘ᵐ {γ = γ} {δ = δ} {p = p} ▸t ▸A = sub
 fstᵣₘ-𝟙ᵐ :
   ¬ 𝟘 ≤ 𝟙 ⊎ 𝟙 PE.≡ 𝟘 →
   𝟘 ∧ p ≤ 𝟙 →
+  Prodrec-restriction (𝟘 ∧ 𝟙) p 𝟘 →
   γ ▸[ 𝟙ᵐ ] t →
   δ ▸[ 𝟘ᵐ? ] A →
   𝟘ᶜ ∧ᶜ γ ▸[ 𝟙ᵐ ] fstᵣ p A t
@@ -766,16 +786,18 @@ fstᵣₘ-𝟙ᵐ-≤𝟘 :
   𝟙 PE.≡ 𝟘 ⊎ 𝟙 ≢ 𝟘 →
   (∀ p → p ≤ 𝟘) →
   p ≤ 𝟙 →
+  Prodrec-restriction (𝟘 ∧ 𝟙) p 𝟘 →
   γ ▸[ 𝟙ᵐ ] t →
   δ ▸[ 𝟘ᵐ? ] A →
   γ ▸[ 𝟙ᵐ ] fstᵣ p A t
-fstᵣₘ-𝟙ᵐ-≤𝟘 {p = p} {γ = γ} 𝟙≡𝟘⊎𝟙≢𝟘 ≤𝟘 p≤𝟙 ▸t ▸A = sub
+fstᵣₘ-𝟙ᵐ-≤𝟘 {p = p} {γ = γ} 𝟙≡𝟘⊎𝟙≢𝟘 ≤𝟘 p≤𝟙 ok ▸t ▸A = sub
   (fstᵣₘ-𝟙ᵐ
      (≤𝟘→𝟘≰𝟙⊎𝟙≡𝟘 𝟙≡𝟘⊎𝟙≢𝟘 ≤𝟘)
      (let open Tools.Reasoning.PartialOrder ≤-poset in begin
         𝟘 ∧ p  ≤⟨ ∧-decreasingʳ _ _ ⟩
         p      ≤⟨ p≤𝟙 ⟩
         𝟙      ∎)
+     ok
      ▸t
      ▸A)
   (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
@@ -789,6 +811,7 @@ fstᵣₘ-𝟙ᵐ-∧≤+ :
   𝟙 PE.≡ 𝟘 ⊎ 𝟙 ≢ 𝟘 →
   (∀ p q → p + q ≤ p ∧ q) →
   p ≤ 𝟙 →
+  Prodrec-restriction (𝟘 ∧ 𝟙) p 𝟘 →
   γ ▸[ 𝟙ᵐ ] t →
   δ ▸[ 𝟘ᵐ? ] A →
   γ ▸[ 𝟙ᵐ ] fstᵣ p A t
@@ -917,22 +940,20 @@ private
 
 fstᵣⱼ :
   Γ ⊢ t ∷ Σᵣ p , q ▷ A ▹ B →
-  Prodrec-restriction (𝟘 ∧ 𝟙) p 𝟘 →
   Γ ⊢ fstᵣ p A t ∷ A
-fstᵣⱼ {Γ = Γ} {t = t} {p = p} {q = q} {A = A} {B = B} ⊢t ok₂ =          $⟨ Σ⊢wk1 ⊢B ok₁ , 1∷wk1[1,0] ⊢B ⟩
+fstᵣⱼ {Γ = Γ} {t = t} {p = p} {q = q} {A = A} {B = B} ⊢t =              $⟨ Σ⊢wk1 ⊢B ok , 1∷wk1[1,0] ⊢B ⟩
   (Γ ∙ (Σᵣ p , q ▷ A ▹ B) ⊢ wk1 A) ×
   Γ ∙ A ∙ B ⊢ var (x0 +1) ∷ wk1 A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²  →⟨ (λ (hyp₁ , hyp₂) →
-                                                                              prodrecⱼ ⊢A ⊢B hyp₁ ⊢t hyp₂
-                                                                                (⊢∷ΠΣ→ΠΣ-restriction ⊢t) ok₂) ⟩
+                                                                              prodrecⱼ ⊢A ⊢B hyp₁ ⊢t hyp₂ ok) ⟩
 
   Γ ⊢ fstᵣ p A t ∷ wk1 A [ t ]                                          →⟨ flip conv (⊢wk1[]≡ ⊢A) ⟩
 
   Γ ⊢ fstᵣ p A t ∷ A                                                    □
   where
-  ⊢A,⊢B,ok₁ = inversion-ΠΣ (syntacticTerm ⊢t)
-  ⊢A        = ⊢A,⊢B,ok₁ .proj₁
-  ⊢B        = ⊢A,⊢B,ok₁ .proj₂ .proj₁
-  ok₁       = ⊢A,⊢B,ok₁ .proj₂ .proj₂
+  ⊢A,⊢B,ok = inversion-ΠΣ (syntacticTerm ⊢t)
+  ⊢A       = ⊢A,⊢B,ok .proj₁
+  ⊢B       = ⊢A,⊢B,ok .proj₂ .proj₁
+  ok       = ⊢A,⊢B,ok .proj₂ .proj₂
 
 -- A reduction rule for fstᵣ.
 
@@ -941,13 +962,12 @@ fstᵣ-β-⇒ :
   Γ ⊢ t ∷ A →
   Γ ⊢ u ∷ B [ t ] →
   Σᵣ-restriction p q →
-  Prodrec-restriction (𝟘 ∧ 𝟙) p 𝟘 →
   Γ ⊢ fstᵣ p A (prodᵣ p t u) ⇒ t ∷ A
 fstᵣ-β-⇒
-  {Γ = Γ} {A = A} {B = B} {t = t} {u = u} {p = p} {q = q}
-  ⊢B ⊢t ⊢u ok₁ ok₂ =                                                    $⟨ Σ⊢wk1 ⊢B ok₁ , 1∷wk1[1,0] ⊢B ⟩
+  {Γ = Γ} {A = A} {B = B} {t = t} {u = u} {p = p} {q = q} ⊢B ⊢t ⊢u ok =
+                                                                        $⟨ Σ⊢wk1 ⊢B ok , 1∷wk1[1,0] ⊢B ⟩
   (Γ ∙ (Σᵣ p , q ▷ A ▹ B) ⊢ wk1 A) ×
-  Γ ∙ A ∙ B ⊢ var (x0 +1) ∷ wk1 A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²  →⟨ (λ (hyp₁ , hyp₂) → prodrec-β ⊢A ⊢B hyp₁ ⊢t ⊢u hyp₂ PE.refl ok₁ ok₂) ⟩
+  Γ ∙ A ∙ B ⊢ var (x0 +1) ∷ wk1 A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²  →⟨ (λ (hyp₁ , hyp₂) → prodrec-β ⊢A ⊢B hyp₁ ⊢t ⊢u hyp₂ PE.refl ok) ⟩
 
   Γ ⊢ fstᵣ p A (prodᵣ p t u) ⇒ t ∷ wk1 A [ prodᵣ p t u ]                →⟨ flip conv (⊢wk1[]≡ ⊢A) ⟩
 
@@ -960,22 +980,21 @@ fstᵣ-β-⇒
 fstᵣ-subst :
   Γ ∙ A ⊢ B →
   Γ ⊢ t₁ ⇒ t₂ ∷ Σᵣ p , q ▷ A ▹ B →
-  Prodrec-restriction (𝟘 ∧ 𝟙) p 𝟘 →
   Γ ⊢ fstᵣ p A t₁ ⇒ fstᵣ p A t₂ ∷ A
 fstᵣ-subst
-  {Γ = Γ} {A = A} {B = B} {t₁ = t₁} {t₂ = t₂} {p = p} {q = q}
-  ⊢B t₁⇒t₂ ok₂ =                                                        $⟨ Σ⊢wk1 ⊢B ok₁ , 1∷wk1[1,0] ⊢B ⟩
+  {Γ = Γ} {A = A} {B = B} {t₁ = t₁} {t₂ = t₂} {p = p} {q = q} ⊢B t₁⇒t₂ =
+                                                                        $⟨ Σ⊢wk1 ⊢B ok , 1∷wk1[1,0] ⊢B ⟩
   (Γ ∙ (Σᵣ p , q ▷ A ▹ B) ⊢ wk1 A) ×
-  Γ ∙ A ∙ B ⊢ var (x0 +1) ∷ wk1 A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²  →⟨ (λ (hyp₁ , hyp₂) → prodrec-subst ⊢A ⊢B hyp₁ hyp₂ t₁⇒t₂ ok₁ ok₂) ⟩
+  Γ ∙ A ∙ B ⊢ var (x0 +1) ∷ wk1 A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²  →⟨ (λ (hyp₁ , hyp₂) → prodrec-subst ⊢A ⊢B hyp₁ hyp₂ t₁⇒t₂ ok) ⟩
 
   Γ ⊢ fstᵣ p A t₁ ⇒ fstᵣ p A t₂ ∷ wk1 A [ t₁ ]                          →⟨ flip conv (⊢wk1[]≡ ⊢A) ⟩
 
   Γ ⊢ fstᵣ p A t₁ ⇒ fstᵣ p A t₂ ∷ A                                     □
   where
-  ⊢A  = case wf ⊢B of λ where
-          (_ ∙ ⊢A) → ⊢A
-  ok₁ = ⊢∷ΠΣ→ΠΣ-restriction $
-        syntacticRedTerm (redMany t₁⇒t₂) .proj₂ .proj₁
+  ⊢A = case wf ⊢B of λ where
+         (_ ∙ ⊢A) → ⊢A
+  ok = ⊢∷ΠΣ→ΠΣ-restriction $
+       syntacticRedTerm (redMany t₁⇒t₂) .proj₂ .proj₁
 
 -- An equality rule for fstᵣ.
 
@@ -984,9 +1003,8 @@ fstᵣ-β-≡ :
   Γ ⊢ t ∷ A →
   Γ ⊢ u ∷ B [ t ] →
   Σᵣ-restriction p q →
-  Prodrec-restriction (𝟘 ∧ 𝟙) p 𝟘 →
   Γ ⊢ fstᵣ p A (prodᵣ p t u) ≡ t ∷ A
-fstᵣ-β-≡ ⊢B ⊢t ⊢u ok₁ ok₂ = subsetTerm (fstᵣ-β-⇒ ⊢B ⊢t ⊢u ok₁ ok₂)
+fstᵣ-β-≡ ⊢B ⊢t ⊢u ok = subsetTerm (fstᵣ-β-⇒ ⊢B ⊢t ⊢u ok)
 
 -- Another equality rule for fstᵣ.
 
@@ -994,24 +1012,23 @@ fstᵣ-cong :
   Γ ⊢ A₁ ≡ A₂ →
   Γ ∙ A₁ ⊢ B₁ →
   Γ ⊢ t₁ ≡ t₂ ∷ Σᵣ p , q ▷ A₁ ▹ B₁ →
-  Prodrec-restriction (𝟘 ∧ 𝟙) p 𝟘 →
   Γ ⊢ fstᵣ p A₁ t₁ ≡ fstᵣ p A₂ t₂ ∷ A₁
 fstᵣ-cong
   {Γ = Γ} {A₁ = A₁} {A₂ = A₂} {B₁ = B₁} {t₁ = t₁} {t₂ = t₂}
-  {p = p} {q = q} A₁≡A₂ ⊢B₁ t₁≡t₂ ok₂ =            $⟨ W.wkEq (step id) (wfEq A₁≡A₂ ∙ ΠΣⱼ ⊢A₁ ⊢B₁ ok₁) A₁≡A₂
+  {p = p} {q = q} A₁≡A₂ ⊢B₁ t₁≡t₂ =                $⟨ W.wkEq (step id) (wfEq A₁≡A₂ ∙ ΠΣⱼ ⊢A₁ ⊢B₁ ok) A₁≡A₂
                                                     , 1∷wk1[1,0] ⊢B₁
                                                     ⟩
   (Γ ∙ (Σᵣ p , q ▷ A₁ ▹ B₁) ⊢ wk1 A₁ ≡ wk1 A₂) ×
   Γ ∙ A₁ ∙ B₁ ⊢
     var (x0 +1) ∷
-    wk1 A₁ [ prodᵣ p (var (x0 +1)) (var x0) ]↑²    →⟨ (λ (hyp₁ , hyp₂) → prodrec-cong ⊢A₁ ⊢B₁ hyp₁ t₁≡t₂ (refl hyp₂) ok₁ ok₂) ⟩
+    wk1 A₁ [ prodᵣ p (var (x0 +1)) (var x0) ]↑²    →⟨ (λ (hyp₁ , hyp₂) → prodrec-cong ⊢A₁ ⊢B₁ hyp₁ t₁≡t₂ (refl hyp₂) ok) ⟩
 
   Γ ⊢ fstᵣ p A₁ t₁ ≡ fstᵣ p A₂ t₂ ∷ wk1 A₁ [ t₁ ]  →⟨ flip conv (⊢wk1[]≡ ⊢A₁) ⟩
 
   Γ ⊢ fstᵣ p A₁ t₁ ≡ fstᵣ p A₂ t₂ ∷ A₁             □
   where
   ⊢A₁ = syntacticEq A₁≡A₂ .proj₁
-  ok₁ = ⊢∷ΠΣ→ΠΣ-restriction $
+  ok  = ⊢∷ΠΣ→ΠΣ-restriction $
         syntacticEqTerm t₁≡t₂ .proj₂ .proj₁
 
 ------------------------------------------------------------------------
@@ -1047,9 +1064,8 @@ private
 
   ⊢≡[fstᵣ] :
     Γ ⊢ t ∷ Σᵣ p , q ▷ A ▹ B →
-    Prodrec-restriction (𝟘 ∧ 𝟙) p 𝟘 →
     Γ ⊢ B [ fstᵣ p (wk1 A) (var x0) ]↑ [ t ] ≡ B [ fstᵣ p A t ]
-  ⊢≡[fstᵣ] {Γ = Γ} {t = t} {p = p} {A = A} {B = B} ⊢t ok =         $⟨ substitution ⊢B (singleSubst (fstᵣⱼ ⊢t ok)) ⊢Γ ⟩
+  ⊢≡[fstᵣ] {Γ = Γ} {t = t} {p = p} {A = A} {B = B} ⊢t =            $⟨ substitution ⊢B (singleSubst (fstᵣⱼ ⊢t)) ⊢Γ ⟩
     Γ ⊢ B [ fstᵣ p A t ]                                           →⟨ refl ⟩
     (Γ ⊢ B [ fstᵣ p A t ] ≡ B [ fstᵣ p A t ])                      →⟨ PE.subst₂ (_ ⊢_≡_) ([fstᵣ] B) PE.refl ⟩
     (Γ ⊢ B [ fstᵣ p (wk1 A) (var x0) ]↑ [ t ] ≡ B [ fstᵣ p A t ])  □
@@ -1105,12 +1121,11 @@ private
   ⊢≡[fstᵣ-0]↑[1,0]↑² :
     Γ ∙ A ⊢ B →
     Σᵣ-restriction p q →
-    Prodrec-restriction (𝟘 ∧ 𝟙) p 𝟘 →
     Γ ∙ A ∙ B ⊢
       wk1 B ≡
       B [ fstᵣ p (wk1 A) (var x0) ]↑
         [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
-  ⊢≡[fstᵣ-0]↑[1,0]↑² {Γ = Γ} {A = A} {B = B} {p = p} ⊢B ok₁ ok₂ =    $⟨ substRefl (⊢ˢwk1Subst-wk1Subst-idSubst ⊢B) , lemma ⟩
+  ⊢≡[fstᵣ-0]↑[1,0]↑² {Γ = Γ} {A = A} {B = B} {p = p} ⊢B ok =         $⟨ substRefl (⊢ˢwk1Subst-wk1Subst-idSubst ⊢B) , lemma ⟩
     Γ ∙ A ∙ B ⊢ˢ
       consSubst (wk1Subst (wk1Subst idSubst)) (var (x0 +1)) ≡
       consSubst (wk1Subst (wk1Subst idSubst))
@@ -1140,7 +1155,7 @@ private
 
       (Γ ∙ A ∙ B ∙ wk1 (wk1 A) ⊢ wk1 (wk1 B)) ×
       (Γ ∙ A ∙ B ⊢ var (x0 +1) ∷ wk1 (wk1 A)) ×
-      (Γ ∙ A ∙ B ⊢ var x0 ∷ wk1 (wk1 B) [ var (x0 +1) ])          →⟨ (λ (⊢B , ⊢1 , ⊢0) → fstᵣ-β-≡ ⊢B ⊢1 ⊢0 ok₁ ok₂) ⟩
+      (Γ ∙ A ∙ B ⊢ var x0 ∷ wk1 (wk1 B) [ var (x0 +1) ])          →⟨ (λ (⊢B , ⊢1 , ⊢0) → fstᵣ-β-≡ ⊢B ⊢1 ⊢0 ok) ⟩
 
       (Γ ∙ A ∙ B ⊢
          fstᵣ p (wk1 (wk1 A)) (prodᵣ p (var (x0 +1)) (var x0)) ≡
@@ -1156,18 +1171,16 @@ private
     Γ ⊢ A₁ ≡ A₂ →
     Γ ∙ A₁ ⊢ B₁ ≡ B₂ →
     Σᵣ-restriction p q →
-    Prodrec-restriction (𝟘 ∧ 𝟙) p 𝟘 →
     Γ ∙ (Σᵣ p , q ▷ A₁ ▹ B₁) ⊢
       B₁ [ fstᵣ p (wk1 A₁) (var x0) ]↑ ≡
       B₂ [ fstᵣ p (wk1 A₂) (var x0) ]↑
   ⊢[fstᵣ-0]↑≡[fstᵣ-0]↑
     {Γ = Γ} {A₁ = A₁} {A₂ = A₂} {B₁ = B₁} {B₂ = B₂} {p = p} {q = q}
-    A₁≡A₂ B₁≡B₂ ok₁ ok₂ =                                        $⟨ refl (var ⊢ΓΣA₁B₁ here) ⟩
+    A₁≡A₂ B₁≡B₂ ok =                                             $⟨ refl (var ⊢ΓΣA₁B₁ here) ⟩
     Γ ∙ (Σᵣ p , q ▷ A₁ ▹ B₁) ⊢
       var x0 ≡
       var x0 ∷
-      wk1 (Σᵣ p , q ▷ A₁ ▹ B₁)                                   →⟨ flip flip ok₂ $
-                                                                    fstᵣ-cong
+      wk1 (Σᵣ p , q ▷ A₁ ▹ B₁)                                   →⟨ fstᵣ-cong
                                                                       (wkEq (step id) ⊢ΓΣA₁B₁ A₁≡A₂)
                                                                       (W.wk (lift (step id)) (⊢ΓΣA₁B₁ ∙ ⊢wk1 ⊢ΣA₁B₁ ⊢A₁) ⊢B₁) ⟩
     Γ ∙ (Σᵣ p , q ▷ A₁ ▹ B₁) ⊢
@@ -1191,17 +1204,15 @@ private
     where
     ⊢A₁     = syntacticEq A₁≡A₂ .proj₁
     ⊢B₁     = syntacticEq B₁≡B₂ .proj₁
-    ⊢ΣA₁B₁  = ΠΣⱼ ⊢A₁ ⊢B₁ ok₁
+    ⊢ΣA₁B₁  = ΠΣⱼ ⊢A₁ ⊢B₁ ok
     ⊢ΓΣA₁B₁ = wf ⊢A₁ ∙ ⊢ΣA₁B₁
 
   ⊢[fstᵣ-0]↑ :
     Γ ∙ A ⊢ B →
     Σᵣ-restriction p q →
-    Prodrec-restriction (𝟘 ∧ 𝟙) p 𝟘 →
     Γ ∙ (Σᵣ p , q ▷ A ▹ B) ⊢ B [ fstᵣ p (wk1 A) (var x0) ]↑
-  ⊢[fstᵣ-0]↑ ⊢B ok₁ ok₂ =
-    syntacticEq (⊢[fstᵣ-0]↑≡[fstᵣ-0]↑ (refl ⊢A) (refl ⊢B) ok₁ ok₂)
-      .proj₁
+  ⊢[fstᵣ-0]↑ ⊢B ok =
+    syntacticEq (⊢[fstᵣ-0]↑≡[fstᵣ-0]↑ (refl ⊢A) (refl ⊢B) ok) .proj₁
     where
     ⊢A = case wf ⊢B of λ where
            (_ ∙ ⊢A) → ⊢A
@@ -1209,15 +1220,14 @@ private
   ⊢0∷[fstᵣ-0]↑[1,0]↑² :
     Γ ∙ A ⊢ B →
     Σᵣ-restriction p q →
-    Prodrec-restriction (𝟘 ∧ 𝟙) p 𝟘 →
     Γ ∙ A ∙ B ⊢
       var x0 ∷
       B [ fstᵣ p (wk1 A) (var x0) ]↑
         [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
-  ⊢0∷[fstᵣ-0]↑[1,0]↑² {Γ = Γ} {A = A} {B = B} {p = p} ⊢B ok₁ ok₂ =
+  ⊢0∷[fstᵣ-0]↑[1,0]↑² {Γ = Γ} {A = A} {B = B} {p = p} ⊢B ok =
                                               $⟨ var (wf ⊢B ∙ ⊢B) here ⟩
 
-    Γ ∙ A ∙ B ⊢ var x0 ∷ wk1 B                →⟨ flip conv (⊢≡[fstᵣ-0]↑[1,0]↑² ⊢B ok₁ ok₂) ⟩
+    Γ ∙ A ∙ B ⊢ var x0 ∷ wk1 B                →⟨ flip conv (⊢≡[fstᵣ-0]↑[1,0]↑² ⊢B ok) ⟩
 
     Γ ∙ A ∙ B ⊢
       var x0 ∷
@@ -1244,10 +1254,11 @@ inv-usage-sndᵣ :
   γ ▸[ m ] sndᵣ p q A B t →
   ∃₂ λ η δ →
     γ ≤ᶜ 𝟘ᶜ ∧ᶜ η × η ▸[ m ] t ×
-    δ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] B [ fstᵣ p (wk1 A) (var x0) ]↑
+    δ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] B [ fstᵣ p (wk1 A) (var x0) ]↑ ×
+    Prodrec-restriction (𝟘 ∧ 𝟙) p q
 inv-usage-sndᵣ {γ = γ} 𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ _ ▸sndᵣ =
   case inv-usage-prodrec ▸sndᵣ of λ {
-    (invUsageProdrec {δ = δ} {η = η} {θ = θ} ▸t ▸var ▸B γ≤[𝟘∧𝟙]δ+η) →
+    (invUsageProdrec {δ = δ} {η = η} {θ = θ} ▸t ▸var ▸B ok γ≤[𝟘∧𝟙]δ+η) →
   case inv-usage-var ▸var of λ {
     (η≤𝟘 ∙ _ ∙ _) →
     δ
@@ -1259,7 +1270,8 @@ inv-usage-sndᵣ {γ = γ} 𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ _ ▸sndᵣ =
        (𝟘 ∧ 𝟙) ·ᶜ δ        ≡⟨ [𝟘∧𝟙]·ᶜ≡𝟘ᶜ∧ᶜ ⟩
        𝟘ᶜ ∧ᶜ δ             ∎)
   , ▸-cong (𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ→ᵐ·[𝟘∧𝟙]≡ _ 𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ) ▸t
-  , ▸B }}
+  , ▸B
+  , ok }}
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
@@ -1271,10 +1283,11 @@ inv-usage-sndᵣ-𝟘ᵐ :
   γ ▸[ 𝟘ᵐ ] sndᵣ p q A B t →
   ∃ λ δ →
     γ ≤ᶜ 𝟘ᶜ × 𝟘ᶜ ▸[ 𝟘ᵐ ] t ×
-    δ ∙ 𝟘 ▸[ 𝟘ᵐ ] B [ fstᵣ p (wk1 A) (var x0) ]↑
+    δ ∙ 𝟘 ▸[ 𝟘ᵐ ] B [ fstᵣ p (wk1 A) (var x0) ]↑ ×
+    Prodrec-restriction (𝟘 ∧ 𝟙) p q
 inv-usage-sndᵣ-𝟘ᵐ {γ = γ} {q = q} ⦃ ok = 𝟘ᵐ-ok ⦄ B ▸sndᵣ =
   case inv-usage-sndᵣ (inj₂ (inj₂ (λ ()))) B ▸sndᵣ of λ {
-    (η , δ , leq , ▸t , ▸B) →
+    (η , δ , leq , ▸t , ▸B , ok) →
     _
   , (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
        γ        ≤⟨ leq ⟩
@@ -1289,7 +1302,8 @@ inv-usage-sndᵣ-𝟘ᵐ {γ = γ} {q = q} ⦃ ok = 𝟘ᵐ-ok ⦄ B ▸sndᵣ =
      sub (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸B) $ begin
        δ ∙ 𝟘            ≈˘⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
        δ ∙ 𝟘 · q        ≈˘⟨ ≈ᶜ-refl ∙ ·-congʳ (PE.cong ⌜_⌝ (𝟘ᵐ?≡𝟘ᵐ {ok = 𝟘ᵐ-ok})) ⟩
-       δ ∙ ⌜ 𝟘ᵐ? ⌝ · q  ∎) }
+       δ ∙ ⌜ 𝟘ᵐ? ⌝ · q  ∎)
+  , ok }
 
 ------------------------------------------------------------------------
 -- Usage lemmas for sndᵣ
@@ -1298,11 +1312,12 @@ inv-usage-sndᵣ-𝟘ᵐ {γ = γ} {q = q} ⦃ ok = 𝟘ᵐ-ok ⦄ B ▸sndᵣ =
 
 sndᵣₘ :
   ¬ 𝟘 ≤ 𝟙 ⊎ 𝟙 PE.≡ 𝟘 ⊎ m ≢ 𝟙ᵐ →
+  Prodrec-restriction (𝟘 ∧ 𝟙) p q →
   ∀ B →
   γ ▸[ m ] t →
   δ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] B [ fstᵣ p (wk1 A) (var x0) ]↑ →
   𝟘ᶜ ∧ᶜ γ ▸[ m ] sndᵣ p q A B t
-sndᵣₘ {m = m} {γ = γ} {p = p} 𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ _ ▸t ▸B = sub
+sndᵣₘ {m = m} {p = p} {γ = γ} 𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ ok _ ▸t ▸B = sub
   (prodrecₘ
      (▸-cong (PE.sym (𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ→ᵐ·[𝟘∧𝟙]≡ _ 𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ)) ▸t)
      (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
@@ -1310,7 +1325,8 @@ sndᵣₘ {m = m} {γ = γ} {p = p} 𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ _ ▸
         𝟘ᶜ ∙ ⌜ m ⌝ · (𝟘 ∧ 𝟙) · p ∙ ⌜ m ⌝ · (𝟘 ∧ 𝟙)  ≈⟨ ≈ᶜ-refl ∙ ·[𝟘∧𝟙]·≡𝟘∧· ∙ ·[𝟘∧𝟙]≡𝟘∧ ⟩
         𝟘ᶜ ∙ 𝟘 ∧ ⌜ m ⌝ · p ∙ 𝟘 ∧ ⌜ m ⌝              ≤⟨ ≤ᶜ-refl ∙ ∧-decreasingˡ _ _ ∙ ∧-decreasingʳ _ _ ⟩
         𝟘ᶜ ∙ 𝟘 ∙ ⌜ m ⌝                              ∎)
-     ▸B)
+     ▸B
+     ok)
   (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
      𝟘ᶜ ∧ᶜ γ             ≡˘⟨ [𝟘∧𝟙]·ᶜ≡𝟘ᶜ∧ᶜ ⟩
      (𝟘 ∧ 𝟙) ·ᶜ γ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
@@ -1320,13 +1336,15 @@ sndᵣₘ {m = m} {γ = γ} {p = p} 𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ _ ▸
 
 sndᵣₘ-𝟘ᵐ :
   ⦃ ok : T 𝟘ᵐ-allowed ⦄ →
+  Prodrec-restriction (𝟘 ∧ 𝟙) p q →
   ∀ B →
   γ ▸[ 𝟘ᵐ ] t →
   δ ∙ 𝟘 ▸[ 𝟘ᵐ ] B [ fstᵣ p (wk1 A) (var x0) ]↑ →
   γ ▸[ 𝟘ᵐ ] sndᵣ p q A B t
-sndᵣₘ-𝟘ᵐ {γ = γ} {δ = δ} {p = p} {q = q} ⦃ ok = 𝟘ᵐ-ok ⦄ B ▸t ▸B = sub
+sndᵣₘ-𝟘ᵐ {p = p} {q = q} {γ = γ} {δ = δ} ⦃ ok = 𝟘ᵐ-ok ⦄ ok B ▸t ▸B = sub
   (sndᵣₘ
      (inj₂ (inj₂ (λ ())))
+     ok
      B
      ▸t
      (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
@@ -1344,15 +1362,17 @@ sndᵣₘ-𝟘ᵐ {γ = γ} {δ = δ} {p = p} {q = q} ⦃ ok = 𝟘ᵐ-ok ⦄ B 
 sndᵣₘ-𝟙ᵐ-≤𝟘 :
   𝟙 PE.≡ 𝟘 ⊎ 𝟙 ≢ 𝟘 →
   (∀ p → p ≤ 𝟘) →
+  Prodrec-restriction (𝟘 ∧ 𝟙) p q →
   ∀ B →
   γ ▸[ 𝟙ᵐ ] t →
   δ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] B [ fstᵣ p (wk1 A) (var x0) ]↑ →
   γ ▸[ 𝟙ᵐ ] sndᵣ p q A B t
-sndᵣₘ-𝟙ᵐ-≤𝟘 {γ = γ} 𝟙≡𝟘⊎𝟙≢𝟘 ≤𝟘 B ▸t ▸B = sub
+sndᵣₘ-𝟙ᵐ-≤𝟘 {γ = γ} 𝟙≡𝟘⊎𝟙≢𝟘 ≤𝟘 ok B ▸t ▸B = sub
   (sndᵣₘ
      (case ≤𝟘→𝟘≰𝟙⊎𝟙≡𝟘 𝟙≡𝟘⊎𝟙≢𝟘 ≤𝟘 of λ where
         (inj₁ 𝟘≰𝟙) → inj₁ 𝟘≰𝟙
         (inj₂ 𝟙≡𝟘) → inj₂ (inj₁ 𝟙≡𝟘))
+     ok
      B
      ▸t
      ▸B)
@@ -1368,6 +1388,7 @@ sndᵣₘ-𝟙ᵐ-≤𝟘 {γ = γ} 𝟙≡𝟘⊎𝟙≢𝟘 ≤𝟘 B ▸t ▸
 sndᵣₘ-𝟙ᵐ-+≤∧ :
   𝟙 PE.≡ 𝟘 ⊎ 𝟙 ≢ 𝟘 →
   (∀ p q → p + q ≤ p ∧ q) →
+  Prodrec-restriction (𝟘 ∧ 𝟙) p q →
   ∀ B →
   γ ▸[ 𝟙ᵐ ] t →
   δ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] B [ fstᵣ p (wk1 A) (var x0) ]↑ →
@@ -1381,19 +1402,16 @@ sndᵣₘ-𝟙ᵐ-+≤∧ 𝟙≡𝟘⊎𝟙≢𝟘 +≤∧ = sndᵣₘ-𝟙ᵐ-
 
 sndᵣⱼ :
   Γ ⊢ t ∷ Σᵣ p , q ▷ A ▹ B →
-  Prodrec-restriction (𝟘 ∧ 𝟙) p 𝟘 →
-  Prodrec-restriction (𝟘 ∧ 𝟙) p q →
   Γ ⊢ sndᵣ p q A B t ∷ B [ fstᵣ p A t ]
-sndᵣⱼ {Γ = Γ} {t = t} {p = p} {q = q} {A = A} {B = B} ⊢t ok₂ ok₃ =
-                                                             $⟨ prodrecⱼ ⊢A ⊢B (⊢[fstᵣ-0]↑ ⊢B ok₁ ok₂) ⊢t
-                                                                  (⊢0∷[fstᵣ-0]↑[1,0]↑² ⊢B ok₁ ok₂) ok₁ ok₃ ⟩
-  Γ ⊢ sndᵣ p q A B t ∷ B [ fstᵣ p (wk1 A) (var x0) ]↑ [ t ]  →⟨ flip conv (⊢≡[fstᵣ] ⊢t ok₂) ⟩
+sndᵣⱼ {Γ = Γ} {t = t} {p = p} {q = q} {A = A} {B = B} ⊢t =   $⟨ prodrecⱼ ⊢A ⊢B (⊢[fstᵣ-0]↑ ⊢B ok) ⊢t
+                                                                  (⊢0∷[fstᵣ-0]↑[1,0]↑² ⊢B ok) ok ⟩
+  Γ ⊢ sndᵣ p q A B t ∷ B [ fstᵣ p (wk1 A) (var x0) ]↑ [ t ]  →⟨ flip conv (⊢≡[fstᵣ] ⊢t) ⟩
   Γ ⊢ sndᵣ p q A B t ∷ B [ fstᵣ p A t ]                      □
   where
-  ⊢A,⊢B,ok₁ = inversion-ΠΣ (syntacticTerm ⊢t)
-  ⊢A        = ⊢A,⊢B,ok₁ .proj₁
-  ⊢B        = ⊢A,⊢B,ok₁ .proj₂ .proj₁
-  ok₁       = ⊢A,⊢B,ok₁ .proj₂ .proj₂
+  ⊢A,⊢B,ok = inversion-ΠΣ (syntacticTerm ⊢t)
+  ⊢A       = ⊢A,⊢B,ok .proj₁
+  ⊢B       = ⊢A,⊢B,ok .proj₂ .proj₁
+  ok       = ⊢A,⊢B,ok .proj₂ .proj₂
 
 -- A reduction rule for sndᵣ.
 
@@ -1402,14 +1420,13 @@ sndᵣ-β-⇒ :
   Γ ⊢ t ∷ A →
   Γ ⊢ u ∷ B [ t ] →
   Σᵣ-restriction p q →
-  Prodrec-restriction (𝟘 ∧ 𝟙) p 𝟘 →
-  Prodrec-restriction (𝟘 ∧ 𝟙) p q →
   Γ ⊢ sndᵣ p q A B (prodᵣ p t u) ⇒ u ∷ B [ fstᵣ p A (prodᵣ p t u) ]
 sndᵣ-β-⇒
-  {Γ = Γ} {A = A} {B = B} {t = t} {u = u} {p = p} {q = q}
-  ⊢B ⊢t ⊢u ok₁ ok₂ ok₃ =                            $⟨ prodrec-β ⊢A ⊢B (⊢[fstᵣ-0]↑ {q = q} ⊢B ok₁ ok₂) ⊢t ⊢u (⊢0∷[fstᵣ-0]↑[1,0]↑² ⊢B ok₁ ok₂) PE.refl ok₁ ok₃ ⟩
+  {Γ = Γ} {A = A} {B = B} {t = t} {u = u} {p = p} {q = q} ⊢B ⊢t ⊢u ok =
+                                                    $⟨ prodrec-β ⊢A ⊢B (⊢[fstᵣ-0]↑ {q = q} ⊢B ok) ⊢t ⊢u
+                                                         (⊢0∷[fstᵣ-0]↑[1,0]↑² ⊢B ok) PE.refl ok ⟩
   Γ ⊢ sndᵣ p q A B (prodᵣ p t u) ⇒ u ∷
-    B [ fstᵣ p (wk1 A) (var x0) ]↑ [ prodᵣ p t u ]  →⟨ flip conv (⊢≡[fstᵣ] (prodⱼ {q = q} ⊢A ⊢B ⊢t ⊢u ok₁) ok₂) ⟩
+    B [ fstᵣ p (wk1 A) (var x0) ]↑ [ prodᵣ p t u ]  →⟨ flip conv (⊢≡[fstᵣ] (prodⱼ {q = q} ⊢A ⊢B ⊢t ⊢u ok)) ⟩
 
   Γ ⊢ sndᵣ p q A B (prodᵣ p t u) ⇒ u ∷
     B [ fstᵣ p A (prodᵣ p t u) ]                    □
@@ -1420,24 +1437,21 @@ sndᵣ-β-⇒
 
 sndᵣ-subst :
   Γ ⊢ t₁ ⇒ t₂ ∷ Σᵣ p , q ▷ A ▹ B →
-  Prodrec-restriction (𝟘 ∧ 𝟙) p 𝟘 →
-  Prodrec-restriction (𝟘 ∧ 𝟙) p q →
   Γ ⊢ sndᵣ p q A B t₁ ⇒ sndᵣ p q A B t₂ ∷ B [ fstᵣ p A t₁ ]
 sndᵣ-subst
-  {Γ = Γ} {t₁ = t₁} {t₂ = t₂} {p = p} {q = q} {A = A} {B = B}
-  t₁⇒t₂ ok₂ ok₃ =                          $⟨ prodrec-subst ⊢A ⊢B (⊢[fstᵣ-0]↑ ⊢B ok₁ ok₂)
-                                                (⊢0∷[fstᵣ-0]↑[1,0]↑² ⊢B ok₁ ok₂) t₁⇒t₂ ok₁ ok₃ ⟩
+  {Γ = Γ} {t₁ = t₁} {t₂ = t₂} {p = p} {q = q} {A = A} {B = B} t₁⇒t₂ =
+                                           $⟨ prodrec-subst ⊢A ⊢B (⊢[fstᵣ-0]↑ ⊢B ok) (⊢0∷[fstᵣ-0]↑[1,0]↑² ⊢B ok) t₁⇒t₂ ok ⟩
   Γ ⊢ sndᵣ p q A B t₁ ⇒ sndᵣ p q A B t₂ ∷
-    B [ fstᵣ p (wk1 A) (var x0) ]↑ [ t₁ ]  →⟨ flip conv (⊢≡[fstᵣ] ⊢t₁ ok₂) ⟩
+    B [ fstᵣ p (wk1 A) (var x0) ]↑ [ t₁ ]  →⟨ flip conv (⊢≡[fstᵣ] ⊢t₁) ⟩
 
   Γ ⊢ sndᵣ p q A B t₁ ⇒ sndᵣ p q A B t₂ ∷
     B [ fstᵣ p A t₁ ]                      □
   where
-  ⊢t₁       = syntacticEqTerm (subsetTerm t₁⇒t₂) .proj₂ .proj₁
-  ⊢A,⊢B,ok₁ = inversion-ΠΣ (syntacticTerm ⊢t₁)
-  ⊢A        = ⊢A,⊢B,ok₁ .proj₁
-  ⊢B        = ⊢A,⊢B,ok₁ .proj₂ .proj₁
-  ok₁       = ⊢A,⊢B,ok₁ .proj₂ .proj₂
+  ⊢t₁      = syntacticEqTerm (subsetTerm t₁⇒t₂) .proj₂ .proj₁
+  ⊢A,⊢B,ok = inversion-ΠΣ (syntacticTerm ⊢t₁)
+  ⊢A       = ⊢A,⊢B,ok .proj₁
+  ⊢B       = ⊢A,⊢B,ok .proj₂ .proj₁
+  ok       = ⊢A,⊢B,ok .proj₂ .proj₂
 
 -- An equality rule for sndᵣ.
 
@@ -1446,11 +1460,8 @@ sndᵣ-β-≡ :
   Γ ⊢ t ∷ A →
   Γ ⊢ u ∷ B [ t ] →
   Σᵣ-restriction p q →
-  Prodrec-restriction (𝟘 ∧ 𝟙) p 𝟘 →
-  Prodrec-restriction (𝟘 ∧ 𝟙) p q →
   Γ ⊢ sndᵣ p q A B (prodᵣ p t u) ≡ u ∷ B [ fstᵣ p A (prodᵣ p t u) ]
-sndᵣ-β-≡ ⊢B ⊢t ⊢u ok₁ ok₂ ok₃ =
-  subsetTerm (sndᵣ-β-⇒ ⊢B ⊢t ⊢u ok₁ ok₂ ok₃)
+sndᵣ-β-≡ ⊢B ⊢t ⊢u ok = subsetTerm (sndᵣ-β-⇒ ⊢B ⊢t ⊢u ok)
 
 -- Another equality rule for sndᵣ.
 
@@ -1458,24 +1469,22 @@ sndᵣ-cong :
   Γ ⊢ A₁ ≡ A₂ →
   Γ ∙ A₁ ⊢ B₁ ≡ B₂ →
   Γ ⊢ t₁ ≡ t₂ ∷ Σᵣ p , q ▷ A₁ ▹ B₁ →
-  Prodrec-restriction (𝟘 ∧ 𝟙) p 𝟘 →
-  Prodrec-restriction (𝟘 ∧ 𝟙) p q →
   Γ ⊢ sndᵣ p q A₁ B₁ t₁ ≡ sndᵣ p q A₂ B₂ t₂ ∷ B₁ [ fstᵣ p A₁ t₁ ]
 sndᵣ-cong
   {Γ = Γ} {A₁ = A₁} {A₂ = A₂} {B₁ = B₁} {B₂ = B₂} {t₁ = t₁} {t₂ = t₂}
-  {p = p} {q = q} A₁≡A₂ B₁≡B₂ t₁≡t₂ ok₂ ok₃ =  $⟨ prodrec-cong ⊢A ⊢B (⊢[fstᵣ-0]↑≡[fstᵣ-0]↑ A₁≡A₂ B₁≡B₂ ok₁ ok₂)
-                                                    t₁≡t₂ (refl (⊢0∷[fstᵣ-0]↑[1,0]↑² ⊢B ok₁ ok₂)) ok₁ ok₃ ⟩
+  {p = p} {q = q} A₁≡A₂ B₁≡B₂ t₁≡t₂ =          $⟨ prodrec-cong ⊢A ⊢B (⊢[fstᵣ-0]↑≡[fstᵣ-0]↑ A₁≡A₂ B₁≡B₂ ok)
+                                                    t₁≡t₂ (refl (⊢0∷[fstᵣ-0]↑[1,0]↑² ⊢B ok)) ok ⟩
   Γ ⊢ sndᵣ p q A₁ B₁ t₁ ≡ sndᵣ p q A₂ B₂ t₂ ∷
-    B₁ [ fstᵣ p (wk1 A₁) (var x0) ]↑ [ t₁ ]    →⟨ flip conv (⊢≡[fstᵣ] ⊢t₁ ok₂) ⟩
+    B₁ [ fstᵣ p (wk1 A₁) (var x0) ]↑ [ t₁ ]    →⟨ flip conv (⊢≡[fstᵣ] ⊢t₁) ⟩
 
   Γ ⊢ sndᵣ p q A₁ B₁ t₁ ≡ sndᵣ p q A₂ B₂ t₂ ∷
     B₁ [ fstᵣ p A₁ t₁ ]                        □
   where
-  ⊢t₁       = syntacticEqTerm t₁≡t₂ .proj₂ .proj₁
-  ⊢A,⊢B,ok₁ = inversion-ΠΣ (syntacticTerm ⊢t₁)
-  ⊢A        = ⊢A,⊢B,ok₁ .proj₁
-  ⊢B        = ⊢A,⊢B,ok₁ .proj₂ .proj₁
-  ok₁       = ⊢A,⊢B,ok₁ .proj₂ .proj₂
+  ⊢t₁      = syntacticEqTerm t₁≡t₂ .proj₂ .proj₁
+  ⊢A,⊢B,ok = inversion-ΠΣ (syntacticTerm ⊢t₁)
+  ⊢A       = ⊢A,⊢B,ok .proj₁
+  ⊢B       = ⊢A,⊢B,ok .proj₂ .proj₁
+  ok       = ⊢A,⊢B,ok .proj₂ .proj₂
 
 -- Presumably it is possible to prove that the following η-rule does
 -- not hold in general:

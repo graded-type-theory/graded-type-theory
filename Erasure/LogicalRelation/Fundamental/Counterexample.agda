@@ -5,6 +5,7 @@
 ------------------------------------------------------------------------
 
 open import Definition.Modality
+open import Definition.Modality.Usage.Restrictions
 open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
 open import Tools.Nullary
@@ -14,14 +15,16 @@ module Erasure.LogicalRelation.Fundamental.Counterexample
   {a} {M : Set a}
   (𝕄 : Modality M)
   (open Modality 𝕄)
-  (R : Type-restrictions M)
-  (open Type-restrictions R)
+  (TR : Type-restrictions M)
+  (open Type-restrictions TR)
+  (UR : Usage-restrictions M)
+  (open Usage-restrictions UR)
   (is-𝟘? : (p : M) → Dec (p ≡ 𝟘))
   (𝟙≉𝟘 : 𝟙 ≢ 𝟘)
   -- Erased matches is allowed
   (P₀₁₀ : Prodrec-restriction 𝟘 𝟙 𝟘)
   (Σᵣ-𝟙-𝟘 : Σᵣ-restriction 𝟙 𝟘)
-  {{eqrel : EqRelSet R}}
+  {{eqrel : EqRelSet TR}}
   where
 
 open EqRelSet {{...}}
@@ -30,16 +33,16 @@ open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
 open import Definition.Modality.Properties.PartialOrder
   semiring-with-meet
-open import Definition.Modality.Usage 𝕄
+open import Definition.Modality.Usage 𝕄 UR
 open import Definition.Mode 𝕄
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed R
-open import Definition.Typed.Properties R
-open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Substitution R
-open import Definition.LogicalRelation.Substitution.Properties R
-import Definition.LogicalRelation.Substitution.Irrelevance R as IS
+open import Definition.Typed TR
+open import Definition.Typed.Properties TR
+open import Definition.LogicalRelation TR
+open import Definition.LogicalRelation.Substitution TR
+open import Definition.LogicalRelation.Substitution.Properties TR
+import Definition.LogicalRelation.Substitution.Irrelevance TR as IS
 
 Δ : Con Term 1
 Δ = ε ∙ (Σᵣ 𝟙 , 𝟘 ▷ ℕ ▹ ℕ)
@@ -48,9 +51,9 @@ import Definition.LogicalRelation.Substitution.Irrelevance R as IS
 ⊢Δ = ε ∙ ΠΣⱼ (ℕⱼ ε) (ℕⱼ (ε ∙ ℕⱼ ε)) Σᵣ-𝟙-𝟘
 
 import Erasure.Target as T
-open import Erasure.LogicalRelation 𝕄 R ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Irrelevance 𝕄 R ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Subsumption 𝕄 R ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation 𝕄 TR ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Irrelevance 𝕄 TR ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Subsumption 𝕄 TR ⊢Δ is-𝟘?
 
 open import Tools.Fin
 open import Tools.Product
@@ -90,7 +93,7 @@ cEx : ∃ λ n
 cEx = _
     , prodrec 𝟘 𝟙 𝟘 ℕ (var x0) zero , ℕ , ε ∙ (Σᵣ 𝟙 , 𝟘 ▷ ℕ ▹ ℕ)
     , ε ∙ 𝟘
-    , prodrecⱼ Δ⊢ℕ Δℕ⊢ℕ ΔΣ⊢ℕ (var ⊢Δ here) (zeroⱼ ⊢Δℕℕ) Σᵣ-𝟙-𝟘 P₀₁₀
+    , prodrecⱼ Δ⊢ℕ Δℕ⊢ℕ ΔΣ⊢ℕ (var ⊢Δ here) (zeroⱼ ⊢Δℕℕ) Σᵣ-𝟙-𝟘
     , sub ▸pr (≤ᶜ-reflexive (≈ᶜ-refl ∙ PE.sym (PE.trans (+-identityʳ _) (·-zeroˡ _))))
     , λ {([Γ] , [A] , ⊩ʳpr) → cEx′ [Γ] [A] ⊩ʳpr}
     where
@@ -103,4 +106,4 @@ cEx = _
     ⊢Δℕℕ = ⊢Δ ∙ Δ⊢ℕ ∙ Δℕ⊢ℕ
     ▸zero = sub zeroₘ (≤ᶜ-reflexive (≈ᶜ-refl ∙ PE.trans (·-congˡ (·-zeroˡ 𝟙)) (·-zeroʳ 𝟙) ∙ ·-zeroʳ _))
     ▸ℕ = sub ℕₘ (≤ᶜ-refl ∙ ≤-reflexive (·-zeroʳ _))
-    ▸pr = prodrecₘ {η = 𝟘ᶜ} var ▸zero ▸ℕ
+    ▸pr = prodrecₘ {η = 𝟘ᶜ} var ▸zero ▸ℕ P₀₁₀

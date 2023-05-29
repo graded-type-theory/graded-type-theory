@@ -33,7 +33,7 @@ open import Definition.Modality.Instances.Unit using (UnitModality)
 open import Definition.Modality.Instances.Zero-one-many as ZOM
   using (Zero-one-many; 𝟘; 𝟙; ω; zero-one-many-greatest)
 import Definition.Modality.Properties
-open import Definition.Modality.Type-restrictions
+open import Definition.Modality.Restrictions
 
 open import Definition.Mode.Restrictions
 

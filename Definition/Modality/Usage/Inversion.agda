@@ -3,15 +3,20 @@
 ------------------------------------------------------------------------
 
 open import Definition.Modality
+open import Definition.Modality.Usage.Restrictions
 
 module Definition.Modality.Usage.Inversion
-  {a} {M : Set a} (𝕄 : Modality M) where
+  {a} {M : Set a}
+  (𝕄 : Modality M)
+  (R : Usage-restrictions M)
+  where
 
 open Modality 𝕄
+open Usage-restrictions R
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
-open import Definition.Modality.Usage 𝕄
+open import Definition.Modality.Usage 𝕄 R
 open import Definition.Mode 𝕄
 open import Definition.Untyped M hiding (_∙_)
 
@@ -201,19 +206,18 @@ record InvUsageProdrec
     δ▸t : δ ▸[ m ᵐ· r ] t
     η▸u : η ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u
     θ▸A : θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
+    P : Prodrec-restriction r p q
     γ≤γ′ : γ ≤ᶜ r ·ᶜ δ +ᶜ η
 
 -- If γ ▸[ m ] prodrec r p q A t u then δ ▸[ m ᵐ· r ] t,
--- η ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u, θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
--- and γ ≤ᶜ r ·ᶜ δ +ᶜ η.
+-- η ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u, θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A,
+-- Prodrec-restriction r p q and γ ≤ᶜ r ·ᶜ δ +ᶜ η.
 
 inv-usage-prodrec :
   γ ▸[ m ] prodrec r p q A t u → InvUsageProdrec γ m r p q A t u
-inv-usage-prodrec (prodrecₘ γ▸t δ▸u η▸A) =
-  invUsageProdrec γ▸t δ▸u η▸A ≤ᶜ-refl
+inv-usage-prodrec (prodrecₘ γ▸t δ▸u η▸A P) = invUsageProdrec γ▸t δ▸u η▸A P ≤ᶜ-refl
 inv-usage-prodrec (sub γ▸t γ≤γ′) with inv-usage-prodrec γ▸t
-... | invUsageProdrec δ▸t η▸u θ▸A γ′≤γ″ =
-  invUsageProdrec δ▸t η▸u θ▸A (≤ᶜ-trans γ≤γ′ γ′≤γ″)
+... | invUsageProdrec δ▸t η▸u θ▸A P γ′≤γ″ = invUsageProdrec δ▸t η▸u θ▸A P (≤ᶜ-trans γ≤γ′ γ′≤γ″)
 
 -- If γ ▸[ m ] zero then γ ≤ᶜ 𝟘ᶜ.
 

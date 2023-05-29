@@ -120,17 +120,17 @@ stabilityRedTerm Γ≡Δ (natrec-suc x x₁ x₂ x₃) =
   in  natrec-suc (stabilityTerm Γ≡Δ x) (stability (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ)) x₁)
                  (stabilityTerm Γ≡Δ x₂)
                  (stabilityTerm (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ) ∙ refl x₁) x₃)
-stabilityRedTerm Γ≡Δ (prodrec-subst x x₁ x₂ x₃ d ok₁ ok₂) =
+stabilityRedTerm Γ≡Δ (prodrec-subst x x₁ x₂ x₃ d ok) =
   prodrec-subst (stability Γ≡Δ x) (stability (Γ≡Δ ∙ (refl x)) x₁)
-                (stability (Γ≡Δ ∙ refl (ΠΣⱼ x x₁ ok₁)) x₂)
+                (stability (Γ≡Δ ∙ refl (ΠΣⱼ x x₁ ok)) x₂)
                 (stabilityTerm (Γ≡Δ ∙ refl x ∙ refl x₁) x₃)
-                (stabilityRedTerm Γ≡Δ d) ok₁ ok₂
-stabilityRedTerm Γ≡Δ (prodrec-β x x₁ x₂ x₃ x₄ x₅ x₆ ok₁ ok₂) =
+                (stabilityRedTerm Γ≡Δ d) ok
+stabilityRedTerm Γ≡Δ (prodrec-β x x₁ x₂ x₃ x₄ x₅ x₆ ok) =
   prodrec-β (stability Γ≡Δ x) (stability (Γ≡Δ ∙ refl x) x₁)
-            (stability (Γ≡Δ ∙ refl (ΠΣⱼ x x₁ ok₁)) x₂)
+            (stability (Γ≡Δ ∙ refl (ΠΣⱼ x x₁ ok)) x₂)
             (stabilityTerm Γ≡Δ x₃) (stabilityTerm Γ≡Δ x₄)
             (stabilityTerm (Γ≡Δ ∙ refl x ∙ refl x₁) x₅)
-            x₆ ok₁ ok₂
+            x₆ ok
 stabilityRedTerm Γ≡Δ (Emptyrec-subst x d) =
   Emptyrec-subst (stability Γ≡Δ x) (stabilityRedTerm Γ≡Δ d)
 
@@ -169,13 +169,12 @@ mutual
                    (stabilityConv↑Term Γ≡Δ x₂)
                    ((stabilityConv↑Term (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ) ∙ refl ⊢F) x₃))
                    (stability~↓ Γ≡Δ k~l)
-  stability~↑ Γ≡Δ (prodrec-cong x x₁ x₂ ok) =
+  stability~↑ Γ≡Δ (prodrec-cong x x₁ x₂) =
     let ⊢Σ , _ = syntacticEqTerm (soundness~↓ x₁)
         ⊢F , ⊢G = syntacticΣ ⊢Σ
     in  prodrec-cong (stabilityConv↑ (Γ≡Δ ∙ refl ⊢Σ) x)
           (stability~↓ Γ≡Δ x₁)
           (stabilityConv↑Term (Γ≡Δ ∙ refl ⊢F ∙ refl ⊢G) x₂)
-          ok
   stability~↑ Γ≡Δ (Emptyrec-cong x₁ k~l) =
     Emptyrec-cong (stabilityConv↑ Γ≡Δ x₁)
                   (stability~↓ Γ≡Δ k~l)

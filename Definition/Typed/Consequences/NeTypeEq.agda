@@ -49,7 +49,7 @@ neTypeEq (sndₙ neP) (sndⱼ ⊢F ⊢G ⊢t) (sndⱼ ⊢F′ ⊢G′ ⊢t′) w
 neTypeEq (natrecₙ neT) (natrecⱼ x t∷A t∷A₁ t∷A₂) (natrecⱼ x₁ t∷B t∷B₁ t∷B₂) =
   refl (substType x₁ t∷B₂)
 neTypeEq
-  (prodrecₙ neT) (prodrecⱼ _ _ ⊢A ⊢t _ _ _) (prodrecⱼ _ _ _ _ _ _ _) =
+  (prodrecₙ neT) (prodrecⱼ _ _ ⊢A ⊢t _ _) (prodrecⱼ _ _ _ _ _ _) =
   refl (substType ⊢A ⊢t)
 neTypeEq (Emptyrecₙ neT) (Emptyrecⱼ x t∷A) (Emptyrecⱼ x₁ t∷B) =
   refl x₁

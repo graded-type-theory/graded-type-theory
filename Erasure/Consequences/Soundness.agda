@@ -3,8 +3,9 @@
 ------------------------------------------------------------------------
 
 open import Definition.Modality
-open import Definition.Modality.Type-restrictions
+open import Definition.Modality.Restrictions
   using (No-erased-matches)
+open import Definition.Modality.Usage.Restrictions
 open import Definition.Typed.EqualityRelation
 import Definition.Untyped hiding (_∷_)
 open import Definition.Typed.Restrictions
@@ -18,38 +19,39 @@ module Erasure.Consequences.Soundness
   (open Definition.Untyped M)
   (𝕄 : Modality M)
   (open Modality 𝕄)
-  (R : Type-restrictions M)
-  (open Definition.Typed R)
+  (TR : Type-restrictions M)
+  (open Definition.Typed TR)
+  (UR : Usage-restrictions M)
   {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   (𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet)
   (consistent : ∀ {t} → Δ ⊢ t ∷ Empty → ⊥)
   -- Erased matches are not allowed unless the context
   -- is empty
-  (no-erased-matches : No-erased-matches 𝕄 R ⊎ k ≡ 0)
-  {{eqrel : EqRelSet R}}
+  (no-erased-matches : No-erased-matches 𝕄 UR ⊎ k ≡ 0)
+  {{eqrel : EqRelSet TR}}
   where
 
 open EqRelSet {{...}}
 
-open import Definition.Typed.Consequences.Inversion R
-open import Definition.Typed.Consequences.Syntactic R
-open import Definition.Typed.Properties R
-open import Definition.LogicalRelation R
+open import Definition.Typed.Consequences.Inversion TR
+open import Definition.Typed.Consequences.Syntactic TR
+open import Definition.Typed.Properties TR
+open import Definition.LogicalRelation TR
 
 open import Definition.Modality.Context 𝕄
-open import Definition.Modality.Usage 𝕄
+open import Definition.Modality.Usage 𝕄 UR
 open import Definition.Modality.Properties.Has-well-behaved-zero
   semiring-with-meet-and-star 𝟘-well-behaved
 open import Definition.Mode 𝕄
 
 import Erasure.Target as T
 open import Erasure.Extraction 𝕄 is-𝟘?
-open import Erasure.SucRed R
-open import Erasure.LogicalRelation 𝕄 R ⊢Δ is-𝟘?
+open import Erasure.SucRed TR
+open import Erasure.LogicalRelation 𝕄 TR ⊢Δ is-𝟘?
 open import Erasure.LogicalRelation.Fundamental
-  𝕄 R ⊢Δ 𝟘-well-behaved consistent no-erased-matches
-open import Erasure.LogicalRelation.Irrelevance 𝕄 R ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Subsumption 𝕄 R ⊢Δ is-𝟘?
+  𝕄 TR UR ⊢Δ 𝟘-well-behaved consistent no-erased-matches
+open import Erasure.LogicalRelation.Irrelevance 𝕄 TR ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Subsumption 𝕄 TR ⊢Δ is-𝟘?
 
 open import Tools.Nat
 open import Tools.Product

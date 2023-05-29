@@ -3,11 +3,16 @@
 ------------------------------------------------------------------------
 
 open import Definition.Modality
+open import Definition.Modality.Usage.Restrictions
 
 module Definition.Modality.Usage
-  {a} {M : Set a} (𝕄 : Modality M) where
+  {a} {M : Set a}
+  (𝕄 : Modality M)
+  (R : Usage-restrictions M)
+  where
 
 open Modality 𝕄
+open Usage-restrictions R
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Mode 𝕄
@@ -82,6 +87,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
   prodrecₘ  : γ ▸[ m ᵐ· r ] t
             → δ ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u
             → η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
+            → Prodrec-restriction r p q
             → r ·ᶜ γ +ᶜ δ ▸[ m ] prodrec r p q A t u
 
   zeroₘ     : 𝟘ᶜ ▸[ m ] zero

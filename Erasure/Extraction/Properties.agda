@@ -23,8 +23,9 @@ open import Definition.Untyped M as U hiding (Wk; Term; wk; wkVar; _[_]; _[_,_];
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
-open import Definition.Modality.Usage 𝕄
-open import Definition.Modality.Usage.Properties 𝕄
+import Definition.Modality.Usage 𝕄 as MU
+import Definition.Modality.Usage.Properties 𝕄 as MUP
+open import Definition.Modality.Usage.Restrictions M
 open import Definition.Mode 𝕄
 
 open import Tools.Fin
@@ -291,98 +292,123 @@ erase-consSubst : (σ : U.Subst m n) (a : U.Term m) (t : T.Term (1+ n))
                 ≡ T.subst (eraseSubst (U.consSubst σ a)) t
 erase-consSubst σ a t = substVar-to-subst (erase-consSubst-var σ a) t
 
--- Erased variables do not occur after extraction
+module _ (R : Usage-restrictions) where
 
-erased-hasX : x ◂ 𝟘 ∈ γ → γ ▸[ 𝟙ᵐ ] t → HasX x (erase t) → ⊥
+  open MU R
+  open MUP R
 
-erased-hasX erased γ▸t@var varₓ =
-  valid-var-usage 𝟘-wb γ▸t (var-usage-lookup erased)
+  -- Erased variables do not occur after extraction
 
-erased-hasX erased (lamₘ γ▸t) (lamₓ hasX) = erased-hasX (there erased) γ▸t hasX
+  erased-hasX : x ◂ 𝟘 ∈ γ → γ ▸[ 𝟙ᵐ ] t → HasX x (erase t) → ⊥
 
-erased-hasX erased (_∘ₘ_ {γ = γ} {δ = δ} {p = p} γ▸t δ▸u) hasX
-  with is-𝟘? p
-erased-hasX erased (_∘ₘ_ {γ = γ} {δ = δ} {p = p} γ▸t δ▸u) (∘ₓˡ hasX) | yes p≡𝟘 =
-  erased-hasX (x◂𝟘∈γ+δˡ 𝟘-wb refl erased) γ▸t hasX
-erased-hasX erased (_∘ₘ_ {γ = γ} {δ = δ} {_} γ▸t δ▸u) (∘ₓˡ hasX) | no _ =
-  erased-hasX (x◂𝟘∈γ+δˡ 𝟘-wb refl erased) γ▸t hasX
-erased-hasX erased (_∘ₘ_ {γ = γ} {δ = δ} {_} γ▸t δ▸u) (∘ₓʳ hasX) | no p≢𝟘 =
-  erased-hasX (x◂𝟘∈pγ 𝟘-wb refl p≢𝟘 (x◂𝟘∈γ+δʳ 𝟘-wb refl erased))
-              (▸-cong (≉𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) δ▸u) hasX
+  erased-hasX erased γ▸t@var varₓ =
+    valid-var-usage 𝟘-wb γ▸t (var-usage-lookup erased)
 
-erased-hasX erased (prodᵣₘ {γ = γ} {p = p} {δ = δ} _ δ▸) hasX
-  with is-𝟘? p
-... | yes refl =
-  erased-hasX
-    (PE.subst (_ ◂ _ ∈_)
-       (≈ᶜ→≡ (begin
-          𝟘 ·ᶜ γ +ᶜ δ  ≈⟨ +ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
-          𝟘ᶜ +ᶜ δ      ≈⟨ +ᶜ-identityˡ _ ⟩
-          δ            ∎))
-       erased)
-    δ▸ hasX
-  where
-  open Tools.Reasoning.Equivalence Conₘ-setoid
-erased-hasX erased (prodᵣₘ {γ = γ} {p = _} {δ = δ} γ▸ _) (prodₓˡ hasX) | no p≢𝟘 =
-  erased-hasX (x◂𝟘∈pγ 𝟘-wb refl p≢𝟘 (x◂𝟘∈γ+δˡ 𝟘-wb refl erased))
-              (▸-cong (≉𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸) hasX
-erased-hasX erased (prodᵣₘ {γ = γ} {p = _} {δ = δ} _ δ▸) (prodₓʳ hasX) | no _ =
-  erased-hasX (x◂𝟘∈γ+δʳ 𝟘-wb refl erased) δ▸ hasX
+  erased-hasX erased (lamₘ γ▸t) (lamₓ hasX) =
+    erased-hasX (there erased) γ▸t hasX
 
-erased-hasX erased (prodₚₘ {γ = γ} {p = p} {δ = δ} _ γ▸u) hasX
-  with is-𝟘? p
-... | yes refl = erased-hasX (x◂𝟘∈γ∧δʳ 𝟘-wb refl erased) γ▸u hasX
-erased-hasX erased (prodₚₘ {γ = γ} {p = p} {δ = δ} γ▸ _) (prodₓˡ hasX) | no p≢𝟘 =
-  erased-hasX (x◂𝟘∈pγ 𝟘-wb refl p≢𝟘 (x◂𝟘∈γ∧δˡ 𝟘-wb refl erased))
-              (▸-cong (≉𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸) hasX
-erased-hasX erased (prodₚₘ {γ = γ} {p = _} {δ = δ} _ δ▸) (prodₓʳ hasX) | no p≢𝟘 =
-  erased-hasX erased (sub δ▸ (∧ᶜ-decreasingʳ _ _)) hasX
+  erased-hasX erased (_∘ₘ_ {γ = γ} {δ = δ} {p = p} γ▸t δ▸u) hasX
+    with is-𝟘? p
+  erased-hasX erased (_∘ₘ_ {γ = γ} {δ = δ} {p = p} γ▸t δ▸u) (∘ₓˡ hasX)
+    | yes p≡𝟘 =
+    erased-hasX (x◂𝟘∈γ+δˡ 𝟘-wb refl erased) γ▸t hasX
+  erased-hasX erased (_∘ₘ_ {γ = γ} {δ = δ} {_} γ▸t δ▸u) (∘ₓˡ hasX)
+    | no _ =
+    erased-hasX (x◂𝟘∈γ+δˡ 𝟘-wb refl erased) γ▸t hasX
+  erased-hasX erased (_∘ₘ_ {γ = γ} {δ = δ} {_} γ▸t δ▸u) (∘ₓʳ hasX)
+    | no p≢𝟘 =
+    erased-hasX (x◂𝟘∈pγ 𝟘-wb refl p≢𝟘 (x◂𝟘∈γ+δʳ 𝟘-wb refl erased))
+                (▸-cong (≉𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) δ▸u) hasX
 
-erased-hasX erased (fstₘ {p = p} _ _ _ _) hasX with is-𝟘? p
-erased-hasX erased (fstₘ {p = _} _ _ _ _) () | yes _
-erased-hasX erased (fstₘ {p = _} 𝟘ᵐ _ () _) (fstₓ hasX) | no _
-erased-hasX erased (fstₘ {p = _} 𝟙ᵐ γ▸ _ _) (fstₓ hasX) | no p≢𝟘 =
-  erased-hasX erased (▸-cong (≉𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸) hasX
+  erased-hasX erased (prodᵣₘ {γ = γ} {p = p} {δ = δ} _ δ▸) hasX
+    with is-𝟘? p
+  ... | yes refl =
+    erased-hasX
+      (PE.subst (_ ◂ _ ∈_)
+         (≈ᶜ→≡ (begin
+            𝟘 ·ᶜ γ +ᶜ δ  ≈⟨ +ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
+            𝟘ᶜ +ᶜ δ      ≈⟨ +ᶜ-identityˡ _ ⟩
+            δ            ∎))
+         erased)
+      δ▸ hasX
+    where
+    open Tools.Reasoning.Equivalence Conₘ-setoid
+  erased-hasX erased (prodᵣₘ {γ = γ} {p = _} {δ = δ} γ▸ _) (prodₓˡ hasX)
+    | no p≢𝟘 =
+    erased-hasX (x◂𝟘∈pγ 𝟘-wb refl p≢𝟘 (x◂𝟘∈γ+δˡ 𝟘-wb refl erased))
+                (▸-cong (≉𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸) hasX
+  erased-hasX erased (prodᵣₘ {γ = γ} {p = _} {δ = δ} _ δ▸) (prodₓʳ hasX)
+    | no _ =
+    erased-hasX (x◂𝟘∈γ+δʳ 𝟘-wb refl erased) δ▸ hasX
+
+  erased-hasX erased (prodₚₘ {γ = γ} {p = p} {δ = δ} _ γ▸u) hasX
+    with is-𝟘? p
+  ... | yes refl = erased-hasX (x◂𝟘∈γ∧δʳ 𝟘-wb refl erased) γ▸u hasX
+  erased-hasX erased (prodₚₘ {γ = γ} {p = p} {δ = δ} γ▸ _) (prodₓˡ hasX)
+    | no p≢𝟘 =
+    erased-hasX (x◂𝟘∈pγ 𝟘-wb refl p≢𝟘 (x◂𝟘∈γ∧δˡ 𝟘-wb refl erased))
+                (▸-cong (≉𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸) hasX
+  erased-hasX erased (prodₚₘ {γ = γ} {p = _} {δ = δ} _ δ▸) (prodₓʳ hasX)
+    | no p≢𝟘 =
+    erased-hasX erased (sub δ▸ (∧ᶜ-decreasingʳ _ _)) hasX
+
+  erased-hasX erased (fstₘ {p = p} _ _ _ _) hasX with is-𝟘? p
+  erased-hasX erased (fstₘ {p = _} _ _ _ _) () | yes _
+  erased-hasX erased (fstₘ {p = _} 𝟘ᵐ _ () _) (fstₓ hasX) | no _
+  erased-hasX erased (fstₘ {p = _} 𝟙ᵐ γ▸ _ _) (fstₓ hasX) | no p≢𝟘 =
+    erased-hasX erased (▸-cong (≉𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸) hasX
 
 
-erased-hasX erased (sndₘ {p = p} γ▸) hasX with is-𝟘? p
-... | yes _ = erased-hasX erased γ▸ hasX
-erased-hasX erased (sndₘ {p = _} γ▸) (sndₓ hasX) | no _ =
-  erased-hasX erased γ▸ hasX
+  erased-hasX erased (sndₘ {p = p} γ▸) hasX with is-𝟘? p
+  ... | yes _ = erased-hasX erased γ▸ hasX
+  erased-hasX erased (sndₘ {p = _} γ▸) (sndₓ hasX) | no _ =
+    erased-hasX erased γ▸ hasX
 
-erased-hasX erased (prodrecₘ {r = r} {p = p} ▸t ▸u _) hasX with is-𝟘? r
-erased-hasX erased (prodrecₘ ▸t ▸u _) (prodrecₓˡ (prodₓˡ ())) | yes _
-erased-hasX erased (prodrecₘ ▸t ▸u _) (prodrecₓˡ (prodₓʳ ())) | yes _
-erased-hasX erased (prodrecₘ ▸t ▸u _) (prodrecₓʳ hasX) | yes _ =
-  erased-hasX (there (there (x◂𝟘∈γ+δʳ 𝟘-wb refl erased))) ▸u hasX
-... | no _ with is-𝟘? p
-erased-hasX erased (prodrecₘ ▸t ▸u _)
-            (prodrecₓˡ (prodₓʳ hasX)) | no r≢𝟘 | yes _ =
-  erased-hasX (x◂𝟘∈pγ 𝟘-wb refl r≢𝟘 (x◂𝟘∈γ+δˡ 𝟘-wb refl erased))
-              (▸-cong (≉𝟘→⌞⌟≡𝟙ᵐ r≢𝟘) ▸t) hasX
-erased-hasX erased (prodrecₘ ▸t ▸u _) (prodrecₓʳ hasX) | no _ | yes _ =
-  erased-hasX (there (there (x◂𝟘∈γ+δʳ 𝟘-wb refl erased))) ▸u hasX
-erased-hasX erased (prodrecₘ ▸t ▸u _) (prodrecₓˡ hasX) | no r≢𝟘 | no _ =
-  erased-hasX (x◂𝟘∈pγ 𝟘-wb refl r≢𝟘 (x◂𝟘∈γ+δˡ 𝟘-wb refl erased))
-              (▸-cong (≉𝟘→⌞⌟≡𝟙ᵐ r≢𝟘) ▸t) hasX
-erased-hasX erased (prodrecₘ ▸t ▸u _) (prodrecₓʳ hasX) | no _ | no _ =
-  erased-hasX (there (there (x◂𝟘∈γ+δʳ 𝟘-wb refl erased))) ▸u hasX
+  erased-hasX erased (prodrecₘ {r = r} {p = p} ▸t ▸u _ _) hasX
+    with is-𝟘? r
+  erased-hasX erased (prodrecₘ ▸t ▸u _ _) (prodrecₓˡ (prodₓˡ ()))
+    | yes _
+  erased-hasX erased (prodrecₘ ▸t ▸u _ _) (prodrecₓˡ (prodₓʳ ()))
+    | yes _
+  erased-hasX erased (prodrecₘ ▸t ▸u _ _) (prodrecₓʳ hasX) | yes _ =
+    erased-hasX (there (there (x◂𝟘∈γ+δʳ 𝟘-wb refl erased))) ▸u hasX
+  ... | no _ with is-𝟘? p
+  erased-hasX erased (prodrecₘ ▸t ▸u _ _)
+              (prodrecₓˡ (prodₓʳ hasX)) | no r≢𝟘 | yes _ =
+    erased-hasX (x◂𝟘∈pγ 𝟘-wb refl r≢𝟘 (x◂𝟘∈γ+δˡ 𝟘-wb refl erased))
+                (▸-cong (≉𝟘→⌞⌟≡𝟙ᵐ r≢𝟘) ▸t) hasX
+  erased-hasX erased (prodrecₘ ▸t ▸u _ _) (prodrecₓʳ hasX)
+    | no _ | yes _ =
+    erased-hasX (there (there (x◂𝟘∈γ+δʳ 𝟘-wb refl erased))) ▸u hasX
+  erased-hasX erased (prodrecₘ ▸t ▸u _ _) (prodrecₓˡ hasX)
+    | no r≢𝟘 | no _ =
+    erased-hasX (x◂𝟘∈pγ 𝟘-wb refl r≢𝟘 (x◂𝟘∈γ+δˡ 𝟘-wb refl erased))
+                (▸-cong (≉𝟘→⌞⌟≡𝟙ᵐ r≢𝟘) ▸t) hasX
+  erased-hasX erased (prodrecₘ ▸t ▸u _ _) (prodrecₓʳ hasX)
+    | no _ | no _ =
+    erased-hasX (there (there (x◂𝟘∈γ+δʳ 𝟘-wb refl erased))) ▸u hasX
 
-erased-hasX erased (sucₘ γ▸t) (sucₓ hasX) =
-  erased-hasX erased γ▸t hasX
+  erased-hasX erased (sucₘ γ▸t) (sucₓ hasX) =
+    erased-hasX erased γ▸t hasX
 
-erased-hasX erased (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} γ▸z δ▸s η▸n θ▸A)
-            (natrecₓᶻ hasX) =
-  erased-hasX erased (sub γ▸z (≤ᶜ-trans (⊛ᶜ-ineq₂ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r)
-                                        (∧ᶜ-decreasingˡ γ η)))
-              hasX
-erased-hasX erased (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} γ▸z δ▸s η▸n θ▸A)
-            (natrecₓˢ hasX) =
-  erased-hasX (there (there (x◂𝟘∈γ+δˡ 𝟘-wb refl (x◂𝟘∈γ⊛δʳ 𝟘-wb refl erased))))
-              δ▸s hasX
-erased-hasX erased (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} γ▸z δ▸s η▸n θ▸A)
-            (natrecₓⁿ hasX) =
-  erased-hasX (x◂𝟘∈γ∧δʳ 𝟘-wb refl (x◂𝟘∈γ⊛δˡ 𝟘-wb refl erased)) η▸n hasX
+  erased-hasX erased
+    (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} γ▸z δ▸s η▸n θ▸A)
+    (natrecₓᶻ hasX) =
+    erased-hasX erased
+      (sub γ▸z (≤ᶜ-trans (⊛ᶜ-ineq₂ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r)
+                         (∧ᶜ-decreasingˡ γ η)))
+      hasX
+  erased-hasX erased
+    (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} γ▸z δ▸s η▸n θ▸A)
+    (natrecₓˢ hasX) =
+    erased-hasX
+      (there (there (x◂𝟘∈γ+δˡ 𝟘-wb refl (x◂𝟘∈γ⊛δʳ 𝟘-wb refl erased))))
+      δ▸s hasX
+  erased-hasX erased
+    (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} γ▸z δ▸s η▸n θ▸A)
+    (natrecₓⁿ hasX) =
+    erased-hasX (x◂𝟘∈γ∧δʳ 𝟘-wb refl (x◂𝟘∈γ⊛δˡ 𝟘-wb refl erased))
+      η▸n hasX
 
-erased-hasX erased (sub δ▸t γ≤δ) hasX =
-  erased-hasX (x◂𝟘∈γ≤δ 𝟘-wb erased γ≤δ) δ▸t hasX
+  erased-hasX erased (sub δ▸t γ≤δ) hasX =
+    erased-hasX (x◂𝟘∈γ≤δ 𝟘-wb erased γ≤δ) δ▸t hasX

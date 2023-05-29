@@ -3,17 +3,21 @@
 ------------------------------------------------------------------------
 
 open import Definition.Modality
+open import Definition.Modality.Usage.Restrictions
 
 module Definition.Modality.Usage.Weakening
-  {a} {M : Set a} (𝕄 : Modality M) where
+  {a} {M : Set a}
+  (𝕄 : Modality M)
+  (R : Usage-restrictions M)
+  where
 
 open Modality 𝕄
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
 open import Definition.Modality.Properties 𝕄
-open import Definition.Modality.Usage 𝕄
-open import Definition.Modality.Usage.Properties 𝕄
+open import Definition.Modality.Usage 𝕄 R
+open import Definition.Modality.Usage.Properties 𝕄 R
 open import Definition.Mode 𝕄
 open import Definition.Untyped M hiding (_∙_ ; subst)
 open import Definition.Untyped.Inversion M
@@ -129,10 +133,10 @@ wkUsage ρ (prodₚₘ γ▸t γ▸u) = sub
   (≤ᶜ-reflexive (≈ᶜ-trans (wk-∧ᶜ ρ) (∧ᶜ-congʳ (wk-·ᶜ ρ))))
 wkUsage ρ (fstₘ m γ▸t PE.refl ok) = fstₘ m (wkUsage ρ γ▸t) PE.refl ok
 wkUsage ρ (sndₘ γ▸t) = sndₘ (wkUsage ρ γ▸t)
-wkUsage ρ (prodrecₘ γ▸t δ▸u η▸A) =
+wkUsage ρ (prodrecₘ γ▸t δ▸u η▸A ok) =
   sub (prodrecₘ (wkUsage ρ γ▸t) (wkUsage (liftn ρ 2) δ▸u)
-         (wkUsage (lift ρ) η▸A))
-      (≤ᶜ-reflexive (≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-congʳ (wk-·ᶜ ρ))))
+         (wkUsage (lift ρ) η▸A) ok)
+    (≤ᶜ-reflexive (≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-congʳ (wk-·ᶜ ρ))))
 wkUsage ρ zeroₘ =
   PE.subst (λ γ → γ ▸[ _ ] zero) (PE.sym (wk-𝟘ᶜ ρ)) zeroₘ
 wkUsage ρ (sucₘ γ▸t) = sucₘ (wkUsage ρ γ▸t)
@@ -489,7 +493,7 @@ wkUsage⁻¹ 𝟘ᵐ-ok = λ ▸t → wkUsage⁻¹′ ▸t ≤ᶜ-refl
         case wk-snd eq of λ {
           (_ , refl , refl) →
         sndₘ (wkUsage⁻¹′ ▸t leq) }
-      (prodrecₘ {r = r} ▸t ▸u ▸A) leq eq →
+      (prodrecₘ {r = r} ▸t ▸u ▸A ok) leq eq →
         case wk-prodrec eq of λ {
           (_ , _ , _ , refl , refl , refl , refl) →
         case wkConₘ-+ᶜ 𝟘ᵐ-ok ρ leq of λ {
@@ -499,7 +503,8 @@ wkUsage⁻¹ 𝟘ᵐ-ok = λ ▸t → wkUsage⁻¹′ ▸t ≤ᶜ-refl
             (prodrecₘ
                (wkUsage⁻¹′ ▸t leq₄)
                (wkUsage⁻¹′ ▸u (leq₃ ∙ ≤-refl ∙ ≤-refl))
-               (wkUsage⁻¹-𝟘ᵐ?-∙ ▸A))
+               (wkUsage⁻¹-𝟘ᵐ?-∙ ▸A)
+               ok)
             (begin
                γ            ≤⟨ leq₁ ⟩
                δ +ᶜ η       ≤⟨ +ᶜ-monotoneˡ leq₂ ⟩
@@ -508,7 +513,8 @@ wkUsage⁻¹ 𝟘ᵐ-ok = λ ▸t → wkUsage⁻¹′ ▸t ≤ᶜ-refl
             (prodrecₘ
                (wkUsage⁻¹-ᵐ·𝟘 m′ ▸t)
                (wkUsage⁻¹′ ▸u (leq₃ ∙ ≤-refl ∙ ≤-refl))
-               (wkUsage⁻¹-𝟘ᵐ?-∙ ▸A))
+               (wkUsage⁻¹-𝟘ᵐ?-∙ ▸A)
+               ok)
             (begin
                γ             ≤⟨ leq₁ ⟩
                δ +ᶜ η        ≤⟨ +ᶜ-monotoneˡ leq₂ ⟩

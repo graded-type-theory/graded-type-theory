@@ -48,7 +48,7 @@ deterministic⇉ (sndᵢ x x₁) (sndᵢ y x₂)
   rewrite deterministic⇉ x y
   with B-PE-injectivity BΣ! BΣ! (whrDet* x₁ x₂)
 ... | PE.refl , PE.refl , _ = PE.refl
-deterministic⇉ (prodrecᵢ _ _ _ _ _) (prodrecᵢ _ _ _ _ _) = PE.refl
+deterministic⇉ (prodrecᵢ _ _ _ _) (prodrecᵢ _ _ _ _) = PE.refl
 deterministic⇉ ℕᵢ ℕᵢ = PE.refl
 deterministic⇉ zeroᵢ zeroᵢ = PE.refl
 deterministic⇉ (sucᵢ x) (sucᵢ x₁) = PE.refl

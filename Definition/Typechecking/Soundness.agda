@@ -72,15 +72,15 @@ mutual
         _ , ⊢ΣFG = syntacticEq A≡ΣFG
         ⊢F , ⊢G = syntacticΣ ⊢ΣFG
     in  substType ⊢G (fstⱼ ⊢F ⊢G (conv ⊢t A≡ΣFG)) , sndⱼ ⊢F ⊢G (conv ⊢t A≡ΣFG)
-  soundness⇉ ⊢Γ (prodrecᵢ A⇇Type t⇉B (B⇒ΣFG , _) u⇇A₊ ok₂) =
+  soundness⇉ ⊢Γ (prodrecᵢ A⇇Type t⇉B (B⇒ΣFG , _) u⇇A₊) =
     let ⊢B , ⊢t = soundness⇉ ⊢Γ t⇉B
         B≡ΣFG = subset* B⇒ΣFG
         ⊢t′ = conv ⊢t B≡ΣFG
         _ , ⊢ΣFG = syntacticEq B≡ΣFG
-        ⊢F , ⊢G , ok₁ = inversion-ΠΣ ⊢ΣFG
+        ⊢F , ⊢G , ok = inversion-ΠΣ ⊢ΣFG
         ⊢A = soundness⇇Type (⊢Γ ∙ ⊢ΣFG) A⇇Type
         ⊢u = soundness⇇ (⊢Γ ∙ ⊢F ∙ ⊢G) u⇇A₊
-    in  substType ⊢A ⊢t′ , prodrecⱼ ⊢F ⊢G ⊢A ⊢t′ ⊢u ok₁ ok₂
+    in  substType ⊢A ⊢t′ , prodrecⱼ ⊢F ⊢G ⊢A ⊢t′ ⊢u ok
   soundness⇉ ⊢Γ ℕᵢ = Uⱼ ⊢Γ , ℕⱼ ⊢Γ
   soundness⇉ ⊢Γ zeroᵢ = (ℕⱼ ⊢Γ) , (zeroⱼ ⊢Γ)
   soundness⇉ ⊢Γ (sucᵢ t⇇ℕ) = (ℕⱼ ⊢Γ) , (sucⱼ (soundness⇇ ⊢Γ t⇇ℕ))

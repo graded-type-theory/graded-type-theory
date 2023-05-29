@@ -15,7 +15,7 @@ import Definition.Modality.Properties.Meet as Meet
 import Definition.Modality.Properties.Multiplication as Multiplication
 import Definition.Modality.Properties.PartialOrder as PartialOrder
 import Definition.Modality.Properties.Star as Star
-import Definition.Modality.Type-restrictions
+import Definition.Modality.Restrictions
 
 open import Definition.Mode.Restrictions
 

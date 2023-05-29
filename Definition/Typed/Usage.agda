@@ -4,29 +4,31 @@
 ------------------------------------------------------------------------
 
 open import Definition.Modality
+open import Definition.Modality.Usage.Restrictions
 open import Definition.Typed.Restrictions
 
 module Definition.Typed.Usage
   {a} {M : Set a}
   (𝕄 : Modality M)
-  (R : Type-restrictions M)
+  (TR : Type-restrictions M)
+  (UR : Usage-restrictions M)
   where
 
 open Modality 𝕄
-open Type-restrictions R
+open Type-restrictions TR
 
-open import Definition.Conversion.FullReduction R
+open import Definition.Conversion.FullReduction TR
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
 open import Definition.Modality.Properties 𝕄
-open import Definition.Modality.Substitution.Properties 𝕄
-open import Definition.Modality.Usage 𝕄
-open import Definition.Modality.Usage.Inversion 𝕄
-open import Definition.Modality.Usage.Properties 𝕄
+open import Definition.Modality.Substitution.Properties 𝕄 UR
+open import Definition.Modality.Usage 𝕄 UR
+open import Definition.Modality.Usage.Inversion 𝕄 UR
+open import Definition.Modality.Usage.Properties 𝕄 UR
 open import Definition.Mode 𝕄
-open import Definition.Typed R
-open import Definition.Typed.Consequences.DerivedRules R
-open import Definition.Typed.Eta-long-normal-form R
+open import Definition.Typed TR
+open import Definition.Typed.Consequences.DerivedRules TR
+open import Definition.Typed.Eta-long-normal-form TR
 open import Definition.Untyped M hiding (_∷_)
 
 open import Tools.Empty
@@ -147,15 +149,15 @@ usagePresTerm {γ = γ} γ▸natrec (natrec-suc {p = p} {r = r} x x₁ x₂ x₃
   where
   open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-usagePresTerm γ▸prodrec (prodrec-subst x x₁ x₂ x₃ x₄ _ _) =
-  let invUsageProdrec δ▸t η▸u θ▸A γ≤γ′ = inv-usage-prodrec γ▸prodrec
-  in  sub (prodrecₘ (usagePresTerm δ▸t x₄) η▸u θ▸A) γ≤γ′
+usagePresTerm γ▸prodrec (prodrec-subst x x₁ x₂ x₃ x₄ _) =
+  let invUsageProdrec δ▸t η▸u θ▸A ok γ≤γ′ = inv-usage-prodrec γ▸prodrec
+  in  sub (prodrecₘ (usagePresTerm δ▸t x₄) η▸u θ▸A ok) γ≤γ′
 usagePresTerm
   {γ = γ} {m = m} γ▸prodrec
   (prodrec-β {p = p} {r = r} {t = t} {t′ = t′} {u = u}
-     _ _ _ _ _ _ PE.refl _ _) =
+     _ _ _ _ _ _ PE.refl _) =
   case inv-usage-prodrec γ▸prodrec of λ where
-    (invUsageProdrec {δ = δ} {η = η} ▸t ▸u _ γ≤rδ+η) →
+    (invUsageProdrec {δ = δ} {η = η} ▸t ▸u _ _ γ≤rδ+η) →
       case inv-usage-prodᵣ ▸t of λ where
         (invUsageProdᵣ {δ = δ′} {η = η′} ▸t₁ ▸t₂ δ≤pδ′+η′) → sub
           (doubleSubstₘ-lemma₂ ▸u ▸t₂ (▸-cong (ᵐ·-·-assoc m) ▸t₁))

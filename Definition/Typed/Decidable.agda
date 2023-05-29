@@ -16,8 +16,6 @@ module Definition.Typed.Decidable
   (Unit-ok? : Dec Unit-restriction)
   -- ΠΣ-restriction is pointwise decidable.
   (ΠΣ-ok? : ∀ b p q → Dec (ΠΣ-restriction b p q))
-  -- Prodrec-restriction is pointwise decidable.
-  (Prodrec-ok? : ∀ r p q → Dec (Prodrec-restriction r p q))
   where
 
 open import Definition.Untyped M hiding (_∷_)
@@ -25,8 +23,7 @@ open import Definition.Typed R
 open import Definition.Typechecking R
 open import Definition.Typechecking.Soundness R
 open import Definition.Typechecking.Completeness R
-open import Definition.Typechecking.Decidable
-  R _≟_ Unit-ok? ΠΣ-ok? Prodrec-ok?
+open import Definition.Typechecking.Decidable R _≟_ Unit-ok? ΠΣ-ok?
 
 open import Tools.Function
 open import Tools.Nat

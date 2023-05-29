@@ -7,10 +7,12 @@ open import Definition.Modality.Morphism as M
   using (Is-morphism; Is-order-embedding;
          Is-Σ-morphism; Is-Σ-order-embedding)
   hiding (module Is-morphism; module Is-order-embedding)
+open import Definition.Modality.Usage.Restrictions
 
 module Definition.Modality.Usage.QuantityTranslation
   {a₁ a₂} {M₁ : Set a₁} {M₂ : Set a₂}
   (𝕄₁ : Modality M₁) (𝕄₂ : Modality M₂)
+  (R₁ : Usage-restrictions M₁) (R₂ : Usage-restrictions M₂)
   (tr tr-Σ : M₁ → M₂)
   where
 
@@ -23,7 +25,8 @@ open import Definition.Modality.Context.QuantityTranslation 𝕄₁ 𝕄₂ tr
   as CQ using (tr-Conₘ)
 import Definition.Modality.Properties
 open import Definition.Modality.Usage
-open import Definition.Modality.Usage.Properties 𝕄₂
+open import Definition.Modality.Usage.Properties 𝕄₂ R₂
+open import Definition.Modality.Morphism.Usage-restrictions
 
 open import Definition.Mode
 open import Definition.Mode.QuantityTranslation 𝕄₁ 𝕄₂ tr tr-Σ
@@ -37,8 +40,8 @@ private
   module CP₁ = Definition.Modality.Context.Properties 𝕄₁
   module CP₂ = Definition.Modality.Context.Properties 𝕄₂
   module MP₁ = Definition.Modality.Properties 𝕄₁
-  module U₁  = Definition.Modality.Usage 𝕄₁
-  module U₂  = Definition.Modality.Usage 𝕄₂
+  module U₁  = Definition.Modality.Usage 𝕄₁ R₁
+  module U₂  = Definition.Modality.Usage 𝕄₂ R₂
   module Mo₁ = Definition.Mode 𝕄₁
   module Mo₂ = Definition.Mode 𝕄₂
   module M₁  = Modality 𝕄₁
@@ -68,13 +71,15 @@ private variable
 
 ------------------------------------------------------------------------
 -- If certain properties hold, then they hold also after translation
--- by morphisms
+-- by morphisms that preserve usage restrictions
 
 module Is-morphism
   (tr-m   : Is-morphism 𝕄₁ 𝕄₂ tr)
   (tr-Σ-m : Is-Σ-morphism 𝕄₁ 𝕄₂ tr tr-Σ)
+  (r      : Are-preserving-usage-restrictions R₁ R₂ tr tr-Σ)
   where
 
+  open Are-preserving-usage-restrictions r
   open CQ.Is-morphism tr-m
   open M.Is-morphism tr-m
   open M.Is-Σ-morphism tr-Σ-m
@@ -150,16 +155,16 @@ module Is-morphism
          tr-Σ p C₂.·ᶜ tr-Conₘ γ C₂.∧ᶜ tr-Conₘ δ  ∎)
       where
       open CR₂
-    tr-▸ (fstₘ {p = p} m ▸t refl ok′) = fstₘ
+    tr-▸ (fstₘ {p = p} m ▸t refl ok) = fstₘ
       (tr-Mode m)
       (▸-cong (tr-Mode-ᵐ· m (BMΣ Σₚ)) (tr-▸ ▸t))
       (sym (tr-Mode-ᵐ· m (BMΣ Σₚ)))
-      λ mp≡𝟙 → tr-Σ-≤-𝟙 (ok′ (tr-Mode-injective mp≡𝟙))
+      λ mp≡𝟙 → tr-Σ-≤-𝟙 (ok (tr-Mode-injective mp≡𝟙))
     tr-▸ (sndₘ ▸t) =
       sndₘ (tr-▸ ▸t)
     tr-▸
       (prodrecₘ {γ = γ} {m = m} {r = r} {δ = δ} {p = p} {η = η} {q = q}
-         ▸t ▸u ▸Q) = sub
+         ▸t ▸u ▸Q ok) = sub
       (prodrecₘ (▸-cong (tr-Mode-ᵐ· m BMΠ) (tr-▸ ▸t))
          (sub (tr-▸ ▸u) (begin
             tr-Conₘ δ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr r M₂.· tr-Σ p ∙
@@ -170,7 +175,8 @@ module Is-morphism
 
             tr-Conₘ δ ∙ tr (Mo₁.⌜ m ⌝ M₁.· r M₁.· p) ∙
             tr (Mo₁.⌜ m ⌝ M₁.· r)                                  ∎))
-         (tr-∙▸[𝟘̂ᵐ?] ▸Q))
+         (tr-∙▸[𝟘̂ᵐ?] ▸Q)
+         (Prodrec-preserved ok))
       (begin
          tr-Conₘ (r C₁.·ᶜ γ C₁.+ᶜ δ)           ≤⟨ tr-Conₘ-+ᶜ ⟩
          tr-Conₘ (r C₁.·ᶜ γ) C₂.+ᶜ tr-Conₘ δ   ≈⟨ +ᶜ-congʳ tr-Conₘ-·ᶜ ⟩
@@ -261,14 +267,17 @@ module Is-morphism
         open CR₂
 
 ------------------------------------------------------------------------
--- If certain properties hold after translation by order embeddings,
--- then they hold also before translation
+-- If certain properties hold after translation by order embeddings
+-- that reflect usage restrictions, then they hold also before
+-- translation
 
 module Is-order-embedding
   (tr-emb   : Is-order-embedding 𝕄₁ 𝕄₂ tr)
   (tr-Σ-emb : Is-Σ-order-embedding 𝕄₁ 𝕄₂ tr tr-Σ)
+  (r        : Are-reflecting-usage-restrictions R₁ R₂ tr tr-Σ)
   where
 
+  open Are-reflecting-usage-restrictions r
   open CQ.Is-order-embedding tr-emb
   open CQ.Is-Σ-order-embedding tr-Σ-emb
   open M.Is-order-embedding tr-emb
@@ -347,11 +356,12 @@ module Is-order-embedding
       (Mo₁.Mode-propositional-without-𝟘ᵐ (flip MP₁.𝟘ᵐ→𝟙≉𝟘 𝟙≡𝟘))
       λ {refl → MP₁.≤-reflexive (MP₁.≈-trivial 𝟙≡𝟘)}
 
-    tr-▸⁻¹-𝟙≡𝟘′ (prodrec _ _ _ _ _ _) (prodrecₘ ▸t ▸u ▸Q) = sub
+    tr-▸⁻¹-𝟙≡𝟘′ (prodrec _ _ _ _ _ _) (prodrecₘ ▸t ▸u ▸Q ok) = sub
       (prodrecₘ {δ = C₁.𝟘ᶜ} {η = C₁.𝟘ᶜ}
          (tr-▸⁻¹-𝟙≡𝟘′ _ ▸t)
          (tr-▸⁻¹-𝟙≡𝟘″ ▸u)
-         (tr-▸⁻¹-𝟙≡𝟘″ ▸Q))
+         (tr-▸⁻¹-𝟙≡𝟘″ ▸Q)
+         (Prodrec-reflected ok))
       (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
 
     tr-▸⁻¹-𝟙≡𝟘′ (natrec _ _ _ _ _ _ _) (natrecₘ ▸z ▸s ▸n ▸P) = sub
@@ -518,7 +528,7 @@ module Is-order-embedding
 
     tr-▸⁻¹′
       {m = m} {γ = γ} (prodrec r p _ _ _ _)
-      (prodrecₘ {γ = δ} {δ = η} ▸t ▸u ▸Q) refl γ≤rδ+η =
+      (prodrecₘ {γ = δ} {δ = η} ▸t ▸u ▸Q ok) refl γ≤rδ+η =
       case tr-Conₘ-≤ᶜ-+ᶜ γ≤rδ+η of
         λ (δ′ , η′ , δ′≤rδ , η′≤η , γ≤δ′+η′) →
       case tr-Conₘ-≤ᶜ-·ᶜ δ′≤rδ of
@@ -534,7 +544,8 @@ module Is-order-embedding
 
               η ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr r M₂.· tr-Σ p ∙
               Mo₂.⌜ tr-Mode m ⌝ M₂.· tr r                    ∎)
-           (tr-∙▸[𝟘̂ᵐ?]⁻¹ ▸Q .proj₂))
+           (tr-∙▸[𝟘̂ᵐ?]⁻¹ ▸Q .proj₂)
+           (Prodrec-reflected ok))
         (let open CR₁ in begin
            γ                    ≤⟨ γ≤δ′+η′ ⟩
            δ′ C₁.+ᶜ η′          ≤⟨ CP₁.+ᶜ-monotoneˡ δ′≤rδ″ ⟩

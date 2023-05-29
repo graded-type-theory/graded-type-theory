@@ -4,11 +4,13 @@
 ------------------------------------------------------------------------
 
 open import Definition.Modality
+open import Definition.Modality.Usage.Restrictions
 
 module Definition.Modality.Usage.Unrestricted.Eta
   {a} {M : Set a}
   (𝕄 : Modality M)
   (open Modality 𝕄)
+  (R : Usage-restrictions M)
   -- A quantity that stands for "an unlimited number of uses".
   (ω : M)
   -- The quantity ω is strictly below 𝟘.
@@ -20,9 +22,9 @@ module Definition.Modality.Usage.Unrestricted.Eta
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
 open import Definition.Modality.Properties 𝕄
-open import Definition.Modality.Usage 𝕄
-open import Definition.Modality.Usage.Inversion 𝕄
-open import Definition.Modality.Usage.Properties 𝕄
+open import Definition.Modality.Usage 𝕄 R
+open import Definition.Modality.Usage.Inversion 𝕄 R
+open import Definition.Modality.Usage.Properties 𝕄 R
 
 open import Definition.Mode 𝕄
 

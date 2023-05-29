@@ -50,12 +50,12 @@ mutual
         ⊢F = proj₁ (syntacticEq F≡G)
     in  natrec-cong ⊢F F≡G (soundnessConv↑Term x₂)
                     (soundnessConv↑Term x₃) (soundness~↓ k~l)
-  soundness~↑ (prodrec-cong x x₁ x₂ ok₂) =
+  soundness~↑ (prodrec-cong x x₁ x₂) =
     let C≡E = soundnessConv↑ x
         g≡h = soundness~↓ x₁
         u≡v = soundnessConv↑Term x₂
-        ⊢F , ⊢G , ok₁ = inversion-ΠΣ (proj₁ (syntacticEqTerm g≡h))
-    in  prodrec-cong ⊢F ⊢G C≡E g≡h u≡v ok₁ ok₂
+        ⊢F , ⊢G , ok = inversion-ΠΣ (proj₁ (syntacticEqTerm g≡h))
+    in  prodrec-cong ⊢F ⊢G C≡E g≡h u≡v ok
   soundness~↑ (Emptyrec-cong x₁ k~l) =
     Emptyrec-cong (soundnessConv↑ x₁) (soundness~↓ k~l)
 

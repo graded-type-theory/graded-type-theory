@@ -6,7 +6,8 @@
 import Definition.Modality.Instances.Erasure.Modality
 open import Definition.Modality.Instances.Erasure
 
-open import Definition.Modality.Type-restrictions
+open import Definition.Modality.Restrictions
+open import Definition.Modality.Usage.Restrictions Erasure
 open import Definition.Mode.Restrictions
 import Definition.Typed
 open import Definition.Typed.Restrictions Erasure
@@ -17,22 +18,23 @@ open import Tools.Empty
 module Application.NegativeAxioms.Canonicity.Erased
   (mrs : Mode-restrictions)
   (open Definition.Modality.Instances.Erasure.Modality mrs)
-  (R : Type-restrictions)
-  (open Definition.Typed R)
+  (TR : Type-restrictions)
+  (open Definition.Typed TR)
+  (UR : Usage-restrictions)
   -- Erased matches are not allowed.
-  (no-erased-matches : No-erased-matches ErasureModality R)
+  (no-erased-matches : No-erased-matches ErasureModality UR)
   {m} {Γ : Con Term m} (consistent : ∀{t} → Γ ⊢ t ∷ Empty → ⊥)
   where
 
 open import Definition.Modality.Context ErasureModality
-open import Definition.Modality.Usage ErasureModality
+open import Definition.Modality.Usage ErasureModality UR
 open import Definition.Mode ErasureModality
 import Application.NegativeAxioms.Canonicity.NegativeErased
-  mrs R no-erased-matches
+  mrs TR UR no-erased-matches
   as NE
 open import Application.NegativeAxioms.NegativeErasedContext
-  ErasureModality (λ ()) R
-open import Erasure.SucRed R
+  ErasureModality (λ ()) TR
+open import Erasure.SucRed TR
 
 open import Tools.Nat
 open import Tools.Product

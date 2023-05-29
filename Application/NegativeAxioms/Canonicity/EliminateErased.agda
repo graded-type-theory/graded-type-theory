@@ -21,8 +21,9 @@ open import Definition.Untyped Erasure hiding (_∷_)
 open import Definition.Modality.Context ErasureModality
 open import Definition.Modality.Context.Properties ErasureModality
 open import Definition.Modality.Properties ErasureModality
-open import Definition.Modality.Type-restrictions {M = Erasure}
-open import Definition.Modality.Usage ErasureModality
+open import Definition.Modality.Restrictions {M = Erasure}
+import Definition.Modality.Usage
+open import Definition.Modality.Usage.Restrictions Erasure
 open import Definition.Mode ErasureModality
 
 import Erasure.SucRed
@@ -55,6 +56,7 @@ module Counterexample where
   open Definition.Conversion no-type-restrictions
   open Definition.Conversion.Consequences.Completeness
     no-type-restrictions
+  open Definition.Modality.Usage ErasureModality no-usage-restrictions
   open Definition.Typed no-type-restrictions
   open Definition.Typed.Consequences.Canonicity no-type-restrictions
   open Definition.Typed.Consequences.Substitution no-type-restrictions
@@ -80,7 +82,7 @@ module Counterexample where
     , ε ∙ (Σᵣ ω , 𝟘 ▷ ℕ ▹ ℕ) , _ , prodrec 𝟘 ω 𝟘 ℕ (var x0) zero
     , ⊢prodrec
     , prodrecₘ {η = 𝟘ᶜ} var zeroₘ
-        (sub ℕₘ (≤ᶜ-refl ∙ ≤-reflexive (EM.·-zeroʳ _)))
+        (sub ℕₘ (≤ᶜ-refl ∙ ≤-reflexive (EM.·-zeroʳ _))) _
     , PE.refl
     , ε ∙𝟘
     , (λ ⊢t → ¬Empty $
@@ -131,7 +133,7 @@ module Counterexample where
     ⊢εΣℕℕ = ⊢εΣℕ ∙ εΣℕ⊢ℕ
     ⊢prodrec =
       prodrecⱼ {r = 𝟘} εΣ⊢ℕ εΣℕ⊢ℕ εΣΣ⊢ℕ (var ⊢εΣ here) (zeroⱼ ⊢εΣℕℕ)
-        _ _
+        _
     neutral = prodrecₙ (var _)
 
 -- If one drops the assumption about erased matches from the statement
@@ -140,14 +142,17 @@ module Counterexample where
 -- then the lemma cannot be proved (assuming that Agda is consistent).
 
 not-canonicityEq :
-  ¬ ((R : Type-restrictions) →
-     let open Definition.Typed R in
+  ¬ ((TR : Type-restrictions) →
+     let open Definition.Typed TR in
+     (UR : Usage-restrictions) →
+     let open Definition.Modality.Usage ErasureModality UR in
      ∀ {n} {Γ : Con Term n} {γ} →
-     NegativeErasedContext R Γ γ →
+     NegativeErasedContext TR Γ γ →
      (∀ {t} → Γ ⊢ t ∷ Empty → ⊥) →
      ∀ {t} → Γ ⊢ t ∷ ℕ → γ ▸[ 𝟙ᵐ ] t →
      ∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ)
 not-canonicityEq hyp =
-  let _ , _ , _ , _ , ⊢t , ▸t , _ , nec , con , not-numeral , _ =
-        Counterexample.cEx
-  in not-numeral (hyp no-type-restrictions nec con ⊢t ▸t)
+  case Counterexample.cEx of λ {
+    (_ , _ , _ , _ , ⊢t , ▸t , _ , nec , con , not-numeral , _) →
+  not-numeral
+    (hyp no-type-restrictions no-usage-restrictions nec con ⊢t ▸t) }

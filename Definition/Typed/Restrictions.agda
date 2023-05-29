@@ -23,10 +23,6 @@ record Type-restrictions : Set (lsuc a) where
     -- Restrictions imposed upon Π- and Σ-types.
     ΠΣ-restriction : BinderMode → (p q : M) → Set a
 
-    -- The prodrec constructor's quantities have to satisfy this
-    -- predicate.
-    Prodrec-restriction : (r p q : M) → Set a
-
   -- Restrictions imposed upon Π-types.
 
   Π-restriction : M → M → Set a

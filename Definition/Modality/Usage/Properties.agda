@@ -3,15 +3,19 @@
 ------------------------------------------------------------------------
 
 open import Definition.Modality
+open import Definition.Modality.Usage.Restrictions
 
 module Definition.Modality.Usage.Properties
-  {a} {M : Set a} (𝕄 : Modality M) where
+  {a} {M : Set a}
+  (𝕄 : Modality M)
+  (R : Usage-restrictions M)
+  where
 
 open Modality 𝕄
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
-open import Definition.Modality.Usage 𝕄
+open import Definition.Modality.Usage 𝕄 R
 open import Definition.Modality.Properties 𝕄
 open import Definition.Mode 𝕄
 open import Definition.Untyped M hiding (_∷_ ; _∙_ ; ε ; subst)
@@ -138,12 +142,13 @@ var-usage-lookup (there x) = var-usage-lookup x
   λ m′·m≡𝟙 → ok (·ᵐ-𝟙ʳ m′·m≡𝟙)
 ▸-· (sndₘ t) =
   sndₘ (▸-· t)
-▸-· {m′ = m′} (prodrecₘ {γ = γ} {m = m} {r = r} {δ = δ} t u A) = sub
+▸-· {m′ = m′} (prodrecₘ {γ = γ} {m = m} {r = r} {δ = δ} t u A ok) = sub
   (prodrecₘ
      (▸-cong (PE.sym (·ᵐ-ᵐ·-assoc m′)) (▸-· t))
      (sub (▸-· u)
         (≤ᶜ-reflexive (≈ᶜ-refl ∙ ·ᵐ-·-assoc m′ ∙ ·ᵐ-·-assoc m′)))
-     A)
+     A
+     ok)
   (begin
      ⌜ m′ ⌝ ·ᶜ (r ·ᶜ γ +ᶜ δ)          ≈⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
      ⌜ m′ ⌝ ·ᶜ r ·ᶜ γ +ᶜ ⌜ m′ ⌝ ·ᶜ δ  ≈⟨ +ᶜ-congʳ
@@ -432,8 +437,8 @@ Conₘ-interchange (sndₘ γ▸t) (sndₘ δ▸t) x =
   sndₘ (Conₘ-interchange γ▸t δ▸t x)
 
 Conₘ-interchange
-  (prodrecₘ {γ = γ} {r = r} {δ = δ} γ▸t δ▸t η▸A)
-  (prodrecₘ {γ = γ′} {δ = δ′} γ▸t₁ δ▸t₁ _)
+  (prodrecₘ {γ = γ} {r = r} {δ = δ} γ▸t δ▸t η▸A _)
+  (prodrecₘ {γ = γ′} {δ = δ′} γ▸t₁ δ▸t₁ _ ok)
   x = subst (_▸[ _ ] _)
     (begin
        r ·ᶜ (γ , x ≔ γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩)      ≡˘⟨ cong (_+ᶜ _) (update-distrib-·ᶜ _ _ _ _) ⟩
@@ -444,7 +449,8 @@ Conₘ-interchange
     (prodrecₘ
        (Conₘ-interchange γ▸t γ▸t₁ x)
        (Conₘ-interchange δ▸t δ▸t₁ (x +1 +1))
-       η▸A)
+       η▸A
+       ok)
   where
   open Tools.Reasoning.PropositionalEquality
 
@@ -542,7 +548,7 @@ usage-upper-bound (prodₚₘ t u) =
     (usage-upper-bound u)
 usage-upper-bound (fstₘ _ t PE.refl _) = usage-upper-bound t
 usage-upper-bound (sndₘ t) = usage-upper-bound t
-usage-upper-bound (prodrecₘ t u A) =
+usage-upper-bound (prodrecₘ t u A _) =
   +ᶜ-monotone (·ᶜ-monotoneʳ (usage-upper-bound t))
               (tailₘ-monotone (tailₘ-monotone (usage-upper-bound u)))
 
@@ -590,7 +596,7 @@ usage-inf (prodₚₘ γ▸t γ▸t₁) = prodₚₘ (usage-inf γ▸t) (usage-i
 usage-inf (fstₘ m γ▸t PE.refl ok) =
   fstₘ m (usage-inf γ▸t) PE.refl ok
 usage-inf (sndₘ γ▸t) = sndₘ (usage-inf γ▸t)
-usage-inf (prodrecₘ {p = p} {u = u} γ▸t δ▸u η▸A) =
+usage-inf (prodrecₘ {p = p} {u = u} γ▸t δ▸u η▸A ok) =
   prodrecₘ (usage-inf γ▸t)
            (sub (usage-inf δ▸u)
                 (subst (tailₘ (tailₘ (⌈ u ⌉ _)) ∙ _ ∙ _ ≤ᶜ_)
@@ -600,6 +606,7 @@ usage-inf (prodrecₘ {p = p} {u = u} γ▸t δ▸u η▸A) =
                           (headₘ-tailₘ-correct (⌈ u ⌉ _)))
                        (≤ᶜ-refl ∙ headₘ-monotone (tailₘ-monotone (usage-upper-bound δ▸u)) ∙ headₘ-monotone (usage-upper-bound δ▸u))))
            η▸A
+           ok
 usage-inf zeroₘ = zeroₘ
 usage-inf (sucₘ γ▸t) = sucₘ (usage-inf γ▸t)
 usage-inf (natrecₘ {p = p} {r = r} {s = s} γ▸z δ▸s η▸n θ▸A) =
@@ -729,7 +736,7 @@ usage-inf (sub γ▸t x) = usage-inf γ▸t
 module _ (𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet) where
   import Definition.Modality.Properties.Has-well-behaved-zero
     semiring-with-meet-and-star 𝟘-well-behaved as P
-  open import Definition.Modality.Usage.Inversion 𝕄
+  open import Definition.Modality.Usage.Inversion 𝕄 R
 
   valid-var-usage : γ ▸[ 𝟙ᵐ ] var x → γ ⟨ x ⟩ ≢ 𝟘
   valid-var-usage γ▸x γ⟨x⟩≡𝟘 = P.𝟘≰𝟙 (lemma _ (inv-usage-var γ▸x) γ⟨x⟩≡𝟘)

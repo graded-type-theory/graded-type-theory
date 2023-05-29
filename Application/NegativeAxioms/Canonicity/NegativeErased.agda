@@ -5,7 +5,8 @@
 
 open import Definition.Modality.Instances.Erasure
 import Definition.Modality.Instances.Erasure.Modality
-open import Definition.Modality.Type-restrictions
+open import Definition.Modality.Restrictions
+open import Definition.Modality.Usage.Restrictions Erasure
 open import Definition.Mode.Restrictions
 import Application.NegativeAxioms.NegativeErasedContext
 import Definition.Typed
@@ -17,12 +18,13 @@ open import Tools.Empty
 module Application.NegativeAxioms.Canonicity.NegativeErased
   (mrs : Mode-restrictions)
   (open Definition.Modality.Instances.Erasure.Modality mrs)
-  (R : Type-restrictions)
-  (open Definition.Typed R)
+  (TR : Type-restrictions)
+  (open Definition.Typed TR)
+  (UR : Usage-restrictions)
   -- Erased matches are not allowed.
-  (no-erased-matches : No-erased-matches ErasureModality R)
+  (no-erased-matches : No-erased-matches ErasureModality UR)
   (open Application.NegativeAxioms.NegativeErasedContext
-     ErasureModality (λ ()) R)
+     ErasureModality (λ ()) TR)
   {m} {Γ : Con Term m} {γ}
   (nΓγ : NegativeErasedContext Γ γ)
   (consistent : ∀{t} → Γ ⊢ t ∷ Empty → ⊥)
@@ -30,27 +32,27 @@ module Application.NegativeAxioms.Canonicity.NegativeErased
 
 open import Definition.Modality.Instances.Erasure.Properties mrs
 open import Definition.Modality.Context ErasureModality
-open import Definition.Modality.Usage ErasureModality
-open import Definition.Modality.Usage.Inversion ErasureModality
-open import Definition.Modality.Usage.Properties ErasureModality
+open import Definition.Modality.Usage ErasureModality UR
+open import Definition.Modality.Usage.Inversion ErasureModality UR
+open import Definition.Modality.Usage.Properties ErasureModality UR
 open import Definition.Mode ErasureModality
 
 open import Application.NegativeAxioms.NegativeOrErasedType
-  ErasureModality R
-open import Erasure.SucRed R
+  ErasureModality TR
+open import Erasure.SucRed TR
 
-open import Definition.Typed.EqRelInstance R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Usage ErasureModality R
-open import Definition.Typed.Consequences.Inequality R
-open import Definition.Typed.Consequences.Inversion R
-open import Definition.Typed.Consequences.Reduction R
-open import Definition.Typed.Consequences.Syntactic R
+open import Definition.Typed.EqRelInstance TR
+open import Definition.Typed.Properties TR
+open import Definition.Typed.Usage ErasureModality TR UR
+open import Definition.Typed.Consequences.Inequality TR
+open import Definition.Typed.Consequences.Inversion TR
+open import Definition.Typed.Consequences.Reduction TR
+open import Definition.Typed.Consequences.Syntactic TR
 
-open import Definition.Conversion.FullReduction R hiding (fullRedTerm)
-open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Irrelevance R
-open import Definition.LogicalRelation.Fundamental.Reducibility R
+open import Definition.Conversion.FullReduction TR hiding (fullRedTerm)
+open import Definition.LogicalRelation TR
+open import Definition.LogicalRelation.Irrelevance TR
+open import Definition.LogicalRelation.Fundamental.Reducibility TR
 
 open import Tools.PropositionalEquality as PE using (_≢_)
 open import Tools.Product
@@ -108,8 +110,8 @@ neNeg (natrecⱼ _ _ _ d   ) (natrecₙ n  ) γ▸u =
       ⊢ℕ = refl (ℕⱼ (wfTerm d))
       γ▸n = sub δ▸n (≤ᶜ-trans γ≤γ′ (≤ᶜ-trans (⊛ᶜ-ineq₂ _ _ _) (∧ᶜ-decreasingʳ _ _)))
   in  ⊥-elim (¬negℕ (neNeg d n γ▸n) ⊢ℕ)
-neNeg (prodrecⱼ {r = r} ⊢A A⊢B _ d _ ok₁ ok₂) (prodrecₙ n) γ▸u =
-  let invUsageProdrec {δ = δ} {η = η} δ▸t η▸u _ γ≤ =
+neNeg (prodrecⱼ {r = r} ⊢A A⊢B _ d _ ok₁) (prodrecₙ n) γ▸u =
+  let invUsageProdrec {δ = δ} {η = η} δ▸t η▸u _ ok₂ γ≤ =
         inv-usage-prodrec γ▸u
       γ▸t = sub δ▸t
         (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin

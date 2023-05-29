@@ -110,7 +110,6 @@ mutual
               → Γ ⊢ t ∷ Σᵣ p , q ▷ F ▹ G
               → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
               → Σᵣ-restriction p q
-              → Prodrec-restriction r p q′
               → Γ ⊢ prodrec r p q′ A t u ∷ A [ t ]
     zeroⱼ     : ⊢ Γ
               → Γ ⊢ zero ∷ ℕ
@@ -249,7 +248,6 @@ mutual
                   → Γ ⊢ t ≡ t′ ∷ Σᵣ p , q ▷ F ▹ G
                   → Γ ∙ F ∙ G ⊢ u ≡ u′ ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
                   → Σᵣ-restriction p q
-                  → Prodrec-restriction r p q′
                   → Γ ⊢ prodrec r p q′ A t u ≡ prodrec r p q′ A′ t′ u′ ∷ A [ t ]
     prodrec-β     : ∀ {t t′ u F G A}
                   → Γ ⊢ F
@@ -260,7 +258,6 @@ mutual
                   → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
                   → p ≈ p′
                   → Σᵣ-restriction p q
-                  → Prodrec-restriction r p q′
                   → Γ ⊢ prodrec r p q′ A (prodᵣ p′ t t′) u ≡
                         u [ t , t′ ] ∷ A [ prodᵣ p′ t t′ ]
     suc-cong      : ∀ {m n}
@@ -350,7 +347,6 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                  → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
                  → Γ ⊢ t ⇒ t′ ∷ Σᵣ p , q ▷ F ▹ G
                  → Σᵣ-restriction p q
-                 → Prodrec-restriction r p q′
                  → Γ ⊢ prodrec r p q′ A t u ⇒ prodrec r p q′ A t′ u ∷ A [ t ]
   prodrec-β      : ∀ {A F G t t′ u}
                  → Γ ⊢ F
@@ -361,7 +357,6 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                  → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
                  → p ≈ p′
                  → Σᵣ-restriction p q
-                 → Prodrec-restriction r p q′
                  → Γ ⊢ prodrec r p q′ A (prodᵣ p′ t t′) u ⇒
                        u [ t , t′ ] ∷ A [ prodᵣ p′ t t′ ]
   natrec-subst   : ∀ {z s n n′ F}

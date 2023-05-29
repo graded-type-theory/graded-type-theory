@@ -147,7 +147,6 @@ import Definition.Typed.Decidable
 -- Modality structure
 import Definition.Mode.Restrictions
 import Definition.Modality
-import Definition.Modality.Type-restrictions
 
 -- Usage modes
 import Definition.Mode
@@ -175,11 +174,15 @@ import Definition.Modality.Context.Properties.Update
 import Definition.Modality.Context.Properties
 
 -- The usage relation and its properties
+import Definition.Modality.Usage.Restrictions
 import Definition.Modality.Usage
 import Definition.Modality.Usage.Inversion
 import Definition.Modality.Usage.Properties
 import Definition.Modality.Usage.Weakening
 import Definition.Modality.Usage.Decidable
+
+-- Definitions related to type and usage restrictions
+import Definition.Modality.Restrictions
 
 -- Modality substitutions
 import Definition.Modality.Substitution
@@ -226,6 +229,7 @@ import Definition.Modality.FullReduction
 import Definition.Untyped.QuantityTranslation
 import Definition.Modality.Morphism
 import Definition.Modality.Morphism.Type-restrictions
+import Definition.Modality.Morphism.Usage-restrictions
 import Definition.Typed.QuantityTranslation
 import Definition.Modality.Context.QuantityTranslation
 import Definition.Mode.QuantityTranslation

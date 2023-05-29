@@ -64,7 +64,6 @@ mutual
              → Γ ⊢ t ⇉ B
              → Γ ⊢ B ↘ Σᵣ p , q ▷ F ▹ G
              → Γ ∙ F ∙ G ⊢ u ⇇ (A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²)
-             → Prodrec-restriction r p q′
              → Γ ⊢ prodrec r p q′ A t u ⇉ A [ t ]
     ℕᵢ : Γ ⊢ ℕ ⇉ U
     zeroᵢ : Γ ⊢ zero ⇉ ℕ
@@ -156,7 +155,7 @@ mutual
   Inferable⇉ (appᵢ t⇉A x x₁) = ∘ᵢ (Inferable⇉ t⇉A) (Checkable⇇ x₁)
   Inferable⇉ (fstᵢ t⇉A x) = fstᵢ (Inferable⇉ t⇉A)
   Inferable⇉ (sndᵢ t⇉A x) = sndᵢ (Inferable⇉ t⇉A)
-  Inferable⇉ (prodrecᵢ x t⇉A x₁ x₂ _) =
+  Inferable⇉ (prodrecᵢ x t⇉A x₁ x₂) =
     prodrecᵢ (Checkable⇇Type x) (Inferable⇉ t⇉A) (Checkable⇇ x₂)
   Inferable⇉ ℕᵢ = ℕᵢ
   Inferable⇉ zeroᵢ = zeroᵢ

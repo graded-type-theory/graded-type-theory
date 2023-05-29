@@ -84,7 +84,7 @@ mutual
                     (convConvTerm (symConv↑Term (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ) ∙ soundnessConv↑ x) x₂) (sucCong′ F≡G))
                     (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡ℕ u~t)
   sym~↑ {Γ = Γ} {Δ = Δ} Γ≡Δ
-    (prodrec-cong {F = F} {G = G} C↑E g~h u↑v ok₂) =
+    (prodrec-cong {F = F} {G = G} C↑E g~h u↑v) =
     case sym~↓ Γ≡Δ g~h of λ (B , whnfB , ⊢Σ≡B , h~g) →
     case Σ≡A ⊢Σ≡B whnfB of λ where
       (F′ , G′ , PE.refl) →
@@ -93,7 +93,7 @@ mutual
             let g≡h = soundness~↓ g~h
                 C≡E = soundnessConv↑ C↑E
                 ⊢Σ , _ = syntacticEqTerm g≡h
-                ⊢F , ⊢G , ok₁ = inversion-ΠΣ ⊢Σ
+                ⊢F , ⊢G , ok = inversion-ΠΣ ⊢Σ
                 E↑C = symConv↑ (Γ≡Δ ∙ ⊢Σ≡B) C↑E
                 v↑u = symConv↑Term (Γ≡Δ ∙ refl ⊢F ∙ refl ⊢G) u↑v
                 ⊢Γ , ⊢Δ , ⊢idsubst = contextConvSubst Γ≡Δ
@@ -104,12 +104,11 @@ mutual
                 ⊢ρF = W.wk (step (step id)) ⊢ΔFG ⊢F′
                 ⊢ρG = W.wk (lift (step (step id))) (⊢ΔFG ∙ ⊢ρF) ⊢G′
                 C₊≡E₊ = subst↑²TypeEq (stabilityEq (Γ≡Δ ∙ refl ⊢Σ) C≡E)
-                          ok₁
+                          ok
             in  _ , substTypeEq C≡E g≡h
               , prodrec-cong E↑C h~g
                   (convConv↑Term (reflConEq ⊢Δ ∙ ⊢F≡F′ ∙ ⊢G≡G′)
                      C₊≡E₊ v↑u)
-                  ok₂
   sym~↑ Γ≡Δ (Emptyrec-cong x t~u) =
     let ⊢Γ , ⊢Δ , _ = contextConvSubst Γ≡Δ
         B , whnfB , A≡B , u~t = sym~↓ Γ≡Δ t~u

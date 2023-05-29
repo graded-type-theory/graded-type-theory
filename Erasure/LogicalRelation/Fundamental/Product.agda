@@ -3,6 +3,7 @@
 ------------------------------------------------------------------------
 
 open import Definition.Modality
+open import Definition.Modality.Usage.Restrictions
 open import Definition.Typed.EqualityRelation
 import Definition.Typed
 open import Definition.Typed.Restrictions
@@ -16,54 +17,55 @@ module Erasure.LogicalRelation.Fundamental.Product
   (open Definition.Untyped M)
   (𝕄 : Modality M)
   (open Modality 𝕄)
-  (R : Type-restrictions M)
-  (open Definition.Typed R)
+  (TR : Type-restrictions M)
+  (open Definition.Typed TR)
+  (UR : Usage-restrictions M)
   {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   (𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet)
-  {{eqrel : EqRelSet R}}
+  {{eqrel : EqRelSet TR}}
   where
 open EqRelSet {{...}}
-open Type-restrictions R
+open Type-restrictions TR
 
 open import Definition.Untyped.Properties M
-open import Definition.Typed.Properties R
-open import Definition.Typed.RedSteps R
-open import Definition.Typed.Weakening R hiding (wk)
-open import Definition.Typed.Consequences.Inversion R
-open import Definition.Typed.Consequences.Injectivity R
-open import Definition.Typed.Consequences.Substitution R
-open import Definition.Typed.Consequences.Syntactic R
-open import Definition.Typed.Consequences.RedSteps R
-open import Definition.Typed.Consequences.Reduction R
+open import Definition.Typed.Properties TR
+open import Definition.Typed.RedSteps TR
+open import Definition.Typed.Weakening TR hiding (wk)
+open import Definition.Typed.Consequences.Inversion TR
+open import Definition.Typed.Consequences.Injectivity TR
+open import Definition.Typed.Consequences.Substitution TR
+open import Definition.Typed.Consequences.Syntactic TR
+open import Definition.Typed.Consequences.RedSteps TR
+open import Definition.Typed.Consequences.Reduction TR
 
-open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Fundamental R
-open import Definition.LogicalRelation.Properties.Escape R
-open import Definition.LogicalRelation.Substitution R
-open import Definition.LogicalRelation.Substitution.Escape R
-open import Definition.LogicalRelation.Substitution.Properties R
-open import Definition.LogicalRelation.Substitution.Introductions.Fst R
-open import Definition.LogicalRelation.Substitution.Introductions.Pi R
-open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst R
-open import Definition.LogicalRelation.Substitution.Introductions.Universe R
+open import Definition.LogicalRelation TR
+open import Definition.LogicalRelation.Fundamental TR
+open import Definition.LogicalRelation.Properties.Escape TR
+open import Definition.LogicalRelation.Substitution TR
+open import Definition.LogicalRelation.Substitution.Escape TR
+open import Definition.LogicalRelation.Substitution.Properties TR
+open import Definition.LogicalRelation.Substitution.Introductions.Fst TR
+open import Definition.LogicalRelation.Substitution.Introductions.Pi TR
+open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst TR
+open import Definition.LogicalRelation.Substitution.Introductions.Universe TR
 
-import Definition.LogicalRelation.Irrelevance R as I
-import Definition.LogicalRelation.Weakening R as W
-import Definition.LogicalRelation.Substitution.Irrelevance R as IS
+import Definition.LogicalRelation.Irrelevance TR as I
+import Definition.LogicalRelation.Weakening TR as W
+import Definition.LogicalRelation.Substitution.Irrelevance TR as IS
 
 open import Definition.Modality.Context 𝕄
 open import Definition.Modality.Context.Properties 𝕄
 open import Definition.Modality.Properties.Has-well-behaved-zero
   semiring-with-meet-and-star 𝟘-well-behaved
-open import Definition.Modality.Usage 𝕄
-open import Definition.Modality.Usage.Inversion 𝕄
+open import Definition.Modality.Usage 𝕄 UR
+open import Definition.Modality.Usage.Inversion 𝕄 UR
 open import Definition.Mode 𝕄
 
-open import Erasure.LogicalRelation 𝕄 R ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Conversion 𝕄 R ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Reduction 𝕄 R ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Subsumption 𝕄 R ⊢Δ is-𝟘?
-open import Erasure.LogicalRelation.Irrelevance 𝕄 R ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation 𝕄 TR ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Conversion 𝕄 TR ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Reduction 𝕄 TR ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Subsumption 𝕄 TR ⊢Δ is-𝟘?
+open import Erasure.LogicalRelation.Irrelevance 𝕄 TR ⊢Δ is-𝟘?
 
 open import Erasure.Extraction 𝕄 is-𝟘?
 open import Erasure.Extraction.Properties 𝕄 𝟘-well-behaved

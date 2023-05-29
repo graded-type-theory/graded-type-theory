@@ -4,27 +4,34 @@
 ------------------------------------------------------------------------
 
 open import Definition.Modality
+open import Definition.Modality.Usage.Restrictions
 open import Tools.Nullary
 open import Tools.PropositionalEquality
 open import Tools.Relation
 
 module Definition.Modality.Substitution.Decidable
-  {a} {M : Set a} (𝕄 : Modality M)
-  (open Modality 𝕄)
+  {a} {M : Set a}
+  (𝕄 : Modality M)
+  (R : Usage-restrictions M)
+  (open Usage-restrictions R)
   -- Equality is assumed to be decidable for M.
   (_≟_ : Decidable (_≡_ {A = M}))
+  -- The Prodrec-restriction relation is assumed to be decidable.
+  (Prodrec? : ∀ r p q → Dec (Prodrec-restriction r p q))
   where
+
+open Modality 𝕄
 
 open import Definition.Untyped M
 
 open import Definition.Modality.Context 𝕄
-open import Definition.Modality.Substitution 𝕄
-open import Definition.Modality.Substitution.Properties 𝕄
+open import Definition.Modality.Substitution 𝕄 R
+open import Definition.Modality.Substitution.Properties 𝕄 R
 open import Definition.Modality.Context.Properties 𝕄
 open import Definition.Modality.Properties 𝕄
-open import Definition.Modality.Usage 𝕄
-open import Definition.Modality.Usage.Decidable 𝕄 _≟_
-open import Definition.Modality.Usage.Properties 𝕄
+open import Definition.Modality.Usage 𝕄 R
+open import Definition.Modality.Usage.Decidable 𝕄 R _≟_ Prodrec?
+open import Definition.Modality.Usage.Properties 𝕄 R
 open import Definition.Mode 𝕄
 
 open import Tools.Fin

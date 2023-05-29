@@ -198,13 +198,12 @@ inversion-prodrec :
     (Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ C) ×
     Γ ⊢ t ∷ Σᵣ p , q ▷ F ▹ G ×
     Γ ∙ F ∙ G ⊢ u ∷ C [ prodᵣ p (var (x0 +1)) (var x0) ]↑² ×
-    Γ ⊢ A ≡ C [ t ] ×
-    Prodrec-restriction r p q′
-inversion-prodrec (prodrecⱼ ⊢F ⊢G ⊢C ⊢t ⊢u _ ok) =
-  _ , _ , _ , ⊢F , ⊢G , ⊢C , ⊢t , ⊢u , refl (substType ⊢C ⊢t) , ok
+    Γ ⊢ A ≡ C [ t ]
+inversion-prodrec (prodrecⱼ ⊢F ⊢G ⊢C ⊢t ⊢u _) =
+  _ , _ , _ , ⊢F , ⊢G , ⊢C , ⊢t , ⊢u , refl (substType ⊢C ⊢t)
 inversion-prodrec (conv x x₁) =
-  let F , G , q , a , b , c , d , e , f , g = inversion-prodrec x
-  in  F , G , q , a , b , c , d , e , trans (sym x₁) f , g
+  let F , G , q , a , b , c , d , e , f = inversion-prodrec x
+  in  F , G , q , a , b , c , d , e , trans (sym x₁) f
 
 -- Inversion of star.
 inversion-star : Γ ⊢ star ∷ C → Γ ⊢ C ≡ Unit × Unit-restriction

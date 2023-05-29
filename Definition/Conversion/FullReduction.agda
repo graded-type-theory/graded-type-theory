@@ -112,14 +112,14 @@ mutual
         n′ , nfN′ , n≡n′ = fullRedNe~↓ n
     in  natrec _ _ _ C′ z′ s′ n′ , natrecₙ nfC′ nfZ′ nfS′ nfN′
      , natrec-cong (proj₁ (syntacticEq C≡C′)) C≡C′ z≡z′ s≡s′ n≡n′
-  fullRedNe (prodrec-cong C g u ok₂) =
+  fullRedNe (prodrec-cong C g u) =
     let C′ , nfC′ , C≡C′ = fullRed C
         g′ , nfg′ , g≡g′ = fullRedNe~↓ g
         u′ , nfu′ , u≡u′ = fullRedTerm u
         ⊢Σ , _ = syntacticEqTerm g≡g′
-        ⊢F , ⊢G , ok₁ = inversion-ΠΣ ⊢Σ
+        ⊢F , ⊢G , ok = inversion-ΠΣ ⊢Σ
     in  prodrec _ _ _ C′ g′ u′ , prodrecₙ nfC′ nfg′ nfu′
-     , prodrec-cong ⊢F ⊢G C≡C′ g≡g′ u≡u′ ok₁ ok₂
+     , prodrec-cong ⊢F ⊢G C≡C′ g≡g′ u≡u′ ok
   fullRedNe (Emptyrec-cong C n) =
     let C′ , nfC′ , C≡C′ = fullRed C
         n′ , nfN′ , n≡n′ = fullRedNe~↓ n

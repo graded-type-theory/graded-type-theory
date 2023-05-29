@@ -76,8 +76,8 @@ mutual
         t~v , _ = trans~↓ t~u u~v
     in  natrec-cong A<>C a₀<>c₀ aₛ<>cₛ t~v
     ,   substTypeEq A≡B (soundness~↓ t~u)
-  trans~↑ {Γ = Γ} (prodrec-cong {F = F} {G} A<>B a~b t<>u ok₂)
-                  (prodrec-cong B<>C b~c u<>v _) =
+  trans~↑ {Γ = Γ} (prodrec-cong {F = F} {G} A<>B a~b t<>u)
+                  (prodrec-cong B<>C b~c u<>v) =
     let a~c , Σ≡Σ′ = trans~↓ a~b b~c
         ⊢Γ = wfEq Σ≡Σ′
         Γ≡Γ = reflConEq ⊢Γ
@@ -90,12 +90,12 @@ mutual
         u<>v′ = stabilityConv↑Term (Γ≡Γ ∙ F≡F′ ∙ G≡G′) u<>v
         _ , ⊢ΓFG , _ = contextConvSubst (Γ≡Γ ∙ F≡F′ ∙ G≡G′)
         A≡B = soundnessConv↑ A<>B
-        _ , _ , ok₁ = inversion-ΠΣ (syntacticEq Σ≡Σ′ .proj₁)
-        A₊≡B₊ = subst↑²TypeEq A≡B ok₁
+        _ , _ , ok = inversion-ΠΣ (syntacticEq Σ≡Σ′ .proj₁)
+        A₊≡B₊ = subst↑²TypeEq A≡B ok
         t<>v = transConv↑Term A₊≡B₊ t<>u u<>v′
         a≡b = soundness~↓ a~b
         Aa≡Bb = substTypeEq A≡B a≡b
-    in  prodrec-cong A<>C a~c t<>v ok₂ , Aa≡Bb
+    in  prodrec-cong A<>C a~c t<>v , Aa≡Bb
   trans~↑ (Emptyrec-cong A<>B t~u) (Emptyrec-cong B<>C u~v) =
     let A≡B = soundnessConv↑ A<>B
         A<>C = transConv↑ A<>B B<>C

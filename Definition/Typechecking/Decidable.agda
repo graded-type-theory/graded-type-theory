@@ -16,8 +16,6 @@ module Definition.Typechecking.Decidable
   (Unit-ok? : Dec Unit-restriction)
   -- ΠΣ-restriction is pointwise decidable.
   (ΠΣ-ok? : ∀ b p q → Dec (ΠΣ-restriction b p q))
-  -- Prodrec-restriction is pointwise decidable.
-  (Prodrec-ok? : ∀ r p q → Dec (Prodrec-restriction r p q))
   where
 
 open import Definition.Typechecking R
@@ -306,43 +304,40 @@ mutual
       (yes (B , t⇉B)) → case isΣᵣ (proj₁ (soundness⇉ ⊢Γ t⇉B)) of λ where
         (yes (F , G , p , _ , ⊢F , ⊢G , B⇒Σ)) →
           case inversion-ΠΣ (syntacticRed B⇒Σ .proj₂) of λ {
-            (_ , _ , ok₁) →
-          case dec⇇Type (⊢Γ ∙ ΠΣⱼ ⊢F ⊢G ok₁) A of λ where
+            (_ , _ , ok) →
+          case dec⇇Type (⊢Γ ∙ ΠΣⱼ ⊢F ⊢G ok) A of λ where
             (yes A⇇Type) →
-              let ⊢ΓΣ = ⊢Γ ∙ ΠΣⱼ {p = p} ⊢F ⊢G ok₁
+              let ⊢ΓΣ = ⊢Γ ∙ ΠΣⱼ {p = p} ⊢F ⊢G ok
                   ⊢A = soundness⇇Type ⊢ΓΣ A⇇Type
-                  ⊢A₊ = subst↑²Type ⊢A ok₁
+                  ⊢A₊ = subst↑²Type ⊢A ok
               in  case dec⇇ (⊢Γ ∙ ⊢F ∙ ⊢G) u ⊢A₊ of λ where
                 (yes u⇇A₊) → case p ≟ p′ of λ where
-                  (yes PE.refl) → case Prodrec-ok? r p q of λ where
-                    (yes ok₂) →
-                      yes (_ , prodrecᵢ A⇇Type t⇉B (B⇒Σ , ΠΣₙ) u⇇A₊ ok₂)
-                    (no not-ok₂) → no λ where
-                      (_ , prodrecᵢ _ _ _ _ ok₂) → not-ok₂ ok₂
+                  (yes PE.refl) →
+                    yes (_ , prodrecᵢ A⇇Type t⇉B (B⇒Σ , ΠΣₙ) u⇇A₊)
                   (no p≉p′) → no λ where
-                    (_ , prodrecᵢ _ x₁ x₂ _ _) →
+                    (_ , prodrecᵢ _ x₁ x₂ _) →
                       case deterministic⇉ t⇉B x₁ of λ where
                         PE.refl → case whrDet* (B⇒Σ , ΠΣₙ) x₂ of λ where
                           PE.refl → p≉p′ PE.refl
                 (no ¬u⇇A₊) → no λ where
-                  (_ , prodrecᵢ _ x₁ x₂ x₃ _) →
+                  (_ , prodrecᵢ _ x₁ x₂ x₃) →
                     case deterministic⇉ t⇉B x₁ of λ where
                        PE.refl → case whrDet* (B⇒Σ , ΠΣₙ) x₂ of λ where
                          PE.refl → ¬u⇇A₊ x₃
             (no ¬A⇇Type) → no λ where
-              (_ , prodrecᵢ x x₁ x₂ _ _) →
+              (_ , prodrecᵢ x x₁ x₂ _) →
                 case deterministic⇉ t⇉B x₁ of λ where
                   PE.refl → case whrDet* (B⇒Σ , ΠΣₙ) x₂ of λ where
                     PE.refl → ¬A⇇Type x }
         (no ¬isΣ) → no λ where
-          (_ , prodrecᵢ _ x₁ x₂ _ _) →
+          (_ , prodrecᵢ _ x₁ x₂ _) →
             case deterministic⇉ t⇉B x₁ of λ where
               PE.refl →
                 let _ , ⊢Σ = syntacticRed (proj₁ x₂)
                     ⊢F , ⊢G = syntacticΣ ⊢Σ
                 in  ¬isΣ (_ , _ , _ , _ , ⊢F , ⊢G , proj₁ x₂)
       (no ¬t⇉B) → no λ where
-        (_ , prodrecᵢ x x₁ x₂ x₃ _) → ¬t⇉B (_ , x₁)
+        (_ , prodrecᵢ x x₁ x₂ x₃) → ¬t⇉B (_ , x₁)
 
   dec⇉-Emptyrec : ⊢ Γ → Checkable A → Checkable t → Dec (∃ λ B → Γ ⊢ Emptyrec p A t ⇉ B)
   dec⇉-Emptyrec ⊢Γ A t = case dec⇇Type ⊢Γ A of λ where

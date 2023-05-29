@@ -60,7 +60,7 @@ mutual
                               (wk~↓ [ρ] ⊢Δ t~u))
   wk~↑
     {ρ = ρ} {Δ = Δ} [ρ] ⊢Δ
-    (prodrec-cong {C = C} {E} {g} {h} {u} {v} x g~h x₁ ok) =
+    (prodrec-cong {C = C} {E} {g} {h} {u} {v} x g~h x₁) =
     let ρg~ρh = wk~↓ [ρ] ⊢Δ g~h
         ⊢ρΣ , _ , _ = syntacticEqTerm (soundness~↓ ρg~ρh)
         ⊢ρF , ⊢ρG = syntacticΣ ⊢ρΣ
@@ -71,7 +71,7 @@ mutual
                            U.wk ρ (prodrec _ _ _ E h v) ↑ x)
                   (PE.sym (wk-β C))
                   (prodrec-cong (wkConv↑ (lift [ρ]) (⊢Δ ∙ ⊢ρΣ) x)
-                     ρg~ρh u↓v ok)
+                     ρg~ρh u↓v)
   wk~↑ {ρ} {Δ = Δ} [ρ] ⊢Δ (Emptyrec-cong {k} {l} {F} {G} x t~u) =
     Emptyrec-cong (wkConv↑ [ρ] ⊢Δ x) (wk~↓ [ρ] ⊢Δ t~u)
 
