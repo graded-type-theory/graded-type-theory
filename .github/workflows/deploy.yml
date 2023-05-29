@@ -75,8 +75,8 @@ jobs:
           git clone --depth 1 --single-branch --branch gh-pages https://github.com/graded-type-theory/graded-type-theory.git html
           rm -f '${{ env.HTML_DIR }}'/*.html
           rm -f '${{ env.HTML_DIR }}'/*.css
-          mv -f README.agda index.agda
-          agda --html --html-dir="${{ env.HTML_DIR }}" index.agda
+          agda --html --html-dir="${{ env.HTML_DIR }}" README.agda
+          cp "${{ env.HTML_DIR }}/README.html" "${{ env.HTML_DIR }}/index.html"
 
       - name: Deploy HTML
         uses: JamesIves/github-pages-deploy-action@v4
