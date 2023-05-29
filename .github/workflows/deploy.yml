@@ -44,7 +44,7 @@ jobs:
         id:   cache
         with:
           key: agda-${{ steps.setup.outputs.agda-version }}-stdlib-${{ env.STDLIB_VERSION }}-commit-${{ github.sha }}
-          restore-keys: agda-${{ steps.setup.outputs.agda-version }}-stdlib-${{ env.STDLIB_VERSION }}
+          restore-keys: agda-${{ steps.setup.outputs.agda-version }}-stdlib-${{ env.STDLIB_VERSION }}-
           path: |
             _build
             ~/.agda/libraries.d
