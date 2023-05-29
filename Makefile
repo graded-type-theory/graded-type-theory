@@ -1,12 +1,5 @@
 
-## Lines of Code ##########################################################
+index.html : index.md
+	pandoc -s -o $@ $<
 
-agdalocfiles=$(shell find . \( \( -name '*.agda' \) ! -name '.*' \) )
-
-# Agda files in this project
-
-agda-loc :
-	@wc $(agdalocfiles)
-
-agda-woc :
-	@wc -L $(agdalocfiles)
+# EOF
