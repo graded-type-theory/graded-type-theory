@@ -54,7 +54,7 @@ jobs:
 
       - name: Save cache
         # Primary cache key is unique, so we can always save.
-        # if:   ${{ !steps.cache.outputs.cache-hit }}
+        if:   ${{ always() }}
         uses: actions/cache/save@v3
         with:
           key: ${{ steps.cache.outputs.cache-primary-key }}
@@ -75,7 +75,7 @@ jobs:
           git clone --depth 1 --single-branch --branch gh-pages https://github.com/graded-type-theory/graded-type-theory.git html
           rm -f '${{ env.HTML_DIR }}'/*.html
           rm -f '${{ env.HTML_DIR }}'/*.css
-          ln -s README.agda index.agda
+          mv -f README.agda index.agda
           agda --html --html-dir="${{ env.HTML_DIR }}" index.agda
 
       - name: Deploy HTML
