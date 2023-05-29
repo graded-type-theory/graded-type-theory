@@ -245,7 +245,7 @@ well-resourced-normal-form-ill-resourced-η-long-normal-form-Unit
              𝟘      ∎) }})
   where
   ⊢Unit = Unitⱼ ε ok
-  ⊢0   = var (ε ∙ ⊢Unit) here
+  ⊢0    = var (ε ∙ ⊢Unit) here
 
 -- The type
 -- Well-resourced-normal-form-ill-resourced-η-long-normal-form is
