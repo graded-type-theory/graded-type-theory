@@ -207,7 +207,7 @@ record InvUsageProdrec
 
 -- If γ ▸[ m ] prodrec r p q A t u then δ ▸[ m ᵐ· r ] t,
 -- η ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u, θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A,
--- Prodrec r p and γ ≤ᶜ r ·ᶜ δ +ᶜ η.
+-- Prodrec r p q and γ ≤ᶜ r ·ᶜ δ +ᶜ η.
 
 inv-usage-prodrec :
   γ ▸[ m ] prodrec r p q A t u → InvUsageProdrec γ m r p q A t u
