@@ -307,3 +307,10 @@ import Application.NegativeAxioms.Canonicity.NegativeErased
 import Application.NegativeAxioms.Canonicity.Erased
 -- ... but not if matching is allowed on erased pairs
 import Application.NegativeAxioms.Canonicity.EliminateErased
+
+------------------------------------------------------------------------
+-- Pointers to code related to a paper
+
+-- Pointers to code related to the paper "A Graded Modal Dependent
+-- Type Theory with a Universe and Erasure, Formalized".
+import README
