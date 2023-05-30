@@ -17,7 +17,7 @@ open import Tools.Reasoning.PropositionalEquality
 private
   variable
     ℓ m n : Nat
-    t u v : Term _
+    A t u v : Term _
     ρ ρ′ : Wk m n
     η : Wk n ℓ
     σ σ′ : Subst m n
@@ -731,6 +731,24 @@ wk1-[]↑² {t = t} {u = u} =
   subst (toSubst (step (step id))) t                                  ≡˘⟨ wk≡subst _ _ ⟩
   wk (step (step id)) t                                               ≡˘⟨ wk1-wk _ _ ⟩
   wk1 (wk1 t)                                                         ∎
+
+-- Substituting wk1 u into t using _[_]↑² amounts to the same thing as
+-- substituting u into t using _[_]↑ and then weakening one step.
+
+[wk1]↑² : (t : Term (1 + n)) → t [ wk1 u ]↑² ≡ wk1 (t [ u ]↑)
+[wk1]↑² {u = u} t =
+  subst (consSubst (λ x → var ((x +1) +1)) (wk1 u)) t  ≡⟨ (flip substVar-to-subst t λ where
+                                                             x0     → refl
+                                                             (_ +1) → refl) ⟩
+  subst (wk1 ∘→ consSubst (λ x → var (x +1)) u) t      ≡˘⟨ wk-subst t ⟩
+  wk1 (subst (consSubst (λ x → var (x +1)) u) t)       ∎
+
+-- A special case of [wk1]↑².
+
+natrec-type-correct :
+  (A : Term (1 + n)) →
+  A [ suc (var x1) ]↑² ≡ wk1 (A [ suc (var x0) ]↑)
+natrec-type-correct = [wk1]↑²
 
 subst-β-prodrec :
   ∀ {s} (A : Term (1+ n)) (σ : Subst m n) →
