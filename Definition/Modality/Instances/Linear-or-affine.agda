@@ -715,15 +715,21 @@ Star-requirements-required′ :
    Linear-or-affine) →
   (∀ p q r → (p ⊛ q ▷ r) ≤ q + r · (p ⊛ q ▷ r)) →
   (∀ p q r → (p ⊛ q ▷ r) ≤ p) →
-  (∀ r → 𝟘 ⊛ 𝟘 ▷ r ≡ 𝟘) →
-  (∀ p q r → p ⊛ q ▷ r ≡ 𝟘 → p ≡ 𝟘 × q ≡ 𝟘) →
+  (∀ r → _·_ SubDistributesOverʳ (_⊛_▷ r) by _≤_) →
   Star-requirements _⊛_▷_
 Star-requirements-required′
-  M refl refl refl refl refl star ⊛-ineq₁ ⊛-ineq₂ ⊛-idem-𝟘 ⊛≈𝟘 =
+  M refl refl refl refl refl star ⊛-ineq₁ ⊛-ineq₂ ·-sub-distribʳ-⊛ =
     (λ {_ _} → ω⊛▷)
   , (λ {_ _} → ⊛ω▷)
   , (λ {_ _} → ⊛▷ω _ _)
-  , (λ {_} → ⊛-idem-𝟘 _)
+  , (λ {r = r} → ≤-antisym
+       (begin
+          𝟘 ⊛ 𝟘 ▷ r  ≤⟨ ⊛-ineq₂ _ _ _ ⟩
+          𝟘          ∎)
+       (begin
+          𝟘              ≡˘⟨ ·-zeroʳ (𝟘 ⊛ 𝟘 ▷ r) ⟩
+          𝟘 ⊛ 𝟘 ▷ r · 𝟘  ≤⟨ ·-sub-distribʳ-⊛ _ _ _ _ ⟩
+          𝟘 ⊛ 𝟘 ▷ r      ∎))
   , (λ {p = p} → ≤-antisym
        (begin
           p ⊛ 𝟙 ▷ 𝟙          ≤⟨ ⊛-ineq₁ _ _ _ ⟩
@@ -781,6 +787,7 @@ Star-requirements-required′
   , ⊛-ineq₂ _ _ _
   , ⊛-ineq₂ _ _ _
   where
+  open Semiring-with-meet M using (·-zeroʳ)
   open PartialOrder M
   open Meet M
   open Multiplication M
@@ -809,16 +816,44 @@ Star-requirements-required′
     (≤ω≤ (p ⊛ ≤ω ▷ r))
 
   𝟙⊛▷ : 𝟙 ⊛ q ▷ r ≢ 𝟘
-  𝟙⊛▷ 𝟙⊛▷≡𝟘 = case ⊛≈𝟘 _ _ _ 𝟙⊛▷≡𝟘 .proj₁ of λ ()
+  𝟙⊛▷ {q = q} {r = r} 𝟙⊛▷≡𝟘 =
+    case begin
+      𝟘                ≡⟨⟩
+      𝟘 · ≤ω           ≡˘⟨ cong (_· _) 𝟙⊛▷≡𝟘 ⟩
+      𝟙 ⊛ q ▷ r · ≤ω   ≤⟨ ·-sub-distribʳ-⊛ _ _ _ _ ⟩
+      ≤ω ⊛ q · ≤ω ▷ r  ≡⟨ ω⊛▷ ⟩
+      ≤ω               ∎
+    of λ ()
 
   ≤𝟙⊛▷ : ≤𝟙 ⊛ q ▷ r ≢ 𝟘
-  ≤𝟙⊛▷ ≤𝟙⊛▷≡𝟘 = case ⊛≈𝟘 _ _ _ ≤𝟙⊛▷≡𝟘 .proj₁ of λ ()
+  ≤𝟙⊛▷ {q = q} {r = r} ≤𝟙⊛▷≡𝟘 =
+    case begin
+      𝟘                ≡⟨⟩
+      𝟘 · ≤ω           ≡˘⟨ cong (_· _) ≤𝟙⊛▷≡𝟘 ⟩
+      ≤𝟙 ⊛ q ▷ r · ≤ω  ≤⟨ ·-sub-distribʳ-⊛ _ _ _ _ ⟩
+      ≤ω ⊛ q · ≤ω ▷ r  ≡⟨ ω⊛▷ ⟩
+      ≤ω               ∎
+    of λ ()
 
   ⊛𝟙▷ : p ⊛ 𝟙 ▷ r ≢ 𝟘
-  ⊛𝟙▷ ⊛𝟙▷≡𝟘 = case ⊛≈𝟘 _ _ _ ⊛𝟙▷≡𝟘 .proj₂ of λ ()
+  ⊛𝟙▷ {p = p} {r = r} ⊛𝟙▷≡𝟘 =
+    case begin
+      𝟘                  ≡⟨⟩
+      𝟘 · ≤ω             ≡˘⟨ cong (_· _) ⊛𝟙▷≡𝟘 ⟩
+      p ⊛ 𝟙 ▷ r · ≤ω     ≤⟨ ·-sub-distribʳ-⊛ _ _ _ _ ⟩
+      (p · ≤ω) ⊛ ≤ω ▷ r  ≡⟨ ⊛ω▷ ⟩
+      ≤ω                 ∎
+    of λ ()
 
   ⊛≤𝟙▷ : p ⊛ ≤𝟙 ▷ r ≢ 𝟘
-  ⊛≤𝟙▷ ⊛≤𝟙▷≡𝟘 = case ⊛≈𝟘 _ _ _ ⊛≤𝟙▷≡𝟘 .proj₂ of λ ()
+  ⊛≤𝟙▷ {p = p} {r = r} ⊛≤𝟙▷≡𝟘 =
+    case begin
+      𝟘                  ≡⟨⟩
+      𝟘 · ≤ω             ≡˘⟨ cong (_· _) ⊛≤𝟙▷≡𝟘 ⟩
+      p ⊛ ≤𝟙 ▷ r · ≤ω    ≤⟨ ·-sub-distribʳ-⊛ _ _ _ _ ⟩
+      (p · ≤ω) ⊛ ≤ω ▷ r  ≡⟨ ⊛ω▷ ⟩
+      ≤ω                 ∎
+    of λ ()
 
   ⊛▷ω : ∀ p q → ¬ (p ≡ 𝟘 × q ≡ 𝟘) → (p ⊛ q ▷ ≤ω) ≡ ≤ω
   ⊛▷ω _ ≤ω _      = ⊛ω▷
@@ -852,29 +887,24 @@ Star-requirements-required′
     (≤ω≤ (≤𝟙 ⊛ 𝟘 ▷ ≤ω))
 
 -- The star operation of a modality for Linear-or-affine for which the
--- zero is 𝟘, the one is 𝟙, 𝟘 is well behaved, addition is _+_,
--- multiplication is _·_, and the meet operation is _∧_ has to satisfy
--- the Star-requirements.
+-- zero is 𝟘, the one is 𝟙, addition is _+_, multiplication is _·_,
+-- and the meet operation is _∧_ has to satisfy the Star-requirements.
 
 Star-requirements-required :
   (M : Modality) →
-  Modality.𝟘          M ≡ 𝟘 →
-  Modality.𝟙          M ≡ 𝟙 →
-  Modality._+_        M ≡ _+_ →
-  Modality._·_        M ≡ _·_ →
-  Modality._∧_        M ≡ _∧_ →
-  Has-well-behaved-zero (Modality.semiring-with-meet M) →
+  Modality.𝟘   M ≡ 𝟘 →
+  Modality.𝟙   M ≡ 𝟙 →
+  Modality._+_ M ≡ _+_ →
+  Modality._·_ M ≡ _·_ →
+  Modality._∧_ M ≡ _∧_ →
   Star-requirements (Modality._⊛_▷_ M)
-Star-requirements-required M refl refl refl refl refl 𝟘-wb =
+Star-requirements-required M refl refl refl refl refl =
   Star-requirements-required′
     semiring-with-meet refl refl refl refl refl
-    _⊛_▷_ ⊛-ineq₁ ⊛-ineq₂ ⊛-idem-𝟘
-    (λ _ _ _ eq → ⊛≈𝟘ˡ eq , ⊛≈𝟘ʳ eq)
+    _⊛_▷_ ⊛-ineq₁ ⊛-ineq₂ ·-sub-distribʳ-⊛
   where
   open Modality M
   open Star semiring-with-meet-and-star
-  open import Definition.Modality.Properties.Has-well-behaved-zero
-       semiring-with-meet-and-star 𝟘-wb
 
 -- A "greatest" definition of the star operation.
 
@@ -982,21 +1012,20 @@ p ⊛ q ▷ ≤ω = ≤ω · (p ∧ q)
 
 -- The star operation returns results that are at least as large as
 -- those of the star operation of any modality for Linear-or-affine
--- for which the zero is 𝟘, the one is 𝟙, 𝟘 is well behaved, addition is
--- _+_, multiplication is _·_, and the meet operation is _∧_.
+-- for which the zero is 𝟘, the one is 𝟙, addition is _+_,
+-- multiplication is _·_, and the meet operation is _∧_.
 
 ⊛-greatest :
   (M : Modality) →
-  Modality.𝟘          M ≡ 𝟘 →
-  Modality.𝟙          M ≡ 𝟙 →
-  Modality._+_        M ≡ _+_ →
-  Modality._·_        M ≡ _·_ →
-  Modality._∧_        M ≡ _∧_ →
-  Has-well-behaved-zero (Modality.semiring-with-meet M) →
+  Modality.𝟘   M ≡ 𝟘 →
+  Modality.𝟙   M ≡ 𝟙 →
+  Modality._+_ M ≡ _+_ →
+  Modality._·_ M ≡ _·_ →
+  Modality._∧_ M ≡ _∧_ →
   ∀ p q r → Modality._⊛_▷_ M p q r ≤ p ⊛ q ▷ r
-⊛-greatest M refl refl refl refl refl 𝟘-wb =
+⊛-greatest M refl refl refl refl refl =
   case Star-requirements-required
-         M refl refl refl refl refl 𝟘-wb of
+         M refl refl refl refl refl of
     λ (≤ω⊛▷′ , ⊛≤ω▷′ , ⊛▷′≤ω , 𝟘⊛𝟘▷′ ,
        ⊛𝟙▷′𝟙 , ⊛𝟙▷′≤𝟙 , ⊛≤𝟙▷′𝟙 , ⊛≤𝟙▷′≤𝟙 ,
        𝟘⊛𝟙▷′𝟘 , 𝟘⊛≤𝟙▷′𝟘 , 𝟙⊛𝟘▷′𝟘 , ≤𝟙⊛𝟘▷′𝟘 ,
