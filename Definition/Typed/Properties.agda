@@ -214,17 +214,7 @@ whnfRed : (d : Γ ⊢ A ⇒ B) (w : Whnf A) → ⊥
 whnfRed (univ x) w = whnfRedTerm x w
 
 whnfRed*Term : (d : Γ ⊢ t ⇒* u ∷ A) (w : Whnf t) → t PE.≡ u
-whnfRed*Term (id x) Uₙ = PE.refl
-whnfRed*Term (id x) ΠΣₙ = PE.refl
-whnfRed*Term (id x) ℕₙ = PE.refl
-whnfRed*Term (id x) Emptyₙ = PE.refl
-whnfRed*Term (id x) Unitₙ = PE.refl
-whnfRed*Term (id x) lamₙ = PE.refl
-whnfRed*Term (id x) prodₙ = PE.refl
-whnfRed*Term (id x) zeroₙ = PE.refl
-whnfRed*Term (id x) sucₙ = PE.refl
-whnfRed*Term (id x) starₙ = PE.refl
-whnfRed*Term (id x) (ne x₁) = PE.refl
+whnfRed*Term (id x) _ = PE.refl
 whnfRed*Term (conv x x₁ ⇨ d) w = ⊥-elim (whnfRedTerm x w)
 whnfRed*Term (x ⇨ d) (ne x₁) = ⊥-elim (neRedTerm x x₁)
 
