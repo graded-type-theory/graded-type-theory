@@ -24,7 +24,7 @@ private
     v v′ w : T.Term n
     p : M
 
--- Extraction of prodrec when the argument is not erased.
+-- Extraction for prodrec when the match is not erased.
 
 erase-prodrecω : (p : M) (t : T.Term n) (u : T.Term (1+ (1+ n)))
                → T.Term n
