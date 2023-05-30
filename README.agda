@@ -98,9 +98,7 @@ no-erased-matches = Graded.Restrictions.no-erased-matches
 -- of the theory.
 
 -- There are also other differences between the paper and the
--- formalisation. Such differences are noted below.
-
--- TODO: Note such differences below.
+-- formalisation. Quite a few such differences are noted below.
 
 ------------------------------------------------------------------------
 -- 3: Modalities as grades in an ordered semiring
