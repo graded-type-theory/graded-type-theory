@@ -3,26 +3,6 @@
 -- Universe and Erasure, Formalized"
 --------------------------------------------------------------------------
 
--- The code does not follow the paper exactly. Notably, the formalization
--- covers both the main one used in majority of the paper and the
--- extended one used in section 8.
-
--- This is achieved through two types of restrictions
--- (Definition.Mode.Restrictions.Mode-restrictions and
--- Definition.Typed.Restrictions.Type-restrictions). The system
--- without modes can be obtained by disallowing the zero mode and
--- requiring that the extra Σ-type annotation equals 𝟙. The moded
--- system can be obtained by allowing the zero mode.
-
--- This affects a number of other definitions and theorems which mention
--- modes. When the zero mode is disallowed, these reduce to the statments
--- found in the paper for the system without modes.
-
--- In addition, some parts of the code have been updated no longer match
--- the paper. Such differences are noted below.
--- TODO: Note such differences below.
-
-
 module README where
 
 import Definition.Modality
@@ -39,19 +19,25 @@ import Definition.Modality.Instances.Recursive
 import Definition.Modality.Instances.BoundedStar
 import Definition.Modality.Usage
 import Definition.Modality.Usage.Decidable
+import Definition.Modality.Usage.Inversion
 import Definition.Modality.Usage.Properties
+import Definition.Modality.Usage.Restrictions
+import Definition.Modality.Restrictions
 import Definition.Modality.Substitution
 import Definition.Modality.Substitution.Properties
 
 import Definition.Untyped
 import Definition.Typed
+import Definition.Typed.Consequences.Inversion
 import Definition.Typed.Properties
+import Definition.Typed.Restrictions
 import Definition.Typed.Usage
 import Definition.LogicalRelation
 import Definition.LogicalRelation.Fundamental
 import Definition.LogicalRelation.Fundamental.Reducibility
 import Definition.LogicalRelation.Substitution
 import Definition.Mode
+import Definition.Mode.Restrictions
 
 import Erasure.Target
 import Erasure.Extraction
@@ -67,12 +53,59 @@ import Erasure.Consequences.Soundness
 import Application.NegativeAxioms.Canonicity.Erased
 import Application.NegativeAxioms.Canonicity.EliminateErased
 
+-- The code does not follow the paper exactly. Notably, the
+-- formalisation contains parameters that make it possible to control
+-- whether certain features should be included or not (in addition to
+-- the possibility to choose what modality to use):
+
+-- * One can have a theory with a single mode, or two modes:
+
+modes = Definition.Mode.Restrictions.Mode-restrictions
+
+-- * One can choose whether to allow use of the unit type with
+--   η-equality. Furthermore one can choose whether to allow binders
+--   of the form B_p^q, where p and q are grades and B is "Π", "Σ
+--   without η-equality" or "Σ with η-equality":
+
+types = Definition.Typed.Restrictions.Type-restrictions
+
+--   This parameter does not affect the syntax, but if a term has a
+--   certain type ("Unit" or "B_p^q A B"), then this type must be
+--   allowed:
+
+Unit-allowed =
+  Definition.Typed.Consequences.Inversion.⊢∷Unit→Unit-restriction
+ΠΣ-allowed =
+  Definition.Typed.Consequences.Inversion.⊢∷ΠΣ→ΠΣ-restriction
+
+-- * One can choose whether to allow the term prodrec_r,p^q:
+
+prodrec = Definition.Modality.Usage.Restrictions.Usage-restrictions
+
+--   This only affects the usage relation. If prodrec_r,p^q A t u is
+--   well-resourced (under any mode), then the term is allowed:
+
+prodrec-allowed = Definition.Modality.Usage.Inversion.inv-usage-prodrec
+
+--   One can use this parameter to rule out erased matches:
+
+no-erased-matches = Definition.Modality.Restrictions.no-erased-matches
+
+-- Note that some results have only been proved for certain variants
+-- of the theory.
+
+-- There are also other differences between the paper and the
+-- formalisation. Such differences are noted below.
+
+-- TODO: Note such differences below.
+
 ------------------------------------------------------------------------
 -- 3: Modalities as grades in an ordered semiring
 
 -- Definition 3.1: The modality semiring
--- Note that for the definition given here, the restrictions should be
--- set to disallow the zero mode.
+--
+-- For the variant of the type theory in Section 3 the mode 𝟘ᵐ should
+-- be disallowed, i.e. 𝟘ᵐ-allowed should be false.
 
 Modality = Definition.Modality.Modality
 
