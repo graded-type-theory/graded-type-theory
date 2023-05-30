@@ -22,6 +22,7 @@ env:
   STDLIB_VERSION: 1.7.1
   DEPLOY_DIR: ${{ github.ref_name }}
   HTML_DIR: html/${{ github.ref_name }}
+  MAIN: Everything.agda
 
 jobs:
   build:
@@ -50,7 +51,7 @@ jobs:
             ~/.agda/libraries.d
 
       - name: Run Agda
-        run: agda README.agda
+        run: agda "${{ env.MAIN }}"
 
       - name: Save cache
         # Primary cache key is unique, so we can always save.
@@ -75,7 +76,7 @@ jobs:
           git clone --depth 1 --single-branch --branch gh-pages https://github.com/graded-type-theory/graded-type-theory.git html
           rm -f '${{ env.HTML_DIR }}'/*.html
           rm -f '${{ env.HTML_DIR }}'/*.css
-          agda --html --html-dir="${{ env.HTML_DIR }}" README.agda
+          agda --html --html-dir="${{ env.HTML_DIR }}" "${{ env.MAIN }}"
           cp "${{ env.HTML_DIR }}/README.html" "${{ env.HTML_DIR }}/index.html"
 
       - name: Deploy HTML
