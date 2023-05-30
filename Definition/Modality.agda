@@ -24,7 +24,7 @@ record Semiring-with-meet : Set a where
 
 
   field
-    -- A modality consists of a type M with three binary operations...
+    -- A semiring with meet consists of a type M with three binary operations...
     _+_ : Op₂ M -- Addition
     _·_ : Op₂ M -- Multiplication
     _∧_ : Op₂ M -- Meet
@@ -33,7 +33,7 @@ record Semiring-with-meet : Set a where
     𝟘 : M
     𝟙 : M
 
-    -- + and · form a semiring with 𝟙 as multiplicativ unit and 𝟘 as zero
+    -- + and · form a semiring with 𝟙 as multiplicative unit and 𝟘 as zero
     +-·-Semiring  : IsSemiring _+_ _·_ 𝟘 𝟙
     -- ∧ forms a semilattice
     ∧-Semilattice       : IsSemilattice _∧_
@@ -117,7 +117,8 @@ record Has-well-behaved-zero (𝕄 : Semiring-with-meet) : Set a where
     -- if p · q is 𝟘, then either p is 𝟘 or q is 𝟘.
     zero-product : {p q : M} → p · q ≈ 𝟘 → (p ≈ 𝟘) ⊎ (q ≈ 𝟘)
 
-    -- The semiring is positive:
+    -- The semiring is positive (with respect to addition and meet):
+
     -- if p + q is 𝟘, then p and q are 𝟘. (The statement that p + q ≈ 𝟘
     -- implies q ≈ 𝟘 follows from the one below, see
     -- Definition.Modality.Properties.Has-well-behaved-zero.+-positiveʳ.)

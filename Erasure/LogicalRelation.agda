@@ -49,15 +49,28 @@ private
     p : M
 
 -- Logical relation for erasure for base types
+----------------------------------------------
+
+-- Terms of type U are related to anything.
+-- (All types are erased by the extraction function.)
 
 data _®_∷U (t : U.Term k) (v : T.Term k) : Set a where
   Uᵣ : Δ ⊢ t ∷ U → t ® v ∷U
+
+-- Terms of type ℕ are related if both are zero
+-- or if both reduce to the successor of related terms.
 
 data _®_∷ℕ (t : U.Term k) (v : T.Term k) : Set a where
   zeroᵣ : Δ ⊢ t ⇒* U.zero ∷ ℕ → v T.⇒* T.zero → t ® v ∷ℕ
   sucᵣ : Δ ⊢ t ⇒* U.suc t′ ∷ ℕ → v T.⇒* T.suc v′ → t′ ® v′ ∷ℕ → t ® v ∷ℕ
 
+-- Terms of type Empty are not related to anything.
+-- (There are no terms of the Empty type in a consistent context).
+
 data _®_∷Empty (t : U.Term k) (v : T.Term k) : Set a where
+
+-- Terms of type Unit are related to terms which reduce to star.
+-- Note that we have η-equality of the unit type.
 
 data _®_∷Unit (t : U.Term k) (v : T.Term k) : Set a where
   starᵣ : Δ ⊢ t ∷ Unit → v T.⇒* T.star → t ® v ∷Unit
@@ -74,11 +87,17 @@ mutual
   t ®⟨ l ⟩ v ∷ A / Unitᵣ x  = t ® v ∷Unit
   t ®⟨ l ⟩ v ∷ A / ne′ K D neK K≡K = Lift a PE.⊥
 
+  -- Π:
   t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΠ p q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _ =
     ∀ {a} → ([a] : Δ ⊩⟨ l ⟩ a ∷ U.wk id F / [F] id ⊢Δ)
           → Π-® l F G t a v ([F] id ⊢Δ) ([G] id ⊢Δ [a]) p (is-𝟘? p)
 
   -- Σ:
+  -- t and v are related if:
+  -- t reduces to a pair (t₁, t₂),
+  -- t₂ is related to some v₂ and
+  -- there is extra data depending on whether the first component
+  -- is erased (see below).
   t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΣ m p q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _ =
     ∃₂ λ t₁ t₂ →
     Δ ⊢ t ⇒* U.prod m p t₁ t₂ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G ×
@@ -99,8 +118,14 @@ mutual
         ([F] : Δ ⊩⟨ l ⟩ U.wk id F)
         ([G] : Δ ⊩⟨ l ⟩ U.wk (lift id) G U.[ b ])
         (p : M) (p≟𝟘 : Dec (p PE.≡ 𝟘)) → Set a
+  -- Erased Π:
+  -- Functions t and v are related if the applications
+  -- t∘a and v∘↯ are related (cf. the extraction function).
   Π-® l F G t a v [F] [Ga] p (yes p≡𝟘) =
     (t ∘⟨ p ⟩ a) ®⟨ l ⟩ v ∘ ↯ ∷ U.wk (lift id) G U.[ a ] / [Ga]
+  -- Non-erased Π:
+  -- Functions t and v are related if the applications
+  -- t∘a and v∘w are related for all related a and w.
   Π-® l F G t a v [F] [Ga] p (no p≢𝟘) =
     ∀ {w} → a ®⟨ l ⟩ w ∷ U.wk id F / [F]
           → (t ∘⟨ p ⟩ a) ®⟨ l ⟩ v ∘ w ∷ U.wk (lift id) G U.[ a ] / [Ga]
@@ -113,11 +138,16 @@ mutual
     Δ ⊩⟨ l ⟩ U.wk id F →
     U.Term k → T.Term k → T.Term k → (p : M) → Set a
   Σ-® l F [F] t₁ v v₂ p = case is-𝟘? p of λ where
+    -- Erased Σ:
+    -- v reduces to v₂
     (yes p≡𝟘) → Lift a (v T.⇒* v₂)
+    -- There is a term v₁ such that v reduces to (v₁, v₂)
+    -- and t₁ is related to v₁.
     (no p≢𝟘) → ∃ λ v₁ → (v T.⇒* T.prod v₁ v₂)
                       × (t₁ ®⟨ l ⟩ v₁ ∷ U.wk id F / [F])
 
 -- Logical relation for terms of quantified type
+-- Under grade 𝟘, the terms need not be related.
 _®⟨_⟩_∷_◂_/_ : (t : U.Term k) (l : TypeLevel) (v : T.Term k)
                  (A : U.Term k) (p : M)
                  ([A] : Δ ⊩⟨ l ⟩ A) → Set a
@@ -126,6 +156,9 @@ t ®⟨ l ⟩ v ∷ A ◂ p / [A] = case is-𝟘? p of λ where
   (no p≢𝟘) → t ®⟨ l ⟩ v ∷ A / [A]
 
 -- Logical relation for substitutions
+--
+-- Substitutions are related if all terms are pairwise related
+-- under the corresponding quantity of the grade context.
 
 _®⟨_⟩_∷[_]_◂_/_/_ :
   (σₜ : U.Subst k n) (l : TypeLevel)
@@ -138,6 +171,9 @@ _®⟨_⟩_∷[_]_◂_/_/_ :
   ◂ ⌜ m ⌝ · p / proj₁ (unwrap [A] ⊢Δ [σ]))
 
 -- Validity of erasure
+--
+-- A term t is valid if t[σ] is related to (erase t)[σ′]
+-- for all related contexts σ and σ′.
 
 _▸_⊩ʳ⟨_⟩_∷[_]_/_/_ :
   (γ : Conₘ n) (Γ : Con U.Term n) (l : TypeLevel)

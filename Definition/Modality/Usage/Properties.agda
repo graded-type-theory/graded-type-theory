@@ -738,6 +738,11 @@ module _ (𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet) where
     semiring-with-meet-and-star 𝟘-well-behaved as P
   open import Definition.Modality.Usage.Inversion 𝕄 R
 
+  -- A well-resourced variable under mode 𝟙ᵐ is not associated with
+  -- grade 𝟘.
+  --
+  -- Proof by induction on the variable (de Bruijn index).
+
   valid-var-usage : γ ▸[ 𝟙ᵐ ] var x → γ ⟨ x ⟩ ≢ 𝟘
   valid-var-usage γ▸x γ⟨x⟩≡𝟘 = P.𝟘≰𝟙 (lemma _ (inv-usage-var γ▸x) γ⟨x⟩≡𝟘)
     where
@@ -745,15 +750,24 @@ module _ (𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet) where
     lemma x0 (_ ∙ γ⟨x⟩≤𝟙) PE.refl = γ⟨x⟩≤𝟙
     lemma (x +1) (γ≤eᵢ ∙ _) γ⟨x⟩≡𝟘 = lemma x γ≤eᵢ γ⟨x⟩≡𝟘
 
+  -- A variant of the positivity property for addition for the
+  -- usage relation for variables.
+
   x◂𝟘∈γ+δˡ : p ≡ 𝟘 → x ◂ p ∈ γ +ᶜ δ → x ◂ 𝟘 ∈ γ
   x◂𝟘∈γ+δˡ {x = ()} {ε} _
   x◂𝟘∈γ+δˡ {x = x0} {γ ∙ p} {δ ∙ q} p+q≡𝟘 here =
     PE.subst (λ x → x0 ◂ x ∈ (γ ∙ p)) (P.+-positiveˡ p+q≡𝟘) here
   x◂𝟘∈γ+δˡ {x = x +1} {γ ∙ p} {δ ∙ q} eq (there d) = there (x◂𝟘∈γ+δˡ eq d)
 
+  -- A variant of the positivity property for addition for the
+  -- usage relation for variables.
+
   x◂𝟘∈γ+δʳ : p ≡ 𝟘 → x ◂ p ∈ γ +ᶜ δ → x ◂ 𝟘 ∈ δ
   x◂𝟘∈γ+δʳ {γ = γ} {δ} p≡𝟘 d =
     x◂𝟘∈γ+δˡ p≡𝟘 (PE.subst (λ x → _ ◂ _ ∈ x) (≈ᶜ→≡ (+ᶜ-comm γ δ)) d)
+
+  -- A variant of the zero-product property for the
+  -- usage relation for variables.
 
   x◂𝟘∈pγ : q ≡ 𝟘 → p ≢ 𝟘 → x ◂ q ∈ p ·ᶜ γ → x ◂ 𝟘 ∈ γ
   x◂𝟘∈pγ {x = ()} {ε} q≡𝟘 p≢𝟘 d
@@ -763,6 +777,9 @@ module _ (𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet) where
   x◂𝟘∈pγ {x = x +1} {γ ∙ r} q≡𝟘 p≢𝟘 (there d) =
     there (x◂𝟘∈pγ q≡𝟘 p≢𝟘 d)
 
+  -- A variant of the positivity property for meet for the
+  -- usage relation for variables.
+
   x◂𝟘∈γ∧δˡ : p ≡ 𝟘 → x ◂ p ∈ γ ∧ᶜ δ → x ◂ 𝟘 ∈ γ
   x◂𝟘∈γ∧δˡ {x = ()} {ε} _
   x◂𝟘∈γ∧δˡ {x = x0} {γ ∙ p} {δ ∙ q} p∧q≡𝟘 here =
@@ -770,9 +787,15 @@ module _ (𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet) where
   x◂𝟘∈γ∧δˡ {x = x +1} {γ ∙ p} {δ ∙ q} eq (there d) =
     there (x◂𝟘∈γ∧δˡ eq d)
 
+  -- A variant of the positivity property for meet for the
+  -- usage relation for variables.
+
   x◂𝟘∈γ∧δʳ : p ≡ 𝟘 → x ◂ p ∈ γ ∧ᶜ δ → x ◂ 𝟘 ∈ δ
   x◂𝟘∈γ∧δʳ {γ = γ} {δ} p≡𝟘 d =
     x◂𝟘∈γ∧δˡ p≡𝟘 (PE.subst (λ x → _ ◂ _ ∈ x) (≈ᶜ→≡ (∧ᶜ-comm γ δ)) d)
+
+  -- A variant of the positivity property for ⊛ᵣ for the
+  -- usage relation for variables.
 
   x◂𝟘∈γ⊛δˡ : p ≡ 𝟘 → x ◂ p ∈ γ ⊛ᶜ δ ▷ r → x ◂ 𝟘 ∈ γ
   x◂𝟘∈γ⊛δˡ {x = x0} {γ ∙ p} {δ ∙ q} p⊛q≡𝟘 here =
@@ -780,11 +803,17 @@ module _ (𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet) where
   x◂𝟘∈γ⊛δˡ {x = x +1} {γ ∙ p} {δ ∙ q} eq (there d) =
     there (x◂𝟘∈γ⊛δˡ eq d)
 
+  -- A variant of the positivity property for ⊛ᵣ for the
+  -- usage relation for variables.
+
   x◂𝟘∈γ⊛δʳ : p ≡ 𝟘 → x ◂ p ∈ γ ⊛ᶜ δ ▷ r → x ◂ 𝟘 ∈ δ
   x◂𝟘∈γ⊛δʳ {x = x0} {γ ∙ p} {δ ∙ q} p⊛q≡𝟘 here =
     PE.subst (λ x → _ ◂ x ∈ δ ∙ q) (P.⊛≈𝟘ʳ p⊛q≡𝟘) here
   x◂𝟘∈γ⊛δʳ {x = x +1} {γ ∙ p} {δ ∙ q} eq (there d) =
     there (x◂𝟘∈γ⊛δʳ eq d)
+
+  -- A variant of the property that nothing is smaller than 𝟘 for the
+  -- usage relation for variables.
 
   x◂𝟘∈γ≤δ : x ◂ 𝟘 ∈ γ → γ ≤ᶜ δ → x ◂ 𝟘 ∈ δ
   x◂𝟘∈γ≤δ {δ = δ ∙ p} here (γ≤δ ∙ 𝟘≤p) rewrite P.𝟘≮ 𝟘≤p = here

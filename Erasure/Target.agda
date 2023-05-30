@@ -17,7 +17,8 @@ private
     ℓ m n : Nat
 
 -- Terms of the target language:
--- A lambda calculus extended with natural numbers, products and unit
+-- A lambda calculus extended with natural numbers, products, unit
+-- and an undefined value.
 
 data Term : Nat → Set where
   var       : (x : Fin n) → Term n

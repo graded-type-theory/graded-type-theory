@@ -173,6 +173,12 @@ fundamentalVar {Γ = Γ} {x = x} {A = A} {γ = γ} {m = m} [Γ] x∷A∈Γ γ▸
            (proj₁ (unwrap [A] ⊢Δ [σ])) t®v
 
 -- The fundamental lemma for the erasure relation.
+--
+-- The main parts of this proof are located in Erasure.LogicalRelation.Fundamental.X
+-- The general proof strategy of these is the following:
+-- To show that t is valid, find t′ in whnf such that t ⇒* t′ and show that t′ is valid.
+-- The result that t is valid then follows from the logical relation being closed under
+-- reduction (see Erasure.LogicalRelation.Reduction).
 
 fundamental : Γ ⊢ t ∷ A → γ ▸[ m ] t
             → ∃₂ λ ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ])

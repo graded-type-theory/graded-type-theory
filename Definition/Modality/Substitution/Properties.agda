@@ -590,6 +590,8 @@ wf-tailSubstₘ Ψ▶σ x =
 -- A substitution lemma for the mode 𝟘ᵐ[ ok ]: if σ is well-formed and
 -- t is well-used, then U.subst σ t is well-used in the mode 𝟘ᵐ[ ok ],
 -- with no usages.
+--
+-- Proof by induction on t being well resourced.
 
 substₘ-lemma₀ :
   ∀ ⦃ ok ⦄ (Ψ : Substₘ m n) →
@@ -727,6 +729,8 @@ private
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
 -- A substitution lemma for the case where the mode 𝟘ᵐ is not allowed.
+--
+-- Proof by induction on t being well resourced.
 
 substₘ-lemma₁ :
   ¬ T 𝟘ᵐ-allowed →
@@ -942,6 +946,8 @@ private
     open Tools.Reasoning.Equivalence Conₘ-setoid
 
 -- The main substitution lemma.
+--
+-- Proof by induction on t being well resourced.
 
 substₘ-lemma :
   (Ψ : Substₘ m n) →

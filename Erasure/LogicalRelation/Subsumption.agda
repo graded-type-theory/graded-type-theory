@@ -43,8 +43,6 @@ open import Tools.Nat
 open import Tools.Product
 open import Tools.Unit
 
--- open Modality ErasureModality using (·-zeroʳ)
-
 private
   variable
     n : Nat
@@ -96,7 +94,8 @@ t®v◂𝟘 with is-𝟘? 𝟘
 ... | no 𝟘≢𝟘 = PE.⊥-elim (𝟘≢𝟘 PE.refl)
 
 -- Subsumption of related substitutions
--- If σ ® σ′ ∷ Γ ◂ γ and γ ≤ᶜ δ then σ ® σ′ ∷ Γ ◂ δ
+-- If σ ® σ′ ∷ Γ ◂ γ and whenever γ⟨x⟩ ≡ 𝟘 then δ⟨x⟩≡𝟘
+-- then σ ® σ′ ∷ Γ ◂ δ
 
 subsumptionSubst : ∀ {l σₜ σᵥ [Γ] [σ]}
                  → σₜ ®⟨ l ⟩ σᵥ ∷[ m ] Γ ◂ γ / [Γ] / [σ]
@@ -133,7 +132,8 @@ subsumptionSubstMode {γ = _ ∙ p} {m = 𝟘ᵐ} {[Γ] = _ ∙ _} l (ok₁ , _)
 
 
 -- Subsumption of erasure validity
--- If γ ▸ Γ ⊩ʳ t ∷ A and δ ≤ᶜ γ then δ ▸ Γ ⊩ʳ t ∷ A
+-- If γ ▸ Γ ⊩ʳ t ∷ A and whenever δ⟨x⟩≡𝟘 then γ⟨x⟩≡𝟘
+-- then δ ▸ Γ ⊩ʳ t ∷ A
 
 subsumption : ∀ {l} {Γ : U.Con U.Term n} {t A : U.Term n}
             → ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ])

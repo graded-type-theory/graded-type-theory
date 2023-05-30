@@ -297,7 +297,9 @@ module _ (R : Usage-restrictions) where
   open MU R
   open MUP R
 
-  -- Erased variables do not occur after extraction
+  -- Erased variables do not occur after extraction.
+  --
+  -- Prood by induction on t being well-resourced.
 
   erased-hasX : x ◂ 𝟘 ∈ γ → γ ▸[ 𝟙ᵐ ] t → HasX x (erase t) → ⊥
 

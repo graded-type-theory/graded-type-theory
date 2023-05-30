@@ -53,6 +53,9 @@ private
 -- Subject reduction properties for modality usage
 
 -- Term reduction preserves usage.
+--
+-- Proof by induction on the reduction relation using the inversion
+-- and substitution lemmata for the usage relation.
 
 usagePresTerm : γ ▸[ m ] t → Γ ⊢ t ⇒ u ∷ A → γ ▸[ m ] u
 usagePresTerm γ▸t (conv t⇒u x) = usagePresTerm γ▸t t⇒u

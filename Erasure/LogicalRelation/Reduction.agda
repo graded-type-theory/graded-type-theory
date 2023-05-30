@@ -58,6 +58,8 @@ private
 
 -- Logical relation for erasure is preserved under a single reduction backwards on the source language term
 -- If t′ ® v ∷ A and Δ ⊢ t ⇒ t′ ∷ A then t ® v ∷ A
+--
+-- Proof by induction on t′ ® v ∷ A
 
 sourceRedSubstTerm : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t′ ®⟨ l ⟩ v ∷ A / [A]
                    → Δ ⊢ t ⇒ t′ ∷ A → t ®⟨ l ⟩ v ∷ A / [A]
@@ -96,6 +98,8 @@ sourceRedSubstTerm (emb 0<1 [A]) t®v t⇒t′ = sourceRedSubstTerm [A] t®v t�
 
 -- Logical relation for erasure is preserved under reduction closure backwards on the source language term
 -- If t′ ® v ∷ A and Δ ⊢ t ⇒* t′ ∷ A then t ® v ∷ A
+--
+-- Proof by induction on t′ ® v ∷ A
 
 sourceRedSubstTerm* : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t′ ®⟨ l ⟩ v ∷ A / [A]
                     → Δ ⊢ t ⇒* t′ ∷ A → t ®⟨ l ⟩ v ∷ A / [A]
@@ -106,6 +110,8 @@ sourceRedSubstTerm* [A] t′®v (x ⇨ t⇒t′) =
 
 -- Logical relation for erasure is preserved under a single reduction backwards on the target language term
 -- If t ® v′ ∷ A and v ⇒ v′ then t ® v ∷ A
+--
+-- Proof by induction on t ® v′ ∷ A
 
 targetRedSubstTerm : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v′ ∷ A / [A]
                    → v T.⇒ v′ → t ®⟨ l ⟩ v ∷ A / [A]
@@ -140,6 +146,8 @@ targetRedSubstTerm (emb 0<1 [A]) t®v′ v⇒v′ = targetRedSubstTerm [A] t®v�
 -- Logical relation for erasure is preserved under reduction closure backwards
 -- on the target language term.
 -- If t ® v′ ∷ A and v ⇒* v′ then t ® v ∷ A
+--
+-- Proof by induction on t ® v′ ∷ A
 
 targetRedSubstTerm* : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v′ ∷ A / [A]
                     → v T.⇒* v′ → t ®⟨ l ⟩ v ∷ A / [A]
@@ -150,6 +158,8 @@ targetRedSubstTerm* [A] t®v′ (trans x v⇒v′) =
 
 -- Logical relation for erasure is preserved under reduction backwards
 -- If t′ ® v′ ∷ A and Δ ⊢ t ⇒ t′ ∷ A and v ⇒ v′ then t ® v ∷ A
+--
+-- Proof by induction on t′ ® v′ ∷ A
 
 redSubstTerm : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t′ ®⟨ l ⟩ v′ ∷ A / [A]
              → Δ ⊢ t ⇒ t′ ∷ A → v T.⇒ v′ → t ®⟨ l ⟩ v ∷ A / [A]
@@ -159,6 +169,8 @@ redSubstTerm [A] t′®v′ t⇒t′ v⇒v′ =
 
 -- Logical relation for erasure is preserved under reduction closure backwards
 -- If t′ ® v′ ∷ A and Δ ⊢ t ⇒* t′ ∷ A and v ⇒* v′ then t ® v ∷ A
+--
+-- Proof by induction on t′ ® v′ ∷ A
 
 redSubstTerm* : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t′ ®⟨ l ⟩ v′ ∷ A / [A]
               → Δ ⊢ t ⇒* t′ ∷ A → v T.⇒* v′ → t ®⟨ l ⟩ v ∷ A / [A]
@@ -167,6 +179,8 @@ redSubstTerm* [A] t′®v′ t⇒t′ v⇒v′ = targetRedSubstTerm* [A] (source
 
 -- Logical relation for erasure is preserved under one reduction step on the source language term
 -- If t ® v ∷ A and Δ ⊢ t ⇒ t′ ∷ A  then t′ ® v ∷ A
+--
+-- Proof by induction on t ® v ∷ A
 
 sourceRedSubstTerm′ : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A]
                     → Δ ⊢ t ⇒ t′ ∷ A → t′ ®⟨ l ⟩ v ∷ A / [A]
@@ -213,6 +227,8 @@ sourceRedSubstTerm′ (emb 0<1 [A]) t®v t⇒t′ = sourceRedSubstTerm′ [A] t�
 
 -- Logical relation for erasure is preserved under reduction closure on the source language term
 -- If t ® v ∷ A and Δ ⊢ t ⇒* t′ ∷ A  then t′ ® v ∷ A
+--
+-- Proof by induction on t ® v ∷ A
 
 sourceRedSubstTerm*′ : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A]
                      → Δ ⊢ t ⇒* t′ ∷ A → t′ ®⟨ l ⟩ v ∷ A / [A]
@@ -229,6 +245,8 @@ targetRedSubstTerm*′ :
 
 -- Logical relation for erasure is preserved under one reduction step on the target language term
 -- If t ® v ∷ A and v ⇒ v′  then t ® v′ ∷ A
+--
+-- Proof by induction on t ® v ∷ A
 
 targetRedSubstTerm′ : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A]
                     → v T.⇒ v′ → t ®⟨ l ⟩ v′ ∷ A / [A]
@@ -281,6 +299,8 @@ targetRedSubstTerm*′ [A] t®v (trans x v⇒v′) =
 
 -- Logical relation for erasure is preserved under reduction
 -- If t ® v ∷ A and Δ ⊢ t ⇒ t′ ∷ A and v ⇒ v′ then t′ ® v′ ∷ A
+--
+-- Proof by induction on t ® v ∷ A
 
 redSubstTerm′ : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A]
               → Δ ⊢ t ⇒ t′ ∷ A → v T.⇒ v′ → t′ ®⟨ l ⟩ v′ ∷ A / [A]
@@ -289,6 +309,8 @@ redSubstTerm′ [A] t®v t⇒t′ v⇒v′ =
 
 -- Logical relation for erasure is preserved under reduction closure
 -- If t ® v ∷ A and Δ ⊢ t ⇒* t′ ∷ A and v ⇒* v′ then t′ ® v′ ∷ A
+--
+-- Proof by induction on t ® v ∷ A
 
 redSubstTerm*′ : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A]
                → Δ ⊢ t ⇒* t′ ∷ A → v T.⇒* v′ → t′ ®⟨ l ⟩ v′ ∷ A / [A]

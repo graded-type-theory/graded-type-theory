@@ -67,6 +67,9 @@ data Kind : (ns : List Nat) → Set a where
 -- The type of terms is parametrised by the number of free variables.
 -- A term is either a variable (a de Bruijn index) or a generic term,
 -- consisting of a kind and a list of sub-terms.
+--
+-- A term (gen k (n₁ ∷ … ∷ nₖ)) consists of k sub-terms (possibly zero)
+-- each binding nᵢ variables.
 
 data Term (n : Nat) : Set a where
   var : (x : Fin n) → Term n
