@@ -496,7 +496,7 @@ inv-usage-fstᵣ′ {γ = γ} {m = m} {r = r} {p = p} {q = q} ▸fstᵣ′ =
   , ▸t
   , ▸A
   , (λ ⦃ ok = ok ⦄ →
-       wkUsage⁻¹ ok $
+       wkUsage⁻¹ $
        sub (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸A) $
        let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
        θ ∙ 𝟘            ≈˘⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
