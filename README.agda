@@ -121,6 +121,11 @@ _≤_ = Definition.Modality.Context._≤ᶜ_
 
 unitModality = Definition.Modality.Instances.Unit.UnitModality
 
+-- With the given definitions of _∧_, _+_ and _·_ there is only one
+-- lawful way to define the star operator (up to pointwise equality).
+
+⊛-unique = Definition.Modality.Instances.Erasure.Properties.⊛-unique
+
 -- An erasure modality
 
 erasureModality = Definition.Modality.Instances.Erasure.Modality.ErasureModality

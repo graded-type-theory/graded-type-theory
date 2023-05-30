@@ -28,7 +28,8 @@ open import Definition.Typed.Restrictions Erasure
 
 open import Definition.Untyped Erasure
 
-open import Tools.Bool
+open import Tools.Algebra Erasure
+open import Tools.Bool hiding (_∧_)
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
@@ -37,6 +38,7 @@ open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality as PE using (_≡_; _≢_)
 import Tools.Reasoning.PartialOrder
+import Tools.Reasoning.PropositionalEquality
 open import Tools.Unit
 
 private
@@ -237,5 +239,98 @@ full-reduction-assumptions {rs = rs} 𝟘→𝟘ᵐ = record
         ⊥               →⟨ ⊥-elim ⟩
         𝟘 ≤ ω           □
   }
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
+
+-- If _∧_ is defined in the given way and 𝟘 is the additive unit, then
+-- there is only one lawful way to define addition (up to pointwise
+-- equality).
+
++-unique :
+  (_+_ : Op₂ Erasure) →
+  Identity 𝟘 _+_ →
+  _+_ DistributesOverˡ _∧_ →
+  ∀ p q → (p + q) ≡ p ∧ q
++-unique _+_ (identityˡ , identityʳ) +-distrib-∧ˡ = λ where
+  𝟘 q →
+    let open Tools.Reasoning.PropositionalEquality in
+      𝟘 + q  ≡⟨ identityˡ _ ⟩
+      q      ≡⟨⟩
+      𝟘 ∧ q  ∎
+  p 𝟘 →
+    let open Tools.Reasoning.PropositionalEquality in
+      p + 𝟘  ≡⟨ identityʳ _ ⟩
+      p      ≡⟨ EM.∧-comm 𝟘 _ ⟩
+      p ∧ 𝟘  ∎
+  ω ω →
+    let open Tools.Reasoning.PartialOrder ≤-poset in
+    ≤-antisym
+      (begin
+         ω + ω  ≤⟨ +-distrib-∧ˡ ω ω 𝟘 ⟩
+         ω + 𝟘  ≡⟨ identityʳ _ ⟩
+         ω      ∎)
+      (begin
+         ω      ≤⟨ least-elem (ω + ω) ⟩
+         ω + ω  ∎)
+
+-- If _∧_ is defined in the given way, 𝟘 is the multiplicative zero,
+-- and ω is the multiplicative unit, then there is only one lawful way
+-- to define multiplication (up to pointwise equality).
+
+·-unique :
+  (_·′_ : Op₂ Erasure) →
+  Zero 𝟘 _·′_ →
+  LeftIdentity ω _·′_ →
+  ∀ p q → (p ·′ q) ≡ p · q
+·-unique _·′_ (zeroˡ , zeroʳ) identityˡ = λ where
+    𝟘 q →
+      𝟘 ·′ q  ≡⟨ zeroˡ _ ⟩
+      𝟘       ≡⟨⟩
+      𝟘 · q   ∎
+    p 𝟘 →
+      p ·′ 𝟘  ≡⟨ zeroʳ _ ⟩
+      𝟘       ≡˘⟨ EM.·-zeroʳ _ ⟩
+      p · 𝟘   ∎
+    ω ω →
+      ω ·′ ω  ≡⟨ identityˡ _ ⟩
+      ω       ≡⟨⟩
+      ω · ω   ∎
+  where
+  open Tools.Reasoning.PropositionalEquality
+
+-- With the given definitions of _∧_, _+_ and _·_ there is only one
+-- lawful way to define the star operator (up to pointwise equality).
+
+⊛-unique :
+  (_⊛_▷_ : Op₃ Erasure) →
+  (∀ p q r → (p ⊛ q ▷ r) ≤ q + r · (p ⊛ q ▷ r)) →
+  (∀ p q r → (p ⊛ q ▷ r) ≤ p) →
+  (∀ r → _·_ SubDistributesOverʳ (_⊛_▷ r) by _≤_) →
+  ∀ p q r → (p ⊛ q ▷ r) ≡ p ∧ q
+⊛-unique _⊛_▷_ ⊛-ineq₁ ⊛-ineq₂ ·-sub-distribʳ-⊛ = λ where
+    ω q r → ≤-antisym
+      (begin
+         ω ⊛ q ▷ r  ≤⟨ ⊛-ineq₂ ω q r ⟩
+         ω          ∎)
+      (begin
+         ω          ≤⟨ least-elem (ω ⊛ q ▷ r) ⟩
+         ω ⊛ q ▷ r  ∎)
+    p ω r → ≤-antisym
+      (begin
+         p ⊛ ω ▷ r  ≤⟨ ⊛-ineq₁ p ω r ⟩
+         ω          ≡⟨ EM.∧-comm ω _ ⟩
+         p ∧ ω      ∎)
+      (begin
+         p ∧ ω      ≡⟨ EM.∧-comm p _ ⟩
+         ω          ≤⟨ least-elem (p ⊛ ω ▷ r) ⟩
+         p ⊛ ω ▷ r  ∎)
+    𝟘 𝟘 r → ≤-antisym
+      (begin
+         𝟘 ⊛ 𝟘 ▷ r  ≤⟨ greatest-elem _ ⟩
+         𝟘          ∎)
+      (begin
+         𝟘                ≡˘⟨ EM.·-zeroʳ _ ⟩
+         (ω ⊛ 𝟘 ▷ r) · 𝟘  ≤⟨ ·-sub-distribʳ-⊛ r 𝟘 ω 𝟘 ⟩
+         𝟘 ⊛ 𝟘 ▷ r        ∎)
   where
   open Tools.Reasoning.PartialOrder ≤-poset
