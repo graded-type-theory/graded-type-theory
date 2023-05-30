@@ -356,7 +356,7 @@ linear-or-affine-has-well-behaved-zero =
 
 -- Theorem 6.2.
 
-Theorem-62 = Graded.Usage.Properties.valid-var-usage
+Theorem-6-2 = Graded.Usage.Properties.valid-var-usage
 
 -- The grammar of the untyped target language
 --
@@ -375,7 +375,7 @@ _• = Graded.Erasure.Extraction.erase
 
 -- Theorem 6.4.
 
-Theorem-64 = Graded.Erasure.Extraction.Properties.erased-hasX
+Theorem-6-4 = Graded.Erasure.Extraction.Properties.erased-hasX
 
 -- Reducibility logical relation for types.
 --
@@ -442,13 +442,13 @@ _▸_⊩ʳ⟨_⟩_∷_/_/_ = Graded.Erasure.LogicalRelation._▸_⊩ʳ⟨_⟩_�
 
 -- Theorem 6.8: Backwards closure of logical relation under reduction.
 
-Theorem-68 = Graded.Erasure.LogicalRelation.Reduction.redSubstTerm*
+Theorem-6-8 = Graded.Erasure.LogicalRelation.Reduction.redSubstTerm*
 
 -- Theorem 6.9: Subsumption of the logical relation.
 
-Theorem-69a =
+Theorem-6-9a =
   Graded.Erasure.LogicalRelation.Subsumption.subsumptionSubst
-Theorem-69b =
+Theorem-6-9b =
   Graded.Erasure.LogicalRelation.Subsumption.subsumption
 
 -- Theorem 6.10: The fundamental lemma.
@@ -457,11 +457,11 @@ fundamental = Graded.Erasure.LogicalRelation.Fundamental.fundamental
 
 -- Theorem 6.11: All substitutions are related under erased contexts.
 
-Theorem-611 = Graded.Erasure.LogicalRelation.Subsumption.erasedSubst
+Theorem-6-11 = Graded.Erasure.LogicalRelation.Subsumption.erasedSubst
 
 -- Theorem 6.12: The fundamental lemma for fully erased terms.
 
-Theorem-612 =
+Theorem-6-12 =
   Graded.Erasure.LogicalRelation.Fundamental.fundamentalErased
 
 -- Extended reduction relations.
@@ -498,7 +498,7 @@ soundness = Graded.Erasure.Consequences.Soundness.soundness-ℕ
 
 -- Theorem 7.1.
 
-theorem-71 =
+theorem-7-1 =
   Application.NegativeOrErasedAxioms.Canonicity.Erased.canonicityRed
 
 -- A counteraxample to Theorem 7.1 if erased matches are allowed.
@@ -688,13 +688,13 @@ fundamentalTermEq = Definition.LogicalRelation.Fundamental.Reducibility.reducibl
 
 -- Theorem B.2
 
-Theorem-B2a = Graded.Usage.Properties.usage-inf
-Theorem-B2b = Graded.Usage.Properties.usage-upper-bound
+Theorem-B-2a = Graded.Usage.Properties.usage-inf
+Theorem-B-2b = Graded.Usage.Properties.usage-upper-bound
 
 -- Theorem B.3: Decidability of the usage relation
 
-Theorem-B3a = Graded.Usage.Decidable.⌈⌉▸[_]?_
-Theorem-B3b = Graded.Usage.Decidable._▸[_]?_
+Theorem-B-3a = Graded.Usage.Decidable.⌈⌉▸[_]?_
+Theorem-B-3b = Graded.Usage.Decidable._▸[_]?_
 
 -- Definition B.4: Substitution matrix inference
 
@@ -702,4 +702,4 @@ Theorem-B3b = Graded.Usage.Decidable._▸[_]?_
 
 -- Theorem B.5
 
-Theorem-B5 = Graded.Substitution.Properties.subst-calc-correct′
+Theorem-B-5 = Graded.Substitution.Properties.subst-calc-correct′
