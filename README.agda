@@ -333,7 +333,7 @@ Theorem-5-4 = Graded.Reduction.usagePresTerm
 ------------------------------------------------------------------------
 -- 6: Erasure case study
 
--- Definition 6.1: well-behaved zeros.
+-- Definition 6.1: Well-behaved zeros.
 --
 -- This definition includes one requirement that is not part of the
 -- definition in the paper: equality with zero must be decidable.
