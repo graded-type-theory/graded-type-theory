@@ -479,32 +479,48 @@ soundness = Graded.Erasure.Consequences.Soundness.soundness-ℕ
 ------------------------------------------------------------------------
 -- 7: Discussion
 
--- A lawful definition of ⊛ᵣ for lower bounded structures
+------------------------------------------------------------------------
+-- 7.1: Modalities for the recursor
+
+-- A lawful definition of ⊛ᵣ for lower bounded structures.
 
 ⊛ᵣ-lower-bounded = Graded.Modality.Instances.LowerBounded._⊛_▷_
 
--- A lawful definition of ⊛ᵣ defined recursively
+-- A lawful definition of ⊛ᵣ defined recursively.
 
 ⊛ᵣ-recursive = Graded.Modality.Instances.Recursive._⊛_▷_
 
--- A lawful definition of ⊛ᵣ for bounded star-semirings
+-- A lawful definition of ⊛ᵣ for bounded star-semirings.
 
 ⊛ᵣ-star-semiring = Graded.Modality.Instances.BoundedStar._⊛_▷_
 
--- Theorem 7.1
+------------------------------------------------------------------------
+-- 7.2: Erased matches
 
-theorem-71 = Application.NegativeOrErasedAxioms.Canonicity.Erased.canonicityRed
+-- Theorem 7.1.
 
--- A counteraxample to theorem 7.1 if erased matches are allowed
+theorem-71 =
+  Application.NegativeOrErasedAxioms.Canonicity.Erased.canonicityRed
+
+-- A counteraxample to Theorem 7.1 if erased matches are allowed.
 
 counterexample₁ =
   Application.NegativeOrErasedAxioms.Canonicity.ErasedMatches.Counterexample.cEx
 
--- A counterexample to the fundamental lemma if erased matches are allowed
+-- A counterexample to the fundamental lemma if erased matches are
+-- allowed.
 
-counterexample₂ = Graded.Erasure.LogicalRelation.Fundamental.Counterexample.cEx
+counterexample₂ =
+  Graded.Erasure.LogicalRelation.Fundamental.Counterexample.cEx
 
--- The existence of η-long normal forms
+------------------------------------------------------------------------
+-- 7.3: Unit type
+
+-- A type- and resource-preserving procedure that takes a well-typed,
+-- well-resourced term to one of its η-long normal forms.
+--
+-- The procedure makes certain assumptions about types with
+-- η-equality.
 
 η-long-normal-forms = Graded.FullReduction.fullRedTerm
 
