@@ -35,6 +35,7 @@ open import Tools.Sum
 private
   variable
     ℓ n m : Nat
+    x : Fin n
     ρ : Wk m n
     p r : M
     γ γ′ δ η θ : Conₘ n
@@ -151,17 +152,91 @@ wkUsage ρ starₘ = subst (λ γ → γ ▸[ _ ] star) (PE.sym (wk-𝟘ᶜ ρ))
 wkUsage ρ (sub γ▸t x) = sub (wkUsage ρ γ▸t) (wk-≤ᶜ ρ x)
 
 ------------------------------------------------------------------------
+-- The function wkConₘ⁻¹
+
+-- A left inverse of wkConₘ ρ.
+
+wkConₘ⁻¹ : Wk m n → Conₘ m → Conₘ n
+wkConₘ⁻¹ id       γ       = γ
+wkConₘ⁻¹ (step ρ) (γ ∙ _) = wkConₘ⁻¹ ρ γ
+wkConₘ⁻¹ (lift ρ) (γ ∙ p) = wkConₘ⁻¹ ρ γ ∙ p
+
+-- The function wkConₘ⁻¹ ρ is a left inverse of wkConₘ ρ.
+
+wkConₘ⁻¹-wkConₘ : (ρ : Wk m n) → wkConₘ⁻¹ ρ (wkConₘ ρ γ) ≡ γ
+wkConₘ⁻¹-wkConₘ             id       = refl
+wkConₘ⁻¹-wkConₘ             (step ρ) = wkConₘ⁻¹-wkConₘ ρ
+wkConₘ⁻¹-wkConₘ {γ = _ ∙ _} (lift ρ) = cong (_∙ _) (wkConₘ⁻¹-wkConₘ ρ)
+
+-- The function wkConₘ⁻¹ ρ is monotone.
+
+wkConₘ⁻¹-monotone : (ρ : Wk m n) → γ ≤ᶜ δ → wkConₘ⁻¹ ρ γ ≤ᶜ wkConₘ⁻¹ ρ δ
+wkConₘ⁻¹-monotone id leq =
+  leq
+wkConₘ⁻¹-monotone {γ = _ ∙ _} {δ = _ ∙ _} (step ρ) (leq ∙ _) =
+  wkConₘ⁻¹-monotone ρ leq
+wkConₘ⁻¹-monotone {γ = _ ∙ _} {δ = _ ∙ _} (lift ρ) (leq₁ ∙ leq₂) =
+  wkConₘ⁻¹-monotone ρ leq₁ ∙ leq₂
+
+-- The function wkConₘ⁻¹ ρ maps 𝟘ᶜ to 𝟘ᶜ.
+
+wkConₘ⁻¹-𝟘ᶜ : (ρ : Wk m n) → wkConₘ⁻¹ ρ 𝟘ᶜ ≈ᶜ 𝟘ᶜ
+wkConₘ⁻¹-𝟘ᶜ id       = ≈ᶜ-refl
+wkConₘ⁻¹-𝟘ᶜ (step ρ) = wkConₘ⁻¹-𝟘ᶜ ρ
+wkConₘ⁻¹-𝟘ᶜ (lift ρ) = wkConₘ⁻¹-𝟘ᶜ ρ ∙ ≈-refl
+
+-- The function wkConₘ⁻¹ ρ commutes with _+ᶜ_.
+
+wkConₘ⁻¹-+ᶜ :
+  (ρ : Wk m n) → wkConₘ⁻¹ ρ (γ +ᶜ δ) ≈ᶜ wkConₘ⁻¹ ρ γ +ᶜ wkConₘ⁻¹ ρ δ
+wkConₘ⁻¹-+ᶜ                         id       = ≈ᶜ-refl
+wkConₘ⁻¹-+ᶜ {γ = _ ∙ _} {δ = _ ∙ _} (step ρ) = wkConₘ⁻¹-+ᶜ ρ
+wkConₘ⁻¹-+ᶜ {γ = _ ∙ _} {δ = _ ∙ _} (lift ρ) = wkConₘ⁻¹-+ᶜ ρ ∙ ≈-refl
+
+-- The function wkConₘ⁻¹ ρ commutes with _∧ᶜ_.
+
+wkConₘ⁻¹-∧ᶜ :
+  (ρ : Wk m n) → wkConₘ⁻¹ ρ (γ ∧ᶜ δ) ≈ᶜ wkConₘ⁻¹ ρ γ ∧ᶜ wkConₘ⁻¹ ρ δ
+wkConₘ⁻¹-∧ᶜ                         id       = ≈ᶜ-refl
+wkConₘ⁻¹-∧ᶜ {γ = _ ∙ _} {δ = _ ∙ _} (step ρ) = wkConₘ⁻¹-∧ᶜ ρ
+wkConₘ⁻¹-∧ᶜ {γ = _ ∙ _} {δ = _ ∙ _} (lift ρ) = wkConₘ⁻¹-∧ᶜ ρ ∙ ≈-refl
+
+-- The function wkConₘ⁻¹ ρ commutes with p ·ᶜ_.
+
+wkConₘ⁻¹-·ᶜ :
+  (ρ : Wk m n) → wkConₘ⁻¹ ρ (p ·ᶜ γ) ≈ᶜ p ·ᶜ wkConₘ⁻¹ ρ γ
+wkConₘ⁻¹-·ᶜ             id       = ≈ᶜ-refl
+wkConₘ⁻¹-·ᶜ {γ = _ ∙ _} (step ρ) = wkConₘ⁻¹-·ᶜ ρ
+wkConₘ⁻¹-·ᶜ {γ = _ ∙ _} (lift ρ) = wkConₘ⁻¹-·ᶜ ρ ∙ ≈-refl
+
+-- The function wkConₘ⁻¹ ρ commutes with _⊛ᶜ_▷ r.
+
+wkConₘ⁻¹-⊛ᶜ :
+  (ρ : Wk m n) →
+  wkConₘ⁻¹ ρ (γ ⊛ᶜ δ ▷ r) ≈ᶜ wkConₘ⁻¹ ρ γ ⊛ᶜ wkConₘ⁻¹ ρ δ ▷ r
+wkConₘ⁻¹-⊛ᶜ                         id       = ≈ᶜ-refl
+wkConₘ⁻¹-⊛ᶜ {γ = _ ∙ _} {δ = _ ∙ _} (step ρ) = wkConₘ⁻¹-⊛ᶜ ρ
+wkConₘ⁻¹-⊛ᶜ {γ = _ ∙ _} {δ = _ ∙ _} (lift ρ) = wkConₘ⁻¹-⊛ᶜ ρ ∙ ≈-refl
+
+-- The function wkConₘ⁻¹ ρ "commutes" in a certain sense with _,_≔_.
+
+wkConₘ⁻¹-,≔ :
+  (ρ : Wk m n) → wkConₘ⁻¹ ρ (γ , wkVar ρ x ≔ p) ≈ᶜ wkConₘ⁻¹ ρ γ , x ≔ p
+wkConₘ⁻¹-,≔                        id       = ≈ᶜ-refl
+wkConₘ⁻¹-,≔ {γ = _ ∙ _}            (step ρ) = wkConₘ⁻¹-,≔ ρ
+wkConₘ⁻¹-,≔ {γ = _ ∙ _} {x = x0}   (lift ρ) = ≈ᶜ-refl
+wkConₘ⁻¹-,≔ {γ = _ ∙ _} {x = _ +1} (lift ρ) = wkConₘ⁻¹-,≔ ρ ∙ ≈-refl
+
+------------------------------------------------------------------------
 -- Inversion lemmas
 
 -- An inversion lemma for wkConₘ and 𝟘ᶜ.
 
 wkConₘ-𝟘 : wkConₘ ρ γ ≤ᶜ 𝟘ᶜ → γ ≤ᶜ 𝟘ᶜ
-wkConₘ-𝟘 {ρ = id} leq =
-  leq
-wkConₘ-𝟘 {ρ = step _} (leq ∙ _) =
-  wkConₘ-𝟘 leq
-wkConₘ-𝟘 {ρ = lift _} {γ = _ ∙ _} (leq₁ ∙ leq₂) =
-  wkConₘ-𝟘 leq₁ ∙ leq₂
+wkConₘ-𝟘 {ρ = ρ} {γ = γ} =
+  wkConₘ ρ γ ≤ᶜ 𝟘ᶜ                          →⟨ wkConₘ⁻¹-monotone ρ ⟩
+  wkConₘ⁻¹ ρ (wkConₘ ρ γ) ≤ᶜ wkConₘ⁻¹ ρ 𝟘ᶜ  →⟨ subst₂ _≤ᶜ_ (wkConₘ⁻¹-wkConₘ ρ) (≈ᶜ→≡ (wkConₘ⁻¹-𝟘ᶜ ρ)) ⟩
+  γ ≤ᶜ 𝟘ᶜ                                   □
 
 -- An inversion lemma for wkConₘ, wkVar and _,_≔_.
 
