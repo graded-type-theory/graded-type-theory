@@ -198,10 +198,10 @@ usagePres* γ▸A (x ⇨ A⇒B) = usagePres* (usagePres γ▸A x) A⇒B
 
 -- Note that reduction does not include η-expansion (for WHNFs, see
 -- no-η-expansion-Unit and no-η-expansion-Σₚ in
--- Definition.Typed.Properties). In Definition.Modality.FullReduction
--- it is proved that a well-resourced term has a well-resourced η-long
--- normal form, *given certain assumptions*. Here it is proved that,
--- given certain assumptions, the type
+-- Definition.Typed.Properties). In Graded.FullReduction it is proved
+-- that a well-resourced term has a well-resourced η-long normal form,
+-- *given certain assumptions*. Here it is proved that, given certain
+-- assumptions, the type
 -- Well-resourced-normal-form-ill-resourced-η-long-normal-form is
 -- inhabited: there is a type A and two closed terms t and u such that
 -- t is a normal form of type A, u is an η-long normal form of type A,
