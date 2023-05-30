@@ -1,0 +1,20 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Definition.Modality.Usage.Restrictions</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- Restrictions on usage derivations</a>
+<a id="111" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="185" class="Keyword">module</a> <a id="192" href="Definition.Modality.Usage.Restrictions.html" class="Module">Definition.Modality.Usage.Restrictions</a>
+  <a id="233" class="Symbol">{</a><a id="234" href="Definition.Modality.Usage.Restrictions.html#234" class="Bound">a</a><a id="235" class="Symbol">}</a> <a id="237" class="Symbol">(</a><a id="238" href="Definition.Modality.Usage.Restrictions.html#238" class="Bound">M</a> <a id="240" class="Symbol">:</a> <a id="242" href="Agda.Primitive.html#320" class="Primitive">Set</a> <a id="246" href="Definition.Modality.Usage.Restrictions.html#234" class="Bound">a</a><a id="247" class="Symbol">)</a>
+  <a id="251" class="Keyword">where</a>
+
+<a id="258" class="Keyword">open</a> <a id="263" class="Keyword">import</a> <a id="270" href="Tools.Level.html" class="Module">Tools.Level</a>
+
+<a id="283" class="Comment">-- Restrictions on usage derivations.</a>
+
+<a id="322" class="Keyword">record</a> <a id="Usage-restrictions"></a><a id="329" href="Definition.Modality.Usage.Restrictions.html#329" class="Record">Usage-restrictions</a> <a id="348" class="Symbol">:</a> <a id="350" href="Agda.Primitive.html#320" class="Primitive">Set</a> <a id="354" class="Symbol">(</a><a id="355" href="Agda.Primitive.html#774" class="Primitive">lsuc</a> <a id="360" href="Definition.Modality.Usage.Restrictions.html#234" class="Bound">a</a><a id="361" class="Symbol">)</a> <a id="363" class="Keyword">where</a>
+  <a id="371" class="Keyword">no-eta-equality</a>
+  <a id="389" class="Keyword">field</a>
+    <a id="399" class="Comment">-- The prodrec constructor&#39;s quantities have to satisfy this</a>
+    <a id="464" class="Comment">-- predicate.</a>
+    <a id="Usage-restrictions.Prodrec-restriction"></a><a id="482" href="Definition.Modality.Usage.Restrictions.html#482" class="Field">Prodrec-restriction</a> <a id="502" class="Symbol">:</a> <a id="504" class="Symbol">(</a><a id="505" href="Definition.Modality.Usage.Restrictions.html#505" class="Bound">r</a> <a id="507" href="Definition.Modality.Usage.Restrictions.html#507" class="Bound">p</a> <a id="509" href="Definition.Modality.Usage.Restrictions.html#509" class="Bound">q</a> <a id="511" class="Symbol">:</a> <a id="513" href="Definition.Modality.Usage.Restrictions.html#238" class="Bound">M</a><a id="514" class="Symbol">)</a> <a id="516" class="Symbol">→</a> <a id="518" href="Agda.Primitive.html#320" class="Primitive">Set</a> <a id="522" href="Definition.Modality.Usage.Restrictions.html#234" class="Bound">a</a>
+</pre></body></html>
