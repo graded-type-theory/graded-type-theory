@@ -300,23 +300,35 @@ Theorem-4-4b = Definition.Typed.Properties.whrDet*
 ------------------------------------------------------------------------
 -- 5: Assigning grades
 
--- Note that for the definitions and theorems in this section,
--- a modality with the zero mode disallowed should be used and the
--- extra annotation on Σ-types should be 𝟙
-
--- Definition 5.1: The usage relation
+-- Definition 5.1: The usage relation.
+--
+-- The usage relation is indexed by a mode, and one can choose to have
+-- only one mode (𝟙ᵐ). In this case the mode 𝟘ᵐ? is equal to 𝟙ᵐ,
+-- m ᵐ· p is equal to 𝟙ᵐ, and ⌜ m ⌝ is equal to the one of the
+-- modality.
+--
+-- The usage rule for prodrec in the paper contains the side condition
+-- "Prodrec r". This condition has been replaced by
+-- "Prodrec-restriction r p q".
 
 _▹_ = Graded.Usage._▸[_]_
 
--- Definition 5.2
+-- Definition 5.2.
+--
+-- This predicate has been generalised to account for modes.
 
 _▶_ = Graded.Substitution._▶[_]_
 
--- Theorem 5.3: Substitution lemma for grade usage
+-- Theorem 5.3: A substitution lemma for usage.
 
 Theorem-5-3 = Graded.Substitution.Properties.substₘ-lemma₁
 
--- Theorem 5.4: Subject reduction for grade usage
+-- The previous theorem is restricted to a setting with only one mode.
+-- There is also a more general substitution lemma.
+
+main-substitution-lemma = Graded.Substitution.Properties.substₘ-lemma
+
+-- Theorem 5.4: Subject reduction for the usage relation.
 
 Theorem-5-4 = Graded.Reduction.usagePresTerm
 
