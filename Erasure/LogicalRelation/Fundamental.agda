@@ -201,7 +201,7 @@ fundamental (var ⊢Γ x∷A∈Γ) γ▸t =
       [A] , ⊩ʳx = fundamentalVar [Γ] x∷A∈Γ γ▸t
   in  [Γ] , [A] , ⊩ʳx
 fundamental
-  (lamⱼ {p = p} {q = q} {F = F} {G = G} {t = t} Γ⊢F Γ⊢t:G ok) γ▸t =
+  (lamⱼ {F = F} {t = t} {G = G} {p = p} {q = q} Γ⊢F Γ⊢t:G ok) γ▸t =
   let invUsageLam {δ = δ} δ▸t δ≤γ = inv-usage-lam γ▸t
       [ΓF] , [G]′ , ⊩ʳt = fundamental Γ⊢t:G δ▸t
       [Γ] , [F] = F.fundamental Γ⊢F
@@ -212,7 +212,9 @@ fundamental
       ⊩ʳλt = lamʳ {t = t} [Γ] [F] [G] [t] ⊩ʳt′ ok
       [Π] = Πᵛ [Γ] [F] [G] ok
   in  [Γ] , [Π] , subsumption-≤ {A = Π p , q ▷ F ▹ G} {t = lam p t} [Γ] [Π] ⊩ʳλt δ≤γ
-fundamental (_∘ⱼ_ {p = p} {q = q} {g = t} {a = u} {F = F} {G = G} Γ⊢t:Π Γ⊢u:F) γ▸t =
+fundamental
+  (_∘ⱼ_ {t = t} {p = p} {q = q} {F = F} {G = G} {u = u} Γ⊢t:Π Γ⊢u:F)
+  γ▸t =
   let invUsageApp δ▸t η▸u γ≤δ+pη = inv-usage-app γ▸t
       [Γ]′ , [Π]′ , ⊩ʳt′ = fundamental Γ⊢t:Π δ▸t
       [Γ] , [F] , ⊩ʳu = fundamental Γ⊢u:F η▸u
@@ -223,7 +225,8 @@ fundamental (_∘ⱼ_ {p = p} {q = q} {g = t} {a = u} {F = F} {G = G} Γ⊢t:Π 
       [G[u]] , ⊩ʳt∘u = appʳ {F = F} {G = G} {u = u} {t = t} [Γ] [F] [Π] [u] ⊩ʳt ⊩ʳu
   in  [Γ] , [G[u]] , subsumption-≤ {A = G [ u ]} {t = t ∘⟨ p ⟩ u} [Γ] [G[u]] ⊩ʳt∘u γ≤δ+pη
 fundamental
-  (prodⱼ {Σₚ} {F = F} {G = G} {t = t} {u = u} Γ⊢F Γ⊢G Γ⊢t:F Γ⊢u:G ok)
+  (prodⱼ {F = F} {G = G} {t = t} {u = u} {k = Σₚ}
+     Γ⊢F Γ⊢G Γ⊢t:F Γ⊢u:G ok)
   γ▸t =
   let invUsageProdₚ δ▸t η▸u γ≤pδ∧η = inv-usage-prodₚ γ▸t
       [Γ]₁ , [F] , ⊩ʳt = fundamental Γ⊢t:F δ▸t
@@ -244,7 +247,8 @@ fundamental
   in  [Γ] , [Σ] ,
       subsumption-≤ {t = prod! t u} [Γ] [Σ] ⊩ʳp γ≤pδ∧η
 fundamental
-  (prodⱼ {Σᵣ} {F = F} {G = G} {t = t} {u = u} Γ⊢F Γ⊢G Γ⊢t:F Γ⊢u:G ok)
+  (prodⱼ {F = F} {G = G} {t = t} {u = u} {k = Σᵣ}
+     Γ⊢F Γ⊢G Γ⊢t:F Γ⊢u:G ok)
   γ▸t =
   let invUsageProdᵣ δ▸t η▸u γ≤pδ+η = inv-usage-prodᵣ γ▸t
       [Γ]₁ , [F] , ⊩ʳt = fundamental Γ⊢t:F δ▸t
@@ -276,7 +280,8 @@ fundamental (sndⱼ {G = G} {t = t} Γ⊢F Γ⊢G Γ⊢t:Σ) γ▸t =
       [G] , ⊩ʳt₂ = sndʳ Γ⊢F Γ⊢G Γ⊢t:Σ [Γ] [Σ] ⊩ʳt
   in  [Γ] , [G] , subsumption-≤ {t = snd _ t} [Γ] [G] ⊩ʳt₂ γ≤δ
 fundamental
-  (prodrecⱼ {r = r} {t = t} {u} {F} {G} {A} Γ⊢F Γ⊢G Γ⊢A Γ⊢t Γ⊢u _)
+  (prodrecⱼ {F = F} {G} {A = A} {t = t} {u} {r = r}
+     Γ⊢F Γ⊢G Γ⊢A Γ⊢t Γ⊢u _)
   γ▸prodrec =
   let invUsageProdrec {δ = δ} δ▸t η▸u _ ok γ≤pδ+η =
         inv-usage-prodrec γ▸prodrec
@@ -311,7 +316,10 @@ fundamental (sucⱼ {n = t} Γ⊢t:ℕ) γ▸t =
       δ⊩ʳsuct = sucʳ [Γ] [ℕ] ⊩ʳt Γ⊢t:ℕ
       γ⊩ʳsuct = subsumption-≤ {A = ℕ} {t = suc t} [Γ] [ℕ] δ⊩ʳsuct γ≤δ
   in  [Γ] , [ℕ] , γ⊩ʳsuct
-fundamental (natrecⱼ {p = p} {q = q} {r = r} {G = A} {s = s} {z = z} {n = n} Γ⊢A Γ⊢z:A Γ⊢s:A Γ⊢n:ℕ) γ▸t =
+fundamental
+  (natrecⱼ {A = A} {z = z} {s = s} {p = p} {q = q} {r = r} {n = n}
+     Γ⊢A Γ⊢z:A Γ⊢s:A Γ⊢n:ℕ)
+  γ▸t =
   let invUsageNatrec δ▸z η▸s θ▸n _ γ≤γ′ = inv-usage-natrec γ▸t
       [Γ]   , [A₀]  , ⊩ʳz  = fundamental Γ⊢z:A δ▸z
       [ΓℕA] , [A₊]′ , ⊩ʳs′ = fundamental Γ⊢s:A η▸s
@@ -336,7 +344,8 @@ fundamental (natrecⱼ {p = p} {q = q} {r = r} {G = A} {s = s} {z = z} {n = n} �
                                   [Γ] [A] [A₊] [A₀] [z] [s] [n] ⊩ʳz ⊩ʳs ⊩ʳn
   in  [Γ] , [A[n]] , subsumption-≤ {A = A [ n ]} {t = natrec p q r A z s n}
                                    [Γ] [A[n]] ⊩ʳnatrec γ≤γ′
-fundamental {Γ = Γ} {γ = γ} (Emptyrecⱼ {p = p} {A = A} {e = t} ⊢A Γ⊢t:Empty) γ▸t =
+fundamental
+  {Γ = Γ} {γ = γ} (Emptyrecⱼ {A = A} {t = t} {p = p} ⊢A Γ⊢t:Empty) γ▸t =
   let invUsageEmptyrec δ▸t _ γ≤δ = inv-usage-Emptyrec γ▸t
       [Γ] , [Empty] , ⊩ʳt = fundamental Γ⊢t:Empty δ▸t
       [Γ]′ , [A]′ = F.fundamental ⊢A

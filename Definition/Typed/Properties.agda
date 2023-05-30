@@ -69,7 +69,7 @@ wfEqTerm (η-eq F f g f0≡g0) = wfTerm f
 wfEqTerm (suc-cong n) = wfEqTerm n
 wfEqTerm (natrec-cong _ F≡F′ z≡z′ s≡s′ n≡n′) = wfEqTerm z≡z′
 wfEqTerm (natrec-zero F z s) = wfTerm z
-wfEqTerm (natrec-suc n F z s) = wfTerm n
+wfEqTerm (natrec-suc _ _ _ n) = wfTerm n
 wfEqTerm (Emptyrec-cong A≡A' e≡e') = wfEqTerm e≡e'
 wfEqTerm (η-unit e e') = wfTerm e
 wfEqTerm (prod-cong F _ _ _ _) = wf F
@@ -95,7 +95,7 @@ subsetTerm : Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ≡ u ∷ A
 subsetTerm (natrec-subst F z s n⇒n′) =
   natrec-cong F (refl F) (refl z) (refl s) (subsetTerm n⇒n′)
 subsetTerm (natrec-zero F z s) = natrec-zero F z s
-subsetTerm (natrec-suc n F z s) = natrec-suc n F z s
+subsetTerm (natrec-suc F z s n) = natrec-suc F z s n
 subsetTerm (Emptyrec-subst A n⇒n′) =
   Emptyrec-cong (refl A) (subsetTerm n⇒n′)
 subsetTerm (app-subst t⇒u a) =
@@ -132,7 +132,7 @@ redFirstTerm (β-red A B t a PE.refl ok) =
   conv (lamⱼ A t ok) (ΠΣ-cong A (refl A) (refl B) ok) ∘ⱼ a
 redFirstTerm (natrec-subst F z s n⇒n′) = natrecⱼ F z s (redFirstTerm n⇒n′)
 redFirstTerm (natrec-zero F z s) = natrecⱼ F z s (zeroⱼ (wfTerm z))
-redFirstTerm (natrec-suc n F z s) = natrecⱼ F z s (sucⱼ n)
+redFirstTerm (natrec-suc F z s n) = natrecⱼ F z s (sucⱼ n)
 redFirstTerm (Emptyrec-subst A n⇒n′) = Emptyrecⱼ A (redFirstTerm n⇒n′)
 redFirstTerm (fst-subst F G x) = fstⱼ F G (redFirstTerm x)
 redFirstTerm (snd-subst F G x) = sndⱼ F G (redFirstTerm x)
@@ -363,7 +363,8 @@ redU*Term′ () (app-subst A⇒U x)
 redU*Term′ U′≡U (β-red _ _ ⊢t ⊢u _ _) = UnotInA[t] U′≡U ⊢u ⊢t
 redU*Term′ () (natrec-subst x x₁ x₂ A⇒U)
 redU*Term′ PE.refl (natrec-zero x x₁ x₂) = UnotInA x₁
-redU*Term′ U′≡U (natrec-suc x x₁ x₂ x₃) = UnotInA[t,u] U′≡U x (natrecⱼ x₁ x₂ x₃ x) x₃
+redU*Term′ U′≡U (natrec-suc x x₁ x₂ x₃) =
+  UnotInA[t,u] U′≡U x₃ (natrecⱼ x x₁ x₂ x₃) x₂
 redU*Term′ U′≡U (prodrec-β _ _ _ ⊢t ⊢u ⊢v _ _) =
   UnotInA[t,u] U′≡U ⊢t ⊢u ⊢v
 redU*Term′ () (Emptyrec-subst x A⇒U)

@@ -147,7 +147,10 @@ natrecTerm {k} {Γ = Γ} {k′} {Δ = Δ} {p = p} {q} {r} {F = F} {z} {s} {n} {�
                   (≅-eq (escapeEq (proj₁ (unwrap [F] ⊢Δ ([σ] , [t])))
                                   (proj₂ (unwrap [F] ⊢Δ ([σ] , [t])) ([σ] , [t′])
                                          ((reflSubst [Γ] ⊢Δ [σ]) , [t≡t′])))))
-      reduction′ = conv* ((natrec-suc ⊢m ⊢F ⊢z ⊢s) ⇨ (id (escapeTerm [σFₛₘ] [natrec]″))) (sym (≅-eq (escapeEq [σFₙ] [Fₙ≡Fₛₘ])))
+      reduction′ = conv*
+                     (natrec-suc ⊢F ⊢z ⊢s ⊢m ⇨
+                      id (escapeTerm [σFₛₘ] [natrec]″))
+                     (sym (≅-eq (escapeEq [σFₙ] [Fₙ≡Fₛₘ])))
       reduction″ = PE.subst (Δ ⊢ natrec p q r (subst (liftSubst σ) F) (subst σ z) (subst (liftSubstn σ 2) s) n ⇒*_∷ _)
                             (doubleSubstComp s m (natrec p q r (subst (liftSubst σ) F) (subst σ z)
                                                                (subst (liftSubstn σ 2) s) m) σ)
@@ -466,7 +469,7 @@ natrec-congTerm {k} {Γ = Γ} {k′} {Δ = Δ} {p = p} {q} {r}
                                                (proj₂ (unwrap [F] ⊢Δ ([σ] , [t]))
                                                       ([σ] , [t′])
                                                       (reflSubst [Γ] ⊢Δ [σ] , [t≡t′])))))
-                   ⇨∷* (conv* (natrec-suc ⊢n′ ⊢F ⊢z ⊢s
+                   ⇨∷* (conv* (natrec-suc ⊢F ⊢z ⊢s ⊢n′
                    ⇨   id (escapeTerm [σF₊]′ [s₊]′))
                           (sym (≅-eq ((escapeEq [σFₙ] [Fₙ≡Fₛₙ′])))))
       reduction₂ = natrec-subst* {p = p} {q = q} {r = r}
@@ -479,7 +482,7 @@ natrec-congTerm {k} {Γ = Γ} {k′} {Δ = Δ} {p = p} {q} {r}
                                                (proj₂ (unwrap [F′] ⊢Δ ([σ′] , [t]))
                                                       ([σ′] , [t′])
                                                       (reflSubst [Γ] ⊢Δ [σ′] , [t≡t′])))))
-                   ⇨∷* (conv* (natrec-suc ⊢m′ ⊢F′ ⊢z′ ⊢s′
+                   ⇨∷* (conv* (natrec-suc ⊢F′ ⊢z′ ⊢s′ ⊢m′
                    ⇨   id (escapeTerm [σ′F′ₛₘ′] [s′₊]′))
                           (sym (≅-eq (escapeEq [σ′F′ₘ] [F′ₘ≡F′ₛₘ′]))))
       eq₁ = proj₂ (redSubst*Term reduction₁ [σFₙ]

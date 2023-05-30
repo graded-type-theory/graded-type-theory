@@ -74,7 +74,7 @@ usagePresTerm γ▸t (snd-subst x x₁ t⇒u) =
   let invUsageSnd ▸t γ≤ = inv-usage-snd γ▸t
   in  sub (sndₘ (usagePresTerm ▸t t⇒u)) γ≤
 usagePresTerm
-  {γ = γ} {m′} ▸t′ (Σ-β₁ {p = p} {t = t} _ _ _ _ PE.refl _) =
+  {γ = γ} {m′} ▸t′ (Σ-β₁ {t = t} {p = p} _ _ _ _ PE.refl _) =
   case inv-usage-fst ▸t′ of λ where
     (invUsageFst {δ = δ} m PE.refl ▸tu γ≤δ fst-ok) →
       case inv-usage-prodₚ ▸tu of λ where
@@ -157,7 +157,7 @@ usagePresTerm γ▸prodrec (prodrec-subst x x₁ x₂ x₃ x₄ _) =
   in  sub (prodrecₘ (usagePresTerm δ▸t x₄) η▸u θ▸A ok) γ≤γ′
 usagePresTerm
   {γ = γ} {m = m} γ▸prodrec
-  (prodrec-β {p = p} {r = r} {t = t} {t′ = t′} {u = u}
+  (prodrec-β {p = p} {t = t} {t′ = t′} {u = u} {r = r}
      _ _ _ _ _ _ PE.refl _) =
   case inv-usage-prodrec γ▸prodrec of λ where
     (invUsageProdrec {δ = δ} {η = η} ▸t ▸u _ _ γ≤rδ+η) →

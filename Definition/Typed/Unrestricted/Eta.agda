@@ -234,7 +234,7 @@ inversion-[]′ ⊢[] =
       λ (_ , ≡Unit , _ , _ , _) →
     trans
       (_⊢_≡_.sym $ _⊢_≡_.univ $
-       natrec-suc (zeroⱼ ε) (Uⱼ ⊢Γ′∙ℕ) (Unitⱼ ε Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U))
+       natrec-suc (Uⱼ ⊢Γ′∙ℕ) (Unitⱼ ε Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U) (zeroⱼ ε))
       (substTypeEq ≡Unit (refl (sucⱼ (zeroⱼ ε))))
 
   bad : ⊥

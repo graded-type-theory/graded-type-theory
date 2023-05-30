@@ -117,9 +117,10 @@ stabilityRedTerm Γ≡Δ (natrec-zero x x₁ x₂) =
                   (stabilityTerm (Γ≡Δ ∙ (refl (ℕⱼ ⊢Γ)) ∙ (refl x)) x₂)
 stabilityRedTerm Γ≡Δ (natrec-suc x x₁ x₂ x₃) =
   let ⊢Γ , _ , _ = contextConvSubst Γ≡Δ
-  in  natrec-suc (stabilityTerm Γ≡Δ x) (stability (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ)) x₁)
-                 (stabilityTerm Γ≡Δ x₂)
-                 (stabilityTerm (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ) ∙ refl x₁) x₃)
+  in  natrec-suc (stability (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ)) x)
+                 (stabilityTerm Γ≡Δ x₁)
+                 (stabilityTerm (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ) ∙ refl x) x₂)
+                 (stabilityTerm Γ≡Δ x₃)
 stabilityRedTerm Γ≡Δ (prodrec-subst x x₁ x₂ x₃ d ok) =
   prodrec-subst (stability Γ≡Δ x) (stability (Γ≡Δ ∙ (refl x)) x₁)
                 (stability (Γ≡Δ ∙ refl (ΠΣⱼ x x₁ ok)) x₂)

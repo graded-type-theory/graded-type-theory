@@ -16,27 +16,27 @@ open import Definition.Untyped M hiding (_∷_)
 open import Tools.Fin
 open import Tools.Nat
 open import Tools.Product hiding (_,_)
-open import Tools.PropositionalEquality as PE using (_≈_)
+import Tools.PropositionalEquality as PE
 
 
 infixl 30 _∙_
 
 private
   variable
-    n k : Nat
-    Γ  : Con Term n
-    A B C F H : Term n
-    a f g t u v : Term n
-    G E : Term (1+ n)
-    x : Fin n
+    n : Nat
+    Γ : Con Term _
+    A A′ B C E F F′ G H : Term _
+    a f g m n′ s s′ t t′ u u′ v z z′ : Term _
+    σ σ′ : Subst _ _
+    x : Fin _
     p p′ q q′ r : M
     b : BinderMode
-    m : SigmaMode
+    k : SigmaMode
 
 -- Well-typed variables
-data _∷_∈_  : {n : Nat} (x : Fin n) (A : Term n) (Γ : Con Term n) → Set ℓ where
-  here  :                       x0 ∷ wk1 A ∈ (Γ ∙ A)
-  there : (h : x ∷ A ∈ Γ) → (x +1) ∷ wk1 A ∈ (Γ ∙ B)
+data _∷_∈_ : (x : Fin n) (A : Term n) (Γ : Con Term n) → Set ℓ where
+  here  :                 x0 ∷ wk1 A ∈ Γ ∙ A
+  there : x ∷ A ∈ Γ → (x +1) ∷ wk1 A ∈ Γ ∙ B
 
 
 mutual
@@ -62,8 +62,7 @@ mutual
 
   -- Well-formed term of a type
   data _⊢_∷_ (Γ : Con Term n) : Term n → Term n → Set ℓ where
-    ΠΣⱼ       : ∀ {F G}
-              → Γ     ⊢ F ∷ U
+    ΠΣⱼ       : Γ     ⊢ F ∷ U
               → Γ ∙ F ⊢ G ∷ U
               → ΠΣ-restriction b p q
               → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ∷ U
@@ -71,86 +70,72 @@ mutual
     Emptyⱼ    : ⊢ Γ → Γ ⊢ Empty ∷ U
     Unitⱼ     : ⊢ Γ → Unit-restriction → Γ ⊢ Unit ∷ U
 
-    var       : ∀ {A x}
-              → ⊢ Γ
+    conv      : Γ ⊢ t ∷ A
+              → Γ ⊢ A ≡ B
+              → Γ ⊢ t ∷ B
+
+    var       : ⊢ Γ
               → x ∷ A ∈ Γ
               → Γ ⊢ var x ∷ A
 
-    lamⱼ      : ∀ {F G t}
-              → Γ     ⊢ F
+    lamⱼ      : Γ     ⊢ F
               → Γ ∙ F ⊢ t ∷ G
               → Π-restriction p q
               → Γ     ⊢ lam p t ∷ Π p , q ▷ F ▹ G
-    _∘ⱼ_      : ∀ {g a F G}
-              → Γ ⊢     g ∷ Π p , q ▷ F ▹ G
-              → Γ ⊢     a ∷ F
-              → Γ ⊢ g ∘⟨ p ⟩ a ∷ G [ a ]
+    _∘ⱼ_      : Γ ⊢ t ∷ Π p , q ▷ F ▹ G
+              → Γ ⊢ u ∷ F
+              → Γ ⊢ t ∘⟨ p ⟩ u ∷ G [ u ]
 
-    prodⱼ     : ∀ {F G t u}
-              → Γ ⊢ F
+    prodⱼ     : Γ ⊢ F
               → Γ ∙ F ⊢ G
               → Γ ⊢ t ∷ F
               → Γ ⊢ u ∷ G [ t ]
-              → Σ-restriction m p q
-              → Γ ⊢ prod m p t u ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
-    fstⱼ      : ∀ {F G t}
-              → Γ ⊢ F
+              → Σ-restriction k p q
+              → Γ ⊢ prod k p t u ∷ Σ⟨ k ⟩ p , q ▷ F ▹ G
+    fstⱼ      : Γ ⊢ F
               → Γ ∙ F ⊢ G
               → Γ ⊢ t ∷ Σₚ p , q ▷ F ▹ G
               → Γ ⊢ fst p t ∷ F
-    sndⱼ      : ∀ {F G t}
-              → Γ ⊢ F
+    sndⱼ      : Γ ⊢ F
               → Γ ∙ F ⊢ G
               → Γ ⊢ t ∷ Σₚ p , q ▷ F ▹ G
               → Γ ⊢ snd p t ∷ G [ fst p t ]
-    prodrecⱼ  : ∀ {t u F G A}
-              → Γ ⊢ F
+    prodrecⱼ  : Γ ⊢ F
               → Γ ∙ F ⊢ G
-              → Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ A
-              → Γ ⊢ t ∷ Σᵣ p , q ▷ F ▹ G
+              → Γ ∙ (Σᵣ p , q′ ▷ F ▹ G) ⊢ A
+              → Γ ⊢ t ∷ Σᵣ p , q′ ▷ F ▹ G
               → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
-              → Σᵣ-restriction p q
-              → Γ ⊢ prodrec r p q′ A t u ∷ A [ t ]
+              → Σᵣ-restriction p q′
+              → Γ ⊢ prodrec r p q A t u ∷ A [ t ]
     zeroⱼ     : ⊢ Γ
               → Γ ⊢ zero ∷ ℕ
     sucⱼ      : ∀ {n}
               → Γ ⊢     n ∷ ℕ
               → Γ ⊢ suc n ∷ ℕ
-    natrecⱼ   : ∀ {G s z n}
-              → Γ ∙ ℕ     ⊢ G
-              → Γ         ⊢ z ∷ G [ zero ]
-              → Γ ∙ ℕ ∙ G ⊢ s ∷ wk1 (G [ suc (var x0) ]↑)
+    natrecⱼ   : ∀ {n}
+              → Γ ∙ ℕ     ⊢ A
+              → Γ         ⊢ z ∷ A [ zero ]
+              → Γ ∙ ℕ ∙ A ⊢ s ∷ wk1 (A [ suc (var x0) ]↑)
               → Γ         ⊢ n ∷ ℕ
-              → Γ         ⊢ natrec p q r G z s n ∷ G [ n ]
+              → Γ         ⊢ natrec p q r A z s n ∷ A [ n ]
 
-    Emptyrecⱼ : ∀ {A e}
-              → Γ ⊢ A → Γ ⊢ e ∷ Empty → Γ ⊢ Emptyrec p A e ∷ A
+    Emptyrecⱼ : Γ ⊢ A → Γ ⊢ t ∷ Empty → Γ ⊢ Emptyrec p A t ∷ A
 
     starⱼ     : ⊢ Γ → Unit-restriction → Γ ⊢ star ∷ Unit
 
-    conv      : ∀ {t A B}
-              → Γ ⊢ t ∷ A
-              → Γ ⊢ A ≡ B
-              → Γ ⊢ t ∷ B
-
   -- Type equality
   data _⊢_≡_ (Γ : Con Term n) : Term n → Term n → Set ℓ where
-    univ   : ∀ {A B}
-           → Γ ⊢ A ≡ B ∷ U
+    univ   : Γ ⊢ A ≡ B ∷ U
            → Γ ⊢ A ≡ B
-    refl   : ∀ {A}
-           → Γ ⊢ A
+    refl   : Γ ⊢ A
            → Γ ⊢ A ≡ A
-    sym    : ∀ {A B}
-           → Γ ⊢ A ≡ B
+    sym    : Γ ⊢ A ≡ B
            → Γ ⊢ B ≡ A
-    trans  : ∀ {A B C}
-           → Γ ⊢ A ≡ B
+    trans  : Γ ⊢ A ≡ B
            → Γ ⊢ B ≡ C
            → Γ ⊢ A ≡ C
     ΠΣ-cong
-           : ∀ {F H G E}
-           → Γ     ⊢ F
+           : Γ     ⊢ F
            → Γ     ⊢ F ≡ H
            → Γ ∙ F ⊢ G ≡ E
            → ΠΣ-restriction b p q
@@ -158,253 +143,225 @@ mutual
 
   -- Term equality
   data _⊢_≡_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ where
-    refl          : ∀ {t A}
-                  → Γ ⊢ t ∷ A
+    refl          : Γ ⊢ t ∷ A
                   → Γ ⊢ t ≡ t ∷ A
-    sym           : ∀ {t u A}
-                  → Γ ⊢ t ≡ u ∷ A
+    sym           : Γ ⊢ t ≡ u ∷ A
                   → Γ ⊢ u ≡ t ∷ A
-    trans         : ∀ {t u r A}
-                  → Γ ⊢ t ≡ u ∷ A
-                  → Γ ⊢ u ≡ r ∷ A
-                  → Γ ⊢ t ≡ r ∷ A
-    conv          : ∀ {A B t u}
-                  → Γ ⊢ t ≡ u ∷ A
+    trans         : Γ ⊢ t ≡ u ∷ A
+                  → Γ ⊢ u ≡ v ∷ A
+                  → Γ ⊢ t ≡ v ∷ A
+    conv          : Γ ⊢ t ≡ u ∷ A
                   → Γ ⊢ A ≡ B
                   → Γ ⊢ t ≡ u ∷ B
-    ΠΣ-cong       : ∀ {E F G H}
-                  → Γ     ⊢ F
+    ΠΣ-cong       : Γ     ⊢ F
                   → Γ     ⊢ F ≡ H ∷ U
                   → Γ ∙ F ⊢ G ≡ E ∷ U
                   → ΠΣ-restriction b p q
                   → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ≡
                             ΠΣ⟨ b ⟩ p , q ▷ H ▹ E ∷ U
-    app-cong      : ∀ {a b f g F G}
+    app-cong      : ∀ {b}
                   → Γ ⊢ f ≡ g ∷ Π p , q ▷ F ▹ G
                   → Γ ⊢ a ≡ b ∷ F
                   → Γ ⊢ f ∘⟨ p ⟩ a ≡ g ∘⟨ p ⟩ b ∷ G [ a ]
-    β-red         : ∀ {a t F G}
-                  → Γ     ⊢ F
+    β-red         : Γ     ⊢ F
                   → Γ ∙ F ⊢ G
                   → Γ ∙ F ⊢ t ∷ G
                   → Γ     ⊢ a ∷ F
-                  → p ≈ p′
+                  → p PE.≡ p′
                   → -- Note that q can be chosen arbitrarily.
                     Π-restriction p q
                   → Γ     ⊢ lam p t ∘⟨ p′ ⟩ a ≡ t [ a ] ∷ G [ a ]
-    η-eq          : ∀ {f g F G}
-                  → Γ     ⊢ F
+    η-eq          : Γ     ⊢ F
                   → Γ     ⊢ f ∷ Π p , q ▷ F ▹ G
                   → Γ     ⊢ g ∷ Π p , q ▷ F ▹ G
                   → Γ ∙ F ⊢ wk1 f ∘⟨ p ⟩ var x0 ≡ wk1 g ∘⟨ p ⟩ var x0 ∷ G
                   → Γ     ⊢ f ≡ g ∷ Π p , q ▷ F ▹ G
-    fst-cong      : ∀ {t t' F G}
-                  → Γ ⊢ F
+    fst-cong      : Γ ⊢ F
                   → Γ ∙ F ⊢ G
-                  → Γ ⊢ t ≡ t' ∷ Σₚ p , q ▷ F ▹ G
-                  → Γ ⊢ fst p t ≡ fst p t' ∷ F
-    snd-cong      : ∀ {t t' F G}
-                  → Γ ⊢ F
+                  → Γ ⊢ t ≡ t′ ∷ Σₚ p , q ▷ F ▹ G
+                  → Γ ⊢ fst p t ≡ fst p t′ ∷ F
+    snd-cong      : Γ ⊢ F
                   → Γ ∙ F ⊢ G
-                  → Γ ⊢ t ≡ t' ∷ Σₚ p , q ▷ F ▹ G
-                  → Γ ⊢ snd p t ≡ snd p t' ∷ G [ fst p t ]
-    prod-cong     : ∀ {F G t t′ u u′}
-                  → Γ ⊢ F
-                  → Γ ∙ F ⊢ G
-                  → Γ ⊢ t ≡ t′ ∷ F
-                  → Γ ⊢ u ≡ u′ ∷ G [ t ]
-                  → Σ-restriction m p q
-                  → Γ ⊢ prod m p t u ≡ prod m p t′ u′ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
-    Σ-β₁          : ∀ {F G t u}
-                  → Γ ⊢ F
+                  → Γ ⊢ t ≡ u ∷ Σₚ p , q ▷ F ▹ G
+                  → Γ ⊢ snd p t ≡ snd p u ∷ G [ fst p t ]
+    Σ-β₁          : Γ ⊢ F
                   → Γ ∙ F ⊢ G
                   → Γ ⊢ t ∷ F
                   → Γ ⊢ u ∷ G [ t ]
-                  → p ≈ p′
+                  → p PE.≡ p′
                   → -- Note that q can be chosen arbitrarily.
                     Σₚ-restriction p q
                   → Γ ⊢ fst p (prodₚ p′ t u) ≡ t ∷ F
-    Σ-β₂          : ∀ {F G t u}
-                  → Γ ⊢ F
+    Σ-β₂          : Γ ⊢ F
                   → Γ ∙ F ⊢ G
                   → Γ ⊢ t ∷ F
                   → Γ ⊢ u ∷ G [ t ]
-                  → p ≈ p′
+                  → p PE.≡ p′
                   → -- Note that q can be chosen arbitrarily.
                     Σₚ-restriction p q
                   → Γ ⊢ snd p (prodₚ p′ t u) ≡ u ∷ G [ fst p (prodₚ p′ t u) ]
-    Σ-η           : ∀ {t u F G}
-                  → Γ ⊢ F
+    Σ-η           : Γ ⊢ F
                   → Γ ∙ F ⊢ G
                   → Γ ⊢ t ∷ Σₚ p , q ▷ F ▹ G
                   → Γ ⊢ u ∷ Σₚ p , q ▷ F ▹ G
                   → Γ ⊢ fst p t ≡ fst p u ∷ F
                   → Γ ⊢ snd p t ≡ snd p u ∷ G [ fst p t ]
                   → Γ ⊢ t ≡ u ∷ Σₚ p , q ▷ F ▹ G
-    prodrec-cong  : ∀ {t t′ u u′ F G A A′}
-                  → Γ ⊢ F
+    prod-cong     : Γ ⊢ F
                   → Γ ∙ F ⊢ G
-                  → Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ A ≡ A′
-                  → Γ ⊢ t ≡ t′ ∷ Σᵣ p , q ▷ F ▹ G
+                  → Γ ⊢ t ≡ t′ ∷ F
+                  → Γ ⊢ u ≡ u′ ∷ G [ t ]
+                  → Σ-restriction k p q
+                  → Γ ⊢ prod k p t u ≡ prod k p t′ u′ ∷ Σ⟨ k ⟩ p , q ▷ F ▹ G
+    prodrec-cong  : Γ ⊢ F
+                  → Γ ∙ F ⊢ G
+                  → Γ ∙ (Σᵣ p , q′ ▷ F ▹ G) ⊢ A ≡ A′
+                  → Γ ⊢ t ≡ t′ ∷ Σᵣ p , q′ ▷ F ▹ G
                   → Γ ∙ F ∙ G ⊢ u ≡ u′ ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
-                  → Σᵣ-restriction p q
-                  → Γ ⊢ prodrec r p q′ A t u ≡ prodrec r p q′ A′ t′ u′ ∷ A [ t ]
-    prodrec-β     : ∀ {t t′ u F G A}
-                  → Γ ⊢ F
+                  → Σᵣ-restriction p q′
+                  → Γ ⊢ prodrec r p q A t u ≡ prodrec r p q A′ t′ u′ ∷ A [ t ]
+    prodrec-β     : Γ ⊢ F
                   → Γ ∙ F ⊢ G
-                  → Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ A
+                  → Γ ∙ (Σᵣ p , q′ ▷ F ▹ G) ⊢ A
                   → Γ ⊢ t ∷ F
                   → Γ ⊢ t′ ∷ G [ t ]
                   → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
-                  → p ≈ p′
-                  → Σᵣ-restriction p q
-                  → Γ ⊢ prodrec r p q′ A (prodᵣ p′ t t′) u ≡
+                  → p PE.≡ p′
+                  → Σᵣ-restriction p q′
+                  → Γ ⊢ prodrec r p q A (prodᵣ p′ t t′) u ≡
                         u [ t , t′ ] ∷ A [ prodᵣ p′ t t′ ]
-    suc-cong      : ∀ {m n}
+    suc-cong      : ∀ {n}
                   → Γ ⊢ m ≡ n ∷ ℕ
                   → Γ ⊢ suc m ≡ suc n ∷ ℕ
-    natrec-cong   : ∀ {z z′ s s′ n n′ F F′}
-                  → Γ ∙ ℕ     ⊢ F
-                  → Γ ∙ ℕ     ⊢ F ≡ F′
-                  → Γ         ⊢ z ≡ z′ ∷ F [ zero ]
-                  → Γ ∙ ℕ ∙ F ⊢ s ≡ s′ ∷ wk1 (F [ suc (var x0) ]↑)
+    natrec-cong   : ∀ {n}
+                  → Γ ∙ ℕ     ⊢ A
+                  → Γ ∙ ℕ     ⊢ A ≡ A′
+                  → Γ         ⊢ z ≡ z′ ∷ A [ zero ]
+                  → Γ ∙ ℕ ∙ A ⊢ s ≡ s′ ∷ wk1 (A [ suc (var x0) ]↑)
                   → Γ         ⊢ n ≡ n′ ∷ ℕ
-                  → Γ         ⊢ natrec p q r F z s n ≡ natrec p q r F′ z′ s′ n′ ∷ F [ n ]
-    natrec-zero   : ∀ {z s F}
-                  → Γ ∙ ℕ ⊢ F
-                  → Γ     ⊢ z ∷ F [ zero ]
-                  → Γ ∙ ℕ ∙ F ⊢ s ∷ wk1 (F [ suc (var x0) ]↑)
-                  → Γ     ⊢ natrec p q r F z s zero ≡ z ∷ F [ zero ]
-    natrec-suc    : ∀ {n z s F}
-                  → Γ     ⊢ n ∷ ℕ
-                  → Γ ∙ ℕ ⊢ F
-                  → Γ     ⊢ z ∷ F [ zero ]
-                  → Γ ∙ ℕ ∙ F ⊢ s ∷ wk1 (F [ suc (var x0) ]↑)
-                  → Γ     ⊢ natrec p q r F z s (suc n) ≡ s [ n , natrec p q r F z s n ]
-                                        ∷ F [ suc n ]
-    Emptyrec-cong : ∀ {A A' e e'}
-                  → Γ ⊢ A ≡ A'
-                  → Γ ⊢ e ≡ e' ∷ Empty
-                  → Γ ⊢ Emptyrec p A e ≡ Emptyrec p A' e' ∷ A
-    η-unit        : ∀ {e e'}
-                  → Γ ⊢ e ∷ Unit
-                  → Γ ⊢ e' ∷ Unit
-                  → Γ ⊢ e ≡ e' ∷ Unit
+                  → Γ         ⊢ natrec p q r A z s n ≡
+                                natrec p q r A′ z′ s′ n′ ∷
+                                A [ n ]
+    natrec-zero   : Γ ∙ ℕ     ⊢ A
+                  → Γ         ⊢ z ∷ A [ zero ]
+                  → Γ ∙ ℕ ∙ A ⊢ s ∷ wk1 (A [ suc (var x0) ]↑)
+                  → Γ         ⊢ natrec p q r A z s zero ≡ z ∷ A [ zero ]
+    natrec-suc    : ∀ {n}
+                  → Γ ∙ ℕ     ⊢ A
+                  → Γ         ⊢ z ∷ A [ zero ]
+                  → Γ ∙ ℕ ∙ A ⊢ s ∷ wk1 (A [ suc (var x0) ]↑)
+                  → Γ         ⊢ n ∷ ℕ
+                  → Γ         ⊢ natrec p q r A z s (suc n) ≡
+                                s [ n , natrec p q r A z s n ] ∷
+                                A [ suc n ]
+    Emptyrec-cong : Γ ⊢ A ≡ B
+                  → Γ ⊢ t ≡ u ∷ Empty
+                  → Γ ⊢ Emptyrec p A t ≡ Emptyrec p B u ∷ A
+    η-unit        : Γ ⊢ t ∷ Unit
+                  → Γ ⊢ t′ ∷ Unit
+                  → Γ ⊢ t ≡ t′ ∷ Unit
 
 
 -- Term reduction
 data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ where
-  conv           : ∀ {A B t u}
-                 → Γ ⊢ t ⇒ u ∷ A
+  conv           : Γ ⊢ t ⇒ u ∷ A
                  → Γ ⊢ A ≡ B
                  → Γ ⊢ t ⇒ u ∷ B
-  app-subst      : ∀ {A B t u a}
-                 → Γ ⊢ t ⇒ u ∷ Π p , q ▷ A ▹ B
-                 → Γ ⊢ a ∷ A
-                 → Γ ⊢ t ∘⟨ p ⟩ a ⇒ u ∘⟨ p ⟩ a ∷ B [ a ]
-  β-red          : ∀ {A B a t}
-                 → Γ     ⊢ A
-                 → Γ ∙ A ⊢ B
-                 → Γ ∙ A ⊢ t ∷ B
-                 → Γ     ⊢ a ∷ A
-                 → p ≈ p′
+  app-subst      : Γ ⊢ t ⇒ u ∷ Π p , q ▷ F ▹ G
+                 → Γ ⊢ a ∷ F
+                 → Γ ⊢ t ∘⟨ p ⟩ a ⇒ u ∘⟨ p ⟩ a ∷ G [ a ]
+  β-red          : Γ     ⊢ F
+                 → Γ ∙ F ⊢ G
+                 → Γ ∙ F ⊢ t ∷ G
+                 → Γ     ⊢ a ∷ F
+                 → p PE.≡ p′
                  → -- Note that q can be chosen arbitrarily.
                    Π-restriction p q
-                 → Γ     ⊢ lam p t ∘⟨ p′ ⟩ a ⇒ t [ a ] ∷ B [ a ]
-  fst-subst      : ∀ {t t' F G}
-                 → Γ ⊢ F
+                 → Γ     ⊢ lam p t ∘⟨ p′ ⟩ a ⇒ t [ a ] ∷ G [ a ]
+  fst-subst      : Γ ⊢ F
                  → Γ ∙ F ⊢ G
-                 → Γ ⊢ t ⇒ t' ∷ Σₚ p , q ▷ F ▹ G
-                 → Γ ⊢ fst p t ⇒ fst p t' ∷ F
-  snd-subst      : ∀ {t t' F G}
-                 → Γ ⊢ F
+                 → Γ ⊢ t ⇒ u ∷ Σₚ p , q ▷ F ▹ G
+                 → Γ ⊢ fst p t ⇒ fst p u ∷ F
+  snd-subst      : Γ ⊢ F
                  → Γ ∙ F ⊢ G
-                 → Γ ⊢ t ⇒ t' ∷ Σₚ p , q ▷ F ▹ G
-                 → Γ ⊢ snd p t ⇒ snd p t' ∷ G [ fst p t ]
-  Σ-β₁           : ∀ {F G t u}
-                 → Γ ⊢ F
+                 → Γ ⊢ t ⇒ u ∷ Σₚ p , q ▷ F ▹ G
+                 → Γ ⊢ snd p t ⇒ snd p u ∷ G [ fst p t ]
+  Σ-β₁           : Γ ⊢ F
                  → Γ ∙ F ⊢ G
                  → Γ ⊢ t ∷ F
                  → Γ ⊢ u ∷ G [ t ]
-                 → p ≈ p′
+                 → p PE.≡ p′
                  → -- Note that q can be chosen arbitrarily.
                    Σₚ-restriction p q
                  → Γ ⊢ fst p (prodₚ p′ t u) ⇒ t ∷ F
-  Σ-β₂           : ∀ {F G t u}
-                 → Γ ⊢ F
+  Σ-β₂           : Γ ⊢ F
                  → Γ ∙ F ⊢ G
                  → Γ ⊢ t ∷ F
                  → Γ ⊢ u ∷ G [ t ]
-                 -- TODO(WN): Prove that 𝔍 ∷ G [ t ] is admissible
-                 → p ≈ p′
+                 → p PE.≡ p′
                  → -- Note that q can be chosen arbitrarily.
                    Σₚ-restriction p q
                  → Γ ⊢ snd p (prodₚ p′ t u) ⇒ u ∷ G [ fst p (prodₚ p′ t u) ]
-  prodrec-subst  : ∀ {t t′ F G A}
-                 → Γ ⊢ F
+  prodrec-subst  : Γ ⊢ F
                  → Γ ∙ F ⊢ G
-                 → Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ A
+                 → Γ ∙ (Σᵣ p , q′ ▷ F ▹ G) ⊢ A
                  → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
-                 → Γ ⊢ t ⇒ t′ ∷ Σᵣ p , q ▷ F ▹ G
-                 → Σᵣ-restriction p q
-                 → Γ ⊢ prodrec r p q′ A t u ⇒ prodrec r p q′ A t′ u ∷ A [ t ]
-  prodrec-β      : ∀ {A F G t t′ u}
-                 → Γ ⊢ F
+                 → Γ ⊢ t ⇒ t′ ∷ Σᵣ p , q′ ▷ F ▹ G
+                 → Σᵣ-restriction p q′
+                 → Γ ⊢ prodrec r p q A t u ⇒ prodrec r p q A t′ u ∷ A [ t ]
+  prodrec-β      : Γ ⊢ F
                  → Γ ∙ F ⊢ G
-                 → Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ A
+                 → Γ ∙ (Σᵣ p , q′ ▷ F ▹ G) ⊢ A
                  → Γ ⊢ t ∷ F
                  → Γ ⊢ t′ ∷ G [ t ]
                  → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
-                 → p ≈ p′
-                 → Σᵣ-restriction p q
-                 → Γ ⊢ prodrec r p q′ A (prodᵣ p′ t t′) u ⇒
+                 → p PE.≡ p′
+                 → Σᵣ-restriction p q′
+                 → Γ ⊢ prodrec r p q A (prodᵣ p′ t t′) u ⇒
                        u [ t , t′ ] ∷ A [ prodᵣ p′ t t′ ]
-  natrec-subst   : ∀ {z s n n′ F}
-                 → Γ ∙ ℕ     ⊢ F
-                 → Γ         ⊢ z ∷ F [ zero ]
-                 → Γ ∙ ℕ ∙ F ⊢ s ∷ wk1 (F [ suc (var x0) ]↑)
+  natrec-subst   : ∀ {n}
+                 → Γ ∙ ℕ     ⊢ A
+                 → Γ         ⊢ z ∷ A [ zero ]
+                 → Γ ∙ ℕ ∙ A ⊢ s ∷ wk1 (A [ suc (var x0) ]↑)
                  → Γ         ⊢ n ⇒ n′ ∷ ℕ
-                 → Γ         ⊢ natrec p q r F z s n ⇒ natrec p q r F z s n′ ∷ F [ n ]
-  natrec-zero    : ∀ {z s F}
-                 → Γ ∙ ℕ     ⊢ F
-                 → Γ         ⊢ z ∷ F [ zero ]
-                 → Γ ∙ ℕ ∙ F ⊢ s ∷ wk1 (F [ suc (var x0) ]↑)
-                 → Γ         ⊢ natrec p q r F z s zero ⇒ z ∷ F [ zero ]
-  natrec-suc     : ∀ {n z s F}
+                 → Γ         ⊢ natrec p q r A z s n ⇒
+                               natrec p q r A z s n′ ∷
+                               A [ n ]
+  natrec-zero    : Γ ∙ ℕ     ⊢ A
+                 → Γ         ⊢ z ∷ A [ zero ]
+                 → Γ ∙ ℕ ∙ A ⊢ s ∷ wk1 (A [ suc (var x0) ]↑)
+                 → Γ         ⊢ natrec p q r A z s zero ⇒ z ∷ A [ zero ]
+  natrec-suc     : ∀ {n}
+                 → Γ ∙ ℕ     ⊢ A
+                 → Γ         ⊢ z ∷ A [ zero ]
+                 → Γ ∙ ℕ ∙ A ⊢ s ∷ wk1 (A [ suc (var x0) ]↑)
                  → Γ         ⊢ n ∷ ℕ
-                 → Γ ∙ ℕ     ⊢ F
-                 → Γ         ⊢ z ∷ F [ zero ]
-                 → Γ ∙ ℕ ∙ F ⊢ s ∷ wk1 (F [ suc (var x0) ]↑)
-                 → Γ         ⊢ natrec p q r F z s (suc n) ⇒
-                               s [ n , natrec p q r F z s n ] ∷ F [ suc n ]
-  Emptyrec-subst : ∀ {n n′ A}
+                 → Γ         ⊢ natrec p q r A z s (suc n) ⇒
+                               s [ n , natrec p q r A z s n ] ∷
+                               A [ suc n ]
+  Emptyrec-subst : ∀ {n}
                  → Γ ⊢ A
                  → Γ     ⊢ n ⇒ n′ ∷ Empty
                  → Γ     ⊢ Emptyrec p A n ⇒ Emptyrec p A n′ ∷ A
 
 -- Type reduction
 data _⊢_⇒_ (Γ : Con Term n) : Term n → Term n → Set ℓ where
-  univ : ∀ {A B}
-       → Γ ⊢ A ⇒ B ∷ U
+  univ : Γ ⊢ A ⇒ B ∷ U
        → Γ ⊢ A ⇒ B
 
 -- Term reduction closure
 data _⊢_⇒*_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ where
-  id  : ∀ {A t}
-      → Γ ⊢ t ∷ A
+  id  : Γ ⊢ t ∷ A
       → Γ ⊢ t ⇒* t ∷ A
-  _⇨_ : ∀ {A t t′ u}
-      → Γ ⊢ t  ⇒  t′ ∷ A
+  _⇨_ : Γ ⊢ t  ⇒  t′ ∷ A
       → Γ ⊢ t′ ⇒* u  ∷ A
       → Γ ⊢ t  ⇒* u  ∷ A
 
 -- Type reduction closure
 data _⊢_⇒*_ (Γ : Con Term n) : Term n → Term n → Set ℓ where
-  id  : ∀ {A}
-      → Γ ⊢ A
+  id  : Γ ⊢ A
       → Γ ⊢ A ⇒* A
-  _⇨_ : ∀ {A A′ B}
-      → Γ ⊢ A  ⇒  A′
+  _⇨_ : Γ ⊢ A  ⇒  A′
       → Γ ⊢ A′ ⇒* B
       → Γ ⊢ A  ⇒* B
 
@@ -445,18 +402,18 @@ record _⊢_:⇒*:_∷_ (Γ : Con Term n) (t u A : Term n) : Set ℓ where
 open _⊢_:⇒*:_∷_ using () renaming (d to redₜ; ⊢t to ⊢t-redₜ; ⊢u to ⊢u-redₜ) public
 
 -- Well-formed substitutions.
-data _⊢ˢ_∷_ (Δ : Con Term k) : (σ : Subst k n) (Γ : Con Term n) → Set ℓ where
-  id  : ∀ {σ} → Δ ⊢ˢ σ ∷ ε
-  _,_ : ∀ {A σ}
-      → Δ ⊢ˢ tail σ ∷ Γ
+data _⊢ˢ_∷_ {k} (Δ : Con Term k) :
+       (σ : Subst k n) (Γ : Con Term n) → Set ℓ where
+  id  : Δ ⊢ˢ σ ∷ ε
+  _,_ : Δ ⊢ˢ tail σ ∷ Γ
       → Δ ⊢  head σ ∷ subst (tail σ) A
       → Δ ⊢ˢ σ      ∷ Γ ∙ A
 
 -- Conversion of well-formed substitutions.
-data _⊢ˢ_≡_∷_ (Δ : Con Term k) : (σ σ′ : Subst k n) (Γ : Con Term n) → Set ℓ where
-  id  : ∀ {σ σ′} → Δ ⊢ˢ σ ≡ σ′ ∷ ε
-  _,_ : ∀ {A σ σ′}
-      → Δ ⊢ˢ tail σ ≡ tail σ′ ∷ Γ
+data _⊢ˢ_≡_∷_ {k} (Δ : Con Term k) :
+       (σ σ′ : Subst k n) (Γ : Con Term n) → Set ℓ where
+  id  : Δ ⊢ˢ σ ≡ σ′ ∷ ε
+  _,_ : Δ ⊢ˢ tail σ ≡ tail σ′ ∷ Γ
       → Δ ⊢  head σ ≡ head σ′ ∷ subst (tail σ) A
       → Δ ⊢ˢ      σ ≡ σ′      ∷ Γ ∙ A
 
@@ -468,13 +425,13 @@ data _⊢ˢ_≡_∷_ (Δ : Con Term k) : (σ σ′ : Subst k n) (Γ : Con Term n
      → Γ ∙ F ⊢ G
      → BindingType-restriction W
      → Γ     ⊢ ⟦ W ⟧ F ▹ G
-⟦ BΠ p q   ⟧ⱼ = ΠΣⱼ
-⟦ BΣ m p q ⟧ⱼ = ΠΣⱼ
+⟦ BΠ _ _   ⟧ⱼ = ΠΣⱼ
+⟦ BΣ _ _ _ ⟧ⱼ = ΠΣⱼ
 
 ⟦_⟧ⱼᵤ : (W : BindingType) → ∀ {F G}
      → Γ     ⊢ F ∷ U
      → Γ ∙ F ⊢ G ∷ U
      → BindingType-restriction W
      → Γ     ⊢ ⟦ W ⟧ F ▹ G ∷ U
-⟦ BΠ p q   ⟧ⱼᵤ = ΠΣⱼ
-⟦ BΣ m p q ⟧ⱼᵤ = ΠΣⱼ
+⟦ BΠ _ _   ⟧ⱼᵤ = ΠΣⱼ
+⟦ BΣ _ _ _ ⟧ⱼᵤ = ΠΣⱼ

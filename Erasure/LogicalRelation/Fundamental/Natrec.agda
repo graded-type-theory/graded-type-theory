@@ -205,7 +205,7 @@ natrecʳ″
       A[m]≡A[sucm′] = substTypeEq (refl ⊢σA) (subset*Term m⇒sucm′)
       nrm⇒nrsucm′ = natrec-subst* {p = p} {r = r} m⇒sucm′ ⊢σA ⊢σz′ ⊢σs′
       nrm⇒nrsucm″ = conv* nrm⇒nrsucm′ A[m]≡A[sucm′]
-      nrsucm′⇒s = natrec-suc ⊢m′ ⊢σA ⊢σz′ ⊢σs′
+      nrsucm′⇒s = natrec-suc ⊢σA ⊢σz′ ⊢σs′ ⊢m′
       nrm⇒s = nrm⇒nrsucm″ ⇨∷* redMany nrsucm′⇒s
       nrw⇒nrsucw′ = TP.natrec-subst* {z = T.subst σ′ (erase z)}
                                      {s = T.subst (T.liftSubst (T.liftSubst σ′)) (erase s)}
