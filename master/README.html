@@ -112,7 +112,7 @@
 <a id="4131" class="Comment">-- Unlike in the paper equality is not required to be decidable.</a>
 <a id="4196" class="Comment">-- Instead this property is assumed where it is used.</a>
 
-<a id="Modality"></a><a id="4251" href="README.html#4251" class="Function">Modality</a> <a id="4260" class="Symbol">=</a> <a id="4262" href="Definition.Modality.html#5110" class="Record">Definition.Modality.Modality</a>
+<a id="Modality"></a><a id="4251" href="README.html#4251" class="Function">Modality</a> <a id="4260" class="Symbol">=</a> <a id="4262" href="Definition.Modality.html#5158" class="Record">Definition.Modality.Modality</a>
 
 <a id="4292" class="Comment">-- Lifted operators and a lifted ordering relation for usage contexts.</a>
 
@@ -168,7 +168,7 @@
 
 <a id="5996" class="Comment">-- The grammar of the language</a>
 
-<a id="grammar"></a><a id="6028" href="README.html#6028" class="Function">grammar</a> <a id="6036" class="Symbol">=</a> <a id="6038" href="Definition.Untyped.html#1883" class="Datatype">Definition.Untyped.Term</a>
+<a id="grammar"></a><a id="6028" href="README.html#6028" class="Function">grammar</a> <a id="6036" class="Symbol">=</a> <a id="6038" href="Definition.Untyped.html#1988" class="Datatype">Definition.Untyped.Term</a>
 
 <a id="6063" class="Comment">-- Weakenings</a>
 
@@ -176,7 +176,7 @@
 
 <a id="6106" class="Comment">-- Substitutions</a>
 
-<a id="Subst"></a><a id="6124" href="README.html#6124" class="Function">Subst</a> <a id="6130" class="Symbol">=</a> <a id="6132" href="Definition.Untyped.html#11676" class="Function">Definition.Untyped.Subst</a>
+<a id="Subst"></a><a id="6124" href="README.html#6124" class="Function">Subst</a> <a id="6130" class="Symbol">=</a> <a id="6132" href="Definition.Untyped.html#11781" class="Function">Definition.Untyped.Subst</a>
 
 <a id="6158" class="Comment">-- The typing relations</a>
 
@@ -224,11 +224,11 @@
 
 <a id="7208" class="Comment">-- Theorem 5.3: Substitution lemma for grade usage</a>
 
-<a id="Theorem-5-3"></a><a id="7260" href="README.html#7260" class="Function">Theorem-5-3</a> <a id="7272" class="Symbol">=</a> <a id="7274" href="Definition.Modality.Substitution.Properties.html#26370" class="Function">Definition.Modality.Substitution.Properties.substₘ-lemma₁</a>
+<a id="Theorem-5-3"></a><a id="7260" href="README.html#7260" class="Function">Theorem-5-3</a> <a id="7272" class="Symbol">=</a> <a id="7274" href="Definition.Modality.Substitution.Properties.html#26474" class="Function">Definition.Modality.Substitution.Properties.substₘ-lemma₁</a>
 
 <a id="7333" class="Comment">-- Theorem 5.4: Subject reduction for grade usage</a>
 
-<a id="Theorem-5-4"></a><a id="7384" href="README.html#7384" class="Function">Theorem-5-4</a> <a id="7396" class="Symbol">=</a> <a id="7398" href="Definition.Typed.Usage.html#1612" class="Function">Definition.Typed.Usage.usagePresTerm</a>
+<a id="Theorem-5-4"></a><a id="7384" href="README.html#7384" class="Function">Theorem-5-4</a> <a id="7396" class="Symbol">=</a> <a id="7398" href="Definition.Typed.Usage.html#1735" class="Function">Definition.Typed.Usage.usagePresTerm</a>
 
 <a id="7436" class="Comment">------------------------------------------------------------------------</a>
 <a id="7509" class="Comment">-- 6: Erasure case study</a>
@@ -239,7 +239,7 @@
 
 <a id="7703" class="Comment">-- Definition 6.1</a>
 
-<a id="Has-well-behaved-zero"></a><a id="7722" href="README.html#7722" class="Function">Has-well-behaved-zero</a> <a id="7744" class="Symbol">=</a> <a id="7746" href="Definition.Modality.html#2699" class="Record">Definition.Modality.Has-well-behaved-zero</a>
+<a id="Has-well-behaved-zero"></a><a id="7722" href="README.html#7722" class="Function">Has-well-behaved-zero</a> <a id="7744" class="Symbol">=</a> <a id="7746" href="Definition.Modality.html#2710" class="Record">Definition.Modality.Has-well-behaved-zero</a>
 
 <a id="erasure-has-well-behaved-zero"></a><a id="7789" href="README.html#7789" class="Function">erasure-has-well-behaved-zero</a> <a id="7819" class="Symbol">=</a>
   <a id="7823" href="Definition.Modality.Instances.Erasure.Modality.html#900" class="Function">Definition.Modality.Instances.Erasure.Modality.erasure-has-well-behaved-zero</a>
@@ -252,16 +252,16 @@
 
 <a id="8248" class="Comment">-- Theorem 6.2</a>
 
-<a id="Theorem-62"></a><a id="8264" href="README.html#8264" class="Function">Theorem-62</a> <a id="8275" class="Symbol">=</a> <a id="8277" href="Definition.Modality.Usage.Properties.html#27748" class="Function">Definition.Modality.Usage.Properties.valid-var-usage</a>
+<a id="Theorem-62"></a><a id="8264" href="README.html#8264" class="Function">Theorem-62</a> <a id="8275" class="Symbol">=</a> <a id="8277" href="Definition.Modality.Usage.Properties.html#27895" class="Function">Definition.Modality.Usage.Properties.valid-var-usage</a>
 
 <a id="8331" class="Comment">-- The grammar of the untyped target language</a>
 
-<a id="target"></a><a id="8378" href="README.html#8378" class="Function">target</a> <a id="8385" class="Symbol">=</a> <a id="8387" href="Erasure.Target.html#486" class="Datatype">Erasure.Target.Term</a>
+<a id="target"></a><a id="8378" href="README.html#8378" class="Function">target</a> <a id="8385" class="Symbol">=</a> <a id="8387" href="Erasure.Target.html#510" class="Datatype">Erasure.Target.Term</a>
 
 <a id="8408" class="Comment">-- The reduction relation of the target language</a>
 
-<a id="_⇒_"></a><a id="8458" href="README.html#8458" class="Function Operator">_⇒_</a> <a id="8462" class="Symbol">=</a> <a id="8464" href="Erasure.Target.html#5374" class="Datatype Operator">Erasure.Target._⇒_</a>
-<a id="_⇒*_"></a><a id="8483" href="README.html#8483" class="Function Operator">_⇒*_</a> <a id="8488" class="Symbol">=</a> <a id="8490" href="Erasure.Target.html#5995" class="Datatype Operator">Erasure.Target._⇒*_</a>
+<a id="_⇒_"></a><a id="8458" href="README.html#8458" class="Function Operator">_⇒_</a> <a id="8462" class="Symbol">=</a> <a id="8464" href="Erasure.Target.html#5398" class="Datatype Operator">Erasure.Target._⇒_</a>
+<a id="_⇒*_"></a><a id="8483" href="README.html#8483" class="Function Operator">_⇒*_</a> <a id="8488" class="Symbol">=</a> <a id="8490" href="Erasure.Target.html#6019" class="Datatype Operator">Erasure.Target._⇒*_</a>
 
 <a id="8511" class="Comment">-- Definition 6.3: The extraction function</a>
 
@@ -269,7 +269,7 @@
 
 <a id="8586" class="Comment">-- Theorem 6.4</a>
 
-<a id="Theorem-64"></a><a id="8602" href="README.html#8602" class="Function">Theorem-64</a> <a id="8613" class="Symbol">=</a> <a id="8615" href="Erasure.Extraction.Properties.html#11819" class="Function">Erasure.Extraction.Properties.erased-hasX</a>
+<a id="Theorem-64"></a><a id="8602" href="README.html#8602" class="Function">Theorem-64</a> <a id="8613" class="Symbol">=</a> <a id="8615" href="Erasure.Extraction.Properties.html#11876" class="Function">Erasure.Extraction.Properties.erased-hasX</a>
 
 <a id="8658" class="Comment">-- Reducibility logical relation for types</a>
 <a id="8701" class="Comment">-- In the paper, the type level is denoted with a subscript instead of within braces.</a>
@@ -292,7 +292,7 @@
 <a id="9444" class="Comment">-- cases, assuming that the zero of the semiring is sufficiently</a>
 <a id="9509" class="Comment">-- well behaved.</a>
 
-<a id="_®⟨_⟩_∷_/_"></a><a id="9527" href="README.html#9527" class="Function Operator">_®⟨_⟩_∷_/_</a> <a id="9538" class="Symbol">=</a> <a id="9540" href="Erasure.LogicalRelation.html#1818" class="Function Operator">Erasure.LogicalRelation._®⟨_⟩_∷_/_</a>
+<a id="_®⟨_⟩_∷_/_"></a><a id="9527" href="README.html#9527" class="Function Operator">_®⟨_⟩_∷_/_</a> <a id="9538" class="Symbol">=</a> <a id="9540" href="Erasure.LogicalRelation.html#2305" class="Function Operator">Erasure.LogicalRelation._®⟨_⟩_∷_/_</a>
 <a id="9575" class="Comment">-- In the paper, the type level is denoted with a subscript instead of within braces.</a>
 
 <a id="9662" class="Comment">-- Valid substitutions</a>
@@ -304,26 +304,26 @@
 <a id="9896" class="Comment">-- Definition 6.6: The logical relation for substitutions</a>
 <a id="9954" class="Comment">-- In the paper, the type level is denoted with a subscript instead of within braces.</a>
 
-<a id="_®⟨_⟩_∷_◂_/_/_"></a><a id="10041" href="README.html#10041" class="Function Operator">_®⟨_⟩_∷_◂_/_/_</a> <a id="10056" class="Symbol">=</a> <a id="10058" href="Erasure.LogicalRelation.html#4058" class="Function Operator">Erasure.LogicalRelation._®⟨_⟩_∷[_]_◂_/_/_</a>
+<a id="_®⟨_⟩_∷_◂_/_/_"></a><a id="10041" href="README.html#10041" class="Function Operator">_®⟨_⟩_∷_◂_/_/_</a> <a id="10056" class="Symbol">=</a> <a id="10058" href="Erasure.LogicalRelation.html#5306" class="Function Operator">Erasure.LogicalRelation._®⟨_⟩_∷[_]_◂_/_/_</a>
 
 
 <a id="10102" class="Comment">-- Definition 6.7: Erasure validity</a>
 <a id="10138" class="Comment">-- In the paper, the type level is denoted with a subscript instead of within braces.</a>
 
-<a id="_▸_⊩ʳ⟨_⟩_∷_/_/_"></a><a id="10225" href="README.html#10225" class="Function Operator">_▸_⊩ʳ⟨_⟩_∷_/_/_</a> <a id="10241" class="Symbol">=</a> <a id="10243" href="Erasure.LogicalRelation.html#4551" class="Function Operator">Erasure.LogicalRelation._▸_⊩ʳ⟨_⟩_∷[_]_/_/_</a>
+<a id="_▸_⊩ʳ⟨_⟩_∷_/_/_"></a><a id="10225" href="README.html#10225" class="Function Operator">_▸_⊩ʳ⟨_⟩_∷_/_/_</a> <a id="10241" class="Symbol">=</a> <a id="10243" href="Erasure.LogicalRelation.html#5897" class="Function Operator">Erasure.LogicalRelation._▸_⊩ʳ⟨_⟩_∷[_]_/_/_</a>
 
 <a id="10287" class="Comment">-- Theorem 6.8: Backwards closure of logical relation under reduction</a>
 
-<a id="Theorem-68"></a><a id="10358" href="README.html#10358" class="Function">Theorem-68</a> <a id="10369" class="Symbol">=</a> <a id="10371" href="Erasure.LogicalRelation.Reduction.html#6518" class="Function">Erasure.LogicalRelation.Reduction.redSubstTerm*</a>
+<a id="Theorem-68"></a><a id="10358" href="README.html#10358" class="Function">Theorem-68</a> <a id="10369" class="Symbol">=</a> <a id="10371" href="Erasure.LogicalRelation.Reduction.html#6754" class="Function">Erasure.LogicalRelation.Reduction.redSubstTerm*</a>
 
 <a id="10420" class="Comment">-- Theorem 6.9: Subsumption of the logical relation</a>
 
-<a id="Theorem-69a"></a><a id="10473" href="README.html#10473" class="Function">Theorem-69a</a> <a id="10485" class="Symbol">=</a> <a id="10487" href="Erasure.LogicalRelation.Subsumption.html#2662" class="Function">Erasure.LogicalRelation.Subsumption.subsumptionSubst</a>
+<a id="Theorem-69a"></a><a id="10473" href="README.html#10473" class="Function">Theorem-69a</a> <a id="10485" class="Symbol">=</a> <a id="10487" href="Erasure.LogicalRelation.Subsumption.html#2638" class="Function">Erasure.LogicalRelation.Subsumption.subsumptionSubst</a>
 <a id="Theorem-69b"></a><a id="10540" href="README.html#10540" class="Function">Theorem-69b</a> <a id="10552" class="Symbol">=</a> <a id="10554" href="Erasure.LogicalRelation.Subsumption.html#4191" class="Function">Erasure.LogicalRelation.Subsumption.subsumption</a>
 
 <a id="10603" class="Comment">-- Theorem 6.10: The fundamental lemma</a>
 
-<a id="fundamental"></a><a id="10643" href="README.html#10643" class="Function">fundamental</a> <a id="10655" class="Symbol">=</a> <a id="10657" href="Erasure.LogicalRelation.Fundamental.html#6798" class="Function">Erasure.LogicalRelation.Fundamental.fundamental</a>
+<a id="fundamental"></a><a id="10643" href="README.html#10643" class="Function">fundamental</a> <a id="10655" class="Symbol">=</a> <a id="10657" href="Erasure.LogicalRelation.Fundamental.html#7174" class="Function">Erasure.LogicalRelation.Fundamental.fundamental</a>
 
 <a id="10706" class="Comment">-- Theorem 6.11: All substitutions are related under erased contexts</a>
 
@@ -331,7 +331,7 @@
 
 <a id="10839" class="Comment">-- Theorem 6.12: The fundamental lemma for fully erased terms</a>
 
-<a id="Theorem-612"></a><a id="10902" href="README.html#10902" class="Function">Theorem-612</a> <a id="10914" class="Symbol">=</a> <a id="10916" href="Erasure.LogicalRelation.Fundamental.html#15923" class="Function">Erasure.LogicalRelation.Fundamental.fundamentalErased</a>
+<a id="Theorem-612"></a><a id="10902" href="README.html#10902" class="Function">Theorem-612</a> <a id="10914" class="Symbol">=</a> <a id="10916" href="Erasure.LogicalRelation.Fundamental.html#16299" class="Function">Erasure.LogicalRelation.Fundamental.fundamentalErased</a>
 
 <a id="10971" class="Comment">-- Extended reduction relations</a>
 
@@ -388,7 +388,7 @@
 
 <a id="12485" class="Comment">-- Definition 8.1: The extended modality structure</a>
 
-<a id="ExtendedModality"></a><a id="12537" href="README.html#12537" class="Function">ExtendedModality</a> <a id="12554" class="Symbol">=</a> <a id="12556" href="Definition.Modality.html#5110" class="Record">Definition.Modality.Modality</a>
+<a id="ExtendedModality"></a><a id="12537" href="README.html#12537" class="Function">ExtendedModality</a> <a id="12554" class="Symbol">=</a> <a id="12556" href="Definition.Modality.html#5158" class="Record">Definition.Modality.Modality</a>
 
 <a id="12586" class="Comment">-- The modality structures for erasure, affine and linear types</a>
 <a id="12650" class="Comment">-- satisfy the conditions of the extended modality definition</a>
@@ -399,7 +399,7 @@
 
 <a id="12945" class="Comment">-- Subject reduction for the extended grade usage relation</a>
 
-<a id="subjectReduction"></a><a id="13005" href="README.html#13005" class="Function">subjectReduction</a> <a id="13022" class="Symbol">=</a> <a id="13024" href="Definition.Typed.Usage.html#1612" class="Function">Definition.Typed.Usage.usagePresTerm</a>
+<a id="subjectReduction"></a><a id="13005" href="README.html#13005" class="Function">subjectReduction</a> <a id="13022" class="Symbol">=</a> <a id="13024" href="Definition.Typed.Usage.html#1735" class="Function">Definition.Typed.Usage.usagePresTerm</a>
 
 <a id="13062" class="Comment">-- Translating modes into grades</a>
 <a id="13095" class="Comment">-- In the paper, this function is denoted by an overbar.</a>
@@ -422,7 +422,7 @@
 
 <a id="13515" class="Comment">-- Theorem 8.3: Subject reduction for the usage relation with modes</a>
 
-<a id="Theorem-83"></a><a id="13584" href="README.html#13584" class="Function">Theorem-83</a> <a id="13595" class="Symbol">=</a> <a id="13597" href="Definition.Typed.Usage.html#1612" class="Function">Definition.Typed.Usage.usagePresTerm</a>
+<a id="Theorem-83"></a><a id="13584" href="README.html#13584" class="Function">Theorem-83</a> <a id="13595" class="Symbol">=</a> <a id="13597" href="Definition.Typed.Usage.html#1735" class="Function">Definition.Typed.Usage.usagePresTerm</a>
 
 <a id="13635" class="Comment">-- The extraction function</a>
 <a id="13662" class="Comment">-- Note that this has been updated to no longer use substitutions</a>
@@ -509,5 +509,5 @@
 
 <a id="16485" class="Comment">-- Theorem B.5</a>
 
-<a id="Theorem-B5"></a><a id="16501" href="README.html#16501" class="Function">Theorem-B5</a> <a id="16512" class="Symbol">=</a> <a id="16514" href="Definition.Modality.Substitution.Properties.html#49466" class="Function">Definition.Modality.Substitution.Properties.subst-calc-correct′</a>
+<a id="Theorem-B5"></a><a id="16501" href="README.html#16501" class="Function">Theorem-B5</a> <a id="16512" class="Symbol">=</a> <a id="16514" href="Definition.Modality.Substitution.Properties.html#49622" class="Function">Definition.Modality.Substitution.Properties.subst-calc-correct′</a>
 </pre></body></html>
