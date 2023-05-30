@@ -113,6 +113,13 @@ no-erased-matches = Graded.Restrictions.no-erased-matches
 
 Modality = Graded.Modality.Modality
 
+-- Usage contexts.
+--
+-- The usage contexts are defined as (length-indexed) lists, not as
+-- functions from variables.
+
+Conₘ = Graded.Context.Conₘ
+
 -- Lifted operators and a lifted ordering relation for usage contexts.
 
 _+_   = Graded.Context._+ᶜ_
