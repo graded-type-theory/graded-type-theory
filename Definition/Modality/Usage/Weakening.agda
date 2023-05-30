@@ -237,15 +237,15 @@ wkConₘ⁻¹-,≔ {γ = _ ∙ _} {x = _ +1} (lift ρ) = wkConₘ⁻¹-,≔ ρ �
 
 -- A kind of inversion lemma for the usage relation and weakening.
 
-wkUsage⁻¹′ : γ ▸[ m′ ] wk ρ t → wkConₘ⁻¹ ρ γ ▸[ m′ ] t
-wkUsage⁻¹′ ▸t = wkUsage⁻¹″ ▸t refl
+wkUsage⁻¹ : γ ▸[ m′ ] wk ρ t → wkConₘ⁻¹ ρ γ ▸[ m′ ] t
+wkUsage⁻¹ ▸t = wkUsage⁻¹′ ▸t refl
   where
   open module R {n} =
     Tools.Reasoning.PartialOrder (≤ᶜ-poset {n = n})
 
-  wkUsage⁻¹″ :
+  wkUsage⁻¹′ :
     γ ▸[ m′ ] t′ → wk ρ t ≡ t′ → wkConₘ⁻¹ ρ γ ▸[ m′ ] t
-  wkUsage⁻¹″ {ρ = ρ} = λ where
+  wkUsage⁻¹′ {ρ = ρ} = λ where
       Uₘ eq →
         case wk-U eq of λ {
           refl →
@@ -265,9 +265,9 @@ wkUsage⁻¹′ ▸t = wkUsage⁻¹″ ▸t refl
       (ΠΣₘ ▸A ▸B) eq →
         case wk-ΠΣ eq of λ {
           (_ , _ , refl , refl , refl) →
-        case wkUsage⁻¹′ ▸A of λ {
+        case wkUsage⁻¹ ▸A of λ {
           ▸A →
-        case wkUsage⁻¹′ ▸B of λ {
+        case wkUsage⁻¹ ▸B of λ {
           ▸B →
         sub (ΠΣₘ ▸A ▸B) (≤ᶜ-reflexive (wkConₘ⁻¹-+ᶜ ρ)) }}}
       (var {m = m}) eq →
@@ -280,42 +280,42 @@ wkUsage⁻¹′ ▸t = wkUsage⁻¹″ ▸t refl
       (lamₘ ▸t) eq →
         case wk-lam eq of λ {
           (_ , refl , refl) →
-        lamₘ (wkUsage⁻¹′ ▸t) }
+        lamₘ (wkUsage⁻¹ ▸t) }
       (_∘ₘ_ {γ = γ} {δ = δ} {p = p} ▸t ▸u) eq →
         case wk-∘ eq of λ {
           (_ , _ , refl , refl , refl) →
-        sub (wkUsage⁻¹′ ▸t ∘ₘ wkUsage⁻¹′ ▸u) (begin
+        sub (wkUsage⁻¹ ▸t ∘ₘ wkUsage⁻¹ ▸u) (begin
           wkConₘ⁻¹ ρ (γ +ᶜ p ·ᶜ δ)             ≈⟨ wkConₘ⁻¹-+ᶜ ρ ⟩
           wkConₘ⁻¹ ρ γ +ᶜ wkConₘ⁻¹ ρ (p ·ᶜ δ)  ≈⟨ +ᶜ-congˡ (wkConₘ⁻¹-·ᶜ ρ) ⟩
           wkConₘ⁻¹ ρ γ +ᶜ p ·ᶜ wkConₘ⁻¹ ρ δ    ∎) }
       (prodᵣₘ {γ = γ} {p = p} {δ = δ} ▸t ▸u) eq →
         case wk-prod eq of λ {
           (_ , _ , refl , refl , refl) →
-        sub (prodᵣₘ (wkUsage⁻¹′ ▸t) (wkUsage⁻¹′ ▸u)) (begin
+        sub (prodᵣₘ (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸u)) (begin
           wkConₘ⁻¹ ρ (p ·ᶜ γ +ᶜ δ)             ≈⟨ wkConₘ⁻¹-+ᶜ ρ ⟩
           wkConₘ⁻¹ ρ (p ·ᶜ γ) +ᶜ wkConₘ⁻¹ ρ δ  ≈⟨ +ᶜ-congʳ (wkConₘ⁻¹-·ᶜ ρ) ⟩
           p ·ᶜ wkConₘ⁻¹ ρ γ +ᶜ wkConₘ⁻¹ ρ δ    ∎) }
       (prodₚₘ {γ = γ} {p = p} {δ = δ} ▸t ▸u) eq →
         case wk-prod eq of λ {
           (_ , _ , refl , refl , refl) →
-        sub (prodₚₘ (wkUsage⁻¹′ ▸t) (wkUsage⁻¹′ ▸u)) (begin
+        sub (prodₚₘ (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸u)) (begin
           wkConₘ⁻¹ ρ (p ·ᶜ γ ∧ᶜ δ)             ≈⟨ wkConₘ⁻¹-∧ᶜ ρ ⟩
           wkConₘ⁻¹ ρ (p ·ᶜ γ) ∧ᶜ wkConₘ⁻¹ ρ δ  ≈⟨ ∧ᶜ-congʳ (wkConₘ⁻¹-·ᶜ ρ) ⟩
           p ·ᶜ wkConₘ⁻¹ ρ γ ∧ᶜ wkConₘ⁻¹ ρ δ    ∎) }
       (fstₘ m ▸t refl ok) eq →
         case wk-fst eq of λ {
           (_ , refl , refl) →
-        fstₘ m (wkUsage⁻¹′ ▸t) refl ok }
+        fstₘ m (wkUsage⁻¹ ▸t) refl ok }
       (sndₘ ▸t) eq →
         case wk-snd eq of λ {
           (_ , refl , refl) →
-        sndₘ (wkUsage⁻¹′ ▸t) }
+        sndₘ (wkUsage⁻¹ ▸t) }
       (prodrecₘ {γ = γ} {r = r} {δ = δ} ▸t ▸u ▸A ok) eq →
         case wk-prodrec eq of λ {
           (_ , _ , _ , refl , refl , refl , refl) →
         sub
-          (prodrecₘ (wkUsage⁻¹′ ▸t) (wkUsage⁻¹′ ▸u)
-             (wkUsage⁻¹′ ▸A) ok)
+          (prodrecₘ (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸u)
+             (wkUsage⁻¹ ▸A) ok)
           (begin
              wkConₘ⁻¹ ρ (r ·ᶜ γ +ᶜ δ)             ≈⟨ wkConₘ⁻¹-+ᶜ ρ ⟩
              wkConₘ⁻¹ ρ (r ·ᶜ γ) +ᶜ wkConₘ⁻¹ ρ δ  ≈⟨ +ᶜ-congʳ (wkConₘ⁻¹-·ᶜ ρ) ⟩
@@ -327,13 +327,13 @@ wkUsage⁻¹′ ▸t = wkUsage⁻¹″ ▸t refl
       (sucₘ ▸t) eq →
         case wk-suc eq of λ {
           (_ , refl , refl) →
-        sucₘ (wkUsage⁻¹′ ▸t) }
+        sucₘ (wkUsage⁻¹ ▸t) }
       (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} ▸t ▸u ▸v ▸A) eq →
         case wk-natrec eq of λ {
           (_ , _ , _ , _ , refl , refl , refl , refl , refl) →
         sub
-          (natrecₘ (wkUsage⁻¹′ ▸t) (wkUsage⁻¹′ ▸u)
-             (wkUsage⁻¹′ ▸v) (wkUsage⁻¹′ ▸A))
+          (natrecₘ (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸u)
+             (wkUsage⁻¹ ▸v) (wkUsage⁻¹ ▸A))
           (begin
              wkConₘ⁻¹ ρ ((γ ∧ᶜ η) ⊛ᶜ δ +ᶜ p ·ᶜ η ▷ r)             ≈⟨ wkConₘ⁻¹-⊛ᶜ ρ ⟩
 
@@ -347,20 +347,20 @@ wkUsage⁻¹′ ▸t = wkUsage⁻¹″ ▸t refl
       (Emptyrecₘ ▸t ▸A) eq →
         case wk-Emptyrec eq of λ {
           (_ , _ , refl , refl , refl) →
-        sub (Emptyrecₘ (wkUsage⁻¹′ ▸t) (wkUsage⁻¹′ ▸A))
+        sub (Emptyrecₘ (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸A))
           (≤ᶜ-reflexive (wkConₘ⁻¹-·ᶜ ρ)) }
       starₘ eq →
         case wk-star eq of λ {
           refl →
         sub starₘ (≤ᶜ-reflexive (wkConₘ⁻¹-𝟘ᶜ ρ)) }
       (sub ▸t leq) refl →
-        sub (wkUsage⁻¹′ ▸t) (wkConₘ⁻¹-monotone ρ leq)
+        sub (wkUsage⁻¹ ▸t) (wkConₘ⁻¹-monotone ρ leq)
 
 -- An inversion lemma for the usage relation and weakening.
 
-wkUsage⁻¹ : wkConₘ ρ γ ▸[ m′ ] wk ρ t → γ ▸[ m′ ] t
-wkUsage⁻¹ {ρ = ρ} {γ = γ} {m′ = m′} {t = t} =
-  wkConₘ ρ γ ▸[ m′ ] wk ρ t          →⟨ wkUsage⁻¹′ ⟩
+wkUsage⁻¹′ : wkConₘ ρ γ ▸[ m′ ] wk ρ t → γ ▸[ m′ ] t
+wkUsage⁻¹′ {ρ = ρ} {γ = γ} {m′ = m′} {t = t} =
+  wkConₘ ρ γ ▸[ m′ ] wk ρ t          →⟨ wkUsage⁻¹ ⟩
   wkConₘ⁻¹ ρ (wkConₘ ρ γ) ▸[ m′ ] t  →⟨ subst (_▸[ _ ] _) (wkConₘ⁻¹-wkConₘ ρ) ⟩
   γ ▸[ m′ ] t                        □
 
