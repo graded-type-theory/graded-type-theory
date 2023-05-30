@@ -5,54 +5,54 @@
 
 module README where
 
-import Definition.Modality
-import Definition.Modality.Context
-import Definition.Modality.FullReduction
-import Definition.Modality.Instances.Unit
-import Definition.Modality.Instances.Erasure.Modality
-import Definition.Modality.Instances.Erasure.Properties
-import Definition.Modality.Instances.Affine
-import Definition.Modality.Instances.Linearity
-import Definition.Modality.Instances.Zero-one-many
-import Definition.Modality.Instances.Linear-or-affine
-import Definition.Modality.Instances.LowerBounded
-import Definition.Modality.Instances.Recursive
-import Definition.Modality.Instances.BoundedStar
-import Definition.Modality.Usage
-import Definition.Modality.Usage.Decidable
-import Definition.Modality.Usage.Inversion
-import Definition.Modality.Usage.Properties
-import Definition.Modality.Usage.Restrictions
-import Definition.Modality.Restrictions
-import Definition.Modality.Substitution
-import Definition.Modality.Substitution.Properties
+import Graded.Modality
+import Graded.Context
+import Graded.FullReduction
+import Graded.Modality.Instances.Unit
+import Graded.Modality.Instances.Erasure.Modality
+import Graded.Modality.Instances.Erasure.Properties
+import Graded.Modality.Instances.Affine
+import Graded.Modality.Instances.Linearity
+import Graded.Modality.Instances.Zero-one-many
+import Graded.Modality.Instances.Linear-or-affine
+import Graded.Modality.Instances.LowerBounded
+import Graded.Modality.Instances.Recursive
+import Graded.Modality.Instances.BoundedStar
+import Graded.Usage
+import Graded.Usage.Decidable
+import Graded.Usage.Inversion
+import Graded.Usage.Properties
+import Graded.Usage.Restrictions
+import Graded.Reduction
+import Graded.Restrictions
+import Graded.Substitution
+import Graded.Substitution.Properties
 
 import Definition.Untyped
 import Definition.Typed
 import Definition.Typed.Consequences.Inversion
 import Definition.Typed.Properties
 import Definition.Typed.Restrictions
-import Definition.Typed.Usage
 import Definition.LogicalRelation
 import Definition.LogicalRelation.Fundamental
 import Definition.LogicalRelation.Fundamental.Reducibility
 import Definition.LogicalRelation.Substitution
-import Definition.Mode
-import Definition.Mode.Restrictions
+import Graded.Mode
+import Graded.Mode.Restrictions
 
-import Erasure.Target
-import Erasure.Extraction
-import Erasure.Extraction.Properties
-import Erasure.LogicalRelation
-import Erasure.LogicalRelation.Reduction
-import Erasure.LogicalRelation.Subsumption
-import Erasure.LogicalRelation.Fundamental
-import Erasure.LogicalRelation.Fundamental.Counterexample
-import Erasure.SucRed
-import Erasure.Consequences.Soundness
+import Graded.Erasure.Target
+import Graded.Erasure.Extraction
+import Graded.Erasure.Extraction.Properties
+import Graded.Erasure.LogicalRelation
+import Graded.Erasure.LogicalRelation.Reduction
+import Graded.Erasure.LogicalRelation.Subsumption
+import Graded.Erasure.LogicalRelation.Fundamental
+import Graded.Erasure.LogicalRelation.Fundamental.Counterexample
+import Graded.Erasure.SucRed
+import Graded.Erasure.Consequences.Soundness
 
-import Application.NegativeAxioms.Canonicity.Erased
-import Application.NegativeAxioms.Canonicity.EliminateErased
+import Application.NegativeOrErasedAxioms.Canonicity.Erased
+import Application.NegativeOrErasedAxioms.Canonicity.ErasedMatches
 
 -- The code does not follow the paper exactly. Notably, the
 -- formalisation contains parameters that make it possible to control
@@ -61,7 +61,7 @@ import Application.NegativeAxioms.Canonicity.EliminateErased
 
 -- * One can have a theory with a single mode, or two modes:
 
-modes = Definition.Mode.Restrictions.Mode-restrictions
+modes = Graded.Mode.Restrictions.Mode-restrictions
 
 -- * One can choose whether to allow use of the unit type with
 --   η-equality. Furthermore one can choose whether to allow binders
@@ -81,16 +81,16 @@ Unit-allowed =
 
 -- * One can choose whether to allow the term prodrec_r,p^q:
 
-prodrec = Definition.Modality.Usage.Restrictions.Usage-restrictions
+prodrec = Graded.Usage.Restrictions.Usage-restrictions
 
 --   This only affects the usage relation. If prodrec_r,p^q A t u is
 --   well-resourced (under any mode), then the term is allowed:
 
-prodrec-allowed = Definition.Modality.Usage.Inversion.inv-usage-prodrec
+prodrec-allowed = Graded.Usage.Inversion.inv-usage-prodrec
 
 --   One can use this parameter to rule out erased matches:
 
-no-erased-matches = Definition.Modality.Restrictions.no-erased-matches
+no-erased-matches = Graded.Restrictions.no-erased-matches
 
 -- Note that some results have only been proved for certain variants
 -- of the theory.
@@ -111,56 +111,56 @@ no-erased-matches = Definition.Modality.Restrictions.no-erased-matches
 -- Unlike in the paper equality is not required to be decidable.
 -- Instead this property is assumed where it is used.
 
-Modality = Definition.Modality.Modality
+Modality = Graded.Modality.Modality
 
 -- Lifted operators and a lifted ordering relation for usage contexts.
 
-_+_   = Definition.Modality.Context._+ᶜ_
-_·_   = Definition.Modality.Context._·ᶜ_
-_∧_   = Definition.Modality.Context._∧ᶜ_
-_⊛_▷_ = Definition.Modality.Context._⊛ᶜ_▷_
-_≤_   = Definition.Modality.Context._≤ᶜ_
+_+_   = Graded.Context._+ᶜ_
+_·_   = Graded.Context._·ᶜ_
+_∧_   = Graded.Context._∧ᶜ_
+_⊛_▷_ = Graded.Context._⊛ᶜ_▷_
+_≤_   = Graded.Context._≤ᶜ_
 
 -- The trivial (one element) modality.
 
-unitModality = Definition.Modality.Instances.Unit.UnitModality
+unitModality = Graded.Modality.Instances.Unit.UnitModality
 
 -- With the given definitions of _∧_, _+_ and _·_ there is only one
 -- lawful way to define the star operator (up to pointwise equality).
 
-⊛-unique = Definition.Modality.Instances.Erasure.Properties.⊛-unique
+⊛-unique = Graded.Modality.Instances.Erasure.Properties.⊛-unique
 
 -- An erasure modality.
 
 erasureModality =
-  Definition.Modality.Instances.Erasure.Modality.ErasureModality
+  Graded.Modality.Instances.Erasure.Modality.ErasureModality
 
 -- An "affine types" modality.
 
-affineModality = Definition.Modality.Instances.Affine.affineModality
+affineModality = Graded.Modality.Instances.Affine.affineModality
 
 -- A "linear types" modality.
 
 linearityModality =
-  Definition.Modality.Instances.Linearity.linearityModality
+  Graded.Modality.Instances.Linearity.linearityModality
 
 -- The star operations of the "affine types" and "linear types"
 -- modalities return results that are as large as possible (given the
 -- definitions of the zero, the one, addition, multiplication and
 -- meet).
 
-⊛-greatest₁ = Definition.Modality.Instances.Zero-one-many.⊛-greatest
+⊛-greatest₁ = Graded.Modality.Instances.Zero-one-many.⊛-greatest
 
 -- A "linear or affine types" modality.
 
 linearOrAffineModality =
-  Definition.Modality.Instances.Linear-or-affine.linear-or-affine
+  Graded.Modality.Instances.Linear-or-affine.linear-or-affine
 
 -- The star operation of the "linear or affine types" modality returns
 -- results that are as large as possible (given the definitions of the
 -- zero, the one, addition, multiplication and meet).
 
-⊛-greatest₂ = Definition.Modality.Instances.Linear-or-affine.⊛-greatest
+⊛-greatest₂ = Graded.Modality.Instances.Linear-or-affine.⊛-greatest
 
 ------------------------------------------------------------------------
 -- 4: Type theory with grades
@@ -215,19 +215,19 @@ Theorem-4-4b = Definition.Typed.Properties.whrDet*
 
 -- Definition 5.1: The usage relation
 
-_▹_ = Definition.Modality.Usage._▸[_]_
+_▹_ = Graded.Usage._▸[_]_
 
 -- Definition 5.2
 
-_▶_ = Definition.Modality.Substitution._▶[_]_
+_▶_ = Graded.Substitution._▶[_]_
 
 -- Theorem 5.3: Substitution lemma for grade usage
 
-Theorem-5-3 = Definition.Modality.Substitution.Properties.substₘ-lemma₁
+Theorem-5-3 = Graded.Substitution.Properties.substₘ-lemma₁
 
 -- Theorem 5.4: Subject reduction for grade usage
 
-Theorem-5-4 = Definition.Typed.Usage.usagePresTerm
+Theorem-5-4 = Graded.Reduction.usagePresTerm
 
 ------------------------------------------------------------------------
 -- 6: Erasure case study
@@ -238,37 +238,37 @@ Theorem-5-4 = Definition.Typed.Usage.usagePresTerm
 
 -- Definition 6.1
 
-Has-well-behaved-zero = Definition.Modality.Has-well-behaved-zero
+Has-well-behaved-zero = Graded.Modality.Has-well-behaved-zero
 
 erasure-has-well-behaved-zero =
-  Definition.Modality.Instances.Erasure.Modality.erasure-has-well-behaved-zero
+  Graded.Modality.Instances.Erasure.Modality.erasure-has-well-behaved-zero
 linearity-has-well-behaved-zero =
-  Definition.Modality.Instances.Linearity.zero-one-many-has-well-behaved-zero
+  Graded.Modality.Instances.Linearity.zero-one-many-has-well-behaved-zero
 affine-has-well-behaved-zero =
-  Definition.Modality.Instances.Affine.zero-one-many-has-well-behaved-zero
+  Graded.Modality.Instances.Affine.zero-one-many-has-well-behaved-zero
 linear-or-affine-has-well-behaved-zero =
-  Definition.Modality.Instances.Linear-or-affine.linear-or-affine-has-well-behaved-zero
+  Graded.Modality.Instances.Linear-or-affine.linear-or-affine-has-well-behaved-zero
 
 -- Theorem 6.2
 
-Theorem-62 = Definition.Modality.Usage.Properties.valid-var-usage
+Theorem-62 = Graded.Usage.Properties.valid-var-usage
 
 -- The grammar of the untyped target language
 
-target = Erasure.Target.Term
+target = Graded.Erasure.Target.Term
 
 -- The reduction relation of the target language
 
-_⇒_ = Erasure.Target._⇒_
-_⇒*_ = Erasure.Target._⇒*_
+_⇒_ = Graded.Erasure.Target._⇒_
+_⇒*_ = Graded.Erasure.Target._⇒*_
 
 -- Definition 6.3: The extraction function
 
-_• = Erasure.Extraction.erase
+_• = Graded.Erasure.Extraction.erase
 
 -- Theorem 6.4
 
-Theorem-64 = Erasure.Extraction.Properties.erased-hasX
+Theorem-64 = Graded.Erasure.Extraction.Properties.erased-hasX
 
 -- Reducibility logical relation for types
 -- In the paper, the type level is denoted with a subscript instead of within braces.
@@ -291,7 +291,7 @@ fundamentalReducibleTerm = Definition.LogicalRelation.Fundamental.Reducibility.r
 -- cases, assuming that the zero of the semiring is sufficiently
 -- well behaved.
 
-_®⟨_⟩_∷_/_ = Erasure.LogicalRelation._®⟨_⟩_∷_/_
+_®⟨_⟩_∷_/_ = Graded.Erasure.LogicalRelation._®⟨_⟩_∷_/_
 -- In the paper, the type level is denoted with a subscript instead of within braces.
 
 -- Valid substitutions
@@ -303,77 +303,77 @@ _⊩ˢ_∷_/_ = Definition.LogicalRelation.Substitution._⊩ˢ_∷_/_/_
 -- Definition 6.6: The logical relation for substitutions
 -- In the paper, the type level is denoted with a subscript instead of within braces.
 
-_®⟨_⟩_∷_◂_/_/_ = Erasure.LogicalRelation._®⟨_⟩_∷[_]_◂_/_/_
+_®⟨_⟩_∷_◂_/_/_ = Graded.Erasure.LogicalRelation._®⟨_⟩_∷[_]_◂_/_/_
 
 
 -- Definition 6.7: Erasure validity
 -- In the paper, the type level is denoted with a subscript instead of within braces.
 
-_▸_⊩ʳ⟨_⟩_∷_/_/_ = Erasure.LogicalRelation._▸_⊩ʳ⟨_⟩_∷[_]_/_/_
+_▸_⊩ʳ⟨_⟩_∷_/_/_ = Graded.Erasure.LogicalRelation._▸_⊩ʳ⟨_⟩_∷[_]_/_/_
 
 -- Theorem 6.8: Backwards closure of logical relation under reduction
 
-Theorem-68 = Erasure.LogicalRelation.Reduction.redSubstTerm*
+Theorem-68 = Graded.Erasure.LogicalRelation.Reduction.redSubstTerm*
 
 -- Theorem 6.9: Subsumption of the logical relation
 
-Theorem-69a = Erasure.LogicalRelation.Subsumption.subsumptionSubst
-Theorem-69b = Erasure.LogicalRelation.Subsumption.subsumption
+Theorem-69a = Graded.Erasure.LogicalRelation.Subsumption.subsumptionSubst
+Theorem-69b = Graded.Erasure.LogicalRelation.Subsumption.subsumption
 
 -- Theorem 6.10: The fundamental lemma
 
-fundamental = Erasure.LogicalRelation.Fundamental.fundamental
+fundamental = Graded.Erasure.LogicalRelation.Fundamental.fundamental
 
 -- Theorem 6.11: All substitutions are related under erased contexts
 
-Theorem-611 = Erasure.LogicalRelation.Subsumption.erasedSubst
+Theorem-611 = Graded.Erasure.LogicalRelation.Subsumption.erasedSubst
 
 -- Theorem 6.12: The fundamental lemma for fully erased terms
 
-Theorem-612 = Erasure.LogicalRelation.Fundamental.fundamentalErased
+Theorem-612 = Graded.Erasure.LogicalRelation.Fundamental.fundamentalErased
 
 -- Extended reduction relations
 
-_⊢_⇒ˢ_∷ℕ = Erasure.SucRed._⊢_⇒ˢ_∷ℕ
-_⊢_⇒ˢ*_∷ℕ = Erasure.SucRed._⊢_⇒ˢ*_∷ℕ
-_⇒ˢ_ = Erasure.SucRed._⇒ˢ_
-_⇒ˢ*_ = Erasure.SucRed._⇒ˢ*_
+_⊢_⇒ˢ_∷ℕ = Graded.Erasure.SucRed._⊢_⇒ˢ_∷ℕ
+_⊢_⇒ˢ*_∷ℕ = Graded.Erasure.SucRed._⊢_⇒ˢ*_∷ℕ
+_⇒ˢ_ = Graded.Erasure.SucRed._⇒ˢ_
+_⇒ˢ*_ = Graded.Erasure.SucRed._⇒ˢ*_
 
 -- Theorem 6.13: Soundness of the extraction function
 
-soundness = Erasure.Consequences.Soundness.soundness-ℕ
+soundness = Graded.Erasure.Consequences.Soundness.soundness-ℕ
 
 ------------------------------------------------------------------------
 -- 7: Discussion
 
 -- A lawful definition of ⊛ᵣ for lower bounded structures
 
-⊛ᵣ-lower-bounded = Definition.Modality.Instances.LowerBounded._⊛_▷_
+⊛ᵣ-lower-bounded = Graded.Modality.Instances.LowerBounded._⊛_▷_
 
 -- A lawful definition of ⊛ᵣ defined recursively
 
-⊛ᵣ-recursive = Definition.Modality.Instances.Recursive._⊛_▷_
+⊛ᵣ-recursive = Graded.Modality.Instances.Recursive._⊛_▷_
 
 -- A lawful definition of ⊛ᵣ for bounded star-semirings
 
-⊛ᵣ-star-semiring = Definition.Modality.Instances.BoundedStar._⊛_▷_
+⊛ᵣ-star-semiring = Graded.Modality.Instances.BoundedStar._⊛_▷_
 
 -- Theorem 7.1
 
-theorem-71 = Application.NegativeAxioms.Canonicity.Erased.canonicityRed
+theorem-71 = Application.NegativeOrErasedAxioms.Canonicity.Erased.canonicityRed
 
 -- A counteraxample to theorem 7.1 if erased matches are allowed
 
 counterexample₁ =
-  Application.NegativeAxioms.Canonicity.EliminateErased.Counterexample.cEx
+  Application.NegativeOrErasedAxioms.Canonicity.ErasedMatches.Counterexample.cEx
 
 -- A counterexample to the fundamental lemma if erased matches are allowed
 
-counterexample₂ = Erasure.LogicalRelation.Fundamental.Counterexample.cEx
+counterexample₂ = Graded.Erasure.LogicalRelation.Fundamental.Counterexample.cEx
 
 -- The existence of η-long normal forms
 
-η-long-normal-forms = Definition.Modality.FullReduction.fullRedTerm
+η-long-normal-forms = Graded.FullReduction.fullRedTerm
 
 ------------------------------------------------------------------------
 -- 8: Extension: modes and graded Σ-types
@@ -383,54 +383,54 @@ counterexample₂ = Erasure.LogicalRelation.Fundamental.Counterexample.cEx
 
 -- Modes
 
-Mode = Definition.Mode.Mode
+Mode = Graded.Mode.Mode
 
 -- Definition 8.1: The extended modality structure
 
-ExtendedModality = Definition.Modality.Modality
+ExtendedModality = Graded.Modality.Modality
 
 -- The modality structures for erasure, affine and linear types
 -- satisfy the conditions of the extended modality definition
 
-erasureModalityₑ = Definition.Modality.Instances.Erasure.Modality.ErasureModality
-affineModalityₑ = Definition.Modality.Instances.Affine.affineModality
-linearityModalityₑ = Definition.Modality.Instances.Linearity.linearityModality
+erasureModalityₑ = Graded.Modality.Instances.Erasure.Modality.ErasureModality
+affineModalityₑ = Graded.Modality.Instances.Affine.affineModality
+linearityModalityₑ = Graded.Modality.Instances.Linearity.linearityModality
 
 -- Subject reduction for the extended grade usage relation
 
-subjectReduction = Definition.Typed.Usage.usagePresTerm
+subjectReduction = Graded.Reduction.usagePresTerm
 
 -- Translating modes into grades
 -- In the paper, this function is denoted by an overbar.
 
-⌜_⌝ = Definition.Mode.⌜_⌝
+⌜_⌝ = Graded.Mode.⌜_⌝
 
 -- Translating grades into modes
 -- In the paper, this function is denoted by an underline.
 
-⌞_⌟ = Definition.Mode.⌞_⌟
+⌞_⌟ = Graded.Mode.⌞_⌟
 
 -- Scaling modes by grades
 
-_⊙_ = Definition.Mode._ᵐ·_
+_⊙_ = Graded.Mode._ᵐ·_
 
 -- The usage relation with modes
 -- In the paper, the mode is denoted with a superscript instead of within braces.
 
-_▸[_]_ = Definition.Modality.Usage._▸[_]_
+_▸[_]_ = Graded.Usage._▸[_]_
 
 -- Theorem 8.3: Subject reduction for the usage relation with modes
 
-Theorem-83 = Definition.Typed.Usage.usagePresTerm
+Theorem-83 = Graded.Reduction.usagePresTerm
 
 -- The extraction function
 -- Note that this has been updated to no longer use substitutions
 
-_◦ = Erasure.Extraction.erase
+_◦ = Graded.Erasure.Extraction.erase
 
 -- Theorem 8.4: Soundness of the extraction function
 
-Theorem-84 = Erasure.Consequences.Soundness.soundness-ℕ
+Theorem-84 = Graded.Erasure.Consequences.Soundness.soundness-ℕ
 
 ------------------------------------------------------------------------
 -- A: Logical relation for reducibility
@@ -490,22 +490,22 @@ fundamentalTermEq = Definition.LogicalRelation.Fundamental.Reducibility.reducibl
 
 -- Definition B.1: Usage inference
 
-∣_∣ = Definition.Modality.Usage.⌈_⌉
+∣_∣ = Graded.Usage.⌈_⌉
 
 -- Theorem B.2
 
-Theorem-B2a = Definition.Modality.Usage.Properties.usage-inf
-Theorem-B2b = Definition.Modality.Usage.Properties.usage-upper-bound
+Theorem-B2a = Graded.Usage.Properties.usage-inf
+Theorem-B2b = Graded.Usage.Properties.usage-upper-bound
 
 -- Theorem B.3: Decidability of the usage relation
 
-Theorem-B3a = Definition.Modality.Usage.Decidable.⌈⌉▸[_]?_
-Theorem-B3b = Definition.Modality.Usage.Decidable._▸[_]?_
+Theorem-B3a = Graded.Usage.Decidable.⌈⌉▸[_]?_
+Theorem-B3b = Graded.Usage.Decidable._▸[_]?_
 
 -- Definition B.4: Substitution matrix inference
 
-∥_∥ = Definition.Modality.Substitution.∥_∥
+∥_∥ = Graded.Substitution.∥_∥
 
 -- Theorem B.5
 
-Theorem-B5 = Definition.Modality.Substitution.Properties.subst-calc-correct′
+Theorem-B5 = Graded.Substitution.Properties.subst-calc-correct′

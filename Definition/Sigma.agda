@@ -6,8 +6,8 @@
 -- This investigation was prompted by a question asked by an anonymous
 -- reviewer.
 
-open import Definition.Modality
-open import Definition.Modality.Usage.Restrictions
+open import Graded.Modality
+open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
 
 module Definition.Sigma
@@ -21,16 +21,16 @@ open Modality 𝕄
 open Type-restrictions TR
 open Usage-restrictions UR
 
-open import Definition.Modality.Context 𝕄
-open import Definition.Modality.Context.Properties 𝕄
-open import Definition.Modality.Properties 𝕄
-open import Definition.Modality.Usage 𝕄 UR
-open import Definition.Modality.Usage.Inversion 𝕄 UR
-open import Definition.Modality.Usage.Properties 𝕄 UR
-open import Definition.Modality.Usage.Weakening 𝕄 UR
-open import Definition.Modality.Substitution.Properties 𝕄 UR
+open import Graded.Context 𝕄
+open import Graded.Context.Properties 𝕄
+open import Graded.Modality.Properties 𝕄
+open import Graded.Usage 𝕄 UR
+open import Graded.Usage.Inversion 𝕄 UR
+open import Graded.Usage.Properties 𝕄 UR
+open import Graded.Usage.Weakening 𝕄 UR
+open import Graded.Substitution.Properties 𝕄 UR
 
-open import Definition.Mode 𝕄
+open import Graded.Mode 𝕄
 
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.DerivedRules TR

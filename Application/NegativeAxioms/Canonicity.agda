@@ -1,0 +1,143 @@
+------------------------------------------------------------------------
+-- Proof that consistent negative axioms do not jeopardize canonicity.
+------------------------------------------------------------------------
+
+open import Definition.Typed.Restrictions
+
+module Application.NegativeAxioms.Canonicity
+  {a} {M : Set a}
+  (R : Type-restrictions M)
+  where
+
+open import Application.NegativeAxioms.NegativeType R
+open import Graded.Erasure.SucRed R
+
+open import Definition.Untyped M hiding (_∷_; ℕ≢B)
+open import Definition.Typed R
+open import Definition.Typed.Properties R
+open import Definition.Typed.EqRelInstance R
+open import Definition.Typed.Consequences.Inequality R
+open import Definition.Typed.Consequences.Inversion R
+open import Definition.Typed.Consequences.Reduction R
+open import Definition.Typed.Consequences.Syntactic R
+
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Irrelevance R
+open import Definition.LogicalRelation.Fundamental.Reducibility R
+
+open import Application.NegativeAxioms.NegativeContext R
+open import Definition.Conversion.FullReduction R
+
+open import Tools.Empty
+open import Tools.Nat
+import Tools.PropositionalEquality as PE
+open import Tools.Product
+
+
+-- Preliminaries
+---------------------------------------------------------------------------
+
+private
+  Ty  = Term
+  Cxt = Con Ty
+  variable
+    m  : Nat
+    Γ   : Con Term m
+    A B C : Term m
+    t u   : Term m
+
+module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
+            (consistent : ∀ {t} → Γ ⊢ t ∷ Empty → ⊥) where
+
+  -- Lemma: A neutral has negative type in a consistent negative/erased context.
+
+  neNeg : (d : Γ ⊢ u ∷ A) (n : Neutral u) → NegativeType Γ A
+  neNeg (var ⊢Γ h          ) (var x      ) = lookupNegative ⊢Γ nΓ h
+  neNeg (d ∘ⱼ ⊢t           ) (∘ₙ n       ) =
+    appNeg (neNeg d n) (refl (syntacticTerm d)) ⊢t
+  neNeg (fstⱼ ⊢A A⊢B d     ) (fstₙ n     ) =
+    fstNeg (neNeg d n) (refl (ΠΣⱼ ⊢A A⊢B (⊢∷ΠΣ→ΠΣ-restriction d)))
+  neNeg (sndⱼ ⊢A A⊢B d     ) (sndₙ n     ) =
+    sndNeg (neNeg d n) (refl (ΠΣⱼ ⊢A A⊢B (⊢∷ΠΣ→ΠΣ-restriction d)))
+      (fstⱼ ⊢A A⊢B d)
+  neNeg (natrecⱼ _ _ _ d   ) (natrecₙ n  ) =
+    let ⊢ℕ = refl (ℕⱼ (wfTerm d))
+    in  ⊥-elim (¬negℕ (neNeg d n) ⊢ℕ)
+  neNeg (prodrecⱼ ⊢A A⊢B _ d _ ok) (prodrecₙ n) =
+    let ⊢Σ = refl (ΠΣⱼ ⊢A A⊢B ok)
+    in  ⊥-elim (¬negΣᵣ (neNeg d n) ⊢Σ)
+  neNeg (Emptyrecⱼ _ d     ) (Emptyrecₙ n) =
+    ⊥-elim (consistent d)
+  neNeg (conv d c          ) n          = conv (neNeg d n) c
+
+  -- Lemma: A normal form of type ℕ is a numeral in a consistent negative context.
+
+  nfN : (d : Γ ⊢ u ∷ A)
+      → (n : Nf u)
+      → (c : Γ ⊢ A ≡ ℕ)
+      → Numeral u
+
+  -- Case: neutrals. The type cannot be ℕ since it must be negative.
+  nfN d (ne n) c =
+    ⊥-elim (¬negℕ (neNeg d (nfNeutral n)) c)
+
+  -- Case: numerals.
+  nfN (zeroⱼ x) zeroₙ   c = zeroₙ
+  nfN (sucⱼ d) (sucₙ n) c = sucₙ (nfN d n c)
+
+  -- Case: conversion.
+  nfN (conv d c) n c' = nfN d n (trans c c')
+
+  -- Impossible cases: type is not ℕ.
+
+  -- * Canonical types
+  nfN (ΠΣⱼ _ _ _) (ΠΣₙ _ _) c = ⊥-elim (U≢ℕ c)
+  nfN (ℕⱼ _)      ℕₙ        c = ⊥-elim (U≢ℕ c)
+  nfN (Emptyⱼ _)  Emptyₙ    c = ⊥-elim (U≢ℕ c)
+  nfN (Unitⱼ _ _) Unitₙ     c = ⊥-elim (U≢ℕ c)
+
+  -- * Canonical forms
+  nfN (lamⱼ _ _ _)      (lamₙ _)    c = ⊥-elim (ℕ≢Π (sym c))
+  nfN (prodⱼ _ _ _ _ _) (prodₙ _ _) c = ⊥-elim (ℕ≢Σ (sym c))
+  nfN (starⱼ _ _)       starₙ       c = ⊥-elim (ℕ≢Unitⱼ (sym c))
+  -- q.e.d
+
+   -- Terms of non-negative types reduce to non-neutrals
+
+  ¬NeutralNf : Γ ⊢ t ∷ A → (NegativeType Γ A → ⊥)
+             → ∃ λ u → Γ ⊢ t ⇒* u ∷ A × Whnf u × (Neutral u → ⊥)
+  ¬NeutralNf ⊢t ¬negA =
+    let u , whnfU , d = whNormTerm ⊢t
+    in  u , redₜ d , whnfU , λ x → ¬negA (neNeg (⊢u-redₜ d) x)
+
+  -- Canonicity theorem: Any well-typed term Γ ⊢ t ∷ ℕ
+  -- reduces to a numeral under the ⇒ˢ* reduction.
+
+  canonicityRed′ : ∀ {l} → (⊢Γ : ⊢ Γ)
+                 → Γ ⊩⟨ l ⟩ t ∷ ℕ / ℕᵣ (idRed:*: (ℕⱼ ⊢Γ))
+                 → ∃ λ v → Numeral v × Γ ⊢ t ⇒ˢ* v ∷ℕ
+  canonicityRed′ {l = l} ⊢Γ (ℕₜ _ d n≡n (sucᵣ x)) =
+    let v , numV , d′ = canonicityRed′ {l = l} ⊢Γ x
+    in  suc v , sucₙ numV , ⇒ˢ*∷ℕ-trans (whred* (redₜ d)) (sucred* d′)
+  canonicityRed′ ⊢Γ (ℕₜ _ d n≡n zeroᵣ) =
+    zero , zeroₙ , whred* (redₜ d)
+  canonicityRed′ ⊢Γ (ℕₜ n d n≡n (ne (neNfₜ neK ⊢k k≡k))) =
+    let u , d′ , whU , ¬neU = ¬NeutralNf (⊢t-redₜ d) λ negℕ → ¬negℕ negℕ (refl (ℕⱼ ⊢Γ))
+    in  ⊥-elim (¬neU (PE.subst Neutral (whrDet*Term (redₜ d , ne neK) (d′ , whU)) neK))
+
+  canonicityRed : Γ ⊢ t ∷ ℕ → ∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ
+  canonicityRed ⊢t with reducibleTerm ⊢t
+  ... | [ℕ] , [t] =
+    let ⊢Γ = wfTerm ⊢t
+        [ℕ]′ = ℕᵣ {l = ¹} (idRed:*: (ℕⱼ ⊢Γ))
+        [t]′ = irrelevanceTerm [ℕ] [ℕ]′ [t]
+    in  canonicityRed′ {l = ¹} ⊢Γ [t]′
+
+  -- Canonicity theorem: Any well-typed term Γ ⊢ t : ℕ is convertible to a numeral.
+
+  canonicityEq : (⊢t : Γ ⊢ t ∷ ℕ) → ∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ
+  canonicityEq ⊢t =
+    let u , numU , d = canonicityRed ⊢t
+    in  u , numU , subset*Termˢ d
+
+  -- Q.E.D. 2023-01-24

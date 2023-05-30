@@ -2,7 +2,7 @@
 -- Some properties related to typing and Erased
 ------------------------------------------------------------------------
 
-open import Definition.Modality
+open import Graded.Modality
 open import Definition.Typed.Restrictions
 
 module Definition.Typed.Erased
@@ -28,13 +28,13 @@ open import Definition.Typed.Properties R
 open import Definition.Untyped M as U hiding (_∷_; _[_])
 open import Definition.Untyped.Erased 𝕄
 
-open import Definition.Modality.Context 𝕄
-open import Definition.Modality.Properties 𝕄
-import Definition.Modality.Usage 𝕄 as MU
-import Definition.Modality.Usage.Inversion 𝕄 as MUI
-open import Definition.Modality.Usage.Restrictions M
+open import Graded.Context 𝕄
+open import Graded.Modality.Properties 𝕄
+import Graded.Usage 𝕄 as MU
+import Graded.Usage.Inversion 𝕄 as MUI
+open import Graded.Usage.Restrictions M
 
-open import Definition.Mode 𝕄
+open import Graded.Mode 𝕄
 
 open import Tools.Empty
 open import Tools.Fin

@@ -2,7 +2,7 @@
 -- The type constructor Erased
 ------------------------------------------------------------------------
 
-open import Definition.Modality
+open import Graded.Modality
 
 module Definition.Untyped.Erased
   {a} {M : Set a}

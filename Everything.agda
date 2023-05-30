@@ -2,7 +2,7 @@
 -- Graded modal type theory formalized in Agda
 ------------------------------------------------------------------------
 
-module Logrel-MLTT where
+module Everything where
 
 ------------------------------------------------------------------------
 -- A small library
@@ -150,98 +150,98 @@ import Definition.Typechecking.Decidable
 import Definition.Typed.Decidable
 
 ------------------------------------------------------------------------
--- Modalities and usage
+-- Graded modalities and usage
 
 -- Modality structure
-import Definition.Mode.Restrictions
-import Definition.Modality
+import Graded.Mode.Restrictions
+import Graded.Modality
 
 -- Usage modes
-import Definition.Mode
+import Graded.Mode
 
 -- Properties of the modality semiring
-import Definition.Modality.Properties.PartialOrder
-import Definition.Modality.Properties.Equivalence
-import Definition.Modality.Properties.Meet
-import Definition.Modality.Properties.Addition
-import Definition.Modality.Properties.Multiplication
-import Definition.Modality.Properties.Star
-import Definition.Modality.Properties.Has-well-behaved-zero
-import Definition.Modality.Properties
+import Graded.Modality.Properties.PartialOrder
+import Graded.Modality.Properties.Equivalence
+import Graded.Modality.Properties.Meet
+import Graded.Modality.Properties.Addition
+import Graded.Modality.Properties.Multiplication
+import Graded.Modality.Properties.Star
+import Graded.Modality.Properties.Has-well-behaved-zero
+import Graded.Modality.Properties
 
 -- Modality contexts and their properties
-import Definition.Modality.Context
-import Definition.Modality.Context.Properties.Equivalence
-import Definition.Modality.Context.Properties.PartialOrder
-import Definition.Modality.Context.Properties.Meet
-import Definition.Modality.Context.Properties.Addition
-import Definition.Modality.Context.Properties.Multiplication
-import Definition.Modality.Context.Properties.Star
-import Definition.Modality.Context.Properties.Lookup
-import Definition.Modality.Context.Properties.Update
-import Definition.Modality.Context.Properties
+import Graded.Context
+import Graded.Context.Properties.Equivalence
+import Graded.Context.Properties.PartialOrder
+import Graded.Context.Properties.Meet
+import Graded.Context.Properties.Addition
+import Graded.Context.Properties.Multiplication
+import Graded.Context.Properties.Star
+import Graded.Context.Properties.Lookup
+import Graded.Context.Properties.Update
+import Graded.Context.Properties
 
 -- The usage relation and its properties
-import Definition.Modality.Usage.Restrictions
-import Definition.Modality.Usage
-import Definition.Modality.Usage.Inversion
-import Definition.Modality.Usage.Properties
-import Definition.Modality.Usage.Weakening
-import Definition.Modality.Usage.Decidable
+import Graded.Usage.Restrictions
+import Graded.Usage
+import Graded.Usage.Inversion
+import Graded.Usage.Properties
+import Graded.Usage.Weakening
+import Graded.Usage.Decidable
 
 -- Definitions related to type and usage restrictions
-import Definition.Modality.Restrictions
+import Graded.Restrictions
 
 -- Modality substitutions
-import Definition.Modality.Substitution
-import Definition.Modality.Substitution.Properties
-import Definition.Modality.Substitution.Decidable
+import Graded.Substitution
+import Graded.Substitution.Properties
+import Graded.Substitution.Decidable
 
 -- Assumptions used to state the theorems in
--- Definition.Modality.FullReduction
-import Definition.Modality.FullReduction.Assumptions
+-- Graded.FullReduction
+import Graded.FullReduction.Assumptions
 
 -- Modality pseudo-instances
-import Definition.Modality.Instances.BoundedStar
-import Definition.Modality.Instances.LowerBounded
-import Definition.Modality.Instances.Finite
-import Definition.Modality.Instances.Recursive
-import Definition.Modality.Instances.Erasure
-import Definition.Modality.Instances.Zero-one-many
+import Graded.Modality.Instances.BoundedStar
+import Graded.Modality.Instances.LowerBounded
+import Graded.Modality.Instances.Finite
+import Graded.Modality.Instances.Recursive
+import Graded.Modality.Instances.Erasure
+import Graded.Modality.Instances.Zero-one-many
 
 -- Modality instances
-import Definition.Modality.Instances.Erasure.Modality
-import Definition.Modality.Instances.Erasure.Properties
-import Definition.Modality.Instances.Unit
-import Definition.Modality.Instances.Affine
-import Definition.Modality.Instances.Linearity
-import Definition.Modality.Instances.Linear-or-affine
+import Graded.Modality.Instances.Erasure.Modality
+import Graded.Modality.Instances.Erasure.Properties
+import Graded.Modality.Instances.Unit
+import Graded.Modality.Instances.Affine
+import Graded.Modality.Instances.Linearity
+import Graded.Modality.Instances.Linear-or-affine
 
 -- The type Erased.
 import Definition.Untyped.Erased
-import Definition.Modality.Usage.Erased
+import Graded.Usage.Erased
 import Definition.Typed.Erased
 
 -- The type Unrestricted (defined using a Σ-type with η-equality).
 import Definition.Untyped.Unrestricted.Eta
-import Definition.Modality.Usage.Unrestricted.Eta
+import Graded.Usage.Unrestricted.Eta
 import Definition.Typed.Unrestricted.Eta
 
--- Subject reduction for modalities
-import Definition.Typed.Usage
+-- Subject reduction for modalities.
+import Graded.Reduction
 
 -- A "full reduction" lemma for modalities.
-import Definition.Modality.FullReduction
+import Graded.FullReduction
 
 -- Modality morphisms and quantity translations
 import Definition.Untyped.QuantityTranslation
-import Definition.Modality.Morphism
-import Definition.Modality.Morphism.Type-restrictions
-import Definition.Modality.Morphism.Usage-restrictions
+import Graded.Modality.Morphism
+import Graded.Modality.Morphism.Type-restrictions
+import Graded.Modality.Morphism.Usage-restrictions
 import Definition.Typed.QuantityTranslation
-import Definition.Modality.Context.QuantityTranslation
-import Definition.Mode.QuantityTranslation
-import Definition.Modality.Usage.QuantityTranslation
+import Graded.Context.QuantityTranslation
+import Graded.Mode.QuantityTranslation
+import Graded.Usage.QuantityTranslation
 
 -- An investigation of to what degree weak Σ-types can emulate strong
 -- Σ-types, and vice versa.
@@ -252,45 +252,45 @@ import Definition.Sigma
 
 -- Target language
 
-import Erasure.Target
-import Erasure.Target.Properties.Weakening
-import Erasure.Target.Properties.Substitution
-import Erasure.Target.Properties.Reduction
-import Erasure.Target.Properties
+import Graded.Erasure.Target
+import Graded.Erasure.Target.Properties.Weakening
+import Graded.Erasure.Target.Properties.Substitution
+import Graded.Erasure.Target.Properties.Reduction
+import Graded.Erasure.Target.Properties
 
 -- Extraction
 
-import Erasure.Extraction
-import Erasure.Extraction.Properties
+import Graded.Erasure.Extraction
+import Graded.Erasure.Extraction.Properties
 
 -- Logical relation for Erasure
 
-import Erasure.LogicalRelation
-import Erasure.LogicalRelation.Conversion
-import Erasure.LogicalRelation.Irrelevance
-import Erasure.LogicalRelation.Reduction
-import Erasure.LogicalRelation.Subsumption
+import Graded.Erasure.LogicalRelation
+import Graded.Erasure.LogicalRelation.Conversion
+import Graded.Erasure.LogicalRelation.Irrelevance
+import Graded.Erasure.LogicalRelation.Reduction
+import Graded.Erasure.LogicalRelation.Subsumption
 
 -- The fundamental lemma of the logical relation
 
-import Erasure.LogicalRelation.Fundamental.Application
-import Erasure.LogicalRelation.Fundamental.Empty
-import Erasure.LogicalRelation.Fundamental.Lambda
-import Erasure.LogicalRelation.Fundamental.Nat
-import Erasure.LogicalRelation.Fundamental.Natrec
-import Erasure.LogicalRelation.Fundamental.Prodrec
-import Erasure.LogicalRelation.Fundamental.Product
-import Erasure.LogicalRelation.Fundamental.Unit
-import Erasure.LogicalRelation.Fundamental
+import Graded.Erasure.LogicalRelation.Fundamental.Application
+import Graded.Erasure.LogicalRelation.Fundamental.Empty
+import Graded.Erasure.LogicalRelation.Fundamental.Lambda
+import Graded.Erasure.LogicalRelation.Fundamental.Nat
+import Graded.Erasure.LogicalRelation.Fundamental.Natrec
+import Graded.Erasure.LogicalRelation.Fundamental.Prodrec
+import Graded.Erasure.LogicalRelation.Fundamental.Product
+import Graded.Erasure.LogicalRelation.Fundamental.Unit
+import Graded.Erasure.LogicalRelation.Fundamental
 
 -- The fundamental lemma does not hold in general without the
 -- assumption that erased matches are disallowed or the context is
 -- empty
-import Erasure.LogicalRelation.Fundamental.Counterexample
+import Graded.Erasure.LogicalRelation.Fundamental.Counterexample
 
 -- Soundness of Extraction function
-import Erasure.SucRed
-import Erasure.Consequences.Soundness
+import Graded.Erasure.SucRed
+import Graded.Erasure.Consequences.Soundness
 
 ------------------------------------------------------------------------
 -- Some applications
@@ -298,15 +298,15 @@ import Erasure.Consequences.Soundness
 -- Application: consistent negative axioms preserve canonicity
 import Application.NegativeAxioms.NegativeType
 import Application.NegativeAxioms.NegativeContext
-import Application.NegativeAxioms.Canonicity.Negative
+import Application.NegativeAxioms.Canonicity
 
--- Application: consistent negative/erased axioms preserve canonicity
-import Application.NegativeAxioms.NegativeOrErasedType
-import Application.NegativeAxioms.NegativeErasedContext
-import Application.NegativeAxioms.Canonicity.NegativeErased
-import Application.NegativeAxioms.Canonicity.Erased
+-- Application: consistent negative or erased axioms preserve canonicity
+import Application.NegativeOrErasedAxioms.NegativeOrErasedType
+import Application.NegativeOrErasedAxioms.NegativeOrErasedContext
+import Application.NegativeOrErasedAxioms.Canonicity
+import Application.NegativeOrErasedAxioms.Canonicity.Erased
 -- ... but not if matching is allowed on erased pairs
-import Application.NegativeAxioms.Canonicity.EliminateErased
+import Application.NegativeOrErasedAxioms.Canonicity.ErasedMatches
 
 ------------------------------------------------------------------------
 -- Pointers to code related to a paper

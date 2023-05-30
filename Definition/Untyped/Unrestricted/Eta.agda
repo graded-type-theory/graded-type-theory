@@ -3,7 +3,7 @@
 -- η-equality
 ------------------------------------------------------------------------
 
-open import Definition.Modality
+open import Graded.Modality
 
 module Definition.Untyped.Unrestricted.Eta
   {a} {M : Set a}

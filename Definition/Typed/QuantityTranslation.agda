@@ -4,7 +4,7 @@
 -- certain way)
 ------------------------------------------------------------------------
 
-open import Definition.Modality.Morphism.Type-restrictions
+open import Graded.Modality.Morphism.Type-restrictions
 open import Definition.Typed.Restrictions
 
 module Definition.Typed.QuantityTranslation

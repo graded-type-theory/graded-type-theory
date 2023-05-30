@@ -3,7 +3,7 @@
 -- that is defined using a Σ-type with η-equality
 ------------------------------------------------------------------------
 
-open import Definition.Modality
+open import Graded.Modality
 open import Definition.Typed.Restrictions
 
 module Definition.Typed.Unrestricted.Eta
