@@ -32,6 +32,7 @@ import Definition.Untyped
 import Definition.Untyped.Properties
 import Definition.Typed
 import Definition.Typed.Consequences.Inversion
+import Definition.Typed.Eta-long-normal-form
 import Definition.Typed.Properties
 import Definition.Typed.Restrictions
 import Definition.Sigma
@@ -528,56 +529,102 @@ counterexample₂ =
 -- Note that for the definitions and theorems in this section,
 -- a modality with the zero mode allowed should be used.
 
--- Modes
+-- Modes.
+--
+-- The definition is parametric: one can disallow the mode 𝟘ᵐ.
 
 Mode = Graded.Mode.Mode
 
--- Definition 8.1: The extended modality structure
-
-ExtendedModality = Graded.Modality.Modality
-
--- The modality structures for erasure, affine and linear types
--- satisfy the conditions of the extended modality definition
-
-erasureModalityₑ = Graded.Modality.Instances.Erasure.Modality.ErasureModality
-affineModalityₑ = Graded.Modality.Instances.Affine.affineModality
-linearityModalityₑ = Graded.Modality.Instances.Linearity.linearityModality
-
--- Subject reduction for the extended grade usage relation
-
-subjectReduction = Graded.Reduction.usagePresTerm
-
--- Translating modes into grades
--- In the paper, this function is denoted by an overbar.
-
-⌜_⌝ = Graded.Mode.⌜_⌝
-
--- Translating grades into modes
--- In the paper, this function is denoted by an underline.
+-- Translating grades to modes.
+--
+-- In the paper this function is denoted by an underline.
 
 ⌞_⌟ = Graded.Mode.⌞_⌟
 
--- Scaling modes by grades
+-- Translating modes to grades.
+--
+-- In the paper this function is denoted by an overline.
+
+⌜_⌝ = Graded.Mode.⌜_⌝
+
+-- Scaling modes by grades.
 
 _⊙_ = Graded.Mode._ᵐ·_
 
--- The usage relation with modes
--- In the paper, the mode is denoted with a superscript instead of within braces.
+-- The syntax, the type system, and the reduction relations.
+
+grammar′  = Definition.Untyped.Term
+⊢′_       = Definition.Typed.⊢_
+_⊢′_      = Definition.Typed._⊢_
+_⊢′_∷_    = Definition.Typed._⊢_∷_
+_⊢′_≡_    = Definition.Typed._⊢_≡_
+_⊢′_≡_∷_  = Definition.Typed._⊢_≡_∷_
+_∷_∈′_    = Definition.Typed._∷_∈_
+_⊢′_⇒_    = Definition.Typed._⊢_⇒_
+_⊢′_⇒_∷_  = Definition.Typed._⊢_⇒_∷_
+_⊢′_⇒*_   = Definition.Typed._⊢_⇒*_
+_⊢′_⇒*_∷_ = Definition.Typed._⊢_⇒*_∷_
+
+-- The usage relation with modes.
+--
+-- In the paper the mode is written as a superscript instead of within
+-- braces.
 
 _▸[_]_ = Graded.Usage._▸[_]_
 
--- Theorem 8.3: Subject reduction for the usage relation with modes
+-- Theorem 8.2: Subject reduction for the usage relation with modes.
 
-Theorem-83 = Graded.Reduction.usagePresTerm
+Theorem-8-2 = Graded.Reduction.usagePresTerm
 
--- The extraction function
--- Note that this has been updated to no longer use substitutions
+-- The extraction function.
 
-_◦ = Graded.Erasure.Extraction.erase
+_•′ = Graded.Erasure.Extraction.erase
 
--- Theorem 8.4: Soundness of the extraction function
+-- Theorem 8.3: Soundness of the extraction function.
 
-Theorem-84 = Graded.Erasure.Consequences.Soundness.soundness-ℕ
+Theorem-8-3 = Graded.Erasure.Consequences.Soundness.soundness-ℕ
+
+-- A definition of η-long normal forms.
+
+_⊢nf_∷_ = Definition.Typed.Eta-long-normal-form._⊢nf_∷_
+
+-- A type- and resource-preserving procedure that takes a well-typed,
+-- well-resourced term to one of its η-long normal forms.
+--
+-- The procedure makes certain assumptions about types with
+-- η-equality.
+
+η-long-normal-forms′ = Graded.FullReduction.fullRedTerm
+
+-- The assumptions are satisfied for the unit modality.
+
+unit = Graded.Modality.Instances.Unit.full-reduction-assumptions
+
+-- The assumptions are satisfied for the erasure modality if Σ_&,0^q
+-- is only allowed when 𝟘ᵐ is allowed.
+
+erasure =
+  Graded.Modality.Instances.Erasure.Properties.full-reduction-assumptions
+
+-- The assumptions are satisfied for the affine types modality if
+-- Σ_&,0^q is only allowed when 𝟘ᵐ is allowed, and Σ_&,ω^q is not
+-- allowed.
+
+affine = Graded.Modality.Instances.Affine.full-reduction-assumptions
+
+-- The assumptions are satisfied for the linear types modality if the
+-- unit type with η-equality is not allowed, Σ_&,0^q is not allowed,
+-- and Σ_&,ω^q is not allowed.
+
+linear = Graded.Modality.Instances.Linearity.full-reduction-assumptions
+
+-- The assumptions are satisfied for the linear or affine types
+-- modality if the unit type with η-equality is not allowed, Σ_&,0^q
+-- is not allowed, Σ_&,≤1^q is not allowed, and Σ_&,≤ω^q is not
+-- allowed.
+
+linear-or-affine =
+  Graded.Modality.Instances.Linear-or-affine.full-reduction-assumptions
 
 ------------------------------------------------------------------------
 -- A: Logical relation for reducibility
