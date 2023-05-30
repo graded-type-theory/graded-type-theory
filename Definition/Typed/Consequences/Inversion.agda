@@ -197,7 +197,7 @@ inversion-prodrec :
     (Γ ∙ F ⊢ G) ×
     (Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ C) ×
     Γ ⊢ t ∷ Σᵣ p , q ▷ F ▹ G ×
-    Γ ∙ F ∙ G ⊢ u ∷ C [ prodᵣ p (var (x0 +1)) (var x0) ]↑² ×
+    Γ ∙ F ∙ G ⊢ u ∷ C [ prodᵣ p (var x1) (var x0) ]↑² ×
     Γ ⊢ A ≡ C [ t ]
 inversion-prodrec (prodrecⱼ ⊢F ⊢G ⊢C ⊢t ⊢u _) =
   _ , _ , _ , ⊢F , ⊢G , ⊢C , ⊢t , ⊢u , refl (substType ⊢C ⊢t)

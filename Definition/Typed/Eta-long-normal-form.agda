@@ -146,8 +146,7 @@ mutual
                 Γ ∙ A ⊢ B →
                 Γ ∙ (Σᵣ p , q′ ▷ A ▹ B) ⊢nf C →
                 Γ ⊢ne t ∷ Σᵣ p , q′ ▷ A ▹ B →
-                Γ ∙ A ∙ B ⊢nf u ∷
-                  C [ prodᵣ p (var (x0 +1)) (var x0) ]↑² →
+                Γ ∙ A ∙ B ⊢nf u ∷ C [ prodᵣ p (var x1) (var x0) ]↑² →
                 Σᵣ-restriction p q′ →
                 Γ ⊢ne prodrec r p q C t u ∷ C [ t ]
     Emptyrecₙ : Γ ⊢nf A →

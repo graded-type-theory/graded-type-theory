@@ -104,7 +104,7 @@ mutual
               → Γ ∙ F ⊢ G
               → Γ ∙ (Σᵣ p , q′ ▷ F ▹ G) ⊢ A
               → Γ ⊢ t ∷ Σᵣ p , q′ ▷ F ▹ G
-              → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
+              → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var x1) (var x0) ]↑²
               → Σᵣ-restriction p q′
               → Γ ⊢ prodrec r p q A t u ∷ A [ t ]
     zeroⱼ     : ⊢ Γ
@@ -217,7 +217,7 @@ mutual
                   → Γ ∙ F ⊢ G
                   → Γ ∙ (Σᵣ p , q′ ▷ F ▹ G) ⊢ A ≡ A′
                   → Γ ⊢ t ≡ t′ ∷ Σᵣ p , q′ ▷ F ▹ G
-                  → Γ ∙ F ∙ G ⊢ u ≡ u′ ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
+                  → Γ ∙ F ∙ G ⊢ u ≡ u′ ∷ A [ prodᵣ p (var x1) (var x0) ]↑²
                   → Σᵣ-restriction p q′
                   → Γ ⊢ prodrec r p q A t u ≡ prodrec r p q A′ t′ u′ ∷ A [ t ]
     prodrec-β     : Γ ⊢ F
@@ -225,7 +225,7 @@ mutual
                   → Γ ∙ (Σᵣ p , q′ ▷ F ▹ G) ⊢ A
                   → Γ ⊢ t ∷ F
                   → Γ ⊢ t′ ∷ G [ t ]
-                  → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
+                  → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var x1) (var x0) ]↑²
                   → p PE.≡ p′
                   → Σᵣ-restriction p q′
                   → Γ ⊢ prodrec r p q A (prodᵣ p′ t t′) u ≡
@@ -305,7 +305,7 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
   prodrec-subst  : Γ ⊢ F
                  → Γ ∙ F ⊢ G
                  → Γ ∙ (Σᵣ p , q′ ▷ F ▹ G) ⊢ A
-                 → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
+                 → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var x1) (var x0) ]↑²
                  → Γ ⊢ t ⇒ t′ ∷ Σᵣ p , q′ ▷ F ▹ G
                  → Σᵣ-restriction p q′
                  → Γ ⊢ prodrec r p q A t u ⇒ prodrec r p q A t′ u ∷ A [ t ]
@@ -314,7 +314,7 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                  → Γ ∙ (Σᵣ p , q′ ▷ F ▹ G) ⊢ A
                  → Γ ⊢ t ∷ F
                  → Γ ⊢ t′ ∷ G [ t ]
-                 → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
+                 → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var x1) (var x0) ]↑²
                  → p PE.≡ p′
                  → Σᵣ-restriction p q′
                  → Γ ⊢ prodrec r p q A (prodᵣ p′ t t′) u ⇒

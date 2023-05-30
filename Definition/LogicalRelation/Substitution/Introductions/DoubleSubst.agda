@@ -45,7 +45,7 @@ subst↑²S :
   ([Σ] : Γ ⊩ᵛ⟨ l ⟩ Σ⟨ m ⟩ p , q ▷ F ▹ G / [Γ])
   ([A] : Γ ∙ (Σ p , q ▷ F ▹ G) ⊩ᵛ⟨ l ⟩ A / [Γ] ∙ [Σ]) →
   Σ-restriction m p q →
-  Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A [ prod m p (var (x0 +1)) (var x0) ]↑² /
+  Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A [ prod m p (var x1) (var x0) ]↑² /
     [Γ] ∙ [F] ∙ [G]
 subst↑²S
   {n = n} {q = q} {Γ = Γ} {F = F} {G} {A} {m} {l}
@@ -182,11 +182,11 @@ subst↑²SEq :
   ([A] : Γ ∙ (Σ p , q ▷ F ▹ G) ⊩ᵛ⟨ l ⟩ A / [Γ] ∙ [Σ])
   ([A′] : Γ ∙ (Σ p , q ▷ F ▹ G) ⊩ᵛ⟨ l ⟩ A′ / [Γ] ∙ [Σ])
   ([A≡A′] : Γ ∙ (Σ p , q ▷ F ▹ G) ⊩ᵛ⟨ l ⟩ A ≡ A′ / [Γ] ∙ [Σ] / [A])
-  ([A₊] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A [ prod m p (var (x0 +1)) (var x0) ]↑² /
+  ([A₊] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A [ prod m p (var x1) (var x0) ]↑² /
             [Γ] ∙ [F] ∙ [G]) →
   Σ-restriction m p q →
-  Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A  [ prod m p (var (x0 +1)) (var x0) ]↑² ≡
-    A′ [ prod m p (var (x0 +1)) (var x0) ]↑² / [Γ] ∙ [F] ∙ [G] / [A₊]
+  Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A  [ prod m p (var x1) (var x0) ]↑² ≡
+    A′ [ prod m p (var x1) (var x0) ]↑² / [Γ] ∙ [F] ∙ [G] / [A₊]
 subst↑²SEq
   {n = n} {q = q} {Γ = Γ} {F} {G} {A} {A′} {m} {l}
   [Γ] [F] [G] [Σ] [A] [A′] [A≡A′] [A₊] ok {k} {Δ} {σ}
@@ -285,12 +285,12 @@ subst↑²STerm :
   ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
   ([Σ] : Γ ⊩ᵛ⟨ l ⟩ Σ⟨ m ⟩ p , q ▷ F ▹ G / [Γ])
   ([A] : Γ ∙ (Σ p , q ▷ F ▹ G) ⊩ᵛ⟨ l ⟩ A / [Γ] ∙ [Σ])
-  ([A₊] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A [ prod m p (var (x0 +1)) (var x0) ]↑² /
+  ([A₊] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A [ prod m p (var x1) (var x0) ]↑² /
             [Γ] ∙ [F] ∙ [G])
   ([Ap] : Γ ⊩ᵛ⟨ l ⟩ A [ prod m p t t′ ] / [Γ])
   ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ F / [Γ] / [F])
   ([t′] : Γ ⊩ᵛ⟨ l ⟩ t′ ∷ G [ t ] / [Γ] / substS [Γ] [F] [G] [t])
-  ([u] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ u ∷ A [ prod m p (var (x0 +1)) (var x0) ]↑² /
+  ([u] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ u ∷ A [ prod m p (var x1) (var x0) ]↑² /
            [Γ] ∙ [F] ∙ [G] / [A₊]) →
   Γ ⊩ᵛ⟨ l ⟩ subst (consSubst (consSubst idSubst t) t′) u ∷
     A [ prod m p t t′ ] / [Γ] / [Ap]

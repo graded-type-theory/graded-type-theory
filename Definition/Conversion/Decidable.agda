@@ -179,7 +179,7 @@ dec~↑-prodrec :
   Dec (Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ C [conv↑] E) →
   (Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ C ≡ E →
     Dec (Γ ∙ F ∙ G ⊢ u [conv↑] v ∷
-      C [ prodᵣ p (var (x0 +1)) (var x0) ]↑²)) →
+      C [ prodᵣ p (var x1) (var x0) ]↑²)) →
   Γ ⊢ t ~ t′ ↓ Σᵣ p , q ▷ F′ ▹ G′ →
   Γ ⊢ Σᵣ p , q ▷ F ▹ G ≡ Σᵣ p , q ▷ F′ ▹ G′ →
   p ≈ p′ →

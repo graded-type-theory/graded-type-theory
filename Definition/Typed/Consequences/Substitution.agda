@@ -194,7 +194,7 @@ subst↑TypeEq ⊢G ⊢t = substitutionEq ⊢G (singleSubst↑Eq ⊢t) (wfEqTerm
 subst↑²Type : ∀ {m F G A}
             → Γ ∙ (Σ⟨ m ⟩ p , q ▷ F ▹ G) ⊢ A
             → Σ-restriction m p q
-            → Γ ∙ F ∙ G ⊢ A [ prod m p (var (x0 +1)) (var x0) ]↑²
+            → Γ ∙ F ∙ G ⊢ A [ prod m p (var x1) (var x0) ]↑²
 subst↑²Type {Γ = Γ} {F = F} {G} {A} ⊢A ok =
   let ⊢ΓΣ = wf ⊢A
       ⊢Γ , ⊢Σ = splitCon ⊢ΓΣ
@@ -230,8 +230,8 @@ subst↑²Type {Γ = Γ} {F = F} {G} {A} ⊢A ok =
 subst↑²TypeEq : ∀ {m F G A B}
               → Γ ∙ (Σ⟨ m ⟩ p , q ▷ F ▹ G) ⊢ A ≡ B
               → Σ-restriction m p q
-              → Γ ∙ F ∙ G ⊢ A [ prod m p (var (x0 +1)) (var x0) ]↑²
-                          ≡ B [ prod m p (var (x0 +1)) (var x0) ]↑²
+              → Γ ∙ F ∙ G ⊢ A [ prod m p (var x1) (var x0) ]↑²
+                          ≡ B [ prod m p (var x1) (var x0) ]↑²
 subst↑²TypeEq {Γ = Γ} {F = F} {G} {A} {B} A≡B ok =
   let ⊢A , ⊢B = syntacticEq A≡B
       ⊢ΓΣ = wf ⊢A

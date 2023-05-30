@@ -226,7 +226,7 @@ record EqRelSet : Set (lsuc ℓ) where
              → Γ ∙ F                  ⊢ G
              → Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ A ≅ A′
              → Γ                      ⊢ t ~ t′ ∷ Σᵣ p , q ▷ F ▹ G
-             → Γ ∙ F ∙ G              ⊢ u ≅ u′ ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
+             → Γ ∙ F ∙ G              ⊢ u ≅ u′ ∷ A [ prodᵣ p (var x1) (var x0) ]↑²
              → Σᵣ-restriction p q
              → Γ                      ⊢ prodrec r p q′ A t u ~ prodrec r p q′ A′ t′ u′ ∷ A [ t ]
 

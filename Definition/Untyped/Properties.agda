@@ -502,8 +502,8 @@ wk-β-natrec ρ G = let G′ = G [ suc (var x0) ]↑ in
 
 wk-β-prodrec :
   ∀ {s} (ρ : Wk m n) (A : Term (1+ n)) →
-  wk (lift (lift ρ)) (A [ prod s p (var (x0 +1)) (var x0) ]↑²) ≡
-  wk (lift ρ) A [ prod s p (var (x0 +1)) (var x0) ]↑²
+  wk (lift (lift ρ)) (A [ prod s p (var x1) (var x0) ]↑²) ≡
+  wk (lift ρ) A [ prod s p (var x1) (var x0) ]↑²
 wk-β-prodrec {p = p} ρ A =
   begin
        wk (lift (lift ρ)) (subst σₚ′ A)
@@ -712,13 +712,13 @@ wk1-wk1-[]↑ {t = t} {u = u} =
 -- Substituting variable one into t using _[_]↑² amounts to the same
 -- thing as applying wk1 to t.
 
-[1]↑² : t [ var (x0 +1) ]↑² ≡ wk1 t
+[1]↑² : t [ var x1 ]↑² ≡ wk1 t
 [1]↑² {t = t} =
-  subst (consSubst (λ x → var (x +1 +1)) (var (x0 +1))) t  ≡⟨ (flip substVar-to-subst t λ where
-                                                                 x0     → refl
-                                                                 (_ +1) → refl) ⟩
-  subst (λ x → var (x +1)) t                               ≡˘⟨ wk≡subst _ _ ⟩
-  wk1 t                                                    ∎
+  subst (consSubst (λ x → var (x +1 +1)) (var x1)) t  ≡⟨ (flip substVar-to-subst t λ where
+                                                            x0     → refl
+                                                            (_ +1) → refl) ⟩
+  subst (λ x → var (x +1)) t                          ≡˘⟨ wk≡subst _ _ ⟩
+  wk1 t                                               ∎
 
 -- Substituting something into wk1 t using _[_]↑² amounts to the same
 -- thing as applying wk1 once more.
@@ -734,8 +734,8 @@ wk1-[]↑² {t = t} {u = u} =
 
 subst-β-prodrec :
   ∀ {s} (A : Term (1+ n)) (σ : Subst m n) →
-  subst (liftSubstn σ 2) (A [ prod s p (var (x0 +1)) (var x0) ]↑²) ≡
-  subst (liftSubst σ) A [ prod s p (var (x0 +1)) (var x0) ]↑²
+  subst (liftSubstn σ 2) (A [ prod s p (var x1) (var x0) ]↑²) ≡
+  subst (liftSubst σ) A [ prod s p (var x1) (var x0) ]↑²
 subst-β-prodrec {n = n} A σ = begin
    subst (liftSubstn σ 2) (A [ t₁ ]↑²)
      ≡⟨ substCompEq A ⟩
@@ -767,7 +767,7 @@ substCompProdrec :
   ∀ {s} (A : Term (1+ n)) (t u : Term m) (σ : Subst m n) →
   subst (liftSubst σ) A [ prod s p t u ] ≡
   subst (consSubst (consSubst σ t) u)
-    (A [ prod s p (var (x0 +1)) (var x0) ]↑²)
+    (A [ prod s p (var x1) (var x0) ]↑²)
 substCompProdrec {n = n} A t u σ = begin
    subst (liftSubst σ) A [ prod! t u ]
      ≡⟨ substCompEq A ⟩
@@ -788,15 +788,15 @@ substCompProdrec {n = n} A t u σ = begin
 
 [1,0]↑²[,] :
   (t : Term (1+ n)) →
-  t [ prodₚ p (var (x0 +1)) (var x0) ]↑² [ u , v ] ≡
+  t [ prodₚ p (var x1) (var x0) ]↑² [ u , v ] ≡
   t [ prodₚ p u v ]
 [1,0]↑²[,] {p = p} {u = u} {v = v} t =
-  t [ prodₚ p (var (x0 +1)) (var x0) ]↑² [ u , v ]  ≡˘⟨ substCompProdrec t _ _ _ ⟩
+  t [ prodₚ p (var x1) (var x0) ]↑² [ u , v ]  ≡˘⟨ substCompProdrec t _ _ _ ⟩
 
-  subst (liftSubst idSubst) t [ prodₚ p u v ]       ≡⟨ cong _[ _ ] $
-                                                       trans (substVar-to-subst subst-lift-id t) $
-                                                       subst-id t ⟩
-  t [ prodₚ p u v ]                                 ∎
+  subst (liftSubst idSubst) t [ prodₚ p u v ]  ≡⟨ cong _[ _ ] $
+                                                  trans (substVar-to-subst subst-lift-id t) $
+                                                  subst-id t ⟩
+  t [ prodₚ p u v ]                            ∎
 
 doubleSubstComp : (A : Term (1+ (1+ n))) (t u : Term m) (σ : Subst m n)
                 → subst (liftSubstn σ 2) A [ t , u ]

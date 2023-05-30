@@ -317,47 +317,47 @@ private
     Γ ∙ (Σₚ p , q ▷ A ▹ B) ⊢ C →
     Γ ⊢ t ∷ Σₚ p , q ▷ A ▹ B →
     Γ ⊢
-      C [ prodₚ p (var (x0 +1)) (var x0) ]↑² [ fst p t ∣ snd p t ] ≡
+      C [ prodₚ p (var x1) (var x0) ]↑² [ fst p t ∣ snd p t ] ≡
       C [ t ]
   ⊢[1,0]↑²[fst,snd]≡
     {Γ = Γ} {p = p} {q = q} {A = A} {B = B} {C = C} {t = t} ⊢C =
-    Γ ⊢ t ∷ Σₚ p , q ▷ A ▹ B                                          →⟨ Σ-η-prod-fst-snd ⟩
+    Γ ⊢ t ∷ Σₚ p , q ▷ A ▹ B                                     →⟨ Σ-η-prod-fst-snd ⟩
 
-    Γ ⊢ prodₚ p (fst p t) (snd p t) ≡ t ∷ Σₚ p , q ▷ A ▹ B            →⟨ substTypeEq (refl ⊢C) ⟩
+    Γ ⊢ prodₚ p (fst p t) (snd p t) ≡ t ∷ Σₚ p , q ▷ A ▹ B       →⟨ substTypeEq (refl ⊢C) ⟩
 
-    Γ ⊢ C [ prodₚ p (fst p t) (snd p t) ] ≡ C [ t ]                   →⟨ PE.subst (_ ⊢_≡ _) (PE.sym $ [1,0]↑²[,] C) ⟩
+    Γ ⊢ C [ prodₚ p (fst p t) (snd p t) ] ≡ C [ t ]              →⟨ PE.subst (_ ⊢_≡ _) (PE.sym $ [1,0]↑²[,] C) ⟩
 
     Γ ⊢
-      C [ prodₚ p (var (x0 +1)) (var x0) ]↑² [ fst p t ∣ snd p t ] ≡
-      C [ t ]                                                         □
+      C [ prodₚ p (var x1) (var x0) ]↑² [ fst p t ∣ snd p t ] ≡
+      C [ t ]                                                    □
 
 -- A typing rule for prodrecₚ.
 
 prodrecₚⱼ :
   Γ ∙ (Σₚ p , q ▷ A ▹ B) ⊢ C →
   Γ ⊢ t ∷ Σₚ p , q ▷ A ▹ B →
-  Γ ∙ A ∙ B ⊢ u ∷ C [ prodₚ p (var (x0 +1)) (var x0) ]↑² →
+  Γ ∙ A ∙ B ⊢ u ∷ C [ prodₚ p (var x1) (var x0) ]↑² →
   Γ ⊢ prodrecₚ p t u ∷ C [ t ]
 prodrecₚⱼ
   {Γ = Γ} {p = p} {q = q} {A = A} {B = B} {C = C} {t = t} {u = u}
-  ⊢C ⊢t ⊢u =                                                      $⟨ fstⱼ ⊢A ⊢B ⊢t
-                                                                   , sndⱼ ⊢A ⊢B ⊢t
-                                                                   ⟩
+  ⊢C ⊢t ⊢u =                                                 $⟨ fstⱼ ⊢A ⊢B ⊢t
+                                                              , sndⱼ ⊢A ⊢B ⊢t
+                                                              ⟩
   Γ ⊢ fst p t ∷ A ×
-  Γ ⊢ snd p t ∷ B [ fst p t ]                                     →⟨ (λ (hyp₁ , hyp₂) →
-                                                                        PE.subst (_ ⊢ _ ∷_) (PE.sym (subst-id _)) hyp₁ , hyp₂) ⟩
+  Γ ⊢ snd p t ∷ B [ fst p t ]                                →⟨ (λ (hyp₁ , hyp₂) →
+                                                                   PE.subst (_ ⊢ _ ∷_) (PE.sym (subst-id _)) hyp₁ , hyp₂) ⟩
   Γ ⊢ fst p t ∷ subst idSubst A ×
-  Γ ⊢ snd p t ∷ B [ fst p t ]                                     →⟨ (λ (hyp₁ , hyp₂) → (idSubst′ ⊢Γ , hyp₁) , hyp₂) ⟩
+  Γ ⊢ snd p t ∷ B [ fst p t ]                                →⟨ (λ (hyp₁ , hyp₂) → (idSubst′ ⊢Γ , hyp₁) , hyp₂) ⟩
 
   Γ ⊢ˢ
     consSubst (consSubst idSubst (fst p t)) (snd p t) ∷
-    Γ ∙ A ∙ B                                                     →⟨ flip (substitutionTerm ⊢u) ⊢Γ ⟩
+    Γ ∙ A ∙ B                                                →⟨ flip (substitutionTerm ⊢u) ⊢Γ ⟩
 
   Γ ⊢
     prodrecₚ p t u ∷
-    C [ prodₚ p (var (x0 +1)) (var x0) ]↑² [ fst p t ∣ snd p t ]  →⟨ flip conv (⊢[1,0]↑²[fst,snd]≡ ⊢C ⊢t) ⟩
+    C [ prodₚ p (var x1) (var x0) ]↑² [ fst p t ∣ snd p t ]  →⟨ flip conv (⊢[1,0]↑²[fst,snd]≡ ⊢C ⊢t) ⟩
 
-  Γ ⊢ prodrecₚ p t u ∷ C [ t ]                                    □
+  Γ ⊢ prodrecₚ p t u ∷ C [ t ]                               □
   where
   ⊢Γ    = wfTerm ⊢t
   ⊢A,⊢B = inversion-ΠΣ (syntacticTerm ⊢t)
@@ -369,7 +369,7 @@ prodrecₚⱼ
 prodrecₚ-β :
   Γ ⊢ t ∷ A →
   Γ ⊢ u ∷ B [ t ] →
-  Γ ∙ A ∙ B ⊢ v ∷ C [ prodₚ p (var (x0 +1)) (var x0) ]↑² →
+  Γ ∙ A ∙ B ⊢ v ∷ C [ prodₚ p (var x1) (var x0) ]↑² →
   Σₚ-restriction p q →
   Γ ⊢ prodrecₚ p (prodₚ p t u) v ≡ v [ t ∣ u ] ∷ C [ prodₚ p t u ]
 prodrecₚ-β
@@ -393,7 +393,7 @@ prodrecₚ-β
   Γ ⊢
     v [ t ∣ u ] ≡
     prodrecₚ p (prodₚ p t u) v ∷
-    C [ prodₚ p (var (x0 +1)) (var x0) ]↑² [ t ∣ u ]                →⟨ PE.subst (_⊢_≡_∷_ _ _ _) ([1,0]↑²[,] C) ∘→ sym ⟩
+    C [ prodₚ p (var x1) (var x0) ]↑² [ t ∣ u ]                     →⟨ PE.subst (_⊢_≡_∷_ _ _ _) ([1,0]↑²[,] C) ∘→ sym ⟩
 
   Γ ⊢ prodrecₚ p (prodₚ p t u) v ≡ v [ t ∣ u ] ∷ C [ prodₚ p t u ]  □
   where
@@ -407,30 +407,30 @@ prodrecₚ-β
 prodrecₚ-cong :
   Γ ∙ (Σₚ p , q ▷ A ▹ B) ⊢ C →
   Γ ⊢ t₁ ≡ t₂ ∷ Σₚ p , q ▷ A ▹ B →
-  Γ ∙ A ∙ B ⊢ u₁ ≡ u₂ ∷ C [ prodₚ p (var (x0 +1)) (var x0) ]↑² →
+  Γ ∙ A ∙ B ⊢ u₁ ≡ u₂ ∷ C [ prodₚ p (var x1) (var x0) ]↑² →
   Γ ⊢ prodrecₚ p t₁ u₁ ≡ prodrecₚ p t₂ u₂ ∷ C [ t₁ ]
 prodrecₚ-cong
   {Γ = Γ} {p = p} {q = q} {A = A} {B = B} {C = C} {t₁ = t₁} {t₂ = t₂}
-  {u₁ = u₁} {u₂ = u₂} ⊢C t₁≡t₂ u₁≡u₂ =                              $⟨ fst-cong ⊢A ⊢B t₁≡t₂
-                                                                     , snd-cong ⊢A ⊢B t₁≡t₂
-                                                                     ⟩
+  {u₁ = u₁} {u₂ = u₂} ⊢C t₁≡t₂ u₁≡u₂ =                         $⟨ fst-cong ⊢A ⊢B t₁≡t₂
+                                                                , snd-cong ⊢A ⊢B t₁≡t₂
+                                                                ⟩
   Γ ⊢ fst p t₁ ≡ fst p t₂ ∷ A ×
-  Γ ⊢ snd p t₁ ≡ snd p t₂ ∷ B [ fst p t₁ ]                          →⟨ (λ (hyp₁ , hyp₂) →
-                                                                          PE.subst (_ ⊢ _ ≡ _ ∷_) (PE.sym (subst-id _)) hyp₁ , hyp₂) ⟩
+  Γ ⊢ snd p t₁ ≡ snd p t₂ ∷ B [ fst p t₁ ]                     →⟨ (λ (hyp₁ , hyp₂) →
+                                                                     PE.subst (_ ⊢ _ ≡ _ ∷_) (PE.sym (subst-id _)) hyp₁ , hyp₂) ⟩
   Γ ⊢ fst p t₁ ≡ fst p t₂ ∷ subst idSubst A ×
-  Γ ⊢ snd p t₁ ≡ snd p t₂ ∷ B [ fst p t₁ ]                          →⟨ (λ (hyp₁ , hyp₂) → (substRefl (idSubst′ ⊢Γ) , hyp₁) , hyp₂) ⟩
+  Γ ⊢ snd p t₁ ≡ snd p t₂ ∷ B [ fst p t₁ ]                     →⟨ (λ (hyp₁ , hyp₂) → (substRefl (idSubst′ ⊢Γ) , hyp₁) , hyp₂) ⟩
 
   Γ ⊢ˢ
     consSubst (consSubst idSubst (fst p t₁)) (snd p t₁) ≡
     consSubst (consSubst idSubst (fst p t₂)) (snd p t₂) ∷
-    Γ ∙ A ∙ B                                                       →⟨ flip (substitutionEqTerm u₁≡u₂) ⊢Γ ⟩
+    Γ ∙ A ∙ B                                                  →⟨ flip (substitutionEqTerm u₁≡u₂) ⊢Γ ⟩
 
   Γ ⊢
     prodrecₚ p t₁ u₁ ≡
     prodrecₚ p t₂ u₂ ∷
-    C [ prodₚ p (var (x0 +1)) (var x0) ]↑² [ fst p t₁ ∣ snd p t₁ ]  →⟨ flip conv (⊢[1,0]↑²[fst,snd]≡ ⊢C ⊢t₁) ⟩
+    C [ prodₚ p (var x1) (var x0) ]↑² [ fst p t₁ ∣ snd p t₁ ]  →⟨ flip conv (⊢[1,0]↑²[fst,snd]≡ ⊢C ⊢t₁) ⟩
 
-  Γ ⊢ prodrecₚ p t₁ u₁ ≡ prodrecₚ p t₂ u₂ ∷ C [ t₁ ]                □
+  Γ ⊢ prodrecₚ p t₁ u₁ ≡ prodrecₚ p t₂ u₂ ∷ C [ t₁ ]           □
   where
   ⊢Γ   = wfEqTerm t₁≡t₂
   ⊢t₁  = syntacticEqTerm t₁≡t₂ .proj₂ .proj₁
@@ -447,11 +447,11 @@ prodrecₚ-cong
 --   Γ ∙ (Σₚ p , q ▷ A ▹ B) ⊢ C →
 --   Γ ⊢ t ∷ A →
 --   Γ ⊢ u ∷ B [ t ] →
---   Γ ∙ A ∙ B ⊢ v ∷ C [ prodₚ p (var (x0 +1)) (var x0) ]↑² →
+--   Γ ∙ A ∙ B ⊢ v ∷ C [ prodₚ p (var x1) (var x0) ]↑² →
 --   Γ ⊢ prodrecₚ p (prodₚ p t u) v ⇒ v [ t ∣ u ] ∷ C [ prodₚ p t u ]
 --
 --   Γ ∙ (Σₚ p , q ▷ A ▹ B) ⊢ C →
---   Γ ∙ A ∙ B ⊢ u ∷ C [ prodᵣ p (var (x0 +1)) (var x0) ]↑² →
+--   Γ ∙ A ∙ B ⊢ u ∷ C [ prodᵣ p (var x1) (var x0) ]↑² →
 --   Γ ⊢ t₁ ⇒ t₂ ∷ Σᵣ p , q ▷ A ▹ B →
 --   Γ ⊢ prodrecₚ p t₁ u ⇒ prodrecₚ p t₂ u ∷ C [ t₁ ]
 --
@@ -467,7 +467,7 @@ prodrecₚ-cong
 -- A generalised first projection with two extra quantities.
 
 fstᵣ′ : M → M → M → Term n → Term n → Term n
-fstᵣ′ r p q A t = prodrec r p q (wk1 A) t (var (x0 +1))
+fstᵣ′ r p q A t = prodrec r p q (wk1 A) t (var x1)
 
 -- An inversion lemma for fstᵣ′.
 
@@ -904,34 +904,27 @@ private
 
   1∷wk1[1,0] :
     Γ ∙ A ⊢ B →
-    Γ ∙ A ∙ B ⊢ var (x0 +1) ∷ wk1 A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
-  1∷wk1[1,0] {Γ = Γ} {A = A} {B = B} {p = p} ⊢B =   $⟨ ⊢B ⟩
-
-    Γ ∙ A ⊢ B                                       →⟨ ⊢wk1-wk1 ⟩
-
-    Γ ∙ A ∙ B ⊢ wk1 (wk1 A)                         →⟨ refl ⟩
-
-    (Γ ∙ A ∙ B ⊢ wk1 (wk1 A) ≡ wk1 (wk1 A))         →⟨ PE.subst (_⊢_≡_ _ _) (PE.sym wk1-[]↑²) ⟩
-
-    (Γ ∙ A ∙ B ⊢ wk1 (wk1 A) ≡
-       wk1 A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²)  →⟨ conv (var (wf ⊢B ∙ ⊢B) (there here)) ⟩
-
-    (Γ ∙ A ∙ B ⊢ var (x0 +1) ∷
-       wk1 A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²)  □
+    Γ ∙ A ∙ B ⊢ var x1 ∷ wk1 A [ prodᵣ p (var x1) (var x0) ]↑²
+  1∷wk1[1,0] {Γ = Γ} {A = A} {B = B} {p = p} ⊢B =                      $⟨ ⊢B ⟩
+    Γ ∙ A ⊢ B                                                          →⟨ ⊢wk1-wk1 ⟩
+    Γ ∙ A ∙ B ⊢ wk1 (wk1 A)                                            →⟨ refl ⟩
+    (Γ ∙ A ∙ B ⊢ wk1 (wk1 A) ≡ wk1 (wk1 A))                            →⟨ PE.subst (_⊢_≡_ _ _) (PE.sym wk1-[]↑²) ⟩
+    (Γ ∙ A ∙ B ⊢ wk1 (wk1 A) ≡ wk1 A [ prodᵣ p (var x1) (var x0) ]↑²)  →⟨ conv (var (wf ⊢B ∙ ⊢B) (there here)) ⟩
+    (Γ ∙ A ∙ B ⊢ var x1 ∷ wk1 A [ prodᵣ p (var x1) (var x0) ]↑²)       □
 
 -- A typing rule for fstᵣ.
 
 fstᵣⱼ :
   Γ ⊢ t ∷ Σᵣ p , q ▷ A ▹ B →
   Γ ⊢ fstᵣ p A t ∷ A
-fstᵣⱼ {Γ = Γ} {t = t} {p = p} {q = q} {A = A} {B = B} ⊢t =              $⟨ Σ⊢wk1 ⊢B ok , 1∷wk1[1,0] ⊢B ⟩
+fstᵣⱼ {Γ = Γ} {t = t} {p = p} {q = q} {A = A} {B = B} ⊢t =    $⟨ Σ⊢wk1 ⊢B ok , 1∷wk1[1,0] ⊢B ⟩
   (Γ ∙ (Σᵣ p , q ▷ A ▹ B) ⊢ wk1 A) ×
-  Γ ∙ A ∙ B ⊢ var (x0 +1) ∷ wk1 A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²  →⟨ (λ (hyp₁ , hyp₂) →
-                                                                              prodrecⱼ ⊢A ⊢B hyp₁ ⊢t hyp₂ ok) ⟩
+  Γ ∙ A ∙ B ⊢ var x1 ∷ wk1 A [ prodᵣ p (var x1) (var x0) ]↑²  →⟨ (λ (hyp₁ , hyp₂) →
+                                                                    prodrecⱼ ⊢A ⊢B hyp₁ ⊢t hyp₂ ok) ⟩
 
-  Γ ⊢ fstᵣ p A t ∷ wk1 A [ t ]                                          →⟨ flip conv (⊢wk1[]≡ ⊢A) ⟩
+  Γ ⊢ fstᵣ p A t ∷ wk1 A [ t ]                                →⟨ flip conv (⊢wk1[]≡ ⊢A) ⟩
 
-  Γ ⊢ fstᵣ p A t ∷ A                                                    □
+  Γ ⊢ fstᵣ p A t ∷ A                                          □
   where
   ⊢A,⊢B,ok = inversion-ΠΣ (syntacticTerm ⊢t)
   ⊢A       = ⊢A,⊢B,ok .proj₁
@@ -948,13 +941,13 @@ fstᵣ-β-⇒ :
   Γ ⊢ fstᵣ p A (prodᵣ p t u) ⇒ t ∷ A
 fstᵣ-β-⇒
   {Γ = Γ} {A = A} {B = B} {t = t} {u = u} {p = p} {q = q} ⊢B ⊢t ⊢u ok =
-                                                                        $⟨ Σ⊢wk1 ⊢B ok , 1∷wk1[1,0] ⊢B ⟩
+                                                              $⟨ Σ⊢wk1 ⊢B ok , 1∷wk1[1,0] ⊢B ⟩
   (Γ ∙ (Σᵣ p , q ▷ A ▹ B) ⊢ wk1 A) ×
-  Γ ∙ A ∙ B ⊢ var (x0 +1) ∷ wk1 A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²  →⟨ (λ (hyp₁ , hyp₂) → prodrec-β ⊢A ⊢B hyp₁ ⊢t ⊢u hyp₂ PE.refl ok) ⟩
+  Γ ∙ A ∙ B ⊢ var x1 ∷ wk1 A [ prodᵣ p (var x1) (var x0) ]↑²  →⟨ (λ (hyp₁ , hyp₂) → prodrec-β ⊢A ⊢B hyp₁ ⊢t ⊢u hyp₂ PE.refl ok) ⟩
 
-  Γ ⊢ fstᵣ p A (prodᵣ p t u) ⇒ t ∷ wk1 A [ prodᵣ p t u ]                →⟨ flip conv (⊢wk1[]≡ ⊢A) ⟩
+  Γ ⊢ fstᵣ p A (prodᵣ p t u) ⇒ t ∷ wk1 A [ prodᵣ p t u ]      →⟨ flip conv (⊢wk1[]≡ ⊢A) ⟩
 
-  Γ ⊢ fstᵣ p A (prodᵣ p t u) ⇒ t ∷ A                                    □
+  Γ ⊢ fstᵣ p A (prodᵣ p t u) ⇒ t ∷ A                          □
   where
   ⊢A = syntacticTerm ⊢t
 
@@ -966,13 +959,13 @@ fstᵣ-subst :
   Γ ⊢ fstᵣ p A t₁ ⇒ fstᵣ p A t₂ ∷ A
 fstᵣ-subst
   {Γ = Γ} {A = A} {B = B} {t₁ = t₁} {t₂ = t₂} {p = p} {q = q} ⊢B t₁⇒t₂ =
-                                                                        $⟨ Σ⊢wk1 ⊢B ok , 1∷wk1[1,0] ⊢B ⟩
+                                                              $⟨ Σ⊢wk1 ⊢B ok , 1∷wk1[1,0] ⊢B ⟩
   (Γ ∙ (Σᵣ p , q ▷ A ▹ B) ⊢ wk1 A) ×
-  Γ ∙ A ∙ B ⊢ var (x0 +1) ∷ wk1 A [ prodᵣ p (var (x0 +1)) (var x0) ]↑²  →⟨ (λ (hyp₁ , hyp₂) → prodrec-subst ⊢A ⊢B hyp₁ hyp₂ t₁⇒t₂ ok) ⟩
+  Γ ∙ A ∙ B ⊢ var x1 ∷ wk1 A [ prodᵣ p (var x1) (var x0) ]↑²  →⟨ (λ (hyp₁ , hyp₂) → prodrec-subst ⊢A ⊢B hyp₁ hyp₂ t₁⇒t₂ ok) ⟩
 
-  Γ ⊢ fstᵣ p A t₁ ⇒ fstᵣ p A t₂ ∷ wk1 A [ t₁ ]                          →⟨ flip conv (⊢wk1[]≡ ⊢A) ⟩
+  Γ ⊢ fstᵣ p A t₁ ⇒ fstᵣ p A t₂ ∷ wk1 A [ t₁ ]                →⟨ flip conv (⊢wk1[]≡ ⊢A) ⟩
 
-  Γ ⊢ fstᵣ p A t₁ ⇒ fstᵣ p A t₂ ∷ A                                     □
+  Γ ⊢ fstᵣ p A t₁ ⇒ fstᵣ p A t₂ ∷ A                           □
   where
   ⊢A = case wf ⊢B of λ where
          (_ ∙ ⊢A) → ⊢A
@@ -998,17 +991,15 @@ fstᵣ-cong :
   Γ ⊢ fstᵣ p A₁ t₁ ≡ fstᵣ p A₂ t₂ ∷ A₁
 fstᵣ-cong
   {Γ = Γ} {A₁ = A₁} {A₂ = A₂} {B₁ = B₁} {t₁ = t₁} {t₂ = t₂}
-  {p = p} {q = q} A₁≡A₂ ⊢B₁ t₁≡t₂ =                $⟨ W.wkEq (step id) (wfEq A₁≡A₂ ∙ ΠΣⱼ ⊢A₁ ⊢B₁ ok) A₁≡A₂
-                                                    , 1∷wk1[1,0] ⊢B₁
-                                                    ⟩
+  {p = p} {q = q} A₁≡A₂ ⊢B₁ t₁≡t₂ =                              $⟨ W.wkEq (step id) (wfEq A₁≡A₂ ∙ ΠΣⱼ ⊢A₁ ⊢B₁ ok) A₁≡A₂
+                                                                  , 1∷wk1[1,0] ⊢B₁
+                                                                  ⟩
   (Γ ∙ (Σᵣ p , q ▷ A₁ ▹ B₁) ⊢ wk1 A₁ ≡ wk1 A₂) ×
-  Γ ∙ A₁ ∙ B₁ ⊢
-    var (x0 +1) ∷
-    wk1 A₁ [ prodᵣ p (var (x0 +1)) (var x0) ]↑²    →⟨ (λ (hyp₁ , hyp₂) → prodrec-cong ⊢A₁ ⊢B₁ hyp₁ t₁≡t₂ (refl hyp₂) ok) ⟩
+  Γ ∙ A₁ ∙ B₁ ⊢ var x1 ∷ wk1 A₁ [ prodᵣ p (var x1) (var x0) ]↑²  →⟨ (λ (hyp₁ , hyp₂) → prodrec-cong ⊢A₁ ⊢B₁ hyp₁ t₁≡t₂ (refl hyp₂) ok) ⟩
 
-  Γ ⊢ fstᵣ p A₁ t₁ ≡ fstᵣ p A₂ t₂ ∷ wk1 A₁ [ t₁ ]  →⟨ flip conv (⊢wk1[]≡ ⊢A₁) ⟩
+  Γ ⊢ fstᵣ p A₁ t₁ ≡ fstᵣ p A₂ t₂ ∷ wk1 A₁ [ t₁ ]                →⟨ flip conv (⊢wk1[]≡ ⊢A₁) ⟩
 
-  Γ ⊢ fstᵣ p A₁ t₁ ≡ fstᵣ p A₂ t₂ ∷ A₁             □
+  Γ ⊢ fstᵣ p A₁ t₁ ≡ fstᵣ p A₂ t₂ ∷ A₁                           □
   where
   ⊢A₁ = syntacticEq A₁≡A₂ .proj₁
   ok  = ⊢∷ΠΣ→ΠΣ-restriction $
@@ -1058,46 +1049,44 @@ private
 
   [fstᵣ-0]↑[1,0]↑² :
     ∀ B →
-    B [ fstᵣ p (wk1 A) (var x0) ]↑ [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
-      PE.≡
-    B [ fstᵣ p (wk1 (wk1 A)) (prodᵣ p (var (x0 +1)) (var x0)) ]↑²
+    B [ fstᵣ p (wk1 A) (var x0) ]↑ [ prodᵣ p (var x1) (var x0) ]↑² PE.≡
+    B [ fstᵣ p (wk1 (wk1 A)) (prodᵣ p (var x1) (var x0)) ]↑²
   [fstᵣ-0]↑[1,0]↑² {p = p} {A = A} B =
-    B [ fstᵣ p (wk1 A) (var x0) ]↑
-      [ prodᵣ p (var (x0 +1)) (var x0) ]↑²                         ≡⟨ substCompEq B ⟩
+    B [ fstᵣ p (wk1 A) (var x0) ]↑ [ prodᵣ p (var x1) (var x0) ]↑²  ≡⟨ substCompEq B ⟩
 
     subst
       (consSubst (wk1Subst (wk1Subst idSubst))
-         (prodᵣ p (var (x0 +1)) (var x0)) ₛ•ₛ
+         (prodᵣ p (var x1) (var x0)) ₛ•ₛ
        consSubst (wk1Subst idSubst) (fstᵣ p (wk1 A) (var x0)))
-      B                                                            ≡⟨ (flip substVar-to-subst B λ where
-                                                                         x0     → PE.refl
-                                                                         (_ +1) → PE.refl) ⟩
+      B                                                             ≡⟨ (flip substVar-to-subst B λ where
+                                                                          x0     → PE.refl
+                                                                          (_ +1) → PE.refl) ⟩
     B [ prodrec (𝟘 ∧ 𝟙) p 𝟘
           (subst
              (liftSubst $
               consSubst (wk1Subst (wk1Subst idSubst)) $
-              prodᵣ p (var (x0 +1)) (var x0)) $
+              prodᵣ p (var x1) (var x0)) $
            wk1 (wk1 A))
-          (prodᵣ p (var (x0 +1)) (var x0))
-          (var (x0 +1)) ]↑²                                        ≡⟨ PE.cong (λ A → B [ prodrec _ _ _ A _ _ ]↑²) $
-                                                                      PE.trans (wk1-tail (wk1 A)) $
-                                                                      wk1-tail A ⟩
+          (prodᵣ p (var x1) (var x0))
+          (var x1) ]↑²                                              ≡⟨ PE.cong (λ A → B [ prodrec _ _ _ A _ _ ]↑²) $
+                                                                       PE.trans (wk1-tail (wk1 A)) $
+                                                                       wk1-tail A ⟩
     B [ prodrec (𝟘 ∧ 𝟙) p 𝟘
           (subst (wk1Subst (wk1Subst (wk1Subst idSubst))) A)
-          (prodᵣ p (var (x0 +1)) (var x0))
-          (var (x0 +1)) ]↑²                                        ≡˘⟨ PE.cong (λ A → B [ prodrec _ _ _ A _ _ ]↑²) $
-                                                                       PE.trans (PE.cong (subst _) $ substCompEq A) $
-                                                                       substCompEq A ⟩
+          (prodᵣ p (var x1) (var x0))
+          (var x1) ]↑²                                              ≡˘⟨ PE.cong (λ A → B [ prodrec _ _ _ A _ _ ]↑²) $
+                                                                        PE.trans (PE.cong (subst _) $ substCompEq A) $
+                                                                        substCompEq A ⟩
     B [ prodrec (𝟘 ∧ 𝟙) p 𝟘
           (subst (wk1Subst idSubst) $
            subst (wk1Subst idSubst) $
            subst (wk1Subst idSubst) A)
-          (prodᵣ p (var (x0 +1)) (var x0))
-          (var (x0 +1)) ]↑²                                        ≡˘⟨ PE.cong (λ A → B [ prodrec _ _ _ A _ _ ]↑²) $
-                                                                       PE.trans (wk≡subst _ _) $
-                                                                       PE.trans (PE.cong (subst _) $ wk≡subst _ (wk1 A)) $
-                                                                       PE.cong (subst _) $ PE.cong (subst _) $ wk≡subst _ A ⟩
-    B [ fstᵣ p (wk1 (wk1 A)) (prodᵣ p (var (x0 +1)) (var x0)) ]↑²  ∎
+          (prodᵣ p (var x1) (var x0))
+          (var x1) ]↑²                                              ≡˘⟨ PE.cong (λ A → B [ prodrec _ _ _ A _ _ ]↑²) $
+                                                                        PE.trans (wk≡subst _ _) $
+                                                                        PE.trans (PE.cong (subst _) $ wk≡subst _ (wk1 A)) $
+                                                                        PE.cong (subst _) $ PE.cong (subst _) $ wk≡subst _ A ⟩
+    B [ fstᵣ p (wk1 (wk1 A)) (prodᵣ p (var x1) (var x0)) ]↑²        ∎
     where
     open Tools.Reasoning.PropositionalEquality
 
@@ -1106,49 +1095,47 @@ private
     Σᵣ-restriction p q →
     Γ ∙ A ∙ B ⊢
       wk1 B ≡
-      B [ fstᵣ p (wk1 A) (var x0) ]↑
-        [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
-  ⊢≡[fstᵣ-0]↑[1,0]↑² {Γ = Γ} {A = A} {B = B} {p = p} ⊢B ok =         $⟨ substRefl (⊢ˢwk1Subst-wk1Subst-idSubst ⊢B) , lemma ⟩
+      B [ fstᵣ p (wk1 A) (var x0) ]↑ [ prodᵣ p (var x1) (var x0) ]↑²
+  ⊢≡[fstᵣ-0]↑[1,0]↑² {Γ = Γ} {A = A} {B = B} {p = p} ⊢B ok =          $⟨ substRefl (⊢ˢwk1Subst-wk1Subst-idSubst ⊢B) , lemma ⟩
     Γ ∙ A ∙ B ⊢ˢ
-      consSubst (wk1Subst (wk1Subst idSubst)) (var (x0 +1)) ≡
+      consSubst (wk1Subst (wk1Subst idSubst)) (var x1) ≡
       consSubst (wk1Subst (wk1Subst idSubst))
-        (fstᵣ p (wk1 (wk1 A)) (prodᵣ p (var (x0 +1)) (var x0))) ∷
-      Γ ∙ A                                                          →⟨ flip (substitutionEq (refl ⊢B)) ⊢ΓAB ⟩
+        (fstᵣ p (wk1 (wk1 A)) (prodᵣ p (var x1) (var x0))) ∷
+      Γ ∙ A                                                           →⟨ flip (substitutionEq (refl ⊢B)) ⊢ΓAB ⟩
 
     Γ ∙ A ∙ B ⊢
-      B [ var (x0 +1) ]↑² ≡
-      B [ fstᵣ p (wk1 (wk1 A)) (prodᵣ p (var (x0 +1)) (var x0)) ]↑²  →⟨ PE.subst₂ (_ ⊢_≡_) [1]↑² (PE.sym $ [fstᵣ-0]↑[1,0]↑² B) ⟩
+      B [ var x1 ]↑² ≡
+      B [ fstᵣ p (wk1 (wk1 A)) (prodᵣ p (var x1) (var x0)) ]↑²        →⟨ PE.subst₂ (_ ⊢_≡_) [1]↑² (PE.sym $ [fstᵣ-0]↑[1,0]↑² B) ⟩
 
     Γ ∙ A ∙ B ⊢
       wk1 B ≡
-      B [ fstᵣ p (wk1 A) (var x0) ]↑
-        [ prodᵣ p (var (x0 +1)) (var x0) ]↑²                         □
+      B [ fstᵣ p (wk1 A) (var x0) ]↑ [ prodᵣ p (var x1) (var x0) ]↑²  □
     where
     ⊢ΓAB = wf ⊢B ∙ ⊢B
 
-    lemma =                                                       $⟨ ⊢wk1 ⊢B ⊢B ⟩
+    lemma =                                                  $⟨ ⊢wk1 ⊢B ⊢B ⟩
 
-      (Γ ∙ A ∙ B ⊢ wk1 B)                                         →⟨ refl ⟩
+      (Γ ∙ A ∙ B ⊢ wk1 B)                                    →⟨ refl ⟩
 
-      Γ ∙ A ∙ B ⊢ wk1 B ≡ wk1 B                                   →⟨ PE.subst₂ (_ ⊢_≡_) PE.refl (PE.sym (wk1-sgSubst (wk1 B) _)) ⟩
+      Γ ∙ A ∙ B ⊢ wk1 B ≡ wk1 B                              →⟨ PE.subst₂ (_ ⊢_≡_) PE.refl (PE.sym (wk1-sgSubst (wk1 B) _)) ⟩
 
-      Γ ∙ A ∙ B ⊢ wk1 B ≡ wk1 (wk1 B) [ var (x0 +1) ]             →⟨ conv (var ⊢ΓAB here) ⟩
+      Γ ∙ A ∙ B ⊢ wk1 B ≡ wk1 (wk1 B) [ var x1 ]             →⟨ conv (var ⊢ΓAB here) ⟩
 
-      (Γ ∙ A ∙ B ⊢ var x0 ∷ wk1 (wk1 B) [ var (x0 +1) ])          →⟨ (λ ⊢0 → ⊢wk1-wk1 (⊢wk1-wk1 ⊢B) , var ⊢ΓAB (there here) , ⊢0) ⟩
+      (Γ ∙ A ∙ B ⊢ var x0 ∷ wk1 (wk1 B) [ var x1 ])          →⟨ (λ ⊢0 → ⊢wk1-wk1 (⊢wk1-wk1 ⊢B) , var ⊢ΓAB (there here) , ⊢0) ⟩
 
       (Γ ∙ A ∙ B ∙ wk1 (wk1 A) ⊢ wk1 (wk1 B)) ×
-      (Γ ∙ A ∙ B ⊢ var (x0 +1) ∷ wk1 (wk1 A)) ×
-      (Γ ∙ A ∙ B ⊢ var x0 ∷ wk1 (wk1 B) [ var (x0 +1) ])          →⟨ (λ (⊢B , ⊢1 , ⊢0) → fstᵣ-β-≡ ⊢B ⊢1 ⊢0 ok) ⟩
+      (Γ ∙ A ∙ B ⊢ var x1 ∷ wk1 (wk1 A)) ×
+      (Γ ∙ A ∙ B ⊢ var x0 ∷ wk1 (wk1 B) [ var x1 ])          →⟨ (λ (⊢B , ⊢1 , ⊢0) → fstᵣ-β-≡ ⊢B ⊢1 ⊢0 ok) ⟩
 
       (Γ ∙ A ∙ B ⊢
-         fstᵣ p (wk1 (wk1 A)) (prodᵣ p (var (x0 +1)) (var x0)) ≡
-         var (x0 +1) ∷
-         wk1 (wk1 A))                                             →⟨ flip _⊢_≡_∷_.conv (⊢wk1-wk1≡ ⊢B) ∘→ _⊢_≡_∷_.sym ⟩
+         fstᵣ p (wk1 (wk1 A)) (prodᵣ p (var x1) (var x0)) ≡
+         var x1 ∷
+         wk1 (wk1 A))                                        →⟨ flip _⊢_≡_∷_.conv (⊢wk1-wk1≡ ⊢B) ∘→ _⊢_≡_∷_.sym ⟩
 
       (Γ ∙ A ∙ B ⊢
-         var (x0 +1) ≡
-         fstᵣ p (wk1 (wk1 A)) (prodᵣ p (var (x0 +1)) (var x0)) ∷
-         subst (wk1Subst (wk1Subst idSubst)) A)                   □
+         var x1 ≡
+         fstᵣ p (wk1 (wk1 A)) (prodᵣ p (var x1) (var x0)) ∷
+         subst (wk1Subst (wk1Subst idSubst)) A)              □
 
   ⊢[fstᵣ-0]↑≡[fstᵣ-0]↑ :
     Γ ⊢ A₁ ≡ A₂ →
@@ -1205,17 +1192,15 @@ private
     Σᵣ-restriction p q →
     Γ ∙ A ∙ B ⊢
       var x0 ∷
-      B [ fstᵣ p (wk1 A) (var x0) ]↑
-        [ prodᵣ p (var (x0 +1)) (var x0) ]↑²
+      B [ fstᵣ p (wk1 A) (var x0) ]↑ [ prodᵣ p (var x1) (var x0) ]↑²
   ⊢0∷[fstᵣ-0]↑[1,0]↑² {Γ = Γ} {A = A} {B = B} {p = p} ⊢B ok =
-                                              $⟨ var (wf ⊢B ∙ ⊢B) here ⟩
+                                                                      $⟨ var (wf ⊢B ∙ ⊢B) here ⟩
 
-    Γ ∙ A ∙ B ⊢ var x0 ∷ wk1 B                →⟨ flip conv (⊢≡[fstᵣ-0]↑[1,0]↑² ⊢B ok) ⟩
+    Γ ∙ A ∙ B ⊢ var x0 ∷ wk1 B                                        →⟨ flip conv (⊢≡[fstᵣ-0]↑[1,0]↑² ⊢B ok) ⟩
 
     Γ ∙ A ∙ B ⊢
       var x0 ∷
-      B [ fstᵣ p (wk1 A) (var x0) ]↑
-        [ prodᵣ p (var (x0 +1)) (var x0) ]↑²  □
+      B [ fstᵣ p (wk1 A) (var x0) ]↑ [ prodᵣ p (var x1) (var x0) ]↑²  □
 
 ------------------------------------------------------------------------
 -- The second projection for weak Σ-types

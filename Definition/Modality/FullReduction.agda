@@ -234,13 +234,13 @@ module _ (as : Full-reduction-assumptions) where
         case inversion-ΠΣ (syntacticEqTerm u≡u′ .proj₁) of λ {
           (⊢A , ⊢B , ok₂) →
           prodrec r p q C′ u′ v′
-        , (                                                            $⟨ v′-nf ⟩
-           Γ ∙ A ∙ B ⊢nf v′ ∷ C [ prodᵣ p (var (x0 +1)) (var x0) ]↑²   →⟨ flip _⊢nf_∷_.convₙ $
-                                                                          subst↑²TypeEq C≡C′ ok₂ ⟩
-           Γ ∙ A ∙ B ⊢nf v′ ∷ C′ [ prodᵣ p (var (x0 +1)) (var x0) ]↑²  →⟨ flip (prodrecₙ ⊢A ⊢B C′-nf u′-ne) ok₂ ⟩
-           Γ ⊢ne prodrec r p q C′ u′ v′ ∷ C′ [ u′ ]                    →⟨ flip _⊢ne_∷_.convₙ $ _⊢_≡_.sym $
-                                                                          substTypeEq C≡C′ u≡u′ ⟩
-           Γ ⊢ne prodrec r p q C′ u′ v′ ∷ C [ u ]                      □)
+        , (                                                       $⟨ v′-nf ⟩
+           Γ ∙ A ∙ B ⊢nf v′ ∷ C [ prodᵣ p (var x1) (var x0) ]↑²   →⟨ flip _⊢nf_∷_.convₙ $
+                                                                     subst↑²TypeEq C≡C′ ok₂ ⟩
+           Γ ∙ A ∙ B ⊢nf v′ ∷ C′ [ prodᵣ p (var x1) (var x0) ]↑²  →⟨ flip (prodrecₙ ⊢A ⊢B C′-nf u′-ne) ok₂ ⟩
+           Γ ⊢ne prodrec r p q C′ u′ v′ ∷ C′ [ u′ ]               →⟨ flip _⊢ne_∷_.convₙ $ _⊢_≡_.sym $
+                                                                     substTypeEq C≡C′ u≡u′ ⟩
+           Γ ⊢ne prodrec r p q C′ u′ v′ ∷ C [ u ]                 □)
         , prodrec-cong ⊢A ⊢B C≡C′ u≡u′ v≡v′ ok₂
         , sub (prodrecₘ ▸u′ ▸v′ ▸C′ ok₁) γ≤ }}}}}
       (Emptyrec-cong {F = A} {p = p} A↑ t~) ▸Emptyrec →

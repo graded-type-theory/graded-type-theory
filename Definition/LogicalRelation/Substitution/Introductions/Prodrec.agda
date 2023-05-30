@@ -51,9 +51,9 @@ prodrec-subst* :
   ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
   ([Σ] : Γ ⊩ᵛ⟨ l ⟩ Σᵣ p , q ▷ F ▹ G / [Γ])
   ([A] : Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊩ᵛ⟨ l ⟩ A / [Γ] ∙ [Σ])
-  ([A₊] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑² /
+  ([A₊] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A [ prodᵣ p (var x1) (var x0) ]↑² /
             [Γ] ∙ [F] ∙ [G])
-  ([u] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ u ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑² /
+  ([u] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ u ∷ A [ prodᵣ p (var x1) (var x0) ]↑² /
            [Γ] ∙ [F] ∙ [G] / [A₊])
   (⊢Δ : ⊢ Δ)
   ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
@@ -121,9 +121,9 @@ prodrecTerm :
   (ok : Σᵣ-restriction p q) →
   let [Σ] = Σᵛ [Γ] [F] [G] ok in
   ([A] : Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊩ᵛ⟨ l ⟩ A / [Γ] ∙ [Σ])
-  ([A₊] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑² /
+  ([A₊] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A [ prodᵣ p (var x1) (var x0) ]↑² /
             [Γ] ∙ [F] ∙ [G])
-  ([u] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ u ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑² /
+  ([u] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ u ∷ A [ prodᵣ p (var x1) (var x0) ]↑² /
            [Γ] ∙ [F] ∙ [G] / [A₊])
   (⊢Δ : ⊢ Δ)
   ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
@@ -282,20 +282,20 @@ prodrecCong :
   ([A] : Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊩ᵛ⟨ l ⟩ A / [Γ] ∙ [Σ])
   ([A′] : Γ ∙ (Σᵣ p , q ▷ F′ ▹ G′) ⊩ᵛ⟨ l ⟩ A′ / [Γ] ∙ [Σ′])
   ([A≡A′] : Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊩ᵛ⟨ l ⟩ A ≡ A′ / [Γ] ∙ [Σ] / [A])
-  ([A₊] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑² /
+  ([A₊] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A [ prodᵣ p (var x1) (var x0) ]↑² /
             [Γ] ∙ [F] ∙ [G])
-  ([A′₊] : Γ ∙ F′ ∙ G′ ⊩ᵛ⟨ l ⟩ A′ [ prodᵣ p (var (x0 +1)) (var x0) ]↑² /
+  ([A′₊] : Γ ∙ F′ ∙ G′ ⊩ᵛ⟨ l ⟩ A′ [ prodᵣ p (var x1) (var x0) ]↑² /
              [Γ] ∙ [F′] ∙ [G′])
-  ([A₊≡A′₊] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑² ≡
-                A′ [ prodᵣ p (var (x0 +1)) (var x0) ]↑² /
+  ([A₊≡A′₊] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A [ prodᵣ p (var x1) (var x0) ]↑² ≡
+                A′ [ prodᵣ p (var x1) (var x0) ]↑² /
                 [Γ] ∙ [F] ∙ [G] / [A₊])
-  ([u] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ u ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑² /
+  ([u] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ u ∷ A [ prodᵣ p (var x1) (var x0) ]↑² /
            [Γ] ∙ [F] ∙ [G] / [A₊])
   ([u′] : Γ ∙ F′ ∙ G′ ⊩ᵛ⟨ l ⟩ u′ ∷
-            A′ [ prodᵣ p (var (x0 +1)) (var x0) ]↑² /
+            A′ [ prodᵣ p (var x1) (var x0) ]↑² /
             [Γ] ∙ [F′] ∙ [G′] / [A′₊])
   ([u≡u′] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ u ≡ u′ ∷
-              A [ prodᵣ p (var (x0 +1)) (var x0) ]↑² /
+              A [ prodᵣ p (var x1) (var x0) ]↑² /
               [Γ] ∙ [F] ∙ [G] / [A₊]) →
   Δ ⊢ subst σ (Σᵣ p , q ▷ F ▹ G) ≡ subst σ′ (Σᵣ p , q ▷ F′ ▹ G′) →
   (⊢Δ : ⊢ Δ)
@@ -885,11 +885,11 @@ prodrecᵛ :
   ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
   ([Σ] : Γ ⊩ᵛ⟨ l ⟩ Σᵣ p , q ▷ F ▹ G / [Γ])
   ([A] : Γ ∙ (Σ p , q ▷ F ▹ G) ⊩ᵛ⟨ l ⟩ A / [Γ] ∙ [Σ])
-  ([A₊] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑² /
+  ([A₊] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A [ prodᵣ p (var x1) (var x0) ]↑² /
             [Γ] ∙ [F] ∙ [G])
   ([Aₜ] : Γ ⊩ᵛ⟨ l ⟩ A [ t ] / [Γ])
   ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ Σ p , q ▷ F ▹ G / [Γ] / [Σ])
-  ([u] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ u ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑² /
+  ([u] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ u ∷ A [ prodᵣ p (var x1) (var x0) ]↑² /
            [Γ] ∙ [F] ∙ [G] / [A₊]) →
   Γ ⊩ᵛ⟨ l ⟩ prodrec r p q′ A t u ∷ A [ t ] / [Γ] / [Aₜ]
 prodrecᵛ {n = n} {q = q} {r = r} {Γ = Γ} {F} {G} {A} {t} {u} {l}
@@ -944,24 +944,24 @@ prodrec-congᵛ :
   ([A] : Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊩ᵛ⟨ l ⟩ A / [Γ] ∙ [Σ])
   ([A′] : Γ ∙ (Σᵣ p , q ▷ F′ ▹ G′) ⊩ᵛ⟨ l ⟩ A′ / [Γ] ∙ [Σ′])
   ([A≡A′] : Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊩ᵛ⟨ l ⟩ A ≡ A′ / [Γ] ∙ [Σ] / [A])
-  ([A₊] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑² /
+  ([A₊] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A [ prodᵣ p (var x1) (var x0) ]↑² /
             [Γ] ∙ [F] ∙ [G])
-  ([A′₊] : Γ ∙ F′ ∙ G′ ⊩ᵛ⟨ l ⟩ A′ [ prodᵣ p (var (x0 +1)) (var x0) ]↑² /
+  ([A′₊] : Γ ∙ F′ ∙ G′ ⊩ᵛ⟨ l ⟩ A′ [ prodᵣ p (var x1) (var x0) ]↑² /
              [Γ] ∙ [F′] ∙ [G′])
-  ([A₊≡A′₊] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑² ≡
-                A′ [ prodᵣ p (var (x0 +1)) (var x0) ]↑² /
+  ([A₊≡A′₊] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A [ prodᵣ p (var x1) (var x0) ]↑² ≡
+                A′ [ prodᵣ p (var x1) (var x0) ]↑² /
                 [Γ] ∙ [F] ∙ [G] / [A₊])
   ([Aₜ] : Γ ⊩ᵛ⟨ l ⟩ A [ t ] / [Γ])
   ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ Σᵣ p , q ▷ F ▹ G / [Γ] / [Σ])
   ([t′] : Γ ⊩ᵛ⟨ l ⟩ t′ ∷ Σᵣ p , q ▷ F′ ▹ G′ / [Γ] / [Σ′])
   ([t≡t′] : Γ ⊩ᵛ⟨ l ⟩ t ≡ t′ ∷ Σᵣ p , q ▷ F ▹ G / [Γ] / [Σ])
-  ([u] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ u ∷ A [ prodᵣ p (var (x0 +1)) (var x0) ]↑² /
+  ([u] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ u ∷ A [ prodᵣ p (var x1) (var x0) ]↑² /
            [Γ] ∙ [F] ∙ [G] / [A₊])
   ([u′] : Γ ∙ F′ ∙ G′ ⊩ᵛ⟨ l ⟩ u′ ∷
-            A′ [ prodᵣ p (var (x0 +1)) (var x0) ]↑² /
+            A′ [ prodᵣ p (var x1) (var x0) ]↑² /
             [Γ] ∙ [F′] ∙ [G′] / [A′₊])
   ([u≡u′] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ u ≡ u′ ∷
-              A [ prodᵣ p (var (x0 +1)) (var x0) ]↑² /
+              A [ prodᵣ p (var x1) (var x0) ]↑² /
               [Γ] ∙ [F] ∙ [G] / [A₊]) →
   Γ ⊩ᵛ⟨ l ⟩ prodrec r p q′ A t u ≡ prodrec r p q′ A′ t′ u′ ∷
     A [ t ] / [Γ] / [Aₜ]
