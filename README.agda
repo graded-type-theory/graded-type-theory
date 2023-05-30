@@ -335,13 +335,16 @@ Theorem-5-4 = Graded.Reduction.usagePresTerm
 ------------------------------------------------------------------------
 -- 6: Erasure case study
 
--- Note that for the definitions and theorems in this section,
--- the modality has the zero mode disallowed and the extra annotation
--- on Σ-types is required to be 𝟙
-
--- Definition 6.1
+-- Definition 6.1: well-behaved zeros.
+--
+-- This definition includes one requirement that is not part of the
+-- definition in the paper: equality with zero must be decidable.
+-- However, the paper's definition of a modality semiring includes the
+-- requirement that equality is decidable for all elements.
 
 Has-well-behaved-zero = Graded.Modality.Has-well-behaved-zero
+
+-- Four modality instances from the paper have well-behaved zeros.
 
 erasure-has-well-behaved-zero =
   Graded.Modality.Instances.Erasure.Modality.erasure-has-well-behaved-zero
@@ -352,97 +355,124 @@ affine-has-well-behaved-zero =
 linear-or-affine-has-well-behaved-zero =
   Graded.Modality.Instances.Linear-or-affine.linear-or-affine-has-well-behaved-zero
 
--- Theorem 6.2
+-- Theorem 6.2.
 
 Theorem-62 = Graded.Usage.Properties.valid-var-usage
 
 -- The grammar of the untyped target language
+--
+-- The syntax is well-scoped.
 
 target = Graded.Erasure.Target.Term
 
--- The reduction relation of the target language
+-- The reduction relation of the target language.
 
-_⇒_ = Graded.Erasure.Target._⇒_
+_⇒_  = Graded.Erasure.Target._⇒_
 _⇒*_ = Graded.Erasure.Target._⇒*_
 
--- Definition 6.3: The extraction function
+-- Definition 6.3: The extraction function.
 
 _• = Graded.Erasure.Extraction.erase
 
--- Theorem 6.4
+-- Theorem 6.4.
 
 Theorem-64 = Graded.Erasure.Extraction.Properties.erased-hasX
 
--- Reducibility logical relation for types
--- In the paper, the type level is denoted with a subscript instead of within braces.
+-- Reducibility logical relation for types.
+--
+-- In the paper the type level is written as a subscript instead of
+-- within braces.
 
 _⊩′⟨_⟩_ = Definition.LogicalRelation._⊩⟨_⟩_
 
--- Reducibility logical relation for terms
--- In the paper, the type level is denoted with a subscript instead of within braces.
+-- Some cases of the relation.
+--
+-- The case for Π is common with the cases for the two kinds of
+-- Σ-types.
+--
+-- For the case called ⟨emb/⟩, see
+-- Definition.LogicalRelation.LogRel._⊩¹_.emb.
+
+⟨ℕ⟩   = Definition.LogicalRelation._⊩ℕ_
+⟨Π//⟩ = Definition.LogicalRelation.LogRel._⊩¹B⟨_⟩_
+
+-- Reducibility logical relation for terms.
+--
+-- In the paper the type level is written as a subscript instead of
+-- within braces.
 
 _⊩′⟨_⟩_∷_/_ = Definition.LogicalRelation._⊩⟨_⟩_∷_/_
 
--- The fundamental lemma of the reducibility relation
+-- The fundamental lemma of the reducibility relation.
 
 fundamentalReducibleType = Definition.LogicalRelation.Fundamental.Reducibility.reducible
 fundamentalReducibleTerm = Definition.LogicalRelation.Fundamental.Reducibility.reducibleTerm
 
--- Definition 6.5: The logical relation for erasure
--- In the paper, the logical relation is defined specifically for the
--- erasure modality but is here generalized to hold in more general
--- cases, assuming that the zero of the semiring is sufficiently
--- well behaved.
+-- Definition 6.5: The logical relation for erasure.
+--
+-- In the paper the logical relation is defined specifically for the
+-- erasure modality, but here it has been generalised to hold for
+-- arbitrary modalities with well-behaved zeros.
+--
+-- In the paper the type level is written as a subscript instead of
+-- within braces.
 
 _®⟨_⟩_∷_/_ = Graded.Erasure.LogicalRelation._®⟨_⟩_∷_/_
--- In the paper, the type level is denoted with a subscript instead of within braces.
 
--- Valid substitutions
--- The argument for the target context being well-formed is not included in the
--- paper since the context is fixed and assumed to be well-formed.
+-- Valid substitutions.
+--
+-- The argument for the target context being well-formed is not
+-- included in the paper because the context is fixed and assumed to
+-- be well-formed.
 
 _⊩ˢ_∷_/_ = Definition.LogicalRelation.Substitution._⊩ˢ_∷_/_/_
 
--- Definition 6.6: The logical relation for substitutions
--- In the paper, the type level is denoted with a subscript instead of within braces.
+-- Definition 6.6: The logical relation for substitutions.
+--
+-- In the paper the type level is written as a subscript instead of
+-- within braces.
 
 _®⟨_⟩_∷_◂_/_/_ = Graded.Erasure.LogicalRelation._®⟨_⟩_∷[_]_◂_/_/_
 
-
 -- Definition 6.7: Erasure validity
--- In the paper, the type level is denoted with a subscript instead of within braces.
+--
+-- In the paper the type level is written as a subscript instead of
+-- within braces.
 
 _▸_⊩ʳ⟨_⟩_∷_/_/_ = Graded.Erasure.LogicalRelation._▸_⊩ʳ⟨_⟩_∷[_]_/_/_
 
--- Theorem 6.8: Backwards closure of logical relation under reduction
+-- Theorem 6.8: Backwards closure of logical relation under reduction.
 
 Theorem-68 = Graded.Erasure.LogicalRelation.Reduction.redSubstTerm*
 
--- Theorem 6.9: Subsumption of the logical relation
+-- Theorem 6.9: Subsumption of the logical relation.
 
-Theorem-69a = Graded.Erasure.LogicalRelation.Subsumption.subsumptionSubst
-Theorem-69b = Graded.Erasure.LogicalRelation.Subsumption.subsumption
+Theorem-69a =
+  Graded.Erasure.LogicalRelation.Subsumption.subsumptionSubst
+Theorem-69b =
+  Graded.Erasure.LogicalRelation.Subsumption.subsumption
 
--- Theorem 6.10: The fundamental lemma
+-- Theorem 6.10: The fundamental lemma.
 
 fundamental = Graded.Erasure.LogicalRelation.Fundamental.fundamental
 
--- Theorem 6.11: All substitutions are related under erased contexts
+-- Theorem 6.11: All substitutions are related under erased contexts.
 
 Theorem-611 = Graded.Erasure.LogicalRelation.Subsumption.erasedSubst
 
--- Theorem 6.12: The fundamental lemma for fully erased terms
+-- Theorem 6.12: The fundamental lemma for fully erased terms.
 
-Theorem-612 = Graded.Erasure.LogicalRelation.Fundamental.fundamentalErased
+Theorem-612 =
+  Graded.Erasure.LogicalRelation.Fundamental.fundamentalErased
 
--- Extended reduction relations
+-- Extended reduction relations.
 
-_⊢_⇒ˢ_∷ℕ = Graded.Erasure.SucRed._⊢_⇒ˢ_∷ℕ
+_⊢_⇒ˢ_∷ℕ  = Graded.Erasure.SucRed._⊢_⇒ˢ_∷ℕ
 _⊢_⇒ˢ*_∷ℕ = Graded.Erasure.SucRed._⊢_⇒ˢ*_∷ℕ
-_⇒ˢ_ = Graded.Erasure.SucRed._⇒ˢ_
-_⇒ˢ*_ = Graded.Erasure.SucRed._⇒ˢ*_
+_⇒ˢ_      = Graded.Erasure.SucRed._⇒ˢ_
+_⇒ˢ*_     = Graded.Erasure.SucRed._⇒ˢ*_
 
--- Theorem 6.13: Soundness of the extraction function
+-- Theorem 6.13: Soundness of the extraction function.
 
 soundness = Graded.Erasure.Consequences.Soundness.soundness-ℕ
 
