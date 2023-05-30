@@ -1,0 +1,39 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Definition.Untyped.Unrestricted.Eta</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- The type constructor Unrestricted, defined using a Σ-type with</a>
+<a id="140" class="Comment">-- η-equality</a>
+<a id="154" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="228" class="Keyword">open</a> <a id="233" class="Keyword">import</a> <a id="240" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+
+<a id="257" class="Keyword">module</a> <a id="264" href="Definition.Untyped.Unrestricted.Eta.html" class="Module">Definition.Untyped.Unrestricted.Eta</a>
+  <a id="302" class="Symbol">{</a><a id="303" href="Definition.Untyped.Unrestricted.Eta.html#303" class="Bound">a</a><a id="304" class="Symbol">}</a> <a id="306" class="Symbol">{</a><a id="307" href="Definition.Untyped.Unrestricted.Eta.html#307" class="Bound">M</a> <a id="309" class="Symbol">:</a> <a id="311" href="Agda.Primitive.html#320" class="Primitive">Set</a> <a id="315" href="Definition.Untyped.Unrestricted.Eta.html#303" class="Bound">a</a><a id="316" class="Symbol">}</a>
+  <a id="320" class="Symbol">(</a><a id="321" href="Definition.Untyped.Unrestricted.Eta.html#321" class="Bound">𝕄</a> <a id="323" class="Symbol">:</a> <a id="325" href="Graded.Modality.html#5150" class="Record">Modality</a> <a id="334" href="Definition.Untyped.Unrestricted.Eta.html#307" class="Bound">M</a><a id="335" class="Symbol">)</a>
+  <a id="339" class="Comment">-- A quantity that stands for &quot;an unlimited number of uses&quot;.</a>
+  <a id="402" class="Symbol">(</a><a id="403" href="Definition.Untyped.Unrestricted.Eta.html#403" class="Bound">ω</a> <a id="405" class="Symbol">:</a> <a id="407" href="Definition.Untyped.Unrestricted.Eta.html#307" class="Bound">M</a><a id="408" class="Symbol">)</a>
+  <a id="412" class="Keyword">where</a>
+
+<a id="419" class="Keyword">open</a> <a id="424" href="Graded.Modality.html#5150" class="Module">Modality</a> <a id="433" href="Definition.Untyped.Unrestricted.Eta.html#321" class="Bound">𝕄</a>
+
+<a id="436" class="Keyword">open</a> <a id="441" class="Keyword">import</a> <a id="448" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="467" href="Definition.Untyped.Unrestricted.Eta.html#307" class="Bound">M</a>
+
+<a id="470" class="Keyword">open</a> <a id="475" class="Keyword">import</a> <a id="482" href="Tools.Nat.html" class="Module">Tools.Nat</a>
+
+<a id="493" class="Keyword">private</a> <a id="501" class="Keyword">variable</a>
+  <a id="512" href="Definition.Untyped.Unrestricted.Eta.html#512" class="Generalizable">n</a> <a id="514" class="Symbol">:</a> <a id="516" href="Agda.Builtin.Nat.html#186" class="Datatype">Nat</a>
+
+<a id="521" class="Comment">-- The type constructor Unrestricted.</a>
+
+<a id="Unrestricted"></a><a id="560" href="Definition.Untyped.Unrestricted.Eta.html#560" class="Function">Unrestricted</a> <a id="573" class="Symbol">:</a> <a id="575" href="Definition.Untyped.html#1988" class="Datatype">Term</a> <a id="580" href="Definition.Untyped.Unrestricted.Eta.html#512" class="Generalizable">n</a> <a id="582" class="Symbol">→</a> <a id="584" href="Definition.Untyped.html#1988" class="Datatype">Term</a> <a id="589" href="Definition.Untyped.Unrestricted.Eta.html#512" class="Generalizable">n</a>
+<a id="591" href="Definition.Untyped.Unrestricted.Eta.html#560" class="Function">Unrestricted</a> <a id="604" href="Definition.Untyped.Unrestricted.Eta.html#604" class="Bound">A</a> <a id="606" class="Symbol">=</a> <a id="608" href="Definition.Untyped.html#2720" class="InductiveConstructor Operator">Σₚ</a> <a id="611" href="Definition.Untyped.Unrestricted.Eta.html#403" class="Bound">ω</a> <a id="613" href="Definition.Untyped.html#2720" class="InductiveConstructor Operator">,</a> <a id="615" href="Definition.Untyped.Unrestricted.Eta.html#403" class="Bound">ω</a> <a id="617" href="Definition.Untyped.html#2720" class="InductiveConstructor Operator">▷</a> <a id="619" href="Definition.Untyped.Unrestricted.Eta.html#604" class="Bound">A</a> <a id="621" href="Definition.Untyped.html#2720" class="InductiveConstructor Operator">▹</a> <a id="623" href="Definition.Untyped.html#2554" class="InductiveConstructor">Unit</a>
+
+<a id="629" class="Comment">-- The constructor [_].</a>
+
+<a id="[_]"></a><a id="654" href="Definition.Untyped.Unrestricted.Eta.html#654" class="Function Operator">[_]</a> <a id="658" class="Symbol">:</a> <a id="660" href="Definition.Untyped.html#1988" class="Datatype">Term</a> <a id="665" href="Definition.Untyped.Unrestricted.Eta.html#512" class="Generalizable">n</a> <a id="667" class="Symbol">→</a> <a id="669" href="Definition.Untyped.html#1988" class="Datatype">Term</a> <a id="674" href="Definition.Untyped.Unrestricted.Eta.html#512" class="Generalizable">n</a>
+<a id="676" href="Definition.Untyped.Unrestricted.Eta.html#654" class="Function Operator">[</a> <a id="678" href="Definition.Untyped.Unrestricted.Eta.html#678" class="Bound">t</a> <a id="680" href="Definition.Untyped.Unrestricted.Eta.html#654" class="Function Operator">]</a> <a id="682" class="Symbol">=</a> <a id="684" href="Definition.Untyped.html#3151" class="InductiveConstructor">prodₚ</a> <a id="690" href="Definition.Untyped.Unrestricted.Eta.html#403" class="Bound">ω</a> <a id="692" href="Definition.Untyped.Unrestricted.Eta.html#678" class="Bound">t</a> <a id="694" href="Definition.Untyped.html#3670" class="InductiveConstructor">star</a>
+
+<a id="700" class="Comment">-- The projection unbox.</a>
+
+<a id="unbox"></a><a id="726" href="Definition.Untyped.Unrestricted.Eta.html#726" class="Function">unbox</a> <a id="732" class="Symbol">:</a> <a id="734" href="Definition.Untyped.html#1988" class="Datatype">Term</a> <a id="739" href="Definition.Untyped.Unrestricted.Eta.html#512" class="Generalizable">n</a> <a id="741" class="Symbol">→</a> <a id="743" href="Definition.Untyped.html#1988" class="Datatype">Term</a> <a id="748" href="Definition.Untyped.Unrestricted.Eta.html#512" class="Generalizable">n</a>
+<a id="750" href="Definition.Untyped.Unrestricted.Eta.html#726" class="Function">unbox</a> <a id="756" href="Definition.Untyped.Unrestricted.Eta.html#756" class="Bound">t</a> <a id="758" class="Symbol">=</a> <a id="760" href="Definition.Untyped.html#3368" class="InductiveConstructor">fst</a> <a id="764" href="Definition.Untyped.Unrestricted.Eta.html#403" class="Bound">ω</a> <a id="766" href="Definition.Untyped.Unrestricted.Eta.html#756" class="Bound">t</a>
+</pre></body></html>
