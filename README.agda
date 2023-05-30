@@ -29,10 +29,12 @@ import Graded.Substitution
 import Graded.Substitution.Properties
 
 import Definition.Untyped
+import Definition.Untyped.Properties
 import Definition.Typed
 import Definition.Typed.Consequences.Inversion
 import Definition.Typed.Properties
 import Definition.Typed.Restrictions
+import Definition.Sigma
 import Definition.LogicalRelation
 import Definition.LogicalRelation.Fundamental
 import Definition.LogicalRelation.Fundamental.Reducibility
@@ -172,35 +174,117 @@ linearOrAffineModality =
 ------------------------------------------------------------------------
 -- 4: Type theory with grades
 
--- The grammar of the language
+-- The grammar of the language.
+--
+-- The syntax is not defined in the same way as in the paper:
+--
+-- * The syntax is well-scoped: the type of terms is indexed by the
+--   number of variables in the context.
+--
+-- * Terms are either variables or applications of "kinds" to terms.
+--
+-- * The type Kind specifies the arities of constructors, how many
+--   extra variables the different term arguments take, as well as any
+--   constructor arguments that are not terms.
+--
+-- For instance, instead of three plain constructors for Π, Σ_& and
+-- Σ_⊗ there is a kind constructor Binderkind of type
+--
+--   (b : BinderMode) (p q : M) → Kind (0 ∷ 1 ∷ []).
+--
+-- The type BinderMode represents "Π, Σ_& or Σ_⊗", and the two
+-- arguments of type M are the two quantities of the binders. (The
+-- syntax always allows the graded Σ-types from Section 8.) The list
+-- 0 ∷ 1 ∷ [] means that the binders take two arguments, one with n
+-- variables in the context (for some n), and one with 1 + n variables
+-- in the context.
+--
+-- Pattern synonyms are used so that one can write code which is
+-- closer to the notation in the paper.
 
 grammar = Definition.Untyped.Term
 
--- Weakenings
+-- Weakenings.
+--
+-- Unlike in the paper the type of weakenings is well-scoped: it is
+-- indexed by two natural numbers, the sizes of the target and source
+-- contexts, respectively.
 
 Wk = Definition.Untyped.Wk
 
--- Substitutions
+-- Application of a weakening to a de Bruijn index.
+--
+-- The definition of this operation is similar to the text's
+-- presentation of applications of weakenings to variables, but not
+-- quite idential: it is structurally recursive, and arguably less
+-- complicated.
+
+weakening-of-variable = Definition.Untyped.wkVar
+
+-- Application of a weakening to a term.
+
+weakening = Definition.Untyped.wk
+
+-- Substitutions.
+--
+-- The type of substitutions is not defined in the same way as in the
+-- paper. It is well-scoped, and instead of a data type with four
+-- constructors the type Subst m n is the type of functions taking
+-- variables with indices less than n to terms in contexts of size m.
 
 Subst = Definition.Untyped.Subst
 
--- The typing relations
+-- The main substitution constructors from the paper.
 
-⊢_ = Definition.Typed.⊢_
-_⊢_ = Definition.Typed._⊢_
-_⊢_∷_ = Definition.Typed._⊢_∷_
-_⊢_≡_ = Definition.Typed._⊢_≡_
-_⊢_≡_∷_ = Definition.Typed._⊢_≡_∷_
+identity  = Definition.Untyped.idSubst
+shifting  = Definition.Untyped.wk1Subst
+lifting   = Definition.Untyped.liftSubst
+extension = Definition.Untyped.consSubst
 
--- Typing contexts
+-- Application of a substitution to a term.
+
+substitution = Definition.Untyped.subst
+
+-- The head and tail of a substitution.
+
+head = Definition.Untyped.head
+tail = Definition.Untyped.tail
+
+-- The typing relations.
+--
+-- These relations are parametrised by a value of type
+-- Type-restrictions, which can be used to restrict certain types, as
+-- discussed above.
+--
+-- Note also that some rules for Π and Σ have been merged.
+--
+-- The rules for natrec use types of the form
+-- wk1 (A [ suc (var x0) ]↑). However, the paper uses types of the
+-- form A [ suc (var x1) ]↑². These two types are equal.
+
+⊢_                  = Definition.Typed.⊢_
+_⊢_                 = Definition.Typed._⊢_
+_⊢_∷_               = Definition.Typed._⊢_∷_
+_⊢_≡_               = Definition.Typed._⊢_≡_
+_⊢_≡_∷_             = Definition.Typed._⊢_≡_∷_
+_∷_∈_               = Definition.Typed._∷_∈_
+natrec-type-correct = Definition.Untyped.Properties.natrec-type-correct
+
+-- Typing contexts.
 
 Con = Definition.Untyped.Con
 
+-- One can define something like prodrec for the Σ-types with
+-- η-equality.
+
+prodrec-for-Σₚ              = Definition.Sigma.prodrecₚ
+prodrec-for-Σₚ-type-correct = Definition.Sigma.prodrecₚⱼ
+
 -- Reduction relations
 
-_⊢_⇒_ = Definition.Typed._⊢_⇒_
-_⊢_⇒_∷_ = Definition.Typed._⊢_⇒_∷_
-_⊢_⇒*_ = Definition.Typed._⊢_⇒*_
+_⊢_⇒_    = Definition.Typed._⊢_⇒_
+_⊢_⇒_∷_  = Definition.Typed._⊢_⇒_∷_
+_⊢_⇒*_   = Definition.Typed._⊢_⇒*_
 _⊢_⇒*_∷_ = Definition.Typed._⊢_⇒*_∷_
 
 -- Theorem 4.3
