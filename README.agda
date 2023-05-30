@@ -13,6 +13,7 @@ import Definition.Modality.Instances.Erasure.Modality
 import Definition.Modality.Instances.Erasure.Properties
 import Definition.Modality.Instances.Affine
 import Definition.Modality.Instances.Linearity
+import Definition.Modality.Instances.Zero-one-many
 import Definition.Modality.Instances.Linear-or-affine
 import Definition.Modality.Instances.LowerBounded
 import Definition.Modality.Instances.Recursive
@@ -102,22 +103,25 @@ no-erased-matches = Definition.Modality.Restrictions.no-erased-matches
 ------------------------------------------------------------------------
 -- 3: Modalities as grades in an ordered semiring
 
--- Definition 3.1: The modality semiring
+-- Definition 3.1: The modality semiring.
 --
 -- For the variant of the type theory in Section 3 the mode 𝟘ᵐ should
 -- be disallowed, i.e. 𝟘ᵐ-allowed should be false.
+--
+-- Unlike in the paper equality is not required to be decidable.
+-- Instead this property is assumed where it is used.
 
 Modality = Definition.Modality.Modality
 
--- Operations on modality contexts are lifted to act pointwise
+-- Lifted operators and a lifted ordering relation for usage contexts.
 
-_+_ = Definition.Modality.Context._+ᶜ_
-_·_ = Definition.Modality.Context._·ᶜ_
-_∧_ = Definition.Modality.Context._∧ᶜ_
+_+_   = Definition.Modality.Context._+ᶜ_
+_·_   = Definition.Modality.Context._·ᶜ_
+_∧_   = Definition.Modality.Context._∧ᶜ_
 _⊛_▷_ = Definition.Modality.Context._⊛ᶜ_▷_
-_≤_ = Definition.Modality.Context._≤ᶜ_
+_≤_   = Definition.Modality.Context._≤ᶜ_
 
--- The trivial (one element) modality
+-- The trivial (one element) modality.
 
 unitModality = Definition.Modality.Instances.Unit.UnitModality
 
@@ -126,21 +130,37 @@ unitModality = Definition.Modality.Instances.Unit.UnitModality
 
 ⊛-unique = Definition.Modality.Instances.Erasure.Properties.⊛-unique
 
--- An erasure modality
+-- An erasure modality.
 
-erasureModality = Definition.Modality.Instances.Erasure.Modality.ErasureModality
+erasureModality =
+  Definition.Modality.Instances.Erasure.Modality.ErasureModality
 
--- An "affine types" modality
+-- An "affine types" modality.
 
 affineModality = Definition.Modality.Instances.Affine.affineModality
 
 -- A "linear types" modality.
 
-linearityModality = Definition.Modality.Instances.Linearity.linearityModality
+linearityModality =
+  Definition.Modality.Instances.Linearity.linearityModality
 
--- A combined modality for affine or linear types.
+-- The star operations of the "affine types" and "linear types"
+-- modalities return results that are as large as possible (given the
+-- definitions of the zero, the one, addition, multiplication and
+-- meet).
 
-linearOrAffineModality = Definition.Modality.Instances.Linear-or-affine.linear-or-affine
+⊛-greatest₁ = Definition.Modality.Instances.Zero-one-many.⊛-greatest
+
+-- A "linear or affine types" modality.
+
+linearOrAffineModality =
+  Definition.Modality.Instances.Linear-or-affine.linear-or-affine
+
+-- The star operation of the "linear or affine types" modality returns
+-- results that are as large as possible (given the definitions of the
+-- zero, the one, addition, multiplication and meet).
+
+⊛-greatest₂ = Definition.Modality.Instances.Linear-or-affine.⊛-greatest
 
 ------------------------------------------------------------------------
 -- 4: Type theory with grades
