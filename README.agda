@@ -453,7 +453,8 @@ _®⟨_⟩_∷_◂_/_/_ = Graded.Erasure.LogicalRelation._®⟨_⟩_∷[_]_◂_/
 -- Definition 6.7: Erasure validity
 --
 -- In the paper the type level is written as a subscript instead of
--- within braces.
+-- within braces, and the first two (explicit) arguments have been
+-- swapped.
 
 _▸_⊩ʳ⟨_⟩_∷_/_/_ = Graded.Erasure.LogicalRelation._▸_⊩ʳ⟨_⟩_∷[_]_/_/_
 
