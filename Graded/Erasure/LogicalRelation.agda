@@ -11,14 +11,15 @@ import Tools.PropositionalEquality as PE
 open import Tools.Nullary
 
 module Graded.Erasure.LogicalRelation
-  {a k} {M : Set a}
+  {a} {M : Set a}
   (𝕄 : Modality M)
   (open Modality 𝕄)
   (R : Type-restrictions M)
   (open Definition.Typed R)
-  {Δ : U′.Con (U′.Term M) k} (⊢Δ : ⊢ Δ)
   (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘))
   {{eqrel : EqRelSet R}}
+  {k} {Δ : U′.Con (U′.Term M) k}
+  (⊢Δ : ⊢ Δ)
   where
 
 open EqRelSet {{...}}

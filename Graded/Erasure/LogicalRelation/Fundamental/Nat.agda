@@ -17,17 +17,17 @@ module Graded.Erasure.LogicalRelation.Fundamental.Nat
   (open Modality 𝕄)
   (R : Type-restrictions M)
   (open T R)
-  {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   (is-𝟘? : (p : M) → Dec (p ≡ 𝟘))
   {{eqrel : EqRelSet R}}
+  {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   where
 
 
 open EqRelSet {{...}}
 
-open import Graded.Erasure.LogicalRelation 𝕄 R ⊢Δ is-𝟘?
-open import Graded.Erasure.LogicalRelation.Irrelevance 𝕄 R ⊢Δ is-𝟘?
-open import Graded.Erasure.LogicalRelation.Subsumption 𝕄 R ⊢Δ is-𝟘?
+open import Graded.Erasure.LogicalRelation 𝕄 R is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation.Irrelevance 𝕄 R is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation.Subsumption 𝕄 R is-𝟘? ⊢Δ
 import Graded.Erasure.Target as T
 
 open import Definition.Typed.Consequences.Substitution R

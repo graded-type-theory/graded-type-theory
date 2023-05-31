@@ -11,15 +11,15 @@ open import Tools.Nullary
 import Tools.PropositionalEquality as PE
 
 module Graded.Erasure.LogicalRelation.Reduction
-  {a k} {M : Set a}
+  {a} {M : Set a}
   (open Definition.Untyped M)
   (𝕄 : Modality M)
   (open Modality 𝕄)
   (R : Type-restrictions M)
   (open Definition.Typed R)
-  {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘))
   {{eqrel : EqRelSet R}}
+  {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   where
 
 open EqRelSet {{...}}
@@ -40,7 +40,7 @@ open import Definition.Typed.Weakening R
 
 open import Definition.Untyped.Properties M as UP using (wk-id ; wk-lift-id)
 
-open import Graded.Erasure.LogicalRelation 𝕄 R ⊢Δ is-𝟘?
+open import Graded.Erasure.LogicalRelation 𝕄 R is-𝟘? ⊢Δ
 open import Graded.Erasure.Target as T hiding (_⇒_; _⇒*_)
 open import Graded.Erasure.Target.Properties as TP
 

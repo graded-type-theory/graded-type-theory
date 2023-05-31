@@ -59,9 +59,6 @@ import Graded.Erasure.LogicalRelation.Fundamental.Counterexample
 import Graded.Erasure.SucRed
 import Graded.Erasure.Consequences.Soundness
 
-import Application.NegativeOrErasedAxioms.Canonicity.Erased
-import Application.NegativeOrErasedAxioms.Canonicity.ErasedMatches
-
 -- The code does not follow the paper exactly. Notably, the
 -- formalisation contains parameters that make it possible to control
 -- whether certain features should be included or not (in addition to
@@ -491,7 +488,7 @@ _⇒ˢ*_     = Graded.Erasure.SucRed._⇒ˢ*_
 
 -- Theorem 6.13: Soundness of the extraction function.
 
-soundness = Graded.Erasure.Consequences.Soundness.soundness-ℕ
+soundness = Graded.Erasure.Consequences.Soundness.Soundness.soundness-ℕ
 
 ------------------------------------------------------------------------
 -- 7: Discussion
@@ -517,18 +514,24 @@ soundness = Graded.Erasure.Consequences.Soundness.soundness-ℕ
 -- Theorem 7.1.
 
 theorem-7-1 =
-  Application.NegativeOrErasedAxioms.Canonicity.Erased.canonicityRed
+  Graded.Erasure.Consequences.Soundness.Soundness.soundness-ℕ-only-source
 
--- A counteraxample to Theorem 7.1 if erased matches are allowed.
+-- If (certain kinds of) erased matches are allowed, and additionally
+-- some Σ-types are allowed, then there is a counterexample to
+-- Theorem 7.1 without the assumption "erased matches are not allowed
+-- unless the context is empty".
 
 counterexample₁ =
-  Application.NegativeOrErasedAxioms.Canonicity.ErasedMatches.Counterexample.cEx
+  Graded.Erasure.Consequences.Soundness.soundness-ℕ-only-source-counterexample
 
--- A counterexample to the fundamental lemma if erased matches are
--- allowed.
+-- If (certain kinds of) erased matches are allowed, and additionally
+-- some Σ-types are allowed, then one cannot prove a variant of the
+-- fundamental lemma (Theorem 6.12) without the assumption "erased
+-- matches are not allowed or the context is empty" (assuming that
+-- Agda is consistent).
 
 counterexample₂ =
-  Graded.Erasure.LogicalRelation.Fundamental.Counterexample.cEx
+  Graded.Erasure.LogicalRelation.Fundamental.Counterexample.negation-of-fundamental-lemma-with-erased-matches
 
 ------------------------------------------------------------------------
 -- 7.3: Unit type
@@ -603,7 +606,8 @@ _•′ = Graded.Erasure.Extraction.erase
 
 -- Theorem 8.3: Soundness of the extraction function.
 
-Theorem-8-3 = Graded.Erasure.Consequences.Soundness.soundness-ℕ
+Theorem-8-3 =
+  Graded.Erasure.Consequences.Soundness.Soundness.soundness-ℕ
 
 -- A definition of η-long normal forms.
 

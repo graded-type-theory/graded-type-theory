@@ -20,9 +20,9 @@ module Graded.Erasure.LogicalRelation.Fundamental.Product
   (TR : Type-restrictions M)
   (open Definition.Typed TR)
   (UR : Usage-restrictions M)
-  {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   (𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet)
   {{eqrel : EqRelSet TR}}
+  {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   where
 open EqRelSet {{...}}
 open Type-restrictions TR
@@ -61,11 +61,11 @@ open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Inversion 𝕄 UR
 open import Graded.Mode 𝕄
 
-open import Graded.Erasure.LogicalRelation 𝕄 TR ⊢Δ is-𝟘?
-open import Graded.Erasure.LogicalRelation.Conversion 𝕄 TR ⊢Δ is-𝟘?
-open import Graded.Erasure.LogicalRelation.Reduction 𝕄 TR ⊢Δ is-𝟘?
-open import Graded.Erasure.LogicalRelation.Subsumption 𝕄 TR ⊢Δ is-𝟘?
-open import Graded.Erasure.LogicalRelation.Irrelevance 𝕄 TR ⊢Δ is-𝟘?
+open import Graded.Erasure.LogicalRelation 𝕄 TR is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation.Conversion 𝕄 TR is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation.Reduction 𝕄 TR is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation.Subsumption 𝕄 TR is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation.Irrelevance 𝕄 TR is-𝟘? ⊢Δ
 
 open import Graded.Erasure.Extraction 𝕄 is-𝟘?
 open import Graded.Erasure.Extraction.Properties 𝕄 𝟘-well-behaved

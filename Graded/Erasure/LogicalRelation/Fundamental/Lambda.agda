@@ -17,10 +17,10 @@ module Graded.Erasure.LogicalRelation.Fundamental.Lambda
   (open Modality 𝕄)
   (R : Type-restrictions M)
   (open Definition.Typed R)
-  {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘))
   (𝟙≉𝟘 : 𝟙 PE.≢ 𝟘)
   {{eqrel : EqRelSet R}}
+  {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   where
 
 open EqRelSet {{...}}
@@ -44,10 +44,10 @@ open import Definition.Typed.Weakening R hiding (wk)
 open import Definition.Typed.Consequences.Reduction R
 
 open import Graded.Erasure.Extraction 𝕄 is-𝟘?
-open import Graded.Erasure.LogicalRelation 𝕄 R ⊢Δ is-𝟘?
-open import Graded.Erasure.LogicalRelation.Irrelevance 𝕄 R ⊢Δ is-𝟘?
-open import Graded.Erasure.LogicalRelation.Reduction 𝕄 R ⊢Δ is-𝟘?
-open import Graded.Erasure.LogicalRelation.Subsumption 𝕄 R ⊢Δ is-𝟘?
+open import Graded.Erasure.LogicalRelation 𝕄 R is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation.Irrelevance 𝕄 R is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation.Reduction 𝕄 R is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation.Subsumption 𝕄 R is-𝟘? ⊢Δ
 open import Graded.Erasure.Target.Properties as TP
 import Graded.Erasure.Target as T
 
