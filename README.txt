@@ -46,6 +46,6 @@ supplied manually:
 
   agda --safe Everything.agda
 
-Additionally, all code can be ypechecked using --without-K to turn of
+Additionally, all code can be typechecked using --without-K to turn of
 the K axiom. This is also done automatically when running the commands
 above.
