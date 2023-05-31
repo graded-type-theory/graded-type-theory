@@ -37,6 +37,7 @@ import Definition.Typed.Consequences.Inversion
 import Definition.Typed.Consequences.Substitution
 import Definition.Typed.Consequences.Syntactic
 import Definition.Typed.Consequences.Reduction
+import Definition.Typed.Decidable
 import Definition.Typed.Decidable.Equality
 import Definition.Typed.Eta-long-normal-form
 import Definition.Typed.Properties
@@ -312,6 +313,9 @@ normalization = Definition.Typed.Consequences.Reduction.whNormTerm
 
 -- Decidability of equality
 decEq = Definition.Typed.Decidable.Equality.decEq
+
+-- Decidability of typechecking for some terms
+decTypecheck = Definition.Typed.Decidable.decTermᶜ
 
 ------------------------------------------------------------------------
 -- 5: Assigning grades
