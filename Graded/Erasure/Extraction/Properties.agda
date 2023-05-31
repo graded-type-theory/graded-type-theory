@@ -299,7 +299,7 @@ module _ (R : Usage-restrictions) where
 
   -- Erased variables do not occur after extraction.
   --
-  -- Prood by induction on t being well-resourced.
+  -- Proof by induction on t being well-resourced.
 
   erased-hasX : x ◂ 𝟘 ∈ γ → γ ▸[ 𝟙ᵐ ] t → HasX x (erase t) → ⊥
 

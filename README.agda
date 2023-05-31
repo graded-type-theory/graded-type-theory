@@ -385,19 +385,6 @@ Theorem-6-4 = Graded.Erasure.Extraction.Properties.erased-hasX
 
 _⊩′⟨_⟩_ = Definition.LogicalRelation._⊩⟨_⟩_
 
--- Some cases of the relation.
---
--- The case for Π is common with the cases for the two kinds of
--- Σ-types.
--- In the paper, not all fields are written out in the labels
--- for Π and Σ-types.
---
--- For the case called ⟨emb/⟩, see
--- Definition.LogicalRelation.LogRel._⊩¹_.emb.
-
-⟨ℕ⟩   = Definition.LogicalRelation._⊩ℕ_
-⟨Π//⟩ = Definition.LogicalRelation.LogRel._⊩¹B⟨_⟩_
-
 -- Reducibility logical relation for terms.
 --
 -- In the paper the type level is written as a subscript instead of
@@ -421,6 +408,11 @@ fundamentalReducibleTerm = Definition.LogicalRelation.Fundamental.Reducibility.r
 -- gives a proof that these types are reducible under any weakenings.
 -- Since we do not need to make use of this extra information, we
 -- apply identity weakenings.
+--
+-- For Σ-types the presentation is different from the paper to account
+-- for the possibility to erase the first component added in section 8.
+-- For the case treated in this section, we will always have have
+-- p ≡ 𝟙 for Σ-types.
 
 _®⟨_⟩_∷_/_ = Graded.Erasure.LogicalRelation._®⟨_⟩_∷_/_
 
