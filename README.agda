@@ -388,6 +388,8 @@ _⊩′⟨_⟩_ = Definition.LogicalRelation._⊩⟨_⟩_
 --
 -- The case for Π is common with the cases for the two kinds of
 -- Σ-types.
+-- In the paper, not all fields are written out in the labels
+-- for Π and Σ-types.
 --
 -- For the case called ⟨emb/⟩, see
 -- Definition.LogicalRelation.LogRel._⊩¹_.emb.
@@ -409,12 +411,15 @@ fundamentalReducibleTerm = Definition.LogicalRelation.Fundamental.Reducibility.r
 
 -- Definition 6.5: The logical relation for erasure.
 --
--- In the paper the logical relation is defined specifically for the
--- erasure modality, but here it has been generalised to hold for
--- arbitrary modalities with well-behaved zeros.
---
 -- In the paper the type level is written as a subscript instead of
 -- within braces.
+--
+-- For the Π and Σ cases, some weakenings are applied to the types of
+-- the domain and codomain (or first and second component).
+-- The reason for this is that the reducibility relation inductively
+-- gives a proof that these types are reducible under any weakenings.
+-- Since we do not need to make use of this extra information, we
+-- apply identity weakenings.
 
 _®⟨_⟩_∷_/_ = Graded.Erasure.LogicalRelation._®⟨_⟩_∷_/_
 
