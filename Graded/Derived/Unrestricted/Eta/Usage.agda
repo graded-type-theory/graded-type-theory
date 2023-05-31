@@ -1,6 +1,5 @@
 ------------------------------------------------------------------------
--- Some properties related to usage and the variant of Unrestricted
--- that is defined using a Σ-type with η-equality
+-- Some properties related to usage and Unrestricted
 ------------------------------------------------------------------------
 
 open import Graded.Modality
