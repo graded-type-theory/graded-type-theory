@@ -101,6 +101,13 @@ no-erased-matches = Graded.Restrictions.no-erased-matches
 -- There are also other differences between the paper and the
 -- formalisation. Quite a few such differences are noted below.
 
+-- Some modules used below are parameterized by a collection of equality
+-- relations over terms and types and properties of these relations.
+-- This is used by the reducibility logical relation, allowing the
+-- fundamental lemma to be proven for any equality relation satisfying
+-- these properties, in particular the normal type and term equality
+-- and the algorithmic equality relations.
+
 ------------------------------------------------------------------------
 -- 3: Modalities as grades in an ordered semiring
 
