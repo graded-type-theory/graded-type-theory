@@ -208,15 +208,13 @@ grammar = Definition.Untyped.Term
 -- Unlike in the paper the type of weakenings is well-scoped: it is
 -- indexed by two natural numbers, the sizes of the target and source
 -- contexts, respectively.
+--
+-- The lifting constructor ⇑ is called lift, and the shifting
+-- constructor ↑ is called step.
 
 Wk = Definition.Untyped.Wk
 
 -- Application of a weakening to a de Bruijn index.
---
--- The definition of this operation is similar to the text's
--- presentation of applications of weakenings to variables, but not
--- quite idential: it is structurally recursive, and arguably less
--- complicated.
 
 weakening-of-variable = Definition.Untyped.wkVar
 
@@ -226,28 +224,24 @@ weakening = Definition.Untyped.wk
 
 -- Substitutions.
 --
--- The type of substitutions is not defined in the same way as in the
--- paper. It is well-scoped, and instead of a data type with four
--- constructors the type Subst m n is the type of functions taking
--- variables with indices less than n to terms in contexts of size m.
+-- Unlike in the paper the type of substitutions is well-scoped: it is
+-- indexed by two natural numbers, the sizes of the target and source
+-- contexts, respectively.
 
 Subst = Definition.Untyped.Subst
-
--- The main substitution constructors from the paper.
-
-identity  = Definition.Untyped.idSubst
-shifting  = Definition.Untyped.wk1Subst
-lifting   = Definition.Untyped.liftSubst
-extension = Definition.Untyped.consSubst
 
 -- Application of a substitution to a term.
 
 substitution = Definition.Untyped.subst
 
--- The head and tail of a substitution.
+-- Some other substitution operations from the paper.
 
-head = Definition.Untyped.head
-tail = Definition.Untyped.tail
+identity  = Definition.Untyped.idSubst
+shifting  = Definition.Untyped.wk1Subst
+lifting   = Definition.Untyped.liftSubst
+extension = Definition.Untyped.consSubst
+head      = Definition.Untyped.head
+tail      = Definition.Untyped.tail
 
 -- The typing relations.
 --
