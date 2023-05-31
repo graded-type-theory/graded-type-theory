@@ -530,7 +530,10 @@ counterexample₂ =
 
 -- Modes.
 --
--- The definition is parametric: one can disallow the mode 𝟘ᵐ.
+-- The mode 1_M is denoted by 𝟙ᵐ. One can choose whether to allow or
+-- disallow 0_M. If 0_M is allowed, then it is represented by
+-- applications of the constructor 𝟘ᵐ: this constructor takes an
+-- argument which indicates that 0_M is allowed.
 
 Mode = Graded.Mode.Mode
 
