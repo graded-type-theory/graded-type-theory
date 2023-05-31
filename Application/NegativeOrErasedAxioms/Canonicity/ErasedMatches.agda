@@ -62,7 +62,7 @@ module Counterexample where
   open Graded.Erasure.SucRed no-type-restrictions
 
   -- A counterexample to canonicity. Note that the use of
-  -- no-type-restrictions above means that erased eliminations are
+  -- no-usage-restrictions above means that erased eliminations are
   -- allowed.
 
   cEx :
