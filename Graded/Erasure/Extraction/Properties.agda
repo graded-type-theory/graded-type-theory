@@ -25,6 +25,7 @@ open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 import Graded.Usage 𝕄 as MU
 import Graded.Usage.Properties 𝕄 as MUP
+import Graded.Usage.Properties.Has-well-behaved-zero 𝕄 as MUP𝟘
 open import Graded.Usage.Restrictions M
 open import Graded.Mode 𝕄
 
@@ -292,10 +293,11 @@ erase-consSubst : (σ : U.Subst m n) (a : U.Term m) (t : T.Term (1+ n))
                 ≡ T.subst (eraseSubst (U.consSubst σ a)) t
 erase-consSubst σ a t = substVar-to-subst (erase-consSubst-var σ a) t
 
-module _ (R : Usage-restrictions) where
+module hasX (R : Usage-restrictions) where
 
   open MU R
   open MUP R
+  open MUP𝟘 R
 
   -- Erased variables do not occur after extraction.
   --

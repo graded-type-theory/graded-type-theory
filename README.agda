@@ -22,6 +22,7 @@ import Graded.Usage
 import Graded.Usage.Decidable
 import Graded.Usage.Inversion
 import Graded.Usage.Properties
+import Graded.Usage.Properties.Has-well-behaved-zero
 import Graded.Usage.Restrictions
 import Graded.Reduction
 import Graded.Restrictions
@@ -33,6 +34,10 @@ import Definition.Untyped
 import Definition.Untyped.Properties
 import Definition.Typed
 import Definition.Typed.Consequences.Inversion
+import Definition.Typed.Consequences.Substitution
+import Definition.Typed.Consequences.Syntactic
+import Definition.Typed.Consequences.Reduction
+import Definition.Typed.Decidable.Equality
 import Definition.Typed.Eta-long-normal-form
 import Definition.Typed.Properties
 import Definition.Typed.Restrictions
@@ -297,6 +302,20 @@ Theorem-4-3b = Definition.Typed.Properties.whnfRed*
 Theorem-4-4a = Definition.Typed.Properties.whrDet*Term
 Theorem-4-4b = Definition.Typed.Properties.whrDet*
 
+-- Some properties that are proven via a reducibility logical relation:
+
+-- Admissibility of substitution
+substitutionAdmissible = Definition.Typed.Consequences.Substitution.substitution
+
+-- Subject reduction
+subjectReduction = Definition.Typed.Consequences.Syntactic.syntacticRedTerm
+
+-- Normalization
+normalization = Definition.Typed.Consequences.Reduction.whNormTerm
+
+-- Decidability of equality
+decEq = Definition.Typed.Decidable.Equality.decEq
+
 ------------------------------------------------------------------------
 -- 5: Assigning grades
 
@@ -357,7 +376,7 @@ linear-or-affine-has-well-behaved-zero =
 
 -- Theorem 6.2.
 
-Theorem-6-2 = Graded.Usage.Properties.valid-var-usage
+Theorem-6-2 = Graded.Usage.Properties.Has-well-behaved-zero.valid-var-usage
 
 -- The grammar of the untyped target language
 --
@@ -376,7 +395,7 @@ _• = Graded.Erasure.Extraction.erase
 
 -- Theorem 6.4.
 
-Theorem-6-4 = Graded.Erasure.Extraction.Properties.erased-hasX
+Theorem-6-4 = Graded.Erasure.Extraction.Properties.hasX.erased-hasX
 
 -- Reducibility logical relation for types.
 --

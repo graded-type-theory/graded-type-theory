@@ -186,6 +186,7 @@ import Graded.Usage.Restrictions
 import Graded.Usage
 import Graded.Usage.Inversion
 import Graded.Usage.Properties
+import Graded.Usage.Properties.Has-well-behaved-zero
 import Graded.Usage.Weakening
 import Graded.Usage.Decidable
 
