@@ -31,6 +31,7 @@ open import Definition.Typed.Consequences.DerivedRules TR
 open import Definition.Typed.Eta-long-normal-form TR
 open import Definition.Untyped M hiding (_∷_)
 
+open import Tools.Bool using (T)
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
@@ -38,8 +39,9 @@ open import Tools.Nat
 open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
-  using (≈-sym)
+  using (_≢_; ≈-sym)
 import Tools.Reasoning.PartialOrder
+open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private
   variable
@@ -254,57 +256,121 @@ well-resourced-normal-form-ill-resourced-η-long-normal-form-Unit
   ⊢Unit = Unitⱼ ε ok₁
   ⊢0    = var (ε ∙ ⊢Unit) here
 
--- The type
--- Well-resourced-normal-form-ill-resourced-η-long-normal-form is
--- inhabited if Σₚ-restriction p q holds for a quantity p that is not
--- an upper bound of 𝟙, and furthermore Π-restriction 𝟙 r holds.
+-- If "Π 𝟙 , r" and "Σₚ p , q" are allowed, then the identity function
+-- lam 𝟙 (var x0) has type
+-- Π 𝟙 , r ▷ Σₚ p , q ▷ ℕ ▹ ℕ ▹ Σₚ p , q ▷ ℕ ▹ ℕ, is well-resourced in
+-- the empty context, and is definitionally equal to the η-long normal
+-- form lam 𝟙 (prodₚ p (fst p (var x0)) (snd p (var x0))), however,
+-- this η-long normal form is well-resourced in the empty context if
+-- and only if either p is 𝟙, or 𝟘ᵐ is allowed, p is 𝟘, and 𝟙 ≤ 𝟘.
 
-well-resourced-normal-form-ill-resourced-η-long-normal-form-Σₚ :
-  ¬ 𝟙 ≤ p →
-  Σₚ-restriction p q →
+η-long-nf-for-id→𝟙≤ :
   Π-restriction 𝟙 r →
-  Well-resourced-normal-form-ill-resourced-η-long-normal-form
-well-resourced-normal-form-ill-resourced-η-long-normal-form-Σₚ
-  {p = p} {q = q} {r = r} 𝟙≰p ok₁ ok₂ =
-    Π 𝟙 , r ▷ Σₚ p , q ▷ ℕ ▹ ℕ ▹ Σₚ p , q ▷ ℕ ▹ ℕ
-  , lam 𝟙 (var x0)
-  , lam 𝟙 (prodₚ p (fst p (var x0)) (snd p (var x0)))
-  , lamⱼ ⊢Σℕℕ ⊢0 ok₂
-  , lamₙ (ne (var _))
-  , lamₙ ⊢Σℕℕ
-      (prodₙ Σℕℕ⊢ℕ (ℕⱼ ε∙Σℕℕ∙ℕ)
-         (neₙ ℕₙ (fstₙ Σℕℕ⊢ℕ Σℕℕ∙ℕ⊢ℕ (varₙ (ε ∙ ⊢Σℕℕ) here)))
-         (neₙ ℕₙ (sndₙ Σℕℕ⊢ℕ Σℕℕ∙ℕ⊢ℕ (varₙ (ε ∙ ⊢Σℕℕ) here)))
-         ok₁)
-      ok₂
-  , lam-cong (sym (Σ-η-prod-fst-snd ⊢0)) ok₂
+  Σₚ-restriction p q →
+  let A = Π 𝟙 , r ▷ Σₚ p , q ▷ ℕ ▹ ℕ ▹ Σₚ p , q ▷ ℕ ▹ ℕ
+      t = lam 𝟙 (var x0)
+      u = lam 𝟙 (prodₚ p (fst p (var x0)) (snd p (var x0)))
+  in
+  ε ⊢ t ∷ A ×
+  ε ▸[ 𝟙ᵐ ] t ×
+  ε ⊢nf u ∷ A ×
+  ε ⊢ t ≡ u ∷ A ×
+  (ε ▸[ 𝟙ᵐ ] u ⇔ (p PE.≡ 𝟙 ⊎ T 𝟘ᵐ-allowed × p PE.≡ 𝟘 × 𝟙 ≤ 𝟘))
+η-long-nf-for-id→𝟙≤ {r = r} {p = p} {q = q} ok₁ ok₂ =
+    lamⱼ ⊢Σℕℕ ⊢0 ok₁
   , lamₘ (sub var
             (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
                𝟘ᶜ ∙ 𝟙 · 𝟙  ≈⟨ ≈ᶜ-refl ∙ ·-identityˡ _ ⟩
                𝟘ᶜ ∙ 𝟙      ∎))
-  , (λ ▸λ1,2 →
-       let open Tools.Reasoning.PartialOrder ≤-poset in
-       case inv-usage-lam ▸λ1,2 of λ {
-         (invUsageLam ▸1,2 _) →
-       case inv-usage-prodₚ ▸1,2 of λ {
-         (invUsageProdₚ {δ = _ ∙ q₁} {η = _ ∙ q₂} ▸1 _ (_ ∙ 𝟙𝟙≤pq₁∧q₂)) →
-       case inv-usage-fst ▸1 of λ {
-         (invUsageFst {δ = _ ∙ q₃} _ _ ▸0 (_ ∙ q₁≤q₃) _) →
-       case inv-usage-var ▸0 of λ {
-         (_ ∙ q₃≤⌜⌞p⌟⌝) →
-              $⟨ begin
-                   𝟙              ≡˘⟨ ·-identityˡ _ ⟩
-                   𝟙 · 𝟙          ≤⟨ 𝟙𝟙≤pq₁∧q₂ ⟩
-                   p · q₁ ∧ q₂    ≤⟨ ∧-decreasingˡ _ _ ⟩
-                   p · q₁         ≤⟨ ·-monotoneʳ q₁≤q₃ ⟩
-                   p · q₃         ≤⟨ ·-monotoneʳ q₃≤⌜⌞p⌟⌝ ⟩
-                   p · ⌜ ⌞ p ⌟ ⌝  ≡⟨ ·⌜⌞⌟⌝ ⟩
-                   p              ∎ ⟩
-       𝟙 ≤ p  →⟨ 𝟙≰p ⟩
-       ⊥      □ }}}})
+  , lamₙ ⊢Σℕℕ
+      (prodₙ Σℕℕ⊢ℕ (ℕⱼ ε∙Σℕℕ∙ℕ)
+         (neₙ ℕₙ (fstₙ Σℕℕ⊢ℕ Σℕℕ∙ℕ⊢ℕ (varₙ (ε ∙ ⊢Σℕℕ) here)))
+         (neₙ ℕₙ (sndₙ Σℕℕ⊢ℕ Σℕℕ∙ℕ⊢ℕ (varₙ (ε ∙ ⊢Σℕℕ) here)))
+         ok₂)
+      ok₁
+  , lam-cong (sym (Σ-η-prod-fst-snd ⊢0)) ok₁
+  , (ε ▸[ 𝟙ᵐ ] u′                                  ⇔⟨ lemma₁ ⟩
+     (𝟙 ≤ p × (⌞ p ⌟ PE.≡ 𝟙ᵐ → p ≤ 𝟙))             ⇔⟨ id⇔ ×-cong-⇔ ⌞⌟≡𝟙→⇔⊎𝟘ᵐ×≡𝟘 ⟩
+     (𝟙 ≤ p × (p ≤ 𝟙 ⊎ T 𝟘ᵐ-allowed × p PE.≡ 𝟘))   ⇔⟨ lemma₂ ⟩
+     (p PE.≡ 𝟙 ⊎ T 𝟘ᵐ-allowed × p PE.≡ 𝟘 × 𝟙 ≤ 𝟘)  □⇔)
   where
-  ⊢Σℕℕ    = ΠΣⱼ (ℕⱼ ε) (ℕⱼ (ε ∙ ℕⱼ ε)) ok₁
+  u′      = lam 𝟙 (prodₚ p (fst p (var x0)) (snd p (var x0)))
+  ⊢Σℕℕ    = ΠΣⱼ (ℕⱼ ε) (ℕⱼ (ε ∙ ℕⱼ ε)) ok₂
   Σℕℕ⊢ℕ   = ℕⱼ (ε ∙ ⊢Σℕℕ)
   ε∙Σℕℕ∙ℕ = ε ∙ ⊢Σℕℕ ∙ Σℕℕ⊢ℕ
   Σℕℕ∙ℕ⊢ℕ = ℕⱼ ε∙Σℕℕ∙ℕ
   ⊢0      = var (ε ∙ ⊢Σℕℕ) here
+
+  lemma₁ : ε ▸[ 𝟙ᵐ ] u′ ⇔ (𝟙 ≤ p × (⌞ p ⌟ PE.≡ 𝟙ᵐ → p ≤ 𝟙))
+  lemma₁ =
+      (λ ▸λ1,2 →
+         let open Tools.Reasoning.PartialOrder ≤-poset in
+         case inv-usage-lam ▸λ1,2 of λ {
+           (invUsageLam ▸1,2 _) →
+         case inv-usage-prodₚ ▸1,2 of λ {
+           (invUsageProdₚ {δ = _ ∙ q₁} {η = _ ∙ q₂} ▸1 _ (_ ∙ 𝟙𝟙≤pq₁∧q₂)) →
+         case inv-usage-fst ▸1 of λ {
+           (invUsageFst {δ = _ ∙ q₃} _ _ ▸0 (_ ∙ q₁≤q₃) ⌞p⌟≡𝟙ᵐ→p≤𝟙) →
+         case inv-usage-var ▸0 of λ {
+           (_ ∙ q₃≤⌜⌞p⌟⌝) →
+           (begin
+              𝟙              ≡˘⟨ ·-identityˡ _ ⟩
+              𝟙 · 𝟙          ≤⟨ 𝟙𝟙≤pq₁∧q₂ ⟩
+              p · q₁ ∧ q₂    ≤⟨ ∧-decreasingˡ _ _ ⟩
+              p · q₁         ≤⟨ ·-monotoneʳ q₁≤q₃ ⟩
+              p · q₃         ≤⟨ ·-monotoneʳ q₃≤⌜⌞p⌟⌝ ⟩
+              p · ⌜ ⌞ p ⌟ ⌝  ≡⟨ ·⌜⌞⌟⌝ ⟩
+              p              ∎)
+         , ⌞p⌟≡𝟙ᵐ→p≤𝟙 }}}})
+    , (λ (𝟙≤p , ⌞p⌟≡𝟙→≤𝟙) →
+         lamₘ $
+         sub
+           (prodₚₘ (fstₘ 𝟙ᵐ var PE.refl ⌞p⌟≡𝟙→≤𝟙) (sndₘ var))
+           (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+              ε ∙ 𝟙 · 𝟙              ≈⟨ ε ∙ ·-identityˡ _ ⟩
+              ε ∙ 𝟙                  ≤⟨ ε ∙ ∧-greatest-lower-bound 𝟙≤p ≤-refl ⟩
+              ε ∙ p ∧ 𝟙              ≈˘⟨ ε ∙ ∧-congʳ ·⌜⌞⌟⌝ ⟩
+              ε ∙ p · ⌜ ⌞ p ⌟ ⌝ ∧ 𝟙  ∎))
+
+  lemma₂ :
+    (𝟙 ≤ p × (p ≤ 𝟙 ⊎ T 𝟘ᵐ-allowed × p PE.≡ 𝟘)) ⇔
+    (p PE.≡ 𝟙 ⊎ T 𝟘ᵐ-allowed × p PE.≡ 𝟘 × 𝟙 ≤ 𝟘)
+  lemma₂ =
+      (λ where
+         (𝟙≤p , inj₁ p≤𝟙) →
+           inj₁ (≤-antisym p≤𝟙 𝟙≤p)
+         (𝟙≤𝟘 , inj₂ (ok , PE.refl)) →
+           inj₂ (ok , PE.refl , 𝟙≤𝟘))
+    , (λ where
+         (inj₁ PE.refl) →
+           ≤-refl , inj₁ ≤-refl
+         (inj₂ (ok , PE.refl , 𝟙≤𝟘)) →
+           𝟙≤𝟘 , inj₂ (ok , PE.refl))
+
+-- The type
+-- Well-resourced-normal-form-ill-resourced-η-long-normal-form is
+-- inhabited if there are quantities p, q and r such that
+-- * p is distinct from 𝟙,
+-- * "𝟘ᵐ is allowed and p is 𝟘 and 𝟙 ≤ 𝟘" does not hold,
+-- * Σₚ-restriction p q holds, and
+-- * Π-restriction 𝟙 r holds.
+
+well-resourced-normal-form-ill-resourced-η-long-normal-form-Σₚ :
+  p ≢ 𝟙 →
+  ¬ (T 𝟘ᵐ-allowed × p PE.≡ 𝟘 × 𝟙 ≤ 𝟘) →
+  Σₚ-restriction p q →
+  Π-restriction 𝟙 r →
+  Well-resourced-normal-form-ill-resourced-η-long-normal-form
+well-resourced-normal-form-ill-resourced-η-long-normal-form-Σₚ
+  {p = p} p≢𝟙 ¬[𝟘ᵐ×p≡𝟘×𝟙≤𝟘] ok₁ ok₂ =
+  case η-long-nf-for-id→𝟙≤ ok₂ ok₁ of λ {
+    (⊢t , ▸t , ⊢u , t≡u , ▸u→ , _) →
+    _ , _ , _
+  , ⊢t
+  , lamₙ (ne (var _))
+  , ⊢u
+  , t≡u
+  , ▸t
+  , (ε ▸[ 𝟙ᵐ ] lam 𝟙 (prodₚ p (fst p (var x0)) (snd p (var x0)))  →⟨ ▸u→ ⟩
+     p PE.≡ 𝟙 ⊎ T 𝟘ᵐ-allowed × p PE.≡ 𝟘 × 𝟙 ≤ 𝟘                   →⟨ (λ { (inj₁ p≡𝟙) → p≢𝟙 p≡𝟙; (inj₂ hyp) → ¬[𝟘ᵐ×p≡𝟘×𝟙≤𝟘] hyp }) ⟩
+     ⊥                                                            □) }
