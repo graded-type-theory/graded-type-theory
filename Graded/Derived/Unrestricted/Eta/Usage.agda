@@ -6,7 +6,7 @@
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 
-module Graded.Usage.Unrestricted.Eta
+module Graded.Derived.Unrestricted.Eta.Usage
   {a} {M : Set a}
   (𝕄 : Modality M)
   (open Modality 𝕄)
@@ -29,7 +29,7 @@ open import Graded.Usage.Properties 𝕄 R
 open import Graded.Mode 𝕄
 
 open import Definition.Untyped M
-open import Definition.Untyped.Unrestricted.Eta 𝕄 ω
+open import Graded.Derived.Unrestricted.Eta.Untyped 𝕄 ω
 
 open import Tools.Function
 open import Tools.Product

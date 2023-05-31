@@ -218,14 +218,14 @@ import Graded.Modality.Instances.Linearity
 import Graded.Modality.Instances.Linear-or-affine
 
 -- The type Erased.
-import Definition.Untyped.Erased
-import Graded.Usage.Erased
-import Definition.Typed.Erased
+import Graded.Derived.Erased.Untyped
+import Graded.Derived.Erased.Typed
+import Graded.Derived.Erased.Usage
 
 -- The type Unrestricted (defined using a Σ-type with η-equality).
-import Definition.Untyped.Unrestricted.Eta
-import Graded.Usage.Unrestricted.Eta
-import Definition.Typed.Unrestricted.Eta
+import Graded.Derived.Unrestricted.Eta.Untyped
+import Graded.Derived.Unrestricted.Eta.Typed
+import Graded.Derived.Unrestricted.Eta.Usage
 
 -- Subject reduction for modalities.
 import Graded.Reduction
@@ -245,7 +245,7 @@ import Graded.Usage.QuantityTranslation
 
 -- An investigation of to what degree weak Σ-types can emulate strong
 -- Σ-types, and vice versa.
-import Definition.Sigma
+import Graded.Derived.Sigma
 
 ------------------------------------------------------------------------
 -- A case study: erasure

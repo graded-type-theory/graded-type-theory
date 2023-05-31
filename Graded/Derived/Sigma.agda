@@ -10,7 +10,7 @@ open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
 
-module Definition.Sigma
+module Graded.Derived.Sigma
   {a} {M : Set a}
   (𝕄 : Modality M)
   (TR : Type-restrictions M)

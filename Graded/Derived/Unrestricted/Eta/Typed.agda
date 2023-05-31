@@ -6,7 +6,7 @@
 open import Graded.Modality
 open import Definition.Typed.Restrictions
 
-module Definition.Typed.Unrestricted.Eta
+module Graded.Derived.Unrestricted.Eta.Typed
   {a} {M : Set a}
   (𝕄 : Modality M)
   (R : Type-restrictions M)
@@ -30,7 +30,7 @@ open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
 
 open import Definition.Untyped M as U hiding (_∷_; _[_])
-open import Definition.Untyped.Unrestricted.Eta 𝕄 ω
+open import Graded.Derived.Unrestricted.Eta.Untyped 𝕄 ω
 
 open import Tools.Empty
 open import Tools.Fin

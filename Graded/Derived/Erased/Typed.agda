@@ -5,7 +5,7 @@
 open import Graded.Modality
 open import Definition.Typed.Restrictions
 
-module Definition.Typed.Erased
+module Graded.Derived.Erased.Typed
   {a} {M : Set a}
   (𝕄 : Modality M)
   (open Modality 𝕄)
@@ -26,7 +26,7 @@ open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
 
 open import Definition.Untyped M as U hiding (_∷_; _[_])
-open import Definition.Untyped.Erased 𝕄
+open import Graded.Derived.Erased.Untyped 𝕄
 
 open import Graded.Context 𝕄
 open import Graded.Modality.Properties 𝕄

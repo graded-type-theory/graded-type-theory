@@ -5,7 +5,7 @@
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 
-module Graded.Usage.Erased
+module Graded.Derived.Erased.Usage
   {a} {M : Set a}
   (𝕄 : Modality M)
   (R : Usage-restrictions M)
@@ -21,7 +21,7 @@ open import Graded.Usage.Properties 𝕄 R
 open import Graded.Mode 𝕄
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Untyped.Erased 𝕄
+open import Graded.Derived.Erased.Untyped 𝕄
 
 open import Tools.Bool
 open import Tools.Function

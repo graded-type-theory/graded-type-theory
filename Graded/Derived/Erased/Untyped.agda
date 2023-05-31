@@ -4,7 +4,7 @@
 
 open import Graded.Modality
 
-module Definition.Untyped.Erased
+module Graded.Derived.Erased.Untyped
   {a} {M : Set a}
   (𝕄 : Modality M)
   where
