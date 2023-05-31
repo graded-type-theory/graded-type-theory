@@ -29,13 +29,11 @@ private
     n : Nat
     p q r : M
     γ δ γ′ η θ : Conₘ n
-    A F : Term n
-    G : Term (1+ n)
+    A F G : Term n
     t u : Term n
     x : Fin n
     m m′ : Mode
     b : BinderMode
-    s : SigmaMode
 
 -- Well-usage of variables
 data _◂_∈_  : (x : Fin n) (p : M) (γ : Conₘ n) → Set a where
