@@ -329,6 +329,10 @@ decEq = Definition.Typed.Decidable.Equality.decEq
 
 _▹_ = Graded.Usage._▸[_]_
 
+-- A decision procedure for usage.
+
+decision-procedure-for-usage = Graded.Usage.Decidable.⌈⌉▸[_]?_
+
 -- Definition 5.2.
 --
 -- This predicate has been generalised to account for modes.
