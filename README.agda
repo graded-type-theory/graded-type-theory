@@ -608,29 +608,30 @@ _⊢nf_∷_ = Definition.Typed.Eta-long-normal-form._⊢nf_∷_
 
 η-long-normal-forms′ = Graded.FullReduction.fullRedTerm
 
--- The assumptions are satisfied for the unit modality.
+-- The conditions for existence of η-long normal forms are satisfied
+-- for the unit modality.
 
 unit = Graded.Modality.Instances.Unit.full-reduction-assumptions
 
--- The assumptions are satisfied for the erasure modality if Σ_&,0^q
--- is only allowed when 𝟘ᵐ is allowed.
+-- The conditions are satisfied for the erasure modality if Σ_&,0^q is
+-- only allowed when 𝟘ᵐ is allowed.
 
 erasure =
   Graded.Modality.Instances.Erasure.Properties.full-reduction-assumptions
 
--- The assumptions are satisfied for the affine types modality if
+-- The conditions are satisfied for the affine types modality if
 -- Σ_&,0^q is only allowed when 𝟘ᵐ is allowed, and Σ_&,ω^q is not
 -- allowed.
 
 affine = Graded.Modality.Instances.Affine.full-reduction-assumptions
 
--- The assumptions are satisfied for the linear types modality if the
+-- The conditions are satisfied for the linear types modality if the
 -- unit type with η-equality is not allowed, Σ_&,0^q is not allowed,
 -- and Σ_&,ω^q is not allowed.
 
 linear = Graded.Modality.Instances.Linearity.full-reduction-assumptions
 
--- The assumptions are satisfied for the linear or affine types
+-- The conditions are satisfied for the linear or affine types
 -- modality if the unit type with η-equality is not allowed, Σ_&,0^q
 -- is not allowed, Σ_&,≤1^q is not allowed, and Σ_&,≤ω^q is not
 -- allowed.
