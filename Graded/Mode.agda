@@ -26,6 +26,7 @@ import Tools.Reasoning.PropositionalEquality
 open import Tools.Sum
 
 private variable
+  A          : Set _
   n          : Nat
   p q r      : M
   γ δ        : Conₘ n
@@ -674,6 +675,32 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
   𝟙ᵐ ᵐ· p    ∎
   where
   open Tools.Reasoning.PropositionalEquality
+
+-- The property "if ⌞ p ⌟ is 𝟙ᵐ then A" is logically equivalent
+-- to "A or 𝟘ᵐ is allowed and p is 𝟘".
+
+⌞⌟≡𝟙→⇔⊎𝟘ᵐ×≡𝟘 :
+  (⌞ p ⌟ ≡ 𝟙ᵐ → A) ⇔
+  (A ⊎ T 𝟘ᵐ-allowed × p ≡ 𝟘)
+⌞⌟≡𝟙→⇔⊎𝟘ᵐ×≡𝟘 {p = p} {A = A} =
+    lemma _ refl
+  , λ where
+      (inj₁ p≡𝟙)         → λ _ → p≡𝟙
+      (inj₂ (ok , refl)) →
+        ⌞ 𝟘 ⌟ ≡ 𝟙ᵐ     →⟨ trans (PE.sym ⌞𝟘⌟) ⟩
+        𝟘ᵐ[ ok ] ≡ 𝟙ᵐ  →⟨ (λ ()) ⟩
+        A              □
+  where
+  lemma :
+    ∀ m → ⌞ p ⌟ ≡ m → (m ≡ 𝟙ᵐ → A) →
+    A ⊎ T 𝟘ᵐ-allowed × p ≡ 𝟘
+  lemma = λ where
+    𝟙ᵐ _ →
+      (𝟙ᵐ ≡ 𝟙ᵐ → A)             →⟨ inj₁ ∘→ (_$ refl) ⟩
+      A ⊎ T 𝟘ᵐ-allowed × p ≡ 𝟘  □
+    𝟘ᵐ[ ok ] → flip λ _ →
+      ⌞ p ⌟ ≡ 𝟘ᵐ                →⟨ inj₂ ∘→ (ok ,_) ∘→ ⌞⌟≡𝟘ᵐ→≈𝟘 ⟩
+      A ⊎ T 𝟘ᵐ-allowed × p ≡ 𝟘  □
 
 ------------------------------------------------------------------------
 -- Properties related to _ᵐ·_
