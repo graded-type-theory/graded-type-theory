@@ -30,7 +30,7 @@ private
     p q r : M
     γ δ γ′ η θ : Conₘ n
     A F G : Term n
-    t u : Term n
+    s t u z : Term n
     x : Fin n
     m m′ : Mode
     b : BinderMode
@@ -92,7 +92,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
   sucₘ      : γ ▸[ m ] t
             → γ ▸[ m ] suc t
 
-  natrecₘ   : ∀ {A z s n}
+  natrecₘ   : ∀ {n}
             → γ ▸[ m ] z
             → δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s
             → η ▸[ m ] n
