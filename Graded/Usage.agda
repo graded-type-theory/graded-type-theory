@@ -56,8 +56,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
 
   var       : (𝟘ᶜ , x ≔ ⌜ m ⌝) ▸[ m ] var x
 
-  lamₘ      : ∀ {t}
-            → γ ∙ ⌜ m ⌝ · p ▸[ m ] t
+  lamₘ      : γ ∙ ⌜ m ⌝ · p ▸[ m ] t
             → γ ▸[ m ] lam p t
 
   _∘ₘ_      : γ ▸[ m ] t
