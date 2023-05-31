@@ -322,6 +322,16 @@ infix 10 ⌈⌉▸[_]?_
                   in
                   inj₁ (natrecₘ ▸z (sub ▸s lemma₁) ▸n (sub ▸A lemma₂))
 
+infix 10 ⌈⌉▸[_]?′_
+
+-- It is decidable wehther a term is well-resourced under the inferred
+-- context.
+
+⌈⌉▸[_]?′_ : ∀ m (t : Term n) → Dec (⌈ t ⌉ m ▸[ m ] t)
+⌈⌉▸[ m ]?′ t = case ⌈⌉▸[ m ]? t of λ where
+  (inj₁ ▸t) → yes ▸t
+  (inj₂ ¬▸t) → no (λ ▸t → ¬▸t _ ▸t)
+
 -- It is decidable whether a term is well-resourced with respect to a
 -- given mode, and in that case a greatest usage context for which the
 -- term is well-resourced (with respect to the given mode) can be

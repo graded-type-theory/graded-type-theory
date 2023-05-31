@@ -733,7 +733,7 @@ Theorem-B-2b = Graded.Usage.Properties.usage-upper-bound
 
 -- Theorem B.3: Decidability of the usage relation
 
-Theorem-B-3a = Graded.Usage.Decidable.⌈⌉▸[_]?_
+Theorem-B-3a = Graded.Usage.Decidable.⌈⌉▸[_]?′_
 Theorem-B-3b = Graded.Usage.Decidable._▸[_]?_
 
 -- Definition B.4: Substitution matrix inference
