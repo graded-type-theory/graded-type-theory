@@ -1,0 +1,43 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Graded.FullReduction.Assumptions</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- Assumptions used to state the theorems in</a>
+<a id="119" class="Comment">-- Definition.Modality.FullReduction</a>
+<a id="156" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="230" class="Keyword">open</a> <a id="235" class="Keyword">import</a> <a id="242" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+<a id="258" class="Keyword">open</a> <a id="263" class="Keyword">import</a> <a id="270" href="Definition.Typed.Restrictions.html" class="Module">Definition.Typed.Restrictions</a>
+
+<a id="301" class="Keyword">module</a> <a id="308" href="Graded.FullReduction.Assumptions.html" class="Module">Graded.FullReduction.Assumptions</a>
+  <a id="343" class="Symbol">{</a><a id="344" href="Graded.FullReduction.Assumptions.html#344" class="Bound">a</a><a id="345" class="Symbol">}</a> <a id="347" class="Symbol">{</a><a id="348" href="Graded.FullReduction.Assumptions.html#348" class="Bound">M</a> <a id="350" class="Symbol">:</a> <a id="352" href="Agda.Primitive.html#320" class="Primitive">Set</a> <a id="356" href="Graded.FullReduction.Assumptions.html#344" class="Bound">a</a><a id="357" class="Symbol">}</a>
+  <a id="361" class="Symbol">(</a><a id="362" href="Graded.FullReduction.Assumptions.html#362" class="Bound">𝕄</a> <a id="364" class="Symbol">:</a> <a id="366" href="Graded.Modality.html#5150" class="Record">Modality</a> <a id="375" href="Graded.FullReduction.Assumptions.html#348" class="Bound">M</a><a id="376" class="Symbol">)</a>
+  <a id="380" class="Symbol">(</a><a id="381" href="Graded.FullReduction.Assumptions.html#381" class="Bound">R</a> <a id="383" class="Symbol">:</a> <a id="385" href="Definition.Typed.Restrictions.html#406" class="Record">Type-restrictions</a> <a id="403" href="Graded.FullReduction.Assumptions.html#348" class="Bound">M</a><a id="404" class="Symbol">)</a>
+  <a id="408" class="Keyword">where</a>
+
+<a id="415" class="Keyword">open</a> <a id="420" href="Graded.Modality.html#5150" class="Module">Modality</a> <a id="429" href="Graded.FullReduction.Assumptions.html#362" class="Bound">𝕄</a>
+<a id="431" class="Keyword">open</a> <a id="436" href="Definition.Typed.Restrictions.html#406" class="Module">Type-restrictions</a> <a id="454" href="Graded.FullReduction.Assumptions.html#381" class="Bound">R</a>
+
+<a id="457" class="Keyword">open</a> <a id="462" class="Keyword">import</a> <a id="469" href="Graded.Mode.html" class="Module">Graded.Mode</a> <a id="481" href="Graded.FullReduction.Assumptions.html#362" class="Bound">𝕄</a>
+
+<a id="484" class="Keyword">open</a> <a id="489" class="Keyword">import</a> <a id="496" href="Tools.PropositionalEquality.html" class="Module">Tools.PropositionalEquality</a>
+
+<a id="525" class="Keyword">private</a> <a id="533" class="Keyword">variable</a>
+  <a id="544" href="Graded.FullReduction.Assumptions.html#544" class="Generalizable">p</a> <a id="546" href="Graded.FullReduction.Assumptions.html#546" class="Generalizable">q</a> <a id="548" href="Graded.FullReduction.Assumptions.html#548" class="Generalizable">r</a> <a id="550" class="Symbol">:</a> <a id="552" href="Graded.FullReduction.Assumptions.html#348" class="Bound">M</a>
+
+<a id="555" class="Comment">-- The theorems in Definition.Modality.FullReduction are proved under</a>
+<a id="625" class="Comment">-- the assumption that the following property holds.</a>
+
+<a id="679" class="Keyword">record</a> <a id="Full-reduction-assumptions"></a><a id="686" href="Graded.FullReduction.Assumptions.html#686" class="Record">Full-reduction-assumptions</a> <a id="713" class="Symbol">:</a> <a id="715" href="Agda.Primitive.html#320" class="Primitive">Set</a> <a id="719" href="Graded.FullReduction.Assumptions.html#344" class="Bound">a</a> <a id="721" class="Keyword">where</a>
+  <a id="729" class="Keyword">no-eta-equality</a>
+  <a id="747" class="Keyword">field</a>
+    <a id="757" class="Comment">-- If the unit type (with η-equality) is used (in certain ways),</a>
+    <a id="826" class="Comment">-- then 𝟘 must be the largest quantity.</a>
+    <a id="Full-reduction-assumptions.≤𝟘"></a><a id="870" href="Graded.FullReduction.Assumptions.html#870" class="Field">≤𝟘</a> <a id="873" class="Symbol">:</a> <a id="875" href="Definition.Typed.Restrictions.html#538" class="Field">Unit-restriction</a> <a id="892" class="Symbol">→</a> <a id="894" href="Graded.FullReduction.Assumptions.html#544" class="Generalizable">p</a> <a id="896" href="Graded.Modality.html#1244" class="Function Operator">≤</a> <a id="898" href="Graded.Modality.html#809" class="Function">𝟘</a>
+
+    <a id="905" class="Comment">-- If a Σ-type with η-equality and the &quot;first component quantity&quot; p</a>
+    <a id="977" class="Comment">-- is used (in certain ways), then p ·_ must be increasing.</a>
+    <a id="Full-reduction-assumptions.·-increasing"></a><a id="1041" href="Graded.FullReduction.Assumptions.html#1041" class="Field">·-increasing</a> <a id="1054" class="Symbol">:</a> <a id="1056" href="Definition.Typed.Restrictions.html#962" class="Function">Σₚ-restriction</a> <a id="1071" href="Graded.FullReduction.Assumptions.html#544" class="Generalizable">p</a> <a id="1073" href="Graded.FullReduction.Assumptions.html#546" class="Generalizable">q</a> <a id="1075" class="Symbol">→</a> <a id="1077" href="Graded.FullReduction.Assumptions.html#548" class="Generalizable">r</a> <a id="1079" href="Graded.Modality.html#1244" class="Function Operator">≤</a> <a id="1081" href="Graded.FullReduction.Assumptions.html#544" class="Generalizable">p</a> <a id="1083" href="Graded.Modality.html#714" class="Function Operator">·</a> <a id="1085" href="Graded.FullReduction.Assumptions.html#548" class="Generalizable">r</a>
+
+    <a id="1092" class="Comment">-- If a Σ-type with η-equality and the &quot;first component quantity&quot; p</a>
+    <a id="1164" class="Comment">-- is used (in certain ways), and ⌞ p ⌟ is 𝟙ᵐ, then p ≤ 𝟙 must hold.</a>
+    <a id="Full-reduction-assumptions.⌞⌟≡𝟙ᵐ→≤𝟙"></a><a id="1237" href="Graded.FullReduction.Assumptions.html#1237" class="Field">⌞⌟≡𝟙ᵐ→≤𝟙</a> <a id="1246" class="Symbol">:</a> <a id="1248" href="Definition.Typed.Restrictions.html#962" class="Function">Σₚ-restriction</a> <a id="1263" href="Graded.FullReduction.Assumptions.html#544" class="Generalizable">p</a> <a id="1265" href="Graded.FullReduction.Assumptions.html#546" class="Generalizable">q</a> <a id="1267" class="Symbol">→</a> <a id="1269" href="Graded.Mode.html#3898" class="Function Operator">⌞</a> <a id="1271" href="Graded.FullReduction.Assumptions.html#544" class="Generalizable">p</a> <a id="1273" href="Graded.Mode.html#3898" class="Function Operator">⌟</a> <a id="1275" href="Agda.Builtin.Equality.html#133" class="Datatype Operator">≡</a> <a id="1277" href="Graded.Mode.html#1062" class="InductiveConstructor">𝟙ᵐ</a> <a id="1280" class="Symbol">→</a> <a id="1282" href="Graded.FullReduction.Assumptions.html#544" class="Generalizable">p</a> <a id="1284" href="Graded.Modality.html#1244" class="Function Operator">≤</a> <a id="1286" href="Graded.Modality.html#819" class="Function">𝟙</a>
+</pre></body></html>
