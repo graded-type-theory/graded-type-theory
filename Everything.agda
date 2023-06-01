@@ -156,9 +156,6 @@ import Definition.Typed.Decidable
 import Graded.Mode.Restrictions
 import Graded.Modality
 
--- Usage modes
-import Graded.Mode
-
 -- Properties of the modality semiring
 import Graded.Modality.Properties.PartialOrder
 import Graded.Modality.Properties.Equivalence
@@ -180,6 +177,9 @@ import Graded.Context.Properties.Star
 import Graded.Context.Properties.Lookup
 import Graded.Context.Properties.Update
 import Graded.Context.Properties
+
+-- Usage modes
+import Graded.Mode
 
 -- The usage relation and its properties
 import Graded.Usage.Restrictions
