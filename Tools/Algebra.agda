@@ -21,6 +21,9 @@ open import Algebra.Structures (_≈_ {A = A})
             IsSemigroup; IsSemilattice; IsSemiring;
             IsSemiringWithoutAnnihilatingZero; IsCommutativeSemiring)
      public
+open import Algebra.Bundles using (Semiring) public
+open import Algebra.Module.Structures
+     using (IsLeftSemimodule; IsPreleftSemimodule) public
 
 Op₃ : ∀ {ℓ} → Set ℓ → Set ℓ
 Op₃ A = A → A → A → A

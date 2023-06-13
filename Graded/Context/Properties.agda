@@ -12,6 +12,7 @@ open Modality 𝕄
 open import Graded.Modality.Properties 𝕄
 open import Graded.Context 𝕄
 
+open import Tools.Algebra M
 open import Tools.Nat renaming (_+_ to _+ⁿ_)
 open import Tools.PropositionalEquality as PE
 import Tools.Reasoning.Equivalence
@@ -119,3 +120,24 @@ headₘ-monotone {γ = γ ∙ p} {δ ∙ q} (γ≤δ ∙ p≤q) = p≤q
   δ   ∎
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
+
+-- Contexts form a preleft semimodule
+
+Conₘ-preSemimodule : ∀ {n} → IsPreleftSemimodule +-·-Semiring′ _≡_ _+ᶜ_ (𝟘ᶜ {n}) _·ᶜ_
+Conₘ-preSemimodule = record
+  { *ₗ-cong = PE.cong₂ _·ᶜ_
+  ; *ₗ-zeroˡ = λ γ → ≈ᶜ→≡ (·ᶜ-zeroˡ γ)
+  ; *ₗ-distribʳ = λ γ p q → ≈ᶜ→≡ (·ᶜ-distribʳ-+ᶜ p q γ)
+  ; *ₗ-identityˡ = λ γ → ≈ᶜ→≡ (·ᶜ-identityˡ γ)
+  ; *ₗ-assoc = λ p q γ → ≈ᶜ→≡ (·ᶜ-assoc p q γ)
+  ; *ₗ-zeroʳ = λ p → ≈ᶜ→≡ (·ᶜ-zeroʳ p)
+  ; *ₗ-distribˡ = λ p γ δ → ≈ᶜ→≡ (·ᶜ-distribˡ-+ᶜ p γ δ)
+  }
+
+-- Contexts form a left semimodule
+
+Conₘ-semimodule : ∀ {n} → IsLeftSemimodule +-·-Semiring′ _≡_ _+ᶜ_ (𝟘ᶜ {n}) _·ᶜ_
+Conₘ-semimodule = record
+  { +ᴹ-isCommutativeMonoid = +ᶜ-commutativeMonoid
+  ; isPreleftSemimodule = Conₘ-preSemimodule
+  }

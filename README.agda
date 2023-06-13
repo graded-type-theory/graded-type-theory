@@ -7,6 +7,7 @@ module README where
 
 import Graded.Modality
 import Graded.Context
+import Graded.Context.Properties
 import Graded.FullReduction
 import Graded.Modality.Instances.Unit
 import Graded.Modality.Instances.Erasure.Modality
@@ -138,6 +139,10 @@ _·_   = Graded.Context._·ᶜ_
 _∧_   = Graded.Context._∧ᶜ_
 _⊛_▷_ = Graded.Context._⊛ᶜ_▷_
 _≤_   = Graded.Context._≤ᶜ_
+
+-- Usage contexts form a left semimodule
+
+left-semimodule = Graded.Context.Properties.Conₘ-semimodule
 
 -- The trivial (one element) modality.
 

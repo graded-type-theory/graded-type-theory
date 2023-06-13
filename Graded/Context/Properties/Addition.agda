@@ -15,6 +15,7 @@ open import Graded.Modality.Properties 𝕄
 open import Tools.Algebra
 open import Tools.Nat hiding (_+_)
 open import Tools.Product
+import Tools.PropositionalEquality as PE
 
 open Modality 𝕄
 
@@ -113,3 +114,20 @@ private
 
 +ᶜ-monotone : γ ≤ᶜ γ′ → δ ≤ᶜ δ′ → γ +ᶜ δ ≤ᶜ γ′ +ᶜ δ′
 +ᶜ-monotone γ≤γ′ δ≤δ′ = ≤ᶜ-trans (+ᶜ-monotoneˡ γ≤γ′) (+ᶜ-monotoneʳ δ≤δ′)
+
+-- Addition forms a commutative monoid.
+
++ᶜ-commutativeMonoid : ∀ {n} → IsCommutativeMonoid (Conₘ n) _+ᶜ_ 𝟘ᶜ
++ᶜ-commutativeMonoid = record
+  { isMonoid = record
+    { isSemigroup = record
+      { isMagma = record
+        { isEquivalence = PE.isEquivalence
+        ; ∙-cong = PE.cong₂ _+ᶜ_
+        }
+      ; assoc = λ γ δ η → ≈ᶜ→≡ (+ᶜ-assoc γ δ η)
+      }
+    ; identity = (λ γ → ≈ᶜ→≡ (+ᶜ-identityˡ γ)) , λ γ → ≈ᶜ→≡ (+ᶜ-identityʳ γ)
+    }
+  ; comm = λ γ δ → ≈ᶜ→≡ (+ᶜ-comm γ δ)
+  }

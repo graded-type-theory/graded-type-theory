@@ -63,6 +63,17 @@ record Semiring-with-meet : Set a where
   +-distribʳ-∧ : _+_ DistributesOverʳ _∧_
   +-distribʳ-∧ = proj₂ +-distrib-∧
 
+  +-·-Semiring′ : Semiring a a
+  +-·-Semiring′ = record
+    { Carrier = M
+    ; _≈_ = _≡_
+    ; _+_ = _+_
+    ; _*_ = _·_
+    ; 0# = 𝟘
+    ; 1# = 𝟙
+    ; isSemiring = +-·-Semiring
+    }
+
   open IsSemiring +-·-Semiring public
     using (
             +-assoc;
