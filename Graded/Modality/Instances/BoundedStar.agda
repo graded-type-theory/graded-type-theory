@@ -158,3 +158,14 @@ isModality = record
   ; mode-restrictions = rs
   ; 𝟘-well-behaved = 𝟘-well-behaved
   }
+
+-- For an instance with a least element. the solution given
+-- by _⊛_▷_ is greater or equal to the one defined in
+-- Graded.Modality.Instances.LowerBounded.
+
+module LowerBounded (∞ : M) (∞-min : (p : M) → ∞ ≤ p) where
+  open import Graded.Modality.Instances.LowerBounded 𝕄 ∞ ∞-min rs 𝟘-well-behaved
+    using () renaming (_⊛_▷_ to _⊛′_▷_)
+
+  ⊛′≤⊛ : (p q r : M) → p ⊛′ q ▷ r ≤ p ⊛ q ▷ r
+  ⊛′≤⊛ p q r = ·-monotoneˡ (∞-min (r *))

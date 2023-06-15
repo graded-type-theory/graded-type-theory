@@ -203,8 +203,8 @@ import Graded.Substitution.Decidable
 import Graded.FullReduction.Assumptions
 
 -- Modality pseudo-instances
-import Graded.Modality.Instances.BoundedStar
 import Graded.Modality.Instances.LowerBounded
+import Graded.Modality.Instances.BoundedStar
 import Graded.Modality.Instances.Finite
 import Graded.Modality.Instances.Recursive
 import Graded.Modality.Instances.Erasure
