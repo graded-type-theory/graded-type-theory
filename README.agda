@@ -122,6 +122,9 @@ no-erased-matches = Graded.Restrictions.no-erased-matches
 --
 -- Unlike in the paper equality is not required to be decidable.
 -- Instead this property is assumed where it is used.
+--
+-- This module also defines the concept of a modality with "well
+-- behaved zero" which is used in Section 6.
 
 Modality = Graded.Modality.Modality
 
@@ -149,7 +152,8 @@ left-semimodule = Graded.Context.Properties.Conₘ-semimodule
 unitModality = Graded.Modality.Instances.Unit.UnitModality
 
 -- With the given definitions of _∧_, _+_ and _·_ there is only one
--- lawful way to define the star operator (up to pointwise equality).
+-- lawful way to define the star operator (up to pointwise equality)
+-- for the erasure modality.
 
 ⊛-unique = Graded.Modality.Instances.Erasure.Properties.⊛-unique
 
@@ -197,8 +201,10 @@ linearOrAffineModality =
 --
 -- * Terms are either variables or applications of "kinds" to terms.
 --
--- * The type Kind specifies the arities of constructors, how many
---   extra variables the different term arguments take, as well as any
+-- * The type Kind is indexed by a list of natural numbers. The length
+--   of the lists specifiy the arities of constructors (the number of
+--   sub-terms) and each element how many extra variables each term
+--   argument takes. Where applicable, the "kind" also specifies any
 --   constructor arguments that are not terms.
 --
 -- For instance, instead of three plain constructors for Π, Σ_& and
@@ -215,6 +221,11 @@ linearOrAffineModality =
 --
 -- Pattern synonyms are used so that one can write code which is
 -- closer to the notation in the paper.
+--
+-- The formalization includes a unit type with eta equality which is
+-- not covered by the paper except for a discussion in Section 7.3.
+-- One can disable the use of the unit type at the type level (see
+-- above).
 
 grammar = Definition.Untyped.Term
 
@@ -265,6 +276,9 @@ tail      = Definition.Untyped.tail
 -- discussed above.
 --
 -- Note also that some rules for Π and Σ have been merged.
+--
+-- In some rules, fording is used to equate grades. In the paper such
+-- equated grades are simply shown as a single grade.
 --
 -- The rules for natrec use types of the form
 -- wk1 (A [ suc (var x0) ]↑). However, the paper uses types of the

@@ -37,8 +37,10 @@ infix 25 _[_]↑
 infix 25 _[_,_]
 infix 25 _[_]↑²
 
--- Kinds are indexed on the number of expected sub terms
--- and the number of new variables bound by each sub term
+-- Kinds are indexed by a list of natural numbers specifying
+-- the number of sub-terms (the length of the list) and the
+-- number of new variables bound by each sub-term (each element
+-- in the list).
 
 data Kind : (ns : List Nat) → Set a where
   Ukind : Kind []
