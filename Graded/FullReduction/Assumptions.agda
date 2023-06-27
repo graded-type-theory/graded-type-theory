@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------
--- Assumptions used to state the theorems in Graded.FullReduction
+-- Assumptions used to state some theorems in Graded.FullReduction
 ------------------------------------------------------------------------
 
 open import Graded.Modality

@@ -27,7 +27,7 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
-open import Tools.Sum using (_⊎_; inj₂)
+open import Tools.Sum using (_⊎_; inj₁; inj₂)
 open import Tools.Unit
 
 open import Definition.Untyped M as U hiding (_∷_)
@@ -51,6 +51,7 @@ open import Definition.Conversion.Whnf TR
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.FullReduction.Assumptions 𝕄 TR
+open import Graded.Modality.Properties 𝕄
 open import Graded.Reduction 𝕄 TR UR
 open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Inversion 𝕄 UR
@@ -67,7 +68,10 @@ private
     p : M
     γ : Conₘ n
     m : Mode
-    q : M
+    q r : M
+
+------------------------------------------------------------------------
+-- Some lemmas
 
 -- The lemmas below are proved under the assumption that
 -- Full-reduction-assumptions holds.
@@ -449,6 +453,9 @@ module _ (as : Full-reduction-assumptions) where
         , η-unit ⊢t (starⱼ ⊢Γ ok)
         , sub starₘ (▸→≤ᶜ𝟘ᶜ _ ok ▸t) }}
 
+------------------------------------------------------------------------
+-- The main theorems
+
 -- If a type is well-formed and well-resourced, then it is
 -- definitionally equal to a well-resourced type in η-long normal
 -- form (given certain assumptions).
@@ -459,12 +466,203 @@ fullRed :
   ∃ λ B → Γ ⊢nf B × Γ ⊢ A ≡ B × γ ▸[ m ] B
 fullRed as ⊢A = fullRedConv↑ as (completeEq (refl ⊢A))
 
+-- Full-reduction-term holds if, for every well-typed and
+-- well-resourced term t, t is definitionally equal (with respect to a
+-- certain context and type) to a term that is well-resourced (with
+-- respect to a certain usage context and mode) and in η-long normal
+-- form (with respect to a certain context and type).
+
+Full-reduction-term : Set a
+Full-reduction-term =
+  ∀ {n} {Γ : Con Term n} {t A γ m} →
+  Γ ⊢ t ∷ A → γ ▸[ m ] t →
+  ∃ λ u → Γ ⊢nf u ∷ A × Γ ⊢ t ≡ u ∷ A × γ ▸[ m ] u
+
 -- If a term is well-formed and well-resourced, then it is
 -- definitionally equal to a well-resourced term in η-long normal
 -- form (given certain assumptions).
 
 fullRedTerm :
   Full-reduction-assumptions →
-  Γ ⊢ t ∷ A → γ ▸[ m ] t →
-  ∃ λ u → Γ ⊢nf u ∷ A × Γ ⊢ t ≡ u ∷ A × γ ▸[ m ] u
+  Full-reduction-term
 fullRedTerm as ⊢t = fullRedTermConv↑ as (completeEqTerm (refl ⊢t))
+
+-- Full-reduction-term is logically equivalent to
+-- Full-reduction-assumptions.
+
+Full-reduction-term⇔Full-reduction-assumptions :
+  Full-reduction-term ⇔ Full-reduction-assumptions
+Full-reduction-term⇔Full-reduction-assumptions =
+    (λ red → λ where
+       .𝟙≤𝟘 →
+         Unit-restriction                                       →⟨ η-long-nf-for-0⇔𝟙≤𝟘 ⟩
+
+         (let Γ = ε ∙ Unit
+              γ = ε ∙ 𝟙
+              A = Unit
+              t = var x0
+              u = star
+          in
+          Γ ⊢ t ∷ A ×
+          γ ▸[ 𝟙ᵐ ] t ×
+          Γ ⊢nf u ∷ A ×
+          Γ ⊢ t ≡ u ∷ A ×
+          (γ ▸[ 𝟙ᵐ ] u ⇔ 𝟙 ≤ 𝟘))                                →⟨ (λ (⊢t , ▸t , ⊢u , t≡u , ▸u⇔) →
+                                                                     ⊢u , t≡u , ▸u⇔ , red ⊢t ▸t) ⟩
+         (let Γ = ε ∙ Unit
+              γ = ε ∙ 𝟙
+              A = Unit
+              t = var x0
+              u = star
+          in
+          Γ ⊢nf u ∷ A ×
+          Γ ⊢ t ≡ u ∷ A ×
+          (γ ▸[ 𝟙ᵐ ] u ⇔ 𝟙 ≤ 𝟘) ×
+          ∃ λ v → Γ ⊢nf v ∷ A × Γ ⊢ t ≡ v ∷ A × γ ▸[ 𝟙ᵐ ] v)    →⟨ (λ (⊢u , t≡u , ▸u⇔ , v , ⊢v , t≡v , ▸v) →
+                                                                      v ,
+                                                                      PE.subst (λ u → _ ▸[ _ ] u ⇔ _)
+                                                                        (normal-terms-unique ⊢u ⊢v (trans (sym t≡u) t≡v))
+                                                                        ▸u⇔ ,
+                                                                      ▸v) ⟩
+         (∃ λ v → (ε ∙ 𝟙 ▸[ 𝟙ᵐ ] v ⇔ 𝟙 ≤ 𝟘) × ε ∙ 𝟙 ▸[ 𝟙ᵐ ] v)  →⟨ (λ (_ , ▸v⇔ , ▸v) → ▸v⇔ .proj₁ ▸v) ⟩
+
+         𝟙 ≤ 𝟘                                                  □
+
+       .≡𝟙⊎𝟙≤𝟘 {p = p} {q = q} →
+         Σₚ-restriction p q                                              →⟨ η-long-nf-for-0⇔≡𝟙⊎≡𝟘 ⟩
+
+         (let Γ = ε ∙ (Σₚ p , q ▷ ℕ ▹ ℕ)
+              γ = ε ∙ 𝟙
+              A = Σₚ p , q ▷ ℕ ▹ ℕ
+              t = var x0
+              u = prodₚ p (fst p (var x0)) (snd p (var x0))
+          in
+          Γ ⊢ t ∷ A ×
+          γ ▸[ 𝟙ᵐ ] t ×
+          Γ ⊢nf u ∷ A ×
+          Γ ⊢ t ≡ u ∷ A ×
+          (γ ▸[ 𝟙ᵐ ] u ⇔ (p PE.≡ 𝟙 ⊎ p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘)))   →⟨ (λ (⊢t , ▸t , ⊢u , t≡u , ▸u⇔) →
+                                                                               ⊢u , t≡u , ▸u⇔ , red ⊢t ▸t) ⟩
+         (let Γ = ε ∙ (Σₚ p , q ▷ ℕ ▹ ℕ)
+              γ = ε ∙ 𝟙
+              A = Σₚ p , q ▷ ℕ ▹ ℕ
+              t = var x0
+              u = prodₚ p (fst p (var x0)) (snd p (var x0))
+          in
+          Γ ⊢nf u ∷ A ×
+          Γ ⊢ t ≡ u ∷ A ×
+          (γ ▸[ 𝟙ᵐ ] u ⇔ (p PE.≡ 𝟙 ⊎ p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘)) ×
+          ∃ λ v → Γ ⊢nf v ∷ A × Γ ⊢ t ≡ v ∷ A × γ ▸[ 𝟙ᵐ ] v)              →⟨ (λ (⊢u , t≡u , ▸u⇔ , v , ⊢v , t≡v , ▸v) →
+                                                                                v ,
+                                                                                PE.subst (λ u → _ ▸[ _ ] u ⇔ _)
+                                                                                  (normal-terms-unique ⊢u ⊢v (trans (sym t≡u) t≡v))
+                                                                                  ▸u⇔ ,
+                                                                                ▸v) ⟩
+         (∃ λ v →
+          (ε ∙ 𝟙 ▸[ 𝟙ᵐ ] v ⇔
+           (p PE.≡ 𝟙 ⊎ p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘)) ×
+          ε ∙ 𝟙 ▸[ 𝟙ᵐ ] v)                                                →⟨ (λ (_ , ▸v⇔ , ▸v) → ▸v⇔ .proj₁ ▸v) ⟩
+
+         p PE.≡ 𝟙 ⊎ p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘                       □)
+  , fullRedTerm
+  where
+  open Full-reduction-assumptions
+  open Tools.Reasoning.PartialOrder ≤-poset
+
+------------------------------------------------------------------------
+-- Full-reduction-term-ε
+
+-- A variant of Full-reduction-term that is restricted to empty
+-- contexts.
+
+Full-reduction-term-ε : Set a
+Full-reduction-term-ε =
+  ∀ {t A m} →
+  ε ⊢ t ∷ A → ε ▸[ m ] t →
+  ∃ λ u → ε ⊢nf u ∷ A × ε ⊢ t ≡ u ∷ A × ε ▸[ m ] u
+
+-- If Π-restriction 𝟙 r holds for any r, then Full-reduction-term-ε
+-- implies Full-reduction-assumptions.
+
+Full-reduction-term-ε→Full-reduction-assumptions :
+  Π-restriction 𝟙 r →
+  Full-reduction-term-ε →
+  Full-reduction-assumptions
+Full-reduction-term-ε→Full-reduction-assumptions
+  {r = r} ok red = λ where
+    .𝟙≤𝟘 →
+      Unit-restriction                                     →⟨ η-long-nf-for-id⇔𝟙≤𝟘 ok ⟩
+
+      (let A = Π 𝟙 , r ▷ Unit ▹ Unit
+           t = lam 𝟙 (var x0)
+           u = lam 𝟙 star
+       in
+       ε ⊢ t ∷ A ×
+       ε ▸[ 𝟙ᵐ ] t ×
+       ε ⊢nf u ∷ A ×
+       ε ⊢ t ≡ u ∷ A ×
+       (ε ▸[ 𝟙ᵐ ] u ⇔ 𝟙 ≤ 𝟘))                              →⟨ (λ (⊢t , ▸t , ⊢u , t≡u , ▸u⇔) →
+                                                                ⊢u , t≡u , ▸u⇔ , red ⊢t ▸t) ⟩
+      (let A = Π 𝟙 , r ▷ Unit ▹ Unit
+           t = lam 𝟙 (var x0)
+           u = lam 𝟙 star
+       in
+       ε ⊢nf u ∷ A ×
+       ε ⊢ t ≡ u ∷ A ×
+       (ε ▸[ 𝟙ᵐ ] u ⇔ 𝟙 ≤ 𝟘) ×
+       ∃ λ v → ε ⊢nf v ∷ A × ε ⊢ t ≡ v ∷ A × ε ▸[ 𝟙ᵐ ] v)  →⟨ (λ (⊢u , t≡u , ▸u⇔ , v , ⊢v , t≡v , ▸v) →
+                                                                 v ,
+                                                                 PE.subst (λ u → _ ▸[ _ ] u ⇔ _)
+                                                                   (normal-terms-unique ⊢u ⊢v (trans (sym t≡u) t≡v))
+                                                                   ▸u⇔ ,
+                                                                 ▸v) ⟩
+      (∃ λ v → (ε ▸[ 𝟙ᵐ ] v ⇔ 𝟙 ≤ 𝟘) × ε ▸[ 𝟙ᵐ ] v)        →⟨ (λ (_ , ▸v⇔ , ▸v) → ▸v⇔ .proj₁ ▸v) ⟩
+
+      𝟙 ≤ 𝟘                                                □
+
+    .≡𝟙⊎𝟙≤𝟘 {p = p} {q = q} →
+      Σₚ-restriction p q                                              →⟨ η-long-nf-for-id⇔≡𝟙⊎≡𝟘 ok ⟩
+
+      (let A = Π 𝟙 , r ▷ Σₚ p , q ▷ ℕ ▹ ℕ ▹ Σₚ p , q ▷ ℕ ▹ ℕ
+           t = lam 𝟙 (var x0)
+           u = lam 𝟙 (prodₚ p (fst p (var x0)) (snd p (var x0)))
+       in
+       ε ⊢ t ∷ A ×
+       ε ▸[ 𝟙ᵐ ] t ×
+       ε ⊢nf u ∷ A ×
+       ε ⊢ t ≡ u ∷ A ×
+       (ε ▸[ 𝟙ᵐ ] u ⇔ (p PE.≡ 𝟙 ⊎ p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘)))  →⟨ (λ (⊢t , ▸t , ⊢u , t≡u , ▸u⇔) →
+                                                                           ⊢u , t≡u , ▸u⇔ , red ⊢t ▸t) ⟩
+      (let A = Π 𝟙 , r ▷ Σₚ p , q ▷ ℕ ▹ ℕ ▹ Σₚ p , q ▷ ℕ ▹ ℕ
+           t = lam 𝟙 (var x0)
+           u = lam 𝟙 (prodₚ p (fst p (var x0)) (snd p (var x0)))
+       in
+       ε ⊢nf u ∷ A ×
+       ε ⊢ t ≡ u ∷ A ×
+       (ε ▸[ 𝟙ᵐ ] u ⇔ (p PE.≡ 𝟙 ⊎ p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘)) ×
+       ∃ λ v → ε ⊢nf v ∷ A × ε ⊢ t ≡ v ∷ A × ε ▸[ 𝟙ᵐ ] v)             →⟨ (λ (⊢u , t≡u , ▸u⇔ , v , ⊢v , t≡v , ▸v) →
+                                                                            v ,
+                                                                            PE.subst (λ u → _ ▸[ _ ] u ⇔ _)
+                                                                              (normal-terms-unique ⊢u ⊢v (trans (sym t≡u) t≡v))
+                                                                              ▸u⇔ ,
+                                                                            ▸v) ⟩
+      (∃ λ v →
+       (ε ▸[ 𝟙ᵐ ] v ⇔ (p PE.≡ 𝟙 ⊎ p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘)) ×
+       ε ▸[ 𝟙ᵐ ] v)                                                   →⟨ (λ (_ , ▸v⇔ , ▸v) → ▸v⇔ .proj₁ ▸v) ⟩
+
+      p PE.≡ 𝟙 ⊎ p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘                      □
+  where
+  open Full-reduction-assumptions
+  open Tools.Reasoning.PartialOrder ≤-poset
+
+-- If Π-restriction 𝟙 r holds for any r, then Full-reduction-term is
+-- logically equivalent to Full-reduction-term-ε.
+
+Full-reduction-term⇔Full-reduction-term-ε :
+  Π-restriction 𝟙 r →
+  Full-reduction-term ⇔ Full-reduction-term-ε
+Full-reduction-term⇔Full-reduction-term-ε ok =
+    (λ red → red)
+  , (Full-reduction-term-ε       →⟨ Full-reduction-term-ε→Full-reduction-assumptions ok ⟩
+     Full-reduction-assumptions  →⟨ fullRedTerm ⟩
+     Full-reduction-term         □)
