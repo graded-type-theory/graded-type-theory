@@ -647,9 +647,9 @@ _⊢nf_∷_ = Definition.Typed.Eta-long-normal-form._⊢nf_∷_
 -- the empty context, and is definitionally equal to the η-long normal
 -- form lam 𝟙 (prodₚ p (fst p (var x0)) (snd p (var x0))). However,
 -- this η-long normal form is well-resourced in the empty context if
--- and only if either p is 𝟙, or 𝟘ᵐ is allowed, p is 𝟘, and 𝟙 ≤ 𝟘.
+-- and only if either p is 𝟙, or p is 𝟘, 𝟘ᵐ is allowed, and 𝟙 ≤ 𝟘.
 
-η-long-nf-for-id→𝟙≤ = Graded.Reduction.η-long-nf-for-id→𝟙≤
+η-long-nf-for-id⇔≡𝟙⊎≡𝟘 = Graded.Reduction.η-long-nf-for-id⇔≡𝟙⊎≡𝟘
 
 -- A type- and resource-preserving procedure that takes a well-typed,
 -- well-resourced term to one of its η-long normal forms.
