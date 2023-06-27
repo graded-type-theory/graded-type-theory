@@ -25,8 +25,11 @@ import Tools.PropositionalEquality as PE
 
 private
   variable
-    n : Nat
-    Γ : Con Term n
+    n     : Nat
+    Γ     : Con Term n
+    A F G : Term _
+    b     : BinderMode
+    p q   : M
 
 U≡A′ : ∀ {A l} ([U] : Γ ⊩⟨ l ⟩U)
     → Γ ⊩⟨ l ⟩ U ≡ A / (U-intr [U])
@@ -143,3 +146,12 @@ B≡A {A} W W≡A whnfA | [W] , [A] , [W≡A] =
     → Whnf A → ∃₂ λ H E → A PE.≡ ⟦ BΣ m p q ⟧ H ▹ E
 Σ≡A {p = p} {q} {m} x y with B≡A (BΣ m p q) x y
 Σ≡A _ _ | H , E , A≡ΣHE   = H , E , A≡ΣHE
+
+-- If a WHNF A is definitionally equal to ΠΣ⟨ b ⟩ p , q ▷ F ▹ G, then
+-- A has the shape ΠΣ⟨ b ⟩ p , q ▷ _ ▹ _.
+
+ΠΣ≡Whnf :
+  Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ≡ A → Whnf A →
+  ∃₂ λ H E → A PE.≡ ΠΣ⟨ b ⟩ p , q ▷ H ▹ E
+ΠΣ≡Whnf {b = BMΠ}   = Π≡A
+ΠΣ≡Whnf {b = BMΣ _} = Σ≡A
