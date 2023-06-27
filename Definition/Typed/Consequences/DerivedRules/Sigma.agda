@@ -12,6 +12,7 @@ module Definition.Typed.Consequences.DerivedRules.Sigma
 open Type-restrictions R
 
 open import Definition.Typed R
+open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Reduction R
 open import Definition.Typed.Consequences.Substitution R
@@ -32,13 +33,14 @@ import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PropositionalEquality
 
 private variable
-  n                                   : Nat
-  Γ                                   : Con _ _
-  A A₁ A₂ B B₁ B₂ C t t₁ t₂ u u₁ u₂ v : Term _
-  p q                                 : M
+  n                                     : Nat
+  Γ                                     : Con _ _
+  A A₁ A₂ B B₁ B₂ C t t₁ t₂ u u₁ u₂ v w : Term _
+  p q r                                 : M
+  s s′                                  : SigmaMode
 
 ------------------------------------------------------------------------
--- A derived rule
+-- Some derived rules
 
 -- An η-rule for strong Σ-types.
 
@@ -60,17 +62,81 @@ private variable
   ⊢fst     = fstⱼ ⊢A ⊢B ⊢t
   ⊢snd     = sndⱼ ⊢A ⊢B ⊢t
 
+-- A variant of the inversion lemma for prod.
+
+inversion-prod′ :
+  Γ ⊢ prod s p t u ∷ Σ⟨ s′ ⟩ q , r ▷ A ▹ B →
+  (Γ ∙ A ⊢ B) × Γ ⊢ t ∷ A × Γ ⊢ u ∷ B [ t ] ×
+  s PE.≡ s′ × p PE.≡ q × Σ-restriction s q r
+inversion-prod′ ⊢prod =
+  case inversion-prod ⊢prod of λ {
+    (_ , _ , _ , _ , _ , ⊢t , ⊢u , ≡Σ , ok) →
+  case ΠΣ-injectivity ≡Σ of λ {
+    (A≡ , B≡ , PE.refl , PE.refl , PE.refl) →
+  case conv ⊢t (sym A≡) of λ {
+    ⊢t →
+  syntacticEq B≡ .proj₁ ,
+  ⊢t ,
+  conv ⊢u (substTypeEq (sym B≡) (refl ⊢t)) ,
+  PE.refl , PE.refl , ok }}}
+
+-- An "inverse" of prod-cong for Σₚ.
+
+prod-cong⁻¹-Σₚ :
+  Γ ⊢ prodₚ p t u ≡ prodₚ p v w ∷ Σₚ p , q ▷ A ▹ B →
+  (Γ ∙ A ⊢ B) × Γ ⊢ t ≡ v ∷ A × Γ ⊢ u ≡ w ∷ B [ t ] ×
+  Σₚ-restriction p q
+prod-cong⁻¹-Σₚ
+  {Γ = Γ} {p = p} {t = t} {u = u} {v = v} {w = w}
+  {q = q} {A = A} {B = B} prod≡prod =
+  ⊢B , t≡v , u≡w , ok
+  where
+  ⊢ΣAB = syntacticEqTerm prod≡prod .proj₁
+  ⊢A   = inversion-ΠΣ ⊢ΣAB .proj₁
+  ⊢B   = inversion-ΠΣ ⊢ΣAB .proj₂ .proj₁
+  ok   = inversion-ΠΣ ⊢ΣAB .proj₂ .proj₂
+  ⊢t,u = syntacticEqTerm prod≡prod .proj₂ .proj₁
+  ⊢t   = inversion-prod′ ⊢t,u .proj₂ .proj₁
+  ⊢u   = inversion-prod′ ⊢t,u .proj₂ .proj₂ .proj₁
+  ⊢v,w = syntacticEqTerm prod≡prod .proj₂ .proj₂
+  ⊢v   = inversion-prod′ ⊢v,w .proj₂ .proj₁
+  ⊢w   = inversion-prod′ ⊢v,w .proj₂ .proj₂ .proj₁
+
+  fst-t,u≡t = Σ-β₁ ⊢A ⊢B ⊢t ⊢u PE.refl ok
+
+  t≡v =                                                $⟨ prod≡prod ⟩
+    Γ ⊢ prodₚ p t u ≡ prodₚ p v w ∷ Σₚ p , q ▷ A ▹ B   →⟨ fst-cong ⊢A ⊢B ⟩
+    Γ ⊢ fst p (prodₚ p t u) ≡ fst p (prodₚ p v w) ∷ A  →⟨ (λ hyp → trans (sym fst-t,u≡t)
+                                                             (trans hyp
+                                                                (Σ-β₁ ⊢A ⊢B ⊢v ⊢w PE.refl ok))) ⟩
+    Γ ⊢ t ≡ v ∷ A                                      □
+
+  u≡w =                                               $⟨ prod≡prod ⟩
+    Γ ⊢ prodₚ p t u ≡ prodₚ p v w ∷ Σₚ p , q ▷ A ▹ B  →⟨ snd-cong ⊢A ⊢B ⟩
+
+    Γ ⊢ snd p (prodₚ p t u) ≡ snd p (prodₚ p v w) ∷
+      B [ fst p (prodₚ p t u) ]                       →⟨ (λ hyp → trans
+                                                            (sym (Σ-β₂ ⊢A ⊢B ⊢t ⊢u PE.refl ok))
+                                                               (trans hyp
+                                                                  (conv (Σ-β₂ ⊢A ⊢B ⊢v ⊢w PE.refl ok)
+                                                                     (substTypeEq (refl ⊢B)
+                                                                        (fst-cong ⊢A ⊢B (sym prod≡prod)))))) ⟩
+
+    Γ ⊢ u ≡ w ∷ B [ fst p (prodₚ p t u) ]             →⟨ flip _⊢_≡_∷_.conv (substTypeEq (refl ⊢B) fst-t,u≡t) ⟩
+
+    Γ ⊢ u ≡ w ∷ B [ t ]                               □
+
 ------------------------------------------------------------------------
 -- An investigation of to what degree weak Σ-types can emulate strong
 -- Σ-types, and vice versa
 
--- The rest of this module consists of (parts of) an investigation of
--- to what degree weak Σ-types can emulate strong Σ-types, and vice
--- versa. This investigation was prompted by a question asked by an
--- anonymous reviewer. See also Definition.Untyped.Sigma, which
--- contains some basic definitions, and Graded.Derived.Sigma, which
--- contains properties related to usage. This module contains
--- properties related to typing.
+-- The rest of this module, down to "More derived rules", consists of
+-- (parts of) an investigation of to what degree weak Σ-types can
+-- emulate strong Σ-types, and vice versa. This investigation was
+-- prompted by a question asked by an anonymous reviewer. See also
+-- Definition.Untyped.Sigma, which contains some basic definitions,
+-- and Graded.Derived.Sigma, which contains properties related to
+-- usage. This module contains properties related to typing.
 
 ------------------------------------------------------------------------
 -- Typing and equality rules for prodrecₚ
@@ -737,3 +803,62 @@ module Fstᵣ-sndᵣ (r′ q′ : M) where
   --   Γ ⊢ fstᵣ p A t ≡ fstᵣ p A u ∷ A →
   --   Γ ⊢ sndᵣ p q A B t ≡ sndᵣ p q A B u ∷ B [ fstᵣ p A t ] →
   --   Γ ⊢ t ≡ u ∷ Σᵣ p , q ▷ A ▹ B
+
+------------------------------------------------------------------------
+-- More derived rules
+
+-- An "inverse" of prod-cong for Σᵣ.
+
+prod-cong⁻¹-Σᵣ :
+  Γ ⊢ prodᵣ p t u ≡ prodᵣ p v w ∷ Σᵣ p , q ▷ A ▹ B →
+  (Γ ∙ A ⊢ B) × Γ ⊢ t ≡ v ∷ A × Γ ⊢ u ≡ w ∷ B [ t ] ×
+  Σᵣ-restriction p q
+prod-cong⁻¹-Σᵣ
+  {Γ = Γ} {p = p} {t = t} {u = u} {v = v} {w = w}
+  {q = q} {A = A} {B = B} prod≡prod =
+  ⊢B , t≡v , u≡w , ok
+  where
+  ⊢ΣAB = syntacticEqTerm prod≡prod .proj₁
+  ⊢A   = inversion-ΠΣ ⊢ΣAB .proj₁
+  ⊢B   = inversion-ΠΣ ⊢ΣAB .proj₂ .proj₁
+  ok   = inversion-ΠΣ ⊢ΣAB .proj₂ .proj₂
+  ⊢t,u = syntacticEqTerm prod≡prod .proj₂ .proj₁
+  ⊢t   = inversion-prod′ ⊢t,u .proj₂ .proj₁
+  ⊢u   = inversion-prod′ ⊢t,u .proj₂ .proj₂ .proj₁
+  ⊢v,w = syntacticEqTerm prod≡prod .proj₂ .proj₂
+  ⊢v   = inversion-prod′ ⊢v,w .proj₂ .proj₁
+  ⊢w   = inversion-prod′ ⊢v,w .proj₂ .proj₂ .proj₁
+
+  open Fstᵣ-sndᵣ p p
+
+  fst-t,u≡t = fstᵣ-β-≡ ⊢B ⊢t ⊢u ok
+
+  t≡v =                                                      $⟨ prod≡prod ⟩
+    Γ ⊢ prodᵣ p t u ≡ prodᵣ p v w ∷ Σᵣ p , q ▷ A ▹ B         →⟨ fstᵣ-cong (refl ⊢A) ⊢B ⟩
+    Γ ⊢ fstᵣ p A (prodᵣ p t u) ≡ fstᵣ p A (prodᵣ p v w) ∷ A  →⟨ (λ hyp → trans (sym fst-t,u≡t)
+                                                                   (trans hyp (fstᵣ-β-≡ ⊢B ⊢v ⊢w ok))) ⟩
+    Γ ⊢ t ≡ v ∷ A                                            □
+
+  u≡w =                                                            $⟨ prod≡prod ⟩
+    Γ ⊢ prodᵣ p t u ≡ prodᵣ p v w ∷ Σᵣ p , q ▷ A ▹ B               →⟨ sndᵣ-cong (refl ⊢A) (refl ⊢B) ⟩
+
+    Γ ⊢ sndᵣ p q A B (prodᵣ p t u) ≡ sndᵣ p q A B (prodᵣ p v w) ∷
+      B [ fstᵣ p A (prodᵣ p t u) ]                                 →⟨ (λ hyp → trans
+                                                                         (sym (sndᵣ-β-≡ ⊢B ⊢t ⊢u ok))
+                                                                            (trans hyp
+                                                                               (conv (sndᵣ-β-≡ ⊢B ⊢v ⊢w ok)
+                                                                                  (substTypeEq (refl ⊢B)
+                                                                                     (fstᵣ-cong (refl ⊢A) ⊢B (sym prod≡prod)))))) ⟩
+
+    Γ ⊢ u ≡ w ∷ B [ fstᵣ p A (prodᵣ p t u) ]                       →⟨ flip _⊢_≡_∷_.conv (substTypeEq (refl ⊢B) fst-t,u≡t) ⟩
+
+    Γ ⊢ u ≡ w ∷ B [ t ]                                            □
+
+-- An "inverse" of prod-cong.
+
+prod-cong⁻¹ :
+  Γ ⊢ prod s p t u ≡ prod s p v w ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B →
+  (Γ ∙ A ⊢ B) × Γ ⊢ t ≡ v ∷ A × Γ ⊢ u ≡ w ∷ B [ t ] ×
+  Σ-restriction s p q
+prod-cong⁻¹ {s = Σₚ} = prod-cong⁻¹-Σₚ
+prod-cong⁻¹ {s = Σᵣ} = prod-cong⁻¹-Σᵣ
