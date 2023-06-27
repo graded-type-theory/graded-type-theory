@@ -183,6 +183,10 @@ U≢Π {Γ = Γ} {F} {G} {p} {q} = U≢B {Γ = Γ} {F} {G} (BΠ p q)
 U≢Σ : ∀ {Γ : Con Term n} {F G p q m} → _
 U≢Σ {Γ = Γ} {F} {G} {p} {q} {m} = U≢B {Γ = Γ} {F} {G} (BΣ m p q)
 
+U≢ΠΣⱼ : Γ ⊢ U ≡ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G → ⊥
+U≢ΠΣⱼ {b = BMΠ}   = U≢Π
+U≢ΠΣⱼ {b = BMΣ _} = U≢Σ
+
 U≢ne′ : ∀ {K l l′}
        ([U] : Γ ⊩′⟨ l ⟩U)
        ([K] : Γ ⊩ne K)
@@ -225,6 +229,10 @@ U≢ne neK U≡K =
 ℕ≢Σ : ∀ {Γ : Con Term n} {F G p q m} → _
 ℕ≢Σ {Γ = Γ} {F} {G} {p} {q} {m} = ℕ≢B {Γ = Γ} {F} {G} (BΣ m p q)
 
+ℕ≢ΠΣⱼ : Γ ⊢ ℕ ≡ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G → ⊥
+ℕ≢ΠΣⱼ {b = BMΠ}   = ℕ≢Π
+ℕ≢ΠΣⱼ {b = BMΣ _} = ℕ≢Σ
+
 -- Empty and Π
 Empty≢B′ : ∀ {A B l l′} W
        ([Empty] : Γ ⊩Empty A)
@@ -250,6 +258,10 @@ Empty≢Σⱼ : ∀ {Γ : Con Term n} {F G p q m} → _
 Empty≢Σⱼ {Γ = Γ} {F} {G} {p} {q} {m} =
   Empty≢Bⱼ {Γ = Γ} {F} {G} (BΣ m p q)
 
+Empty≢ΠΣⱼ : Γ ⊢ Empty ≡ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G → ⊥
+Empty≢ΠΣⱼ {b = BMΠ}   = Empty≢Πⱼ
+Empty≢ΠΣⱼ {b = BMΣ _} = Empty≢Σⱼ
+
 -- Unit and Π
 Unit≢B′ : ∀ {A B l l′} W
        ([Unit] : Γ ⊩Unit A)
@@ -273,6 +285,10 @@ Unit≢Πⱼ : ∀ {Γ : Con Term n} {F G p q} → _
 Unit≢Πⱼ {Γ = Γ} {F} {G} {p} {q} = Unit≢Bⱼ {Γ = Γ} {F} {G} (BΠ p q)
 Unit≢Σⱼ : ∀ {Γ : Con Term n} {F G p q m} → _
 Unit≢Σⱼ {Γ = Γ} {F} {G} {p} {q} {m} = Unit≢Bⱼ {Γ = Γ} {F} {G} (BΣ m p q)
+
+Unit≢ΠΣⱼ : Γ ⊢ Unit ≡ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G → ⊥
+Unit≢ΠΣⱼ {b = BMΠ}   = Unit≢Πⱼ
+Unit≢ΠΣⱼ {b = BMΣ _} = Unit≢Σⱼ
 
 ℕ≢ne′ : ∀ {A K l l′}
        ([ℕ] : Γ ⊩ℕ A)
