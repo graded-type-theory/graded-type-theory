@@ -16,7 +16,9 @@ open import Tools.Function
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 
+import Definition.Conversion.Stability R as S
 open import Definition.Typed R
+open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
@@ -25,9 +27,9 @@ open import Definition.Untyped M hiding (_∷_)
 open import Definition.Untyped.Properties M
 
 private variable
-  Γ       : Con Term _
-  A B t u : Term _
-  p q     : M
+  Γ           : Con Term _
+  A B t u     : Term _
+  p p′ p″ q r : M
 
 -- Lambdas preserve definitional equality.
 
@@ -62,6 +64,95 @@ lam-cong {B = B} t≡u ok = η-eq ⊢A (lamⱼ ⊢A ⊢t ok) (lamⱼ ⊢A ⊢u o
   ⊢∙A∙A = ⊢∙A ∙ A⊢A
   A∙A⊢B = W.wk (lift (step id)) ⊢∙A∙A ⊢B
 
+-- A variant of the inversion lemma for lam.
+
+inversion-lam′ :
+  Γ ⊢ lam p t ∷ Π q , r ▷ A ▹ B →
+  Γ ∙ A ⊢ t ∷ B × p PE.≡ q × Π-restriction q r
+inversion-lam′ ⊢lam =
+  case inversion-lam ⊢lam of λ {
+    (_ , _ , _ , _ , ⊢t , ≡ΠΣ , ok) →
+  case ΠΣ-injectivity ≡ΠΣ of λ {
+    (A≡ , B≡ , PE.refl , PE.refl , _) →
+  conv (S.stabilityTerm (S.reflConEq (wfTerm ⊢lam) S.∙ sym A≡) ⊢t)
+    (sym B≡) ,
+  PE.refl ,
+  ok }}
+
+-- A reduction rule for weakened lambdas applied to variable zero.
+
+wk1-lam∘0⇒ :
+  Γ ⊢ lam p t ∷ Π q , r ▷ A ▹ B →
+  Γ ∙ A ⊢ wk1 (lam p t) ∘⟨ p ⟩ var x0 ⇒ t ∷ B
+wk1-lam∘0⇒ {p = p} {t = t} ⊢lam =
+  case inversion-lam′ ⊢lam of λ {
+    (⊢t , PE.refl , ok) →
+  let ⊢ΓA  = wfTerm ⊢t
+      ΓA⊢A = case ⊢ΓA of λ {
+               (_ ∙ ⊢A) → W.wk (step id) ⊢ΓA ⊢A }
+      ⊢ΓAA = ⊢ΓA ∙ ΓA⊢A
+  in PE.subst₂ (_ ⊢ wk1 (lam p t) ∘⟨ p ⟩ var x0 ⇒_∷_)
+    (wkSingleSubstId _)
+    (wkSingleSubstId _)
+    (β-red ΓA⊢A
+       (W.wk (lift (step id)) ⊢ΓAA (syntacticTerm ⊢t))
+       (wkTerm (lift (step id)) ⊢ΓAA ⊢t)
+       (var ⊢ΓA here) PE.refl ok) }
+
+-- An equality rule for weakened lambdas applied to variable zero.
+
+wk1-lam∘0≡ :
+  Γ ⊢ lam p t ∷ Π q , r ▷ A ▹ B →
+  Γ ∙ A ⊢ wk1 (lam p t) ∘⟨ p ⟩ var x0 ≡ t ∷ B
+wk1-lam∘0≡ ⊢lam = subsetTerm (wk1-lam∘0⇒ ⊢lam)
+
+-- An inverse of uncurry lam-cong (up to logical equivalence).
+
+lam-cong⁻¹ :
+  Γ ⊢ lam p t ≡ lam p u ∷ Π p , q ▷ A ▹ B →
+  Γ ∙ A ⊢ t ≡ u ∷ B × Π-restriction p q
+lam-cong⁻¹
+  {Γ = Γ} {p = p} {t = t} {u = u} {q = q} {A = A} {B = B} lam-t≡lam-u =  $⟨ lam-t≡lam-u ⟩
+  Γ ⊢ lam p t ≡ lam p u ∷ Π p , q ▷ A ▹ B                                →⟨ wkEqTerm (step id) ⊢ΓA ⟩
+
+  Γ ∙ A ⊢ wk1 (lam p t) ≡ wk1 (lam p u) ∷ wk1 (Π p , q ▷ A ▹ B)          →⟨ flip app-cong (refl (var ⊢ΓA here)) ⟩
+
+  Γ ∙ A ⊢ wk1 (lam p t) ∘⟨ p ⟩ var x0 ≡ wk1 (lam p u) ∘⟨ p ⟩ var x0 ∷
+    wk (lift (step id)) B [ var x0 ]                                     →⟨ PE.subst (_ ⊢ _ ≡ _ ∷_) (wkSingleSubstId _) ⟩
+
+  Γ ∙ A ⊢ wk1 (lam p t) ∘⟨ p ⟩ var x0 ≡ wk1 (lam p u) ∘⟨ p ⟩ var x0 ∷ B  →⟨ (λ hyp → trans
+                                                                               (sym (wk1-lam∘0≡ ⊢lam-t))
+                                                                               (trans hyp (wk1-lam∘0≡ ⊢lam-u))) ⟩
+
+  Γ ∙ A ⊢ t ≡ u ∷ B                                                      →⟨ _, ok ⟩
+
+  Γ ∙ A ⊢ t ≡ u ∷ B × Π-restriction p q                                  □
+  where
+  ⊢Γ     = wfEqTerm lam-t≡lam-u
+  ⊢A     = inversion-ΠΣ (syntacticEqTerm lam-t≡lam-u .proj₁) .proj₁
+  ⊢ΓA    = ⊢Γ ∙ ⊢A
+  ⊢lam-t = syntacticEqTerm lam-t≡lam-u .proj₂ .proj₁
+  ⊢lam-u = syntacticEqTerm lam-t≡lam-u .proj₂ .proj₂
+  ok     = inversion-lam′ ⊢lam-t .proj₂ .proj₂
+
+-- An injectivity lemma for lam.
+
+lam-injective :
+  Γ ⊢ lam p t ≡ lam p′ u ∷ Π p″ , q ▷ A ▹ B →
+  p PE.≡ p′ × Γ ∙ A ⊢ t ≡ u ∷ B × Π-restriction p q × p′ PE.≡ p″
+lam-injective
+  {Γ = Γ} {p = p} {t = t} {p′ = p′} {u = u} {p″ = p″} {q = q}
+  {A = A} {B = B} lam-t≡lam-u =
+  case syntacticEqTerm lam-t≡lam-u of λ {
+    (_ , ⊢lam₁ , ⊢lam₂) →
+  case inversion-lam′ ⊢lam₁ of λ {
+    (_ , PE.refl , _) →
+  case inversion-lam′ ⊢lam₂ of λ {
+    (_ , PE.refl , _) →
+  case lam-cong⁻¹ lam-t≡lam-u of λ {
+    (t≡u , ok) →
+  PE.refl , t≡u , ok , PE.refl }}}}
+
 -- An η-rule for Π-types.
 
 Π-η :
@@ -69,54 +160,26 @@ lam-cong {B = B} t≡u ok = η-eq ⊢A (lamⱼ ⊢A ⊢t ok) (lamⱼ ⊢A ⊢u o
   Γ ⊢ lam p (wk1 t ∘⟨ p ⟩ var x0) ≡ t ∷ Π p , q ▷ A ▹ B
 Π-η {Γ = Γ} {t = t} {p = p} {q = q} {A = A} {B = B} ⊢t = η-eq
   ⊢A
-  (                                                                $⟨ ⊢wkt0 ⟩
-   Γ ∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ wk (lift (step id)) B [ var x0 ]  →⟨ flip conv B[0]≡B ⟩
-   Γ ∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ B                                 →⟨ flip (lamⱼ ⊢A) ok ⟩
-   Γ ⊢ lam p (wk1 t ∘⟨ p ⟩ var x0) ∷ Π p , q ▷ A ▹ B               □)
+  ⊢lam
   ⊢t
-  (                                                                     $⟨ ⊢wkt0 ⟩
+  (                                                     $⟨ ⊢lam ⟩
 
-   Γ ∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ wk (lift (step id)) B [ var x0 ]       →⟨ PE.subst (λ t → _ ⊢ t ∘⟨ _ ⟩ _ ≡ wk1 _ ∘⟨ _ ⟩ _ ∷ _)
-                                                                             (PE.sym (wk1-sgSubst _ _)) ∘→
-                                                                           refl ⟩
-   Γ ∙ A ⊢
-     (wk1 (wk1 t) ∘⟨ p ⟩ var x0) [ var x0 ] ≡
-     wk1 t ∘⟨ p ⟩ var x0 ∷
-     wk (lift (step id)) B [ var x0 ]                                   →⟨ _⊢_≡_∷_.trans $
-                                                                           β-red ⊢wkA ⊢wkB
-                                                                             (_⊢_∷_.conv (wkTerm (step id) ⊢ΓAA ⊢wkt ∘ⱼ var ⊢ΓAA here) $
-                                                                              PE.subst₂ (_ ⊢_≡_) (PE.sym (wkSingleSubstId _)) PE.refl (refl ⊢wkB))
-                                                                             (var ⊢ΓA here)
-                                                                             PE.refl ok ⟩
-   Γ ∙ A ⊢
-     lam p (wk1 (wk1 t) ∘⟨ p ⟩ var x0) ∘⟨ p ⟩ var x0 ≡
-     wk1 t ∘⟨ p ⟩ var x0 ∷
-     wk (lift (step id)) B [ var x0 ]                                   →⟨ PE.subst (λ t → _ ⊢ lam _ (t ∘⟨ _ ⟩ _) ∘⟨ _ ⟩ _ ≡ wk1 _ ∘⟨ _ ⟩ _ ∷ _) $
-                                                                           wk1-wk≡lift-wk1 _ _ ⟩
-   Γ ∙ A ⊢
-     lam p (wk (lift (step id)) (wk1 t) ∘⟨ p ⟩ var x0) ∘⟨ p ⟩ var x0 ≡
-     wk1 t ∘⟨ p ⟩ var x0 ∷
-     wk (lift (step id)) B [ var x0 ]                                   →⟨ flip conv B[0]≡B ⟩
+   Γ ⊢ lam p (wk1 t ∘⟨ p ⟩ var x0) ∷ Π p , q ▷ A ▹ B    →⟨ wk1-lam∘0≡ ⟩
 
    Γ ∙ A ⊢
      wk1 (lam p (wk1 t ∘⟨ p ⟩ var x0)) ∘⟨ p ⟩ var x0 ≡
      wk1 t ∘⟨ p ⟩ var x0 ∷
-     B                                                                  □)
+     B                                                  □)
   where
-  ⊢A,⊢B,ok = inversion-ΠΣ (syntacticTerm ⊢t)
-  ⊢A       = ⊢A,⊢B,ok .proj₁
-  ⊢B       = ⊢A,⊢B,ok .proj₂ .proj₁
-  ok       = ⊢A,⊢B,ok .proj₂ .proj₂
-  ⊢Γ       = wfTerm ⊢t
-  ⊢ΓA      = ⊢Γ ∙ ⊢A
-  ⊢wkt     = wkTerm (step id) ⊢ΓA ⊢t
-  ⊢wkt0    = ⊢wkt ∘ⱼ var ⊢ΓA here
-  ⊢wkA     = W.wk (step id) ⊢ΓA ⊢A
-  ⊢ΓAA     = ⊢ΓA ∙ ⊢wkA
-  ⊢wkB     = W.wk (lift (step id)) ⊢ΓAA ⊢B
+  ⊢A,ok = inversion-ΠΣ (syntacticTerm ⊢t)
+  ⊢A    = ⊢A,ok .proj₁
+  ok    = ⊢A,ok .proj₂ .proj₂
+  ⊢ΓA   = wfTerm ⊢t ∙ ⊢A
 
-  B[0]≡B : Γ ∙ A ⊢ wk (lift (step id)) B [ var x0 ] ≡ B
-  B[0]≡B = PE.subst (_ ⊢_≡ _) (PE.sym (wkSingleSubstId _)) (refl ⊢B)
+  ⊢lam =                                                            $⟨ wkTerm (step id) ⊢ΓA ⊢t ∘ⱼ var ⊢ΓA here ⟩
+    Γ ∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ wk (lift (step id)) B [ var x0 ]  →⟨ PE.subst (_ ⊢ _ ∷_) (wkSingleSubstId _) ⟩
+    Γ ∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ B                                 →⟨ flip (lamⱼ ⊢A) ok ⟩
+    Γ ⊢ lam p (wk1 t ∘⟨ p ⟩ var x0) ∷ Π p , q ▷ A ▹ B               □
 
 -- An η-rule for strong Σ-types.
 
