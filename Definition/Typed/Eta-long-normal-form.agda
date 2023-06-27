@@ -20,6 +20,8 @@ open Nf
 
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Inversion R
+open import Definition.Typed.Consequences.Substitution R
+open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
 
 open import Definition.Untyped M hiding (_∷_)
@@ -29,6 +31,7 @@ open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat using (Nat)
 open import Tools.Product
+open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
   n           : Nat
@@ -377,3 +380,298 @@ mutual
         (⊢ne∷-stable Γ≡Δ ⊢v) }
     where
     ⊢Δ = contextConvSubst Γ≡Δ .proj₂ .proj₁
+
+------------------------------------------------------------------------
+-- Inversion lemmas
+
+-- Inversion for terms that are Π- or Σ-types.
+
+inversion-nf-ΠΣ-U :
+  Γ ⊢nf ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ C →
+  Γ ⊢nf A ∷ U × Γ ∙ A ⊢nf B ∷ U × Γ ⊢ C ≡ U × ΠΣ-restriction b p q
+inversion-nf-ΠΣ-U (ΠΣₙ ⊢A ⊢B ok) =
+  ⊢A , ⊢B , refl (Uⱼ (wfTerm (⊢nf∷→⊢∷ ⊢A))) , ok
+inversion-nf-ΠΣ-U (convₙ ⊢ΠΣ D≡C) =
+  case inversion-nf-ΠΣ-U ⊢ΠΣ of λ {
+    (⊢A , ⊢B , D≡U , ok) →
+  ⊢A , ⊢B , trans (sym D≡C) D≡U , ok }
+inversion-nf-ΠΣ-U (neₙ _ ⊢ΠΣ) =
+  case ⊢ne∷→NfNeutral ⊢ΠΣ of λ ()
+
+-- Inversion for Π- and Σ-types.
+
+inversion-nf-ΠΣ :
+  Γ ⊢nf ΠΣ⟨ b ⟩ p , q ▷ A ▹ B →
+  Γ ⊢nf A × Γ ∙ A ⊢nf B × ΠΣ-restriction b p q
+inversion-nf-ΠΣ = λ where
+  (ΠΣₙ ⊢A ⊢B ok) → ⊢A , ⊢B , ok
+  (univₙ ⊢ΠΣAB)  → case inversion-nf-ΠΣ-U ⊢ΠΣAB of λ where
+    (⊢A , ⊢B , _ , ok) → univₙ ⊢A , univₙ ⊢B , ok
+
+-- Inversion for lam.
+
+inversion-nf-lam :
+  Γ ⊢nf lam p t ∷ A →
+  ∃₃ λ B C q →
+     (Γ ⊢ B) ×
+     Γ ∙ B ⊢nf t ∷ C ×
+     Γ ⊢ A ≡ Π p , q ▷ B ▹ C ×
+     Π-restriction p q
+inversion-nf-lam (neₙ _ ⊢lam) =
+  case ⊢ne∷→NfNeutral ⊢lam of λ ()
+inversion-nf-lam (lamₙ ⊢B ⊢t ok) =
+  _ , _ , _ , ⊢B , ⊢t ,
+  refl (ΠΣⱼ ⊢B (syntacticTerm (⊢nf∷→⊢∷ ⊢t)) ok) , ok
+inversion-nf-lam (convₙ ⊢lam A≡B) =
+  case inversion-nf-lam ⊢lam of λ {
+    (_ , _ , _ , ⊢B , ⊢t , A≡ , ok) →
+  _ , _ , _ , ⊢B , ⊢t , trans (sym A≡B) A≡ , ok }
+
+-- Inversion for prod.
+
+inversion-nf-prod :
+  Γ ⊢nf prod s p t u ∷ A →
+  ∃₃ λ B C q →
+    (Γ ⊢ B) × (Γ ∙ B ⊢ C) ×
+    Γ ⊢nf t ∷ B × Γ ⊢nf u ∷ C [ t ] ×
+    Γ ⊢ A ≡ Σ⟨ s ⟩ p , q ▷ B ▹ C ×
+    Σ-restriction s p q
+inversion-nf-prod (neₙ _ ⊢prod) =
+  case ⊢ne∷→NfNeutral ⊢prod of λ ()
+inversion-nf-prod (prodₙ ⊢B ⊢C ⊢t ⊢u ok) =
+  _ , _ , _ , ⊢B , ⊢C , ⊢t , ⊢u , refl (ΠΣⱼ ⊢B ⊢C ok) , ok
+inversion-nf-prod (convₙ ⊢prod A≡B) =
+  case inversion-nf-prod ⊢prod of λ {
+    (_ , _ , _ , ⊢B , ⊢C , ⊢t , ⊢u , A≡ , ok) →
+  _ , _ , _ , ⊢B , ⊢C , ⊢t , ⊢u , trans (sym A≡B) A≡ , ok }
+
+-- Inversion for suc.
+
+inversion-nf-suc :
+  Γ ⊢nf suc t ∷ A →
+  Γ ⊢nf t ∷ ℕ × Γ ⊢ A ≡ ℕ
+inversion-nf-suc (neₙ _ ⊢suc) =
+  case ⊢ne∷→NfNeutral ⊢suc of λ ()
+inversion-nf-suc (sucₙ ⊢t) =
+  ⊢t , refl (ℕⱼ (wfTerm (⊢nf∷→⊢∷ ⊢t)))
+inversion-nf-suc (convₙ ⊢suc A≡B) =
+  case inversion-nf-suc ⊢suc of λ {
+    (⊢t , A≡) →
+  ⊢t , trans (sym A≡B) A≡ }
+
+-- Inversion for application.
+
+inversion-ne-app :
+  Γ ⊢ne t ∘⟨ p ⟩ u ∷ A →
+  ∃₃ λ B C q →
+     Γ ⊢ne t ∷ Π p , q ▷ B ▹ C × Γ ⊢nf u ∷ B × Γ ⊢ A ≡ C [ u ]
+inversion-ne-app (∘ₙ ⊢t ⊢u) =
+  _ , _ , _ , ⊢t , ⊢u ,
+  refl (substTypeΠ (syntacticTerm (⊢ne∷→⊢∷ ⊢t)) (⊢nf∷→⊢∷ ⊢u))
+inversion-ne-app (convₙ ⊢app A≡B) =
+  case inversion-ne-app ⊢app of λ {
+    (_ , _ , _ , ⊢t , ⊢u , A≡) →
+  _ , _ , _ , ⊢t , ⊢u , trans (sym A≡B) A≡ }
+
+inversion-nf-app :
+  Γ ⊢nf t ∘⟨ p ⟩ u ∷ A →
+  ∃₃ λ B C q →
+     Γ ⊢ne t ∷ Π p , q ▷ B ▹ C × Γ ⊢nf u ∷ B × Γ ⊢ A ≡ C [ u ]
+inversion-nf-app (neₙ _ ⊢app) =
+  inversion-ne-app ⊢app
+inversion-nf-app (convₙ ⊢app A≡B) =
+  case inversion-nf-app ⊢app of λ {
+    (_ , _ , _ , ⊢t , ⊢u , A≡) →
+  _ , _ , _ , ⊢t , ⊢u , trans (sym A≡B) A≡ }
+
+inversion-nf-ne-app :
+  Γ ⊢nf t ∘⟨ p ⟩ u ∷ A ⊎ Γ ⊢ne t ∘⟨ p ⟩ u ∷ A →
+  ∃₃ λ B C q →
+     Γ ⊢ne t ∷ Π p , q ▷ B ▹ C × Γ ⊢nf u ∷ B × Γ ⊢ A ≡ C [ u ]
+inversion-nf-ne-app (inj₁ ⊢app) = inversion-nf-app ⊢app
+inversion-nf-ne-app (inj₂ ⊢app) = inversion-ne-app ⊢app
+
+-- Inversion for fst.
+
+inversion-ne-fst :
+  Γ ⊢ne fst p t ∷ A →
+  ∃₃ λ B C q →
+     (Γ ⊢ B) × (Γ ∙ B ⊢ C) ×
+     Γ ⊢ne t ∷ Σₚ p , q ▷ B ▹ C × Γ ⊢ A ≡ B
+inversion-ne-fst (fstₙ ⊢B ⊢C ⊢t) =
+  _ , _ , _ , ⊢B , ⊢C , ⊢t , refl ⊢B
+inversion-ne-fst (convₙ ⊢fst A≡B) =
+  case inversion-ne-fst ⊢fst of λ {
+    (_ , _ , _ , ⊢B , ⊢C , ⊢t , A≡) →
+  _ , _ , _ , ⊢B , ⊢C , ⊢t , trans (sym A≡B) A≡ }
+
+inversion-nf-fst :
+  Γ ⊢nf fst p t ∷ A →
+  ∃₃ λ B C q →
+     (Γ ⊢ B) × (Γ ∙ B ⊢ C) ×
+     Γ ⊢ne t ∷ Σₚ p , q ▷ B ▹ C × Γ ⊢ A ≡ B
+inversion-nf-fst (neₙ _ ⊢fst) =
+  inversion-ne-fst ⊢fst
+inversion-nf-fst (convₙ ⊢fst A≡B) =
+  case inversion-nf-fst ⊢fst of λ {
+    (_ , _ , _ , ⊢B , ⊢C , ⊢t , A≡) →
+  _ , _ , _ , ⊢B , ⊢C , ⊢t , trans (sym A≡B) A≡ }
+
+inversion-nf-ne-fst :
+  Γ ⊢nf fst p t ∷ A ⊎ Γ ⊢ne fst p t ∷ A →
+  ∃₃ λ B C q →
+     (Γ ⊢ B) × (Γ ∙ B ⊢ C) ×
+     Γ ⊢ne t ∷ Σₚ p , q ▷ B ▹ C × Γ ⊢ A ≡ B
+inversion-nf-ne-fst (inj₁ ⊢fst) = inversion-nf-fst ⊢fst
+inversion-nf-ne-fst (inj₂ ⊢fst) = inversion-ne-fst ⊢fst
+
+-- Inversion for snd.
+
+inversion-ne-snd :
+  Γ ⊢ne snd p t ∷ A →
+  ∃₃ λ B C q →
+     (Γ ⊢ B) × (Γ ∙ B ⊢ C) ×
+     Γ ⊢ne t ∷ Σₚ p , q ▷ B ▹ C ×
+     Γ ⊢ A ≡ C [ fst p t ]
+inversion-ne-snd (sndₙ ⊢B ⊢C ⊢t) =
+  _ , _ , _ , ⊢B , ⊢C , ⊢t ,
+  refl (substType ⊢C (fstⱼ ⊢B ⊢C (⊢ne∷→⊢∷ ⊢t)))
+inversion-ne-snd (convₙ ⊢snd A≡B) =
+  case inversion-ne-snd ⊢snd of λ {
+    (_ , _ , _ , ⊢B , ⊢C , ⊢t , A≡) →
+  _ , _ , _ , ⊢B , ⊢C , ⊢t , trans (sym A≡B) A≡ }
+
+inversion-nf-snd :
+  Γ ⊢nf snd p t ∷ A →
+  ∃₃ λ B C q →
+     (Γ ⊢ B) × (Γ ∙ B ⊢ C) ×
+     Γ ⊢ne t ∷ Σₚ p , q ▷ B ▹ C ×
+     Γ ⊢ A ≡ C [ fst p t ]
+inversion-nf-snd (neₙ _ ⊢snd) =
+  inversion-ne-snd ⊢snd
+inversion-nf-snd (convₙ ⊢snd A≡B) =
+  case inversion-nf-snd ⊢snd of λ {
+    (_ , _ , _ , ⊢B , ⊢C , ⊢t , A≡) →
+  _ , _ , _ , ⊢B , ⊢C , ⊢t , trans (sym A≡B) A≡ }
+
+inversion-nf-ne-snd :
+  Γ ⊢nf snd p t ∷ A ⊎ Γ ⊢ne snd p t ∷ A →
+  ∃₃ λ B C q →
+     (Γ ⊢ B) × (Γ ∙ B ⊢ C) ×
+     Γ ⊢ne t ∷ Σₚ p , q ▷ B ▹ C ×
+     Γ ⊢ A ≡ C [ fst p t ]
+inversion-nf-ne-snd (inj₁ ⊢snd) = inversion-nf-snd ⊢snd
+inversion-nf-ne-snd (inj₂ ⊢snd) = inversion-ne-snd ⊢snd
+
+-- Inversion for prodrec.
+
+inversion-ne-prodrec :
+  Γ ⊢ne prodrec r p q A t u ∷ B →
+  ∃₃ λ C D q →
+    (Γ ⊢ C) × (Γ ∙ C ⊢ D) ×
+    (Γ ∙ (Σᵣ p , q ▷ C ▹ D) ⊢nf A) ×
+    Γ ⊢ne t ∷ Σᵣ p , q ▷ C ▹ D ×
+    Γ ∙ C ∙ D ⊢nf u ∷ A [ prodᵣ p (var x1) (var x0) ]↑² ×
+    Γ ⊢ B ≡ A [ t ]
+inversion-ne-prodrec (prodrecₙ ⊢C ⊢D ⊢A ⊢t ⊢u _) =
+  _ , _ , _ , ⊢C , ⊢D , ⊢A , ⊢t , ⊢u ,
+  refl (substType (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t))
+inversion-ne-prodrec (convₙ ⊢pr B≡C) =
+  case inversion-ne-prodrec ⊢pr of λ {
+    (_ , _ , _ , ⊢C , ⊢D , ⊢A , ⊢t , ⊢u , B≡) →
+  _ , _ , _ , ⊢C , ⊢D , ⊢A , ⊢t , ⊢u , trans (sym B≡C) B≡ }
+
+inversion-nf-prodrec :
+  Γ ⊢nf prodrec r p q A t u ∷ B →
+  ∃₃ λ C D q →
+    (Γ ⊢ C) × (Γ ∙ C ⊢ D) ×
+    (Γ ∙ (Σᵣ p , q ▷ C ▹ D) ⊢nf A) ×
+    Γ ⊢ne t ∷ Σᵣ p , q ▷ C ▹ D ×
+    Γ ∙ C ∙ D ⊢nf u ∷ A [ prodᵣ p (var x1) (var x0) ]↑² ×
+    Γ ⊢ B ≡ A [ t ]
+inversion-nf-prodrec (neₙ _ ⊢pr) =
+  inversion-ne-prodrec ⊢pr
+inversion-nf-prodrec (convₙ ⊢pr B≡C) =
+  case inversion-nf-prodrec ⊢pr of λ {
+    (_ , _ , _ , ⊢C , ⊢D , ⊢A , ⊢t , ⊢u , B≡) →
+  _ , _ , _ , ⊢C , ⊢D , ⊢A , ⊢t , ⊢u , trans (sym B≡C) B≡ }
+
+inversion-nf-ne-prodrec :
+  Γ ⊢nf prodrec r p q A t u ∷ B ⊎ Γ ⊢ne prodrec r p q A t u ∷ B →
+  ∃₃ λ C D q →
+    (Γ ⊢ C) × (Γ ∙ C ⊢ D) ×
+    (Γ ∙ (Σᵣ p , q ▷ C ▹ D) ⊢nf A) ×
+    Γ ⊢ne t ∷ Σᵣ p , q ▷ C ▹ D ×
+    Γ ∙ C ∙ D ⊢nf u ∷ A [ prodᵣ p (var x1) (var x0) ]↑² ×
+    Γ ⊢ B ≡ A [ t ]
+inversion-nf-ne-prodrec (inj₁ ⊢pr) = inversion-nf-prodrec ⊢pr
+inversion-nf-ne-prodrec (inj₂ ⊢pr) = inversion-ne-prodrec ⊢pr
+
+-- Inversion for Emptyrec.
+
+inversion-ne-Emptyrec :
+  Γ ⊢ne Emptyrec p A t ∷ B →
+  Γ ⊢nf A × Γ ⊢ne t ∷ Empty × Γ ⊢ B ≡ A
+inversion-ne-Emptyrec (Emptyrecₙ ⊢A ⊢t) =
+  ⊢A , ⊢t , refl (⊢nf→⊢ ⊢A)
+inversion-ne-Emptyrec (convₙ ⊢er A≡B) =
+  case inversion-ne-Emptyrec ⊢er of λ {
+    (⊢A , ⊢t , A≡) →
+  ⊢A , ⊢t , trans (sym A≡B) A≡ }
+
+inversion-nf-Emptyrec :
+  Γ ⊢nf Emptyrec p A t ∷ B →
+  Γ ⊢nf A × Γ ⊢ne t ∷ Empty × Γ ⊢ B ≡ A
+inversion-nf-Emptyrec (neₙ _ ⊢er) =
+  inversion-ne-Emptyrec ⊢er
+inversion-nf-Emptyrec (convₙ ⊢er A≡B) =
+  case inversion-nf-Emptyrec ⊢er of λ {
+    (⊢A , ⊢t , A≡) →
+  ⊢A , ⊢t , trans (sym A≡B) A≡ }
+
+inversion-nf-ne-Emptyrec :
+  Γ ⊢nf Emptyrec p A t ∷ B ⊎ Γ ⊢ne Emptyrec p A t ∷ B →
+  Γ ⊢nf A × Γ ⊢ne t ∷ Empty × Γ ⊢ B ≡ A
+inversion-nf-ne-Emptyrec (inj₁ ⊢er) = inversion-nf-Emptyrec ⊢er
+inversion-nf-ne-Emptyrec (inj₂ ⊢er) = inversion-ne-Emptyrec ⊢er
+
+-- Inversion for natrec.
+
+inversion-ne-natrec :
+  Γ ⊢ne natrec p q r A t u v ∷ B →
+  (Γ ∙ ℕ ⊢nf A) ×
+  Γ ⊢nf t ∷ A [ zero ] ×
+  Γ ∙ ℕ ∙ A ⊢nf u ∷ A [ suc (var x1) ]↑² ×
+  Γ ⊢ne v ∷ ℕ ×
+  Γ ⊢ B ≡ A [ v ]
+inversion-ne-natrec (natrecₙ ⊢A ⊢t ⊢u ⊢v) =
+  ⊢A , ⊢t , ⊢u , ⊢v ,
+  refl (substType (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢v))
+inversion-ne-natrec (convₙ ⊢pr B≡C) =
+  case inversion-ne-natrec ⊢pr of λ {
+    (⊢A , ⊢t , ⊢u , ⊢v , B≡) →
+  ⊢A , ⊢t , ⊢u , ⊢v , trans (sym B≡C) B≡ }
+
+inversion-nf-natrec :
+  Γ ⊢nf natrec p q r A t u v ∷ B →
+  (Γ ∙ ℕ ⊢nf A) ×
+  Γ ⊢nf t ∷ A [ zero ] ×
+  Γ ∙ ℕ ∙ A ⊢nf u ∷ A [ suc (var x1) ]↑² ×
+  Γ ⊢ne v ∷ ℕ ×
+  Γ ⊢ B ≡ A [ v ]
+inversion-nf-natrec (neₙ _ ⊢nr) =
+  inversion-ne-natrec ⊢nr
+inversion-nf-natrec (convₙ ⊢pr B≡C) =
+  case inversion-nf-natrec ⊢pr of λ {
+    (⊢A , ⊢t , ⊢u , ⊢v , B≡) →
+  ⊢A , ⊢t , ⊢u , ⊢v , trans (sym B≡C) B≡ }
+
+inversion-nf-ne-natrec :
+  Γ ⊢nf natrec p q r A t u v ∷ B ⊎ Γ ⊢ne natrec p q r A t u v ∷ B →
+  (Γ ∙ ℕ ⊢nf A) ×
+  Γ ⊢nf t ∷ A [ zero ] ×
+  Γ ∙ ℕ ∙ A ⊢nf u ∷ A [ suc (var x1) ]↑² ×
+  Γ ⊢ne v ∷ ℕ ×
+  Γ ⊢ B ≡ A [ v ]
+inversion-nf-ne-natrec (inj₁ ⊢nr) = inversion-nf-natrec ⊢nr
+inversion-nf-ne-natrec (inj₂ ⊢nr) = inversion-ne-natrec ⊢nr
