@@ -108,6 +108,8 @@ import Definition.Typed.Consequences.Inequality
 import Definition.Typed.Consequences.Equality
 import Definition.Typed.Consequences.Substitution
 import Definition.Typed.Consequences.Inversion
+import Definition.Untyped.Sigma
+import Definition.Typed.Consequences.DerivedRules.Sigma
 import Definition.Typed.Consequences.DerivedRules
 import Definition.Typed.Consequences.InverseUniv
 import Definition.Typed.Consequences.Reduction

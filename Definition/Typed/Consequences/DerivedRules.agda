@@ -18,6 +18,7 @@ import Tools.PropositionalEquality as PE
 
 import Definition.Conversion.Stability R as S
 open import Definition.Typed R
+open import Definition.Typed.Consequences.DerivedRules.Sigma R public
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Syntactic R
@@ -180,26 +181,6 @@ lam-injective
     Γ ∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ wk (lift (step id)) B [ var x0 ]  →⟨ PE.subst (_ ⊢ _ ∷_) (wkSingleSubstId _) ⟩
     Γ ∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ B                                 →⟨ flip (lamⱼ ⊢A) ok ⟩
     Γ ⊢ lam p (wk1 t ∘⟨ p ⟩ var x0) ∷ Π p , q ▷ A ▹ B               □
-
--- An η-rule for strong Σ-types.
-
-Σ-η-prod-fst-snd :
-  Γ ⊢ t ∷ Σₚ p , q ▷ A ▹ B →
-  Γ ⊢ prodₚ p (fst p t) (snd p t) ≡ t ∷ Σₚ p , q ▷ A ▹ B
-Σ-η-prod-fst-snd ⊢t = Σ-η
-  ⊢A
-  ⊢B
-  (prodⱼ ⊢A ⊢B ⊢fst ⊢snd ok)
-  ⊢t
-  (Σ-β₁ ⊢A ⊢B ⊢fst ⊢snd PE.refl ok)
-  (Σ-β₂ ⊢A ⊢B ⊢fst ⊢snd PE.refl ok)
-  where
-  ⊢A,⊢B,ok = inversion-ΠΣ (syntacticTerm ⊢t)
-  ⊢A       = ⊢A,⊢B,ok .proj₁
-  ⊢B       = ⊢A,⊢B,ok .proj₂ .proj₁
-  ok       = ⊢A,⊢B,ok .proj₂ .proj₂
-  ⊢fst     = fstⱼ ⊢A ⊢B ⊢t
-  ⊢snd     = sndⱼ ⊢A ⊢B ⊢t
 
 -- An η-rule for the Unit type.
 

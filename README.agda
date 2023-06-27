@@ -29,14 +29,15 @@ import Graded.Reduction
 import Graded.Restrictions
 import Graded.Substitution
 import Graded.Substitution.Properties
-import Graded.Derived.Sigma
 
 import Definition.Untyped
+import Definition.Untyped.Sigma
 import Definition.Typed
 import Definition.Typed.Consequences.Inversion
 import Definition.Typed.Consequences.Substitution
 import Definition.Typed.Consequences.Syntactic
 import Definition.Typed.Consequences.Reduction
+import Definition.Typed.Consequences.DerivedRules.Sigma
 import Definition.Typed.Decidable
 import Definition.Typed.Decidable.Equality
 import Definition.Typed.Eta-long-normal-form
@@ -293,8 +294,9 @@ Con = Definition.Untyped.Con
 -- One can define something like prodrec for the Σ-types with
 -- η-equality.
 
-prodrec-for-Σₚ              = Graded.Derived.Sigma.prodrecₚ
-prodrec-for-Σₚ-type-correct = Graded.Derived.Sigma.prodrecₚⱼ
+prodrec-for-Σₚ              = Definition.Untyped.Sigma.prodrecₚ
+prodrec-for-Σₚ-type-correct =
+  Definition.Typed.Consequences.DerivedRules.Sigma.prodrecₚⱼ
 
 -- Reduction relations
 
