@@ -178,6 +178,16 @@ mutual
 ------------------------------------------------------------------------
 -- Some conversion functions
 
+-- If No-η-equality A holds, then A is a WHNF.
+
+No-η-equality→Whnf : No-η-equality A → Whnf A
+No-η-equality→Whnf = λ where
+  Uₙ      → Uₙ
+  Σᵣₙ     → ΠΣₙ
+  Emptyₙ  → Emptyₙ
+  ℕₙ      → ℕₙ
+  (neₙ n) → ne n
+
 mutual
 
   -- If A is an η-long normal type, then A is well-typed.
