@@ -33,7 +33,9 @@ private
   variable
     n : Nat
     Γ : Con Term n
+    F F′ G G′ : Term _
     p p′ q q′ : M
+    b b′ : BinderMode
 
 -- Helper function of injectivity for specific reducible Π-types
 injectivity′ : ∀ {F G H E l} W W′
@@ -86,6 +88,24 @@ injectivity x with B-injectivity BΠ! BΠ! x
 Σ-injectivity x with B-injectivity BΣ! BΣ! x
 ... | F≡H , G≡E , PE.refl =
   F≡H , G≡E , PE.refl , PE.refl , PE.refl
+
+ΠΣ-injectivity :
+  Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ≡ ΠΣ⟨ b′ ⟩ p′ , q′ ▷ F′ ▹ G′ →
+  Γ ⊢ F ≡ F′ × Γ ∙ F ⊢ G ≡ G′ × p PE.≡ p′ × q PE.≡ q′ × b PE.≡ b′
+ΠΣ-injectivity {b = BMΠ} {b′ = BMΠ} Π≡Π =
+  case injectivity Π≡Π of λ {
+    (F≡F′ , G≡G′ , p≡p′ , q≡q′) →
+  F≡F′ , G≡G′ , p≡p′ , q≡q′ , PE.refl }
+ΠΣ-injectivity {b = BMΣ _} {b′ = BMΣ _} Σ≡Σ =
+  case Σ-injectivity Σ≡Σ of λ {
+    (F≡F′ , G≡G′ , p≡p′ , q≡q′ , PE.refl) →
+  F≡F′ , G≡G′ , p≡p′ , q≡q′ , PE.refl }
+ΠΣ-injectivity {b = BMΠ} {b′ = BMΣ _} Π≡Σ =
+  case B-injectivity (BΠ _ _) (BΣ _ _ _) Π≡Σ of λ {
+    (_ , _ , ()) }
+ΠΣ-injectivity {b = BMΣ _} {b′ = BMΠ} Σ≡Π =
+  case B-injectivity (BΣ _ _ _) (BΠ _ _) Σ≡Π of λ {
+    (_ , _ , ()) }
 
 -- Injectivity of suc
 
