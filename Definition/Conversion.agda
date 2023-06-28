@@ -57,7 +57,7 @@ mutual
 
     natrec-cong   : Γ ∙ ℕ ⊢ F [conv↑] G
                   → Γ ⊢ a₀ [conv↑] b₀ ∷ F [ zero ]
-                  → Γ ∙ ℕ ∙ F ⊢ h [conv↑] g ∷ wk1 (F [ suc (var x0) ]↑)
+                  → Γ ∙ ℕ ∙ F ⊢ h [conv↑] g ∷ F [ suc (var x1) ]↑²
                   → Γ ⊢ k ~ l ↓ ℕ
                   → Γ ⊢ natrec p q r F a₀ h k ~ natrec p q r G b₀ g l ↑ F [ k ]
 

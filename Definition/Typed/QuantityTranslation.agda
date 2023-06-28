@@ -112,9 +112,7 @@ mutual
       (natrecⱼ (tr-⊢′ ⊢P)
          (PE.subst (_ T₂.⊢ _ ∷_) (PE.sym (tr-Term-[] P)) (tr-⊢∷ z))
          (PE.subst (_ ∙ _ ∙ tr-Term _ T₂.⊢ _ ∷_)
-            (tr-Term (U₁.wk1 (P U₁.[ suc (var x0) ]↑))  ≡˘⟨ tr-Term-wk ⟩
-             U₂.wk1 (tr-Term (P U₁.[ suc (var x0) ]↑))  ≡˘⟨ PE.cong U₂.wk1 (tr-Term-[]↑ P) ⟩
-             U₂.wk1 (tr-Term P U₂.[ suc (var x0) ]↑)    ∎)
+            (PE.sym (tr-Term-[]↑² P) )
             (tr-⊢∷ s))
          (tr-⊢∷ n))
   tr-⊢∷ (Emptyrecⱼ A e) =
@@ -213,9 +211,7 @@ mutual
          (PE.subst (_ T₂.⊢ _ ≡ _ ∷_) (PE.sym (tr-Term-[] P))
             (tr-⊢≡∷ z≡z′))
          (PE.subst (tr-Con (_ ∙ ℕ ∙ _) T₂.⊢ _ ≡ _ ∷_)
-            (tr-Term (U₁.wk1 (P U₁.[ suc (var x0) ]↑))  ≡˘⟨ tr-Term-wk ⟩
-             U₂.wk1 (tr-Term (P U₁.[ suc (var x0) ]↑))  ≡˘⟨ PE.cong U₂.wk1 (tr-Term-[]↑ P) ⟩
-             U₂.wk1 (tr-Term P U₂.[ suc (var x0) ]↑)    ∎)
+            (PE.sym (tr-Term-[]↑² P))
             (tr-⊢≡∷ s≡s′))
          (tr-⊢≡∷ n≡n′))
   tr-⊢≡∷ (natrec-zero {A = P} ⊢P z s) =
@@ -224,9 +220,7 @@ mutual
       (natrec-zero (tr-⊢′ ⊢P)
          (PE.subst (_ T₂.⊢ _ ∷_) (PE.sym (tr-Term-[] P)) (tr-⊢∷ z))
          (PE.subst (tr-Con (_ ∙ ℕ ∙ _) T₂.⊢ _ ∷_)
-            (tr-Term (U₁.wk1 (P U₁.[ suc (var x0) ]↑))  ≡˘⟨ tr-Term-wk ⟩
-             U₂.wk1 (tr-Term (P U₁.[ suc (var x0) ]↑))  ≡˘⟨ PE.cong U₂.wk1 (tr-Term-[]↑ P) ⟩
-             U₂.wk1 (tr-Term P U₂.[ suc (var x0) ]↑)    ∎)
+            (PE.sym (tr-Term-[]↑² P))
             (tr-⊢∷ s)))
   tr-⊢≡∷ (natrec-suc {A = P} {s = s} ⊢P z ⊢s n) =
     PE.subst₂ (_ T₂.⊢ natrec _ _ _ _ _ _ _ ≡_∷_)
@@ -235,9 +229,7 @@ mutual
       (natrec-suc (tr-⊢′ ⊢P)
          (PE.subst (_ T₂.⊢ _ ∷_) (PE.sym (tr-Term-[] P)) (tr-⊢∷ z))
          (PE.subst (tr-Con (_ ∙ ℕ ∙ _) T₂.⊢ _ ∷_)
-            (tr-Term (U₁.wk1 (P U₁.[ suc (var x0) ]↑))  ≡˘⟨ tr-Term-wk ⟩
-             U₂.wk1 (tr-Term (P U₁.[ suc (var x0) ]↑))  ≡˘⟨ PE.cong U₂.wk1 (tr-Term-[]↑ P) ⟩
-             U₂.wk1 (tr-Term P U₂.[ suc (var x0) ]↑)    ∎)
+            (PE.sym (tr-Term-[]↑² P))
             (tr-⊢∷ ⊢s))
          (tr-⊢∷ n))
   tr-⊢≡∷ (Emptyrec-cong A≡B t≡u) =
@@ -294,9 +286,7 @@ tr-⊢⇒∷ (natrec-subst {A = P} ⊢P z s n⇒n′) =
     (natrec-subst (tr-⊢′ ⊢P)
        (PE.subst (_ T₂.⊢ _ ∷_) (PE.sym (tr-Term-[] P)) (tr-⊢∷ z))
        (PE.subst (tr-Con (_ ∙ ℕ ∙ _) T₂.⊢ _ ∷_)
-          (tr-Term (U₁.wk1 (P U₁.[ suc (var x0) ]↑))  ≡˘⟨ tr-Term-wk ⟩
-           U₂.wk1 (tr-Term (P U₁.[ suc (var x0) ]↑))  ≡˘⟨ PE.cong U₂.wk1 (tr-Term-[]↑ P) ⟩
-           U₂.wk1 (tr-Term P U₂.[ suc (var x0) ]↑)    ∎)
+          (PE.sym (tr-Term-[]↑² P))
           (tr-⊢∷ s))
        (tr-⊢⇒∷ n⇒n′))
 tr-⊢⇒∷ (natrec-zero {A = P} ⊢P z s) =
@@ -305,9 +295,7 @@ tr-⊢⇒∷ (natrec-zero {A = P} ⊢P z s) =
     (natrec-zero (tr-⊢′ ⊢P)
        (PE.subst (_ T₂.⊢ _ ∷_) (PE.sym (tr-Term-[] P)) (tr-⊢∷ z))
        (PE.subst (tr-Con (_ ∙ ℕ ∙ _) T₂.⊢ _ ∷_)
-          (tr-Term (U₁.wk1 (P U₁.[ suc (var x0) ]↑))  ≡˘⟨ tr-Term-wk ⟩
-           U₂.wk1 (tr-Term (P U₁.[ suc (var x0) ]↑))  ≡˘⟨ PE.cong U₂.wk1 (tr-Term-[]↑ P) ⟩
-           U₂.wk1 (tr-Term P U₂.[ suc (var x0) ]↑)    ∎)
+          (PE.sym (tr-Term-[]↑² P))
           (tr-⊢∷ s)))
 tr-⊢⇒∷ (natrec-suc {A = P} {s = s} ⊢P z ⊢s n) =
   PE.subst₂ (_ T₂.⊢ natrec _ _ _ _ _ _ _ ⇒_∷_)
@@ -316,9 +304,7 @@ tr-⊢⇒∷ (natrec-suc {A = P} {s = s} ⊢P z ⊢s n) =
     (natrec-suc (tr-⊢′ ⊢P)
        (PE.subst (_ T₂.⊢ _ ∷_) (PE.sym (tr-Term-[] P)) (tr-⊢∷ z))
        (PE.subst (tr-Con (_ ∙ ℕ ∙ _) T₂.⊢ _ ∷_)
-          (tr-Term (U₁.wk1 (P U₁.[ suc (var x0) ]↑))  ≡˘⟨ tr-Term-wk ⟩
-           U₂.wk1 (tr-Term (P U₁.[ suc (var x0) ]↑))  ≡˘⟨ PE.cong U₂.wk1 (tr-Term-[]↑ P) ⟩
-           U₂.wk1 (tr-Term P U₂.[ suc (var x0) ]↑)    ∎)
+          (PE.sym (tr-Term-[]↑² P))
           (tr-⊢∷ ⊢s))
        (tr-⊢∷ n))
 tr-⊢⇒∷ (Emptyrec-subst A t⇒u) =

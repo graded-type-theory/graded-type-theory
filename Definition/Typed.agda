@@ -115,7 +115,7 @@ mutual
     natrecⱼ   : ∀ {n}
               → Γ ∙ ℕ     ⊢ A
               → Γ         ⊢ z ∷ A [ zero ]
-              → Γ ∙ ℕ ∙ A ⊢ s ∷ wk1 (A [ suc (var x0) ]↑)
+              → Γ ∙ ℕ ∙ A ⊢ s ∷ A [ suc (var x1) ]↑²
               → Γ         ⊢ n ∷ ℕ
               → Γ         ⊢ natrec p q r A z s n ∷ A [ n ]
 
@@ -237,19 +237,19 @@ mutual
                   → Γ ∙ ℕ     ⊢ A
                   → Γ ∙ ℕ     ⊢ A ≡ A′
                   → Γ         ⊢ z ≡ z′ ∷ A [ zero ]
-                  → Γ ∙ ℕ ∙ A ⊢ s ≡ s′ ∷ wk1 (A [ suc (var x0) ]↑)
+                  → Γ ∙ ℕ ∙ A ⊢ s ≡ s′ ∷ A [ suc (var x1) ]↑²
                   → Γ         ⊢ n ≡ n′ ∷ ℕ
                   → Γ         ⊢ natrec p q r A z s n ≡
                                 natrec p q r A′ z′ s′ n′ ∷
                                 A [ n ]
     natrec-zero   : Γ ∙ ℕ     ⊢ A
                   → Γ         ⊢ z ∷ A [ zero ]
-                  → Γ ∙ ℕ ∙ A ⊢ s ∷ wk1 (A [ suc (var x0) ]↑)
+                  → Γ ∙ ℕ ∙ A ⊢ s ∷ A [ suc (var x1) ]↑²
                   → Γ         ⊢ natrec p q r A z s zero ≡ z ∷ A [ zero ]
     natrec-suc    : ∀ {n}
                   → Γ ∙ ℕ     ⊢ A
                   → Γ         ⊢ z ∷ A [ zero ]
-                  → Γ ∙ ℕ ∙ A ⊢ s ∷ wk1 (A [ suc (var x0) ]↑)
+                  → Γ ∙ ℕ ∙ A ⊢ s ∷ A [ suc (var x1) ]↑²
                   → Γ         ⊢ n ∷ ℕ
                   → Γ         ⊢ natrec p q r A z s (suc n) ≡
                                 s [ n , natrec p q r A z s n ] ∷
@@ -322,19 +322,19 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
   natrec-subst   : ∀ {n}
                  → Γ ∙ ℕ     ⊢ A
                  → Γ         ⊢ z ∷ A [ zero ]
-                 → Γ ∙ ℕ ∙ A ⊢ s ∷ wk1 (A [ suc (var x0) ]↑)
+                 → Γ ∙ ℕ ∙ A ⊢ s ∷ A [ suc (var x1) ]↑²
                  → Γ         ⊢ n ⇒ n′ ∷ ℕ
                  → Γ         ⊢ natrec p q r A z s n ⇒
                                natrec p q r A z s n′ ∷
                                A [ n ]
   natrec-zero    : Γ ∙ ℕ     ⊢ A
                  → Γ         ⊢ z ∷ A [ zero ]
-                 → Γ ∙ ℕ ∙ A ⊢ s ∷ wk1 (A [ suc (var x0) ]↑)
+                 → Γ ∙ ℕ ∙ A ⊢ s ∷ A [ suc (var x1) ]↑²
                  → Γ         ⊢ natrec p q r A z s zero ⇒ z ∷ A [ zero ]
   natrec-suc     : ∀ {n}
                  → Γ ∙ ℕ     ⊢ A
                  → Γ         ⊢ z ∷ A [ zero ]
-                 → Γ ∙ ℕ ∙ A ⊢ s ∷ wk1 (A [ suc (var x0) ]↑)
+                 → Γ ∙ ℕ ∙ A ⊢ s ∷ A [ suc (var x1) ]↑²
                  → Γ         ⊢ n ∷ ℕ
                  → Γ         ⊢ natrec p q r A z s (suc n) ⇒
                                s [ n , natrec p q r A z s n ] ∷

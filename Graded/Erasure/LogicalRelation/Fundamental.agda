@@ -397,20 +397,20 @@ module Fundamental
         [Γℕ] = [Γ] ∙ [ℕ]
         [Γℕ]′ , [A]′ = F.fundamental Γ⊢A
         [A] = IS.irrelevance {A = A} [Γℕ]′ [Γℕ] [A]′
-        [A₊] = IS.irrelevance {A = wk1 (A [ (suc (var x0)) ]↑)}
+        [A₊] = IS.irrelevance {A = A [ suc (var x1) ]↑²}
                               [ΓℕA] ([Γℕ] ∙ [A]) [A₊]′
         [Γ]ᶻ , [A]ᶻ , [z]′ = F.fundamentalTerm Γ⊢z:A
         [z] = IS.irrelevanceTerm {A = A [ zero ]} {t = z}
                 [Γ]ᶻ [Γ] [A]ᶻ [A₀] [z]′
         [Γ]ˢ , [A]ˢ , [s]′ = F.fundamentalTerm Γ⊢s:A
         [s] = IS.irrelevanceTerm
-                {A = wk1 (A [ (suc (var x0)) ]↑)} {t = s}
+                {A = A [ suc (var x1) ]↑²} {t = s}
                 [Γ]ˢ ([Γℕ] ∙ [A]) [A]ˢ [A₊] [s]′
         [Γ]ⁿ , [ℕ]ⁿ , [n]′ = F.fundamentalTerm Γ⊢n:ℕ
         [n] = IS.irrelevanceTerm {A = ℕ} {t = n}
                 [Γ]ⁿ [Γ] [ℕ]ⁿ [ℕ] [n]′
         ⊩ʳs = irrelevance
-                {A = wk1 (A [ (suc (var x0)) ]↑)} {t = s}
+                {A = A [ suc (var x1) ]↑²} {t = s}
                 [ΓℕA] ([Γℕ] ∙ [A]) [A₊]′ [A₊] ⊩ʳs′
         ⊩ʳn = irrelevance {A = ℕ} {t = n} [Γ]′ [Γ] [ℕ]′ [ℕ] ⊩ʳn′
         [A[n]] , ⊩ʳnatrec =

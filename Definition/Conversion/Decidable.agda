@@ -314,8 +314,8 @@ dec~↑-natrec : ∀ {l l′ A C z s n}
              → ⊢ Γ
              → (∀ {C′ C″} → Γ ∙ ℕ ⊢ C′ [conv↑] C″ → Dec (Γ ∙ ℕ ⊢ C [conv↑] C′))
              → (∀ {t t′ C′} → Γ ⊢ C [ zero ] ≡ C′ → Γ ⊢ t [conv↑] t′ ∷ C′ → Dec (Γ ⊢ z [conv↑] t ∷ C [ zero ]))
-             → (∀ {t t′ C′} → Γ ∙ ℕ ∙ C ⊢ wk1 (C [ suc (var x0) ]↑) ≡ C′ → Γ ∙ ℕ ∙ C ⊢ t [conv↑] t′ ∷ C′
-                            → Dec (Γ ∙ ℕ ∙ C ⊢ s [conv↑] t ∷ wk1 (C [ suc (var x0) ]↑)))
+             → (∀ {t t′ C′} → Γ ∙ ℕ ∙ C ⊢ C [ suc (var x1) ]↑² ≡ C′ → Γ ∙ ℕ ∙ C ⊢ t [conv↑] t′ ∷ C′
+                            → Dec (Γ ∙ ℕ ∙ C ⊢ s [conv↑] t ∷ C [ suc (var x1) ]↑²))
              → (∀ {t t′ C′} → Γ ⊢ t ~ t′ ↓ C′ → Dec (∃ λ B → Γ ⊢ n ~ t ↓ B))
              → Dec (∃ λ B → Γ ⊢ natrec p q r C z s n ~ l ↑ B)
 dec~↑-natrec {p = p} {q = q} {r = r}
@@ -389,7 +389,7 @@ mutual
                 dec~↑-prodrec
                   (decConv↑ x (stabilityConv↑ (⊢Γ≡Γ ∙ ⊢Σ′≡Σ) x₃))
                   (λ C≡C′ → decConv↑TermConv
-                     (subst↑²TypeEq C≡C′ (⊢∷ΠΣ→ΠΣ-restriction ⊢t₁))
+                     (subst↑²TypeEq-prod C≡C′ (⊢∷ΠΣ→ΠΣ-restriction ⊢t₁))
                      x₂
                      (stabilityConv↑Term (⊢Γ≡Γ ∙ ⊢F′≡F ∙ ⊢G′≡G) x₅))
                   t~t′ (sym ⊢B≡Σ) PE.refl PE.refl PE.refl

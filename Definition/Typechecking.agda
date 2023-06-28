@@ -72,7 +72,7 @@ mutual
     natrecᵢ : ∀ {z s n}
             → Γ ∙ ℕ ⊢ A ⇇Type
             → Γ ⊢ z ⇇ A [ zero ]
-            → Γ ∙ ℕ ∙ A ⊢ s ⇇ wk1 (A [ suc (var x0) ]↑)
+            → Γ ∙ ℕ ∙ A ⊢ s ⇇ A [ suc (var x1) ]↑²
             → Γ ⊢ n ⇇ ℕ
             → Γ ⊢ natrec p q r A z s n ⇉ A [ n ]
     Unitᵢ : Unit-restriction

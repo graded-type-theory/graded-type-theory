@@ -216,7 +216,7 @@ record EqRelSet : Set (lsuc ℓ) where
              → Γ ∙ ℕ     ⊢ F
              → Γ ∙ ℕ     ⊢ F ≅ F′
              → Γ         ⊢ z ≅ z′ ∷ F [ zero ]
-             → Γ ∙ ℕ ∙ F ⊢ s ≅ s′ ∷ wk1 (F [ suc (var x0) ]↑)
+             → Γ ∙ ℕ ∙ F ⊢ s ≅ s′ ∷ F [ suc (var x1) ]↑²
              → Γ         ⊢ n ~ n′ ∷ ℕ
              → Γ         ⊢ natrec p q r F z s n ~ natrec p q r F′ z′ s′ n′ ∷ F [ n ]
 

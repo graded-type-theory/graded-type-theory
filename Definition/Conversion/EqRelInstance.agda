@@ -119,7 +119,7 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
          → Γ ∙ ℕ ⊢ F
          → (Γ ∙ ℕ) ⊢ F [conv↑] F′ →
       Γ ⊢ z [conv↑] z′ ∷ (F [ zero ]) →
-      Γ ∙ ℕ ∙ F ⊢ s [conv↑] s′ ∷ wk1 (F [ suc (var x0) ]↑) →
+      Γ ∙ ℕ ∙ F ⊢ s [conv↑] s′ ∷ F [ suc (var x1) ]↑² →
       Γ ⊢ n ~ n′ ∷ ℕ →
       Γ ⊢ natrec p q r F z s n ~ natrec p q r F′ z′ s′ n′ ∷ (F [ n ])
 ~-natrec _ x x₁ x₂ (↑ A≡B x₄) =

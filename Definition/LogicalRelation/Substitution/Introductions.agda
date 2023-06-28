@@ -27,3 +27,4 @@ open import Definition.LogicalRelation.Substitution.Introductions.Empty R public
 open import Definition.LogicalRelation.Substitution.Introductions.Emptyrec R public
 open import Definition.LogicalRelation.Substitution.Introductions.Unit R public
 open import Definition.LogicalRelation.Substitution.Introductions.Universe R public
+open import Definition.LogicalRelation.Substitution.Introductions.Var R public

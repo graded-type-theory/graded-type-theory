@@ -205,11 +205,10 @@ module _ (as : Full-reduction-assumptions) where
           ⊢Γℕ →
           natrec p q r A′ t′ u′ v′
         , (                                                $⟨ u′-nf ⟩
-           Γ ∙ ℕ ∙ A ⊢nf u′ ∷ wk1 (A [ suc (var x0) ]↑)    →⟨ ⊢nf∷-stable (reflConEq ⊢Γℕ ∙ A≡A′) ⟩
-           Γ ∙ ℕ ∙ A′ ⊢nf u′ ∷ wk1 (A [ suc (var x0) ]↑)   →⟨ flip _⊢nf_∷_.convₙ $
-                                                              wkEq (step id) (⊢Γℕ ∙ ⊢A′) $
-                                                              subst↑TypeEq A≡A′ (refl (sucⱼ (var ⊢Γℕ here))) ⟩
-           Γ ∙ ℕ ∙ A′ ⊢nf u′ ∷ wk1 (A′ [ suc (var x0) ]↑)  →⟨ (λ hyp → natrecₙ
+           Γ ∙ ℕ ∙ A ⊢nf u′ ∷ A [ suc (var x1) ]↑²    →⟨ ⊢nf∷-stable (reflConEq ⊢Γℕ ∙ A≡A′) ⟩
+           Γ ∙ ℕ ∙ A′ ⊢nf u′ ∷ A [ suc (var x1) ]↑²   →⟨ flip _⊢nf_∷_.convₙ $ subst↑²TypeEq (ℕⱼ ⊢Γ) ⊢A′ A≡A′
+                                                                              (refl (sucⱼ (var (⊢Γℕ ∙ ⊢A′) (there here)))) ⟩
+           Γ ∙ ℕ ∙ A′ ⊢nf u′ ∷ A′ [ suc (var x1) ]↑²  →⟨ (λ hyp → natrecₙ
                                                                  A′-nf
                                                                  (convₙ t′-nf (substTypeEq A≡A′ (refl (zeroⱼ ⊢Γ))))
                                                                  hyp
@@ -236,7 +235,7 @@ module _ (as : Full-reduction-assumptions) where
           prodrec r p q C′ u′ v′
         , (                                                       $⟨ v′-nf ⟩
            Γ ∙ A ∙ B ⊢nf v′ ∷ C [ prodᵣ p (var x1) (var x0) ]↑²   →⟨ flip _⊢nf_∷_.convₙ $
-                                                                     subst↑²TypeEq C≡C′ ok₂ ⟩
+                                                                     subst↑²TypeEq-prod C≡C′ ok₂ ⟩
            Γ ∙ A ∙ B ⊢nf v′ ∷ C′ [ prodᵣ p (var x1) (var x0) ]↑²  →⟨ flip (prodrecₙ ⊢A ⊢B C′-nf u′-ne) ok₂ ⟩
            Γ ⊢ne prodrec r p q C′ u′ v′ ∷ C′ [ u′ ]               →⟨ flip _⊢ne_∷_.convₙ $ _⊢_≡_.sym $
                                                                      substTypeEq C≡C′ u≡u′ ⟩

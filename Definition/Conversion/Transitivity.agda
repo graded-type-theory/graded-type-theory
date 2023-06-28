@@ -68,10 +68,10 @@ mutual
     let ⊢Γ = wf (proj₁ (syntacticEqTerm (soundness~↓ t~u)))
         A≡B = soundnessConv↑ A<>B
         F[0]≡F₁[0] = substTypeEq A≡B (refl (zeroⱼ ⊢Γ))
-        ΠℕFs≡ΠℕF₁s = sucCong A≡B
+        F↑̂²≡F₁↑² = sucCong A≡B
         A<>C = transConv↑ A<>B B<>C
         a₀<>c₀ = transConv↑Term F[0]≡F₁[0] a₀<>b₀ b₀<>c₀
-        aₛ<>cₛ = transConv↑Term ΠℕFs≡ΠℕF₁s aₛ<>bₛ
+        aₛ<>cₛ = transConv↑Term F↑̂²≡F₁↑² aₛ<>bₛ
                                 (stabilityConv↑Term ((reflConEq (⊢Γ ∙ (ℕⱼ ⊢Γ))) ∙ sym A≡B) bₛ<>cₛ)
         t~v , _ = trans~↓ t~u u~v
     in  natrec-cong A<>C a₀<>c₀ aₛ<>cₛ t~v
@@ -91,7 +91,7 @@ mutual
         _ , ⊢ΓFG , _ = contextConvSubst (Γ≡Γ ∙ F≡F′ ∙ G≡G′)
         A≡B = soundnessConv↑ A<>B
         _ , _ , ok = inversion-ΠΣ (syntacticEq Σ≡Σ′ .proj₁)
-        A₊≡B₊ = subst↑²TypeEq A≡B ok
+        A₊≡B₊ = subst↑²TypeEq-prod A≡B ok
         t<>v = transConv↑Term A₊≡B₊ t<>u u<>v′
         a≡b = soundness~↓ a~b
         Aa≡Bb = substTypeEq A≡B a≡b

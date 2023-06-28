@@ -191,11 +191,25 @@ subst↑TypeEq : ∀ {t u F G E}
              → Γ ∙ F ⊢ G [ t ]↑ ≡ E [ u ]↑
 subst↑TypeEq ⊢G ⊢t = substitutionEq ⊢G (singleSubst↑Eq ⊢t) (wfEqTerm ⊢t)
 
-subst↑²Type : ∀ {m F G A}
-            → Γ ∙ (Σ⟨ m ⟩ p , q ▷ F ▹ G) ⊢ A
-            → Σ-restriction m p q
-            → Γ ∙ F ∙ G ⊢ A [ prod m p (var x1) (var x0) ]↑²
-subst↑²Type {Γ = Γ} {F = F} {G} {A} ⊢A ok =
+subst↑²Type : ∀ {t F G A B}
+            → Γ ⊢ F
+            → Γ ∙ F ⊢ G
+            → Γ ∙ A ⊢ B
+            → Γ ∙ F ∙ G ⊢ t ∷ wk1 (wk1 A)
+            → Γ ∙ F ∙ G ⊢ B [ t ]↑²
+subst↑²Type {n} {Γ} {t} {F} {G} {A} {B} ⊢F ⊢G ⊢B ⊢t =
+  let ⊢Γ = wf ⊢F
+      ⊢t′ = PE.subst (λ x → Γ ∙ F ∙ G ⊢ t ∷ x)
+                     (PE.trans (wk-comp (step id) (step id) A) (wk≡subst _ A))
+                     ⊢t
+      ⊢σ = wk1Subst′ ⊢Γ (⊢Γ ∙ ⊢F) ⊢G (wk1Subst′ ⊢Γ ⊢Γ ⊢F (idSubst′ ⊢Γ)) , ⊢t′
+  in  substitution ⊢B ⊢σ (⊢Γ ∙ ⊢F ∙ ⊢G)
+
+subst↑²Type-prod : ∀ {m F G A}
+                 → Γ ∙ (Σ⟨ m ⟩ p , q ▷ F ▹ G) ⊢ A
+                 → Σ-restriction m p q
+                 → Γ ∙ F ∙ G ⊢ A [ prod m p (var x1) (var x0) ]↑²
+subst↑²Type-prod {Γ = Γ} {F = F} {G} {A} ⊢A ok =
   let ⊢ΓΣ = wf ⊢A
       ⊢Γ , ⊢Σ = splitCon ⊢ΓΣ
       ⊢F , ⊢G = syntacticΣ ⊢Σ
@@ -227,12 +241,26 @@ subst↑²Type {Γ = Γ} {F = F} {G} {A} ⊢A ok =
   splitCon : ∀ {Γ : Con Term n} {F} → ⊢ (Γ ∙ F) → ⊢ Γ × Γ ⊢ F
   splitCon (x ∙ x₁) = x , x₁
 
-subst↑²TypeEq : ∀ {m F G A B}
+subst↑²TypeEq : ∀ {t u F G A B C}
+              → Γ ⊢ F
+              → Γ ∙ F ⊢ G
+              → Γ ∙ A ⊢ B ≡ C
+              → Γ ∙ F ∙ G ⊢ t ≡ u ∷ wk1 (wk1 A)
+              → Γ ∙ F ∙ G ⊢ B [ t ]↑² ≡ C [ u ]↑²
+subst↑²TypeEq {n} {Γ} {t} {u} {F} {G} {A} {B} {C} ⊢F ⊢G B≡C t≡u =
+  let ⊢Γ = wf ⊢F
+      t≡u′ = PE.subst (λ x → Γ ∙ F ∙ G ⊢ t ≡ u ∷ x)
+                      (PE.trans (wk-comp (step id) (step id) A) (wk≡subst _ A)) t≡u
+      σ≡σ′ = substRefl (wk1Subst′ ⊢Γ (⊢Γ ∙ ⊢F) ⊢G (wk1Subst′ ⊢Γ ⊢Γ ⊢F (idSubst′ ⊢Γ))) , t≡u′
+  in  substitutionEq B≡C σ≡σ′ (⊢Γ ∙ ⊢F ∙ ⊢G)
+
+
+subst↑²TypeEq-prod : ∀ {m F G A B}
               → Γ ∙ (Σ⟨ m ⟩ p , q ▷ F ▹ G) ⊢ A ≡ B
               → Σ-restriction m p q
               → Γ ∙ F ∙ G ⊢ A [ prod m p (var x1) (var x0) ]↑²
                           ≡ B [ prod m p (var x1) (var x0) ]↑²
-subst↑²TypeEq {Γ = Γ} {F = F} {G} {A} {B} A≡B ok =
+subst↑²TypeEq-prod {Γ = Γ} {F = F} {G} {A} {B} A≡B ok =
   let ⊢A , ⊢B = syntacticEq A≡B
       ⊢ΓΣ = wf ⊢A
       ⊢Γ , ⊢Σ = splitCon ⊢ΓΣ

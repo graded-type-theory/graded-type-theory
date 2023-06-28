@@ -103,7 +103,7 @@ mutual
                 ⊢ΔFG = ⊢ΔF ∙ ⊢G′
                 ⊢ρF = W.wk (step (step id)) ⊢ΔFG ⊢F′
                 ⊢ρG = W.wk (lift (step (step id))) (⊢ΔFG ∙ ⊢ρF) ⊢G′
-                C₊≡E₊ = subst↑²TypeEq (stabilityEq (Γ≡Δ ∙ refl ⊢Σ) C≡E)
+                C₊≡E₊ = subst↑²TypeEq-prod (stabilityEq (Γ≡Δ ∙ refl ⊢Σ) C≡E)
                           ok
             in  _ , substTypeEq C≡E g≡h
               , prodrec-cong E↑C h~g

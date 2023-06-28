@@ -93,6 +93,7 @@ import Definition.LogicalRelation.Substitution.Introductions.Prod
 import Definition.LogicalRelation.Substitution.Introductions.Fst
 import Definition.LogicalRelation.Substitution.Introductions.Snd
 import Definition.LogicalRelation.Substitution.Introductions.ProdBetaEta
+import Definition.LogicalRelation.Substitution.Introductions.Var
 import Definition.LogicalRelation.Substitution.Introductions.DoubleSubst
 import Definition.LogicalRelation.Substitution.Introductions.Prodrec
 import Definition.LogicalRelation.Substitution.Introductions

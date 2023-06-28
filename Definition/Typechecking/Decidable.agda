@@ -283,13 +283,12 @@ mutual
             ⊢A₀ = substType ⊢A (zeroⱼ ⊢Γ)
         in  case dec⇇ ⊢Γ z ⊢A₀ of λ where
           (yes z⇇A₀) →
-            let ⊢A₊ = subst↑Type ⊢A (sucⱼ (var (⊢Γ ∙ ℕⱼ ⊢Γ) here))
-                ⊢Γ₊ = ⊢Γ ∙ ℕⱼ ⊢Γ ∙ ⊢A
-                ⊢A₊′ = W.wk (step id) ⊢Γ₊ ⊢A₊
-            in  case dec⇇ ⊢Γ₊ s ⊢A₊′ of λ where
+            let ⊢Γ₊ = ⊢Γ ∙ ℕⱼ ⊢Γ ∙ ⊢A
+                ⊢A₊ =  subst↑²Type (ℕⱼ ⊢Γ) ⊢A ⊢A (sucⱼ (var ⊢Γ₊ (there here)))
+            in  case dec⇇ ⊢Γ₊ s ⊢A₊ of λ where
               (yes s⇇A₊) → yes (_ , natrecᵢ A⇇Type z⇇A₀ s⇇A₊ n⇇ℕ)
               (no ¬s⇇A₊) → no λ where
-                (_ , natrecᵢ x x₁ x₂ x₃) → ¬s⇇A₊ x₂
+                (_ , natrecᵢ x x₁ x₂ x₃) → ¬s⇇A₊ x₂ --¬s⇇A₊ x₂
           (no ¬z⇇A₀) → no λ where
             (_ , natrecᵢ x x₁ x₂ x₃) → ¬z⇇A₀ x₁
       (no ¬A⇇Type) → no λ where
@@ -309,7 +308,7 @@ mutual
             (yes A⇇Type) →
               let ⊢ΓΣ = ⊢Γ ∙ ΠΣⱼ {p = p} ⊢F ⊢G ok
                   ⊢A = soundness⇇Type ⊢ΓΣ A⇇Type
-                  ⊢A₊ = subst↑²Type ⊢A ok
+                  ⊢A₊ = subst↑²Type-prod ⊢A ok
               in  case dec⇇ (⊢Γ ∙ ⊢F ∙ ⊢G) u ⊢A₊ of λ where
                 (yes u⇇A₊) → case p ≟ p′ of λ where
                   (yes PE.refl) →

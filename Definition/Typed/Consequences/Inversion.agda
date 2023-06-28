@@ -123,7 +123,7 @@ inversion-suc (conv x x₁) =
 inversion-natrec : ∀ {c g n A C} → Γ ⊢ natrec p q r C c g n ∷ A
   → (Γ ∙ ℕ ⊢ C)
   × Γ ⊢ c ∷ C [ zero ]
-  × Γ ∙ ℕ ∙ C ⊢ g ∷ wk1 (C [ suc (var x0) ]↑)
+  × Γ ∙ ℕ ∙ C ⊢ g ∷ C [ suc (var x1) ]↑²
   × Γ ⊢ n ∷ ℕ
   × Γ ⊢ A ≡ C [ n ]
 inversion-natrec (natrecⱼ x d d₁ n) = x , d , d₁ , n , refl (substType x n)

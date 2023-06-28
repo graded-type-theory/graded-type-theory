@@ -32,7 +32,6 @@ import Graded.Substitution.Properties
 import Graded.Derived.Sigma
 
 import Definition.Untyped
-import Definition.Untyped.Properties
 import Definition.Typed
 import Definition.Typed.Consequences.Inversion
 import Definition.Typed.Consequences.Substitution
@@ -279,10 +278,6 @@ tail      = Definition.Untyped.tail
 --
 -- In some rules, fording is used to equate grades. In the paper such
 -- equated grades are simply shown as a single grade.
---
--- The rules for natrec use types of the form
--- wk1 (A [ suc (var x0) ]↑). However, the paper uses types of the
--- form A [ suc (var x1) ]↑². These two types are equal.
 
 ⊢_                  = Definition.Typed.⊢_
 _⊢_                 = Definition.Typed._⊢_
@@ -290,7 +285,6 @@ _⊢_∷_               = Definition.Typed._⊢_∷_
 _⊢_≡_               = Definition.Typed._⊢_≡_
 _⊢_≡_∷_             = Definition.Typed._⊢_≡_∷_
 _∷_∈_               = Definition.Typed._∷_∈_
-natrec-type-correct = Definition.Untyped.Properties.natrec-type-correct
 
 -- Typing contexts.
 

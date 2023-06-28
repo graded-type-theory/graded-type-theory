@@ -47,7 +47,7 @@ snd-subst* (x ⇨ t⇒t′) ⊢F ⊢G =
 natrec-subst* : ∀ {z s} → Γ ⊢ t ⇒* t′ ∷ ℕ
               → Γ ∙ ℕ ⊢ A
               → Γ ⊢ z ∷ A [ zero ]
-              → Γ ∙ ℕ ∙ A ⊢ s ∷ wk1 (A [ suc (var x0) ]↑)
+              → Γ ∙ ℕ ∙ A ⊢ s ∷ A [ suc (var x1) ]↑²
               → Γ ⊢ natrec p q r A z s t ⇒* natrec p q r A z s t′ ∷ A [ t ]
 natrec-subst* (id x) ⊢A ⊢z ⊢s = id (natrecⱼ ⊢A ⊢z ⊢s x)
 natrec-subst* (x ⇨ t⇒t′) ⊢A ⊢z ⊢s =

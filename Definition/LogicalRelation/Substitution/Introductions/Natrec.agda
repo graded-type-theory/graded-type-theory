@@ -41,7 +41,7 @@ private
 
 -- Natural recursion closure reduction (requires reducible terms and equality).
 natrec-subst* : ∀ {C c g n n′ l} → Γ ∙ ℕ ⊢ C → Γ ⊢ c ∷ C [ zero ]
-              → Γ ∙ ℕ ∙ C ⊢ g ∷  wk1 (C [ suc (var x0) ]↑)
+              → Γ ∙ ℕ ∙ C ⊢ g ∷  C [ suc (var x1) ]↑²
               → Γ ⊢ n ⇒* n′ ∷ ℕ
               → ([ℕ] : Γ ⊩⟨ l ⟩ ℕ)
               → Γ ⊩⟨ l ⟩ n′ ∷ ℕ / [ℕ]
@@ -59,19 +59,21 @@ natrec-subst* {p = p} C c g (x ⇨ n⇒n′) [ℕ] [n′] prop =
 
 -- Helper lemmata for substitution equalities
 
-sucCaseSubst :  ∀ {m′ σ} {t : Term m′} (x : Fin (1+ m))
-             → (consSubst σ t ₛ•ₛ consSubst (λ x₁ → wk1 (var x₁)) (suc (var x0))) x
+sucCaseSubst :  ∀ {m′ σ} {t u : Term m′} (x : Fin (1+ m))
+             → (consSubst (consSubst σ t) u ₛ•ₛ consSubst (wk1Subst (wk1Subst idSubst)) (suc (var x1))) x
              PE.≡ (sgSubst (suc t) ₛ•ₛ liftSubst σ) x
 sucCaseSubst x0 = PE.refl
-sucCaseSubst {σ = σ} {t = t} (x +1) = PE.trans (PE.sym (subst-id (σ x)))
-                                               (PE.sym (wk1-tail (σ x)))
+sucCaseSubst {σ = σ} (x +1) = PE.sym (PE.trans (wk1-tail (σ x)) (subst-id (σ x)))
 
 sucCaseSubstEq : ∀ {m′ σ} {t u : Term m′} (F : Term (1+ m))
-               → subst (consSubst (consSubst σ t) u) (wk1 (F [ suc (var x0) ]↑))
+               → subst (consSubst (consSubst σ t) u) (F [ suc (var x1) ]↑²)
                PE.≡ subst (liftSubst σ) F [ suc t ]
-sucCaseSubstEq F = PE.trans (wk1-tail (F [ suc (var x0) ]↑))
-                            (PE.trans (substCompEq F)
-                            (PE.trans (substVar-to-subst sucCaseSubst F) (PE.sym (substCompEq F))))
+sucCaseSubstEq F = PE.trans (substCompEq F)
+                            (PE.trans (substVar-to-subst sucCaseSubst F)
+                                      (PE.sym (substCompEq F)))
+-- PE.trans (wk1-tail (F [ suc (var x0) ]↑))
+                            -- (PE.trans (substCompEq F)
+                            -- (PE.trans (substVar-to-subst sucCaseSubst F) (PE.sym (substCompEq F))))
 
 
 -- Reducibility of natural recursion under a valid substitution.
@@ -79,9 +81,9 @@ natrecTerm : ∀ {F z s n σ l}
              ([Γ]  : ⊩ᵛ Γ)
              ([F]  : Γ ∙ ℕ ⊩ᵛ⟨ l ⟩ F / _∙_ {l = l} [Γ] (ℕᵛ [Γ]))
              ([F₀] : Γ ⊩ᵛ⟨ l ⟩ F [ zero ] / [Γ])
-             ([F₊] : Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ wk1 (F [ suc (var x0) ]↑) / ((_∙_ {l = l} [Γ] (ℕᵛ [Γ])) ∙ [F]))
+             ([F₊] : Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ F [ suc (var x1) ]↑² / ((_∙_ {l = l} [Γ] (ℕᵛ [Γ])) ∙ [F]))
              ([z]  : Γ ⊩ᵛ⟨ l ⟩ z ∷ F [ zero ] / [Γ] / [F₀])
-             ([s]  : Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ s ∷ wk1 (F [ suc (var x0) ]↑)
+             ([s]  : Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ s ∷ F [ suc (var x1) ]↑²
                        / [Γ] ∙ (ℕᵛ {l = l} [Γ]) ∙ [F] / [F₊])
              (⊢Δ   : ⊢ Δ)
              ([σ]  : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
@@ -104,7 +106,8 @@ natrecTerm {k} {Γ = Γ} {k′} {Δ = Δ} {p = p} {q} {r} {F = F} {z} {s} {n} {�
       ⊢F = escape [σF]
       ⊢z = PE.subst (λ (x : Term k′) → Δ ⊢ subst σ z ∷ x) (singleSubstLift F zero)
                     (escapeTerm (proj₁ (unwrap [F₀] ⊢Δ [σ])) (proj₁ ([z] ⊢Δ [σ])))
-      ⊢s = PE.subst (λ (x : Term (1+ (1+ k′))) → (Δ ∙ ℕ ∙ subst (liftSubst σ) F) ⊢ subst (liftSubstn σ 2) s ∷ x) (natrecSucCase σ F)
+      ⊢s = PE.subst (λ (x : Term (1+ (1+ k′))) → (Δ ∙ ℕ ∙ subst (liftSubst σ) F) ⊢ subst (liftSubstn σ 2) s ∷ x)
+                    (natrecSucCase σ F)
                     (escapeTerm (proj₁ (unwrap [F₊] (⊢Δℕ ∙ ⊢F)
                                              (liftSubstS {σ = liftSubst σ} {F = F} [Γℕ] ⊢Δℕ [F]
                                                          (liftSubstS {σ = σ} {F = ℕ} [Γ] ⊢Δ [ℕ] [σ]))))
@@ -273,23 +276,23 @@ natrec-congTerm : ∀ {F F′ z z′ s s′ n m σ σ′ l}
                   ([F₀]     : Γ ⊩ᵛ⟨ l ⟩ F [ zero ] / [Γ])
                   ([F′₀]    : Γ ⊩ᵛ⟨ l ⟩ F′ [ zero ] / [Γ])
                   ([F₀≡F′₀] : Γ ⊩ᵛ⟨ l ⟩ F [ zero ] ≡ F′ [ zero ] / [Γ] / [F₀])
-                  ([F₊]     : Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ wk1 (F [ suc (var x0) ]↑)
+                  ([F₊]     : Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ F [ suc (var x1) ]↑²
                                 /  _∙_ {l = l} [Γ] (ℕᵛ [Γ]) ∙ [F])
-                  ([F′₊]    : Γ ∙ ℕ ∙ F′ ⊩ᵛ⟨ l ⟩ wk1 (F′ [ suc (var x0) ]↑)
+                  ([F′₊]    : Γ ∙ ℕ ∙ F′ ⊩ᵛ⟨ l ⟩ F′ [ suc (var x1) ]↑²
                                 / _∙_ {l = l} [Γ] (ℕᵛ [Γ]) ∙ [F′])
-                  ([F₊≡F₊′] : Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ wk1 (F [ suc (var x0) ]↑)
-                                ≡ wk1 (F′ [ suc (var x0) ]↑)
+                  ([F₊≡F₊′] : Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ F [ suc (var x1) ]↑²
+                                ≡ F′ [ suc (var x1) ]↑²
                                 / _∙_ {l = l} [Γ] (ℕᵛ [Γ]) ∙ [F] / [F₊])
                   ([z]      : Γ ⊩ᵛ⟨ l ⟩ z ∷ F [ zero ] / [Γ] / [F₀])
                   ([z′]     : Γ ⊩ᵛ⟨ l ⟩ z′ ∷ F′ [ zero ] / [Γ] / [F′₀])
                   ([z≡z′]   : Γ ⊩ᵛ⟨ l ⟩ z ≡ z′ ∷ F [ zero ] / [Γ] / [F₀])
-                  ([s]      : Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ s ∷ wk1 (F [ suc (var x0) ]↑)
+                  ([s]      : Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ s ∷ F [ suc (var x1) ]↑²
                                 / _∙_ {l = l} [Γ] (ℕᵛ [Γ]) ∙ [F] / [F₊])
                   ([s′]     : Γ ∙ ℕ ∙ F′ ⊩ᵛ⟨ l ⟩ s′
-                                ∷ wk1 (F′ [ suc (var x0) ]↑)
+                                ∷ F′ [ suc (var x1) ]↑²
                                 / _∙_ {l = l} [Γ] (ℕᵛ [Γ]) ∙ [F′] / [F′₊])
                   ([s≡s′]   : Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ s ≡ s′
-                                ∷ wk1 (F [ suc (var x0) ]↑)
+                                ∷ F [ suc (var x1) ]↑²
                                 / _∙_ {l = l} [Γ] (ℕᵛ [Γ]) ∙ [F] / [F₊])
                   (⊢Δ       : ⊢ Δ)
                   ([σ]      : Δ ⊩ˢ σ  ∷ Γ / [Γ] / ⊢Δ)
@@ -892,10 +895,10 @@ natrecᵛ : ∀ {F z s n l} ([Γ] : ⊩ᵛ Γ)
           ([ℕ]  : Γ ⊩ᵛ⟨ l ⟩ ℕ / [Γ])
           ([F]  : Γ ∙ ℕ ⊩ᵛ⟨ l ⟩ F / [Γ] ∙ [ℕ])
           ([F₀] : Γ ⊩ᵛ⟨ l ⟩ F [ zero ] / [Γ])
-          ([F₊] : Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ wk1 (F [ suc (var x0) ]↑) / [Γ] ∙ [ℕ] ∙ [F])
+          ([F₊] : Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ F [ suc (var x1) ]↑² / [Γ] ∙ [ℕ] ∙ [F])
           ([Fₙ] : Γ ⊩ᵛ⟨ l ⟩ F [ n ] / [Γ])
         → Γ ⊩ᵛ⟨ l ⟩ z ∷ F [ zero ] / [Γ] / [F₀]
-        → Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ s ∷ wk1 (F [ suc (var x0) ]↑) / [Γ] ∙ [ℕ] ∙ [F] / [F₊]
+        → Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ s ∷ F [ suc (var x1) ]↑² / [Γ] ∙ [ℕ] ∙ [F] / [F₊]
         → ([n] : Γ ⊩ᵛ⟨ l ⟩ n ∷ ℕ / [Γ] / [ℕ])
         → Γ ⊩ᵛ⟨ l ⟩ natrec p q r F z s n ∷ F [ n ] / [Γ] / [Fₙ]
 natrecᵛ {F = F} {z = z} {s = s} {n = n} {l = l}
@@ -910,10 +913,10 @@ natrecᵛ {F = F} {z = z} {s = s} {n = n} {l = l}
                        (PE.sym (PE.trans (substCompEq F)
                                (substConcatSingleton′ F)))
       [ℕ]′ = ℕᵛ [Γ]
-      [F₊]′ = S.irrelevance {A = wk1 (F [ suc (var x0) ]↑)}
+      [F₊]′ = S.irrelevance {A = F [ suc (var x1) ]↑²}
                             (_∙_ {A = F} {l = l} (_∙_ {A = ℕ} {l = l} [Γ] [ℕ]) [F])
                             (_∙_ {l = l} (_∙_ {l = l} [Γ] [ℕ]′) [F]′) [F₊]
-      [s]′ = S.irrelevanceTerm {A = wk1 (F [ suc (var x0) ]↑)} {t = s}
+      [s]′ = S.irrelevanceTerm {A = F [ suc (var x1) ]↑²} {t = s}
                                ((_∙_ {A = F} {l = l} (_∙_ {A = ℕ} {l = l} [Γ] [ℕ]) [F]))
                                (_∙_ {l = l} (_∙_ {l = l} [Γ] [ℕ]′) [F]′)
                                [F₊] [F₊]′ [s]
@@ -932,10 +935,10 @@ natrecᵛ {F = F} {z = z} {s = s} {n = n} {l = l}
                                          (ℕᵣ (idRed:*: (ℕⱼ ⊢Δ)))
                                          (proj₂ ([n] ⊢Δ [σ]) [σ′] [σ≡σ′])
             [ℕ]′ = ℕᵛ [Γ]
-            [F₊]′ = S.irrelevance {A = wk1 (F [ suc (var x0) ]↑)}
+            [F₊]′ = S.irrelevance {A = F [ suc (var x1) ]↑²}
                                   (_∙_ {A = F} {l = l} (_∙_ {A = ℕ} {l = l} [Γ] [ℕ]) [F])
                                   (_∙_ {l = l} (_∙_ {l = l} [Γ] [ℕ]′) [F]′) [F₊]
-            [s]′ = S.irrelevanceTerm {A = wk1 (F [ suc (var x0) ]↑)} {t = s}
+            [s]′ = S.irrelevanceTerm {A = F [ suc (var x1) ]↑²} {t = s}
                                      ((_∙_ {A = F} {l = l} (_∙_ {A = ℕ} {l = l} [Γ] [ℕ]) [F]))
                                      (_∙_ {l = l} (_∙_ {l = l} [Γ] [ℕ]′) [F]′)
                                      [F₊] [F₊]′ [s]
@@ -947,11 +950,11 @@ natrecᵛ {F = F} {z = z} {s = s} {n = n} {l = l}
                                [Γ] [F]′ [F]′ (reflᵛ {A = F} (_∙_ {A = ℕ} {l = l}
                                [Γ] (ℕᵛ [Γ])) [F]′) [F₀] [F₀]
                                (reflᵛ {A = F [ zero ]} [Γ] [F₀]) [F₊]′ [F₊]′
-                               (reflᵛ {A = wk1 (F [ suc (var x0) ]↑)}
+                               (reflᵛ {A = F [ suc (var x1) ]↑²}
                                       (_∙_ {A = F} {l = l} (_∙_ {A = ℕ} {l = l} [Γ] [ℕ]′) [F]′) [F₊]′)
                                [z] [z] (reflᵗᵛ {A = F [ zero ]} {z} [Γ] [F₀] [z])
                                [s]′ [s]′
-                               (reflᵗᵛ {A = wk1 (F [ suc (var x0) ]↑)} {s}
+                               (reflᵗᵛ {A = F [ suc (var x1) ]↑²} {s}
                                        (_∙_ {A = F} {l = l} (_∙_ {A = ℕ} {l = l} [Γ] [ℕ]′) [F]′) [F₊]′ [s]′)
                                ⊢Δ [σ] [σ′] [σ≡σ′] [σn]′ [σ′n]′ [σn≡σ′n]))
 
@@ -964,19 +967,19 @@ natrec-congᵛ : ∀ {F F′ z z′ s s′ n n′ l} ([Γ] : ⊩ᵛ Γ)
           ([F₀] : Γ ⊩ᵛ⟨ l ⟩ F [ zero ] / [Γ])
           ([F′₀] : Γ ⊩ᵛ⟨ l ⟩ F′ [ zero ] / [Γ])
           ([F₀≡F′₀] : Γ ⊩ᵛ⟨ l ⟩ F [ zero ] ≡ F′ [ zero ] / [Γ] / [F₀])
-          ([F₊] : Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ wk1 (F [ suc (var x0) ]↑) / [Γ] ∙ [ℕ] ∙ [F])
-          ([F′₊] : Γ ∙ ℕ ∙ F′ ⊩ᵛ⟨ l ⟩ wk1 (F′ [ suc (var x0) ]↑) / [Γ] ∙ [ℕ] ∙ [F′])
-          ([F₊≡F′₊] : Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ wk1 (F [ suc (var x0) ]↑)
-                              ≡  wk1 (F′ [ suc (var x0) ]↑) / [Γ] ∙ [ℕ] ∙ [F]
+          ([F₊] : Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ F [ suc (var x1) ]↑² / [Γ] ∙ [ℕ] ∙ [F])
+          ([F′₊] : Γ ∙ ℕ ∙ F′ ⊩ᵛ⟨ l ⟩ F′ [ suc (var x1) ]↑² / [Γ] ∙ [ℕ] ∙ [F′])
+          ([F₊≡F′₊] : Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ F [ suc (var x1) ]↑²
+                              ≡  F′ [ suc (var x1) ]↑² / [Γ] ∙ [ℕ] ∙ [F]
                               / [F₊])
           ([Fₙ] : Γ ⊩ᵛ⟨ l ⟩ F [ n ] / [Γ])
           ([z] : Γ ⊩ᵛ⟨ l ⟩ z ∷ F [ zero ] / [Γ] / [F₀])
           ([z′] : Γ ⊩ᵛ⟨ l ⟩ z′ ∷ F′ [ zero ] / [Γ] / [F′₀])
           ([z≡z′] : Γ ⊩ᵛ⟨ l ⟩ z ≡ z′ ∷ F [ zero ] / [Γ] / [F₀])
-          ([s] : Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ s ∷ wk1 (F [ suc (var x0) ]↑) / [Γ] ∙ [ℕ] ∙ [F] / [F₊])
-          ([s′] : Γ ∙ ℕ ∙ F′ ⊩ᵛ⟨ l ⟩ s′ ∷ wk1 (F′ [ suc (var x0) ]↑) / [Γ] ∙ [ℕ] ∙ [F′]
+          ([s] : Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ s ∷ F [ suc (var x1) ]↑² / [Γ] ∙ [ℕ] ∙ [F] / [F₊])
+          ([s′] : Γ ∙ ℕ ∙ F′ ⊩ᵛ⟨ l ⟩ s′ ∷ F′ [ suc (var x1) ]↑² / [Γ] ∙ [ℕ] ∙ [F′]
                            / [F′₊])
-          ([s≡s′] : Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ s ≡ s′ ∷ wk1 (F [ suc (var x0) ]↑)
+          ([s≡s′] : Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ s ≡ s′ ∷ F [ suc (var x1) ]↑²
                              / [Γ] ∙ [ℕ] ∙ [F] / [F₊])
           ([n] : Γ ⊩ᵛ⟨ l ⟩ n ∷ ℕ / [Γ] / [ℕ])
           ([n′] : Γ ⊩ᵛ⟨ l ⟩ n′ ∷ ℕ / [Γ] / [ℕ])
@@ -1002,26 +1005,26 @@ natrec-congᵛ {p = p} {q = q} {r = r} {F = F} {F′ = F′} {z = z} {z′ = z�
                                     (ℕᵣ (idRed:*: (ℕⱼ ⊢Δ))) ([n≡n′] ⊢Δ [σ])
       [Fₙ]′ = irrelevance′ (PE.sym (singleSubstComp (subst σ n) σ F))
                            (proj₁ (unwrap [F]′ ⊢Δ ([σ] , [σn]′)))
-      [F₊]′ = S.irrelevance {A = wk1 (F [ suc (var x0) ]↑)}
+      [F₊]′ = S.irrelevance {A = F [ suc (var x1) ]↑²}
                             (_∙_ {A = F} {l = l} (_∙_ {A = ℕ} {l = l} [Γ] [ℕ]) [F])
                             (_∙_ {l = l} (_∙_ {l = l} [Γ] [ℕ]′) [F]′) [F₊]
-      [F′₊]′ = S.irrelevance {A = wk1 (F′ [ suc (var x0) ]↑)}
+      [F′₊]′ = S.irrelevance {A = F′ [ suc (var x1) ]↑²}
                              (_∙_ {A = F′} {l = l} (_∙_ {A = ℕ} {l = l} [Γ] [ℕ]) [F′])
                              (_∙_ {l = l} (_∙_ {l = l} [Γ] [ℕ]′) [F′]′) [F′₊]
-      [F₊≡F′₊]′ = S.irrelevanceEq {A = wk1 (F [ suc (var x0) ]↑)}
-                                  {B = wk1 (F′ [ suc (var x0) ]↑)}
+      [F₊≡F′₊]′ = S.irrelevanceEq {A = F [ suc (var x1) ]↑²}
+                                  {B = F′ [ suc (var x1) ]↑²}
                                   ((_∙_ {A = F} {l = l} (_∙_ {A = ℕ} {l = l} [Γ] [ℕ]) [F]))
                                   ((_∙_ {l = l} (_∙_ {l = l} [Γ] [ℕ]′) [F]′))
                                   [F₊] [F₊]′ [F₊≡F′₊]
-      [s]′ = S.irrelevanceTerm {A = wk1 (F [ suc (var x0) ]↑)} {t = s}
+      [s]′ = S.irrelevanceTerm {A = F [ suc (var x1) ]↑²} {t = s}
                                ((_∙_ {A = F} {l = l} (_∙_ {A = ℕ} {l = l} [Γ] [ℕ]) [F]))
                                (_∙_ {l = l} (_∙_ {l = l} [Γ] [ℕ]′) [F]′)
                                [F₊] [F₊]′ [s]
-      [s′]′ = S.irrelevanceTerm {A = wk1 (F′ [ suc (var x0) ]↑)} {t = s′}
+      [s′]′ = S.irrelevanceTerm {A = F′ [ suc (var x1) ]↑²} {t = s′}
                                ((_∙_ {A = F′} {l = l} (_∙_ {A = ℕ} {l = l} [Γ] [ℕ]) [F′]))
                                (_∙_ {l = l} (_∙_ {l = l} [Γ] [ℕ]′) [F′]′)
                                [F′₊] [F′₊]′ [s′]
-      [s≡s′]′ = S.irrelevanceEqTerm {A = wk1 (F [ suc (var x0) ]↑)} {t = s} {u = s′}
+      [s≡s′]′ = S.irrelevanceEqTerm {A = F [ suc (var x1) ]↑²} {t = s} {u = s′}
                                     (((_∙_ {A = F} {l = l} (_∙_ {A = ℕ} {l = l} [Γ] [ℕ]) [F])))
                                     ((_∙_ {l = l} (_∙_ {l = l} [Γ] [ℕ]′) [F]′))
                                     [F₊] [F₊]′ [s≡s′]

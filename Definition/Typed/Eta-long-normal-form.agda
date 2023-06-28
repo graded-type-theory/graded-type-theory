@@ -154,7 +154,7 @@ mutual
                 Γ ⊢ne Emptyrec p A t ∷ A
     natrecₙ   : Γ ∙ ℕ ⊢nf A →
                 Γ ⊢nf t ∷ A [ zero ] →
-                Γ ∙ ℕ ∙ A ⊢nf u ∷ wk1 (A [ suc (var x0) ]↑) →
+                Γ ∙ ℕ ∙ A ⊢nf u ∷ A [ suc (var x1) ]↑² →
                 Γ ⊢ne v ∷ ℕ →
                 Γ ⊢ne natrec p q r A t u v ∷ A [ v ]
 
