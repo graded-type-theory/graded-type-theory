@@ -56,7 +56,9 @@ private variable
 -- concepts
 
 -- No-η-equality A holds if A is a type without (top-level)
--- η-equality, or a neutral term.
+-- η-equality, either because it is (an application of) a type
+-- constructor for a type without η-equality, or because it is
+-- neutral.
 
 data No-η-equality {n : Nat} : Term n → Set a where
   Uₙ     : No-η-equality U
