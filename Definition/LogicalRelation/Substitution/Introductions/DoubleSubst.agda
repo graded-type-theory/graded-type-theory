@@ -57,7 +57,7 @@ private
            ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
            ([Σ] : Γ ⊩ᵛ⟨ l ⟩ Σ⟨ m ⟩ p , q ▷ F ▹ G / [Γ])
            ([A] : Γ ∙ (Σ p , q ▷ F ▹ G) ⊩ᵛ⟨ l ⟩ A / [Γ] ∙ [Σ]) →
-           Σ-restriction m p q →
+           Σ-allowed m p q →
            Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ prod m p (var x1) (var x0) ∷ wk1 (wk1 (Σ⟨ m ⟩ p , q ▷ F ▹ G))
                            / [Γ] ∙ [F] ∙ [G] / wk1ᵛ ([Γ] ∙ [F]) [G] (wk1ᵛ [Γ] [F] [Σ])
   [prod] {n} {Γ} {F} {G} {p} {q} {A} {l} {m} [Γ] [F] [G] [Σ] [A] ok =
@@ -169,7 +169,7 @@ subst↑²S-prod :
   ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
   ([Σ] : Γ ⊩ᵛ⟨ l ⟩ Σ⟨ m ⟩ p , q ▷ F ▹ G / [Γ])
   ([A] : Γ ∙ (Σ p , q ▷ F ▹ G) ⊩ᵛ⟨ l ⟩ A / [Γ] ∙ [Σ]) →
-  Σ-restriction m p q →
+  Σ-allowed m p q →
   Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A [ prod m p (var x1) (var x0) ]↑² /
     [Γ] ∙ [F] ∙ [G]
 subst↑²S-prod [Γ] [F] [G] [Σ] [A] ok =
@@ -231,7 +231,7 @@ subst↑²SEq-prod :
   ([A≡A′] : Γ ∙ (Σ p , q ▷ F ▹ G) ⊩ᵛ⟨ l ⟩ A ≡ A′ / [Γ] ∙ [Σ] / [A])
   ([A₊] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A [ prod m p (var x1) (var x0) ]↑² /
             [Γ] ∙ [F] ∙ [G]) →
-  Σ-restriction m p q →
+  Σ-allowed m p q →
   Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A  [ prod m p (var x1) (var x0) ]↑² ≡
     A′ [ prod m p (var x1) (var x0) ]↑² / [Γ] ∙ [F] ∙ [G] / [A₊]
 subst↑²SEq-prod

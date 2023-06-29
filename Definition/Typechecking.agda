@@ -32,12 +32,12 @@ mutual
   data _⊢_⇇Type (Γ : Con Term n) : (A : Term n) → Set a where
     Uᶜ : Γ ⊢ U ⇇Type
     ℕᶜ : Γ ⊢ ℕ ⇇Type
-    Unitᶜ : Unit-restriction
+    Unitᶜ : Unit-allowed
           → Γ ⊢ Unit ⇇Type
     Emptyᶜ : Γ ⊢ Empty ⇇Type
     ΠΣᶜ : Γ ⊢ F ⇇Type
        → Γ ∙ F ⊢ G ⇇Type
-       → ΠΣ-restriction b p q
+       → ΠΣ-allowed b p q
        → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ⇇Type
     univᶜ : Γ ⊢ A ⇇ U
           → Γ ⊢ A ⇇Type
@@ -45,7 +45,7 @@ mutual
   data _⊢_⇉_ (Γ : Con Term n) : (t A : Term n) → Set a where
     ΠΣᵢ : Γ ⊢ F ⇇ U
        → Γ ∙ F ⊢ G ⇇ U
-       → ΠΣ-restriction b p q
+       → ΠΣ-allowed b p q
        → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ⇉ U
     varᵢ : ∀ {x}
          → x ∷ A ∈ Γ
@@ -75,9 +75,9 @@ mutual
             → Γ ∙ ℕ ∙ A ⊢ s ⇇ A [ suc (var x1) ]↑²
             → Γ ⊢ n ⇇ ℕ
             → Γ ⊢ natrec p q r A z s n ⇉ A [ n ]
-    Unitᵢ : Unit-restriction
+    Unitᵢ : Unit-allowed
           → Γ ⊢ Unit ⇉ U
-    starᵢ : Unit-restriction
+    starᵢ : Unit-allowed
           → Γ ⊢ star ⇉ Unit
     Emptyᵢ : Γ ⊢ Empty ⇉ U
     Emptyrecᵢ : Γ ⊢ A ⇇Type

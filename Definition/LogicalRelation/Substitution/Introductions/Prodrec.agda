@@ -82,7 +82,7 @@ prodrec-subst* {q = q} {l = l} {t} {.t} {u} {A} {F} {G} {σ}
       [σu] = proj₁ ([u] (⊢Δ ∙ ⊢σF ∙ ⊢σG) [⇑²σ])
       ⊢σu = escapeTerm [σA₊] [σu]
       ⊢σu′ = PE.subst (λ x → _ ⊢ _ ∷ x) (subst-β-prodrec A σ) ⊢σu
-  in  id (prodrecⱼ ⊢σF ⊢σG ⊢σA x ⊢σu′ (⊩ᵛΠΣ→ΠΣ-restriction [Σ]))
+  in  id (prodrecⱼ ⊢σF ⊢σG ⊢σA x ⊢σu′ (⊩ᵛΠΣ→ΠΣ-allowed [Σ]))
 prodrec-subst* {q = q} {Δ = Δ} {l = l} {t} {t′} {u} {A} {F} {G} {σ}
                [Γ] [F] [G] [Σ] [A] [A₊] [u] ⊢Δ [σ] [t′] (x ⇨ t⇒t′) =
   let [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
@@ -108,7 +108,7 @@ prodrec-subst* {q = q} {Δ = Δ} {l = l} {t} {t′} {u} {A} {F} {G} {σ}
                                           (reflSubst [Γ] ⊢Δ [σ] , symEqTerm [σΣ] s)))
       A[t′]≡A[t] = PE.subst₂ (Δ ⊢_≡_) (PE.sym (singleSubstComp _ σ A))
                              (PE.sym (singleSubstComp _ σ A)) A[t′]≡A[t]′
-  in  prodrec-subst ⊢σF ⊢σG ⊢σA ⊢σu′ x (⊩ᵛΠΣ→ΠΣ-restriction [Σ]) ⇨
+  in  prodrec-subst ⊢σF ⊢σG ⊢σA ⊢σu′ x (⊩ᵛΠΣ→ΠΣ-allowed [Σ]) ⇨
         conv* (prodrec-subst* {u = u} {A} {F} {G} {σ}
                  [Γ] [F] [G] [Σ] [A] [A₊] [u] ⊢Δ [σ] [t′] t⇒t′)
               A[t′]≡A[t]
@@ -118,7 +118,7 @@ prodrecTerm :
   ([Γ] : ⊩ᵛ Γ)
   ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
   ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
-  (ok : Σᵣ-restriction p q) →
+  (ok : Σᵣ-allowed p q) →
   let [Σ] = Σᵛ [Γ] [F] [G] ok in
   ([A] : Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊩ᵛ⟨ l ⟩ A / [Γ] ∙ [Σ])
   ([A₊] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A [ prodᵣ p (var x1) (var x0) ]↑² /
@@ -275,7 +275,7 @@ prodrecCong :
   ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
   ([G′] : Γ ∙ F′ ⊩ᵛ⟨ l ⟩ G′ / [Γ] ∙ [F′])
   ([G≡G′] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G ≡ G′ / [Γ] ∙ [F] / [G])
-  (ok : Σᵣ-restriction p q) →
+  (ok : Σᵣ-allowed p q) →
   let [Σ] = Σᵛ [Γ] [F] [G] ok
       [Σ′] = Σᵛ [Γ] [F′] [G′] ok
   in
@@ -895,7 +895,7 @@ prodrecᵛ :
 prodrecᵛ {n = n} {q = q} {r = r} {Γ = Γ} {F} {G} {A} {t} {u} {l}
          [Γ] [F] [G] [Σ] [A] [A₊] [Aₜ] [t] [u]
          {k} {Δ} {σ} ⊢Δ [σ] =
-  let ok = ⊩ᵛΠΣ→ΠΣ-restriction [Σ]
+  let ok = ⊩ᵛΠΣ→ΠΣ-allowed [Σ]
       [Σ]′ = Σᵛ {F = F} {G = G} {q = q} {m = Σᵣ} [Γ] [F] [G] ok
       [A]′ = S.irrelevance {A = A} (_∙_ {A = Σᵣ _ , q ▷ F ▹ G} [Γ] [Σ])
                ([Γ] ∙ [Σ]′) [A]
@@ -970,7 +970,7 @@ prodrec-congᵛ {Γ = Γ} {q = q} {r = r}
               [Γ] [F] [F′] [F≡F′] [G] [G′] [G≡G′] [Σ] [Σ′] [Σ≡Σ′]
               [A] [A′] [A≡A′] [A₊] [A′₊] [A₊≡A′₊] [Aₜ]
               [t] [t′] [t≡t′] [u] [u′] [u≡u′] {k} {Δ} {σ} ⊢Δ [σ] =
-  let ok = ⊩ᵛΠΣ→ΠΣ-restriction [Σ]
+  let ok = ⊩ᵛΠΣ→ΠΣ-allowed [Σ]
       [Σ]′ = Σᵛ {F = F} {G = G} {q = q} {m = Σᵣ} [Γ] [F] [G] ok
       [Σ′]′ = Σᵛ {F = F′} {G = G′} {q = q} {m = Σᵣ} [Γ] [F′] [G′] ok
       [A]′ = S.irrelevance {A = A} (_∙_ {A = Σᵣ _ , q ▷ F ▹ G} [Γ] [Σ])

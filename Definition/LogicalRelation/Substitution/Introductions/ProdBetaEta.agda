@@ -51,7 +51,7 @@ private
         ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
         ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ F / [Γ] / [F])
         ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ G [ t ] / [Γ] / substS {F = F} {G} [Γ] [F] [G] [t])
-      → Σₚ-restriction p q
+      → Σₚ-allowed p q
       → Γ ⊩ᵛ⟨ l ⟩ fst p (prodₚ p t u) ≡ t ∷ F / [Γ] / [F]
 Σ-β₁ᵛ {Γ = Γ} {F = F} {G} {t} {u} {l} [Γ] [F] [G] [t] [u] ok =
   let [Gt] = substS {F = F} {G} {t} [Γ] [F] [G] [t]
@@ -85,7 +85,7 @@ private
   ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
   ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ F / [Γ] / [F])
   ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ G [ t ] / [Γ] / substS [Γ] [F] [G] [t])
-  (ok : Σₚ-restriction p q) →
+  (ok : Σₚ-allowed p q) →
   Γ ⊩ᵛ⟨ l ⟩ snd p (prodₚ p t u) ≡ u ∷ G [ fst p (prodₚ p t u) ] / [Γ] /
     substS {F = F} {G} [Γ] [F] [G]
       (fstᵛ {q = q} {t = prodₚ p t u} [Γ] [F] [G] ok
@@ -281,7 +281,7 @@ private
   ([Γ] : ⊩ᵛ Γ)
   ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
   ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
-  (ok : Σₚ-restriction p′ q) →
+  (ok : Σₚ-allowed p′ q) →
   let [ΣFG] = Σᵛ {q = q} [Γ] [F] [G] ok in
   ([p] : Γ ⊩ᵛ⟨ l ⟩ p ∷ Σ _ , _ ▷ F ▹ G / [Γ] / [ΣFG])
   ([r] : Γ ⊩ᵛ⟨ l ⟩ r ∷ Σ _ , _ ▷ F ▹ G / [Γ] / [ΣFG])

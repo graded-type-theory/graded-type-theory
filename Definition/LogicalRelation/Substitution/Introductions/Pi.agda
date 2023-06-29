@@ -50,7 +50,7 @@ private
      ([Γ] : ⊩ᵛ Γ)
      ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
    → Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F]
-   → BindingType-restriction W
+   → BindingType-allowed W
    → Γ ⊩ᵛ⟨ l ⟩ ⟦ W ⟧ F ▹ G / [Γ]
 ⟦ W ⟧ᵛ {n = n} {Γ} {F} {G} {l} [Γ] [F] [G] ok =
   wrap λ {k} {Δ = Δ} {σ = σ} ⊢Δ [σ] →
@@ -175,7 +175,7 @@ private
   ([Γ] : ⊩ᵛ Γ)
   ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ]) →
   Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F] →
-  ΠΣ-restriction b p q →
+  ΠΣ-allowed b p q →
   Γ ⊩ᵛ⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G / [Γ]
 ΠΣᵛ {b = BMΠ}   = ⟦ BΠ _ _ ⟧ᵛ
 ΠΣᵛ {b = BMΣ _} = ⟦ BΣ _ _ _ ⟧ᵛ
@@ -189,7 +189,7 @@ W-congᵛ : ∀ {F G H E l} W
           ([E] : Γ ∙ H ⊩ᵛ⟨ l ⟩ E / [Γ] ∙ [H])
           ([F≡H] : Γ ⊩ᵛ⟨ l ⟩ F ≡ H / [Γ] / [F])
           ([G≡E] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G ≡ E / [Γ] ∙ [F] / [G])
-          (ok : BindingType-restriction W)
+          (ok : BindingType-allowed W)
         → Γ ⊩ᵛ⟨ l ⟩ ⟦ W ⟧ F ▹ G ≡ ⟦ W ⟧ H ▹ E / [Γ] /
             ⟦ W ⟧ᵛ {F = F} {G} [Γ] [F] [G] ok
 W-congᵛ
@@ -272,7 +272,7 @@ Wᵗᵛ : ∀ {Γ : Con Term n} {F G} W ([Γ] : ⊩ᵛ_ {n = n} Γ)
       ([U] : Γ ∙ F ⊩ᵛ⟨ ¹ ⟩ U / [Γ] ∙ [F])
     → Γ ⊩ᵛ⟨ ¹ ⟩ F ∷ U / [Γ] / Uᵛ [Γ]
     → Γ ∙ F ⊩ᵛ⟨ ¹ ⟩ G ∷ U / [Γ] ∙ [F] / [U]
-    → BindingType-restriction W
+    → BindingType-allowed W
     → Γ ⊩ᵛ⟨ ¹ ⟩ ⟦ W ⟧ F ▹ G ∷ U / [Γ] / Uᵛ [Γ]
 Wᵗᵛ {Γ = Γ} {F} {G} W [Γ] [F] [U] [Fₜ] [Gₜ] ok {Δ = Δ} {σ = σ} ⊢Δ [σ] =
   let [liftσ] = liftSubstS {F = F} [Γ] ⊢Δ [F] [σ]
@@ -348,7 +348,7 @@ W-congᵗᵛ : ∀ {Γ : Con Term n} {F G H E} W
            ([E]ₜ : Γ ∙ H ⊩ᵛ⟨ ¹ ⟩ E ∷ U / [Γ] ∙ [H] / [UH])
            ([F≡H]ₜ : Γ ⊩ᵛ⟨ ¹ ⟩ F ≡ H ∷ U / [Γ] / Uᵛ [Γ])
            ([G≡E]ₜ : Γ ∙ F ⊩ᵛ⟨ ¹ ⟩ G ≡ E ∷ U / [Γ] ∙ [F] / [UF])
-         → BindingType-restriction W
+         → BindingType-allowed W
          → Γ ⊩ᵛ⟨ ¹ ⟩ ⟦ W ⟧ F ▹ G ≡ ⟦ W ⟧ H ▹ E ∷ U / [Γ] / Uᵛ [Γ]
 W-congᵗᵛ
   {F = F} {G} {H} {E} W [Γ] [F] [H] [UF] [UH] [F]ₜ [G]ₜ [H]ₜ [E]ₜ [F≡H]ₜ
@@ -405,7 +405,7 @@ ndᵛ : ∀ {F G l} W
       ([Γ] : ⊩ᵛ Γ)
       ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
     → Γ ⊩ᵛ⟨ l ⟩ G / [Γ]
-    → BindingType-restriction W
+    → BindingType-allowed W
     → Γ ⊩ᵛ⟨ l ⟩ ⟦ W ⟧ F ▹ wk1 G / [Γ]
 ndᵛ {F = F} {G} W [Γ] [F] [G] =
   ⟦ W ⟧ᵛ {F = F} {wk1 G} [Γ] [F] (wk1ᵛ {A = G} {F} [Γ] [F] [G])
@@ -419,7 +419,7 @@ nd-congᵛ : ∀ {F F′ G G′ l} W
            ([G] : Γ ⊩ᵛ⟨ l ⟩ G / [Γ])
            ([G′] : Γ ⊩ᵛ⟨ l ⟩ G′ / [Γ])
            ([G≡G′] : Γ ⊩ᵛ⟨ l ⟩ G ≡ G′ / [Γ] / [G])
-         → (ok : BindingType-restriction W)
+         → (ok : BindingType-allowed W)
          → Γ ⊩ᵛ⟨ l ⟩ ⟦ W ⟧ F ▹ wk1 G ≡ ⟦ W ⟧ F′ ▹ wk1 G′ / [Γ] /
              ndᵛ {F = F} {G} W [Γ] [F] [G] ok
 nd-congᵛ
@@ -435,7 +435,7 @@ nd-congᵛ
   ([Γ] : ⊩ᵛ Γ)
   ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ]) →
   Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F] →
-  Π-restriction p q →
+  Π-allowed p q →
   Γ ⊩ᵛ⟨ l ⟩ Π p , q ▷ F ▹ G / [Γ]
 Πᵛ = ⟦ BΠ _ _ ⟧ᵛ
 
@@ -447,7 +447,7 @@ nd-congᵛ
   Γ ∙ H ⊩ᵛ⟨ l ⟩ E / [Γ] ∙ [H] →
   Γ ⊩ᵛ⟨ l ⟩ F ≡ H / [Γ] / [F] →
   Γ ∙ F ⊩ᵛ⟨ l ⟩ G ≡ E / [Γ] ∙ [F] / [G] →
-  (ok : Π-restriction p q) →
+  (ok : Π-allowed p q) →
   Γ ⊩ᵛ⟨ l ⟩ Π p , q ▷ F ▹ G ≡ Π p , q ▷ H ▹ E / [Γ] / Πᵛ [Γ] [F] [G] ok
 Π-congᵛ = W-congᵛ (BΠ _ _)
 
@@ -457,7 +457,7 @@ nd-congᵛ
   ([U] : Γ ∙ F ⊩ᵛ⟨ ¹ ⟩ U / [Γ] ∙ [F]) →
   Γ ⊩ᵛ⟨ ¹ ⟩ F ∷ U / [Γ] / Uᵛ [Γ] →
   Γ ∙ F ⊩ᵛ⟨ ¹ ⟩ G ∷ U / [Γ] ∙ [F] / [U] →
-  Π-restriction p q →
+  Π-allowed p q →
   Γ ⊩ᵛ⟨ ¹ ⟩ Π p , q ▷ F ▹ G ∷ U / [Γ] / Uᵛ [Γ]
 Πᵗᵛ {G = G} = Wᵗᵛ {G = G} (BΠ _ _)
 
@@ -473,7 +473,7 @@ nd-congᵛ
   Γ ∙ H ⊩ᵛ⟨ ¹ ⟩ E ∷ U / [Γ] ∙ [H] / [UH] →
   Γ ⊩ᵛ⟨ ¹ ⟩ F ≡ H ∷ U / [Γ] / Uᵛ [Γ] →
   Γ ∙ F ⊩ᵛ⟨ ¹ ⟩ G ≡ E ∷ U / [Γ] ∙ [F] / [UF] →
-  Π-restriction p q →
+  Π-allowed p q →
   Γ ⊩ᵛ⟨ ¹ ⟩ Π p , q ▷ F ▹ G ≡ Π p , q ▷ H ▹ E ∷ U / [Γ] / Uᵛ [Γ]
 Π-congᵗᵛ {G = G} {E = E} = W-congᵗᵛ {G = G} {E = E} (BΠ _ _)
 
@@ -481,7 +481,7 @@ nd-congᵛ
   ([Γ] : ⊩ᵛ Γ) →
   Γ ⊩ᵛ⟨ l ⟩ F / [Γ] →
   Γ ⊩ᵛ⟨ l ⟩ G / [Γ] →
-  Π-restriction p q →
+  Π-allowed p q →
   Γ ⊩ᵛ⟨ l ⟩ Π p , q ▷ F ▹ wk1 G / [Γ]
 ▹▹ᵛ = ndᵛ (BΠ _ _)
 
@@ -493,7 +493,7 @@ nd-congᵛ
   ([G] : Γ ⊩ᵛ⟨ l ⟩ G / [Γ]) →
   Γ ⊩ᵛ⟨ l ⟩ G′ / [Γ] →
   Γ ⊩ᵛ⟨ l ⟩ G ≡ G′ / [Γ] / [G] →
-  (ok : Π-restriction p q) →
+  (ok : Π-allowed p q) →
   Γ ⊩ᵛ⟨ l ⟩ Π p , q ▷ F ▹ wk1 G ≡ Π p , q ▷ F′ ▹ wk1 G′ / [Γ] /
     ▹▹ᵛ [Γ] [F] [G] ok
 ▹▹-congᵛ = nd-congᵛ (BΠ _ _)

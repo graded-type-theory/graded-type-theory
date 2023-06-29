@@ -50,7 +50,7 @@ lamᵛ : ∀ {F G t l}
        ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
        ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
        ([t] : Γ ∙ F ⊩ᵛ⟨ l ⟩ t ∷ G / [Γ] ∙ [F] / [G])
-       (ok : Π-restriction p q)
+       (ok : Π-allowed p q)
      → Γ ⊩ᵛ⟨ l ⟩ lam p t ∷ Π p , q ▷ F ▹ G / [Γ] / Πᵛ [Γ] [F] [G] ok
 lamᵛ
   {n} {Γ = Γ} {p = p} {q = q} {F = F} {G} {t} {l}
@@ -328,7 +328,7 @@ lamᵛ
              ([Γ] : ⊩ᵛ Γ)
              ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
              ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
-             (ok : Π-restriction p q)
+             (ok : Π-allowed p q)
            → let [ΠFG] = Πᵛ [Γ] [F] [G] ok in
              Γ ∙ F ⊩ᵛ⟨ l ⟩ wk1 f ∘⟨ p ⟩ var x0 ≡ wk1 g ∘⟨ p ⟩ var x0 ∷ G
                           / [Γ] ∙ [F] / [G]
@@ -447,7 +447,7 @@ lamᵛ
         ([Γ] : ⊩ᵛ Γ)
         ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
         ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
-        (ok : Π-restriction p q)
+        (ok : Π-allowed p q)
       → let [ΠFG] = Πᵛ [Γ] [F] [G] ok in
         Γ ⊩ᵛ⟨ l ⟩ f ∷ Π p , q ▷ F ▹ G / [Γ] / [ΠFG]
       → Γ ⊩ᵛ⟨ l ⟩ g ∷ Π p , q ▷ F ▹ G / [Γ] / [ΠFG]

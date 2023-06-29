@@ -12,10 +12,10 @@ module Definition.Typechecking.Decidable
   (open Type-restrictions R)
   -- Equality is assumed to be decidable for M.
   (_≟_ : Decidable (PE._≡_ {A = M}))
-  -- It is decidable whether the Unit restriction holds.
-  (Unit-ok? : Dec Unit-restriction)
-  -- ΠΣ-restriction is pointwise decidable.
-  (ΠΣ-ok? : ∀ b p q → Dec (ΠΣ-restriction b p q))
+  -- It is decidable whether the Unit type is allowed.
+  (Unit-ok? : Dec Unit-allowed)
+  -- ΠΣ-allowed is pointwise decidable.
+  (ΠΣ-ok? : ∀ b p q → Dec (ΠΣ-allowed b p q))
   where
 
 open import Definition.Typechecking R

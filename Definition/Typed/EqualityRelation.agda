@@ -127,8 +127,8 @@ record EqRelSet : Set (lsuc ℓ) where
     ≅ₜ-Emptyrefl  : ⊢ Γ → Γ ⊢ Empty ≅ Empty ∷ U
 
     -- Unit type reflexivity
-    ≅-Unitrefl   : ⊢ Γ → Unit-restriction → Γ ⊢ Unit ≅ Unit
-    ≅ₜ-Unitrefl  : ⊢ Γ → Unit-restriction → Γ ⊢ Unit ≅ Unit ∷ U
+    ≅-Unitrefl   : ⊢ Γ → Unit-allowed → Γ ⊢ Unit ≅ Unit
+    ≅ₜ-Unitrefl  : ⊢ Γ → Unit-allowed → Γ ⊢ Unit ≅ Unit ∷ U
 
     -- Unit η-equality
     ≅ₜ-η-unit : Γ ⊢ e ∷ Unit
@@ -141,7 +141,7 @@ record EqRelSet : Set (lsuc ℓ) where
               → Γ ⊢ F
               → Γ ⊢ F ≅ H
               → Γ ∙ F ⊢ G ≅ E
-              → ΠΣ-restriction bm p q
+              → ΠΣ-allowed bm p q
               → Γ ⊢ ΠΣ⟨ bm ⟩ p , q ▷ F ▹ G ≅ ΠΣ⟨ bm ⟩ p , q ▷ H ▹ E
 
     ≅ₜ-ΠΣ-cong
@@ -149,7 +149,7 @@ record EqRelSet : Set (lsuc ℓ) where
               → Γ ⊢ F
               → Γ ⊢ F ≅ H ∷ U
               → Γ ∙ F ⊢ G ≅ E ∷ U
-              → ΠΣ-restriction bm p q
+              → ΠΣ-allowed bm p q
               → Γ ⊢ ΠΣ⟨ bm ⟩ p , q ▷ F ▹ G ≅ ΠΣ⟨ bm ⟩ p , q ▷ H ▹ E ∷ U
 
     -- Zero reflexivity
@@ -164,7 +164,7 @@ record EqRelSet : Set (lsuc ℓ) where
                 → Γ ∙ F ⊢ G
                 → Γ ⊢ t ≅ t′ ∷ F
                 → Γ ⊢ u ≅ u′ ∷ G [ t ]
-                → Σᵣ-restriction p q
+                → Σᵣ-allowed p q
                 → Γ ⊢ prodᵣ p t u ≅ prodᵣ p t′ u′ ∷ Σᵣ p , q ▷ F ▹ G
 
     -- η-equality
@@ -227,7 +227,7 @@ record EqRelSet : Set (lsuc ℓ) where
              → Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ A ≅ A′
              → Γ                      ⊢ t ~ t′ ∷ Σᵣ p , q ▷ F ▹ G
              → Γ ∙ F ∙ G              ⊢ u ≅ u′ ∷ A [ prodᵣ p (var x1) (var x0) ]↑²
-             → Σᵣ-restriction p q
+             → Σᵣ-allowed p q
              → Γ                      ⊢ prodrec r p q′ A t u ~ prodrec r p q′ A′ t′ u′ ∷ A [ t ]
 
     -- Empty recursion congruence
@@ -237,7 +237,7 @@ record EqRelSet : Set (lsuc ℓ) where
                → Γ ⊢ Emptyrec p F n ~ Emptyrec p F′ n′ ∷ F
 
   -- Star reflexivity
-  ≅ₜ-starrefl : ⊢ Γ → Unit-restriction → Γ ⊢ star ≅ star ∷ Unit
+  ≅ₜ-starrefl : ⊢ Γ → Unit-allowed → Γ ⊢ star ≅ star ∷ Unit
   ≅ₜ-starrefl [Γ] ok = ≅ₜ-η-unit (starⱼ [Γ] ok) (starⱼ [Γ] ok)
 
   -- Composition of universe and generic equality compatibility
@@ -248,7 +248,7 @@ record EqRelSet : Set (lsuc ℓ) where
           → Γ ⊢ F
           → Γ ⊢ F ≅ H
           → Γ ∙ F ⊢ G ≅ E
-          → BindingType-restriction W
+          → BindingType-allowed W
           → Γ ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W ⟧ H ▹ E
   ≅-W-cong BΠ! = ≅-ΠΣ-cong
   ≅-W-cong BΣ! = ≅-ΠΣ-cong
@@ -257,7 +257,7 @@ record EqRelSet : Set (lsuc ℓ) where
             → Γ ⊢ F
             → Γ ⊢ F ≅ H ∷ U
             → Γ ∙ F ⊢ G ≅ E ∷ U
-            → BindingType-restriction W
+            → BindingType-allowed W
             → Γ ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W ⟧ H ▹ E ∷ U
   ≅ₜ-W-cong BΠ! = ≅ₜ-ΠΣ-cong
   ≅ₜ-W-cong BΣ! = ≅ₜ-ΠΣ-cong

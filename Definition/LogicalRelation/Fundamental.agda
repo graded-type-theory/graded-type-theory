@@ -185,7 +185,7 @@ mutual
   fundamentalTerm (fstⱼ {F = F} {G} {t} ⊢F ⊢G ⊢t) with
     fundamental ⊢F | fundamental ⊢G | fundamentalTerm ⊢t
   ... | [Γ] , [F] | [Γ]₁ , [G]₁ | [Γ]₂ , [ΣFG]₂ , [t]₂ =
-    let ok = ⊩ᵛΠΣ→ΠΣ-restriction [ΣFG]₂
+    let ok = ⊩ᵛΠΣ→ΠΣ-allowed [ΣFG]₂
         [G] = S.irrelevance {A = G} [Γ]₁ ([Γ] ∙ [F]) [G]₁
 
         [t] = S.irrelevanceTerm {A = Σ _ , _ ▷ F ▹ G} {t = t}
@@ -195,7 +195,7 @@ mutual
   fundamentalTerm (sndⱼ {F = F} {G} {t} ⊢F ⊢G ⊢t) with
     fundamental ⊢F | fundamental ⊢G | fundamentalTerm ⊢t
   ... | [Γ] , [F] | [Γ]₁ , [G]₁ | [Γ]₂ , [ΣFG]₂ , [t]₂ =
-    let ok = ⊩ᵛΠΣ→ΠΣ-restriction [ΣFG]₂
+    let ok = ⊩ᵛΠΣ→ΠΣ-allowed [ΣFG]₂
         [G] = S.irrelevance {A = G} [Γ]₁ ([Γ] ∙ [F]) [G]₁
 
         [t] = S.irrelevanceTerm {A = Σ _ , _ ▷ F ▹ G} {t = t}
@@ -416,7 +416,7 @@ mutual
        | fundamentalTerm ⊢t′ | fundamentalTermEq t≡t′
   ... | [Γ] , [F] | [Γ]₁ , [ΠFG] , [t] | [Γ]₂ , [ΠFG]₁ , [t′]
       | [Γ]₃ , modelsTermEq [G] [t0] [t′0] [t0≡t′0] =
-    let ok = ⊩ᵛΠΣ→ΠΣ-restriction [ΠFG]
+    let ok = ⊩ᵛΠΣ→ΠΣ-allowed [ΠFG]
         [F]′ = S.irrelevance {A = F} [Γ] [Γ]₁ [F]
         [G]′ = S.irrelevance {A = G} [Γ]₃ ([Γ]₁ ∙ [F]′) [G]
         [t′]′ = S.irrelevanceTerm {A = Π _ , _ ▷ F ▹ G} {t = g}
@@ -722,7 +722,7 @@ mutual
   fundamentalTermEq (fst-cong {F = F} {G} {t = t} {t′} ⊢F ⊢G t≡t′)
     with fundamentalTermEq t≡t′ | fundamental ⊢F | fundamental ⊢G
   ... | [Γ] , modelsTermEq [ΣFG] [t] [t′] [t≡t′] | [Γ]₁ , [F]₁ | [Γ]₂ , [G]₂ =
-    let ok = ⊩ᵛΠΣ→ΠΣ-restriction [ΣFG]
+    let ok = ⊩ᵛΠΣ→ΠΣ-allowed [ΣFG]
         [F] = S.irrelevance {A = F} [Γ]₁ [Γ] [F]₁
         [G] = S.irrelevance {A = G} [Γ]₂ ([Γ] ∙ [F]) [G]₂
 
@@ -746,7 +746,7 @@ mutual
     {Γ = Γ} (snd-cong {F = F} {G} {t = t} {t′} ⊢F ⊢G t≡t′)
     with fundamentalTermEq t≡t′ | fundamental ⊢F | fundamental ⊢G
   ... | [Γ] , modelsTermEq [ΣFG] [t] [t′] [t≡t′] | [Γ]₁ , [F]₁ | [Γ]₂ , [G]₂ =
-    let ok = ⊩ᵛΠΣ→ΠΣ-restriction [ΣFG]
+    let ok = ⊩ᵛΠΣ→ΠΣ-allowed [ΣFG]
         [F] = S.irrelevance {A = F} [Γ]₁ [Γ] [F]₁
         [G] = S.irrelevance {A = G} [Γ]₂ ([Γ] ∙ [F]) [G]₂
 
@@ -858,7 +858,7 @@ mutual
       | [Γ]₂ , [F]₂ | [Γ]₃ , [G]₃
       | [Γ]₄ , modelsTermEq [F]₄ [fstp]₄ [fstr]₄ [fst≡]₄
       | [Γ]₅ , modelsTermEq [Gfstp]₅ [sndp]₅ [sndr]₅ [snd≡]₅ =
-    let ok = ⊩ᵛΠΣ→ΠΣ-restriction [ΣFG]₀
+    let ok = ⊩ᵛΠΣ→ΠΣ-allowed [ΣFG]₀
         [F] = S.irrelevance {A = F} [Γ]₂ [Γ] [F]₂
         [G] = S.irrelevance {A = G} [Γ]₃ ([Γ] ∙ [F]) [G]₃
         [ΣFG] = Σᵛ {F = F} {G} [Γ] [F] [G] ok

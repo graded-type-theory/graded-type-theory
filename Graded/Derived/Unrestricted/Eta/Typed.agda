@@ -12,10 +12,11 @@ module Graded.Derived.Unrestricted.Eta.Typed
   (open Type-restrictions R)
   -- A quantity that stands for "an unlimited number of uses".
   (ω : M)
-  -- The Unit restriction is assumed to hold.
-  (Unit-ok : Unit-restriction)
-  -- The Σₚ restriction is assumed to hold for ω and ω.
-  (Σₚ-ok : Σₚ-restriction ω ω)
+  -- The Unit type is assumed to be allowed.
+  (Unit-ok : Unit-allowed)
+  -- It is assumed that Σ-types with η-equality are allowed for the
+  -- quantities ω and ω.
+  (Σₚ-ok : Σₚ-allowed ω ω)
   where
 
 open Modality 𝕄
@@ -264,7 +265,7 @@ inversion-unbox ⊢unbox =
     q
   , C
   , conv ⊢t
-      (ΠΣ-cong ⊢B (_⊢_≡_.sym ≡B) (refl ⊢C) (⊢∷ΠΣ→ΠΣ-restriction ⊢t))
+      (ΠΣ-cong ⊢B (_⊢_≡_.sym ≡B) (refl ⊢C) (⊢∷ΠΣ→ΠΣ-allowed ⊢t))
 
 -- A certain form of inversion for unbox does not hold.
 

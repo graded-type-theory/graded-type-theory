@@ -84,7 +84,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
   prodrecₘ  : γ ▸[ m ᵐ· r ] t
             → δ ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u
             → η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
-            → Prodrec-restriction r p q
+            → Prodrec-allowed r p q
             → r ·ᶜ γ +ᶜ δ ▸[ m ] prodrec r p q A t u
 
   zeroₘ     : 𝟘ᶜ ▸[ m ] zero

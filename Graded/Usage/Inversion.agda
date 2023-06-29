@@ -206,12 +206,12 @@ record InvUsageProdrec
     δ▸t : δ ▸[ m ᵐ· r ] t
     η▸u : η ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u
     θ▸A : θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
-    P : Prodrec-restriction r p q
+    P : Prodrec-allowed r p q
     γ≤γ′ : γ ≤ᶜ r ·ᶜ δ +ᶜ η
 
 -- If γ ▸[ m ] prodrec r p q A t u then δ ▸[ m ᵐ· r ] t,
 -- η ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u, θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A,
--- Prodrec-restriction r p q and γ ≤ᶜ r ·ᶜ δ +ᶜ η.
+-- Prodrec-allowed r p q and γ ≤ᶜ r ·ᶜ δ +ᶜ η.
 
 inv-usage-prodrec :
   γ ▸[ m ] prodrec r p q A t u → InvUsageProdrec γ m r p q A t u

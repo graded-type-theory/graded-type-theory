@@ -34,7 +34,7 @@ private
 
 -- Validity of the Unit type.
 Unitᵛ :
-  ∀ {l} ([Γ] : ⊩ᵛ Γ) → Unit-restriction → Γ ⊩ᵛ⟨ l ⟩ Unit / [Γ]
+  ∀ {l} ([Γ] : ⊩ᵛ Γ) → Unit-allowed → Γ ⊩ᵛ⟨ l ⟩ Unit / [Γ]
 Unitᵛ _ ok =
   wrap λ ⊢Δ _ →
     Unitᵣ (Unitₜ (idRed:*: (Unitⱼ ⊢Δ ok)) ok)
@@ -43,7 +43,7 @@ Unitᵛ _ ok =
 -- Validity of the Unit type as a term.
 Unitᵗᵛ :
   ([Γ] : ⊩ᵛ Γ) →
-  Unit-restriction →
+  Unit-allowed →
   Γ ⊩ᵛ⟨ ¹ ⟩ Unit ∷ U / [Γ] / Uᵛ [Γ]
 Unitᵗᵛ _ ok ⊢Δ _ =
     Uₜ Unit (idRedTerm:*: ⊢Unit) Unitₙ Unit≅Unit [Unit]
@@ -58,7 +58,7 @@ Unitᵗᵛ _ ok ⊢Δ _ =
 
 -- Validity of star.
 starᵛ :
-  ∀ {l} ([Γ] : ⊩ᵛ Γ) (ok : Unit-restriction) →
+  ∀ {l} ([Γ] : ⊩ᵛ Γ) (ok : Unit-allowed) →
   Γ ⊩ᵛ⟨ l ⟩ star ∷ Unit / [Γ] / Unitᵛ [Γ] ok
 starᵛ [Γ] ok ⊢Δ _ =
     Unitₜ star (idRedTerm:*: ⊢star) starₙ
@@ -76,7 +76,7 @@ starᵛ [Γ] ok ⊢Δ _ =
   let J = proj₁ (unwrap [Unit] ⊢Δ [σ])
       [σe] = proj₁ ([e] ⊢Δ [σ])
       [σe'] = proj₁ ([e'] ⊢Δ [σ])
-      ok = ⊩ᵛUnit→Unit-restriction [Unit]
+      ok = ⊩ᵛUnit→Unit-allowed [Unit]
       UnitJ : Δ ⊩⟨ l ⟩ Unit
       UnitJ = Unitᵣ (Unitₜ (idRed:*: (Unitⱼ ⊢Δ ok)) ok)
       [σe] = irrelevanceTerm J UnitJ [σe]

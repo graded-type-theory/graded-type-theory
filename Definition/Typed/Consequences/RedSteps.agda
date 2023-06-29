@@ -65,10 +65,10 @@ prodrec-subst* : Γ ⊢ t ⇒* t′ ∷ Σᵣ p , q ▷ F ▹ G
 prodrec-subst* (id x) ⊢F ⊢G ⊢A ⊢u =
   id (prodrecⱼ ⊢F ⊢G ⊢A x ⊢u ok)
   where
-  ok = ⊢∷ΠΣ→ΠΣ-restriction (var (wf ⊢A) here)
+  ok = ⊢∷ΠΣ→ΠΣ-allowed (var (wf ⊢A) here)
 prodrec-subst* (x ⇨ t⇒t′) ⊢F ⊢G ⊢A ⊢u =
   prodrec-subst ⊢F ⊢G ⊢A ⊢u x ok ⇨
   conv* (prodrec-subst* t⇒t′ ⊢F ⊢G ⊢A ⊢u)
     (substTypeEq (refl ⊢A) (sym (subsetTerm x)))
   where
-  ok = ⊢∷ΠΣ→ΠΣ-restriction (var (wf ⊢A) here)
+  ok = ⊢∷ΠΣ→ΠΣ-allowed (var (wf ⊢A) here)

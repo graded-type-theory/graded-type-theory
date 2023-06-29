@@ -105,7 +105,7 @@ fst-congᵛ :
   ([Γ] : ⊩ᵛ Γ)
   ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
   ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
-  (ok : Σₚ-restriction p q)
+  (ok : Σₚ-allowed p q)
   ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ Σₚ p , q ▷ F ▹ G / [Γ] / Σᵛ [Γ] [F] [G] ok)
   ([t′] : Γ ⊩ᵛ⟨ l ⟩ t′ ∷ Σₚ p , q ▷ F ▹ G / [Γ] / Σᵛ [Γ] [F] [G] ok)
   ([t≡t′] : Γ ⊩ᵛ⟨ l ⟩ t ≡ t′ ∷ Σₚ p , q ▷ F ▹ G / [Γ] /
@@ -123,7 +123,7 @@ fstᵛ : ∀ {Γ : Con Term n} {F : Term n} {G t l}
        ([Γ] : ⊩ᵛ Γ)
        ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
        ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
-       (ok : Σₚ-restriction p q)
+       (ok : Σₚ-allowed p q)
        ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ Σₚ p , q ▷ F ▹ G / [Γ] / Σᵛ [Γ] [F] [G] ok)
        → Γ ⊩ᵛ⟨ l ⟩ fst p t ∷ F / [Γ] / [F]
 fstᵛ {Γ = Γ} {F} {G} {t} {l} [Γ] [F] [G] ok [t] {Δ = Δ} {σ = σ} ⊢Δ [σ] =

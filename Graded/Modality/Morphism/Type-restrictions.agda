@@ -67,15 +67,15 @@ record Are-preserving-type-restrictions
     module R₂ = Type-restrictions R₂
 
   field
-    -- If R₁.Unit-restriction holds, then R₂.Unit-restriction holds.
+    -- If R₁.Unit-allowed holds, then R₂.Unit-allowed holds.
     Unit-preserved :
-      R₁.Unit-restriction → R₂.Unit-restriction
+      R₁.Unit-allowed → R₂.Unit-allowed
 
-    -- The functions tr and tr-Σ preserve the ΠΣ-restriction property
-    -- in a certain way.
+    -- The functions tr and tr-Σ preserve the ΠΣ-allowed property in a
+    -- certain way.
     ΠΣ-preserved :
-      R₁.ΠΣ-restriction b p q →
-      R₂.ΠΣ-restriction b (tr-BinderMode tr tr-Σ b p) (tr q)
+      R₁.ΠΣ-allowed b p q →
+      R₂.ΠΣ-allowed b (tr-BinderMode tr tr-Σ b p) (tr q)
 
 -- The property of reflecting Type-restrictions.
 
@@ -88,15 +88,15 @@ record Are-reflecting-type-restrictions
     module R₂ = Type-restrictions R₂
 
   field
-    -- If R₂.Unit-restriction holds, then R₁.Unit-restriction holds.
+    -- If R₂.Unit-allowed holds, then R₁.Unit-allowed holds.
     Unit-reflected :
-      R₂.Unit-restriction → R₁.Unit-restriction
+      R₂.Unit-allowed → R₁.Unit-allowed
 
-    -- The functions tr and tr-Σ reflect the ΠΣ-restriction property
-    -- in a certain way.
+    -- The functions tr and tr-Σ reflect the ΠΣ-allowed property in a
+    -- certain way.
     ΠΣ-reflected :
-      R₂.ΠΣ-restriction b (tr-BinderMode tr tr-Σ b p) (tr q) →
-      R₁.ΠΣ-restriction b p q
+      R₂.ΠΣ-allowed b (tr-BinderMode tr tr-Σ b p) (tr q) →
+      R₁.ΠΣ-allowed b p q
 
 ------------------------------------------------------------------------
 -- Identity

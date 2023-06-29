@@ -197,7 +197,7 @@ mutual
         wk⊢u = wkTerm (lift (step id)) ΓFF'⊢ ⊢u
         wk⊢t = wkTerm (step id) ΓF⊢ ⊢t
         λu∘0 = lam p (U.wk (lift (step id)) u) ∘⟨ p ⟩ var x0
-        ok = ⊢∷ΠΣ→ΠΣ-restriction ⊢t
+        ok = ⊢∷ΠΣ→ΠΣ-allowed ⊢t
     in  lam _ u , lamₙ nf
      ,  η-eq ⊢F ⊢t (lamⱼ ⊢F ⊢u ok)
           (trans
@@ -230,4 +230,4 @@ mutual
   fullRedTermConv↓ (η-unit ⊢t _ tUnit _) =
     star , starₙ , η-unit ⊢t (starⱼ (wfTerm ⊢t) ok)
     where
-    ok = ⊢∷Unit→Unit-restriction ⊢t
+    ok = ⊢∷Unit→Unit-allowed ⊢t

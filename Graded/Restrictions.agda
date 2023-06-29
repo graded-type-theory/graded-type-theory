@@ -20,8 +20,8 @@ open import Definition.Typed.Restrictions M
 
 no-type-restrictions : Type-restrictions
 no-type-restrictions = λ where
-    .Unit-restriction    → Lift _ ⊤
-    .ΠΣ-restriction      → λ _ _ _ → Lift _ ⊤
+    .Unit-allowed → Lift _ ⊤
+    .ΠΣ-allowed   → λ _ _ _ → Lift _ ⊤
   where
   open Type-restrictions
 
@@ -29,7 +29,7 @@ no-type-restrictions = λ where
 
 no-usage-restrictions : Usage-restrictions
 no-usage-restrictions = λ where
-    .Prodrec-restriction → λ _ _ _ → Lift _ ⊤
+    .Prodrec-allowed → λ _ _ _ → Lift _ ⊤
   where
   open Usage-restrictions
 
@@ -38,7 +38,7 @@ no-usage-restrictions = λ where
 
 equal-binder-quantities : Type-restrictions → Type-restrictions
 equal-binder-quantities R = record R
-  { ΠΣ-restriction = λ b p q → ΠΣ-restriction b p q × p ≡ q
+  { ΠΣ-allowed = λ b p q → ΠΣ-allowed b p q × p ≡ q
   }
   where
   open Type-restrictions R
@@ -49,7 +49,7 @@ equal-binder-quantities R = record R
 second-ΠΣ-quantities-𝟘 :
   Modality → Type-restrictions → Type-restrictions
 second-ΠΣ-quantities-𝟘 𝕄 R = record R
-  { ΠΣ-restriction = λ b p q → ΠΣ-restriction b p q × q ≡ 𝟘
+  { ΠΣ-allowed = λ b p q → ΠΣ-allowed b p q × q ≡ 𝟘
   }
   where
   open Modality 𝕄
@@ -63,8 +63,8 @@ second-ΠΣ-quantities-𝟘 𝕄 R = record R
 second-ΠΣ-quantities-𝟘-or-ω :
   M → Modality → Type-restrictions → Type-restrictions
 second-ΠΣ-quantities-𝟘-or-ω ω 𝕄 R = record R
-  { ΠΣ-restriction = λ b p q →
-      ΠΣ-restriction b p q ×
+  { ΠΣ-allowed = λ b p q →
+      ΠΣ-allowed b p q ×
       (p ≡ 𝟘 → q ≡ 𝟘) ×
       (p ≢ 𝟘 → q ≡ ω)
   }
@@ -78,7 +78,7 @@ second-ΠΣ-quantities-𝟘-or-ω ω 𝕄 R = record R
 
 No-erased-matches : Modality → Usage-restrictions → Set a
 No-erased-matches 𝕄 R =
-  𝟙 ≢ 𝟘 → ∀ {r p q} → Prodrec-restriction r p q → r ≢ 𝟘
+  𝟙 ≢ 𝟘 → ∀ {r p q} → Prodrec-allowed r p q → r ≢ 𝟘
   where
   open Modality 𝕄
   open Usage-restrictions R
@@ -88,8 +88,8 @@ No-erased-matches 𝕄 R =
 
 no-erased-matches : Modality → Usage-restrictions → Usage-restrictions
 no-erased-matches 𝕄 R = record R
-  { Prodrec-restriction = λ r p q →
-      Prodrec-restriction r p q × (𝟙 ≢ 𝟘 → r ≢ 𝟘)
+  { Prodrec-allowed = λ r p q →
+      Prodrec-allowed r p q × (𝟙 ≢ 𝟘 → r ≢ 𝟘)
   }
   where
   open Modality 𝕄
@@ -102,9 +102,9 @@ No-erased-matches-no-erased-matches :
   ∀ 𝕄 R → No-erased-matches 𝕄 (no-erased-matches 𝕄 R)
 No-erased-matches-no-erased-matches
   𝕄 R 𝟙≢𝟘 {r = r} {p = p} {q = q} =
-  Prodrec-restriction r p q × (𝟙 ≢ 𝟘 → r ≢ 𝟘)  →⟨ proj₂ ⟩
-  (𝟙 ≢ 𝟘 → r ≢ 𝟘)                              →⟨ _$ 𝟙≢𝟘 ⟩
-  r ≢ 𝟘                                        □
+  Prodrec-allowed r p q × (𝟙 ≢ 𝟘 → r ≢ 𝟘)  →⟨ proj₂ ⟩
+  (𝟙 ≢ 𝟘 → r ≢ 𝟘)                          →⟨ _$ 𝟙≢𝟘 ⟩
+  r ≢ 𝟘                                    □
   where
   open Modality 𝕄
   open Usage-restrictions R

@@ -79,7 +79,7 @@ mutual
     in  _ , sndᵢ t⇉B (B⇒Σ′ , ΠΣₙ) , trans A≡Gt (substTypeEq G≡G′ (refl (fstⱼ ⊢F ⊢G ⊢t)))
   completeness⇉ (prodrecᵢ C t u) ⊢t =
     let F , G , q , ⊢F , ⊢G , ⊢C , ⊢t , ⊢u , A≡Ct = inversion-prodrec ⊢t
-        ok = ⊢∷ΠΣ→ΠΣ-restriction ⊢t
+        ok = ⊢∷ΠΣ→ΠΣ-allowed ⊢t
         B , t⇉B , ΣFG≡B = completeness⇉ t ⊢t
         F′ , G′ , B⇒Σ′ , F≡F′ , G≡G′ = ΣNorm (proj₁ (soundness⇉ (wfTerm ⊢t) t⇉B)) (sym ΣFG≡B)
         u⇇C₊ = completeness⇇ u (stabilityTerm ((reflConEq (wf ⊢F)) ∙ F≡F′ ∙ G≡G′) ⊢u)

@@ -56,16 +56,16 @@ open import Tools.Product
 private variable
   p : M
 
--- If Prodrec-restriction 𝟘 p 𝟘 holds for some p (which means that
--- certain kinds of erased matches are allowed), and if additionally
--- Σᵣ-restriction p 𝟘 holds, then one cannot prove a variant of the
+-- If Prodrec-allowed 𝟘 p 𝟘 holds for some p (which means that certain
+-- kinds of erased matches are allowed), and if additionally
+-- Σᵣ-allowed p 𝟘 holds, then one cannot prove a variant of the
 -- fundamental lemma without the assumption "erased matches are not
 -- allowed or the context is empty" (assuming that Agda is
 -- consistent).
 
 negation-of-fundamental-lemma-with-erased-matches :
-  Prodrec-restriction 𝟘 p 𝟘 →
-  Σᵣ-restriction p 𝟘 →
+  Prodrec-allowed 𝟘 p 𝟘 →
+  Σᵣ-allowed p 𝟘 →
   ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
      let open LR ⊢Δ in
      (∀ {t} → Δ ⊢ t ∷ Empty → ⊥) →

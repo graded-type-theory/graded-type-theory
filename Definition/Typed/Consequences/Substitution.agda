@@ -207,7 +207,7 @@ subst↑²Type {n} {Γ} {t} {F} {G} {A} {B} ⊢F ⊢G ⊢B ⊢t =
 
 subst↑²Type-prod : ∀ {m F G A}
                  → Γ ∙ (Σ⟨ m ⟩ p , q ▷ F ▹ G) ⊢ A
-                 → Σ-restriction m p q
+                 → Σ-allowed m p q
                  → Γ ∙ F ∙ G ⊢ A [ prod m p (var x1) (var x0) ]↑²
 subst↑²Type-prod {Γ = Γ} {F = F} {G} {A} ⊢A ok =
   let ⊢ΓΣ = wf ⊢A
@@ -257,7 +257,7 @@ subst↑²TypeEq {n} {Γ} {t} {u} {F} {G} {A} {B} {C} ⊢F ⊢G B≡C t≡u =
 
 subst↑²TypeEq-prod : ∀ {m F G A B}
               → Γ ∙ (Σ⟨ m ⟩ p , q ▷ F ▹ G) ⊢ A ≡ B
-              → Σ-restriction m p q
+              → Σ-allowed m p q
               → Γ ∙ F ∙ G ⊢ A [ prod m p (var x1) (var x0) ]↑²
                           ≡ B [ prod m p (var x1) (var x0) ]↑²
 subst↑²TypeEq-prod {Γ = Γ} {F = F} {G} {A} {B} A≡B ok =

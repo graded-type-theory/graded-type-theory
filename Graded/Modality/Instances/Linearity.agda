@@ -42,16 +42,16 @@ open Graded.Modality.Properties linearityModality
 
 -- An instance of Type-restrictions is suitable for the full reduction
 -- theorem if
--- * Unit-restriction does not hold,
--- * Σₚ-restriction 𝟘 p does not hold, and
--- * Σₚ-restriction ω p does not hold.
+-- * Unit-allowed does not hold,
+-- * Σₚ-allowed 𝟘 p does not hold, and
+-- * Σₚ-allowed ω p does not hold.
 
 Suitable-for-full-reduction :
   Type-restrictions → Set
 Suitable-for-full-reduction rs =
-  ¬ Unit-restriction ×
-  (∀ p → ¬ Σₚ-restriction 𝟘 p) ×
-  (∀ p → ¬ Σₚ-restriction ω p)
+  ¬ Unit-allowed ×
+  (∀ p → ¬ Σₚ-allowed 𝟘 p) ×
+  (∀ p → ¬ Σₚ-allowed ω p)
   where
   open Type-restrictions rs
 
@@ -62,9 +62,9 @@ suitable-for-full-reduction :
   Type-restrictions → ∃ Suitable-for-full-reduction
 suitable-for-full-reduction rs =
     record rs
-      { Unit-restriction = ⊥
-      ; ΠΣ-restriction   = λ b p q →
-          ΠΣ-restriction b p q × p ≢ 𝟘 × p ≢ ω
+      { Unit-allowed = ⊥
+      ; ΠΣ-allowed   = λ b p q →
+          ΠΣ-allowed b p q × p ≢ 𝟘 × p ≢ ω
       }
   , idᶠ
   , (λ _ → (_$ refl) ∘→ proj₁ ∘→ proj₂)

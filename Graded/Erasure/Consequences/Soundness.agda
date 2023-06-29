@@ -180,21 +180,21 @@ module Soundness
   soundness-star t⇒star γ▸t =
     let ⊢t = redFirst*Term t⇒star
         [⊤] , t®t′ = fundamentalErased ⊢t γ▸t
-        ok = ⊢∷Unit→Unit-restriction ⊢t
+        ok = ⊢∷Unit→Unit-allowed ⊢t
         t®t″ = irrelevanceTerm {l′ = ¹}
                  [⊤] (Unitᵣ (Unitₜ (idRed:*: (Unitⱼ ⊢Δ ok)) ok))
                  (t®t′ ◀≢𝟘 𝟙≉𝟘)
     in  soundness-star′ t®t″
 
--- If Prodrec-restriction 𝟘 p 𝟘 holds for some p (which means that
--- certain kinds of erased matches are allowed), and if additionally
--- Σᵣ-restriction p 𝟘 holds, then there is a counterexample to
+-- If Prodrec-allowed 𝟘 p 𝟘 holds for some p (which means that certain
+-- kinds of erased matches are allowed), and if additionally
+-- Σᵣ-allowed p 𝟘 holds, then there is a counterexample to
 -- soundness-ℕ-only-source without the assumption "erased matches are
 -- not allowed unless the context is empty".
 
 soundness-ℕ-only-source-counterexample :
-  Prodrec-restriction 𝟘 p 𝟘 →
-  Σᵣ-restriction p 𝟘 →
+  Prodrec-allowed 𝟘 p 𝟘 →
+  Σᵣ-allowed p 𝟘 →
   let Γ = ε ∙ (Σᵣ p , 𝟘 ▷ ℕ ▹ ℕ)
       t = prodrec 𝟘 p 𝟘 ℕ (var x0) zero
   in

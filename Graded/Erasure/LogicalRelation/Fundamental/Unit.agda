@@ -49,7 +49,7 @@ private
     m : Mode
 
 Unitʳ : ⊢ Γ
-      → Unit-restriction
+      → Unit-allowed
       → ∃ λ ([Γ] : ⊩ᵛ Γ)
       → ∃ λ ([U] : Γ ⊩ᵛ⟨ ¹ ⟩ U / [Γ])
       → γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ Unit ∷[ m ] U / [Γ] / [U]
@@ -61,7 +61,7 @@ Unitʳ {m = m} ⊢Γ ok =
 
 starʳ : ∀ {l}
       → ⊢ Γ
-      → Unit-restriction
+      → Unit-allowed
       → ∃ λ ([Γ] : ⊩ᵛ Γ)
       → ∃ λ ([Unit] : Γ ⊩ᵛ⟨ l ⟩ Unit / [Γ])
       → γ ▸ Γ ⊩ʳ⟨ l ⟩ star ∷[ m ] Unit / [Γ] / [Unit]

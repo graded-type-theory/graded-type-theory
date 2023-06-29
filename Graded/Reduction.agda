@@ -222,7 +222,7 @@ Well-resourced-normal-form-without-η-long-normal-form =
 -- context ε ∙ 𝟙 if and only if 𝟙 ≤ 𝟘.
 
 η-long-nf-for-0⇔𝟙≤𝟘 :
-  Unit-restriction →
+  Unit-allowed →
   let Γ = ε ∙ Unit
       γ = ε ∙ 𝟙
       A = Unit
@@ -259,8 +259,8 @@ Well-resourced-normal-form-without-η-long-normal-form =
 -- in the empty context if and only if 𝟙 ≤ 𝟘.
 
 η-long-nf-for-id⇔𝟙≤𝟘 :
-  Π-restriction 𝟙 p →
-  Unit-restriction →
+  Π-allowed 𝟙 p →
+  Unit-allowed →
   let A = Π 𝟙 , p ▷ Unit ▹ Unit
       t = lam 𝟙 (var x0)
       u = lam 𝟙 star
@@ -293,12 +293,12 @@ Well-resourced-normal-form-without-η-long-normal-form =
 -- The type
 -- Well-resourced-normal-form-without-η-long-normal-form is
 -- inhabited if the Unit type with η-equality is allowed, 𝟙 is not
--- bounded by 𝟘, and Π-restriction 𝟙 q holds for some q.
+-- bounded by 𝟘, and Π-allowed 𝟙 q holds for some q.
 
 well-resourced-normal-form-without-η-long-normal-form-Unit :
   ¬ 𝟙 ≤ 𝟘 →
-  Unit-restriction →
-  Π-restriction 𝟙 q →
+  Unit-allowed →
+  Π-allowed 𝟙 q →
   Well-resourced-normal-form-without-η-long-normal-form
 well-resourced-normal-form-without-η-long-normal-form-Unit 𝟙≰𝟘 ok₁ ok₂ =
   case η-long-nf-for-id⇔𝟙≤𝟘 ok₂ ok₁ of λ {
@@ -323,7 +323,7 @@ well-resourced-normal-form-without-η-long-normal-form-Unit 𝟙≰𝟘 ok₁ ok
 -- 𝟙 ≤ 𝟘.
 
 η-long-nf-for-0⇔≡𝟙⊎≡𝟘 :
-  Σₚ-restriction p q →
+  Σₚ-allowed p q →
   let Γ = ε ∙ (Σₚ p , q ▷ ℕ ▹ ℕ)
       γ = ε ∙ 𝟙
       A = Σₚ p , q ▷ ℕ ▹ ℕ
@@ -405,8 +405,8 @@ well-resourced-normal-form-without-η-long-normal-form-Unit 𝟙≰𝟘 ok₁ ok
 -- and only if either p is 𝟙, or p is 𝟘, 𝟘ᵐ is allowed, and 𝟙 ≤ 𝟘.
 
 η-long-nf-for-id⇔≡𝟙⊎≡𝟘 :
-  Π-restriction 𝟙 r →
-  Σₚ-restriction p q →
+  Π-allowed 𝟙 r →
+  Σₚ-allowed p q →
   let A = Π 𝟙 , r ▷ Σₚ p , q ▷ ℕ ▹ ℕ ▹ Σₚ p , q ▷ ℕ ▹ ℕ
       t = lam 𝟙 (var x0)
       u = lam 𝟙 (prodₚ p (fst p (var x0)) (snd p (var x0)))
@@ -442,14 +442,14 @@ well-resourced-normal-form-without-η-long-normal-form-Unit 𝟙≰𝟘 ok₁ ok
 -- inhabited if there are quantities p, q and r such that
 -- * p is distinct from 𝟙,
 -- * "p is 𝟘 and 𝟘ᵐ is allowed and 𝟙 ≤ 𝟘" does not hold,
--- * Σₚ-restriction p q holds, and
--- * Π-restriction 𝟙 r holds.
+-- * Σₚ-allowed p q holds, and
+-- * Π-allowed 𝟙 r holds.
 
 well-resourced-normal-form-without-η-long-normal-form-Σₚ :
   p ≢ 𝟙 →
   ¬ (p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘) →
-  Σₚ-restriction p q →
-  Π-restriction 𝟙 r →
+  Σₚ-allowed p q →
+  Π-allowed 𝟙 r →
   Well-resourced-normal-form-without-η-long-normal-form
 well-resourced-normal-form-without-η-long-normal-form-Σₚ
   {p = p} p≢𝟙 ¬[p≡𝟘×𝟘ᵐ×𝟙≤𝟘] ok₁ ok₂ =

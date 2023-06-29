@@ -47,14 +47,14 @@ affineModality = zero-one-many-greatest mrs
 
 -- An instance of Type-restrictions is suitable for the full reduction
 -- theorem if
--- * Σₚ-restriction 𝟘 p implies that 𝟘ᵐ is allowed, and
--- * Σₚ-restriction ω p does not hold.
+-- * Σₚ-allowed 𝟘 p implies that 𝟘ᵐ is allowed, and
+-- * Σₚ-allowed ω p does not hold.
 
 Suitable-for-full-reduction :
   Type-restrictions → Set
 Suitable-for-full-reduction rs =
-  (∀ p → Σₚ-restriction 𝟘 p → T 𝟘ᵐ-allowed) ×
-  (∀ p → ¬ Σₚ-restriction ω p)
+  (∀ p → Σₚ-allowed 𝟘 p → T 𝟘ᵐ-allowed) ×
+  (∀ p → ¬ Σₚ-allowed ω p)
   where
   open Type-restrictions rs
 
@@ -65,8 +65,8 @@ suitable-for-full-reduction :
   Type-restrictions → ∃ Suitable-for-full-reduction
 suitable-for-full-reduction rs =
     record rs
-      { ΠΣ-restriction = λ b p q →
-          ΠΣ-restriction b p q × T 𝟘ᵐ-allowed × p ≢ ω
+      { ΠΣ-allowed = λ b p q →
+          ΠΣ-allowed b p q × T 𝟘ᵐ-allowed × p ≢ ω
       }
   , (λ _ → proj₁ ∘→ proj₂)
   , (λ _ → (_$ refl) ∘→ proj₂ ∘→ proj₂)

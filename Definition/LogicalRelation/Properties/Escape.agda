@@ -110,44 +110,44 @@ escapeTermEq
     (productWhnf pProd) (productWhnf rProd) p≅r
 escapeTermEq (emb 0<1 A) t≡u = escapeTermEq A t≡u
 
--- If the type Unit is in the logical relation, then the Unit
--- restriction holds.
+-- If the type Unit is in the logical relation, then the Unit type is
+-- allowed.
 
-⊩Unit→Unit-restriction :
-  Γ ⊩⟨ l ⟩ Unit → Unit-restriction
-⊩Unit→Unit-restriction {Γ = Γ} = λ where
+⊩Unit→Unit-allowed :
+  Γ ⊩⟨ l ⟩ Unit → Unit-allowed
+⊩Unit→Unit-allowed {Γ = Γ} = λ where
   (ℕᵣ [ ⊢Unit , _ , D ]) →
-                      $⟨ D , ℕₙ ⟩
-    Γ ⊢ Unit ↘ ℕ      →⟨ flip whrDet* (id ⊢Unit , Unitₙ) ⟩
-    ℕ PE.≡ Unit       →⟨ (case_of λ ()) ⟩
-    Unit-restriction  □
+                  $⟨ D , ℕₙ ⟩
+    Γ ⊢ Unit ↘ ℕ  →⟨ flip whrDet* (id ⊢Unit , Unitₙ) ⟩
+    ℕ PE.≡ Unit   →⟨ (case_of λ ()) ⟩
+    Unit-allowed  □
   (Emptyᵣ [ ⊢Unit , _ , D ]) →
                       $⟨ D , Emptyₙ ⟩
     Γ ⊢ Unit ↘ Empty  →⟨ flip whrDet* (id ⊢Unit , Unitₙ) ⟩
     Empty PE.≡ Unit   →⟨ (case_of λ ()) ⟩
-    Unit-restriction  □
+    Unit-allowed      □
   (Unitᵣ (Unitₜ _ ok)) →
     ok
   (ne (ne A [ ⊢Unit , _ , D ] neA _)) →
-                      $⟨ D , ne neA ⟩
-    Γ ⊢ Unit ↘ A      →⟨ whrDet* (id ⊢Unit , Unitₙ) ⟩
-    Unit PE.≡ A       →⟨ ⊥-elim ∘→ Unit≢ne neA ⟩
-    Unit-restriction  □
+                  $⟨ D , ne neA ⟩
+    Γ ⊢ Unit ↘ A  →⟨ whrDet* (id ⊢Unit , Unitₙ) ⟩
+    Unit PE.≡ A   →⟨ ⊥-elim ∘→ Unit≢ne neA ⟩
+    Unit-allowed  □
   (Bᵣ′ b A B [ ⊢Unit , _ , D ] _ _ _ _ _ _ _) →
                             $⟨ D , ⟦ b ⟧ₙ ⟩
     Γ ⊢ Unit ↘ ⟦ b ⟧ A ▹ B  →⟨ whrDet* (id ⊢Unit , Unitₙ) ⟩
     Unit PE.≡ ⟦ b ⟧ A ▹ B   →⟨ ⊥-elim ∘→ Unit≢B b ⟩
-    Unit-restriction        □
+    Unit-allowed            □
   (emb 0<1 [Unit]) →
-    ⊩Unit→Unit-restriction [Unit]
+    ⊩Unit→Unit-allowed [Unit]
 
 -- If the type ΠΣ⟨ b ⟩ p , q ▷ A ▹ B is in the logical relation, then
--- the ΠΣ restriction holds for b, p and q.
+-- it is allowed.
 
-⊩ΠΣ→ΠΣ-restriction :
+⊩ΠΣ→ΠΣ-allowed :
   Γ ⊩⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B →
-  ΠΣ-restriction b p q
-⊩ΠΣ→ΠΣ-restriction {b = b} = λ where
+  ΠΣ-allowed b p q
+⊩ΠΣ→ΠΣ-allowed {b = b} = λ where
   (ℕᵣ [ ⊢ΠAB , _ , D ]) →
     ⊥-elim (ℕ≢ΠΣ b (whrDet* (D , ℕₙ) (id ⊢ΠAB , ΠΣₙ)))
   (Emptyᵣ [ ⊢ΠAB , _ , D ]) →
@@ -165,4 +165,4 @@ escapeTermEq (emb 0<1 A) t≡u = escapeTermEq A t≡u
       PE.refl →
     ok }
   (emb 0<1 [ΠΣ]) →
-    ⊩ΠΣ→ΠΣ-restriction [ΠΣ]
+    ⊩ΠΣ→ΠΣ-allowed [ΠΣ]

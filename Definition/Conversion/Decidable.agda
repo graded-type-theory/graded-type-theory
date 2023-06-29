@@ -389,7 +389,7 @@ mutual
                 dec~↑-prodrec
                   (decConv↑ x (stabilityConv↑ (⊢Γ≡Γ ∙ ⊢Σ′≡Σ) x₃))
                   (λ C≡C′ → decConv↑TermConv
-                     (subst↑²TypeEq-prod C≡C′ (⊢∷ΠΣ→ΠΣ-restriction ⊢t₁))
+                     (subst↑²TypeEq-prod C≡C′ (⊢∷ΠΣ→ΠΣ-allowed ⊢t₁))
                      x₂
                      (stabilityConv↑Term (⊢Γ≡Γ ∙ ⊢F′≡F ∙ ⊢G′≡G) x₅))
                   t~t′ (sym ⊢B≡Σ) PE.refl PE.refl PE.refl

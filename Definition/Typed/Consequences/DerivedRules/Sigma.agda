@@ -67,7 +67,7 @@ private variable
 inversion-prod′ :
   Γ ⊢ prod s p t u ∷ Σ⟨ s′ ⟩ q , r ▷ A ▹ B →
   (Γ ∙ A ⊢ B) × Γ ⊢ t ∷ A × Γ ⊢ u ∷ B [ t ] ×
-  s PE.≡ s′ × p PE.≡ q × Σ-restriction s q r
+  s PE.≡ s′ × p PE.≡ q × Σ-allowed s q r
 inversion-prod′ ⊢prod =
   case inversion-prod ⊢prod of λ {
     (_ , _ , _ , _ , _ , ⊢t , ⊢u , ≡Σ , ok) →
@@ -85,7 +85,7 @@ inversion-prod′ ⊢prod =
 prod-cong⁻¹-Σₚ :
   Γ ⊢ prodₚ p t u ≡ prodₚ p v w ∷ Σₚ p , q ▷ A ▹ B →
   (Γ ∙ A ⊢ B) × Γ ⊢ t ≡ v ∷ A × Γ ⊢ u ≡ w ∷ B [ t ] ×
-  Σₚ-restriction p q
+  Σₚ-allowed p q
 prod-cong⁻¹-Σₚ
   {Γ = Γ} {p = p} {t = t} {u = u} {v = v} {w = w}
   {q = q} {A = A} {B = B} prod≡prod =
@@ -202,7 +202,7 @@ prodrecₚ-β :
   Γ ⊢ t ∷ A →
   Γ ⊢ u ∷ B [ t ] →
   Γ ∙ A ∙ B ⊢ v ∷ C [ prodₚ p (var x1) (var x0) ]↑² →
-  Σₚ-restriction p q →
+  Σₚ-allowed p q →
   Γ ⊢ prodrecₚ p (prodₚ p t u) v ≡ v [ t ∣ u ] ∷ C [ prodₚ p t u ]
 prodrecₚ-β
   {Γ = Γ} {t = t} {A = A} {u = u} {B = B} {v = v} {C = C} {p = p}
@@ -316,7 +316,7 @@ module Fstᵣ-sndᵣ (r′ q′ : M) where
 
     Σ⊢wk1 :
       Γ ∙ A ⊢ B →
-      Σᵣ-restriction p q →
+      Σᵣ-allowed p q →
       Γ ∙ (Σᵣ p , q ▷ A ▹ B) ⊢ wk1 A
     Σ⊢wk1 ⊢B ok = ⊢wk1 (ΠΣⱼ ⊢A ⊢B ok) ⊢A
       where
@@ -438,7 +438,7 @@ module Fstᵣ-sndᵣ (r′ q′ : M) where
     Γ ∙ A ⊢ B →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ] →
-    Σᵣ-restriction p q →
+    Σᵣ-allowed p q →
     Γ ⊢ fstᵣ p A (prodᵣ p t u) ⇒ t ∷ A
   fstᵣ-β-⇒
     {Γ = Γ} {A = A} {B = B} {t = t} {u = u} {p = p} {q = q}
@@ -470,7 +470,7 @@ module Fstᵣ-sndᵣ (r′ q′ : M) where
     where
     ⊢A = case wf ⊢B of λ where
            (_ ∙ ⊢A) → ⊢A
-    ok = ⊢∷ΠΣ→ΠΣ-restriction $
+    ok = ⊢∷ΠΣ→ΠΣ-allowed $
          syntacticRedTerm (redMany t₁⇒t₂) .proj₂ .proj₁
 
   -- An equality rule for fstᵣ.
@@ -479,7 +479,7 @@ module Fstᵣ-sndᵣ (r′ q′ : M) where
     Γ ∙ A ⊢ B →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ] →
-    Σᵣ-restriction p q →
+    Σᵣ-allowed p q →
     Γ ⊢ fstᵣ p A (prodᵣ p t u) ≡ t ∷ A
   fstᵣ-β-≡ ⊢B ⊢t ⊢u ok = subsetTerm (fstᵣ-β-⇒ ⊢B ⊢t ⊢u ok)
 
@@ -503,7 +503,7 @@ module Fstᵣ-sndᵣ (r′ q′ : M) where
     Γ ⊢ fstᵣ p A₁ t₁ ≡ fstᵣ p A₂ t₂ ∷ A₁                           □
     where
     ⊢A₁ = syntacticEq A₁≡A₂ .proj₁
-    ok  = ⊢∷ΠΣ→ΠΣ-restriction $
+    ok  = ⊢∷ΠΣ→ΠΣ-allowed $
           syntacticEqTerm t₁≡t₂ .proj₂ .proj₁
 
   ----------------------------------------------------------------------
@@ -594,7 +594,7 @@ module Fstᵣ-sndᵣ (r′ q′ : M) where
 
     ⊢≡[fstᵣ-0]↑[1,0]↑² :
       Γ ∙ A ⊢ B →
-      Σᵣ-restriction p q →
+      Σᵣ-allowed p q →
       Γ ∙ A ∙ B ⊢
         wk1 B ≡
         B [ fstᵣ p (wk1 A) (var x0) ]↑ [ prodᵣ p (var x1) (var x0) ]↑²
@@ -642,7 +642,7 @@ module Fstᵣ-sndᵣ (r′ q′ : M) where
     ⊢[fstᵣ-0]↑≡[fstᵣ-0]↑ :
       Γ ⊢ A₁ ≡ A₂ →
       Γ ∙ A₁ ⊢ B₁ ≡ B₂ →
-      Σᵣ-restriction p q →
+      Σᵣ-allowed p q →
       Γ ∙ (Σᵣ p , q ▷ A₁ ▹ B₁) ⊢
         B₁ [ fstᵣ p (wk1 A₁) (var x0) ]↑ ≡
         B₂ [ fstᵣ p (wk1 A₂) (var x0) ]↑
@@ -681,7 +681,7 @@ module Fstᵣ-sndᵣ (r′ q′ : M) where
 
     ⊢[fstᵣ-0]↑ :
       Γ ∙ A ⊢ B →
-      Σᵣ-restriction p q →
+      Σᵣ-allowed p q →
       Γ ∙ (Σᵣ p , q ▷ A ▹ B) ⊢ B [ fstᵣ p (wk1 A) (var x0) ]↑
     ⊢[fstᵣ-0]↑ ⊢B ok =
       syntacticEq (⊢[fstᵣ-0]↑≡[fstᵣ-0]↑ (refl ⊢A) (refl ⊢B) ok) .proj₁
@@ -691,7 +691,7 @@ module Fstᵣ-sndᵣ (r′ q′ : M) where
 
     ⊢0∷[fstᵣ-0]↑[1,0]↑² :
       Γ ∙ A ⊢ B →
-      Σᵣ-restriction p q →
+      Σᵣ-allowed p q →
       Γ ∙ A ∙ B ⊢
         var x0 ∷
         B [ fstᵣ p (wk1 A) (var x0) ]↑ [ prodᵣ p (var x1) (var x0) ]↑²
@@ -728,7 +728,7 @@ module Fstᵣ-sndᵣ (r′ q′ : M) where
     Γ ∙ A ⊢ B →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ] →
-    Σᵣ-restriction p q →
+    Σᵣ-allowed p q →
     Γ ⊢ sndᵣ p q A B (prodᵣ p t u) ⇒ u ∷ B [ fstᵣ p A (prodᵣ p t u) ]
   sndᵣ-β-⇒
     {Γ = Γ} {A = A} {B = B} {t = t} {u = u} {p = p} {q = q}
@@ -768,7 +768,7 @@ module Fstᵣ-sndᵣ (r′ q′ : M) where
     Γ ∙ A ⊢ B →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ] →
-    Σᵣ-restriction p q →
+    Σᵣ-allowed p q →
     Γ ⊢ sndᵣ p q A B (prodᵣ p t u) ≡ u ∷ B [ fstᵣ p A (prodᵣ p t u) ]
   sndᵣ-β-≡ ⊢B ⊢t ⊢u ok = subsetTerm (sndᵣ-β-⇒ ⊢B ⊢t ⊢u ok)
 
@@ -812,7 +812,7 @@ module Fstᵣ-sndᵣ (r′ q′ : M) where
 prod-cong⁻¹-Σᵣ :
   Γ ⊢ prodᵣ p t u ≡ prodᵣ p v w ∷ Σᵣ p , q ▷ A ▹ B →
   (Γ ∙ A ⊢ B) × Γ ⊢ t ≡ v ∷ A × Γ ⊢ u ≡ w ∷ B [ t ] ×
-  Σᵣ-restriction p q
+  Σᵣ-allowed p q
 prod-cong⁻¹-Σᵣ
   {Γ = Γ} {p = p} {t = t} {u = u} {v = v} {w = w}
   {q = q} {A = A} {B = B} prod≡prod =
@@ -859,6 +859,6 @@ prod-cong⁻¹-Σᵣ
 prod-cong⁻¹ :
   Γ ⊢ prod s p t u ≡ prod s p v w ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B →
   (Γ ∙ A ⊢ B) × Γ ⊢ t ≡ v ∷ A × Γ ⊢ u ≡ w ∷ B [ t ] ×
-  Σ-restriction s p q
+  Σ-allowed s p q
 prod-cong⁻¹ {s = Σₚ} = prod-cong⁻¹-Σₚ
 prod-cong⁻¹ {s = Σᵣ} = prod-cong⁻¹-Σᵣ

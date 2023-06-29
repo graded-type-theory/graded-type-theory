@@ -14,8 +14,8 @@ module Graded.Usage.Decidable
   (open Usage-restrictions R)
   -- Equality is assumed to be decidable for M.
   (_≟_ : Decidable (_≡_ {A = M}))
-  -- The Prodrec-restriction relation is assumed to be decidable.
-  (Prodrec? : ∀ r p q → Dec (Prodrec-restriction r p q))
+  -- The Prodrec-allowed relation is assumed to be decidable.
+  (Prodrec? : ∀ r p q → Dec (Prodrec-allowed r p q))
   where
 
 open Modality 𝕄

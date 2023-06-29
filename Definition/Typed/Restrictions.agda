@@ -17,35 +17,36 @@ open import Tools.Unit
 record Type-restrictions : Set (lsuc a) where
   no-eta-equality
   field
-    -- Restrictions imposed upon unit types (with η-equality).
-    Unit-restriction : Set a
+    -- Unit types (with η-equality) are only allowed if the given
+    -- predicate holds.
+    Unit-allowed : Set a
 
     -- Restrictions imposed upon Π- and Σ-types.
-    ΠΣ-restriction : BinderMode → (p q : M) → Set a
+    ΠΣ-allowed : BinderMode → (p q : M) → Set a
 
   -- Restrictions imposed upon Π-types.
 
-  Π-restriction : M → M → Set a
-  Π-restriction = ΠΣ-restriction BMΠ
+  Π-allowed : M → M → Set a
+  Π-allowed = ΠΣ-allowed BMΠ
 
   -- Restrictions imposed upon Σ-types.
 
-  Σ-restriction : SigmaMode → M → M → Set a
-  Σ-restriction = ΠΣ-restriction ∘→ BMΣ
+  Σ-allowed : SigmaMode → M → M → Set a
+  Σ-allowed = ΠΣ-allowed ∘→ BMΣ
 
   -- Restrictions imposed upon Σ-types with η-equality.
 
-  Σₚ-restriction : M → M → Set a
-  Σₚ-restriction = Σ-restriction Σₚ
+  Σₚ-allowed : M → M → Set a
+  Σₚ-allowed = Σ-allowed Σₚ
 
   -- Restrictions imposed upon Σ-types without η-equality.
 
-  Σᵣ-restriction : M → M → Set a
-  Σᵣ-restriction = Σ-restriction Σᵣ
+  Σᵣ-allowed : M → M → Set a
+  Σᵣ-allowed = Σ-allowed Σᵣ
 
-  -- A variant of ΠΣ-restriction for BindingType.
+  -- A variant of ΠΣ-allowed for BindingType.
 
-  BindingType-restriction : BindingType → Set a
-  BindingType-restriction (BM b p q) = ΠΣ-restriction b p q
+  BindingType-allowed : BindingType → Set a
+  BindingType-allowed (BM b p q) = ΠΣ-allowed b p q
 
 open Type-restrictions

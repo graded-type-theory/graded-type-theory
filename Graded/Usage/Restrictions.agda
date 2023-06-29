@@ -15,4 +15,4 @@ record Usage-restrictions : Set (lsuc a) where
   field
     -- The prodrec constructor's quantities have to satisfy this
     -- predicate.
-    Prodrec-restriction : (r p q : M) → Set a
+    Prodrec-allowed : (r p q : M) → Set a

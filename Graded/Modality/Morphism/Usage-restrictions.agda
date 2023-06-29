@@ -55,11 +55,11 @@ record Are-preserving-usage-restrictions
     module R₂ = Usage-restrictions R₂
 
   field
-    -- The functions tr and tr-Σ preserve the Prodrec-restriction
-    -- property in a certain way.
+    -- The functions tr and tr-Σ preserve the Prodrec-allowed property
+    -- in a certain way.
     Prodrec-preserved :
-      R₁.Prodrec-restriction r p q →
-      R₂.Prodrec-restriction (tr r) (tr-Σ p) (tr q)
+      R₁.Prodrec-allowed r p q →
+      R₂.Prodrec-allowed (tr r) (tr-Σ p) (tr q)
 
 -- The property of reflecting Usage-restrictions.
 
@@ -72,11 +72,11 @@ record Are-reflecting-usage-restrictions
     module R₂ = Usage-restrictions R₂
 
   field
-    -- The functions tr and tr-Σ reflect the Prodrec-restriction
-    -- property in a certain way.
+    -- The functions tr and tr-Σ reflect the Prodrec-allowed property
+    -- in a certain way.
     Prodrec-reflected :
-      R₂.Prodrec-restriction (tr r) (tr-Σ p) (tr q) →
-      R₁.Prodrec-restriction r p q
+      R₂.Prodrec-allowed (tr r) (tr-Σ p) (tr q) →
+      R₁.Prodrec-allowed r p q
 
 ------------------------------------------------------------------------
 -- Identity

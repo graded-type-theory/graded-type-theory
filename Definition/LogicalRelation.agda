@@ -204,7 +204,7 @@ record _⊩Unit_ (Γ : Con Term ℓ) (A : Term ℓ) : Set a where
   constructor Unitₜ
   field
     ⇒*-Unit : Γ ⊢ A :⇒*: Unit
-    ok      : Unit-restriction
+    ok      : Unit-allowed
 
 -- Unit type equality
 _⊩Unit_≡_ : (Γ : Con Term ℓ) (A B : Term ℓ) → Set a
@@ -316,7 +316,7 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
               → ([b] : Δ ⊩¹ b ∷ U.wk ρ F / [F] [ρ] ⊢Δ)
               → Δ ⊩¹ a ≡ b ∷ U.wk ρ F / [F] [ρ] ⊢Δ
               → Δ ⊩¹ U.wk (lift ρ) G [ a ] ≡ U.wk (lift ρ) G [ b ] / [G] [ρ] ⊢Δ [a]
-        ok : BindingType-restriction W
+        ok : BindingType-allowed W
 
     -- B-type equality
     record _⊩¹B⟨_⟩_≡_/_ (Γ : Con Term ℓ) (W : BindingType) (A B : Term ℓ) ([A] : Γ ⊩¹B⟨ W ⟩ A) : Set a where

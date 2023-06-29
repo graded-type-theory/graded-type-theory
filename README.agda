@@ -82,9 +82,9 @@ types = Definition.Typed.Restrictions.Type-restrictions
 --   allowed:
 
 Unit-allowed =
-  Definition.Typed.Consequences.Inversion.⊢∷Unit→Unit-restriction
+  Definition.Typed.Consequences.Inversion.⊢∷Unit→Unit-allowed
 ΠΣ-allowed =
-  Definition.Typed.Consequences.Inversion.⊢∷ΠΣ→ΠΣ-restriction
+  Definition.Typed.Consequences.Inversion.⊢∷ΠΣ→ΠΣ-allowed
 
 -- * One can choose whether to allow the term prodrec_r,p^q:
 
@@ -344,7 +344,7 @@ decTypecheck = Definition.Typed.Decidable.decTermᶜ
 --
 -- The usage rule for prodrec in the paper contains the side condition
 -- "Prodrec r". This condition has been replaced by
--- "Prodrec-restriction r p q".
+-- "Prodrec-allowed r p q".
 
 _▹_ = Graded.Usage._▸[_]_
 

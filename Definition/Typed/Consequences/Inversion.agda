@@ -48,7 +48,7 @@ inversion-Empty (Emptyⱼ x) = refl (Uⱼ x)
 inversion-Empty (conv x x₁) = trans (sym x₁) (inversion-Empty x)
 
 -- Inversion for the term Unit.
-inversion-Unit-U : Γ ⊢ Unit ∷ C → Γ ⊢ C ≡ U × Unit-restriction
+inversion-Unit-U : Γ ⊢ Unit ∷ C → Γ ⊢ C ≡ U × Unit-allowed
 inversion-Unit-U (Unitⱼ ⊢Γ ok) = refl (Uⱼ ⊢Γ) , ok
 inversion-Unit-U (conv ⊢Unit A≡B) =
   case inversion-Unit-U ⊢Unit of λ {
@@ -56,24 +56,24 @@ inversion-Unit-U (conv ⊢Unit A≡B) =
   trans (sym A≡B) A≡U , ok }
 
 -- Inversion for the Unit type.
-inversion-Unit : Γ ⊢ Unit → Unit-restriction
+inversion-Unit : Γ ⊢ Unit → Unit-allowed
 inversion-Unit = λ where
   (Unitⱼ _ ok) → ok
   (univ ⊢Unit) → case inversion-Unit-U ⊢Unit of λ where
     (_ , ok) → ok
 
--- If a term has type Unit, then Unit-restriction holds.
-⊢∷Unit→Unit-restriction : Γ ⊢ t ∷ Unit → Unit-restriction
-⊢∷Unit→Unit-restriction {Γ = Γ} {t = t} =
-  Γ ⊢ t ∷ Unit      →⟨ syntacticTerm ⟩
-  Γ ⊢ Unit          →⟨ inversion-Unit ⟩
-  Unit-restriction  □
+-- If a term has type Unit, then Unit-allowed holds.
+⊢∷Unit→Unit-allowed : Γ ⊢ t ∷ Unit → Unit-allowed
+⊢∷Unit→Unit-allowed {Γ = Γ} {t = t} =
+  Γ ⊢ t ∷ Unit  →⟨ syntacticTerm ⟩
+  Γ ⊢ Unit      →⟨ inversion-Unit ⟩
+  Unit-allowed  □
 
 -- Inversion for terms that are Π- or Σ-types.
 inversion-ΠΣ-U :
   ∀ {F G C} →
   Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ∷ C →
-  Γ ⊢ F ∷ U × Γ ∙ F ⊢ G ∷ U × Γ ⊢ C ≡ U × ΠΣ-restriction b p q
+  Γ ⊢ F ∷ U × Γ ∙ F ⊢ G ∷ U × Γ ⊢ C ≡ U × ΠΣ-allowed b p q
 inversion-ΠΣ-U (ΠΣⱼ x x₁ ok) = x , x₁ , refl (Uⱼ (wfTerm x)) , ok
 inversion-ΠΣ-U (conv x x₁)  =
   let a , b , c , ok = inversion-ΠΣ-U x
@@ -82,21 +82,21 @@ inversion-ΠΣ-U (conv x x₁)  =
 -- Inversion for Π- and Σ-types.
 inversion-ΠΣ :
   Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B →
-  Γ ⊢ A × Γ ∙ A ⊢ B × ΠΣ-restriction b p q
+  Γ ⊢ A × Γ ∙ A ⊢ B × ΠΣ-allowed b p q
 inversion-ΠΣ = λ where
   (ΠΣⱼ ⊢A ⊢B ok) → ⊢A , ⊢B , ok
   (univ ⊢ΠΣAB)  → case inversion-ΠΣ-U ⊢ΠΣAB of λ where
     (⊢A , ⊢B , _ , ok) → univ ⊢A , univ ⊢B , ok
 
--- If a term has type ΠΣ⟨ b ⟩ p , q ▷ A ▹ B, then ΠΣ-restriction b p q
+-- If a term has type ΠΣ⟨ b ⟩ p , q ▷ A ▹ B, then ΠΣ-allowed b p q
 -- holds.
-⊢∷ΠΣ→ΠΣ-restriction :
-  Γ ⊢ t ∷ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B → ΠΣ-restriction b p q
-⊢∷ΠΣ→ΠΣ-restriction
+⊢∷ΠΣ→ΠΣ-allowed :
+  Γ ⊢ t ∷ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B → ΠΣ-allowed b p q
+⊢∷ΠΣ→ΠΣ-allowed
   {Γ = Γ} {t = t} {b = b} {p = p} {q = q} {A = A} {B = B} =
   Γ ⊢ t ∷ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B  →⟨ syntacticTerm ⟩
   Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B      →⟨ proj₂ ∘→ proj₂ ∘→ inversion-ΠΣ ⟩
-  ΠΣ-restriction b p q           □
+  ΠΣ-allowed b p q               □
 
 -- Inversion of variables
 inversion-var : ∀ {x C} → Γ ⊢ var x ∷ C → ∃ λ A → x ∷ A ∈ Γ × Γ ⊢ C ≡ A
@@ -143,7 +143,7 @@ inversion-lam : ∀ {t A} → Γ ⊢ lam p t ∷ A →
      (Γ ⊢ F) ×
      Γ ∙ F ⊢ t ∷ G ×
      Γ ⊢ A ≡ Π p , q ▷ F ▹ G ×
-     Π-restriction p q
+     Π-allowed p q
 inversion-lam (lamⱼ ⊢F ⊢G ok) =
   _ , _ , _ , ⊢F , ⊢G , refl (ΠΣⱼ ⊢F (syntacticTerm ⊢G) ok) , ok
 inversion-lam (conv x x₁) =
@@ -160,7 +160,7 @@ inversion-prod :
     (Γ ⊢ t ∷ F) ×
     (Γ ⊢ u ∷ G [ t ]) ×
     Γ ⊢ A ≡ Σ⟨ m ⟩ p , q ▷ F ▹ G ×
-    Σ-restriction m p q
+    Σ-allowed m p q
   -- NOTE fundamental theorem not required since prodⱼ has inversion built-in.
 inversion-prod (prodⱼ ⊢F ⊢G ⊢t ⊢u ok) =
   _ , _ , _ , ⊢F , ⊢G , ⊢t , ⊢u , refl (ΠΣⱼ ⊢F ⊢G ok) , ok
@@ -206,7 +206,7 @@ inversion-prodrec (conv x x₁) =
   in  F , G , q , a , b , c , d , e , trans (sym x₁) f
 
 -- Inversion of star.
-inversion-star : Γ ⊢ star ∷ C → Γ ⊢ C ≡ Unit × Unit-restriction
+inversion-star : Γ ⊢ star ∷ C → Γ ⊢ C ≡ Unit × Unit-allowed
 inversion-star (starⱼ ⊢Γ ok) = refl (Unitⱼ ⊢Γ ok) , ok
 inversion-star (conv ⊢star A≡B) =
   case inversion-star ⊢star of λ {

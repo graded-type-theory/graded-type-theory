@@ -11,10 +11,11 @@ module Graded.Derived.Erased.Typed
   (open Modality 𝕄)
   (R : Type-restrictions M)
   (open Type-restrictions R)
-  -- The Unit restriction is assumed to hold.
-  (Unit-ok : Unit-restriction)
-  -- The Σₚ restriction is assumed to hold for 𝟘 and 𝟘.
-  (Σₚ-ok : Σₚ-restriction 𝟘 𝟘)
+  -- The Unit type is assumed to be allowed.
+  (Unit-ok : Unit-allowed)
+  -- It is assumed that Σ-types with η-equality are allowed for the
+  -- quantities 𝟘 and 𝟘.
+  (Σₚ-ok : Σₚ-allowed 𝟘 𝟘)
   where
 
 open import Definition.Typed R
@@ -301,7 +302,7 @@ inversion-erased ⊢erased =
     q
   , C
   , conv ⊢t
-      (ΠΣ-cong ⊢B (_⊢_≡_.sym ≡B) (refl ⊢C) (⊢∷ΠΣ→ΠΣ-restriction ⊢t))
+      (ΠΣ-cong ⊢B (_⊢_≡_.sym ≡B) (refl ⊢C) (⊢∷ΠΣ→ΠΣ-allowed ⊢t))
 
 -- A certain form of inversion for erased does not hold.
 

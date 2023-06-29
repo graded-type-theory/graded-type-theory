@@ -82,30 +82,29 @@ escapeEqTermᵛ [Γ] [A] [t≡u] =
                                             (subst-id _)
                                             [idA] [idA]′ ([t≡u] ⊢Γ idSubst))
 
--- If the type Unit is valid, then the Unit restriction holds.
+-- If the type Unit is valid, then it is allowed.
 
-⊩ᵛUnit→Unit-restriction :
+⊩ᵛUnit→Unit-allowed :
   Γ ⊩ᵛ⟨ l ⟩ Unit / [Γ] →
-  Unit-restriction
-⊩ᵛUnit→Unit-restriction {Γ = Γ} {l = l} {[Γ] = [Γ]} =
+  Unit-allowed
+⊩ᵛUnit→Unit-allowed {Γ = Γ} {l = l} {[Γ] = [Γ]} =
   Γ ⊩ᵛ⟨ l ⟩ Unit / [Γ]                                        →⟨ (λ hyp _ σ → proj₁ (unwrap hyp _ σ)) ⟩
   ((⊢Γ : ⊢ Γ) → Γ ⊩ˢ idSubst ∷ Γ / [Γ] / ⊢Γ → Γ ⊩⟨ l ⟩ Unit)  →⟨ (_$ idSubstS _) ∘→ (_$ _) ⟩
-  Γ ⊩⟨ l ⟩ Unit                                               →⟨ ⊩Unit→Unit-restriction ⟩
-  Unit-restriction                                            □
+  Γ ⊩⟨ l ⟩ Unit                                               →⟨ ⊩Unit→Unit-allowed ⟩
+  Unit-allowed                                                □
 
--- If the type ΠΣ⟨ b ⟩ p , q ▷ A ▹ B is valid, then the ΠΣ restriction
--- holds for b, p and q.
+-- If the type ΠΣ⟨ b ⟩ p , q ▷ A ▹ B is valid, then it is allowed.
 
-⊩ᵛΠΣ→ΠΣ-restriction :
+⊩ᵛΠΣ→ΠΣ-allowed :
   Γ ⊩ᵛ⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B / [Γ] →
-  ΠΣ-restriction b p q
-⊩ᵛΠΣ→ΠΣ-restriction
+  ΠΣ-allowed b p q
+⊩ᵛΠΣ→ΠΣ-allowed
   {Γ = Γ} {l = l} {b = b} {p = p} {q = q} {A = A} {B = B} {[Γ] = [Γ]} =
   Γ ⊩ᵛ⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B / [Γ]             →⟨ (λ hyp _ σ → proj₁ (unwrap hyp _ σ)) ⟩
 
   ((⊢Γ : ⊢ Γ) → Γ ⊩ˢ idSubst ∷ Γ / [Γ] / ⊢Γ →
    Γ ⊩⟨ l ⟩ subst idSubst (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B))  →⟨ (_$ idSubstS _) ∘→ (_$ _) ⟩
 
-  Γ ⊩⟨ l ⟩ subst idSubst (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)    →⟨ ⊩ΠΣ→ΠΣ-restriction ⟩
+  Γ ⊩⟨ l ⟩ subst idSubst (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)    →⟨ ⊩ΠΣ→ΠΣ-allowed ⟩
 
-  ΠΣ-restriction b p q                              □
+  ΠΣ-allowed b p q                                  □

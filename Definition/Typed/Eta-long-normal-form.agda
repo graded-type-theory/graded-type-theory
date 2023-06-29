@@ -81,12 +81,12 @@ mutual
              Γ ⊢nf A
     ΠΣₙ    : Γ ⊢nf A →
              Γ ∙ A ⊢nf B →
-             ΠΣ-restriction b p q →
+             ΠΣ-allowed b p q →
              Γ ⊢nf ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
     Emptyₙ : ⊢ Γ →
              Γ ⊢nf Empty
     Unitₙ  : ⊢ Γ →
-             Unit-restriction →
+             Unit-allowed →
              Γ ⊢nf Unit
     ℕₙ     : ⊢ Γ →
              Γ ⊢nf ℕ
@@ -102,25 +102,25 @@ mutual
              Γ ⊢nf t ∷ B
     ΠΣₙ    : Γ ⊢nf A ∷ U →
              Γ ∙ A ⊢nf B ∷ U →
-             ΠΣ-restriction b p q →
+             ΠΣ-allowed b p q →
              Γ ⊢nf ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ U
     lamₙ   : Γ ⊢ A →
              Γ ∙ A ⊢nf t ∷ B →
-             Π-restriction p q →
+             Π-allowed p q →
              Γ ⊢nf lam p t ∷ Π p , q ▷ A ▹ B
     prodₙ  : Γ ⊢ A →
              Γ ∙ A ⊢ B →
              Γ ⊢nf t ∷ A →
              Γ ⊢nf u ∷ B [ t ] →
-             Σ-restriction s p q →
+             Σ-allowed s p q →
              Γ ⊢nf prod s p t u ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B
     Emptyₙ : ⊢ Γ →
              Γ ⊢nf Empty ∷ U
     Unitₙ  : ⊢ Γ →
-             Unit-restriction →
+             Unit-allowed →
              Γ ⊢nf Unit ∷ U
     starₙ  : ⊢ Γ →
-             Unit-restriction →
+             Unit-allowed →
              Γ ⊢nf star ∷ Unit
     ℕₙ     : ⊢ Γ →
              Γ ⊢nf ℕ ∷ U
@@ -161,7 +161,7 @@ mutual
                 Γ ∙ (Σᵣ p , q′ ▷ A ▹ B) ⊢nf C →
                 Γ ⊢ne t ∷ Σᵣ p , q′ ▷ A ▹ B →
                 Γ ∙ A ∙ B ⊢nf u ∷ C [ prodᵣ p (var x1) (var x0) ]↑² →
-                Σᵣ-restriction p q′ →
+                Σᵣ-allowed p q′ →
                 Γ ⊢ne prodrec r p q C t u ∷ C [ t ]
     Emptyrecₙ : Γ ⊢nf A →
                 Γ ⊢ne t ∷ Empty →
@@ -433,7 +433,7 @@ mutual
 
 inversion-nf-ΠΣ-U :
   Γ ⊢nf ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ C →
-  Γ ⊢nf A ∷ U × Γ ∙ A ⊢nf B ∷ U × Γ ⊢ C ≡ U × ΠΣ-restriction b p q
+  Γ ⊢nf A ∷ U × Γ ∙ A ⊢nf B ∷ U × Γ ⊢ C ≡ U × ΠΣ-allowed b p q
 inversion-nf-ΠΣ-U (ΠΣₙ ⊢A ⊢B ok) =
   ⊢A , ⊢B , refl (Uⱼ (wfTerm (⊢nf∷→⊢∷ ⊢A))) , ok
 inversion-nf-ΠΣ-U (convₙ ⊢ΠΣ D≡C) =
@@ -447,7 +447,7 @@ inversion-nf-ΠΣ-U (neₙ _ ⊢ΠΣ) =
 
 inversion-nf-ΠΣ :
   Γ ⊢nf ΠΣ⟨ b ⟩ p , q ▷ A ▹ B →
-  Γ ⊢nf A × Γ ∙ A ⊢nf B × ΠΣ-restriction b p q
+  Γ ⊢nf A × Γ ∙ A ⊢nf B × ΠΣ-allowed b p q
 inversion-nf-ΠΣ = λ where
   (ΠΣₙ ⊢A ⊢B ok) → ⊢A , ⊢B , ok
   (univₙ ⊢ΠΣAB)  → case inversion-nf-ΠΣ-U ⊢ΠΣAB of λ where
@@ -461,7 +461,7 @@ inversion-nf-lam :
      (Γ ⊢ B) ×
      Γ ∙ B ⊢nf t ∷ C ×
      Γ ⊢ A ≡ Π p , q ▷ B ▹ C ×
-     Π-restriction p q
+     Π-allowed p q
 inversion-nf-lam (neₙ _ ⊢lam) =
   case ⊢ne∷→NfNeutral ⊢lam of λ ()
 inversion-nf-lam (lamₙ ⊢B ⊢t ok) =
@@ -480,7 +480,7 @@ inversion-nf-prod :
     (Γ ⊢ B) × (Γ ∙ B ⊢ C) ×
     Γ ⊢nf t ∷ B × Γ ⊢nf u ∷ C [ t ] ×
     Γ ⊢ A ≡ Σ⟨ s ⟩ p , q ▷ B ▹ C ×
-    Σ-restriction s p q
+    Σ-allowed s p q
 inversion-nf-prod (neₙ _ ⊢prod) =
   case ⊢ne∷→NfNeutral ⊢prod of λ ()
 inversion-nf-prod (prodₙ ⊢B ⊢C ⊢t ⊢u ok) =
@@ -906,7 +906,7 @@ mutual
         (E≡ , F≡ , _ , PE.refl , _) →
       case reflConEq (wfTerm ⊢t′) of λ {
         Γ≡Γ →
-      case ⊢∷ΠΣ→ΠΣ-restriction (⊢ne∷→⊢∷ ⊢t) of λ {
+      case ⊢∷ΠΣ→ΠΣ-allowed (⊢ne∷→⊢∷ ⊢t) of λ {
         ok →
       case
         normal-types-unique-[conv↑]

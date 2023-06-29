@@ -72,7 +72,7 @@ appʳ′ : ∀ {l} {Γ : Con Term n}
       → ([Γ] : ⊩ᵛ Γ) ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ]) ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
        ([G[u]] : Γ ⊩ᵛ⟨ l ⟩ G [ u ] / [Γ])
        ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ F / [Γ] / [F])
-       (ok : Π-restriction p q)
+       (ok : Π-allowed p q)
        (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] Π p , q ▷ F ▹ G / [Γ] /
               Πᵛ [Γ] [F] [G] ok)
        (⊩ʳu : δ ▸ Γ ⊩ʳ⟨ l ⟩ u ∷[ m ᵐ· p ] F / [Γ] / [F])
@@ -150,7 +150,7 @@ appʳ {F = F} {p} {q} {G} {u} {γ} {t} {δ}
       [Γ]′ , [G]′ = fundamental Γ⊢G
       [G] = IS.irrelevance {A = G} [Γ]′ ([Γ] ∙ [F]) [G]′
       [G[u]] = substSΠ {F = F} {G = G} {t = u} (BΠ p q) [Γ] [F] [Π] [u]
-      ok = ⊩ᵛΠΣ→ΠΣ-restriction [Π]
+      ok = ⊩ᵛΠΣ→ΠΣ-allowed [Π]
       [Π]′ = Πᵛ {F = F} {G = G} {p = p} {q = q} [Γ] [F] [G] ok
       ⊩ʳt′ = irrelevance {A = Π p , q ▷ F ▹ G} {t = t} [Γ] [Γ] [Π] [Π]′ ⊩ʳt
       ⊩ʳt∘u = appʳ′ {F = F} {G = G} {u = u} {p = p} {t = t}

@@ -336,7 +336,7 @@ prod-congᵛ :
   ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ G [ t ] / [Γ] / substS [Γ] [F] [G] [t])
   ([u′] : Γ ⊩ᵛ⟨ l ⟩ u′ ∷ G [ t′ ] / [Γ] / substS [Γ] [F] [G] [t′])
   ([u≡u′] : Γ ⊩ᵛ⟨ l ⟩ u ≡ u′ ∷ G [ t ] / [Γ] / substS [Γ] [F] [G] [t])
-  (ok : Σ-restriction m p q) →
+  (ok : Σ-allowed m p q) →
   Γ ⊩ᵛ⟨ l ⟩ prod m p t u ≡ prod m p t′ u′ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G / [Γ] /
     Σᵛ [Γ] [F] [G] ok
 prod-congᵛ
@@ -380,7 +380,7 @@ prodᵛ :
   ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
   ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ F / [Γ] / [F])
   ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ G [ t ] / [Γ] / substS [Γ] [F] [G] [t])
-  (ok : Σ-restriction m p q) →
+  (ok : Σ-allowed m p q) →
   Γ ⊩ᵛ⟨ l ⟩ prod m p t u ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G / [Γ] /
     Σᵛ [Γ] [F] [G] ok
 prodᵛ

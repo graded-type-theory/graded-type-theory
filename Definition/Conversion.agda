@@ -101,7 +101,7 @@ mutual
 
     Empty-refl : ⊢ Γ → Γ ⊢ Empty [conv↓] Empty
 
-    Unit-refl  : ⊢ Γ → Unit-restriction → Γ ⊢ Unit [conv↓] Unit
+    Unit-refl  : ⊢ Γ → Unit-allowed → Γ ⊢ Unit [conv↓] Unit
 
     ne         : ∀ {K L}
                → Γ ⊢ K ~ L ↓ U
@@ -111,7 +111,7 @@ mutual
                → Γ ⊢ F
                → Γ ⊢ F [conv↑] H
                → Γ ∙ F ⊢ G [conv↑] E
-               → ΠΣ-restriction b p q
+               → ΠΣ-allowed b p q
                → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G [conv↓] ΠΣ⟨ b ⟩ p , q ▷ H ▹ E
 
   -- Term equality.
@@ -169,7 +169,7 @@ mutual
               → Γ ∙ F ⊢ G
               → Γ ⊢ t [conv↑] t′ ∷ F
               → Γ ⊢ u [conv↑] u′ ∷ G [ t ]
-              → Σᵣ-restriction p q
+              → Σᵣ-allowed p q
               → Γ ⊢ prodᵣ p t u [conv↓] prodᵣ p t′ u′ ∷ Σᵣ p , q ▷ F ▹ G
 
     η-eq      : ∀ {f g F G}
@@ -195,7 +195,7 @@ mutual
               → Whnf l
               → Γ ⊢ k [conv↓] l ∷ Unit
 
-star-refl : ⊢ Γ → Unit-restriction → Γ ⊢ star [conv↓] star ∷ Unit
+star-refl : ⊢ Γ → Unit-allowed → Γ ⊢ star [conv↓] star ∷ Unit
 star-refl ⊢Γ ok = η-unit (starⱼ ⊢Γ ok) (starⱼ ⊢Γ ok) starₙ starₙ
 
 -- An inversion lemma for prod-cong.
@@ -209,5 +209,5 @@ prod-cong⁻¹ :
   Γ ∙ F ⊢ G ×
   (Γ ⊢ t [conv↑] t′ ∷ F) ×
   (Γ ⊢ u [conv↑] u′ ∷ G [ t ]) ×
-  Σᵣ-restriction p q
+  Σᵣ-allowed p q
 prod-cong⁻¹ (prod-cong F G t u ok) = refl , refl , F , G , t , u , ok

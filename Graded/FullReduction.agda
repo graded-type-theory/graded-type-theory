@@ -87,28 +87,28 @@ module _ (as : Full-reduction-assumptions) where
     -- A lemma used in the Unit-ins and η-unit cases of
     -- fullRedTermConv↓.
     --
-    -- Note that the Unit-restriction assumption is only used when the
+    -- Note that the Unit-allowed assumption is only used when the
     -- mode is 𝟙ᵐ. Currently the typing relation does not track modes,
     -- but if it did, then it might suffice to require that the
-    -- Unit-restriction assumption holds when the mode is 𝟙ᵐ.
+    -- Unit-allowed assumption holds when the mode is 𝟙ᵐ.
 
     ▸→≤ᶜ𝟘ᶜ :
       ∀ {t : Term n} m →
-      Unit-restriction →
+      Unit-allowed →
       γ ▸[ m ] t → γ ≤ᶜ 𝟘ᶜ
     ▸→≤ᶜ𝟘ᶜ 𝟘ᵐ _  γ▸t = ▸-𝟘ᵐ γ▸t
     ▸→≤ᶜ𝟘ᶜ 𝟙ᵐ ok _   = ≤ᶜ𝟘ᶜ (≤𝟘 ok)
 
     -- A lemma used in the Σ-η case of fullRedTermConv↓.
     --
-    -- Note that the Σₚ-restriction assumption is only used when the
-    -- mode is 𝟙ᵐ. Currently the typing relation does not track modes,
-    -- but if it did, then it might suffice to require that the
-    -- Σₚ-restriction assumptions hold when the mode is 𝟙ᵐ.
+    -- Note that the Σₚ-allowed assumption is only used when the mode
+    -- is 𝟙ᵐ. Currently the typing relation does not track modes, but
+    -- if it did, then it might suffice to require that the Σₚ-allowed
+    -- assumptions hold when the mode is 𝟙ᵐ.
 
     Σ-η-lemma :
       ∀ m →
-      Σₚ-restriction p q →
+      Σₚ-allowed p q →
       γ ▸[ m ] t →
       ∃ λ δ → δ ▸[ m ᵐ· p ] fst p t × γ ≤ᶜ p ·ᶜ δ
     Σ-η-lemma {p = p} {γ = γ} = λ where
@@ -335,7 +335,7 @@ module _ (as : Full-reduction-assumptions) where
           (Γ⊢ , ⊢t , _) →
         case wf Γ⊢ of λ {
           ⊢Γ →
-        case ⊢∷Unit→Unit-restriction ⊢t of λ {
+        case ⊢∷Unit→Unit-allowed ⊢t of λ {
           ok →
           star
         , starₙ ⊢Γ ok
@@ -407,7 +407,7 @@ module _ (as : Full-reduction-assumptions) where
       (η-eq {p = p} {q = q} {f = t} {F = A} {G = B} ⊢t _ _ _ t0≡u0) ▸t →
         case fullRedTermConv↑ t0≡u0 (wkUsage (step id) ▸t ∘ₘ var) of λ {
           (u , u-nf , t0≡u , ▸u) →
-        case ⊢∷ΠΣ→ΠΣ-restriction ⊢t of λ {
+        case ⊢∷ΠΣ→ΠΣ-allowed ⊢t of λ {
           ok →
           lam p u
         , lamₙ (inversion-ΠΣ (syntacticTerm ⊢t) .proj₁) u-nf ok
@@ -446,7 +446,7 @@ module _ (as : Full-reduction-assumptions) where
       (η-unit ⊢t _ _ _) ▸t →
         case wfTerm ⊢t of λ {
           ⊢Γ →
-        case ⊢∷Unit→Unit-restriction ⊢t of λ {
+        case ⊢∷Unit→Unit-allowed ⊢t of λ {
           ok →
           star
         , starₙ ⊢Γ ok
@@ -495,7 +495,7 @@ Full-reduction-term⇔Full-reduction-assumptions :
 Full-reduction-term⇔Full-reduction-assumptions =
     (λ red → λ where
        .𝟙≤𝟘 →
-         Unit-restriction                                       →⟨ η-long-nf-for-0⇔𝟙≤𝟘 ⟩
+         Unit-allowed                                           →⟨ η-long-nf-for-0⇔𝟙≤𝟘 ⟩
 
          (let Γ = ε ∙ Unit
               γ = ε ∙ 𝟙
@@ -529,7 +529,7 @@ Full-reduction-term⇔Full-reduction-assumptions =
          𝟙 ≤ 𝟘                                                  □
 
        .≡𝟙⊎𝟙≤𝟘 {p = p} {q = q} →
-         Σₚ-restriction p q                                              →⟨ η-long-nf-for-0⇔≡𝟙⊎≡𝟘 ⟩
+         Σₚ-allowed p q                                                   →⟨ η-long-nf-for-0⇔≡𝟙⊎≡𝟘 ⟩
 
          (let Γ = ε ∙ (Σₚ p , q ▷ ℕ ▹ ℕ)
               γ = ε ∙ 𝟙
@@ -581,17 +581,17 @@ Full-reduction-term-ε =
   ε ⊢ t ∷ A → ε ▸[ m ] t →
   ∃ λ u → ε ⊢nf u ∷ A × ε ⊢ t ≡ u ∷ A × ε ▸[ m ] u
 
--- If Π-restriction 𝟙 r holds for any r, then Full-reduction-term-ε
+-- If Π-allowed 𝟙 r holds for any r, then Full-reduction-term-ε
 -- implies Full-reduction-assumptions.
 
 Full-reduction-term-ε→Full-reduction-assumptions :
-  Π-restriction 𝟙 r →
+  Π-allowed 𝟙 r →
   Full-reduction-term-ε →
   Full-reduction-assumptions
 Full-reduction-term-ε→Full-reduction-assumptions
   {r = r} ok red = λ where
     .𝟙≤𝟘 →
-      Unit-restriction                                     →⟨ η-long-nf-for-id⇔𝟙≤𝟘 ok ⟩
+      Unit-allowed                                         →⟨ η-long-nf-for-id⇔𝟙≤𝟘 ok ⟩
 
       (let A = Π 𝟙 , r ▷ Unit ▹ Unit
            t = lam 𝟙 (var x0)
@@ -621,7 +621,7 @@ Full-reduction-term-ε→Full-reduction-assumptions
       𝟙 ≤ 𝟘                                                □
 
     .≡𝟙⊎𝟙≤𝟘 {p = p} {q = q} →
-      Σₚ-restriction p q                                              →⟨ η-long-nf-for-id⇔≡𝟙⊎≡𝟘 ok ⟩
+      Σₚ-allowed p q                                                  →⟨ η-long-nf-for-id⇔≡𝟙⊎≡𝟘 ok ⟩
 
       (let A = Π 𝟙 , r ▷ Σₚ p , q ▷ ℕ ▹ ℕ ▹ Σₚ p , q ▷ ℕ ▹ ℕ
            t = lam 𝟙 (var x0)
@@ -655,11 +655,11 @@ Full-reduction-term-ε→Full-reduction-assumptions
   open Full-reduction-assumptions
   open Tools.Reasoning.PartialOrder ≤-poset
 
--- If Π-restriction 𝟙 r holds for any r, then Full-reduction-term is
+-- If Π-allowed 𝟙 r holds for any r, then Full-reduction-term is
 -- logically equivalent to Full-reduction-term-ε.
 
 Full-reduction-term⇔Full-reduction-term-ε :
-  Π-restriction 𝟙 r →
+  Π-allowed 𝟙 r →
   Full-reduction-term ⇔ Full-reduction-term-ε
 Full-reduction-term⇔Full-reduction-term-ε ok =
     (λ red → red)

@@ -243,7 +243,7 @@ snd-congᵛ :
   ([Γ] : ⊩ᵛ Γ)
   ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
   ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
-  (ok : Σₚ-restriction p q)
+  (ok : Σₚ-allowed p q)
   ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ Σₚ p , q ▷ F ▹ G / [Γ] / Σᵛ [Γ] [F] [G] ok)
   ([t′] : Γ ⊩ᵛ⟨ l ⟩ t′ ∷ Σₚ p , q ▷ F ▹ G / [Γ] / Σᵛ [Γ] [F] [G] ok)
   ([t≡t′] : Γ ⊩ᵛ⟨ l ⟩ t ≡ t′ ∷ Σₚ p , q ▷ F ▹ G / [Γ] /
@@ -276,7 +276,7 @@ sndᵛ :
   ([Γ] : ⊩ᵛ Γ)
   ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
   ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
-  (ok : Σₚ-restriction p q)
+  (ok : Σₚ-allowed p q)
   ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ Σ p , q ▷ F ▹ G / [Γ] / Σᵛ [Γ] [F] [G] ok) →
   Γ ⊩ᵛ⟨ l ⟩ snd p t ∷ G [ fst p t ] / [Γ] /
     substS [Γ] [F] [G] (fstᵛ {t = t} [Γ] [F] [G] ok [t])

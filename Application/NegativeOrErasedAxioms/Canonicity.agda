@@ -90,7 +90,7 @@ neNeg (d ∘ⱼ ⊢t           ) (∘ₙ n       ) γ▸u =
 neNeg (fstⱼ ⊢A A⊢B d) (fstₙ {p = p} n) γ▸u =
   let invUsageFst m 𝟙ᵐ≡mᵐ·p δ▸t γ≤δ ok = inv-usage-fst γ▸u
   in  fstNeg (neNeg d n (sub δ▸t γ≤δ))
-             (refl (ΠΣⱼ ⊢A A⊢B (⊢∷ΠΣ→ΠΣ-restriction d)))
+             (refl (ΠΣⱼ ⊢A A⊢B (⊢∷ΠΣ→ΠΣ-allowed d)))
              (𝟘≢p m 𝟙ᵐ≡mᵐ·p (ok PE.refl))
   where
   𝟘≢p :
@@ -103,7 +103,7 @@ neNeg (fstⱼ ⊢A A⊢B d) (fstₙ {p = p} n) γ▸u =
 neNeg (sndⱼ ⊢A A⊢B d     ) (sndₙ n     ) γ▸u =
   let invUsageSnd δ▸t γ≤δ = inv-usage-snd γ▸u
   in  sndNeg (neNeg d n (sub δ▸t γ≤δ))
-             (refl (ΠΣⱼ ⊢A A⊢B (⊢∷ΠΣ→ΠΣ-restriction d)))
+             (refl (ΠΣⱼ ⊢A A⊢B (⊢∷ΠΣ→ΠΣ-allowed d)))
              (fstⱼ ⊢A A⊢B d)
 neNeg (natrecⱼ _ _ _ d   ) (natrecₙ n  ) γ▸u =
   let invUsageNatrec _ _ δ▸n _ γ≤γ′ = inv-usage-natrec γ▸u

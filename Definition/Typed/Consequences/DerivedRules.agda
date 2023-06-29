@@ -36,7 +36,7 @@ private variable
 
 lam-cong :
   Γ ∙ A ⊢ t ≡ u ∷ B →
-  Π-restriction p q →
+  Π-allowed p q →
   Γ ⊢ lam p t ≡ lam p u ∷ Π p , q ▷ A ▹ B
 lam-cong {B = B} t≡u ok = η-eq ⊢A (lamⱼ ⊢A ⊢t ok) (lamⱼ ⊢A ⊢u ok) $
   _⊢_≡_∷_.trans
@@ -69,7 +69,7 @@ lam-cong {B = B} t≡u ok = η-eq ⊢A (lamⱼ ⊢A ⊢t ok) (lamⱼ ⊢A ⊢u o
 
 inversion-lam′ :
   Γ ⊢ lam p t ∷ Π q , r ▷ A ▹ B →
-  Γ ∙ A ⊢ t ∷ B × p PE.≡ q × Π-restriction q r
+  Γ ∙ A ⊢ t ∷ B × p PE.≡ q × Π-allowed q r
 inversion-lam′ ⊢lam =
   case inversion-lam ⊢lam of λ {
     (_ , _ , _ , _ , ⊢t , ≡ΠΣ , ok) →
@@ -111,7 +111,7 @@ wk1-lam∘0≡ ⊢lam = subsetTerm (wk1-lam∘0⇒ ⊢lam)
 
 lam-cong⁻¹ :
   Γ ⊢ lam p t ≡ lam p u ∷ Π p , q ▷ A ▹ B →
-  Γ ∙ A ⊢ t ≡ u ∷ B × Π-restriction p q
+  Γ ∙ A ⊢ t ≡ u ∷ B × Π-allowed p q
 lam-cong⁻¹
   {Γ = Γ} {p = p} {t = t} {u = u} {q = q} {A = A} {B = B} lam-t≡lam-u =  $⟨ lam-t≡lam-u ⟩
   Γ ⊢ lam p t ≡ lam p u ∷ Π p , q ▷ A ▹ B                                →⟨ wkEqTerm (step id) ⊢ΓA ⟩
@@ -127,7 +127,7 @@ lam-cong⁻¹
 
   Γ ∙ A ⊢ t ≡ u ∷ B                                                      →⟨ _, ok ⟩
 
-  Γ ∙ A ⊢ t ≡ u ∷ B × Π-restriction p q                                  □
+  Γ ∙ A ⊢ t ≡ u ∷ B × Π-allowed p q                                      □
   where
   ⊢Γ     = wfEqTerm lam-t≡lam-u
   ⊢A     = inversion-ΠΣ (syntacticEqTerm lam-t≡lam-u .proj₁) .proj₁
@@ -140,7 +140,7 @@ lam-cong⁻¹
 
 lam-injective :
   Γ ⊢ lam p t ≡ lam p′ u ∷ Π p″ , q ▷ A ▹ B →
-  p PE.≡ p′ × Γ ∙ A ⊢ t ≡ u ∷ B × Π-restriction p q × p′ PE.≡ p″
+  p PE.≡ p′ × Γ ∙ A ⊢ t ≡ u ∷ B × Π-allowed p q × p′ PE.≡ p″
 lam-injective
   {Γ = Γ} {p = p} {t = t} {p′ = p′} {u = u} {p″ = p″} {q = q}
   {A = A} {B = B} lam-t≡lam-u =
@@ -188,5 +188,5 @@ Unit-η :
   Γ ⊢ t ∷ Unit →
   Γ ⊢ star ≡ t ∷ Unit
 Unit-η ⊢t = η-unit
-  (starⱼ (wfTerm ⊢t) (⊢∷Unit→Unit-restriction ⊢t))
+  (starⱼ (wfTerm ⊢t) (⊢∷Unit→Unit-allowed ⊢t))
   ⊢t

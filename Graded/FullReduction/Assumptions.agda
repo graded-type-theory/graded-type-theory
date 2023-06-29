@@ -34,12 +34,12 @@ record Full-reduction-assumptions : Set a where
   no-eta-equality
   field
     -- If the unit type (with η-equality) is allowed, then 𝟙 ≤ 𝟘.
-    𝟙≤𝟘 : Unit-restriction → 𝟙 ≤ 𝟘
+    𝟙≤𝟘 : Unit-allowed → 𝟙 ≤ 𝟘
 
     -- If a Σ-type with η-equality and the "first component
     -- quantity" p is allowed, then either p ≡ 𝟙 or p ≡ 𝟘, 𝟘ᵐ is
     -- allowed and 𝟙 ≤ 𝟘.
-    ≡𝟙⊎𝟙≤𝟘 : Σₚ-restriction p q → p ≡ 𝟙 ⊎ p ≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘
+    ≡𝟙⊎𝟙≤𝟘 : Σₚ-allowed p q → p ≡ 𝟙 ⊎ p ≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘
 
 -- An alternative way to state Full-reduction-assumptions.
 
@@ -48,15 +48,15 @@ record Full-reduction-assumptions′ : Set a where
   field
     -- If the unit type (with η-equality) is allowed, then 𝟘 must be
     -- the largest quantity.
-    ≤𝟘 : Unit-restriction → p ≤ 𝟘
+    ≤𝟘 : Unit-allowed → p ≤ 𝟘
 
     -- If a Σ-type with η-equality and the "first component
     -- quantity" p is allowed, then p ·_ must be increasing.
-    ·-increasing : Σₚ-restriction p q → r ≤ p · r
+    ·-increasing : Σₚ-allowed p q → r ≤ p · r
 
     -- If a Σ-type with η-equality and the "first component
     -- quantity" p is allowed, and ⌞ p ⌟ is 𝟙ᵐ, then p ≤ 𝟙 must hold.
-    ⌞⌟≡𝟙ᵐ→≤𝟙 : Σₚ-restriction p q → ⌞ p ⌟ ≡ 𝟙ᵐ → p ≤ 𝟙
+    ⌞⌟≡𝟙ᵐ→≤𝟙 : Σₚ-allowed p q → ⌞ p ⌟ ≡ 𝟙ᵐ → p ≤ 𝟙
 
 -- Full-reduction-assumptions is logically equivalent to
 -- Full-reduction-assumptions′.
@@ -66,18 +66,18 @@ Full-reduction-assumptions⇔Full-reduction-assumptions′ :
 Full-reduction-assumptions⇔Full-reduction-assumptions′ =
     (λ as → record
        { ≤𝟘 = λ {p = p} →
-           Unit-restriction  →⟨ 𝟙≤𝟘 as ⟩
+           Unit-allowed  →⟨ 𝟙≤𝟘 as ⟩
 
-           𝟙 ≤ 𝟘             →⟨ (λ 𝟙≤𝟘 → begin
+           𝟙 ≤ 𝟘         →⟨ (λ 𝟙≤𝟘 → begin
 
-             p                       ≡˘⟨ ·-identityˡ _ ⟩
-             𝟙 · p                   ≤⟨ ·-monotoneˡ 𝟙≤𝟘 ⟩
-             𝟘 · p                   ≡⟨ ·-zeroˡ _ ⟩
-             𝟘                       ∎) ⟩
+             p                   ≡˘⟨ ·-identityˡ _ ⟩
+             𝟙 · p               ≤⟨ ·-monotoneˡ 𝟙≤𝟘 ⟩
+             𝟘 · p               ≡⟨ ·-zeroˡ _ ⟩
+             𝟘                   ∎) ⟩
 
-           p ≤ 𝟘             □
+           p ≤ 𝟘         □
        ; ·-increasing = λ {p = p} {q = q} {r = r} →
-           Σₚ-restriction p q                    →⟨ ≡𝟙⊎𝟙≤𝟘 as ⟩
+           Σₚ-allowed p q                        →⟨ ≡𝟙⊎𝟙≤𝟘 as ⟩
 
            p ≡ 𝟙 ⊎ p ≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘  →⟨ (λ { (inj₁ refl) → begin
 
@@ -90,7 +90,7 @@ Full-reduction-assumptions⇔Full-reduction-assumptions′ =
                                                        }) ⟩
            r ≤ p · r                             □
        ; ⌞⌟≡𝟙ᵐ→≤𝟙 = λ {p = p} {q = q} →
-           Σₚ-restriction p q                    →⟨ ≡𝟙⊎𝟙≤𝟘 as ⟩
+           Σₚ-allowed p q                        →⟨ ≡𝟙⊎𝟙≤𝟘 as ⟩
            p ≡ 𝟙 ⊎ p ≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘  →⟨ (λ { (inj₁ p≡𝟙) → inj₁ (≤-reflexive p≡𝟙)
                                                        ; (inj₂ (p≡𝟘 , ok , _)) → inj₂ (ok , p≡𝟘)
                                                        }) ⟩
@@ -100,7 +100,7 @@ Full-reduction-assumptions⇔Full-reduction-assumptions′ =
   , (λ as → record
        { 𝟙≤𝟘    = ≤𝟘 as
        ; ≡𝟙⊎𝟙≤𝟘 = λ {p = p} {q = q} →
-           Σₚ-restriction p q                      →⟨ (λ ok → ·-increasing as ok , ⌞⌟≡𝟙ᵐ→≤𝟙 as ok) ⟩
+           Σₚ-allowed p q                          →⟨ (λ ok → ·-increasing as ok , ⌞⌟≡𝟙ᵐ→≤𝟙 as ok) ⟩
            𝟙 ≤ p · 𝟙 × (⌞ p ⌟ ≡ 𝟙ᵐ → p ≤ 𝟙)        →⟨ (λ (𝟙≤p1 , ⌞⌟≡𝟙ᵐ→≤𝟙) →
                                                           subst (_ ≤_) (·-identityʳ _) 𝟙≤p1
                                                         , ⌞⌟≡𝟙→⇔⊎𝟘ᵐ×≡𝟘 .proj₁ ⌞⌟≡𝟙ᵐ→≤𝟙) ⟩

@@ -79,7 +79,7 @@ lamʳ′ : ∀ {l} {Γ : Con Term n}
         ([t] : Γ ∙ F ⊩ᵛ⟨ l ⟩ t ∷ G / [Γ] ∙ [F] / [G])
         ([u] : Δ ⊩⟨ l ⟩ u ∷ subst σ F / proj₁ (unwrap [F] ⊢Δ [σ]))
         (u®w : u ®⟨ l ⟩ w ∷ subst σ F ◂ p / proj₁ (unwrap [F] ⊢Δ [σ]))
-      → Π-restriction p q
+      → Π-allowed p q
       → ((subst σ (lam p t)) ∘⟨ p ⟩ u) ®⟨ l ⟩ (T.subst σ′ (T.lam (erase t))) T.∘ w
         ∷ subst (consSubst σ u) G / proj₁ (unwrap [G] ⊢Δ ([σ] , [u]))
 lamʳ′ {F = F} {G = G} {γ = γ} {p = p} {t = t} {σ = σ} {σ′ = σ′}
@@ -115,7 +115,7 @@ lamʳ : ∀ {l} {Γ : Con Term n} → ([Γ] : ⊩ᵛ Γ) ([F] : Γ ⊩ᵛ⟨ l �
        ([t] : Γ ∙ F ⊩ᵛ⟨ l ⟩ t ∷ G / [Γ] ∙ [F] / [G])
        (⊩ʳt : γ ∙ ⌜ m ⌝ · p ▸ Γ ∙ F ⊩ʳ⟨ l ⟩ t ∷[ m ]
               G / [Γ] ∙ [F] / [G])
-       (ok : Π-restriction p q)
+       (ok : Π-allowed p q)
      → γ ▸ Γ ⊩ʳ⟨ l ⟩ lam p t ∷[ m ] Π p , q ▷ F ▹ G / [Γ] /
        Πᵛ [Γ] [F] [G] ok
 
