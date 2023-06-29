@@ -55,18 +55,18 @@ second-ΠΣ-quantities-𝟘 𝕄 R = record R
   open Modality 𝕄
   open Type-restrictions R
 
--- The function adds the restriction that if the first quantity
--- associated with a Π- or Σ-type is 𝟘, then the second quantity is
--- also 𝟘, and if the first quantity is not 𝟘, then the second
--- quantity has the given value.
+-- The function second-ΠΣ-quantities-𝟘-or-ω ω 𝕄 adds the restriction
+-- that if the first quantity associated with a Π- or Σ-type is ω,
+-- then the second quantity is also ω, and if the first quantity is
+-- not ω, then the second quantity is the 𝟘 of 𝕄.
 
 second-ΠΣ-quantities-𝟘-or-ω :
   M → Modality → Type-restrictions → Type-restrictions
 second-ΠΣ-quantities-𝟘-or-ω ω 𝕄 R = record R
   { ΠΣ-allowed = λ b p q →
       ΠΣ-allowed b p q ×
-      (p ≡ 𝟘 → q ≡ 𝟘) ×
-      (p ≢ 𝟘 → q ≡ ω)
+      (p ≡ ω → q ≡ ω) ×
+      (p ≢ ω → q ≡ 𝟘)
   }
   where
   open Modality 𝕄

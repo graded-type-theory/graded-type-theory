@@ -262,192 +262,87 @@ Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘 tr-𝟘 r = record
 -- second-ΠΣ-quantities-𝟘-or-ω, given that certain assumptions hold.
 
 Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω :
-  ∀ {ω₁ ω₂} →
-  Is-morphism 𝕄₁ 𝕄₂ tr →
-  Is-Σ-morphism 𝕄₁ 𝕄₂ tr tr-Σ →
-  (¬ T (Modality.𝟘ᵐ-allowed 𝕄₁) →
-   (∀ {p} → tr p ≡ Modality.𝟘 𝕄₂ ⇔ p ≡ Modality.𝟘 𝕄₁) ×
-   (∀ {p} → tr-Σ p ≡ Modality.𝟘 𝕄₂ ⇔ p ≡ Modality.𝟘 𝕄₁)) →
-  tr ω₁ ≡ ω₂ →
+  ∀ {ω₁ ω₂}
+  (𝕄₁ : Modality M₁)
+  (𝕄₂ : Modality M₂) →
+  (Modality.𝟙 𝕄₁ ≢ Modality.𝟘 𝕄₁ →
+   tr (Modality.𝟘 𝕄₁) ≡ Modality.𝟘 𝕄₂) →
+  (∀ {p} → tr p ≡ ω₂ ⇔ p ≡ ω₁) →
+  (∀ {p} → tr-Σ p ≡ ω₂ ⇔ p ≡ ω₁) →
   Are-preserving-type-restrictions R₁ R₂ tr tr-Σ →
   Are-preserving-type-restrictions
     (second-ΠΣ-quantities-𝟘-or-ω ω₁ 𝕄₁ R₁)
     (second-ΠΣ-quantities-𝟘-or-ω ω₂ 𝕄₂ R₂)
     tr tr-Σ
 Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-  {𝕄₁ = 𝕄₁} {𝕄₂ = 𝕄₂} {tr = tr} {tr-Σ = tr-Σ} {ω₁ = ω₁} {ω₂ = ω₂}
-  m m-Σ tr-𝟘 tr-ω r = record
+  {tr = tr} {tr-Σ = tr-Σ} {ω₁ = ω₁} {ω₂ = ω₂}
+  𝕄₁ 𝕄₂ tr-𝟘 tr-ω tr-Σ-ω r = record
   { Unit-preserved = Unit-preserved
   ; ΠΣ-preserved   = λ {b = b} (bn , is-𝟘 , not-𝟘) →
-      ΠΣ-preserved bn , lemma₁ b is-𝟘 , lemma₂ b not-𝟘
+      ΠΣ-preserved bn , lemma₁ b is-𝟘 , lemma₃ b not-𝟘
   }
   where
   module M₁ = Modality 𝕄₁
   module M₂ = Modality 𝕄₂
   open Are-preserving-type-restrictions r
   open Graded.Modality.Properties 𝕄₁
-  open Is-morphism m
-  open Is-Σ-morphism m-Σ
-
-  tr-≡-𝟘-⇔′ : ∀ {p} → tr p ≡ M₂.𝟘 ⇔ p ≡ M₁.𝟘
-  tr-≡-𝟘-⇔′ = Mode.𝟘ᵐ-allowed-elim 𝕄₁
-    tr-≡-𝟘-⇔
-    (λ not-ok → tr-𝟘 not-ok .proj₁)
-
-  tr-Σ-≡-𝟘-⇔ : ∀ {p} → tr-Σ p ≡ M₂.𝟘 ⇔ p ≡ M₁.𝟘
-  tr-Σ-≡-𝟘-⇔ = Mode.𝟘ᵐ-allowed-elim 𝕄₁
-    (λ ok →
-         (λ hyp → tr-Σ-≡-𝟘-→ (𝟘ᵐ-in-second-if-in-first ok) hyp .proj₂)
-       , (λ { refl → tr-Σ-𝟘-≡ m ok }))
-    (λ not-ok → tr-𝟘 not-ok .proj₂)
 
   lemma₁ :
     ∀ {p q} b →
-    (p ≡ M₁.𝟘 → q ≡ M₁.𝟘) →
-    tr-BinderMode tr tr-Σ b p ≡ M₂.𝟘 → tr q ≡ M₂.𝟘
+    (p ≡ ω₁ → q ≡ ω₁) →
+    tr-BinderMode tr tr-Σ b p ≡ ω₂ → tr q ≡ ω₂
   lemma₁ {p = p} {q = q} BMΠ hyp =
-    tr p ≡ M₂.𝟘  →⟨ tr-≡-𝟘-⇔′ .proj₁ ⟩
-    p ≡ M₁.𝟘     →⟨ hyp ⟩
-    q ≡ M₁.𝟘     →⟨ tr-≡-𝟘-⇔′ .proj₂ ⟩
-    tr q ≡ M₂.𝟘  □
+    tr p ≡ ω₂  →⟨ tr-ω .proj₁ ⟩
+    p ≡ ω₁     →⟨ hyp ⟩
+    q ≡ ω₁     →⟨ tr-ω .proj₂ ⟩
+    tr q ≡ ω₂  □
   lemma₁ {p = p} {q = q} (BMΣ _) hyp =
-    tr-Σ p ≡ M₂.𝟘  →⟨ tr-Σ-≡-𝟘-⇔ .proj₁ ⟩
-    p ≡ M₁.𝟘       →⟨ hyp ⟩
-    q ≡ M₁.𝟘       →⟨ tr-≡-𝟘-⇔′ .proj₂ ⟩
-    tr q ≡ M₂.𝟘    □
-
-  lemma₂ :
-    ∀ {p q} b →
-    (p ≢ M₁.𝟘 → q ≡ ω₁) →
-    tr-BinderMode tr tr-Σ b p ≢ M₂.𝟘 → tr q ≡ ω₂
-  lemma₂ {p = p} {q = q} BMΠ hyp =
-    tr p ≢ M₂.𝟘  →⟨ _∘→ tr-≡-𝟘-⇔′ .proj₂ ⟩
-    p ≢ M₁.𝟘     →⟨ hyp ⟩
-    q ≡ ω₁       →⟨ (λ { refl → tr-ω }) ⟩
+    tr-Σ p ≡ ω₂  →⟨ tr-Σ-ω .proj₁ ⟩
+    p ≡ ω₁       →⟨ hyp ⟩
+    q ≡ ω₁       →⟨ tr-ω .proj₂ ⟩
     tr q ≡ ω₂    □
-  lemma₂ {p = p} {q = q} (BMΣ _) hyp =
-    tr-Σ p ≢ M₂.𝟘  →⟨ _∘→ tr-Σ-≡-𝟘-⇔ .proj₂ ⟩
-    p ≢ M₁.𝟘       →⟨ hyp ⟩
-    q ≡ ω₁         →⟨ (λ { refl → tr-ω }) ⟩
-    tr q ≡ ω₂      □
-
--- A variant of
--- Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω with
--- different assumptions.
-
-Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω′ :
-  ∀ {ω₁ ω₂} →
-  Is-order-embedding 𝕄₁ 𝕄₂ tr →
-  Is-Σ-morphism 𝕄₁ 𝕄₂ tr tr-Σ →
-  (¬ T (Modality.𝟘ᵐ-allowed 𝕄₁) → ∀ {p} → tr-Σ p ≡ tr p) →
-  tr ω₁ ≡ ω₂ →
-  Are-preserving-type-restrictions R₁ R₂ tr tr-Σ →
-  Are-preserving-type-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ω₁ 𝕄₁ R₁)
-    (second-ΠΣ-quantities-𝟘-or-ω ω₂ 𝕄₂ R₂)
-    tr tr-Σ
-Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
-  {𝕄₁ = 𝕄₁} {𝕄₂ = 𝕄₂} {tr = tr} {tr-Σ = tr-Σ} {ω₁ = ω₁} {ω₂ = ω₂}
-  emb m tr-Σ≡tr tr-ω r = record
-  { Unit-preserved = Unit-preserved
-  ; ΠΣ-preserved   = λ {b = b} (bn , is-𝟘 , not-𝟘) →
-      ΠΣ-preserved bn , lemma₂ b is-𝟘 , lemma₄ b not-𝟘
-  }
-  where
-  module M₁ = Modality 𝕄₁
-  module M₂ = Modality 𝕄₂
-  open Are-preserving-type-restrictions r
-  open Graded.Modality.Properties 𝕄₁
-  open Is-order-embedding emb
-  open Is-Σ-morphism m
-
-  lemma₁ :
-    ∀ {p q} →
-    (p ≡ M₁.𝟘 → q ≡ M₁.𝟘) →
-    tr p ≡ M₂.𝟘 → tr q ≡ M₂.𝟘
-  lemma₁ {p = p} {q = q} hyp =
-    case trivial-⊎-tr-𝟘 of λ where
-      (inj₁ 𝟙≡𝟘) →
-        tr p ≡ M₂.𝟘  ≡⟨ cong (λ p → tr p ≡ _) (≡-trivial 𝟙≡𝟘) ⟩→
-        tr q ≡ M₂.𝟘  □
-      (inj₂ tr-𝟘) →
-        tr p ≡ M₂.𝟘     ≡⟨ cong (_ ≡_) (sym tr-𝟘) ⟩→
-        tr p ≡ tr M₁.𝟘  →⟨ tr-injective ⟩
-        p ≡ M₁.𝟘        →⟨ hyp ⟩
-        q ≡ M₁.𝟘        →⟨ (λ { refl → tr-𝟘 }) ⟩
-        tr q ≡ M₂.𝟘     □
 
   lemma₂ :
-    ∀ {p q} b →
-    (p ≡ M₁.𝟘 → q ≡ M₁.𝟘) →
-    tr-BinderMode tr tr-Σ b p ≡ M₂.𝟘 → tr q ≡ M₂.𝟘
-  lemma₂                 BMΠ     = lemma₁
-  lemma₂ {p = p} {q = q} (BMΣ _) = λ hyp →
-    Mode.𝟘ᵐ-allowed-elim 𝕄₁
-      (λ ok →
-         tr-Σ p ≡ M₂.𝟘  →⟨ (λ hyp → tr-Σ-≡-𝟘-→ (𝟘ᵐ-in-second-if-in-first ok) hyp .proj₂) ⟩
-         p ≡ M₁.𝟘       →⟨ hyp ⟩
-         q ≡ M₁.𝟘       →⟨ tr-≡-𝟘-⇔ ok .proj₂ ⟩
-         tr q ≡ M₂.𝟘    □)
-      (λ not-ok →
-         tr-Σ p ≡ M₂.𝟘  ≡⟨ cong (_≡ _) (tr-Σ≡tr not-ok) ⟩→
-         tr p ≡ M₂.𝟘    →⟨ lemma₁ hyp ⟩
-         tr q ≡ M₂.𝟘    □)
+    ∀ {p q} →
+    (p ≢ ω₁ → q ≡ M₁.𝟘) →
+    p ≢ ω₁ → tr q ≡ M₂.𝟘
+  lemma₂ {p = p} {q = q} hyp p≢ω₁ =
+    case hyp p≢ω₁ of λ {
+      refl →
+    tr-𝟘 (≢→𝟙≢𝟘 p≢ω₁) }
 
   lemma₃ :
-    ∀ {p q} →
-    (p ≢ M₁.𝟘 → q ≡ ω₁) →
-    tr p ≢ M₂.𝟘 → tr q ≡ ω₂
-  lemma₃ {p = p} {q = q} hyp =
-    case trivial-⊎-tr-𝟘 of λ where
-      (inj₁ 𝟙≡𝟘) →
-        tr p ≢ M₂.𝟘  →⟨ (λ _ → ≡-trivial 𝟙≡𝟘) ⟩
-        q ≡ ω₁       →⟨ (λ { refl → tr-ω }) ⟩
-        tr q ≡ ω₂    □
-      (inj₂ tr-𝟘) →
-        tr p ≢ M₂.𝟘     ≡⟨ cong (_ ≢_) (sym tr-𝟘) ⟩→
-        tr p ≢ tr M₁.𝟘  →⟨ _∘→ cong tr ⟩
-        p ≢ M₁.𝟘        →⟨ hyp ⟩
-        q ≡ ω₁          →⟨ (λ { refl → tr-ω }) ⟩
-        tr q ≡ ω₂       □
-
-  lemma₄ :
     ∀ {p q} b →
-    (p ≢ M₁.𝟘 → q ≡ ω₁) →
-    tr-BinderMode tr tr-Σ b p ≢ M₂.𝟘 → tr q ≡ ω₂
-  lemma₄                 BMΠ     = lemma₃
-  lemma₄ {p = p} {q = q} (BMΣ Σ) = λ hyp →
-    Mode.𝟘ᵐ-allowed-elim 𝕄₁
-      (λ ok →
-         tr-Σ p ≢ M₂.𝟘  →⟨ _∘→ (λ { refl → tr-Σ-𝟘-≡ tr-morphism ok }) ⟩
-         p ≢ M₁.𝟘       →⟨ hyp ⟩
-         q ≡ ω₁         →⟨ (λ { refl → tr-ω }) ⟩
-         tr q ≡ ω₂      □)
-      (λ not-ok →
-         tr-Σ p ≢ M₂.𝟘  ≡⟨ cong (_≢ _) (tr-Σ≡tr not-ok) ⟩→
-         tr p ≢ M₂.𝟘    →⟨ lemma₃ hyp ⟩
-         tr q ≡ ω₂      □)
+    (p ≢ ω₁ → q ≡ M₁.𝟘) →
+    tr-BinderMode tr tr-Σ b p ≢ ω₂ → tr q ≡ M₂.𝟘
+  lemma₃ {p = p} {q = q} BMΠ hyp =
+    tr p ≢ ω₂    →⟨ _∘→ tr-ω .proj₂ ⟩
+    p ≢ ω₁       →⟨ lemma₂ hyp ⟩
+    tr q ≡ M₂.𝟘  □
+  lemma₃ {p = p} {q = q} (BMΣ _) hyp =
+    tr-Σ p ≢ ω₂  →⟨ _∘→ tr-Σ-ω .proj₂ ⟩
+    p ≢ ω₁       →⟨ lemma₂ hyp ⟩
+    tr q ≡ M₂.𝟘  □
 
 -- If the functions tr and tr-Σ reflect certain type restrictions,
 -- then they also do this for certain type restrictions obtained using
 -- second-ΠΣ-quantities-𝟘-or-ω, given that certain assumptions hold.
 
 Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω :
-  ∀ {ω₁ ω₂} →
-  Is-morphism 𝕄₁ 𝕄₂ tr →
-  Is-Σ-morphism 𝕄₁ 𝕄₂ tr tr-Σ →
-  (¬ T (Modality.𝟘ᵐ-allowed 𝕄₁) →
-   (∀ {p} → tr p ≡ Modality.𝟘 𝕄₂ ⇔ p ≡ Modality.𝟘 𝕄₁) ×
-   (∀ {p} → tr-Σ p ≡ Modality.𝟘 𝕄₂ ⇔ p ≡ Modality.𝟘 𝕄₁)) →
-  (∀ {p} → tr p ≡ ω₂ → p ≡ ω₁) →
+  ∀ {ω₁ ω₂}
+  (𝕄₁ : Modality M₁)
+  (𝕄₂ : Modality M₂) →
+  (∀ {p} → tr p ≡ Modality.𝟘 𝕄₂ → p ≡ Modality.𝟘 𝕄₁) →
+  (∀ {p} → tr p ≡ ω₂ ⇔ p ≡ ω₁) →
+  (∀ {p} → tr-Σ p ≡ ω₂ ⇔ p ≡ ω₁) →
   Are-reflecting-type-restrictions R₁ R₂ tr tr-Σ →
   Are-reflecting-type-restrictions
     (second-ΠΣ-quantities-𝟘-or-ω ω₁ 𝕄₁ R₁)
     (second-ΠΣ-quantities-𝟘-or-ω ω₂ 𝕄₂ R₂)
     tr tr-Σ
 Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-  {𝕄₁ = 𝕄₁} {𝕄₂ = 𝕄₂} {tr = tr} {tr-Σ = tr-Σ} {ω₁ = ω₁} {ω₂ = ω₂}
-  m m-Σ tr-𝟘 tr-ω r = record
+  {tr = tr} {tr-Σ = tr-Σ} {ω₁ = ω₁} {ω₂ = ω₂}
+  𝕄₁ 𝕄₂ tr-𝟘 tr-ω tr-Σ-ω r = record
   { Unit-reflected = Unit-reflected
   ; ΠΣ-reflected   = λ {b = b} (bn , is-𝟘 , not-𝟘) →
       ΠΣ-reflected bn , lemma₁ b is-𝟘 , lemma₂ b not-𝟘
@@ -456,147 +351,36 @@ Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
   module M₁ = Modality 𝕄₁
   module M₂ = Modality 𝕄₂
   open Are-reflecting-type-restrictions r
-  open Graded.Modality.Properties 𝕄₁
-  open Is-morphism m
-  open Is-Σ-morphism m-Σ
-
-  tr-≡-𝟘-⇔′ : ∀ {p} → tr p ≡ M₂.𝟘 ⇔ p ≡ M₁.𝟘
-  tr-≡-𝟘-⇔′ = Mode.𝟘ᵐ-allowed-elim 𝕄₁
-    tr-≡-𝟘-⇔
-    (λ not-ok → tr-𝟘 not-ok .proj₁)
-
-  tr-Σ-≡-𝟘-⇔ : ∀ {p} → tr-Σ p ≡ M₂.𝟘 ⇔ p ≡ M₁.𝟘
-  tr-Σ-≡-𝟘-⇔ = Mode.𝟘ᵐ-allowed-elim 𝕄₁
-    (λ ok →
-         (λ hyp → tr-Σ-≡-𝟘-→ (𝟘ᵐ-in-second-if-in-first ok) hyp .proj₂)
-       , (λ { refl → tr-Σ-𝟘-≡ m ok }))
-    (λ not-ok → tr-𝟘 not-ok .proj₂)
 
   lemma₁ :
     ∀ {p q} b →
-    (tr-BinderMode tr tr-Σ b p ≡ M₂.𝟘 → tr q ≡ M₂.𝟘) →
-    p ≡ M₁.𝟘 → q ≡ M₁.𝟘
+    (tr-BinderMode tr tr-Σ b p ≡ ω₂ → tr q ≡ ω₂) →
+    p ≡ ω₁ → q ≡ ω₁
   lemma₁ {p = p} {q = q} BMΠ hyp =
-    p ≡ M₁.𝟘     →⟨ tr-≡-𝟘-⇔′ .proj₂ ⟩
-    tr p ≡ M₂.𝟘  →⟨ hyp ⟩
-    tr q ≡ M₂.𝟘  →⟨ tr-≡-𝟘-⇔′ .proj₁ ⟩
-    q ≡ M₁.𝟘     □
+    p ≡ ω₁     →⟨ tr-ω .proj₂ ⟩
+    tr p ≡ ω₂  →⟨ hyp ⟩
+    tr q ≡ ω₂  →⟨ tr-ω .proj₁ ⟩
+    q ≡ ω₁     □
   lemma₁ {p = p} {q = q} (BMΣ _) hyp =
-    p ≡ M₁.𝟘       →⟨ tr-Σ-≡-𝟘-⇔ .proj₂ ⟩
-    tr-Σ p ≡ M₂.𝟘  →⟨ hyp ⟩
-    tr q ≡ M₂.𝟘    →⟨ tr-≡-𝟘-⇔′ .proj₁ ⟩
-    q ≡ M₁.𝟘       □
-
-  lemma₂ :
-    ∀ {p q} b →
-    (tr-BinderMode tr tr-Σ b p ≢ M₂.𝟘 → tr q ≡ ω₂) →
-    p ≢ M₁.𝟘 → q ≡ ω₁
-  lemma₂ {p = p} {q = q} BMΠ hyp =
-    p ≢ M₁.𝟘     →⟨ _∘→ tr-≡-𝟘-⇔′ .proj₁ ⟩
-    tr p ≢ M₂.𝟘  →⟨ hyp ⟩
-    tr q ≡ ω₂    →⟨ tr-ω ⟩
+    p ≡ ω₁       →⟨ tr-Σ-ω .proj₂ ⟩
+    tr-Σ p ≡ ω₂  →⟨ hyp ⟩
+    tr q ≡ ω₂    →⟨ tr-ω .proj₁ ⟩
     q ≡ ω₁       □
-  lemma₂ {p = p} {q = q} (BMΣ _) hyp =
-    p ≢ M₁.𝟘       →⟨ _∘→ tr-Σ-≡-𝟘-⇔ .proj₁ ⟩
-    tr-Σ p ≢ M₂.𝟘  →⟨ hyp ⟩
-    tr q ≡ ω₂      →⟨ tr-ω ⟩
-    q ≡ ω₁         □
-
--- A variant of
--- Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω with
--- different assumptions.
-
-Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω′ :
-  ∀ {ω₁ ω₂} →
-  Is-order-embedding 𝕄₁ 𝕄₂ tr →
-  Is-Σ-morphism 𝕄₁ 𝕄₂ tr tr-Σ →
-  (¬ T (Modality.𝟘ᵐ-allowed 𝕄₁) → ∀ {p} → tr-Σ p ≡ tr p) →
-  (∀ {p} → tr p ≡ ω₂ → p ≡ ω₁) →
-  Are-reflecting-type-restrictions R₁ R₂ tr tr-Σ →
-  Are-reflecting-type-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ω₁ 𝕄₁ R₁)
-    (second-ΠΣ-quantities-𝟘-or-ω ω₂ 𝕄₂ R₂)
-    tr tr-Σ
-Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
-  {𝕄₁ = 𝕄₁} {𝕄₂ = 𝕄₂} {tr = tr} {tr-Σ = tr-Σ} {ω₁ = ω₁} {ω₂ = ω₂}
-  emb m tr-Σ≡tr tr-ω r = record
-  { Unit-reflected = Unit-reflected
-  ; ΠΣ-reflected   = λ {b = b} (bn , is-𝟘 , not-𝟘) →
-      ΠΣ-reflected bn , lemma₂ b is-𝟘 , lemma₄ b not-𝟘
-  }
-  where
-  module M₁ = Modality 𝕄₁
-  module M₂ = Modality 𝕄₂
-  open Are-reflecting-type-restrictions r
-  open Graded.Modality.Properties 𝕄₁
-  open Is-order-embedding emb
-  open Is-Σ-morphism m
-
-  lemma₁ :
-    ∀ {p q} →
-    (tr p ≡ M₂.𝟘 → tr q ≡ M₂.𝟘) →
-    p ≡ M₁.𝟘 → q ≡ M₁.𝟘
-  lemma₁ {p = p} {q = q} hyp =
-    case trivial-⊎-tr-𝟘 of λ where
-      (inj₁ 𝟙≡𝟘) →
-        p ≡ M₁.𝟘  →⟨ (λ _ → ≡-trivial 𝟙≡𝟘) ⟩
-        q ≡ M₁.𝟘  □
-      (inj₂ tr-𝟘) →
-        p ≡ M₁.𝟘        →⟨ (λ { refl → tr-𝟘 }) ⟩
-        tr p ≡ M₂.𝟘     →⟨ hyp ⟩
-        tr q ≡ M₂.𝟘     ≡⟨ cong (_ ≡_) (sym tr-𝟘) ⟩→
-        tr q ≡ tr M₁.𝟘  →⟨ tr-injective ⟩
-        q ≡ M₁.𝟘        □
 
   lemma₂ :
     ∀ {p q} b →
-    (tr-BinderMode tr tr-Σ b p ≡ M₂.𝟘 → tr q ≡ M₂.𝟘) →
-    p ≡ M₁.𝟘 → q ≡ M₁.𝟘
-  lemma₂                 BMΠ     = lemma₁
-  lemma₂ {p = p} {q = q} (BMΣ _) = λ hyp →
-    Mode.𝟘ᵐ-allowed-elim 𝕄₁
-      (λ ok →
-         p ≡ M₁.𝟘       →⟨ (λ { refl → tr-Σ-𝟘-≡ tr-morphism ok }) ⟩
-         tr-Σ p ≡ M₂.𝟘  →⟨ hyp ⟩
-         tr q ≡ M₂.𝟘    →⟨ tr-≡-𝟘-⇔ ok .proj₁ ⟩
-         q ≡ M₁.𝟘       □)
-      (λ not-ok → lemma₁ (
-         tr p ≡ M₂.𝟘    ≡⟨ cong (_≡ _) (sym (tr-Σ≡tr not-ok)) ⟩→
-         tr-Σ p ≡ M₂.𝟘  →⟨ hyp ⟩
-         tr q ≡ M₂.𝟘    □))
-
-  lemma₃ :
-    ∀ {p q} →
-    (tr p ≢ M₂.𝟘 → tr q ≡ ω₂) →
-    p ≢ M₁.𝟘 → q ≡ ω₁
-  lemma₃ {p = p} {q = q} hyp =
-    case trivial-⊎-tr-𝟘 of λ where
-      (inj₁ 𝟙≡𝟘) →
-        p ≢ M₁.𝟘  →⟨ (λ _ → ≡-trivial 𝟙≡𝟘) ⟩
-        q ≡ ω₁    □
-      (inj₂ tr-𝟘) →
-        p ≢ M₁.𝟘        →⟨ _∘→ tr-injective ⟩
-        tr p ≢ tr M₁.𝟘  ≡⟨ cong (_ ≢_) tr-𝟘 ⟩→
-        tr p ≢ M₂.𝟘     →⟨ hyp ⟩
-        tr q ≡ ω₂       →⟨ tr-ω ⟩
-        q ≡ ω₁          □
-
-  lemma₄ :
-    ∀ {p q} b →
-    (tr-BinderMode tr tr-Σ b p ≢ M₂.𝟘 → tr q ≡ ω₂) →
-    p ≢ M₁.𝟘 → q ≡ ω₁
-  lemma₄                 BMΠ     = lemma₃
-  lemma₄ {p = p} {q = q} (BMΣ _) = λ hyp →
-    Mode.𝟘ᵐ-allowed-elim 𝕄₁
-      (λ ok →
-         p ≢ M₁.𝟘       →⟨ _∘→ (λ hyp → tr-Σ-≡-𝟘-→ (𝟘ᵐ-in-second-if-in-first ok) hyp .proj₂) ⟩
-         tr-Σ p ≢ M₂.𝟘  →⟨ hyp ⟩
-         tr q ≡ ω₂      →⟨ tr-ω ⟩
-         q ≡ ω₁          □)
-      (λ not-ok → lemma₃ (
-         tr p ≢ M₂.𝟘    ≡⟨ cong (_≢ _) (sym (tr-Σ≡tr not-ok)) ⟩→
-         tr-Σ p ≢ M₂.𝟘  →⟨ hyp ⟩
-         tr q ≡ ω₂      □))
+    (tr-BinderMode tr tr-Σ b p ≢ ω₂ → tr q ≡ M₂.𝟘) →
+    p ≢ ω₁ → q ≡ M₁.𝟘
+  lemma₂ {p = p} {q = q} BMΠ hyp =
+    p ≢ ω₁       →⟨ _∘→ tr-ω .proj₁ ⟩
+    tr p ≢ ω₂    →⟨ hyp ⟩
+    tr q ≡ M₂.𝟘  →⟨ tr-𝟘 ⟩
+    q ≡ M₁.𝟘     □
+  lemma₂ {p = p} {q = q} (BMΣ _) hyp =
+    p ≢ ω₁       →⟨ _∘→ tr-Σ-ω .proj₁ ⟩
+    tr-Σ p ≢ ω₂  →⟨ hyp ⟩
+    tr q ≡ M₂.𝟘  →⟨ tr-𝟘 ⟩
+    q ≡ M₁.𝟘     □
 
 ------------------------------------------------------------------------
 -- Some lemmas related to equal-binder-quantities and concrete
@@ -646,13 +430,12 @@ unit→erasure-preserves-second-ΠΣ-quantities-𝟘-or-ω :
     (second-ΠΣ-quantities-𝟘-or-ω ω (ErasureModality rs) R₂)
     unit→erasure unit→erasure
 unit→erasure-preserves-second-ΠΣ-quantities-𝟘-or-ω {rs = rs} =
-  Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
-    {𝕄₂ = ErasureModality rs}
-    unit⇨erasure
-    (Is-morphism→Is-Σ-morphism $
-     Is-order-embedding.tr-morphism unit⇨erasure)
-    (λ _ → refl)
-    refl
+  Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
+    UnitModality
+    (ErasureModality rs)
+    (λ tt≢tt → ⊥-elim (tt≢tt refl))
+    ((λ _ → refl) , (λ _ → refl))
+    ((λ _ → refl) , (λ _ → refl))
 
 -- If the function unit→erasure reflects certain type restrictions,
 -- then it also does this for certain type restrictions obtained using
@@ -666,13 +449,12 @@ unit→erasure-reflects-second-ΠΣ-quantities-𝟘-or-ω :
     (second-ΠΣ-quantities-𝟘-or-ω ω (ErasureModality rs) R₂)
     unit→erasure unit→erasure
 unit→erasure-reflects-second-ΠΣ-quantities-𝟘-or-ω {rs = rs} =
-  Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
-    {𝕄₂ = ErasureModality rs}
-    unit⇨erasure
-    (Is-morphism→Is-Σ-morphism $
-     Is-order-embedding.tr-morphism unit⇨erasure)
-    (λ _ → refl)
-    (λ _ → refl)
+  Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
+    UnitModality
+    (ErasureModality rs)
+    (λ ())
+    ((λ _ → refl) , (λ _ → refl))
+    ((λ _ → refl) , (λ _ → refl))
 
 -- If the function erasure→unit preserves certain type restrictions,
 -- then it also does this for certain type restrictions obtained using
@@ -708,142 +490,117 @@ erasure→unit-preserves-second-ΠΣ-quantities-𝟘-or-ω r =
     ΠΣ-reflected {b = BMΠ} {p = 𝟘} {q = ω}
       (_ , (λ _ → refl) , (λ _ → refl))
   of
-    λ (_ , eq , _) →
-  case eq refl of λ ()
+    λ (_ , _ , eq) →
+  case eq (λ ()) of λ ()
   where
   open Are-reflecting-type-restrictions r
 
 -- If the function erasure→zero-one-many preserves certain type
 -- restrictions, then the function preserves certain type restrictions
--- obtained using second-ΠΣ-quantities-𝟘-or-ω, given a certain
--- assumption.
+-- obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 erasure→zero-one-many-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
   Are-preserving-type-restrictions R₁ R₂
     erasure→zero-one-many erasure→zero-one-many →
   Are-preserving-type-restrictions
     (second-ΠΣ-quantities-𝟘-or-ω ω (ErasureModality rs₁) R₁)
     (second-ΠΣ-quantities-𝟘-or-ω ω (zero-one-many-greatest 𝟙≤𝟘 rs₂) R₂)
     erasure→zero-one-many erasure→zero-one-many
-erasure→zero-one-many-preserves-second-ΠΣ-quantities-𝟘-or-ω eq =
-  Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
-    m
-    (Is-morphism→Is-Σ-morphism $ Is-order-embedding.tr-morphism m)
+erasure→zero-one-many-preserves-second-ΠΣ-quantities-𝟘-or-ω
+  {rs₁ = rs₁} {rs₂ = rs₂} =
+  Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
+    (ErasureModality rs₁)
+    (zero-one-many-greatest _ rs₂)
     (λ _ → refl)
-    refl
-  where
-  m = erasure⇨zero-one-many eq
+    (λ where
+       {p = 𝟘} → (λ ()) , (λ ())
+       {p = ω} → (λ _ → refl) , (λ _ → refl))
+    (λ where
+       {p = 𝟘} → (λ ()) , (λ ())
+       {p = ω} → (λ _ → refl) , (λ _ → refl))
 
 -- If the function erasure→zero-one-many reflects certain type
 -- restrictions, then the function reflects certain type restrictions
--- obtained using second-ΠΣ-quantities-𝟘-or-ω, given a certain
--- assumption.
+-- obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
   Are-reflecting-type-restrictions R₁ R₂
     erasure→zero-one-many erasure→zero-one-many →
   Are-reflecting-type-restrictions
     (second-ΠΣ-quantities-𝟘-or-ω ω (ErasureModality rs₁) R₁)
     (second-ΠΣ-quantities-𝟘-or-ω ω (zero-one-many-greatest 𝟙≤𝟘 rs₂) R₂)
     erasure→zero-one-many erasure→zero-one-many
-erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω eq =
-  Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
-    m
-    (Is-morphism→Is-Σ-morphism $ Is-order-embedding.tr-morphism m)
-    (λ _ → refl)
-    (λ where
-       {p = ω} _ → refl)
-  where
-  m = erasure⇨zero-one-many eq
-
--- If the functions erasure→zero-one-many and erasure→zero-one-many-Σ
--- preserve certain type restrictions, then the functions preserve
--- certain type restrictions obtained using
--- second-ΠΣ-quantities-𝟘-or-ω, given a certain assumption.
-
-erasure→zero-one-many-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
-  Are-preserving-type-restrictions R₁ R₂
-    erasure→zero-one-many erasure→zero-one-many-Σ →
-  Are-preserving-type-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ω (ErasureModality rs₁) R₁)
-    (second-ΠΣ-quantities-𝟘-or-ω ω (zero-one-many-greatest 𝟙≤𝟘 rs₂) R₂)
-    erasure→zero-one-many erasure→zero-one-many-Σ
-erasure→zero-one-many-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω
- {rs₁ = rs₁} refl =
- Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-    {𝕄₁ = ErasureModality rs₁}
-    (Is-order-embedding.tr-morphism $ erasure⇨zero-one-many refl)
-    (Is-Σ-order-embedding.tr-Σ-morphism $ erasure⇨zero-one-many-Σ idᶠ)
-    (λ _ →
-         (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = ω} → (λ ()) , (λ ()))
-       , (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = ω} → (λ ()) , (λ ())))
-    refl
-
--- If the functions erasure→zero-one-many and erasure→zero-one-many-Σ
--- reflect certain type restrictions, then the functions reflect
--- certain type restrictions obtained using
--- second-ΠΣ-quantities-𝟘-or-ω, given a certain assumption.
-
-erasure→zero-one-many-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
-  Are-reflecting-type-restrictions R₁ R₂
-    erasure→zero-one-many erasure→zero-one-many-Σ →
-  Are-reflecting-type-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ω (ErasureModality rs₁) R₁)
-    (second-ΠΣ-quantities-𝟘-or-ω ω (zero-one-many-greatest 𝟙≤𝟘 rs₂) R₂)
-    erasure→zero-one-many erasure→zero-one-many-Σ
-erasure→zero-one-many-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω
-  {rs₁ = rs₁} refl =
+erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω
+  {rs₁ = rs₁} {rs₂ = rs₂} =
   Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-    {𝕄₁ = ErasureModality rs₁}
-    (Is-order-embedding.tr-morphism $ erasure⇨zero-one-many refl)
-    (Is-Σ-order-embedding.tr-Σ-morphism $ erasure⇨zero-one-many-Σ idᶠ)
-    (λ _ →
-         (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = ω} → (λ ()) , (λ ()))
-       , (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = ω} → (λ ()) , (λ ())))
+    (ErasureModality rs₁)
+    (zero-one-many-greatest _ rs₂)
     (λ where
-       {p = ω} _ → refl)
+       {p = 𝟘} _  → refl
+       {p = ω} ())
+    (λ where
+       {p = 𝟘} → (λ ()) , (λ ())
+       {p = ω} → (λ _ → refl) , (λ _ → refl))
+    (λ where
+       {p = 𝟘} → (λ ()) , (λ ())
+       {p = ω} → (λ _ → refl) , (λ _ → refl))
 
--- If the function zero-one-many→erasure preserves certain type
--- restrictions, then the function also preserves certain type
--- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω, given a
--- certain assumption.
+-- The functions erasure→zero-one-many and erasure→zero-one-many-Σ do
+-- not preserve certain type restrictions obtained using
+-- second-ΠΣ-quantities-𝟘-or-ω.
 
-zero-one-many→erasure-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
-  Are-preserving-type-restrictions R₁ R₂
-    zero-one-many→erasure zero-one-many→erasure →
-  Are-preserving-type-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ω (zero-one-many-greatest 𝟙≤𝟘 rs₁) R₁)
-    (second-ΠΣ-quantities-𝟘-or-ω ω (ErasureModality rs₂) R₂)
-    zero-one-many→erasure zero-one-many→erasure
-zero-one-many→erasure-preserves-second-ΠΣ-quantities-𝟘-or-ω eq =
-  Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-    m
-    (Is-morphism→Is-Σ-morphism m)
-    (λ _ →
-         (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙} → (λ ()) , (λ ())
-            {p = ω} → (λ ()) , (λ ()))
-       , (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙} → (λ ()) , (λ ())
-            {p = ω} → (λ ()) , (λ ())))
-    refl
+¬-erasure→zero-one-many-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω :
+  ¬ Are-preserving-type-restrictions
+      (second-ΠΣ-quantities-𝟘-or-ω ω (ErasureModality rs₁)
+         no-type-restrictions)
+      (second-ΠΣ-quantities-𝟘-or-ω ω (zero-one-many-greatest 𝟙≤𝟘 rs₂)
+         R₂)
+      erasure→zero-one-many erasure→zero-one-many-Σ
+¬-erasure→zero-one-many-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω r =
+  case
+    ΠΣ-preserved {b = BMΣ Σₚ} {p = ω} {q = ω}
+      (_ , (λ _ → refl) , ⊥-elim ∘→ (_$ refl))
+      .proj₂ .proj₂ (λ ())
+  of λ ()
   where
-  m = zero-one-many⇨erasure eq
+  open Are-preserving-type-restrictions r
+
+-- The functions erasure→zero-one-many and erasure→zero-one-many-Σ do
+-- not reflect certain type restrictions obtained using
+-- second-ΠΣ-quantities-𝟘-or-ω.
+
+¬-erasure→zero-one-many-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω :
+  ¬ Are-reflecting-type-restrictions
+      (second-ΠΣ-quantities-𝟘-or-ω ω (ErasureModality rs₁) R₁)
+      (second-ΠΣ-quantities-𝟘-or-ω ω (zero-one-many-greatest 𝟙≤𝟘 rs₂)
+         no-type-restrictions)
+      erasure→zero-one-many erasure→zero-one-many-Σ
+¬-erasure→zero-one-many-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω r =
+  case
+    ΠΣ-reflected {b = BMΣ Σₚ} {p = ω} {q = 𝟘}
+      (_ , (λ ()) , (λ _ → refl))
+      .proj₂ .proj₁ refl
+  of λ ()
+  where
+  open Are-reflecting-type-restrictions r
+
+-- The function zero-one-many→erasure does not preserve certain type
+-- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
+
+¬-zero-one-many→erasure-preserves-second-ΠΣ-quantities-𝟘-or-ω :
+  ¬ Are-preserving-type-restrictions
+      (second-ΠΣ-quantities-𝟘-or-ω ω (zero-one-many-greatest 𝟙≤𝟘 rs₁)
+         no-type-restrictions)
+      (second-ΠΣ-quantities-𝟘-or-ω ω (ErasureModality rs₂) R₂)
+      zero-one-many→erasure zero-one-many→erasure
+¬-zero-one-many→erasure-preserves-second-ΠΣ-quantities-𝟘-or-ω r =
+  case
+    ΠΣ-preserved {b = BMΠ} {p = 𝟙} {q = 𝟘}
+      (_ , (λ ()) , (λ _ → refl))
+      .proj₂ .proj₁ refl
+  of λ ()
+  where
+  open Are-preserving-type-restrictions r
 
 -- The function zero-one-many→erasure does not reflect certain type
 -- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
@@ -857,89 +614,85 @@ zero-one-many→erasure-preserves-second-ΠΣ-quantities-𝟘-or-ω eq =
 ¬-zero-one-many→erasure-reflects-second-ΠΣ-quantities-𝟘-or-ω r =
   case
     ΠΣ-reflected {b = BMΠ} {p = ω} {q = 𝟙}
-      (_ , (λ ()) , (λ _ → refl))
+      (_ , (λ _ → refl) , ⊥-elim ∘→ (_$ refl))
   of
-    λ (_ , _ , eq) →
-  case eq (λ ()) of λ ()
+    λ (_ , eq , _) →
+  case eq refl of λ ()
   where
   open Are-reflecting-type-restrictions r
 
 -- If the function linearity→linear-or-affine preserves certain type
 -- restrictions, then the function preserves certain type restrictions
--- obtained using second-ΠΣ-quantities-𝟘-or-ω, given a certain
--- assumption.
+-- obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 linearity→linear-or-affine-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
   Are-preserving-type-restrictions R₁ R₂
     linearity→linear-or-affine linearity→linear-or-affine →
   Are-preserving-type-restrictions
     (second-ΠΣ-quantities-𝟘-or-ω ω (linearityModality rs₁) R₁)
     (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine rs₂) R₂)
     linearity→linear-or-affine linearity→linear-or-affine
-linearity→linear-or-affine-preserves-second-ΠΣ-quantities-𝟘-or-ω eq =
-  Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
-    m
-    (Is-morphism→Is-Σ-morphism $ Is-order-embedding.tr-morphism m)
+linearity→linear-or-affine-preserves-second-ΠΣ-quantities-𝟘-or-ω
+  {rs₁ = rs₁} {rs₂ = rs₂} =
+  Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
+    (linearityModality rs₁)
+    (linear-or-affine rs₂)
     (λ _ → refl)
-    refl
-  where
-  m = linearity⇨linear-or-affine eq
+    (λ where
+       {p = 𝟘} → (λ ()) , (λ ())
+       {p = 𝟙} → (λ ()) , (λ ())
+       {p = ω} → (λ _ → refl) , (λ _ → refl))
+    (λ where
+       {p = 𝟘} → (λ ()) , (λ ())
+       {p = 𝟙} → (λ ()) , (λ ())
+       {p = ω} → (λ _ → refl) , (λ _ → refl))
 
 -- If the function linearity→linear-or-affine reflects certain type
 -- restrictions, then the function reflects certain type restrictions
--- obtained using second-ΠΣ-quantities-𝟘-or-ω, given a certain
--- assumption.
+-- obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 linearity→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
   Are-reflecting-type-restrictions R₁ R₂
     linearity→linear-or-affine linearity→linear-or-affine →
   Are-reflecting-type-restrictions
     (second-ΠΣ-quantities-𝟘-or-ω ω (linearityModality rs₁) R₁)
     (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine rs₂) R₂)
     linearity→linear-or-affine linearity→linear-or-affine
-linearity→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω eq =
-  Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
-    m
-    (Is-morphism→Is-Σ-morphism $ Is-order-embedding.tr-morphism m)
-    (λ _ → refl)
+linearity→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω
+  {rs₁ = rs₁} {rs₂ = rs₂} =
+  Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
+    (linearityModality rs₁)
+    (linear-or-affine rs₂)
     (λ where
-       {p = ω} _ → refl)
-  where
-  m = linearity⇨linear-or-affine eq
+       {p = 𝟘} _  → refl
+       {p = 𝟙} ()
+       {p = ω} ())
+    (λ where
+       {p = 𝟘} → (λ ()) , (λ ())
+       {p = 𝟙} → (λ ()) , (λ ())
+       {p = ω} → (λ _ → refl) , (λ _ → refl))
+    (λ where
+       {p = 𝟘} → (λ ()) , (λ ())
+       {p = 𝟙} → (λ ()) , (λ ())
+       {p = ω} → (λ _ → refl) , (λ _ → refl))
 
--- If the function linear-or-affine→linearity preserves certain type
--- restrictions, then the function also preserves certain type
--- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω, given a
--- certain assumption.
+-- The function linear-or-affine→linearity does not preserve certain
+-- type restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
-linear-or-affine→linearity-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
-  Are-preserving-type-restrictions R₁ R₂
-    linear-or-affine→linearity linear-or-affine→linearity →
-  Are-preserving-type-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine rs₁) R₁)
-    (second-ΠΣ-quantities-𝟘-or-ω ω (linearityModality rs₂) R₂)
-    linear-or-affine→linearity linear-or-affine→linearity
-linear-or-affine→linearity-preserves-second-ΠΣ-quantities-𝟘-or-ω eq =
-  Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-    m
-    (Is-morphism→Is-Σ-morphism m)
-    (λ _ →
-         (λ where
-            {p = 𝟘}  → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙}  → (λ ()) , (λ ())
-            {p = ≤𝟙} → (λ ()) , (λ ())
-            {p = ≤ω} → (λ ()) , (λ ()))
-       , (λ where
-            {p = 𝟘}  → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙}  → (λ ()) , (λ ())
-            {p = ≤𝟙} → (λ ()) , (λ ())
-            {p = ≤ω} → (λ ()) , (λ ())))
-    refl
+¬-linear-or-affine→linearity-preserves-second-ΠΣ-quantities-𝟘-or-ω :
+  ¬ Are-preserving-type-restrictions
+      (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine rs₁)
+         no-type-restrictions)
+      (second-ΠΣ-quantities-𝟘-or-ω ω (linearityModality rs₂) R₂)
+      linear-or-affine→linearity linear-or-affine→linearity
+¬-linear-or-affine→linearity-preserves-second-ΠΣ-quantities-𝟘-or-ω r =
+  case
+    ΠΣ-preserved {b = BMΠ} {p = ≤𝟙} {q = 𝟘}
+      (_ , (λ ()) , (λ _ → refl))
+      .proj₂ .proj₁ refl
+  of λ ()
   where
-  m = linear-or-affine⇨linearity eq
+  open Are-preserving-type-restrictions r
 
 -- The function linear-or-affine→linearity does not reflect certain
 -- type restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
@@ -953,65 +706,74 @@ linear-or-affine→linearity-preserves-second-ΠΣ-quantities-𝟘-or-ω eq =
 ¬-linear-or-affine→linearity-reflects-second-ΠΣ-quantities-𝟘-or-ω r =
   case
     ΠΣ-reflected {b = BMΠ} {p = ≤ω} {q = ≤𝟙}
-      (_ , (λ ()) , (λ _ → refl))
+      (_ , (λ _ → refl) , ⊥-elim ∘→ (_$ refl))
   of
-    λ (_ , _ , eq) →
-  case eq (λ ()) of λ ()
+    λ (_ , eq , _) →
+  case eq refl of λ ()
   where
   open Are-reflecting-type-restrictions r
 
 -- If the function affine→linear-or-affine preserves certain type
 -- restrictions, then the function preserves certain type restrictions
--- obtained using second-ΠΣ-quantities-𝟘-or-ω, given a certain
--- assumption.
+-- obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 affine→linear-or-affine-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
   Are-preserving-type-restrictions R₁ R₂
     affine→linear-or-affine affine→linear-or-affine →
   Are-preserving-type-restrictions
     (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality rs₁) R₁)
     (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine rs₂) R₂)
     affine→linear-or-affine affine→linear-or-affine
-affine→linear-or-affine-preserves-second-ΠΣ-quantities-𝟘-or-ω eq =
-  Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
-    m
-    (Is-morphism→Is-Σ-morphism $ Is-order-embedding.tr-morphism m)
+affine→linear-or-affine-preserves-second-ΠΣ-quantities-𝟘-or-ω
+  {rs₁ = rs₁} {rs₂ = rs₂} =
+  Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
+    (affineModality rs₁)
+    (linear-or-affine rs₂)
     (λ _ → refl)
-    refl
-  where
-  m = affine⇨linear-or-affine eq
+    (λ where
+       {p = 𝟘} → (λ ()) , (λ ())
+       {p = 𝟙} → (λ ()) , (λ ())
+       {p = ω} → (λ _ → refl) , (λ _ → refl))
+    (λ where
+       {p = 𝟘} → (λ ()) , (λ ())
+       {p = 𝟙} → (λ ()) , (λ ())
+       {p = ω} → (λ _ → refl) , (λ _ → refl))
 
 -- If the function affine→linear-or-affine reflects certain type
 -- restrictions, then the function reflects certain type restrictions
--- obtained using second-ΠΣ-quantities-𝟘-or-ω, given a certain
--- assumption.
+-- obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 affine→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
   Are-reflecting-type-restrictions R₁ R₂
     affine→linear-or-affine affine→linear-or-affine →
   Are-reflecting-type-restrictions
     (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality rs₁) R₁)
     (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine rs₂) R₂)
     affine→linear-or-affine affine→linear-or-affine
-affine→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω eq =
-  Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
-    m
-    (Is-morphism→Is-Σ-morphism $ Is-order-embedding.tr-morphism m)
-    (λ _ → refl)
+affine→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω
+  {rs₁ = rs₁} {rs₂ = rs₂} =
+  Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
+    (affineModality rs₁)
+    (linear-or-affine rs₂)
     (λ where
-       {p = ω} _ → refl)
-  where
-  m = affine⇨linear-or-affine eq
+       {p = 𝟘} _  → refl
+       {p = 𝟙} ()
+       {p = ω} ())
+    (λ where
+       {p = 𝟘} → (λ ()) , (λ ())
+       {p = 𝟙} → (λ ()) , (λ ())
+       {p = ω} → (λ _ → refl) , (λ _ → refl))
+    (λ where
+       {p = 𝟘} → (λ ()) , (λ ())
+       {p = 𝟙} → (λ ()) , (λ ())
+       {p = ω} → (λ _ → refl) , (λ _ → refl))
 
 -- If the functions affine→linear-or-affine and
 -- affine→linear-or-affine-Σ preserve certain type restrictions, then
 -- the functions preserve certain type restrictions obtained using
--- second-ΠΣ-quantities-𝟘-or-ω, given a certain assumption.
+-- second-ΠΣ-quantities-𝟘-or-ω.
 
 affine→linear-or-affine-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
   Are-preserving-type-restrictions R₁ R₂
     affine→linear-or-affine affine→linear-or-affine-Σ →
   Are-preserving-type-restrictions
@@ -1019,29 +781,26 @@ affine→linear-or-affine-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω :
     (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine rs₂) R₂)
     affine→linear-or-affine affine→linear-or-affine-Σ
 affine→linear-or-affine-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω
-  {rs₁ = rs₁} refl =
+  {rs₁ = rs₁} {rs₂ = rs₂} =
   Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-    {𝕄₁ = affineModality rs₁}
-    (Is-order-embedding.tr-morphism $ affine⇨linear-or-affine refl)
-    (Is-Σ-order-embedding.tr-Σ-morphism $ affine⇨linear-or-affine-Σ idᶠ)
-    (λ _ →
-         (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙} → (λ ()) , (λ ())
-            {p = ω} → (λ ()) , (λ ()))
-       , (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙} → (λ ()) , (λ ())
-            {p = ω} → (λ ()) , (λ ())))
-    refl
+    (affineModality rs₁)
+    (linear-or-affine rs₂)
+    (λ _ → refl)
+    (λ where
+       {p = 𝟘} → (λ ()) , (λ ())
+       {p = 𝟙} → (λ ()) , (λ ())
+       {p = ω} → (λ _ → refl) , (λ _ → refl))
+    (λ where
+       {p = 𝟘} → (λ ()) , (λ ())
+       {p = 𝟙} → (λ ()) , (λ ())
+       {p = ω} → (λ _ → refl) , (λ _ → refl))
 
 -- If the functions affine→linear-or-affine and
 -- affine→linear-or-affine-Σ reflect certain type restrictions, then
 -- the functions reflect certain type restrictions obtained using
--- second-ΠΣ-quantities-𝟘-or-ω, given a certain assumption.
+-- second-ΠΣ-quantities-𝟘-or-ω.
 
 affine→linear-or-affine-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
   Are-reflecting-type-restrictions R₁ R₂
     affine→linear-or-affine affine→linear-or-affine-Σ →
   Are-reflecting-type-restrictions
@@ -1049,117 +808,100 @@ affine→linear-or-affine-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω :
     (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine rs₂) R₂)
     affine→linear-or-affine affine→linear-or-affine-Σ
 affine→linear-or-affine-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω
-  {rs₁ = rs₁} refl =
+  {rs₁ = rs₁} {rs₂ = rs₂} =
   Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-    {𝕄₁ = affineModality rs₁}
-    (Is-order-embedding.tr-morphism $ affine⇨linear-or-affine refl)
-    (Is-Σ-order-embedding.tr-Σ-morphism $ affine⇨linear-or-affine-Σ idᶠ)
-    (λ _ →
-         (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙} → (λ ()) , (λ ())
-            {p = ω} → (λ ()) , (λ ()))
-       , (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙} → (λ ()) , (λ ())
-            {p = ω} → (λ ()) , (λ ())))
+    (affineModality rs₁)
+    (linear-or-affine rs₂)
     (λ where
-       {p = ω} _ → refl)
+       {p = 𝟘} _  → refl
+       {p = 𝟙} ()
+       {p = ω} ())
+    (λ where
+       {p = 𝟘} → (λ ()) , (λ ())
+       {p = 𝟙} → (λ ()) , (λ ())
+       {p = ω} → (λ _ → refl) , (λ _ → refl))
+    (λ where
+       {p = 𝟘} → (λ ()) , (λ ())
+       {p = 𝟙} → (λ ()) , (λ ())
+       {p = ω} → (λ _ → refl) , (λ _ → refl))
 
 -- If the function linear-or-affine→affine preserves certain type
 -- restrictions, then the function also preserves certain type
--- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω, given a
--- certain assumption.
+-- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 linear-or-affine→affine-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
   Are-preserving-type-restrictions R₁ R₂
     linear-or-affine→affine linear-or-affine→affine →
   Are-preserving-type-restrictions
     (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine rs₁) R₁)
     (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality rs₂) R₂)
     linear-or-affine→affine linear-or-affine→affine
-linear-or-affine→affine-preserves-second-ΠΣ-quantities-𝟘-or-ω eq =
+linear-or-affine→affine-preserves-second-ΠΣ-quantities-𝟘-or-ω
+  {rs₁ = rs₁} {rs₂ = rs₂} =
   Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-    m
-    (Is-morphism→Is-Σ-morphism m)
-    (λ _ →
-         (λ where
-            {p = 𝟘}  → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙}  → (λ ()) , (λ ())
-            {p = ≤𝟙} → (λ ()) , (λ ())
-            {p = ≤ω} → (λ ()) , (λ ()))
-       , (λ where
-            {p = 𝟘}  → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙}  → (λ ()) , (λ ())
-            {p = ≤𝟙} → (λ ()) , (λ ())
-            {p = ≤ω} → (λ ()) , (λ ())))
-    refl
-  where
-  m = linear-or-affine⇨affine eq
+    (linear-or-affine rs₁)
+    (affineModality rs₂)
+    (λ _ → refl)
+    (λ where
+       {p = 𝟘}  → (λ ()) , (λ ())
+       {p = 𝟙}  → (λ ()) , (λ ())
+       {p = ≤𝟙} → (λ ()) , (λ ())
+       {p = ≤ω} → (λ _ → refl) , (λ _ → refl))
+    (λ where
+       {p = 𝟘}  → (λ ()) , (λ ())
+       {p = 𝟙}  → (λ ()) , (λ ())
+       {p = ≤𝟙} → (λ ()) , (λ ())
+       {p = ≤ω} → (λ _ → refl) , (λ _ → refl))
 
 -- If the function linear-or-affine→affine reflects certain type
 -- restrictions, then the function also reflects certain type
--- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω, given a
--- certain assumption.
+-- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 linear-or-affine→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
   Are-reflecting-type-restrictions R₁ R₂
     linear-or-affine→affine linear-or-affine→affine →
   Are-reflecting-type-restrictions
     (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine rs₁) R₁)
     (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality rs₂) R₂)
     linear-or-affine→affine linear-or-affine→affine
-linear-or-affine→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω eq =
+linear-or-affine→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω
+  {rs₁ = rs₁} {rs₂ = rs₂} =
   Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-    m
-    (Is-morphism→Is-Σ-morphism m)
-    (λ _ →
-         (λ where
-            {p = 𝟘}  → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙}  → (λ ()) , (λ ())
-            {p = ≤𝟙} → (λ ()) , (λ ())
-            {p = ≤ω} → (λ ()) , (λ ()))
-       , (λ where
-            {p = 𝟘}  → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙}  → (λ ()) , (λ ())
-            {p = ≤𝟙} → (λ ()) , (λ ())
-            {p = ≤ω} → (λ ()) , (λ ())))
+    (linear-or-affine rs₁)
+    (affineModality rs₂)
     (λ where
-       {p = ≤ω} _ → refl)
-  where
-  m = linear-or-affine⇨affine eq
+       {p = 𝟘}  _  → refl
+       {p = 𝟙}  ()
+       {p = ≤𝟙} ()
+       {p = ≤ω} ())
+    (λ where
+       {p = 𝟘}  → (λ ()) , (λ ())
+       {p = 𝟙}  → (λ ()) , (λ ())
+       {p = ≤𝟙} → (λ ()) , (λ ())
+       {p = ≤ω} → (λ _ → refl) , (λ _ → refl))
+    (λ where
+       {p = 𝟘}  → (λ ()) , (λ ())
+       {p = 𝟙}  → (λ ()) , (λ ())
+       {p = ≤𝟙} → (λ ()) , (λ ())
+       {p = ≤ω} → (λ _ → refl) , (λ _ → refl))
 
--- If the function affine→linearity preserves certain type
--- restrictions, then the function preserves certain type restrictions
--- obtained using second-ΠΣ-quantities-𝟘-or-ω, given a certain
--- assumption.
+-- The function affine→linearity does not preserve certain type
+-- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
-affine→linearity-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
-  Are-preserving-type-restrictions R₁ R₂
-    affine→linearity affine→linearity →
-  Are-preserving-type-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality rs₁) R₁)
-    (second-ΠΣ-quantities-𝟘-or-ω ω (linearityModality rs₂) R₂)
-    affine→linearity affine→linearity
-affine→linearity-preserves-second-ΠΣ-quantities-𝟘-or-ω eq =
-  Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-    m
-    (Is-morphism→Is-Σ-morphism m)
-    (λ _ →
-         (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙} → (λ ()) , (λ ())
-            {p = ω} → (λ ()) , (λ ()))
-       , (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙} → (λ ()) , (λ ())
-            {p = ω} → (λ ()) , (λ ())))
-    refl
+¬-affine→linearity-preserves-second-ΠΣ-quantities-𝟘-or-ω :
+  ¬ Are-preserving-type-restrictions
+      (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality rs₁)
+         no-type-restrictions)
+      (second-ΠΣ-quantities-𝟘-or-ω ω (linearityModality rs₂) R₂)
+      affine→linearity affine→linearity
+¬-affine→linearity-preserves-second-ΠΣ-quantities-𝟘-or-ω r =
+  case
+    ΠΣ-preserved {b = BMΠ} {p = 𝟙} {q = 𝟘}
+      (_ , (λ ()) , (λ _ → refl))
+      .proj₂ .proj₁ refl
+  of λ ()
   where
-  m = affine⇨linearity eq
+  open Are-preserving-type-restrictions r
 
 -- The function affine→linearity does not reflect certain type
 -- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
@@ -1173,42 +915,31 @@ affine→linearity-preserves-second-ΠΣ-quantities-𝟘-or-ω eq =
 ¬-affine→linearity-reflects-second-ΠΣ-quantities-𝟘-or-ω r =
   case
     ΠΣ-reflected {b = BMΠ} {p = ω} {q = 𝟙}
-      (_ , (λ ()) , (λ _ → refl))
+      (_ , (λ _ → refl) , ⊥-elim ∘→ (_$ refl))
   of
-    λ (_ , _ , eq) →
-  case eq (λ ()) of λ ()
+    λ (_ , eq , _) →
+  case eq refl of λ ()
   where
   open Are-reflecting-type-restrictions r
 
--- If the functions affine→linearity and affine→linearity-Σ preserve
--- certain type restrictions, then the functions preserve certain type
--- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω, given a
--- certain assumption.
+-- The functions affine→linearity and affine→linearity-Σ do not
+-- preserve certain type restrictions obtained using
+-- second-ΠΣ-quantities-𝟘-or-ω.
 
-affine→linearity-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
-  Are-preserving-type-restrictions R₁ R₂
-    affine→linearity affine→linearity-Σ →
-  Are-preserving-type-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality rs₁) R₁)
-    (second-ΠΣ-quantities-𝟘-or-ω ω (linearityModality rs₂) R₂)
-    affine→linearity affine→linearity-Σ
-affine→linearity-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω
-  {rs₁ = rs₁} refl =
-  Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-    {𝕄₁ = affineModality rs₁}
-    (affine⇨linearity refl)
-    (affine⇨linearity-Σ idᶠ)
-    (λ _ →
-         (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙} → (λ ()) , (λ ())
-            {p = ω} → (λ ()) , (λ ()))
-       , (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙} → (λ ()) , (λ ())
-            {p = ω} → (λ ()) , (λ ())))
-    refl
+¬-affine→linearity-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω :
+  ¬ Are-preserving-type-restrictions
+      (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality rs₁)
+         no-type-restrictions)
+      (second-ΠΣ-quantities-𝟘-or-ω ω (linearityModality rs₂) R₂)
+      affine→linearity affine→linearity-Σ
+¬-affine→linearity-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω r =
+  case
+    ΠΣ-preserved {b = BMΠ} {p = 𝟙} {q = 𝟘}
+      (_ , (λ ()) , (λ _ → refl))
+      .proj₂ .proj₁ refl
+  of λ ()
+  where
+  open Are-preserving-type-restrictions r
 
 -- The functions affine→linearity and affine→linearity-Σ do not
 -- reflect certain type restrictions obtained using
@@ -1223,70 +954,64 @@ affine→linearity-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω
 ¬-affine→linearity-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω r =
   case
     ΠΣ-reflected {b = BMΠ} {p = ω} {q = 𝟙}
-      (_ , (λ ()) , (λ _ → refl))
+      (_ , (λ _ → refl) , ⊥-elim ∘→ (_$ refl))
   of
-    λ (_ , _ , eq) →
-  case eq (λ ()) of λ ()
+    λ (_ , eq , _) →
+  case eq refl of λ ()
   where
   open Are-reflecting-type-restrictions r
 
 -- If the function linearity→affine preserves certain type
 -- restrictions, then the function also preserves certain type
--- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω, given a
--- certain assumption.
+-- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 linearity→affine-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
   Are-preserving-type-restrictions R₁ R₂
     linearity→affine linearity→affine →
   Are-preserving-type-restrictions
     (second-ΠΣ-quantities-𝟘-or-ω ω (linearityModality rs₁) R₁)
     (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality rs₂) R₂)
     linearity→affine linearity→affine
-linearity→affine-preserves-second-ΠΣ-quantities-𝟘-or-ω eq =
+linearity→affine-preserves-second-ΠΣ-quantities-𝟘-or-ω
+  {rs₁ = rs₁} {rs₂ = rs₂} =
   Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-    m
-    (Is-morphism→Is-Σ-morphism m)
-    (λ _ →
-         (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙} → (λ ()) , (λ ())
-            {p = ω} → (λ ()) , (λ ()))
-       , (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙} → (λ ()) , (λ ())
-            {p = ω} → (λ ()) , (λ ())))
-    refl
-  where
-  m = linearity⇨affine eq
+    (linearityModality rs₁)
+    (affineModality rs₂)
+    (λ _ → refl)
+    (λ where
+       {p = 𝟘} → (λ ()) , (λ ())
+       {p = 𝟙} → (λ ()) , (λ ())
+       {p = ω} → (λ _ → refl) , (λ _ → refl))
+    (λ where
+       {p = 𝟘} → (λ ()) , (λ ())
+       {p = 𝟙} → (λ ()) , (λ ())
+       {p = ω} → (λ _ → refl) , (λ _ → refl))
 
 -- If the function linearity→affine reflects certain type
 -- restrictions, then the function also reflects certain type
--- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω, given a
--- certain assumption.
+-- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 linearity→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
   Are-reflecting-type-restrictions R₁ R₂
     linearity→affine linearity→affine →
   Are-reflecting-type-restrictions
     (second-ΠΣ-quantities-𝟘-or-ω ω (linearityModality rs₁) R₁)
     (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality rs₂) R₂)
     linearity→affine linearity→affine
-linearity→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω eq =
+linearity→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω
+  {rs₁ = rs₁} {rs₂ = rs₂} =
   Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-    m
-    (Is-morphism→Is-Σ-morphism m)
-    (λ _ →
-         (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙} → (λ ()) , (λ ())
-            {p = ω} → (λ ()) , (λ ()))
-       , (λ where
-            {p = 𝟘} → (λ _ → refl) , (λ _ → refl)
-            {p = 𝟙} → (λ ()) , (λ ())
-            {p = ω} → (λ ()) , (λ ())))
+    (linearityModality rs₁)
+    (affineModality rs₂)
     (λ where
-       {p = ω} _ → refl)
-  where
-  m = linearity⇨affine eq
+       {p = 𝟘} _  → refl
+       {p = 𝟙} ()
+       {p = ω} ())
+    (λ where
+       {p = 𝟘} → (λ ()) , (λ ())
+       {p = 𝟙} → (λ ()) , (λ ())
+       {p = ω} → (λ _ → refl) , (λ _ → refl))
+    (λ where
+       {p = 𝟘} → (λ ()) , (λ ())
+       {p = 𝟙} → (λ ()) , (λ ())
+       {p = ω} → (λ _ → refl) , (λ _ → refl))
