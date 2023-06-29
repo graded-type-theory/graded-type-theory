@@ -34,14 +34,12 @@ private
   (≈-trans (∧-congˡ q≤r)
   (≈-trans (≈-sym (∧-assoc p q r)) (∧-congʳ (≈-sym p≤q))))
 
--- ≤ is antisymmetric
--- If p ≤ q and q ≤ p then p ≈ q
+-- The relation _≤_ is antisymmetric.
 
 ≤-antisym : p ≤ q → q ≤ p → p ≈ q
 ≤-antisym {p} {q} p≤q q≤p = ≈-trans p≤q (≈-trans (∧-comm p q) (≈-sym q≤p))
 
--- ≤ is a non-strict ordering relation
--- If p ≈ q then p ≤ q
+-- The relation _≤_ is a non-strict ordering relation.
 
 ≤-reflexive : p ≈ q → p ≤ q
 ≤-reflexive {p} p≈q = ≈-trans (≈-sym (∧-idem p)) (∧-congˡ p≈q)

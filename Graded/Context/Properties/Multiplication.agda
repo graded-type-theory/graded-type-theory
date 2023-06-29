@@ -79,8 +79,7 @@ private
 ·ᶜ-distribʳ-∧ᶜ p q  ε      = ≈ᶜ-refl
 ·ᶜ-distribʳ-∧ᶜ p q (γ ∙ r) = (·ᶜ-distribʳ-∧ᶜ p q γ) ∙ (·-distribʳ-∧ r p q)
 
--- Congruence of ·ᶜ
--- If p ≈ q and γ ≈ᶜ δ then p ·ᶜ γ ≈ᶜ q ·ᶜ δ
+-- Congruence for _·ᶜ_.
 
 ·ᶜ-cong : p ≈ q → γ ≈ᶜ δ → p ·ᶜ γ ≈ᶜ q ·ᶜ δ
 ·ᶜ-cong p≈q ε = ≈ᶜ-refl
@@ -92,8 +91,7 @@ private
 ·ᶜ-congˡ : γ ≈ᶜ δ → p ·ᶜ γ ≈ᶜ p ·ᶜ δ
 ·ᶜ-congˡ γ≈δ = ·ᶜ-cong ≈-refl γ≈δ
 
--- Congruence of ·ᶜ on the right
--- If p ≈ q then p ·ᶜ γ ≈ᶜ q ·ᶜ γ
+-- Congruence for _·ᶜ γ.
 
 ·ᶜ-congʳ : p ≈ q → p ·ᶜ γ ≈ᶜ q ·ᶜ γ
 ·ᶜ-congʳ p≈q = ·ᶜ-cong p≈q ≈ᶜ-refl

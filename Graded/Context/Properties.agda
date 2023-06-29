@@ -79,8 +79,7 @@ headₘ-tailₘ-correct (γ ∙ p) = PE.refl
 tailₘ-cong : {γ δ : Conₘ (1+ n)} → γ ≈ᶜ δ → tailₘ γ ≈ᶜ tailₘ δ
 tailₘ-cong (γ≈δ ∙ p≈q) = γ≈δ
 
--- Congruence of headₘ
--- If γ ≈ᶜ δ then headₘ γ ≈ᶜ headₘ δ
+-- Congruence for headₘ.
 
 headₘ-cong : {γ δ : Conₘ (1+ n)} → γ ≈ᶜ δ → headₘ γ ≈ headₘ δ
 headₘ-cong (γ≈δ ∙ p≈q) = p≈q

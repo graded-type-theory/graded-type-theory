@@ -51,8 +51,8 @@ private
   p′ ⊛ q′ ▷ r ∎
   where open import Tools.Reasoning.PartialOrder ≤-poset
 
--- ⊛ is idempotent on 𝟘 w.r.t the first two arguments
--- 𝟘 ⊛ 𝟘 ▷ r ≈ 𝟘
+-- The operator _⊛_▷ r is idempotent on 𝟘.
+
 ⊛-idem-𝟘 : (r : M) → (_⊛_▷ r) IdempotentOn 𝟘
 ⊛-idem-𝟘 r = ≤-antisym (⊛-ineq₂ 𝟘 𝟘 r) 𝟘≤𝟘⊛𝟘
   where

@@ -83,14 +83,12 @@ private
 +ᶜ-cong (γ≈γ′ ∙ p≈p′) (δ≈δ′ ∙ q≈q′) =
   (+ᶜ-cong γ≈γ′ δ≈δ′) ∙ (+-cong p≈p′ q≈q′)
 
--- Congruence of +ᶜ on the left
--- If δ ≈ᶜ δ′ then γ +ᶜ δ ≈ γ +ᶜ δ′
+-- Congruence for γ +ᶜ_.
 
 +ᶜ-congˡ : δ ≈ᶜ δ′ → γ +ᶜ δ ≈ᶜ γ +ᶜ δ′
 +ᶜ-congˡ δ≈δ′ = +ᶜ-cong ≈ᶜ-refl δ≈δ′
 
--- Congruence of +ᶜ on the right
--- If γ ≈ᶜ γ′ then γ +ᶜ δ ≈ γ′ +ᶜ δ
+-- Congruence for _+ᶜ δ.
 
 +ᶜ-congʳ : γ ≈ᶜ γ′ → γ +ᶜ δ ≈ᶜ γ′ +ᶜ δ
 +ᶜ-congʳ γ≈γ′ = +ᶜ-cong γ≈γ′ ≈ᶜ-refl
