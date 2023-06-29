@@ -37,7 +37,7 @@ f = proj₁ (proj₂ fin)
 f⁻¹ : M → Fin |M|
 f⁻¹ = proj₁ (proj₂ (proj₂ fin))
 
-f-f⁻¹ : (p : M) → f (f⁻¹ p) ≈ p
+f-f⁻¹ : (p : M) → f (f⁻¹ p) ≡ p
 f-f⁻¹ = proj₂ (proj₂ (proj₂ fin))
 
 -- n-ary meet

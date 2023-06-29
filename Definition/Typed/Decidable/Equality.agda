@@ -4,13 +4,12 @@
 
 open import Definition.Typed.Restrictions
 open import Tools.Relation
-open import Tools.PropositionalEquality as PE
-  using (_≈_; ≈-refl; ≈-sym; ≈-trans)
+import Tools.PropositionalEquality as PE
 
 module Definition.Typed.Decidable.Equality
   {a} {M : Set a}
   (R : Type-restrictions M)
-  (_≟_ : Decidable (_≈_ {A = M}))
+  (_≟_ : Decidable (PE._≡_ {A = M}))
   where
 
 

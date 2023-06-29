@@ -59,6 +59,7 @@ open import Tools.Nat
 open import Tools.Nullary
 open import Tools.Product
 import Tools.Reasoning.PartialOrder
+import Tools.PropositionalEquality as PE
 
 private
   variable
@@ -112,7 +113,7 @@ module Soundness
   soundness-zero t⇒zero 𝟘▸t =
     let ⊢t = redFirst*Term t⇒zero
         [ℕ] , t®t′ = fundamentalErased ⊢t 𝟘▸t
-        t®t″ = irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ (idRed:*: (ℕⱼ ⊢Δ))) (t®t′ ◀≢𝟘 𝟙≉𝟘)
+        t®t″ = irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ (idRed:*: (ℕⱼ ⊢Δ))) (t®t′ ◀≢𝟘 𝟙≢𝟘)
     in  soundness-zero′ t®t″ t⇒zero
 
   -- Helper lemma for WH reduction soundness of suc
@@ -135,7 +136,7 @@ module Soundness
   soundness-suc t⇒suc 𝟘▸t =
     let ⊢t = redFirst*Term t⇒suc
         [ℕ] , t®t′ = fundamentalErased ⊢t 𝟘▸t
-        t®t″ = irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ (idRed:*: (ℕⱼ ⊢Δ))) (t®t′ ◀≢𝟘 𝟙≉𝟘)
+        t®t″ = irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ (idRed:*: (ℕⱼ ⊢Δ))) (t®t′ ◀≢𝟘 𝟙≢𝟘)
     in  soundness-suc′ t®t″ t⇒suc
 
   -- Helper lemma for soundness of natural numbers
@@ -155,7 +156,7 @@ module Soundness
               → ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ × erase t ⇒ˢ* sucᵏ′ n
   soundness-ℕ ⊢t 𝟘▸t =
     let [ℕ] , t®v = fundamentalErased ⊢t 𝟘▸t
-    in  soundness-ℕ′ (irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ (idRed:*: (ℕⱼ ⊢Δ))) (t®v ◀≢𝟘 𝟙≉𝟘))
+    in  soundness-ℕ′ (irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ (idRed:*: (ℕⱼ ⊢Δ))) (t®v ◀≢𝟘 𝟙≢𝟘))
 
   -- A variant of soundness-ℕ which only considers the source
   -- language.
@@ -183,7 +184,7 @@ module Soundness
         ok = ⊢∷Unit→Unit-allowed ⊢t
         t®t″ = irrelevanceTerm {l′ = ¹}
                  [⊤] (Unitᵣ (Unitₜ (idRed:*: (Unitⱼ ⊢Δ ok)) ok))
-                 (t®t′ ◀≢𝟘 𝟙≉𝟘)
+                 (t®t′ ◀≢𝟘 𝟙≢𝟘)
     in  soundness-star′ t®t″
 
 -- If Prodrec-allowed 𝟘 p 𝟘 holds for some p (which means that certain
@@ -212,7 +213,7 @@ soundness-ℕ-only-source-counterexample {p = p} P-ok Σᵣ-ok =
       (prodrecₘ var
          (sub zeroₘ $
           let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-            𝟘ᶜ ∙ 𝟙 · 𝟘 · p ∙ 𝟙 · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-congˡ (·-zeroˡ _) ∙ ≈-refl ⟩
+            𝟘ᶜ ∙ 𝟙 · 𝟘 · p ∙ 𝟙 · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-congˡ (·-zeroˡ _) ∙ PE.refl ⟩
             𝟘ᶜ ∙ 𝟙 · 𝟘 ∙ 𝟙 · 𝟘      ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
             𝟘ᶜ                      ∎)
          (sub ℕₘ $

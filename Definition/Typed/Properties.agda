@@ -16,8 +16,7 @@ open import Tools.Empty using (⊥; ⊥-elim)
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
-open import Tools.PropositionalEquality as PE
-  using (≈-refl; ≈-sym; ≈-trans)
+import Tools.PropositionalEquality as PE
 
 private
   variable
@@ -100,7 +99,7 @@ subsetTerm (Emptyrec-subst A n⇒n′) =
   Emptyrec-cong (refl A) (subsetTerm n⇒n′)
 subsetTerm (app-subst t⇒u a) =
   app-cong (subsetTerm t⇒u) (refl a)
-subsetTerm (β-red A B t a p≈p′ ok) = β-red A B t a p≈p′ ok
+subsetTerm (β-red A B t a p≡p′ ok) = β-red A B t a p≡p′ ok
 subsetTerm (conv t⇒u A≡B) = conv (subsetTerm t⇒u) A≡B
 subsetTerm (fst-subst F G x) = fst-cong F G (subsetTerm x)
 subsetTerm (snd-subst F G x) = snd-cong F G (subsetTerm x)

@@ -122,7 +122,7 @@ neNeg (prodrecⱼ {r = r} ⊢A A⊢B _ d _ ok₁) (prodrecₙ n) γ▸u =
            δ            ∎)
       ⊢Σ = refl (ΠΣⱼ ⊢A A⊢B ok₁)
       lemma = let open Tools.Reasoning.PropositionalEquality in
-        ⌞ r ⌟  ≡⟨ ≉𝟘→⌞⌟≡𝟙ᵐ (no-erased-matches (λ ()) ok₂) ⟩
+        ⌞ r ⌟  ≡⟨ ≢𝟘→⌞⌟≡𝟙ᵐ (no-erased-matches (λ ()) ok₂) ⟩
         𝟙ᵐ     ∎
   in  ⊥-elim (¬negΣᵣ (neNeg d n (▸-cong lemma γ▸t)) ⊢Σ)
 neNeg (Emptyrecⱼ _ d     ) (Emptyrecₙ n) γ▸u = ⊥-elim (consistent d)

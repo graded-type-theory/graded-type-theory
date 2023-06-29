@@ -68,19 +68,19 @@ private
   +ᶜ-sub-interchangeable-⊛ᶜ r γ δ γ′ δ′ ∙ +-sub-interchangeable-⊛ r p q p′ q′
 
 -- Congruence of ⊛ᶜ
-⊛ᶜ-cong : γ ≈ᶜ γ′ → δ ≈ᶜ δ′ → r ≈ r′ → γ ⊛ᶜ δ ▷ r ≈ᶜ γ′ ⊛ᶜ δ′ ▷ r′
-⊛ᶜ-cong ε ε r≈r′ = ε
-⊛ᶜ-cong (γ≈γ′ ∙ p≈p′) (δ≈δ′ ∙ q≈q′) r≈r′ =
-  (⊛ᶜ-cong γ≈γ′ δ≈δ′ r≈r′) ∙ (⊛-cong p≈p′ q≈q′ r≈r′)
+⊛ᶜ-cong : γ ≈ᶜ γ′ → δ ≈ᶜ δ′ → r ≡ r′ → γ ⊛ᶜ δ ▷ r ≈ᶜ γ′ ⊛ᶜ δ′ ▷ r′
+⊛ᶜ-cong ε ε r≡r′ = ε
+⊛ᶜ-cong (γ≈ᶜγ′ ∙ p≡p′) (δ≈ᶜδ′ ∙ q≡q′) r≡r′ =
+  ⊛ᶜ-cong γ≈ᶜγ′ δ≈ᶜδ′ r≡r′ ∙ ⊛-cong p≡p′ q≡q′ r≡r′
 
 ⊛ᵣᶜ-cong : γ ≈ᶜ γ′ → δ ≈ᶜ δ′ → γ ⊛ᶜ δ ▷ r ≈ᶜ γ′ ⊛ᶜ δ′ ▷ r
-⊛ᵣᶜ-cong γ≈γ′ δ≈δ′ = ⊛ᶜ-cong γ≈γ′ δ≈δ′ ≈-refl
+⊛ᵣᶜ-cong γ≈ᶜγ′ δ≈ᶜδ′ = ⊛ᶜ-cong γ≈ᶜγ′ δ≈ᶜδ′ refl
 
 ⊛ᵣᶜ-congˡ : δ ≈ᶜ δ′ → γ ⊛ᶜ δ ▷ r ≈ᶜ γ ⊛ᶜ δ′ ▷ r
-⊛ᵣᶜ-congˡ δ≈δ′ = ⊛ᵣᶜ-cong ≈ᶜ-refl δ≈δ′
+⊛ᵣᶜ-congˡ δ≈ᶜδ′ = ⊛ᵣᶜ-cong ≈ᶜ-refl δ≈ᶜδ′
 
 ⊛ᵣᶜ-congʳ : γ ≈ᶜ γ′ → γ ⊛ᶜ δ ▷ r ≈ᶜ γ′ ⊛ᶜ δ ▷ r
-⊛ᵣᶜ-congʳ γ≈γ′ = ⊛ᵣᶜ-cong γ≈γ′ ≈ᶜ-refl
+⊛ᵣᶜ-congʳ γ≈ᶜγ′ = ⊛ᵣᶜ-cong γ≈ᶜγ′ ≈ᶜ-refl
 
 -- ⊛ᶜ is monotone on its first two arguments
 -- If γ ≤ᶜ γ′ and δ ≤ᶜ δ′ then γ ⊛ᶜ δ ▷ r ≤ᶜ γ′ ⊛ᶜ δ′ ▷ r

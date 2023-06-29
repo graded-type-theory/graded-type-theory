@@ -81,9 +81,9 @@ whNorm A = whNorm′ (reducible A)
 ... | _ , (ΠΣₙ {b = BMΠ}) , D = PE.⊥-elim (Π≢Σⱼ (trans (sym (subset* (red D))) A≡ΣFG))
 ... | _ , (ΠΣₙ {b = BMΣ m}) , D =
   let Σ≡Σ′ = trans (sym A≡ΣFG) (subset* (red D))
-      F≡F′ , G≡G′ , p≈p′ , q≈q′ , m≡m′ = Σ-injectivity Σ≡Σ′
+      F≡F′ , G≡G′ , p≡p′ , q≡q′ , m≡m′ = Σ-injectivity Σ≡Σ′
       D′ = PE.subst₃ (λ m p q → _ ⊢ A ⇒* Σ⟨ m ⟩ p , q ▷ _ ▹ _)
-                     (PE.sym m≡m′) (PE.sym p≈p′) (PE.sym q≈q′) (red D)
+                     (PE.sym m≡m′) (PE.sym p≡p′) (PE.sym q≡q′) (red D)
   in  _ , _ , D′ , F≡F′ , G≡G′
 ... | _ , ℕₙ , D = PE.⊥-elim (ℕ≢Σ (trans (sym (subset* (red D))) A≡ΣFG))
 ... | _ , Unitₙ , D = PE.⊥-elim (Unit≢Σⱼ (trans (sym (subset* (red D))) A≡ΣFG))

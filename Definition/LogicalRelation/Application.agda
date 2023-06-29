@@ -26,7 +26,7 @@ open import Definition.LogicalRelation.Properties R
 
 open import Tools.Nat
 open import Tools.Product
-open import Tools.PropositionalEquality as PE using (_≈_; ≈-refl)
+import Tools.PropositionalEquality as PE
 
 private
   variable

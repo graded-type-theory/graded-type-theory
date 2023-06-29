@@ -30,7 +30,7 @@ open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
-open import Tools.PropositionalEquality as PE using (≈-refl)
+import Tools.PropositionalEquality as PE
 
 private
   variable

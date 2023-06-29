@@ -116,7 +116,7 @@ appʳ′
       u®w′ = ⊩ʳu [σ] (subsumptionSubstMode l σ®σ′ᵤ)
       u®w = irrelevanceTerm′ (PE.sym (wk-id (F [ σ ]))) [σF] [ρσF]
                              (u®w′ ◀≢𝟘 (λ ⌜⌞p⌟⌝≡𝟘 →
-                                   𝟙≉𝟘 (PE.trans (PE.cong ⌜_⌝ (PE.sym (≉𝟘→⌞⌟≡𝟙ᵐ p≢𝟘))) ⌜⌞p⌟⌝≡𝟘)))
+                                   𝟙≢𝟘 (PE.trans (PE.cong ⌜_⌝ (PE.sym (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘))) ⌜⌞p⌟⌝≡𝟘)))
       σ®σ′ₜ = subsumptionSubst {l = l} σ®σ′ λ x γ+pδ≡𝟘 →
                 +-positiveˡ (PE.trans (PE.sym (lookup-distrib-+ᶜ γ _ x)) γ+pδ≡𝟘)
       t∘u®v∘w = ⊩ʳt [σ] (subsumptionSubstMode l σ®σ′ₜ)

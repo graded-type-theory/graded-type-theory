@@ -494,12 +494,12 @@ Is-order-embedding-∘
       𝟘ᵐ-allowed-elim 𝕄₂
         (λ ok₂     → G.trivial not-ok₁ ok₂)
         (λ not-ok₂ → G.tr-injective (
-           tr₂ M₁.𝟙  ≡⟨ MP₂.≈-trivial (F.trivial not-ok₂ ok₃) ⟩
+           tr₂ M₁.𝟙  ≡⟨ MP₂.≡-trivial (F.trivial not-ok₂ ok₃) ⟩
            tr₂ M₁.𝟘  ∎))
     .Is-order-embedding.trivial-⊎-tr-𝟘 →
       let open Tools.Reasoning.PropositionalEquality in
       case F.trivial-⊎-tr-𝟘 of λ where
-        (inj₁ triv)    → inj₁ (G.tr-injective (MP₂.≈-trivial triv))
+        (inj₁ triv)    → inj₁ (G.tr-injective (MP₂.≡-trivial triv))
         (inj₂ tr₁-𝟘≡𝟘) → case G.trivial-⊎-tr-𝟘 of λ where
           (inj₁ triv)    → inj₁ triv
           (inj₂ tr₂-𝟘≡𝟘) → inj₂ (

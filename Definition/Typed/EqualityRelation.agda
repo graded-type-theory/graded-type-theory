@@ -19,7 +19,6 @@ open import Definition.Typed.Weakening R using (_∷_⊆_)
 open import Tools.Fin
 open import Tools.Level
 open import Tools.Nat
-open import Tools.PropositionalEquality as PE using (_≈_; refl)
 
 private
   variable

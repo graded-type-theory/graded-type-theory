@@ -27,8 +27,7 @@ open import Definition.LogicalRelation.Properties.Symmetry R
 
 open import Tools.Nat
 open import Tools.Product
-open import Tools.PropositionalEquality as PE
-  using (≈-refl; ≈-sym; ≈-trans)
+import Tools.PropositionalEquality as PE
 
 private
   variable

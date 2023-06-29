@@ -25,13 +25,13 @@ private
 -- If p ≤ q then p · r ≤ q · r
 
 ·-monotoneˡ : p ≤ q → p · r ≤ q · r
-·-monotoneˡ {p} {q} {r} p≤q = ≈-trans (·-congʳ p≤q) (·-distribʳ-∧ r p q)
+·-monotoneˡ {p} {q} {r} p≤q = trans (·-congʳ p≤q) (·-distribʳ-∧ r p q)
 
 -- Multiplication on the right is a monotone function
 -- If p ≤ q then r · p ≤ r · q
 
 ·-monotoneʳ : p ≤ q → r · p ≤ r · q
-·-monotoneʳ {p} {q} {r} p≤q = ≈-trans (·-congˡ p≤q) (·-distribˡ-∧ r p q)
+·-monotoneʳ {p} {q} {r} p≤q = trans (·-congˡ p≤q) (·-distribˡ-∧ r p q)
 
 -- Multiplication is a monotone function
 -- If p ≤ p′ and q ≤ q′ then p · q ≤ p′ · q′

@@ -46,7 +46,7 @@ private
   -- The quantity ω is a right identity for _ᵐ·_.
 
   ᵐ·-identityʳ′ : m ᵐ· ω ≡ m
-  ᵐ·-identityʳ′ = ≉𝟘→ᵐ·≡ (ω<𝟘 .proj₂)
+  ᵐ·-identityʳ′ = ≢𝟘→ᵐ·≡ (ω<𝟘 .proj₂)
 
   -- The quantity ω · p is bounded by 𝟘.
 

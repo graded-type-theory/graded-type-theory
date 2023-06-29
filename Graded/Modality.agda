@@ -45,7 +45,7 @@ record Semiring-with-meet : Set a where
 
   -- Semilattice partial ordering relation
   _≤_ : Rel M a
-  p ≤ q = p ≈ (p ∧ q)
+  p ≤ q = p ≡ p ∧ q
 
   -- A strict variant of the ordering relation.
   _<_ : Rel M a
@@ -99,9 +99,7 @@ record Semiring-with-meet : Set a where
               distribʳ to ·-distribʳ-+;
               zero to ·-zero;
               zeroˡ to ·-zeroˡ;
-              zeroʳ to ·-zeroʳ;
-
-              isEquivalence to ≈-equivalence
+              zeroʳ to ·-zeroʳ
              )
 
   open IsSemilattice ∧-Semilattice public
@@ -115,30 +113,30 @@ record Semiring-with-meet : Set a where
 record Has-well-behaved-zero (𝕄 : Semiring-with-meet) : Set a where
   open Semiring-with-meet 𝕄
   field
-    -- 𝟙 is not equivalent to 𝟘.
-    𝟙≉𝟘 : 𝟙 ≉ 𝟘
+    -- 𝟙 is not equal to 𝟘.
+    𝟙≢𝟘 : 𝟙 ≢ 𝟘
 
-    -- It is decidable whether a value is equivalent to 𝟘.
-    is-𝟘? : (p : M) → Dec (p ≈ 𝟘)
+    -- It is decidable whether a value is equal to 𝟘.
+    is-𝟘? : (p : M) → Dec (p ≡ 𝟘)
 
     -- The following two assumptions are based on assumptions from Bob
     -- Atkey's "Syntax and Semantics of Quantitative Type Theory".
 
     -- The semiring has the zero-product property:
     -- if p · q is 𝟘, then either p is 𝟘 or q is 𝟘.
-    zero-product : {p q : M} → p · q ≈ 𝟘 → (p ≈ 𝟘) ⊎ (q ≈ 𝟘)
+    zero-product : {p q : M} → p · q ≡ 𝟘 → p ≡ 𝟘 ⊎ q ≡ 𝟘
 
     -- The semiring is positive (with respect to addition and meet):
 
-    -- if p + q is 𝟘, then p and q are 𝟘. (The statement that p + q ≈ 𝟘
-    -- implies q ≈ 𝟘 follows from the one below, see
+    -- if p + q is 𝟘, then p and q are 𝟘. (The statement that p + q ≡ 𝟘
+    -- implies q ≡ 𝟘 follows from the one below, see
     -- Definition.Modality.Properties.Has-well-behaved-zero.+-positiveʳ.)
-    +-positiveˡ : {p q : M} → p + q ≈ 𝟘 → p ≈ 𝟘
+    +-positiveˡ : {p q : M} → p + q ≡ 𝟘 → p ≡ 𝟘
 
-    -- If p ∧ q is equal to 𝟘, then p ≈ 𝟘.  (The statement that p ∧ q ≈ 𝟘
-    -- implies q ≈ 𝟘 follows from the one below, see
+    -- If p ∧ q is equal to 𝟘, then p ≡ 𝟘.  (The statement that p ∧ q ≡ 𝟘
+    -- implies q ≡ 𝟘 follows from the one below, see
     -- Definition.Modality.Properties.Has-well-behaved-zero.∧-positiveʳ.)
-    ∧-positiveˡ : {p q : M} → p ∧ q ≈ 𝟘 → p ≈ 𝟘
+    ∧-positiveˡ : {p q : M} → p ∧ q ≡ 𝟘 → p ≡ 𝟘
 
 -- Semirings with meet and a tertiary star operator
 record Semiring-with-meet-and-star : Set a where

@@ -23,7 +23,7 @@ open import Definition.LogicalRelation.ShapeView R
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
-open import Tools.PropositionalEquality as PE using (_≈_)
+import Tools.PropositionalEquality as PE
 
 private
   variable

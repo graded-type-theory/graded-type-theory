@@ -562,7 +562,7 @@ zero-one-many-semiring-with-meet = record
 
 zero-one-many-has-well-behaved-zero : Has-well-behaved-zero zero-one-many-semiring-with-meet
 zero-one-many-has-well-behaved-zero = record
-  { 𝟙≉𝟘 = λ ()
+  { 𝟙≢𝟘 = λ ()
   ; is-𝟘? = λ where
       𝟘 → yes refl
       𝟙 → no (λ ())

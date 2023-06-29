@@ -39,8 +39,6 @@ open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 
-open PE using (_≈_)
-
 private
   variable
     n : Nat
@@ -221,10 +219,10 @@ mutual
       (yes (F , G , p , q , ⊢F , ⊢G , A⇒Π)) → case dec⇇ ⊢Γ u ⊢F of λ where
         (yes u⇇F) → case p ≟ p′ of λ where
           (yes PE.refl) → yes (_ , appᵢ t⇉A (A⇒Π , ΠΣₙ) u⇇F)
-          (no p≉p′) → no λ where
+          (no p≢p′) → no λ where
             (_ , appᵢ x x₁ x₂) → case deterministic⇉ x t⇉A of λ where
               PE.refl → case whrDet* (A⇒Π , ΠΣₙ) x₁ of λ where
-                PE.refl → p≉p′ PE.refl
+                PE.refl → p≢p′ PE.refl
         (no ¬u⇇F) → no λ where
           (_ , appᵢ x x₁ x₂) → case deterministic⇉ x t⇉A of λ where
              PE.refl → case whrDet* (A⇒Π , ΠΣₙ) x₁ of λ where
@@ -243,10 +241,10 @@ mutual
     (yes (A , t⇉A)) → case isΣₚ (proj₁ (soundness⇉ ⊢Γ t⇉A)) of λ where
       (yes (F , G , p , q , ⊢F , ⊢G , A⇒Σ)) → case p ≟ p′ of λ where
         (yes PE.refl) → yes (_ , fstᵢ t⇉A (A⇒Σ , U.ΠΣₙ))
-        (no p≉p′) → no λ where
+        (no p≢p′) → no λ where
           (_ , fstᵢ x x₁) → case deterministic⇉ x t⇉A of λ where
              PE.refl → case whrDet* (A⇒Σ , ΠΣₙ) x₁ of λ where
-               PE.refl → p≉p′ PE.refl
+               PE.refl → p≢p′ PE.refl
       (no ¬isΣ) → no λ where
         (_ , fstᵢ x x₁) → case deterministic⇉ x t⇉A of λ where
           PE.refl →
@@ -261,10 +259,10 @@ mutual
     (yes (A , t⇉A)) → case isΣₚ (proj₁ (soundness⇉ ⊢Γ t⇉A)) of λ where
       (yes (F , G , p , q , ⊢F , ⊢G , A⇒Σ)) → case p ≟ p′ of λ where
         (yes PE.refl) → yes (_ , sndᵢ t⇉A (A⇒Σ , U.ΠΣₙ))
-        (no p≉p′) → no λ where
+        (no p≢p′) → no λ where
           (_ , sndᵢ x x₁) → case deterministic⇉ x t⇉A of λ where
              PE.refl → case whrDet* (A⇒Σ , ΠΣₙ) x₁ of λ where
-               PE.refl → p≉p′ PE.refl
+               PE.refl → p≢p′ PE.refl
       (no ¬isΣ) → no λ where
         (_ , sndᵢ x x₁) → case deterministic⇉ x t⇉A of λ where
           PE.refl →
@@ -313,11 +311,11 @@ mutual
                 (yes u⇇A₊) → case p ≟ p′ of λ where
                   (yes PE.refl) →
                     yes (_ , prodrecᵢ A⇇Type t⇉B (B⇒Σ , ΠΣₙ) u⇇A₊)
-                  (no p≉p′) → no λ where
+                  (no p≢p′) → no λ where
                     (_ , prodrecᵢ _ x₁ x₂ _) →
                       case deterministic⇉ t⇉B x₁ of λ where
                         PE.refl → case whrDet* (B⇒Σ , ΠΣₙ) x₂ of λ where
-                          PE.refl → p≉p′ PE.refl
+                          PE.refl → p≢p′ PE.refl
                 (no ¬u⇇A₊) → no λ where
                   (_ , prodrecᵢ _ x₁ x₂ x₃) →
                     case deterministic⇉ t⇉B x₁ of λ where
@@ -488,9 +486,9 @@ mutual
     (yes (F , G , p , q , ⊢F , ⊢G , A⇒Π)) → case dec⇇ (⊢Γ ∙ ⊢F) t ⊢G of λ where
       (yes t⇇G) → case p ≟ p′ of λ where
         (yes PE.refl) → yes (lamᶜ (A⇒Π , ΠΣₙ) t⇇G)
-        (no p≉p′) → no λ where
+        (no p≢p′) → no λ where
           (lamᶜ x x₁) → case whrDet* (A⇒Π , ΠΣₙ) x of λ where
-            PE.refl → p≉p′ PE.refl
+            PE.refl → p≢p′ PE.refl
       (no ¬t⇇G) → no λ where
         (lamᶜ x x₁) → case whrDet* (A⇒Π , ΠΣₙ) x of λ where
           PE.refl → ¬t⇇G x₁
@@ -511,9 +509,9 @@ mutual
                     _ , _ , W≡W′ = B-PE-injectivity BΣ! BΣ! Σ≡Σ′
                     _ , _ , m≡m′ = BΣ-PE-injectivity W≡W′
                 in  m≢m′ m≡m′
-          (no p≉p′) → no λ where
+          (no p≢p′) → no λ where
             (prodᶜ x x₁ x₂) → case whrDet* (A⇒Σ , ΠΣₙ) x of λ where
-              PE.refl → p≉p′ PE.refl
+              PE.refl → p≢p′ PE.refl
         (no ¬u⇇Gₜ) → no λ where
           (prodᶜ x x₁ x₂) → case whrDet* (A⇒Σ , ΠΣₙ) x of λ where
             PE.refl → ¬u⇇Gₜ x₂

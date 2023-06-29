@@ -27,7 +27,7 @@ open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
-open import Tools.PropositionalEquality as PE using (_≈_)
+import Tools.PropositionalEquality as PE
 
 private
   variable
@@ -77,14 +77,14 @@ B-injectivity W W′ ⊢WFG≡WHE =
                    (irrelevanceEq [WFG] (B-intr W (B-elim W [WFG])) [WFG≡WHE])
 
 injectivity : ∀ {F G H E} → Γ ⊢ Π p , q ▷ F ▹ G ≡ Π p′ , q′ ▷ H ▹ E
-            → Γ ⊢ F ≡ H × Γ ∙ F ⊢ G ≡ E × p ≈ p′ × q ≈ q′
+            → Γ ⊢ F ≡ H × Γ ∙ F ⊢ G ≡ E × p PE.≡ p′ × q PE.≡ q′
 injectivity x with B-injectivity BΠ! BΠ! x
 ... | F≡H , G≡E , PE.refl = F≡H , G≡E , PE.refl , PE.refl
 
 Σ-injectivity :
   ∀ {m m′ F G H E} →
   Γ ⊢ Σ⟨ m ⟩ p , q ▷ F ▹ G ≡ Σ⟨ m′ ⟩ p′ , q′ ▷ H ▹ E →
-  Γ ⊢ F ≡ H × Γ ∙ F ⊢ G ≡ E × p ≈ p′ × q ≈ q′ × m PE.≡ m′
+  Γ ⊢ F ≡ H × Γ ∙ F ⊢ G ≡ E × p PE.≡ p′ × q PE.≡ q′ × m PE.≡ m′
 Σ-injectivity x with B-injectivity BΣ! BΣ! x
 ... | F≡H , G≡E , PE.refl =
   F≡H , G≡E , PE.refl , PE.refl , PE.refl

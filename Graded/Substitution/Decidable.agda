@@ -88,7 +88,7 @@ _eᵢ≤ᶜ?_eᵢ_ :
 [] eᵢ≤ᶜ? [] eᵢ _ = yes λ ()
 (Ψ ⊙ γ) eᵢ≤ᶜ? Ψ′ ⊙ δ eᵢ mos
   with Ψ eᵢ≤ᶜ? Ψ′ eᵢ tailᵐ mos
-     | ≤ᶜ-decidable (≈-decidable→≤-decidable _≟_)
+     | ≤ᶜ-decidable (≡-decidable→≤-decidable _≟_)
          (⌜ headᵐ mos ⌝ ·ᶜ γ) (⌜ headᵐ mos ⌝ ·ᶜ δ)
 ... | _ | no γ≰δ = no λ P → γ≰δ (begin
   ⌜ headᵐ mos ⌝ ·ᶜ γ              ≈˘⟨ +ᶜ-identityʳ _ ⟩

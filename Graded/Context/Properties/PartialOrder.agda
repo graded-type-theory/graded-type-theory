@@ -50,8 +50,8 @@ private
 
 ≤ᶜ-reflexive : γ ≈ᶜ δ → γ ≤ᶜ δ
 ≤ᶜ-reflexive {γ = ε} {ε} _ = ε
-≤ᶜ-reflexive {γ = γ ∙ p} {δ ∙ q} (γ≈δ ∙ p≈q) =
-  (≤ᶜ-reflexive γ≈δ) ∙ (≤-reflexive p≈q)
+≤ᶜ-reflexive {γ = γ ∙ p} {δ ∙ q} (γ≈ᶜδ ∙ p≡q) =
+  ≤ᶜ-reflexive γ≈ᶜδ ∙ ≤-reflexive p≡q
 
 -- ≤ᶜ is a preorder
 

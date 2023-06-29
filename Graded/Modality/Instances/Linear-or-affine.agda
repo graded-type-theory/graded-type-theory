@@ -645,7 +645,7 @@ linear-or-affine-semiring-with-meet  = record
 
 linear-or-affine-has-well-behaved-zero : Has-well-behaved-zero linear-or-affine-semiring-with-meet
 linear-or-affine-has-well-behaved-zero = record
-  { 𝟙≉𝟘 = λ ()
+  { 𝟙≢𝟘 = λ ()
   ; is-𝟘? = λ where
       𝟘  → yes refl
       𝟙  → no (λ ())

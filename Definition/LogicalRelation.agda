@@ -22,7 +22,7 @@ open import Definition.Typed.Weakening R
 open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
-open import Tools.PropositionalEquality as PE using (_≈_)
+import Tools.PropositionalEquality as PE
 
 private
   variable
@@ -396,7 +396,7 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
     Σ-prop
       {p = p} Σᵣ t Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
       (prodₙ {p = p′} {t = p₁} {u = p₂} {m = m}) =
-           p ≈ p′ ×
+           p PE.≡ p′ ×
            Σ (Γ ⊩¹ p₁ ∷ U.wk id F / [F] id (wf ⊢F)) λ [p₁]
            → Γ ⊩¹ p₂ ∷ U.wk (lift id) G [ p₁ ]₀ / [G] id (wf ⊢F) [p₁]
            × m PE.≡ Σᵣ
@@ -434,7 +434,7 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
       {p = p} Σᵣ t r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
       (prodₙ {p = p′} {t = p₁} {u = p₂})
       (prodₙ {p = p″} {t = r₁} {u = r₂}) =
-             p ≈ p′ × p ≈ p″ ×
+             p PE.≡ p′ × p PE.≡ p″ ×
              Σ (Γ ⊩¹ p₁ ∷ U.wk id F / [F] id (wf ⊢F)) λ [p₁] →
              Σ (Γ ⊩¹ r₁ ∷ U.wk id F / [F] id (wf ⊢F)) λ [r₁]
              → (Γ ⊩¹ p₂ ∷ U.wk (lift id) G [ p₁ ]₀ / [G] id (wf ⊢F) [p₁])

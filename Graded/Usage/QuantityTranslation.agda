@@ -353,8 +353,8 @@ module Is-order-embedding
     tr-▸⁻¹-𝟙≡𝟘′ {m = m} {m′ = m′} (fst p _) (fstₘ m″ ▸t mp≡m₂ ok) = fstₘ
       𝟙ᵐ
       (tr-▸⁻¹-𝟙≡𝟘′ _ ▸t)
-      (Mo₁.Mode-propositional-without-𝟘ᵐ (flip MP₁.𝟘ᵐ→𝟙≉𝟘 𝟙≡𝟘))
-      λ {refl → MP₁.≤-reflexive (MP₁.≈-trivial 𝟙≡𝟘)}
+      (Mo₁.Mode-propositional-without-𝟘ᵐ (flip MP₁.𝟘ᵐ→𝟙≢𝟘 𝟙≡𝟘))
+      λ {refl → MP₁.≤-reflexive (MP₁.≡-trivial 𝟙≡𝟘)}
 
     tr-▸⁻¹-𝟙≡𝟘′ (prodrec _ _ _ _ _ _) (prodrecₘ ▸t ▸u ▸Q ok) = sub
       (prodrecₘ {δ = C₁.𝟘ᶜ} {η = C₁.𝟘ᶜ}
@@ -540,7 +540,7 @@ module Is-order-embedding
               tr (Mo₁.⌜ m ⌝ M₁.· r)                          ≤⟨ η′≤η ∙ ≤-reflexive (sym (tr-⌜⌝-· m)) ∙
                                                                 ≤-reflexive (sym (tr-⌜⌝-· m)) ⟩
               η ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr (r M₁.· p) ∙
-              Mo₂.⌜ tr-Mode m ⌝ M₂.· tr r                    ≈˘⟨ CP₂.≈ᶜ-refl ∙ M₂.·-congˡ (tr-·-tr-Σ-≡ tr-morphism) ∙ ≈-refl ⟩
+              Mo₂.⌜ tr-Mode m ⌝ M₂.· tr r                    ≈˘⟨ CP₂.≈ᶜ-refl ∙ M₂.·-congˡ (tr-·-tr-Σ-≡ tr-morphism) ∙ refl ⟩
 
               η ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr r M₂.· tr-Σ p ∙
               Mo₂.⌜ tr-Mode m ⌝ M₂.· tr r                    ∎)

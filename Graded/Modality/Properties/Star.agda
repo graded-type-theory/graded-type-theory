@@ -21,17 +21,17 @@ private
 
 -- Variants of ⊛-congurence
 
-⊛-cong : p ≈ p′ → q ≈ q′ → r ≈ r′ → p ⊛ q ▷ r ≈ p′ ⊛ q′ ▷ r′
+⊛-cong : p ≡ p′ → q ≡ q′ → r ≡ r′ → p ⊛ q ▷ r ≡ p′ ⊛ q′ ▷ r′
 ⊛-cong = cong₃ _⊛_▷_
 
-⊛ᵣ-cong : p ≈ p′ → q ≈ q′ → p ⊛ q ▷ r ≈ p′ ⊛ q′ ▷ r
-⊛ᵣ-cong p≈p′ q≈q′ = ⊛-cong p≈p′ q≈q′ ≈-refl
+⊛ᵣ-cong : p ≡ p′ → q ≡ q′ → p ⊛ q ▷ r ≡ p′ ⊛ q′ ▷ r
+⊛ᵣ-cong p≡p′ q≡q′ = ⊛-cong p≡p′ q≡q′ refl
 
-⊛ᵣ-congˡ : q ≈ q′ → p ⊛ q ▷ r ≈ p ⊛ q′ ▷ r
-⊛ᵣ-congˡ q≈q′ = ⊛ᵣ-cong ≈-refl q≈q′
+⊛ᵣ-congˡ : q ≡ q′ → p ⊛ q ▷ r ≡ p ⊛ q′ ▷ r
+⊛ᵣ-congˡ q≡q′ = ⊛ᵣ-cong refl q≡q′
 
-⊛ᵣ-congʳ : p ≈ p′ → p ⊛ q ▷ r ≈ p′ ⊛ q ▷ r
-⊛ᵣ-congʳ p≈p′ = ⊛ᵣ-cong p≈p′ ≈-refl
+⊛ᵣ-congʳ : p ≡ p′ → p ⊛ q ▷ r ≡ p′ ⊛ q ▷ r
+⊛ᵣ-congʳ p≡p′ = ⊛ᵣ-cong p≡p′ refl
 
 -- ⊛ is monotone on the first two arguments
 -- If p ≤ p′ and q ≤ q′ then p ⊛ q ▷ r ≤ p′ ⊛ q′ ≤ r

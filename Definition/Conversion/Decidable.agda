@@ -3,14 +3,13 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
-open import Tools.PropositionalEquality as PE
-  using (_≈_; ≈-refl; ≈-sym; ≈-trans)
+import Tools.PropositionalEquality as PE
 open import Tools.Relation
 
 module Definition.Conversion.Decidable
   {a} {M : Set a}
   (R : Type-restrictions M)
-  (_≟_ : Decidable (_≈_ {A = M}))
+  (_≟_ : Decidable (PE._≡_ {A = M}))
   where
 
 open import Definition.Untyped M hiding (_∷_)
@@ -58,7 +57,7 @@ dec~↑-app : ∀ {k k₁ l l₁ F F₁ G G₁ B}
           → Γ ⊢ k ∷ Π p , q ▷ F ▹ G
           → Γ ⊢ k₁ ∷ Π p , q ▷ F₁ ▹ G₁
           → Γ ⊢ k ~ k₁ ↓ B
-          → p ≈ p′
+          → p PE.≡ p′
           → Dec (Γ ⊢ l [conv↑] l₁ ∷ F)
           → Dec (∃ λ A → Γ ⊢ k ∘⟨ p ⟩ l ~ k₁ ∘⟨ p′ ⟩ l₁ ↑ A)
 dec~↑-app k k₁ k~k₁ PE.refl (yes p) =
@@ -182,15 +181,15 @@ dec~↑-prodrec :
       C [ prodᵣ p (var x1) (var x0) ]↑²)) →
   Γ ⊢ t ~ t′ ↓ Σᵣ p , q ▷ F′ ▹ G′ →
   Γ ⊢ Σᵣ p , q ▷ F ▹ G ≡ Σᵣ p , q ▷ F′ ▹ G′ →
-  p ≈ p′ →
-  q′ ≈ q″ →
-  r ≈ r′ →
+  p PE.≡ p′ →
+  q′ PE.≡ q″ →
+  r PE.≡ r′ →
   Dec (∃ λ B → Γ ⊢ prodrec r p q′ C t u ~ prodrec r′ p′ q″ E t′ v ↑ B)
-dec~↑-prodrec (yes C<>E) u<?>v t~t′ ⊢Σ≡Σ′ p≈p′ q≈q′ r≈r′ =
+dec~↑-prodrec (yes C<>E) u<?>v t~t′ ⊢Σ≡Σ′ p≡p′ q≡q′ r≡r′ =
   case u<?>v (soundnessConv↑ C<>E) of λ where
-    (yes u<>v) → case p≈p′ of λ where
-      PE.refl → case q≈q′ of λ where
-        PE.refl → case r≈r′ of λ where
+    (yes u<>v) → case p≡p′ of λ where
+      PE.refl → case q≡q′ of λ where
+        PE.refl → case r≡r′ of λ where
           PE.refl → case reflConEq (wfEq ⊢Σ≡Σ′) of λ ⊢Γ≡Γ →
                     case stabilityConv↑ (⊢Γ≡Γ ∙ ⊢Σ≡Σ′) C<>E of λ C<>E′ →
                     case Σ-injectivity ⊢Σ≡Σ′ of λ (⊢F≡F′ , ⊢G≡G′ , _) →
@@ -234,9 +233,9 @@ dec~↑-app′ : ∀ {k l l′ a A F G}
           → (∀ {F′ u u′} → Γ ⊢ F ≡ F′ → Γ ⊢ u [conv↑] u′ ∷ F′
                            → Dec (Γ ⊢ a [conv↑] u ∷ F))
           → Γ ⊢ k ∷ Π p , q ▷ F ▹ G
-          → p ≈ p₁
+          → p PE.≡ p₁
           → Dec (∃ λ C → Γ ⊢ k ∘⟨ p₁ ⟩ a ~ l ↑ C)
-dec~↑-app′ (app-cong x x₁) dec dec′ ⊢l₁ p≈p₁ with dec x
+dec~↑-app′ (app-cong x x₁) dec dec′ ⊢l₁ p≡p₁ with dec x
 ... | no ¬p = no λ{ (_ , app-cong x x₁) → ¬p (_ , x)}
 dec~↑-app′ (app-cong x x₁) _ dec′ ⊢l₁ PE.refl | yes (C , k~l) =
   let whnfA , neK , neL = ne~↓ k~l
@@ -322,9 +321,9 @@ dec~↑-natrec {p = p} {q = q} {r = r}
   (natrec-cong {p = p′} {q = q′} {r = r′} x x₁ x₂ x₃)
   ⊢Γ decC decZ decS decN
   with decC x | decN x₃ | p ≟ p′ | q ≟ q′ | r ≟ r′
-... | _ | _ | _ | _ | no r≉r′ = no λ {(_ , natrec-cong _ _ _ _) → r≉r′ PE.refl}
-... | _ | _ | _ | no q≉q′ | _ = no λ {(_ , natrec-cong _ _ _ _) → q≉q′ PE.refl}
-... | _ | _ | no p≉p′ | _ | _ = no λ {(_ , natrec-cong _ _ _ _) → p≉p′ PE.refl}
+... | _ | _ | _ | _ | no r≢r′ = no λ {(_ , natrec-cong _ _ _ _) → r≢r′ PE.refl}
+... | _ | _ | _ | no q≢q′ | _ = no λ {(_ , natrec-cong _ _ _ _) → q≢q′ PE.refl}
+... | _ | _ | no p≢p′ | _ | _ = no λ {(_ , natrec-cong _ _ _ _) → p≢p′ PE.refl}
 ... | _ | no ¬P | _ | _ | _ = no λ {(_ , natrec-cong _ _ _ x) → ¬P (_ , x)}
 ... | no ¬P | _ | _ | _ | _ = no λ {(_ , natrec-cong x _ _ _) → ¬P x}
 ... | yes C<>C′ | yes (B , n~n′) | yes _ | yes _ | yes _
@@ -395,12 +394,12 @@ mutual
                   t~t′ (sym ⊢B≡Σ) PE.refl PE.refl PE.refl
   ... | no ¬P | _ | _ | _ =
     no (λ { (_ , prodrec-cong _ x _) → ¬P (_ , x) })
-  ... | _ | no ¬r≈r′ | _ | _ =
-    no (λ { (_ , prodrec-cong _ _ _) → ¬r≈r′ PE.refl })
-  ... | _ | _ | no ¬p≈p′ | _ =
-    no (λ { (_ , prodrec-cong _ _ _) → ¬p≈p′ PE.refl })
-  ... | _ | _ | _ | no ¬q≈q′ =
-    no (λ { (_ , prodrec-cong _ _ _) → ¬q≈q′ PE.refl })
+  ... | _ | no ¬r≡r′ | _ | _ =
+    no (λ { (_ , prodrec-cong _ _ _) → ¬r≡r′ PE.refl })
+  ... | _ | _ | no ¬p≡p′ | _ =
+    no (λ { (_ , prodrec-cong _ _ _) → ¬p≡p′ PE.refl })
+  ... | _ | _ | _ | no ¬q≡q′ =
+    no (λ { (_ , prodrec-cong _ _ _) → ¬q≡q′ PE.refl })
   dec~↑ (prodrec-cong _ _ _) (var-refl _ _) = no λ { (_ , ()) }
   dec~↑ (prodrec-cong _ _ _) (app-cong _ _) = no λ { (_ , ()) }
   dec~↑ (prodrec-cong _ _ _) (fst-cong _) = no λ { (_ , ()) }
@@ -418,8 +417,8 @@ mutual
         A≡Empty = Empty≡A ⊢Empty≡A whnfA
         k~l′ = PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) A≡Empty k~l
     in  yes (_ , Emptyrec-cong p k~l′)
-  ... | yes p | yes (A , k~l) | no ¬p′≈p″ =
-    no (λ { (_ , Emptyrec-cong _ _) → ¬p′≈p″ PE.refl })
+  ... | yes p | yes (A , k~l) | no ¬p′≡p″ =
+    no (λ { (_ , Emptyrec-cong _ _) → ¬p′≡p″ PE.refl })
   ... | yes p | no ¬p | _ =
     no (λ { (_ , Emptyrec-cong _ b) → ¬p (_ , b) })
   ... | no ¬p | r | _ = no (λ { (_ , Emptyrec-cong a _) → ¬p a })
@@ -504,10 +503,10 @@ mutual
     yes (ΠΣ-cong x p p₁ ok)
   ... | no ¬p | _ | _ | _ =
     no (λ { (ne ([~] _ _ _ ())); (ΠΣ-cong _ _ p _) → ¬p p })
-  ... | _ | no ¬p′≈p″ | _ | _ =
-    no (λ { (ne ([~] _ _ _ ())); (ΠΣ-cong _ _ _ _) → ¬p′≈p″ PE.refl })
-  ... | _ | _ | no ¬q′≈q″ | _ =
-    no (λ { (ne ([~] _ _ _ ())); (ΠΣ-cong _ _ _ _) → ¬q′≈q″ PE.refl })
+  ... | _ | no ¬p′≡p″ | _ | _ =
+    no (λ { (ne ([~] _ _ _ ())); (ΠΣ-cong _ _ _ _) → ¬p′≡p″ PE.refl })
+  ... | _ | _ | no ¬q′≡q″ | _ =
+    no (λ { (ne ([~] _ _ _ ())); (ΠΣ-cong _ _ _ _) → ¬q′≡q″ PE.refl })
   ... | _ | _ | _ | no b₁≢b₂ =
     no λ { (ne ([~] _ _ _ ())); (ΠΣ-cong _ _ _ _) → b₁≢b₂ PE.refl }
   decConv↓ (ΠΣ-cong _ _ _ _) (ΠΣ-cong _ _ _ _) | no ¬p =

@@ -20,7 +20,7 @@ open import Definition.Untyped M hiding (_∙_)
 
 open import Tools.Fin
 open import Tools.Nat
-open import Tools.PropositionalEquality as PE using (_≈_)
+open import Tools.PropositionalEquality using (_≡_)
 
 infix 10 _▸[_]_
 
@@ -74,8 +74,8 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
   -- Note that either p ≤ 𝟙 or m′ ≡ 𝟘ᵐ
   fstₘ      : ∀ m
             → γ ▸[ m ᵐ· p ] t
-            → m ᵐ· p PE.≡ m′
-            → (m′ PE.≡ 𝟙ᵐ → p ≤ 𝟙)
+            → m ᵐ· p ≡ m′
+            → (m′ ≡ 𝟙ᵐ → p ≤ 𝟙)
             → γ ▸[ m′ ] fst p t
 
   sndₘ      : γ ▸[ m ] t

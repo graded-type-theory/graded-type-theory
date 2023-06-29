@@ -47,10 +47,10 @@ lookup-monotone {γ = γ ∙ p} {δ ∙ q} (x +1) (γ≤δ ∙ p≤q) = lookup-m
 
 -- The lookup function preserves equivalence.
 
-lookup-cong : γ ≈ᶜ δ → γ ⟨ x ⟩ ≈ δ ⟨ x ⟩
-lookup-cong γ≈δ = ≤-antisym
-  (lookup-monotone _ (≤ᶜ-reflexive γ≈δ))
-  (lookup-monotone _ (≤ᶜ-reflexive (≈ᶜ-sym γ≈δ)))
+lookup-cong : γ ≈ᶜ δ → γ ⟨ x ⟩ ≡ δ ⟨ x ⟩
+lookup-cong γ≈ᶜδ = ≤-antisym
+  (lookup-monotone _ (≤ᶜ-reflexive γ≈ᶜδ))
+  (lookup-monotone _ (≤ᶜ-reflexive (≈ᶜ-sym γ≈ᶜδ)))
 
 -- Context lookup distributes over addition
 -- (γ +ᶜ δ)⟨x⟩ ≡ γ⟨x⟩ + δ⟨x⟩

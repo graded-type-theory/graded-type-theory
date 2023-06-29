@@ -21,8 +21,7 @@ open import Definition.Typed.Consequences.NeTypeEq R
 
 open import Tools.Nat
 open import Tools.Product
-open import Tools.PropositionalEquality as PE
-  using (≈-refl; ≈-sym; ≈-trans)
+import Tools.PropositionalEquality as PE
 
 private
   variable

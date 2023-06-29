@@ -33,7 +33,7 @@ open import Definition.LogicalRelation.Substitution.Introductions.Universe R
 open import Tools.Fin
 open import Tools.Nat
 open import Tools.Product
-open import Tools.PropositionalEquality as PE using (_≈_; ≈-refl)
+import Tools.PropositionalEquality as PE
 
 private
   variable

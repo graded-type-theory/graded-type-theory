@@ -24,7 +24,7 @@ open import Definition.LogicalRelation.Irrelevance R
 
 open import Tools.Nat
 open import Tools.Product
-open import Tools.PropositionalEquality as PE using (≈-trans; ≈-sym)
+import Tools.PropositionalEquality as PE
 
 private
   variable

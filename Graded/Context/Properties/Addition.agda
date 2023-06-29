@@ -80,18 +80,18 @@ private
 
 +ᶜ-cong : γ ≈ᶜ γ′ → δ ≈ᶜ δ′ → γ +ᶜ δ ≈ᶜ γ′ +ᶜ δ′
 +ᶜ-cong ε ε = ≈ᶜ-refl
-+ᶜ-cong (γ≈γ′ ∙ p≈p′) (δ≈δ′ ∙ q≈q′) =
-  (+ᶜ-cong γ≈γ′ δ≈δ′) ∙ (+-cong p≈p′ q≈q′)
++ᶜ-cong (γ≈ᶜγ′ ∙ p≡p′) (δ≈ᶜδ′ ∙ q≡q′) =
+  (+ᶜ-cong γ≈ᶜγ′ δ≈ᶜδ′) ∙ (+-cong p≡p′ q≡q′)
 
 -- Congruence for γ +ᶜ_.
 
 +ᶜ-congˡ : δ ≈ᶜ δ′ → γ +ᶜ δ ≈ᶜ γ +ᶜ δ′
-+ᶜ-congˡ δ≈δ′ = +ᶜ-cong ≈ᶜ-refl δ≈δ′
++ᶜ-congˡ δ≈ᶜδ′ = +ᶜ-cong ≈ᶜ-refl δ≈ᶜδ′
 
 -- Congruence for _+ᶜ δ.
 
 +ᶜ-congʳ : γ ≈ᶜ γ′ → γ +ᶜ δ ≈ᶜ γ′ +ᶜ δ
-+ᶜ-congʳ γ≈γ′ = +ᶜ-cong γ≈γ′ ≈ᶜ-refl
++ᶜ-congʳ γ≈ᶜγ′ = +ᶜ-cong γ≈ᶜγ′ ≈ᶜ-refl
 
 -- Addition on the left is monotone
 -- If γ ≤ᶜ δ then γ +ᶜ η ≤ᶜ δ +ᶜ η

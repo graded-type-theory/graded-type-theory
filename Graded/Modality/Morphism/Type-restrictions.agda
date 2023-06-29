@@ -368,7 +368,7 @@ Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
   lemma₁ {p = p} {q = q} hyp =
     case trivial-⊎-tr-𝟘 of λ where
       (inj₁ 𝟙≡𝟘) →
-        tr p ≡ M₂.𝟘  ≡⟨ cong (λ p → tr p ≡ _) (≈-trivial 𝟙≡𝟘) ⟩→
+        tr p ≡ M₂.𝟘  ≡⟨ cong (λ p → tr p ≡ _) (≡-trivial 𝟙≡𝟘) ⟩→
         tr q ≡ M₂.𝟘  □
       (inj₂ tr-𝟘) →
         tr p ≡ M₂.𝟘     ≡⟨ cong (_ ≡_) (sym tr-𝟘) ⟩→
@@ -401,7 +401,7 @@ Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
   lemma₃ {p = p} {q = q} hyp =
     case trivial-⊎-tr-𝟘 of λ where
       (inj₁ 𝟙≡𝟘) →
-        tr p ≢ M₂.𝟘  →⟨ (λ _ → ≈-trivial 𝟙≡𝟘) ⟩
+        tr p ≢ M₂.𝟘  →⟨ (λ _ → ≡-trivial 𝟙≡𝟘) ⟩
         q ≡ ω₁       →⟨ (λ { refl → tr-ω }) ⟩
         tr q ≡ ω₂    □
       (inj₂ tr-𝟘) →
@@ -539,7 +539,7 @@ Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
   lemma₁ {p = p} {q = q} hyp =
     case trivial-⊎-tr-𝟘 of λ where
       (inj₁ 𝟙≡𝟘) →
-        p ≡ M₁.𝟘  →⟨ (λ _ → ≈-trivial 𝟙≡𝟘) ⟩
+        p ≡ M₁.𝟘  →⟨ (λ _ → ≡-trivial 𝟙≡𝟘) ⟩
         q ≡ M₁.𝟘  □
       (inj₂ tr-𝟘) →
         p ≡ M₁.𝟘        →⟨ (λ { refl → tr-𝟘 }) ⟩
@@ -572,7 +572,7 @@ Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω′
   lemma₃ {p = p} {q = q} hyp =
     case trivial-⊎-tr-𝟘 of λ where
       (inj₁ 𝟙≡𝟘) →
-        p ≢ M₁.𝟘  →⟨ (λ _ → ≈-trivial 𝟙≡𝟘) ⟩
+        p ≢ M₁.𝟘  →⟨ (λ _ → ≡-trivial 𝟙≡𝟘) ⟩
         q ≡ ω₁    □
       (inj₂ tr-𝟘) →
         p ≢ M₁.𝟘        →⟨ _∘→ tr-injective ⟩

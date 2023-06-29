@@ -81,19 +81,19 @@ private
   lemma₁ : (x : Fin n) → ((γ ∧ᶜ η) ⊛ᶜ δ +ᶜ p ·ᶜ η ▷ r) ⟨ x ⟩ PE.≡ 𝟘
              → γ ⟨ x ⟩ PE.≡ 𝟘
   lemma₁ {γ = γ} {η} {δ} {p} {r} x eq =
-    let γ∧η≡𝟘 = ⊛≈𝟘ˡ (PE.trans (PE.sym ((lookup-distrib-⊛ᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r x))) eq)
+    let γ∧η≡𝟘 = ⊛≡𝟘ˡ (PE.trans (PE.sym ((lookup-distrib-⊛ᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r x))) eq)
     in  ∧-positiveˡ (PE.trans (PE.sym (lookup-distrib-∧ᶜ γ η x)) γ∧η≡𝟘)
 
   lemma₂ : (x : Fin n) → ((γ ∧ᶜ η) ⊛ᶜ δ +ᶜ p ·ᶜ η ▷ r) ⟨ x ⟩ PE.≡ 𝟘
              → δ ⟨ x ⟩ PE.≡ 𝟘
   lemma₂ {γ = γ} {η} {δ} {p} {r} x eq =
-    let δ+pη≡𝟘 = ⊛≈𝟘ʳ (PE.trans (PE.sym ((lookup-distrib-⊛ᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r x))) eq)
+    let δ+pη≡𝟘 = ⊛≡𝟘ʳ (PE.trans (PE.sym ((lookup-distrib-⊛ᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r x))) eq)
     in  +-positiveˡ (PE.trans (PE.sym (lookup-distrib-+ᶜ δ (p ·ᶜ η) x)) δ+pη≡𝟘)
 
   lemma₃ : (x : Fin n) → ((γ ∧ᶜ η) ⊛ᶜ δ +ᶜ p ·ᶜ η ▷ r) ⟨ x ⟩ PE.≡ 𝟘
              → η ⟨ x ⟩ PE.≡ 𝟘
   lemma₃ {γ = γ} {η} {δ} {p} {r} x eq =
-    let γ∧η≡𝟘 =  ⊛≈𝟘ˡ (PE.trans (PE.sym ((lookup-distrib-⊛ᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r x))) eq)
+    let γ∧η≡𝟘 =  ⊛≡𝟘ˡ (PE.trans (PE.sym ((lookup-distrib-⊛ᶜ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r x))) eq)
     in  ∧-positiveʳ (PE.trans (PE.sym (lookup-distrib-∧ᶜ γ η x)) γ∧η≡𝟘)
 
 natrecʳ″ : ∀ {l m w} {Γ : Con Term n}
@@ -221,7 +221,7 @@ natrecʳ″
                  {σ′ = T.consSubst (T.consSubst σ′ w′) σnrw′}
                  (([σ] , [m′]) , [nrm′])
                  ( ( σ®σ′ₛ , m′®w′ ◀ _)
-                 , subsumptionTerm nrm′®nrw′ (λ 1≡𝟘 → PE.⊥-elim (𝟙≉𝟘 1≡𝟘))
+                 , subsumptionTerm nrm′®nrw′ (λ 1≡𝟘 → PE.⊥-elim (𝟙≢𝟘 1≡𝟘))
                  )
       s®s″ = irrelevanceTerm′ (PE.trans (substCompEq A)
                               (PE.trans (substVar-to-subst substLem A) (PE.sym (substCompEq A))))
@@ -301,7 +301,7 @@ natrecʳ′
                        [σm] m®w
   in  irrelevanceTerm′ (PE.sym (PE.trans (singleSubstLift A m) (singleSubstComp (m [ σ ]) σ A)))
                        (proj₁ (unwrap [A] ⊢Δ ([σ] , [σm]))) (proj₁ (unwrap [A[m]] ⊢Δ [σ]))
-                       (nr®nr ◀≢𝟘 𝟙≉𝟘)
+                       (nr®nr ◀≢𝟘 𝟙≢𝟘)
 
 natrecʳ : ∀ {l} {Γ : Con Term n}
          → ([Γ] : ⊩ᵛ Γ)

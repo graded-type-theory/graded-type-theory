@@ -36,7 +36,7 @@ open import Tools.Level
 open import Tools.Product
 open import Tools.Unit
 open import Tools.Nat
-open import Tools.PropositionalEquality as PE using (≈-refl)
+import Tools.PropositionalEquality as PE
 
 private
   variable
@@ -388,7 +388,7 @@ mutual
                                        [Γ]₁ [F] [ΠFG]′ [f≡g]′ [a]
                                        [b] [a≡b])
   fundamentalTermEq
-    (β-red {F = F} {G} {t = b} {a} {p = p} {p′ = q} ⊢F ⊢G ⊢b ⊢a p≈p′ ok)
+    (β-red {F = F} {G} {t = b} {a} {p = p} {p′ = q} ⊢F ⊢G ⊢b ⊢a p≡p′ ok)
     with fundamental ⊢F | fundamentalTerm ⊢b | fundamentalTerm ⊢a
   ... | [Γ] , [F] | [Γ]₁ , [G] , [b] | [Γ]₂ , [F]₁ , [a] =
     let [G]′ = S.irrelevance {A = G} [Γ]₁ ([Γ]₂ ∙ [F]₁) [G]
@@ -408,7 +408,7 @@ mutual
                in  PE.subst₂ (λ x y → _ ⊢ lam _ b ∘ a [ σ ] ⇒ x ∷ y)
                              (PE.sym (singleSubstLift b a))
                              (PE.sym (singleSubstLift G a))
-                             (β-red ⊢σF ⊢σG ⊢σb ⊢σa p≈p′ ok))
+                             (β-red ⊢σF ⊢σG ⊢σb ⊢σa p≡p′ ok))
                          [G[a]] [b[a]]
     in  [Γ]₂ , modelsTermEq [G[a]] [lam] [b[a]] [eq]
   fundamentalTermEq (η-eq {F = F} {f = f} {G = G} {g} ⊢F ⊢t ⊢t′ t≡t′)

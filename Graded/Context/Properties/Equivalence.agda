@@ -27,22 +27,22 @@ private
 
 ≈ᶜ-refl : γ ≈ᶜ γ
 ≈ᶜ-refl {γ = ε} = ε
-≈ᶜ-refl {γ = γ ∙ p} = ≈ᶜ-refl ∙ ≈-refl
+≈ᶜ-refl {γ = γ ∙ p} = ≈ᶜ-refl ∙ refl
 
 -- ≈ᶜ is transitive
 -- If γ ≈ᶜ δ and δ ≈ᶜ η then γ ≈ᶜ η
 
 ≈ᶜ-trans : γ ≈ᶜ δ → δ ≈ᶜ η → γ ≈ᶜ η
 ≈ᶜ-trans {γ = ε} {ε} {ε} _ _ = ε
-≈ᶜ-trans {γ = γ ∙ p} {δ ∙ q} {η ∙ r} (γ≈δ ∙ p≈q) (δ≈η ∙ q≈r) =
-  (≈ᶜ-trans γ≈δ δ≈η) ∙ (≈-trans p≈q q≈r)
+≈ᶜ-trans {γ = γ ∙ p} {δ ∙ q} {η ∙ r} (γ≈ᶜδ ∙ p≡q) (δ≈ᶜη ∙ q≡r) =
+  ≈ᶜ-trans γ≈ᶜδ δ≈ᶜη ∙ trans p≡q q≡r
 
 -- ≈ᶜ is symmetric
 -- If γ ≈ᶜ δ and δ ≈ᶜ γ then γ ≈ᶜ δ
 
 ≈ᶜ-sym : γ ≈ᶜ δ → δ ≈ᶜ γ
 ≈ᶜ-sym {γ = ε} {ε} a = ε
-≈ᶜ-sym {γ = γ ∙ p} {δ ∙ q} (γ≈δ ∙ p≈q) = (≈ᶜ-sym γ≈δ) ∙ (≈-sym p≈q)
+≈ᶜ-sym {γ = γ ∙ p} {δ ∙ q} (γ≈ᶜδ ∙ p≡q) = ≈ᶜ-sym γ≈ᶜδ ∙ sym p≡q
 
 -- ≈ᶜ is an equivalence relation
 
@@ -63,15 +63,15 @@ Conₘ-setoid {n} = record
 ≈ᶜ→≡ ε           = refl
 ≈ᶜ→≡ (ps ∙ refl) = cong (_∙ _) (≈ᶜ→≡ ps)
 
--- If _≈_ is decidable (for M), then _≈ᶜ_ is decidable.
+-- If _≡_ is decidable (for M), then _≈ᶜ_ is decidable.
 
-≈ᶜ-decidable : Decidable (_≈_ {A = M}) → Decidable (_≈ᶜ_ {n = n})
-≈ᶜ-decidable _≈?_ = λ where
+≈ᶜ-decidable : Decidable (_≡_ {A = M}) → Decidable (_≈ᶜ_ {n = n})
+≈ᶜ-decidable _≡?_ = λ where
   ε       ε       → yes ε
-  (γ ∙ p) (δ ∙ q) → case p ≈? q of λ where
-    (no p≉q)  → no λ where
-                  (_ ∙ p≈q) → p≉q p≈q
-    (yes p≈q) → case ≈ᶜ-decidable _≈?_ γ δ of λ where
-      (no γ≉δ)  → no λ where
-                    (γ≈δ ∙ _) → γ≉δ γ≈δ
-      (yes γ≈δ) → yes (γ≈δ ∙ p≈q)
+  (γ ∙ p) (δ ∙ q) → case p ≡? q of λ where
+    (no p≢q)  → no λ where
+                  (_ ∙ p≡q) → p≢q p≡q
+    (yes p≡q) → case ≈ᶜ-decidable _≡?_ γ δ of λ where
+      (no γ≉ᶜδ)  → no λ where
+                     (γ≈ᶜδ ∙ _) → γ≉ᶜδ γ≈ᶜδ
+      (yes γ≈ᶜδ) → yes (γ≈ᶜδ ∙ p≡q)

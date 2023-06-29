@@ -34,7 +34,7 @@ open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
-open import Tools.PropositionalEquality as PE using (_≈_; ≈-refl)
+import Tools.PropositionalEquality as PE
 
 private
   variable
@@ -76,13 +76,16 @@ lamᵛ
                         PE.refl
                         (PE.sym (wkSingleSubstId (t [ liftSubst σ ])))
                         [σG] [σG] [σt]
-            β-red′ : ∀ {p′} → p ≈ p′ → _ ⊢ wk1 (lam p (t [ liftSubst σ ])) ∘⟨ p′ ⟩ var x0 ⇒ _ ∷ _
-            β-red′ p≈p′ = PE.subst (λ x → _ ⊢ _ ⇒ _ ∷ x)
+            β-red′ :
+              ∀ {p′} →
+              p PE.≡ p′ →
+              _ ⊢ wk1 (lam p (t [ liftSubst σ ])) ∘⟨ p′ ⟩ var x0 ⇒ _ ∷ _
+            β-red′ p≡p′ = PE.subst (λ x → _ ⊢ _ ⇒ _ ∷ x)
                               (wkSingleSubstId (G [ liftSubst σ ]))
                               (β-red ⊢wk1F ⊢wk1G
                                  (T.wkTerm (lift (step id))
                                     (⊢Δ ∙ ⊢F ∙ ⊢wk1F) ⊢t)
-                                 (var (⊢Δ ∙ ⊢F) here) p≈p′ ok)
+                                 (var (⊢Δ ∙ ⊢F) here) p≡p′ ok)
             _ , Bᵣ F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext _ =
               extractMaybeEmb (Π-elim (proj₁ (unwrap [ΠFG] ⊢Δ [σ])))
         in  Πₜ (lam p (t [ liftSubst σ ]))
@@ -200,13 +203,13 @@ lamᵛ
              σlamt∘a≡σ′lamt∘a : ∀ {ℓ} {ρ : Wk ℓ k} {Δ₁ a p₁ p₂}
                  → ([ρ] : ρ ∷ Δ₁ ⊆ Δ) (⊢Δ₁ : ⊢ Δ₁)
                  → ([a] : Δ₁ ⊩⟨ l ⟩ a ∷ U.wk ρ (F [ σ ]) / [F]′ [ρ] ⊢Δ₁)
-                 → p ≈ p₁
-                 → p ≈ p₂
+                 → p PE.≡ p₁
+                 → p PE.≡ p₂
                  → Δ₁ ⊩⟨ l ⟩ U.wk ρ (lam p t [ σ ]) ∘⟨ p₁ ⟩ a
                            ≡ U.wk ρ (lam p t [ σ′ ]) ∘⟨ p₂ ⟩ a
                            ∷ U.wk (lift ρ) (G [ liftSubst σ ]) [ a ]₀
                            / [G]′ [ρ] ⊢Δ₁ [a]
-             σlamt∘a≡σ′lamt∘a {_} {ρ₁} {Δ₁} {a} ρ ⊢Δ₁ [a] p≈p₁ p≈p₂ =
+             σlamt∘a≡σ′lamt∘a {_} {ρ₁} {Δ₁} {a} ρ ⊢Δ₁ [a] p≡p₁ p≡p₂ =
                 let [ρσ] = wkSubstS [Γ] ⊢Δ ⊢Δ₁ ρ [σ]
                     [ρσ′] = wkSubstS [Γ] ⊢Δ ⊢Δ₁ ρ [σ′]
                     [ρσ≡ρσ′] = wkSubstSEq [Γ] ⊢Δ ⊢Δ₁ ρ [σ] [σ≡σ′]
@@ -279,12 +282,12 @@ lamᵛ
                     ⊢G₂ = escape [G]₂′
                     [σlamt∘a≡σt[a]] = proj₂ $
                                       redSubstTerm
-                                        (β-red ⊢F₁ ⊢G₁ ⊢t ⊢a p≈p₁ ok)
+                                        (β-red ⊢F₁ ⊢G₁ ⊢t ⊢a p≡p₁ ok)
                                         G[a] t[a]
                     [σ′t[a]≡σ′lamt∘a] =
                       convEqTerm₂ G[a] G[a]″ [σG[a]≡σ′G[a]] $
                       symEqTerm G[a]″ $ proj₂ $
-                      redSubstTerm (β-red ⊢F₂ ⊢G₂ ⊢t′ ⊢a′ p≈p₂ ok)
+                      redSubstTerm (β-red ⊢F₂ ⊢G₂ ⊢t′ ⊢a′ p≡p₂ ok)
                         G[a]″ t[a]′
                     [σt[a]≡σ′t[a]] = irrelevanceEqTerm″
                                        (PE.sym (singleSubstWkComp a σ t))

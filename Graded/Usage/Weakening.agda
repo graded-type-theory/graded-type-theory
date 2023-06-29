@@ -67,32 +67,32 @@ wk-𝟘ᶜ (lift ρ) = cong (λ γ → γ ∙ 𝟘) (wk-𝟘ᶜ ρ)
 
 wk-+ᶜ : (ρ : Wk m n) → wkConₘ ρ (γ +ᶜ δ) ≈ᶜ wkConₘ ρ γ +ᶜ wkConₘ ρ δ
 wk-+ᶜ id = ≈ᶜ-refl
-wk-+ᶜ (step ρ) = (wk-+ᶜ ρ) ∙ (≈-sym (+-identityˡ 𝟘))
-wk-+ᶜ {γ = γ ∙ p} {δ ∙ q} (lift ρ) = (wk-+ᶜ ρ) ∙ ≈-refl
+wk-+ᶜ (step ρ) = wk-+ᶜ ρ ∙ PE.sym (+-identityˡ 𝟘)
+wk-+ᶜ {γ = γ ∙ p} {δ ∙ q} (lift ρ) = wk-+ᶜ ρ ∙ refl
 
 -- Weakening of modality contexts distribute over multiplication
 -- wkConₘ ρ (p ·ᶜ γ) ≈ᶜ p ·ᶜ wkConₘ ρ γ
 
 wk-·ᶜ : (ρ : Wk m n) → wkConₘ ρ (p ·ᶜ γ) ≈ᶜ p ·ᶜ wkConₘ ρ γ
 wk-·ᶜ id = ≈ᶜ-refl
-wk-·ᶜ (step ρ) = (wk-·ᶜ ρ) ∙ (≈-sym (·-zeroʳ _))
-wk-·ᶜ {γ = γ ∙ p} (lift ρ) = (wk-·ᶜ ρ) ∙ ≈-refl
+wk-·ᶜ (step ρ) = wk-·ᶜ ρ ∙ PE.sym (·-zeroʳ _)
+wk-·ᶜ {γ = γ ∙ p} (lift ρ) = wk-·ᶜ ρ ∙ refl
 
 -- Weakening of modality contexts distribute over meet
 -- wkConₘ ρ (γ ∧ᶜ δ) ≈ᶜ wkConₘ ρ γ ∧ᶜ wkConₘ ρ δ
 
 wk-∧ᶜ : (ρ : Wk m n) → wkConₘ ρ (γ ∧ᶜ δ) ≈ᶜ wkConₘ ρ γ ∧ᶜ wkConₘ ρ δ
 wk-∧ᶜ id = ≈ᶜ-refl
-wk-∧ᶜ (step ρ) = (wk-∧ᶜ ρ) ∙ (≈-sym (∧-idem 𝟘))
-wk-∧ᶜ {γ = γ ∙ p} {δ ∙ q} (lift ρ) = (wk-∧ᶜ ρ) ∙ ≈-refl
+wk-∧ᶜ (step ρ) = wk-∧ᶜ ρ ∙ PE.sym (∧-idem 𝟘)
+wk-∧ᶜ {γ = γ ∙ p} {δ ∙ q} (lift ρ) = wk-∧ᶜ ρ ∙ refl
 
 -- Weakening of modality contexts distribute over the reccurence operator
 -- wkConₘ ρ (γ ⊛ᵣ δ) ≈ᶜ (wkConₘ ρ γ) ⊛ᵣ (wkConₘ ρ δ)
 
 wk-⊛ᶜ : (ρ : Wk m n) → wkConₘ ρ (γ ⊛ᶜ δ ▷ r) ≈ᶜ (wkConₘ ρ γ) ⊛ᶜ (wkConₘ ρ δ) ▷ r
 wk-⊛ᶜ id = ≈ᶜ-refl
-wk-⊛ᶜ (step ρ) = wk-⊛ᶜ ρ ∙ ≈-sym (⊛-idem-𝟘 _)
-wk-⊛ᶜ {γ = γ ∙ p} {δ ∙ q} (lift ρ) = wk-⊛ᶜ ρ ∙ ≈-refl
+wk-⊛ᶜ (step ρ) = wk-⊛ᶜ ρ ∙ PE.sym (⊛-idem-𝟘 _)
+wk-⊛ᶜ {γ = γ ∙ p} {δ ∙ q} (lift ρ) = wk-⊛ᶜ ρ ∙ refl
 
 -- Weakening of modality contexts is monotone
 -- If γ ≤ᶜ δ then wkConₘ ρ γ ≤ᶜ wkConₘ ρ δ
@@ -188,7 +188,7 @@ wkConₘ⁻¹-monotone {γ = _ ∙ _} {δ = _ ∙ _} (lift ρ) (leq₁ ∙ leq�
 wkConₘ⁻¹-𝟘ᶜ : (ρ : Wk m n) → wkConₘ⁻¹ ρ 𝟘ᶜ ≈ᶜ 𝟘ᶜ
 wkConₘ⁻¹-𝟘ᶜ id       = ≈ᶜ-refl
 wkConₘ⁻¹-𝟘ᶜ (step ρ) = wkConₘ⁻¹-𝟘ᶜ ρ
-wkConₘ⁻¹-𝟘ᶜ (lift ρ) = wkConₘ⁻¹-𝟘ᶜ ρ ∙ ≈-refl
+wkConₘ⁻¹-𝟘ᶜ (lift ρ) = wkConₘ⁻¹-𝟘ᶜ ρ ∙ refl
 
 -- The function wkConₘ⁻¹ ρ commutes with _+ᶜ_.
 
@@ -196,7 +196,7 @@ wkConₘ⁻¹-+ᶜ :
   (ρ : Wk m n) → wkConₘ⁻¹ ρ (γ +ᶜ δ) ≈ᶜ wkConₘ⁻¹ ρ γ +ᶜ wkConₘ⁻¹ ρ δ
 wkConₘ⁻¹-+ᶜ                         id       = ≈ᶜ-refl
 wkConₘ⁻¹-+ᶜ {γ = _ ∙ _} {δ = _ ∙ _} (step ρ) = wkConₘ⁻¹-+ᶜ ρ
-wkConₘ⁻¹-+ᶜ {γ = _ ∙ _} {δ = _ ∙ _} (lift ρ) = wkConₘ⁻¹-+ᶜ ρ ∙ ≈-refl
+wkConₘ⁻¹-+ᶜ {γ = _ ∙ _} {δ = _ ∙ _} (lift ρ) = wkConₘ⁻¹-+ᶜ ρ ∙ refl
 
 -- The function wkConₘ⁻¹ ρ commutes with _∧ᶜ_.
 
@@ -204,7 +204,7 @@ wkConₘ⁻¹-∧ᶜ :
   (ρ : Wk m n) → wkConₘ⁻¹ ρ (γ ∧ᶜ δ) ≈ᶜ wkConₘ⁻¹ ρ γ ∧ᶜ wkConₘ⁻¹ ρ δ
 wkConₘ⁻¹-∧ᶜ                         id       = ≈ᶜ-refl
 wkConₘ⁻¹-∧ᶜ {γ = _ ∙ _} {δ = _ ∙ _} (step ρ) = wkConₘ⁻¹-∧ᶜ ρ
-wkConₘ⁻¹-∧ᶜ {γ = _ ∙ _} {δ = _ ∙ _} (lift ρ) = wkConₘ⁻¹-∧ᶜ ρ ∙ ≈-refl
+wkConₘ⁻¹-∧ᶜ {γ = _ ∙ _} {δ = _ ∙ _} (lift ρ) = wkConₘ⁻¹-∧ᶜ ρ ∙ refl
 
 -- The function wkConₘ⁻¹ ρ commutes with p ·ᶜ_.
 
@@ -212,7 +212,7 @@ wkConₘ⁻¹-·ᶜ :
   (ρ : Wk m n) → wkConₘ⁻¹ ρ (p ·ᶜ γ) ≈ᶜ p ·ᶜ wkConₘ⁻¹ ρ γ
 wkConₘ⁻¹-·ᶜ             id       = ≈ᶜ-refl
 wkConₘ⁻¹-·ᶜ {γ = _ ∙ _} (step ρ) = wkConₘ⁻¹-·ᶜ ρ
-wkConₘ⁻¹-·ᶜ {γ = _ ∙ _} (lift ρ) = wkConₘ⁻¹-·ᶜ ρ ∙ ≈-refl
+wkConₘ⁻¹-·ᶜ {γ = _ ∙ _} (lift ρ) = wkConₘ⁻¹-·ᶜ ρ ∙ refl
 
 -- The function wkConₘ⁻¹ ρ commutes with _⊛ᶜ_▷ r.
 
@@ -221,7 +221,7 @@ wkConₘ⁻¹-⊛ᶜ :
   wkConₘ⁻¹ ρ (γ ⊛ᶜ δ ▷ r) ≈ᶜ wkConₘ⁻¹ ρ γ ⊛ᶜ wkConₘ⁻¹ ρ δ ▷ r
 wkConₘ⁻¹-⊛ᶜ                         id       = ≈ᶜ-refl
 wkConₘ⁻¹-⊛ᶜ {γ = _ ∙ _} {δ = _ ∙ _} (step ρ) = wkConₘ⁻¹-⊛ᶜ ρ
-wkConₘ⁻¹-⊛ᶜ {γ = _ ∙ _} {δ = _ ∙ _} (lift ρ) = wkConₘ⁻¹-⊛ᶜ ρ ∙ ≈-refl
+wkConₘ⁻¹-⊛ᶜ {γ = _ ∙ _} {δ = _ ∙ _} (lift ρ) = wkConₘ⁻¹-⊛ᶜ ρ ∙ refl
 
 -- The function wkConₘ⁻¹ ρ "commutes" in a certain sense with _,_≔_.
 
@@ -230,7 +230,7 @@ wkConₘ⁻¹-,≔ :
 wkConₘ⁻¹-,≔                        id       = ≈ᶜ-refl
 wkConₘ⁻¹-,≔ {γ = _ ∙ _}            (step ρ) = wkConₘ⁻¹-,≔ ρ
 wkConₘ⁻¹-,≔ {γ = _ ∙ _} {x = x0}   (lift ρ) = ≈ᶜ-refl
-wkConₘ⁻¹-,≔ {γ = _ ∙ _} {x = _ +1} (lift ρ) = wkConₘ⁻¹-,≔ ρ ∙ ≈-refl
+wkConₘ⁻¹-,≔ {γ = _ ∙ _} {x = _ +1} (lift ρ) = wkConₘ⁻¹-,≔ ρ ∙ refl
 
 ------------------------------------------------------------------------
 -- Inversion lemmas
@@ -487,8 +487,8 @@ module _
     case wkConₘ-⊛ᶜ _ leq₁ of λ {
       (_ , _ , leq₁ , leq₃ , leq₄) →
     _ , _ , leq₁ ,
-    leq₃ ∙ ≤-reflexive (PE.sym (⊛≈𝟘ˡ (𝟘≮ leq₂))) ,
-    leq₄ ∙ ≤-reflexive (PE.sym (⊛≈𝟘ʳ (𝟘≮ leq₂))) }
+    leq₃ ∙ ≤-reflexive (PE.sym (⊛≡𝟘ˡ (𝟘≮ leq₂))) ,
+    leq₄ ∙ ≤-reflexive (PE.sym (⊛≡𝟘ʳ (𝟘≮ leq₂))) }
   wkConₘ-⊛ᶜ
     {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} (lift ρ) (leq₁ ∙ leq₂) =
     case wkConₘ-⊛ᶜ ρ leq₁ of λ {
@@ -512,26 +512,26 @@ module _
     inj₂ (_ , _ , _ , leq , ≤ᶜ-refl , ≤ᶜ-refl , ≤ᶜ-refl)
   wkConₘ-⊛ᶜ′ {δ = _ ∙ _} {θ = _ ∙ _} {η = η ∙ _}
     (step ρ) (leq₁ ∙ leq₂) =
-    case zero-product (+-positiveʳ (⊛≈𝟘ʳ (𝟘≮ leq₂))) of λ where
+    case zero-product (+-positiveʳ (⊛≡𝟘ʳ (𝟘≮ leq₂))) of λ where
       (inj₂ refl) →
         case wkConₘ-⊛ᶜ′ ρ leq₁ of λ where
           (inj₂ (_ , _ , _ , leq₁ , leq₃ , leq₄ , leq₅)) → inj₂
             (_ , _ , _ , leq₁ ,
              leq₃
                ∙
-             ≤-reflexive (PE.sym (∧-positiveˡ (⊛≈𝟘ˡ (𝟘≮ leq₂)))) ,
+             ≤-reflexive (PE.sym (∧-positiveˡ (⊛≡𝟘ˡ (𝟘≮ leq₂)))) ,
              leq₄
                ∙
-             ≤-reflexive (PE.sym (+-positiveˡ (⊛≈𝟘ʳ (𝟘≮ leq₂)))) ,
+             ≤-reflexive (PE.sym (+-positiveˡ (⊛≡𝟘ʳ (𝟘≮ leq₂)))) ,
              leq₅ ∙ ≤-refl)
           (inj₁ (refl , _ , _ , _ , leq₁ , leq₃ , leq₄ , leq₅)) → inj₁
             (refl , _ , _ , _ , leq₁ ,
              leq₃
                ∙
-             ≤-reflexive (PE.sym (∧-positiveˡ (⊛≈𝟘ˡ (𝟘≮ leq₂)))) ,
+             ≤-reflexive (PE.sym (∧-positiveˡ (⊛≡𝟘ˡ (𝟘≮ leq₂)))) ,
              leq₄
                ∙
-             ≤-reflexive (PE.sym (+-positiveˡ (⊛≈𝟘ʳ (𝟘≮ leq₂)))) ,
+             ≤-reflexive (PE.sym (+-positiveˡ (⊛≡𝟘ʳ (𝟘≮ leq₂)))) ,
              leq₅ ∙ ≤-refl)
       (inj₁ refl) →
         case wkConₘ-⊛ᶜ′ ρ leq₁ of λ where
@@ -539,28 +539,28 @@ module _
             (refl , _ , _ , _ , leq₁ ,
              leq₃
                ∙
-             ≤-reflexive (PE.sym (∧-positiveˡ (⊛≈𝟘ˡ (𝟘≮ leq₂)))) ,
+             ≤-reflexive (PE.sym (∧-positiveˡ (⊛≡𝟘ˡ (𝟘≮ leq₂)))) ,
              (begin
                 wkConₘ ρ (η′ +ᶜ 𝟘 ·ᶜ θ′)  ≡⟨ cong (wkConₘ ρ) (≈ᶜ→≡ (+ᶜ-congˡ (·ᶜ-zeroˡ _))) ⟩
                 wkConₘ ρ (η′ +ᶜ 𝟘ᶜ)       ≡⟨ cong (wkConₘ ρ) (≈ᶜ→≡ (+ᶜ-identityʳ _)) ⟩
                 wkConₘ ρ η′               ≤⟨ leq₄ ⟩
                 η                         ∎)
                ∙
-             ≤-reflexive (PE.sym (+-positiveˡ (⊛≈𝟘ʳ (𝟘≮ leq₂)))) ,
+             ≤-reflexive (PE.sym (+-positiveˡ (⊛≡𝟘ʳ (𝟘≮ leq₂)))) ,
              leq₅
                ∙
-             ≤-reflexive (PE.sym (∧-positiveʳ (⊛≈𝟘ˡ (𝟘≮ leq₂)))))
+             ≤-reflexive (PE.sym (∧-positiveʳ (⊛≡𝟘ˡ (𝟘≮ leq₂)))))
           (inj₁ (_ , _ , _ , _ , leq₁ , leq₃ , leq₄ , leq₅)) → inj₁
             (refl , _ , _ , _ , leq₁ ,
              leq₃
                ∙
-             ≤-reflexive (PE.sym (∧-positiveˡ (⊛≈𝟘ˡ (𝟘≮ leq₂)))) ,
+             ≤-reflexive (PE.sym (∧-positiveˡ (⊛≡𝟘ˡ (𝟘≮ leq₂)))) ,
              leq₄
                ∙
-             ≤-reflexive (PE.sym (+-positiveˡ (⊛≈𝟘ʳ (𝟘≮ leq₂)))) ,
+             ≤-reflexive (PE.sym (+-positiveˡ (⊛≡𝟘ʳ (𝟘≮ leq₂)))) ,
              leq₅
                ∙
-             ≤-reflexive (PE.sym (∧-positiveʳ (⊛≈𝟘ˡ (𝟘≮ leq₂)))))
+             ≤-reflexive (PE.sym (∧-positiveʳ (⊛≡𝟘ˡ (𝟘≮ leq₂)))))
     where
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
   wkConₘ-⊛ᶜ′

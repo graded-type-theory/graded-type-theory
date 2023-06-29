@@ -30,7 +30,7 @@ open import Definition.LogicalRelation.Substitution.Introductions.Empty R
 open import Tools.Product
 open import Tools.Nat
 
-open import Tools.PropositionalEquality as PE using (_≈_; ≈-refl)
+import Tools.PropositionalEquality as PE
 
 private
   variable

@@ -322,7 +322,7 @@ module hasX (R : Usage-restrictions) where
   erased-hasX erased (_∘ₘ_ {γ = γ} {δ = δ} {_} γ▸t δ▸u) (∘ₓʳ hasX)
     | no p≢𝟘 =
     erased-hasX (x◂𝟘∈pγ 𝟘-wb refl p≢𝟘 (x◂𝟘∈γ+δʳ 𝟘-wb refl erased))
-                (▸-cong (≉𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) δ▸u) hasX
+                (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) δ▸u) hasX
 
   erased-hasX erased (prodᵣₘ {γ = γ} {p = p} {δ = δ} _ δ▸) hasX
     with is-𝟘? p
@@ -340,7 +340,7 @@ module hasX (R : Usage-restrictions) where
   erased-hasX erased (prodᵣₘ {γ = γ} {p = _} {δ = δ} γ▸ _) (prodₓˡ hasX)
     | no p≢𝟘 =
     erased-hasX (x◂𝟘∈pγ 𝟘-wb refl p≢𝟘 (x◂𝟘∈γ+δˡ 𝟘-wb refl erased))
-                (▸-cong (≉𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸) hasX
+                (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸) hasX
   erased-hasX erased (prodᵣₘ {γ = γ} {p = _} {δ = δ} _ δ▸) (prodₓʳ hasX)
     | no _ =
     erased-hasX (x◂𝟘∈γ+δʳ 𝟘-wb refl erased) δ▸ hasX
@@ -351,7 +351,7 @@ module hasX (R : Usage-restrictions) where
   erased-hasX erased (prodₚₘ {γ = γ} {p = p} {δ = δ} γ▸ _) (prodₓˡ hasX)
     | no p≢𝟘 =
     erased-hasX (x◂𝟘∈pγ 𝟘-wb refl p≢𝟘 (x◂𝟘∈γ∧δˡ 𝟘-wb refl erased))
-                (▸-cong (≉𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸) hasX
+                (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸) hasX
   erased-hasX erased (prodₚₘ {γ = γ} {p = _} {δ = δ} _ δ▸) (prodₓʳ hasX)
     | no p≢𝟘 =
     erased-hasX erased (sub δ▸ (∧ᶜ-decreasingʳ _ _)) hasX
@@ -360,7 +360,7 @@ module hasX (R : Usage-restrictions) where
   erased-hasX erased (fstₘ {p = _} _ _ _ _) () | yes _
   erased-hasX erased (fstₘ {p = _} 𝟘ᵐ _ () _) (fstₓ hasX) | no _
   erased-hasX erased (fstₘ {p = _} 𝟙ᵐ γ▸ _ _) (fstₓ hasX) | no p≢𝟘 =
-    erased-hasX erased (▸-cong (≉𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸) hasX
+    erased-hasX erased (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸) hasX
 
 
   erased-hasX erased (sndₘ {p = p} γ▸) hasX with is-𝟘? p
@@ -380,14 +380,14 @@ module hasX (R : Usage-restrictions) where
   erased-hasX erased (prodrecₘ ▸t ▸u _ _)
               (prodrecₓˡ (prodₓʳ hasX)) | no r≢𝟘 | yes _ =
     erased-hasX (x◂𝟘∈pγ 𝟘-wb refl r≢𝟘 (x◂𝟘∈γ+δˡ 𝟘-wb refl erased))
-                (▸-cong (≉𝟘→⌞⌟≡𝟙ᵐ r≢𝟘) ▸t) hasX
+                (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ r≢𝟘) ▸t) hasX
   erased-hasX erased (prodrecₘ ▸t ▸u _ _) (prodrecₓʳ hasX)
     | no _ | yes _ =
     erased-hasX (there (there (x◂𝟘∈γ+δʳ 𝟘-wb refl erased))) ▸u hasX
   erased-hasX erased (prodrecₘ ▸t ▸u _ _) (prodrecₓˡ hasX)
     | no r≢𝟘 | no _ =
     erased-hasX (x◂𝟘∈pγ 𝟘-wb refl r≢𝟘 (x◂𝟘∈γ+δˡ 𝟘-wb refl erased))
-                (▸-cong (≉𝟘→⌞⌟≡𝟙ᵐ r≢𝟘) ▸t) hasX
+                (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ r≢𝟘) ▸t) hasX
   erased-hasX erased (prodrecₘ ▸t ▸u _ _) (prodrecₓʳ hasX)
     | no _ | no _ =
     erased-hasX (there (there (x◂𝟘∈γ+δʳ 𝟘-wb refl erased))) ▸u hasX

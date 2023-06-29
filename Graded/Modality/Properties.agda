@@ -25,4 +25,4 @@ open import Tools.Bool
 module _ (ok : T 𝟘ᵐ-allowed) where
   open import Graded.Modality.Properties.Has-well-behaved-zero
     semiring-with-meet-and-star (𝟘-well-behaved ok) public
-    renaming (𝟙≉𝟘 to 𝟘ᵐ→𝟙≉𝟘)
+    renaming (𝟙≢𝟘 to 𝟘ᵐ→𝟙≢𝟘)

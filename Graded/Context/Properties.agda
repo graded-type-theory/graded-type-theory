@@ -14,7 +14,7 @@ open import Graded.Context 𝕄
 
 open import Tools.Algebra M
 open import Tools.Nat renaming (_+_ to _+ⁿ_)
-open import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality
 import Tools.Reasoning.Equivalence
 
 open import Graded.Context.Properties.Addition 𝕄 public
@@ -58,31 +58,31 @@ private
 -- tailₘ (γ ∧ᶜ δ) ≡ tailₘ γ ∧ᶜ tailₘ δ
 
 tailₘ-distrib-∧ᶜ : (γ δ : Conₘ (1+ n)) → tailₘ (γ ∧ᶜ δ) ≡ (tailₘ γ) ∧ᶜ (tailₘ δ)
-tailₘ-distrib-∧ᶜ (ε ∙ p) (ε ∙ q) = PE.refl
+tailₘ-distrib-∧ᶜ (ε ∙ p) (ε ∙ q) = refl
 tailₘ-distrib-∧ᶜ (γ ∙ p′ ∙ p) (δ ∙ q′ ∙ q) = cong (_∙ _) (tailₘ-distrib-∧ᶜ (γ ∙ p) (δ ∙ q))
 
 -- headₘ distributes over meet
 -- headₘ (γ ∧ᶜ δ) ≡ headₘ γ ∧ headₘ δ
 
 head-distrib-∧ : (γ δ : Conₘ (1+ n)) → headₘ (γ ∧ᶜ δ) ≡ (headₘ γ) ∧ (headₘ δ)
-head-distrib-∧ (γ ∙ p) (δ ∙ q) = PE.refl
+head-distrib-∧ (γ ∙ p) (δ ∙ q) = refl
 
 -- The headₘ and tailₘ functions correctly give the head and tail of the context
 -- tailₘ γ ∙ headₘ γ ≡ γ
 
 headₘ-tailₘ-correct : (γ : Conₘ (1+ n)) → tailₘ γ ∙ headₘ γ ≡ γ
-headₘ-tailₘ-correct (γ ∙ p) = PE.refl
+headₘ-tailₘ-correct (γ ∙ p) = refl
 
 -- Congruence of tailₘ
 -- If γ ≈ᶜ δ then tailₘ γ ≈ᶜ tailₘ δ
 
 tailₘ-cong : {γ δ : Conₘ (1+ n)} → γ ≈ᶜ δ → tailₘ γ ≈ᶜ tailₘ δ
-tailₘ-cong (γ≈δ ∙ p≈q) = γ≈δ
+tailₘ-cong (γ≈ᶜδ ∙ _) = γ≈ᶜδ
 
 -- Congruence for headₘ.
 
-headₘ-cong : {γ δ : Conₘ (1+ n)} → γ ≈ᶜ δ → headₘ γ ≈ headₘ δ
-headₘ-cong (γ≈δ ∙ p≈q) = p≈q
+headₘ-cong : {γ δ : Conₘ (1+ n)} → γ ≈ᶜ δ → headₘ γ ≡ headₘ δ
+headₘ-cong (_ ∙ p≡q) = p≡q
 
 -- tailₘ is monotone
 -- If γ ≤ᶜ δ then tailₘ γ ≤ᶜ tailₘ δ
@@ -97,25 +97,25 @@ headₘ-monotone : {γ δ : Conₘ (1+ n)} → γ ≤ᶜ δ → headₘ γ ≤ h
 headₘ-monotone {γ = γ ∙ p} {δ ∙ q} (γ≤δ ∙ p≤q) = p≤q
 
 ------------------------------------------------------------------------
--- Properties that hold if 𝟙 ≈ 𝟘
+-- Properties that hold if 𝟙 ≡ 𝟘
 
--- If 𝟙 ≈ 𝟘, then every vector is equal to 𝟘ᶜ.
+-- If 𝟙 ≡ 𝟘, then every vector is equal to 𝟘ᶜ.
 
-≈ᶜ𝟘ᶜ : 𝟙 ≈ 𝟘 → γ ≈ᶜ 𝟘ᶜ
-≈ᶜ𝟘ᶜ {γ = γ} 𝟙≈𝟘 = begin
+≈ᶜ𝟘ᶜ : 𝟙 ≡ 𝟘 → γ ≈ᶜ 𝟘ᶜ
+≈ᶜ𝟘ᶜ {γ = γ} 𝟙≡𝟘 = begin
   γ       ≈˘⟨ ·ᶜ-identityˡ _ ⟩
-  𝟙 ·ᶜ γ  ≈⟨ ·ᶜ-congʳ 𝟙≈𝟘 ⟩
+  𝟙 ·ᶜ γ  ≈⟨ ·ᶜ-congʳ 𝟙≡𝟘 ⟩
   𝟘 ·ᶜ γ  ≈⟨ ·ᶜ-zeroˡ _ ⟩
   𝟘ᶜ      ∎
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
 
--- If 𝟙 ≈ 𝟘, then _≈ᶜ_ is trivial.
+-- If 𝟙 ≡ 𝟘, then _≈ᶜ_ is trivial.
 
-≈ᶜ-trivial : 𝟙 ≈ 𝟘 → γ ≈ᶜ δ
-≈ᶜ-trivial {γ = γ} {δ = δ} 𝟙≈𝟘 = begin
-  γ   ≈⟨ ≈ᶜ𝟘ᶜ 𝟙≈𝟘 ⟩
-  𝟘ᶜ  ≈˘⟨ ≈ᶜ𝟘ᶜ 𝟙≈𝟘 ⟩
+≈ᶜ-trivial : 𝟙 ≡ 𝟘 → γ ≈ᶜ δ
+≈ᶜ-trivial {γ = γ} {δ = δ} 𝟙≡𝟘 = begin
+  γ   ≈⟨ ≈ᶜ𝟘ᶜ 𝟙≡𝟘 ⟩
+  𝟘ᶜ  ≈˘⟨ ≈ᶜ𝟘ᶜ 𝟙≡𝟘 ⟩
   δ   ∎
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
@@ -124,7 +124,7 @@ headₘ-monotone {γ = γ ∙ p} {δ ∙ q} (γ≤δ ∙ p≤q) = p≤q
 
 Conₘ-preSemimodule : ∀ {n} → IsPreleftSemimodule +-·-Semiring′ _≡_ _+ᶜ_ (𝟘ᶜ {n}) _·ᶜ_
 Conₘ-preSemimodule = record
-  { *ₗ-cong = PE.cong₂ _·ᶜ_
+  { *ₗ-cong = cong₂ _·ᶜ_
   ; *ₗ-zeroˡ = λ γ → ≈ᶜ→≡ (·ᶜ-zeroˡ γ)
   ; *ₗ-distribʳ = λ γ p q → ≈ᶜ→≡ (·ᶜ-distribʳ-+ᶜ p q γ)
   ; *ₗ-identityˡ = λ γ → ≈ᶜ→≡ (·ᶜ-identityˡ γ)

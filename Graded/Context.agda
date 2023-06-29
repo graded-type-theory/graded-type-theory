@@ -38,7 +38,7 @@ data Conₘ : Nat → Set a where
 
 data _≈ᶜ_ : (γ δ : Conₘ n) → Set a where
   ε : ε ≈ᶜ ε
-  _∙_ : {γ δ : Conₘ n} {p q : M} → γ ≈ᶜ δ → p ≈ q → (γ ∙ p) ≈ᶜ (δ ∙ q)
+  _∙_ : {γ δ : Conₘ n} {p q : M} → γ ≈ᶜ δ → p ≡ q → (γ ∙ p) ≈ᶜ (δ ∙ q)
 
 
 headₘ : (γ : Conₘ (1+ n)) → M

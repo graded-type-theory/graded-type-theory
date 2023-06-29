@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------
 -- A star-semiring with a unary operator _* satisfying
--- p * ≈ 𝟙 + p p*
+-- p * ≡ 𝟙 + p p*
 -- and p* ≤ 𝟘 or p* ≤ 𝟙 for all p is a modality instance.
 ------------------------------------------------------------------------
 
@@ -76,8 +76,8 @@ p ⊛ q ▷ r = (r *) · (p ∧ q)
   where
   open Tools.Reasoning.PartialOrder ≤-poset
 
-⊛-cong : p ≈ p′ → q ≈ q′ → r ≈ r′ → p ⊛ q ▷ r ≈ p′ ⊛ q′ ▷ r′
-⊛-cong p≈p′ q≈q′ r≈r′ = ·-cong (cong _* r≈r′) (∧-cong p≈p′ q≈q′)
+⊛-cong : p ≡ p′ → q ≡ q′ → r ≡ r′ → p ⊛ q ▷ r ≡ p′ ⊛ q′ ▷ r′
+⊛-cong p≡p′ q≡q′ r≡r′ = ·-cong (cong _* r≡r′) (∧-cong p≡p′ q≡q′)
 
 +-sub-interchangeable-⊛ : (r : M) → _+_ SubInterchangeable _⊛_▷ r by _≤_
 +-sub-interchangeable-⊛ r p q p′ q′ = begin

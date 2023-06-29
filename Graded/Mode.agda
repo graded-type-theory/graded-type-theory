@@ -20,7 +20,6 @@ open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 open import Tools.Unit
-import Tools.Reasoning.Equivalence
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
 open import Tools.Sum
@@ -257,7 +256,7 @@ Mode-propositional-without-𝟘ᵐ {m₁ = m₁} {m₂ = m₂} not-ok =
 
 Mode-propositional-if-𝟙≡𝟘 : 𝟙 ≡ 𝟘 → m₁ ≡ m₂
 Mode-propositional-if-𝟙≡𝟘 𝟙≡𝟘 =
-  Mode-propositional-without-𝟘ᵐ (flip 𝟘ᵐ→𝟙≉𝟘 𝟙≡𝟘)
+  Mode-propositional-without-𝟘ᵐ (flip 𝟘ᵐ→𝟙≢𝟘 𝟙≡𝟘)
 
 ------------------------------------------------------------------------
 -- Properties related to 𝟘ᵐ?
@@ -419,43 +418,43 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
 
 -- ⌜_⌝ commutes with _·_/_·ᵐ_.
 
-⌜·ᵐ⌝ : ∀ m₁ → ⌜ m₁ ·ᵐ m₂ ⌝ ≈ ⌜ m₁ ⌝ · ⌜ m₂ ⌝
+⌜·ᵐ⌝ : ∀ m₁ → ⌜ m₁ ·ᵐ m₂ ⌝ ≡ ⌜ m₁ ⌝ · ⌜ m₂ ⌝
 ⌜·ᵐ⌝ {m₂ = m₂} 𝟘ᵐ = begin
-  𝟘           ≈˘⟨ ·-zeroˡ _ ⟩
+  𝟘           ≡˘⟨ ·-zeroˡ _ ⟩
   𝟘 · ⌜ m₂ ⌝  ∎
   where
-  open Tools.Reasoning.Equivalence (setoid M)
+  open Tools.Reasoning.PropositionalEquality
 ⌜·ᵐ⌝ {m₂ = m₂} 𝟙ᵐ = begin
-  ⌜ m₂ ⌝      ≈˘⟨ ·-identityˡ _ ⟩
+  ⌜ m₂ ⌝      ≡˘⟨ ·-identityˡ _ ⟩
   𝟙 · ⌜ m₂ ⌝  ∎
   where
-  open Tools.Reasoning.Equivalence (setoid M)
+  open Tools.Reasoning.PropositionalEquality
 
 -- A form of commutativity.
 
-⌜⌝-·-comm : ∀ m → ⌜ m ⌝ · p ≈ p · ⌜ m ⌝
+⌜⌝-·-comm : ∀ m → ⌜ m ⌝ · p ≡ p · ⌜ m ⌝
 ⌜⌝-·-comm {p = p} 𝟘ᵐ = begin
-  𝟘 · p  ≈⟨ ·-zeroˡ _ ⟩
-  𝟘      ≈˘⟨ ·-zeroʳ _ ⟩
+  𝟘 · p  ≡⟨ ·-zeroˡ _ ⟩
+  𝟘      ≡˘⟨ ·-zeroʳ _ ⟩
   p · 𝟘  ∎
   where
-  open Tools.Reasoning.Equivalence (setoid M)
+  open Tools.Reasoning.PropositionalEquality
 ⌜⌝-·-comm {p = p} 𝟙ᵐ = begin
-  𝟙 · p  ≈⟨ ·-identityˡ _ ⟩
-  p      ≈˘⟨ ·-identityʳ _ ⟩
+  𝟙 · p  ≡⟨ ·-identityˡ _ ⟩
+  p      ≡˘⟨ ·-identityʳ _ ⟩
   p · 𝟙  ∎
   where
-  open Tools.Reasoning.Equivalence (setoid M)
+  open Tools.Reasoning.PropositionalEquality
 
 -- A form of associativity.
 
-·ᵐ-·-assoc : ∀ m₁ → ⌜ m₁ ·ᵐ m₂ ⌝ · p ≈ ⌜ m₁ ⌝ · ⌜ m₂ ⌝ · p
+·ᵐ-·-assoc : ∀ m₁ → ⌜ m₁ ·ᵐ m₂ ⌝ · p ≡ ⌜ m₁ ⌝ · ⌜ m₂ ⌝ · p
 ·ᵐ-·-assoc {m₂ = m₂} {p = p} m₁ = begin
-  ⌜ m₁ ·ᵐ m₂ ⌝ · p       ≈⟨ ·-congʳ (⌜·ᵐ⌝ m₁) ⟩
-  (⌜ m₁ ⌝ · ⌜ m₂ ⌝) · p  ≈⟨ ·-assoc _ _ _ ⟩
+  ⌜ m₁ ·ᵐ m₂ ⌝ · p       ≡⟨ ·-congʳ (⌜·ᵐ⌝ m₁) ⟩
+  (⌜ m₁ ⌝ · ⌜ m₂ ⌝) · p  ≡⟨ ·-assoc _ _ _ ⟩
   ⌜ m₁ ⌝ · ⌜ m₂ ⌝ · p    ∎
   where
-  open Tools.Reasoning.Equivalence (setoid M)
+  open Tools.Reasoning.PropositionalEquality
 
 -- A form of associativity.
 
@@ -466,18 +465,18 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
 -- ⌜ m ⌝ ·_ distributes over _⊛_▷ r from the left.
 
 ⌜⌝-·-distribˡ-⊛ :
-  ∀ m → ⌜ m ⌝ · p ⊛ q ▷ r ≈ (⌜ m ⌝ · p) ⊛ ⌜ m ⌝ · q ▷ r
+  ∀ m → ⌜ m ⌝ · p ⊛ q ▷ r ≡ (⌜ m ⌝ · p) ⊛ ⌜ m ⌝ · q ▷ r
 ⌜⌝-·-distribˡ-⊛ {p = p} {q = q} {r = r} 𝟙ᵐ = begin
-  𝟙 · p ⊛ q ▷ r        ≈⟨ ·-identityˡ _ ⟩
-  p ⊛ q ▷ r            ≈˘⟨ ⊛ᵣ-cong (·-identityˡ _) (·-identityˡ _) ⟩
+  𝟙 · p ⊛ q ▷ r        ≡⟨ ·-identityˡ _ ⟩
+  p ⊛ q ▷ r            ≡˘⟨ ⊛ᵣ-cong (·-identityˡ _) (·-identityˡ _) ⟩
   (𝟙 · p) ⊛ 𝟙 · q ▷ r  ∎
   where
-  open Tools.Reasoning.Equivalence (setoid M)
+  open Tools.Reasoning.PropositionalEquality
 ⌜⌝-·-distribˡ-⊛ {p = p} {q = q} {r = r} 𝟘ᵐ =
-  let open Tools.Reasoning.Equivalence (setoid M) in begin
-  𝟘 · p ⊛ q ▷ r        ≈⟨ ·-zeroˡ _ ⟩
-  𝟘                    ≈˘⟨ ⊛-idem-𝟘 _ ⟩
-  𝟘 ⊛ 𝟘 ▷ r            ≈˘⟨ ⊛ᵣ-cong (·-zeroˡ _) (·-zeroˡ _) ⟩
+  let open Tools.Reasoning.PropositionalEquality in begin
+  𝟘 · p ⊛ q ▷ r        ≡⟨ ·-zeroˡ _ ⟩
+  𝟘                    ≡˘⟨ ⊛-idem-𝟘 _ ⟩
+  𝟘 ⊛ 𝟘 ▷ r            ≡˘⟨ ⊛ᵣ-cong (·-zeroˡ _) (·-zeroˡ _) ⟩
   (𝟘 · p) ⊛ 𝟘 · q ▷ r  ∎
 
 -- ⌜ m ⌝ ·ᶜ_ distributes over _⊛ᶜ_▷ r from the left.
@@ -496,8 +495,8 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
 
 -- If 𝟘ᵐ is allowed, then ⌜ 𝟘ᵐ? ⌝ is equal to 𝟘.
 
-⌜𝟘ᵐ?⌝≈𝟘 : T 𝟘ᵐ-allowed → ⌜ 𝟘ᵐ? ⌝ ≡ 𝟘
-⌜𝟘ᵐ?⌝≈𝟘 ok =
+⌜𝟘ᵐ?⌝≡𝟘 : T 𝟘ᵐ-allowed → ⌜ 𝟘ᵐ? ⌝ ≡ 𝟘
+⌜𝟘ᵐ?⌝≡𝟘 ok =
   ⌜ 𝟘ᵐ? ⌝       ≡⟨ cong ⌜_⌝ (𝟘ᵐ?≡𝟘ᵐ {ok = ok}) ⟩
   ⌜ 𝟘ᵐ[ ok ] ⌝  ≡⟨⟩
   𝟘             ∎
@@ -509,15 +508,15 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
 
 -- The function ⌞_⌟ preserves "equality".
 
-⌞⌟-cong : p ≈ q → ⌞ p ⌟ ≡ ⌞ q ⌟
+⌞⌟-cong : p ≡ q → ⌞ p ⌟ ≡ ⌞ q ⌟
 ⌞⌟-cong refl = refl
 
 -- The function ⌞_⌟ᶜ preserves "equality".
 
 ⌞⌟ᶜ-cong : γ ≈ᶜ δ → ∀ x → ⌞ γ ⌟ᶜ x ≡ ⌞ δ ⌟ᶜ x
-⌞⌟ᶜ-cong (γ≈δ ∙ p≈q) = λ where
-  x0     → ⌞⌟-cong p≈q
-  (x +1) → ⌞⌟ᶜ-cong γ≈δ x
+⌞⌟ᶜ-cong (γ≈ᶜδ ∙ p≡q) = λ where
+  x0     → ⌞⌟-cong p≡q
+  (x +1) → ⌞⌟ᶜ-cong γ≈ᶜδ x
 
 -- ⌞ 𝟘 ⌟ is equal to 𝟘ᵐ[ ok ].
 
@@ -537,8 +536,8 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
 
 -- If p is equal to 𝟘, then ⌞ p ⌟ is equal to 𝟘ᵐ[ ok ].
 
-≈𝟘→⌞⌟≡𝟘ᵐ : p ≈ 𝟘 → ⌞ p ⌟ ≡ 𝟘ᵐ[ ok ]
-≈𝟘→⌞⌟≡𝟘ᵐ refl = ⌞𝟘⌟
+≡𝟘→⌞⌟≡𝟘ᵐ : p ≡ 𝟘 → ⌞ p ⌟ ≡ 𝟘ᵐ[ ok ]
+≡𝟘→⌞⌟≡𝟘ᵐ refl = ⌞𝟘⌟
 
 -- ⌞ 𝟘 ⌟ is equal to 𝟘ᵐ?.
 
@@ -550,13 +549,13 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
 
 -- If p is equal to 𝟘, then ⌞ p ⌟ is equal to 𝟘ᵐ?.
 
-≈𝟘→⌞⌟≡𝟘ᵐ? : p ≈ 𝟘 → ⌞ p ⌟ ≡ 𝟘ᵐ?
-≈𝟘→⌞⌟≡𝟘ᵐ? refl = ⌞𝟘⌟≡𝟘ᵐ?
+≡𝟘→⌞⌟≡𝟘ᵐ? : p ≡ 𝟘 → ⌞ p ⌟ ≡ 𝟘ᵐ?
+≡𝟘→⌞⌟≡𝟘ᵐ? refl = ⌞𝟘⌟≡𝟘ᵐ?
 
 -- If ⌞ p ⌟ is equal to 𝟘ᵐ[ ok ], then p is equal to 𝟘.
 
-⌞⌟≡𝟘ᵐ→≈𝟘 : ⌞ p ⌟ ≡ 𝟘ᵐ[ ok ] → p ≈ 𝟘
-⌞⌟≡𝟘ᵐ→≈𝟘 {p = p} = lemma _ refl
+⌞⌟≡𝟘ᵐ→≡𝟘 : ⌞ p ⌟ ≡ 𝟘ᵐ[ ok ] → p ≡ 𝟘
+⌞⌟≡𝟘ᵐ→≡𝟘 {p = p} = lemma _ refl
   where
   lemma :
     ∀ b (eq : b ≡ 𝟘ᵐ-allowed) →
@@ -571,8 +570,8 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
 
 -- If p is not equal to 𝟘, then ⌞ p ⌟ is equal to 𝟙ᵐ.
 
-≉𝟘→⌞⌟≡𝟙ᵐ : p ≉ 𝟘 → ⌞ p ⌟ ≡ 𝟙ᵐ
-≉𝟘→⌞⌟≡𝟙ᵐ {p = p} p≉𝟘 = lemma _ refl
+≢𝟘→⌞⌟≡𝟙ᵐ : p ≢ 𝟘 → ⌞ p ⌟ ≡ 𝟙ᵐ
+≢𝟘→⌞⌟≡𝟙ᵐ {p = p} p≢𝟘 = lemma _ refl
   where
   lemma :
     ∀ b (eq : b ≡ 𝟘ᵐ-allowed) →
@@ -583,13 +582,13 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
   lemma false refl = refl
   lemma true  refl with is-𝟘? tt p
   … | no _    = refl
-  … | yes p≈𝟘 = ⊥-elim (p≉𝟘 p≈𝟘)
+  … | yes p≡𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
 
 -- If 𝟘ᵐ is allowed and ⌞ p ⌟ is equal to 𝟙ᵐ, then p is not equal to
 -- 𝟘.
 
-⌞⌟≡𝟙ᵐ→≉𝟘 : T 𝟘ᵐ-allowed → ⌞ p ⌟ ≡ 𝟙ᵐ → p ≉ 𝟘
-⌞⌟≡𝟙ᵐ→≉𝟘 {p = p} ok = lemma _ refl
+⌞⌟≡𝟙ᵐ→≢𝟘 : T 𝟘ᵐ-allowed → ⌞ p ⌟ ≡ 𝟙ᵐ → p ≢ 𝟘
+⌞⌟≡𝟙ᵐ→≢𝟘 {p = p} ok = lemma _ refl
   where
   lemma :
     ∀ b (eq : b ≡ 𝟘ᵐ-allowed) →
@@ -607,13 +606,13 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
 
 ⌞𝟙⌟ : ⌞ 𝟙 ⌟ ≡ 𝟙ᵐ
 ⌞𝟙⌟ = 𝟘ᵐ-allowed-elim
-  (λ ok → ≉𝟘→⌞⌟≡𝟙ᵐ (𝟘ᵐ→𝟙≉𝟘 ok))
+  (λ ok → ≢𝟘→⌞⌟≡𝟙ᵐ (𝟘ᵐ→𝟙≢𝟘 ok))
   only-𝟙ᵐ-without-𝟘ᵐ
 
 -- The function taking p to ⌜ ⌞ p ⌟ ⌝ preserves equivalence.
 
-⌜⌞⌟⌝-cong : p ≈ q → ⌜ ⌞ p ⌟ ⌝ ≈ ⌜ ⌞ q ⌟ ⌝
-⌜⌞⌟⌝-cong p≈q = ≈-reflexive (cong ⌜_⌝ (⌞⌟-cong p≈q))
+⌜⌞⌟⌝-cong : p ≡ q → ⌜ ⌞ p ⌟ ⌝ ≡ ⌜ ⌞ q ⌟ ⌝
+⌜⌞⌟⌝-cong p≡q = cong ⌜_⌝ (⌞⌟-cong p≡q)
 
 -- If 𝟙 ≤ 𝟘, then the function taking p to ⌜ ⌞ p ⌟ ⌝ is monotone.
 
@@ -625,8 +624,8 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
   lemma 𝟙ᵐ       𝟙ᵐ _      _      = ≤-refl
   lemma 𝟙ᵐ       𝟘ᵐ _      _      = 𝟙≤𝟘
   lemma 𝟘ᵐ[ ok ] 𝟙ᵐ ⌞p⌟≡𝟘ᵐ ⌞q⌟≡𝟙ᵐ =
-    ⊥-elim (⌞⌟≡𝟙ᵐ→≉𝟘 ok ⌞q⌟≡𝟙ᵐ (𝟘≮ ok (begin
-      𝟘  ≈˘⟨ ⌞⌟≡𝟘ᵐ→≈𝟘 ⌞p⌟≡𝟘ᵐ ⟩
+    ⊥-elim (⌞⌟≡𝟙ᵐ→≢𝟘 ok ⌞q⌟≡𝟙ᵐ (𝟘≮ ok (begin
+      𝟘  ≈˘⟨ ⌞⌟≡𝟘ᵐ→≡𝟘 ⌞p⌟≡𝟘ᵐ ⟩
       p  ≤⟨ p≤q ⟩
       q  ∎)))
     where
@@ -634,7 +633,7 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
 
 -- The value p · ⌜ ⌞ p ⌟ ⌝ is equal to p.
 
-·⌜⌞⌟⌝ : p · ⌜ ⌞ p ⌟ ⌝ ≈ p
+·⌜⌞⌟⌝ : p · ⌜ ⌞ p ⌟ ⌝ ≡ p
 ·⌜⌞⌟⌝ {p = p} = lemma _ refl
   where
   open Tools.Reasoning.PropositionalEquality
@@ -645,7 +644,7 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
     p      ∎
   lemma 𝟘ᵐ ⌞p⌟≡𝟘ᵐ =
     p · 𝟘  ≡⟨ ·-zeroʳ _ ⟩
-    𝟘      ≡˘⟨ ⌞⌟≡𝟘ᵐ→≈𝟘 ⌞p⌟≡𝟘ᵐ ⟩
+    𝟘      ≡˘⟨ ⌞⌟≡𝟘ᵐ→≡𝟘 ⌞p⌟≡𝟘ᵐ ⟩
     p      ∎
 
 -- The function ⌞_⌟ is a left inverse of ⌜_⌝.
@@ -699,7 +698,7 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
       (𝟙ᵐ ≡ 𝟙ᵐ → A)             →⟨ inj₁ ∘→ (_$ refl) ⟩
       A ⊎ T 𝟘ᵐ-allowed × p ≡ 𝟘  □
     𝟘ᵐ[ ok ] → flip λ _ →
-      ⌞ p ⌟ ≡ 𝟘ᵐ                →⟨ inj₂ ∘→ (ok ,_) ∘→ ⌞⌟≡𝟘ᵐ→≈𝟘 ⟩
+      ⌞ p ⌟ ≡ 𝟘ᵐ                →⟨ inj₂ ∘→ (ok ,_) ∘→ ⌞⌟≡𝟘ᵐ→≡𝟘 ⟩
       A ⊎ T 𝟘ᵐ-allowed × p ≡ 𝟘  □
 
 ------------------------------------------------------------------------
@@ -707,7 +706,7 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
 
 -- The function m ᵐ·_ preserves "equality".
 
-ᵐ·-cong : ∀ m → p ≈ q → m ᵐ· p ≡ m ᵐ· q
+ᵐ·-cong : ∀ m → p ≡ q → m ᵐ· p ≡ m ᵐ· q
 ᵐ·-cong 𝟘ᵐ = λ _ → PE.refl
 ᵐ·-cong 𝟙ᵐ = ⌞⌟-cong
 
@@ -738,7 +737,7 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
   lemma 𝟘ᵐ _ _ ⌞p⌟≡𝟘ᵐ _ refl =
     𝟘ᵐ         ≡˘⟨ ⌞𝟘⌟ ⟩
     ⌞ 𝟘 ⌟      ≡˘⟨ cong ⌞_⌟ (·-zeroˡ _) ⟩
-    ⌞ 𝟘 · q ⌟  ≡˘⟨ cong (λ p → ⌞ p · _ ⌟) (⌞⌟≡𝟘ᵐ→≈𝟘 ⌞p⌟≡𝟘ᵐ) ⟩
+    ⌞ 𝟘 · q ⌟  ≡˘⟨ cong (λ p → ⌞ p · _ ⌟) (⌞⌟≡𝟘ᵐ→≡𝟘 ⌞p⌟≡𝟘ᵐ) ⟩
     ⌞ p · q ⌟  ∎
   lemma 𝟙ᵐ 𝟘ᵐ 𝟘ᵐ _ _ _ =
     𝟘ᵐ-cong
@@ -746,12 +745,12 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
     case
       𝟘ᵐ         ≡˘⟨ ⌞𝟘⌟ ⟩
       ⌞ 𝟘 ⌟      ≡˘⟨ cong ⌞_⌟ (·-zeroʳ _) ⟩
-      ⌞ p · 𝟘 ⌟  ≡˘⟨ cong (λ q → ⌞ _ · q ⌟) (⌞⌟≡𝟘ᵐ→≈𝟘 ⌞q⌟≡𝟘ᵐ) ⟩
+      ⌞ p · 𝟘 ⌟  ≡˘⟨ cong (λ q → ⌞ _ · q ⌟) (⌞⌟≡𝟘ᵐ→≡𝟘 ⌞q⌟≡𝟘ᵐ) ⟩
       ⌞ p · q ⌟  ≡⟨ ⌞pq⌟≡𝟙ᵐ ⟩
       𝟙ᵐ         ∎
     of λ ()
   lemma 𝟙ᵐ 𝟙ᵐ 𝟘ᵐ[ ok ] ⌞p⌟≡𝟙ᵐ ⌞q⌟≡𝟙ᵐ ⌞pq⌟≡𝟘ᵐ =
-    case zero-product ok (⌞⌟≡𝟘ᵐ→≈𝟘 ⌞pq⌟≡𝟘ᵐ) of λ where
+    case zero-product ok (⌞⌟≡𝟘ᵐ→≡𝟘 ⌞pq⌟≡𝟘ᵐ) of λ where
       (inj₁ refl) →
         case
           𝟘ᵐ[ ok ]  ≡˘⟨ ⌞𝟘⌟ ⟩
@@ -832,20 +831,20 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
 
 -- The value p · ⌜ m ᵐ· p ⌝ is equivalent to ⌜ m ⌝ · p.
 
-·⌜ᵐ·⌝ : ∀ m → p · ⌜ m ᵐ· p ⌝ ≈ p · ⌜ m ⌝
-·⌜ᵐ·⌝         𝟘ᵐ = ≈-refl
+·⌜ᵐ·⌝ : ∀ m → p · ⌜ m ᵐ· p ⌝ ≡ p · ⌜ m ⌝
+·⌜ᵐ·⌝         𝟘ᵐ = refl
 ·⌜ᵐ·⌝ {p = p} 𝟙ᵐ = begin
-  p · ⌜ ⌞ p ⌟ ⌝  ≈⟨ ·⌜⌞⌟⌝ ⟩
-  p              ≈˘⟨ ·-identityʳ _ ⟩
+  p · ⌜ ⌞ p ⌟ ⌝  ≡⟨ ·⌜⌞⌟⌝ ⟩
+  p              ≡˘⟨ ·-identityʳ _ ⟩
   p · 𝟙          ∎
   where
-  open Tools.Reasoning.Equivalence (setoid M)
+  open Tools.Reasoning.PropositionalEquality
 
 -- If p is non-zero, then m ᵐ· p is equal to m.
 
-≉𝟘→ᵐ·≡ : p ≉ 𝟘 → m ᵐ· p ≡ m
-≉𝟘→ᵐ·≡ {m = 𝟘ᵐ} _ = PE.refl
-≉𝟘→ᵐ·≡ {m = 𝟙ᵐ}   = ≉𝟘→⌞⌟≡𝟙ᵐ
+≢𝟘→ᵐ·≡ : p ≢ 𝟘 → m ᵐ· p ≡ m
+≢𝟘→ᵐ·≡ {m = 𝟘ᵐ} _ = PE.refl
+≢𝟘→ᵐ·≡ {m = 𝟙ᵐ}   = ≢𝟘→⌞⌟≡𝟙ᵐ
 
 -- 𝟙 is a right identity for _ᵐ·_.
 

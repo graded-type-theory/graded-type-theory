@@ -18,7 +18,7 @@ module Graded.Erasure.LogicalRelation.Fundamental.Lambda
   (R : Type-restrictions M)
   (open Definition.Typed R)
   (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘))
-  (𝟙≉𝟘 : 𝟙 PE.≢ 𝟘)
+  (𝟙≢𝟘 : 𝟙 PE.≢ 𝟘)
   {{eqrel : EqRelSet R}}
   {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   where
@@ -107,7 +107,7 @@ lamʳ′ {F = F} {G = G} {γ = γ} {p = p} {t = t} {σ = σ} {σ′ = σ′}
                            (PE.sym (UP.singleSubstComp u σ t))
                            (PE.sym (TP.singleSubstComp w σ′ (erase t)))
                            σut®σwv
-  in  redSubstTerm* [σGu] (σut®σwv′ ◀≢𝟘 𝟙≉𝟘) t⇒t″ v⇒v′
+  in  redSubstTerm* [σGu] (σut®σwv′ ◀≢𝟘 𝟙≢𝟘) t⇒t″ v⇒v′
 
 lamʳ : ∀ {l} {Γ : Con Term n} → ([Γ] : ⊩ᵛ Γ) ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
        ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])

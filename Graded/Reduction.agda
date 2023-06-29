@@ -38,8 +38,7 @@ open import Tools.Function
 open import Tools.Nat
 open import Tools.Nullary
 open import Tools.Product
-open import Tools.PropositionalEquality as PE
-  using (_≢_; ≈-sym)
+open import Tools.PropositionalEquality as PE using (_≢_)
 import Tools.Reasoning.PartialOrder
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
@@ -67,8 +66,10 @@ usagePresTerm γ▸t (app-subst t⇒u x) =
 usagePresTerm {m = m} γ▸λta (β-red x x₁ x₂ x₃ x₄ _) =
   let invUsageApp δ▸λt η▸a γ≤δ′+pη = inv-usage-app γ▸λta
       invUsageLam δ▸t δ′≤δ = inv-usage-lam δ▸λt
-  in  sub (sgSubstₘ-lemma₂ δ▸t (▸-cong (ᵐ·-cong m (≈-sym x₄)) η▸a))
-          (≤ᶜ-trans γ≤δ′+pη (+ᶜ-monotone δ′≤δ (·ᶜ-monotoneˡ (≤-reflexive (≈-sym x₄)))))
+  in  sub (sgSubstₘ-lemma₂ δ▸t (▸-cong (ᵐ·-cong m (PE.sym x₄)) η▸a))
+          (≤ᶜ-trans γ≤δ′+pη
+             (+ᶜ-monotone δ′≤δ
+                (·ᶜ-monotoneˡ (≤-reflexive (PE.sym x₄)))))
 usagePresTerm γ▸t (fst-subst x x₁ t⇒u) =
   let invUsageFst m m≡ ▸t γ≤ ok = inv-usage-fst γ▸t
   in  sub (fstₘ m (usagePresTerm (▸-cong m≡ ▸t) t⇒u) (PE.sym m≡) ok) γ≤

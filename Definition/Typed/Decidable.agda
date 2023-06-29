@@ -3,7 +3,7 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
-open import Tools.PropositionalEquality as PE using (_≈_)
+import Tools.PropositionalEquality as PE
 open import Tools.Relation
 
 module Definition.Typed.Decidable

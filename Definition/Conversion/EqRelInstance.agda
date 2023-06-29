@@ -36,8 +36,7 @@ open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 open import Tools.Function
-open import Tools.PropositionalEquality as PE
-  using (_≈_; ≈-refl; ≈-sym; ≈-trans)
+import Tools.PropositionalEquality as PE
 
 private
   variable

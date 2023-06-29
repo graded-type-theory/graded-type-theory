@@ -81,20 +81,20 @@ private
 
 -- Congruence for _·ᶜ_.
 
-·ᶜ-cong : p ≈ q → γ ≈ᶜ δ → p ·ᶜ γ ≈ᶜ q ·ᶜ δ
-·ᶜ-cong p≈q ε = ≈ᶜ-refl
-·ᶜ-cong p≈q (γ≈δ ∙ p′≈q′) = (·ᶜ-cong p≈q γ≈δ) ∙ (·-cong p≈q p′≈q′)
+·ᶜ-cong : p ≡ q → γ ≈ᶜ δ → p ·ᶜ γ ≈ᶜ q ·ᶜ δ
+·ᶜ-cong p≡q ε = ≈ᶜ-refl
+·ᶜ-cong p≡q (γ≈ᶜδ ∙ p′≡q′) = ·ᶜ-cong p≡q γ≈ᶜδ ∙ ·-cong p≡q p′≡q′
 
 -- Congruence of ·ᶜ on the left
 -- If γ ≈ᶜ δ then p ·ᶜ γ ≈ᶜ p ·ᶜ δ
 
 ·ᶜ-congˡ : γ ≈ᶜ δ → p ·ᶜ γ ≈ᶜ p ·ᶜ δ
-·ᶜ-congˡ γ≈δ = ·ᶜ-cong ≈-refl γ≈δ
+·ᶜ-congˡ γ≈ᶜδ = ·ᶜ-cong refl γ≈ᶜδ
 
 -- Congruence for _·ᶜ γ.
 
-·ᶜ-congʳ : p ≈ q → p ·ᶜ γ ≈ᶜ q ·ᶜ γ
-·ᶜ-congʳ p≈q = ·ᶜ-cong p≈q ≈ᶜ-refl
+·ᶜ-congʳ : p ≡ q → p ·ᶜ γ ≈ᶜ q ·ᶜ γ
+·ᶜ-congʳ p≡q = ·ᶜ-cong p≡q ≈ᶜ-refl
 
 -- Multiplication on the left is monotone
 -- If p ≤ q then p ·ᶜ γ ≤ᶜ q ·ᶜ γ

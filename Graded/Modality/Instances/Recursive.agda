@@ -9,7 +9,7 @@ open import Graded.Mode.Restrictions
 -- A ringoid with the following recursively defined nr operator is a modality instance.
 -- nr 0 p q r = 𝟘
 -- nr (1+ n) p q r = p ∧ (q + r nr n p q r)
--- ∃ n → nr (1+ n) p q r ≈ nr n p q r
+-- ∃ n → nr (1+ n) p q r ≡ nr n p q r
 
 module Graded.Modality.Instances.Recursive
   {a} {M : Set a} (𝕄 : Semiring-with-meet M)
@@ -28,8 +28,8 @@ open import Graded.Modality.Properties.Meet 𝕄
 open import Graded.Modality.Properties.Multiplication 𝕄
 open import Graded.Modality.Properties.PartialOrder 𝕄
 open import Tools.Algebra M
-import Tools.Reasoning.Equivalence
 import Tools.Reasoning.PartialOrder
+import Tools.Reasoning.PropositionalEquality
 
 private variable
   p q r : M
@@ -44,15 +44,15 @@ solvesIneqs =
   in  (λ p q r → ≤-trans (≤-reflexive (trans (sym (fix p q r)) (nr-rec n p q r))) (∧-decreasingʳ p _))
     , (λ p q r → ≤-trans (≤-reflexive (trans (sym (fix p q r)) (nr-rec n p q r))) (∧-decreasingˡ p _))
 
-nr-cong : {p p′ q q′ r r′ : M} → (n : Nat) → p ≈ p′ → q ≈ q′ → r ≈ r′ → nr n p q r ≈ nr n p′ q′ r′
-nr-cong 0 p≈p′ q≈q′ r≈r′ = trans (nr-0 _ _ _) (sym (nr-0 _ _ _))
-nr-cong {p} {p′} {q} {q′} {r} {r′} (1+ n) p≈p′ q≈q′ r≈r′ = begin
-  nr (1+ n) p q r              ≈⟨ nr-rec n p q r ⟩
-  p ∧ q + r · nr n p q r       ≈⟨ ∧-cong p≈p′ (+-cong q≈q′ (·-cong r≈r′ (nr-cong n p≈p′ q≈q′ r≈r′))) ⟩
-  p′ ∧ q′ + r′ · nr n p′ q′ r′ ≈˘⟨ nr-rec n p′ q′ r′ ⟩
+nr-cong : {p p′ q q′ r r′ : M} → (n : Nat) → p ≡ p′ → q ≡ q′ → r ≡ r′ → nr n p q r ≡ nr n p′ q′ r′
+nr-cong 0 p≡p′ q≡q′ r≡r′ = trans (nr-0 _ _ _) (sym (nr-0 _ _ _))
+nr-cong {p} {p′} {q} {q′} {r} {r′} (1+ n) p≡p′ q≡q′ r≡r′ = begin
+  nr (1+ n) p q r              ≡⟨ nr-rec n p q r ⟩
+  p ∧ q + r · nr n p q r       ≡⟨ ∧-cong p≡p′ (+-cong q≡q′ (·-cong r≡r′ (nr-cong n p≡p′ q≡q′ r≡r′))) ⟩
+  p′ ∧ q′ + r′ · nr n p′ q′ r′ ≡˘⟨ nr-rec n p′ q′ r′ ⟩
   nr (1+ n) p′ q′ r′ ∎
   where
-  open Tools.Reasoning.Equivalence (setoid M)
+  open Tools.Reasoning.PropositionalEquality
 
 +-sub-interchangeable-nr : (n : Nat) (r : M) → _+_ SubInterchangeable (λ p q → nr n p q r) by _≤_
 +-sub-interchangeable-nr 0 r p q p′ q′ = begin

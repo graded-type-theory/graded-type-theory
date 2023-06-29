@@ -30,7 +30,7 @@ open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 open import Tools.Empty
-open import Tools.PropositionalEquality as PE using (≈-sym; ≈-trans)
+import Tools.PropositionalEquality as PE
 
 
 private
@@ -52,7 +52,7 @@ mutual
                          x₂)
   trans~↑ (app-cong t~u a<>b) (app-cong u~v b<>c) =
     let t~v , ΠFG≡ΠF′G′ = trans~↓ t~u u~v
-        F≡F₁ , G≡G₁ , p≈p₄ , _ = injectivity ΠFG≡ΠF′G′
+        F≡F₁ , G≡G₁ , p≡p₄ , _ = injectivity ΠFG≡ΠF′G′
         a<>c = transConv↑Term F≡F₁ a<>b b<>c
     in  app-cong t~v a<>c , substTypeEq G≡G₁ (soundnessConv↑Term a<>b)
   trans~↑ (fst-cong t~u) (fst-cong u~v) =

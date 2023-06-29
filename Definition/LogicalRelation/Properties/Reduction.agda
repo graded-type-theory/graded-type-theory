@@ -130,13 +130,13 @@ redSubst*Term
   let A≡ΣFG = subset* (red D)
       t⇒u′  = conv* t⇒u A≡ΣFG
       [d′] = [ conv (redFirst*Term t⇒u) A≡ΣFG , ⊢u , conv* t⇒u A≡ΣFG ⇨∷* d ]
-      p′≈p″ , [p₁] , [p₂] , m≡Σᵣ = pProp
+      p′≡p″ , [p₁] , [p₂] , m≡Σᵣ = pProp
       [p₁≡p₁] = reflEqTerm ([F] Wk.id (wf ⊢F)) [p₁]
       [p₂≡p₂] = reflEqTerm ([G] Wk.id (wf ⊢F) [p₁]) [p₂]
       [u′] = Σₜ p [d′] p≅p prodₙ pProp
   in  [u′] ,
       Σₜ₌ p p [d′] [d] prodₙ prodₙ p≅p [u′] [u]
-        (p′≈p″ , p′≈p″ , [p₁] , [p₁] , [p₂] , [p₂] , [p₁≡p₁] , [p₂≡p₂])
+        (p′≡p″ , p′≡p″ , [p₁] , [p₁] , [p₂] , [p₂] , [p₁≡p₁] , [p₂≡p₂])
 redSubst*Term
   {Γ = Γ} {A} {t} {u} {l}
   t⇒u (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
