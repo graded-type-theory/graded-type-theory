@@ -74,7 +74,9 @@ private
 
 module _ (as : Full-reduction-assumptions) where
 
-  open Full-reduction-assumptions as
+  open Full-reduction-assumptions′
+         (Full-reduction-assumptions⇔Full-reduction-assumptions′
+            .proj₁ as)
 
   private
 

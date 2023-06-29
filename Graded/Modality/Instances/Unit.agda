@@ -9,6 +9,7 @@ module Graded.Modality.Instances.Unit where
 
 open import Tools.Product
 open import Tools.PropositionalEquality
+open import Tools.Sum
 
 open import Tools.Algebra ⊤
 
@@ -189,7 +190,6 @@ UnitModality = record
 full-reduction-assumptions :
   Full-reduction-assumptions UnitModality rs
 full-reduction-assumptions = record
-  { ≤𝟘           = λ _ → refl
-  ; ·-increasing = λ _ → refl
-  ; ⌞⌟≡𝟙ᵐ→≤𝟙     = λ _ _ → refl
+  { 𝟙≤𝟘    = λ _ → refl
+  ; ≡𝟙⊎𝟙≤𝟘 = λ _ → inj₁ refl
   }

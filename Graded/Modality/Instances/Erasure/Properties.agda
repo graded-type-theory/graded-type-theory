@@ -39,6 +39,7 @@ open import Tools.Product
 open import Tools.PropositionalEquality as PE using (_≡_; _≢_)
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
+open import Tools.Sum
 open import Tools.Unit
 
 private
@@ -221,26 +222,11 @@ full-reduction-assumptions :
   Suitable-for-full-reduction rs →
   Full-reduction-assumptions ErasureModality rs
 full-reduction-assumptions {rs = rs} 𝟘→𝟘ᵐ = record
-  { ≤𝟘           = λ _ → greatest-elem _
-  ; ·-increasing = λ where
-      {p = p} {r = 𝟘} _ → begin
-        𝟘      ≡˘⟨ EM.·-zeroʳ _ ⟩
-        p · 𝟘  ∎
-      {p = p} {r = ω} _ → begin
-        ω      ≤⟨ least-elem p ⟩
-        p · ω  ∎
-  ; ⌞⌟≡𝟙ᵐ→≤𝟙 = λ where
-      {p = ω} _ _ → begin
-        ω  ≡⟨⟩
-        ω  ∎
-      {p = 𝟘} ok →
-        ⌞ 𝟘 ⌟ ≡ 𝟙ᵐ      →⟨ (λ hyp ok → ⌞⌟≡𝟙ᵐ→≉𝟘 ok hyp PE.refl) ⟩
-        ¬ T 𝟘ᵐ-allowed  →⟨ _$ 𝟘→𝟘ᵐ _ ok ⟩
-        ⊥               →⟨ ⊥-elim ⟩
-        𝟘 ≤ ω           □
+  { 𝟙≤𝟘    = λ _ → PE.refl
+  ; ≡𝟙⊎𝟙≤𝟘 = λ where
+      {p = ω} _  → inj₁ PE.refl
+      {p = 𝟘} ok → inj₂ (PE.refl , 𝟘→𝟘ᵐ _ ok , PE.refl)
   }
-  where
-  open Tools.Reasoning.PartialOrder ≤-poset
 
 -- If _∧_ is defined in the given way and 𝟘 is the additive unit, then
 -- there is only one lawful way to define addition (up to pointwise

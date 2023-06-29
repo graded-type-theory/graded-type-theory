@@ -27,7 +27,7 @@ open import Tools.Function
 open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality
-import Tools.Reasoning.PartialOrder
+open import Tools.Sum
 open import Tools.Unit
 
 private variable
@@ -79,20 +79,9 @@ full-reduction-assumptions :
   Suitable-for-full-reduction rs →
   Full-reduction-assumptions linearityModality rs
 full-reduction-assumptions (¬Unit , ¬𝟘 , ¬ω) = record
-  { ≤𝟘           = ⊥-elim ∘→ ¬Unit
-  ; ·-increasing = λ where
-      {p = 𝟘}         ok → ⊥-elim (¬𝟘 _ ok)
-      {p = ω}         ok → ⊥-elim (¬ω _ ok)
-      {p = 𝟙} {r = q} _  → begin
-        q      ≡˘⟨ ·-identityˡ _ ⟩
-        𝟙 · q  ∎
-  ; ⌞⌟≡𝟙ᵐ→≤𝟙 = λ where
-      {p = 𝟘} ok   → ⊥-elim (¬𝟘 _ ok)
-      {p = ω} ok   → ⊥-elim (¬ω _ ok)
-      {p = 𝟙} _  _ → begin
-        𝟙  ≡⟨⟩
-        𝟙  ∎
+  { 𝟙≤𝟘    = ⊥-elim ∘→ ¬Unit
+  ; ≡𝟙⊎𝟙≤𝟘 = λ where
+      {p = 𝟘} ok → ⊥-elim (¬𝟘 _ ok)
+      {p = ω} ok → ⊥-elim (¬ω _ ok)
+      {p = 𝟙} _  → inj₁ refl
   }
-  where
-  open Modality linearityModality using (·-identityˡ)
-  open Tools.Reasoning.PartialOrder ≤-poset

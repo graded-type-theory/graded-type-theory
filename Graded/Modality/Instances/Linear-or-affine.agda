@@ -9,7 +9,6 @@ module Graded.Modality.Instances.Linear-or-affine where
 
 import Graded.Modality
 open import Graded.FullReduction.Assumptions
-import Graded.Modality.Properties
 import Graded.Modality.Properties.Addition as Addition
 import Graded.Modality.Properties.Meet as Meet
 import Graded.Modality.Properties.Multiplication as Multiplication
@@ -1424,24 +1423,11 @@ suitable-for-full-reduction rs =
 full-reduction-assumptions :
   Suitable-for-full-reduction trs →
   Full-reduction-assumptions (linear-or-affine mrs) trs
-full-reduction-assumptions {mrs = mrs} (¬Unit , ¬𝟘 , ¬≤𝟙 , ¬≤ω) = record
-  { ≤𝟘           = ⊥-elim ∘→ ¬Unit
-  ; ·-increasing = λ where
-      {p = 𝟘}         ok → ⊥-elim (¬𝟘 _ ok)
-      {p = ≤𝟙}        ok → ⊥-elim (¬≤𝟙 _ ok)
-      {p = ≤ω}        ok → ⊥-elim (¬≤ω _ ok)
-      {p = 𝟙} {r = q} _  → begin
-        q      ≡˘⟨ ·-identityˡ _ ⟩
-        𝟙 · q  ∎
-  ; ⌞⌟≡𝟙ᵐ→≤𝟙 = λ where
-      {p = 𝟘}  ok   → ⊥-elim (¬𝟘 _ ok)
-      {p = ≤𝟙} ok   → ⊥-elim (¬≤𝟙 _ ok)
-      {p = ≤ω} ok   → ⊥-elim (¬≤ω _ ok)
-      {p = 𝟙}  _  _ → begin
-        𝟙  ≡⟨⟩
-        𝟙  ∎
+full-reduction-assumptions (¬Unit , ¬𝟘 , ¬≤𝟙 , ¬≤ω) = record
+  { 𝟙≤𝟘    = ⊥-elim ∘→ ¬Unit
+  ; ≡𝟙⊎𝟙≤𝟘 = λ where
+      {p = 𝟘}  ok → ⊥-elim (¬𝟘 _ ok)
+      {p = ≤𝟙} ok → ⊥-elim (¬≤𝟙 _ ok)
+      {p = ≤ω} ok → ⊥-elim (¬≤ω _ ok)
+      {p = 𝟙}  _  → inj₁ refl
   }
-  where
-  open Graded.Modality.Properties (linear-or-affine mrs)
-  open Modality (linear-or-affine mrs) using (·-identityˡ)
-  open Tools.Reasoning.PartialOrder ≤-poset
