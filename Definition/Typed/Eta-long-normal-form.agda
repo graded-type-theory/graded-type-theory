@@ -19,6 +19,7 @@ open NfNeutral
 open Nf
 
 open import Definition.Typed R
+open import Definition.Typed.Consequences.Inequality R as TI
 open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Substitution R
 open import Definition.Typed.Consequences.Syntactic R
@@ -179,7 +180,7 @@ mutual
   (ℕₙ ⊢Γ)        _ → ℕₙ ⊢Γ
 
 ------------------------------------------------------------------------
--- Some conversion functions
+-- Some lemmas related to No-η-equality
 
 -- If No-η-equality A holds, then A is a WHNF.
 
@@ -190,6 +191,40 @@ No-η-equality→Whnf = λ where
   Emptyₙ  → Emptyₙ
   ℕₙ      → ℕₙ
   (neₙ n) → ne n
+
+-- If No-η-equality A holds, then A is not a Π-type.
+
+No-η-equality→≢Π : No-η-equality A → Γ ⊢ A ≡ Π p , q ▷ B ▹ C → ⊥
+No-η-equality→≢Π = λ where
+  Uₙ         U≡Π     → U≢ΠΣⱼ U≡Π
+  Σᵣₙ        Σᵣ≡Π    → Π≢Σⱼ (sym Σᵣ≡Π)
+  Emptyₙ     Empty≡Π → Empty≢ΠΣⱼ Empty≡Π
+  ℕₙ         ℕ≡Π     → ℕ≢ΠΣⱼ ℕ≡Π
+  (neₙ A-ne) A≡Π     → TI.ΠΣ≢ne A-ne (sym A≡Π)
+
+-- If No-η-equality A holds, then A is not a Σ-type with η-equality.
+
+No-η-equality→≢Σₚ : No-η-equality A → Γ ⊢ A ≡ Σₚ p , q ▷ B ▹ C → ⊥
+No-η-equality→≢Σₚ = λ where
+  Uₙ         U≡Σ     → U≢ΠΣⱼ U≡Σ
+  Σᵣₙ        Σᵣ≡Σ    → Σₚ≢Σᵣⱼ (sym Σᵣ≡Σ)
+  Emptyₙ     Empty≡Σ → Empty≢ΠΣⱼ Empty≡Σ
+  ℕₙ         ℕ≡Σ     → ℕ≢ΠΣⱼ ℕ≡Σ
+  (neₙ A-ne) A≡Σ     → TI.ΠΣ≢ne A-ne (sym A≡Σ)
+
+-- If No-η-equality A holds, then A is not the unit type with
+-- η-equality.
+
+No-η-equality→≢Unit : No-η-equality A → Γ ⊢ A ≡ Unit → ⊥
+No-η-equality→≢Unit = λ where
+  Uₙ         U≡Unit     → U≢Unitⱼ U≡Unit
+  Σᵣₙ        Σᵣ≡Unit    → Unit≢ΠΣⱼ (sym Σᵣ≡Unit)
+  Emptyₙ     Empty≡Unit → Empty≢Unitⱼ Empty≡Unit
+  ℕₙ         ℕ≡Unit     → ℕ≢Unitⱼ ℕ≡Unit
+  (neₙ A-ne) A≡Unit     → TI.Unit≢neⱼ A-ne (sym A≡Unit)
+
+------------------------------------------------------------------------
+-- Some conversion functions
 
 mutual
 
