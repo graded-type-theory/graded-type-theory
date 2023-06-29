@@ -1,6 +1,5 @@
 ------------------------------------------------------------------------
--- Assumptions used to state the theorems in
--- Definition.Modality.FullReduction
+-- Assumptions used to state the theorems in Graded.FullReduction
 ------------------------------------------------------------------------
 
 open import Graded.Modality
@@ -22,8 +21,8 @@ open import Tools.PropositionalEquality
 private variable
   p q r : M
 
--- The theorems in Definition.Modality.FullReduction are proved under
--- the assumption that the following property holds.
+-- The theorems in Graded.FullReduction are proved under the
+-- assumption that the following property holds.
 
 record Full-reduction-assumptions : Set a where
   no-eta-equality
