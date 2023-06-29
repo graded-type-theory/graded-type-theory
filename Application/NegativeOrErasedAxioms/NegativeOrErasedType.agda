@@ -82,7 +82,7 @@ wkNeg w ⊢Δ (conv n c) =
 -- Negative types are closed under parallel substitution.
 
 subNeg :
-  NegativeType Γ A → Δ ⊢ˢ σ ∷ Γ → ⊢ Δ → NegativeType Δ (subst σ A)
+  NegativeType Γ A → Δ ⊢ˢ σ ∷ Γ → ⊢ Δ → NegativeType Δ (A [ σ ])
 
 subNeg empty _ _ = empty
 
@@ -104,7 +104,7 @@ subNeg (conv n c) s ⊢Δ =
 
 -- Negative types are closed under single substitutions.
 
-subNeg1 : NegativeType (Γ ∙ A) B → Γ ⊢ t ∷ A → NegativeType Γ (B [ t ])
+subNeg1 : NegativeType (Γ ∙ A) B → Γ ⊢ t ∷ A → NegativeType Γ (B [ t ]₀)
 subNeg1 n ⊢t = subNeg n (singleSubst ⊢t) (wfTerm ⊢t)
 
 -- The first component of a negative Σ-type is negative if the
@@ -129,7 +129,7 @@ sndNeg :
   NegativeType Γ C →
   Γ ⊢ C ≡ Σₚ p , q ▷ A ▹ B →
   Γ ⊢ t ∷ A →
-  NegativeType Γ (B [ t ])
+  NegativeType Γ (B [ t ]₀)
 sndNeg empty          c    = ⊥-elim (Empty≢Σⱼ c)
 sndNeg (pi _ _)       c    = ⊥-elim (Π≢Σⱼ c)
 sndNeg (sigma-𝟘 _ nB) c ⊢t =
@@ -146,7 +146,7 @@ appNeg :
   NegativeType Γ C →
   Γ ⊢ C ≡ Π p , q ▷ A ▹ B →
   Γ ⊢ t ∷ A →
-  NegativeType Γ (B [ t ])
+  NegativeType Γ (B [ t ]₀)
 appNeg empty          c = ⊥-elim (Empty≢Πⱼ c)
 appNeg (sigma-𝟘 _ _)  c = ⊥-elim (Π≢Σⱼ (sym c))
 appNeg (sigma _ _ _)  c = ⊥-elim (Π≢Σⱼ (sym c))

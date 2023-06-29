@@ -207,7 +207,7 @@ transEqTerm
       [snd≡]′ = transEqTerm [Gfstp] [snd≡]
         (PE.subst
            (λ (x : Term n) →
-              Γ ⊩⟨ _ ⟩ snd _ x ≡ snd _ r₁ ∷ wk (lift id) G [ fst _ p ] /
+              Γ ⊩⟨ _ ⟩ snd _ x ≡ snd _ r₁ ∷ wk (lift id) G [ fst _ p ]₀ /
                 [Gfstp])
            p₁≡r [snd≡]₁′)
   in  Σₜ₌ p r₁ d d₁′ pProd rProd₁ p≅r₁ [t] [u]₁ ([fstp] , [fstr]₁ , [fst≡]′ , [snd≡]′)
@@ -234,7 +234,7 @@ transEqTerm
       [Gp] = [G] Weak.id ⊢Γ [p₁]
       [Gp′] = [G] Weak.id ⊢Γ [p₁]′
       [r₂≡r′₂] = convEqTerm₂ [Gp] [Gp′] [Gp≡Gp₁]
-                             (PE.subst (λ (x : Term n) → Γ ⊩⟨ _ ⟩ x ≡ _ ∷ wk (lift id) G [ _ ] / [Gp′])
+                             (PE.subst (λ (x : Term n) → Γ ⊩⟨ _ ⟩ x ≡ _ ∷ wk (lift id) G [ _ ]₀ / [Gp′])
                                        p′₂≡r₂ [p′₂≡r′₂])
       [p₂≡r′₂] = transEqTerm [Gp] [p₂≡r₂] [r₂≡r′₂]
   in  Σₜ₌ p r′ d d₁′ prodₙ prodₙ p≅r′ [t] [u]₁

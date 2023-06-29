@@ -80,14 +80,14 @@ sourceRedSubstTerm
       ⊢a = escapeTerm ([F] id ⊢Δ) [a]
       ⊢a′ = PE.subst (Δ ⊢ a ∷_) (UP.wk-id F) ⊢a
       t∘a⇒t′∘w′ = app-subst (conv t⇒t′ (subset* D)) ⊢a′
-      t∘a⇒t′∘w = PE.subst (_⊢_⇒_∷_ Δ _ _) (PE.cong (U._[ a ]) (PE.sym (UP.wk-lift-id G))) t∘a⇒t′∘w′
+      t∘a⇒t′∘w = PE.subst (_⊢_⇒_∷_ Δ _ _) (PE.cong (U._[ a ]₀) (PE.sym (UP.wk-lift-id G))) t∘a⇒t′∘w′
   in  sourceRedSubstTerm ([G] id ⊢Δ [a]) t®v t∘a⇒t′∘w
 ... | no p≢𝟘 = λ a®w →
   let t®v = t®v′ [a] a®w
       ⊢a = escapeTerm ([F] id ⊢Δ) [a]
       ⊢a′ = PE.subst (Δ ⊢ a ∷_) (UP.wk-id F) ⊢a
       t∘a⇒t′∘w′ = app-subst (conv t⇒t′ (subset* D)) ⊢a′
-      t∘a⇒t′∘w = PE.subst (Δ ⊢ _ ⇒ _ ∷_) (PE.cong (U._[ a ]) (PE.sym (UP.wk-lift-id G))) t∘a⇒t′∘w′
+      t∘a⇒t′∘w = PE.subst (Δ ⊢ _ ⇒ _ ∷_) (PE.cong (U._[ a ]₀) (PE.sym (UP.wk-lift-id G))) t∘a⇒t′∘w′
   in  sourceRedSubstTerm ([G] id ⊢Δ [a]) t®v t∘a⇒t′∘w
 sourceRedSubstTerm
   (Bᵣ′ BΣ! F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext _)
@@ -204,7 +204,7 @@ sourceRedSubstTerm′
       ⊢a′ = PE.subst (Δ ⊢ a ∷_) (UP.wk-id F) ⊢a
       t∘a⇒t′∘a′ = app-subst (conv t⇒t′ (subset* (red D))) ⊢a′
       t∘a⇒t′∘a = PE.subst (_⊢_⇒_∷_ Δ _ _)
-                          (PE.cong (U._[ a ]) (PE.sym (UP.wk-lift-id G)))
+                          (PE.cong (U._[ a ]₀) (PE.sym (UP.wk-lift-id G)))
                           t∘a⇒t′∘a′
   in  sourceRedSubstTerm′ ([G] id ⊢Δ [a]) t®v t∘a⇒t′∘a
 ... | no p≢𝟘 = λ a®w →
@@ -213,7 +213,7 @@ sourceRedSubstTerm′
       ⊢a′ = PE.subst (Δ ⊢ a ∷_) (UP.wk-id F) ⊢a
       t∘a⇒t′∘a′ = app-subst (conv t⇒t′ (subset* (red D))) ⊢a′
       t∘a⇒t′∘a = PE.subst (_⊢_⇒_∷_ Δ _ _)
-                          (PE.cong (U._[ a ]) (PE.sym (UP.wk-lift-id G)))
+                          (PE.cong (U._[ a ]₀) (PE.sym (UP.wk-lift-id G)))
                           t∘a⇒t′∘a′
   in  sourceRedSubstTerm′ ([G] id ⊢Δ [a]) t®v t∘a⇒t′∘a
 sourceRedSubstTerm′
@@ -278,7 +278,7 @@ targetRedSubstTerm′
   let [Gt₁] = [G] id ⊢Δ [t₁]
   in  t₁ , t₂ , t⇒t′ , [t₁]
       , Σ-®-elim
-         (λ _ → ∃ λ v₂ → (t₂ ®⟨ _ ⟩ v₂ ∷ U.wk (lift id) G U.[ t₁ ] / [Gt₁])
+         (λ _ → ∃ λ v₂ → (t₂ ®⟨ _ ⟩ v₂ ∷ U.wk (lift id) G U.[ t₁ ]₀ / [Gt₁])
                        × Σ-® _ F _ t₁ v′ v₂ p)
          extra
          (λ v⇒v₂ p≡𝟘 → case red*Det v⇒v₂ (trans v⇒v′ refl) of λ where

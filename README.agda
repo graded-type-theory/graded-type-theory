@@ -258,7 +258,7 @@ Subst = Definition.Untyped.Subst
 
 -- Application of a substitution to a term.
 
-substitution = Definition.Untyped.subst
+_[_] = Definition.Untyped._[_]
 
 -- Some other substitution operations from the paper.
 

@@ -148,8 +148,8 @@ subsumption′ : ∀ {l} {Γ : U.Con U.Term n} {t A : U.Term n}
              → (∀ {σ σ′}
                 → ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
                 → σ ®⟨ l ⟩ σ′ ∷[ m ] Γ ◂ γ / [Γ] / [σ]
-                → U.subst σ t ®⟨ l ⟩ T.subst σ′ (erase t)
-                  ∷ U.subst σ A / proj₁ (unwrap [A] ⊢Δ [σ]))
+                → t U.[ σ ] ®⟨ l ⟩ erase t T.[ σ′ ]
+                  ∷ A U.[ σ ] / proj₁ (unwrap [A] ⊢Δ [σ]))
              → γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A / [Γ] / [A]
 subsumption′ [Γ] [A] ⊩ʳt [σ] σ®σ′ = ⊩ʳt [σ] σ®σ′ ◀ _
 

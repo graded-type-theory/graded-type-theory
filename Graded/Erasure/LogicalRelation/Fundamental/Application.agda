@@ -70,13 +70,13 @@ private
 
 appʳ′ : ∀ {l} {Γ : Con Term n}
       → ([Γ] : ⊩ᵛ Γ) ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ]) ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
-       ([G[u]] : Γ ⊩ᵛ⟨ l ⟩ G [ u ] / [Γ])
+       ([G[u]] : Γ ⊩ᵛ⟨ l ⟩ G [ u ]₀ / [Γ])
        ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ F / [Γ] / [F])
        (ok : Π-allowed p q)
        (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] Π p , q ▷ F ▹ G / [Γ] /
               Πᵛ [Γ] [F] [G] ok)
        (⊩ʳu : δ ▸ Γ ⊩ʳ⟨ l ⟩ u ∷[ m ᵐ· p ] F / [Γ] / [F])
-     → γ +ᶜ p ·ᶜ δ ▸ Γ ⊩ʳ⟨ l ⟩ t ∘⟨ p ⟩ u ∷[ m ] G [ u ] / [Γ] / [G[u]]
+     → γ +ᶜ p ·ᶜ δ ▸ Γ ⊩ʳ⟨ l ⟩ t ∘⟨ p ⟩ u ∷[ m ] G [ u ]₀ / [Γ] / [G[u]]
 appʳ′ {m = 𝟘ᵐ} with is-𝟘? 𝟘
 ... | yes m≡𝟘 = _
 ... | no m≢𝟘 = PE.⊥-elim (m≢𝟘 PE.refl)
@@ -91,15 +91,15 @@ appʳ′
   let [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
       [ρσF] = W.wk id ⊢Δ [σF]
       [σu] = proj₁ ([u] ⊢Δ [σ])
-      [σu]′ = I.irrelevanceTerm′ (PE.sym (wk-id (subst σ F))) [σF] [ρσF] [σu]
+      [σu]′ = I.irrelevanceTerm′ (PE.sym (wk-id (F [ σ ]))) [σF] [ρσF] [σu]
       [σu]″ = I.irrelevanceTerm′ (wk-subst F) [ρσF]
                                  (proj₁ (unwrap [F] ⊢Δ (wkSubstS [Γ] ⊢Δ ⊢Δ id [σ]))) [σu]′
       tu®v↯ = ⊩ʳt [σ] (subsumptionSubst {l = l} σ®σ′ λ x γ+pδ≡𝟘 →
                         +-positiveˡ (PE.trans (PE.sym (lookup-distrib-+ᶜ γ _ x)) γ+pδ≡𝟘))
                   [σu]′
-      [σG[u]] = I.irrelevance′ (PE.sym (singleSubstWkComp (subst σ u) σ G))
+      [σG[u]] = I.irrelevance′ (PE.sym (singleSubstWkComp (u [ σ ]) σ G))
                                (proj₁ (unwrap [G] ⊢Δ (wkSubstS [Γ] ⊢Δ ⊢Δ id [σ] , [σu]″)))
-  in  irrelevanceTerm′ (PE.trans (PE.cong (_[ subst σ u ]) (wk-lift-id (subst (liftSubst σ) G)))
+  in  irrelevanceTerm′ (PE.trans (PE.cong (_[ u [ σ ] ]₀) (wk-lift-id (G [ liftSubst σ ])))
                                  (PE.sym (singleSubstLift G u)))
                        [σG[u]] (proj₁ (unwrap [G[u]] ⊢Δ [σ])) tu®v↯
 ... | no p≢𝟘 =
@@ -107,24 +107,24 @@ appʳ′
       [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
       [ρσF] = W.wk id ⊢Δ [σF]
       [σu] = proj₁ ([u] ⊢Δ [σ])
-      [σu]′ = I.irrelevanceTerm′ (PE.sym (wk-id (subst σ F))) [σF] [ρσF] [σu]
+      [σu]′ = I.irrelevanceTerm′ (PE.sym (wk-id (F [ σ ]))) [σF] [ρσF] [σu]
       [σu]″ = I.irrelevanceTerm′ (wk-subst F) [ρσF]
                                  (proj₁ (unwrap [F] ⊢Δ (wkSubstS [Γ] ⊢Δ ⊢Δ id [σ]))) [σu]′
       σ®σ′ᵤ = subsumptionSubst {l = l} σ®σ′ λ x γ+pδ≡𝟘 →
                lem (PE.trans (+-congˡ (PE.sym (lookup-distrib-·ᶜ δ p x)))
                    (PE.trans (PE.sym (lookup-distrib-+ᶜ γ _ x)) γ+pδ≡𝟘))
       u®w′ = ⊩ʳu [σ] (subsumptionSubstMode l σ®σ′ᵤ)
-      u®w = irrelevanceTerm′ (PE.sym (wk-id (subst σ F))) [σF] [ρσF]
+      u®w = irrelevanceTerm′ (PE.sym (wk-id (F [ σ ]))) [σF] [ρσF]
                              (u®w′ ◀≢𝟘 (λ ⌜⌞p⌟⌝≡𝟘 →
                                    𝟙≉𝟘 (PE.trans (PE.cong ⌜_⌝ (PE.sym (≉𝟘→⌞⌟≡𝟙ᵐ p≢𝟘))) ⌜⌞p⌟⌝≡𝟘)))
       σ®σ′ₜ = subsumptionSubst {l = l} σ®σ′ λ x γ+pδ≡𝟘 →
                 +-positiveˡ (PE.trans (PE.sym (lookup-distrib-+ᶜ γ _ x)) γ+pδ≡𝟘)
       t∘u®v∘w = ⊩ʳt [σ] (subsumptionSubstMode l σ®σ′ₜ)
                     [σu]′ u®w
-      [σG[u]] = I.irrelevance′ (PE.sym (singleSubstWkComp (subst σ u) σ G))
+      [σG[u]] = I.irrelevance′ (PE.sym (singleSubstWkComp (u [ σ ]) σ G))
                                (proj₁ (unwrap [G] ⊢Δ (wkSubstS [Γ] ⊢Δ ⊢Δ id [σ] , [σu]″)))
-  in  irrelevanceTerm′ (PE.trans (PE.cong (_[ subst σ u ])
-                                          (wk-lift-id (subst (liftSubst σ) G)))
+  in  irrelevanceTerm′ (PE.trans (PE.cong (_[ u [ σ ] ]₀)
+                                          (wk-lift-id (G [ liftSubst σ ])))
                                  (PE.sym (singleSubstLift G u)))
                        [σG[u]] (proj₁ (unwrap [G[u]] ⊢Δ [σ])) t∘u®v∘w
   where
@@ -140,8 +140,8 @@ appʳ : ∀ {Γ : Con Term n}
        ([u] : Γ ⊩ᵛ⟨ ¹ ⟩ u ∷ F / [Γ] / [F])
        (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] Π p , q ▷ F ▹ G / [Γ] / [Π])
        (⊩ʳu : δ ▸ Γ ⊩ʳ⟨ ¹ ⟩ u ∷[ m ᵐ· p ] F / [Γ] / [F])
-     → ∃ λ ([G[u]] : Γ ⊩ᵛ⟨ ¹ ⟩ G [ u ] / [Γ])
-     → γ +ᶜ p ·ᶜ δ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∘⟨ p ⟩ u ∷[ m ] G [ u ] / [Γ] / [G[u]]
+     → ∃ λ ([G[u]] : Γ ⊩ᵛ⟨ ¹ ⟩ G [ u ]₀ / [Γ])
+     → γ +ᶜ p ·ᶜ δ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∘⟨ p ⟩ u ∷[ m ] G [ u ]₀ / [Γ] / [G[u]]
 appʳ {F = F} {p} {q} {G} {u} {γ} {t} {δ}
      [Γ] [F] [Π] [u] ⊩ʳt ⊩ʳu =
   let ⊢Γ = soundContext [Γ]

@@ -282,7 +282,7 @@ mutual
           ([F] Wk.id (wf ⊢F)) ([F]₁ Wk.id (wf ⊢F₁))
           [fst≡]
         [snd≡]′ = irrelevanceEqTerm′
-          (PE.cong (λ x → wk (lift id) x [ fst _ p ]) G≡G₁)
+          (PE.cong (λ x → wk (lift id) x [ fst _ p ]₀) G≡G₁)
           ([G] Wk.id (wf ⊢F) [fstp]) ([G]₁ Wk.id (wf ⊢F₁) [fstp]′)
           [snd≡]
     in  Σₜ₌ p r (PE.subst (λ x → Γ ⊢ t :⇒*: p ∷ x) ΣFG≡ΣF₁G₁ d)
@@ -308,16 +308,16 @@ mutual
         [r₁]′ = irrelevanceTerm′ (PE.cong (wk id) F≡F₁)
           ([F] Wk.id (wf ⊢F)) ([F]₁ Wk.id (wf ⊢F₁))
           [r₁]
-        [p₂]′ = irrelevanceTerm′ (PE.cong (λ G → wk (lift id) G [ _ ]) G≡G₁)
+        [p₂]′ = irrelevanceTerm′ (PE.cong (λ G → wk (lift id) G [ _ ]₀) G≡G₁)
                                  ([G] Wk.id (wf ⊢F) [p₁])
                                  ([G]₁ Wk.id (wf ⊢F₁) [p₁]′) [p₂]
-        [r₂]′ = irrelevanceTerm′ (PE.cong (λ G → wk (lift id) G [ _ ]) G≡G₁)
+        [r₂]′ = irrelevanceTerm′ (PE.cong (λ G → wk (lift id) G [ _ ]₀) G≡G₁)
                                  ([G] Wk.id (wf ⊢F) [r₁])
                                  ([G]₁ Wk.id (wf ⊢F₁) [r₁]′) [r₂]
         [fst≡]′ = irrelevanceEqTerm′ (PE.cong (wk id) F≡F₁)
           ([F] Wk.id (wf ⊢F)) ([F]₁ Wk.id (wf ⊢F₁))
           [fst≡]
-        [snd≡]′ = irrelevanceEqTerm′ (PE.cong (λ x → wk (lift id) x [ _ ]) G≡G₁)
+        [snd≡]′ = irrelevanceEqTerm′ (PE.cong (λ x → wk (lift id) x [ _ ]₀) G≡G₁)
           ([G] Wk.id (wf ⊢F) [p₁]) ([G]₁ Wk.id (wf ⊢F₁) [p₁]′)
           [snd≡]
     in  Σₜ₌ p r (PE.subst (λ x → Γ ⊢ t :⇒*: p ∷ x) ΣFG≡ΣF₁G₁ d)

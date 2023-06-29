@@ -204,7 +204,7 @@ mutual
   -- Substitution commutes with translation.
 
   tr-Term-subst :
-    ∀ t → U₂.subst (tr-Subst σ) (tr-Term t) ≡ tr-Term (U₁.subst σ t)
+    ∀ t → tr-Term t U₂.[ tr-Subst σ ] ≡ tr-Term (t U₁.[ σ ])
   tr-Term-subst (var _)   = refl
   tr-Term-subst (gen _ _) = cong (gen _) tr-GenTs-substGen
 
@@ -214,18 +214,18 @@ mutual
     U₂.substGen (tr-Subst σ) (tr-GenTs ts) ≡ tr-GenTs (U₁.substGen σ ts)
   tr-GenTs-substGen         {ts = []}              = refl
   tr-GenTs-substGen {σ = σ} {ts = _∷_ {b = b} t _} = cong₂ _∷_
-    (U₂.subst (U₂.liftSubstn (tr-Subst σ) b) (tr-Term t)  ≡⟨ UP₂.substVar-to-subst (λ _ → tr-Subst-liftSubstn b) (tr-Term t) ⟩
-     U₂.subst (tr-Subst (U₁.liftSubstn σ b)) (tr-Term t)  ≡⟨ tr-Term-subst t ⟩
-     tr-Term (U₁.subst (U₁.liftSubstn σ b) t)             ∎)
+    (tr-Term t U₂.[ U₂.liftSubstn (tr-Subst σ) b ]  ≡⟨ UP₂.substVar-to-subst (λ _ → tr-Subst-liftSubstn b) (tr-Term t) ⟩
+     tr-Term t U₂.[ tr-Subst (U₁.liftSubstn σ b) ]  ≡⟨ tr-Term-subst t ⟩
+     tr-Term (t U₁.[ U₁.liftSubstn σ b ])           ∎)
     tr-GenTs-substGen
 
 -- Substitution commutes with translation.
 
-tr-Term-[] : ∀ t → tr-Term t U₂.[ tr-Term u ] ≡ tr-Term (t U₁.[ u ])
+tr-Term-[] : ∀ t → tr-Term t U₂.[ tr-Term u ]₀ ≡ tr-Term (t U₁.[ u ]₀)
 tr-Term-[] {u = u} t =
-  U₂.subst (U₂.sgSubst (tr-Term u)) (tr-Term t)   ≡⟨ UP₂.substVar-to-subst tr-Subst-sgSubst (tr-Term t) ⟩
-  U₂.subst (tr-Subst (U₁.sgSubst u)) (tr-Term t)  ≡⟨ tr-Term-subst t ⟩
-  tr-Term (U₁.subst (U₁.sgSubst u) t)             ∎
+  tr-Term t U₂.[ U₂.sgSubst (tr-Term u) ]   ≡⟨ UP₂.substVar-to-subst tr-Subst-sgSubst (tr-Term t) ⟩
+  tr-Term t U₂.[ tr-Subst (U₁.sgSubst u) ]  ≡⟨ tr-Term-subst t ⟩
+  tr-Term (t U₁.[ U₁.sgSubst u ])           ∎
 
 private
 
@@ -245,14 +245,13 @@ private
 tr-Term-[,] :
   ∀ t → tr-Term t U₂.[ tr-Term u , tr-Term v ] ≡ tr-Term (t U₁.[ u , v ])
 tr-Term-[,] {u = u} {v = v} t =
-  U₂.subst
-    (U₂.consSubst (U₂.consSubst U₂.idSubst (tr-Term u)) (tr-Term v))
-    (tr-Term t)                                                       ≡⟨ UP₂.substVar-to-subst [,]-lemma (tr-Term t) ⟩
+  tr-Term t
+    U₂.[ U₂.consSubst (U₂.sgSubst (tr-Term u)) (tr-Term v) ]  ≡⟨ UP₂.substVar-to-subst [,]-lemma (tr-Term t) ⟩
 
-  U₂.subst (tr-Subst (U₁.consSubst (U₁.consSubst U₁.idSubst u) v))
-    (tr-Term t)                                                       ≡⟨ tr-Term-subst t ⟩
+  tr-Term t
+    U₂.[ tr-Subst (U₁.consSubst (U₁.sgSubst u) v)]            ≡⟨ tr-Term-subst t ⟩
 
-  tr-Term (U₁.subst (U₁.consSubst (U₁.consSubst U₁.idSubst u) v) t)   ∎
+  tr-Term (t U₁.[ U₁.consSubst (U₁.sgSubst u) v ])            ∎
 
 private
 
@@ -271,13 +270,13 @@ private
 
 tr-Term-[]↑ : ∀ t → tr-Term t U₂.[ tr-Term u ]↑ ≡ tr-Term (t U₁.[ u ]↑)
 tr-Term-[]↑ {u = u} t =
-  U₂.subst (U₂.consSubst (U₂.wk1Subst U₂.idSubst) (tr-Term u))
-    (tr-Term t)                                                   ≡⟨ UP₂.substVar-to-subst []↑-lemma (tr-Term t) ⟩
+  tr-Term t
+    U₂.[ U₂.consSubst (U₂.wk1Subst U₂.idSubst) (tr-Term u) ]   ≡⟨ UP₂.substVar-to-subst []↑-lemma (tr-Term t) ⟩
 
-  U₂.subst (tr-Subst (U₁.consSubst (U₁.wk1Subst U₁.idSubst) u))
-    (tr-Term t)                                                   ≡⟨ tr-Term-subst t ⟩
+  tr-Term t
+    U₂.[ tr-Subst (U₁.consSubst (U₁.wk1Subst U₁.idSubst) u) ]  ≡⟨ tr-Term-subst t ⟩
 
-  tr-Term (U₁.subst (U₁.consSubst (U₁.wk1Subst U₁.idSubst) u) t)  ∎
+  tr-Term (t U₁.[ U₁.consSubst (U₁.wk1Subst U₁.idSubst) u ])   ∎
 
 private
 
@@ -303,16 +302,13 @@ private
 tr-Term-[]↑² :
   ∀ t → tr-Term t U₂.[ tr-Term u ]↑² ≡ tr-Term (t U₁.[ u ]↑²)
 tr-Term-[]↑² {u = u} t =
-  U₂.subst
-    (U₂.consSubst (U₂.wk1Subst (U₂.wk1Subst U₂.idSubst)) (tr-Term u))
-    (tr-Term t)                                                           ≡⟨ UP₂.substVar-to-subst []↑²-lemma (tr-Term t) ⟩
+  tr-Term t
+    U₂.[ U₂.consSubst (U₂.wk1Subst (U₂.wk1Subst U₂.idSubst)) (tr-Term u) ]   ≡⟨ UP₂.substVar-to-subst []↑²-lemma (tr-Term t) ⟩
 
-  U₂.subst
-    (tr-Subst (U₁.consSubst (U₁.wk1Subst (U₁.wk1Subst U₁.idSubst)) u))
-    (tr-Term t)                                                           ≡⟨ tr-Term-subst t ⟩
+  tr-Term t
+    U₂.[ tr-Subst (U₁.consSubst (U₁.wk1Subst (U₁.wk1Subst U₁.idSubst)) u) ]  ≡⟨ tr-Term-subst t ⟩
 
-  tr-Term
-    (U₁.subst (U₁.consSubst (U₁.wk1Subst (U₁.wk1Subst U₁.idSubst)) u) t)  ∎
+  tr-Term (t U₁.[ U₁.consSubst (U₁.wk1Subst (U₁.wk1Subst U₁.idSubst)) u ])   ∎
 
 ------------------------------------------------------------------------
 -- Inversion lemmas for translation
@@ -567,13 +563,13 @@ module Injective
     -- Inversion for subst.
 
     tr-Term-subst⁻¹ :
-      tr-Term t ≡ U₂.subst (tr-Subst σ) u →
-      ∃ λ u′ → tr-Term u′ ≡ u × t ≡ U₁.subst σ u′
-    tr-Term-subst⁻¹ {t = t} {σ = σ} {u = var x} eq =
+      tr-Term t ≡ u U₂.[ tr-Subst σ ] →
+      ∃ λ u′ → tr-Term u′ ≡ u × t ≡ u′ U₁.[ σ ]
+    tr-Term-subst⁻¹ {t = t} {u = var x} {σ = σ} eq =
       var x # refl # tr-Term-injective (
-        tr-Term t                      ≡⟨ eq ⟩
-        U₂.subst (tr-Subst σ) (var x)  ≡˘⟨ tr-Term-subst {σ = σ} (var x) ⟩
-        tr-Term (U₁.subst σ (var x))   ∎)
+        tr-Term t                 ≡⟨ eq ⟩
+        var x U₂.[ tr-Subst σ ]   ≡˘⟨ tr-Term-subst {σ = σ} (var x) ⟩
+        tr-Term (var x U₁.[ σ ])  ∎)
     tr-Term-subst⁻¹ {t = gen k _} {u = gen _ _} eq =
       case U₂.gen-cong⁻¹ eq of λ where
         (refl # refl # eq) →
@@ -590,9 +586,9 @@ module Injective
     tr-Term-substGen⁻¹ {ts = _∷_ {b = b} t _} {σ = σ} {us = u ∷ _} eq =
       case U₂.∷-cong⁻¹ eq of λ (eq₁ # eq₂) →
       case
-        tr-Term t                                  ≡⟨ eq₁ ⟩
-        U₂.subst (U₂.liftSubstn (tr-Subst σ) b) u  ≡⟨ UP₂.substVar-to-subst (λ _ → tr-Subst-liftSubstn b) u ⟩
-        U₂.subst (tr-Subst (U₁.liftSubstn σ b)) u  ∎
+        tr-Term t                              ≡⟨ eq₁ ⟩
+        u U₂.[ U₂.liftSubstn (tr-Subst σ) b ]  ≡⟨ UP₂.substVar-to-subst (λ _ → tr-Subst-liftSubstn b) u ⟩
+        u U₂.[ tr-Subst (U₁.liftSubstn σ b) ]  ∎
       of λ lemma →
       case tr-Term-substGen⁻¹ eq₂ of λ where
         (us′ # refl # refl) →
@@ -602,13 +598,13 @@ module Injective
   -- Inversion for _[_].
 
   tr-Term-[]⁻¹ :
-    ∀ u → tr-Term t ≡ u U₂.[ tr-Term v ] →
-    ∃ λ u′ → tr-Term u′ ≡ u × t ≡ u′ U₁.[ v ]
+    ∀ u → tr-Term t ≡ u U₂.[ tr-Term v ]₀ →
+    ∃ λ u′ → tr-Term u′ ≡ u × t ≡ u′ U₁.[ v ]₀
   tr-Term-[]⁻¹ {t = t} {v = v} u eq = tr-Term-subst⁻¹ (
-    tr-Term t                             ≡⟨ eq ⟩
-    u U₂.[ tr-Term v ]                    ≡⟨⟩
-    U₂.subst (U₂.sgSubst (tr-Term v)) u   ≡⟨ UP₂.substVar-to-subst tr-Subst-sgSubst u ⟩
-    U₂.subst (tr-Subst (U₁.sgSubst v)) u  ∎)
+    tr-Term t                         ≡⟨ eq ⟩
+    u U₂.[ tr-Term v ]₀               ≡⟨⟩
+    u U₂.[ U₂.sgSubst (tr-Term v) ]   ≡⟨ UP₂.substVar-to-subst tr-Subst-sgSubst u ⟩
+    u U₂.[ tr-Subst (U₁.sgSubst v) ]  ∎)
 
   -- Inversion for _[_,_].
 
@@ -616,10 +612,10 @@ module Injective
     tr-Term t ≡ u U₂.[ tr-Term v , tr-Term w ] →
     ∃ λ u′ → tr-Term u′ ≡ u × t ≡ u′ U₁.[ v , w ]
   tr-Term-[,]⁻¹ {t = t} {u = u} {v = v} {w = w} eq = tr-Term-subst⁻¹ (
-    tr-Term t                                                       ≡⟨ eq ⟩
-    u U₂.[ tr-Term v , tr-Term w ]                                  ≡⟨⟩
-    U₂.subst (U₂.consSubst (U₂.sgSubst (tr-Term v)) (tr-Term w)) u  ≡⟨ UP₂.substVar-to-subst [,]-lemma u ⟩
-    U₂.subst (tr-Subst (U₁.consSubst (U₁.sgSubst v) w)) u           ∎)
+    tr-Term t                                                   ≡⟨ eq ⟩
+    u U₂.[ tr-Term v , tr-Term w ]                              ≡⟨⟩
+    u U₂.[ U₂.consSubst (U₂.sgSubst (tr-Term v)) (tr-Term w) ]  ≡⟨ UP₂.substVar-to-subst [,]-lemma u ⟩
+    u U₂.[ tr-Subst (U₁.consSubst (U₁.sgSubst v) w) ]           ∎)
 
   -- Inversion for _[_]↑.
 
@@ -627,10 +623,10 @@ module Injective
     tr-Term t ≡ u U₂.[ tr-Term v ]↑ →
     ∃ λ u′ → tr-Term u′ ≡ u × t ≡ u′ U₁.[ v ]↑
   tr-Term-[]↑⁻¹ {t = t} {u = u} {v = v} eq = tr-Term-subst⁻¹ (
-    tr-Term t                                                        ≡⟨ eq ⟩
-    u U₂.[ tr-Term v ]↑                                              ≡⟨⟩
-    U₂.subst (U₂.consSubst (U₂.wk1Subst U₂.idSubst) (tr-Term v)) u   ≡⟨ UP₂.substVar-to-subst []↑-lemma u ⟩
-    U₂.subst (tr-Subst (U₁.consSubst (U₁.wk1Subst U₁.idSubst) v)) u  ∎)
+    tr-Term t                                                    ≡⟨ eq ⟩
+    u U₂.[ tr-Term v ]↑                                          ≡⟨⟩
+    u U₂.[ U₂.consSubst (U₂.wk1Subst U₂.idSubst) (tr-Term v) ]   ≡⟨ UP₂.substVar-to-subst []↑-lemma u ⟩
+    u U₂.[ tr-Subst (U₁.consSubst (U₁.wk1Subst U₁.idSubst) v) ]  ∎)
 
   -- Inversion for _[_]↑².
 
@@ -638,7 +634,7 @@ module Injective
     tr-Term t ≡ u U₂.[ tr-Term v ]↑² →
     ∃ λ u′ → tr-Term u′ ≡ u × t ≡ u′ U₁.[ v ]↑²
   tr-Term-[]↑²⁻¹ {t = t} {u = u} {v = v} eq = tr-Term-subst⁻¹ (
-    tr-Term t                                                                      ≡⟨ eq ⟩
-    u U₂.[ tr-Term v ]↑²                                                           ≡⟨⟩
-    U₂.subst (U₂.consSubst (U₂.wk1Subst (U₂.wk1Subst U₂.idSubst)) (tr-Term v)) u   ≡⟨ UP₂.substVar-to-subst []↑²-lemma u ⟩
-    U₂.subst (tr-Subst (U₁.consSubst (U₁.wk1Subst (U₁.wk1Subst U₁.idSubst)) v)) u  ∎)
+    tr-Term t                                                                  ≡⟨ eq ⟩
+    u U₂.[ tr-Term v ]↑²                                                       ≡⟨⟩
+    u U₂.[ U₂.consSubst (U₂.wk1Subst (U₂.wk1Subst U₂.idSubst)) (tr-Term v) ]   ≡⟨ UP₂.substVar-to-subst []↑²-lemma u ⟩
+    u U₂.[ tr-Subst (U₁.consSubst (U₁.wk1Subst (U₁.wk1Subst U₁.idSubst)) v) ]  ∎)

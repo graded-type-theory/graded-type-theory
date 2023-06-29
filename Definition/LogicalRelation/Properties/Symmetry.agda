@@ -64,8 +64,8 @@ mutual
           (≅-sym (PE.subst (λ (x : Term n) → Γ ⊢ ⟦ W ⟧ F ▹ G ≅ x) (PE.sym ΠF₁G₁≡ΠF′G′) A≡B))
           [F₁≡F]
           (λ {_} {ρ} {Δ} {a} [ρ] ⊢Δ [a] →
-               let ρG′a≡ρG₁′a = PE.cong (λ x → wk (lift ρ) x [ a ]) (PE.sym G₁≡G′)
-                   [ρG′a] = PE.subst (λ x → Δ ⊩⟨ l′ ⟩ wk (lift ρ) x [ a ]) G₁≡G′
+               let ρG′a≡ρG₁′a = PE.cong (λ x → wk (lift ρ) x [ a ]₀) (PE.sym G₁≡G′)
+                   [ρG′a] = PE.subst (λ x → Δ ⊩⟨ l′ ⟩ wk (lift ρ) x [ a ]₀) G₁≡G′
                                      ([G]₁ [ρ] ⊢Δ [a])
                    [a]₁ = convTerm₁ ([F]₁ [ρ] ⊢Δ) ([F] [ρ] ⊢Δ) ([F₁≡F] [ρ] ⊢Δ) [a]
                in  irrelevanceEq′ ρG′a≡ρG₁′a

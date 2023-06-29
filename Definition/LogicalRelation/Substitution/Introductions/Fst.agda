@@ -130,7 +130,7 @@ fstᵛ {Γ = Γ} {F} {G} {t} {l} [Γ] [F] [G] ok [t] {Δ = Δ} {σ = σ} ⊢Δ [
   let [ΣFG] = Σᵛ {F = F} {G} [Γ] [F] [G] ok
       σfst :
         ∀ {Δ σ} (⊢Δ : ⊢ Δ) ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ) →
-        Δ ⊩⟨ l ⟩ subst σ (fst _ t) ∷ subst σ F /
+        Δ ⊩⟨ l ⟩ fst _ t [ σ ] ∷ F [ σ ] /
           proj₁ (unwrap [F] ⊢Δ [σ])
       σfst {Δ} {σ} ⊢Δ [σ] =
         let ⊩σF = proj₁ (unwrap [F] ⊢Δ [σ])

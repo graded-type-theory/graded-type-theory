@@ -50,7 +50,7 @@ private
         ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
         ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
         ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ F / [Γ] / [F])
-        ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ G [ t ] / [Γ] / substS {F = F} {G} [Γ] [F] [G] [t])
+        ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ G [ t ]₀ / [Γ] / substS {F = F} {G} [Γ] [F] [G] [t])
       → Σₚ-allowed p q
       → Γ ⊩ᵛ⟨ l ⟩ fst p (prodₚ p t u) ≡ t ∷ F / [Γ] / [F]
 Σ-β₁ᵛ {Γ = Γ} {F = F} {G} {t} {u} {l} [Γ] [F] [G] [t] [u] ok =
@@ -61,7 +61,7 @@ private
                     ⊢σF = escape ⊩σF
 
                     [Fσ] = liftSubstS {σ = σ} {F = F} [Γ] ⊢Δ [F] [σ]
-                    ⊩σG : Δ ∙ subst σ F ⊩⟨ l ⟩ subst (liftSubst σ) G
+                    ⊩σG : Δ ∙ F [ σ ] ⊩⟨ l ⟩ G [ liftSubst σ ]
                     ⊩σG = proj₁ (unwrap [G] (⊢Δ ∙ ⊢σF) [Fσ])
                     ⊢σG = escape ⊩σG
 
@@ -84,9 +84,9 @@ private
   ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
   ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
   ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ F / [Γ] / [F])
-  ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ G [ t ] / [Γ] / substS [Γ] [F] [G] [t])
+  ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ G [ t ]₀ / [Γ] / substS [Γ] [F] [G] [t])
   (ok : Σₚ-allowed p q) →
-  Γ ⊩ᵛ⟨ l ⟩ snd p (prodₚ p t u) ≡ u ∷ G [ fst p (prodₚ p t u) ] / [Γ] /
+  Γ ⊩ᵛ⟨ l ⟩ snd p (prodₚ p t u) ≡ u ∷ G [ fst p (prodₚ p t u) ]₀ / [Γ] /
     substS {F = F} {G} [Γ] [F] [G]
       (fstᵛ {q = q} {t = prodₚ p t u} [Γ] [F] [G] ok
          (prodᵛ {t = t} {u} [Γ] [F] [G] [t] [u] ok))
@@ -102,14 +102,14 @@ private
 
       [u]Gfst = conv₂ᵛ {t = u} [Γ] [Gfst] [Gt] [Gfst≡Gt] [u]
 
-      snd⇒t : Γ ⊩ᵛ snd _ (prodₚ _ t u) ⇒ u ∷ G [ fst _ (prodₚ _ t u) ] /
+      snd⇒t : Γ ⊩ᵛ snd _ (prodₚ _ t u) ⇒ u ∷ G [ fst _ (prodₚ _ t u) ]₀ /
                 [Γ]
       snd⇒t = (λ {_} {Δ} {σ} ⊢Δ [σ] →
                 let ⊩σF = proj₁ (unwrap [F] ⊢Δ [σ])
                     ⊢σF = escape ⊩σF
 
                     [Fσ] = liftSubstS {σ = σ} {F = F} [Γ] ⊢Δ [F] [σ]
-                    ⊩σG : Δ ∙ subst σ F ⊩⟨ l ⟩ subst (liftSubst σ) G
+                    ⊩σG : Δ ∙ F [ σ ] ⊩⟨ l ⟩ G [ liftSubst σ ]
                     ⊩σG = proj₁ (unwrap [G] (⊢Δ ∙ ⊢σF) [Fσ])
                     ⊢σG = escape ⊩σG
 
@@ -127,7 +127,7 @@ private
                     snd⇒t = Σ-β₂ ⊢σF ⊢σG ⊢σt ⊢σu PE.refl ok
                     σGfst≡σGfst = PE.subst
                       (λ x →
-                         Δ ⊢ x ≡ subst σ (G [ fst _ (prodₚ _ t u) ]))
+                         Δ ⊢ x ≡ G [ fst _ (prodₚ _ t u) ]₀ [ σ ])
                       (singleSubstLift G (fst _ (prodₚ _ t u)))
                       (refl (escape (proj₁ (unwrap [Gfst] ⊢Δ [σ]))))
               in  conv snd⇒t σGfst≡σGfst)
@@ -137,12 +137,12 @@ private
 Σ-η′ :
   ∀ {F G p r l l′}
   ([F] : Γ ⊩⟨ l′ ⟩ F)
-  ([Gfstp] : Γ ⊩⟨ l′ ⟩ G [ fst p′ p ])
+  ([Gfstp] : Γ ⊩⟨ l′ ⟩ G [ fst p′ p ]₀)
   ([ΣFG]₁ : Γ ⊩⟨ l ⟩B⟨ BΣ Σₚ p′ q ⟩ Σₚ p′ , q ▷ F ▹ G )
   ([p] : Γ ⊩⟨ l ⟩ p ∷ Σ p′ , q ▷ F ▹ G / B-intr BΣ! [ΣFG]₁)
   ([r] : Γ ⊩⟨ l ⟩ r ∷ Σ p′ , q ▷ F ▹ G / B-intr BΣ! [ΣFG]₁)
   ([fst≡] : Γ ⊩⟨ l′ ⟩ fst p′ p ≡ fst p′ r ∷ F / [F])
-  ([snd≡] : Γ ⊩⟨ l′ ⟩ snd p′ p ≡ snd p′ r ∷ G [ fst p′ p ] / [Gfstp]) →
+  ([snd≡] : Γ ⊩⟨ l′ ⟩ snd p′ p ≡ snd p′ r ∷ G [ fst p′ p ]₀ / [Gfstp]) →
   Γ ⊩⟨ l ⟩ p ≡ r ∷ Σ p′ , q ▷ F ▹ G / B-intr BΣ! [ΣFG]₁
 Σ-η′ {Γ = Γ} {q = q} {F = F} {G} {p} {r} {l} {l′}
      [F] [Gfstp]
@@ -184,46 +184,46 @@ private
       [p′] = Σₜ p′ (idRedTerm:*: (⊢u-redₜ dₚ)) p′≅p′ pProd p′Prop
       [r′] = Σₜ r′ (idRedTerm:*: (⊢u-redₜ dᵣ)) r′≅r′ rProd r′Prop
 
-      sndp⇒*₁ : Γ ⊢ snd _ p ⇒* snd _ p′ ∷ G [ fst _ p ]
+      sndp⇒*₁ : Γ ⊢ snd _ p ⇒* snd _ p′ ∷ G [ fst _ p ]₀
       sndp⇒*₁ = snd-subst* [F] [ΣFG] [p′] (redₜ dₚ)
       sndr⇒*₁ = snd-subst* [F] [ΣFG] [r′] (redₜ dᵣ)
 
       wk[Gfstp] = [G]₁ id ⊢Γ wk[fstp]
       wk[Gfstr] = [G]₁ id ⊢Γ wk[fstr]
       [Gfstr] = irrelevance′
-        (PE.cong (λ x → x [ fst _ r ]) (wk-lift-id G))
+        (PE.cong (λ x → x [ fst _ r ]₀) (wk-lift-id G))
         wk[Gfstr]
       wk[Gfstr′] = [G]₁ id ⊢Γ wk[fstr′]
 
       [Gfstp≡wkGfstp′] :
-        Γ ⊩⟨ l′ ⟩ G [ fst _ p ] ≡ U.wk (lift id) G [ fst _ p′ ] /
+        Γ ⊩⟨ l′ ⟩ G [ fst _ p ]₀ ≡ U.wk (lift id) G [ fst _ p′ ]₀ /
           [Gfstp]
       [Gfstp≡wkGfstp′] = irrelevanceEq′
-        (PE.cong (λ x → x [ fst _ p ]) (wk-lift-id G))
+        (PE.cong (λ x → x [ fst _ p ]₀) (wk-lift-id G))
         ([G]₁ id ⊢Γ wk[fstp]) [Gfstp]
         (G-ext id ⊢Γ wk[fstp] wk[fstp′] wk[fstp≡])
-      [Gfstr≡Gfstp] : Γ ⊩⟨ _ ⟩ G [ fst _ r ] ≡ G [ fst _ p ] / [Gfstr]
+      [Gfstr≡Gfstp] : Γ ⊩⟨ _ ⟩ G [ fst _ r ]₀ ≡ G [ fst _ p ]₀ / [Gfstr]
       [Gfstr≡Gfstp] = irrelevanceEq″
-        (PE.cong (λ x → x [ fst _ r ]) (wk-lift-id G))
-        (PE.cong (λ x → x [ fst _ p ]) (wk-lift-id G))
+        (PE.cong (λ x → x [ fst _ r ]₀) (wk-lift-id G))
+        (PE.cong (λ x → x [ fst _ p ]₀) (wk-lift-id G))
         wk[Gfstr] [Gfstr]
         (symEq wk[Gfstp] wk[Gfstr]
            (G-ext id ⊢Γ wk[fstp] wk[fstr] wk[fst≡]))
       [Gfstr≡wkGfstp′] :
-        Γ ⊩⟨ l ⟩ G [ fst _ r ] ≡ U.wk (lift id) G [ fst _ p′ ] / [Gfstr]
+        Γ ⊩⟨ l ⟩ G [ fst _ r ]₀ ≡ U.wk (lift id) G [ fst _ p′ ]₀ / [Gfstr]
       [Gfstr≡wkGfstp′] = transEq [Gfstr] [Gfstp] wk[Gfstp′]
                                  [Gfstr≡Gfstp] [Gfstp≡wkGfstp′]
       [wkGfstr′≡wkGfstp′] :
-        Γ ⊩⟨ l ⟩ U.wk (lift id) G [ fst _ r′ ] ≡
-          U.wk (lift id) G [ fst _ p′ ] / wk[Gfstr′]
+        Γ ⊩⟨ l ⟩ U.wk (lift id) G [ fst _ r′ ]₀ ≡
+          U.wk (lift id) G [ fst _ p′ ]₀ / wk[Gfstr′]
       [wkGfstr′≡wkGfstp′] = G-ext id ⊢Γ wk[fstr′] wk[fstp′] (symEqTerm wk[F] wk[fst′≡])
 
-      sndp⇒* : Γ ⊢ snd _ p ⇒* snd _ p′ ∷ U.wk (lift id) G [ fst _ p′ ]
+      sndp⇒* : Γ ⊢ snd _ p ⇒* snd _ p′ ∷ U.wk (lift id) G [ fst _ p′ ]₀
       sndp⇒* = conv* sndp⇒*₁ (≅-eq (escapeEq [Gfstp] [Gfstp≡wkGfstp′]))
       sndr⇒* = conv* sndr⇒*₁ (≅-eq (escapeEq [Gfstr] [Gfstr≡wkGfstp′]))
 
       wk[sndp≡] :
-        Γ ⊩⟨ l ⟩ snd _ p ≡ snd _ p′ ∷ U.wk (lift id) G [ fst _ p′ ] /
+        Γ ⊩⟨ l ⟩ snd _ p ≡ snd _ p′ ∷ U.wk (lift id) G [ fst _ p′ ]₀ /
           wk[Gfstp′]
       wk[sndp≡] = proj₂ (redSubst*Term sndp⇒* wk[Gfstp′] wk[sndp′])
       wk[sndr≡] = proj₂ (redSubst*Term sndr⇒* wk[Gfstp′]
@@ -232,12 +232,12 @@ private
                                                   wk[sndr′]))
 
       wk[snd≡] :
-        Γ ⊩⟨ l ⟩ snd _ p ≡ snd _ r ∷ U.wk (lift id) G [ fst _ p′ ] /
+        Γ ⊩⟨ l ⟩ snd _ p ≡ snd _ r ∷ U.wk (lift id) G [ fst _ p′ ]₀ /
           wk[Gfstp′]
       wk[snd≡] = convEqTerm₁ [Gfstp] wk[Gfstp′] [Gfstp≡wkGfstp′] [snd≡]
 
       wk[snd′≡] :
-        Γ ⊩⟨ l ⟩ snd _ p′ ≡ snd _ r′ ∷ U.wk (lift id) G [ fst _ p′ ] /
+        Γ ⊩⟨ l ⟩ snd _ p′ ≡ snd _ r′ ∷ U.wk (lift id) G [ fst _ p′ ]₀ /
           wk[Gfstp′]
       wk[snd′≡] = transEqTerm wk[Gfstp′]
                               (symEqTerm wk[Gfstp′] wk[sndp≡])
@@ -249,7 +249,7 @@ private
                     (PE.subst (λ x → Γ ⊢ _ ≅ _ ∷ x)
                               (wk-id F)
                               (escapeTermEq wk[F] wk[fst′≡]))
-                    (PE.subst (λ x → Γ ⊢ _ ≅ _ ∷ x [ fst _ p′ ])
+                    (PE.subst (λ x → Γ ⊢ _ ≅ _ ∷ x [ fst _ p′ ]₀)
                               (wk-lift-id G)
                               (escapeTermEq wk[Gfstp′] wk[snd′≡]))
   in  Σₜ₌ p′ r′ dₚ dᵣ pProd rProd p′≅r′ [p] [r]
@@ -259,12 +259,12 @@ private
 Σ-η″ :
   ∀ {F G p r l}
   ([F] : Γ ⊩⟨ l ⟩ F)
-  ([Gfst] : Γ ⊩⟨ l ⟩ G [ fst p′ p ])
+  ([Gfst] : Γ ⊩⟨ l ⟩ G [ fst p′ p ]₀)
   ([ΣFG] : Γ ⊩⟨ l ⟩ Σₚ p′ , q ▷ F ▹ G)
   ([p] : Γ ⊩⟨ l ⟩ p ∷ Σ p′ , q ▷ F ▹ G / [ΣFG])
   ([r] : Γ ⊩⟨ l ⟩ r ∷ Σ p′ , q ▷ F ▹ G / [ΣFG])
   ([fst≡] : Γ ⊩⟨ l ⟩ fst p′ p ≡ fst p′ r ∷ F / [F])
-  ([snd≡] : Γ ⊩⟨ l ⟩ snd p′ p ≡ snd p′ r ∷ G [ fst p′ p ] / [Gfst]) →
+  ([snd≡] : Γ ⊩⟨ l ⟩ snd p′ p ≡ snd p′ r ∷ G [ fst p′ p ]₀ / [Gfst]) →
   Γ ⊩⟨ l ⟩ p ≡ r ∷ Σ p′ , q ▷ F ▹ G / [ΣFG]
 Σ-η″
   {Γ = Γ} {F = F} {G} {t} {l}
@@ -287,7 +287,7 @@ private
   ([r] : Γ ⊩ᵛ⟨ l ⟩ r ∷ Σ _ , _ ▷ F ▹ G / [Γ] / [ΣFG])
   ([fst≡] : Γ ⊩ᵛ⟨ l ⟩ fst p′ p ≡ fst p′ r ∷ F / [Γ] / [F]) →
   let [Gfst] = substS [Γ] [F] [G] (fstᵛ {t = p} [Γ] [F] [G] ok [p]) in
-  ([snd≡] : Γ ⊩ᵛ⟨ l ⟩ snd p′ p ≡ snd p′ r ∷ G [ fst p′ p ] / [Γ] /
+  ([snd≡] : Γ ⊩ᵛ⟨ l ⟩ snd p′ p ≡ snd p′ r ∷ G [ fst p′ p ]₀ / [Γ] /
               [Gfst]) →
   Γ ⊩ᵛ⟨ l ⟩ p ≡ r ∷ Σ p′ , q ▷ F ▹ G / [Γ] / [ΣFG]
 Σ-ηᵛ

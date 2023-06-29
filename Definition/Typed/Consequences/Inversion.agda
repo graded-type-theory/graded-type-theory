@@ -122,17 +122,17 @@ inversion-suc (conv x x₁) =
 -- Inversion of natural recursion.
 inversion-natrec : ∀ {c g n A C} → Γ ⊢ natrec p q r C c g n ∷ A
   → (Γ ∙ ℕ ⊢ C)
-  × Γ ⊢ c ∷ C [ zero ]
+  × Γ ⊢ c ∷ C [ zero ]₀
   × Γ ∙ ℕ ∙ C ⊢ g ∷ C [ suc (var x1) ]↑²
   × Γ ⊢ n ∷ ℕ
-  × Γ ⊢ A ≡ C [ n ]
+  × Γ ⊢ A ≡ C [ n ]₀
 inversion-natrec (natrecⱼ x d d₁ n) = x , d , d₁ , n , refl (substType x n)
 inversion-natrec (conv d x) = let a , b , c , d , e = inversion-natrec d
                               in  a , b , c , d , trans (sym x) e
 
 -- Inversion of application.
 inversion-app :  ∀ {f a A} → Γ ⊢ f ∘⟨ p ⟩ a ∷ A →
-  ∃₃ λ F G q → Γ ⊢ f ∷ Π p , q ▷ F ▹ G × Γ ⊢ a ∷ F × Γ ⊢ A ≡ G [ a ]
+  ∃₃ λ F G q → Γ ⊢ f ∷ Π p , q ▷ F ▹ G × Γ ⊢ a ∷ F × Γ ⊢ A ≡ G [ a ]₀
 inversion-app (d ∘ⱼ d₁) = _ , _ , _ , d , d₁ , refl (substTypeΠ (syntacticTerm d) d₁)
 inversion-app (conv d x) = let a , b , c , d , e , f = inversion-app d
                            in  a , b , c , d , e , trans (sym x) f
@@ -158,7 +158,7 @@ inversion-prod :
     (Γ ⊢ F) ×
     (Γ ∙ F ⊢ G) ×
     (Γ ⊢ t ∷ F) ×
-    (Γ ⊢ u ∷ G [ t ]) ×
+    (Γ ⊢ u ∷ G [ t ]₀) ×
     Γ ⊢ A ≡ Σ⟨ m ⟩ p , q ▷ F ▹ G ×
     Σ-allowed m p q
   -- NOTE fundamental theorem not required since prodⱼ has inversion built-in.
@@ -181,7 +181,7 @@ inversion-fst (conv ⊢t x) =
 inversion-snd : ∀ {t A} → Γ ⊢ snd p t ∷ A →
   ∃₃ λ F G q →
     Γ ⊢ F × Γ ∙ F ⊢ G ×
-    (Γ ⊢ t ∷ Σₚ p , q ▷ F ▹ G) × (Γ ⊢ A ≡ G [ fst p t ])
+    (Γ ⊢ t ∷ Σₚ p , q ▷ F ▹ G) × (Γ ⊢ A ≡ G [ fst p t ]₀)
 inversion-snd (sndⱼ ⊢F ⊢G ⊢t) =
   _ , _ , _ , ⊢F , ⊢G , ⊢t , refl (substType ⊢G (fstⱼ ⊢F ⊢G ⊢t))
 inversion-snd (conv ⊢t x) =
@@ -198,7 +198,7 @@ inversion-prodrec :
     (Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ C) ×
     Γ ⊢ t ∷ Σᵣ p , q ▷ F ▹ G ×
     Γ ∙ F ∙ G ⊢ u ∷ C [ prodᵣ p (var x1) (var x0) ]↑² ×
-    Γ ⊢ A ≡ C [ t ]
+    Γ ⊢ A ≡ C [ t ]₀
 inversion-prodrec (prodrecⱼ ⊢F ⊢G ⊢C ⊢t ⊢u _) =
   _ , _ , _ , ⊢F , ⊢G , ⊢C , ⊢t , ⊢u , refl (substType ⊢C ⊢t)
 inversion-prodrec (conv x x₁) =

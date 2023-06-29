@@ -79,6 +79,7 @@ data _®_∷Unit (t : U.Term k) (v : T.Term k) : Set a where
 mutual
 
   -- Logical relation for erasure
+  infix 19 _®⟨_⟩_∷_/_
 
   _®⟨_⟩_∷_/_ : (t : U.Term k) (l : TypeLevel) (v : T.Term k)
                (A : U.Term k) ([A] : Δ ⊩⟨ l ⟩ A) → Set a
@@ -104,7 +105,7 @@ mutual
     Δ ⊢ t ⇒* U.prod m p t₁ t₂ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G ×
     Σ (Δ ⊩⟨ l ⟩ t₁ ∷ U.wk id F / [F] id ⊢Δ) λ [t₁] →
     ∃ λ v₂ →
-    t₂ ®⟨ l ⟩ v₂ ∷ U.wk (lift id) G U.[ t₁ ] / [G] id ⊢Δ [t₁] ×
+    t₂ ®⟨ l ⟩ v₂ ∷ U.wk (lift id) G U.[ t₁ ]₀ / [G] id ⊢Δ [t₁] ×
     Σ-® l F ([F] id ⊢Δ) t₁ v v₂ p
 
   -- Subsumption:
@@ -117,19 +118,19 @@ mutual
   Π-® : (l : TypeLevel) (F : U.Term k) (G : U.Term (1+ k))
         (t b : U.Term k) (v : T.Term k)
         ([F] : Δ ⊩⟨ l ⟩ U.wk id F)
-        ([G] : Δ ⊩⟨ l ⟩ U.wk (lift id) G U.[ b ])
+        ([G] : Δ ⊩⟨ l ⟩ U.wk (lift id) G U.[ b ]₀)
         (p : M) (p≟𝟘 : Dec (p PE.≡ 𝟘)) → Set a
   -- Erased Π:
   -- Functions t and v are related if the applications
   -- t∘a and v∘↯ are related (cf. the extraction function).
   Π-® l F G t a v [F] [Ga] p (yes p≡𝟘) =
-    (t ∘⟨ p ⟩ a) ®⟨ l ⟩ v ∘ ↯ ∷ U.wk (lift id) G U.[ a ] / [Ga]
+    (t ∘⟨ p ⟩ a) ®⟨ l ⟩ v ∘ ↯ ∷ U.wk (lift id) G U.[ a ]₀ / [Ga]
   -- Non-erased Π:
   -- Functions t and v are related if the applications
   -- t∘a and v∘w are related for all related a and w.
   Π-® l F G t a v [F] [Ga] p (no p≢𝟘) =
     ∀ {w} → a ®⟨ l ⟩ w ∷ U.wk id F / [F]
-          → (t ∘⟨ p ⟩ a) ®⟨ l ⟩ v ∘ w ∷ U.wk (lift id) G U.[ a ] / [Ga]
+          → (t ∘⟨ p ⟩ a) ®⟨ l ⟩ v ∘ w ∷ U.wk (lift id) G U.[ a ]₀ / [Ga]
 
   -- Extra data for Σ-types, depending on whether the first component
   -- is erased or not.
@@ -168,7 +169,7 @@ _®⟨_⟩_∷[_]_◂_/_/_ :
 σₜ ®⟨ l ⟩ σᵥ ∷[ _ ] ε ◂ ε / ε / (lift tt) = Lift a ⊤
 σₜ ®⟨ l ⟩ σᵥ ∷[ m ] Γ ∙ A ◂ γ ∙ p / _∙_ {l = l₁} [Γ] [A] / ([σ] , [σA]) =
   ((U.tail σₜ) ®⟨ l ⟩ (T.tail σᵥ) ∷[ m ] Γ ◂ γ / [Γ] / [σ]) ×
-  ((U.head σₜ) ®⟨ l₁ ⟩ (T.head σᵥ) ∷ (U.subst (U.tail σₜ) A)
+  ((U.head σₜ) ®⟨ l₁ ⟩ (T.head σᵥ) ∷ (A U.[ U.tail σₜ ])
   ◂ ⌜ m ⌝ · p / proj₁ (unwrap [A] ⊢Δ [σ]))
 
 -- Validity of erasure
@@ -184,7 +185,7 @@ _▸_⊩ʳ⟨_⟩_∷[_]_/_/_ :
   ∀ {σ σ′} →
   ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ) →
   σ ®⟨ l ⟩ σ′ ∷[ m ] Γ ◂ γ / [Γ] / [σ] →
-  U.subst σ t ®⟨ l ⟩ T.subst σ′ (erase t) ∷ U.subst σ A ◂ ⌜ m ⌝ /
+  t U.[ σ ] ®⟨ l ⟩ erase t T.[ σ′ ] ∷ A U.[ σ ] ◂ ⌜ m ⌝ /
     proj₁ (unwrap [A] ⊢Δ [σ])
 
 -- Helper introduction and elimination lemmata for Σ-®

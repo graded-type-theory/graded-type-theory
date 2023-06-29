@@ -62,7 +62,7 @@ wellformedSubstEq ([Γ] ∙ [A]) ⊢Δ ([tailσ] , [headσ]) ([tailσ≡σ′] ,
 consSubstS : ∀ {l t A Γ Δ} ([Γ] : ⊩ᵛ Γ) (⊢Δ : ⊢ Δ)
            ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
            ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ])
-           ([t] : Δ ⊩⟨ l ⟩ t ∷ subst σ A / proj₁ (unwrap [A] ⊢Δ [σ]))
+           ([t] : Δ ⊩⟨ l ⟩ t ∷ A [ σ ] / proj₁ (unwrap [A] ⊢Δ [σ]))
          → Δ ⊩ˢ consSubst σ t ∷ Γ ∙ A / [Γ] ∙ [A] / ⊢Δ
 consSubstS [Γ] ⊢Δ [σ] [A] [t] = [σ] , [t]
 
@@ -71,7 +71,7 @@ consSubstSEq : ∀ {l t A Γ Δ} ([Γ] : ⊩ᵛ Γ) (⊢Δ : ⊢ Δ)
              ([σ]    : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
              ([σ≡σ′] : Δ ⊩ˢ σ ≡ σ′ ∷ Γ / [Γ] / ⊢Δ / [σ])
              ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ])
-             ([t] : Δ ⊩⟨ l ⟩ t ∷ subst σ A / proj₁ (unwrap [A] ⊢Δ [σ]))
+             ([t] : Δ ⊩⟨ l ⟩ t ∷ A [ σ ] / proj₁ (unwrap [A] ⊢Δ [σ]))
            → Δ ⊩ˢ consSubst σ t ≡ consSubst σ′ t ∷ Γ ∙ A / [Γ] ∙ [A] / ⊢Δ
                / consSubstS {t = t} {A = A} [Γ] ⊢Δ [σ] [A] [t]
 consSubstSEq [Γ] ⊢Δ [σ] [σ≡σ′] [A] [t] =
@@ -128,12 +128,12 @@ wk1SubstSEq {l} {F} {σ} {Γ} {Δ} [Γ] ⊢Δ ⊢F [σ] [σ≡σ′] =
 liftSubstS : ∀ {l F Γ Δ} ([Γ] : ⊩ᵛ Γ) (⊢Δ : ⊢ Δ)
              ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
              ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
-           → (Δ ∙ subst σ F) ⊩ˢ liftSubst σ ∷ Γ ∙ F / [Γ] ∙ [F]
+           → (Δ ∙ F [ σ ]) ⊩ˢ liftSubst σ ∷ Γ ∙ F / [Γ] ∙ [F]
                              / (⊢Δ ∙ escape (proj₁ (unwrap [F] ⊢Δ [σ])))
 liftSubstS {σ = σ} {F = F} {Δ = Δ} [Γ] ⊢Δ [F] [σ] =
   let ⊢F = escape (proj₁ (unwrap [F] ⊢Δ [σ]))
-      [tailσ] = wk1SubstS {F = subst σ F} [Γ] ⊢Δ (escape (proj₁ (unwrap [F] ⊢Δ [σ]))) [σ]
-      var0 = var (⊢Δ ∙ ⊢F) (PE.subst (λ x → x0 ∷ x ∈ (Δ ∙ subst σ F))
+      [tailσ] = wk1SubstS {F = F [ σ ]} [Γ] ⊢Δ (escape (proj₁ (unwrap [F] ⊢Δ [σ]))) [σ]
+      var0 = var (⊢Δ ∙ ⊢F) (PE.subst (λ x → x0 ∷ x ∈ Δ ∙ F [ σ ])
                                      (wk-subst F) here)
   in  [tailσ] , neuTerm (proj₁ (unwrap [F] (⊢Δ ∙ ⊢F) [tailσ])) (var x0)
                         var0 (~-var var0)
@@ -143,14 +143,14 @@ liftSubstSEq : ∀ {l F Γ Δ} ([Γ] : ⊩ᵛ Γ) (⊢Δ : ⊢ Δ)
              ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
              ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
              ([σ≡σ′] : Δ ⊩ˢ σ ≡ σ′ ∷ Γ / [Γ] / ⊢Δ / [σ])
-           → (Δ ∙ subst σ F) ⊩ˢ liftSubst σ ≡ liftSubst σ′ ∷ Γ ∙ F / [Γ] ∙ [F]
+           → (Δ ∙ F [ σ ]) ⊩ˢ liftSubst σ ≡ liftSubst σ′ ∷ Γ ∙ F / [Γ] ∙ [F]
                              / (⊢Δ ∙ escape (proj₁ (unwrap [F] ⊢Δ [σ])))
                              / liftSubstS {F = F} [Γ] ⊢Δ [F] [σ]
 liftSubstSEq {σ = σ} {σ′ = σ′} {F = F} {Δ = Δ} [Γ] ⊢Δ [F] [σ] [σ≡σ′] =
   let ⊢F = escape (proj₁ (unwrap [F] ⊢Δ [σ]))
-      [tailσ] = wk1SubstS {F = subst σ F} [Γ] ⊢Δ (escape (proj₁ (unwrap [F] ⊢Δ [σ]))) [σ]
+      [tailσ] = wk1SubstS {F = F [ σ ]} [Γ] ⊢Δ (escape (proj₁ (unwrap [F] ⊢Δ [σ]))) [σ]
       [tailσ≡σ′] = wk1SubstSEq [Γ] ⊢Δ (escape (proj₁ (unwrap [F] ⊢Δ [σ]))) [σ] [σ≡σ′]
-      var0 = var (⊢Δ ∙ ⊢F) (PE.subst (λ x → x0 ∷ x ∈ (Δ ∙ subst σ F)) (wk-subst F) here)
+      var0 = var (⊢Δ ∙ ⊢F) (PE.subst (λ x → x0 ∷ x ∈ (Δ ∙ F [ σ ])) (wk-subst F) here)
   in  [tailσ≡σ′] , neuEqTerm (proj₁ (unwrap [F] (⊢Δ ∙ ⊢F) [tailσ])) (var x0) (var x0)
                          var0 var0 (~-var var0)
 
@@ -170,16 +170,16 @@ mutual
     let ⊢Γ = soundContext [Γ]
         ⊢Γ∙A = soundContext ([Γ] ∙ [A])
         ⊢Γ∙A′ = ⊢Γ ∙ escape (proj₁ (unwrap [A] ⊢Γ (idSubstS [Γ])))
-        [A]′ = wk1SubstS {F = subst idSubst A} [Γ] ⊢Γ
+        [A]′ = wk1SubstS {F = A [ idSubst ]} [Γ] ⊢Γ
                          (escape (proj₁ (unwrap [A] (soundContext [Γ])
                                                 (idSubstS [Γ]))))
                          (idSubstS [Γ])
         [tailσ] = irrelevanceSubst′ (PE.cong (_∙_ Γ) (subst-id A))
                                     [Γ] [Γ] ⊢Γ∙A′ ⊢Γ∙A [A]′
-        var0 = var ⊢Γ∙A (PE.subst (λ x → x0 ∷ x ∈ (Γ ∙ A))
+        var0 = var ⊢Γ∙A (PE.subst (λ x → x0 ∷ x ∈ Γ ∙ A)
                                   (wk-subst A)
-                                  (PE.subst (λ x → x0 ∷ wk1 (subst idSubst A)
-                                                     ∈ (Γ ∙ x))
+                                  (PE.subst (λ x → x0 ∷ wk1 (A [ idSubst ])
+                                                     ∈ Γ ∙ x)
                                             (subst-id A) here))
     in  [tailσ]
     ,   neuTerm (proj₁ (unwrap [A] ⊢Γ∙A [tailσ]))

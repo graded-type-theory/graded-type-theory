@@ -154,12 +154,12 @@ mutual
         [snd] = neuTerm [Gfst] (sndₙ neN)
                         (PE.subst
                           (λ x → _ ⊢ snd _ _ ∷ x)
-                          (PE.cong (λ x → x [ fst _ _ ])
+                          (PE.cong (λ x → x [ fst _ _ ]₀)
                              (PE.sym (wk-lift-id G)))
                           (sndⱼ ⊢F ⊢G ⊢n))
                         (PE.subst
                           (λ x → _ ⊢ _ ~ _ ∷ x)
-                          (PE.cong (λ x → x [ fst _ _ ])
+                          (PE.cong (λ x → x [ fst _ _ ]₀)
                              (PE.sym (wk-lift-id G)))
                           (~-snd ⊢F ⊢G n~n))
     in  Σₜ _ (idRedTerm:*: ⊢n) (~-to-≅ₜ n~n) (ne neN) ([fst] , [snd])
@@ -276,27 +276,27 @@ mutual
                            (PE.sym (wk-id F))
                            (~-fst ⊢F ⊢G n~n′Σ))
         [Gfstn] = [G] Wk.id ⊢Γ [fstn]
-        [Gfstn′] = PE.subst (λ x → _ ⊩⟨ _ ⟩ x [ fst _ _ ])
+        [Gfstn′] = PE.subst (λ x → _ ⊩⟨ _ ⟩ x [ fst _ _ ]₀)
                      (wk-lift-id G) ([G] Wk.id ⊢Γ [fstn′])
         [fstn′≡fstn] = symEqTerm [F] [fstn≡fstn′]
         [Gfstn′≡Gfstn] = irrelevanceEq″
-          (PE.cong (λ x → x [ fst _ _ ]) (wk-lift-id G))
-          (PE.cong (λ x → x [ fst _ _ ]) (wk-lift-id G))
+          (PE.cong (λ x → x [ fst _ _ ]₀) (wk-lift-id G))
+          (PE.cong (λ x → x [ fst _ _ ]₀) (wk-lift-id G))
           ([G] Wk.id ⊢Γ [fstn′]) [Gfstn′]
           (G-ext Wk.id ⊢Γ [fstn′] [fstn] [fstn′≡fstn])
         Gfstn′≡Gfstn = ≅-eq (escapeEq [Gfstn′] [Gfstn′≡Gfstn])
         [sndn≡sndn′] = neuEqTerm [Gfstn] (sndₙ neN) (sndₙ neN′)
           (PE.subst
              (λ x → _ ⊢ snd _ _ ∷ x)
-             (PE.cong (λ x → x [ fst _ _ ]) (PE.sym (wk-lift-id G)))
+             (PE.cong (λ x → x [ fst _ _ ]₀) (PE.sym (wk-lift-id G)))
              (sndⱼ ⊢F ⊢G ⊢nΣ))
           (PE.subst
              (λ x → _ ⊢ snd _ _ ∷ x)
-             (PE.cong (λ x → x [ fst _ _ ]) (PE.sym (wk-lift-id G)))
+             (PE.cong (λ x → x [ fst _ _ ]₀) (PE.sym (wk-lift-id G)))
              (conv (sndⱼ ⊢F ⊢G ⊢n′Σ) Gfstn′≡Gfstn))
           (PE.subst
              (λ x → _ ⊢ _ ~ _ ∷ x)
-             (PE.cong (λ x → x [ fst _ _ ]) (PE.sym (wk-lift-id G)))
+             (PE.cong (λ x → x [ fst _ _ ]₀) (PE.sym (wk-lift-id G)))
              (~-snd ⊢F ⊢G n~n′Σ))
     in  Σₜ₌ _ _ (idRedTerm:*: ⊢nΣ) (idRedTerm:*: ⊢n′Σ)
             (ne neN) (ne neN′) (~-to-≅ₜ n~n′Σ)

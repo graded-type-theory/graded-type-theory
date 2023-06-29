@@ -21,7 +21,7 @@ open import Graded.Usage 𝕄 R
 open import Graded.Usage.Properties 𝕄 R
 open import Graded.Usage.Weakening 𝕄 R
 open import Graded.Mode 𝕄
-open import Definition.Untyped M as U renaming (_[_,_] to _[_,,_])
+open import Definition.Untyped M renaming (_[_,_] to _[_,,_])
 
 open import Tools.Bool using (T)
 open import Tools.Fin
@@ -53,7 +53,7 @@ private
 
 -- Modality substitution application distributes over addition.
 -- Ψ *> (γ +ᶜ δ) ≡ Ψ *> γ +ᶜ Ψ *> δ.
--- Proof by induciton on Ψ using identiy, commutativity and associtivity of addition
+-- Proof by induciton on Ψ using identity, commutativity and associtivity of addition
 -- and distributivity of multiplication over addition.
 
 *>-distrib-+ᶜ : (Ψ : Substₘ m n) (γ δ : Conₘ n) → Ψ *> (γ +ᶜ δ) ≈ᶜ Ψ *> γ +ᶜ Ψ *> δ
@@ -588,14 +588,14 @@ wf-tailSubstₘ Ψ▶σ x =
 ---------------------------------------
 
 -- A substitution lemma for the mode 𝟘ᵐ[ ok ]: if σ is well-formed and
--- t is well-used, then U.subst σ t is well-used in the mode 𝟘ᵐ[ ok ],
+-- t is well-used, then t [ σ ] is well-used in the mode 𝟘ᵐ[ ok ],
 -- with no usages.
 --
 -- Proof by induction on t being well resourced.
 
 substₘ-lemma₀ :
   ∀ ⦃ ok ⦄ (Ψ : Substₘ m n) →
-  Ψ ▶[ mos ] σ → γ ▸[ mo ] t → 𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] U.subst σ t
+  Ψ ▶[ mos ] σ → γ ▸[ mo ] t → 𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] t [ σ ]
 substₘ-lemma₀ _ _ Uₘ =
   Uₘ
 
@@ -735,7 +735,7 @@ private
 substₘ-lemma₁ :
   ¬ T 𝟘ᵐ-allowed →
   (Ψ : Substₘ m n) →
-  Ψ ▶[ mos ] σ → γ ▸[ mo ] t → substₘ Ψ γ ▸[ 𝟙ᵐ ] U.subst σ t
+  Ψ ▶[ mos ] σ → γ ▸[ mo ] t → substₘ Ψ γ ▸[ 𝟙ᵐ ] t [ σ ]
 substₘ-lemma₁ {mo = 𝟘ᵐ[ ok ]} not-ok = ⊥-elim (not-ok ok)
 
 substₘ-lemma₁ _ Ψ _ Uₘ =
@@ -887,7 +887,7 @@ private
   substₘ-lemma-𝟘ᵐ? :
     (Ψ : Substₘ m n) →
     Ψ ▶[ mos ] σ → γ ▸[ mo ] t →
-    ∃ λ δ → δ ▸[ 𝟘ᵐ? ] U.subst σ t
+    ∃ λ δ → δ ▸[ 𝟘ᵐ? ] t [ σ ]
   substₘ-lemma-𝟘ᵐ? Ψ Ψ▶ γ▸ = 𝟘ᵐ-allowed-elim
     (λ ok →
          _
@@ -903,7 +903,7 @@ private
   substₘ-lemma-∙⌜𝟘ᵐ?⌝·▸[𝟘ᵐ?] :
     (Ψ : Substₘ m n) →
     Ψ ▶[ mos ] σ → γ ∙ ⌜ 𝟘ᵐ? ⌝ · p ▸[ mo ] t →
-    ∃ λ δ → δ ∙ ⌜ 𝟘ᵐ? ⌝ · p ▸[ 𝟘ᵐ? ] U.subst (liftSubst σ) t
+    ∃ λ δ → δ ∙ ⌜ 𝟘ᵐ? ⌝ · p ▸[ 𝟘ᵐ? ] t [ liftSubst σ ]
   substₘ-lemma-∙⌜𝟘ᵐ?⌝·▸[𝟘ᵐ?] {γ = γ} {p = p} Ψ Ψ▶ γ▸ = 𝟘ᵐ-allowed-elim
     (λ ok →
         _
@@ -951,7 +951,8 @@ private
 
 substₘ-lemma :
   (Ψ : Substₘ m n) →
-  Ψ ▶[ ⌞ γ ⌟ᶜ ] σ → γ ▸[ mo ] t → substₘ Ψ γ ▸[ mo ] U.subst σ t
+  Ψ ▶[ ⌞ γ ⌟ᶜ ] σ → γ ▸[ mo ] t → substₘ Ψ γ ▸[ mo ] t [ σ ]
+
 substₘ-lemma Ψ _ Uₘ =
   sub Uₘ (≤ᶜ-reflexive (*>-zeroʳ Ψ))
 
@@ -1012,9 +1013,9 @@ substₘ-lemma
       (≈𝟘→·*>≈·𝟘 Ψ p≈𝟘)
   where
   lemma :
-    η ▸[ mo ᵐ· p ] U.subst σ u →
+    η ▸[ mo ᵐ· p ] u [ σ ] →
     p ·ᶜ Ψ *> δ ≈ᶜ p ·ᶜ η →
-    Ψ *> (γ +ᶜ p ·ᶜ δ) ▸[ mo ] U.subst σ (t ∘⟨ p ⟩ u)
+    Ψ *> (γ +ᶜ p ·ᶜ δ) ▸[ mo ] (t ∘⟨ p ⟩ u) [ σ ]
   lemma {η = η} hyp₁ hyp₂ = sub
     (substₘ-lemma Ψ (▶-⌞+ᶜ⌟ˡ Ψ γ Ψ▶σ) γ▸t ∘ₘ hyp₁)
     (begin
@@ -1036,9 +1037,9 @@ substₘ-lemma
       (≈𝟘→·*>≈·𝟘 Ψ p≈𝟘)
   where
   lemma :
-    η ▸[ mo ᵐ· p ] U.subst σ t →
+    η ▸[ mo ᵐ· p ] t [ σ ] →
     p ·ᶜ Ψ *> γ ≈ᶜ p ·ᶜ η →
-    Ψ *> (p ·ᶜ γ +ᶜ δ) ▸[ mo ] U.subst σ (prodᵣ p t u)
+    Ψ *> (p ·ᶜ γ +ᶜ δ) ▸[ mo ] prodᵣ p t u [ σ ]
   lemma {η = η} hyp₁ hyp₂ = sub
     (prodᵣₘ hyp₁ (substₘ-lemma Ψ (▶-⌞+ᶜ⌟ʳ Ψ (_ ·ᶜ γ) Ψ▶σ) δ▸u))
     (begin
@@ -1060,9 +1061,9 @@ substₘ-lemma
       (≈𝟘→·*>≈·𝟘 Ψ p≈𝟘)
   where
   lemma :
-    η ▸[ mo ᵐ· p ] U.subst σ t →
+    η ▸[ mo ᵐ· p ] t [ σ ] →
     p ·ᶜ Ψ *> γ ≈ᶜ p ·ᶜ η →
-    Ψ *> (p ·ᶜ γ ∧ᶜ δ) ▸[ mo ] U.subst σ (prodₚ p t u)
+    Ψ *> (p ·ᶜ γ ∧ᶜ δ) ▸[ mo ] prodₚ p t u [ σ ]
   lemma {η = η} hyp₁ hyp₂ = sub
     (prodₚₘ hyp₁ (substₘ-lemma Ψ (▶-⌞∧ᶜ⌟ʳ Ψ (_ ·ᶜ γ) Ψ▶σ) δ▸u))
     (begin
@@ -1092,9 +1093,9 @@ substₘ-lemma
       (≈𝟘→·*>≈·𝟘 Ψ p≈𝟘)
   where
   lemma :
-    θ ▸[ mo ᵐ· r ] U.subst σ t →
+    θ ▸[ mo ᵐ· r ] t [ σ ] →
     r ·ᶜ Ψ *> γ ≈ᶜ r ·ᶜ θ →
-    Ψ *> (r ·ᶜ γ +ᶜ δ) ▸[ mo ] U.subst σ (prodrec r p q A t u)
+    Ψ *> (r ·ᶜ γ +ᶜ δ) ▸[ mo ] prodrec r p q A t u [ σ ]
   lemma {θ = θ} hyp₁ hyp₂ = sub
     (prodrecₘ hyp₁
        (sub (substₘ-lemma (liftSubstₘ (liftSubstₘ Ψ))
@@ -1176,7 +1177,7 @@ substₘ-lemma Ψ Ψ▶σ (sub γ▸t γ≤δ) = sub
 
 sgSubstₘ-lemma₁ :
   γ ∙ ⌜ mo ⌝ · p ▸[ mo ] t → δ ▸[ mo ᵐ· p ] u →
-  γ +ᶜ (⌜ mo ⌝ · p) ·ᶜ δ ▸[ mo ] t [ u ]
+  γ +ᶜ (⌜ mo ⌝ · p) ·ᶜ δ ▸[ mo ] t [ u ]₀
 sgSubstₘ-lemma₁ {γ = γ} {mo = mo} {p = p} {δ = δ} γ▸t δ▸u = sub
   (substₘ-lemma (sgSubstₘ δ)
      (▶-cong (sgSubstₘ δ)
@@ -1196,7 +1197,7 @@ sgSubstₘ-lemma₁ {γ = γ} {mo = mo} {p = p} {δ = δ} γ▸t δ▸u = sub
 
 sgSubstₘ-lemma₂ :
   γ ∙ ⌜ mo ⌝ · p ▸[ mo ] t → δ ▸[ mo ᵐ· p ] u →
-  γ +ᶜ p ·ᶜ δ ▸[ mo ] t [ u ]
+  γ +ᶜ p ·ᶜ δ ▸[ mo ] t [ u ]₀
 sgSubstₘ-lemma₂ {γ = γ} {mo = 𝟙ᵐ} {p = p} {δ = δ} γ▸t δ▸u = sub
   (sgSubstₘ-lemma₁ γ▸t δ▸u)
   (begin
@@ -1219,7 +1220,7 @@ sgSubstₘ-lemma₂ {γ = γ} {mo = 𝟘ᵐ} {p = p} {δ = δ} γ▸t δ▸u = s
 
 sgSubstₘ-lemma₃ :
   γ ∙ ⌜ mo ⌝ · p ▸[ mo ] t → δ ▸[ mo ] u →
-  γ +ᶜ p ·ᶜ δ ▸[ mo ] t [ u ]
+  γ +ᶜ p ·ᶜ δ ▸[ mo ] t [ u ]₀
 sgSubstₘ-lemma₃ {mo = 𝟘ᵐ} =
   sgSubstₘ-lemma₂
 sgSubstₘ-lemma₃ {mo = 𝟙ᵐ} ▸t ▸u =

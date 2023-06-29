@@ -163,7 +163,7 @@ record EqRelSet : Set (lsuc ℓ) where
                 → Γ ⊢ F
                 → Γ ∙ F ⊢ G
                 → Γ ⊢ t ≅ t′ ∷ F
-                → Γ ⊢ u ≅ u′ ∷ G [ t ]
+                → Γ ⊢ u ≅ u′ ∷ G [ t ]₀
                 → Σᵣ-allowed p q
                 → Γ ⊢ prodᵣ p t u ≅ prodᵣ p t′ u′ ∷ Σᵣ p , q ▷ F ▹ G
 
@@ -186,7 +186,7 @@ record EqRelSet : Set (lsuc ℓ) where
           → Product r
           → Product s
           → Γ ⊢ fst p r ≅ fst p s ∷ F
-          → Γ ⊢ snd p r ≅ snd p s ∷ G [ fst p r ]
+          → Γ ⊢ snd p r ≅ snd p s ∷ G [ fst p r ]₀
           → Γ ⊢ r ≅ s ∷ Σₚ p , q ▷ F ▹ G
 
     -- Variable reflexivity
@@ -196,7 +196,7 @@ record EqRelSet : Set (lsuc ℓ) where
     ~-app : ∀ {a b f g F G}
           → Γ ⊢ f ~ g ∷ Π p , q ▷ F ▹ G
           → Γ ⊢ a ≅ b ∷ F
-          → Γ ⊢ f ∘⟨ p ⟩ a ~ g ∘⟨ p ⟩ b ∷ G [ a ]
+          → Γ ⊢ f ∘⟨ p ⟩ a ~ g ∘⟨ p ⟩ b ∷ G [ a ]₀
 
     -- Product projections congruence
     ~-fst : ∀ {r s F G}
@@ -209,16 +209,16 @@ record EqRelSet : Set (lsuc ℓ) where
           → Γ ⊢ F
           → Γ ∙ F ⊢ G
           → Γ ⊢ r ~ s ∷ Σₚ p , q ▷ F ▹ G
-          → Γ ⊢ snd p r ~ snd p s ∷ G [ fst p r ]
+          → Γ ⊢ snd p r ~ snd p s ∷ G [ fst p r ]₀
 
     -- Natural recursion congruence
     ~-natrec : ∀ {z z′ s s′ n n′ F F′}
              → Γ ∙ ℕ     ⊢ F
              → Γ ∙ ℕ     ⊢ F ≅ F′
-             → Γ         ⊢ z ≅ z′ ∷ F [ zero ]
+             → Γ         ⊢ z ≅ z′ ∷ F [ zero ]₀
              → Γ ∙ ℕ ∙ F ⊢ s ≅ s′ ∷ F [ suc (var x1) ]↑²
              → Γ         ⊢ n ~ n′ ∷ ℕ
-             → Γ         ⊢ natrec p q r F z s n ~ natrec p q r F′ z′ s′ n′ ∷ F [ n ]
+             → Γ         ⊢ natrec p q r F z s n ~ natrec p q r F′ z′ s′ n′ ∷ F [ n ]₀
 
     -- Product recursion congruence
     ~-prodrec : ∀ {F G A A′ t t′ u u′}
@@ -228,7 +228,7 @@ record EqRelSet : Set (lsuc ℓ) where
              → Γ                      ⊢ t ~ t′ ∷ Σᵣ p , q ▷ F ▹ G
              → Γ ∙ F ∙ G              ⊢ u ≅ u′ ∷ A [ prodᵣ p (var x1) (var x0) ]↑²
              → Σᵣ-allowed p q
-             → Γ                      ⊢ prodrec r p q′ A t u ~ prodrec r p q′ A′ t′ u′ ∷ A [ t ]
+             → Γ                      ⊢ prodrec r p q′ A t u ~ prodrec r p q′ A′ t′ u′ ∷ A [ t ]₀
 
     -- Empty recursion congruence
     ~-Emptyrec : ∀ {n n′ F F′}

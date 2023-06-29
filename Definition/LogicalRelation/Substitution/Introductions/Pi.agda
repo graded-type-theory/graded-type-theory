@@ -64,33 +64,33 @@ private
       ⊢G≡G = escapeEq (proj₁ ([G]σ [σ])) (reflEq (proj₁ ([G]σ [σ])))
       ⊢ΠF▹G = ⟦ W ⟧ⱼ (⊢F [σ]) (⊢G [σ]) ok
       [G]a : ∀ {m} {ρ : Wk m k} {Δ₁} a ([ρ] : ρ ∷ Δ₁ ⊆ Δ) (⊢Δ₁ : ⊢ Δ₁)
-             ([a] : Δ₁ ⊩⟨ l ⟩ a ∷ subst (ρ •ₛ σ) F
+             ([a] : Δ₁ ⊩⟨ l ⟩ a ∷ F [ ρ •ₛ σ ]
                 / proj₁ (unwrap [F] ⊢Δ₁ (wkSubstS [Γ] ⊢Δ ⊢Δ₁ [ρ] [σ])))
-           → Σ (Δ₁ ⊩⟨ l ⟩ subst (consSubst (ρ •ₛ σ) a) G)
+           → Σ (Δ₁ ⊩⟨ l ⟩ G [ consSubst (ρ •ₛ σ) a ])
                (λ [Aσ] →
                {σ′ : Subst m (1+ n)} →
                (Σ (Δ₁ ⊩ˢ tail σ′ ∷ Γ / [Γ] / ⊢Δ₁)
                (λ [tailσ] →
-                  Δ₁ ⊩⟨ l ⟩ head σ′ ∷ subst (tail σ′) F / proj₁ (unwrap [F] ⊢Δ₁ [tailσ]))) →
+                  Δ₁ ⊩⟨ l ⟩ head σ′ ∷ F [ tail σ′ ] / proj₁ (unwrap [F] ⊢Δ₁ [tailσ]))) →
                Δ₁ ⊩ˢ consSubst (ρ •ₛ σ) a ≡ σ′ ∷ Γ ∙ F /
                [Γ] ∙ [F] / ⊢Δ₁ /
                consSubstS {t = a} {A = F} [Γ] ⊢Δ₁ (wkSubstS [Γ] ⊢Δ ⊢Δ₁ [ρ] [σ]) [F]
                [a] →
-               Δ₁ ⊩⟨ l ⟩ subst (consSubst (ρ •ₛ σ) a) G ≡
-               subst σ′ G / [Aσ])
+               Δ₁ ⊩⟨ l ⟩ G [ consSubst (ρ •ₛ σ) a ] ≡
+               G [ σ′ ] / [Aσ])
       [G]a {_} {ρ} a [ρ] ⊢Δ₁ [a] = (unwrap [G] {σ = consSubst (ρ •ₛ σ) a} ⊢Δ₁
                               (consSubstS {t = a} {A = F} [Γ] ⊢Δ₁
                                           (wkSubstS [Γ] ⊢Δ ⊢Δ₁ [ρ] [σ])
                                           [F] [a]))
       [G]a′ : ∀ {m} {ρ : Wk m k} {Δ₁} a ([ρ] : ρ ∷ Δ₁ ⊆ Δ) (⊢Δ₁ : ⊢ Δ₁)
-            → Δ₁ ⊩⟨ l ⟩ a ∷ subst (ρ •ₛ σ) F
+            → Δ₁ ⊩⟨ l ⟩ a ∷ F [ ρ •ₛ σ ]
                  / proj₁ (unwrap [F] ⊢Δ₁ (wkSubstS [Γ] ⊢Δ ⊢Δ₁ [ρ] [σ]))
-            → Δ₁ ⊩⟨ l ⟩ U.wk (lift ρ) (subst (liftSubst σ) G) [ a ]
+            → Δ₁ ⊩⟨ l ⟩ U.wk (lift ρ) (G [ liftSubst σ ]) [ a ]₀
       [G]a′ a ρ ⊢Δ₁ [a] = irrelevance′ (PE.sym (singleSubstWkComp a σ G))
                                    (proj₁ ([G]a a ρ ⊢Δ₁ [a]))
-  in  Bᵣ′ W (subst σ F) (subst (liftSubst σ) G)
+  in  Bᵣ′ W (F [ σ ]) (G [ liftSubst σ ])
          (PE.subst
-           (λ x → Δ ⊢ x :⇒*: ⟦ W ⟧ subst σ F ▹ subst (liftSubst σ) G)
+           (λ x → Δ ⊢ x :⇒*: ⟦ W ⟧ F [ σ ] ▹ (G [ liftSubst σ ]))
            (PE.sym (B-subst _ W F G))
            (idRed:*: ⊢ΠF▹G))
          (⊢F [σ]) (⊢G [σ])
@@ -123,7 +123,7 @@ private
          ok
   ,  (λ {σ′} [σ′] [σ≡σ′] →
         let var0 = var (⊢Δ ∙ ⊢F [σ])
-                       (PE.subst (λ x → x0 ∷ x ∈ (Δ ∙ subst σ F))
+                       (PE.subst (λ x → x0 ∷ x ∈ Δ ∙ F [ σ ])
                                  (wk-subst F) here)
             [wk1σ] = wk1SubstS [Γ] ⊢Δ (⊢F [σ]) [σ]
             [wk1σ′] = wk1SubstS [Γ] ⊢Δ (⊢F [σ]) [σ′]
@@ -134,9 +134,9 @@ private
                          (≅-eq (escapeEq [F][wk1σ]
                                              (proj₂ (unwrap [F] (⊢Δ ∙ ⊢F [σ]) [wk1σ])
                                                     [wk1σ′] [wk1σ≡wk1σ′])))
-        in  B₌ (subst σ′ F) (subst (liftSubst σ′) G)
+        in  B₌ (F [ σ′ ]) (G [ liftSubst σ′ ])
                (PE.subst
-                 (λ x → Δ ⊢ x ⇒* ⟦ W ⟧ subst σ′ F ▹ subst (liftSubst σ′) G)
+                 (λ x → Δ ⊢ x ⇒* ⟦ W ⟧ F [ σ′ ] ▹ (G [ liftSubst σ′ ]))
                  (PE.sym (B-subst _ W F G))
                  (id (⟦ W ⟧ⱼ (⊢F [σ′]) (⊢G [σ′]) ok)))
                (≅-W-cong W (⊢F [σ])
@@ -206,14 +206,14 @@ W-congᵛ
       ⊢σE = escape (proj₁ (unwrap [E] {σ = liftSubst σ} (⊢Δ ∙ ⊢σH) (liftSubstS {F = H} [Γ] ⊢Δ [H] [σ])))
       ⊢σF≡σH = escapeEq [σF] ([F≡H] ⊢Δ [σ])
       ⊢σG≡σE = escapeEq [σG] ([G≡E] (⊢Δ ∙ ⊢σF) (liftSubstS {F = F} [Γ] ⊢Δ [F] [σ]))
-  in  B₌ (subst σ H) (subst (liftSubst σ) E)
+  in  B₌ (H [ σ ]) (E [ liftSubst σ ])
          (id (ΠΣⱼ ⊢σH ⊢σE ok)) (≅-ΠΣ-cong ⊢σF ⊢σF≡σH ⊢σG≡σE ok)
          (λ ρ ⊢Δ₁ →
            let [ρσ] = wkSubstS [Γ] ⊢Δ ⊢Δ₁ ρ [σ]
                eqA = PE.sym (wk-subst F)
                eqB = PE.sym (wk-subst H)
                p = proj₁ (unwrap [F] ⊢Δ₁ [ρσ])
-               wut : _ ⊩⟨ _ ⟩ U.wk _ (subst σ F)
+               wut : _ ⊩⟨ _ ⟩ U.wk _ (F [ σ ])
                wut = [F]′ ρ ⊢Δ₁
                A≡B = [F≡H] ⊢Δ₁ [ρσ]
            in  irrelevanceEq″ eqA eqB p wut A≡B)
@@ -243,14 +243,14 @@ W-congᵛ
       ⊢σE = escape (proj₁ (unwrap [E] (⊢Δ ∙ ⊢σH) (liftSubstS {F = H} [Γ] ⊢Δ [H] [σ])))
       ⊢σF≡σH = escapeEq [σF] ([F≡H] ⊢Δ [σ])
       ⊢σG≡σE = escapeEq [σG] ([G≡E] (⊢Δ ∙ ⊢σF) (liftSubstS {F = F} [Γ] ⊢Δ [F] [σ]))
-  in  B₌ (subst σ H) (subst (liftSubst σ) E)
+  in  B₌ (H [ σ ]) (E [ liftSubst σ ])
          (id (ΠΣⱼ ⊢σH ⊢σE ok))
          (≅-ΠΣ-cong ⊢σF ⊢σF≡σH ⊢σG≡σE ok)
          (λ ρ ⊢Δ₁ → let [ρσ] = wkSubstS [Γ] ⊢Δ ⊢Δ₁ ρ [σ]
                         eqA = PE.sym (wk-subst F)
                         eqB = PE.sym (wk-subst H)
                         p = proj₁ (unwrap [F] ⊢Δ₁ [ρσ])
-                        wut : _ ⊩⟨ _ ⟩ U.wk _ (subst σ F)
+                        wut : _ ⊩⟨ _ ⟩ U.wk _ (F [ σ ])
                         wut = [F]′ ρ ⊢Δ₁
                         A≡B = [F≡H] ⊢Δ₁ [ρσ]
                     in  irrelevanceEq″ eqA eqB p wut A≡B)
@@ -292,9 +292,9 @@ Wᵗᵛ {Γ = Γ} {F} {G} W [Γ] [F] [U] [Fₜ] [Gₜ] ok {Δ = Δ} {σ = σ} �
       [G]₀ = univᵛ {A = G} (_∙_ {A = F} [Γ] [F]₀)
                    (Uᵛ ([Γ] ∙ [F]₀)) [Gₜ]′
       [ΠFG] = unwrap (⟦ W ⟧ᵛ {F = F} {G} [Γ] [F]₀ [G]₀ ok) ⊢Δ [σ]
-  in  Uₜ (⟦ W ⟧ subst σ F ▹ subst (liftSubst σ) G)
+  in  Uₜ (⟦ W ⟧ F [ σ ] ▹ (G [ liftSubst σ ]))
          (PE.subst
-            (Δ ⊢_:⇒*: ⟦ W ⟧ subst σ F ▹ subst (liftSubst σ) G ∷ U)
+            (Δ ⊢_:⇒*: ⟦ W ⟧ F [ σ ] ▹ (G [ liftSubst σ ]) ∷ U)
             (PE.sym (B-subst σ W F G))
             (idRedTerm:*: (⟦ W ⟧ⱼᵤ ⊢Fₜ ⊢Gₜ ok)))
          ⟦ W ⟧-type (≅ₜ-W-cong W ⊢F ⊢F≡Fₜ ⊢G≡Gₜ ok) (proj₁ [ΠFG])
@@ -303,7 +303,7 @@ Wᵗᵛ {Γ = Γ} {F} {G} W [Γ] [F] [U] [Fₜ] [Gₜ] ok {Δ = Δ} {σ = σ} �
              [wk1σ] = wk1SubstS [Γ] ⊢Δ ⊢F [σ]
              [wk1σ′] = wk1SubstS [Γ] ⊢Δ ⊢F [σ′]
              var0 = conv (var (⊢Δ ∙ ⊢F)
-                         (PE.subst (λ x → x0 ∷ x ∈ (Δ ∙ subst σ F))
+                         (PE.subst (λ x → x0 ∷ x ∈ Δ ∙ F [ σ ])
                                    (wk-subst F) here))
                     (≅-eq (escapeEq (proj₁ (unwrap [F] (⊢Δ ∙ ⊢F) [wk1σ]))
                                         (proj₂ (unwrap [F] (⊢Δ ∙ ⊢F) [wk1σ]) [wk1σ′]
@@ -322,14 +322,14 @@ Wᵗᵛ {Γ = Γ} {F} {G} W [Γ] [F] [U] [Fₜ] [Gₜ] ok {Δ = Δ} {σ = σ} �
                                             (liftSubstSEq {F = F} [Γ] ⊢Δ [F] [σ] [σ≡σ′]))
              [ΠFG]′ = unwrap (⟦ W ⟧ᵛ {F = F} {G} [Γ] [F]₀ [G]₀ ok)
                         ⊢Δ [σ′]
-         in  Uₜ₌ (⟦ W ⟧ subst σ F ▹ subst (liftSubst σ) G)
-                 (⟦ W ⟧ subst σ′ F ▹ subst (liftSubst σ′) G)
+         in  Uₜ₌ (⟦ W ⟧ F [ σ ] ▹ (G [ liftSubst σ ]))
+                 (⟦ W ⟧ F [ σ′ ] ▹ (G [ liftSubst σ′ ]))
                  (PE.subst
-                   (λ x → Δ ⊢ x :⇒*: ⟦ W ⟧ subst σ F ▹ subst (liftSubst σ) G ∷ U)
+                   (λ x → Δ ⊢ x :⇒*: ⟦ W ⟧ F [ σ ] ▹ (G [ liftSubst σ ]) ∷ U)
                    (PE.sym (B-subst σ W F G))
                    (idRedTerm:*: (⟦ W ⟧ⱼᵤ ⊢Fₜ ⊢Gₜ ok)))
                  (PE.subst
-                   (λ x → Δ ⊢ x :⇒*: ⟦ W ⟧ subst σ′ F ▹ subst (liftSubst σ′) G ∷ U)
+                   (λ x → Δ ⊢ x :⇒*: ⟦ W ⟧ F [ σ′ ] ▹ (G [ liftSubst σ′ ]) ∷ U)
                    (PE.sym (B-subst σ′ W F G))
                    (idRedTerm:*: (⟦ W ⟧ⱼᵤ ⊢Fₜ′ ⊢Gₜ′ ok)))
                  ⟦ W ⟧-type ⟦ W ⟧-type (≅ₜ-W-cong W ⊢F ⊢F≡F′ ⊢G≡G′ ok)
@@ -380,14 +380,14 @@ W-congᵗᵛ
           (escapeTerm (proj₁ (unwrap [UH] (⊢Δ ∙ ⊢H) [liftHσ]))
              (proj₁ ([E]ₜ (⊢Δ ∙ ⊢H) [liftHσ])))
           ok
-  in  Uₜ₌ (⟦ W ⟧ subst σ F ▹ subst (liftSubst σ) G)
-          (⟦ W ⟧ subst σ H ▹ subst (liftSubst σ) E)
+  in  Uₜ₌ (⟦ W ⟧ F [ σ ] ▹ (G [ liftSubst σ ]))
+          (⟦ W ⟧ H [ σ ] ▹ (E [ liftSubst σ ]))
           (PE.subst
-            (λ x → Δ ⊢ x :⇒*: ⟦ W ⟧ subst σ F ▹ subst (liftSubst σ) G ∷ U)
+            (λ x → Δ ⊢ x :⇒*: ⟦ W ⟧ F [ σ ] ▹ (G [ liftSubst σ ]) ∷ U)
             (PE.sym (B-subst σ W F G))
             (idRedTerm:*: ΠFGₜ))
           (PE.subst
-             (Δ ⊢_:⇒*: ⟦ W ⟧ subst σ H ▹ subst (liftSubst σ) E ∷ U)
+             (Δ ⊢_:⇒*: ⟦ W ⟧ H [ σ ] ▹ (E [ liftSubst σ ]) ∷ U)
              (PE.sym (B-subst σ W H E))
              (idRedTerm:*: ΠHEₜ))
           ⟦ W ⟧-type ⟦ W ⟧-type

@@ -43,8 +43,8 @@ private
 prod′ : ∀ {Γ : Con Term n} {F : Term n} {G t u l l′ l″}
        ([F] : Γ ⊩⟨ l ⟩ F)
        ([t] : Γ ⊩⟨ l ⟩ t ∷ F / [F])
-       ([Gt] : Γ ⊩⟨ l″ ⟩ G [ t ])
-       ([u] : Γ ⊩⟨ l″ ⟩ u ∷ G [ t ] / [Gt])
+       ([Gt] : Γ ⊩⟨ l″ ⟩ G [ t ]₀)
+       ([u] : Γ ⊩⟨ l″ ⟩ u ∷ G [ t ]₀ / [Gt])
        ([ΣFG] : Γ ⊩⟨ l′ ⟩B⟨ BΣ m p q ⟩ Σ⟨ m ⟩ p , q ▷ F ▹ G)
      → Γ ⊩⟨ l′ ⟩ prod m p t u ∷ Σ p , q ▷ F ▹ G / B-intr BΣ! [ΣFG]
 prod′
@@ -65,7 +65,7 @@ prod′
                                     [F] ([F]₁ id ⊢Γ)
                                     [fstprod]
 
-      wkLiftIdEq = PE.cong (λ x → x [ fst _ (prodₚ _ t u ) ])
+      wkLiftIdEq = PE.cong (λ x → x [ fst _ (prodₚ _ t u ) ]₀)
                      (wk-lift-id G)
       [Gfst] = [G]₁ id ⊢Γ [fstprod]′
       [Gfst]′ = irrelevance′ wkLiftIdEq [Gfst]
@@ -78,15 +78,15 @@ prod′
                                         [fstprod≡t]
       [Gt]′ = [G]₁ id ⊢Γ [t]′
 
-      [Gfst≡Gt] = irrelevanceEq″ wkLiftIdEq (PE.cong (λ x → x [ t ]) (wk-lift-id G))
+      [Gfst≡Gt] = irrelevanceEq″ wkLiftIdEq (PE.cong (λ x → x [ t ]₀) (wk-lift-id G))
                                  [Gfst] [Gfst]′
                                  (G-ext id ⊢Γ [fstprod]′ [t]′ [fstprod≡t]′)
       [u]′ = convTerm₂ [Gfst]′ [Gt] [Gfst≡Gt] [u]
 
-      snd⇒u : Γ ⊢ snd _ (prodₚ _ t u) ⇒ u ∷ G [ fst _ (prodₚ _ t u) ]
+      snd⇒u : Γ ⊢ snd _ (prodₚ _ t u) ⇒ u ∷ G [ fst _ (prodₚ _ t u) ]₀
       snd⇒u = Σ-β₂ ⊢F ⊢G ⊢t ⊢u PE.refl ok
       [sndprod] , [sndprod≡u] = redSubstTerm snd⇒u [Gfst]′ [u]′
-      [sndprod]′ = irrelevanceTerm′ (PE.cong (_[ _ ]) (PE.sym (wk-lift-id G)))
+      [sndprod]′ = irrelevanceTerm′ (PE.cong (_[ _ ]₀) (PE.sym (wk-lift-id G)))
                                     [Gfst]′ [Gfst] [sndprod]
 
 
@@ -111,7 +111,7 @@ prod′ {m = Σᵣ} {q = q} {Γ = Γ} {F} {G} {t} {u} {l} {l′} {l″} [F] [t] 
       [u≡u] = reflEqTerm [Gt] [u]
 
       [t]′ = irrelevanceTerm′ (PE.sym (wk-id F)) [F] ([F]₁ id ⊢Γ) [t]
-      [u]′ = irrelevanceTerm′ (PE.cong (_[ _ ]) (PE.sym (wk-lift-id G)))
+      [u]′ = irrelevanceTerm′ (PE.cong (_[ _ ]₀) (PE.sym (wk-lift-id G)))
                               [Gt] ([G]₁ id ⊢Γ [t]′) [u]
 
   in  Σₜ (prodᵣ _ t u) (idRedTerm:*: ⊢prod)
@@ -125,8 +125,8 @@ prod′ {Γ = Γ} {F} {G} {t} {u} {l} {l′} [F] [t] [Gt] [u]
 prod″ : ∀ {Γ : Con Term n} {F : Term n} {G t u l l′}
        ([F] : Γ ⊩⟨ l ⟩ F)
        ([t] : Γ ⊩⟨ l ⟩ t ∷ F / [F])
-       ([Gt] : Γ ⊩⟨ l ⟩ G [ t ])
-       ([u] : Γ ⊩⟨ l ⟩ u ∷ G [ t ] / [Gt])
+       ([Gt] : Γ ⊩⟨ l ⟩ G [ t ]₀)
+       ([u] : Γ ⊩⟨ l ⟩ u ∷ G [ t ]₀ / [Gt])
        ([ΣFG] : Γ ⊩⟨ l′ ⟩ Σ⟨ m ⟩ p , q ▷ F ▹ G)
      → Γ ⊩⟨ l′ ⟩ prod m p t u ∷ Σ _ , _ ▷ F ▹ G / [ΣFG]
 prod″ {m = m} [F] [t] [Gt] [u] [ΣFG] =
@@ -139,10 +139,10 @@ prod-cong′ :
   ([t] : Γ ⊩⟨ l ⟩ t ∷ F / [F])
   ([t′] : Γ ⊩⟨ l ⟩ t′ ∷ F / [F])
   ([t≡t′] : Γ ⊩⟨ l ⟩ t ≡ t′ ∷ F / [F])
-  ([Gt] : Γ ⊩⟨ l ⟩ G [ t ])
-  ([u] : Γ ⊩⟨ l ⟩ u ∷ G [ t ] / [Gt])
-  ([u′] : Γ ⊩⟨ l ⟩ u′ ∷ G [ t ] / [Gt])
-  ([u≡u′] : Γ ⊩⟨ l ⟩ u ≡ u′ ∷ G [ t ] / [Gt])
+  ([Gt] : Γ ⊩⟨ l ⟩ G [ t ]₀)
+  ([u] : Γ ⊩⟨ l ⟩ u ∷ G [ t ]₀ / [Gt])
+  ([u′] : Γ ⊩⟨ l ⟩ u′ ∷ G [ t ]₀ / [Gt])
+  ([u≡u′] : Γ ⊩⟨ l ⟩ u ≡ u′ ∷ G [ t ]₀ / [Gt])
   ([ΣFG] : Γ ⊩⟨ l′ ⟩B⟨ BΣ m p q ⟩ Σ⟨ m ⟩ p , q  ▷ F ▹ G) →
   Γ ⊩⟨ l′ ⟩ prod m p t u ≡ prod m p t′ u′ ∷ Σ p , q ▷ F ▹ G /
     B-intr BΣ! [ΣFG]
@@ -162,16 +162,16 @@ prod-cong′
       wk[Gt] = [G]₁ id ⊢Γ wk[t]
       wk[Gt′] = [G]₁ id ⊢Γ wk[t′]
       wk[Gt≡Gt′] = G-ext id ⊢Γ wk[t] wk[t′] wk[t≡t′]
-      wk[u] = irrelevanceTerm′ (PE.cong (_[ t ]) (PE.sym (wk-lift-id G))) [Gt] wk[Gt] [u]
+      wk[u] = irrelevanceTerm′ (PE.cong (_[ t ]₀) (PE.sym (wk-lift-id G))) [Gt] wk[Gt] [u]
 
-      [Gt′] = irrelevance′ (PE.cong (λ x → x [ t′ ]) (wk-lift-id G)) wk[Gt′]
-      [Gt≡Gt′] = irrelevanceEq″ (PE.cong (λ x → x [ t ]) (wk-lift-id G))
-                                (PE.cong (λ x → x [ t′ ]) (wk-lift-id G))
+      [Gt′] = irrelevance′ (PE.cong (λ x → x [ t′ ]₀) (wk-lift-id G)) wk[Gt′]
+      [Gt≡Gt′] = irrelevanceEq″ (PE.cong (λ x → x [ t ]₀) (wk-lift-id G))
+                                (PE.cong (λ x → x [ t′ ]₀) (wk-lift-id G))
                                 wk[Gt] [Gt]
                                 wk[Gt≡Gt′]
 
       [u′]Gt′ = convTerm₁ [Gt] [Gt′] [Gt≡Gt′] [u′]
-      wk[u′] = irrelevanceTerm′ (PE.sym (PE.cong (_[ t′ ]) (wk-lift-id G)))
+      wk[u′] = irrelevanceTerm′ (PE.sym (PE.cong (_[ t′ ]₀) (wk-lift-id G)))
                                 [Gt′] wk[Gt′] [u′]Gt′
 
       [prod′] = prod′ [F] [t′] [Gt′] [u′]Gt′ [ΣFG]
@@ -206,12 +206,12 @@ prod-cong′
                                         [F] wk[F]
                                         [fst≡fst′]
 
-      -- snd (prod t u) ≡ u ∷ G [ fst (prod t u) ]
-      wkLiftIdEq = PE.cong (λ x → x [ fst _ (prodₚ _ t u ) ])
+      -- snd (prod t u) ≡ u ∷ G [ fst (prod t u) ]₀
+      wkLiftIdEq = PE.cong (λ x → x [ fst _ (prodₚ _ t u ) ]₀)
                      (wk-lift-id G)
       wk[Gfst] = [G]₁ id ⊢Γ wk[fst]
       [Gfst] = irrelevance′ wkLiftIdEq wk[Gfst]
-      [Gfst≡Gt] = irrelevanceEq″ wkLiftIdEq (PE.cong (λ x → x [ t ])
+      [Gfst≡Gt] = irrelevanceEq″ wkLiftIdEq (PE.cong (λ x → x [ t ]₀)
                                                      (wk-lift-id G))
                                  wk[Gfst] [Gfst]
                                  (G-ext id ⊢Γ wk[fst] wk[t] wk[fst≡t])
@@ -220,15 +220,15 @@ prod-cong′
       snd⇒u = Σ-β₂ ⊢F ⊢G ⊢t ⊢u PE.refl ok
       [snd] , [snd≡u] = redSubstTerm snd⇒u [Gfst] [u]fst
 
-      -- u ≡ u′ ∷ G [ fst (prod t u) ]
+      -- u ≡ u′ ∷ G [ fst (prod t u) ]₀
       [u≡u′]Gfst = convEqTerm₂ [Gfst] [Gt] [Gfst≡Gt] [u≡u′]
 
-      -- u′ ≡ snd (prod t′ u′) ∷ G [ fst (prod t u) ]
-      wkLiftIdEq′ = PE.cong (λ x → x [ fst _ (prodₚ _ t′ u′) ])
+      -- u′ ≡ snd (prod t′ u′) ∷ G [ fst (prod t u) ]₀
+      wkLiftIdEq′ = PE.cong (λ x → x [ fst _ (prodₚ _ t′ u′) ]₀)
                       (wk-lift-id G)
       wk[Gfst′] = [G]₁ id ⊢Γ wk[fst′]
       [Gfst′] = irrelevance′ wkLiftIdEq′ wk[Gfst′]
-      [Gfst′≡Gt′] = irrelevanceEq″ wkLiftIdEq′ (PE.cong (λ x → x [ t′ ])
+      [Gfst′≡Gt′] = irrelevanceEq″ wkLiftIdEq′ (PE.cong (λ x → x [ t′ ]₀)
                                                         (wk-lift-id G))
                                    wk[Gfst′] [Gfst′]
                                    (G-ext id ⊢Γ wk[fst′] wk[t′] wk[fst≡t′])
@@ -248,7 +248,7 @@ prod-cong′
                                (transEqTerm [Gfst] [u≡u′]Gfst
                                             (symEqTerm [Gfst] [snd≡u′]Gfst))
       wk[snd≡snd′] = irrelevanceEqTerm′
-        (PE.cong (λ x → x [ fst _ (prodₚ _ t u) ])
+        (PE.cong (λ x → x [ fst _ (prodₚ _ t u) ]₀)
            (PE.sym (wk-lift-id G)))
         [Gfst] wk[Gfst]
         [snd≡snd′]
@@ -278,17 +278,17 @@ prod-cong′ {m = Σᵣ} {q = q} {Γ = Γ} {F} {G} {t} {t′} {u} {u′} {l} {l�
       wk[Gt] = [G]₁ id ⊢Γ wk[t]
       wk[Gt′] = [G]₁ id ⊢Γ wk[t′]
       wk[Gt≡Gt′] = G-ext id ⊢Γ wk[t] wk[t′] wk[t≡t′]
-      wk[u] = irrelevanceTerm′ (PE.cong (_[ t ]) (PE.sym (wk-lift-id G))) [Gt] wk[Gt] [u]
-      wk[u≡u′] = irrelevanceEqTerm′ (PE.cong (_[ t ]) (PE.sym (wk-lift-id G))) [Gt] wk[Gt] [u≡u′]
+      wk[u] = irrelevanceTerm′ (PE.cong (_[ t ]₀) (PE.sym (wk-lift-id G))) [Gt] wk[Gt] [u]
+      wk[u≡u′] = irrelevanceEqTerm′ (PE.cong (_[ t ]₀) (PE.sym (wk-lift-id G))) [Gt] wk[Gt] [u≡u′]
 
-      [Gt′] = irrelevance′ (PE.cong (λ x → x [ t′ ]) (wk-lift-id G)) wk[Gt′]
-      [Gt≡Gt′] = irrelevanceEq″ (PE.cong (λ x → x [ t ]) (wk-lift-id G))
-                                (PE.cong (λ x → x [ t′ ]) (wk-lift-id G))
+      [Gt′] = irrelevance′ (PE.cong (λ x → x [ t′ ]₀) (wk-lift-id G)) wk[Gt′]
+      [Gt≡Gt′] = irrelevanceEq″ (PE.cong (λ x → x [ t ]₀) (wk-lift-id G))
+                                (PE.cong (λ x → x [ t′ ]₀) (wk-lift-id G))
                                 wk[Gt] [Gt]
                                 wk[Gt≡Gt′]
 
       [u′]Gt′ = convTerm₁ [Gt] [Gt′] [Gt≡Gt′] [u′]
-      wk[u′] = irrelevanceTerm′ (PE.sym (PE.cong (_[ t′ ]) (wk-lift-id G)))
+      wk[u′] = irrelevanceTerm′ (PE.sym (PE.cong (_[ t′ ]₀) (wk-lift-id G)))
                                 [Gt′] wk[Gt′] [u′]Gt′
 
       [prod] = prod′ {m = Σᵣ} [F] [t] [Gt] [u] [ΣFG]
@@ -314,10 +314,10 @@ prod-cong″ :
   ([t] : Γ ⊩⟨ l ⟩ t ∷ F / [F])
   ([t′] : Γ ⊩⟨ l ⟩ t′ ∷ F / [F])
   ([t≡t′] : Γ ⊩⟨ l ⟩ t ≡ t′ ∷ F / [F])
-  ([Gt] : Γ ⊩⟨ l ⟩ G [ t ])
-  ([u] : Γ ⊩⟨ l ⟩ u ∷ G [ t ] / [Gt])
-  ([u′] : Γ ⊩⟨ l ⟩ u′ ∷ G [ t ] / [Gt])
-  ([u≡u′] : Γ ⊩⟨ l ⟩ u ≡ u′ ∷ G [ t ] / [Gt])
+  ([Gt] : Γ ⊩⟨ l ⟩ G [ t ]₀)
+  ([u] : Γ ⊩⟨ l ⟩ u ∷ G [ t ]₀ / [Gt])
+  ([u′] : Γ ⊩⟨ l ⟩ u′ ∷ G [ t ]₀ / [Gt])
+  ([u≡u′] : Γ ⊩⟨ l ⟩ u ≡ u′ ∷ G [ t ]₀ / [Gt])
   ([ΣFG] : Γ ⊩⟨ l′ ⟩ Σ⟨ m ⟩ p , q ▷ F ▹ G) →
   Γ ⊩⟨ l′ ⟩ prod m p t u ≡ prod m p t′ u′ ∷ Σ p , q ▷ F ▹ G / [ΣFG]
 prod-cong″ {m = m} [F] [t] [t′] [t≡t′] [Gt] [u] [u′] [u≡u′] [ΣFG] =
@@ -333,9 +333,9 @@ prod-congᵛ :
   ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ F / [Γ] / [F])
   ([t′] : Γ ⊩ᵛ⟨ l ⟩ t′ ∷ F / [Γ] / [F])
   ([t≡t′] : Γ ⊩ᵛ⟨ l ⟩ t ≡ t′ ∷ F / [Γ] / [F])
-  ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ G [ t ] / [Γ] / substS [Γ] [F] [G] [t])
-  ([u′] : Γ ⊩ᵛ⟨ l ⟩ u′ ∷ G [ t′ ] / [Γ] / substS [Γ] [F] [G] [t′])
-  ([u≡u′] : Γ ⊩ᵛ⟨ l ⟩ u ≡ u′ ∷ G [ t ] / [Γ] / substS [Γ] [F] [G] [t])
+  ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ G [ t ]₀ / [Γ] / substS [Γ] [F] [G] [t])
+  ([u′] : Γ ⊩ᵛ⟨ l ⟩ u′ ∷ G [ t′ ]₀ / [Γ] / substS [Γ] [F] [G] [t′])
+  ([u≡u′] : Γ ⊩ᵛ⟨ l ⟩ u ≡ u′ ∷ G [ t ]₀ / [Γ] / substS [Γ] [F] [G] [t])
   (ok : Σ-allowed m p q) →
   Γ ⊩ᵛ⟨ l ⟩ prod m p t u ≡ prod m p t′ u′ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G / [Γ] /
     Σᵛ [Γ] [F] [G] ok
@@ -379,7 +379,7 @@ prodᵛ :
   ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
   ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
   ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ F / [Γ] / [F])
-  ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ G [ t ] / [Γ] / substS [Γ] [F] [G] [t])
+  ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ G [ t ]₀ / [Γ] / substS [Γ] [F] [G] [t])
   (ok : Σ-allowed m p q) →
   Γ ⊩ᵛ⟨ l ⟩ prod m p t u ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G / [Γ] /
     Σᵛ [Γ] [F] [G] ok
@@ -392,12 +392,12 @@ prodᵛ
       ⊩σF = proj₁ (unwrap [F] ⊢Δ [σ])
       ⊢σF = escape ⊩σF
       ⊩σt = proj₁ ([t] ⊢Δ [σ])
-      ⊩σGt′ : Δ ⊩⟨ l ⟩ subst σ (G [ t ])
+      ⊩σGt′ : Δ ⊩⟨ l ⟩ G [ t ]₀ [ σ ]
       ⊩σGt′ = proj₁ (unwrap [Gt] ⊢Δ [σ])
-      ⊩σGt : Δ ⊩⟨ l ⟩ subst (liftSubst σ) G [ subst σ t ]
+      ⊩σGt : Δ ⊩⟨ l ⟩ G [ liftSubst σ ] [ t [ σ ] ]₀
       ⊩σGt = irrelevance′ (singleSubstLift G t) ⊩σGt′
       ⊩σu′ = proj₁ ([u] ⊢Δ [σ])
-      ⊩σu : Δ ⊩⟨ l ⟩ subst σ u ∷ subst (liftSubst σ) G [ subst σ t ] / ⊩σGt
+      ⊩σu : Δ ⊩⟨ l ⟩ u [ σ ] ∷ G [ liftSubst σ ] [ t [ σ ] ]₀ / ⊩σGt
       ⊩σu = irrelevanceTerm′ (singleSubstLift G t) ⊩σGt′ ⊩σGt ⊩σu′
       ⊩σΣFG = proj₁ (unwrap [ΣFG] ⊢Δ [σ])
 
@@ -419,6 +419,6 @@ prodᵛ
             ⊩σ′u′ = convTerm₂ ⊩σGt′ ⊩σ′Gt′ σGt≡σ′Gt ⊩σ′u″
             ⊩σ′u = irrelevanceTerm′ (singleSubstLift G t) ⊩σGt′ ⊩σGt ⊩σ′u′
 
-            σu≡σ′u : Δ ⊩⟨ l ⟩ subst σ u ≡ subst σ′ u ∷ subst (liftSubst σ) G [ subst σ t ] / ⊩σGt
+            σu≡σ′u : Δ ⊩⟨ l ⟩ u [ σ ] ≡ u [ σ′ ] ∷ G [ liftSubst σ ] [ t [ σ ] ]₀ / ⊩σGt
             σu≡σ′u = irrelevanceEqTerm′ (singleSubstLift G t) ⊩σGt′ ⊩σGt (proj₂ ([u] ⊢Δ [σ]) [σ′] [σ≡σ′])
         in  prod-cong″ ⊩σF ⊩σt ⊩σ′t σt≡σ′t ⊩σGt ⊩σu ⊩σ′u σu≡σ′u ⊩σΣFG)

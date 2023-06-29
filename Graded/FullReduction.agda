@@ -161,9 +161,9 @@ module _ (as : Full-reduction-assumptions) where
           (_ , ⊢B , _) →
           t′ ∘ u′
         , (                          $⟨ ∘ₙ t′-ne u′-nf ⟩
-           Γ ⊢ne t′ ∘ u′ ∷ B [ u′ ]  →⟨ flip convₙ $
+           Γ ⊢ne t′ ∘ u′ ∷ B [ u′ ]₀  →⟨ flip convₙ $
                                         substTypeEq (refl ⊢B) (sym u≡u′) ⟩
-           Γ ⊢ne t′ ∘ u′ ∷ B [ u ]   □)
+           Γ ⊢ne t′ ∘ u′ ∷ B [ u ]₀   □)
         , app-cong t≡t′ u≡u′
         , sub (▸t′ ∘ₘ ▸u′) γ≤ }}}}
       (fst-cong {p = p} t~) ▸fst-t →
@@ -186,9 +186,9 @@ module _ (as : Full-reduction-assumptions) where
           (⊢A , ⊢B , _) →
           snd p t′
         , (                                 $⟨ sndₙ ⊢A ⊢B t′-ne ⟩
-           Γ ⊢ne snd p t′ ∷ B [ fst p t′ ]  →⟨ flip _⊢ne_∷_.convₙ $
+           Γ ⊢ne snd p t′ ∷ B [ fst p t′ ]₀  →⟨ flip _⊢ne_∷_.convₙ $
                                                substTypeEq (refl ⊢B) (fst-cong ⊢A ⊢B (sym t≡t′)) ⟩
-           Γ ⊢ne snd p t′ ∷ B [ fst p t ]   □)
+           Γ ⊢ne snd p t′ ∷ B [ fst p t ]₀   □)
         , snd-cong ⊢A ⊢B t≡t′
         , sub (sndₘ ▸t′) γ≤ }}}
       (natrec-cong {F = A} {k = v} {p = p} {q = q} {r = r} A↑ t↑ u↑ v~)
@@ -219,9 +219,9 @@ module _ (as : Full-reduction-assumptions) where
                                                                  (convₙ t′-nf (substTypeEq A≡A′ (refl (zeroⱼ ⊢Γ))))
                                                                  hyp
                                                                  v′-ne) ⟩
-           Γ ⊢ne natrec p q r A′ t′ u′ v′ ∷ A′ [ v′ ]      →⟨ flip _⊢ne_∷_.convₙ $ _⊢_≡_.sym $
+           Γ ⊢ne natrec p q r A′ t′ u′ v′ ∷ A′ [ v′ ]₀      →⟨ flip _⊢ne_∷_.convₙ $ _⊢_≡_.sym $
                                                               substTypeEq A≡A′ v≡v′ ⟩
-           Γ ⊢ne natrec p q r A′ t′ u′ v′ ∷ A [ v ]        □)
+           Γ ⊢ne natrec p q r A′ t′ u′ v′ ∷ A [ v ]₀        □)
         , natrec-cong ⊢A A≡A′ t≡t′ u≡u′ v≡v′
         , sub (natrecₘ ▸t′ ▸u′ ▸v′ ▸A′) γ≤ }}}}}}}}
       (prodrec-cong
@@ -243,9 +243,9 @@ module _ (as : Full-reduction-assumptions) where
            Γ ∙ A ∙ B ⊢nf v′ ∷ C [ prodᵣ p (var x1) (var x0) ]↑²   →⟨ flip _⊢nf_∷_.convₙ $
                                                                      subst↑²TypeEq-prod C≡C′ ok₂ ⟩
            Γ ∙ A ∙ B ⊢nf v′ ∷ C′ [ prodᵣ p (var x1) (var x0) ]↑²  →⟨ flip (prodrecₙ ⊢A ⊢B C′-nf u′-ne) ok₂ ⟩
-           Γ ⊢ne prodrec r p q C′ u′ v′ ∷ C′ [ u′ ]               →⟨ flip _⊢ne_∷_.convₙ $ _⊢_≡_.sym $
+           Γ ⊢ne prodrec r p q C′ u′ v′ ∷ C′ [ u′ ]₀               →⟨ flip _⊢ne_∷_.convₙ $ _⊢_≡_.sym $
                                                                      substTypeEq C≡C′ u≡u′ ⟩
-           Γ ⊢ne prodrec r p q C′ u′ v′ ∷ C [ u ]                 □)
+           Γ ⊢ne prodrec r p q C′ u′ v′ ∷ C [ u ]₀                 □)
         , prodrec-cong ⊢A ⊢B C≡C′ u≡u′ v≡v′ ok₂
         , sub (prodrecₘ ▸u′ ▸v′ ▸C′ ok₁) γ≤ }}}}}
       (Emptyrec-cong {F = A} {p = p} A↑ t~) ▸Emptyrec →
@@ -398,9 +398,9 @@ module _ (as : Full-reduction-assumptions) where
           (u′ , u′-nf , u≡u′ , ▸u′) →
           prod! t′ u′
         , (                                      $⟨ u′-nf ⟩
-           Γ ⊢nf u′ ∷ B [ t ]                    →⟨ flip _⊢nf_∷_.convₙ $
+           Γ ⊢nf u′ ∷ B [ t ]₀                    →⟨ flip _⊢nf_∷_.convₙ $
                                                     substTypeEq (refl ⊢B) t≡t′ ⟩
-           Γ ⊢nf u′ ∷ B [ t′ ]                   →⟨ flip (_⊢nf_∷_.prodₙ ⊢A ⊢B t′-nf) ok ⟩
+           Γ ⊢nf u′ ∷ B [ t′ ]₀                   →⟨ flip (_⊢nf_∷_.prodₙ ⊢A ⊢B t′-nf) ok ⟩
            Γ ⊢nf prod! t′ u′ ∷ Σᵣ p , q ▷ A ▹ B  □)
         , prod-cong ⊢A ⊢B t≡t′ u≡u′ ok
         , sub (prodᵣₘ ▸t′ ▸u′) γ≤ }}}
@@ -431,9 +431,9 @@ module _ (as : Full-reduction-assumptions) where
           (u₂ , u₂-nf , snd-t≡u₂ , ▸u₂) →
           prodₚ p u₁ u₂
         , (                                        $⟨ u₂-nf ⟩
-           Γ ⊢nf u₂ ∷ B [ fst p t ]                →⟨ flip _⊢nf_∷_.convₙ $
+           Γ ⊢nf u₂ ∷ B [ fst p t ]₀                →⟨ flip _⊢nf_∷_.convₙ $
                                                       substTypeEq (refl ⊢B) fst-t≡u₁ ⟩
-           Γ ⊢nf u₂ ∷ B [ u₁ ]                     →⟨ flip (prodₙ ⊢A ⊢B u₁-nf) ok ⟩
+           Γ ⊢nf u₂ ∷ B [ u₁ ]₀                     →⟨ flip (prodₙ ⊢A ⊢B u₁-nf) ok ⟩
            Γ ⊢nf prodₚ p u₁ u₂ ∷ Σₚ p , q ▷ A ▹ B  □)
         , (                                                        $⟨ sym (Σ-η-prod-fst-snd ⊢t) ⟩
            Γ ⊢ t ≡ prodₚ p (fst p t) (snd p t) ∷ Σₚ p , q ▷ A ▹ B  →⟨ flip _⊢_≡_∷_.trans $

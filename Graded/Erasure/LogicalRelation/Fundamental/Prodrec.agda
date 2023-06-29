@@ -96,21 +96,21 @@ prodrecωʳ′-𝟘 :
             [Γ] ∙ [F] ∙ [G]) →
   δ ∙ (r · p) ∙ r ▸ Γ ∙ F ∙ G ⊩ʳ⟨ l ⟩ u ∷[ 𝟙ᵐ ]
     A [ prodᵣ p (var x1) (var x0) ]↑² / [Γ] ∙ [F] ∙ [G] / [A₊] →
-  ([At] : Γ ⊩ᵛ⟨ l ⟩ A [ t ] / [Γ]) →
+  ([At] : Γ ⊩ᵛ⟨ l ⟩ A [ t ]₀ / [Γ]) →
   Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ u ∷ A [ prodᵣ p (var x1) (var x0) ]↑² /
     [Γ] ∙ [F] ∙ [G] / [A₊] →
   ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ) →
   σ ®⟨ l ⟩ σ′ ∷[ 𝟙ᵐ ] Γ ◂ r ·ᶜ γ +ᶜ δ / [Γ] / [σ] →
-  ([t₁] : Δ ⊩⟨ l ⟩ t₁ ∷ subst σ F / [F] .unwrap ⊢Δ [σ] .proj₁) →
-  Δ ⊩⟨ l ⟩ t₂ ∷ subst (consSubst σ t₁) G /
+  ([t₁] : Δ ⊩⟨ l ⟩ t₁ ∷ F [ σ ] / [F] .unwrap ⊢Δ [σ] .proj₁) →
+  Δ ⊩⟨ l ⟩ t₂ ∷ G [ consSubst σ t₁ ] /
     [G] .unwrap ⊢Δ ([σ] , [t₁]) .proj₁ →
-  Δ ⊢ subst σ t ⇒* prodᵣ p t₁ t₂ ∷ subst σ (Σᵣ p , q ▷ F ▹ G) →
-  T.subst σ′ (erase t) T.⇒* v₂ →
-  t₂ ®⟨ l ⟩ v₂ ∷ subst (consSubst σ t₁) G /
+  Δ ⊢ t [ σ ] ⇒* prodᵣ p t₁ t₂ ∷ Σᵣ p , q ▷ F ▹ G [ σ ] →
+  erase t T.[ σ′ ] T.⇒* v₂ →
+  t₂ ®⟨ l ⟩ v₂ ∷ G [ consSubst σ t₁ ] /
     [G] .unwrap ⊢Δ ([σ] , [t₁]) .proj₁ →
   p PE.≡ 𝟘 → r PE.≢ 𝟘 →
-  subst σ (prodrec r p q′ A t u) ®⟨ l ⟩
-    T.subst σ′ (erase (prodrec r p q′ A t u)) ∷ subst σ (A [ t ]) /
+  prodrec r p q′ A t u [ σ ] ®⟨ l ⟩
+    erase (prodrec r p q′ A t u) T.[ σ′ ] ∷ A [ t ]₀ [ σ ] /
     [At] .unwrap ⊢Δ [σ] .proj₁
 prodrecωʳ′-𝟘
   {l = l} {G = G} {p = p} {A = A} {δ = δ} {r = r} {u = u} {t = t} {σ = σ} {σ′ = σ′}
@@ -147,7 +147,7 @@ prodrecωʳ′-𝟘
              .proj₁
   [σu]   = [u] {σ = liftSubstn σ 2} (⊢Δ ∙ ⊢σF ∙ ⊢σG) [⇑²σ] .proj₁
   ⊢σu    = escapeTerm [σA₊] [σu]
-  ⊢σu′   = PE.subst (λ x → _ ⊢ subst (liftSubstn σ 2) u ∷ x)
+  ⊢σu′   = PE.subst (λ x → _ ⊢ u [ liftSubstn σ 2 ] ∷ x)
              (subst-β-prodrec A σ) ⊢σu
   ⊢t₁    = escapeTerm [σF] [t₁]
   ⊢t₂    = escapeTerm [σGt₁] [t₂]
@@ -165,35 +165,28 @@ prodrecωʳ′-𝟘
              (substCompProdrec A t₁ t₂ σ)
              (conv* red₁ At≡Ap ⇨∷* redMany red₂)
   lemma′ = λ x →
-             T.subst
-               (T.consSubst (T.sgSubst T.↯) (T.subst σ′ (erase t)))
-               (T.wk1 (T.wk1 (σ′ x)))                                ≡⟨ TP.wk1-tail (T.wk1 (σ′ x)) ⟩
+             (T.wk1 (T.wk1 (σ′ x)))
+               T.[ T.consSubst (T.sgSubst T.↯) (erase t T.[ σ′ ]) ]  ≡⟨ TP.wk1-tail (T.wk1 (σ′ x)) ⟩
 
-             T.subst (T.sgSubst T.↯) (T.wk1 (σ′ x))                  ≡⟨ TP.wk1-tail (σ′ x) ⟩
+              (T.wk1 (σ′ x)) T.[ T.↯ ]₀                              ≡⟨ TP.wk1-tail (σ′ x) ⟩
 
-             T.subst T.idSubst (σ′ x)                                ≡⟨ TP.subst-id (σ′ x) ⟩
+              σ′ x T.[ T.idSubst ]                                   ≡⟨ TP.subst-id (σ′ x) ⟩
 
              σ′ x                                                    ∎
-  lemma  = T.subst (T.consSubst (T.sgSubst T.↯) (T.subst σ′ (erase t)))
-             (T.subst (T.liftSubst (T.liftSubst σ′)) (erase u))          ≡⟨ TP.substCompEq (erase u) ⟩
+  lemma  = erase u T.[ T.liftSubstn σ′ 2 ]
+                   T.[ T.consSubst (T.sgSubst T.↯) (erase t T.[ σ′ ]) ]      ≡⟨ TP.substCompEq (erase u) ⟩
 
-           T.subst
-             (T.consSubst (T.sgSubst T.↯) (T.subst σ′ (erase t)) T.ₛ•ₛ
-              T.liftSubst (T.liftSubst σ′))
-             (erase u)                                                   ≡⟨ TP.substVar-to-subst
-                                                                              (λ where
-                                                                                 x0        → PE.refl
-                                                                                 (x0 +1)   → PE.refl
-                                                                                 (x +1 +1) → lemma′ x)
-                                                                              (erase u) ⟩
-           T.subst
-             (T.consSubst (T.consSubst σ′ T.↯) (T.subst σ′ (erase t)))
-             (erase u)                                                   ∎
+           erase u T.[ T.consSubst (T.sgSubst T.↯) (erase t T.[ σ′ ]) T.ₛ•ₛ
+                       T.liftSubst (T.liftSubst σ′) ]                        ≡⟨ TP.substVar-to-subst
+                                                                                (λ where
+                                                                                  x0        → PE.refl
+                                                                                  (x0 +1)   → PE.refl
+                                                                                  (x +1 +1) → lemma′ x)
+                                                                                (erase u) ⟩
+           erase u T.[ T.consSubst (T.consSubst σ′ T.↯) (erase t T.[ σ′ ]) ] ∎
+
   red″   = T.trans T.prodrec-β
-             (PE.subst
-                (T._⇒* T.subst (T.consSubst (T.consSubst σ′ T.↯)
-                                  (T.subst σ′ (erase t)))
-                         (erase u))
+             (PE.subst (T._⇒* (erase u T.[ T.consSubst (T.consSubst σ′ T.↯) (erase t T.[ σ′ ]) ]))
                 (PE.sym lemma)
                 T.refl)
   σ®σ′ᵤ  = subsumptionSubst {l = l} σ®σ′ λ x rγ+δ≡𝟘 →
@@ -215,22 +208,22 @@ prodrecωʳ′-ω :
             [Γ] ∙ [F] ∙ [G]) →
   δ ∙ (r · p) ∙ r ▸ Γ ∙ F ∙ G ⊩ʳ⟨ l ⟩ u ∷[ 𝟙ᵐ ]
     A [ prodᵣ p (var x1) (var x0) ]↑² / [Γ] ∙ [F] ∙ [G] / [A₊] →
-  ([At] : Γ ⊩ᵛ⟨ l ⟩ A [ t ] / [Γ]) →
+  ([At] : Γ ⊩ᵛ⟨ l ⟩ A [ t ]₀ / [Γ]) →
   Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ u ∷ A [ prodᵣ p (var x1) (var x0) ]↑² /
     [Γ] ∙ [F] ∙ [G] / [A₊] →
   ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ) →
   σ ®⟨ l ⟩ σ′ ∷[ 𝟙ᵐ ] Γ ◂ r ·ᶜ γ +ᶜ δ / [Γ] / [σ] →
-  ([t₁] : Δ ⊩⟨ l ⟩ t₁ ∷ subst σ F / [F] .unwrap ⊢Δ [σ] .proj₁) →
-  Δ ⊩⟨ l ⟩ t₂ ∷ subst (consSubst σ t₁) G /
+  ([t₁] : Δ ⊩⟨ l ⟩ t₁ ∷ F [ σ ] / [F] .unwrap ⊢Δ [σ] .proj₁) →
+  Δ ⊩⟨ l ⟩ t₂ ∷ G [ consSubst σ t₁ ] /
     [G] .unwrap ⊢Δ ([σ] , [t₁]) .proj₁ →
-  Δ ⊢ subst σ t ⇒* prodᵣ p t₁ t₂ ∷ subst σ (Σᵣ p , q ▷ F ▹ G) →
-  T.subst σ′ (erase t) T.⇒* T.prod v₁ v₂ →
-  t₁ ®⟨ l ⟩ v₁ ∷ subst σ F / [F] .unwrap ⊢Δ [σ] .proj₁ →
-  t₂ ®⟨ l ⟩ v₂ ∷ subst (consSubst σ t₁) G /
+  Δ ⊢ t [ σ ] ⇒* prodᵣ p t₁ t₂ ∷ Σᵣ p , q ▷ F ▹ G [ σ ] →
+  erase t T.[ σ′ ] T.⇒* T.prod v₁ v₂ →
+  t₁ ®⟨ l ⟩ v₁ ∷ F [ σ ] / [F] .unwrap ⊢Δ [σ] .proj₁ →
+  t₂ ®⟨ l ⟩ v₂ ∷ G [ consSubst σ t₁ ] /
     [G] .unwrap ⊢Δ ([σ] , [t₁]) .proj₁ →
   p PE.≢ 𝟘 → r PE.≢ 𝟘 →
-  subst σ (prodrec r p q′ A t u) ®⟨ l ⟩
-    T.subst σ′ (erase (prodrec r p q′ A t u)) ∷ subst σ (A [ t ]) /
+  prodrec r p q′ A t u [ σ ] ®⟨ l ⟩
+    erase (prodrec r p q′ A t u) T.[ σ′ ] ∷ A [ t ]₀ [ σ ] /
     [At] .unwrap ⊢Δ [σ] .proj₁
 prodrecωʳ′-ω
   {l = l} {F = F} {G = G} {p = p} {q = q} {A = A} {δ = δ} {r = r} {u = u} {t = t}
@@ -270,7 +263,7 @@ prodrecωʳ′-ω
       [σA₊] = proj₁ (unwrap [A₊] {σ = liftSubstn σ 2} (⊢Δ ∙ ⊢σF ∙ ⊢σG) [⇑²σ])
       [σu] = proj₁ ([u] {σ = liftSubstn σ 2} (⊢Δ ∙ ⊢σF ∙ ⊢σG) [⇑²σ])
       ⊢σu = escapeTerm [σA₊] [σu]
-      ⊢σu′ = PE.subst (λ x → _ ⊢ subst (liftSubstn σ 2) u ∷ x) (subst-β-prodrec A σ) ⊢σu
+      ⊢σu′ = PE.subst (λ x → _ ⊢ u [ liftSubstn σ 2 ] ∷ x) (subst-β-prodrec A σ) ⊢σu
       ⊢t₁ = escapeTerm [σF] [t₁]
       ⊢t₂ = escapeTerm [σGt₁] [t₂]
       ⊢t₂′ = PE.subst (λ x → Δ ⊢ t₂ ∷ x) (PE.sym (singleSubstComp t₁ σ G)) ⊢t₂
@@ -283,10 +276,10 @@ prodrecωʳ′-ω
                       (substCompProdrec A t₁ t₂ σ)
                       (conv* red₁ At≡Ap ⇨∷* redMany red₂)
 
-      red′₁ = TP.prodrec-subst* {u = T.subst (T.liftSubstn σ′ 2) (erase u)} d′
-      red′₂ = PE.subst (λ x → T.prodrec (T.prod v₁ v₂) (T.subst (T.liftSubstn σ′ 2) (erase u)) T.⇒ x)
+      red′₁ = TP.prodrec-subst* {u = erase u T.[ T.liftSubstn σ′ 2 ]} d′
+      red′₂ = PE.subst (λ x → T.prodrec (T.prod v₁ v₂) (erase u T.[ T.liftSubstn σ′ 2 ]) T.⇒ x)
                        (TP.doubleSubstComp (erase u) v₁ v₂ σ′)
-                       (T.prodrec-β {t = v₁} {v₂} {T.subst (T.liftSubstn σ′ 2) (erase u)})
+                       (T.prodrec-β {t = v₁} {v₂} {erase u T.[ T.liftSubstn σ′ 2 ]})
       red′ = TP.red*concat red′₁ (T.trans red′₂ T.refl)
 
       pr®pr′ = redSubstTerm* [σ₊A₊] (u®u′ ◀≢𝟘 𝟙≉𝟘) red red′
@@ -308,19 +301,19 @@ prodrecωʳ′ :
             [Γ] ∙ [F] ∙ [G]) →
   δ ∙ (r · p) ∙ r ▸ Γ ∙ F ∙ G ⊩ʳ⟨ l ⟩ u ∷[ 𝟙ᵐ ]
     A [ prodᵣ p (var x1) (var x0) ]↑² / [Γ] ∙ [F] ∙ [G] / [A₊] →
-  ([At] : Γ ⊩ᵛ⟨ l ⟩ A [ t ] / [Γ]) →
+  ([At] : Γ ⊩ᵛ⟨ l ⟩ A [ t ]₀ / [Γ]) →
   Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ u ∷ A [ prodᵣ p (var x1) (var x0) ]↑² /
     [Γ] ∙ [F] ∙ [G] / [A₊] →
   r PE.≢ 𝟘 →
   ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ) →
   σ ®⟨ l ⟩ σ′ ∷[ 𝟙ᵐ ] Γ ◂ r ·ᶜ γ +ᶜ δ / [Γ] / [σ] →
-  Δ ⊩⟨ l ⟩ subst σ t ∷ subst σ (Σᵣ p , q ▷ F ▹ G) /
+  Δ ⊩⟨ l ⟩ t [ σ ] ∷ Σᵣ p , q ▷ F ▹ G [ σ ] /
     [Σ] .unwrap ⊢Δ [σ] .proj₁ →
-  subst σ t ®⟨ l ⟩ T.subst σ′ (erase t) ∷ subst σ (Σᵣ p , q ▷ F ▹ G) /
+  t [ σ ] ®⟨ l ⟩ erase t T.[ σ′ ] ∷ Σᵣ p , q ▷ F ▹ G [ σ ] /
     [Σ] .unwrap ⊢Δ [σ] .proj₁ →
-  subst σ (prodrec r p q′ A t u) ®⟨ l ⟩
-    T.subst σ′ (erase (prodrec r p q′ A t u)) ∷
-    subst σ (A [ t ]) / [At] .unwrap ⊢Δ [σ] .proj₁
+  prodrec r p q′ A t u [ σ ] ®⟨ l ⟩
+    erase (prodrec r p q′ A t u) T.[ σ′ ] ∷
+    A [ t ]₀ [ σ ] / [At] .unwrap ⊢Δ [σ] .proj₁
 prodrecωʳ′
   {n = n} {l = l} {F = F} {G = G} {p = p′} {q = q} {A = A} {δ = δ} {r = r} {u = u}
   {t = t} {σ = σ} {σ′ = σ′} {γ = γ} {q′ = q′} {Γ = Γ}
@@ -331,50 +324,49 @@ prodrecωʳ′
 ... | yes r≡𝟘 = PE.⊥-elim (r≢𝟘 r≡𝟘)
 ... | no _
   with whrDet*Term (redₜ t⇒p , prodₙ) (d , prodₙ)
-... | PE.refl = PE.subst (λ x → subst σ (prodrec r p′ q′ A t u) ®⟨ l ⟩ x ∷ subst σ (A [ t ]) / [At] .unwrap ⊢Δ [σ] .proj₁)
-                         (PE.cong (T.subst σ′) (prodrec-ω {q = q′} {A = A} p′ r≢𝟘))
+... | PE.refl = PE.subst (λ x → prodrec r p′ q′ A t u [ σ ] ®⟨ l ⟩ x ∷ A [ t ]₀ [ σ ] / [At] .unwrap ⊢Δ [σ] .proj₁)
+                         (PE.cong (T._[ σ′ ]) (prodrec-ω {q = q′} {A = A} p′ r≢𝟘))
                          pr®pr′
   where
   [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
   ⊢σF = escape [σF]
   [σF]′ = W.wk id ⊢Δ [σF]
   [σF]″ = W.wk id (wf ⊢σF) [σF]
-  [t₁]′ = I.irrelevanceTerm′ (wk-id (subst σ F)) [σF]″ [σF] [t₁]
+  [t₁]′ = I.irrelevanceTerm′ (wk-id (F [ σ ])) [σF]″ [σF] [t₁]
   [Gt₁] = proj₁ (unwrap [G] {σ = consSubst σ t₁} ⊢Δ
                             ([σ] , [t₁]′))
   [idσ] = wkSubstS [Γ] ⊢Δ (wf ⊢σF) id [σ]
   [σF]‴ = proj₁ (unwrap [F] (wf ⊢σF) [idσ])
   [t₁]″ = I.irrelevanceTerm′ (wk-subst F) [σF]″ [σF]‴ [t₁]
   [Gt₁]′ = proj₁ (unwrap [G] {σ = consSubst (id •ₛ σ) t₁} (wf ⊢σF) ([idσ] , [t₁]″))
-  [Gt₁]″ = I.irrelevance′ (PE.sym (PE.trans (PE.cong (_[ t₁ ]) (wk-subst-lift G))
+  [Gt₁]″ = I.irrelevance′ (PE.sym (PE.trans (PE.cong (_[ t₁ ]₀) (wk-subst-lift G))
                                             (singleSubstComp t₁ (id •ₛ σ) G)))
                           [Gt₁]′
-  [t₂]′ = I.irrelevanceTerm′ (PE.trans (PE.cong (_[ t₁ ]) (wk-lift-id (subst (liftSubst σ) G)))
+  [t₂]′ = I.irrelevanceTerm′ (PE.trans (PE.cong (_[ t₁ ]₀) (wk-lift-id (G [ liftSubst σ ])))
                                        (singleSubstComp t₁ σ G))
                              [Gt₁]″ [Gt₁] [t₂]
   [idσ]′ = wkSubstS [Γ] ⊢Δ ⊢Δ id [σ]
   [σF]₁ = proj₁ (unwrap [F] ⊢Δ [idσ]′)
   [t₁]₁′ = I.irrelevanceTerm′ (wk-subst F) [σF]′ [σF]₁ [t₁]₁
   [Gt₁]₁ = proj₁ (unwrap [G] {σ = consSubst (id •ₛ σ) t₁} ⊢Δ ([idσ]′ , [t₁]₁′))
-  [Gt₁]₁′ = I.irrelevance′ (PE.sym (PE.trans (PE.cong (_[ t₁ ]) (wk-subst-lift G))
+  [Gt₁]₁′ = I.irrelevance′ (PE.sym (PE.trans (PE.cong (_[ t₁ ]₀) (wk-subst-lift G))
                                              (singleSubstComp t₁ (id •ₛ σ) G)))
                            [Gt₁]₁
-  t₂®v₂′ = irrelevanceTerm′ (PE.trans (PE.cong (_[ t₁ ]) (wk-lift-id (subst (liftSubst σ) G)))
+  t₂®v₂′ = irrelevanceTerm′ (PE.trans (PE.cong (_[ t₁ ]₀) (wk-lift-id (G [ liftSubst σ ])))
                                       (singleSubstComp t₁ σ G))
                             [Gt₁]₁′ [Gt₁] t₂®v₂
   pr = prodrec r p′ q′ A t u
   [σAt] = proj₁ (unwrap [At] ⊢Δ [σ])
   pr®pr′ =
     Σ-®-elim
-      (λ _ → subst σ pr ®⟨ l ⟩ T.subst σ′ (erase pr) ∷
-               subst σ (A [ t ]) / [σAt])
+      (λ _ → pr [ σ ] ®⟨ l ⟩ erase pr T.[ σ′ ] ∷ A [ t ]₀ [ σ ] / [σAt])
       extra
       (λ d′ p≡𝟘 →
         prodrecωʳ′-𝟘 {δ = δ} {u = u} {γ = γ} {q′ = q′}
           [Γ] [F] [G] ok [A] [A₊] ⊩ʳu [At] [u] [σ] σ®σ′
           [t₁]′ [t₂]′ d d′ t₂®v₂′ p≡𝟘 r≢𝟘)
       (λ v₁ d′ t₁®v₁ p≢𝟘 →
-        let t₁®v₁′ = irrelevanceTerm′ (wk-id (subst σ F))
+        let t₁®v₁′ = irrelevanceTerm′ (wk-id (F [ σ ]))
                        [σF]′ [σF] t₁®v₁
         in  prodrecωʳ′-ω {δ = δ} {u = u} {γ = γ} {q′ = q′}
               [Γ] [F] [G] ok [A] [A₊] ⊩ʳu [At] [u] [σ] σ®σ′
@@ -394,18 +386,18 @@ prodrec𝟘ʳ : ([Γ] : ⊩ᵛ Γ)
             [Γ] ∙ [F] ∙ [G]) →
   δ ∙ 𝟘 ∙ 𝟘 ▸ Γ ∙ F ∙ G ⊩ʳ⟨ l ⟩ u ∷[ 𝟙ᵐ ]
     A [ prodᵣ p (var x1) (var x0) ]↑² / [Γ] ∙ [F] ∙ [G] / [A₊] →
-  ([At] : Γ ⊩ᵛ⟨ l ⟩ A [ t ] / [Γ]) →
+  ([At] : Γ ⊩ᵛ⟨ l ⟩ A [ t ]₀ / [Γ]) →
   Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ u ∷ A [ prodᵣ p (var x1) (var x0) ]↑² /
     [Γ] ∙ [F] ∙ [G] / [A₊] →
   r PE.≡ 𝟘 →
   k PE.≡ 0 →
   ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ) →
   σ ®⟨ l ⟩ σ′ ∷[ 𝟙ᵐ ] Γ ◂ δ / [Γ] / [σ] →
-  Δ ⊩⟨ l ⟩ subst σ t ∷ subst σ (Σᵣ p , q ▷ F ▹ G) /
+  Δ ⊩⟨ l ⟩ t [ σ ] ∷ Σᵣ p , q ▷ F ▹ G [ σ ] /
     [Σ] .unwrap ⊢Δ [σ] .proj₁ →
-  subst σ (prodrec r p q′ A t u) ®⟨ l ⟩
-    T.subst σ′ (erase (prodrec r p q′ A t u)) ∷
-    subst σ (A [ t ]) / [At] .unwrap ⊢Δ [σ] .proj₁
+  prodrec r p q′ A t u [ σ ] ®⟨ l ⟩
+    erase (prodrec r p q′ A t u) T.[ σ′ ] ∷
+    A [ t ]₀ [ σ ] / [At] .unwrap ⊢Δ [σ] .proj₁
 prodrec𝟘ʳ  {n} {Γ} {l} {F} {G} {p} {q} {A} {δ} {u} {t} {r} {σ} {σ′} {q′}
           [Γ] [F] [G] ok [A] [A₊] ⊩ʳu [At] [u] r≡𝟘 PE.refl [σ] σ®σ′
           (Σₜ t′ t⇒t′ p≅p (prodₙ {t = t₁} {u = t₂})
@@ -427,22 +419,22 @@ prodrec𝟘ʳ  {n} {Γ} {l} {F} {G} {p} {q} {A} {δ} {u} {t} {r} {σ} {σ′} {q
       [σA₊] = proj₁ (unwrap [A₊] {σ = liftSubstn σ 2} (⊢Δ ∙ ⊢σF ∙ ⊢σG) [⇑²σ])
       [σu] = proj₁ ([u] {σ = liftSubstn σ 2} (⊢Δ ∙ ⊢σF ∙ ⊢σG) [⇑²σ])
       ⊢σu = escapeTerm [σA₊] [σu]
-      ⊢σu′ = PE.subst (λ x → _ ⊢ subst (liftSubstn σ 2) u ∷ x)
+      ⊢σu′ = PE.subst (λ x → _ ⊢ u [ liftSubstn σ 2 ] ∷ x)
                       (subst-β-prodrec A σ) ⊢σu
 
       ⊢Δ′ = wf ⊢σF
       [σF]′ = W.wk id ⊢Δ′ [σF]
-      [t₁] = I.irrelevanceTerm′ (wk-id (subst σ F)) [σF]′ [σF] [t₁]′
+      [t₁] = I.irrelevanceTerm′ (wk-id (F [ σ ])) [σF]′ [σF] [t₁]′
       ⊢t₁ = escapeTerm [σF] [t₁]
       [Gt₁] = proj₁ (unwrap [G] ⊢Δ ([σ] , [t₁]))
       [σ]′ = wkSubstS [Γ] ⊢Δ ⊢Δ′ id [σ]
       [σF]″ = proj₁ (unwrap [F] ⊢Δ′ [σ]′)
       [t₁]″ = I.irrelevanceTerm′ (wk-subst F) [σF]′ [σF]″ [t₁]′
       [Gt₁]″ = proj₁ (unwrap [G] ⊢Δ′ ([σ]′ , [t₁]″))
-      [Gt₁]′ = I.irrelevance′ (PE.sym (PE.trans (PE.cong (subst (sgSubst t₁)) (wk-subst-lift G))
+      [Gt₁]′ = I.irrelevance′ (PE.sym (PE.trans (PE.cong (_[ t₁ ]₀) (wk-subst-lift G))
                                                 (singleSubstComp _ _ G)))
                               [Gt₁]″
-      [t₂] = I.irrelevanceTerm′ (PE.trans (PE.cong (subst (sgSubst t₁)) (wk-lift-id (subst (liftSubst σ) G)))
+      [t₂] = I.irrelevanceTerm′ (PE.trans (PE.cong (_[ t₁ ]₀) (wk-lift-id (G [ liftSubst σ ])))
                                           (PE.trans (substCompEq G) (substSingletonComp G)))
                                 [Gt₁]′ [Gt₁] [t₂]′
       ⊢t₂ = escapeTerm [Gt₁] [t₂]
@@ -452,9 +444,9 @@ prodrec𝟘ʳ  {n} {Γ} {l} {F} {G} {p} {q} {A} {δ} {u} {t} {r} {σ} {σ′} {q
       σ₊ = consSubst (consSubst σ t₁) t₂
       σ′₊ = T.consSubst (T.consSubst σ′ T.↯) T.↯
       [σ₊] = ([σ] , [t₁]) , [t₂]
-      σ₊®σ′₊ = (σ®σ′ , PE.subst (λ p → t₁ ®⟨ l ⟩ T.↯ ∷ subst σ F ◂ p / [σF])
+      σ₊®σ′₊ = (σ®σ′ , PE.subst (λ p → t₁ ®⟨ l ⟩ T.↯ ∷ F [ σ ] ◂ p / [σF])
                                 (PE.sym (·-zeroʳ 𝟙)) t®v◂𝟘)
-                    , PE.subst (λ p → t₂ ®⟨ _ ⟩ T.↯ ∷ subst (consSubst σ t₁) G ◂ p / [Gt₁])
+                    , PE.subst (λ p → t₂ ®⟨ _ ⟩ T.↯ ∷ G [ consSubst σ t₁ ] ◂ p / [Gt₁])
                                (PE.sym (·-zeroʳ 𝟙)) t®v◂𝟘
       σ₊u®σ′₊u′ = ⊩ʳu {σ = σ₊} {σ′ = σ′₊} [σ₊] σ₊®σ′₊
       [σ₊A₊] = proj₁ (unwrap [A₊] {σ = σ₊} ⊢Δ [σ₊])
@@ -467,12 +459,12 @@ prodrec𝟘ʳ  {n} {Γ} {l} {F} {G} {p} {q} {A} {δ} {u} {t} {r} {σ} {σ′} {q
       red₂ = redMany $
              prodrec-β ⊢σF ⊢σG ⊢σA ⊢t₁ ⊢t₂′ ⊢σu′ PE.refl ok
       red₂′ = PE.subst (λ x → _ ⊢ prodrec r p q′ _ _ _ ⇒* _ ∷ x) (substCompProdrec A t₁ t₂ σ) red₂
-      red = PE.subst (λ x → _ ⊢ subst σ (prodrec r p q′ A t u) ⇒* x ∷ _)
+      red = PE.subst (λ x → _ ⊢ prodrec r p q′ A t u [ σ ] ⇒* x ∷ _)
                      (doubleSubstComp u t₁ t₂ σ)
                      (red₁′ ⇨∷* red₂′)
-      red′ = PE.subst (λ x → T.subst σ′ (T.prodrec (T.prod T.↯ T.↯) (erase u)) T.⇒ x)
+      red′ = PE.subst (λ x → T.prodrec (T.prod T.↯ T.↯) (erase u) T.[ σ′ ] T.⇒ x)
                       (TP.doubleSubstComp (erase u) T.↯ T.↯ σ′)
-                      (T.prodrec-β {t = T.↯} {T.↯} {T.subst (T.liftSubstn σ′ 2) (erase u)})
+                      (T.prodrec-β {t = T.↯} {T.↯} {erase u T.[ T.liftSubstn σ′ 2 ]})
 
 
       pr®pr′ = redSubstTerm* [σ₊A₊] (σ₊u®σ′₊u′ ◀≢𝟘 𝟙≉𝟘)
@@ -502,8 +494,8 @@ prodrecʳ :
   δ ∙ (⌜ m ⌝ · r · p) ∙ (⌜ m ⌝ · r) ▸ Γ ∙ F ∙ G ⊩ʳ⟨ l ⟩ u ∷[ m ]
     A [ prodᵣ p (var x1) (var x0) ]↑² / [Γ] ∙ [F] ∙ [G] / [A₊] →
   (r PE.≡ 𝟘 → k PE.≡ 0) →
-  ∃ λ ([At] : Γ ⊩ᵛ⟨ l ⟩ A [ t ] / [Γ]) →
-    r ·ᶜ γ +ᶜ δ ▸ Γ ⊩ʳ⟨ l ⟩ prodrec r p q′ A t u ∷[ m ] A [ t ] / [Γ] /
+  ∃ λ ([At] : Γ ⊩ᵛ⟨ l ⟩ A [ t ]₀ / [Γ]) →
+    r ·ᶜ γ +ᶜ δ ▸ Γ ⊩ʳ⟨ l ⟩ prodrec r p q′ A t u ∷[ m ] A [ t ]₀ / [Γ] /
       [At]
 prodrecʳ {m = 𝟘ᵐ} [Γ] [F] [G] [Σ] [A] [A₊] [t] [u] ⊩ʳt ⊩ʳu r≢𝟘
   with is-𝟘? 𝟘

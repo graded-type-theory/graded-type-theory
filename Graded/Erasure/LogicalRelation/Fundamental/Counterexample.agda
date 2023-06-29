@@ -88,7 +88,7 @@ negation-of-fundamental-lemma-with-erased-matches
   consistent : ∀ {t} → Δ ⊢ t ∷ Empty → ⊥
   consistent {t = t} ⊢t = ¬Empty ∷Empty
     where
-    ∷Empty : ε ⊢ t [ prodᵣ p zero zero ] ∷ Empty
+    ∷Empty : ε ⊢ t [ prodᵣ p zero zero ]₀ ∷ Empty
     ∷Empty =
       substTerm ⊢t
         (prodⱼ (ℕⱼ ε) (ℕⱼ (ε ∙ ℕⱼ ε)) (zeroⱼ ε) (zeroⱼ ε) Σᵣ-ok)

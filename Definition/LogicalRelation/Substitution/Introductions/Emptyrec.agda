@@ -59,8 +59,8 @@ EmptyrecTerm : ∀ {F n σ l}
              (⊢Δ   : ⊢ Δ)
              ([σ]  : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
              ([σn] : Δ ⊩⟨ l ⟩ n ∷ Empty / Emptyᵣ (idRed:*: (Emptyⱼ ⊢Δ)))
-           → Δ ⊩⟨ l ⟩ Emptyrec p (subst σ F) n
-               ∷ subst σ F
+           → Δ ⊩⟨ l ⟩ Emptyrec p (F [ σ ]) n
+               ∷ F [ σ ]
                / proj₁ (unwrap [F] ⊢Δ [σ])
 EmptyrecTerm {Γ = Γ} {Δ = Δ} {F = F} {n} {σ} {l} [Γ] [F] ⊢Δ [σ]
            (Emptyₜ m d n≡n (ne (neNfₜ neM ⊢m m≡m))) =
@@ -89,9 +89,9 @@ Emptyrec-congTerm : ∀ {F F′ n m σ σ′ l}
                   ([σn]     : Δ ⊩⟨ l ⟩ n ∷ Empty / Emptyᵣ (idRed:*: (Emptyⱼ ⊢Δ)))
                   ([σm]     : Δ ⊩⟨ l ⟩ m ∷ Empty / Emptyᵣ (idRed:*: (Emptyⱼ ⊢Δ)))
                   ([σn≡σm]  : Δ ⊩⟨ l ⟩ n ≡ m ∷ Empty / Emptyᵣ (idRed:*: (Emptyⱼ ⊢Δ)))
-                → Δ ⊩⟨ l ⟩ Emptyrec p (subst σ F) n
-                    ≡ Emptyrec p (subst σ′ F′) m
-                    ∷ subst σ F
+                → Δ ⊩⟨ l ⟩ Emptyrec p (F [ σ ]) n
+                    ≡ Emptyrec p (F′ [ σ′ ]) m
+                    ∷ F [ σ ]
                     / proj₁ (unwrap [F] ⊢Δ [σ])
 Emptyrec-congTerm {Γ = Γ} {Δ = Δ} {p = p} {F} {F′} {n} {m} {σ} {σ′} {l}
                 [Γ] [F] [F′] [F≡F′]

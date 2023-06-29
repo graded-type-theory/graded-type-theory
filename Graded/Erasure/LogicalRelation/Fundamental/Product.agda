@@ -108,11 +108,11 @@ prodʳ :
   ([Γ] : ⊩ᵛ Γ)
   ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
   ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
-  ([G[t]] : Γ ⊩ᵛ⟨ l ⟩ G [ t ] / [Γ])
+  ([G[t]] : Γ ⊩ᵛ⟨ l ⟩ G [ t ]₀ / [Γ])
   ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ F / [Γ] / [F])
-  ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ G [ t ] / [Γ] / [G[t]])
+  ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ G [ t ]₀ / [Γ] / [G[t]])
   (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ᵐ· p ] F / [Γ] / [F])
-  (⊩ʳu : δ ▸ Γ ⊩ʳ⟨ l ⟩ u ∷[ m ] G [ t ] / [Γ] / [G[t]]) →
+  (⊩ʳu : δ ▸ Γ ⊩ʳ⟨ l ⟩ u ∷[ m ] G [ t ]₀ / [Γ] / [G[t]]) →
   (∀ {x γ δ} → (γ ⊕ᶜ δ) ⟨ x ⟩ PE.≡ 𝟘 → γ ⟨ x ⟩ PE.≡ 𝟘) →
   (∀ {x γ δ} → (γ ⊕ᶜ δ) ⟨ x ⟩ PE.≡ 𝟘 → δ ⟨ x ⟩ PE.≡ 𝟘) →
   Σ-allowed s p q →
@@ -136,10 +136,10 @@ prodʳ
 
   lemma :
     (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ ⌞ p ⌟ ] F / [Γ] / [F])
-    (⊩ʳu : δ ▸ Γ ⊩ʳ⟨ l ⟩ u ∷[ 𝟙ᵐ ] G [ t ] / [Γ] / [G[t]]) →
+    (⊩ʳu : δ ▸ Γ ⊩ʳ⟨ l ⟩ u ∷[ 𝟙ᵐ ] G [ t ]₀ / [Γ] / [G[t]]) →
     (p ·ᶜ γ ⊕ᶜ δ) ▸ Γ ⊩ʳ⟨ l ⟩ prod s p t u ∷[ 𝟙ᵐ ] Σ p , q ▷ F ▹ G / [Γ] / [Σ]
   lemma ⊩ʳt ⊩ʳu {σ = σ} {σ′ = σ′} [σ] σ®σ′ =
-    (subst σ t , subst σ u , id ⊢prod , [σt]′ , T.subst σ′ (erase u) , u®u″ , extra) ◀ 𝟙
+    (t [ σ ] , u [ σ ] , id ⊢prod , [σt]′ , erase u T.[ σ′ ] , u®u″ , extra) ◀ 𝟙
     where
     σ®σ′ᵤ = subsumptionSubst {l = l} σ®σ′ λ _ → propʳ
     u®u′ = ⊩ʳu [σ] σ®σ′ᵤ
@@ -147,30 +147,30 @@ prodʳ
     [σF]′ = W.wk id ⊢Δ [σF]
     [σG[t]] = proj₁ (unwrap [G[t]] ⊢Δ [σ])
     [σt] = proj₁ ([t] ⊢Δ [σ])
-    [σt]′ = I.irrelevanceTerm′ (PE.sym (wk-id (subst σ F))) [σF] [σF]′ [σt]
+    [σt]′ = I.irrelevanceTerm′ (PE.sym (wk-id (F [ σ ]))) [σF] [σF]′ [σt]
     [σt]″ = I.irrelevanceTerm′ (wk-subst F) [σF]′ (proj₁ (unwrap [F] ⊢Δ (wkSubstS [Γ] ⊢Δ ⊢Δ id [σ]))) [σt]′
     [σG[t]]′ = proj₁ (unwrap [G] ⊢Δ (wkSubstS [Γ] ⊢Δ ⊢Δ id [σ] , [σt]″))
-    [σG[t]]″ = I.irrelevance′ (PE.sym (singleSubstWkComp (subst σ t) σ G)) [σG[t]]′
+    [σG[t]]″ = I.irrelevance′ (PE.sym (singleSubstWkComp (t [ σ ]) σ G)) [σG[t]]′
     ⊢σF = escape [σF]
     ⊢σG = escape (proj₁ (unwrap [G] (⊢Δ ∙ ⊢σF) (liftSubstS {σ = σ} {F = F} [Γ] ⊢Δ [F] [σ])))
     ⊢σt = escapeTerm [σF] [σt]
     ⊢σu = escapeTerm [σG[t]] (proj₁ ([u] ⊢Δ [σ]))
     ⊢prod = prodⱼ ⊢σF ⊢σG ⊢σt
-              (PE.subst (λ x → Δ ⊢ subst σ u ∷ x)
+              (PE.subst (λ x → Δ ⊢ u [ σ ] ∷ x)
                  (singleSubstLift G t) ⊢σu)
               ok
     σGt≡ρσGt = PE.trans (singleSubstLift G t)
-                        (PE.cong (_[ _ ]) (PE.sym (wk-lift-id (subst (liftSubst σ) G))))
+                        (PE.cong (_[ _ ]₀) (PE.sym (wk-lift-id (G [ liftSubst σ ]))))
     u®u″ = irrelevanceQuant′ _ σGt≡ρσGt [σG[t]] [σG[t]]″ u®u′ ◀≢𝟘 𝟙≉𝟘
     open Tools.Reasoning.PropositionalEquality
     extra = case is-𝟘? p of λ where
               (yes p≡𝟘) →
-                let d = PE.subst (λ x → T.subst σ′ x T.⇒* _)
+                let d = PE.subst (λ x → x T.[ σ′ ] T.⇒* _)
                                  (PE.sym (prod-𝟘 {k = s} p≡𝟘))
                                  T.refl
                 in  Σ-®-intro-𝟘 d p≡𝟘
               (no p≢𝟘) →
-                let d = PE.subst (λ x → T.subst σ′ x T.⇒* _)
+                let d = PE.subst (λ x → x T.[ σ′ ] T.⇒* _)
                                  (PE.sym (prod-ω {k = s} p≢𝟘))
                                  T.refl
                     σ®σ′ₜ = subsumptionSubst {l = l} σ®σ′ λ x pγ⊕δ≡𝟘 →
@@ -186,7 +186,7 @@ prodʳ
                         𝟙         ≡˘⟨ PE.cong ⌜_⌝ (≉𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) ⟩
                         ⌜ ⌞ p ⌟ ⌝ ≡⟨ ⌞p⌟≡𝟘 ⟩
                         𝟘 ∎)
-                in  Σ-®-intro-ω (T.subst σ′ (erase t))
+                in  Σ-®-intro-ω (erase t T.[ σ′ ])
                                 d t₁®v₁″ p≢𝟘
 
 
@@ -228,10 +228,10 @@ fstʳ′ {F = F} {G = G} {p = p} {q = q} {t = t} {m = 𝟙ᵐ}
       ⊢t₂′ = conv ⊢t₂ (substTypeEq (sym G≡G′) (refl ⊢t₁′))
       fstt⇒t₁ = fst-subst* t⇒t′ ⊢σF ⊢σG ⇨∷* redMany
                   (Σ-β₁ ⊢σF ⊢σG ⊢t₁′ ⊢t₂′ PE.refl ok)
-      fstt⇒t₁′ = PE.subst (λ x → Δ ⊢ _ ⇒* _ ∷ x) (PE.sym (wk-id (subst σ F))) fstt⇒t₁
+      fstt⇒t₁′ = PE.subst (λ x → Δ ⊢ _ ⇒* _ ∷ x) (PE.sym (wk-id (F [ σ ]))) fstt⇒t₁
       fstv⇒v₁ = TP.red*concat (TP.fst-subst* v⇒v′) (T.trans T.Σ-β₁ T.refl)
       fstt®fstv = redSubstTerm* [σF]′ t₁®v₁ fstt⇒t₁′ fstv⇒v₁
-  in  irrelevanceTerm′ (wk-id (subst σ F)) [σF]′ [σF] fstt®fstv
+  in  irrelevanceTerm′ (wk-id (F [ σ ])) [σF]′ [σF] fstt®fstv
 
 fstʳ : Γ ⊢ F → Γ ∙ F ⊢ G → Γ ⊢ t ∷ Σₚ p , q ▷ F ▹ G
      → ([Γ] : ⊩ᵛ Γ) ([Σ] : Γ ⊩ᵛ⟨ ¹ ⟩ Σₚ p , q ▷ F ▹ G / [Γ])
@@ -265,8 +265,8 @@ sndʳ′ :
   ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ Σₚ p , q ▷ F ▹ G / [Γ] / Σᵛ [Γ] [F] [G] ok)
   (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] Σₚ p , q ▷ F ▹ G / [Γ] /
            Σᵛ [Γ] [F] [G] ok) →
-  ∃ λ ([G] : Γ ⊩ᵛ⟨ l ⟩ G [ fst p t ] / [Γ]) →
-    γ ▸ Γ ⊩ʳ⟨ l ⟩ snd p t ∷[ m ] G [ fst p t ] / [Γ] / [G]
+  ∃ λ ([G] : Γ ⊩ᵛ⟨ l ⟩ G [ fst p t ]₀ / [Γ]) →
+    γ ▸ Γ ⊩ʳ⟨ l ⟩ snd p t ∷[ m ] G [ fst p t ]₀ / [Γ] / [G]
 sndʳ′ {F = F} {G = G} {p = p} {q = q} {t = t} {m = m} {l = l} {Γ = Γ}
       [Γ] [F] [G] ok [t] ⊩ʳt =
   [G[t₁]] , lemma m ⊩ʳt
@@ -279,7 +279,7 @@ sndʳ′ {F = F} {G = G} {p = p} {q = q} {t = t} {m = m} {l = l} {Γ = Γ}
     ∀ m →
     (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] Σₚ p , q ▷ F ▹ G / [Γ] /
              Σᵛ [Γ] [F] [G] ok) →
-    γ ▸ Γ ⊩ʳ⟨ l ⟩ snd p t ∷[ m ] G [ fst p t ] / [Γ] / [G[t₁]]
+    γ ▸ Γ ⊩ʳ⟨ l ⟩ snd p t ∷[ m ] G [ fst p t ]₀ / [Γ] / [G[t₁]]
   lemma m ⊩ʳt {σ = σ} {σ′ = σ′} [σ] σ®σ′ with is-𝟘? ⌜ m ⌝
   ... | yes m≡𝟘 = _
   ... | no m≢𝟘 =
@@ -301,20 +301,20 @@ sndʳ′ {F = F} {G = G} {p = p} {q = q} {t = t} {m = m} {l = l} {Γ = Γ}
                     (fst-subst* t⇒t′ ⊢σF ⊢σG ⇨∷*
                      redMany (Σ-β₁ ⊢σF ⊢σG ⊢t₁′ ⊢t₂′ PE.refl ok))
           G[t]≡G[t₁] = substTypeEq (refl ⊢σG) t≡t₁
-          G[t]≡G[t₁]′ = PE.subst (Δ ⊢ subst (liftSubst σ) G [ _ ] ≡_)
-                                 (PE.cong (_[ t₁ ])
-                                          (PE.sym (wk-lift-id (subst (liftSubst σ) G))))
+          G[t]≡G[t₁]′ = PE.subst (Δ ⊢ G [ liftSubst σ ] [ _ ]₀ ≡_)
+                                 (PE.cong (_[ t₁ ]₀)
+                                          (PE.sym (wk-lift-id (G [ liftSubst σ ]))))
                                  G[t]≡G[t₁]
           G[t′]≡G[t₁] = substTypeEq (refl ⊢σG) t′≡t₁
           G[t′]≡G[t₁]′ = PE.subst₂ (Δ ⊢_≡_)
-            (PE.cong (_[ t₁ ])
-               (PE.sym (wk-lift-id (subst (liftSubst σ) G))))
+            (PE.cong (_[ t₁ ]₀)
+               (PE.sym (wk-lift-id (G [ liftSubst σ ]))))
             (PE.sym (singleSubstLift G (fst p t)))
             (sym G[t′]≡G[t₁])
           t⇒u = conv* (snd-subst* t⇒t′ ⊢σF ⊢σG)
                       (substTypeEq (refl ⊢σG) (fst-cong ⊢σF ⊢σG (subset*Term t⇒t′)))
           t⇒u′ = t⇒u ⇨∷* redMany (Σ-β₂ ⊢σF ⊢σG ⊢t₁′ ⊢t₂′ PE.refl ok)
-          t⇒u″ = PE.subst (λ x → Δ ⊢ subst σ (snd p t) ⇒* t₂ ∷ x) (PE.sym (singleSubstLift G (fst p t)))
+          t⇒u″ = PE.subst (λ x → Δ ⊢ snd p t [ σ ] ⇒* t₂ ∷ x) (PE.sym (singleSubstLift G (fst p t)))
                           (conv* t⇒u′ (trans G[t]≡G[t₁] (sym G[t′]≡G[t₁])))
           wk[σ] = wkSubstS {σ = σ} [Γ] ⊢Δ ⊢Δ id [σ]
           wk[σF] = W.wk id ⊢Δ [σF]
@@ -325,23 +325,23 @@ sndʳ′ {F = F} {G = G} {p = p} {q = q} {t = t} {m = m} {l = l} {Γ = Γ}
           sndt = snd p t
       in  Σ-®-elim
             (λ _ →
-               subst σ sndt ®⟨ l ⟩ T.subst σ′ (erase sndt) ∷
-               subst σ (G [ fst p t ]) / [σGt₁])
+               sndt [ σ ] ®⟨ l ⟩ erase sndt T.[ σ′ ] ∷
+               G [ fst p t ]₀ [ σ ] / [σGt₁])
             extra
-            (λ v⇒v′ p≡𝟘 → PE.subst (λ x → subst σ sndt ®⟨ l ⟩ T.subst σ′ x ∷ subst σ (G [ fst p t ]) / [σGt₁])
+            (λ v⇒v′ p≡𝟘 → PE.subst (λ x → sndt [ σ ] ®⟨ l ⟩ x T.[ σ′ ] ∷ G [ fst p t ]₀ [ σ ] / [σGt₁])
                                    (PE.sym (snd-𝟘 p≡𝟘))
                                    (redSubstTerm* [σGt₁] t₂®v₂′ t⇒u″ v⇒v′))
             λ v₁ v⇒v′ t₁®v₁ p≢𝟘 →
               let v⇒v″ = TP.red*concat (TP.snd-subst* v⇒v′) (T.trans T.Σ-β₂ T.refl)
-              in  PE.subst (λ x → subst σ (snd p t) ®⟨ l ⟩ T.subst σ′ x ∷ subst σ (G [ fst p t ]) / [σGt₁])
+              in  PE.subst (λ x → snd p t [ σ ] ®⟨ l ⟩ x T.[ σ′ ] ∷ G [ fst p t ]₀ [ σ ] / [σGt₁])
                            (PE.sym (snd-ω p≢𝟘))
                            (redSubstTerm* [σGt₁] t₂®v₂′ t⇒u″ v⇒v″)
 
 sndʳ : Γ ⊢ F → Γ ∙ F ⊢ G → Γ ⊢ t ∷ Σₚ p , q ▷ F ▹ G
      → ([Γ] : ⊩ᵛ Γ) ([Σ] : Γ ⊩ᵛ⟨ ¹ ⟩ Σₚ p , q ▷ F ▹ G / [Γ])
      → (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] Σₚ p , q ▷ F ▹ G / [Γ] / [Σ])
-     → ∃ λ ([G] : Γ ⊩ᵛ⟨ ¹ ⟩ G [ fst p t ] / [Γ])
-     → γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ snd p t ∷[ m ] G [ fst p t ] / [Γ] / [G]
+     → ∃ λ ([G] : Γ ⊩ᵛ⟨ ¹ ⟩ G [ fst p t ]₀ / [Γ])
+     → γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ snd p t ∷[ m ] G [ fst p t ]₀ / [Γ] / [G]
 sndʳ {t = t} Γ⊢F Γ⊢G Γ⊢t:Σ [Γ] [Σ] ⊩ʳt =
   let [Γ]₁ , [F]′ = fundamental Γ⊢F
       [Γ]₂ , [G]′ = fundamental Γ⊢G

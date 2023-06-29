@@ -40,7 +40,7 @@ private
     p p′ q q′ r r′ : M
 
 -- Natural recursion closure reduction (requires reducible terms and equality).
-natrec-subst* : ∀ {C c g n n′ l} → Γ ∙ ℕ ⊢ C → Γ ⊢ c ∷ C [ zero ]
+natrec-subst* : ∀ {C c g n n′ l} → Γ ∙ ℕ ⊢ C → Γ ⊢ c ∷ C [ zero ]₀
               → Γ ∙ ℕ ∙ C ⊢ g ∷  C [ suc (var x1) ]↑²
               → Γ ⊢ n ⇒* n′ ∷ ℕ
               → ([ℕ] : Γ ⊩⟨ l ⟩ ℕ)
@@ -48,8 +48,8 @@ natrec-subst* : ∀ {C c g n n′ l} → Γ ∙ ℕ ⊢ C → Γ ⊢ c ∷ C [ z
               → (∀ {t t′} → Γ ⊩⟨ l ⟩ t  ∷ ℕ / [ℕ]
                           → Γ ⊩⟨ l ⟩ t′ ∷ ℕ / [ℕ]
                           → Γ ⊩⟨ l ⟩ t ≡ t′ ∷ ℕ / [ℕ]
-                          → Γ ⊢ C [ t ] ≡ C [ t′ ])
-              → Γ ⊢ natrec p q r C c g n ⇒* natrec p q r C c g n′ ∷ C [ n ]
+                          → Γ ⊢ C [ t ]₀ ≡ C [ t′ ]₀)
+              → Γ ⊢ natrec p q r C c g n ⇒* natrec p q r C c g n′ ∷ C [ n ]₀
 natrec-subst* C c g (id x) [ℕ] [n′] prop = id (natrecⱼ C c g x)
 natrec-subst* {p = p} C c g (x ⇨ n⇒n′) [ℕ] [n′] prop =
   let q , w = redSubst*Term n⇒n′ [ℕ] [n′]
@@ -66,30 +66,26 @@ sucCaseSubst x0 = PE.refl
 sucCaseSubst {σ = σ} (x +1) = PE.sym (PE.trans (wk1-tail (σ x)) (subst-id (σ x)))
 
 sucCaseSubstEq : ∀ {m′ σ} {t u : Term m′} (F : Term (1+ m))
-               → subst (consSubst (consSubst σ t) u) (F [ suc (var x1) ]↑²)
-               PE.≡ subst (liftSubst σ) F [ suc t ]
+               → F [ suc (var x1) ]↑² [ consSubst (consSubst σ t) u ]
+               PE.≡ F [ liftSubst σ ] [ suc t ]₀
 sucCaseSubstEq F = PE.trans (substCompEq F)
                             (PE.trans (substVar-to-subst sucCaseSubst F)
                                       (PE.sym (substCompEq F)))
--- PE.trans (wk1-tail (F [ suc (var x0) ]↑))
-                            -- (PE.trans (substCompEq F)
-                            -- (PE.trans (substVar-to-subst sucCaseSubst F) (PE.sym (substCompEq F))))
-
 
 -- Reducibility of natural recursion under a valid substitution.
 natrecTerm : ∀ {F z s n σ l}
              ([Γ]  : ⊩ᵛ Γ)
              ([F]  : Γ ∙ ℕ ⊩ᵛ⟨ l ⟩ F / _∙_ {l = l} [Γ] (ℕᵛ [Γ]))
-             ([F₀] : Γ ⊩ᵛ⟨ l ⟩ F [ zero ] / [Γ])
+             ([F₀] : Γ ⊩ᵛ⟨ l ⟩ F [ zero ]₀ / [Γ])
              ([F₊] : Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ F [ suc (var x1) ]↑² / ((_∙_ {l = l} [Γ] (ℕᵛ [Γ])) ∙ [F]))
-             ([z]  : Γ ⊩ᵛ⟨ l ⟩ z ∷ F [ zero ] / [Γ] / [F₀])
+             ([z]  : Γ ⊩ᵛ⟨ l ⟩ z ∷ F [ zero ]₀ / [Γ] / [F₀])
              ([s]  : Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ s ∷ F [ suc (var x1) ]↑²
                        / [Γ] ∙ (ℕᵛ {l = l} [Γ]) ∙ [F] / [F₊])
              (⊢Δ   : ⊢ Δ)
              ([σ]  : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
              ([σn] : Δ ⊩⟨ l ⟩ n ∷ ℕ / ℕᵣ (idRed:*: (ℕⱼ ⊢Δ)))
-           → Δ ⊩⟨ l ⟩ natrec p q r (subst (liftSubst σ) F) (subst σ z) (subst (liftSubstn σ 2) s) n
-               ∷ subst (liftSubst σ) F [ n ]
+           → Δ ⊩⟨ l ⟩ natrec p q r (F [ liftSubst σ ]) (z [ σ ]) (s [ liftSubstn σ 2 ]) n
+               ∷ F [ liftSubst σ ] [ n ]₀
                / irrelevance′ (PE.sym (singleSubstComp n σ F))
                               (proj₁ (unwrap [F] ⊢Δ ([σ] , [σn])))
 natrecTerm {k} {Γ = Γ} {k′} {Δ = Δ} {p = p} {q} {r} {F = F} {z} {s} {n} {σ} {l} [Γ] [F] [F₀] [F₊] [z] [s] ⊢Δ [σ]
@@ -104,9 +100,9 @@ natrecTerm {k} {Γ = Γ} {k′} {Δ = Δ} {p = p} {q} {r} {F = F} {z} {s} {n} {�
                          (liftSubstS {σ = σ} {F = ℕ} [Γ] ⊢Δ [ℕ] [σ])
       ⊢Γ = soundContext [Γ]
       ⊢F = escape [σF]
-      ⊢z = PE.subst (λ (x : Term k′) → Δ ⊢ subst σ z ∷ x) (singleSubstLift F zero)
+      ⊢z = PE.subst (λ (x : Term k′) → Δ ⊢ z [ σ ] ∷ x) (singleSubstLift F zero)
                     (escapeTerm (proj₁ (unwrap [F₀] ⊢Δ [σ])) (proj₁ ([z] ⊢Δ [σ])))
-      ⊢s = PE.subst (λ (x : Term (1+ (1+ k′))) → (Δ ∙ ℕ ∙ subst (liftSubst σ) F) ⊢ subst (liftSubstn σ 2) s ∷ x)
+      ⊢s = PE.subst (λ (x : Term (1+ (1+ k′))) → (Δ ∙ ℕ ∙ F [ liftSubst σ ]) ⊢ s [ liftSubstn σ 2 ] ∷ x)
                     (natrecSucCase σ F)
                     (escapeTerm (proj₁ (unwrap [F₊] (⊢Δℕ ∙ ⊢F)
                                              (liftSubstS {σ = liftSubst σ} {F = F} [Γℕ] ⊢Δℕ [F]
@@ -128,8 +124,6 @@ natrecTerm {k} {Γ = Γ} {k′} {Δ = Δ} {p = p} {q} {r} {F = F} {z} {s} {n} {�
                                  [σFₙ]′ [σFₙ]
                                  (proj₂ (unwrap [F] ⊢Δ ([σ] , [σn])) ([σ] , [σsm])
                                         (reflSubst [Γ] ⊢Δ [σ] , [σn≡σsm]))
-      [σFₛₘ]′ = irrelevance′ (natrecIrrelevantSubst p q r F z s m σ)
-                             (proj₁ (unwrap [F] ⊢Δ ([σ] , [σsm])))
       [natrecM]′ = natrecTerm {p = p} {r = r} {F = F} {z = z} {s = s}
                               [Γ] [F] [F₀] [F₊] [z] [s] ⊢Δ [σ] [m]
       [natrecM] = irrelevanceTerm′ (singleSubstComp m σ F)
@@ -154,9 +148,9 @@ natrecTerm {k} {Γ = Γ} {k′} {Δ = Δ} {p = p} {q} {r} {F = F} {z} {s} {n} {�
                      (natrec-suc ⊢F ⊢z ⊢s ⊢m ⇨
                       id (escapeTerm [σFₛₘ] [natrec]″))
                      (sym (≅-eq (escapeEq [σFₙ] [Fₙ≡Fₛₘ])))
-      reduction″ = PE.subst (Δ ⊢ natrec p q r (subst (liftSubst σ) F) (subst σ z) (subst (liftSubstn σ 2) s) n ⇒*_∷ _)
-                            (doubleSubstComp s m (natrec p q r (subst (liftSubst σ) F) (subst σ z)
-                                                               (subst (liftSubstn σ 2) s) m) σ)
+      reduction″ = PE.subst (Δ ⊢ natrec p q r (F  [ liftSubst σ ]) (z [ σ ]) (s [ liftSubstn σ 2 ]) n ⇒*_∷ _)
+                            (doubleSubstComp s m (natrec p q r (F [ liftSubst σ ]) (z [ σ ])
+                                                               (s [ liftSubstn σ 2 ]) m) σ)
                             (reduction ⇨∷* reduction′)
   in proj₁ (redSubst*Term reduction″ [σFₙ]
                           (convTerm₂ [σFₙ] [σFₛₘ] [Fₙ≡Fₛₘ] [natrec]))
@@ -173,9 +167,9 @@ natrecTerm {k} {Γ = Γ} {k′} {Δ = Δ} {r = r} {F = F} {z} {s} {n} {σ} {l}
       [σ⇑⇑] = liftSubstS {σ = liftSubst σ} {F = F} [Γℕ] ⊢Δℕ [F]
                          (liftSubstS {σ = σ} {F = ℕ} [Γ] ⊢Δ [ℕ] [σ])
       ⊢F = escape [σF]
-      ⊢z = PE.subst (λ (x : Term k′) → Δ ⊢ subst σ z ∷ x) (singleSubstLift F zero)
+      ⊢z = PE.subst (λ (x : Term k′) → Δ ⊢ z [ σ ] ∷ x) (singleSubstLift F zero)
                     (escapeTerm (proj₁ (unwrap [F₀] ⊢Δ [σ])) (proj₁ ([z] ⊢Δ [σ])))
-      ⊢s = PE.subst (λ (x : Term (1+ (1+ k′))) → (Δ ∙ ℕ ∙ subst (liftSubst σ) F) ⊢ subst (liftSubstn σ 2) s ∷ x)
+      ⊢s = PE.subst (λ (x : Term (1+ (1+ k′))) → Δ ∙ ℕ ∙ F [ liftSubst σ ] ⊢ s [ liftSubstn σ 2 ] ∷ x)
                     (natrecSucCase σ F)
                     (escapeTerm (proj₁ (unwrap [F₊] (⊢Δℕ ∙ ⊢F) [σ⇑⇑]))
                                 (proj₁ ([s] (⊢Δℕ ∙ ⊢F) [σ⇑⇑]) ))
@@ -224,18 +218,18 @@ natrecTerm {k} {Γ = Γ} {k′} {Δ = Δ} {p = p} {r = r} {F = F} {z} {s} {n} {�
                          (liftSubstS {σ = σ} {F = ℕ} [Γ] ⊢Δ [ℕ] [σ])
       ⊢F = escape [σF]
       ⊢F≡F = escapeEq [σF] (reflEq [σF])
-      ⊢z = PE.subst (λ (x : Term k′) → Δ ⊢ subst σ z ∷ x) (singleSubstLift F zero)
+      ⊢z = PE.subst (λ (x : Term k′) → Δ ⊢ z [ σ ] ∷ x) (singleSubstLift F zero)
                     (escapeTerm (proj₁ (unwrap [F₀] ⊢Δ [σ])) (proj₁ ([z] ⊢Δ [σ])))
-      ⊢z≡z = PE.subst (λ (x : Term k′) → Δ ⊢ subst σ z ≅ subst σ z ∷ x) (singleSubstLift F zero)
+      ⊢z≡z = PE.subst (λ (x : Term k′) → Δ ⊢ z [ σ ] ≅ z [ σ ] ∷ x) (singleSubstLift F zero)
                       (escapeTermEq (proj₁ (unwrap [F₀] ⊢Δ [σ]))
                                         (reflEqTerm (proj₁ (unwrap [F₀] ⊢Δ [σ]))
                                                     (proj₁ ([z] ⊢Δ [σ]))))
-      ⊢s = PE.subst (λ (x : Term (1+ (1+ k′))) → (Δ ∙ ℕ ∙ subst (liftSubst σ) F) ⊢ subst (liftSubstn σ 2) s ∷ x)
+      ⊢s = PE.subst (λ (x : Term (1+ (1+ k′))) → Δ ∙ ℕ ∙ F [ liftSubst σ ] ⊢ s [ liftSubstn σ 2 ] ∷ x)
                     (natrecSucCase σ F)
                     (escapeTerm (proj₁ (unwrap [F₊] (⊢Δℕ ∙ ⊢F) [σ⇑⇑]))
                                 (proj₁ ([s] (⊢Δℕ ∙ ⊢F) [σ⇑⇑])))
-      ⊢s≡s = PE.subst (λ (x : Term (1+ (1+ k′))) → (Δ ∙ ℕ ∙ subst (liftSubst σ) F) ⊢ subst (liftSubstn σ 2) s
-                                                                                   ≅ subst (liftSubstn σ 2) s ∷ x)
+      ⊢s≡s = PE.subst (λ (x : Term (1+ (1+ k′))) → Δ ∙ ℕ ∙ F [ liftSubst σ ] ⊢ s [ liftSubstn σ 2 ]
+                                                                             ≅ s [ liftSubstn σ 2 ] ∷ x)
                       (natrecSucCase σ F)
                       (escapeTermEq (proj₁ (unwrap [F₊] (⊢Δℕ ∙ ⊢F) [σ⇑⇑]))
                                     (reflEqTerm (proj₁ (unwrap [F₊] (⊢Δℕ ∙ ⊢F) [σ⇑⇑]))
@@ -273,9 +267,9 @@ natrec-congTerm : ∀ {F F′ z z′ s s′ n m σ σ′ l}
                   ([F′]     : Γ ∙ ℕ ⊩ᵛ⟨ l ⟩ F′ / _∙_ {l = l} [Γ] (ℕᵛ [Γ]))
                   ([F≡F′]   : Γ ∙ ℕ ⊩ᵛ⟨ l ⟩ F ≡ F′ / _∙_ {l = l} [Γ] (ℕᵛ [Γ])
                                     / [F])
-                  ([F₀]     : Γ ⊩ᵛ⟨ l ⟩ F [ zero ] / [Γ])
-                  ([F′₀]    : Γ ⊩ᵛ⟨ l ⟩ F′ [ zero ] / [Γ])
-                  ([F₀≡F′₀] : Γ ⊩ᵛ⟨ l ⟩ F [ zero ] ≡ F′ [ zero ] / [Γ] / [F₀])
+                  ([F₀]     : Γ ⊩ᵛ⟨ l ⟩ F [ zero ]₀ / [Γ])
+                  ([F′₀]    : Γ ⊩ᵛ⟨ l ⟩ F′ [ zero ]₀ / [Γ])
+                  ([F₀≡F′₀] : Γ ⊩ᵛ⟨ l ⟩ F [ zero ]₀ ≡ F′ [ zero ]₀ / [Γ] / [F₀])
                   ([F₊]     : Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ F [ suc (var x1) ]↑²
                                 /  _∙_ {l = l} [Γ] (ℕᵛ [Γ]) ∙ [F])
                   ([F′₊]    : Γ ∙ ℕ ∙ F′ ⊩ᵛ⟨ l ⟩ F′ [ suc (var x1) ]↑²
@@ -283,9 +277,9 @@ natrec-congTerm : ∀ {F F′ z z′ s s′ n m σ σ′ l}
                   ([F₊≡F₊′] : Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ F [ suc (var x1) ]↑²
                                 ≡ F′ [ suc (var x1) ]↑²
                                 / _∙_ {l = l} [Γ] (ℕᵛ [Γ]) ∙ [F] / [F₊])
-                  ([z]      : Γ ⊩ᵛ⟨ l ⟩ z ∷ F [ zero ] / [Γ] / [F₀])
-                  ([z′]     : Γ ⊩ᵛ⟨ l ⟩ z′ ∷ F′ [ zero ] / [Γ] / [F′₀])
-                  ([z≡z′]   : Γ ⊩ᵛ⟨ l ⟩ z ≡ z′ ∷ F [ zero ] / [Γ] / [F₀])
+                  ([z]      : Γ ⊩ᵛ⟨ l ⟩ z ∷ F [ zero ]₀ / [Γ] / [F₀])
+                  ([z′]     : Γ ⊩ᵛ⟨ l ⟩ z′ ∷ F′ [ zero ]₀ / [Γ] / [F′₀])
+                  ([z≡z′]   : Γ ⊩ᵛ⟨ l ⟩ z ≡ z′ ∷ F [ zero ]₀ / [Γ] / [F₀])
                   ([s]      : Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ s ∷ F [ suc (var x1) ]↑²
                                 / _∙_ {l = l} [Γ] (ℕᵛ [Γ]) ∙ [F] / [F₊])
                   ([s′]     : Γ ∙ ℕ ∙ F′ ⊩ᵛ⟨ l ⟩ s′
@@ -301,11 +295,11 @@ natrec-congTerm : ∀ {F F′ z z′ s s′ n m σ σ′ l}
                   ([σn]     : Δ ⊩⟨ l ⟩ n ∷ ℕ / ℕᵣ (idRed:*: (ℕⱼ ⊢Δ)))
                   ([σm]     : Δ ⊩⟨ l ⟩ m ∷ ℕ / ℕᵣ (idRed:*: (ℕⱼ ⊢Δ)))
                   ([σn≡σm]  : Δ ⊩⟨ l ⟩ n ≡ m ∷ ℕ / ℕᵣ (idRed:*: (ℕⱼ ⊢Δ)))
-                → Δ ⊩⟨ l ⟩ natrec p q r (subst (liftSubst σ) F)
-                                  (subst σ z) (subst (liftSubst (liftSubst σ)) s) n
-                    ≡ natrec p q r (subst (liftSubst σ′) F′)
-                             (subst σ′ z′) (subst (liftSubst (liftSubst σ′)) s′) m
-                    ∷ subst (liftSubst σ) F [ n ]
+                → Δ ⊩⟨ l ⟩ natrec p q r (F [ liftSubst σ ])
+                                  (z [ σ ]) (s [ liftSubstn σ 2 ]) n
+                    ≡ natrec p q r (F′ [ liftSubst σ′ ])
+                             (z′ [ σ′ ]) (s′ [ liftSubstn σ′ 2 ]) m
+                    ∷ F [ liftSubst σ ] [ n ]₀
                     / irrelevance′ (PE.sym (singleSubstComp n σ F))
                                    (proj₁ (unwrap [F] ⊢Δ ([σ] , [σn])))
 natrec-congTerm {k} {Γ = Γ} {k′} {Δ = Δ} {p = p} {q} {r}
@@ -337,9 +331,9 @@ natrec-congTerm {k} {Γ = Γ} {k′} {Δ = Δ} {p = p} {q} {r}
       ⊢F = escape (proj₁ (unwrap [F] {σ = liftSubst σ} (⊢Δ ∙ ⊢ℕ)
                                      (liftSubstS {F = ℕ} [Γ] ⊢Δ [ℕ] [σ])))
       ⊢ΔℕF = ⊢Δ ∙ ⊢ℕ ∙ ⊢F
-      ⊢z = PE.subst (λ (x : Term k′) → Δ ⊢ subst σ z ∷ x) (singleSubstLift F zero)
+      ⊢z = PE.subst (λ (x : Term k′) → Δ ⊢ z [ σ ] ∷ x) (singleSubstLift F zero)
                     (escapeTerm (proj₁ (unwrap [F₀] ⊢Δ [σ])) (proj₁ ([z] ⊢Δ [σ])))
-      ⊢s = PE.subst (λ (x : Term (1+ (1+ k′))) → Δ ∙ ℕ ∙ subst (liftSubst σ) F ⊢ subst (liftSubst (liftSubst σ)) s ∷ x)
+      ⊢s = PE.subst (λ (x : Term (1+ (1+ k′))) → Δ ∙ ℕ ∙ F [ liftSubst σ ] ⊢ s [ liftSubstn σ 2 ] ∷ x)
                     (natrecSucCase σ F)
                     (escapeTerm (proj₁ (unwrap [F₊] ⊢ΔℕF [σ⇑⇑])) (proj₁ ([s] ⊢ΔℕF [σ⇑⇑])))
       ⊢n′ = escapeTerm {l = l} [σℕ] [n′]
@@ -347,10 +341,10 @@ natrec-congTerm {k} {Γ = Γ} {k′} {Δ = Δ} {p = p} {q} {r}
       ⊢F′ = escape (proj₁ (unwrap [F′] {σ = liftSubst σ′} (⊢Δ ∙ ⊢ℕ′)
                       (liftSubstS {F = ℕ} [Γ] ⊢Δ [ℕ] [σ′])))
       ⊢ΔℕF′ = ⊢Δ ∙ ⊢ℕ′ ∙ ⊢F′
-      ⊢z′ = PE.subst (λ (x : Term k′) → Δ ⊢ subst σ′ z′ ∷ x) (singleSubstLift F′ zero)
+      ⊢z′ = PE.subst (λ (x : Term k′) → Δ ⊢ z′ [ σ′ ] ∷ x) (singleSubstLift F′ zero)
                      (escapeTerm (proj₁ (unwrap [F′₀] ⊢Δ [σ′]))
                                     (proj₁ ([z′] ⊢Δ [σ′])))
-      ⊢s′ = PE.subst (λ (x : Term (1+ (1+ k′))) → Δ ∙ ℕ ∙ subst (liftSubst σ′) F′ ⊢ subst (liftSubst (liftSubst σ′)) s′ ∷ x)
+      ⊢s′ = PE.subst (λ (x : Term (1+ (1+ k′))) → Δ ∙ ℕ ∙ F′ [ liftSubst σ′ ] ⊢ s′ [ liftSubstn σ′ 2 ] ∷ x)
                      (natrecSucCase σ′ F′)
                      (escapeTerm (proj₁ (unwrap [F′₊] ⊢ΔℕF′ [σ′⇑⇑]))
                                     (proj₁ ([s′] ⊢ΔℕF′  [σ′⇑⇑])))
@@ -367,11 +361,6 @@ natrec-congTerm {k} {Γ = Γ} {k′} {Δ = Δ} {p = p} {q} {r}
                                   [σFₙ]′ [σFₙ]
                                   (proj₂ (unwrap [F] ⊢Δ ([σ] , [σn])) ([σ] , [σsn′])
                                          (reflSubst [Γ] ⊢Δ [σ] , [σn≡σsn′]))
-      [Fₙ≡Fₛₙ′]′ = irrelevanceEq″ (PE.sym (singleSubstComp n σ F))
-                                   (natrecIrrelevantSubst p q r F z s n′ σ)
-                                   [σFₙ]′ [σFₙ]
-                                   (proj₂ (unwrap [F] ⊢Δ ([σ] , [σn])) ([σ] , [σsn′])
-                                          (reflSubst [Γ] ⊢Δ [σ] , [σn≡σsn′]))
       [σFₙ′] = irrelevance′ (PE.sym (PE.trans (substCompEq F)
                                               (substSingletonComp F)))
                             (proj₁ (unwrap [F] ⊢Δ ([σ] , [n′])))
@@ -444,19 +433,19 @@ natrec-congTerm {k} {Γ = Γ} {k′} {Δ = Δ} {p = p} {q} {r}
                                  [s] [s′] [s≡s′]
                                  ⊢Δ [σ] [σ′] [σ≡σ′] [n′] [m′] [n′≡m′]
       [nr≡nr′]′ = irrelevanceEqTerm′ (singleSubstComp n′ σ F) [σFₙ′] [σFₙ′]′ [nr≡nr′]
-      σ₊ = consSubst (consSubst σ n′) (natrec p q r (subst (liftSubst σ) F)
-                                              (subst σ z) (subst (liftSubstn σ 2) s) n′)
+      σ₊ = consSubst (consSubst σ n′) (natrec p q r (F [ liftSubst σ ])
+                                              (z [ σ ]) (s [ liftSubstn σ 2 ]) n′)
       [σ₊] = ([σ] , [n′]) , natrecN′
       σ′₊ = consSubst (consSubst σ′ m′)
-              (natrec p q r (subst (liftSubst σ′) F′)
-                 (subst σ′ z′) (subst (liftSubstn σ′ 2) s′) m′)
+              (natrec p q r (F′ [ liftSubst σ′ ])
+                 (z′ [ σ′ ]) (s′ [ liftSubstn σ′ 2 ]) m′)
       [σ′₊] = ([σ′] , [m′]) , natrecM‴
       [σ₊≡σ′₊] = ([σ≡σ′] , [n′≡m′]) , [nr≡nr′]′
       [s₊≡s′₊] = proj₂ ([s] {σ = σ₊} ⊢Δ [σ₊]) {σ′ = σ′₊} [σ′₊] [σ₊≡σ′₊]
       [s₊] = proj₁ ([s] {σ = σ₊} ⊢Δ [σ₊])
       [s₊]′ = irrelevanceTerm″ (sucCaseSubstEq F)
-                               (PE.sym (doubleSubstComp s n′ (natrec p q r (subst (liftSubst σ) F) (subst σ z)
-                                                        (subst (liftSubst (liftSubst σ)) s) n′) σ))
+                               (PE.sym (doubleSubstComp s n′ (natrec p q r (F [ liftSubst σ ]) (z [ σ ])
+                                                        (s [ liftSubstn σ 2 ]) n′) σ))
                                [σF₊] [σF₊]′ [s₊]
       [σ′₊]′ = ([σ′] , [m′]) ,  natrecM′
       [s′₊] = proj₁ ([s′] {σ = σ′₊} ⊢Δ [σ′₊]′)
@@ -492,8 +481,8 @@ natrec-congTerm {k} {Γ = Γ} {k′} {Δ = Δ} {p = p} {q} {r}
                                  (convTerm₂ [σFₙ] [σF₊]′
                                             [Fₙ≡Fₛₙ′] [s₊]′))
       eq₁′ = irrelevanceEqTerm″ PE.refl
-                                (doubleSubstComp s n′ (natrec p q r (subst (liftSubst σ) F)
-                                                 (subst σ z) (subst (liftSubst (liftSubst σ)) s) n′) σ)
+                                (doubleSubstComp s n′ (natrec p q r (F [ liftSubst σ ])
+                                                 (z [ σ ]) (s [ liftSubstn σ 2 ]) n′) σ)
                                 PE.refl [σFₙ] [σFₙ] eq₁
       eq₂ = proj₂ ([s] {σ = σ₊} ⊢Δ [σ₊]) {σ′ = σ′₊} [σ′₊] [σ₊≡σ′₊]
       eq₂′ = irrelevanceEqTerm′ (sucCaseSubstEq F) [σF₊] [σFₛₙ′] eq₂
@@ -527,9 +516,9 @@ natrec-congTerm {Γ = Γ} {k′} {Δ = Δ} {p = p} {q} {r}
       ⊢ΔℕF = ⊢Δ ∙ ⊢ℕ ∙ ⊢F
       [σ⇑⇑] = liftSubstS {σ = liftSubst σ} {F = F} [Γℕ] ⊢Δℕ [F]
                          (liftSubstS {σ = σ} {F = ℕ} [Γ] ⊢Δ [ℕ] [σ])
-      ⊢z = PE.subst (λ (x : Term k′) → Δ ⊢ subst σ z ∷ x) (singleSubstLift F zero)
+      ⊢z = PE.subst (λ (x : Term k′) → Δ ⊢ z [ σ ] ∷ x) (singleSubstLift F zero)
                     (escapeTerm (proj₁ (unwrap [F₀] ⊢Δ [σ])) (proj₁ ([z] ⊢Δ [σ])))
-      ⊢s = PE.subst (λ (x : Term (1+ (1+ k′))) → Δ ∙ ℕ ∙ subst (liftSubst σ) F ⊢ subst (liftSubst (liftSubst σ)) s ∷ x)
+      ⊢s = PE.subst (λ (x : Term (1+ (1+ k′))) → Δ ∙ ℕ ∙ F [ liftSubst σ ] ⊢ s [ liftSubstn σ 2 ] ∷ x)
                     (natrecSucCase σ F)
                     (escapeTerm (proj₁ (unwrap [F₊] ⊢ΔℕF [σ⇑⇑])) (proj₁ ([s] ⊢ΔℕF [σ⇑⇑])))
       ⊢F′ = escape (proj₁ (unwrap [F′] {σ = liftSubst σ′} (⊢Δ ∙ ⊢ℕ)
@@ -537,9 +526,9 @@ natrec-congTerm {Γ = Γ} {k′} {Δ = Δ} {p = p} {q} {r}
       ⊢ΔℕF′ = ⊢Δ ∙ ⊢ℕ ∙ ⊢F′
       [σ′⇑⇑] = liftSubstS {σ = liftSubst σ′} {F = F′} [Γℕ] ⊢Δℕ [F′]
                          (liftSubstS {σ = σ′} {F = ℕ} [Γ] ⊢Δ [ℕ] [σ′])
-      ⊢z′ = PE.subst (λ (x : Term k′) → Δ ⊢ subst σ′ z′ ∷ x) (singleSubstLift F′ zero)
+      ⊢z′ = PE.subst (λ (x : Term k′) → Δ ⊢ z′ [ σ′ ] ∷ x) (singleSubstLift F′ zero)
                      (escapeTerm (proj₁ (unwrap [F′₀] ⊢Δ [σ′])) (proj₁ ([z′] ⊢Δ [σ′])))
-      ⊢s′ = PE.subst (λ (x : Term (1+ (1+ k′))) → Δ ∙ ℕ ∙ subst (liftSubst σ′) F′ ⊢ subst (liftSubst (liftSubst σ′)) s′ ∷ x)
+      ⊢s′ = PE.subst (λ (x : Term (1+ (1+ k′))) → Δ ∙ ℕ ∙ F′ [ liftSubst σ′ ] ⊢ s′ [ liftSubstn σ′ 2 ] ∷ x)
                      (natrecSucCase σ′ F′)
                     (escapeTerm (proj₁ (unwrap [F′₊] ⊢ΔℕF′ [σ′⇑⇑])) (proj₁ ([s′] ⊢ΔℕF′ [σ′⇑⇑])))
       [σ0] = irrelevanceTerm {l = l} (ℕᵣ (idRed:*: (ℕⱼ ⊢Δ))) (proj₁ (unwrap [ℕ] ⊢Δ [σ]))
@@ -661,17 +650,17 @@ natrec-congTerm {k} {Γ = Γ} {k′} {Δ = Δ} {p = p} {q} {r}
       [σ⇑⇑] = liftSubstS {σ = liftSubst σ} {F = F} [Γℕ] ⊢Δℕ [F]
                          (liftSubstS {σ = σ} {F = ℕ} [Γ] ⊢Δ [ℕ] [σ])
       ⊢F≡F = escapeEq [σF] (reflEq [σF])
-      ⊢z = PE.subst (λ (x : Term k′) → Δ ⊢ subst σ z ∷ x) (singleSubstLift F zero)
+      ⊢z = PE.subst (λ (x : Term k′) → Δ ⊢ z [ σ ] ∷ x) (singleSubstLift F zero)
                     (escapeTerm (proj₁ (unwrap [F₀] ⊢Δ [σ])) (proj₁ ([z] ⊢Δ [σ])))
-      ⊢z≡z = PE.subst (λ (x : Term k′) → Δ ⊢ subst σ z ≅ subst σ z ∷ x) (singleSubstLift F zero)
+      ⊢z≡z = PE.subst (λ (x : Term k′) → Δ ⊢ z [ σ ] ≅ z [ σ ] ∷ x) (singleSubstLift F zero)
                       (escapeTermEq (proj₁ (unwrap [F₀] ⊢Δ [σ]))
                                         (reflEqTerm (proj₁ (unwrap [F₀] ⊢Δ [σ]))
                                                     (proj₁ ([z] ⊢Δ [σ]))))
-      ⊢s = PE.subst (λ x → Δ ∙ ℕ ∙ subst (liftSubst σ) F ⊢ subst (liftSubst (liftSubst σ)) s ∷ x)
+      ⊢s = PE.subst (λ x → Δ ∙ ℕ ∙ F [ liftSubst σ ] ⊢ s [ liftSubstn σ 2 ] ∷ x)
                     (natrecSucCase σ F)
                     (escapeTerm (proj₁ (unwrap [F₊] ⊢ΔℕF [σ⇑⇑])) (proj₁ ([s] ⊢ΔℕF [σ⇑⇑])))
-      ⊢s≡s = PE.subst (λ (x : Term (1+ (1+ k′))) → Δ ∙ ℕ ∙ subst (liftSubst σ) F ⊢ subst (liftSubstn σ 2) s
-                                                                                 ≅ subst (liftSubstn σ 2) s ∷ x)
+      ⊢s≡s = PE.subst (λ (x : Term (1+ (1+ k′))) → Δ ∙ ℕ ∙ F [ liftSubst σ ] ⊢ s [ liftSubstn σ 2 ]
+                                                                             ≅ s [ liftSubstn σ 2 ] ∷ x)
                       (natrecSucCase σ F)
                       (escapeTermEq (proj₁ (unwrap [F₊] ⊢ΔℕF [σ⇑⇑]))
                                         (reflEqTerm (proj₁ (unwrap [F₊] ⊢ΔℕF [σ⇑⇑]))
@@ -683,18 +672,18 @@ natrec-congTerm {k} {Γ = Γ} {k′} {Δ = Δ} {p = p} {q} {r}
       [σ′⇑⇑]′ = liftSubstS {σ = liftSubst σ′} {F = F} [Γℕ] ⊢Δℕ [F]
                          (liftSubstS {σ = σ′} {F = ℕ} [Γ] ⊢Δ [ℕ] [σ′])
       ⊢F′≡F′ = escapeEq [σ′F′] (reflEq [σ′F′])
-      ⊢z′ = PE.subst (λ (x : Term k′) → Δ ⊢ subst σ′ z′ ∷ x) (singleSubstLift F′ zero)
+      ⊢z′ = PE.subst (λ (x : Term k′) → Δ ⊢ z′ [ σ′ ] ∷ x) (singleSubstLift F′ zero)
                      (escapeTerm (proj₁ (unwrap [F′₀] ⊢Δ [σ′])) (proj₁ ([z′] ⊢Δ [σ′])))
-      ⊢z′≡z′ = PE.subst (λ (x : Term k′) → Δ ⊢ subst σ′ z′  ≅ subst σ′ z′ ∷ x) (singleSubstLift F′ zero)
+      ⊢z′≡z′ = PE.subst (λ (x : Term k′) → Δ ⊢ z′ [ σ′ ]  ≅ z′ [ σ′ ] ∷ x) (singleSubstLift F′ zero)
                         (escapeTermEq (proj₁ (unwrap [F′₀] ⊢Δ [σ′]))
                                           (reflEqTerm (proj₁ (unwrap [F′₀] ⊢Δ [σ′]))
                                                       (proj₁ ([z′] ⊢Δ [σ′]))))
-      ⊢s′ = PE.subst (λ (x : Term (1+ (1+ k′))) → Δ ∙ ℕ ∙ subst (liftSubst σ′) F′ ⊢ subst (liftSubst (liftSubst σ′)) s′ ∷ x)
+      ⊢s′ = PE.subst (λ (x : Term (1+ (1+ k′))) → Δ ∙ ℕ ∙ F′ [ liftSubst σ′ ] ⊢ s′ [ liftSubstn σ′ 2 ] ∷ x)
                      (natrecSucCase σ′ F′)
                     (escapeTerm (proj₁ (unwrap [F′₊] ⊢ΔℕF′ [σ′⇑⇑]))
                                 (proj₁ ([s′] ⊢ΔℕF′ [σ′⇑⇑])))
-      ⊢s′≡s′ = PE.subst (λ (x : Term (1+ (1+ k′))) → Δ ∙ ℕ ∙ subst (liftSubst σ′) F′ ⊢ subst (liftSubstn σ′ 2) s′
-                                                                                     ≅ subst (liftSubstn σ′ 2) s′ ∷ x)
+      ⊢s′≡s′ = PE.subst (λ (x : Term (1+ (1+ k′))) → Δ ∙ ℕ ∙ F′ [ liftSubst σ′ ] ⊢ s′ [ liftSubstn σ′ 2 ]
+                                                                                 ≅ s′ [ liftSubstn σ′ 2 ] ∷ x)
                         (natrecSucCase σ′ F′)
                         (escapeTermEq (proj₁ (unwrap [F′₊] ⊢ΔℕF′ [σ′⇑⇑]))
                                              (reflEqTerm (proj₁ (unwrap [F′₊] ⊢ΔℕF′ [σ′⇑⇑]))
@@ -704,13 +693,13 @@ natrec-congTerm {k} {Γ = Γ} {k′} {Δ = Δ} {p = p} {q} {r}
                                       {σ′ = liftSubst σ′}
                                       (liftSubstS {F = ℕ} [Γ] ⊢Δ [ℕ] [σ′])
                                       (liftSubstSEq {F = ℕ} [Γ] ⊢Δ [ℕ] [σ] [σ≡σ′]))
-      ⊢σz≡σ′z = PE.subst (λ (x : Term k′) → Δ ⊢ subst σ z ≅ subst σ′ z ∷ x) (singleSubstLift F zero)
+      ⊢σz≡σ′z = PE.subst (λ (x : Term k′) → Δ ⊢ z [ σ ] ≅ z [ σ′ ] ∷ x) (singleSubstLift F zero)
                          (escapeTermEq (proj₁ (unwrap [F₀] ⊢Δ [σ]))
                                           (proj₂ ([z] ⊢Δ [σ]) [σ′] [σ≡σ′]))
       [σ⇑↑] = wk1SubstS {σ = liftSubst σ} [Γℕ] ⊢Δℕ ⊢F (liftSubstS {F = ℕ} [Γ] ⊢Δ [ℕ] [σ])
       [σ′⇑↑] = wk1SubstS {σ = liftSubst σ′} [Γℕ] ⊢Δℕ ⊢F (liftSubstS {F = ℕ} [Γ] ⊢Δ [ℕ] [σ′])
       [σ⇑≡σ′⇑] = liftSubstSEq {F = ℕ} [Γ] ⊢Δ [ℕ] [σ] [σ≡σ′]
-      var0 = conv (var ⊢ΔℕF (PE.subst (λ (x : Term (1+ (1+ k′))) → x0 ∷ x ∈ (Δ ∙ ℕ ∙ subst (liftSubst σ) F))
+      var0 = conv (var ⊢ΔℕF (PE.subst (λ (x : Term (1+ (1+ k′))) → x0 ∷ x ∈ (Δ ∙ ℕ ∙ F [ liftSubst σ ]))
                                        (wk-subst F) here))
                   (≅-eq (escapeEq (proj₁ (unwrap [F] ⊢ΔℕF [σ⇑↑]))
                                   (proj₂ (unwrap [F] ⊢ΔℕF [σ⇑↑]) {σ′ = wk1Subst (liftSubst σ′)} [σ′⇑↑]
@@ -719,21 +708,21 @@ natrec-congTerm {k} {Γ = Γ} {k′} {Δ = Δ} {p = p} {q} {r}
       [σ′⇑⇑]′ = [σ′⇑↑] , neuTerm (proj₁ (unwrap [F] ⊢ΔℕF [σ′⇑↑])) (var x0) var0 (~-var var0)
       [σ⇑⇑≡σ′⇑⇑] = liftSubstSEq {σ′ = liftSubst σ′} {F = F} [Γℕ] ⊢Δℕ [F]
                                 (liftSubstS {F = ℕ} [Γ] ⊢Δ [ℕ] [σ]) [σ⇑≡σ′⇑]
-      ⊢σs≡σ′s = PE.subst (λ (x : Term (1+ (1+ k′))) → Δ ∙ ℕ ∙ subst (liftSubst σ) F ⊢ subst (liftSubstn σ 2) s
-                                                                                   ≅ subst (liftSubstn σ′ 2) s ∷ x)
+      ⊢σs≡σ′s = PE.subst (λ (x : Term (1+ (1+ k′))) → Δ ∙ ℕ ∙ F [ liftSubst σ ] ⊢ s [ liftSubstn σ 2 ]
+                                                                                ≅ s [ liftSubstn σ′ 2 ] ∷ x)
                          (natrecSucCase σ F)
                          (escapeTermEq (proj₁ (unwrap [F₊] ⊢ΔℕF [σ⇑⇑]))
                                        (proj₂ ([s] ⊢ΔℕF [σ⇑⇑]) [σ′⇑⇑]′ [σ⇑⇑≡σ′⇑⇑]))
       ⊢σ′F≡⊢σ′F′ = escapeEq [σ′F] ([F≡F′] (⊢Δ ∙ ⊢ℕ)
                                (liftSubstS {F = ℕ} [Γ] ⊢Δ [ℕ] [σ′]))
-      ⊢σ′z≡⊢σ′z′ = PE.subst (λ (x : Term k′) → Δ ⊢ subst σ′ z ≅ subst σ′ z′ ∷ x)
+      ⊢σ′z≡⊢σ′z′ = PE.subst (λ (x : Term k′) → Δ ⊢ z [ σ′ ] ≅ z′ [ σ′ ] ∷ x)
                             (singleSubstLift F zero)
                             (≅-conv (escapeTermEq (proj₁ (unwrap [F₀] ⊢Δ [σ′]))
                                                    ([z≡z′] ⊢Δ [σ′]))
                                   (sym (≅-eq (escapeEq (proj₁ (unwrap [F₀] ⊢Δ [σ]))
                                                     (proj₂ (unwrap [F₀] ⊢Δ [σ]) [σ′] [σ≡σ′])))))
-      ⊢σ′s≡⊢σ′s′ = PE.subst (λ (x : Term (1+ (1+ k′))) → (Δ ∙ ℕ ∙ subst (liftSubst σ) F) ⊢ subst (liftSubstn σ′ 2) s
-                                                                              ≅ subst (liftSubstn σ′ 2) s′ ∷ x)
+      ⊢σ′s≡⊢σ′s′ = PE.subst (λ (x : Term (1+ (1+ k′))) → (Δ ∙ ℕ ∙ F [ liftSubst σ ]) ⊢ s [ liftSubstn σ′ 2 ]
+                                                                                     ≅ s′ [ liftSubstn σ′ 2 ] ∷ x)
                      (natrecSucCase σ F)
                      (≅-conv (escapeTermEq (proj₁ (unwrap [F₊] ⊢ΔℕF [σ′⇑⇑]′))
                                            ([s≡s′] ⊢ΔℕF [σ′⇑⇑]′))
@@ -894,13 +883,13 @@ natrec-congTerm [Γ] [F] [F′] [F≡F′] [F₀] [F′₀] [F₀≡F′₀] [F�
 natrecᵛ : ∀ {F z s n l} ([Γ] : ⊩ᵛ Γ)
           ([ℕ]  : Γ ⊩ᵛ⟨ l ⟩ ℕ / [Γ])
           ([F]  : Γ ∙ ℕ ⊩ᵛ⟨ l ⟩ F / [Γ] ∙ [ℕ])
-          ([F₀] : Γ ⊩ᵛ⟨ l ⟩ F [ zero ] / [Γ])
+          ([F₀] : Γ ⊩ᵛ⟨ l ⟩ F [ zero ]₀ / [Γ])
           ([F₊] : Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ F [ suc (var x1) ]↑² / [Γ] ∙ [ℕ] ∙ [F])
-          ([Fₙ] : Γ ⊩ᵛ⟨ l ⟩ F [ n ] / [Γ])
-        → Γ ⊩ᵛ⟨ l ⟩ z ∷ F [ zero ] / [Γ] / [F₀]
+          ([Fₙ] : Γ ⊩ᵛ⟨ l ⟩ F [ n ]₀ / [Γ])
+        → Γ ⊩ᵛ⟨ l ⟩ z ∷ F [ zero ]₀ / [Γ] / [F₀]
         → Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ s ∷ F [ suc (var x1) ]↑² / [Γ] ∙ [ℕ] ∙ [F] / [F₊]
         → ([n] : Γ ⊩ᵛ⟨ l ⟩ n ∷ ℕ / [Γ] / [ℕ])
-        → Γ ⊩ᵛ⟨ l ⟩ natrec p q r F z s n ∷ F [ n ] / [Γ] / [Fₙ]
+        → Γ ⊩ᵛ⟨ l ⟩ natrec p q r F z s n ∷ F [ n ]₀ / [Γ] / [Fₙ]
 natrecᵛ {F = F} {z = z} {s = s} {n = n} {l = l}
         [Γ] [ℕ] [F] [F₀] [F₊] [Fₙ] [z] [s] [n]
         {Δ = Δ} {σ = σ} ⊢Δ [σ] =
@@ -908,7 +897,7 @@ natrecᵛ {F = F} {z = z} {s = s} {n = n} {l = l}
                            (_∙_ {l = l} [Γ] (ℕᵛ [Γ])) [F]
       [σn]′ = irrelevanceTerm {l′ = l} (proj₁ (unwrap [ℕ] ⊢Δ [σ]))
                               (ℕᵣ (idRed:*: (ℕⱼ ⊢Δ))) (proj₁ ([n] ⊢Δ [σ]))
-      n′ = subst σ n
+      n′ = n [ σ ]
       eqPrf = PE.trans (singleSubstComp n′ σ F)
                        (PE.sym (PE.trans (substCompEq F)
                                (substConcatSingleton′ F)))
@@ -946,13 +935,13 @@ natrecᵛ {F = F} {z = z} {s = s} {n = n} {l = l}
               (irrelevance′ (PE.sym (singleSubstComp n′ σ F))
                             (proj₁ (unwrap [F]′ ⊢Δ ([σ] , [σn]′))))
               (proj₁ (unwrap [Fₙ] ⊢Δ [σ]))
-              (natrec-congTerm {F = F} {F} {z} {z} {s} {s} {n′} {subst σ′ n} {σ = σ}
+              (natrec-congTerm {F = F} {F} {z} {z} {s} {s} {n′} {n [ σ′ ]} {σ = σ}
                                [Γ] [F]′ [F]′ (reflᵛ {A = F} (_∙_ {A = ℕ} {l = l}
                                [Γ] (ℕᵛ [Γ])) [F]′) [F₀] [F₀]
-                               (reflᵛ {A = F [ zero ]} [Γ] [F₀]) [F₊]′ [F₊]′
+                               (reflᵛ {A = F [ zero ]₀} [Γ] [F₀]) [F₊]′ [F₊]′
                                (reflᵛ {A = F [ suc (var x1) ]↑²}
                                       (_∙_ {A = F} {l = l} (_∙_ {A = ℕ} {l = l} [Γ] [ℕ]′) [F]′) [F₊]′)
-                               [z] [z] (reflᵗᵛ {A = F [ zero ]} {z} [Γ] [F₀] [z])
+                               [z] [z] (reflᵗᵛ {A = F [ zero ]₀} {z} [Γ] [F₀] [z])
                                [s]′ [s]′
                                (reflᵗᵛ {A = F [ suc (var x1) ]↑²} {s}
                                        (_∙_ {A = F} {l = l} (_∙_ {A = ℕ} {l = l} [Γ] [ℕ]′) [F]′) [F₊]′ [s]′)
@@ -964,18 +953,18 @@ natrec-congᵛ : ∀ {F F′ z z′ s s′ n n′ l} ([Γ] : ⊩ᵛ Γ)
           ([F]  : Γ ∙ ℕ ⊩ᵛ⟨ l ⟩ F / [Γ] ∙ [ℕ])
           ([F′]  : Γ ∙ ℕ ⊩ᵛ⟨ l ⟩ F′ / [Γ] ∙ [ℕ])
           ([F≡F′]  : Γ ∙ ℕ ⊩ᵛ⟨ l ⟩ F ≡ F′ / [Γ] ∙ [ℕ] / [F])
-          ([F₀] : Γ ⊩ᵛ⟨ l ⟩ F [ zero ] / [Γ])
-          ([F′₀] : Γ ⊩ᵛ⟨ l ⟩ F′ [ zero ] / [Γ])
-          ([F₀≡F′₀] : Γ ⊩ᵛ⟨ l ⟩ F [ zero ] ≡ F′ [ zero ] / [Γ] / [F₀])
+          ([F₀] : Γ ⊩ᵛ⟨ l ⟩ F [ zero ]₀ / [Γ])
+          ([F′₀] : Γ ⊩ᵛ⟨ l ⟩ F′ [ zero ]₀ / [Γ])
+          ([F₀≡F′₀] : Γ ⊩ᵛ⟨ l ⟩ F [ zero ]₀ ≡ F′ [ zero ]₀ / [Γ] / [F₀])
           ([F₊] : Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ F [ suc (var x1) ]↑² / [Γ] ∙ [ℕ] ∙ [F])
           ([F′₊] : Γ ∙ ℕ ∙ F′ ⊩ᵛ⟨ l ⟩ F′ [ suc (var x1) ]↑² / [Γ] ∙ [ℕ] ∙ [F′])
           ([F₊≡F′₊] : Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ F [ suc (var x1) ]↑²
                               ≡  F′ [ suc (var x1) ]↑² / [Γ] ∙ [ℕ] ∙ [F]
                               / [F₊])
-          ([Fₙ] : Γ ⊩ᵛ⟨ l ⟩ F [ n ] / [Γ])
-          ([z] : Γ ⊩ᵛ⟨ l ⟩ z ∷ F [ zero ] / [Γ] / [F₀])
-          ([z′] : Γ ⊩ᵛ⟨ l ⟩ z′ ∷ F′ [ zero ] / [Γ] / [F′₀])
-          ([z≡z′] : Γ ⊩ᵛ⟨ l ⟩ z ≡ z′ ∷ F [ zero ] / [Γ] / [F₀])
+          ([Fₙ] : Γ ⊩ᵛ⟨ l ⟩ F [ n ]₀ / [Γ])
+          ([z] : Γ ⊩ᵛ⟨ l ⟩ z ∷ F [ zero ]₀ / [Γ] / [F₀])
+          ([z′] : Γ ⊩ᵛ⟨ l ⟩ z′ ∷ F′ [ zero ]₀ / [Γ] / [F′₀])
+          ([z≡z′] : Γ ⊩ᵛ⟨ l ⟩ z ≡ z′ ∷ F [ zero ]₀ / [Γ] / [F₀])
           ([s] : Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ s ∷ F [ suc (var x1) ]↑² / [Γ] ∙ [ℕ] ∙ [F] / [F₊])
           ([s′] : Γ ∙ ℕ ∙ F′ ⊩ᵛ⟨ l ⟩ s′ ∷ F′ [ suc (var x1) ]↑² / [Γ] ∙ [ℕ] ∙ [F′]
                            / [F′₊])
@@ -984,7 +973,7 @@ natrec-congᵛ : ∀ {F F′ z z′ s s′ n n′ l} ([Γ] : ⊩ᵛ Γ)
           ([n] : Γ ⊩ᵛ⟨ l ⟩ n ∷ ℕ / [Γ] / [ℕ])
           ([n′] : Γ ⊩ᵛ⟨ l ⟩ n′ ∷ ℕ / [Γ] / [ℕ])
           ([n≡n′] : Γ ⊩ᵛ⟨ l ⟩ n ≡ n′ ∷ ℕ / [Γ] / [ℕ])
-        → Γ ⊩ᵛ⟨ l ⟩ natrec p q r F z s n ≡ natrec p q r F′ z′ s′ n′ ∷ F [ n ] / [Γ] / [Fₙ]
+        → Γ ⊩ᵛ⟨ l ⟩ natrec p q r F z s n ≡ natrec p q r F′ z′ s′ n′ ∷ F [ n ]₀ / [Γ] / [Fₙ]
 natrec-congᵛ {p = p} {q = q} {r = r} {F = F} {F′ = F′} {z = z} {z′ = z′}
              {s = s} {s′ = s′} {n = n} {n′ = n′} {l = l}
              [Γ] [ℕ] [F] [F′] [F≡F′] [F₀] [F′₀] [F₀≡F′₀] [F₊] [F′₊] [F₊≡F′₊]
@@ -1003,7 +992,7 @@ natrec-congᵛ {p = p} {q = q} {r = r} {F = F} {F′ = F′} {z = z} {z′ = z�
                                (ℕᵣ (idRed:*: (ℕⱼ ⊢Δ))) (proj₁ ([n′] ⊢Δ [σ]))
       [σn≡σn′]′ = irrelevanceEqTerm {l′ = l} (proj₁ (unwrap [ℕ] ⊢Δ [σ]))
                                     (ℕᵣ (idRed:*: (ℕⱼ ⊢Δ))) ([n≡n′] ⊢Δ [σ])
-      [Fₙ]′ = irrelevance′ (PE.sym (singleSubstComp (subst σ n) σ F))
+      [Fₙ]′ = irrelevance′ (PE.sym (singleSubstComp (n [ σ ]) σ F))
                            (proj₁ (unwrap [F]′ ⊢Δ ([σ] , [σn]′)))
       [F₊]′ = S.irrelevance {A = F [ suc (var x1) ]↑²}
                             (_∙_ {A = F} {l = l} (_∙_ {A = ℕ} {l = l} [Γ] [ℕ]) [F])
@@ -1031,7 +1020,7 @@ natrec-congᵛ {p = p} {q = q} {r = r} {F = F} {F′ = F′} {z = z} {z′ = z�
   in irrelevanceEqTerm′ (PE.sym (singleSubstLift F n))
                         [Fₙ]′ (proj₁ (unwrap [Fₙ] ⊢Δ [σ]))
                         (natrec-congTerm {p = p} {q = q} {r = r} {F = F} {F′ = F′} {z = z} {z′ = z′}
-                               {s = s} {s′ = s′} {n = subst σ n} {m = subst σ n′}
+                               {s = s} {s′ = s′} {n = n [ σ ]} {m = n′ [ σ ]}
                                [Γ] [F]′ [F′]′ [F≡F′]′
                                [F₀] [F′₀] [F₀≡F′₀]
                                [F₊]′ [F′₊]′ [F₊≡F′₊]′

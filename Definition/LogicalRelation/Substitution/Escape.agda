@@ -103,8 +103,8 @@ escapeEqTermᵛ [Γ] [A] [t≡u] =
   Γ ⊩ᵛ⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B / [Γ]             →⟨ (λ hyp _ σ → proj₁ (unwrap hyp _ σ)) ⟩
 
   ((⊢Γ : ⊢ Γ) → Γ ⊩ˢ idSubst ∷ Γ / [Γ] / ⊢Γ →
-   Γ ⊩⟨ l ⟩ subst idSubst (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B))  →⟨ (_$ idSubstS _) ∘→ (_$ _) ⟩
+   Γ ⊩⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B [ idSubst ])  →⟨ (_$ idSubstS _) ∘→ (_$ _) ⟩
 
-  Γ ⊩⟨ l ⟩ subst idSubst (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)    →⟨ ⊩ΠΣ→ΠΣ-allowed ⟩
+  Γ ⊩⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B [ idSubst ]    →⟨ ⊩ΠΣ→ΠΣ-allowed ⟩
 
-  ΠΣ-allowed b p q                                  □
+  ΠΣ-allowed b p q                             □

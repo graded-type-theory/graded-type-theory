@@ -67,7 +67,6 @@ private
      σ′ : T.Subst n o
      m : Mode
 
-
 lamʳ′ : ∀ {l} {Γ : Con Term n}
       → ([Γ] : ⊩ᵛ Γ)
         ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
@@ -77,11 +76,11 @@ lamʳ′ : ∀ {l} {Γ : Con Term n}
         ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
         (σ®σ′ : σ ®⟨ l ⟩ σ′ ∷[ 𝟙ᵐ ] Γ ◂ γ / [Γ] / [σ])
         ([t] : Γ ∙ F ⊩ᵛ⟨ l ⟩ t ∷ G / [Γ] ∙ [F] / [G])
-        ([u] : Δ ⊩⟨ l ⟩ u ∷ subst σ F / proj₁ (unwrap [F] ⊢Δ [σ]))
-        (u®w : u ®⟨ l ⟩ w ∷ subst σ F ◂ p / proj₁ (unwrap [F] ⊢Δ [σ]))
+        ([u] : Δ ⊩⟨ l ⟩ u ∷ F [ σ ] / proj₁ (unwrap [F] ⊢Δ [σ]))
+        (u®w : u ®⟨ l ⟩ w ∷ F [ σ ] ◂ p / proj₁ (unwrap [F] ⊢Δ [σ]))
       → Π-allowed p q
-      → ((subst σ (lam p t)) ∘⟨ p ⟩ u) ®⟨ l ⟩ (T.subst σ′ (T.lam (erase t))) T.∘ w
-        ∷ subst (consSubst σ u) G / proj₁ (unwrap [G] ⊢Δ ([σ] , [u]))
+      → (lam p t [ σ ]) ∘⟨ p ⟩ u ®⟨ l ⟩ (T.lam (erase t) T.[ σ′ ]) T.∘ w
+           ∷ G [ consSubst σ u ] / proj₁ (unwrap [G] ⊢Δ ([σ] , [u]))
 lamʳ′ {F = F} {G = G} {γ = γ} {p = p} {t = t} {σ = σ} {σ′ = σ′}
       {u = u} {w = w} {l = l} {Γ}
       [Γ] [F] [G] ⊩ʳt [σ] σ®σ′ [t] [u] u®w ok =
@@ -95,16 +94,16 @@ lamʳ′ {F = F} {G = G} {γ = γ} {p = p} {t = t} {σ = σ} {σ′ = σ′}
       ⊢σt = escapeTerm [σG] [σt]
       ⊢u = escapeTerm [σF] [u]
 
-      t⇒t′ : Δ ⊢ lam p (subst (liftSubst σ) t) ∘⟨ p ⟩ u ⇒*
-               subst (liftSubst σ) t [ u ] ∷ (subst (liftSubst σ) G [ u ])
+      t⇒t′ : Δ ⊢ (lam p t [ σ ]) ∘⟨ p ⟩ u ⇒*
+               t [ liftSubst σ ] [ u ]₀ ∷ G [ liftSubst σ ] [ u ]₀
       t⇒t′ = redMany (β-red ⊢σF ⊢σG ⊢σt ⊢u PE.refl ok)
       t⇒t″ = PE.subst (λ G → Δ ⊢ _ ⇒* _ ∷ G) (UP.singleSubstComp u σ G) t⇒t′
-      v⇒v′ = T.trans (T.β-red {t = T.subst (T.liftSubst σ′) (erase t)} {u = w}) T.refl
+      v⇒v′ = T.trans (T.β-red {t = erase t T.[ T.liftSubst σ′ ]} {u = w}) T.refl
 
-      u®w′ = PE.subst (λ p → u ®⟨ l ⟩ w ∷ subst σ F ◂ p / [σF])
+      u®w′ = PE.subst (λ p → u ®⟨ l ⟩ w ∷ F [ σ ] ◂ p / [σF])
                       (PE.sym (·-identityˡ p)) u®w
       σut®σwv = ⊩ʳt {σ = consSubst σ u} {σ′ = T.consSubst σ′ w} ([σ] , [u]) (σ®σ′ , u®w′)
-      σut®σwv′ = PE.subst₂ (λ t v → t ®⟨ l ⟩ v ∷ subst (consSubst σ u) G ◂ 𝟙 / [σGu])
+      σut®σwv′ = PE.subst₂ (λ t v → t ®⟨ l ⟩ v ∷ G [ consSubst σ u ] ◂ 𝟙 / [σGu])
                            (PE.sym (UP.singleSubstComp u σ t))
                            (PE.sym (TP.singleSubstComp w σ′ (erase t)))
                            σut®σwv
@@ -132,39 +131,39 @@ lamʳ {F = F} {G = G} {t = t} {m = 𝟙ᵐ} {p = p} {q = q}
 ... | yes PE.refl = λ [a] →
   let [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
       [ρσF] = W.wk id ⊢Δ [σF]
-      [a]′ = I.irrelevanceTerm′ (UP.wk-id (subst σ F)) [ρσF] [σF] [a]
+      [a]′ = I.irrelevanceTerm′ (UP.wk-id (F [ σ ])) [ρσF] [σF] [a]
       [Ga] = proj₁ (unwrap [G] {σ = consSubst σ _} ⊢Δ ([σ] , [a]′))
       [a]″ = I.irrelevanceTerm′ (UP.wk-subst F) [ρσF]
                                (proj₁ (unwrap [F] ⊢Δ (wkSubstS [Γ] ⊢Δ ⊢Δ id [σ]))) [a]
       [Ga]′ = proj₁ (unwrap [G] {σ = consSubst _ _} ⊢Δ (wkSubstS [Γ] ⊢Δ ⊢Δ id [σ] , [a]″))
-      [Ga]″ = I.irrelevance′ (PE.sym (PE.trans (PE.cong (subst (sgSubst _)) (UP.wk-subst-lift G))
+      [Ga]″ = I.irrelevance′ (PE.sym (PE.trans (PE.cong (_[ _ ]₀) (UP.wk-subst-lift G))
                                                (UP.singleSubstComp _ _ G)))
                              [Ga]′
       ⊩ʳt′ = PE.subst (λ x → _ ∙ x ▸ _ ∙ F ⊩ʳ⟨ _ ⟩ t ∷[ 𝟙ᵐ ] G / [Γ] ∙ [F] / [G])
                       (·-identityˡ 𝟘) (subsumption′ {t = t} ([Γ] ∙ [F]) [G] ⊩ʳt)
       λta®λv↯ = lamʳ′ {t = t} {w = T.↯} [Γ] [F] [G] ⊩ʳt′
                       [σ] σ®σ′ [t] [a]′ t®v◂𝟘 ok
-  in  irrelevanceTerm′ (PE.sym (PE.trans (PE.cong (subst (sgSubst _))
-                                                  (UP.wk-lift-id (subst (liftSubst σ) G)))
+  in  irrelevanceTerm′ (PE.sym (PE.trans (PE.cong (_[ _ ]₀)
+                                                  (UP.wk-lift-id (G [ liftSubst σ ])))
                                          (UP.singleSubstComp _ σ G)))
                        [Ga] [Ga]″ λta®λv↯
 ... | no p≢𝟘 = λ [a] {w} a®w →
   let [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
       [ρσF] = W.wk id ⊢Δ [σF]
-      [a]′ = I.irrelevanceTerm′ (UP.wk-id (subst σ F)) [ρσF] [σF] [a]
-      a®w′ = irrelevanceTerm′ (UP.wk-id (subst σ F)) [ρσF] [σF] a®w
+      [a]′ = I.irrelevanceTerm′ (UP.wk-id (F [ σ ])) [ρσF] [σF] [a]
+      a®w′ = irrelevanceTerm′ (UP.wk-id (F [ σ ])) [ρσF] [σF] a®w
       [Ga] = proj₁ (unwrap [G] {σ = consSubst σ _} ⊢Δ ([σ] , [a]′))
       [a]″ = I.irrelevanceTerm′ (UP.wk-subst F) [ρσF]
                                (proj₁ (unwrap [F] ⊢Δ (wkSubstS [Γ] ⊢Δ ⊢Δ id [σ]))) [a]
       [Ga]′ = proj₁ (unwrap [G] {σ = consSubst _ _} ⊢Δ (wkSubstS [Γ] ⊢Δ ⊢Δ id [σ] , [a]″))
-      [Ga]″ = I.irrelevance′ (PE.sym (PE.trans (PE.cong (subst (sgSubst _)) (UP.wk-subst-lift G))
+      [Ga]″ = I.irrelevance′ (PE.sym (PE.trans (PE.cong (_[ _ ]₀) (UP.wk-subst-lift G))
                                                (UP.singleSubstComp _ _ G)))
                              [Ga]′
       ⊩ʳt′ = PE.subst (λ x → _ ∙ x ▸ _ ∙ F ⊩ʳ⟨ _ ⟩ t ∷[ 𝟙ᵐ ] G / [Γ] ∙ [F] / [G])
                       (·-identityˡ p) (subsumption′ {t = t} ([Γ] ∙ [F]) [G] ⊩ʳt)
       λta®λvw = lamʳ′ {t = t} {w = w} [Γ] [F] [G] ⊩ʳt′
                       [σ] σ®σ′ [t] [a]′ (a®w′ ◀ p) ok
-  in  irrelevanceTerm′ (PE.sym (PE.trans (PE.cong (subst (sgSubst _))
-                                                  (UP.wk-lift-id (subst (liftSubst σ) G)))
+  in  irrelevanceTerm′ (PE.sym (PE.trans (PE.cong (_[ _ ]₀)
+                                                  (UP.wk-lift-id (G [ liftSubst σ ])))
                                          (UP.singleSubstComp _ σ G)))
                        [Ga] [Ga]″ λta®λvw

@@ -30,9 +30,12 @@ infix 30 Σ_,_▷_▹_
 infix 30 Σₚ_,_▷_▹_
 infix 30 Σᵣ_,_▷_▹_
 infix 30 Σ⟨_⟩_,_▷_▹_
+infixl 30 _∘⟨_⟩_
+infixl 30 _∘_
 infix 30 ⟦_⟧_▹_
 infixl 30 _ₛ•ₛ_ _•ₛ_ _ₛ•_
 infix 25 _[_]
+infix 25 _[_]₀
 infix 25 _[_]↑
 infix 25 _[_,_]
 infix 25 _[_]↑²
@@ -423,7 +426,7 @@ wkWhnf ρ (ne x)  = ne (wkNeutral ρ x)
 ------------------------------------------------------------------------
 -- Substitution
 
--- The substitution operation  subst σ t  replaces the free de Bruijn indices
+-- The substitution operation t [ σ ] replaces the free de Bruijn indices
 -- of term t by chosen terms as specified by σ.
 
 -- The substitution σ itself is a map from Fin n to terms.
@@ -436,7 +439,7 @@ Subst m n = Fin n → Term m
 -- Γ ⊢ σ(x) : (subst σ Δ)(x) for all x ∈ dom(Δ).
 --
 -- The substitution operation is then typed as follows:
--- If Γ ⊢ σ : Δ and Δ ⊢ t : A, then Γ ⊢ subst σ t : subst σ A.
+-- If Γ ⊢ σ : Δ and Δ ⊢ t : A, then Γ ⊢ t [ σ ] : A [ σ ].
 --
 -- Although substitutions are untyped, typing helps us
 -- to understand the operation on substitutions.
@@ -445,7 +448,7 @@ Subst m n = Fin n → Term m
 
 -- Extract the substitution of the first variable.
 --
--- If Γ ⊢ σ : Δ∙A  then Γ ⊢ head σ : subst σ A.
+-- If Γ ⊢ σ : Δ∙A  then Γ ⊢ head σ : A [ σ ].
 
 head : Subst m (1+ n) → Term m
 head σ = σ x0
@@ -501,21 +504,21 @@ toSubst pr x = var (wkVar pr x)
 
 -- Apply a substitution to a term.
 --
--- If Γ ⊢ σ : Δ and Δ ⊢ t : A then Γ ⊢ subst σ t : subst σ A.
+-- If Γ ⊢ σ : Δ and Δ ⊢ t : A then Γ ⊢ t [ σ ] : A [ σ ].
 
 mutual
   substGen : {bs : List Nat} (σ : Subst m n) (g : GenTs (Term) n bs) → GenTs (Term) m bs
   substGen σ  []      = []
-  substGen σ (_∷_ {b = b} t ts) = subst (liftSubstn σ b) t ∷ (substGen σ ts)
+  substGen σ (_∷_ {b = b} t ts) = t [ liftSubstn σ b ] ∷ (substGen σ ts)
 
-  subst : (σ : Subst m n) (t : Term n) → Term m
-  subst σ (var x)   = substVar σ x
-  subst σ (gen x c) = gen x (substGen σ c)
+  _[_] : (t : Term n) (σ : Subst m n) → Term m
+  var x [ σ ] = substVar σ x
+  gen x c [ σ ] = gen x (substGen σ c)
 
 -- Extend a substitution by adding a term as
 -- the first variable substitution and shift the rest.
 --
--- If Γ ⊢ σ : Δ and Γ ⊢ t : subst σ A then Γ ⊢ consSubst σ t : Δ∙A.
+-- If Γ ⊢ σ : Δ and Γ ⊢ t : A [ σ ] then Γ ⊢ consSubst σ t : Δ∙A.
 
 consSubst : Subst m n → Term m → Subst m (1+ n)
 consSubst σ t  x0    = t
@@ -533,7 +536,7 @@ sgSubst = consSubst idSubst
 -- If Γ ⊢ σ : Δ and Δ ⊢ σ′ : Φ then Γ ⊢ σ ₛ•ₛ σ′ : Φ.
 
 _ₛ•ₛ_ : Subst ℓ m → Subst m n → Subst ℓ n
-_ₛ•ₛ_ σ σ′ x = subst σ (σ′ x)
+_ₛ•ₛ_ σ σ′ x = σ′ x [ σ ]
 
 -- Composition of weakening and substitution.
 --
@@ -549,10 +552,10 @@ _ₛ•_ σ ρ x = σ (wkVar ρ x)
 
 -- Substitute the first variable of a term with an other term.
 --
--- If Γ∙A ⊢ t : B and Γ ⊢ s : A then Γ ⊢ t[s] : B[s].
+-- If Γ∙A ⊢ t : B and Γ ⊢ s : A then Γ ⊢ t[s]₀ : B[s]₀.
 
-_[_] : (t : Term (1+ n)) (s : Term n) → Term n
-t [ s ] = subst (sgSubst s) t
+_[_]₀ : (t : Term (1+ n)) (s : Term n) → Term n
+t [ s ]₀ = t [ sgSubst s ]
 
 -- Substitute the first variable of a term with an other term,
 -- but let the two terms share the same context.
@@ -560,7 +563,7 @@ t [ s ] = subst (sgSubst s) t
 -- If Γ∙A ⊢ t : B and Γ∙A ⊢ s : A then Γ∙A ⊢ t[s]↑ : B[s]↑.
 
 _[_]↑ : (t : Term (1+ n)) (s : Term (1+ n)) → Term (1+ n)
-t [ s ]↑ = subst (consSubst (wk1Subst idSubst) s) t
+t [ s ]↑ = t [ consSubst (wk1Subst idSubst) s ]
 
 
 -- Substitute the first two variables of a term with other terms.
@@ -568,17 +571,17 @@ t [ s ]↑ = subst (consSubst (wk1Subst idSubst) s) t
 -- If Γ∙A∙B ⊢ t : C, Γ ⊢ s : A and Γ ⊢ s′ : B and  then Γ ⊢ t[s,s′] : C[s,s′]
 
 _[_,_] : (t : Term (1+ (1+ n))) (s s′ : Term n) → Term n
-t [ s , s′ ] = subst (consSubst (consSubst idSubst s) s′) t
+t [ s , s′ ] = t [ consSubst (sgSubst s) s′ ]
 
 -- Substitute the first variable with a term and shift remaining variables up by one
 -- If Γ ∙ A ⊢ t : A′ and Γ ∙ B ∙ C ⊢ s : A then Γ ∙ B ∙ C ⊢ t[s]↑² : A′
 
 _[_]↑² : (t : Term (1+ n)) (s : Term (1+ (1+ n))) → Term (1+ (1+ n))
-t [ s ]↑² = subst (consSubst (wk1Subst (wk1Subst idSubst)) s) t
+t [ s ]↑² = t [ consSubst (wk1Subst (wk1Subst idSubst)) s ]
 
 
 B-subst : (σ : Subst m n) (W : BindingType) (F : Term n) (G : Term (1+ n))
-        → subst σ (⟦ W ⟧ F ▹ G) PE.≡ ⟦ W ⟧ (subst σ F) ▹ (subst (liftSubst σ) G)
+        → (⟦ W ⟧ F ▹ G) [ σ ] PE.≡ ⟦ W ⟧ F [ σ ] ▹ (G [ liftSubst σ ])
 B-subst σ (BΠ p q) F G = PE.refl
 B-subst σ (BΣ m p q) F G = PE.refl
 

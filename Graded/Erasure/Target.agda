@@ -8,8 +8,10 @@ open import Tools.Fin
 open import Tools.Nat
 import Tools.PropositionalEquality as PE
 
+infixl 30 _∘_
 infixl 25 _[_]
 infixl 25 _[_,_]
+infixl 25 _[_]₀
 infix 10 _⇒_
 
 private
@@ -163,24 +165,24 @@ toSubst ρ x = var (wkVar ρ x)
 
 -- Apply a substitution to a term
 
-subst : (σ : Subst m n) → (t : Term n) → Term m
-subst σ (var x) = σ x
-subst σ (lam t) = lam (subst (liftSubst σ) t)
-subst σ (t ∘ u) = subst σ t ∘ subst σ u
-subst σ zero = zero
-subst σ (suc t) = suc (subst σ t)
-subst σ (natrec z s n) = natrec (subst σ z) (subst (liftSubst (liftSubst σ)) s) (subst σ n)
-subst σ (prod t u) = prod (subst σ t) (subst σ u)
-subst σ (fst t) = fst (subst σ t)
-subst σ (snd t) = snd (subst σ t)
-subst σ (prodrec t u) = prodrec (subst σ t) (subst (liftSubst (liftSubst σ)) u)
-subst σ star = star
-subst σ ↯ = ↯
+_[_] : (t : Term n) → (σ : Subst m n) → Term m
+var x        [ σ ] = σ x
+lam t        [ σ ] = lam (t [ liftSubst σ ])
+(t ∘ u)      [ σ ] = (t [ σ ]) ∘ (u [ σ ])
+prod t u     [ σ ] = prod (t [ σ ]) (u [ σ ])
+fst t        [ σ ] = fst (t [ σ ])
+snd t        [ σ ] = snd (t [ σ ])
+prodrec t u  [ σ ] = prodrec (t [ σ ]) (u [ liftSubstn σ 2 ])
+zero         [ σ ] = zero
+suc t        [ σ ] = suc (t [ σ ])
+natrec z s n [ σ ] = natrec (z [ σ ]) (s [ liftSubstn σ 2 ]) (n [ σ ])
+star         [ σ ] = star
+↯            [ σ ] = ↯
 
 -- Compose two substitutions.
 
 _ₛ•ₛ_ : Subst ℓ m → Subst m n → Subst ℓ n
-_ₛ•ₛ_ σ σ′ x = subst σ (σ′ x)
+_ₛ•ₛ_ σ σ′ x = (σ′ x) [ σ ]
 
 -- Composition of weakening and substitution.
 
@@ -193,20 +195,20 @@ _ₛ•_ σ ρ x = σ (wkVar ρ x)
 
 -- Substitute the first variable of a term with an other term.
 
-_[_] : (t : Term (1+ n)) → (s : Term n) → Term n
-t [ u ] = subst (consSubst idSubst u) t
+_[_]₀ : (t : Term (1+ n)) → (s : Term n) → Term n
+t [ u ]₀ = t [ sgSubst u ]
 
 -- Substitute the first two variables of a term with other terms.
 
 _[_,_] : (t : Term (1+ (1+ n))) → (u v : Term n) → Term n
-t [ u , v ] = subst (consSubst (consSubst idSubst u) v) t
+t [ u , v ] = t [ consSubst (sgSubst u) v ]
 
 
 -- Single-step reduction relation
 
 data _⇒_ : (t u : Term n) → Set where
   app-subst       : t ⇒ t′ → t ∘ u ⇒ t′ ∘ u
-  β-red           : (lam t) ∘ u ⇒ t [ u ]
+  β-red           : (lam t) ∘ u ⇒ t [ u ]₀
   fst-subst       : t ⇒ t′ → fst t ⇒ fst t′
   snd-subst       : t ⇒ t′ → snd t ⇒ snd t′
   Σ-β₁            : fst (prod t u) ⇒ t

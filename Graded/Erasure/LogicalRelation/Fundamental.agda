@@ -125,7 +125,7 @@ module _ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) where
     ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ) →
     (σ®σ′ : σ ®⟨ ¹ ⟩ σ′ ∷[ 𝟙ᵐ ] Γ ◂ γ / [Γ] / [σ]) →
     ∃ λ ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ]) →
-      σ x ®⟨ ¹ ⟩ σ′ x ∷ subst σ A / proj₁ (unwrap [A] ⊢Δ [σ])
+      σ x ®⟨ ¹ ⟩ σ′ x ∷ A [ σ ] / proj₁ (unwrap [A] ⊢Δ [σ])
   fundamentalVar′ ε ()
   fundamentalVar′ {σ = σ} (_∙_ {A = A} [Γ] [A]) here (_ ∙ p≤𝟙)
                   ([tailσ] , [headσ]) (σ®σ′ , σ0®σ′0) =
@@ -133,9 +133,9 @@ module _ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) where
         [↑A] = wk1ᵛ {A = A} {F = A} [Γ] [A] [A]
         [↑A]′ = maybeEmbᵛ {A = wk1 A} (_∙_ {A = A} [Γ] [A]) [↑A]
         [σ↑A] = proj₁ (unwrap [↑A]′ {σ = σ} ⊢Δ ([tailσ] , [headσ]))
-        A≡A : Δ ⊢ subst (tail σ) A ≡ subst (tail σ) A
+        A≡A : Δ ⊢ A [ tail σ ] ≡ A [ tail σ ]
         A≡A = refl (escape [A]′)
-        A≡A′ = PE.subst (Δ ⊢ subst (tail σ) A ≡_)
+        A≡A′ = PE.subst (Δ ⊢ A [ tail σ ] ≡_)
                         (PE.sym (wk1-tail A)) A≡A
         σ0®σ′0′ = σ0®σ′0 ◀≢𝟘 λ 𝟙p≡𝟘 →
           𝟙≉𝟘 (𝟘≮ (≤-trans (≤-reflexive (PE.trans (PE.sym 𝟙p≡𝟘) (·-identityˡ _))) p≤𝟙))
@@ -263,7 +263,7 @@ module Fundamental
         [G[u]] , ⊩ʳt∘u = appʳ {F = F} {G = G} {u = u} {t = t}
                            [Γ] [F] [Π] [u] ⊩ʳt ⊩ʳu
     in  [Γ] , [G[u]] ,
-        subsumption-≤ ⊢Δ {A = G [ u ]} {t = t ∘⟨ p ⟩ u}
+        subsumption-≤ ⊢Δ {A = G [ u ]₀} {t = t ∘⟨ p ⟩ u}
           [Γ] [G[u]] ⊩ʳt∘u γ≤δ+pη
   fundamental
     (prodⱼ {F = F} {G = G} {t = t} {u = u} {k = Σₚ}
@@ -275,18 +275,18 @@ module Fundamental
         [Γ] = [Γ]₁
         [Γ]₃ , [G]′ = F.fundamental Γ⊢G
         [G] = IS.irrelevance {A = G} [Γ]₃ ([Γ] ∙ [F]) [G]′
-        [G[t]] = IS.irrelevance {A = G [ t ]} [Γ]₂ [Γ] [G[t]]′
+        [G[t]] = IS.irrelevance {A = G [ t ]₀} [Γ]₂ [Γ] [G[t]]′
         [Γ]₄ , [F]₄ , [t]′ = F.fundamentalTerm Γ⊢t:F
         [t] = IS.irrelevanceTerm {A = F} {t = t}
                 [Γ]₄ [Γ] [F]₄ [F] [t]′
         [Γ]₅ , [G]₅ , [u]′ = F.fundamentalTerm Γ⊢u:G
-        [u] = IS.irrelevanceTerm {A = G [ t ]} {t = u}
+        [u] = IS.irrelevanceTerm {A = G [ t ]₀} {t = u}
                 [Γ]₅ [Γ] [G]₅ [G[t]] [u]′
         [Σ] , ⊩ʳp =
           prodʳ
             {F = F} {G = G} {t = t} {u = u} {_⊕ᶜ_ = _∧ᶜ_}
             [Γ] [F] [G] [G[t]] [t] [u] ⊩ʳt
-            (irrelevance {A = G [ t ]} {t = u}
+            (irrelevance {A = G [ t ]₀} {t = u}
                [Γ]₂ [Γ] [G[t]]′ [G[t]] ⊩ʳu)
             (λ {x} {γ} {δ} γ∧δ≡𝟘 →
                ∧-positiveˡ
@@ -307,18 +307,18 @@ module Fundamental
         [Γ] = [Γ]₁
         [Γ]₃ , [G]′ = F.fundamental Γ⊢G
         [G] = IS.irrelevance {A = G} [Γ]₃ ([Γ] ∙ [F]) [G]′
-        [G[t]] = IS.irrelevance {A = G [ t ]} [Γ]₂ [Γ] [G[t]]′
+        [G[t]] = IS.irrelevance {A = G [ t ]₀} [Γ]₂ [Γ] [G[t]]′
         [Γ]₄ , [F]₄ , [t]′ = F.fundamentalTerm Γ⊢t:F
         [t] = IS.irrelevanceTerm {A = F} {t = t}
                 [Γ]₄ [Γ] [F]₄ [F] [t]′
         [Γ]₅ , [G]₅ , [u]′ = F.fundamentalTerm Γ⊢u:G
-        [u] = IS.irrelevanceTerm {A = G [ t ]} {t = u}
+        [u] = IS.irrelevanceTerm {A = G [ t ]₀} {t = u}
                 [Γ]₅ [Γ] [G]₅ [G[t]] [u]′
         [Σ] , ⊩ʳp =
           prodʳ
             {F = F} {G = G} {t = t} {u = u} {_⊕ᶜ_ = _+ᶜ_}
             [Γ] [F] [G] [G[t]] [t] [u] ⊩ʳt
-            (irrelevance {A = G [ t ]} {t = u}
+            (irrelevance {A = G [ t ]₀} {t = u}
                [Γ]₂ [Γ] [G[t]]′ [G[t]] ⊩ʳu)
             (λ {x} {γ} {δ} γ∧δ≡𝟘 →
                +-positiveˡ $
@@ -400,7 +400,7 @@ module Fundamental
         [A₊] = IS.irrelevance {A = A [ suc (var x1) ]↑²}
                               [ΓℕA] ([Γℕ] ∙ [A]) [A₊]′
         [Γ]ᶻ , [A]ᶻ , [z]′ = F.fundamentalTerm Γ⊢z:A
-        [z] = IS.irrelevanceTerm {A = A [ zero ]} {t = z}
+        [z] = IS.irrelevanceTerm {A = A [ zero ]₀} {t = z}
                 [Γ]ᶻ [Γ] [A]ᶻ [A₀] [z]′
         [Γ]ˢ , [A]ˢ , [s]′ = F.fundamentalTerm Γ⊢s:A
         [s] = IS.irrelevanceTerm
@@ -417,7 +417,7 @@ module Fundamental
           natrecʳ {A = A} {z = z} {s = s} {m = n}
                   [Γ] [A] [A₊] [A₀] [z] [s] [n] ⊩ʳz ⊩ʳs ⊩ʳn
     in  [Γ] , [A[n]] ,
-        subsumption-≤ ⊢Δ {A = A [ n ]} {t = natrec p q r A z s n}
+        subsumption-≤ ⊢Δ {A = A [ n ]₀} {t = natrec p q r A z s n}
           [Γ] [A[n]] ⊩ʳnatrec γ≤γ′
   fundamental
     {Γ = Γ} {γ = γ}

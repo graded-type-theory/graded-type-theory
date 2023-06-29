@@ -53,28 +53,28 @@ mutual
     appᵢ : Γ ⊢ t ⇉ A
          → Γ ⊢ A ↘ Π p , q ▷ F ▹ G
          → Γ ⊢ u ⇇ F
-         → Γ ⊢ t ∘⟨ p ⟩ u ⇉ G [ u ]
+         → Γ ⊢ t ∘⟨ p ⟩ u ⇉ G [ u ]₀
     fstᵢ : Γ ⊢ t ⇉ A
          → Γ ⊢ A ↘ Σₚ p , q ▷ F ▹ G
          → Γ ⊢ fst p t ⇉ F
     sndᵢ : Γ ⊢ t ⇉ A
          → Γ ⊢ A ↘ Σₚ p , q ▷ F ▹ G
-         → Γ ⊢ snd p t ⇉ G [ fst p t ]
+         → Γ ⊢ snd p t ⇉ G [ fst p t ]₀
     prodrecᵢ : Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ A ⇇Type
              → Γ ⊢ t ⇉ B
              → Γ ⊢ B ↘ Σᵣ p , q ▷ F ▹ G
              → Γ ∙ F ∙ G ⊢ u ⇇ (A [ prodᵣ p (var x1) (var x0) ]↑²)
-             → Γ ⊢ prodrec r p q′ A t u ⇉ A [ t ]
+             → Γ ⊢ prodrec r p q′ A t u ⇉ A [ t ]₀
     ℕᵢ : Γ ⊢ ℕ ⇉ U
     zeroᵢ : Γ ⊢ zero ⇉ ℕ
     sucᵢ : Γ ⊢ t ⇇ ℕ
          → Γ ⊢ suc t ⇉ ℕ
     natrecᵢ : ∀ {z s n}
             → Γ ∙ ℕ ⊢ A ⇇Type
-            → Γ ⊢ z ⇇ A [ zero ]
+            → Γ ⊢ z ⇇ A [ zero ]₀
             → Γ ∙ ℕ ∙ A ⊢ s ⇇ A [ suc (var x1) ]↑²
             → Γ ⊢ n ⇇ ℕ
-            → Γ ⊢ natrec p q r A z s n ⇉ A [ n ]
+            → Γ ⊢ natrec p q r A z s n ⇉ A [ n ]₀
     Unitᵢ : Unit-allowed
           → Γ ⊢ Unit ⇉ U
     starᵢ : Unit-allowed
@@ -91,7 +91,7 @@ mutual
     prodᶜ : ∀ {m}
           → Γ ⊢ A ↘ Σ⟨ m ⟩ p , q ▷ F ▹ G
           → Γ ⊢ t ⇇ F
-          → Γ ⊢ u ⇇ G [ t ]
+          → Γ ⊢ u ⇇ G [ t ]₀
           → Γ ⊢ prod m p t u ⇇ A
     infᶜ : Γ ⊢ t ⇉ A
          → Γ ⊢ A ≡ B

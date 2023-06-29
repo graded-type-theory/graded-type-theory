@@ -321,7 +321,7 @@ idRedTerm:*: t = [ t , t , id t ]
 UnotInA : Γ ⊢ U ∷ A → ⊥
 UnotInA (conv U∷U x) = UnotInA U∷U
 
-UnotInA[t] : t [ a ] PE.≡ U
+UnotInA[t] : t [ a ]₀ PE.≡ U
          → Γ ⊢ a ∷ A
          → Γ ∙ A ⊢ t ∷ B
          → ⊥
@@ -338,9 +338,9 @@ UnotInA[t] () x₁ (natrecⱼ x₂ x₃ x₄ x₅)
 UnotInA[t] () x₁ (Emptyrecⱼ x₂ x₃)
 UnotInA[t] x x₁ (conv x₂ x₃) = UnotInA[t] x x₁ x₂
 
-UnotInA[t,u] : subst (consSubst (consSubst idSubst u) u′) t PE.≡ U
+UnotInA[t,u] : t [ consSubst (consSubst idSubst u) u′ ] PE.≡ U
               → Γ ⊢ u ∷ A
-              → Γ ⊢ u′ ∷ B [ a ]
+              → Γ ⊢ u′ ∷ B [ a ]₀
               → Γ ∙ A ∙ B ⊢ t ∷ C
               → ⊥
 UnotInA[t,u] PE.refl u u′ (var x here) = UnotInA u′

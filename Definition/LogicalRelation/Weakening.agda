@@ -136,7 +136,7 @@ wk
                                           ([F]′ [ρ] [ρ′] ⊢E) ([F] ([ρ] •ₜ [ρ′]) ⊢E) [a]
       [G]′ : ∀ {k} {ρ : Wk k m} {ρ′} {E} {a} ([ρ] : ρ ∷ E ⊆ Δ) ([ρ′] : ρ′ ∷ Δ ⊆ Γ) (⊢E : ⊢ E)
              ([a] : E ⊩⟨ l ⟩ a ∷ U.wk ρ (U.wk ρ′ F) / [F]′ [ρ] [ρ′] ⊢E)
-           → E ⊩⟨ l ⟩ U.wk (lift (ρ • ρ′)) G [ a ]
+           → E ⊩⟨ l ⟩ U.wk (lift (ρ • ρ′)) G [ a ]₀
       [G]′ {_} η η′ ⊢E [a] = [G] (η •ₜ η′) ⊢E ([a]′ η η′ ⊢E [a])
   in  Πᵣ′ (U.wk ρ F) (U.wk (lift ρ) G) (T.wkRed:*: [ρ] ⊢Δ D) ⊢ρF
            (T.wk (lift [ρ]) (⊢Δ ∙ ⊢ρF) ⊢G)
@@ -177,7 +177,7 @@ wk
                                           ([F]′ [ρ] [ρ′] ⊢E) ([F] ([ρ] •ₜ [ρ′]) ⊢E) [a]
       [G]′ : ∀ {k} {ρ : Wk k m} {ρ′ E a} ([ρ] : ρ ∷ E ⊆ Δ) ([ρ′] : ρ′ ∷ Δ ⊆ Γ) (⊢E : ⊢ E)
              ([a] : E ⊩⟨ l ⟩ a ∷ U.wk ρ (U.wk ρ′ F) / [F]′ [ρ] [ρ′] ⊢E)
-           → E ⊩⟨ l ⟩ U.wk (lift (ρ • ρ′)) G [ a ]
+           → E ⊩⟨ l ⟩ U.wk (lift (ρ • ρ′)) G [ a ]₀
       [G]′ {_} η η′ ⊢E [a] = [G] (η •ₜ η′) ⊢E ([a]′ η η′ ⊢E [a])
   in  Σᵣ′ (U.wk ρ F) (U.wk (lift ρ) G) (T.wkRed:*: [ρ] ⊢Δ D) ⊢ρF
            (T.wk (lift [ρ]) (⊢Δ ∙ ⊢ρF) ⊢G)
@@ -325,13 +325,13 @@ wkTerm {ρ = ρ} [ρ] ⊢Δ [A]@(Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-
          [ρp₁]′)))
       [ρp₂]′ = irrelevanceTerm′
                   (begin
-                    U.wk ρ (U.wk (lift id) G [ p₁ ])
-                  ≡⟨ PE.cong (λ x → U.wk ρ (x [ p₁ ])) (wk-lift-id G) ⟩
-                    U.wk ρ (G [ p₁ ])
+                    U.wk ρ (U.wk (lift id) G [ p₁ ]₀)
+                  ≡⟨ PE.cong (λ x → U.wk ρ (x [ p₁ ]₀)) (wk-lift-id G) ⟩
+                    U.wk ρ (G [ p₁ ]₀)
                   ≡⟨ wk-β G ⟩
-                    (U.wk (lift ρ) G) [ U.wk ρ p₁ ]
-                  ≡⟨ PE.cong (λ x → x [ U.wk ρ p₁ ]) (PE.sym (wk-lift-id (U.wk (lift ρ) G))) ⟩
-                    (U.wk (lift id) (U.wk (lift ρ) G)) [ U.wk ρ p₁ ]
+                    (U.wk (lift ρ) G) [ U.wk ρ p₁ ]₀
+                  ≡⟨ PE.cong (λ x → x [ U.wk ρ p₁ ]₀) (PE.sym (wk-lift-id (U.wk (lift ρ) G))) ⟩
+                    (U.wk (lift id) (U.wk (lift ρ) G)) [ U.wk ρ p₁ ]₀
                   ∎)
                   (wk [ρ] ⊢Δ ([G] id (wf ⊢F) [p₁])) [ρG]′
                   [ρp₂]
@@ -366,11 +366,11 @@ wkTerm
          [ρfst]′)))
       [ρsnd]′ = irrelevanceTerm′
         (begin
-           U.wk ρ (U.wk (lift id) G [ fst _ p ])                    ≡⟨ PE.cong (λ x → U.wk ρ (x [ fst _ p ])) (wk-lift-id G) ⟩
-           U.wk ρ (G [ fst _ p ])                                   ≡⟨ wk-β G ⟩
-           (U.wk (lift ρ) G) [ fst _ (U.wk ρ p) ]                   ≡⟨ PE.cong (λ x → x [ fst _ (U.wk ρ p) ])
+           U.wk ρ (U.wk (lift id) G [ fst _ p ]₀)                    ≡⟨ PE.cong (λ x → U.wk ρ (x [ fst _ p ]₀)) (wk-lift-id G) ⟩
+           U.wk ρ (G [ fst _ p ]₀)                                   ≡⟨ wk-β G ⟩
+           (U.wk (lift ρ) G) [ fst _ (U.wk ρ p) ]₀                   ≡⟨ PE.cong (λ x → x [ fst _ (U.wk ρ p) ]₀)
                                                                          (PE.sym (wk-lift-id (U.wk (lift ρ) G))) ⟩
-           (U.wk (lift id) (U.wk (lift ρ) G)) [ fst _ (U.wk ρ p) ]  ∎)
+           (U.wk (lift id) (U.wk (lift ρ) G)) [ fst _ (U.wk ρ p) ]₀  ∎)
         (wk [ρ] ⊢Δ ([G] id (wf ⊢F) [fst])) [ρG]′
         [ρsnd]
   in  Σₜ (U.wk ρ p) (wkRed:*:Term [ρ] ⊢Δ d) (≅ₜ-wk [ρ] ⊢Δ p≅p)
@@ -452,13 +452,13 @@ wkEqTerm {ρ = ρ} [ρ] ⊢Δ [A]@(Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] 
            ([F] [ρ] (wf (T.wk [ρ] ⊢Δ ⊢F)))
            [ρr₁]′)))
       ρG-eq = λ t → (begin
-                    U.wk ρ (U.wk (lift id) G [ t ])
-                  ≡⟨ PE.cong (λ x → U.wk ρ (x [ t ])) (wk-lift-id G) ⟩
-                    U.wk ρ (G [ t ])
+                    U.wk ρ (U.wk (lift id) G [ t ]₀)
+                  ≡⟨ PE.cong (λ x → U.wk ρ (x [ t ]₀)) (wk-lift-id G) ⟩
+                    U.wk ρ (G [ t ]₀)
                   ≡⟨ wk-β G ⟩
-                    (U.wk (lift ρ) G) [ U.wk ρ t ]
-                  ≡⟨ PE.cong (λ x → x [ U.wk ρ t ]) (PE.sym (wk-lift-id (U.wk (lift ρ) G))) ⟩
-                    (U.wk (lift id) (U.wk (lift ρ) G)) [ U.wk ρ t ]
+                    (U.wk (lift ρ) G) [ U.wk ρ t ]₀
+                  ≡⟨ PE.cong (λ x → x [ U.wk ρ t ]₀) (PE.sym (wk-lift-id (U.wk (lift ρ) G))) ⟩
+                    (U.wk (lift id) (U.wk (lift ρ) G)) [ U.wk ρ t ]₀
                   ∎)
       [ρp₂] = wkTerm [ρ] ⊢Δ ([G] id ⊢Γ [p₁]) [p₂]
       [ρp₂]′ = irrelevanceTerm′ (ρG-eq p₁) (wk [ρ] ⊢Δ ([G] id ⊢Γ [p₁])) [ρG]′ [ρp₂]
@@ -516,11 +516,11 @@ wkEqTerm {ρ = ρ} [ρ] ⊢Δ [A]@(Bᵣ′ BΣₚ F G D ⊢F ⊢G A≡A [F] [G] 
          [ρfstp]′)))
       [ρsnd≡]′ = irrelevanceEqTerm′
         (begin
-           U.wk ρ (U.wk (lift id) G [ fst _ p ])                    ≡⟨ PE.cong (λ x → U.wk ρ (x [ fst _ p ])) (wk-lift-id G) ⟩
-           U.wk ρ (G [ fst _ p ])                                   ≡⟨ wk-β G ⟩
-           (U.wk (lift ρ) G) [ fst _ (U.wk ρ p) ]                   ≡⟨ PE.cong (λ x → x [ fst _ (U.wk ρ p) ])
+           U.wk ρ (U.wk (lift id) G [ fst _ p ]₀)                    ≡⟨ PE.cong (λ x → U.wk ρ (x [ fst _ p ]₀)) (wk-lift-id G) ⟩
+           U.wk ρ (G [ fst _ p ]₀)                                   ≡⟨ wk-β G ⟩
+           (U.wk (lift ρ) G) [ fst _ (U.wk ρ p) ]₀                   ≡⟨ PE.cong (λ x → x [ fst _ (U.wk ρ p) ]₀)
                                                                          (PE.sym (wk-lift-id (U.wk (lift ρ) G))) ⟩
-           (U.wk (lift id) (U.wk (lift ρ) G)) [ fst _ (U.wk ρ p) ]  ∎)
+           (U.wk (lift id) (U.wk (lift ρ) G)) [ fst _ (U.wk ρ p) ]₀  ∎)
         (wk [ρ] ⊢Δ ([G] id (wf ⊢F) [fstp])) [ρG]′
         [ρsnd≡]
   in  Σₜ₌ (U.wk ρ p) (U.wk ρ r) (wkRed:*:Term [ρ] ⊢Δ d) (wkRed:*:Term [ρ] ⊢Δ d′)

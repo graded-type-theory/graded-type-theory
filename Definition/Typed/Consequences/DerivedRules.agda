@@ -119,7 +119,7 @@ lam-cong⁻¹
   Γ ∙ A ⊢ wk1 (lam p t) ≡ wk1 (lam p u) ∷ wk1 (Π p , q ▷ A ▹ B)          →⟨ flip app-cong (refl (var ⊢ΓA here)) ⟩
 
   Γ ∙ A ⊢ wk1 (lam p t) ∘⟨ p ⟩ var x0 ≡ wk1 (lam p u) ∘⟨ p ⟩ var x0 ∷
-    wk (lift (step id)) B [ var x0 ]                                     →⟨ PE.subst (_ ⊢ _ ≡ _ ∷_) (wkSingleSubstId _) ⟩
+    wk (lift (step id)) B [ var x0 ]₀                                    →⟨ PE.subst (_ ⊢ _ ≡ _ ∷_) (wkSingleSubstId _) ⟩
 
   Γ ∙ A ⊢ wk1 (lam p t) ∘⟨ p ⟩ var x0 ≡ wk1 (lam p u) ∘⟨ p ⟩ var x0 ∷ B  →⟨ (λ hyp → trans
                                                                                (sym (wk1-lam∘0≡ ⊢lam-t))
@@ -178,9 +178,9 @@ lam-injective
   ⊢ΓA   = wfTerm ⊢t ∙ ⊢A
 
   ⊢lam =                                                            $⟨ wkTerm (step id) ⊢ΓA ⊢t ∘ⱼ var ⊢ΓA here ⟩
-    Γ ∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ wk (lift (step id)) B [ var x0 ]  →⟨ PE.subst (_ ⊢ _ ∷_) (wkSingleSubstId _) ⟩
-    Γ ∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ B                                 →⟨ flip (lamⱼ ⊢A) ok ⟩
-    Γ ⊢ lam p (wk1 t ∘⟨ p ⟩ var x0) ∷ Π p , q ▷ A ▹ B               □
+    Γ ∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ wk (lift (step id)) B [ var x0 ]₀  →⟨ PE.subst (_ ⊢ _ ∷_) (wkSingleSubstId _) ⟩
+    Γ ∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ B                                  →⟨ flip (lamⱼ ⊢A) ok ⟩
+    Γ ⊢ lam p (wk1 t ∘⟨ p ⟩ var x0) ∷ Π p , q ▷ A ▹ B                □
 
 -- An η-rule for the Unit type.
 

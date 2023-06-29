@@ -13,7 +13,7 @@ open import Tools.Fin
 open import Tools.Nat renaming (_+_ to _+ⁿ_)
 open import Tools.PropositionalEquality
 
-infixl 30 _∙_
+infixl 24 _∙_
 infixr 40 _+ᶜ_
 infixr 40 _∧ᶜ_
 infixr 45 _·ᶜ_

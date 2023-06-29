@@ -19,7 +19,7 @@ open import Tools.Product hiding (_,_)
 import Tools.PropositionalEquality as PE
 
 
-infixl 30 _∙_
+infixl 24 _∙_
 
 private
   variable
@@ -84,12 +84,12 @@ mutual
               → Γ     ⊢ lam p t ∷ Π p , q ▷ F ▹ G
     _∘ⱼ_      : Γ ⊢ t ∷ Π p , q ▷ F ▹ G
               → Γ ⊢ u ∷ F
-              → Γ ⊢ t ∘⟨ p ⟩ u ∷ G [ u ]
+              → Γ ⊢ t ∘⟨ p ⟩ u ∷ G [ u ]₀
 
     prodⱼ     : Γ ⊢ F
               → Γ ∙ F ⊢ G
               → Γ ⊢ t ∷ F
-              → Γ ⊢ u ∷ G [ t ]
+              → Γ ⊢ u ∷ G [ t ]₀
               → Σ-allowed k p q
               → Γ ⊢ prod k p t u ∷ Σ⟨ k ⟩ p , q ▷ F ▹ G
     fstⱼ      : Γ ⊢ F
@@ -99,14 +99,14 @@ mutual
     sndⱼ      : Γ ⊢ F
               → Γ ∙ F ⊢ G
               → Γ ⊢ t ∷ Σₚ p , q ▷ F ▹ G
-              → Γ ⊢ snd p t ∷ G [ fst p t ]
+              → Γ ⊢ snd p t ∷ G [ fst p t ]₀
     prodrecⱼ  : Γ ⊢ F
               → Γ ∙ F ⊢ G
               → Γ ∙ (Σᵣ p , q′ ▷ F ▹ G) ⊢ A
               → Γ ⊢ t ∷ Σᵣ p , q′ ▷ F ▹ G
               → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var x1) (var x0) ]↑²
               → Σᵣ-allowed p q′
-              → Γ ⊢ prodrec r p q A t u ∷ A [ t ]
+              → Γ ⊢ prodrec r p q A t u ∷ A [ t ]₀
     zeroⱼ     : ⊢ Γ
               → Γ ⊢ zero ∷ ℕ
     sucⱼ      : ∀ {n}
@@ -114,10 +114,10 @@ mutual
               → Γ ⊢ suc n ∷ ℕ
     natrecⱼ   : ∀ {n}
               → Γ ∙ ℕ     ⊢ A
-              → Γ         ⊢ z ∷ A [ zero ]
+              → Γ         ⊢ z ∷ A [ zero ]₀
               → Γ ∙ ℕ ∙ A ⊢ s ∷ A [ suc (var x1) ]↑²
               → Γ         ⊢ n ∷ ℕ
-              → Γ         ⊢ natrec p q r A z s n ∷ A [ n ]
+              → Γ         ⊢ natrec p q r A z s n ∷ A [ n ]₀
 
     Emptyrecⱼ : Γ ⊢ A → Γ ⊢ t ∷ Empty → Γ ⊢ Emptyrec p A t ∷ A
 
@@ -162,7 +162,7 @@ mutual
     app-cong      : ∀ {b}
                   → Γ ⊢ f ≡ g ∷ Π p , q ▷ F ▹ G
                   → Γ ⊢ a ≡ b ∷ F
-                  → Γ ⊢ f ∘⟨ p ⟩ a ≡ g ∘⟨ p ⟩ b ∷ G [ a ]
+                  → Γ ⊢ f ∘⟨ p ⟩ a ≡ g ∘⟨ p ⟩ b ∷ G [ a ]₀
     β-red         : Γ     ⊢ F
                   → Γ ∙ F ⊢ G
                   → Γ ∙ F ⊢ t ∷ G
@@ -170,7 +170,7 @@ mutual
                   → p PE.≡ p′
                   → -- Note that q can be chosen arbitrarily.
                     Π-allowed p q
-                  → Γ     ⊢ lam p t ∘⟨ p′ ⟩ a ≡ t [ a ] ∷ G [ a ]
+                  → Γ     ⊢ lam p t ∘⟨ p′ ⟩ a ≡ t [ a ]₀ ∷ G [ a ]₀
     η-eq          : Γ     ⊢ F
                   → Γ     ⊢ f ∷ Π p , q ▷ F ▹ G
                   → Γ     ⊢ g ∷ Π p , q ▷ F ▹ G
@@ -183,11 +183,11 @@ mutual
     snd-cong      : Γ ⊢ F
                   → Γ ∙ F ⊢ G
                   → Γ ⊢ t ≡ u ∷ Σₚ p , q ▷ F ▹ G
-                  → Γ ⊢ snd p t ≡ snd p u ∷ G [ fst p t ]
+                  → Γ ⊢ snd p t ≡ snd p u ∷ G [ fst p t ]₀
     Σ-β₁          : Γ ⊢ F
                   → Γ ∙ F ⊢ G
                   → Γ ⊢ t ∷ F
-                  → Γ ⊢ u ∷ G [ t ]
+                  → Γ ⊢ u ∷ G [ t ]₀
                   → p PE.≡ p′
                   → -- Note that q can be chosen arbitrarily.
                     Σₚ-allowed p q
@@ -195,22 +195,22 @@ mutual
     Σ-β₂          : Γ ⊢ F
                   → Γ ∙ F ⊢ G
                   → Γ ⊢ t ∷ F
-                  → Γ ⊢ u ∷ G [ t ]
+                  → Γ ⊢ u ∷ G [ t ]₀
                   → p PE.≡ p′
                   → -- Note that q can be chosen arbitrarily.
                     Σₚ-allowed p q
-                  → Γ ⊢ snd p (prodₚ p′ t u) ≡ u ∷ G [ fst p (prodₚ p′ t u) ]
+                  → Γ ⊢ snd p (prodₚ p′ t u) ≡ u ∷ G [ fst p (prodₚ p′ t u) ]₀
     Σ-η           : Γ ⊢ F
                   → Γ ∙ F ⊢ G
                   → Γ ⊢ t ∷ Σₚ p , q ▷ F ▹ G
                   → Γ ⊢ u ∷ Σₚ p , q ▷ F ▹ G
                   → Γ ⊢ fst p t ≡ fst p u ∷ F
-                  → Γ ⊢ snd p t ≡ snd p u ∷ G [ fst p t ]
+                  → Γ ⊢ snd p t ≡ snd p u ∷ G [ fst p t ]₀
                   → Γ ⊢ t ≡ u ∷ Σₚ p , q ▷ F ▹ G
     prod-cong     : Γ ⊢ F
                   → Γ ∙ F ⊢ G
                   → Γ ⊢ t ≡ t′ ∷ F
-                  → Γ ⊢ u ≡ u′ ∷ G [ t ]
+                  → Γ ⊢ u ≡ u′ ∷ G [ t ]₀
                   → Σ-allowed k p q
                   → Γ ⊢ prod k p t u ≡ prod k p t′ u′ ∷ Σ⟨ k ⟩ p , q ▷ F ▹ G
     prodrec-cong  : Γ ⊢ F
@@ -219,41 +219,41 @@ mutual
                   → Γ ⊢ t ≡ t′ ∷ Σᵣ p , q′ ▷ F ▹ G
                   → Γ ∙ F ∙ G ⊢ u ≡ u′ ∷ A [ prodᵣ p (var x1) (var x0) ]↑²
                   → Σᵣ-allowed p q′
-                  → Γ ⊢ prodrec r p q A t u ≡ prodrec r p q A′ t′ u′ ∷ A [ t ]
+                  → Γ ⊢ prodrec r p q A t u ≡ prodrec r p q A′ t′ u′ ∷ A [ t ]₀
     prodrec-β     : Γ ⊢ F
                   → Γ ∙ F ⊢ G
                   → Γ ∙ (Σᵣ p , q′ ▷ F ▹ G) ⊢ A
                   → Γ ⊢ t ∷ F
-                  → Γ ⊢ t′ ∷ G [ t ]
+                  → Γ ⊢ t′ ∷ G [ t ]₀
                   → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var x1) (var x0) ]↑²
                   → p PE.≡ p′
                   → Σᵣ-allowed p q′
                   → Γ ⊢ prodrec r p q A (prodᵣ p′ t t′) u ≡
-                        u [ t , t′ ] ∷ A [ prodᵣ p′ t t′ ]
+                        u [ t , t′ ] ∷ A [ prodᵣ p′ t t′ ]₀
     suc-cong      : ∀ {n}
                   → Γ ⊢ m ≡ n ∷ ℕ
                   → Γ ⊢ suc m ≡ suc n ∷ ℕ
     natrec-cong   : ∀ {n}
                   → Γ ∙ ℕ     ⊢ A
                   → Γ ∙ ℕ     ⊢ A ≡ A′
-                  → Γ         ⊢ z ≡ z′ ∷ A [ zero ]
+                  → Γ         ⊢ z ≡ z′ ∷ A [ zero ]₀
                   → Γ ∙ ℕ ∙ A ⊢ s ≡ s′ ∷ A [ suc (var x1) ]↑²
                   → Γ         ⊢ n ≡ n′ ∷ ℕ
                   → Γ         ⊢ natrec p q r A z s n ≡
                                 natrec p q r A′ z′ s′ n′ ∷
-                                A [ n ]
+                                A [ n ]₀
     natrec-zero   : Γ ∙ ℕ     ⊢ A
-                  → Γ         ⊢ z ∷ A [ zero ]
+                  → Γ         ⊢ z ∷ A [ zero ]₀
                   → Γ ∙ ℕ ∙ A ⊢ s ∷ A [ suc (var x1) ]↑²
-                  → Γ         ⊢ natrec p q r A z s zero ≡ z ∷ A [ zero ]
+                  → Γ         ⊢ natrec p q r A z s zero ≡ z ∷ A [ zero ]₀
     natrec-suc    : ∀ {n}
                   → Γ ∙ ℕ     ⊢ A
-                  → Γ         ⊢ z ∷ A [ zero ]
+                  → Γ         ⊢ z ∷ A [ zero ]₀
                   → Γ ∙ ℕ ∙ A ⊢ s ∷ A [ suc (var x1) ]↑²
                   → Γ         ⊢ n ∷ ℕ
                   → Γ         ⊢ natrec p q r A z s (suc n) ≡
                                 s [ n , natrec p q r A z s n ] ∷
-                                A [ suc n ]
+                                A [ suc n ]₀
     Emptyrec-cong : Γ ⊢ A ≡ B
                   → Γ ⊢ t ≡ u ∷ Empty
                   → Γ ⊢ Emptyrec p A t ≡ Emptyrec p B u ∷ A
@@ -269,7 +269,7 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                  → Γ ⊢ t ⇒ u ∷ B
   app-subst      : Γ ⊢ t ⇒ u ∷ Π p , q ▷ F ▹ G
                  → Γ ⊢ a ∷ F
-                 → Γ ⊢ t ∘⟨ p ⟩ a ⇒ u ∘⟨ p ⟩ a ∷ G [ a ]
+                 → Γ ⊢ t ∘⟨ p ⟩ a ⇒ u ∘⟨ p ⟩ a ∷ G [ a ]₀
   β-red          : Γ     ⊢ F
                  → Γ ∙ F ⊢ G
                  → Γ ∙ F ⊢ t ∷ G
@@ -277,7 +277,7 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                  → p PE.≡ p′
                  → -- Note that q can be chosen arbitrarily.
                    Π-allowed p q
-                 → Γ     ⊢ lam p t ∘⟨ p′ ⟩ a ⇒ t [ a ] ∷ G [ a ]
+                 → Γ     ⊢ lam p t ∘⟨ p′ ⟩ a ⇒ t [ a ]₀ ∷ G [ a ]₀
   fst-subst      : Γ ⊢ F
                  → Γ ∙ F ⊢ G
                  → Γ ⊢ t ⇒ u ∷ Σₚ p , q ▷ F ▹ G
@@ -285,11 +285,11 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
   snd-subst      : Γ ⊢ F
                  → Γ ∙ F ⊢ G
                  → Γ ⊢ t ⇒ u ∷ Σₚ p , q ▷ F ▹ G
-                 → Γ ⊢ snd p t ⇒ snd p u ∷ G [ fst p t ]
+                 → Γ ⊢ snd p t ⇒ snd p u ∷ G [ fst p t ]₀
   Σ-β₁           : Γ ⊢ F
                  → Γ ∙ F ⊢ G
                  → Γ ⊢ t ∷ F
-                 → Γ ⊢ u ∷ G [ t ]
+                 → Γ ⊢ u ∷ G [ t ]₀
                  → p PE.≡ p′
                  → -- Note that q can be chosen arbitrarily.
                    Σₚ-allowed p q
@@ -297,48 +297,48 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
   Σ-β₂           : Γ ⊢ F
                  → Γ ∙ F ⊢ G
                  → Γ ⊢ t ∷ F
-                 → Γ ⊢ u ∷ G [ t ]
+                 → Γ ⊢ u ∷ G [ t ]₀
                  → p PE.≡ p′
                  → -- Note that q can be chosen arbitrarily.
                    Σₚ-allowed p q
-                 → Γ ⊢ snd p (prodₚ p′ t u) ⇒ u ∷ G [ fst p (prodₚ p′ t u) ]
+                 → Γ ⊢ snd p (prodₚ p′ t u) ⇒ u ∷ G [ fst p (prodₚ p′ t u) ]₀
   prodrec-subst  : Γ ⊢ F
                  → Γ ∙ F ⊢ G
                  → Γ ∙ (Σᵣ p , q′ ▷ F ▹ G) ⊢ A
                  → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var x1) (var x0) ]↑²
                  → Γ ⊢ t ⇒ t′ ∷ Σᵣ p , q′ ▷ F ▹ G
                  → Σᵣ-allowed p q′
-                 → Γ ⊢ prodrec r p q A t u ⇒ prodrec r p q A t′ u ∷ A [ t ]
+                 → Γ ⊢ prodrec r p q A t u ⇒ prodrec r p q A t′ u ∷ A [ t ]₀
   prodrec-β      : Γ ⊢ F
                  → Γ ∙ F ⊢ G
                  → Γ ∙ (Σᵣ p , q′ ▷ F ▹ G) ⊢ A
                  → Γ ⊢ t ∷ F
-                 → Γ ⊢ t′ ∷ G [ t ]
+                 → Γ ⊢ t′ ∷ G [ t ]₀
                  → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var x1) (var x0) ]↑²
                  → p PE.≡ p′
                  → Σᵣ-allowed p q′
                  → Γ ⊢ prodrec r p q A (prodᵣ p′ t t′) u ⇒
-                       u [ t , t′ ] ∷ A [ prodᵣ p′ t t′ ]
+                       u [ t , t′ ] ∷ A [ prodᵣ p′ t t′ ]₀
   natrec-subst   : ∀ {n}
                  → Γ ∙ ℕ     ⊢ A
-                 → Γ         ⊢ z ∷ A [ zero ]
+                 → Γ         ⊢ z ∷ A [ zero ]₀
                  → Γ ∙ ℕ ∙ A ⊢ s ∷ A [ suc (var x1) ]↑²
                  → Γ         ⊢ n ⇒ n′ ∷ ℕ
                  → Γ         ⊢ natrec p q r A z s n ⇒
                                natrec p q r A z s n′ ∷
-                               A [ n ]
+                               A [ n ]₀
   natrec-zero    : Γ ∙ ℕ     ⊢ A
-                 → Γ         ⊢ z ∷ A [ zero ]
+                 → Γ         ⊢ z ∷ A [ zero ]₀
                  → Γ ∙ ℕ ∙ A ⊢ s ∷ A [ suc (var x1) ]↑²
-                 → Γ         ⊢ natrec p q r A z s zero ⇒ z ∷ A [ zero ]
+                 → Γ         ⊢ natrec p q r A z s zero ⇒ z ∷ A [ zero ]₀
   natrec-suc     : ∀ {n}
                  → Γ ∙ ℕ     ⊢ A
-                 → Γ         ⊢ z ∷ A [ zero ]
+                 → Γ         ⊢ z ∷ A [ zero ]₀
                  → Γ ∙ ℕ ∙ A ⊢ s ∷ A [ suc (var x1) ]↑²
                  → Γ         ⊢ n ∷ ℕ
                  → Γ         ⊢ natrec p q r A z s (suc n) ⇒
                                s [ n , natrec p q r A z s n ] ∷
-                               A [ suc n ]
+                               A [ suc n ]₀
   Emptyrec-subst : ∀ {n}
                  → Γ ⊢ A
                  → Γ     ⊢ n ⇒ n′ ∷ Empty
@@ -406,7 +406,7 @@ data _⊢ˢ_∷_ {k} (Δ : Con Term k) :
        (σ : Subst k n) (Γ : Con Term n) → Set ℓ where
   id  : Δ ⊢ˢ σ ∷ ε
   _,_ : Δ ⊢ˢ tail σ ∷ Γ
-      → Δ ⊢  head σ ∷ subst (tail σ) A
+      → Δ ⊢  head σ ∷ A [ tail σ ]
       → Δ ⊢ˢ σ      ∷ Γ ∙ A
 
 -- Conversion of well-formed substitutions.
@@ -414,7 +414,7 @@ data _⊢ˢ_≡_∷_ {k} (Δ : Con Term k) :
        (σ σ′ : Subst k n) (Γ : Con Term n) → Set ℓ where
   id  : Δ ⊢ˢ σ ≡ σ′ ∷ ε
   _,_ : Δ ⊢ˢ tail σ ≡ tail σ′ ∷ Γ
-      → Δ ⊢  head σ ≡ head σ′ ∷ subst (tail σ) A
+      → Δ ⊢  head σ ≡ head σ′ ∷ A [ tail σ ]
       → Δ ⊢ˢ      σ ≡ σ′      ∷ Γ ∙ A
 
 -- Note that we cannot use the well-formed substitutions.

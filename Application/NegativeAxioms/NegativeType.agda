@@ -80,7 +80,7 @@ wkNeg w ⊢Δ (conv n c)
 
 -- Lemma: Negative types are closed under parallel substitution.
 
-subNeg : NegativeType Γ A → Δ ⊢ˢ σ ∷ Γ → ⊢ Δ → NegativeType Δ (subst σ A)
+subNeg : NegativeType Γ A → Δ ⊢ˢ σ ∷ Γ → ⊢ Δ → NegativeType Δ (A [ σ ])
 
 subNeg empty _ _ = empty
 
@@ -96,7 +96,7 @@ subNeg (conv n c) s ⊢Δ = conv (subNeg n s ⊢Δ) (substitutionEq c (substRefl
 
 -- Corollary: Negative types are closed under single substitution.
 
-subNeg1 : NegativeType (Γ ∙ A) B → Γ ⊢ t ∷ A → NegativeType Γ (B [ t ])
+subNeg1 : NegativeType (Γ ∙ A) B → Γ ⊢ t ∷ A → NegativeType Γ (B [ t ]₀)
 subNeg1 n ⊢t = subNeg n (singleSubst ⊢t) (wfTerm ⊢t)
 
 -- Lemma: The first component of a negative Σ-type is negative.
@@ -116,7 +116,7 @@ sndNeg :
   NegativeType Γ C →
   Γ ⊢ C ≡ Σₚ p , q ▷ A ▹ B →
   Γ ⊢ t ∷ A →
-  NegativeType Γ (B [ t ])
+  NegativeType Γ (B [ t ]₀)
 sndNeg empty          c = ⊥-elim (Empty≢Σⱼ c)
 sndNeg (pi _ _)       c = ⊥-elim (Π≢Σⱼ c)
 sndNeg (sigma _ _ nB) c ⊢t = let (cA , cB , _ , _) = Σ-injectivity c in
@@ -125,7 +125,7 @@ sndNeg (conv n c)    c' = sndNeg n (trans c c')
 
 -- Lemma: Any instance of the codomain of a negative Π-type is negative.
 
-appNeg : NegativeType Γ C → Γ ⊢ C ≡ Π p , q ▷ A ▹ B → Γ ⊢ t ∷ A → NegativeType Γ (B [ t ])
+appNeg : NegativeType Γ C → Γ ⊢ C ≡ Π p , q ▷ A ▹ B → Γ ⊢ t ∷ A → NegativeType Γ (B [ t ]₀)
 appNeg empty          c = ⊥-elim (Empty≢Πⱼ c)
 appNeg (sigma _ _ _)  c = ⊥-elim (Π≢Σⱼ (sym c))
 appNeg (pi _ nB) c ⊢t = let (cA , cB , _ , _) = injectivity c in

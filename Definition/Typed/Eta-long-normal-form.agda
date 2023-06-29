@@ -111,7 +111,7 @@ mutual
     prodₙ  : Γ ⊢ A →
              Γ ∙ A ⊢ B →
              Γ ⊢nf t ∷ A →
-             Γ ⊢nf u ∷ B [ t ] →
+             Γ ⊢nf u ∷ B [ t ]₀ →
              Σ-allowed s p q →
              Γ ⊢nf prod s p t u ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B
     Emptyₙ : ⊢ Γ →
@@ -147,7 +147,7 @@ mutual
                 Γ ⊢ne var x ∷ A
     ∘ₙ        : Γ ⊢ne t ∷ Π p , q ▷ A ▹ B →
                 Γ ⊢nf u ∷ A →
-                Γ ⊢ne t ∘⟨ p ⟩ u ∷ B [ u ]
+                Γ ⊢ne t ∘⟨ p ⟩ u ∷ B [ u ]₀
     fstₙ      : Γ ⊢ A →
                 Γ ∙ A ⊢ B →
                 Γ ⊢ne t ∷ Σₚ p , q ▷ A ▹ B →
@@ -155,22 +155,22 @@ mutual
     sndₙ      : Γ ⊢ A →
                 Γ ∙ A ⊢ B →
                 Γ ⊢ne t ∷ Σₚ p , q ▷ A ▹ B →
-                Γ ⊢ne snd p t ∷ B [ fst p t ]
+                Γ ⊢ne snd p t ∷ B [ fst p t ]₀
     prodrecₙ  : Γ ⊢ A →
                 Γ ∙ A ⊢ B →
                 Γ ∙ (Σᵣ p , q′ ▷ A ▹ B) ⊢nf C →
                 Γ ⊢ne t ∷ Σᵣ p , q′ ▷ A ▹ B →
                 Γ ∙ A ∙ B ⊢nf u ∷ C [ prodᵣ p (var x1) (var x0) ]↑² →
                 Σᵣ-allowed p q′ →
-                Γ ⊢ne prodrec r p q C t u ∷ C [ t ]
+                Γ ⊢ne prodrec r p q C t u ∷ C [ t ]₀
     Emptyrecₙ : Γ ⊢nf A →
                 Γ ⊢ne t ∷ Empty →
                 Γ ⊢ne Emptyrec p A t ∷ A
     natrecₙ   : Γ ∙ ℕ ⊢nf A →
-                Γ ⊢nf t ∷ A [ zero ] →
+                Γ ⊢nf t ∷ A [ zero ]₀ →
                 Γ ∙ ℕ ∙ A ⊢nf u ∷ A [ suc (var x1) ]↑² →
                 Γ ⊢ne v ∷ ℕ →
-                Γ ⊢ne natrec p q r A t u v ∷ A [ v ]
+                Γ ⊢ne natrec p q r A t u v ∷ A [ v ]₀
 
 ------------------------------------------------------------------------
 -- A lemma
@@ -478,7 +478,7 @@ inversion-nf-prod :
   Γ ⊢nf prod s p t u ∷ A →
   ∃₃ λ B C q →
     (Γ ⊢ B) × (Γ ∙ B ⊢ C) ×
-    Γ ⊢nf t ∷ B × Γ ⊢nf u ∷ C [ t ] ×
+    Γ ⊢nf t ∷ B × Γ ⊢nf u ∷ C [ t ]₀ ×
     Γ ⊢ A ≡ Σ⟨ s ⟩ p , q ▷ B ▹ C ×
     Σ-allowed s p q
 inversion-nf-prod (neₙ _ ⊢prod) =
@@ -509,7 +509,7 @@ inversion-nf-suc (convₙ ⊢suc A≡B) =
 inversion-ne-app :
   Γ ⊢ne t ∘⟨ p ⟩ u ∷ A →
   ∃₃ λ B C q →
-     Γ ⊢ne t ∷ Π p , q ▷ B ▹ C × Γ ⊢nf u ∷ B × Γ ⊢ A ≡ C [ u ]
+     Γ ⊢ne t ∷ Π p , q ▷ B ▹ C × Γ ⊢nf u ∷ B × Γ ⊢ A ≡ C [ u ]₀
 inversion-ne-app (∘ₙ ⊢t ⊢u) =
   _ , _ , _ , ⊢t , ⊢u ,
   refl (substTypeΠ (syntacticTerm (⊢ne∷→⊢∷ ⊢t)) (⊢nf∷→⊢∷ ⊢u))
@@ -521,7 +521,7 @@ inversion-ne-app (convₙ ⊢app A≡B) =
 inversion-nf-app :
   Γ ⊢nf t ∘⟨ p ⟩ u ∷ A →
   ∃₃ λ B C q →
-     Γ ⊢ne t ∷ Π p , q ▷ B ▹ C × Γ ⊢nf u ∷ B × Γ ⊢ A ≡ C [ u ]
+     Γ ⊢ne t ∷ Π p , q ▷ B ▹ C × Γ ⊢nf u ∷ B × Γ ⊢ A ≡ C [ u ]₀
 inversion-nf-app (neₙ _ ⊢app) =
   inversion-ne-app ⊢app
 inversion-nf-app (convₙ ⊢app A≡B) =
@@ -532,7 +532,7 @@ inversion-nf-app (convₙ ⊢app A≡B) =
 inversion-nf-ne-app :
   Γ ⊢nf t ∘⟨ p ⟩ u ∷ A ⊎ Γ ⊢ne t ∘⟨ p ⟩ u ∷ A →
   ∃₃ λ B C q →
-     Γ ⊢ne t ∷ Π p , q ▷ B ▹ C × Γ ⊢nf u ∷ B × Γ ⊢ A ≡ C [ u ]
+     Γ ⊢ne t ∷ Π p , q ▷ B ▹ C × Γ ⊢nf u ∷ B × Γ ⊢ A ≡ C [ u ]₀
 inversion-nf-ne-app (inj₁ ⊢app) = inversion-nf-app ⊢app
 inversion-nf-ne-app (inj₂ ⊢app) = inversion-ne-app ⊢app
 
@@ -577,7 +577,7 @@ inversion-ne-snd :
   ∃₃ λ B C q →
      (Γ ⊢ B) × (Γ ∙ B ⊢ C) ×
      Γ ⊢ne t ∷ Σₚ p , q ▷ B ▹ C ×
-     Γ ⊢ A ≡ C [ fst p t ]
+     Γ ⊢ A ≡ C [ fst p t ]₀
 inversion-ne-snd (sndₙ ⊢B ⊢C ⊢t) =
   _ , _ , _ , ⊢B , ⊢C , ⊢t ,
   refl (substType ⊢C (fstⱼ ⊢B ⊢C (⊢ne∷→⊢∷ ⊢t)))
@@ -591,7 +591,7 @@ inversion-nf-snd :
   ∃₃ λ B C q →
      (Γ ⊢ B) × (Γ ∙ B ⊢ C) ×
      Γ ⊢ne t ∷ Σₚ p , q ▷ B ▹ C ×
-     Γ ⊢ A ≡ C [ fst p t ]
+     Γ ⊢ A ≡ C [ fst p t ]₀
 inversion-nf-snd (neₙ _ ⊢snd) =
   inversion-ne-snd ⊢snd
 inversion-nf-snd (convₙ ⊢snd A≡B) =
@@ -604,7 +604,7 @@ inversion-nf-ne-snd :
   ∃₃ λ B C q →
      (Γ ⊢ B) × (Γ ∙ B ⊢ C) ×
      Γ ⊢ne t ∷ Σₚ p , q ▷ B ▹ C ×
-     Γ ⊢ A ≡ C [ fst p t ]
+     Γ ⊢ A ≡ C [ fst p t ]₀
 inversion-nf-ne-snd (inj₁ ⊢snd) = inversion-nf-snd ⊢snd
 inversion-nf-ne-snd (inj₂ ⊢snd) = inversion-ne-snd ⊢snd
 
@@ -617,7 +617,7 @@ inversion-ne-prodrec :
     (Γ ∙ (Σᵣ p , q ▷ C ▹ D) ⊢nf A) ×
     Γ ⊢ne t ∷ Σᵣ p , q ▷ C ▹ D ×
     Γ ∙ C ∙ D ⊢nf u ∷ A [ prodᵣ p (var x1) (var x0) ]↑² ×
-    Γ ⊢ B ≡ A [ t ]
+    Γ ⊢ B ≡ A [ t ]₀
 inversion-ne-prodrec (prodrecₙ ⊢C ⊢D ⊢A ⊢t ⊢u _) =
   _ , _ , _ , ⊢C , ⊢D , ⊢A , ⊢t , ⊢u ,
   refl (substType (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t))
@@ -633,7 +633,7 @@ inversion-nf-prodrec :
     (Γ ∙ (Σᵣ p , q ▷ C ▹ D) ⊢nf A) ×
     Γ ⊢ne t ∷ Σᵣ p , q ▷ C ▹ D ×
     Γ ∙ C ∙ D ⊢nf u ∷ A [ prodᵣ p (var x1) (var x0) ]↑² ×
-    Γ ⊢ B ≡ A [ t ]
+    Γ ⊢ B ≡ A [ t ]₀
 inversion-nf-prodrec (neₙ _ ⊢pr) =
   inversion-ne-prodrec ⊢pr
 inversion-nf-prodrec (convₙ ⊢pr B≡C) =
@@ -648,7 +648,7 @@ inversion-nf-ne-prodrec :
     (Γ ∙ (Σᵣ p , q ▷ C ▹ D) ⊢nf A) ×
     Γ ⊢ne t ∷ Σᵣ p , q ▷ C ▹ D ×
     Γ ∙ C ∙ D ⊢nf u ∷ A [ prodᵣ p (var x1) (var x0) ]↑² ×
-    Γ ⊢ B ≡ A [ t ]
+    Γ ⊢ B ≡ A [ t ]₀
 inversion-nf-ne-prodrec (inj₁ ⊢pr) = inversion-nf-prodrec ⊢pr
 inversion-nf-ne-prodrec (inj₂ ⊢pr) = inversion-ne-prodrec ⊢pr
 
@@ -685,10 +685,10 @@ inversion-nf-ne-Emptyrec (inj₂ ⊢er) = inversion-ne-Emptyrec ⊢er
 inversion-ne-natrec :
   Γ ⊢ne natrec p q r A t u v ∷ B →
   (Γ ∙ ℕ ⊢nf A) ×
-  Γ ⊢nf t ∷ A [ zero ] ×
+  Γ ⊢nf t ∷ A [ zero ]₀ ×
   Γ ∙ ℕ ∙ A ⊢nf u ∷ A [ suc (var x1) ]↑² ×
   Γ ⊢ne v ∷ ℕ ×
-  Γ ⊢ B ≡ A [ v ]
+  Γ ⊢ B ≡ A [ v ]₀
 inversion-ne-natrec (natrecₙ ⊢A ⊢t ⊢u ⊢v) =
   ⊢A , ⊢t , ⊢u , ⊢v ,
   refl (substType (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢v))
@@ -700,10 +700,10 @@ inversion-ne-natrec (convₙ ⊢pr B≡C) =
 inversion-nf-natrec :
   Γ ⊢nf natrec p q r A t u v ∷ B →
   (Γ ∙ ℕ ⊢nf A) ×
-  Γ ⊢nf t ∷ A [ zero ] ×
+  Γ ⊢nf t ∷ A [ zero ]₀ ×
   Γ ∙ ℕ ∙ A ⊢nf u ∷ A [ suc (var x1) ]↑² ×
   Γ ⊢ne v ∷ ℕ ×
-  Γ ⊢ B ≡ A [ v ]
+  Γ ⊢ B ≡ A [ v ]₀
 inversion-nf-natrec (neₙ _ ⊢nr) =
   inversion-ne-natrec ⊢nr
 inversion-nf-natrec (convₙ ⊢pr B≡C) =
@@ -714,10 +714,10 @@ inversion-nf-natrec (convₙ ⊢pr B≡C) =
 inversion-nf-ne-natrec :
   Γ ⊢nf natrec p q r A t u v ∷ B ⊎ Γ ⊢ne natrec p q r A t u v ∷ B →
   (Γ ∙ ℕ ⊢nf A) ×
-  Γ ⊢nf t ∷ A [ zero ] ×
+  Γ ⊢nf t ∷ A [ zero ]₀ ×
   Γ ∙ ℕ ∙ A ⊢nf u ∷ A [ suc (var x1) ]↑² ×
   Γ ⊢ne v ∷ ℕ ×
-  Γ ⊢ B ≡ A [ v ]
+  Γ ⊢ B ≡ A [ v ]₀
 inversion-nf-ne-natrec (inj₁ ⊢nr) = inversion-nf-natrec ⊢nr
 inversion-nf-ne-natrec (inj₂ ⊢nr) = inversion-ne-natrec ⊢nr
 

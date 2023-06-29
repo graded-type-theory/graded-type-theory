@@ -166,7 +166,7 @@ decConv↓Term-Σ-η : ∀ {t u F G}
                   → Product t
                   → Product u
                   → Γ ⊢ fst p t [conv↑] fst p u ∷ F
-                  → Dec (Γ ⊢ snd p t [conv↑] snd p u ∷ G [ fst p t ])
+                  → Dec (Γ ⊢ snd p t [conv↑] snd p u ∷ G [ fst p t ]₀)
                   → Dec (Γ ⊢ t [conv↓] u ∷ Σ p , q ▷ F ▹ G)
 decConv↓Term-Σ-η ⊢t ⊢u tProd uProd fstConv (yes Q) =
   yes (Σ-η ⊢t ⊢u tProd uProd fstConv Q)
@@ -300,7 +300,7 @@ dec~↑-snd {k = k} k~k dec (snd-cong l~l) with dec l~l
     (_ , G , PE.refl) →
       case Σ-injectivity ΣF′G′≡A of λ where
         (_ , _ , PE.refl , _ , _) →
-          yes (G [ fst _ k ] , snd-cong k~l)
+          yes (G [ fst _ k ]₀ , snd-cong k~l)
 ... | no ¬p = no (λ { (_ , snd-cong x₂) → ¬p (_ , x₂) })
 dec~↑-snd _ _ (var-refl _ _)        = no λ { (_ , ()) }
 dec~↑-snd _ _ (app-cong _ _)        = no λ { (_ , ()) }
@@ -313,7 +313,7 @@ dec~↑-natrec : ∀ {l l′ A C z s n}
              → Γ ⊢ l ~ l′ ↑ A
              → ⊢ Γ
              → (∀ {C′ C″} → Γ ∙ ℕ ⊢ C′ [conv↑] C″ → Dec (Γ ∙ ℕ ⊢ C [conv↑] C′))
-             → (∀ {t t′ C′} → Γ ⊢ C [ zero ] ≡ C′ → Γ ⊢ t [conv↑] t′ ∷ C′ → Dec (Γ ⊢ z [conv↑] t ∷ C [ zero ]))
+             → (∀ {t t′ C′} → Γ ⊢ C [ zero ]₀ ≡ C′ → Γ ⊢ t [conv↑] t′ ∷ C′ → Dec (Γ ⊢ z [conv↑] t ∷ C [ zero ]₀))
              → (∀ {t t′ C′} → Γ ∙ ℕ ∙ C ⊢ C [ suc (var x1) ]↑² ≡ C′ → Γ ∙ ℕ ∙ C ⊢ t [conv↑] t′ ∷ C′
                             → Dec (Γ ∙ ℕ ∙ C ⊢ s [conv↑] t ∷ C [ suc (var x1) ]↑²))
              → (∀ {t t′ C′} → Γ ⊢ t ~ t′ ↓ C′ → Dec (∃ λ B → Γ ⊢ n ~ t ↓ B))

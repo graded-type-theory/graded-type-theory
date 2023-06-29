@@ -20,7 +20,7 @@ private variable
 -- Terms added to the context are well scoped in the sense that it cannot
 -- contain more unbound variables than can be looked up in the context.
 
-infixl 30 _∙_
+infixl 24 _∙_
 
 data Con (A : Nat → Set a) : Nat → Set a where
   ε   :                             Con A 0        -- Empty context.

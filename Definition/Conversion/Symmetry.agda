@@ -71,7 +71,7 @@ mutual
         case Σ-injectivity A≡B of λ where
           (F≡ , G≡ , _ , _) →
             let fst≡ = soundness~↑ (fst-cong p~r) in
-            G′ [ fst _ r ] , substTypeEq G≡ fst≡ , snd-cong r~p
+            G′ [ fst _ r ]₀ , substTypeEq G≡ fst≡ , snd-cong r~p
   sym~↑ Γ≡Δ (natrec-cong x x₁ x₂ t~u) =
     let ⊢Γ , ⊢Δ , _ = contextConvSubst Γ≡Δ
         B , whnfB , A≡B , u~t = sym~↓ Γ≡Δ t~u

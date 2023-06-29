@@ -47,24 +47,24 @@ mutual
 
     app-cong      : Γ ⊢ k ~ l ↓ Π p , q ▷ F ▹ G
                   → Γ ⊢ t [conv↑] v ∷ F
-                  → Γ ⊢ k ∘⟨ p ⟩ t ~ l ∘⟨ p ⟩ v ↑ G [ t ]
+                  → Γ ⊢ k ∘⟨ p ⟩ t ~ l ∘⟨ p ⟩ v ↑ G [ t ]₀
 
     fst-cong      : Γ ⊢ k ~ l ↓ Σₚ p , q ▷ F ▹ G
                   → Γ ⊢ fst p k ~ fst p l ↑ F
 
     snd-cong      : Γ ⊢ k ~ l ↓ Σₚ p , q ▷ F ▹ G
-                  → Γ ⊢ snd p k ~ snd p l ↑ G [ fst p k ]
+                  → Γ ⊢ snd p k ~ snd p l ↑ G [ fst p k ]₀
 
     natrec-cong   : Γ ∙ ℕ ⊢ F [conv↑] G
-                  → Γ ⊢ a₀ [conv↑] b₀ ∷ F [ zero ]
+                  → Γ ⊢ a₀ [conv↑] b₀ ∷ F [ zero ]₀
                   → Γ ∙ ℕ ∙ F ⊢ h [conv↑] g ∷ F [ suc (var x1) ]↑²
                   → Γ ⊢ k ~ l ↓ ℕ
-                  → Γ ⊢ natrec p q r F a₀ h k ~ natrec p q r G b₀ g l ↑ F [ k ]
+                  → Γ ⊢ natrec p q r F a₀ h k ~ natrec p q r G b₀ g l ↑ F [ k ]₀
 
     prodrec-cong  : Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ C [conv↑] E
                   → Γ ⊢ g ~ h ↓ Σᵣ p , q ▷ F ▹ G
                   → Γ ∙ F ∙ G ⊢ u [conv↑] v ∷ C [ prodᵣ p (var x1) (var x0) ]↑²
-                  → Γ ⊢ prodrec r p q′ C g u ~ prodrec r p q′ E h v ↑ C [ g ]
+                  → Γ ⊢ prodrec r p q′ C g u ~ prodrec r p q′ E h v ↑ C [ g ]₀
 
     Emptyrec-cong : Γ ⊢ F [conv↑] H
                   → Γ ⊢ k ~ l ↓ Empty
@@ -168,7 +168,7 @@ mutual
               → Γ ⊢ F
               → Γ ∙ F ⊢ G
               → Γ ⊢ t [conv↑] t′ ∷ F
-              → Γ ⊢ u [conv↑] u′ ∷ G [ t ]
+              → Γ ⊢ u [conv↑] u′ ∷ G [ t ]₀
               → Σᵣ-allowed p q
               → Γ ⊢ prodᵣ p t u [conv↓] prodᵣ p t′ u′ ∷ Σᵣ p , q ▷ F ▹ G
 
@@ -185,7 +185,7 @@ mutual
               → Product k
               → Product l
               → Γ ⊢ fst p k [conv↑] fst p l ∷ F
-              → Γ ⊢ snd p k [conv↑] snd p l ∷ G [ fst p k ]
+              → Γ ⊢ snd p k [conv↑] snd p l ∷ G [ fst p k ]₀
               → Γ ⊢ k [conv↓] l ∷ Σₚ p , q ▷ F ▹ G
 
     η-unit    : ∀ {k l}
@@ -208,6 +208,6 @@ prod-cong⁻¹ :
   Γ ⊢ F ×
   Γ ∙ F ⊢ G ×
   (Γ ⊢ t [conv↑] t′ ∷ F) ×
-  (Γ ⊢ u [conv↑] u′ ∷ G [ t ]) ×
+  (Γ ⊢ u [conv↑] u′ ∷ G [ t ]₀) ×
   Σᵣ-allowed p q
 prod-cong⁻¹ (prod-cong F G t u ok) = refl , refl , F , G , t , u , ok

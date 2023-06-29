@@ -29,7 +29,7 @@ open import Definition.Typed.Consequences.Substitution R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
 
-open import Definition.Untyped M as U hiding (_∷_; _[_])
+open import Definition.Untyped M hiding (_∷_; _[_])
 open import Graded.Derived.Unrestricted.Eta.Untyped 𝕄 ω
 
 open import Tools.Empty
@@ -174,7 +174,7 @@ inversion-[] :
   ∃₃ λ B q C →
      Γ ⊢ t ∷ B ×
      Γ ⊢ A ≡ Σₚ ω , q ▷ B ▹ C ×
-     Γ ⊢ C U.[ t ] ≡ Unit
+     Γ ⊢ C [ t ]₀ ≡ Unit
 inversion-[] ⊢[] =
   case inversion-prod ⊢[] of
     λ (B , C , q , ⊢B , _ , ⊢t , ⊢star , A≡ , _) →

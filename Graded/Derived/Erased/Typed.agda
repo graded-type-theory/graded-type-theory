@@ -178,7 +178,7 @@ inversion-[] :
   ∃₃ λ B q C →
      Γ ⊢ t ∷ B ×
      Γ ⊢ A ≡ Σₚ 𝟘 , q ▷ B ▹ C ×
-     Γ ⊢ C U.[ t ] ≡ Unit
+     Γ ⊢ C U.[ t ]₀ ≡ Unit
 inversion-[] ⊢[] =
   case inversion-prod ⊢[] of
     λ (B , C , q , ⊢B , _ , ⊢t , ⊢star , A≡ , _) →

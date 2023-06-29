@@ -35,7 +35,7 @@ private
 snd-subst* : Γ ⊢ t ⇒* t′ ∷ Σₚ p , q ▷ F ▹ G
            → Γ ⊢ F
            → Γ ∙ F ⊢ G
-           → Γ ⊢ snd p t ⇒* snd p t′ ∷ G [ fst p t ]
+           → Γ ⊢ snd p t ⇒* snd p t′ ∷ G [ fst p t ]₀
 snd-subst* (id x) ⊢F ⊢G = id (sndⱼ ⊢F ⊢G x)
 snd-subst* (x ⇨ t⇒t′) ⊢F ⊢G =
   snd-subst ⊢F ⊢G x ⇨ conv* (snd-subst* t⇒t′ ⊢F ⊢G)
@@ -46,9 +46,9 @@ snd-subst* (x ⇨ t⇒t′) ⊢F ⊢G =
 
 natrec-subst* : ∀ {z s} → Γ ⊢ t ⇒* t′ ∷ ℕ
               → Γ ∙ ℕ ⊢ A
-              → Γ ⊢ z ∷ A [ zero ]
+              → Γ ⊢ z ∷ A [ zero ]₀
               → Γ ∙ ℕ ∙ A ⊢ s ∷ A [ suc (var x1) ]↑²
-              → Γ ⊢ natrec p q r A z s t ⇒* natrec p q r A z s t′ ∷ A [ t ]
+              → Γ ⊢ natrec p q r A z s t ⇒* natrec p q r A z s t′ ∷ A [ t ]₀
 natrec-subst* (id x) ⊢A ⊢z ⊢s = id (natrecⱼ ⊢A ⊢z ⊢s x)
 natrec-subst* (x ⇨ t⇒t′) ⊢A ⊢z ⊢s =
   natrec-subst ⊢A ⊢z ⊢s x ⇨ conv* (natrec-subst* t⇒t′ ⊢A ⊢z ⊢s)
@@ -61,7 +61,7 @@ prodrec-subst* : Γ ⊢ t ⇒* t′ ∷ Σᵣ p , q ▷ F ▹ G
                → Γ ∙ F ⊢ G
                → Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ A
                → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var x1) (var x0) ]↑²
-               → Γ ⊢ prodrec r p q′ A t u ⇒* prodrec r p q′ A t′ u ∷ A [ t ]
+               → Γ ⊢ prodrec r p q′ A t u ⇒* prodrec r p q′ A t′ u ∷ A [ t ]₀
 prodrec-subst* (id x) ⊢F ⊢G ⊢A ⊢u =
   id (prodrecⱼ ⊢F ⊢G ⊢A x ⊢u ok)
   where

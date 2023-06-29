@@ -37,14 +37,14 @@ private
     p q : M
 
 -- Well-formed substitution of types.
-substitution : ∀ {A Γ Δ} → Γ ⊢ A → Δ ⊢ˢ σ ∷ Γ → ⊢ Δ → Δ ⊢ subst σ A
+substitution : ∀ {A Γ Δ} → Γ ⊢ A → Δ ⊢ˢ σ ∷ Γ → ⊢ Δ → Δ ⊢ A [ σ ]
 substitution A σ ⊢Δ with fundamental A | fundamentalSubst (wf A) ⊢Δ σ
 substitution A σ ⊢Δ | [Γ] , [A] | [Γ]′ , [σ] =
   escape (proj₁ (unwrap [A] ⊢Δ (irrelevanceSubst [Γ]′ [Γ] ⊢Δ ⊢Δ [σ])))
 
 -- Well-formed substitution of type equality.
 substitutionEq : ∀ {A B Γ Δ}
-               → Γ ⊢ A ≡ B → Δ ⊢ˢ σ ≡ σ′ ∷ Γ → ⊢ Δ → Δ ⊢ subst σ A ≡ subst σ′ B
+               → Γ ⊢ A ≡ B → Δ ⊢ˢ σ ≡ σ′ ∷ Γ → ⊢ Δ → Δ ⊢ A [ σ ] ≡ B [ σ′ ]
 substitutionEq A≡B σ ⊢Δ with fundamentalEq A≡B | fundamentalSubstEq (wfEq A≡B) ⊢Δ σ
 substitutionEq A≡B σ ⊢Δ | [Γ] , [A] , [B] , [A≡B] | [Γ]′ , [σ] , [σ′] , [σ≡σ′]  =
   let [σ]′ = irrelevanceSubst [Γ]′ [Γ] ⊢Δ ⊢Δ [σ]
@@ -57,7 +57,7 @@ substitutionEq A≡B σ ⊢Δ | [Γ] , [A] , [B] , [A≡B] | [Γ]′ , [σ] , [�
 
 -- Well-formed substitution of terms.
 substitutionTerm : ∀ {t A Γ Δ}
-               → Γ ⊢ t ∷ A → Δ ⊢ˢ σ ∷ Γ → ⊢ Δ → Δ ⊢ subst σ t ∷ subst σ A
+               → Γ ⊢ t ∷ A → Δ ⊢ˢ σ ∷ Γ → ⊢ Δ → Δ ⊢ t [ σ ] ∷ A [ σ ]
 substitutionTerm t σ ⊢Δ with fundamentalTerm t | fundamentalSubst (wfTerm t) ⊢Δ σ
 substitutionTerm t σ ⊢Δ | [Γ] , [A] , [t] | [Γ]′ , [σ] =
   let [σ]′ = irrelevanceSubst [Γ]′ [Γ] ⊢Δ ⊢Δ [σ]
@@ -66,7 +66,7 @@ substitutionTerm t σ ⊢Δ | [Γ] , [A] , [t] | [Γ]′ , [σ] =
 -- Well-formed substitution of term equality.
 substitutionEqTerm : ∀ {t u A Γ Δ}
                    → Γ ⊢ t ≡ u ∷ A → Δ ⊢ˢ σ ≡ σ′ ∷ Γ → ⊢ Δ
-                   → Δ ⊢ subst σ t ≡ subst σ′ u ∷ subst σ A
+                   → Δ ⊢ t [ σ ] ≡ u [ σ′ ] ∷ A [ σ ]
 substitutionEqTerm t≡u σ≡σ′ ⊢Δ with fundamentalTermEq t≡u
                                   | fundamentalSubstEq (wfEqTerm t≡u) ⊢Δ σ≡σ′
 ... | [Γ] , modelsTermEq [A] [t] [u] [t≡u] | [Γ]′ , [σ] , [σ′] , [σ≡σ′] =
@@ -106,11 +106,11 @@ wk1Subst′ {σ = σ} {F} {Γ} {Δ} ⊢Γ ⊢Δ ⊢F [σ] =
 liftSubst′ : ∀ {F Γ Δ} (⊢Γ : ⊢ Γ) (⊢Δ : ⊢ Δ)
              (⊢F  : Γ ⊢ F)
              ([σ] : Δ ⊢ˢ σ ∷ Γ)
-           → (Δ ∙ subst σ F) ⊢ˢ liftSubst σ ∷ Γ ∙ F
+           → Δ ∙ F [ σ ] ⊢ˢ liftSubst σ ∷ Γ ∙ F
 liftSubst′ {σ = σ} {F} {Γ} {Δ} ⊢Γ ⊢Δ ⊢F [σ] =
   let ⊢Δ∙F = ⊢Δ ∙ substitution ⊢F [σ] ⊢Δ
   in  wkSubst′ ⊢Γ ⊢Δ ⊢Δ∙F (step id) [σ]
-  ,   var ⊢Δ∙F (PE.subst (λ x → x0 ∷ x ∈ (Δ ∙ subst σ F))
+  ,   var ⊢Δ∙F (PE.subst (λ x → x0 ∷ x ∈ Δ ∙ F [ σ ])
                          (wk-subst F) here)
 
 -- Well-formed identity substitution.
@@ -160,22 +160,22 @@ singleSubst↑Eq {A = A} t with wfEqTerm t
 
 -- Helper lemmas for single substitution
 
-substType : ∀ {t F G} → Γ ∙ F ⊢ G → Γ ⊢ t ∷ F → Γ ⊢ G [ t ]
+substType : ∀ {t F G} → Γ ∙ F ⊢ G → Γ ⊢ t ∷ F → Γ ⊢ G [ t ]₀
 substType {t = t} {F} {G} ⊢G ⊢t =
   let ⊢Γ = wfTerm ⊢t
   in  substitution ⊢G (singleSubst ⊢t) ⊢Γ
 
-substTypeEq : ∀ {t u F G E} → Γ ∙ F ⊢ G ≡ E → Γ ⊢ t ≡ u ∷ F → Γ ⊢ G [ t ] ≡ E [ u ]
+substTypeEq : ∀ {t u F G E} → Γ ∙ F ⊢ G ≡ E → Γ ⊢ t ≡ u ∷ F → Γ ⊢ G [ t ]₀ ≡ E [ u ]₀
 substTypeEq {F = F} ⊢G ⊢t =
   let ⊢Γ = wfEqTerm ⊢t
   in  substitutionEq ⊢G (singleSubstEq ⊢t) ⊢Γ
 
-substTerm : ∀ {F G t f} → Γ ∙ F ⊢ f ∷ G → Γ ⊢ t ∷ F → Γ ⊢ f [ t ] ∷ G [ t ]
+substTerm : ∀ {F G t f} → Γ ∙ F ⊢ f ∷ G → Γ ⊢ t ∷ F → Γ ⊢ f [ t ]₀ ∷ G [ t ]₀
 substTerm {F = F} {G} {t} {f} ⊢f ⊢t =
   let ⊢Γ = wfTerm ⊢t
   in  substitutionTerm ⊢f (singleSubst ⊢t) ⊢Γ
 
-substTypeΠ : ∀ {t F G} → Γ ⊢ Π p , q ▷ F ▹ G → Γ ⊢ t ∷ F → Γ ⊢ G [ t ]
+substTypeΠ : ∀ {t F G} → Γ ⊢ Π p , q ▷ F ▹ G → Γ ⊢ t ∷ F → Γ ⊢ G [ t ]₀
 substTypeΠ ΠFG t with syntacticΠ ΠFG
 substTypeΠ ΠFG t | F , G = substType G t
 

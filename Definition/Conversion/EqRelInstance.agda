@@ -65,7 +65,7 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
 ~-app : ∀ {f g a b F G}
       → Γ ⊢ f ~ g ∷ Π p , q ▷ F ▹ G
       → Γ ⊢ a [conv↑] b ∷ F
-      → Γ ⊢ f ∘⟨ p ⟩ a ~ g ∘⟨ p ⟩ b ∷ G [ a ]
+      → Γ ⊢ f ∘⟨ p ⟩ a ~ g ∘⟨ p ⟩ b ∷ G [ a ]₀
 ~-app (↑ A≡B x) x₁ =
   let _ , ⊢B = syntacticEq A≡B
       B′ , whnfB′ , D = whNorm ⊢B
@@ -99,7 +99,7 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
 ~-snd :
   ∀ {p r F G} →
   Γ ⊢ p ~ r ∷ Σ p′ , q ▷ F ▹ G →
-  Γ ⊢ snd p′ p ~ snd p′ r ∷ G [ fst p′ p ]
+  Γ ⊢ snd p′ p ~ snd p′ r ∷ G [ fst p′ p ]₀
 ~-snd (↑ A≡B p~r) =
   case syntacticEq A≡B of λ (⊢ΣFG , ⊢B) →
   case whNorm ⊢B of λ (B′ , whnfB′ , D) →
@@ -118,10 +118,10 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
 ~-natrec : ∀ {z z′ s s′ n n′ F F′}
          → Γ ∙ ℕ ⊢ F
          → (Γ ∙ ℕ) ⊢ F [conv↑] F′ →
-      Γ ⊢ z [conv↑] z′ ∷ (F [ zero ]) →
+      Γ ⊢ z [conv↑] z′ ∷ (F [ zero ]₀) →
       Γ ∙ ℕ ∙ F ⊢ s [conv↑] s′ ∷ F [ suc (var x1) ]↑² →
       Γ ⊢ n ~ n′ ∷ ℕ →
-      Γ ⊢ natrec p q r F z s n ~ natrec p q r F′ z′ s′ n′ ∷ (F [ n ])
+      Γ ⊢ natrec p q r F z s n ~ natrec p q r F′ z′ s′ n′ ∷ (F [ n ]₀)
 ~-natrec _ x x₁ x₂ (↑ A≡B x₄) =
   let _ , ⊢B = syntacticEq A≡B
       B′ , whnfB′ , D = whNorm ⊢B
@@ -141,7 +141,7 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
   Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ A [conv↑] A′ →
   Γ ⊢ t ~ t′ ∷ (Σᵣ p , q ▷ F ▹ G) →
   Γ ∙ F ∙ G ⊢ u [conv↑] u′ ∷ A [ prodᵣ p (var x1) (var x0) ]↑² →
-  Γ ⊢ prodrec r p q′ A t u ~ prodrec r p q′ A′ t′ u′ ∷ (A [ t ])
+  Γ ⊢ prodrec r p q′ A t u ~ prodrec r p q′ A′ t′ u′ ∷ (A [ t ]₀)
 ~-prodrec x x₁ x₂ (↑ A≡B k~↑l) x₄ =
   case syntacticEq A≡B of λ (_ , ⊢B) →
   case whNorm ⊢B of λ (B′ , whnfB′ , D) →
