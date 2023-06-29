@@ -78,7 +78,7 @@ modes = Graded.Mode.Restrictions.Mode-restrictions
 types = Definition.Typed.Restrictions.Type-restrictions
 
 --   This parameter does not affect the syntax, but if a term has a
---   certain type ("Unit" or "B_p^q A B"), then this type must be
+--   certain type ("Unit" or "B_p^q C D"), then this type must be
 --   allowed:
 
 Unit-allowed =
