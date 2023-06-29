@@ -32,7 +32,7 @@ private variable
     (yes q≤p) → yes (≤-antisym p≤q q≤p)
 
 ------------------------------------------------------------------------
--- Properties that hold if 𝟙 ≡ 𝟘
+-- Properties related to "𝟙 ≡ 𝟘"
 
 -- If 𝟙 ≡ 𝟘, then every value is equal to 𝟘.
 
@@ -54,3 +54,8 @@ private variable
   q  ∎
   where
   open Tools.Reasoning.PropositionalEquality
+
+-- If there are two distinct values, then 𝟙 ≢ 𝟘.
+
+≢→𝟙≢𝟘 : p ≢ q → 𝟙 ≢ 𝟘
+≢→𝟙≢𝟘 p≢q = p≢q ∘→ ≡-trivial
