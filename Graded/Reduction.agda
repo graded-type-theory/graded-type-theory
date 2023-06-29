@@ -204,20 +204,16 @@ usagePres* γ▸A (x ⇨ A⇒B) = usagePres* (usagePres γ▸A x) A⇒B
 -- that a well-resourced term has a well-resourced η-long normal form,
 -- *given certain assumptions*. Here it is proved that, given certain
 -- assumptions, the type
--- Well-resourced-normal-form-ill-resourced-η-long-normal-form is
--- inhabited: there is a type A and two closed terms t and u such that
--- t is a normal form of type A, u is an η-long normal form of type A,
--- t is definitionally equal to u, t is well-resourced, and u is *not*
--- well-resourced.
+-- Well-resourced-normal-form-without-η-long-normal-form is inhabited:
+-- there is a type A and a closed term t such that t is a
+-- well-resourced normal form of type A, but t does not have any
+-- (closed) well-resourced η-long normal form.
 
-Well-resourced-normal-form-ill-resourced-η-long-normal-form : Set a
-Well-resourced-normal-form-ill-resourced-η-long-normal-form =
-  ∃₃ λ A t u →
-    ε ⊢ t ∷ A × Nf t ×
-    ε ⊢nf u ∷ A ×
-    ε ⊢ t ≡ u ∷ A ×
-    ε ▸[ 𝟙ᵐ ] t ×
-    ¬ ε ▸[ 𝟙ᵐ ] u
+Well-resourced-normal-form-without-η-long-normal-form : Set a
+Well-resourced-normal-form-without-η-long-normal-form =
+  ∃₂ λ A t →
+    ε ⊢ t ∷ A × Nf t × ε ▸[ 𝟙ᵐ ] t ×
+    ¬ ∃ λ u → ε ⊢nf u ∷ A × ε ⊢ t ≡ u ∷ A × ε ▸[ 𝟙ᵐ ] u
 
 -- If "Unit" is allowed, then variable 0 is well-typed and
 -- well-resourced (with respect to the usage context ε ∙ 𝟙), and is
@@ -295,28 +291,28 @@ Well-resourced-normal-form-ill-resourced-η-long-normal-form =
   ⊢Unit = Unitⱼ ε ok₂
 
 -- The type
--- Well-resourced-normal-form-ill-resourced-η-long-normal-form is
+-- Well-resourced-normal-form-without-η-long-normal-form is
 -- inhabited if the Unit type with η-equality is allowed, 𝟙 is not
 -- bounded by 𝟘, and Π-restriction 𝟙 q holds for some q.
 
-well-resourced-normal-form-ill-resourced-η-long-normal-form-Unit :
+well-resourced-normal-form-without-η-long-normal-form-Unit :
   ¬ 𝟙 ≤ 𝟘 →
   Unit-restriction →
   Π-restriction 𝟙 q →
-  Well-resourced-normal-form-ill-resourced-η-long-normal-form
-well-resourced-normal-form-ill-resourced-η-long-normal-form-Unit
-  {q = q} 𝟙≰𝟘 ok₁ ok₂ =
+  Well-resourced-normal-form-without-η-long-normal-form
+well-resourced-normal-form-without-η-long-normal-form-Unit 𝟙≰𝟘 ok₁ ok₂ =
   case η-long-nf-for-id⇔𝟙≤𝟘 ok₂ ok₁ of λ {
     (⊢t , ▸t , ⊢u , t≡u , ▸u→ , _) →
-    _ , _ , _
+    _ , _
   , ⊢t
   , lamₙ (ne (var _))
-  , ⊢u
-  , t≡u
   , ▸t
-  , (ε ▸[ 𝟙ᵐ ] lam 𝟙 star  →⟨ ▸u→ ⟩
-     𝟙 ≤ 𝟘                 →⟨ 𝟙≰𝟘 ⟩
-     ⊥                     □) }
+  , λ (v , ⊢v , t≡v , ▸v) →
+                            $⟨ ▸v ⟩
+      ε ▸[ 𝟙ᵐ ] v           →⟨ PE.subst (_ ▸[ _ ]_) (normal-terms-unique ⊢v ⊢u (trans (sym t≡v) t≡u)) ⟩
+      ε ▸[ 𝟙ᵐ ] lam 𝟙 star  →⟨ ▸u→ ⟩
+      𝟙 ≤ 𝟘                 →⟨ 𝟙≰𝟘 ⟩
+      ⊥                     □ }
 
 -- If "Σₚ p , q" is allowed, then variable 0 is well-typed and
 -- well-resourced (with respect to the usage context ε ∙ 𝟙), and is
@@ -442,29 +438,29 @@ well-resourced-normal-form-ill-resourced-η-long-normal-form-Unit
   ⊢Σℕℕ = ΠΣⱼ (ℕⱼ ε) (ℕⱼ (ε ∙ ℕⱼ ε)) ok₂
 
 -- The type
--- Well-resourced-normal-form-ill-resourced-η-long-normal-form is
+-- Well-resourced-normal-form-without-η-long-normal-form is
 -- inhabited if there are quantities p, q and r such that
 -- * p is distinct from 𝟙,
 -- * "p is 𝟘 and 𝟘ᵐ is allowed and 𝟙 ≤ 𝟘" does not hold,
 -- * Σₚ-restriction p q holds, and
 -- * Π-restriction 𝟙 r holds.
 
-well-resourced-normal-form-ill-resourced-η-long-normal-form-Σₚ :
+well-resourced-normal-form-without-η-long-normal-form-Σₚ :
   p ≢ 𝟙 →
   ¬ (p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘) →
   Σₚ-restriction p q →
   Π-restriction 𝟙 r →
-  Well-resourced-normal-form-ill-resourced-η-long-normal-form
-well-resourced-normal-form-ill-resourced-η-long-normal-form-Σₚ
+  Well-resourced-normal-form-without-η-long-normal-form
+well-resourced-normal-form-without-η-long-normal-form-Σₚ
   {p = p} p≢𝟙 ¬[p≡𝟘×𝟘ᵐ×𝟙≤𝟘] ok₁ ok₂ =
   case η-long-nf-for-id⇔≡𝟙⊎≡𝟘 ok₂ ok₁ of λ {
     (⊢t , ▸t , ⊢u , t≡u , ▸u→ , _) →
-    _ , _ , _
+    _ , _
   , ⊢t
   , lamₙ (ne (var _))
-  , ⊢u
-  , t≡u
   , ▸t
-  , (ε ▸[ 𝟙ᵐ ] lam 𝟙 (prodₚ p (fst p (var x0)) (snd p (var x0)))  →⟨ ▸u→ ⟩
-     p PE.≡ 𝟙 ⊎ p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘                   →⟨ (λ { (inj₁ p≡𝟙) → p≢𝟙 p≡𝟙; (inj₂ hyp) → ¬[p≡𝟘×𝟘ᵐ×𝟙≤𝟘] hyp }) ⟩
-     ⊥                                                            □) }
+  , λ (v , ⊢v , t≡v , ▸v) →                                        $⟨ ▸v ⟩
+      ε ▸[ 𝟙ᵐ ] v                                                  →⟨ PE.subst (_ ▸[ _ ]_) (normal-terms-unique ⊢v ⊢u (trans (sym t≡v) t≡u)) ⟩
+      ε ▸[ 𝟙ᵐ ] lam 𝟙 (prodₚ p (fst p (var x0)) (snd p (var x0)))  →⟨ ▸u→ ⟩
+      p PE.≡ 𝟙 ⊎ p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘                   →⟨ (λ { (inj₁ p≡𝟙) → p≢𝟙 p≡𝟙; (inj₂ hyp) → ¬[p≡𝟘×𝟘ᵐ×𝟙≤𝟘] hyp }) ⟩
+      ⊥                                                            □ }
