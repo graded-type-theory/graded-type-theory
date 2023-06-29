@@ -32,6 +32,7 @@ open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat using (Nat)
 open import Tools.Product
+import Tools.PropositionalEquality as PE
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
@@ -710,3 +711,73 @@ inversion-nf-ne-natrec :
   Γ ⊢ B ≡ A [ v ]
 inversion-nf-ne-natrec (inj₁ ⊢nr) = inversion-nf-natrec ⊢nr
 inversion-nf-ne-natrec (inj₂ ⊢nr) = inversion-ne-natrec ⊢nr
+
+------------------------------------------------------------------------
+-- Lemmas related to η-long normal forms for types with η-equality
+
+-- Normal forms of type Π p , q ▷ A ▹ B are not neutral.
+
+⊢nf∷Π→Neutral→⊥ : Γ ⊢nf t ∷ Π p , q ▷ A ▹ B → Neutral t → ⊥
+⊢nf∷Π→Neutral→⊥ ⊢t =
+  ⊢nf∷Π→Neutral→⊥′ ⊢t (refl (syntacticTerm (⊢nf∷→⊢∷ ⊢t)))
+  where
+  ⊢nf∷Π→Neutral→⊥′ :
+    Γ ⊢nf t ∷ A → Γ ⊢ A ≡ Π p , q ▷ B ▹ C → Neutral t → ⊥
+  ⊢nf∷Π→Neutral→⊥′ = λ where
+    (convₙ ⊢t B≡A) A≡Σ t-ne →
+      ⊢nf∷Π→Neutral→⊥′ ⊢t (trans B≡A A≡Σ) t-ne
+    (neₙ A-no-η _) A≡Π _ →
+      No-η-equality→≢Π A-no-η A≡Π
+    (ΠΣₙ _ _ _)       _ ()
+    (lamₙ _ _ _)      _ ()
+    (prodₙ _ _ _ _ _) _ ()
+    (Emptyₙ _)        _ ()
+    (Unitₙ _ _)       _ ()
+    (starₙ _ _)       _ ()
+    (ℕₙ _)            _ ()
+    (zeroₙ _)         _ ()
+    (sucₙ _)          _ ()
+
+-- Normal forms of type Σₚ p , q ▷ A ▹ B are not neutral.
+
+⊢nf∷Σₚ→Neutral→⊥ : Γ ⊢nf t ∷ Σₚ p , q ▷ A ▹ B → Neutral t → ⊥
+⊢nf∷Σₚ→Neutral→⊥ ⊢t =
+  ⊢nf∷Σₚ→Neutral→⊥′ ⊢t (refl (syntacticTerm (⊢nf∷→⊢∷ ⊢t)))
+  where
+  ⊢nf∷Σₚ→Neutral→⊥′ :
+    Γ ⊢nf t ∷ A → Γ ⊢ A ≡ Σₚ p , q ▷ B ▹ C → Neutral t → ⊥
+  ⊢nf∷Σₚ→Neutral→⊥′ = λ where
+    (convₙ ⊢t B≡A) A≡Σ t-ne →
+      ⊢nf∷Σₚ→Neutral→⊥′ ⊢t (trans B≡A A≡Σ) t-ne
+    (neₙ A-no-η _) A≡Σ _ →
+      No-η-equality→≢Σₚ A-no-η A≡Σ
+    (ΠΣₙ _ _ _)       _ ()
+    (lamₙ _ _ _)      _ ()
+    (prodₙ _ _ _ _ _) _ ()
+    (Emptyₙ _)        _ ()
+    (Unitₙ _ _)       _ ()
+    (starₙ _ _)       _ ()
+    (ℕₙ _)            _ ()
+    (zeroₙ _)         _ ()
+    (sucₙ _)          _ ()
+
+-- Normal forms of type Unit are equal to star.
+
+⊢nf∷Unit→≡star : Γ ⊢nf t ∷ Unit → t PE.≡ star
+⊢nf∷Unit→≡star ⊢t =
+  ⊢nf∷Unit→≡star′ (refl (syntacticTerm (⊢nf∷→⊢∷ ⊢t))) ⊢t
+  where
+  ⊢nf∷Unit→≡star′ :
+    Γ ⊢ A ≡ Unit → Γ ⊢nf t ∷ A → t PE.≡ star
+  ⊢nf∷Unit→≡star′ A≡Unit = λ where
+    (starₙ _ _)       → PE.refl
+    (convₙ ⊢t ≡A)     → ⊢nf∷Unit→≡star′ (trans ≡A A≡Unit) ⊢t
+    (neₙ A-no-η _)    → ⊥-elim (No-η-equality→≢Unit A-no-η A≡Unit)
+    (ΠΣₙ _ _ _)       → ⊥-elim (U≢Unitⱼ A≡Unit)
+    (lamₙ _ _ _)      → ⊥-elim (Unit≢ΠΣⱼ (sym A≡Unit))
+    (prodₙ _ _ _ _ _) → ⊥-elim (Unit≢ΠΣⱼ (sym A≡Unit))
+    (Emptyₙ _)        → ⊥-elim (U≢Unitⱼ A≡Unit)
+    (Unitₙ _ _)       → ⊥-elim (U≢Unitⱼ A≡Unit)
+    (ℕₙ _)            → ⊥-elim (U≢Unitⱼ A≡Unit)
+    (zeroₙ _)         → ⊥-elim (ℕ≢Unitⱼ A≡Unit)
+    (sucₙ _)          → ⊥-elim (ℕ≢Unitⱼ A≡Unit)
