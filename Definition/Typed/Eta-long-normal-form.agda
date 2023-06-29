@@ -11,16 +11,23 @@ module Definition.Typed.Eta-long-normal-form
 
 open Type-restrictions R
 
-open import Definition.Conversion.FullReduction R
+open import Definition.Conversion R
+open import Definition.Conversion.Consequences.Completeness R
+open import Definition.Conversion.FullReduction R as FR
   using (NfNeutral; Nf)
+open import Definition.Conversion.Soundness R
 open import Definition.Conversion.Stability R
 
 open NfNeutral
 open Nf
 
 open import Definition.Typed R
+open import Definition.Typed.Consequences.DerivedRules R
 open import Definition.Typed.Consequences.Inequality R as TI
+open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Inversion R
+open import Definition.Typed.Consequences.NeTypeEq R
+open import Definition.Typed.Consequences.Reduction R
 open import Definition.Typed.Consequences.Substitution R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
@@ -36,13 +43,13 @@ import Tools.PropositionalEquality as PE
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
-  n           : Nat
-  x           : Fin _
-  Γ Δ         : Con _ _
-  A B C t u v : Term _
-  b           : BinderMode
-  s           : SigmaMode
-  p q q′ r    : M
+  n             : Nat
+  x             : Fin _
+  Γ Δ           : Con _ _
+  A B C t u v w : Term _
+  b             : BinderMode
+  s             : SigmaMode
+  p q q′ r      : M
 
 ------------------------------------------------------------------------
 -- Definitions of η-long normal types and terms and some associated
@@ -781,3 +788,311 @@ inversion-nf-ne-natrec (inj₂ ⊢nr) = inversion-ne-natrec ⊢nr
     (ℕₙ _)            → ⊥-elim (U≢Unitⱼ A≡Unit)
     (zeroₙ _)         → ⊥-elim (ℕ≢Unitⱼ A≡Unit)
     (sucₙ _)          → ⊥-elim (ℕ≢Unitⱼ A≡Unit)
+
+------------------------------------------------------------------------
+-- Normal forms (η-long) are unique
+
+mutual
+
+  -- Lemmas used to prove that η-long normal forms are unique.
+
+  normal-types-unique-[conv↑] :
+    Γ ⊢nf A → Γ ⊢nf B → Γ ⊢ A [conv↑] B → A PE.≡ B
+  normal-types-unique-[conv↑] ⊢A ⊢B ([↑] _ _ A⇒* B⇒* _ _ A≡B) =
+    case whnfRed* A⇒* (FR.nfWhnf (⊢nf→Nf ⊢A)) of λ {
+      PE.refl →
+    case whnfRed* B⇒* (FR.nfWhnf (⊢nf→Nf ⊢B)) of λ {
+      PE.refl →
+    normal-types-unique-[conv↓] ⊢A ⊢B A≡B }}
+
+  normal-types-unique-[conv↓] :
+    Γ ⊢nf A → Γ ⊢nf B → Γ ⊢ A [conv↓] B → A PE.≡ B
+  normal-types-unique-[conv↓] ⊢A ⊢B = λ where
+    (U-refl _) →
+      PE.refl
+    (ℕ-refl _) →
+      PE.refl
+    (Empty-refl _) →
+      PE.refl
+    (Unit-refl _ _) →
+      PE.refl
+    (ne A≡B) →
+      case syntacticEqTerm (soundness~↓ A≡B) of λ {
+        (_ , ⊢A∷U , ⊢B∷U) →
+      normal-terms-unique-~↓
+        (⊢nf∷U→⊢nf∷U ⊢A ⊢A∷U)
+        (⊢nf∷U→⊢nf∷U ⊢B ⊢B∷U)
+        A≡B }
+    (ΠΣ-cong _ A₁≡B₁ A₂≡B₂ _) →
+      case inversion-nf-ΠΣ ⊢A of λ {
+        (⊢A₁ , ⊢A₂ , _) →
+      case inversion-nf-ΠΣ ⊢B of λ {
+        (⊢B₁ , ⊢B₂ , _) →
+      PE.cong₂ ΠΣ⟨ _ ⟩ _ , _ ▷_▹_
+        (normal-types-unique-[conv↑] ⊢A₁ ⊢B₁ A₁≡B₁)
+        (normal-types-unique-[conv↑] ⊢A₂
+           (⊢nf-stable
+              (reflConEq (wf (⊢nf→⊢ ⊢A)) ∙ sym (soundnessConv↑ A₁≡B₁))
+              ⊢B₂)
+           A₂≡B₂) }}
+
+  normal-or-neutral-terms-unique-~↑ :
+    Γ ⊢nf u ∷ A ⊎ Γ ⊢ne u ∷ A →
+    Γ ⊢nf v ∷ B ⊎ Γ ⊢ne v ∷ B →
+    Γ ⊢ u ~ v ↑ C → u PE.≡ v
+  normal-or-neutral-terms-unique-~↑ ⊢u ⊢v = λ where
+    (var-refl _ PE.refl) →
+      PE.refl
+    (app-cong t≡v u≡w) →
+      case inversion-nf-ne-app ⊢u of λ {
+        (_ , _ , _ , ⊢t , ⊢u , _) →
+      case inversion-nf-ne-app ⊢v of λ {
+        (_ , _ , _ , ⊢v , ⊢w , _) →
+      case syntacticEqTerm (soundness~↓ t≡v) .proj₂ of λ {
+        (⊢t′ , ⊢v′) →
+      case FR.nfNeutral (⊢ne∷→NfNeutral ⊢t) of λ {
+        t-ne →
+      case FR.nfNeutral (⊢ne∷→NfNeutral ⊢v) of λ {
+        v-ne →
+      case ΠΣ-injectivity (neTypeEq t-ne (⊢ne∷→⊢∷ ⊢t) ⊢t′) of λ {
+        (A≡ , _) →
+      case ΠΣ-injectivity (neTypeEq v-ne (⊢ne∷→⊢∷ ⊢v) ⊢v′) of λ {
+        (C≡ , _) →
+      PE.cong₂ _∘⟨ _ ⟩_
+        (neutral-terms-unique-~↓ ⊢t ⊢v t≡v)
+        (normal-terms-unique-[conv↑]∷
+           (convₙ ⊢u A≡) (convₙ ⊢w C≡) u≡w) }}}}}}}
+    (fst-cong u≡v) →
+      case inversion-nf-ne-fst ⊢u of λ {
+        (_ , _ , _ , _ , _ , ⊢u , _) →
+      case inversion-nf-ne-fst ⊢v of λ {
+        (_ , _ , _ , _ , _ , ⊢v , _) →
+      PE.cong (fst _) (neutral-terms-unique-~↓ ⊢u ⊢v u≡v) }}
+    (snd-cong u≡v) →
+      case inversion-nf-ne-snd ⊢u of λ {
+        (_ , _ , _ , _ , _ , ⊢u , _) →
+      case inversion-nf-ne-snd ⊢v of λ {
+        (_ , _ , _ , _ , _ , ⊢v , _) →
+      PE.cong (snd _) (neutral-terms-unique-~↓ ⊢u ⊢v u≡v) }}
+    (natrec-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂) →
+      case inversion-nf-ne-natrec ⊢u of λ {
+        (⊢A₁ , ⊢t₁ , ⊢u₁ , ⊢v₁ , _) →
+      case inversion-nf-ne-natrec ⊢v of λ {
+        (⊢A₂ , ⊢t₂ , ⊢u₂ , ⊢v₂ , _) →
+      case normal-types-unique-[conv↑] ⊢A₁ ⊢A₂ A₁≡A₂ of λ {
+        PE.refl →
+      PE.cong₂
+        (λ t ((u , v) : _ × _) → natrec _ _ _ _ t u v)
+        (normal-terms-unique-[conv↑]∷ ⊢t₁ ⊢t₂ t₁≡t₂)
+        (PE.cong₂ _,_
+           (normal-terms-unique-[conv↑]∷ ⊢u₁ ⊢u₂ u₁≡u₂)
+           (neutral-terms-unique-~↓ ⊢v₁ ⊢v₂ v₁≡v₂)) }}}
+    (prodrec-cong A≡B t≡u v≡w) →
+      case inversion-nf-ne-prodrec ⊢u of λ {
+        (_ , _ , _ , ⊢C , _ , ⊢A , ⊢t , ⊢v′ , _) →
+      case inversion-nf-ne-prodrec ⊢v of λ {
+        (_ , _ , _ , ⊢E , _ , ⊢B , ⊢u , ⊢w , _) →
+      case syntacticEqTerm (soundness~↓ t≡u) .proj₂ of λ {
+        (⊢t′ , ⊢u′) →
+      case FR.nfNeutral (⊢ne∷→NfNeutral ⊢t) of λ {
+        t-ne →
+      case FR.nfNeutral (⊢ne∷→NfNeutral ⊢u) of λ {
+        u-ne →
+      case ΠΣ-injectivity (neTypeEq t-ne (⊢ne∷→⊢∷ ⊢t) ⊢t′) of λ {
+        (C≡ , D≡ , _ , PE.refl , _) →
+      case ΠΣ-injectivity (neTypeEq u-ne (⊢ne∷→⊢∷ ⊢u) ⊢u′) of λ {
+        (E≡ , F≡ , _ , PE.refl , _) →
+      case reflConEq (wfTerm ⊢t′) of λ {
+        Γ≡Γ →
+      case ⊢∷ΠΣ→ΠΣ-restriction (⊢ne∷→⊢∷ ⊢t) of λ {
+        ok →
+      case
+        normal-types-unique-[conv↑]
+          (⊢nf-stable (Γ≡Γ ∙ ΠΣ-cong ⊢C C≡ D≡ ok) ⊢A)
+          (⊢nf-stable (Γ≡Γ ∙ ΠΣ-cong ⊢E E≡ F≡ ok) ⊢B)
+          A≡B of λ {
+        PE.refl →
+      PE.cong₂ (prodrec _ _ _ _)
+        (neutral-terms-unique-~↓ ⊢t ⊢u t≡u)
+        (normal-terms-unique-[conv↑]∷
+           (⊢nf∷-stable (Γ≡Γ ∙ C≡ ∙ D≡) ⊢v′)
+           (⊢nf∷-stable (Γ≡Γ ∙ E≡ ∙ F≡) ⊢w)
+           v≡w) }}}}}}}}}}
+    (Emptyrec-cong A≡B u≡v) →
+      case inversion-nf-ne-Emptyrec ⊢u of λ {
+        (⊢A , ⊢u , _) →
+      case inversion-nf-ne-Emptyrec ⊢v of λ {
+        (⊢B , ⊢v , _) →
+      PE.cong₂ (Emptyrec _)
+        (normal-types-unique-[conv↑] ⊢A ⊢B A≡B)
+        (neutral-terms-unique-~↓ ⊢u ⊢v u≡v) }}
+
+  neutral-terms-unique-~↑ :
+    Γ ⊢ne u ∷ A → Γ ⊢ne v ∷ B → Γ ⊢ u ~ v ↑ C → u PE.≡ v
+  neutral-terms-unique-~↑ ⊢u ⊢v u≡v =
+    normal-or-neutral-terms-unique-~↑ (inj₂ ⊢u) (inj₂ ⊢v) u≡v
+
+  normal-terms-unique-~↑ :
+    Γ ⊢nf u ∷ A → Γ ⊢nf v ∷ B → Γ ⊢ u ~ v ↑ C → u PE.≡ v
+  normal-terms-unique-~↑ ⊢u ⊢v u≡v =
+    normal-or-neutral-terms-unique-~↑ (inj₁ ⊢u) (inj₁ ⊢v) u≡v
+
+  normal-terms-unique-~↓ :
+    Γ ⊢nf u ∷ A → Γ ⊢nf v ∷ B → Γ ⊢ u ~ v ↓ C → u PE.≡ v
+  normal-terms-unique-~↓ ⊢u ⊢v ([~] _ _ _ u≡v) =
+    normal-terms-unique-~↑ ⊢u ⊢v u≡v
+
+  neutral-terms-unique-~↓ :
+    Γ ⊢ne u ∷ A → Γ ⊢ne v ∷ B → Γ ⊢ u ~ v ↓ C → u PE.≡ v
+  neutral-terms-unique-~↓ ⊢u ⊢v ([~] _ _ _ u≡v) =
+    neutral-terms-unique-~↑ ⊢u ⊢v u≡v
+
+  normal-terms-unique-[conv↓]∷ :
+    Γ ⊢nf u ∷ A → Γ ⊢nf v ∷ A → Γ ⊢ u [conv↓] v ∷ A → u PE.≡ v
+  normal-terms-unique-[conv↓]∷ ⊢u ⊢v = λ where
+    (ℕ-ins u≡v) →
+      normal-terms-unique-~↓ ⊢u ⊢v u≡v
+    (Empty-ins u≡v) →
+      normal-terms-unique-~↓ ⊢u ⊢v u≡v
+    (Unit-ins u≡v) →
+      normal-terms-unique-~↓ ⊢u ⊢v u≡v
+    (Σᵣ-ins _ _ u≡v) →
+      normal-terms-unique-~↓ ⊢u ⊢v u≡v
+    (ne-ins _ _ _ u≡v) →
+      normal-terms-unique-~↓ ⊢u ⊢v u≡v
+    (univ _ _ u≡v) →
+      normal-types-unique-[conv↓] (univₙ ⊢u) (univₙ ⊢v) u≡v
+    (zero-refl _) →
+      PE.refl
+    (suc-cong u≡v) →
+      case inversion-nf-suc ⊢u of λ {
+        (⊢u , _) →
+      case inversion-nf-suc ⊢v of λ {
+        (⊢v , _) →
+      PE.cong suc (normal-terms-unique-[conv↑]∷ ⊢u ⊢v u≡v) }}
+    (prod-cong _ _ t≡v u≡w _) →
+      case inversion-nf-prod ⊢u of λ {
+        (_ , _ , _ , _ , _ , ⊢t , ⊢u , Σ≡Σ₁ , _) →
+      case inversion-nf-prod ⊢v of λ {
+        (_ , _ , _ , _ , _ , ⊢v , ⊢w , Σ≡Σ₂ , _) →
+      case ΠΣ-injectivity Σ≡Σ₁ of λ {
+        (B≡₁ , C≡₁ , _) →
+      case ΠΣ-injectivity Σ≡Σ₂ of λ {
+        (B≡₂ , C≡₂ , _) →
+      case convₙ ⊢t (sym B≡₁) of λ {
+        ⊢t →
+      PE.cong₂ (prodᵣ _)
+        (normal-terms-unique-[conv↑]∷ ⊢t (convₙ ⊢v (sym B≡₂)) t≡v)
+        (normal-terms-unique-[conv↑]∷
+           (convₙ ⊢u (sym (substTypeEq C≡₁ (refl (⊢nf∷→⊢∷ ⊢t)))))
+           (convₙ ⊢w (sym (substTypeEq C≡₂ (soundnessConv↑Term t≡v))))
+           u≡w) }}}}}
+    λ≡λ@(η-eq ⊢λu ⊢λv lamₙ lamₙ u∘0≡v∘0) →
+      case lam-injective (soundnessConv↓Term λ≡λ) of λ {
+        (PE.refl , _ , _ , PE.refl) →
+      case inversion-nf-lam ⊢u of λ {
+        (_ , _ , _ , ⊢B , ⊢u , Π≡₁ , _) →
+      case inversion-nf-lam ⊢v of λ {
+        (_ , _ , _ , ⊢D , ⊢v , Π≡₂ , _) →
+      case ΠΣ-injectivity (sym Π≡₁) of λ {
+        (B≡ , C≡ , _ , _ , _) →
+      case ΠΣ-injectivity (sym Π≡₂) of λ {
+        (D≡ , E≡ , _ , _ , _) →
+      PE.cong (lam _)
+        (normal-terms-unique-[conv↑]∷′
+           (⊢nf∷-stable (reflConEq (wf ⊢B) ∙ B≡) (convₙ ⊢u C≡))
+           (⊢nf∷-stable (reflConEq (wf ⊢D) ∙ D≡) (convₙ ⊢v E≡))
+           (redMany (wk1-lam∘0⇒ ⊢λu))
+           (redMany (wk1-lam∘0⇒ ⊢λv))
+           u∘0≡v∘0) }}}}}
+    (η-eq _ _ (ne u-ne) _ _) →
+      ⊥-elim (⊢nf∷Π→Neutral→⊥ ⊢u u-ne)
+    (η-eq _ _ _ (ne v-ne) _) →
+      ⊥-elim (⊢nf∷Π→Neutral→⊥ ⊢v v-ne)
+    ,≡,@(Σ-η _ _ prodₙ prodₙ fst≡fst snd≡snd) →
+      case inversion-nf-prod ⊢u of λ {
+        (_ , _ , _ , ⊢B , ⊢C , ⊢t , ⊢u , Σ≡₁ , ok₁) →
+      case inversion-nf-prod ⊢v of λ {
+        (_ , _ , _ , ⊢D , ⊢E , ⊢v , ⊢w , Σ≡₂ , ok₂) →
+      case ΠΣ-injectivity (sym Σ≡₁) of λ {
+        (B≡ , C≡ , PE.refl , _ , PE.refl) →
+      case ΠΣ-injectivity (sym Σ≡₂) of λ {
+        (D≡ , E≡ , PE.refl , _ , PE.refl) →
+      case Σ-β₁ ⊢B ⊢C (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u) PE.refl ok₁ of λ {
+        fst-t,u⇒t →
+      case trans B≡ (sym D≡) of λ {
+        B≡D →
+      case
+        normal-terms-unique-[conv↑]∷′
+          (convₙ ⊢t B≡)
+          (convₙ ⊢v D≡)
+          (redMany (conv fst-t,u⇒t B≡))
+          (redMany
+             (conv (Σ-β₁ ⊢D ⊢E (⊢nf∷→⊢∷ ⊢v) (⊢nf∷→⊢∷ ⊢w) PE.refl ok₂)
+                D≡))
+          fst≡fst of λ {
+        PE.refl →
+      PE.cong (prod _ _ _)
+        (normal-terms-unique-[conv↑]∷′
+           (convₙ ⊢u (substTypeEq C≡ (sym (subsetTerm fst-t,u⇒t))))
+           (convₙ ⊢w
+              (substTypeEq E≡
+                 (conv (sym (subsetTerm fst-t,u⇒t)) B≡D)))
+           (redMany
+              (conv (Σ-β₂ ⊢B ⊢C (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u) PE.refl ok₁)
+                 (substTypeEq C≡ (refl (redFirstTerm fst-t,u⇒t)))))
+           (redMany
+              (conv (Σ-β₂ ⊢D ⊢E (⊢nf∷→⊢∷ ⊢v) (⊢nf∷→⊢∷ ⊢w) PE.refl ok₂)
+                 (substTypeEq E≡
+                    (fst-cong ⊢D ⊢E
+                       (sym (conv (soundnessConv↓Term ,≡,) Σ≡₂))))))
+           snd≡snd) }}}}}}}
+    (Σ-η _ _ (ne u-ne) _ _ _) →
+      ⊥-elim (⊢nf∷Σₚ→Neutral→⊥ ⊢u u-ne)
+    (Σ-η _ _ _ (ne v-ne) _ _) →
+      ⊥-elim (⊢nf∷Σₚ→Neutral→⊥ ⊢v v-ne)
+    (η-unit _ _ _ _) →
+      case ⊢nf∷Unit→≡star ⊢u of λ {
+        PE.refl →
+      case ⊢nf∷Unit→≡star ⊢v of λ {
+        PE.refl →
+      PE.refl }}
+
+  normal-terms-unique-[conv↑]∷ :
+    Γ ⊢nf u ∷ A → Γ ⊢nf v ∷ A → Γ ⊢ u [conv↑] v ∷ A → u PE.≡ v
+  normal-terms-unique-[conv↑]∷ ⊢u ⊢v u≡v =
+    normal-terms-unique-[conv↑]∷′
+      ⊢u ⊢v (id (⊢nf∷→⊢∷ ⊢u)) (id (⊢nf∷→⊢∷ ⊢v)) u≡v
+
+  normal-terms-unique-[conv↑]∷′ :
+    Γ ⊢nf u ∷ A → Γ ⊢nf w ∷ A →
+    Γ ⊢ t ⇒* u ∷ A → Γ ⊢ v ⇒* w ∷ A →
+    Γ ⊢ t [conv↑] v ∷ A → u PE.≡ w
+  normal-terms-unique-[conv↑]∷′
+    ⊢u ⊢w t⇒*u v⇒*w
+    ([↑]ₜ _ _ _ A⇒*B t⇒*t′ v⇒*v′ _ t′-whnf  v′-whnf u≡w) =
+    case whrDet*Term (t⇒*u , FR.nfWhnf (⊢nf∷→Nf ⊢u))
+           (t⇒*t′ , t′-whnf) of λ {
+      PE.refl →
+    case whrDet*Term (v⇒*w , FR.nfWhnf (⊢nf∷→Nf ⊢w))
+           (v⇒*v′ , v′-whnf) of λ {
+      PE.refl →
+    case subset* A⇒*B of λ {
+      A≡B →
+    normal-terms-unique-[conv↓]∷ (convₙ ⊢u A≡B) (convₙ ⊢w A≡B) u≡w }}}
+
+-- Normal types are unique (definitionally equal η-long normal types
+-- are equal).
+
+normal-types-unique :
+  Γ ⊢nf A → Γ ⊢nf B → Γ ⊢ A ≡ B → A PE.≡ B
+normal-types-unique ⊢A ⊢B A≡B =
+  normal-types-unique-[conv↑] ⊢A ⊢B (completeEq A≡B)
+
+-- Normal terms are unique (definitionally equal η-long normal terms
+-- are equal).
+
+normal-terms-unique :
+  Γ ⊢nf u ∷ A → Γ ⊢nf v ∷ A → Γ ⊢ u ≡ v ∷ A → u PE.≡ v
+normal-terms-unique ⊢u ⊢v u≡v =
+  normal-terms-unique-[conv↑]∷ ⊢u ⊢v (completeEqTerm u≡v)
