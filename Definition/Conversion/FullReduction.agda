@@ -120,16 +120,16 @@ mutual
       case fullRedTermConv↑ v↑ of λ {
         (v′ , v′-nf , v≡v′) →
       case inversion-ΠΣ (syntacticEqTerm u≡u′ .proj₁) of λ {
-        (⊢A , ⊢B , ok₂) →
+        (⊢A , ⊢B , ok) →
         prodrec r p q C′ u′ v′
       , (                                                       $⟨ v′-nf ⟩
          Γ ∙ A ∙ B ⊢nf v′ ∷ C [ prodᵣ p (var x1) (var x0) ]↑²   →⟨ flip _⊢nf_∷_.convₙ $
-                                                                   subst↑²TypeEq-prod C≡C′ ok₂ ⟩
-         Γ ∙ A ∙ B ⊢nf v′ ∷ C′ [ prodᵣ p (var x1) (var x0) ]↑²  →⟨ flip (prodrecₙ ⊢A ⊢B C′-nf u′-ne) ok₂ ⟩
+                                                                   subst↑²TypeEq-prod C≡C′ ok ⟩
+         Γ ∙ A ∙ B ⊢nf v′ ∷ C′ [ prodᵣ p (var x1) (var x0) ]↑²  →⟨ flip (prodrecₙ ⊢A ⊢B C′-nf u′-ne) ok ⟩
          Γ ⊢ne prodrec r p q C′ u′ v′ ∷ C′ [ u′ ]₀              →⟨ flip _⊢ne_∷_.convₙ $ _⊢_≡_.sym $
                                                                    substTypeEq C≡C′ u≡u′ ⟩
          Γ ⊢ne prodrec r p q C′ u′ v′ ∷ C [ u ]₀                □)
-      , prodrec-cong ⊢A ⊢B C≡C′ u≡u′ v≡v′ ok₂ }}}}
+      , prodrec-cong ⊢A ⊢B C≡C′ u≡u′ v≡v′ ok }}}}
     (Emptyrec-cong {F = A} {p = p} A↑ t~) →
       case fullRedConv↑ A↑ of λ {
         (A′ , A′-nf , A≡A′) →
