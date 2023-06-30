@@ -42,6 +42,8 @@ open import Application.NegativeOrErasedAxioms.NegativeOrErasedType
   ErasureModality TR
 open import Graded.Erasure.SucRed TR
 
+open import Definition.Untyped.Normal-form Erasure
+
 open import Definition.Typed.EqRelInstance TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Consequences.Inequality TR
@@ -49,7 +51,6 @@ open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Consequences.Reduction TR
 open import Definition.Typed.Consequences.Syntactic TR
 
-open import Definition.Conversion.FullReduction TR hiding (fullRedTerm)
 open import Definition.LogicalRelation TR
 open import Definition.LogicalRelation.Irrelevance TR
 open import Definition.LogicalRelation.Fundamental.Reducibility TR

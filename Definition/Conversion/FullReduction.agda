@@ -10,6 +10,7 @@ module Definition.Conversion.FullReduction
   where
 
 open import Definition.Untyped M as U hiding (wk ; _∷_)
+open import Definition.Untyped.Normal-form M
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
@@ -23,70 +24,11 @@ open import Definition.Typed.Consequences.NeTypeEq R
 open import Definition.Typed.Consequences.Substitution R
 
 open import Tools.Fin
-open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 
-private
-  variable
-    m : Nat
-    Γ : Con Term m
-    A B C : Term m
-    c g k n t u : Term m
-    p q r : M
-    b : BinderMode
-    s : SigmaMode
-
-mutual
-  data NfNeutral {m : Nat} : Term m → Set a where
-    var       : (x : Fin m)                             → NfNeutral (var x)
-    ∘ₙ        : {k u : Term m}     → NfNeutral k → Nf u → NfNeutral (k ∘⟨ q ⟩ u)
-    fstₙ      : NfNeutral t → NfNeutral (fst p t)
-    sndₙ      : NfNeutral t → NfNeutral (snd p t)
-    natrecₙ   : {C : Term (1+ m)} {c k : Term m} {g : Term (1+ (1+ m))}
-                     → Nf C → Nf c → Nf g → NfNeutral k → NfNeutral (natrec p q r C c g k)
-    prodrecₙ  : {C : Term (1+ m)} {t : Term m} {u : Term (1+ (1+ m))} →
-                Nf C → NfNeutral t → Nf u →
-                NfNeutral (prodrec r p q C t u)
-    Emptyrecₙ : {C k : Term m}     → Nf C → NfNeutral k → NfNeutral (Emptyrec p C k)
-
-  data Nf {m : Nat} : Term m → Set a where
-    Uₙ     : Nf U
-    ΠΣₙ    : {A : Term m} {B : Term (1+ m)} →
-             Nf A → Nf B → Nf (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
-    ℕₙ     : Nf ℕ
-    Emptyₙ : Nf Empty
-    Unitₙ  : Nf Unit
-
-    lamₙ   : {t : Term (1+ m)} → Nf t → Nf (lam q t)
-    prodₙ  : Nf t → Nf u → Nf (prod s p t u)
-    zeroₙ  : Nf zero
-    sucₙ   : {t : Term m} → Nf t → Nf (suc t)
-    starₙ  : Nf star
-
-    ne     : {n : Term m} → NfNeutral n → Nf n
-
-nfNeutral : NfNeutral n → Neutral n
-nfNeutral (var x) = var x
-nfNeutral (∘ₙ n x) = ∘ₙ (nfNeutral n)
-nfNeutral (fstₙ n) = fstₙ (nfNeutral n)
-nfNeutral (sndₙ n) = sndₙ (nfNeutral n)
-nfNeutral (natrecₙ x x₁ x₂ n) = natrecₙ (nfNeutral n)
-nfNeutral (prodrecₙ x n x₁) = prodrecₙ (nfNeutral n)
-nfNeutral (Emptyrecₙ x n) = Emptyrecₙ (nfNeutral n)
-
-nfWhnf : Nf n → Whnf n
-nfWhnf Uₙ = Uₙ
-nfWhnf (ΠΣₙ n n₁) = ΠΣₙ
-nfWhnf ℕₙ = ℕₙ
-nfWhnf Emptyₙ = Emptyₙ
-nfWhnf Unitₙ = Unitₙ
-nfWhnf (lamₙ n) = lamₙ
-nfWhnf (prodₙ n n₁) = prodₙ
-nfWhnf zeroₙ = zeroₙ
-nfWhnf (sucₙ n) = sucₙ
-nfWhnf starₙ = starₙ
-nfWhnf (ne x) = ne (nfNeutral x)
+private variable
+  Γ : Con Term _
 
 mutual
   fullRedNe : ∀ {t t′ A} → Γ ⊢ t ~ t′ ↑ A → ∃ λ u → NfNeutral u × Γ ⊢ t ≡ u ∷ A

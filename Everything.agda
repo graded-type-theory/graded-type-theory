@@ -119,6 +119,9 @@ import Definition.Typed.Consequences.SucCong
 import Definition.Typed.Consequences.Consistency
 import Definition.Typed.Consequences.RedSteps
 
+-- Normal forms
+import Definition.Untyped.Normal-form
+
 -- Algorithmic equality with lemmas that depend on typing consequences
 import Definition.Conversion
 import Definition.Conversion.Whnf

@@ -17,7 +17,6 @@ module Graded.Reduction
 open Modality 𝕄
 open Type-restrictions TR
 
-open import Definition.Conversion.FullReduction TR
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
@@ -30,6 +29,7 @@ open import Definition.Typed TR
 open import Definition.Typed.Consequences.DerivedRules TR
 open import Definition.Typed.Eta-long-normal-form TR
 open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped.Normal-form M
 
 open import Tools.Bool using (T)
 open import Tools.Empty

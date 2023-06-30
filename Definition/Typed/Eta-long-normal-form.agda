@@ -13,12 +13,7 @@ open Type-restrictions R
 
 open import Definition.Conversion R
 open import Definition.Conversion.Consequences.Completeness R
-open import Definition.Conversion.FullReduction R as FR
-  using (NfNeutral; Nf)
 open import Definition.Conversion.Soundness R
-
-open NfNeutral
-open Nf
 
 open import Definition.Typed R
 open import Definition.Typed.Consequences.DerivedRules R
@@ -33,6 +28,7 @@ open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
 
 open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped.Normal-form M
 
 open import Tools.Empty
 open import Tools.Fin
@@ -801,9 +797,9 @@ mutual
   normal-types-unique-[conv↑] :
     Γ ⊢nf A → Γ ⊢nf B → Γ ⊢ A [conv↑] B → A PE.≡ B
   normal-types-unique-[conv↑] ⊢A ⊢B ([↑] _ _ A⇒* B⇒* _ _ A≡B) =
-    case whnfRed* A⇒* (FR.nfWhnf (⊢nf→Nf ⊢A)) of λ {
+    case whnfRed* A⇒* (nfWhnf (⊢nf→Nf ⊢A)) of λ {
       PE.refl →
-    case whnfRed* B⇒* (FR.nfWhnf (⊢nf→Nf ⊢B)) of λ {
+    case whnfRed* B⇒* (nfWhnf (⊢nf→Nf ⊢B)) of λ {
       PE.refl →
     normal-types-unique-[conv↓] ⊢A ⊢B A≡B }}
 
@@ -852,9 +848,9 @@ mutual
         (_ , _ , _ , ⊢v , ⊢w , _) →
       case syntacticEqTerm (soundness~↓ t≡v) .proj₂ of λ {
         (⊢t′ , ⊢v′) →
-      case FR.nfNeutral (⊢ne∷→NfNeutral ⊢t) of λ {
+      case nfNeutral (⊢ne∷→NfNeutral ⊢t) of λ {
         t-ne →
-      case FR.nfNeutral (⊢ne∷→NfNeutral ⊢v) of λ {
+      case nfNeutral (⊢ne∷→NfNeutral ⊢v) of λ {
         v-ne →
       case ΠΣ-injectivity (neTypeEq t-ne (⊢ne∷→⊢∷ ⊢t) ⊢t′) of λ {
         (A≡ , _) →
@@ -896,9 +892,9 @@ mutual
         (_ , _ , _ , ⊢E , _ , ⊢B , ⊢u , ⊢w , _) →
       case syntacticEqTerm (soundness~↓ t≡u) .proj₂ of λ {
         (⊢t′ , ⊢u′) →
-      case FR.nfNeutral (⊢ne∷→NfNeutral ⊢t) of λ {
+      case nfNeutral (⊢ne∷→NfNeutral ⊢t) of λ {
         t-ne →
-      case FR.nfNeutral (⊢ne∷→NfNeutral ⊢u) of λ {
+      case nfNeutral (⊢ne∷→NfNeutral ⊢u) of λ {
         u-ne →
       case ΠΣ-injectivity (neTypeEq t-ne (⊢ne∷→⊢∷ ⊢t) ⊢t′) of λ {
         (C≡ , D≡ , _ , PE.refl , _) →
@@ -1073,10 +1069,10 @@ mutual
   normal-terms-unique-[conv↑]∷′
     ⊢u ⊢w t⇒*u v⇒*w
     ([↑]ₜ _ _ _ A⇒*B t⇒*t′ v⇒*v′ _ t′-whnf  v′-whnf u≡w) =
-    case whrDet*Term (t⇒*u , FR.nfWhnf (⊢nf∷→Nf ⊢u))
+    case whrDet*Term (t⇒*u , nfWhnf (⊢nf∷→Nf ⊢u))
            (t⇒*t′ , t′-whnf) of λ {
       PE.refl →
-    case whrDet*Term (v⇒*w , FR.nfWhnf (⊢nf∷→Nf ⊢w))
+    case whrDet*Term (v⇒*w , nfWhnf (⊢nf∷→Nf ⊢w))
            (v⇒*v′ , v′-whnf) of λ {
       PE.refl →
     case subset* A⇒*B of λ {
