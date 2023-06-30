@@ -43,7 +43,7 @@ open import Tools.Bool using (T)
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat using (Nat)
+open import Tools.Nat using (Nat; 1+)
 open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality as PE using (_≢_)
@@ -290,6 +290,85 @@ prodrecₚₘ-𝟙ᵐ-𝟙-∧≤+ {γ = γ} {r = r} {δ = δ} ∧≤+ ▸t ▸u
      (r + r) ·ᶜ γ +ᶜ δ  ∎)
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+
+-- The usage rule for prodrecₚ is in general not the same as the one
+-- for prodrec.
+--
+-- Note that the assumption 𝟙 ≰ 𝟙 + 𝟙 is satisfied by e.g. the
+-- linearity modality.
+-- See Graded.Modality.Instances.Linearity.Properties
+
+¬prodrecₘ : Prodrec-allowed 𝟙 𝟙 𝟘
+          → ¬ (𝟙 ≤ 𝟙 + 𝟙)
+          → ¬ (∀ {n} {γ : Conₘ n} {η : Conₘ (1+ n)} {δ m r p q t u A}
+               → γ ▸[ m ᵐ· p ] t
+               → δ ∙ ⌜ m ⌝ · r  · p ∙ ⌜ m ⌝ · r ▸[ m ] u
+               → η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
+               → Prodrec-allowed r p q
+               → r ·ᶜ γ +ᶜ δ ▸[ m ] prodrecₚ p t u)
+¬prodrecₘ ok 𝟙≰𝟚 prodrecₚₘ′ =
+  let t = prod Σₚ 𝟙 (var x0) (var x0)
+      u = prod Σᵣ 𝟙 (var x1) (var x0)
+      γ▸t′ = prodₚₘ {γ = ε ∙ 𝟙} {m = 𝟙ᵐ} {p = 𝟙} {δ = ε ∙ 𝟙}
+                      (PE.subst (λ x → _ ▸[ x ] var x0) (PE.sym ᵐ·-identityʳ) var)
+                      (var {x = x0})
+
+      γ▸t = PE.subst₂ (λ x y → x ▸[ y ] t)
+                      (PE.cong (ε ∙_) (PE.trans (PE.cong (_∧ 𝟙) (·-identityˡ 𝟙))
+                                                (∧-idem 𝟙)))
+                      (PE.sym ᵐ·-identityʳ) γ▸t′
+      δ▸u′ : _ ▸[ 𝟙ᵐ ] u
+      δ▸u′ = prodᵣₘ var var
+      δ▸u = let open Tools.Reasoning.PropositionalEquality
+            in  PE.subst₃ (λ x y z → ε ∙ x ∙ y ∙ z ▸[ 𝟙ᵐ ] u)
+                      (PE.trans (+-identityʳ _) (·-identityˡ 𝟘))
+                      (𝟙 · ⌜ 𝟙ᵐ ᵐ· 𝟙 ⌝ + 𝟘  ≡⟨ +-identityʳ _ ⟩
+                       𝟙 · ⌜ 𝟙ᵐ ᵐ· 𝟙 ⌝      ≡⟨ ·-identityˡ _ ⟩
+                       ⌜ 𝟙ᵐ ᵐ· 𝟙 ⌝          ≡⟨ PE.cong ⌜_⌝ (ᵐ·-identityʳ {m = 𝟙ᵐ}) ⟩
+                       ⌜ 𝟙ᵐ ⌝               ≡˘⟨ ·-identityˡ _ ⟩
+                       ⌜ 𝟙ᵐ ⌝ · 𝟙           ≡˘⟨ ·-identityˡ _ ⟩
+                       ⌜ 𝟙ᵐ ⌝ · 𝟙 · 𝟙       ∎)
+                      (𝟙 · 𝟘 + ⌜ 𝟙ᵐ ⌝  ≡⟨ PE.cong (_+ _) (·-identityˡ 𝟘) ⟩
+                       𝟘 + ⌜ 𝟙ᵐ ⌝      ≡⟨ +-identityˡ _ ⟩
+                       ⌜ 𝟙ᵐ ⌝          ≡˘⟨ ·-identityʳ _ ⟩
+                       ⌜ 𝟙ᵐ ⌝ · 𝟙      ∎)
+                      δ▸u′
+      η▸A′ = ΠΣₘ {γ = 𝟘ᶜ} {p = 𝟘} {δ = 𝟘ᶜ} {b = BMΣ Σᵣ}
+                 ℕₘ (sub ℕₘ (≤ᶜ-refl ∙ ≤-reflexive (·-zeroʳ _)))
+      η▸A = sub η▸A′ (≤ᶜ-reflexive (≈ᶜ-sym (+ᶜ-identityˡ 𝟘ᶜ) ∙
+                                   PE.trans (·-zeroʳ _) (PE.sym (+-identityˡ 𝟘))))
+  in  case prodrecₚₘ′ {η = 𝟘ᶜ} γ▸t δ▸u η▸A ok of λ ▸pr′ →
+      case inv-usage-prodᵣ ▸pr′ of λ {
+        (invUsageProdᵣ {δ = ε ∙ a} {ε ∙ b} a▸fstt b▸sndt 𝟙≤a+b) → case inv-usage-fst a▸fstt of λ {
+        (invUsageFst {δ = ε ∙ c} m′ eq c▸t a≤c _) → case inv-usage-snd b▸sndt of λ {
+        (invUsageSnd {δ = ε ∙ d} d▸t b≤d) → case inv-usage-prodₚ c▸t of λ {
+        (invUsageProdₚ {δ = ε ∙ e} {η = ε ∙ f} e▸x₀ f▸x₀ c≤e∧f) → case inv-usage-prodₚ d▸t of λ {
+        (invUsageProdₚ {δ = ε ∙ g} {η = ε ∙ h} g▸x₀ h▸x₀ d≤g∧h) →
+          let i = ⌜ (𝟙ᵐ ᵐ· 𝟙) ᵐ· 𝟙 ⌝
+              j = ⌜ 𝟙ᵐ ᵐ· 𝟙 ⌝
+              open Tools.Reasoning.PartialOrder ≤-poset
+          in  case begin
+                𝟙 ≡˘⟨ ·-identityˡ 𝟙 ⟩
+                𝟙 · 𝟙 ≡˘⟨ +-identityʳ _ ⟩
+                𝟙 · 𝟙 + 𝟘 ≤⟨ ⦅ 𝟙≤a+b ⦆ ⟩
+                𝟙 · a + b ≡⟨ PE.cong (_+ b) (·-identityˡ a) ⟩
+                a + b ≤⟨ +-monotone ⦅ a≤c ⦆ ⦅ b≤d ⦆ ⟩
+                c + d ≤⟨ +-monotone ⦅ c≤e∧f ⦆ ⦅ d≤g∧h ⦆ ⟩
+                (𝟙 · e ∧ f) + (𝟙 · g ∧ h) ≡⟨ +-cong (∧-congʳ (·-identityˡ e)) (∧-congʳ (·-identityˡ g)) ⟩
+                (e ∧ f) + (g ∧ h) ≤⟨ +-monotone (∧-monotone ⦅ inv-usage-var e▸x₀ ⦆ ⦅ inv-usage-var f▸x₀ ⦆)
+                                                (∧-monotone ⦅ inv-usage-var g▸x₀ ⦆ ⦅ inv-usage-var h▸x₀ ⦆)
+                                   ⟩
+                (i ∧ j) + (j ∧ 𝟙) ≡⟨ +-congʳ (∧-congʳ (PE.cong ⌜_⌝ ⌞⌟·ᵐ-idem)) ⟩
+                (j ∧ j) + (j ∧ 𝟙) ≡⟨ +-cong (∧-cong (PE.cong ⌜_⌝ ⌞𝟙⌟) (PE.cong ⌜_⌝ ⌞𝟙⌟))
+                                            (∧-congʳ (PE.cong ⌜_⌝ ⌞𝟙⌟))
+                                   ⟩
+                (𝟙 ∧ 𝟙) + (𝟙 ∧ 𝟙) ≡⟨ +-cong (∧-idem 𝟙) (∧-idem 𝟙) ⟩
+                𝟙 + 𝟙 ∎
+                of 𝟙≰𝟚
+            }}}}}
+  where
+  ⦅_⦆ : {p q : M} → ε ∙ p ≤ᶜ ε ∙ q → p ≤ q
+  ⦅_⦆ = headₘ-monotone
 
 ------------------------------------------------------------------------
 -- An investigation of different potential implementations of a first

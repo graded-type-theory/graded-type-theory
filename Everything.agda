@@ -206,6 +206,10 @@ import Graded.Substitution.Decidable
 -- Graded.FullReduction
 import Graded.FullReduction.Assumptions
 
+-- An investigation of to what degree weak Σ-types can emulate strong
+-- Σ-types, and vice versa.
+import Graded.Derived.Sigma
+
 -- Modality pseudo-instances
 import Graded.Modality.Instances.LowerBounded
 import Graded.Modality.Instances.BoundedStar
@@ -220,6 +224,7 @@ import Graded.Modality.Instances.Erasure.Properties
 import Graded.Modality.Instances.Unit
 import Graded.Modality.Instances.Affine
 import Graded.Modality.Instances.Linearity
+import Graded.Modality.Instances.Linearity.Properties
 import Graded.Modality.Instances.Linear-or-affine
 
 -- The type Erased.
@@ -248,9 +253,6 @@ import Graded.Context.QuantityTranslation
 import Graded.Mode.QuantityTranslation
 import Graded.Usage.QuantityTranslation
 
--- An investigation of to what degree weak Σ-types can emulate strong
--- Σ-types, and vice versa.
-import Graded.Derived.Sigma
 
 ------------------------------------------------------------------------
 -- A case study: erasure

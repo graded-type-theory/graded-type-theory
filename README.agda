@@ -8,6 +8,7 @@ module README where
 import Graded.Modality
 import Graded.Context
 import Graded.Context.Properties
+import Graded.Derived.Sigma
 import Graded.FullReduction
 import Graded.Modality.Instances.Unit
 import Graded.Modality.Instances.Erasure.Modality
@@ -297,6 +298,10 @@ Con = Definition.Untyped.Con
 prodrec-for-Σₚ              = Definition.Untyped.Sigma.prodrecₚ
 prodrec-for-Σₚ-type-correct =
   Definition.Typed.Consequences.DerivedRules.Sigma.prodrecₚⱼ
+
+-- This definition will not have the same resource consumption
+-- as prodrec in general.
+prodrec-for-Σₚ-usage = Graded.Derived.Sigma.¬prodrecₘ
 
 -- Reduction relations
 
