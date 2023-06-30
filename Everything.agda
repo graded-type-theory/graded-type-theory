@@ -119,9 +119,6 @@ import Definition.Typed.Consequences.SucCong
 import Definition.Typed.Consequences.Consistency
 import Definition.Typed.Consequences.RedSteps
 
--- Normal forms
-import Definition.Untyped.Normal-form
-
 -- Algorithmic equality with lemmas that depend on typing consequences
 import Definition.Conversion
 import Definition.Conversion.Whnf
@@ -136,13 +133,14 @@ import Definition.Conversion.Lift
 import Definition.Conversion.Universe
 import Definition.Conversion.Decidable
 import Definition.Conversion.EqRelInstance
-import Definition.Conversion.FullReduction
 
--- Consequences of the logical relation for algorithmic equality
-import Definition.Conversion.Consequences.Completeness
-
--- Eta-long normal forms
+-- Normal forms (two kinds)
+import Definition.Untyped.Normal-form
 import Definition.Typed.Eta-long-normal-form
+
+-- More consequences of the logical relation
+import Definition.Conversion.Consequences.Completeness
+import Definition.Conversion.FullReduction
 
 -- Bi-directional typechecking
 import Definition.Typechecking
