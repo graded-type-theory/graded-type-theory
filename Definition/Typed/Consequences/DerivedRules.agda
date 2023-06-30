@@ -16,7 +16,7 @@ open import Tools.Function
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 
-import Definition.Conversion.Stability R as S
+import Definition.Typed.Consequences.Stability R as S
 open import Definition.Typed R
 open import Definition.Typed.Consequences.DerivedRules.Sigma R public
 open import Definition.Typed.Consequences.Injectivity R

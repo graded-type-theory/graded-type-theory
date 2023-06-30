@@ -23,6 +23,7 @@ open import Definition.Typed.Consequences.Injectivity R
 import Definition.Typed.Consequences.Inequality R as WF
 open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Substitution R
+open import Definition.Typed.Consequences.Stability R
 open import Definition.Typed.Consequences.NeTypeEq R
 open import Definition.Typed.Consequences.SucCong R
 

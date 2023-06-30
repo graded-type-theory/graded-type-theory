@@ -27,6 +27,7 @@ open import Definition.Conversion.Weakening R
 open import Definition.Typed.EqualityRelation R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Consequences.Substitution R
+open import Definition.Typed.Consequences.Stability R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Equality R
 open import Definition.Typed.Consequences.Reduction R

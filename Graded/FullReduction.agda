@@ -40,12 +40,12 @@ open import Definition.Typed.Consequences.InverseUniv TR
 open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Consequences.NeTypeEq TR
 open import Definition.Typed.Consequences.Substitution TR
+open import Definition.Typed.Consequences.Stability TR
 open import Definition.Typed.Consequences.Syntactic TR
 
 open import Definition.Conversion TR
 open import Definition.Conversion.Consequences.Completeness TR
 open import Definition.Conversion.Soundness TR
-open import Definition.Conversion.Stability TR
 open import Definition.Conversion.Whnf TR
 
 open import Graded.Context 𝕄

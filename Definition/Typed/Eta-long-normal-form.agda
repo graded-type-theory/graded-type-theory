@@ -16,7 +16,6 @@ open import Definition.Conversion.Consequences.Completeness R
 open import Definition.Conversion.FullReduction R as FR
   using (NfNeutral; Nf)
 open import Definition.Conversion.Soundness R
-open import Definition.Conversion.Stability R
 
 open NfNeutral
 open Nf
@@ -29,6 +28,7 @@ open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.NeTypeEq R
 open import Definition.Typed.Consequences.Reduction R
 open import Definition.Typed.Consequences.Substitution R
+open import Definition.Typed.Consequences.Stability R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
 
