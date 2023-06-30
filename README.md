@@ -17,7 +17,7 @@ The original work consisted of the following contributions:
 
 - Unit and Σ types added by Wojciech Nawrocki (@Vtec234, 2021).
 
-- Refactoring to use well-scoped syntax by Oskar Eriksson (@fhklfy, 2021).
+- Refactoring to use well-scoped syntax by Oskar Eriksson (@oskeri, 2021).
 
 This work lifts the original formalization to graded modal type theory.
 It is the basis of the ICFP 2023 submission
