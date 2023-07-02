@@ -54,15 +54,15 @@ _•ₜ_ {ρ = lift ρ} {ρ′ = lift ρ′} {Δ′ = Δ′ ∙ A} (lift η) (li
 wkIndex : ∀ {n} → ρ ∷ Δ ⊆ Γ →
         let ρA = U.wk ρ A
             ρn = wkVar ρ n
-        in  ⊢ Δ → n ∷ A ∈ Γ → ρn ∷ ρA ∈ Δ
-wkIndex id ⊢Δ i = PE.subst (λ x → _ ∷ x ∈ _) (PE.sym (wk-id _)) i
-wkIndex (step ρ) (⊢Δ ∙ A) i = PE.subst (λ x → _ ∷ x ∈ _)
-                                       (wk1-wk _ _)
-                                       (there (wkIndex ρ ⊢Δ i))
-wkIndex (lift ρ) (⊢Δ ∙ A) (there i) = PE.subst (λ x → _ ∷ x ∈ _)
-                                               (wk1-wk≡lift-wk1 _ _)
-                                               (there (wkIndex ρ ⊢Δ i))
-wkIndex (lift ρ) ⊢Δ here =
+        in  n ∷ A ∈ Γ → ρn ∷ ρA ∈ Δ
+wkIndex id i = PE.subst (λ x → _ ∷ x ∈ _) (PE.sym (wk-id _)) i
+wkIndex (step ρ) i = PE.subst (λ x → _ ∷ x ∈ _)
+                              (wk1-wk _ _)
+                              (there (wkIndex ρ i))
+wkIndex (lift ρ) (there i) = PE.subst (λ x → _ ∷ x ∈ _)
+                                      (wk1-wk≡lift-wk1 _ _)
+                                      (there (wkIndex ρ i))
+wkIndex (lift ρ) here =
   let G = _
       n = _
   in  PE.subst (λ x → n ∷ x ∈ G)
@@ -93,7 +93,7 @@ mutual
     ΠΣⱼ ρF (wkTerm (lift ρ) (⊢Δ ∙ univ ρF) G) ok
     where
     ρF = wkTerm ρ ⊢Δ F
-  wkTerm ρ ⊢Δ (var ⊢Γ x) = var ⊢Δ (wkIndex ρ ⊢Δ x)
+  wkTerm ρ ⊢Δ (var ⊢Γ x) = var ⊢Δ (wkIndex ρ x)
   wkTerm ρ ⊢Δ (lamⱼ F t ok) =
     lamⱼ ρF (wkTerm (lift ρ) (⊢Δ ∙ ρF) t) ok
     where
