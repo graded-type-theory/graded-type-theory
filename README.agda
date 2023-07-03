@@ -5,64 +5,63 @@
 
 module README where
 
-import Graded.Modality
+import Definition.LogicalRelation
+import Definition.LogicalRelation.Fundamental
+import Definition.LogicalRelation.Fundamental.Reducibility
+import Definition.LogicalRelation.Substitution
+import Definition.Typed
+import Definition.Typed.Consequences.DerivedRules.Sigma
+import Definition.Typed.Consequences.Inversion
+import Definition.Typed.Consequences.Reduction
+import Definition.Typed.Consequences.Substitution
+import Definition.Typed.Consequences.Syntactic
+import Definition.Typed.Decidable
+import Definition.Typed.Decidable.Equality
+import Definition.Typed.Eta-long-normal-form
+import Definition.Typed.Properties
+import Definition.Typed.Restrictions
+import Definition.Untyped
+import Definition.Untyped.Sigma
+
 import Graded.Context
 import Graded.Context.Properties
 import Graded.Derived.Sigma
+import Graded.Erasure.Consequences.Soundness
+import Graded.Erasure.Extraction
+import Graded.Erasure.Extraction.Properties
+import Graded.Erasure.LogicalRelation
+import Graded.Erasure.LogicalRelation.Fundamental
+import Graded.Erasure.LogicalRelation.Fundamental.Counterexample
+import Graded.Erasure.LogicalRelation.Reduction
+import Graded.Erasure.LogicalRelation.Subsumption
+import Graded.Erasure.SucRed
+import Graded.Erasure.Target
 import Graded.FullReduction
-import Graded.Modality.Instances.Unit
+import Graded.Modality
+import Graded.Modality.Instances.Affine
+import Graded.Modality.Instances.BoundedStar
 import Graded.Modality.Instances.Erasure.Modality
 import Graded.Modality.Instances.Erasure.Properties
-import Graded.Modality.Instances.Affine
-import Graded.Modality.Instances.Linearity
-import Graded.Modality.Instances.Zero-one-many
+import Graded.Modality.Instances.Information-flow
 import Graded.Modality.Instances.Linear-or-affine
+import Graded.Modality.Instances.Linearity
 import Graded.Modality.Instances.LowerBounded
 import Graded.Modality.Instances.Recursive
-import Graded.Modality.Instances.BoundedStar
-import Graded.Modality.Instances.Information-flow
+import Graded.Modality.Instances.Unit
+import Graded.Modality.Instances.Zero-one-many
 import Graded.Modality.Properties.Division
+import Graded.Mode
+import Graded.Mode.Restrictions
+import Graded.Reduction
+import Graded.Restrictions
+import Graded.Substitution
+import Graded.Substitution.Properties
 import Graded.Usage
 import Graded.Usage.Decidable
 import Graded.Usage.Inversion
 import Graded.Usage.Properties
 import Graded.Usage.Properties.Has-well-behaved-zero
 import Graded.Usage.Restrictions
-import Graded.Reduction
-import Graded.Restrictions
-import Graded.Substitution
-import Graded.Substitution.Properties
-
-import Definition.Untyped
-import Definition.Untyped.Sigma
-import Definition.Typed
-import Definition.Typed.Consequences.Inversion
-import Definition.Typed.Consequences.Substitution
-import Definition.Typed.Consequences.Syntactic
-import Definition.Typed.Consequences.Reduction
-import Definition.Typed.Consequences.DerivedRules.Sigma
-import Definition.Typed.Decidable
-import Definition.Typed.Decidable.Equality
-import Definition.Typed.Eta-long-normal-form
-import Definition.Typed.Properties
-import Definition.Typed.Restrictions
-import Definition.LogicalRelation
-import Definition.LogicalRelation.Fundamental
-import Definition.LogicalRelation.Fundamental.Reducibility
-import Definition.LogicalRelation.Substitution
-import Graded.Mode
-import Graded.Mode.Restrictions
-
-import Graded.Erasure.Target
-import Graded.Erasure.Extraction
-import Graded.Erasure.Extraction.Properties
-import Graded.Erasure.LogicalRelation
-import Graded.Erasure.LogicalRelation.Reduction
-import Graded.Erasure.LogicalRelation.Subsumption
-import Graded.Erasure.LogicalRelation.Fundamental
-import Graded.Erasure.LogicalRelation.Fundamental.Counterexample
-import Graded.Erasure.SucRed
-import Graded.Erasure.Consequences.Soundness
 
 -- The code does not follow the paper exactly. Notably, the
 -- formalisation contains parameters that make it possible to control
