@@ -23,20 +23,18 @@ private
 -- and an undefined value.
 
 data Term : Nat → Set where
-  var       : (x : Fin n) → Term n
-  lam       : (t : Term (1+ n)) → Term n
-  _∘_       : (t u : Term n) → Term n
-  prod      : (t u : Term n) → Term n
-  fst       : (t : Term n) → Term n
-  snd       : (t : Term n) → Term n
-  prodrec   : (t : Term n) (u : Term (1+ (1+ n))) → Term n
-  zero      : Term n
-  suc       : (t : Term n) → Term n
-  natrec    : (z : Term m) (s : Term (1+ (1+ m))) (n : Term m) → Term m
-  star      : Term n
-  undefined : Term n
-
-pattern ↯ = undefined
+  var     : (x : Fin n) → Term n
+  lam     : (t : Term (1+ n)) → Term n
+  _∘_     : (t u : Term n) → Term n
+  prod    : (t u : Term n) → Term n
+  fst     : (t : Term n) → Term n
+  snd     : (t : Term n) → Term n
+  prodrec : (t : Term n) (u : Term (1+ (1+ n))) → Term n
+  zero    : Term n
+  suc     : (t : Term n) → Term n
+  natrec  : (z : Term m) (s : Term (1+ (1+ m))) (n : Term m) → Term m
+  star    : Term n
+  ↯       : Term n
 
 private
   variable
