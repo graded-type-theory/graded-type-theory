@@ -24,7 +24,7 @@ open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Substitution R
 open import Definition.Typed.Consequences.Stability R
-open import Definition.Typed.Consequences.SucCong R
+open import Definition.Typed.Consequences.DerivedRules.Nat R
 
 open import Tools.Function
 open import Tools.Nat

@@ -1,10 +1,10 @@
 ------------------------------------------------------------------------
--- Congruence of the type of the successor case in natrec.
+-- Derived rules related to the natural number type
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
 
-module Definition.Typed.Consequences.SucCong
+module Definition.Typed.Consequences.DerivedRules.Nat
   {a} {M : Set a}
   (R : Type-restrictions M)
   where

@@ -32,7 +32,7 @@ open import Definition.Typed.Consequences.Reduction R
 open import Definition.Typed.Consequences.Equality R
 open import Definition.Typed.Consequences.Inequality R as IE
 open import Definition.Typed.Consequences.NeTypeEq R
-open import Definition.Typed.Consequences.SucCong R
+open import Definition.Typed.Consequences.DerivedRules.Nat R
 
 open import Tools.Fin
 open import Tools.Function

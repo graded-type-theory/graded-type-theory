@@ -111,11 +111,11 @@ import Definition.Typed.Consequences.Inversion
 import Definition.Typed.Consequences.Reduction
 import Definition.Typed.Consequences.Stability
 import Definition.Untyped.Sigma
+import Definition.Typed.Consequences.DerivedRules.Nat
 import Definition.Typed.Consequences.DerivedRules.Sigma
 import Definition.Typed.Consequences.DerivedRules
 import Definition.Typed.Consequences.InverseUniv
 import Definition.Typed.Consequences.NeTypeEq
-import Definition.Typed.Consequences.SucCong
 import Definition.Typed.Consequences.Consistency
 import Definition.Typed.Consequences.RedSteps
 

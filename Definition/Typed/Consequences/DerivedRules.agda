@@ -19,6 +19,7 @@ import Tools.PropositionalEquality as PE
 import Definition.Typed.Consequences.Stability R as S
 open import Definition.Typed R
 open import Definition.Typed.Consequences.DerivedRules.Sigma R public
+open import Definition.Typed.Consequences.DerivedRules.Nat R public
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Syntactic R
