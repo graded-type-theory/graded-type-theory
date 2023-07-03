@@ -10,6 +10,8 @@ module Graded.Modality.Properties
 open Modality 𝕄
 
 open import Graded.Modality.Properties.Addition semiring-with-meet public
+open import Graded.Modality.Properties.Division semiring-with-meet
+  public
 open import Graded.Modality.Properties.Equivalence semiring-with-meet
   public
 open import Graded.Modality.Properties.Meet semiring-with-meet public
