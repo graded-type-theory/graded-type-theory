@@ -6,7 +6,9 @@ open import Tools.PropositionalEquality
 open import Graded.Modality
 open import Graded.Mode.Restrictions
 
--- A ringoid with the following recursively defined nr operator is a modality instance.
+-- A "semiring with meet" with the following recursively defined
+-- operator nr can be turned into a modality:
+--
 -- nr 0 p q r = 𝟘
 -- nr (1+ n) p q r = p ∧ (q + r nr n p q r)
 -- ∃ n → nr (1+ n) p q r ≡ nr n p q r
