@@ -20,6 +20,8 @@ import Graded.Modality.Instances.Linear-or-affine
 import Graded.Modality.Instances.LowerBounded
 import Graded.Modality.Instances.Recursive
 import Graded.Modality.Instances.BoundedStar
+import Graded.Modality.Instances.Information-flow
+import Graded.Modality.Properties.Division
 import Graded.Usage
 import Graded.Usage.Decidable
 import Graded.Usage.Inversion
@@ -576,6 +578,28 @@ counterexample₂ =
 -- η-equality.
 
 η-long-normal-forms = Graded.FullReduction.fullRedTerm
+
+------------------------------------------------------------------------
+-- 7.4: Information flow interpretation
+
+-- The definition of division is total for modality semirings M for
+-- which 𝟘 is the greatest value if, for every decidable predicate on
+-- M that holds for 𝟘 and is closed under meet, there is a least value
+-- for which this predicate holds.
+
+total = Graded.Modality.Properties.Division./≡-total
+
+-- The total order L ≤ M ≤ H.
+
+L≤M≤H = Graded.Modality.Instances.Information-flow.L≤M≤H
+
+-- Division laws.
+
+/𝟙≡  = Graded.Modality.Properties.Division./𝟙≡
+/≡𝟙  = Graded.Modality.Properties.Division./≡𝟙
+𝟘/≡𝟘 = Graded.Modality.Properties.Division.𝟘/≡𝟘
+/𝟘≡𝟙 = Graded.Modality.Properties.Division./𝟘≡𝟙
+𝟙/≡𝟙 = Graded.Modality.Properties.Division.𝟙/≡𝟙
 
 ------------------------------------------------------------------------
 -- 8: Extension: modes and graded Σ-types
