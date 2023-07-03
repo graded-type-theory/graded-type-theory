@@ -100,7 +100,7 @@ import Definition.LogicalRelation.Substitution.Introductions
 import Definition.LogicalRelation.Fundamental
 import Definition.LogicalRelation.Fundamental.Reducibility
 
--- Consequences of the logical relation for typing and conversion
+-- Consequences of the logical relation for typing
 import Definition.Typed.Consequences.Canonicity
 import Definition.Typed.Consequences.Injectivity
 import Definition.Typed.Consequences.Syntactic
