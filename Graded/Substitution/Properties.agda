@@ -156,6 +156,17 @@ private
   𝟘ᶜ                  ∎
   where open Tools.Reasoning.Equivalence Conₘ-setoid
 
+-- The substitution family εₘ is a kind of left zero for _*>_.
+
+*>-zeroˡ : (γ : Conₘ n) → εₘ *> γ ≈ᶜ ε
+*>-zeroˡ ε       = ε
+*>-zeroˡ (γ ∙ p) = begin
+  ε +ᶜ εₘ *> γ  ≈⟨ +ᶜ-congˡ (*>-zeroˡ γ) ⟩
+  ε +ᶜ ε        ≈⟨ +ᶜ-identityˡ _ ⟩
+  ε             ∎
+  where
+  open Tools.Reasoning.Equivalence Conₘ-setoid
+
 -- Modality substitution application is a monotone function.
 -- If γ ≤ᶜ δ, then Ψ *> γ ≤ᶜ Ψ *> δ.
 -- Proof by induction on Ψ using monotonicity of addition and multiplication.

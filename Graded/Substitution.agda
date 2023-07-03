@@ -41,6 +41,12 @@ private
   variable
     Ψ Φ : Substₘ m n
 
+-- Substitutions that contain empty usage contexts.
+
+εₘ : Substₘ 0 n
+εₘ {n = 0}    = []
+εₘ {n = 1+ n} = εₘ ⊙ ε
+
 -- Application of substitution matrix from the left
 
 _*>_ : (Ψ : Substₘ m n) → (γ : Conₘ n) → Conₘ m
