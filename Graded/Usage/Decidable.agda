@@ -324,7 +324,7 @@ infix 10 ⌈⌉▸[_]?_
 
 infix 10 ⌈⌉▸[_]?′_
 
--- It is decidable wehther a term is well-resourced under the inferred
+-- It is decidable whether a term is well-resourced under the inferred
 -- context.
 
 ⌈⌉▸[_]?′_ : ∀ m (t : Term n) → Dec (⌈ t ⌉ m ▸[ m ] t)
