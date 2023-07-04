@@ -212,6 +212,13 @@ var-usage-lookup (there x) = var-usage-lookup x
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
+-- If a term does not use any resources, then it is well-resourced
+-- with respect to any mode.
+
+𝟘ᶜ▸[𝟙ᵐ]→ : 𝟘ᶜ ▸[ 𝟙ᵐ ] t → 𝟘ᶜ ▸[ m ] t
+𝟘ᶜ▸[𝟙ᵐ]→ {m = 𝟘ᵐ} = ▸-𝟘
+𝟘ᶜ▸[𝟙ᵐ]→ {m = 𝟙ᵐ} = idᶠ
+
 -- A form of monotonicity for _▸[_]_.
 
 ▸-≤ : p ≤ q → ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⌟ ] t → ⌜ ⌞ q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ q ⌟ ] t
