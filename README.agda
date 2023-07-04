@@ -419,6 +419,11 @@ _⇒_  = Graded.Erasure.Target._⇒_
 _⇒*_ = Graded.Erasure.Target._⇒*_
 
 -- Definition 6.3: The extraction function.
+--
+-- For Σ-types the definition is different from the paper to account
+-- for the possibility to erase the first component added in section 8.
+-- For the case treated in this section, we will always have have
+-- p ≡ 𝟙 for Σ-types.
 
 _• = Graded.Erasure.Extraction.erase
 
