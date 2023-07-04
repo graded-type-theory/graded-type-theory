@@ -9,27 +9,32 @@ module Definition.Typed.Consequences.Inequality
   (R : Type-restrictions M)
   where
 
-open import Definition.Untyped M
-  hiding (U≢ne; ℕ≢ne; B≢ne; ΠΣ≢ne; U≢B; ℕ≢B)
+open import Definition.Untyped M as U
+  hiding (U≢ne; ℕ≢ne; B≢ne; ΠΣ≢ne; U≢B; ℕ≢B; zero≢ne; suc≢ne; _∷_)
 open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R
+open import Definition.Typed.Properties R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
 open import Definition.Typed.Consequences.Syntactic R
 
+open import Tools.Function
 open import Tools.Nat
+open import Tools.Nullary
 open import Tools.Product
 open import Tools.Empty
+import Tools.PropositionalEquality as PE
 
 private
   variable
     n : Nat
     Γ : Con Term n
-    A B C F G K : Term n
+    A B C F G K t u v : Term n
     p p′ q q′ : M
     b : BinderMode
+    l : TypeLevel
 
 A≢B : ∀ {A B Γ} (_⊩′⟨_⟩A_ _⊩′⟨_⟩B_ : Con Term n → TypeLevel → Term n → Set a)
       (A-intr : ∀ {l} → Γ ⊩′⟨ l ⟩A A → Γ ⊩⟨ l ⟩ A)
@@ -446,3 +451,95 @@ No-η-equality→≢Unit = λ where
   Emptyₙ     Empty≡Unit → Empty≢Unitⱼ Empty≡Unit
   ℕₙ         ℕ≡Unit     → ℕ≢Unitⱼ ℕ≡Unit
   (neₙ A-ne) A≡Unit     → Unit≢neⱼ A-ne (sym A≡Unit)
+
+-- If A is a type without η-equality, then a non-neutral WHNF is not
+-- definitionally equal at type A to any neutral term.
+
+whnf≢ne :
+  No-η-equality A → Whnf t → ¬ Neutral t → Neutral u →
+  ¬ Γ ⊢ t ≡ u ∷ A
+whnf≢ne {A = A} {t = t} {u = u} ¬-A-η t-whnf ¬-t-ne u-ne =
+  uncurry lemma ∘→ reducibleEqTerm
+  where
+  A⇒*no-η : Γ ⊢ A :⇒*: B → No-η-equality B
+  A⇒*no-η [ _ , _ , A⇒*B ] =
+    case whnfRed* A⇒*B (No-η-equality→Whnf ¬-A-η) of λ {
+      PE.refl →
+    ¬-A-η }
+
+  ¬t⇒*ne : Γ ⊢ t :⇒*: v ∷ B → ¬ Neutral v
+  ¬t⇒*ne [ _ , _ , t⇒*v ] v-ne =
+    case whnfRed*Term t⇒*v t-whnf of λ {
+      PE.refl →
+    ¬-t-ne v-ne }
+
+  u⇒*ne : Γ ⊢ u :⇒*: v ∷ B → Neutral v
+  u⇒*ne [ _ , _ , u⇒*v ] =
+    case whnfRed*Term u⇒*v (ne u-ne) of λ {
+      PE.refl →
+    u-ne }
+
+  lemma : ([A] : Γ ⊩⟨ l ⟩ A) → ¬ Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
+  lemma = λ where
+    (ℕᵣ _) (ℕₜ₌ _ _ _ u⇒*zero _ zeroᵣ) →
+      U.zero≢ne (u⇒*ne u⇒*zero) PE.refl
+    (ℕᵣ _) (ℕₜ₌ _ _ _ u⇒*suc _ (sucᵣ _)) →
+      U.suc≢ne (u⇒*ne u⇒*suc) PE.refl
+    (ℕᵣ _) (ℕₜ₌ _ _ t⇒*v _ _ (ne (neNfₜ₌ v-ne _ _))) →
+      ¬t⇒*ne t⇒*v v-ne
+    (Emptyᵣ _) (Emptyₜ₌ _ _ t⇒*v _ _ (ne (neNfₜ₌ v-ne _ _))) →
+      ¬t⇒*ne t⇒*v v-ne
+    (Unitᵣ (Unitₜ A⇒*Unit _)) _ →
+      case A⇒*no-η A⇒*Unit of λ where
+        (neₙ ())
+    (ne _) (neₜ₌ _ _ t⇒*v _ (neNfₜ₌ v-ne _ _)) →
+      ¬t⇒*ne t⇒*v v-ne
+    (Bᵣ BΠ! (Bᵣ _ _ A⇒*Π _ _ _ _ _ _ _)) _ →
+      case A⇒*no-η A⇒*Π of λ where
+        (neₙ ())
+    (Bᵣ BΣₚ (Bᵣ _ _ A⇒*Σ _ _ _ _ _ _ _)) _ →
+      case A⇒*no-η A⇒*Σ of λ where
+        (neₙ ())
+    (Bᵣ BΣᵣ _) (_ , _ , _ , u⇒*w , _ , _ , _ , _ , prodₙ , _) →
+      U.prod≢ne (u⇒*ne u⇒*w) PE.refl
+    (Bᵣ BΣᵣ _) (_ , _ , t⇒*v , _ , _ , _ , _ , ne v-ne , _) →
+      ¬t⇒*ne t⇒*v v-ne
+    (Bᵣ BΣᵣ _) (_ , _ , _ , _ , _ , _ , _ , prodₙ , ne _  , ())
+    (Uᵣ _) (Uₜ₌ _ _ t⇒*A u⇒*B A-type B-type A≡B _ _ _) →
+      case B-type of λ where
+        ΠΣₙ       → U.ΠΣ≢ne _  (u⇒*ne u⇒*B) PE.refl
+        ℕₙ        → U.ℕ≢ne     (u⇒*ne u⇒*B) PE.refl
+        Emptyₙ    → U.Empty≢ne (u⇒*ne u⇒*B) PE.refl
+        Unitₙ     → U.Unit≢ne  (u⇒*ne u⇒*B) PE.refl
+        (ne B-ne) → case A-type of λ where
+          (ne A-ne) → ⊥-elim (¬t⇒*ne t⇒*A A-ne)
+          ΠΣₙ       → ΠΣ≢ne     B-ne (univ A≡B)
+          ℕₙ        → ℕ≢ne      B-ne (univ A≡B)
+          Emptyₙ    → Empty≢neⱼ B-ne (univ A≡B)
+          Unitₙ     → Unit≢neⱼ  B-ne (univ A≡B)
+    (emb 0<1 [A]) [t≡u] →
+      lemma [A] [t≡u]
+
+-- The term zero is not definitionally equal (at type ℕ) to any
+-- neutral term.
+
+zero≢ne :
+  Neutral t →
+  ¬ Γ ⊢ zero ≡ t ∷ ℕ
+zero≢ne = whnf≢ne ℕₙ zeroₙ (λ ())
+
+-- The term suc t is not definitionally equal (at type ℕ) to any
+-- neutral term.
+
+suc≢ne :
+  Neutral u →
+  ¬ Γ ⊢ suc t ≡ u ∷ ℕ
+suc≢ne = whnf≢ne ℕₙ sucₙ (λ ())
+
+-- The term prodᵣ p t u is not definitionally equal (at type
+-- Σᵣ p , q ▷ A ▹ B) to any neutral term.
+
+prodᵣ≢ne :
+  Neutral v →
+  ¬ Γ ⊢ prodᵣ p t u ≡ v ∷ Σᵣ p , q ▷ A ▹ B
+prodᵣ≢ne = whnf≢ne Σᵣₙ prodₙ (λ ())
