@@ -252,7 +252,7 @@
 
 <a id="8947" class="Comment">-- Application of a weakening to a term.</a>
 
-<a id="weakening"></a><a id="8989" href="README.html#8989" class="Function">weakening</a> <a id="8999" class="Symbol">=</a> <a id="9001" href="Definition.Untyped.html#9980" class="Function">Definition.Untyped.wk</a>
+<a id="weakening"></a><a id="8989" href="README.html#8989" class="Function">weakening</a> <a id="8999" class="Symbol">=</a> <a id="9001" href="Definition.Untyped.html#10697" class="Function">Definition.Untyped.wk</a>
 
 <a id="9024" class="Comment">-- Substitutions.</a>
 <a id="9042" class="Comment">--</a>
@@ -260,20 +260,20 @@
 <a id="9116" class="Comment">-- indexed by two natural numbers, the sizes of the target and source</a>
 <a id="9186" class="Comment">-- contexts, respectively.</a>
 
-<a id="Subst"></a><a id="9214" href="README.html#9214" class="Function">Subst</a> <a id="9220" class="Symbol">=</a> <a id="9222" href="Definition.Untyped.html#11910" class="Function">Definition.Untyped.Subst</a>
+<a id="Subst"></a><a id="9214" href="README.html#9214" class="Function">Subst</a> <a id="9220" class="Symbol">=</a> <a id="9222" href="Definition.Untyped.html#12627" class="Function">Definition.Untyped.Subst</a>
 
 <a id="9248" class="Comment">-- Application of a substitution to a term.</a>
 
-<a id="_[_]"></a><a id="9293" href="README.html#9293" class="Function Operator">_[_]</a> <a id="9298" class="Symbol">=</a> <a id="9300" href="Definition.Untyped.html#13943" class="Function Operator">Definition.Untyped._[_]</a>
+<a id="_[_]"></a><a id="9293" href="README.html#9293" class="Function Operator">_[_]</a> <a id="9298" class="Symbol">=</a> <a id="9300" href="Definition.Untyped.html#14660" class="Function Operator">Definition.Untyped._[_]</a>
 
 <a id="9325" class="Comment">-- Some other substitution operations from the paper.</a>
 
-<a id="identity"></a><a id="9380" href="README.html#9380" class="Function">identity</a>  <a id="9390" class="Symbol">=</a> <a id="9392" href="Definition.Untyped.html#12977" class="Function">Definition.Untyped.idSubst</a>
-<a id="shifting"></a><a id="9419" href="README.html#9419" class="Function">shifting</a>  <a id="9429" class="Symbol">=</a> <a id="9431" href="Definition.Untyped.html#13092" class="Function">Definition.Untyped.wk1Subst</a>
-<a id="lifting"></a><a id="9459" href="README.html#9459" class="Function">lifting</a>   <a id="9469" class="Symbol">=</a> <a id="9471" href="Definition.Untyped.html#13230" class="Function">Definition.Untyped.liftSubst</a>
-<a id="extension"></a><a id="9500" href="README.html#9500" class="Function">extension</a> <a id="9510" class="Symbol">=</a> <a id="9512" href="Definition.Untyped.html#14227" class="Function">Definition.Untyped.consSubst</a>
-<a id="head"></a><a id="9541" href="README.html#9541" class="Function">head</a>      <a id="9551" class="Symbol">=</a> <a id="9553" href="Definition.Untyped.html#12493" class="Function">Definition.Untyped.head</a>
-<a id="tail"></a><a id="9577" href="README.html#9577" class="Function">tail</a>      <a id="9587" class="Symbol">=</a> <a id="9589" href="Definition.Untyped.html#12676" class="Function">Definition.Untyped.tail</a>
+<a id="identity"></a><a id="9380" href="README.html#9380" class="Function">identity</a>  <a id="9390" class="Symbol">=</a> <a id="9392" href="Definition.Untyped.html#13694" class="Function">Definition.Untyped.idSubst</a>
+<a id="shifting"></a><a id="9419" href="README.html#9419" class="Function">shifting</a>  <a id="9429" class="Symbol">=</a> <a id="9431" href="Definition.Untyped.html#13809" class="Function">Definition.Untyped.wk1Subst</a>
+<a id="lifting"></a><a id="9459" href="README.html#9459" class="Function">lifting</a>   <a id="9469" class="Symbol">=</a> <a id="9471" href="Definition.Untyped.html#13947" class="Function">Definition.Untyped.liftSubst</a>
+<a id="extension"></a><a id="9500" href="README.html#9500" class="Function">extension</a> <a id="9510" class="Symbol">=</a> <a id="9512" href="Definition.Untyped.html#14944" class="Function">Definition.Untyped.consSubst</a>
+<a id="head"></a><a id="9541" href="README.html#9541" class="Function">head</a>      <a id="9551" class="Symbol">=</a> <a id="9553" href="Definition.Untyped.html#13210" class="Function">Definition.Untyped.head</a>
+<a id="tail"></a><a id="9577" href="README.html#9577" class="Function">tail</a>      <a id="9587" class="Symbol">=</a> <a id="9589" href="Definition.Untyped.html#13393" class="Function">Definition.Untyped.tail</a>
 
 <a id="9614" class="Comment">-- The typing relations.</a>
 <a id="9639" class="Comment">--</a>
@@ -416,8 +416,8 @@
 
 <a id="13990" class="Comment">-- The reduction relation of the target language.</a>
 
-<a id="_⇒_"></a><a id="14041" href="README.html#14041" class="Function Operator">_⇒_</a>  <a id="14046" class="Symbol">=</a> <a id="14048" href="Graded.Erasure.Target.html#5392" class="Datatype Operator">Graded.Erasure.Target._⇒_</a>
-<a id="_⇒*_"></a><a id="14074" href="README.html#14074" class="Function Operator">_⇒*_</a> <a id="14079" class="Symbol">=</a> <a id="14081" href="Graded.Erasure.Target.html#6014" class="Datatype Operator">Graded.Erasure.Target._⇒*_</a>
+<a id="_⇒_"></a><a id="14041" href="README.html#14041" class="Function Operator">_⇒_</a>  <a id="14046" class="Symbol">=</a> <a id="14048" href="Graded.Erasure.Target.html#5345" class="Datatype Operator">Graded.Erasure.Target._⇒_</a>
+<a id="_⇒*_"></a><a id="14074" href="README.html#14074" class="Function Operator">_⇒*_</a> <a id="14079" class="Symbol">=</a> <a id="14081" href="Graded.Erasure.Target.html#5967" class="Datatype Operator">Graded.Erasure.Target._⇒*_</a>
 
 <a id="14109" class="Comment">-- Definition 6.3: The extraction function.</a>
 
@@ -671,7 +671,7 @@
 
 <a id="22043" class="Comment">-- A definition of η-long normal forms.</a>
 
-<a id="_⊢nf_∷_"></a><a id="22084" href="README.html#22084" class="Function Operator">_⊢nf_∷_</a> <a id="22092" class="Symbol">=</a> <a id="22094" href="Definition.Typed.Eta-long-normal-form.html#2820" class="Datatype Operator">Definition.Typed.Eta-long-normal-form._⊢nf_∷_</a>
+<a id="_⊢nf_∷_"></a><a id="22084" href="README.html#22084" class="Function Operator">_⊢nf_∷_</a> <a id="22092" class="Symbol">=</a> <a id="22094" href="Definition.Typed.Eta-long-normal-form.html#2394" class="Datatype Operator">Definition.Typed.Eta-long-normal-form._⊢nf_∷_</a>
 
 <a id="22141" class="Comment">-- If &quot;Π 𝟙 , r&quot; and &quot;Σₚ p , q&quot; are allowed, then the identity function</a>
 <a id="22212" class="Comment">-- lam 𝟙 (var x0) has type</a>
