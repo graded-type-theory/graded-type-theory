@@ -132,16 +132,16 @@ subsumptionSubstMode {γ = _ ∙ p} {m = 𝟘ᵐ} {[Γ] = _ ∙ _} l (ok₁ , _)
 
 
 -- Subsumption of erasure validity
--- If γ ▸ Γ ⊩ʳ t ∷ A and whenever δ⟨x⟩≡𝟘 then γ⟨x⟩≡𝟘
--- then δ ▸ Γ ⊩ʳ t ∷ A
+-- If δ ▸ Γ ⊩ʳ t ∷ A and whenever γ⟨x⟩≡𝟘 then δ⟨x⟩≡𝟘
+-- then γ ▸ Γ ⊩ʳ t ∷ A
 
 subsumption : ∀ {l} {Γ : U.Con U.Term n} {t A : U.Term n}
             → ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ])
-            → γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A / [Γ] / [A]
-            → (∀ x → δ ⟨ x ⟩ PE.≡ 𝟘 → γ ⟨ x ⟩ PE.≡ 𝟘)
             → δ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A / [Γ] / [A]
-subsumption {l = l} [Γ] [A] γ⊩ʳt prop [σ] σ®σ′ =
-  γ⊩ʳt [σ] (subsumptionSubst {l = l} σ®σ′ prop)
+            → (∀ x → γ ⟨ x ⟩ PE.≡ 𝟘 → δ ⟨ x ⟩ PE.≡ 𝟘)
+            → γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A / [Γ] / [A]
+subsumption {l = l} [Γ] [A] δ⊩ʳt prop [σ] σ®σ′ =
+  δ⊩ʳt [σ] (subsumptionSubst {l = l} σ®σ′ prop)
 
 subsumption′ : ∀ {l} {Γ : U.Con U.Term n} {t A : U.Term n}
              → ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ])

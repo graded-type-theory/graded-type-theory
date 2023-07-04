@@ -1,6 +1,9 @@
 --------------------------------------------------------------------------
 -- Code related to the paper "A Graded Modal Dependent Type Theory with a
 -- Universe and Erasure, Formalized"
+--
+-- Some explanations in this file were improved by comments from anonymous
+-- reviewers.
 --------------------------------------------------------------------------
 
 module README where
