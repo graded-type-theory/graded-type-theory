@@ -479,7 +479,7 @@ mutual
   dec⇉ ⊢Γ Emptyᵢ = yes (U , Emptyᵢ)
   dec⇉ ⊢Γ (Emptyrecᵢ A t) = dec⇉-Emptyrec ⊢Γ A t
 
---   -- Decidability of bi-directional type checking
+  -- Decidability of bi-directional type checking
 
   dec⇇ : ⊢ Γ → Checkable t → Γ ⊢ A → Dec (Γ ⊢ t ⇇ A)
   dec⇇ ⊢Γ (lamᶜ {p = p′} t) ⊢A = case isΠ ⊢A of λ where
