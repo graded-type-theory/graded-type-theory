@@ -22,7 +22,7 @@ open import Tools.Function
 open import Tools.Product
 open import Tools.PropositionalEquality
 import Tools.Reasoning.PartialOrder
-open import Tools.Sum
+open import Tools.Sum as ⊎
 
 private variable
   p q r : M
@@ -91,9 +91,7 @@ Full-reduction-assumptions⇔Full-reduction-assumptions′ =
            r ≤ p · r                             □
        ; ⌞⌟≡𝟙ᵐ→≤𝟙 = λ {p = p} {q = q} →
            Σₚ-allowed p q                        →⟨ ≡𝟙⊎𝟙≤𝟘 as ⟩
-           p ≡ 𝟙 ⊎ p ≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘  →⟨ (λ { (inj₁ p≡𝟙) → inj₁ (≤-reflexive p≡𝟙)
-                                                       ; (inj₂ (p≡𝟘 , ok , _)) → inj₂ (ok , p≡𝟘)
-                                                       }) ⟩
+           p ≡ 𝟙 ⊎ p ≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘  →⟨ ⊎.map ≤-reflexive (λ (p≡𝟘 , ok , _) → (ok , p≡𝟘)) ⟩
            p ≤ 𝟙 ⊎ T 𝟘ᵐ-allowed × p ≡ 𝟘          →⟨ ⌞⌟≡𝟙→⇔⊎𝟘ᵐ×≡𝟘 .proj₂ ⟩
            (⌞ p ⌟ ≡ 𝟙ᵐ → p ≤ 𝟙)                  □
        })
