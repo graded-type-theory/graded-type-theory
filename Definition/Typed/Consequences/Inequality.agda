@@ -27,7 +27,7 @@ private
   variable
     n : Nat
     Γ : Con Term n
-    F G K : Term n
+    A B C F G K : Term n
     p p′ q q′ : M
     b : BinderMode
 
@@ -415,3 +415,34 @@ B≢ne W neK W≡K =
 Σₚ≢Σᵣⱼ Σₚ≡Σᵣ =
   let ⊢Σₚ , ⊢Σᵣ = syntacticEq Σₚ≡Σᵣ
   in  Σₚ≢Σᵣ-red (id ⊢Σₚ) (id ⊢Σᵣ) Σₚ≡Σᵣ
+
+-- If No-η-equality A holds, then A is not a Π-type.
+
+No-η-equality→≢Π : No-η-equality A → Γ ⊢ A ≡ Π p , q ▷ B ▹ C → ⊥
+No-η-equality→≢Π = λ where
+  Uₙ         U≡Π     → U≢ΠΣⱼ U≡Π
+  Σᵣₙ        Σᵣ≡Π    → Π≢Σⱼ (sym Σᵣ≡Π)
+  Emptyₙ     Empty≡Π → Empty≢ΠΣⱼ Empty≡Π
+  ℕₙ         ℕ≡Π     → ℕ≢ΠΣⱼ ℕ≡Π
+  (neₙ A-ne) A≡Π     → ΠΣ≢ne A-ne (sym A≡Π)
+
+-- If No-η-equality A holds, then A is not a Σ-type with η-equality.
+
+No-η-equality→≢Σₚ : No-η-equality A → Γ ⊢ A ≡ Σₚ p , q ▷ B ▹ C → ⊥
+No-η-equality→≢Σₚ = λ where
+  Uₙ         U≡Σ     → U≢ΠΣⱼ U≡Σ
+  Σᵣₙ        Σᵣ≡Σ    → Σₚ≢Σᵣⱼ (sym Σᵣ≡Σ)
+  Emptyₙ     Empty≡Σ → Empty≢ΠΣⱼ Empty≡Σ
+  ℕₙ         ℕ≡Σ     → ℕ≢ΠΣⱼ ℕ≡Σ
+  (neₙ A-ne) A≡Σ     → ΠΣ≢ne A-ne (sym A≡Σ)
+
+-- If No-η-equality A holds, then A is not the unit type with
+-- η-equality.
+
+No-η-equality→≢Unit : No-η-equality A → Γ ⊢ A ≡ Unit → ⊥
+No-η-equality→≢Unit = λ where
+  Uₙ         U≡Unit     → U≢Unitⱼ U≡Unit
+  Σᵣₙ        Σᵣ≡Unit    → Unit≢ΠΣⱼ (sym Σᵣ≡Unit)
+  Emptyₙ     Empty≡Unit → Empty≢Unitⱼ Empty≡Unit
+  ℕₙ         ℕ≡Unit     → ℕ≢Unitⱼ ℕ≡Unit
+  (neₙ A-ne) A≡Unit     → Unit≢neⱼ A-ne (sym A≡Unit)

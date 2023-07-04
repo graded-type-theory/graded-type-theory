@@ -353,6 +353,31 @@ data Numeral {n : Nat} : Term n → Set a where
   sucₙ : Numeral t → Numeral (suc t)
 
 ------------------------------------------------------------------------
+-- No-η-equality
+
+-- No-η-equality A holds if A is a type without (top-level)
+-- η-equality, either because it is (an application of) a type
+-- constructor for a type without η-equality, or because it is
+-- neutral.
+
+data No-η-equality {n : Nat} : Term n → Set a where
+  Uₙ     : No-η-equality U
+  Σᵣₙ    : No-η-equality (Σᵣ p , q ▷ A ▹ B)
+  Emptyₙ : No-η-equality Empty
+  ℕₙ     : No-η-equality ℕ
+  neₙ    : Neutral A → No-η-equality A
+
+-- If No-η-equality A holds, then A is a WHNF.
+
+No-η-equality→Whnf : No-η-equality A → Whnf A
+No-η-equality→Whnf = λ where
+  Uₙ      → Uₙ
+  Σᵣₙ     → ΠΣₙ
+  Emptyₙ  → Emptyₙ
+  ℕₙ      → ℕₙ
+  (neₙ n) → ne n
+
+------------------------------------------------------------------------
 -- Weakening
 
   -- Weakening of terms.
