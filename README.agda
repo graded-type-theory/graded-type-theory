@@ -30,6 +30,7 @@ import Graded.Context
 import Graded.Context.Properties
 import Graded.Derived.Sigma
 import Graded.Erasure.Consequences.Soundness
+import Graded.Erasure.Examples
 import Graded.Erasure.Extraction
 import Graded.Erasure.Extraction.Properties
 import Graded.Erasure.LogicalRelation
@@ -407,6 +408,30 @@ linear-or-affine-has-well-behaved-zero =
 
 Theorem-6-2 = Graded.Usage.Properties.Has-well-behaved-zero.valid-var-usage
 
+-- Example: The polymorphic identity function
+
+id = Graded.Erasure.Examples.id
+
+-- The identity function is well-typed
+
+⊢id = Graded.Erasure.Examples.⊢id
+
+-- The identity function is well-resourced
+
+▸id = Graded.Erasure.Examples.▸id
+
+-- The identity function applied to two free variables
+
+id-x1-x0 = Graded.Erasure.Examples.id-x1-x0
+
+-- The term id-x1-x0 is well-typed
+
+⊢id-x1-x0 = Graded.Erasure.Examples.⊢id-x1-x0
+
+-- The term id-x1-x0 is well-resourced
+
+▸id-x1-x0 = Graded.Erasure.Examples.▸id-x1-x0
+
 -- The grammar of the untyped target language
 --
 -- The syntax is well-scoped.
@@ -427,9 +452,33 @@ _⇒*_ = Graded.Erasure.Target._⇒*_
 
 _• = Graded.Erasure.Extraction.erase
 
+-- Example: The identity function applied to ℕ and zero
+
+id-ℕ-zero = Graded.Erasure.Examples.id-ℕ-zero
+
+-- The term id-ℕ-zero is well-typed.
+
+⊢id-ℕ-zero = Graded.Erasure.Examples.⊢id-ℕ-zero
+
+-- The term id-ℕ-zero is well-resourced
+
+▸id-ℕ-zero = Graded.Erasure.Examples.▸id-ℕ-zero
+
+-- One of the arguments gets erased by the extraction function
+
+erase-id-ℕ-zero = Graded.Erasure.Examples.erase-id-ℕ-zero
+
 -- Theorem 6.4.
 
 Theorem-6-4 = Graded.Erasure.Extraction.Properties.hasX.erased-hasX
+
+-- The term id-ℕ-zero reduces to zero
+
+id-ℕ-zero⇒*zero = Graded.Erasure.Examples.id-ℕ-zero⇒*zero
+
+-- The term erase (id-ℕ-zero) reduces to zero
+
+erase-id-ℕ-zero⇒*zero = Graded.Erasure.Examples.erase-id-ℕ-zero⇒*zero
 
 -- Reducibility logical relation for types.
 --

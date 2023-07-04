@@ -20,11 +20,13 @@ module Graded.Erasure.Examples
   where
 
 open import Definition.Typed TR as DT hiding (id)
+import Definition.Typed.Weakening TR as W
 open import Definition.Untyped Erasure hiding (id; _∷_)
 
 open import Graded.Modality.Instances.Erasure.Modality MR
 
 open import Graded.Context ErasureModality
+open import Graded.Context.Properties ErasureModality
 open import Graded.Erasure.Extraction
   ErasureModality
   (Has-well-behaved-zero.is-𝟘? erasure-has-well-behaved-zero)
@@ -36,12 +38,15 @@ open import Graded.Usage.Inversion ErasureModality UR
 
 open import Tools.Fin
 open import Tools.Function
+open import Tools.Nat
 open import Tools.Nullary
 open import Tools.PropositionalEquality
 open import Tools.Sum as ⊎ using (_⊎_; inj₁; inj₂)
 
 private variable
   γ : Conₘ _
+  Γ : Con Term _
+  n : Nat
 
 private
 
@@ -62,26 +67,52 @@ private
   U⊢id : ε ∙ U ⊢ lam ω (var x0) ∷ Π ω , q ▷ var x0 ▹ var x1
   U⊢id = lamⱼ U⊢0 (var ⊢U0 here) Π-ω-ok
 
+  ΓU⊢id : ⊢ Γ → Γ ∙ U ⊢ lam ω (var x0) ∷ Π ω , q ▷ var x0 ▹ var x1
+  ΓU⊢id ε = U⊢id
+  ΓU⊢id (⊢Γ ∙ ⊢A) =
+    W.wkTerm (W.lift (W.step W.id))
+             (⊢Γ ∙ ⊢A ∙ Uⱼ (⊢Γ ∙ ⊢A))
+             (ΓU⊢id ⊢Γ)
+
 ------------------------------------------------------------------------
 -- A polymorphic identity function
 
--- A (closed) polymorphic identity function with an erased type
--- argument.
+-- A polymorphic identity function with an erased type argument.
 
-id : Term 0
+id : Term n
 id = lam 𝟘 (lam ω (var x0))
 
--- The polymorphic identity function is well-typed (in the empty
+-- The polymorphic identity function is well-typed (in a well-formed
 -- context).
 
-⊢id : ε ⊢ id ∷ Π 𝟘 , p ▷ U ▹ Π ω , q ▷ var x0 ▹ var x1
-⊢id = lamⱼ (Uⱼ ε) U⊢id Π-𝟘-ok
+⊢id : ⊢ Γ → Γ ⊢ id ∷ Π 𝟘 , p ▷ U ▹ Π ω , q ▷ var x0 ▹ var x1
+⊢id ⊢Γ = lamⱼ (Uⱼ ⊢Γ) (ΓU⊢id ⊢Γ) Π-𝟘-ok
 
 -- The polymorphic identity function is well-resourced (with respect
--- to the empty usage context).
+-- to the zero usage context).
 
-▸id : ε ▸[ 𝟙ᵐ ] id
+▸id : 𝟘ᶜ {n} ▸[ 𝟙ᵐ ] id
 ▸id = lamₘ (lamₘ var)
+
+-- The polymorphic identity function applied to two free variables
+
+id-x1-x0 : Term 2
+id-x1-x0 = id ∘⟨ 𝟘 ⟩ var x1 ∘⟨ ω ⟩ var x0
+
+-- The term id-x0-x1 is well-typed (in a certain context)
+
+⊢id-x1-x0 : ε ∙ U ∙ var x0 ⊢ id-x1-x0 ∷ var x1
+⊢id-x1-x0 = (⊢id ⊢Γ ∘ⱼ var ⊢Γ (there here)) ∘ⱼ var ⊢Γ here
+  where
+  ⊢Γ = ε ∙ Uⱼ ε ∙ univ (var (ε ∙ Uⱼ ε) here)
+
+-- The term id-x1-x0 is well-resources (with respect to a specific
+-- usage context).
+
+▸id-x1-x0 : ε ∙ 𝟘 ∙ ω ▸[ 𝟙ᵐ ] id-x1-x0
+▸id-x1-x0 = subst (λ γ → γ ▸[ 𝟙ᵐ ] id-x1-x0)
+                  (≈ᶜ→≡ (ε ∙ refl ∙ cong ⌜_⌝ (ᵐ·-identityʳ {m = 𝟙ᵐ})))
+                  ((▸id ∘ₘ var) ∘ₘ var)
 
 -- The polymorphic identity function applied to two arguments.
 
@@ -97,7 +128,7 @@ erase-id-ℕ-zero = refl
 -- The term id-ℕ-zero is well-typed (in the empty context).
 
 ⊢id-ℕ-zero : ε ⊢ id-ℕ-zero ∷ ℕ
-⊢id-ℕ-zero = (⊢id ∘ⱼ ℕⱼ ε) ∘ⱼ zeroⱼ ε
+⊢id-ℕ-zero = (⊢id ε ∘ⱼ ℕⱼ ε) ∘ⱼ zeroⱼ ε
 
 -- The term id-ℕ-zero is well-resourced (with respect to the empty
 -- usage context).
