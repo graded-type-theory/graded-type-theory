@@ -273,6 +273,10 @@ import Graded.Erasure.Target.Properties
 import Graded.Erasure.Extraction
 import Graded.Erasure.Extraction.Properties
 
+-- Some simple examples
+
+import Graded.Erasure.Examples
+
 -- Logical relation for Erasure
 
 import Graded.Erasure.LogicalRelation
