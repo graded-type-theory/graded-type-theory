@@ -39,7 +39,6 @@ open import Graded.Modality.Instances.Erasure.Modality MR
 open import Graded.Modality.Instances.Erasure.Properties MR
 
 open import Graded.Context ErasureModality
--- open import Graded.Context.Properties ErasureModality
 open import Graded.Erasure.Consequences.Soundness
   ErasureModality TR UR erasure-has-well-behaved-zero
 open import Graded.Erasure.Extraction
