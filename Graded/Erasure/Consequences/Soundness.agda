@@ -204,14 +204,14 @@ module Soundness₀ where
 soundness-ℕ-only-source-counterexample :
   Prodrec-allowed 𝟘 p 𝟘 →
   Σᵣ-allowed p 𝟘 →
-  let Γ = ε ∙ (Σᵣ p , 𝟘 ▷ ℕ ▹ ℕ)
+  let Δ = ε ∙ (Σᵣ p , 𝟘 ▷ ℕ ▹ ℕ)
       t = prodrec 𝟘 p 𝟘 ℕ (var x0) zero
   in
-  ⊢ Γ ×
-  (∀ {u} → Γ ⊢ u ∷ Empty → ⊥) ×
-  Γ ⊢ t ∷ ℕ ×
+  ⊢ Δ ×
+  (∀ {u} → Δ ⊢ u ∷ Empty → ⊥) ×
+  Δ ⊢ t ∷ ℕ ×
   𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
-  ¬ ∃ λ n → Γ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
+  ¬ ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
 soundness-ℕ-only-source-counterexample {p = p} P-ok Σᵣ-ok =
     wfTerm ⊢prodrec
   , (λ ⊢t → TC.¬Empty $
