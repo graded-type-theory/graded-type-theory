@@ -188,6 +188,13 @@ module Soundness
                  (t®t′ ◀≢𝟘 𝟙≢𝟘)
     in  soundness-star′ t®t″
 
+-- If the context is empty, then the results in Soundness hold without
+-- any further assumptions.
+
+module Soundness₀ where
+
+  open Soundness {Δ = ε} (inj₂ refl) ε TC.¬Empty public
+
 -- If Prodrec-allowed 𝟘 p 𝟘 holds for some p (which means that certain
 -- kinds of erased matches are allowed), and if additionally
 -- Σᵣ-allowed p 𝟘 holds, then there is a counterexample to
