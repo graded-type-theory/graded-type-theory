@@ -435,8 +435,8 @@ inv-usage-fstᵣ′-𝟙ᵐ {r = r} {p = p} ▸fstᵣ′ =
   where
   open Tools.Reasoning.PartialOrder ≤-poset
 
--- If 𝟘 ≰ 𝟙 then no application of fstᵣ′ 𝟘 is well-resourced at
--- mode 𝟙ᵐ.
+-- If 𝟘 ≰ 𝟙 then no application of fstᵣ′ 𝟘 is well-resourced (with
+-- respect to the mode 𝟙ᵐ).
 
 𝟘≰𝟙→fstᵣ′-𝟘-not-ok :
   ¬ 𝟘 ≤ 𝟙 →
@@ -447,8 +447,8 @@ inv-usage-fstᵣ′-𝟙ᵐ {r = r} {p = p} ▸fstᵣ′ =
   𝟘 ≤ 𝟙                      →⟨ 𝟘≰𝟙 ⟩
   ⊥                          □
 
--- If 𝟙 ≰ 𝟘 then no application of fstᵣ′ 𝟙 is well-resourced at
--- mode 𝟙ᵐ.
+-- If 𝟙 ≰ 𝟘 then no application of fstᵣ′ 𝟙 is well-resourced (with
+-- respect to the mode 𝟙ᵐ).
 
 𝟙≰𝟘→fstᵣ′-𝟙-not-ok :
   ¬ 𝟙 ≤ 𝟘 →

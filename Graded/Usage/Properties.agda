@@ -200,8 +200,9 @@ var-usage-lookup (there x) = var-usage-lookup x
 ▸-·′ : γ ▸[ m ] t → ⌜ m ⌝ ·ᶜ γ ▸[ m ] t
 ▸-·′ ▸t = ▸-cong ·ᵐ-idem (▸-· ▸t)
 
--- If t is well-used, then it is well-used in the mode 𝟘ᵐ[ ok ], with
--- no usages.
+-- If a term is well-resourced with respect to any context and mode,
+-- then it is well-resourced with respect to the zero usage context
+-- and the mode 𝟘ᵐ[ ok ].
 
 ▸-𝟘 : γ ▸[ m ] t → 𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] t
 ▸-𝟘 {γ = γ} ▸t = sub
@@ -242,9 +243,9 @@ var-usage-lookup (there x) = var-usage-lookup x
     where
     open Tools.Reasoning.PartialOrder ≤-poset
 
--- If t is well-used in the mode 𝟙ᵐ with usage vector γ, then t is
--- well-used in the mode ⌞ p ⌟ with some usage vector δ for which
--- p ·ᶜ γ ≈ᶜ p ·ᶜ δ.
+-- If t is well-resourced with respect to the usage context γ, then t
+-- is well-resourced with respect to the mode ⌞ p ⌟ and some usage
+-- context δ for which p ·ᶜ γ ≈ᶜ p ·ᶜ δ.
 
 ▸[𝟙ᵐ]→▸[⌞⌟] :
   γ ▸[ 𝟙ᵐ ] t →

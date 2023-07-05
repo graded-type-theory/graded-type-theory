@@ -75,7 +75,8 @@ private
 ---------------------------------------------------------------------------
 
 -- Lemma: A neutral which is well-typed in a negative/erased context,
--- and which is well-used in the mode 𝟙ᵐ, has a negative type.
+-- and also well-resourced (with respect to the mode 𝟙ᵐ), has a
+-- negative type.
 
 neNeg :
   (d : Γ ⊢ u ∷ A) (n : Neutral u) (f : γ ▸[ 𝟙ᵐ ] u) → NegativeType Γ A
@@ -130,7 +131,8 @@ neNeg (emptyrecⱼ _ d     ) (emptyrecₙ n) γ▸u = ⊥-elim (consistent d)
 neNeg (conv d c          ) n             γ▸u = conv (neNeg d n γ▸u) c
 
 -- Lemma: A normal form which has the type ℕ in a negative/erased
--- context, and which is well-used in the mode 𝟙ᵐ, is a numeral.
+-- context, and which is well-resourced (with respect to the mode 𝟙ᵐ),
+-- is a numeral.
 
 nfN : (d : Γ ⊢ u ∷ A)
     → (m : γ ▸[ 𝟙ᵐ ] u)
@@ -174,8 +176,8 @@ nfN (starⱼ _ _)       _ starₙ       c = ⊥-elim (ℕ≢Unitⱼ (sym c))
   in  u , redₜ d , whnfU , λ x → ¬negA (neNeg (⊢u-redₜ d) x γ▸u)
 
 -- Canonicity theorem: A term which has the type ℕ in a
--- negative/erased context, and which is well-used in the mode 𝟙ᵐ,
--- ⇒ˢ*-reduces to a numeral.
+-- negative/erased context, and which is well-resourced (with respect
+-- to the mode 𝟙ᵐ), ⇒ˢ*-reduces to a numeral.
 
 canonicityRed′ : ∀ {l} → (⊢Γ : ⊢ Γ) → γ ▸[ 𝟙ᵐ ] t
                → Γ ⊩⟨ l ⟩ t ∷ ℕ / ℕᵣ (idRed:*: (ℕⱼ ⊢Γ))
@@ -200,8 +202,8 @@ canonicityRed ⊢t γ▸t with reducibleTerm ⊢t
   in  canonicityRed′ {l = ¹} ⊢Γ γ▸t [t]′
 
 -- Canonicity theorem: A term which has the type ℕ in a
--- negative/erased context, and which is well-used in the mode 𝟙ᵐ, is
--- convertible to a numeral.
+-- negative/erased context, and which is well-resourced (with respect
+-- to the mode 𝟙ᵐ), is convertible to a numeral.
 
 canonicityEq :
   (⊢t : Γ ⊢ t ∷ ℕ) → (γ▸t : γ ▸[ 𝟙ᵐ ] t) →

@@ -281,8 +281,8 @@ liftSubstₘ-app (Ψ ⊙ η) γ p = begin
 -- Well-formed substitutions --
 -------------------------------
 
--- The substitution of a single (suitably well-used) variable is a
--- well-formed substitution.
+-- The substitution of a single variable is well-formed if the
+-- substituted term is suitably well-resourced.
 
 wf-sgSubstₘ :
   ⌜ mo ⌝ ·ᶜ γ ▸[ mo ] u → sgSubstₘ γ ▶[ consᵐ mo mos ] sgSubst u
@@ -335,7 +335,7 @@ wf-liftSubstₘ {mos = mos} {Ψ = Ψ} Ψ▶σ (x +1) = sub
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
 -- The extension of a well-formed substitution with a suitably
--- well-used term is a well-formed substitution.
+-- well-resourced term is a well-formed substitution.
 
 wf-consSubstₘ :
   {Ψ : Substₘ m n} {γ : Conₘ m} →
@@ -599,8 +599,9 @@ wf-tailSubstₘ Ψ▶σ x =
 ---------------------------------------
 
 -- A substitution lemma for the mode 𝟘ᵐ[ ok ]: if σ is well-formed and
--- t is well-used, then t [ σ ] is well-used in the mode 𝟘ᵐ[ ok ],
--- with no usages.
+-- t is well-resourced with respect to any context and mode, then
+-- t [ σ ] is well-resourced with respect to the zero usage context
+-- and the mode 𝟘ᵐ[ ok ].
 --
 -- Proof by induction on t being well resourced.
 
