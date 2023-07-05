@@ -147,9 +147,9 @@ mutual
                 Γ ∙ A ∙ B ⊢nf u ∷ C [ prodᵣ p (var x1) (var x0) ]↑² →
                 Σᵣ-allowed p q′ →
                 Γ ⊢ne prodrec r p q C t u ∷ C [ t ]₀
-    Emptyrecₙ : Γ ⊢nf A →
+    emptyrecₙ : Γ ⊢nf A →
                 Γ ⊢ne t ∷ Empty →
-                Γ ⊢ne Emptyrec p A t ∷ A
+                Γ ⊢ne emptyrec p A t ∷ A
     natrecₙ   : Γ ∙ ℕ ⊢nf A →
                 Γ ⊢nf t ∷ A [ zero ]₀ →
                 Γ ∙ ℕ ∙ A ⊢nf u ∷ A [ suc (var x1) ]↑² →
@@ -216,7 +216,7 @@ mutual
     (sndₙ ⊢A ⊢B ⊢t)              → sndⱼ ⊢A ⊢B (⊢ne∷→⊢∷ ⊢t)
     (prodrecₙ ⊢A ⊢B ⊢C ⊢t ⊢u ok) → prodrecⱼ ⊢A ⊢B (⊢nf→⊢ ⊢C)
                                      (⊢ne∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u) ok
-    (Emptyrecₙ ⊢A ⊢t)            → Emptyrecⱼ (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t)
+    (emptyrecₙ ⊢A ⊢t)            → emptyrecⱼ (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t)
     (natrecₙ ⊢A ⊢t ⊢u ⊢v)        → natrecⱼ (⊢nf→⊢ ⊢A) (⊢nf∷→⊢∷ ⊢t)
                                      (⊢nf∷→⊢∷ ⊢u) (⊢ne∷→⊢∷ ⊢v)
 
@@ -260,7 +260,7 @@ mutual
     (sndₙ _ _ ⊢t)             → sndₙ (⊢ne∷→NfNeutral ⊢t)
     (prodrecₙ _ _ ⊢C ⊢t ⊢u _) → prodrecₙ (⊢nf→Nf ⊢C)
                                   (⊢ne∷→NfNeutral ⊢t) (⊢nf∷→Nf ⊢u)
-    (Emptyrecₙ ⊢A ⊢t)         → Emptyrecₙ (⊢nf→Nf ⊢A)
+    (emptyrecₙ ⊢A ⊢t)         → emptyrecₙ (⊢nf→Nf ⊢A)
                                   (⊢ne∷→NfNeutral ⊢t)
     (natrecₙ ⊢A ⊢t ⊢u ⊢v)     → natrecₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t)
                                   (⊢nf∷→Nf ⊢u) (⊢ne∷→NfNeutral ⊢v)
@@ -353,7 +353,7 @@ mutual
         (⊢ne∷-stable Γ≡Δ ⊢t)
         (⊢nf∷-stable (Γ≡Δ ∙ refl ⊢A ∙ refl ⊢B) ⊢u)
         ok
-      (Emptyrecₙ ⊢A ⊢t) → Emptyrecₙ
+      (emptyrecₙ ⊢A ⊢t) → emptyrecₙ
         (⊢nf-stable Γ≡Δ ⊢A)
         (⊢ne∷-stable Γ≡Δ ⊢t)
       (natrecₙ ⊢A ⊢t ⊢u ⊢v) →
@@ -592,33 +592,33 @@ inversion-nf-ne-prodrec :
 inversion-nf-ne-prodrec (inj₁ ⊢pr) = inversion-nf-prodrec ⊢pr
 inversion-nf-ne-prodrec (inj₂ ⊢pr) = inversion-ne-prodrec ⊢pr
 
--- Inversion for Emptyrec.
+-- Inversion for emptyrec.
 
-inversion-ne-Emptyrec :
-  Γ ⊢ne Emptyrec p A t ∷ B →
+inversion-ne-emptyrec :
+  Γ ⊢ne emptyrec p A t ∷ B →
   Γ ⊢nf A × Γ ⊢ne t ∷ Empty × Γ ⊢ B ≡ A
-inversion-ne-Emptyrec (Emptyrecₙ ⊢A ⊢t) =
+inversion-ne-emptyrec (emptyrecₙ ⊢A ⊢t) =
   ⊢A , ⊢t , refl (⊢nf→⊢ ⊢A)
-inversion-ne-Emptyrec (convₙ ⊢er A≡B) =
-  case inversion-ne-Emptyrec ⊢er of λ {
+inversion-ne-emptyrec (convₙ ⊢er A≡B) =
+  case inversion-ne-emptyrec ⊢er of λ {
     (⊢A , ⊢t , A≡) →
   ⊢A , ⊢t , trans (sym A≡B) A≡ }
 
-inversion-nf-Emptyrec :
-  Γ ⊢nf Emptyrec p A t ∷ B →
+inversion-nf-emptyrec :
+  Γ ⊢nf emptyrec p A t ∷ B →
   Γ ⊢nf A × Γ ⊢ne t ∷ Empty × Γ ⊢ B ≡ A
-inversion-nf-Emptyrec (neₙ _ ⊢er) =
-  inversion-ne-Emptyrec ⊢er
-inversion-nf-Emptyrec (convₙ ⊢er A≡B) =
-  case inversion-nf-Emptyrec ⊢er of λ {
+inversion-nf-emptyrec (neₙ _ ⊢er) =
+  inversion-ne-emptyrec ⊢er
+inversion-nf-emptyrec (convₙ ⊢er A≡B) =
+  case inversion-nf-emptyrec ⊢er of λ {
     (⊢A , ⊢t , A≡) →
   ⊢A , ⊢t , trans (sym A≡B) A≡ }
 
-inversion-nf-ne-Emptyrec :
-  Γ ⊢nf Emptyrec p A t ∷ B ⊎ Γ ⊢ne Emptyrec p A t ∷ B →
+inversion-nf-ne-emptyrec :
+  Γ ⊢nf emptyrec p A t ∷ B ⊎ Γ ⊢ne emptyrec p A t ∷ B →
   Γ ⊢nf A × Γ ⊢ne t ∷ Empty × Γ ⊢ B ≡ A
-inversion-nf-ne-Emptyrec (inj₁ ⊢er) = inversion-nf-Emptyrec ⊢er
-inversion-nf-ne-Emptyrec (inj₂ ⊢er) = inversion-ne-Emptyrec ⊢er
+inversion-nf-ne-emptyrec (inj₁ ⊢er) = inversion-nf-emptyrec ⊢er
+inversion-nf-ne-emptyrec (inj₂ ⊢er) = inversion-ne-emptyrec ⊢er
 
 -- Inversion for natrec.
 
@@ -860,12 +860,12 @@ mutual
            (⊢nf∷-stable (Γ≡Γ ∙ C≡ ∙ D≡) ⊢v′)
            (⊢nf∷-stable (Γ≡Γ ∙ E≡ ∙ F≡) ⊢w)
            v≡w) }}}}}}}}}}
-    (Emptyrec-cong A≡B u≡v) →
-      case inversion-nf-ne-Emptyrec ⊢u of λ {
+    (emptyrec-cong A≡B u≡v) →
+      case inversion-nf-ne-emptyrec ⊢u of λ {
         (⊢A , ⊢u , _) →
-      case inversion-nf-ne-Emptyrec ⊢v of λ {
+      case inversion-nf-ne-emptyrec ⊢v of λ {
         (⊢B , ⊢v , _) →
-      PE.cong₂ (Emptyrec _)
+      PE.cong₂ (emptyrec _)
         (normal-types-unique-[conv↑] ⊢A ⊢B A≡B)
         (neutral-terms-unique-~↓ ⊢u ⊢v u≡v) }}
 

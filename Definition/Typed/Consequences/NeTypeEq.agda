@@ -51,7 +51,7 @@ neTypeEq (natrecₙ neT) (natrecⱼ x t∷A t∷A₁ t∷A₂) (natrecⱼ x₁ t
 neTypeEq
   (prodrecₙ neT) (prodrecⱼ _ _ ⊢A ⊢t _ _) (prodrecⱼ _ _ _ _ _ _) =
   refl (substType ⊢A ⊢t)
-neTypeEq (Emptyrecₙ neT) (Emptyrecⱼ x t∷A) (Emptyrecⱼ x₁ t∷B) =
+neTypeEq (emptyrecₙ neT) (emptyrecⱼ x t∷A) (emptyrecⱼ x₁ t∷B) =
   refl x₁
 neTypeEq x (conv t∷A x₁) t∷B = let q = neTypeEq x t∷A t∷B
                                in  trans (sym x₁) q

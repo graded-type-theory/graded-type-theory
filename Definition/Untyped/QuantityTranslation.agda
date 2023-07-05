@@ -69,7 +69,7 @@ tr-Kind (Natreckind p q r)  = Natreckind (tr p) (tr q) (tr r)
 tr-Kind Unitkind            = Unitkind
 tr-Kind Starkind            = Starkind
 tr-Kind Emptykind           = Emptykind
-tr-Kind (Emptyreckind p)    = Emptyreckind (tr p)
+tr-Kind (emptyreckind p)    = emptyreckind (tr p)
 
 mutual
 
@@ -119,7 +119,7 @@ tr-Neutral (fstₙ n)      = fstₙ (tr-Neutral n)
 tr-Neutral (sndₙ n)      = sndₙ (tr-Neutral n)
 tr-Neutral (natrecₙ n)   = natrecₙ (tr-Neutral n)
 tr-Neutral (prodrecₙ n)  = prodrecₙ (tr-Neutral n)
-tr-Neutral (Emptyrecₙ n) = Emptyrecₙ (tr-Neutral n)
+tr-Neutral (emptyrecₙ n) = emptyrecₙ (tr-Neutral n)
 
 -- The function tr-Term takes WHNFs to WHNFs.
 
@@ -398,13 +398,13 @@ tr-Term-star {t = star} refl = refl
 tr-Term-Empty : tr-Term t ≡ Empty → t ≡ Empty
 tr-Term-Empty {t = Empty} refl = refl
 
--- Inversion for Emptyrec.
+-- Inversion for emptyrec.
 
-tr-Term-Emptyrec :
-  tr-Term t ≡ Emptyrec p A u →
+tr-Term-emptyrec :
+  tr-Term t ≡ emptyrec p A u →
   ∃₃ λ p′ A′ u′ →
-     t ≡ Emptyrec p′ A′ u′ × tr p′ ≡ p × tr-Term A′ ≡ A × tr-Term u′ ≡ u
-tr-Term-Emptyrec {t = Emptyrec _ _ _} refl =
+     t ≡ emptyrec p′ A′ u′ × tr p′ ≡ p × tr-Term A′ ≡ A × tr-Term u′ ≡ u
+tr-Term-emptyrec {t = emptyrec _ _ _} refl =
   _ # _ # _ # refl # refl # refl # refl
 
 -- Inversion for ℕ.
@@ -530,10 +530,10 @@ module Injective
   tr-Kind-injective refl | _ | _ | _ =
     cong₃ Natreckind (tr-injective tr-p≡) (tr-injective tr-q≡)
       (tr-injective tr-r≡)
-  tr-Kind-injective {k = Emptyreckind p} {l = Emptyreckind _} eq
+  tr-Kind-injective {k = emptyreckind p} {l = emptyreckind _} eq
     with tr p in tr-p≡
   tr-Kind-injective refl | _ =
-    cong Emptyreckind (tr-injective tr-p≡)
+    cong emptyreckind (tr-injective tr-p≡)
 
   mutual
 

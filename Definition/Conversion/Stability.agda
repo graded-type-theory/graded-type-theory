@@ -51,8 +51,8 @@ mutual
     in  prodrec-cong (stabilityConv↑ (Γ≡Δ ∙ refl ⊢Σ) x)
           (stability~↓ Γ≡Δ x₁)
           (stabilityConv↑Term (Γ≡Δ ∙ refl ⊢F ∙ refl ⊢G) x₂)
-  stability~↑ Γ≡Δ (Emptyrec-cong x₁ k~l) =
-    Emptyrec-cong (stabilityConv↑ Γ≡Δ x₁)
+  stability~↑ Γ≡Δ (emptyrec-cong x₁ k~l) =
+    emptyrec-cong (stabilityConv↑ Γ≡Δ x₁)
                   (stability~↓ Γ≡Δ k~l)
 
   -- Stability of algorithmic equality of neutrals of types in WHNF.

@@ -63,4 +63,4 @@ eqRelInstance = record {
   ~-snd = snd-cong;
   ~-natrec = natrec-cong;
   ~-prodrec = prodrec-cong;
-  ~-Emptyrec = Emptyrec-cong }
+  ~-emptyrec = emptyrec-cong }

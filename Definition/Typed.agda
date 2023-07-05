@@ -119,7 +119,7 @@ mutual
               → Γ         ⊢ n ∷ ℕ
               → Γ         ⊢ natrec p q r A z s n ∷ A [ n ]₀
 
-    Emptyrecⱼ : Γ ⊢ A → Γ ⊢ t ∷ Empty → Γ ⊢ Emptyrec p A t ∷ A
+    emptyrecⱼ : Γ ⊢ A → Γ ⊢ t ∷ Empty → Γ ⊢ emptyrec p A t ∷ A
 
     starⱼ     : ⊢ Γ → Unit-allowed → Γ ⊢ star ∷ Unit
 
@@ -254,9 +254,9 @@ mutual
                   → Γ         ⊢ natrec p q r A z s (suc n) ≡
                                 s [ n , natrec p q r A z s n ] ∷
                                 A [ suc n ]₀
-    Emptyrec-cong : Γ ⊢ A ≡ B
+    emptyrec-cong : Γ ⊢ A ≡ B
                   → Γ ⊢ t ≡ u ∷ Empty
-                  → Γ ⊢ Emptyrec p A t ≡ Emptyrec p B u ∷ A
+                  → Γ ⊢ emptyrec p A t ≡ emptyrec p B u ∷ A
     η-unit        : Γ ⊢ t ∷ Unit
                   → Γ ⊢ t′ ∷ Unit
                   → Γ ⊢ t ≡ t′ ∷ Unit
@@ -339,10 +339,10 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                  → Γ         ⊢ natrec p q r A z s (suc n) ⇒
                                s [ n , natrec p q r A z s n ] ∷
                                A [ suc n ]₀
-  Emptyrec-subst : ∀ {n}
+  emptyrec-subst : ∀ {n}
                  → Γ ⊢ A
                  → Γ     ⊢ n ⇒ n′ ∷ Empty
-                 → Γ     ⊢ Emptyrec p A n ⇒ Emptyrec p A n′ ∷ A
+                 → Γ     ⊢ emptyrec p A n ⇒ emptyrec p A n′ ∷ A
 
 -- Type reduction
 data _⊢_⇒_ (Γ : Con Term n) : Term n → Term n → Set ℓ where

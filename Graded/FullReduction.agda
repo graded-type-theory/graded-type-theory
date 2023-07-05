@@ -170,10 +170,10 @@ module _ (as : Full-reduction-assumptions) where
         sub (prodrecₘ (fullRedNe~↓ u~ ▸u) (fullRedTermConv↑ v↑ ▸v)
                (fullRedConv↑ C↑ ▸C) ok₁)
           γ≤ }
-      (Emptyrec-cong A↑ t~) ▸Emptyrec →
-        case inv-usage-Emptyrec ▸Emptyrec of λ {
-          (invUsageEmptyrec ▸t ▸A γ≤) →
-        sub (Emptyrecₘ (fullRedNe~↓ t~ ▸t) (fullRedConv↑ A↑ ▸A)) γ≤ }
+      (emptyrec-cong A↑ t~) ▸emptyrec →
+        case inv-usage-emptyrec ▸emptyrec of λ {
+          (invUsageemptyrec ▸t ▸A γ≤) →
+        sub (emptyrecₘ (fullRedNe~↓ t~ ▸t) (fullRedConv↑ A↑ ▸A)) γ≤ }
 
     fullRedNe~↓ :
       (⊢t : Γ ⊢ t ~ t′ ↓ A) → γ ▸[ m ] t →

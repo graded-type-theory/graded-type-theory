@@ -80,9 +80,9 @@ mutual
     starᵢ : Unit-allowed
           → Γ ⊢ star ⇉ Unit
     Emptyᵢ : Γ ⊢ Empty ⇉ U
-    Emptyrecᵢ : Γ ⊢ A ⇇Type
+    emptyrecᵢ : Γ ⊢ A ⇇Type
               → Γ ⊢ t ⇇ Empty
-              → Γ ⊢ Emptyrec p A t ⇉ A
+              → Γ ⊢ emptyrec p A t ⇉ A
 
   data _⊢_⇇_ (Γ : Con Term n) : (t A : Term n) → Set a where
     lamᶜ : Γ ⊢ A ↘ Π p , q ▷ F ▹ G
@@ -117,7 +117,7 @@ mutual
     Unitᵢ : Inferable Unit
     starᵢ : Inferable star
     Emptyᵢ : Inferable Empty
-    Emptyrecᵢ : Checkable A → Checkable t → Inferable (Emptyrec p A t)
+    emptyrecᵢ : Checkable A → Checkable t → Inferable (emptyrec p A t)
 
 
   data Checkable : (Term n) → Set a where
@@ -164,4 +164,4 @@ mutual
   Inferable⇉ (Unitᵢ _) = Unitᵢ
   Inferable⇉ (starᵢ _) = starᵢ
   Inferable⇉ Emptyᵢ = Emptyᵢ
-  Inferable⇉ (Emptyrecᵢ x x₁) = Emptyrecᵢ (Checkable⇇Type x) (Checkable⇇ x₁)
+  Inferable⇉ (emptyrecᵢ x x₁) = emptyrecᵢ (Checkable⇇Type x) (Checkable⇇ x₁)

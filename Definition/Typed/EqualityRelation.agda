@@ -230,10 +230,10 @@ record EqRelSet : Set (lsuc ℓ) where
              → Γ                      ⊢ prodrec r p q′ A t u ~ prodrec r p q′ A′ t′ u′ ∷ A [ t ]₀
 
     -- Empty recursion congruence
-    ~-Emptyrec : ∀ {n n′ F F′}
+    ~-emptyrec : ∀ {n n′ F F′}
                → Γ ⊢ F ≅ F′
                → Γ ⊢ n ~ n′ ∷ Empty
-               → Γ ⊢ Emptyrec p F n ~ Emptyrec p F′ n′ ∷ F
+               → Γ ⊢ emptyrec p F n ~ emptyrec p F′ n′ ∷ F
 
   -- Star reflexivity
   ≅ₜ-starrefl : ⊢ Γ → Unit-allowed → Γ ⊢ star ≅ star ∷ Unit

@@ -61,7 +61,7 @@ erase (U.natrec p q r A z s n) = T.natrec (erase z) (erase s) (erase n)
 erase Unit = ↯
 erase U.star = T.star
 erase Empty = ↯
-erase (Emptyrec p A t) = ↯
+erase (emptyrec p A t) = ↯
 
 -- Extraction of substitutions.
 

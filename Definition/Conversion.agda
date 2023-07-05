@@ -66,9 +66,9 @@ mutual
                   → Γ ∙ F ∙ G ⊢ u [conv↑] v ∷ C [ prodᵣ p (var x1) (var x0) ]↑²
                   → Γ ⊢ prodrec r p q′ C g u ~ prodrec r p q′ E h v ↑ C [ g ]₀
 
-    Emptyrec-cong : Γ ⊢ F [conv↑] H
+    emptyrec-cong : Γ ⊢ F [conv↑] H
                   → Γ ⊢ k ~ l ↓ Empty
-                  → Γ ⊢ Emptyrec p F k ~ Emptyrec p H l ↑ F
+                  → Γ ⊢ emptyrec p F k ~ emptyrec p H l ↑ F
 
   -- Neutral equality with types in WHNF.
   record _⊢_~_↓_ (Γ : Con Term n) (k l B : Term n) : Set a where

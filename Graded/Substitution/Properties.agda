@@ -712,8 +712,8 @@ substₘ-lemma₀ ⦃ ok = ok ⦄ Ψ Ψ▶σ
      𝟘ᶜ ⊛ᶜ p ·ᶜ 𝟘ᶜ ▷ r                ≈˘⟨ ⊛ᵣᶜ-cong (∧ᶜ-idem _) (+ᶜ-identityˡ _) ⟩
      (𝟘ᶜ ∧ᶜ 𝟘ᶜ) ⊛ᶜ 𝟘ᶜ +ᶜ p ·ᶜ 𝟘ᶜ ▷ r  ∎)
 
-substₘ-lemma₀ Ψ Ψ▶σ (Emptyrecₘ γ▸t δ▸A) =
-  sub (Emptyrecₘ (substₘ-lemma₀ Ψ Ψ▶σ γ▸t)
+substₘ-lemma₀ Ψ Ψ▶σ (emptyrecₘ γ▸t δ▸A) =
+  sub (emptyrecₘ (substₘ-lemma₀ Ψ Ψ▶σ γ▸t)
          (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) (substₘ-lemma₀ Ψ Ψ▶σ δ▸A)))
     (≤ᶜ-reflexive (≈ᶜ-sym (·ᶜ-zeroʳ _)))
 
@@ -877,8 +877,8 @@ substₘ-lemma₁
 
 substₘ-lemma₁
   {mo = 𝟙ᵐ} not-ok Ψ Ψ▶σ
-  (Emptyrecₘ {γ = γ} {p = p} γ▸t δ▸A) = sub
-  (Emptyrecₘ (▸-without-𝟘ᵐ not-ok (substₘ-lemma₁ not-ok Ψ Ψ▶σ γ▸t))
+  (emptyrecₘ {γ = γ} {p = p} γ▸t δ▸A) = sub
+  (emptyrecₘ (▸-without-𝟘ᵐ not-ok (substₘ-lemma₁ not-ok Ψ Ψ▶σ γ▸t))
      (▸-cong (PE.sym (only-𝟙ᵐ-without-𝟘ᵐ not-ok))
         (substₘ-lemma₁ not-ok Ψ Ψ▶σ δ▸A)))
   (≤ᶜ-reflexive (*>-distrib-·ᶜ Ψ _ _))
@@ -1159,14 +1159,14 @@ substₘ-lemma
      (Ψ *> γ ∧ᶜ Ψ *> η) ⊛ᶜ (Ψ *> δ +ᶜ Ψ *> (p ·ᶜ η)) ▷ r  ≈⟨ ⊛ᵣᶜ-congˡ (+ᶜ-congˡ (*>-distrib-·ᶜ Ψ _ _)) ⟩
      (Ψ *> γ ∧ᶜ Ψ *> η) ⊛ᶜ (Ψ *> δ +ᶜ p ·ᶜ Ψ *> η) ▷ r    ∎)
 
-substₘ-lemma {mo = mo} Ψ Ψ▶σ (Emptyrecₘ {γ = γ} {p = p} γ▸t δ▸A) =
+substₘ-lemma {mo = mo} Ψ Ψ▶σ (emptyrecₘ {γ = γ} {p = p} γ▸t δ▸A) =
   case ▶-⌞·⌟ Ψ γ Ψ▶σ of λ where
     (inj₂ Ψ▶σ) → sub
-      (Emptyrecₘ (substₘ-lemma Ψ Ψ▶σ γ▸t)
+      (emptyrecₘ (substₘ-lemma Ψ Ψ▶σ γ▸t)
          (substₘ-lemma-𝟘ᵐ? Ψ Ψ▶σ δ▸A .proj₂))
       (≤ᶜ-reflexive (*>-distrib-·ᶜ Ψ _ _))
     (inj₁ (p≡𝟘 , ok)) → sub
-      (Emptyrecₘ (▸-cong (≡𝟘→𝟘ᵐ≡ᵐ· ⦃ ok = ok ⦄ mo p≡𝟘)
+      (emptyrecₘ (▸-cong (≡𝟘→𝟘ᵐ≡ᵐ· ⦃ ok = ok ⦄ mo p≡𝟘)
                     (substₘ-lemma₀ ⦃ ok = ok ⦄ Ψ Ψ▶σ γ▸t))
          (▸-cong
             (PE.sym 𝟘ᵐ?≡𝟘ᵐ)

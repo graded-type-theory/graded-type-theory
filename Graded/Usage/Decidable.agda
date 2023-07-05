@@ -87,15 +87,15 @@ infix 10 ⌈⌉▸[_]?_
     case inv-usage-suc ▸suc of λ (invUsageSuc ▸t _) →
     ¬▸t _ ▸t
 
-⌈⌉▸[ m ]? Emptyrec p A t = case ⌈⌉▸[ m ᵐ· p ]? t of λ where
+⌈⌉▸[ m ]? emptyrec p A t = case ⌈⌉▸[ m ᵐ· p ]? t of λ where
   (inj₂ ¬▸t) → inj₂ λ _ ▸er →
-    case inv-usage-Emptyrec ▸er of λ (invUsageEmptyrec ▸t _ _) →
+    case inv-usage-emptyrec ▸er of λ (invUsageemptyrec ▸t _ _) →
     ¬▸t _ ▸t
   (inj₁ ▸t) → case ⌈⌉▸[ 𝟘ᵐ? ]? A of λ where
     (inj₂ ¬▸A) → inj₂ λ _ ▸er →
-      case inv-usage-Emptyrec ▸er of λ (invUsageEmptyrec _ ▸A _) →
+      case inv-usage-emptyrec ▸er of λ (invUsageemptyrec _ ▸A _) →
       ¬▸A _ ▸A
-    (inj₁ ▸A) → inj₁ (Emptyrecₘ ▸t ▸A)
+    (inj₁ ▸A) → inj₁ (emptyrecₘ ▸t ▸A)
 
 ⌈⌉▸[ m ]? lam p t = case ⌈⌉▸[ m ]? t of λ where
     (inj₂ ¬▸t) → inj₂ λ _ ▸lam →

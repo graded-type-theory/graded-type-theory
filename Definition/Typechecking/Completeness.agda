@@ -109,11 +109,11 @@ mutual
       (≡Unit , ok) →
     _ , starᵢ ok , ≡Unit }
   completeness⇉ Emptyᵢ ⊢t = _ , Emptyᵢ , inversion-Empty ⊢t
-  completeness⇉ (Emptyrecᵢ C t) ⊢t =
-    let ⊢C , ⊢t , A≡C = inversion-Emptyrec ⊢t
+  completeness⇉ (emptyrecᵢ C t) ⊢t =
+    let ⊢C , ⊢t , A≡C = inversion-emptyrec ⊢t
         t⇇Empty = completeness⇇ t ⊢t
         C⇇Type = completeness⇇Type C ⊢C
-    in  _ , Emptyrecᵢ C⇇Type t⇇Empty , A≡C
+    in  _ , emptyrecᵢ C⇇Type t⇇Empty , A≡C
 
   -- Completeness of type checking
 

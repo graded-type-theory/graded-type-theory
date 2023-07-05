@@ -47,7 +47,7 @@ noU (t ∘ⱼ t₁) ()
 noU (zeroⱼ x) ()
 noU (sucⱼ t) ()
 noU (natrecⱼ x t t₁ t₂) ()
-noU (Emptyrecⱼ x t) ()
+noU (emptyrecⱼ x t) ()
 noU (conv t₁ x) ufull = noU t₁ ufull
 
 -- Neutrals cannot contain U.
@@ -55,7 +55,7 @@ noUNe : Neutral A → ¬ (UFull A)
 noUNe (var n) ()
 noUNe (∘ₙ neA) ()
 noUNe (natrecₙ neA) ()
-noUNe (Emptyrecₙ neA) ()
+noUNe (emptyrecₙ neA) ()
 
 -- Helper function where if at least one Π-type does not contain U,
 -- one of F and H will not contain U and one of G and E will not contain U.

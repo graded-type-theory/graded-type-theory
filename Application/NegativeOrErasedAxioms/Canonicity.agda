@@ -126,7 +126,7 @@ neNeg (prodrecⱼ {r = r} ⊢A A⊢B _ d _ ok₁) (prodrecₙ n) γ▸u =
         ⌞ r ⌟  ≡⟨ ≢𝟘→⌞⌟≡𝟙ᵐ (no-erased-matches (λ ()) ok₂) ⟩
         𝟙ᵐ     ∎
   in  ⊥-elim (¬negΣᵣ (neNeg d n (▸-cong lemma γ▸t)) ⊢Σ)
-neNeg (Emptyrecⱼ _ d     ) (Emptyrecₙ n) γ▸u = ⊥-elim (consistent d)
+neNeg (emptyrecⱼ _ d     ) (emptyrecₙ n) γ▸u = ⊥-elim (consistent d)
 neNeg (conv d c          ) n             γ▸u = conv (neNeg d n γ▸u) c
 
 -- Lemma: A normal form which has the type ℕ in a negative/erased

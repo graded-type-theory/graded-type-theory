@@ -130,16 +130,16 @@ mutual
                                                                    substTypeEq C≡C′ u≡u′ ⟩
          Γ ⊢ne prodrec r p q C′ u′ v′ ∷ C [ u ]₀                □)
       , prodrec-cong ⊢A ⊢B C≡C′ u≡u′ v≡v′ ok }}}}
-    (Emptyrec-cong {F = A} {p = p} A↑ t~) →
+    (emptyrec-cong {F = A} {p = p} A↑ t~) →
       case fullRedConv↑ A↑ of λ {
         (A′ , A′-nf , A≡A′) →
       case fullRedNe~↓ t~ of λ {
         (t′ , t′-ne , t≡t′) →
-        Emptyrec p A′ t′
-      , (                             $⟨ Emptyrecₙ A′-nf t′-ne ⟩
-         Γ ⊢ne Emptyrec p A′ t′ ∷ A′  →⟨ flip _⊢ne_∷_.convₙ (sym A≡A′) ⟩
-         Γ ⊢ne Emptyrec p A′ t′ ∷ A   □)
-      , Emptyrec-cong A≡A′ t≡t′ }}
+        emptyrec p A′ t′
+      , (                             $⟨ emptyrecₙ A′-nf t′-ne ⟩
+         Γ ⊢ne emptyrec p A′ t′ ∷ A′  →⟨ flip _⊢ne_∷_.convₙ (sym A≡A′) ⟩
+         Γ ⊢ne emptyrec p A′ t′ ∷ A   □)
+      , emptyrec-cong A≡A′ t≡t′ }}
 
   fullRedNe~↓ :
     Γ ⊢ t ~ t′ ↓ A →

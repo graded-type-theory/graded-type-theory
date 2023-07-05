@@ -62,20 +62,20 @@ Emptyʳ {m = m} ⊢Γ =
   [Γ] = valid ⊢Γ
   [U] = Uᵛ [Γ]
 
-Emptyrecʳ′ : ∀ {l p} → ([Γ] : ⊩ᵛ Γ)
+emptyrecʳ′ : ∀ {l p} → ([Γ] : ⊩ᵛ Γ)
           → ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ])
           → ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ Empty / [Γ] / Emptyᵛ [Γ])
-          → γ ▸ Γ ⊩ʳ⟨ l ⟩ Emptyrec p A t ∷[ m ] A / [Γ] / [A]
-Emptyrecʳ′ [Γ] [A] [t] [σ] σ®σ′ with proj₁ ([t] ⊢Δ [σ])
+          → γ ▸ Γ ⊩ʳ⟨ l ⟩ emptyrec p A t ∷[ m ] A / [Γ] / [A]
+emptyrecʳ′ [Γ] [A] [t] [σ] σ®σ′ with proj₁ ([t] ⊢Δ [σ])
 ... | Emptyₜ n d n≡n (ne (neNfₜ neK ⊢k k≡k)) = ⊥-elim (consistent ⊢k)
 
 
-Emptyrecʳ : ∀ {l p} → ([Γ] : ⊩ᵛ Γ)
+emptyrecʳ : ∀ {l p} → ([Γ] : ⊩ᵛ Γ)
           → ([Empty] : Γ ⊩ᵛ⟨ l ⟩ Empty / [Γ])
           → ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ])
           → ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ Empty / [Γ] / [Empty])
-          → γ ▸ Γ ⊩ʳ⟨ l ⟩ Emptyrec p A t ∷[ m ] A / [Γ] / [A]
-Emptyrecʳ {A = A} {t = t} {l = l} {p} [Γ] [Empty] [A] [t] [σ] σ®σ′ =
+          → γ ▸ Γ ⊩ʳ⟨ l ⟩ emptyrec p A t ∷[ m ] A / [Γ] / [A]
+emptyrecʳ {A = A} {t = t} {l = l} {p} [Γ] [Empty] [A] [t] [σ] σ®σ′ =
   let [Empty]′ = Emptyᵛ {l = l} [Γ]
       [t]′ = irrelevanceTerm {A = Empty} {t = t} [Γ] [Γ] [Empty] [Empty]′ [t]
-  in  Emptyrecʳ′ {A = A} {t = t} {p = p} [Γ] [A] [t]′ [σ] σ®σ′
+  in  emptyrecʳ′ {A = A} {t = t} {p = p} [Γ] [A] [t]′ [σ] σ®σ′

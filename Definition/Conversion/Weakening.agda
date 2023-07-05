@@ -72,8 +72,8 @@ mutual
                   (PE.sym (wk-β C))
                   (prodrec-cong (wkConv↑ (lift [ρ]) (⊢Δ ∙ ⊢ρΣ) x)
                      ρg~ρh u↓v)
-  wk~↑ {ρ} {Δ = Δ} [ρ] ⊢Δ (Emptyrec-cong {k} {l} {F} {G} x t~u) =
-    Emptyrec-cong (wkConv↑ [ρ] ⊢Δ x) (wk~↓ [ρ] ⊢Δ t~u)
+  wk~↑ {ρ} {Δ = Δ} [ρ] ⊢Δ (emptyrec-cong {k} {l} {F} {G} x t~u) =
+    emptyrec-cong (wkConv↑ [ρ] ⊢Δ x) (wk~↓ [ρ] ⊢Δ t~u)
 
   -- Weakening of algorithmic equality of neutrals in WHNF.
   wk~↓ : ∀ {t u A Γ Δ} ([ρ] : ρ ∷ Δ ⊆ Γ) → ⊢ Δ

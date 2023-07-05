@@ -266,24 +266,24 @@ inv-usage-natrec (sub γ▸natrec γ≤γ′) with inv-usage-natrec γ▸natrec
 ... | invUsageNatrec δ▸z η▸s θ▸n φ▸A γ′≤γ″ = invUsageNatrec δ▸z η▸s θ▸n φ▸A (≤ᶜ-trans γ≤γ′ γ′≤γ″)
 
 
-record InvUsageEmptyrec
+record InvUsageemptyrec
          {n} (γ : Conₘ n) (m : Mode) (p : M) (A t : Term n) :
          Set a where
-  constructor invUsageEmptyrec
+  constructor invUsageemptyrec
   field
     {δ η} : Conₘ n
     δ▸t  : δ ▸[ m ᵐ· p ] t
     η▸A  : η ▸[ 𝟘ᵐ? ] A
     γ≤pδ : γ ≤ᶜ p ·ᶜ δ
 
--- If γ ▸[ m ] Emptyrec p A t then δ ▸[ m ᵐ· p ] t, η ▸[ 𝟘ᵐ? ] A and
+-- If γ ▸[ m ] emptyrec p A t then δ ▸[ m ᵐ· p ] t, η ▸[ 𝟘ᵐ? ] A and
 -- γ ≤ᶜ p ·ᶜ δ.
 
-inv-usage-Emptyrec :
-  γ ▸[ m ] Emptyrec p A t → InvUsageEmptyrec γ m p A t
-inv-usage-Emptyrec (Emptyrecₘ δ▸t η▸A) = invUsageEmptyrec δ▸t η▸A ≤ᶜ-refl
-inv-usage-Emptyrec (sub γ▸et γ≤γ′) with inv-usage-Emptyrec γ▸et
-... | invUsageEmptyrec δ▸t η▸A γ′≤δ = invUsageEmptyrec δ▸t η▸A (≤ᶜ-trans γ≤γ′ γ′≤δ)
+inv-usage-emptyrec :
+  γ ▸[ m ] emptyrec p A t → InvUsageemptyrec γ m p A t
+inv-usage-emptyrec (emptyrecₘ δ▸t η▸A) = invUsageemptyrec δ▸t η▸A ≤ᶜ-refl
+inv-usage-emptyrec (sub γ▸et γ≤γ′) with inv-usage-emptyrec γ▸et
+... | invUsageemptyrec δ▸t η▸A γ′≤δ = invUsageemptyrec δ▸t η▸A (≤ᶜ-trans γ≤γ′ γ′≤δ)
 
 -- If γ ▸[ m ] star then γ ≤ᶜ 𝟘ᶜ.
 

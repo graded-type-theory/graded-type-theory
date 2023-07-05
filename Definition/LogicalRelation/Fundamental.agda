@@ -223,11 +223,11 @@ mutual
         [s]′ = S.irrelevanceTerm {A = G [ (suc (var x1)) ]↑²} {t = s} [Γ]₂ ([Γ]′ ∙ [ℕ] ∙ [G]′) [G₊] [G₊]′ [s]
     in [Γ]′ , [Gₙ]′
     , (natrecᵛ {F = G} {z} {s} {n} [Γ]′ [ℕ] [G]′ [G₀]′ [G₊]′ [Gₙ]′ [z]′ [s]′ [n])
-  fundamentalTerm (Emptyrecⱼ {A = A} {n} ⊢A ⊢n)
+  fundamentalTerm (emptyrecⱼ {A = A} {n} ⊢A ⊢n)
     with fundamental ⊢A | fundamentalTerm ⊢n
   ... | [Γ] , [A] | [Γ]′ , [Empty] , [n] =
     let [A]′ = S.irrelevance {A = A} [Γ] [Γ]′ [A]
-    in [Γ]′ , [A]′ , Emptyrecᵛ {F = A} {n} [Γ]′ [Empty] [A]′ [n]
+    in [Γ]′ , [A]′ , emptyrecᵛ {F = A} {n} [Γ]′ [Empty] [A]′ [n]
   fundamentalTerm (starⱼ x ok) =
     valid x , Unitᵛ (valid x) ok , starᵛ {l = ¹} (valid x) ok
   fundamentalTerm (conv {t} {A} {B} ⊢t A′≡A)
@@ -694,11 +694,11 @@ mutual
             [F[sucn]] [s₊]
 
     in  [Γ] , modelsTermEq [F[sucn]] [natrecₛₙ] [s₊] [nr≡s₊]
-  fundamentalTermEq (Emptyrec-cong {A = F} {F′} {n} {n′}
+  fundamentalTermEq (emptyrec-cong {A = F} {F′} {n} {n′}
                                  F≡F′ n≡n′)
     with fundamentalEq F≡F′ |
          fundamentalTermEq n≡n′
-  fundamentalTermEq (Emptyrec-cong {A = F} {F′} {n} {n′}
+  fundamentalTermEq (emptyrec-cong {A = F} {F′} {n} {n′}
                                  F≡F′ n≡n′) |
     [Γ]  , [F] , [F′] , [F≡F′] |
     [Γ]′ , modelsTermEq [Empty] [n] [n′] [n≡n′] =
@@ -706,10 +706,10 @@ mutual
         [F′]′ = S.irrelevance {A = F′} [Γ] [Γ]′ [F′]
         [F≡F′]′ = S.irrelevanceEq {A = F} {B = F′} [Γ] [Γ]′ [F] [F]′ [F≡F′]
     in [Γ]′
-      , modelsTermEq [F]′ (Emptyrecᵛ {F = F} {n} [Γ]′ [Empty] [F]′ [n])
-                     (conv₂ᵛ {t = Emptyrec _ F′ n′} {F} {F′} [Γ]′ [F]′ [F′]′ [F≡F′]′
-                       (Emptyrecᵛ {F = F′} {n′} [Γ]′ [Empty] [F′]′ [n′]))
-                     (Emptyrec-congᵛ {F = F} {F′} {n} {n′}
+      , modelsTermEq [F]′ (emptyrecᵛ {F = F} {n} [Γ]′ [Empty] [F]′ [n])
+                     (conv₂ᵛ {t = emptyrec _ F′ n′} {F} {F′} [Γ]′ [F]′ [F′]′ [F≡F′]′
+                       (emptyrecᵛ {F = F′} {n′} [Γ]′ [Empty] [F′]′ [n′]))
+                     (emptyrec-congᵛ {F = F} {F′} {n} {n′}
                        [Γ]′ [Empty] [F]′ [F′]′ [F≡F′]′
                        [n] [n′] [n≡n′])
   fundamentalTermEq (η-unit {e} {e'} ⊢e ⊢e')

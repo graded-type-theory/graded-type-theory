@@ -98,9 +98,9 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
             → (γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r ▸[ m ] natrec p q r A z s n
 
-  Emptyrecₘ : γ ▸[ m ᵐ· p ] t
+  emptyrecₘ : γ ▸[ m ᵐ· p ] t
             → δ ▸[ 𝟘ᵐ? ] A
-            → p ·ᶜ γ ▸[ m ] Emptyrec p A t
+            → p ·ᶜ γ ▸[ m ] emptyrec p A t
 
   starₘ     : 𝟘ᶜ ▸[ m ] star
 
@@ -139,4 +139,4 @@ mutual
   ⌈ Unit ⌉ _ = 𝟘ᶜ
   ⌈ star ⌉ _ = 𝟘ᶜ
   ⌈ Empty ⌉ _ = 𝟘ᶜ
-  ⌈ Emptyrec p A e ⌉ m = p ·ᶜ ⌈ e ⌉ (m ᵐ· p)
+  ⌈ emptyrec p A e ⌉ m = p ·ᶜ ⌈ e ⌉ (m ᵐ· p)

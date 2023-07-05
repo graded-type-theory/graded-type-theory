@@ -210,8 +210,8 @@ module Is-morphism
          tr-Conₘ δ C₂.+ᶜ tr p C₂.·ᶜ tr-Conₘ η ▷ tr r                   ∎)
       where
       open CR₂
-    tr-▸ (Emptyrecₘ {m = m} ▸t ▸A) = sub
-      (Emptyrecₘ (▸-cong (tr-Mode-ᵐ· m BMΠ) (tr-▸ ▸t)) (tr-▸[𝟘̂ᵐ?] ▸A))
+    tr-▸ (emptyrecₘ {m = m} ▸t ▸A) = sub
+      (emptyrecₘ (▸-cong (tr-Mode-ᵐ· m BMΠ) (tr-▸ ▸t)) (tr-▸[𝟘̂ᵐ?] ▸A))
       (≤ᶜ-reflexive tr-Conₘ-·ᶜ)
     tr-▸ starₘ =
       sub starₘ tr-Conₘ-𝟘ᶜ-≤ᶜ
@@ -372,8 +372,8 @@ module Is-order-embedding
          (tr-▸⁻¹-𝟙≡𝟘″ ▸P))
       (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
 
-    tr-▸⁻¹-𝟙≡𝟘′ (Emptyrec _ _ _) (Emptyrecₘ ▸t ▸A) = sub
-      (Emptyrecₘ
+    tr-▸⁻¹-𝟙≡𝟘′ (emptyrec _ _ _) (emptyrecₘ ▸t ▸A) = sub
+      (emptyrecₘ
          (tr-▸⁻¹-𝟙≡𝟘′ _ ▸t)
          (tr-▸⁻¹-𝟙≡𝟘′ _ ▸A))
       (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
@@ -569,11 +569,11 @@ module Is-order-embedding
         γ≤δ′∧θ′⊛η′+pθ′▷r
 
     tr-▸⁻¹′
-      {m = m} {γ = γ} (Emptyrec p _ _)
-      (Emptyrecₘ ▸t ▸A) refl γ≤pδ =
+      {m = m} {γ = γ} (emptyrec p _ _)
+      (emptyrecₘ ▸t ▸A) refl γ≤pδ =
       case tr-Conₘ-≤ᶜ-·ᶜ γ≤pδ of λ (δ′ , δ′≤δ , γ≤pδ′) →
       sub
-        (Emptyrecₘ (tr-▸⁻¹′ _ ▸t (sym (tr-Mode-ᵐ· m BMΠ)) δ′≤δ)
+        (emptyrecₘ (tr-▸⁻¹′ _ ▸t (sym (tr-Mode-ᵐ· m BMΠ)) δ′≤δ)
            (tr-▸[𝟘̂ᵐ?]⁻¹ ▸A .proj₂))
         (begin
            γ           ≤⟨ γ≤pδ′ ⟩

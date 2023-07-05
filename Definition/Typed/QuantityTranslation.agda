@@ -115,8 +115,8 @@ mutual
             (PE.sym (tr-Term-[]↑² P) )
             (tr-⊢∷ s))
          (tr-⊢∷ n))
-  tr-⊢∷ (Emptyrecⱼ A e) =
-    Emptyrecⱼ (tr-⊢′ A) (tr-⊢∷ e)
+  tr-⊢∷ (emptyrecⱼ A e) =
+    emptyrecⱼ (tr-⊢′ A) (tr-⊢∷ e)
   tr-⊢∷ (starⱼ Γ ok) =
     starⱼ (tr-⊢ Γ) (Unit-preserved ok)
   tr-⊢∷ (conv t A≡B) =
@@ -232,8 +232,8 @@ mutual
             (PE.sym (tr-Term-[]↑² P))
             (tr-⊢∷ ⊢s))
          (tr-⊢∷ n))
-  tr-⊢≡∷ (Emptyrec-cong A≡B t≡u) =
-    Emptyrec-cong (tr-⊢≡ A≡B) (tr-⊢≡∷ t≡u)
+  tr-⊢≡∷ (emptyrec-cong A≡B t≡u) =
+    emptyrec-cong (tr-⊢≡ A≡B) (tr-⊢≡∷ t≡u)
   tr-⊢≡∷ (η-unit t u) =
     η-unit (tr-⊢∷ t) (tr-⊢∷ u)
 
@@ -307,8 +307,8 @@ tr-⊢⇒∷ (natrec-suc {A = P} {s = s} ⊢P z ⊢s n) =
           (PE.sym (tr-Term-[]↑² P))
           (tr-⊢∷ ⊢s))
        (tr-⊢∷ n))
-tr-⊢⇒∷ (Emptyrec-subst A t⇒u) =
-  Emptyrec-subst (tr-⊢′ A) (tr-⊢⇒∷ t⇒u)
+tr-⊢⇒∷ (emptyrec-subst A t⇒u) =
+  emptyrec-subst (tr-⊢′ A) (tr-⊢⇒∷ t⇒u)
 
 -- Preservation of _⊢_⇒_.
 

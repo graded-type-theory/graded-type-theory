@@ -148,8 +148,8 @@ mutual
                            (PE.subst (λ x → _ ⊢ _ ∷ x)
                                      (wk-β-prodrec ρ A) ⊢ρu)
                            ok)
-  wkTerm {Δ = Δ} {ρ = ρ} [ρ] ⊢Δ (Emptyrecⱼ {A = A} {t = e} ⊢A ⊢e) =
-    (Emptyrecⱼ (wk [ρ] ⊢Δ ⊢A) (wkTerm [ρ] ⊢Δ ⊢e))
+  wkTerm {Δ = Δ} {ρ = ρ} [ρ] ⊢Δ (emptyrecⱼ {A = A} {t = e} ⊢A ⊢e) =
+    (emptyrecⱼ (wk [ρ] ⊢Δ ⊢A) (wkTerm [ρ] ⊢Δ ⊢e))
   wkTerm ρ ⊢Δ (starⱼ ⊢Γ ok) = starⱼ ⊢Δ ok
   wkTerm ρ ⊢Δ (conv t A≡B) = conv (wkTerm ρ ⊢Δ t) (wkEq ρ ⊢Δ A≡B)
 
@@ -325,8 +325,8 @@ mutual
                     p≡p′ ok)
   wkEqTerm
     {Δ = Δ} {ρ = ρ} [ρ] ⊢Δ
-    (Emptyrec-cong {A = A} {B = A'} {t = e} {u = e'} A≡A' e≡e') =
-    (Emptyrec-cong (wkEq [ρ] ⊢Δ A≡A')
+    (emptyrec-cong {A = A} {B = A'} {t = e} {u = e'} A≡A' e≡e') =
+    (emptyrec-cong (wkEq [ρ] ⊢Δ A≡A')
                    (wkEqTerm [ρ] ⊢Δ e≡e'))
   wkEqTerm ρ ⊢Δ (η-unit e e') = η-unit (wkTerm ρ ⊢Δ e) (wkTerm ρ ⊢Δ e')
 
@@ -463,8 +463,8 @@ mutual
                                                      ((⊢Δ ∙ (ℕⱼ ⊢Δ)) ∙ ρF)
                                                      ⊢s))
                                    ρn))
-  wkRedTerm {Δ = Δ} {ρ = ρ} [ρ] ⊢Δ (Emptyrec-subst {A = A} ⊢A n⇒n′) =
-    (Emptyrec-subst (wk [ρ] ⊢Δ ⊢A)
+  wkRedTerm {Δ = Δ} {ρ = ρ} [ρ] ⊢Δ (emptyrec-subst {A = A} ⊢A n⇒n′) =
+    (emptyrec-subst (wk [ρ] ⊢Δ ⊢A)
                     (wkRedTerm [ρ] ⊢Δ n⇒n′))
 
 wkRed* : ρ ∷ Δ ⊆ Γ →

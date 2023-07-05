@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------
--- Validity of Emptyrec.
+-- Validity of emptyrec.
 ------------------------------------------------------------------------
 
 open import Definition.Typed.EqualityRelation
@@ -40,29 +40,29 @@ private
     p p′ : M
 
 -- Empty elimination closure reduction (requires reducible terms and equality).
-Emptyrec-subst* : ∀ {C n n′ l}
+emptyrec-subst* : ∀ {C n n′ l}
               → Γ ⊢ C
               → Γ ⊢ n ⇒* n′ ∷ Empty
               → ([Empty] : Γ ⊩⟨ l ⟩ Empty)
               → Γ ⊩⟨ l ⟩ n′ ∷ Empty / [Empty]
-              → Γ ⊢ Emptyrec p C n ⇒* Emptyrec p C n′ ∷ C
-Emptyrec-subst* C (id x) [Empty] [n′] = id (Emptyrecⱼ C x)
-Emptyrec-subst* {p = p} C (x ⇨ n⇒n′) [Empty] [n′] =
+              → Γ ⊢ emptyrec p C n ⇒* emptyrec p C n′ ∷ C
+emptyrec-subst* C (id x) [Empty] [n′] = id (emptyrecⱼ C x)
+emptyrec-subst* {p = p} C (x ⇨ n⇒n′) [Empty] [n′] =
   let q , w = redSubst*Term n⇒n′ [Empty] [n′]
       a , s = redSubstTerm x [Empty] q
-  in  Emptyrec-subst C x ⇨ conv* (Emptyrec-subst* C n⇒n′ [Empty] [n′]) (refl C)
+  in  emptyrec-subst C x ⇨ conv* (emptyrec-subst* C n⇒n′ [Empty] [n′]) (refl C)
 
 -- Reducibility of empty elimination under a valid substitution.
-EmptyrecTerm : ∀ {F n σ l}
+emptyrecTerm : ∀ {F n σ l}
              ([Γ]  : ⊩ᵛ Γ)
              ([F]  : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
              (⊢Δ   : ⊢ Δ)
              ([σ]  : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
              ([σn] : Δ ⊩⟨ l ⟩ n ∷ Empty / Emptyᵣ (idRed:*: (Emptyⱼ ⊢Δ)))
-           → Δ ⊩⟨ l ⟩ Emptyrec p (F [ σ ]) n
+           → Δ ⊩⟨ l ⟩ emptyrec p (F [ σ ]) n
                ∷ F [ σ ]
                / proj₁ (unwrap [F] ⊢Δ [σ])
-EmptyrecTerm {Γ = Γ} {Δ = Δ} {F = F} {n} {σ} {l} [Γ] [F] ⊢Δ [σ]
+emptyrecTerm {Γ = Γ} {Δ = Δ} {F = F} {n} {σ} {l} [Γ] [F] ⊢Δ [σ]
            (Emptyₜ m d n≡n (ne (neNfₜ neM ⊢m m≡m))) =
   let [Empty] = Emptyᵛ {l = l} [Γ]
       [σEmpty] = proj₁ (unwrap [Empty] ⊢Δ [σ])
@@ -70,14 +70,14 @@ EmptyrecTerm {Γ = Γ} {Δ = Δ} {F = F} {n} {σ} {l} [Γ] [F] ⊢Δ [σ]
       [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
       ⊢F = escape [σF]
       ⊢F≡F = escapeEq [σF] (reflEq [σF])
-      EmptyrecM = neuTerm [σF] (Emptyrecₙ neM) (Emptyrecⱼ ⊢F ⊢m)
-                        (~-Emptyrec ⊢F≡F m≡m)
-      reduction = Emptyrec-subst* ⊢F (redₜ d) [σEmpty] [σm]
-  in proj₁ (redSubst*Term reduction [σF] EmptyrecM)
+      emptyrecM = neuTerm [σF] (emptyrecₙ neM) (emptyrecⱼ ⊢F ⊢m)
+                        (~-emptyrec ⊢F≡F m≡m)
+      reduction = emptyrec-subst* ⊢F (redₜ d) [σEmpty] [σm]
+  in proj₁ (redSubst*Term reduction [σF] emptyrecM)
 
 
 -- Reducibility of empty elimination congruence under a valid substitution equality.
-Emptyrec-congTerm : ∀ {F F′ n m σ σ′ l}
+emptyrec-congTerm : ∀ {F F′ n m σ σ′ l}
                   ([Γ]      : ⊩ᵛ Γ)
                   ([F]      : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
                   ([F′]     : Γ ⊩ᵛ⟨ l ⟩ F′ / [Γ])
@@ -89,11 +89,11 @@ Emptyrec-congTerm : ∀ {F F′ n m σ σ′ l}
                   ([σn]     : Δ ⊩⟨ l ⟩ n ∷ Empty / Emptyᵣ (idRed:*: (Emptyⱼ ⊢Δ)))
                   ([σm]     : Δ ⊩⟨ l ⟩ m ∷ Empty / Emptyᵣ (idRed:*: (Emptyⱼ ⊢Δ)))
                   ([σn≡σm]  : Δ ⊩⟨ l ⟩ n ≡ m ∷ Empty / Emptyᵣ (idRed:*: (Emptyⱼ ⊢Δ)))
-                → Δ ⊩⟨ l ⟩ Emptyrec p (F [ σ ]) n
-                    ≡ Emptyrec p (F′ [ σ′ ]) m
+                → Δ ⊩⟨ l ⟩ emptyrec p (F [ σ ]) n
+                    ≡ emptyrec p (F′ [ σ′ ]) m
                     ∷ F [ σ ]
                     / proj₁ (unwrap [F] ⊢Δ [σ])
-Emptyrec-congTerm {Γ = Γ} {Δ = Δ} {p = p} {F} {F′} {n} {m} {σ} {σ′} {l}
+emptyrec-congTerm {Γ = Γ} {Δ = Δ} {p = p} {F} {F′} {n} {m} {σ} {σ′} {l}
                 [Γ] [F] [F′] [F≡F′]
                 ⊢Δ [σ] [σ′] [σ≡σ′]
                 (Emptyₜ n′ d n≡n (ne (neNfₜ neN′ ⊢n′ n≡n₁)))
@@ -119,51 +119,51 @@ Emptyrec-congTerm {Γ = Γ} {Δ = Δ} {p = p} {F} {F′} {n} {m} {σ} {σ′} {l
       [σF≡σ′F] = proj₂ (unwrap [F] ⊢Δ [σ]) [σ′] [σ≡σ′]
       [σ′F≡σ′F′] = [F≡F′] ⊢Δ [σ′]
       [σF≡σ′F′] = transEq [σF] [σ′F] [σ′F′] [σF≡σ′F] [σ′F≡σ′F′]
-      EmptyrecN = neuTerm [σF] (Emptyrecₙ neN′) (Emptyrecⱼ ⊢F ⊢n′)
-                        (~-Emptyrec ⊢F≡F n≡n₁)
-      EmptyrecM = neuTerm [σ′F′] (Emptyrecₙ neM′) (Emptyrecⱼ ⊢F′ ⊢m′)
-                        (~-Emptyrec ⊢F′≡F′ m≡m₁)
-      EmptyrecN≡M =
-          (neuEqTerm [σF] (Emptyrecₙ neN′) (Emptyrecₙ neM′)
-                     (Emptyrecⱼ ⊢F ⊢n′)
-                     (conv (Emptyrecⱼ ⊢F′ ⊢m′)
+      emptyrecN = neuTerm [σF] (emptyrecₙ neN′) (emptyrecⱼ ⊢F ⊢n′)
+                        (~-emptyrec ⊢F≡F n≡n₁)
+      emptyrecM = neuTerm [σ′F′] (emptyrecₙ neM′) (emptyrecⱼ ⊢F′ ⊢m′)
+                        (~-emptyrec ⊢F′≡F′ m≡m₁)
+      emptyrecN≡M =
+          (neuEqTerm [σF] (emptyrecₙ neN′) (emptyrecₙ neM′)
+                     (emptyrecⱼ ⊢F ⊢n′)
+                     (conv (emptyrecⱼ ⊢F′ ⊢m′)
                             (sym (≅-eq (escapeEq [σF]
                               (transEq [σF] [σ′F] [σ′F′] [σF≡σ′F] [σ′F≡σ′F′])))))
-                     (~-Emptyrec ⊢F≡F′
+                     (~-emptyrec ⊢F≡F′
                                (PE.subst₂ (λ x y → _ ⊢ x ~ y ∷ _)
                                           n″≡n′ m″≡m′ prop₂)))
-      reduction₁ = Emptyrec-subst* ⊢F (redₜ d) [σEmpty] [σn′]
-      reduction₂ = Emptyrec-subst* ⊢F′ (redₜ d′) [σ′Empty] [σ′m′]
-      eq₁ = proj₂ (redSubst*Term reduction₁ [σF] EmptyrecN)
-      eq₂ = proj₂ (redSubst*Term reduction₂ [σ′F′] EmptyrecM)
+      reduction₁ = emptyrec-subst* ⊢F (redₜ d) [σEmpty] [σn′]
+      reduction₂ = emptyrec-subst* ⊢F′ (redₜ d′) [σ′Empty] [σ′m′]
+      eq₁ = proj₂ (redSubst*Term reduction₁ [σF] emptyrecN)
+      eq₂ = proj₂ (redSubst*Term reduction₂ [σ′F′] emptyrecM)
   in  transEqTerm [σF] eq₁
-                 (transEqTerm [σF] EmptyrecN≡M
+                 (transEqTerm [σF] emptyrecN≡M
                               (convEqTerm₂ [σF] [σ′F′] [σF≡σ′F′]
                                            (symEqTerm [σ′F′] eq₂)))
 
 -- Validity of empty elimination.
-Emptyrecᵛ : ∀ {F n l} ([Γ] : ⊩ᵛ Γ)
+emptyrecᵛ : ∀ {F n l} ([Γ] : ⊩ᵛ Γ)
           ([Empty]  : Γ ⊩ᵛ⟨ l ⟩ Empty / [Γ])
           ([F]  : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
         → ([n] : Γ ⊩ᵛ⟨ l ⟩ n ∷ Empty / [Γ] / [Empty])
-        → Γ ⊩ᵛ⟨ l ⟩ Emptyrec p F n ∷ F / [Γ] / [F]
-Emptyrecᵛ {F = F} {n} {l = l} [Γ] [Empty] [F] [n]
+        → Γ ⊩ᵛ⟨ l ⟩ emptyrec p F n ∷ F / [Γ] / [F]
+emptyrecᵛ {F = F} {n} {l = l} [Γ] [Empty] [F] [n]
         {Δ = Δ} {σ = σ} ⊢Δ [σ] =
   let [σn] = irrelevanceTerm {l′ = l} (proj₁ (unwrap [Empty] ⊢Δ [σ]))
                              (Emptyᵣ (idRed:*: (Emptyⱼ ⊢Δ))) (proj₁ ([n] ⊢Δ [σ]))
-  in EmptyrecTerm {F = F} [Γ] [F] ⊢Δ [σ] [σn]
+  in emptyrecTerm {F = F} [Γ] [F] ⊢Δ [σ] [σn]
     , λ {σ'} [σ′] [σ≡σ′] →
       let [σ′n] = irrelevanceTerm {l′ = l} (proj₁ (unwrap [Empty] ⊢Δ [σ′]))
                                   (Emptyᵣ (idRed:*: (Emptyⱼ ⊢Δ))) (proj₁ ([n] ⊢Δ [σ′]))
           [σn≡σ′n] = irrelevanceEqTerm {l′ = l} (proj₁ (unwrap [Empty] ⊢Δ [σ]))
                                        (Emptyᵣ (idRed:*: (Emptyⱼ ⊢Δ)))
                                        (proj₂ ([n] ⊢Δ [σ]) [σ′] [σ≡σ′])
-          congTerm = Emptyrec-congTerm {F = F} {F′ = F} [Γ] [F] [F] (reflᵛ {A = F} {l = l} [Γ] [F])
+          congTerm = emptyrec-congTerm {F = F} {F′ = F} [Γ] [F] [F] (reflᵛ {A = F} {l = l} [Γ] [F])
                        ⊢Δ [σ] [σ′] [σ≡σ′] [σn] [σ′n] [σn≡σ′n]
       in congTerm
 
 -- Validity of empty elimination congruence.
-Emptyrec-congᵛ : ∀ {F F′ n n′ l} ([Γ] : ⊩ᵛ Γ)
+emptyrec-congᵛ : ∀ {F F′ n n′ l} ([Γ] : ⊩ᵛ Γ)
           ([Empty]  : Γ ⊩ᵛ⟨ l ⟩ Empty / [Γ])
           ([F]  : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
           ([F′]  : Γ ⊩ᵛ⟨ l ⟩ F′ / [Γ])
@@ -171,8 +171,8 @@ Emptyrec-congᵛ : ∀ {F F′ n n′ l} ([Γ] : ⊩ᵛ Γ)
           ([n] : Γ ⊩ᵛ⟨ l ⟩ n ∷ Empty / [Γ] / [Empty])
           ([n′] : Γ ⊩ᵛ⟨ l ⟩ n′ ∷ Empty / [Γ] / [Empty])
           ([n≡n′] : Γ ⊩ᵛ⟨ l ⟩ n ≡ n′ ∷ Empty / [Γ] / [Empty])
-        → Γ ⊩ᵛ⟨ l ⟩ Emptyrec p F n ≡ Emptyrec p F′ n′ ∷ F / [Γ] / [F]
-Emptyrec-congᵛ {F = F} {F′} {n} {n′} {l = l}
+        → Γ ⊩ᵛ⟨ l ⟩ emptyrec p F n ≡ emptyrec p F′ n′ ∷ F / [Γ] / [F]
+emptyrec-congᵛ {F = F} {F′} {n} {n′} {l = l}
              [Γ] [Empty] [F] [F′] [F≡F′]
              [n] [n′] [n≡n′] {Δ = Δ} {σ = σ} ⊢Δ [σ] =
   let [σn] = irrelevanceTerm {l′ = l} (proj₁ (unwrap [Empty] ⊢Δ [σ]))
@@ -181,6 +181,6 @@ Emptyrec-congᵛ {F = F} {F′} {n} {n′} {l = l}
                              (Emptyᵣ (idRed:*: (Emptyⱼ ⊢Δ))) (proj₁ ([n′] ⊢Δ [σ]))
       [σn≡σn′] = irrelevanceEqTerm {l′ = l} (proj₁ (unwrap [Empty] ⊢Δ [σ]))
                                    (Emptyᵣ (idRed:*: (Emptyⱼ ⊢Δ))) ([n≡n′] ⊢Δ [σ])
-      congTerm = Emptyrec-congTerm {F = F} {F′} [Γ] [F] [F′] [F≡F′]
+      congTerm = emptyrec-congTerm {F = F} {F′} [Γ] [F] [F′] [F≡F′]
                    ⊢Δ [σ] [σ] (reflSubst [Γ] ⊢Δ [σ]) [σn] [σn′] [σn≡σn′]
   in congTerm

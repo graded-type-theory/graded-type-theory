@@ -181,8 +181,8 @@ var-usage-lookup (there x) = var-usage-lookup x
      (⌜ m′ ⌝ ·ᶜ γ ∧ᶜ ⌜ m′ ⌝ ·ᶜ η) ⊛ᶜ ⌜ m′ ⌝ ·ᶜ δ +ᶜ p ·ᶜ ⌜ m′ ⌝ ·ᶜ η ▷ r  ∎)
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-▸-· {m′ = m′} (Emptyrecₘ {γ = γ} {m = m} {p = p} e A) = sub
-  (Emptyrecₘ (▸-cong (PE.sym (·ᵐ-ᵐ·-assoc m′)) (▸-· e)) A)
+▸-· {m′ = m′} (emptyrecₘ {γ = γ} {m = m} {p = p} e A) = sub
+  (emptyrecₘ (▸-cong (PE.sym (·ᵐ-ᵐ·-assoc m′)) (▸-· e)) A)
   (begin
      ⌜ m′ ⌝ ·ᶜ p ·ᶜ γ   ≈˘⟨ ·ᶜ-assoc _ _ _ ⟩
      (⌜ m′ ⌝ · p) ·ᶜ γ  ≈⟨ ·ᶜ-congʳ (⌜⌝-·-comm m′) ⟩
@@ -506,15 +506,15 @@ Conₘ-interchange
           (γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ (p ·ᶜ η)) ▷ r , x ≔ ((γ′ ∧ᶜ η′) ⊛ᶜ (δ′ +ᶜ (p ·ᶜ η′)) ▷ r) ⟨ x ⟩ ∎
 
 Conₘ-interchange
-  (Emptyrecₘ {γ = γ} {m = m} {p = p} γ▸t η▸A)
-  (Emptyrecₘ {γ = δ} δ▸t _)
+  (emptyrecₘ {γ = γ} {m = m} {p = p} γ▸t η▸A)
+  (emptyrecₘ {γ = δ} δ▸t _)
   x =
   subst (_▸[ _ ] _)
     (begin
        p ·ᶜ (γ , x ≔ δ ⟨ x ⟩)       ≡˘⟨ update-distrib-·ᶜ _ _ _ _ ⟩
        p ·ᶜ γ , x ≔ p · (δ ⟨ x ⟩)   ≡˘⟨ cong (_ , _ ≔_) (lookup-distrib-·ᶜ δ _ _) ⟩
        p ·ᶜ γ , x ≔ (p ·ᶜ δ) ⟨ x ⟩  ∎)
-    (Emptyrecₘ (Conₘ-interchange γ▸t δ▸t x) η▸A)
+    (emptyrecₘ (Conₘ-interchange γ▸t δ▸t x) η▸A)
   where
   open Tools.Reasoning.PropositionalEquality
 
@@ -571,7 +571,7 @@ usage-upper-bound (natrecₘ {z = z} {s = s} {n = n} γ▸z δ▸s η▸n θ▸A
   δ≤δ′ = usage-upper-bound δ▸s
   η≤η′ = usage-upper-bound η▸n
 
-usage-upper-bound (Emptyrecₘ e A) =
+usage-upper-bound (emptyrecₘ e A) =
   ·ᶜ-monotoneʳ (usage-upper-bound e)
 usage-upper-bound starₘ = ≤ᶜ-refl
 usage-upper-bound (sub t x) = ≤ᶜ-trans x (usage-upper-bound t)
@@ -627,7 +627,7 @@ usage-inf (natrecₘ {p = p} {r = r} {s = s} γ▸z δ▸s η▸n θ▸A) =
                       (≤ᶜ-refl ∙ headₘ-monotone (tailₘ-monotone (usage-upper-bound δ▸s)) ∙ headₘ-monotone (usage-upper-bound δ▸s))))
           (usage-inf η▸n)
           θ▸A
-usage-inf (Emptyrecₘ γ▸t δ▸A) = Emptyrecₘ (usage-inf γ▸t) δ▸A
+usage-inf (emptyrecₘ γ▸t δ▸A) = emptyrecₘ (usage-inf γ▸t) δ▸A
 usage-inf starₘ = starₘ
 usage-inf (sub γ▸t x) = usage-inf γ▸t
 
@@ -704,7 +704,7 @@ usage-inf (sub γ▸t x) = usage-inf γ▸t
   ≈ᶜ-refl
 ⌈⌉-𝟘ᵐ Empty =
   ≈ᶜ-refl
-⌈⌉-𝟘ᵐ {ok = ok} (Emptyrec p _ t) = begin
+⌈⌉-𝟘ᵐ {ok = ok} (emptyrec p _ t) = begin
   p ·ᶜ ⌈ t ⌉ 𝟘ᵐ[ ok ]  ≈⟨ ·ᶜ-congˡ (⌈⌉-𝟘ᵐ t) ⟩
   p ·ᶜ 𝟘ᶜ              ≈⟨ ·ᶜ-zeroʳ _ ⟩
   𝟘ᶜ                   ∎

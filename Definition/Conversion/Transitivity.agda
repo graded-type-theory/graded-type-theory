@@ -97,11 +97,11 @@ mutual
         a≡b = soundness~↓ a~b
         Aa≡Bb = substTypeEq A≡B a≡b
     in  prodrec-cong A<>C a~c t<>v , Aa≡Bb
-  trans~↑ (Emptyrec-cong A<>B t~u) (Emptyrec-cong B<>C u~v) =
+  trans~↑ (emptyrec-cong A<>B t~u) (emptyrec-cong B<>C u~v) =
     let A≡B = soundnessConv↑ A<>B
         A<>C = transConv↑ A<>B B<>C
         t~v , _ = trans~↓  t~u u~v
-    in  Emptyrec-cong A<>C t~v , A≡B
+    in  emptyrec-cong A<>C t~v , A≡B
 
   -- Transitivity of algorithmic equality of neutrals with types in WHNF.
   trans~↓ : ∀ {t u v A B}

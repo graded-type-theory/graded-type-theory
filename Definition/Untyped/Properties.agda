@@ -837,7 +837,7 @@ noClosedNe (fstₙ net) = noClosedNe net
 noClosedNe (sndₙ net) = noClosedNe net
 noClosedNe (natrecₙ net) = noClosedNe net
 noClosedNe (prodrecₙ net) = noClosedNe net
-noClosedNe (Emptyrecₙ net) = noClosedNe net
+noClosedNe (emptyrecₙ net) = noClosedNe net
 
 -- Decidability of SigmaMode equality
 decSigmaMode : Decidable (_≡_ {A = SigmaMode})

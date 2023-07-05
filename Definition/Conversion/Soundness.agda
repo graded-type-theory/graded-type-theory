@@ -55,8 +55,8 @@ mutual
         u≡v = soundnessConv↑Term x₂
         ⊢F , ⊢G , ok = inversion-ΠΣ (proj₁ (syntacticEqTerm g≡h))
     in  prodrec-cong ⊢F ⊢G C≡E g≡h u≡v ok
-  soundness~↑ (Emptyrec-cong x₁ k~l) =
-    Emptyrec-cong (soundnessConv↑ x₁) (soundness~↓ k~l)
+  soundness~↑ (emptyrec-cong x₁ k~l) =
+    emptyrec-cong (soundnessConv↑ x₁) (soundness~↓ k~l)
 
   -- Algorithmic equality of neutrals in WHNF is well-formed.
   soundness~↓ : ∀ {k l A} → Γ ⊢ k ~ l ↓ A → Γ ⊢ k ≡ l ∷ A

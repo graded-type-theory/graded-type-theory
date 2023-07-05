@@ -110,13 +110,13 @@ mutual
               , prodrec-cong E↑C h~g
                   (convConv↑Term (reflConEq ⊢Δ ∙ ⊢F≡F′ ∙ ⊢G≡G′)
                      C₊≡E₊ v↑u)
-  sym~↑ Γ≡Δ (Emptyrec-cong x t~u) =
+  sym~↑ Γ≡Δ (emptyrec-cong x t~u) =
     let ⊢Γ , ⊢Δ , _ = contextConvSubst Γ≡Δ
         B , whnfB , A≡B , u~t = sym~↓ Γ≡Δ t~u
         B≡Empty = Empty≡A A≡B whnfB
         F≡G = stabilityEq Γ≡Δ (soundnessConv↑ x)
     in  _ , soundnessConv↑ x
-    , Emptyrec-cong (symConv↑ Γ≡Δ x)
+    , emptyrec-cong (symConv↑ Γ≡Δ x)
                     (PE.subst (λ x₁ → _ ⊢ _ ~ _ ↓ x₁) B≡Empty u~t)
 
   -- Symmetry of algorithmic equality of neutrals of types in WHNF.

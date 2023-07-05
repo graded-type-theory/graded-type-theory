@@ -39,8 +39,8 @@ mutual
   ne~↑ (prodrec-cong _ g~h _) =
     let _ , gNe , hNe = ne~↓ g~h
     in  prodrecₙ gNe , prodrecₙ hNe
-  ne~↑ (Emptyrec-cong x x₁) = let _ , q , w = ne~↓ x₁
-                              in Emptyrecₙ q , Emptyrecₙ w
+  ne~↑ (emptyrec-cong x x₁) = let _ , q , w = ne~↓ x₁
+                              in emptyrecₙ q , emptyrecₙ w
 
   -- Extraction of neutrality and WHNF from algorithmic equality of neutrals
   -- with type in WHNF.

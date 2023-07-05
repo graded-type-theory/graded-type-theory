@@ -421,17 +421,17 @@ module Fundamental
           [Γ] [A[n]] ⊩ʳnatrec γ≤γ′
   fundamental
     {Γ = Γ} {γ = γ}
-    (Emptyrecⱼ {A = A} {t = t} {p = p} ⊢A Γ⊢t:Empty) γ▸t =
-    let invUsageEmptyrec δ▸t _ γ≤δ = inv-usage-Emptyrec γ▸t
+    (emptyrecⱼ {A = A} {t = t} {p = p} ⊢A Γ⊢t:Empty) γ▸t =
+    let invUsageemptyrec δ▸t _ γ≤δ = inv-usage-emptyrec γ▸t
         [Γ] , [Empty] , ⊩ʳt = fundamental Γ⊢t:Empty δ▸t
         [Γ]′ , [A]′ = F.fundamental ⊢A
         [A] = IS.irrelevance {A = A} [Γ]′ [Γ] [A]′
         [Γ]″ , [Empty]′ , [t]′ = F.fundamentalTerm Γ⊢t:Empty
         [t] = IS.irrelevanceTerm {A = Empty} {t = t}
                 [Γ]″ [Γ] [Empty]′ [Empty] [t]′
-        γ⊩ʳEmptyrec = Emptyrecʳ {A = A} {t = t} {p = p}
+        γ⊩ʳemptyrec = emptyrecʳ {A = A} {t = t} {p = p}
                         [Γ] [Empty] [A] [t]
-    in  [Γ] , [A] , γ⊩ʳEmptyrec
+    in  [Γ] , [A] , γ⊩ʳemptyrec
   fundamental (starⱼ ⊢Γ ok) _ = starʳ ⊢Γ ok
   fundamental (conv {t = t} {A = A} {B = B} Γ⊢t:A A≡B) γ▸t =
     let [Γ] , [A] , ⊩ʳt = fundamental Γ⊢t:A γ▸t

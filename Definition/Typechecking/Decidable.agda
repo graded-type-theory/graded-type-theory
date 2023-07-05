@@ -125,13 +125,13 @@ mutual
   dec-Inferable Unit = yes Unitᵢ
   dec-Inferable star = yes starᵢ
   dec-Inferable Empty = yes Emptyᵢ
-  dec-Inferable (Emptyrec p A t) = case dec-Checkable A of λ where
+  dec-Inferable (emptyrec p A t) = case dec-Checkable A of λ where
     (yes A′) → case dec-Checkable t of λ where
-      (yes t′) → yes (Emptyrecᵢ A′ t′)
+      (yes t′) → yes (emptyrecᵢ A′ t′)
       (no ¬t′) →  no λ where
-        (Emptyrecᵢ x x₁) → ¬t′ x₁
+        (emptyrecᵢ x x₁) → ¬t′ x₁
     (no ¬A′) → no λ where
-      (Emptyrecᵢ x x₁) → ¬A′ x
+      (emptyrecᵢ x x₁) → ¬A′ x
 
   -- Decidability of terms being checkable
 
@@ -203,13 +203,13 @@ mutual
   dec-Checkable Unit = yes (infᶜ Unitᵢ)
   dec-Checkable star = yes (infᶜ starᵢ)
   dec-Checkable Empty = yes (infᶜ Emptyᵢ)
-  dec-Checkable (Emptyrec p A t) = case dec-Checkable A of λ where
+  dec-Checkable (emptyrec p A t) = case dec-Checkable A of λ where
     (yes A′) → case dec-Checkable t of λ where
-      (yes t′) → yes (infᶜ (Emptyrecᵢ A′ t′))
+      (yes t′) → yes (infᶜ (emptyrecᵢ A′ t′))
       (no ¬t′) → no λ where
-        (infᶜ (Emptyrecᵢ x x₁)) → ¬t′ x₁
+        (infᶜ (emptyrecᵢ x x₁)) → ¬t′ x₁
     (no ¬A′) → no λ where
-      (infᶜ (Emptyrecᵢ x x₁)) → ¬A′ x
+      (infᶜ (emptyrecᵢ x x₁)) → ¬A′ x
 
 mutual
 
@@ -336,14 +336,14 @@ mutual
       (no ¬t⇉B) → no λ where
         (_ , prodrecᵢ x x₁ x₂ x₃) → ¬t⇉B (_ , x₁)
 
-  dec⇉-Emptyrec : ⊢ Γ → Checkable A → Checkable t → Dec (∃ λ B → Γ ⊢ Emptyrec p A t ⇉ B)
-  dec⇉-Emptyrec ⊢Γ A t = case dec⇇Type ⊢Γ A of λ where
+  dec⇉-emptyrec : ⊢ Γ → Checkable A → Checkable t → Dec (∃ λ B → Γ ⊢ emptyrec p A t ⇉ B)
+  dec⇉-emptyrec ⊢Γ A t = case dec⇇Type ⊢Γ A of λ where
     (yes A⇇Type) → case dec⇇ ⊢Γ t (Emptyⱼ ⊢Γ) of λ where
-      (yes t⇇Empty) → yes (_ , Emptyrecᵢ A⇇Type t⇇Empty)
+      (yes t⇇Empty) → yes (_ , emptyrecᵢ A⇇Type t⇇Empty)
       (no ¬t⇇Empty) → no λ where
-        (_ , Emptyrecᵢ x x₁) → ¬t⇇Empty x₁
+        (_ , emptyrecᵢ x x₁) → ¬t⇇Empty x₁
     (no ¬A⇇Type) → no λ where
-      (_ , Emptyrecᵢ x x₁) → ¬A⇇Type x
+      (_ , emptyrecᵢ x x₁) → ¬A⇇Type x
 
   -- Decidability of checking that an inferable term is a type
 
@@ -421,7 +421,7 @@ mutual
   dec⇉Type ⊢Γ starᵢ = no λ where
     (univᶜ (infᶜ (starᵢ _) x)) → U≢Unitⱼ (sym x)
   dec⇉Type ⊢Γ Emptyᵢ = yes Emptyᶜ
-  dec⇉Type ⊢Γ (Emptyrecᵢ B t) = case dec⇉-Emptyrec ⊢Γ B t of λ where
+  dec⇉Type ⊢Γ (emptyrecᵢ B t) = case dec⇉-emptyrec ⊢Γ B t of λ where
     (yes (A , pr⇉A)) → case decEq (proj₁ (soundness⇉ ⊢Γ pr⇉A)) (Uⱼ ⊢Γ) of λ where
       (yes A≡U) → yes (univᶜ (infᶜ pr⇉A A≡U))
       (no A≢U) → no λ where
@@ -477,7 +477,7 @@ mutual
     (no not-ok) → no λ where
       (_ , starᵢ ok) → not-ok ok
   dec⇉ ⊢Γ Emptyᵢ = yes (U , Emptyᵢ)
-  dec⇉ ⊢Γ (Emptyrecᵢ A t) = dec⇉-Emptyrec ⊢Γ A t
+  dec⇉ ⊢Γ (emptyrecᵢ A t) = dec⇉-emptyrec ⊢Γ A t
 
   -- Decidability of bi-directional type checking
 

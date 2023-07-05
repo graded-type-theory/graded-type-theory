@@ -56,4 +56,4 @@ deterministic⇉ (natrecᵢ x x₁ x₂ x₃) (natrecᵢ x₄ x₅ x₆ x₇) = 
 deterministic⇉ (Unitᵢ _) (Unitᵢ _) = PE.refl
 deterministic⇉ (starᵢ _) (starᵢ _) = PE.refl
 deterministic⇉ Emptyᵢ Emptyᵢ = PE.refl
-deterministic⇉ (Emptyrecᵢ x x₁) (Emptyrecᵢ x₂ x₃) = PE.refl
+deterministic⇉ (emptyrecᵢ x x₁) (emptyrecᵢ x₂ x₃) = PE.refl

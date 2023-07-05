@@ -226,7 +226,7 @@ dec~↑-var x (fst-cong _) = no λ { (_ , ())}
 dec~↑-var x (snd-cong _) = no λ { (_ , ())}
 dec~↑-var x (natrec-cong _ _ _ _) = no λ { (_ , ())}
 dec~↑-var x (prodrec-cong _ _ _) = no λ { (_ , ())}
-dec~↑-var x (Emptyrec-cong _ _) = no λ { (_ , ())}
+dec~↑-var x (emptyrec-cong _ _) = no λ { (_ , ())}
 
 dec~↑-app′ : ∀ {k l l′ a A F G}
           → Γ ⊢ l ~ l′ ↑ A
@@ -255,7 +255,7 @@ dec~↑-app′ (fst-cong x) _ _ _ _ = no λ { (_ , ())}
 dec~↑-app′ (snd-cong x) _ _ _ _ = no λ { (_ , ())}
 dec~↑-app′ (natrec-cong x x₁ x₂ x₃) _ _ _ _ = no λ { (_ , ())}
 dec~↑-app′ (prodrec-cong x x₁ x₂) _ _ _ _ = no λ { (_ , ())}
-dec~↑-app′ (Emptyrec-cong x x₁) _ _ _ _ = no λ { (_ , ())}
+dec~↑-app′ (emptyrec-cong x x₁) _ _ _ _ = no λ { (_ , ())}
 
 dec~↑-fst :
   Γ ⊢ k ~ k′ ↓ Σₚ p , q ▷ F ▹ G →
@@ -281,7 +281,7 @@ dec~↑-fst _ _ (app-cong _ _)        = no λ { (_ , ()) }
 dec~↑-fst _ _ (snd-cong _)          = no λ { (_ , ()) }
 dec~↑-fst _ _ (natrec-cong _ _ _ _) = no λ { (_ , ()) }
 dec~↑-fst _ _ (prodrec-cong _ _ _)  = no λ { (_ , ()) }
-dec~↑-fst _ _ (Emptyrec-cong _ _)   = no λ { (_ , ()) }
+dec~↑-fst _ _ (emptyrec-cong _ _)   = no λ { (_ , ()) }
 
 dec~↑-snd :
   Γ ⊢ k ~ k′ ↓ Σₚ p , q ▷ F ▹ G →
@@ -307,7 +307,7 @@ dec~↑-snd _ _ (app-cong _ _)        = no λ { (_ , ()) }
 dec~↑-snd _ _ (fst-cong _)          = no λ { (_ , ()) }
 dec~↑-snd _ _ (natrec-cong _ _ _ _) = no λ { (_ , ()) }
 dec~↑-snd _ _ (prodrec-cong _ _ _)  = no λ { (_ , ()) }
-dec~↑-snd _ _ (Emptyrec-cong _ _)   = no λ { (_ , ()) }
+dec~↑-snd _ _ (emptyrec-cong _ _)   = no λ { (_ , ()) }
 
 dec~↑-natrec : ∀ {l l′ A C z s n}
              → Γ ⊢ l ~ l′ ↑ A
@@ -348,7 +348,7 @@ dec~↑-natrec (app-cong _ _) _ _ _ _ _       = no λ {(_ , ())}
 dec~↑-natrec (fst-cong _) _ _ _ _ _         = no λ {(_ , ())}
 dec~↑-natrec (snd-cong _) _ _ _ _ _         = no λ {(_ , ())}
 dec~↑-natrec (prodrec-cong _ _ _) _ _ _ _ _ = no λ {(_ , ())}
-dec~↑-natrec (Emptyrec-cong _ _) _ _ _ _ _  = no λ {(_ , ())}
+dec~↑-natrec (emptyrec-cong _ _) _ _ _ _ _  = no λ {(_ , ())}
 
 mutual
   -- Decidability of algorithmic equality of neutrals.
@@ -406,9 +406,9 @@ mutual
   dec~↑ (prodrec-cong _ _ _) (fst-cong _) = no λ { (_ , ()) }
   dec~↑ (prodrec-cong _ _ _) (snd-cong _) = no λ { (_ , ()) }
   dec~↑ (prodrec-cong _ _ _) (natrec-cong _ _ _ _) = no λ { (_ , ()) }
-  dec~↑ (prodrec-cong _ _ _) (Emptyrec-cong _ _) = no λ { (_ , ()) }
+  dec~↑ (prodrec-cong _ _ _) (emptyrec-cong _ _) = no λ { (_ , ()) }
 
-  dec~↑ (Emptyrec-cong {p = p′} x x₁) (Emptyrec-cong {p = p″} x₄ x₅)
+  dec~↑ (emptyrec-cong {p = p′} x x₁) (emptyrec-cong {p = p″} x₄ x₅)
         with decConv↑ x x₄ | dec~↓ x₁ x₅ | p′ ≟ p″
   ... | yes p | yes (A , k~l) | yes PE.refl =
     let whnfA , neK , neL = ne~↓ k~l
@@ -417,18 +417,18 @@ mutual
         ⊢Empty≡A = neTypeEq neK ⊢l∷Empty ⊢k
         A≡Empty = Empty≡A ⊢Empty≡A whnfA
         k~l′ = PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) A≡Empty k~l
-    in  yes (_ , Emptyrec-cong p k~l′)
+    in  yes (_ , emptyrec-cong p k~l′)
   ... | yes p | yes (A , k~l) | no ¬p′≡p″ =
-    no (λ { (_ , Emptyrec-cong _ _) → ¬p′≡p″ PE.refl })
+    no (λ { (_ , emptyrec-cong _ _) → ¬p′≡p″ PE.refl })
   ... | yes p | no ¬p | _ =
-    no (λ { (_ , Emptyrec-cong _ b) → ¬p (_ , b) })
-  ... | no ¬p | r | _ = no (λ { (_ , Emptyrec-cong a _) → ¬p a })
-  dec~↑ (Emptyrec-cong _ _) (var-refl _ _) = no (λ { (_ , ()) })
-  dec~↑ (Emptyrec-cong _ _) (fst-cong _) = no (λ { (_ , ()) })
-  dec~↑ (Emptyrec-cong _ _) (snd-cong _) = no (λ { (_ , ()) })
-  dec~↑ (Emptyrec-cong _ _) (app-cong _ _) = no (λ { (_ , ()) })
-  dec~↑ (Emptyrec-cong _ _) (natrec-cong _ _ _ _) = no (λ { (_ , ()) })
-  dec~↑ (Emptyrec-cong _ _) (prodrec-cong _ _ _) = no λ{(_ , ())}
+    no (λ { (_ , emptyrec-cong _ b) → ¬p (_ , b) })
+  ... | no ¬p | r | _ = no (λ { (_ , emptyrec-cong a _) → ¬p a })
+  dec~↑ (emptyrec-cong _ _) (var-refl _ _) = no (λ { (_ , ()) })
+  dec~↑ (emptyrec-cong _ _) (fst-cong _) = no (λ { (_ , ()) })
+  dec~↑ (emptyrec-cong _ _) (snd-cong _) = no (λ { (_ , ()) })
+  dec~↑ (emptyrec-cong _ _) (app-cong _ _) = no (λ { (_ , ()) })
+  dec~↑ (emptyrec-cong _ _) (natrec-cong _ _ _ _) = no (λ { (_ , ()) })
+  dec~↑ (emptyrec-cong _ _) (prodrec-cong _ _ _) = no λ{(_ , ())}
 
   dec~↑′ : ∀ {k l R T}
         → ⊢ Γ ≡ Δ

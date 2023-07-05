@@ -94,9 +94,9 @@ mutual
   soundness⇉ ⊢Γ (Unitᵢ ok) = Uⱼ ⊢Γ , Unitⱼ ⊢Γ ok
   soundness⇉ ⊢Γ (starᵢ ok) = Unitⱼ ⊢Γ ok , starⱼ ⊢Γ ok
   soundness⇉ ⊢Γ Emptyᵢ = (Uⱼ ⊢Γ) , (Emptyⱼ ⊢Γ)
-  soundness⇉ ⊢Γ (Emptyrecᵢ A⇇Type t⇇Empty) =
+  soundness⇉ ⊢Γ (emptyrecᵢ A⇇Type t⇇Empty) =
     let ⊢A = soundness⇇Type ⊢Γ A⇇Type
-    in  ⊢A , (Emptyrecⱼ ⊢A (soundness⇇ ⊢Γ t⇇Empty))
+    in  ⊢A , (emptyrecⱼ ⊢A (soundness⇇ ⊢Γ t⇇Empty))
 
   soundness⇇ : ⊢ Γ → Γ ⊢ t ⇇ A → Γ ⊢ t ∷ A
   soundness⇇ ⊢Γ (lamᶜ A↘ΠFG t⇇G)=

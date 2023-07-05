@@ -178,9 +178,9 @@ usagePresTerm
   where
   open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-usagePresTerm γ▸et (Emptyrec-subst x t⇒u) =
-  let invUsageEmptyrec δ▸t η▸A γ≤δ = inv-usage-Emptyrec γ▸et
-  in  sub (Emptyrecₘ (usagePresTerm δ▸t t⇒u) η▸A) γ≤δ
+usagePresTerm γ▸et (emptyrec-subst x t⇒u) =
+  let invUsageemptyrec δ▸t η▸A γ≤δ = inv-usage-emptyrec γ▸et
+  in  sub (emptyrecₘ (usagePresTerm δ▸t t⇒u) η▸A) γ≤δ
 
 -- Type reduction preserves usage.
 

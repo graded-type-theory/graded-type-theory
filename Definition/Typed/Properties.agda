@@ -41,7 +41,7 @@ wfTerm (zeroⱼ ⊢Γ) = ⊢Γ
 wfTerm (sucⱼ n) = wfTerm n
 wfTerm (natrecⱼ F z s n) = wfTerm z
 wfTerm (prodrecⱼ _ _ _ t _ _) = wfTerm t
-wfTerm (Emptyrecⱼ A e) = wfTerm e
+wfTerm (emptyrecⱼ A e) = wfTerm e
 wfTerm (starⱼ ⊢Γ _) = ⊢Γ
 wfTerm (conv t A≡B) = wfTerm t
 wfTerm (prodⱼ _ _ a _ _) = wfTerm a
@@ -69,7 +69,7 @@ wfEqTerm (suc-cong n) = wfEqTerm n
 wfEqTerm (natrec-cong _ F≡F′ z≡z′ s≡s′ n≡n′) = wfEqTerm z≡z′
 wfEqTerm (natrec-zero F z s) = wfTerm z
 wfEqTerm (natrec-suc _ _ _ n) = wfTerm n
-wfEqTerm (Emptyrec-cong A≡A' e≡e') = wfEqTerm e≡e'
+wfEqTerm (emptyrec-cong A≡A' e≡e') = wfEqTerm e≡e'
 wfEqTerm (η-unit e e') = wfTerm e
 wfEqTerm (prod-cong F _ _ _ _) = wf F
 wfEqTerm (fst-cong _ _ a) = wfEqTerm a
@@ -95,8 +95,8 @@ subsetTerm (natrec-subst F z s n⇒n′) =
   natrec-cong F (refl F) (refl z) (refl s) (subsetTerm n⇒n′)
 subsetTerm (natrec-zero F z s) = natrec-zero F z s
 subsetTerm (natrec-suc F z s n) = natrec-suc F z s n
-subsetTerm (Emptyrec-subst A n⇒n′) =
-  Emptyrec-cong (refl A) (subsetTerm n⇒n′)
+subsetTerm (emptyrec-subst A n⇒n′) =
+  emptyrec-cong (refl A) (subsetTerm n⇒n′)
 subsetTerm (app-subst t⇒u a) =
   app-cong (subsetTerm t⇒u) (refl a)
 subsetTerm (β-red A B t a p≡p′ ok) = β-red A B t a p≡p′ ok
@@ -132,7 +132,7 @@ redFirstTerm (β-red A B t a PE.refl ok) =
 redFirstTerm (natrec-subst F z s n⇒n′) = natrecⱼ F z s (redFirstTerm n⇒n′)
 redFirstTerm (natrec-zero F z s) = natrecⱼ F z s (zeroⱼ (wfTerm z))
 redFirstTerm (natrec-suc F z s n) = natrecⱼ F z s (sucⱼ n)
-redFirstTerm (Emptyrec-subst A n⇒n′) = Emptyrecⱼ A (redFirstTerm n⇒n′)
+redFirstTerm (emptyrec-subst A n⇒n′) = emptyrecⱼ A (redFirstTerm n⇒n′)
 redFirstTerm (fst-subst F G x) = fstⱼ F G (redFirstTerm x)
 redFirstTerm (snd-subst F G x) = sndⱼ F G (redFirstTerm x)
 redFirstTerm (prodrec-subst F G A u t⇒t′ ok) =
@@ -169,7 +169,7 @@ noNe (fstⱼ _ _ ⊢t) (fstₙ neT) = noNe ⊢t neT
 noNe (sndⱼ _ _ ⊢t) (sndₙ neT) = noNe ⊢t neT
 noNe (natrecⱼ x ⊢t ⊢t₁ ⊢t₂) (natrecₙ neT) = noNe ⊢t₂ neT
 noNe (prodrecⱼ _ _ _ ⊢t _ _) (prodrecₙ neT) = noNe ⊢t neT
-noNe (Emptyrecⱼ A ⊢e) (Emptyrecₙ neT) = noNe ⊢e neT
+noNe (emptyrecⱼ A ⊢e) (emptyrecₙ neT) = noNe ⊢e neT
 
 -- Neutrals do not weak head reduce
 
@@ -180,7 +180,7 @@ neRedTerm (β-red _ _ _ _ _ _) (∘ₙ ())
 neRedTerm (natrec-subst x x₁ x₂ d) (natrecₙ n₁) = neRedTerm d n₁
 neRedTerm (natrec-zero x x₁ x₂) (natrecₙ ())
 neRedTerm (natrec-suc x x₁ x₂ x₃) (natrecₙ ())
-neRedTerm (Emptyrec-subst x d) (Emptyrecₙ n₁) = neRedTerm d n₁
+neRedTerm (emptyrec-subst x d) (emptyrecₙ n₁) = neRedTerm d n₁
 neRedTerm (fst-subst _ _ d) (fstₙ n) = neRedTerm d n
 neRedTerm (snd-subst _ _ d) (sndₙ n) = neRedTerm d n
 neRedTerm (prodrec-subst _ _ _ _ d _) (prodrecₙ n) = neRedTerm d n
@@ -200,7 +200,7 @@ whnfRedTerm (β-red _ _ _ _ _ _) (ne (∘ₙ ()))
 whnfRedTerm (natrec-subst x x₁ x₂ d) (ne (natrecₙ x₃)) = neRedTerm d x₃
 whnfRedTerm (natrec-zero x x₁ x₂) (ne (natrecₙ ()))
 whnfRedTerm (natrec-suc x x₁ x₂ x₃) (ne (natrecₙ ()))
-whnfRedTerm (Emptyrec-subst x d) (ne (Emptyrecₙ x₂)) = neRedTerm d x₂
+whnfRedTerm (emptyrec-subst x d) (ne (emptyrecₙ x₂)) = neRedTerm d x₂
 whnfRedTerm (fst-subst _ _ d) (ne (fstₙ n)) = neRedTerm d n
 whnfRedTerm (snd-subst _ _ d) (ne (sndₙ n)) = neRedTerm d n
 whnfRedTerm (prodrec-subst _ _ _ _ d _) (ne (prodrecₙ n)) =
@@ -239,7 +239,7 @@ whrDetTerm (prodrec-subst _ _ _ _ d _) (prodrec-subst _ _ _ _ d′ _)
   rewrite whrDetTerm d d′ = PE.refl
 whrDetTerm (prodrec-β _ _ _ _ _ _ _ _) (prodrec-β _ _ _ _ _ _ _ _) =
   PE.refl
-whrDetTerm (Emptyrec-subst x d) (Emptyrec-subst x₂ d′) rewrite whrDetTerm d d′ = PE.refl
+whrDetTerm (emptyrec-subst x d) (emptyrec-subst x₂ d′) rewrite whrDetTerm d d′ = PE.refl
 
 whrDetTerm (app-subst d _) (β-red _ _ _ _ _ _) =
   ⊥-elim (whnfRedTerm d lamₙ)
@@ -334,7 +334,7 @@ UnotInA[t] () x₁ (x₂ ∘ⱼ x₃)
 UnotInA[t] () x₁ (zeroⱼ x₂)
 UnotInA[t] () x₁ (sucⱼ x₂)
 UnotInA[t] () x₁ (natrecⱼ x₂ x₃ x₄ x₅)
-UnotInA[t] () x₁ (Emptyrecⱼ x₂ x₃)
+UnotInA[t] () x₁ (emptyrecⱼ x₂ x₃)
 UnotInA[t] x x₁ (conv x₂ x₃) = UnotInA[t] x x₁ x₂
 
 UnotInA[t,u] : t [ consSubst (consSubst idSubst u) u′ ] PE.≡ U
@@ -356,7 +356,7 @@ redU*Term′ U′≡U (natrec-suc x x₁ x₂ x₃) =
   UnotInA[t,u] U′≡U x₃ (natrecⱼ x x₁ x₂ x₃) x₂
 redU*Term′ U′≡U (prodrec-β _ _ _ ⊢t ⊢u ⊢v _ _) =
   UnotInA[t,u] U′≡U ⊢t ⊢u ⊢v
-redU*Term′ () (Emptyrec-subst x A⇒U)
+redU*Term′ () (emptyrec-subst x A⇒U)
 redU*Term′ PE.refl (Σ-β₁ _ _ x _ _ _) = UnotInA x
 redU*Term′ PE.refl (Σ-β₂ _ _ _ x _ _) = UnotInA x
 

@@ -160,11 +160,11 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
             (prodrec-cong (stabilityConv↑ (⊢Γ≡Γ ∙ Σ≡Σ′) x₂)
                t~t′ (stabilityConv↑Term (⊢Γ≡Γ ∙ F≡F′ ∙ G≡G′) x₄))
 
-~-Emptyrec : ∀ {n n′ F F′}
+~-emptyrec : ∀ {n n′ F F′}
          → Γ ⊢ F [conv↑] F′ →
       Γ ⊢ n ~ n′ ∷ Empty →
-      Γ ⊢ Emptyrec p F n ~ Emptyrec p F′ n′ ∷ F
-~-Emptyrec x (↑ A≡B x₄) =
+      Γ ⊢ emptyrec p F n ~ emptyrec p F′ n′ ∷ F
+~-emptyrec x (↑ A≡B x₄) =
   let _ , ⊢B = syntacticEq A≡B
       B′ , whnfB′ , D = whNorm ⊢B
       Empty≡B′ = trans A≡B (subset* (red D))
@@ -174,7 +174,7 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
       ⊢F , _ = syntacticEq (soundnessConv↑ x)
       _ , ⊢n , _ = syntacticEqTerm (soundness~↓ k~l′)
   in  ↑ (refl ⊢F)
-        (Emptyrec-cong x k~l′)
+        (emptyrec-cong x k~l′)
 
 ~-sym : ∀ {k l A} → Γ ⊢ k ~ l ∷ A → Γ ⊢ l ~ k ∷ A
 ~-sym (↑ A≡B x) =
@@ -271,4 +271,4 @@ eqRelInstance = record {
   ~-natrec = ~-natrec;
   ~-prodrec = λ ⊢A ⊢B C↑D t₁~t₂ u₁↑u₂ _ →
                 ~-prodrec ⊢A ⊢B C↑D t₁~t₂ u₁↑u₂;
-  ~-Emptyrec = ~-Emptyrec }
+  ~-emptyrec = ~-emptyrec }

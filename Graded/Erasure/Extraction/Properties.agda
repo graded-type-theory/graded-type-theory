@@ -140,7 +140,7 @@ wk-erase-comm ρ (U.natrec p q r A z s n) =
 wk-erase-comm ρ Unit = refl
 wk-erase-comm ρ U.star = refl
 wk-erase-comm ρ Empty = refl
-wk-erase-comm ρ (Emptyrec p A t) = refl
+wk-erase-comm ρ (emptyrec p A t) = refl
 
 -- Lifting substitutions commute with erase
 -- liftSubst (eraseSubst σ) x ≡ eraseSubst (liftSubst σ) x
@@ -189,7 +189,7 @@ liftSubst-erase-comm (x +1) | U.natrec p q r A z s n =
 liftSubst-erase-comm (x +1) | Unit = refl
 liftSubst-erase-comm (x +1) | U.star = refl
 liftSubst-erase-comm (x +1) | Empty = refl
-liftSubst-erase-comm (x +1) | Emptyrec p A t = refl
+liftSubst-erase-comm (x +1) | emptyrec p A t = refl
 
 -- Multiple lifts commutes with erase
 -- liftSubstn (eraseSubst σ) n x ≡ eraseSubst (liftSubstn σ n) x
@@ -274,7 +274,7 @@ subst-erase-comm σ (U.natrec p q r A z s n) = cong₃ T.natrec
 subst-erase-comm σ Unit = refl
 subst-erase-comm σ U.star = refl
 subst-erase-comm σ Empty = refl
-subst-erase-comm σ (Emptyrec p A t) = refl
+subst-erase-comm σ (emptyrec p A t) = refl
 
 subst-undefined : (x : Fin (1+ n)) →
       eraseSubst (U.sgSubst Empty) x ≡

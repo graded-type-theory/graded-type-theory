@@ -46,7 +46,7 @@ mutual
                 NfNeutral (natrec p q r C c g k)
     prodrecₙ  : Nf C → NfNeutral t → Nf u →
                 NfNeutral (prodrec r p q C t u)
-    Emptyrecₙ : Nf C → NfNeutral k → NfNeutral (Emptyrec p C k)
+    emptyrecₙ : Nf C → NfNeutral k → NfNeutral (emptyrec p C k)
 
 -- If NfNeutral n holds, then n is neutral.
 
@@ -58,7 +58,7 @@ nfNeutral = λ where
   (sndₙ n)          → sndₙ (nfNeutral n)
   (natrecₙ _ _ _ n) → natrecₙ (nfNeutral n)
   (prodrecₙ _ n _)  → prodrecₙ (nfNeutral n)
-  (Emptyrecₙ _ n)   → Emptyrecₙ (nfNeutral n)
+  (emptyrecₙ _ n)   → emptyrecₙ (nfNeutral n)
 
 -- Normal forms are in WHNF.
 

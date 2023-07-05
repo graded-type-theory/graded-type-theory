@@ -67,7 +67,7 @@ data Kind : (ns : List Nat) → Set a where
   Starkind : Kind []
 
   Emptykind    : Kind []
-  Emptyreckind : (p : M) → Kind (0 ∷ 0 ∷ [])
+  emptyreckind : (p : M) → Kind (0 ∷ 0 ∷ [])
 
 -- The type of terms is parametrised by the number of free variables.
 -- A term is either a variable (a de Bruijn index) or a generic term,
@@ -123,7 +123,7 @@ pattern suc t = gen Suckind (t ∷ [])
 pattern natrec p q r A z s n = gen (Natreckind p q r) (A ∷ z ∷ s ∷ n ∷ [])
 
 pattern star = gen Starkind []
-pattern Emptyrec p A t = gen (Emptyreckind p) (A ∷ t ∷ [])
+pattern emptyrec p A t = gen (emptyreckind p) (A ∷ t ∷ [])
 
 
 data BindingType : Set a where
@@ -183,7 +183,7 @@ data Neutral : Term n → Set a where
   sndₙ      : Neutral t   → Neutral (snd p t)
   natrecₙ   : Neutral v   → Neutral (natrec p q r G t u v)
   prodrecₙ  : Neutral t   → Neutral (prodrec r p q A t u)
-  Emptyrecₙ : Neutral t   → Neutral (Emptyrec p A t)
+  emptyrecₙ : Neutral t   → Neutral (emptyrec p A t)
 
 
 -- Weak head normal forms (whnfs).
@@ -408,7 +408,7 @@ wkNeutral ρ (fstₙ n)      = fstₙ (wkNeutral ρ n)
 wkNeutral ρ (sndₙ n)      = sndₙ (wkNeutral ρ n)
 wkNeutral ρ (natrecₙ n)   = natrecₙ (wkNeutral ρ n)
 wkNeutral ρ (prodrecₙ n)  = prodrecₙ (wkNeutral ρ n)
-wkNeutral ρ (Emptyrecₙ e) = Emptyrecₙ (wkNeutral ρ e)
+wkNeutral ρ (emptyrecₙ e) = emptyrecₙ (wkNeutral ρ e)
 
 -- Weakening can be applied to our whnf views.
 

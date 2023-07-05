@@ -151,8 +151,8 @@ wkUsage ρ (natrecₘ γ▸z δ▸s η▸n θ▸A) =
       (≤ᶜ-reflexive (≈ᶜ-trans (wk-⊛ᶜ ρ)
                               (⊛ᵣᶜ-cong (wk-∧ᶜ ρ)
                                        (≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-congˡ (wk-·ᶜ ρ))))))
-wkUsage ρ (Emptyrecₘ γ▸t δ▸A) =
-  sub (Emptyrecₘ (wkUsage ρ γ▸t) (wkUsage ρ δ▸A)) (≤ᶜ-reflexive (wk-·ᶜ ρ))
+wkUsage ρ (emptyrecₘ γ▸t δ▸A) =
+  sub (emptyrecₘ (wkUsage ρ γ▸t) (wkUsage ρ δ▸A)) (≤ᶜ-reflexive (wk-·ᶜ ρ))
 wkUsage ρ starₘ = subst (λ γ → γ ▸[ _ ] star) (PE.sym (wk-𝟘ᶜ ρ)) starₘ
 wkUsage ρ (sub γ▸t x) = sub (wkUsage ρ γ▸t) (wk-≤ᶜ ρ x)
 
@@ -344,10 +344,10 @@ wkUsage⁻¹ ▸t = wkUsage⁻¹′ ▸t refl
 
              (wkConₘ⁻¹ ρ γ ∧ᶜ wkConₘ⁻¹ ρ η) ⊛ᶜ
                wkConₘ⁻¹ ρ δ +ᶜ p ·ᶜ wkConₘ⁻¹ ρ η ▷ r              ∎) }
-      (Emptyrecₘ ▸t ▸A) eq →
-        case wk-Emptyrec eq of λ {
+      (emptyrecₘ ▸t ▸A) eq →
+        case wk-emptyrec eq of λ {
           (_ , _ , refl , refl , refl) →
-        sub (Emptyrecₘ (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸A))
+        sub (emptyrecₘ (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸A))
           (≤ᶜ-reflexive (wkConₘ⁻¹-·ᶜ ρ)) }
       starₘ eq →
         case wk-star eq of λ {

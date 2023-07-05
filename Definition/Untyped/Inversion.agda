@@ -100,12 +100,12 @@ wk-star {t = star} refl = refl
 wk-Empty : wk ρ t ≡ Empty → t ≡ Empty
 wk-Empty {t = Empty} refl = refl
 
--- Inversion for Emptyrec.
+-- Inversion for emptyrec.
 
-wk-Emptyrec :
-  wk ρ t ≡ Emptyrec p A u →
-  ∃₂ λ A′ u′ → t ≡ Emptyrec p A′ u′ × wk ρ A′ ≡ A × wk ρ u′ ≡ u
-wk-Emptyrec {t = Emptyrec _ _ _} refl =
+wk-emptyrec :
+  wk ρ t ≡ emptyrec p A u →
+  ∃₂ λ A′ u′ → t ≡ emptyrec p A′ u′ × wk ρ A′ ≡ A × wk ρ u′ ≡ u
+wk-emptyrec {t = emptyrec _ _ _} refl =
   _ , _ , refl , refl , refl
 
 -- Inversion for ℕ.

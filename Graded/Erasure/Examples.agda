@@ -588,7 +588,7 @@ head =
      Π 𝟘 , p ▷ wk wk₀ Non-zero ∘⟨ ω ⟩ var x1 ▹
      var x4)
     (lam ω $ lam 𝟘 $
-     Emptyrec 𝟘 (var x3) (var x0))
+     emptyrec 𝟘 (var x3) (var x0))
     (lam ω $ lam 𝟘 $ fst ω (var x1))
     (var x0)
 
@@ -612,7 +612,7 @@ erase-head = PE.refl
   natrecₘ
     (lamₘ $
      lamₘ $
-     sub (Emptyrecₘ var var) $
+     sub (emptyrecₘ var var) $
      let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
        𝟘ᶜ ∙ ω ∙ 𝟘  ≤⟨ ≤ᶜ-refl ⟩
        𝟘ᶜ          ∎)
@@ -675,7 +675,7 @@ erase-head = PE.refl
   natrecⱼ (univ Uℕℕ⊢ΠΠ∷U)
     (flip (lamⱼ (univ ⊢Vec-1-0)) Π-ω-ok $
      flip (lamⱼ (univ ⊢Non-zero-zero)) Π-𝟘-ok $
-     Emptyrecⱼ
+     emptyrecⱼ
        (univ (var ⊢Uℕ∙Vec∙Non-zero (there (there (there here)))))
        (_⊢_∷_.conv (var ⊢Uℕ∙Vec∙Non-zero here) $
         _⊢_≡_.univ $

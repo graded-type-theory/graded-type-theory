@@ -213,12 +213,12 @@ inversion-star (conv ⊢star A≡B) =
     (A≡Unit , ok) →
   trans (sym A≡B) A≡Unit , ok }
 
--- Inversion of Emptyrec
-inversion-Emptyrec : ∀ {C A t} → Γ ⊢ Emptyrec p A t ∷ C
+-- Inversion of emptyrec
+inversion-emptyrec : ∀ {C A t} → Γ ⊢ emptyrec p A t ∷ C
                    → (Γ ⊢ A) × (Γ ⊢ t ∷ Empty) × Γ ⊢ C ≡ A
-inversion-Emptyrec (Emptyrecⱼ x ⊢t) = x , ⊢t , refl x
-inversion-Emptyrec (conv ⊢t x) =
-  let q , w , e = inversion-Emptyrec ⊢t
+inversion-emptyrec (emptyrecⱼ x ⊢t) = x , ⊢t , refl x
+inversion-emptyrec (conv ⊢t x) =
+  let q , w , e = inversion-emptyrec ⊢t
   in  q , w , trans (sym x) e
 
 -- Inversion of products in WHNF.

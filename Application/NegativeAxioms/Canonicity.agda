@@ -66,7 +66,7 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   neNeg (prodrecⱼ ⊢A A⊢B _ d _ ok) (prodrecₙ n) =
     let ⊢Σ = refl (ΠΣⱼ ⊢A A⊢B ok)
     in  ⊥-elim (¬negΣᵣ (neNeg d n) ⊢Σ)
-  neNeg (Emptyrecⱼ _ d     ) (Emptyrecₙ n) =
+  neNeg (emptyrecⱼ _ d     ) (emptyrecₙ n) =
     ⊥-elim (consistent d)
   neNeg (conv d c          ) n          = conv (neNeg d n) c
 
