@@ -273,10 +273,6 @@ import Graded.Erasure.Target.Properties
 import Graded.Erasure.Extraction
 import Graded.Erasure.Extraction.Properties
 
--- Some simple examples
-
-import Graded.Erasure.Examples
-
 -- Logical relation for Erasure
 
 import Graded.Erasure.LogicalRelation
@@ -305,6 +301,10 @@ import Graded.Erasure.LogicalRelation.Fundamental.Counterexample
 -- Soundness of Extraction function
 import Graded.Erasure.SucRed
 import Graded.Erasure.Consequences.Soundness
+
+-- Some examples related to the erasure modality and extraction
+
+import Graded.Erasure.Examples
 
 ------------------------------------------------------------------------
 -- Some applications
