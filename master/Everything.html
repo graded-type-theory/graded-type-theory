@@ -274,59 +274,59 @@
 <a id="9981" class="Keyword">import</a> <a id="9988" href="Graded.Erasure.Extraction.html" class="Module">Graded.Erasure.Extraction</a>
 <a id="10014" class="Keyword">import</a> <a id="10021" href="Graded.Erasure.Extraction.Properties.html" class="Module">Graded.Erasure.Extraction.Properties</a>
 
-<a id="10059" class="Comment">-- Some simple examples</a>
+<a id="10059" class="Comment">-- Logical relation for Erasure</a>
 
-<a id="10084" class="Keyword">import</a> <a id="10091" href="Graded.Erasure.Examples.html" class="Module">Graded.Erasure.Examples</a>
+<a id="10092" class="Keyword">import</a> <a id="10099" href="Graded.Erasure.LogicalRelation.html" class="Module">Graded.Erasure.LogicalRelation</a>
+<a id="10130" class="Keyword">import</a> <a id="10137" href="Graded.Erasure.LogicalRelation.Conversion.html" class="Module">Graded.Erasure.LogicalRelation.Conversion</a>
+<a id="10179" class="Keyword">import</a> <a id="10186" href="Graded.Erasure.LogicalRelation.Irrelevance.html" class="Module">Graded.Erasure.LogicalRelation.Irrelevance</a>
+<a id="10229" class="Keyword">import</a> <a id="10236" href="Graded.Erasure.LogicalRelation.Reduction.html" class="Module">Graded.Erasure.LogicalRelation.Reduction</a>
+<a id="10277" class="Keyword">import</a> <a id="10284" href="Graded.Erasure.LogicalRelation.Subsumption.html" class="Module">Graded.Erasure.LogicalRelation.Subsumption</a>
 
-<a id="10116" class="Comment">-- Logical relation for Erasure</a>
+<a id="10328" class="Comment">-- The fundamental lemma of the logical relation</a>
 
-<a id="10149" class="Keyword">import</a> <a id="10156" href="Graded.Erasure.LogicalRelation.html" class="Module">Graded.Erasure.LogicalRelation</a>
-<a id="10187" class="Keyword">import</a> <a id="10194" href="Graded.Erasure.LogicalRelation.Conversion.html" class="Module">Graded.Erasure.LogicalRelation.Conversion</a>
-<a id="10236" class="Keyword">import</a> <a id="10243" href="Graded.Erasure.LogicalRelation.Irrelevance.html" class="Module">Graded.Erasure.LogicalRelation.Irrelevance</a>
-<a id="10286" class="Keyword">import</a> <a id="10293" href="Graded.Erasure.LogicalRelation.Reduction.html" class="Module">Graded.Erasure.LogicalRelation.Reduction</a>
-<a id="10334" class="Keyword">import</a> <a id="10341" href="Graded.Erasure.LogicalRelation.Subsumption.html" class="Module">Graded.Erasure.LogicalRelation.Subsumption</a>
+<a id="10378" class="Keyword">import</a> <a id="10385" href="Graded.Erasure.LogicalRelation.Fundamental.Application.html" class="Module">Graded.Erasure.LogicalRelation.Fundamental.Application</a>
+<a id="10440" class="Keyword">import</a> <a id="10447" href="Graded.Erasure.LogicalRelation.Fundamental.Empty.html" class="Module">Graded.Erasure.LogicalRelation.Fundamental.Empty</a>
+<a id="10496" class="Keyword">import</a> <a id="10503" href="Graded.Erasure.LogicalRelation.Fundamental.Lambda.html" class="Module">Graded.Erasure.LogicalRelation.Fundamental.Lambda</a>
+<a id="10553" class="Keyword">import</a> <a id="10560" href="Graded.Erasure.LogicalRelation.Fundamental.Nat.html" class="Module">Graded.Erasure.LogicalRelation.Fundamental.Nat</a>
+<a id="10607" class="Keyword">import</a> <a id="10614" href="Graded.Erasure.LogicalRelation.Fundamental.Natrec.html" class="Module">Graded.Erasure.LogicalRelation.Fundamental.Natrec</a>
+<a id="10664" class="Keyword">import</a> <a id="10671" href="Graded.Erasure.LogicalRelation.Fundamental.Prodrec.html" class="Module">Graded.Erasure.LogicalRelation.Fundamental.Prodrec</a>
+<a id="10722" class="Keyword">import</a> <a id="10729" href="Graded.Erasure.LogicalRelation.Fundamental.Product.html" class="Module">Graded.Erasure.LogicalRelation.Fundamental.Product</a>
+<a id="10780" class="Keyword">import</a> <a id="10787" href="Graded.Erasure.LogicalRelation.Fundamental.Unit.html" class="Module">Graded.Erasure.LogicalRelation.Fundamental.Unit</a>
+<a id="10835" class="Keyword">import</a> <a id="10842" href="Graded.Erasure.LogicalRelation.Fundamental.html" class="Module">Graded.Erasure.LogicalRelation.Fundamental</a>
 
-<a id="10385" class="Comment">-- The fundamental lemma of the logical relation</a>
+<a id="10886" class="Comment">-- The fundamental lemma does not hold in general without the</a>
+<a id="10948" class="Comment">-- assumption that erased matches are disallowed or the context is</a>
+<a id="11015" class="Comment">-- empty</a>
+<a id="11024" class="Keyword">import</a> <a id="11031" href="Graded.Erasure.LogicalRelation.Fundamental.Counterexample.html" class="Module">Graded.Erasure.LogicalRelation.Fundamental.Counterexample</a>
 
-<a id="10435" class="Keyword">import</a> <a id="10442" href="Graded.Erasure.LogicalRelation.Fundamental.Application.html" class="Module">Graded.Erasure.LogicalRelation.Fundamental.Application</a>
-<a id="10497" class="Keyword">import</a> <a id="10504" href="Graded.Erasure.LogicalRelation.Fundamental.Empty.html" class="Module">Graded.Erasure.LogicalRelation.Fundamental.Empty</a>
-<a id="10553" class="Keyword">import</a> <a id="10560" href="Graded.Erasure.LogicalRelation.Fundamental.Lambda.html" class="Module">Graded.Erasure.LogicalRelation.Fundamental.Lambda</a>
-<a id="10610" class="Keyword">import</a> <a id="10617" href="Graded.Erasure.LogicalRelation.Fundamental.Nat.html" class="Module">Graded.Erasure.LogicalRelation.Fundamental.Nat</a>
-<a id="10664" class="Keyword">import</a> <a id="10671" href="Graded.Erasure.LogicalRelation.Fundamental.Natrec.html" class="Module">Graded.Erasure.LogicalRelation.Fundamental.Natrec</a>
-<a id="10721" class="Keyword">import</a> <a id="10728" href="Graded.Erasure.LogicalRelation.Fundamental.Prodrec.html" class="Module">Graded.Erasure.LogicalRelation.Fundamental.Prodrec</a>
-<a id="10779" class="Keyword">import</a> <a id="10786" href="Graded.Erasure.LogicalRelation.Fundamental.Product.html" class="Module">Graded.Erasure.LogicalRelation.Fundamental.Product</a>
-<a id="10837" class="Keyword">import</a> <a id="10844" href="Graded.Erasure.LogicalRelation.Fundamental.Unit.html" class="Module">Graded.Erasure.LogicalRelation.Fundamental.Unit</a>
-<a id="10892" class="Keyword">import</a> <a id="10899" href="Graded.Erasure.LogicalRelation.Fundamental.html" class="Module">Graded.Erasure.LogicalRelation.Fundamental</a>
+<a id="11090" class="Comment">-- Soundness of Extraction function</a>
+<a id="11126" class="Keyword">import</a> <a id="11133" href="Graded.Erasure.SucRed.html" class="Module">Graded.Erasure.SucRed</a>
+<a id="11155" class="Keyword">import</a> <a id="11162" href="Graded.Erasure.Consequences.Soundness.html" class="Module">Graded.Erasure.Consequences.Soundness</a>
 
-<a id="10943" class="Comment">-- The fundamental lemma does not hold in general without the</a>
-<a id="11005" class="Comment">-- assumption that erased matches are disallowed or the context is</a>
-<a id="11072" class="Comment">-- empty</a>
-<a id="11081" class="Keyword">import</a> <a id="11088" href="Graded.Erasure.LogicalRelation.Fundamental.Counterexample.html" class="Module">Graded.Erasure.LogicalRelation.Fundamental.Counterexample</a>
+<a id="11201" class="Comment">-- Some examples related to the erasure modality and extraction</a>
 
-<a id="11147" class="Comment">-- Soundness of Extraction function</a>
-<a id="11183" class="Keyword">import</a> <a id="11190" href="Graded.Erasure.SucRed.html" class="Module">Graded.Erasure.SucRed</a>
-<a id="11212" class="Keyword">import</a> <a id="11219" href="Graded.Erasure.Consequences.Soundness.html" class="Module">Graded.Erasure.Consequences.Soundness</a>
+<a id="11266" class="Keyword">import</a> <a id="11273" href="Graded.Erasure.Examples.html" class="Module">Graded.Erasure.Examples</a>
 
-<a id="11258" class="Comment">------------------------------------------------------------------------</a>
-<a id="11331" class="Comment">-- Some applications</a>
+<a id="11298" class="Comment">------------------------------------------------------------------------</a>
+<a id="11371" class="Comment">-- Some applications</a>
 
-<a id="11353" class="Comment">-- Application: consistent negative axioms preserve canonicity</a>
-<a id="11416" class="Keyword">import</a> <a id="11423" href="Application.NegativeAxioms.NegativeType.html" class="Module">Application.NegativeAxioms.NegativeType</a>
-<a id="11463" class="Keyword">import</a> <a id="11470" href="Application.NegativeAxioms.NegativeContext.html" class="Module">Application.NegativeAxioms.NegativeContext</a>
-<a id="11513" class="Keyword">import</a> <a id="11520" href="Application.NegativeAxioms.Canonicity.html" class="Module">Application.NegativeAxioms.Canonicity</a>
+<a id="11393" class="Comment">-- Application: consistent negative axioms preserve canonicity</a>
+<a id="11456" class="Keyword">import</a> <a id="11463" href="Application.NegativeAxioms.NegativeType.html" class="Module">Application.NegativeAxioms.NegativeType</a>
+<a id="11503" class="Keyword">import</a> <a id="11510" href="Application.NegativeAxioms.NegativeContext.html" class="Module">Application.NegativeAxioms.NegativeContext</a>
+<a id="11553" class="Keyword">import</a> <a id="11560" href="Application.NegativeAxioms.Canonicity.html" class="Module">Application.NegativeAxioms.Canonicity</a>
 
-<a id="11559" class="Comment">-- Application: consistent negative or erased axioms preserve canonicity</a>
-<a id="11632" class="Keyword">import</a> <a id="11639" href="Application.NegativeOrErasedAxioms.NegativeOrErasedType.html" class="Module">Application.NegativeOrErasedAxioms.NegativeOrErasedType</a>
-<a id="11695" class="Keyword">import</a> <a id="11702" href="Application.NegativeOrErasedAxioms.NegativeOrErasedContext.html" class="Module">Application.NegativeOrErasedAxioms.NegativeOrErasedContext</a>
-<a id="11761" class="Keyword">import</a> <a id="11768" href="Application.NegativeOrErasedAxioms.Canonicity.html" class="Module">Application.NegativeOrErasedAxioms.Canonicity</a>
-<a id="11814" class="Keyword">import</a> <a id="11821" href="Application.NegativeOrErasedAxioms.Canonicity.Erased.html" class="Module">Application.NegativeOrErasedAxioms.Canonicity.Erased</a>
-<a id="11874" class="Comment">-- ... but not if matching is allowed on erased pairs</a>
-<a id="11928" class="Keyword">import</a> <a id="11935" href="Application.NegativeOrErasedAxioms.Canonicity.ErasedMatches.html" class="Module">Application.NegativeOrErasedAxioms.Canonicity.ErasedMatches</a>
+<a id="11599" class="Comment">-- Application: consistent negative or erased axioms preserve canonicity</a>
+<a id="11672" class="Keyword">import</a> <a id="11679" href="Application.NegativeOrErasedAxioms.NegativeOrErasedType.html" class="Module">Application.NegativeOrErasedAxioms.NegativeOrErasedType</a>
+<a id="11735" class="Keyword">import</a> <a id="11742" href="Application.NegativeOrErasedAxioms.NegativeOrErasedContext.html" class="Module">Application.NegativeOrErasedAxioms.NegativeOrErasedContext</a>
+<a id="11801" class="Keyword">import</a> <a id="11808" href="Application.NegativeOrErasedAxioms.Canonicity.html" class="Module">Application.NegativeOrErasedAxioms.Canonicity</a>
+<a id="11854" class="Keyword">import</a> <a id="11861" href="Application.NegativeOrErasedAxioms.Canonicity.Erased.html" class="Module">Application.NegativeOrErasedAxioms.Canonicity.Erased</a>
+<a id="11914" class="Comment">-- ... but not if matching is allowed on erased pairs</a>
+<a id="11968" class="Keyword">import</a> <a id="11975" href="Application.NegativeOrErasedAxioms.Canonicity.ErasedMatches.html" class="Module">Application.NegativeOrErasedAxioms.Canonicity.ErasedMatches</a>
 
-<a id="11996" class="Comment">------------------------------------------------------------------------</a>
-<a id="12069" class="Comment">-- Pointers to code related to a paper</a>
+<a id="12036" class="Comment">------------------------------------------------------------------------</a>
+<a id="12109" class="Comment">-- Pointers to code related to a paper</a>
 
-<a id="12109" class="Comment">-- Pointers to code related to the paper &quot;A Graded Modal Dependent</a>
-<a id="12176" class="Comment">-- Type Theory with a Universe and Erasure, Formalized&quot;.</a>
-<a id="12233" class="Keyword">import</a> <a id="12240" href="README.html" class="Module">README</a>
+<a id="12149" class="Comment">-- Pointers to code related to the paper &quot;A Graded Modal Dependent</a>
+<a id="12216" class="Comment">-- Type Theory with a Universe and Erasure, Formalized&quot;.</a>
+<a id="12273" class="Keyword">import</a> <a id="12280" href="README.html" class="Module">README</a>
 </pre></body></html>
