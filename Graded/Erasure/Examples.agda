@@ -106,7 +106,7 @@ id-x1-x0 = id ∘⟨ 𝟘 ⟩ var x1 ∘⟨ ω ⟩ var x0
   where
   ⊢Γ = ε ∙ Uⱼ ε ∙ univ (var (ε ∙ Uⱼ ε) here)
 
--- The term id-x1-x0 is well-resources (with respect to a specific
+-- The term id-x1-x0 is well-resourced (with respect to a specific
 -- usage context).
 
 ▸id-x1-x0 : ε ∙ 𝟘 ∙ ω ▸[ 𝟙ᵐ ] id-x1-x0
