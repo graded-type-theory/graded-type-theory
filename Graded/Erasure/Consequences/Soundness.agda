@@ -13,7 +13,7 @@ open import Tools.PropositionalEquality
 open import Tools.Sum
 
 module Graded.Erasure.Consequences.Soundness
-  {a k} {M : Set a}
+  {a} {M : Set a}
   (𝕄 : Modality M)
   (open Modality 𝕄)
   (TR : Type-restrictions M)
@@ -84,6 +84,7 @@ sucᵏ′ (1+ n) = T.suc (sucᵏ′ n)
 -- The following results make use of some assumptions.
 
 module Soundness
+  {k : Nat}
   {Δ : Con Term k}
   -- Erased matches are not allowed unless the context is empty.
   (no-erased-matches : No-erased-matches 𝕄 UR ⊎ k ≡ 0)
