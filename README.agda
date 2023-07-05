@@ -13,6 +13,7 @@ import Definition.LogicalRelation.Fundamental
 import Definition.LogicalRelation.Fundamental.Reducibility
 import Definition.LogicalRelation.Substitution
 import Definition.Typed
+import Definition.Typed.Consequences.DerivedRules
 import Definition.Typed.Consequences.DerivedRules.Sigma
 import Definition.Typed.Consequences.Inversion
 import Definition.Typed.Consequences.Reduction
@@ -296,6 +297,10 @@ _∷_∈_               = Definition.Typed._∷_∈_
 -- Typing contexts.
 
 Con = Definition.Untyped.Con
+
+-- A derived congruence rule for Π and Σ-types with fewer assumptions
+
+ΠΣ-cong′ = Definition.Typed.Consequences.DerivedRules.ΠΣ-cong′
 
 -- One can define something like prodrec for the Σ-types with
 -- η-equality.
