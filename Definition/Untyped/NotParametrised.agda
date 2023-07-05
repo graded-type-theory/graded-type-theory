@@ -12,6 +12,7 @@ open import Tools.Nat
 
 private variable
   a : Level
+  n : Nat
 
 ------------------------------------------------------------------------
 -- Definitions related to terms
@@ -87,3 +88,9 @@ wkVar id x            = x
 wkVar (step ρ) x      = (wkVar ρ x) +1
 wkVar (lift ρ) x0     = x0
 wkVar (lift ρ) (x +1) = (wkVar ρ x) +1
+
+-- A weakening for closed terms.
+
+wk₀ : Wk n 0
+wk₀ {n = 0}    = id
+wk₀ {n = 1+ n} = step wk₀

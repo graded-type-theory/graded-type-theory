@@ -48,6 +48,12 @@ _•ₜ_ {ρ = lift ρ} {ρ′ = lift ρ′} {Δ′ = Δ′ ∙ A} (lift η) (li
            (PE.cong₂ _∙_ PE.refl (PE.sym (wk-comp ρ ρ′ A)))
            (lift (η •ₜ η′))
 
+-- Typed weakenings corresponding to the untyped weakenings returned
+-- by wk₀.
+
+wk₀∷⊆ : wk₀ ∷ Γ ⊆ ε
+wk₀∷⊆ {Γ = ε}     = id
+wk₀∷⊆ {Γ = _ ∙ _} = step wk₀∷⊆
 
 -- Weakening of judgements
 
