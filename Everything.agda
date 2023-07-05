@@ -133,13 +133,9 @@ import Definition.Conversion.Lift
 import Definition.Conversion.Universe
 import Definition.Conversion.Decidable
 import Definition.Conversion.EqRelInstance
-
--- Normal forms (two kinds)
+import Definition.Conversion.Consequences.Completeness
 import Definition.Untyped.Normal-form
 import Definition.Typed.Eta-long-normal-form
-
--- More consequences of the logical relation
-import Definition.Conversion.Consequences.Completeness
 import Definition.Conversion.FullReduction
 
 -- Bi-directional typechecking
