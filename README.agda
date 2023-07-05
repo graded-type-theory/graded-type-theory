@@ -602,6 +602,10 @@ soundness = Graded.Erasure.Consequences.Soundness.Soundness.soundness-ℕ
 ------------------------------------------------------------------------
 -- 7.2: Erased matches
 
+-- A safe head function for lists
+
+safe-head = Graded.Erasure.Examples.head
+
 -- Theorem 7.1.
 
 theorem-7-1 =
