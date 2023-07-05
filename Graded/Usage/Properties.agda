@@ -16,9 +16,13 @@ open Modality 𝕄
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Usage 𝕄 R
+open import Graded.Usage.Inversion 𝕄 R
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
-open import Definition.Untyped M
+
+import Definition.Typed
+open import Definition.Typed.Restrictions M
+open import Definition.Untyped M hiding (_∷_)
 
 open import Tools.Bool using (Bool; T)
 open import Tools.Fin
@@ -754,3 +758,41 @@ natrec-usage {γ = γ} {η} {δ} {p} {r} =
   , ≤ᶜ-trans (⊛ᶜ-ineq₁ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r)
              (≤ᶜ-reflexive (+ᶜ-assoc δ (p ·ᶜ η) (r ·ᶜ (γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r)))
   , ≤ᶜ-trans (⊛ᶜ-ineq₂ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r) (∧ᶜ-decreasingʳ γ η)
+
+------------------------------------------------------------------------
+-- A negative result
+
+module _ (TR : Type-restrictions) where
+
+  open Definition.Typed TR
+
+  -- It is always the case that Γ ⊢ t ∷ A implies Γ ⊢ A (see
+  -- Definition.Typed.Consequences.Syntactic.syntacticTerm), but if
+  -- 𝟙 ≢ 𝟘, then it is not necessarily the case that Γ ⊢ t ∷ A and
+  -- γ ▸[ 𝟙ᵐ ] t imply γ ▸[ 𝟙ᵐ ] A.
+
+  ▸-term→▸-type :
+    𝟙 ≢ 𝟘 →
+    ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} →
+       Γ ⊢ t ∷ A → γ ▸[ 𝟙ᵐ ] t → γ ▸[ 𝟙ᵐ ] A)
+  ▸-term→▸-type 𝟙≢𝟘 hyp =
+    case inv-usage-var (hyp ⊢t ▸t) of λ {
+      (ε ∙ 𝟘≤𝟙 ∙ 𝟙≤𝟘) →
+    𝟙≢𝟘 (≤-antisym 𝟙≤𝟘 𝟘≤𝟙) }
+    where
+    Γ′ = ε ∙ U ∙ var x0
+    t′ = var x0
+    A′ = var x1
+    γ′ = ε ∙ 𝟘 ∙ 𝟙
+
+    ⊢U : ⊢ ε ∙ U
+    ⊢U = ε ∙ Uⱼ ε
+
+    ⊢Γ : ⊢ Γ′
+    ⊢Γ = ⊢U ∙ univ (var ⊢U here)
+
+    ⊢t : Γ′ ⊢ t′ ∷ A′
+    ⊢t = var ⊢Γ here
+
+    ▸t : γ′ ▸[ 𝟙ᵐ ] t′
+    ▸t = var
