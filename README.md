@@ -27,4 +27,4 @@ by Andreas Abel, Nils Anders Danielsson and Oskar Eriksson.
 ### Dependencies ###
 
 This project is written in Agda.
-It has been tested to be working with Agda version 2.6.3 and its standard library version 1.7.1/2.
+It has been tested to be working with Agda version 2.6.3 and its standard library version 1.7.2.
