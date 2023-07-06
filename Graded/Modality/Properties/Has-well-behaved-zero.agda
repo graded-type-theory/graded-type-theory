@@ -16,6 +16,8 @@ open import Graded.Modality.Properties.Meet semiring-with-meet
 open import Graded.Modality.Properties.PartialOrder semiring-with-meet
 open import Tools.PropositionalEquality
 
+open import Tools.Function
+open import Tools.Product
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
 
@@ -51,6 +53,15 @@ private
 
 𝟘≰𝟙 : 𝟘 ≤ 𝟙 → ⊥
 𝟘≰𝟙 𝟘≤𝟙 = 𝟙≢𝟘 (𝟘≮ 𝟘≤𝟙)
+
+-- The meet of 𝟘 and 𝟙 is strictly below 𝟘.
+
+𝟘∧𝟙<𝟘 : 𝟘 ∧ 𝟙 < 𝟘
+𝟘∧𝟙<𝟘 =
+    ∧-decreasingˡ _ _
+  , (𝟘 ∧ 𝟙 ≡ 𝟘  →⟨ sym ⟩
+     𝟘 ≤ 𝟙      →⟨ 𝟘≰𝟙 ⟩
+     ⊥          □)
 
 -- If the mode 𝟘ᵐ is allowed and p ⊛ q ▷ r is equal to zero, then p is
 -- equal to zero.
