@@ -778,7 +778,7 @@ linear = Graded.Modality.Instances.Linearity.full-reduction-assumptions
 
 -- The conditions are satisfied for the linear or affine types
 -- modality if the unit type with η-equality is not allowed, Σ_&,0^q
--- is not allowed, Σ_&,≤1^q is not allowed, and Σ_&,≤ω^q is not
+-- is not allowed, Σ_&,01^q is not allowed, and Σ_&,ω^q is not
 -- allowed.
 
 linear-or-affine =
