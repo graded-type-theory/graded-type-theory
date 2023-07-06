@@ -23,6 +23,7 @@ open import Graded.Mode 𝕄
 open import Tools.Fin
 open import Tools.Nat
 
+infixl 50 _<*_
 infixr 50 _*>_
 infix  20 ∥_∥
 infixl 30 _⊙_
@@ -32,6 +33,7 @@ private
     k m n : Nat
 
 -- Substitutions are matrices represented as snoc-lists of modality contexts.
+-- Ψ : Substₘ m n is an n×m-matrix.
 
 data Substₘ : (m n : Nat) → Set a where
   []  : Substₘ m 0
@@ -49,39 +51,34 @@ private
 
 -- Application of substitution matrix from the left
 
-_*>_ : (Ψ : Substₘ m n) → (γ : Conₘ n) → Conₘ m
-[] *> ε = 𝟘ᶜ
-(Ψ ⊙ δ) *> (γ ∙ p) = p ·ᶜ δ +ᶜ (Ψ *> γ)
-
-substₘ = _*>_
+_*>_ : (Ψ : Substₘ m n) → (γ : Conₘ m) → Conₘ n
+[] *> γ = ε
+(Ψ ⊙ δ) *> γ = Ψ *> γ ∙ γ * δ
 
 -- Application of substitution matrix from the right
 
-_<*_ : (γ : Conₘ m) → (Ψ : Substₘ m n) → Conₘ n
-γ <* [] = ε
-γ <* (Ψ ⊙ δ) = (γ <* Ψ) ∙ (γ * δ)
+_<*_ : (γ : Conₘ n) → (Ψ : Substₘ m n) → Conₘ m
+ε <* [] = 𝟘ᶜ
+(γ ∙ p) <* (Ψ ⊙ δ) = p ·ᶜ δ +ᶜ (γ <* Ψ)
+
+substₘ : (Ψ : Substₘ m n) → (γ : Conₘ n) → Conₘ m
+substₘ Ψ γ = γ <* Ψ
 
 -- Composition of substitution matrices
 
 _<*>_ : (Ψ : Substₘ m k) (Φ : Substₘ k n) → Substₘ m n
 Ψ <*> [] = []
-Ψ <*> (Φ ⊙ δ) = (Ψ <*> Φ) ⊙ (Ψ *> δ)
-
--- Prepend a substitution matrix with a row
-
-addrow : (Ψ : Substₘ m n) → (γ : Conₘ n) → Substₘ (1+ m) n
-addrow [] ε = []
-addrow (Ψ ⊙ δ) (γ ∙ p) = addrow Ψ γ ⊙ (δ ∙ p)
+Ψ <*> (Φ ⊙ δ) = (Ψ <*> Φ) ⊙ (δ <* Ψ)
 
 ---------------------------------------------------------------
 
 -- Well-formed modality substitutions: if ∀ x. γ_x ▸[ γ x ] σ x, where
--- γ_x is the x-th column vector of Ψ, multiplied by ⌜ γ x ⌝, then
+-- γ_x is the x-th row vector of Ψ, multiplied by ⌜ γ x ⌝, then
 -- Ψ ▶[ γ ] σ.
 
 _▶[_]_ : Substₘ m n → Mode-vector n → Subst m n → Set a
 _▶[_]_ {n = n} Ψ γ σ =
-  (x : Fin n) → (Ψ *> (𝟘ᶜ , x ≔ ⌜ γ x ⌝)) ▸[ γ x ] σ x
+  (x : Fin n) → ((𝟘ᶜ , x ≔ ⌜ γ x ⌝) <* Ψ) ▸[ γ x ] σ x
 
 -- Substitution matrix inference
 
