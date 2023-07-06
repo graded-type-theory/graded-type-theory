@@ -288,8 +288,9 @@ tail      = Definition.Untyped.tail
 --
 -- Note also that some rules for Π and Σ have been merged.
 --
--- In some rules, fording is used to equate grades. In the paper such
--- equated grades are simply shown as a single grade.
+-- In some rules fording (equality hypotheses) is used to equate
+-- grades. In the paper such equated grades are simply shown as a
+-- single grade.
 
 ⊢_                  = Definition.Typed.⊢_
 _⊢_                 = Definition.Typed._⊢_
