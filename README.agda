@@ -1,10 +1,14 @@
 --------------------------------------------------------------------------
--- Code related to the paper "A Graded Modal Dependent Type Theory with a
--- Universe and Erasure, Formalized"
---
--- Some explanations in this file were improved by comments from anonymous
--- reviewers.
+-- Code related to the paper "A Graded Modal Dependent Type Theory
+-- with a Universe and Erasure, Formalized" by Andreas Abel, Nils
+-- Anders Danielsson and Oskar Eriksson
 --------------------------------------------------------------------------
+
+-- Note that others have also contributed to the code, see the files
+-- README.md and LICENSE.
+--
+-- Some changes to the code were made after feedback from anonymous
+-- reviewers.
 
 module README where
 
