@@ -167,10 +167,10 @@ _®⟨_⟩_∷[_]_◂_/_/_ :
   (σᵥ : T.Subst k n) (m : Mode) (Γ : Con U.Term n) (γ : Conₘ n)
   ([Γ] : ⊩ᵛ Γ) ([σ] : Δ ⊩ˢ σₜ ∷ Γ / [Γ] / ⊢Δ) → Set a
 σₜ ®⟨ l ⟩ σᵥ ∷[ _ ] ε ◂ ε / ε / (lift tt) = Lift a ⊤
-σₜ ®⟨ l ⟩ σᵥ ∷[ m ] Γ ∙ A ◂ γ ∙ p / _∙_ {l = l₁} [Γ] [A] / ([σ] , [σA]) =
-  ((U.tail σₜ) ®⟨ l ⟩ (T.tail σᵥ) ∷[ m ] Γ ◂ γ / [Γ] / [σ]) ×
-  ((U.head σₜ) ®⟨ l₁ ⟩ (T.head σᵥ) ∷ (A U.[ U.tail σₜ ])
-  ◂ ⌜ m ⌝ · p / proj₁ (unwrap [A] ⊢Δ [σ]))
+σₜ ®⟨ l ⟩ σᵥ ∷[ m ] Γ ∙ A ◂ γ ∙ p / _∙_ {l = l′} [Γ] [A] / ([σ] , [σA]) =
+  (U.tail σₜ ®⟨ l ⟩ T.tail σᵥ ∷[ m ] Γ ◂ γ / [Γ] / [σ]) ×
+  (U.head σₜ ®⟨ l′ ⟩ T.head σᵥ ∷ A U.[ U.tail σₜ ] ◂ ⌜ m ⌝ · p /
+     proj₁ (unwrap [A] ⊢Δ [σ]))
 
 -- Validity of erasure
 --
