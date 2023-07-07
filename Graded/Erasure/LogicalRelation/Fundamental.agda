@@ -3,7 +3,6 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
-open import Graded.Restrictions
 open import Graded.Usage.Restrictions
 open import Definition.Typed.EqualityRelation
 import Definition.Typed
@@ -54,6 +53,7 @@ open import Definition.Untyped.Properties M
 open import Definition.Typed.Consequences.Syntactic TR
 
 import Graded.Erasure.LogicalRelation 𝕄 TR is-𝟘? as LR
+open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions 𝕄 TR UR
 import Graded.Erasure.LogicalRelation.Fundamental.Application
 import Graded.Erasure.LogicalRelation.Fundamental.Empty
 import Graded.Erasure.LogicalRelation.Fundamental.Lambda
@@ -182,12 +182,9 @@ module _ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) where
 
 -- The fundamental lemma, and a variant for fully erased terms.
 
-module Fundamental
-  {k} {Δ : Con Term k}
-  (no-erased-matches : No-erased-matches 𝕄 UR ⊎ k PE.≡ 0)
-  (⊢Δ : ⊢ Δ)
-  (consistent : ∀ {t} → Δ ⊢ t ∷ Empty → ⊥)
-  where
+module Fundamental (FA : Fundamental-assumptions) where
+
+  open Fundamental-assumptions FA
 
   open Graded.Erasure.LogicalRelation.Fundamental.Application
     𝕄 TR 𝟘-well-behaved ⊢Δ
@@ -364,7 +361,7 @@ module Fundamental
                 [Γ]₇ ([Γ] ∙ [F] ∙ [G]) [A₊]₇ [A₊] [u]₇
         ⊩ʳu′ = irrelevance {t = u}
                  [Γ]₂ ([Γ] ∙ [F] ∙ [G]) [A₊]₂ [A₊] ⊩ʳu
-        r≡𝟘→k≡0 = case no-erased-matches of λ where
+        r≡𝟘→k≡0 = case closed-or-no-erased-matches of λ where
           (inj₁ nem) → λ r≡𝟘 → PE.⊥-elim (nem 𝟙≢𝟘 ok r≡𝟘)
           (inj₂ k≡0) → λ _ → k≡0
         [At] , ⊩ʳprodrec =
@@ -490,13 +487,8 @@ module Fundamental
 -- reduction (see Graded.Erasure.LogicalRelation.Reduction).
 
 fundamental :
-  ∀ {k} {Δ : Con Term k} →
-  -- Erased matches are not allowed unless the context is empty.
-  No-erased-matches 𝕄 UR ⊎ k PE.≡ 0 →
-  (⊢Δ : ⊢ Δ) →
-  let open LR ⊢Δ in
-  -- The context Δ is assumed to be consistent.
-  (∀ {t} → Δ ⊢ t ∷ Empty → ⊥) →
+  (FA : Fundamental-assumptions) →
+  let open LR (Fundamental-assumptions.⊢Δ FA) in
   ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
   Γ ⊢ t ∷ A → γ ▸[ m ] t →
   ∃₂ λ ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ]) →
@@ -506,14 +498,10 @@ fundamental = Fundamental.fundamental
 -- A fundamental lemma for fully erased terms.
 
 fundamentalErased :
-  ∀ {k} {Δ : Con Term k} →
-  -- Erased matches are not allowed unless the context is empty.
-  No-erased-matches 𝕄 UR ⊎ k PE.≡ 0 →
-  (⊢Δ : ⊢ Δ) →
-  let open LR ⊢Δ in
-  -- The context Δ is assumed to be consistent.
-  (∀ {t} → Δ ⊢ t ∷ Empty → ⊥) →
-  ∀ {t A : Term k} {m} →
+  (FA : Fundamental-assumptions) →
+  let open LR (Fundamental-assumptions.⊢Δ FA)
+      Δ = Fundamental-assumptions.Δ FA in
+  ∀ {t A : Term _} {m} →
   Δ ⊢ t ∷ A → 𝟘ᶜ ▸[ m ] t →
   ∃ λ ([A] : Δ ⊩⟨ ¹ ⟩ A) → t ®⟨ ¹ ⟩ erase t ∷ A ◂ ⌜ m ⌝ / [A]
 fundamentalErased = Fundamental.fundamentalErased

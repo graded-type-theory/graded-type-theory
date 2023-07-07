@@ -8,9 +8,6 @@ open import Graded.Restrictions
 open import Graded.Usage.Restrictions
 open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
-open import Tools.Empty
-open import Tools.PropositionalEquality
-open import Tools.Sum
 
 module Graded.Erasure.Consequences.Soundness
   {a} {M : Set a}
@@ -31,7 +28,6 @@ open import Definition.Untyped M hiding (_∷_)
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Consequences.Substitution TR
-open import Definition.Typed.Consequences.Syntactic TR
 import Definition.Typed.Consequences.Canonicity TR as TC
 open import Definition.Typed.Properties TR
 open import Definition.LogicalRelation TR
@@ -39,7 +35,6 @@ open import Definition.LogicalRelation TR
 open import Graded.Context 𝕄
 open import Graded.Usage 𝕄 UR
 open import Graded.Context.Properties 𝕄
-open import Graded.Modality.Properties 𝕄 using (≤-reflexive)
 open import Graded.Modality.Properties.Has-well-behaved-zero
   semiring-with-meet-and-star 𝟘-well-behaved
 open import Graded.Mode 𝕄
@@ -48,6 +43,7 @@ import Graded.Erasure.Target as T
 open import Graded.Erasure.Extraction 𝕄 is-𝟘?
 open import Graded.Erasure.SucRed TR
 import Graded.Erasure.LogicalRelation 𝕄 TR is-𝟘? as LR
+open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions 𝕄 TR UR
 import Graded.Erasure.LogicalRelation.Fundamental
   𝕄 TR UR 𝟘-well-behaved as LRF
 import Graded.Erasure.LogicalRelation.Irrelevance 𝕄 TR is-𝟘? as LRI
@@ -59,7 +55,7 @@ open import Tools.Nat
 open import Tools.Nullary
 open import Tools.Product
 import Tools.Reasoning.PartialOrder
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE
 
 private
   variable
@@ -83,17 +79,12 @@ sucᵏ′ (1+ n) = T.suc (sucᵏ′ n)
 
 -- The following results make use of some assumptions.
 
-module Soundness
-  {k : Nat}
-  {Δ : Con Term k}
-  -- Erased matches are not allowed unless the context is empty.
-  (no-erased-matches : No-erased-matches 𝕄 UR ⊎ k ≡ 0)
-  (⊢Δ : ⊢ Δ)
-  (consistent : ∀ {t} → Δ ⊢ t ∷ Empty → ⊥)
-  where
+module Soundness (FA : Fundamental-assumptions) where
+
+  open Fundamental-assumptions FA
 
   open LR ⊢Δ
-  open LRF.Fundamental no-erased-matches ⊢Δ consistent
+  open LRF.Fundamental FA
   open LRI ⊢Δ
   open LRS ⊢Δ
 
@@ -193,7 +184,7 @@ module Soundness
 
 module Soundness₀ where
 
-  open Soundness {Δ = ε} (inj₂ refl) ε TC.¬Empty public
+  open Soundness Fundamental-assumptions₀ public
 
 -- If Prodrec-allowed 𝟘 p 𝟘 holds for some p (which means that certain
 -- kinds of erased matches are allowed), and if additionally
