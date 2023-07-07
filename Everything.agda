@@ -298,6 +298,9 @@ import Graded.Erasure.LogicalRelation.Fundamental.Counterexample
 import Graded.Erasure.SucRed
 import Graded.Erasure.Consequences.Soundness
 
+-- Non-interference
+import Graded.Erasure.Consequences.Non-interference
+
 -- Some examples related to the erasure modality and extraction
 
 import Graded.Erasure.Examples

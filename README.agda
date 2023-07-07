@@ -34,6 +34,7 @@ import Definition.Untyped.Sigma
 import Graded.Context
 import Graded.Context.Properties
 import Graded.Derived.Sigma
+import Graded.Erasure.Consequences.Non-interference
 import Graded.Erasure.Consequences.Soundness
 import Graded.Erasure.Examples
 import Graded.Erasure.Extraction
@@ -651,6 +652,10 @@ counterexample₂ =
 
 ------------------------------------------------------------------------
 -- 7.4: Information flow interpretation
+
+-- A non-interference result
+
+non-interference = Graded.Erasure.Consequences.Non-interference.non-interference
 
 -- The total order L ≤ M ≤ H.
 
