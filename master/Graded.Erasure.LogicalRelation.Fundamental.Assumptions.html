@@ -1,0 +1,51 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Graded.Erasure.LogicalRelation.Fundamental.Assumptions</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- Assumptions used to state some theorems in</a>
+<a id="120" class="Comment">-- Graded.Erasure.LogicalRelation.Fundamental elsewhere for consequences</a>
+<a id="193" class="Comment">-- of the fundamental lemma.</a>
+<a id="222" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="296" class="Keyword">open</a> <a id="301" class="Keyword">import</a> <a id="308" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+<a id="324" class="Keyword">open</a> <a id="329" class="Keyword">import</a> <a id="336" href="Graded.Usage.Restrictions.html" class="Module">Graded.Usage.Restrictions</a>
+<a id="362" class="Keyword">open</a> <a id="367" class="Keyword">import</a> <a id="374" href="Definition.Typed.Restrictions.html" class="Module">Definition.Typed.Restrictions</a>
+
+<a id="405" class="Keyword">module</a> <a id="412" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html" class="Module">Graded.Erasure.LogicalRelation.Fundamental.Assumptions</a>
+  <a id="469" class="Symbol">{</a><a id="470" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#470" class="Bound">a</a><a id="471" class="Symbol">}</a> <a id="473" class="Symbol">{</a><a id="474" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#474" class="Bound">M</a> <a id="476" class="Symbol">:</a> <a id="478" href="Agda.Primitive.html#320" class="Primitive">Set</a> <a id="482" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#470" class="Bound">a</a><a id="483" class="Symbol">}</a>
+  <a id="487" class="Symbol">(</a><a id="488" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#488" class="Bound">𝕄</a> <a id="490" class="Symbol">:</a> <a id="492" href="Graded.Modality.html#5274" class="Record">Modality</a> <a id="501" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#474" class="Bound">M</a><a id="502" class="Symbol">)</a>
+  <a id="506" class="Symbol">(</a><a id="507" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#507" class="Bound">TR</a> <a id="510" class="Symbol">:</a> <a id="512" href="Definition.Typed.Restrictions.html#406" class="Record">Type-restrictions</a> <a id="530" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#474" class="Bound">M</a><a id="531" class="Symbol">)</a>
+  <a id="535" class="Symbol">(</a><a id="536" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#536" class="Bound">UR</a> <a id="539" class="Symbol">:</a> <a id="541" href="Graded.Usage.Restrictions.html#316" class="Record">Usage-restrictions</a> <a id="560" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#474" class="Bound">M</a><a id="561" class="Symbol">)</a>
+  <a id="565" class="Keyword">where</a>
+
+<a id="572" class="Keyword">open</a> <a id="577" class="Keyword">import</a> <a id="584" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="603" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#474" class="Bound">M</a> <a id="605" class="Keyword">hiding</a> <a id="612" class="Symbol">(</a><a id="613" href="Definition.Untyped.NotParametrised.html#1148" class="InductiveConstructor Operator">_∷_</a><a id="616" class="Symbol">)</a>
+<a id="618" class="Keyword">open</a> <a id="623" class="Keyword">import</a> <a id="630" href="Definition.Typed.html" class="Module">Definition.Typed</a> <a id="647" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#507" class="Bound">TR</a>
+<a id="650" class="Keyword">open</a> <a id="655" class="Keyword">import</a> <a id="662" href="Definition.Typed.Consequences.Canonicity.html" class="Module">Definition.Typed.Consequences.Canonicity</a> <a id="703" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#507" class="Bound">TR</a>
+
+<a id="707" class="Keyword">open</a> <a id="712" class="Keyword">import</a> <a id="719" href="Graded.Restrictions.html" class="Module">Graded.Restrictions</a>
+
+<a id="740" class="Keyword">open</a> <a id="745" class="Keyword">import</a> <a id="752" href="Tools.Nat.html" class="Module">Tools.Nat</a>
+<a id="762" class="Keyword">open</a> <a id="767" class="Keyword">import</a> <a id="774" href="Tools.PropositionalEquality.html" class="Module">Tools.PropositionalEquality</a>
+<a id="802" class="Keyword">open</a> <a id="807" class="Keyword">import</a> <a id="814" href="Tools.Sum.html" class="Module">Tools.Sum</a>
+
+<a id="825" class="Comment">-- The fundamental lemma is proven under the following assumptions.</a>
+
+<a id="894" class="Keyword">record</a> <a id="Fundamental-assumptions"></a><a id="901" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#901" class="Record">Fundamental-assumptions</a> <a id="925" class="Symbol">:</a> <a id="927" href="Agda.Primitive.html#320" class="Primitive">Set</a> <a id="931" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#470" class="Bound">a</a> <a id="933" class="Keyword">where</a>
+  <a id="941" class="Keyword">no-eta-equality</a>
+  <a id="959" class="Keyword">field</a>
+    <a id="969" class="Symbol">{</a><a id="Fundamental-assumptions.k"></a><a id="970" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#970" class="Field">k</a><a id="971" class="Symbol">}</a> <a id="973" class="Symbol">:</a> <a id="975" href="Agda.Builtin.Nat.html#186" class="Datatype">Nat</a>
+    <a id="983" class="Symbol">{</a><a id="Fundamental-assumptions.Δ"></a><a id="984" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#984" class="Field">Δ</a><a id="985" class="Symbol">}</a> <a id="987" class="Symbol">:</a> <a id="989" href="Definition.Untyped.NotParametrised.html#791" class="Datatype">Con</a> <a id="993" href="Definition.Untyped.html#2121" class="Datatype">Term</a> <a id="998" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#970" class="Field">k</a>
+    <a id="1004" class="Comment">-- The context is well-formed</a>
+    <a id="Fundamental-assumptions.⊢Δ"></a><a id="1038" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1038" class="Field">⊢Δ</a> <a id="1041" class="Symbol">:</a> <a id="1043" href="Definition.Typed.html#964" class="Datatype Operator">⊢</a> <a id="1045" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#984" class="Field">Δ</a>
+    <a id="1051" class="Comment">-- The context is consistent</a>
+    <a id="Fundamental-assumptions.consistent"></a><a id="1084" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1084" class="Field">consistent</a> <a id="1095" class="Symbol">:</a> <a id="1097" class="Symbol">∀</a> <a id="1099" class="Symbol">{</a><a id="1100" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1100" class="Bound">t</a><a id="1101" class="Symbol">}</a> <a id="1103" class="Symbol">→</a> <a id="1105" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#984" class="Field">Δ</a> <a id="1107" href="Definition.Typed.html#1453" class="Datatype Operator">⊢</a> <a id="1109" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1100" class="Bound">t</a> <a id="1111" href="Definition.Typed.html#1453" class="Datatype Operator">∷</a> <a id="1113" href="Definition.Untyped.html#2654" class="InductiveConstructor">Empty</a> <a id="1119" class="Symbol">→</a> <a id="1121" href="Data.Empty.html#526" class="Datatype">⊥</a>
+    <a id="1127" class="Comment">-- Erased matches are not allowed unless the context is empty</a>
+    <a id="Fundamental-assumptions.closed-or-no-erased-matches"></a><a id="1193" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1193" class="Field">closed-or-no-erased-matches</a> <a id="1221" class="Symbol">:</a> <a id="1223" href="Graded.Restrictions.html#2193" class="Function">No-erased-matches</a> <a id="1241" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#488" class="Bound">𝕄</a> <a id="1243" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#536" class="Bound">UR</a> <a id="1246" href="Data.Sum.Base.html#734" class="Datatype Operator">⊎</a> <a id="1248" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#970" class="Field">k</a> <a id="1250" href="Agda.Builtin.Equality.html#133" class="Datatype Operator">≡</a> <a id="1252" class="Number">0</a>
+
+<a id="1255" class="Comment">-- The assumptions hold unconditionally for empty contexts.</a>
+
+<a id="Fundamental-assumptions₀"></a><a id="1316" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1316" class="Function">Fundamental-assumptions₀</a> <a id="1341" class="Symbol">:</a> <a id="1343" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#901" class="Record">Fundamental-assumptions</a>
+<a id="1367" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1316" class="Function">Fundamental-assumptions₀</a> <a id="1392" class="Symbol">=</a> <a id="1394" class="Keyword">record</a>
+  <a id="1403" class="Symbol">{</a> <a id="1405" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1038" class="Field">⊢Δ</a> <a id="1408" class="Symbol">=</a> <a id="1410" href="Definition.Typed.html#998" class="InductiveConstructor">ε</a>
+  <a id="1414" class="Symbol">;</a> <a id="1416" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1084" class="Field">consistent</a> <a id="1427" class="Symbol">=</a> <a id="1429" href="Definition.Typed.Consequences.Canonicity.html#2089" class="Function">¬Empty</a>
+  <a id="1438" class="Symbol">;</a> <a id="1440" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1193" class="Field">closed-or-no-erased-matches</a> <a id="1468" class="Symbol">=</a> <a id="1470" href="Data.Sum.Base.html#809" class="InductiveConstructor">inj₂</a> <a id="1475" href="Agda.Builtin.Equality.html#190" class="InductiveConstructor">refl</a>
+  <a id="1482" class="Symbol">}</a>
+</pre></body></html>
