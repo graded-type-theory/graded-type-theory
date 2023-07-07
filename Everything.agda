@@ -287,6 +287,7 @@ import Graded.Erasure.LogicalRelation.Fundamental.Natrec
 import Graded.Erasure.LogicalRelation.Fundamental.Prodrec
 import Graded.Erasure.LogicalRelation.Fundamental.Product
 import Graded.Erasure.LogicalRelation.Fundamental.Unit
+import Graded.Erasure.LogicalRelation.Fundamental.Assumptions
 import Graded.Erasure.LogicalRelation.Fundamental
 
 -- The fundamental lemma does not hold in general without the
