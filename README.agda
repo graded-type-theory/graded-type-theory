@@ -652,13 +652,6 @@ counterexample₂ =
 ------------------------------------------------------------------------
 -- 7.4: Information flow interpretation
 
--- The definition of division is total for modality semirings M for
--- which 𝟘 is the greatest value if, for every decidable predicate on
--- M that holds for 𝟘 and is closed under meet, there is a least value
--- for which this predicate holds.
-
-total = Graded.Modality.Properties.Division./≡-total
-
 -- The total order L ≤ M ≤ H.
 
 L≤M≤H = Graded.Modality.Instances.Information-flow.L≤M≤H
