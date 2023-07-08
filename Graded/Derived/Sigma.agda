@@ -52,11 +52,11 @@ import Tools.Reasoning.PropositionalEquality
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
-  n     : Nat
-  A t u : Term _
-  p q r : M
-  γ δ   : Conₘ _
-  m     : Mode
+  n       : Nat
+  A B t u : Term _
+  p q r   : M
+  γ δ     : Conₘ _
+  m       : Mode
 
 ------------------------------------------------------------------------
 -- Some private lemmas related to the modality
@@ -512,6 +512,80 @@ inv-usage-fstᵣ′-𝟘∧𝟙-𝟙ᵐ {γ = γ} {p = p} 𝟘≰𝟙⊎𝟙≡�
     (inj₁ 𝟘≰𝟙) → inj₁ (𝟘≰𝟙→𝟘∧𝟙≢𝟘 𝟘≰𝟙)
     (inj₂ 𝟙≡𝟘) → inj₂ 𝟙≡𝟘
 
+-- If a certain usage rule holds for fstᵣ′ r 𝟙 q A (where A has type
+-- Term 1), then r is equal to 𝟙 and 𝟙 ≤ 𝟘.
+
+fstᵣ′ₘ→≡𝟙≤𝟘 :
+  {A : Term 1} →
+  (∀ {γ t} →
+   γ ▸[ 𝟙ᵐ ] t →
+   γ ▸[ 𝟙ᵐ ] fstᵣ′ r 𝟙 q A t) →
+  r PE.≡ 𝟙 × 𝟙 ≤ 𝟘
+fstᵣ′ₘ→≡𝟙≤𝟘 {r = r} {q = q} {A = A} =
+  (∀ {γ t} → γ ▸[ 𝟙ᵐ ] t → γ ▸[ 𝟙ᵐ ] fstᵣ′ r 𝟙 q A t)  →⟨ _$ var ⟩
+  γ′ ▸[ 𝟙ᵐ ] fstᵣ′ r 𝟙 q A t′                          →⟨ lemma ⟩
+  r PE.≡ 𝟙 × 𝟙 ≤ 𝟘                                     □
+  where
+  γ′ = ε ∙ 𝟙
+  t′ = var x0
+
+  lemma : γ′ ▸[ 𝟙ᵐ ] fstᵣ′ r 𝟙 q A t′ → r PE.≡ 𝟙 × 𝟙 ≤ 𝟘
+  lemma ▸fst-t =
+    case inv-usage-fstᵣ′ ▸fst-t of λ {
+      (ε ∙ p , _ , ε ∙ 𝟙≤rp , ▸t , _ , 𝟙r𝟙≤𝟙 , 𝟙r≤𝟘 , _) →
+    case inv-usage-var ▸t of λ {
+      (ε ∙ p≤⌜⌞r⌟⌝) →
+    let r≤𝟙 = begin
+          r          ≡˘⟨ ·-identityʳ _ ⟩
+          r · 𝟙      ≡˘⟨ ·-identityˡ _ ⟩
+          𝟙 · r · 𝟙  ≤⟨ 𝟙r𝟙≤𝟙 ⟩
+          𝟙          ∎
+
+        r≤𝟘 = begin
+          r      ≡˘⟨ ·-identityˡ _ ⟩
+          𝟙 · r  ≤⟨ 𝟙r≤𝟘 ⟩
+          𝟘      ∎
+    in
+      ≤-antisym
+        r≤𝟙
+        (begin
+           𝟙              ≤⟨ 𝟙≤rp ⟩
+           r · p          ≤⟨ ·-monotoneʳ p≤⌜⌞r⌟⌝ ⟩
+           r · ⌜ ⌞ r ⌟ ⌝  ≡⟨ ·⌜⌞⌟⌝ ⟩
+           r              ∎)
+    , (begin
+         𝟙      ≤⟨ 𝟙≤rp ⟩
+         r · p  ≤⟨ ·-monotoneˡ r≤𝟘 ⟩
+         𝟘 · p  ≡⟨ ·-zeroˡ _ ⟩
+         𝟘      ∎) }}
+    where
+    open Tools.Reasoning.PartialOrder ≤-poset
+
+-- If 𝟙 is not bounded by 𝟘, then a certain usage rule for
+-- fstᵣ′ r 𝟙 q A (where A has type Term 1) does not hold.
+
+¬fstᵣ′ₘ′ :
+  {A : Term 1} →
+  ¬ 𝟙 ≤ 𝟘 →
+  ¬ ({γ : Conₘ 1} {t : Term 1} →
+     γ ▸[ 𝟙ᵐ ] t →
+     γ ▸[ 𝟙ᵐ ] fstᵣ′ r 𝟙 q A t)
+¬fstᵣ′ₘ′ 𝟙≰𝟘 hyp = 𝟙≰𝟘 (fstᵣ′ₘ→≡𝟙≤𝟘 hyp .proj₂)
+
+-- If 𝟙 is not bounded by 𝟘, then a certain usage rule for fstᵣ′ does
+-- not hold.
+
+¬fstᵣ′ₘ :
+  ¬ 𝟙 ≤ 𝟘 →
+  ¬ (∀ {γ : Conₘ 1} {t : Term 1} {p m′} m →
+     γ ▸[ m ᵐ· p ] t →
+     m ᵐ· p PE.≡ m′ →
+     (m′ PE.≡ 𝟙ᵐ → p ≤ 𝟙) →
+     γ ▸[ m′ ] fstᵣ′ r p q A t)
+¬fstᵣ′ₘ 𝟙≰𝟘 hyp =
+  ¬fstᵣ′ₘ′ 𝟙≰𝟘 λ ▸t →
+    hyp 𝟙ᵐ (▸-cong (PE.sym ⌞𝟙⌟) ▸t) ⌞𝟙⌟ (λ _ → ≤-refl)
+
 ------------------------------------------------------------------------
 -- The first and second projections for weak Σ-types
 
@@ -707,6 +781,37 @@ fstᵣₘ-𝟙ᵐ-∧≤+ :
   γ ▸[ 𝟙ᵐ ] fstᵣ p A t
 fstᵣₘ-𝟙ᵐ-∧≤+ 𝟙≡𝟘⊎𝟙≢𝟘 +≤∧ = fstᵣₘ-𝟙ᵐ-≤𝟘 𝟙≡𝟘⊎𝟙≢𝟘 (+≤∧→≤𝟘 +≤∧)
 
+-- If 𝟙 is not bounded by 𝟘, then a certain usage rule for fstᵣ 𝟙 A
+-- (where A has type Term 1) does not hold.
+--
+-- Note that the assumption 𝟙 ≰ 𝟘 is satisfied by, for instance, the
+-- linearity modality, see
+-- Graded.Modality.Instances.Linearity.Properties.¬fstᵣₘ′.
+
+¬fstᵣₘ′ :
+  {A : Term 1} →
+  ¬ 𝟙 ≤ 𝟘 →
+  ¬ ({γ : Conₘ 1} {t : Term 1} →
+     γ ▸[ 𝟙ᵐ ] t →
+     γ ▸[ 𝟙ᵐ ] fstᵣ 𝟙 A t)
+¬fstᵣₘ′ = ¬fstᵣ′ₘ′
+
+-- If 𝟙 is not bounded by 𝟘, then a certain usage rule for fstᵣ does
+-- not hold.
+--
+-- Note that the assumption 𝟙 ≰ 𝟘 is satisfied by, for instance, the
+-- linearity modality, see
+-- Graded.Modality.Instances.Linearity.Properties.¬fstᵣₘ.
+
+¬fstᵣₘ :
+  ¬ 𝟙 ≤ 𝟘 →
+  ¬ (∀ {γ : Conₘ 1} {t : Term 1} {p m′} m →
+     γ ▸[ m ᵐ· p ] t →
+     m ᵐ· p PE.≡ m′ →
+     (m′ PE.≡ 𝟙ᵐ → p ≤ 𝟙) →
+     γ ▸[ m′ ] fstᵣ p A t)
+¬fstᵣₘ = ¬fstᵣ′ₘ
+
 ------------------------------------------------------------------------
 -- Inversion lemmas for usage for sndᵣ
 
@@ -858,3 +963,55 @@ sndᵣₘ-𝟙ᵐ-+≤∧ :
   δ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] B [ fstᵣ p (wk1 A) (var x0) ]↑ →
   γ ▸[ 𝟙ᵐ ] sndᵣ p q A B t
 sndᵣₘ-𝟙ᵐ-+≤∧ 𝟙≡𝟘⊎𝟙≢𝟘 +≤∧ = sndᵣₘ-𝟙ᵐ-≤𝟘 𝟙≡𝟘⊎𝟙≢𝟘 (+≤∧→≤𝟘 +≤∧)
+
+-- If a certain usage rule holds for sndᵣ p q A B (where A has type
+-- Term 1), then 𝟙 ≤ 𝟘.
+
+sndᵣₘ→𝟙≤𝟘 :
+  {A : Term 1} (B : Term 2) →
+  (∀ {γ t} →
+   γ ▸[ 𝟙ᵐ ] t →
+   γ ▸[ 𝟙ᵐ ] sndᵣ p q A B t) →
+  𝟙 ≤ 𝟘
+sndᵣₘ→𝟙≤𝟘 {p = p} {q = q} {A = A} B =
+  (∀ {γ t} → γ ▸[ 𝟙ᵐ ] t → γ ▸[ 𝟙ᵐ ] sndᵣ p q A B t)  →⟨ _$ var ⟩
+  γ′ ▸[ 𝟙ᵐ ] sndᵣ p q A B t′                          →⟨ lemma ⟩
+  𝟙 ≤ 𝟘                                               □
+  where
+  γ′ = ε ∙ 𝟙
+  t′ = var x0
+
+  lemma : γ′ ▸[ 𝟙ᵐ ] sndᵣ p q A B t′ → 𝟙 ≤ 𝟘
+  lemma ▸snd-t =
+    case inv-usage-prodrec ▸snd-t of λ {
+      (invUsageProdrec
+         {δ = ε ∙ r} {η = ε ∙ s} ▸t ▸var _ _ (ε ∙ 𝟙≤[𝟘∧𝟙]r+s)) →
+    case inv-usage-var ▸var of λ {
+      (ε ∙ s≤𝟘 ∙ _ ∙ _) →
+    case inv-usage-var ▸t of λ {
+      (ε ∙ r≤⌜⌞𝟘∧𝟙⌟⌝) →
+    begin
+      𝟙                        ≤⟨ 𝟙≤[𝟘∧𝟙]r+s ⟩
+      (𝟘 ∧ 𝟙) · r + s          ≤⟨ +-monotoneʳ s≤𝟘 ⟩
+      (𝟘 ∧ 𝟙) · r + 𝟘          ≡⟨ +-identityʳ _ ⟩
+      (𝟘 ∧ 𝟙) · r              ≤⟨ ·-monotoneʳ r≤⌜⌞𝟘∧𝟙⌟⌝ ⟩
+      (𝟘 ∧ 𝟙) · ⌜ ⌞ 𝟘 ∧ 𝟙 ⌟ ⌝  ≡⟨ ·⌜⌞⌟⌝ ⟩
+      𝟘 ∧ 𝟙                    ≤⟨ ∧-decreasingˡ _ _ ⟩
+      𝟘                        ∎ }}}
+    where
+    open Tools.Reasoning.PartialOrder ≤-poset
+
+-- If 𝟙 is not bounded by 𝟘, then a certain usage rule for
+-- sndᵣ p q A B (where A has type Term 1) does not hold.
+--
+-- Note that the assumption 𝟙 ≰ 𝟘 is satisfied by, for instance, the
+-- linearity modality, see
+-- Graded.Modality.Instances.Linearity.Properties.¬sndᵣₘ.
+
+¬sndᵣₘ :
+  {A : Term 1} (B : Term 2) →
+  ¬ 𝟙 ≤ 𝟘 →
+  ¬ ({γ : Conₘ 1} {t : Term 1} →
+     γ ▸[ 𝟙ᵐ ] t →
+     γ ▸[ 𝟙ᵐ ] sndᵣ p q A B t)
+¬sndᵣₘ B 𝟙≰𝟘 hyp = 𝟙≰𝟘 (sndᵣₘ→𝟙≤𝟘 B hyp)
