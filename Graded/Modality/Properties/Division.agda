@@ -26,7 +26,7 @@ open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
-  p q r r₁ r₂ : M
+  p p₁ p₂ q q₁ q₂ r r₁ r₂ : M
 
 -- The relation p / q ≤ r is inhabited if "p divided by q" is bounded
 -- by r.
@@ -87,12 +87,40 @@ p / q ≡ r = p / q ≤ r × (∀ r′ → p / q ≤ r′ → r ≤ r′)
 /≡-functional (p/q≤r₁ , least₁) (p/q≤r₂ , least₂) =
   ≤-antisym (least₁ _ p/q≤r₂) (least₂ _ p/q≤r₁)
 
+-- Division is monotone in its first argument.
+
+/-monotoneˡ :
+  p₁ / q ≡ r₁ → p₂ / q ≡ r₂ → p₁ ≤ p₂ → r₁ ≤ r₂
+/-monotoneˡ
+  {p₁ = p₁} {q = q} {p₂ = p₂} {r₂ = r₂}
+  (_ , r₁≤) (p₂/q≤r₂ , _) p₁≤p₂ =
+  r₁≤ _ $ begin
+    p₁      ≤⟨ p₁≤p₂ ⟩
+    p₂      ≤⟨ p₂/q≤r₂ ⟩
+    q · r₂  ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
+
+-- Division is antitone in its second argument.
+
+/-antitoneʳ :
+  p / q₁ ≡ r₁ → p / q₂ ≡ r₂ → q₁ ≤ q₂ → r₂ ≤ r₁
+/-antitoneʳ
+  {p = p} {q₁ = q₁} {r₁ = r₁} {q₂ = q₂}
+  (p/q₁≤r₁ , _) (_ , r₂≤) q₁≤q₂ =
+  r₂≤ _ $ begin
+    p        ≤⟨ p/q₁≤r₁ ⟩
+    q₁ · r₁  ≤⟨ ·-monotoneˡ q₁≤q₂ ⟩
+    q₂ · r₁  ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
+
 -- Division is decreasing if 𝟙 is the least value.
 
-division-decreasing :
+/-decreasing :
   (∀ p → 𝟙 ≤ p) →
   p / q ≡ r → r ≤ p
-division-decreasing {p = p} {q = q} {r = r} 𝟙≤ =
+/-decreasing {p = p} {q = q} {r = r} 𝟙≤ =
   (p / q ≤ r) × (∀ r′ → p / q ≤ r′ → r ≤ r′)  →⟨ (_$ _) ∘→ proj₂ ⟩
   (p ≤ q · p → r ≤ p)                         ≡⟨ cong (λ p → p ≤ q · _ → _) (sym (·-identityˡ _)) ⟩→
   (𝟙 · p ≤ q · p → r ≤ p)                     →⟨ _$ ·-monotoneˡ (𝟙≤ _) ⟩
