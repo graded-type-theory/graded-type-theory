@@ -12,6 +12,7 @@ module Definition.Typed.Consequences.DerivedRules.Sigma
 open Type-restrictions R
 
 open import Definition.Typed R
+open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Reduction R
@@ -28,6 +29,7 @@ open import Definition.Untyped.Sigma M as Sigma using (prodrecₚ)
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat using (Nat; 1+)
+open import Tools.Nullary
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PropositionalEquality
@@ -797,14 +799,63 @@ module Fstᵣ-sndᵣ (r′ q′ : M) where
     ⊢B       = ⊢A,⊢B,ok .proj₂ .proj₁
     ok       = ⊢A,⊢B,ok .proj₂ .proj₂
 
-  -- Presumably it is possible to prove that the following η-rule does
-  -- not hold in general:
-  --
-  --   Γ ⊢ t ∷ Σᵣ p , q ▷ A ▹ B →
-  --   Γ ⊢ u ∷ Σᵣ p , q ▷ A ▹ B →
-  --   Γ ⊢ fstᵣ p A t ≡ fstᵣ p A u ∷ A →
-  --   Γ ⊢ sndᵣ p q A B t ≡ sndᵣ p q A B u ∷ B [ fstᵣ p A t ]₀ →
-  --   Γ ⊢ t ≡ u ∷ Σᵣ p , q ▷ A ▹ B
+  -- If Σᵣ-allowed p q holds for some p and q, then a certain η-rule
+  -- for Σᵣ, fstᵣ and sndᵣ does not hold in general.
+
+  ¬-Σᵣ-η-prodᵣ-fstᵣ-sndᵣ :
+    ∀ {p q} →
+    Σᵣ-allowed p q →
+    ¬ (∀ {n} {Γ : Con Term n} {t A B} →
+       Γ ⊢ t ∷ Σᵣ p , q ▷ A ▹ B →
+       Γ ⊢ prodᵣ p (fstᵣ p A t) (sndᵣ p q A B t) ≡ t ∷ Σᵣ p , q ▷ A ▹ B)
+  ¬-Σᵣ-η-prodᵣ-fstᵣ-sndᵣ {p = p} {q = q} Σ-ok hyp = ¬fst,snd≡ fst,snd≡
+    where
+    A′ = ℕ
+    B′ = ℕ
+
+    Γ′ = ε ∙ Σᵣ p , q ▷ ℕ ▹ ℕ
+
+    t′ : Term 1
+    t′ = var x0
+
+    ⊢Γ : ⊢ Γ′
+    ⊢Γ = ε ∙ ΠΣⱼ (ℕⱼ ε) (ℕⱼ (ε ∙ ℕⱼ ε)) Σ-ok
+
+    ⊢B : Γ′ ∙ A′ ⊢ B′
+    ⊢B = ℕⱼ (⊢Γ ∙ ℕⱼ ⊢Γ)
+
+    ⊢t : Γ′ ⊢ t′ ∷ Σᵣ p , q ▷ A′ ▹ B′
+    ⊢t = var ⊢Γ here
+
+    fst,snd≡ :
+      Γ′ ⊢ prodᵣ p (fstᵣ p A′ t′) (sndᵣ p q A′ B′ t′) ≡ t′ ∷
+        Σᵣ p , q ▷ A′ ▹ B′
+    fst,snd≡ = hyp ⊢t
+
+    ¬fst,snd≡ :
+      ¬ Γ′ ⊢ prodᵣ p (fstᵣ p A′ t′) (sndᵣ p q A′ B′ t′) ≡ t′ ∷
+          Σᵣ p , q ▷ A′ ▹ B′
+    ¬fst,snd≡ = prodᵣ≢ne (var _)
+
+  -- If Σᵣ-allowed p q holds for some p and q, then a certain η-rule
+  -- for Σᵣ, fstᵣ and sndᵣ does not hold in general.
+
+  ¬-Σᵣ-η :
+    ∀ {p q} →
+    Σᵣ-allowed p q →
+    ¬ (∀ {n} {Γ : Con Term n} {t A B u} →
+       Γ ⊢ t ∷ Σᵣ p , q ▷ A ▹ B →
+       Γ ⊢ u ∷ Σᵣ p , q ▷ A ▹ B →
+       Γ ⊢ fstᵣ p A t ≡ fstᵣ p A u ∷ A →
+       Γ ⊢ sndᵣ p q A B t ≡ sndᵣ p q A B u ∷ B [ fstᵣ p A t ]₀ →
+       Γ ⊢ t ≡ u ∷ Σᵣ p , q ▷ A ▹ B)
+  ¬-Σᵣ-η Σ-ok hyp =
+    ¬-Σᵣ-η-prodᵣ-fstᵣ-sndᵣ Σ-ok λ ⊢t →
+      case inversion-ΠΣ (syntacticTerm ⊢t) of λ {
+        (_ , ⊢B , ok) →
+      hyp (⊢prod ⊢B (fstᵣⱼ ⊢t) (sndᵣⱼ ⊢t) ok) ⊢t
+        (fstᵣ-β-≡ ⊢B (fstᵣⱼ ⊢t) (sndᵣⱼ ⊢t) ok)
+        (sndᵣ-β-≡ ⊢B (fstᵣⱼ ⊢t) (sndᵣⱼ ⊢t) ok) }
 
 ------------------------------------------------------------------------
 -- More derived rules
