@@ -184,7 +184,7 @@ lam-injective
     Γ ∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ B                                  →⟨ flip (lamⱼ ⊢A) ok ⟩
     Γ ⊢ lam p (wk1 t ∘⟨ p ⟩ var x0) ∷ Π p , q ▷ A ▹ B                □
 
--- An alternative congruence rule for Π and Σ-types
+-- An alternative congruence rule for Π- and Σ-types.
 
 ΠΣ-cong′ : Γ ⊢ A ≡ C
          → Γ ∙ A ⊢ B ≡ D
