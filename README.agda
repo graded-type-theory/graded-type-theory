@@ -315,8 +315,9 @@ prodrec-for-Σₚ              = Definition.Untyped.Sigma.prodrecₚ
 prodrec-for-Σₚ-type-correct =
   Definition.Typed.Consequences.DerivedRules.Sigma.prodrecₚⱼ
 
--- This definition will not have the same resource consumption
--- as prodrec in general.
+-- However, our definition does not in general satisfy the usage rule
+-- for prodrec.
+
 prodrec-for-Σₚ-usage = Graded.Derived.Sigma.¬prodrecₘ
 
 -- One can also define projections for weak Σ-types by using prodrec.
