@@ -42,6 +42,16 @@ private variable
 ------------------------------------------------------------------------
 -- Some derived rules
 
+-- A variant of the typing rule for prod.
+
+⊢prod :
+  Γ ∙ A ⊢ B →
+  Γ ⊢ t ∷ A →
+  Γ ⊢ u ∷ B [ t ]₀ →
+  Σ-allowed s p q →
+  Γ ⊢ prod s p t u ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B
+⊢prod ⊢B ⊢t = prodⱼ (syntacticTerm ⊢t) ⊢B ⊢t
+
 -- An η-rule for strong Σ-types.
 
 Σ-η-prod-fst-snd :
@@ -50,7 +60,7 @@ private variable
 Σ-η-prod-fst-snd ⊢t = Σ-η
   ⊢A
   ⊢B
-  (prodⱼ ⊢A ⊢B ⊢fst ⊢snd ok)
+  (⊢prod ⊢B ⊢fst ⊢snd ok)
   ⊢t
   (Σ-β₁ ⊢A ⊢B ⊢fst ⊢snd PE.refl ok)
   (Σ-β₂ ⊢A ⊢B ⊢fst ⊢snd PE.refl ok)
@@ -726,15 +736,13 @@ module Fstᵣ-sndᵣ (r′ q′ : M) where
     Γ ⊢ sndᵣ p q A B (prodᵣ p t u) ⇒ u ∷ B [ fstᵣ p A (prodᵣ p t u) ]₀
   sndᵣ-β-⇒
     {Γ = Γ} {A = A} {B = B} {t = t} {u = u} {p = p} {q = q}
-    ⊢B ⊢t ⊢u ok =                                      $⟨ prodrec-β ⊢A ⊢B (⊢[fstᵣ-0]↑ {q = q} ⊢B ok) ⊢t ⊢u
-                                                            (⊢0∷[fstᵣ-0]↑[1,0]↑² ⊢B ok) PE.refl ok ⟩
+    ⊢B ⊢t ⊢u ok =                                      $⟨ prodrec-β (syntacticTerm ⊢t) ⊢B (⊢[fstᵣ-0]↑ {q = q} ⊢B ok)
+                                                            ⊢t ⊢u (⊢0∷[fstᵣ-0]↑[1,0]↑² ⊢B ok) PE.refl ok ⟩
     Γ ⊢ sndᵣ p q A B (prodᵣ p t u) ⇒ u ∷
-      B [ fstᵣ p (wk1 A) (var x0) ]↑ [ prodᵣ p t u ]₀  →⟨ flip conv (⊢≡[fstᵣ] (prodⱼ {q = q} ⊢A ⊢B ⊢t ⊢u ok)) ⟩
+      B [ fstᵣ p (wk1 A) (var x0) ]↑ [ prodᵣ p t u ]₀  →⟨ flip conv (⊢≡[fstᵣ] (⊢prod ⊢B ⊢t ⊢u ok)) ⟩
 
     Γ ⊢ sndᵣ p q A B (prodᵣ p t u) ⇒ u ∷
       B [ fstᵣ p A (prodᵣ p t u) ]₀                    □
-    where
-    ⊢A = syntacticTerm ⊢t
 
   -- Another reduction rule for sndᵣ.
 
