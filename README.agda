@@ -319,6 +319,16 @@ prodrec-for-Σₚ-type-correct =
 -- as prodrec in general.
 prodrec-for-Σₚ-usage = Graded.Derived.Sigma.¬prodrecₘ
 
+-- One can also define projections for weak Σ-types by using prodrec.
+
+fst-for-Σᵣ = Definition.Untyped.Sigma.Fstᵣ-sndᵣ.fstᵣ
+snd-for-Σᵣ = Definition.Untyped.Sigma.Fstᵣ-sndᵣ.sndᵣ
+
+-- However, η-equality does not hold in general for our definitions.
+
+no-η-equality-Σᵣ =
+  Definition.Typed.Consequences.DerivedRules.Sigma.Fstᵣ-sndᵣ.¬-Σᵣ-η-prodᵣ-fstᵣ-sndᵣ
+
 -- Reduction relations
 
 _⊢_⇒_    = Definition.Typed._⊢_⇒_
@@ -336,22 +346,37 @@ Theorem-4-3b = Definition.Typed.Properties.whnfRed*
 Theorem-4-4a = Definition.Typed.Properties.whrDet*Term
 Theorem-4-4b = Definition.Typed.Properties.whrDet*
 
--- Some properties that are proven via a reducibility logical relation:
+-- Some properties that are proved via a reducibility logical relation:
 
--- Admissibility of substitution
-substitutionAdmissible = Definition.Typed.Consequences.Substitution.substitution
+-- Admissibility of substitution.
+substitutionAdmissible =
+  Definition.Typed.Consequences.Substitution.substitution
+substitutionAdmissibleEq =
+  Definition.Typed.Consequences.Substitution.substitutionEq
+substitutionAdmissibleTerm =
+  Definition.Typed.Consequences.Substitution.substitutionTerm
+substitutionAdmissibleEqTerm =
+  Definition.Typed.Consequences.Substitution.substitutionEqTerm
 
--- Subject reduction
-subjectReduction = Definition.Typed.Consequences.Syntactic.syntacticRedTerm
+-- Subject reduction.
+subjectReduction =
+  Definition.Typed.Consequences.Syntactic.syntacticRed
+subjectReductionTerm =
+  Definition.Typed.Consequences.Syntactic.syntacticRedTerm
 
--- Normalization
-normalization = Definition.Typed.Consequences.Reduction.whNormTerm
+-- Normalization.
+normalization     = Definition.Typed.Consequences.Reduction.whNorm
+normalizationTerm = Definition.Typed.Consequences.Reduction.whNormTerm
 
--- Decidability of equality
-decEq = Definition.Typed.Decidable.Equality.decEq
+-- Decidability of equality.
+decEq     = Definition.Typed.Decidable.Equality.decEq
+decEqTerm = Definition.Typed.Decidable.Equality.decEqTerm
 
--- Decidability of typechecking for some terms
-decTypecheck = Definition.Typed.Decidable.decTermᶜ
+-- Decidability of type-checking for some terms and types.
+decTypeCheck      = Definition.Typed.Decidable.decConTermTypeᶜ
+decTypeCheck′     = Definition.Typed.Decidable.decTermᶜ
+decTypeCheckType  = Definition.Typed.Decidable.decConTypeᶜ
+decTypeCheckType′ = Definition.Typed.Decidable.dec
 
 ------------------------------------------------------------------------
 -- 5: Assigning grades
