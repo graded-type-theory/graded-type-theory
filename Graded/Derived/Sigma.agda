@@ -291,17 +291,17 @@ prodrecₚₘ-𝟙ᵐ-𝟙-∧≤+ {γ = γ} {r = r} {δ = δ} ∧≤+ ▸t ▸u
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
--- The usage rule for prodrecₚ is in general not the same as the one
--- for prodrec.
+-- One cannot in general derive the usage rule of prodrec for
+-- prodrecₚ.
 --
--- Note that the assumption 𝟙 ≰ 𝟙 + 𝟙 is satisfied by e.g. the
--- linearity modality.
--- See Graded.Modality.Instances.Linearity.Properties
+-- Note that the assumption 𝟙 ≰ 𝟙 + 𝟙 is satisfied by, for instance,
+-- the linearity modality, see
+-- Graded.Modality.Instances.Linearity.Properties.¬prodrecₘ-Linearity.
 
 ¬prodrecₘ : Prodrec-allowed 𝟙 𝟙 𝟘
           → ¬ (𝟙 ≤ 𝟙 + 𝟙)
-          → ¬ (∀ {n} {γ : Conₘ n} {η : Conₘ (1+ n)} {δ m r p q t u A}
-               → γ ▸[ m ᵐ· p ] t
+          → ¬ (∀ {n} {γ η : Conₘ n} {δ m r p q t u A}
+               → γ ▸[ m ᵐ· r ] t
                → δ ∙ ⌜ m ⌝ · r  · p ∙ ⌜ m ⌝ · r ▸[ m ] u
                → η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
                → Prodrec-allowed r p q

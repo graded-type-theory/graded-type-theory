@@ -25,8 +25,8 @@ open import Tools.Nat
 open import Tools.Nullary
 
 ¬prodrecₘ-Linearity : Prodrec-allowed 𝟙 𝟙 𝟘
-                    → ¬ (∀ {n} {γ : Conₘ n} {η : Conₘ (1+ n)} {δ m r p q t u A}
-                        → γ ▸[ m ᵐ· p ] t
+                    → ¬ (∀ {n} {γ η : Conₘ n} {δ m r p q t u A}
+                        → γ ▸[ m ᵐ· r ] t
                         → δ ∙ ⌜ m ⌝ · r  · p ∙ ⌜ m ⌝ · r ▸[ m ] u
                         → η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
                         → Prodrec-allowed r p q
