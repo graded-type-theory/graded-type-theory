@@ -225,6 +225,7 @@ import Graded.Modality.Instances.Linearity
 import Graded.Modality.Instances.Linearity.Properties
 import Graded.Modality.Instances.Linear-or-affine
 import Graded.Modality.Instances.Information-flow
+import Graded.Modality.Instances.Zero-below-one
 
 -- The type Erased.
 import Graded.Derived.Erased.Untyped
