@@ -647,7 +647,7 @@ not-greatest =
 
 ⊛ᵣ-star-semiring = Graded.Modality.Instances.BoundedStar._⊛_▷_
 
--- The definition of ⊛ᵣ for bounded star-semirings is at greater or
+-- The definition of ⊛ᵣ for bounded star-semirings is greater than or
 -- equal to the one for lower bounded instances.
 
 ⊛ᵣ-lower-bounded≤⊛ᵣ-star-semiring = Graded.Modality.Instances.BoundedStar.LowerBounded.⊛′≤⊛
