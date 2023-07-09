@@ -88,6 +88,23 @@ private
   where
   open Tools.Reasoning.PropositionalEquality
 
+-- If p is the largest value, then p ∧ q is equal to q.
+
+largest→∧≡ʳ : (∀ q → q ≤ p) → p ∧ q ≡ q
+largest→∧≡ʳ ≤p = ≤-antisym
+  (∧-decreasingʳ _ _)
+  (∧-greatest-lower-bound (≤p _) ≤-refl)
+
+-- If p is the largest value, then q ∧ p is equal to q.
+
+largest→∧≡ˡ : (∀ q → q ≤ p) → q ∧ p ≡ q
+largest→∧≡ˡ {p = p} {q = q} ≤p =
+  q ∧ p  ≡⟨ ∧-comm _ _ ⟩
+  p ∧ q  ≡⟨ largest→∧≡ʳ ≤p ⟩
+  q      ∎
+  where
+  open Tools.Reasoning.PropositionalEquality
+
 -- If p is strictly below q ∧ r, then p is strictly below q.
 
 <∧ˡ : p < q ∧ r → p < q
