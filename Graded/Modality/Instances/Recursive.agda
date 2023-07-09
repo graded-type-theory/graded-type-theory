@@ -11,7 +11,7 @@ open import Graded.Mode.Restrictions
 --
 -- nr 0 p q r = 𝟘
 -- nr (1+ n) p q r = p ∧ (q + r nr n p q r)
--- ∃ n → nr (1+ n) p q r ≡ nr n p q r
+-- ∃ n → ∀ p q r → nr (1+ n) p q r ≡ nr n p q r
 
 module Graded.Modality.Instances.Recursive
   {a} {M : Set a} (𝕄 : Semiring-with-meet M)
