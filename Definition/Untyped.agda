@@ -67,7 +67,7 @@ data Kind : (ns : List Nat) → Set a where
   Starkind : Kind []
 
   Emptykind    : Kind []
-  emptyreckind : (p : M) → Kind (0 ∷ 0 ∷ [])
+  Emptyreckind : (p : M) → Kind (0 ∷ 0 ∷ [])
 
 -- The type of terms is parametrised by the number of free variables.
 -- A term is either a variable (a de Bruijn index) or a generic term,
@@ -123,7 +123,7 @@ pattern suc t = gen Suckind (t ∷ [])
 pattern natrec p q r A z s n = gen (Natreckind p q r) (A ∷ z ∷ s ∷ n ∷ [])
 
 pattern star = gen Starkind []
-pattern emptyrec p A t = gen (emptyreckind p) (A ∷ t ∷ [])
+pattern emptyrec p A t = gen (Emptyreckind p) (A ∷ t ∷ [])
 
 
 data BindingType : Set a where

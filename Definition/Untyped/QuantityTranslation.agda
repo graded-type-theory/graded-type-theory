@@ -69,7 +69,7 @@ tr-Kind (Natreckind p q r)  = Natreckind (tr p) (tr q) (tr r)
 tr-Kind Unitkind            = Unitkind
 tr-Kind Starkind            = Starkind
 tr-Kind Emptykind           = Emptykind
-tr-Kind (emptyreckind p)    = emptyreckind (tr p)
+tr-Kind (Emptyreckind p)    = Emptyreckind (tr p)
 
 mutual
 
@@ -530,10 +530,10 @@ module Injective
   tr-Kind-injective refl | _ | _ | _ =
     cong₃ Natreckind (tr-injective tr-p≡) (tr-injective tr-q≡)
       (tr-injective tr-r≡)
-  tr-Kind-injective {k = emptyreckind p} {l = emptyreckind _} eq
+  tr-Kind-injective {k = Emptyreckind p} {l = Emptyreckind _} eq
     with tr p in tr-p≡
   tr-Kind-injective refl | _ =
-    cong emptyreckind (tr-injective tr-p≡)
+    cong Emptyreckind (tr-injective tr-p≡)
 
   mutual
 
