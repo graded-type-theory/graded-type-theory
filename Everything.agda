@@ -212,6 +212,7 @@ import Graded.Derived.Sigma
 import Graded.Modality.Instances.LowerBounded
 import Graded.Modality.Instances.BoundedStar
 import Graded.Modality.Instances.Finite
+import Graded.Modality.Instances.Recursive.Sequences
 import Graded.Modality.Instances.Recursive
 import Graded.Modality.Instances.Erasure
 import Graded.Modality.Instances.Zero-one-many
