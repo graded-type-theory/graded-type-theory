@@ -21,7 +21,7 @@ open import Graded.Usage.Weakening 𝕄 R
 open import Graded.Mode 𝕄
 
 open import Tools.Fin
-open import Tools.Nat
+open import Tools.Nat using (Nat; 1+)
 
 infixl 50 _<*_
 infixr 50 _*>_

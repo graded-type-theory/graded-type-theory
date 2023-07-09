@@ -28,8 +28,8 @@ open import Definition.Typechecking.Completeness R
 open import Definition.Typechecking.Decidable R _≟_ Unit-ok? ΠΣ-ok?
 
 open import Tools.Function
-open import Tools.Nat
-open import Tools.Nullary
+open import Tools.Nat using (Nat)
+open import Tools.Nullary as Dec
 open import Tools.Product
 
 private
@@ -44,13 +44,14 @@ open import Definition.Typed.Decidable.Equality R _≟_ public
 -- If Γ is well-formed and A is checkable, then Γ ⊢ A is decidable.
 
 dec : ⊢ Γ → Checkable A → Dec (Γ ⊢ A)
-dec ⊢Γ A = map (soundness⇇Type ⊢Γ) (completeness⇇Type A) (dec⇇Type ⊢Γ A)
+dec ⊢Γ A =
+  Dec.map (soundness⇇Type ⊢Γ) (completeness⇇Type A) (dec⇇Type ⊢Γ A)
 
 -- Type-checking for well-formed types: if Γ ⊢ A holds and t is
 -- checkable, then Γ ⊢ t ∷ A is decidable.
 
 decTermᶜ : Γ ⊢ A → Checkable t → Dec (Γ ⊢ t ∷ A)
-decTermᶜ ⊢A t = map (soundness⇇ ⊢Γ) (completeness⇇ t) (dec⇇ ⊢Γ t ⊢A)
+decTermᶜ ⊢A t = Dec.map (soundness⇇ ⊢Γ) (completeness⇇ t) (dec⇇ ⊢Γ t ⊢A)
   where
   ⊢Γ = wf ⊢A
 
@@ -67,9 +68,10 @@ decTermTypeᶜ ⊢Γ A t =
 -- ∃ λ A → Γ ⊢ t ∷ A is decidable.
 
 decTermᵢ : ⊢ Γ → Inferable t → Dec (∃ λ A → Γ ⊢ t ∷ A)
-decTermᵢ ⊢Γ t = map (λ { (A , t⇉A) → A , (proj₂ (soundness⇉ ⊢Γ t⇉A))})
-                    (λ { (A , ⊢t)  → _ , (proj₁ (proj₂ (completeness⇉ t ⊢t)))})
-                    (dec⇉ ⊢Γ t)
+decTermᵢ ⊢Γ t = Dec.map
+  (λ { (A , t⇉A) → A , (proj₂ (soundness⇉ ⊢Γ t⇉A))})
+  (λ { (A , ⊢t)  → _ , (proj₁ (proj₂ (completeness⇉ t ⊢t)))})
+  (dec⇉ ⊢Γ t)
 
 -- If Γ is a checkable context, then ⊢ Γ is decidable.
 

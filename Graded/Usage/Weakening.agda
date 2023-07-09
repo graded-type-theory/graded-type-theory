@@ -30,7 +30,7 @@ open import Definition.Untyped.Inversion M
 open import Tools.Bool using (T)
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat renaming (_+_ to _+ⁿ_)
+open import Tools.Nat using (Nat) renaming (_+_ to _+ⁿ_)
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PartialOrder

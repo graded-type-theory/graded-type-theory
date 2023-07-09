@@ -56,6 +56,7 @@ import Graded.Modality.Instances.Information-flow
 import Graded.Modality.Instances.Linear-or-affine
 import Graded.Modality.Instances.Linearity
 import Graded.Modality.Instances.LowerBounded
+import Graded.Modality.Instances.Nat-plus-infinity
 import Graded.Modality.Instances.Recursive
 import Graded.Modality.Instances.Unit
 import Graded.Modality.Instances.Zero-one-many
@@ -634,6 +635,13 @@ not-greatest =
 -- A lawful definition of ⊛ᵣ defined recursively.
 
 ⊛ᵣ-recursive = Graded.Modality.Instances.Recursive._⊛_▷_
+
+-- The family of sequences discussed in §7.1.2 does not have the
+-- required fixpoints for a certain modality for the natural numbers
+-- extended with infinity.
+
+¬-fixpoints =
+  Graded.Modality.Instances.Nat-plus-infinity.¬-Has-fixpoints-nr
 
 -- A lawful definition of ⊛ᵣ for bounded star-semirings.
 

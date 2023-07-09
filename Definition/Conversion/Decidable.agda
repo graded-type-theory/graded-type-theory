@@ -36,7 +36,7 @@ open import Definition.Typed.Consequences.DerivedRules.Nat R
 
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat
+open import Tools.Nat using (Nat)
 open import Tools.Product
 open import Tools.Empty
 open import Tools.Nullary

@@ -10,7 +10,7 @@ module Graded.Context
 open Modality 𝕄
 
 open import Tools.Fin
-open import Tools.Nat renaming (_+_ to _+ⁿ_)
+open import Tools.Nat using (Nat; 1+) renaming (_+_ to _+ⁿ_)
 open import Tools.PropositionalEquality
 
 infixl 24 _∙_

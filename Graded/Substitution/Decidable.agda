@@ -36,7 +36,7 @@ open import Graded.Mode 𝕄
 
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat
+open import Tools.Nat using (Nat; 1+)
 import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PartialOrder
 open import Tools.Sum

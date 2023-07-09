@@ -1,6 +1,6 @@
 import Tools.Algebra as A
 open import Tools.Bool hiding (_∧_)
-open import Tools.Nat hiding (_+_)
+open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Graded.Modality

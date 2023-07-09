@@ -27,7 +27,7 @@ open import Definition.Untyped M hiding (_∷_)
 open import Tools.Bool using (Bool; T)
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat hiding (_+_)
+open import Tools.Nat using (Nat; 1+)
 open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality as PE

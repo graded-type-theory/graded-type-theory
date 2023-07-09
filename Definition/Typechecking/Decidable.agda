@@ -36,7 +36,7 @@ import Definition.Untyped M as U
 
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat
+open import Tools.Nat using (Nat)
 open import Tools.Product
 
 private

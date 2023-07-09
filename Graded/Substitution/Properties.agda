@@ -26,7 +26,7 @@ open import Definition.Untyped M renaming (_[_,_] to _[_,,_])
 open import Tools.Bool using (T)
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat hiding (_+_)
+open import Tools.Nat using (Nat)
 open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
