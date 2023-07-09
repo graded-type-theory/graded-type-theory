@@ -1120,3 +1120,15 @@ zero-one-many-greatest rs = record
   ; mode-restrictions = rs
   ; 𝟘-well-behaved = λ _ → zero-one-many-has-well-behaved-zero
   }
+
+-- The star operation obtained from zero-one-many-lower-bounded is not
+-- the (pointwise) greatest one.
+
+¬-lower-bounded-greatest :
+  (rs : Mode-restrictions) →
+  ¬ ((M : Modality) →
+     ∀ p q r →
+     Modality._⊛_▷_ M                                p q r ≤
+     Modality._⊛_▷_ (zero-one-many-lower-bounded rs) p q r)
+¬-lower-bounded-greatest rs hyp =
+  case hyp (zero-one-many-greatest rs) 𝟙 𝟙 𝟘 of λ ()

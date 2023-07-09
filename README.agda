@@ -623,6 +623,14 @@ soundness = Graded.Erasure.Consequences.Soundness.Soundness.soundness-ℕ
 
 ⊛ᵣ-lower-bounded = Graded.Modality.Instances.LowerBounded._⊛_▷_
 
+-- This definition does not give the greatest solution for the affine
+-- or linear types modalities (which are defined as different
+-- instances of the modality zero-one-many-greatest in
+-- Graded.Modality.Instances.Zero-one-many).
+
+not-greatest =
+  Graded.Modality.Instances.Zero-one-many.¬-lower-bounded-greatest
+
 -- A lawful definition of ⊛ᵣ defined recursively.
 
 ⊛ᵣ-recursive = Graded.Modality.Instances.Recursive._⊛_▷_
