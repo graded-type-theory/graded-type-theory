@@ -46,16 +46,6 @@ solvesIneqs =
   in  (λ p q r → ≤-trans (≤-reflexive (trans (sym (fix p q r)) (nr-rec n p q r))) (∧-decreasingʳ p _))
     , (λ p q r → ≤-trans (≤-reflexive (trans (sym (fix p q r)) (nr-rec n p q r))) (∧-decreasingˡ p _))
 
-nr-cong : {p p′ q q′ r r′ : M} → (n : Nat) → p ≡ p′ → q ≡ q′ → r ≡ r′ → nr n p q r ≡ nr n p′ q′ r′
-nr-cong 0 p≡p′ q≡q′ r≡r′ = trans (nr-0 _ _ _) (sym (nr-0 _ _ _))
-nr-cong {p} {p′} {q} {q′} {r} {r′} (1+ n) p≡p′ q≡q′ r≡r′ = begin
-  nr (1+ n) p q r              ≡⟨ nr-rec n p q r ⟩
-  p ∧ q + r · nr n p q r       ≡⟨ ∧-cong p≡p′ (+-cong q≡q′ (·-cong r≡r′ (nr-cong n p≡p′ q≡q′ r≡r′))) ⟩
-  p′ ∧ q′ + r′ · nr n p′ q′ r′ ≡˘⟨ nr-rec n p′ q′ r′ ⟩
-  nr (1+ n) p′ q′ r′ ∎
-  where
-  open Tools.Reasoning.PropositionalEquality
-
 +-sub-interchangeable-nr : (n : Nat) (r : M) → _+_ SubInterchangeable (λ p q → nr n p q r) by _≤_
 +-sub-interchangeable-nr 0 r p q p′ q′ = begin
   nr 0 p q r + nr 0 p′ q′ r ≈⟨ +-cong (nr-0 p q r) (nr-0 p′ q′ r) ⟩
