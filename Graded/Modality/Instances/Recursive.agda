@@ -11,7 +11,7 @@ open import Graded.Mode.Restrictions
 --
 -- nr 0 p q r = 𝟘
 -- nr (1+ n) p q r = p ∧ (q + r nr n p q r)
--- ∃ n → ∀ p q r → nr (1+ n) p q r ≡ nr n p q r
+-- ∃ n → ∀ p q → nr (1+ n) p q r ≡ nr n p q r
 
 module Graded.Modality.Instances.Recursive
   {a} {M : Set a} (𝕄 : Semiring-with-meet M)
@@ -20,7 +20,7 @@ module Graded.Modality.Instances.Recursive
   (nr-rec : (n : Nat) (p q r : M)
           → nr (1+ n) p q r ≡ p ∧ (q + r · (nr n p q r)))
   (nr-0 : (p q r : M) → nr 0 p q r ≡ 𝟘)
-  (nr-fix : ∃ λ n → (p q r : M) → nr (1+ n) p q r ≡ nr n p q r)
+  (nr-fix : (r : M) → ∃ λ n → (p q : M) → nr (1+ n) p q r ≡ nr n p q r)
   (rs : Mode-restrictions)
   (open Mode-restrictions rs)
   (𝟘-well-behaved : T 𝟘ᵐ-allowed → Has-well-behaved-zero M 𝕄) where
@@ -37,14 +37,19 @@ private variable
   p q r : M
 
 _⊛_▷_ : Op₃ M
-_⊛_▷_ = nr (proj₁ nr-fix)
+p ⊛ q ▷ r = nr (nr-fix r .proj₁) p q r
 
 solvesIneqs : ((p q r : M) → (p ⊛ q ▷ r) ≤ q + r · (p ⊛ q ▷ r)) ×
               ((p q r : M) → (p ⊛ q ▷ r) ≤ p)
 solvesIneqs =
-  let n , fix = nr-fix
-  in  (λ p q r → ≤-trans (≤-reflexive (trans (sym (fix p q r)) (nr-rec n p q r))) (∧-decreasingʳ p _))
-    , (λ p q r → ≤-trans (≤-reflexive (trans (sym (fix p q r)) (nr-rec n p q r))) (∧-decreasingˡ p _))
+    (λ p q r →
+       let n , fix = nr-fix r in
+       ≤-trans (≤-reflexive (trans (sym (fix p q)) (nr-rec n p q r)))
+         (∧-decreasingʳ p _))
+  , (λ p q r →
+       let n , fix = nr-fix r in
+       ≤-trans (≤-reflexive (trans (sym (fix p q)) (nr-rec n p q r)))
+         (∧-decreasingˡ p _))
 
 +-sub-interchangeable-nr : (n : Nat) (r : M) → _+_ SubInterchangeable (λ p q → nr n p q r) by _≤_
 +-sub-interchangeable-nr 0 r p q p′ q′ = begin
@@ -172,9 +177,12 @@ is-semiring-with-meet-and-star = record
   { semiring-with-meet = 𝕄
   ; _⊛_▷_ = _⊛_▷_
   ; ⊛-ineq = solvesIneqs
-  ; +-sub-interchangeable-⊛ = +-sub-interchangeable-nr (proj₁ nr-fix)
-  ; ·-sub-distribʳ-⊛ = ·-sub-distribʳ-nr (proj₁ nr-fix)
-  ; ⊛-sub-distrib-∧ = λ r → nr-sub-distribˡ-∧ (proj₁ nr-fix) r , nr-sub-distribʳ-∧ (proj₁ nr-fix) r
+  ; +-sub-interchangeable-⊛ = λ r →
+      +-sub-interchangeable-nr (nr-fix r .proj₁) r
+  ; ·-sub-distribʳ-⊛ = λ r → ·-sub-distribʳ-nr (nr-fix r .proj₁) r
+  ; ⊛-sub-distrib-∧  = λ r →
+        nr-sub-distribˡ-∧ (nr-fix r .proj₁) r
+      , nr-sub-distribʳ-∧ (nr-fix r .proj₁) r
   }
 
 isModality : Modality M
@@ -198,4 +206,5 @@ module 𝟘-bound (𝟘-max : (p : M) → p ≤ 𝟘) where
     open Tools.Reasoning.PartialOrder ≤-poset
 
   greatestSol : ∀ {x} → x ≤ q + r · x → x ≤ p → x ≤ p ⊛ q ▷ r
-  greatestSol {q} {r} {p} {x} x≤q+rx x≤p = greatestSolnr (proj₁ nr-fix) x≤q+rx x≤p
+  greatestSol {r = r} x≤q+rx x≤p =
+    greatestSolnr (nr-fix r .proj₁) x≤q+rx x≤p
