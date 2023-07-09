@@ -82,7 +82,7 @@ import Tools.PropositionalEquality as PE
 private
   variable
      l n : Nat
-     Γ : Con Term n
+     Γ Δ : Con Term n
      t u A B : Term n
      γ δ : Conₘ n
      p q : M
@@ -93,7 +93,7 @@ private
 
 -- Some lemmas.
 
-module _ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) where
+module _ (⊢Δ : ⊢ Δ) where
 
   open LR ⊢Δ
 
@@ -182,7 +182,7 @@ module _ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) where
 
 -- The fundamental lemma, and a variant for fully erased terms.
 
-module Fundamental (FA : Fundamental-assumptions) where
+module Fundamental (FA : Fundamental-assumptions Δ) where
 
   open Fundamental-assumptions FA
 
@@ -487,7 +487,7 @@ module Fundamental (FA : Fundamental-assumptions) where
 -- reduction (see Graded.Erasure.LogicalRelation.Reduction).
 
 fundamental :
-  (FA : Fundamental-assumptions) →
+  (FA : Fundamental-assumptions Δ) →
   let open LR (Fundamental-assumptions.⊢Δ FA) in
   ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
   Γ ⊢ t ∷ A → γ ▸[ m ] t →
@@ -498,9 +498,8 @@ fundamental = Fundamental.fundamental
 -- A fundamental lemma for fully erased terms.
 
 fundamentalErased :
-  (FA : Fundamental-assumptions) →
-  let open LR (Fundamental-assumptions.⊢Δ FA)
-      Δ = Fundamental-assumptions.Δ FA in
+  (FA : Fundamental-assumptions Δ) →
+  let open LR (Fundamental-assumptions.⊢Δ FA) in
   ∀ {t A : Term _} {m} →
   Δ ⊢ t ∷ A → 𝟘ᶜ ▸[ m ] t →
   ∃ λ ([A] : Δ ⊩⟨ ¹ ⟩ A) → t ®⟨ ¹ ⟩ erase t ∷ A ◂ ⌜ m ⌝ / [A]

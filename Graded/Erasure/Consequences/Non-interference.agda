@@ -4,24 +4,27 @@
 
 open import Graded.Modality
 open import Graded.Usage.Restrictions
+import Definition.Untyped
 open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
 open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions
+open import Tools.Nat using (Nat)
 
 module Graded.Erasure.Consequences.Non-interference
   {a} {M : Set a}
+  (open Definition.Untyped M hiding (_∷_))
   (𝕄 : Modality M)
   (open Modality 𝕄)
   (TR : Type-restrictions M)
   (UR : Usage-restrictions M)
   (𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet)
-  (FA : Fundamental-assumptions 𝕄 TR UR)
+  {k : Nat}
+  {Δ : Con Term k}
+  (FA : Fundamental-assumptions 𝕄 TR UR Δ)
   {{eqrel : EqRelSet TR}}
   where
 
 open Fundamental-assumptions FA
-
-open import Definition.Untyped M hiding (_∷_)
 
 open import Definition.Typed TR
 open import Definition.Typed.Properties TR

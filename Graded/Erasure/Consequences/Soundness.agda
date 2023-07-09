@@ -60,6 +60,7 @@ open import Tools.PropositionalEquality as PE
 private
   variable
     n : Nat
+    Δ : Con Term _
     t t′ u F : Term n
     G : Term (1+ n)
     v v′ w : T.Term n
@@ -79,7 +80,7 @@ sucᵏ′ (1+ n) = T.suc (sucᵏ′ n)
 
 -- The following results make use of some assumptions.
 
-module Soundness (FA : Fundamental-assumptions) where
+module Soundness (FA : Fundamental-assumptions Δ) where
 
   open Fundamental-assumptions FA
 
@@ -184,7 +185,7 @@ module Soundness (FA : Fundamental-assumptions) where
 
 module Soundness₀ where
 
-  open Soundness Fundamental-assumptions₀ public
+  open Soundness fundamental-assumptions₀ public
 
 -- If Prodrec-allowed 𝟘 p 𝟘 holds for some p (which means that certain
 -- kinds of erased matches are allowed), and if additionally

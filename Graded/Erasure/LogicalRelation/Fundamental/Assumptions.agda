@@ -25,13 +25,12 @@ open import Tools.Nat
 open import Tools.PropositionalEquality
 open import Tools.Sum
 
--- The fundamental lemma is proven under the following assumptions.
+-- The fundamental lemma is proved under the assumption that a given
+-- context Δ satisfies the following assumptions.
 
-record Fundamental-assumptions : Set a where
+record Fundamental-assumptions {k : Nat} (Δ : Con Term k) : Set a where
   no-eta-equality
   field
-    {k} : Nat
-    {Δ} : Con Term k
     -- The context is well-formed
     ⊢Δ : ⊢ Δ
     -- The context is consistent
@@ -41,8 +40,8 @@ record Fundamental-assumptions : Set a where
 
 -- The assumptions hold unconditionally for empty contexts.
 
-Fundamental-assumptions₀ : Fundamental-assumptions
-Fundamental-assumptions₀ = record
+fundamental-assumptions₀ : Fundamental-assumptions ε
+fundamental-assumptions₀ = record
   { ⊢Δ = ε
   ; consistent = ¬Empty
   ; closed-or-no-erased-matches = inj₂ refl
