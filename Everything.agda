@@ -216,6 +216,7 @@ import Graded.Modality.Instances.Recursive.Sequences
 import Graded.Modality.Instances.Recursive
 import Graded.Modality.Instances.Erasure
 import Graded.Modality.Instances.Zero-one-many
+import Graded.Modality.Instances.Bounded-distributive-lattice
 
 -- Modality instances
 import Graded.Modality.Instances.Erasure.Modality

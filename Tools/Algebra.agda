@@ -19,11 +19,13 @@ open import Algebra.Definitions (_≡_ {A = A})
 open import Algebra.Structures (_≡_ {A = A})
      using (IsBand; IsCommutativeMonoid; IsMagma; IsMonoid;
             IsSemigroup; IsSemilattice; IsSemiring;
-            IsSemiringWithoutAnnihilatingZero; IsCommutativeSemiring)
+            IsSemiringWithoutAnnihilatingZero; IsCommutativeSemiring;
+            IsDistributiveLattice)
      public
 open import Algebra.Bundles using (Semiring) public
 open import Algebra.Module.Structures
      using (IsLeftSemimodule; IsPreleftSemimodule) public
+import Algebra.Properties.DistributiveLattice
 
 Op₃ : ∀ {ℓ} → Set ℓ → Set ℓ
 Op₃ A = A → A → A → A
@@ -45,3 +47,14 @@ _SubDistributesOver_by_ : Op₂ A → Op₂ A → Rel A a → Set a
 -- Sub-interchangeable
 _SubInterchangeable_by_ : Op₂ A → Op₂ A → Rel A a → Set _
 _∘_ SubInterchangeable _∙_ by _≤_ = ∀ w x y z → ((w ∙ x) ∘ (y ∙ z)) ≤ ((w ∘ y) ∙ (x ∘ z))
+
+-- Some properties related to distributive lattices.
+
+module DistributiveLattice
+  {_∨_ _∧_ : Op₂ A}
+  (dl : IsDistributiveLattice _∨_ _∧_)
+  where
+
+  open Algebra.Properties.DistributiveLattice
+    (record { isDistributiveLattice = dl })
+    public
