@@ -614,7 +614,7 @@ _⇒ˢ*_     = Graded.Erasure.SucRed._⇒ˢ*_
 
 -- Theorem 6.13: Soundness of the extraction function.
 
-soundness = Graded.Erasure.Consequences.Soundness.Soundness.soundness-ℕ
+soundness = Graded.Erasure.Consequences.Soundness.soundness-ℕ
 
 ------------------------------------------------------------------------
 -- 7: Discussion
@@ -664,7 +664,7 @@ safe-head = Graded.Erasure.Examples.head
 -- Theorem 7.1.
 
 theorem-7-1 =
-  Graded.Erasure.Consequences.Soundness.Soundness.soundness-ℕ-only-source
+  Graded.Erasure.Consequences.Soundness.soundness-ℕ-only-source
 
 -- If (certain kinds of) erased matches are allowed, and additionally
 -- some Σ-types are allowed, then there is a counterexample to
