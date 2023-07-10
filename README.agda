@@ -192,6 +192,8 @@ linearityModality =
 ⊛-greatest₁ = Graded.Modality.Instances.Zero-one-many.⊛-greatest
 
 -- A "linear or affine types" modality.
+-- Note that the names of two of the grades differ from the paper.
+-- The formalization uses ω for unrestricted usage and ≤𝟙 for affine.
 
 linearOrAffineModality =
   Graded.Modality.Instances.Linear-or-affine.linear-or-affine
