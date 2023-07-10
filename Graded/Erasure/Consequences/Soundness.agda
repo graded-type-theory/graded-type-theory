@@ -85,10 +85,10 @@ module Soundness (FA : Fundamental-assumptions Δ) where
 
   open Fundamental-assumptions FA
 
-  open LR ⊢Δ
+  open LR well-formed
   open LRF.Fundamental FA
-  open LRI ⊢Δ
-  open LRS ⊢Δ
+  open LRI well-formed
+  open LRS well-formed
 
   -- Helper lemma for WH reduction soundness of zero
   -- If t ® v ∷ℕ  and t ⇒* zero then v ⇒* zero
@@ -107,7 +107,8 @@ module Soundness (FA : Fundamental-assumptions Δ) where
   soundness-zero t⇒zero 𝟘▸t =
     let ⊢t = redFirst*Term t⇒zero
         [ℕ] , t®t′ = fundamentalErased ⊢t 𝟘▸t
-        t®t″ = irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ (idRed:*: (ℕⱼ ⊢Δ))) (t®t′ ◀≢𝟘 𝟙≢𝟘)
+        t®t″ = irrelevanceTerm {l′ = ¹} [ℕ]
+                 (ℕᵣ (idRed:*: (ℕⱼ well-formed))) (t®t′ ◀≢𝟘 𝟙≢𝟘)
     in  soundness-zero′ t®t″ t⇒zero
 
   -- Helper lemma for WH reduction soundness of suc
@@ -130,7 +131,8 @@ module Soundness (FA : Fundamental-assumptions Δ) where
   soundness-suc t⇒suc 𝟘▸t =
     let ⊢t = redFirst*Term t⇒suc
         [ℕ] , t®t′ = fundamentalErased ⊢t 𝟘▸t
-        t®t″ = irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ (idRed:*: (ℕⱼ ⊢Δ))) (t®t′ ◀≢𝟘 𝟙≢𝟘)
+        t®t″ = irrelevanceTerm {l′ = ¹} [ℕ]
+                 (ℕᵣ (idRed:*: (ℕⱼ well-formed))) (t®t′ ◀≢𝟘 𝟙≢𝟘)
     in  soundness-suc′ t®t″ t⇒suc
 
   -- Helper lemma for soundness of natural numbers
@@ -150,7 +152,9 @@ module Soundness (FA : Fundamental-assumptions Δ) where
               → ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ × erase t ⇒ˢ* sucᵏ′ n
   soundness-ℕ ⊢t 𝟘▸t =
     let [ℕ] , t®v = fundamentalErased ⊢t 𝟘▸t
-    in  soundness-ℕ′ (irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ (idRed:*: (ℕⱼ ⊢Δ))) (t®v ◀≢𝟘 𝟙≢𝟘))
+    in  soundness-ℕ′ $
+        irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ (idRed:*: (ℕⱼ well-formed)))
+          (t®v ◀≢𝟘 𝟙≢𝟘)
 
   -- Helper lemma for WH reduction soundness of unit
 
@@ -166,7 +170,8 @@ module Soundness (FA : Fundamental-assumptions Δ) where
         [⊤] , t®t′ = fundamentalErased ⊢t γ▸t
         ok = ⊢∷Unit→Unit-allowed ⊢t
         t®t″ = irrelevanceTerm {l′ = ¹}
-                 [⊤] (Unitᵣ (Unitₜ (idRed:*: (Unitⱼ ⊢Δ ok)) ok))
+                 [⊤]
+                 (Unitᵣ (Unitₜ (idRed:*: (Unitⱼ well-formed ok)) ok))
                  (t®t′ ◀≢𝟘 𝟙≢𝟘)
     in  soundness-star′ t®t″
 
@@ -180,7 +185,11 @@ soundness-ℕ : ∀ {k t} {Δ : Con Term k}
             → (closed-or-no-erased-matches : No-erased-matches 𝕄 UR ⊎ k ≡ 0)
             → ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ × erase t ⇒ˢ* sucᵏ′ n
 soundness-ℕ ⊢t ▸t ok ok′ =
-  let FA = record { ⊢Δ = wfTerm ⊢t ; consistent = ok ; closed-or-no-erased-matches = ok′ }
+  let FA = record
+             { well-formed                 = wfTerm ⊢t
+             ; consistent                  = ok
+             ; closed-or-no-erased-matches = ok′
+             }
   in  Soundness.soundness-ℕ FA ⊢t ▸t
 
 -- A variant of soundness-ℕ which only considers the source

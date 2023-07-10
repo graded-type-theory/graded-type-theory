@@ -43,11 +43,13 @@ open import Graded.Mode 𝕄
 
 import Graded.Erasure.Target as T
 open import Graded.Erasure.Extraction 𝕄 is-𝟘?
-open import Graded.Erasure.LogicalRelation 𝕄 TR is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation 𝕄 TR is-𝟘? well-formed
 open import Graded.Erasure.LogicalRelation.Fundamental
   𝕄 TR UR 𝟘-well-behaved
-open import Graded.Erasure.LogicalRelation.Irrelevance 𝕄 TR is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Subsumption 𝕄 TR is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation.Irrelevance
+  𝕄 TR is-𝟘? well-formed
+open import Graded.Erasure.LogicalRelation.Subsumption
+  𝕄 TR is-𝟘? well-formed
 
 open import Tools.Product
 
@@ -63,10 +65,10 @@ non-interference : ∀ {m} {Γ : Con Term m} {t : Term m} {γ : Conₘ m}
 non-interference ⊢t ▸t ⊢σ =
   let [Γ] , [ℕ] , ⊩ʳt = fundamental FA ⊢t ▸t
       ⊢Γ = wfTerm ⊢t
-      [Γ]′ , [σ]′ = fundamentalSubst ⊢Γ ⊢Δ ⊢σ
-      [σ] = IS.irrelevanceSubst [Γ]′ [Γ] ⊢Δ ⊢Δ [σ]′
-      [σℕ] = proj₁ (unwrap [ℕ] ⊢Δ [σ])
-      [σℕ]′ = proj₁ (unwrap {l = ¹} (ℕᵛ [Γ]) ⊢Δ [σ])
+      [Γ]′ , [σ]′ = fundamentalSubst ⊢Γ well-formed ⊢σ
+      [σ] = IS.irrelevanceSubst [Γ]′ [Γ] well-formed well-formed [σ]′
+      [σℕ] = proj₁ (unwrap [ℕ] well-formed [σ])
+      [σℕ]′ = proj₁ (unwrap {l = ¹} (ℕᵛ [Γ]) well-formed [σ])
   in  [Γ] , [σ] , λ σ®σ′ →
     let t®t′ = ⊩ʳt [σ] σ®σ′
         t®t′∷ℕ = irrelevanceTerm [σℕ] [σℕ]′ (t®t′ ◀≢𝟘 𝟙≢𝟘)

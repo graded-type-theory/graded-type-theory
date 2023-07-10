@@ -187,24 +187,26 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
   open Fundamental-assumptions FA
 
   open Graded.Erasure.LogicalRelation.Fundamental.Application
-    𝕄 TR 𝟘-well-behaved ⊢Δ
+    𝕄 TR 𝟘-well-behaved well-formed
   open Graded.Erasure.LogicalRelation.Fundamental.Empty
-    𝕄 TR is-𝟘? ⊢Δ consistent
+    𝕄 TR is-𝟘? well-formed consistent
   open Graded.Erasure.LogicalRelation.Fundamental.Lambda
-    𝕄 TR is-𝟘? 𝟙≢𝟘 ⊢Δ
-  open Graded.Erasure.LogicalRelation.Fundamental.Nat 𝕄 TR is-𝟘? ⊢Δ
+    𝕄 TR is-𝟘? 𝟙≢𝟘 well-formed
+  open Graded.Erasure.LogicalRelation.Fundamental.Nat
+    𝕄 TR is-𝟘? well-formed
   open Graded.Erasure.LogicalRelation.Fundamental.Natrec
-    𝕄 TR 𝟘-well-behaved ⊢Δ
+    𝕄 TR 𝟘-well-behaved well-formed
   open Graded.Erasure.LogicalRelation.Fundamental.Prodrec
-    𝕄 TR 𝟘-well-behaved ⊢Δ
+    𝕄 TR 𝟘-well-behaved well-formed
   open Graded.Erasure.LogicalRelation.Fundamental.Product
-    𝕄 TR UR 𝟘-well-behaved ⊢Δ
-  open Graded.Erasure.LogicalRelation.Fundamental.Unit 𝕄 TR is-𝟘? ⊢Δ
-  open Graded.Erasure.LogicalRelation.Conversion 𝕄 TR is-𝟘? ⊢Δ
-  open Graded.Erasure.LogicalRelation.Irrelevance 𝕄 TR is-𝟘? ⊢Δ
-  open Graded.Erasure.LogicalRelation.Subsumption 𝕄 TR is-𝟘? ⊢Δ
+    𝕄 TR UR 𝟘-well-behaved well-formed
+  open Graded.Erasure.LogicalRelation.Fundamental.Unit
+    𝕄 TR is-𝟘? well-formed
+  open Graded.Erasure.LogicalRelation.Conversion 𝕄 TR is-𝟘? well-formed
+  open Graded.Erasure.LogicalRelation.Irrelevance 𝕄 TR is-𝟘? well-formed
+  open Graded.Erasure.LogicalRelation.Subsumption 𝕄 TR is-𝟘? well-formed
 
-  open LR ⊢Δ
+  open LR well-formed
 
   -- The fundamental lemma for the erasure relation.
 
@@ -227,7 +229,7 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
   fundamental (Unitⱼ ⊢Γ ok) _ = Unitʳ ⊢Γ ok
   fundamental (var ⊢Γ x∷A∈Γ) γ▸t =
     let [Γ] = F.valid ⊢Γ
-        [A] , ⊩ʳx = fundamentalVar ⊢Δ [Γ] x∷A∈Γ γ▸t
+        [A] , ⊩ʳx = fundamentalVar well-formed [Γ] x∷A∈Γ γ▸t
     in  [Γ] , [A] , ⊩ʳx
   fundamental
     (lamⱼ {F = F} {t = t} {G = G} {p = p} {q = q} Γ⊢F Γ⊢t:G ok) γ▸t =
@@ -243,7 +245,7 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
         ⊩ʳλt = lamʳ {t = t} [Γ] [F] [G] [t] ⊩ʳt′ ok
         [Π] = Πᵛ [Γ] [F] [G] ok
     in  [Γ] , [Π] ,
-        subsumption-≤ ⊢Δ {A = Π p , q ▷ F ▹ G} {t = lam p t}
+        subsumption-≤ well-formed {A = Π p , q ▷ F ▹ G} {t = lam p t}
           [Γ] [Π] ⊩ʳλt δ≤γ
   fundamental
     (_∘ⱼ_ {t = t} {p = p} {q = q} {F = F} {G = G} {u = u} Γ⊢t:Π Γ⊢u:F)
@@ -260,7 +262,7 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
         [G[u]] , ⊩ʳt∘u = appʳ {F = F} {G = G} {u = u} {t = t}
                            [Γ] [F] [Π] [u] ⊩ʳt ⊩ʳu
     in  [Γ] , [G[u]] ,
-        subsumption-≤ ⊢Δ {A = G [ u ]₀} {t = t ∘⟨ p ⟩ u}
+        subsumption-≤ well-formed {A = G [ u ]₀} {t = t ∘⟨ p ⟩ u}
           [Γ] [G[u]] ⊩ʳt∘u γ≤δ+pη
   fundamental
     (prodⱼ {F = F} {G = G} {t = t} {u = u} {k = Σₚ}
@@ -293,7 +295,7 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
                  (PE.trans (PE.sym (lookup-distrib-∧ᶜ γ δ x)) γ∧δ≡𝟘))
             ok
     in  [Γ] , [Σ] ,
-        subsumption-≤ ⊢Δ {t = prod! t u} [Γ] [Σ] ⊩ʳp γ≤pδ∧η
+        subsumption-≤ well-formed {t = prod! t u} [Γ] [Σ] ⊩ʳp γ≤pδ∧η
   fundamental
     (prodⱼ {F = F} {G = G} {t = t} {u = u} {k = Σᵣ}
        Γ⊢F Γ⊢G Γ⊢t:F Γ⊢u:G ok)
@@ -325,19 +327,21 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
                PE.trans (PE.sym (lookup-distrib-+ᶜ γ δ x)) γ∧δ≡𝟘)
             ok
     in  [Γ] , [Σ] ,
-        subsumption-≤ ⊢Δ {t = prod! t u} [Γ] [Σ] ⊩ʳp γ≤pδ+η
+        subsumption-≤ well-formed {t = prod! t u} [Γ] [Σ] ⊩ʳp γ≤pδ+η
   fundamental (fstⱼ {F = F} {t = t} Γ⊢F Γ⊢G Γ⊢t:Σ) γ▸t =
     let invUsageFst m′ m≡m′ᵐ·p δ▸t γ≤δ ok = inv-usage-fst γ▸t
         [Γ] , [Σ] , ⊩ʳt = fundamental Γ⊢t:Σ δ▸t
         [F] , ⊩ʳt₁ =
           fstʳ Γ⊢F Γ⊢G Γ⊢t:Σ [Γ] [Σ] ⊩ʳt
             (fstₘ m′ (▸-cong m≡m′ᵐ·p δ▸t) (PE.sym m≡m′ᵐ·p) ok)
-    in  [Γ] , [F] , subsumption-≤ ⊢Δ {t = fst _ t} [Γ] [F] ⊩ʳt₁ γ≤δ
+    in  [Γ] , [F] ,
+        subsumption-≤ well-formed {t = fst _ t} [Γ] [F] ⊩ʳt₁ γ≤δ
   fundamental (sndⱼ {G = G} {t = t} Γ⊢F Γ⊢G Γ⊢t:Σ) γ▸t =
     let invUsageSnd δ▸t γ≤δ = inv-usage-snd γ▸t
         [Γ] , [Σ] , ⊩ʳt = fundamental Γ⊢t:Σ δ▸t
         [G] , ⊩ʳt₂ = sndʳ Γ⊢F Γ⊢G Γ⊢t:Σ [Γ] [Σ] ⊩ʳt
-    in  [Γ] , [G] , subsumption-≤ ⊢Δ {t = snd _ t} [Γ] [G] ⊩ʳt₂ γ≤δ
+    in  [Γ] , [G] ,
+        subsumption-≤ well-formed {t = snd _ t} [Γ] [G] ⊩ʳt₂ γ≤δ
   fundamental
     (prodrecⱼ {F = F} {G} {A = A} {t = t} {u} {r = r}
        Γ⊢F Γ⊢G Γ⊢A Γ⊢t Γ⊢u _)
@@ -372,7 +376,7 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
                  (≢𝟘→ᵐ·≡ r≢𝟘) ⊩ʳt)
             ⊩ʳu′ r≡𝟘→k≡0
     in  [Γ] , [At] ,
-        subsumption-≤ ⊢Δ {t = prodrec _ _ _ A t u}
+        subsumption-≤ well-formed {t = prodrec _ _ _ A t u}
           [Γ] [At] ⊩ʳprodrec γ≤pδ+η
   fundamental (zeroⱼ ⊢Γ) γ▸t = zeroʳ ⊢Γ
   fundamental (sucⱼ {n = t} Γ⊢t:ℕ) γ▸t =
@@ -380,7 +384,8 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
         [Γ] , [ℕ] , ⊩ʳt = fundamental Γ⊢t:ℕ δ▸t
         δ⊩ʳsuct = sucʳ [Γ] [ℕ] ⊩ʳt Γ⊢t:ℕ
         γ⊩ʳsuct =
-          subsumption-≤ ⊢Δ {A = ℕ} {t = suc t} [Γ] [ℕ] δ⊩ʳsuct γ≤δ
+          subsumption-≤ well-formed {A = ℕ} {t = suc t}
+            [Γ] [ℕ] δ⊩ʳsuct γ≤δ
     in  [Γ] , [ℕ] , γ⊩ʳsuct
   fundamental
     (natrecⱼ {A = A} {z = z} {s = s} {p = p} {q = q} {r = r} {n = n}
@@ -414,7 +419,8 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
           natrecʳ {A = A} {z = z} {s = s} {m = n}
                   [Γ] [A] [A₊] [A₀] [z] [s] [n] ⊩ʳz ⊩ʳs ⊩ʳn
     in  [Γ] , [A[n]] ,
-        subsumption-≤ ⊢Δ {A = A [ n ]₀} {t = natrec p q r A z s n}
+        subsumption-≤ well-formed
+          {A = A [ n ]₀} {t = natrec p q r A z s n}
           [Γ] [A[n]] ⊩ʳnatrec γ≤γ′
   fundamental
     {Γ = Γ} {γ = γ}
@@ -452,8 +458,8 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
     ⊩ʳt = [Δ]-[A]-⊩ʳt .proj₂ .proj₂
     [id]′ = idSubstS [Δ]
     ⊢Δ′ = soundContext [Δ]
-    [id] = IS.irrelevanceSubst [Δ] [Δ] ⊢Δ′ ⊢Δ [id]′
-    [idA] = proj₁ (unwrap [A] {σ = idSubst} ⊢Δ [id])
+    [id] = IS.irrelevanceSubst [Δ] [Δ] ⊢Δ′ well-formed [id]′
+    [idA] = proj₁ (unwrap [A] {σ = idSubst} well-formed [id])
     [A]′ = I.irrelevance′ (subst-id A) [idA]
 
     lemma :
@@ -488,7 +494,7 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
 
 fundamental :
   (FA : Fundamental-assumptions Δ) →
-  let open LR (Fundamental-assumptions.⊢Δ FA) in
+  let open LR (Fundamental-assumptions.well-formed FA) in
   ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
   Γ ⊢ t ∷ A → γ ▸[ m ] t →
   ∃₂ λ ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ]) →
@@ -499,7 +505,7 @@ fundamental = Fundamental.fundamental
 
 fundamentalErased :
   (FA : Fundamental-assumptions Δ) →
-  let open LR (Fundamental-assumptions.⊢Δ FA) in
+  let open LR (Fundamental-assumptions.well-formed FA) in
   ∀ {t A : Term _} {m} →
   Δ ⊢ t ∷ A → 𝟘ᶜ ▸[ m ] t →
   ∃ λ ([A] : Δ ⊩⟨ ¹ ⟩ A) → t ®⟨ ¹ ⟩ erase t ∷ A ◂ ⌜ m ⌝ / [A]
