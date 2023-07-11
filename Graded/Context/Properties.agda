@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------
--- Properties of moodality (grade) contexts.
+-- Properties of modality (grade) contexts.
 ------------------------------------------------------------------------
 
 open import Graded.Modality
