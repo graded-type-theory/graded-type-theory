@@ -16,6 +16,7 @@ open import Graded.Modality.Properties 𝕄
 open import Tools.Fin
 open import Tools.Nat using (Nat; 1+)
 open import Tools.PropositionalEquality as PE
+import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
 
 open Modality 𝕄
@@ -74,6 +75,17 @@ update-monotoneˡ {γ = γ ∙ p} {δ ∙ q} (_+1 x) (γ≤δ ∙ p≤q) = (upda
 update-monotoneʳ : (x : Fin n) → p ≤ q → (γ , x ≔ p) ≤ᶜ (γ , x ≔ q)
 update-monotoneʳ {γ = γ ∙ p} x0 p≤q     = ≤ᶜ-refl ∙ p≤q
 update-monotoneʳ {γ = γ ∙ p} (x +1) p≤q = (update-monotoneʳ x p≤q) ∙ ≤-refl
+
+-- Context update is monotone.
+
+update-monotone :
+  (x : Fin n) → γ ≤ᶜ δ → p ≤ q → (γ , x ≔ p) ≤ᶜ (δ , x ≔ q)
+update-monotone {γ = γ} {δ = δ} {p = p} {q = q} x γ≤δ p≤q = begin
+  γ , x ≔ p  ≤⟨ update-monotoneˡ _ γ≤δ ⟩
+  δ , x ≔ p  ≤⟨ update-monotoneʳ _ p≤q ⟩
+  δ , x ≔ q  ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
 -- The update operation preserves equivalence in its first argument.
 
