@@ -15,7 +15,7 @@ open import Graded.Context.Properties.PartialOrder 𝕄
 open import Graded.Modality.Properties.PartialOrder semiring-with-meet
 
 open import Tools.Fin
-open import Tools.Nat hiding (_+_)
+open import Tools.Nat using (Nat)
 open import Tools.PropositionalEquality as PE
 
 private

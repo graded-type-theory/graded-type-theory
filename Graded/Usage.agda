@@ -19,7 +19,7 @@ open import Graded.Mode 𝕄
 open import Definition.Untyped M hiding (_∙_)
 
 open import Tools.Fin
-open import Tools.Nat
+open import Tools.Nat using (Nat)
 open import Tools.PropositionalEquality using (_≡_)
 
 infix 10 _▸[_]_

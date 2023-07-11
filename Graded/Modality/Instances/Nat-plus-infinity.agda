@@ -9,7 +9,9 @@ import Graded.Modality
 import Graded.Modality.Instances.BoundedStar as BoundedStar
 import Graded.Modality.Instances.LowerBounded as LowerBounded
 import Graded.Modality.Instances.Recursive.Sequences
+import Graded.Modality.Properties.Division
 import Graded.Modality.Properties.Meet
+import Graded.Modality.Properties.PartialOrder
 open import Graded.Mode.Restrictions
 
 import Definition.Typed.Restrictions
@@ -21,6 +23,7 @@ open import Tools.Nat as N using (Nat; 1+)
 open import Tools.Nullary
 open import Tools.Product as Σ
 open import Tools.PropositionalEquality as PE
+import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 open import Tools.Sum as ⊎ using (_⊎_; inj₁; inj₂)
@@ -75,6 +78,17 @@ _     · ⌞ 0 ⌟ = ⌞ 0 ⌟
 ⌞ _ ⌟ · ∞     = ∞
 ⌞ m ⌟ · ⌞ n ⌟ = ⌞ m N.* n ⌟
 
+-- Division.
+
+infixl 45 _/_
+
+_/_ : ℕ⊎∞ → ℕ⊎∞ → ℕ⊎∞
+_     / ⌞ 0 ⌟    = ∞
+⌞ m ⌟ / ⌞ 1+ n ⌟ = ⌞ m N./ 1+ n ⌟
+∞     / ⌞ 1+ _ ⌟ = ∞
+∞     / ∞        = ∞
+⌞ _ ⌟ / ∞        = ⌞ 0 ⌟
+
 -- A star operator.
 
 infix 50 _*
@@ -121,6 +135,35 @@ m ≤ n = m ≡ m ∧ n
   ∞        ⌞ 0 ⌟    → refl
   ∞        ⌞ 1+ _ ⌟ → refl
   ∞        ∞        → refl
+
+-- The function ⌞_⌟ is injective.
+
+⌞⌟-injective : ∀ {m n} → ⌞ m ⌟ ≡ ⌞ n ⌟ → m ≡ n
+⌞⌟-injective refl = refl
+
+-- The function ⌞_⌟ is antitone.
+
+⌞⌟-antitone : ∀ {m n} → m N.≤ n → ⌞ n ⌟ ≤ ⌞ m ⌟
+⌞⌟-antitone {m = m} {n = n} m≤n =
+  ⌞ n ⌟        ≡˘⟨ cong ⌞_⌟ (N.m≥n⇒m⊔n≡m m≤n) ⟩
+  ⌞ n N.⊔ m ⌟  ∎
+  where
+  open Tools.Reasoning.PropositionalEquality
+
+-- An inverse to ⌞⌟-antitone.
+
+⌞⌟-antitone⁻¹ : ∀ {m n} → ⌞ n ⌟ ≤ ⌞ m ⌟ → m N.≤ n
+⌞⌟-antitone⁻¹ {m = m} {n = n} =
+  ⌞ n ⌟ ≤ ⌞ m ⌟  →⟨ ⌞⌟-injective ⟩
+  n ≡ n N.⊔ m    →⟨ N.m⊔n≡m⇒n≤m ∘→ sym ⟩
+  m N.≤ n        □
+
+-- The function ⌞_⌟ is homomorphic with respect to _·_/N._*_.
+
+⌞⌟·⌞⌟≡⌞*⌟ : ∀ {m n} → ⌞ m ⌟ · ⌞ n ⌟ ≡ ⌞ m N.* n ⌟
+⌞⌟·⌞⌟≡⌞*⌟ {m = 0}               = refl
+⌞⌟·⌞⌟≡⌞*⌟ {m = 1+ _} {n = 1+ _} = refl
+⌞⌟·⌞⌟≡⌞*⌟ {m = 1+ m} {n = 0}    = cong ⌞_⌟ (sym (N.*-zeroʳ m))
 
 -- One of the two characteristic properties of the star operator of a
 -- star semiring.
@@ -423,6 +466,36 @@ private
 ⊛▷<⊛▷ rs₁ _ =
     BS.LowerBounded.⊛′≤⊛ rs₁ ∞ (λ _ → refl)
   , ⌞ 1 ⌟ , ⌞ 1 ⌟ , ⌞ 0 ⌟ , (λ ())
+
+------------------------------------------------------------------------
+-- A property related to division
+
+private
+  module D = Graded.Modality.Properties.Division ℕ⊎∞-semiring-with-meet
+
+-- The division operator is correctly defined.
+
+/≡/ : m D./ n ≡ m / n
+/≡/ {m = ∞}     {n = ∞}        = refl , λ _ _ → refl
+/≡/ {m = ⌞ _ ⌟} {n = ∞}        = ≤0   , λ { ⌞ 0 ⌟ _ → refl }
+/≡/             {n = ⌞ 0 ⌟}    = ≤0   , λ _ _ → refl
+/≡/ {m = ∞}     {n = ⌞ 1+ _ ⌟} = refl , λ _ _ → refl
+/≡/ {m = ⌞ m ⌟} {n = ⌞ 1+ n ⌟} =
+    (begin
+       ⌞ m ⌟                      ≤⟨ ⌞⌟-antitone (N.m/n*n≤m _ (1+ _)) ⟩
+       ⌞ (m N./ 1+ n) N.* 1+ n ⌟  ≡⟨ cong ⌞_⌟ (N.*-comm _ (1+ n)) ⟩
+       ⌞ 1+ n N.* (m N./ 1+ n) ⌟  ≡˘⟨ ⌞⌟·⌞⌟≡⌞*⌟ ⟩
+       ⌞ 1+ n ⌟ · ⌞ m N./ 1+ n ⌟  ∎)
+  , λ where
+      ⌞ o ⌟ →
+        ⌞ m ⌟ ≤ ⌞ 1+ n ⌟ · ⌞ o ⌟  ≡⟨ cong (_ ≤_) ⌞⌟·⌞⌟≡⌞*⌟ ⟩→
+        ⌞ m ⌟ ≤ ⌞ 1+ n N.* o ⌟    →⟨ ⌞⌟-antitone⁻¹ ⟩
+        1+ n N.* o N.≤ m          →⟨ N.*≤→≤/ ⟩
+        o N.≤ m N./ 1+ n          →⟨ ⌞⌟-antitone ⟩
+        ⌞ m N./ 1+ n ⌟ ≤ ⌞ o ⌟    □
+  where
+  open Graded.Modality.Properties.PartialOrder ℕ⊎∞-semiring-with-meet
+  open Tools.Reasoning.PartialOrder ≤-poset
 
 ------------------------------------------------------------------------
 -- A lemma related to Graded.Modality.Instances.Recursive

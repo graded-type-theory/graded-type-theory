@@ -23,7 +23,6 @@ open import Graded.Derived.Sigma linearityModality UR as S
 open import Graded.Mode  linearityModality
 open import Graded.Usage linearityModality UR
 
-open import Tools.Nat
 open import Tools.Nullary
 open import Tools.PropositionalEquality
 

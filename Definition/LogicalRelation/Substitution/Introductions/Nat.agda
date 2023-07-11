@@ -21,7 +21,7 @@ open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.Substitution R
 open import Definition.LogicalRelation.Substitution.Introductions.Universe R
 
-open import Tools.Nat
+open import Tools.Nat using (Nat)
 open import Tools.Product
 
 private

@@ -24,7 +24,7 @@ open import Application.NegativeOrErasedAxioms.NegativeOrErasedType 𝕄 R
 open import Tools.Bool
 open import Tools.Empty
 open import Tools.Fin
-open import Tools.Nat
+open import Tools.Nat using (Nat)
 import Tools.PropositionalEquality as PE
 
 private

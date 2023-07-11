@@ -13,7 +13,7 @@ open import Graded.Modality.Properties 𝕄
 open import Graded.Context 𝕄
 
 open import Tools.Algebra M
-open import Tools.Nat renaming (_+_ to _+ⁿ_)
+open import Tools.Nat using (Nat; 1+)
 open import Tools.PropositionalEquality
 import Tools.Reasoning.Equivalence
 

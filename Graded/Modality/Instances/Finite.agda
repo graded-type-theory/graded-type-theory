@@ -4,7 +4,7 @@
 
 open import Tools.Bool hiding (_∧_)
 open import Tools.Fin
-open import Tools.Nat
+open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Graded.Modality

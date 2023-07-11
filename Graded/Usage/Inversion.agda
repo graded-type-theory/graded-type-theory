@@ -20,7 +20,7 @@ open import Graded.Usage 𝕄 R
 open import Graded.Mode 𝕄
 open import Definition.Untyped M hiding (_∙_)
 
-open import Tools.Nat
+open import Tools.Nat using (Nat; 1+)
 open import Tools.PropositionalEquality as PE
 
 private

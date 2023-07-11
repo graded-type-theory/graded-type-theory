@@ -14,7 +14,7 @@ open import Graded.Context.Properties.PartialOrder 𝕄
 open import Graded.Modality.Properties 𝕄
 
 open import Tools.Fin
-open import Tools.Nat hiding (_+_)
+open import Tools.Nat using (Nat; 1+)
 open import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PropositionalEquality
 

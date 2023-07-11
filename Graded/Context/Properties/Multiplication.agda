@@ -12,7 +12,7 @@ open import Graded.Context.Properties.Equivalence 𝕄
 open import Graded.Context.Properties.PartialOrder 𝕄
 open import Graded.Modality.Properties 𝕄
 
-open import Tools.Nat hiding (_+_)
+open import Tools.Nat using (Nat; 1+)
 open import Tools.PropositionalEquality
 
 open Modality 𝕄

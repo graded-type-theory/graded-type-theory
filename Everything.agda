@@ -14,11 +14,11 @@ import Tools.Relation
 import Tools.PropositionalEquality
 import Tools.Nullary
 import Tools.Bool
+import Tools.Product
+import Tools.Function
 import Tools.Nat
 import Tools.Fin
 import Tools.Sum
-import Tools.Product
-import Tools.Function
 import Tools.List
 import Tools.Algebra
 

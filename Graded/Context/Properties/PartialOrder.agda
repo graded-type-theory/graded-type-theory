@@ -12,7 +12,7 @@ open import Graded.Context.Properties.Equivalence 𝕄
 open import Graded.Modality.Properties 𝕄
 
 open import Tools.Function
-open import Tools.Nat
+open import Tools.Nat using (Nat)
 open import Tools.Relation
 
 open Modality 𝕄

@@ -54,7 +54,7 @@ open import Graded.Erasure.LogicalRelation.Irrelevance 𝕄 R is-𝟘? ⊢Δ
 import Graded.Erasure.Target as T
 
 open import Tools.Function
-open import Tools.Nat hiding (_+_)
+open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 import Tools.Reasoning.PropositionalEquality
 

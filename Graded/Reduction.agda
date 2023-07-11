@@ -35,7 +35,7 @@ open import Tools.Bool using (T)
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat
+open import Tools.Nat using (Nat)
 open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality as PE using (_≢_)

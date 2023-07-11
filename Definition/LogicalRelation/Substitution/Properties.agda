@@ -27,7 +27,7 @@ import Definition.LogicalRelation.Weakening R as LR
 
 open import Tools.Fin
 open import Tools.Level
-open import Tools.Nat
+open import Tools.Nat using (Nat)
 open import Tools.Unit
 open import Tools.Product
 import Tools.PropositionalEquality as PE
