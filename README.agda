@@ -555,6 +555,11 @@ fundamentalReducibleTerm = Definition.LogicalRelation.Fundamental.Reducibility.r
 -- for the possibility to erase the first component added in section 8.
 -- For the case treated in this section, we will always have have
 -- p ≡ 𝟙 for Σ-types.
+--
+-- In the paper, we fix a well-formed, consistent context Δ₀. In the
+-- formalization, this is implemented through module parameters. For
+-- instance, the logical relation is defined in terms of such a
+-- context.
 
 _®⟨_⟩_∷_/_ = Graded.Erasure.LogicalRelation._®⟨_⟩_∷_/_
 
