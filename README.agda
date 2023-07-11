@@ -60,7 +60,10 @@ import Graded.Modality.Instances.Nat-plus-infinity
 import Graded.Modality.Instances.Recursive
 import Graded.Modality.Instances.Unit
 import Graded.Modality.Instances.Zero-one-many
+import Graded.Modality.Properties.Addition
 import Graded.Modality.Properties.Division
+import Graded.Modality.Properties.Multiplication
+import Graded.Modality.Properties.Star
 import Graded.Mode
 import Graded.Mode.Restrictions
 import Graded.Reduction
@@ -140,6 +143,12 @@ no-erased-matches = Graded.Restrictions.no-erased-matches
 -- behaved zero" which is used in Section 6.
 
 Modality = Graded.Modality.Modality
+
+-- Addition, multplication and natrec-star are monotone operations
+
++-monotone = Graded.Modality.Properties.Addition.+-monotone
+·-monotone = Graded.Modality.Properties.Multiplication.·-monotone
+⊛-monotone = Graded.Modality.Properties.Star.⊛-monotone
 
 -- Usage contexts.
 --
