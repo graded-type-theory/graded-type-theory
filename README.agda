@@ -580,6 +580,17 @@ _®⟨_⟩_∷_/_ = Graded.Erasure.LogicalRelation._®⟨_⟩_∷_/_
 
 _⊩ˢ_∷_/_ = Definition.LogicalRelation.Substitution._⊩ˢ_∷_/_/_
 
+-- Valid contexts.
+
+⊩′ᵛ_ = Definition.LogicalRelation.Substitution.⊩ᵛ_
+
+-- Valid types
+--
+-- In the paper the type level is written as a subscript instead of
+-- within braces.
+
+_⊩′ᵛ⟨_⟩_/_ = Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_/_
+
 -- Definition 6.6: The logical relation for substitutions.
 --
 -- In the paper the type level is written as a subscript instead of
