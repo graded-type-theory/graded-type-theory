@@ -38,6 +38,11 @@ private variable
 affineModality : Modality
 affineModality = zero-one-many-greatest mrs
 
+-- The affine types" modality has a well-behaved zero.
+
+affine-has-well-behaved-zero : Has-well-behaved-zero (Modality.semiring-with-meet affineModality)
+affine-has-well-behaved-zero = zero-one-many-has-well-behaved-zero
+
 -- 𝟘 is the largest element.
 
 ≤𝟘 : p ≤ 𝟘

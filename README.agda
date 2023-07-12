@@ -447,9 +447,9 @@ Has-well-behaved-zero = Graded.Modality.Has-well-behaved-zero
 erasure-has-well-behaved-zero =
   Graded.Modality.Instances.Erasure.Modality.erasure-has-well-behaved-zero
 linearity-has-well-behaved-zero =
-  Graded.Modality.Instances.Linearity.zero-one-many-has-well-behaved-zero
+  Graded.Modality.Instances.Linearity.linearity-has-well-behaved-zero
 affine-has-well-behaved-zero =
-  Graded.Modality.Instances.Affine.zero-one-many-has-well-behaved-zero
+  Graded.Modality.Instances.Affine.affine-has-well-behaved-zero
 linear-or-affine-has-well-behaved-zero =
   Graded.Modality.Instances.Linear-or-affine.linear-or-affine-has-well-behaved-zero
 

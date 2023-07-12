@@ -38,6 +38,11 @@ private variable
 linearityModality : Modality
 linearityModality = zero-one-many-greatest mrs
 
+-- The "linear types" modality has a well-behaved zero.
+
+linearity-has-well-behaved-zero : Has-well-behaved-zero (Modality.semiring-with-meet linearityModality)
+linearity-has-well-behaved-zero = zero-one-many-has-well-behaved-zero
+
 open Graded.Modality.Properties linearityModality
 
 -- An instance of Type-restrictions is suitable for the full reduction
