@@ -55,7 +55,7 @@ open import Tools.Nat
 open import Tools.Nullary
 open import Tools.Product
 import Tools.Reasoning.PartialOrder
-open import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE hiding (trans)
 open import Tools.Sum
 
 private
@@ -259,3 +259,14 @@ soundness-ℕ-only-source-counterexample {p = p} P-ok Σᵣ-ok =
   ⊢εΣℕℕ = ⊢εΣℕ ∙ εΣℕ⊢ℕ
   ⊢prodrec =
     prodrecⱼ {r = 𝟘} εΣ⊢ℕ εΣℕ⊢ℕ εΣΣ⊢ℕ (var ⊢εΣ here) (zeroⱼ ⊢εΣℕℕ) Σᵣ-ok
+
+-- The above counterexample for the source language is not a
+-- counterexample to canonicity for the target language.
+
+soundness-ℕ-only-target-not-counterexample :
+  let t = prodrec 𝟘 p 𝟘 ℕ (var {n = 1} x0) zero
+  in  erase t ⇒ˢ* T.zero
+soundness-ℕ-only-target-not-counterexample
+  with is-𝟘? 𝟘
+... | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 refl)
+... | yes _ = trans (whred T.prodrec-β) refl

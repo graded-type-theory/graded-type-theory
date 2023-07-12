@@ -688,6 +688,12 @@ theorem-7-1 =
 counterexample₁ =
   Graded.Erasure.Consequences.Soundness.soundness-ℕ-only-source-counterexample
 
+-- The above counterexample is not a counterexample to canonicity
+-- for the target language.
+
+not-counterexample =
+  Graded.Erasure.Consequences.Soundness.soundness-ℕ-only-target-not-counterexample
+
 -- If (certain kinds of) erased matches are allowed, and additionally
 -- some Σ-types are allowed, then one cannot prove a variant of the
 -- fundamental lemma (Theorem 6.12) without the assumption "erased
