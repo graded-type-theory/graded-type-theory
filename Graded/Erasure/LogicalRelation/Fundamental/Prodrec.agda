@@ -55,7 +55,7 @@ import Tools.Reasoning.PropositionalEquality
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties.Has-well-behaved-zero
-  semiring-with-meet-and-star 𝟘-well-behaved
+  semiring-with-meet 𝟘-well-behaved
 open import Graded.Mode 𝕄
 
 open import Graded.Erasure.LogicalRelation 𝕄 R is-𝟘? ⊢Δ

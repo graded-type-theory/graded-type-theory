@@ -7,6 +7,9 @@ open import Tools.Unit
 
 module Graded.Modality.Instances.Unit where
 
+open import Tools.Function
+open import Tools.Level
+open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Sum
@@ -14,12 +17,14 @@ open import Tools.Sum
 open import Tools.Algebra ⊤
 
 open import Graded.Modality ⊤ public
+open import Graded.Modality.Variant lzero
 open import Graded.FullReduction.Assumptions
 
 open import Definition.Typed.Restrictions ⊤
 
 private variable
-  rs : Type-restrictions
+  variant : Modality-variant
+  rs      : Type-restrictions
 
 -- Trivial addition (and multiplication and meet) operation
 
@@ -161,35 +166,41 @@ unit-semiring-with-meet = record
   ; +-distrib-∧ = +-Distributiveˡ , +-Distributiveʳ
   }
 
--- The trivial semiring with and star
+-- A natrec-star operator can be defined for the trivial "semiring
+-- with meet".
 
-unit-semiring-with-meet-and-star : Semiring-with-meet-and-star
-unit-semiring-with-meet-and-star = record
-  { semiring-with-meet = unit-semiring-with-meet
-  ; _⊛_▷_ = _⊛_▷_
+unit-has-star : Has-star unit-semiring-with-meet
+unit-has-star = record
+  { _⊛_▷_ = _⊛_▷_
   ; ⊛-ineq = (λ p q r → refl) , (λ p q r → refl)
   ; +-sub-interchangeable-⊛ = λ r p q p′ q′ → refl
   ; ·-sub-distribʳ-⊛ = λ r q p p′ → refl
   ; ⊛-sub-distrib-∧ = λ r → (λ p q q′ → refl) , (λ q p p′ → refl)
   }
 
--- The trivial modality
+-- A trivial modality (without 𝟘ᵐ).
 
-UnitModality : Modality
-UnitModality = record
-  { semiring-with-meet-and-star = unit-semiring-with-meet-and-star
-  ; mode-restrictions = record
-    { 𝟘ᵐ-allowed = false
-    }
-  ; 𝟘-well-behaved = λ ()
+UnitModality :
+  (variant : Modality-variant) →
+  let open Modality-variant variant in
+  ¬ T 𝟘ᵐ-allowed →
+  Modality
+UnitModality variant not-ok = record
+  { variant            = variant
+  ; semiring-with-meet = unit-semiring-with-meet
+  ; 𝟘-well-behaved     = ⊥-elim ∘→ not-ok
+  ; has-star           = λ _ → unit-has-star
+  ; +-decreasingˡ      = ⊥-elim ∘→ not-ok
   }
 
--- The full reduction assumptions hold for UnitModality and any type
--- restrictions.
+-- The full reduction assumptions hold for any instance of
+-- UnitModality and any type restrictions.
 
 full-reduction-assumptions :
-  Full-reduction-assumptions UnitModality rs
-full-reduction-assumptions = record
+  let open Modality-variant variant in
+  (ok : ¬ T 𝟘ᵐ-allowed) →
+  Full-reduction-assumptions (UnitModality variant ok) rs
+full-reduction-assumptions _ = record
   { 𝟙≤𝟘    = λ _ → refl
   ; ≡𝟙⊎𝟙≤𝟘 = λ _ → inj₁ refl
   }

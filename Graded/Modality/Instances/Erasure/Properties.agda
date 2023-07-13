@@ -2,27 +2,30 @@
 -- Properties of the erasure modality.
 ------------------------------------------------------------------------
 
+open import Tools.Level
+
 open import Graded.Modality.Instances.Erasure
-open import Graded.Mode.Restrictions
+open import Graded.Modality.Variant lzero
 
 module Graded.Modality.Instances.Erasure.Properties
-  (mrs : Mode-restrictions)
+  (variant : Modality-variant)
   where
 
-open Mode-restrictions mrs
+open Modality-variant variant
 
-open import Graded.Modality.Instances.Erasure.Modality mrs
+open import Graded.Modality.Instances.Erasure.Modality
 
-open import Graded.Context ErasureModality
-open import Graded.Context.Properties ErasureModality public
+open import Graded.Context (ErasureModality variant)
+open import Graded.Context.Properties (ErasureModality variant) public
+  hiding (+ᶜ-decreasingˡ)
 
 open import Graded.FullReduction.Assumptions
 
-open import Graded.Modality.Properties ErasureModality public
+open import Graded.Modality.Properties (ErasureModality variant) public
 
-open import Graded.Usage ErasureModality
-open import Graded.Usage.Inversion ErasureModality
-open import Graded.Mode ErasureModality
+open import Graded.Usage (ErasureModality variant)
+open import Graded.Usage.Inversion (ErasureModality variant)
+open import Graded.Mode (ErasureModality variant)
 
 open import Definition.Typed.Restrictions Erasure
 
@@ -43,7 +46,7 @@ open import Tools.Sum
 open import Tools.Unit
 
 private
-  module EM = Modality ErasureModality
+  module EM = Modality (ErasureModality variant)
 
 private
   variable
@@ -55,15 +58,6 @@ private
     p : Erasure
     mo : Mode
     rs : Type-restrictions
-
--- Addition on the left is a decreasing function
--- γ + δ ≤ᶜ γ
-
-+-decreasingˡ : (p q : Erasure) → (p + q) ≤ p
-+-decreasingˡ 𝟘 𝟘 = PE.refl
-+-decreasingˡ 𝟘 ω = PE.refl
-+-decreasingˡ ω 𝟘 = PE.refl
-+-decreasingˡ ω ω = PE.refl
 
 -- Addition on the right is a decreasing function
 -- γ + δ ≤ᶜ δ
@@ -215,12 +209,12 @@ suitable-for-full-reduction rs =
   where
   open Type-restrictions rs
 
--- The full reduction assumptions hold for ErasureModality and any
--- "suitable" Type-restrictions.
+-- The full reduction assumptions hold for ErasureModality variant and
+-- any "suitable" Type-restrictions.
 
 full-reduction-assumptions :
   Suitable-for-full-reduction rs →
-  Full-reduction-assumptions ErasureModality rs
+  Full-reduction-assumptions (ErasureModality variant) rs
 full-reduction-assumptions {rs = rs} 𝟘→𝟘ᵐ = record
   { 𝟙≤𝟘    = λ _ → PE.refl
   ; ≡𝟙⊎𝟙≤𝟘 = λ where

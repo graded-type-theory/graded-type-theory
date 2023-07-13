@@ -38,7 +38,7 @@ open import Definition.LogicalRelation.Substitution.Introductions.Nat TR
 open import Graded.Context 𝕄
 open import Graded.Usage 𝕄 UR
 open import Graded.Modality.Properties.Has-well-behaved-zero
-  semiring-with-meet-and-star 𝟘-well-behaved
+  semiring-with-meet 𝟘-well-behaved
 open import Graded.Mode 𝕄
 
 import Graded.Erasure.Target as T

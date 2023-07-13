@@ -2,19 +2,18 @@
 -- The erasure modality.
 ------------------------------------------------------------------------
 
-open import Graded.Modality.Instances.Erasure
-open import Graded.Mode.Restrictions
+module Graded.Modality.Instances.Erasure.Modality where
 
-module Graded.Modality.Instances.Erasure.Modality
-  (rs : Mode-restrictions)
-  where
-
+open import Tools.Level
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation
+open import Tools.Sum
+
+open import Graded.Modality.Instances.Erasure
+open import Graded.Modality.Variant lzero
 
 open import Graded.Modality Erasure public
-open import Tools.Sum
 
 -- Erasure annotations forms a semiring with meet
 
@@ -53,23 +52,26 @@ erasure-has-well-behaved-zero = record
       {p = ω} ()
   }
 
--- Erasure annotations forms a semiring with meet and star
+instance
 
-erasure-semiring-with-meet-and-star : Semiring-with-meet-and-star
-erasure-semiring-with-meet-and-star = record
-  { semiring-with-meet = erasure-semiring-with-meet
-  ; _⊛_▷_ = _⊛_▷_
-  ; ⊛-ineq = ⊛-ineq₁ , ⊛-ineq₂
-  ; +-sub-interchangeable-⊛ = +-sub-interchangeable-⊛
-  ; ·-sub-distribʳ-⊛ = ·-sub-distribʳ-⊛
-  ; ⊛-sub-distrib-∧ = λ r → ⊛-sub-distribˡ-∧ r , ⊛-sub-distribʳ-∧ r
-  }
+  -- A natrec-star operator can be defined for Erasure.
 
--- The erasure modality instance
+  erasure-has-star : Has-star erasure-semiring-with-meet
+  erasure-has-star = record
+    { _⊛_▷_ = _⊛_▷_
+    ; ⊛-ineq = ⊛-ineq₁ , ⊛-ineq₂
+    ; +-sub-interchangeable-⊛ = +-sub-interchangeable-⊛
+    ; ·-sub-distribʳ-⊛ = ·-sub-distribʳ-⊛
+    ; ⊛-sub-distrib-∧ = λ r → ⊛-sub-distribˡ-∧ r , ⊛-sub-distribʳ-∧ r
+    }
 
-ErasureModality : Modality
-ErasureModality = record
-  { semiring-with-meet-and-star = erasure-semiring-with-meet-and-star
-  ; mode-restrictions = rs
-  ; 𝟘-well-behaved = λ _ → erasure-has-well-behaved-zero
+-- Erasure modality instances (for different modality variants).
+
+ErasureModality : Modality-variant → Modality
+ErasureModality variant = record
+  { variant            = variant
+  ; semiring-with-meet = erasure-semiring-with-meet
+  ; has-star           = λ _ → erasure-has-star
+  ; 𝟘-well-behaved     = λ _ → erasure-has-well-behaved-zero
+  ; +-decreasingˡ      = λ _ _ → +-decreasingˡ
   }

@@ -2,14 +2,18 @@
 -- Modes
 ------------------------------------------------------------------------
 
-open import Graded.Modality
+import Graded.Modality
 
 module Graded.Mode
-  {a} {M : Set a} (𝕄 : Modality M) where
+  {a} {M : Set a}
+  (open Graded.Modality M)
+  (𝕄 : Modality)
+  where
 
 open Modality 𝕄
 
 open import Graded.Context 𝕄
+open import Graded.Modality.Natrec-star-instances
 open import Graded.Modality.Properties 𝕄
 open import Tools.Algebra
 open import Tools.Bool as B using (Bool; true; false; T)
@@ -465,6 +469,7 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
 -- ⌜ m ⌝ ·_ distributes over _⊛_▷ r from the left.
 
 ⌜⌝-·-distribˡ-⊛ :
+  ⦃ has-star : Has-star semiring-with-meet ⦄ →
   ∀ m → ⌜ m ⌝ · p ⊛ q ▷ r ≡ (⌜ m ⌝ · p) ⊛ ⌜ m ⌝ · q ▷ r
 ⌜⌝-·-distribˡ-⊛ {p = p} {q = q} {r = r} 𝟙ᵐ = begin
   𝟙 · p ⊛ q ▷ r        ≡⟨ ·-identityˡ _ ⟩
@@ -482,6 +487,7 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
 -- ⌜ m ⌝ ·ᶜ_ distributes over _⊛ᶜ_▷ r from the left.
 
 ⌜⌝-·ᶜ-distribˡ-⊛ᶜ :
+  ⦃ has-star : Has-star semiring-with-meet ⦄ →
   ∀ m → ⌜ m ⌝ ·ᶜ γ ⊛ᶜ δ ▷ r ≈ᶜ (⌜ m ⌝ ·ᶜ γ) ⊛ᶜ ⌜ m ⌝ ·ᶜ δ ▷ r
 ⌜⌝-·ᶜ-distribˡ-⊛ᶜ {γ = ε}     {δ = ε}     _ = ε
 ⌜⌝-·ᶜ-distribˡ-⊛ᶜ {γ = _ ∙ _} {δ = _ ∙ _} m =

@@ -2,10 +2,13 @@
 -- Properties of the modality semiring.
 ------------------------------------------------------------------------
 
-open import Graded.Modality
+import Graded.Modality
 
 module Graded.Modality.Properties
-  {a} {M : Set a} (𝕄 : Modality M) where
+  {a} {M : Set a}
+  (open Graded.Modality M)
+  (𝕄 : Modality)
+  where
 
 open Modality 𝕄
 
@@ -17,7 +20,7 @@ open import Graded.Modality.Properties.Equivalence semiring-with-meet
 open import Graded.Modality.Properties.Meet semiring-with-meet public
 open import Graded.Modality.Properties.Multiplication semiring-with-meet public
 open import Graded.Modality.Properties.PartialOrder semiring-with-meet public
-open import Graded.Modality.Properties.Star semiring-with-meet-and-star public
+open import Graded.Modality.Properties.Star semiring-with-meet public
 
 open import Tools.Bool
 
@@ -26,5 +29,5 @@ open import Tools.Bool
 
 module _ (ok : T 𝟘ᵐ-allowed) where
   open import Graded.Modality.Properties.Has-well-behaved-zero
-    semiring-with-meet-and-star (𝟘-well-behaved ok) public
+    semiring-with-meet (𝟘-well-behaved ok) public
     renaming (𝟙≢𝟘 to 𝟘ᵐ→𝟙≢𝟘)

@@ -2,15 +2,16 @@
 -- Properties of the usage relation that hold when zero is well behaved.
 ------------------------------------------------------------------------
 
-open import Graded.Modality
+import Graded.Modality
 open import Graded.Usage.Restrictions
 
 module Graded.Usage.Properties.Has-well-behaved-zero
   {a} {M : Set a}
-  (𝕄 : Modality M)
+  (open Graded.Modality M)
+  (𝕄 : Modality)
   (R : Usage-restrictions M)
   (open Modality 𝕄)
-  (𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet)
+  (𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet)
   where
 
 open import Definition.Untyped M using (var)
@@ -21,7 +22,7 @@ open import Graded.Mode 𝕄
 open import Graded.Usage 𝕄 R
 open import Graded.Usage.Inversion 𝕄 R
 open import Graded.Modality.Properties.Has-well-behaved-zero
-            semiring-with-meet-and-star 𝟘-well-behaved
+            semiring-with-meet 𝟘-well-behaved
 
 open import Tools.Fin
 open import Tools.Function
@@ -94,7 +95,9 @@ x◂𝟘∈γ∧δʳ {γ = γ} {δ} p≡𝟘 d =
 -- A variant of the positivity property for ⊛ᵣ for the
 -- usage relation for variables.
 
-x◂𝟘∈γ⊛δˡ : p ≡ 𝟘 → x ◂ p ∈ γ ⊛ᶜ δ ▷ r → x ◂ 𝟘 ∈ γ
+x◂𝟘∈γ⊛δˡ :
+  ⦃ has-star : Has-star semiring-with-meet ⦄ →
+  p ≡ 𝟘 → x ◂ p ∈ γ ⊛ᶜ δ ▷ r → x ◂ 𝟘 ∈ γ
 x◂𝟘∈γ⊛δˡ {x = x0} {γ ∙ p} {δ ∙ q} p⊛q≡𝟘 here =
   subst (λ x → _ ◂ x ∈ γ ∙ p) (⊛≡𝟘ˡ p⊛q≡𝟘) here
 x◂𝟘∈γ⊛δˡ {x = x +1} {γ ∙ p} {δ ∙ q} eq (there d) =
@@ -103,7 +106,9 @@ x◂𝟘∈γ⊛δˡ {x = x +1} {γ ∙ p} {δ ∙ q} eq (there d) =
 -- A variant of the positivity property for ⊛ᵣ for the
 -- usage relation for variables.
 
-x◂𝟘∈γ⊛δʳ : p ≡ 𝟘 → x ◂ p ∈ γ ⊛ᶜ δ ▷ r → x ◂ 𝟘 ∈ δ
+x◂𝟘∈γ⊛δʳ :
+  ⦃ has-star : Has-star semiring-with-meet ⦄ →
+  p ≡ 𝟘 → x ◂ p ∈ γ ⊛ᶜ δ ▷ r → x ◂ 𝟘 ∈ δ
 x◂𝟘∈γ⊛δʳ {x = x0} {γ ∙ p} {δ ∙ q} p⊛q≡𝟘 here =
   subst (λ x → _ ◂ x ∈ δ ∙ q) (⊛≡𝟘ʳ p⊛q≡𝟘) here
 x◂𝟘∈γ⊛δʳ {x = x +1} {γ ∙ p} {δ ∙ q} eq (there d) =

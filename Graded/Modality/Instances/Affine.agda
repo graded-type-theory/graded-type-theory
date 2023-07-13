@@ -3,16 +3,17 @@
 ------------------------------------------------------------------------
 
 open import Tools.Bool
+open import Tools.Level
 
 open import Graded.Modality.Instances.Zero-one-many true as 𝟘𝟙ω
-
-open import Graded.Mode.Restrictions
+open import Graded.Modality.Variant lzero
 
 module Graded.Modality.Instances.Affine
-  (mrs : Mode-restrictions)
+  -- The modality variant.
+  (variant : Modality-variant)
   where
 
-open Mode-restrictions mrs
+open Modality-variant variant
 
 open 𝟘𝟙ω renaming (Zero-one-many to Affine) public
 
@@ -36,7 +37,7 @@ private variable
 -- An "affine types" modality.
 
 affineModality : Modality
-affineModality = zero-one-many-greatest mrs
+affineModality = zero-one-many-greatest variant _
 
 -- The affine types" modality has a well-behaved zero.
 

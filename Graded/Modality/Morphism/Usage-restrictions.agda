@@ -30,12 +30,11 @@ open import Graded.Modality.Morphism
 open import Graded.Restrictions
 open import Graded.Usage.Restrictions
 
-open import Graded.Mode.Restrictions
+open import Graded.Modality.Variant
 
 private variable
   𝟙≤𝟘                         : Bool
   R R₁ R₂ R₃                  : Usage-restrictions _
-  rs rs₁ rs₂                  : Mode-restrictions
   M M₁ M₂                     : Set _
   tr tr₁ tr₂ tr-Σ tr-Σ₁ tr-Σ₂ : M₁ → M₂
   p q r                       : M
@@ -208,15 +207,16 @@ Are-reflecting-usage-restrictions-no-erased-matches
 -- obtained using no-erased-matches.
 
 unit→erasure-preserves-no-erased-matches :
+  ∀ v₁ v₁-ok v₂ →
   Are-preserving-usage-restrictions R₁ R₂ unit→erasure tr →
   Are-preserving-usage-restrictions
-    (no-erased-matches UnitModality R₁)
-    (no-erased-matches (ErasureModality rs) R₂)
+    (no-erased-matches (UnitModality v₁ v₁-ok) R₁)
+    (no-erased-matches (ErasureModality v₂) R₂)
     unit→erasure tr
-unit→erasure-preserves-no-erased-matches {rs = rs} =
+unit→erasure-preserves-no-erased-matches v₁ v₁-ok v₂ =
   Are-preserving-usage-restrictions-no-erased-matches
-    UnitModality
-    (ErasureModality rs)
+    (UnitModality v₁ v₁-ok)
+    (ErasureModality v₂)
     (λ _ → inj₂ (λ ()))
 
 -- If the functions unit→erasure and tr reflect certain usage
@@ -224,15 +224,16 @@ unit→erasure-preserves-no-erased-matches {rs = rs} =
 -- obtained using no-erased-matches.
 
 unit→erasure-reflects-no-erased-matches :
+  ∀ v₁ v₁-ok v₂ →
   Are-reflecting-usage-restrictions R₁ R₂ unit→erasure tr →
   Are-reflecting-usage-restrictions
-    (no-erased-matches UnitModality R₁)
-    (no-erased-matches (ErasureModality rs) R₂)
+    (no-erased-matches (UnitModality v₁ v₁-ok) R₁)
+    (no-erased-matches (ErasureModality v₂) R₂)
     unit→erasure tr
-unit→erasure-reflects-no-erased-matches {rs = rs} =
+unit→erasure-reflects-no-erased-matches v₁ v₁-ok v₂ =
   Are-reflecting-usage-restrictions-no-erased-matches
-    UnitModality
-    (ErasureModality rs)
+    (UnitModality v₁ v₁-ok)
+    (ErasureModality v₂)
     (λ tt≢tt → ⊥-elim $ tt≢tt refl)
 
 -- If the functions erasure→unit and tr preserve certain usage
@@ -240,26 +241,28 @@ unit→erasure-reflects-no-erased-matches {rs = rs} =
 -- obtained using no-erased-matches.
 
 erasure→unit-preserves-no-erased-matches :
+  ∀ v₁ v₂ v₂-ok →
   Are-preserving-usage-restrictions R₁ R₂ erasure→unit tr →
   Are-preserving-usage-restrictions
-    (no-erased-matches (ErasureModality rs) R₁)
-    (no-erased-matches UnitModality R₂)
+    (no-erased-matches (ErasureModality v₁) R₁)
+    (no-erased-matches (UnitModality v₂ v₂-ok) R₂)
     erasure→unit tr
-erasure→unit-preserves-no-erased-matches {rs = rs} =
+erasure→unit-preserves-no-erased-matches v₁ v₂ v₂-ok =
   Are-preserving-usage-restrictions-no-erased-matches
-    (ErasureModality rs)
-    UnitModality
+    (ErasureModality v₁)
+    (UnitModality v₂ v₂-ok)
     (λ tt≢tt → ⊥-elim $ tt≢tt refl)
 
 -- The functions erasure→unit and tr do not reflect certain usage
 -- restrictions obtained using no-erased-matches.
 
 ¬-erasure→unit-reflects-no-erased-matches :
+  ∀ v₁ v₂ v₂-ok →
   ¬ Are-reflecting-usage-restrictions
-      (no-erased-matches (ErasureModality rs) R)
-      (no-erased-matches UnitModality no-usage-restrictions)
+      (no-erased-matches (ErasureModality v₁) R)
+      (no-erased-matches (UnitModality v₂ v₂-ok) no-usage-restrictions)
       erasure→unit tr
-¬-erasure→unit-reflects-no-erased-matches r =
+¬-erasure→unit-reflects-no-erased-matches _ _ _ r =
   Prodrec-reflected {r = 𝟘} {p = 𝟘} {q = 𝟘} (_ , idᶠ) .proj₂ (λ ()) refl
   where
   open Are-reflecting-usage-restrictions r
@@ -269,17 +272,17 @@ erasure→unit-preserves-no-erased-matches {rs = rs} =
 -- restrictions obtained using no-erased-matches.
 
 erasure→zero-one-many-preserves-no-erased-matches :
+  ∀ v₁ v₂ v₂-ok →
   Are-preserving-usage-restrictions R₁ R₂
     erasure→zero-one-many tr →
   Are-preserving-usage-restrictions
-    (no-erased-matches (ErasureModality rs₁) R₁)
-    (no-erased-matches (zero-one-many-greatest 𝟙≤𝟘 rs₂) R₂)
+    (no-erased-matches (ErasureModality v₁) R₁)
+    (no-erased-matches (zero-one-many-greatest 𝟙≤𝟘 v₂ v₂-ok) R₂)
     erasure→zero-one-many tr
-erasure→zero-one-many-preserves-no-erased-matches
-  {rs₁ = rs₁} {rs₂ = rs₂} =
+erasure→zero-one-many-preserves-no-erased-matches v₁ v₂ v₂-ok =
   Are-preserving-usage-restrictions-no-erased-matches
-    (ErasureModality rs₁)
-    (zero-one-many-greatest _ rs₂)
+    (ErasureModality v₁)
+    (zero-one-many-greatest _ v₂ v₂-ok)
     (λ _ → inj₁
        ( (λ ())
        , (λ where
@@ -291,17 +294,17 @@ erasure→zero-one-many-preserves-no-erased-matches
 -- obtained using no-erased-matches.
 
 erasure→zero-one-many-reflects-no-erased-matches :
+  ∀ v₁ v₂ v₂-ok →
   Are-reflecting-usage-restrictions R₁ R₂
     erasure→zero-one-many tr →
   Are-reflecting-usage-restrictions
-    (no-erased-matches (ErasureModality rs₁) R₁)
-    (no-erased-matches (zero-one-many-greatest 𝟙≤𝟘 rs₂) R₂)
+    (no-erased-matches (ErasureModality v₁) R₁)
+    (no-erased-matches (zero-one-many-greatest 𝟙≤𝟘 v₂ v₂-ok) R₂)
     erasure→zero-one-many tr
-erasure→zero-one-many-reflects-no-erased-matches
-  {rs₁ = rs₁} {rs₂ = rs₂} =
+erasure→zero-one-many-reflects-no-erased-matches v₁ v₂ v₂-ok =
   Are-reflecting-usage-restrictions-no-erased-matches
-    (ErasureModality rs₁)
-    (zero-one-many-greatest _ rs₂)
+    (ErasureModality v₁)
+    (zero-one-many-greatest _ v₂ v₂-ok)
     (λ _ →
          (λ ())
        , (λ where
@@ -312,17 +315,17 @@ erasure→zero-one-many-reflects-no-erased-matches
 -- restrictions obtained using no-erased-matches.
 
 zero-one-many→erasure-preserves-no-erased-matches :
+  ∀ v₁ v₁-ok v₂ →
   Are-preserving-usage-restrictions R₁ R₂
     zero-one-many→erasure tr →
   Are-preserving-usage-restrictions
-    (no-erased-matches (zero-one-many-greatest 𝟙≤𝟘 rs₁) R₁)
-    (no-erased-matches (ErasureModality rs₂) R₂)
+    (no-erased-matches (zero-one-many-greatest 𝟙≤𝟘 v₁ v₁-ok) R₁)
+    (no-erased-matches (ErasureModality v₂) R₂)
     zero-one-many→erasure tr
-zero-one-many→erasure-preserves-no-erased-matches
-  {rs₁ = rs₁} {rs₂ = rs₂} =
+zero-one-many→erasure-preserves-no-erased-matches v₁ v₁-ok v₂ =
   Are-preserving-usage-restrictions-no-erased-matches
-    (zero-one-many-greatest _ rs₁)
-    (ErasureModality rs₂)
+    (zero-one-many-greatest _ v₁ v₁-ok)
+    (ErasureModality v₂)
     (λ _ → inj₁
        ( (λ ())
        , (λ where
@@ -334,17 +337,17 @@ zero-one-many→erasure-preserves-no-erased-matches
 -- obtained using no-erased-matches.
 
 zero-one-many→erasure-reflects-no-erased-matches :
+  ∀ v₁ v₁-ok v₂ →
   Are-reflecting-usage-restrictions R₁ R₂
     zero-one-many→erasure tr →
   Are-reflecting-usage-restrictions
-    (no-erased-matches (zero-one-many-greatest 𝟙≤𝟘 rs₁) R₁)
-    (no-erased-matches (ErasureModality rs₂) R₂)
+    (no-erased-matches (zero-one-many-greatest 𝟙≤𝟘 v₁ v₁-ok) R₁)
+    (no-erased-matches (ErasureModality v₂) R₂)
     zero-one-many→erasure tr
-zero-one-many→erasure-reflects-no-erased-matches
-  {rs₁ = rs₁} {rs₂ = rs₂} =
+zero-one-many→erasure-reflects-no-erased-matches v₁ v₁-ok v₂ =
   Are-reflecting-usage-restrictions-no-erased-matches
-    (zero-one-many-greatest _ rs₁)
-    (ErasureModality rs₂)
+    (zero-one-many-greatest _ v₁ v₁-ok)
+    (ErasureModality v₂)
     (λ _ →
          (λ ())
        , (λ where
@@ -355,17 +358,18 @@ zero-one-many→erasure-reflects-no-erased-matches
 -- restrictions obtained using no-erased-matches.
 
 linearity→linear-or-affine-preserves-no-erased-matches :
+  ∀ v₁ v₁-ok v₂ v₂-ok →
   Are-preserving-usage-restrictions R₁ R₂
     linearity→linear-or-affine tr →
   Are-preserving-usage-restrictions
-    (no-erased-matches (linearityModality rs₁) R₁)
-    (no-erased-matches (linear-or-affine rs₂) R₂)
+    (no-erased-matches (linearityModality v₁ v₁-ok) R₁)
+    (no-erased-matches (linear-or-affine v₂ v₂-ok) R₂)
     linearity→linear-or-affine tr
 linearity→linear-or-affine-preserves-no-erased-matches
-  {rs₁ = rs₁} {rs₂ = rs₂} =
+  v₁ v₁-ok v₂ v₂-ok =
   Are-preserving-usage-restrictions-no-erased-matches
-    (linearityModality rs₁)
-    (linear-or-affine rs₂)
+    (linearityModality v₁ v₁-ok)
+    (linear-or-affine v₂ v₂-ok)
     (λ _ → inj₁
        ( (λ ())
        , (λ where
@@ -377,17 +381,18 @@ linearity→linear-or-affine-preserves-no-erased-matches
 -- restrictions obtained using no-erased-matches.
 
 linearity→linear-or-affine-reflects-no-erased-matches :
+  ∀ v₁ v₁-ok v₂ v₂-ok →
   Are-reflecting-usage-restrictions R₁ R₂
     linearity→linear-or-affine tr →
   Are-reflecting-usage-restrictions
-    (no-erased-matches (linearityModality rs₁) R₁)
-    (no-erased-matches (linear-or-affine rs₂) R₂)
+    (no-erased-matches (linearityModality v₁ v₁-ok) R₁)
+    (no-erased-matches (linear-or-affine v₂ v₂-ok) R₂)
     linearity→linear-or-affine tr
 linearity→linear-or-affine-reflects-no-erased-matches
-  {rs₁ = rs₁} {rs₂ = rs₂} =
+  v₁ v₁-ok v₂ v₂-ok =
   Are-reflecting-usage-restrictions-no-erased-matches
-    (linearityModality rs₁)
-    (linear-or-affine rs₂)
+    (linearityModality v₁ v₁-ok)
+    (linear-or-affine v₂ v₂-ok)
     (λ _ →
          (λ ())
        , (λ where
@@ -398,17 +403,18 @@ linearity→linear-or-affine-reflects-no-erased-matches
 -- restrictions obtained using no-erased-matches.
 
 linear-or-affine→linearity-preserves-no-erased-matches :
+  ∀ v₁ v₁-ok v₂ v₂-ok →
   Are-preserving-usage-restrictions R₁ R₂
     linear-or-affine→linearity tr →
   Are-preserving-usage-restrictions
-    (no-erased-matches (linear-or-affine rs₁) R₁)
-    (no-erased-matches (linearityModality rs₂) R₂)
+    (no-erased-matches (linear-or-affine v₁ v₁-ok) R₁)
+    (no-erased-matches (linearityModality v₂ v₂-ok) R₂)
     linear-or-affine→linearity tr
 linear-or-affine→linearity-preserves-no-erased-matches
-  {rs₁ = rs₁} {rs₂ = rs₂} =
+  v₁ v₁-ok v₂ v₂-ok =
   Are-preserving-usage-restrictions-no-erased-matches
-    (linear-or-affine rs₁)
-    (linearityModality rs₂)
+    (linear-or-affine v₁ v₁-ok)
+    (linearityModality v₂ v₂-ok)
     (λ _ → inj₁
        ( (λ ())
        , (λ where
@@ -420,17 +426,18 @@ linear-or-affine→linearity-preserves-no-erased-matches
 -- restrictions obtained using no-erased-matches.
 
 linear-or-affine→linearity-reflects-no-erased-matches :
+  ∀ v₁ v₁-ok v₂ v₂-ok →
   Are-reflecting-usage-restrictions R₁ R₂
     linear-or-affine→linearity tr →
   Are-reflecting-usage-restrictions
-    (no-erased-matches (linear-or-affine rs₁) R₁)
-    (no-erased-matches (linearityModality rs₂) R₂)
+    (no-erased-matches (linear-or-affine v₁ v₁-ok) R₁)
+    (no-erased-matches (linearityModality v₂ v₂-ok) R₂)
     linear-or-affine→linearity tr
 linear-or-affine→linearity-reflects-no-erased-matches
-  {rs₁ = rs₁} {rs₂ = rs₂} =
+  v₁ v₁-ok v₂ v₂-ok =
   Are-reflecting-usage-restrictions-no-erased-matches
-    (linear-or-affine rs₁)
-    (linearityModality rs₂)
+    (linear-or-affine v₁ v₁-ok)
+    (linearityModality v₂ v₂-ok)
     (λ _ →
          (λ ())
        , (λ where
@@ -441,17 +448,17 @@ linear-or-affine→linearity-reflects-no-erased-matches
 -- restrictions obtained using no-erased-matches.
 
 affine→linear-or-affine-preserves-no-erased-matches :
+  ∀ v₁ v₂ v₂-ok →
   Are-preserving-usage-restrictions R₁ R₂
     affine→linear-or-affine tr →
   Are-preserving-usage-restrictions
-    (no-erased-matches (affineModality rs₁) R₁)
-    (no-erased-matches (linear-or-affine rs₂) R₂)
+    (no-erased-matches (affineModality v₁) R₁)
+    (no-erased-matches (linear-or-affine v₂ v₂-ok) R₂)
     affine→linear-or-affine tr
-affine→linear-or-affine-preserves-no-erased-matches
-  {rs₁ = rs₁} {rs₂ = rs₂} =
+affine→linear-or-affine-preserves-no-erased-matches v₁ v₂ v₂-ok =
   Are-preserving-usage-restrictions-no-erased-matches
-    (affineModality rs₁)
-    (linear-or-affine rs₂)
+    (affineModality v₁)
+    (linear-or-affine v₂ v₂-ok)
     (λ _ → inj₁
        ( (λ ())
        , (λ where
@@ -463,17 +470,17 @@ affine→linear-or-affine-preserves-no-erased-matches
 -- restrictions obtained using no-erased-matches.
 
 affine→linear-or-affine-reflects-no-erased-matches :
+  ∀ v₁ v₂ v₂-ok →
   Are-reflecting-usage-restrictions R₁ R₂
     affine→linear-or-affine tr →
   Are-reflecting-usage-restrictions
-    (no-erased-matches (affineModality rs₁) R₁)
-    (no-erased-matches (linear-or-affine rs₂) R₂)
+    (no-erased-matches (affineModality v₁) R₁)
+    (no-erased-matches (linear-or-affine v₂ v₂-ok) R₂)
     affine→linear-or-affine tr
-affine→linear-or-affine-reflects-no-erased-matches
-  {rs₁ = rs₁} {rs₂ = rs₂} =
+affine→linear-or-affine-reflects-no-erased-matches v₁ v₂ v₂-ok =
   Are-reflecting-usage-restrictions-no-erased-matches
-    (affineModality rs₁)
-    (linear-or-affine rs₂)
+    (affineModality v₁)
+    (linear-or-affine v₂ v₂-ok)
     (λ _ →
          (λ ())
        , (λ where
@@ -484,17 +491,17 @@ affine→linear-or-affine-reflects-no-erased-matches
 -- restrictions obtained using no-erased-matches.
 
 linear-or-affine→affine-preserves-no-erased-matches :
+  ∀ v₁ v₁-ok v₂ →
   Are-preserving-usage-restrictions R₁ R₂
     linear-or-affine→affine tr →
   Are-preserving-usage-restrictions
-    (no-erased-matches (linear-or-affine rs₁) R₁)
-    (no-erased-matches (affineModality rs₂) R₂)
+    (no-erased-matches (linear-or-affine v₁ v₁-ok) R₁)
+    (no-erased-matches (affineModality v₂) R₂)
     linear-or-affine→affine tr
-linear-or-affine→affine-preserves-no-erased-matches
-  {rs₁ = rs₁} {rs₂ = rs₂} =
+linear-or-affine→affine-preserves-no-erased-matches v₁ v₁-ok v₂ =
   Are-preserving-usage-restrictions-no-erased-matches
-    (linear-or-affine rs₁)
-    (affineModality rs₂)
+    (linear-or-affine v₁ v₁-ok)
+    (affineModality v₂)
     (λ _ → inj₁
        ( (λ ())
        , (λ where
@@ -506,17 +513,17 @@ linear-or-affine→affine-preserves-no-erased-matches
 -- restrictions obtained using no-erased-matches.
 
 linear-or-affine→affine-reflects-no-erased-matches :
+  ∀ v₁ v₁-ok v₂ →
   Are-reflecting-usage-restrictions R₁ R₂
     linear-or-affine→affine tr →
   Are-reflecting-usage-restrictions
-    (no-erased-matches (linear-or-affine rs₁) R₁)
-    (no-erased-matches (affineModality rs₂) R₂)
+    (no-erased-matches (linear-or-affine v₁ v₁-ok) R₁)
+    (no-erased-matches (affineModality v₂) R₂)
     linear-or-affine→affine tr
-linear-or-affine→affine-reflects-no-erased-matches
-  {rs₁ = rs₁} {rs₂ = rs₂} =
+linear-or-affine→affine-reflects-no-erased-matches v₁ v₁-ok v₂ =
   Are-reflecting-usage-restrictions-no-erased-matches
-    (linear-or-affine rs₁)
-    (affineModality rs₂)
+    (linear-or-affine v₁ v₁-ok)
+    (affineModality v₂)
     (λ _ →
          (λ ())
        , (λ where
@@ -527,16 +534,17 @@ linear-or-affine→affine-reflects-no-erased-matches
 -- obtained using no-erased-matches.
 
 affine→linearity-preserves-no-erased-matches :
+  ∀ v₁ v₂ v₂-ok →
   Are-preserving-usage-restrictions R₁ R₂
     affine→linearity tr →
   Are-preserving-usage-restrictions
-    (no-erased-matches (affineModality rs₁) R₁)
-    (no-erased-matches (linearityModality rs₂) R₂)
+    (no-erased-matches (affineModality v₁) R₁)
+    (no-erased-matches (linearityModality v₂ v₂-ok) R₂)
     affine→linearity tr
-affine→linearity-preserves-no-erased-matches {rs₁ = rs₁} {rs₂ = rs₂} =
+affine→linearity-preserves-no-erased-matches v₁ v₂ v₂-ok =
   Are-preserving-usage-restrictions-no-erased-matches
-    (affineModality rs₁)
-    (linearityModality rs₂)
+    (affineModality v₁)
+    (linearityModality v₂ v₂-ok)
     (λ _ → inj₁
        ( (λ ())
        , (λ where
@@ -548,16 +556,17 @@ affine→linearity-preserves-no-erased-matches {rs₁ = rs₁} {rs₂ = rs₂} =
 -- obtained using no-erased-matches.
 
 affine→linearity-reflects-no-erased-matches :
+  ∀ v₁ v₂ v₂-ok →
   Are-reflecting-usage-restrictions R₁ R₂
     affine→linearity tr →
   Are-reflecting-usage-restrictions
-    (no-erased-matches (affineModality rs₁) R₁)
-    (no-erased-matches (linearityModality rs₂) R₂)
+    (no-erased-matches (affineModality v₁) R₁)
+    (no-erased-matches (linearityModality v₂ v₂-ok) R₂)
     affine→linearity tr
-affine→linearity-reflects-no-erased-matches {rs₁ = rs₁} {rs₂ = rs₂} =
+affine→linearity-reflects-no-erased-matches v₁ v₂ v₂-ok =
   Are-reflecting-usage-restrictions-no-erased-matches
-    (affineModality rs₁)
-    (linearityModality rs₂)
+    (affineModality v₁)
+    (linearityModality v₂ v₂-ok)
     (λ _ →
          (λ ())
        , (λ where
@@ -568,16 +577,17 @@ affine→linearity-reflects-no-erased-matches {rs₁ = rs₁} {rs₂ = rs₂} =
 -- obtained using no-erased-matches.
 
 linearity→affine-preserves-no-erased-matches :
+  ∀ v₁ v₁-ok v₂ →
   Are-preserving-usage-restrictions R₁ R₂
     linearity→affine tr →
   Are-preserving-usage-restrictions
-    (no-erased-matches (linearityModality rs₁) R₁)
-    (no-erased-matches (affineModality rs₂) R₂)
+    (no-erased-matches (linearityModality v₁ v₁-ok) R₁)
+    (no-erased-matches (affineModality v₂) R₂)
     linearity→affine tr
-linearity→affine-preserves-no-erased-matches {rs₁ = rs₁} {rs₂ = rs₂} =
+linearity→affine-preserves-no-erased-matches v₁ v₁-ok v₂ =
   Are-preserving-usage-restrictions-no-erased-matches
-    (linearityModality rs₁)
-    (affineModality rs₂)
+    (linearityModality v₁ v₁-ok)
+    (affineModality v₂)
     (λ _ → inj₁
        ( (λ ())
        , (λ where
@@ -589,16 +599,17 @@ linearity→affine-preserves-no-erased-matches {rs₁ = rs₁} {rs₂ = rs₂} =
 -- obtained using no-erased-matches.
 
 linearity→affine-reflects-no-erased-matches :
+  ∀ v₁ v₁-ok v₂ →
   Are-reflecting-usage-restrictions R₁ R₂
     linearity→affine tr →
   Are-reflecting-usage-restrictions
-    (no-erased-matches (linearityModality rs₁) R₁)
-    (no-erased-matches (affineModality rs₂) R₂)
+    (no-erased-matches (linearityModality v₁ v₁-ok) R₁)
+    (no-erased-matches (affineModality v₂) R₂)
     linearity→affine tr
-linearity→affine-reflects-no-erased-matches {rs₁ = rs₁} {rs₂ = rs₂} =
+linearity→affine-reflects-no-erased-matches v₁ v₁-ok v₂ =
   Are-reflecting-usage-restrictions-no-erased-matches
-    (linearityModality rs₁)
-    (affineModality rs₂)
+    (linearityModality v₁ v₁-ok)
+    (affineModality v₂)
     (λ _ →
          (λ ())
        , (λ where

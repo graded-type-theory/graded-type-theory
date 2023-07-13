@@ -1,31 +1,32 @@
 ------------------------------------------------------------------------
--- A star-semiring with a unary operator _* satisfying
--- p * ≡ 𝟙 + p p*
--- and p* ≤ 𝟘 or p* ≤ 𝟙 for all p is a modality instance.
+-- A natrec-star operator can be defined for a "semiring with meet"
+-- with a unary operator _* which satisfies p * ≡ 𝟙 + p p*, and p* ≤ 𝟘
+-- or p* ≤ 𝟙, for all p
 ------------------------------------------------------------------------
 
-open import Graded.Modality
-open import Graded.Mode.Restrictions
+import Graded.Modality
 import Tools.Algebra as A
 open import Tools.PropositionalEquality
 open import Tools.Sum
 open import Tools.Bool hiding (_∧_)
 
 module Graded.Modality.Instances.BoundedStar
-  {a} {M : Set a} (𝕄 : Semiring-with-meet M)
+  {a} {M : Set a}
+  (open Graded.Modality M)
+  (𝕄 : Semiring-with-meet)
   (open Semiring-with-meet 𝕄)
   (_* : A.Op₁ M)
   (*-rec : (p : M) → ((p *) ≡ 𝟙 + p · (p *)))
   (bounds : (p : M) → (p *) ≤ 𝟘 ⊎ (p *) ≤ 𝟙)
-  (rs : Mode-restrictions)
-  (open Mode-restrictions rs)
-  (𝟘-well-behaved : T 𝟘ᵐ-allowed → Has-well-behaved-zero M 𝕄) where
+  where
 
 open import Graded.Modality.Properties.PartialOrder 𝕄
 open import Graded.Modality.Properties.Addition 𝕄
 open import Graded.Modality.Properties.Meet 𝕄
 open import Graded.Modality.Properties.Multiplication 𝕄
+open import Graded.Modality.Variant a
 
+open import Tools.Nullary
 import Tools.Reasoning.Equivalence
 import Tools.Reasoning.PartialOrder
 open import Tools.Product
@@ -142,21 +143,30 @@ p ⊛ q ▷ r = (r *) · (p ∧ q)
   where
   open Tools.Reasoning.PartialOrder ≤-poset
 
-is-semiring-with-meet-and-star : Semiring-with-meet-and-star M
-is-semiring-with-meet-and-star = record
-  { semiring-with-meet = 𝕄
-  ; _⊛_▷_ = _⊛_▷_
+has-star : Has-star 𝕄
+has-star = record
+  { _⊛_▷_ = _⊛_▷_
   ; ⊛-ineq = ⊛-ineq₁ , ⊛-ineq₂
   ; +-sub-interchangeable-⊛ = +-sub-interchangeable-⊛
   ; ·-sub-distribʳ-⊛ = ·-sub-distribʳ-⊛
   ; ⊛-sub-distrib-∧ = λ r → ⊛-sub-distribˡ-∧ r , ⊛-sub-distribʳ-∧ r
   }
 
-isModality : Modality M
-isModality = record
-  { semiring-with-meet-and-star = is-semiring-with-meet-and-star
-  ; mode-restrictions = rs
-  ; 𝟘-well-behaved = 𝟘-well-behaved
+-- If certain properties hold, then 𝕄 can be turned into a certain
+-- kind of modality.
+
+isModality :
+  (variant : Modality-variant) →
+  let open Modality-variant variant in
+  (T 𝟘ᵐ-allowed → Has-well-behaved-zero 𝕄) →
+  (T 𝟘ᵐ-allowed → ¬ ⊛-available → ∀ p q → p + q ≤ p) →
+  Modality
+isModality variant 𝟘-well-behaved +-decreasingˡ = record
+  { variant            = variant
+  ; semiring-with-meet = 𝕄
+  ; 𝟘-well-behaved     = 𝟘-well-behaved
+  ; has-star           = λ _ → has-star
+  ; +-decreasingˡ      = +-decreasingˡ
   }
 
 -- For an instance with a least element the solution given by _⊛_▷_ is
@@ -164,7 +174,7 @@ isModality = record
 -- Graded.Modality.Instances.LowerBounded.
 
 module LowerBounded (∞ : M) (∞-min : (p : M) → ∞ ≤ p) where
-  open import Graded.Modality.Instances.LowerBounded 𝕄 ∞ ∞-min rs 𝟘-well-behaved
+  open import Graded.Modality.Instances.LowerBounded 𝕄 ∞ ∞-min
     using () renaming (_⊛_▷_ to _⊛′_▷_)
 
   ⊛′≤⊛ : (p q r : M) → p ⊛′ q ▷ r ≤ p ⊛ q ▷ r

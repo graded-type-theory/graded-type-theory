@@ -9,11 +9,12 @@ module Graded.Modality {a} (M : Set a) where
 
 open import Tools.Algebra M
 open import Tools.Bool using (T)
+open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Sum
 
-open import Graded.Mode.Restrictions
+open import Graded.Modality.Variant a
 
 -- Semiring with meet
 record Semiring-with-meet : Set a where
@@ -138,15 +139,14 @@ record Has-well-behaved-zero (𝕄 : Semiring-with-meet) : Set a where
     -- Definition.Modality.Properties.Has-well-behaved-zero.∧-positiveʳ.)
     ∧-positiveˡ : {p q : M} → p ∧ q ≡ 𝟘 → p ≡ 𝟘
 
--- Semirings with meet and a ternary star operator.
-record Semiring-with-meet-and-star : Set a where
-  infix  50 _⊛_▷_
-  field
-    semiring-with-meet : Semiring-with-meet
-  open Semiring-with-meet semiring-with-meet public
+-- The property of having a natrec-star operator.
+record Has-star (r : Semiring-with-meet) : Set a where
+  open Semiring-with-meet r
+
+  infix 50 _⊛_▷_
 
   field
-    -- The tertiary "star"-operator
+    -- The natrec-star operator.
     _⊛_▷_ : Op₃ M
 
     -- ⊛ is a solution to the following system of inequalities
@@ -175,14 +175,21 @@ record Semiring-with-meet-and-star : Set a where
 -- The modality structure
 record Modality : Set (lsuc a) where
   field
-    semiring-with-meet-and-star : Semiring-with-meet-and-star
-  open Semiring-with-meet-and-star semiring-with-meet-and-star public
+    -- The modality variant.
+    variant            : Modality-variant
+    semiring-with-meet : Semiring-with-meet
 
-  field
-    -- Restrictions on modes.
-    mode-restrictions : Mode-restrictions
-  open Mode-restrictions mode-restrictions public
+  open Semiring-with-meet semiring-with-meet public
+  open Modality-variant variant public
 
   field
     -- If the mode 𝟘ᵐ is allowed, then the zero is well-behaved
     𝟘-well-behaved : T 𝟘ᵐ-allowed → Has-well-behaved-zero semiring-with-meet
+
+    -- If the modality is supposed to come with a dedicated
+    -- natrec-star operator, then such an operator is available.
+    has-star : ⊛-available → Has-star semiring-with-meet
+
+    -- If the mode 𝟘ᵐ is allowed and the modality does not come with a
+    -- dedicated natrec-star operator, then _+ q is decreasing.
+    +-decreasingˡ : T 𝟘ᵐ-allowed → ¬ ⊛-available → ∀ p q → p + q ≤ p

@@ -12,8 +12,10 @@ module Graded.Erasure.Extraction.Properties
   (𝟘-wb : Has-well-behaved-zero M semiring-with-meet)
   where
 
+open import Graded.Modality.Dedicated-star.Instance
+open import Graded.Modality.Natrec-star-instances
 open import Graded.Modality.Properties.Has-well-behaved-zero
-  semiring-with-meet-and-star 𝟘-wb
+  semiring-with-meet 𝟘-wb
 
 open import Graded.Erasure.Extraction 𝕄 is-𝟘?
 open import Graded.Erasure.Target as T hiding (refl; trans)
@@ -30,6 +32,7 @@ open import Graded.Usage.Restrictions M
 open import Graded.Mode 𝕄
 
 open import Tools.Fin
+open import Tools.Function
 open import Tools.Nat renaming (_+_ to _+ⁿ_)
 
 import Tools.Reasoning.Equivalence
@@ -403,16 +406,53 @@ module hasX (R : Usage-restrictions) where
                          (∧ᶜ-decreasingˡ γ η)))
       hasX
   erased-hasX erased
+    (natrec-no-starₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
+       γ▸z _ _ _ fix)
+    (natrecₓᶻ hasX) =
+    erased-hasX erased
+      (sub γ▸z $ begin
+         χ                                  ≤⟨ fix ⟩
+         γ ∧ᶜ η ∧ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ)  ≤⟨ ∧ᶜ-decreasingˡ _ _ ⟩
+         γ                                  ∎)
+      hasX
+    where
+    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+  erased-hasX erased
     (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} γ▸z δ▸s η▸n θ▸A)
     (natrecₓˢ hasX) =
     erased-hasX
       (there (there (x◂𝟘∈γ+δˡ 𝟘-wb refl (x◂𝟘∈γ⊛δʳ 𝟘-wb refl erased))))
       δ▸s hasX
   erased-hasX erased
+    (natrec-no-starₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
+       _ δ▸s _ _ fix)
+    (natrecₓˢ hasX) =
+    erased-hasX
+      (there $ there $ x◂𝟘∈γ+δˡ 𝟘-wb refl $ x◂𝟘∈γ≤δ 𝟘-wb erased $ begin
+         χ                                  ≤⟨ fix ⟩
+         γ ∧ᶜ η ∧ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ)  ≤⟨ ∧ᶜ-decreasingʳ _ _ ⟩
+         η ∧ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ)       ≤⟨ ∧ᶜ-decreasingʳ _ _ ⟩
+         δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ              ∎)
+      δ▸s hasX
+    where
+    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+  erased-hasX erased
     (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} γ▸z δ▸s η▸n θ▸A)
     (natrecₓⁿ hasX) =
     erased-hasX (x◂𝟘∈γ∧δʳ 𝟘-wb refl (x◂𝟘∈γ⊛δˡ 𝟘-wb refl erased))
       η▸n hasX
+  erased-hasX erased
+    (natrec-no-starₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
+       _ _ η▸n _ fix)
+    (natrecₓⁿ hasX) =
+    erased-hasX
+      (x◂𝟘∈γ∧δʳ 𝟘-wb refl $ x◂𝟘∈γ≤δ 𝟘-wb erased $ begin
+         χ                                  ≤⟨ fix ⟩
+         γ ∧ᶜ η ∧ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ)  ≤⟨ ∧ᶜ-monotoneʳ (∧ᶜ-decreasingˡ _ _) ⟩
+         γ ∧ᶜ η                             ∎)
+      η▸n hasX
+    where
+    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
   erased-hasX erased (sub δ▸t γ≤δ) hasX =
     erased-hasX (x◂𝟘∈γ≤δ 𝟘-wb erased γ≤δ) δ▸t hasX

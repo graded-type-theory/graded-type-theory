@@ -3,9 +3,8 @@ open import Tools.Bool hiding (_∧_)
 open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 open import Tools.PropositionalEquality
-open import Graded.Modality
+import Graded.Modality
 import Graded.Modality.Instances.Recursive.Sequences
-open import Graded.Mode.Restrictions
 
 -- A "semiring with meet" with the following recursively defined
 -- operator nr can be turned into a modality:
@@ -15,19 +14,21 @@ open import Graded.Mode.Restrictions
 -- ∃ n → ∀ p q → nr (1+ n) p q r ≡ nr n p q r
 
 module Graded.Modality.Instances.Recursive
-  {a} {M : Set a} (𝕄 : Semiring-with-meet M)
+  {a} {M : Set a}
+  (open Graded.Modality M)
+  (𝕄 : Semiring-with-meet)
   (open Semiring-with-meet 𝕄)
   (open Graded.Modality.Instances.Recursive.Sequences 𝕄)
   (nr-fix : Has-fixpoints-nr)
-  (rs : Mode-restrictions)
-  (open Mode-restrictions rs)
-  (𝟘-well-behaved : T 𝟘ᵐ-allowed → Has-well-behaved-zero M 𝕄) where
+  where
 
 open import Graded.Modality.Properties.Addition 𝕄
 open import Graded.Modality.Properties.Meet 𝕄
 open import Graded.Modality.Properties.Multiplication 𝕄
 open import Graded.Modality.Properties.PartialOrder 𝕄
+open import Graded.Modality.Variant a
 open import Tools.Algebra M
+open import Tools.Nullary
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
 
@@ -168,10 +169,9 @@ nr-sub-distribʳ-∧ (1+ n) r q p p′ = begin
   where
   open Tools.Reasoning.PartialOrder ≤-poset
 
-is-semiring-with-meet-and-star : Semiring-with-meet-and-star M
-is-semiring-with-meet-and-star = record
-  { semiring-with-meet = 𝕄
-  ; _⊛_▷_ = _⊛_▷_
+has-star : Has-star 𝕄
+has-star = record
+  { _⊛_▷_ = _⊛_▷_
   ; ⊛-ineq = solvesIneqs
   ; +-sub-interchangeable-⊛ = λ r →
       +-sub-interchangeable-nr (nr-fix r .proj₁) r
@@ -181,11 +181,21 @@ is-semiring-with-meet-and-star = record
       , nr-sub-distribʳ-∧ (nr-fix r .proj₁) r
   }
 
-isModality : Modality M
-isModality = record
-  { semiring-with-meet-and-star = is-semiring-with-meet-and-star
-  ; mode-restrictions = rs
-  ; 𝟘-well-behaved = 𝟘-well-behaved
+-- If certain properties hold, then 𝕄 can be turned into a certain
+-- kind of modality.
+
+isModality :
+  (variant : Modality-variant) →
+  let open Modality-variant variant in
+  (T 𝟘ᵐ-allowed → Has-well-behaved-zero 𝕄) →
+  (T 𝟘ᵐ-allowed → ¬ ⊛-available → ∀ p q → p + q ≤ p) →
+  Modality
+isModality variant 𝟘-well-behaved +-decreasingˡ = record
+  { variant            = variant
+  ; semiring-with-meet = 𝕄
+  ; 𝟘-well-behaved     = 𝟘-well-behaved
+  ; has-star           = λ _ → has-star
+  ; +-decreasingˡ      = +-decreasingˡ
   }
 
 module 𝟘-bound (𝟘-max : (p : M) → p ≤ 𝟘) where

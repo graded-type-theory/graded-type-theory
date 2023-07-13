@@ -1,15 +1,22 @@
 ------------------------------------------------------------------------
--- Properties of the linearity modality instance
+-- Properties of the linearity modality
 ------------------------------------------------------------------------
 
+open import Tools.Bool
+open import Tools.Level
+open import Tools.Nullary
 
 open import Graded.Usage.Restrictions
-open import Graded.Mode.Restrictions
-import Graded.Modality.Instances.Linearity as L
+open import Graded.Modality.Variant lzero
+import Graded.Modality.Instances.Linearity
 
 module Graded.Modality.Instances.Linearity.Properties
-  (mrs : Mode-restrictions)
-  (open L mrs)
+  (variant : Modality-variant)
+  (open Modality-variant variant)
+  -- If there is no dedicated natrec-star operator, then 𝟘̂ᵐ must not
+  -- be allowed.
+  (variant-ok : ¬ ⊛-available → ¬ T 𝟘ᵐ-allowed)
+  (open Graded.Modality.Instances.Linearity variant variant-ok)
   (UR : Usage-restrictions Linearity) where
 
 open Usage-restrictions UR

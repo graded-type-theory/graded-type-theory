@@ -4,21 +4,22 @@
 
 module Graded.Modality.Instances.Zero-below-one where
 
-open import Graded.FullReduction.Assumptions
-import Graded.Modality
-import Graded.Modality.Properties.Has-well-behaved-zero
-open import Graded.Mode.Restrictions
-
-import Definition.Typed.Restrictions
-
 import Tools.Algebra
 open import Tools.Bool using (false)
 open import Tools.Function
+open import Tools.Level
 open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 open import Tools.Relation
 open import Tools.Sum
+
+open import Graded.FullReduction.Assumptions
+import Graded.Modality
+import Graded.Modality.Properties.Has-well-behaved-zero
+open import Graded.Modality.Variant lzero
+
+import Definition.Typed.Restrictions
 
 -- The modality has two grades, 𝟘 and 𝟙.
 
@@ -30,8 +31,9 @@ open Graded.Modality               Grade
 open Tools.Algebra                 Grade
 
 private variable
-  p : Grade
-  R : Type-restrictions
+  p       : Grade
+  variant : Modality-variant
+  R       : Type-restrictions
 
 ------------------------------------------------------------------------
 -- Operators
@@ -289,12 +291,11 @@ _≟_ = λ where
   +-distrib-∧ =
     +-distribˡ-∧ , comm+distrˡ⇒distrʳ +-comm +-distribˡ-∧
 
--- A "semiring with meet and star" for Grade.
+-- A natrec-star operator can be defined for Grade.
 
-𝟘≤𝟙-semiring-with-meet-and-star : Semiring-with-meet-and-star
-𝟘≤𝟙-semiring-with-meet-and-star = record
-  { semiring-with-meet      = 𝟘≤𝟙-semiring-with-meet
-  ; _⊛_▷_                   = _⊛_▷_
+𝟘≤𝟙-has-star : Has-star 𝟘≤𝟙-semiring-with-meet
+𝟘≤𝟙-has-star = record
+  { _⊛_▷_                   = _⊛_▷_
   ; ⊛-ineq                  = (λ _ _ _ → refl) , (λ _ _ _ → refl)
   ; +-sub-interchangeable-⊛ = λ _ _ _ _ _ → refl
   ; ·-sub-distribʳ-⊛        = λ _ _ _ _ → refl
@@ -309,15 +310,21 @@ _≟_ = λ where
   ⊥-elim (𝟘≰𝟙 refl)
   where
   open Graded.Modality.Properties.Has-well-behaved-zero
-         𝟘≤𝟙-semiring-with-meet-and-star well-behaved
+         𝟘≤𝟙-semiring-with-meet well-behaved
 
--- A modality for Grade.
+-- A modality for Grade (without 𝟘ᵐ).
 
-𝟘≤𝟙 : Modality
-𝟘≤𝟙 = record
-  { semiring-with-meet-and-star = 𝟘≤𝟙-semiring-with-meet-and-star
-  ; mode-restrictions           = 𝟘ᵐ-allowed-if false
-  ; 𝟘-well-behaved              = λ ()
+𝟘≤𝟙 :
+  (variant : Modality-variant) →
+  let open Modality-variant variant in
+  𝟘ᵐ-allowed ≡ false →
+  Modality
+𝟘≤𝟙 variant refl = record
+  { variant            = variant
+  ; semiring-with-meet = 𝟘≤𝟙-semiring-with-meet
+  ; 𝟘-well-behaved     = λ ()
+  ; has-star           = λ _ → 𝟘≤𝟙-has-star
+  ; +-decreasingˡ      = λ ()
   }
 
 ------------------------------------------------------------------------
@@ -351,13 +358,15 @@ suitable-for-full-reduction R =
   where
   open Type-restrictions R
 
--- The full reduction assumptions hold for 𝟘≤𝟙 and any "suitable"
--- Type-restrictions.
+-- The full reduction assumptions hold for any instance of 𝟘≤𝟙 and any
+-- "suitable" Type-restrictions.
 
 full-reduction-assumptions :
+  let open Modality-variant variant in
+  (ok : 𝟘ᵐ-allowed ≡ false) →
   Suitable-for-full-reduction R →
-  Full-reduction-assumptions 𝟘≤𝟙 R
-full-reduction-assumptions (¬Unit , ¬𝟘) = record
+  Full-reduction-assumptions (𝟘≤𝟙 variant ok) R
+full-reduction-assumptions refl (¬Unit , ¬𝟘) = record
   { 𝟙≤𝟘    = ⊥-elim ∘→ ¬Unit
   ; ≡𝟙⊎𝟙≤𝟘 = λ where
       {p = 𝟘} ok → ⊥-elim (¬𝟘 _ ok)

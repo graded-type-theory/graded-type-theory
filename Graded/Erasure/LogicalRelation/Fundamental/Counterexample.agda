@@ -28,7 +28,7 @@ open Usage-restrictions UR
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties.Has-well-behaved-zero
-  semiring-with-meet-and-star 𝟘-well-behaved
+  semiring-with-meet 𝟘-well-behaved
 open import Graded.Modality.Properties.PartialOrder
   semiring-with-meet
 open import Graded.Usage 𝕄 UR

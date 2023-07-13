@@ -16,11 +16,12 @@ open Modality 𝕄
 open import Graded.Modality M hiding (Modality)
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
+open import Graded.Modality.Natrec-star-instances
 import Graded.Modality.Properties.Has-well-behaved-zero as WB𝟘
 open import Graded.Modality.Properties.PartialOrder
   semiring-with-meet
 open import Graded.Modality.Properties.Star
-  semiring-with-meet-and-star
+  semiring-with-meet
 open import Graded.Usage 𝕄 R
 open import Graded.Usage.Properties 𝕄 R
 open import Graded.Mode 𝕄
@@ -43,7 +44,7 @@ private
     x : Fin n
     ρ : Wk m n
     p r : M
-    γ γ′ δ η θ : Conₘ n
+    γ γ′ δ η θ χ : Conₘ n
     t t′ : Term n
     m′ : Mode
 
@@ -89,7 +90,9 @@ wk-∧ᶜ {γ = γ ∙ p} {δ ∙ q} (lift ρ) = wk-∧ᶜ ρ ∙ refl
 -- Weakening of modality contexts distribute over the reccurence operator
 -- wkConₘ ρ (γ ⊛ᵣ δ) ≈ᶜ (wkConₘ ρ γ) ⊛ᵣ (wkConₘ ρ δ)
 
-wk-⊛ᶜ : (ρ : Wk m n) → wkConₘ ρ (γ ⊛ᶜ δ ▷ r) ≈ᶜ (wkConₘ ρ γ) ⊛ᶜ (wkConₘ ρ δ) ▷ r
+wk-⊛ᶜ :
+  ⦃ has-star : Has-star semiring-with-meet ⦄ →
+  (ρ : Wk m n) → wkConₘ ρ (γ ⊛ᶜ δ ▷ r) ≈ᶜ (wkConₘ ρ γ) ⊛ᶜ (wkConₘ ρ δ) ▷ r
 wk-⊛ᶜ id = ≈ᶜ-refl
 wk-⊛ᶜ (step ρ) = wk-⊛ᶜ ρ ∙ PE.sym (⊛-idem-𝟘 _)
 wk-⊛ᶜ {γ = γ ∙ p} {δ ∙ q} (lift ρ) = wk-⊛ᶜ ρ ∙ refl
@@ -151,6 +154,33 @@ wkUsage ρ (natrecₘ γ▸z δ▸s η▸n θ▸A) =
       (≤ᶜ-reflexive (≈ᶜ-trans (wk-⊛ᶜ ρ)
                               (⊛ᵣᶜ-cong (wk-∧ᶜ ρ)
                                        (≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-congˡ (wk-·ᶜ ρ))))))
+  where
+  open import Graded.Modality.Dedicated-star.Instance
+wkUsage
+  ρ
+  (natrec-no-starₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
+     ▸z ▸s ▸n ▸A fix) =
+  natrec-no-starₘ
+    (wkUsage ρ ▸z)
+    (wkUsage (liftn ρ 2) ▸s)
+    (wkUsage ρ ▸n)
+    (wkUsage (lift ρ) ▸A)
+    (begin
+       wkConₘ ρ χ                                          ≤⟨ wk-≤ᶜ _ fix ⟩
+
+       wkConₘ ρ (γ ∧ᶜ η ∧ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ))        ≈⟨ ≈ᶜ-trans (wk-∧ᶜ ρ) $
+                                                              ∧ᶜ-congˡ $
+                                                              ≈ᶜ-trans (wk-∧ᶜ ρ) $
+                                                              ∧ᶜ-congˡ $
+                                                              ≈ᶜ-trans (wk-+ᶜ ρ) $
+                                                              +ᶜ-congˡ $
+                                                              ≈ᶜ-trans (wk-+ᶜ ρ) $
+                                                              +ᶜ-cong (wk-·ᶜ ρ) (wk-·ᶜ ρ) ⟩
+
+       wkConₘ ρ γ ∧ᶜ wkConₘ ρ η ∧ᶜ
+       (wkConₘ ρ δ +ᶜ p ·ᶜ wkConₘ ρ η +ᶜ r ·ᶜ wkConₘ ρ χ)  ∎)
+  where
+  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 wkUsage ρ (emptyrecₘ γ▸t δ▸A) =
   sub (emptyrecₘ (wkUsage ρ γ▸t) (wkUsage ρ δ▸A)) (≤ᶜ-reflexive (wk-·ᶜ ρ))
 wkUsage ρ starₘ = subst (λ γ → γ ▸[ _ ] star) (PE.sym (wk-𝟘ᶜ ρ)) starₘ
@@ -217,6 +247,7 @@ wkConₘ⁻¹-·ᶜ {γ = _ ∙ _} (lift ρ) = wkConₘ⁻¹-·ᶜ ρ ∙ refl
 -- The function wkConₘ⁻¹ ρ commutes with _⊛ᶜ_▷ r.
 
 wkConₘ⁻¹-⊛ᶜ :
+  ⦃ has-star : Has-star semiring-with-meet ⦄
   (ρ : Wk m n) →
   wkConₘ⁻¹ ρ (γ ⊛ᶜ δ ▷ r) ≈ᶜ wkConₘ⁻¹ ρ γ ⊛ᶜ wkConₘ⁻¹ ρ δ ▷ r
 wkConₘ⁻¹-⊛ᶜ                         id       = ≈ᶜ-refl
@@ -344,6 +375,27 @@ wkUsage⁻¹ ▸t = wkUsage⁻¹′ ▸t refl
 
              (wkConₘ⁻¹ ρ γ ∧ᶜ wkConₘ⁻¹ ρ η) ⊛ᶜ
                wkConₘ⁻¹ ρ δ +ᶜ p ·ᶜ wkConₘ⁻¹ ρ η ▷ r              ∎) }
+      (natrec-no-starₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ} ▸t ▸u ▸v ▸A fix) eq →
+        case wk-natrec eq of λ {
+          (_ , _ , _ , _ , refl , refl , refl , refl , refl) →
+        natrec-no-starₘ
+          (wkUsage⁻¹ ▸t)
+          (wkUsage⁻¹ ▸u)
+          (wkUsage⁻¹ ▸v)
+          (wkUsage⁻¹ ▸A)
+          (begin
+             wkConₘ⁻¹ ρ χ                                              ≤⟨ wkConₘ⁻¹-monotone ρ fix ⟩
+
+             wkConₘ⁻¹ ρ (γ ∧ᶜ η ∧ᶜ δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ)              ≈⟨ ≈ᶜ-trans (wkConₘ⁻¹-∧ᶜ ρ) $
+                                                                          ∧ᶜ-congˡ $
+                                                                          ≈ᶜ-trans (wkConₘ⁻¹-∧ᶜ ρ) $
+                                                                          ∧ᶜ-congˡ $
+                                                                          ≈ᶜ-trans (wkConₘ⁻¹-+ᶜ ρ) $
+                                                                          +ᶜ-congˡ $
+                                                                          ≈ᶜ-trans (wkConₘ⁻¹-+ᶜ ρ) $
+                                                                          +ᶜ-cong (wkConₘ⁻¹-·ᶜ ρ) (wkConₘ⁻¹-·ᶜ ρ) ⟩
+             wkConₘ⁻¹ ρ γ ∧ᶜ wkConₘ⁻¹ ρ η ∧ᶜ
+             (wkConₘ⁻¹ ρ δ +ᶜ p ·ᶜ wkConₘ⁻¹ ρ η +ᶜ r ·ᶜ wkConₘ⁻¹ ρ χ)  ∎) }
       (emptyrecₘ ▸t ▸A) eq →
         case wk-emptyrec eq of λ {
           (_ , _ , refl , refl , refl) →
@@ -355,6 +407,8 @@ wkUsage⁻¹ ▸t = wkUsage⁻¹′ ▸t refl
         sub starₘ (≤ᶜ-reflexive (wkConₘ⁻¹-𝟘ᶜ ρ)) }
       (sub ▸t leq) refl →
         sub (wkUsage⁻¹ ▸t) (wkConₘ⁻¹-monotone ρ leq)
+    where
+    open import Graded.Modality.Dedicated-star.Instance
 
 -- An inversion lemma for the usage relation and weakening.
 
@@ -399,7 +453,7 @@ module _
   (𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet)
   where
 
-  open WB𝟘 semiring-with-meet-and-star 𝟘-well-behaved
+  open WB𝟘 semiring-with-meet 𝟘-well-behaved
 
   -- An inversion lemma for wkConₘ and _+ᶜ_.
 
@@ -479,6 +533,7 @@ module _
   -- An inversion lemma for wkConₘ and _⊛ᶜ_▷_.
 
   wkConₘ-⊛ᶜ :
+    ⦃ has-star : Has-star semiring-with-meet ⦄ →
     ∀ ρ → wkConₘ ρ γ ≤ᶜ δ ⊛ᶜ η ▷ r →
     ∃₂ λ δ′ η′ → γ ≤ᶜ δ′ ⊛ᶜ η′ ▷ r × wkConₘ ρ δ′ ≤ᶜ δ × wkConₘ ρ η′ ≤ᶜ η
   wkConₘ-⊛ᶜ id leq =
@@ -499,6 +554,7 @@ module _
   -- of the usage rule for natrec.
 
   wkConₘ-⊛ᶜ′ :
+    ⦃ has-star : Has-star semiring-with-meet ⦄ →
     ∀ ρ → wkConₘ ρ γ ≤ᶜ (δ ∧ᶜ θ) ⊛ᶜ η +ᶜ p ·ᶜ θ ▷ r →
     p ≡ 𝟘 ×
     (∃₃ λ δ′ η′ θ′ →

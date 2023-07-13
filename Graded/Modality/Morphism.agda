@@ -19,6 +19,8 @@ open import Tools.Sum using (_⊎_; inj₁; inj₂)
 open import Tools.Unit
 
 open import Graded.Modality
+open import Graded.Modality.Dedicated-star
+open import Graded.Modality.Dedicated-star.Instance
 open import Graded.Modality.Instances.Affine as A
   using (Affine; affineModality)
 open import Graded.Modality.Instances.Erasure as E
@@ -32,12 +34,12 @@ open import Graded.Modality.Instances.Linearity as L
 open import Graded.Modality.Instances.Unit using (UnitModality)
 open import Graded.Modality.Instances.Zero-one-many as ZOM
   using (Zero-one-many; 𝟘; 𝟙; ω; zero-one-many-greatest)
+open import Graded.Modality.Natrec-star-instances
 import Graded.Modality.Properties
+open import Graded.Modality.Variant
 open import Graded.Restrictions
 
-open import Graded.Mode.Restrictions
-
-open Mode-restrictions
+open Modality-variant
 
 open import Graded.Mode as Mode hiding (module Mode)
 
@@ -48,11 +50,13 @@ private variable
   a₁ a₂                       : Level
   𝟙≤𝟘 ok                      : Bool
   not-ok                      : ¬ T _
-  rs rs₁ rs₂                  : Mode-restrictions
-  M₁ M₂                       : Set _
+  v v₁ v₂                     : Modality-variant _
+  A M M₁ M₂                   : Set _
   𝕄 𝕄₁ 𝕄₂ 𝕄₃                  : Modality _
   b                           : BinderMode
   tr tr₁ tr₂ tr-Σ tr-Σ₁ tr-Σ₂ : M₁ → M₂
+  v₁-ok v₂-ok                 : A
+  p q₁ q₂ q₃ q₄ r s           : M
 
 ------------------------------------------------------------------------
 -- Morphisms
@@ -77,6 +81,10 @@ record Is-morphism
     -- If 𝟘ᵐ is allowed in the source modality, then it is allowed in
     -- the target modality.
     𝟘ᵐ-in-second-if-in-first : T M₁.𝟘ᵐ-allowed → T M₂.𝟘ᵐ-allowed
+
+    -- The source modality has a dedicated natrec-star operator if and
+    -- only if the target modality also has one.
+    star-in-first-iff-in-second : Dedicated-star 𝕄₁ ⇔ Dedicated-star 𝕄₂
 
     -- The translation of 𝟘 is bounded by 𝟘.
     tr-𝟘-≤ : tr M₁.𝟘 ≤ M₂.𝟘
@@ -103,7 +111,64 @@ record Is-morphism
     tr-∧ : ∀ {p q} → tr (p M₁.∧ q) ≤ tr p M₂.∧ tr q
 
     -- The translation commutes with star up to _≤_.
-    tr-⊛ : ∀ {p q r} → tr (p M₁.⊛ q ▷ r) ≤ tr p M₂.⊛ tr q ▷ tr r
+    tr-⊛ :
+      ∀ {p q r}
+        ⦃ has-star₁ : Dedicated-star 𝕄₁ ⦄
+        ⦃ has-star₂ : Dedicated-star 𝕄₂ ⦄ →
+      tr (p ⊛ q ▷ r) ≤ tr p ⊛ tr q ▷ tr r
+
+  -- If the source modality has a dedicated natrec-star operator, then
+  -- the target modality also has one.
+
+  star-in-second-if-in-first :
+    ⦃ has-star : Dedicated-star 𝕄₁ ⦄ →
+    Dedicated-star 𝕄₂
+  star-in-second-if-in-first ⦃ has-star = s ⦄ =
+    star-in-first-iff-in-second .proj₁ s
+
+  -- If the target modality has a dedicated natrec-star operator, then
+  -- the source modality also has one.
+
+  star-in-first-if-in-second :
+    ⦃ has-star : Dedicated-star 𝕄₂ ⦄ →
+    Dedicated-star 𝕄₁
+  star-in-first-if-in-second ⦃ has-star = s ⦄ =
+    star-in-first-iff-in-second .proj₂ s
+
+  -- The source modality does not have a dedicated natrec-star
+  -- operator if and only if the target modality does not have one.
+
+  no-star-in-first-iff-in-second :
+    No-dedicated-star 𝕄₁ ⇔ No-dedicated-star 𝕄₂
+  no-star-in-first-iff-in-second =
+      (λ where
+         (no-dedicated-star ns) → no-dedicated-star
+           (M₂.⊛-available  →⟨ Dedicated-star.star ∘→ star-in-first-iff-in-second .proj₂ ∘→ dedicated-star ⟩
+            M₁.⊛-available  →⟨ ns ⟩
+            ⊥               □))
+    , (λ where
+         (no-dedicated-star ns) → no-dedicated-star
+           (M₁.⊛-available  →⟨ Dedicated-star.star ∘→ star-in-first-iff-in-second .proj₁ ∘→ dedicated-star ⟩
+            M₂.⊛-available  →⟨ ns ⟩
+            ⊥               □))
+
+  -- If the source modality does not have a dedicated natrec-star
+  -- operator, then neither does the target modality.
+
+  no-star-in-second-if-in-first :
+    ⦃ no-star : No-dedicated-star 𝕄₁ ⦄ →
+    No-dedicated-star 𝕄₂
+  no-star-in-second-if-in-first ⦃ no-star = ns ⦄ =
+    no-star-in-first-iff-in-second .proj₁ ns
+
+  -- If the target modality does not have a dedicated natrec-star
+  -- operator, then neither does the source modality.
+
+  no-star-in-first-if-in-second :
+    ⦃ no-star : No-dedicated-star 𝕄₂ ⦄ →
+    No-dedicated-star 𝕄₁
+  no-star-in-first-if-in-second ⦃ no-star = ns ⦄ =
+    no-star-in-first-iff-in-second .proj₂ ns
 
   -- If 𝟘ᵐ is allowed in the source modality, then 𝟘 is translated to
   -- 𝟘.
@@ -198,14 +263,31 @@ record Is-order-embedding
       tr p M₂.≤ q M₂.∧ r →
       ∃₂ λ q′ r′ → tr q′ M₂.≤ q × tr r′ M₂.≤ r × p M₁.≤ q′ M₁.∧ r′
 
-    -- A variant of the last properties above for the function that is
-    -- used in the usage rule for natrec.
+    -- A variant of the last properties above for a function that is
+    -- used in one of the usage rules for natrec (the one that uses
+    -- the natrec-star operator).
     tr-≤-⊛ :
-      ∀ {p q₁ q₂ q₃ r s} →
-      tr p M₂.≤ (q₁ M₂.∧ q₂) M₂.⊛ q₃ M₂.+ tr r M₂.· q₂ ▷ tr s →
+      ∀ {p q₁ q₂ q₃ r s}
+        ⦃ has-star₁ : Dedicated-star 𝕄₁ ⦄
+        ⦃ has-star₂ : Dedicated-star 𝕄₂ ⦄ →
+      tr p M₂.≤ (q₁ M₂.∧ q₂) ⊛ q₃ M₂.+ tr r M₂.· q₂ ▷ tr s →
       ∃₃ λ q₁′ q₂′ q₃′ →
          tr q₁′ M₂.≤ q₁ × tr q₂′ M₂.≤ q₂ × tr q₃′ M₂.≤ q₃ ×
-         p M₁.≤ (q₁′ M₁.∧ q₂′) M₁.⊛ q₃′ M₁.+ r M₁.· q₂′ ▷ s
+         p M₁.≤ (q₁′ M₁.∧ q₂′) ⊛ q₃′ M₁.+ r M₁.· q₂′ ▷ s
+
+    -- A variant of the previous property for the alternative usage
+    -- rule for natrec.
+    tr-≤-no-star :
+      ∀ {p q₁ q₂ q₃ q₄ r s} ⦃ no-star : No-dedicated-star 𝕄₁ ⦄ →
+      tr p M₂.≤ q₁ →
+      q₁ M₂.≤ q₂ M₂.∧ q₃ M₂.∧ (q₄ M₂.+ tr r M₂.· q₃ M₂.+ tr s M₂.· q₁) →
+      ∃₄ λ q₁′ q₂′ q₃′ q₄′ →
+         tr q₂′ M₂.≤ q₂ ×
+         tr q₃′ M₂.≤ q₃ ×
+         tr q₄′ M₂.≤ q₄ ×
+         p M₁.≤ q₁′ ×
+         q₁′ M₁.≤
+           q₂′ M₁.∧ q₃′ M₁.∧ (q₄′ M₁.+ r M₁.· q₃′ M₁.+ s M₁.· q₁′)
 
   open Is-morphism tr-morphism public
 
@@ -395,18 +477,27 @@ Is-order-embedding-id {𝕄 = 𝕄} = λ where
     .tr-≤-+ hyp          → _ , _ , ≤-refl , ≤-refl , hyp
     .tr-≤-· hyp          → _ , ≤-refl , hyp
     .tr-≤-∧ hyp          → _ , _ , ≤-refl , ≤-refl , hyp
-    .tr-≤-⊛ hyp          →
-      _ , _ , _ , ≤-refl , ≤-refl , ≤-refl , hyp
-    .tr-morphism → λ where
-      .tr-<-𝟘 not-ok ok            → ⊥-elim (not-ok ok)
-      .tr-𝟙                        → ≤-refl
-      .tr-𝟘-≤                      → ≤-refl
-      .tr-≡-𝟘-⇔ _                  → idᶠ , idᶠ
-      .tr-+                        → ≤-refl
-      .tr-·                        → refl
-      .tr-∧                        → ≤-refl
-      .tr-⊛                        → ≤-refl
-      .𝟘ᵐ-in-second-if-in-first    → idᶠ
+    .tr-morphism         → λ where
+      .tr-<-𝟘 not-ok ok                           → ⊥-elim (not-ok ok)
+      .tr-𝟙                                       → ≤-refl
+      .tr-𝟘-≤                                     → ≤-refl
+      .tr-≡-𝟘-⇔ _                                 → idᶠ , idᶠ
+      .tr-+                                       → ≤-refl
+      .tr-·                                       → refl
+      .tr-∧                                       → ≤-refl
+      .𝟘ᵐ-in-second-if-in-first                   → idᶠ
+      .star-in-first-iff-in-second                → id⇔
+      .tr-⊛ ⦃ has-star₁ = s₁ ⦄ ⦃ has-star₂ = s₂ ⦄ →
+        case Dedicated-star-propositional _ s₁ s₂ of λ {
+          refl →
+        ≤-refl }
+    .tr-≤-⊛ ⦃ has-star₁ = s₁ ⦄ ⦃ has-star₂ = s₂ ⦄ hyp →
+      case Dedicated-star-propositional _ s₁ s₂ of λ {
+        refl →
+      _ , _ , _ , ≤-refl , ≤-refl , ≤-refl , hyp }
+    .tr-≤-no-star p≤q₁ q₁≤q₂∧q₃∧[q₄+rq₃+sq₁] →
+        _ , _ , _ , _ , ≤-refl , ≤-refl , ≤-refl
+      , p≤q₁ , q₁≤q₂∧q₃∧[q₄+rq₃+sq₁]
   where
   open Graded.Modality.Properties 𝕄
   open Is-morphism
@@ -425,6 +516,8 @@ Is-morphism-∘
   {𝕄₂ = 𝕄₂} {𝕄₃ = 𝕄₃} {tr₁ = tr₁} {𝕄₁ = 𝕄₁} {tr₂ = tr₂} f g = λ where
     .Is-morphism.𝟘ᵐ-in-second-if-in-first →
       F.𝟘ᵐ-in-second-if-in-first ∘→ G.𝟘ᵐ-in-second-if-in-first
+    .Is-morphism.star-in-first-iff-in-second →
+      F.star-in-first-iff-in-second ∘⇔ G.star-in-first-iff-in-second
     .Is-morphism.tr-𝟘-≤ → let open R in begin
        tr₁ (tr₂ M₁.𝟘)  ≤⟨ F.tr-monotone G.tr-𝟘-≤ ⟩
        tr₁ M₂.𝟘        ≤⟨ F.tr-𝟘-≤ ⟩
@@ -463,10 +556,16 @@ Is-morphism-∘
       tr₁ (tr₂ (p M₁.∧ q))          ≤⟨ F.tr-monotone G.tr-∧ ⟩
       tr₁ (tr₂ p M₂.∧ tr₂ q)        ≤⟨ F.tr-∧ ⟩
       tr₁ (tr₂ p) M₃.∧ tr₁ (tr₂ q)  ∎
-    .Is-morphism.tr-⊛ {p = p} {q = q} {r = r} → let open R in begin
-      tr₁ (tr₂ (p M₁.⊛ q ▷ r))                    ≤⟨ F.tr-monotone G.tr-⊛ ⟩
-      tr₁ (tr₂ p M₂.⊛ tr₂ q ▷ tr₂ r)              ≤⟨ F.tr-⊛ ⟩
-      tr₁ (tr₂ p) M₃.⊛ tr₁ (tr₂ q) ▷ tr₁ (tr₂ r)  ∎
+    .Is-morphism.tr-⊛ {p = p} {q = q} {r = r} →
+      let open R
+
+          instance
+            has-star : Dedicated-star 𝕄₂
+            has-star = G.star-in-second-if-in-first
+      in begin
+      tr₁ (tr₂ (p ⊛ q ▷ r))                    ≤⟨ F.tr-monotone G.tr-⊛ ⟩
+      tr₁ (tr₂ p ⊛ tr₂ q ▷ tr₂ r)              ≤⟨ F.tr-⊛ ⟩
+      tr₁ (tr₂ p) ⊛ tr₁ (tr₂ q) ▷ tr₁ (tr₂ r)  ∎
   where
   module Mo₂ = Mode 𝕄₂
   module M₁  = Modality 𝕄₁
@@ -562,7 +661,12 @@ Is-order-embedding-∘
            r             ∎)
       , p≤q″∧r″
     .Is-order-embedding.tr-≤-⊛ {q₁ = q₁} {q₂ = q₂} {q₃ = q₃} tr-p≤ →
-      let open Tools.Reasoning.PartialOrder MP₃.≤-poset in
+      let open Tools.Reasoning.PartialOrder MP₃.≤-poset
+
+          instance
+            has-star : Dedicated-star 𝕄₂
+            has-star = G.star-in-second-if-in-first
+      in
       case F.tr-≤-⊛ tr-p≤ of
         λ (q₁′ , q₂′ , q₃′ , ≤q₁ , ≤q₂ , ≤q₃ , tr-p≤′) →
       case G.tr-≤-⊛ tr-p≤′ of
@@ -581,6 +685,33 @@ Is-order-embedding-∘
            tr₁ q₃′        ≤⟨ ≤q₃ ⟩
            q₃             ∎)
       , p≤
+    .Is-order-embedding.tr-≤-no-star
+      {q₁ = q₁} {q₂ = q₂} {q₃ = q₃} {q₄ = q₄} tr-p≤q₁ q₁≤ →
+      let open Tools.Reasoning.PartialOrder MP₃.≤-poset
+
+          instance
+            no-star : No-dedicated-star 𝕄₂
+            no-star = G.no-star-in-second-if-in-first
+      in
+      case F.tr-≤-no-star tr-p≤q₁ q₁≤ of λ {
+        (q₁′ , q₂′ , q₃′ , q₄′ , ≤q₂ , ≤q₃ , ≤q₄ , tr-p≤q₁′ , q₁′≤) →
+      case G.tr-≤-no-star tr-p≤q₁′ q₁′≤ of λ {
+        (q₁″ , q₂″ , q₃″ , q₄″ , ≤q₂′ , ≤q₃′ , ≤q₄′ , p≤q₁″ , q₁″≤) →
+        q₁″ , q₂″ , q₃″ , q₄″
+      , (begin
+           tr₁ (tr₂ q₂″)  ≤⟨ F.tr-monotone ≤q₂′ ⟩
+           tr₁ q₂′        ≤⟨ ≤q₂ ⟩
+           q₂             ∎)
+      , (begin
+           tr₁ (tr₂ q₃″)  ≤⟨ F.tr-monotone ≤q₃′ ⟩
+           tr₁ q₃′        ≤⟨ ≤q₃ ⟩
+           q₃             ∎)
+      , (begin
+           tr₁ (tr₂ q₄″)  ≤⟨ F.tr-monotone ≤q₄′ ⟩
+           tr₁ q₄′        ≤⟨ ≤q₄ ⟩
+           q₄             ∎)
+      , p≤q₁″
+      , q₁″≤ }}
   where
   module MP₂ = Graded.Modality.Properties 𝕄₂
   module MP₃ = Graded.Modality.Properties 𝕄₃
@@ -651,6 +782,71 @@ Is-Σ-order-embedding-∘
   module F = Is-Σ-order-embedding f
   module G = Is-Σ-order-embedding g
   open Graded.Modality.Properties 𝕄₃
+  open Tools.Reasoning.PartialOrder ≤-poset
+
+------------------------------------------------------------------------
+-- A lemma
+
+-- The property tr-≤-no-star follows from other properties.
+
+→tr-≤-no-star :
+  (𝕄₁ : Modality M₁) (𝕄₂ : Modality M₂) →
+  let
+    module M₁ = Modality 𝕄₁
+    module M₂ = Modality 𝕄₂
+  in
+  (tr : M₁ → M₂)
+  (tr⁻¹ : M₂ → M₁) →
+  (∀ p q → p M₂.≤ q → tr⁻¹ p M₁.≤ tr⁻¹ q) →
+  (∀ p q → tr p M₂.≤ q → p M₁.≤ tr⁻¹ q) →
+  (∀ p → tr (tr⁻¹ p) M₂.≤ p) →
+  (∀ p q → tr⁻¹ (p M₂.+ q) M₁.≤ tr⁻¹ p M₁.+ tr⁻¹ q) →
+  (∀ p q → tr⁻¹ (p M₂.∧ q) M₁.≤ tr⁻¹ p M₁.∧ tr⁻¹ q) →
+  (∀ p q → tr⁻¹ (tr p M₂.· q) M₁.≤ p M₁.· tr⁻¹ q) →
+  tr p M₂.≤ q₁ →
+  q₁ M₂.≤ q₂ M₂.∧ q₃ M₂.∧ (q₄ M₂.+ tr r M₂.· q₃ M₂.+ tr s M₂.· q₁) →
+  ∃₄ λ q₁′ q₂′ q₃′ q₄′ →
+     tr q₂′ M₂.≤ q₂ ×
+     tr q₃′ M₂.≤ q₃ ×
+     tr q₄′ M₂.≤ q₄ ×
+     p M₁.≤ q₁′ ×
+     q₁′ M₁.≤
+       q₂′ M₁.∧ q₃′ M₁.∧ (q₄′ M₁.+ r M₁.· q₃′ M₁.+ s M₁.· q₁′)
+→tr-≤-no-star
+  {q₁ = q₁} {q₂ = q₂} {q₃ = q₃} {q₄ = q₄} {r = r} {s = s}
+  𝕄₁ 𝕄₂
+  tr tr⁻¹ tr⁻¹-monotone tr≤→≤tr⁻¹ tr-tr⁻¹≤ tr⁻¹-+ tr⁻¹-∧ tr⁻¹-·
+  hyp₁ hyp₂ =
+    tr⁻¹ q₁
+  , tr⁻¹ q₂
+  , tr⁻¹ q₃
+  , tr⁻¹ q₄
+  , tr-tr⁻¹≤ _
+  , tr-tr⁻¹≤ _
+  , tr-tr⁻¹≤ _
+  , tr≤→≤tr⁻¹ _ _ hyp₁
+  , (begin
+      tr⁻¹ q₁                                                          ≤⟨ tr⁻¹-monotone _ _ hyp₂ ⟩
+
+      tr⁻¹ (q₂ M₂.∧ q₃ M₂.∧ (q₄ M₂.+ tr r M₂.· q₃ M₂.+ tr s M₂.· q₁))  ≤⟨ ≤-trans (tr⁻¹-∧ _ _) $
+                                                                          ∧-monotoneʳ $ tr⁻¹-∧ _ _ ⟩
+      tr⁻¹ q₂ M₁.∧
+      tr⁻¹ q₃ M₁.∧
+      tr⁻¹ (q₄ M₂.+ tr r M₂.· q₃ M₂.+ tr s M₂.· q₁)                    ≤⟨ ∧-monotoneʳ $ ∧-monotoneʳ $
+                                                                          ≤-trans (tr⁻¹-+ _ _) $
+                                                                          +-monotoneʳ $ tr⁻¹-+ _ _ ⟩
+      tr⁻¹ q₂ M₁.∧
+      tr⁻¹ q₃ M₁.∧
+      (tr⁻¹ q₄ M₁.+ tr⁻¹ (tr r M₂.· q₃) M₁.+ tr⁻¹ (tr s M₂.· q₁))      ≤⟨ ∧-monotoneʳ $ ∧-monotoneʳ $ +-monotoneʳ $ +-monotone
+                                                                            (tr⁻¹-· _ _)
+                                                                            (tr⁻¹-· _ _) ⟩
+      tr⁻¹ q₂ M₁.∧
+      tr⁻¹ q₃ M₁.∧
+      (tr⁻¹ q₄ M₁.+ r M₁.· tr⁻¹ q₃ M₁.+ s M₁.· tr⁻¹ q₁)                ∎)
+  where
+  module M₁ = Modality 𝕄₁
+  module M₂ = Modality 𝕄₂
+  open Graded.Modality.Properties 𝕄₁
   open Tools.Reasoning.PartialOrder ≤-poset
 
 ------------------------------------------------------------------------
@@ -753,48 +949,62 @@ linearity→affine =
 -- Morphisms and order embeddings
 
 -- The function unit→erasure is an order embedding from a unit
--- modality to an erasure modality.
+-- modality to an erasure modality if a certain assumption holds.
 
 unit⇨erasure :
-  Is-order-embedding UnitModality (ErasureModality rs) unit→erasure
-unit⇨erasure = λ where
-    .tr-order-reflecting _    → refl
-    .trivial _ _              → refl
-    .trivial-⊎-tr-𝟘           → inj₁ refl
-    .tr-≤                     → _ , refl
-    .tr-≤-𝟙 _                 → refl
-    .tr-≤-+ _                 → _ , _ , refl , refl , refl
-    .tr-≤-· _                 → _ , refl , refl
-    .tr-≤-∧ _                 → _ , _ , refl , refl , refl
-    .tr-≤-⊛ _                 → _ , _ , _ , refl , refl , refl , refl
-    .tr-morphism → λ where
-      .tr-𝟘-≤     → refl
-      .tr-<-𝟘 _ _ → refl , λ ()
-      .tr-𝟙       → refl
-      .tr-+       → refl
-      .tr-·       → refl
-      .tr-∧       → refl
-      .tr-⊛       → refl
+  let 𝕄₁ = UnitModality v₁ v₁-ok
+      𝕄₂ = ErasureModality v₂
+  in
+  Dedicated-star 𝕄₁ ⇔ Dedicated-star 𝕄₂ →
+  Is-order-embedding 𝕄₁ 𝕄₂ unit→erasure
+unit⇨erasure {v₁-ok = v₁-ok} s⇔s = λ where
+    .tr-order-reflecting _ → refl
+    .trivial _ _           → refl
+    .trivial-⊎-tr-𝟘        → inj₁ refl
+    .tr-≤                  → _ , refl
+    .tr-≤-𝟙 _              → refl
+    .tr-≤-+ _              → _ , _ , refl , refl , refl
+    .tr-≤-· _              → _ , refl , refl
+    .tr-≤-∧ _              → _ , _ , refl , refl , refl
+    .tr-≤-⊛ _              → _ , _ , _ , refl , refl , refl , refl
+    .tr-≤-no-star _ _      → _ , _ , _ , _
+                           , refl , refl , refl , refl , refl
+    .tr-morphism           → λ where
+      .𝟘ᵐ-in-second-if-in-first    → ⊥-elim ∘→ v₁-ok
+      .star-in-first-iff-in-second → s⇔s
+      .tr-𝟘-≤                      → refl
+      .tr-≡-𝟘-⇔                    → ⊥-elim ∘→ v₁-ok
+      .tr-<-𝟘 _ _                  → refl , λ ()
+      .tr-𝟙                        → refl
+      .tr-+                        → refl
+      .tr-·                        → refl
+      .tr-∧                        → refl
+      .tr-⊛                        → refl
   where
   open Is-morphism
   open Is-order-embedding
 
 -- The function erasure→unit is a morphism from a unit modality to an
--- erasure modality, given that the erasure modality does not
--- allow 𝟘ᵐ.
+-- erasure modality if certain assumptions hold.
 
 erasure⇨unit :
-  ¬ T (Mode-restrictions.𝟘ᵐ-allowed rs) →
-  Is-morphism (ErasureModality rs) UnitModality erasure→unit
-erasure⇨unit not-ok = λ where
+  ¬ T (𝟘ᵐ-allowed v₁) →
+  let 𝕄₁ = ErasureModality v₁
+      𝕄₂ = UnitModality v₂ v₂-ok
+  in
+  Dedicated-star 𝕄₁ ⇔ Dedicated-star 𝕄₂ →
+  Is-morphism 𝕄₁ 𝕄₂ erasure→unit
+erasure⇨unit {v₂-ok = v₂-ok} not-ok₁ s⇔s = λ where
     .tr-𝟘-≤                      → refl
-    .tr-≡-𝟘-⇔ ok                 → ⊥-elim (not-ok ok)
+    .tr-≡-𝟘-⇔                    → ⊥-elim ∘→ not-ok₁
+    .tr-<-𝟘 _                    → ⊥-elim ∘→ v₂-ok
     .tr-𝟙                        → refl
     .tr-+                        → refl
     .tr-·                        → refl
     .tr-∧                        → refl
     .tr-⊛                        → refl
-    .𝟘ᵐ-in-second-if-in-first ok → ⊥-elim (not-ok ok)
+    .𝟘ᵐ-in-second-if-in-first    → ⊥-elim ∘→ not-ok₁
+    .star-in-first-iff-in-second → s⇔s
   where
   open Is-morphism
 
@@ -802,47 +1012,53 @@ erasure⇨unit not-ok = λ where
 -- modality to a unit modality.
 
 ¬erasure⇨unit :
-  ¬ Is-order-embedding (ErasureModality rs) UnitModality erasure→unit
+  ¬ Is-order-embedding (ErasureModality v₁) (UnitModality v₂ v₂-ok)
+      erasure→unit
 ¬erasure⇨unit m =
   case Is-order-embedding.tr-injective m {p = 𝟘} {q = ω} refl of λ ()
 
 -- The function erasure→zero-one-many is an order embedding from an
--- erasure modality to a zero-one-many-greatest modality, given that
--- either both modalities allow 𝟘ᵐ, or none of them do. The
--- zero-one-many-greatest modality can be defined with either 𝟙 ≤ 𝟘 or
--- 𝟙 ≰ 𝟘.
+-- erasure modality to a zero-one-many-greatest modality if certain
+-- assumptions hold. The zero-one-many-greatest modality can be
+-- defined with either 𝟙 ≤ 𝟘 or 𝟙 ≰ 𝟘.
 
 erasure⇨zero-one-many :
-  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
-  Is-order-embedding
-    (ErasureModality rs₁)
-    (zero-one-many-greatest 𝟙≤𝟘 rs₂)
-    erasure→zero-one-many
-erasure⇨zero-one-many {rs₂ = rs₂} {𝟙≤𝟘 = 𝟙≤𝟘} refl = λ where
-    .Is-order-embedding.trivial not-ok ok   → ⊥-elim (not-ok ok)
-    .Is-order-embedding.trivial-⊎-tr-𝟘      → inj₂ refl
-    .Is-order-embedding.tr-≤                → ω , refl
-    .Is-order-embedding.tr-≤-𝟙              → tr-≤-𝟙 _
-    .Is-order-embedding.tr-≤-+              → tr-≤-+ _ _ _
-    .Is-order-embedding.tr-≤-·              → tr-≤-· _ _ _
-    .Is-order-embedding.tr-≤-∧              → tr-≤-∧ _ _ _
-    .Is-order-embedding.tr-≤-⊛ {s = s}      → tr-≤-⊛ _ _ _ _ _ s
-    .Is-order-embedding.tr-order-reflecting →
+  𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
+  let 𝕄₁ = ErasureModality v₁
+      𝕄₂ = zero-one-many-greatest 𝟙≤𝟘 v₂ v₂-ok
+  in
+  Dedicated-star 𝕄₁ ⇔ Dedicated-star 𝕄₂ →
+  Is-order-embedding 𝕄₁ 𝕄₂ erasure→zero-one-many
+erasure⇨zero-one-many
+  {v₂ = v₂} {𝟙≤𝟘 = 𝟙≤𝟘} {v₂-ok = v₂-ok} refl s⇔s = λ where
+    .Is-order-embedding.trivial not-ok ok    → ⊥-elim (not-ok ok)
+    .Is-order-embedding.trivial-⊎-tr-𝟘       → inj₂ refl
+    .Is-order-embedding.tr-≤                 → ω , refl
+    .Is-order-embedding.tr-≤-𝟙               → tr-≤-𝟙 _
+    .Is-order-embedding.tr-≤-+               → tr-≤-+ _ _ _
+    .Is-order-embedding.tr-≤-·               → tr-≤-· _ _ _
+    .Is-order-embedding.tr-≤-∧               → tr-≤-∧ _ _ _
+    .Is-order-embedding.tr-≤-⊛ {s = s}       → tr-≤-⊛ _ _ _ _ _ s
+    .Is-order-embedding.tr-≤-no-star {s = s} → tr-≤-no-star
+                                                 _ _ _ _ _ _ s
+    .Is-order-embedding.tr-order-reflecting  →
       tr-order-reflecting _ _
     .Is-order-embedding.tr-morphism → λ where
-      .Is-morphism.tr-𝟘-≤                   → refl
-      .Is-morphism.tr-≡-𝟘-⇔ _               → tr-≡-𝟘 _
-                                            , λ { refl → refl }
-      .Is-morphism.tr-<-𝟘 not-ok ok         → ⊥-elim (not-ok ok)
-      .Is-morphism.tr-𝟙                     → refl
-      .Is-morphism.tr-+ {p = p}             → ≤-reflexive (tr-+ p _)
-      .Is-morphism.tr-· {p = p}             → tr-· p _
-      .Is-morphism.tr-∧ {p = p}             → ≤-reflexive (tr-∧ p _)
-      .Is-morphism.tr-⊛ {p = p} {r = r}     → ≤-reflexive (tr-⊛ p _ r)
-      .Is-morphism.𝟘ᵐ-in-second-if-in-first → idᶠ
+      .Is-morphism.tr-𝟘-≤                      → refl
+      .Is-morphism.tr-≡-𝟘-⇔ _                  → tr-≡-𝟘 _
+                                               , λ { refl → refl }
+      .Is-morphism.tr-<-𝟘 not-ok ok            → ⊥-elim (not-ok ok)
+      .Is-morphism.tr-𝟙                        → refl
+      .Is-morphism.tr-+ {p = p}                → ≤-reflexive (tr-+ p _)
+      .Is-morphism.tr-· {p = p}                → tr-· p _
+      .Is-morphism.tr-∧ {p = p}                → ≤-reflexive (tr-∧ p _)
+      .Is-morphism.tr-⊛ {p = p} {r = r}        → ≤-reflexive
+                                                   (tr-⊛ p _ r)
+      .Is-morphism.𝟘ᵐ-in-second-if-in-first    → idᶠ
+      .Is-morphism.star-in-first-iff-in-second → s⇔s
   where
   module 𝟘𝟙ω = ZOM 𝟙≤𝟘
-  open Graded.Modality.Properties (zero-one-many-greatest 𝟙≤𝟘 rs₂)
+  open Graded.Modality.Properties (zero-one-many-greatest 𝟙≤𝟘 v₂ v₂-ok)
   open Tools.Reasoning.PartialOrder ≤-poset
 
   tr′ = erasure→zero-one-many
@@ -990,29 +1206,201 @@ erasure⇨zero-one-many {rs₂ = rs₂} {𝟙≤𝟘 = 𝟙≤𝟘} refl = λ wh
     tr-≤-⊛′ false 𝟘 𝟙 ω 𝟘 𝟘 𝟘 ()
     tr-≤-⊛′ false 𝟘 ω 𝟘 𝟘 𝟘 𝟘 ()
 
+  tr-≤-no-star :
+    ∀ p q₁ q₂ q₃ q₄ r s →
+    tr′ p 𝟘𝟙ω.≤ q₁ →
+    q₁ 𝟘𝟙ω.≤
+      q₂ 𝟘𝟙ω.∧ q₃ 𝟘𝟙ω.∧ (q₄ 𝟘𝟙ω.+ tr′ r 𝟘𝟙ω.· q₃ 𝟘𝟙ω.+ tr′ s 𝟘𝟙ω.· q₁) →
+    ∃₄ λ q₁′ q₂′ q₃′ q₄′ →
+       tr′ q₂′ 𝟘𝟙ω.≤ q₂ ×
+       tr′ q₃′ 𝟘𝟙ω.≤ q₃ ×
+       tr′ q₄′ 𝟘𝟙ω.≤ q₄ ×
+       p E.≤ q₁′ ×
+       q₁′ E.≤ q₂′ E.∧ (q₃′ E.∧ (q₄′ E.+ (r E.· q₃′ E.+ s E.· q₁′)))
+  tr-≤-no-star = tr-≤-no-star′ _
+    where
+    tr-≤-no-star′ :
+      ∀ 𝟙≤𝟘 →
+      let module 𝟘𝟙ω′ = ZOM 𝟙≤𝟘 in
+      ∀ p q₁ q₂ q₃ q₄ r s →
+      tr′ p 𝟘𝟙ω′.≤ q₁ →
+      q₁ 𝟘𝟙ω′.≤
+        q₂ 𝟘𝟙ω′.∧
+          q₃ 𝟘𝟙ω′.∧ (q₄ 𝟘𝟙ω′.+ tr′ r 𝟘𝟙ω′.· q₃ 𝟘𝟙ω′.+ tr′ s 𝟘𝟙ω′.· q₁) →
+      ∃₄ λ q₁′ q₂′ q₃′ q₄′ →
+         tr′ q₂′ 𝟘𝟙ω′.≤ q₂ ×
+         tr′ q₃′ 𝟘𝟙ω′.≤ q₃ ×
+         tr′ q₄′ 𝟘𝟙ω′.≤ q₄ ×
+         p E.≤ q₁′ ×
+         q₁′ E.≤ q₂′ E.∧ (q₃′ E.∧ (q₄′ E.+ (r E.· q₃′ E.+ s E.· q₁′)))
+    tr-≤-no-star′ _     ω _ _ _ _ _ _ _  _  = ω , ω , ω , ω , refl
+                                            , refl , refl , refl , refl
+    tr-≤-no-star′ false 𝟘 𝟘 𝟘 𝟘 𝟘 𝟘 𝟘 _  _  = 𝟘 , 𝟘 , 𝟘 , 𝟘 , refl
+                                            , refl , refl , refl , refl
+    tr-≤-no-star′ false 𝟘 𝟘 𝟘 𝟘 𝟘 𝟘 ω _  _  = 𝟘 , 𝟘 , 𝟘 , 𝟘 , refl
+                                            , refl , refl , refl , refl
+    tr-≤-no-star′ false 𝟘 𝟘 𝟘 𝟘 𝟘 ω 𝟘 _  _  = 𝟘 , 𝟘 , 𝟘 , 𝟘 , refl
+                                            , refl , refl , refl , refl
+    tr-≤-no-star′ false 𝟘 𝟘 𝟘 𝟘 𝟘 ω ω _  _  = 𝟘 , 𝟘 , 𝟘 , 𝟘 , refl
+                                            , refl , refl , refl , refl
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟘 𝟘 𝟘 𝟘 _  _  = 𝟘 , 𝟘 , 𝟘 , 𝟘 , refl
+                                            , refl , refl , refl , refl
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟘 𝟘 𝟘 ω _  _  = 𝟘 , 𝟘 , 𝟘 , 𝟘 , refl
+                                            , refl , refl , refl , refl
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟘 𝟘 ω 𝟘 _  _  = 𝟘 , 𝟘 , 𝟘 , 𝟘 , refl
+                                            , refl , refl , refl , refl
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟘 𝟘 ω ω _  _  = 𝟘 , 𝟘 , 𝟘 , 𝟘 , refl
+                                            , refl , refl , refl , refl
+    tr-≤-no-star′ false 𝟘 𝟘 ω _ _ _ _ _  ()
+    tr-≤-no-star′ false 𝟘 𝟙 ω _ _ _ _ ()
+    tr-≤-no-star′ false 𝟘 ω ω _ _ _ _ ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟘 𝟘 𝟙 ω 𝟘 _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟘 𝟘 𝟙 ω ω _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟘 𝟙 𝟘 𝟘 𝟘 _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟘 𝟙 𝟘 𝟘 ω _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟘 𝟙 𝟘 ω 𝟘 _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟘 𝟙 𝟘 ω ω _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟘 𝟙 𝟙 𝟘 𝟘 _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟘 𝟙 𝟙 𝟘 ω _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟘 𝟙 𝟙 ω 𝟘 _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟘 𝟙 𝟙 ω ω _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟘 𝟘 𝟘 𝟘 _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟘 𝟘 𝟘 ω _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟘 𝟘 ω 𝟘 _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟘 𝟘 ω ω _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟘 𝟙 𝟘 𝟘 _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟘 𝟙 𝟘 ω _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟘 𝟙 ω 𝟘 _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟘 𝟙 ω ω _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟘 ω 𝟘 𝟘 _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟘 ω 𝟘 ω _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟘 ω ω 𝟘 _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟘 ω ω ω _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟙 𝟘 𝟘 𝟘 _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟙 𝟘 𝟘 ω _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟙 𝟘 ω 𝟘 _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟙 𝟘 ω ω _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟙 𝟙 𝟘 𝟘 _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟙 𝟙 𝟘 ω _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟙 𝟙 ω 𝟘 _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟙 𝟙 ω ω _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟙 ω 𝟘 𝟘 _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟙 ω 𝟘 ω _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟙 ω ω 𝟘 _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟙 ω ω ω _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 ω 𝟘 𝟘 𝟘 _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 ω 𝟘 𝟘 ω _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 ω 𝟘 ω 𝟘 _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 ω 𝟘 ω ω _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 ω 𝟙 𝟘 𝟘 _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 ω 𝟙 𝟘 ω _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 ω 𝟙 ω 𝟘 _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 ω 𝟙 ω ω _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 ω ω 𝟘 𝟘 _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 ω ω 𝟘 ω _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 ω ω ω 𝟘 _  ()
+    tr-≤-no-star′ false 𝟘 𝟘 𝟙 ω ω ω ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟙 𝟙 _ _ _ _ ()
+    tr-≤-no-star′ true  𝟘 ω 𝟙 _ _ _ _ ()
+    tr-≤-no-star′ true  𝟘 𝟘 ω _ _ _ _ _  ()
+    tr-≤-no-star′ true  𝟘 𝟙 ω _ _ _ _ ()
+    tr-≤-no-star′ true  𝟘 ω ω _ _ _ _ ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟘 𝟙 𝟘 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟘 𝟙 𝟘 ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟘 𝟙 ω 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟘 𝟙 ω ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟘 ω 𝟘 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟘 ω 𝟘 ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟘 ω ω 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟘 ω ω ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟙 𝟘 𝟘 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟙 𝟘 𝟘 ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟙 𝟘 ω 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟙 𝟘 ω ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟙 𝟙 𝟘 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟙 𝟙 𝟘 ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟙 𝟙 ω 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟙 𝟙 ω ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟙 ω 𝟘 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟙 ω 𝟘 ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟙 ω ω 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟙 ω ω ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 ω 𝟘 𝟘 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 ω 𝟘 𝟘 ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 ω 𝟘 ω 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 ω 𝟘 ω ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 ω 𝟙 𝟘 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 ω 𝟙 𝟘 ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 ω 𝟙 ω 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 ω 𝟙 ω ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 ω ω 𝟘 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 ω ω 𝟘 ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 ω ω ω 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟘 ω ω ω ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟘 𝟘 𝟘 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟘 𝟘 𝟘 ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟘 𝟘 ω 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟘 𝟘 ω ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟘 𝟙 𝟘 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟘 𝟙 𝟘 ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟘 𝟙 ω 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟘 𝟙 ω ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟘 ω 𝟘 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟘 ω 𝟘 ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟘 ω ω 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟘 ω ω ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟙 𝟘 𝟘 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟙 𝟘 𝟘 ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟙 𝟘 ω 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟙 𝟘 ω ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟙 𝟙 𝟘 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟙 𝟙 𝟘 ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟙 𝟙 ω 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟙 𝟙 ω ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟙 ω 𝟘 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟙 ω 𝟘 ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟙 ω ω 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟙 ω ω ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 ω 𝟘 𝟘 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 ω 𝟘 𝟘 ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 ω 𝟘 ω 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 ω 𝟘 ω ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 ω 𝟙 𝟘 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 ω 𝟙 𝟘 ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 ω 𝟙 ω 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 ω 𝟙 ω ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 ω ω 𝟘 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 ω ω 𝟘 ω _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 ω ω ω 𝟘 _  ()
+    tr-≤-no-star′ true  𝟘 𝟘 𝟙 ω ω ω ω _  ()
+
 -- The function zero-one-many→erasure is a morphism from a
--- zero-one-many-greatest modality to an erasure modality, given that
--- either both modalities allow 𝟘ᵐ, or none of them do. The
--- zero-one-many-greatest modality can be defined with either 𝟙 ≤ 𝟘 or
--- 𝟙 ≰ 𝟘.
+-- zero-one-many-greatest modality to an erasure modality if certain
+-- assumptions hold. The zero-one-many-greatest modality can be
+-- defined with either 𝟙 ≤ 𝟘 or 𝟙 ≰ 𝟘.
 
 zero-one-many⇨erasure :
-  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
-  Is-morphism (zero-one-many-greatest 𝟙≤𝟘 rs₁) (ErasureModality rs₂)
-    zero-one-many→erasure
-zero-one-many⇨erasure {rs₂ = rs₂} {𝟙≤𝟘 = 𝟙≤𝟘} refl = λ where
-    .Is-morphism.tr-𝟘-≤                   → refl
-    .Is-morphism.tr-≡-𝟘-⇔ _               → tr-≡-𝟘 _ , λ { refl → refl }
-    .Is-morphism.tr-<-𝟘 not-ok ok         → ⊥-elim (not-ok ok)
-    .Is-morphism.tr-𝟙                     → refl
-    .Is-morphism.tr-+ {p = p}             → ≤-reflexive (tr-+ p _)
-    .Is-morphism.tr-· {p = p}             → tr-· p _
-    .Is-morphism.tr-∧ {p = p}             → ≤-reflexive (tr-∧ p _)
-    .Is-morphism.tr-⊛ {p = p} {r = r}     → ≤-reflexive (tr-⊛ p _ r)
-    .Is-morphism.𝟘ᵐ-in-second-if-in-first → idᶠ
+  𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
+  let 𝕄₁ = zero-one-many-greatest 𝟙≤𝟘 v₁ v₁-ok
+      𝕄₂ = ErasureModality v₂
+  in
+  Dedicated-star 𝕄₁ ⇔ Dedicated-star 𝕄₂ →
+  Is-morphism 𝕄₁ 𝕄₂ zero-one-many→erasure
+zero-one-many⇨erasure {v₂ = v₂} {𝟙≤𝟘 = 𝟙≤𝟘} refl s⇔s = λ where
+    .Is-morphism.tr-𝟘-≤                      → refl
+    .Is-morphism.tr-≡-𝟘-⇔ _                  → tr-≡-𝟘 _
+                                             , λ { refl → refl }
+    .Is-morphism.tr-<-𝟘 not-ok ok            → ⊥-elim (not-ok ok)
+    .Is-morphism.tr-𝟙                        → refl
+    .Is-morphism.tr-+ {p = p}                → ≤-reflexive (tr-+ p _)
+    .Is-morphism.tr-· {p = p}                → tr-· p _
+    .Is-morphism.tr-∧ {p = p}                → ≤-reflexive (tr-∧ p _)
+    .Is-morphism.tr-⊛ {p = p} {r = r}        → ≤-reflexive (tr-⊛ p _ r)
+    .Is-morphism.𝟘ᵐ-in-second-if-in-first    → idᶠ
+    .Is-morphism.star-in-first-iff-in-second → s⇔s
   where
   module 𝟘𝟙ω = ZOM 𝟙≤𝟘
-  open Graded.Modality.Properties (ErasureModality rs₂)
+  open Graded.Modality.Properties (ErasureModality v₂)
 
   tr′ = zero-one-many→erasure
 
@@ -1095,101 +1483,120 @@ zero-one-many⇨erasure {rs₂ = rs₂} {𝟙≤𝟘 = 𝟙≤𝟘} refl = λ wh
 
 ¬zero-one-many⇨erasure :
   ¬ Is-order-embedding
-      (zero-one-many-greatest 𝟙≤𝟘 rs₁)
-      (ErasureModality rs₂)
+      (zero-one-many-greatest 𝟙≤𝟘 v₁ v₁-ok)
+      (ErasureModality v₂)
       zero-one-many→erasure
 ¬zero-one-many⇨erasure m =
   case Is-order-embedding.tr-injective m {p = 𝟙} {q = ω} refl of λ ()
 
 -- The function erasure→zero-one-many is an order embedding from an
--- erasure modality to a linear types modality, given that either both
--- modalities allow 𝟘ᵐ, or none of them do.
+-- erasure modality to a linear types modality if certain assumptions
+-- hold.
 
 erasure⇨linearity :
-  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
-  Is-order-embedding (ErasureModality rs₁) (linearityModality rs₂)
-    erasure→zero-one-many
+  𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
+  let 𝕄₁ = ErasureModality v₁
+      𝕄₂ = linearityModality v₂ v₂-ok
+  in
+  Dedicated-star 𝕄₁ ⇔ Dedicated-star 𝕄₂ →
+  Is-order-embedding 𝕄₁ 𝕄₂ erasure→zero-one-many
 erasure⇨linearity = erasure⇨zero-one-many
 
 -- The function zero-one-many→erasure is a morphism from a linear
--- types modality to an erasure modality, given that either both
--- modalities allow 𝟘ᵐ, or none of them do.
+-- types modality to an erasure modality if certain assumptions hold.
 
 linearity⇨erasure :
-  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
-  Is-morphism (linearityModality rs₁) (ErasureModality rs₂)
-    zero-one-many→erasure
+  𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
+  let 𝕄₁ = linearityModality v₁ v₁-ok
+      𝕄₂ = ErasureModality v₂
+  in
+  Dedicated-star 𝕄₁ ⇔ Dedicated-star 𝕄₂ →
+  Is-morphism 𝕄₁ 𝕄₂ zero-one-many→erasure
 linearity⇨erasure = zero-one-many⇨erasure
 
 -- The function zero-one-many→erasure is not an order embedding from a
 -- linear types modality to an erasure modality.
 
 ¬linearity⇨erasure :
-  ¬ Is-order-embedding (linearityModality rs₁) (ErasureModality rs₂)
+  ¬ Is-order-embedding (linearityModality v₁ v₁-ok) (ErasureModality v₂)
       zero-one-many→erasure
 ¬linearity⇨erasure = ¬zero-one-many⇨erasure
 
 -- The function erasure→zero-one-many is an order embedding from an
--- erasure modality to an affine types modality, given that either
--- both modalities allow 𝟘ᵐ, or none of them do.
+-- erasure modality to an affine types modality if certain assumptions
+-- hold.
 
 erasure⇨affine :
-  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
-  Is-order-embedding (ErasureModality rs₁) (affineModality rs₂)
-    erasure→zero-one-many
+  𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
+  let 𝕄₁ = ErasureModality v₁
+      𝕄₂ = affineModality v₂
+  in
+  Dedicated-star 𝕄₁ ⇔ Dedicated-star 𝕄₂ →
+  Is-order-embedding 𝕄₁ 𝕄₂ erasure→zero-one-many
 erasure⇨affine = erasure⇨zero-one-many
 
 -- The function zero-one-many→erasure is a morphism from an affine
--- types modality to an erasure modality, given that either both
--- modalities allow 𝟘ᵐ, or none of them do.
+-- types modality to an erasure modality if certain assumptions hold.
 
 affine⇨erasure :
-  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
-  Is-morphism (affineModality rs₁) (ErasureModality rs₂)
-    zero-one-many→erasure
+  𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
+  let 𝕄₁ = affineModality v₁
+      𝕄₂ = ErasureModality v₂
+  in
+  Dedicated-star 𝕄₁ ⇔ Dedicated-star 𝕄₂ →
+  Is-morphism 𝕄₁ 𝕄₂ zero-one-many→erasure
 affine⇨erasure = zero-one-many⇨erasure
 
 -- The function zero-one-many→erasure is not an order embedding from
 -- an affine types modality to an erasure modality.
 
 ¬affine⇨erasure :
-  ¬ Is-order-embedding (affineModality rs₁) (ErasureModality rs₂)
+  ¬ Is-order-embedding (affineModality v₁) (ErasureModality v₂)
       zero-one-many→erasure
 ¬affine⇨erasure = ¬zero-one-many⇨erasure
 
 -- The function linearity→linear-or-affine is an order embedding from
--- a linear types modality to a linear or affine types modality, given
--- that either both modalities allow 𝟘ᵐ, or none of them do.
+-- a linear types modality to a linear or affine types modality if
+-- certain assumptions hold.
 
 linearity⇨linear-or-affine :
-  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
-  Is-order-embedding (linearityModality rs₁) (linear-or-affine rs₂)
-    linearity→linear-or-affine
-linearity⇨linear-or-affine {rs₂ = rs₂} refl = λ where
-    .Is-order-embedding.trivial not-ok ok   → ⊥-elim (not-ok ok)
-    .Is-order-embedding.trivial-⊎-tr-𝟘      → inj₂ refl
-    .Is-order-embedding.tr-≤                → ω , refl
-    .Is-order-embedding.tr-≤-𝟙              → tr-≤-𝟙 _
-    .Is-order-embedding.tr-≤-+              → tr-≤-+ _ _ _
-    .Is-order-embedding.tr-≤-·              → tr-≤-· _ _ _
-    .Is-order-embedding.tr-≤-∧              → tr-≤-∧ _ _ _
-    .Is-order-embedding.tr-≤-⊛ {s = s}      → tr-≤-⊛ _ _ _ _ _ s
-    .Is-order-embedding.tr-order-reflecting → tr-order-reflecting _ _
-    .Is-order-embedding.tr-morphism         → λ where
-      .Is-morphism.tr-𝟘-≤                   → refl
-      .Is-morphism.tr-≡-𝟘-⇔ _               →   tr-≡-𝟘 _ ,
-                                              λ { refl → refl }
-      .Is-morphism.tr-<-𝟘 not-ok ok         → ⊥-elim (not-ok ok)
-      .Is-morphism.tr-𝟙                     → refl
-      .Is-morphism.tr-+ {p = p}             → ≤-reflexive (tr-+ p _)
-      .Is-morphism.tr-·                     → tr-· _ _
-      .Is-morphism.tr-∧                     → tr-∧ _ _
-      .Is-morphism.tr-⊛ {r = r}             → tr-⊛ _ _ r
-      .Is-morphism.𝟘ᵐ-in-second-if-in-first → idᶠ
+  𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
+  let 𝕄₁ = linearityModality v₁ v₁-ok
+      𝕄₂ = linear-or-affine v₂ v₂-ok
+  in
+  Dedicated-star 𝕄₁ ⇔ Dedicated-star 𝕄₂ →
+  Is-order-embedding 𝕄₁ 𝕄₂ linearity→linear-or-affine
+linearity⇨linear-or-affine
+  {v₁ = v₁} {v₂ = v₂} {v₁-ok = v₁-ok} {v₂-ok = v₂-ok}
+  refl s⇔s = λ where
+    .Is-order-embedding.trivial not-ok ok    → ⊥-elim (not-ok ok)
+    .Is-order-embedding.trivial-⊎-tr-𝟘       → inj₂ refl
+    .Is-order-embedding.tr-≤                 → ω , refl
+    .Is-order-embedding.tr-≤-𝟙               → tr-≤-𝟙 _
+    .Is-order-embedding.tr-≤-+               → tr-≤-+ _ _ _
+    .Is-order-embedding.tr-≤-·               → tr-≤-· _ _ _
+    .Is-order-embedding.tr-≤-∧               → tr-≤-∧ _ _ _
+    .Is-order-embedding.tr-≤-⊛ {s = s}       → tr-≤-⊛ _ _ _ _ _ s
+    .Is-order-embedding.tr-≤-no-star {s = s} → tr-≤-no-star s
+    .Is-order-embedding.tr-order-reflecting  → tr-order-reflecting _ _
+    .Is-order-embedding.tr-morphism          → λ where
+      .Is-morphism.tr-𝟘-≤                      → refl
+      .Is-morphism.tr-≡-𝟘-⇔ _                  → tr-≡-𝟘 _
+                                               , λ { refl → refl }
+      .Is-morphism.tr-<-𝟘 not-ok ok            → ⊥-elim (not-ok ok)
+      .Is-morphism.tr-𝟙                        → refl
+      .Is-morphism.tr-+ {p = p}                → ≤-reflexive (tr-+ p _)
+      .Is-morphism.tr-·                        → tr-· _ _
+      .Is-morphism.tr-∧                        → tr-∧ _ _
+      .Is-morphism.tr-⊛ {r = r}                → tr-⊛ _ _ r
+      .Is-morphism.𝟘ᵐ-in-second-if-in-first    → idᶠ
+      .Is-morphism.star-in-first-iff-in-second → s⇔s
   where
-  open Graded.Modality.Properties (linear-or-affine rs₂)
+  module P₁ = Graded.Modality.Properties (linearityModality v₁ v₁-ok)
+  open Graded.Modality.Properties (linear-or-affine v₂ v₂-ok)
 
-  tr′ = linearity→linear-or-affine
+  tr′  = linearity→linear-or-affine
+  tr⁻¹ = linear-or-affine→linearity
 
   tr-≡-𝟘 : ∀ p → tr′ p ≡ 𝟘 → p ≡ 𝟘
   tr-≡-𝟘 𝟘 _ = refl
@@ -2362,26 +2769,124 @@ linearity⇨linear-or-affine {rs₂ = rs₂} refl = λ where
   tr-≤-⊛ 𝟙 ≤ω 𝟙  𝟘  𝟘 𝟘 ()
   tr-≤-⊛ 𝟙 ≤ω ≤𝟙 𝟘  𝟘 𝟘 ()
 
+  tr⁻¹-monotone : ∀ p q → p LA.≤ q → tr⁻¹ p L.≤ tr⁻¹ q
+  tr⁻¹-monotone = λ where
+    𝟘  𝟘  refl → refl
+    𝟙  𝟙  refl → refl
+    ≤𝟙 𝟘  refl → refl
+    ≤𝟙 𝟙  refl → refl
+    ≤𝟙 ≤𝟙 refl → refl
+    ≤ω _  _    → refl
+
+  tr-tr⁻¹≤ : ∀ p → tr′ (tr⁻¹ p) LA.≤ p
+  tr-tr⁻¹≤ = λ where
+    𝟘  → refl
+    𝟙  → refl
+    ≤𝟙 → refl
+    ≤ω → refl
+
+  tr≤→≤tr⁻¹ : ∀ p q → tr′ p LA.≤ q → p L.≤ tr⁻¹ q
+  tr≤→≤tr⁻¹ = λ where
+    𝟘 𝟘 refl → refl
+    𝟙 𝟙 refl → refl
+    ω _ _    → refl
+
+  tr⁻¹-∧ : ∀ p q → tr⁻¹ (p LA.∧ q) ≡ tr⁻¹ p L.∧ tr⁻¹ q
+  tr⁻¹-∧ = λ where
+    𝟘  𝟘  → refl
+    𝟘  𝟙  → refl
+    𝟘  ≤𝟙 → refl
+    𝟘  ≤ω → refl
+    𝟙  𝟘  → refl
+    𝟙  𝟙  → refl
+    𝟙  ≤𝟙 → refl
+    𝟙  ≤ω → refl
+    ≤𝟙 𝟘  → refl
+    ≤𝟙 𝟙  → refl
+    ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 ≤ω → refl
+    ≤ω _  → refl
+
+  tr⁻¹-+ : ∀ p q → tr⁻¹ (p LA.+ q) ≡ tr⁻¹ p L.+ tr⁻¹ q
+  tr⁻¹-+ = λ where
+    𝟘  𝟘  → refl
+    𝟘  𝟙  → refl
+    𝟘  ≤𝟙 → refl
+    𝟘  ≤ω → refl
+    𝟙  𝟘  → refl
+    𝟙  𝟙  → refl
+    𝟙  ≤𝟙 → refl
+    𝟙  ≤ω → refl
+    ≤𝟙 𝟘  → refl
+    ≤𝟙 𝟙  → refl
+    ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 ≤ω → refl
+    ≤ω 𝟘  → refl
+    ≤ω 𝟙  → refl
+    ≤ω ≤𝟙 → refl
+    ≤ω ≤ω → refl
+
+  tr⁻¹-· : ∀ p q → tr⁻¹ (tr′ p LA.· q) ≡ p L.· tr⁻¹ q
+  tr⁻¹-· = λ where
+    𝟘 𝟘  → refl
+    𝟘 𝟙  → refl
+    𝟘 ≤𝟙 → refl
+    𝟘 ≤ω → refl
+    𝟙 𝟘  → refl
+    𝟙 𝟙  → refl
+    𝟙 ≤𝟙 → refl
+    𝟙 ≤ω → refl
+    ω 𝟘  → refl
+    ω 𝟙  → refl
+    ω ≤𝟙 → refl
+    ω ≤ω → refl
+
+  tr-≤-no-star :
+    ∀ s →
+    tr′ p LA.≤ q₁ →
+    q₁ LA.≤ q₂ LA.∧ q₃ LA.∧ (q₄ LA.+ tr′ r LA.· q₃ LA.+ tr′ s LA.· q₁) →
+    ∃₄ λ q₁′ q₂′ q₃′ q₄′ →
+       tr′ q₂′ LA.≤ q₂ ×
+       tr′ q₃′ LA.≤ q₃ ×
+       tr′ q₄′ LA.≤ q₄ ×
+       p L.≤ q₁′ ×
+       q₁′ L.≤ q₂′ L.∧ q₃′ L.∧ (q₄′ L.+ r L.· q₃′ L.+ s L.· q₁′)
+  tr-≤-no-star s = →tr-≤-no-star {s = s}
+    (linearityModality v₁ v₁-ok)
+    (linear-or-affine v₂ v₂-ok)
+    tr′
+    tr⁻¹
+    tr⁻¹-monotone
+    tr≤→≤tr⁻¹
+    tr-tr⁻¹≤
+    (λ p q → P₁.≤-reflexive (tr⁻¹-+ p q))
+    (λ p q → P₁.≤-reflexive (tr⁻¹-∧ p q))
+    (λ p q → P₁.≤-reflexive (tr⁻¹-· p q))
+
 -- The function linear-or-affine→linearity is a morphism from a linear
--- or affine types modality to a linear types modality, given that
--- either both modalities allow 𝟘ᵐ, or none of them do.
+-- or affine types modality to a linear types modality if certain
+-- assumptions hold.
 
 linear-or-affine⇨linearity :
-  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
-  Is-morphism (linear-or-affine rs₁) (linearityModality rs₂)
-    linear-or-affine→linearity
-linear-or-affine⇨linearity {rs₂ = rs₂} refl = λ where
-    .Is-morphism.tr-𝟘-≤                   → refl
-    .Is-morphism.tr-≡-𝟘-⇔ _               → tr-≡-𝟘 _ , λ { refl → refl }
-    .Is-morphism.tr-<-𝟘 not-ok ok         → ⊥-elim (not-ok ok)
-    .Is-morphism.tr-𝟙                     → refl
-    .Is-morphism.tr-+ {p = p}             → ≤-reflexive (tr-+ p _)
-    .Is-morphism.tr-·                     → tr-· _ _
-    .Is-morphism.tr-∧                     → ≤-reflexive (tr-∧ _ _)
-    .Is-morphism.tr-⊛ {r = r}             → ≤-reflexive (tr-⊛ _ _ r)
-    .Is-morphism.𝟘ᵐ-in-second-if-in-first → idᶠ
+  𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
+  let 𝕄₁ = linear-or-affine v₁ v₁-ok
+      𝕄₂ = linearityModality v₂ v₂-ok
+  in
+  Dedicated-star 𝕄₁ ⇔ Dedicated-star 𝕄₂ →
+  Is-morphism 𝕄₁ 𝕄₂ linear-or-affine→linearity
+linear-or-affine⇨linearity {v₂ = v₂} {v₂-ok = v₂-ok} refl s⇔s = λ where
+    .Is-morphism.tr-𝟘-≤                      → refl
+    .Is-morphism.tr-≡-𝟘-⇔ _                  → tr-≡-𝟘 _ , λ { refl → refl }
+    .Is-morphism.tr-<-𝟘 not-ok ok            → ⊥-elim (not-ok ok)
+    .Is-morphism.tr-𝟙                        → refl
+    .Is-morphism.tr-+ {p = p}                → ≤-reflexive (tr-+ p _)
+    .Is-morphism.tr-·                        → tr-· _ _
+    .Is-morphism.tr-∧                        → ≤-reflexive (tr-∧ _ _)
+    .Is-morphism.tr-⊛ {r = r}                → ≤-reflexive (tr-⊛ _ _ r)
+    .Is-morphism.𝟘ᵐ-in-second-if-in-first    → idᶠ
+    .Is-morphism.star-in-first-iff-in-second → s⇔s
   where
-  open Graded.Modality.Properties (linearityModality rs₂)
+  open Graded.Modality.Properties (linearityModality v₂ v₂-ok)
 
   tr′ = linear-or-affine→linearity
 
@@ -2512,44 +3017,55 @@ linear-or-affine⇨linearity {rs₂ = rs₂} refl = λ where
 -- from a linear or affine types modality to a linear types modality.
 
 ¬linear-or-affine⇨linearity :
-  ¬ Is-order-embedding (linear-or-affine rs₁) (linearityModality rs₂)
+  ¬ Is-order-embedding
+      (linear-or-affine v₁ v₁-ok)
+      (linearityModality v₂ v₂-ok)
       linear-or-affine→linearity
 ¬linear-or-affine⇨linearity m =
   case Is-order-embedding.tr-injective m {p = ≤𝟙} {q = ≤ω} refl of λ ()
 
 -- The function affine→linear-or-affine is an order embedding from an
--- affine types modality to a linear or affine types modality, given
--- that either both modalities allow 𝟘ᵐ, or none of them do.
+-- affine types modality to a linear or affine types modality if
+-- certain assumptions hold.
 
 affine⇨linear-or-affine :
-  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
-  Is-order-embedding (affineModality rs₁) (linear-or-affine rs₂)
-    affine→linear-or-affine
-affine⇨linear-or-affine {rs₂ = rs₂} refl = λ where
-    .Is-order-embedding.trivial not-ok ok   → ⊥-elim (not-ok ok)
-    .Is-order-embedding.trivial-⊎-tr-𝟘      → inj₂ refl
-    .Is-order-embedding.tr-≤                → ω , refl
-    .Is-order-embedding.tr-≤-𝟙              → tr-≤-𝟙 _
-    .Is-order-embedding.tr-≤-+              → tr-≤-+ _ _ _
-    .Is-order-embedding.tr-≤-·              → tr-≤-· _ _ _
-    .Is-order-embedding.tr-≤-∧              → tr-≤-∧ _ _ _
-    .Is-order-embedding.tr-≤-⊛ {s = s}      → tr-≤-⊛ _ _ _ _ _ s
-    .Is-order-embedding.tr-order-reflecting → tr-order-reflecting _ _
-    .Is-order-embedding.tr-morphism         → λ where
-      .Is-morphism.tr-𝟘-≤                   → refl
-      .Is-morphism.tr-≡-𝟘-⇔ _               → tr-≡-𝟘 _
-                                            , λ { refl → refl }
-      .Is-morphism.tr-<-𝟘 not-ok ok         → ⊥-elim (not-ok ok)
-      .Is-morphism.tr-𝟙                     → refl
-      .Is-morphism.tr-+ {p = p}             → ≤-reflexive (tr-+ p _)
-      .Is-morphism.tr-·                     → tr-· _ _
-      .Is-morphism.tr-∧                     → ≤-reflexive (tr-∧ _ _)
-      .Is-morphism.tr-⊛ {r = r}             → ≤-reflexive (tr-⊛ _ _ r)
-      .Is-morphism.𝟘ᵐ-in-second-if-in-first → idᶠ
+  𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
+  let 𝕄₁ = affineModality v₁
+      𝕄₂ = linear-or-affine v₂ v₂-ok
+  in
+  Dedicated-star 𝕄₁ ⇔ Dedicated-star 𝕄₂ →
+  Is-order-embedding 𝕄₁ 𝕄₂ affine→linear-or-affine
+affine⇨linear-or-affine {v₁ = v₁} {v₂ = v₂} {v₂-ok = v₂-ok} refl s⇔s =
+  λ where
+    .Is-order-embedding.trivial not-ok ok    → ⊥-elim (not-ok ok)
+    .Is-order-embedding.trivial-⊎-tr-𝟘       → inj₂ refl
+    .Is-order-embedding.tr-≤                 → ω , refl
+    .Is-order-embedding.tr-≤-𝟙               → tr-≤-𝟙 _
+    .Is-order-embedding.tr-≤-+               → tr-≤-+ _ _ _
+    .Is-order-embedding.tr-≤-·               → tr-≤-· _ _ _
+    .Is-order-embedding.tr-≤-∧               → tr-≤-∧ _ _ _
+    .Is-order-embedding.tr-≤-⊛ {s = s}       → tr-≤-⊛ _ _ _ _ _ s
+    .Is-order-embedding.tr-≤-no-star {s = s} → tr-≤-no-star s
+    .Is-order-embedding.tr-order-reflecting  → tr-order-reflecting _ _
+    .Is-order-embedding.tr-morphism          → λ where
+      .Is-morphism.tr-𝟘-≤                      → refl
+      .Is-morphism.tr-≡-𝟘-⇔ _                  → tr-≡-𝟘 _
+                                               , λ { refl → refl }
+      .Is-morphism.tr-<-𝟘 not-ok ok            → ⊥-elim (not-ok ok)
+      .Is-morphism.tr-𝟙                        → refl
+      .Is-morphism.tr-+ {p = p}                → ≤-reflexive (tr-+ p _)
+      .Is-morphism.tr-·                        → tr-· _ _
+      .Is-morphism.tr-∧                        → ≤-reflexive (tr-∧ _ _)
+      .Is-morphism.tr-⊛ {r = r}                → ≤-reflexive
+                                                   (tr-⊛ _ _ r)
+      .Is-morphism.𝟘ᵐ-in-second-if-in-first    → idᶠ
+      .Is-morphism.star-in-first-iff-in-second → s⇔s
   where
-  open Graded.Modality.Properties (linear-or-affine rs₂)
+  module P₁ = Graded.Modality.Properties (affineModality v₁)
+  open Graded.Modality.Properties (linear-or-affine v₂ v₂-ok)
 
-  tr′ = affine→linear-or-affine
+  tr′  = affine→linear-or-affine
+  tr⁻¹ = linear-or-affine→affine
 
   tr-≡-𝟘 : ∀ p → tr′ p ≡ 𝟘 → p ≡ 𝟘
   tr-≡-𝟘 𝟘 _ = refl
@@ -3842,26 +4358,127 @@ affine⇨linear-or-affine {rs₂ = rs₂} refl = λ where
   tr-≤-⊛ 𝟙 ≤ω ≤ω ≤ω ω 𝟙 ()
   tr-≤-⊛ 𝟙 ≤ω ≤ω ≤ω ω ω ()
 
+  tr⁻¹-monotone : ∀ p q → p LA.≤ q → tr⁻¹ p A.≤ tr⁻¹ q
+  tr⁻¹-monotone = λ where
+    𝟘  𝟘  refl → refl
+    𝟙  𝟙  refl → refl
+    ≤𝟙 𝟘  refl → refl
+    ≤𝟙 𝟙  refl → refl
+    ≤𝟙 ≤𝟙 refl → refl
+    ≤ω _  _    → refl
+
+  tr-tr⁻¹≤ : ∀ p → tr′ (tr⁻¹ p) LA.≤ p
+  tr-tr⁻¹≤ = λ where
+    𝟘  → refl
+    𝟙  → refl
+    ≤𝟙 → refl
+    ≤ω → refl
+
+  tr≤→≤tr⁻¹ : ∀ p q → tr′ p LA.≤ q → p A.≤ tr⁻¹ q
+  tr≤→≤tr⁻¹ = λ where
+    𝟘 𝟘  refl → refl
+    𝟙 𝟘  refl → refl
+    𝟙 𝟙  refl → refl
+    𝟙 ≤𝟙 refl → refl
+    ω _  _    → refl
+
+  tr⁻¹-∧ : ∀ p q → tr⁻¹ (p LA.∧ q) ≡ tr⁻¹ p A.∧ tr⁻¹ q
+  tr⁻¹-∧ = λ where
+    𝟘  𝟘  → refl
+    𝟘  𝟙  → refl
+    𝟘  ≤𝟙 → refl
+    𝟘  ≤ω → refl
+    𝟙  𝟘  → refl
+    𝟙  𝟙  → refl
+    𝟙  ≤𝟙 → refl
+    𝟙  ≤ω → refl
+    ≤𝟙 𝟘  → refl
+    ≤𝟙 𝟙  → refl
+    ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 ≤ω → refl
+    ≤ω _  → refl
+
+  tr⁻¹-+ : ∀ p q → tr⁻¹ (p LA.+ q) ≡ tr⁻¹ p A.+ tr⁻¹ q
+  tr⁻¹-+ = λ where
+    𝟘  𝟘  → refl
+    𝟘  𝟙  → refl
+    𝟘  ≤𝟙 → refl
+    𝟘  ≤ω → refl
+    𝟙  𝟘  → refl
+    𝟙  𝟙  → refl
+    𝟙  ≤𝟙 → refl
+    𝟙  ≤ω → refl
+    ≤𝟙 𝟘  → refl
+    ≤𝟙 𝟙  → refl
+    ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 ≤ω → refl
+    ≤ω 𝟘  → refl
+    ≤ω 𝟙  → refl
+    ≤ω ≤𝟙 → refl
+    ≤ω ≤ω → refl
+
+  tr⁻¹-· : ∀ p q → tr⁻¹ (tr′ p LA.· q) ≡ p A.· tr⁻¹ q
+  tr⁻¹-· = λ where
+    𝟘 𝟘  → refl
+    𝟘 𝟙  → refl
+    𝟘 ≤𝟙 → refl
+    𝟘 ≤ω → refl
+    𝟙 𝟘  → refl
+    𝟙 𝟙  → refl
+    𝟙 ≤𝟙 → refl
+    𝟙 ≤ω → refl
+    ω 𝟘  → refl
+    ω 𝟙  → refl
+    ω ≤𝟙 → refl
+    ω ≤ω → refl
+
+  tr-≤-no-star :
+    ∀ s →
+    tr′ p LA.≤ q₁ →
+    q₁ LA.≤ q₂ LA.∧ q₃ LA.∧ (q₄ LA.+ tr′ r LA.· q₃ LA.+ tr′ s LA.· q₁) →
+    ∃₄ λ q₁′ q₂′ q₃′ q₄′ →
+       tr′ q₂′ LA.≤ q₂ ×
+       tr′ q₃′ LA.≤ q₃ ×
+       tr′ q₄′ LA.≤ q₄ ×
+       p A.≤ q₁′ ×
+       q₁′ A.≤ q₂′ A.∧ q₃′ A.∧ (q₄′ A.+ r A.· q₃′ A.+ s A.· q₁′)
+  tr-≤-no-star s = →tr-≤-no-star {s = s}
+    (affineModality v₁)
+    (linear-or-affine v₂ v₂-ok)
+    tr′
+    tr⁻¹
+    tr⁻¹-monotone
+    tr≤→≤tr⁻¹
+    tr-tr⁻¹≤
+    (λ p q → P₁.≤-reflexive (tr⁻¹-+ p q))
+    (λ p q → P₁.≤-reflexive (tr⁻¹-∧ p q))
+    (λ p q → P₁.≤-reflexive (tr⁻¹-· p q))
+
 -- The function linear-or-affine→affine is a morphism from a linear or
--- affine types modality to an affine types modality, given that
--- either both modalities allow 𝟘ᵐ, or none of them do.
+-- affine types modality to an affine types modality if certain
+-- assumptions hold.
 
 linear-or-affine⇨affine :
-  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
-  Is-morphism (linear-or-affine rs₁) (affineModality rs₂)
-    linear-or-affine→affine
-linear-or-affine⇨affine {rs₂ = rs₂} refl = λ where
-    .Is-morphism.tr-𝟘-≤                   → refl
-    .Is-morphism.tr-≡-𝟘-⇔ _               → tr-≡-𝟘 _ , λ { refl → refl }
-    .Is-morphism.tr-<-𝟘 not-ok ok         → ⊥-elim (not-ok ok)
-    .Is-morphism.tr-𝟙                     → refl
-    .Is-morphism.tr-+ {p = p}             → ≤-reflexive (tr-+ p _)
-    .Is-morphism.tr-·                     → tr-· _ _
-    .Is-morphism.tr-∧                     → ≤-reflexive (tr-∧ _ _)
-    .Is-morphism.tr-⊛ {r = r}             → ≤-reflexive (tr-⊛ _ _ r)
-    .Is-morphism.𝟘ᵐ-in-second-if-in-first → idᶠ
+  𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
+  let 𝕄₁ = linear-or-affine v₁ v₁-ok
+      𝕄₂ = affineModality v₂
+  in
+  Dedicated-star 𝕄₁ ⇔ Dedicated-star 𝕄₂ →
+  Is-morphism 𝕄₁ 𝕄₂ linear-or-affine→affine
+linear-or-affine⇨affine {v₂ = v₂} refl s⇔s = λ where
+    .Is-morphism.tr-𝟘-≤                      → refl
+    .Is-morphism.tr-≡-𝟘-⇔ _                  → tr-≡-𝟘 _
+                                             , λ { refl → refl }
+    .Is-morphism.tr-<-𝟘 not-ok ok            → ⊥-elim (not-ok ok)
+    .Is-morphism.tr-𝟙                        → refl
+    .Is-morphism.tr-+ {p = p}                → ≤-reflexive (tr-+ p _)
+    .Is-morphism.tr-·                        → tr-· _ _
+    .Is-morphism.tr-∧                        → ≤-reflexive (tr-∧ _ _)
+    .Is-morphism.tr-⊛ {r = r}                → ≤-reflexive (tr-⊛ _ _ r)
+    .Is-morphism.𝟘ᵐ-in-second-if-in-first    → idᶠ
+    .Is-morphism.star-in-first-iff-in-second → s⇔s
   where
-  open Graded.Modality.Properties (affineModality rs₂)
+  open Graded.Modality.Properties (affineModality v₂)
 
   tr′ = linear-or-affine→affine
 
@@ -3992,31 +4609,35 @@ linear-or-affine⇨affine {rs₂ = rs₂} refl = λ where
 -- a linear or affine types modality to an affine types modality.
 
 ¬linear-or-affine⇨affine :
-  ¬ Is-order-embedding (linear-or-affine rs₁) (affineModality rs₂)
+  ¬ Is-order-embedding (linear-or-affine v₁ v₁-ok) (affineModality v₂)
       linear-or-affine→affine
 ¬linear-or-affine⇨affine m =
   case Is-order-embedding.tr-injective m {p = 𝟙} {q = ≤𝟙} refl of λ ()
 
 -- The function affine→linearity is a morphism from an affine types
--- modality to a linear types modality, given that either both
--- modalities allow 𝟘ᵐ, or none of them do.
+-- modality to a linear types modality if certain assumptions hold.
 
 affine⇨linearity :
-  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
-  Is-morphism (affineModality rs₁) (linearityModality rs₂)
-    affine→linearity
-affine⇨linearity {rs₂ = rs₂} refl = λ where
-    .Is-morphism.tr-𝟘-≤                   → refl
-    .Is-morphism.tr-≡-𝟘-⇔ _               → tr-≡-𝟘 _ , λ { refl → refl }
-    .Is-morphism.tr-<-𝟘 not-ok ok         → ⊥-elim (not-ok ok)
-    .Is-morphism.tr-𝟙                     → refl
-    .Is-morphism.tr-+ {p = p}             → ≤-reflexive (tr-+ p _)
-    .Is-morphism.tr-·                     → tr-· _ _
-    .Is-morphism.tr-∧ {p = p}             → ≤-reflexive (tr-∧ p _)
-    .Is-morphism.tr-⊛ {r = r}             → ≤-reflexive (tr-⊛ _ _ r)
-    .Is-morphism.𝟘ᵐ-in-second-if-in-first → idᶠ
+  𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
+  let 𝕄₁ = affineModality v₁
+      𝕄₂ = linearityModality v₂ v₂-ok
+  in
+  Dedicated-star 𝕄₁ ⇔ Dedicated-star 𝕄₂ →
+  Is-morphism 𝕄₁ 𝕄₂ affine→linearity
+affine⇨linearity {v₂ = v₂} {v₂-ok = v₂-ok} refl s⇔s = λ where
+    .Is-morphism.tr-𝟘-≤                      → refl
+    .Is-morphism.tr-≡-𝟘-⇔ _                  → tr-≡-𝟘 _
+                                             , λ { refl → refl }
+    .Is-morphism.tr-<-𝟘 not-ok ok            → ⊥-elim (not-ok ok)
+    .Is-morphism.tr-𝟙                        → refl
+    .Is-morphism.tr-+ {p = p}                → ≤-reflexive (tr-+ p _)
+    .Is-morphism.tr-·                        → tr-· _ _
+    .Is-morphism.tr-∧ {p = p}                → ≤-reflexive (tr-∧ p _)
+    .Is-morphism.tr-⊛ {r = r}                → ≤-reflexive (tr-⊛ _ _ r)
+    .Is-morphism.𝟘ᵐ-in-second-if-in-first    → idᶠ
+    .Is-morphism.star-in-first-iff-in-second → s⇔s
   where
-  open Graded.Modality.Properties (linearityModality rs₂)
+  open Graded.Modality.Properties (linearityModality v₂ v₂-ok)
 
   tr′ = affine→linearity
 
@@ -4089,31 +4710,35 @@ affine⇨linearity {rs₂ = rs₂} refl = λ where
 -- affine types modality to a linear types modality.
 
 ¬affine⇨linearity :
-  ¬ Is-order-embedding (affineModality rs₁) (linearityModality rs₂)
+  ¬ Is-order-embedding (affineModality v₁) (linearityModality v₂ v₂-ok)
       affine→linearity
 ¬affine⇨linearity m =
   case Is-order-embedding.tr-injective m {p = 𝟙} {q = ω} refl of λ ()
 
 -- The function linearity→affine is a morphism from a linear types
--- modality to an affine types modality, given that either both
--- modalities allow 𝟘ᵐ, or none of them do.
+-- modality to an affine types modality if certain assumptions hold.
 
 linearity⇨affine :
-  𝟘ᵐ-allowed rs₁ ≡ 𝟘ᵐ-allowed rs₂ →
-  Is-morphism (linearityModality rs₁) (affineModality rs₂)
-    linearity→affine
-linearity⇨affine {rs₂ = rs₂} refl = λ where
-    .Is-morphism.tr-𝟘-≤                   → refl
-    .Is-morphism.tr-≡-𝟘-⇔ _               → tr-≡-𝟘 _ , λ { refl → refl }
-    .Is-morphism.tr-<-𝟘 not-ok ok         → ⊥-elim (not-ok ok)
-    .Is-morphism.tr-𝟙                     → refl
-    .Is-morphism.tr-+ {p = p}             → ≤-reflexive (tr-+ p _)
-    .Is-morphism.tr-·                     → tr-· _ _
-    .Is-morphism.tr-∧ {p = p}             → tr-∧ p _
-    .Is-morphism.tr-⊛ {r = r}             → tr-⊛ _ _ r
-    .Is-morphism.𝟘ᵐ-in-second-if-in-first → idᶠ
+  𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
+  let 𝕄₁ = linearityModality v₁ v₁-ok
+      𝕄₂ = affineModality v₂
+  in
+  Dedicated-star 𝕄₁ ⇔ Dedicated-star 𝕄₂ →
+  Is-morphism 𝕄₁ 𝕄₂ linearity→affine
+linearity⇨affine {v₂ = v₂} refl s⇔s = λ where
+    .Is-morphism.tr-𝟘-≤                      → refl
+    .Is-morphism.tr-≡-𝟘-⇔ _                  → tr-≡-𝟘 _
+                                             , λ { refl → refl }
+    .Is-morphism.tr-<-𝟘 not-ok ok            → ⊥-elim (not-ok ok)
+    .Is-morphism.tr-𝟙                        → refl
+    .Is-morphism.tr-+ {p = p}                → ≤-reflexive (tr-+ p _)
+    .Is-morphism.tr-·                        → tr-· _ _
+    .Is-morphism.tr-∧ {p = p}                → tr-∧ p _
+    .Is-morphism.tr-⊛ {r = r}                → tr-⊛ _ _ r
+    .Is-morphism.𝟘ᵐ-in-second-if-in-first    → idᶠ
+    .Is-morphism.star-in-first-iff-in-second → s⇔s
   where
-  open Graded.Modality.Properties (affineModality rs₂)
+  open Graded.Modality.Properties (affineModality v₂)
 
   tr′ = linearity→affine
 
@@ -4186,7 +4811,7 @@ linearity⇨affine {rs₂ = rs₂} refl = λ where
 -- linear types modality to an affine types modality.
 
 ¬linearity⇨affine :
-  ¬ Is-order-embedding (linearityModality rs₁) (affineModality rs₂)
+  ¬ Is-order-embedding (linearityModality v₁ v₁-ok) (affineModality v₂)
       linearity→affine
 ¬linearity⇨affine m =
   case Is-order-embedding.tr-order-reflecting m {p = 𝟙} {q = 𝟘} refl of
@@ -4203,10 +4828,10 @@ linearity⇨affine {rs₂ = rs₂} refl = λ where
 -- 𝟙 ≰ 𝟘.
 
 erasure⇨zero-one-many-Σ :
-  (T (𝟘ᵐ-allowed rs₂) → T (𝟘ᵐ-allowed rs₁)) →
+  (T (𝟘ᵐ-allowed v₂) → T (𝟘ᵐ-allowed v₁)) →
   Is-Σ-order-embedding
-    (ErasureModality rs₁)
-    (zero-one-many-greatest 𝟙≤𝟘 rs₂)
+    (ErasureModality v₁)
+    (zero-one-many-greatest 𝟙≤𝟘 v₂ v₂-ok)
     erasure→zero-one-many
     erasure→zero-one-many-Σ
 erasure⇨zero-one-many-Σ {𝟙≤𝟘 = 𝟙≤𝟘} ok₂₁ = record
@@ -4238,8 +4863,8 @@ erasure⇨zero-one-many-Σ {𝟙≤𝟘 = 𝟙≤𝟘} ok₂₁ = record
 -- 𝟘ᵐ, then the first also does this.
 
 erasure⇨linearity-Σ :
-  (T (𝟘ᵐ-allowed rs₂) → T (𝟘ᵐ-allowed rs₁)) →
-  Is-Σ-order-embedding (ErasureModality rs₁) (linearityModality rs₂)
+  (T (𝟘ᵐ-allowed v₂) → T (𝟘ᵐ-allowed v₁)) →
+  Is-Σ-order-embedding (ErasureModality v₁) (linearityModality v₂ v₂-ok)
     erasure→zero-one-many erasure→zero-one-many-Σ
 erasure⇨linearity-Σ = erasure⇨zero-one-many-Σ
 
@@ -4259,8 +4884,8 @@ erasure⇨linearity-Σ-not-monotone mono =
 -- 𝟘ᵐ, then the first also does this.
 
 erasure⇨affine-Σ :
-  (T (𝟘ᵐ-allowed rs₂) → T (𝟘ᵐ-allowed rs₁)) →
-  Is-Σ-order-embedding (ErasureModality rs₁) (affineModality rs₂)
+  (T (𝟘ᵐ-allowed v₂) → T (𝟘ᵐ-allowed v₁)) →
+  Is-Σ-order-embedding (ErasureModality v₁) (affineModality v₂)
     erasure→zero-one-many erasure→zero-one-many-Σ
 erasure⇨affine-Σ = erasure⇨zero-one-many-Σ
 
@@ -4270,8 +4895,8 @@ erasure⇨affine-Σ = erasure⇨zero-one-many-Σ
 -- second modality allows 𝟘ᵐ, then the first also does this.
 
 affine⇨linear-or-affine-Σ :
-  (T (𝟘ᵐ-allowed rs₂) → T (𝟘ᵐ-allowed rs₁)) →
-  Is-Σ-order-embedding (affineModality rs₁) (linear-or-affine rs₂)
+  (T (𝟘ᵐ-allowed v₂) → T (𝟘ᵐ-allowed v₁)) →
+  Is-Σ-order-embedding (affineModality v₁) (linear-or-affine v₂ v₂-ok)
     affine→linear-or-affine affine→linear-or-affine-Σ
 affine⇨linear-or-affine-Σ ok₂₁ = record
   { tr-Σ-morphism = record
@@ -4331,15 +4956,21 @@ affine→linear-or-affine-Σ-not-monotone mono =
   ¬ Is-order-embedding 𝕄₁ 𝕄₂ tr-Σ
 Σ-order-embedding-but-not-order-embedding =
     Affine , Linear-or-affine
-  , affineModality (𝟘ᵐ-allowed-if true)
-  , linear-or-affine (𝟘ᵐ-allowed-if true)
+  , affineModality variant
+  , linear-or-affine variant idᶠ
   , affine→linear-or-affine , affine→linear-or-affine-Σ
-  , affine⇨linear-or-affine refl
+  , affine⇨linear-or-affine refl _
   , Is-Σ-order-embedding.tr-Σ-morphism (affine⇨linear-or-affine-Σ _)
   , affine⇨linear-or-affine-Σ _
   , affine→linear-or-affine-Σ-not-monotone ∘→ Is-morphism.tr-monotone
   , affine→linear-or-affine-Σ-not-monotone ∘→
     Is-order-embedding.tr-monotone
+  where
+  variant = record
+    { 𝟘ᵐ-allowed                = true
+    ; ⊛-available               = ⊤
+    ; ⊛-available-propositional = λ _ _ → refl
+    }
 
 -- The function affine→linearity-Σ is a Σ-morphism (with respect to
 -- affine→linearity) from an affine types modality to a linear types
@@ -4347,8 +4978,8 @@ affine→linear-or-affine-Σ-not-monotone mono =
 -- first also does this.
 
 affine⇨linearity-Σ :
-  (T (𝟘ᵐ-allowed rs₂) → T (𝟘ᵐ-allowed rs₁)) →
-  Is-Σ-morphism (affineModality rs₁) (linearityModality rs₂)
+  (T (𝟘ᵐ-allowed v₂) → T (𝟘ᵐ-allowed v₁)) →
+  Is-Σ-morphism (affineModality v₁) (linearityModality v₂ v₂-ok)
     affine→linearity affine→linearity-Σ
 affine⇨linearity-Σ ok₂₁ = record
   { tr-≤-tr-Σ = λ where
@@ -4385,7 +5016,9 @@ affine→linearity-Σ-not-monotone mono =
 -- a linear types modality.
 
 ¬affine⇨linearity-Σ :
-  ¬ Is-Σ-order-embedding (affineModality rs₁) (linearityModality rs₂)
+  ¬ Is-Σ-order-embedding
+      (affineModality v₁)
+      (linearityModality v₂ v₂-ok)
       affine→linearity affine→linearity-Σ
 ¬affine⇨linearity-Σ m =
   case

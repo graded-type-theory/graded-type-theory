@@ -2,26 +2,32 @@
 -- The usage relation can be decided (given certain assumptions)
 ------------------------------------------------------------------------
 
-open import Graded.Modality
+import Graded.Modality
+import Graded.Modality.Dedicated-star
 open import Graded.Usage.Restrictions
 open import Tools.PropositionalEquality
 open import Tools.Relation
 
 module Graded.Usage.Decidable
   {a} {M : Set a}
-  (𝕄 : Modality M)
+  (open Graded.Modality M)
+  (𝕄 : Modality)
+  (open Graded.Modality.Dedicated-star 𝕄)
   (R : Usage-restrictions M)
   (open Usage-restrictions R)
   -- Equality is assumed to be decidable for M.
   (_≟_ : Decidable (_≡_ {A = M}))
   -- The Prodrec-allowed relation is assumed to be decidable.
   (Prodrec? : ∀ r p q → Dec (Prodrec-allowed r p q))
+  -- A dedicated natrec-star operator is assumed to exist.
+  ⦃ has-star : Dedicated-star ⦄
   where
 
-open Modality 𝕄
+open Modality 𝕄 hiding (has-star)
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
+open import Graded.Modality.Dedicated-star.Instance
 open import Graded.Modality.Properties 𝕄
 open import Graded.Usage 𝕄 R
 open import Graded.Usage.Inversion 𝕄 R
@@ -267,37 +273,43 @@ infix 10 ⌈⌉▸[_]?_
 
 ⌈⌉▸[ m ]? natrec p q r A z s n = case ⌈⌉▸[ m ]? z of λ where
   (inj₂ ¬▸z) → inj₂ λ _ ▸nr →
-    case inv-usage-natrec ▸nr of λ (invUsageNatrec ▸z _ _ _ _) →
-    ¬▸z _ ▸z
+    case inv-usage-natrec ▸nr of λ where
+      (invUsageNatrec ▸z _ _ _ _ _) →
+        ¬▸z _ ▸z
   (inj₁ ▸z) → case ⌈⌉▸[ m ]? s of λ where
     (inj₂ ¬▸s) → inj₂ λ _ ▸nr →
-      case inv-usage-natrec ▸nr of λ (invUsageNatrec _ ▸s _ _ _) →
-      ¬▸s _ ▸s
+      case inv-usage-natrec ▸nr of λ where
+        (invUsageNatrec _ ▸s _ _ _ _) →
+          ¬▸s _ ▸s
     (inj₁ ▸s) → case ⌜ m ⌝ · p ≤? headₘ (tailₘ (⌈ s ⌉ m)) of λ where
       (no mp≰) → inj₂ λ _ ▸nr →
-        case inv-usage-natrec ▸nr of λ (invUsageNatrec _ ▸s′ _ _ _) →
-        mp≰ (headₘ-monotone
-               (tailₘ-monotone (usage-upper-bound ▸s′)))
+        case inv-usage-natrec ▸nr of λ where
+          (invUsageNatrec _ ▸s′ _ _ _ _) →
+            mp≰ $ headₘ-monotone $ tailₘ-monotone $
+            usage-upper-bound ⦃ has-star = has-star ⦄ ▸s′
       (yes mp≤) → case ⌜ m ⌝ · r ≤? headₘ (⌈ s ⌉ m) of λ where
         (no mr≰) → inj₂ λ _ ▸nr →
-          case inv-usage-natrec ▸nr of λ (invUsageNatrec _ ▸s′ _ _ _) →
-          mr≰ (headₘ-monotone (usage-upper-bound ▸s′))
+          case inv-usage-natrec ▸nr of λ where
+            (invUsageNatrec _ ▸s′ _ _ _ _) →
+              mr≰ $ headₘ-monotone $
+              usage-upper-bound ⦃ has-star = has-star ⦄ ▸s′
         (yes mr≤) → case ⌈⌉▸[ m ]? n of λ where
           (inj₂ ¬▸n) → inj₂ λ _ ▸nr →
-            case inv-usage-natrec ▸nr of
-              λ (invUsageNatrec _ _ ▸n _ _) →
-            ¬▸n _ ▸n
+            case inv-usage-natrec ▸nr of λ where
+              (invUsageNatrec _ _ ▸n _ _ _) →
+                ¬▸n _ ▸n
           (inj₁ ▸n) → case ⌈⌉▸[ 𝟘ᵐ? ]? A of λ where
             (inj₂ ¬▸A) → inj₂ λ _ ▸nr →
-              case inv-usage-natrec ▸nr of
-                λ (invUsageNatrec _ _ _ ▸A _) →
-              ¬▸A _ ▸A
+              case inv-usage-natrec ▸nr of λ where
+                (invUsageNatrec _ _ _ ▸A _ _) →
+                  ¬▸A _ ▸A
             (inj₁ ▸A) →
               case ⌜ 𝟘ᵐ? ⌝ · q ≤? headₘ (⌈ A ⌉ 𝟘ᵐ?) of λ where
                 (no q≰) → inj₂ λ _ ▸nr →
-                  case inv-usage-natrec ▸nr of
-                    λ (invUsageNatrec _ _ _ ▸A′ _) →
-                  q≰ (headₘ-monotone (usage-upper-bound ▸A′))
+                  case inv-usage-natrec ▸nr of λ where
+                    (invUsageNatrec _ _ _ ▸A′ _ _) →
+                      q≰ $ headₘ-monotone $
+                      usage-upper-bound ⦃ has-star = has-star ⦄ ▸A′
                 (yes q≤) →
                   let lemma₁ =
                         let open Tools.Reasoning.PartialOrder ≤ᶜ-poset

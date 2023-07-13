@@ -3,43 +3,43 @@
 -- canonicity if erased matches are not allowed.
 ------------------------------------------------------------------------
 
+open import Tools.Empty
+open import Tools.Level
+
 open import Graded.Modality.Instances.Erasure
-import Graded.Modality.Instances.Erasure.Modality
+open import Graded.Modality.Instances.Erasure.Modality
 open import Graded.Restrictions
 open import Graded.Usage.Restrictions Erasure
-open import Graded.Mode.Restrictions
+open import Graded.Modality.Variant lzero
 import Application.NegativeOrErasedAxioms.NegativeOrErasedContext
 import Definition.Typed
 open import Definition.Typed.Restrictions Erasure
 open import Definition.Untyped Erasure hiding (_∷_; ℕ≢B)
 
-open import Tools.Empty
-
 module Application.NegativeOrErasedAxioms.Canonicity
-  (mrs : Mode-restrictions)
-  (open Graded.Modality.Instances.Erasure.Modality mrs)
+  (variant : Modality-variant)
   (TR : Type-restrictions)
   (open Definition.Typed TR)
   (UR : Usage-restrictions)
   -- Erased matches are not allowed.
-  (no-erased-matches : No-erased-matches ErasureModality UR)
+  (no-erased-matches : No-erased-matches (ErasureModality variant) UR)
   (open Application.NegativeOrErasedAxioms.NegativeOrErasedContext
-     ErasureModality (λ ()) TR)
+     (ErasureModality variant) (λ ()) TR)
   {m} {Γ : Con Term m} {γ}
   (nΓγ : NegativeErasedContext Γ γ)
   (consistent : ∀{t} → Γ ⊢ t ∷ Empty → ⊥)
   where
 
-open import Graded.Modality.Instances.Erasure.Properties mrs
-open import Graded.Context ErasureModality
-open import Graded.Reduction ErasureModality TR UR
-open import Graded.Usage ErasureModality UR
-open import Graded.Usage.Inversion ErasureModality UR
-open import Graded.Usage.Properties ErasureModality UR
-open import Graded.Mode ErasureModality
+open import Graded.Modality.Instances.Erasure.Properties variant
+open import Graded.Context (ErasureModality variant)
+open import Graded.Reduction (ErasureModality variant) TR UR
+open import Graded.Usage (ErasureModality variant) UR
+open import Graded.Usage.Inversion (ErasureModality variant) UR
+open import Graded.Usage.Properties (ErasureModality variant) UR
+open import Graded.Mode (ErasureModality variant)
 
 open import Application.NegativeOrErasedAxioms.NegativeOrErasedType
-  ErasureModality TR
+  (ErasureModality variant) TR
 open import Graded.Erasure.SucRed TR
 
 open import Definition.Untyped.Normal-form Erasure
@@ -55,6 +55,7 @@ open import Definition.LogicalRelation TR
 open import Definition.LogicalRelation.Irrelevance TR
 open import Definition.LogicalRelation.Fundamental.Reducibility TR
 
+open import Tools.Function
 open import Tools.PropositionalEquality as PE using (_≢_)
 open import Tools.Product
 import Tools.Reasoning.PartialOrder
@@ -107,11 +108,28 @@ neNeg (sndⱼ ⊢A A⊢B d     ) (sndₙ n     ) γ▸u =
   in  sndNeg (neNeg d n (sub δ▸t γ≤δ))
              (refl (ΠΣⱼ ⊢A A⊢B (⊢∷ΠΣ→ΠΣ-allowed d)))
              (fstⱼ ⊢A A⊢B d)
-neNeg (natrecⱼ _ _ _ d   ) (natrecₙ n  ) γ▸u =
-  let invUsageNatrec _ _ δ▸n _ γ≤γ′ = inv-usage-natrec γ▸u
-      ⊢ℕ = refl (ℕⱼ (wfTerm d))
-      γ▸n = sub δ▸n (≤ᶜ-trans γ≤γ′ (≤ᶜ-trans (⊛ᶜ-ineq₂ _ _ _) (∧ᶜ-decreasingʳ _ _)))
-  in  ⊥-elim (¬negℕ (neNeg d n γ▸n) ⊢ℕ)
+neNeg (natrecⱼ {p = p} {r = r} _ _ _ d) (natrecₙ n) γ▸u =
+  case inv-usage-natrec γ▸u of λ {
+    (invUsageNatrec {δ = δ} {η = η} {θ = θ} {χ = χ}
+       _ _ θ▸n _ γ≤χ extra) →
+  case
+    (case extra of λ where
+       invUsageNatrecStar → begin
+         γ                            ≤⟨ γ≤χ ⟩
+         χ                            ≡⟨⟩
+         (δ ∧ᶜ θ) ⊛ᶜ η +ᶜ p ·ᶜ θ ▷ r  ≤⟨ ⊛ᶜ-ineq₂ _ _ _ ⟩
+         δ ∧ᶜ θ                       ≤⟨ ∧ᶜ-decreasingʳ _ _ ⟩
+         θ                            ∎
+       (invUsageNatrecNoStar fix) → begin
+         γ                                  ≤⟨ γ≤χ ⟩
+         χ                                  ≤⟨ fix ⟩
+         δ ∧ᶜ θ ∧ᶜ (η +ᶜ p ·ᶜ θ +ᶜ r ·ᶜ χ)  ≤⟨ ∧ᶜ-decreasingʳ _ _ ⟩
+         θ ∧ᶜ (η +ᶜ p ·ᶜ θ +ᶜ r ·ᶜ χ)       ≤⟨ ∧ᶜ-decreasingˡ _ _ ⟩
+         θ                                  ∎)
+  of λ γ≤θ →
+  ⊥-elim (¬negℕ (neNeg d n (sub θ▸n γ≤θ)) (refl (ℕⱼ (wfTerm d)))) }
+  where
+  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 neNeg (prodrecⱼ {r = r} ⊢A A⊢B _ d _ ok₁) (prodrecₙ n) γ▸u =
   let invUsageProdrec {δ = δ} {η = η} δ▸t η▸u _ ok₂ γ≤ =
         inv-usage-prodrec γ▸u

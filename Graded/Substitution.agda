@@ -2,12 +2,13 @@
 -- Substitution matrices (action of substitutions on modality contexts).
 ------------------------------------------------------------------------
 
-open import Graded.Modality
+import Graded.Modality
 open import Graded.Usage.Restrictions
 
 module Graded.Substitution
   {a} {M : Set a}
-  (𝕄 : Modality M)
+  (open Graded.Modality M)
+  (𝕄 : Modality)
   (R : Usage-restrictions M)
   where
 
@@ -80,9 +81,12 @@ _▶[_]_ : Substₘ m n → Mode-vector n → Subst m n → Set a
 _▶[_]_ {n = n} Ψ γ σ =
   (x : Fin n) → ((𝟘ᶜ , x ≔ ⌜ γ x ⌝) <* Ψ) ▸[ γ x ] σ x
 
--- Substitution matrix inference
+-- Substitution matrix inference (for modalities with natrec-star
+-- operators).
 
-∥_∥ : Subst m n → Mode-vector n → Substₘ m n
+∥_∥ :
+  ⦃ has-star : Has-star semiring-with-meet ⦄ →
+  Subst m n → Mode-vector n → Substₘ m n
 ∥_∥ {n = 0}    _ _  = []
 ∥_∥ {n = 1+ n} σ ms = ∥ tail σ ∥ (tailᵐ ms) ⊙ ⌈ head σ ⌉ (headᵐ ms)
 

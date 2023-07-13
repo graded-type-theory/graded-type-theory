@@ -23,6 +23,8 @@ open import Tools.Sum
 
 open import Graded.Context using (Conₘ; ε; _∙_)
 import Graded.Context.Properties
+open import Graded.Modality.Dedicated-star
+open import Graded.Modality.Dedicated-star.Instance
 open import Graded.Modality.Morphism as M
   using (Is-morphism; Is-order-embedding; Is-Σ-order-embedding)
   hiding (module Is-morphism; module Is-order-embedding;
@@ -37,10 +39,10 @@ private
   module M₂  = Modality 𝕄₂
 
 private variable
-  n              : Nat
-  x              : Fin _
-  γ δ δ₁ δ₂ δ₃ η : Conₘ _ _
-  p q r          : M₁
+  n                 : Nat
+  x                 : Fin _
+  γ δ δ₁ δ₂ δ₃ δ₄ η : Conₘ _ _
+  p q r             : M₁
 
 ------------------------------------------------------------------------
 -- Translation
@@ -131,6 +133,8 @@ module Is-morphism (m : Is-morphism 𝕄₁ 𝕄₂ tr) where
   -- Translation commutes with _⊛ᶜ_▷_ up to _≤ᶜ_.
 
   tr-Conₘ-⊛ᶜ :
+    ⦃ has-star₁ : Dedicated-star 𝕄₁ ⦄
+    ⦃ has-star₂ : Dedicated-star 𝕄₂ ⦄ →
     tr-Conₘ (γ C₁.⊛ᶜ δ ▷ r) ≤ᶜ tr-Conₘ γ C₂.⊛ᶜ tr-Conₘ δ ▷ tr r
   tr-Conₘ-⊛ᶜ {γ = ε}     {δ = ε}     = ε
   tr-Conₘ-⊛ᶜ {γ = _ ∙ _} {δ = _ ∙ _} = tr-Conₘ-⊛ᶜ ∙ tr-⊛
@@ -238,6 +242,8 @@ module Is-order-embedding (m : Is-order-embedding 𝕄₁ 𝕄₂ tr) where
   -- A variant of tr-≤-⊛ for usage contexts.
 
   tr-Conₘ-≤ᶜ-⊛ᶜ :
+    ⦃ has-star₁ : Dedicated-star 𝕄₁ ⦄
+    ⦃ has-star₂ : Dedicated-star 𝕄₂ ⦄ →
     tr-Conₘ γ C₂.≤ᶜ (δ₁ C₂.∧ᶜ δ₂) C₂.⊛ᶜ δ₃ C₂.+ᶜ tr p C₂.·ᶜ δ₂ ▷ tr q →
     ∃₃ λ δ₁′ δ₂′ δ₃′ →
        tr-Conₘ δ₁′ C₂.≤ᶜ δ₁ × tr-Conₘ δ₂′ C₂.≤ᶜ δ₂ × tr-Conₘ δ₃′ C₂.≤ᶜ δ₃ ×
@@ -249,3 +255,29 @@ module Is-order-embedding (m : Is-order-embedding 𝕄₁ 𝕄₂ tr) where
     case tr-Conₘ-≤ᶜ-⊛ᶜ hyp₁ of λ (_ , _ , _ , ≤δ₁ , ≤δ₂ , ≤δ₃ , γ≤) →
     case tr-≤-⊛ hyp₂ of λ (_ , _ , _ , ≤q₁ , ≤q₂ , ≤q₃ , p≤) →
     _ , _ , _ , ≤δ₁ ∙ ≤q₁ , ≤δ₂ ∙ ≤q₂ , ≤δ₃ ∙ ≤q₃ , γ≤ ∙ p≤
+
+  -- A variant of tr-≤-no-star for usage contexts.
+
+  tr-≤ᶜ-no-star :
+    ⦃ no-star : No-dedicated-star 𝕄₁ ⦄ →
+    tr-Conₘ γ C₂.≤ᶜ δ₁ →
+    δ₁ C₂.≤ᶜ δ₂ C₂.∧ᶜ δ₃ C₂.∧ᶜ (δ₄ C₂.+ᶜ tr p C₂.·ᶜ δ₃ C₂.+ᶜ tr q C₂.·ᶜ δ₁) →
+    ∃₄ λ δ₁′ δ₂′ δ₃′ δ₄′ →
+       tr-Conₘ δ₂′ C₂.≤ᶜ δ₂ ×
+       tr-Conₘ δ₃′ C₂.≤ᶜ δ₃ ×
+       tr-Conₘ δ₄′ C₂.≤ᶜ δ₄ ×
+       γ C₁.≤ᶜ δ₁′ ×
+       δ₁′ C₁.≤ᶜ
+         δ₂′ C₁.∧ᶜ δ₃′ C₁.∧ᶜ (δ₄′ C₁.+ᶜ p C₁.·ᶜ δ₃′ C₁.+ᶜ q C₁.·ᶜ δ₁′)
+  tr-≤ᶜ-no-star {γ = ε} {δ₁ = ε} {δ₂ = ε} {δ₃ = ε} {δ₄ = ε} ε ε =
+    _ , _ , _ , _ , ε , ε , ε , ε , ε
+  tr-≤ᶜ-no-star
+    {γ = _ ∙ _} {δ₁ = _ ∙ _} {δ₂ = _ ∙ _} {δ₃ = _ ∙ _} {δ₄ = _ ∙ _}
+    (hyp₁₁ ∙ hyp₁₂) (hyp₂₁ ∙ hyp₂₂) =
+    case tr-≤ᶜ-no-star hyp₁₁ hyp₂₁ of λ {
+      (_ , _ , _ , _ , le₁₁ , le₂₁ , le₃₁ , le₄₁ , le₅₁) →
+    case tr-≤-no-star hyp₁₂ hyp₂₂ of λ {
+      (_ , _ , _ , _ , le₁₂ , le₂₂ , le₃₂ , le₄₂ , le₅₂) →
+      _ , _ , _ , _
+    , le₁₁ ∙ le₁₂ , le₂₁ ∙ le₂₂ , le₃₁ ∙ le₃₂
+    , le₄₁ ∙ le₄₂ , le₅₁ ∙ le₅₂ }}

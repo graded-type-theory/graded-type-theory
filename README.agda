@@ -48,6 +48,7 @@ import Graded.Erasure.SucRed
 import Graded.Erasure.Target
 import Graded.FullReduction
 import Graded.Modality
+import Graded.Modality.Dedicated-star
 import Graded.Modality.Instances.Affine
 import Graded.Modality.Instances.BoundedStar
 import Graded.Modality.Instances.Erasure.Modality
@@ -64,8 +65,8 @@ import Graded.Modality.Properties.Addition
 import Graded.Modality.Properties.Division
 import Graded.Modality.Properties.Multiplication
 import Graded.Modality.Properties.Star
+import Graded.Modality.Variant
 import Graded.Mode
-import Graded.Mode.Restrictions
 import Graded.Reduction
 import Graded.Restrictions
 import Graded.Substitution
@@ -82,9 +83,19 @@ import Graded.Usage.Restrictions
 -- whether certain features should be included or not (in addition to
 -- the possibility to choose what modality to use):
 
--- * One can have a theory with a single mode, or two modes:
+-- * One can have a theory with a single mode, or two modes, and there
+--   can be a (dedicated) natrec-star operator, or the alternative
+--   usage rule for natrec from Section 7.1.4 can be used.
+--
+--   Two mutually exclusive types, Dedicated-star and No-dedicated-star,
+--   are used to control which usage rules are available for natrec. If
+--   Dedicated-star is inhabited, then the rule with the natrec-star
+--   operator is used, and if No-dedicated-star is inhabited, then the
+--   other rule is used.
 
-modes = Graded.Mode.Restrictions.Mode-restrictions
+Modality-variant  = Graded.Modality.Variant.Modality-variant
+Dedicated-star    = Graded.Modality.Dedicated-star.Dedicated-star
+No-dedicated-star = Graded.Modality.Dedicated-star.No-dedicated-star
 
 -- * One can choose whether to allow use of the unit type with
 --   η-equality. Furthermore one can choose whether to allow binders
@@ -134,7 +145,9 @@ no-erased-matches = Graded.Restrictions.no-erased-matches
 -- Definition 3.1: The modality semiring.
 --
 -- For the variant of the type theory in Sections 3-5 the mode 𝟘ᵐ should
--- be disallowed, i.e. 𝟘ᵐ-allowed should be false.
+-- be disallowed, i.e. 𝟘ᵐ-allowed should be false, and there should be
+-- a dedicated natrec-star operator, i.e. ⊛-available should be
+-- inhabited.
 --
 -- Unlike in the paper equality is not required to be decidable.
 -- Instead this property is assumed where it is used.
@@ -404,10 +417,19 @@ decTypeCheckType′ = Definition.Typed.Decidable.dec
 -- The usage rule for prodrec in the paper contains the side condition
 -- "Prodrec r". This condition has been replaced by
 -- "Prodrec-allowed r p q".
+--
+-- There are two alternative usage rules for natrec. One is the one
+-- from Section 5. This one is used if there is a dedicated
+-- natrec-star operator. If there is no such operator, then the rule
+-- from Section 7.1.4 is used.
 
 _▹_ = Graded.Usage._▸[_]_
 
 -- A decision procedure for usage.
+--
+-- The decision procedure for usage takes an argument of type
+-- Dedicated-star: this procedure is not available if the alternative
+-- usage rule for natrec from Section 7.1.4 is used.
 
 decision-procedure-for-usage = Graded.Usage.Decidable.▸[_]?_
 
@@ -678,6 +700,11 @@ not-greatest =
 -- equal to the one for lower bounded instances.
 
 ⊛ᵣ-lower-bounded≤⊛ᵣ-star-semiring = Graded.Modality.Instances.BoundedStar.LowerBounded.⊛′≤⊛
+
+-- The usage rule for natrec without the natrec-star operator is
+-- called natrec-no-starₘ, and is part of the definition of _▸[_]_.
+
+▹-with-alternative-usage-rule-for-natrec = Graded.Usage._▸[_]_
 
 ------------------------------------------------------------------------
 -- 7.2: Erased matches

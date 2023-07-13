@@ -2,12 +2,13 @@
 -- Inversion lemmata for γ ▸[ m ] t
 ------------------------------------------------------------------------
 
-open import Graded.Modality
+import Graded.Modality
 open import Graded.Usage.Restrictions
 
 module Graded.Usage.Inversion
   {a} {M : Set a}
-  (𝕄 : Modality M)
+  (open Graded.Modality M)
+  (𝕄 : Modality)
   (R : Usage-restrictions M)
   where
 
@@ -17,16 +18,19 @@ open Usage-restrictions R
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Usage 𝕄 R
+open import Graded.Modality.Dedicated-star 𝕄
+open import Graded.Modality.Dedicated-star.Instance
 open import Graded.Mode 𝕄
 open import Definition.Untyped M hiding (_∙_)
 
 open import Tools.Nat using (Nat; 1+)
+open import Tools.Nullary
 open import Tools.PropositionalEquality as PE
 
 private
   variable
     k n : Nat
-    γ : Conₘ n
+    γ χ : Conₘ n
     p q r : M
     A F t u z n' : Term n
     G : Term (1+ n)
@@ -242,29 +246,40 @@ inv-usage-suc (sub γ▸st γ≤γ′) with inv-usage-suc γ▸st
 ... | invUsageSuc δ▸t γ′≤δ = invUsageSuc δ▸t (≤ᶜ-trans γ≤γ′ γ′≤δ)
 
 
-record InvUsageNatrec
-         (γ : Conₘ k) (m : Mode) (p q r : M) (A : Term (1+ k))
-         (z : Term k) (s : Term (1+ (1+ k))) (n : Term k) : Set a where
-  constructor invUsageNatrec
-  field
-    {δ η θ φ} : Conₘ k
-    δ▸z  : δ ▸[ m ] z
-    η▸s  : η ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s
-    θ▸n  : θ ▸[ m ] n
-    φ▸A  : φ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
-    γ≤γ′ : γ ≤ᶜ (δ ∧ᶜ θ) ⊛ᶜ (η +ᶜ p ·ᶜ θ) ▷ r
+data InvUsageNatrec′ (p r : M) (γ η δ : Conₘ n) : Conₘ n → Set a where
+  invUsageNatrecStar :
+    ⦃ has-star : Dedicated-star ⦄ →
+    InvUsageNatrec′ p r γ η δ ((γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r)
+  invUsageNatrecNoStar :
+    ⦃ no-star : No-dedicated-star ⦄ →
+    χ ≤ᶜ γ ∧ᶜ η ∧ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ) →
+    InvUsageNatrec′ p r γ η δ χ
 
--- If γ ▸[ m ] natrec p r G z s n, then δ ▸[ m ] z,
--- η ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s, θ ▸[ m ] n,
--- φ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A and γ ≤ᶜ (δ ∧ᶜ θ) ⊛ᶜ (η +ᶜ p ·ᶜ θ) ▷ r.
+data InvUsageNatrec
+       (γ : Conₘ k) (m : Mode) (p q r : M) (A : Term (1+ k))
+       (z : Term k) (s : Term (1+ (1+ k))) (n : Term k) : Set a where
+  invUsageNatrec :
+    {δ η θ φ χ : Conₘ k} →
+    δ ▸[ m ] z →
+    η ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s →
+    θ ▸[ m ] n →
+    φ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A →
+    γ ≤ᶜ χ →
+    InvUsageNatrec′ p r δ θ η χ →
+    InvUsageNatrec γ m p q r A z s n
+
+-- An inversion lemma for natrec.
 
 inv-usage-natrec :
   {s : Term (1+ (1+ k))} {n : Term k} →
   γ ▸[ m ] natrec p q r G z s n → InvUsageNatrec γ m p q r G z s n
-inv-usage-natrec (natrecₘ δ▸z δ▸s η▸n θ▸A) = invUsageNatrec δ▸z δ▸s η▸n θ▸A ≤ᶜ-refl
+inv-usage-natrec (natrecₘ δ▸z δ▸s η▸n θ▸A) =
+  invUsageNatrec δ▸z δ▸s η▸n θ▸A ≤ᶜ-refl invUsageNatrecStar
+inv-usage-natrec (natrec-no-starₘ ▸z ▸s ▸n ▸A fix) =
+  invUsageNatrec ▸z ▸s ▸n ▸A ≤ᶜ-refl (invUsageNatrecNoStar fix)
 inv-usage-natrec (sub γ▸natrec γ≤γ′) with inv-usage-natrec γ▸natrec
-... | invUsageNatrec δ▸z η▸s θ▸n φ▸A γ′≤γ″ = invUsageNatrec δ▸z η▸s θ▸n φ▸A (≤ᶜ-trans γ≤γ′ γ′≤γ″)
-
+... | invUsageNatrec δ▸z η▸s θ▸n φ▸A γ′≤γ″ extra =
+  invUsageNatrec δ▸z η▸s θ▸n φ▸A (≤ᶜ-trans γ≤γ′ γ′≤γ″) extra
 
 record InvUsageemptyrec
          {n} (γ : Conₘ n) (m : Mode) (p : M) (A t : Term n) :

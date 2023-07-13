@@ -3,37 +3,37 @@
 -- if erased matches are not allowed.
 ------------------------------------------------------------------------
 
-import Graded.Modality.Instances.Erasure.Modality
+open import Tools.Empty
+open import Tools.Level
+
+open import Graded.Modality.Instances.Erasure.Modality
 open import Graded.Modality.Instances.Erasure
 
 open import Graded.Restrictions
 open import Graded.Usage.Restrictions Erasure
-open import Graded.Mode.Restrictions
+open import Graded.Modality.Variant lzero
 import Definition.Typed
 open import Definition.Typed.Restrictions Erasure
 open import Definition.Untyped Erasure hiding (_∷_)
 
-open import Tools.Empty
-
 module Application.NegativeOrErasedAxioms.Canonicity.Erased
-  (mrs : Mode-restrictions)
-  (open Graded.Modality.Instances.Erasure.Modality mrs)
+  (variant : Modality-variant)
   (TR : Type-restrictions)
   (open Definition.Typed TR)
   (UR : Usage-restrictions)
   -- Erased matches are not allowed.
-  (no-erased-matches : No-erased-matches ErasureModality UR)
+  (no-erased-matches : No-erased-matches (ErasureModality variant) UR)
   {m} {Γ : Con Term m} (consistent : ∀{t} → Γ ⊢ t ∷ Empty → ⊥)
   where
 
-open import Graded.Context ErasureModality
-open import Graded.Usage ErasureModality UR
-open import Graded.Mode ErasureModality
+open import Graded.Context (ErasureModality variant)
+open import Graded.Usage (ErasureModality variant) UR
+open import Graded.Mode (ErasureModality variant)
 import Application.NegativeOrErasedAxioms.Canonicity
-  mrs TR UR no-erased-matches
+  variant TR UR no-erased-matches
   as NE
 open import Application.NegativeOrErasedAxioms.NegativeOrErasedContext
-  ErasureModality (λ ()) TR
+  (ErasureModality variant) (λ ()) TR
 open import Graded.Erasure.SucRed TR
 
 open import Tools.Nat

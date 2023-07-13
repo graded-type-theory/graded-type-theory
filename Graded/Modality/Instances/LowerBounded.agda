@@ -1,25 +1,27 @@
 ------------------------------------------------------------------------
--- A semiring with a global least element ∞ is a modality instance.
+-- A natrec-star operator can be defined for every semiring with a
+-- global least element ∞
 ------------------------------------------------------------------------
 
-open import Graded.Modality
-open import Graded.Mode.Restrictions
-open import Tools.Bool hiding (_∧_)
+import Graded.Modality
 
 module Graded.Modality.Instances.LowerBounded
-  {a} {M : Set a} (𝕄 : Semiring-with-meet M)
+  {a} {M : Set a}
+  (open Graded.Modality M)
+  (𝕄 : Semiring-with-meet)
   (open Semiring-with-meet 𝕄)
   (∞ : M) (∞-min : (p : M) → ∞ ≤ p)
-  (rs : Mode-restrictions)
-  (open Mode-restrictions rs)
-  (𝟘-well-behaved : T 𝟘ᵐ-allowed → Has-well-behaved-zero M 𝕄) where
+  where
 
 open import Graded.Modality.Properties.Addition 𝕄
 open import Graded.Modality.Properties.Meet 𝕄
 open import Graded.Modality.Properties.Multiplication 𝕄
 open import Graded.Modality.Properties.PartialOrder 𝕄
+open import Graded.Modality.Variant a
 
 open import Tools.Algebra M
+open import Tools.Bool hiding (_∧_)
+open import Tools.Nullary
 open import Tools.Product
 import Tools.Reasoning.Equivalence
 import Tools.Reasoning.PartialOrder
@@ -116,19 +118,28 @@ p ⊛ q ▷ r = ∞ · (p ∧ q)
   where
   open Tools.Reasoning.PartialOrder ≤-poset
 
-is-semiring-with-meet-and-star : Semiring-with-meet-and-star M
-is-semiring-with-meet-and-star = record
-  { semiring-with-meet = 𝕄
-  ; _⊛_▷_ = _⊛_▷_
+has-star : Has-star 𝕄
+has-star = record
+  { _⊛_▷_ = _⊛_▷_
   ; ⊛-ineq = ⊛-ineq₁ , ⊛-ineq₂
   ; +-sub-interchangeable-⊛ = +-sub-interchangeable-⊛
   ; ·-sub-distribʳ-⊛ = ·-sub-distribʳ-⊛
   ; ⊛-sub-distrib-∧ = λ r → ⊛-sub-distribˡ-∧ r , ⊛-sub-distribʳ-∧ r
   }
 
-isModality : Modality M
-isModality = record
-  { semiring-with-meet-and-star = is-semiring-with-meet-and-star
-  ; mode-restrictions = rs
-  ; 𝟘-well-behaved = 𝟘-well-behaved
+-- If certain properties hold, then 𝕄 can be turned into a certain
+-- kind of modality.
+
+isModality :
+  (variant : Modality-variant) →
+  let open Modality-variant variant in
+  (T 𝟘ᵐ-allowed → Has-well-behaved-zero 𝕄) →
+  (T 𝟘ᵐ-allowed → ¬ ⊛-available → ∀ p q → p + q ≤ p) →
+  Modality
+isModality variant 𝟘-well-behaved +-decreasingˡ = record
+  { variant            = variant
+  ; semiring-with-meet = 𝕄
+  ; 𝟘-well-behaved     = 𝟘-well-behaved
+  ; has-star           = λ _ → has-star
+  ; +-decreasingˡ      = +-decreasingˡ
   }

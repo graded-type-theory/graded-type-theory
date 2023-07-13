@@ -2,18 +2,22 @@
 -- Properties of the modality semiring that hold if 𝟘 is well-behaved.
 ------------------------------------------------------------------------
 
-open import Graded.Modality
+import Graded.Modality
 
 module Graded.Modality.Properties.Has-well-behaved-zero
-  {a} {M : Set a} (𝕄 : Semiring-with-meet-and-star M)
-  (open Semiring-with-meet-and-star 𝕄)
-  (𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet) where
+  {a} {M : Set a}
+  (open Graded.Modality M)
+  (𝕄 : Semiring-with-meet)
+  (open Semiring-with-meet 𝕄)
+  (𝟘-well-behaved : Has-well-behaved-zero 𝕄)
+  where
 
 
 open Has-well-behaved-zero 𝟘-well-behaved public
 
-open import Graded.Modality.Properties.Meet semiring-with-meet
-open import Graded.Modality.Properties.PartialOrder semiring-with-meet
+open import Graded.Modality.Natrec-star-instances
+open import Graded.Modality.Properties.Meet 𝕄
+open import Graded.Modality.Properties.PartialOrder 𝕄
 open import Tools.PropositionalEquality
 
 open import Tools.Function
@@ -66,7 +70,9 @@ private
 -- If the mode 𝟘ᵐ is allowed and p ⊛ q ▷ r is equal to zero, then p is
 -- equal to zero.
 
-⊛≡𝟘ˡ : p ⊛ q ▷ r ≡ 𝟘 → p ≡ 𝟘
+⊛≡𝟘ˡ :
+  ⦃ has-star : Has-star 𝕄 ⦄ →
+  p ⊛ q ▷ r ≡ 𝟘 → p ≡ 𝟘
 ⊛≡𝟘ˡ {p = p} {q = q} {r = r} p⊛q▷r≡𝟘 = 𝟘≮ (begin
   𝟘          ≈˘⟨ p⊛q▷r≡𝟘 ⟩
   p ⊛ q ▷ r  ≤⟨ ⊛-ineq₂ _ _ _ ⟩
@@ -77,7 +83,9 @@ private
 -- If the mode 𝟘ᵐ is allowed and p ⊛ q ▷ r is equal to zero, then q is
 -- equal to zero.
 
-⊛≡𝟘ʳ : p ⊛ q ▷ r ≡ 𝟘 → q ≡ 𝟘
+⊛≡𝟘ʳ :
+  ⦃ has-star : Has-star 𝕄 ⦄ →
+  p ⊛ q ▷ r ≡ 𝟘 → q ≡ 𝟘
 ⊛≡𝟘ʳ {p = p} {q = q} {r = r} p⊛q▷r≡𝟘 = +-positiveˡ (𝟘≮ (begin
   𝟘                  ≈˘⟨ p⊛q▷r≡𝟘 ⟩
   p ⊛ q ▷ r          ≤⟨ ⊛-ineq₁ _ _ _ ⟩

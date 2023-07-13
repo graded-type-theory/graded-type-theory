@@ -99,6 +99,14 @@ p ≤ q = p ≡ p ∧ q
 +-Identity : Identity 𝟘 _+_
 +-Identity = +-LeftIdentity , +-RightIdentity
 
+-- Addition is decreasing for the left argument.
+
++-decreasingˡ : (p q : Erasure) → (p + q) ≤ p
++-decreasingˡ 𝟘 𝟘 = refl
++-decreasingˡ 𝟘 ω = refl
++-decreasingˡ ω 𝟘 = refl
++-decreasingˡ ω ω = refl
+
 ----------------------------------
 -- Properties of multiplication --
 ----------------------------------

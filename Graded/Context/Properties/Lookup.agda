@@ -2,16 +2,20 @@
 -- Properties of context lookup.
 ------------------------------------------------------------------------
 
-open import Graded.Modality
+import Graded.Modality
 
 module Graded.Context.Properties.Lookup
-  {a} {M : Set a} (𝕄 : Modality M) where
+  {a} {M : Set a}
+  (open Graded.Modality M)
+  (𝕄 : Modality)
+  where
 
 open Modality 𝕄
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties.Equivalence 𝕄
 open import Graded.Context.Properties.PartialOrder 𝕄
+open import Graded.Modality.Natrec-star-instances
 open import Graded.Modality.Properties.PartialOrder semiring-with-meet
 
 open import Tools.Fin
@@ -77,8 +81,10 @@ lookup-distrib-∧ᶜ (γ ∙ p) (δ ∙ q) (x +1) = lookup-distrib-∧ᶜ γ δ
 -- Context lookup distributes over ⊛ᶜ
 -- (γ ⊛ᶜ δ ▷ r)⟨x⟩ ≡ γ⟨x⟩ ⊛ δ⟨x⟩ ▷ r
 
-lookup-distrib-⊛ᶜ : (γ δ : Conₘ n) (r : M) (x : Fin n)
-                   → (γ ⊛ᶜ δ ▷ r) ⟨ x ⟩ ≡ (γ ⟨ x ⟩) ⊛ (δ ⟨ x ⟩) ▷ r
+lookup-distrib-⊛ᶜ :
+  ⦃ has-star : Has-star semiring-with-meet ⦄ →
+  (γ δ : Conₘ n) (r : M) (x : Fin n) →
+  (γ ⊛ᶜ δ ▷ r) ⟨ x ⟩ ≡ (γ ⟨ x ⟩) ⊛ (δ ⟨ x ⟩) ▷ r
 lookup-distrib-⊛ᶜ (γ ∙ p) (δ ∙ q) r x0     = PE.refl
 lookup-distrib-⊛ᶜ (γ ∙ p) (δ ∙ q) r (x +1) = lookup-distrib-⊛ᶜ γ δ r x
 

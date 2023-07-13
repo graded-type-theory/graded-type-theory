@@ -7,21 +7,10 @@
 
 module Graded.Modality.Instances.Linear-or-affine where
 
-import Graded.Modality
-open import Graded.FullReduction.Assumptions
-import Graded.Modality.Properties.Addition as Addition
-import Graded.Modality.Properties.Meet as Meet
-import Graded.Modality.Properties.Multiplication as Multiplication
-import Graded.Modality.Properties.PartialOrder as PartialOrder
-import Graded.Modality.Properties.Star as Star
-import Graded.Restrictions
-
-open import Graded.Mode.Restrictions
-
-import Definition.Typed.Restrictions
-
 import Tools.Algebra
+open import Tools.Bool using (T)
 open import Tools.Function
+open import Tools.Level
 open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
@@ -29,6 +18,18 @@ import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
 open import Tools.Sum
 open import Tools.Unit
+
+import Graded.Modality
+open import Graded.FullReduction.Assumptions
+import Graded.Modality.Properties.Addition as Addition
+import Graded.Modality.Properties.Meet as Meet
+import Graded.Modality.Properties.Multiplication as Multiplication
+import Graded.Modality.Properties.PartialOrder as PartialOrder
+import Graded.Modality.Properties.Star as Star
+open import Graded.Modality.Variant lzero
+import Graded.Restrictions
+
+import Definition.Typed.Restrictions
 
 ------------------------------------------------------------------------
 -- The type
@@ -43,9 +44,9 @@ open Definition.Typed.Restrictions Linear-or-affine
 open Tools.Algebra                 Linear-or-affine
 
 private variable
-  p q r : Linear-or-affine
-  mrs   : Mode-restrictions
-  trs   : Type-restrictions
+  p q r   : Linear-or-affine
+  variant : Modality-variant
+  trs     : Type-restrictions
 
 ------------------------------------------------------------------------
 -- Basic operations
@@ -885,25 +886,18 @@ Star-requirements-required′
        ≤ω                ∎)
     (≤ω≤ (≤𝟙 ⊛ 𝟘 ▷ ≤ω))
 
--- The star operation of a modality for Linear-or-affine for which the
--- zero is 𝟘, the one is 𝟙, addition is _+_, multiplication is _·_,
--- and the meet operation is _∧_ has to satisfy the Star-requirements.
+-- Every natrec-star operator for linear-or-affine-semiring-with-meet
+-- has to satisfy the Star-requirements.
 
 Star-requirements-required :
-  (M : Modality) →
-  Modality.𝟘   M ≡ 𝟘 →
-  Modality.𝟙   M ≡ 𝟙 →
-  Modality._+_ M ≡ _+_ →
-  Modality._·_ M ≡ _·_ →
-  Modality._∧_ M ≡ _∧_ →
-  Star-requirements (Modality._⊛_▷_ M)
-Star-requirements-required M refl refl refl refl refl =
+  (has-star : Has-star linear-or-affine-semiring-with-meet) →
+  Star-requirements (Has-star._⊛_▷_ has-star)
+Star-requirements-required has-star =
   Star-requirements-required′
-    semiring-with-meet refl refl refl refl refl
+    linear-or-affine-semiring-with-meet refl refl refl refl refl
     _⊛_▷_ ⊛-ineq₁ ⊛-ineq₂ ·-sub-distribʳ-⊛
   where
-  open Modality M
-  open Star semiring-with-meet-and-star
+  open Has-star has-star
 
 -- A "greatest" definition of the star operation.
 
@@ -1009,22 +1003,15 @@ p ⊛ q ▷ ≤ω = ≤ω · (p ∧ q)
 ⊛≤𝟙▷≤𝟙 ≤𝟙 = refl
 ⊛≤𝟙▷≤𝟙 ≤ω = refl
 
--- The star operation returns results that are at least as large as
--- those of the star operation of any modality for Linear-or-affine
--- for which the zero is 𝟘, the one is 𝟙, addition is _+_,
--- multiplication is _·_, and the meet operation is _∧_.
+-- The natrec-star operator returns results that are at least as large
+-- as those of any other natrec-star operator for
+-- linear-or-affine-semiring-with-meet.
 
 ⊛-greatest :
-  (M : Modality) →
-  Modality.𝟘   M ≡ 𝟘 →
-  Modality.𝟙   M ≡ 𝟙 →
-  Modality._+_ M ≡ _+_ →
-  Modality._·_ M ≡ _·_ →
-  Modality._∧_ M ≡ _∧_ →
-  ∀ p q r → Modality._⊛_▷_ M p q r ≤ p ⊛ q ▷ r
-⊛-greatest M refl refl refl refl refl =
-  case Star-requirements-required
-         M refl refl refl refl refl of
+  (has-star : Has-star linear-or-affine-semiring-with-meet) →
+  ∀ p q r → Has-star._⊛_▷_ has-star p q r ≤ p ⊛ q ▷ r
+⊛-greatest has-star =
+  case Star-requirements-required has-star of
     λ (≤ω⊛▷′ , ⊛≤ω▷′ , ⊛▷′≤ω , 𝟘⊛𝟘▷′ ,
        ⊛𝟙▷′𝟙 , ⊛𝟙▷′≤𝟙 , ⊛≤𝟙▷′𝟙 , ⊛≤𝟙▷′≤𝟙 ,
        𝟘⊛𝟙▷′𝟘 , 𝟘⊛≤𝟙▷′𝟘 , 𝟙⊛𝟘▷′𝟘 , ≤𝟙⊛𝟘▷′𝟘 ,
@@ -1111,17 +1098,17 @@ p ⊛ q ▷ ≤ω = ≤ω · (p ∧ q)
       ≤𝟙 ⊛ ≤𝟙 ▷′ 𝟘  ≤⟨ ≤𝟙⊛≤𝟙▷′𝟘 ⟩
       ≤𝟙            ∎
   where
-  open Modality M using (semiring-with-meet) renaming (_⊛_▷_ to _⊛_▷′_)
-  open PartialOrder semiring-with-meet
+  open Has-star has-star renaming (_⊛_▷_ to _⊛_▷′_)
+  open PartialOrder linear-or-affine-semiring-with-meet
   open Tools.Reasoning.PartialOrder ≤-poset
 
+-- The "greatest" star operator defined above is a proper natrec-star
+-- operator.
 
--- The "linear or affine types" semiring with meet and star
-
-linear-or-affine-semiring-with-meet-and-star : Semiring-with-meet-and-star
-linear-or-affine-semiring-with-meet-and-star = record
-  { semiring-with-meet      = semiring-with-meet
-  ; _⊛_▷_                   = _⊛_▷_
+linear-or-affine-has-star :
+  Has-star linear-or-affine-semiring-with-meet
+linear-or-affine-has-star = record
+  { _⊛_▷_                   = _⊛_▷_
   ; ⊛-ineq                  = ⊛-ineq₁ , ⊛-ineq₂
   ; +-sub-interchangeable-⊛ = +-sub-interchangeable-⊛
   ; ·-sub-distribʳ-⊛        = λ r _ _ _ →
@@ -1369,14 +1356,20 @@ linear-or-affine-semiring-with-meet-and-star = record
 ------------------------------------------------------------------------
 -- The modality
 
--- The "linear or affine types" modality (with arbitrary mode
--- restrictions).
+-- A "linear or affine types" modality. If there is no dedicated
+-- natrec-star operator, then 𝟘̂ᵐ must not be allowed.
 
-linear-or-affine : Mode-restrictions → Modality
-linear-or-affine rs = record
-  { semiring-with-meet-and-star = linear-or-affine-semiring-with-meet-and-star
-  ; mode-restrictions = rs
-  ; 𝟘-well-behaved = λ _ → linear-or-affine-has-well-behaved-zero
+linear-or-affine :
+  (variant : Modality-variant) →
+  let open Modality-variant variant in
+  (¬ ⊛-available → ¬ T 𝟘ᵐ-allowed) →
+  Modality
+linear-or-affine variant ok = record
+  { variant            = variant
+  ; semiring-with-meet = linear-or-affine-semiring-with-meet
+  ; 𝟘-well-behaved     = λ _ → linear-or-affine-has-well-behaved-zero
+  ; has-star           = λ _ → linear-or-affine-has-star
+  ; +-decreasingˡ      = λ 𝟘ᵐ-ok no-star → ⊥-elim (ok no-star 𝟘ᵐ-ok)
   }
 
 ------------------------------------------------------------------------
@@ -1417,12 +1410,14 @@ suitable-for-full-reduction rs =
   where
   open Type-restrictions rs
 
--- The full reduction assumptions hold for linear-or-affine mrs and
--- any "suitable" Type-restrictions.
+-- The full reduction assumptions hold for any instance of
+-- linear-or-affine and any "suitable" Type-restrictions.
 
 full-reduction-assumptions :
+  let open Modality-variant variant in
+  {variant-ok : ¬ ⊛-available → ¬ T 𝟘ᵐ-allowed} →
   Suitable-for-full-reduction trs →
-  Full-reduction-assumptions (linear-or-affine mrs) trs
+  Full-reduction-assumptions (linear-or-affine variant variant-ok) trs
 full-reduction-assumptions (¬Unit , ¬𝟘 , ¬≤𝟙 , ¬≤ω) = record
   { 𝟙≤𝟘    = ⊥-elim ∘→ ¬Unit
   ; ≡𝟙⊎𝟙≤𝟘 = λ where

@@ -19,6 +19,7 @@ import Tools.Reasoning.Equivalence
 
 open import Graded.Context.Properties.Addition 𝕄 public
 open import Graded.Context.Properties.Equivalence 𝕄 public
+open import Graded.Context.Properties.Has-well-behaved-zero 𝕄 public
 open import Graded.Context.Properties.Lookup 𝕄 public
 open import Graded.Context.Properties.Meet 𝕄 public
 open import Graded.Context.Properties.Multiplication 𝕄 public

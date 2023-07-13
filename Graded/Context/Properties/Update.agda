@@ -2,15 +2,19 @@
 -- Properties of context updates.
 ------------------------------------------------------------------------
 
-open import Graded.Modality
+import Graded.Modality
 
 module Graded.Context.Properties.Update
-  {a} {M : Set a} (𝕄 : Modality M) where
+  {a} {M : Set a}
+  (open Graded.Modality M)
+  (𝕄 : Modality)
+  where
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties.Equivalence 𝕄
 open import Graded.Context.Properties.Lookup 𝕄
 open import Graded.Context.Properties.PartialOrder 𝕄
+open import Graded.Modality.Natrec-star-instances
 open import Graded.Modality.Properties 𝕄
 
 open import Tools.Fin
@@ -135,8 +139,10 @@ update-distrib-∧ᶜ (γ ∙ p′) (δ ∙ q′) p q (x +1) = cong (_∙ _) (up
 -- Context update distributes over ⊛ᶜ
 -- γ ⊛ᶜ δ ▷ r , x ≔ p ⊛ q ▷ r ≡ (γ , x ≔ p) ⊛ᶜ (δ , x ≔ q) ▷ r
 
-update-distrib-⊛ᶜ : (γ δ : Conₘ n) (r p q : M) (x : Fin n)
-                   → γ ⊛ᶜ δ ▷ r , x ≔ (p ⊛ q ▷ r) ≡ (γ , x ≔ p) ⊛ᶜ (δ , x ≔ q) ▷ r
+update-distrib-⊛ᶜ :
+  ⦃ has-star : Has-star semiring-with-meet ⦄ →
+  (γ δ : Conₘ n) (r p q : M) (x : Fin n) →
+  γ ⊛ᶜ δ ▷ r , x ≔ (p ⊛ q ▷ r) ≡ (γ , x ≔ p) ⊛ᶜ (δ , x ≔ q) ▷ r
 update-distrib-⊛ᶜ (γ ∙ _) (δ ∙ _) r p q x0 = PE.refl
 update-distrib-⊛ᶜ (γ ∙ _) (δ ∙ _) r p q (x +1) =
   cong (_∙ _) (update-distrib-⊛ᶜ γ δ r p q x)

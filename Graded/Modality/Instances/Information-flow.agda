@@ -4,21 +4,22 @@
 
 module Graded.Modality.Instances.Information-flow where
 
-open import Graded.FullReduction.Assumptions
-import Graded.Modality
-import Graded.Modality.Properties.Division
-open import Graded.Mode.Restrictions
-
-import Definition.Typed.Restrictions
-
 import Tools.Algebra
 open import Tools.Bool using (T)
 open import Tools.Function
+open import Tools.Level using (lzero)
 open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 open import Tools.Relation
 open import Tools.Sum
+
+open import Graded.FullReduction.Assumptions
+import Graded.Modality
+import Graded.Modality.Properties.Division
+open import Graded.Modality.Variant lzero
+
+import Definition.Typed.Restrictions
 
 -- Three information levels: low (public), medium (private), and high
 -- (more private).
@@ -31,9 +32,9 @@ open Graded.Modality               Level
 open Tools.Algebra                 Level
 
 private variable
-  p q r : Level
-  mrs   : Mode-restrictions
-  trs   : Type-restrictions
+  p q r   : Level
+  variant : Modality-variant
+  trs     : Type-restrictions
 
 ------------------------------------------------------------------------
 -- Operators
@@ -433,12 +434,11 @@ L≤M≤H-has-well-behaved-zero = record
       {p = H}         _  → refl
   }
 
--- A "semiring with meet and star" for Level.
+-- A natrec-star operator can be defined for L≤M≤H-semiring-with-meet.
 
-L≤M≤H-semiring-with-meet-and-star : Semiring-with-meet-and-star
-L≤M≤H-semiring-with-meet-and-star = record
-  { semiring-with-meet = L≤M≤H-semiring-with-meet
-  ; _⊛_▷_              = _⊛_▷_
+L≤M≤H-has-star : Has-star L≤M≤H-semiring-with-meet
+L≤M≤H-has-star = record
+  { _⊛_▷_              = _⊛_▷_
   ; ⊛-ineq             =
         (λ where
            L L L → refl
@@ -647,14 +647,24 @@ L≤M≤H-semiring-with-meet-and-star = record
            H H H → refl)
   }
 
--- The three-point information flow modality (with arbitrary mode
--- restrictions).
+-- A three-point information flow modality (of any kind).
 
-L≤M≤H : Mode-restrictions → Modality
-L≤M≤H rs = record
-  { semiring-with-meet-and-star = L≤M≤H-semiring-with-meet-and-star
-  ; mode-restrictions           = rs
-  ; 𝟘-well-behaved              = λ _ → L≤M≤H-has-well-behaved-zero
+L≤M≤H : Modality-variant → Modality
+L≤M≤H variant = record
+  { variant            = variant
+  ; semiring-with-meet = L≤M≤H-semiring-with-meet
+  ; 𝟘-well-behaved     = λ _ → L≤M≤H-has-well-behaved-zero
+  ; has-star           = λ _ → L≤M≤H-has-star
+  ; +-decreasingˡ      = λ _ _ → λ where
+      L L → refl
+      L M → refl
+      L H → refl
+      M L → refl
+      M M → refl
+      M H → refl
+      H L → refl
+      H M → refl
+      H H → refl
   }
 
 ------------------------------------------------------------------------
@@ -719,28 +729,28 @@ L/≡L {p = p} = /≡→/≡ {q = p} $ D.𝟙/≡𝟙 {p = p} L≤
 ------------------------------------------------------------------------
 -- Instances of Full-reduction-assumptions
 
--- An instance of Mode-restrictions along with an instance of
+-- An instance of Modality-variant along with an instance of
 -- Type-restrictions are suitable for the full reduction theorem if
 -- * Σₚ-allowed M p does not hold, and
 -- * Σₚ-allowed H p implies that 𝟘ᵐ is allowed.
 
 Suitable-for-full-reduction :
-  Mode-restrictions → Type-restrictions → Set
-Suitable-for-full-reduction mrs trs =
+  Modality-variant → Type-restrictions → Set
+Suitable-for-full-reduction variant trs =
   (∀ p → ¬ Σₚ-allowed M p) ×
   (∀ p → Σₚ-allowed H p → T 𝟘ᵐ-allowed)
   where
-  open Mode-restrictions mrs
+  open Modality-variant variant
   open Type-restrictions trs
 
--- Given an instance of Mode-restrictions and an instance of
+-- Given an instance of Modality-variant and an instance of
 -- Type-restrictions one can create a "suitable" instance of
 -- Type-restrictions.
 
 suitable-for-full-reduction :
-  (mrs : Mode-restrictions) → Type-restrictions →
-  ∃ (Suitable-for-full-reduction mrs)
-suitable-for-full-reduction mrs trs =
+  (variant : Modality-variant) → Type-restrictions →
+  ∃ (Suitable-for-full-reduction variant)
+suitable-for-full-reduction variant trs =
     record trs
       { ΠΣ-allowed = λ b p q →
           ΠΣ-allowed b p q × p ≢ M × (T 𝟘ᵐ-allowed ⊎ p ≢ H)
@@ -751,15 +761,15 @@ suitable-for-full-reduction mrs trs =
           ; (inj₂ H≢H) → ⊥-elim (H≢H refl)
           }) ∘→ proj₂ ∘→ proj₂)
   where
-  open Mode-restrictions mrs
+  open Modality-variant variant
   open Type-restrictions trs
 
--- The full reduction assumptions hold for L≤M≤H mrs and any
+-- The full reduction assumptions hold for L≤M≤H variant and any
 -- "suitable" Type-restrictions.
 
 full-reduction-assumptions :
-  Suitable-for-full-reduction mrs trs →
-  Full-reduction-assumptions (L≤M≤H mrs) trs
+  Suitable-for-full-reduction variant trs →
+  Full-reduction-assumptions (L≤M≤H variant) trs
 full-reduction-assumptions (¬M , H→𝟘̂ᵐ) = record
   { 𝟙≤𝟘    = λ _ → refl
   ; ≡𝟙⊎𝟙≤𝟘 = λ where

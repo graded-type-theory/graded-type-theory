@@ -41,9 +41,10 @@ import Definition.LogicalRelation.Substitution.Irrelevance TR as IS
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
+open import Graded.Modality.Dedicated-star.Instance
 open import Graded.Modality.Properties.PartialOrder semiring-with-meet
 open import Graded.Modality.Properties.Has-well-behaved-zero
-  semiring-with-meet-and-star 𝟘-well-behaved
+  semiring-with-meet 𝟘-well-behaved
 open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Inversion 𝕄 UR
 open import Graded.Usage.Properties 𝕄 UR
@@ -391,8 +392,9 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
     (natrecⱼ {A = A} {z = z} {s = s} {p = p} {q = q} {r = r} {n = n}
        Γ⊢A Γ⊢z:A Γ⊢s:A Γ⊢n:ℕ)
     γ▸t =
-    let invUsageNatrec δ▸z η▸s θ▸n _ γ≤γ′ = inv-usage-natrec γ▸t
-        [Γ]   , [A₀]  , ⊩ʳz  = fundamental Γ⊢z:A δ▸z
+    case inv-usage-natrec γ▸t of λ {
+      (invUsageNatrec {δ = δ} δ▸z η▸s θ▸n _ γ≤γ′ extra) →
+    let [Γ]   , [A₀]  , ⊩ʳz  = fundamental Γ⊢z:A δ▸z
         [ΓℕA] , [A₊]′ , ⊩ʳs′ = fundamental Γ⊢s:A η▸s
         [Γ]′  , [ℕ]′  , ⊩ʳn′ = fundamental Γ⊢n:ℕ θ▸n
         [ℕ] = ℕᵛ {l = ¹} [Γ]
@@ -417,11 +419,16 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
         ⊩ʳn = irrelevance {A = ℕ} {t = n} [Γ]′ [Γ] [ℕ]′ [ℕ] ⊩ʳn′
         [A[n]] , ⊩ʳnatrec =
           natrecʳ {A = A} {z = z} {s = s} {m = n}
-                  [Γ] [A] [A₊] [A₀] [z] [s] [n] ⊩ʳz ⊩ʳs ⊩ʳn
+            [Γ] [A] [A₊] [A₀] [z] [s] [n] ⊩ʳz ⊩ʳs ⊩ʳn
+            (case extra of λ where
+               invUsageNatrecStar         → ⟨⟩≡𝟘→⟨⟩≡𝟘-⊛ 𝟘-well-behaved δ
+               (invUsageNatrecNoStar fix) →
+                 ⟨⟩≡𝟘→⟨⟩≡𝟘-fixpoint 𝟘-well-behaved fix)
     in  [Γ] , [A[n]] ,
-        subsumption-≤ well-formed
-          {A = A [ n ]₀} {t = natrec p q r A z s n}
-          [Γ] [A[n]] ⊩ʳnatrec γ≤γ′
+        λ {_ _} →
+          subsumption-≤ well-formed
+            {A = A [ n ]₀} {t = natrec p q r A z s n}
+            [Γ] [A[n]] ⊩ʳnatrec γ≤γ′ }
   fundamental
     {Γ = Γ} {γ = γ}
     (emptyrecⱼ {A = A} {t = t} {p = p} ⊢A Γ⊢t:Empty) γ▸t =

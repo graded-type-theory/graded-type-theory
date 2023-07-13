@@ -1,16 +1,21 @@
 ------------------------------------------------------------------------
--- Properties of the star operator.
+-- Properties of natrec-star operators
 ------------------------------------------------------------------------
 
-open import Graded.Modality
+import Graded.Modality
 
 module Graded.Modality.Properties.Star
-  {a} {M : Set a} (𝕄 : Semiring-with-meet-and-star M) where
+  {a} {M : Set a}
+  (open Graded.Modality M)
+  (𝕄 : Semiring-with-meet)
+  ⦃ has-star : Has-star 𝕄 ⦄
+  where
 
-open Semiring-with-meet-and-star 𝕄
+open Semiring-with-meet 𝕄
 
-open import Graded.Modality.Properties.PartialOrder semiring-with-meet
-open import Graded.Modality.Properties.Meet semiring-with-meet
+open import Graded.Modality.Natrec-star-instances
+open import Graded.Modality.Properties.PartialOrder 𝕄
+open import Graded.Modality.Properties.Meet 𝕄
 
 open import Tools.Algebra M
 open import Tools.PropositionalEquality

@@ -13,7 +13,9 @@ open import Graded.Context.Properties.PartialOrder 𝕄
 open import Graded.Modality.Properties 𝕄
 
 open import Tools.Algebra
+open import Tools.Bool
 open import Tools.Nat using (Nat)
+open import Tools.Nullary
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 
@@ -129,3 +131,11 @@ private
     }
   ; comm = λ γ δ → ≈ᶜ→≡ (+ᶜ-comm γ δ)
   }
+
+-- If the mode 𝟘ᵐ is allowed and the modality does not come with a
+-- dedicated natrec-star operator, then _+ᶜ δ is decreasing.
+
++ᶜ-decreasingˡ : T 𝟘ᵐ-allowed → ¬ ⊛-available → γ +ᶜ δ ≤ᶜ γ
++ᶜ-decreasingˡ {γ = ε}     {δ = ε}     _  _       = ε
++ᶜ-decreasingˡ {γ = _ ∙ _} {δ = _ ∙ _} ok no-star =
+  +ᶜ-decreasingˡ ok no-star ∙ +-decreasingˡ ok no-star _ _

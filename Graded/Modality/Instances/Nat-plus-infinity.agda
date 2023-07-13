@@ -4,21 +4,10 @@
 
 module Graded.Modality.Instances.Nat-plus-infinity where
 
-open import Graded.FullReduction.Assumptions
-import Graded.Modality
-import Graded.Modality.Instances.BoundedStar as BoundedStar
-import Graded.Modality.Instances.LowerBounded as LowerBounded
-import Graded.Modality.Instances.Recursive.Sequences
-import Graded.Modality.Properties.Division
-import Graded.Modality.Properties.Meet
-import Graded.Modality.Properties.PartialOrder
-open import Graded.Mode.Restrictions
-
-import Definition.Typed.Restrictions
-
 import Tools.Algebra
 open import Tools.Bool using (T)
 open import Tools.Function
+open import Tools.Level
 open import Tools.Nat as N using (Nat; 1+)
 open import Tools.Nullary
 open import Tools.Product as Σ
@@ -27,6 +16,18 @@ import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 open import Tools.Sum as ⊎ using (_⊎_; inj₁; inj₂)
+
+open import Graded.FullReduction.Assumptions
+import Graded.Modality
+import Graded.Modality.Instances.BoundedStar as BoundedStar
+import Graded.Modality.Instances.LowerBounded as LowerBounded
+import Graded.Modality.Instances.Recursive.Sequences
+import Graded.Modality.Properties.Division
+import Graded.Modality.Properties.Meet
+import Graded.Modality.Properties.PartialOrder
+open import Graded.Modality.Variant lzero
+
+import Definition.Typed.Restrictions
 
 -- The grades are the natural numbers extended with ∞.
 
@@ -39,9 +40,9 @@ open Graded.Modality               ℕ⊎∞
 open Tools.Algebra                 ℕ⊎∞
 
 private variable
-  m n o : ℕ⊎∞
-  TRs   : Type-restrictions
-  mrs   : Mode-restrictions
+  m n o   : ℕ⊎∞
+  TRs     : Type-restrictions
+  variant : Modality-variant
 
 ------------------------------------------------------------------------
 -- Operators
@@ -164,6 +165,13 @@ m ≤ n = m ≡ m ∧ n
 ⌞⌟·⌞⌟≡⌞*⌟ {m = 0}               = refl
 ⌞⌟·⌞⌟≡⌞*⌟ {m = 1+ _} {n = 1+ _} = refl
 ⌞⌟·⌞⌟≡⌞*⌟ {m = 1+ m} {n = 0}    = cong ⌞_⌟ (sym (N.*-zeroʳ m))
+
+-- Addition is decreasing for the left argument.
+
++-decreasingˡ : m + n ≤ m
++-decreasingˡ {m = ∞}                 = refl
++-decreasingˡ {m = ⌞ _ ⌟} {n = ∞}     = refl
++-decreasingˡ {m = ⌞ _ ⌟} {n = ⌞ n ⌟} = ⌞⌟-antitone (N.m≤m+n _ n)
 
 -- One of the two characteristic properties of the star operator of a
 -- star semiring.
@@ -420,52 +428,58 @@ _≟_ = λ where
   }
 
 private
-  module BS rs =
+  module BS =
     BoundedStar
-      ℕ⊎∞-semiring-with-meet _* (λ _ → *≡+·*) (λ _ → inj₁ ≤0) rs
-      (λ _ → ℕ⊎∞-has-well-behaved-zero)
+      ℕ⊎∞-semiring-with-meet _* (λ _ → *≡+·*) (λ _ → inj₁ ≤0)
 
--- A modality for ℕ⊎∞ (with arbitrary mode restrictions) defined using
--- the construction in Graded.Modality.Instances.BoundedStar.
+-- A natrec-star operator for ℕ⊎∞ defined using the construction in
+-- Graded.Modality.Instances.BoundedStar.
 
-ℕ⊎∞-modality : Mode-restrictions → Modality
-ℕ⊎∞-modality = BS.isModality
+ℕ⊎∞-has-star-bounded-star : Has-star ℕ⊎∞-semiring-with-meet
+ℕ⊎∞-has-star-bounded-star = BS.has-star
 
--- A modality for ℕ⊎∞ (with arbitrary mode restrictions) defined using
--- the construction in Graded.Modality.Instances.LowerBounded.
+-- A natrec-star operator for ℕ⊎∞ defined using the construction in
+-- Graded.Modality.Instances.LowerBounded.
 
-ℕ⊎∞-modality′ : Mode-restrictions → Modality
-ℕ⊎∞-modality′ rs = LowerBounded.isModality
-  ℕ⊎∞-semiring-with-meet ∞ ∞≤ rs
-  (λ _ → ℕ⊎∞-has-well-behaved-zero)
+ℕ⊎∞-has-star-lower-bounded : Has-star ℕ⊎∞-semiring-with-meet
+ℕ⊎∞-has-star-lower-bounded =
+  LowerBounded.has-star ℕ⊎∞-semiring-with-meet ∞ ∞≤
 
 -- The _⊛_▷_ operator of the second modality is equal to the _⊛_▷_
 -- operator of the first modality for non-zero last arguments.
 
 ≢𝟘→⊛▷≡⊛▷ :
-  (rs₁ rs₂ : Mode-restrictions) →
-  let module M₁ = Modality (ℕ⊎∞-modality rs₁)
-      module M₂ = Modality (ℕ⊎∞-modality′ rs₂)
+  let module HS₁ = Has-star ℕ⊎∞-has-star-bounded-star
+      module HS₂ = Has-star ℕ⊎∞-has-star-lower-bounded
   in
   o ≢ ⌞ 0 ⌟ →
-  m M₁.⊛ n ▷ o ≡ m M₂.⊛ n ▷ o
-≢𝟘→⊛▷≡⊛▷ {o = ∞}        _ _ _   = refl
-≢𝟘→⊛▷≡⊛▷ {o = ⌞ 1+ _ ⌟} _ _ _   = refl
-≢𝟘→⊛▷≡⊛▷ {o = ⌞ 0 ⌟}    _ _ 0≢0 = ⊥-elim (0≢0 refl)
+  m HS₁.⊛ n ▷ o ≡ m HS₂.⊛ n ▷ o
+≢𝟘→⊛▷≡⊛▷ {o = ∞}        _   = refl
+≢𝟘→⊛▷≡⊛▷ {o = ⌞ 1+ _ ⌟} _   = refl
+≢𝟘→⊛▷≡⊛▷ {o = ⌞ 0 ⌟}    0≢0 = ⊥-elim (0≢0 refl)
 
 -- The _⊛_▷_ operator of the second modality is bounded strictly by
 -- the _⊛_▷_ operator of the first modality.
 
 ⊛▷<⊛▷ :
-  (rs₁ rs₂ : Mode-restrictions) →
-  let module M₁ = Modality (ℕ⊎∞-modality rs₁)
-      module M₂ = Modality (ℕ⊎∞-modality′ rs₂)
+  let module HS₁ = Has-star ℕ⊎∞-has-star-bounded-star
+      module HS₂ = Has-star ℕ⊎∞-has-star-lower-bounded
   in
-  (∀ m n o → m M₂.⊛ n ▷ o ≤ m M₁.⊛ n ▷ o) ×
-  (∃₃ λ m n o → m M₂.⊛ n ▷ o ≢ m M₁.⊛ n ▷ o)
-⊛▷<⊛▷ rs₁ _ =
-    BS.LowerBounded.⊛′≤⊛ rs₁ ∞ (λ _ → refl)
+  (∀ m n o → m HS₂.⊛ n ▷ o ≤ m HS₁.⊛ n ▷ o) ×
+  (∃₃ λ m n o → m HS₂.⊛ n ▷ o ≢ m HS₁.⊛ n ▷ o)
+⊛▷<⊛▷ =
+    BS.LowerBounded.⊛′≤⊛ ∞ (λ _ → refl)
   , ⌞ 1 ⌟ , ⌞ 1 ⌟ , ⌞ 0 ⌟ , (λ ())
+
+-- A modality (of any kind) for ℕ⊎∞ defined using the construction in
+-- Graded.Modality.Instances.BoundedStar.
+
+ℕ⊎∞-modality : Modality-variant → Modality
+ℕ⊎∞-modality variant =
+  BS.isModality
+    variant
+    (λ _ → ℕ⊎∞-has-well-behaved-zero)
+    (λ _ _ _ _ → +-decreasingˡ)
 
 ------------------------------------------------------------------------
 -- A property related to division
@@ -550,27 +564,27 @@ open Graded.Modality.Instances.Recursive.Sequences
 ------------------------------------------------------------------------
 -- Instances of Full-reduction-assumptions
 
--- An instance of Mode-restrictions along with an instance of
+-- An instance of Modality-variant along with an instance of
 -- Type-restrictions are suitable for the full reduction theorem if
 -- whenever Σₚ-allowed m n holds, then m is ⌞ 1 ⌟, or m is ⌞ 0 ⌟ and
 -- 𝟘ᵐ is allowed.
 
 Suitable-for-full-reduction :
-  Mode-restrictions → Type-restrictions → Set
-Suitable-for-full-reduction mrs TRs =
+  Modality-variant → Type-restrictions → Set
+Suitable-for-full-reduction variant TRs =
   ∀ m n → Σₚ-allowed m n → m ≡ ⌞ 1 ⌟ ⊎ m ≡ ⌞ 0 ⌟ × T 𝟘ᵐ-allowed
   where
-  open Mode-restrictions mrs
+  open Modality-variant variant
   open Type-restrictions TRs
 
--- Given an instance of Mode-restrictions and an instance of
+-- Given an instance of Modality-variant and an instance of
 -- Type-restrictions one can create a "suitable" instance of
 -- Type-restrictions.
 
 suitable-for-full-reduction :
-  (mrs : Mode-restrictions) → Type-restrictions →
-  ∃ (Suitable-for-full-reduction mrs)
-suitable-for-full-reduction mrs TRs =
+  (variant : Modality-variant) → Type-restrictions →
+  ∃ (Suitable-for-full-reduction variant)
+suitable-for-full-reduction variant TRs =
     record TRs
       { ΠΣ-allowed = λ b m n →
           ΠΣ-allowed b m n ×
@@ -578,15 +592,15 @@ suitable-for-full-reduction mrs TRs =
       }
   , (λ _ _ (_ , ok) → ok)
   where
-  open Mode-restrictions mrs
+  open Modality-variant variant
   open Type-restrictions TRs
 
--- The full reduction assumptions hold for ℕ⊎∞-modality mrs and any
--- "suitable" Type-restrictions.
+-- The full reduction assumptions hold for ℕ⊎∞-modality variant and
+-- any "suitable" Type-restrictions.
 
 full-reduction-assumptions :
-  Suitable-for-full-reduction mrs TRs →
-  Full-reduction-assumptions (ℕ⊎∞-modality mrs) TRs
+  Suitable-for-full-reduction variant TRs →
+  Full-reduction-assumptions (ℕ⊎∞-modality variant) TRs
 full-reduction-assumptions ok = record
   { 𝟙≤𝟘    = λ _ → refl
   ; ≡𝟙⊎𝟙≤𝟘 = ⊎.map idᶠ (λ (p≡⌞0⌟ , ok) → p≡⌞0⌟ , ok , refl) ∘→ ok _ _

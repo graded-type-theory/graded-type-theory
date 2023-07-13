@@ -3,26 +3,28 @@
 -- canonicity.
 ------------------------------------------------------------------------
 
-open import Graded.Mode.Restrictions
+open import Tools.Level
+
+open import Graded.Modality.Variant lzero
 
 module Application.NegativeOrErasedAxioms.Canonicity.ErasedMatches
-  (mrs : Mode-restrictions)
+  (variant : Modality-variant)
   where
 
 open import Graded.Modality.Instances.Erasure
-open import Graded.Modality.Instances.Erasure.Modality mrs
+open import Graded.Modality.Instances.Erasure.Modality
 open import Application.NegativeOrErasedAxioms.NegativeOrErasedContext
-  ErasureModality (λ ())
+  (ErasureModality variant) (λ ())
 import Definition.Typed
 open import Definition.Untyped Erasure hiding (_∷_)
 
-open import Graded.Context ErasureModality
-open import Graded.Context.Properties ErasureModality
-open import Graded.Modality.Properties ErasureModality
+open import Graded.Context (ErasureModality variant)
+open import Graded.Context.Properties (ErasureModality variant)
+open import Graded.Modality.Properties (ErasureModality variant)
 open import Graded.Restrictions {M = Erasure}
 import Graded.Usage
 open import Graded.Usage.Restrictions Erasure
-open import Graded.Mode ErasureModality
+open import Graded.Mode (ErasureModality variant)
 
 import Graded.Erasure.SucRed
 
@@ -43,7 +45,7 @@ import Tools.PropositionalEquality as PE
 open import Tools.Product
 
 private
-  module EM = Modality ErasureModality
+  module EM = Modality (ErasureModality variant)
 
 private variable
   m : Nat
@@ -54,7 +56,7 @@ module Counterexample where
   open Definition.Conversion no-type-restrictions
   open Definition.Conversion.Consequences.Completeness
     no-type-restrictions
-  open Graded.Usage ErasureModality no-usage-restrictions
+  open Graded.Usage (ErasureModality variant) no-usage-restrictions
   open Definition.Typed no-type-restrictions
   open Definition.Typed.Consequences.Canonicity no-type-restrictions
   open Definition.Typed.Consequences.Substitution no-type-restrictions
@@ -143,7 +145,7 @@ not-canonicityEq :
   ¬ ((TR : Type-restrictions) →
      let open Definition.Typed TR in
      (UR : Usage-restrictions) →
-     let open Graded.Usage ErasureModality UR in
+     let open Graded.Usage (ErasureModality variant) UR in
      ∀ {n} {Γ : Con Term n} {γ} →
      NegativeErasedContext TR Γ γ →
      (∀ {t} → Γ ⊢ t ∷ Empty → ⊥) →

@@ -160,10 +160,17 @@ module _ (as : Full-reduction-assumptions) where
         sub (sndₘ (fullRedNe~↓ t~ ▸t)) γ≤ }
       (natrec-cong A↑ t↑ u↑ v~) ▸natrec →
         case inv-usage-natrec ▸natrec of λ {
-          (invUsageNatrec ▸t ▸u ▸v ▸A γ≤) →
-        sub (natrecₘ (fullRedTermConv↑ t↑ ▸t) (fullRedTermConv↑ u↑ ▸u)
-               (fullRedNe~↓ v~ ▸v) (fullRedConv↑ A↑ ▸A))
-          γ≤ }
+          (invUsageNatrec ▸t ▸u ▸v ▸A γ≤ extra) →
+        case extra of λ where
+          invUsageNatrecStar →
+            sub (natrecₘ (fullRedTermConv↑ t↑ ▸t) (fullRedTermConv↑ u↑ ▸u)
+                   (fullRedNe~↓ v~ ▸v) (fullRedConv↑ A↑ ▸A))
+              γ≤
+          (invUsageNatrecNoStar fix) →
+            sub (natrec-no-starₘ (fullRedTermConv↑ t↑ ▸t)
+                   (fullRedTermConv↑ u↑ ▸u) (fullRedNe~↓ v~ ▸v)
+                   (fullRedConv↑ A↑ ▸A) fix)
+              γ≤ }
       (prodrec-cong C↑ u~ v↑) ▸prodrec →
         case inv-usage-prodrec ▸prodrec of λ {
           (invUsageProdrec ▸u ▸v ▸C ok₁ γ≤) →

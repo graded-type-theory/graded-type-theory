@@ -13,6 +13,15 @@ module Graded.Modality.Instances.Zero-one-many
   -- Should 𝟙 be below 𝟘?
   (𝟙≤𝟘 : Bool)
   where
+import Tools.Algebra
+open import Tools.Function
+open import Tools.Level
+open import Tools.Nullary
+open import Tools.Product
+open import Tools.PropositionalEquality as PE
+import Tools.Reasoning.PartialOrder
+import Tools.Reasoning.PropositionalEquality
+open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 import Graded.Modality
 import Graded.Modality.Instances.LowerBounded as LowerBounded
@@ -21,17 +30,7 @@ import Graded.Modality.Properties.Meet as Meet
 import Graded.Modality.Properties.Multiplication as Multiplication
 import Graded.Modality.Properties.PartialOrder as PartialOrder
 import Graded.Modality.Properties.Star as Star
-
-open import Graded.Mode.Restrictions
-
-import Tools.Algebra
-open import Tools.Function
-open import Tools.Nullary
-open import Tools.Product
-open import Tools.PropositionalEquality as PE
-import Tools.Reasoning.PartialOrder
-import Tools.Reasoning.PropositionalEquality
-open import Tools.Sum using (_⊎_; inj₁; inj₂)
+open import Graded.Modality.Variant lzero
 
 ------------------------------------------------------------------------
 -- The type
@@ -270,6 +269,24 @@ _+_ : Zero-one-many → Zero-one-many → Zero-one-many
 𝟘 + q = q
 𝟙 + 𝟘 = 𝟙
 _ + _ = ω
+
+-- If 𝟙≤𝟘 is true, then _+_ is decreasing in its left argument.
+
++-decreasingˡ : T 𝟙≤𝟘 → ∀ p q → p + q ≤ p
++-decreasingˡ 𝟙≤𝟘 = λ where
+  𝟘 𝟘 → refl
+  𝟘 𝟙 → 𝟙≤𝟘→𝟙≤𝟘 𝟙≤𝟘
+  𝟘 ω → refl
+  𝟙 𝟘 → refl
+  𝟙 𝟙 → refl
+  𝟙 ω → refl
+  ω _ → refl
+
+-- If 𝟙≤𝟘 is not true, then _+_ is not decreasing in its left argument.
+
+¬-+-decreasingˡ : ¬ T 𝟙≤𝟘 → ¬ (∀ p q → p + q ≤ p)
+¬-+-decreasingˡ 𝟙≰𝟘 hyp =
+  case 𝟙-maximal {p = 𝟘} 𝟙≰𝟘 (hyp 𝟘 𝟙) of λ ()
 
 -- The sum of two non-zero values is ω.
 
@@ -726,52 +743,41 @@ Star-requirements-required′
        ω              ∎)
     (ω≤ (𝟙 ⊛ 𝟘 ▷ ω))
 
--- The star operation of a modality for Zero-one-many for which the
--- zero is 𝟘, the one is 𝟙, addition is _+_, multiplication is _·_,
--- and the meet operation is _∧_ has to satisfy the Star-requirements
--- (for _∧_).
+-- Every natrec-star operator for zero-one-many-semiring-with-meet has
+-- to satisfy the Star-requirements (for _∧_).
 
 Star-requirements-required :
-  (M : Modality) →
-  Modality.𝟘   M ≡ 𝟘 →
-  Modality.𝟙   M ≡ 𝟙 →
-  Modality._+_ M ≡ _+_ →
-  Modality._·_ M ≡ _·_ →
-  Modality._∧_ M ≡ _∧_ →
-  Star-requirements (Modality._⊛_▷_ M) _∧_
-Star-requirements-required M refl refl refl refl refl =
+  (has-star : Has-star zero-one-many-semiring-with-meet) →
+  Star-requirements (Has-star._⊛_▷_ has-star) _∧_
+Star-requirements-required has-star =
   Star-requirements-required′
-    semiring-with-meet refl refl refl refl refl
+    zero-one-many-semiring-with-meet refl refl refl refl refl
     _⊛_▷_
     ⊛-ineq₁
     ⊛-ineq₂
     ·-sub-distribʳ-⊛
   where
-  open Modality M
-  open Star semiring-with-meet-and-star
+  open Has-star has-star
 
 ------------------------------------------------------------------------
 -- One variant of the modality
 
--- A zero-one-many modality (with arbitrary mode restrictions).
---
--- The star operation is defined using the construction in
+-- A natrec-star operator defined using the construction in
 -- Graded.Modality.Instances.LowerBounded.
 
-zero-one-many-lower-bounded : Mode-restrictions → Modality
-zero-one-many-lower-bounded rs = LowerBounded.isModality
-  zero-one-many-semiring-with-meet ω ω≤ rs
-  λ _ → zero-one-many-has-well-behaved-zero
+zero-one-many-lower-bounded-star :
+  Has-star zero-one-many-semiring-with-meet
+zero-one-many-lower-bounded-star =
+  LowerBounded.has-star zero-one-many-semiring-with-meet ω ω≤
 
 -- With this definition the result of p ⊛ q ▷ r is 𝟘 when p and q are
 -- 𝟘, and ω otherwise.
 
 zero-one-many-lower-bounded-⊛ :
-  (rs : Mode-restrictions) →
-  let open Modality (zero-one-many-lower-bounded rs) hiding (𝟘) in
+  let open Has-star zero-one-many-lower-bounded-star in
   (∀ r → 𝟘 ⊛ 𝟘 ▷ r ≡ 𝟘) ×
   (∀ p q r → ¬ (p ≡ 𝟘 × q ≡ 𝟘) → p ⊛ q ▷ r ≡ ω)
-zero-one-many-lower-bounded-⊛ rs =
+zero-one-many-lower-bounded-⊛ =
     (λ _ → refl)
   , (λ where
        𝟘 𝟘 _ ¬≡𝟘×≡𝟘 → ⊥-elim (¬≡𝟘×≡𝟘 (refl , refl))
@@ -786,8 +792,26 @@ zero-one-many-lower-bounded-⊛ rs =
        𝟙 ω _ _ → refl
        ω _ _ _ → refl)
   where
-  open Modality (zero-one-many-lower-bounded rs) hiding (𝟘; 𝟙; _·_)
+  open Has-star zero-one-many-lower-bounded-star
   open Tools.Reasoning.PropositionalEquality
+
+-- A zero-one-many modality. The variant where 𝟘ᵐ is allowed and a
+-- dedicated natrec-star operator is *not* available is only defined
+-- if 𝟙 ≤ 𝟘. The dedicated natrec-star operator, if any, is defined
+-- using the construction in Graded.Modality.Instances.LowerBounded.
+
+zero-one-many-lower-bounded :
+  (variant : Modality-variant) →
+  let open Modality-variant variant in
+  (T 𝟘ᵐ-allowed → ¬ ⊛-available → T 𝟙≤𝟘) →
+  Modality
+zero-one-many-lower-bounded variant hyp = record
+  { variant            = variant
+  ; semiring-with-meet = zero-one-many-semiring-with-meet
+  ; 𝟘-well-behaved     = λ _ → zero-one-many-has-well-behaved-zero
+  ; has-star           = λ _ → zero-one-many-lower-bounded-star
+  ; +-decreasingˡ      = λ ok no-star → +-decreasingˡ (hyp ok no-star)
+  }
 
 ------------------------------------------------------------------------
 -- A variant of the modality with a "greatest" star operation
@@ -802,12 +826,11 @@ p ⊛ q ▷ 𝟙 = p + ω · q
 p ⊛ q ▷ ω = ω · (p ∧ q)
 
 -- This definition is not equal to the one obtained from
--- zero-one-many-lower-bounded.
+-- zero-one-many-lower-bounded-star.
 
 lower-bounded≢greatest :
-  (rs : Mode-restrictions) →
-  Modality._⊛_▷_ (zero-one-many-lower-bounded rs) ≢ _⊛_▷_
-lower-bounded≢greatest rs hyp =
+  Has-star._⊛_▷_ zero-one-many-lower-bounded-star ≢ _⊛_▷_
+lower-bounded≢greatest hyp =
   case cong (λ f → f 𝟙 𝟙 𝟘) hyp of λ ()
 
 -- A simplification lemma for the star operation.
@@ -884,22 +907,15 @@ lower-bounded≢greatest rs hyp =
   (λ _ → refl)
   (λ _ → refl)
 
--- The star operation returns results that are at least as large as
--- those of the star operation of any modality for Zero-one-many for
--- which the zero is 𝟘, the one is 𝟙, addition is _+_, multiplication
--- is _·_, and the meet operation is _∧_.
+-- The natrec-star operator returns results that are at least as large
+-- as those of any other natrec-star operator for
+-- zero-one-many-semiring-with-meet.
 
 ⊛-greatest :
-  (M : Modality) →
-  Modality.𝟘   M ≡ 𝟘 →
-  Modality.𝟙   M ≡ 𝟙 →
-  Modality._+_ M ≡ _+_ →
-  Modality._·_ M ≡ _·_ →
-  Modality._∧_ M ≡ _∧_ →
-  ∀ p q r → Modality._⊛_▷_ M p q r ≤ p ⊛ q ▷ r
-⊛-greatest M refl refl refl refl refl =
-  case Star-requirements-required
-         M refl refl refl refl refl of λ where
+  (has-star : Has-star zero-one-many-semiring-with-meet) →
+  ∀ p q r → Has-star._⊛_▷_ has-star p q r ≤ p ⊛ q ▷ r
+⊛-greatest has-star =
+  case Star-requirements-required has-star of λ where
     (ω⊛▷′ , ⊛ω▷′ , ⊛▷′ω ,
      𝟘⊛𝟘▷′ , ⊛𝟙▷′𝟙 , 𝟘⊛𝟙▷′𝟘 , 𝟙⊛𝟘▷′𝟘 , 𝟙⊛𝟘▷′𝟙 , 𝟙⊛𝟙▷′𝟘) → λ where
       ω q r → begin
@@ -939,18 +955,16 @@ lower-bounded≢greatest rs hyp =
         𝟙 ⊛ 𝟙 ▷′ 𝟘  ≤⟨ 𝟙⊛𝟙▷′𝟘 ⟩
         𝟙           ∎
   where
-  open Modality M using (semiring-with-meet) renaming (_⊛_▷_ to _⊛_▷′_)
-  open PartialOrder semiring-with-meet
+  open Has-star has-star renaming (_⊛_▷_ to _⊛_▷′_)
+  open PartialOrder zero-one-many-semiring-with-meet
   open Tools.Reasoning.PartialOrder ≤-poset
 
--- The zero-one-many semiring with meet and star
---
--- The star operation is the "greatest" one defined above.
+-- The "greatest" star operator defined above is a proper natrec-star
+-- operator.
 
-zero-one-many-greatest-star : Semiring-with-meet-and-star
+zero-one-many-greatest-star : Has-star zero-one-many-semiring-with-meet
 zero-one-many-greatest-star = record
-  { semiring-with-meet        = semiring-with-meet
-  ; _⊛_▷_                   = _⊛_▷_
+  { _⊛_▷_                   = _⊛_▷_
   ; ⊛-ineq                  = ⊛-ineq₁ , ⊛-ineq₂
   ; +-sub-interchangeable-⊛ = +-sub-interchangeable-⊛
   ; ·-sub-distribʳ-⊛        = λ r _ _ _ →
@@ -1110,25 +1124,33 @@ zero-one-many-greatest-star = record
       (q ∧ p) ∧ (q ∧ p′)  ≡⟨ cong₂ _∧_ (∧-comm q _) (∧-comm q _) ⟩
       (p ∧ q) ∧ (p′ ∧ q)  ∎
 
--- The zero-one-many modality (with arbitrary "restrictions").
---
--- The star operation is the "greatest" one defined above.
-
-zero-one-many-greatest : Mode-restrictions → Modality
-zero-one-many-greatest rs = record
-  { semiring-with-meet-and-star = zero-one-many-greatest-star
-  ; mode-restrictions = rs
-  ; 𝟘-well-behaved = λ _ → zero-one-many-has-well-behaved-zero
-  }
-
--- The star operation obtained from zero-one-many-lower-bounded is not
--- the (pointwise) greatest one.
+-- The natrec-star operator obtained from
+-- zero-one-many-lower-bounded-star is not the (pointwise) greatest
+-- one.
 
 ¬-lower-bounded-greatest :
-  (rs : Mode-restrictions) →
-  ¬ ((M : Modality) →
+  ¬ ((has-star : Has-star zero-one-many-semiring-with-meet) →
      ∀ p q r →
-     Modality._⊛_▷_ M                                p q r ≤
-     Modality._⊛_▷_ (zero-one-many-lower-bounded rs) p q r)
-¬-lower-bounded-greatest rs hyp =
-  case hyp (zero-one-many-greatest rs) 𝟙 𝟙 𝟘 of λ ()
+     Has-star._⊛_▷_ has-star                         p q r ≤
+     Has-star._⊛_▷_ zero-one-many-lower-bounded-star p q r)
+¬-lower-bounded-greatest hyp =
+  case hyp zero-one-many-greatest-star 𝟙 𝟙 𝟘 of λ ()
+
+-- The zero-one-many modality (with arbitrary "restrictions").
+--
+-- The variant where 𝟘ᵐ is allowed and a dedicated natrec-star
+-- operator is *not* available is only defined if 𝟙 ≤ 𝟘. The dedicated
+-- natrec-star operator, if any, is the "greatest" one defined above.
+
+zero-one-many-greatest :
+  (variant : Modality-variant) →
+  let open Modality-variant variant in
+  (T 𝟘ᵐ-allowed → ¬ ⊛-available → T 𝟙≤𝟘) →
+  Modality
+zero-one-many-greatest variant hyp = record
+  { variant            = variant
+  ; semiring-with-meet = zero-one-many-semiring-with-meet
+  ; 𝟘-well-behaved     = λ _ → zero-one-many-has-well-behaved-zero
+  ; has-star           = λ _ → zero-one-many-greatest-star
+  ; +-decreasingˡ      = λ ok no-star → +-decreasingˡ (hyp ok no-star)
+  }

@@ -8,7 +8,7 @@ module Graded.Modality.Instances.Bounded-distributive-lattice
 
 open import Graded.Modality M
 import Graded.Modality.Instances.LowerBounded as L
-open import Graded.Mode.Restrictions
+open import Graded.Modality.Variant a
 
 open import Tools.Algebra M
 open import Tools.Bool using (false)
@@ -119,14 +119,29 @@ semiring-with-meet bl = record
     ⊤ ∨ (⊤ ∧ p)  ≡⟨ ∨-absorbs-∧ _ _ ⟩
     ⊤            ∎
 
--- Bounded, distributive lattices can be turned into modalities.
+-- One can define natrec-star operators for bounded, distributive
+-- lattices.
 
-modality : Bounded-distributive-lattice → Modality
-modality bl = L.isModality
+has-star :
+  (bl : Bounded-distributive-lattice) → Has-star (semiring-with-meet bl)
+has-star bl = L.has-star _ ⊥ ⊥≤
+  where
+  open Bounded-distributive-lattice bl
+
+-- Bounded, distributive lattices can be turned into modalities
+-- (without 𝟘ᵐ).
+
+modality :
+  (variant : Modality-variant) →
+  let open Modality-variant variant in
+  𝟘ᵐ-allowed ≡ false →
+  Bounded-distributive-lattice → Modality
+modality variant refl bl = L.isModality
   (semiring-with-meet bl)
   ⊥
   ⊥≤
-  (𝟘ᵐ-allowed-if false)
+  variant
+  (λ ())
   (λ ())
   where
   open Bounded-distributive-lattice bl

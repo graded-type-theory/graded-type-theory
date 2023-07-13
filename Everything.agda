@@ -154,8 +154,11 @@ import Definition.Typed.Decidable
 -- Graded modalities and usage
 
 -- Modality structure
-import Graded.Mode.Restrictions
+import Graded.Modality.Variant
 import Graded.Modality
+import Graded.Modality.Natrec-star-instances
+import Graded.Modality.Dedicated-star
+import Graded.Modality.Dedicated-star.Instance
 
 -- Properties of the modality semiring
 import Graded.Modality.Properties.PartialOrder
@@ -178,6 +181,7 @@ import Graded.Context.Properties.Multiplication
 import Graded.Context.Properties.Star
 import Graded.Context.Properties.Lookup
 import Graded.Context.Properties.Update
+import Graded.Context.Properties.Has-well-behaved-zero
 import Graded.Context.Properties
 
 -- Usage modes
@@ -251,6 +255,8 @@ import Graded.FullReduction
 -- Modality morphisms and quantity translations
 import Definition.Untyped.QuantityTranslation
 import Graded.Modality.Morphism
+import Graded.Modality.Morphism.Forward-instances
+import Graded.Modality.Morphism.Backward-instances
 import Graded.Modality.Morphism.Type-restrictions
 import Graded.Modality.Morphism.Usage-restrictions
 import Definition.Typed.QuantityTranslation

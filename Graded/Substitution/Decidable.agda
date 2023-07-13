@@ -28,6 +28,8 @@ open import Graded.Context 𝕄
 open import Graded.Substitution 𝕄 R
 open import Graded.Substitution.Properties 𝕄 R
 open import Graded.Context.Properties 𝕄
+open import Graded.Modality.Dedicated-star 𝕄
+open import Graded.Modality.Dedicated-star.Instance
 open import Graded.Modality.Properties 𝕄
 open import Graded.Usage 𝕄 R
 open import Graded.Usage.Decidable 𝕄 R _≟_ Prodrec?
@@ -46,12 +48,14 @@ private
     m n : Nat
     mos : Mode-vector n
 
--- A given substitution is either well-resourced with respect to a
--- given mode vector and the substitution matrix computed by ∥_∥, or
--- it is not well-resourced with respect to any substitution matrix
--- (and the given mode).
+-- If there is a dedicated natrec-star operator, then a given
+-- substitution is either well-resourced with respect to a given mode
+-- vector and the substitution matrix computed by ∥_∥, or it is not
+-- well-resourced with respect to any substitution matrix (and the
+-- given mode).
 
 ∥∥▶?_ :
+  ⦃ has-star : Dedicated-star ⦄ →
   (σ : Subst m n) →
   (∥ σ ∥ mos ▶[ mos ] σ) ⊎ (∀ Ψ → ¬ Ψ ▶[ mos ] σ)
 ∥∥▶?_ {n = 0}                _ = inj₁ (λ ())
@@ -126,7 +130,9 @@ _eᵢ≤ᶜ?_eᵢ_ :
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-_▶?_ : (Ψ : Substₘ m n) (σ : Subst m n) → Dec (Ψ ▶[ mos ] σ)
+_▶?_ :
+  ⦃ has-star : Dedicated-star ⦄ →
+  (Ψ : Substₘ m n) (σ : Subst m n) → Dec (Ψ ▶[ mos ] σ)
 _▶?_ {mos = mos} Ψ σ = case ∥∥▶? σ of λ where
     (inj₂ ¬▶σ) → no (¬▶σ Ψ)
     (inj₁ ▶σ)  → case Ψ eᵢ≤ᶜ? ∥ σ ∥ mos eᵢ mos of λ where

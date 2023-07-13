@@ -3,16 +3,21 @@
 ------------------------------------------------------------------------
 
 open import Tools.Bool
+open import Tools.Level
+open import Tools.Nullary
+open import Tools.Sum
 
 open import Graded.Modality.Instances.Zero-one-many false as 𝟘𝟙ω
-
-open import Graded.Mode.Restrictions
+open import Graded.Modality.Variant lzero
 
 module Graded.Modality.Instances.Linearity
-  (mrs : Mode-restrictions)
+  -- The modality variant.
+  (variant : Modality-variant)
+  (open Modality-variant variant)
+  -- If there is no dedicated natrec-star operator, then 𝟘̂ᵐ must not
+  -- be allowed.
+  (variant-ok : ¬ ⊛-available → ¬ T 𝟘ᵐ-allowed)
   where
-
-open Mode-restrictions mrs
 
 open 𝟘𝟙ω renaming (Zero-one-many to Linearity) public
 
@@ -24,10 +29,8 @@ open import Definition.Typed.Restrictions Linearity
 
 open import Tools.Empty
 open import Tools.Function
-open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality
-open import Tools.Sum
 open import Tools.Unit
 
 private variable
@@ -36,7 +39,7 @@ private variable
 -- A "linear types" modality.
 
 linearityModality : Modality
-linearityModality = zero-one-many-greatest mrs
+linearityModality = zero-one-many-greatest variant (flip variant-ok)
 
 -- The "linear types" modality has a well-behaved zero.
 

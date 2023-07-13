@@ -2,17 +2,19 @@
 -- Some examples related to the erasure modality and extraction
 ------------------------------------------------------------------------
 
+open import Tools.Bool using (Bool)
+
 open import Graded.Modality.Instances.Erasure
-open import Graded.Mode.Restrictions
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
 
 module Graded.Erasure.Examples
   {p q r}
-  (MR : Mode-restrictions)
   (TR : Type-restrictions Erasure)
   (open Type-restrictions TR)
   (UR : Usage-restrictions Erasure)
+  -- Is 𝟘ᵐ available?
+  (𝟘ᵐ-available : Bool)
   -- It is assumed that "Π 𝟘 , p" is allowed.
   (Π-𝟘-ok : Π-allowed 𝟘 p)
   -- It is assumed that "Π ω , q" is allowed.
@@ -22,6 +24,18 @@ module Graded.Erasure.Examples
   -- It is assumed that Unit is allowed.
   (Unit-ok : Unit-allowed)
   where
+
+open import Tools.Empty
+open import Tools.Fin
+open import Tools.Function
+open import Tools.Level
+open import Tools.Nat using (Nat; 1+)
+open import Tools.Nullary
+open import Tools.Product
+import Tools.PropositionalEquality as PE
+import Tools.Reasoning.PartialOrder
+import Tools.Reasoning.PropositionalEquality
+open import Tools.Sum as ⊎ using (_⊎_; inj₁; inj₂)
 
 open import Definition.Typed TR as DT hiding (id)
 open import Definition.Typed.Consequences.Reduction TR
@@ -35,37 +49,43 @@ import Definition.Typed.Weakening TR as W
 open import Definition.Untyped Erasure as U hiding (id; head; _∷_)
 open import Definition.Untyped.Properties Erasure
 
-open import Graded.Modality.Instances.Erasure.Modality MR
-open import Graded.Modality.Instances.Erasure.Properties MR
+open import Graded.Modality.Dedicated-star
+open import Graded.Modality.Instances.Erasure.Modality
+open import Graded.Modality.Variant lzero
 
-open import Graded.Context ErasureModality
+private
+
+  -- This module uses a variant of the erasure modality with a
+  -- dedicated natrec-star operator.
+
+  variant : Modality-variant
+  variant = ⊛-available-and-𝟘ᵐ-available-if 𝟘ᵐ-available
+
+  EM : Modality
+  EM = ErasureModality variant
+
+  module EM = Modality EM
+
+  instance
+
+    has-star : Dedicated-star EM
+    has-star = _
+
+open import Graded.Modality.Instances.Erasure.Properties variant
+
+open import Graded.Context EM
 open import Graded.Erasure.Consequences.Soundness
-  ErasureModality TR UR erasure-has-well-behaved-zero
+  EM TR UR erasure-has-well-behaved-zero
 open import Graded.Erasure.Extraction
-  ErasureModality
-  (Has-well-behaved-zero.is-𝟘? erasure-has-well-behaved-zero)
+  EM (Has-well-behaved-zero.is-𝟘? erasure-has-well-behaved-zero)
 import Graded.Erasure.SucRed TR as S
 import Graded.Erasure.Target as T
 import Graded.Erasure.Target.Properties as TP
-open import Graded.Mode ErasureModality
-open import Graded.Usage ErasureModality UR
-open import Graded.Usage.Inversion ErasureModality UR
-open import Graded.Usage.Properties ErasureModality UR
-open import Graded.Usage.Weakening ErasureModality UR
-
-open import Tools.Empty
-open import Tools.Fin
-open import Tools.Function
-open import Tools.Nat using (Nat; 1+)
-open import Tools.Nullary
-open import Tools.Product
-import Tools.PropositionalEquality as PE
-import Tools.Reasoning.PartialOrder
-import Tools.Reasoning.PropositionalEquality
-open import Tools.Sum as ⊎ using (_⊎_; inj₁; inj₂)
-
-private
-  module EM = Modality ErasureModality
+open import Graded.Mode EM
+open import Graded.Usage EM UR
+open import Graded.Usage.Inversion EM UR
+open import Graded.Usage.Properties EM UR
+open import Graded.Usage.Weakening EM UR
 
 private variable
   n       : Nat

@@ -2,21 +2,25 @@
 -- Properties of the star operator.
 ------------------------------------------------------------------------
 
-open import Graded.Modality
+import Graded.Modality
 
 module Graded.Context.Properties.Star
-  {a} {M : Set a} (𝕄 : Modality M) where
+  {a} {M : Set a}
+  (open Graded.Modality M)
+  (𝕄 : Modality)
+  (open Modality 𝕄)
+  ⦃ has-star : Has-star semiring-with-meet ⦄
+  where
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties.Equivalence 𝕄
 open import Graded.Context.Properties.PartialOrder 𝕄
+open import Graded.Modality.Natrec-star-instances
 open import Graded.Modality.Properties 𝕄
 
 open import Tools.Nat
 open import Tools.Product
 open import Tools.PropositionalEquality
-
-open Modality 𝕄
 
 private
   variable

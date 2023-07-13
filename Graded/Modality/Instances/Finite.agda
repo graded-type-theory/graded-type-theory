@@ -7,17 +7,16 @@ open import Tools.Fin
 open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 open import Tools.PropositionalEquality
-open import Graded.Modality
-open import Graded.Mode.Restrictions
+import Graded.Modality
 
 module Graded.Modality.Instances.Finite
-  {a} {M : Set a} (𝕄 : Semiring-with-meet M)
+  {a} {M : Set a}
+  (open Graded.Modality M)
+  (𝕄 : Semiring-with-meet)
   (fin : ∃ λ n → Σ (Fin (1+ n) → M)
                  λ f → Σ (M → Fin (1+ n))
                  λ f⁻¹ → ((p : M) → f (f⁻¹ p) ≡ p))
-  (rs : Mode-restrictions)
-  (open Mode-restrictions rs)
-  (𝟘-well-behaved : T 𝟘ᵐ-allowed → Has-well-behaved-zero M 𝕄) where
+  where
 
 private
   variable
@@ -25,8 +24,12 @@ private
 
 open Semiring-with-meet 𝕄
 
+import Graded.Modality.Instances.LowerBounded 𝕄 as LB
+open import Graded.Modality.Variant a
 open import Graded.Modality.Properties.Meet 𝕄
 open import Graded.Modality.Properties.PartialOrder 𝕄
+
+open import Tools.Nullary
 
 |M| : Nat
 |M| = 1+ (proj₁ fin)
@@ -63,9 +66,18 @@ f-f⁻¹ = proj₂ (proj₂ (proj₂ fin))
 ∞-min : (p : M) → ∞ ≤ p
 ∞-min p = ≤-trans (⋀-decr f (f⁻¹ p)) (≤-reflexive (f-f⁻¹ p))
 
--- Since M′ has a least element, it is a modality
+-- The least element can be used to define a natrec-star operator.
 
-isModality : Modality M
-isModality = LB.isModality
-  where import Graded.Modality.Instances.LowerBounded
-               𝕄 ∞ ∞-min rs 𝟘-well-behaved as LB
+has-star : Has-star 𝕄
+has-star = LB.has-star ∞ ∞-min
+
+-- If certain properties hold, then 𝕄 can be turned into a certain
+-- kind of modality.
+
+isModality :
+  (variant : Modality-variant) →
+  let open Modality-variant variant in
+  (T 𝟘ᵐ-allowed → Has-well-behaved-zero 𝕄) →
+  (T 𝟘ᵐ-allowed → ¬ ⊛-available → ∀ p q → p + q ≤ p) →
+  Modality
+isModality = LB.isModality ∞ ∞-min

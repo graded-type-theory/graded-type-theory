@@ -2,12 +2,17 @@
 -- Modality (grade) contexts.
 ------------------------------------------------------------------------
 
-open import Graded.Modality
+import Graded.Modality
 
 module Graded.Context
-  {a} {M : Set a} (𝕄 : Modality M) where
+  {a} {M : Set a}
+  (open Graded.Modality M)
+  (𝕄 : Modality)
+  where
 
 open Modality 𝕄
+
+open import Graded.Modality.Natrec-star-instances
 
 open import Tools.Fin
 open import Tools.Nat using (Nat; 1+) renaming (_+_ to _+ⁿ_)
@@ -89,11 +94,14 @@ p ·ᶜ (γ ∙ q) = (p ·ᶜ γ) ∙ (p · q)
 _≤ᶜ_ : (γ δ : Conₘ n) → Set a
 γ ≤ᶜ δ = γ ≈ᶜ γ ∧ᶜ δ
 
--- ⊛ lifted to modality contexts
+-- Natrec-star operators can be lifted to usage contexts (the last
+-- argument is still a single grade).
 
-_⊛ᶜ_▷_ : (γ δ : Conₘ n) (r : M) → Conₘ n
-ε ⊛ᶜ ε ▷ r = ε
-(γ ∙ p) ⊛ᶜ (δ ∙ q) ▷ r = (γ ⊛ᶜ δ ▷ r) ∙ (p ⊛ q ▷ r)
+_⊛ᶜ_▷_ :
+  ⦃ has-star : Has-star semiring-with-meet ⦄ →
+  Conₘ n → Conₘ n → M → Conₘ n
+ε       ⊛ᶜ ε     ▷ r = ε
+(γ ∙ p) ⊛ᶜ δ ∙ q ▷ r = (γ ⊛ᶜ δ ▷ r) ∙ (p ⊛ q ▷ r)
 
 -- Zero modality context
 
