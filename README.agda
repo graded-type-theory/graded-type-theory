@@ -806,8 +806,7 @@ _•′ = Graded.Erasure.Extraction.erase
 
 -- Theorem 8.3: Soundness of the extraction function.
 
-Theorem-8-3 =
-  Graded.Erasure.Consequences.Soundness.Soundness.soundness-ℕ
+Theorem-8-3 = Graded.Erasure.Consequences.Soundness.soundness-ℕ
 
 -- A definition of η-long normal forms.
 
