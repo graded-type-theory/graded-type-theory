@@ -1,0 +1,35 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Graded.Modality.Morphism.Forward-instances</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- &quot;Forward&quot; instances related to morphisms</a>
+<a id="118" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="192" class="Keyword">open</a> <a id="197" class="Keyword">import</a> <a id="204" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+<a id="220" class="Keyword">open</a> <a id="225" class="Keyword">import</a> <a id="232" href="Graded.Modality.Morphism.html" class="Module">Graded.Modality.Morphism</a>
+
+<a id="258" class="Keyword">module</a> <a id="265" href="Graded.Modality.Morphism.Forward-instances.html" class="Module">Graded.Modality.Morphism.Forward-instances</a>
+  <a id="310" class="Symbol">{</a><a id="311" href="Graded.Modality.Morphism.Forward-instances.html#311" class="Bound">a₁</a> <a id="314" href="Graded.Modality.Morphism.Forward-instances.html#314" class="Bound">a₂</a><a id="316" class="Symbol">}</a> <a id="318" class="Symbol">{</a><a id="319" href="Graded.Modality.Morphism.Forward-instances.html#319" class="Bound">M₁</a> <a id="322" class="Symbol">:</a> <a id="324" href="Agda.Primitive.html#320" class="Primitive">Set</a> <a id="328" href="Graded.Modality.Morphism.Forward-instances.html#311" class="Bound">a₁</a><a id="330" class="Symbol">}</a> <a id="332" class="Symbol">{</a><a id="333" href="Graded.Modality.Morphism.Forward-instances.html#333" class="Bound">M₂</a> <a id="336" class="Symbol">:</a> <a id="338" href="Agda.Primitive.html#320" class="Primitive">Set</a> <a id="342" href="Graded.Modality.Morphism.Forward-instances.html#314" class="Bound">a₂</a><a id="344" class="Symbol">}</a>
+  <a id="348" class="Symbol">{</a><a id="349" href="Graded.Modality.Morphism.Forward-instances.html#349" class="Bound">𝕄₁</a> <a id="352" class="Symbol">:</a> <a id="354" href="Graded.Modality.html#5226" class="Record">Modality</a> <a id="363" href="Graded.Modality.Morphism.Forward-instances.html#319" class="Bound">M₁</a><a id="365" class="Symbol">}</a> <a id="367" class="Symbol">{</a><a id="368" href="Graded.Modality.Morphism.Forward-instances.html#368" class="Bound">𝕄₂</a> <a id="371" class="Symbol">:</a> <a id="373" href="Graded.Modality.html#5226" class="Record">Modality</a> <a id="382" href="Graded.Modality.Morphism.Forward-instances.html#333" class="Bound">M₂</a><a id="384" class="Symbol">}</a>
+  <a id="388" class="Symbol">{</a><a id="389" href="Graded.Modality.Morphism.Forward-instances.html#389" class="Bound">tr</a> <a id="392" class="Symbol">:</a> <a id="394" href="Graded.Modality.Morphism.Forward-instances.html#319" class="Bound">M₁</a> <a id="397" class="Symbol">→</a> <a id="399" href="Graded.Modality.Morphism.Forward-instances.html#333" class="Bound">M₂</a><a id="401" class="Symbol">}</a>
+  <a id="405" class="Symbol">(</a><a id="406" href="Graded.Modality.Morphism.Forward-instances.html#406" class="Bound">m</a> <a id="408" class="Symbol">:</a> <a id="410" href="Graded.Modality.Morphism.html#2543" class="Record">Is-morphism</a> <a id="422" href="Graded.Modality.Morphism.Forward-instances.html#349" class="Bound">𝕄₁</a> <a id="425" href="Graded.Modality.Morphism.Forward-instances.html#368" class="Bound">𝕄₂</a> <a id="428" href="Graded.Modality.Morphism.Forward-instances.html#389" class="Bound">tr</a><a id="430" class="Symbol">)</a>
+  <a id="434" class="Keyword">where</a>
+
+<a id="441" class="Keyword">open</a> <a id="446" href="Graded.Modality.Morphism.html#2543" class="Module">Is-morphism</a> <a id="458" href="Graded.Modality.Morphism.Forward-instances.html#406" class="Bound">m</a>
+
+<a id="461" class="Keyword">open</a> <a id="466" class="Keyword">import</a> <a id="473" href="Graded.Modality.Dedicated-star.html" class="Module">Graded.Modality.Dedicated-star</a>
+
+<a id="505" class="Keyword">instance</a>
+
+  <a id="517" class="Comment">-- If the source modality has a dedicated natrec-star operator,</a>
+  <a id="583" class="Comment">-- then the target modality also has one.</a>
+
+  <a id="star-in-second-if-in-first′"></a><a id="628" href="Graded.Modality.Morphism.Forward-instances.html#628" class="Function">star-in-second-if-in-first′</a> <a id="656" class="Symbol">:</a>
+    <a id="662" class="Symbol">⦃</a> <a id="664" href="Graded.Modality.Morphism.Forward-instances.html#664" class="Bound">has-star</a> <a id="673" class="Symbol">:</a> <a id="675" href="Graded.Modality.Dedicated-star.html#647" class="Record">Dedicated-star</a> <a id="690" href="Graded.Modality.Morphism.Forward-instances.html#349" class="Bound">𝕄₁</a> <a id="693" class="Symbol">⦄</a> <a id="695" class="Symbol">→</a> <a id="697" href="Graded.Modality.Dedicated-star.html#647" class="Record">Dedicated-star</a> <a id="712" href="Graded.Modality.Morphism.Forward-instances.html#368" class="Bound">𝕄₂</a>
+  <a id="717" href="Graded.Modality.Morphism.Forward-instances.html#628" class="Function">star-in-second-if-in-first′</a> <a id="745" class="Symbol">=</a> <a id="747" href="Graded.Modality.Morphism.html#4323" class="Function">star-in-second-if-in-first</a>
+
+  <a id="777" class="Comment">-- If the source modality does not have a dedicated natrec-star</a>
+  <a id="843" class="Comment">-- operator, then neither does the target modality.</a>
+
+  <a id="no-star-in-second-if-in-first′"></a><a id="898" href="Graded.Modality.Morphism.Forward-instances.html#898" class="Function">no-star-in-second-if-in-first′</a> <a id="929" class="Symbol">:</a>
+    <a id="935" class="Symbol">⦃</a> <a id="937" href="Graded.Modality.Morphism.Forward-instances.html#937" class="Bound">no-star</a> <a id="945" class="Symbol">:</a> <a id="947" href="Graded.Modality.Dedicated-star.html#1148" class="Record">No-dedicated-star</a> <a id="965" href="Graded.Modality.Morphism.Forward-instances.html#349" class="Bound">𝕄₁</a> <a id="968" class="Symbol">⦄</a> <a id="970" class="Symbol">→</a> <a id="972" href="Graded.Modality.Dedicated-star.html#1148" class="Record">No-dedicated-star</a> <a id="990" href="Graded.Modality.Morphism.Forward-instances.html#368" class="Bound">𝕄₂</a>
+  <a id="995" href="Graded.Modality.Morphism.Forward-instances.html#898" class="Function">no-star-in-second-if-in-first′</a> <a id="1026" class="Symbol">=</a> <a id="1028" href="Graded.Modality.Morphism.html#5658" class="Function">no-star-in-second-if-in-first</a>
+</pre></body></html>

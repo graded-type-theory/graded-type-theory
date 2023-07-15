@@ -3,30 +3,33 @@
 <a id="74" class="Comment">-- Properties of the modality semiring.</a>
 <a id="114" class="Comment">------------------------------------------------------------------------</a>
 
-<a id="188" class="Keyword">open</a> <a id="193" class="Keyword">import</a> <a id="200" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+<a id="188" class="Keyword">import</a> <a id="195" href="Graded.Modality.html" class="Module">Graded.Modality</a>
 
-<a id="217" class="Keyword">module</a> <a id="224" href="Graded.Modality.Properties.html" class="Module">Graded.Modality.Properties</a>
-  <a id="253" class="Symbol">{</a><a id="254" href="Graded.Modality.Properties.html#254" class="Bound">a</a><a id="255" class="Symbol">}</a> <a id="257" class="Symbol">{</a><a id="258" href="Graded.Modality.Properties.html#258" class="Bound">M</a> <a id="260" class="Symbol">:</a> <a id="262" href="Agda.Primitive.html#320" class="Primitive">Set</a> <a id="266" href="Graded.Modality.Properties.html#254" class="Bound">a</a><a id="267" class="Symbol">}</a> <a id="269" class="Symbol">(</a><a id="270" href="Graded.Modality.Properties.html#270" class="Bound">𝕄</a> <a id="272" class="Symbol">:</a> <a id="274" href="Graded.Modality.html#5274" class="Record">Modality</a> <a id="283" href="Graded.Modality.Properties.html#258" class="Bound">M</a><a id="284" class="Symbol">)</a> <a id="286" class="Keyword">where</a>
+<a id="212" class="Keyword">module</a> <a id="219" href="Graded.Modality.Properties.html" class="Module">Graded.Modality.Properties</a>
+  <a id="248" class="Symbol">{</a><a id="249" href="Graded.Modality.Properties.html#249" class="Bound">a</a><a id="250" class="Symbol">}</a> <a id="252" class="Symbol">{</a><a id="253" href="Graded.Modality.Properties.html#253" class="Bound">M</a> <a id="255" class="Symbol">:</a> <a id="257" href="Agda.Primitive.html#320" class="Primitive">Set</a> <a id="261" href="Graded.Modality.Properties.html#249" class="Bound">a</a><a id="262" class="Symbol">}</a>
+  <a id="266" class="Symbol">(</a><a id="267" class="Keyword">open</a> <a id="272" href="Graded.Modality.html" class="Module">Graded.Modality</a> <a id="288" href="Graded.Modality.Properties.html#253" class="Bound">M</a><a id="289" class="Symbol">)</a>
+  <a id="293" class="Symbol">(</a><a id="294" href="Graded.Modality.Properties.html#294" class="Bound">𝕄</a> <a id="296" class="Symbol">:</a> <a id="298" href="Graded.Modality.html#5226" class="Record">Modality</a><a id="306" class="Symbol">)</a>
+  <a id="310" class="Keyword">where</a>
 
-<a id="293" class="Keyword">open</a> <a id="298" href="Graded.Modality.html#5274" class="Module">Modality</a> <a id="307" href="Graded.Modality.Properties.html#270" class="Bound">𝕄</a>
+<a id="317" class="Keyword">open</a> <a id="322" href="Graded.Modality.html#5226" class="Module">Modality</a> <a id="331" href="Graded.Modality.Properties.html#294" class="Bound">𝕄</a>
 
-<a id="310" class="Keyword">open</a> <a id="315" class="Keyword">import</a> <a id="322" href="Graded.Modality.Properties.Addition.html" class="Module">Graded.Modality.Properties.Addition</a> <a id="358" href="Graded.Modality.html#4070" class="Function">semiring-with-meet</a> <a id="377" class="Keyword">public</a>
-<a id="384" class="Keyword">open</a> <a id="389" class="Keyword">import</a> <a id="396" href="Graded.Modality.Properties.Division.html" class="Module">Graded.Modality.Properties.Division</a> <a id="432" href="Graded.Modality.html#4070" class="Function">semiring-with-meet</a>
-  <a id="453" class="Keyword">public</a>
-<a id="460" class="Keyword">open</a> <a id="465" class="Keyword">import</a> <a id="472" href="Graded.Modality.Properties.Equivalence.html" class="Module">Graded.Modality.Properties.Equivalence</a> <a id="511" href="Graded.Modality.html#4070" class="Function">semiring-with-meet</a>
-  <a id="532" class="Keyword">public</a>
-<a id="539" class="Keyword">open</a> <a id="544" class="Keyword">import</a> <a id="551" href="Graded.Modality.Properties.Meet.html" class="Module">Graded.Modality.Properties.Meet</a> <a id="583" href="Graded.Modality.html#4070" class="Function">semiring-with-meet</a> <a id="602" class="Keyword">public</a>
-<a id="609" class="Keyword">open</a> <a id="614" class="Keyword">import</a> <a id="621" href="Graded.Modality.Properties.Multiplication.html" class="Module">Graded.Modality.Properties.Multiplication</a> <a id="663" href="Graded.Modality.html#4070" class="Function">semiring-with-meet</a> <a id="682" class="Keyword">public</a>
-<a id="689" class="Keyword">open</a> <a id="694" class="Keyword">import</a> <a id="701" href="Graded.Modality.Properties.PartialOrder.html" class="Module">Graded.Modality.Properties.PartialOrder</a> <a id="741" href="Graded.Modality.html#4070" class="Function">semiring-with-meet</a> <a id="760" class="Keyword">public</a>
-<a id="767" class="Keyword">open</a> <a id="772" class="Keyword">import</a> <a id="779" href="Graded.Modality.Properties.Star.html" class="Module">Graded.Modality.Properties.Star</a> <a id="811" href="Graded.Modality.html#5316" class="Field">semiring-with-meet-and-star</a> <a id="839" class="Keyword">public</a>
+<a id="334" class="Keyword">open</a> <a id="339" class="Keyword">import</a> <a id="346" href="Graded.Modality.Properties.Addition.html" class="Module">Graded.Modality.Properties.Addition</a> <a id="382" href="Graded.Modality.html#5339" class="Field">semiring-with-meet</a> <a id="401" class="Keyword">public</a>
+<a id="408" class="Keyword">open</a> <a id="413" class="Keyword">import</a> <a id="420" href="Graded.Modality.Properties.Division.html" class="Module">Graded.Modality.Properties.Division</a> <a id="456" href="Graded.Modality.html#5339" class="Field">semiring-with-meet</a>
+  <a id="477" class="Keyword">public</a>
+<a id="484" class="Keyword">open</a> <a id="489" class="Keyword">import</a> <a id="496" href="Graded.Modality.Properties.Equivalence.html" class="Module">Graded.Modality.Properties.Equivalence</a> <a id="535" href="Graded.Modality.html#5339" class="Field">semiring-with-meet</a>
+  <a id="556" class="Keyword">public</a>
+<a id="563" class="Keyword">open</a> <a id="568" class="Keyword">import</a> <a id="575" href="Graded.Modality.Properties.Meet.html" class="Module">Graded.Modality.Properties.Meet</a> <a id="607" href="Graded.Modality.html#5339" class="Field">semiring-with-meet</a> <a id="626" class="Keyword">public</a>
+<a id="633" class="Keyword">open</a> <a id="638" class="Keyword">import</a> <a id="645" href="Graded.Modality.Properties.Multiplication.html" class="Module">Graded.Modality.Properties.Multiplication</a> <a id="687" href="Graded.Modality.html#5339" class="Field">semiring-with-meet</a> <a id="706" class="Keyword">public</a>
+<a id="713" class="Keyword">open</a> <a id="718" class="Keyword">import</a> <a id="725" href="Graded.Modality.Properties.PartialOrder.html" class="Module">Graded.Modality.Properties.PartialOrder</a> <a id="765" href="Graded.Modality.html#5339" class="Field">semiring-with-meet</a> <a id="784" class="Keyword">public</a>
+<a id="791" class="Keyword">open</a> <a id="796" class="Keyword">import</a> <a id="803" href="Graded.Modality.Properties.Star.html" class="Module">Graded.Modality.Properties.Star</a> <a id="835" href="Graded.Modality.html#5339" class="Field">semiring-with-meet</a> <a id="854" class="Keyword">public</a>
 
-<a id="847" class="Keyword">open</a> <a id="852" class="Keyword">import</a> <a id="859" href="Tools.Bool.html" class="Module">Tools.Bool</a>
+<a id="862" class="Keyword">open</a> <a id="867" class="Keyword">import</a> <a id="874" href="Tools.Bool.html" class="Module">Tools.Bool</a>
 
-<a id="871" class="Comment">-- Export properties that hold if 𝟘 is well behaved</a>
-<a id="923" class="Comment">-- under the assumption that 𝟘ᵐ is allowed.</a>
+<a id="886" class="Comment">-- Export properties that hold if 𝟘 is well behaved</a>
+<a id="938" class="Comment">-- under the assumption that 𝟘ᵐ is allowed.</a>
 
-<a id="968" class="Keyword">module</a> <a id="975" href="Graded.Modality.Properties.html#975" class="Module">_</a> <a id="977" class="Symbol">(</a><a id="978" href="Graded.Modality.Properties.html#978" class="Bound">ok</a> <a id="981" class="Symbol">:</a> <a id="983" href="Data.Bool.Base.html#1451" class="Function">T</a> <a id="985" href="Graded.Mode.Restrictions.html#371" class="Function">𝟘ᵐ-allowed</a><a id="995" class="Symbol">)</a> <a id="997" class="Keyword">where</a>
-  <a id="1005" class="Keyword">open</a> <a id="1010" class="Keyword">import</a> <a id="1017" href="Graded.Modality.Properties.Has-well-behaved-zero.html" class="Module">Graded.Modality.Properties.Has-well-behaved-zero</a>
-    <a id="1070" href="Graded.Modality.html#5316" class="Field">semiring-with-meet-and-star</a> <a id="1098" class="Symbol">(</a><a id="1099" href="Graded.Modality.html#5652" class="Field">𝟘-well-behaved</a> <a id="1114" href="Graded.Modality.Properties.html#978" class="Bound">ok</a><a id="1116" class="Symbol">)</a> <a id="1118" class="Keyword">public</a>
-    <a id="1129" class="Keyword">renaming</a> <a id="1138" class="Symbol">(</a><a id="1139" href="Graded.Modality.html#2969" class="Field">𝟙≢𝟘</a> <a id="1143" class="Symbol">to</a> <a id="1146" class="Field">𝟘ᵐ→𝟙≢𝟘</a><a id="1152" class="Symbol">)</a>
+<a id="983" class="Keyword">module</a> <a id="990" href="Graded.Modality.Properties.html#990" class="Module">_</a> <a id="992" class="Symbol">(</a><a id="993" href="Graded.Modality.Properties.html#993" class="Bound">ok</a> <a id="996" class="Symbol">:</a> <a id="998" href="Data.Bool.Base.html#1451" class="Function">T</a> <a id="1000" href="Graded.Modality.Variant.html#778" class="Function">𝟘ᵐ-allowed</a><a id="1010" class="Symbol">)</a> <a id="1012" class="Keyword">where</a>
+  <a id="1020" class="Keyword">open</a> <a id="1025" class="Keyword">import</a> <a id="1032" href="Graded.Modality.Properties.Has-well-behaved-zero.html" class="Module">Graded.Modality.Properties.Has-well-behaved-zero</a>
+    <a id="1085" href="Graded.Modality.html#5339" class="Field">semiring-with-meet</a> <a id="1104" class="Symbol">(</a><a id="1105" href="Graded.Modality.html#5548" class="Field">𝟘-well-behaved</a> <a id="1120" href="Graded.Modality.Properties.html#993" class="Bound">ok</a><a id="1122" class="Symbol">)</a> <a id="1124" class="Keyword">public</a>
+    <a id="1135" class="Keyword">renaming</a> <a id="1144" class="Symbol">(</a><a id="1145" href="Graded.Modality.html#2996" class="Field">𝟙≢𝟘</a> <a id="1149" class="Symbol">to</a> <a id="1152" class="Field">𝟘ᵐ→𝟙≢𝟘</a><a id="1158" class="Symbol">)</a>
 </pre></body></html>
