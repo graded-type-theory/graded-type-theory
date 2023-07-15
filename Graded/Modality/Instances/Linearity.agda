@@ -14,7 +14,7 @@ module Graded.Modality.Instances.Linearity
   -- The modality variant.
   (variant : Modality-variant)
   (open Modality-variant variant)
-  -- If there is no dedicated natrec-star operator, then 𝟘̂ᵐ must not
+  -- If there is no dedicated natrec-star operator, then 𝟘ᵐ must not
   -- be allowed.
   (variant-ok : ¬ ⊛-available → ¬ T 𝟘ᵐ-allowed)
   where

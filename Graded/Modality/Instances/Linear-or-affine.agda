@@ -1357,7 +1357,7 @@ linear-or-affine-has-star = record
 -- The modality
 
 -- A "linear or affine types" modality. If there is no dedicated
--- natrec-star operator, then 𝟘̂ᵐ must not be allowed.
+-- natrec-star operator, then 𝟘ᵐ must not be allowed.
 
 linear-or-affine :
   (variant : Modality-variant) →

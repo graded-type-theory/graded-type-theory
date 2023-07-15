@@ -175,7 +175,7 @@ module Is-morphism
 
             tr-Conₘ δ ∙ tr (Mo₁.⌜ m ⌝ M₁.· r M₁.· p) ∙
             tr (Mo₁.⌜ m ⌝ M₁.· r)                                  ∎))
-         (tr-∙▸[𝟘̂ᵐ?] ▸Q)
+         (tr-∙▸[𝟘ᵐ?] ▸Q)
          (Prodrec-preserved ok))
       (begin
          tr-Conₘ (r C₁.·ᶜ γ C₁.+ᶜ δ)           ≤⟨ tr-Conₘ-+ᶜ ⟩
@@ -197,7 +197,7 @@ module Is-morphism
 
             tr-Conₘ δ ∙ tr (Mo₁.⌜ m ⌝ M₁.· p) ∙ tr (Mo₁.⌜ m ⌝ M₁.· r)  ∎))
          (tr-▸ ▸n)
-         (tr-∙▸[𝟘̂ᵐ?] ▸P))
+         (tr-∙▸[𝟘ᵐ?] ▸P))
       (begin
          tr-Conₘ ((γ C₁.∧ᶜ η) C₁.⊛ᶜ δ C₁.+ᶜ p C₁.·ᶜ η ▷ r)             ≤⟨ tr-Conₘ-⊛ᶜ ⟩
 
@@ -222,7 +222,7 @@ module Is-morphism
 
            tr-Conₘ δ ∙ tr (Mo₁.⌜ m ⌝ M₁.· p) ∙ tr (Mo₁.⌜ m ⌝ M₁.· r)  ∎))
         (tr-▸ ▸n)
-        (tr-∙▸[𝟘̂ᵐ?] ▸P)
+        (tr-∙▸[𝟘ᵐ?] ▸P)
         (begin
            tr-Conₘ χ                                                      ≤⟨ tr-Conₘ-monotone fix ⟩
 
@@ -238,7 +238,7 @@ module Is-morphism
       open import Graded.Modality.Morphism.Forward-instances tr-m
       open CR₂
     tr-▸ (emptyrecₘ {m = m} ▸t ▸A) = sub
-      (emptyrecₘ (▸-cong (tr-Mode-ᵐ· m BMΠ) (tr-▸ ▸t)) (tr-▸[𝟘̂ᵐ?] ▸A))
+      (emptyrecₘ (▸-cong (tr-Mode-ᵐ· m BMΠ) (tr-▸ ▸t)) (tr-▸[𝟘ᵐ?] ▸A))
       (≤ᶜ-reflexive tr-Conₘ-·ᶜ)
     tr-▸ starₘ =
       sub starₘ tr-Conₘ-𝟘ᶜ-≤ᶜ
@@ -249,9 +249,9 @@ module Is-morphism
 
       -- A variant of tr-▸.
 
-      tr-▸[𝟘̂ᵐ?] :
+      tr-▸[𝟘ᵐ?] :
         γ U₁.▸[ Mo₁.𝟘ᵐ? ] t → tr-Conₘ γ U₂.▸[ Mo₂.𝟘ᵐ? ] tr-Term t
-      tr-▸[𝟘̂ᵐ?] {γ = γ} {t = t} = Mo₁.𝟘ᵐ?-elim
+      tr-▸[𝟘ᵐ?] {γ = γ} {t = t} = Mo₁.𝟘ᵐ?-elim
         (λ m → γ U₁.▸[ m ] t → tr-Conₘ γ U₂.▸[ Mo₂.𝟘ᵐ? ] tr-Term t)
         (▸-cong (sym Mo₂.𝟘ᵐ?≡𝟘ᵐ) ∘→ tr-▸)
         (λ not-ok ▸t → Mo₂.𝟘ᵐ?-elim
@@ -262,10 +262,10 @@ module Is-morphism
 
       -- Another variant of tr-▸.
 
-      tr-∙▸[𝟘̂ᵐ?] :
+      tr-∙▸[𝟘ᵐ?] :
         γ ∙ Mo₁.⌜ Mo₁.𝟘ᵐ? ⌝ M₁.· p U₁.▸[ Mo₁.𝟘ᵐ? ] t →
         tr-Conₘ γ ∙ Mo₂.⌜ Mo₂.𝟘ᵐ? ⌝ M₂.· tr p U₂.▸[ Mo₂.𝟘ᵐ? ] tr-Term t
-      tr-∙▸[𝟘̂ᵐ?] {γ = γ} {p = p} {t = t} = Mo₁.𝟘ᵐ?-elim
+      tr-∙▸[𝟘ᵐ?] {γ = γ} {p = p} {t = t} = Mo₁.𝟘ᵐ?-elim
         (λ m →
            γ ∙ Mo₁.⌜ m ⌝ M₁.· p U₁.▸[ m ] t →
            tr-Conₘ γ ∙ Mo₂.⌜ Mo₂.𝟘ᵐ? ⌝ M₂.· tr p U₂.▸[ Mo₂.𝟘ᵐ? ]
@@ -586,7 +586,7 @@ module Is-order-embedding
 
               η ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr r M₂.· tr-Σ p ∙
               Mo₂.⌜ tr-Mode m ⌝ M₂.· tr r                    ∎)
-           (tr-∙▸[𝟘̂ᵐ?]⁻¹ ▸Q .proj₂)
+           (tr-∙▸[𝟘ᵐ?]⁻¹ ▸Q .proj₂)
            (Prodrec-reflected ok))
         (let open CR₁ in begin
            γ                    ≤⟨ γ≤δ′+η′ ⟩
@@ -607,7 +607,7 @@ module Is-order-embedding
               η ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr p ∙
               Mo₂.⌜ tr-Mode m ⌝ M₂.· tr r           ∎))
            (tr-▸⁻¹′ _ ▸n refl θ′≤θ)
-           (tr-∙▸[𝟘̂ᵐ?]⁻¹ ▸P .proj₂))
+           (tr-∙▸[𝟘ᵐ?]⁻¹ ▸P .proj₂))
         γ≤δ′∧θ′⊛η′+pθ′▷r
       where
       open import
@@ -627,7 +627,7 @@ module Is-order-embedding
               δ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr p ∙
               Mo₂.⌜ tr-Mode m ⌝ M₂.· tr r           ∎)
            (tr-▸⁻¹′ _ ▸n refl η′≤η)
-           (tr-∙▸[𝟘̂ᵐ?]⁻¹ ▸P .proj₂)
+           (tr-∙▸[𝟘ᵐ?]⁻¹ ▸P .proj₂)
            χ′≤)
         γ″≤χ′ }
       where
@@ -640,7 +640,7 @@ module Is-order-embedding
       case tr-Conₘ-≤ᶜ-·ᶜ γ≤pδ of λ (δ′ , δ′≤δ , γ≤pδ′) →
       sub
         (emptyrecₘ (tr-▸⁻¹′ _ ▸t (sym (tr-Mode-ᵐ· m BMΠ)) δ′≤δ)
-           (tr-▸[𝟘̂ᵐ?]⁻¹ ▸A .proj₂))
+           (tr-▸[𝟘ᵐ?]⁻¹ ▸A .proj₂))
         (begin
            γ           ≤⟨ γ≤pδ′ ⟩
            p C₁.·ᶜ δ′  ∎)
@@ -655,9 +655,9 @@ module Is-order-embedding
       where
       open CR₂
 
-    tr-▸[𝟘̂ᵐ?]⁻¹ :
+    tr-▸[𝟘ᵐ?]⁻¹ :
       γ U₂.▸[ Mo₂.𝟘ᵐ? ] tr-Term t → ∃ λ δ → δ U₁.▸[ Mo₁.𝟘ᵐ? ] t
-    tr-▸[𝟘̂ᵐ?]⁻¹ {γ = γ} {t = t} = Mo₁.𝟘ᵐ?-elim
+    tr-▸[𝟘ᵐ?]⁻¹ {γ = γ} {t = t} = Mo₁.𝟘ᵐ?-elim
       (λ m → γ U₂.▸[ Mo₂.𝟘ᵐ? ] tr-Term t → ∃ λ δ → δ U₁.▸[ m ] t)
       (λ ▸t →
          case tr-Conₘ-≤ᶜ of λ (δ , ≤γ) →
@@ -670,10 +670,10 @@ module Is-order-embedding
             case tr-Conₘ-≤ᶜ of λ (δ , ≤γ) →
             δ , tr-▸⁻¹′ _ ▸t refl ≤γ))
 
-    tr-∙▸[𝟘̂ᵐ?]⁻¹ :
+    tr-∙▸[𝟘ᵐ?]⁻¹ :
       γ ∙ Mo₂.⌜ Mo₂.𝟘ᵐ? ⌝ M₂.· tr p U₂.▸[ Mo₂.𝟘ᵐ? ] tr-Term t →
       ∃ λ δ → δ ∙ Mo₁.⌜ Mo₁.𝟘ᵐ? ⌝ M₁.· p U₁.▸[ Mo₁.𝟘ᵐ? ] t
-    tr-∙▸[𝟘̂ᵐ?]⁻¹ {γ = γ} {p = p} {t = t} = Mo₁.𝟘ᵐ?-elim
+    tr-∙▸[𝟘ᵐ?]⁻¹ {γ = γ} {p = p} {t = t} = Mo₁.𝟘ᵐ?-elim
       (λ m →
          γ ∙ Mo₂.⌜ Mo₂.𝟘ᵐ? ⌝ M₂.· tr p U₂.▸[ Mo₂.𝟘ᵐ? ] tr-Term t →
          ∃ λ δ → δ ∙ Mo₁.⌜ m ⌝ M₁.· p U₁.▸[ m ] t)
