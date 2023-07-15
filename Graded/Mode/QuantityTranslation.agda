@@ -59,6 +59,25 @@ module Is-morphism
   tr-⌜⌝ 𝟘ᵐ[ ok ] = ≤-reflexive (tr-𝟘-≡ ok)
   tr-⌜⌝ 𝟙ᵐ       = tr-𝟙
 
+  -- The translation of Mo₁.⌜ Mo₁.𝟘ᵐ? ⌝ is bounded by Mo₂.⌜ Mo₂.𝟘ᵐ? ⌝.
+
+  tr-⌜𝟘ᵐ?⌝ : tr Mo₁.⌜ Mo₁.𝟘ᵐ? ⌝ ≤ Mo₂.⌜ Mo₂.𝟘ᵐ? ⌝
+  tr-⌜𝟘ᵐ?⌝ = Mo₁.𝟘ᵐ?-elim
+    (λ m → tr Mo₁.⌜ m ⌝ ≤ Mo₂.⌜ Mo₂.𝟘ᵐ? ⌝)
+    (λ ⦃ ok = ok ⦄ → begin
+       tr M₁.𝟘                                    ≤⟨ tr-𝟘-≤ ⟩
+       M₂.𝟘                                       ≡⟨⟩
+       Mo₂.⌜ 𝟘ᵐ[ 𝟘ᵐ-in-second-if-in-first ok ] ⌝  ≡˘⟨ cong Mo₂.⌜_⌝ $ Mo₂.𝟘ᵐ?≡𝟘ᵐ {ok = 𝟘ᵐ-in-second-if-in-first ok} ⟩
+       Mo₂.⌜ Mo₂.𝟘ᵐ? ⌝                            ∎)
+    (λ not-ok →
+       Mo₂.𝟘ᵐ?-elim
+         (λ m → tr M₁.𝟙 ≤ Mo₂.⌜ m ⌝)
+         (λ ⦃ ok = ok ⦄ →
+            tr-<-𝟘 not-ok ok .proj₁)
+         (λ _ → tr-𝟙))
+    where
+    open Tools.Reasoning.PartialOrder ≤-poset
+
   -- A variant of the previous property with _≡_ instead of _≤_.
 
   tr-⌜⌝-· : ∀ m → Mo₂.⌜ tr-Mode m ⌝ M₂.· tr p ≡ tr (Mo₁.⌜ m ⌝ M₁.· p)
