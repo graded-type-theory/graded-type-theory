@@ -694,6 +694,12 @@ private
                         H refl → refl
 /≡/ {p = H} {q = H} = refl , λ _ _ → refl
 
+-- Division is supported.
+
+division-supported : D.Supports-division
+division-supported _ =
+  D.Supports-division-by⇔ .proj₂ (λ _ → _ , /≡/)
+
 private
 
   -- If the result of dividing p by q is r, then p / q is equal to r.

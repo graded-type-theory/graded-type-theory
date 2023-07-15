@@ -223,29 +223,49 @@ semiring-with-meet =
 
 open Graded.Modality.Properties.Division semiring-with-meet
 
--- Division is not total for semiring-with-meet.
+-- Division by left n is not supported for semiring-with-meet.
 
-¬-division-total : ¬ ((p q : ⊤⊎ℕ⊎ℕ) → ∃ (p / q ≡_))
-¬-division-total total = uncurry r0/l0≢ (total (right 0) (left 0))
+¬-Supports-division-by-left : ¬ Supports-division-by (left n)
+¬-Supports-division-by-left {n = n₀} =
+  Supports-division-by (left n₀)    →⟨ Supports-division-by⇔ {q = left _} .proj₁ ⟩
+  (∀ p → ∃ λ r → p / left n₀ ≡ r)   →⟨ _$ _ ⟩
+  (∃ λ r → right n₀ / left n₀ ≡ r)  →⟨ rn₀/ln₀≢ _ ∘→ proj₂ ⟩
+  ⊥′                                □
   where
   open Semiring-with-meet semiring-with-meet
 
   right-injective : right m ≡ right n → m ≡ n
   right-injective refl = refl
 
-  r0/l0≢ : ∀ p → ¬ right 0 / left 0 ≡ p
-  r0/l0≢ ⊥ =
-    right 0 / left 0 ≡ ⊥  →⟨ proj₁ ⟩
-    right 0 / left 0 ≤ ⊥  →⟨ (λ ()) ⟩
+  rn₀/ln₀≢ : ∀ p → ¬ right n₀ / left n₀ ≡ p
+  rn₀/ln₀≢ ⊥ =
+    right n₀ / left n₀ ≡ ⊥  →⟨ proj₁ ⟩
+    right n₀ / left n₀ ≤ ⊥  →⟨ (λ ()) ⟩
     ⊥′                    □
-  r0/l0≢ (left n) =
-    (right 0 / left 0 ≡ left n)  →⟨ proj₁ ⟩
-    (right 0 / left 0 ≤ left n)  →⟨ idᶠ ⟩
-    right 0 ≤ left 0             →⟨ (λ ()) ⟩
-    ⊥′                           □
-  r0/l0≢ (right n) =
-    (right 0 / left 0 ≡ right n)  →⟨ (λ hyp → hyp .proj₂ _ refl) ⟩
-    right n ≤ right (1+ n)        →⟨ right-injective ⟩
-    n ≡ n ⊔ 1+ n                  →⟨ trans (sym (N.m≥n⇒m⊔n≡m (N.n≤1+n _))) ∘→ trans (N.⊔-comm (1+ n) n) ∘→ sym ⟩
-    1+ n ≡ n                      →⟨ (λ ()) ⟩
-    ⊥′                            □
+  rn₀/ln₀≢ (left n) =
+    (right n₀ / left n₀ ≡ left n)  →⟨ proj₁ ⟩
+    (right n₀ / left n₀ ≤ left n)  →⟨ idᶠ ⟩
+    right n₀ ≤ left (n₀ ⊓ n)       →⟨ (λ ()) ⟩
+    ⊥′                             □
+  rn₀/ln₀≢ (right n) =
+    (right n₀ / left n₀ ≡ right n)  →⟨ (λ hyp → hyp .proj₂ _ (cong right (sym (N.⊔-absorbs-⊓ _ _)))) ⟩
+    right n ≤ right (1+ n)          →⟨ right-injective ⟩
+    n ≡ n ⊔ 1+ n                    →⟨ trans (sym (N.m≥n⇒m⊔n≡m (N.n≤1+n _))) ∘→ trans (N.⊔-comm (1+ n) n) ∘→ sym ⟩
+    1+ n ≡ n                        →⟨ (λ ()) ⟩
+    ⊥′                              □
+
+-- Division is not supported for semiring-with-meet.
+
+¬-Supports-division : ¬ Supports-division
+¬-Supports-division =
+  Supports-division              →⟨ _$ left _ ⟩
+  Supports-division-by (left 0)  →⟨ ¬-Supports-division-by-left ⟩
+  ⊥′                             □
+
+-- Division is not total for semiring-with-meet.
+
+¬-division-total : ¬ ((p q : ⊤⊎ℕ⊎ℕ) → ∃ (p / q ≡_))
+¬-division-total =
+  ((p q : ⊤⊎ℕ⊎ℕ) → ∃ (p / q ≡_))  →⟨ (λ hyp p → Supports-division-by⇔ {q = p} .proj₂ (flip hyp p)) ⟩
+  Supports-division               →⟨ ¬-Supports-division ⟩
+  ⊥′                              □

@@ -759,17 +759,23 @@ counterexample₂ =
 
 non-interference = Graded.Erasure.Consequences.Non-interference.non-interference
 
+-- If division by q is supported, then p / q is the least r such that
+-- p ≤ q · r, and _/ q is monotone.
+
+/-least    = Graded.Modality.Properties.Division./-least-≤·
+/-monotone = Graded.Modality.Properties.Division./-monotoneˡ′
+
 -- The total order L ≤ M ≤ H.
 
 L≤M≤H = Graded.Modality.Instances.Information-flow.L≤M≤H
 
 -- Division laws.
 
-/𝟙≡  = Graded.Modality.Properties.Division./𝟙≡
-/≡𝟙  = Graded.Modality.Properties.Division./≡𝟙
-𝟘/≡𝟘 = Graded.Modality.Properties.Division.𝟘/≡𝟘
-/𝟘≡𝟙 = Graded.Modality.Properties.Division./𝟘≡𝟙
-𝟙/≡𝟙 = Graded.Modality.Properties.Division.𝟙/≡𝟙
+/𝟙≡  = Graded.Modality.Properties.Division./𝟙≡′
+/𝟘≡𝟙 = Graded.Modality.Properties.Division./𝟘≡𝟙′
+/≡𝟙  = Graded.Modality.Properties.Division./≡𝟙′
+𝟙/≡𝟙 = Graded.Modality.Properties.Division.𝟙/≡𝟙′
+𝟘/≡𝟘 = Graded.Modality.Properties.Division.𝟘/≡𝟘′
 
 ------------------------------------------------------------------------
 -- 8: Extension: modes and graded Σ-types

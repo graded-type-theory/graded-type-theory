@@ -28,6 +28,9 @@ open import Tools.Sum using (_⊎_; inj₁; inj₂)
 private variable
   p p₁ p₂ q q₁ q₂ r r₁ r₂ : M
 
+------------------------------------------------------------------------
+-- The relation _/_≡_
+
 -- Least-such-that P p means that p is the least value which
 -- satisfies P.
 
@@ -239,3 +242,117 @@ p / q ≡ r = Least-such-that (p / q ≤_) r
        q  ∎)
   where
   open Tools.Reasoning.PartialOrder ≤-poset
+
+------------------------------------------------------------------------
+-- The predicate Supports-division-by
+
+-- The property of supporting division by a given value.
+
+Supports-division-by : M → Set a
+Supports-division-by q =
+  ∃ λ (_/q : M → M) → ∀ p r → (p /q) ≤ r ⇔ p ≤ q · r
+
+-- The property of supporting division.
+
+Supports-division : Set a
+Supports-division = ∀ p → Supports-division-by p
+
+-- "𝕄 supports division by q" is logically equivalent to "for all p
+-- there is an r such that p / q ≡ r".
+
+Supports-division-by⇔ :
+  Supports-division-by q ⇔ (∀ p → ∃ λ r → p / q ≡ r)
+Supports-division-by⇔ {q = q} =
+    (λ (_/q , conn) p →
+         (p /q)
+       , (begin
+            p           ≤⟨ conn p (p /q) .proj₁ ≤-refl ⟩
+            q · (p /q)  ∎)
+       , (λ r →
+            (p / q ≤ r)  →⟨ conn p r .proj₂ ⟩
+            (p /q) ≤ r   □))
+  , (λ div →
+         proj₁ ∘→ div
+       , (λ p r →
+              (λ p/q≤r → begin
+                   p                 ≤⟨ div p .proj₂ .proj₁ ⟩
+                   q · div p .proj₁  ≤⟨ ·-monotoneʳ p/q≤r ⟩
+                   q · r             ∎)
+            , div p .proj₂ .proj₂ _))
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
+
+-- If 𝕄 supports division by q, then "p / q" is the least r such that
+-- p ≤ q · r.
+
+/-least-≤· :
+  ((_/q , _) : Supports-division-by q) →
+  Least-such-that (λ r → p ≤ q · r) (p /q)
+/-least-≤· s = div _ .proj₂
+  where
+  div = Supports-division-by⇔ .proj₁ s
+
+-- If 𝕄 supports division by q, then p / q ≡ r is logically equivalent
+-- to "p / q is equal to r".
+
+/≡⇔/≡ :
+  ((_/q , _) : Supports-division-by q) →
+  (p / q ≡ r) ⇔ (p /q) ≡ r
+/≡⇔/≡ s =
+    /≡-functional (/-least-≤· s)
+  , (λ { refl → /-least-≤· s })
+
+-- If 𝕄 supports division by q, then the associated division operation
+-- is monotone.
+
+/-monotoneˡ′ :
+  ((_/q , _) : Supports-division-by q) →
+  ∀ p₁ p₂ → p₁ ≤ p₂ → (p₁ /q) ≤ (p₂ /q)
+/-monotoneˡ′ s p₁ p₂ = /-monotoneˡ (div p₁ .proj₂) (div p₂ .proj₂)
+  where
+  div = Supports-division-by⇔ .proj₁ s
+
+-- Division by 𝟙 is supported, and the value of p divided by 𝟙 is p.
+
+/𝟙≡′ : ∃ λ ((_/𝟙 , _) : Supports-division-by 𝟙) → (p /𝟙) ≡ p
+/𝟙≡′ =
+    Supports-division-by⇔ .proj₂ (λ _ → _ , /𝟙≡)
+  , refl
+
+-- If 𝟙 is the least value and 𝟘 the greatest one, then division by 𝟘
+-- is supported and the value of p divided by 𝟘 is 𝟙.
+
+/𝟘≡𝟙′ :
+  (∀ p → 𝟙 ≤ p) → (∀ p → p ≤ 𝟘) →
+  (∃ λ ((_/𝟘 , _) : Supports-division-by 𝟘) → (p /𝟘) ≡ 𝟙)
+/𝟘≡𝟙′ 𝟙≤ ≤𝟘 =
+    Supports-division-by⇔ .proj₂ (λ _ → _ , /𝟘≡𝟙 𝟙≤ (≤𝟘 _))
+  , refl
+
+-- If 𝟙 is the least value and division by p is supported, then the
+-- value of p divided by p is 𝟙.
+
+/≡𝟙′ :
+  (∀ p → 𝟙 ≤ p) →
+  ((_/p , _) : Supports-division-by p) →
+  (p /p) ≡ 𝟙
+/≡𝟙′ 𝟙≤ div = /≡⇔/≡ div .proj₁ (/≡𝟙 𝟙≤)
+
+-- If 𝟙 is the least value and division by p is supported, then the
+-- value of 𝟙 divided by p is 𝟙.
+
+𝟙/≡𝟙′ :
+  (∀ p → 𝟙 ≤ p) →
+  ((_/p , _) : Supports-division-by p) →
+  (𝟙 /p) ≡ 𝟙
+𝟙/≡𝟙′ 𝟙≤ div = /≡⇔/≡ div .proj₁ (𝟙/≡𝟙 𝟙≤)
+
+-- If the zero-product property holds, division by p is supported, and
+-- p is not 𝟘, then the value of 𝟘 divided by p is 𝟘.
+
+𝟘/≡𝟘′ :
+  (∀ {p q} → p · q ≡ 𝟘 → p ≡ 𝟘 ⊎ q ≡ 𝟘) →
+  ((_/p , _) : Supports-division-by p) →
+  p ≢ 𝟘 → (𝟘 /p) ≡ 𝟘
+𝟘/≡𝟘′ zero-product div p≢𝟘 =
+  /≡⇔/≡ div .proj₁ (𝟘/≡𝟘 zero-product p≢𝟘)
