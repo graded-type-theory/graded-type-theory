@@ -194,11 +194,13 @@ p / q ≡ r = Least-such-that (p / q ≤_) r
   where
   open Tools.Reasoning.PartialOrder ≤-poset
 
--- The value of 𝟘 divided by p is 𝟘 if p is not equal to 𝟘 and 𝕄 has a
--- well-behaved zero.
+-- The value of 𝟘 divided by p is 𝟘 if p is not equal to 𝟘 and the
+-- zero-product property holds.
 
-𝟘/≡𝟘 : Has-well-behaved-zero 𝕄 → p ≢ 𝟘 → 𝟘 / p ≡ 𝟘
-𝟘/≡𝟘 {p = p} well-behaved p≢𝟘 = ≡·→/≡
+𝟘/≡𝟘 :
+  (∀ {p q} → p · q ≡ 𝟘 → p ≡ 𝟘 ⊎ q ≡ 𝟘) →
+  p ≢ 𝟘 → 𝟘 / p ≡ 𝟘
+𝟘/≡𝟘 {p = p} zero-product p≢𝟘 = ≡·→/≡
   (λ q →
      p · 𝟘 ≡ p · q  →⟨ trans (sym (·-zeroʳ _)) ⟩
      𝟘 ≡ p · q      →⟨ zero-product ∘→ sym ⟩
@@ -208,7 +210,6 @@ p / q ≡ r = Least-such-that (p / q ≤_) r
      𝟘      ≡˘⟨ ·-zeroʳ _ ⟩
      p · 𝟘  ∎)
   where
-  open Has-well-behaved-zero well-behaved
   open Tools.Reasoning.PropositionalEquality
 
 -- The value of p divided by 𝟘 is 𝟙 if p ≤ 𝟘 and 𝟙 is the least value.

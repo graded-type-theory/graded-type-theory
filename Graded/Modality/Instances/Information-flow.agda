@@ -714,7 +714,9 @@ private
 -- The value of H divided by p is H if p is not equal to H.
 
 H/≡H : p ≢ H → H / p ≡ H
-H/≡H p≢H = /≡→/≡ $ D.𝟘/≡𝟘 L≤M≤H-has-well-behaved-zero p≢H
+H/≡H p≢H = /≡→/≡ $ D.𝟘/≡𝟘 zero-product p≢H
+  where
+  open Has-well-behaved-zero L≤M≤H-has-well-behaved-zero
 
 -- The value of p divided by H is L.
 
