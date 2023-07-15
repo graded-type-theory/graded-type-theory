@@ -509,6 +509,12 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
   where
   open Tools.Reasoning.PropositionalEquality
 
+-- Multiplication is idempotent for ⌜ m ⌝.
+
+·-idem-⌜⌝ : ∀ m → ⌜ m ⌝ · ⌜ m ⌝ ≡ ⌜ m ⌝
+·-idem-⌜⌝ 𝟘ᵐ = ·-zeroʳ _
+·-idem-⌜⌝ 𝟙ᵐ = ·-identityʳ _
+
 ------------------------------------------------------------------------
 -- Properties related to ⌞_⌟ and ⌞_⌟ᶜ
 
