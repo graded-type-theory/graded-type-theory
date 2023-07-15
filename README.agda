@@ -133,14 +133,14 @@ no-erased-matches = Graded.Restrictions.no-erased-matches
 
 -- Definition 3.1: The modality semiring.
 --
--- For the variant of the type theory in Section 3 the mode 𝟘ᵐ should
+-- For the variant of the type theory in Sections 3-5 the mode 𝟘ᵐ should
 -- be disallowed, i.e. 𝟘ᵐ-allowed should be false.
 --
 -- Unlike in the paper equality is not required to be decidable.
 -- Instead this property is assumed where it is used.
 --
 -- This module also defines the concept of a modality with "well
--- behaved zero" which is used in Section 6.
+-- behaved zero" which is used in Section 6.
 
 Modality = Graded.Modality.Modality
 
@@ -247,7 +247,7 @@ linearOrAffineModality =
 -- closer to the notation in the paper.
 --
 -- The formalization includes a unit type with eta equality which is
--- not covered by the paper except for a discussion in Section 7.3.
+-- not covered by the paper except for a discussion in Section 7.3.
 -- One can disable the use of the unit type at the type level (see
 -- above).
 
@@ -495,9 +495,9 @@ _⇒*_ = Graded.Erasure.Target._⇒*_
 -- Definition 6.3: The extraction function.
 --
 -- For Σ-types the definition is different from the paper to account
--- for the possibility to erase the first component added in section 8.
--- For the case treated in this section, we will always have have
--- p ≡ 𝟙 for Σ-types.
+-- for the possibility to erase the first component added in
+-- Section 8. For the case treated in this section, we will always
+-- have have p ≡ 𝟙 for Σ-types.
 
 _• = Graded.Erasure.Extraction.erase
 
@@ -561,9 +561,9 @@ fundamentalReducibleTerm = Definition.LogicalRelation.Fundamental.Reducibility.r
 -- apply identity weakenings.
 --
 -- For Σ-types the presentation is different from the paper to account
--- for the possibility to erase the first component added in section 8.
--- For the case treated in this section, we will always have have
--- p ≡ 𝟙 for Σ-types.
+-- for the possibility to erase the first component added in
+-- Section 8. For the case treated in this section, we will always
+-- have p ≡ 𝟙 for Σ-types.
 --
 -- In the paper, we fix a well-formed, consistent context Δ₀. In the
 -- formalization, this is implemented through module parameters. For
@@ -663,9 +663,9 @@ not-greatest =
 
 ⊛ᵣ-recursive = Graded.Modality.Instances.Recursive._⊛_▷_
 
--- The family of sequences discussed in §7.1.2 does not have the
--- required fixpoints for a certain modality for the natural numbers
--- extended with infinity.
+-- The family of sequences discussed in Section 7.1.2 does not have
+-- the required fixpoints for a certain modality for the natural
+-- numbers extended with infinity.
 
 ¬-fixpoints =
   Graded.Modality.Instances.Nat-plus-infinity.¬-Has-fixpoints-nr
