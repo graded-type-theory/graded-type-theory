@@ -19,6 +19,7 @@ open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality as PE hiding (⊥)
 import Tools.Reasoning.PropositionalEquality
+open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
   m n : Nat
@@ -195,6 +196,30 @@ bounded-distributive-lattice = record
 semiring-with-meet : Semiring-with-meet ⊤⊎ℕ⊎ℕ
 semiring-with-meet =
   BDL.semiring-with-meet _ bounded-distributive-lattice
+
+-- The zero-product property fails for this "semiring with meet".
+
+¬-zero-product :
+  let open Semiring-with-meet semiring-with-meet in
+  ¬ (∀ {p q} → p · q ≡ 𝟘 → p ≡ 𝟘 ⊎ q ≡ 𝟘)
+¬-zero-product =
+  ({p q : ⊤⊎ℕ⊎ℕ} → p · q ≡ right 0 → p ≡ right 0 ⊎ q ≡ right 0)        →⟨ (λ hyp → hyp) ⟩
+  (right 1 · left 0 ≡ right 0 → right 1 ≡ right 0 ⊎ left 0 ≡ right 0)  →⟨ _$ refl ⟩
+  right 1 ≡ right 0 ⊎ left 0 ≡ right 0                                 →⟨ (λ { (inj₁ ()); (inj₂ ()) }) ⟩
+  ⊥′                                                                   □
+  where
+  open Semiring-with-meet semiring-with-meet
+
+-- This "semiring with meet" does not have a well-behaved zero.
+
+¬-Has-well-behaved-zero :
+  ¬ Has-well-behaved-zero ⊤⊎ℕ⊎ℕ semiring-with-meet
+¬-Has-well-behaved-zero =
+  Has-well-behaved-zero ⊤⊎ℕ⊎ℕ semiring-with-meet                 →⟨ Has-well-behaved-zero.zero-product ⟩
+  ({p q : ⊤⊎ℕ⊎ℕ} → p · q ≡ right 0 → p ≡ right 0 ⊎ q ≡ right 0)  →⟨ ¬-zero-product ⟩
+  ⊥′                                                             □
+  where
+  open Semiring-with-meet semiring-with-meet
 
 open Graded.Modality.Properties.Division semiring-with-meet
 
