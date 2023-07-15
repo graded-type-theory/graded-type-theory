@@ -21,7 +21,8 @@ open import Graded.Context.Properties (ErasureModality variant) public
 
 open import Graded.FullReduction.Assumptions
 
-open import Graded.Modality.Properties (ErasureModality variant) public
+open import Graded.Modality.Properties (ErasureModality variant) as P
+  public
 
 open import Graded.Usage (ErasureModality variant)
 open import Graded.Usage.Inversion (ErasureModality variant)
@@ -184,6 +185,15 @@ least-elemᶜ (γ ∙ p) = (least-elemᶜ γ) ∙ (least-elem p)
 ≢𝟘→≡ω : p ≢ 𝟘 → p ≡ ω
 ≢𝟘→≡ω {p = 𝟘} 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 PE.refl)
 ≢𝟘→≡ω {p = ω} _   = PE.refl
+
+-- Division is correctly defined.
+
+/≡/ : ∀ p q → p P./ q ≡ (p / q)
+/≡/ = λ where
+  𝟘 𝟘 → PE.refl , λ _ → λ _ → PE.refl
+  ω 𝟘 → PE.refl , λ _ → idᶠ
+  𝟘 ω → PE.refl , λ _ → idᶠ
+  ω ω → PE.refl , λ _ → idᶠ
 
 -- An instance of Type-restrictions is suitable for the full reduction
 -- theorem if Σₚ-allowed 𝟘 p implies that 𝟘ᵐ is allowed.

@@ -17,7 +17,7 @@ open import Tools.Algebra Erasure
 
 infixl 40 _+_
 infixl 40 _∧_
-infixl 45 _·_
+infixl 45 _·_ _/_
 infix  10 _≤_
 infix  50 _⊛_▷_
 
@@ -47,6 +47,11 @@ _∧_ = _+_
 _⊛_▷_ : Op₃ Erasure
 p ⊛ q ▷ r = p + q
 
+-- Division.
+
+_/_ : Op₂ Erasure
+p / ω = p
+_ / 𝟘 = ω
 
 -- Ordering relation for erasure
 -- Reflexive closure of ω ≤ 𝟘
