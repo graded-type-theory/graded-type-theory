@@ -28,6 +28,12 @@ open import Tools.Sum using (_⊎_; inj₁; inj₂)
 private variable
   p p₁ p₂ q q₁ q₂ r r₁ r₂ : M
 
+-- Least-such-that P p means that p is the least value which
+-- satisfies P.
+
+Least-such-that : (M → Set a) → M → Set a
+Least-such-that P p = P p × (∀ q → P q → p ≤ q)
+
 -- The relation p / q ≤ r is inhabited if "p divided by q" is bounded
 -- by r.
 
@@ -42,7 +48,7 @@ p / q ≤ r = p ≤ q · r
 infix 4 _/_≡_
 
 _/_≡_ : M → M → M → Set a
-p / q ≡ r = p / q ≤ r × (∀ r′ → p / q ≤ r′ → r ≤ r′)
+p / q ≡ r = Least-such-that (p / q ≤_) r
 
 -- The relation _/_≤_ is total if 𝟘 is the greatest value.
 
@@ -63,7 +69,7 @@ p / q ≡ r = p / q ≤ r × (∀ r′ → p / q ≤ r′ → r ≤ r′)
   (∀ p → p ≤ 𝟘) →
   ((P : M → Set a) → (∀ p → Dec (P p)) →
    P 𝟘 → (∀ p q → P p → P q → P (p ∧ q)) →
-   ∃ λ p → P p × (∀ q → P q → p ≤ q)) →
+   ∃ (Least-such-that P)) →
   ∃ (p / q ≡_)
 /≡-total {p = p} {q = q} dec ≤𝟘 limit =
   limit (p / q ≤_) p/q≤? (/≤-total ≤𝟘 .proj₂) lemma
