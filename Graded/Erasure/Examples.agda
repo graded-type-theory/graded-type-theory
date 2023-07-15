@@ -39,7 +39,6 @@ open import Tools.Sum as ⊎ using (_⊎_; inj₁; inj₂)
 
 open import Definition.Typed TR as DT hiding (id)
 open import Definition.Typed.Consequences.Reduction TR
-
 open import Definition.Typed.Consequences.Substitution TR
 open import Definition.Typed.Consequences.Syntactic TR
 open import Definition.Typed.EqRelInstance TR
