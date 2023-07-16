@@ -13,6 +13,7 @@ module Graded.Modality.Dedicated-star
 open Modality 𝕄
 
 open import Tools.Empty
+open import Tools.Function
 open import Tools.Nullary
 open import Tools.PropositionalEquality
 
@@ -48,7 +49,7 @@ record No-dedicated-star : Set a where
     no-star : ¬ ⊛-available
 
 ------------------------------------------------------------------------
--- Dedicated-star and No-dedicated-star are mutually exclusive
+-- Some lemmas related to both Dedicated-star and No-dedicated-star
 
 -- One cannot both have and not have a dedicated natrec-star operator.
 
@@ -57,3 +58,18 @@ not-star-and-no-star :
 not-star-and-no-star
   ⦃ star = dedicated-star s ⦄ ⦃ no-star = no-dedicated-star ns ⦄ =
   ns s
+
+-- The property of either having or not having a dedicated natrec-star
+-- operator.
+
+data Dedicated-star? : Set a where
+  does-have-star     : ⦃ has-star : Dedicated-star ⦄ → Dedicated-star?
+  does-not-have-star : ⦃ no-star : No-dedicated-star ⦄ → Dedicated-star?
+
+-- One either has or does not have a dedicated natrec-star operator.
+
+dedicated-star? : Dedicated-star?
+dedicated-star? = case ⊛-available-decided of λ where
+  (yes has-star) → does-have-star ⦃ has-star = dedicated-star has-star ⦄
+  (no no-star)   →
+    does-not-have-star ⦃ no-star = no-dedicated-star no-star ⦄
