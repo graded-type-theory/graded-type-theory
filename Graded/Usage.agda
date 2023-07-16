@@ -56,21 +56,20 @@ mutual
   ⌈ prod Σₚ p t u ⌉ m = p ·ᶜ ⌈ t ⌉ (m ᵐ· p) ∧ᶜ ⌈ u ⌉ m
   ⌈ fst p t ⌉ m = ⌈ t ⌉ m
   ⌈ snd p t ⌉ m = ⌈ t ⌉ m
-  ⌈ prodrec r p _ A t u ⌉ m =
+  ⌈ prodrec r _ _ _ t u ⌉ m =
     r ·ᶜ ⌈ t ⌉ (m ᵐ· r) +ᶜ tailₘ (tailₘ (⌈ u ⌉ m))
   ⌈ ℕ ⌉ _ = 𝟘ᶜ
   ⌈ zero ⌉ _ = 𝟘ᶜ
   ⌈ suc t ⌉ m = ⌈ t ⌉ m
-  ⌈ natrec p _ r A z s n ⌉ m =
-    let γ  = ⌈ z ⌉ m
-        δ′ = ⌈ s ⌉ m
-        η  = ⌈ n ⌉ m
-        δ  = tailₘ (tailₘ δ′)
+  ⌈ natrec p _ r _ z s n ⌉ m =
+    let γ = ⌈ z ⌉ m
+        δ = tailₘ (tailₘ (⌈ s ⌉ m))
+        η = ⌈ n ⌉ m
     in  (γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r
   ⌈ Unit ⌉ _ = 𝟘ᶜ
   ⌈ star ⌉ _ = 𝟘ᶜ
   ⌈ Empty ⌉ _ = 𝟘ᶜ
-  ⌈ emptyrec p A e ⌉ m = p ·ᶜ ⌈ e ⌉ (m ᵐ· p)
+  ⌈ emptyrec p _ t ⌉ m = p ·ᶜ ⌈ t ⌉ (m ᵐ· p)
 
 -- Well-usage of variables
 data _◂_∈_  : (x : Fin n) (p : M) (γ : Conₘ n) → Set a where
