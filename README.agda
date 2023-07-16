@@ -140,6 +140,14 @@ no-erased-matches = Graded.Restrictions.no-erased-matches
 -- and the algorithmic equality relations.
 
 ------------------------------------------------------------------------
+-- 2.2: Usage accounting also in types
+
+-- A relation which can be used to force the two grade annotations on
+-- Π- and Σ-types to be equal.
+
+ΠΣ-allowed′ = Definition.Typed.Restrictions.Type-restrictions.ΠΣ-allowed
+
+------------------------------------------------------------------------
 -- 3: Modalities as grades in an ordered semiring
 
 -- Definition 3.1: The modality semiring.
