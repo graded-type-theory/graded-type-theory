@@ -909,7 +909,7 @@ linear-or-affine =
   Graded.Modality.Instances.Linear-or-affine.full-reduction-assumptions
 
 ------------------------------------------------------------------------
--- A: Logical relation for reducibility
+-- A: A logical relation for reducibility
 
 -- Combined reduction and typing relations
 
