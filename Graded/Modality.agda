@@ -120,8 +120,9 @@ record Has-well-behaved-zero (𝕄 : Semiring-with-meet) : Set a where
     -- It is decidable whether a value is equal to 𝟘.
     is-𝟘? : (p : M) → Dec (p ≡ 𝟘)
 
-    -- The following two assumptions are based on assumptions from Bob
-    -- Atkey's "Syntax and Semantics of Quantitative Type Theory".
+    -- The following two assumptions are based on assumptions from
+    -- Conor McBride's "I Got Plenty o’ Nuttin’" and Robert Atkey's
+    -- "Syntax and Semantics of Quantitative Type Theory".
 
     -- The semiring has the zero-product property:
     -- if p · q is 𝟘, then either p is 𝟘 or q is 𝟘.

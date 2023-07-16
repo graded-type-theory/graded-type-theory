@@ -81,8 +81,8 @@ open import Graded.Modality.Dedicated-star.Instance
 
 -- Well-usage relation for terms.
 --
--- The definition is partly based on Bob Atkey's "Syntax and Semantics
--- of Quantitative Type Theory".
+-- The definition is partly based on Robert Atkey's "Syntax and
+-- Semantics of Quantitative Type Theory".
 data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
   Uₘ        : 𝟘ᶜ ▸[ m ] U
   ℕₘ        : 𝟘ᶜ ▸[ m ] ℕ

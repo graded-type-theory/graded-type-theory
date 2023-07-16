@@ -180,8 +180,8 @@ private
 
 -- Modes can be scaled by quantities.
 --
--- This definition is based on the typing rule for application in Bob
--- Atkey's "Syntax and Semantics of Quantitative Type Theory".
+-- This definition is based on the typing rule for application in
+-- Robert Atkey's "Syntax and Semantics of Quantitative Type Theory".
 
 infixr 45 _ᵐ·_
 
