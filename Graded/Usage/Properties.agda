@@ -13,6 +13,7 @@ module Graded.Usage.Properties
   where
 
 open Modality 𝕄
+open Usage-restrictions R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
@@ -30,11 +31,13 @@ open import Definition.Untyped M hiding (_∷_)
 open import Tools.Bool using (Bool; T)
 open import Tools.Fin
 open import Tools.Function
+open import Tools.Level
 open import Tools.Nat using (Nat; 1+)
 open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 open import Tools.Sum
+open import Tools.Unit
 import Tools.Reasoning.Equivalence
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
@@ -302,7 +305,238 @@ var-usage-lookup (there x) = var-usage-lookup x
          p ·ᶜ 𝟘ᶜ  ∎)
 
 ------------------------------------------------------------------------
--- A lemma related to 𝟘ᵐ
+-- Usage-restrictions-satisfied
+
+-- Usage-restrictions-satisfied t means that all the usage
+-- restrictions hold for every subterm in t.
+
+Usage-restrictions-satisfied : Term n → Set a
+Usage-restrictions-satisfied = λ where
+  (prodrec r p q A t u)   → Prodrec-allowed r p q ×
+                            Usage-restrictions-satisfied A ×
+                            Usage-restrictions-satisfied t ×
+                            Usage-restrictions-satisfied u
+  (ΠΣ⟨ _ ⟩ _ , _ ▷ A ▹ B) → Usage-restrictions-satisfied A ×
+                            Usage-restrictions-satisfied B
+  (lam _ t)               → Usage-restrictions-satisfied t
+  (t ∘⟨ _ ⟩ u)            → Usage-restrictions-satisfied t ×
+                            Usage-restrictions-satisfied u
+  (prod _ _ t u)          → Usage-restrictions-satisfied t ×
+                            Usage-restrictions-satisfied u
+  (fst _ t)               → Usage-restrictions-satisfied t
+  (snd _ t)               → Usage-restrictions-satisfied t
+  (suc t)                 → Usage-restrictions-satisfied t
+  (natrec _ _ _ A t u v)  → Usage-restrictions-satisfied A ×
+                            Usage-restrictions-satisfied t ×
+                            Usage-restrictions-satisfied u ×
+                            Usage-restrictions-satisfied v
+  (emptyrec _ A t)        → Usage-restrictions-satisfied A ×
+                            Usage-restrictions-satisfied t
+  (var _)                 → Lift _ ⊤
+  U                       → Lift _ ⊤
+  ℕ                       → Lift _ ⊤
+  Empty                   → Lift _ ⊤
+  Unit                    → Lift _ ⊤
+  zero                    → Lift _ ⊤
+  star                    → Lift _ ⊤
+
+-- If t is well-resourced (with respect to any context and mode), then
+-- Usage-restrictions-satisfied t holds.
+
+▸→Usage-restrictions-satisfied :
+  γ ▸[ m ] t → Usage-restrictions-satisfied t
+▸→Usage-restrictions-satisfied = λ where
+  Uₘ →
+    _
+  ℕₘ →
+    _
+  Emptyₘ →
+    _
+  Unitₘ →
+    _
+  (ΠΣₘ ▸A ▸B) →
+    ▸→Usage-restrictions-satisfied ▸A ,
+    ▸→Usage-restrictions-satisfied ▸B
+  var →
+    _
+  (lamₘ ▸t) →
+    ▸→Usage-restrictions-satisfied ▸t
+  (▸t ∘ₘ ▸u) →
+    ▸→Usage-restrictions-satisfied ▸t ,
+    ▸→Usage-restrictions-satisfied ▸u
+  (prodᵣₘ ▸t ▸u) →
+    ▸→Usage-restrictions-satisfied ▸t ,
+    ▸→Usage-restrictions-satisfied ▸u
+  (prodₚₘ ▸t ▸u) →
+    ▸→Usage-restrictions-satisfied ▸t ,
+    ▸→Usage-restrictions-satisfied ▸u
+  (fstₘ _ ▸t _ _) →
+    ▸→Usage-restrictions-satisfied ▸t
+  (sndₘ ▸t) →
+    ▸→Usage-restrictions-satisfied ▸t
+  (prodrecₘ ▸t ▸u ▸A ok) →
+    ok ,
+    ▸→Usage-restrictions-satisfied ▸A ,
+    ▸→Usage-restrictions-satisfied ▸t ,
+    ▸→Usage-restrictions-satisfied ▸u
+  zeroₘ →
+    _
+  (sucₘ ▸t) →
+    ▸→Usage-restrictions-satisfied ▸t
+  (natrecₘ ▸t ▸u ▸v ▸A) →
+    ▸→Usage-restrictions-satisfied ▸A ,
+    ▸→Usage-restrictions-satisfied ▸t ,
+    ▸→Usage-restrictions-satisfied ▸u ,
+    ▸→Usage-restrictions-satisfied ▸v
+  (natrec-no-starₘ ▸t ▸u ▸v ▸A _) →
+    ▸→Usage-restrictions-satisfied ▸A ,
+    ▸→Usage-restrictions-satisfied ▸t ,
+    ▸→Usage-restrictions-satisfied ▸u ,
+    ▸→Usage-restrictions-satisfied ▸v
+  (emptyrecₘ ▸t ▸A) →
+    ▸→Usage-restrictions-satisfied ▸A ,
+    ▸→Usage-restrictions-satisfied ▸t
+  starₘ →
+    _
+  (sub ▸t _) →
+    ▸→Usage-restrictions-satisfied ▸t
+
+-- If Usage-restrictions-satisfied t holds, then t is well-resourced
+-- with respect to 𝟘ᶜ and 𝟘ᵐ[ ok ].
+
+Usage-restrictions-satisfied→▸[𝟘ᵐ] :
+  Usage-restrictions-satisfied t → 𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] t
+Usage-restrictions-satisfied→▸[𝟘ᵐ] {ok = 𝟘ᵐ-ok} = lemma _
+  where
+  open import Graded.Modality.Dedicated-star.Instance
+
+  lemma :
+    (t : Term n) → Usage-restrictions-satisfied t →
+    𝟘ᶜ ▸[ 𝟘ᵐ[ 𝟘ᵐ-ok ] ] t
+  lemma = λ where
+    (prodrec r p q A t u) (ok , A-ok , t-ok , u-ok) →
+      sub (prodrecₘ (lemma t t-ok)
+             (sub (lemma u u-ok) $
+              let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+                𝟘ᶜ ∙ 𝟘 · r · p ∙ 𝟘 · r  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
+                𝟘ᶜ                      ∎)
+             (sub (▸-cong (PE.sym (𝟘ᵐ?≡𝟘ᵐ {ok = 𝟘ᵐ-ok})) $
+                   lemma A A-ok) $
+              let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+                𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · q  ≈⟨ ≈ᶜ-refl ∙ ·-congʳ (cong ⌜_⌝ (𝟘ᵐ?≡𝟘ᵐ {ok = 𝟘ᵐ-ok})) ⟩
+                𝟘ᶜ ∙ 𝟘 · q        ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
+                𝟘ᶜ                ∎)
+             ok) $
+      let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+        𝟘ᶜ             ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
+        r ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
+        r ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎
+    (ΠΣ⟨ _ ⟩ _ , q ▷ A ▹ B) (A-ok , B-ok) →
+      sub (ΠΣₘ (lemma A A-ok) $ sub (lemma B B-ok) $
+           let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+             𝟘ᶜ ∙ 𝟘 · q  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
+             𝟘ᶜ          ∎) $
+      let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+        𝟘ᶜ        ≈˘⟨ +ᶜ-identityˡ _ ⟩
+        𝟘ᶜ +ᶜ 𝟘ᶜ  ∎
+    (lam p t) t-ok →
+      let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
+      lamₘ $ sub (lemma t t-ok) $ begin
+        𝟘ᶜ ∙ 𝟘 · p  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
+        𝟘ᶜ          ∎
+    (t ∘⟨ p ⟩ u) (t-ok , u-ok) →
+      let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
+      sub (lemma t t-ok ∘ₘ lemma u u-ok) $
+      begin
+        𝟘ᶜ             ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
+        p ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityˡ _ ⟩
+        𝟘ᶜ +ᶜ p ·ᶜ 𝟘ᶜ  ∎
+    (prodₚ p t u) (t-ok , u-ok) →
+      let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
+      sub (prodₚₘ (lemma t t-ok) (lemma u u-ok)) $
+      begin
+        𝟘ᶜ             ≈˘⟨ ∧ᶜ-idem _ ⟩
+        𝟘ᶜ ∧ᶜ 𝟘ᶜ       ≈˘⟨ ∧ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
+        p ·ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ  ∎
+    (prodᵣ p t u) (t-ok , u-ok) →
+      let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
+      sub (prodᵣₘ (lemma t t-ok) (lemma u u-ok)) $
+      begin
+        𝟘ᶜ             ≈˘⟨ +ᶜ-identityˡ _ ⟩
+        𝟘ᶜ +ᶜ 𝟘ᶜ       ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
+        p ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎
+    (fst p t) t-ok →
+      fstₘ 𝟘ᵐ[ 𝟘ᵐ-ok ] (lemma t t-ok) refl (λ ())
+    (snd _ t) t-ok →
+      sndₘ (lemma t t-ok)
+    (suc t) t-ok →
+      sucₘ (lemma t t-ok)
+    (natrec p q r A t u v) (A-ok , t-ok , u-ok , v-ok) →
+      let t-lemma =
+            lemma t t-ok
+          u-lemma =
+            sub (lemma u u-ok) $
+            let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+              𝟘ᶜ ∙ 𝟘 · p ∙ 𝟘 · r  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
+              𝟘ᶜ                  ∎
+          v-lemma =
+            lemma v v-ok
+          A-lemma =
+            sub (▸-cong (PE.sym (𝟘ᵐ?≡𝟘ᵐ {ok = 𝟘ᵐ-ok})) $
+                 lemma A A-ok) $
+            let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+              𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · q  ≈⟨ ≈ᶜ-refl ∙ ·-congʳ (cong ⌜_⌝ (𝟘ᵐ?≡𝟘ᵐ {ok = 𝟘ᵐ-ok})) ⟩
+              𝟘ᶜ ∙ 𝟘 · q        ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
+              𝟘ᶜ                ∎
+      in case dedicated-star? of λ where
+        does-have-star →
+          sub (natrecₘ t-lemma u-lemma v-lemma A-lemma) $
+          let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+            𝟘ᶜ                               ≈˘⟨ ⊛ᶜ-idem-𝟘ᶜ _ ⟩
+            𝟘ᶜ ⊛ᶜ 𝟘ᶜ ▷ r                     ≈˘⟨ ⊛ᵣᶜ-congˡ (·ᶜ-zeroʳ _) ⟩
+            𝟘ᶜ ⊛ᶜ p ·ᶜ 𝟘ᶜ ▷ r                ≈˘⟨ ⊛ᵣᶜ-cong (∧ᶜ-idem _) (+ᶜ-identityˡ _) ⟩
+            (𝟘ᶜ ∧ᶜ 𝟘ᶜ) ⊛ᶜ 𝟘ᶜ +ᶜ p ·ᶜ 𝟘ᶜ ▷ r  ∎
+        does-not-have-star →
+          natrec-no-starₘ t-lemma u-lemma v-lemma A-lemma $
+          let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+            𝟘ᶜ                                        ≈˘⟨ ∧ᶜ-idem _ ⟩
+            𝟘ᶜ ∧ᶜ 𝟘ᶜ                                  ≈˘⟨ ∧ᶜ-congˡ (+ᶜ-identityˡ _) ⟩
+            𝟘ᶜ ∧ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ)                          ≈˘⟨ ∧ᶜ-congˡ (+ᶜ-cong (·ᶜ-zeroʳ _) (·ᶜ-zeroʳ _)) ⟩
+            𝟘ᶜ ∧ᶜ (p ·ᶜ 𝟘ᶜ +ᶜ r ·ᶜ 𝟘ᶜ)                ≈˘⟨ ∧ᶜ-cong (∧ᶜ-idem _) (+ᶜ-identityˡ _) ⟩
+            (𝟘ᶜ ∧ᶜ 𝟘ᶜ) ∧ᶜ (𝟘ᶜ +ᶜ p ·ᶜ 𝟘ᶜ +ᶜ r ·ᶜ 𝟘ᶜ)  ≈⟨ ∧ᶜ-assoc _ _ _ ⟩
+            𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ (𝟘ᶜ +ᶜ p ·ᶜ 𝟘ᶜ +ᶜ r ·ᶜ 𝟘ᶜ)    ∎
+    (emptyrec p A t) (A-ok , t-ok) →
+      let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
+      sub (emptyrecₘ (lemma t t-ok) $
+           ▸-cong (PE.sym (𝟘ᵐ?≡𝟘ᵐ {ok = 𝟘ᵐ-ok})) $
+           lemma A A-ok) $
+      begin
+        𝟘ᶜ       ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
+        p ·ᶜ 𝟘ᶜ  ∎
+    (var x) _ →
+      let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
+      sub var $ begin
+        𝟘ᶜ          ≡˘⟨ 𝟘ᶜ,≔𝟘 ⟩
+        𝟘ᶜ , x ≔ 𝟘  ∎
+    U _ →
+      Uₘ
+    ℕ _ →
+      ℕₘ
+    Empty _ →
+      Emptyₘ
+    Unit _ →
+      Unitₘ
+    zero _ →
+      zeroₘ
+    star _ →
+      starₘ
+
+-- An alternative characterisation of 𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] t.
+
+𝟘ᶜ▸[𝟘ᵐ]⇔ : 𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] t ⇔ Usage-restrictions-satisfied t
+𝟘ᶜ▸[𝟘ᵐ]⇔ =
+    ▸→Usage-restrictions-satisfied
+  , Usage-restrictions-satisfied→▸[𝟘ᵐ]
 
 -- If γ ▸[ 𝟘ᵐ[ ok ] ] t, then γ ≤ᶜ 𝟘ᶜ.
 
@@ -401,6 +635,13 @@ var-usage-lookup (there x) = var-usage-lookup x
   𝟘ᶜ  ∎
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+
+-- An alternative characterisation of γ ▸[ 𝟘ᵐ[ ok ] ] t.
+
+▸[𝟘ᵐ]⇔ : γ ▸[ 𝟘ᵐ[ ok ] ] t ⇔ (γ ≤ᶜ 𝟘ᶜ × Usage-restrictions-satisfied t)
+▸[𝟘ᵐ]⇔ =
+    (λ ▸t → ▸-𝟘ᵐ ▸t , ▸→Usage-restrictions-satisfied ▸t)
+  , (λ (γ≤𝟘 , ok) → sub (Usage-restrictions-satisfied→▸[𝟘ᵐ] ok) γ≤𝟘)
 
 ------------------------------------------------------------------------
 -- Inversion lemmas

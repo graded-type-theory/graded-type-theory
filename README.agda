@@ -829,6 +829,12 @@ _⊢′_⇒*_∷_ = Definition.Typed._⊢_⇒*_∷_
 
 _▸[_]_ = Graded.Usage._▸[_]_
 
+-- A term is well-resourced with respect to the zero usage context and
+-- the zero mode exactly when all subterms of the form
+-- prodrec_r,p^q A u v in t are allowed.
+
+𝟘ᶜ▸[𝟘ᵐ]⇔ = Graded.Usage.Properties.𝟘ᶜ▸[𝟘ᵐ]⇔
+
 -- Theorem 8.2: Subject reduction for the usage relation with modes.
 
 Theorem-8-2 = Graded.Reduction.usagePresTerm
