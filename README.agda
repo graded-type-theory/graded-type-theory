@@ -519,7 +519,7 @@ _⇒*_ = Graded.Erasure.Target._⇒*_
 -- For Σ-types the definition is different from the paper to account
 -- for the possibility to erase the first component added in
 -- Section 8. For the case treated in this section, we will always
--- have have p ≡ 𝟙 for Σ-types.
+-- have p ≡ 𝟙 for Σ-types.
 
 _• = Graded.Erasure.Extraction.erase
 
