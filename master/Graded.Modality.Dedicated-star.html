@@ -14,48 +14,64 @@
 <a id="331" class="Keyword">open</a> <a id="336" href="Graded.Modality.html#5226" class="Module">Modality</a> <a id="345" href="Graded.Modality.Dedicated-star.html#308" class="Bound">𝕄</a>
 
 <a id="348" class="Keyword">open</a> <a id="353" class="Keyword">import</a> <a id="360" href="Tools.Empty.html" class="Module">Tools.Empty</a>
-<a id="372" class="Keyword">open</a> <a id="377" class="Keyword">import</a> <a id="384" href="Tools.Nullary.html" class="Module">Tools.Nullary</a>
-<a id="398" class="Keyword">open</a> <a id="403" class="Keyword">import</a> <a id="410" href="Tools.PropositionalEquality.html" class="Module">Tools.PropositionalEquality</a>
+<a id="372" class="Keyword">open</a> <a id="377" class="Keyword">import</a> <a id="384" href="Tools.Function.html" class="Module">Tools.Function</a>
+<a id="399" class="Keyword">open</a> <a id="404" class="Keyword">import</a> <a id="411" href="Tools.Nullary.html" class="Module">Tools.Nullary</a>
+<a id="425" class="Keyword">open</a> <a id="430" class="Keyword">import</a> <a id="437" href="Tools.PropositionalEquality.html" class="Module">Tools.PropositionalEquality</a>
 
-<a id="439" class="Keyword">private</a> <a id="447" class="Keyword">variable</a>
-  <a id="458" href="Graded.Modality.Dedicated-star.html#458" class="Generalizable">A</a> <a id="460" class="Symbol">:</a> <a id="462" href="Agda.Primitive.html#320" class="Primitive">Set</a> <a id="466" class="Symbol">_</a>
+<a id="466" class="Keyword">private</a> <a id="474" class="Keyword">variable</a>
+  <a id="485" href="Graded.Modality.Dedicated-star.html#485" class="Generalizable">A</a> <a id="487" class="Symbol">:</a> <a id="489" href="Agda.Primitive.html#320" class="Primitive">Set</a> <a id="493" class="Symbol">_</a>
 
-<a id="469" class="Comment">------------------------------------------------------------------------</a>
-<a id="542" class="Comment">-- Dedicated-star</a>
+<a id="496" class="Comment">------------------------------------------------------------------------</a>
+<a id="569" class="Comment">-- Dedicated-star</a>
 
-<a id="561" class="Comment">-- A wrapper type, intended to be used in the types of instance</a>
-<a id="625" class="Comment">-- arguments.</a>
+<a id="588" class="Comment">-- A wrapper type, intended to be used in the types of instance</a>
+<a id="652" class="Comment">-- arguments.</a>
 
-<a id="640" class="Keyword">record</a> <a id="Dedicated-star"></a><a id="647" href="Graded.Modality.Dedicated-star.html#647" class="Record">Dedicated-star</a> <a id="662" class="Symbol">:</a> <a id="664" href="Agda.Primitive.html#320" class="Primitive">Set</a> <a id="668" href="Graded.Modality.Dedicated-star.html#263" class="Bound">a</a> <a id="670" class="Keyword">where</a>
-  <a id="678" class="Keyword">constructor</a> <a id="dedicated-star"></a><a id="690" href="Graded.Modality.Dedicated-star.html#690" class="InductiveConstructor">dedicated-star</a>
-  <a id="707" class="Keyword">field</a>
-    <a id="Dedicated-star.star"></a><a id="717" href="Graded.Modality.Dedicated-star.html#717" class="Field">star</a> <a id="722" class="Symbol">:</a> <a id="724" href="Graded.Modality.Variant.html#855" class="Function">⊛-available</a>
+<a id="667" class="Keyword">record</a> <a id="Dedicated-star"></a><a id="674" href="Graded.Modality.Dedicated-star.html#674" class="Record">Dedicated-star</a> <a id="689" class="Symbol">:</a> <a id="691" href="Agda.Primitive.html#320" class="Primitive">Set</a> <a id="695" href="Graded.Modality.Dedicated-star.html#263" class="Bound">a</a> <a id="697" class="Keyword">where</a>
+  <a id="705" class="Keyword">constructor</a> <a id="dedicated-star"></a><a id="717" href="Graded.Modality.Dedicated-star.html#717" class="InductiveConstructor">dedicated-star</a>
+  <a id="734" class="Keyword">field</a>
+    <a id="Dedicated-star.star"></a><a id="744" href="Graded.Modality.Dedicated-star.html#744" class="Field">star</a> <a id="749" class="Symbol">:</a> <a id="751" href="Graded.Modality.Variant.html#882" class="Function">⊛-available</a>
 
-<a id="737" class="Comment">-- This wrapper type is propositional.</a>
+<a id="764" class="Comment">-- This wrapper type is propositional.</a>
 
-<a id="Dedicated-star-propositional"></a><a id="777" href="Graded.Modality.Dedicated-star.html#777" class="Function">Dedicated-star-propositional</a> <a id="806" class="Symbol">:</a> <a id="808" class="Symbol">(</a><a id="809" href="Graded.Modality.Dedicated-star.html#809" class="Bound">p</a> <a id="811" href="Graded.Modality.Dedicated-star.html#811" class="Bound">q</a> <a id="813" class="Symbol">:</a> <a id="815" href="Graded.Modality.Dedicated-star.html#647" class="Record">Dedicated-star</a><a id="829" class="Symbol">)</a> <a id="831" class="Symbol">→</a> <a id="833" href="Graded.Modality.Dedicated-star.html#809" class="Bound">p</a> <a id="835" href="Agda.Builtin.Equality.html#133" class="Datatype Operator">≡</a> <a id="837" href="Graded.Modality.Dedicated-star.html#811" class="Bound">q</a>
-<a id="839" href="Graded.Modality.Dedicated-star.html#777" class="Function">Dedicated-star-propositional</a> <a id="868" class="Symbol">(</a><a id="869" href="Graded.Modality.Dedicated-star.html#690" class="InductiveConstructor">dedicated-star</a> <a id="884" href="Graded.Modality.Dedicated-star.html#884" class="Bound">s₁</a><a id="886" class="Symbol">)</a> <a id="888" class="Symbol">(</a><a id="889" href="Graded.Modality.Dedicated-star.html#690" class="InductiveConstructor">dedicated-star</a> <a id="904" href="Graded.Modality.Dedicated-star.html#904" class="Bound">s₂</a><a id="906" class="Symbol">)</a> <a id="908" class="Symbol">=</a>
-  <a id="912" href="Relation.Binary.PropositionalEquality.Core.html#1130" class="Function">cong</a> <a id="917" href="Graded.Modality.Dedicated-star.html#690" class="InductiveConstructor">dedicated-star</a> <a id="932" class="Symbol">(</a><a id="933" href="Graded.Modality.Variant.html#926" class="Function">⊛-available-propositional</a> <a id="959" href="Graded.Modality.Dedicated-star.html#884" class="Bound">s₁</a> <a id="962" href="Graded.Modality.Dedicated-star.html#904" class="Bound">s₂</a><a id="964" class="Symbol">)</a>
+<a id="Dedicated-star-propositional"></a><a id="804" href="Graded.Modality.Dedicated-star.html#804" class="Function">Dedicated-star-propositional</a> <a id="833" class="Symbol">:</a> <a id="835" class="Symbol">(</a><a id="836" href="Graded.Modality.Dedicated-star.html#836" class="Bound">p</a> <a id="838" href="Graded.Modality.Dedicated-star.html#838" class="Bound">q</a> <a id="840" class="Symbol">:</a> <a id="842" href="Graded.Modality.Dedicated-star.html#674" class="Record">Dedicated-star</a><a id="856" class="Symbol">)</a> <a id="858" class="Symbol">→</a> <a id="860" href="Graded.Modality.Dedicated-star.html#836" class="Bound">p</a> <a id="862" href="Agda.Builtin.Equality.html#133" class="Datatype Operator">≡</a> <a id="864" href="Graded.Modality.Dedicated-star.html#838" class="Bound">q</a>
+<a id="866" href="Graded.Modality.Dedicated-star.html#804" class="Function">Dedicated-star-propositional</a> <a id="895" class="Symbol">(</a><a id="896" href="Graded.Modality.Dedicated-star.html#717" class="InductiveConstructor">dedicated-star</a> <a id="911" href="Graded.Modality.Dedicated-star.html#911" class="Bound">s₁</a><a id="913" class="Symbol">)</a> <a id="915" class="Symbol">(</a><a id="916" href="Graded.Modality.Dedicated-star.html#717" class="InductiveConstructor">dedicated-star</a> <a id="931" href="Graded.Modality.Dedicated-star.html#931" class="Bound">s₂</a><a id="933" class="Symbol">)</a> <a id="935" class="Symbol">=</a>
+  <a id="939" href="Relation.Binary.PropositionalEquality.Core.html#1130" class="Function">cong</a> <a id="944" href="Graded.Modality.Dedicated-star.html#717" class="InductiveConstructor">dedicated-star</a> <a id="959" class="Symbol">(</a><a id="960" href="Graded.Modality.Variant.html#953" class="Function">⊛-available-propositional</a> <a id="986" href="Graded.Modality.Dedicated-star.html#911" class="Bound">s₁</a> <a id="989" href="Graded.Modality.Dedicated-star.html#931" class="Bound">s₂</a><a id="991" class="Symbol">)</a>
 
-<a id="967" class="Comment">------------------------------------------------------------------------</a>
-<a id="1040" class="Comment">-- No-dedicated-star</a>
+<a id="994" class="Comment">------------------------------------------------------------------------</a>
+<a id="1067" class="Comment">-- No-dedicated-star</a>
 
-<a id="1062" class="Comment">-- A wrapper type, intended to be used in the types of instance</a>
-<a id="1126" class="Comment">-- arguments.</a>
+<a id="1089" class="Comment">-- A wrapper type, intended to be used in the types of instance</a>
+<a id="1153" class="Comment">-- arguments.</a>
 
-<a id="1141" class="Keyword">record</a> <a id="No-dedicated-star"></a><a id="1148" href="Graded.Modality.Dedicated-star.html#1148" class="Record">No-dedicated-star</a> <a id="1166" class="Symbol">:</a> <a id="1168" href="Agda.Primitive.html#320" class="Primitive">Set</a> <a id="1172" href="Graded.Modality.Dedicated-star.html#263" class="Bound">a</a> <a id="1174" class="Keyword">where</a>
-  <a id="1182" class="Keyword">constructor</a> <a id="no-dedicated-star"></a><a id="1194" href="Graded.Modality.Dedicated-star.html#1194" class="InductiveConstructor">no-dedicated-star</a>
-  <a id="1214" class="Keyword">field</a>
-    <a id="No-dedicated-star.no-star"></a><a id="1224" href="Graded.Modality.Dedicated-star.html#1224" class="Field">no-star</a> <a id="1232" class="Symbol">:</a> <a id="1234" href="Relation.Nullary.html#656" class="Function Operator">¬</a> <a id="1236" href="Graded.Modality.Variant.html#855" class="Function">⊛-available</a>
+<a id="1168" class="Keyword">record</a> <a id="No-dedicated-star"></a><a id="1175" href="Graded.Modality.Dedicated-star.html#1175" class="Record">No-dedicated-star</a> <a id="1193" class="Symbol">:</a> <a id="1195" href="Agda.Primitive.html#320" class="Primitive">Set</a> <a id="1199" href="Graded.Modality.Dedicated-star.html#263" class="Bound">a</a> <a id="1201" class="Keyword">where</a>
+  <a id="1209" class="Keyword">constructor</a> <a id="no-dedicated-star"></a><a id="1221" href="Graded.Modality.Dedicated-star.html#1221" class="InductiveConstructor">no-dedicated-star</a>
+  <a id="1241" class="Keyword">field</a>
+    <a id="No-dedicated-star.no-star"></a><a id="1251" href="Graded.Modality.Dedicated-star.html#1251" class="Field">no-star</a> <a id="1259" class="Symbol">:</a> <a id="1261" href="Relation.Nullary.html#656" class="Function Operator">¬</a> <a id="1263" href="Graded.Modality.Variant.html#882" class="Function">⊛-available</a>
 
-<a id="1249" class="Comment">------------------------------------------------------------------------</a>
-<a id="1322" class="Comment">-- Dedicated-star and No-dedicated-star are mutually exclusive</a>
+<a id="1276" class="Comment">------------------------------------------------------------------------</a>
+<a id="1349" class="Comment">-- Some lemmas related to both Dedicated-star and No-dedicated-star</a>
 
-<a id="1386" class="Comment">-- One cannot both have and not have a dedicated natrec-star operator.</a>
+<a id="1418" class="Comment">-- One cannot both have and not have a dedicated natrec-star operator.</a>
 
-<a id="not-star-and-no-star"></a><a id="1458" href="Graded.Modality.Dedicated-star.html#1458" class="Function">not-star-and-no-star</a> <a id="1479" class="Symbol">:</a>
-  <a id="1483" class="Symbol">⦃</a> <a id="1485" href="Graded.Modality.Dedicated-star.html#1485" class="Bound">star</a> <a id="1490" class="Symbol">:</a> <a id="1492" href="Graded.Modality.Dedicated-star.html#647" class="Record">Dedicated-star</a> <a id="1507" class="Symbol">⦄</a> <a id="1509" class="Symbol">⦃</a> <a id="1511" href="Graded.Modality.Dedicated-star.html#1511" class="Bound">no-star</a> <a id="1519" class="Symbol">:</a> <a id="1521" href="Graded.Modality.Dedicated-star.html#1148" class="Record">No-dedicated-star</a> <a id="1539" class="Symbol">⦄</a> <a id="1541" class="Symbol">→</a> <a id="1543" href="Data.Empty.html#526" class="Datatype">⊥</a>
-<a id="1545" href="Graded.Modality.Dedicated-star.html#1458" class="Function">not-star-and-no-star</a>
-  <a id="1568" class="Symbol">⦃</a> <a id="1570" class="Argument">star</a> <a id="1575" class="Symbol">=</a> <a id="1577" href="Graded.Modality.Dedicated-star.html#690" class="InductiveConstructor">dedicated-star</a> <a id="1592" href="Graded.Modality.Dedicated-star.html#1592" class="Bound">s</a> <a id="1594" class="Symbol">⦄</a> <a id="1596" class="Symbol">⦃</a> <a id="1598" class="Argument">no-star</a> <a id="1606" class="Symbol">=</a> <a id="1608" href="Graded.Modality.Dedicated-star.html#1194" class="InductiveConstructor">no-dedicated-star</a> <a id="1626" href="Graded.Modality.Dedicated-star.html#1626" class="Bound">ns</a> <a id="1629" class="Symbol">⦄</a> <a id="1631" class="Symbol">=</a>
-  <a id="1635" href="Graded.Modality.Dedicated-star.html#1626" class="Bound">ns</a> <a id="1638" href="Graded.Modality.Dedicated-star.html#1592" class="Bound">s</a>
+<a id="not-star-and-no-star"></a><a id="1490" href="Graded.Modality.Dedicated-star.html#1490" class="Function">not-star-and-no-star</a> <a id="1511" class="Symbol">:</a>
+  <a id="1515" class="Symbol">⦃</a> <a id="1517" href="Graded.Modality.Dedicated-star.html#1517" class="Bound">star</a> <a id="1522" class="Symbol">:</a> <a id="1524" href="Graded.Modality.Dedicated-star.html#674" class="Record">Dedicated-star</a> <a id="1539" class="Symbol">⦄</a> <a id="1541" class="Symbol">⦃</a> <a id="1543" href="Graded.Modality.Dedicated-star.html#1543" class="Bound">no-star</a> <a id="1551" class="Symbol">:</a> <a id="1553" href="Graded.Modality.Dedicated-star.html#1175" class="Record">No-dedicated-star</a> <a id="1571" class="Symbol">⦄</a> <a id="1573" class="Symbol">→</a> <a id="1575" href="Data.Empty.html#526" class="Datatype">⊥</a>
+<a id="1577" href="Graded.Modality.Dedicated-star.html#1490" class="Function">not-star-and-no-star</a>
+  <a id="1600" class="Symbol">⦃</a> <a id="1602" class="Argument">star</a> <a id="1607" class="Symbol">=</a> <a id="1609" href="Graded.Modality.Dedicated-star.html#717" class="InductiveConstructor">dedicated-star</a> <a id="1624" href="Graded.Modality.Dedicated-star.html#1624" class="Bound">s</a> <a id="1626" class="Symbol">⦄</a> <a id="1628" class="Symbol">⦃</a> <a id="1630" class="Argument">no-star</a> <a id="1638" class="Symbol">=</a> <a id="1640" href="Graded.Modality.Dedicated-star.html#1221" class="InductiveConstructor">no-dedicated-star</a> <a id="1658" href="Graded.Modality.Dedicated-star.html#1658" class="Bound">ns</a> <a id="1661" class="Symbol">⦄</a> <a id="1663" class="Symbol">=</a>
+  <a id="1667" href="Graded.Modality.Dedicated-star.html#1658" class="Bound">ns</a> <a id="1670" href="Graded.Modality.Dedicated-star.html#1624" class="Bound">s</a>
+
+<a id="1673" class="Comment">-- The property of either having or not having a dedicated natrec-star</a>
+<a id="1744" class="Comment">-- operator.</a>
+
+<a id="1758" class="Keyword">data</a> <a id="Dedicated-star?"></a><a id="1763" href="Graded.Modality.Dedicated-star.html#1763" class="Datatype">Dedicated-star?</a> <a id="1779" class="Symbol">:</a> <a id="1781" href="Agda.Primitive.html#320" class="Primitive">Set</a> <a id="1785" href="Graded.Modality.Dedicated-star.html#263" class="Bound">a</a> <a id="1787" class="Keyword">where</a>
+  <a id="Dedicated-star?.does-have-star"></a><a id="1795" href="Graded.Modality.Dedicated-star.html#1795" class="InductiveConstructor">does-have-star</a>     <a id="1814" class="Symbol">:</a> <a id="1816" class="Symbol">⦃</a> <a id="1818" href="Graded.Modality.Dedicated-star.html#1818" class="Bound">has-star</a> <a id="1827" class="Symbol">:</a> <a id="1829" href="Graded.Modality.Dedicated-star.html#674" class="Record">Dedicated-star</a> <a id="1844" class="Symbol">⦄</a> <a id="1846" class="Symbol">→</a> <a id="1848" href="Graded.Modality.Dedicated-star.html#1763" class="Datatype">Dedicated-star?</a>
+  <a id="Dedicated-star?.does-not-have-star"></a><a id="1866" href="Graded.Modality.Dedicated-star.html#1866" class="InductiveConstructor">does-not-have-star</a> <a id="1885" class="Symbol">:</a> <a id="1887" class="Symbol">⦃</a> <a id="1889" href="Graded.Modality.Dedicated-star.html#1889" class="Bound">no-star</a> <a id="1897" class="Symbol">:</a> <a id="1899" href="Graded.Modality.Dedicated-star.html#1175" class="Record">No-dedicated-star</a> <a id="1917" class="Symbol">⦄</a> <a id="1919" class="Symbol">→</a> <a id="1921" href="Graded.Modality.Dedicated-star.html#1763" class="Datatype">Dedicated-star?</a>
+
+<a id="1938" class="Comment">-- One either has or does not have a dedicated natrec-star operator.</a>
+
+<a id="dedicated-star?"></a><a id="2008" href="Graded.Modality.Dedicated-star.html#2008" class="Function">dedicated-star?</a> <a id="2024" class="Symbol">:</a> <a id="2026" href="Graded.Modality.Dedicated-star.html#1763" class="Datatype">Dedicated-star?</a>
+<a id="2042" href="Graded.Modality.Dedicated-star.html#2008" class="Function">dedicated-star?</a> <a id="2058" class="Symbol">=</a> <a id="2060" href="Function.Base.html#4121" class="Function Operator">case</a> <a id="2065" href="Graded.Modality.Variant.html#1054" class="Function">⊛-available-decided</a> <a id="2085" href="Function.Base.html#4121" class="Function Operator">of</a> <a id="2088" class="Symbol">λ</a> <a id="2090" class="Keyword">where</a>
+  <a id="2098" class="Symbol">(</a><a id="2099" href="Relation.Nullary.html#1648" class="InductiveConstructor">yes</a> <a id="2103" href="Graded.Modality.Dedicated-star.html#2103" class="Bound">has-star</a><a id="2111" class="Symbol">)</a> <a id="2113" class="Symbol">→</a> <a id="2115" href="Graded.Modality.Dedicated-star.html#1795" class="InductiveConstructor">does-have-star</a> <a id="2130" class="Symbol">⦃</a> <a id="2132" class="Argument">has-star</a> <a id="2141" class="Symbol">=</a> <a id="2143" href="Graded.Modality.Dedicated-star.html#717" class="InductiveConstructor">dedicated-star</a> <a id="2158" href="Graded.Modality.Dedicated-star.html#2103" class="Bound">has-star</a> <a id="2167" class="Symbol">⦄</a>
+  <a id="2171" class="Symbol">(</a><a id="2172" href="Relation.Nullary.html#1685" class="InductiveConstructor">no</a> <a id="2175" href="Graded.Modality.Dedicated-star.html#2175" class="Bound">no-star</a><a id="2182" class="Symbol">)</a>   <a id="2186" class="Symbol">→</a>
+    <a id="2192" href="Graded.Modality.Dedicated-star.html#1866" class="InductiveConstructor">does-not-have-star</a> <a id="2211" class="Symbol">⦃</a> <a id="2213" class="Argument">no-star</a> <a id="2221" class="Symbol">=</a> <a id="2223" href="Graded.Modality.Dedicated-star.html#1221" class="InductiveConstructor">no-dedicated-star</a> <a id="2241" href="Graded.Modality.Dedicated-star.html#2175" class="Bound">no-star</a> <a id="2249" class="Symbol">⦄</a>
 </pre></body></html>
