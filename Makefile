@@ -16,20 +16,19 @@ check :
 
 ## Lines of Code ##########################################################
 
-# Agda files in this project
-
-agdalocfiles=$(shell find . \( \( -name '*.agda' \) ! -name '.*' \) )
-
-# Sum all agda files
+# The line counts of all .agda files in the project (the HEAD commit
+# is used).
 
 .PHONY: agda-loc
 agda-loc :
-	@wc $(agdalocfiles)
+	@git ls-tree --name-only -r -z HEAD | grep -z '\.agda$$' | \
+          wc --files0-from=-
 
-# Delete comments (sed) and empty lines (grep .) first
+# The line counts of all .agda files in the project (the HEAD commit
+# is used), excluding lines that start with "--" comments and lines
+# that only contain whitespace.
 
 .PHONY: agda-loc-nc
 agda-loc-nc :
-	@sed -e '/--.*/d' $(agdalocfiles) | grep . | wc
-
-# EOF
+	@git ls-tree --name-only -r -z HEAD | grep -z '\.agda$$' | \
+          xargs --null sed -e '/^\s*--.*/d' | grep -v '^\s*$$' | wc
