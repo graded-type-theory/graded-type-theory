@@ -90,6 +90,10 @@ import Graded.Usage.Properties
 import Graded.Usage.Properties.Has-well-behaved-zero
 import Graded.Usage.Restrictions
 
+------------------------------------------------------------------------
+-- Differences between the paper and the code
+------------------------------------------------------------------------
+
 -- The code does not follow the paper exactly. Notably, the
 -- formalisation contains parameters that make it possible to control
 -- whether certain features should be included or not (in addition to
@@ -130,7 +134,8 @@ Unit-allowed =
 prodrec = Graded.Usage.Restrictions.Usage-restrictions
 
 --   This only affects the usage relation. If prodrec_r,p^q A t u is
---   well-resourced (under any mode), then the term is allowed:
+--   well-resourced (with respect to any mode), then the term is
+--   allowed:
 
 prodrec-allowed = Graded.Usage.Inversion.inv-usage-prodrec
 
@@ -141,15 +146,24 @@ no-erased-matches = Graded.Restrictions.no-erased-matches
 -- Note that some results have only been proved for certain variants
 -- of the theory.
 
+-- Some modules are parameterized by a collection of equality
+-- relations and properties of those relations. The reducibility
+-- logical relation and its fundamental lemmas are defined/proved for
+-- any such collection, and can be instantiated for either the normal
+-- type and term equality, or algorithmic equality relations.
+
 -- There are also other differences between the paper and the
 -- formalisation. Quite a few such differences are noted below.
 
--- Some modules used below are parameterized by a collection of equality
--- relations over terms and types and properties of these relations.
--- This is used by the reducibility logical relation, allowing the
--- fundamental lemma to be proven for any equality relation satisfying
--- these properties, in particular the normal type and term equality
--- and the algorithmic equality relations.
+------------------------------------------------------------------------
+-- Pointers to results from the paper
+------------------------------------------------------------------------
+
+-- The remainder of this file contains pointers to results from the
+-- paper.
+
+------------------------------------------------------------------------
+-- 2: Relation to the State of the Art
 
 ------------------------------------------------------------------------
 -- 2.2: Usage Accounting Also in Types
@@ -164,20 +178,19 @@ no-erased-matches = Graded.Restrictions.no-erased-matches
 
 -- Definition 3.1: Modalities.
 --
--- For the variant of the type theory in Sections 3-5 the mode 𝟘ᵐ should
--- be disallowed, i.e. 𝟘ᵐ-allowed should be false, and there should be
--- a dedicated natrec-star operator, i.e. ⊛-available should be
+-- Modality records contain a field of type Modality-variant. For the
+-- variant of the type theory in Sections 3-5 the mode 𝟘ᵐ should be
+-- disallowed, i.e. the Modality-variant field 𝟘ᵐ-allowed should be
+-- false. Furthermore there should be a dedicated natrec-star
+-- operator, i.e. the Modality-variant field ⊛-available should be
 -- inhabited.
 --
 -- Unlike in the paper equality is not required to be decidable.
 -- Instead this property is assumed where it is used.
---
--- This module also defines the concept of a modality with "well
--- behaved zero" which is used in Section 6.
 
 Modality = Graded.Modality.Modality
 
--- Addition, multplication and natrec-star are monotone operations
+-- Addition, multiplication and natrec-star are monotone operations.
 
 +-monotone = Graded.Modality.Properties.Addition.+-monotone
 ·-monotone = Graded.Modality.Properties.Multiplication.·-monotone
@@ -198,7 +211,7 @@ _∧_   = Graded.Context._∧ᶜ_
 _⊛_▷_ = Graded.Context._⊛ᶜ_▷_
 _≤_   = Graded.Context._≤ᶜ_
 
--- Usage contexts form a left semimodule
+-- Usage contexts of a given size form a left semimodule.
 
 left-semimodule = Graded.Context.Properties.Conₘ-semimodule
 
@@ -212,7 +225,10 @@ unitModality = Graded.Modality.Instances.Unit.UnitModality
 
 ⊛-unique = Graded.Modality.Instances.Erasure.Properties.⊛-unique
 
--- An erasure modality.
+-- The erasure modality.
+--
+-- The definition takes an argument of type Modality-variant. For each
+-- modality variant an erasure modality can be defined.
 
 erasureModality =
   Graded.Modality.Instances.Erasure.Modality.ErasureModality
@@ -222,11 +238,15 @@ erasureModality =
 affineModality = Graded.Modality.Instances.Affine.affineModality
 
 -- A "linear types" modality.
+--
+-- The module has a parameter of type Modality-variant which is
+-- required to satisfy a certain property. If this property holds,
+-- then a "linear types" modality of the given kind can be defined.
 
 linearityModality =
   Graded.Modality.Instances.Linearity.linearityModality
 
--- The star operations of the "affine types" and "linear types"
+-- The natrec-star operators of the "affine types" and "linear types"
 -- modalities return results that are as large as possible (given the
 -- definitions of the zero, the one, addition, multiplication and
 -- meet).
@@ -234,15 +254,23 @@ linearityModality =
 ⊛-greatest₁ = Graded.Modality.Instances.Zero-one-many.⊛-greatest
 
 -- A "linear or affine types" modality.
--- Note that the names of two of the grades differ from the paper.
--- The formalization uses ω for unrestricted usage and ≤𝟙 for affine.
+--
+-- The definition takes an argument of type Modality-variant which is
+-- required to satisfy a certain property. If this property holds,
+-- then a "linear or affine types" modality of the given kind can be
+-- defined.
+--
+-- Note that the names of two of the grades differ from those used in
+-- the paper. The formalization uses ≤ω for unrestricted usage and ≤𝟙
+-- for affine usage.
 
 linearOrAffineModality =
   Graded.Modality.Instances.Linear-or-affine.linear-or-affine
 
--- The star operation of the "linear or affine types" modality returns
--- results that are as large as possible (given the definitions of the
--- zero, the one, addition, multiplication and meet).
+-- The natrec-star operator of the "linear or affine types" modality
+-- returns results that are as large as possible (given the
+-- definitions of the zero, the one, addition, multiplication and
+-- meet).
 
 ⊛-greatest₂ = Graded.Modality.Instances.Linear-or-affine.⊛-greatest
 
@@ -259,10 +287,9 @@ linearOrAffineModality =
 -- * Terms are either variables or applications of "kinds" to terms.
 --
 -- * The type Kind is indexed by a list of natural numbers. The length
---   of the lists specifiy the arities of constructors (the number of
---   sub-terms) and each element how many extra variables each term
---   argument takes. Where applicable, the "kind" also specifies any
---   constructor arguments that are not terms.
+--   of the list specifies the number of term arguments of the "kind",
+--   and each natural number specifies how many extra variables each
+--   term argument takes.
 --
 -- For instance, instead of three plain constructors for Π, Σ_& and
 -- Σ_⊗ there is a kind constructor Binderkind of type
@@ -277,12 +304,11 @@ linearOrAffineModality =
 -- in the context.
 --
 -- Pattern synonyms are used so that one can write code which is
--- closer to the notation in the paper.
+-- closer to the notation from the paper.
 --
--- The formalization includes a unit type with eta equality which is
--- not covered by the paper except for a discussion in Section 7.3.
--- One can disable the use of the unit type at the type level (see
--- above).
+-- The formalization includes a unit type with η-equality which is
+-- discussed mainly in Section 7.3. As discussed above use of this
+-- unit type can be disallowed.
 
 grammar = Definition.Untyped.Term
 
@@ -338,22 +364,23 @@ tail      = Definition.Untyped.tail
 -- grades. In the paper such equated grades are simply shown as a
 -- single grade.
 
-⊢_                  = Definition.Typed.⊢_
-_⊢_                 = Definition.Typed._⊢_
-_⊢_∷_               = Definition.Typed._⊢_∷_
-_⊢_≡_               = Definition.Typed._⊢_≡_
-_⊢_≡_∷_             = Definition.Typed._⊢_≡_∷_
-_∷_∈_               = Definition.Typed._∷_∈_
+⊢_      = Definition.Typed.⊢_
+_⊢_     = Definition.Typed._⊢_
+_⊢_∷_   = Definition.Typed._⊢_∷_
+_⊢_≡_   = Definition.Typed._⊢_≡_
+_⊢_≡_∷_ = Definition.Typed._⊢_≡_∷_
+_∷_∈_   = Definition.Typed._∷_∈_
 
 -- Typing contexts.
 
 Con = Definition.Untyped.Con
 
--- A weakening lemma
+-- A weakening lemma.
 
 wkEq = Definition.Typed.Weakening.wkEq
 
--- A derived congruence rule for Π and Σ-types with fewer assumptions
+-- A derived congruence rule for Π- and Σ-types with fewer
+-- assumptions.
 
 ΠΣ-cong′ = Definition.Typed.Consequences.DerivedRules.ΠΣ-cong′
 
@@ -386,19 +413,21 @@ _⊢_⇒_∷_  = Definition.Typed._⊢_⇒_∷_
 _⊢_⇒*_   = Definition.Typed._⊢_⇒*_
 _⊢_⇒*_∷_ = Definition.Typed._⊢_⇒*_∷_
 
--- Theorem 4.3
+-- Theorem 4.3.
 
 Theorem-4-3a = Definition.Typed.Properties.whnfRed*Term
 Theorem-4-3b = Definition.Typed.Properties.whnfRed*
 
--- Theorem 4.4
+-- Theorem 4.4.
 
 Theorem-4-4a = Definition.Typed.Properties.whrDet*Term
 Theorem-4-4b = Definition.Typed.Properties.whrDet*
 
--- Some properties that are proved via a reducibility logical relation:
+-- Some properties that are proved via a reducibility logical
+-- relation:
 
--- Admissibility of substitution.
+-- * Admissibility of substitution.
+
 substitutionAdmissible =
   Definition.Typed.Consequences.Substitution.substitution
 substitutionAdmissibleEq =
@@ -408,21 +437,25 @@ substitutionAdmissibleTerm =
 substitutionAdmissibleEqTerm =
   Definition.Typed.Consequences.Substitution.substitutionEqTerm
 
--- Subject reduction.
+-- * Subject reduction.
+
 subjectReduction =
   Definition.Typed.Consequences.Syntactic.syntacticRed
 subjectReductionTerm =
   Definition.Typed.Consequences.Syntactic.syntacticRedTerm
 
--- Normalization.
+-- * Normalization.
+
 normalization     = Definition.Typed.Consequences.Reduction.whNorm
 normalizationTerm = Definition.Typed.Consequences.Reduction.whNormTerm
 
--- Decidability of equality.
+-- * Decidability of equality.
+
 decEq     = Definition.Typed.Decidable.Equality.decEq
 decEqTerm = Definition.Typed.Decidable.Equality.decEqTerm
 
--- Decidability of type-checking for some terms and types.
+-- * Decidability of type-checking for some terms and types.
+
 decTypeCheck      = Definition.Typed.Decidable.decConTermTypeᶜ
 decTypeCheck′     = Definition.Typed.Decidable.decTermᶜ
 decTypeCheckType  = Definition.Typed.Decidable.decConTypeᶜ
@@ -431,12 +464,11 @@ decTypeCheckType′ = Definition.Typed.Decidable.dec
 ------------------------------------------------------------------------
 -- 5: Assigning Grades
 
--- Definition 5.1: The usage relation.
+-- Definition 5.1: The usage relation.
 --
 -- The usage relation is indexed by a mode, and one can choose to have
 -- only one mode (𝟙ᵐ). In this case the mode 𝟘ᵐ? is equal to 𝟙ᵐ,
--- m ᵐ· p is equal to 𝟙ᵐ, and ⌜ m ⌝ is equal to the one of the
--- modality.
+-- m ᵐ· p is equal to 𝟙ᵐ, and ⌜ m ⌝ is equal to the modality's one.
 --
 -- The usage rule for prodrec in the paper contains the side condition
 -- "Prodrec r". This condition has been replaced by
@@ -461,21 +493,21 @@ safe-head = Graded.Erasure.Examples.head
 
 decision-procedure-for-usage = Graded.Usage.Decidable.▸[_]?_
 
--- Substitution matrices
+-- Substitution matrices.
 
 subst-matrix = Graded.Substitution.Substₘ
 
--- grade context - substitution matrix multiplication
+-- Multiplication of usage contexts and substitution matrices.
 
 _<*_ = Graded.Substitution._<*_
 
--- Definition 5.2.
+-- Definition 5.2.
 --
 -- This predicate has been generalised to account for modes.
 
 _▶_ = Graded.Substitution._▶[_]_
 
--- Theorem 5.3: A substitution lemma for usage.
+-- Theorem 5.3: A substitution lemma for usage.
 
 Theorem-5-3 = Graded.Substitution.Properties.substₘ-lemma₁
 
@@ -484,19 +516,19 @@ Theorem-5-3 = Graded.Substitution.Properties.substₘ-lemma₁
 
 main-substitution-lemma = Graded.Substitution.Properties.substₘ-lemma
 
--- Theorem 5.4: Subject reduction for the usage relation.
+-- Theorem 5.4: Subject reduction for the usage relation.
 
 Theorem-5-4 = Graded.Reduction.usagePresTerm
 
 ------------------------------------------------------------------------
 -- 6: Erasure Case Study
 
--- Definition 6.1: Well-behaved zeros.
+-- Definition 6.1: Well-behaved zeros.
 --
 -- This definition includes one requirement that is not part of the
--- definition in the paper: equality with zero must be decidable.
--- However, the paper's definition of a modality semiring includes the
--- requirement that equality is decidable for all elements.
+-- definition in the paper: equality with zero must be decidable. The
+-- paper's definition of a modality instead includes the requirement
+-- that equality is decidable for all elements.
 
 Has-well-behaved-zero = Graded.Modality.Has-well-behaved-zero
 
@@ -511,35 +543,36 @@ affine-has-well-behaved-zero =
 linear-or-affine-has-well-behaved-zero =
   Graded.Modality.Instances.Linear-or-affine.linear-or-affine-has-well-behaved-zero
 
--- Theorem 6.2.
+-- Theorem 6.2.
 
-Theorem-6-2 = Graded.Usage.Properties.Has-well-behaved-zero.valid-var-usage
+Theorem-6-2 =
+  Graded.Usage.Properties.Has-well-behaved-zero.valid-var-usage
 
--- Example: The polymorphic identity function
+-- An example: The polymorphic identity function.
 
 id = Graded.Erasure.Examples.id
 
--- The identity function is well-typed
+-- The identity function is well-typed.
 
 ⊢id = Graded.Erasure.Examples.⊢id
 
--- The identity function is well-resourced
+-- The identity function is well-resourced.
 
 ▸id = Graded.Erasure.Examples.▸id
 
--- The identity function applied to two free variables
+-- The identity function applied to two free variables.
 
 id-x1-x0 = Graded.Erasure.Examples.id-x1-x0
 
--- The term id-x1-x0 is well-typed
+-- The term id-x1-x0 is well-typed.
 
 ⊢id-x1-x0 = Graded.Erasure.Examples.⊢id-x1-x0
 
--- The term id-x1-x0 is well-resourced
+-- The term id-x1-x0 is well-resourced.
 
 ▸id-x1-x0 = Graded.Erasure.Examples.▸id-x1-x0
 
--- The grammar of the untyped target language
+-- The grammar of the untyped target language.
 --
 -- The syntax is well-scoped.
 
@@ -550,16 +583,13 @@ target = Graded.Erasure.Target.Term
 _⇒_  = Graded.Erasure.Target._⇒_
 _⇒*_ = Graded.Erasure.Target._⇒*_
 
--- Definition 6.3: The extraction function.
+-- Definition 6.3: The extraction function.
 --
--- For Σ-types the definition is different from the paper to account
--- for the possibility to erase the first component added in
--- Section 8. For the case treated in this section, we will always
--- have p ≡ 𝟙 for Σ-types.
+-- The definition is actually the one given in Section 8.
 
 _• = Graded.Erasure.Extraction.erase
 
--- Example: The identity function applied to ℕ and zero
+-- An example: The identity function applied to ℕ and zero.
 
 id-ℕ-zero = Graded.Erasure.Examples.id-ℕ-zero
 
@@ -567,66 +597,66 @@ id-ℕ-zero = Graded.Erasure.Examples.id-ℕ-zero
 
 ⊢id-ℕ-zero = Graded.Erasure.Examples.⊢id-ℕ-zero
 
--- The term id-ℕ-zero is well-resourced
+-- The term id-ℕ-zero is well-resourced.
 
 ▸id-ℕ-zero = Graded.Erasure.Examples.▸id-ℕ-zero
 
--- One of the arguments gets erased by the extraction function
+-- One of the arguments gets erased by the extraction function.
 
 erase-id-ℕ-zero = Graded.Erasure.Examples.erase-id-ℕ-zero
 
--- Theorem 6.4.
+-- Theorem 6.4.
 
 Theorem-6-4 = Graded.Erasure.Extraction.Properties.hasX.erased-hasX
 
--- The term id-ℕ-zero reduces to zero
+-- The term id-ℕ-zero reduces to zero.
 
 id-ℕ-zero⇒*zero = Graded.Erasure.Examples.id-ℕ-zero⇒*zero
 
--- The term erase (id-ℕ-zero) reduces to zero
+-- The erasure of id-ℕ-zero reduces to zero.
 
 erase-id-ℕ-zero⇒*zero = Graded.Erasure.Examples.erase-id-ℕ-zero⇒*zero
 
--- Reducibility logical relation for types.
+-- The reducibility logical relation for types.
 --
 -- In the paper the type level is written as a subscript instead of
--- within braces.
+-- within brackets.
 
 _⊩′⟨_⟩_ = Definition.LogicalRelation._⊩⟨_⟩_
 
--- Reducibility logical relation for terms.
+-- The reducibility logical relation for terms.
 --
 -- In the paper the type level is written as a subscript instead of
--- within braces.
+-- within brackets.
 
 _⊩′⟨_⟩_∷_/_ = Definition.LogicalRelation._⊩⟨_⟩_∷_/_
 
--- The fundamental lemma of the reducibility relation.
+-- Some fundamental lemmas for the reducibility relation.
 
-fundamentalReducibleType = Definition.LogicalRelation.Fundamental.Reducibility.reducible
-fundamentalReducibleTerm = Definition.LogicalRelation.Fundamental.Reducibility.reducibleTerm
+fundamentalReducibleType =
+  Definition.LogicalRelation.Fundamental.Reducibility.reducible
+fundamentalReducibleTerm =
+  Definition.LogicalRelation.Fundamental.Reducibility.reducibleTerm
 
--- Definition 6.5: The logical relation for erasure.
+-- Definition 6.5: The logical relation for erasure.
 --
 -- In the paper the type level is written as a subscript instead of
--- within braces.
+-- within brackets.
 --
--- For the Π and Σ cases, some weakenings are applied to the types of
--- the domain and codomain (or first and second component).
--- The reason for this is that the reducibility relation inductively
--- gives a proof that these types are reducible under any weakenings.
--- Since we do not need to make use of this extra information, we
--- apply identity weakenings.
+-- For the Π and Σ cases some weakenings are applied to the types of
+-- the domain and codomain (or first and second component). The reason
+-- for this is that the reducibility relation inductively gives a
+-- proof that these types are reducible under any weakenings. We do
+-- not need to make use of this extra information, so we apply
+-- identity weakenings.
 --
--- For Σ-types the presentation is different from the paper to account
--- for the possibility to erase the first component added in
--- Section 8. For the case treated in this section, we will always
--- have p ≡ 𝟙 for Σ-types.
+-- For Σ-types the presentation is different from that in the paper to
+-- account for the possibility to erase the first component, which is
+-- added in Section 8. For the language treated in Section 6 one can
+-- restrict attention to Σ-types of the form Σ_k,1^q A B.
 --
--- In the paper, we fix a well-formed, consistent context Δ₀. In the
--- formalization, this is implemented through module parameters. For
--- instance, the logical relation is defined in terms of such a
--- context.
+-- In the paper we fix a well-formed, consistent context Δ₀. In the
+-- formalization this is partly implemented through module parameters.
 
 _®⟨_⟩_∷_/_ = Graded.Erasure.LogicalRelation._®⟨_⟩_∷_/_
 
@@ -638,7 +668,7 @@ _®ℕ_ = Graded.Erasure.LogicalRelation._®_∷ℕ
 
 -- Valid substitutions.
 --
--- The argument for the target context being well-formed is not
+-- The final argument, "the target context is well-formed", is not
 -- included in the paper because the context is fixed and assumed to
 -- be well-formed.
 
@@ -648,47 +678,51 @@ _⊩ˢ_∷_/_ = Definition.LogicalRelation.Substitution._⊩ˢ_∷_/_/_
 
 ⊩′ᵛ_ = Definition.LogicalRelation.Substitution.⊩ᵛ_
 
--- Valid types
+-- Valid types.
 --
 -- In the paper the type level is written as a subscript instead of
--- within braces.
+-- within brackets.
 
 _⊩′ᵛ⟨_⟩_/_ = Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_/_
 
--- Definition 6.6: The logical relation for substitutions.
+-- Definition 6.6: The logical relation for substitutions.
 --
 -- In the paper the type level is written as a subscript instead of
--- within braces.
+-- within brackets.
 
 _®⟨_⟩_∷_◂_/_/_ = Graded.Erasure.LogicalRelation._®⟨_⟩_∷[_]_◂_/_/_
 
--- Definition 6.7: Erasure validity
+-- Definition 6.7: Erasure validity.
 --
 -- In the paper the type level is written as a subscript instead of
--- within braces.
+-- within brackets.
 
 _▸_⊩ʳ⟨_⟩_∷_/_/_ = Graded.Erasure.LogicalRelation._▸_⊩ʳ⟨_⟩_∷[_]_/_/_
 
--- Theorem 6.8: Backwards closure of logical relation under reduction.
+-- Theorem 6.8: Backwards closure of the logical relation under
+-- reduction.
 
 Theorem-6-8 = Graded.Erasure.LogicalRelation.Reduction.redSubstTerm*
 
--- Theorem 6.9: Subsumption of the logical relation.
+-- Theorem 6.9: Subsumption for the logical relation.
 
 Theorem-6-9a =
   Graded.Erasure.LogicalRelation.Subsumption.subsumptionSubst
 Theorem-6-9b =
   Graded.Erasure.LogicalRelation.Subsumption.subsumption
 
--- Theorem 6.10: The fundamental lemma.
+-- Theorem 6.10: The fundamental lemma.
 
-fundamental = Graded.Erasure.LogicalRelation.Fundamental.Fundamental.fundamental
+fundamental =
+  Graded.Erasure.LogicalRelation.Fundamental.Fundamental.fundamental
 
--- Theorem 6.11: All substitutions are related under erased contexts.
+-- Theorem 6.11: Every valid source substitution from an erasable
+-- context is related to every matching target substitution.
 
 Theorem-6-11 = Graded.Erasure.LogicalRelation.Subsumption.erasedSubst
 
--- Theorem 6.12: The fundamental lemma for fully erased terms.
+-- Theorem 6.12: The fundamental lemma for open terms in erased
+-- contexts.
 
 Theorem-6-12 =
   Graded.Erasure.LogicalRelation.Fundamental.Fundamental.fundamentalErased
@@ -700,7 +734,13 @@ _⊢_⇒ˢ*_∷ℕ = Graded.Erasure.SucRed._⊢_⇒ˢ*_∷ℕ
 _⇒ˢ_      = Graded.Erasure.SucRed._⇒ˢ_
 _⇒ˢ*_     = Graded.Erasure.SucRed._⇒ˢ*_
 
--- Theorem 6.13: Soundness of the extraction function.
+-- Theorem 6.13: Soundness of the extraction function.
+--
+-- The assumption that erased matches are not allowed for weak Σ-types
+-- (unless the context is empty) is expressed in a different way:
+-- erased matches are actually allowed if 1 = 0. However, another
+-- assumption is that the modality has a well-behaved zero, which
+-- implies that 1 ≠ 0.
 
 soundness = Graded.Erasure.Consequences.Soundness.Soundness.soundness-ℕ
 
@@ -710,7 +750,7 @@ soundness = Graded.Erasure.Consequences.Soundness.Soundness.soundness-ℕ
 ------------------------------------------------------------------------
 -- 7.1: Natrec-Star
 
--- A lawful definition of ⊛ᵣ for lower bounded structures.
+-- A lawful definition of natrec-star for lower-bounded structures.
 
 ⊛ᵣ-lower-bounded = Graded.Modality.Instances.LowerBounded._⊛_▷_
 
@@ -722,7 +762,7 @@ soundness = Graded.Erasure.Consequences.Soundness.Soundness.soundness-ℕ
 not-greatest =
   Graded.Modality.Instances.Zero-one-many.¬-lower-bounded-greatest
 
--- A lawful definition of ⊛ᵣ defined recursively.
+-- A lawful definition of natrec-star defined recursively.
 
 ⊛ᵣ-recursive = Graded.Modality.Instances.Recursive._⊛_▷_
 
@@ -733,14 +773,15 @@ not-greatest =
 ¬-fixpoints =
   Graded.Modality.Instances.Nat-plus-infinity.¬-Has-fixpoints-nr
 
--- A lawful definition of ⊛ᵣ for bounded star-semirings.
+-- A lawful definition of natrec-star for bounded star-semirings.
 
 ⊛ᵣ-star-semiring = Graded.Modality.Instances.BoundedStar._⊛_▷_
 
--- The definition of ⊛ᵣ for bounded star-semirings is greater than or
--- equal to the one for lower bounded instances.
+-- The definition of natrec-star for bounded star-semirings is greater
+-- than or equal to the one presented for lower-bounded instances.
 
-⊛ᵣ-lower-bounded≤⊛ᵣ-star-semiring = Graded.Modality.Instances.BoundedStar.LowerBounded.⊛′≤⊛
+⊛ᵣ-lower-bounded≤⊛ᵣ-star-semiring =
+  Graded.Modality.Instances.BoundedStar.LowerBounded.⊛′≤⊛
 
 -- The usage rule for natrec without the natrec-star operator is
 -- called natrec-no-starₘ, and is part of the definition of _▸[_]_.
@@ -750,30 +791,39 @@ not-greatest =
 ------------------------------------------------------------------------
 -- 7.2: Erased Matches
 
--- Theorem 7.1.
+-- Theorem 7.1.
+--
+-- Instead of the assumption "erased matches are not allowed for weak
+-- Σ-types" the theorem uses the assumption "either erased matches are
+-- not allowed for weak Σ-types, or the context is empty".
+--
+-- Furthermore "erased matches are not allowed for weak Σ-types" is
+-- expressed in a different way: erased matches are actually allowed
+-- if 1 = 0. However, another assumption is that the modality has a
+-- well-behaved zero, which implies that 1 ≠ 0.
 
-theorem-7-1 =
+Theorem-7-1 =
   Graded.Erasure.Consequences.Soundness.Soundness.soundness-ℕ-only-source
 
--- If (certain kinds of) erased matches are allowed, and additionally
--- some Σ-types are allowed, then there is a counterexample to
--- Theorem 7.1 without the assumption "erased matches are not allowed
--- unless the context is empty".
+-- If (certain kinds of) erased matches are allowed for weak Σ-types,
+-- and additionally some Σ-types are allowed, then there is a
+-- counterexample to Theorem 7.1 without the assumption "erased
+-- matches are not allowed unless the context is empty".
 
 counterexample₁ =
   Graded.Erasure.Consequences.Soundness.soundness-ℕ-only-source-counterexample
 
--- The above counterexample is not a counterexample to canonicity
--- for the target language.
+-- The above counterexample is not a counterexample to canonicity for
+-- the target language.
 
 not-counterexample =
   Graded.Erasure.Consequences.Soundness.soundness-ℕ-only-target-not-counterexample
 
--- If (certain kinds of) erased matches are allowed, and additionally
--- some Σ-types are allowed, then one cannot prove a variant of the
--- fundamental lemma (Theorem 6.12) without the assumption "erased
--- matches are not allowed or the context is empty" (assuming that
--- Agda is consistent).
+-- If (certain kinds of) erased matches are allowed for weak Σ-types,
+-- and additionally some Σ-types are allowed, then one cannot prove a
+-- variant of the fundamental lemma (Theorem 6.12) without the
+-- assumption "erased matches are not allowed or the context is empty"
+-- (assuming that Agda is consistent).
 
 counterexample₂ =
   Graded.Erasure.LogicalRelation.Fundamental.Counterexample.negation-of-fundamental-lemma-with-erased-matches
@@ -792,9 +842,10 @@ counterexample₂ =
 ------------------------------------------------------------------------
 -- 7.4: Information Flow Interpretation
 
--- A non-interference result
+-- A non-interference result.
 
-non-interference = Graded.Erasure.Consequences.Non-interference.non-interference
+non-interference =
+  Graded.Erasure.Consequences.Non-interference.non-interference
 
 -- If division by q is supported, then p / q is the least r such that
 -- p ≤ q · r, and _/ q is monotone.
@@ -817,15 +868,15 @@ L≤M≤H = Graded.Modality.Instances.Information-flow.L≤M≤H
 ------------------------------------------------------------------------
 -- 8: Extension: Modes and Graded Σ-types
 
--- Note that for the definitions and theorems in this section,
--- a modality with the zero mode allowed should be used.
-
 -- Modes.
 --
 -- The mode 1_M is denoted by 𝟙ᵐ. One can choose whether to allow or
 -- disallow 0_M. If 0_M is allowed, then it is represented by
 -- applications of the constructor 𝟘ᵐ: this constructor takes an
 -- argument which indicates that 0_M is allowed.
+--
+-- Note that for the definitions and theorems in Section 8 a modality
+-- for which 0_M is allowed should be used.
 
 Mode = Graded.Mode.Mode
 
@@ -859,10 +910,10 @@ _⊢′_⇒_∷_  = Definition.Typed._⊢_⇒_∷_
 _⊢′_⇒*_   = Definition.Typed._⊢_⇒*_
 _⊢′_⇒*_∷_ = Definition.Typed._⊢_⇒*_∷_
 
--- Definition 8.1: The usage relation with modes.
+-- Definition 8.1: The usage relation with modes.
 --
 -- In the paper the mode is written as a superscript instead of within
--- braces.
+-- brackets.
 
 _▸[_]_ = Graded.Usage._▸[_]_
 
@@ -872,7 +923,7 @@ _▸[_]_ = Graded.Usage._▸[_]_
 
 𝟘ᶜ▸[𝟘ᵐ]⇔ = Graded.Usage.Properties.𝟘ᶜ▸[𝟘ᵐ]⇔
 
--- Theorem 8.2: Subject reduction for the usage relation with modes.
+-- Theorem 8.2: Subject reduction for the usage relation with modes.
 
 Theorem-8-2 = Graded.Reduction.usagePresTerm
 
@@ -880,9 +931,16 @@ Theorem-8-2 = Graded.Reduction.usagePresTerm
 
 _•′ = Graded.Erasure.Extraction.erase
 
--- Theorem 8.3: Soundness of the extraction function.
+-- Theorem 8.3: Soundness of the extraction function.
+--
+-- The assumption that erased matches are not allowed for weak Σ-types
+-- (unless the context is empty) is expressed in a different way:
+-- erased matches are actually allowed if 1 = 0. However, another
+-- assumption is that the modality has a well-behaved zero, which
+-- implies that 1 ≠ 0.
 
-Theorem-8-3 = Graded.Erasure.Consequences.Soundness.Soundness.soundness-ℕ
+Theorem-8-3 =
+  Graded.Erasure.Consequences.Soundness.Soundness.soundness-ℕ
 
 -- A definition of η-long normal forms.
 
@@ -907,20 +965,20 @@ _⊢nf_∷_ = Definition.Typed.Eta-long-normal-form._⊢nf_∷_
 η-long-normal-forms′ = Graded.FullReduction.fullRedTerm
 
 -- The conditions for existence of η-long normal forms are satisfied
--- for the unit modality.
+-- for the unit modality (which is defined under the assumption that
+-- 0_M is not allowed).
 
 unit = Graded.Modality.Instances.Unit.full-reduction-assumptions
 
--- The conditions are satisfied for the erasure modality if Σ_&,0^q is
--- only allowed when 𝟘ᵐ is allowed. (Note that in section 8, 𝟘ᵐ is assumed
--- to be allowed.)
+-- The conditions are satisfied for the erasure modality if "Σ_&,0^q
+-- is allowed" implies that 0_M is allowed.
 
 erasure =
   Graded.Modality.Instances.Erasure.Properties.full-reduction-assumptions
 
 -- The conditions are satisfied for the affine types modality if
--- Σ_&,0^q is only allowed when 𝟘ᵐ is allowed, and Σ_&,ω^q is not
--- allowed.
+-- "Σ_&,0^q is allowed" implies that 0_M is allowed, and Σ_&,ω^q is
+-- not allowed.
 
 affine = Graded.Modality.Instances.Affine.full-reduction-assumptions
 
@@ -941,92 +999,109 @@ linear-or-affine =
 ------------------------------------------------------------------------
 -- A: A Logical Relation for Reducibility
 
--- Combined reduction and typing relations
+-- Combined reduction and typing relations.
 
 _⊢_:⇒*:_∷_ = Definition.Typed._⊢_:⇒*:_∷_
-_⊢_:⇒*:_ = Definition.Typed._⊢_:⇒*:_
+_⊢_:⇒*:_   = Definition.Typed._⊢_:⇒*:_
 
--- Weakenings from context Γ to context Δ
+-- The relation _:_⊇_.
 
 _∷_⊇_ = Definition.Typed.Weakening._∷_⊇_
 
--- Definition A.1: Reducibility of types
--- In the paper, the type level is denoted with a subscript instead of within braces.
+-- Definition A.1: Reducibility of types.
+--
+-- In the paper the type level is written as a subscript instead of
+-- within brackets.
 
 _⊩⟨_⟩_ = Definition.LogicalRelation._⊩⟨_⟩_
 
--- Definition A.2: Reducibility of terms
--- In the paper, the type level is denoted with a subscript instead of within braces.
+-- Definition A.2: Reducibility of terms.
+--
+-- In the paper the type level is written as a subscript instead of
+-- within brackets.
 
 _⊩⟨_⟩_∷_/_ = Definition.LogicalRelation._⊩⟨_⟩_∷_/_
 
 -- Reducibility of natural numbers.
--- In the paper, ℕ is written as a subscript.
+--
+-- In the paper ℕ is written as a subscript.
 
 _⊩ℕ_ = Definition.LogicalRelation._⊩ℕ_∷ℕ
 
--- Definition A.3: Equality of reducible types
--- In the paper, the type level is denoted with a subscript instead of within braces.
+-- Definition A.3: Equality of reducible types.
+--
+-- In the paper the type level is written as a subscript instead of
+-- within brackets.
 
 _⊩⟨_⟩_≡_/_ = Definition.LogicalRelation._⊩⟨_⟩_≡_/_
 
--- Definition A.4: Equality of reducible terms
--- In the paper, the type level is denoted with a subscript instead of within braces.
+-- Definition A.4: Equality of reducible terms.
+--
+-- In the paper the type level is written as a subscript instead of
+-- within brackets.
 
 _⊩⟨_⟩_≡_∷_/_ = Definition.LogicalRelation._⊩⟨_⟩_≡_∷_/_
 
--- Equality of reducible natural numbers in.
--- In the paper, ℕ is written as a subscript.
+-- Equality of reducible natural numbers.
+--
+-- In the paper ℕ is written as a subscript.
 
 _⊩ℕ_≡_ = Definition.LogicalRelation._⊩ℕ_≡_∷ℕ
 
--- Definition A.6: Validity of contexts
+-- Definition A.6: Validity of contexts.
 
 ⊩ᵛ_ = Definition.LogicalRelation.Substitution.⊩ᵛ_
 
--- Definition A.7: Validity of substitutions and equality of
--- valid substitutions
+-- Definition A.7: Validity of substitutions and equality of valid
+-- substitutions.
 
 _⊩ˢ_∷_/_/_     = Definition.LogicalRelation.Substitution._⊩ˢ_∷_/_/_
 _⊩ˢ_≡_∷_/_/_/_ = Definition.LogicalRelation.Substitution._⊩ˢ_≡_∷_/_/_/_
 
--- Definition A.8: Validity of types, terms and equality of
--- valid types and terms
--- In the paper, the type levels are denoted with a subscript instead of within braces.
+-- Definition A.8: Validity of types and terms and equality of valid
+-- types and terms.
+--
+-- In the paper the type levels are written as subscripts instead of
+-- within brackets.
 
-_⊩ᵛ⟨_⟩_/_ = Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_/_
-_⊩ᵛ⟨_⟩_∷_/_/_ = Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_∷_/_/_
-_⊩ᵛ⟨_⟩_≡_/_/_ = Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_≡_/_/_
-_⊩ᵛ⟨_⟩_≡_∷_/_/_ = Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_≡_∷_/_/_
+_⊩ᵛ⟨_⟩_/_       = Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_/_
+_⊩ᵛ⟨_⟩_∷_/_/_   = Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_∷_/_/_
+_⊩ᵛ⟨_⟩_≡_/_/_   = Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_≡_/_/_
+_⊩ᵛ⟨_⟩_≡_∷_/_/_ =
+  Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_≡_∷_/_/_
 
--- Theorem A.9: The fundamental lemma
+-- Theorem A.9: The fundamental lemma.
 
-fundamentalType = Definition.LogicalRelation.Fundamental.Reducibility.reducible
-fundamentalTerm = Definition.LogicalRelation.Fundamental.Reducibility.reducibleTerm
-fundamentalTypeEq = Definition.LogicalRelation.Fundamental.Reducibility.reducibleEq
-fundamentalTermEq = Definition.LogicalRelation.Fundamental.Reducibility.reducibleEqTerm
+fundamentalType =
+  Definition.LogicalRelation.Fundamental.Reducibility.reducible
+fundamentalTerm =
+  Definition.LogicalRelation.Fundamental.Reducibility.reducibleTerm
+fundamentalTypeEq =
+  Definition.LogicalRelation.Fundamental.Reducibility.reducibleEq
+fundamentalTermEq =
+  Definition.LogicalRelation.Fundamental.Reducibility.reducibleEqTerm
 
 ------------------------------------------------------------------------
 -- B: Usage Inference
 
--- Definition B.1: Usage inference
+-- Definition B.1: Usage inference.
 
 ∣_∣ = Graded.Usage.⌈_⌉
 
--- Theorem B.2
+-- Theorem B.2.
 
 Theorem-B-2a = Graded.Usage.Properties.usage-inf
 Theorem-B-2b = Graded.Usage.Properties.usage-upper-bound
 
--- Theorem B.3: Decidability of the usage relation
+-- Theorem B.3: Decidability of the usage relation.
 
 Theorem-B-3a = Graded.Usage.Decidable.⌈⌉▸[_]?′_
 Theorem-B-3b = Graded.Usage.Decidable._▸[_]?_
 
--- Definition B.4: Substitution matrix inference
+-- Definition B.4: Substitution matrix inference.
 
 ∥_∥ = Graded.Substitution.∥_∥
 
--- Theorem B.5
+-- Theorem B.5.
 
 Theorem-B-5 = Graded.Substitution.Properties.subst-calc-correct′
