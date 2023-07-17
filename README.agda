@@ -667,10 +667,6 @@ _®⟨_⟩_∷_/_ = Graded.Erasure.LogicalRelation._®⟨_⟩_∷_/_
 _®ℕ_ = Graded.Erasure.LogicalRelation._®_∷ℕ
 
 -- Valid substitutions.
---
--- The final argument, "the target context is well-formed", is not
--- included in the paper because the context is fixed and assumed to
--- be well-formed.
 
 _⊩ˢ_∷_/_ = Definition.LogicalRelation.Substitution._⊩ˢ_∷_/_/_
 
