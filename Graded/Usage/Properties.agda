@@ -48,7 +48,7 @@ private
     Γ : Con Term n
     A F t u v : Term n
     G : Term (1+ n)
-    γ δ η θ : Conₘ n
+    γ δ η θ χ : Conₘ n
     p q r : M
     m m₁ m₂ m′ : Mode
     b : Bool
@@ -999,6 +999,29 @@ natrec-no-star-⊛ₘ ▸t ▸u ▸v ▸A =
        (∧ᶜ-greatest-lower-bound
           (natrec-usage .proj₂ .proj₂)
           (natrec-usage .proj₂ .proj₁)))
+
+module _ where
+
+  open import Graded.Modality.Dedicated-star.Instance
+
+  -- A variant of natrecₘ and natrec-no-starₘ.
+
+  natrec-star-or-no-starₘ :
+    γ ▸[ m ] t →
+    δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] u →
+    η ▸[ m ] v →
+    θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A →
+    (⦃ has-star : Dedicated-star ⦄ →
+     χ ≤ᶜ (γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r) →
+    (⦃ no-star : No-dedicated-star ⦄ →
+     χ ≤ᶜ γ ∧ᶜ η ∧ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ)) →
+    χ ▸[ m ] natrec p q r A t u v
+  natrec-star-or-no-starₘ ▸t ▸u ▸v ▸A hyp₁ hyp₂ =
+    case dedicated-star? of λ where
+      does-have-star →
+        sub (natrecₘ ▸t ▸u ▸v ▸A) hyp₁
+      does-not-have-star →
+        natrec-no-starₘ ▸t ▸u ▸v ▸A hyp₂
 
 ------------------------------------------------------------------------
 -- Lemmas related to ⌈_⌉
