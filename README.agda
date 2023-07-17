@@ -4,11 +4,22 @@
 -- Anders Danielsson and Oskar Eriksson
 --------------------------------------------------------------------------
 
--- Note that others have also contributed to the code, see the files
--- README.md and LICENSE.
+-- Note that Gaëtan Gilbert, Wojciech Nawrocki, Joakim Öhman and
+-- Andrea Vezzosi have also contributed to the code, and some changes
+-- to the code were made after feedback from anonymous reviewers.
 --
--- Some changes to the code were made after feedback from anonymous
--- reviewers.
+-- The code also depends on some libraries:
+--
+-- * Agda's standard library, version 1.7.2.
+-- * The builtin modules that are shipped with Agda 2.6.3.
+--
+-- When HTML code is generated from this file code is also generated
+-- for the two libraries above, so URLs for their licences are
+-- included here. At the time of writing the licence texts can be
+-- found at the following URLs:
+--
+-- * https://github.com/agda/agda-stdlib/blob/v1.7.2/LICENCE
+-- * https://github.com/agda/agda/blob/v2.6.3/LICENSE
 
 module README where
 
