@@ -37,7 +37,7 @@ record Full-reduction-assumptions : Set a where
     𝟙≤𝟘 : Unit-allowed → 𝟙 ≤ 𝟘
 
     -- If a Σ-type with η-equality and the "first component
-    -- quantity" p is allowed, then either p ≡ 𝟙 or p ≡ 𝟘, 𝟘ᵐ is
+    -- quantity" p is allowed, then either p ≡ 𝟙, or p ≡ 𝟘, 𝟘ᵐ is
     -- allowed and 𝟙 ≤ 𝟘.
     ≡𝟙⊎𝟙≤𝟘 : Σₚ-allowed p q → p ≡ 𝟙 ⊎ p ≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘
 
