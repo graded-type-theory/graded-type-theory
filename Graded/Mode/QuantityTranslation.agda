@@ -59,6 +59,22 @@ module Is-morphism
   tr-⌜⌝ 𝟘ᵐ[ ok ] = ≤-reflexive (tr-𝟘-≡ ok)
   tr-⌜⌝ 𝟙ᵐ       = tr-𝟙
 
+  -- A variant of the previous property with _≡_ instead of _≤_.
+
+  tr-⌜⌝-· : ∀ m → Mo₂.⌜ tr-Mode m ⌝ M₂.· tr p ≡ tr (Mo₁.⌜ m ⌝ M₁.· p)
+  tr-⌜⌝-· {p = p} = λ where
+      𝟘ᵐ[ ok ] → begin
+        M₂.𝟘 M₂.· tr p    ≡⟨ M₂.·-zeroˡ _ ⟩
+        M₂.𝟘              ≡˘⟨ tr-𝟘-≡ ok ⟩
+        tr M₁.𝟘           ≡˘⟨ cong tr (M₁.·-zeroˡ _) ⟩
+        tr (M₁.𝟘 M₁.· p)  ∎
+      𝟙ᵐ → begin
+        M₂.𝟙 M₂.· tr p    ≡⟨ M₂.·-identityˡ _ ⟩
+        tr p              ≡˘⟨ cong tr (M₁.·-identityˡ _) ⟩
+        tr (M₁.𝟙 M₁.· p)  ∎
+    where
+    open Tools.Reasoning.PropositionalEquality
+
   -- The translation of Mo₁.⌜ Mo₁.𝟘ᵐ? ⌝ is bounded by Mo₂.⌜ Mo₂.𝟘ᵐ? ⌝.
 
   tr-⌜𝟘ᵐ?⌝ : tr Mo₁.⌜ Mo₁.𝟘ᵐ? ⌝ ≤ Mo₂.⌜ Mo₂.𝟘ᵐ? ⌝
@@ -77,22 +93,6 @@ module Is-morphism
          (λ _ → tr-𝟙))
     where
     open Tools.Reasoning.PartialOrder ≤-poset
-
-  -- A variant of the previous property with _≡_ instead of _≤_.
-
-  tr-⌜⌝-· : ∀ m → Mo₂.⌜ tr-Mode m ⌝ M₂.· tr p ≡ tr (Mo₁.⌜ m ⌝ M₁.· p)
-  tr-⌜⌝-· {p = p} = λ where
-      𝟘ᵐ[ ok ] → begin
-        M₂.𝟘 M₂.· tr p    ≡⟨ M₂.·-zeroˡ _ ⟩
-        M₂.𝟘              ≡˘⟨ tr-𝟘-≡ ok ⟩
-        tr M₁.𝟘           ≡˘⟨ cong tr (M₁.·-zeroˡ _) ⟩
-        tr (M₁.𝟘 M₁.· p)  ∎
-      𝟙ᵐ → begin
-        M₂.𝟙 M₂.· tr p    ≡⟨ M₂.·-identityˡ _ ⟩
-        tr p              ≡˘⟨ cong tr (M₁.·-identityˡ _) ⟩
-        tr (M₁.𝟙 M₁.· p)  ∎
-    where
-    open Tools.Reasoning.PropositionalEquality
 
   -- Translation commutes with _ᵐ·_ in a certain way.
 
