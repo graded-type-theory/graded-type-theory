@@ -153,7 +153,7 @@
 <a id="6186" class="Comment">-- and the algorithmic equality relations.</a>
 
 <a id="6230" class="Comment">------------------------------------------------------------------------</a>
-<a id="6303" class="Comment">-- 2.2: Usage accounting also in types</a>
+<a id="6303" class="Comment">-- 2.2: Usage Accounting Also in Types</a>
 
 <a id="6343" class="Comment">-- A relation which can be used to force the two grade annotations on</a>
 <a id="6413" class="Comment">-- Π- and Σ-types to be equal.</a>
@@ -161,861 +161,873 @@
 <a id="ΠΣ-allowed′"></a><a id="6445" href="README.html#6445" class="Function">ΠΣ-allowed′</a> <a id="6457" class="Symbol">=</a> <a id="6459" href="Definition.Typed.Restrictions.html#640" class="Field">Definition.Typed.Restrictions.Type-restrictions.ΠΣ-allowed</a>
 
 <a id="6519" class="Comment">------------------------------------------------------------------------</a>
-<a id="6592" class="Comment">-- 3: Modalities as grades in an ordered semiring</a>
+<a id="6592" class="Comment">-- 3: Modalities as Ordered Semirings</a>
 
-<a id="6643" class="Comment">-- Definition 3.1: The modality semiring.</a>
-<a id="6685" class="Comment">--</a>
-<a id="6688" class="Comment">-- For the variant of the type theory in Sections 3-5 the mode 𝟘ᵐ should</a>
-<a id="6761" class="Comment">-- be disallowed, i.e. 𝟘ᵐ-allowed should be false, and there should be</a>
-<a id="6832" class="Comment">-- a dedicated natrec-star operator, i.e. ⊛-available should be</a>
-<a id="6896" class="Comment">-- inhabited.</a>
-<a id="6910" class="Comment">--</a>
-<a id="6913" class="Comment">-- Unlike in the paper equality is not required to be decidable.</a>
-<a id="6978" class="Comment">-- Instead this property is assumed where it is used.</a>
-<a id="7032" class="Comment">--</a>
-<a id="7035" class="Comment">-- This module also defines the concept of a modality with &quot;well</a>
-<a id="7100" class="Comment">-- behaved zero&quot; which is used in Section 6.</a>
-
-<a id="Modality"></a><a id="7146" href="README.html#7146" class="Function">Modality</a> <a id="7155" class="Symbol">=</a> <a id="7157" href="Graded.Modality.html#5282" class="Record">Graded.Modality.Modality</a>
-
-<a id="7183" class="Comment">-- Addition, multplication and natrec-star are monotone operations</a>
-
-<a id="+-monotone"></a><a id="7251" href="README.html#7251" class="Function">+-monotone</a> <a id="7262" class="Symbol">=</a> <a id="7264" href="Graded.Modality.Properties.Addition.html#1007" class="Function">Graded.Modality.Properties.Addition.+-monotone</a>
-<a id="·-monotone"></a><a id="7311" href="README.html#7311" class="Function">·-monotone</a> <a id="7322" class="Symbol">=</a> <a id="7324" href="Graded.Modality.Properties.Multiplication.html#1089" class="Function">Graded.Modality.Properties.Multiplication.·-monotone</a>
-<a id="⊛-monotone"></a><a id="7377" href="README.html#7377" class="Function">⊛-monotone</a> <a id="7388" class="Symbol">=</a> <a id="7390" href="Graded.Modality.Properties.Star.html#1110" class="Function">Graded.Modality.Properties.Star.⊛-monotone</a>
-
-<a id="7434" class="Comment">-- Usage contexts.</a>
-<a id="7453" class="Comment">--</a>
-<a id="7456" class="Comment">-- The usage contexts are defined as (length-indexed) lists, not as</a>
-<a id="7524" class="Comment">-- functions from variables.</a>
-
-<a id="Conₘ"></a><a id="7554" href="README.html#7554" class="Function">Conₘ</a> <a id="7559" class="Symbol">=</a> <a id="7561" href="Graded.Context.html#701" class="Datatype">Graded.Context.Conₘ</a>
-
-<a id="7582" class="Comment">-- Lifted operators and a lifted ordering relation for usage contexts.</a>
-
-<a id="_+_"></a><a id="7654" href="README.html#7654" class="Function Operator">_+_</a>   <a id="7660" class="Symbol">=</a> <a id="7662" href="Graded.Context.html#1510" class="Function Operator">Graded.Context._+ᶜ_</a>
-<a id="_·_"></a><a id="7682" href="README.html#7682" class="Function Operator">_·_</a>   <a id="7688" class="Symbol">=</a> <a id="7690" href="Graded.Context.html#1742" class="Function Operator">Graded.Context._·ᶜ_</a>
-<a id="_∧_"></a><a id="7710" href="README.html#7710" class="Function Operator">_∧_</a>   <a id="7716" class="Symbol">=</a> <a id="7718" href="Graded.Context.html#1630" class="Function Operator">Graded.Context._∧ᶜ_</a>
-<a id="_⊛_▷_"></a><a id="7738" href="README.html#7738" class="Function Operator">_⊛_▷_</a> <a id="7744" class="Symbol">=</a> <a id="7746" href="Graded.Context.html#2022" class="Function Operator">Graded.Context._⊛ᶜ_▷_</a>
-<a id="_≤_"></a><a id="7768" href="README.html#7768" class="Function Operator">_≤_</a>   <a id="7774" class="Symbol">=</a> <a id="7776" href="Graded.Context.html#1864" class="Function Operator">Graded.Context._≤ᶜ_</a>
-
-<a id="7797" class="Comment">-- Usage contexts form a left semimodule</a>
-
-<a id="left-semimodule"></a><a id="7839" href="README.html#7839" class="Function">left-semimodule</a> <a id="7855" class="Symbol">=</a> <a id="7857" href="Graded.Context.Properties.html#4169" class="Function">Graded.Context.Properties.Conₘ-semimodule</a>
-
-<a id="7900" class="Comment">-- The trivial (one element) modality.</a>
-
-<a id="unitModality"></a><a id="7940" href="README.html#7940" class="Function">unitModality</a> <a id="7953" class="Symbol">=</a> <a id="7955" href="Graded.Modality.Instances.Unit.html#4077" class="Function">Graded.Modality.Instances.Unit.UnitModality</a>
-
-<a id="8000" class="Comment">-- With the given definitions of _∧_, _+_ and _·_ there is only one</a>
-<a id="8068" class="Comment">-- lawful way to define the star operator (up to pointwise equality)</a>
-<a id="8137" class="Comment">-- for the erasure modality.</a>
-
-<a id="⊛-unique"></a><a id="8167" href="README.html#8167" class="Function">⊛-unique</a> <a id="8176" class="Symbol">=</a> <a id="8178" href="Graded.Modality.Instances.Erasure.Properties.html#8116" class="Function">Graded.Modality.Instances.Erasure.Properties.⊛-unique</a>
-
-<a id="8233" class="Comment">-- An erasure modality.</a>
-
-<a id="erasureModality"></a><a id="8258" href="README.html#8258" class="Function">erasureModality</a> <a id="8274" class="Symbol">=</a>
-  <a id="8278" href="Graded.Modality.Instances.Erasure.Modality.html#1866" class="Function">Graded.Modality.Instances.Erasure.Modality.ErasureModality</a>
+<a id="6631" class="Comment">-- Definition 3.1: Modalities.</a>
+<a id="6662" class="Comment">--</a>
+<a id="6665" class="Comment">-- For the variant of the type theory in Sections 3-5 the mode 𝟘ᵐ should</a>
+<a id="6738" class="Comment">-- be disallowed, i.e. 𝟘ᵐ-allowed should be false, and there should be</a>
+<a id="6809" class="Comment">-- a dedicated natrec-star operator, i.e. ⊛-available should be</a>
+<a id="6873" class="Comment">-- inhabited.</a>
+<a id="6887" class="Comment">--</a>
+<a id="6890" class="Comment">-- Unlike in the paper equality is not required to be decidable.</a>
+<a id="6955" class="Comment">-- Instead this property is assumed where it is used.</a>
+<a id="7009" class="Comment">--</a>
+<a id="7012" class="Comment">-- This module also defines the concept of a modality with &quot;well</a>
+<a id="7077" class="Comment">-- behaved zero&quot; which is used in Section 6.</a>
+
+<a id="Modality"></a><a id="7123" href="README.html#7123" class="Function">Modality</a> <a id="7132" class="Symbol">=</a> <a id="7134" href="Graded.Modality.html#5282" class="Record">Graded.Modality.Modality</a>
+
+<a id="7160" class="Comment">-- Addition, multplication and natrec-star are monotone operations</a>
+
+<a id="+-monotone"></a><a id="7228" href="README.html#7228" class="Function">+-monotone</a> <a id="7239" class="Symbol">=</a> <a id="7241" href="Graded.Modality.Properties.Addition.html#1007" class="Function">Graded.Modality.Properties.Addition.+-monotone</a>
+<a id="·-monotone"></a><a id="7288" href="README.html#7288" class="Function">·-monotone</a> <a id="7299" class="Symbol">=</a> <a id="7301" href="Graded.Modality.Properties.Multiplication.html#1089" class="Function">Graded.Modality.Properties.Multiplication.·-monotone</a>
+<a id="⊛-monotone"></a><a id="7354" href="README.html#7354" class="Function">⊛-monotone</a> <a id="7365" class="Symbol">=</a> <a id="7367" href="Graded.Modality.Properties.Star.html#1110" class="Function">Graded.Modality.Properties.Star.⊛-monotone</a>
+
+<a id="7411" class="Comment">-- Usage contexts.</a>
+<a id="7430" class="Comment">--</a>
+<a id="7433" class="Comment">-- The usage contexts are defined as (length-indexed) lists, not as</a>
+<a id="7501" class="Comment">-- functions from variables.</a>
+
+<a id="Conₘ"></a><a id="7531" href="README.html#7531" class="Function">Conₘ</a> <a id="7536" class="Symbol">=</a> <a id="7538" href="Graded.Context.html#701" class="Datatype">Graded.Context.Conₘ</a>
+
+<a id="7559" class="Comment">-- Lifted operators and a lifted ordering relation for usage contexts.</a>
+
+<a id="_+_"></a><a id="7631" href="README.html#7631" class="Function Operator">_+_</a>   <a id="7637" class="Symbol">=</a> <a id="7639" href="Graded.Context.html#1510" class="Function Operator">Graded.Context._+ᶜ_</a>
+<a id="_·_"></a><a id="7659" href="README.html#7659" class="Function Operator">_·_</a>   <a id="7665" class="Symbol">=</a> <a id="7667" href="Graded.Context.html#1742" class="Function Operator">Graded.Context._·ᶜ_</a>
+<a id="_∧_"></a><a id="7687" href="README.html#7687" class="Function Operator">_∧_</a>   <a id="7693" class="Symbol">=</a> <a id="7695" href="Graded.Context.html#1630" class="Function Operator">Graded.Context._∧ᶜ_</a>
+<a id="_⊛_▷_"></a><a id="7715" href="README.html#7715" class="Function Operator">_⊛_▷_</a> <a id="7721" class="Symbol">=</a> <a id="7723" href="Graded.Context.html#2022" class="Function Operator">Graded.Context._⊛ᶜ_▷_</a>
+<a id="_≤_"></a><a id="7745" href="README.html#7745" class="Function Operator">_≤_</a>   <a id="7751" class="Symbol">=</a> <a id="7753" href="Graded.Context.html#1864" class="Function Operator">Graded.Context._≤ᶜ_</a>
+
+<a id="7774" class="Comment">-- Usage contexts form a left semimodule</a>
+
+<a id="left-semimodule"></a><a id="7816" href="README.html#7816" class="Function">left-semimodule</a> <a id="7832" class="Symbol">=</a> <a id="7834" href="Graded.Context.Properties.html#4169" class="Function">Graded.Context.Properties.Conₘ-semimodule</a>
+
+<a id="7877" class="Comment">-- The trivial (one element) modality.</a>
+
+<a id="unitModality"></a><a id="7917" href="README.html#7917" class="Function">unitModality</a> <a id="7930" class="Symbol">=</a> <a id="7932" href="Graded.Modality.Instances.Unit.html#4077" class="Function">Graded.Modality.Instances.Unit.UnitModality</a>
+
+<a id="7977" class="Comment">-- With the given definitions of _∧_, _+_ and _·_ there is only one</a>
+<a id="8045" class="Comment">-- lawful way to define the star operator (up to pointwise equality)</a>
+<a id="8114" class="Comment">-- for the erasure modality.</a>
+
+<a id="⊛-unique"></a><a id="8144" href="README.html#8144" class="Function">⊛-unique</a> <a id="8153" class="Symbol">=</a> <a id="8155" href="Graded.Modality.Instances.Erasure.Properties.html#8116" class="Function">Graded.Modality.Instances.Erasure.Properties.⊛-unique</a>
+
+<a id="8210" class="Comment">-- An erasure modality.</a>
+
+<a id="erasureModality"></a><a id="8235" href="README.html#8235" class="Function">erasureModality</a> <a id="8251" class="Symbol">=</a>
+  <a id="8255" href="Graded.Modality.Instances.Erasure.Modality.html#1866" class="Function">Graded.Modality.Instances.Erasure.Modality.ErasureModality</a>
 
-<a id="8338" class="Comment">-- An &quot;affine types&quot; modality.</a>
+<a id="8315" class="Comment">-- An &quot;affine types&quot; modality.</a>
 
-<a id="affineModality"></a><a id="8370" href="README.html#8370" class="Function">affineModality</a> <a id="8385" class="Symbol">=</a> <a id="8387" href="Graded.Modality.Instances.Affine.html#934" class="Function">Graded.Modality.Instances.Affine.affineModality</a>
+<a id="affineModality"></a><a id="8347" href="README.html#8347" class="Function">affineModality</a> <a id="8362" class="Symbol">=</a> <a id="8364" href="Graded.Modality.Instances.Affine.html#934" class="Function">Graded.Modality.Instances.Affine.affineModality</a>
 
-<a id="8436" class="Comment">-- A &quot;linear types&quot; modality.</a>
+<a id="8413" class="Comment">-- A &quot;linear types&quot; modality.</a>
 
-<a id="linearityModality"></a><a id="8467" href="README.html#8467" class="Function">linearityModality</a> <a id="8485" class="Symbol">=</a>
-  <a id="8489" href="Graded.Modality.Instances.Linearity.html#1103" class="Function">Graded.Modality.Instances.Linearity.linearityModality</a>
-
-<a id="8544" class="Comment">-- The star operations of the &quot;affine types&quot; and &quot;linear types&quot;</a>
-<a id="8608" class="Comment">-- modalities return results that are as large as possible (given the</a>
-<a id="8678" class="Comment">-- definitions of the zero, the one, addition, multiplication and</a>
-<a id="8744" class="Comment">-- meet).</a>
-
-<a id="⊛-greatest₁"></a><a id="8755" href="README.html#8755" class="Function">⊛-greatest₁</a> <a id="8767" class="Symbol">=</a> <a id="8769" href="Graded.Modality.Instances.Zero-one-many.html#23373" class="Function">Graded.Modality.Instances.Zero-one-many.⊛-greatest</a>
-
-<a id="8821" class="Comment">-- A &quot;linear or affine types&quot; modality.</a>
-<a id="8861" class="Comment">-- Note that the names of two of the grades differ from the paper.</a>
-<a id="8928" class="Comment">-- The formalization uses ω for unrestricted usage and ≤𝟙 for affine.</a>
-
-<a id="linearOrAffineModality"></a><a id="8999" href="README.html#8999" class="Function">linearOrAffineModality</a> <a id="9022" class="Symbol">=</a>
-  <a id="9026" href="Graded.Modality.Instances.Linear-or-affine.html#34659" class="Function">Graded.Modality.Instances.Linear-or-affine.linear-or-affine</a>
-
-<a id="9087" class="Comment">-- The star operation of the &quot;linear or affine types&quot; modality returns</a>
-<a id="9158" class="Comment">-- results that are as large as possible (given the definitions of the</a>
-<a id="9229" class="Comment">-- zero, the one, addition, multiplication and meet).</a>
-
-<a id="⊛-greatest₂"></a><a id="9284" href="README.html#9284" class="Function">⊛-greatest₂</a> <a id="9296" class="Symbol">=</a> <a id="9298" href="Graded.Modality.Instances.Linear-or-affine.html#24244" class="Function">Graded.Modality.Instances.Linear-or-affine.⊛-greatest</a>
-
-<a id="9353" class="Comment">------------------------------------------------------------------------</a>
-<a id="9426" class="Comment">-- 4: Type theory with grades</a>
-
-<a id="9457" class="Comment">-- The grammar of the language.</a>
-<a id="9489" class="Comment">--</a>
-<a id="9492" class="Comment">-- The syntax is not defined in the same way as in the paper:</a>
-<a id="9554" class="Comment">--</a>
-<a id="9557" class="Comment">-- * The syntax is well-scoped: the type of terms is indexed by the</a>
-<a id="9625" class="Comment">--   number of variables in the context.</a>
-<a id="9666" class="Comment">--</a>
-<a id="9669" class="Comment">-- * Terms are either variables or applications of &quot;kinds&quot; to terms.</a>
-<a id="9738" class="Comment">--</a>
-<a id="9741" class="Comment">-- * The type Kind is indexed by a list of natural numbers. The length</a>
-<a id="9812" class="Comment">--   of the lists specifiy the arities of constructors (the number of</a>
-<a id="9882" class="Comment">--   sub-terms) and each element how many extra variables each term</a>
-<a id="9950" class="Comment">--   argument takes. Where applicable, the &quot;kind&quot; also specifies any</a>
-<a id="10019" class="Comment">--   constructor arguments that are not terms.</a>
-<a id="10066" class="Comment">--</a>
-<a id="10069" class="Comment">-- For instance, instead of three plain constructors for Π, Σ_&amp; and</a>
-<a id="10137" class="Comment">-- Σ_⊗ there is a kind constructor Binderkind of type</a>
-<a id="10191" class="Comment">--</a>
-<a id="10194" class="Comment">--   (b : BinderMode) (p q : M) → Kind (0 ∷ 1 ∷ []).</a>
-<a id="10247" class="Comment">--</a>
-<a id="10250" class="Comment">-- The type BinderMode represents &quot;Π, Σ_&amp; or Σ_⊗&quot;, and the two</a>
-<a id="10313" class="Comment">-- arguments of type M are the two quantities of the binders. (The</a>
-<a id="10380" class="Comment">-- syntax always allows the graded Σ-types from Section 8.) The list</a>
-<a id="10449" class="Comment">-- 0 ∷ 1 ∷ [] means that the binders take two arguments, one with n</a>
-<a id="10517" class="Comment">-- variables in the context (for some n), and one with 1 + n variables</a>
-<a id="10588" class="Comment">-- in the context.</a>
-<a id="10607" class="Comment">--</a>
-<a id="10610" class="Comment">-- Pattern synonyms are used so that one can write code which is</a>
-<a id="10675" class="Comment">-- closer to the notation in the paper.</a>
-<a id="10715" class="Comment">--</a>
-<a id="10718" class="Comment">-- The formalization includes a unit type with eta equality which is</a>
-<a id="10787" class="Comment">-- not covered by the paper except for a discussion in Section 7.3.</a>
-<a id="10855" class="Comment">-- One can disable the use of the unit type at the type level (see</a>
-<a id="10922" class="Comment">-- above).</a>
-
-<a id="grammar"></a><a id="10934" href="README.html#10934" class="Function">grammar</a> <a id="10942" class="Symbol">=</a> <a id="10944" href="Definition.Untyped.html#2121" class="Datatype">Definition.Untyped.Term</a>
-
-<a id="10969" class="Comment">-- Weakenings.</a>
-<a id="10984" class="Comment">--</a>
-<a id="10987" class="Comment">-- Unlike in the paper the type of weakenings is well-scoped: it is</a>
-<a id="11055" class="Comment">-- indexed by two natural numbers, the sizes of the target and source</a>
-<a id="11125" class="Comment">-- contexts, respectively.</a>
-<a id="11152" class="Comment">--</a>
-<a id="11155" class="Comment">-- The lifting constructor ⇑ is called lift, and the shifting</a>
-<a id="11217" class="Comment">-- constructor ↑ is called step.</a>
+<a id="linearityModality"></a><a id="8444" href="README.html#8444" class="Function">linearityModality</a> <a id="8462" class="Symbol">=</a>
+  <a id="8466" href="Graded.Modality.Instances.Linearity.html#1103" class="Function">Graded.Modality.Instances.Linearity.linearityModality</a>
+
+<a id="8521" class="Comment">-- The star operations of the &quot;affine types&quot; and &quot;linear types&quot;</a>
+<a id="8585" class="Comment">-- modalities return results that are as large as possible (given the</a>
+<a id="8655" class="Comment">-- definitions of the zero, the one, addition, multiplication and</a>
+<a id="8721" class="Comment">-- meet).</a>
+
+<a id="⊛-greatest₁"></a><a id="8732" href="README.html#8732" class="Function">⊛-greatest₁</a> <a id="8744" class="Symbol">=</a> <a id="8746" href="Graded.Modality.Instances.Zero-one-many.html#23373" class="Function">Graded.Modality.Instances.Zero-one-many.⊛-greatest</a>
+
+<a id="8798" class="Comment">-- A &quot;linear or affine types&quot; modality.</a>
+<a id="8838" class="Comment">-- Note that the names of two of the grades differ from the paper.</a>
+<a id="8905" class="Comment">-- The formalization uses ω for unrestricted usage and ≤𝟙 for affine.</a>
+
+<a id="linearOrAffineModality"></a><a id="8976" href="README.html#8976" class="Function">linearOrAffineModality</a> <a id="8999" class="Symbol">=</a>
+  <a id="9003" href="Graded.Modality.Instances.Linear-or-affine.html#34659" class="Function">Graded.Modality.Instances.Linear-or-affine.linear-or-affine</a>
+
+<a id="9064" class="Comment">-- The star operation of the &quot;linear or affine types&quot; modality returns</a>
+<a id="9135" class="Comment">-- results that are as large as possible (given the definitions of the</a>
+<a id="9206" class="Comment">-- zero, the one, addition, multiplication and meet).</a>
+
+<a id="⊛-greatest₂"></a><a id="9261" href="README.html#9261" class="Function">⊛-greatest₂</a> <a id="9273" class="Symbol">=</a> <a id="9275" href="Graded.Modality.Instances.Linear-or-affine.html#24244" class="Function">Graded.Modality.Instances.Linear-or-affine.⊛-greatest</a>
+
+<a id="9330" class="Comment">------------------------------------------------------------------------</a>
+<a id="9403" class="Comment">-- 4: Type Theory with Grades</a>
+
+<a id="9434" class="Comment">-- The grammar of the language.</a>
+<a id="9466" class="Comment">--</a>
+<a id="9469" class="Comment">-- The syntax is not defined in the same way as in the paper:</a>
+<a id="9531" class="Comment">--</a>
+<a id="9534" class="Comment">-- * The syntax is well-scoped: the type of terms is indexed by the</a>
+<a id="9602" class="Comment">--   number of variables in the context.</a>
+<a id="9643" class="Comment">--</a>
+<a id="9646" class="Comment">-- * Terms are either variables or applications of &quot;kinds&quot; to terms.</a>
+<a id="9715" class="Comment">--</a>
+<a id="9718" class="Comment">-- * The type Kind is indexed by a list of natural numbers. The length</a>
+<a id="9789" class="Comment">--   of the lists specifiy the arities of constructors (the number of</a>
+<a id="9859" class="Comment">--   sub-terms) and each element how many extra variables each term</a>
+<a id="9927" class="Comment">--   argument takes. Where applicable, the &quot;kind&quot; also specifies any</a>
+<a id="9996" class="Comment">--   constructor arguments that are not terms.</a>
+<a id="10043" class="Comment">--</a>
+<a id="10046" class="Comment">-- For instance, instead of three plain constructors for Π, Σ_&amp; and</a>
+<a id="10114" class="Comment">-- Σ_⊗ there is a kind constructor Binderkind of type</a>
+<a id="10168" class="Comment">--</a>
+<a id="10171" class="Comment">--   (b : BinderMode) (p q : M) → Kind (0 ∷ 1 ∷ []).</a>
+<a id="10224" class="Comment">--</a>
+<a id="10227" class="Comment">-- The type BinderMode represents &quot;Π, Σ_&amp; or Σ_⊗&quot;, and the two</a>
+<a id="10290" class="Comment">-- arguments of type M are the two quantities of the binders. (The</a>
+<a id="10357" class="Comment">-- syntax always allows the graded Σ-types from Section 8.) The list</a>
+<a id="10426" class="Comment">-- 0 ∷ 1 ∷ [] means that the binders take two arguments, one with n</a>
+<a id="10494" class="Comment">-- variables in the context (for some n), and one with 1 + n variables</a>
+<a id="10565" class="Comment">-- in the context.</a>
+<a id="10584" class="Comment">--</a>
+<a id="10587" class="Comment">-- Pattern synonyms are used so that one can write code which is</a>
+<a id="10652" class="Comment">-- closer to the notation in the paper.</a>
+<a id="10692" class="Comment">--</a>
+<a id="10695" class="Comment">-- The formalization includes a unit type with eta equality which is</a>
+<a id="10764" class="Comment">-- not covered by the paper except for a discussion in Section 7.3.</a>
+<a id="10832" class="Comment">-- One can disable the use of the unit type at the type level (see</a>
+<a id="10899" class="Comment">-- above).</a>
 
-<a id="Wk"></a><a id="11251" href="README.html#11251" class="Function">Wk</a> <a id="11254" class="Symbol">=</a> <a id="11256" href="Definition.Untyped.NotParametrised.html#2145" class="Datatype">Definition.Untyped.Wk</a>
+<a id="grammar"></a><a id="10911" href="README.html#10911" class="Function">grammar</a> <a id="10919" class="Symbol">=</a> <a id="10921" href="Definition.Untyped.html#2121" class="Datatype">Definition.Untyped.Term</a>
+
+<a id="10946" class="Comment">-- Weakenings.</a>
+<a id="10961" class="Comment">--</a>
+<a id="10964" class="Comment">-- Unlike in the paper the type of weakenings is well-scoped: it is</a>
+<a id="11032" class="Comment">-- indexed by two natural numbers, the sizes of the target and source</a>
+<a id="11102" class="Comment">-- contexts, respectively.</a>
+<a id="11129" class="Comment">--</a>
+<a id="11132" class="Comment">-- The lifting constructor ⇑ is called lift, and the shifting</a>
+<a id="11194" class="Comment">-- constructor ↑ is called step.</a>
 
-<a id="11279" class="Comment">-- Application of a weakening to a de Bruijn index.</a>
+<a id="Wk"></a><a id="11228" href="README.html#11228" class="Function">Wk</a> <a id="11231" class="Symbol">=</a> <a id="11233" href="Definition.Untyped.NotParametrised.html#2145" class="Datatype">Definition.Untyped.Wk</a>
 
-<a id="weakening-of-variable"></a><a id="11332" href="README.html#11332" class="Function">weakening-of-variable</a> <a id="11354" class="Symbol">=</a> <a id="11356" href="Definition.Untyped.NotParametrised.html#2939" class="Function">Definition.Untyped.wkVar</a>
+<a id="11256" class="Comment">-- Application of a weakening to a de Bruijn index.</a>
 
-<a id="11382" class="Comment">-- Application of a weakening to a term.</a>
-
-<a id="weakening"></a><a id="11424" href="README.html#11424" class="Function">weakening</a> <a id="11434" class="Symbol">=</a> <a id="11436" href="Definition.Untyped.html#10697" class="Function">Definition.Untyped.wk</a>
+<a id="weakening-of-variable"></a><a id="11309" href="README.html#11309" class="Function">weakening-of-variable</a> <a id="11331" class="Symbol">=</a> <a id="11333" href="Definition.Untyped.NotParametrised.html#2939" class="Function">Definition.Untyped.wkVar</a>
 
-<a id="11459" class="Comment">-- Substitutions.</a>
-<a id="11477" class="Comment">--</a>
-<a id="11480" class="Comment">-- Unlike in the paper the type of substitutions is well-scoped: it is</a>
-<a id="11551" class="Comment">-- indexed by two natural numbers, the sizes of the target and source</a>
-<a id="11621" class="Comment">-- contexts, respectively.</a>
-
-<a id="Subst"></a><a id="11649" href="README.html#11649" class="Function">Subst</a> <a id="11655" class="Symbol">=</a> <a id="11657" href="Definition.Untyped.html#12627" class="Function">Definition.Untyped.Subst</a>
-
-<a id="11683" class="Comment">-- Application of a substitution to a term.</a>
-
-<a id="_[_]"></a><a id="11728" href="README.html#11728" class="Function Operator">_[_]</a> <a id="11733" class="Symbol">=</a> <a id="11735" href="Definition.Untyped.html#14660" class="Function Operator">Definition.Untyped._[_]</a>
-
-<a id="11760" class="Comment">-- Some other substitution operations from the paper.</a>
-
-<a id="identity"></a><a id="11815" href="README.html#11815" class="Function">identity</a>  <a id="11825" class="Symbol">=</a> <a id="11827" href="Definition.Untyped.html#13694" class="Function">Definition.Untyped.idSubst</a>
-<a id="shifting"></a><a id="11854" href="README.html#11854" class="Function">shifting</a>  <a id="11864" class="Symbol">=</a> <a id="11866" href="Definition.Untyped.html#13809" class="Function">Definition.Untyped.wk1Subst</a>
-<a id="lifting"></a><a id="11894" href="README.html#11894" class="Function">lifting</a>   <a id="11904" class="Symbol">=</a> <a id="11906" href="Definition.Untyped.html#13947" class="Function">Definition.Untyped.liftSubst</a>
-<a id="extension"></a><a id="11935" href="README.html#11935" class="Function">extension</a> <a id="11945" class="Symbol">=</a> <a id="11947" href="Definition.Untyped.html#14944" class="Function">Definition.Untyped.consSubst</a>
-<a id="head"></a><a id="11976" href="README.html#11976" class="Function">head</a>      <a id="11986" class="Symbol">=</a> <a id="11988" href="Definition.Untyped.html#13210" class="Function">Definition.Untyped.head</a>
-<a id="tail"></a><a id="12012" href="README.html#12012" class="Function">tail</a>      <a id="12022" class="Symbol">=</a> <a id="12024" href="Definition.Untyped.html#13393" class="Function">Definition.Untyped.tail</a>
-
-<a id="12049" class="Comment">-- The typing relations.</a>
-<a id="12074" class="Comment">--</a>
-<a id="12077" class="Comment">-- These relations are parametrised by a value of type</a>
-<a id="12132" class="Comment">-- Type-restrictions, which can be used to restrict certain types, as</a>
-<a id="12202" class="Comment">-- discussed above.</a>
-<a id="12222" class="Comment">--</a>
-<a id="12225" class="Comment">-- Note also that some rules for Π and Σ have been merged.</a>
-<a id="12284" class="Comment">--</a>
-<a id="12287" class="Comment">-- In some rules fording (equality hypotheses) is used to equate</a>
-<a id="12352" class="Comment">-- grades. In the paper such equated grades are simply shown as a</a>
-<a id="12418" class="Comment">-- single grade.</a>
-
-<a id="⊢_"></a><a id="12436" href="README.html#12436" class="Function Operator">⊢_</a>                  <a id="12456" class="Symbol">=</a> <a id="12458" href="Definition.Typed.html#964" class="Datatype Operator">Definition.Typed.⊢_</a>
-<a id="_⊢_"></a><a id="12478" href="README.html#12478" class="Function Operator">_⊢_</a>                 <a id="12498" class="Symbol">=</a> <a id="12500" href="Definition.Typed.html#1086" class="Datatype Operator">Definition.Typed._⊢_</a>
-<a id="_⊢_∷_"></a><a id="12521" href="README.html#12521" class="Function Operator">_⊢_∷_</a>               <a id="12541" class="Symbol">=</a> <a id="12543" href="Definition.Typed.html#1453" class="Datatype Operator">Definition.Typed._⊢_∷_</a>
-<a id="_⊢_≡_"></a><a id="12566" href="README.html#12566" class="Function Operator">_⊢_≡_</a>               <a id="12586" class="Symbol">=</a> <a id="12588" href="Definition.Typed.html#3423" class="Datatype Operator">Definition.Typed._⊢_≡_</a>
-<a id="_⊢_≡_∷_"></a><a id="12611" href="README.html#12611" class="Function Operator">_⊢_≡_∷_</a>             <a id="12631" class="Symbol">=</a> <a id="12633" href="Definition.Typed.html#3898" class="Datatype Operator">Definition.Typed._⊢_≡_∷_</a>
-<a id="_∷_∈_"></a><a id="12658" href="README.html#12658" class="Function Operator">_∷_∈_</a>               <a id="12678" class="Symbol">=</a> <a id="12680" href="Definition.Typed.html#769" class="Datatype Operator">Definition.Typed._∷_∈_</a>
-
-<a id="12704" class="Comment">-- Typing contexts.</a>
-
-<a id="Con"></a><a id="12725" href="README.html#12725" class="Function">Con</a> <a id="12729" class="Symbol">=</a> <a id="12731" href="Definition.Untyped.NotParametrised.html#791" class="Datatype">Definition.Untyped.Con</a>
-
-<a id="12755" class="Comment">-- A derived congruence rule for Π and Σ-types with fewer assumptions</a>
-
-<a id="ΠΣ-cong′"></a><a id="12826" href="README.html#12826" class="Function">ΠΣ-cong′</a> <a id="12835" class="Symbol">=</a> <a id="12837" href="Definition.Typed.Consequences.DerivedRules.html#6364" class="Function">Definition.Typed.Consequences.DerivedRules.ΠΣ-cong′</a>
-
-<a id="12890" class="Comment">-- One can define something like prodrec for the Σ-types with</a>
-<a id="12952" class="Comment">-- η-equality.</a>
-
-<a id="prodrec-for-Σₚ"></a><a id="12968" href="README.html#12968" class="Function">prodrec-for-Σₚ</a>              <a id="12996" class="Symbol">=</a> <a id="12998" href="Definition.Untyped.Sigma.html#737" class="Function">Definition.Untyped.Sigma.prodrecₚ</a>
-<a id="prodrec-for-Σₚ-type-correct"></a><a id="13032" href="README.html#13032" class="Function">prodrec-for-Σₚ-type-correct</a> <a id="13060" class="Symbol">=</a>
-  <a id="13064" href="Definition.Typed.Consequences.DerivedRules.Sigma.html#6508" class="Function">Definition.Typed.Consequences.DerivedRules.Sigma.prodrecₚⱼ</a>
-
-<a id="13124" class="Comment">-- However, our definition does not in general satisfy the usage rule</a>
-<a id="13194" class="Comment">-- for prodrec.</a>
-
-<a id="prodrec-for-Σₚ-usage"></a><a id="13211" href="README.html#13211" class="Function">prodrec-for-Σₚ-usage</a> <a id="13232" class="Symbol">=</a> <a id="13234" href="Graded.Derived.Sigma.html#10900" class="Function">Graded.Derived.Sigma.¬prodrecₘ</a>
-
-<a id="13266" class="Comment">-- One can also define projections for weak Σ-types by using prodrec.</a>
-
-<a id="fst-for-Σᵣ"></a><a id="13337" href="README.html#13337" class="Function">fst-for-Σᵣ</a> <a id="13348" class="Symbol">=</a> <a id="13350" href="Definition.Untyped.Sigma.html#966" class="Function">Definition.Untyped.Sigma.Fstᵣ-sndᵣ.fstᵣ</a>
-<a id="snd-for-Σᵣ"></a><a id="13390" href="README.html#13390" class="Function">snd-for-Σᵣ</a> <a id="13401" class="Symbol">=</a> <a id="13403" href="Definition.Untyped.Sigma.html#1084" class="Function">Definition.Untyped.Sigma.Fstᵣ-sndᵣ.sndᵣ</a>
-
-<a id="13444" class="Comment">-- However, η-equality does not hold in general for our definitions.</a>
-
-<a id="no-η-equality-Σᵣ"></a><a id="13514" href="README.html#13514" class="Function">no-η-equality-Σᵣ</a> <a id="13531" class="Symbol">=</a>
-  <a id="13535" href="Definition.Typed.Consequences.DerivedRules.Sigma.html#32240" class="Function">Definition.Typed.Consequences.DerivedRules.Sigma.Fstᵣ-sndᵣ.¬-Σᵣ-η-prodᵣ-fstᵣ-sndᵣ</a>
-
-<a id="13618" class="Comment">-- Reduction relations</a>
+<a id="11359" class="Comment">-- Application of a weakening to a term.</a>
 
-<a id="_⊢_⇒_"></a><a id="13642" href="README.html#13642" class="Function Operator">_⊢_⇒_</a>    <a id="13651" class="Symbol">=</a> <a id="13653" href="Definition.Typed.html#12308" class="Datatype Operator">Definition.Typed._⊢_⇒_</a>
-<a id="_⊢_⇒_∷_"></a><a id="13676" href="README.html#13676" class="Function Operator">_⊢_⇒_∷_</a>  <a id="13685" class="Symbol">=</a> <a id="13687" href="Definition.Typed.html#8919" class="Datatype Operator">Definition.Typed._⊢_⇒_∷_</a>
-<a id="_⊢_⇒*_"></a><a id="13712" href="README.html#13712" class="Function Operator">_⊢_⇒*_</a>   <a id="13721" class="Symbol">=</a> <a id="13723" href="Definition.Typed.html#12652" class="Datatype Operator">Definition.Typed._⊢_⇒*_</a>
-<a id="_⊢_⇒*_∷_"></a><a id="13747" href="README.html#13747" class="Function Operator">_⊢_⇒*_∷_</a> <a id="13756" class="Symbol">=</a> <a id="13758" href="Definition.Typed.html#12437" class="Datatype Operator">Definition.Typed._⊢_⇒*_∷_</a>
-
-<a id="13785" class="Comment">-- Theorem 4.3</a>
-
-<a id="Theorem-4-3a"></a><a id="13801" href="README.html#13801" class="Function">Theorem-4-3a</a> <a id="13814" class="Symbol">=</a> <a id="13816" href="Definition.Typed.Properties.html#7478" class="Function">Definition.Typed.Properties.whnfRed*Term</a>
-<a id="Theorem-4-3b"></a><a id="13857" href="README.html#13857" class="Function">Theorem-4-3b</a> <a id="13870" class="Symbol">=</a> <a id="13872" href="Definition.Typed.Properties.html#7684" class="Function">Definition.Typed.Properties.whnfRed*</a>
+<a id="weakening"></a><a id="11401" href="README.html#11401" class="Function">weakening</a> <a id="11411" class="Symbol">=</a> <a id="11413" href="Definition.Untyped.html#10697" class="Function">Definition.Untyped.wk</a>
 
-<a id="13910" class="Comment">-- Theorem 4.4</a>
+<a id="11436" class="Comment">-- Substitutions.</a>
+<a id="11454" class="Comment">--</a>
+<a id="11457" class="Comment">-- Unlike in the paper the type of substitutions is well-scoped: it is</a>
+<a id="11528" class="Comment">-- indexed by two natural numbers, the sizes of the target and source</a>
+<a id="11598" class="Comment">-- contexts, respectively.</a>
 
-<a id="Theorem-4-4a"></a><a id="13926" href="README.html#13926" class="Function">Theorem-4-4a</a> <a id="13939" class="Symbol">=</a> <a id="13941" href="Definition.Typed.Properties.html#10386" class="Function">Definition.Typed.Properties.whrDet*Term</a>
-<a id="Theorem-4-4b"></a><a id="13981" href="README.html#13981" class="Function">Theorem-4-4b</a> <a id="13994" class="Symbol">=</a> <a id="13996" href="Definition.Typed.Properties.html#10858" class="Function">Definition.Typed.Properties.whrDet*</a>
-
-<a id="14033" class="Comment">-- Some properties that are proved via a reducibility logical relation:</a>
-
-<a id="14106" class="Comment">-- Admissibility of substitution.</a>
-<a id="substitutionAdmissible"></a><a id="14140" href="README.html#14140" class="Function">substitutionAdmissible</a> <a id="14163" class="Symbol">=</a>
-  <a id="14167" href="Definition.Typed.Consequences.Substitution.html#1178" class="Function">Definition.Typed.Consequences.Substitution.substitution</a>
-<a id="substitutionAdmissibleEq"></a><a id="14223" href="README.html#14223" class="Function">substitutionAdmissibleEq</a> <a id="14248" class="Symbol">=</a>
-  <a id="14252" href="Definition.Typed.Consequences.Substitution.html#1479" class="Function">Definition.Typed.Consequences.Substitution.substitutionEq</a>
-<a id="substitutionAdmissibleTerm"></a><a id="14310" href="README.html#14310" class="Function">substitutionAdmissibleTerm</a> <a id="14337" class="Symbol">=</a>
-  <a id="14341" href="Definition.Typed.Consequences.Substitution.html#2231" class="Function">Definition.Typed.Consequences.Substitution.substitutionTerm</a>
-<a id="substitutionAdmissibleEqTerm"></a><a id="14401" href="README.html#14401" class="Function">substitutionAdmissibleEqTerm</a> <a id="14430" class="Symbol">=</a>
-  <a id="14434" href="Definition.Typed.Consequences.Substitution.html#2635" class="Function">Definition.Typed.Consequences.Substitution.substitutionEqTerm</a>
+<a id="Subst"></a><a id="11626" href="README.html#11626" class="Function">Subst</a> <a id="11632" class="Symbol">=</a> <a id="11634" href="Definition.Untyped.html#12627" class="Function">Definition.Untyped.Subst</a>
 
-<a id="14497" class="Comment">-- Subject reduction.</a>
-<a id="subjectReduction"></a><a id="14519" href="README.html#14519" class="Function">subjectReduction</a> <a id="14536" class="Symbol">=</a>
-  <a id="14540" href="Definition.Typed.Consequences.Syntactic.html#1617" class="Function">Definition.Typed.Consequences.Syntactic.syntacticRed</a>
-<a id="subjectReductionTerm"></a><a id="14593" href="README.html#14593" class="Function">subjectReductionTerm</a> <a id="14614" class="Symbol">=</a>
-  <a id="14618" href="Definition.Typed.Consequences.Syntactic.html#1753" class="Function">Definition.Typed.Consequences.Syntactic.syntacticRedTerm</a>
+<a id="11660" class="Comment">-- Application of a substitution to a term.</a>
 
-<a id="14676" class="Comment">-- Normalization.</a>
-<a id="normalization"></a><a id="14694" href="README.html#14694" class="Function">normalization</a>     <a id="14712" class="Symbol">=</a> <a id="14714" href="Definition.Typed.Consequences.Reduction.html#1604" class="Function">Definition.Typed.Consequences.Reduction.whNorm</a>
-<a id="normalizationTerm"></a><a id="14761" href="README.html#14761" class="Function">normalizationTerm</a> <a id="14779" class="Symbol">=</a> <a id="14781" href="Definition.Typed.Consequences.Reduction.html#5658" class="Function">Definition.Typed.Consequences.Reduction.whNormTerm</a>
+<a id="_[_]"></a><a id="11705" href="README.html#11705" class="Function Operator">_[_]</a> <a id="11710" class="Symbol">=</a> <a id="11712" href="Definition.Untyped.html#14660" class="Function Operator">Definition.Untyped._[_]</a>
 
-<a id="14833" class="Comment">-- Decidability of equality.</a>
-<a id="decEq"></a><a id="14862" href="README.html#14862" class="Function">decEq</a>     <a id="14872" class="Symbol">=</a> <a id="14874" href="Definition.Typed.Decidable.Equality.html#825" class="Function">Definition.Typed.Decidable.Equality.decEq</a>
-<a id="decEqTerm"></a><a id="14916" href="README.html#14916" class="Function">decEqTerm</a> <a id="14926" class="Symbol">=</a> <a id="14928" href="Definition.Typed.Decidable.Equality.html#1074" class="Function">Definition.Typed.Decidable.Equality.decEqTerm</a>
+<a id="11737" class="Comment">-- Some other substitution operations from the paper.</a>
 
-<a id="14975" class="Comment">-- Decidability of type-checking for some terms and types.</a>
-<a id="decTypeCheck"></a><a id="15034" href="README.html#15034" class="Function">decTypeCheck</a>      <a id="15052" class="Symbol">=</a> <a id="15054" href="Definition.Typed.Decidable.html#3056" class="Function">Definition.Typed.Decidable.decConTermTypeᶜ</a>
-<a id="decTypeCheck′"></a><a id="15097" href="README.html#15097" class="Function">decTypeCheck′</a>     <a id="15115" class="Symbol">=</a> <a id="15117" href="Definition.Typed.Decidable.html#1639" class="Function">Definition.Typed.Decidable.decTermᶜ</a>
-<a id="decTypeCheckType"></a><a id="15153" href="README.html#15153" class="Function">decTypeCheckType</a>  <a id="15171" class="Symbol">=</a> <a id="15173" href="Definition.Typed.Decidable.html#2774" class="Function">Definition.Typed.Decidable.decConTypeᶜ</a>
-<a id="decTypeCheckType′"></a><a id="15212" href="README.html#15212" class="Function">decTypeCheckType′</a> <a id="15230" class="Symbol">=</a> <a id="15232" href="Definition.Typed.Decidable.html#1413" class="Function">Definition.Typed.Decidable.dec</a>
+<a id="identity"></a><a id="11792" href="README.html#11792" class="Function">identity</a>  <a id="11802" class="Symbol">=</a> <a id="11804" href="Definition.Untyped.html#13694" class="Function">Definition.Untyped.idSubst</a>
+<a id="shifting"></a><a id="11831" href="README.html#11831" class="Function">shifting</a>  <a id="11841" class="Symbol">=</a> <a id="11843" href="Definition.Untyped.html#13809" class="Function">Definition.Untyped.wk1Subst</a>
+<a id="lifting"></a><a id="11871" href="README.html#11871" class="Function">lifting</a>   <a id="11881" class="Symbol">=</a> <a id="11883" href="Definition.Untyped.html#13947" class="Function">Definition.Untyped.liftSubst</a>
+<a id="extension"></a><a id="11912" href="README.html#11912" class="Function">extension</a> <a id="11922" class="Symbol">=</a> <a id="11924" href="Definition.Untyped.html#14944" class="Function">Definition.Untyped.consSubst</a>
+<a id="head"></a><a id="11953" href="README.html#11953" class="Function">head</a>      <a id="11963" class="Symbol">=</a> <a id="11965" href="Definition.Untyped.html#13210" class="Function">Definition.Untyped.head</a>
+<a id="tail"></a><a id="11989" href="README.html#11989" class="Function">tail</a>      <a id="11999" class="Symbol">=</a> <a id="12001" href="Definition.Untyped.html#13393" class="Function">Definition.Untyped.tail</a>
+
+<a id="12026" class="Comment">-- The typing relations.</a>
+<a id="12051" class="Comment">--</a>
+<a id="12054" class="Comment">-- These relations are parametrised by a value of type</a>
+<a id="12109" class="Comment">-- Type-restrictions, which can be used to restrict certain types, as</a>
+<a id="12179" class="Comment">-- discussed above.</a>
+<a id="12199" class="Comment">--</a>
+<a id="12202" class="Comment">-- Note also that some rules for Π and Σ have been merged.</a>
+<a id="12261" class="Comment">--</a>
+<a id="12264" class="Comment">-- In some rules fording (equality hypotheses) is used to equate</a>
+<a id="12329" class="Comment">-- grades. In the paper such equated grades are simply shown as a</a>
+<a id="12395" class="Comment">-- single grade.</a>
+
+<a id="⊢_"></a><a id="12413" href="README.html#12413" class="Function Operator">⊢_</a>                  <a id="12433" class="Symbol">=</a> <a id="12435" href="Definition.Typed.html#964" class="Datatype Operator">Definition.Typed.⊢_</a>
+<a id="_⊢_"></a><a id="12455" href="README.html#12455" class="Function Operator">_⊢_</a>                 <a id="12475" class="Symbol">=</a> <a id="12477" href="Definition.Typed.html#1086" class="Datatype Operator">Definition.Typed._⊢_</a>
+<a id="_⊢_∷_"></a><a id="12498" href="README.html#12498" class="Function Operator">_⊢_∷_</a>               <a id="12518" class="Symbol">=</a> <a id="12520" href="Definition.Typed.html#1453" class="Datatype Operator">Definition.Typed._⊢_∷_</a>
+<a id="_⊢_≡_"></a><a id="12543" href="README.html#12543" class="Function Operator">_⊢_≡_</a>               <a id="12563" class="Symbol">=</a> <a id="12565" href="Definition.Typed.html#3423" class="Datatype Operator">Definition.Typed._⊢_≡_</a>
+<a id="_⊢_≡_∷_"></a><a id="12588" href="README.html#12588" class="Function Operator">_⊢_≡_∷_</a>             <a id="12608" class="Symbol">=</a> <a id="12610" href="Definition.Typed.html#3898" class="Datatype Operator">Definition.Typed._⊢_≡_∷_</a>
+<a id="_∷_∈_"></a><a id="12635" href="README.html#12635" class="Function Operator">_∷_∈_</a>               <a id="12655" class="Symbol">=</a> <a id="12657" href="Definition.Typed.html#769" class="Datatype Operator">Definition.Typed._∷_∈_</a>
+
+<a id="12681" class="Comment">-- Typing contexts.</a>
+
+<a id="Con"></a><a id="12702" href="README.html#12702" class="Function">Con</a> <a id="12706" class="Symbol">=</a> <a id="12708" href="Definition.Untyped.NotParametrised.html#791" class="Datatype">Definition.Untyped.Con</a>
+
+<a id="12732" class="Comment">-- A weakening lemma</a>
+
+<a id="wkEq"></a><a id="12754" href="README.html#12754" class="Function">wkEq</a> <a id="12759" class="Symbol">=</a> <a id="12761" href="Definition.Typed.Weakening.html#5348" class="Function">Definition.Typed.Weakening.wkEq</a>
+
+<a id="12794" class="Comment">-- A derived congruence rule for Π and Σ-types with fewer assumptions</a>
+
+<a id="ΠΣ-cong′"></a><a id="12865" href="README.html#12865" class="Function">ΠΣ-cong′</a> <a id="12874" class="Symbol">=</a> <a id="12876" href="Definition.Typed.Consequences.DerivedRules.html#6364" class="Function">Definition.Typed.Consequences.DerivedRules.ΠΣ-cong′</a>
+
+<a id="12929" class="Comment">-- One can define something like prodrec for the Σ-types with</a>
+<a id="12991" class="Comment">-- η-equality.</a>
+
+<a id="prodrec-for-Σₚ"></a><a id="13007" href="README.html#13007" class="Function">prodrec-for-Σₚ</a>              <a id="13035" class="Symbol">=</a> <a id="13037" href="Definition.Untyped.Sigma.html#737" class="Function">Definition.Untyped.Sigma.prodrecₚ</a>
+<a id="prodrec-for-Σₚ-type-correct"></a><a id="13071" href="README.html#13071" class="Function">prodrec-for-Σₚ-type-correct</a> <a id="13099" class="Symbol">=</a>
+  <a id="13103" href="Definition.Typed.Consequences.DerivedRules.Sigma.html#6508" class="Function">Definition.Typed.Consequences.DerivedRules.Sigma.prodrecₚⱼ</a>
+
+<a id="13163" class="Comment">-- However, our definition does not in general satisfy the usage rule</a>
+<a id="13233" class="Comment">-- for prodrec.</a>
+
+<a id="prodrec-for-Σₚ-usage"></a><a id="13250" href="README.html#13250" class="Function">prodrec-for-Σₚ-usage</a> <a id="13271" class="Symbol">=</a> <a id="13273" href="Graded.Derived.Sigma.html#10900" class="Function">Graded.Derived.Sigma.¬prodrecₘ</a>
 
-<a id="15264" class="Comment">------------------------------------------------------------------------</a>
-<a id="15337" class="Comment">-- 5: Assigning grades</a>
+<a id="13305" class="Comment">-- One can also define projections for weak Σ-types by using prodrec.</a>
 
-<a id="15361" class="Comment">-- Definition 5.1: The usage relation.</a>
-<a id="15400" class="Comment">--</a>
-<a id="15403" class="Comment">-- The usage relation is indexed by a mode, and one can choose to have</a>
-<a id="15474" class="Comment">-- only one mode (𝟙ᵐ). In this case the mode 𝟘ᵐ? is equal to 𝟙ᵐ,</a>
-<a id="15539" class="Comment">-- m ᵐ· p is equal to 𝟙ᵐ, and ⌜ m ⌝ is equal to the one of the</a>
-<a id="15602" class="Comment">-- modality.</a>
-<a id="15615" class="Comment">--</a>
-<a id="15618" class="Comment">-- The usage rule for prodrec in the paper contains the side condition</a>
-<a id="15689" class="Comment">-- &quot;Prodrec r&quot;. This condition has been replaced by</a>
-<a id="15741" class="Comment">-- &quot;Prodrec-allowed r p q&quot;.</a>
-<a id="15769" class="Comment">--</a>
-<a id="15772" class="Comment">-- There are two alternative usage rules for natrec. One is the one</a>
-<a id="15840" class="Comment">-- from Section 5. This one is used if there is a dedicated</a>
-<a id="15900" class="Comment">-- natrec-star operator. If there is no such operator, then the rule</a>
-<a id="15969" class="Comment">-- from Section 7.1.4 is used.</a>
+<a id="fst-for-Σᵣ"></a><a id="13376" href="README.html#13376" class="Function">fst-for-Σᵣ</a> <a id="13387" class="Symbol">=</a> <a id="13389" href="Definition.Untyped.Sigma.html#966" class="Function">Definition.Untyped.Sigma.Fstᵣ-sndᵣ.fstᵣ</a>
+<a id="snd-for-Σᵣ"></a><a id="13429" href="README.html#13429" class="Function">snd-for-Σᵣ</a> <a id="13440" class="Symbol">=</a> <a id="13442" href="Definition.Untyped.Sigma.html#1084" class="Function">Definition.Untyped.Sigma.Fstᵣ-sndᵣ.sndᵣ</a>
 
-<a id="_▹_"></a><a id="16001" href="README.html#16001" class="Function Operator">_▹_</a> <a id="16005" class="Symbol">=</a> <a id="16007" href="Graded.Usage.html#2169" class="Datatype Operator">Graded.Usage._▸[_]_</a>
+<a id="13483" class="Comment">-- However, η-equality does not hold in general for our definitions.</a>
 
-<a id="16028" class="Comment">-- A decision procedure for usage.</a>
-<a id="16063" class="Comment">--</a>
-<a id="16066" class="Comment">-- The decision procedure for usage takes an argument of type</a>
-<a id="16128" class="Comment">-- Dedicated-star: this procedure is not available if the alternative</a>
-<a id="16198" class="Comment">-- usage rule for natrec from Section 7.1.4 is used.</a>
+<a id="no-η-equality-Σᵣ"></a><a id="13553" href="README.html#13553" class="Function">no-η-equality-Σᵣ</a> <a id="13570" class="Symbol">=</a>
+  <a id="13574" href="Definition.Typed.Consequences.DerivedRules.Sigma.html#32240" class="Function">Definition.Typed.Consequences.DerivedRules.Sigma.Fstᵣ-sndᵣ.¬-Σᵣ-η-prodᵣ-fstᵣ-sndᵣ</a>
 
-<a id="decision-procedure-for-usage"></a><a id="16252" href="README.html#16252" class="Function">decision-procedure-for-usage</a> <a id="16281" class="Symbol">=</a> <a id="16283" href="Graded.Usage.Decidable.html#13083" class="Function Operator">Graded.Usage.Decidable.▸[_]?_</a>
+<a id="13657" class="Comment">-- Reduction relations</a>
 
-<a id="16314" class="Comment">-- Definition 5.2.</a>
-<a id="16333" class="Comment">--</a>
-<a id="16336" class="Comment">-- This predicate has been generalised to account for modes.</a>
+<a id="_⊢_⇒_"></a><a id="13681" href="README.html#13681" class="Function Operator">_⊢_⇒_</a>    <a id="13690" class="Symbol">=</a> <a id="13692" href="Definition.Typed.html#12308" class="Datatype Operator">Definition.Typed._⊢_⇒_</a>
+<a id="_⊢_⇒_∷_"></a><a id="13715" href="README.html#13715" class="Function Operator">_⊢_⇒_∷_</a>  <a id="13724" class="Symbol">=</a> <a id="13726" href="Definition.Typed.html#8919" class="Datatype Operator">Definition.Typed._⊢_⇒_∷_</a>
+<a id="_⊢_⇒*_"></a><a id="13751" href="README.html#13751" class="Function Operator">_⊢_⇒*_</a>   <a id="13760" class="Symbol">=</a> <a id="13762" href="Definition.Typed.html#12652" class="Datatype Operator">Definition.Typed._⊢_⇒*_</a>
+<a id="_⊢_⇒*_∷_"></a><a id="13786" href="README.html#13786" class="Function Operator">_⊢_⇒*_∷_</a> <a id="13795" class="Symbol">=</a> <a id="13797" href="Definition.Typed.html#12437" class="Datatype Operator">Definition.Typed._⊢_⇒*_∷_</a>
 
-<a id="_▶_"></a><a id="16398" href="README.html#16398" class="Function Operator">_▶_</a> <a id="16402" class="Symbol">=</a> <a id="16404" href="Graded.Substitution.html#1903" class="Function Operator">Graded.Substitution._▶[_]_</a>
+<a id="13824" class="Comment">-- Theorem 4.3</a>
 
-<a id="16432" class="Comment">-- Theorem 5.3: A substitution lemma for usage.</a>
+<a id="Theorem-4-3a"></a><a id="13840" href="README.html#13840" class="Function">Theorem-4-3a</a> <a id="13853" class="Symbol">=</a> <a id="13855" href="Definition.Typed.Properties.html#7478" class="Function">Definition.Typed.Properties.whnfRed*Term</a>
+<a id="Theorem-4-3b"></a><a id="13896" href="README.html#13896" class="Function">Theorem-4-3b</a> <a id="13909" class="Symbol">=</a> <a id="13911" href="Definition.Typed.Properties.html#7684" class="Function">Definition.Typed.Properties.whnfRed*</a>
 
-<a id="Theorem-5-3"></a><a id="16481" href="README.html#16481" class="Function">Theorem-5-3</a> <a id="16493" class="Symbol">=</a> <a id="16495" href="Graded.Substitution.Properties.html#29047" class="Function">Graded.Substitution.Properties.substₘ-lemma₁</a>
+<a id="13949" class="Comment">-- Theorem 4.4</a>
 
-<a id="16541" class="Comment">-- The previous theorem is restricted to a setting with only one mode.</a>
-<a id="16612" class="Comment">-- There is also a more general substitution lemma.</a>
+<a id="Theorem-4-4a"></a><a id="13965" href="README.html#13965" class="Function">Theorem-4-4a</a> <a id="13978" class="Symbol">=</a> <a id="13980" href="Definition.Typed.Properties.html#10386" class="Function">Definition.Typed.Properties.whrDet*Term</a>
+<a id="Theorem-4-4b"></a><a id="14020" href="README.html#14020" class="Function">Theorem-4-4b</a> <a id="14033" class="Symbol">=</a> <a id="14035" href="Definition.Typed.Properties.html#10858" class="Function">Definition.Typed.Properties.whrDet*</a>
 
-<a id="main-substitution-lemma"></a><a id="16665" href="README.html#16665" class="Function">main-substitution-lemma</a> <a id="16689" class="Symbol">=</a> <a id="16691" href="Graded.Substitution.Properties.html#38034" class="Function">Graded.Substitution.Properties.substₘ-lemma</a>
+<a id="14072" class="Comment">-- Some properties that are proved via a reducibility logical relation:</a>
 
-<a id="16736" class="Comment">-- Theorem 5.4: Subject reduction for the usage relation.</a>
+<a id="14145" class="Comment">-- Admissibility of substitution.</a>
+<a id="substitutionAdmissible"></a><a id="14179" href="README.html#14179" class="Function">substitutionAdmissible</a> <a id="14202" class="Symbol">=</a>
+  <a id="14206" href="Definition.Typed.Consequences.Substitution.html#1178" class="Function">Definition.Typed.Consequences.Substitution.substitution</a>
+<a id="substitutionAdmissibleEq"></a><a id="14262" href="README.html#14262" class="Function">substitutionAdmissibleEq</a> <a id="14287" class="Symbol">=</a>
+  <a id="14291" href="Definition.Typed.Consequences.Substitution.html#1479" class="Function">Definition.Typed.Consequences.Substitution.substitutionEq</a>
+<a id="substitutionAdmissibleTerm"></a><a id="14349" href="README.html#14349" class="Function">substitutionAdmissibleTerm</a> <a id="14376" class="Symbol">=</a>
+  <a id="14380" href="Definition.Typed.Consequences.Substitution.html#2231" class="Function">Definition.Typed.Consequences.Substitution.substitutionTerm</a>
+<a id="substitutionAdmissibleEqTerm"></a><a id="14440" href="README.html#14440" class="Function">substitutionAdmissibleEqTerm</a> <a id="14469" class="Symbol">=</a>
+  <a id="14473" href="Definition.Typed.Consequences.Substitution.html#2635" class="Function">Definition.Typed.Consequences.Substitution.substitutionEqTerm</a>
 
-<a id="Theorem-5-4"></a><a id="16795" href="README.html#16795" class="Function">Theorem-5-4</a> <a id="16807" class="Symbol">=</a> <a id="16809" href="Graded.Reduction.html#1707" class="Function">Graded.Reduction.usagePresTerm</a>
+<a id="14536" class="Comment">-- Subject reduction.</a>
+<a id="subjectReduction"></a><a id="14558" href="README.html#14558" class="Function">subjectReduction</a> <a id="14575" class="Symbol">=</a>
+  <a id="14579" href="Definition.Typed.Consequences.Syntactic.html#1617" class="Function">Definition.Typed.Consequences.Syntactic.syntacticRed</a>
+<a id="subjectReductionTerm"></a><a id="14632" href="README.html#14632" class="Function">subjectReductionTerm</a> <a id="14653" class="Symbol">=</a>
+  <a id="14657" href="Definition.Typed.Consequences.Syntactic.html#1753" class="Function">Definition.Typed.Consequences.Syntactic.syntacticRedTerm</a>
 
-<a id="16841" class="Comment">------------------------------------------------------------------------</a>
-<a id="16914" class="Comment">-- 6: Erasure case study</a>
+<a id="14715" class="Comment">-- Normalization.</a>
+<a id="normalization"></a><a id="14733" href="README.html#14733" class="Function">normalization</a>     <a id="14751" class="Symbol">=</a> <a id="14753" href="Definition.Typed.Consequences.Reduction.html#1604" class="Function">Definition.Typed.Consequences.Reduction.whNorm</a>
+<a id="normalizationTerm"></a><a id="14800" href="README.html#14800" class="Function">normalizationTerm</a> <a id="14818" class="Symbol">=</a> <a id="14820" href="Definition.Typed.Consequences.Reduction.html#5658" class="Function">Definition.Typed.Consequences.Reduction.whNormTerm</a>
 
-<a id="16940" class="Comment">-- Definition 6.1: Well-behaved zeros.</a>
-<a id="16979" class="Comment">--</a>
-<a id="16982" class="Comment">-- This definition includes one requirement that is not part of the</a>
-<a id="17050" class="Comment">-- definition in the paper: equality with zero must be decidable.</a>
-<a id="17116" class="Comment">-- However, the paper&#39;s definition of a modality semiring includes the</a>
-<a id="17187" class="Comment">-- requirement that equality is decidable for all elements.</a>
+<a id="14872" class="Comment">-- Decidability of equality.</a>
+<a id="decEq"></a><a id="14901" href="README.html#14901" class="Function">decEq</a>     <a id="14911" class="Symbol">=</a> <a id="14913" href="Definition.Typed.Decidable.Equality.html#825" class="Function">Definition.Typed.Decidable.Equality.decEq</a>
+<a id="decEqTerm"></a><a id="14955" href="README.html#14955" class="Function">decEqTerm</a> <a id="14965" class="Symbol">=</a> <a id="14967" href="Definition.Typed.Decidable.Equality.html#1074" class="Function">Definition.Typed.Decidable.Equality.decEqTerm</a>
 
-<a id="Has-well-behaved-zero"></a><a id="17248" href="README.html#17248" class="Function">Has-well-behaved-zero</a> <a id="17270" class="Symbol">=</a> <a id="17272" href="Graded.Modality.html#2867" class="Record">Graded.Modality.Has-well-behaved-zero</a>
+<a id="15014" class="Comment">-- Decidability of type-checking for some terms and types.</a>
+<a id="decTypeCheck"></a><a id="15073" href="README.html#15073" class="Function">decTypeCheck</a>      <a id="15091" class="Symbol">=</a> <a id="15093" href="Definition.Typed.Decidable.html#3056" class="Function">Definition.Typed.Decidable.decConTermTypeᶜ</a>
+<a id="decTypeCheck′"></a><a id="15136" href="README.html#15136" class="Function">decTypeCheck′</a>     <a id="15154" class="Symbol">=</a> <a id="15156" href="Definition.Typed.Decidable.html#1639" class="Function">Definition.Typed.Decidable.decTermᶜ</a>
+<a id="decTypeCheckType"></a><a id="15192" href="README.html#15192" class="Function">decTypeCheckType</a>  <a id="15210" class="Symbol">=</a> <a id="15212" href="Definition.Typed.Decidable.html#2774" class="Function">Definition.Typed.Decidable.decConTypeᶜ</a>
+<a id="decTypeCheckType′"></a><a id="15251" href="README.html#15251" class="Function">decTypeCheckType′</a> <a id="15269" class="Symbol">=</a> <a id="15271" href="Definition.Typed.Decidable.html#1413" class="Function">Definition.Typed.Decidable.dec</a>
 
-<a id="17311" class="Comment">-- Four modality instances from the paper have well-behaved zeros.</a>
+<a id="15303" class="Comment">------------------------------------------------------------------------</a>
+<a id="15376" class="Comment">-- 5: Assigning Grades</a>
 
-<a id="erasure-has-well-behaved-zero"></a><a id="17379" href="README.html#17379" class="Function">erasure-has-well-behaved-zero</a> <a id="17409" class="Symbol">=</a>
-  <a id="17413" href="Graded.Modality.Instances.Erasure.Modality.html#884" class="Function">Graded.Modality.Instances.Erasure.Modality.erasure-has-well-behaved-zero</a>
-<a id="linearity-has-well-behaved-zero"></a><a id="17486" href="README.html#17486" class="Function">linearity-has-well-behaved-zero</a> <a id="17518" class="Symbol">=</a>
-  <a id="17522" href="Graded.Modality.Instances.Linearity.html#1259" class="Function">Graded.Modality.Instances.Linearity.linearity-has-well-behaved-zero</a>
-<a id="affine-has-well-behaved-zero"></a><a id="17590" href="README.html#17590" class="Function">affine-has-well-behaved-zero</a> <a id="17619" class="Symbol">=</a>
-  <a id="17623" href="Graded.Modality.Instances.Affine.html#1067" class="Function">Graded.Modality.Instances.Affine.affine-has-well-behaved-zero</a>
-<a id="linear-or-affine-has-well-behaved-zero"></a><a id="17685" href="README.html#17685" class="Function">linear-or-affine-has-well-behaved-zero</a> <a id="17724" class="Symbol">=</a>
-  <a id="17728" href="Graded.Modality.Instances.Linear-or-affine.html#13776" class="Function">Graded.Modality.Instances.Linear-or-affine.linear-or-affine-has-well-behaved-zero</a>
+<a id="15400" class="Comment">-- Definition 5.1: The usage relation.</a>
+<a id="15439" class="Comment">--</a>
+<a id="15442" class="Comment">-- The usage relation is indexed by a mode, and one can choose to have</a>
+<a id="15513" class="Comment">-- only one mode (𝟙ᵐ). In this case the mode 𝟘ᵐ? is equal to 𝟙ᵐ,</a>
+<a id="15578" class="Comment">-- m ᵐ· p is equal to 𝟙ᵐ, and ⌜ m ⌝ is equal to the one of the</a>
+<a id="15641" class="Comment">-- modality.</a>
+<a id="15654" class="Comment">--</a>
+<a id="15657" class="Comment">-- The usage rule for prodrec in the paper contains the side condition</a>
+<a id="15728" class="Comment">-- &quot;Prodrec r&quot;. This condition has been replaced by</a>
+<a id="15780" class="Comment">-- &quot;Prodrec-allowed r p q&quot;.</a>
+<a id="15808" class="Comment">--</a>
+<a id="15811" class="Comment">-- There are two alternative usage rules for natrec. One is the one</a>
+<a id="15879" class="Comment">-- from Section 5. This one is used if there is a dedicated</a>
+<a id="15939" class="Comment">-- natrec-star operator. If there is no such operator, then the rule</a>
+<a id="16008" class="Comment">-- from Section 7.1.4 is used.</a>
 
-<a id="17811" class="Comment">-- Theorem 6.2.</a>
+<a id="_▹_"></a><a id="16040" href="README.html#16040" class="Function Operator">_▹_</a> <a id="16044" class="Symbol">=</a> <a id="16046" href="Graded.Usage.html#2169" class="Datatype Operator">Graded.Usage._▸[_]_</a>
 
-<a id="Theorem-6-2"></a><a id="17828" href="README.html#17828" class="Function">Theorem-6-2</a> <a id="17840" class="Symbol">=</a> <a id="17842" href="Graded.Usage.Properties.Has-well-behaved-zero.html#1152" class="Function">Graded.Usage.Properties.Has-well-behaved-zero.valid-var-usage</a>
+<a id="16067" class="Comment">-- A safe head function for lists</a>
 
-<a id="17905" class="Comment">-- Example: The polymorphic identity function</a>
+<a id="safe-head"></a><a id="16102" href="README.html#16102" class="Function">safe-head</a> <a id="16112" class="Symbol">=</a> <a id="16114" href="Graded.Erasure.Examples.html#15584" class="Function">Graded.Erasure.Examples.head</a>
 
-<a id="id"></a><a id="17952" href="README.html#17952" class="Function">id</a> <a id="17955" class="Symbol">=</a> <a id="17957" href="Graded.Erasure.Examples.html#3747" class="Function">Graded.Erasure.Examples.id</a>
+<a id="16144" class="Comment">-- A decision procedure for usage.</a>
+<a id="16179" class="Comment">--</a>
+<a id="16182" class="Comment">-- The decision procedure for usage takes an argument of type</a>
+<a id="16244" class="Comment">-- Dedicated-star: this procedure is not available if the alternative</a>
+<a id="16314" class="Comment">-- usage rule for natrec from Section 7.1.4 is used.</a>
 
-<a id="17985" class="Comment">-- The identity function is well-typed</a>
+<a id="decision-procedure-for-usage"></a><a id="16368" href="README.html#16368" class="Function">decision-procedure-for-usage</a> <a id="16397" class="Symbol">=</a> <a id="16399" href="Graded.Usage.Decidable.html#13083" class="Function Operator">Graded.Usage.Decidable.▸[_]?_</a>
 
-<a id="⊢id"></a><a id="18025" href="README.html#18025" class="Function">⊢id</a> <a id="18029" class="Symbol">=</a> <a id="18031" href="Graded.Erasure.Examples.html#3871" class="Function">Graded.Erasure.Examples.⊢id</a>
+<a id="16430" class="Comment">-- Substitution matrices</a>
 
-<a id="18060" class="Comment">-- The identity function is well-resourced</a>
+<a id="subst-matrix"></a><a id="16456" href="README.html#16456" class="Function">subst-matrix</a> <a id="16469" class="Symbol">=</a> <a id="16471" href="Graded.Substitution.html#914" class="Datatype">Graded.Substitution.Substₘ</a>
 
-<a id="▸id"></a><a id="18104" href="README.html#18104" class="Function">▸id</a> <a id="18108" class="Symbol">=</a> <a id="18110" href="Graded.Erasure.Examples.html#4074" class="Function">Graded.Erasure.Examples.▸id</a>
+<a id="16499" class="Comment">-- grade context - substitution matrix multiplication</a>
 
-<a id="18139" class="Comment">-- The identity function applied to two free variables</a>
+<a id="_&lt;*_"></a><a id="16554" href="README.html#16554" class="Function Operator">_&lt;*_</a> <a id="16559" class="Symbol">=</a> <a id="16561" href="Graded.Substitution.html#1366" class="Function Operator">Graded.Substitution._&lt;*_</a>
 
-<a id="id-x1-x0"></a><a id="18195" href="README.html#18195" class="Function">id-x1-x0</a> <a id="18204" class="Symbol">=</a> <a id="18206" href="Graded.Erasure.Examples.html#4189" class="Function">Graded.Erasure.Examples.id-x1-x0</a>
+<a id="16587" class="Comment">-- Definition 5.2.</a>
+<a id="16606" class="Comment">--</a>
+<a id="16609" class="Comment">-- This predicate has been generalised to account for modes.</a>
 
-<a id="18240" class="Comment">-- The term id-x1-x0 is well-typed</a>
+<a id="_▶_"></a><a id="16671" href="README.html#16671" class="Function Operator">_▶_</a> <a id="16675" class="Symbol">=</a> <a id="16677" href="Graded.Substitution.html#1903" class="Function Operator">Graded.Substitution._▶[_]_</a>
 
-<a id="⊢id-x1-x0"></a><a id="18276" href="README.html#18276" class="Function">⊢id-x1-x0</a> <a id="18286" class="Symbol">=</a> <a id="18288" href="Graded.Erasure.Examples.html#4309" class="Function">Graded.Erasure.Examples.⊢id-x1-x0</a>
+<a id="16705" class="Comment">-- Theorem 5.3: A substitution lemma for usage.</a>
 
-<a id="18323" class="Comment">-- The term id-x1-x0 is well-resourced</a>
+<a id="Theorem-5-3"></a><a id="16754" href="README.html#16754" class="Function">Theorem-5-3</a> <a id="16766" class="Symbol">=</a> <a id="16768" href="Graded.Substitution.Properties.html#29047" class="Function">Graded.Substitution.Properties.substₘ-lemma₁</a>
 
-<a id="▸id-x1-x0"></a><a id="18363" href="README.html#18363" class="Function">▸id-x1-x0</a> <a id="18373" class="Symbol">=</a> <a id="18375" href="Graded.Erasure.Examples.html#4556" class="Function">Graded.Erasure.Examples.▸id-x1-x0</a>
+<a id="16814" class="Comment">-- The previous theorem is restricted to a setting with only one mode.</a>
+<a id="16885" class="Comment">-- There is also a more general substitution lemma.</a>
 
-<a id="18410" class="Comment">-- The grammar of the untyped target language</a>
-<a id="18456" class="Comment">--</a>
-<a id="18459" class="Comment">-- The syntax is well-scoped.</a>
+<a id="main-substitution-lemma"></a><a id="16938" href="README.html#16938" class="Function">main-substitution-lemma</a> <a id="16962" class="Symbol">=</a> <a id="16964" href="Graded.Substitution.Properties.html#38034" class="Function">Graded.Substitution.Properties.substₘ-lemma</a>
 
-<a id="target"></a><a id="18490" href="README.html#18490" class="Function">target</a> <a id="18497" class="Symbol">=</a> <a id="18499" href="Graded.Erasure.Target.html#547" class="Datatype">Graded.Erasure.Target.Term</a>
+<a id="17009" class="Comment">-- Theorem 5.4: Subject reduction for the usage relation.</a>
 
-<a id="18527" class="Comment">-- The reduction relation of the target language.</a>
+<a id="Theorem-5-4"></a><a id="17068" href="README.html#17068" class="Function">Theorem-5-4</a> <a id="17080" class="Symbol">=</a> <a id="17082" href="Graded.Reduction.html#1707" class="Function">Graded.Reduction.usagePresTerm</a>
 
-<a id="_⇒_"></a><a id="18578" href="README.html#18578" class="Function Operator">_⇒_</a>  <a id="18583" class="Symbol">=</a> <a id="18585" href="Graded.Erasure.Target.html#5345" class="Datatype Operator">Graded.Erasure.Target._⇒_</a>
-<a id="_⇒*_"></a><a id="18611" href="README.html#18611" class="Function Operator">_⇒*_</a> <a id="18616" class="Symbol">=</a> <a id="18618" href="Graded.Erasure.Target.html#5967" class="Datatype Operator">Graded.Erasure.Target._⇒*_</a>
+<a id="17114" class="Comment">------------------------------------------------------------------------</a>
+<a id="17187" class="Comment">-- 6: Erasure Case Study</a>
 
-<a id="18646" class="Comment">-- Definition 6.3: The extraction function.</a>
-<a id="18690" class="Comment">--</a>
-<a id="18693" class="Comment">-- For Σ-types the definition is different from the paper to account</a>
-<a id="18762" class="Comment">-- for the possibility to erase the first component added in</a>
-<a id="18823" class="Comment">-- Section 8. For the case treated in this section, we will always</a>
-<a id="18890" class="Comment">-- have p ≡ 𝟙 for Σ-types.</a>
+<a id="17213" class="Comment">-- Definition 6.1: Well-behaved zeros.</a>
+<a id="17252" class="Comment">--</a>
+<a id="17255" class="Comment">-- This definition includes one requirement that is not part of the</a>
+<a id="17323" class="Comment">-- definition in the paper: equality with zero must be decidable.</a>
+<a id="17389" class="Comment">-- However, the paper&#39;s definition of a modality semiring includes the</a>
+<a id="17460" class="Comment">-- requirement that equality is decidable for all elements.</a>
 
-<a id="_•"></a><a id="18918" href="README.html#18918" class="Function Operator">_•</a> <a id="18921" class="Symbol">=</a> <a id="18923" href="Graded.Erasure.Extraction.html#994" class="Function">Graded.Erasure.Extraction.erase</a>
+<a id="Has-well-behaved-zero"></a><a id="17521" href="README.html#17521" class="Function">Has-well-behaved-zero</a> <a id="17543" class="Symbol">=</a> <a id="17545" href="Graded.Modality.html#2867" class="Record">Graded.Modality.Has-well-behaved-zero</a>
 
-<a id="18956" class="Comment">-- Example: The identity function applied to ℕ and zero</a>
+<a id="17584" class="Comment">-- Four modality instances from the paper have well-behaved zeros.</a>
 
-<a id="id-ℕ-zero"></a><a id="19013" href="README.html#19013" class="Function">id-ℕ-zero</a> <a id="19023" class="Symbol">=</a> <a id="19025" href="Graded.Erasure.Examples.html#4795" class="Function">Graded.Erasure.Examples.id-ℕ-zero</a>
+<a id="erasure-has-well-behaved-zero"></a><a id="17652" href="README.html#17652" class="Function">erasure-has-well-behaved-zero</a> <a id="17682" class="Symbol">=</a>
+  <a id="17686" href="Graded.Modality.Instances.Erasure.Modality.html#884" class="Function">Graded.Modality.Instances.Erasure.Modality.erasure-has-well-behaved-zero</a>
+<a id="linearity-has-well-behaved-zero"></a><a id="17759" href="README.html#17759" class="Function">linearity-has-well-behaved-zero</a> <a id="17791" class="Symbol">=</a>
+  <a id="17795" href="Graded.Modality.Instances.Linearity.html#1259" class="Function">Graded.Modality.Instances.Linearity.linearity-has-well-behaved-zero</a>
+<a id="affine-has-well-behaved-zero"></a><a id="17863" href="README.html#17863" class="Function">affine-has-well-behaved-zero</a> <a id="17892" class="Symbol">=</a>
+  <a id="17896" href="Graded.Modality.Instances.Affine.html#1067" class="Function">Graded.Modality.Instances.Affine.affine-has-well-behaved-zero</a>
+<a id="linear-or-affine-has-well-behaved-zero"></a><a id="17958" href="README.html#17958" class="Function">linear-or-affine-has-well-behaved-zero</a> <a id="17997" class="Symbol">=</a>
+  <a id="18001" href="Graded.Modality.Instances.Linear-or-affine.html#13776" class="Function">Graded.Modality.Instances.Linear-or-affine.linear-or-affine-has-well-behaved-zero</a>
 
-<a id="19060" class="Comment">-- The term id-ℕ-zero is well-typed.</a>
+<a id="18084" class="Comment">-- Theorem 6.2.</a>
 
-<a id="⊢id-ℕ-zero"></a><a id="19098" href="README.html#19098" class="Function">⊢id-ℕ-zero</a> <a id="19109" class="Symbol">=</a> <a id="19111" href="Graded.Erasure.Examples.html#5084" class="Function">Graded.Erasure.Examples.⊢id-ℕ-zero</a>
+<a id="Theorem-6-2"></a><a id="18101" href="README.html#18101" class="Function">Theorem-6-2</a> <a id="18113" class="Symbol">=</a> <a id="18115" href="Graded.Usage.Properties.Has-well-behaved-zero.html#1152" class="Function">Graded.Usage.Properties.Has-well-behaved-zero.valid-var-usage</a>
 
-<a id="19147" class="Comment">-- The term id-ℕ-zero is well-resourced</a>
+<a id="18178" class="Comment">-- Example: The polymorphic identity function</a>
 
-<a id="▸id-ℕ-zero"></a><a id="19188" href="README.html#19188" class="Function">▸id-ℕ-zero</a> <a id="19199" class="Symbol">=</a> <a id="19201" href="Graded.Erasure.Examples.html#5243" class="Function">Graded.Erasure.Examples.▸id-ℕ-zero</a>
+<a id="id"></a><a id="18225" href="README.html#18225" class="Function">id</a> <a id="18228" class="Symbol">=</a> <a id="18230" href="Graded.Erasure.Examples.html#3747" class="Function">Graded.Erasure.Examples.id</a>
 
-<a id="19237" class="Comment">-- One of the arguments gets erased by the extraction function</a>
+<a id="18258" class="Comment">-- The identity function is well-typed</a>
 
-<a id="erase-id-ℕ-zero"></a><a id="19301" href="README.html#19301" class="Function">erase-id-ℕ-zero</a> <a id="19317" class="Symbol">=</a> <a id="19319" href="Graded.Erasure.Examples.html#4911" class="Function">Graded.Erasure.Examples.erase-id-ℕ-zero</a>
+<a id="⊢id"></a><a id="18298" href="README.html#18298" class="Function">⊢id</a> <a id="18302" class="Symbol">=</a> <a id="18304" href="Graded.Erasure.Examples.html#3871" class="Function">Graded.Erasure.Examples.⊢id</a>
 
-<a id="19360" class="Comment">-- Theorem 6.4.</a>
+<a id="18333" class="Comment">-- The identity function is well-resourced</a>
 
-<a id="Theorem-6-4"></a><a id="19377" href="README.html#19377" class="Function">Theorem-6-4</a> <a id="19389" class="Symbol">=</a> <a id="19391" href="Graded.Erasure.Extraction.Properties.html#11904" class="Function">Graded.Erasure.Extraction.Properties.hasX.erased-hasX</a>
+<a id="▸id"></a><a id="18377" href="README.html#18377" class="Function">▸id</a> <a id="18381" class="Symbol">=</a> <a id="18383" href="Graded.Erasure.Examples.html#4074" class="Function">Graded.Erasure.Examples.▸id</a>
 
-<a id="19446" class="Comment">-- The term id-ℕ-zero reduces to zero</a>
+<a id="18412" class="Comment">-- The identity function applied to two free variables</a>
 
-<a id="id-ℕ-zero⇒*zero"></a><a id="19485" href="README.html#19485" class="Function">id-ℕ-zero⇒*zero</a> <a id="19501" class="Symbol">=</a> <a id="19503" href="Graded.Erasure.Examples.html#5351" class="Function">Graded.Erasure.Examples.id-ℕ-zero⇒*zero</a>
+<a id="id-x1-x0"></a><a id="18468" href="README.html#18468" class="Function">id-x1-x0</a> <a id="18477" class="Symbol">=</a> <a id="18479" href="Graded.Erasure.Examples.html#4189" class="Function">Graded.Erasure.Examples.id-x1-x0</a>
 
-<a id="19544" class="Comment">-- The term erase (id-ℕ-zero) reduces to zero</a>
+<a id="18513" class="Comment">-- The term id-x1-x0 is well-typed</a>
 
-<a id="erase-id-ℕ-zero⇒*zero"></a><a id="19591" href="README.html#19591" class="Function">erase-id-ℕ-zero⇒*zero</a> <a id="19613" class="Symbol">=</a> <a id="19615" href="Graded.Erasure.Examples.html#5673" class="Function">Graded.Erasure.Examples.erase-id-ℕ-zero⇒*zero</a>
+<a id="⊢id-x1-x0"></a><a id="18549" href="README.html#18549" class="Function">⊢id-x1-x0</a> <a id="18559" class="Symbol">=</a> <a id="18561" href="Graded.Erasure.Examples.html#4309" class="Function">Graded.Erasure.Examples.⊢id-x1-x0</a>
 
-<a id="19662" class="Comment">-- Reducibility logical relation for types.</a>
-<a id="19706" class="Comment">--</a>
-<a id="19709" class="Comment">-- In the paper the type level is written as a subscript instead of</a>
-<a id="19777" class="Comment">-- within braces.</a>
+<a id="18596" class="Comment">-- The term id-x1-x0 is well-resourced</a>
 
-<a id="_⊩′⟨_⟩_"></a><a id="19796" href="README.html#19796" class="Function Operator">_⊩′⟨_⟩_</a> <a id="19804" class="Symbol">=</a> <a id="19806" href="Definition.LogicalRelation.html#17868" class="Function Operator">Definition.LogicalRelation._⊩⟨_⟩_</a>
+<a id="▸id-x1-x0"></a><a id="18636" href="README.html#18636" class="Function">▸id-x1-x0</a> <a id="18646" class="Symbol">=</a> <a id="18648" href="Graded.Erasure.Examples.html#4556" class="Function">Graded.Erasure.Examples.▸id-x1-x0</a>
 
-<a id="19841" class="Comment">-- Reducibility logical relation for terms.</a>
-<a id="19885" class="Comment">--</a>
-<a id="19888" class="Comment">-- In the paper the type level is written as a subscript instead of</a>
-<a id="19956" class="Comment">-- within braces.</a>
+<a id="18683" class="Comment">-- The grammar of the untyped target language</a>
+<a id="18729" class="Comment">--</a>
+<a id="18732" class="Comment">-- The syntax is well-scoped.</a>
 
-<a id="_⊩′⟨_⟩_∷_/_"></a><a id="19975" href="README.html#19975" class="Function Operator">_⊩′⟨_⟩_∷_/_</a> <a id="19987" class="Symbol">=</a> <a id="19989" href="Definition.LogicalRelation.html#18186" class="Function Operator">Definition.LogicalRelation._⊩⟨_⟩_∷_/_</a>
+<a id="target"></a><a id="18763" href="README.html#18763" class="Function">target</a> <a id="18770" class="Symbol">=</a> <a id="18772" href="Graded.Erasure.Target.html#547" class="Datatype">Graded.Erasure.Target.Term</a>
 
-<a id="20028" class="Comment">-- The fundamental lemma of the reducibility relation.</a>
+<a id="18800" class="Comment">-- The reduction relation of the target language.</a>
 
-<a id="fundamentalReducibleType"></a><a id="20084" href="README.html#20084" class="Function">fundamentalReducibleType</a> <a id="20109" class="Symbol">=</a> <a id="20111" href="Definition.LogicalRelation.Fundamental.Reducibility.html#895" class="Function">Definition.LogicalRelation.Fundamental.Reducibility.reducible</a>
-<a id="fundamentalReducibleTerm"></a><a id="20173" href="README.html#20173" class="Function">fundamentalReducibleTerm</a> <a id="20198" class="Symbol">=</a> <a id="20200" href="Definition.LogicalRelation.Fundamental.Reducibility.html#1365" class="Function">Definition.LogicalRelation.Fundamental.Reducibility.reducibleTerm</a>
+<a id="_⇒_"></a><a id="18851" href="README.html#18851" class="Function Operator">_⇒_</a>  <a id="18856" class="Symbol">=</a> <a id="18858" href="Graded.Erasure.Target.html#5345" class="Datatype Operator">Graded.Erasure.Target._⇒_</a>
+<a id="_⇒*_"></a><a id="18884" href="README.html#18884" class="Function Operator">_⇒*_</a> <a id="18889" class="Symbol">=</a> <a id="18891" href="Graded.Erasure.Target.html#5967" class="Datatype Operator">Graded.Erasure.Target._⇒*_</a>
 
-<a id="20267" class="Comment">-- Definition 6.5: The logical relation for erasure.</a>
-<a id="20320" class="Comment">--</a>
-<a id="20323" class="Comment">-- In the paper the type level is written as a subscript instead of</a>
-<a id="20391" class="Comment">-- within braces.</a>
-<a id="20409" class="Comment">--</a>
-<a id="20412" class="Comment">-- For the Π and Σ cases, some weakenings are applied to the types of</a>
-<a id="20482" class="Comment">-- the domain and codomain (or first and second component).</a>
-<a id="20542" class="Comment">-- The reason for this is that the reducibility relation inductively</a>
-<a id="20611" class="Comment">-- gives a proof that these types are reducible under any weakenings.</a>
-<a id="20681" class="Comment">-- Since we do not need to make use of this extra information, we</a>
-<a id="20747" class="Comment">-- apply identity weakenings.</a>
-<a id="20777" class="Comment">--</a>
-<a id="20780" class="Comment">-- For Σ-types the presentation is different from the paper to account</a>
-<a id="20851" class="Comment">-- for the possibility to erase the first component added in</a>
-<a id="20912" class="Comment">-- Section 8. For the case treated in this section, we will always</a>
-<a id="20979" class="Comment">-- have p ≡ 𝟙 for Σ-types.</a>
-<a id="21006" class="Comment">--</a>
-<a id="21009" class="Comment">-- In the paper, we fix a well-formed, consistent context Δ₀. In the</a>
-<a id="21078" class="Comment">-- formalization, this is implemented through module parameters. For</a>
-<a id="21147" class="Comment">-- instance, the logical relation is defined in terms of such a</a>
-<a id="21211" class="Comment">-- context.</a>
+<a id="18919" class="Comment">-- Definition 6.3: The extraction function.</a>
+<a id="18963" class="Comment">--</a>
+<a id="18966" class="Comment">-- For Σ-types the definition is different from the paper to account</a>
+<a id="19035" class="Comment">-- for the possibility to erase the first component added in</a>
+<a id="19096" class="Comment">-- Section 8. For the case treated in this section, we will always</a>
+<a id="19163" class="Comment">-- have p ≡ 𝟙 for Σ-types.</a>
 
-<a id="_®⟨_⟩_∷_/_"></a><a id="21224" href="README.html#21224" class="Function Operator">_®⟨_⟩_∷_/_</a> <a id="21235" class="Symbol">=</a> <a id="21237" href="Graded.Erasure.LogicalRelation.html#2331" class="Function Operator">Graded.Erasure.LogicalRelation._®⟨_⟩_∷_/_</a>
+<a id="_•"></a><a id="19191" href="README.html#19191" class="Function Operator">_•</a> <a id="19194" class="Symbol">=</a> <a id="19196" href="Graded.Erasure.Extraction.html#994" class="Function">Graded.Erasure.Extraction.erase</a>
 
-<a id="21280" class="Comment">-- The logical relation for natural numbers.</a>
-<a id="21325" class="Comment">--</a>
-<a id="21328" class="Comment">-- In the paper this is written with ℕ as a subscript.</a>
+<a id="19229" class="Comment">-- Example: The identity function applied to ℕ and zero</a>
 
-<a id="_®ℕ_"></a><a id="21384" href="README.html#21384" class="Function Operator">_®ℕ_</a> <a id="21389" class="Symbol">=</a> <a id="21391" href="Graded.Erasure.LogicalRelation.html#1675" class="Datatype Operator">Graded.Erasure.LogicalRelation._®_∷ℕ</a>
+<a id="id-ℕ-zero"></a><a id="19286" href="README.html#19286" class="Function">id-ℕ-zero</a> <a id="19296" class="Symbol">=</a> <a id="19298" href="Graded.Erasure.Examples.html#4795" class="Function">Graded.Erasure.Examples.id-ℕ-zero</a>
 
-<a id="21429" class="Comment">-- Valid substitutions.</a>
-<a id="21453" class="Comment">--</a>
-<a id="21456" class="Comment">-- The argument for the target context being well-formed is not</a>
-<a id="21520" class="Comment">-- included in the paper because the context is fixed and assumed to</a>
-<a id="21589" class="Comment">-- be well-formed.</a>
+<a id="19333" class="Comment">-- The term id-ℕ-zero is well-typed.</a>
 
-<a id="_⊩ˢ_∷_/_"></a><a id="21609" href="README.html#21609" class="Function Operator">_⊩ˢ_∷_/_</a> <a id="21618" class="Symbol">=</a> <a id="21620" href="Definition.LogicalRelation.Substitution.html#1491" class="Function Operator">Definition.LogicalRelation.Substitution._⊩ˢ_∷_/_/_</a>
+<a id="⊢id-ℕ-zero"></a><a id="19371" href="README.html#19371" class="Function">⊢id-ℕ-zero</a> <a id="19382" class="Symbol">=</a> <a id="19384" href="Graded.Erasure.Examples.html#5084" class="Function">Graded.Erasure.Examples.⊢id-ℕ-zero</a>
 
-<a id="21672" class="Comment">-- Valid contexts.</a>
+<a id="19420" class="Comment">-- The term id-ℕ-zero is well-resourced</a>
 
-<a id="⊩′ᵛ_"></a><a id="21692" href="README.html#21692" class="Function Operator">⊩′ᵛ_</a> <a id="21697" class="Symbol">=</a> <a id="21699" href="Definition.LogicalRelation.Substitution.html#806" class="Datatype Operator">Definition.LogicalRelation.Substitution.⊩ᵛ_</a>
+<a id="▸id-ℕ-zero"></a><a id="19461" href="README.html#19461" class="Function">▸id-ℕ-zero</a> <a id="19472" class="Symbol">=</a> <a id="19474" href="Graded.Erasure.Examples.html#5243" class="Function">Graded.Erasure.Examples.▸id-ℕ-zero</a>
 
-<a id="21744" class="Comment">-- Valid types</a>
-<a id="21759" class="Comment">--</a>
-<a id="21762" class="Comment">-- In the paper the type level is written as a subscript instead of</a>
-<a id="21830" class="Comment">-- within braces.</a>
+<a id="19510" class="Comment">-- One of the arguments gets erased by the extraction function</a>
 
-<a id="_⊩′ᵛ⟨_⟩_/_"></a><a id="21849" href="README.html#21849" class="Function Operator">_⊩′ᵛ⟨_⟩_/_</a> <a id="21860" class="Symbol">=</a> <a id="21862" href="Definition.LogicalRelation.Substitution.html#953" class="Record Operator">Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_/_</a>
+<a id="erase-id-ℕ-zero"></a><a id="19574" href="README.html#19574" class="Function">erase-id-ℕ-zero</a> <a id="19590" class="Symbol">=</a> <a id="19592" href="Graded.Erasure.Examples.html#4911" class="Function">Graded.Erasure.Examples.erase-id-ℕ-zero</a>
 
-<a id="21913" class="Comment">-- Definition 6.6: The logical relation for substitutions.</a>
-<a id="21972" class="Comment">--</a>
-<a id="21975" class="Comment">-- In the paper the type level is written as a subscript instead of</a>
-<a id="22043" class="Comment">-- within braces.</a>
+<a id="19633" class="Comment">-- Theorem 6.4.</a>
 
-<a id="_®⟨_⟩_∷_◂_/_/_"></a><a id="22062" href="README.html#22062" class="Function Operator">_®⟨_⟩_∷_◂_/_/_</a> <a id="22077" class="Symbol">=</a> <a id="22079" href="Graded.Erasure.LogicalRelation.html#5336" class="Function Operator">Graded.Erasure.LogicalRelation._®⟨_⟩_∷[_]_◂_/_/_</a>
+<a id="Theorem-6-4"></a><a id="19650" href="README.html#19650" class="Function">Theorem-6-4</a> <a id="19662" class="Symbol">=</a> <a id="19664" href="Graded.Erasure.Extraction.Properties.html#11904" class="Function">Graded.Erasure.Extraction.Properties.hasX.erased-hasX</a>
 
-<a id="22129" class="Comment">-- Definition 6.7: Erasure validity</a>
-<a id="22165" class="Comment">--</a>
-<a id="22168" class="Comment">-- In the paper the type level is written as a subscript instead of</a>
-<a id="22236" class="Comment">-- within braces, and the first two (explicit) arguments have been</a>
-<a id="22303" class="Comment">-- swapped.</a>
+<a id="19719" class="Comment">-- The term id-ℕ-zero reduces to zero</a>
 
-<a id="_▸_⊩ʳ⟨_⟩_∷_/_/_"></a><a id="22316" href="README.html#22316" class="Function Operator">_▸_⊩ʳ⟨_⟩_∷_/_/_</a> <a id="22332" class="Symbol">=</a> <a id="22334" href="Graded.Erasure.LogicalRelation.html#5916" class="Function Operator">Graded.Erasure.LogicalRelation._▸_⊩ʳ⟨_⟩_∷[_]_/_/_</a>
+<a id="id-ℕ-zero⇒*zero"></a><a id="19758" href="README.html#19758" class="Function">id-ℕ-zero⇒*zero</a> <a id="19774" class="Symbol">=</a> <a id="19776" href="Graded.Erasure.Examples.html#5351" class="Function">Graded.Erasure.Examples.id-ℕ-zero⇒*zero</a>
 
-<a id="22385" class="Comment">-- Theorem 6.8: Backwards closure of logical relation under reduction.</a>
+<a id="19817" class="Comment">-- The term erase (id-ℕ-zero) reduces to zero</a>
 
-<a id="Theorem-6-8"></a><a id="22457" href="README.html#22457" class="Function">Theorem-6-8</a> <a id="22469" class="Symbol">=</a> <a id="22471" href="Graded.Erasure.LogicalRelation.Reduction.html#6782" class="Function">Graded.Erasure.LogicalRelation.Reduction.redSubstTerm*</a>
+<a id="erase-id-ℕ-zero⇒*zero"></a><a id="19864" href="README.html#19864" class="Function">erase-id-ℕ-zero⇒*zero</a> <a id="19886" class="Symbol">=</a> <a id="19888" href="Graded.Erasure.Examples.html#5673" class="Function">Graded.Erasure.Examples.erase-id-ℕ-zero⇒*zero</a>
 
-<a id="22527" class="Comment">-- Theorem 6.9: Subsumption of the logical relation.</a>
+<a id="19935" class="Comment">-- Reducibility logical relation for types.</a>
+<a id="19979" class="Comment">--</a>
+<a id="19982" class="Comment">-- In the paper the type level is written as a subscript instead of</a>
+<a id="20050" class="Comment">-- within braces.</a>
 
-<a id="Theorem-6-9a"></a><a id="22581" href="README.html#22581" class="Function">Theorem-6-9a</a> <a id="22594" class="Symbol">=</a>
-  <a id="22598" href="Graded.Erasure.LogicalRelation.Subsumption.html#2647" class="Function">Graded.Erasure.LogicalRelation.Subsumption.subsumptionSubst</a>
-<a id="Theorem-6-9b"></a><a id="22658" href="README.html#22658" class="Function">Theorem-6-9b</a> <a id="22671" class="Symbol">=</a>
-  <a id="22675" href="Graded.Erasure.LogicalRelation.Subsumption.html#4200" class="Function">Graded.Erasure.LogicalRelation.Subsumption.subsumption</a>
+<a id="_⊩′⟨_⟩_"></a><a id="20069" href="README.html#20069" class="Function Operator">_⊩′⟨_⟩_</a> <a id="20077" class="Symbol">=</a> <a id="20079" href="Definition.LogicalRelation.html#17868" class="Function Operator">Definition.LogicalRelation._⊩⟨_⟩_</a>
 
-<a id="22731" class="Comment">-- Theorem 6.10: The fundamental lemma.</a>
+<a id="20114" class="Comment">-- Reducibility logical relation for terms.</a>
+<a id="20158" class="Comment">--</a>
+<a id="20161" class="Comment">-- In the paper the type level is written as a subscript instead of</a>
+<a id="20229" class="Comment">-- within braces.</a>
 
-<a id="fundamental"></a><a id="22772" href="README.html#22772" class="Function">fundamental</a> <a id="22784" class="Symbol">=</a> <a id="22786" href="Graded.Erasure.LogicalRelation.Fundamental.html#8390" class="Function">Graded.Erasure.LogicalRelation.Fundamental.Fundamental.fundamental</a>
+<a id="_⊩′⟨_⟩_∷_/_"></a><a id="20248" href="README.html#20248" class="Function Operator">_⊩′⟨_⟩_∷_/_</a> <a id="20260" class="Symbol">=</a> <a id="20262" href="Definition.LogicalRelation.html#18186" class="Function Operator">Definition.LogicalRelation._⊩⟨_⟩_∷_/_</a>
 
-<a id="22854" class="Comment">-- Theorem 6.11: All substitutions are related under erased contexts.</a>
+<a id="20301" class="Comment">-- The fundamental lemma of the reducibility relation.</a>
 
-<a id="Theorem-6-11"></a><a id="22925" href="README.html#22925" class="Function">Theorem-6-11</a> <a id="22938" class="Symbol">=</a> <a id="22940" href="Graded.Erasure.LogicalRelation.Subsumption.html#5080" class="Function">Graded.Erasure.LogicalRelation.Subsumption.erasedSubst</a>
+<a id="fundamentalReducibleType"></a><a id="20357" href="README.html#20357" class="Function">fundamentalReducibleType</a> <a id="20382" class="Symbol">=</a> <a id="20384" href="Definition.LogicalRelation.Fundamental.Reducibility.html#895" class="Function">Definition.LogicalRelation.Fundamental.Reducibility.reducible</a>
+<a id="fundamentalReducibleTerm"></a><a id="20446" href="README.html#20446" class="Function">fundamentalReducibleTerm</a> <a id="20471" class="Symbol">=</a> <a id="20473" href="Definition.LogicalRelation.Fundamental.Reducibility.html#1365" class="Function">Definition.LogicalRelation.Fundamental.Reducibility.reducibleTerm</a>
 
-<a id="22996" class="Comment">-- Theorem 6.12: The fundamental lemma for fully erased terms.</a>
+<a id="20540" class="Comment">-- Definition 6.5: The logical relation for erasure.</a>
+<a id="20593" class="Comment">--</a>
+<a id="20596" class="Comment">-- In the paper the type level is written as a subscript instead of</a>
+<a id="20664" class="Comment">-- within braces.</a>
+<a id="20682" class="Comment">--</a>
+<a id="20685" class="Comment">-- For the Π and Σ cases, some weakenings are applied to the types of</a>
+<a id="20755" class="Comment">-- the domain and codomain (or first and second component).</a>
+<a id="20815" class="Comment">-- The reason for this is that the reducibility relation inductively</a>
+<a id="20884" class="Comment">-- gives a proof that these types are reducible under any weakenings.</a>
+<a id="20954" class="Comment">-- Since we do not need to make use of this extra information, we</a>
+<a id="21020" class="Comment">-- apply identity weakenings.</a>
+<a id="21050" class="Comment">--</a>
+<a id="21053" class="Comment">-- For Σ-types the presentation is different from the paper to account</a>
+<a id="21124" class="Comment">-- for the possibility to erase the first component added in</a>
+<a id="21185" class="Comment">-- Section 8. For the case treated in this section, we will always</a>
+<a id="21252" class="Comment">-- have p ≡ 𝟙 for Σ-types.</a>
+<a id="21279" class="Comment">--</a>
+<a id="21282" class="Comment">-- In the paper, we fix a well-formed, consistent context Δ₀. In the</a>
+<a id="21351" class="Comment">-- formalization, this is implemented through module parameters. For</a>
+<a id="21420" class="Comment">-- instance, the logical relation is defined in terms of such a</a>
+<a id="21484" class="Comment">-- context.</a>
 
-<a id="Theorem-6-12"></a><a id="23060" href="README.html#23060" class="Function">Theorem-6-12</a> <a id="23073" class="Symbol">=</a>
-  <a id="23077" href="Graded.Erasure.LogicalRelation.Fundamental.html#18837" class="Function">Graded.Erasure.LogicalRelation.Fundamental.Fundamental.fundamentalErased</a>
+<a id="_®⟨_⟩_∷_/_"></a><a id="21497" href="README.html#21497" class="Function Operator">_®⟨_⟩_∷_/_</a> <a id="21508" class="Symbol">=</a> <a id="21510" href="Graded.Erasure.LogicalRelation.html#2331" class="Function Operator">Graded.Erasure.LogicalRelation._®⟨_⟩_∷_/_</a>
 
-<a id="23151" class="Comment">-- Extended reduction relations.</a>
+<a id="21553" class="Comment">-- The logical relation for natural numbers.</a>
+<a id="21598" class="Comment">--</a>
+<a id="21601" class="Comment">-- In the paper this is written with ℕ as a subscript.</a>
 
-<a id="_⊢_⇒ˢ_∷ℕ"></a><a id="23185" href="README.html#23185" class="Function Operator">_⊢_⇒ˢ_∷ℕ</a>  <a id="23195" class="Symbol">=</a> <a id="23197" href="Graded.Erasure.SucRed.html#923" class="Datatype Operator">Graded.Erasure.SucRed._⊢_⇒ˢ_∷ℕ</a>
-<a id="_⊢_⇒ˢ*_∷ℕ"></a><a id="23228" href="README.html#23228" class="Function Operator">_⊢_⇒ˢ*_∷ℕ</a> <a id="23238" class="Symbol">=</a> <a id="23240" href="Graded.Erasure.SucRed.html#1166" class="Datatype Operator">Graded.Erasure.SucRed._⊢_⇒ˢ*_∷ℕ</a>
-<a id="_⇒ˢ_"></a><a id="23272" href="README.html#23272" class="Function Operator">_⇒ˢ_</a>      <a id="23282" class="Symbol">=</a> <a id="23284" href="Graded.Erasure.SucRed.html#3078" class="Datatype Operator">Graded.Erasure.SucRed._⇒ˢ_</a>
-<a id="_⇒ˢ*_"></a><a id="23311" href="README.html#23311" class="Function Operator">_⇒ˢ*_</a>     <a id="23321" class="Symbol">=</a> <a id="23323" href="Graded.Erasure.SucRed.html#3280" class="Datatype Operator">Graded.Erasure.SucRed._⇒ˢ*_</a>
+<a id="_®ℕ_"></a><a id="21657" href="README.html#21657" class="Function Operator">_®ℕ_</a> <a id="21662" class="Symbol">=</a> <a id="21664" href="Graded.Erasure.LogicalRelation.html#1675" class="Datatype Operator">Graded.Erasure.LogicalRelation._®_∷ℕ</a>
 
-<a id="23352" class="Comment">-- Theorem 6.13: Soundness of the extraction function.</a>
+<a id="21702" class="Comment">-- Valid substitutions.</a>
+<a id="21726" class="Comment">--</a>
+<a id="21729" class="Comment">-- The argument for the target context being well-formed is not</a>
+<a id="21793" class="Comment">-- included in the paper because the context is fixed and assumed to</a>
+<a id="21862" class="Comment">-- be well-formed.</a>
 
-<a id="soundness"></a><a id="23408" href="README.html#23408" class="Function">soundness</a> <a id="23418" class="Symbol">=</a> <a id="23420" href="Graded.Erasure.Consequences.Soundness.html#4957" class="Function">Graded.Erasure.Consequences.Soundness.Soundness.soundness-ℕ</a>
+<a id="_⊩ˢ_∷_/_"></a><a id="21882" href="README.html#21882" class="Function Operator">_⊩ˢ_∷_/_</a> <a id="21891" class="Symbol">=</a> <a id="21893" href="Definition.LogicalRelation.Substitution.html#1491" class="Function Operator">Definition.LogicalRelation.Substitution._⊩ˢ_∷_/_/_</a>
 
-<a id="23481" class="Comment">------------------------------------------------------------------------</a>
-<a id="23554" class="Comment">-- 7: Discussion</a>
+<a id="21945" class="Comment">-- Valid contexts.</a>
 
-<a id="23572" class="Comment">------------------------------------------------------------------------</a>
-<a id="23645" class="Comment">-- 7.1: Modalities for the recursor</a>
+<a id="⊩′ᵛ_"></a><a id="21965" href="README.html#21965" class="Function Operator">⊩′ᵛ_</a> <a id="21970" class="Symbol">=</a> <a id="21972" href="Definition.LogicalRelation.Substitution.html#806" class="Datatype Operator">Definition.LogicalRelation.Substitution.⊩ᵛ_</a>
 
-<a id="23682" class="Comment">-- A lawful definition of ⊛ᵣ for lower bounded structures.</a>
+<a id="22017" class="Comment">-- Valid types</a>
+<a id="22032" class="Comment">--</a>
+<a id="22035" class="Comment">-- In the paper the type level is written as a subscript instead of</a>
+<a id="22103" class="Comment">-- within braces.</a>
 
-<a id="⊛ᵣ-lower-bounded"></a><a id="23742" href="README.html#23742" class="Function">⊛ᵣ-lower-bounded</a> <a id="23759" class="Symbol">=</a> <a id="23761" href="Graded.Modality.Instances.LowerBounded.html#921" class="Function Operator">Graded.Modality.Instances.LowerBounded._⊛_▷_</a>
+<a id="_⊩′ᵛ⟨_⟩_/_"></a><a id="22122" href="README.html#22122" class="Function Operator">_⊩′ᵛ⟨_⟩_/_</a> <a id="22133" class="Symbol">=</a> <a id="22135" href="Definition.LogicalRelation.Substitution.html#953" class="Record Operator">Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_/_</a>
 
-<a id="23807" class="Comment">-- This definition does not give the greatest solution for the affine</a>
-<a id="23877" class="Comment">-- or linear types modalities (which are defined as different</a>
-<a id="23939" class="Comment">-- instances of the modality zero-one-many-greatest in</a>
-<a id="23994" class="Comment">-- Graded.Modality.Instances.Zero-one-many).</a>
+<a id="22186" class="Comment">-- Definition 6.6: The logical relation for substitutions.</a>
+<a id="22245" class="Comment">--</a>
+<a id="22248" class="Comment">-- In the paper the type level is written as a subscript instead of</a>
+<a id="22316" class="Comment">-- within braces.</a>
 
-<a id="not-greatest"></a><a id="24040" href="README.html#24040" class="Function">not-greatest</a> <a id="24053" class="Symbol">=</a>
-  <a id="24057" href="Graded.Modality.Instances.Zero-one-many.html#30876" class="Function">Graded.Modality.Instances.Zero-one-many.¬-lower-bounded-greatest</a>
+<a id="_®⟨_⟩_∷_◂_/_/_"></a><a id="22335" href="README.html#22335" class="Function Operator">_®⟨_⟩_∷_◂_/_/_</a> <a id="22350" class="Symbol">=</a> <a id="22352" href="Graded.Erasure.LogicalRelation.html#5336" class="Function Operator">Graded.Erasure.LogicalRelation._®⟨_⟩_∷[_]_◂_/_/_</a>
 
-<a id="24123" class="Comment">-- A lawful definition of ⊛ᵣ defined recursively.</a>
+<a id="22402" class="Comment">-- Definition 6.7: Erasure validity</a>
+<a id="22438" class="Comment">--</a>
+<a id="22441" class="Comment">-- In the paper the type level is written as a subscript instead of</a>
+<a id="22509" class="Comment">-- within braces.</a>
 
-<a id="⊛ᵣ-recursive"></a><a id="24174" href="README.html#24174" class="Function">⊛ᵣ-recursive</a> <a id="24187" class="Symbol">=</a> <a id="24189" href="Graded.Modality.Instances.Recursive.html#1118" class="Function Operator">Graded.Modality.Instances.Recursive._⊛_▷_</a>
+<a id="_▸_⊩ʳ⟨_⟩_∷_/_/_"></a><a id="22528" href="README.html#22528" class="Function Operator">_▸_⊩ʳ⟨_⟩_∷_/_/_</a> <a id="22544" class="Symbol">=</a> <a id="22546" href="Graded.Erasure.LogicalRelation.html#5916" class="Function Operator">Graded.Erasure.LogicalRelation._▸_⊩ʳ⟨_⟩_∷[_]_/_/_</a>
 
-<a id="24232" class="Comment">-- The family of sequences discussed in Section 7.1.2 does not have</a>
-<a id="24300" class="Comment">-- the required fixpoints for a certain modality for the natural</a>
-<a id="24365" class="Comment">-- numbers extended with infinity.</a>
+<a id="22597" class="Comment">-- Theorem 6.8: Backwards closure of logical relation under reduction.</a>
 
-<a id="¬-fixpoints"></a><a id="24401" href="README.html#24401" class="Function">¬-fixpoints</a> <a id="24413" class="Symbol">=</a>
-  <a id="24417" href="Graded.Modality.Instances.Nat-plus-infinity.html#15097" class="Function">Graded.Modality.Instances.Nat-plus-infinity.¬-Has-fixpoints-nr</a>
+<a id="Theorem-6-8"></a><a id="22669" href="README.html#22669" class="Function">Theorem-6-8</a> <a id="22681" class="Symbol">=</a> <a id="22683" href="Graded.Erasure.LogicalRelation.Reduction.html#6782" class="Function">Graded.Erasure.LogicalRelation.Reduction.redSubstTerm*</a>
 
-<a id="24481" class="Comment">-- A lawful definition of ⊛ᵣ for bounded star-semirings.</a>
+<a id="22739" class="Comment">-- Theorem 6.9: Subsumption of the logical relation.</a>
 
-<a id="⊛ᵣ-star-semiring"></a><a id="24539" href="README.html#24539" class="Function">⊛ᵣ-star-semiring</a> <a id="24556" class="Symbol">=</a> <a id="24558" href="Graded.Modality.Instances.BoundedStar.html#1164" class="Function Operator">Graded.Modality.Instances.BoundedStar._⊛_▷_</a>
+<a id="Theorem-6-9a"></a><a id="22793" href="README.html#22793" class="Function">Theorem-6-9a</a> <a id="22806" class="Symbol">=</a>
+  <a id="22810" href="Graded.Erasure.LogicalRelation.Subsumption.html#2647" class="Function">Graded.Erasure.LogicalRelation.Subsumption.subsumptionSubst</a>
+<a id="Theorem-6-9b"></a><a id="22870" href="README.html#22870" class="Function">Theorem-6-9b</a> <a id="22883" class="Symbol">=</a>
+  <a id="22887" href="Graded.Erasure.LogicalRelation.Subsumption.html#4200" class="Function">Graded.Erasure.LogicalRelation.Subsumption.subsumption</a>
 
-<a id="24603" class="Comment">-- The definition of ⊛ᵣ for bounded star-semirings is greater than or</a>
-<a id="24673" class="Comment">-- equal to the one for lower bounded instances.</a>
+<a id="22943" class="Comment">-- Theorem 6.10: The fundamental lemma.</a>
 
-<a id="⊛ᵣ-lower-bounded≤⊛ᵣ-star-semiring"></a><a id="24723" href="README.html#24723" class="Function">⊛ᵣ-lower-bounded≤⊛ᵣ-star-semiring</a> <a id="24757" class="Symbol">=</a> <a id="24759" href="Graded.Modality.Instances.BoundedStar.html#6236" class="Function">Graded.Modality.Instances.BoundedStar.LowerBounded.⊛′≤⊛</a>
+<a id="fundamental"></a><a id="22984" href="README.html#22984" class="Function">fundamental</a> <a id="22996" class="Symbol">=</a> <a id="22998" href="Graded.Erasure.LogicalRelation.Fundamental.html#8390" class="Function">Graded.Erasure.LogicalRelation.Fundamental.Fundamental.fundamental</a>
 
-<a id="24816" class="Comment">-- The usage rule for natrec without the natrec-star operator is</a>
-<a id="24881" class="Comment">-- called natrec-no-starₘ, and is part of the definition of _▸[_]_.</a>
+<a id="23066" class="Comment">-- Theorem 6.11: All substitutions are related under erased contexts.</a>
 
-<a id="▹-with-alternative-usage-rule-for-natrec"></a><a id="24950" href="README.html#24950" class="Function">▹-with-alternative-usage-rule-for-natrec</a> <a id="24991" class="Symbol">=</a> <a id="24993" href="Graded.Usage.html#2169" class="Datatype Operator">Graded.Usage._▸[_]_</a>
+<a id="Theorem-6-11"></a><a id="23137" href="README.html#23137" class="Function">Theorem-6-11</a> <a id="23150" class="Symbol">=</a> <a id="23152" href="Graded.Erasure.LogicalRelation.Subsumption.html#5080" class="Function">Graded.Erasure.LogicalRelation.Subsumption.erasedSubst</a>
 
-<a id="25014" class="Comment">------------------------------------------------------------------------</a>
-<a id="25087" class="Comment">-- 7.2: Erased matches</a>
+<a id="23208" class="Comment">-- Theorem 6.12: The fundamental lemma for fully erased terms.</a>
 
-<a id="25111" class="Comment">-- A safe head function for lists</a>
+<a id="Theorem-6-12"></a><a id="23272" href="README.html#23272" class="Function">Theorem-6-12</a> <a id="23285" class="Symbol">=</a>
+  <a id="23289" href="Graded.Erasure.LogicalRelation.Fundamental.html#18837" class="Function">Graded.Erasure.LogicalRelation.Fundamental.Fundamental.fundamentalErased</a>
 
-<a id="safe-head"></a><a id="25146" href="README.html#25146" class="Function">safe-head</a> <a id="25156" class="Symbol">=</a> <a id="25158" href="Graded.Erasure.Examples.html#15584" class="Function">Graded.Erasure.Examples.head</a>
+<a id="23363" class="Comment">-- Extended reduction relations.</a>
 
-<a id="25188" class="Comment">-- Theorem 7.1.</a>
+<a id="_⊢_⇒ˢ_∷ℕ"></a><a id="23397" href="README.html#23397" class="Function Operator">_⊢_⇒ˢ_∷ℕ</a>  <a id="23407" class="Symbol">=</a> <a id="23409" href="Graded.Erasure.SucRed.html#923" class="Datatype Operator">Graded.Erasure.SucRed._⊢_⇒ˢ_∷ℕ</a>
+<a id="_⊢_⇒ˢ*_∷ℕ"></a><a id="23440" href="README.html#23440" class="Function Operator">_⊢_⇒ˢ*_∷ℕ</a> <a id="23450" class="Symbol">=</a> <a id="23452" href="Graded.Erasure.SucRed.html#1166" class="Datatype Operator">Graded.Erasure.SucRed._⊢_⇒ˢ*_∷ℕ</a>
+<a id="_⇒ˢ_"></a><a id="23484" href="README.html#23484" class="Function Operator">_⇒ˢ_</a>      <a id="23494" class="Symbol">=</a> <a id="23496" href="Graded.Erasure.SucRed.html#3078" class="Datatype Operator">Graded.Erasure.SucRed._⇒ˢ_</a>
+<a id="_⇒ˢ*_"></a><a id="23523" href="README.html#23523" class="Function Operator">_⇒ˢ*_</a>     <a id="23533" class="Symbol">=</a> <a id="23535" href="Graded.Erasure.SucRed.html#3280" class="Datatype Operator">Graded.Erasure.SucRed._⇒ˢ*_</a>
 
-<a id="theorem-7-1"></a><a id="25205" href="README.html#25205" class="Function">theorem-7-1</a> <a id="25217" class="Symbol">=</a>
-  <a id="25221" href="Graded.Erasure.Consequences.Soundness.html#5397" class="Function">Graded.Erasure.Consequences.Soundness.Soundness.soundness-ℕ-only-source</a>
+<a id="23564" class="Comment">-- Theorem 6.13: Soundness of the extraction function.</a>
 
-<a id="25294" class="Comment">-- If (certain kinds of) erased matches are allowed, and additionally</a>
-<a id="25364" class="Comment">-- some Σ-types are allowed, then there is a counterexample to</a>
-<a id="25427" class="Comment">-- Theorem 7.1 without the assumption &quot;erased matches are not allowed</a>
-<a id="25497" class="Comment">-- unless the context is empty&quot;.</a>
+<a id="soundness"></a><a id="23620" href="README.html#23620" class="Function">soundness</a> <a id="23630" class="Symbol">=</a> <a id="23632" href="Graded.Erasure.Consequences.Soundness.html#4957" class="Function">Graded.Erasure.Consequences.Soundness.Soundness.soundness-ℕ</a>
 
-<a id="counterexample₁"></a><a id="25531" href="README.html#25531" class="Function">counterexample₁</a> <a id="25547" class="Symbol">=</a>
-  <a id="25551" href="Graded.Erasure.Consequences.Soundness.html#6755" class="Function">Graded.Erasure.Consequences.Soundness.soundness-ℕ-only-source-counterexample</a>
+<a id="23693" class="Comment">------------------------------------------------------------------------</a>
+<a id="23766" class="Comment">-- 7: Discussion</a>
 
-<a id="25629" class="Comment">-- The above counterexample is not a counterexample to canonicity</a>
-<a id="25695" class="Comment">-- for the target language.</a>
+<a id="23784" class="Comment">------------------------------------------------------------------------</a>
+<a id="23857" class="Comment">-- 7.1: Modalities for the Recursor</a>
 
-<a id="not-counterexample"></a><a id="25724" href="README.html#25724" class="Function">not-counterexample</a> <a id="25743" class="Symbol">=</a>
-  <a id="25747" href="Graded.Erasure.Consequences.Soundness.html#8529" class="Function">Graded.Erasure.Consequences.Soundness.soundness-ℕ-only-target-not-counterexample</a>
+<a id="23894" class="Comment">-- A lawful definition of ⊛ᵣ for lower bounded structures.</a>
 
-<a id="25829" class="Comment">-- If (certain kinds of) erased matches are allowed, and additionally</a>
-<a id="25899" class="Comment">-- some Σ-types are allowed, then one cannot prove a variant of the</a>
-<a id="25967" class="Comment">-- fundamental lemma (Theorem 6.12) without the assumption &quot;erased</a>
-<a id="26034" class="Comment">-- matches are not allowed or the context is empty&quot; (assuming that</a>
-<a id="26101" class="Comment">-- Agda is consistent).</a>
+<a id="⊛ᵣ-lower-bounded"></a><a id="23954" href="README.html#23954" class="Function">⊛ᵣ-lower-bounded</a> <a id="23971" class="Symbol">=</a> <a id="23973" href="Graded.Modality.Instances.LowerBounded.html#921" class="Function Operator">Graded.Modality.Instances.LowerBounded._⊛_▷_</a>
 
-<a id="counterexample₂"></a><a id="26126" href="README.html#26126" class="Function">counterexample₂</a> <a id="26142" class="Symbol">=</a>
-  <a id="26146" href="Graded.Erasure.LogicalRelation.Fundamental.Counterexample.html#2300" class="Function">Graded.Erasure.LogicalRelation.Fundamental.Counterexample.negation-of-fundamental-lemma-with-erased-matches</a>
+<a id="24019" class="Comment">-- This definition does not give the greatest solution for the affine</a>
+<a id="24089" class="Comment">-- or linear types modalities (which are defined as different</a>
+<a id="24151" class="Comment">-- instances of the modality zero-one-many-greatest in</a>
+<a id="24206" class="Comment">-- Graded.Modality.Instances.Zero-one-many).</a>
 
-<a id="26255" class="Comment">------------------------------------------------------------------------</a>
-<a id="26328" class="Comment">-- 7.3: Unit type</a>
+<a id="not-greatest"></a><a id="24252" href="README.html#24252" class="Function">not-greatest</a> <a id="24265" class="Symbol">=</a>
+  <a id="24269" href="Graded.Modality.Instances.Zero-one-many.html#30876" class="Function">Graded.Modality.Instances.Zero-one-many.¬-lower-bounded-greatest</a>
 
-<a id="26347" class="Comment">-- A type- and resource-preserving procedure that takes a well-typed,</a>
-<a id="26417" class="Comment">-- well-resourced term to one of its η-long normal forms.</a>
-<a id="26475" class="Comment">--</a>
-<a id="26478" class="Comment">-- The procedure makes certain assumptions about types with</a>
-<a id="26538" class="Comment">-- η-equality.</a>
+<a id="24335" class="Comment">-- A lawful definition of ⊛ᵣ defined recursively.</a>
 
-<a id="η-long-normal-forms"></a><a id="26554" href="README.html#26554" class="Function">η-long-normal-forms</a> <a id="26574" class="Symbol">=</a> <a id="26576" href="Graded.FullReduction.html#10490" class="Function">Graded.FullReduction.fullRedTerm</a>
+<a id="⊛ᵣ-recursive"></a><a id="24386" href="README.html#24386" class="Function">⊛ᵣ-recursive</a> <a id="24399" class="Symbol">=</a> <a id="24401" href="Graded.Modality.Instances.Recursive.html#1118" class="Function Operator">Graded.Modality.Instances.Recursive._⊛_▷_</a>
 
-<a id="26610" class="Comment">------------------------------------------------------------------------</a>
-<a id="26683" class="Comment">-- 7.4: Information flow interpretation</a>
+<a id="24444" class="Comment">-- The family of sequences discussed in Section 7.1.2 does not have</a>
+<a id="24512" class="Comment">-- the required fixpoints for a certain modality for the natural</a>
+<a id="24577" class="Comment">-- numbers extended with infinity.</a>
 
-<a id="26724" class="Comment">-- A non-interference result</a>
+<a id="¬-fixpoints"></a><a id="24613" href="README.html#24613" class="Function">¬-fixpoints</a> <a id="24625" class="Symbol">=</a>
+  <a id="24629" href="Graded.Modality.Instances.Nat-plus-infinity.html#15097" class="Function">Graded.Modality.Instances.Nat-plus-infinity.¬-Has-fixpoints-nr</a>
 
-<a id="non-interference"></a><a id="26754" href="README.html#26754" class="Function">non-interference</a> <a id="26771" class="Symbol">=</a> <a id="26773" href="Graded.Erasure.Consequences.Non-interference.html#1995" class="Function">Graded.Erasure.Consequences.Non-interference.non-interference</a>
+<a id="24693" class="Comment">-- A lawful definition of ⊛ᵣ for bounded star-semirings.</a>
 
-<a id="26836" class="Comment">-- If division by q is supported, then p / q is the least r such that</a>
-<a id="26906" class="Comment">-- p ≤ q · r, and _/ q is monotone.</a>
+<a id="⊛ᵣ-star-semiring"></a><a id="24751" href="README.html#24751" class="Function">⊛ᵣ-star-semiring</a> <a id="24768" class="Symbol">=</a> <a id="24770" href="Graded.Modality.Instances.BoundedStar.html#1164" class="Function Operator">Graded.Modality.Instances.BoundedStar._⊛_▷_</a>
 
-<a id="/-least"></a><a id="26943" href="README.html#26943" class="Function">/-least</a>    <a id="26954" class="Symbol">=</a> <a id="26956" href="Graded.Modality.Properties.Division.html#7811" class="Function">Graded.Modality.Properties.Division./-least-≤·</a>
-<a id="/-monotone"></a><a id="27003" href="README.html#27003" class="Function">/-monotone</a> <a id="27014" class="Symbol">=</a> <a id="27016" href="Graded.Modality.Properties.Division.html#8325" class="Function">Graded.Modality.Properties.Division./-monotoneˡ′</a>
+<a id="24815" class="Comment">-- The definition of ⊛ᵣ for bounded star-semirings is greater than or</a>
+<a id="24885" class="Comment">-- equal to the one for lower bounded instances.</a>
 
-<a id="27066" class="Comment">-- The total order L ≤ M ≤ H.</a>
+<a id="⊛ᵣ-lower-bounded≤⊛ᵣ-star-semiring"></a><a id="24935" href="README.html#24935" class="Function">⊛ᵣ-lower-bounded≤⊛ᵣ-star-semiring</a> <a id="24969" class="Symbol">=</a> <a id="24971" href="Graded.Modality.Instances.BoundedStar.html#6236" class="Function">Graded.Modality.Instances.BoundedStar.LowerBounded.⊛′≤⊛</a>
 
-<a id="L≤M≤H"></a><a id="27097" href="README.html#27097" class="Function">L≤M≤H</a> <a id="27103" class="Symbol">=</a> <a id="27105" href="Graded.Modality.Instances.Information-flow.html#14173" class="Function">Graded.Modality.Instances.Information-flow.L≤M≤H</a>
+<a id="25028" class="Comment">-- The usage rule for natrec without the natrec-star operator is</a>
+<a id="25093" class="Comment">-- called natrec-no-starₘ, and is part of the definition of _▸[_]_.</a>
 
-<a id="27155" class="Comment">-- Division laws.</a>
+<a id="▹-with-alternative-usage-rule-for-natrec"></a><a id="25162" href="README.html#25162" class="Function">▹-with-alternative-usage-rule-for-natrec</a> <a id="25203" class="Symbol">=</a> <a id="25205" href="Graded.Usage.html#2169" class="Datatype Operator">Graded.Usage._▸[_]_</a>
 
-<a id="/𝟙≡"></a><a id="27174" href="README.html#27174" class="Function">/𝟙≡</a>  <a id="27179" class="Symbol">=</a> <a id="27181" href="Graded.Modality.Properties.Division.html#8606" class="Function">Graded.Modality.Properties.Division./𝟙≡′</a>
-<a id="/𝟘≡𝟙"></a><a id="27222" href="README.html#27222" class="Function">/𝟘≡𝟙</a> <a id="27227" class="Symbol">=</a> <a id="27229" href="Graded.Modality.Properties.Division.html#8858" class="Function">Graded.Modality.Properties.Division./𝟘≡𝟙′</a>
-<a id="/≡𝟙"></a><a id="27271" href="README.html#27271" class="Function">/≡𝟙</a>  <a id="27276" class="Symbol">=</a> <a id="27278" href="Graded.Modality.Properties.Division.html#9144" class="Function">Graded.Modality.Properties.Division./≡𝟙′</a>
-<a id="𝟙/≡𝟙"></a><a id="27319" href="README.html#27319" class="Function">𝟙/≡𝟙</a> <a id="27324" class="Symbol">=</a> <a id="27326" href="Graded.Modality.Properties.Division.html#9366" class="Function">Graded.Modality.Properties.Division.𝟙/≡𝟙′</a>
-<a id="𝟘/≡𝟘"></a><a id="27368" href="README.html#27368" class="Function">𝟘/≡𝟘</a> <a id="27373" class="Symbol">=</a> <a id="27375" href="Graded.Modality.Properties.Division.html#9615" class="Function">Graded.Modality.Properties.Division.𝟘/≡𝟘′</a>
+<a id="25226" class="Comment">------------------------------------------------------------------------</a>
+<a id="25299" class="Comment">-- 7.2: Erased Matches</a>
 
-<a id="27418" class="Comment">------------------------------------------------------------------------</a>
-<a id="27491" class="Comment">-- 8: Extension: modes and graded Σ-types</a>
+<a id="25323" class="Comment">-- Theorem 7.1.</a>
 
-<a id="27534" class="Comment">-- Note that for the definitions and theorems in this section,</a>
-<a id="27597" class="Comment">-- a modality with the zero mode allowed should be used.</a>
+<a id="theorem-7-1"></a><a id="25340" href="README.html#25340" class="Function">theorem-7-1</a> <a id="25352" class="Symbol">=</a>
+  <a id="25356" href="Graded.Erasure.Consequences.Soundness.html#5397" class="Function">Graded.Erasure.Consequences.Soundness.Soundness.soundness-ℕ-only-source</a>
 
-<a id="27655" class="Comment">-- Modes.</a>
-<a id="27665" class="Comment">--</a>
-<a id="27668" class="Comment">-- The mode 1_M is denoted by 𝟙ᵐ. One can choose whether to allow or</a>
-<a id="27737" class="Comment">-- disallow 0_M. If 0_M is allowed, then it is represented by</a>
-<a id="27799" class="Comment">-- applications of the constructor 𝟘ᵐ: this constructor takes an</a>
-<a id="27864" class="Comment">-- argument which indicates that 0_M is allowed.</a>
+<a id="25429" class="Comment">-- If (certain kinds of) erased matches are allowed, and additionally</a>
+<a id="25499" class="Comment">-- some Σ-types are allowed, then there is a counterexample to</a>
+<a id="25562" class="Comment">-- Theorem 7.1 without the assumption &quot;erased matches are not allowed</a>
+<a id="25632" class="Comment">-- unless the context is empty&quot;.</a>
 
-<a id="Mode"></a><a id="27914" href="README.html#27914" class="Function">Mode</a> <a id="27919" class="Symbol">=</a> <a id="27921" href="Graded.Mode.html#1046" class="Datatype">Graded.Mode.Mode</a>
+<a id="counterexample₁"></a><a id="25666" href="README.html#25666" class="Function">counterexample₁</a> <a id="25682" class="Symbol">=</a>
+  <a id="25686" href="Graded.Erasure.Consequences.Soundness.html#6755" class="Function">Graded.Erasure.Consequences.Soundness.soundness-ℕ-only-source-counterexample</a>
 
-<a id="27939" class="Comment">-- Translating grades to modes.</a>
-<a id="27971" class="Comment">--</a>
-<a id="27974" class="Comment">-- In the paper this function is denoted by an underline.</a>
+<a id="25764" class="Comment">-- The above counterexample is not a counterexample to canonicity</a>
+<a id="25830" class="Comment">-- for the target language.</a>
 
-<a id="⌞_⌟"></a><a id="28033" href="README.html#28033" class="Function Operator">⌞_⌟</a> <a id="28037" class="Symbol">=</a> <a id="28039" href="Graded.Mode.html#3937" class="Function Operator">Graded.Mode.⌞_⌟</a>
+<a id="not-counterexample"></a><a id="25859" href="README.html#25859" class="Function">not-counterexample</a> <a id="25878" class="Symbol">=</a>
+  <a id="25882" href="Graded.Erasure.Consequences.Soundness.html#8529" class="Function">Graded.Erasure.Consequences.Soundness.soundness-ℕ-only-target-not-counterexample</a>
 
-<a id="28056" class="Comment">-- Translating modes to grades.</a>
-<a id="28088" class="Comment">--</a>
-<a id="28091" class="Comment">-- In the paper this function is denoted by an overline.</a>
+<a id="25964" class="Comment">-- If (certain kinds of) erased matches are allowed, and additionally</a>
+<a id="26034" class="Comment">-- some Σ-types are allowed, then one cannot prove a variant of the</a>
+<a id="26102" class="Comment">-- fundamental lemma (Theorem 6.12) without the assumption &quot;erased</a>
+<a id="26169" class="Comment">-- matches are not allowed or the context is empty&quot; (assuming that</a>
+<a id="26236" class="Comment">-- Agda is consistent).</a>
 
-<a id="⌜_⌝"></a><a id="28149" href="README.html#28149" class="Function Operator">⌜_⌝</a> <a id="28153" class="Symbol">=</a> <a id="28155" href="Graded.Mode.html#3651" class="Function Operator">Graded.Mode.⌜_⌝</a>
+<a id="counterexample₂"></a><a id="26261" href="README.html#26261" class="Function">counterexample₂</a> <a id="26277" class="Symbol">=</a>
+  <a id="26281" href="Graded.Erasure.LogicalRelation.Fundamental.Counterexample.html#2300" class="Function">Graded.Erasure.LogicalRelation.Fundamental.Counterexample.negation-of-fundamental-lemma-with-erased-matches</a>
 
-<a id="28172" class="Comment">-- Scaling modes by grades.</a>
+<a id="26390" class="Comment">------------------------------------------------------------------------</a>
+<a id="26463" class="Comment">-- 7.3: Unit Type</a>
 
-<a id="_⊙_"></a><a id="28201" href="README.html#28201" class="Function Operator">_⊙_</a> <a id="28205" class="Symbol">=</a> <a id="28207" href="Graded.Mode.html#4189" class="Function Operator">Graded.Mode._ᵐ·_</a>
+<a id="26482" class="Comment">-- A type- and resource-preserving procedure that takes a well-typed,</a>
+<a id="26552" class="Comment">-- well-resourced term to one of its η-long normal forms.</a>
+<a id="26610" class="Comment">--</a>
+<a id="26613" class="Comment">-- The procedure makes certain assumptions about types with</a>
+<a id="26673" class="Comment">-- η-equality.</a>
 
-<a id="28225" class="Comment">-- The syntax, the type system, and the reduction relations.</a>
+<a id="η-long-normal-forms"></a><a id="26689" href="README.html#26689" class="Function">η-long-normal-forms</a> <a id="26709" class="Symbol">=</a> <a id="26711" href="Graded.FullReduction.html#10490" class="Function">Graded.FullReduction.fullRedTerm</a>
 
-<a id="grammar′"></a><a id="28287" href="README.html#28287" class="Function">grammar′</a>  <a id="28297" class="Symbol">=</a> <a id="28299" href="Definition.Untyped.html#2121" class="Datatype">Definition.Untyped.Term</a>
-<a id="⊢′_"></a><a id="28323" href="README.html#28323" class="Function Operator">⊢′_</a>       <a id="28333" class="Symbol">=</a> <a id="28335" href="Definition.Typed.html#964" class="Datatype Operator">Definition.Typed.⊢_</a>
-<a id="_⊢′_"></a><a id="28355" href="README.html#28355" class="Function Operator">_⊢′_</a>      <a id="28365" class="Symbol">=</a> <a id="28367" href="Definition.Typed.html#1086" class="Datatype Operator">Definition.Typed._⊢_</a>
-<a id="_⊢′_∷_"></a><a id="28388" href="README.html#28388" class="Function Operator">_⊢′_∷_</a>    <a id="28398" class="Symbol">=</a> <a id="28400" href="Definition.Typed.html#1453" class="Datatype Operator">Definition.Typed._⊢_∷_</a>
-<a id="_⊢′_≡_"></a><a id="28423" href="README.html#28423" class="Function Operator">_⊢′_≡_</a>    <a id="28433" class="Symbol">=</a> <a id="28435" href="Definition.Typed.html#3423" class="Datatype Operator">Definition.Typed._⊢_≡_</a>
-<a id="_⊢′_≡_∷_"></a><a id="28458" href="README.html#28458" class="Function Operator">_⊢′_≡_∷_</a>  <a id="28468" class="Symbol">=</a> <a id="28470" href="Definition.Typed.html#3898" class="Datatype Operator">Definition.Typed._⊢_≡_∷_</a>
-<a id="_∷_∈′_"></a><a id="28495" href="README.html#28495" class="Function Operator">_∷_∈′_</a>    <a id="28505" class="Symbol">=</a> <a id="28507" href="Definition.Typed.html#769" class="Datatype Operator">Definition.Typed._∷_∈_</a>
-<a id="_⊢′_⇒_"></a><a id="28530" href="README.html#28530" class="Function Operator">_⊢′_⇒_</a>    <a id="28540" class="Symbol">=</a> <a id="28542" href="Definition.Typed.html#12308" class="Datatype Operator">Definition.Typed._⊢_⇒_</a>
-<a id="_⊢′_⇒_∷_"></a><a id="28565" href="README.html#28565" class="Function Operator">_⊢′_⇒_∷_</a>  <a id="28575" class="Symbol">=</a> <a id="28577" href="Definition.Typed.html#8919" class="Datatype Operator">Definition.Typed._⊢_⇒_∷_</a>
-<a id="_⊢′_⇒*_"></a><a id="28602" href="README.html#28602" class="Function Operator">_⊢′_⇒*_</a>   <a id="28612" class="Symbol">=</a> <a id="28614" href="Definition.Typed.html#12652" class="Datatype Operator">Definition.Typed._⊢_⇒*_</a>
-<a id="_⊢′_⇒*_∷_"></a><a id="28638" href="README.html#28638" class="Function Operator">_⊢′_⇒*_∷_</a> <a id="28648" class="Symbol">=</a> <a id="28650" href="Definition.Typed.html#12437" class="Datatype Operator">Definition.Typed._⊢_⇒*_∷_</a>
+<a id="26745" class="Comment">------------------------------------------------------------------------</a>
+<a id="26818" class="Comment">-- 7.4: Information Flow Interpretation</a>
 
-<a id="28677" class="Comment">-- The usage relation with modes.</a>
-<a id="28711" class="Comment">--</a>
-<a id="28714" class="Comment">-- In the paper the mode is written as a superscript instead of within</a>
-<a id="28785" class="Comment">-- braces.</a>
+<a id="26859" class="Comment">-- A non-interference result</a>
 
-<a id="_▸[_]_"></a><a id="28797" href="README.html#28797" class="Function Operator">_▸[_]_</a> <a id="28804" class="Symbol">=</a> <a id="28806" href="Graded.Usage.html#2169" class="Datatype Operator">Graded.Usage._▸[_]_</a>
+<a id="non-interference"></a><a id="26889" href="README.html#26889" class="Function">non-interference</a> <a id="26906" class="Symbol">=</a> <a id="26908" href="Graded.Erasure.Consequences.Non-interference.html#1995" class="Function">Graded.Erasure.Consequences.Non-interference.non-interference</a>
 
-<a id="28827" class="Comment">-- A term is well-resourced with respect to the zero usage context and</a>
-<a id="28898" class="Comment">-- the zero mode exactly when all subterms of the form</a>
-<a id="28953" class="Comment">-- prodrec_r,p^q A u v in t are allowed.</a>
+<a id="26971" class="Comment">-- If division by q is supported, then p / q is the least r such that</a>
+<a id="27041" class="Comment">-- p ≤ q · r, and _/ q is monotone.</a>
 
-<a id="𝟘ᶜ▸[𝟘ᵐ]⇔"></a><a id="28995" href="README.html#28995" class="Function">𝟘ᶜ▸[𝟘ᵐ]⇔</a> <a id="29004" class="Symbol">=</a> <a id="29006" href="Graded.Usage.Properties.html#20124" class="Function">Graded.Usage.Properties.𝟘ᶜ▸[𝟘ᵐ]⇔</a>
+<a id="/-least"></a><a id="27078" href="README.html#27078" class="Function">/-least</a>    <a id="27089" class="Symbol">=</a> <a id="27091" href="Graded.Modality.Properties.Division.html#7811" class="Function">Graded.Modality.Properties.Division./-least-≤·</a>
+<a id="/-monotone"></a><a id="27138" href="README.html#27138" class="Function">/-monotone</a> <a id="27149" class="Symbol">=</a> <a id="27151" href="Graded.Modality.Properties.Division.html#8325" class="Function">Graded.Modality.Properties.Division./-monotoneˡ′</a>
 
-<a id="29040" class="Comment">-- Theorem 8.2: Subject reduction for the usage relation with modes.</a>
+<a id="27201" class="Comment">-- The total order L ≤ M ≤ H.</a>
 
-<a id="Theorem-8-2"></a><a id="29110" href="README.html#29110" class="Function">Theorem-8-2</a> <a id="29122" class="Symbol">=</a> <a id="29124" href="Graded.Reduction.html#1707" class="Function">Graded.Reduction.usagePresTerm</a>
+<a id="L≤M≤H"></a><a id="27232" href="README.html#27232" class="Function">L≤M≤H</a> <a id="27238" class="Symbol">=</a> <a id="27240" href="Graded.Modality.Instances.Information-flow.html#14173" class="Function">Graded.Modality.Instances.Information-flow.L≤M≤H</a>
 
-<a id="29156" class="Comment">-- The extraction function.</a>
+<a id="27290" class="Comment">-- Division laws.</a>
 
-<a id="_•′"></a><a id="29185" href="README.html#29185" class="Function Operator">_•′</a> <a id="29189" class="Symbol">=</a> <a id="29191" href="Graded.Erasure.Extraction.html#994" class="Function">Graded.Erasure.Extraction.erase</a>
+<a id="/𝟙≡"></a><a id="27309" href="README.html#27309" class="Function">/𝟙≡</a>  <a id="27314" class="Symbol">=</a> <a id="27316" href="Graded.Modality.Properties.Division.html#8606" class="Function">Graded.Modality.Properties.Division./𝟙≡′</a>
+<a id="/𝟘≡𝟙"></a><a id="27357" href="README.html#27357" class="Function">/𝟘≡𝟙</a> <a id="27362" class="Symbol">=</a> <a id="27364" href="Graded.Modality.Properties.Division.html#8858" class="Function">Graded.Modality.Properties.Division./𝟘≡𝟙′</a>
+<a id="/≡𝟙"></a><a id="27406" href="README.html#27406" class="Function">/≡𝟙</a>  <a id="27411" class="Symbol">=</a> <a id="27413" href="Graded.Modality.Properties.Division.html#9144" class="Function">Graded.Modality.Properties.Division./≡𝟙′</a>
+<a id="𝟙/≡𝟙"></a><a id="27454" href="README.html#27454" class="Function">𝟙/≡𝟙</a> <a id="27459" class="Symbol">=</a> <a id="27461" href="Graded.Modality.Properties.Division.html#9366" class="Function">Graded.Modality.Properties.Division.𝟙/≡𝟙′</a>
+<a id="𝟘/≡𝟘"></a><a id="27503" href="README.html#27503" class="Function">𝟘/≡𝟘</a> <a id="27508" class="Symbol">=</a> <a id="27510" href="Graded.Modality.Properties.Division.html#9615" class="Function">Graded.Modality.Properties.Division.𝟘/≡𝟘′</a>
 
-<a id="29224" class="Comment">-- Theorem 8.3: Soundness of the extraction function.</a>
+<a id="27553" class="Comment">------------------------------------------------------------------------</a>
+<a id="27626" class="Comment">-- 8: Extension: Modes and Graded Σ-types</a>
 
-<a id="Theorem-8-3"></a><a id="29279" href="README.html#29279" class="Function">Theorem-8-3</a> <a id="29291" class="Symbol">=</a> <a id="29293" href="Graded.Erasure.Consequences.Soundness.html#4957" class="Function">Graded.Erasure.Consequences.Soundness.Soundness.soundness-ℕ</a>
+<a id="27669" class="Comment">-- Note that for the definitions and theorems in this section,</a>
+<a id="27732" class="Comment">-- a modality with the zero mode allowed should be used.</a>
 
-<a id="29354" class="Comment">-- A definition of η-long normal forms.</a>
+<a id="27790" class="Comment">-- Modes.</a>
+<a id="27800" class="Comment">--</a>
+<a id="27803" class="Comment">-- The mode 1_M is denoted by 𝟙ᵐ. One can choose whether to allow or</a>
+<a id="27872" class="Comment">-- disallow 0_M. If 0_M is allowed, then it is represented by</a>
+<a id="27934" class="Comment">-- applications of the constructor 𝟘ᵐ: this constructor takes an</a>
+<a id="27999" class="Comment">-- argument which indicates that 0_M is allowed.</a>
 
-<a id="_⊢nf_∷_"></a><a id="29395" href="README.html#29395" class="Function Operator">_⊢nf_∷_</a> <a id="29403" class="Symbol">=</a> <a id="29405" href="Definition.Typed.Eta-long-normal-form.html#2394" class="Datatype Operator">Definition.Typed.Eta-long-normal-form._⊢nf_∷_</a>
+<a id="Mode"></a><a id="28049" href="README.html#28049" class="Function">Mode</a> <a id="28054" class="Symbol">=</a> <a id="28056" href="Graded.Mode.html#1046" class="Datatype">Graded.Mode.Mode</a>
 
-<a id="29452" class="Comment">-- If &quot;Π 𝟙 , r&quot; and &quot;Σₚ p , q&quot; are allowed, then the identity function</a>
-<a id="29523" class="Comment">-- lam 𝟙 (var x0) has type</a>
-<a id="29550" class="Comment">-- Π 𝟙 , r ▷ Σₚ p , q ▷ ℕ ▹ ℕ ▹ Σₚ p , q ▷ ℕ ▹ ℕ, is well-resourced in</a>
-<a id="29621" class="Comment">-- the empty context, and is definitionally equal to the η-long normal</a>
-<a id="29692" class="Comment">-- form lam 𝟙 (prodₚ p (fst p (var x0)) (snd p (var x0))). However,</a>
-<a id="29760" class="Comment">-- this η-long normal form is well-resourced in the empty context if</a>
-<a id="29829" class="Comment">-- and only if either p is 𝟙, or p is 𝟘, 𝟘ᵐ is allowed, and 𝟙 ≤ 𝟘.</a>
+<a id="28074" class="Comment">-- Translating modes to grades.</a>
+<a id="28106" class="Comment">--</a>
+<a id="28109" class="Comment">-- In the paper this function is denoted by an overline.</a>
 
-<a id="η-long-nf-for-id⇔≡𝟙⊎≡𝟘"></a><a id="29897" href="README.html#29897" class="Function">η-long-nf-for-id⇔≡𝟙⊎≡𝟘</a> <a id="29920" class="Symbol">=</a> <a id="29922" href="Graded.Reduction.html#16107" class="Function">Graded.Reduction.η-long-nf-for-id⇔≡𝟙⊎≡𝟘</a>
+<a id="⌜_⌝"></a><a id="28167" href="README.html#28167" class="Function Operator">⌜_⌝</a> <a id="28171" class="Symbol">=</a> <a id="28173" href="Graded.Mode.html#3651" class="Function Operator">Graded.Mode.⌜_⌝</a>
 
-<a id="29963" class="Comment">-- A type- and resource-preserving procedure that takes a well-typed,</a>
-<a id="30033" class="Comment">-- well-resourced term to one of its η-long normal forms.</a>
-<a id="30091" class="Comment">--</a>
-<a id="30094" class="Comment">-- The procedure makes certain assumptions about types with</a>
-<a id="30154" class="Comment">-- η-equality.</a>
+<a id="28190" class="Comment">-- Translating grades to modes.</a>
+<a id="28222" class="Comment">--</a>
+<a id="28225" class="Comment">-- In the paper this function is denoted by an underline.</a>
 
-<a id="η-long-normal-forms′"></a><a id="30170" href="README.html#30170" class="Function">η-long-normal-forms′</a> <a id="30191" class="Symbol">=</a> <a id="30193" href="Graded.FullReduction.html#10490" class="Function">Graded.FullReduction.fullRedTerm</a>
+<a id="⌞_⌟"></a><a id="28284" href="README.html#28284" class="Function Operator">⌞_⌟</a> <a id="28288" class="Symbol">=</a> <a id="28290" href="Graded.Mode.html#3937" class="Function Operator">Graded.Mode.⌞_⌟</a>
 
-<a id="30227" class="Comment">-- The conditions for existence of η-long normal forms are satisfied</a>
-<a id="30296" class="Comment">-- for the unit modality.</a>
+<a id="28307" class="Comment">-- Scaling modes by grades.</a>
 
-<a id="unit"></a><a id="30323" href="README.html#30323" class="Function">unit</a> <a id="30328" class="Symbol">=</a> <a id="30330" href="Graded.Modality.Instances.Unit.html#4550" class="Function">Graded.Modality.Instances.Unit.full-reduction-assumptions</a>
+<a id="_⊙_"></a><a id="28336" href="README.html#28336" class="Function Operator">_⊙_</a> <a id="28340" class="Symbol">=</a> <a id="28342" href="Graded.Mode.html#4189" class="Function Operator">Graded.Mode._ᵐ·_</a>
 
-<a id="30389" class="Comment">-- The conditions are satisfied for the erasure modality if Σ_&amp;,0^q is</a>
-<a id="30460" class="Comment">-- only allowed when 𝟘ᵐ is allowed.</a>
+<a id="28360" class="Comment">-- The syntax, the type system, and the reduction relations.</a>
 
-<a id="erasure"></a><a id="30497" href="README.html#30497" class="Function">erasure</a> <a id="30505" class="Symbol">=</a>
-  <a id="30509" href="Graded.Modality.Instances.Erasure.Properties.html#6188" class="Function">Graded.Modality.Instances.Erasure.Properties.full-reduction-assumptions</a>
+<a id="grammar′"></a><a id="28422" href="README.html#28422" class="Function">grammar′</a>  <a id="28432" class="Symbol">=</a> <a id="28434" href="Definition.Untyped.html#2121" class="Datatype">Definition.Untyped.Term</a>
+<a id="⊢′_"></a><a id="28458" href="README.html#28458" class="Function Operator">⊢′_</a>       <a id="28468" class="Symbol">=</a> <a id="28470" href="Definition.Typed.html#964" class="Datatype Operator">Definition.Typed.⊢_</a>
+<a id="_⊢′_"></a><a id="28490" href="README.html#28490" class="Function Operator">_⊢′_</a>      <a id="28500" class="Symbol">=</a> <a id="28502" href="Definition.Typed.html#1086" class="Datatype Operator">Definition.Typed._⊢_</a>
+<a id="_⊢′_∷_"></a><a id="28523" href="README.html#28523" class="Function Operator">_⊢′_∷_</a>    <a id="28533" class="Symbol">=</a> <a id="28535" href="Definition.Typed.html#1453" class="Datatype Operator">Definition.Typed._⊢_∷_</a>
+<a id="_⊢′_≡_"></a><a id="28558" href="README.html#28558" class="Function Operator">_⊢′_≡_</a>    <a id="28568" class="Symbol">=</a> <a id="28570" href="Definition.Typed.html#3423" class="Datatype Operator">Definition.Typed._⊢_≡_</a>
+<a id="_⊢′_≡_∷_"></a><a id="28593" href="README.html#28593" class="Function Operator">_⊢′_≡_∷_</a>  <a id="28603" class="Symbol">=</a> <a id="28605" href="Definition.Typed.html#3898" class="Datatype Operator">Definition.Typed._⊢_≡_∷_</a>
+<a id="_∷_∈′_"></a><a id="28630" href="README.html#28630" class="Function Operator">_∷_∈′_</a>    <a id="28640" class="Symbol">=</a> <a id="28642" href="Definition.Typed.html#769" class="Datatype Operator">Definition.Typed._∷_∈_</a>
+<a id="_⊢′_⇒_"></a><a id="28665" href="README.html#28665" class="Function Operator">_⊢′_⇒_</a>    <a id="28675" class="Symbol">=</a> <a id="28677" href="Definition.Typed.html#12308" class="Datatype Operator">Definition.Typed._⊢_⇒_</a>
+<a id="_⊢′_⇒_∷_"></a><a id="28700" href="README.html#28700" class="Function Operator">_⊢′_⇒_∷_</a>  <a id="28710" class="Symbol">=</a> <a id="28712" href="Definition.Typed.html#8919" class="Datatype Operator">Definition.Typed._⊢_⇒_∷_</a>
+<a id="_⊢′_⇒*_"></a><a id="28737" href="README.html#28737" class="Function Operator">_⊢′_⇒*_</a>   <a id="28747" class="Symbol">=</a> <a id="28749" href="Definition.Typed.html#12652" class="Datatype Operator">Definition.Typed._⊢_⇒*_</a>
+<a id="_⊢′_⇒*_∷_"></a><a id="28773" href="README.html#28773" class="Function Operator">_⊢′_⇒*_∷_</a> <a id="28783" class="Symbol">=</a> <a id="28785" href="Definition.Typed.html#12437" class="Datatype Operator">Definition.Typed._⊢_⇒*_∷_</a>
 
-<a id="30582" class="Comment">-- The conditions are satisfied for the affine types modality if</a>
-<a id="30647" class="Comment">-- Σ_&amp;,0^q is only allowed when 𝟘ᵐ is allowed, and Σ_&amp;,ω^q is not</a>
-<a id="30713" class="Comment">-- allowed.</a>
+<a id="28812" class="Comment">-- Definition 8.1: The usage relation with modes.</a>
+<a id="28862" class="Comment">--</a>
+<a id="28865" class="Comment">-- In the paper the mode is written as a superscript instead of within</a>
+<a id="28936" class="Comment">-- braces.</a>
 
-<a id="affine"></a><a id="30726" href="README.html#30726" class="Function">affine</a> <a id="30733" class="Symbol">=</a> <a id="30735" href="Graded.Modality.Instances.Affine.html#2203" class="Function">Graded.Modality.Instances.Affine.full-reduction-assumptions</a>
+<a id="_▸[_]_"></a><a id="28948" href="README.html#28948" class="Function Operator">_▸[_]_</a> <a id="28955" class="Symbol">=</a> <a id="28957" href="Graded.Usage.html#2169" class="Datatype Operator">Graded.Usage._▸[_]_</a>
 
-<a id="30796" class="Comment">-- The conditions are satisfied for the linear types modality if the</a>
-<a id="30865" class="Comment">-- unit type with η-equality is not allowed, Σ_&amp;,0^q is not allowed,</a>
-<a id="30934" class="Comment">-- and Σ_&amp;,ω^q is not allowed.</a>
+<a id="28978" class="Comment">-- A term is well-resourced with respect to the zero usage context and</a>
+<a id="29049" class="Comment">-- the zero mode exactly when all subterms of the form</a>
+<a id="29104" class="Comment">-- prodrec_r,p^q A u v in t are allowed.</a>
 
-<a id="linear"></a><a id="30966" href="README.html#30966" class="Function">linear</a> <a id="30973" class="Symbol">=</a> <a id="30975" href="Graded.Modality.Instances.Linearity.html#2429" class="Function">Graded.Modality.Instances.Linearity.full-reduction-assumptions</a>
+<a id="𝟘ᶜ▸[𝟘ᵐ]⇔"></a><a id="29146" href="README.html#29146" class="Function">𝟘ᶜ▸[𝟘ᵐ]⇔</a> <a id="29155" class="Symbol">=</a> <a id="29157" href="Graded.Usage.Properties.html#20124" class="Function">Graded.Usage.Properties.𝟘ᶜ▸[𝟘ᵐ]⇔</a>
 
-<a id="31039" class="Comment">-- The conditions are satisfied for the linear or affine types</a>
-<a id="31102" class="Comment">-- modality if the unit type with η-equality is not allowed, Σ_&amp;,0^q</a>
-<a id="31171" class="Comment">-- is not allowed, Σ_&amp;,01^q is not allowed, and Σ_&amp;,ω^q is not</a>
-<a id="31234" class="Comment">-- allowed.</a>
+<a id="29191" class="Comment">-- Theorem 8.2: Subject reduction for the usage relation with modes.</a>
 
-<a id="linear-or-affine"></a><a id="31247" href="README.html#31247" class="Function">linear-or-affine</a> <a id="31264" class="Symbol">=</a>
-  <a id="31268" href="Graded.Modality.Instances.Linear-or-affine.html#36342" class="Function">Graded.Modality.Instances.Linear-or-affine.full-reduction-assumptions</a>
+<a id="Theorem-8-2"></a><a id="29261" href="README.html#29261" class="Function">Theorem-8-2</a> <a id="29273" class="Symbol">=</a> <a id="29275" href="Graded.Reduction.html#1707" class="Function">Graded.Reduction.usagePresTerm</a>
 
-<a id="31339" class="Comment">------------------------------------------------------------------------</a>
-<a id="31412" class="Comment">-- A: A logical relation for reducibility</a>
+<a id="29307" class="Comment">-- The extraction function.</a>
 
-<a id="31455" class="Comment">-- Combined reduction and typing relations</a>
+<a id="_•′"></a><a id="29336" href="README.html#29336" class="Function Operator">_•′</a> <a id="29340" class="Symbol">=</a> <a id="29342" href="Graded.Erasure.Extraction.html#994" class="Function">Graded.Erasure.Extraction.erase</a>
 
-<a id="_⊢_:⇒*:_∷_"></a><a id="31499" href="README.html#31499" class="Function Operator">_⊢_:⇒*:_∷_</a> <a id="31510" class="Symbol">=</a> <a id="31512" href="Definition.Typed.html#13672" class="Record Operator">Definition.Typed._⊢_:⇒*:_∷_</a>
-<a id="_⊢_:⇒*:_"></a><a id="31540" href="README.html#31540" class="Function Operator">_⊢_:⇒*:_</a> <a id="31549" class="Symbol">=</a> <a id="31551" href="Definition.Typed.html#13401" class="Record Operator">Definition.Typed._⊢_:⇒*:_</a>
+<a id="29375" class="Comment">-- Theorem 8.3: Soundness of the extraction function.</a>
 
-<a id="31578" class="Comment">-- Weakenings from context Γ to context Δ</a>
+<a id="Theorem-8-3"></a><a id="29430" href="README.html#29430" class="Function">Theorem-8-3</a> <a id="29442" class="Symbol">=</a> <a id="29444" href="Graded.Erasure.Consequences.Soundness.html#4957" class="Function">Graded.Erasure.Consequences.Soundness.Soundness.soundness-ℕ</a>
 
-<a id="_∷_⊇_"></a><a id="31621" href="README.html#31621" class="Function Operator">_∷_⊇_</a> <a id="31627" class="Symbol">=</a> <a id="31629" href="Definition.Typed.Weakening.html#764" class="Datatype Operator">Definition.Typed.Weakening._∷_⊇_</a>
+<a id="29505" class="Comment">-- A definition of η-long normal forms.</a>
 
-<a id="31663" class="Comment">-- Definition A.1: Reducibility of types</a>
-<a id="31704" class="Comment">-- In the paper, the type level is denoted with a subscript instead of within braces.</a>
+<a id="_⊢nf_∷_"></a><a id="29546" href="README.html#29546" class="Function Operator">_⊢nf_∷_</a> <a id="29554" class="Symbol">=</a> <a id="29556" href="Definition.Typed.Eta-long-normal-form.html#2394" class="Datatype Operator">Definition.Typed.Eta-long-normal-form._⊢nf_∷_</a>
 
-<a id="_⊩⟨_⟩_"></a><a id="31791" href="README.html#31791" class="Function Operator">_⊩⟨_⟩_</a> <a id="31798" class="Symbol">=</a> <a id="31800" href="Definition.LogicalRelation.html#17868" class="Function Operator">Definition.LogicalRelation._⊩⟨_⟩_</a>
+<a id="29603" class="Comment">-- If &quot;Π 𝟙 , r&quot; and &quot;Σₚ p , q&quot; are allowed, then the identity function</a>
+<a id="29674" class="Comment">-- lam 𝟙 (var x0) has type</a>
+<a id="29701" class="Comment">-- Π 𝟙 , r ▷ Σₚ p , q ▷ ℕ ▹ ℕ ▹ Σₚ p , q ▷ ℕ ▹ ℕ, is well-resourced in</a>
+<a id="29772" class="Comment">-- the empty context, and is definitionally equal to the η-long normal</a>
+<a id="29843" class="Comment">-- form lam 𝟙 (prodₚ p (fst p (var x0)) (snd p (var x0))). However,</a>
+<a id="29911" class="Comment">-- this η-long normal form is well-resourced in the empty context if</a>
+<a id="29980" class="Comment">-- and only if either p is 𝟙, or p is 𝟘, 𝟘ᵐ is allowed, and 𝟙 ≤ 𝟘.</a>
 
-<a id="31835" class="Comment">-- Definition A.2: Reducibility of terms</a>
-<a id="31876" class="Comment">-- In the paper, the type level is denoted with a subscript instead of within braces.</a>
+<a id="η-long-nf-for-id⇔≡𝟙⊎≡𝟘"></a><a id="30048" href="README.html#30048" class="Function">η-long-nf-for-id⇔≡𝟙⊎≡𝟘</a> <a id="30071" class="Symbol">=</a> <a id="30073" href="Graded.Reduction.html#16107" class="Function">Graded.Reduction.η-long-nf-for-id⇔≡𝟙⊎≡𝟘</a>
 
-<a id="_⊩⟨_⟩_∷_/_"></a><a id="31963" href="README.html#31963" class="Function Operator">_⊩⟨_⟩_∷_/_</a> <a id="31974" class="Symbol">=</a> <a id="31976" href="Definition.LogicalRelation.html#18186" class="Function Operator">Definition.LogicalRelation._⊩⟨_⟩_∷_/_</a>
+<a id="30114" class="Comment">-- A type- and resource-preserving procedure that takes a well-typed,</a>
+<a id="30184" class="Comment">-- well-resourced term to one of its η-long normal forms.</a>
+<a id="30242" class="Comment">--</a>
+<a id="30245" class="Comment">-- The procedure makes certain assumptions about types with</a>
+<a id="30305" class="Comment">-- η-equality.</a>
 
-<a id="32015" class="Comment">-- Reducibility of natural numbers.</a>
-<a id="32051" class="Comment">-- In the paper, ℕ is written as a subscript.</a>
+<a id="η-long-normal-forms′"></a><a id="30321" href="README.html#30321" class="Function">η-long-normal-forms′</a> <a id="30342" class="Symbol">=</a> <a id="30344" href="Graded.FullReduction.html#10490" class="Function">Graded.FullReduction.fullRedTerm</a>
 
-<a id="_⊩ℕ_"></a><a id="32098" href="README.html#32098" class="Function Operator">_⊩ℕ_</a> <a id="32103" class="Symbol">=</a> <a id="32105" href="Definition.LogicalRelation.html#2619" class="Record Operator">Definition.LogicalRelation._⊩ℕ_∷ℕ</a>
+<a id="30378" class="Comment">-- The conditions for existence of η-long normal forms are satisfied</a>
+<a id="30447" class="Comment">-- for the unit modality.</a>
 
-<a id="32140" class="Comment">-- Definition A.3: Equality of reducible types</a>
-<a id="32187" class="Comment">-- In the paper, the type level is denoted with a subscript instead of within braces.</a>
+<a id="unit"></a><a id="30474" href="README.html#30474" class="Function">unit</a> <a id="30479" class="Symbol">=</a> <a id="30481" href="Graded.Modality.Instances.Unit.html#4550" class="Function">Graded.Modality.Instances.Unit.full-reduction-assumptions</a>
 
-<a id="_⊩⟨_⟩_≡_/_"></a><a id="32274" href="README.html#32274" class="Function Operator">_⊩⟨_⟩_≡_/_</a> <a id="32285" class="Symbol">=</a> <a id="32287" href="Definition.LogicalRelation.html#18009" class="Function Operator">Definition.LogicalRelation._⊩⟨_⟩_≡_/_</a>
+<a id="30540" class="Comment">-- The conditions are satisfied for the erasure modality if Σ_&amp;,0^q is</a>
+<a id="30611" class="Comment">-- only allowed when 𝟘ᵐ is allowed. (Note that in section 8, 𝟘ᵐ is assumed</a>
+<a id="30686" class="Comment">-- to be allowed.)</a>
 
-<a id="32326" class="Comment">-- Definition A.4: Equality of reducible terms</a>
-<a id="32373" class="Comment">-- In the paper, the type level is denoted with a subscript instead of within braces.</a>
+<a id="erasure"></a><a id="30706" href="README.html#30706" class="Function">erasure</a> <a id="30714" class="Symbol">=</a>
+  <a id="30718" href="Graded.Modality.Instances.Erasure.Properties.html#6188" class="Function">Graded.Modality.Instances.Erasure.Properties.full-reduction-assumptions</a>
 
-<a id="_⊩⟨_⟩_≡_∷_/_"></a><a id="32460" href="README.html#32460" class="Function Operator">_⊩⟨_⟩_≡_∷_/_</a> <a id="32473" class="Symbol">=</a> <a id="32475" href="Definition.LogicalRelation.html#18370" class="Function Operator">Definition.LogicalRelation._⊩⟨_⟩_≡_∷_/_</a>
+<a id="30791" class="Comment">-- The conditions are satisfied for the affine types modality if</a>
+<a id="30856" class="Comment">-- Σ_&amp;,0^q is only allowed when 𝟘ᵐ is allowed, and Σ_&amp;,ω^q is not</a>
+<a id="30922" class="Comment">-- allowed.</a>
 
-<a id="32516" class="Comment">-- Equality of reducible natural numbers in.</a>
-<a id="32561" class="Comment">-- In the paper, ℕ is written as a subscript.</a>
+<a id="affine"></a><a id="30935" href="README.html#30935" class="Function">affine</a> <a id="30942" class="Symbol">=</a> <a id="30944" href="Graded.Modality.Instances.Affine.html#2203" class="Function">Graded.Modality.Instances.Affine.full-reduction-assumptions</a>
 
-<a id="_⊩ℕ_≡_"></a><a id="32608" href="README.html#32608" class="Function Operator">_⊩ℕ_≡_</a> <a id="32615" class="Symbol">=</a> <a id="32617" href="Definition.LogicalRelation.html#3114" class="Record Operator">Definition.LogicalRelation._⊩ℕ_≡_∷ℕ</a>
+<a id="31005" class="Comment">-- The conditions are satisfied for the linear types modality if the</a>
+<a id="31074" class="Comment">-- unit type with η-equality is not allowed, Σ_&amp;,0^q is not allowed,</a>
+<a id="31143" class="Comment">-- and Σ_&amp;,ω^q is not allowed.</a>
 
-<a id="32654" class="Comment">-- Definition A.6: Validity of contexts</a>
+<a id="linear"></a><a id="31175" href="README.html#31175" class="Function">linear</a> <a id="31182" class="Symbol">=</a> <a id="31184" href="Graded.Modality.Instances.Linearity.html#2429" class="Function">Graded.Modality.Instances.Linearity.full-reduction-assumptions</a>
 
-<a id="⊩ᵛ_"></a><a id="32695" href="README.html#32695" class="Function Operator">⊩ᵛ_</a> <a id="32699" class="Symbol">=</a> <a id="32701" href="Definition.LogicalRelation.Substitution.html#806" class="Datatype Operator">Definition.LogicalRelation.Substitution.⊩ᵛ_</a>
+<a id="31248" class="Comment">-- The conditions are satisfied for the linear or affine types</a>
+<a id="31311" class="Comment">-- modality if the unit type with η-equality is not allowed, Σ_&amp;,0^q</a>
+<a id="31380" class="Comment">-- is not allowed, Σ_&amp;,01^q is not allowed, and Σ_&amp;,ω^q is not</a>
+<a id="31443" class="Comment">-- allowed.</a>
 
-<a id="32746" class="Comment">-- Definition A.7: Validity of substitutions and equality of</a>
-<a id="32807" class="Comment">-- valid substitutions</a>
+<a id="linear-or-affine"></a><a id="31456" href="README.html#31456" class="Function">linear-or-affine</a> <a id="31473" class="Symbol">=</a>
+  <a id="31477" href="Graded.Modality.Instances.Linear-or-affine.html#36342" class="Function">Graded.Modality.Instances.Linear-or-affine.full-reduction-assumptions</a>
 
-<a id="_⊩ˢ_∷_/_/_"></a><a id="32831" href="README.html#32831" class="Function Operator">_⊩ˢ_∷_/_/_</a> <a id="32842" class="Symbol">=</a> <a id="32844" href="Definition.LogicalRelation.Substitution.html#1491" class="Function Operator">Definition.LogicalRelation.Substitution._⊩ˢ_∷_/_/_</a>
+<a id="31548" class="Comment">------------------------------------------------------------------------</a>
+<a id="31621" class="Comment">-- A: A Logical Relation for Reducibility</a>
 
-<a id="32896" class="Comment">-- Definition A.8: Validity of types, terms and equality of</a>
-<a id="32956" class="Comment">-- valid types and terms</a>
-<a id="32981" class="Comment">-- In the paper, the type levels are denoted with a subscript instead of within braces.</a>
+<a id="31664" class="Comment">-- Combined reduction and typing relations</a>
 
-<a id="_⊩ᵛ⟨_⟩_/_"></a><a id="33070" href="README.html#33070" class="Function Operator">_⊩ᵛ⟨_⟩_/_</a> <a id="33080" class="Symbol">=</a> <a id="33082" href="Definition.LogicalRelation.Substitution.html#953" class="Record Operator">Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_/_</a>
-<a id="_⊩ᵛ⟨_⟩_∷_/_/_"></a><a id="33132" href="README.html#33132" class="Function Operator">_⊩ᵛ⟨_⟩_∷_/_/_</a> <a id="33146" class="Symbol">=</a> <a id="33148" href="Definition.LogicalRelation.Substitution.html#2407" class="Function Operator">Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_∷_/_/_</a>
-<a id="_⊩ᵛ⟨_⟩_≡_/_/_"></a><a id="33202" href="README.html#33202" class="Function Operator">_⊩ᵛ⟨_⟩_≡_/_/_</a> <a id="33216" class="Symbol">=</a> <a id="33218" href="Definition.LogicalRelation.Substitution.html#2881" class="Function Operator">Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_≡_/_/_</a>
-<a id="_⊩ᵛ⟨_⟩_≡_∷_/_/_"></a><a id="33272" href="README.html#33272" class="Function Operator">_⊩ᵛ⟨_⟩_≡_∷_/_/_</a> <a id="33288" class="Symbol">=</a> <a id="33290" href="Definition.LogicalRelation.Substitution.html#3197" class="Function Operator">Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_≡_∷_/_/_</a>
+<a id="_⊢_:⇒*:_∷_"></a><a id="31708" href="README.html#31708" class="Function Operator">_⊢_:⇒*:_∷_</a> <a id="31719" class="Symbol">=</a> <a id="31721" href="Definition.Typed.html#13672" class="Record Operator">Definition.Typed._⊢_:⇒*:_∷_</a>
+<a id="_⊢_:⇒*:_"></a><a id="31749" href="README.html#31749" class="Function Operator">_⊢_:⇒*:_</a> <a id="31758" class="Symbol">=</a> <a id="31760" href="Definition.Typed.html#13401" class="Record Operator">Definition.Typed._⊢_:⇒*:_</a>
 
-<a id="33347" class="Comment">-- Theorem A.9: The fundamental lemma</a>
+<a id="31787" class="Comment">-- Weakenings from context Γ to context Δ</a>
 
-<a id="fundamentalType"></a><a id="33386" href="README.html#33386" class="Function">fundamentalType</a> <a id="33402" class="Symbol">=</a> <a id="33404" href="Definition.LogicalRelation.Fundamental.Reducibility.html#895" class="Function">Definition.LogicalRelation.Fundamental.Reducibility.reducible</a>
-<a id="fundamentalTerm"></a><a id="33466" href="README.html#33466" class="Function">fundamentalTerm</a> <a id="33482" class="Symbol">=</a> <a id="33484" href="Definition.LogicalRelation.Fundamental.Reducibility.html#1365" class="Function">Definition.LogicalRelation.Fundamental.Reducibility.reducibleTerm</a>
-<a id="fundamentalTypeEq"></a><a id="33550" href="README.html#33550" class="Function">fundamentalTypeEq</a> <a id="33568" class="Symbol">=</a> <a id="33570" href="Definition.LogicalRelation.Fundamental.Reducibility.html#1054" class="Function">Definition.LogicalRelation.Fundamental.Reducibility.reducibleEq</a>
-<a id="fundamentalTermEq"></a><a id="33634" href="README.html#33634" class="Function">fundamentalTermEq</a> <a id="33652" class="Symbol">=</a> <a id="33654" href="Definition.LogicalRelation.Fundamental.Reducibility.html#1618" class="Function">Definition.LogicalRelation.Fundamental.Reducibility.reducibleEqTerm</a>
+<a id="_∷_⊇_"></a><a id="31830" href="README.html#31830" class="Function Operator">_∷_⊇_</a> <a id="31836" class="Symbol">=</a> <a id="31838" href="Definition.Typed.Weakening.html#764" class="Datatype Operator">Definition.Typed.Weakening._∷_⊇_</a>
 
-<a id="33723" class="Comment">------------------------------------------------------------------------</a>
-<a id="33796" class="Comment">-- B: Usage inference</a>
+<a id="31872" class="Comment">-- Definition A.1: Reducibility of types</a>
+<a id="31913" class="Comment">-- In the paper, the type level is denoted with a subscript instead of within braces.</a>
 
-<a id="33819" class="Comment">-- Definition B.1: Usage inference</a>
+<a id="_⊩⟨_⟩_"></a><a id="32000" href="README.html#32000" class="Function Operator">_⊩⟨_⟩_</a> <a id="32007" class="Symbol">=</a> <a id="32009" href="Definition.LogicalRelation.html#17868" class="Function Operator">Definition.LogicalRelation._⊩⟨_⟩_</a>
 
-<a id="∣_∣"></a><a id="33855" href="README.html#33855" class="Function Operator">∣_∣</a> <a id="33859" class="Symbol">=</a> <a id="33861" href="Graded.Usage.html#958" class="Function Operator">Graded.Usage.⌈_⌉</a>
+<a id="32044" class="Comment">-- Definition A.2: Reducibility of terms</a>
+<a id="32085" class="Comment">-- In the paper, the type level is denoted with a subscript instead of within braces.</a>
 
-<a id="33879" class="Comment">-- Theorem B.2</a>
+<a id="_⊩⟨_⟩_∷_/_"></a><a id="32172" href="README.html#32172" class="Function Operator">_⊩⟨_⟩_∷_/_</a> <a id="32183" class="Symbol">=</a> <a id="32185" href="Definition.LogicalRelation.html#18186" class="Function Operator">Definition.LogicalRelation._⊩⟨_⟩_∷_/_</a>
 
-<a id="Theorem-B-2a"></a><a id="33895" href="README.html#33895" class="Function">Theorem-B-2a</a> <a id="33908" class="Symbol">=</a> <a id="33910" href="Graded.Usage.Properties.html#45370" class="Function">Graded.Usage.Properties.usage-inf</a>
-<a id="Theorem-B-2b"></a><a id="33944" href="README.html#33944" class="Function">Theorem-B-2b</a> <a id="33957" class="Symbol">=</a> <a id="33959" href="Graded.Usage.Properties.html#43250" class="Function">Graded.Usage.Properties.usage-upper-bound</a>
+<a id="32224" class="Comment">-- Reducibility of natural numbers.</a>
+<a id="32260" class="Comment">-- In the paper, ℕ is written as a subscript.</a>
 
-<a id="34002" class="Comment">-- Theorem B.3: Decidability of the usage relation</a>
+<a id="_⊩ℕ_"></a><a id="32307" href="README.html#32307" class="Function Operator">_⊩ℕ_</a> <a id="32312" class="Symbol">=</a> <a id="32314" href="Definition.LogicalRelation.html#2619" class="Record Operator">Definition.LogicalRelation._⊩ℕ_∷ℕ</a>
 
-<a id="Theorem-B-3a"></a><a id="34054" href="README.html#34054" class="Function">Theorem-B-3a</a> <a id="34067" class="Symbol">=</a> <a id="34069" href="Graded.Usage.Decidable.html#12690" class="Function Operator">Graded.Usage.Decidable.⌈⌉▸[_]?′_</a>
-<a id="Theorem-B-3b"></a><a id="34102" href="README.html#34102" class="Function">Theorem-B-3b</a> <a id="34115" class="Symbol">=</a> <a id="34117" href="Graded.Usage.Decidable.html#13516" class="Function Operator">Graded.Usage.Decidable._▸[_]?_</a>
+<a id="32349" class="Comment">-- Definition A.3: Equality of reducible types</a>
+<a id="32396" class="Comment">-- In the paper, the type level is denoted with a subscript instead of within braces.</a>
 
-<a id="34149" class="Comment">-- Definition B.4: Substitution matrix inference</a>
+<a id="_⊩⟨_⟩_≡_/_"></a><a id="32483" href="README.html#32483" class="Function Operator">_⊩⟨_⟩_≡_/_</a> <a id="32494" class="Symbol">=</a> <a id="32496" href="Definition.LogicalRelation.html#18009" class="Function Operator">Definition.LogicalRelation._⊩⟨_⟩_≡_/_</a>
 
-<a id="∥_∥"></a><a id="34199" href="README.html#34199" class="Function Operator">∥_∥</a> <a id="34203" class="Symbol">=</a> <a id="34205" href="Graded.Substitution.html#2120" class="Function Operator">Graded.Substitution.∥_∥</a>
+<a id="32535" class="Comment">-- Definition A.4: Equality of reducible terms</a>
+<a id="32582" class="Comment">-- In the paper, the type level is denoted with a subscript instead of within braces.</a>
 
-<a id="34230" class="Comment">-- Theorem B.5</a>
+<a id="_⊩⟨_⟩_≡_∷_/_"></a><a id="32669" href="README.html#32669" class="Function Operator">_⊩⟨_⟩_≡_∷_/_</a> <a id="32682" class="Symbol">=</a> <a id="32684" href="Definition.LogicalRelation.html#18370" class="Function Operator">Definition.LogicalRelation._⊩⟨_⟩_≡_∷_/_</a>
 
-<a id="Theorem-B-5"></a><a id="34246" href="README.html#34246" class="Function">Theorem-B-5</a> <a id="34258" class="Symbol">=</a> <a id="34260" href="Graded.Substitution.Properties.html#56249" class="Function">Graded.Substitution.Properties.subst-calc-correct′</a>
+<a id="32725" class="Comment">-- Equality of reducible natural numbers in.</a>
+<a id="32770" class="Comment">-- In the paper, ℕ is written as a subscript.</a>
+
+<a id="_⊩ℕ_≡_"></a><a id="32817" href="README.html#32817" class="Function Operator">_⊩ℕ_≡_</a> <a id="32824" class="Symbol">=</a> <a id="32826" href="Definition.LogicalRelation.html#3114" class="Record Operator">Definition.LogicalRelation._⊩ℕ_≡_∷ℕ</a>
+
+<a id="32863" class="Comment">-- Definition A.6: Validity of contexts</a>
+
+<a id="⊩ᵛ_"></a><a id="32904" href="README.html#32904" class="Function Operator">⊩ᵛ_</a> <a id="32908" class="Symbol">=</a> <a id="32910" href="Definition.LogicalRelation.Substitution.html#806" class="Datatype Operator">Definition.LogicalRelation.Substitution.⊩ᵛ_</a>
+
+<a id="32955" class="Comment">-- Definition A.7: Validity of substitutions and equality of</a>
+<a id="33016" class="Comment">-- valid substitutions</a>
+
+<a id="_⊩ˢ_∷_/_/_"></a><a id="33040" href="README.html#33040" class="Function Operator">_⊩ˢ_∷_/_/_</a> <a id="33051" class="Symbol">=</a> <a id="33053" href="Definition.LogicalRelation.Substitution.html#1491" class="Function Operator">Definition.LogicalRelation.Substitution._⊩ˢ_∷_/_/_</a>
+
+<a id="33105" class="Comment">-- Definition A.8: Validity of types, terms and equality of</a>
+<a id="33165" class="Comment">-- valid types and terms</a>
+<a id="33190" class="Comment">-- In the paper, the type levels are denoted with a subscript instead of within braces.</a>
+
+<a id="_⊩ᵛ⟨_⟩_/_"></a><a id="33279" href="README.html#33279" class="Function Operator">_⊩ᵛ⟨_⟩_/_</a> <a id="33289" class="Symbol">=</a> <a id="33291" href="Definition.LogicalRelation.Substitution.html#953" class="Record Operator">Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_/_</a>
+<a id="_⊩ᵛ⟨_⟩_∷_/_/_"></a><a id="33341" href="README.html#33341" class="Function Operator">_⊩ᵛ⟨_⟩_∷_/_/_</a> <a id="33355" class="Symbol">=</a> <a id="33357" href="Definition.LogicalRelation.Substitution.html#2407" class="Function Operator">Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_∷_/_/_</a>
+<a id="_⊩ᵛ⟨_⟩_≡_/_/_"></a><a id="33411" href="README.html#33411" class="Function Operator">_⊩ᵛ⟨_⟩_≡_/_/_</a> <a id="33425" class="Symbol">=</a> <a id="33427" href="Definition.LogicalRelation.Substitution.html#2881" class="Function Operator">Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_≡_/_/_</a>
+<a id="_⊩ᵛ⟨_⟩_≡_∷_/_/_"></a><a id="33481" href="README.html#33481" class="Function Operator">_⊩ᵛ⟨_⟩_≡_∷_/_/_</a> <a id="33497" class="Symbol">=</a> <a id="33499" href="Definition.LogicalRelation.Substitution.html#3197" class="Function Operator">Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_≡_∷_/_/_</a>
+
+<a id="33556" class="Comment">-- Theorem A.9: The fundamental lemma</a>
+
+<a id="fundamentalType"></a><a id="33595" href="README.html#33595" class="Function">fundamentalType</a> <a id="33611" class="Symbol">=</a> <a id="33613" href="Definition.LogicalRelation.Fundamental.Reducibility.html#895" class="Function">Definition.LogicalRelation.Fundamental.Reducibility.reducible</a>
+<a id="fundamentalTerm"></a><a id="33675" href="README.html#33675" class="Function">fundamentalTerm</a> <a id="33691" class="Symbol">=</a> <a id="33693" href="Definition.LogicalRelation.Fundamental.Reducibility.html#1365" class="Function">Definition.LogicalRelation.Fundamental.Reducibility.reducibleTerm</a>
+<a id="fundamentalTypeEq"></a><a id="33759" href="README.html#33759" class="Function">fundamentalTypeEq</a> <a id="33777" class="Symbol">=</a> <a id="33779" href="Definition.LogicalRelation.Fundamental.Reducibility.html#1054" class="Function">Definition.LogicalRelation.Fundamental.Reducibility.reducibleEq</a>
+<a id="fundamentalTermEq"></a><a id="33843" href="README.html#33843" class="Function">fundamentalTermEq</a> <a id="33861" class="Symbol">=</a> <a id="33863" href="Definition.LogicalRelation.Fundamental.Reducibility.html#1618" class="Function">Definition.LogicalRelation.Fundamental.Reducibility.reducibleEqTerm</a>
+
+<a id="33932" class="Comment">------------------------------------------------------------------------</a>
+<a id="34005" class="Comment">-- B: Usage Inference</a>
+
+<a id="34028" class="Comment">-- Definition B.1: Usage inference</a>
+
+<a id="∣_∣"></a><a id="34064" href="README.html#34064" class="Function Operator">∣_∣</a> <a id="34068" class="Symbol">=</a> <a id="34070" href="Graded.Usage.html#958" class="Function Operator">Graded.Usage.⌈_⌉</a>
+
+<a id="34088" class="Comment">-- Theorem B.2</a>
+
+<a id="Theorem-B-2a"></a><a id="34104" href="README.html#34104" class="Function">Theorem-B-2a</a> <a id="34117" class="Symbol">=</a> <a id="34119" href="Graded.Usage.Properties.html#45370" class="Function">Graded.Usage.Properties.usage-inf</a>
+<a id="Theorem-B-2b"></a><a id="34153" href="README.html#34153" class="Function">Theorem-B-2b</a> <a id="34166" class="Symbol">=</a> <a id="34168" href="Graded.Usage.Properties.html#43250" class="Function">Graded.Usage.Properties.usage-upper-bound</a>
+
+<a id="34211" class="Comment">-- Theorem B.3: Decidability of the usage relation</a>
+
+<a id="Theorem-B-3a"></a><a id="34263" href="README.html#34263" class="Function">Theorem-B-3a</a> <a id="34276" class="Symbol">=</a> <a id="34278" href="Graded.Usage.Decidable.html#12690" class="Function Operator">Graded.Usage.Decidable.⌈⌉▸[_]?′_</a>
+<a id="Theorem-B-3b"></a><a id="34311" href="README.html#34311" class="Function">Theorem-B-3b</a> <a id="34324" class="Symbol">=</a> <a id="34326" href="Graded.Usage.Decidable.html#13516" class="Function Operator">Graded.Usage.Decidable._▸[_]?_</a>
+
+<a id="34358" class="Comment">-- Definition B.4: Substitution matrix inference</a>
+
+<a id="∥_∥"></a><a id="34408" href="README.html#34408" class="Function Operator">∥_∥</a> <a id="34412" class="Symbol">=</a> <a id="34414" href="Graded.Substitution.html#2120" class="Function Operator">Graded.Substitution.∥_∥</a>
+
+<a id="34439" class="Comment">-- Theorem B.5</a>
+
+<a id="Theorem-B-5"></a><a id="34455" href="README.html#34455" class="Function">Theorem-B-5</a> <a id="34467" class="Symbol">=</a> <a id="34469" href="Graded.Substitution.Properties.html#56249" class="Function">Graded.Substitution.Properties.subst-calc-correct′</a>
 </pre></body></html>
