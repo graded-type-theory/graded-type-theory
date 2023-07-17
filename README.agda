@@ -152,7 +152,7 @@ no-erased-matches = Graded.Restrictions.no-erased-matches
 -- and the algorithmic equality relations.
 
 ------------------------------------------------------------------------
--- 2.2: Usage accounting also in types
+-- 2.2: Usage Accounting Also in Types
 
 -- A relation which can be used to force the two grade annotations on
 -- Π- and Σ-types to be equal.
@@ -160,9 +160,9 @@ no-erased-matches = Graded.Restrictions.no-erased-matches
 ΠΣ-allowed′ = Definition.Typed.Restrictions.Type-restrictions.ΠΣ-allowed
 
 ------------------------------------------------------------------------
--- 3: Modalities as grades in an ordered semiring
+-- 3: Modalities as Ordered Semirings
 
--- Definition 3.1: The modality semiring.
+-- Definition 3.1: Modalities.
 --
 -- For the variant of the type theory in Sections 3-5 the mode 𝟘ᵐ should
 -- be disallowed, i.e. 𝟘ᵐ-allowed should be false, and there should be
@@ -247,7 +247,7 @@ linearOrAffineModality =
 ⊛-greatest₂ = Graded.Modality.Instances.Linear-or-affine.⊛-greatest
 
 ------------------------------------------------------------------------
--- 4: Type theory with grades
+-- 4: Type Theory with Grades
 
 -- The grammar of the language.
 --
@@ -349,6 +349,10 @@ _∷_∈_               = Definition.Typed._∷_∈_
 
 Con = Definition.Untyped.Con
 
+-- A weakening lemma
+
+wkEq = Definition.Typed.Weakening.wkEq
+
 -- A derived congruence rule for Π and Σ-types with fewer assumptions
 
 ΠΣ-cong′ = Definition.Typed.Consequences.DerivedRules.ΠΣ-cong′
@@ -425,7 +429,7 @@ decTypeCheckType  = Definition.Typed.Decidable.decConTypeᶜ
 decTypeCheckType′ = Definition.Typed.Decidable.dec
 
 ------------------------------------------------------------------------
--- 5: Assigning grades
+-- 5: Assigning Grades
 
 -- Definition 5.1: The usage relation.
 --
@@ -445,6 +449,10 @@ decTypeCheckType′ = Definition.Typed.Decidable.dec
 
 _▹_ = Graded.Usage._▸[_]_
 
+-- A safe head function for lists
+
+safe-head = Graded.Erasure.Examples.head
+
 -- A decision procedure for usage.
 --
 -- The decision procedure for usage takes an argument of type
@@ -452,6 +460,14 @@ _▹_ = Graded.Usage._▸[_]_
 -- usage rule for natrec from Section 7.1.4 is used.
 
 decision-procedure-for-usage = Graded.Usage.Decidable.▸[_]?_
+
+-- Substitution matrices
+
+subst-matrix = Graded.Substitution.Substₘ
+
+-- grade context - substitution matrix multiplication
+
+_<*_ = Graded.Substitution._<*_
 
 -- Definition 5.2.
 --
@@ -473,7 +489,7 @@ main-substitution-lemma = Graded.Substitution.Properties.substₘ-lemma
 Theorem-5-4 = Graded.Reduction.usagePresTerm
 
 ------------------------------------------------------------------------
--- 6: Erasure case study
+-- 6: Erasure Case Study
 
 -- Definition 6.1: Well-behaved zeros.
 --
@@ -649,8 +665,7 @@ _®⟨_⟩_∷_◂_/_/_ = Graded.Erasure.LogicalRelation._®⟨_⟩_∷[_]_◂_/
 -- Definition 6.7: Erasure validity
 --
 -- In the paper the type level is written as a subscript instead of
--- within braces, and the first two (explicit) arguments have been
--- swapped.
+-- within braces.
 
 _▸_⊩ʳ⟨_⟩_∷_/_/_ = Graded.Erasure.LogicalRelation._▸_⊩ʳ⟨_⟩_∷[_]_/_/_
 
@@ -693,7 +708,7 @@ soundness = Graded.Erasure.Consequences.Soundness.Soundness.soundness-ℕ
 -- 7: Discussion
 
 ------------------------------------------------------------------------
--- 7.1: Modalities for the recursor
+-- 7.1: Modalities for the Recursor
 
 -- A lawful definition of ⊛ᵣ for lower bounded structures.
 
@@ -733,11 +748,7 @@ not-greatest =
 ▹-with-alternative-usage-rule-for-natrec = Graded.Usage._▸[_]_
 
 ------------------------------------------------------------------------
--- 7.2: Erased matches
-
--- A safe head function for lists
-
-safe-head = Graded.Erasure.Examples.head
+-- 7.2: Erased Matches
 
 -- Theorem 7.1.
 
@@ -768,7 +779,7 @@ counterexample₂ =
   Graded.Erasure.LogicalRelation.Fundamental.Counterexample.negation-of-fundamental-lemma-with-erased-matches
 
 ------------------------------------------------------------------------
--- 7.3: Unit type
+-- 7.3: Unit Type
 
 -- A type- and resource-preserving procedure that takes a well-typed,
 -- well-resourced term to one of its η-long normal forms.
@@ -779,7 +790,7 @@ counterexample₂ =
 η-long-normal-forms = Graded.FullReduction.fullRedTerm
 
 ------------------------------------------------------------------------
--- 7.4: Information flow interpretation
+-- 7.4: Information Flow Interpretation
 
 -- A non-interference result
 
@@ -804,7 +815,7 @@ L≤M≤H = Graded.Modality.Instances.Information-flow.L≤M≤H
 𝟘/≡𝟘 = Graded.Modality.Properties.Division.𝟘/≡𝟘′
 
 ------------------------------------------------------------------------
--- 8: Extension: modes and graded Σ-types
+-- 8: Extension: Modes and Graded Σ-types
 
 -- Note that for the definitions and theorems in this section,
 -- a modality with the zero mode allowed should be used.
@@ -818,17 +829,17 @@ L≤M≤H = Graded.Modality.Instances.Information-flow.L≤M≤H
 
 Mode = Graded.Mode.Mode
 
--- Translating grades to modes.
---
--- In the paper this function is denoted by an underline.
-
-⌞_⌟ = Graded.Mode.⌞_⌟
-
 -- Translating modes to grades.
 --
 -- In the paper this function is denoted by an overline.
 
 ⌜_⌝ = Graded.Mode.⌜_⌝
+
+-- Translating grades to modes.
+--
+-- In the paper this function is denoted by an underline.
+
+⌞_⌟ = Graded.Mode.⌞_⌟
 
 -- Scaling modes by grades.
 
@@ -848,7 +859,7 @@ _⊢′_⇒_∷_  = Definition.Typed._⊢_⇒_∷_
 _⊢′_⇒*_   = Definition.Typed._⊢_⇒*_
 _⊢′_⇒*_∷_ = Definition.Typed._⊢_⇒*_∷_
 
--- The usage relation with modes.
+-- Definition 8.1: The usage relation with modes.
 --
 -- In the paper the mode is written as a superscript instead of within
 -- braces.
@@ -901,7 +912,8 @@ _⊢nf_∷_ = Definition.Typed.Eta-long-normal-form._⊢nf_∷_
 unit = Graded.Modality.Instances.Unit.full-reduction-assumptions
 
 -- The conditions are satisfied for the erasure modality if Σ_&,0^q is
--- only allowed when 𝟘ᵐ is allowed.
+-- only allowed when 𝟘ᵐ is allowed. (Note that in section 8, 𝟘ᵐ is assumed
+-- to be allowed.)
 
 erasure =
   Graded.Modality.Instances.Erasure.Properties.full-reduction-assumptions
@@ -927,7 +939,7 @@ linear-or-affine =
   Graded.Modality.Instances.Linear-or-affine.full-reduction-assumptions
 
 ------------------------------------------------------------------------
--- A: A logical relation for reducibility
+-- A: A Logical Relation for Reducibility
 
 -- Combined reduction and typing relations
 
@@ -994,7 +1006,7 @@ fundamentalTypeEq = Definition.LogicalRelation.Fundamental.Reducibility.reducibl
 fundamentalTermEq = Definition.LogicalRelation.Fundamental.Reducibility.reducibleEqTerm
 
 ------------------------------------------------------------------------
--- B: Usage inference
+-- B: Usage Inference
 
 -- Definition B.1: Usage inference
 
