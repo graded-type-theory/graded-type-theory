@@ -148,7 +148,7 @@ module Soundness (FA : Fundamental-assumptions Δ) where
   -- Well-typed terms of the natural number type reduce to numerals
   -- if erased matches are disallowed or the term is closed.
   --
-  -- Note that some assumptions are given as module parameters.
+  -- Note the assumptions of the local module Soundness.
 
   soundness-ℕ : Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t
               → ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ × erase t ⇒ˢ* sucᵏ′ n
@@ -161,7 +161,7 @@ module Soundness (FA : Fundamental-assumptions Δ) where
   -- A variant of soundness-ℕ which only considers the source
   -- language.
   --
-  -- Note that some assumptions are given as module parameters.
+  -- Note the assumptions of the local module Soundness.
 
   soundness-ℕ-only-source :
     Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
@@ -178,7 +178,7 @@ module Soundness (FA : Fundamental-assumptions Δ) where
 
   -- WH reduction soundness of unit
   --
-  -- Note that some assumptions are given as module parameters.
+  -- Note the assumptions of the local module Soundness.
 
   soundness-star :
     Δ ⊢ t ⇒* star ∷ Unit → 𝟘ᶜ ▸[ 𝟙ᵐ ] t → erase t T.⇒* T.star
