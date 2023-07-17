@@ -708,7 +708,7 @@ soundness = Graded.Erasure.Consequences.Soundness.Soundness.soundness-ℕ
 -- 7: Discussion
 
 ------------------------------------------------------------------------
--- 7.1: Modalities for the Recursor
+-- 7.1: Natrec-Star
 
 -- A lawful definition of ⊛ᵣ for lower bounded structures.
 
