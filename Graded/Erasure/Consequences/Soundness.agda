@@ -3,8 +3,6 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
-open import Graded.Restrictions
-  using (No-erased-matches)
 open import Graded.Usage.Restrictions
 open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
