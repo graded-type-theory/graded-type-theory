@@ -39,6 +39,7 @@ import Definition.Typed.Decidable.Equality
 import Definition.Typed.Eta-long-normal-form
 import Definition.Typed.Properties
 import Definition.Typed.Restrictions
+import Definition.Typed.Weakening
 import Definition.Untyped
 import Definition.Untyped.Sigma
 
@@ -932,6 +933,10 @@ linear-or-affine =
 
 _⊢_:⇒*:_∷_ = Definition.Typed._⊢_:⇒*:_∷_
 _⊢_:⇒*:_ = Definition.Typed._⊢_:⇒*:_
+
+-- Weakenings from context Γ to context Δ
+
+_∷_⊇_ = Definition.Typed.Weakening._∷_⊇_
 
 -- Definition A.1: Reducibility of types
 -- In the paper, the type level is denoted with a subscript instead of within braces.
