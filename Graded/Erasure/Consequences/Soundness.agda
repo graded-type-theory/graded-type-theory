@@ -262,7 +262,7 @@ soundness-ℕ-only-source-counterexample {p = p} P-ok Σᵣ-ok =
 
 soundness-ℕ-only-target-not-counterexample :
   let t = prodrec 𝟘 p 𝟘 ℕ (var {n = 1} x0) zero
-  in  erase t ⇒ˢ* T.zero
+  in  erase t ⇒ˢ* sucᵏ′ 0
 soundness-ℕ-only-target-not-counterexample
   with is-𝟘? 𝟘
 ... | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 refl)
