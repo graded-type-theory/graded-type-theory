@@ -987,7 +987,8 @@ _⊩ℕ_≡_ = Definition.LogicalRelation._⊩ℕ_≡_∷ℕ
 -- Definition A.7: Validity of substitutions and equality of
 -- valid substitutions
 
-_⊩ˢ_∷_/_/_ = Definition.LogicalRelation.Substitution._⊩ˢ_∷_/_/_
+_⊩ˢ_∷_/_/_     = Definition.LogicalRelation.Substitution._⊩ˢ_∷_/_/_
+_⊩ˢ_≡_∷_/_/_/_ = Definition.LogicalRelation.Substitution._⊩ˢ_≡_∷_/_/_/_
 
 -- Definition A.8: Validity of types, terms and equality of
 -- valid types and terms
