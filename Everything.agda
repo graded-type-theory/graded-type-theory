@@ -236,33 +236,11 @@ import Graded.Modality.Instances.Nat-plus-infinity
 import
   Graded.Modality.Instances.Bounded-distributive-lattice.No-division
 
--- The type Erased.
-import Graded.Derived.Erased.Untyped
-import Graded.Derived.Erased.Typed
-import Graded.Derived.Erased.Usage
-
--- The type Unrestricted (defined using a Σ-type with η-equality).
-import Graded.Derived.Unrestricted.Eta.Untyped
-import Graded.Derived.Unrestricted.Eta.Typed
-import Graded.Derived.Unrestricted.Eta.Usage
-
 -- Subject reduction for modalities.
 import Graded.Reduction
 
 -- A "full reduction" lemma for modalities.
 import Graded.FullReduction
-
--- Modality morphisms and quantity translations
-import Definition.Untyped.QuantityTranslation
-import Graded.Modality.Morphism
-import Graded.Modality.Morphism.Forward-instances
-import Graded.Modality.Morphism.Backward-instances
-import Graded.Modality.Morphism.Type-restrictions
-import Graded.Modality.Morphism.Usage-restrictions
-import Definition.Typed.QuantityTranslation
-import Graded.Context.QuantityTranslation
-import Graded.Mode.QuantityTranslation
-import Graded.Usage.QuantityTranslation
 
 
 ------------------------------------------------------------------------
@@ -317,22 +295,6 @@ import Graded.Erasure.Consequences.Non-interference
 -- Some examples related to the erasure modality and extraction
 
 import Graded.Erasure.Examples
-
-------------------------------------------------------------------------
--- Some applications
-
--- Application: consistent negative axioms preserve canonicity
-import Application.NegativeAxioms.NegativeType
-import Application.NegativeAxioms.NegativeContext
-import Application.NegativeAxioms.Canonicity
-
--- Application: consistent negative or erased axioms preserve canonicity
-import Application.NegativeOrErasedAxioms.NegativeOrErasedType
-import Application.NegativeOrErasedAxioms.NegativeOrErasedContext
-import Application.NegativeOrErasedAxioms.Canonicity
-import Application.NegativeOrErasedAxioms.Canonicity.Erased
--- ... but not if matching is allowed on erased pairs
-import Application.NegativeOrErasedAxioms.Canonicity.ErasedMatches
 
 ------------------------------------------------------------------------
 -- Pointers to code related to a paper
