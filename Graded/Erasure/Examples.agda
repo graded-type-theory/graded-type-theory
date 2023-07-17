@@ -422,13 +422,13 @@ private module Vec-lemmas (⊢A : Γ ⊢ A ∷ U) where
 
   ⊢Vec-body₁′ : Γ ∙ U ⊢ Vec-body₁ ∷ Π ω , q ▷ ℕ ▹ U
   ⊢Vec-body₁′ = W.wkTerm
-    (W.lift W.wk₀∷⊆)
+    (W.lift W.wk₀∷⊇)
     (⊢Γ ∙ Uⱼ ⊢Γ)
     ⊢Vec-body₁
 
   ⊢Vec-body₁″ : Γ ∙ A ∙ U ⊢ Vec-body₁ ∷ Π ω , q ▷ ℕ ▹ U
   ⊢Vec-body₁″ = W.wkTerm
-    (W.lift (W.step W.wk₀∷⊆))
+    (W.lift (W.step W.wk₀∷⊇))
     (⊢ΓA ∙ Uⱼ ⊢ΓA)
     ⊢Vec-body₁
 
@@ -560,7 +560,7 @@ Non-zero∘zero⇒* :
   Γ ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ zero ⇒* Empty ∷ U
 Non-zero∘zero⇒* ⊢Γ =
   β-red (ℕⱼ ⊢Γ) (Uⱼ ⊢Γℕ)
-    (W.wkTerm (W.lift W.wk₀∷⊆) ⊢Γℕ ⊢Non-zero-body)
+    (W.wkTerm (W.lift W.wk₀∷⊇) ⊢Γℕ ⊢Non-zero-body)
     (zeroⱼ ⊢Γ) PE.refl Π-ω-ok ⇨
   (redMany $
    natrec-zero (Uⱼ ⊢Γℕ) (Emptyⱼ ⊢Γ)
@@ -575,7 +575,7 @@ Non-zero∘suc⇒* :
   Γ ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ suc t ⇒* Unit ∷ U
 Non-zero∘suc⇒* ⊢t =
   β-red (ℕⱼ ⊢Γ) (Uⱼ ⊢Γℕ)
-    (W.wkTerm (W.lift W.wk₀∷⊆) ⊢Γℕ ⊢Non-zero-body)
+    (W.wkTerm (W.lift W.wk₀∷⊇) ⊢Γℕ ⊢Non-zero-body)
     (sucⱼ ⊢t) PE.refl Π-ω-ok ⇨
   (redMany $
    natrec-suc (Uⱼ ⊢Γℕ) (Emptyⱼ ⊢Γ)

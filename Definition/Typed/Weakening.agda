@@ -30,34 +30,34 @@ private
 
 -- Weakening type
 
-data _∷_⊆_ : Wk m n → Con Term m → Con Term n → Set a where
-  id   :             id     ∷ Γ            ⊆ Γ
-  step : ρ ∷ Δ ⊆ Γ → step ρ ∷ Δ ∙ A        ⊆ Γ
-  lift : ρ ∷ Δ ⊆ Γ → lift ρ ∷ Δ ∙ U.wk ρ A ⊆ Γ ∙ A
+data _∷_⊇_ : Wk m n → Con Term m → Con Term n → Set a where
+  id   :             id     ∷ Γ            ⊇ Γ
+  step : ρ ∷ Δ ⊇ Γ → step ρ ∷ Δ ∙ A        ⊇ Γ
+  lift : ρ ∷ Δ ⊇ Γ → lift ρ ∷ Δ ∙ U.wk ρ A ⊇ Γ ∙ A
 
 
 -- Weakening composition
 
-_•ₜ_ : ρ ∷ Γ ⊆ Δ → ρ′ ∷ Δ ⊆ Δ′ → ρ • ρ′ ∷ Γ ⊆ Δ′
+_•ₜ_ : ρ ∷ Γ ⊇ Δ → ρ′ ∷ Δ ⊇ Δ′ → ρ • ρ′ ∷ Γ ⊇ Δ′
 id     •ₜ η′ = η′
 step η •ₜ η′ = step (η •ₜ η′)
 lift η •ₜ id = lift η
 lift η •ₜ step η′ = step (η •ₜ η′)
 _•ₜ_ {ρ = lift ρ} {ρ′ = lift ρ′} {Δ′ = Δ′ ∙ A} (lift η) (lift η′) =
-  PE.subst (λ x → lift (ρ • ρ′) ∷ x ⊆ Δ′ ∙ A)
+  PE.subst (λ x → lift (ρ • ρ′) ∷ x ⊇ Δ′ ∙ A)
            (PE.cong₂ _∙_ PE.refl (PE.sym (wk-comp ρ ρ′ A)))
            (lift (η •ₜ η′))
 
 -- Typed weakenings corresponding to the untyped weakenings returned
 -- by wk₀.
 
-wk₀∷⊆ : wk₀ ∷ Γ ⊆ ε
-wk₀∷⊆ {Γ = ε}     = id
-wk₀∷⊆ {Γ = _ ∙ _} = step wk₀∷⊆
+wk₀∷⊇ : wk₀ ∷ Γ ⊇ ε
+wk₀∷⊇ {Γ = ε}     = id
+wk₀∷⊇ {Γ = _ ∙ _} = step wk₀∷⊇
 
 -- Weakening of judgements
 
-wkIndex : ∀ {n} → ρ ∷ Δ ⊆ Γ →
+wkIndex : ∀ {n} → ρ ∷ Δ ⊇ Γ →
         let ρA = U.wk ρ A
             ρn = wkVar ρ n
         in  n ∷ A ∈ Γ → ρn ∷ ρA ∈ Δ
@@ -76,7 +76,7 @@ wkIndex (lift ρ) here =
                here
 
 mutual
-  wk : ρ ∷ Δ ⊆ Γ →
+  wk : ρ ∷ Δ ⊇ Γ →
      let ρA = U.wk ρ A
      in  ⊢ Δ → Γ ⊢ A → Δ ⊢ ρA
   wk ρ ⊢Δ (ℕⱼ ⊢Γ) = ℕⱼ ⊢Δ
@@ -88,7 +88,7 @@ mutual
     ρF = wk ρ ⊢Δ F
   wk ρ ⊢Δ (univ A) = univ (wkTerm ρ ⊢Δ A)
 
-  wkTerm : {Δ : Con Term m} {ρ : Wk m n} → ρ ∷ Δ ⊆ Γ →
+  wkTerm : {Δ : Con Term m} {ρ : Wk m n} → ρ ∷ Δ ⊇ Γ →
          let ρA = U.wk ρ A
              ρt = U.wk ρ t
          in ⊢ Δ → Γ ⊢ t ∷ A → Δ ⊢ ρt ∷ ρA
@@ -153,7 +153,7 @@ mutual
   wkTerm ρ ⊢Δ (starⱼ ⊢Γ ok) = starⱼ ⊢Δ ok
   wkTerm ρ ⊢Δ (conv t A≡B) = conv (wkTerm ρ ⊢Δ t) (wkEq ρ ⊢Δ A≡B)
 
-  wkEq : ρ ∷ Δ ⊆ Γ →
+  wkEq : ρ ∷ Δ ⊇ Γ →
        let ρA = U.wk ρ A
            ρB = U.wk ρ B
        in ⊢ Δ → Γ ⊢ A ≡ B → Δ ⊢ ρA ≡ ρB
@@ -166,7 +166,7 @@ mutual
     where
     ρF = wk ρ ⊢Δ F
 
-  wkEqTerm : {Δ : Con Term m} {ρ : Wk m n} → ρ ∷ Δ ⊆ Γ →
+  wkEqTerm : {Δ : Con Term m} {ρ : Wk m n} → ρ ∷ Δ ⊇ Γ →
            let ρA = U.wk ρ A
                ρt = U.wk ρ t
                ρu = U.wk ρ u
@@ -331,13 +331,13 @@ mutual
   wkEqTerm ρ ⊢Δ (η-unit e e') = η-unit (wkTerm ρ ⊢Δ e) (wkTerm ρ ⊢Δ e')
 
 mutual
-  wkRed : ρ ∷ Δ ⊆ Γ →
+  wkRed : ρ ∷ Δ ⊇ Γ →
            let ρA = U.wk ρ A
                ρB = U.wk ρ B
            in ⊢ Δ → Γ ⊢ A ⇒ B → Δ ⊢ ρA ⇒ ρB
   wkRed ρ ⊢Δ (univ A⇒B) = univ (wkRedTerm ρ ⊢Δ A⇒B)
 
-  wkRedTerm : {Δ : Con Term m} {ρ : Wk m n} → ρ ∷ Δ ⊆ Γ →
+  wkRedTerm : {Δ : Con Term m} {ρ : Wk m n} → ρ ∷ Δ ⊇ Γ →
            let ρA = U.wk ρ A
                ρt = U.wk ρ t
                ρu = U.wk ρ u
@@ -467,14 +467,14 @@ mutual
     (emptyrec-subst (wk [ρ] ⊢Δ ⊢A)
                     (wkRedTerm [ρ] ⊢Δ n⇒n′))
 
-wkRed* : ρ ∷ Δ ⊆ Γ →
+wkRed* : ρ ∷ Δ ⊇ Γ →
            let ρA = U.wk ρ A
                ρB = U.wk ρ B
            in ⊢ Δ → Γ ⊢ A ⇒* B → Δ ⊢ ρA ⇒* ρB
 wkRed* ρ ⊢Δ (id A) = id (wk ρ ⊢Δ A)
 wkRed* ρ ⊢Δ (A⇒A′ ⇨ A′⇒*B) = wkRed ρ ⊢Δ A⇒A′ ⇨ wkRed* ρ ⊢Δ A′⇒*B
 
-wkRed*Term : ρ ∷ Δ ⊆ Γ →
+wkRed*Term : ρ ∷ Δ ⊇ Γ →
            let ρA = U.wk ρ A
                ρt = U.wk ρ t
                ρu = U.wk ρ u
@@ -482,13 +482,13 @@ wkRed*Term : ρ ∷ Δ ⊆ Γ →
 wkRed*Term ρ ⊢Δ (id t) = id (wkTerm ρ ⊢Δ t)
 wkRed*Term ρ ⊢Δ (t⇒t′ ⇨ t′⇒*u) = wkRedTerm ρ ⊢Δ t⇒t′ ⇨ wkRed*Term ρ ⊢Δ t′⇒*u
 
-wkRed:*: : ρ ∷ Δ ⊆ Γ →
+wkRed:*: : ρ ∷ Δ ⊇ Γ →
          let ρA = U.wk ρ A
              ρB = U.wk ρ B
          in ⊢ Δ → Γ ⊢ A :⇒*: B → Δ ⊢ ρA :⇒*: ρB
 wkRed:*: ρ ⊢Δ [ ⊢A , ⊢B , D ] = [ wk ρ ⊢Δ ⊢A , wk ρ ⊢Δ ⊢B , wkRed* ρ ⊢Δ D ]
 
-wkRed:*:Term : ρ ∷ Δ ⊆ Γ →
+wkRed:*:Term : ρ ∷ Δ ⊇ Γ →
              let ρA = U.wk ρ A
                  ρt = U.wk ρ t
                  ρu = U.wk ρ u

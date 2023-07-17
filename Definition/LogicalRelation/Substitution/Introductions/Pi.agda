@@ -17,7 +17,7 @@ open Type-restrictions R
 open import Definition.Untyped M as U hiding (wk ; _∷_)
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
-open import Definition.Typed.Weakening R using (_∷_⊆_)
+open import Definition.Typed.Weakening R using (_∷_⊇_)
 open import Definition.Typed.Properties R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.ShapeView R
@@ -63,7 +63,7 @@ private
       ⊢G {σ′} [σ′] = escape (proj₁ ([G]σ {σ′} [σ′]))
       ⊢G≡G = escapeEq (proj₁ ([G]σ [σ])) (reflEq (proj₁ ([G]σ [σ])))
       ⊢ΠF▹G = ⟦ W ⟧ⱼ (⊢F [σ]) (⊢G [σ]) ok
-      [G]a : ∀ {m} {ρ : Wk m k} {Δ₁} a ([ρ] : ρ ∷ Δ₁ ⊆ Δ) (⊢Δ₁ : ⊢ Δ₁)
+      [G]a : ∀ {m} {ρ : Wk m k} {Δ₁} a ([ρ] : ρ ∷ Δ₁ ⊇ Δ) (⊢Δ₁ : ⊢ Δ₁)
              ([a] : Δ₁ ⊩⟨ l ⟩ a ∷ F [ ρ •ₛ σ ]
                 / proj₁ (unwrap [F] ⊢Δ₁ (wkSubstS [Γ] ⊢Δ ⊢Δ₁ [ρ] [σ])))
            → Σ (Δ₁ ⊩⟨ l ⟩ G [ consSubst (ρ •ₛ σ) a ])
@@ -82,7 +82,7 @@ private
                               (consSubstS {t = a} {A = F} [Γ] ⊢Δ₁
                                           (wkSubstS [Γ] ⊢Δ ⊢Δ₁ [ρ] [σ])
                                           [F] [a]))
-      [G]a′ : ∀ {m} {ρ : Wk m k} {Δ₁} a ([ρ] : ρ ∷ Δ₁ ⊆ Δ) (⊢Δ₁ : ⊢ Δ₁)
+      [G]a′ : ∀ {m} {ρ : Wk m k} {Δ₁} a ([ρ] : ρ ∷ Δ₁ ⊇ Δ) (⊢Δ₁ : ⊢ Δ₁)
             → Δ₁ ⊩⟨ l ⟩ a ∷ F [ ρ •ₛ σ ]
                  / proj₁ (unwrap [F] ⊢Δ₁ (wkSubstS [Γ] ⊢Δ ⊢Δ₁ [ρ] [σ]))
             → Δ₁ ⊩⟨ l ⟩ U.wk (lift ρ) (G [ liftSubst σ ]) [ a ]₀

@@ -51,7 +51,7 @@ mutual
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
     let ΠF₁G₁≡ΠF′G′       = whrDet* (red D₁ , ⟦ W ⟧ₙ) (D′ , ⟦ W ⟧ₙ)
         F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity W W ΠF₁G₁≡ΠF′G′
-        [F₁≡F] : ∀ {ℓ : Nat} {Δ : Con Term ℓ} {ρ : Wk ℓ n} ([ρ] : ρ W.∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ)
+        [F₁≡F] : ∀ {ℓ : Nat} {Δ : Con Term ℓ} {ρ : Wk ℓ n} ([ρ] : ρ W.∷ Δ ⊇ Γ) (⊢Δ : ⊢ Δ)
                → Δ ⊩⟨ l′ ⟩ (wk ρ F₁) ≡ (wk ρ F) / [F]₁ [ρ] ⊢Δ
         [F₁≡F] {_} {Δ} {ρ} [ρ] ⊢Δ =
           let ρF′≡ρF₁ ρ = PE.cong (wk ρ) (PE.sym F₁≡F′)

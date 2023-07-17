@@ -30,7 +30,7 @@ private
 
 mutual
   -- Weakening of algorithmic equality of neutrals.
-  wk~↑ : ∀ {t u A Γ Δ} ([ρ] : ρ ∷ Δ ⊆ Γ) → ⊢ Δ
+  wk~↑ : ∀ {t u A Γ Δ} ([ρ] : ρ ∷ Δ ⊇ Γ) → ⊢ Δ
       → Γ ⊢ t ~ u ↑ A
       → Δ ⊢ U.wk ρ t ~ U.wk ρ u ↑ U.wk ρ A
   wk~↑ {ρ = ρ} [ρ] ⊢Δ (var-refl x₁ x≡y) = var-refl (wkTerm [ρ] ⊢Δ x₁) (PE.cong (wkVar ρ) x≡y)
@@ -76,14 +76,14 @@ mutual
     emptyrec-cong (wkConv↑ [ρ] ⊢Δ x) (wk~↓ [ρ] ⊢Δ t~u)
 
   -- Weakening of algorithmic equality of neutrals in WHNF.
-  wk~↓ : ∀ {t u A Γ Δ} ([ρ] : ρ ∷ Δ ⊆ Γ) → ⊢ Δ
+  wk~↓ : ∀ {t u A Γ Δ} ([ρ] : ρ ∷ Δ ⊇ Γ) → ⊢ Δ
       → Γ ⊢ t ~ u ↓ A
       → Δ ⊢ U.wk ρ t ~ U.wk ρ u ↓ U.wk ρ A
   wk~↓ {ρ = ρ} [ρ] ⊢Δ ([~] A₁ D whnfA k~l) =
     [~] (U.wk ρ A₁) (wkRed* [ρ] ⊢Δ D) (wkWhnf ρ whnfA) (wk~↑ [ρ] ⊢Δ k~l)
 
   -- Weakening of algorithmic equality of types.
-  wkConv↑ : ∀ {A B Γ Δ} ([ρ] : ρ ∷ Δ ⊆ Γ) → ⊢ Δ
+  wkConv↑ : ∀ {A B Γ Δ} ([ρ] : ρ ∷ Δ ⊇ Γ) → ⊢ Δ
           → Γ ⊢ A [conv↑] B
           → Δ ⊢ U.wk ρ A [conv↑] U.wk ρ B
   wkConv↑ {ρ = ρ} [ρ] ⊢Δ ([↑] A′ B′ D D′ whnfA′ whnfB′ A′<>B′) =
@@ -91,7 +91,7 @@ mutual
         (wkWhnf ρ whnfA′) (wkWhnf ρ whnfB′) (wkConv↓ [ρ] ⊢Δ A′<>B′)
 
   -- Weakening of algorithmic equality of types in WHNF.
-  wkConv↓ : ∀ {A B Γ Δ} ([ρ] : ρ ∷ Δ ⊆ Γ) → ⊢ Δ
+  wkConv↓ : ∀ {A B Γ Δ} ([ρ] : ρ ∷ Δ ⊇ Γ) → ⊢ Δ
          → Γ ⊢ A [conv↓] B
          → Δ ⊢ U.wk ρ A [conv↓] U.wk ρ B
   wkConv↓ ρ ⊢Δ (U-refl x) = U-refl ⊢Δ
@@ -105,7 +105,7 @@ mutual
           (wkConv↑ (lift ρ) (⊢Δ ∙ ⊢ρF) A<>B₁) ok
 
   -- Weakening of algorithmic equality of terms.
-  wkConv↑Term : ∀ {t u A Γ Δ} ([ρ] : ρ ∷ Δ ⊆ Γ) → ⊢ Δ
+  wkConv↑Term : ∀ {t u A Γ Δ} ([ρ] : ρ ∷ Δ ⊇ Γ) → ⊢ Δ
              → Γ ⊢ t [conv↑] u ∷ A
              → Δ ⊢ U.wk ρ t [conv↑] U.wk ρ u ∷ U.wk ρ A
   wkConv↑Term {ρ = ρ} [ρ] ⊢Δ ([↑]ₜ B t′ u′ D d d′ whnfB whnft′ whnfu′ t<>u) =
@@ -115,7 +115,7 @@ mutual
          (wkConv↓Term [ρ] ⊢Δ t<>u)
 
   -- Weakening of algorithmic equality of terms in WHNF.
-  wkConv↓Term : ∀ {t u A Γ Δ} ([ρ] : ρ ∷ Δ ⊆ Γ) → ⊢ Δ
+  wkConv↓Term : ∀ {t u A Γ Δ} ([ρ] : ρ ∷ Δ ⊇ Γ) → ⊢ Δ
              → Γ ⊢ t [conv↓] u ∷ A
              → Δ ⊢ U.wk ρ t [conv↓] U.wk ρ u ∷ U.wk ρ A
   wkConv↓Term ρ ⊢Δ (ℕ-ins x) =

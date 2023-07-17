@@ -13,7 +13,7 @@ module Definition.Conversion.EqRelInstance
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-open import Definition.Typed.Weakening R using (_∷_⊆_; wkEq)
+open import Definition.Typed.Weakening R using (_∷_⊇_; wkEq)
 open import Definition.Conversion R
 open import Definition.Conversion.Reduction R
 open import Definition.Conversion.Universe R
@@ -191,7 +191,7 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
   in  ↑ x k~m
 
 ~-wk : ∀ {k l A} {ρ : Wk m n} {Γ Δ} →
-      ρ ∷ Δ ⊆ Γ →
+      ρ ∷ Δ ⊇ Γ →
       ⊢ Δ → Γ ⊢ k ~ l ∷ A → Δ ⊢ wk ρ k ~ wk ρ l ∷ wk ρ A
 ~-wk x x₁ (↑ x₂ x₃) = ↑ (wkEq x x₁ x₂) (wk~↑ x x₁ x₃)
 

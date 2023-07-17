@@ -62,7 +62,7 @@ data NegativeType (Γ : Cxt m) : Ty m → Set a where
 
 -- Lemma: Negative types are closed under weakening.
 
-wkNeg : ρ ∷ Δ ⊆ Γ → ⊢ Δ → NegativeType Γ A → NegativeType Δ (U.wk ρ A)
+wkNeg : ρ ∷ Δ ⊇ Γ → ⊢ Δ → NegativeType Γ A → NegativeType Δ (U.wk ρ A)
 
 wkNeg w ⊢Δ empty
   = empty

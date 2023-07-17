@@ -14,7 +14,7 @@ open Type-restrictions R
 
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Typed R
-open import Definition.Typed.Weakening R using (_∷_⊆_)
+open import Definition.Typed.Weakening R using (_∷_⊇_)
 
 open import Tools.Fin
 open import Tools.Level
@@ -84,15 +84,15 @@ record EqRelSet : Set (lsuc ℓ) where
     ~-conv : Γ ⊢ k ~ l ∷ A → Γ ⊢ A ≡ B → Γ ⊢ k ~ l ∷ B
 
     -- Weakening
-    ≅-wk  : ρ ∷ Δ ⊆ Γ
+    ≅-wk  : ρ ∷ Δ ⊇ Γ
           → ⊢ Δ
           → Γ ⊢ A ≅ B
           → Δ ⊢ wk ρ A ≅ wk ρ B
-    ≅ₜ-wk : ρ ∷ Δ ⊆ Γ
+    ≅ₜ-wk : ρ ∷ Δ ⊇ Γ
           → ⊢ Δ
           → Γ ⊢ t ≅ u ∷ A
           → Δ ⊢ wk ρ t ≅ wk ρ u ∷ wk ρ A
-    ~-wk  : ρ ∷ Δ ⊆ Γ
+    ~-wk  : ρ ∷ Δ ⊇ Γ
           → ⊢ Δ
           → Γ ⊢ k ~ l ∷ A
           → Δ ⊢ wk ρ k ~ wk ρ l ∷ wk ρ A
