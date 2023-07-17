@@ -4,7 +4,6 @@
 
 open import Graded.Modality
 open import Graded.Usage.Restrictions
-open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
 
 module Graded.Erasure.Consequences.Soundness
@@ -14,10 +13,8 @@ module Graded.Erasure.Consequences.Soundness
   (TR : Type-restrictions M)
   (UR : Usage-restrictions M)
   (𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet)
-  {{eqrel : EqRelSet TR}}
   where
 
-open EqRelSet {{...}}
 open Type-restrictions TR
 open Usage-restrictions UR
 
@@ -27,6 +24,7 @@ open import Definition.Typed TR
 open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Consequences.Substitution TR
 import Definition.Typed.Consequences.Canonicity TR as TC
+open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Properties TR
 open import Definition.LogicalRelation TR
 
@@ -79,7 +77,10 @@ sucᵏ′ (1+ n) = T.suc (sucᵏ′ n)
 
 -- The following results make use of some assumptions.
 
-module Soundness (FA : Fundamental-assumptions Δ) where
+module Soundness′
+  (FA : Fundamental-assumptions Δ)
+  {{eqrel : EqRelSet TR}}
+  where
 
   open Fundamental-assumptions FA
 
@@ -142,6 +143,31 @@ module Soundness (FA : Fundamental-assumptions Δ) where
     in  1+ n , ⇒ˢ*∷ℕ-trans (whred* x) (sucred* d)
              , ⇒ˢ*-trans (whred*′ x₁) (sucred*′ d′)
 
+  -- Helper lemma for WH reduction soundness of unit
+
+  soundness-star′ : t ® v ∷Unit → v T.⇒* T.star
+  soundness-star′ (starᵣ _ v⇒star) = v⇒star
+
+-- The following results make use of some assumptions.
+
+module Soundness (FA⁻ : Fundamental-assumptions⁻ Δ) where
+
+  private module L (⊢Δ : ⊢ Δ) where
+
+    open import Definition.Typed.EqRelInstance TR public
+
+    FA : Fundamental-assumptions Δ
+    FA = record
+      { well-formed       = ⊢Δ
+      ; other-assumptions = FA⁻
+      }
+
+    open Soundness′ FA public
+
+    open LRF.Fundamental FA public
+    open LRI ⊢Δ public
+    open LRS ⊢Δ public
+
   -- Soundness for erasure of natural numbers
   -- Well-typed terms of the natural number type reduce to numerals
   -- if erased matches are disallowed or the term is closed.
@@ -153,8 +179,12 @@ module Soundness (FA : Fundamental-assumptions Δ) where
   soundness-ℕ ⊢t 𝟘▸t =
     let [ℕ] , t®v = fundamentalErased ⊢t 𝟘▸t
     in  soundness-ℕ′ $
-        irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ (idRed:*: (ℕⱼ well-formed)))
+        irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ (idRed:*: (ℕⱼ ⊢Δ)))
           (t®v ◀≢𝟘 𝟙≢𝟘)
+    where
+    ⊢Δ = wfTerm ⊢t
+
+    open L ⊢Δ
 
   -- A variant of soundness-ℕ which only considers the source
   -- language.
@@ -169,11 +199,6 @@ module Soundness (FA : Fundamental-assumptions Δ) where
       (n , t⇒ˢ*n , _) →
         n , t⇒ˢ*n }
 
-  -- Helper lemma for WH reduction soundness of unit
-
-  soundness-star′ : t ® v ∷Unit → v T.⇒* T.star
-  soundness-star′ (starᵣ _ v⇒star) = v⇒star
-
   -- WH reduction soundness of unit
   --
   -- Note the assumptions of the local module Soundness.
@@ -186,17 +211,20 @@ module Soundness (FA : Fundamental-assumptions Δ) where
         ok = ⊢∷Unit→Unit-allowed ⊢t
         t®t″ = irrelevanceTerm {l′ = ¹}
                  [⊤]
-                 (Unitᵣ (Unitₜ (idRed:*: (Unitⱼ well-formed ok)) ok))
+                 (Unitᵣ (Unitₜ (idRed:*: (Unitⱼ ⊢Δ ok)) ok))
                  (t®t′ ◀≢𝟘 𝟙≢𝟘)
     in  soundness-star′ t®t″
+    where
+    ⊢Δ = wfTerm (redFirst*Term t⇒star)
 
+    open L ⊢Δ
 
 -- If the context is empty, then the results in Soundness hold without
 -- any further assumptions.
 
 module Soundness₀ where
 
-  open Soundness fundamental-assumptions₀ public
+  open Soundness fundamental-assumptions⁻₀ public
 
 -- If Prodrec-allowed 𝟘 p 𝟘 holds for some p (which means that certain
 -- kinds of erased matches are allowed), and if additionally
@@ -210,14 +238,12 @@ soundness-ℕ-only-source-counterexample :
   let Δ = ε ∙ (Σᵣ p , 𝟘 ▷ ℕ ▹ ℕ)
       t = prodrec 𝟘 p 𝟘 ℕ (var x0) zero
   in
-  ⊢ Δ ×
   (∀ {u} → Δ ⊢ u ∷ Empty → ⊥) ×
   Δ ⊢ t ∷ ℕ ×
   𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
   ¬ ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
 soundness-ℕ-only-source-counterexample {p = p} P-ok Σᵣ-ok =
-    wfTerm ⊢prodrec
-  , (λ ⊢t → TC.¬Empty $
+    (λ ⊢t → TC.¬Empty $
             substTerm ⊢t (prodⱼ ε⊢ℕ εℕ⊢ℕ (zeroⱼ ε) (zeroⱼ ε) Σᵣ-ok))
   , ⊢prodrec
   , sub
