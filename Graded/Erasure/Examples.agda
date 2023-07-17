@@ -2,19 +2,19 @@
 -- Some examples related to the erasure modality and extraction
 ------------------------------------------------------------------------
 
-open import Tools.Bool using (Bool)
+open import Tools.Level
 
 open import Graded.Modality.Instances.Erasure
+open import Graded.Modality.Variant lzero
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
 
 module Graded.Erasure.Examples
   {p q r}
+  (variant : Modality-variant)
   (TR : Type-restrictions Erasure)
   (open Type-restrictions TR)
   (UR : Usage-restrictions Erasure)
-  -- Is 𝟘ᵐ available?
-  (𝟘ᵐ-available : Bool)
   -- It is assumed that "Π 𝟘 , p" is allowed.
   (Π-𝟘-ok : Π-allowed 𝟘 p)
   -- It is assumed that "Π ω , q" is allowed.
@@ -28,7 +28,6 @@ module Graded.Erasure.Examples
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Level
 open import Tools.Nat using (Nat; 1+)
 open import Tools.Nullary
 open import Tools.Product
@@ -48,27 +47,14 @@ import Definition.Typed.Weakening TR as W
 open import Definition.Untyped Erasure as U hiding (id; head; _∷_)
 open import Definition.Untyped.Properties Erasure
 
-open import Graded.Modality.Dedicated-star
 open import Graded.Modality.Instances.Erasure.Modality
-open import Graded.Modality.Variant lzero
 
 private
-
-  -- This module uses a variant of the erasure modality with a
-  -- dedicated natrec-star operator.
-
-  variant : Modality-variant
-  variant = ⊛-available-and-𝟘ᵐ-available-if 𝟘ᵐ-available
 
   EM : Modality
   EM = ErasureModality variant
 
   module EM = Modality EM
-
-  instance
-
-    has-star : Dedicated-star EM
-    has-star = _
 
 open import Graded.Modality.Instances.Erasure.Properties variant
 
@@ -324,7 +310,7 @@ Vec = lam ω Vec-body₁
 ▸Vec =
   lamₘ $
   lamₘ $
-  natrecₘ Unitₘ
+  natrec-star-or-no-starₘ Unitₘ
     (ΠΣₘ var $
      sub var $
      let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
@@ -338,6 +324,8 @@ Vec = lam ω Vec-body₁
      let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
        𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ EM.·-zeroʳ _ ⟩
        𝟘ᶜ                ∎)
+    ≤ᶜ-refl
+    ≤ᶜ-refl
 
 private
 
@@ -541,13 +529,15 @@ Non-zero = lam ω Non-zero-body
 ▸Non-zero : ε ▸[ 𝟙ᵐ ] Non-zero
 ▸Non-zero =
   lamₘ $
-  natrecₘ Emptyₘ
+  natrec-star-or-no-starₘ Emptyₘ
     Unitₘ
     var
     (sub Uₘ $
      let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
        𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ EM.·-zeroʳ _ ⟩
        𝟘ᶜ                ∎)
+    ≤ᶜ-refl
+    ≤ᶜ-refl
 
 private
 
@@ -627,7 +617,7 @@ erase-head = PE.refl
 ▸head =
   lamₘ $
   lamₘ $
-  natrecₘ
+  natrec-star-or-no-starₘ
     (lamₘ $
      lamₘ $
      sub (emptyrecₘ var var) $
@@ -662,6 +652,8 @@ erase-head = PE.refl
 
        ε ∙ ⌜ (𝟘ᵐ? ᵐ· ω) ᵐ· ω ⌝ + 𝟘 + ⌜ 𝟘ᵐ? ⌝ ∙ 𝟘 ∙
          ⌜ (𝟘ᵐ? ᵐ· ω) ᵐ· ω ⌝ + ⌜ (𝟘ᵐ? ᵐ· 𝟘) ᵐ· ω ⌝              ∎)
+    ≤ᶜ-refl
+    ≤ᶜ-refl
   where
   lemma : ⌜ 𝟘ᵐ? ⌝ · ω PE.≡ ⌜ (𝟘ᵐ? ᵐ· ω) ᵐ· ω ⌝ + ⌜ (𝟘ᵐ? ᵐ· 𝟘) ᵐ· ω ⌝
   lemma = 𝟘ᵐ?-elim
