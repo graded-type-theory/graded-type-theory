@@ -181,7 +181,8 @@ module _ (⊢Δ : ⊢ Δ) where
        in  irrelevanceTerm (proj₁ (unwrap [A]′ ⊢Δ [σ]))
              (proj₁ (unwrap [A] ⊢Δ [σ])) t®v
 
--- The fundamental lemma, and a variant for fully erased terms.
+-- The fundamental lemma, and a variant for terms in fully erased
+-- contexts.
 
 module Fundamental (FA : Fundamental-assumptions Δ) where
 
@@ -211,7 +212,7 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
 
   -- The fundamental lemma for the erasure relation.
   --
-  -- Note that some assumptions are given as module parameters.
+  -- Note the assumptions of the local module Fundamental.
   --
   -- The main parts of this proof are located in Graded.Erasure.LogicalRelation.Fundamental.X
   -- The general proof strategy of these is the following:
@@ -459,9 +460,9 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
     in  [Γ] , [B] ,
         convʳ {A = A} {B = B} {t = t} [Γ] [A] [B] A≡B ⊩ʳt
 
-  -- A fundamental lemma for fully erased terms.
+  -- A fundamental lemma for terms in fully erased contexts.
   --
-  -- Note that some assumptions are given as module parameters.
+  -- Note the assumptions of the local module Fundamental.
 
   fundamentalErased :
     Δ ⊢ t ∷ A → 𝟘ᶜ ▸[ m ] t →
