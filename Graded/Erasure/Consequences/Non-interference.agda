@@ -51,9 +51,13 @@ open import Graded.Erasure.LogicalRelation.Irrelevance
 open import Graded.Erasure.LogicalRelation.Subsumption
   𝕄 TR is-𝟘? well-formed
 
+open Fundamental FA
+
 open import Tools.Product
 
 -- A simple non-interference property.
+--
+-- Note that some assumptions are given as module parameters.
 
 non-interference : ∀ {m} {Γ : Con Term m} {t : Term m} {γ : Conₘ m}
                    (⊢t : Γ ⊢ t ∷ ℕ) (▸t : γ ▸[ 𝟙ᵐ ] t) →
@@ -63,7 +67,7 @@ non-interference : ∀ {m} {Γ : Con Term m} {t : Term m} {γ : Conₘ m}
                    σ ®⟨ ¹ ⟩ σ′ ∷[ 𝟙ᵐ ] Γ ◂ γ / [Γ] / [σ] →
                    t [ σ ] ® erase t T.[ σ′ ] ∷ℕ
 non-interference ⊢t ▸t ⊢σ =
-  let [Γ] , [ℕ] , ⊩ʳt = fundamental FA ⊢t ▸t
+  let [Γ] , [ℕ] , ⊩ʳt = fundamental ⊢t ▸t
       ⊢Γ = wfTerm ⊢t
       [Γ]′ , [σ]′ = fundamentalSubst ⊢Γ well-formed ⊢σ
       [σ] = IS.irrelevanceSubst [Γ]′ [Γ] well-formed well-formed [σ]′

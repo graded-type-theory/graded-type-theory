@@ -667,7 +667,7 @@ Theorem-6-9b =
 
 -- Theorem 6.10: The fundamental lemma.
 
-fundamental = Graded.Erasure.LogicalRelation.Fundamental.fundamental
+fundamental = Graded.Erasure.LogicalRelation.Fundamental.Fundamental.fundamental
 
 -- Theorem 6.11: All substitutions are related under erased contexts.
 
@@ -676,7 +676,7 @@ Theorem-6-11 = Graded.Erasure.LogicalRelation.Subsumption.erasedSubst
 -- Theorem 6.12: The fundamental lemma for fully erased terms.
 
 Theorem-6-12 =
-  Graded.Erasure.LogicalRelation.Fundamental.fundamentalErased
+  Graded.Erasure.LogicalRelation.Fundamental.Fundamental.fundamentalErased
 
 -- Extended reduction relations.
 
@@ -687,7 +687,7 @@ _⇒ˢ*_     = Graded.Erasure.SucRed._⇒ˢ*_
 
 -- Theorem 6.13: Soundness of the extraction function.
 
-soundness = Graded.Erasure.Consequences.Soundness.soundness-ℕ
+soundness = Graded.Erasure.Consequences.Soundness.Soundness.soundness-ℕ
 
 ------------------------------------------------------------------------
 -- 7: Discussion
@@ -742,7 +742,7 @@ safe-head = Graded.Erasure.Examples.head
 -- Theorem 7.1.
 
 theorem-7-1 =
-  Graded.Erasure.Consequences.Soundness.soundness-ℕ-only-source
+  Graded.Erasure.Consequences.Soundness.Soundness.soundness-ℕ-only-source
 
 -- If (certain kinds of) erased matches are allowed, and additionally
 -- some Σ-types are allowed, then there is a counterexample to
@@ -871,7 +871,7 @@ _•′ = Graded.Erasure.Extraction.erase
 
 -- Theorem 8.3: Soundness of the extraction function.
 
-Theorem-8-3 = Graded.Erasure.Consequences.Soundness.soundness-ℕ
+Theorem-8-3 = Graded.Erasure.Consequences.Soundness.Soundness.soundness-ℕ
 
 -- A definition of η-long normal forms.
 

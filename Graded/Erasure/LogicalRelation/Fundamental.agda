@@ -210,6 +210,14 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
   open LR well-formed
 
   -- The fundamental lemma for the erasure relation.
+  --
+  -- Note that some assumptions are given as module parameters.
+  --
+  -- The main parts of this proof are located in Graded.Erasure.LogicalRelation.Fundamental.X
+  -- The general proof strategy of these is the following:
+  -- To show that t is valid, find t′ in whnf such that t ⇒* t′ and show that t′ is valid.
+  -- The result that t is valid then follows from the logical relation being closed under
+  -- reduction (see Graded.Erasure.LogicalRelation.Reduction).
 
   fundamental :
     Γ ⊢ t ∷ A → γ ▸[ m ] t →
@@ -452,6 +460,8 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
         convʳ {A = A} {B = B} {t = t} [Γ] [A] [B] A≡B ⊩ʳt
 
   -- A fundamental lemma for fully erased terms.
+  --
+  -- Note that some assumptions are given as module parameters.
 
   fundamentalErased :
     Δ ⊢ t ∷ A → 𝟘ᶜ ▸[ m ] t →
@@ -486,34 +496,3 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
       id®id′ = erasedSubst {l = ¹} {σ′ = T.idSubst} [Δ] [id]
       t®t′ = ⊩ʳt [id] id®id′
       t®t″ = irrelevanceTerm′ (subst-id A) [idA] [A]′ t®t′
-
--- The results in the module Fundamental above are restated here, so
--- that one can see more of their types in one place. (Note, however,
--- that the top-level module has some arguments.)
-
--- The fundamental lemma for the erasure relation.
---
--- The main parts of this proof are located in Graded.Erasure.LogicalRelation.Fundamental.X
--- The general proof strategy of these is the following:
--- To show that t is valid, find t′ in whnf such that t ⇒* t′ and show that t′ is valid.
--- The result that t is valid then follows from the logical relation being closed under
--- reduction (see Graded.Erasure.LogicalRelation.Reduction).
-
-fundamental :
-  (FA : Fundamental-assumptions Δ) →
-  let open LR (Fundamental-assumptions.well-formed FA) in
-  ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
-  Γ ⊢ t ∷ A → γ ▸[ m ] t →
-  ∃₂ λ ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ]) →
-    γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A / [Γ] / [A]
-fundamental = Fundamental.fundamental
-
--- A fundamental lemma for fully erased terms.
-
-fundamentalErased :
-  (FA : Fundamental-assumptions Δ) →
-  let open LR (Fundamental-assumptions.well-formed FA) in
-  ∀ {t A : Term _} {m} →
-  Δ ⊢ t ∷ A → 𝟘ᶜ ▸[ m ] t →
-  ∃ λ ([A] : Δ ⊩⟨ ¹ ⟩ A) → t ®⟨ ¹ ⟩ erase t ∷ A ◂ ⌜ m ⌝ / [A]
-fundamentalErased = Fundamental.fundamentalErased

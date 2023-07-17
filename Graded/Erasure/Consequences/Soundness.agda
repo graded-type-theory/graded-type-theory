@@ -147,6 +147,8 @@ module Soundness (FA : Fundamental-assumptions Δ) where
   -- Soundness for erasure of natural numbers
   -- Well-typed terms of the natural number type reduce to numerals
   -- if erased matches are disallowed or the term is closed.
+  --
+  -- Note that some assumptions are given as module parameters.
 
   soundness-ℕ : Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t
               → ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ × erase t ⇒ˢ* sucᵏ′ n
@@ -156,12 +158,27 @@ module Soundness (FA : Fundamental-assumptions Δ) where
         irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ (idRed:*: (ℕⱼ well-formed)))
           (t®v ◀≢𝟘 𝟙≢𝟘)
 
+  -- A variant of soundness-ℕ which only considers the source
+  -- language.
+  --
+  -- Note that some assumptions are given as module parameters.
+
+  soundness-ℕ-only-source :
+    Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
+    ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
+  soundness-ℕ-only-source ⊢t ▸t =
+    case soundness-ℕ ⊢t ▸t of λ {
+      (n , t⇒ˢ*n , _) →
+        n , t⇒ˢ*n }
+
   -- Helper lemma for WH reduction soundness of unit
 
   soundness-star′ : t ® v ∷Unit → v T.⇒* T.star
   soundness-star′ (starᵣ _ v⇒star) = v⇒star
 
   -- WH reduction soundness of unit
+  --
+  -- Note that some assumptions are given as module parameters.
 
   soundness-star :
     Δ ⊢ t ⇒* star ∷ Unit → 𝟘ᶜ ▸[ 𝟙ᵐ ] t → erase t T.⇒* T.star
@@ -175,35 +192,6 @@ module Soundness (FA : Fundamental-assumptions Δ) where
                  (t®t′ ◀≢𝟘 𝟙≢𝟘)
     in  soundness-star′ t®t″
 
--- Soundness for erasure of natural numbers
--- Well-typed terms of the natural number type reduce to numerals
--- if erased matches are disallowed or the term is closed.
-
-soundness-ℕ : ∀ {k t} {Δ : Con Term k}
-            → Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t
-            → (consistent : ∀ {t} → Δ ⊢ t ∷ Empty → ⊥)
-            → (closed-or-no-erased-matches : No-erased-matches 𝕄 UR ⊎ k ≡ 0)
-            → ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ × erase t ⇒ˢ* sucᵏ′ n
-soundness-ℕ ⊢t ▸t ok ok′ =
-  let FA = record
-             { well-formed                 = wfTerm ⊢t
-             ; consistent                  = ok
-             ; closed-or-no-erased-matches = ok′
-             }
-  in  Soundness.soundness-ℕ FA ⊢t ▸t
-
--- A variant of soundness-ℕ which only considers the source
--- language.
-
-soundness-ℕ-only-source :
-  Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
- (consistent : ∀ {t} → Δ ⊢ t ∷ Empty → ⊥) →
- (no-erased-matches : No-erased-matches 𝕄 UR) →
-  ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
-soundness-ℕ-only-source ⊢t ▸t ok ok′ =
-  case soundness-ℕ ⊢t ▸t ok (inj₁ ok′) of λ {
-    (n , t⇒ˢ*n , _) →
-  n , t⇒ˢ*n }
 
 -- If the context is empty, then the results in Soundness hold without
 -- any further assumptions.
