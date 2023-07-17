@@ -602,6 +602,12 @@ fundamentalReducibleTerm = Definition.LogicalRelation.Fundamental.Reducibility.r
 
 _®⟨_⟩_∷_/_ = Graded.Erasure.LogicalRelation._®⟨_⟩_∷_/_
 
+-- The logical relation for natural numbers.
+--
+-- In the paper this is written with ℕ as a subscript.
+
+_®ℕ_ = Graded.Erasure.LogicalRelation._®_∷ℕ
+
 -- Valid substitutions.
 --
 -- The argument for the target context being well-formed is not
@@ -926,6 +932,11 @@ _⊩⟨_⟩_ = Definition.LogicalRelation._⊩⟨_⟩_
 
 _⊩⟨_⟩_∷_/_ = Definition.LogicalRelation._⊩⟨_⟩_∷_/_
 
+-- Reducibility of natural numbers.
+-- In the paper, ℕ is written as a subscript.
+
+_⊩ℕ_ = Definition.LogicalRelation._⊩ℕ_∷ℕ
+
 -- Definition A.3: Equality of reducible types
 -- In the paper, the type level is denoted with a subscript instead of within braces.
 
@@ -935,6 +946,11 @@ _⊩⟨_⟩_≡_/_ = Definition.LogicalRelation._⊩⟨_⟩_≡_/_
 -- In the paper, the type level is denoted with a subscript instead of within braces.
 
 _⊩⟨_⟩_≡_∷_/_ = Definition.LogicalRelation._⊩⟨_⟩_≡_∷_/_
+
+-- Equality of reducible natural numbers in.
+-- In the paper, ℕ is written as a subscript.
+
+_⊩ℕ_≡_ = Definition.LogicalRelation._⊩ℕ_≡_∷ℕ
 
 -- Definition A.6: Validity of contexts
 
