@@ -479,7 +479,7 @@ decTypeCheckType′ = Definition.Typed.Decidable.dec
 -- natrec-star operator. If there is no such operator, then the rule
 -- from Section 7.1.4 is used.
 
-_▹_ = Graded.Usage._▸[_]_
+_▸_ = Graded.Usage._▸[_]_
 
 -- A safe head function for lists
 
@@ -558,7 +558,7 @@ id = Graded.Erasure.Examples.id
 
 -- The identity function is well-resourced.
 
-▹id = Graded.Erasure.Examples.▸id
+▸id = Graded.Erasure.Examples.▸id
 
 -- The identity function applied to two free variables.
 
@@ -570,7 +570,7 @@ id-x1-x0 = Graded.Erasure.Examples.id-x1-x0
 
 -- The term id-x1-x0 is well-resourced.
 
-▹id-x1-x0 = Graded.Erasure.Examples.▸id-x1-x0
+▸id-x1-x0 = Graded.Erasure.Examples.▸id-x1-x0
 
 -- The grammar of the untyped target language.
 --
@@ -599,7 +599,7 @@ id-ℕ-zero = Graded.Erasure.Examples.id-ℕ-zero
 
 -- The term id-ℕ-zero is well-resourced.
 
-▹id-ℕ-zero = Graded.Erasure.Examples.▸id-ℕ-zero
+▸id-ℕ-zero = Graded.Erasure.Examples.▸id-ℕ-zero
 
 -- One of the arguments gets erased by the extraction function.
 
@@ -693,7 +693,7 @@ _®⟨_⟩_∷_◂_/_/_ = Graded.Erasure.LogicalRelation._®⟨_⟩_∷[_]_◂_/
 -- In the paper the type level is written as a subscript instead of
 -- within brackets.
 
-_▹_⊩ʳ⟨_⟩_∷_/_/_ = Graded.Erasure.LogicalRelation._▸_⊩ʳ⟨_⟩_∷[_]_/_/_
+_▸_⊩ʳ⟨_⟩_∷_/_/_ = Graded.Erasure.LogicalRelation._▸_⊩ʳ⟨_⟩_∷[_]_/_/_
 
 -- Theorem 6.8: Backwards closure of the logical relation under
 -- reduction.
@@ -782,7 +782,7 @@ not-greatest =
 -- The usage rule for natrec without the natrec-star operator is
 -- called natrec-no-starₘ, and is part of the definition of _▸[_]_.
 
-▹-with-alternative-usage-rule-for-natrec = Graded.Usage._▸[_]_
+▸-with-alternative-usage-rule-for-natrec = Graded.Usage._▸[_]_
 
 ------------------------------------------------------------------------
 -- 7.2: Erased Matches
@@ -911,13 +911,13 @@ _⊢′_⇒*_∷_ = Definition.Typed._⊢_⇒*_∷_
 -- In the paper the mode is written as a superscript instead of within
 -- brackets.
 
-_▹[_]_ = Graded.Usage._▸[_]_
+_▸[_]_ = Graded.Usage._▸[_]_
 
 -- A term is well-resourced with respect to the zero usage context and
 -- the zero mode exactly when all subterms of the form
 -- prodrec_r,p^q A u v in t are allowed.
 
-𝟘ᶜ▹[𝟘ᵐ]⇔ = Graded.Usage.Properties.𝟘ᶜ▸[𝟘ᵐ]⇔
+𝟘ᶜ▸[𝟘ᵐ]⇔ = Graded.Usage.Properties.𝟘ᶜ▸[𝟘ᵐ]⇔
 
 -- Theorem 8.2: Subject reduction for the usage relation with modes.
 
