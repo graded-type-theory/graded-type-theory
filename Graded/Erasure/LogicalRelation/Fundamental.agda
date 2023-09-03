@@ -75,7 +75,7 @@ import Graded.Erasure.Target.Properties as TP
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat
+open import Tools.Nat using (Nat)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PartialOrder

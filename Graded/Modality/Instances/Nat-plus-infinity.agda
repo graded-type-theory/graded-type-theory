@@ -200,6 +200,28 @@ _≟_ = λ where
     (yes refl) → yes refl
     (no m≢n)   → no (λ { refl → m≢n refl })
 
+-- The relation _≤_ is total.
+
+≤-total : ∀ m n → m ≤ n ⊎ n ≤ m
+≤-total ∞     _     = inj₁ refl
+≤-total _     ∞     = inj₂ refl
+≤-total ⌞ m ⌟ ⌞ n ⌟ = case N.≤-total m n of λ where
+  (inj₁ m≤n) → inj₂ (⌞⌟-antitone m≤n)
+  (inj₂ n≤m) → inj₁ (⌞⌟-antitone n≤m)
+
+-- The type ℕ⊎∞ is a set.
+
+ℕ⊎∞-set : Is-set ℕ⊎∞
+ℕ⊎∞-set {x = ∞}     {y = ∞}     {x = refl} {y = refl} = refl
+ℕ⊎∞-set {x = ⌞ m ⌟} {y = ⌞ n ⌟} {x = p}    {y = q}    =
+                                                         $⟨ N.Nat-set ⟩
+  ⌞⌟-injective p ≡ ⌞⌟-injective q                        →⟨ cong (cong ⌞_⌟) ⟩
+  cong ⌞_⌟ (⌞⌟-injective p) ≡ cong ⌞_⌟ (⌞⌟-injective q)  →⟨ (λ hyp → trans (sym (lemma _)) (trans hyp (lemma _))) ⟩
+  p ≡ q                                                  □
+  where
+  lemma : (p : ⌞ m ⌟ ≡ ⌞ n ⌟) → cong ⌞_⌟ (⌞⌟-injective p) ≡ p
+  lemma refl = refl
+
 ------------------------------------------------------------------------
 -- The modality
 

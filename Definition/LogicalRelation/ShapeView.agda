@@ -20,7 +20,7 @@ open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Properties.Escape R
 open import Definition.LogicalRelation.Properties.Reflexivity R
 
-open import Tools.Nat
+open import Tools.Nat using (Nat)
 open import Tools.Product
 open import Tools.Empty using (⊥; ⊥-elim)
 import Tools.PropositionalEquality as PE

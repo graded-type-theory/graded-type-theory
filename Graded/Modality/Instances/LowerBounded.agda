@@ -21,7 +21,7 @@ import Graded.Modality.Properties.Star 𝕄 as Star
 open import Graded.Modality.Variant a
 
 open import Tools.Algebra M
-open import Tools.Bool hiding (_∧_)
+open import Tools.Bool using (T)
 open import Tools.Product
 import Tools.Reasoning.Equivalence
 import Tools.Reasoning.PartialOrder

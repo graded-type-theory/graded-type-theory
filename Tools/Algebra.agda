@@ -13,9 +13,13 @@ open import Algebra.Consequences.Propositional public
   using (comm+idˡ⇒idʳ; comm+zeˡ⇒zeʳ; comm+distrˡ⇒distrʳ)
 open import Algebra.Core using (Op₁; Op₂) public
 open import Algebra.Definitions (_≡_ {A = A})
-     using (Associative; Commutative; Congruent₂; _DistributesOver_;
-            _DistributesOverˡ_; _DistributesOverʳ_; Idempotent; _IdempotentOn_;
-            Identity; LeftIdentity; LeftZero; RightIdentity; RightZero; Zero) public
+     using (Associative; Commutative; Congruent₂;
+            _DistributesOver_; _DistributesOverˡ_; _DistributesOverʳ_;
+            Idempotent; _IdempotentOn_;
+            Identity; LeftIdentity; RightIdentity;
+            Zero; LeftZero; RightZero;
+            Absorptive)
+     public
 open import Algebra.Structures (_≡_ {A = A})
      using (IsBand; IsCommutativeMonoid; IsMagma; IsMonoid;
             IsSemigroup; IsSemilattice; IsSemiring;

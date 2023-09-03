@@ -5,7 +5,7 @@
 module Tools.Relation where
 
 open import Relation.Binary
-  using ( Rel
+  using ( Rel; _Preserves₂_⟶_⟶_
         ; Decidable; Reflexive; Symmetric; Transitive
         ; DecSetoid; Poset; Preorder; Setoid
         ; IsEquivalence; IsPartialOrder; IsPreorder

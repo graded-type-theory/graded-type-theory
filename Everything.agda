@@ -8,16 +8,16 @@ module Everything where
 -- A small library
 
 import Tools.Level
-import Tools.Empty
 import Tools.Unit
 import Tools.Relation
 import Tools.PropositionalEquality
+import Tools.Empty
 import Tools.Product
+import Tools.Sum
 import Tools.Function
 import Tools.Bool
 import Tools.Nat
 import Tools.Fin
-import Tools.Sum
 import Tools.List
 import Tools.Algebra
 
@@ -212,6 +212,11 @@ import Graded.FullReduction.Assumptions
 -- Σ-types, and vice versa.
 import Graded.Derived.Sigma
 
+-- Some structures that are not modalities.
+import Graded.Modality.Instances.Set
+import Graded.Modality.Instances.Set.Non-empty
+import Graded.Modality.Instances.Set.Non-empty.Implementation
+
 -- Modality pseudo-instances
 import Graded.Modality.Instances.LowerBounded
 import Graded.Modality.Instances.BoundedStar
@@ -221,6 +226,7 @@ import Graded.Modality.Instances.Recursive
 import Graded.Modality.Instances.Erasure
 import Graded.Modality.Instances.Zero-one-many
 import Graded.Modality.Instances.Bounded-distributive-lattice
+import Graded.Modality.Instances.Set.Interval
 
 -- Modality instances
 import Graded.Modality.Instances.Erasure.Modality
@@ -235,6 +241,12 @@ import Graded.Modality.Instances.Zero-below-one
 import Graded.Modality.Instances.Nat-plus-infinity
 import
   Graded.Modality.Instances.Bounded-distributive-lattice.No-division
+import
+  Graded.Modality.Instances.Bounded-distributive-lattice.Nat-plus-infinity
+import Graded.Modality.Instances.Bounded-distributive-lattice.Set
+import
+  Graded.Modality.Instances.Bounded-distributive-lattice.Downward-closed
+import Graded.Modality.Instances.Set.Interval.Implementation
 
 -- Some examples.
 import Graded.Modality.Instances.Examples

@@ -21,7 +21,7 @@ open import Definition.Typed.Weakening R
 
 open import Tools.Empty
 open import Tools.Level
-open import Tools.Nat
+open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 

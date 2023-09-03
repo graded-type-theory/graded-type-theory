@@ -8,7 +8,7 @@ import Graded.Modality
 import Tools.Algebra as A
 open import Tools.PropositionalEquality
 open import Tools.Sum
-open import Tools.Bool hiding (_∧_)
+open import Tools.Bool using (T)
 
 module Graded.Modality.Instances.BoundedStar
   {a} {M : Set a}

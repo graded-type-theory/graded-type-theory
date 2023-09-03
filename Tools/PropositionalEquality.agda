@@ -7,6 +7,7 @@ module Tools.PropositionalEquality where
 
 -- We reexport Agda's builtin equality type.
 
+open import Tools.Level
 open import Tools.Relation
 
 import Relation.Binary.PropositionalEquality as Eq
@@ -14,6 +15,9 @@ open Eq using
   (_≡_; _≢_; refl; sym; trans; cong; cong₂; subst; subst₂;
    isEquivalence; setoid)
   public
+
+private variable
+  a : Level
 
 -- Non-dependent congruence rules.
 
@@ -34,3 +38,13 @@ cong₄ f refl refl refl refl = refl
 subst₃ : ∀ {ℓ ℓ′ ℓ″ ℓ‴} {A : Set ℓ} {B : Set ℓ′} {C : Set ℓ″} {a a′ b b′ c c′} (F : A → B → C → Set ℓ‴)
        → a ≡ a′ → b ≡ b′ → c ≡ c′ → F a b c → F a′ b′ c′
 subst₃ F refl refl refl f = f
+
+-- The property of being a proposition.
+
+Is-proposition : Set a → Set a
+Is-proposition A = {x y : A} → x ≡ y
+
+-- The property of being a set.
+
+Is-set : Set a → Set a
+Is-set A = {x y : A} → Is-proposition (x ≡ y)
