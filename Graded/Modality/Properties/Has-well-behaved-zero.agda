@@ -67,8 +67,7 @@ private
      𝟘 ≤ 𝟙      →⟨ 𝟘≰𝟙 ⟩
      ⊥          □)
 
--- If the mode 𝟘ᵐ is allowed and p ⊛ q ▷ r is equal to zero, then p is
--- equal to zero.
+-- If p ⊛ q ▷ r is equal to zero, then p is equal to zero.
 
 ⊛≡𝟘ˡ :
   ⦃ has-star : Has-star 𝕄 ⦄ →
@@ -80,8 +79,7 @@ private
   where
   open import Tools.Reasoning.PartialOrder ≤-poset
 
--- If the mode 𝟘ᵐ is allowed and p ⊛ q ▷ r is equal to zero, then q is
--- equal to zero.
+-- If p ⊛ q ▷ r is equal to zero, then q is equal to zero.
 
 ⊛≡𝟘ʳ :
   ⦃ has-star : Has-star 𝕄 ⦄ →
