@@ -4966,7 +4966,7 @@ affine→linear-or-affine-Σ-not-monotone mono =
   , affine→linear-or-affine-Σ-not-monotone ∘→
     Is-order-embedding.tr-monotone
   where
-  variant = ⊛-available-and-𝟘ᵐ-available-if _ true
+  variant = ⊛-available-and-𝟘ᵐ-allowed-if _ true
 
 -- The function affine→linearity-Σ is a Σ-morphism (with respect to
 -- affine→linearity) from an affine types modality to a linear types

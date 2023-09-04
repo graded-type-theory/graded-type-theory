@@ -35,10 +35,10 @@ record Modality-variant : Set (lsuc a) where
     ⊛-available-decided : Dec ⊛-available
 
 -- A variant for which a dedicated natrec-star operator must be
--- available, and 𝟘ᵐ is available if the boolean is true.
+-- available, and 𝟘ᵐ is allowed if the boolean is true.
 
-⊛-available-and-𝟘ᵐ-available-if : Bool → Modality-variant
-⊛-available-and-𝟘ᵐ-available-if ok = record
+⊛-available-and-𝟘ᵐ-allowed-if : Bool → Modality-variant
+⊛-available-and-𝟘ᵐ-allowed-if ok = record
   { 𝟘ᵐ-allowed                = ok
   ; ⊛-available               = Lift _ ⊤
   ; ⊛-available-propositional = λ _ _ → refl
@@ -46,10 +46,10 @@ record Modality-variant : Set (lsuc a) where
   }
 
 -- A variant for which a dedicated natrec-star operator is not
--- available, and 𝟘ᵐ is available if the boolean is true.
+-- available, and 𝟘ᵐ is allowed if the boolean is true.
 
-⊛-not-available-and-𝟘ᵐ-available-if : Bool → Modality-variant
-⊛-not-available-and-𝟘ᵐ-available-if ok = record
+⊛-not-available-and-𝟘ᵐ-allowed-if : Bool → Modality-variant
+⊛-not-available-and-𝟘ᵐ-allowed-if ok = record
   { 𝟘ᵐ-allowed                = ok
   ; ⊛-available               = Lift _ ⊥
   ; ⊛-available-propositional = λ ()
