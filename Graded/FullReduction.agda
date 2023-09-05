@@ -162,12 +162,12 @@ module _ (as : Full-reduction-assumptions) where
         case inv-usage-natrec ▸natrec of λ {
           (invUsageNatrec ▸t ▸u ▸v ▸A γ≤ extra) →
         case extra of λ where
-          invUsageNatrecStar →
+          invUsageNatrecNr →
             sub (natrecₘ (fullRedTermConv↑ t↑ ▸t) (fullRedTermConv↑ u↑ ▸u)
                    (fullRedNe~↓ v~ ▸v) (fullRedConv↑ A↑ ▸A))
               γ≤
-          (invUsageNatrecNoStar fix) →
-            sub (natrec-no-starₘ (fullRedTermConv↑ t↑ ▸t)
+          (invUsageNatrecNoNr fix) →
+            sub (natrec-no-nrₘ (fullRedTermConv↑ t↑ ▸t)
                    (fullRedTermConv↑ u↑ ▸u) (fullRedNe~↓ v~ ▸v)
                    (fullRedConv↑ A↑ ▸A) fix)
               γ≤ }

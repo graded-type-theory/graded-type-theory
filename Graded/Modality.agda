@@ -8,13 +8,16 @@ open import Tools.Relation
 module Graded.Modality {a} (M : Set a) where
 
 open import Tools.Algebra M
-open import Tools.Bool using (T)
+open import Tools.Bool using (Bool; T)
 open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Sum
 
 open import Graded.Modality.Variant a
+
+private variable
+  n n₁ n₂ p q r z z₁ s s₁ s₂ z₂ : M
 
 -- Semiring with meet
 record Semiring-with-meet : Set a where
@@ -140,6 +143,48 @@ record Has-well-behaved-zero (𝕄 : Semiring-with-meet) : Set a where
     -- Definition.Modality.Properties.Has-well-behaved-zero.∧-positiveʳ.)
     ∧-positiveˡ : {p q : M} → p ∧ q ≡ 𝟘 → p ≡ 𝟘
 
+-- The property of having an nr function (a "natrec usage function").
+-- Such a function is used in one of the usage rules for natrec.
+
+record Has-nr (𝕄 : Semiring-with-meet) : Set a where
+  open Semiring-with-meet 𝕄
+
+  field
+    -- The nr function.
+    nr : M → M → M → M → M → M
+
+    -- The function is monotone in its last three arguments.
+    nr-monotone :
+      z₁ ≤ z₂ → s₁ ≤ s₂ → n₁ ≤ n₂ →
+      nr p r z₁ s₁ n₁ ≤ nr p r z₂ s₂ n₂
+
+    -- Multiplication from the right sub-distributes over nr p r.
+    nr-· : nr p r z s n · q ≤ nr p r (z · q) (s · q) (n · q)
+
+    -- Addition is sub-interchangeable with nr p r.
+    nr-+ :
+      nr p r z₁ s₁ n₁ + nr p r z₂ s₂ n₂ ≤
+      nr p r (z₁ + z₂) (s₁ + s₂) (n₁ + n₂)
+
+    -- The value of nr p r 𝟘 𝟘 𝟘 is 𝟘.
+    nr-𝟘 : nr p r 𝟘 𝟘 𝟘 ≡ 𝟘
+
+    -- If the zero is well-behaved, then nr p r is only 𝟘 for 𝟘, 𝟘
+    -- and 𝟘.
+    nr-positive :
+      Has-well-behaved-zero 𝕄 →
+      nr p r z s n ≡ 𝟘 → z ≡ 𝟘 × s ≡ 𝟘 × n ≡ 𝟘
+
+    -- If n is bounded by 𝟘, then nr p r z s n is bounded by n. This
+    -- property is used to prove that the reduction rule natrec-zero
+    -- preserves usage.
+    nr-zero : n ≤ 𝟘 → nr p r z s n ≤ z
+
+    -- The value nr p r z s n is bounded by
+    -- s + p · n + r · nr p r z s n. This property is used to prove
+    -- that the reduction rule natrec-suc preserves usage.
+    nr-suc : nr p r z s n ≤ s + p · n + r · nr p r z s n
+
 -- The property of having a natrec-star operator.
 record Has-star (r : Semiring-with-meet) : Set a where
   open Semiring-with-meet r
@@ -187,10 +232,10 @@ record Modality : Set (lsuc a) where
     -- If the mode 𝟘ᵐ is allowed, then the zero is well-behaved
     𝟘-well-behaved : T 𝟘ᵐ-allowed → Has-well-behaved-zero semiring-with-meet
 
-    -- If the modality is supposed to come with a dedicated
-    -- natrec-star operator, then such an operator is available.
-    has-star : ⊛-available → Has-star semiring-with-meet
+    -- If the modality is supposed to come with a dedicated nr
+    -- function, then such a function is available.
+    has-nr : Nr-available → Has-nr semiring-with-meet
 
     -- If the mode 𝟘ᵐ is allowed and the modality does not come with a
-    -- dedicated natrec-star operator, then _+ q is decreasing.
-    +-decreasingˡ : T 𝟘ᵐ-allowed → ¬ ⊛-available → ∀ p q → p + q ≤ p
+    -- dedicated nr function, then _+ q is decreasing.
+    +-decreasingˡ : T 𝟘ᵐ-allowed → ¬ Nr-available → ∀ p q → p + q ≤ p

@@ -41,7 +41,7 @@ data Zero-one-many : Set where
   𝟘 𝟙 ω : Zero-one-many
 
 private variable
-  p p₁ p₂ q r : Zero-one-many
+  n n₁ n₂ p p₁ p₂ q r result s s₁ s₂ z z₁ z₂ : Zero-one-many
 
 open Graded.Modality Zero-one-many
 open Tools.Algebra   Zero-one-many
@@ -850,22 +850,20 @@ zero-one-many-lower-bounded-⊛ =
   open Tools.Reasoning.PropositionalEquality
 
 -- A zero-one-many modality. The variant where 𝟘ᵐ is allowed and a
--- dedicated natrec-star operator is *not* available is only defined
--- if 𝟙 ≤ 𝟘. The dedicated natrec-star operator, if any, is defined
--- using the construction in Graded.Modality.Instances.LowerBounded.
+-- dedicated nr function is *not* available is only defined if 𝟙 ≤ 𝟘.
+-- The dedicated nr function, if any, is defined using the
+-- construction in Graded.Modality.Instances.LowerBounded.
 
 zero-one-many-lower-bounded :
   (variant : Modality-variant) →
   let open Modality-variant variant in
-  (T 𝟘ᵐ-allowed → ¬ ⊛-available → T 𝟙≤𝟘) →
+  (T 𝟘ᵐ-allowed → ¬ Nr-available → T 𝟙≤𝟘) →
   Modality
-zero-one-many-lower-bounded variant hyp = record
-  { variant            = variant
-  ; semiring-with-meet = zero-one-many-semiring-with-meet
-  ; 𝟘-well-behaved     = λ _ → zero-one-many-has-well-behaved-zero
-  ; has-star           = λ _ → zero-one-many-lower-bounded-star
-  ; +-decreasingˡ      = λ ok no-star → +-decreasingˡ (hyp ok no-star)
-  }
+zero-one-many-lower-bounded variant hyp = LowerBounded.isModality
+  zero-one-many-semiring-with-meet ω ω≤
+  variant
+  (λ _ → zero-one-many-has-well-behaved-zero)
+  (λ ok no-star → +-decreasingˡ (hyp ok no-star))
 
 ------------------------------------------------------------------------
 -- A variant of the modality with a "greatest" star operation
@@ -1190,21 +1188,547 @@ zero-one-many-greatest-star = record
 ¬-lower-bounded-greatest hyp =
   case hyp zero-one-many-greatest-star 𝟙 𝟙 𝟘 of λ ()
 
--- The zero-one-many modality (with arbitrary "restrictions").
+-- A zero-one-many modality (with arbitrary "restrictions").
 --
--- The variant where 𝟘ᵐ is allowed and a dedicated natrec-star
--- operator is *not* available is only defined if 𝟙 ≤ 𝟘. The dedicated
--- natrec-star operator, if any, is the "greatest" one defined above.
+-- The variant where 𝟘ᵐ is allowed and a dedicated nr function is
+-- *not* available is only defined if 𝟙 ≤ 𝟘. The dedicated nr
+-- function, if any, is the "greatest" one defined above.
 
 zero-one-many-greatest :
   (variant : Modality-variant) →
   let open Modality-variant variant in
-  (T 𝟘ᵐ-allowed → ¬ ⊛-available → T 𝟙≤𝟘) →
+  (T 𝟘ᵐ-allowed → ¬ Nr-available → T 𝟙≤𝟘) →
   Modality
 zero-one-many-greatest variant hyp = record
   { variant            = variant
   ; semiring-with-meet = zero-one-many-semiring-with-meet
   ; 𝟘-well-behaved     = λ _ → zero-one-many-has-well-behaved-zero
-  ; has-star           = λ _ → zero-one-many-greatest-star
+  ; has-nr             = λ _ →
+                           Star.has-nr _
+                             ⦃ has-star = zero-one-many-greatest-star ⦄
+  ; +-decreasingˡ      = λ ok no-star → +-decreasingˡ (hyp ok no-star)
+  }
+
+------------------------------------------------------------------------
+-- A variant of the modality with a custom nr function
+
+-- An nr function for Zero-one-many.
+--
+-- The value of nr p 𝟘 z s n is defined in the following way:
+--
+-- * If p = 𝟙, then there are no (non-erased) recursive calls, and the
+--   argument is used exactly once in the successor case (excluding
+--   erased uses):
+--
+--     f zero    = f_z
+--     f (suc m) = f_s m
+--
+--   Let us use n + z for the zero case, and n + s for the successor
+--   case: the result is a conservative approximation of these two
+--   values (their meet).
+--
+-- * If p = 𝟘, then there are no (non-erased) recursive
+--   calls, and the argument is not used (in non-erased positions) in
+--   the successor case:
+--
+--     f zero    = f_z
+--     f (suc m) = f_s
+--
+--   Let us again use n + z for the zero case. If affine types are
+--   used, then we use n + s for the successor case again, but if
+--   linear types are used, then we use ω · n + s: the argument is not
+--   used linearly in the successor case, because it is not used at
+--   all, so if n is 𝟙, then the result should be ω (not 𝟙, because
+--   the function is not linear, and not 𝟘, because that would amount
+--   to an erased match on a natural number).
+--
+-- * If p = ω, then there are no (non-erased) recursive calls. In the
+--   successor case the argument is used an unlimited number of times,
+--   so we use ω · n + s. In the zero case we use n + z, as before.
+--
+-- All of these cases can be expressed in the following way (note that
+-- 𝟙 ∧ 𝟘 is 𝟙 for affine types and ω for linear types):
+--
+--   nr p 𝟘 z s n = ((𝟙 ∧ p) · n + s) ∧ (n + z)
+--
+-- The value of nr p 𝟙 z s n is defined in the following way:
+--
+-- * If p = 𝟘, then we have linear or affine recursion: the argument
+--   is used linearly or affinely (n), the successor case can occur an
+--   unlimited number of times (ω · s), and the zero case occurs at
+--   most once (z).
+--
+-- * If p = 𝟙 or p = ω, then there is recursion (ω · s), the argument
+--   can be used in each recursive call (ω · n), and the zero case
+--   occurs at most once (z).
+--
+-- We get the following definition:
+--
+--   nr p 𝟙 z s n = (𝟙 + p) · n + ω · s + z
+--
+-- Finally we use the following definition for nr p ω z s n:
+--
+--   nr _ ω z s n = ω · (n + s + z)
+--
+-- There is recursion (ω · s), in the successor case there can be
+-- multiple recursive calls (ω · n), and the zero case can occur
+-- multiple times (ω · z).
+
+nr :
+  Zero-one-many → Zero-one-many →
+  Zero-one-many → Zero-one-many → Zero-one-many → Zero-one-many
+nr p 𝟘 z s n = ((𝟙 ∧ p) · n + s) ∧ (n + z)
+nr p 𝟙 z s n = (𝟙 + p) · n + ω · s + z
+nr _ ω z s n = ω · (n + s + z)
+
+-- An alternative implementation of nr.
+
+nr′ :
+  Zero-one-many → Zero-one-many →
+  Zero-one-many → Zero-one-many → Zero-one-many → Zero-one-many
+nr′ _ _ 𝟘 𝟘 𝟘 = 𝟘
+nr′ _ 𝟘 𝟙 𝟙 𝟘 = 𝟙
+nr′ _ 𝟘 𝟙 𝟘 𝟘 = 𝟙 ∧ 𝟘
+nr′ _ 𝟙 𝟙 𝟘 𝟘 = 𝟙
+nr′ _ 𝟘 𝟘 𝟙 𝟘 = 𝟙 ∧ 𝟘
+nr′ 𝟙 𝟘 𝟘 𝟘 𝟙 = 𝟙
+nr′ 𝟘 𝟘 𝟘 𝟘 𝟙 = 𝟙 ∧ 𝟘
+nr′ 𝟘 𝟙 𝟘 𝟘 𝟙 = 𝟙
+nr′ _ _ _ _ _ = ω
+
+-- A type used in the implementation of Nr.
+
+data Nr-ω : (p r z s n : Zero-one-many) → Set where
+  nr≡ω₁  : Nr-ω p r ω s n
+  nr≡ω₂  : Nr-ω p r z ω n
+  nr≡ω₃  : Nr-ω p r z s ω
+  nr≡ω₄  : Nr-ω p ω 𝟙 s n
+  nr≡ω₅  : Nr-ω p ω 𝟘 𝟙 n
+  nr≡ω₆  : Nr-ω p ω 𝟘 𝟘 𝟙
+  nr≡ω₇  : Nr-ω ω 𝟘 𝟘 𝟘 𝟙
+  nr≡ω₈  : Nr-ω ω 𝟙 𝟘 𝟘 𝟙
+  nr≡ω₉  : Nr-ω 𝟙 𝟙 𝟘 𝟘 𝟙
+  nr≡ω₁₀ : Nr-ω p 𝟘 𝟘 𝟙 𝟙
+  nr≡ω₁₁ : Nr-ω p 𝟙 z 𝟙 n
+  nr≡ω₁₂ : Nr-ω p 𝟘 𝟙 s 𝟙
+  nr≡ω₁₃ : Nr-ω p 𝟙 𝟙 𝟘 𝟙
+
+-- Another type used in the implementation of Nr.
+
+data Nr-𝟙∧𝟘 : (p r z s n : Zero-one-many) → Set where
+  nr≡𝟙∧𝟘₁ : Nr-𝟙∧𝟘 p 𝟘 𝟙 𝟘 𝟘
+  nr≡𝟙∧𝟘₂ : Nr-𝟙∧𝟘 p 𝟘 𝟘 𝟙 𝟘
+  nr≡𝟙∧𝟘₃ : Nr-𝟙∧𝟘 𝟘 𝟘 𝟘 𝟘 𝟙
+
+-- A view of the functions nr and nr′.
+
+data Nr : (p r z s n result : Zero-one-many) → Set where
+  nr≡𝟘   :                    result ≡ 𝟘     → Nr p r 𝟘 𝟘 𝟘 result
+  nr≡𝟙₁  :                    result ≡ 𝟙     → Nr p 𝟘 𝟙 𝟙 𝟘 result
+  nr≡𝟙₂  :                    result ≡ 𝟙     → Nr p 𝟙 𝟙 𝟘 𝟘 result
+  nr≡𝟙₃  :                                     Nr 𝟙 𝟘 𝟘 𝟘 𝟙 𝟙
+  nr≡𝟙₄  :                                     Nr 𝟘 𝟙 𝟘 𝟘 𝟙 𝟙
+  nr≡𝟙∧𝟘 : Nr-𝟙∧𝟘 p r z s n → result ≡ 𝟙 ∧ 𝟘 → Nr p r z s n result
+  nr≡ω   : Nr-ω p r z s n   → result ≡ ω     → Nr p r z s n result
+
+-- The view is correctly defined for nr′.
+
+nr′-view : ∀ p r z s n → Nr p r z s n (nr′ p r z s n)
+nr′-view = λ where
+  _ _ 𝟘 𝟘 𝟘 → nr≡𝟘 refl
+  _ 𝟘 𝟙 𝟙 𝟘 → nr≡𝟙₁ refl
+  _ 𝟙 𝟙 𝟘 𝟘 → nr≡𝟙₂ refl
+  𝟙 𝟘 𝟘 𝟘 𝟙 → nr≡𝟙₃
+  𝟘 𝟙 𝟘 𝟘 𝟙 → nr≡𝟙₄
+  _ 𝟘 𝟙 𝟘 𝟘 → nr≡𝟙∧𝟘 nr≡𝟙∧𝟘₁ refl
+  _ 𝟘 𝟘 𝟙 𝟘 → nr≡𝟙∧𝟘 nr≡𝟙∧𝟘₂ refl
+  𝟘 𝟘 𝟘 𝟘 𝟙 → nr≡𝟙∧𝟘 nr≡𝟙∧𝟘₃ refl
+  _ _ ω _ _ → nr≡ω nr≡ω₁ refl
+  _ _ 𝟘 ω _ → nr≡ω nr≡ω₂ refl
+  _ 𝟘 𝟙 ω _ → nr≡ω nr≡ω₂ refl
+  _ 𝟙 𝟙 ω _ → nr≡ω nr≡ω₂ refl
+  _ _ 𝟘 𝟘 ω → nr≡ω nr≡ω₃ refl
+  _ 𝟘 𝟘 𝟙 ω → nr≡ω nr≡ω₃ refl
+  _ 𝟘 𝟙 𝟘 ω → nr≡ω nr≡ω₃ refl
+  _ 𝟙 𝟙 𝟘 ω → nr≡ω nr≡ω₃ refl
+  _ 𝟘 𝟙 𝟙 ω → nr≡ω nr≡ω₃ refl
+  _ ω 𝟙 _ _ → nr≡ω nr≡ω₄ refl
+  _ ω 𝟘 𝟙 _ → nr≡ω nr≡ω₅ refl
+  𝟘 ω 𝟘 𝟘 𝟙 → nr≡ω nr≡ω₆ refl
+  𝟙 ω 𝟘 𝟘 𝟙 → nr≡ω nr≡ω₆ refl
+  ω ω 𝟘 𝟘 𝟙 → nr≡ω nr≡ω₆ refl
+  ω 𝟘 𝟘 𝟘 𝟙 → nr≡ω nr≡ω₇ refl
+  ω 𝟙 𝟘 𝟘 𝟙 → nr≡ω nr≡ω₈ refl
+  𝟙 𝟙 𝟘 𝟘 𝟙 → nr≡ω nr≡ω₉ refl
+  _ 𝟘 𝟘 𝟙 𝟙 → nr≡ω nr≡ω₁₀ refl
+  _ 𝟙 𝟘 𝟙 _ → nr≡ω nr≡ω₁₁ refl
+  _ 𝟙 𝟙 𝟙 _ → nr≡ω nr≡ω₁₁ refl
+  _ 𝟘 𝟙 𝟘 𝟙 → nr≡ω nr≡ω₁₂ refl
+  _ 𝟘 𝟙 𝟙 𝟙 → nr≡ω nr≡ω₁₂ refl
+  _ 𝟙 𝟙 𝟘 𝟙 → nr≡ω nr≡ω₁₃ refl
+
+-- The functions nr and nr′ are pointwise equal.
+
+nr≡nr′ : ∀ p r → nr p r z s n ≡ nr′ p r z s n
+nr≡nr′ p r = lemma _ _ _ _ _ (nr′-view p r _ _ _)
+  where
+  open Semiring-with-meet zero-one-many-semiring-with-meet
+    hiding (𝟘; 𝟙; _+_; _·_; _∧_)
+  open Tools.Reasoning.PropositionalEquality
+
+  lemma :
+    ∀ p r z s n → Nr p r z s n (nr′ p r z s n) →
+    nr p r z s n ≡ nr′ p r z s n
+  lemma p 𝟘 .𝟘 .𝟘 .𝟘 (nr≡𝟘 _) =
+    ((𝟙 ∧ p) · 𝟘 + 𝟘) ∧ 𝟘  ≡⟨ cong (_∧ _) (+-identityʳ ((𝟙 ∧ p) · _)) ⟩
+    ((𝟙 ∧ p) · 𝟘) ∧ 𝟘      ≡⟨ cong (_∧ _) (·-zeroʳ (𝟙 ∧ p)) ⟩
+    𝟘 ∧ 𝟘                  ≡⟨⟩
+    𝟘                      ∎
+  lemma p 𝟙 .𝟘 .𝟘 .𝟘 (nr≡𝟘 _) =
+    (𝟙 + p) · 𝟘 + 𝟘  ≡⟨ +-identityʳ _ ⟩
+    (𝟙 + p) · 𝟘      ≡⟨ ·-zeroʳ _ ⟩
+    𝟘                ∎
+  lemma _ ω .𝟘 .𝟘 .𝟘 (nr≡𝟘 _) =
+    𝟘  ∎
+  lemma p .𝟘 .𝟙 .𝟙 .𝟘 (nr≡𝟙₁ _) =
+    ((𝟙 ∧ p) · 𝟘 + 𝟙) ∧ 𝟙  ≡⟨ cong ((_∧ _) ∘→ (_+ _)) (·-zeroʳ (𝟙 ∧ p)) ⟩
+    (𝟘 + 𝟙) ∧ 𝟙            ≡⟨⟩
+    𝟙                      ∎
+  lemma p .𝟙 .𝟙 .𝟘 .𝟘 (nr≡𝟙₂ _) =
+    (𝟙 + p) · 𝟘 + 𝟙  ≡⟨ cong (_+ _) (·-zeroʳ (𝟙 + p)) ⟩
+    𝟘 + 𝟙            ≡⟨⟩
+    𝟙                ∎
+  lemma .𝟙 .𝟘 .𝟘 .𝟘 .𝟙 nr≡𝟙₃ =
+    𝟙  ∎
+  lemma .𝟘 .𝟙 .𝟘 .𝟘 .𝟙 nr≡𝟙₄ =
+    𝟙  ∎
+  lemma p .𝟘 .𝟙 .𝟘 .𝟘 (nr≡𝟙∧𝟘 nr≡𝟙∧𝟘₁ _) =
+    ((𝟙 ∧ p) · 𝟘 + 𝟘) ∧ 𝟙  ≡⟨ cong (_∧ _) (+-identityʳ ((𝟙 ∧ p) · _)) ⟩
+    ((𝟙 ∧ p) · 𝟘) ∧ 𝟙      ≡⟨ cong (_∧ _) (·-zeroʳ (𝟙 ∧ p)) ⟩
+    𝟘 ∧ 𝟙                  ∎
+  lemma p .𝟘 .𝟘 .𝟙 .𝟘 (nr≡𝟙∧𝟘 nr≡𝟙∧𝟘₂ _) =
+    ((𝟙 ∧ p) · 𝟘 + 𝟙) ∧ 𝟘  ≡⟨ cong ((_∧ _) ∘→ (_+ _)) (·-zeroʳ (𝟙 ∧ p)) ⟩
+    𝟙 ∧ 𝟘                  ≡⟨⟩
+    𝟘 ∧ 𝟙                  ∎
+  lemma .𝟘 .𝟘 .𝟘 .𝟘 .𝟙 (nr≡𝟙∧𝟘 nr≡𝟙∧𝟘₃ _) =
+    ((𝟘 ∧ 𝟙) · 𝟙 + 𝟘) ∧ 𝟙  ≡⟨ cong (_∧ _) (+-identityʳ (𝟘∧𝟙 · _)) ⟩
+    (𝟘 ∧ 𝟙) · 𝟙 ∧ 𝟙        ≡⟨ cong (_∧ _) (·-identityʳ 𝟘∧𝟙) ⟩
+    (𝟘 ∧ 𝟙) ∧ 𝟙            ≡⟨ ∧-assoc 𝟘 𝟙 _ ⟩
+    𝟘 ∧ (𝟙 ∧ 𝟙)            ≡⟨⟩
+    𝟘 ∧ 𝟙                  ∎
+  lemma p 𝟘 .ω s n (nr≡ω nr≡ω₁ _) =
+    ((𝟙 ∧ p) · n + s) ∧ (n + ω)  ≡⟨ cong (((𝟙 ∧ p) · _ + _) ∧_) (+-zeroʳ _) ⟩
+    ((𝟙 ∧ p) · n + s) ∧ ω        ≡⟨ ∧-zeroʳ ((𝟙 ∧ p) · _ + _) ⟩
+    ω                            ∎
+  lemma p 𝟙 .ω s n (nr≡ω nr≡ω₁ _) =
+    (𝟙 + p) · n + ω · s + ω  ≡⟨ cong ((𝟙 + p) · _ +_) (+-zeroʳ _) ⟩
+    (𝟙 + p) · n + ω          ≡⟨ +-zeroʳ _ ⟩
+    ω                        ∎
+  lemma p ω .ω s n (nr≡ω nr≡ω₁ _) =
+    ω · (n + s + ω)      ≡⟨ ·-distribˡ-+ _ n _ ⟩
+    ω · n + ω · (s + ω)  ≡⟨ cong (ω · n +_) (·-distribˡ-+ _ s _) ⟩
+    ω · n + ω · s + ω    ≡⟨ cong (ω · n +_) (+-zeroʳ _) ⟩
+    ω · n + ω            ≡⟨ +-zeroʳ _ ⟩
+    ω                    ∎
+  lemma p 𝟘 z .ω n (nr≡ω nr≡ω₂ ≡ω) =
+    ((𝟙 ∧ p) · n + ω) ∧ (n + z)  ≡⟨ cong (_∧ _) (+-zeroʳ ((𝟙 ∧ p) · _)) ⟩
+    ω ∧ (n + z)                  ≡⟨⟩
+    ω                            ≡˘⟨ ≡ω ⟩
+    nr′ p 𝟘 z ω n                ∎
+  lemma p 𝟙 z .ω n (nr≡ω nr≡ω₂ ≡ω) =
+    (𝟙 + p) · n + ω  ≡⟨ +-zeroʳ _ ⟩
+    ω                ≡˘⟨ ≡ω ⟩
+    nr′ p 𝟙 z ω n    ∎
+  lemma p ω z .ω n (nr≡ω nr≡ω₂ ≡ω) =
+    ω · (n + ω)    ≡⟨ ·-distribˡ-+ _ n _ ⟩
+    ω · n + ω      ≡⟨ +-zeroʳ _ ⟩
+    ω              ≡˘⟨ ≡ω ⟩
+    nr′ p ω z ω n  ∎
+  lemma p 𝟘 z s .ω (nr≡ω nr≡ω₃ ≡ω) =
+    ((𝟙 ∧ p) · ω + s) ∧ ω  ≡⟨ ∧-zeroʳ ((𝟙 ∧ p) · _ + _) ⟩
+    ω                      ≡˘⟨ ≡ω ⟩
+    nr′ p 𝟘 z s ω          ∎
+  lemma p 𝟙 z s .ω (nr≡ω nr≡ω₃ ≡ω) =
+    (𝟙 + p) · ω + ω · s + z  ≡⟨ cong (_+ _) (·-distribʳ-+ _ 𝟙 p) ⟩
+    (ω + p · ω) + ω · s + z  ≡⟨⟩
+    ω                        ≡˘⟨ ≡ω ⟩
+    nr′ p 𝟙 z s ω            ∎
+  lemma p ω z s .ω (nr≡ω nr≡ω₃ ≡ω) =
+    ω              ≡˘⟨ ≡ω ⟩
+    nr′ p ω z s ω  ∎
+  lemma p .ω .𝟙 s n (nr≡ω nr≡ω₄ _) =
+    ω · (n + s + 𝟙)    ≡˘⟨ cong (ω ·_) (+-assoc n _ _) ⟩
+    ω · ((n + s) + 𝟙)  ≡⟨ ·-distribˡ-+ _ (n + _) _ ⟩
+    ω · (n + s) + ω    ≡⟨ +-zeroʳ _ ⟩
+    ω                  ∎
+  lemma p .ω .𝟘 .𝟙 n (nr≡ω nr≡ω₅ _) =
+    ω · (n + 𝟙)  ≡⟨ ·-distribˡ-+ _ n _ ⟩
+    ω · n + ω    ≡⟨ +-zeroʳ _ ⟩
+    ω            ∎
+  lemma p .ω .𝟘 .𝟘 .𝟙 (nr≡ω nr≡ω₆ ≡ω) =
+    ω              ≡˘⟨ ≡ω ⟩
+    nr′ p ω 𝟘 𝟘 𝟙  ∎
+  lemma .ω 𝟘 .𝟘 .𝟘 .𝟙 (nr≡ω nr≡ω₇ _) =
+    ω  ∎
+  lemma .ω 𝟙 .𝟘 .𝟘 .𝟙 (nr≡ω nr≡ω₈ _) =
+    ω  ∎
+  lemma .𝟙 .𝟙 .𝟘 .𝟘 .𝟙 (nr≡ω nr≡ω₉ _) =
+    ω  ∎
+  lemma p .𝟘 .𝟘 .𝟙 .𝟙 (nr≡ω nr≡ω₁₀ _) =
+    ((𝟙 ∧ p) · 𝟙 + 𝟙) ∧ 𝟙  ≡⟨ cong ((_∧ _) ∘→ (_+ _)) (·-distribʳ-∧ _ 𝟙 p) ⟩
+    ((𝟙 ∧ p · 𝟙) + 𝟙) ∧ 𝟙  ≡⟨ cong ((_∧ _) ∘→ (_+ _) ∘→ (𝟙 ∧_)) (·-identityʳ p) ⟩
+    ((𝟙 ∧ p) + 𝟙) ∧ 𝟙      ≡⟨ cong (_∧ _) (+-distribʳ-∧ _ 𝟙 p) ⟩
+    (ω ∧ (p + 𝟙)) ∧ 𝟙      ≡⟨⟩
+    ω                      ∎
+  lemma p .𝟙 z .𝟙 n (nr≡ω nr≡ω₁₁ ≡ω) =
+    (𝟙 + p) · n + ω  ≡⟨ +-zeroʳ _ ⟩
+    ω                ≡˘⟨ ≡ω ⟩
+    nr′ p 𝟙 z 𝟙 n    ∎
+  lemma p .𝟘 .𝟙 s .𝟙 (nr≡ω nr≡ω₁₂ ≡ω) =
+    ((𝟙 ∧ p) · 𝟙 + s) ∧ ω  ≡⟨ ∧-zeroʳ ((𝟙 ∧ p) · _ + _) ⟩
+    ω                      ≡˘⟨ ≡ω ⟩
+    nr′ p 𝟘 𝟙 s 𝟙          ∎
+  lemma p .𝟙 .𝟙 .𝟘 .𝟙 (nr≡ω nr≡ω₁₃ _) =
+    (𝟙 + p) · 𝟙 + 𝟙  ≡⟨ cong (_+ _) (·-distribʳ-+ _ 𝟙 p) ⟩
+    (𝟙 + p · 𝟙) + 𝟙  ≡⟨ cong (_+ _) (+-comm _ (p · _)) ⟩
+    (p · 𝟙 + 𝟙) + 𝟙  ≡⟨ +-assoc (p · _) _ _ ⟩
+    p · 𝟙 + ω        ≡⟨ +-zeroʳ _ ⟩
+    ω                ∎
+
+-- The view is correctly defined for nr.
+
+nr-view : ∀ p r z s n → Nr p r z s n (nr p r z s n)
+nr-view p r z s n =             $⟨ nr′-view _ _ _ _ _ ⟩
+  Nr p r z s n (nr′ p r z s n)  →⟨ subst (Nr _ _ _ _ _) (sym (nr≡nr′ p r)) ⟩
+  Nr p r z s n (nr p r z s n)   □
+
+-- The value of nr p r z s n is 𝟘 iff z, s and n are all zero.
+
+nr-𝟘 : ∀ p r → nr p r z s n ≡ 𝟘 ⇔ (z ≡ 𝟘 × s ≡ 𝟘 × n ≡ 𝟘)
+nr-𝟘 p r =
+    lemma₁ (nr-view _ _ _ _ _)
+  , λ { (refl , refl , refl) → lemma₂ p r }
+  where
+  open Semiring-with-meet zero-one-many-semiring-with-meet
+    hiding (𝟘; 𝟙; _+_; _·_; _∧_)
+  open Tools.Reasoning.PropositionalEquality
+
+  lemma₁ : Nr p r z s n result → result ≡ 𝟘 → z ≡ 𝟘 × s ≡ 𝟘 × n ≡ 𝟘
+  lemma₁ (nr≡𝟘 _)         refl = refl , refl , refl
+  lemma₁ (nr≡𝟙∧𝟘 _ 𝟘≡𝟘∧𝟙) refl = ⊥-elim (𝟘∧𝟙≢𝟘 (sym 𝟘≡𝟘∧𝟙))
+
+  lemma₂ : ∀ p r → nr p r 𝟘 𝟘 𝟘 ≡ 𝟘
+  lemma₂ = λ where
+    _ ω → refl
+    ω 𝟙 → refl
+    𝟙 𝟙 → refl
+    𝟘 𝟙 → refl
+    ω 𝟘 → refl
+    𝟙 𝟘 → refl
+    𝟘 𝟘 →
+      ((𝟘 ∧ 𝟙) · 𝟘 + 𝟘) ∧ 𝟘  ≡⟨ cong (_∧ _) (+-identityʳ (𝟘∧𝟙 · _)) ⟩
+      ((𝟘 ∧ 𝟙) · 𝟘) ∧ 𝟘      ≡⟨ cong (_∧ _) (·-zeroʳ 𝟘∧𝟙) ⟩
+      𝟘 ∧ 𝟘                  ≡⟨⟩
+      𝟘                      ∎
+
+-- An nr function can be defined for zero-one-many-semiring-with-meet.
+
+zero-one-many-has-nr : Has-nr zero-one-many-semiring-with-meet
+zero-one-many-has-nr = record
+  { nr          = nr
+  ; nr-monotone = λ {p = p} {r = r} → nr-monotone p r
+  ; nr-·        = λ {p = p} {r = r} → nr-· p r
+  ; nr-+        = λ {p = p} {r = r} → nr-+ p r
+  ; nr-𝟘        = λ {p = p} {r = r} →
+                    nr-𝟘 p r .proj₂ (refl , refl , refl)
+  ; nr-positive = λ {p = p} {r = r} _ → nr-𝟘 p r .proj₁
+  ; nr-zero     = λ {n = _} {p = p} {r = r} n≤𝟘 → nr-zero p r n≤𝟘
+  ; nr-suc      = λ {p = p} {r = r} → nr-suc p r
+  }
+  where
+  open Semiring-with-meet zero-one-many-semiring-with-meet
+    hiding (𝟘; 𝟙; _+_; _·_; _∧_; _≤_)
+  open Addition zero-one-many-semiring-with-meet
+  open Meet zero-one-many-semiring-with-meet
+  open Multiplication zero-one-many-semiring-with-meet
+  open PartialOrder zero-one-many-semiring-with-meet
+
+  nr-monotone :
+    ∀ p r →
+    z₁ ≤ z₂ → s₁ ≤ s₂ → n₁ ≤ n₂ →
+    nr p r z₁ s₁ n₁ ≤ nr p r z₂ s₂ n₂
+  nr-monotone = λ where
+    p 𝟘 z₁≤z₂ s₁≤s₂ n₁≤n₂ →
+      ∧-monotone (+-monotone (·-monotoneʳ {r = 𝟙 ∧ p} n₁≤n₂) s₁≤s₂)
+        (+-monotone n₁≤n₂ z₁≤z₂)
+    p 𝟙 z₁≤z₂ s₁≤s₂ n₁≤n₂ →
+      +-monotone (·-monotoneʳ {r = 𝟙 + p} n₁≤n₂)
+        (+-monotone (·-monotoneʳ s₁≤s₂) z₁≤z₂)
+    _ ω z₁≤z₂ s₁≤s₂ n₁≤n₂ →
+      ·-monotoneʳ (+-monotone n₁≤n₂ (+-monotone s₁≤s₂ z₁≤z₂))
+
+  nr-· : ∀ p r → nr p r z s n · q ≤ nr p r (z · q) (s · q) (n · q)
+  nr-· {z = z} {s = s} {n = n} {q = q} p = λ where
+      𝟘 → begin
+        (((𝟙 ∧ p) · n + s) ∧ (n + z)) · q              ≡⟨ ·-distribʳ-∧ _ ((𝟙 ∧ p) · _ + _) _ ⟩
+        ((𝟙 ∧ p) · n + s) · q ∧ (n + z) · q            ≡⟨ ∧-cong (·-distribʳ-+ _ ((𝟙 ∧ p) · _) _)
+                                                            (·-distribʳ-+ _ n _) ⟩
+        (((𝟙 ∧ p) · n) · q + s · q) ∧ (n · q + z · q)  ≡⟨ ∧-congʳ (+-congʳ (·-assoc (𝟙 ∧ p) _ _)) ⟩
+        ((𝟙 ∧ p) · (n · q) + s · q) ∧ (n · q + z · q)  ∎
+      𝟙 → begin
+        ((𝟙 + p) · n + ω · s + z) · q            ≡⟨ ·-distribʳ-+ _ ((𝟙 + p) · _) _ ⟩
+        ((𝟙 + p) · n) · q + (ω · s + z) · q      ≡⟨ +-congˡ (·-distribʳ-+ _ (ω · s) _) ⟩
+        ((𝟙 + p) · n) · q + (ω · s) · q + z · q  ≡⟨ +-cong (·-assoc (𝟙 + p) _ _)
+                                                      (+-congʳ (·-assoc ω s _)) ⟩
+        (𝟙 + p) · (n · q) + ω · (s · q) + z · q  ∎
+      ω → begin
+        (ω · (n + s + z)) · q        ≡⟨ ·-assoc _ _ _ ⟩
+        ω · ((n + s + z) · q)        ≡⟨ ·-congˡ (·-distribʳ-+ _ n _) ⟩
+        ω · (n · q + (s + z) · q)    ≡⟨ ·-congˡ (+-congˡ (·-distribʳ-+ _ s _)) ⟩
+        ω · (n · q + s · q + z · q)  ∎
+    where
+    open Tools.Reasoning.PartialOrder ≤-poset
+
+  nr-+ :
+    ∀ p r →
+    nr p r z₁ s₁ n₁ + nr p r z₂ s₂ n₂ ≤
+    nr p r (z₁ + z₂) (s₁ + s₂) (n₁ + n₂)
+  nr-+ {z₁ = z₁} {s₁ = s₁} {n₁ = n₁} {z₂ = z₂} {s₂ = s₂} {n₂ = n₂} p =
+    λ where
+      𝟘 → begin
+        (((𝟙 ∧ p) · n₁ + s₁) ∧ (n₁ + z₁)) +
+        (((𝟙 ∧ p) · n₂ + s₂) ∧ (n₂ + z₂))                            ≤⟨ +-sub-interchangeable-∧ ((𝟙 ∧ p) · _ + _) _ _ _ ⟩
+
+        (((𝟙 ∧ p) · n₁ + s₁) + ((𝟙 ∧ p) · n₂ + s₂)) ∧
+        ((n₁ + z₁) + (n₂ + z₂))                                      ≡⟨ ∧-cong (+-sub-interchangeable-+ ((𝟙 ∧ p) · _) _ _ _)
+                                                                          (+-sub-interchangeable-+ n₁ _ _ _) ⟩
+        (((𝟙 ∧ p) · n₁ + (𝟙 ∧ p) · n₂) + (s₁ + s₂)) ∧
+        ((n₁ + n₂) + (z₁ + z₂))                                      ≡˘⟨ ∧-congʳ (+-congʳ (·-distribˡ-+ (𝟙 ∧ p) _ _)) ⟩
+
+        ((𝟙 ∧ p) · (n₁ + n₂) + (s₁ + s₂)) ∧ ((n₁ + n₂) + (z₁ + z₂))  ∎
+      𝟙 → begin
+        ((𝟙 + p) · n₁ + ω · s₁ + z₁) + ((𝟙 + p) · n₂ + ω · s₂ + z₂)    ≡⟨ +-sub-interchangeable-+ ((𝟙 + p) · _) _ _ _ ⟩
+        ((𝟙 + p) · n₁ + (𝟙 + p) · n₂) + (ω · s₁ + z₁) + (ω · s₂ + z₂)  ≡⟨ +-cong (sym (·-distribˡ-+ (𝟙 + p) _ _))
+                                                                            (+-sub-interchangeable-+ (ω · s₁) _ _ _) ⟩
+        (𝟙 + p) · (n₁ + n₂) + (ω · s₁ + ω · s₂) + (z₁ + z₂)            ≡˘⟨ +-congˡ {x = (𝟙 + p) · _}
+                                                                             (+-congʳ (·-distribˡ-+ ω s₁ _)) ⟩
+        (𝟙 + p) · (n₁ + n₂) + ω · (s₁ + s₂) + (z₁ + z₂)                ∎
+      ω → begin
+        ω · (n₁ + s₁ + z₁) + ω · (n₂ + s₂ + z₂)  ≡˘⟨ ·-distribˡ-+ _ (n₁ + _) _ ⟩
+        ω · ((n₁ + s₁ + z₁) + (n₂ + s₂ + z₂))    ≡⟨ ·-congˡ lemma ⟩
+        ω · ((n₁ + n₂) + (s₁ + s₂) + (z₁ + z₂))  ∎
+    where
+    lemma =
+      (n₁ + s₁ + z₁) + (n₂ + s₂ + z₂)    ≡⟨ +-sub-interchangeable-+ n₁ _ _ _ ⟩
+      (n₁ + n₂) + (s₁ + z₁) + (s₂ + z₂)  ≡⟨ +-congˡ {x = n₁ + _}
+                                              (+-sub-interchangeable-+ s₁ _ _ _) ⟩
+      (n₁ + n₂) + (s₁ + s₂) + (z₁ + z₂)  ∎
+      where
+      open Tools.Reasoning.PropositionalEquality
+
+    open Tools.Reasoning.PartialOrder ≤-poset
+
+  nr-zero : ∀ p r → n ≤ 𝟘 → nr p r z s n ≤ z
+  nr-zero {n = n} {z = z} {s = s} p r n≤𝟘 =
+    case nr-view p r z s n of λ where
+      (nr≡𝟘 ≡𝟘) → begin
+        nr p r 𝟘 𝟘 𝟘  ≡⟨ ≡𝟘 ⟩
+        𝟘             ∎
+      (nr≡𝟙₁ ≡𝟙) → begin
+        nr p 𝟘 𝟙 𝟙 𝟘  ≡⟨ ≡𝟙 ⟩
+        𝟙             ∎
+      (nr≡𝟙₂ ≡𝟙) → begin
+        nr p 𝟙 𝟙 𝟘 𝟘  ≡⟨ ≡𝟙 ⟩
+        𝟙             ∎
+      nr≡𝟙₃ → begin
+        𝟙  ≤⟨ n≤𝟘 ⟩
+        𝟘  ∎
+      nr≡𝟙₄ → begin
+        𝟙  ≤⟨ n≤𝟘 ⟩
+        𝟘  ∎
+      (nr≡𝟙∧𝟘 nr≡𝟙∧𝟘₁ ≡𝟘∧𝟙) → begin
+        ((𝟙 ∧ p) · 𝟘 + 𝟘) ∧ 𝟙  ≡⟨ ≡𝟘∧𝟙 ⟩
+        𝟘 ∧ 𝟙                  ≤⟨ ∧-decreasingʳ 𝟘 𝟙 ⟩
+        𝟙                      ∎
+      (nr≡𝟙∧𝟘 nr≡𝟙∧𝟘₂ ≡𝟘∧𝟙) → begin
+        ((𝟙 ∧ p) · 𝟘 + 𝟙) ∧ 𝟘  ≡⟨ ≡𝟘∧𝟙 ⟩
+        𝟘 ∧ 𝟙                  ≤⟨ ∧-decreasingˡ 𝟘 𝟙 ⟩
+        𝟘                      ∎
+      (nr≡𝟙∧𝟘 nr≡𝟙∧𝟘₃ ≡𝟘∧𝟙) → begin
+        ((𝟘 ∧ 𝟙) · 𝟙 + 𝟘) ∧ 𝟙  ≡⟨ ≡𝟘∧𝟙 ⟩
+        𝟘 ∧ 𝟙                  ≤⟨ ∧-decreasingˡ 𝟘 𝟙 ⟩
+        𝟘                      ∎
+      (nr≡ω _ ≡ω) → begin
+        nr p r z s n  ≡⟨ ≡ω ⟩
+        ω             ≤⟨ refl ⟩
+        z             ∎
+    where
+    open Tools.Reasoning.PartialOrder ≤-poset
+
+  nr-suc : ∀ p r → nr p r z s n ≤ s + p · n + r · nr p r z s n
+  nr-suc {z = z} {s = s} {n = n} p r =
+    case nr-view p r z s n of λ where
+      (nr≡𝟘 ≡𝟘) → begin
+        nr p r 𝟘 𝟘 𝟘                  ≡⟨ ≡𝟘 ⟩
+        𝟘                             ≡˘⟨ ·-zeroʳ _ ⟩
+        r · 𝟘                         ≡˘⟨ +-identityˡ _ ⟩
+        𝟘 + r · 𝟘                     ≡˘⟨ +-cong (·-zeroʳ p) (·-congˡ ≡𝟘) ⟩
+        p · 𝟘 + r · nr p r 𝟘 𝟘 𝟘      ≡⟨⟩
+        𝟘 + p · 𝟘 + r · nr p r 𝟘 𝟘 𝟘  ∎
+      (nr≡𝟙₁ ≡𝟙) → begin
+        nr p 𝟘 𝟙 𝟙 𝟘                  ≡⟨ ≡𝟙 ⟩
+        𝟙                             ≡⟨⟩
+        𝟙 + 𝟘 + 𝟘                     ≡˘⟨ +-congˡ (+-congʳ {x = 𝟘} (·-zeroʳ p)) ⟩
+        𝟙 + p · 𝟘 + 𝟘                 ≡⟨⟩
+        𝟙 + p · 𝟘 + 𝟘 · nr p 𝟘 𝟙 𝟙 𝟘  ∎
+      (nr≡𝟙₂ _) → begin
+        nr p 𝟙 𝟙 𝟘 𝟘                  ≡⟨⟩
+        𝟘 + nr p 𝟙 𝟙 𝟘 𝟘              ≡˘⟨ +-cong (·-zeroʳ p) (·-identityˡ _) ⟩
+        p · 𝟘 + 𝟙 · nr p 𝟙 𝟙 𝟘 𝟘      ≡˘⟨ +-identityˡ _ ⟩
+        𝟘 + p · 𝟘 + 𝟙 · nr p 𝟙 𝟙 𝟘 𝟘  ∎
+      nr≡𝟙₃ → begin
+        nr 𝟙 𝟘 𝟘 𝟘 𝟙                  ≡⟨⟩
+        𝟙                             ≡⟨⟩
+        𝟘 + 𝟙 · 𝟙 + 𝟘 · nr 𝟙 𝟘 𝟘 𝟘 𝟙  ∎
+      nr≡𝟙₄ → begin
+        nr 𝟘 𝟙 𝟘 𝟘 𝟙                  ≡⟨⟩
+        𝟙                             ≡⟨⟩
+        𝟘 + 𝟘 · 𝟙 + 𝟙 · nr 𝟙 𝟘 𝟘 𝟘 𝟙  ∎
+      (nr≡𝟙∧𝟘 nr≡𝟙∧𝟘₁ ≡𝟘∧𝟙) → begin
+        ((𝟙 ∧ p) · 𝟘 + 𝟘) ∧ 𝟙  ≡⟨ ≡𝟘∧𝟙 ⟩
+        𝟘 ∧ 𝟙                  ≤⟨ ∧-decreasingˡ 𝟘 𝟙 ⟩
+        𝟘                      ≡˘⟨ ·-zeroʳ _ ⟩
+        p · 𝟘                  ≡˘⟨ +-identityʳ _ ⟩
+        p · 𝟘 + 𝟘              ∎
+      (nr≡𝟙∧𝟘 nr≡𝟙∧𝟘₂ ≡𝟘∧𝟙) → begin
+        ((𝟙 ∧ p) · 𝟘 + 𝟙) ∧ 𝟘  ≡⟨ ≡𝟘∧𝟙 ⟩
+        𝟘 ∧ 𝟙                  ≤⟨ ∧-decreasingʳ 𝟘 𝟙 ⟩
+        𝟙                      ≡˘⟨ +-identityʳ _ ⟩
+        𝟙 + 𝟘                  ≡˘⟨ cong (_ +_) (·-zeroʳ p) ⟩
+        𝟙 + p · 𝟘              ≡˘⟨ cong (_ +_) (+-identityʳ (p · _)) ⟩
+        𝟙 + p · 𝟘 + 𝟘          ∎
+      (nr≡𝟙∧𝟘 nr≡𝟙∧𝟘₃ ≡𝟘∧𝟙) → begin
+        ((𝟘 ∧ 𝟙) · 𝟙 + 𝟘) ∧ 𝟙  ≡⟨ ≡𝟘∧𝟙 ⟩
+        𝟘 ∧ 𝟙                  ≤⟨ ∧-decreasingˡ 𝟘 𝟙 ⟩
+        𝟘                      ∎
+      (nr≡ω _ ≡ω) → begin
+        nr p r z s n                  ≡⟨ ≡ω ⟩
+        ω                             ≤⟨ refl ⟩
+        s + p · n + r · nr p r z s n  ∎
+    where
+    open Tools.Reasoning.PartialOrder ≤-poset
+
+-- A modality defined using zero-one-many-has-nr.
+
+zero-one-many-modality :
+  (variant : Modality-variant) →
+  let open Modality-variant variant in
+  (T 𝟘ᵐ-allowed → ¬ Nr-available → T 𝟙≤𝟘) →
+  Modality
+zero-one-many-modality variant hyp = record
+  { variant            = variant
+  ; semiring-with-meet = zero-one-many-semiring-with-meet
+  ; 𝟘-well-behaved     = λ _ → zero-one-many-has-well-behaved-zero
+  ; has-nr             = λ _ → zero-one-many-has-nr
   ; +-decreasingˡ      = λ ok no-star → +-decreasingˡ (hyp ok no-star)
   }

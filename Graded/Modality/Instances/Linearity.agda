@@ -2,7 +2,7 @@
 -- A modality for linear types.
 ------------------------------------------------------------------------
 
-open import Tools.Bool
+open import Tools.Bool using (T; false)
 open import Tools.Level
 open import Tools.Nullary
 open import Tools.Sum
@@ -14,9 +14,9 @@ module Graded.Modality.Instances.Linearity
   -- The modality variant.
   (variant : Modality-variant)
   (open Modality-variant variant)
-  -- If there is no dedicated natrec-star operator, then 𝟘ᵐ must not
-  -- be allowed.
-  (variant-ok : ¬ ⊛-available → ¬ T 𝟘ᵐ-allowed)
+  -- If there is no dedicated nr function, then 𝟘ᵐ must not be
+  -- allowed.
+  (variant-ok : ¬ Nr-available → ¬ T 𝟘ᵐ-allowed)
   where
 
 open 𝟘𝟙ω renaming (Zero-one-many to Linearity) public
@@ -39,7 +39,38 @@ private variable
 -- A "linear types" modality.
 
 linearityModality : Modality
-linearityModality = zero-one-many-greatest variant (flip variant-ok)
+linearityModality = zero-one-many-modality variant (flip variant-ok)
+
+-- An alternative (not very good) "linear types" modality.
+--
+-- See Graded.Modality.Instances.Linearity.Bad for some examples that
+-- illustrate in what sense this modality is not very good. The
+-- modality linearityModality does not suffer from these problems (see
+-- Graded.Modality.Instances.Linearity.Good), but note that, at the
+-- time of writing, this formalisation does not contain any solid
+-- evidence showing that linearityModality captures a good notion of
+-- "linearity".
+
+bad-linearity-modality : Modality
+bad-linearity-modality =
+  zero-one-many-greatest variant (flip variant-ok)
+
+-- The nr function obtained from linearityModality (if any) is
+-- incomparable to (neither bounded from below nor from above by) the
+-- nr function obtained from bad-linearity-modality.
+
+incomparable :
+  (nr-available : Nr-available) →
+  let nr₁ = linearityModality
+              .Modality.has-nr nr-available .Has-nr.nr
+      nr₂ = bad-linearity-modality
+              .Modality.has-nr nr-available .Has-nr.nr
+  in
+  (∃₂ λ p r → ∃₃ λ z s n → ¬ nr₁ p r z s n ≤ nr₂ p r z s n) ×
+  (∃₂ λ p r → ∃₃ λ z s n → ¬ nr₂ p r z s n ≤ nr₁ p r z s n)
+incomparable _ =
+    (𝟘 , 𝟙 , 𝟘 , 𝟘 , 𝟙 , (λ ()))
+  , (𝟘 , 𝟙 , 𝟙 , 𝟘 , 𝟙 , (λ ()))
 
 -- The "linear types" modality has a well-behaved zero.
 

@@ -17,6 +17,7 @@ open import Tools.Sum
 open import Graded.FullReduction.Assumptions
 import Graded.Modality
 import Graded.Modality.Properties.Division
+import Graded.Modality.Properties.Star as Star
 open import Graded.Modality.Variant lzero
 
 import Definition.Typed.Restrictions
@@ -654,7 +655,8 @@ L≤M≤H variant = record
   { variant            = variant
   ; semiring-with-meet = L≤M≤H-semiring-with-meet
   ; 𝟘-well-behaved     = λ _ → L≤M≤H-has-well-behaved-zero
-  ; has-star           = λ _ → L≤M≤H-has-star
+  ; has-nr             = λ _ →
+                           Star.has-nr _ ⦃ has-star = L≤M≤H-has-star ⦄
   ; +-decreasingˡ      = λ _ _ → λ where
       L L → refl
       L M → refl

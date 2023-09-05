@@ -41,7 +41,8 @@ import Definition.LogicalRelation.Substitution.Irrelevance TR as IS
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Modality.Dedicated-star.Instance
+open import Graded.Modality.Dedicated-nr.Instance
+open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties.PartialOrder semiring-with-meet
 open import Graded.Modality.Properties.Has-well-behaved-zero
   semiring-with-meet 𝟘-well-behaved
@@ -402,7 +403,8 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
        Γ⊢A Γ⊢z:A Γ⊢s:A Γ⊢n:ℕ)
     γ▸t =
     case inv-usage-natrec γ▸t of λ {
-      (invUsageNatrec {δ = δ} δ▸z η▸s θ▸n _ γ≤γ′ extra) →
+      (invUsageNatrec {δ = δ} {η = η} {θ = θ}
+         δ▸z η▸s θ▸n _ γ≤γ′ extra) →
     let [Γ]   , [A₀]  , ⊩ʳz  = fundamental Γ⊢z:A δ▸z
         [ΓℕA] , [A₊]′ , ⊩ʳs′ = fundamental Γ⊢s:A η▸s
         [Γ]′  , [ℕ]′  , ⊩ʳn′ = fundamental Γ⊢n:ℕ θ▸n
@@ -430,8 +432,13 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
           natrecʳ {A = A} {z = z} {s = s} {m = n}
             [Γ] [A] [A₊] [A₀] [z] [s] [n] ⊩ʳz ⊩ʳs ⊩ʳn
             (case extra of λ where
-               invUsageNatrecStar         → ⟨⟩≡𝟘→⟨⟩≡𝟘-⊛ 𝟘-well-behaved δ
-               (invUsageNatrecNoStar fix) →
+               invUsageNatrecNr x →
+                 nrᶜ p r δ η θ ⟨ x ⟩ PE.≡ 𝟘                        →⟨ PE.trans (PE.sym (nrᶜ-⟨⟩ δ)) ⟩
+                 nr p r (δ ⟨ x ⟩) (η ⟨ x ⟩) (θ ⟨ x ⟩) PE.≡ 𝟘       →⟨ (λ hyp →
+                                                                         case nr-positive 𝟘-well-behaved hyp of λ {
+                                                                           (p , q , r) → p , r , q }) ⟩
+                 δ ⟨ x ⟩ PE.≡ 𝟘 × θ ⟨ x ⟩ PE.≡ 𝟘 × η ⟨ x ⟩ PE.≡ 𝟘  □
+               (invUsageNatrecNoNr fix) →
                  ⟨⟩≡𝟘→⟨⟩≡𝟘-fixpoint 𝟘-well-behaved fix)
     in  [Γ] , [A[n]] ,
         λ {_ _} →

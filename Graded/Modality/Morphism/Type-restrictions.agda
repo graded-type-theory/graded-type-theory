@@ -27,7 +27,7 @@ open import Graded.Modality.Instances.Linearity
   using (linearityModality)
 open import Graded.Modality.Instances.Unit using (UnitModality)
 open import Graded.Modality.Instances.Zero-one-many
-  using (𝟘; 𝟙; ω; zero-one-many-greatest)
+  using (𝟘; 𝟙; ω; zero-one-many-modality)
 open import Graded.Modality.Morphism
 import Graded.Modality.Properties
 open import Graded.Restrictions
@@ -509,13 +509,13 @@ erasure→zero-one-many-preserves-second-ΠΣ-quantities-𝟘-or-ω :
   Are-preserving-type-restrictions
     (second-ΠΣ-quantities-𝟘-or-ω ω (ErasureModality v₁) R₁)
     (second-ΠΣ-quantities-𝟘-or-ω ω
-       (zero-one-many-greatest 𝟙≤𝟘 v₂ v₂-ok) R₂)
+       (zero-one-many-modality 𝟙≤𝟘 v₂ v₂-ok) R₂)
     erasure→zero-one-many erasure→zero-one-many
 erasure→zero-one-many-preserves-second-ΠΣ-quantities-𝟘-or-ω
   v₁ v₂ v₂-ok =
   Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
     (ErasureModality v₁)
-    (zero-one-many-greatest _ v₂ v₂-ok)
+    (zero-one-many-modality _ v₂ v₂-ok)
     (λ _ → refl)
     (λ where
        {p = 𝟘} → (λ ()) , (λ ())
@@ -535,12 +535,12 @@ erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω :
   Are-reflecting-type-restrictions
     (second-ΠΣ-quantities-𝟘-or-ω ω (ErasureModality v₁) R₁)
     (second-ΠΣ-quantities-𝟘-or-ω ω
-       (zero-one-many-greatest 𝟙≤𝟘 v₂ v₂-ok) R₂)
+       (zero-one-many-modality 𝟙≤𝟘 v₂ v₂-ok) R₂)
     erasure→zero-one-many erasure→zero-one-many
 erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω v₁ v₂ v₂-ok =
   Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
     (ErasureModality v₁)
-    (zero-one-many-greatest _ v₂ v₂-ok)
+    (zero-one-many-modality _ v₂ v₂-ok)
     (λ where
        {p = 𝟘} _  → refl
        {p = ω} ())
@@ -561,7 +561,7 @@ erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω v₁ v₂ v�
       (second-ΠΣ-quantities-𝟘-or-ω ω
          (ErasureModality v₁) no-type-restrictions)
       (second-ΠΣ-quantities-𝟘-or-ω ω
-         (zero-one-many-greatest 𝟙≤𝟘 v₂ v₂-ok) R₂)
+         (zero-one-many-modality 𝟙≤𝟘 v₂ v₂-ok) R₂)
       erasure→zero-one-many erasure→zero-one-many-Σ
 ¬-erasure→zero-one-many-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω
   _ _ _ r =
@@ -582,7 +582,7 @@ erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω v₁ v₂ v�
   ¬ Are-reflecting-type-restrictions
       (second-ΠΣ-quantities-𝟘-or-ω ω (ErasureModality v₁) R₁)
       (second-ΠΣ-quantities-𝟘-or-ω ω
-         (zero-one-many-greatest 𝟙≤𝟘 v₂ v₂-ok) no-type-restrictions)
+         (zero-one-many-modality 𝟙≤𝟘 v₂ v₂-ok) no-type-restrictions)
       erasure→zero-one-many erasure→zero-one-many-Σ
 ¬-erasure→zero-one-many-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω _ _ _ r =
   case
@@ -600,7 +600,7 @@ erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω v₁ v₂ v�
   ∀ v₁ v₁-ok v₂ →
   ¬ Are-preserving-type-restrictions
       (second-ΠΣ-quantities-𝟘-or-ω ω
-         (zero-one-many-greatest 𝟙≤𝟘 v₁ v₁-ok) no-type-restrictions)
+         (zero-one-many-modality 𝟙≤𝟘 v₁ v₁-ok) no-type-restrictions)
       (second-ΠΣ-quantities-𝟘-or-ω ω (ErasureModality v₂) R₂)
       zero-one-many→erasure zero-one-many→erasure
 ¬-zero-one-many→erasure-preserves-second-ΠΣ-quantities-𝟘-or-ω _ _ _ r =
@@ -619,7 +619,7 @@ erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω v₁ v₂ v�
   ∀ v₁ v₁-ok v₂ →
   ¬ Are-reflecting-type-restrictions
       (second-ΠΣ-quantities-𝟘-or-ω ω
-         (zero-one-many-greatest 𝟙≤𝟘 v₁ v₁-ok) R)
+         (zero-one-many-modality 𝟙≤𝟘 v₁ v₁-ok) R)
       (second-ΠΣ-quantities-𝟘-or-ω ω
          (ErasureModality v₂) no-type-restrictions)
       zero-one-many→erasure zero-one-many→erasure

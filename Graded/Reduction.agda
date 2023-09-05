@@ -124,29 +124,29 @@ usagePresTerm γ▸natrec (natrec-subst x x₁ x₂ t⇒u) =
   case inv-usage-natrec γ▸natrec of λ {
     (invUsageNatrec δ▸z η▸s θ▸n φ▸A γ≤ extra) →
   case extra of λ where
-    invUsageNatrecStar →
+    invUsageNatrecNr →
       sub (natrecₘ δ▸z η▸s (usagePresTerm θ▸n t⇒u) φ▸A) γ≤
-    (invUsageNatrecNoStar fix) →
-      sub (natrec-no-starₘ δ▸z η▸s (usagePresTerm θ▸n t⇒u) φ▸A fix) γ≤ }
+    (invUsageNatrecNoNr fix) →
+      sub (natrec-no-nrₘ δ▸z η▸s (usagePresTerm θ▸n t⇒u) φ▸A fix) γ≤ }
 
 usagePresTerm {γ = γ} ▸natrec (natrec-zero {p = p} {r = r} _ _ _) =
   case inv-usage-natrec ▸natrec of λ {
-    (invUsageNatrec {δ = δ} {η = η} {θ = θ} {χ = χ} ▸z _ _ _ γ≤ extra) →
+    (invUsageNatrec {δ = δ} {η = η} {θ = θ} {χ = χ}
+       ▸z _ ▸zero _ γ≤ extra) →
   case extra of λ where
-    invUsageNatrecStar →
+    invUsageNatrecNr →
       sub ▸z $ begin
-        γ                            ≤⟨ γ≤ ⟩
-        (δ ∧ᶜ θ) ⊛ᶜ η +ᶜ p ·ᶜ θ ▷ r  ≤⟨ ⊛ᶜ-ineq₂ _ _ _ ⟩
-        δ ∧ᶜ θ                       ≤⟨ ∧ᶜ-decreasingˡ _ _ ⟩
-        δ                            ∎
-    (invUsageNatrecNoStar fix) →
+        γ              ≤⟨ γ≤ ⟩
+        nrᶜ p r δ η θ  ≤⟨ nrᶜ-zero (inv-usage-zero ▸zero) ⟩
+        δ              ∎
+    (invUsageNatrecNoNr fix) →
       sub ▸z $ begin
         γ                                ≤⟨ γ≤ ⟩
         χ                                ≤⟨ fix ⟩
         δ ∧ᶜ θ ∧ᶜ η +ᶜ p ·ᶜ θ +ᶜ r ·ᶜ χ  ≤⟨ ∧ᶜ-decreasingˡ _ _ ⟩
         δ                                ∎ }
   where
-  open import Graded.Modality.Dedicated-star.Instance
+  open import Graded.Modality.Dedicated-nr.Instance
   open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
 usagePresTerm {γ = γ} ▸natrec (natrec-suc {p = p} {r = r} _ _ _ _) =
@@ -156,18 +156,17 @@ usagePresTerm {γ = γ} ▸natrec (natrec-suc {p = p} {r = r} _ _ _ _) =
   case inv-usage-suc ▸suc of λ {
     (invUsageSuc {δ = θ′} ▸n θ≤θ′) →
   case extra of λ where
-    invUsageNatrecStar →
+    invUsageNatrecNr →
       sub (doubleSubstₘ-lemma₃ ▸s
              (natrecₘ ▸z ▸s (sub ▸n θ≤θ′) ▸A) ▸n) $ begin
-        γ                                                  ≤⟨ γ≤ ⟩
-        (δ ∧ᶜ θ) ⊛ᶜ η +ᶜ p ·ᶜ θ ▷ r                        ≤⟨ ⊛ᶜ-ineq₁ _ _ _ ⟩
-        (η +ᶜ p ·ᶜ θ) +ᶜ r ·ᶜ (δ ∧ᶜ θ) ⊛ᶜ η +ᶜ p ·ᶜ θ ▷ r  ≈⟨ +ᶜ-assoc _ _ _ ⟩
-        η +ᶜ p ·ᶜ θ +ᶜ r ·ᶜ (δ ∧ᶜ θ) ⊛ᶜ η +ᶜ p ·ᶜ θ ▷ r    ≈⟨ +ᶜ-congˡ (+ᶜ-comm _ _) ⟩
-        η +ᶜ r ·ᶜ (δ ∧ᶜ θ) ⊛ᶜ η +ᶜ p ·ᶜ θ ▷ r +ᶜ p ·ᶜ θ    ≤⟨ +ᶜ-monotoneʳ (+ᶜ-monotoneʳ (·ᶜ-monotoneʳ θ≤θ′)) ⟩
-        η +ᶜ r ·ᶜ (δ ∧ᶜ θ) ⊛ᶜ η +ᶜ p ·ᶜ θ ▷ r +ᶜ p ·ᶜ θ′   ∎
-    (invUsageNatrecNoStar fix) →
+        γ                                   ≤⟨ γ≤ ⟩
+        nrᶜ p r δ η θ                       ≤⟨ nrᶜ-suc ⟩
+        η +ᶜ p ·ᶜ θ +ᶜ r ·ᶜ nrᶜ p r δ η θ   ≈⟨ +ᶜ-congˡ (+ᶜ-comm _ _) ⟩
+        η +ᶜ r ·ᶜ nrᶜ p r δ η θ +ᶜ p ·ᶜ θ   ≤⟨ +ᶜ-monotoneʳ (+ᶜ-monotoneʳ (·ᶜ-monotoneʳ θ≤θ′)) ⟩
+        η +ᶜ r ·ᶜ nrᶜ p r δ η θ +ᶜ p ·ᶜ θ′  ∎
+    (invUsageNatrecNoNr fix) →
       sub (doubleSubstₘ-lemma₃ ▸s
-             (natrec-no-starₘ ▸z ▸s (sub ▸n θ≤θ′) ▸A fix) ▸n) $ begin
+             (natrec-no-nrₘ ▸z ▸s (sub ▸n θ≤θ′) ▸A fix) ▸n) $ begin
         γ                                  ≤⟨ γ≤ ⟩
         χ                                  ≤⟨ fix ⟩
         δ ∧ᶜ θ ∧ᶜ (η +ᶜ p ·ᶜ θ +ᶜ r ·ᶜ χ)  ≤⟨ ∧ᶜ-decreasingʳ _ _ ⟩
@@ -176,7 +175,7 @@ usagePresTerm {γ = γ} ▸natrec (natrec-suc {p = p} {r = r} _ _ _ _) =
         η +ᶜ p ·ᶜ θ′ +ᶜ r ·ᶜ χ             ≈⟨ +ᶜ-congˡ (+ᶜ-comm _ _) ⟩
         η +ᶜ r ·ᶜ χ +ᶜ p ·ᶜ θ′             ∎ }}
   where
-  open import Graded.Modality.Dedicated-star.Instance
+  open import Graded.Modality.Dedicated-nr.Instance
   open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
 usagePresTerm γ▸prodrec (prodrec-subst x x₁ x₂ x₃ x₄ _) =

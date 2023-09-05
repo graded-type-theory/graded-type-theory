@@ -81,11 +81,10 @@ _▶[_]_ : Substₘ m n → Mode-vector n → Subst m n → Set a
 _▶[_]_ {n = n} Ψ γ σ =
   (x : Fin n) → ((𝟘ᶜ , x ≔ ⌜ γ x ⌝) <* Ψ) ▸[ γ x ] σ x
 
--- Substitution matrix inference (for modalities with natrec-star
--- operators).
+-- Substitution matrix inference (for modalities with nr functions).
 
 ∥_∥ :
-  ⦃ has-star : Has-star semiring-with-meet ⦄ →
+  ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
   Subst m n → Mode-vector n → Substₘ m n
 ∥_∥ {n = 0}    _ _  = []
 ∥_∥ {n = 1+ n} σ ms = ∥ tail σ ∥ (tailᵐ ms) ⊙ ⌈ head σ ⌉ (headᵐ ms)

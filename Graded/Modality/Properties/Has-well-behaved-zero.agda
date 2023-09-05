@@ -15,7 +15,7 @@ module Graded.Modality.Properties.Has-well-behaved-zero
 
 open Has-well-behaved-zero 𝟘-well-behaved public
 
-open import Graded.Modality.Natrec-star-instances
+open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties.Meet 𝕄
 open import Graded.Modality.Properties.PartialOrder 𝕄
 open import Tools.PropositionalEquality

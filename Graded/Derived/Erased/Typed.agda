@@ -30,23 +30,12 @@ open import Definition.Typed.Properties R
 open import Definition.Untyped M as U hiding (_∷_; _[_])
 open import Graded.Derived.Erased.Untyped 𝕄
 
-open import Graded.Context 𝕄
-open import Graded.Modality.Dedicated-star.Instance
-open import Graded.Modality.Natrec-star-instances
-open import Graded.Modality.Properties 𝕄
-import Graded.Usage 𝕄 as MU
-import Graded.Usage.Inversion 𝕄 as MUI
-open import Graded.Usage.Restrictions M
-
-open import Graded.Mode 𝕄
-
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nullary
 open import Tools.Product
 import Tools.PropositionalEquality as PE
-import Tools.Reasoning.PartialOrder
 
 private variable
   Γ       : Con Term _
@@ -209,51 +198,6 @@ inversion-[]′ ⊢[] =
   Γ′ = ε
   t′ = zero
   A′ = Σₚ 𝟘 , 𝟘 ▷ ℕ ▹ natrec 𝟙 𝟙 𝟙 U Unit ℕ (var x0)
-
-  -- As an aside, note that if A′ is well-resourced then 𝟙 is equal
-  -- to 𝟘.
-
-  A′-well-resourced→𝟙≡𝟘 :
-    (R : Usage-restrictions) →
-    let open MU R in
-    ∀ {γ} → γ ▸[ 𝟙ᵐ ] A′ → 𝟙 PE.≡ 𝟘
-  A′-well-resourced→𝟙≡𝟘 R ▸A′ =
-    case inv-usage-ΠΣ ▸A′ of λ {
-      (invUsageΠΣ _ ▸nr _) →
-    case inv-usage-natrec ▸nr of λ {
-      (invUsageNatrec {δ = _ ∙ a} {η = _ ∙ b} {θ = _ ∙ c} {χ = _ ∙ d}
-         _ ▸ℕ ▸0 _ (_ ∙ 𝟙𝟘≤d) extra) →
-    case inv-usage-ℕ ▸ℕ of λ {
-      (_ ∙ _ ∙ 𝟙𝟙≤𝟘 ∙ _) →
-    case inv-usage-var ▸0 of λ {
-      (_ ∙ c≤𝟙) →
-    let lemma =
-          case extra of λ where
-            invUsageNatrecStar → begin
-              d                        ≡⟨⟩
-              (a ∧ c) ⊛ b + 𝟙 · c ▷ 𝟙  ≤⟨ ⊛-ineq₂ _ _ _ ⟩
-              a ∧ c                    ≤⟨ ∧-decreasingʳ _ _ ⟩
-              c                        ∎
-            (invUsageNatrecNoStar (_ ∙ d≤a∧c∧[b+𝟙c+𝟙d])) → begin
-              d                            ≤⟨ d≤a∧c∧[b+𝟙c+𝟙d] ⟩
-              a ∧ c ∧ (b + 𝟙 · c + 𝟙 · d)  ≤⟨ ∧-decreasingʳ _ _ ⟩
-              c ∧ (b + 𝟙 · c + 𝟙 · d)      ≤⟨ ∧-decreasingˡ _ _ ⟩
-              c                            ∎
-    in
-    ≤-antisym
-      (begin
-        𝟙      ≡˘⟨ ·-identityʳ _ ⟩
-        𝟙 · 𝟙  ≤⟨ 𝟙𝟙≤𝟘 ⟩
-        𝟘      ∎)
-      (begin
-         𝟘      ≡˘⟨ ·-zeroʳ _ ⟩
-         𝟙 · 𝟘  ≤⟨ 𝟙𝟘≤d ⟩
-         d      ≤⟨ lemma ⟩
-         c      ≤⟨ c≤𝟙 ⟩
-         𝟙      ∎) }}}}
-    where
-    open Tools.Reasoning.PartialOrder ≤-poset
-    open MUI R
 
   ⊢Γ′∙ℕ : ⊢ Γ′ ∙ ℕ
   ⊢Γ′∙ℕ = ε ∙ ℕⱼ ε

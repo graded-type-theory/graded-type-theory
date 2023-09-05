@@ -12,8 +12,9 @@ module Graded.Erasure.Extraction.Properties
   (𝟘-wb : Has-well-behaved-zero M semiring-with-meet)
   where
 
-open import Graded.Modality.Dedicated-star.Instance
-open import Graded.Modality.Natrec-star-instances
+open import Graded.Modality.Dedicated-nr.Instance
+open import Graded.Modality.Nr-instances
+open import Graded.Modality.Properties.PartialOrder semiring-with-meet
 open import Graded.Modality.Properties.Has-well-behaved-zero
   semiring-with-meet 𝟘-wb
 
@@ -33,7 +34,8 @@ open import Graded.Mode 𝕄
 
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat renaming (_+_ to _+ⁿ_)
+open import Tools.Nat using (Nat; 1+) renaming (_+_ to _+ⁿ_)
+open import Tools.Product
 
 import Tools.Reasoning.Equivalence
 import Tools.Reasoning.PartialOrder
@@ -398,15 +400,36 @@ module hasX (R : Usage-restrictions) where
   erased-hasX erased (sucₘ γ▸t) (sucₓ hasX) =
     erased-hasX erased γ▸t hasX
 
-  erased-hasX erased
-    (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} γ▸z δ▸s η▸n θ▸A)
+  erased-hasX {x = x} erased
+    (natrecₘ {γ = γ} {z = z} {δ = δ} {p = p} {r = r} {η = η}
+       γ▸z δ▸s η▸n θ▸A)
     (natrecₓᶻ hasX) =
-    erased-hasX erased
-      (sub γ▸z (≤ᶜ-trans (⊛ᶜ-ineq₂ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r)
-                         (∧ᶜ-decreasingˡ γ η)))
-      hasX
+    erased-hasX erased′ lemma₃ hasX
+      where
+      erased′ =                                                   $⟨ erased ⟩
+        x ◂ 𝟘 ∈ nrᶜ p r γ δ η                                     →⟨ ◂∈⇔ .proj₁ ⟩
+        nrᶜ p r γ δ η ⟨ x ⟩ ≡ 𝟘                                   →⟨ trans (sym (nrᶜ-⟨⟩ γ)) ⟩
+        nr p r (γ ⟨ x ⟩) (δ ⟨ x ⟩) (η ⟨ x ⟩) ≡ 𝟘                  →⟨ trans (update-lookup γ _) ⟩
+        (γ , x ≔ nr p r (γ ⟨ x ⟩) (δ ⟨ x ⟩) (η ⟨ x ⟩)) ⟨ x ⟩ ≡ 𝟘  →⟨ ◂∈⇔ .proj₂ ⟩
+        x ◂ 𝟘 ∈ γ , x ≔ nr p r (γ ⟨ x ⟩) (δ ⟨ x ⟩) (η ⟨ x ⟩)      □
+
+      lemma₁ =                                          $⟨ erased ⟩
+        x ◂ 𝟘 ∈ nrᶜ p r γ δ η                           →⟨ ◂𝟘∈nrᶜ₃ 𝟘-wb refl ⟩
+        x ◂ 𝟘 ∈ η                                       →⟨ ◂∈⇔ .proj₁ ⟩
+        η ⟨ x ⟩ ≡ 𝟘                                     →⟨ nr-zero ∘→ ≤-reflexive ⟩
+        nr p r (γ ⟨ x ⟩) (δ ⟨ x ⟩) (η ⟨ x ⟩) ≤ γ ⟨ x ⟩  □
+
+      lemma₂ = begin
+        γ , x ≔ nr p r (γ ⟨ x ⟩) (δ ⟨ x ⟩) (η ⟨ x ⟩)  ≤⟨ update-monotoneʳ _ lemma₁ ⟩
+        γ , x ≔ γ ⟨ x ⟩                               ≡⟨ update-self _ _ ⟩
+        γ                                             ∎
+        where
+        open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+
+      lemma₃ : γ , x ≔ nr p r (γ ⟨ x ⟩) (δ ⟨ x ⟩) (η ⟨ x ⟩) ▸[ 𝟙ᵐ ] z
+      lemma₃ = sub γ▸z lemma₂
   erased-hasX erased
-    (natrec-no-starₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
+    (natrec-no-nrₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
        γ▸z _ _ _ fix)
     (natrecₓᶻ hasX) =
     erased-hasX erased
@@ -421,10 +444,10 @@ module hasX (R : Usage-restrictions) where
     (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} γ▸z δ▸s η▸n θ▸A)
     (natrecₓˢ hasX) =
     erased-hasX
-      (there (there (x◂𝟘∈γ+δˡ 𝟘-wb refl (x◂𝟘∈γ⊛δʳ 𝟘-wb refl erased))))
+      (there (there (◂𝟘∈nrᶜ₂ 𝟘-wb refl erased)))
       δ▸s hasX
   erased-hasX erased
-    (natrec-no-starₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
+    (natrec-no-nrₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
        _ δ▸s _ _ fix)
     (natrecₓˢ hasX) =
     erased-hasX
@@ -436,13 +459,10 @@ module hasX (R : Usage-restrictions) where
       δ▸s hasX
     where
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+  erased-hasX erased (natrecₘ _ _ η▸n _) (natrecₓⁿ hasX) =
+    erased-hasX (◂𝟘∈nrᶜ₃ 𝟘-wb refl erased) η▸n hasX
   erased-hasX erased
-    (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} γ▸z δ▸s η▸n θ▸A)
-    (natrecₓⁿ hasX) =
-    erased-hasX (x◂𝟘∈γ∧δʳ 𝟘-wb refl (x◂𝟘∈γ⊛δˡ 𝟘-wb refl erased))
-      η▸n hasX
-  erased-hasX erased
-    (natrec-no-starₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
+    (natrec-no-nrₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
        _ _ η▸n _ fix)
     (natrecₓⁿ hasX) =
     erased-hasX

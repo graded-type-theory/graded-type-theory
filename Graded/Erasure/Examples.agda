@@ -310,7 +310,7 @@ Vec = lam ω Vec-body₁
 ▸Vec =
   lamₘ $
   lamₘ $
-  natrec-star-or-no-starₘ Unitₘ
+  natrec-nr-or-no-nrₘ Unitₘ
     (ΠΣₘ var $
      sub var $
      let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
@@ -529,7 +529,7 @@ Non-zero = lam ω Non-zero-body
 ▸Non-zero : ε ▸[ 𝟙ᵐ ] Non-zero
 ▸Non-zero =
   lamₘ $
-  natrec-star-or-no-starₘ Emptyₘ
+  natrec-nr-or-no-nrₘ Emptyₘ
     Unitₘ
     var
     (sub Uₘ $
@@ -617,7 +617,7 @@ erase-head = PE.refl
 ▸head =
   lamₘ $
   lamₘ $
-  natrec-star-or-no-starₘ
+  natrec-nr-or-no-nrₘ
     (lamₘ $
      lamₘ $
      sub (emptyrecₘ var var) $

@@ -23,8 +23,8 @@ open import Tools.Sum
 
 open import Graded.Context using (Conₘ; ε; _∙_)
 import Graded.Context.Properties
-open import Graded.Modality.Dedicated-star
-open import Graded.Modality.Dedicated-star.Instance
+open import Graded.Modality.Dedicated-nr
+open import Graded.Modality.Dedicated-nr.Instance
 open import Graded.Modality.Morphism as M
   using (Is-morphism; Is-order-embedding; Is-Σ-order-embedding)
   hiding (module Is-morphism; module Is-order-embedding;
@@ -39,10 +39,10 @@ private
   module M₂  = Modality 𝕄₂
 
 private variable
-  n                 : Nat
-  x                 : Fin _
-  γ δ δ₁ δ₂ δ₃ δ₄ η : Conₘ _ _
-  p q r             : M₁
+  n                         : Nat
+  x                         : Fin _
+  γ γ₁ δ δ₁ δ₂ δ₃ δ₄ η η₁ θ : Conₘ _ _
+  p q r                     : M₁
 
 ------------------------------------------------------------------------
 -- Translation
@@ -130,14 +130,15 @@ module Is-morphism (m : Is-morphism 𝕄₁ 𝕄₂ tr) where
   tr-Conₘ-∧ᶜ {γ = ε}     {δ = ε}     = ε
   tr-Conₘ-∧ᶜ {γ = _ ∙ _} {δ = _ ∙ _} = tr-Conₘ-∧ᶜ ∙ tr-∧
 
-  -- Translation commutes with _⊛ᶜ_▷_ up to _≤ᶜ_.
+  -- Translation commutes with nrᶜ up to _≤ᶜ_.
 
-  tr-Conₘ-⊛ᶜ :
-    ⦃ has-star₁ : Dedicated-star 𝕄₁ ⦄
-    ⦃ has-star₂ : Dedicated-star 𝕄₂ ⦄ →
-    tr-Conₘ (γ C₁.⊛ᶜ δ ▷ r) ≤ᶜ tr-Conₘ γ C₂.⊛ᶜ tr-Conₘ δ ▷ tr r
-  tr-Conₘ-⊛ᶜ {γ = ε}     {δ = ε}     = ε
-  tr-Conₘ-⊛ᶜ {γ = _ ∙ _} {δ = _ ∙ _} = tr-Conₘ-⊛ᶜ ∙ tr-⊛
+  tr-Conₘ-nrᶜ :
+    ⦃ has-nr₁ : Dedicated-nr 𝕄₁ ⦄
+    ⦃ has-nr₂ : Dedicated-nr 𝕄₂ ⦄ →
+    tr-Conₘ (C₁.nrᶜ p r γ δ η) ≤ᶜ
+    C₂.nrᶜ (tr p) (tr r) (tr-Conₘ γ) (tr-Conₘ δ) (tr-Conₘ η)
+  tr-Conₘ-nrᶜ {γ = ε}     {δ = ε}     {η = ε}     = ε
+  tr-Conₘ-nrᶜ {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} = tr-Conₘ-nrᶜ ∙ tr-nr
 
 ------------------------------------------------------------------------
 -- Lemmas that hold if there is a function that is an order embedding
@@ -239,27 +240,27 @@ module Is-order-embedding (m : Is-order-embedding 𝕄₁ 𝕄₂ tr) where
     case tr-≤-∧ hyp₂ of λ (_ , _ , ≤q , ≤r , p≤) →
     _ , _ , ≤δ ∙ ≤q , ≤η ∙ ≤r , γ≤ ∙ p≤
 
-  -- A variant of tr-≤-⊛ for usage contexts.
+  -- A variant of tr-≤-nr for usage contexts.
 
-  tr-Conₘ-≤ᶜ-⊛ᶜ :
-    ⦃ has-star₁ : Dedicated-star 𝕄₁ ⦄
-    ⦃ has-star₂ : Dedicated-star 𝕄₂ ⦄ →
-    tr-Conₘ γ C₂.≤ᶜ (δ₁ C₂.∧ᶜ δ₂) C₂.⊛ᶜ δ₃ C₂.+ᶜ tr p C₂.·ᶜ δ₂ ▷ tr q →
-    ∃₃ λ δ₁′ δ₂′ δ₃′ →
-       tr-Conₘ δ₁′ C₂.≤ᶜ δ₁ × tr-Conₘ δ₂′ C₂.≤ᶜ δ₂ × tr-Conₘ δ₃′ C₂.≤ᶜ δ₃ ×
-       γ C₁.≤ᶜ (δ₁′ C₁.∧ᶜ δ₂′) C₁.⊛ᶜ δ₃′ C₁.+ᶜ p C₁.·ᶜ δ₂′ ▷ q
-  tr-Conₘ-≤ᶜ-⊛ᶜ {γ = ε} {δ₁ = ε} {δ₂ = ε} {δ₃ = ε} _ =
+  tr-Conₘ-≤ᶜ-nrᶜ :
+    ⦃ has-nr₁ : Dedicated-nr 𝕄₁ ⦄
+    ⦃ has-nr₂ : Dedicated-nr 𝕄₂ ⦄ →
+    tr-Conₘ θ C₂.≤ᶜ C₂.nrᶜ (tr p) (tr r) γ₁ δ₁ η₁ →
+    ∃₃ λ γ₂ δ₂ η₂ →
+       tr-Conₘ γ₂ C₂.≤ᶜ γ₁ × tr-Conₘ δ₂ C₂.≤ᶜ δ₁ × tr-Conₘ η₂ C₂.≤ᶜ η₁ ×
+       θ C₁.≤ᶜ C₁.nrᶜ p r γ₂ δ₂ η₂
+  tr-Conₘ-≤ᶜ-nrᶜ {θ = ε} {γ₁ = ε} {δ₁ = ε} {η₁ = ε} _ =
     ε , ε , ε , ε , ε , ε , ε
-  tr-Conₘ-≤ᶜ-⊛ᶜ
-    {γ = _ ∙ _} {δ₁ = _ ∙ _} {δ₂ = _ ∙ _} {δ₃ = _ ∙ _} (hyp₁ ∙ hyp₂) =
-    case tr-Conₘ-≤ᶜ-⊛ᶜ hyp₁ of λ (_ , _ , _ , ≤δ₁ , ≤δ₂ , ≤δ₃ , γ≤) →
-    case tr-≤-⊛ hyp₂ of λ (_ , _ , _ , ≤q₁ , ≤q₂ , ≤q₃ , p≤) →
-    _ , _ , _ , ≤δ₁ ∙ ≤q₁ , ≤δ₂ ∙ ≤q₂ , ≤δ₃ ∙ ≤q₃ , γ≤ ∙ p≤
+  tr-Conₘ-≤ᶜ-nrᶜ
+    {θ = _ ∙ _} {γ₁ = _ ∙ _} {δ₁ = _ ∙ _} {η₁ = _ ∙ _} (hyp₁ ∙ hyp₂) =
+    case tr-Conₘ-≤ᶜ-nrᶜ hyp₁ of λ (_ , _ , _ , ≤γ₁ , ≤δ₁ , ≤η₁ , θ≤) →
+    case tr-≤-nr hyp₂ of λ (_ , _ , _ , ≤z₁ , ≤s₁ , ≤n₁ , q≤) →
+    _ , _ , _ , ≤γ₁ ∙ ≤z₁ , ≤δ₁ ∙ ≤s₁ , ≤η₁ ∙ ≤n₁ , θ≤ ∙ q≤
 
-  -- A variant of tr-≤-no-star for usage contexts.
+  -- A variant of tr-≤-no-nr for usage contexts.
 
-  tr-≤ᶜ-no-star :
-    ⦃ no-star : No-dedicated-star 𝕄₁ ⦄ →
+  tr-≤ᶜ-no-nr :
+    ⦃ no-nr : No-dedicated-nr 𝕄₁ ⦄ →
     tr-Conₘ γ C₂.≤ᶜ δ₁ →
     δ₁ C₂.≤ᶜ δ₂ C₂.∧ᶜ δ₃ C₂.∧ᶜ (δ₄ C₂.+ᶜ tr p C₂.·ᶜ δ₃ C₂.+ᶜ tr q C₂.·ᶜ δ₁) →
     ∃₄ λ δ₁′ δ₂′ δ₃′ δ₄′ →
@@ -269,14 +270,14 @@ module Is-order-embedding (m : Is-order-embedding 𝕄₁ 𝕄₂ tr) where
        γ C₁.≤ᶜ δ₁′ ×
        δ₁′ C₁.≤ᶜ
          δ₂′ C₁.∧ᶜ δ₃′ C₁.∧ᶜ (δ₄′ C₁.+ᶜ p C₁.·ᶜ δ₃′ C₁.+ᶜ q C₁.·ᶜ δ₁′)
-  tr-≤ᶜ-no-star {γ = ε} {δ₁ = ε} {δ₂ = ε} {δ₃ = ε} {δ₄ = ε} ε ε =
+  tr-≤ᶜ-no-nr {γ = ε} {δ₁ = ε} {δ₂ = ε} {δ₃ = ε} {δ₄ = ε} ε ε =
     _ , _ , _ , _ , ε , ε , ε , ε , ε
-  tr-≤ᶜ-no-star
+  tr-≤ᶜ-no-nr
     {γ = _ ∙ _} {δ₁ = _ ∙ _} {δ₂ = _ ∙ _} {δ₃ = _ ∙ _} {δ₄ = _ ∙ _}
     (hyp₁₁ ∙ hyp₁₂) (hyp₂₁ ∙ hyp₂₂) =
-    case tr-≤ᶜ-no-star hyp₁₁ hyp₂₁ of λ {
+    case tr-≤ᶜ-no-nr hyp₁₁ hyp₂₁ of λ {
       (_ , _ , _ , _ , le₁₁ , le₂₁ , le₃₁ , le₄₁ , le₅₁) →
-    case tr-≤-no-star hyp₁₂ hyp₂₂ of λ {
+    case tr-≤-no-nr hyp₁₂ hyp₂₂ of λ {
       (_ , _ , _ , _ , le₁₂ , le₂₂ , le₃₂ , le₄₂ , le₅₂) →
       _ , _ , _ , _
     , le₁₁ ∙ le₁₂ , le₂₁ ∙ le₂₂ , le₃₁ ∙ le₃₂

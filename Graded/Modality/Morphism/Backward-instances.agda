@@ -14,20 +14,20 @@ module Graded.Modality.Morphism.Backward-instances
 
 open Is-morphism m
 
-open import Graded.Modality.Dedicated-star
+open import Graded.Modality.Dedicated-nr
 
 instance
 
-  -- If the target modality has a dedicated natrec-star operator, then
-  -- the source modality also has one.
+  -- If the target modality has a dedicated nr function, then the
+  -- source modality also has one.
 
-  star-in-first-if-in-second′ :
-    ⦃ has-star : Dedicated-star 𝕄₂ ⦄ → Dedicated-star 𝕄₁
-  star-in-first-if-in-second′ = star-in-first-if-in-second
+  nr-in-first-if-in-second′ :
+    ⦃ has-nr : Dedicated-nr 𝕄₂ ⦄ → Dedicated-nr 𝕄₁
+  nr-in-first-if-in-second′ = nr-in-first-if-in-second
 
-  -- If the target modality does not have a dedicated natrec-star
-  -- operator, then neither does the source modality.
+  -- If the target modality does not have a dedicated nr function,
+  -- then neither does the source modality.
 
-  no-star-in-first-if-in-second′ :
-    ⦃ no-star : No-dedicated-star 𝕄₂ ⦄ → No-dedicated-star 𝕄₁
-  no-star-in-first-if-in-second′ = no-star-in-first-if-in-second
+  no-nr-in-first-if-in-second′ :
+    ⦃ no-nr : No-dedicated-nr 𝕄₂ ⦄ → No-dedicated-nr 𝕄₁
+  no-nr-in-first-if-in-second′ = no-nr-in-first-if-in-second

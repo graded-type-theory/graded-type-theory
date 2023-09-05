@@ -1,0 +1,88 @@
+------------------------------------------------------------------------
+-- Some examples which are used to illustrate properties of modality
+-- instances
+------------------------------------------------------------------------
+
+open import Definition.Typed.Restrictions
+
+import Graded.Modality
+
+module Graded.Modality.Instances.Examples
+  {a} {M : Set a}
+  (open Graded.Modality M)
+  (𝕄 : Modality)
+  (open Modality 𝕄)
+  (R : Type-restrictions M)
+  (open Type-restrictions R)
+  -- It is assumed that "Π 𝟙 , 𝟘" is allowed.
+  (Π-𝟙-𝟘 : Π-allowed 𝟙 𝟘)
+  where
+
+open import Tools.Fin
+open import Tools.Function
+import Tools.Reasoning.PartialOrder
+
+open import Definition.Typed R
+open import Definition.Untyped M hiding (_∷_)
+
+private
+
+  -- Some lemmas used below.
+
+  ⊢ℕ : ⊢ ε ∙ ℕ
+  ⊢ℕ  = ε ∙ ℕⱼ ε
+
+  ⊢ℕℕ : ⊢ ε ∙ ℕ ∙ ℕ
+  ⊢ℕℕ = ⊢ℕ ∙ ℕⱼ ⊢ℕ
+
+  ⊢ℕℕℕ : ⊢ ε ∙ ℕ ∙ ℕ ∙ ℕ
+  ⊢ℕℕℕ = ⊢ℕℕ ∙ ℕⱼ ⊢ℕℕ
+
+  ⊢ℕℕℕℕ : ⊢ ε ∙ ℕ ∙ ℕ ∙ ℕ ∙ ℕ
+  ⊢ℕℕℕℕ = ⊢ℕℕℕ ∙ ℕⱼ ⊢ℕℕℕ
+
+-- A program that takes a natural number and adds it to itself:
+-- λ n. n + n. This program should presumably not be seen as linear,
+-- because the variable "n" is used twice.
+
+double : Term 0
+double = lam 𝟙 (natrec 𝟘 𝟘 𝟙 ℕ (var x0) (suc (var x0)) (var x0))
+
+-- The term double is well-typed.
+--
+-- Note that the term can be given a linear type.
+--
+-- With a certain "linearity" modality the term is also
+-- well-resourced, see
+-- Graded.Modality.Instances.Linearity.Bad.▸double. However, with
+-- another linearity modality the term is not well-resourced, see
+-- Graded.Modality.Instances.Linearity.Good.¬▸double.
+
+⊢double : ε ⊢ double ∷ Π 𝟙 , 𝟘 ▷ ℕ ▹ ℕ
+⊢double =
+  flip (lamⱼ (ℕⱼ ε)) Π-𝟙-𝟘 $
+  natrecⱼ (ℕⱼ ⊢ℕℕ) (var ⊢ℕ here)
+    (sucⱼ (var ⊢ℕℕℕ here))
+    (var ⊢ℕ here)
+
+-- A program that takes two natural numbers and adds them:
+-- λ m n. m + n. It might make sense to see this program as linear in
+-- both arguments.
+
+plus : Term 0
+plus = lam 𝟙 $ lam 𝟙 $ natrec 𝟘 𝟘 𝟙 ℕ (var x0) (suc (var x0)) (var x1)
+
+-- The term plus is well-typed.
+--
+-- With a certain linearity modality the term is also well-resourced,
+-- see Graded.Modality.Instances.Linearity.Good.▸plus. However, with
+-- another "linearity" modality the term is not well-resourced, see
+-- Graded.Modality.Instances.Linearity.Bad.¬▸plus.
+
+⊢plus : ε ⊢ plus ∷ Π 𝟙 , 𝟘 ▷ ℕ ▹ Π 𝟙 , 𝟘 ▷ ℕ ▹ ℕ
+⊢plus =
+  flip (lamⱼ (ℕⱼ ε)) Π-𝟙-𝟘 $
+  flip (lamⱼ (ℕⱼ ⊢ℕ)) Π-𝟙-𝟘 $
+  natrecⱼ (ℕⱼ ⊢ℕℕℕ) (var ⊢ℕℕ here)
+    (sucⱼ (var ⊢ℕℕℕℕ here))
+    (var ⊢ℕℕ (there here))

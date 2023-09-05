@@ -17,6 +17,7 @@ open import Tools.Sum
 open import Tools.Algebra ⊤
 
 open import Graded.Modality ⊤ public
+import Graded.Modality.Properties.Star as Star
 open import Graded.Modality.Variant lzero
 open import Graded.FullReduction.Assumptions
 
@@ -189,7 +190,8 @@ UnitModality variant not-ok = record
   { variant            = variant
   ; semiring-with-meet = unit-semiring-with-meet
   ; 𝟘-well-behaved     = ⊥-elim ∘→ not-ok
-  ; has-star           = λ _ → unit-has-star
+  ; has-nr             = λ _ →
+                           Star.has-nr _ ⦃ has-star = unit-has-star ⦄
   ; +-decreasingˡ      = ⊥-elim ∘→ not-ok
   }
 

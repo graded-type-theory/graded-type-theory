@@ -25,7 +25,7 @@ open import Graded.Modality.Instances.Linearity
   using (linearityModality)
 open import Graded.Modality.Instances.Unit using (UnitModality)
 open import Graded.Modality.Instances.Zero-one-many
-  using (𝟘; zero-one-many-greatest)
+  using (𝟘; zero-one-many-modality)
 open import Graded.Modality.Morphism
 open import Graded.Restrictions
 open import Graded.Usage.Restrictions
@@ -277,12 +277,12 @@ erasure→zero-one-many-preserves-no-erased-matches :
     erasure→zero-one-many tr →
   Are-preserving-usage-restrictions
     (no-erased-matches (ErasureModality v₁) R₁)
-    (no-erased-matches (zero-one-many-greatest 𝟙≤𝟘 v₂ v₂-ok) R₂)
+    (no-erased-matches (zero-one-many-modality 𝟙≤𝟘 v₂ v₂-ok) R₂)
     erasure→zero-one-many tr
 erasure→zero-one-many-preserves-no-erased-matches v₁ v₂ v₂-ok =
   Are-preserving-usage-restrictions-no-erased-matches
     (ErasureModality v₁)
-    (zero-one-many-greatest _ v₂ v₂-ok)
+    (zero-one-many-modality _ v₂ v₂-ok)
     (λ _ → inj₁
        ( (λ ())
        , (λ where
@@ -299,12 +299,12 @@ erasure→zero-one-many-reflects-no-erased-matches :
     erasure→zero-one-many tr →
   Are-reflecting-usage-restrictions
     (no-erased-matches (ErasureModality v₁) R₁)
-    (no-erased-matches (zero-one-many-greatest 𝟙≤𝟘 v₂ v₂-ok) R₂)
+    (no-erased-matches (zero-one-many-modality 𝟙≤𝟘 v₂ v₂-ok) R₂)
     erasure→zero-one-many tr
 erasure→zero-one-many-reflects-no-erased-matches v₁ v₂ v₂-ok =
   Are-reflecting-usage-restrictions-no-erased-matches
     (ErasureModality v₁)
-    (zero-one-many-greatest _ v₂ v₂-ok)
+    (zero-one-many-modality _ v₂ v₂-ok)
     (λ _ →
          (λ ())
        , (λ where
@@ -319,12 +319,12 @@ zero-one-many→erasure-preserves-no-erased-matches :
   Are-preserving-usage-restrictions R₁ R₂
     zero-one-many→erasure tr →
   Are-preserving-usage-restrictions
-    (no-erased-matches (zero-one-many-greatest 𝟙≤𝟘 v₁ v₁-ok) R₁)
+    (no-erased-matches (zero-one-many-modality 𝟙≤𝟘 v₁ v₁-ok) R₁)
     (no-erased-matches (ErasureModality v₂) R₂)
     zero-one-many→erasure tr
 zero-one-many→erasure-preserves-no-erased-matches v₁ v₁-ok v₂ =
   Are-preserving-usage-restrictions-no-erased-matches
-    (zero-one-many-greatest _ v₁ v₁-ok)
+    (zero-one-many-modality _ v₁ v₁-ok)
     (ErasureModality v₂)
     (λ _ → inj₁
        ( (λ ())
@@ -341,12 +341,12 @@ zero-one-many→erasure-reflects-no-erased-matches :
   Are-reflecting-usage-restrictions R₁ R₂
     zero-one-many→erasure tr →
   Are-reflecting-usage-restrictions
-    (no-erased-matches (zero-one-many-greatest 𝟙≤𝟘 v₁ v₁-ok) R₁)
+    (no-erased-matches (zero-one-many-modality 𝟙≤𝟘 v₁ v₁-ok) R₁)
     (no-erased-matches (ErasureModality v₂) R₂)
     zero-one-many→erasure tr
 zero-one-many→erasure-reflects-no-erased-matches v₁ v₁-ok v₂ =
   Are-reflecting-usage-restrictions-no-erased-matches
-    (zero-one-many-greatest _ v₁ v₁-ok)
+    (zero-one-many-modality _ v₁ v₁-ok)
     (ErasureModality v₂)
     (λ _ →
          (λ ())

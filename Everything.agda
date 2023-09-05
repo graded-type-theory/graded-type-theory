@@ -156,9 +156,9 @@ import Definition.Typed.Decidable
 -- Modality structure
 import Graded.Modality.Variant
 import Graded.Modality
-import Graded.Modality.Natrec-star-instances
-import Graded.Modality.Dedicated-star
-import Graded.Modality.Dedicated-star.Instance
+import Graded.Modality.Nr-instances
+import Graded.Modality.Dedicated-nr
+import Graded.Modality.Dedicated-nr.Instance
 
 -- Properties of the modality semiring
 import Graded.Modality.Properties.PartialOrder
@@ -178,6 +178,7 @@ import Graded.Context.Properties.PartialOrder
 import Graded.Context.Properties.Meet
 import Graded.Context.Properties.Addition
 import Graded.Context.Properties.Multiplication
+import Graded.Context.Properties.Natrec
 import Graded.Context.Properties.Star
 import Graded.Context.Properties.Lookup
 import Graded.Context.Properties.Update
@@ -235,6 +236,18 @@ import Graded.Modality.Instances.Zero-below-one
 import Graded.Modality.Instances.Nat-plus-infinity
 import
   Graded.Modality.Instances.Bounded-distributive-lattice.No-division
+
+-- Some examples.
+import Graded.Modality.Instances.Examples
+import Graded.Modality.Instances.Affine.Bad
+import Graded.Modality.Instances.Affine.Bad.No-dedicated-nr
+import Graded.Modality.Instances.Affine.Good
+import Graded.Modality.Instances.Linear-or-affine.Bad
+import Graded.Modality.Instances.Linear-or-affine.Bad.No-dedicated-nr
+import Graded.Modality.Instances.Linear-or-affine.Good
+import Graded.Modality.Instances.Linearity.Bad
+import Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr
+import Graded.Modality.Instances.Linearity.Good
 
 -- The type Erased.
 import Graded.Derived.Erased.Untyped

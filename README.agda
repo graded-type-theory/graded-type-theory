@@ -60,14 +60,24 @@ import Graded.Erasure.SucRed
 import Graded.Erasure.Target
 import Graded.FullReduction
 import Graded.Modality
-import Graded.Modality.Dedicated-star
+import Graded.Modality.Dedicated-nr
 import Graded.Modality.Instances.Affine
+import Graded.Modality.Instances.Affine.Bad
+import Graded.Modality.Instances.Affine.Bad.No-dedicated-nr
+import Graded.Modality.Instances.Affine.Good
 import Graded.Modality.Instances.BoundedStar
 import Graded.Modality.Instances.Erasure.Modality
 import Graded.Modality.Instances.Erasure.Properties
+import Graded.Modality.Instances.Examples
 import Graded.Modality.Instances.Information-flow
 import Graded.Modality.Instances.Linear-or-affine
+import Graded.Modality.Instances.Linear-or-affine.Bad
+import Graded.Modality.Instances.Linear-or-affine.Bad.No-dedicated-nr
+import Graded.Modality.Instances.Linear-or-affine.Good
 import Graded.Modality.Instances.Linearity
+import Graded.Modality.Instances.Linearity.Bad
+import Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr
+import Graded.Modality.Instances.Linearity.Good
 import Graded.Modality.Instances.LowerBounded
 import Graded.Modality.Instances.Nat-plus-infinity
 import Graded.Modality.Instances.Recursive
@@ -91,6 +101,106 @@ import Graded.Usage.Properties.Has-well-behaved-zero
 import Graded.Usage.Restrictions
 
 ------------------------------------------------------------------------
+-- Differences between this version of the code and the code that the
+-- paper refers to
+------------------------------------------------------------------------
+
+-- This is not the version of the code that the paper refers to. Some
+-- things have been added, but things have also changed.
+
+-- One notable change is related to the natrec-star operators. The
+-- paper does not focus on linearity, but some modalities for linear
+-- and/or affine types are discussed. It was discovered that using
+-- those modalities, and in particular the natrec-star operators of
+-- those modalities, one can prove that a certain doubling function,
+-- basically λ n. n + n, is linear (or affine). Furthermore one can
+-- prove that a certain implementation of addition with a linear type
+-- is not well-resourced, even though that would arguably make sense.
+
+double-linear = Graded.Modality.Instances.Examples.⊢double
+double-ok₁    = Graded.Modality.Instances.Linearity.Bad.▸double
+double-ok₂    = Graded.Modality.Instances.Affine.Bad.▸double
+double-ok₃    = Graded.Modality.Instances.Linear-or-affine.Bad.▸double
+
+plus-linear  = Graded.Modality.Instances.Examples.⊢plus
+plus-not-ok₁ = Graded.Modality.Instances.Linearity.Bad.¬▸plus
+plus-not-ok₂ = Graded.Modality.Instances.Linear-or-affine.Bad.¬▸plus
+
+-- The problems also affect the system with the alternative usage rule
+-- for natrec from Section 7.1.4.
+
+double-ok₄ =
+  Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr.▸double
+double-ok₅ =
+  Graded.Modality.Instances.Affine.Bad.No-dedicated-nr.▸double
+double-ok₆ =
+  Graded.Modality.Instances.Linear-or-affine.Bad.No-dedicated-nr.▸double
+
+plus-not-ok₃ =
+  Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr.¬▸plus
+plus-not-ok₄ =
+  Graded.Modality.Instances.Linear-or-affine.Bad.No-dedicated-nr.¬▸plus
+
+-- In order to make the theory more flexible the natrec-star operator
+-- in the main usage rule for natrec has been replaced by an "nr
+-- function" (natrec usage function). Previously the usage rule had
+--
+--   (γ ∧ᶜ η) ⊛ᶜ δ +ᶜ p ·ᶜ η ▷ r
+--
+-- in the conclusion. Now the conclusion instead contains
+--
+--   nrᶜ p r γ δ η.
+
+usage-relation = Graded.Usage._▸[_]_
+
+-- The nr functions have to satisfy certain properties, and every
+-- valid natrec-star operator gives rise to a valid nr function:
+--
+--   nr p r z s n = (z ∧ n) ⊛ s + p · n ▷ r
+
+Has-nr          = Graded.Modality.Has-nr
+Has-star→Has-nr = Graded.Modality.Properties.Star.has-nr
+
+-- The definition of a modality has been changed to refer to nr
+-- functions instead of natrec-star operators.
+
+has-nr = Graded.Modality.Modality.has-nr
+
+-- For the modalities discussed above custom nr functions have been
+-- defined (there is one parametrised definition for the linear types
+-- and affine types modalities, and one for the linear or affine types
+-- modality).
+
+zero-one-many-nr =
+  Graded.Modality.Instances.Zero-one-many.zero-one-many-has-nr
+linear-or-affine-nr =
+  Graded.Modality.Instances.Linear-or-affine.linear-or-affine-has-nr
+
+-- In the case of the linear types modality the custom nr function is
+-- neither bounded from below nor from above by the nr function
+-- obtained from the "bad" natrec-star operator. In the case of the
+-- affine types modality the custom nr function is strictly smaller.
+
+incomparable = Graded.Modality.Instances.Linearity.incomparable
+smaller      = Graded.Modality.Instances.Affine.alternative-greater
+
+-- The problems mentioned above do not affect the obtained modalities,
+-- but (at the time of writing) there is no solid evidence showing
+-- that these modalities are "correct".
+
+double-not-ok₁ = Graded.Modality.Instances.Linearity.Good.¬▸double
+double-not-ok₂ = Graded.Modality.Instances.Affine.Good.¬▸double
+double-not-ok₃ =
+  Graded.Modality.Instances.Linear-or-affine.Good.¬▸double
+
+plus-ok₁ = Graded.Modality.Instances.Linearity.Good.▸plus
+plus-ok₂ = Graded.Modality.Instances.Linear-or-affine.Good.▸plus
+
+-- At the time of writing no changes have been made to the alternative
+-- usage rule for natrec, so that rule should perhaps not be used for
+-- linear or affine types.
+
+------------------------------------------------------------------------
 -- Differences between the paper and the code
 ------------------------------------------------------------------------
 
@@ -100,18 +210,18 @@ import Graded.Usage.Restrictions
 -- the possibility to choose what modality to use):
 
 -- * One can have a theory with a single mode, or two modes, and there
---   can be a (dedicated) natrec-star operator, or the alternative
---   usage rule for natrec from Section 7.1.4 can be used.
+--   can be a (dedicated) nr function, or the alternative usage rule
+--   for natrec from Section 7.1.4 can be used.
 --
---   Two mutually exclusive types, Dedicated-star and No-dedicated-star,
---   are used to control which usage rules are available for natrec. If
---   Dedicated-star is inhabited, then the rule with the natrec-star
---   operator is used, and if No-dedicated-star is inhabited, then the
---   other rule is used.
+--   Two mutually exclusive types, Dedicated-nr and No-dedicated-nr,
+--   are used to control which usage rules are available for natrec.
+--   If Dedicated-nr is inhabited, then the rule with the nr function
+--   is used, and if No-dedicated-nr is inhabited, then the other rule
+--   is used.
 
 Modality-variant  = Graded.Modality.Variant.Modality-variant
-Dedicated-star    = Graded.Modality.Dedicated-star.Dedicated-star
-No-dedicated-star = Graded.Modality.Dedicated-star.No-dedicated-star
+Dedicated-star    = Graded.Modality.Dedicated-nr.Dedicated-nr
+No-dedicated-star = Graded.Modality.Dedicated-nr.No-dedicated-nr
 
 -- * One can choose whether to allow use of the unit type with
 --   η-equality. Furthermore one can choose whether to allow binders
@@ -178,12 +288,16 @@ no-erased-matches = Graded.Restrictions.no-erased-matches
 
 -- Definition 3.1: Modalities.
 --
+-- As discussed above the natrec-star operators from the paper have
+-- been replaced by nr functions.
+--
 -- Modality records contain a field of type Modality-variant. For the
 -- variant of the type theory in Sections 3-5 the mode 𝟘ᵐ should be
 -- disallowed, i.e. the Modality-variant field 𝟘ᵐ-allowed should be
--- false. Furthermore there should be a dedicated natrec-star
--- operator, i.e. the Modality-variant field ⊛-available should be
--- inhabited.
+-- false. Furthermore there should be a dedicated nr function, i.e.
+-- the Modality-variant field Nr-available should be an inhabited type
+-- (and to match the paper the nr function should correspond to a
+-- natrec-star operator).
 --
 -- Unlike in the paper equality is not required to be decidable.
 -- Instead this property is assumed where it is used.
@@ -233,17 +347,22 @@ unitModality = Graded.Modality.Instances.Unit.UnitModality
 erasureModality =
   Graded.Modality.Instances.Erasure.Modality.ErasureModality
 
--- An "affine types" modality.
+-- An "affine types" modality, along with the variant with a custom nr
+-- function.
 
-affineModality = Graded.Modality.Instances.Affine.affineModality
+affineModality  = Graded.Modality.Instances.Affine.bad-affine-modality
+affineModality′ = Graded.Modality.Instances.Affine.affineModality
 
--- A "linear types" modality.
+-- A "linear types" modality, along with the variant with a custom nr
+-- function.
 --
 -- The module has a parameter of type Modality-variant which is
 -- required to satisfy a certain property. If this property holds,
 -- then a "linear types" modality of the given kind can be defined.
 
 linearityModality =
+  Graded.Modality.Instances.Linearity.bad-linearity-modality
+linearityModality′ =
   Graded.Modality.Instances.Linearity.linearityModality
 
 -- The natrec-star operators of the "affine types" and "linear types"
@@ -253,7 +372,8 @@ linearityModality =
 
 ⊛-greatest₁ = Graded.Modality.Instances.Zero-one-many.⊛-greatest
 
--- A "linear or affine types" modality.
+-- A "linear or affine types" modality, along with the variant with a
+-- custom nr function.
 --
 -- The definition takes an argument of type Modality-variant which is
 -- required to satisfy a certain property. If this property holds,
@@ -265,6 +385,8 @@ linearityModality =
 -- for affine usage.
 
 linearOrAffineModality =
+  Graded.Modality.Instances.Linear-or-affine.bad-linear-or-affine
+linearOrAffineModality′ =
   Graded.Modality.Instances.Linear-or-affine.linear-or-affine
 
 -- The natrec-star operator of the "linear or affine types" modality
@@ -475,9 +597,10 @@ decTypeCheckType′ = Definition.Typed.Decidable.dec
 -- "Prodrec-allowed r p q".
 --
 -- There are two alternative usage rules for natrec. One is the one
--- from Section 5. This one is used if there is a dedicated
--- natrec-star operator. If there is no such operator, then the rule
--- from Section 7.1.4 is used.
+-- from Section 5, but with an nr function instead of a natrec-star
+-- operator. This one is used if there is a dedicated nr function. If
+-- there is no such function, then the rule from Section 7.1.4 is
+-- used.
 
 _▸_ = Graded.Usage._▸[_]_
 
@@ -779,8 +902,9 @@ not-greatest =
 ⊛ᵣ-lower-bounded≤⊛ᵣ-star-semiring =
   Graded.Modality.Instances.BoundedStar.LowerBounded.⊛′≤⊛
 
--- The usage rule for natrec without the natrec-star operator is
--- called natrec-no-starₘ, and is part of the definition of _▸[_]_.
+-- The usage rule for natrec without the natrec-star operator/nr
+-- function is called natrec-no-nrₘ, and is part of the definition of
+-- _▸[_]_.
 
 ▸-with-alternative-usage-rule-for-natrec = Graded.Usage._▸[_]_
 

@@ -22,7 +22,9 @@ The original work consisted of the following contributions:
 This work lifts the original formalization to graded modal type theory.
 It is the basis of the ICFP 2023 paper
 _A Graded Modal Type Theory with a Universe and Erasure, Formalized_
-by Andreas Abel, Nils Anders Danielsson and Oskar Eriksson.
+by Andreas Abel, Nils Anders Danielsson and Oskar Eriksson. (This
+version of the code contains changes made after publication, see
+[README.agda](README.agda).)
 
 ### Dependencies ###
 

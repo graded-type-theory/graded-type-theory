@@ -7,7 +7,8 @@ import Graded.Modality
 import Graded.Modality.Instances.Recursive.Sequences
 
 -- A "semiring with meet" with the following recursively defined
--- operator nr can be turned into a modality:
+-- function nr (not to be confused with the nr function in the
+-- definition of a modality) can be turned into a modality:
 --
 -- nr 0 p q r = 𝟘
 -- nr (1+ n) p q r = p ∧ (q + r nr n p q r)
@@ -26,6 +27,7 @@ open import Graded.Modality.Properties.Addition 𝕄
 open import Graded.Modality.Properties.Meet 𝕄
 open import Graded.Modality.Properties.Multiplication 𝕄
 open import Graded.Modality.Properties.PartialOrder 𝕄
+import Graded.Modality.Properties.Star 𝕄 as Star
 open import Graded.Modality.Variant a
 open import Tools.Algebra M
 open import Tools.Nullary
@@ -188,13 +190,13 @@ isModality :
   (variant : Modality-variant) →
   let open Modality-variant variant in
   (T 𝟘ᵐ-allowed → Has-well-behaved-zero 𝕄) →
-  (T 𝟘ᵐ-allowed → ¬ ⊛-available → ∀ p q → p + q ≤ p) →
+  (T 𝟘ᵐ-allowed → ¬ Nr-available → ∀ p q → p + q ≤ p) →
   Modality
 isModality variant 𝟘-well-behaved +-decreasingˡ = record
   { variant            = variant
   ; semiring-with-meet = 𝕄
   ; 𝟘-well-behaved     = 𝟘-well-behaved
-  ; has-star           = λ _ → has-star
+  ; has-nr             = λ _ → Star.has-nr ⦃ has-star = has-star ⦄
   ; +-decreasingˡ      = +-decreasingˡ
   }
 

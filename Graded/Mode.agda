@@ -13,7 +13,7 @@ module Graded.Mode
 open Modality 𝕄
 
 open import Graded.Context 𝕄
-open import Graded.Modality.Natrec-star-instances
+open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
 open import Tools.Algebra
 open import Tools.Bool as B using (Bool; true; false; T)
@@ -31,8 +31,8 @@ open import Tools.Sum
 private variable
   A          : Set _
   n          : Nat
-  p q r      : M
-  γ δ        : Conₘ n
+  p q r s z  : M
+  γ δ η      : Conₘ n
   b          : Bool
   ok ok₁ ok₂ : T b
 
@@ -492,6 +492,41 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
 ⌜⌝-·ᶜ-distribˡ-⊛ᶜ {γ = ε}     {δ = ε}     _ = ε
 ⌜⌝-·ᶜ-distribˡ-⊛ᶜ {γ = _ ∙ _} {δ = _ ∙ _} m =
   ⌜⌝-·ᶜ-distribˡ-⊛ᶜ m ∙ ⌜⌝-·-distribˡ-⊛ m
+
+-- Multiplication from the left with values of the form ⌜ m ⌝
+-- distributes over nr p r.
+
+⌜⌝-·-distribˡ-nr :
+  ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+  ∀ {n} m →
+  ⌜ m ⌝ · nr p r z s n ≡ nr p r (⌜ m ⌝ · z) (⌜ m ⌝ · s) (⌜ m ⌝ · n)
+⌜⌝-·-distribˡ-nr {p = p} {r = r} {z = z} {s = s} {n = n} 𝟙ᵐ =
+  𝟙 · nr p r z s n                ≡⟨ ·-identityˡ _ ⟩
+  nr p r z s n                    ≡˘⟨ cong₂ (nr _ _ _) (·-identityˡ _) (·-identityˡ _) ⟩
+  nr p r z (𝟙 · s) (𝟙 · n)        ≡˘⟨ cong (λ z → nr _ _ z _ _) (·-identityˡ _) ⟩
+  nr p r (𝟙 · z) (𝟙 · s) (𝟙 · n)  ∎
+  where
+  open Tools.Reasoning.PropositionalEquality
+⌜⌝-·-distribˡ-nr {p = p} {r = r} {z = z} {s = s} {n = n} 𝟘ᵐ =
+  𝟘 · nr p r z s n                ≡⟨ ·-zeroˡ _ ⟩
+  𝟘                               ≡˘⟨ nr-𝟘 ⟩
+  nr p r 𝟘 𝟘 𝟘                    ≡˘⟨ cong₂ (nr _ _ _) (·-zeroˡ _) (·-zeroˡ _) ⟩
+  nr p r 𝟘 (𝟘 · s) (𝟘 · n)        ≡˘⟨ cong (λ z → nr _ _ z (_ · _) (_ · _)) (·-zeroˡ _) ⟩
+  nr p r (𝟘 · z) (𝟘 · s) (𝟘 · n)  ∎
+  where
+  open Tools.Reasoning.PropositionalEquality
+
+-- Multiplication from the left with values of the form ⌜ m ⌝
+-- distributes over nrᶜ p r.
+
+⌜⌝ᶜ-·ᶜ-distribˡ-nrᶜ :
+  ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+  ∀ m →
+  ⌜ m ⌝ ·ᶜ nrᶜ p r γ δ η ≈ᶜ
+  nrᶜ p r (⌜ m ⌝ ·ᶜ γ) (⌜ m ⌝ ·ᶜ δ) (⌜ m ⌝ ·ᶜ η)
+⌜⌝ᶜ-·ᶜ-distribˡ-nrᶜ {γ = ε}     {δ = ε}     {η = ε}     _ = ε
+⌜⌝ᶜ-·ᶜ-distribˡ-nrᶜ {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} m =
+  ⌜⌝ᶜ-·ᶜ-distribˡ-nrᶜ m ∙ ⌜⌝-·-distribˡ-nr m
 
 -- The result of looking up the x-th entry in ⌜ ms ⌝ᶜ is ⌜ ms x ⌝.
 

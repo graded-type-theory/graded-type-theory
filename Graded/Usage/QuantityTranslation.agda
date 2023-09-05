@@ -198,24 +198,15 @@ module Is-morphism
             tr-Conₘ δ ∙ tr (Mo₁.⌜ m ⌝ M₁.· p) ∙ tr (Mo₁.⌜ m ⌝ M₁.· r)  ∎))
          (tr-▸ ▸n)
          (tr-∙▸[𝟘ᵐ?] ▸P))
-      (begin
-         tr-Conₘ ((γ C₁.∧ᶜ η) C₁.⊛ᶜ δ C₁.+ᶜ p C₁.·ᶜ η ▷ r)             ≤⟨ tr-Conₘ-⊛ᶜ ⟩
-
-         tr-Conₘ (γ C₁.∧ᶜ η) C₂.⊛ᶜ tr-Conₘ (δ C₁.+ᶜ p C₁.·ᶜ η) ▷ tr r  ≤⟨ ⊛ᶜ-monotone tr-Conₘ-∧ᶜ tr-Conₘ-+ᶜ ⟩
-
-         (tr-Conₘ γ C₂.∧ᶜ tr-Conₘ η) C₂.⊛ᶜ
-         tr-Conₘ δ C₂.+ᶜ tr-Conₘ (p C₁.·ᶜ η) ▷ tr r                    ≈⟨ ⊛ᵣᶜ-congˡ (+ᶜ-congˡ tr-Conₘ-·ᶜ) ⟩
-
-         (tr-Conₘ γ C₂.∧ᶜ tr-Conₘ η) C₂.⊛ᶜ
-         tr-Conₘ δ C₂.+ᶜ tr p C₂.·ᶜ tr-Conₘ η ▷ tr r                   ∎)
+      tr-Conₘ-nrᶜ
       where
       open import Graded.Modality.Morphism.Forward-instances tr-m
-      open import Graded.Modality.Dedicated-star.Instance
+      open import Graded.Modality.Dedicated-nr.Instance
       open CR₂
     tr-▸
-      (natrec-no-starₘ {γ = γ} {m = m} {δ = δ} {p = p} {r = r} {η = η}
+      (natrec-no-nrₘ {γ = γ} {m = m} {δ = δ} {p = p} {r = r} {η = η}
          {χ = χ} ▸z ▸s ▸n ▸P fix) =
-      natrec-no-starₘ (tr-▸ ▸z)
+      natrec-no-nrₘ (tr-▸ ▸z)
         (sub (tr-▸ ▸s) (begin
            tr-Conₘ δ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr p ∙
            Mo₂.⌜ tr-Mode m ⌝ M₂.· tr r                                ≈⟨ ≈ᶜ-refl ∙ tr-⌜⌝-· m ∙ tr-⌜⌝-· m ⟩
@@ -403,8 +394,8 @@ module Is-order-embedding
         Graded.Modality.Morphism.Backward-instances tr-morphism
 
     tr-▸⁻¹-𝟙≡𝟘′
-      (natrec _ _ _ _ _ _ _) (natrec-no-starₘ ▸z ▸s ▸n ▸P fix) =
-      natrec-no-starₘ {δ = C₁.𝟘ᶜ} {θ = C₁.𝟘ᶜ}
+      (natrec _ _ _ _ _ _ _) (natrec-no-nrₘ ▸z ▸s ▸n ▸P fix) =
+      natrec-no-nrₘ {δ = C₁.𝟘ᶜ} {θ = C₁.𝟘ᶜ}
         (tr-▸⁻¹-𝟙≡𝟘′ _ ▸z)
         (tr-▸⁻¹-𝟙≡𝟘″ ▸s)
         (tr-▸⁻¹-𝟙≡𝟘′ _ ▸n)
@@ -595,31 +586,31 @@ module Is-order-embedding
 
     tr-▸⁻¹′
       {m = m} (natrec p _ r _ _ _ _)
-      (natrecₘ {δ = η} ▸z ▸s ▸n ▸P) refl γ≤δ∧θ⊛η+pθ▷r =
-      case tr-Conₘ-≤ᶜ-⊛ᶜ γ≤δ∧θ⊛η+pθ▷r of
-        λ (_ , _ , η′ , δ′≤δ , θ′≤θ , η′≤η , γ≤δ′∧θ′⊛η′+pθ′▷r) →
+      (natrecₘ {δ = δ} ▸z ▸s ▸n ▸P) refl γ≤nr-prθδη =
+      case tr-Conₘ-≤ᶜ-nrᶜ γ≤nr-prθδη of
+        λ (_ , δ′ , _ , θ′≤θ , δ′≤δ , η′≤η , γ≤nr-prθ′δ′η′) →
       sub
-        (natrecₘ (tr-▸⁻¹′ _ ▸z refl δ′≤δ)
+        (natrecₘ (tr-▸⁻¹′ _ ▸z refl θ′≤θ)
            (tr-▸⁻¹′ _ ▸s refl (let open CR₂ in begin
-              tr-Conₘ η′ ∙ tr (Mo₁.⌜ m ⌝ M₁.· p) ∙
-              tr (Mo₁.⌜ m ⌝ M₁.· r)                 ≤⟨ η′≤η ∙ ≤-reflexive (sym (tr-⌜⌝-· m)) ∙
+              tr-Conₘ δ′ ∙ tr (Mo₁.⌜ m ⌝ M₁.· p) ∙
+              tr (Mo₁.⌜ m ⌝ M₁.· r)                 ≤⟨ δ′≤δ ∙ ≤-reflexive (sym (tr-⌜⌝-· m)) ∙
                                                        ≤-reflexive (sym (tr-⌜⌝-· m)) ⟩
-              η ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr p ∙
+              δ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr p ∙
               Mo₂.⌜ tr-Mode m ⌝ M₂.· tr r           ∎))
-           (tr-▸⁻¹′ _ ▸n refl θ′≤θ)
+           (tr-▸⁻¹′ _ ▸n refl η′≤η)
            (tr-∙▸[𝟘ᵐ?]⁻¹ ▸P .proj₂))
-        γ≤δ′∧θ′⊛η′+pθ′▷r
+        γ≤nr-prθ′δ′η′
       where
       open import
         Graded.Modality.Morphism.Backward-instances tr-morphism
 
     tr-▸⁻¹′
       {m = m} (natrec p _ r _ _ _ _)
-      (natrec-no-starₘ {δ = δ} ▸z ▸s ▸n ▸P fix) refl γ″≤χ =
-      case tr-≤ᶜ-no-star γ″≤χ fix of λ {
+      (natrec-no-nrₘ {δ = δ} ▸z ▸s ▸n ▸P fix) refl γ″≤χ =
+      case tr-≤ᶜ-no-nr γ″≤χ fix of λ {
         (_ , _ , _ , δ′ , γ′≤γ , η′≤η , δ′≤δ , γ″≤χ′ , χ′≤) →
       sub
-        (natrec-no-starₘ (tr-▸⁻¹′ _ ▸z refl γ′≤γ)
+        (natrec-no-nrₘ (tr-▸⁻¹′ _ ▸z refl γ′≤γ)
            (tr-▸⁻¹′ _ ▸s refl $ let open CR₂ in begin
               tr-Conₘ δ′ ∙ tr (Mo₁.⌜ m ⌝ M₁.· p) ∙
               tr (Mo₁.⌜ m ⌝ M₁.· r)                 ≤⟨ δ′≤δ ∙ ≤-reflexive (sym (tr-⌜⌝-· m)) ∙

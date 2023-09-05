@@ -78,6 +78,6 @@ isModality :
   (variant : Modality-variant) →
   let open Modality-variant variant in
   (T 𝟘ᵐ-allowed → Has-well-behaved-zero 𝕄) →
-  (T 𝟘ᵐ-allowed → ¬ ⊛-available → ∀ p q → p + q ≤ p) →
+  (T 𝟘ᵐ-allowed → ¬ Nr-available → ∀ p q → p + q ≤ p) →
   Modality
 isModality = LB.isModality ∞ ∞-min

@@ -14,7 +14,7 @@ open import Graded.Context 𝕄
 open import Graded.Context.Properties.Equivalence 𝕄
 open import Graded.Context.Properties.Lookup 𝕄
 open import Graded.Context.Properties.PartialOrder 𝕄
-open import Graded.Modality.Natrec-star-instances
+open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
 
 open import Tools.Fin

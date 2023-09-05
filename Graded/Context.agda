@@ -12,7 +12,7 @@ module Graded.Context
 
 open Modality 𝕄
 
-open import Graded.Modality.Natrec-star-instances
+open import Graded.Modality.Nr-instances
 
 open import Tools.Fin
 open import Tools.Nat using (Nat; 1+) renaming (_+_ to _+ⁿ_)
@@ -93,6 +93,15 @@ p ·ᶜ (γ ∙ q) = (p ·ᶜ γ) ∙ (p · q)
 
 _≤ᶜ_ : (γ δ : Conₘ n) → Set a
 γ ≤ᶜ δ = γ ≈ᶜ γ ∧ᶜ δ
+
+-- Nr functions can be lifted to usage contexts (the first two
+-- arguments are still single grades).
+
+nrᶜ :
+  ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+  M → M → Conₘ n → Conₘ n → Conₘ n → Conₘ n
+nrᶜ p r ε       ε       ε       = ε
+nrᶜ p r (γ ∙ g) (δ ∙ d) (η ∙ e) = nrᶜ p r γ δ η ∙ nr p r g d e
 
 -- Natrec-star operators can be lifted to usage contexts (the last
 -- argument is still a single grade).

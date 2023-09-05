@@ -19,13 +19,13 @@ open import Tools.Sum using (_⊎_; inj₁; inj₂)
 open import Tools.Unit
 
 open import Graded.Modality
-open import Graded.Modality.Dedicated-star
-open import Graded.Modality.Dedicated-star.Instance
+open import Graded.Modality.Dedicated-nr
+open import Graded.Modality.Dedicated-nr.Instance
 open import Graded.Modality.Instances.Affine as A
   using (Affine; affineModality)
 open import Graded.Modality.Instances.Erasure as E
   using (Erasure; 𝟘; ω)
-open import Graded.Modality.Instances.Erasure.Modality
+open import Graded.Modality.Instances.Erasure.Modality as E
   using (ErasureModality)
 open import Graded.Modality.Instances.Linear-or-affine as LA
   using (Linear-or-affine; 𝟘; 𝟙; ≤𝟙; ≤ω; linear-or-affine)
@@ -33,8 +33,8 @@ open import Graded.Modality.Instances.Linearity as L
   using (Linearity; linearityModality)
 open import Graded.Modality.Instances.Unit using (UnitModality)
 open import Graded.Modality.Instances.Zero-one-many as ZOM
-  using (Zero-one-many; 𝟘; 𝟙; ω; zero-one-many-greatest)
-open import Graded.Modality.Natrec-star-instances
+  using (Zero-one-many; 𝟘; 𝟙; ω; zero-one-many-modality)
+open import Graded.Modality.Nr-instances
 import Graded.Modality.Properties
 open import Graded.Modality.Variant
 open import Graded.Restrictions
@@ -82,9 +82,9 @@ record Is-morphism
     -- the target modality.
     𝟘ᵐ-in-second-if-in-first : T M₁.𝟘ᵐ-allowed → T M₂.𝟘ᵐ-allowed
 
-    -- The source modality has a dedicated natrec-star operator if and
-    -- only if the target modality also has one.
-    star-in-first-iff-in-second : Dedicated-star 𝕄₁ ⇔ Dedicated-star 𝕄₂
+    -- The source modality has a dedicated nr function if and only if
+    -- the target modality also has one.
+    nr-in-first-iff-in-second : Dedicated-nr 𝕄₁ ⇔ Dedicated-nr 𝕄₂
 
     -- The translation of 𝟘 is bounded by 𝟘.
     tr-𝟘-≤ : tr M₁.𝟘 ≤ M₂.𝟘
@@ -110,65 +110,65 @@ record Is-morphism
     -- The translation commutes with meet up to _≤_.
     tr-∧ : ∀ {p q} → tr (p M₁.∧ q) ≤ tr p M₂.∧ tr q
 
-    -- The translation commutes with star up to _≤_.
-    tr-⊛ :
-      ∀ {p q r}
-        ⦃ has-star₁ : Dedicated-star 𝕄₁ ⦄
-        ⦃ has-star₂ : Dedicated-star 𝕄₂ ⦄ →
-      tr (p ⊛ q ▷ r) ≤ tr p ⊛ tr q ▷ tr r
+    -- The translation commutes with nr up to _≤_.
+    tr-nr :
+      ∀ {p r z s n}
+        ⦃ has-nr₁ : Dedicated-nr 𝕄₁ ⦄
+        ⦃ has-nr₂ : Dedicated-nr 𝕄₂ ⦄ →
+      tr (nr p r z s n) ≤ nr (tr p) (tr r) (tr z) (tr s) (tr n)
 
-  -- If the source modality has a dedicated natrec-star operator, then
-  -- the target modality also has one.
+  -- If the source modality has a dedicated nr function, then the
+  -- target modality also has one.
 
-  star-in-second-if-in-first :
-    ⦃ has-star : Dedicated-star 𝕄₁ ⦄ →
-    Dedicated-star 𝕄₂
-  star-in-second-if-in-first ⦃ has-star = s ⦄ =
-    star-in-first-iff-in-second .proj₁ s
+  nr-in-second-if-in-first :
+    ⦃ has-nr : Dedicated-nr 𝕄₁ ⦄ →
+    Dedicated-nr 𝕄₂
+  nr-in-second-if-in-first ⦃ has-nr = n ⦄ =
+    nr-in-first-iff-in-second .proj₁ n
 
-  -- If the target modality has a dedicated natrec-star operator, then
-  -- the source modality also has one.
+  -- If the target modality has a dedicated nr function, then the
+  -- source modality also has one.
 
-  star-in-first-if-in-second :
-    ⦃ has-star : Dedicated-star 𝕄₂ ⦄ →
-    Dedicated-star 𝕄₁
-  star-in-first-if-in-second ⦃ has-star = s ⦄ =
-    star-in-first-iff-in-second .proj₂ s
+  nr-in-first-if-in-second :
+    ⦃ has-nr : Dedicated-nr 𝕄₂ ⦄ →
+    Dedicated-nr 𝕄₁
+  nr-in-first-if-in-second ⦃ has-nr = n ⦄ =
+    nr-in-first-iff-in-second .proj₂ n
 
-  -- The source modality does not have a dedicated natrec-star
-  -- operator if and only if the target modality does not have one.
+  -- The source modality does not have a dedicated nr function if and
+  -- only if the target modality does not have one.
 
-  no-star-in-first-iff-in-second :
-    No-dedicated-star 𝕄₁ ⇔ No-dedicated-star 𝕄₂
-  no-star-in-first-iff-in-second =
+  no-nr-in-first-iff-in-second :
+    No-dedicated-nr 𝕄₁ ⇔ No-dedicated-nr 𝕄₂
+  no-nr-in-first-iff-in-second =
       (λ where
-         (no-dedicated-star ns) → no-dedicated-star
-           (M₂.⊛-available  →⟨ Dedicated-star.star ∘→ star-in-first-iff-in-second .proj₂ ∘→ dedicated-star ⟩
-            M₁.⊛-available  →⟨ ns ⟩
-            ⊥               □))
+         (no-dedicated-nr nn) → no-dedicated-nr
+           (M₂.Nr-available  →⟨ Dedicated-nr.nr ∘→ nr-in-first-iff-in-second .proj₂ ∘→ dedicated-nr ⟩
+            M₁.Nr-available  →⟨ nn ⟩
+            ⊥                □))
     , (λ where
-         (no-dedicated-star ns) → no-dedicated-star
-           (M₁.⊛-available  →⟨ Dedicated-star.star ∘→ star-in-first-iff-in-second .proj₁ ∘→ dedicated-star ⟩
-            M₂.⊛-available  →⟨ ns ⟩
-            ⊥               □))
+         (no-dedicated-nr nn) → no-dedicated-nr
+           (M₁.Nr-available  →⟨ Dedicated-nr.nr ∘→ nr-in-first-iff-in-second .proj₁ ∘→ dedicated-nr ⟩
+            M₂.Nr-available  →⟨ nn ⟩
+            ⊥                □))
 
-  -- If the source modality does not have a dedicated natrec-star
-  -- operator, then neither does the target modality.
+  -- If the source modality does not have a dedicated nr function,
+  -- then neither does the target modality.
 
-  no-star-in-second-if-in-first :
-    ⦃ no-star : No-dedicated-star 𝕄₁ ⦄ →
-    No-dedicated-star 𝕄₂
-  no-star-in-second-if-in-first ⦃ no-star = ns ⦄ =
-    no-star-in-first-iff-in-second .proj₁ ns
+  no-nr-in-second-if-in-first :
+    ⦃ no-nr : No-dedicated-nr 𝕄₁ ⦄ →
+    No-dedicated-nr 𝕄₂
+  no-nr-in-second-if-in-first ⦃ no-nr = nn ⦄ =
+    no-nr-in-first-iff-in-second .proj₁ nn
 
-  -- If the target modality does not have a dedicated natrec-star
-  -- operator, then neither does the source modality.
+  -- If the target modality does not have a dedicated nr function,
+  -- then neither does the source modality.
 
-  no-star-in-first-if-in-second :
-    ⦃ no-star : No-dedicated-star 𝕄₂ ⦄ →
-    No-dedicated-star 𝕄₁
-  no-star-in-first-if-in-second ⦃ no-star = ns ⦄ =
-    no-star-in-first-iff-in-second .proj₂ ns
+  no-nr-in-first-if-in-second :
+    ⦃ no-nr : No-dedicated-nr 𝕄₂ ⦄ →
+    No-dedicated-nr 𝕄₁
+  no-nr-in-first-if-in-second ⦃ no-nr = nn ⦄ =
+    no-nr-in-first-iff-in-second .proj₂ nn
 
   -- If 𝟘ᵐ is allowed in the source modality, then 𝟘 is translated to
   -- 𝟘.
@@ -263,22 +263,20 @@ record Is-order-embedding
       tr p M₂.≤ q M₂.∧ r →
       ∃₂ λ q′ r′ → tr q′ M₂.≤ q × tr r′ M₂.≤ r × p M₁.≤ q′ M₁.∧ r′
 
-    -- A variant of the last properties above for a function that is
-    -- used in one of the usage rules for natrec (the one that uses
-    -- the natrec-star operator).
-    tr-≤-⊛ :
-      ∀ {p q₁ q₂ q₃ r s}
-        ⦃ has-star₁ : Dedicated-star 𝕄₁ ⦄
-        ⦃ has-star₂ : Dedicated-star 𝕄₂ ⦄ →
-      tr p M₂.≤ (q₁ M₂.∧ q₂) ⊛ q₃ M₂.+ tr r M₂.· q₂ ▷ tr s →
-      ∃₃ λ q₁′ q₂′ q₃′ →
-         tr q₁′ M₂.≤ q₁ × tr q₂′ M₂.≤ q₂ × tr q₃′ M₂.≤ q₃ ×
-         p M₁.≤ (q₁′ M₁.∧ q₂′) ⊛ q₃′ M₁.+ r M₁.· q₂′ ▷ s
+    -- A variant of the last properties above for nr.
+    tr-≤-nr :
+      ∀ {q p r z₁ s₁ n₁}
+        ⦃ has-nr₁ : Dedicated-nr 𝕄₁ ⦄
+        ⦃ has-nr₂ : Dedicated-nr 𝕄₂ ⦄ →
+      tr q M₂.≤ nr (tr p) (tr r) z₁ s₁ n₁ →
+      ∃₃ λ z₂ s₂ n₂ →
+         tr z₂ M₂.≤ z₁ × tr s₂ M₂.≤ s₁ × tr n₂ M₂.≤ n₁ ×
+         q M₁.≤ nr p r z₂ s₂ n₂
 
     -- A variant of the previous property for the alternative usage
     -- rule for natrec.
-    tr-≤-no-star :
-      ∀ {p q₁ q₂ q₃ q₄ r s} ⦃ no-star : No-dedicated-star 𝕄₁ ⦄ →
+    tr-≤-no-nr :
+      ∀ {p q₁ q₂ q₃ q₄ r s} ⦃ no-nr : No-dedicated-nr 𝕄₁ ⦄ →
       tr p M₂.≤ q₁ →
       q₁ M₂.≤ q₂ M₂.∧ q₃ M₂.∧ (q₄ M₂.+ tr r M₂.· q₃ M₂.+ tr s M₂.· q₁) →
       ∃₄ λ q₁′ q₂′ q₃′ q₄′ →
@@ -478,24 +476,24 @@ Is-order-embedding-id {𝕄 = 𝕄} = λ where
     .tr-≤-· hyp          → _ , ≤-refl , hyp
     .tr-≤-∧ hyp          → _ , _ , ≤-refl , ≤-refl , hyp
     .tr-morphism         → λ where
-      .tr-<-𝟘 not-ok ok                           → ⊥-elim (not-ok ok)
-      .tr-𝟙                                       → ≤-refl
-      .tr-𝟘-≤                                     → ≤-refl
-      .tr-≡-𝟘-⇔ _                                 → idᶠ , idᶠ
-      .tr-+                                       → ≤-refl
-      .tr-·                                       → refl
-      .tr-∧                                       → ≤-refl
-      .𝟘ᵐ-in-second-if-in-first                   → idᶠ
-      .star-in-first-iff-in-second                → id⇔
-      .tr-⊛ ⦃ has-star₁ = s₁ ⦄ ⦃ has-star₂ = s₂ ⦄ →
-        case Dedicated-star-propositional _ s₁ s₂ of λ {
+      .tr-<-𝟘 not-ok ok                        → ⊥-elim (not-ok ok)
+      .tr-𝟙                                    → ≤-refl
+      .tr-𝟘-≤                                  → ≤-refl
+      .tr-≡-𝟘-⇔ _                              → idᶠ , idᶠ
+      .tr-+                                    → ≤-refl
+      .tr-·                                    → refl
+      .tr-∧                                    → ≤-refl
+      .𝟘ᵐ-in-second-if-in-first                → idᶠ
+      .nr-in-first-iff-in-second               → id⇔
+      .tr-nr ⦃ has-nr₁ = n₁ ⦄ ⦃ has-nr₂ = n₂ ⦄ →
+        case Dedicated-nr-propositional _ n₁ n₂ of λ {
           refl →
         ≤-refl }
-    .tr-≤-⊛ ⦃ has-star₁ = s₁ ⦄ ⦃ has-star₂ = s₂ ⦄ hyp →
-      case Dedicated-star-propositional _ s₁ s₂ of λ {
+    .tr-≤-nr ⦃ has-nr₁ = n₁ ⦄ ⦃ has-nr₂ = n₂ ⦄ hyp →
+      case Dedicated-nr-propositional _ n₁ n₂ of λ {
         refl →
       _ , _ , _ , ≤-refl , ≤-refl , ≤-refl , hyp }
-    .tr-≤-no-star p≤q₁ q₁≤q₂∧q₃∧[q₄+rq₃+sq₁] →
+    .tr-≤-no-nr p≤q₁ q₁≤q₂∧q₃∧[q₄+rq₃+sq₁] →
         _ , _ , _ , _ , ≤-refl , ≤-refl , ≤-refl
       , p≤q₁ , q₁≤q₂∧q₃∧[q₄+rq₃+sq₁]
   where
@@ -516,8 +514,8 @@ Is-morphism-∘
   {𝕄₂ = 𝕄₂} {𝕄₃ = 𝕄₃} {tr₁ = tr₁} {𝕄₁ = 𝕄₁} {tr₂ = tr₂} f g = λ where
     .Is-morphism.𝟘ᵐ-in-second-if-in-first →
       F.𝟘ᵐ-in-second-if-in-first ∘→ G.𝟘ᵐ-in-second-if-in-first
-    .Is-morphism.star-in-first-iff-in-second →
-      F.star-in-first-iff-in-second ∘⇔ G.star-in-first-iff-in-second
+    .Is-morphism.nr-in-first-iff-in-second →
+      F.nr-in-first-iff-in-second ∘⇔ G.nr-in-first-iff-in-second
     .Is-morphism.tr-𝟘-≤ → let open R in begin
        tr₁ (tr₂ M₁.𝟘)  ≤⟨ F.tr-monotone G.tr-𝟘-≤ ⟩
        tr₁ M₂.𝟘        ≤⟨ F.tr-𝟘-≤ ⟩
@@ -556,16 +554,19 @@ Is-morphism-∘
       tr₁ (tr₂ (p M₁.∧ q))          ≤⟨ F.tr-monotone G.tr-∧ ⟩
       tr₁ (tr₂ p M₂.∧ tr₂ q)        ≤⟨ F.tr-∧ ⟩
       tr₁ (tr₂ p) M₃.∧ tr₁ (tr₂ q)  ∎
-    .Is-morphism.tr-⊛ {p = p} {q = q} {r = r} →
+    .Is-morphism.tr-nr {p = p} {r = r} {z = z} {s = s} {n = n} →
       let open R
 
           instance
-            has-star : Dedicated-star 𝕄₂
-            has-star = G.star-in-second-if-in-first
+            has-nr : Dedicated-nr 𝕄₂
+            has-nr = G.nr-in-second-if-in-first
       in begin
-      tr₁ (tr₂ (p ⊛ q ▷ r))                    ≤⟨ F.tr-monotone G.tr-⊛ ⟩
-      tr₁ (tr₂ p ⊛ tr₂ q ▷ tr₂ r)              ≤⟨ F.tr-⊛ ⟩
-      tr₁ (tr₂ p) ⊛ tr₁ (tr₂ q) ▷ tr₁ (tr₂ r)  ∎
+      tr₁ (tr₂ (nr p r z s n))                          ≤⟨ F.tr-monotone G.tr-nr ⟩
+
+      tr₁ (nr (tr₂ p) (tr₂ r) (tr₂ z) (tr₂ s) (tr₂ n))  ≤⟨ F.tr-nr ⟩
+
+      nr (tr₁ (tr₂ p)) (tr₁ (tr₂ r)) (tr₁ (tr₂ z))
+        (tr₁ (tr₂ s)) (tr₁ (tr₂ n))                     ∎
   where
   module Mo₂ = Mode 𝕄₂
   module M₁  = Modality 𝕄₁
@@ -660,42 +661,42 @@ Is-order-embedding-∘
            tr₁ r′        ≤⟨ tr-r′≤r ⟩
            r             ∎)
       , p≤q″∧r″
-    .Is-order-embedding.tr-≤-⊛ {q₁ = q₁} {q₂ = q₂} {q₃ = q₃} tr-p≤ →
+    .Is-order-embedding.tr-≤-nr {z₁ = z₁} {s₁ = s₁} {n₁ = n₁} tr-q≤ →
       let open Tools.Reasoning.PartialOrder MP₃.≤-poset
 
           instance
-            has-star : Dedicated-star 𝕄₂
-            has-star = G.star-in-second-if-in-first
+            has-nr : Dedicated-nr 𝕄₂
+            has-nr = G.nr-in-second-if-in-first
       in
-      case F.tr-≤-⊛ tr-p≤ of
-        λ (q₁′ , q₂′ , q₃′ , ≤q₁ , ≤q₂ , ≤q₃ , tr-p≤′) →
-      case G.tr-≤-⊛ tr-p≤′ of
-        λ (q₁″ , q₂″ , q₃″ , ≤q₁′ , ≤q₂′ , ≤q₃′ , p≤) →
-        q₁″ , q₂″ , q₃″
+      case F.tr-≤-nr tr-q≤ of
+        λ (z₂ , s₂ , n₂ , ≤z₁ , ≤s₁ , ≤n₁ , tr-q≤′) →
+      case G.tr-≤-nr tr-q≤′ of
+        λ (z₃ , s₃ , n₃ , ≤z₂ , ≤s₂ , ≤n₂ , q≤) →
+        z₃ , s₃ , n₃
       , (begin
-           tr₁ (tr₂ q₁″)  ≤⟨ F.tr-monotone ≤q₁′ ⟩
-           tr₁ q₁′        ≤⟨ ≤q₁ ⟩
-           q₁             ∎)
+           tr₁ (tr₂ z₃)  ≤⟨ F.tr-monotone ≤z₂ ⟩
+           tr₁ z₂        ≤⟨ ≤z₁ ⟩
+           z₁            ∎)
       , (begin
-           tr₁ (tr₂ q₂″)  ≤⟨ F.tr-monotone ≤q₂′ ⟩
-           tr₁ q₂′        ≤⟨ ≤q₂ ⟩
-           q₂             ∎)
+           tr₁ (tr₂ s₃)  ≤⟨ F.tr-monotone ≤s₂ ⟩
+           tr₁ s₂        ≤⟨ ≤s₁ ⟩
+           s₁            ∎)
       , (begin
-           tr₁ (tr₂ q₃″)  ≤⟨ F.tr-monotone ≤q₃′ ⟩
-           tr₁ q₃′        ≤⟨ ≤q₃ ⟩
-           q₃             ∎)
-      , p≤
-    .Is-order-embedding.tr-≤-no-star
+           tr₁ (tr₂ n₃)  ≤⟨ F.tr-monotone ≤n₂ ⟩
+           tr₁ n₂        ≤⟨ ≤n₁ ⟩
+           n₁            ∎)
+      , q≤
+    .Is-order-embedding.tr-≤-no-nr
       {q₁ = q₁} {q₂ = q₂} {q₃ = q₃} {q₄ = q₄} tr-p≤q₁ q₁≤ →
       let open Tools.Reasoning.PartialOrder MP₃.≤-poset
 
           instance
-            no-star : No-dedicated-star 𝕄₂
-            no-star = G.no-star-in-second-if-in-first
+            no-nr : No-dedicated-nr 𝕄₂
+            no-nr = G.no-nr-in-second-if-in-first
       in
-      case F.tr-≤-no-star tr-p≤q₁ q₁≤ of λ {
+      case F.tr-≤-no-nr tr-p≤q₁ q₁≤ of λ {
         (q₁′ , q₂′ , q₃′ , q₄′ , ≤q₂ , ≤q₃ , ≤q₄ , tr-p≤q₁′ , q₁′≤) →
-      case G.tr-≤-no-star tr-p≤q₁′ q₁′≤ of λ {
+      case G.tr-≤-no-nr tr-p≤q₁′ q₁′≤ of λ {
         (q₁″ , q₂″ , q₃″ , q₄″ , ≤q₂′ , ≤q₃′ , ≤q₄′ , p≤q₁″ , q₁″≤) →
         q₁″ , q₂″ , q₃″ , q₄″
       , (begin
@@ -787,9 +788,9 @@ Is-Σ-order-embedding-∘
 ------------------------------------------------------------------------
 -- A lemma
 
--- The property tr-≤-no-star follows from other properties.
+-- The property tr-≤-no-nr follows from other properties.
 
-→tr-≤-no-star :
+→tr-≤-no-nr :
   (𝕄₁ : Modality M₁) (𝕄₂ : Modality M₂) →
   let
     module M₁ = Modality 𝕄₁
@@ -812,7 +813,7 @@ Is-Σ-order-embedding-∘
      p M₁.≤ q₁′ ×
      q₁′ M₁.≤
        q₂′ M₁.∧ q₃′ M₁.∧ (q₄′ M₁.+ r M₁.· q₃′ M₁.+ s M₁.· q₁′)
-→tr-≤-no-star
+→tr-≤-no-nr
   {q₁ = q₁} {q₂ = q₂} {q₃ = q₃} {q₄ = q₄} {r = r} {s = s}
   𝕄₁ 𝕄₂
   tr tr⁻¹ tr⁻¹-monotone tr≤→≤tr⁻¹ tr-tr⁻¹≤ tr⁻¹-+ tr⁻¹-∧ tr⁻¹-·
@@ -955,7 +956,7 @@ unit⇨erasure :
   let 𝕄₁ = UnitModality v₁ v₁-ok
       𝕄₂ = ErasureModality v₂
   in
-  Dedicated-star 𝕄₁ ⇔ Dedicated-star 𝕄₂ →
+  Dedicated-nr 𝕄₁ ⇔ Dedicated-nr 𝕄₂ →
   Is-order-embedding 𝕄₁ 𝕄₂ unit→erasure
 unit⇨erasure {v₁-ok = v₁-ok} s⇔s = λ where
     .tr-order-reflecting _ → refl
@@ -966,20 +967,20 @@ unit⇨erasure {v₁-ok = v₁-ok} s⇔s = λ where
     .tr-≤-+ _              → _ , _ , refl , refl , refl
     .tr-≤-· _              → _ , refl , refl
     .tr-≤-∧ _              → _ , _ , refl , refl , refl
-    .tr-≤-⊛ _              → _ , _ , _ , refl , refl , refl , refl
-    .tr-≤-no-star _ _      → _ , _ , _ , _
+    .tr-≤-nr _             → _ , _ , _ , refl , refl , refl , refl
+    .tr-≤-no-nr _ _        → _ , _ , _ , _
                            , refl , refl , refl , refl , refl
     .tr-morphism           → λ where
-      .𝟘ᵐ-in-second-if-in-first    → ⊥-elim ∘→ v₁-ok
-      .star-in-first-iff-in-second → s⇔s
-      .tr-𝟘-≤                      → refl
-      .tr-≡-𝟘-⇔                    → ⊥-elim ∘→ v₁-ok
-      .tr-<-𝟘 _ _                  → refl , λ ()
-      .tr-𝟙                        → refl
-      .tr-+                        → refl
-      .tr-·                        → refl
-      .tr-∧                        → refl
-      .tr-⊛                        → refl
+      .𝟘ᵐ-in-second-if-in-first  → ⊥-elim ∘→ v₁-ok
+      .nr-in-first-iff-in-second → s⇔s
+      .tr-𝟘-≤                    → refl
+      .tr-≡-𝟘-⇔                  → ⊥-elim ∘→ v₁-ok
+      .tr-<-𝟘 _ _                → refl , λ ()
+      .tr-𝟙                      → refl
+      .tr-+                      → refl
+      .tr-·                      → refl
+      .tr-∧                      → refl
+      .tr-nr                     → refl
   where
   open Is-morphism
   open Is-order-embedding
@@ -992,19 +993,19 @@ erasure⇨unit :
   let 𝕄₁ = ErasureModality v₁
       𝕄₂ = UnitModality v₂ v₂-ok
   in
-  Dedicated-star 𝕄₁ ⇔ Dedicated-star 𝕄₂ →
+  Dedicated-nr 𝕄₁ ⇔ Dedicated-nr 𝕄₂ →
   Is-morphism 𝕄₁ 𝕄₂ erasure→unit
 erasure⇨unit {v₂-ok = v₂-ok} not-ok₁ s⇔s = λ where
-    .tr-𝟘-≤                      → refl
-    .tr-≡-𝟘-⇔                    → ⊥-elim ∘→ not-ok₁
-    .tr-<-𝟘 _                    → ⊥-elim ∘→ v₂-ok
-    .tr-𝟙                        → refl
-    .tr-+                        → refl
-    .tr-·                        → refl
-    .tr-∧                        → refl
-    .tr-⊛                        → refl
-    .𝟘ᵐ-in-second-if-in-first    → ⊥-elim ∘→ not-ok₁
-    .star-in-first-iff-in-second → s⇔s
+    .tr-𝟘-≤                    → refl
+    .tr-≡-𝟘-⇔                  → ⊥-elim ∘→ not-ok₁
+    .tr-<-𝟘 _                  → ⊥-elim ∘→ v₂-ok
+    .tr-𝟙                      → refl
+    .tr-+                      → refl
+    .tr-·                      → refl
+    .tr-∧                      → refl
+    .tr-nr                     → refl
+    .𝟘ᵐ-in-second-if-in-first  → ⊥-elim ∘→ not-ok₁
+    .nr-in-first-iff-in-second → s⇔s
   where
   open Is-morphism
 
@@ -1018,47 +1019,46 @@ erasure⇨unit {v₂-ok = v₂-ok} not-ok₁ s⇔s = λ where
   case Is-order-embedding.tr-injective m {p = 𝟘} {q = ω} refl of λ ()
 
 -- The function erasure→zero-one-many is an order embedding from an
--- erasure modality to a zero-one-many-greatest modality if certain
--- assumptions hold. The zero-one-many-greatest modality can be
+-- erasure modality to a zero-one-many-modality modality if certain
+-- assumptions hold. The zero-one-many-modality modality can be
 -- defined with either 𝟙 ≤ 𝟘 or 𝟙 ≰ 𝟘.
 
 erasure⇨zero-one-many :
   𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
   let 𝕄₁ = ErasureModality v₁
-      𝕄₂ = zero-one-many-greatest 𝟙≤𝟘 v₂ v₂-ok
+      𝕄₂ = zero-one-many-modality 𝟙≤𝟘 v₂ v₂-ok
   in
-  Dedicated-star 𝕄₁ ⇔ Dedicated-star 𝕄₂ →
+  Dedicated-nr 𝕄₁ ⇔ Dedicated-nr 𝕄₂ →
   Is-order-embedding 𝕄₁ 𝕄₂ erasure→zero-one-many
 erasure⇨zero-one-many
   {v₂ = v₂} {𝟙≤𝟘 = 𝟙≤𝟘} {v₂-ok = v₂-ok} refl s⇔s = λ where
-    .Is-order-embedding.trivial not-ok ok    → ⊥-elim (not-ok ok)
-    .Is-order-embedding.trivial-⊎-tr-𝟘       → inj₂ refl
-    .Is-order-embedding.tr-≤                 → ω , refl
-    .Is-order-embedding.tr-≤-𝟙               → tr-≤-𝟙 _
-    .Is-order-embedding.tr-≤-+               → tr-≤-+ _ _ _
-    .Is-order-embedding.tr-≤-·               → tr-≤-· _ _ _
-    .Is-order-embedding.tr-≤-∧               → tr-≤-∧ _ _ _
-    .Is-order-embedding.tr-≤-⊛ {s = s}       → tr-≤-⊛ _ _ _ _ _ s
-    .Is-order-embedding.tr-≤-no-star {s = s} → tr-≤-no-star
-                                                 _ _ _ _ _ _ s
-    .Is-order-embedding.tr-order-reflecting  →
+    .Is-order-embedding.trivial not-ok ok   → ⊥-elim (not-ok ok)
+    .Is-order-embedding.trivial-⊎-tr-𝟘      → inj₂ refl
+    .Is-order-embedding.tr-≤                → ω , refl
+    .Is-order-embedding.tr-≤-𝟙              → tr-≤-𝟙 _
+    .Is-order-embedding.tr-≤-+              → tr-≤-+ _ _ _
+    .Is-order-embedding.tr-≤-·              → tr-≤-· _ _ _
+    .Is-order-embedding.tr-≤-∧              → tr-≤-∧ _ _ _
+    .Is-order-embedding.tr-≤-nr {r = r}     → tr-≤-nr _ _ r _ _ _
+    .Is-order-embedding.tr-≤-no-nr {s = s}  → tr-≤-no-nr _ _ _ _ _ _ s
+    .Is-order-embedding.tr-order-reflecting →
       tr-order-reflecting _ _
     .Is-order-embedding.tr-morphism → λ where
-      .Is-morphism.tr-𝟘-≤                      → refl
-      .Is-morphism.tr-≡-𝟘-⇔ _                  → tr-≡-𝟘 _
-                                               , λ { refl → refl }
-      .Is-morphism.tr-<-𝟘 not-ok ok            → ⊥-elim (not-ok ok)
-      .Is-morphism.tr-𝟙                        → refl
-      .Is-morphism.tr-+ {p = p}                → ≤-reflexive (tr-+ p _)
-      .Is-morphism.tr-· {p = p}                → tr-· p _
-      .Is-morphism.tr-∧ {p = p}                → ≤-reflexive (tr-∧ p _)
-      .Is-morphism.tr-⊛ {p = p} {r = r}        → ≤-reflexive
-                                                   (tr-⊛ p _ r)
-      .Is-morphism.𝟘ᵐ-in-second-if-in-first    → idᶠ
-      .Is-morphism.star-in-first-iff-in-second → s⇔s
+      .Is-morphism.tr-𝟘-≤                    → refl
+      .Is-morphism.tr-≡-𝟘-⇔ _                → tr-≡-𝟘 _
+                                             , λ { refl → refl }
+      .Is-morphism.tr-<-𝟘 not-ok ok          → ⊥-elim (not-ok ok)
+      .Is-morphism.tr-𝟙                      → refl
+      .Is-morphism.tr-+ {p = p}              → ≤-reflexive (tr-+ p _)
+      .Is-morphism.tr-· {p = p}              → tr-· p _
+      .Is-morphism.tr-∧ {p = p}              → ≤-reflexive (tr-∧ p _)
+      .Is-morphism.tr-nr {r = r} {z = z}     → ≤-reflexive
+                                                 (tr-nr _ r z _ _)
+      .Is-morphism.𝟘ᵐ-in-second-if-in-first  → idᶠ
+      .Is-morphism.nr-in-first-iff-in-second → s⇔s
   where
   module 𝟘𝟙ω = ZOM 𝟙≤𝟘
-  open Graded.Modality.Properties (zero-one-many-greatest 𝟙≤𝟘 v₂ v₂-ok)
+  open Graded.Modality.Properties (zero-one-many-modality 𝟙≤𝟘 v₂ v₂-ok)
   open Tools.Reasoning.PartialOrder ≤-poset
 
   tr′ = erasure→zero-one-many
@@ -1088,15 +1088,83 @@ erasure⇨zero-one-many
   tr-∧ ω 𝟘 = refl
   tr-∧ ω ω = refl
 
-  tr-⊛ : ∀ p q r → tr′ (p E.⊛ q ▷ r) ≡ tr′ p 𝟘𝟙ω.⊛ tr′ q ▷ tr′ r
-  tr-⊛ 𝟘 𝟘 𝟘 = refl
-  tr-⊛ 𝟘 𝟘 ω = refl
-  tr-⊛ 𝟘 ω 𝟘 = refl
-  tr-⊛ 𝟘 ω ω = refl
-  tr-⊛ ω 𝟘 𝟘 = refl
-  tr-⊛ ω 𝟘 ω = refl
-  tr-⊛ ω ω 𝟘 = refl
-  tr-⊛ ω ω ω = refl
+  tr-nr :
+    ∀ p r z s n →
+    tr′ (E.nr p r z s n) ≡
+    𝟘𝟙ω.nr (tr′ p) (tr′ r) (tr′ z) (tr′ s) (tr′ n)
+  tr-nr = tr-nr′ _
+    where
+    tr-nr′ :
+      ∀ 𝟙≤𝟘 →
+      let module 𝟘𝟙ω′ = ZOM 𝟙≤𝟘 in
+      ∀ p r z s n →
+      tr′ (E.nr p r z s n) ≡
+      𝟘𝟙ω′.nr (tr′ p) (tr′ r) (tr′ z) (tr′ s) (tr′ n)
+    tr-nr′ = λ where
+      false 𝟘 𝟘 𝟘 𝟘 𝟘 → refl
+      false 𝟘 𝟘 𝟘 𝟘 ω → refl
+      false 𝟘 𝟘 𝟘 ω 𝟘 → refl
+      false 𝟘 𝟘 𝟘 ω ω → refl
+      false 𝟘 𝟘 ω 𝟘 𝟘 → refl
+      false 𝟘 𝟘 ω 𝟘 ω → refl
+      false 𝟘 𝟘 ω ω 𝟘 → refl
+      false 𝟘 𝟘 ω ω ω → refl
+      false 𝟘 ω 𝟘 𝟘 𝟘 → refl
+      false 𝟘 ω 𝟘 𝟘 ω → refl
+      false 𝟘 ω 𝟘 ω 𝟘 → refl
+      false 𝟘 ω 𝟘 ω ω → refl
+      false 𝟘 ω ω 𝟘 𝟘 → refl
+      false 𝟘 ω ω 𝟘 ω → refl
+      false 𝟘 ω ω ω 𝟘 → refl
+      false 𝟘 ω ω ω ω → refl
+      false ω 𝟘 𝟘 𝟘 𝟘 → refl
+      false ω 𝟘 𝟘 𝟘 ω → refl
+      false ω 𝟘 𝟘 ω 𝟘 → refl
+      false ω 𝟘 𝟘 ω ω → refl
+      false ω 𝟘 ω 𝟘 𝟘 → refl
+      false ω 𝟘 ω 𝟘 ω → refl
+      false ω 𝟘 ω ω 𝟘 → refl
+      false ω 𝟘 ω ω ω → refl
+      false ω ω 𝟘 𝟘 𝟘 → refl
+      false ω ω 𝟘 𝟘 ω → refl
+      false ω ω 𝟘 ω 𝟘 → refl
+      false ω ω 𝟘 ω ω → refl
+      false ω ω ω 𝟘 𝟘 → refl
+      false ω ω ω 𝟘 ω → refl
+      false ω ω ω ω 𝟘 → refl
+      false ω ω ω ω ω → refl
+      true  𝟘 𝟘 𝟘 𝟘 𝟘 → refl
+      true  𝟘 𝟘 𝟘 𝟘 ω → refl
+      true  𝟘 𝟘 𝟘 ω 𝟘 → refl
+      true  𝟘 𝟘 𝟘 ω ω → refl
+      true  𝟘 𝟘 ω 𝟘 𝟘 → refl
+      true  𝟘 𝟘 ω 𝟘 ω → refl
+      true  𝟘 𝟘 ω ω 𝟘 → refl
+      true  𝟘 𝟘 ω ω ω → refl
+      true  𝟘 ω 𝟘 𝟘 𝟘 → refl
+      true  𝟘 ω 𝟘 𝟘 ω → refl
+      true  𝟘 ω 𝟘 ω 𝟘 → refl
+      true  𝟘 ω 𝟘 ω ω → refl
+      true  𝟘 ω ω 𝟘 𝟘 → refl
+      true  𝟘 ω ω 𝟘 ω → refl
+      true  𝟘 ω ω ω 𝟘 → refl
+      true  𝟘 ω ω ω ω → refl
+      true  ω 𝟘 𝟘 𝟘 𝟘 → refl
+      true  ω 𝟘 𝟘 𝟘 ω → refl
+      true  ω 𝟘 𝟘 ω 𝟘 → refl
+      true  ω 𝟘 𝟘 ω ω → refl
+      true  ω 𝟘 ω 𝟘 𝟘 → refl
+      true  ω 𝟘 ω 𝟘 ω → refl
+      true  ω 𝟘 ω ω 𝟘 → refl
+      true  ω 𝟘 ω ω ω → refl
+      true  ω ω 𝟘 𝟘 𝟘 → refl
+      true  ω ω 𝟘 𝟘 ω → refl
+      true  ω ω 𝟘 ω 𝟘 → refl
+      true  ω ω 𝟘 ω ω → refl
+      true  ω ω ω 𝟘 𝟘 → refl
+      true  ω ω ω 𝟘 ω → refl
+      true  ω ω ω ω 𝟘 → refl
+      true  ω ω ω ω ω → refl
 
   tr-order-reflecting : ∀ p q → tr′ p 𝟘𝟙ω.≤ tr′ q → p E.≤ q
   tr-order-reflecting 𝟘 𝟘 _ = refl
@@ -1138,75 +1206,134 @@ erasure⇨zero-one-many
       ω                ∎
     of λ ()
 
-  tr-≤-⊛ :
-    ∀ p q₁ q₂ q₃ r s →
-    tr′ p 𝟘𝟙ω.≤ (q₁ 𝟘𝟙ω.∧ q₂) 𝟘𝟙ω.⊛ q₃ 𝟘𝟙ω.+ tr′ r 𝟘𝟙ω.· q₂ ▷ tr′ s →
-    ∃₃ λ q₁′ q₂′ q₃′ →
-       tr′ q₁′ 𝟘𝟙ω.≤ q₁ × tr′ q₂′ 𝟘𝟙ω.≤ q₂ × tr′ q₃′ 𝟘𝟙ω.≤ q₃ ×
-       p E.≤ (q₁′ E.∧ q₂′) E.⊛ q₃′ E.+ r E.· q₂′ ▷ s
-  tr-≤-⊛ = tr-≤-⊛′ 𝟙≤𝟘
+  tr-≤-nr :
+    ∀ q p r z₁ s₁ n₁ →
+    tr′ q 𝟘𝟙ω.≤ 𝟘𝟙ω.nr (tr′ p) (tr′ r) z₁ s₁ n₁ →
+    ∃₃ λ z₂ s₂ n₂ →
+       tr′ z₂ 𝟘𝟙ω.≤ z₁ × tr′ s₂ 𝟘𝟙ω.≤ s₁ × tr′ n₂ 𝟘𝟙ω.≤ n₁ ×
+       q E.≤ E.nr p r z₂ s₂ n₂
+  tr-≤-nr = tr-≤-nr′ _
     where
-    tr-≤-⊛′ :
+    tr-≤-nr′ :
       ∀ 𝟙≤𝟘 →
       let module 𝟘𝟙ω′ = ZOM 𝟙≤𝟘 in
-      ∀ p q₁ q₂ q₃ r s →
-      tr′ p 𝟘𝟙ω′.≤
-        (q₁ 𝟘𝟙ω′.∧ q₂) 𝟘𝟙ω′.⊛ q₃ 𝟘𝟙ω′.+ tr′ r 𝟘𝟙ω′.· q₂ ▷ tr′ s →
-      ∃₃ λ q₁′ q₂′ q₃′ →
-         tr′ q₁′ 𝟘𝟙ω′.≤ q₁ × tr′ q₂′ 𝟘𝟙ω′.≤ q₂ × tr′ q₃′ 𝟘𝟙ω′.≤ q₃ ×
-         p E.≤ (q₁′ E.∧ q₂′) E.⊛ q₃′ E.+ r E.· q₂′ ▷ s
-    tr-≤-⊛′ _     𝟘 𝟘 𝟘 𝟘 𝟘 _ _  = 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
-    tr-≤-⊛′ _     𝟘 𝟘 𝟘 𝟘 ω _ _  = 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
-    tr-≤-⊛′ _     ω _ _ _ _ _ _  = ω , ω , ω , refl , refl , refl , refl
-    tr-≤-⊛′ false 𝟘 𝟘 𝟘 𝟙 𝟘 𝟘 ()
-    tr-≤-⊛′ false 𝟘 𝟘 𝟘 𝟙 𝟘 ω ()
-    tr-≤-⊛′ false 𝟘 𝟘 𝟘 𝟙 ω 𝟘 ()
-    tr-≤-⊛′ false 𝟘 𝟘 𝟘 𝟙 ω ω ()
-    tr-≤-⊛′ false 𝟘 𝟘 𝟘 ω 𝟘 𝟘 ()
-    tr-≤-⊛′ false 𝟘 𝟘 𝟘 ω 𝟘 ω ()
-    tr-≤-⊛′ false 𝟘 𝟘 𝟘 ω ω 𝟘 ()
-    tr-≤-⊛′ false 𝟘 𝟘 𝟘 ω ω ω ()
-    tr-≤-⊛′ false 𝟘 𝟘 𝟙 𝟘 𝟘 𝟘 ()
-    tr-≤-⊛′ false 𝟘 𝟘 𝟙 𝟘 𝟘 ω ()
-    tr-≤-⊛′ false 𝟘 𝟘 𝟙 𝟘 ω 𝟘 ()
-    tr-≤-⊛′ false 𝟘 𝟘 𝟙 𝟘 ω ω ()
-    tr-≤-⊛′ false 𝟘 𝟘 𝟙 𝟙 𝟘 𝟘 ()
-    tr-≤-⊛′ false 𝟘 𝟘 𝟙 𝟙 𝟘 ω ()
-    tr-≤-⊛′ false 𝟘 𝟘 𝟙 𝟙 ω 𝟘 ()
-    tr-≤-⊛′ false 𝟘 𝟘 𝟙 𝟙 ω ω ()
-    tr-≤-⊛′ false 𝟘 𝟘 𝟙 ω 𝟘 𝟘 ()
-    tr-≤-⊛′ false 𝟘 𝟘 𝟙 ω 𝟘 ω ()
-    tr-≤-⊛′ false 𝟘 𝟘 𝟙 ω ω 𝟘 ()
-    tr-≤-⊛′ false 𝟘 𝟘 𝟙 ω ω ω ()
-    tr-≤-⊛′ false 𝟘 𝟘 ω 𝟘 𝟘 𝟘 ()
-    tr-≤-⊛′ false 𝟘 𝟙 𝟘 𝟘 𝟘 𝟘 ()
-    tr-≤-⊛′ false 𝟘 𝟙 𝟘 𝟘 𝟘 ω ()
-    tr-≤-⊛′ false 𝟘 𝟙 𝟘 𝟘 ω 𝟘 ()
-    tr-≤-⊛′ false 𝟘 𝟙 𝟘 𝟘 ω ω ()
-    tr-≤-⊛′ false 𝟘 𝟙 𝟘 𝟙 𝟘 𝟘 ()
-    tr-≤-⊛′ false 𝟘 𝟙 𝟘 𝟙 𝟘 ω ()
-    tr-≤-⊛′ false 𝟘 𝟙 𝟘 𝟙 ω 𝟘 ()
-    tr-≤-⊛′ false 𝟘 𝟙 𝟘 𝟙 ω ω ()
-    tr-≤-⊛′ false 𝟘 𝟙 𝟘 ω 𝟘 𝟘 ()
-    tr-≤-⊛′ false 𝟘 𝟙 𝟘 ω 𝟘 ω ()
-    tr-≤-⊛′ false 𝟘 𝟙 𝟘 ω ω 𝟘 ()
-    tr-≤-⊛′ false 𝟘 𝟙 𝟘 ω ω ω ()
-    tr-≤-⊛′ false 𝟘 𝟙 𝟙 𝟘 𝟘 𝟘 ()
-    tr-≤-⊛′ false 𝟘 𝟙 𝟙 𝟘 𝟘 ω ()
-    tr-≤-⊛′ false 𝟘 𝟙 𝟙 𝟘 ω 𝟘 ()
-    tr-≤-⊛′ false 𝟘 𝟙 𝟙 𝟘 ω ω ()
-    tr-≤-⊛′ false 𝟘 𝟙 𝟙 𝟙 𝟘 𝟘 ()
-    tr-≤-⊛′ false 𝟘 𝟙 𝟙 𝟙 𝟘 ω ()
-    tr-≤-⊛′ false 𝟘 𝟙 𝟙 𝟙 ω 𝟘 ()
-    tr-≤-⊛′ false 𝟘 𝟙 𝟙 𝟙 ω ω ()
-    tr-≤-⊛′ false 𝟘 𝟙 𝟙 ω 𝟘 𝟘 ()
-    tr-≤-⊛′ false 𝟘 𝟙 𝟙 ω 𝟘 ω ()
-    tr-≤-⊛′ false 𝟘 𝟙 𝟙 ω ω 𝟘 ()
-    tr-≤-⊛′ false 𝟘 𝟙 𝟙 ω ω ω ()
-    tr-≤-⊛′ false 𝟘 𝟙 ω 𝟘 𝟘 𝟘 ()
-    tr-≤-⊛′ false 𝟘 ω 𝟘 𝟘 𝟘 𝟘 ()
+      ∀ q p r z₁ s₁ n₁ →
+      tr′ q 𝟘𝟙ω′.≤ 𝟘𝟙ω′.nr (tr′ p) (tr′ r) z₁ s₁ n₁ →
+      ∃₃ λ z₂ s₂ n₂ →
+         tr′ z₂ 𝟘𝟙ω′.≤ z₁ × tr′ s₂ 𝟘𝟙ω′.≤ s₁ × tr′ n₂ 𝟘𝟙ω′.≤ n₁ ×
+         q E.≤ E.nr p r z₂ s₂ n₂
+    tr-≤-nr′ = λ where
+      _     𝟘 𝟘 𝟘 𝟘 𝟘 𝟘 _  → 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
+      _     𝟘 𝟘 ω 𝟘 𝟘 𝟘 _  → 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
+      _     𝟘 ω 𝟘 𝟘 𝟘 𝟘 _  → 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
+      _     𝟘 ω ω 𝟘 𝟘 𝟘 _  → 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
+      _     ω _ _ _ _ _ _  → ω , ω , ω , refl , refl , refl , refl
+      false 𝟘 𝟘 𝟘 𝟘 𝟘 𝟙 ()
+      false 𝟘 𝟘 𝟘 𝟘 𝟘 ω ()
+      false 𝟘 𝟘 𝟘 𝟘 𝟙 𝟘 ()
+      false 𝟘 𝟘 𝟘 𝟘 𝟙 𝟙 ()
+      false 𝟘 𝟘 𝟘 𝟘 𝟙 ω ()
+      false 𝟘 𝟘 𝟘 𝟘 ω 𝟘 ()
+      false 𝟘 𝟘 𝟘 𝟘 ω 𝟙 ()
+      false 𝟘 𝟘 𝟘 𝟘 ω ω ()
+      false 𝟘 𝟘 𝟘 𝟙 𝟘 𝟘 ()
+      false 𝟘 𝟘 𝟘 𝟙 𝟘 𝟙 ()
+      false 𝟘 𝟘 𝟘 𝟙 𝟘 ω ()
+      false 𝟘 𝟘 𝟘 𝟙 𝟙 𝟘 ()
+      false 𝟘 𝟘 𝟘 𝟙 𝟙 𝟙 ()
+      false 𝟘 𝟘 𝟘 𝟙 𝟙 ω ()
+      false 𝟘 𝟘 𝟘 𝟙 ω 𝟘 ()
+      false 𝟘 𝟘 𝟘 𝟙 ω 𝟙 ()
+      false 𝟘 𝟘 𝟘 𝟙 ω ω ()
+      false 𝟘 𝟘 𝟘 ω 𝟘 𝟘 ()
+      false 𝟘 𝟘 𝟘 ω 𝟘 𝟙 ()
+      false 𝟘 𝟘 𝟘 ω 𝟘 ω ()
+      false 𝟘 𝟘 𝟘 ω 𝟙 𝟘 ()
+      false 𝟘 𝟘 𝟘 ω 𝟙 𝟙 ()
+      false 𝟘 𝟘 𝟘 ω 𝟙 ω ()
+      false 𝟘 𝟘 𝟘 ω ω 𝟘 ()
+      false 𝟘 𝟘 𝟘 ω ω 𝟙 ()
+      false 𝟘 𝟘 𝟘 ω ω ω ()
+      false 𝟘 𝟘 ω 𝟘 𝟘 𝟙 ()
+      false 𝟘 𝟘 ω 𝟘 𝟘 ω ()
+      false 𝟘 𝟘 ω 𝟘 𝟙 𝟘 ()
+      false 𝟘 𝟘 ω 𝟘 𝟙 𝟙 ()
+      false 𝟘 𝟘 ω 𝟘 𝟙 ω ()
+      false 𝟘 𝟘 ω 𝟘 ω 𝟘 ()
+      false 𝟘 𝟘 ω 𝟘 ω 𝟙 ()
+      false 𝟘 𝟘 ω 𝟘 ω ω ()
+      false 𝟘 𝟘 ω 𝟙 𝟘 𝟘 ()
+      false 𝟘 𝟘 ω 𝟙 𝟘 𝟙 ()
+      false 𝟘 𝟘 ω 𝟙 𝟘 ω ()
+      false 𝟘 𝟘 ω 𝟙 𝟙 𝟘 ()
+      false 𝟘 𝟘 ω 𝟙 𝟙 𝟙 ()
+      false 𝟘 𝟘 ω 𝟙 𝟙 ω ()
+      false 𝟘 𝟘 ω 𝟙 ω 𝟘 ()
+      false 𝟘 𝟘 ω 𝟙 ω 𝟙 ()
+      false 𝟘 𝟘 ω 𝟙 ω ω ()
+      false 𝟘 𝟘 ω ω 𝟘 𝟘 ()
+      false 𝟘 𝟘 ω ω 𝟘 𝟙 ()
+      false 𝟘 𝟘 ω ω 𝟘 ω ()
+      false 𝟘 𝟘 ω ω 𝟙 𝟘 ()
+      false 𝟘 𝟘 ω ω 𝟙 𝟙 ()
+      false 𝟘 𝟘 ω ω 𝟙 ω ()
+      false 𝟘 𝟘 ω ω ω 𝟘 ()
+      false 𝟘 𝟘 ω ω ω 𝟙 ()
+      false 𝟘 𝟘 ω ω ω ω ()
+      false 𝟘 ω 𝟘 𝟘 𝟘 𝟙 ()
+      false 𝟘 ω 𝟘 𝟘 𝟘 ω ()
+      false 𝟘 ω 𝟘 𝟘 𝟙 𝟘 ()
+      false 𝟘 ω 𝟘 𝟘 𝟙 𝟙 ()
+      false 𝟘 ω 𝟘 𝟘 𝟙 ω ()
+      false 𝟘 ω 𝟘 𝟘 ω 𝟘 ()
+      false 𝟘 ω 𝟘 𝟘 ω 𝟙 ()
+      false 𝟘 ω 𝟘 𝟘 ω ω ()
+      false 𝟘 ω 𝟘 𝟙 𝟘 𝟘 ()
+      false 𝟘 ω 𝟘 𝟙 𝟘 𝟙 ()
+      false 𝟘 ω 𝟘 𝟙 𝟘 ω ()
+      false 𝟘 ω 𝟘 𝟙 𝟙 𝟘 ()
+      false 𝟘 ω 𝟘 𝟙 𝟙 𝟙 ()
+      false 𝟘 ω 𝟘 𝟙 𝟙 ω ()
+      false 𝟘 ω 𝟘 𝟙 ω 𝟘 ()
+      false 𝟘 ω 𝟘 𝟙 ω 𝟙 ()
+      false 𝟘 ω 𝟘 𝟙 ω ω ()
+      false 𝟘 ω 𝟘 ω 𝟘 𝟘 ()
+      false 𝟘 ω 𝟘 ω 𝟘 𝟙 ()
+      false 𝟘 ω 𝟘 ω 𝟘 ω ()
+      false 𝟘 ω 𝟘 ω 𝟙 𝟘 ()
+      false 𝟘 ω 𝟘 ω 𝟙 𝟙 ()
+      false 𝟘 ω 𝟘 ω 𝟙 ω ()
+      false 𝟘 ω 𝟘 ω ω 𝟘 ()
+      false 𝟘 ω 𝟘 ω ω 𝟙 ()
+      false 𝟘 ω 𝟘 ω ω ω ()
+      false 𝟘 ω ω 𝟘 𝟘 𝟙 ()
+      false 𝟘 ω ω 𝟘 𝟘 ω ()
+      false 𝟘 ω ω 𝟘 𝟙 𝟘 ()
+      false 𝟘 ω ω 𝟘 𝟙 𝟙 ()
+      false 𝟘 ω ω 𝟘 𝟙 ω ()
+      false 𝟘 ω ω 𝟘 ω 𝟘 ()
+      false 𝟘 ω ω 𝟘 ω 𝟙 ()
+      false 𝟘 ω ω 𝟘 ω ω ()
+      false 𝟘 ω ω 𝟙 𝟘 𝟘 ()
+      false 𝟘 ω ω 𝟙 𝟘 𝟙 ()
+      false 𝟘 ω ω 𝟙 𝟘 ω ()
+      false 𝟘 ω ω 𝟙 𝟙 𝟘 ()
+      false 𝟘 ω ω 𝟙 𝟙 𝟙 ()
+      false 𝟘 ω ω 𝟙 𝟙 ω ()
+      false 𝟘 ω ω 𝟙 ω 𝟘 ()
+      false 𝟘 ω ω 𝟙 ω 𝟙 ()
+      false 𝟘 ω ω 𝟙 ω ω ()
+      false 𝟘 ω ω ω 𝟘 𝟘 ()
+      false 𝟘 ω ω ω 𝟘 𝟙 ()
+      false 𝟘 ω ω ω 𝟘 ω ()
+      false 𝟘 ω ω ω 𝟙 𝟘 ()
+      false 𝟘 ω ω ω 𝟙 𝟙 ()
+      false 𝟘 ω ω ω 𝟙 ω ()
+      false 𝟘 ω ω ω ω 𝟘 ()
+      false 𝟘 ω ω ω ω 𝟙 ()
+      false 𝟘 ω ω ω ω ω ()
 
-  tr-≤-no-star :
+  tr-≤-no-nr :
     ∀ p q₁ q₂ q₃ q₄ r s →
     tr′ p 𝟘𝟙ω.≤ q₁ →
     q₁ 𝟘𝟙ω.≤
@@ -1217,9 +1344,9 @@ erasure⇨zero-one-many
        tr′ q₄′ 𝟘𝟙ω.≤ q₄ ×
        p E.≤ q₁′ ×
        q₁′ E.≤ q₂′ E.∧ (q₃′ E.∧ (q₄′ E.+ (r E.· q₃′ E.+ s E.· q₁′)))
-  tr-≤-no-star = tr-≤-no-star′ _
+  tr-≤-no-nr = tr-≤-no-nr′ _
     where
-    tr-≤-no-star′ :
+    tr-≤-no-nr′ :
       ∀ 𝟙≤𝟘 →
       let module 𝟘𝟙ω′ = ZOM 𝟙≤𝟘 in
       ∀ p q₁ q₂ q₃ q₄ r s →
@@ -1233,171 +1360,172 @@ erasure⇨zero-one-many
          tr′ q₄′ 𝟘𝟙ω′.≤ q₄ ×
          p E.≤ q₁′ ×
          q₁′ E.≤ q₂′ E.∧ (q₃′ E.∧ (q₄′ E.+ (r E.· q₃′ E.+ s E.· q₁′)))
-    tr-≤-no-star′ _     ω _ _ _ _ _ _ _  _  = ω , ω , ω , ω , refl
-                                            , refl , refl , refl , refl
-    tr-≤-no-star′ false 𝟘 𝟘 𝟘 𝟘 𝟘 𝟘 𝟘 _  _  = 𝟘 , 𝟘 , 𝟘 , 𝟘 , refl
-                                            , refl , refl , refl , refl
-    tr-≤-no-star′ false 𝟘 𝟘 𝟘 𝟘 𝟘 𝟘 ω _  _  = 𝟘 , 𝟘 , 𝟘 , 𝟘 , refl
-                                            , refl , refl , refl , refl
-    tr-≤-no-star′ false 𝟘 𝟘 𝟘 𝟘 𝟘 ω 𝟘 _  _  = 𝟘 , 𝟘 , 𝟘 , 𝟘 , refl
-                                            , refl , refl , refl , refl
-    tr-≤-no-star′ false 𝟘 𝟘 𝟘 𝟘 𝟘 ω ω _  _  = 𝟘 , 𝟘 , 𝟘 , 𝟘 , refl
-                                            , refl , refl , refl , refl
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟘 𝟘 𝟘 𝟘 _  _  = 𝟘 , 𝟘 , 𝟘 , 𝟘 , refl
-                                            , refl , refl , refl , refl
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟘 𝟘 𝟘 ω _  _  = 𝟘 , 𝟘 , 𝟘 , 𝟘 , refl
-                                            , refl , refl , refl , refl
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟘 𝟘 ω 𝟘 _  _  = 𝟘 , 𝟘 , 𝟘 , 𝟘 , refl
-                                            , refl , refl , refl , refl
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟘 𝟘 ω ω _  _  = 𝟘 , 𝟘 , 𝟘 , 𝟘 , refl
-                                            , refl , refl , refl , refl
-    tr-≤-no-star′ false 𝟘 𝟘 ω _ _ _ _ _  ()
-    tr-≤-no-star′ false 𝟘 𝟙 ω _ _ _ _ ()
-    tr-≤-no-star′ false 𝟘 ω ω _ _ _ _ ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟘 𝟘 𝟙 ω 𝟘 _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟘 𝟘 𝟙 ω ω _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟘 𝟙 𝟘 𝟘 𝟘 _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟘 𝟙 𝟘 𝟘 ω _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟘 𝟙 𝟘 ω 𝟘 _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟘 𝟙 𝟘 ω ω _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟘 𝟙 𝟙 𝟘 𝟘 _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟘 𝟙 𝟙 𝟘 ω _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟘 𝟙 𝟙 ω 𝟘 _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟘 𝟙 𝟙 ω ω _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟘 𝟘 𝟘 𝟘 _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟘 𝟘 𝟘 ω _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟘 𝟘 ω 𝟘 _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟘 𝟘 ω ω _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟘 𝟙 𝟘 𝟘 _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟘 𝟙 𝟘 ω _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟘 𝟙 ω 𝟘 _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟘 𝟙 ω ω _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟘 ω 𝟘 𝟘 _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟘 ω 𝟘 ω _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟘 ω ω 𝟘 _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟘 ω ω ω _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟙 𝟘 𝟘 𝟘 _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟙 𝟘 𝟘 ω _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟙 𝟘 ω 𝟘 _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟙 𝟘 ω ω _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟙 𝟙 𝟘 𝟘 _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟙 𝟙 𝟘 ω _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟙 𝟙 ω 𝟘 _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟙 𝟙 ω ω _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟙 ω 𝟘 𝟘 _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟙 ω 𝟘 ω _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟙 ω ω 𝟘 _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 𝟙 ω ω ω _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 ω 𝟘 𝟘 𝟘 _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 ω 𝟘 𝟘 ω _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 ω 𝟘 ω 𝟘 _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 ω 𝟘 ω ω _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 ω 𝟙 𝟘 𝟘 _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 ω 𝟙 𝟘 ω _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 ω 𝟙 ω 𝟘 _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 ω 𝟙 ω ω _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 ω ω 𝟘 𝟘 _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 ω ω 𝟘 ω _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 ω ω ω 𝟘 _  ()
-    tr-≤-no-star′ false 𝟘 𝟘 𝟙 ω ω ω ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟙 𝟙 _ _ _ _ ()
-    tr-≤-no-star′ true  𝟘 ω 𝟙 _ _ _ _ ()
-    tr-≤-no-star′ true  𝟘 𝟘 ω _ _ _ _ _  ()
-    tr-≤-no-star′ true  𝟘 𝟙 ω _ _ _ _ ()
-    tr-≤-no-star′ true  𝟘 ω ω _ _ _ _ ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟘 𝟙 𝟘 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟘 𝟙 𝟘 ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟘 𝟙 ω 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟘 𝟙 ω ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟘 ω 𝟘 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟘 ω 𝟘 ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟘 ω ω 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟘 ω ω ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟙 𝟘 𝟘 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟙 𝟘 𝟘 ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟙 𝟘 ω 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟙 𝟘 ω ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟙 𝟙 𝟘 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟙 𝟙 𝟘 ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟙 𝟙 ω 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟙 𝟙 ω ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟙 ω 𝟘 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟙 ω 𝟘 ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟙 ω ω 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 𝟙 ω ω ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 ω 𝟘 𝟘 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 ω 𝟘 𝟘 ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 ω 𝟘 ω 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 ω 𝟘 ω ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 ω 𝟙 𝟘 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 ω 𝟙 𝟘 ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 ω 𝟙 ω 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 ω 𝟙 ω ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 ω ω 𝟘 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 ω ω 𝟘 ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 ω ω ω 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟘 ω ω ω ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟘 𝟘 𝟘 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟘 𝟘 𝟘 ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟘 𝟘 ω 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟘 𝟘 ω ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟘 𝟙 𝟘 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟘 𝟙 𝟘 ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟘 𝟙 ω 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟘 𝟙 ω ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟘 ω 𝟘 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟘 ω 𝟘 ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟘 ω ω 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟘 ω ω ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟙 𝟘 𝟘 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟙 𝟘 𝟘 ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟙 𝟘 ω 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟙 𝟘 ω ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟙 𝟙 𝟘 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟙 𝟙 𝟘 ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟙 𝟙 ω 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟙 𝟙 ω ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟙 ω 𝟘 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟙 ω 𝟘 ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟙 ω ω 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 𝟙 ω ω ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 ω 𝟘 𝟘 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 ω 𝟘 𝟘 ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 ω 𝟘 ω 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 ω 𝟘 ω ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 ω 𝟙 𝟘 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 ω 𝟙 𝟘 ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 ω 𝟙 ω 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 ω 𝟙 ω ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 ω ω 𝟘 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 ω ω 𝟘 ω _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 ω ω ω 𝟘 _  ()
-    tr-≤-no-star′ true  𝟘 𝟘 𝟙 ω ω ω ω _  ()
+    tr-≤-no-nr′ _     ω _ _ _ _ _ _ _  _  = ω , ω , ω , ω , refl
+                                          , refl , refl , refl , refl
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟘 𝟘 𝟘 𝟘 𝟘 _  _  = 𝟘 , 𝟘 , 𝟘 , 𝟘 , refl
+                                          , refl , refl , refl , refl
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟘 𝟘 𝟘 𝟘 ω _  _  = 𝟘 , 𝟘 , 𝟘 , 𝟘 , refl
+                                          , refl , refl , refl , refl
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟘 𝟘 𝟘 ω 𝟘 _  _  = 𝟘 , 𝟘 , 𝟘 , 𝟘 , refl
+                                          , refl , refl , refl , refl
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟘 𝟘 𝟘 ω ω _  _  = 𝟘 , 𝟘 , 𝟘 , 𝟘 , refl
+                                          , refl , refl , refl , refl
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 𝟘 𝟘 𝟘 𝟘 _  _  = 𝟘 , 𝟘 , 𝟘 , 𝟘 , refl
+                                          , refl , refl , refl , refl
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 𝟘 𝟘 𝟘 ω _  _  = 𝟘 , 𝟘 , 𝟘 , 𝟘 , refl
+                                          , refl , refl , refl , refl
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 𝟘 𝟘 ω 𝟘 _  _  = 𝟘 , 𝟘 , 𝟘 , 𝟘 , refl
+                                          , refl , refl , refl , refl
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 𝟘 𝟘 ω ω _  _  = 𝟘 , 𝟘 , 𝟘 , 𝟘 , refl
+                                          , refl , refl , refl , refl
+    tr-≤-no-nr′ false 𝟘 𝟘 ω _ _ _ _ _  ()
+    tr-≤-no-nr′ false 𝟘 𝟙 ω _ _ _ _ ()
+    tr-≤-no-nr′ false 𝟘 ω ω _ _ _ _ ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟘 𝟘 𝟙 ω 𝟘 _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟘 𝟘 𝟙 ω ω _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟘 𝟙 𝟘 𝟘 𝟘 _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟘 𝟙 𝟘 𝟘 ω _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟘 𝟙 𝟘 ω 𝟘 _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟘 𝟙 𝟘 ω ω _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟘 𝟙 𝟙 𝟘 𝟘 _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟘 𝟙 𝟙 𝟘 ω _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟘 𝟙 𝟙 ω 𝟘 _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟘 𝟙 𝟙 ω ω _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 𝟘 𝟘 𝟘 𝟘 _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 𝟘 𝟘 𝟘 ω _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 𝟘 𝟘 ω 𝟘 _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 𝟘 𝟘 ω ω _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 𝟘 𝟙 𝟘 𝟘 _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 𝟘 𝟙 𝟘 ω _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 𝟘 𝟙 ω 𝟘 _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 𝟘 𝟙 ω ω _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 𝟘 ω 𝟘 𝟘 _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 𝟘 ω 𝟘 ω _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 𝟘 ω ω 𝟘 _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 𝟘 ω ω ω _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 𝟙 𝟘 𝟘 𝟘 _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 𝟙 𝟘 𝟘 ω _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 𝟙 𝟘 ω 𝟘 _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 𝟙 𝟘 ω ω _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 𝟙 𝟙 𝟘 𝟘 _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 𝟙 𝟙 𝟘 ω _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 𝟙 𝟙 ω 𝟘 _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 𝟙 𝟙 ω ω _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 𝟙 ω 𝟘 𝟘 _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 𝟙 ω 𝟘 ω _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 𝟙 ω ω 𝟘 _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 𝟙 ω ω ω _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 ω 𝟘 𝟘 𝟘 _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 ω 𝟘 𝟘 ω _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 ω 𝟘 ω 𝟘 _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 ω 𝟘 ω ω _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 ω 𝟙 𝟘 𝟘 _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 ω 𝟙 𝟘 ω _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 ω 𝟙 ω 𝟘 _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 ω 𝟙 ω ω _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 ω ω 𝟘 𝟘 _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 ω ω 𝟘 ω _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 ω ω ω 𝟘 _  ()
+    tr-≤-no-nr′ false 𝟘 𝟘 𝟙 ω ω ω ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟙 𝟙 _ _ _ _ ()
+    tr-≤-no-nr′ true  𝟘 ω 𝟙 _ _ _ _ ()
+    tr-≤-no-nr′ true  𝟘 𝟘 ω _ _ _ _ _  ()
+    tr-≤-no-nr′ true  𝟘 𝟙 ω _ _ _ _ ()
+    tr-≤-no-nr′ true  𝟘 ω ω _ _ _ _ ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 𝟘 𝟙 𝟘 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 𝟘 𝟙 𝟘 ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 𝟘 𝟙 ω 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 𝟘 𝟙 ω ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 𝟘 ω 𝟘 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 𝟘 ω 𝟘 ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 𝟘 ω ω 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 𝟘 ω ω ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 𝟙 𝟘 𝟘 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 𝟙 𝟘 𝟘 ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 𝟙 𝟘 ω 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 𝟙 𝟘 ω ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 𝟙 𝟙 𝟘 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 𝟙 𝟙 𝟘 ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 𝟙 𝟙 ω 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 𝟙 𝟙 ω ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 𝟙 ω 𝟘 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 𝟙 ω 𝟘 ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 𝟙 ω ω 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 𝟙 ω ω ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 ω 𝟘 𝟘 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 ω 𝟘 𝟘 ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 ω 𝟘 ω 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 ω 𝟘 ω ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 ω 𝟙 𝟘 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 ω 𝟙 𝟘 ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 ω 𝟙 ω 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 ω 𝟙 ω ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 ω ω 𝟘 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 ω ω 𝟘 ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 ω ω ω 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟘 ω ω ω ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 𝟘 𝟘 𝟘 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 𝟘 𝟘 𝟘 ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 𝟘 𝟘 ω 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 𝟘 𝟘 ω ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 𝟘 𝟙 𝟘 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 𝟘 𝟙 𝟘 ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 𝟘 𝟙 ω 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 𝟘 𝟙 ω ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 𝟘 ω 𝟘 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 𝟘 ω 𝟘 ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 𝟘 ω ω 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 𝟘 ω ω ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 𝟙 𝟘 𝟘 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 𝟙 𝟘 𝟘 ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 𝟙 𝟘 ω 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 𝟙 𝟘 ω ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 𝟙 𝟙 𝟘 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 𝟙 𝟙 𝟘 ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 𝟙 𝟙 ω 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 𝟙 𝟙 ω ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 𝟙 ω 𝟘 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 𝟙 ω 𝟘 ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 𝟙 ω ω 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 𝟙 ω ω ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 ω 𝟘 𝟘 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 ω 𝟘 𝟘 ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 ω 𝟘 ω 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 ω 𝟘 ω ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 ω 𝟙 𝟘 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 ω 𝟙 𝟘 ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 ω 𝟙 ω 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 ω 𝟙 ω ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 ω ω 𝟘 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 ω ω 𝟘 ω _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 ω ω ω 𝟘 _  ()
+    tr-≤-no-nr′ true  𝟘 𝟘 𝟙 ω ω ω ω _  ()
 
 -- The function zero-one-many→erasure is a morphism from a
--- zero-one-many-greatest modality to an erasure modality if certain
--- assumptions hold. The zero-one-many-greatest modality can be
+-- zero-one-many-modality modality to an erasure modality if certain
+-- assumptions hold. The zero-one-many-modality modality can be
 -- defined with either 𝟙 ≤ 𝟘 or 𝟙 ≰ 𝟘.
 
 zero-one-many⇨erasure :
   𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
-  let 𝕄₁ = zero-one-many-greatest 𝟙≤𝟘 v₁ v₁-ok
+  let 𝕄₁ = zero-one-many-modality 𝟙≤𝟘 v₁ v₁-ok
       𝕄₂ = ErasureModality v₂
   in
-  Dedicated-star 𝕄₁ ⇔ Dedicated-star 𝕄₂ →
+  Dedicated-nr 𝕄₁ ⇔ Dedicated-nr 𝕄₂ →
   Is-morphism 𝕄₁ 𝕄₂ zero-one-many→erasure
 zero-one-many⇨erasure {v₂ = v₂} {𝟙≤𝟘 = 𝟙≤𝟘} refl s⇔s = λ where
-    .Is-morphism.tr-𝟘-≤                      → refl
-    .Is-morphism.tr-≡-𝟘-⇔ _                  → tr-≡-𝟘 _
-                                             , λ { refl → refl }
-    .Is-morphism.tr-<-𝟘 not-ok ok            → ⊥-elim (not-ok ok)
-    .Is-morphism.tr-𝟙                        → refl
-    .Is-morphism.tr-+ {p = p}                → ≤-reflexive (tr-+ p _)
-    .Is-morphism.tr-· {p = p}                → tr-· p _
-    .Is-morphism.tr-∧ {p = p}                → ≤-reflexive (tr-∧ p _)
-    .Is-morphism.tr-⊛ {p = p} {r = r}        → ≤-reflexive (tr-⊛ p _ r)
-    .Is-morphism.𝟘ᵐ-in-second-if-in-first    → idᶠ
-    .Is-morphism.star-in-first-iff-in-second → s⇔s
+    .Is-morphism.tr-𝟘-≤                    → refl
+    .Is-morphism.tr-≡-𝟘-⇔ _                → tr-≡-𝟘 _
+                                           , λ { refl → refl }
+    .Is-morphism.tr-<-𝟘 not-ok ok          → ⊥-elim (not-ok ok)
+    .Is-morphism.tr-𝟙                      → refl
+    .Is-morphism.tr-+ {p = p}              → ≤-reflexive (tr-+ p _)
+    .Is-morphism.tr-· {p = p}              → tr-· p _
+    .Is-morphism.tr-∧ {p = p}              → ≤-reflexive (tr-∧ p _)
+    .Is-morphism.tr-nr {r = r}             → ≤-reflexive
+                                               (tr-nr _ r _ _ _)
+    .Is-morphism.𝟘ᵐ-in-second-if-in-first  → idᶠ
+    .Is-morphism.nr-in-first-iff-in-second → s⇔s
   where
   module 𝟘𝟙ω = ZOM 𝟙≤𝟘
   open Graded.Modality.Properties (ErasureModality v₂)
@@ -1449,41 +1577,512 @@ zero-one-many⇨erasure {v₂ = v₂} {𝟙≤𝟘 = 𝟙≤𝟘} refl s⇔s = �
   tr-∧ ω 𝟙 = refl
   tr-∧ ω ω = refl
 
-  tr-⊛ : ∀ p q r → tr′ (p 𝟘𝟙ω.⊛ q ▷ r) ≡ tr′ p E.⊛ tr′ q ▷ tr′ r
-  tr-⊛ 𝟘 𝟘 𝟘 = refl
-  tr-⊛ 𝟘 𝟘 𝟙 = refl
-  tr-⊛ 𝟘 𝟘 ω = refl
-  tr-⊛ 𝟘 𝟙 𝟘 = tr-𝟘∧𝟙
-  tr-⊛ 𝟘 𝟙 𝟙 = refl
-  tr-⊛ 𝟘 𝟙 ω = tr-ω[𝟘∧𝟙]
-  tr-⊛ 𝟘 ω 𝟘 = refl
-  tr-⊛ 𝟘 ω 𝟙 = refl
-  tr-⊛ 𝟘 ω ω = refl
-  tr-⊛ 𝟙 𝟘 𝟘 = tr-𝟘∧𝟙
-  tr-⊛ 𝟙 𝟘 𝟙 = refl
-  tr-⊛ 𝟙 𝟘 ω = tr-ω[𝟘∧𝟙]
-  tr-⊛ 𝟙 𝟙 𝟘 = refl
-  tr-⊛ 𝟙 𝟙 𝟙 = refl
-  tr-⊛ 𝟙 𝟙 ω = refl
-  tr-⊛ 𝟙 ω 𝟘 = refl
-  tr-⊛ 𝟙 ω 𝟙 = refl
-  tr-⊛ 𝟙 ω ω = refl
-  tr-⊛ ω 𝟘 𝟘 = refl
-  tr-⊛ ω 𝟘 𝟙 = refl
-  tr-⊛ ω 𝟘 ω = refl
-  tr-⊛ ω 𝟙 𝟘 = refl
-  tr-⊛ ω 𝟙 𝟙 = refl
-  tr-⊛ ω 𝟙 ω = refl
-  tr-⊛ ω ω 𝟘 = refl
-  tr-⊛ ω ω 𝟙 = refl
-  tr-⊛ ω ω ω = refl
+  tr-nr :
+    ∀ p r z s n →
+    tr′ (𝟘𝟙ω.nr p r z s n) ≡
+    E.nr (tr′ p) (tr′ r) (tr′ z) (tr′ s) (tr′ n)
+  tr-nr = tr-nr′ _
+    where
+    tr-nr′ :
+      ∀ 𝟙≤𝟘 →
+      let module 𝟘𝟙ω′ = ZOM 𝟙≤𝟘 in
+      ∀ p r z s n →
+      tr′ (𝟘𝟙ω′.nr p r z s n) ≡
+      E.nr (tr′ p) (tr′ r) (tr′ z) (tr′ s) (tr′ n)
+    tr-nr′ = λ where
+      false 𝟘 𝟘 𝟘 𝟘 𝟘 → refl
+      false 𝟘 𝟘 𝟘 𝟘 𝟙 → refl
+      false 𝟘 𝟘 𝟘 𝟘 ω → refl
+      false 𝟘 𝟘 𝟘 𝟙 𝟘 → refl
+      false 𝟘 𝟘 𝟘 𝟙 𝟙 → refl
+      false 𝟘 𝟘 𝟘 𝟙 ω → refl
+      false 𝟘 𝟘 𝟘 ω 𝟘 → refl
+      false 𝟘 𝟘 𝟘 ω 𝟙 → refl
+      false 𝟘 𝟘 𝟘 ω ω → refl
+      false 𝟘 𝟘 𝟙 𝟘 𝟘 → refl
+      false 𝟘 𝟘 𝟙 𝟘 𝟙 → refl
+      false 𝟘 𝟘 𝟙 𝟘 ω → refl
+      false 𝟘 𝟘 𝟙 𝟙 𝟘 → refl
+      false 𝟘 𝟘 𝟙 𝟙 𝟙 → refl
+      false 𝟘 𝟘 𝟙 𝟙 ω → refl
+      false 𝟘 𝟘 𝟙 ω 𝟘 → refl
+      false 𝟘 𝟘 𝟙 ω 𝟙 → refl
+      false 𝟘 𝟘 𝟙 ω ω → refl
+      false 𝟘 𝟘 ω 𝟘 𝟘 → refl
+      false 𝟘 𝟘 ω 𝟘 𝟙 → refl
+      false 𝟘 𝟘 ω 𝟘 ω → refl
+      false 𝟘 𝟘 ω 𝟙 𝟘 → refl
+      false 𝟘 𝟘 ω 𝟙 𝟙 → refl
+      false 𝟘 𝟘 ω 𝟙 ω → refl
+      false 𝟘 𝟘 ω ω 𝟘 → refl
+      false 𝟘 𝟘 ω ω 𝟙 → refl
+      false 𝟘 𝟘 ω ω ω → refl
+      false 𝟘 𝟙 𝟘 𝟘 𝟘 → refl
+      false 𝟘 𝟙 𝟘 𝟘 𝟙 → refl
+      false 𝟘 𝟙 𝟘 𝟘 ω → refl
+      false 𝟘 𝟙 𝟘 𝟙 𝟘 → refl
+      false 𝟘 𝟙 𝟘 𝟙 𝟙 → refl
+      false 𝟘 𝟙 𝟘 𝟙 ω → refl
+      false 𝟘 𝟙 𝟘 ω 𝟘 → refl
+      false 𝟘 𝟙 𝟘 ω 𝟙 → refl
+      false 𝟘 𝟙 𝟘 ω ω → refl
+      false 𝟘 𝟙 𝟙 𝟘 𝟘 → refl
+      false 𝟘 𝟙 𝟙 𝟘 𝟙 → refl
+      false 𝟘 𝟙 𝟙 𝟘 ω → refl
+      false 𝟘 𝟙 𝟙 𝟙 𝟘 → refl
+      false 𝟘 𝟙 𝟙 𝟙 𝟙 → refl
+      false 𝟘 𝟙 𝟙 𝟙 ω → refl
+      false 𝟘 𝟙 𝟙 ω 𝟘 → refl
+      false 𝟘 𝟙 𝟙 ω 𝟙 → refl
+      false 𝟘 𝟙 𝟙 ω ω → refl
+      false 𝟘 𝟙 ω 𝟘 𝟘 → refl
+      false 𝟘 𝟙 ω 𝟘 𝟙 → refl
+      false 𝟘 𝟙 ω 𝟘 ω → refl
+      false 𝟘 𝟙 ω 𝟙 𝟘 → refl
+      false 𝟘 𝟙 ω 𝟙 𝟙 → refl
+      false 𝟘 𝟙 ω 𝟙 ω → refl
+      false 𝟘 𝟙 ω ω 𝟘 → refl
+      false 𝟘 𝟙 ω ω 𝟙 → refl
+      false 𝟘 𝟙 ω ω ω → refl
+      false 𝟘 ω 𝟘 𝟘 𝟘 → refl
+      false 𝟘 ω 𝟘 𝟘 𝟙 → refl
+      false 𝟘 ω 𝟘 𝟘 ω → refl
+      false 𝟘 ω 𝟘 𝟙 𝟘 → refl
+      false 𝟘 ω 𝟘 𝟙 𝟙 → refl
+      false 𝟘 ω 𝟘 𝟙 ω → refl
+      false 𝟘 ω 𝟘 ω 𝟘 → refl
+      false 𝟘 ω 𝟘 ω 𝟙 → refl
+      false 𝟘 ω 𝟘 ω ω → refl
+      false 𝟘 ω 𝟙 𝟘 𝟘 → refl
+      false 𝟘 ω 𝟙 𝟘 𝟙 → refl
+      false 𝟘 ω 𝟙 𝟘 ω → refl
+      false 𝟘 ω 𝟙 𝟙 𝟘 → refl
+      false 𝟘 ω 𝟙 𝟙 𝟙 → refl
+      false 𝟘 ω 𝟙 𝟙 ω → refl
+      false 𝟘 ω 𝟙 ω 𝟘 → refl
+      false 𝟘 ω 𝟙 ω 𝟙 → refl
+      false 𝟘 ω 𝟙 ω ω → refl
+      false 𝟘 ω ω 𝟘 𝟘 → refl
+      false 𝟘 ω ω 𝟘 𝟙 → refl
+      false 𝟘 ω ω 𝟘 ω → refl
+      false 𝟘 ω ω 𝟙 𝟘 → refl
+      false 𝟘 ω ω 𝟙 𝟙 → refl
+      false 𝟘 ω ω 𝟙 ω → refl
+      false 𝟘 ω ω ω 𝟘 → refl
+      false 𝟘 ω ω ω 𝟙 → refl
+      false 𝟘 ω ω ω ω → refl
+      false 𝟙 𝟘 𝟘 𝟘 𝟘 → refl
+      false 𝟙 𝟘 𝟘 𝟘 𝟙 → refl
+      false 𝟙 𝟘 𝟘 𝟘 ω → refl
+      false 𝟙 𝟘 𝟘 𝟙 𝟘 → refl
+      false 𝟙 𝟘 𝟘 𝟙 𝟙 → refl
+      false 𝟙 𝟘 𝟘 𝟙 ω → refl
+      false 𝟙 𝟘 𝟘 ω 𝟘 → refl
+      false 𝟙 𝟘 𝟘 ω 𝟙 → refl
+      false 𝟙 𝟘 𝟘 ω ω → refl
+      false 𝟙 𝟘 𝟙 𝟘 𝟘 → refl
+      false 𝟙 𝟘 𝟙 𝟘 𝟙 → refl
+      false 𝟙 𝟘 𝟙 𝟘 ω → refl
+      false 𝟙 𝟘 𝟙 𝟙 𝟘 → refl
+      false 𝟙 𝟘 𝟙 𝟙 𝟙 → refl
+      false 𝟙 𝟘 𝟙 𝟙 ω → refl
+      false 𝟙 𝟘 𝟙 ω 𝟘 → refl
+      false 𝟙 𝟘 𝟙 ω 𝟙 → refl
+      false 𝟙 𝟘 𝟙 ω ω → refl
+      false 𝟙 𝟘 ω 𝟘 𝟘 → refl
+      false 𝟙 𝟘 ω 𝟘 𝟙 → refl
+      false 𝟙 𝟘 ω 𝟘 ω → refl
+      false 𝟙 𝟘 ω 𝟙 𝟘 → refl
+      false 𝟙 𝟘 ω 𝟙 𝟙 → refl
+      false 𝟙 𝟘 ω 𝟙 ω → refl
+      false 𝟙 𝟘 ω ω 𝟘 → refl
+      false 𝟙 𝟘 ω ω 𝟙 → refl
+      false 𝟙 𝟘 ω ω ω → refl
+      false 𝟙 𝟙 𝟘 𝟘 𝟘 → refl
+      false 𝟙 𝟙 𝟘 𝟘 𝟙 → refl
+      false 𝟙 𝟙 𝟘 𝟘 ω → refl
+      false 𝟙 𝟙 𝟘 𝟙 𝟘 → refl
+      false 𝟙 𝟙 𝟘 𝟙 𝟙 → refl
+      false 𝟙 𝟙 𝟘 𝟙 ω → refl
+      false 𝟙 𝟙 𝟘 ω 𝟘 → refl
+      false 𝟙 𝟙 𝟘 ω 𝟙 → refl
+      false 𝟙 𝟙 𝟘 ω ω → refl
+      false 𝟙 𝟙 𝟙 𝟘 𝟘 → refl
+      false 𝟙 𝟙 𝟙 𝟘 𝟙 → refl
+      false 𝟙 𝟙 𝟙 𝟘 ω → refl
+      false 𝟙 𝟙 𝟙 𝟙 𝟘 → refl
+      false 𝟙 𝟙 𝟙 𝟙 𝟙 → refl
+      false 𝟙 𝟙 𝟙 𝟙 ω → refl
+      false 𝟙 𝟙 𝟙 ω 𝟘 → refl
+      false 𝟙 𝟙 𝟙 ω 𝟙 → refl
+      false 𝟙 𝟙 𝟙 ω ω → refl
+      false 𝟙 𝟙 ω 𝟘 𝟘 → refl
+      false 𝟙 𝟙 ω 𝟘 𝟙 → refl
+      false 𝟙 𝟙 ω 𝟘 ω → refl
+      false 𝟙 𝟙 ω 𝟙 𝟘 → refl
+      false 𝟙 𝟙 ω 𝟙 𝟙 → refl
+      false 𝟙 𝟙 ω 𝟙 ω → refl
+      false 𝟙 𝟙 ω ω 𝟘 → refl
+      false 𝟙 𝟙 ω ω 𝟙 → refl
+      false 𝟙 𝟙 ω ω ω → refl
+      false 𝟙 ω 𝟘 𝟘 𝟘 → refl
+      false 𝟙 ω 𝟘 𝟘 𝟙 → refl
+      false 𝟙 ω 𝟘 𝟘 ω → refl
+      false 𝟙 ω 𝟘 𝟙 𝟘 → refl
+      false 𝟙 ω 𝟘 𝟙 𝟙 → refl
+      false 𝟙 ω 𝟘 𝟙 ω → refl
+      false 𝟙 ω 𝟘 ω 𝟘 → refl
+      false 𝟙 ω 𝟘 ω 𝟙 → refl
+      false 𝟙 ω 𝟘 ω ω → refl
+      false 𝟙 ω 𝟙 𝟘 𝟘 → refl
+      false 𝟙 ω 𝟙 𝟘 𝟙 → refl
+      false 𝟙 ω 𝟙 𝟘 ω → refl
+      false 𝟙 ω 𝟙 𝟙 𝟘 → refl
+      false 𝟙 ω 𝟙 𝟙 𝟙 → refl
+      false 𝟙 ω 𝟙 𝟙 ω → refl
+      false 𝟙 ω 𝟙 ω 𝟘 → refl
+      false 𝟙 ω 𝟙 ω 𝟙 → refl
+      false 𝟙 ω 𝟙 ω ω → refl
+      false 𝟙 ω ω 𝟘 𝟘 → refl
+      false 𝟙 ω ω 𝟘 𝟙 → refl
+      false 𝟙 ω ω 𝟘 ω → refl
+      false 𝟙 ω ω 𝟙 𝟘 → refl
+      false 𝟙 ω ω 𝟙 𝟙 → refl
+      false 𝟙 ω ω 𝟙 ω → refl
+      false 𝟙 ω ω ω 𝟘 → refl
+      false 𝟙 ω ω ω 𝟙 → refl
+      false 𝟙 ω ω ω ω → refl
+      false ω 𝟘 𝟘 𝟘 𝟘 → refl
+      false ω 𝟘 𝟘 𝟘 𝟙 → refl
+      false ω 𝟘 𝟘 𝟘 ω → refl
+      false ω 𝟘 𝟘 𝟙 𝟘 → refl
+      false ω 𝟘 𝟘 𝟙 𝟙 → refl
+      false ω 𝟘 𝟘 𝟙 ω → refl
+      false ω 𝟘 𝟘 ω 𝟘 → refl
+      false ω 𝟘 𝟘 ω 𝟙 → refl
+      false ω 𝟘 𝟘 ω ω → refl
+      false ω 𝟘 𝟙 𝟘 𝟘 → refl
+      false ω 𝟘 𝟙 𝟘 𝟙 → refl
+      false ω 𝟘 𝟙 𝟘 ω → refl
+      false ω 𝟘 𝟙 𝟙 𝟘 → refl
+      false ω 𝟘 𝟙 𝟙 𝟙 → refl
+      false ω 𝟘 𝟙 𝟙 ω → refl
+      false ω 𝟘 𝟙 ω 𝟘 → refl
+      false ω 𝟘 𝟙 ω 𝟙 → refl
+      false ω 𝟘 𝟙 ω ω → refl
+      false ω 𝟘 ω 𝟘 𝟘 → refl
+      false ω 𝟘 ω 𝟘 𝟙 → refl
+      false ω 𝟘 ω 𝟘 ω → refl
+      false ω 𝟘 ω 𝟙 𝟘 → refl
+      false ω 𝟘 ω 𝟙 𝟙 → refl
+      false ω 𝟘 ω 𝟙 ω → refl
+      false ω 𝟘 ω ω 𝟘 → refl
+      false ω 𝟘 ω ω 𝟙 → refl
+      false ω 𝟘 ω ω ω → refl
+      false ω 𝟙 𝟘 𝟘 𝟘 → refl
+      false ω 𝟙 𝟘 𝟘 𝟙 → refl
+      false ω 𝟙 𝟘 𝟘 ω → refl
+      false ω 𝟙 𝟘 𝟙 𝟘 → refl
+      false ω 𝟙 𝟘 𝟙 𝟙 → refl
+      false ω 𝟙 𝟘 𝟙 ω → refl
+      false ω 𝟙 𝟘 ω 𝟘 → refl
+      false ω 𝟙 𝟘 ω 𝟙 → refl
+      false ω 𝟙 𝟘 ω ω → refl
+      false ω 𝟙 𝟙 𝟘 𝟘 → refl
+      false ω 𝟙 𝟙 𝟘 𝟙 → refl
+      false ω 𝟙 𝟙 𝟘 ω → refl
+      false ω 𝟙 𝟙 𝟙 𝟘 → refl
+      false ω 𝟙 𝟙 𝟙 𝟙 → refl
+      false ω 𝟙 𝟙 𝟙 ω → refl
+      false ω 𝟙 𝟙 ω 𝟘 → refl
+      false ω 𝟙 𝟙 ω 𝟙 → refl
+      false ω 𝟙 𝟙 ω ω → refl
+      false ω 𝟙 ω 𝟘 𝟘 → refl
+      false ω 𝟙 ω 𝟘 𝟙 → refl
+      false ω 𝟙 ω 𝟘 ω → refl
+      false ω 𝟙 ω 𝟙 𝟘 → refl
+      false ω 𝟙 ω 𝟙 𝟙 → refl
+      false ω 𝟙 ω 𝟙 ω → refl
+      false ω 𝟙 ω ω 𝟘 → refl
+      false ω 𝟙 ω ω 𝟙 → refl
+      false ω 𝟙 ω ω ω → refl
+      false ω ω 𝟘 𝟘 𝟘 → refl
+      false ω ω 𝟘 𝟘 𝟙 → refl
+      false ω ω 𝟘 𝟘 ω → refl
+      false ω ω 𝟘 𝟙 𝟘 → refl
+      false ω ω 𝟘 𝟙 𝟙 → refl
+      false ω ω 𝟘 𝟙 ω → refl
+      false ω ω 𝟘 ω 𝟘 → refl
+      false ω ω 𝟘 ω 𝟙 → refl
+      false ω ω 𝟘 ω ω → refl
+      false ω ω 𝟙 𝟘 𝟘 → refl
+      false ω ω 𝟙 𝟘 𝟙 → refl
+      false ω ω 𝟙 𝟘 ω → refl
+      false ω ω 𝟙 𝟙 𝟘 → refl
+      false ω ω 𝟙 𝟙 𝟙 → refl
+      false ω ω 𝟙 𝟙 ω → refl
+      false ω ω 𝟙 ω 𝟘 → refl
+      false ω ω 𝟙 ω 𝟙 → refl
+      false ω ω 𝟙 ω ω → refl
+      false ω ω ω 𝟘 𝟘 → refl
+      false ω ω ω 𝟘 𝟙 → refl
+      false ω ω ω 𝟘 ω → refl
+      false ω ω ω 𝟙 𝟘 → refl
+      false ω ω ω 𝟙 𝟙 → refl
+      false ω ω ω 𝟙 ω → refl
+      false ω ω ω ω 𝟘 → refl
+      false ω ω ω ω 𝟙 → refl
+      false ω ω ω ω ω → refl
+      true  𝟘 𝟘 𝟘 𝟘 𝟘 → refl
+      true  𝟘 𝟘 𝟘 𝟘 𝟙 → refl
+      true  𝟘 𝟘 𝟘 𝟘 ω → refl
+      true  𝟘 𝟘 𝟘 𝟙 𝟘 → refl
+      true  𝟘 𝟘 𝟘 𝟙 𝟙 → refl
+      true  𝟘 𝟘 𝟘 𝟙 ω → refl
+      true  𝟘 𝟘 𝟘 ω 𝟘 → refl
+      true  𝟘 𝟘 𝟘 ω 𝟙 → refl
+      true  𝟘 𝟘 𝟘 ω ω → refl
+      true  𝟘 𝟘 𝟙 𝟘 𝟘 → refl
+      true  𝟘 𝟘 𝟙 𝟘 𝟙 → refl
+      true  𝟘 𝟘 𝟙 𝟘 ω → refl
+      true  𝟘 𝟘 𝟙 𝟙 𝟘 → refl
+      true  𝟘 𝟘 𝟙 𝟙 𝟙 → refl
+      true  𝟘 𝟘 𝟙 𝟙 ω → refl
+      true  𝟘 𝟘 𝟙 ω 𝟘 → refl
+      true  𝟘 𝟘 𝟙 ω 𝟙 → refl
+      true  𝟘 𝟘 𝟙 ω ω → refl
+      true  𝟘 𝟘 ω 𝟘 𝟘 → refl
+      true  𝟘 𝟘 ω 𝟘 𝟙 → refl
+      true  𝟘 𝟘 ω 𝟘 ω → refl
+      true  𝟘 𝟘 ω 𝟙 𝟘 → refl
+      true  𝟘 𝟘 ω 𝟙 𝟙 → refl
+      true  𝟘 𝟘 ω 𝟙 ω → refl
+      true  𝟘 𝟘 ω ω 𝟘 → refl
+      true  𝟘 𝟘 ω ω 𝟙 → refl
+      true  𝟘 𝟘 ω ω ω → refl
+      true  𝟘 𝟙 𝟘 𝟘 𝟘 → refl
+      true  𝟘 𝟙 𝟘 𝟘 𝟙 → refl
+      true  𝟘 𝟙 𝟘 𝟘 ω → refl
+      true  𝟘 𝟙 𝟘 𝟙 𝟘 → refl
+      true  𝟘 𝟙 𝟘 𝟙 𝟙 → refl
+      true  𝟘 𝟙 𝟘 𝟙 ω → refl
+      true  𝟘 𝟙 𝟘 ω 𝟘 → refl
+      true  𝟘 𝟙 𝟘 ω 𝟙 → refl
+      true  𝟘 𝟙 𝟘 ω ω → refl
+      true  𝟘 𝟙 𝟙 𝟘 𝟘 → refl
+      true  𝟘 𝟙 𝟙 𝟘 𝟙 → refl
+      true  𝟘 𝟙 𝟙 𝟘 ω → refl
+      true  𝟘 𝟙 𝟙 𝟙 𝟘 → refl
+      true  𝟘 𝟙 𝟙 𝟙 𝟙 → refl
+      true  𝟘 𝟙 𝟙 𝟙 ω → refl
+      true  𝟘 𝟙 𝟙 ω 𝟘 → refl
+      true  𝟘 𝟙 𝟙 ω 𝟙 → refl
+      true  𝟘 𝟙 𝟙 ω ω → refl
+      true  𝟘 𝟙 ω 𝟘 𝟘 → refl
+      true  𝟘 𝟙 ω 𝟘 𝟙 → refl
+      true  𝟘 𝟙 ω 𝟘 ω → refl
+      true  𝟘 𝟙 ω 𝟙 𝟘 → refl
+      true  𝟘 𝟙 ω 𝟙 𝟙 → refl
+      true  𝟘 𝟙 ω 𝟙 ω → refl
+      true  𝟘 𝟙 ω ω 𝟘 → refl
+      true  𝟘 𝟙 ω ω 𝟙 → refl
+      true  𝟘 𝟙 ω ω ω → refl
+      true  𝟘 ω 𝟘 𝟘 𝟘 → refl
+      true  𝟘 ω 𝟘 𝟘 𝟙 → refl
+      true  𝟘 ω 𝟘 𝟘 ω → refl
+      true  𝟘 ω 𝟘 𝟙 𝟘 → refl
+      true  𝟘 ω 𝟘 𝟙 𝟙 → refl
+      true  𝟘 ω 𝟘 𝟙 ω → refl
+      true  𝟘 ω 𝟘 ω 𝟘 → refl
+      true  𝟘 ω 𝟘 ω 𝟙 → refl
+      true  𝟘 ω 𝟘 ω ω → refl
+      true  𝟘 ω 𝟙 𝟘 𝟘 → refl
+      true  𝟘 ω 𝟙 𝟘 𝟙 → refl
+      true  𝟘 ω 𝟙 𝟘 ω → refl
+      true  𝟘 ω 𝟙 𝟙 𝟘 → refl
+      true  𝟘 ω 𝟙 𝟙 𝟙 → refl
+      true  𝟘 ω 𝟙 𝟙 ω → refl
+      true  𝟘 ω 𝟙 ω 𝟘 → refl
+      true  𝟘 ω 𝟙 ω 𝟙 → refl
+      true  𝟘 ω 𝟙 ω ω → refl
+      true  𝟘 ω ω 𝟘 𝟘 → refl
+      true  𝟘 ω ω 𝟘 𝟙 → refl
+      true  𝟘 ω ω 𝟘 ω → refl
+      true  𝟘 ω ω 𝟙 𝟘 → refl
+      true  𝟘 ω ω 𝟙 𝟙 → refl
+      true  𝟘 ω ω 𝟙 ω → refl
+      true  𝟘 ω ω ω 𝟘 → refl
+      true  𝟘 ω ω ω 𝟙 → refl
+      true  𝟘 ω ω ω ω → refl
+      true  𝟙 𝟘 𝟘 𝟘 𝟘 → refl
+      true  𝟙 𝟘 𝟘 𝟘 𝟙 → refl
+      true  𝟙 𝟘 𝟘 𝟘 ω → refl
+      true  𝟙 𝟘 𝟘 𝟙 𝟘 → refl
+      true  𝟙 𝟘 𝟘 𝟙 𝟙 → refl
+      true  𝟙 𝟘 𝟘 𝟙 ω → refl
+      true  𝟙 𝟘 𝟘 ω 𝟘 → refl
+      true  𝟙 𝟘 𝟘 ω 𝟙 → refl
+      true  𝟙 𝟘 𝟘 ω ω → refl
+      true  𝟙 𝟘 𝟙 𝟘 𝟘 → refl
+      true  𝟙 𝟘 𝟙 𝟘 𝟙 → refl
+      true  𝟙 𝟘 𝟙 𝟘 ω → refl
+      true  𝟙 𝟘 𝟙 𝟙 𝟘 → refl
+      true  𝟙 𝟘 𝟙 𝟙 𝟙 → refl
+      true  𝟙 𝟘 𝟙 𝟙 ω → refl
+      true  𝟙 𝟘 𝟙 ω 𝟘 → refl
+      true  𝟙 𝟘 𝟙 ω 𝟙 → refl
+      true  𝟙 𝟘 𝟙 ω ω → refl
+      true  𝟙 𝟘 ω 𝟘 𝟘 → refl
+      true  𝟙 𝟘 ω 𝟘 𝟙 → refl
+      true  𝟙 𝟘 ω 𝟘 ω → refl
+      true  𝟙 𝟘 ω 𝟙 𝟘 → refl
+      true  𝟙 𝟘 ω 𝟙 𝟙 → refl
+      true  𝟙 𝟘 ω 𝟙 ω → refl
+      true  𝟙 𝟘 ω ω 𝟘 → refl
+      true  𝟙 𝟘 ω ω 𝟙 → refl
+      true  𝟙 𝟘 ω ω ω → refl
+      true  𝟙 𝟙 𝟘 𝟘 𝟘 → refl
+      true  𝟙 𝟙 𝟘 𝟘 𝟙 → refl
+      true  𝟙 𝟙 𝟘 𝟘 ω → refl
+      true  𝟙 𝟙 𝟘 𝟙 𝟘 → refl
+      true  𝟙 𝟙 𝟘 𝟙 𝟙 → refl
+      true  𝟙 𝟙 𝟘 𝟙 ω → refl
+      true  𝟙 𝟙 𝟘 ω 𝟘 → refl
+      true  𝟙 𝟙 𝟘 ω 𝟙 → refl
+      true  𝟙 𝟙 𝟘 ω ω → refl
+      true  𝟙 𝟙 𝟙 𝟘 𝟘 → refl
+      true  𝟙 𝟙 𝟙 𝟘 𝟙 → refl
+      true  𝟙 𝟙 𝟙 𝟘 ω → refl
+      true  𝟙 𝟙 𝟙 𝟙 𝟘 → refl
+      true  𝟙 𝟙 𝟙 𝟙 𝟙 → refl
+      true  𝟙 𝟙 𝟙 𝟙 ω → refl
+      true  𝟙 𝟙 𝟙 ω 𝟘 → refl
+      true  𝟙 𝟙 𝟙 ω 𝟙 → refl
+      true  𝟙 𝟙 𝟙 ω ω → refl
+      true  𝟙 𝟙 ω 𝟘 𝟘 → refl
+      true  𝟙 𝟙 ω 𝟘 𝟙 → refl
+      true  𝟙 𝟙 ω 𝟘 ω → refl
+      true  𝟙 𝟙 ω 𝟙 𝟘 → refl
+      true  𝟙 𝟙 ω 𝟙 𝟙 → refl
+      true  𝟙 𝟙 ω 𝟙 ω → refl
+      true  𝟙 𝟙 ω ω 𝟘 → refl
+      true  𝟙 𝟙 ω ω 𝟙 → refl
+      true  𝟙 𝟙 ω ω ω → refl
+      true  𝟙 ω 𝟘 𝟘 𝟘 → refl
+      true  𝟙 ω 𝟘 𝟘 𝟙 → refl
+      true  𝟙 ω 𝟘 𝟘 ω → refl
+      true  𝟙 ω 𝟘 𝟙 𝟘 → refl
+      true  𝟙 ω 𝟘 𝟙 𝟙 → refl
+      true  𝟙 ω 𝟘 𝟙 ω → refl
+      true  𝟙 ω 𝟘 ω 𝟘 → refl
+      true  𝟙 ω 𝟘 ω 𝟙 → refl
+      true  𝟙 ω 𝟘 ω ω → refl
+      true  𝟙 ω 𝟙 𝟘 𝟘 → refl
+      true  𝟙 ω 𝟙 𝟘 𝟙 → refl
+      true  𝟙 ω 𝟙 𝟘 ω → refl
+      true  𝟙 ω 𝟙 𝟙 𝟘 → refl
+      true  𝟙 ω 𝟙 𝟙 𝟙 → refl
+      true  𝟙 ω 𝟙 𝟙 ω → refl
+      true  𝟙 ω 𝟙 ω 𝟘 → refl
+      true  𝟙 ω 𝟙 ω 𝟙 → refl
+      true  𝟙 ω 𝟙 ω ω → refl
+      true  𝟙 ω ω 𝟘 𝟘 → refl
+      true  𝟙 ω ω 𝟘 𝟙 → refl
+      true  𝟙 ω ω 𝟘 ω → refl
+      true  𝟙 ω ω 𝟙 𝟘 → refl
+      true  𝟙 ω ω 𝟙 𝟙 → refl
+      true  𝟙 ω ω 𝟙 ω → refl
+      true  𝟙 ω ω ω 𝟘 → refl
+      true  𝟙 ω ω ω 𝟙 → refl
+      true  𝟙 ω ω ω ω → refl
+      true  ω 𝟘 𝟘 𝟘 𝟘 → refl
+      true  ω 𝟘 𝟘 𝟘 𝟙 → refl
+      true  ω 𝟘 𝟘 𝟘 ω → refl
+      true  ω 𝟘 𝟘 𝟙 𝟘 → refl
+      true  ω 𝟘 𝟘 𝟙 𝟙 → refl
+      true  ω 𝟘 𝟘 𝟙 ω → refl
+      true  ω 𝟘 𝟘 ω 𝟘 → refl
+      true  ω 𝟘 𝟘 ω 𝟙 → refl
+      true  ω 𝟘 𝟘 ω ω → refl
+      true  ω 𝟘 𝟙 𝟘 𝟘 → refl
+      true  ω 𝟘 𝟙 𝟘 𝟙 → refl
+      true  ω 𝟘 𝟙 𝟘 ω → refl
+      true  ω 𝟘 𝟙 𝟙 𝟘 → refl
+      true  ω 𝟘 𝟙 𝟙 𝟙 → refl
+      true  ω 𝟘 𝟙 𝟙 ω → refl
+      true  ω 𝟘 𝟙 ω 𝟘 → refl
+      true  ω 𝟘 𝟙 ω 𝟙 → refl
+      true  ω 𝟘 𝟙 ω ω → refl
+      true  ω 𝟘 ω 𝟘 𝟘 → refl
+      true  ω 𝟘 ω 𝟘 𝟙 → refl
+      true  ω 𝟘 ω 𝟘 ω → refl
+      true  ω 𝟘 ω 𝟙 𝟘 → refl
+      true  ω 𝟘 ω 𝟙 𝟙 → refl
+      true  ω 𝟘 ω 𝟙 ω → refl
+      true  ω 𝟘 ω ω 𝟘 → refl
+      true  ω 𝟘 ω ω 𝟙 → refl
+      true  ω 𝟘 ω ω ω → refl
+      true  ω 𝟙 𝟘 𝟘 𝟘 → refl
+      true  ω 𝟙 𝟘 𝟘 𝟙 → refl
+      true  ω 𝟙 𝟘 𝟘 ω → refl
+      true  ω 𝟙 𝟘 𝟙 𝟘 → refl
+      true  ω 𝟙 𝟘 𝟙 𝟙 → refl
+      true  ω 𝟙 𝟘 𝟙 ω → refl
+      true  ω 𝟙 𝟘 ω 𝟘 → refl
+      true  ω 𝟙 𝟘 ω 𝟙 → refl
+      true  ω 𝟙 𝟘 ω ω → refl
+      true  ω 𝟙 𝟙 𝟘 𝟘 → refl
+      true  ω 𝟙 𝟙 𝟘 𝟙 → refl
+      true  ω 𝟙 𝟙 𝟘 ω → refl
+      true  ω 𝟙 𝟙 𝟙 𝟘 → refl
+      true  ω 𝟙 𝟙 𝟙 𝟙 → refl
+      true  ω 𝟙 𝟙 𝟙 ω → refl
+      true  ω 𝟙 𝟙 ω 𝟘 → refl
+      true  ω 𝟙 𝟙 ω 𝟙 → refl
+      true  ω 𝟙 𝟙 ω ω → refl
+      true  ω 𝟙 ω 𝟘 𝟘 → refl
+      true  ω 𝟙 ω 𝟘 𝟙 → refl
+      true  ω 𝟙 ω 𝟘 ω → refl
+      true  ω 𝟙 ω 𝟙 𝟘 → refl
+      true  ω 𝟙 ω 𝟙 𝟙 → refl
+      true  ω 𝟙 ω 𝟙 ω → refl
+      true  ω 𝟙 ω ω 𝟘 → refl
+      true  ω 𝟙 ω ω 𝟙 → refl
+      true  ω 𝟙 ω ω ω → refl
+      true  ω ω 𝟘 𝟘 𝟘 → refl
+      true  ω ω 𝟘 𝟘 𝟙 → refl
+      true  ω ω 𝟘 𝟘 ω → refl
+      true  ω ω 𝟘 𝟙 𝟘 → refl
+      true  ω ω 𝟘 𝟙 𝟙 → refl
+      true  ω ω 𝟘 𝟙 ω → refl
+      true  ω ω 𝟘 ω 𝟘 → refl
+      true  ω ω 𝟘 ω 𝟙 → refl
+      true  ω ω 𝟘 ω ω → refl
+      true  ω ω 𝟙 𝟘 𝟘 → refl
+      true  ω ω 𝟙 𝟘 𝟙 → refl
+      true  ω ω 𝟙 𝟘 ω → refl
+      true  ω ω 𝟙 𝟙 𝟘 → refl
+      true  ω ω 𝟙 𝟙 𝟙 → refl
+      true  ω ω 𝟙 𝟙 ω → refl
+      true  ω ω 𝟙 ω 𝟘 → refl
+      true  ω ω 𝟙 ω 𝟙 → refl
+      true  ω ω 𝟙 ω ω → refl
+      true  ω ω ω 𝟘 𝟘 → refl
+      true  ω ω ω 𝟘 𝟙 → refl
+      true  ω ω ω 𝟘 ω → refl
+      true  ω ω ω 𝟙 𝟘 → refl
+      true  ω ω ω 𝟙 𝟙 → refl
+      true  ω ω ω 𝟙 ω → refl
+      true  ω ω ω ω 𝟘 → refl
+      true  ω ω ω ω 𝟙 → refl
+      true  ω ω ω ω ω → refl
 
 -- The function zero-one-many→erasure is not an order embedding from a
--- zero-one-many-greatest modality to an erasure modality.
+-- zero-one-many-modality modality to an erasure modality.
 
 ¬zero-one-many⇨erasure :
   ¬ Is-order-embedding
-      (zero-one-many-greatest 𝟙≤𝟘 v₁ v₁-ok)
+      (zero-one-many-modality 𝟙≤𝟘 v₁ v₁-ok)
       (ErasureModality v₂)
       zero-one-many→erasure
 ¬zero-one-many⇨erasure m =
@@ -1498,7 +2097,7 @@ erasure⇨linearity :
   let 𝕄₁ = ErasureModality v₁
       𝕄₂ = linearityModality v₂ v₂-ok
   in
-  Dedicated-star 𝕄₁ ⇔ Dedicated-star 𝕄₂ →
+  Dedicated-nr 𝕄₁ ⇔ Dedicated-nr 𝕄₂ →
   Is-order-embedding 𝕄₁ 𝕄₂ erasure→zero-one-many
 erasure⇨linearity = erasure⇨zero-one-many
 
@@ -1510,7 +2109,7 @@ linearity⇨erasure :
   let 𝕄₁ = linearityModality v₁ v₁-ok
       𝕄₂ = ErasureModality v₂
   in
-  Dedicated-star 𝕄₁ ⇔ Dedicated-star 𝕄₂ →
+  Dedicated-nr 𝕄₁ ⇔ Dedicated-nr 𝕄₂ →
   Is-morphism 𝕄₁ 𝕄₂ zero-one-many→erasure
 linearity⇨erasure = zero-one-many⇨erasure
 
@@ -1531,7 +2130,7 @@ erasure⇨affine :
   let 𝕄₁ = ErasureModality v₁
       𝕄₂ = affineModality v₂
   in
-  Dedicated-star 𝕄₁ ⇔ Dedicated-star 𝕄₂ →
+  Dedicated-nr 𝕄₁ ⇔ Dedicated-nr 𝕄₂ →
   Is-order-embedding 𝕄₁ 𝕄₂ erasure→zero-one-many
 erasure⇨affine = erasure⇨zero-one-many
 
@@ -1543,7 +2142,7 @@ affine⇨erasure :
   let 𝕄₁ = affineModality v₁
       𝕄₂ = ErasureModality v₂
   in
-  Dedicated-star 𝕄₁ ⇔ Dedicated-star 𝕄₂ →
+  Dedicated-nr 𝕄₁ ⇔ Dedicated-nr 𝕄₂ →
   Is-morphism 𝕄₁ 𝕄₂ zero-one-many→erasure
 affine⇨erasure = zero-one-many⇨erasure
 
@@ -1564,33 +2163,33 @@ linearity⇨linear-or-affine :
   let 𝕄₁ = linearityModality v₁ v₁-ok
       𝕄₂ = linear-or-affine v₂ v₂-ok
   in
-  Dedicated-star 𝕄₁ ⇔ Dedicated-star 𝕄₂ →
+  Dedicated-nr 𝕄₁ ⇔ Dedicated-nr 𝕄₂ →
   Is-order-embedding 𝕄₁ 𝕄₂ linearity→linear-or-affine
 linearity⇨linear-or-affine
   {v₁ = v₁} {v₂ = v₂} {v₁-ok = v₁-ok} {v₂-ok = v₂-ok}
   refl s⇔s = λ where
-    .Is-order-embedding.trivial not-ok ok    → ⊥-elim (not-ok ok)
-    .Is-order-embedding.trivial-⊎-tr-𝟘       → inj₂ refl
-    .Is-order-embedding.tr-≤                 → ω , refl
-    .Is-order-embedding.tr-≤-𝟙               → tr-≤-𝟙 _
-    .Is-order-embedding.tr-≤-+               → tr-≤-+ _ _ _
-    .Is-order-embedding.tr-≤-·               → tr-≤-· _ _ _
-    .Is-order-embedding.tr-≤-∧               → tr-≤-∧ _ _ _
-    .Is-order-embedding.tr-≤-⊛ {s = s}       → tr-≤-⊛ _ _ _ _ _ s
-    .Is-order-embedding.tr-≤-no-star {s = s} → tr-≤-no-star s
-    .Is-order-embedding.tr-order-reflecting  → tr-order-reflecting _ _
-    .Is-order-embedding.tr-morphism          → λ where
-      .Is-morphism.tr-𝟘-≤                      → refl
-      .Is-morphism.tr-≡-𝟘-⇔ _                  → tr-≡-𝟘 _
-                                               , λ { refl → refl }
-      .Is-morphism.tr-<-𝟘 not-ok ok            → ⊥-elim (not-ok ok)
-      .Is-morphism.tr-𝟙                        → refl
-      .Is-morphism.tr-+ {p = p}                → ≤-reflexive (tr-+ p _)
-      .Is-morphism.tr-·                        → tr-· _ _
-      .Is-morphism.tr-∧                        → tr-∧ _ _
-      .Is-morphism.tr-⊛ {r = r}                → tr-⊛ _ _ r
-      .Is-morphism.𝟘ᵐ-in-second-if-in-first    → idᶠ
-      .Is-morphism.star-in-first-iff-in-second → s⇔s
+    .Is-order-embedding.trivial not-ok ok   → ⊥-elim (not-ok ok)
+    .Is-order-embedding.trivial-⊎-tr-𝟘      → inj₂ refl
+    .Is-order-embedding.tr-≤                → ω , refl
+    .Is-order-embedding.tr-≤-𝟙              → tr-≤-𝟙 _
+    .Is-order-embedding.tr-≤-+              → tr-≤-+ _ _ _
+    .Is-order-embedding.tr-≤-·              → tr-≤-· _ _ _
+    .Is-order-embedding.tr-≤-∧              → tr-≤-∧ _ _ _
+    .Is-order-embedding.tr-≤-nr {r = r}     → tr-≤-nr _ _ r _ _ _
+    .Is-order-embedding.tr-≤-no-nr {s = s}  → tr-≤-no-nr s
+    .Is-order-embedding.tr-order-reflecting → tr-order-reflecting _ _
+    .Is-order-embedding.tr-morphism         → λ where
+      .Is-morphism.tr-𝟘-≤                    → refl
+      .Is-morphism.tr-≡-𝟘-⇔ _                → tr-≡-𝟘 _
+                                             , λ { refl → refl }
+      .Is-morphism.tr-<-𝟘 not-ok ok          → ⊥-elim (not-ok ok)
+      .Is-morphism.tr-𝟙                      → refl
+      .Is-morphism.tr-+ {p = p}              → ≤-reflexive (tr-+ p _)
+      .Is-morphism.tr-·                      → tr-· _ _
+      .Is-morphism.tr-∧                      → tr-∧ _ _
+      .Is-morphism.tr-nr {r = r}             → tr-nr _ r _ _ _
+      .Is-morphism.𝟘ᵐ-in-second-if-in-first  → idᶠ
+      .Is-morphism.nr-in-first-iff-in-second → s⇔s
   where
   module P₁ = Graded.Modality.Properties (linearityModality v₁ v₁-ok)
   open Graded.Modality.Properties (linear-or-affine v₂ v₂-ok)
@@ -1638,34 +2237,254 @@ linearity⇨linear-or-affine
   tr-∧ ω 𝟙 = refl
   tr-∧ ω ω = refl
 
-  tr-⊛ : ∀ p q r → tr′ (p L.⊛ q ▷ r) LA.≤ tr′ p LA.⊛ tr′ q ▷ tr′ r
-  tr-⊛ 𝟘 𝟘 𝟘 = refl
-  tr-⊛ 𝟘 𝟘 𝟙 = refl
-  tr-⊛ 𝟘 𝟘 ω = refl
-  tr-⊛ 𝟘 𝟙 𝟘 = ≤-refl
-  tr-⊛ 𝟘 𝟙 𝟙 = refl
-  tr-⊛ 𝟘 𝟙 ω = refl
-  tr-⊛ 𝟘 ω 𝟘 = refl
-  tr-⊛ 𝟘 ω 𝟙 = refl
-  tr-⊛ 𝟘 ω ω = refl
-  tr-⊛ 𝟙 𝟘 𝟘 = ≤-refl
-  tr-⊛ 𝟙 𝟘 𝟙 = refl
-  tr-⊛ 𝟙 𝟘 ω = refl
-  tr-⊛ 𝟙 𝟙 𝟘 = refl
-  tr-⊛ 𝟙 𝟙 𝟙 = refl
-  tr-⊛ 𝟙 𝟙 ω = refl
-  tr-⊛ 𝟙 ω 𝟘 = refl
-  tr-⊛ 𝟙 ω 𝟙 = refl
-  tr-⊛ 𝟙 ω ω = refl
-  tr-⊛ ω 𝟘 𝟘 = refl
-  tr-⊛ ω 𝟘 𝟙 = refl
-  tr-⊛ ω 𝟘 ω = refl
-  tr-⊛ ω 𝟙 𝟘 = refl
-  tr-⊛ ω 𝟙 𝟙 = refl
-  tr-⊛ ω 𝟙 ω = refl
-  tr-⊛ ω ω 𝟘 = refl
-  tr-⊛ ω ω 𝟙 = refl
-  tr-⊛ ω ω ω = refl
+  tr-nr :
+    ∀ p r z s n →
+    tr′ (L.nr p r z s n) LA.≤
+    LA.nr (tr′ p) (tr′ r) (tr′ z) (tr′ s) (tr′ n)
+  tr-nr = λ where
+    𝟘 𝟘 𝟘 𝟘 𝟘 → refl
+    𝟘 𝟘 𝟘 𝟘 𝟙 → refl
+    𝟘 𝟘 𝟘 𝟘 ω → refl
+    𝟘 𝟘 𝟘 𝟙 𝟘 → refl
+    𝟘 𝟘 𝟘 𝟙 𝟙 → refl
+    𝟘 𝟘 𝟘 𝟙 ω → refl
+    𝟘 𝟘 𝟘 ω 𝟘 → refl
+    𝟘 𝟘 𝟘 ω 𝟙 → refl
+    𝟘 𝟘 𝟘 ω ω → refl
+    𝟘 𝟘 𝟙 𝟘 𝟘 → refl
+    𝟘 𝟘 𝟙 𝟘 𝟙 → refl
+    𝟘 𝟘 𝟙 𝟘 ω → refl
+    𝟘 𝟘 𝟙 𝟙 𝟘 → refl
+    𝟘 𝟘 𝟙 𝟙 𝟙 → refl
+    𝟘 𝟘 𝟙 𝟙 ω → refl
+    𝟘 𝟘 𝟙 ω 𝟘 → refl
+    𝟘 𝟘 𝟙 ω 𝟙 → refl
+    𝟘 𝟘 𝟙 ω ω → refl
+    𝟘 𝟘 ω 𝟘 𝟘 → refl
+    𝟘 𝟘 ω 𝟘 𝟙 → refl
+    𝟘 𝟘 ω 𝟘 ω → refl
+    𝟘 𝟘 ω 𝟙 𝟘 → refl
+    𝟘 𝟘 ω 𝟙 𝟙 → refl
+    𝟘 𝟘 ω 𝟙 ω → refl
+    𝟘 𝟘 ω ω 𝟘 → refl
+    𝟘 𝟘 ω ω 𝟙 → refl
+    𝟘 𝟘 ω ω ω → refl
+    𝟘 𝟙 𝟘 𝟘 𝟘 → refl
+    𝟘 𝟙 𝟘 𝟘 𝟙 → refl
+    𝟘 𝟙 𝟘 𝟘 ω → refl
+    𝟘 𝟙 𝟘 𝟙 𝟘 → refl
+    𝟘 𝟙 𝟘 𝟙 𝟙 → refl
+    𝟘 𝟙 𝟘 𝟙 ω → refl
+    𝟘 𝟙 𝟘 ω 𝟘 → refl
+    𝟘 𝟙 𝟘 ω 𝟙 → refl
+    𝟘 𝟙 𝟘 ω ω → refl
+    𝟘 𝟙 𝟙 𝟘 𝟘 → refl
+    𝟘 𝟙 𝟙 𝟘 𝟙 → refl
+    𝟘 𝟙 𝟙 𝟘 ω → refl
+    𝟘 𝟙 𝟙 𝟙 𝟘 → refl
+    𝟘 𝟙 𝟙 𝟙 𝟙 → refl
+    𝟘 𝟙 𝟙 𝟙 ω → refl
+    𝟘 𝟙 𝟙 ω 𝟘 → refl
+    𝟘 𝟙 𝟙 ω 𝟙 → refl
+    𝟘 𝟙 𝟙 ω ω → refl
+    𝟘 𝟙 ω 𝟘 𝟘 → refl
+    𝟘 𝟙 ω 𝟘 𝟙 → refl
+    𝟘 𝟙 ω 𝟘 ω → refl
+    𝟘 𝟙 ω 𝟙 𝟘 → refl
+    𝟘 𝟙 ω 𝟙 𝟙 → refl
+    𝟘 𝟙 ω 𝟙 ω → refl
+    𝟘 𝟙 ω ω 𝟘 → refl
+    𝟘 𝟙 ω ω 𝟙 → refl
+    𝟘 𝟙 ω ω ω → refl
+    𝟘 ω 𝟘 𝟘 𝟘 → refl
+    𝟘 ω 𝟘 𝟘 𝟙 → refl
+    𝟘 ω 𝟘 𝟘 ω → refl
+    𝟘 ω 𝟘 𝟙 𝟘 → refl
+    𝟘 ω 𝟘 𝟙 𝟙 → refl
+    𝟘 ω 𝟘 𝟙 ω → refl
+    𝟘 ω 𝟘 ω 𝟘 → refl
+    𝟘 ω 𝟘 ω 𝟙 → refl
+    𝟘 ω 𝟘 ω ω → refl
+    𝟘 ω 𝟙 𝟘 𝟘 → refl
+    𝟘 ω 𝟙 𝟘 𝟙 → refl
+    𝟘 ω 𝟙 𝟘 ω → refl
+    𝟘 ω 𝟙 𝟙 𝟘 → refl
+    𝟘 ω 𝟙 𝟙 𝟙 → refl
+    𝟘 ω 𝟙 𝟙 ω → refl
+    𝟘 ω 𝟙 ω 𝟘 → refl
+    𝟘 ω 𝟙 ω 𝟙 → refl
+    𝟘 ω 𝟙 ω ω → refl
+    𝟘 ω ω 𝟘 𝟘 → refl
+    𝟘 ω ω 𝟘 𝟙 → refl
+    𝟘 ω ω 𝟘 ω → refl
+    𝟘 ω ω 𝟙 𝟘 → refl
+    𝟘 ω ω 𝟙 𝟙 → refl
+    𝟘 ω ω 𝟙 ω → refl
+    𝟘 ω ω ω 𝟘 → refl
+    𝟘 ω ω ω 𝟙 → refl
+    𝟘 ω ω ω ω → refl
+    𝟙 𝟘 𝟘 𝟘 𝟘 → refl
+    𝟙 𝟘 𝟘 𝟘 𝟙 → refl
+    𝟙 𝟘 𝟘 𝟘 ω → refl
+    𝟙 𝟘 𝟘 𝟙 𝟘 → refl
+    𝟙 𝟘 𝟘 𝟙 𝟙 → refl
+    𝟙 𝟘 𝟘 𝟙 ω → refl
+    𝟙 𝟘 𝟘 ω 𝟘 → refl
+    𝟙 𝟘 𝟘 ω 𝟙 → refl
+    𝟙 𝟘 𝟘 ω ω → refl
+    𝟙 𝟘 𝟙 𝟘 𝟘 → refl
+    𝟙 𝟘 𝟙 𝟘 𝟙 → refl
+    𝟙 𝟘 𝟙 𝟘 ω → refl
+    𝟙 𝟘 𝟙 𝟙 𝟘 → refl
+    𝟙 𝟘 𝟙 𝟙 𝟙 → refl
+    𝟙 𝟘 𝟙 𝟙 ω → refl
+    𝟙 𝟘 𝟙 ω 𝟘 → refl
+    𝟙 𝟘 𝟙 ω 𝟙 → refl
+    𝟙 𝟘 𝟙 ω ω → refl
+    𝟙 𝟘 ω 𝟘 𝟘 → refl
+    𝟙 𝟘 ω 𝟘 𝟙 → refl
+    𝟙 𝟘 ω 𝟘 ω → refl
+    𝟙 𝟘 ω 𝟙 𝟘 → refl
+    𝟙 𝟘 ω 𝟙 𝟙 → refl
+    𝟙 𝟘 ω 𝟙 ω → refl
+    𝟙 𝟘 ω ω 𝟘 → refl
+    𝟙 𝟘 ω ω 𝟙 → refl
+    𝟙 𝟘 ω ω ω → refl
+    𝟙 𝟙 𝟘 𝟘 𝟘 → refl
+    𝟙 𝟙 𝟘 𝟘 𝟙 → refl
+    𝟙 𝟙 𝟘 𝟘 ω → refl
+    𝟙 𝟙 𝟘 𝟙 𝟘 → refl
+    𝟙 𝟙 𝟘 𝟙 𝟙 → refl
+    𝟙 𝟙 𝟘 𝟙 ω → refl
+    𝟙 𝟙 𝟘 ω 𝟘 → refl
+    𝟙 𝟙 𝟘 ω 𝟙 → refl
+    𝟙 𝟙 𝟘 ω ω → refl
+    𝟙 𝟙 𝟙 𝟘 𝟘 → refl
+    𝟙 𝟙 𝟙 𝟘 𝟙 → refl
+    𝟙 𝟙 𝟙 𝟘 ω → refl
+    𝟙 𝟙 𝟙 𝟙 𝟘 → refl
+    𝟙 𝟙 𝟙 𝟙 𝟙 → refl
+    𝟙 𝟙 𝟙 𝟙 ω → refl
+    𝟙 𝟙 𝟙 ω 𝟘 → refl
+    𝟙 𝟙 𝟙 ω 𝟙 → refl
+    𝟙 𝟙 𝟙 ω ω → refl
+    𝟙 𝟙 ω 𝟘 𝟘 → refl
+    𝟙 𝟙 ω 𝟘 𝟙 → refl
+    𝟙 𝟙 ω 𝟘 ω → refl
+    𝟙 𝟙 ω 𝟙 𝟘 → refl
+    𝟙 𝟙 ω 𝟙 𝟙 → refl
+    𝟙 𝟙 ω 𝟙 ω → refl
+    𝟙 𝟙 ω ω 𝟘 → refl
+    𝟙 𝟙 ω ω 𝟙 → refl
+    𝟙 𝟙 ω ω ω → refl
+    𝟙 ω 𝟘 𝟘 𝟘 → refl
+    𝟙 ω 𝟘 𝟘 𝟙 → refl
+    𝟙 ω 𝟘 𝟘 ω → refl
+    𝟙 ω 𝟘 𝟙 𝟘 → refl
+    𝟙 ω 𝟘 𝟙 𝟙 → refl
+    𝟙 ω 𝟘 𝟙 ω → refl
+    𝟙 ω 𝟘 ω 𝟘 → refl
+    𝟙 ω 𝟘 ω 𝟙 → refl
+    𝟙 ω 𝟘 ω ω → refl
+    𝟙 ω 𝟙 𝟘 𝟘 → refl
+    𝟙 ω 𝟙 𝟘 𝟙 → refl
+    𝟙 ω 𝟙 𝟘 ω → refl
+    𝟙 ω 𝟙 𝟙 𝟘 → refl
+    𝟙 ω 𝟙 𝟙 𝟙 → refl
+    𝟙 ω 𝟙 𝟙 ω → refl
+    𝟙 ω 𝟙 ω 𝟘 → refl
+    𝟙 ω 𝟙 ω 𝟙 → refl
+    𝟙 ω 𝟙 ω ω → refl
+    𝟙 ω ω 𝟘 𝟘 → refl
+    𝟙 ω ω 𝟘 𝟙 → refl
+    𝟙 ω ω 𝟘 ω → refl
+    𝟙 ω ω 𝟙 𝟘 → refl
+    𝟙 ω ω 𝟙 𝟙 → refl
+    𝟙 ω ω 𝟙 ω → refl
+    𝟙 ω ω ω 𝟘 → refl
+    𝟙 ω ω ω 𝟙 → refl
+    𝟙 ω ω ω ω → refl
+    ω 𝟘 𝟘 𝟘 𝟘 → refl
+    ω 𝟘 𝟘 𝟘 𝟙 → refl
+    ω 𝟘 𝟘 𝟘 ω → refl
+    ω 𝟘 𝟘 𝟙 𝟘 → refl
+    ω 𝟘 𝟘 𝟙 𝟙 → refl
+    ω 𝟘 𝟘 𝟙 ω → refl
+    ω 𝟘 𝟘 ω 𝟘 → refl
+    ω 𝟘 𝟘 ω 𝟙 → refl
+    ω 𝟘 𝟘 ω ω → refl
+    ω 𝟘 𝟙 𝟘 𝟘 → refl
+    ω 𝟘 𝟙 𝟘 𝟙 → refl
+    ω 𝟘 𝟙 𝟘 ω → refl
+    ω 𝟘 𝟙 𝟙 𝟘 → refl
+    ω 𝟘 𝟙 𝟙 𝟙 → refl
+    ω 𝟘 𝟙 𝟙 ω → refl
+    ω 𝟘 𝟙 ω 𝟘 → refl
+    ω 𝟘 𝟙 ω 𝟙 → refl
+    ω 𝟘 𝟙 ω ω → refl
+    ω 𝟘 ω 𝟘 𝟘 → refl
+    ω 𝟘 ω 𝟘 𝟙 → refl
+    ω 𝟘 ω 𝟘 ω → refl
+    ω 𝟘 ω 𝟙 𝟘 → refl
+    ω 𝟘 ω 𝟙 𝟙 → refl
+    ω 𝟘 ω 𝟙 ω → refl
+    ω 𝟘 ω ω 𝟘 → refl
+    ω 𝟘 ω ω 𝟙 → refl
+    ω 𝟘 ω ω ω → refl
+    ω 𝟙 𝟘 𝟘 𝟘 → refl
+    ω 𝟙 𝟘 𝟘 𝟙 → refl
+    ω 𝟙 𝟘 𝟘 ω → refl
+    ω 𝟙 𝟘 𝟙 𝟘 → refl
+    ω 𝟙 𝟘 𝟙 𝟙 → refl
+    ω 𝟙 𝟘 𝟙 ω → refl
+    ω 𝟙 𝟘 ω 𝟘 → refl
+    ω 𝟙 𝟘 ω 𝟙 → refl
+    ω 𝟙 𝟘 ω ω → refl
+    ω 𝟙 𝟙 𝟘 𝟘 → refl
+    ω 𝟙 𝟙 𝟘 𝟙 → refl
+    ω 𝟙 𝟙 𝟘 ω → refl
+    ω 𝟙 𝟙 𝟙 𝟘 → refl
+    ω 𝟙 𝟙 𝟙 𝟙 → refl
+    ω 𝟙 𝟙 𝟙 ω → refl
+    ω 𝟙 𝟙 ω 𝟘 → refl
+    ω 𝟙 𝟙 ω 𝟙 → refl
+    ω 𝟙 𝟙 ω ω → refl
+    ω 𝟙 ω 𝟘 𝟘 → refl
+    ω 𝟙 ω 𝟘 𝟙 → refl
+    ω 𝟙 ω 𝟘 ω → refl
+    ω 𝟙 ω 𝟙 𝟘 → refl
+    ω 𝟙 ω 𝟙 𝟙 → refl
+    ω 𝟙 ω 𝟙 ω → refl
+    ω 𝟙 ω ω 𝟘 → refl
+    ω 𝟙 ω ω 𝟙 → refl
+    ω 𝟙 ω ω ω → refl
+    ω ω 𝟘 𝟘 𝟘 → refl
+    ω ω 𝟘 𝟘 𝟙 → refl
+    ω ω 𝟘 𝟘 ω → refl
+    ω ω 𝟘 𝟙 𝟘 → refl
+    ω ω 𝟘 𝟙 𝟙 → refl
+    ω ω 𝟘 𝟙 ω → refl
+    ω ω 𝟘 ω 𝟘 → refl
+    ω ω 𝟘 ω 𝟙 → refl
+    ω ω 𝟘 ω ω → refl
+    ω ω 𝟙 𝟘 𝟘 → refl
+    ω ω 𝟙 𝟘 𝟙 → refl
+    ω ω 𝟙 𝟘 ω → refl
+    ω ω 𝟙 𝟙 𝟘 → refl
+    ω ω 𝟙 𝟙 𝟙 → refl
+    ω ω 𝟙 𝟙 ω → refl
+    ω ω 𝟙 ω 𝟘 → refl
+    ω ω 𝟙 ω 𝟙 → refl
+    ω ω 𝟙 ω ω → refl
+    ω ω ω 𝟘 𝟘 → refl
+    ω ω ω 𝟘 𝟙 → refl
+    ω ω ω 𝟘 ω → refl
+    ω ω ω 𝟙 𝟘 → refl
+    ω ω ω 𝟙 𝟙 → refl
+    ω ω ω 𝟙 ω → refl
+    ω ω ω ω 𝟘 → refl
+    ω ω ω ω 𝟙 → refl
+    ω ω ω ω ω → refl
 
   tr-order-reflecting : ∀ p q → tr′ p LA.≤ tr′ q → p L.≤ q
   tr-order-reflecting 𝟘 𝟘 _ = refl
@@ -1715,1059 +2534,1166 @@ linearity⇨linear-or-affine
   tr-≤-∧ 𝟙 ≤ω ≤ω ()
   tr-≤-∧ 𝟙 ≤ω 𝟘  ()
 
-  tr-≤-⊛ :
-    ∀ p q₁ q₂ q₃ r s →
-    tr′ p LA.≤ (q₁ LA.∧ q₂) LA.⊛ q₃ LA.+ tr′ r LA.· q₂ ▷ tr′ s →
-    ∃₃ λ q₁′ q₂′ q₃′ →
-       tr′ q₁′ LA.≤ q₁ × tr′ q₂′ LA.≤ q₂ × tr′ q₃′ LA.≤ q₃ ×
-       p L.≤ (q₁′ L.∧ q₂′) L.⊛ q₃′ L.+ r L.· q₂′ ▷ s
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟘  𝟘 𝟘 _  = 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟘  𝟘 𝟙 _  = 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟘  𝟘 ω _  = 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟘  𝟙 𝟘 _  = 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟘  𝟙 𝟙 _  = 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟘  𝟙 ω _  = 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟘  ω 𝟘 _  = 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟘  ω 𝟙 _  = 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟘  ω ω _  = 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟘  𝟘 𝟙 _  = 𝟙 , 𝟙 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟘  𝟙 𝟘 _  = 𝟙 , 𝟙 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟙  𝟘 𝟘 _  = 𝟙 , 𝟙 , 𝟙 , refl , refl , refl , refl
-  tr-≤-⊛ ω _  _  _  _ _ _  = ω , ω , ω , refl , refl , refl , refl
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟙  ω ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤ω ω ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟘  ω ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟙  ω ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤ω ω ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟘  ω ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟙  ω ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤ω ω ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟘  ω ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟙  ω ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤ω ω ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟘  ω ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟙  ω ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤ω ω ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟘  ω ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟙  ω ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤ω ω ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟘  ω ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟙  ω ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤ω ω ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟘  ω ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟙  ω ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤ω ω ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟘  ω ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟙  ω ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤ω ω ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟘  ω ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟙  ω ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤ω ω ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟘  ω ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟙  ω ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤ω ω ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟘  ω ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟙  ω ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤ω ω ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟘  ω ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟙  ω ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤ω ω ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟘  ω ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟙  ω ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤ω ω ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟘  ω ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟙  ω ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤ω ω ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟘  ω ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟙  ω ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤ω ω ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟘  ω ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟙  ω ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤ω ω ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟘  ω ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟙  ω ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤ω ω ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟘  ω ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟙  ω ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤ω ω ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟘  ω ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟙  ω ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤ω ω ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟘  ω ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟙  ω ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤ω ω ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟘  ω ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟙  ω ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤ω ω ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟘  ω ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟙  ω ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤ω ω ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟘  ω ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟙  ω ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤ω ω ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟘  ω ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟙  ω ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤ω ω ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟘  ω ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟙  ω ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤ω ω ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟘  ω ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟙  ω ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤ω ω ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟘  ω ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟙  ω ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤ω ω ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟘  ω ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟙  ω ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤ω ω ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 𝟘  𝟘 𝟘 ()
+  tr-≤-nr :
+    ∀ q p r z₁ s₁ n₁ →
+    tr′ q LA.≤ LA.nr (tr′ p) (tr′ r) z₁ s₁ n₁ →
+    ∃₃ λ z₂ s₂ n₂ →
+       tr′ z₂ LA.≤ z₁ × tr′ s₂ LA.≤ s₁ × tr′ n₂ LA.≤ n₁ ×
+       q L.≤ L.nr p r z₂ s₂ n₂
+  tr-≤-nr = λ where
+    ω _ _ _  _  _  _  → ω , ω , ω , refl , refl , refl , refl
+    𝟘 𝟘 𝟘 𝟘  𝟘  𝟘  _  → 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟘 𝟘 𝟙 𝟘  𝟘  𝟘  _  → 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟘 𝟘 ω 𝟘  𝟘  𝟘  _  → 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟘 𝟙 𝟘 𝟘  𝟘  𝟘  _  → 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟘 𝟙 𝟙 𝟘  𝟘  𝟘  _  → 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟘 𝟙 ω 𝟘  𝟘  𝟘  _  → 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟘 ω 𝟘 𝟘  𝟘  𝟘  _  → 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟘 ω 𝟙 𝟘  𝟘  𝟘  _  → 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟘 ω ω 𝟘  𝟘  𝟘  _  → 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟙 𝟘 𝟘 𝟙  𝟙  𝟘  _  → 𝟙 , 𝟙 , 𝟘 , refl , refl , refl , refl
+    𝟙 𝟘 𝟙 𝟘  𝟘  𝟙  _  → 𝟘 , 𝟘 , 𝟙 , refl , refl , refl , refl
+    𝟙 𝟘 𝟙 𝟙  𝟘  𝟘  _  → 𝟙 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟙 𝟙 𝟘 𝟘  𝟘  𝟙  _  → 𝟘 , 𝟘 , 𝟙 , refl , refl , refl , refl
+    𝟙 𝟙 𝟘 𝟙  𝟙  𝟘  _  → 𝟙 , 𝟙 , 𝟘 , refl , refl , refl , refl
+    𝟙 𝟙 𝟙 𝟙  𝟘  𝟘  _  → 𝟙 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟙 ω 𝟘 𝟙  𝟙  𝟘  _  → 𝟙 , 𝟙 , 𝟘 , refl , refl , refl , refl
+    𝟙 ω 𝟙 𝟙  𝟘  𝟘  _  → 𝟙 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟘 𝟘 𝟘 𝟘  𝟘  𝟙  ()
+    𝟘 𝟘 𝟘 𝟘  𝟘  ≤𝟙 ()
+    𝟘 𝟘 𝟘 𝟘  𝟘  ≤ω ()
+    𝟘 𝟘 𝟘 𝟘  𝟙  𝟘  ()
+    𝟘 𝟘 𝟘 𝟘  𝟙  𝟙  ()
+    𝟘 𝟘 𝟘 𝟘  𝟙  ≤𝟙 ()
+    𝟘 𝟘 𝟘 𝟘  𝟙  ≤ω ()
+    𝟘 𝟘 𝟘 𝟘  ≤𝟙 𝟘  ()
+    𝟘 𝟘 𝟘 𝟘  ≤𝟙 𝟙  ()
+    𝟘 𝟘 𝟘 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟘 𝟘 𝟘 𝟘  ≤𝟙 ≤ω ()
+    𝟘 𝟘 𝟘 𝟘  ≤ω 𝟘  ()
+    𝟘 𝟘 𝟘 𝟘  ≤ω 𝟙  ()
+    𝟘 𝟘 𝟘 𝟘  ≤ω ≤𝟙 ()
+    𝟘 𝟘 𝟘 𝟘  ≤ω ≤ω ()
+    𝟘 𝟘 𝟘 𝟙  𝟘  𝟘  ()
+    𝟘 𝟘 𝟘 𝟙  𝟘  𝟙  ()
+    𝟘 𝟘 𝟘 𝟙  𝟘  ≤𝟙 ()
+    𝟘 𝟘 𝟘 𝟙  𝟘  ≤ω ()
+    𝟘 𝟘 𝟘 𝟙  𝟙  𝟘  ()
+    𝟘 𝟘 𝟘 𝟙  𝟙  𝟙  ()
+    𝟘 𝟘 𝟘 𝟙  𝟙  ≤𝟙 ()
+    𝟘 𝟘 𝟘 𝟙  𝟙  ≤ω ()
+    𝟘 𝟘 𝟘 𝟙  ≤𝟙 𝟘  ()
+    𝟘 𝟘 𝟘 𝟙  ≤𝟙 𝟙  ()
+    𝟘 𝟘 𝟘 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟘 𝟘 𝟘 𝟙  ≤𝟙 ≤ω ()
+    𝟘 𝟘 𝟘 𝟙  ≤ω 𝟘  ()
+    𝟘 𝟘 𝟘 𝟙  ≤ω 𝟙  ()
+    𝟘 𝟘 𝟘 𝟙  ≤ω ≤𝟙 ()
+    𝟘 𝟘 𝟘 𝟙  ≤ω ≤ω ()
+    𝟘 𝟘 𝟘 ≤𝟙 𝟘  𝟘  ()
+    𝟘 𝟘 𝟘 ≤𝟙 𝟘  𝟙  ()
+    𝟘 𝟘 𝟘 ≤𝟙 𝟘  ≤𝟙 ()
+    𝟘 𝟘 𝟘 ≤𝟙 𝟘  ≤ω ()
+    𝟘 𝟘 𝟘 ≤𝟙 𝟙  𝟘  ()
+    𝟘 𝟘 𝟘 ≤𝟙 𝟙  𝟙  ()
+    𝟘 𝟘 𝟘 ≤𝟙 𝟙  ≤𝟙 ()
+    𝟘 𝟘 𝟘 ≤𝟙 𝟙  ≤ω ()
+    𝟘 𝟘 𝟘 ≤𝟙 ≤𝟙 𝟘  ()
+    𝟘 𝟘 𝟘 ≤𝟙 ≤𝟙 𝟙  ()
+    𝟘 𝟘 𝟘 ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟘 𝟘 𝟘 ≤𝟙 ≤𝟙 ≤ω ()
+    𝟘 𝟘 𝟘 ≤𝟙 ≤ω 𝟘  ()
+    𝟘 𝟘 𝟘 ≤𝟙 ≤ω 𝟙  ()
+    𝟘 𝟘 𝟘 ≤𝟙 ≤ω ≤𝟙 ()
+    𝟘 𝟘 𝟘 ≤𝟙 ≤ω ≤ω ()
+    𝟘 𝟘 𝟘 ≤ω 𝟘  𝟘  ()
+    𝟘 𝟘 𝟘 ≤ω 𝟘  𝟙  ()
+    𝟘 𝟘 𝟘 ≤ω 𝟘  ≤𝟙 ()
+    𝟘 𝟘 𝟘 ≤ω 𝟘  ≤ω ()
+    𝟘 𝟘 𝟘 ≤ω 𝟙  𝟘  ()
+    𝟘 𝟘 𝟘 ≤ω 𝟙  𝟙  ()
+    𝟘 𝟘 𝟘 ≤ω 𝟙  ≤𝟙 ()
+    𝟘 𝟘 𝟘 ≤ω 𝟙  ≤ω ()
+    𝟘 𝟘 𝟘 ≤ω ≤𝟙 𝟘  ()
+    𝟘 𝟘 𝟘 ≤ω ≤𝟙 𝟙  ()
+    𝟘 𝟘 𝟘 ≤ω ≤𝟙 ≤𝟙 ()
+    𝟘 𝟘 𝟘 ≤ω ≤𝟙 ≤ω ()
+    𝟘 𝟘 𝟘 ≤ω ≤ω 𝟘  ()
+    𝟘 𝟘 𝟘 ≤ω ≤ω 𝟙  ()
+    𝟘 𝟘 𝟘 ≤ω ≤ω ≤𝟙 ()
+    𝟘 𝟘 𝟘 ≤ω ≤ω ≤ω ()
+    𝟘 𝟘 𝟙 𝟘  𝟘  𝟙  ()
+    𝟘 𝟘 𝟙 𝟘  𝟘  ≤𝟙 ()
+    𝟘 𝟘 𝟙 𝟘  𝟘  ≤ω ()
+    𝟘 𝟘 𝟙 𝟘  𝟙  𝟘  ()
+    𝟘 𝟘 𝟙 𝟘  𝟙  𝟙  ()
+    𝟘 𝟘 𝟙 𝟘  𝟙  ≤𝟙 ()
+    𝟘 𝟘 𝟙 𝟘  𝟙  ≤ω ()
+    𝟘 𝟘 𝟙 𝟘  ≤𝟙 𝟘  ()
+    𝟘 𝟘 𝟙 𝟘  ≤𝟙 𝟙  ()
+    𝟘 𝟘 𝟙 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟘 𝟘 𝟙 𝟘  ≤𝟙 ≤ω ()
+    𝟘 𝟘 𝟙 𝟘  ≤ω 𝟘  ()
+    𝟘 𝟘 𝟙 𝟘  ≤ω 𝟙  ()
+    𝟘 𝟘 𝟙 𝟘  ≤ω ≤𝟙 ()
+    𝟘 𝟘 𝟙 𝟘  ≤ω ≤ω ()
+    𝟘 𝟘 𝟙 𝟙  𝟘  𝟘  ()
+    𝟘 𝟘 𝟙 𝟙  𝟘  𝟙  ()
+    𝟘 𝟘 𝟙 𝟙  𝟘  ≤𝟙 ()
+    𝟘 𝟘 𝟙 𝟙  𝟘  ≤ω ()
+    𝟘 𝟘 𝟙 𝟙  𝟙  𝟘  ()
+    𝟘 𝟘 𝟙 𝟙  𝟙  𝟙  ()
+    𝟘 𝟘 𝟙 𝟙  𝟙  ≤𝟙 ()
+    𝟘 𝟘 𝟙 𝟙  𝟙  ≤ω ()
+    𝟘 𝟘 𝟙 𝟙  ≤𝟙 𝟘  ()
+    𝟘 𝟘 𝟙 𝟙  ≤𝟙 𝟙  ()
+    𝟘 𝟘 𝟙 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟘 𝟘 𝟙 𝟙  ≤𝟙 ≤ω ()
+    𝟘 𝟘 𝟙 𝟙  ≤ω 𝟘  ()
+    𝟘 𝟘 𝟙 𝟙  ≤ω 𝟙  ()
+    𝟘 𝟘 𝟙 𝟙  ≤ω ≤𝟙 ()
+    𝟘 𝟘 𝟙 𝟙  ≤ω ≤ω ()
+    𝟘 𝟘 𝟙 ≤𝟙 𝟘  𝟘  ()
+    𝟘 𝟘 𝟙 ≤𝟙 𝟘  𝟙  ()
+    𝟘 𝟘 𝟙 ≤𝟙 𝟘  ≤𝟙 ()
+    𝟘 𝟘 𝟙 ≤𝟙 𝟘  ≤ω ()
+    𝟘 𝟘 𝟙 ≤𝟙 𝟙  𝟘  ()
+    𝟘 𝟘 𝟙 ≤𝟙 𝟙  𝟙  ()
+    𝟘 𝟘 𝟙 ≤𝟙 𝟙  ≤𝟙 ()
+    𝟘 𝟘 𝟙 ≤𝟙 𝟙  ≤ω ()
+    𝟘 𝟘 𝟙 ≤𝟙 ≤𝟙 𝟘  ()
+    𝟘 𝟘 𝟙 ≤𝟙 ≤𝟙 𝟙  ()
+    𝟘 𝟘 𝟙 ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟘 𝟘 𝟙 ≤𝟙 ≤𝟙 ≤ω ()
+    𝟘 𝟘 𝟙 ≤𝟙 ≤ω 𝟘  ()
+    𝟘 𝟘 𝟙 ≤𝟙 ≤ω 𝟙  ()
+    𝟘 𝟘 𝟙 ≤𝟙 ≤ω ≤𝟙 ()
+    𝟘 𝟘 𝟙 ≤𝟙 ≤ω ≤ω ()
+    𝟘 𝟘 𝟙 ≤ω 𝟘  𝟘  ()
+    𝟘 𝟘 𝟙 ≤ω 𝟘  𝟙  ()
+    𝟘 𝟘 𝟙 ≤ω 𝟘  ≤𝟙 ()
+    𝟘 𝟘 𝟙 ≤ω 𝟘  ≤ω ()
+    𝟘 𝟘 𝟙 ≤ω 𝟙  𝟘  ()
+    𝟘 𝟘 𝟙 ≤ω 𝟙  𝟙  ()
+    𝟘 𝟘 𝟙 ≤ω 𝟙  ≤𝟙 ()
+    𝟘 𝟘 𝟙 ≤ω 𝟙  ≤ω ()
+    𝟘 𝟘 𝟙 ≤ω ≤𝟙 𝟘  ()
+    𝟘 𝟘 𝟙 ≤ω ≤𝟙 𝟙  ()
+    𝟘 𝟘 𝟙 ≤ω ≤𝟙 ≤𝟙 ()
+    𝟘 𝟘 𝟙 ≤ω ≤𝟙 ≤ω ()
+    𝟘 𝟘 𝟙 ≤ω ≤ω 𝟘  ()
+    𝟘 𝟘 𝟙 ≤ω ≤ω 𝟙  ()
+    𝟘 𝟘 𝟙 ≤ω ≤ω ≤𝟙 ()
+    𝟘 𝟘 𝟙 ≤ω ≤ω ≤ω ()
+    𝟘 𝟘 ω 𝟘  𝟘  𝟙  ()
+    𝟘 𝟘 ω 𝟘  𝟘  ≤𝟙 ()
+    𝟘 𝟘 ω 𝟘  𝟘  ≤ω ()
+    𝟘 𝟘 ω 𝟘  𝟙  𝟘  ()
+    𝟘 𝟘 ω 𝟘  𝟙  𝟙  ()
+    𝟘 𝟘 ω 𝟘  𝟙  ≤𝟙 ()
+    𝟘 𝟘 ω 𝟘  𝟙  ≤ω ()
+    𝟘 𝟘 ω 𝟘  ≤𝟙 𝟘  ()
+    𝟘 𝟘 ω 𝟘  ≤𝟙 𝟙  ()
+    𝟘 𝟘 ω 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟘 𝟘 ω 𝟘  ≤𝟙 ≤ω ()
+    𝟘 𝟘 ω 𝟘  ≤ω 𝟘  ()
+    𝟘 𝟘 ω 𝟘  ≤ω 𝟙  ()
+    𝟘 𝟘 ω 𝟘  ≤ω ≤𝟙 ()
+    𝟘 𝟘 ω 𝟘  ≤ω ≤ω ()
+    𝟘 𝟘 ω 𝟙  𝟘  𝟘  ()
+    𝟘 𝟘 ω 𝟙  𝟘  𝟙  ()
+    𝟘 𝟘 ω 𝟙  𝟘  ≤𝟙 ()
+    𝟘 𝟘 ω 𝟙  𝟘  ≤ω ()
+    𝟘 𝟘 ω 𝟙  𝟙  𝟘  ()
+    𝟘 𝟘 ω 𝟙  𝟙  𝟙  ()
+    𝟘 𝟘 ω 𝟙  𝟙  ≤𝟙 ()
+    𝟘 𝟘 ω 𝟙  𝟙  ≤ω ()
+    𝟘 𝟘 ω 𝟙  ≤𝟙 𝟘  ()
+    𝟘 𝟘 ω 𝟙  ≤𝟙 𝟙  ()
+    𝟘 𝟘 ω 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟘 𝟘 ω 𝟙  ≤𝟙 ≤ω ()
+    𝟘 𝟘 ω 𝟙  ≤ω 𝟘  ()
+    𝟘 𝟘 ω 𝟙  ≤ω 𝟙  ()
+    𝟘 𝟘 ω 𝟙  ≤ω ≤𝟙 ()
+    𝟘 𝟘 ω 𝟙  ≤ω ≤ω ()
+    𝟘 𝟘 ω ≤𝟙 𝟘  𝟘  ()
+    𝟘 𝟘 ω ≤𝟙 𝟘  𝟙  ()
+    𝟘 𝟘 ω ≤𝟙 𝟘  ≤𝟙 ()
+    𝟘 𝟘 ω ≤𝟙 𝟘  ≤ω ()
+    𝟘 𝟘 ω ≤𝟙 𝟙  𝟘  ()
+    𝟘 𝟘 ω ≤𝟙 𝟙  𝟙  ()
+    𝟘 𝟘 ω ≤𝟙 𝟙  ≤𝟙 ()
+    𝟘 𝟘 ω ≤𝟙 𝟙  ≤ω ()
+    𝟘 𝟘 ω ≤𝟙 ≤𝟙 𝟘  ()
+    𝟘 𝟘 ω ≤𝟙 ≤𝟙 𝟙  ()
+    𝟘 𝟘 ω ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟘 𝟘 ω ≤𝟙 ≤𝟙 ≤ω ()
+    𝟘 𝟘 ω ≤𝟙 ≤ω 𝟘  ()
+    𝟘 𝟘 ω ≤𝟙 ≤ω 𝟙  ()
+    𝟘 𝟘 ω ≤𝟙 ≤ω ≤𝟙 ()
+    𝟘 𝟘 ω ≤𝟙 ≤ω ≤ω ()
+    𝟘 𝟘 ω ≤ω 𝟘  𝟘  ()
+    𝟘 𝟘 ω ≤ω 𝟘  𝟙  ()
+    𝟘 𝟘 ω ≤ω 𝟘  ≤𝟙 ()
+    𝟘 𝟘 ω ≤ω 𝟘  ≤ω ()
+    𝟘 𝟘 ω ≤ω 𝟙  𝟘  ()
+    𝟘 𝟘 ω ≤ω 𝟙  𝟙  ()
+    𝟘 𝟘 ω ≤ω 𝟙  ≤𝟙 ()
+    𝟘 𝟘 ω ≤ω 𝟙  ≤ω ()
+    𝟘 𝟘 ω ≤ω ≤𝟙 𝟘  ()
+    𝟘 𝟘 ω ≤ω ≤𝟙 𝟙  ()
+    𝟘 𝟘 ω ≤ω ≤𝟙 ≤𝟙 ()
+    𝟘 𝟘 ω ≤ω ≤𝟙 ≤ω ()
+    𝟘 𝟘 ω ≤ω ≤ω 𝟘  ()
+    𝟘 𝟘 ω ≤ω ≤ω 𝟙  ()
+    𝟘 𝟘 ω ≤ω ≤ω ≤𝟙 ()
+    𝟘 𝟘 ω ≤ω ≤ω ≤ω ()
+    𝟘 𝟙 𝟘 𝟘  𝟘  𝟙  ()
+    𝟘 𝟙 𝟘 𝟘  𝟘  ≤𝟙 ()
+    𝟘 𝟙 𝟘 𝟘  𝟘  ≤ω ()
+    𝟘 𝟙 𝟘 𝟘  𝟙  𝟘  ()
+    𝟘 𝟙 𝟘 𝟘  𝟙  𝟙  ()
+    𝟘 𝟙 𝟘 𝟘  𝟙  ≤𝟙 ()
+    𝟘 𝟙 𝟘 𝟘  𝟙  ≤ω ()
+    𝟘 𝟙 𝟘 𝟘  ≤𝟙 𝟘  ()
+    𝟘 𝟙 𝟘 𝟘  ≤𝟙 𝟙  ()
+    𝟘 𝟙 𝟘 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟘 𝟙 𝟘 𝟘  ≤𝟙 ≤ω ()
+    𝟘 𝟙 𝟘 𝟘  ≤ω 𝟘  ()
+    𝟘 𝟙 𝟘 𝟘  ≤ω 𝟙  ()
+    𝟘 𝟙 𝟘 𝟘  ≤ω ≤𝟙 ()
+    𝟘 𝟙 𝟘 𝟘  ≤ω ≤ω ()
+    𝟘 𝟙 𝟘 𝟙  𝟘  𝟘  ()
+    𝟘 𝟙 𝟘 𝟙  𝟘  𝟙  ()
+    𝟘 𝟙 𝟘 𝟙  𝟘  ≤𝟙 ()
+    𝟘 𝟙 𝟘 𝟙  𝟘  ≤ω ()
+    𝟘 𝟙 𝟘 𝟙  𝟙  𝟘  ()
+    𝟘 𝟙 𝟘 𝟙  𝟙  𝟙  ()
+    𝟘 𝟙 𝟘 𝟙  𝟙  ≤𝟙 ()
+    𝟘 𝟙 𝟘 𝟙  𝟙  ≤ω ()
+    𝟘 𝟙 𝟘 𝟙  ≤𝟙 𝟘  ()
+    𝟘 𝟙 𝟘 𝟙  ≤𝟙 𝟙  ()
+    𝟘 𝟙 𝟘 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟘 𝟙 𝟘 𝟙  ≤𝟙 ≤ω ()
+    𝟘 𝟙 𝟘 𝟙  ≤ω 𝟘  ()
+    𝟘 𝟙 𝟘 𝟙  ≤ω 𝟙  ()
+    𝟘 𝟙 𝟘 𝟙  ≤ω ≤𝟙 ()
+    𝟘 𝟙 𝟘 𝟙  ≤ω ≤ω ()
+    𝟘 𝟙 𝟘 ≤𝟙 𝟘  𝟘  ()
+    𝟘 𝟙 𝟘 ≤𝟙 𝟘  𝟙  ()
+    𝟘 𝟙 𝟘 ≤𝟙 𝟘  ≤𝟙 ()
+    𝟘 𝟙 𝟘 ≤𝟙 𝟘  ≤ω ()
+    𝟘 𝟙 𝟘 ≤𝟙 𝟙  𝟘  ()
+    𝟘 𝟙 𝟘 ≤𝟙 𝟙  𝟙  ()
+    𝟘 𝟙 𝟘 ≤𝟙 𝟙  ≤𝟙 ()
+    𝟘 𝟙 𝟘 ≤𝟙 𝟙  ≤ω ()
+    𝟘 𝟙 𝟘 ≤𝟙 ≤𝟙 𝟘  ()
+    𝟘 𝟙 𝟘 ≤𝟙 ≤𝟙 𝟙  ()
+    𝟘 𝟙 𝟘 ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟘 𝟙 𝟘 ≤𝟙 ≤𝟙 ≤ω ()
+    𝟘 𝟙 𝟘 ≤𝟙 ≤ω 𝟘  ()
+    𝟘 𝟙 𝟘 ≤𝟙 ≤ω 𝟙  ()
+    𝟘 𝟙 𝟘 ≤𝟙 ≤ω ≤𝟙 ()
+    𝟘 𝟙 𝟘 ≤𝟙 ≤ω ≤ω ()
+    𝟘 𝟙 𝟘 ≤ω 𝟘  𝟘  ()
+    𝟘 𝟙 𝟘 ≤ω 𝟘  𝟙  ()
+    𝟘 𝟙 𝟘 ≤ω 𝟘  ≤𝟙 ()
+    𝟘 𝟙 𝟘 ≤ω 𝟘  ≤ω ()
+    𝟘 𝟙 𝟘 ≤ω 𝟙  𝟘  ()
+    𝟘 𝟙 𝟘 ≤ω 𝟙  𝟙  ()
+    𝟘 𝟙 𝟘 ≤ω 𝟙  ≤𝟙 ()
+    𝟘 𝟙 𝟘 ≤ω 𝟙  ≤ω ()
+    𝟘 𝟙 𝟘 ≤ω ≤𝟙 𝟘  ()
+    𝟘 𝟙 𝟘 ≤ω ≤𝟙 𝟙  ()
+    𝟘 𝟙 𝟘 ≤ω ≤𝟙 ≤𝟙 ()
+    𝟘 𝟙 𝟘 ≤ω ≤𝟙 ≤ω ()
+    𝟘 𝟙 𝟘 ≤ω ≤ω 𝟘  ()
+    𝟘 𝟙 𝟘 ≤ω ≤ω 𝟙  ()
+    𝟘 𝟙 𝟘 ≤ω ≤ω ≤𝟙 ()
+    𝟘 𝟙 𝟘 ≤ω ≤ω ≤ω ()
+    𝟘 𝟙 𝟙 𝟘  𝟘  𝟙  ()
+    𝟘 𝟙 𝟙 𝟘  𝟘  ≤𝟙 ()
+    𝟘 𝟙 𝟙 𝟘  𝟘  ≤ω ()
+    𝟘 𝟙 𝟙 𝟘  𝟙  𝟘  ()
+    𝟘 𝟙 𝟙 𝟘  𝟙  𝟙  ()
+    𝟘 𝟙 𝟙 𝟘  𝟙  ≤𝟙 ()
+    𝟘 𝟙 𝟙 𝟘  𝟙  ≤ω ()
+    𝟘 𝟙 𝟙 𝟘  ≤𝟙 𝟘  ()
+    𝟘 𝟙 𝟙 𝟘  ≤𝟙 𝟙  ()
+    𝟘 𝟙 𝟙 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟘 𝟙 𝟙 𝟘  ≤𝟙 ≤ω ()
+    𝟘 𝟙 𝟙 𝟘  ≤ω 𝟘  ()
+    𝟘 𝟙 𝟙 𝟘  ≤ω 𝟙  ()
+    𝟘 𝟙 𝟙 𝟘  ≤ω ≤𝟙 ()
+    𝟘 𝟙 𝟙 𝟘  ≤ω ≤ω ()
+    𝟘 𝟙 𝟙 𝟙  𝟘  𝟘  ()
+    𝟘 𝟙 𝟙 𝟙  𝟘  𝟙  ()
+    𝟘 𝟙 𝟙 𝟙  𝟘  ≤𝟙 ()
+    𝟘 𝟙 𝟙 𝟙  𝟘  ≤ω ()
+    𝟘 𝟙 𝟙 𝟙  𝟙  𝟘  ()
+    𝟘 𝟙 𝟙 𝟙  𝟙  𝟙  ()
+    𝟘 𝟙 𝟙 𝟙  𝟙  ≤𝟙 ()
+    𝟘 𝟙 𝟙 𝟙  𝟙  ≤ω ()
+    𝟘 𝟙 𝟙 𝟙  ≤𝟙 𝟘  ()
+    𝟘 𝟙 𝟙 𝟙  ≤𝟙 𝟙  ()
+    𝟘 𝟙 𝟙 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟘 𝟙 𝟙 𝟙  ≤𝟙 ≤ω ()
+    𝟘 𝟙 𝟙 𝟙  ≤ω 𝟘  ()
+    𝟘 𝟙 𝟙 𝟙  ≤ω 𝟙  ()
+    𝟘 𝟙 𝟙 𝟙  ≤ω ≤𝟙 ()
+    𝟘 𝟙 𝟙 𝟙  ≤ω ≤ω ()
+    𝟘 𝟙 𝟙 ≤𝟙 𝟘  𝟘  ()
+    𝟘 𝟙 𝟙 ≤𝟙 𝟘  𝟙  ()
+    𝟘 𝟙 𝟙 ≤𝟙 𝟘  ≤𝟙 ()
+    𝟘 𝟙 𝟙 ≤𝟙 𝟘  ≤ω ()
+    𝟘 𝟙 𝟙 ≤𝟙 𝟙  𝟘  ()
+    𝟘 𝟙 𝟙 ≤𝟙 𝟙  𝟙  ()
+    𝟘 𝟙 𝟙 ≤𝟙 𝟙  ≤𝟙 ()
+    𝟘 𝟙 𝟙 ≤𝟙 𝟙  ≤ω ()
+    𝟘 𝟙 𝟙 ≤𝟙 ≤𝟙 𝟘  ()
+    𝟘 𝟙 𝟙 ≤𝟙 ≤𝟙 𝟙  ()
+    𝟘 𝟙 𝟙 ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟘 𝟙 𝟙 ≤𝟙 ≤𝟙 ≤ω ()
+    𝟘 𝟙 𝟙 ≤𝟙 ≤ω 𝟘  ()
+    𝟘 𝟙 𝟙 ≤𝟙 ≤ω 𝟙  ()
+    𝟘 𝟙 𝟙 ≤𝟙 ≤ω ≤𝟙 ()
+    𝟘 𝟙 𝟙 ≤𝟙 ≤ω ≤ω ()
+    𝟘 𝟙 𝟙 ≤ω 𝟘  𝟘  ()
+    𝟘 𝟙 𝟙 ≤ω 𝟘  𝟙  ()
+    𝟘 𝟙 𝟙 ≤ω 𝟘  ≤𝟙 ()
+    𝟘 𝟙 𝟙 ≤ω 𝟘  ≤ω ()
+    𝟘 𝟙 𝟙 ≤ω 𝟙  𝟘  ()
+    𝟘 𝟙 𝟙 ≤ω 𝟙  𝟙  ()
+    𝟘 𝟙 𝟙 ≤ω 𝟙  ≤𝟙 ()
+    𝟘 𝟙 𝟙 ≤ω 𝟙  ≤ω ()
+    𝟘 𝟙 𝟙 ≤ω ≤𝟙 𝟘  ()
+    𝟘 𝟙 𝟙 ≤ω ≤𝟙 𝟙  ()
+    𝟘 𝟙 𝟙 ≤ω ≤𝟙 ≤𝟙 ()
+    𝟘 𝟙 𝟙 ≤ω ≤𝟙 ≤ω ()
+    𝟘 𝟙 𝟙 ≤ω ≤ω 𝟘  ()
+    𝟘 𝟙 𝟙 ≤ω ≤ω 𝟙  ()
+    𝟘 𝟙 𝟙 ≤ω ≤ω ≤𝟙 ()
+    𝟘 𝟙 𝟙 ≤ω ≤ω ≤ω ()
+    𝟘 𝟙 ω 𝟘  𝟘  𝟙  ()
+    𝟘 𝟙 ω 𝟘  𝟘  ≤𝟙 ()
+    𝟘 𝟙 ω 𝟘  𝟘  ≤ω ()
+    𝟘 𝟙 ω 𝟘  𝟙  𝟘  ()
+    𝟘 𝟙 ω 𝟘  𝟙  𝟙  ()
+    𝟘 𝟙 ω 𝟘  𝟙  ≤𝟙 ()
+    𝟘 𝟙 ω 𝟘  𝟙  ≤ω ()
+    𝟘 𝟙 ω 𝟘  ≤𝟙 𝟘  ()
+    𝟘 𝟙 ω 𝟘  ≤𝟙 𝟙  ()
+    𝟘 𝟙 ω 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟘 𝟙 ω 𝟘  ≤𝟙 ≤ω ()
+    𝟘 𝟙 ω 𝟘  ≤ω 𝟘  ()
+    𝟘 𝟙 ω 𝟘  ≤ω 𝟙  ()
+    𝟘 𝟙 ω 𝟘  ≤ω ≤𝟙 ()
+    𝟘 𝟙 ω 𝟘  ≤ω ≤ω ()
+    𝟘 𝟙 ω 𝟙  𝟘  𝟘  ()
+    𝟘 𝟙 ω 𝟙  𝟘  𝟙  ()
+    𝟘 𝟙 ω 𝟙  𝟘  ≤𝟙 ()
+    𝟘 𝟙 ω 𝟙  𝟘  ≤ω ()
+    𝟘 𝟙 ω 𝟙  𝟙  𝟘  ()
+    𝟘 𝟙 ω 𝟙  𝟙  𝟙  ()
+    𝟘 𝟙 ω 𝟙  𝟙  ≤𝟙 ()
+    𝟘 𝟙 ω 𝟙  𝟙  ≤ω ()
+    𝟘 𝟙 ω 𝟙  ≤𝟙 𝟘  ()
+    𝟘 𝟙 ω 𝟙  ≤𝟙 𝟙  ()
+    𝟘 𝟙 ω 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟘 𝟙 ω 𝟙  ≤𝟙 ≤ω ()
+    𝟘 𝟙 ω 𝟙  ≤ω 𝟘  ()
+    𝟘 𝟙 ω 𝟙  ≤ω 𝟙  ()
+    𝟘 𝟙 ω 𝟙  ≤ω ≤𝟙 ()
+    𝟘 𝟙 ω 𝟙  ≤ω ≤ω ()
+    𝟘 𝟙 ω ≤𝟙 𝟘  𝟘  ()
+    𝟘 𝟙 ω ≤𝟙 𝟘  𝟙  ()
+    𝟘 𝟙 ω ≤𝟙 𝟘  ≤𝟙 ()
+    𝟘 𝟙 ω ≤𝟙 𝟘  ≤ω ()
+    𝟘 𝟙 ω ≤𝟙 𝟙  𝟘  ()
+    𝟘 𝟙 ω ≤𝟙 𝟙  𝟙  ()
+    𝟘 𝟙 ω ≤𝟙 𝟙  ≤𝟙 ()
+    𝟘 𝟙 ω ≤𝟙 𝟙  ≤ω ()
+    𝟘 𝟙 ω ≤𝟙 ≤𝟙 𝟘  ()
+    𝟘 𝟙 ω ≤𝟙 ≤𝟙 𝟙  ()
+    𝟘 𝟙 ω ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟘 𝟙 ω ≤𝟙 ≤𝟙 ≤ω ()
+    𝟘 𝟙 ω ≤𝟙 ≤ω 𝟘  ()
+    𝟘 𝟙 ω ≤𝟙 ≤ω 𝟙  ()
+    𝟘 𝟙 ω ≤𝟙 ≤ω ≤𝟙 ()
+    𝟘 𝟙 ω ≤𝟙 ≤ω ≤ω ()
+    𝟘 𝟙 ω ≤ω 𝟘  𝟘  ()
+    𝟘 𝟙 ω ≤ω 𝟘  𝟙  ()
+    𝟘 𝟙 ω ≤ω 𝟘  ≤𝟙 ()
+    𝟘 𝟙 ω ≤ω 𝟘  ≤ω ()
+    𝟘 𝟙 ω ≤ω 𝟙  𝟘  ()
+    𝟘 𝟙 ω ≤ω 𝟙  𝟙  ()
+    𝟘 𝟙 ω ≤ω 𝟙  ≤𝟙 ()
+    𝟘 𝟙 ω ≤ω 𝟙  ≤ω ()
+    𝟘 𝟙 ω ≤ω ≤𝟙 𝟘  ()
+    𝟘 𝟙 ω ≤ω ≤𝟙 𝟙  ()
+    𝟘 𝟙 ω ≤ω ≤𝟙 ≤𝟙 ()
+    𝟘 𝟙 ω ≤ω ≤𝟙 ≤ω ()
+    𝟘 𝟙 ω ≤ω ≤ω 𝟘  ()
+    𝟘 𝟙 ω ≤ω ≤ω 𝟙  ()
+    𝟘 𝟙 ω ≤ω ≤ω ≤𝟙 ()
+    𝟘 𝟙 ω ≤ω ≤ω ≤ω ()
+    𝟘 ω 𝟘 𝟘  𝟘  𝟙  ()
+    𝟘 ω 𝟘 𝟘  𝟘  ≤𝟙 ()
+    𝟘 ω 𝟘 𝟘  𝟘  ≤ω ()
+    𝟘 ω 𝟘 𝟘  𝟙  𝟘  ()
+    𝟘 ω 𝟘 𝟘  𝟙  𝟙  ()
+    𝟘 ω 𝟘 𝟘  𝟙  ≤𝟙 ()
+    𝟘 ω 𝟘 𝟘  𝟙  ≤ω ()
+    𝟘 ω 𝟘 𝟘  ≤𝟙 𝟘  ()
+    𝟘 ω 𝟘 𝟘  ≤𝟙 𝟙  ()
+    𝟘 ω 𝟘 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟘 ω 𝟘 𝟘  ≤𝟙 ≤ω ()
+    𝟘 ω 𝟘 𝟘  ≤ω 𝟘  ()
+    𝟘 ω 𝟘 𝟘  ≤ω 𝟙  ()
+    𝟘 ω 𝟘 𝟘  ≤ω ≤𝟙 ()
+    𝟘 ω 𝟘 𝟘  ≤ω ≤ω ()
+    𝟘 ω 𝟘 𝟙  𝟘  𝟘  ()
+    𝟘 ω 𝟘 𝟙  𝟘  𝟙  ()
+    𝟘 ω 𝟘 𝟙  𝟘  ≤𝟙 ()
+    𝟘 ω 𝟘 𝟙  𝟘  ≤ω ()
+    𝟘 ω 𝟘 𝟙  𝟙  𝟘  ()
+    𝟘 ω 𝟘 𝟙  𝟙  𝟙  ()
+    𝟘 ω 𝟘 𝟙  𝟙  ≤𝟙 ()
+    𝟘 ω 𝟘 𝟙  𝟙  ≤ω ()
+    𝟘 ω 𝟘 𝟙  ≤𝟙 𝟘  ()
+    𝟘 ω 𝟘 𝟙  ≤𝟙 𝟙  ()
+    𝟘 ω 𝟘 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟘 ω 𝟘 𝟙  ≤𝟙 ≤ω ()
+    𝟘 ω 𝟘 𝟙  ≤ω 𝟘  ()
+    𝟘 ω 𝟘 𝟙  ≤ω 𝟙  ()
+    𝟘 ω 𝟘 𝟙  ≤ω ≤𝟙 ()
+    𝟘 ω 𝟘 𝟙  ≤ω ≤ω ()
+    𝟘 ω 𝟘 ≤𝟙 𝟘  𝟘  ()
+    𝟘 ω 𝟘 ≤𝟙 𝟘  𝟙  ()
+    𝟘 ω 𝟘 ≤𝟙 𝟘  ≤𝟙 ()
+    𝟘 ω 𝟘 ≤𝟙 𝟘  ≤ω ()
+    𝟘 ω 𝟘 ≤𝟙 𝟙  𝟘  ()
+    𝟘 ω 𝟘 ≤𝟙 𝟙  𝟙  ()
+    𝟘 ω 𝟘 ≤𝟙 𝟙  ≤𝟙 ()
+    𝟘 ω 𝟘 ≤𝟙 𝟙  ≤ω ()
+    𝟘 ω 𝟘 ≤𝟙 ≤𝟙 𝟘  ()
+    𝟘 ω 𝟘 ≤𝟙 ≤𝟙 𝟙  ()
+    𝟘 ω 𝟘 ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟘 ω 𝟘 ≤𝟙 ≤𝟙 ≤ω ()
+    𝟘 ω 𝟘 ≤𝟙 ≤ω 𝟘  ()
+    𝟘 ω 𝟘 ≤𝟙 ≤ω 𝟙  ()
+    𝟘 ω 𝟘 ≤𝟙 ≤ω ≤𝟙 ()
+    𝟘 ω 𝟘 ≤𝟙 ≤ω ≤ω ()
+    𝟘 ω 𝟘 ≤ω 𝟘  𝟘  ()
+    𝟘 ω 𝟘 ≤ω 𝟘  𝟙  ()
+    𝟘 ω 𝟘 ≤ω 𝟘  ≤𝟙 ()
+    𝟘 ω 𝟘 ≤ω 𝟘  ≤ω ()
+    𝟘 ω 𝟘 ≤ω 𝟙  𝟘  ()
+    𝟘 ω 𝟘 ≤ω 𝟙  𝟙  ()
+    𝟘 ω 𝟘 ≤ω 𝟙  ≤𝟙 ()
+    𝟘 ω 𝟘 ≤ω 𝟙  ≤ω ()
+    𝟘 ω 𝟘 ≤ω ≤𝟙 𝟘  ()
+    𝟘 ω 𝟘 ≤ω ≤𝟙 𝟙  ()
+    𝟘 ω 𝟘 ≤ω ≤𝟙 ≤𝟙 ()
+    𝟘 ω 𝟘 ≤ω ≤𝟙 ≤ω ()
+    𝟘 ω 𝟘 ≤ω ≤ω 𝟘  ()
+    𝟘 ω 𝟘 ≤ω ≤ω 𝟙  ()
+    𝟘 ω 𝟘 ≤ω ≤ω ≤𝟙 ()
+    𝟘 ω 𝟘 ≤ω ≤ω ≤ω ()
+    𝟘 ω 𝟙 𝟘  𝟘  𝟙  ()
+    𝟘 ω 𝟙 𝟘  𝟘  ≤𝟙 ()
+    𝟘 ω 𝟙 𝟘  𝟘  ≤ω ()
+    𝟘 ω 𝟙 𝟘  𝟙  𝟘  ()
+    𝟘 ω 𝟙 𝟘  𝟙  𝟙  ()
+    𝟘 ω 𝟙 𝟘  𝟙  ≤𝟙 ()
+    𝟘 ω 𝟙 𝟘  𝟙  ≤ω ()
+    𝟘 ω 𝟙 𝟘  ≤𝟙 𝟘  ()
+    𝟘 ω 𝟙 𝟘  ≤𝟙 𝟙  ()
+    𝟘 ω 𝟙 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟘 ω 𝟙 𝟘  ≤𝟙 ≤ω ()
+    𝟘 ω 𝟙 𝟘  ≤ω 𝟘  ()
+    𝟘 ω 𝟙 𝟘  ≤ω 𝟙  ()
+    𝟘 ω 𝟙 𝟘  ≤ω ≤𝟙 ()
+    𝟘 ω 𝟙 𝟘  ≤ω ≤ω ()
+    𝟘 ω 𝟙 𝟙  𝟘  𝟘  ()
+    𝟘 ω 𝟙 𝟙  𝟘  𝟙  ()
+    𝟘 ω 𝟙 𝟙  𝟘  ≤𝟙 ()
+    𝟘 ω 𝟙 𝟙  𝟘  ≤ω ()
+    𝟘 ω 𝟙 𝟙  𝟙  𝟘  ()
+    𝟘 ω 𝟙 𝟙  𝟙  𝟙  ()
+    𝟘 ω 𝟙 𝟙  𝟙  ≤𝟙 ()
+    𝟘 ω 𝟙 𝟙  𝟙  ≤ω ()
+    𝟘 ω 𝟙 𝟙  ≤𝟙 𝟘  ()
+    𝟘 ω 𝟙 𝟙  ≤𝟙 𝟙  ()
+    𝟘 ω 𝟙 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟘 ω 𝟙 𝟙  ≤𝟙 ≤ω ()
+    𝟘 ω 𝟙 𝟙  ≤ω 𝟘  ()
+    𝟘 ω 𝟙 𝟙  ≤ω 𝟙  ()
+    𝟘 ω 𝟙 𝟙  ≤ω ≤𝟙 ()
+    𝟘 ω 𝟙 𝟙  ≤ω ≤ω ()
+    𝟘 ω 𝟙 ≤𝟙 𝟘  𝟘  ()
+    𝟘 ω 𝟙 ≤𝟙 𝟘  𝟙  ()
+    𝟘 ω 𝟙 ≤𝟙 𝟘  ≤𝟙 ()
+    𝟘 ω 𝟙 ≤𝟙 𝟘  ≤ω ()
+    𝟘 ω 𝟙 ≤𝟙 𝟙  𝟘  ()
+    𝟘 ω 𝟙 ≤𝟙 𝟙  𝟙  ()
+    𝟘 ω 𝟙 ≤𝟙 𝟙  ≤𝟙 ()
+    𝟘 ω 𝟙 ≤𝟙 𝟙  ≤ω ()
+    𝟘 ω 𝟙 ≤𝟙 ≤𝟙 𝟘  ()
+    𝟘 ω 𝟙 ≤𝟙 ≤𝟙 𝟙  ()
+    𝟘 ω 𝟙 ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟘 ω 𝟙 ≤𝟙 ≤𝟙 ≤ω ()
+    𝟘 ω 𝟙 ≤𝟙 ≤ω 𝟘  ()
+    𝟘 ω 𝟙 ≤𝟙 ≤ω 𝟙  ()
+    𝟘 ω 𝟙 ≤𝟙 ≤ω ≤𝟙 ()
+    𝟘 ω 𝟙 ≤𝟙 ≤ω ≤ω ()
+    𝟘 ω 𝟙 ≤ω 𝟘  𝟘  ()
+    𝟘 ω 𝟙 ≤ω 𝟘  𝟙  ()
+    𝟘 ω 𝟙 ≤ω 𝟘  ≤𝟙 ()
+    𝟘 ω 𝟙 ≤ω 𝟘  ≤ω ()
+    𝟘 ω 𝟙 ≤ω 𝟙  𝟘  ()
+    𝟘 ω 𝟙 ≤ω 𝟙  𝟙  ()
+    𝟘 ω 𝟙 ≤ω 𝟙  ≤𝟙 ()
+    𝟘 ω 𝟙 ≤ω 𝟙  ≤ω ()
+    𝟘 ω 𝟙 ≤ω ≤𝟙 𝟘  ()
+    𝟘 ω 𝟙 ≤ω ≤𝟙 𝟙  ()
+    𝟘 ω 𝟙 ≤ω ≤𝟙 ≤𝟙 ()
+    𝟘 ω 𝟙 ≤ω ≤𝟙 ≤ω ()
+    𝟘 ω 𝟙 ≤ω ≤ω 𝟘  ()
+    𝟘 ω 𝟙 ≤ω ≤ω 𝟙  ()
+    𝟘 ω 𝟙 ≤ω ≤ω ≤𝟙 ()
+    𝟘 ω 𝟙 ≤ω ≤ω ≤ω ()
+    𝟘 ω ω 𝟘  𝟘  𝟙  ()
+    𝟘 ω ω 𝟘  𝟘  ≤𝟙 ()
+    𝟘 ω ω 𝟘  𝟘  ≤ω ()
+    𝟘 ω ω 𝟘  𝟙  𝟘  ()
+    𝟘 ω ω 𝟘  𝟙  𝟙  ()
+    𝟘 ω ω 𝟘  𝟙  ≤𝟙 ()
+    𝟘 ω ω 𝟘  𝟙  ≤ω ()
+    𝟘 ω ω 𝟘  ≤𝟙 𝟘  ()
+    𝟘 ω ω 𝟘  ≤𝟙 𝟙  ()
+    𝟘 ω ω 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟘 ω ω 𝟘  ≤𝟙 ≤ω ()
+    𝟘 ω ω 𝟘  ≤ω 𝟘  ()
+    𝟘 ω ω 𝟘  ≤ω 𝟙  ()
+    𝟘 ω ω 𝟘  ≤ω ≤𝟙 ()
+    𝟘 ω ω 𝟘  ≤ω ≤ω ()
+    𝟘 ω ω 𝟙  𝟘  𝟘  ()
+    𝟘 ω ω 𝟙  𝟘  𝟙  ()
+    𝟘 ω ω 𝟙  𝟘  ≤𝟙 ()
+    𝟘 ω ω 𝟙  𝟘  ≤ω ()
+    𝟘 ω ω 𝟙  𝟙  𝟘  ()
+    𝟘 ω ω 𝟙  𝟙  𝟙  ()
+    𝟘 ω ω 𝟙  𝟙  ≤𝟙 ()
+    𝟘 ω ω 𝟙  𝟙  ≤ω ()
+    𝟘 ω ω 𝟙  ≤𝟙 𝟘  ()
+    𝟘 ω ω 𝟙  ≤𝟙 𝟙  ()
+    𝟘 ω ω 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟘 ω ω 𝟙  ≤𝟙 ≤ω ()
+    𝟘 ω ω 𝟙  ≤ω 𝟘  ()
+    𝟘 ω ω 𝟙  ≤ω 𝟙  ()
+    𝟘 ω ω 𝟙  ≤ω ≤𝟙 ()
+    𝟘 ω ω 𝟙  ≤ω ≤ω ()
+    𝟘 ω ω ≤𝟙 𝟘  𝟘  ()
+    𝟘 ω ω ≤𝟙 𝟘  𝟙  ()
+    𝟘 ω ω ≤𝟙 𝟘  ≤𝟙 ()
+    𝟘 ω ω ≤𝟙 𝟘  ≤ω ()
+    𝟘 ω ω ≤𝟙 𝟙  𝟘  ()
+    𝟘 ω ω ≤𝟙 𝟙  𝟙  ()
+    𝟘 ω ω ≤𝟙 𝟙  ≤𝟙 ()
+    𝟘 ω ω ≤𝟙 𝟙  ≤ω ()
+    𝟘 ω ω ≤𝟙 ≤𝟙 𝟘  ()
+    𝟘 ω ω ≤𝟙 ≤𝟙 𝟙  ()
+    𝟘 ω ω ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟘 ω ω ≤𝟙 ≤𝟙 ≤ω ()
+    𝟘 ω ω ≤𝟙 ≤ω 𝟘  ()
+    𝟘 ω ω ≤𝟙 ≤ω 𝟙  ()
+    𝟘 ω ω ≤𝟙 ≤ω ≤𝟙 ()
+    𝟘 ω ω ≤𝟙 ≤ω ≤ω ()
+    𝟘 ω ω ≤ω 𝟘  𝟘  ()
+    𝟘 ω ω ≤ω 𝟘  𝟙  ()
+    𝟘 ω ω ≤ω 𝟘  ≤𝟙 ()
+    𝟘 ω ω ≤ω 𝟘  ≤ω ()
+    𝟘 ω ω ≤ω 𝟙  𝟘  ()
+    𝟘 ω ω ≤ω 𝟙  𝟙  ()
+    𝟘 ω ω ≤ω 𝟙  ≤𝟙 ()
+    𝟘 ω ω ≤ω 𝟙  ≤ω ()
+    𝟘 ω ω ≤ω ≤𝟙 𝟘  ()
+    𝟘 ω ω ≤ω ≤𝟙 𝟙  ()
+    𝟘 ω ω ≤ω ≤𝟙 ≤𝟙 ()
+    𝟘 ω ω ≤ω ≤𝟙 ≤ω ()
+    𝟘 ω ω ≤ω ≤ω 𝟘  ()
+    𝟘 ω ω ≤ω ≤ω 𝟙  ()
+    𝟘 ω ω ≤ω ≤ω ≤𝟙 ()
+    𝟘 ω ω ≤ω ≤ω ≤ω ()
+    𝟙 𝟘 𝟘 𝟘  𝟘  𝟘  ()
+    𝟙 𝟘 𝟘 𝟘  𝟘  𝟙  ()
+    𝟙 𝟘 𝟘 𝟘  𝟘  ≤𝟙 ()
+    𝟙 𝟘 𝟘 𝟘  𝟘  ≤ω ()
+    𝟙 𝟘 𝟘 𝟘  𝟙  𝟘  ()
+    𝟙 𝟘 𝟘 𝟘  𝟙  𝟙  ()
+    𝟙 𝟘 𝟘 𝟘  𝟙  ≤𝟙 ()
+    𝟙 𝟘 𝟘 𝟘  𝟙  ≤ω ()
+    𝟙 𝟘 𝟘 𝟘  ≤𝟙 𝟘  ()
+    𝟙 𝟘 𝟘 𝟘  ≤𝟙 𝟙  ()
+    𝟙 𝟘 𝟘 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟙 𝟘 𝟘 𝟘  ≤𝟙 ≤ω ()
+    𝟙 𝟘 𝟘 𝟘  ≤ω 𝟘  ()
+    𝟙 𝟘 𝟘 𝟘  ≤ω 𝟙  ()
+    𝟙 𝟘 𝟘 𝟘  ≤ω ≤𝟙 ()
+    𝟙 𝟘 𝟘 𝟘  ≤ω ≤ω ()
+    𝟙 𝟘 𝟘 𝟙  𝟘  𝟘  ()
+    𝟙 𝟘 𝟘 𝟙  𝟘  𝟙  ()
+    𝟙 𝟘 𝟘 𝟙  𝟘  ≤𝟙 ()
+    𝟙 𝟘 𝟘 𝟙  𝟘  ≤ω ()
+    𝟙 𝟘 𝟘 𝟙  𝟙  𝟙  ()
+    𝟙 𝟘 𝟘 𝟙  𝟙  ≤𝟙 ()
+    𝟙 𝟘 𝟘 𝟙  𝟙  ≤ω ()
+    𝟙 𝟘 𝟘 𝟙  ≤𝟙 𝟘  ()
+    𝟙 𝟘 𝟘 𝟙  ≤𝟙 𝟙  ()
+    𝟙 𝟘 𝟘 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟙 𝟘 𝟘 𝟙  ≤𝟙 ≤ω ()
+    𝟙 𝟘 𝟘 𝟙  ≤ω 𝟘  ()
+    𝟙 𝟘 𝟘 𝟙  ≤ω 𝟙  ()
+    𝟙 𝟘 𝟘 𝟙  ≤ω ≤𝟙 ()
+    𝟙 𝟘 𝟘 𝟙  ≤ω ≤ω ()
+    𝟙 𝟘 𝟘 ≤𝟙 𝟘  𝟘  ()
+    𝟙 𝟘 𝟘 ≤𝟙 𝟘  𝟙  ()
+    𝟙 𝟘 𝟘 ≤𝟙 𝟘  ≤𝟙 ()
+    𝟙 𝟘 𝟘 ≤𝟙 𝟘  ≤ω ()
+    𝟙 𝟘 𝟘 ≤𝟙 𝟙  𝟘  ()
+    𝟙 𝟘 𝟘 ≤𝟙 𝟙  𝟙  ()
+    𝟙 𝟘 𝟘 ≤𝟙 𝟙  ≤𝟙 ()
+    𝟙 𝟘 𝟘 ≤𝟙 𝟙  ≤ω ()
+    𝟙 𝟘 𝟘 ≤𝟙 ≤𝟙 𝟘  ()
+    𝟙 𝟘 𝟘 ≤𝟙 ≤𝟙 𝟙  ()
+    𝟙 𝟘 𝟘 ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟙 𝟘 𝟘 ≤𝟙 ≤𝟙 ≤ω ()
+    𝟙 𝟘 𝟘 ≤𝟙 ≤ω 𝟘  ()
+    𝟙 𝟘 𝟘 ≤𝟙 ≤ω 𝟙  ()
+    𝟙 𝟘 𝟘 ≤𝟙 ≤ω ≤𝟙 ()
+    𝟙 𝟘 𝟘 ≤𝟙 ≤ω ≤ω ()
+    𝟙 𝟘 𝟘 ≤ω 𝟘  𝟘  ()
+    𝟙 𝟘 𝟘 ≤ω 𝟘  𝟙  ()
+    𝟙 𝟘 𝟘 ≤ω 𝟘  ≤𝟙 ()
+    𝟙 𝟘 𝟘 ≤ω 𝟘  ≤ω ()
+    𝟙 𝟘 𝟘 ≤ω 𝟙  𝟘  ()
+    𝟙 𝟘 𝟘 ≤ω 𝟙  𝟙  ()
+    𝟙 𝟘 𝟘 ≤ω 𝟙  ≤𝟙 ()
+    𝟙 𝟘 𝟘 ≤ω 𝟙  ≤ω ()
+    𝟙 𝟘 𝟘 ≤ω ≤𝟙 𝟘  ()
+    𝟙 𝟘 𝟘 ≤ω ≤𝟙 𝟙  ()
+    𝟙 𝟘 𝟘 ≤ω ≤𝟙 ≤𝟙 ()
+    𝟙 𝟘 𝟘 ≤ω ≤𝟙 ≤ω ()
+    𝟙 𝟘 𝟘 ≤ω ≤ω 𝟘  ()
+    𝟙 𝟘 𝟘 ≤ω ≤ω 𝟙  ()
+    𝟙 𝟘 𝟘 ≤ω ≤ω ≤𝟙 ()
+    𝟙 𝟘 𝟘 ≤ω ≤ω ≤ω ()
+    𝟙 𝟘 𝟙 𝟘  𝟘  𝟘  ()
+    𝟙 𝟘 𝟙 𝟘  𝟘  ≤𝟙 ()
+    𝟙 𝟘 𝟙 𝟘  𝟘  ≤ω ()
+    𝟙 𝟘 𝟙 𝟘  𝟙  𝟘  ()
+    𝟙 𝟘 𝟙 𝟘  𝟙  𝟙  ()
+    𝟙 𝟘 𝟙 𝟘  𝟙  ≤𝟙 ()
+    𝟙 𝟘 𝟙 𝟘  𝟙  ≤ω ()
+    𝟙 𝟘 𝟙 𝟘  ≤𝟙 𝟘  ()
+    𝟙 𝟘 𝟙 𝟘  ≤𝟙 𝟙  ()
+    𝟙 𝟘 𝟙 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟙 𝟘 𝟙 𝟘  ≤𝟙 ≤ω ()
+    𝟙 𝟘 𝟙 𝟘  ≤ω 𝟘  ()
+    𝟙 𝟘 𝟙 𝟘  ≤ω 𝟙  ()
+    𝟙 𝟘 𝟙 𝟘  ≤ω ≤𝟙 ()
+    𝟙 𝟘 𝟙 𝟘  ≤ω ≤ω ()
+    𝟙 𝟘 𝟙 𝟙  𝟘  𝟙  ()
+    𝟙 𝟘 𝟙 𝟙  𝟘  ≤𝟙 ()
+    𝟙 𝟘 𝟙 𝟙  𝟘  ≤ω ()
+    𝟙 𝟘 𝟙 𝟙  𝟙  𝟘  ()
+    𝟙 𝟘 𝟙 𝟙  𝟙  𝟙  ()
+    𝟙 𝟘 𝟙 𝟙  𝟙  ≤𝟙 ()
+    𝟙 𝟘 𝟙 𝟙  𝟙  ≤ω ()
+    𝟙 𝟘 𝟙 𝟙  ≤𝟙 𝟘  ()
+    𝟙 𝟘 𝟙 𝟙  ≤𝟙 𝟙  ()
+    𝟙 𝟘 𝟙 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟙 𝟘 𝟙 𝟙  ≤𝟙 ≤ω ()
+    𝟙 𝟘 𝟙 𝟙  ≤ω 𝟘  ()
+    𝟙 𝟘 𝟙 𝟙  ≤ω 𝟙  ()
+    𝟙 𝟘 𝟙 𝟙  ≤ω ≤𝟙 ()
+    𝟙 𝟘 𝟙 𝟙  ≤ω ≤ω ()
+    𝟙 𝟘 𝟙 ≤𝟙 𝟘  𝟘  ()
+    𝟙 𝟘 𝟙 ≤𝟙 𝟘  𝟙  ()
+    𝟙 𝟘 𝟙 ≤𝟙 𝟘  ≤𝟙 ()
+    𝟙 𝟘 𝟙 ≤𝟙 𝟘  ≤ω ()
+    𝟙 𝟘 𝟙 ≤𝟙 𝟙  𝟘  ()
+    𝟙 𝟘 𝟙 ≤𝟙 𝟙  𝟙  ()
+    𝟙 𝟘 𝟙 ≤𝟙 𝟙  ≤𝟙 ()
+    𝟙 𝟘 𝟙 ≤𝟙 𝟙  ≤ω ()
+    𝟙 𝟘 𝟙 ≤𝟙 ≤𝟙 𝟘  ()
+    𝟙 𝟘 𝟙 ≤𝟙 ≤𝟙 𝟙  ()
+    𝟙 𝟘 𝟙 ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟙 𝟘 𝟙 ≤𝟙 ≤𝟙 ≤ω ()
+    𝟙 𝟘 𝟙 ≤𝟙 ≤ω 𝟘  ()
+    𝟙 𝟘 𝟙 ≤𝟙 ≤ω 𝟙  ()
+    𝟙 𝟘 𝟙 ≤𝟙 ≤ω ≤𝟙 ()
+    𝟙 𝟘 𝟙 ≤𝟙 ≤ω ≤ω ()
+    𝟙 𝟘 𝟙 ≤ω 𝟘  𝟘  ()
+    𝟙 𝟘 𝟙 ≤ω 𝟘  𝟙  ()
+    𝟙 𝟘 𝟙 ≤ω 𝟘  ≤𝟙 ()
+    𝟙 𝟘 𝟙 ≤ω 𝟘  ≤ω ()
+    𝟙 𝟘 𝟙 ≤ω 𝟙  𝟘  ()
+    𝟙 𝟘 𝟙 ≤ω 𝟙  𝟙  ()
+    𝟙 𝟘 𝟙 ≤ω 𝟙  ≤𝟙 ()
+    𝟙 𝟘 𝟙 ≤ω 𝟙  ≤ω ()
+    𝟙 𝟘 𝟙 ≤ω ≤𝟙 𝟘  ()
+    𝟙 𝟘 𝟙 ≤ω ≤𝟙 𝟙  ()
+    𝟙 𝟘 𝟙 ≤ω ≤𝟙 ≤𝟙 ()
+    𝟙 𝟘 𝟙 ≤ω ≤𝟙 ≤ω ()
+    𝟙 𝟘 𝟙 ≤ω ≤ω 𝟘  ()
+    𝟙 𝟘 𝟙 ≤ω ≤ω 𝟙  ()
+    𝟙 𝟘 𝟙 ≤ω ≤ω ≤𝟙 ()
+    𝟙 𝟘 𝟙 ≤ω ≤ω ≤ω ()
+    𝟙 𝟘 ω 𝟘  𝟘  𝟘  ()
+    𝟙 𝟘 ω 𝟘  𝟘  𝟙  ()
+    𝟙 𝟘 ω 𝟘  𝟘  ≤𝟙 ()
+    𝟙 𝟘 ω 𝟘  𝟘  ≤ω ()
+    𝟙 𝟘 ω 𝟘  𝟙  𝟘  ()
+    𝟙 𝟘 ω 𝟘  𝟙  𝟙  ()
+    𝟙 𝟘 ω 𝟘  𝟙  ≤𝟙 ()
+    𝟙 𝟘 ω 𝟘  𝟙  ≤ω ()
+    𝟙 𝟘 ω 𝟘  ≤𝟙 𝟘  ()
+    𝟙 𝟘 ω 𝟘  ≤𝟙 𝟙  ()
+    𝟙 𝟘 ω 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟙 𝟘 ω 𝟘  ≤𝟙 ≤ω ()
+    𝟙 𝟘 ω 𝟘  ≤ω 𝟘  ()
+    𝟙 𝟘 ω 𝟘  ≤ω 𝟙  ()
+    𝟙 𝟘 ω 𝟘  ≤ω ≤𝟙 ()
+    𝟙 𝟘 ω 𝟘  ≤ω ≤ω ()
+    𝟙 𝟘 ω 𝟙  𝟘  𝟘  ()
+    𝟙 𝟘 ω 𝟙  𝟘  𝟙  ()
+    𝟙 𝟘 ω 𝟙  𝟘  ≤𝟙 ()
+    𝟙 𝟘 ω 𝟙  𝟘  ≤ω ()
+    𝟙 𝟘 ω 𝟙  𝟙  𝟘  ()
+    𝟙 𝟘 ω 𝟙  𝟙  𝟙  ()
+    𝟙 𝟘 ω 𝟙  𝟙  ≤𝟙 ()
+    𝟙 𝟘 ω 𝟙  𝟙  ≤ω ()
+    𝟙 𝟘 ω 𝟙  ≤𝟙 𝟘  ()
+    𝟙 𝟘 ω 𝟙  ≤𝟙 𝟙  ()
+    𝟙 𝟘 ω 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟙 𝟘 ω 𝟙  ≤𝟙 ≤ω ()
+    𝟙 𝟘 ω 𝟙  ≤ω 𝟘  ()
+    𝟙 𝟘 ω 𝟙  ≤ω 𝟙  ()
+    𝟙 𝟘 ω 𝟙  ≤ω ≤𝟙 ()
+    𝟙 𝟘 ω 𝟙  ≤ω ≤ω ()
+    𝟙 𝟘 ω ≤𝟙 𝟘  𝟘  ()
+    𝟙 𝟘 ω ≤𝟙 𝟘  𝟙  ()
+    𝟙 𝟘 ω ≤𝟙 𝟘  ≤𝟙 ()
+    𝟙 𝟘 ω ≤𝟙 𝟘  ≤ω ()
+    𝟙 𝟘 ω ≤𝟙 𝟙  𝟘  ()
+    𝟙 𝟘 ω ≤𝟙 𝟙  𝟙  ()
+    𝟙 𝟘 ω ≤𝟙 𝟙  ≤𝟙 ()
+    𝟙 𝟘 ω ≤𝟙 𝟙  ≤ω ()
+    𝟙 𝟘 ω ≤𝟙 ≤𝟙 𝟘  ()
+    𝟙 𝟘 ω ≤𝟙 ≤𝟙 𝟙  ()
+    𝟙 𝟘 ω ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟙 𝟘 ω ≤𝟙 ≤𝟙 ≤ω ()
+    𝟙 𝟘 ω ≤𝟙 ≤ω 𝟘  ()
+    𝟙 𝟘 ω ≤𝟙 ≤ω 𝟙  ()
+    𝟙 𝟘 ω ≤𝟙 ≤ω ≤𝟙 ()
+    𝟙 𝟘 ω ≤𝟙 ≤ω ≤ω ()
+    𝟙 𝟘 ω ≤ω 𝟘  𝟘  ()
+    𝟙 𝟘 ω ≤ω 𝟘  𝟙  ()
+    𝟙 𝟘 ω ≤ω 𝟘  ≤𝟙 ()
+    𝟙 𝟘 ω ≤ω 𝟘  ≤ω ()
+    𝟙 𝟘 ω ≤ω 𝟙  𝟘  ()
+    𝟙 𝟘 ω ≤ω 𝟙  𝟙  ()
+    𝟙 𝟘 ω ≤ω 𝟙  ≤𝟙 ()
+    𝟙 𝟘 ω ≤ω 𝟙  ≤ω ()
+    𝟙 𝟘 ω ≤ω ≤𝟙 𝟘  ()
+    𝟙 𝟘 ω ≤ω ≤𝟙 𝟙  ()
+    𝟙 𝟘 ω ≤ω ≤𝟙 ≤𝟙 ()
+    𝟙 𝟘 ω ≤ω ≤𝟙 ≤ω ()
+    𝟙 𝟘 ω ≤ω ≤ω 𝟘  ()
+    𝟙 𝟘 ω ≤ω ≤ω 𝟙  ()
+    𝟙 𝟘 ω ≤ω ≤ω ≤𝟙 ()
+    𝟙 𝟘 ω ≤ω ≤ω ≤ω ()
+    𝟙 𝟙 𝟘 𝟘  𝟘  𝟘  ()
+    𝟙 𝟙 𝟘 𝟘  𝟘  ≤𝟙 ()
+    𝟙 𝟙 𝟘 𝟘  𝟘  ≤ω ()
+    𝟙 𝟙 𝟘 𝟘  𝟙  𝟘  ()
+    𝟙 𝟙 𝟘 𝟘  𝟙  𝟙  ()
+    𝟙 𝟙 𝟘 𝟘  𝟙  ≤𝟙 ()
+    𝟙 𝟙 𝟘 𝟘  𝟙  ≤ω ()
+    𝟙 𝟙 𝟘 𝟘  ≤𝟙 𝟘  ()
+    𝟙 𝟙 𝟘 𝟘  ≤𝟙 𝟙  ()
+    𝟙 𝟙 𝟘 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟙 𝟙 𝟘 𝟘  ≤𝟙 ≤ω ()
+    𝟙 𝟙 𝟘 𝟘  ≤ω 𝟘  ()
+    𝟙 𝟙 𝟘 𝟘  ≤ω 𝟙  ()
+    𝟙 𝟙 𝟘 𝟘  ≤ω ≤𝟙 ()
+    𝟙 𝟙 𝟘 𝟘  ≤ω ≤ω ()
+    𝟙 𝟙 𝟘 𝟙  𝟘  𝟘  ()
+    𝟙 𝟙 𝟘 𝟙  𝟘  𝟙  ()
+    𝟙 𝟙 𝟘 𝟙  𝟘  ≤𝟙 ()
+    𝟙 𝟙 𝟘 𝟙  𝟘  ≤ω ()
+    𝟙 𝟙 𝟘 𝟙  𝟙  𝟙  ()
+    𝟙 𝟙 𝟘 𝟙  𝟙  ≤𝟙 ()
+    𝟙 𝟙 𝟘 𝟙  𝟙  ≤ω ()
+    𝟙 𝟙 𝟘 𝟙  ≤𝟙 𝟘  ()
+    𝟙 𝟙 𝟘 𝟙  ≤𝟙 𝟙  ()
+    𝟙 𝟙 𝟘 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟙 𝟙 𝟘 𝟙  ≤𝟙 ≤ω ()
+    𝟙 𝟙 𝟘 𝟙  ≤ω 𝟘  ()
+    𝟙 𝟙 𝟘 𝟙  ≤ω 𝟙  ()
+    𝟙 𝟙 𝟘 𝟙  ≤ω ≤𝟙 ()
+    𝟙 𝟙 𝟘 𝟙  ≤ω ≤ω ()
+    𝟙 𝟙 𝟘 ≤𝟙 𝟘  𝟘  ()
+    𝟙 𝟙 𝟘 ≤𝟙 𝟘  𝟙  ()
+    𝟙 𝟙 𝟘 ≤𝟙 𝟘  ≤𝟙 ()
+    𝟙 𝟙 𝟘 ≤𝟙 𝟘  ≤ω ()
+    𝟙 𝟙 𝟘 ≤𝟙 𝟙  𝟘  ()
+    𝟙 𝟙 𝟘 ≤𝟙 𝟙  𝟙  ()
+    𝟙 𝟙 𝟘 ≤𝟙 𝟙  ≤𝟙 ()
+    𝟙 𝟙 𝟘 ≤𝟙 𝟙  ≤ω ()
+    𝟙 𝟙 𝟘 ≤𝟙 ≤𝟙 𝟘  ()
+    𝟙 𝟙 𝟘 ≤𝟙 ≤𝟙 𝟙  ()
+    𝟙 𝟙 𝟘 ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟙 𝟙 𝟘 ≤𝟙 ≤𝟙 ≤ω ()
+    𝟙 𝟙 𝟘 ≤𝟙 ≤ω 𝟘  ()
+    𝟙 𝟙 𝟘 ≤𝟙 ≤ω 𝟙  ()
+    𝟙 𝟙 𝟘 ≤𝟙 ≤ω ≤𝟙 ()
+    𝟙 𝟙 𝟘 ≤𝟙 ≤ω ≤ω ()
+    𝟙 𝟙 𝟘 ≤ω 𝟘  𝟘  ()
+    𝟙 𝟙 𝟘 ≤ω 𝟘  𝟙  ()
+    𝟙 𝟙 𝟘 ≤ω 𝟘  ≤𝟙 ()
+    𝟙 𝟙 𝟘 ≤ω 𝟘  ≤ω ()
+    𝟙 𝟙 𝟘 ≤ω 𝟙  𝟘  ()
+    𝟙 𝟙 𝟘 ≤ω 𝟙  𝟙  ()
+    𝟙 𝟙 𝟘 ≤ω 𝟙  ≤𝟙 ()
+    𝟙 𝟙 𝟘 ≤ω 𝟙  ≤ω ()
+    𝟙 𝟙 𝟘 ≤ω ≤𝟙 𝟘  ()
+    𝟙 𝟙 𝟘 ≤ω ≤𝟙 𝟙  ()
+    𝟙 𝟙 𝟘 ≤ω ≤𝟙 ≤𝟙 ()
+    𝟙 𝟙 𝟘 ≤ω ≤𝟙 ≤ω ()
+    𝟙 𝟙 𝟘 ≤ω ≤ω 𝟘  ()
+    𝟙 𝟙 𝟘 ≤ω ≤ω 𝟙  ()
+    𝟙 𝟙 𝟘 ≤ω ≤ω ≤𝟙 ()
+    𝟙 𝟙 𝟘 ≤ω ≤ω ≤ω ()
+    𝟙 𝟙 𝟙 𝟘  𝟘  𝟘  ()
+    𝟙 𝟙 𝟙 𝟘  𝟘  𝟙  ()
+    𝟙 𝟙 𝟙 𝟘  𝟘  ≤𝟙 ()
+    𝟙 𝟙 𝟙 𝟘  𝟘  ≤ω ()
+    𝟙 𝟙 𝟙 𝟘  𝟙  𝟘  ()
+    𝟙 𝟙 𝟙 𝟘  𝟙  𝟙  ()
+    𝟙 𝟙 𝟙 𝟘  𝟙  ≤𝟙 ()
+    𝟙 𝟙 𝟙 𝟘  𝟙  ≤ω ()
+    𝟙 𝟙 𝟙 𝟘  ≤𝟙 𝟘  ()
+    𝟙 𝟙 𝟙 𝟘  ≤𝟙 𝟙  ()
+    𝟙 𝟙 𝟙 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟙 𝟙 𝟙 𝟘  ≤𝟙 ≤ω ()
+    𝟙 𝟙 𝟙 𝟘  ≤ω 𝟘  ()
+    𝟙 𝟙 𝟙 𝟘  ≤ω 𝟙  ()
+    𝟙 𝟙 𝟙 𝟘  ≤ω ≤𝟙 ()
+    𝟙 𝟙 𝟙 𝟘  ≤ω ≤ω ()
+    𝟙 𝟙 𝟙 𝟙  𝟘  𝟙  ()
+    𝟙 𝟙 𝟙 𝟙  𝟘  ≤𝟙 ()
+    𝟙 𝟙 𝟙 𝟙  𝟘  ≤ω ()
+    𝟙 𝟙 𝟙 𝟙  𝟙  𝟘  ()
+    𝟙 𝟙 𝟙 𝟙  𝟙  𝟙  ()
+    𝟙 𝟙 𝟙 𝟙  𝟙  ≤𝟙 ()
+    𝟙 𝟙 𝟙 𝟙  𝟙  ≤ω ()
+    𝟙 𝟙 𝟙 𝟙  ≤𝟙 𝟘  ()
+    𝟙 𝟙 𝟙 𝟙  ≤𝟙 𝟙  ()
+    𝟙 𝟙 𝟙 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟙 𝟙 𝟙 𝟙  ≤𝟙 ≤ω ()
+    𝟙 𝟙 𝟙 𝟙  ≤ω 𝟘  ()
+    𝟙 𝟙 𝟙 𝟙  ≤ω 𝟙  ()
+    𝟙 𝟙 𝟙 𝟙  ≤ω ≤𝟙 ()
+    𝟙 𝟙 𝟙 𝟙  ≤ω ≤ω ()
+    𝟙 𝟙 𝟙 ≤𝟙 𝟘  𝟘  ()
+    𝟙 𝟙 𝟙 ≤𝟙 𝟘  𝟙  ()
+    𝟙 𝟙 𝟙 ≤𝟙 𝟘  ≤𝟙 ()
+    𝟙 𝟙 𝟙 ≤𝟙 𝟘  ≤ω ()
+    𝟙 𝟙 𝟙 ≤𝟙 𝟙  𝟘  ()
+    𝟙 𝟙 𝟙 ≤𝟙 𝟙  𝟙  ()
+    𝟙 𝟙 𝟙 ≤𝟙 𝟙  ≤𝟙 ()
+    𝟙 𝟙 𝟙 ≤𝟙 𝟙  ≤ω ()
+    𝟙 𝟙 𝟙 ≤𝟙 ≤𝟙 𝟘  ()
+    𝟙 𝟙 𝟙 ≤𝟙 ≤𝟙 𝟙  ()
+    𝟙 𝟙 𝟙 ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟙 𝟙 𝟙 ≤𝟙 ≤𝟙 ≤ω ()
+    𝟙 𝟙 𝟙 ≤𝟙 ≤ω 𝟘  ()
+    𝟙 𝟙 𝟙 ≤𝟙 ≤ω 𝟙  ()
+    𝟙 𝟙 𝟙 ≤𝟙 ≤ω ≤𝟙 ()
+    𝟙 𝟙 𝟙 ≤𝟙 ≤ω ≤ω ()
+    𝟙 𝟙 𝟙 ≤ω 𝟘  𝟘  ()
+    𝟙 𝟙 𝟙 ≤ω 𝟘  𝟙  ()
+    𝟙 𝟙 𝟙 ≤ω 𝟘  ≤𝟙 ()
+    𝟙 𝟙 𝟙 ≤ω 𝟘  ≤ω ()
+    𝟙 𝟙 𝟙 ≤ω 𝟙  𝟘  ()
+    𝟙 𝟙 𝟙 ≤ω 𝟙  𝟙  ()
+    𝟙 𝟙 𝟙 ≤ω 𝟙  ≤𝟙 ()
+    𝟙 𝟙 𝟙 ≤ω 𝟙  ≤ω ()
+    𝟙 𝟙 𝟙 ≤ω ≤𝟙 𝟘  ()
+    𝟙 𝟙 𝟙 ≤ω ≤𝟙 𝟙  ()
+    𝟙 𝟙 𝟙 ≤ω ≤𝟙 ≤𝟙 ()
+    𝟙 𝟙 𝟙 ≤ω ≤𝟙 ≤ω ()
+    𝟙 𝟙 𝟙 ≤ω ≤ω 𝟘  ()
+    𝟙 𝟙 𝟙 ≤ω ≤ω 𝟙  ()
+    𝟙 𝟙 𝟙 ≤ω ≤ω ≤𝟙 ()
+    𝟙 𝟙 𝟙 ≤ω ≤ω ≤ω ()
+    𝟙 𝟙 ω 𝟘  𝟘  𝟘  ()
+    𝟙 𝟙 ω 𝟘  𝟘  𝟙  ()
+    𝟙 𝟙 ω 𝟘  𝟘  ≤𝟙 ()
+    𝟙 𝟙 ω 𝟘  𝟘  ≤ω ()
+    𝟙 𝟙 ω 𝟘  𝟙  𝟘  ()
+    𝟙 𝟙 ω 𝟘  𝟙  𝟙  ()
+    𝟙 𝟙 ω 𝟘  𝟙  ≤𝟙 ()
+    𝟙 𝟙 ω 𝟘  𝟙  ≤ω ()
+    𝟙 𝟙 ω 𝟘  ≤𝟙 𝟘  ()
+    𝟙 𝟙 ω 𝟘  ≤𝟙 𝟙  ()
+    𝟙 𝟙 ω 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟙 𝟙 ω 𝟘  ≤𝟙 ≤ω ()
+    𝟙 𝟙 ω 𝟘  ≤ω 𝟘  ()
+    𝟙 𝟙 ω 𝟘  ≤ω 𝟙  ()
+    𝟙 𝟙 ω 𝟘  ≤ω ≤𝟙 ()
+    𝟙 𝟙 ω 𝟘  ≤ω ≤ω ()
+    𝟙 𝟙 ω 𝟙  𝟘  𝟘  ()
+    𝟙 𝟙 ω 𝟙  𝟘  𝟙  ()
+    𝟙 𝟙 ω 𝟙  𝟘  ≤𝟙 ()
+    𝟙 𝟙 ω 𝟙  𝟘  ≤ω ()
+    𝟙 𝟙 ω 𝟙  𝟙  𝟘  ()
+    𝟙 𝟙 ω 𝟙  𝟙  𝟙  ()
+    𝟙 𝟙 ω 𝟙  𝟙  ≤𝟙 ()
+    𝟙 𝟙 ω 𝟙  𝟙  ≤ω ()
+    𝟙 𝟙 ω 𝟙  ≤𝟙 𝟘  ()
+    𝟙 𝟙 ω 𝟙  ≤𝟙 𝟙  ()
+    𝟙 𝟙 ω 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟙 𝟙 ω 𝟙  ≤𝟙 ≤ω ()
+    𝟙 𝟙 ω 𝟙  ≤ω 𝟘  ()
+    𝟙 𝟙 ω 𝟙  ≤ω 𝟙  ()
+    𝟙 𝟙 ω 𝟙  ≤ω ≤𝟙 ()
+    𝟙 𝟙 ω 𝟙  ≤ω ≤ω ()
+    𝟙 𝟙 ω ≤𝟙 𝟘  𝟘  ()
+    𝟙 𝟙 ω ≤𝟙 𝟘  𝟙  ()
+    𝟙 𝟙 ω ≤𝟙 𝟘  ≤𝟙 ()
+    𝟙 𝟙 ω ≤𝟙 𝟘  ≤ω ()
+    𝟙 𝟙 ω ≤𝟙 𝟙  𝟘  ()
+    𝟙 𝟙 ω ≤𝟙 𝟙  𝟙  ()
+    𝟙 𝟙 ω ≤𝟙 𝟙  ≤𝟙 ()
+    𝟙 𝟙 ω ≤𝟙 𝟙  ≤ω ()
+    𝟙 𝟙 ω ≤𝟙 ≤𝟙 𝟘  ()
+    𝟙 𝟙 ω ≤𝟙 ≤𝟙 𝟙  ()
+    𝟙 𝟙 ω ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟙 𝟙 ω ≤𝟙 ≤𝟙 ≤ω ()
+    𝟙 𝟙 ω ≤𝟙 ≤ω 𝟘  ()
+    𝟙 𝟙 ω ≤𝟙 ≤ω 𝟙  ()
+    𝟙 𝟙 ω ≤𝟙 ≤ω ≤𝟙 ()
+    𝟙 𝟙 ω ≤𝟙 ≤ω ≤ω ()
+    𝟙 𝟙 ω ≤ω 𝟘  𝟘  ()
+    𝟙 𝟙 ω ≤ω 𝟘  𝟙  ()
+    𝟙 𝟙 ω ≤ω 𝟘  ≤𝟙 ()
+    𝟙 𝟙 ω ≤ω 𝟘  ≤ω ()
+    𝟙 𝟙 ω ≤ω 𝟙  𝟘  ()
+    𝟙 𝟙 ω ≤ω 𝟙  𝟙  ()
+    𝟙 𝟙 ω ≤ω 𝟙  ≤𝟙 ()
+    𝟙 𝟙 ω ≤ω 𝟙  ≤ω ()
+    𝟙 𝟙 ω ≤ω ≤𝟙 𝟘  ()
+    𝟙 𝟙 ω ≤ω ≤𝟙 𝟙  ()
+    𝟙 𝟙 ω ≤ω ≤𝟙 ≤𝟙 ()
+    𝟙 𝟙 ω ≤ω ≤𝟙 ≤ω ()
+    𝟙 𝟙 ω ≤ω ≤ω 𝟘  ()
+    𝟙 𝟙 ω ≤ω ≤ω 𝟙  ()
+    𝟙 𝟙 ω ≤ω ≤ω ≤𝟙 ()
+    𝟙 𝟙 ω ≤ω ≤ω ≤ω ()
+    𝟙 ω 𝟘 𝟘  𝟘  𝟘  ()
+    𝟙 ω 𝟘 𝟘  𝟘  𝟙  ()
+    𝟙 ω 𝟘 𝟘  𝟘  ≤𝟙 ()
+    𝟙 ω 𝟘 𝟘  𝟘  ≤ω ()
+    𝟙 ω 𝟘 𝟘  𝟙  𝟘  ()
+    𝟙 ω 𝟘 𝟘  𝟙  𝟙  ()
+    𝟙 ω 𝟘 𝟘  𝟙  ≤𝟙 ()
+    𝟙 ω 𝟘 𝟘  𝟙  ≤ω ()
+    𝟙 ω 𝟘 𝟘  ≤𝟙 𝟘  ()
+    𝟙 ω 𝟘 𝟘  ≤𝟙 𝟙  ()
+    𝟙 ω 𝟘 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟙 ω 𝟘 𝟘  ≤𝟙 ≤ω ()
+    𝟙 ω 𝟘 𝟘  ≤ω 𝟘  ()
+    𝟙 ω 𝟘 𝟘  ≤ω 𝟙  ()
+    𝟙 ω 𝟘 𝟘  ≤ω ≤𝟙 ()
+    𝟙 ω 𝟘 𝟘  ≤ω ≤ω ()
+    𝟙 ω 𝟘 𝟙  𝟘  𝟘  ()
+    𝟙 ω 𝟘 𝟙  𝟘  𝟙  ()
+    𝟙 ω 𝟘 𝟙  𝟘  ≤𝟙 ()
+    𝟙 ω 𝟘 𝟙  𝟘  ≤ω ()
+    𝟙 ω 𝟘 𝟙  𝟙  𝟙  ()
+    𝟙 ω 𝟘 𝟙  𝟙  ≤𝟙 ()
+    𝟙 ω 𝟘 𝟙  𝟙  ≤ω ()
+    𝟙 ω 𝟘 𝟙  ≤𝟙 𝟘  ()
+    𝟙 ω 𝟘 𝟙  ≤𝟙 𝟙  ()
+    𝟙 ω 𝟘 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟙 ω 𝟘 𝟙  ≤𝟙 ≤ω ()
+    𝟙 ω 𝟘 𝟙  ≤ω 𝟘  ()
+    𝟙 ω 𝟘 𝟙  ≤ω 𝟙  ()
+    𝟙 ω 𝟘 𝟙  ≤ω ≤𝟙 ()
+    𝟙 ω 𝟘 𝟙  ≤ω ≤ω ()
+    𝟙 ω 𝟘 ≤𝟙 𝟘  𝟘  ()
+    𝟙 ω 𝟘 ≤𝟙 𝟘  𝟙  ()
+    𝟙 ω 𝟘 ≤𝟙 𝟘  ≤𝟙 ()
+    𝟙 ω 𝟘 ≤𝟙 𝟘  ≤ω ()
+    𝟙 ω 𝟘 ≤𝟙 𝟙  𝟘  ()
+    𝟙 ω 𝟘 ≤𝟙 𝟙  𝟙  ()
+    𝟙 ω 𝟘 ≤𝟙 𝟙  ≤𝟙 ()
+    𝟙 ω 𝟘 ≤𝟙 𝟙  ≤ω ()
+    𝟙 ω 𝟘 ≤𝟙 ≤𝟙 𝟘  ()
+    𝟙 ω 𝟘 ≤𝟙 ≤𝟙 𝟙  ()
+    𝟙 ω 𝟘 ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟙 ω 𝟘 ≤𝟙 ≤𝟙 ≤ω ()
+    𝟙 ω 𝟘 ≤𝟙 ≤ω 𝟘  ()
+    𝟙 ω 𝟘 ≤𝟙 ≤ω 𝟙  ()
+    𝟙 ω 𝟘 ≤𝟙 ≤ω ≤𝟙 ()
+    𝟙 ω 𝟘 ≤𝟙 ≤ω ≤ω ()
+    𝟙 ω 𝟘 ≤ω 𝟘  𝟘  ()
+    𝟙 ω 𝟘 ≤ω 𝟘  𝟙  ()
+    𝟙 ω 𝟘 ≤ω 𝟘  ≤𝟙 ()
+    𝟙 ω 𝟘 ≤ω 𝟘  ≤ω ()
+    𝟙 ω 𝟘 ≤ω 𝟙  𝟘  ()
+    𝟙 ω 𝟘 ≤ω 𝟙  𝟙  ()
+    𝟙 ω 𝟘 ≤ω 𝟙  ≤𝟙 ()
+    𝟙 ω 𝟘 ≤ω 𝟙  ≤ω ()
+    𝟙 ω 𝟘 ≤ω ≤𝟙 𝟘  ()
+    𝟙 ω 𝟘 ≤ω ≤𝟙 𝟙  ()
+    𝟙 ω 𝟘 ≤ω ≤𝟙 ≤𝟙 ()
+    𝟙 ω 𝟘 ≤ω ≤𝟙 ≤ω ()
+    𝟙 ω 𝟘 ≤ω ≤ω 𝟘  ()
+    𝟙 ω 𝟘 ≤ω ≤ω 𝟙  ()
+    𝟙 ω 𝟘 ≤ω ≤ω ≤𝟙 ()
+    𝟙 ω 𝟘 ≤ω ≤ω ≤ω ()
+    𝟙 ω 𝟙 𝟘  𝟘  𝟘  ()
+    𝟙 ω 𝟙 𝟘  𝟘  𝟙  ()
+    𝟙 ω 𝟙 𝟘  𝟘  ≤𝟙 ()
+    𝟙 ω 𝟙 𝟘  𝟘  ≤ω ()
+    𝟙 ω 𝟙 𝟘  𝟙  𝟘  ()
+    𝟙 ω 𝟙 𝟘  𝟙  𝟙  ()
+    𝟙 ω 𝟙 𝟘  𝟙  ≤𝟙 ()
+    𝟙 ω 𝟙 𝟘  𝟙  ≤ω ()
+    𝟙 ω 𝟙 𝟘  ≤𝟙 𝟘  ()
+    𝟙 ω 𝟙 𝟘  ≤𝟙 𝟙  ()
+    𝟙 ω 𝟙 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟙 ω 𝟙 𝟘  ≤𝟙 ≤ω ()
+    𝟙 ω 𝟙 𝟘  ≤ω 𝟘  ()
+    𝟙 ω 𝟙 𝟘  ≤ω 𝟙  ()
+    𝟙 ω 𝟙 𝟘  ≤ω ≤𝟙 ()
+    𝟙 ω 𝟙 𝟘  ≤ω ≤ω ()
+    𝟙 ω 𝟙 𝟙  𝟘  𝟙  ()
+    𝟙 ω 𝟙 𝟙  𝟘  ≤𝟙 ()
+    𝟙 ω 𝟙 𝟙  𝟘  ≤ω ()
+    𝟙 ω 𝟙 𝟙  𝟙  𝟘  ()
+    𝟙 ω 𝟙 𝟙  𝟙  𝟙  ()
+    𝟙 ω 𝟙 𝟙  𝟙  ≤𝟙 ()
+    𝟙 ω 𝟙 𝟙  𝟙  ≤ω ()
+    𝟙 ω 𝟙 𝟙  ≤𝟙 𝟘  ()
+    𝟙 ω 𝟙 𝟙  ≤𝟙 𝟙  ()
+    𝟙 ω 𝟙 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟙 ω 𝟙 𝟙  ≤𝟙 ≤ω ()
+    𝟙 ω 𝟙 𝟙  ≤ω 𝟘  ()
+    𝟙 ω 𝟙 𝟙  ≤ω 𝟙  ()
+    𝟙 ω 𝟙 𝟙  ≤ω ≤𝟙 ()
+    𝟙 ω 𝟙 𝟙  ≤ω ≤ω ()
+    𝟙 ω 𝟙 ≤𝟙 𝟘  𝟘  ()
+    𝟙 ω 𝟙 ≤𝟙 𝟘  𝟙  ()
+    𝟙 ω 𝟙 ≤𝟙 𝟘  ≤𝟙 ()
+    𝟙 ω 𝟙 ≤𝟙 𝟘  ≤ω ()
+    𝟙 ω 𝟙 ≤𝟙 𝟙  𝟘  ()
+    𝟙 ω 𝟙 ≤𝟙 𝟙  𝟙  ()
+    𝟙 ω 𝟙 ≤𝟙 𝟙  ≤𝟙 ()
+    𝟙 ω 𝟙 ≤𝟙 𝟙  ≤ω ()
+    𝟙 ω 𝟙 ≤𝟙 ≤𝟙 𝟘  ()
+    𝟙 ω 𝟙 ≤𝟙 ≤𝟙 𝟙  ()
+    𝟙 ω 𝟙 ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟙 ω 𝟙 ≤𝟙 ≤𝟙 ≤ω ()
+    𝟙 ω 𝟙 ≤𝟙 ≤ω 𝟘  ()
+    𝟙 ω 𝟙 ≤𝟙 ≤ω 𝟙  ()
+    𝟙 ω 𝟙 ≤𝟙 ≤ω ≤𝟙 ()
+    𝟙 ω 𝟙 ≤𝟙 ≤ω ≤ω ()
+    𝟙 ω 𝟙 ≤ω 𝟘  𝟘  ()
+    𝟙 ω 𝟙 ≤ω 𝟘  𝟙  ()
+    𝟙 ω 𝟙 ≤ω 𝟘  ≤𝟙 ()
+    𝟙 ω 𝟙 ≤ω 𝟘  ≤ω ()
+    𝟙 ω 𝟙 ≤ω 𝟙  𝟘  ()
+    𝟙 ω 𝟙 ≤ω 𝟙  𝟙  ()
+    𝟙 ω 𝟙 ≤ω 𝟙  ≤𝟙 ()
+    𝟙 ω 𝟙 ≤ω 𝟙  ≤ω ()
+    𝟙 ω 𝟙 ≤ω ≤𝟙 𝟘  ()
+    𝟙 ω 𝟙 ≤ω ≤𝟙 𝟙  ()
+    𝟙 ω 𝟙 ≤ω ≤𝟙 ≤𝟙 ()
+    𝟙 ω 𝟙 ≤ω ≤𝟙 ≤ω ()
+    𝟙 ω 𝟙 ≤ω ≤ω 𝟘  ()
+    𝟙 ω 𝟙 ≤ω ≤ω 𝟙  ()
+    𝟙 ω 𝟙 ≤ω ≤ω ≤𝟙 ()
+    𝟙 ω 𝟙 ≤ω ≤ω ≤ω ()
+    𝟙 ω ω 𝟘  𝟘  𝟘  ()
+    𝟙 ω ω 𝟘  𝟘  𝟙  ()
+    𝟙 ω ω 𝟘  𝟘  ≤𝟙 ()
+    𝟙 ω ω 𝟘  𝟘  ≤ω ()
+    𝟙 ω ω 𝟘  𝟙  𝟘  ()
+    𝟙 ω ω 𝟘  𝟙  𝟙  ()
+    𝟙 ω ω 𝟘  𝟙  ≤𝟙 ()
+    𝟙 ω ω 𝟘  𝟙  ≤ω ()
+    𝟙 ω ω 𝟘  ≤𝟙 𝟘  ()
+    𝟙 ω ω 𝟘  ≤𝟙 𝟙  ()
+    𝟙 ω ω 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟙 ω ω 𝟘  ≤𝟙 ≤ω ()
+    𝟙 ω ω 𝟘  ≤ω 𝟘  ()
+    𝟙 ω ω 𝟘  ≤ω 𝟙  ()
+    𝟙 ω ω 𝟘  ≤ω ≤𝟙 ()
+    𝟙 ω ω 𝟘  ≤ω ≤ω ()
+    𝟙 ω ω 𝟙  𝟘  𝟘  ()
+    𝟙 ω ω 𝟙  𝟘  𝟙  ()
+    𝟙 ω ω 𝟙  𝟘  ≤𝟙 ()
+    𝟙 ω ω 𝟙  𝟘  ≤ω ()
+    𝟙 ω ω 𝟙  𝟙  𝟘  ()
+    𝟙 ω ω 𝟙  𝟙  𝟙  ()
+    𝟙 ω ω 𝟙  𝟙  ≤𝟙 ()
+    𝟙 ω ω 𝟙  𝟙  ≤ω ()
+    𝟙 ω ω 𝟙  ≤𝟙 𝟘  ()
+    𝟙 ω ω 𝟙  ≤𝟙 𝟙  ()
+    𝟙 ω ω 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟙 ω ω 𝟙  ≤𝟙 ≤ω ()
+    𝟙 ω ω 𝟙  ≤ω 𝟘  ()
+    𝟙 ω ω 𝟙  ≤ω 𝟙  ()
+    𝟙 ω ω 𝟙  ≤ω ≤𝟙 ()
+    𝟙 ω ω 𝟙  ≤ω ≤ω ()
+    𝟙 ω ω ≤𝟙 𝟘  𝟘  ()
+    𝟙 ω ω ≤𝟙 𝟘  𝟙  ()
+    𝟙 ω ω ≤𝟙 𝟘  ≤𝟙 ()
+    𝟙 ω ω ≤𝟙 𝟘  ≤ω ()
+    𝟙 ω ω ≤𝟙 𝟙  𝟘  ()
+    𝟙 ω ω ≤𝟙 𝟙  𝟙  ()
+    𝟙 ω ω ≤𝟙 𝟙  ≤𝟙 ()
+    𝟙 ω ω ≤𝟙 𝟙  ≤ω ()
+    𝟙 ω ω ≤𝟙 ≤𝟙 𝟘  ()
+    𝟙 ω ω ≤𝟙 ≤𝟙 𝟙  ()
+    𝟙 ω ω ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟙 ω ω ≤𝟙 ≤𝟙 ≤ω ()
+    𝟙 ω ω ≤𝟙 ≤ω 𝟘  ()
+    𝟙 ω ω ≤𝟙 ≤ω 𝟙  ()
+    𝟙 ω ω ≤𝟙 ≤ω ≤𝟙 ()
+    𝟙 ω ω ≤𝟙 ≤ω ≤ω ()
+    𝟙 ω ω ≤ω 𝟘  𝟘  ()
+    𝟙 ω ω ≤ω 𝟘  𝟙  ()
+    𝟙 ω ω ≤ω 𝟘  ≤𝟙 ()
+    𝟙 ω ω ≤ω 𝟘  ≤ω ()
+    𝟙 ω ω ≤ω 𝟙  𝟘  ()
+    𝟙 ω ω ≤ω 𝟙  𝟙  ()
+    𝟙 ω ω ≤ω 𝟙  ≤𝟙 ()
+    𝟙 ω ω ≤ω 𝟙  ≤ω ()
+    𝟙 ω ω ≤ω ≤𝟙 𝟘  ()
+    𝟙 ω ω ≤ω ≤𝟙 𝟙  ()
+    𝟙 ω ω ≤ω ≤𝟙 ≤𝟙 ()
+    𝟙 ω ω ≤ω ≤𝟙 ≤ω ()
+    𝟙 ω ω ≤ω ≤ω 𝟘  ()
+    𝟙 ω ω ≤ω ≤ω 𝟙  ()
+    𝟙 ω ω ≤ω ≤ω ≤𝟙 ()
+    𝟙 ω ω ≤ω ≤ω ≤ω ()
 
   tr⁻¹-monotone : ∀ p q → p LA.≤ q → tr⁻¹ p L.≤ tr⁻¹ q
   tr⁻¹-monotone = λ where
@@ -2841,7 +3767,7 @@ linearity⇨linear-or-affine
     ω ≤𝟙 → refl
     ω ≤ω → refl
 
-  tr-≤-no-star :
+  tr-≤-no-nr :
     ∀ s →
     tr′ p LA.≤ q₁ →
     q₁ LA.≤ q₂ LA.∧ q₃ LA.∧ (q₄ LA.+ tr′ r LA.· q₃ LA.+ tr′ s LA.· q₁) →
@@ -2851,7 +3777,7 @@ linearity⇨linear-or-affine
        tr′ q₄′ LA.≤ q₄ ×
        p L.≤ q₁′ ×
        q₁′ L.≤ q₂′ L.∧ q₃′ L.∧ (q₄′ L.+ r L.· q₃′ L.+ s L.· q₁′)
-  tr-≤-no-star s = →tr-≤-no-star {s = s}
+  tr-≤-no-nr s = →tr-≤-no-nr {s = s}
     (linearityModality v₁ v₁-ok)
     (linear-or-affine v₂ v₂-ok)
     tr′
@@ -2872,19 +3798,20 @@ linear-or-affine⇨linearity :
   let 𝕄₁ = linear-or-affine v₁ v₁-ok
       𝕄₂ = linearityModality v₂ v₂-ok
   in
-  Dedicated-star 𝕄₁ ⇔ Dedicated-star 𝕄₂ →
+  Dedicated-nr 𝕄₁ ⇔ Dedicated-nr 𝕄₂ →
   Is-morphism 𝕄₁ 𝕄₂ linear-or-affine→linearity
 linear-or-affine⇨linearity {v₂ = v₂} {v₂-ok = v₂-ok} refl s⇔s = λ where
-    .Is-morphism.tr-𝟘-≤                      → refl
-    .Is-morphism.tr-≡-𝟘-⇔ _                  → tr-≡-𝟘 _ , λ { refl → refl }
-    .Is-morphism.tr-<-𝟘 not-ok ok            → ⊥-elim (not-ok ok)
-    .Is-morphism.tr-𝟙                        → refl
-    .Is-morphism.tr-+ {p = p}                → ≤-reflexive (tr-+ p _)
-    .Is-morphism.tr-·                        → tr-· _ _
-    .Is-morphism.tr-∧                        → ≤-reflexive (tr-∧ _ _)
-    .Is-morphism.tr-⊛ {r = r}                → ≤-reflexive (tr-⊛ _ _ r)
-    .Is-morphism.𝟘ᵐ-in-second-if-in-first    → idᶠ
-    .Is-morphism.star-in-first-iff-in-second → s⇔s
+    .Is-morphism.tr-𝟘-≤                    → refl
+    .Is-morphism.tr-≡-𝟘-⇔ _                → tr-≡-𝟘 _ , λ { refl → refl }
+    .Is-morphism.tr-<-𝟘 not-ok ok          → ⊥-elim (not-ok ok)
+    .Is-morphism.tr-𝟙                      → refl
+    .Is-morphism.tr-+ {p = p}              → ≤-reflexive (tr-+ p _)
+    .Is-morphism.tr-·                      → tr-· _ _
+    .Is-morphism.tr-∧                      → ≤-reflexive (tr-∧ _ _)
+    .Is-morphism.tr-nr {r = r}             → ≤-reflexive
+                                               (tr-nr _ r _ _ _)
+    .Is-morphism.𝟘ᵐ-in-second-if-in-first  → idᶠ
+    .Is-morphism.nr-in-first-iff-in-second → s⇔s
   where
   open Graded.Modality.Properties (linearityModality v₂ v₂-ok)
 
@@ -2947,71 +3874,1035 @@ linear-or-affine⇨linearity {v₂ = v₂} {v₂-ok = v₂-ok} refl s⇔s = λ w
   tr-∧ ≤ω ≤𝟙 = refl
   tr-∧ ≤ω ≤ω = refl
 
-  tr-⊛ : ∀ p q r → tr′ (p LA.⊛ q ▷ r) ≡ tr′ p L.⊛ tr′ q ▷ tr′ r
-  tr-⊛ 𝟘  𝟘  𝟘  = refl
-  tr-⊛ 𝟘  𝟘  𝟙  = refl
-  tr-⊛ 𝟘  𝟘  ≤𝟙 = refl
-  tr-⊛ 𝟘  𝟘  ≤ω = refl
-  tr-⊛ 𝟘  𝟙  𝟘  = refl
-  tr-⊛ 𝟘  𝟙  𝟙  = refl
-  tr-⊛ 𝟘  𝟙  ≤𝟙 = refl
-  tr-⊛ 𝟘  𝟙  ≤ω = refl
-  tr-⊛ 𝟘  ≤𝟙 𝟘  = refl
-  tr-⊛ 𝟘  ≤𝟙 𝟙  = refl
-  tr-⊛ 𝟘  ≤𝟙 ≤𝟙 = refl
-  tr-⊛ 𝟘  ≤𝟙 ≤ω = refl
-  tr-⊛ 𝟘  ≤ω 𝟘  = refl
-  tr-⊛ 𝟘  ≤ω 𝟙  = refl
-  tr-⊛ 𝟘  ≤ω ≤𝟙 = refl
-  tr-⊛ 𝟘  ≤ω ≤ω = refl
-  tr-⊛ 𝟙  𝟘  𝟘  = refl
-  tr-⊛ 𝟙  𝟘  𝟙  = refl
-  tr-⊛ 𝟙  𝟘  ≤𝟙 = refl
-  tr-⊛ 𝟙  𝟘  ≤ω = refl
-  tr-⊛ 𝟙  𝟙  𝟘  = refl
-  tr-⊛ 𝟙  𝟙  𝟙  = refl
-  tr-⊛ 𝟙  𝟙  ≤𝟙 = refl
-  tr-⊛ 𝟙  𝟙  ≤ω = refl
-  tr-⊛ 𝟙  ≤𝟙 𝟘  = refl
-  tr-⊛ 𝟙  ≤𝟙 𝟙  = refl
-  tr-⊛ 𝟙  ≤𝟙 ≤𝟙 = refl
-  tr-⊛ 𝟙  ≤𝟙 ≤ω = refl
-  tr-⊛ 𝟙  ≤ω 𝟘  = refl
-  tr-⊛ 𝟙  ≤ω 𝟙  = refl
-  tr-⊛ 𝟙  ≤ω ≤𝟙 = refl
-  tr-⊛ 𝟙  ≤ω ≤ω = refl
-  tr-⊛ ≤𝟙 𝟘  𝟘  = refl
-  tr-⊛ ≤𝟙 𝟘  𝟙  = refl
-  tr-⊛ ≤𝟙 𝟘  ≤𝟙 = refl
-  tr-⊛ ≤𝟙 𝟘  ≤ω = refl
-  tr-⊛ ≤𝟙 𝟙  𝟘  = refl
-  tr-⊛ ≤𝟙 𝟙  𝟙  = refl
-  tr-⊛ ≤𝟙 𝟙  ≤𝟙 = refl
-  tr-⊛ ≤𝟙 𝟙  ≤ω = refl
-  tr-⊛ ≤𝟙 ≤𝟙 𝟘  = refl
-  tr-⊛ ≤𝟙 ≤𝟙 𝟙  = refl
-  tr-⊛ ≤𝟙 ≤𝟙 ≤𝟙 = refl
-  tr-⊛ ≤𝟙 ≤𝟙 ≤ω = refl
-  tr-⊛ ≤𝟙 ≤ω 𝟘  = refl
-  tr-⊛ ≤𝟙 ≤ω 𝟙  = refl
-  tr-⊛ ≤𝟙 ≤ω ≤𝟙 = refl
-  tr-⊛ ≤𝟙 ≤ω ≤ω = refl
-  tr-⊛ ≤ω 𝟘  𝟘  = refl
-  tr-⊛ ≤ω 𝟘  𝟙  = refl
-  tr-⊛ ≤ω 𝟘  ≤𝟙 = refl
-  tr-⊛ ≤ω 𝟘  ≤ω = refl
-  tr-⊛ ≤ω 𝟙  𝟘  = refl
-  tr-⊛ ≤ω 𝟙  𝟙  = refl
-  tr-⊛ ≤ω 𝟙  ≤𝟙 = refl
-  tr-⊛ ≤ω 𝟙  ≤ω = refl
-  tr-⊛ ≤ω ≤𝟙 𝟘  = refl
-  tr-⊛ ≤ω ≤𝟙 𝟙  = refl
-  tr-⊛ ≤ω ≤𝟙 ≤𝟙 = refl
-  tr-⊛ ≤ω ≤𝟙 ≤ω = refl
-  tr-⊛ ≤ω ≤ω 𝟘  = refl
-  tr-⊛ ≤ω ≤ω 𝟙  = refl
-  tr-⊛ ≤ω ≤ω ≤𝟙 = refl
-  tr-⊛ ≤ω ≤ω ≤ω = refl
+  tr-nr :
+    ∀ p r z s n →
+    tr′ (LA.nr p r z s n) ≡
+    L.nr (tr′ p) (tr′ r) (tr′ z) (tr′ s) (tr′ n)
+  tr-nr = λ where
+    𝟘  𝟘  𝟘  𝟘  𝟘  → refl
+    𝟘  𝟘  𝟘  𝟘  𝟙  → refl
+    𝟘  𝟘  𝟘  𝟘  ≤𝟙 → refl
+    𝟘  𝟘  𝟘  𝟘  ≤ω → refl
+    𝟘  𝟘  𝟘  𝟙  𝟘  → refl
+    𝟘  𝟘  𝟘  𝟙  𝟙  → refl
+    𝟘  𝟘  𝟘  𝟙  ≤𝟙 → refl
+    𝟘  𝟘  𝟘  𝟙  ≤ω → refl
+    𝟘  𝟘  𝟘  ≤𝟙 𝟘  → refl
+    𝟘  𝟘  𝟘  ≤𝟙 𝟙  → refl
+    𝟘  𝟘  𝟘  ≤𝟙 ≤𝟙 → refl
+    𝟘  𝟘  𝟘  ≤𝟙 ≤ω → refl
+    𝟘  𝟘  𝟘  ≤ω 𝟘  → refl
+    𝟘  𝟘  𝟘  ≤ω 𝟙  → refl
+    𝟘  𝟘  𝟘  ≤ω ≤𝟙 → refl
+    𝟘  𝟘  𝟘  ≤ω ≤ω → refl
+    𝟘  𝟘  𝟙  𝟘  𝟘  → refl
+    𝟘  𝟘  𝟙  𝟘  𝟙  → refl
+    𝟘  𝟘  𝟙  𝟘  ≤𝟙 → refl
+    𝟘  𝟘  𝟙  𝟘  ≤ω → refl
+    𝟘  𝟘  𝟙  𝟙  𝟘  → refl
+    𝟘  𝟘  𝟙  𝟙  𝟙  → refl
+    𝟘  𝟘  𝟙  𝟙  ≤𝟙 → refl
+    𝟘  𝟘  𝟙  𝟙  ≤ω → refl
+    𝟘  𝟘  𝟙  ≤𝟙 𝟘  → refl
+    𝟘  𝟘  𝟙  ≤𝟙 𝟙  → refl
+    𝟘  𝟘  𝟙  ≤𝟙 ≤𝟙 → refl
+    𝟘  𝟘  𝟙  ≤𝟙 ≤ω → refl
+    𝟘  𝟘  𝟙  ≤ω 𝟘  → refl
+    𝟘  𝟘  𝟙  ≤ω 𝟙  → refl
+    𝟘  𝟘  𝟙  ≤ω ≤𝟙 → refl
+    𝟘  𝟘  𝟙  ≤ω ≤ω → refl
+    𝟘  𝟘  ≤𝟙 𝟘  𝟘  → refl
+    𝟘  𝟘  ≤𝟙 𝟘  𝟙  → refl
+    𝟘  𝟘  ≤𝟙 𝟘  ≤𝟙 → refl
+    𝟘  𝟘  ≤𝟙 𝟘  ≤ω → refl
+    𝟘  𝟘  ≤𝟙 𝟙  𝟘  → refl
+    𝟘  𝟘  ≤𝟙 𝟙  𝟙  → refl
+    𝟘  𝟘  ≤𝟙 𝟙  ≤𝟙 → refl
+    𝟘  𝟘  ≤𝟙 𝟙  ≤ω → refl
+    𝟘  𝟘  ≤𝟙 ≤𝟙 𝟘  → refl
+    𝟘  𝟘  ≤𝟙 ≤𝟙 𝟙  → refl
+    𝟘  𝟘  ≤𝟙 ≤𝟙 ≤𝟙 → refl
+    𝟘  𝟘  ≤𝟙 ≤𝟙 ≤ω → refl
+    𝟘  𝟘  ≤𝟙 ≤ω 𝟘  → refl
+    𝟘  𝟘  ≤𝟙 ≤ω 𝟙  → refl
+    𝟘  𝟘  ≤𝟙 ≤ω ≤𝟙 → refl
+    𝟘  𝟘  ≤𝟙 ≤ω ≤ω → refl
+    𝟘  𝟘  ≤ω 𝟘  𝟘  → refl
+    𝟘  𝟘  ≤ω 𝟘  𝟙  → refl
+    𝟘  𝟘  ≤ω 𝟘  ≤𝟙 → refl
+    𝟘  𝟘  ≤ω 𝟘  ≤ω → refl
+    𝟘  𝟘  ≤ω 𝟙  𝟘  → refl
+    𝟘  𝟘  ≤ω 𝟙  𝟙  → refl
+    𝟘  𝟘  ≤ω 𝟙  ≤𝟙 → refl
+    𝟘  𝟘  ≤ω 𝟙  ≤ω → refl
+    𝟘  𝟘  ≤ω ≤𝟙 𝟘  → refl
+    𝟘  𝟘  ≤ω ≤𝟙 𝟙  → refl
+    𝟘  𝟘  ≤ω ≤𝟙 ≤𝟙 → refl
+    𝟘  𝟘  ≤ω ≤𝟙 ≤ω → refl
+    𝟘  𝟘  ≤ω ≤ω 𝟘  → refl
+    𝟘  𝟘  ≤ω ≤ω 𝟙  → refl
+    𝟘  𝟘  ≤ω ≤ω ≤𝟙 → refl
+    𝟘  𝟘  ≤ω ≤ω ≤ω → refl
+    𝟘  𝟙  𝟘  𝟘  𝟘  → refl
+    𝟘  𝟙  𝟘  𝟘  𝟙  → refl
+    𝟘  𝟙  𝟘  𝟘  ≤𝟙 → refl
+    𝟘  𝟙  𝟘  𝟘  ≤ω → refl
+    𝟘  𝟙  𝟘  𝟙  𝟘  → refl
+    𝟘  𝟙  𝟘  𝟙  𝟙  → refl
+    𝟘  𝟙  𝟘  𝟙  ≤𝟙 → refl
+    𝟘  𝟙  𝟘  𝟙  ≤ω → refl
+    𝟘  𝟙  𝟘  ≤𝟙 𝟘  → refl
+    𝟘  𝟙  𝟘  ≤𝟙 𝟙  → refl
+    𝟘  𝟙  𝟘  ≤𝟙 ≤𝟙 → refl
+    𝟘  𝟙  𝟘  ≤𝟙 ≤ω → refl
+    𝟘  𝟙  𝟘  ≤ω 𝟘  → refl
+    𝟘  𝟙  𝟘  ≤ω 𝟙  → refl
+    𝟘  𝟙  𝟘  ≤ω ≤𝟙 → refl
+    𝟘  𝟙  𝟘  ≤ω ≤ω → refl
+    𝟘  𝟙  𝟙  𝟘  𝟘  → refl
+    𝟘  𝟙  𝟙  𝟘  𝟙  → refl
+    𝟘  𝟙  𝟙  𝟘  ≤𝟙 → refl
+    𝟘  𝟙  𝟙  𝟘  ≤ω → refl
+    𝟘  𝟙  𝟙  𝟙  𝟘  → refl
+    𝟘  𝟙  𝟙  𝟙  𝟙  → refl
+    𝟘  𝟙  𝟙  𝟙  ≤𝟙 → refl
+    𝟘  𝟙  𝟙  𝟙  ≤ω → refl
+    𝟘  𝟙  𝟙  ≤𝟙 𝟘  → refl
+    𝟘  𝟙  𝟙  ≤𝟙 𝟙  → refl
+    𝟘  𝟙  𝟙  ≤𝟙 ≤𝟙 → refl
+    𝟘  𝟙  𝟙  ≤𝟙 ≤ω → refl
+    𝟘  𝟙  𝟙  ≤ω 𝟘  → refl
+    𝟘  𝟙  𝟙  ≤ω 𝟙  → refl
+    𝟘  𝟙  𝟙  ≤ω ≤𝟙 → refl
+    𝟘  𝟙  𝟙  ≤ω ≤ω → refl
+    𝟘  𝟙  ≤𝟙 𝟘  𝟘  → refl
+    𝟘  𝟙  ≤𝟙 𝟘  𝟙  → refl
+    𝟘  𝟙  ≤𝟙 𝟘  ≤𝟙 → refl
+    𝟘  𝟙  ≤𝟙 𝟘  ≤ω → refl
+    𝟘  𝟙  ≤𝟙 𝟙  𝟘  → refl
+    𝟘  𝟙  ≤𝟙 𝟙  𝟙  → refl
+    𝟘  𝟙  ≤𝟙 𝟙  ≤𝟙 → refl
+    𝟘  𝟙  ≤𝟙 𝟙  ≤ω → refl
+    𝟘  𝟙  ≤𝟙 ≤𝟙 𝟘  → refl
+    𝟘  𝟙  ≤𝟙 ≤𝟙 𝟙  → refl
+    𝟘  𝟙  ≤𝟙 ≤𝟙 ≤𝟙 → refl
+    𝟘  𝟙  ≤𝟙 ≤𝟙 ≤ω → refl
+    𝟘  𝟙  ≤𝟙 ≤ω 𝟘  → refl
+    𝟘  𝟙  ≤𝟙 ≤ω 𝟙  → refl
+    𝟘  𝟙  ≤𝟙 ≤ω ≤𝟙 → refl
+    𝟘  𝟙  ≤𝟙 ≤ω ≤ω → refl
+    𝟘  𝟙  ≤ω 𝟘  𝟘  → refl
+    𝟘  𝟙  ≤ω 𝟘  𝟙  → refl
+    𝟘  𝟙  ≤ω 𝟘  ≤𝟙 → refl
+    𝟘  𝟙  ≤ω 𝟘  ≤ω → refl
+    𝟘  𝟙  ≤ω 𝟙  𝟘  → refl
+    𝟘  𝟙  ≤ω 𝟙  𝟙  → refl
+    𝟘  𝟙  ≤ω 𝟙  ≤𝟙 → refl
+    𝟘  𝟙  ≤ω 𝟙  ≤ω → refl
+    𝟘  𝟙  ≤ω ≤𝟙 𝟘  → refl
+    𝟘  𝟙  ≤ω ≤𝟙 𝟙  → refl
+    𝟘  𝟙  ≤ω ≤𝟙 ≤𝟙 → refl
+    𝟘  𝟙  ≤ω ≤𝟙 ≤ω → refl
+    𝟘  𝟙  ≤ω ≤ω 𝟘  → refl
+    𝟘  𝟙  ≤ω ≤ω 𝟙  → refl
+    𝟘  𝟙  ≤ω ≤ω ≤𝟙 → refl
+    𝟘  𝟙  ≤ω ≤ω ≤ω → refl
+    𝟘  ≤𝟙 𝟘  𝟘  𝟘  → refl
+    𝟘  ≤𝟙 𝟘  𝟘  𝟙  → refl
+    𝟘  ≤𝟙 𝟘  𝟘  ≤𝟙 → refl
+    𝟘  ≤𝟙 𝟘  𝟘  ≤ω → refl
+    𝟘  ≤𝟙 𝟘  𝟙  𝟘  → refl
+    𝟘  ≤𝟙 𝟘  𝟙  𝟙  → refl
+    𝟘  ≤𝟙 𝟘  𝟙  ≤𝟙 → refl
+    𝟘  ≤𝟙 𝟘  𝟙  ≤ω → refl
+    𝟘  ≤𝟙 𝟘  ≤𝟙 𝟘  → refl
+    𝟘  ≤𝟙 𝟘  ≤𝟙 𝟙  → refl
+    𝟘  ≤𝟙 𝟘  ≤𝟙 ≤𝟙 → refl
+    𝟘  ≤𝟙 𝟘  ≤𝟙 ≤ω → refl
+    𝟘  ≤𝟙 𝟘  ≤ω 𝟘  → refl
+    𝟘  ≤𝟙 𝟘  ≤ω 𝟙  → refl
+    𝟘  ≤𝟙 𝟘  ≤ω ≤𝟙 → refl
+    𝟘  ≤𝟙 𝟘  ≤ω ≤ω → refl
+    𝟘  ≤𝟙 𝟙  𝟘  𝟘  → refl
+    𝟘  ≤𝟙 𝟙  𝟘  𝟙  → refl
+    𝟘  ≤𝟙 𝟙  𝟘  ≤𝟙 → refl
+    𝟘  ≤𝟙 𝟙  𝟘  ≤ω → refl
+    𝟘  ≤𝟙 𝟙  𝟙  𝟘  → refl
+    𝟘  ≤𝟙 𝟙  𝟙  𝟙  → refl
+    𝟘  ≤𝟙 𝟙  𝟙  ≤𝟙 → refl
+    𝟘  ≤𝟙 𝟙  𝟙  ≤ω → refl
+    𝟘  ≤𝟙 𝟙  ≤𝟙 𝟘  → refl
+    𝟘  ≤𝟙 𝟙  ≤𝟙 𝟙  → refl
+    𝟘  ≤𝟙 𝟙  ≤𝟙 ≤𝟙 → refl
+    𝟘  ≤𝟙 𝟙  ≤𝟙 ≤ω → refl
+    𝟘  ≤𝟙 𝟙  ≤ω 𝟘  → refl
+    𝟘  ≤𝟙 𝟙  ≤ω 𝟙  → refl
+    𝟘  ≤𝟙 𝟙  ≤ω ≤𝟙 → refl
+    𝟘  ≤𝟙 𝟙  ≤ω ≤ω → refl
+    𝟘  ≤𝟙 ≤𝟙 𝟘  𝟘  → refl
+    𝟘  ≤𝟙 ≤𝟙 𝟘  𝟙  → refl
+    𝟘  ≤𝟙 ≤𝟙 𝟘  ≤𝟙 → refl
+    𝟘  ≤𝟙 ≤𝟙 𝟘  ≤ω → refl
+    𝟘  ≤𝟙 ≤𝟙 𝟙  𝟘  → refl
+    𝟘  ≤𝟙 ≤𝟙 𝟙  𝟙  → refl
+    𝟘  ≤𝟙 ≤𝟙 𝟙  ≤𝟙 → refl
+    𝟘  ≤𝟙 ≤𝟙 𝟙  ≤ω → refl
+    𝟘  ≤𝟙 ≤𝟙 ≤𝟙 𝟘  → refl
+    𝟘  ≤𝟙 ≤𝟙 ≤𝟙 𝟙  → refl
+    𝟘  ≤𝟙 ≤𝟙 ≤𝟙 ≤𝟙 → refl
+    𝟘  ≤𝟙 ≤𝟙 ≤𝟙 ≤ω → refl
+    𝟘  ≤𝟙 ≤𝟙 ≤ω 𝟘  → refl
+    𝟘  ≤𝟙 ≤𝟙 ≤ω 𝟙  → refl
+    𝟘  ≤𝟙 ≤𝟙 ≤ω ≤𝟙 → refl
+    𝟘  ≤𝟙 ≤𝟙 ≤ω ≤ω → refl
+    𝟘  ≤𝟙 ≤ω 𝟘  𝟘  → refl
+    𝟘  ≤𝟙 ≤ω 𝟘  𝟙  → refl
+    𝟘  ≤𝟙 ≤ω 𝟘  ≤𝟙 → refl
+    𝟘  ≤𝟙 ≤ω 𝟘  ≤ω → refl
+    𝟘  ≤𝟙 ≤ω 𝟙  𝟘  → refl
+    𝟘  ≤𝟙 ≤ω 𝟙  𝟙  → refl
+    𝟘  ≤𝟙 ≤ω 𝟙  ≤𝟙 → refl
+    𝟘  ≤𝟙 ≤ω 𝟙  ≤ω → refl
+    𝟘  ≤𝟙 ≤ω ≤𝟙 𝟘  → refl
+    𝟘  ≤𝟙 ≤ω ≤𝟙 𝟙  → refl
+    𝟘  ≤𝟙 ≤ω ≤𝟙 ≤𝟙 → refl
+    𝟘  ≤𝟙 ≤ω ≤𝟙 ≤ω → refl
+    𝟘  ≤𝟙 ≤ω ≤ω 𝟘  → refl
+    𝟘  ≤𝟙 ≤ω ≤ω 𝟙  → refl
+    𝟘  ≤𝟙 ≤ω ≤ω ≤𝟙 → refl
+    𝟘  ≤𝟙 ≤ω ≤ω ≤ω → refl
+    𝟘  ≤ω 𝟘  𝟘  𝟘  → refl
+    𝟘  ≤ω 𝟘  𝟘  𝟙  → refl
+    𝟘  ≤ω 𝟘  𝟘  ≤𝟙 → refl
+    𝟘  ≤ω 𝟘  𝟘  ≤ω → refl
+    𝟘  ≤ω 𝟘  𝟙  𝟘  → refl
+    𝟘  ≤ω 𝟘  𝟙  𝟙  → refl
+    𝟘  ≤ω 𝟘  𝟙  ≤𝟙 → refl
+    𝟘  ≤ω 𝟘  𝟙  ≤ω → refl
+    𝟘  ≤ω 𝟘  ≤𝟙 𝟘  → refl
+    𝟘  ≤ω 𝟘  ≤𝟙 𝟙  → refl
+    𝟘  ≤ω 𝟘  ≤𝟙 ≤𝟙 → refl
+    𝟘  ≤ω 𝟘  ≤𝟙 ≤ω → refl
+    𝟘  ≤ω 𝟘  ≤ω 𝟘  → refl
+    𝟘  ≤ω 𝟘  ≤ω 𝟙  → refl
+    𝟘  ≤ω 𝟘  ≤ω ≤𝟙 → refl
+    𝟘  ≤ω 𝟘  ≤ω ≤ω → refl
+    𝟘  ≤ω 𝟙  𝟘  𝟘  → refl
+    𝟘  ≤ω 𝟙  𝟘  𝟙  → refl
+    𝟘  ≤ω 𝟙  𝟘  ≤𝟙 → refl
+    𝟘  ≤ω 𝟙  𝟘  ≤ω → refl
+    𝟘  ≤ω 𝟙  𝟙  𝟘  → refl
+    𝟘  ≤ω 𝟙  𝟙  𝟙  → refl
+    𝟘  ≤ω 𝟙  𝟙  ≤𝟙 → refl
+    𝟘  ≤ω 𝟙  𝟙  ≤ω → refl
+    𝟘  ≤ω 𝟙  ≤𝟙 𝟘  → refl
+    𝟘  ≤ω 𝟙  ≤𝟙 𝟙  → refl
+    𝟘  ≤ω 𝟙  ≤𝟙 ≤𝟙 → refl
+    𝟘  ≤ω 𝟙  ≤𝟙 ≤ω → refl
+    𝟘  ≤ω 𝟙  ≤ω 𝟘  → refl
+    𝟘  ≤ω 𝟙  ≤ω 𝟙  → refl
+    𝟘  ≤ω 𝟙  ≤ω ≤𝟙 → refl
+    𝟘  ≤ω 𝟙  ≤ω ≤ω → refl
+    𝟘  ≤ω ≤𝟙 𝟘  𝟘  → refl
+    𝟘  ≤ω ≤𝟙 𝟘  𝟙  → refl
+    𝟘  ≤ω ≤𝟙 𝟘  ≤𝟙 → refl
+    𝟘  ≤ω ≤𝟙 𝟘  ≤ω → refl
+    𝟘  ≤ω ≤𝟙 𝟙  𝟘  → refl
+    𝟘  ≤ω ≤𝟙 𝟙  𝟙  → refl
+    𝟘  ≤ω ≤𝟙 𝟙  ≤𝟙 → refl
+    𝟘  ≤ω ≤𝟙 𝟙  ≤ω → refl
+    𝟘  ≤ω ≤𝟙 ≤𝟙 𝟘  → refl
+    𝟘  ≤ω ≤𝟙 ≤𝟙 𝟙  → refl
+    𝟘  ≤ω ≤𝟙 ≤𝟙 ≤𝟙 → refl
+    𝟘  ≤ω ≤𝟙 ≤𝟙 ≤ω → refl
+    𝟘  ≤ω ≤𝟙 ≤ω 𝟘  → refl
+    𝟘  ≤ω ≤𝟙 ≤ω 𝟙  → refl
+    𝟘  ≤ω ≤𝟙 ≤ω ≤𝟙 → refl
+    𝟘  ≤ω ≤𝟙 ≤ω ≤ω → refl
+    𝟘  ≤ω ≤ω 𝟘  𝟘  → refl
+    𝟘  ≤ω ≤ω 𝟘  𝟙  → refl
+    𝟘  ≤ω ≤ω 𝟘  ≤𝟙 → refl
+    𝟘  ≤ω ≤ω 𝟘  ≤ω → refl
+    𝟘  ≤ω ≤ω 𝟙  𝟘  → refl
+    𝟘  ≤ω ≤ω 𝟙  𝟙  → refl
+    𝟘  ≤ω ≤ω 𝟙  ≤𝟙 → refl
+    𝟘  ≤ω ≤ω 𝟙  ≤ω → refl
+    𝟘  ≤ω ≤ω ≤𝟙 𝟘  → refl
+    𝟘  ≤ω ≤ω ≤𝟙 𝟙  → refl
+    𝟘  ≤ω ≤ω ≤𝟙 ≤𝟙 → refl
+    𝟘  ≤ω ≤ω ≤𝟙 ≤ω → refl
+    𝟘  ≤ω ≤ω ≤ω 𝟘  → refl
+    𝟘  ≤ω ≤ω ≤ω 𝟙  → refl
+    𝟘  ≤ω ≤ω ≤ω ≤𝟙 → refl
+    𝟘  ≤ω ≤ω ≤ω ≤ω → refl
+    𝟙  𝟘  𝟘  𝟘  𝟘  → refl
+    𝟙  𝟘  𝟘  𝟘  𝟙  → refl
+    𝟙  𝟘  𝟘  𝟘  ≤𝟙 → refl
+    𝟙  𝟘  𝟘  𝟘  ≤ω → refl
+    𝟙  𝟘  𝟘  𝟙  𝟘  → refl
+    𝟙  𝟘  𝟘  𝟙  𝟙  → refl
+    𝟙  𝟘  𝟘  𝟙  ≤𝟙 → refl
+    𝟙  𝟘  𝟘  𝟙  ≤ω → refl
+    𝟙  𝟘  𝟘  ≤𝟙 𝟘  → refl
+    𝟙  𝟘  𝟘  ≤𝟙 𝟙  → refl
+    𝟙  𝟘  𝟘  ≤𝟙 ≤𝟙 → refl
+    𝟙  𝟘  𝟘  ≤𝟙 ≤ω → refl
+    𝟙  𝟘  𝟘  ≤ω 𝟘  → refl
+    𝟙  𝟘  𝟘  ≤ω 𝟙  → refl
+    𝟙  𝟘  𝟘  ≤ω ≤𝟙 → refl
+    𝟙  𝟘  𝟘  ≤ω ≤ω → refl
+    𝟙  𝟘  𝟙  𝟘  𝟘  → refl
+    𝟙  𝟘  𝟙  𝟘  𝟙  → refl
+    𝟙  𝟘  𝟙  𝟘  ≤𝟙 → refl
+    𝟙  𝟘  𝟙  𝟘  ≤ω → refl
+    𝟙  𝟘  𝟙  𝟙  𝟘  → refl
+    𝟙  𝟘  𝟙  𝟙  𝟙  → refl
+    𝟙  𝟘  𝟙  𝟙  ≤𝟙 → refl
+    𝟙  𝟘  𝟙  𝟙  ≤ω → refl
+    𝟙  𝟘  𝟙  ≤𝟙 𝟘  → refl
+    𝟙  𝟘  𝟙  ≤𝟙 𝟙  → refl
+    𝟙  𝟘  𝟙  ≤𝟙 ≤𝟙 → refl
+    𝟙  𝟘  𝟙  ≤𝟙 ≤ω → refl
+    𝟙  𝟘  𝟙  ≤ω 𝟘  → refl
+    𝟙  𝟘  𝟙  ≤ω 𝟙  → refl
+    𝟙  𝟘  𝟙  ≤ω ≤𝟙 → refl
+    𝟙  𝟘  𝟙  ≤ω ≤ω → refl
+    𝟙  𝟘  ≤𝟙 𝟘  𝟘  → refl
+    𝟙  𝟘  ≤𝟙 𝟘  𝟙  → refl
+    𝟙  𝟘  ≤𝟙 𝟘  ≤𝟙 → refl
+    𝟙  𝟘  ≤𝟙 𝟘  ≤ω → refl
+    𝟙  𝟘  ≤𝟙 𝟙  𝟘  → refl
+    𝟙  𝟘  ≤𝟙 𝟙  𝟙  → refl
+    𝟙  𝟘  ≤𝟙 𝟙  ≤𝟙 → refl
+    𝟙  𝟘  ≤𝟙 𝟙  ≤ω → refl
+    𝟙  𝟘  ≤𝟙 ≤𝟙 𝟘  → refl
+    𝟙  𝟘  ≤𝟙 ≤𝟙 𝟙  → refl
+    𝟙  𝟘  ≤𝟙 ≤𝟙 ≤𝟙 → refl
+    𝟙  𝟘  ≤𝟙 ≤𝟙 ≤ω → refl
+    𝟙  𝟘  ≤𝟙 ≤ω 𝟘  → refl
+    𝟙  𝟘  ≤𝟙 ≤ω 𝟙  → refl
+    𝟙  𝟘  ≤𝟙 ≤ω ≤𝟙 → refl
+    𝟙  𝟘  ≤𝟙 ≤ω ≤ω → refl
+    𝟙  𝟘  ≤ω 𝟘  𝟘  → refl
+    𝟙  𝟘  ≤ω 𝟘  𝟙  → refl
+    𝟙  𝟘  ≤ω 𝟘  ≤𝟙 → refl
+    𝟙  𝟘  ≤ω 𝟘  ≤ω → refl
+    𝟙  𝟘  ≤ω 𝟙  𝟘  → refl
+    𝟙  𝟘  ≤ω 𝟙  𝟙  → refl
+    𝟙  𝟘  ≤ω 𝟙  ≤𝟙 → refl
+    𝟙  𝟘  ≤ω 𝟙  ≤ω → refl
+    𝟙  𝟘  ≤ω ≤𝟙 𝟘  → refl
+    𝟙  𝟘  ≤ω ≤𝟙 𝟙  → refl
+    𝟙  𝟘  ≤ω ≤𝟙 ≤𝟙 → refl
+    𝟙  𝟘  ≤ω ≤𝟙 ≤ω → refl
+    𝟙  𝟘  ≤ω ≤ω 𝟘  → refl
+    𝟙  𝟘  ≤ω ≤ω 𝟙  → refl
+    𝟙  𝟘  ≤ω ≤ω ≤𝟙 → refl
+    𝟙  𝟘  ≤ω ≤ω ≤ω → refl
+    𝟙  𝟙  𝟘  𝟘  𝟘  → refl
+    𝟙  𝟙  𝟘  𝟘  𝟙  → refl
+    𝟙  𝟙  𝟘  𝟘  ≤𝟙 → refl
+    𝟙  𝟙  𝟘  𝟘  ≤ω → refl
+    𝟙  𝟙  𝟘  𝟙  𝟘  → refl
+    𝟙  𝟙  𝟘  𝟙  𝟙  → refl
+    𝟙  𝟙  𝟘  𝟙  ≤𝟙 → refl
+    𝟙  𝟙  𝟘  𝟙  ≤ω → refl
+    𝟙  𝟙  𝟘  ≤𝟙 𝟘  → refl
+    𝟙  𝟙  𝟘  ≤𝟙 𝟙  → refl
+    𝟙  𝟙  𝟘  ≤𝟙 ≤𝟙 → refl
+    𝟙  𝟙  𝟘  ≤𝟙 ≤ω → refl
+    𝟙  𝟙  𝟘  ≤ω 𝟘  → refl
+    𝟙  𝟙  𝟘  ≤ω 𝟙  → refl
+    𝟙  𝟙  𝟘  ≤ω ≤𝟙 → refl
+    𝟙  𝟙  𝟘  ≤ω ≤ω → refl
+    𝟙  𝟙  𝟙  𝟘  𝟘  → refl
+    𝟙  𝟙  𝟙  𝟘  𝟙  → refl
+    𝟙  𝟙  𝟙  𝟘  ≤𝟙 → refl
+    𝟙  𝟙  𝟙  𝟘  ≤ω → refl
+    𝟙  𝟙  𝟙  𝟙  𝟘  → refl
+    𝟙  𝟙  𝟙  𝟙  𝟙  → refl
+    𝟙  𝟙  𝟙  𝟙  ≤𝟙 → refl
+    𝟙  𝟙  𝟙  𝟙  ≤ω → refl
+    𝟙  𝟙  𝟙  ≤𝟙 𝟘  → refl
+    𝟙  𝟙  𝟙  ≤𝟙 𝟙  → refl
+    𝟙  𝟙  𝟙  ≤𝟙 ≤𝟙 → refl
+    𝟙  𝟙  𝟙  ≤𝟙 ≤ω → refl
+    𝟙  𝟙  𝟙  ≤ω 𝟘  → refl
+    𝟙  𝟙  𝟙  ≤ω 𝟙  → refl
+    𝟙  𝟙  𝟙  ≤ω ≤𝟙 → refl
+    𝟙  𝟙  𝟙  ≤ω ≤ω → refl
+    𝟙  𝟙  ≤𝟙 𝟘  𝟘  → refl
+    𝟙  𝟙  ≤𝟙 𝟘  𝟙  → refl
+    𝟙  𝟙  ≤𝟙 𝟘  ≤𝟙 → refl
+    𝟙  𝟙  ≤𝟙 𝟘  ≤ω → refl
+    𝟙  𝟙  ≤𝟙 𝟙  𝟘  → refl
+    𝟙  𝟙  ≤𝟙 𝟙  𝟙  → refl
+    𝟙  𝟙  ≤𝟙 𝟙  ≤𝟙 → refl
+    𝟙  𝟙  ≤𝟙 𝟙  ≤ω → refl
+    𝟙  𝟙  ≤𝟙 ≤𝟙 𝟘  → refl
+    𝟙  𝟙  ≤𝟙 ≤𝟙 𝟙  → refl
+    𝟙  𝟙  ≤𝟙 ≤𝟙 ≤𝟙 → refl
+    𝟙  𝟙  ≤𝟙 ≤𝟙 ≤ω → refl
+    𝟙  𝟙  ≤𝟙 ≤ω 𝟘  → refl
+    𝟙  𝟙  ≤𝟙 ≤ω 𝟙  → refl
+    𝟙  𝟙  ≤𝟙 ≤ω ≤𝟙 → refl
+    𝟙  𝟙  ≤𝟙 ≤ω ≤ω → refl
+    𝟙  𝟙  ≤ω 𝟘  𝟘  → refl
+    𝟙  𝟙  ≤ω 𝟘  𝟙  → refl
+    𝟙  𝟙  ≤ω 𝟘  ≤𝟙 → refl
+    𝟙  𝟙  ≤ω 𝟘  ≤ω → refl
+    𝟙  𝟙  ≤ω 𝟙  𝟘  → refl
+    𝟙  𝟙  ≤ω 𝟙  𝟙  → refl
+    𝟙  𝟙  ≤ω 𝟙  ≤𝟙 → refl
+    𝟙  𝟙  ≤ω 𝟙  ≤ω → refl
+    𝟙  𝟙  ≤ω ≤𝟙 𝟘  → refl
+    𝟙  𝟙  ≤ω ≤𝟙 𝟙  → refl
+    𝟙  𝟙  ≤ω ≤𝟙 ≤𝟙 → refl
+    𝟙  𝟙  ≤ω ≤𝟙 ≤ω → refl
+    𝟙  𝟙  ≤ω ≤ω 𝟘  → refl
+    𝟙  𝟙  ≤ω ≤ω 𝟙  → refl
+    𝟙  𝟙  ≤ω ≤ω ≤𝟙 → refl
+    𝟙  𝟙  ≤ω ≤ω ≤ω → refl
+    𝟙  ≤𝟙 𝟘  𝟘  𝟘  → refl
+    𝟙  ≤𝟙 𝟘  𝟘  𝟙  → refl
+    𝟙  ≤𝟙 𝟘  𝟘  ≤𝟙 → refl
+    𝟙  ≤𝟙 𝟘  𝟘  ≤ω → refl
+    𝟙  ≤𝟙 𝟘  𝟙  𝟘  → refl
+    𝟙  ≤𝟙 𝟘  𝟙  𝟙  → refl
+    𝟙  ≤𝟙 𝟘  𝟙  ≤𝟙 → refl
+    𝟙  ≤𝟙 𝟘  𝟙  ≤ω → refl
+    𝟙  ≤𝟙 𝟘  ≤𝟙 𝟘  → refl
+    𝟙  ≤𝟙 𝟘  ≤𝟙 𝟙  → refl
+    𝟙  ≤𝟙 𝟘  ≤𝟙 ≤𝟙 → refl
+    𝟙  ≤𝟙 𝟘  ≤𝟙 ≤ω → refl
+    𝟙  ≤𝟙 𝟘  ≤ω 𝟘  → refl
+    𝟙  ≤𝟙 𝟘  ≤ω 𝟙  → refl
+    𝟙  ≤𝟙 𝟘  ≤ω ≤𝟙 → refl
+    𝟙  ≤𝟙 𝟘  ≤ω ≤ω → refl
+    𝟙  ≤𝟙 𝟙  𝟘  𝟘  → refl
+    𝟙  ≤𝟙 𝟙  𝟘  𝟙  → refl
+    𝟙  ≤𝟙 𝟙  𝟘  ≤𝟙 → refl
+    𝟙  ≤𝟙 𝟙  𝟘  ≤ω → refl
+    𝟙  ≤𝟙 𝟙  𝟙  𝟘  → refl
+    𝟙  ≤𝟙 𝟙  𝟙  𝟙  → refl
+    𝟙  ≤𝟙 𝟙  𝟙  ≤𝟙 → refl
+    𝟙  ≤𝟙 𝟙  𝟙  ≤ω → refl
+    𝟙  ≤𝟙 𝟙  ≤𝟙 𝟘  → refl
+    𝟙  ≤𝟙 𝟙  ≤𝟙 𝟙  → refl
+    𝟙  ≤𝟙 𝟙  ≤𝟙 ≤𝟙 → refl
+    𝟙  ≤𝟙 𝟙  ≤𝟙 ≤ω → refl
+    𝟙  ≤𝟙 𝟙  ≤ω 𝟘  → refl
+    𝟙  ≤𝟙 𝟙  ≤ω 𝟙  → refl
+    𝟙  ≤𝟙 𝟙  ≤ω ≤𝟙 → refl
+    𝟙  ≤𝟙 𝟙  ≤ω ≤ω → refl
+    𝟙  ≤𝟙 ≤𝟙 𝟘  𝟘  → refl
+    𝟙  ≤𝟙 ≤𝟙 𝟘  𝟙  → refl
+    𝟙  ≤𝟙 ≤𝟙 𝟘  ≤𝟙 → refl
+    𝟙  ≤𝟙 ≤𝟙 𝟘  ≤ω → refl
+    𝟙  ≤𝟙 ≤𝟙 𝟙  𝟘  → refl
+    𝟙  ≤𝟙 ≤𝟙 𝟙  𝟙  → refl
+    𝟙  ≤𝟙 ≤𝟙 𝟙  ≤𝟙 → refl
+    𝟙  ≤𝟙 ≤𝟙 𝟙  ≤ω → refl
+    𝟙  ≤𝟙 ≤𝟙 ≤𝟙 𝟘  → refl
+    𝟙  ≤𝟙 ≤𝟙 ≤𝟙 𝟙  → refl
+    𝟙  ≤𝟙 ≤𝟙 ≤𝟙 ≤𝟙 → refl
+    𝟙  ≤𝟙 ≤𝟙 ≤𝟙 ≤ω → refl
+    𝟙  ≤𝟙 ≤𝟙 ≤ω 𝟘  → refl
+    𝟙  ≤𝟙 ≤𝟙 ≤ω 𝟙  → refl
+    𝟙  ≤𝟙 ≤𝟙 ≤ω ≤𝟙 → refl
+    𝟙  ≤𝟙 ≤𝟙 ≤ω ≤ω → refl
+    𝟙  ≤𝟙 ≤ω 𝟘  𝟘  → refl
+    𝟙  ≤𝟙 ≤ω 𝟘  𝟙  → refl
+    𝟙  ≤𝟙 ≤ω 𝟘  ≤𝟙 → refl
+    𝟙  ≤𝟙 ≤ω 𝟘  ≤ω → refl
+    𝟙  ≤𝟙 ≤ω 𝟙  𝟘  → refl
+    𝟙  ≤𝟙 ≤ω 𝟙  𝟙  → refl
+    𝟙  ≤𝟙 ≤ω 𝟙  ≤𝟙 → refl
+    𝟙  ≤𝟙 ≤ω 𝟙  ≤ω → refl
+    𝟙  ≤𝟙 ≤ω ≤𝟙 𝟘  → refl
+    𝟙  ≤𝟙 ≤ω ≤𝟙 𝟙  → refl
+    𝟙  ≤𝟙 ≤ω ≤𝟙 ≤𝟙 → refl
+    𝟙  ≤𝟙 ≤ω ≤𝟙 ≤ω → refl
+    𝟙  ≤𝟙 ≤ω ≤ω 𝟘  → refl
+    𝟙  ≤𝟙 ≤ω ≤ω 𝟙  → refl
+    𝟙  ≤𝟙 ≤ω ≤ω ≤𝟙 → refl
+    𝟙  ≤𝟙 ≤ω ≤ω ≤ω → refl
+    𝟙  ≤ω 𝟘  𝟘  𝟘  → refl
+    𝟙  ≤ω 𝟘  𝟘  𝟙  → refl
+    𝟙  ≤ω 𝟘  𝟘  ≤𝟙 → refl
+    𝟙  ≤ω 𝟘  𝟘  ≤ω → refl
+    𝟙  ≤ω 𝟘  𝟙  𝟘  → refl
+    𝟙  ≤ω 𝟘  𝟙  𝟙  → refl
+    𝟙  ≤ω 𝟘  𝟙  ≤𝟙 → refl
+    𝟙  ≤ω 𝟘  𝟙  ≤ω → refl
+    𝟙  ≤ω 𝟘  ≤𝟙 𝟘  → refl
+    𝟙  ≤ω 𝟘  ≤𝟙 𝟙  → refl
+    𝟙  ≤ω 𝟘  ≤𝟙 ≤𝟙 → refl
+    𝟙  ≤ω 𝟘  ≤𝟙 ≤ω → refl
+    𝟙  ≤ω 𝟘  ≤ω 𝟘  → refl
+    𝟙  ≤ω 𝟘  ≤ω 𝟙  → refl
+    𝟙  ≤ω 𝟘  ≤ω ≤𝟙 → refl
+    𝟙  ≤ω 𝟘  ≤ω ≤ω → refl
+    𝟙  ≤ω 𝟙  𝟘  𝟘  → refl
+    𝟙  ≤ω 𝟙  𝟘  𝟙  → refl
+    𝟙  ≤ω 𝟙  𝟘  ≤𝟙 → refl
+    𝟙  ≤ω 𝟙  𝟘  ≤ω → refl
+    𝟙  ≤ω 𝟙  𝟙  𝟘  → refl
+    𝟙  ≤ω 𝟙  𝟙  𝟙  → refl
+    𝟙  ≤ω 𝟙  𝟙  ≤𝟙 → refl
+    𝟙  ≤ω 𝟙  𝟙  ≤ω → refl
+    𝟙  ≤ω 𝟙  ≤𝟙 𝟘  → refl
+    𝟙  ≤ω 𝟙  ≤𝟙 𝟙  → refl
+    𝟙  ≤ω 𝟙  ≤𝟙 ≤𝟙 → refl
+    𝟙  ≤ω 𝟙  ≤𝟙 ≤ω → refl
+    𝟙  ≤ω 𝟙  ≤ω 𝟘  → refl
+    𝟙  ≤ω 𝟙  ≤ω 𝟙  → refl
+    𝟙  ≤ω 𝟙  ≤ω ≤𝟙 → refl
+    𝟙  ≤ω 𝟙  ≤ω ≤ω → refl
+    𝟙  ≤ω ≤𝟙 𝟘  𝟘  → refl
+    𝟙  ≤ω ≤𝟙 𝟘  𝟙  → refl
+    𝟙  ≤ω ≤𝟙 𝟘  ≤𝟙 → refl
+    𝟙  ≤ω ≤𝟙 𝟘  ≤ω → refl
+    𝟙  ≤ω ≤𝟙 𝟙  𝟘  → refl
+    𝟙  ≤ω ≤𝟙 𝟙  𝟙  → refl
+    𝟙  ≤ω ≤𝟙 𝟙  ≤𝟙 → refl
+    𝟙  ≤ω ≤𝟙 𝟙  ≤ω → refl
+    𝟙  ≤ω ≤𝟙 ≤𝟙 𝟘  → refl
+    𝟙  ≤ω ≤𝟙 ≤𝟙 𝟙  → refl
+    𝟙  ≤ω ≤𝟙 ≤𝟙 ≤𝟙 → refl
+    𝟙  ≤ω ≤𝟙 ≤𝟙 ≤ω → refl
+    𝟙  ≤ω ≤𝟙 ≤ω 𝟘  → refl
+    𝟙  ≤ω ≤𝟙 ≤ω 𝟙  → refl
+    𝟙  ≤ω ≤𝟙 ≤ω ≤𝟙 → refl
+    𝟙  ≤ω ≤𝟙 ≤ω ≤ω → refl
+    𝟙  ≤ω ≤ω 𝟘  𝟘  → refl
+    𝟙  ≤ω ≤ω 𝟘  𝟙  → refl
+    𝟙  ≤ω ≤ω 𝟘  ≤𝟙 → refl
+    𝟙  ≤ω ≤ω 𝟘  ≤ω → refl
+    𝟙  ≤ω ≤ω 𝟙  𝟘  → refl
+    𝟙  ≤ω ≤ω 𝟙  𝟙  → refl
+    𝟙  ≤ω ≤ω 𝟙  ≤𝟙 → refl
+    𝟙  ≤ω ≤ω 𝟙  ≤ω → refl
+    𝟙  ≤ω ≤ω ≤𝟙 𝟘  → refl
+    𝟙  ≤ω ≤ω ≤𝟙 𝟙  → refl
+    𝟙  ≤ω ≤ω ≤𝟙 ≤𝟙 → refl
+    𝟙  ≤ω ≤ω ≤𝟙 ≤ω → refl
+    𝟙  ≤ω ≤ω ≤ω 𝟘  → refl
+    𝟙  ≤ω ≤ω ≤ω 𝟙  → refl
+    𝟙  ≤ω ≤ω ≤ω ≤𝟙 → refl
+    𝟙  ≤ω ≤ω ≤ω ≤ω → refl
+    ≤𝟙 𝟘  𝟘  𝟘  𝟘  → refl
+    ≤𝟙 𝟘  𝟘  𝟘  𝟙  → refl
+    ≤𝟙 𝟘  𝟘  𝟘  ≤𝟙 → refl
+    ≤𝟙 𝟘  𝟘  𝟘  ≤ω → refl
+    ≤𝟙 𝟘  𝟘  𝟙  𝟘  → refl
+    ≤𝟙 𝟘  𝟘  𝟙  𝟙  → refl
+    ≤𝟙 𝟘  𝟘  𝟙  ≤𝟙 → refl
+    ≤𝟙 𝟘  𝟘  𝟙  ≤ω → refl
+    ≤𝟙 𝟘  𝟘  ≤𝟙 𝟘  → refl
+    ≤𝟙 𝟘  𝟘  ≤𝟙 𝟙  → refl
+    ≤𝟙 𝟘  𝟘  ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 𝟘  𝟘  ≤𝟙 ≤ω → refl
+    ≤𝟙 𝟘  𝟘  ≤ω 𝟘  → refl
+    ≤𝟙 𝟘  𝟘  ≤ω 𝟙  → refl
+    ≤𝟙 𝟘  𝟘  ≤ω ≤𝟙 → refl
+    ≤𝟙 𝟘  𝟘  ≤ω ≤ω → refl
+    ≤𝟙 𝟘  𝟙  𝟘  𝟘  → refl
+    ≤𝟙 𝟘  𝟙  𝟘  𝟙  → refl
+    ≤𝟙 𝟘  𝟙  𝟘  ≤𝟙 → refl
+    ≤𝟙 𝟘  𝟙  𝟘  ≤ω → refl
+    ≤𝟙 𝟘  𝟙  𝟙  𝟘  → refl
+    ≤𝟙 𝟘  𝟙  𝟙  𝟙  → refl
+    ≤𝟙 𝟘  𝟙  𝟙  ≤𝟙 → refl
+    ≤𝟙 𝟘  𝟙  𝟙  ≤ω → refl
+    ≤𝟙 𝟘  𝟙  ≤𝟙 𝟘  → refl
+    ≤𝟙 𝟘  𝟙  ≤𝟙 𝟙  → refl
+    ≤𝟙 𝟘  𝟙  ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 𝟘  𝟙  ≤𝟙 ≤ω → refl
+    ≤𝟙 𝟘  𝟙  ≤ω 𝟘  → refl
+    ≤𝟙 𝟘  𝟙  ≤ω 𝟙  → refl
+    ≤𝟙 𝟘  𝟙  ≤ω ≤𝟙 → refl
+    ≤𝟙 𝟘  𝟙  ≤ω ≤ω → refl
+    ≤𝟙 𝟘  ≤𝟙 𝟘  𝟘  → refl
+    ≤𝟙 𝟘  ≤𝟙 𝟘  𝟙  → refl
+    ≤𝟙 𝟘  ≤𝟙 𝟘  ≤𝟙 → refl
+    ≤𝟙 𝟘  ≤𝟙 𝟘  ≤ω → refl
+    ≤𝟙 𝟘  ≤𝟙 𝟙  𝟘  → refl
+    ≤𝟙 𝟘  ≤𝟙 𝟙  𝟙  → refl
+    ≤𝟙 𝟘  ≤𝟙 𝟙  ≤𝟙 → refl
+    ≤𝟙 𝟘  ≤𝟙 𝟙  ≤ω → refl
+    ≤𝟙 𝟘  ≤𝟙 ≤𝟙 𝟘  → refl
+    ≤𝟙 𝟘  ≤𝟙 ≤𝟙 𝟙  → refl
+    ≤𝟙 𝟘  ≤𝟙 ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 𝟘  ≤𝟙 ≤𝟙 ≤ω → refl
+    ≤𝟙 𝟘  ≤𝟙 ≤ω 𝟘  → refl
+    ≤𝟙 𝟘  ≤𝟙 ≤ω 𝟙  → refl
+    ≤𝟙 𝟘  ≤𝟙 ≤ω ≤𝟙 → refl
+    ≤𝟙 𝟘  ≤𝟙 ≤ω ≤ω → refl
+    ≤𝟙 𝟘  ≤ω 𝟘  𝟘  → refl
+    ≤𝟙 𝟘  ≤ω 𝟘  𝟙  → refl
+    ≤𝟙 𝟘  ≤ω 𝟘  ≤𝟙 → refl
+    ≤𝟙 𝟘  ≤ω 𝟘  ≤ω → refl
+    ≤𝟙 𝟘  ≤ω 𝟙  𝟘  → refl
+    ≤𝟙 𝟘  ≤ω 𝟙  𝟙  → refl
+    ≤𝟙 𝟘  ≤ω 𝟙  ≤𝟙 → refl
+    ≤𝟙 𝟘  ≤ω 𝟙  ≤ω → refl
+    ≤𝟙 𝟘  ≤ω ≤𝟙 𝟘  → refl
+    ≤𝟙 𝟘  ≤ω ≤𝟙 𝟙  → refl
+    ≤𝟙 𝟘  ≤ω ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 𝟘  ≤ω ≤𝟙 ≤ω → refl
+    ≤𝟙 𝟘  ≤ω ≤ω 𝟘  → refl
+    ≤𝟙 𝟘  ≤ω ≤ω 𝟙  → refl
+    ≤𝟙 𝟘  ≤ω ≤ω ≤𝟙 → refl
+    ≤𝟙 𝟘  ≤ω ≤ω ≤ω → refl
+    ≤𝟙 𝟙  𝟘  𝟘  𝟘  → refl
+    ≤𝟙 𝟙  𝟘  𝟘  𝟙  → refl
+    ≤𝟙 𝟙  𝟘  𝟘  ≤𝟙 → refl
+    ≤𝟙 𝟙  𝟘  𝟘  ≤ω → refl
+    ≤𝟙 𝟙  𝟘  𝟙  𝟘  → refl
+    ≤𝟙 𝟙  𝟘  𝟙  𝟙  → refl
+    ≤𝟙 𝟙  𝟘  𝟙  ≤𝟙 → refl
+    ≤𝟙 𝟙  𝟘  𝟙  ≤ω → refl
+    ≤𝟙 𝟙  𝟘  ≤𝟙 𝟘  → refl
+    ≤𝟙 𝟙  𝟘  ≤𝟙 𝟙  → refl
+    ≤𝟙 𝟙  𝟘  ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 𝟙  𝟘  ≤𝟙 ≤ω → refl
+    ≤𝟙 𝟙  𝟘  ≤ω 𝟘  → refl
+    ≤𝟙 𝟙  𝟘  ≤ω 𝟙  → refl
+    ≤𝟙 𝟙  𝟘  ≤ω ≤𝟙 → refl
+    ≤𝟙 𝟙  𝟘  ≤ω ≤ω → refl
+    ≤𝟙 𝟙  𝟙  𝟘  𝟘  → refl
+    ≤𝟙 𝟙  𝟙  𝟘  𝟙  → refl
+    ≤𝟙 𝟙  𝟙  𝟘  ≤𝟙 → refl
+    ≤𝟙 𝟙  𝟙  𝟘  ≤ω → refl
+    ≤𝟙 𝟙  𝟙  𝟙  𝟘  → refl
+    ≤𝟙 𝟙  𝟙  𝟙  𝟙  → refl
+    ≤𝟙 𝟙  𝟙  𝟙  ≤𝟙 → refl
+    ≤𝟙 𝟙  𝟙  𝟙  ≤ω → refl
+    ≤𝟙 𝟙  𝟙  ≤𝟙 𝟘  → refl
+    ≤𝟙 𝟙  𝟙  ≤𝟙 𝟙  → refl
+    ≤𝟙 𝟙  𝟙  ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 𝟙  𝟙  ≤𝟙 ≤ω → refl
+    ≤𝟙 𝟙  𝟙  ≤ω 𝟘  → refl
+    ≤𝟙 𝟙  𝟙  ≤ω 𝟙  → refl
+    ≤𝟙 𝟙  𝟙  ≤ω ≤𝟙 → refl
+    ≤𝟙 𝟙  𝟙  ≤ω ≤ω → refl
+    ≤𝟙 𝟙  ≤𝟙 𝟘  𝟘  → refl
+    ≤𝟙 𝟙  ≤𝟙 𝟘  𝟙  → refl
+    ≤𝟙 𝟙  ≤𝟙 𝟘  ≤𝟙 → refl
+    ≤𝟙 𝟙  ≤𝟙 𝟘  ≤ω → refl
+    ≤𝟙 𝟙  ≤𝟙 𝟙  𝟘  → refl
+    ≤𝟙 𝟙  ≤𝟙 𝟙  𝟙  → refl
+    ≤𝟙 𝟙  ≤𝟙 𝟙  ≤𝟙 → refl
+    ≤𝟙 𝟙  ≤𝟙 𝟙  ≤ω → refl
+    ≤𝟙 𝟙  ≤𝟙 ≤𝟙 𝟘  → refl
+    ≤𝟙 𝟙  ≤𝟙 ≤𝟙 𝟙  → refl
+    ≤𝟙 𝟙  ≤𝟙 ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 𝟙  ≤𝟙 ≤𝟙 ≤ω → refl
+    ≤𝟙 𝟙  ≤𝟙 ≤ω 𝟘  → refl
+    ≤𝟙 𝟙  ≤𝟙 ≤ω 𝟙  → refl
+    ≤𝟙 𝟙  ≤𝟙 ≤ω ≤𝟙 → refl
+    ≤𝟙 𝟙  ≤𝟙 ≤ω ≤ω → refl
+    ≤𝟙 𝟙  ≤ω 𝟘  𝟘  → refl
+    ≤𝟙 𝟙  ≤ω 𝟘  𝟙  → refl
+    ≤𝟙 𝟙  ≤ω 𝟘  ≤𝟙 → refl
+    ≤𝟙 𝟙  ≤ω 𝟘  ≤ω → refl
+    ≤𝟙 𝟙  ≤ω 𝟙  𝟘  → refl
+    ≤𝟙 𝟙  ≤ω 𝟙  𝟙  → refl
+    ≤𝟙 𝟙  ≤ω 𝟙  ≤𝟙 → refl
+    ≤𝟙 𝟙  ≤ω 𝟙  ≤ω → refl
+    ≤𝟙 𝟙  ≤ω ≤𝟙 𝟘  → refl
+    ≤𝟙 𝟙  ≤ω ≤𝟙 𝟙  → refl
+    ≤𝟙 𝟙  ≤ω ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 𝟙  ≤ω ≤𝟙 ≤ω → refl
+    ≤𝟙 𝟙  ≤ω ≤ω 𝟘  → refl
+    ≤𝟙 𝟙  ≤ω ≤ω 𝟙  → refl
+    ≤𝟙 𝟙  ≤ω ≤ω ≤𝟙 → refl
+    ≤𝟙 𝟙  ≤ω ≤ω ≤ω → refl
+    ≤𝟙 ≤𝟙 𝟘  𝟘  𝟘  → refl
+    ≤𝟙 ≤𝟙 𝟘  𝟘  𝟙  → refl
+    ≤𝟙 ≤𝟙 𝟘  𝟘  ≤𝟙 → refl
+    ≤𝟙 ≤𝟙 𝟘  𝟘  ≤ω → refl
+    ≤𝟙 ≤𝟙 𝟘  𝟙  𝟘  → refl
+    ≤𝟙 ≤𝟙 𝟘  𝟙  𝟙  → refl
+    ≤𝟙 ≤𝟙 𝟘  𝟙  ≤𝟙 → refl
+    ≤𝟙 ≤𝟙 𝟘  𝟙  ≤ω → refl
+    ≤𝟙 ≤𝟙 𝟘  ≤𝟙 𝟘  → refl
+    ≤𝟙 ≤𝟙 𝟘  ≤𝟙 𝟙  → refl
+    ≤𝟙 ≤𝟙 𝟘  ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 ≤𝟙 𝟘  ≤𝟙 ≤ω → refl
+    ≤𝟙 ≤𝟙 𝟘  ≤ω 𝟘  → refl
+    ≤𝟙 ≤𝟙 𝟘  ≤ω 𝟙  → refl
+    ≤𝟙 ≤𝟙 𝟘  ≤ω ≤𝟙 → refl
+    ≤𝟙 ≤𝟙 𝟘  ≤ω ≤ω → refl
+    ≤𝟙 ≤𝟙 𝟙  𝟘  𝟘  → refl
+    ≤𝟙 ≤𝟙 𝟙  𝟘  𝟙  → refl
+    ≤𝟙 ≤𝟙 𝟙  𝟘  ≤𝟙 → refl
+    ≤𝟙 ≤𝟙 𝟙  𝟘  ≤ω → refl
+    ≤𝟙 ≤𝟙 𝟙  𝟙  𝟘  → refl
+    ≤𝟙 ≤𝟙 𝟙  𝟙  𝟙  → refl
+    ≤𝟙 ≤𝟙 𝟙  𝟙  ≤𝟙 → refl
+    ≤𝟙 ≤𝟙 𝟙  𝟙  ≤ω → refl
+    ≤𝟙 ≤𝟙 𝟙  ≤𝟙 𝟘  → refl
+    ≤𝟙 ≤𝟙 𝟙  ≤𝟙 𝟙  → refl
+    ≤𝟙 ≤𝟙 𝟙  ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 ≤𝟙 𝟙  ≤𝟙 ≤ω → refl
+    ≤𝟙 ≤𝟙 𝟙  ≤ω 𝟘  → refl
+    ≤𝟙 ≤𝟙 𝟙  ≤ω 𝟙  → refl
+    ≤𝟙 ≤𝟙 𝟙  ≤ω ≤𝟙 → refl
+    ≤𝟙 ≤𝟙 𝟙  ≤ω ≤ω → refl
+    ≤𝟙 ≤𝟙 ≤𝟙 𝟘  𝟘  → refl
+    ≤𝟙 ≤𝟙 ≤𝟙 𝟘  𝟙  → refl
+    ≤𝟙 ≤𝟙 ≤𝟙 𝟘  ≤𝟙 → refl
+    ≤𝟙 ≤𝟙 ≤𝟙 𝟘  ≤ω → refl
+    ≤𝟙 ≤𝟙 ≤𝟙 𝟙  𝟘  → refl
+    ≤𝟙 ≤𝟙 ≤𝟙 𝟙  𝟙  → refl
+    ≤𝟙 ≤𝟙 ≤𝟙 𝟙  ≤𝟙 → refl
+    ≤𝟙 ≤𝟙 ≤𝟙 𝟙  ≤ω → refl
+    ≤𝟙 ≤𝟙 ≤𝟙 ≤𝟙 𝟘  → refl
+    ≤𝟙 ≤𝟙 ≤𝟙 ≤𝟙 𝟙  → refl
+    ≤𝟙 ≤𝟙 ≤𝟙 ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 ≤𝟙 ≤𝟙 ≤𝟙 ≤ω → refl
+    ≤𝟙 ≤𝟙 ≤𝟙 ≤ω 𝟘  → refl
+    ≤𝟙 ≤𝟙 ≤𝟙 ≤ω 𝟙  → refl
+    ≤𝟙 ≤𝟙 ≤𝟙 ≤ω ≤𝟙 → refl
+    ≤𝟙 ≤𝟙 ≤𝟙 ≤ω ≤ω → refl
+    ≤𝟙 ≤𝟙 ≤ω 𝟘  𝟘  → refl
+    ≤𝟙 ≤𝟙 ≤ω 𝟘  𝟙  → refl
+    ≤𝟙 ≤𝟙 ≤ω 𝟘  ≤𝟙 → refl
+    ≤𝟙 ≤𝟙 ≤ω 𝟘  ≤ω → refl
+    ≤𝟙 ≤𝟙 ≤ω 𝟙  𝟘  → refl
+    ≤𝟙 ≤𝟙 ≤ω 𝟙  𝟙  → refl
+    ≤𝟙 ≤𝟙 ≤ω 𝟙  ≤𝟙 → refl
+    ≤𝟙 ≤𝟙 ≤ω 𝟙  ≤ω → refl
+    ≤𝟙 ≤𝟙 ≤ω ≤𝟙 𝟘  → refl
+    ≤𝟙 ≤𝟙 ≤ω ≤𝟙 𝟙  → refl
+    ≤𝟙 ≤𝟙 ≤ω ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 ≤𝟙 ≤ω ≤𝟙 ≤ω → refl
+    ≤𝟙 ≤𝟙 ≤ω ≤ω 𝟘  → refl
+    ≤𝟙 ≤𝟙 ≤ω ≤ω 𝟙  → refl
+    ≤𝟙 ≤𝟙 ≤ω ≤ω ≤𝟙 → refl
+    ≤𝟙 ≤𝟙 ≤ω ≤ω ≤ω → refl
+    ≤𝟙 ≤ω 𝟘  𝟘  𝟘  → refl
+    ≤𝟙 ≤ω 𝟘  𝟘  𝟙  → refl
+    ≤𝟙 ≤ω 𝟘  𝟘  ≤𝟙 → refl
+    ≤𝟙 ≤ω 𝟘  𝟘  ≤ω → refl
+    ≤𝟙 ≤ω 𝟘  𝟙  𝟘  → refl
+    ≤𝟙 ≤ω 𝟘  𝟙  𝟙  → refl
+    ≤𝟙 ≤ω 𝟘  𝟙  ≤𝟙 → refl
+    ≤𝟙 ≤ω 𝟘  𝟙  ≤ω → refl
+    ≤𝟙 ≤ω 𝟘  ≤𝟙 𝟘  → refl
+    ≤𝟙 ≤ω 𝟘  ≤𝟙 𝟙  → refl
+    ≤𝟙 ≤ω 𝟘  ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 ≤ω 𝟘  ≤𝟙 ≤ω → refl
+    ≤𝟙 ≤ω 𝟘  ≤ω 𝟘  → refl
+    ≤𝟙 ≤ω 𝟘  ≤ω 𝟙  → refl
+    ≤𝟙 ≤ω 𝟘  ≤ω ≤𝟙 → refl
+    ≤𝟙 ≤ω 𝟘  ≤ω ≤ω → refl
+    ≤𝟙 ≤ω 𝟙  𝟘  𝟘  → refl
+    ≤𝟙 ≤ω 𝟙  𝟘  𝟙  → refl
+    ≤𝟙 ≤ω 𝟙  𝟘  ≤𝟙 → refl
+    ≤𝟙 ≤ω 𝟙  𝟘  ≤ω → refl
+    ≤𝟙 ≤ω 𝟙  𝟙  𝟘  → refl
+    ≤𝟙 ≤ω 𝟙  𝟙  𝟙  → refl
+    ≤𝟙 ≤ω 𝟙  𝟙  ≤𝟙 → refl
+    ≤𝟙 ≤ω 𝟙  𝟙  ≤ω → refl
+    ≤𝟙 ≤ω 𝟙  ≤𝟙 𝟘  → refl
+    ≤𝟙 ≤ω 𝟙  ≤𝟙 𝟙  → refl
+    ≤𝟙 ≤ω 𝟙  ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 ≤ω 𝟙  ≤𝟙 ≤ω → refl
+    ≤𝟙 ≤ω 𝟙  ≤ω 𝟘  → refl
+    ≤𝟙 ≤ω 𝟙  ≤ω 𝟙  → refl
+    ≤𝟙 ≤ω 𝟙  ≤ω ≤𝟙 → refl
+    ≤𝟙 ≤ω 𝟙  ≤ω ≤ω → refl
+    ≤𝟙 ≤ω ≤𝟙 𝟘  𝟘  → refl
+    ≤𝟙 ≤ω ≤𝟙 𝟘  𝟙  → refl
+    ≤𝟙 ≤ω ≤𝟙 𝟘  ≤𝟙 → refl
+    ≤𝟙 ≤ω ≤𝟙 𝟘  ≤ω → refl
+    ≤𝟙 ≤ω ≤𝟙 𝟙  𝟘  → refl
+    ≤𝟙 ≤ω ≤𝟙 𝟙  𝟙  → refl
+    ≤𝟙 ≤ω ≤𝟙 𝟙  ≤𝟙 → refl
+    ≤𝟙 ≤ω ≤𝟙 𝟙  ≤ω → refl
+    ≤𝟙 ≤ω ≤𝟙 ≤𝟙 𝟘  → refl
+    ≤𝟙 ≤ω ≤𝟙 ≤𝟙 𝟙  → refl
+    ≤𝟙 ≤ω ≤𝟙 ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 ≤ω ≤𝟙 ≤𝟙 ≤ω → refl
+    ≤𝟙 ≤ω ≤𝟙 ≤ω 𝟘  → refl
+    ≤𝟙 ≤ω ≤𝟙 ≤ω 𝟙  → refl
+    ≤𝟙 ≤ω ≤𝟙 ≤ω ≤𝟙 → refl
+    ≤𝟙 ≤ω ≤𝟙 ≤ω ≤ω → refl
+    ≤𝟙 ≤ω ≤ω 𝟘  𝟘  → refl
+    ≤𝟙 ≤ω ≤ω 𝟘  𝟙  → refl
+    ≤𝟙 ≤ω ≤ω 𝟘  ≤𝟙 → refl
+    ≤𝟙 ≤ω ≤ω 𝟘  ≤ω → refl
+    ≤𝟙 ≤ω ≤ω 𝟙  𝟘  → refl
+    ≤𝟙 ≤ω ≤ω 𝟙  𝟙  → refl
+    ≤𝟙 ≤ω ≤ω 𝟙  ≤𝟙 → refl
+    ≤𝟙 ≤ω ≤ω 𝟙  ≤ω → refl
+    ≤𝟙 ≤ω ≤ω ≤𝟙 𝟘  → refl
+    ≤𝟙 ≤ω ≤ω ≤𝟙 𝟙  → refl
+    ≤𝟙 ≤ω ≤ω ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 ≤ω ≤ω ≤𝟙 ≤ω → refl
+    ≤𝟙 ≤ω ≤ω ≤ω 𝟘  → refl
+    ≤𝟙 ≤ω ≤ω ≤ω 𝟙  → refl
+    ≤𝟙 ≤ω ≤ω ≤ω ≤𝟙 → refl
+    ≤𝟙 ≤ω ≤ω ≤ω ≤ω → refl
+    ≤ω 𝟘  𝟘  𝟘  𝟘  → refl
+    ≤ω 𝟘  𝟘  𝟘  𝟙  → refl
+    ≤ω 𝟘  𝟘  𝟘  ≤𝟙 → refl
+    ≤ω 𝟘  𝟘  𝟘  ≤ω → refl
+    ≤ω 𝟘  𝟘  𝟙  𝟘  → refl
+    ≤ω 𝟘  𝟘  𝟙  𝟙  → refl
+    ≤ω 𝟘  𝟘  𝟙  ≤𝟙 → refl
+    ≤ω 𝟘  𝟘  𝟙  ≤ω → refl
+    ≤ω 𝟘  𝟘  ≤𝟙 𝟘  → refl
+    ≤ω 𝟘  𝟘  ≤𝟙 𝟙  → refl
+    ≤ω 𝟘  𝟘  ≤𝟙 ≤𝟙 → refl
+    ≤ω 𝟘  𝟘  ≤𝟙 ≤ω → refl
+    ≤ω 𝟘  𝟘  ≤ω 𝟘  → refl
+    ≤ω 𝟘  𝟘  ≤ω 𝟙  → refl
+    ≤ω 𝟘  𝟘  ≤ω ≤𝟙 → refl
+    ≤ω 𝟘  𝟘  ≤ω ≤ω → refl
+    ≤ω 𝟘  𝟙  𝟘  𝟘  → refl
+    ≤ω 𝟘  𝟙  𝟘  𝟙  → refl
+    ≤ω 𝟘  𝟙  𝟘  ≤𝟙 → refl
+    ≤ω 𝟘  𝟙  𝟘  ≤ω → refl
+    ≤ω 𝟘  𝟙  𝟙  𝟘  → refl
+    ≤ω 𝟘  𝟙  𝟙  𝟙  → refl
+    ≤ω 𝟘  𝟙  𝟙  ≤𝟙 → refl
+    ≤ω 𝟘  𝟙  𝟙  ≤ω → refl
+    ≤ω 𝟘  𝟙  ≤𝟙 𝟘  → refl
+    ≤ω 𝟘  𝟙  ≤𝟙 𝟙  → refl
+    ≤ω 𝟘  𝟙  ≤𝟙 ≤𝟙 → refl
+    ≤ω 𝟘  𝟙  ≤𝟙 ≤ω → refl
+    ≤ω 𝟘  𝟙  ≤ω 𝟘  → refl
+    ≤ω 𝟘  𝟙  ≤ω 𝟙  → refl
+    ≤ω 𝟘  𝟙  ≤ω ≤𝟙 → refl
+    ≤ω 𝟘  𝟙  ≤ω ≤ω → refl
+    ≤ω 𝟘  ≤𝟙 𝟘  𝟘  → refl
+    ≤ω 𝟘  ≤𝟙 𝟘  𝟙  → refl
+    ≤ω 𝟘  ≤𝟙 𝟘  ≤𝟙 → refl
+    ≤ω 𝟘  ≤𝟙 𝟘  ≤ω → refl
+    ≤ω 𝟘  ≤𝟙 𝟙  𝟘  → refl
+    ≤ω 𝟘  ≤𝟙 𝟙  𝟙  → refl
+    ≤ω 𝟘  ≤𝟙 𝟙  ≤𝟙 → refl
+    ≤ω 𝟘  ≤𝟙 𝟙  ≤ω → refl
+    ≤ω 𝟘  ≤𝟙 ≤𝟙 𝟘  → refl
+    ≤ω 𝟘  ≤𝟙 ≤𝟙 𝟙  → refl
+    ≤ω 𝟘  ≤𝟙 ≤𝟙 ≤𝟙 → refl
+    ≤ω 𝟘  ≤𝟙 ≤𝟙 ≤ω → refl
+    ≤ω 𝟘  ≤𝟙 ≤ω 𝟘  → refl
+    ≤ω 𝟘  ≤𝟙 ≤ω 𝟙  → refl
+    ≤ω 𝟘  ≤𝟙 ≤ω ≤𝟙 → refl
+    ≤ω 𝟘  ≤𝟙 ≤ω ≤ω → refl
+    ≤ω 𝟘  ≤ω 𝟘  𝟘  → refl
+    ≤ω 𝟘  ≤ω 𝟘  𝟙  → refl
+    ≤ω 𝟘  ≤ω 𝟘  ≤𝟙 → refl
+    ≤ω 𝟘  ≤ω 𝟘  ≤ω → refl
+    ≤ω 𝟘  ≤ω 𝟙  𝟘  → refl
+    ≤ω 𝟘  ≤ω 𝟙  𝟙  → refl
+    ≤ω 𝟘  ≤ω 𝟙  ≤𝟙 → refl
+    ≤ω 𝟘  ≤ω 𝟙  ≤ω → refl
+    ≤ω 𝟘  ≤ω ≤𝟙 𝟘  → refl
+    ≤ω 𝟘  ≤ω ≤𝟙 𝟙  → refl
+    ≤ω 𝟘  ≤ω ≤𝟙 ≤𝟙 → refl
+    ≤ω 𝟘  ≤ω ≤𝟙 ≤ω → refl
+    ≤ω 𝟘  ≤ω ≤ω 𝟘  → refl
+    ≤ω 𝟘  ≤ω ≤ω 𝟙  → refl
+    ≤ω 𝟘  ≤ω ≤ω ≤𝟙 → refl
+    ≤ω 𝟘  ≤ω ≤ω ≤ω → refl
+    ≤ω 𝟙  𝟘  𝟘  𝟘  → refl
+    ≤ω 𝟙  𝟘  𝟘  𝟙  → refl
+    ≤ω 𝟙  𝟘  𝟘  ≤𝟙 → refl
+    ≤ω 𝟙  𝟘  𝟘  ≤ω → refl
+    ≤ω 𝟙  𝟘  𝟙  𝟘  → refl
+    ≤ω 𝟙  𝟘  𝟙  𝟙  → refl
+    ≤ω 𝟙  𝟘  𝟙  ≤𝟙 → refl
+    ≤ω 𝟙  𝟘  𝟙  ≤ω → refl
+    ≤ω 𝟙  𝟘  ≤𝟙 𝟘  → refl
+    ≤ω 𝟙  𝟘  ≤𝟙 𝟙  → refl
+    ≤ω 𝟙  𝟘  ≤𝟙 ≤𝟙 → refl
+    ≤ω 𝟙  𝟘  ≤𝟙 ≤ω → refl
+    ≤ω 𝟙  𝟘  ≤ω 𝟘  → refl
+    ≤ω 𝟙  𝟘  ≤ω 𝟙  → refl
+    ≤ω 𝟙  𝟘  ≤ω ≤𝟙 → refl
+    ≤ω 𝟙  𝟘  ≤ω ≤ω → refl
+    ≤ω 𝟙  𝟙  𝟘  𝟘  → refl
+    ≤ω 𝟙  𝟙  𝟘  𝟙  → refl
+    ≤ω 𝟙  𝟙  𝟘  ≤𝟙 → refl
+    ≤ω 𝟙  𝟙  𝟘  ≤ω → refl
+    ≤ω 𝟙  𝟙  𝟙  𝟘  → refl
+    ≤ω 𝟙  𝟙  𝟙  𝟙  → refl
+    ≤ω 𝟙  𝟙  𝟙  ≤𝟙 → refl
+    ≤ω 𝟙  𝟙  𝟙  ≤ω → refl
+    ≤ω 𝟙  𝟙  ≤𝟙 𝟘  → refl
+    ≤ω 𝟙  𝟙  ≤𝟙 𝟙  → refl
+    ≤ω 𝟙  𝟙  ≤𝟙 ≤𝟙 → refl
+    ≤ω 𝟙  𝟙  ≤𝟙 ≤ω → refl
+    ≤ω 𝟙  𝟙  ≤ω 𝟘  → refl
+    ≤ω 𝟙  𝟙  ≤ω 𝟙  → refl
+    ≤ω 𝟙  𝟙  ≤ω ≤𝟙 → refl
+    ≤ω 𝟙  𝟙  ≤ω ≤ω → refl
+    ≤ω 𝟙  ≤𝟙 𝟘  𝟘  → refl
+    ≤ω 𝟙  ≤𝟙 𝟘  𝟙  → refl
+    ≤ω 𝟙  ≤𝟙 𝟘  ≤𝟙 → refl
+    ≤ω 𝟙  ≤𝟙 𝟘  ≤ω → refl
+    ≤ω 𝟙  ≤𝟙 𝟙  𝟘  → refl
+    ≤ω 𝟙  ≤𝟙 𝟙  𝟙  → refl
+    ≤ω 𝟙  ≤𝟙 𝟙  ≤𝟙 → refl
+    ≤ω 𝟙  ≤𝟙 𝟙  ≤ω → refl
+    ≤ω 𝟙  ≤𝟙 ≤𝟙 𝟘  → refl
+    ≤ω 𝟙  ≤𝟙 ≤𝟙 𝟙  → refl
+    ≤ω 𝟙  ≤𝟙 ≤𝟙 ≤𝟙 → refl
+    ≤ω 𝟙  ≤𝟙 ≤𝟙 ≤ω → refl
+    ≤ω 𝟙  ≤𝟙 ≤ω 𝟘  → refl
+    ≤ω 𝟙  ≤𝟙 ≤ω 𝟙  → refl
+    ≤ω 𝟙  ≤𝟙 ≤ω ≤𝟙 → refl
+    ≤ω 𝟙  ≤𝟙 ≤ω ≤ω → refl
+    ≤ω 𝟙  ≤ω 𝟘  𝟘  → refl
+    ≤ω 𝟙  ≤ω 𝟘  𝟙  → refl
+    ≤ω 𝟙  ≤ω 𝟘  ≤𝟙 → refl
+    ≤ω 𝟙  ≤ω 𝟘  ≤ω → refl
+    ≤ω 𝟙  ≤ω 𝟙  𝟘  → refl
+    ≤ω 𝟙  ≤ω 𝟙  𝟙  → refl
+    ≤ω 𝟙  ≤ω 𝟙  ≤𝟙 → refl
+    ≤ω 𝟙  ≤ω 𝟙  ≤ω → refl
+    ≤ω 𝟙  ≤ω ≤𝟙 𝟘  → refl
+    ≤ω 𝟙  ≤ω ≤𝟙 𝟙  → refl
+    ≤ω 𝟙  ≤ω ≤𝟙 ≤𝟙 → refl
+    ≤ω 𝟙  ≤ω ≤𝟙 ≤ω → refl
+    ≤ω 𝟙  ≤ω ≤ω 𝟘  → refl
+    ≤ω 𝟙  ≤ω ≤ω 𝟙  → refl
+    ≤ω 𝟙  ≤ω ≤ω ≤𝟙 → refl
+    ≤ω 𝟙  ≤ω ≤ω ≤ω → refl
+    ≤ω ≤𝟙 𝟘  𝟘  𝟘  → refl
+    ≤ω ≤𝟙 𝟘  𝟘  𝟙  → refl
+    ≤ω ≤𝟙 𝟘  𝟘  ≤𝟙 → refl
+    ≤ω ≤𝟙 𝟘  𝟘  ≤ω → refl
+    ≤ω ≤𝟙 𝟘  𝟙  𝟘  → refl
+    ≤ω ≤𝟙 𝟘  𝟙  𝟙  → refl
+    ≤ω ≤𝟙 𝟘  𝟙  ≤𝟙 → refl
+    ≤ω ≤𝟙 𝟘  𝟙  ≤ω → refl
+    ≤ω ≤𝟙 𝟘  ≤𝟙 𝟘  → refl
+    ≤ω ≤𝟙 𝟘  ≤𝟙 𝟙  → refl
+    ≤ω ≤𝟙 𝟘  ≤𝟙 ≤𝟙 → refl
+    ≤ω ≤𝟙 𝟘  ≤𝟙 ≤ω → refl
+    ≤ω ≤𝟙 𝟘  ≤ω 𝟘  → refl
+    ≤ω ≤𝟙 𝟘  ≤ω 𝟙  → refl
+    ≤ω ≤𝟙 𝟘  ≤ω ≤𝟙 → refl
+    ≤ω ≤𝟙 𝟘  ≤ω ≤ω → refl
+    ≤ω ≤𝟙 𝟙  𝟘  𝟘  → refl
+    ≤ω ≤𝟙 𝟙  𝟘  𝟙  → refl
+    ≤ω ≤𝟙 𝟙  𝟘  ≤𝟙 → refl
+    ≤ω ≤𝟙 𝟙  𝟘  ≤ω → refl
+    ≤ω ≤𝟙 𝟙  𝟙  𝟘  → refl
+    ≤ω ≤𝟙 𝟙  𝟙  𝟙  → refl
+    ≤ω ≤𝟙 𝟙  𝟙  ≤𝟙 → refl
+    ≤ω ≤𝟙 𝟙  𝟙  ≤ω → refl
+    ≤ω ≤𝟙 𝟙  ≤𝟙 𝟘  → refl
+    ≤ω ≤𝟙 𝟙  ≤𝟙 𝟙  → refl
+    ≤ω ≤𝟙 𝟙  ≤𝟙 ≤𝟙 → refl
+    ≤ω ≤𝟙 𝟙  ≤𝟙 ≤ω → refl
+    ≤ω ≤𝟙 𝟙  ≤ω 𝟘  → refl
+    ≤ω ≤𝟙 𝟙  ≤ω 𝟙  → refl
+    ≤ω ≤𝟙 𝟙  ≤ω ≤𝟙 → refl
+    ≤ω ≤𝟙 𝟙  ≤ω ≤ω → refl
+    ≤ω ≤𝟙 ≤𝟙 𝟘  𝟘  → refl
+    ≤ω ≤𝟙 ≤𝟙 𝟘  𝟙  → refl
+    ≤ω ≤𝟙 ≤𝟙 𝟘  ≤𝟙 → refl
+    ≤ω ≤𝟙 ≤𝟙 𝟘  ≤ω → refl
+    ≤ω ≤𝟙 ≤𝟙 𝟙  𝟘  → refl
+    ≤ω ≤𝟙 ≤𝟙 𝟙  𝟙  → refl
+    ≤ω ≤𝟙 ≤𝟙 𝟙  ≤𝟙 → refl
+    ≤ω ≤𝟙 ≤𝟙 𝟙  ≤ω → refl
+    ≤ω ≤𝟙 ≤𝟙 ≤𝟙 𝟘  → refl
+    ≤ω ≤𝟙 ≤𝟙 ≤𝟙 𝟙  → refl
+    ≤ω ≤𝟙 ≤𝟙 ≤𝟙 ≤𝟙 → refl
+    ≤ω ≤𝟙 ≤𝟙 ≤𝟙 ≤ω → refl
+    ≤ω ≤𝟙 ≤𝟙 ≤ω 𝟘  → refl
+    ≤ω ≤𝟙 ≤𝟙 ≤ω 𝟙  → refl
+    ≤ω ≤𝟙 ≤𝟙 ≤ω ≤𝟙 → refl
+    ≤ω ≤𝟙 ≤𝟙 ≤ω ≤ω → refl
+    ≤ω ≤𝟙 ≤ω 𝟘  𝟘  → refl
+    ≤ω ≤𝟙 ≤ω 𝟘  𝟙  → refl
+    ≤ω ≤𝟙 ≤ω 𝟘  ≤𝟙 → refl
+    ≤ω ≤𝟙 ≤ω 𝟘  ≤ω → refl
+    ≤ω ≤𝟙 ≤ω 𝟙  𝟘  → refl
+    ≤ω ≤𝟙 ≤ω 𝟙  𝟙  → refl
+    ≤ω ≤𝟙 ≤ω 𝟙  ≤𝟙 → refl
+    ≤ω ≤𝟙 ≤ω 𝟙  ≤ω → refl
+    ≤ω ≤𝟙 ≤ω ≤𝟙 𝟘  → refl
+    ≤ω ≤𝟙 ≤ω ≤𝟙 𝟙  → refl
+    ≤ω ≤𝟙 ≤ω ≤𝟙 ≤𝟙 → refl
+    ≤ω ≤𝟙 ≤ω ≤𝟙 ≤ω → refl
+    ≤ω ≤𝟙 ≤ω ≤ω 𝟘  → refl
+    ≤ω ≤𝟙 ≤ω ≤ω 𝟙  → refl
+    ≤ω ≤𝟙 ≤ω ≤ω ≤𝟙 → refl
+    ≤ω ≤𝟙 ≤ω ≤ω ≤ω → refl
+    ≤ω ≤ω 𝟘  𝟘  𝟘  → refl
+    ≤ω ≤ω 𝟘  𝟘  𝟙  → refl
+    ≤ω ≤ω 𝟘  𝟘  ≤𝟙 → refl
+    ≤ω ≤ω 𝟘  𝟘  ≤ω → refl
+    ≤ω ≤ω 𝟘  𝟙  𝟘  → refl
+    ≤ω ≤ω 𝟘  𝟙  𝟙  → refl
+    ≤ω ≤ω 𝟘  𝟙  ≤𝟙 → refl
+    ≤ω ≤ω 𝟘  𝟙  ≤ω → refl
+    ≤ω ≤ω 𝟘  ≤𝟙 𝟘  → refl
+    ≤ω ≤ω 𝟘  ≤𝟙 𝟙  → refl
+    ≤ω ≤ω 𝟘  ≤𝟙 ≤𝟙 → refl
+    ≤ω ≤ω 𝟘  ≤𝟙 ≤ω → refl
+    ≤ω ≤ω 𝟘  ≤ω 𝟘  → refl
+    ≤ω ≤ω 𝟘  ≤ω 𝟙  → refl
+    ≤ω ≤ω 𝟘  ≤ω ≤𝟙 → refl
+    ≤ω ≤ω 𝟘  ≤ω ≤ω → refl
+    ≤ω ≤ω 𝟙  𝟘  𝟘  → refl
+    ≤ω ≤ω 𝟙  𝟘  𝟙  → refl
+    ≤ω ≤ω 𝟙  𝟘  ≤𝟙 → refl
+    ≤ω ≤ω 𝟙  𝟘  ≤ω → refl
+    ≤ω ≤ω 𝟙  𝟙  𝟘  → refl
+    ≤ω ≤ω 𝟙  𝟙  𝟙  → refl
+    ≤ω ≤ω 𝟙  𝟙  ≤𝟙 → refl
+    ≤ω ≤ω 𝟙  𝟙  ≤ω → refl
+    ≤ω ≤ω 𝟙  ≤𝟙 𝟘  → refl
+    ≤ω ≤ω 𝟙  ≤𝟙 𝟙  → refl
+    ≤ω ≤ω 𝟙  ≤𝟙 ≤𝟙 → refl
+    ≤ω ≤ω 𝟙  ≤𝟙 ≤ω → refl
+    ≤ω ≤ω 𝟙  ≤ω 𝟘  → refl
+    ≤ω ≤ω 𝟙  ≤ω 𝟙  → refl
+    ≤ω ≤ω 𝟙  ≤ω ≤𝟙 → refl
+    ≤ω ≤ω 𝟙  ≤ω ≤ω → refl
+    ≤ω ≤ω ≤𝟙 𝟘  𝟘  → refl
+    ≤ω ≤ω ≤𝟙 𝟘  𝟙  → refl
+    ≤ω ≤ω ≤𝟙 𝟘  ≤𝟙 → refl
+    ≤ω ≤ω ≤𝟙 𝟘  ≤ω → refl
+    ≤ω ≤ω ≤𝟙 𝟙  𝟘  → refl
+    ≤ω ≤ω ≤𝟙 𝟙  𝟙  → refl
+    ≤ω ≤ω ≤𝟙 𝟙  ≤𝟙 → refl
+    ≤ω ≤ω ≤𝟙 𝟙  ≤ω → refl
+    ≤ω ≤ω ≤𝟙 ≤𝟙 𝟘  → refl
+    ≤ω ≤ω ≤𝟙 ≤𝟙 𝟙  → refl
+    ≤ω ≤ω ≤𝟙 ≤𝟙 ≤𝟙 → refl
+    ≤ω ≤ω ≤𝟙 ≤𝟙 ≤ω → refl
+    ≤ω ≤ω ≤𝟙 ≤ω 𝟘  → refl
+    ≤ω ≤ω ≤𝟙 ≤ω 𝟙  → refl
+    ≤ω ≤ω ≤𝟙 ≤ω ≤𝟙 → refl
+    ≤ω ≤ω ≤𝟙 ≤ω ≤ω → refl
+    ≤ω ≤ω ≤ω 𝟘  𝟘  → refl
+    ≤ω ≤ω ≤ω 𝟘  𝟙  → refl
+    ≤ω ≤ω ≤ω 𝟘  ≤𝟙 → refl
+    ≤ω ≤ω ≤ω 𝟘  ≤ω → refl
+    ≤ω ≤ω ≤ω 𝟙  𝟘  → refl
+    ≤ω ≤ω ≤ω 𝟙  𝟙  → refl
+    ≤ω ≤ω ≤ω 𝟙  ≤𝟙 → refl
+    ≤ω ≤ω ≤ω 𝟙  ≤ω → refl
+    ≤ω ≤ω ≤ω ≤𝟙 𝟘  → refl
+    ≤ω ≤ω ≤ω ≤𝟙 𝟙  → refl
+    ≤ω ≤ω ≤ω ≤𝟙 ≤𝟙 → refl
+    ≤ω ≤ω ≤ω ≤𝟙 ≤ω → refl
+    ≤ω ≤ω ≤ω ≤ω 𝟘  → refl
+    ≤ω ≤ω ≤ω ≤ω 𝟙  → refl
+    ≤ω ≤ω ≤ω ≤ω ≤𝟙 → refl
+    ≤ω ≤ω ≤ω ≤ω ≤ω → refl
 
 -- The function linear-or-affine→linearity is not an order embedding
 -- from a linear or affine types modality to a linear types modality.
@@ -3033,33 +4924,33 @@ affine⇨linear-or-affine :
   let 𝕄₁ = affineModality v₁
       𝕄₂ = linear-or-affine v₂ v₂-ok
   in
-  Dedicated-star 𝕄₁ ⇔ Dedicated-star 𝕄₂ →
+  Dedicated-nr 𝕄₁ ⇔ Dedicated-nr 𝕄₂ →
   Is-order-embedding 𝕄₁ 𝕄₂ affine→linear-or-affine
 affine⇨linear-or-affine {v₁ = v₁} {v₂ = v₂} {v₂-ok = v₂-ok} refl s⇔s =
   λ where
-    .Is-order-embedding.trivial not-ok ok    → ⊥-elim (not-ok ok)
-    .Is-order-embedding.trivial-⊎-tr-𝟘       → inj₂ refl
-    .Is-order-embedding.tr-≤                 → ω , refl
-    .Is-order-embedding.tr-≤-𝟙               → tr-≤-𝟙 _
-    .Is-order-embedding.tr-≤-+               → tr-≤-+ _ _ _
-    .Is-order-embedding.tr-≤-·               → tr-≤-· _ _ _
-    .Is-order-embedding.tr-≤-∧               → tr-≤-∧ _ _ _
-    .Is-order-embedding.tr-≤-⊛ {s = s}       → tr-≤-⊛ _ _ _ _ _ s
-    .Is-order-embedding.tr-≤-no-star {s = s} → tr-≤-no-star s
-    .Is-order-embedding.tr-order-reflecting  → tr-order-reflecting _ _
-    .Is-order-embedding.tr-morphism          → λ where
-      .Is-morphism.tr-𝟘-≤                      → refl
-      .Is-morphism.tr-≡-𝟘-⇔ _                  → tr-≡-𝟘 _
-                                               , λ { refl → refl }
-      .Is-morphism.tr-<-𝟘 not-ok ok            → ⊥-elim (not-ok ok)
-      .Is-morphism.tr-𝟙                        → refl
-      .Is-morphism.tr-+ {p = p}                → ≤-reflexive (tr-+ p _)
-      .Is-morphism.tr-·                        → tr-· _ _
-      .Is-morphism.tr-∧                        → ≤-reflexive (tr-∧ _ _)
-      .Is-morphism.tr-⊛ {r = r}                → ≤-reflexive
-                                                   (tr-⊛ _ _ r)
-      .Is-morphism.𝟘ᵐ-in-second-if-in-first    → idᶠ
-      .Is-morphism.star-in-first-iff-in-second → s⇔s
+    .Is-order-embedding.trivial not-ok ok   → ⊥-elim (not-ok ok)
+    .Is-order-embedding.trivial-⊎-tr-𝟘      → inj₂ refl
+    .Is-order-embedding.tr-≤                → ω , refl
+    .Is-order-embedding.tr-≤-𝟙              → tr-≤-𝟙 _
+    .Is-order-embedding.tr-≤-+              → tr-≤-+ _ _ _
+    .Is-order-embedding.tr-≤-·              → tr-≤-· _ _ _
+    .Is-order-embedding.tr-≤-∧              → tr-≤-∧ _ _ _
+    .Is-order-embedding.tr-≤-nr {r = r}     → tr-≤-nr _ _ r _ _ _
+    .Is-order-embedding.tr-≤-no-nr {s = s}  → tr-≤-no-nr s
+    .Is-order-embedding.tr-order-reflecting → tr-order-reflecting _ _
+    .Is-order-embedding.tr-morphism         → λ where
+      .Is-morphism.tr-𝟘-≤                    → refl
+      .Is-morphism.tr-≡-𝟘-⇔ _                → tr-≡-𝟘 _
+                                             , λ { refl → refl }
+      .Is-morphism.tr-<-𝟘 not-ok ok          → ⊥-elim (not-ok ok)
+      .Is-morphism.tr-𝟙                      → refl
+      .Is-morphism.tr-+ {p = p}              → ≤-reflexive (tr-+ p _)
+      .Is-morphism.tr-·                      → tr-· _ _
+      .Is-morphism.tr-∧                      → ≤-reflexive (tr-∧ _ _)
+      .Is-morphism.tr-nr {r = r}             → ≤-reflexive
+                                                 (tr-nr _ r _ _ _)
+      .Is-morphism.𝟘ᵐ-in-second-if-in-first  → idᶠ
+      .Is-morphism.nr-in-first-iff-in-second → s⇔s
   where
   module P₁ = Graded.Modality.Properties (affineModality v₁)
   open Graded.Modality.Properties (linear-or-affine v₂ v₂-ok)
@@ -3107,34 +4998,254 @@ affine⇨linear-or-affine {v₁ = v₁} {v₂ = v₂} {v₂-ok = v₂-ok} refl s
   tr-∧ ω 𝟙 = refl
   tr-∧ ω ω = refl
 
-  tr-⊛ : ∀ p q r → tr′ (p A.⊛ q ▷ r) ≡ tr′ p LA.⊛ tr′ q ▷ tr′ r
-  tr-⊛ 𝟘 𝟘 𝟘 = refl
-  tr-⊛ 𝟘 𝟘 𝟙 = refl
-  tr-⊛ 𝟘 𝟘 ω = refl
-  tr-⊛ 𝟘 𝟙 𝟘 = refl
-  tr-⊛ 𝟘 𝟙 𝟙 = refl
-  tr-⊛ 𝟘 𝟙 ω = refl
-  tr-⊛ 𝟘 ω 𝟘 = refl
-  tr-⊛ 𝟘 ω 𝟙 = refl
-  tr-⊛ 𝟘 ω ω = refl
-  tr-⊛ 𝟙 𝟘 𝟘 = refl
-  tr-⊛ 𝟙 𝟘 𝟙 = refl
-  tr-⊛ 𝟙 𝟘 ω = refl
-  tr-⊛ 𝟙 𝟙 𝟘 = refl
-  tr-⊛ 𝟙 𝟙 𝟙 = refl
-  tr-⊛ 𝟙 𝟙 ω = refl
-  tr-⊛ 𝟙 ω 𝟘 = refl
-  tr-⊛ 𝟙 ω 𝟙 = refl
-  tr-⊛ 𝟙 ω ω = refl
-  tr-⊛ ω 𝟘 𝟘 = refl
-  tr-⊛ ω 𝟘 𝟙 = refl
-  tr-⊛ ω 𝟘 ω = refl
-  tr-⊛ ω 𝟙 𝟘 = refl
-  tr-⊛ ω 𝟙 𝟙 = refl
-  tr-⊛ ω 𝟙 ω = refl
-  tr-⊛ ω ω 𝟘 = refl
-  tr-⊛ ω ω 𝟙 = refl
-  tr-⊛ ω ω ω = refl
+  tr-nr :
+    ∀ p r z s n →
+    tr′ (A.nr p r z s n) ≡
+    LA.nr (tr′ p) (tr′ r) (tr′ z) (tr′ s) (tr′ n)
+  tr-nr = λ where
+    𝟘 𝟘 𝟘 𝟘 𝟘 → refl
+    𝟘 𝟘 𝟘 𝟘 𝟙 → refl
+    𝟘 𝟘 𝟘 𝟘 ω → refl
+    𝟘 𝟘 𝟘 𝟙 𝟘 → refl
+    𝟘 𝟘 𝟘 𝟙 𝟙 → refl
+    𝟘 𝟘 𝟘 𝟙 ω → refl
+    𝟘 𝟘 𝟘 ω 𝟘 → refl
+    𝟘 𝟘 𝟘 ω 𝟙 → refl
+    𝟘 𝟘 𝟘 ω ω → refl
+    𝟘 𝟘 𝟙 𝟘 𝟘 → refl
+    𝟘 𝟘 𝟙 𝟘 𝟙 → refl
+    𝟘 𝟘 𝟙 𝟘 ω → refl
+    𝟘 𝟘 𝟙 𝟙 𝟘 → refl
+    𝟘 𝟘 𝟙 𝟙 𝟙 → refl
+    𝟘 𝟘 𝟙 𝟙 ω → refl
+    𝟘 𝟘 𝟙 ω 𝟘 → refl
+    𝟘 𝟘 𝟙 ω 𝟙 → refl
+    𝟘 𝟘 𝟙 ω ω → refl
+    𝟘 𝟘 ω 𝟘 𝟘 → refl
+    𝟘 𝟘 ω 𝟘 𝟙 → refl
+    𝟘 𝟘 ω 𝟘 ω → refl
+    𝟘 𝟘 ω 𝟙 𝟘 → refl
+    𝟘 𝟘 ω 𝟙 𝟙 → refl
+    𝟘 𝟘 ω 𝟙 ω → refl
+    𝟘 𝟘 ω ω 𝟘 → refl
+    𝟘 𝟘 ω ω 𝟙 → refl
+    𝟘 𝟘 ω ω ω → refl
+    𝟘 𝟙 𝟘 𝟘 𝟘 → refl
+    𝟘 𝟙 𝟘 𝟘 𝟙 → refl
+    𝟘 𝟙 𝟘 𝟘 ω → refl
+    𝟘 𝟙 𝟘 𝟙 𝟘 → refl
+    𝟘 𝟙 𝟘 𝟙 𝟙 → refl
+    𝟘 𝟙 𝟘 𝟙 ω → refl
+    𝟘 𝟙 𝟘 ω 𝟘 → refl
+    𝟘 𝟙 𝟘 ω 𝟙 → refl
+    𝟘 𝟙 𝟘 ω ω → refl
+    𝟘 𝟙 𝟙 𝟘 𝟘 → refl
+    𝟘 𝟙 𝟙 𝟘 𝟙 → refl
+    𝟘 𝟙 𝟙 𝟘 ω → refl
+    𝟘 𝟙 𝟙 𝟙 𝟘 → refl
+    𝟘 𝟙 𝟙 𝟙 𝟙 → refl
+    𝟘 𝟙 𝟙 𝟙 ω → refl
+    𝟘 𝟙 𝟙 ω 𝟘 → refl
+    𝟘 𝟙 𝟙 ω 𝟙 → refl
+    𝟘 𝟙 𝟙 ω ω → refl
+    𝟘 𝟙 ω 𝟘 𝟘 → refl
+    𝟘 𝟙 ω 𝟘 𝟙 → refl
+    𝟘 𝟙 ω 𝟘 ω → refl
+    𝟘 𝟙 ω 𝟙 𝟘 → refl
+    𝟘 𝟙 ω 𝟙 𝟙 → refl
+    𝟘 𝟙 ω 𝟙 ω → refl
+    𝟘 𝟙 ω ω 𝟘 → refl
+    𝟘 𝟙 ω ω 𝟙 → refl
+    𝟘 𝟙 ω ω ω → refl
+    𝟘 ω 𝟘 𝟘 𝟘 → refl
+    𝟘 ω 𝟘 𝟘 𝟙 → refl
+    𝟘 ω 𝟘 𝟘 ω → refl
+    𝟘 ω 𝟘 𝟙 𝟘 → refl
+    𝟘 ω 𝟘 𝟙 𝟙 → refl
+    𝟘 ω 𝟘 𝟙 ω → refl
+    𝟘 ω 𝟘 ω 𝟘 → refl
+    𝟘 ω 𝟘 ω 𝟙 → refl
+    𝟘 ω 𝟘 ω ω → refl
+    𝟘 ω 𝟙 𝟘 𝟘 → refl
+    𝟘 ω 𝟙 𝟘 𝟙 → refl
+    𝟘 ω 𝟙 𝟘 ω → refl
+    𝟘 ω 𝟙 𝟙 𝟘 → refl
+    𝟘 ω 𝟙 𝟙 𝟙 → refl
+    𝟘 ω 𝟙 𝟙 ω → refl
+    𝟘 ω 𝟙 ω 𝟘 → refl
+    𝟘 ω 𝟙 ω 𝟙 → refl
+    𝟘 ω 𝟙 ω ω → refl
+    𝟘 ω ω 𝟘 𝟘 → refl
+    𝟘 ω ω 𝟘 𝟙 → refl
+    𝟘 ω ω 𝟘 ω → refl
+    𝟘 ω ω 𝟙 𝟘 → refl
+    𝟘 ω ω 𝟙 𝟙 → refl
+    𝟘 ω ω 𝟙 ω → refl
+    𝟘 ω ω ω 𝟘 → refl
+    𝟘 ω ω ω 𝟙 → refl
+    𝟘 ω ω ω ω → refl
+    𝟙 𝟘 𝟘 𝟘 𝟘 → refl
+    𝟙 𝟘 𝟘 𝟘 𝟙 → refl
+    𝟙 𝟘 𝟘 𝟘 ω → refl
+    𝟙 𝟘 𝟘 𝟙 𝟘 → refl
+    𝟙 𝟘 𝟘 𝟙 𝟙 → refl
+    𝟙 𝟘 𝟘 𝟙 ω → refl
+    𝟙 𝟘 𝟘 ω 𝟘 → refl
+    𝟙 𝟘 𝟘 ω 𝟙 → refl
+    𝟙 𝟘 𝟘 ω ω → refl
+    𝟙 𝟘 𝟙 𝟘 𝟘 → refl
+    𝟙 𝟘 𝟙 𝟘 𝟙 → refl
+    𝟙 𝟘 𝟙 𝟘 ω → refl
+    𝟙 𝟘 𝟙 𝟙 𝟘 → refl
+    𝟙 𝟘 𝟙 𝟙 𝟙 → refl
+    𝟙 𝟘 𝟙 𝟙 ω → refl
+    𝟙 𝟘 𝟙 ω 𝟘 → refl
+    𝟙 𝟘 𝟙 ω 𝟙 → refl
+    𝟙 𝟘 𝟙 ω ω → refl
+    𝟙 𝟘 ω 𝟘 𝟘 → refl
+    𝟙 𝟘 ω 𝟘 𝟙 → refl
+    𝟙 𝟘 ω 𝟘 ω → refl
+    𝟙 𝟘 ω 𝟙 𝟘 → refl
+    𝟙 𝟘 ω 𝟙 𝟙 → refl
+    𝟙 𝟘 ω 𝟙 ω → refl
+    𝟙 𝟘 ω ω 𝟘 → refl
+    𝟙 𝟘 ω ω 𝟙 → refl
+    𝟙 𝟘 ω ω ω → refl
+    𝟙 𝟙 𝟘 𝟘 𝟘 → refl
+    𝟙 𝟙 𝟘 𝟘 𝟙 → refl
+    𝟙 𝟙 𝟘 𝟘 ω → refl
+    𝟙 𝟙 𝟘 𝟙 𝟘 → refl
+    𝟙 𝟙 𝟘 𝟙 𝟙 → refl
+    𝟙 𝟙 𝟘 𝟙 ω → refl
+    𝟙 𝟙 𝟘 ω 𝟘 → refl
+    𝟙 𝟙 𝟘 ω 𝟙 → refl
+    𝟙 𝟙 𝟘 ω ω → refl
+    𝟙 𝟙 𝟙 𝟘 𝟘 → refl
+    𝟙 𝟙 𝟙 𝟘 𝟙 → refl
+    𝟙 𝟙 𝟙 𝟘 ω → refl
+    𝟙 𝟙 𝟙 𝟙 𝟘 → refl
+    𝟙 𝟙 𝟙 𝟙 𝟙 → refl
+    𝟙 𝟙 𝟙 𝟙 ω → refl
+    𝟙 𝟙 𝟙 ω 𝟘 → refl
+    𝟙 𝟙 𝟙 ω 𝟙 → refl
+    𝟙 𝟙 𝟙 ω ω → refl
+    𝟙 𝟙 ω 𝟘 𝟘 → refl
+    𝟙 𝟙 ω 𝟘 𝟙 → refl
+    𝟙 𝟙 ω 𝟘 ω → refl
+    𝟙 𝟙 ω 𝟙 𝟘 → refl
+    𝟙 𝟙 ω 𝟙 𝟙 → refl
+    𝟙 𝟙 ω 𝟙 ω → refl
+    𝟙 𝟙 ω ω 𝟘 → refl
+    𝟙 𝟙 ω ω 𝟙 → refl
+    𝟙 𝟙 ω ω ω → refl
+    𝟙 ω 𝟘 𝟘 𝟘 → refl
+    𝟙 ω 𝟘 𝟘 𝟙 → refl
+    𝟙 ω 𝟘 𝟘 ω → refl
+    𝟙 ω 𝟘 𝟙 𝟘 → refl
+    𝟙 ω 𝟘 𝟙 𝟙 → refl
+    𝟙 ω 𝟘 𝟙 ω → refl
+    𝟙 ω 𝟘 ω 𝟘 → refl
+    𝟙 ω 𝟘 ω 𝟙 → refl
+    𝟙 ω 𝟘 ω ω → refl
+    𝟙 ω 𝟙 𝟘 𝟘 → refl
+    𝟙 ω 𝟙 𝟘 𝟙 → refl
+    𝟙 ω 𝟙 𝟘 ω → refl
+    𝟙 ω 𝟙 𝟙 𝟘 → refl
+    𝟙 ω 𝟙 𝟙 𝟙 → refl
+    𝟙 ω 𝟙 𝟙 ω → refl
+    𝟙 ω 𝟙 ω 𝟘 → refl
+    𝟙 ω 𝟙 ω 𝟙 → refl
+    𝟙 ω 𝟙 ω ω → refl
+    𝟙 ω ω 𝟘 𝟘 → refl
+    𝟙 ω ω 𝟘 𝟙 → refl
+    𝟙 ω ω 𝟘 ω → refl
+    𝟙 ω ω 𝟙 𝟘 → refl
+    𝟙 ω ω 𝟙 𝟙 → refl
+    𝟙 ω ω 𝟙 ω → refl
+    𝟙 ω ω ω 𝟘 → refl
+    𝟙 ω ω ω 𝟙 → refl
+    𝟙 ω ω ω ω → refl
+    ω 𝟘 𝟘 𝟘 𝟘 → refl
+    ω 𝟘 𝟘 𝟘 𝟙 → refl
+    ω 𝟘 𝟘 𝟘 ω → refl
+    ω 𝟘 𝟘 𝟙 𝟘 → refl
+    ω 𝟘 𝟘 𝟙 𝟙 → refl
+    ω 𝟘 𝟘 𝟙 ω → refl
+    ω 𝟘 𝟘 ω 𝟘 → refl
+    ω 𝟘 𝟘 ω 𝟙 → refl
+    ω 𝟘 𝟘 ω ω → refl
+    ω 𝟘 𝟙 𝟘 𝟘 → refl
+    ω 𝟘 𝟙 𝟘 𝟙 → refl
+    ω 𝟘 𝟙 𝟘 ω → refl
+    ω 𝟘 𝟙 𝟙 𝟘 → refl
+    ω 𝟘 𝟙 𝟙 𝟙 → refl
+    ω 𝟘 𝟙 𝟙 ω → refl
+    ω 𝟘 𝟙 ω 𝟘 → refl
+    ω 𝟘 𝟙 ω 𝟙 → refl
+    ω 𝟘 𝟙 ω ω → refl
+    ω 𝟘 ω 𝟘 𝟘 → refl
+    ω 𝟘 ω 𝟘 𝟙 → refl
+    ω 𝟘 ω 𝟘 ω → refl
+    ω 𝟘 ω 𝟙 𝟘 → refl
+    ω 𝟘 ω 𝟙 𝟙 → refl
+    ω 𝟘 ω 𝟙 ω → refl
+    ω 𝟘 ω ω 𝟘 → refl
+    ω 𝟘 ω ω 𝟙 → refl
+    ω 𝟘 ω ω ω → refl
+    ω 𝟙 𝟘 𝟘 𝟘 → refl
+    ω 𝟙 𝟘 𝟘 𝟙 → refl
+    ω 𝟙 𝟘 𝟘 ω → refl
+    ω 𝟙 𝟘 𝟙 𝟘 → refl
+    ω 𝟙 𝟘 𝟙 𝟙 → refl
+    ω 𝟙 𝟘 𝟙 ω → refl
+    ω 𝟙 𝟘 ω 𝟘 → refl
+    ω 𝟙 𝟘 ω 𝟙 → refl
+    ω 𝟙 𝟘 ω ω → refl
+    ω 𝟙 𝟙 𝟘 𝟘 → refl
+    ω 𝟙 𝟙 𝟘 𝟙 → refl
+    ω 𝟙 𝟙 𝟘 ω → refl
+    ω 𝟙 𝟙 𝟙 𝟘 → refl
+    ω 𝟙 𝟙 𝟙 𝟙 → refl
+    ω 𝟙 𝟙 𝟙 ω → refl
+    ω 𝟙 𝟙 ω 𝟘 → refl
+    ω 𝟙 𝟙 ω 𝟙 → refl
+    ω 𝟙 𝟙 ω ω → refl
+    ω 𝟙 ω 𝟘 𝟘 → refl
+    ω 𝟙 ω 𝟘 𝟙 → refl
+    ω 𝟙 ω 𝟘 ω → refl
+    ω 𝟙 ω 𝟙 𝟘 → refl
+    ω 𝟙 ω 𝟙 𝟙 → refl
+    ω 𝟙 ω 𝟙 ω → refl
+    ω 𝟙 ω ω 𝟘 → refl
+    ω 𝟙 ω ω 𝟙 → refl
+    ω 𝟙 ω ω ω → refl
+    ω ω 𝟘 𝟘 𝟘 → refl
+    ω ω 𝟘 𝟘 𝟙 → refl
+    ω ω 𝟘 𝟘 ω → refl
+    ω ω 𝟘 𝟙 𝟘 → refl
+    ω ω 𝟘 𝟙 𝟙 → refl
+    ω ω 𝟘 𝟙 ω → refl
+    ω ω 𝟘 ω 𝟘 → refl
+    ω ω 𝟘 ω 𝟙 → refl
+    ω ω 𝟘 ω ω → refl
+    ω ω 𝟙 𝟘 𝟘 → refl
+    ω ω 𝟙 𝟘 𝟙 → refl
+    ω ω 𝟙 𝟘 ω → refl
+    ω ω 𝟙 𝟙 𝟘 → refl
+    ω ω 𝟙 𝟙 𝟙 → refl
+    ω ω 𝟙 𝟙 ω → refl
+    ω ω 𝟙 ω 𝟘 → refl
+    ω ω 𝟙 ω 𝟙 → refl
+    ω ω 𝟙 ω ω → refl
+    ω ω ω 𝟘 𝟘 → refl
+    ω ω ω 𝟘 𝟙 → refl
+    ω ω ω 𝟘 ω → refl
+    ω ω ω 𝟙 𝟘 → refl
+    ω ω ω 𝟙 𝟙 → refl
+    ω ω ω 𝟙 ω → refl
+    ω ω ω ω 𝟘 → refl
+    ω ω ω ω 𝟙 → refl
+    ω ω ω ω ω → refl
 
   tr-order-reflecting : ∀ p q → tr′ p LA.≤ tr′ q → p A.≤ q
   tr-order-reflecting 𝟘 𝟘 _ = refl
@@ -3198,1165 +5309,1166 @@ affine⇨linear-or-affine {v₁ = v₁} {v₂ = v₂} {v₂-ok = v₂-ok} refl s
   tr-≤-∧ 𝟘 𝟙  𝟙  ()
   tr-≤-∧ 𝟘 ≤𝟙 𝟙  ()
 
-  tr-≤-⊛ :
-    ∀ p q₁ q₂ q₃ r s →
-    tr′ p LA.≤ (q₁ LA.∧ q₂) LA.⊛ q₃ LA.+ tr′ r LA.· q₂ ▷ tr′ s →
-    ∃₃ λ q₁′ q₂′ q₃′ →
-       tr′ q₁′ LA.≤ q₁ × tr′ q₂′ LA.≤ q₂ × tr′ q₃′ LA.≤ q₃ ×
-       p A.≤ (q₁′ A.∧ q₂′) A.⊛ q₃′ A.+ r A.· q₂′ ▷ s
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟘  𝟘 𝟘 _  = 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟘  𝟘 𝟙 _  = 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟘  𝟘 ω _  = 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟘  𝟙 𝟘 _  = 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟘  𝟙 𝟙 _  = 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟘  𝟙 ω _  = 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟘  ω 𝟘 _  = 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟘  ω 𝟙 _  = 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟘  ω ω _  = 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟘  𝟘 𝟘 _  = 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟘  𝟘 𝟙 _  = 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟘  𝟘 ω _  = 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟘  𝟙 𝟘 _  = 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟘  𝟙 𝟙 _  = 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟘  𝟙 ω _  = 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟘  ω 𝟘 _  = 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟘  ω 𝟙 _  = 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟘  ω ω _  = 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟙  𝟘 𝟘 _  = 𝟘 , 𝟘 , 𝟙 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟙  𝟙 𝟘 _  = 𝟘 , 𝟘 , 𝟙 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟙  ω 𝟘 _  = 𝟘 , 𝟘 , 𝟙 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤𝟙 𝟘 𝟘 _  = 𝟘 , 𝟘 , 𝟙 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤𝟙 𝟙 𝟘 _  = 𝟘 , 𝟘 , 𝟙 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤𝟙 ω 𝟘 _  = 𝟘 , 𝟘 , 𝟙 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟘  𝟘 𝟘 _  = 𝟘 , 𝟙 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟘  𝟘 𝟙 _  = 𝟘 , 𝟙 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟘  𝟙 𝟘 _  = 𝟘 , 𝟙 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟙  𝟘 𝟘 _  = 𝟘 , 𝟙 , 𝟙 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤𝟙 𝟘 𝟘 _  = 𝟘 , 𝟙 , 𝟙 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟘  𝟘 𝟘 _  = 𝟘 , 𝟙 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟘  𝟘 𝟙 _  = 𝟘 , 𝟙 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟘  𝟙 𝟘 _  = 𝟘 , 𝟙 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟙  𝟘 𝟘 _  = 𝟘 , 𝟙 , 𝟙 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤𝟙 𝟘 𝟘 _  = 𝟘 , 𝟙 , 𝟙 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟘  𝟘 𝟘 _  = 𝟙 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟘  𝟘 𝟙 _  = 𝟙 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟘  𝟙 𝟘 _  = 𝟙 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟘  𝟙 𝟙 _  = 𝟙 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟘  ω 𝟘 _  = 𝟙 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟘  ω 𝟙 _  = 𝟙 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟙  𝟘 𝟘 _  = 𝟙 , 𝟘 , 𝟙 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟙  𝟙 𝟘 _  = 𝟙 , 𝟘 , 𝟙 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟙  ω 𝟘 _  = 𝟙 , 𝟘 , 𝟙 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤𝟙 𝟘 𝟘 _  = 𝟙 , 𝟘 , 𝟙 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤𝟙 𝟙 𝟘 _  = 𝟙 , 𝟘 , 𝟙 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤𝟙 ω 𝟘 _  = 𝟙 , 𝟘 , 𝟙 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟘  𝟘 𝟘 _  = 𝟙 , 𝟙 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟘  𝟘 𝟙 _  = 𝟙 , 𝟙 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟘  𝟙 𝟘 _  = 𝟙 , 𝟙 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟙  𝟘 𝟘 _  = 𝟙 , 𝟙 , 𝟙 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤𝟙 𝟘 𝟘 _  = 𝟙 , 𝟙 , 𝟙 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟘  𝟘 𝟘 _  = 𝟙 , 𝟙 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟘  𝟘 𝟙 _  = 𝟙 , 𝟙 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟘  𝟙 𝟘 _  = 𝟙 , 𝟙 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟙  𝟘 𝟘 _  = 𝟙 , 𝟙 , 𝟙 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤𝟙 𝟘 𝟘 _  = 𝟙 , 𝟙 , 𝟙 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟘  𝟘 𝟘 _  = 𝟙 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟘  𝟘 𝟙 _  = 𝟙 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟘  𝟙 𝟘 _  = 𝟙 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟘  𝟙 𝟙 _  = 𝟙 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟘  ω 𝟘 _  = 𝟙 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟘  ω 𝟙 _  = 𝟙 , 𝟘 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟙  𝟘 𝟘 _  = 𝟙 , 𝟘 , 𝟙 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟙  𝟙 𝟘 _  = 𝟙 , 𝟘 , 𝟙 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟙  ω 𝟘 _  = 𝟙 , 𝟘 , 𝟙 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤𝟙 𝟘 𝟘 _  = 𝟙 , 𝟘 , 𝟙 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤𝟙 𝟙 𝟘 _  = 𝟙 , 𝟘 , 𝟙 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤𝟙 ω 𝟘 _  = 𝟙 , 𝟘 , 𝟙 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟘  𝟘 𝟘 _  = 𝟙 , 𝟙 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟘  𝟘 𝟙 _  = 𝟙 , 𝟙 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟘  𝟙 𝟘 _  = 𝟙 , 𝟙 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟙  𝟘 𝟘 _  = 𝟙 , 𝟙 , 𝟙 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤𝟙 𝟘 𝟘 _  = 𝟙 , 𝟙 , 𝟙 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟘  𝟘 𝟘 _  = 𝟙 , 𝟙 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟘  𝟘 𝟙 _  = 𝟙 , 𝟙 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟘  𝟙 𝟘 _  = 𝟙 , 𝟙 , 𝟘 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟙  𝟘 𝟘 _  = 𝟙 , 𝟙 , 𝟙 , refl , refl , refl , refl
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤𝟙 𝟘 𝟘 _  = 𝟙 , 𝟙 , 𝟙 , refl , refl , refl , refl
-  tr-≤-⊛ ω _  _  _  _ _ _  = ω , ω , ω , refl , refl , refl , refl
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  𝟙  ω ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟘  ≤ω ω ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟘  ω ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  𝟙  ω ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  𝟙  ≤ω ω ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟘  ω ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 𝟙  ω ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤𝟙 ≤ω ω ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟘  ω ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω 𝟙  ω ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟘  ≤ω ≤ω ω ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟘  ω ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  𝟙  ω ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟘  ≤ω ω ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟘  ω ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  𝟙  ω ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  𝟙  ≤ω ω ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟘  ω ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 𝟙  ω ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤𝟙 ≤ω ω ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟘  ω ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω 𝟙  ω ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟘 𝟙  ≤ω ≤ω ω ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟘  ω ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  𝟙  ω ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟘  ≤ω ω ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟘  ω ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  𝟙  ω ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 𝟙  ≤ω ω ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟘  ω ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 𝟙  ω ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤𝟙 ≤ω ω ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟘  ω ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω 𝟙  ω ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤𝟙 ≤ω ≤ω ω ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟘  ω ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  𝟙  ω ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟘  ≤ω ω ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟘  ω ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  𝟙  ω ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω 𝟙  ≤ω ω ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟘  ω ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 𝟙  ω ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤𝟙 ≤ω ω ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟘  ω ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω 𝟙  ω ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟘 ≤ω ≤ω ≤ω ω ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  𝟙  ω ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟘  ≤ω ω ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟘  ω ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  𝟙  ω ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  𝟙  ≤ω ω ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟘  ω ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 𝟙  ω ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤𝟙 ≤ω ω ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟘  ω ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω 𝟙  ω ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟘  ≤ω ≤ω ω ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟘  ω ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  𝟙  ω ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟘  ≤ω ω ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟘  ω ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  𝟙  ω ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  𝟙  ≤ω ω ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟘  ω ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 𝟙  ω ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤𝟙 ≤ω ω ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟘  ω ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω 𝟙  ω ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟙 𝟙  ≤ω ≤ω ω ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟘  ω ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  𝟙  ω ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟘  ≤ω ω ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟘  ω ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  𝟙  ω ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 𝟙  ≤ω ω ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟘  ω ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 𝟙  ω ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤𝟙 ≤ω ω ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟘  ω ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω 𝟙  ω ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤𝟙 ≤ω ≤ω ω ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟘  ω ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  𝟙  ω ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟘  ≤ω ω ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  𝟘  ω ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  𝟙  ω ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω 𝟙  ≤ω ω ω ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 𝟘  ω ω ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 𝟙  ω ω ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤𝟙 ≤ω ω ω ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω 𝟘  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω 𝟘  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω 𝟘  𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω 𝟘  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω 𝟘  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω 𝟘  𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω 𝟘  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω 𝟘  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω 𝟘  ω ω ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω 𝟙  𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω 𝟙  𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω 𝟙  𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω 𝟙  𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω 𝟙  𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω 𝟙  𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω 𝟙  ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω 𝟙  ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω 𝟙  ω ω ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω ≤𝟙 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω ≤𝟙 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω ≤𝟙 𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω ≤𝟙 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω ≤𝟙 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω ≤𝟙 𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω ≤𝟙 ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω ≤𝟙 ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω ≤𝟙 ω ω ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω ≤ω 𝟘 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω ≤ω 𝟘 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω ≤ω 𝟘 ω ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω ≤ω 𝟙 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω ≤ω 𝟙 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω ≤ω 𝟙 ω ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω ≤ω ω 𝟘 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω ≤ω ω 𝟙 ()
-  tr-≤-⊛ 𝟙 ≤ω ≤ω ≤ω ω ω ()
+  tr-≤-nr :
+    ∀ q p r z₁ s₁ n₁ →
+    tr′ q LA.≤ LA.nr (tr′ p) (tr′ r) z₁ s₁ n₁ →
+    ∃₃ λ z₂ s₂ n₂ →
+       tr′ z₂ LA.≤ z₁ × tr′ s₂ LA.≤ s₁ × tr′ n₂ LA.≤ n₁ ×
+       q A.≤ A.nr p r z₂ s₂ n₂
+  tr-≤-nr = λ where
+    ω _ _ _  _  _  _  → ω , ω , ω , refl , refl , refl , refl
+    𝟘 𝟘 𝟘 𝟘  𝟘  𝟘  _  → 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟘 𝟘 𝟙 𝟘  𝟘  𝟘  _  → 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟘 𝟘 ω 𝟘  𝟘  𝟘  _  → 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟘 𝟙 𝟘 𝟘  𝟘  𝟘  _  → 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟘 𝟙 𝟙 𝟘  𝟘  𝟘  _  → 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟘 𝟙 ω 𝟘  𝟘  𝟘  _  → 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟘 ω 𝟘 𝟘  𝟘  𝟘  _  → 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟘 ω 𝟙 𝟘  𝟘  𝟘  _  → 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟘 ω ω 𝟘  𝟘  𝟘  _  → 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟙 𝟘 𝟘 𝟘  𝟘  𝟘  _  → 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟙 𝟘 𝟘 𝟘  𝟘  𝟙  _  → 𝟘 , 𝟘 , 𝟙 , refl , refl , refl , refl
+    𝟙 𝟘 𝟘 𝟘  𝟘  ≤𝟙 _  → 𝟘 , 𝟘 , 𝟙 , refl , refl , refl , refl
+    𝟙 𝟘 𝟘 𝟘  𝟙  𝟘  _  → 𝟘 , 𝟙 , 𝟘 , refl , refl , refl , refl
+    𝟙 𝟘 𝟘 𝟘  ≤𝟙 𝟘  _  → 𝟘 , 𝟙 , 𝟘 , refl , refl , refl , refl
+    𝟙 𝟘 𝟘 𝟙  𝟘  𝟘  _  → 𝟙 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟙 𝟘 𝟘 𝟙  𝟙  𝟘  _  → 𝟙 , 𝟙 , 𝟘 , refl , refl , refl , refl
+    𝟙 𝟘 𝟘 𝟙  ≤𝟙 𝟘  _  → 𝟙 , 𝟙 , 𝟘 , refl , refl , refl , refl
+    𝟙 𝟘 𝟘 ≤𝟙 𝟘  𝟘  _  → 𝟙 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟙 𝟘 𝟘 ≤𝟙 𝟙  𝟘  _  → 𝟙 , 𝟙 , 𝟘 , refl , refl , refl , refl
+    𝟙 𝟘 𝟘 ≤𝟙 ≤𝟙 𝟘  _  → 𝟙 , 𝟙 , 𝟘 , refl , refl , refl , refl
+    𝟙 𝟘 𝟙 𝟘  𝟘  𝟘  _  → 𝟙 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟙 𝟘 𝟙 𝟘  𝟘  𝟙  _  → 𝟘 , 𝟘 , 𝟙 , refl , refl , refl , refl
+    𝟙 𝟘 𝟙 𝟘  𝟘  ≤𝟙 _  → 𝟘 , 𝟘 , 𝟙 , refl , refl , refl , refl
+    𝟙 𝟘 𝟙 𝟙  𝟘  𝟘  _  → 𝟙 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟙 𝟘 𝟙 ≤𝟙 𝟘  𝟘  _  → 𝟙 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟙 𝟘 ω 𝟘  𝟘  𝟘  _  → 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟙 𝟙 𝟘 𝟘  𝟘  𝟘  _  → 𝟙 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟙 𝟙 𝟘 𝟘  𝟘  𝟙  _  → 𝟘 , 𝟘 , 𝟙 , refl , refl , refl , refl
+    𝟙 𝟙 𝟘 𝟘  𝟘  ≤𝟙 _  → 𝟘 , 𝟘 , 𝟙 , refl , refl , refl , refl
+    𝟙 𝟙 𝟘 𝟘  𝟙  𝟘  _  → 𝟙 , 𝟙 , 𝟘 , refl , refl , refl , refl
+    𝟙 𝟙 𝟘 𝟘  ≤𝟙 𝟘  _  → 𝟙 , 𝟙 , 𝟘 , refl , refl , refl , refl
+    𝟙 𝟙 𝟘 𝟙  𝟘  𝟘  _  → 𝟙 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟙 𝟙 𝟘 𝟙  𝟙  𝟘  _  → 𝟙 , 𝟙 , 𝟘 , refl , refl , refl , refl
+    𝟙 𝟙 𝟘 𝟙  ≤𝟙 𝟘  _  → 𝟙 , 𝟙 , 𝟘 , refl , refl , refl , refl
+    𝟙 𝟙 𝟘 ≤𝟙 𝟘  𝟘  _  → 𝟙 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟙 𝟙 𝟘 ≤𝟙 𝟙  𝟘  _  → 𝟙 , 𝟙 , 𝟘 , refl , refl , refl , refl
+    𝟙 𝟙 𝟘 ≤𝟙 ≤𝟙 𝟘  _  → 𝟙 , 𝟙 , 𝟘 , refl , refl , refl , refl
+    𝟙 𝟙 𝟙 𝟘  𝟘  𝟘  _  → 𝟙 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟙 𝟙 𝟙 𝟙  𝟘  𝟘  _  → 𝟙 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟙 𝟙 𝟙 ≤𝟙 𝟘  𝟘  _  → 𝟙 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟙 𝟙 ω 𝟘  𝟘  𝟘  _  → 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟙 ω 𝟘 𝟘  𝟘  𝟘  _  → 𝟙 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟙 ω 𝟘 𝟘  𝟙  𝟘  _  → 𝟙 , 𝟙 , 𝟘 , refl , refl , refl , refl
+    𝟙 ω 𝟘 𝟘  ≤𝟙 𝟘  _  → 𝟙 , 𝟙 , 𝟘 , refl , refl , refl , refl
+    𝟙 ω 𝟘 𝟙  𝟘  𝟘  _  → 𝟙 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟙 ω 𝟘 𝟙  𝟙  𝟘  _  → 𝟙 , 𝟙 , 𝟘 , refl , refl , refl , refl
+    𝟙 ω 𝟘 𝟙  ≤𝟙 𝟘  _  → 𝟙 , 𝟙 , 𝟘 , refl , refl , refl , refl
+    𝟙 ω 𝟘 ≤𝟙 𝟘  𝟘  _  → 𝟙 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟙 ω 𝟘 ≤𝟙 𝟙  𝟘  _  → 𝟙 , 𝟙 , 𝟘 , refl , refl , refl , refl
+    𝟙 ω 𝟘 ≤𝟙 ≤𝟙 𝟘  _  → 𝟙 , 𝟙 , 𝟘 , refl , refl , refl , refl
+    𝟙 ω 𝟙 𝟘  𝟘  𝟘  _  → 𝟙 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟙 ω 𝟙 𝟙  𝟘  𝟘  _  → 𝟙 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟙 ω 𝟙 ≤𝟙 𝟘  𝟘  _  → 𝟙 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟙 ω ω 𝟘  𝟘  𝟘  _  → 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
+    𝟘 𝟘 𝟘 𝟘  𝟘  𝟙  ()
+    𝟘 𝟘 𝟘 𝟘  𝟘  ≤𝟙 ()
+    𝟘 𝟘 𝟘 𝟘  𝟘  ≤ω ()
+    𝟘 𝟘 𝟘 𝟘  𝟙  𝟘  ()
+    𝟘 𝟘 𝟘 𝟘  𝟙  𝟙  ()
+    𝟘 𝟘 𝟘 𝟘  𝟙  ≤𝟙 ()
+    𝟘 𝟘 𝟘 𝟘  𝟙  ≤ω ()
+    𝟘 𝟘 𝟘 𝟘  ≤𝟙 𝟘  ()
+    𝟘 𝟘 𝟘 𝟘  ≤𝟙 𝟙  ()
+    𝟘 𝟘 𝟘 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟘 𝟘 𝟘 𝟘  ≤𝟙 ≤ω ()
+    𝟘 𝟘 𝟘 𝟘  ≤ω 𝟘  ()
+    𝟘 𝟘 𝟘 𝟘  ≤ω 𝟙  ()
+    𝟘 𝟘 𝟘 𝟘  ≤ω ≤𝟙 ()
+    𝟘 𝟘 𝟘 𝟘  ≤ω ≤ω ()
+    𝟘 𝟘 𝟘 𝟙  𝟘  𝟘  ()
+    𝟘 𝟘 𝟘 𝟙  𝟘  𝟙  ()
+    𝟘 𝟘 𝟘 𝟙  𝟘  ≤𝟙 ()
+    𝟘 𝟘 𝟘 𝟙  𝟘  ≤ω ()
+    𝟘 𝟘 𝟘 𝟙  𝟙  𝟘  ()
+    𝟘 𝟘 𝟘 𝟙  𝟙  𝟙  ()
+    𝟘 𝟘 𝟘 𝟙  𝟙  ≤𝟙 ()
+    𝟘 𝟘 𝟘 𝟙  𝟙  ≤ω ()
+    𝟘 𝟘 𝟘 𝟙  ≤𝟙 𝟘  ()
+    𝟘 𝟘 𝟘 𝟙  ≤𝟙 𝟙  ()
+    𝟘 𝟘 𝟘 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟘 𝟘 𝟘 𝟙  ≤𝟙 ≤ω ()
+    𝟘 𝟘 𝟘 𝟙  ≤ω 𝟘  ()
+    𝟘 𝟘 𝟘 𝟙  ≤ω 𝟙  ()
+    𝟘 𝟘 𝟘 𝟙  ≤ω ≤𝟙 ()
+    𝟘 𝟘 𝟘 𝟙  ≤ω ≤ω ()
+    𝟘 𝟘 𝟘 ≤𝟙 𝟘  𝟘  ()
+    𝟘 𝟘 𝟘 ≤𝟙 𝟘  𝟙  ()
+    𝟘 𝟘 𝟘 ≤𝟙 𝟘  ≤𝟙 ()
+    𝟘 𝟘 𝟘 ≤𝟙 𝟘  ≤ω ()
+    𝟘 𝟘 𝟘 ≤𝟙 𝟙  𝟘  ()
+    𝟘 𝟘 𝟘 ≤𝟙 𝟙  𝟙  ()
+    𝟘 𝟘 𝟘 ≤𝟙 𝟙  ≤𝟙 ()
+    𝟘 𝟘 𝟘 ≤𝟙 𝟙  ≤ω ()
+    𝟘 𝟘 𝟘 ≤𝟙 ≤𝟙 𝟘  ()
+    𝟘 𝟘 𝟘 ≤𝟙 ≤𝟙 𝟙  ()
+    𝟘 𝟘 𝟘 ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟘 𝟘 𝟘 ≤𝟙 ≤𝟙 ≤ω ()
+    𝟘 𝟘 𝟘 ≤𝟙 ≤ω 𝟘  ()
+    𝟘 𝟘 𝟘 ≤𝟙 ≤ω 𝟙  ()
+    𝟘 𝟘 𝟘 ≤𝟙 ≤ω ≤𝟙 ()
+    𝟘 𝟘 𝟘 ≤𝟙 ≤ω ≤ω ()
+    𝟘 𝟘 𝟘 ≤ω 𝟘  𝟘  ()
+    𝟘 𝟘 𝟘 ≤ω 𝟘  𝟙  ()
+    𝟘 𝟘 𝟘 ≤ω 𝟘  ≤𝟙 ()
+    𝟘 𝟘 𝟘 ≤ω 𝟘  ≤ω ()
+    𝟘 𝟘 𝟘 ≤ω 𝟙  𝟘  ()
+    𝟘 𝟘 𝟘 ≤ω 𝟙  𝟙  ()
+    𝟘 𝟘 𝟘 ≤ω 𝟙  ≤𝟙 ()
+    𝟘 𝟘 𝟘 ≤ω 𝟙  ≤ω ()
+    𝟘 𝟘 𝟘 ≤ω ≤𝟙 𝟘  ()
+    𝟘 𝟘 𝟘 ≤ω ≤𝟙 𝟙  ()
+    𝟘 𝟘 𝟘 ≤ω ≤𝟙 ≤𝟙 ()
+    𝟘 𝟘 𝟘 ≤ω ≤𝟙 ≤ω ()
+    𝟘 𝟘 𝟘 ≤ω ≤ω 𝟘  ()
+    𝟘 𝟘 𝟘 ≤ω ≤ω 𝟙  ()
+    𝟘 𝟘 𝟘 ≤ω ≤ω ≤𝟙 ()
+    𝟘 𝟘 𝟘 ≤ω ≤ω ≤ω ()
+    𝟘 𝟘 𝟙 𝟘  𝟘  𝟙  ()
+    𝟘 𝟘 𝟙 𝟘  𝟘  ≤𝟙 ()
+    𝟘 𝟘 𝟙 𝟘  𝟘  ≤ω ()
+    𝟘 𝟘 𝟙 𝟘  𝟙  𝟘  ()
+    𝟘 𝟘 𝟙 𝟘  𝟙  𝟙  ()
+    𝟘 𝟘 𝟙 𝟘  𝟙  ≤𝟙 ()
+    𝟘 𝟘 𝟙 𝟘  𝟙  ≤ω ()
+    𝟘 𝟘 𝟙 𝟘  ≤𝟙 𝟘  ()
+    𝟘 𝟘 𝟙 𝟘  ≤𝟙 𝟙  ()
+    𝟘 𝟘 𝟙 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟘 𝟘 𝟙 𝟘  ≤𝟙 ≤ω ()
+    𝟘 𝟘 𝟙 𝟘  ≤ω 𝟘  ()
+    𝟘 𝟘 𝟙 𝟘  ≤ω 𝟙  ()
+    𝟘 𝟘 𝟙 𝟘  ≤ω ≤𝟙 ()
+    𝟘 𝟘 𝟙 𝟘  ≤ω ≤ω ()
+    𝟘 𝟘 𝟙 𝟙  𝟘  𝟘  ()
+    𝟘 𝟘 𝟙 𝟙  𝟘  𝟙  ()
+    𝟘 𝟘 𝟙 𝟙  𝟘  ≤𝟙 ()
+    𝟘 𝟘 𝟙 𝟙  𝟘  ≤ω ()
+    𝟘 𝟘 𝟙 𝟙  𝟙  𝟘  ()
+    𝟘 𝟘 𝟙 𝟙  𝟙  𝟙  ()
+    𝟘 𝟘 𝟙 𝟙  𝟙  ≤𝟙 ()
+    𝟘 𝟘 𝟙 𝟙  𝟙  ≤ω ()
+    𝟘 𝟘 𝟙 𝟙  ≤𝟙 𝟘  ()
+    𝟘 𝟘 𝟙 𝟙  ≤𝟙 𝟙  ()
+    𝟘 𝟘 𝟙 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟘 𝟘 𝟙 𝟙  ≤𝟙 ≤ω ()
+    𝟘 𝟘 𝟙 𝟙  ≤ω 𝟘  ()
+    𝟘 𝟘 𝟙 𝟙  ≤ω 𝟙  ()
+    𝟘 𝟘 𝟙 𝟙  ≤ω ≤𝟙 ()
+    𝟘 𝟘 𝟙 𝟙  ≤ω ≤ω ()
+    𝟘 𝟘 𝟙 ≤𝟙 𝟘  𝟘  ()
+    𝟘 𝟘 𝟙 ≤𝟙 𝟘  𝟙  ()
+    𝟘 𝟘 𝟙 ≤𝟙 𝟘  ≤𝟙 ()
+    𝟘 𝟘 𝟙 ≤𝟙 𝟘  ≤ω ()
+    𝟘 𝟘 𝟙 ≤𝟙 𝟙  𝟘  ()
+    𝟘 𝟘 𝟙 ≤𝟙 𝟙  𝟙  ()
+    𝟘 𝟘 𝟙 ≤𝟙 𝟙  ≤𝟙 ()
+    𝟘 𝟘 𝟙 ≤𝟙 𝟙  ≤ω ()
+    𝟘 𝟘 𝟙 ≤𝟙 ≤𝟙 𝟘  ()
+    𝟘 𝟘 𝟙 ≤𝟙 ≤𝟙 𝟙  ()
+    𝟘 𝟘 𝟙 ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟘 𝟘 𝟙 ≤𝟙 ≤𝟙 ≤ω ()
+    𝟘 𝟘 𝟙 ≤𝟙 ≤ω 𝟘  ()
+    𝟘 𝟘 𝟙 ≤𝟙 ≤ω 𝟙  ()
+    𝟘 𝟘 𝟙 ≤𝟙 ≤ω ≤𝟙 ()
+    𝟘 𝟘 𝟙 ≤𝟙 ≤ω ≤ω ()
+    𝟘 𝟘 𝟙 ≤ω 𝟘  𝟘  ()
+    𝟘 𝟘 𝟙 ≤ω 𝟘  𝟙  ()
+    𝟘 𝟘 𝟙 ≤ω 𝟘  ≤𝟙 ()
+    𝟘 𝟘 𝟙 ≤ω 𝟘  ≤ω ()
+    𝟘 𝟘 𝟙 ≤ω 𝟙  𝟘  ()
+    𝟘 𝟘 𝟙 ≤ω 𝟙  𝟙  ()
+    𝟘 𝟘 𝟙 ≤ω 𝟙  ≤𝟙 ()
+    𝟘 𝟘 𝟙 ≤ω 𝟙  ≤ω ()
+    𝟘 𝟘 𝟙 ≤ω ≤𝟙 𝟘  ()
+    𝟘 𝟘 𝟙 ≤ω ≤𝟙 𝟙  ()
+    𝟘 𝟘 𝟙 ≤ω ≤𝟙 ≤𝟙 ()
+    𝟘 𝟘 𝟙 ≤ω ≤𝟙 ≤ω ()
+    𝟘 𝟘 𝟙 ≤ω ≤ω 𝟘  ()
+    𝟘 𝟘 𝟙 ≤ω ≤ω 𝟙  ()
+    𝟘 𝟘 𝟙 ≤ω ≤ω ≤𝟙 ()
+    𝟘 𝟘 𝟙 ≤ω ≤ω ≤ω ()
+    𝟘 𝟘 ω 𝟘  𝟘  𝟙  ()
+    𝟘 𝟘 ω 𝟘  𝟘  ≤𝟙 ()
+    𝟘 𝟘 ω 𝟘  𝟘  ≤ω ()
+    𝟘 𝟘 ω 𝟘  𝟙  𝟘  ()
+    𝟘 𝟘 ω 𝟘  𝟙  𝟙  ()
+    𝟘 𝟘 ω 𝟘  𝟙  ≤𝟙 ()
+    𝟘 𝟘 ω 𝟘  𝟙  ≤ω ()
+    𝟘 𝟘 ω 𝟘  ≤𝟙 𝟘  ()
+    𝟘 𝟘 ω 𝟘  ≤𝟙 𝟙  ()
+    𝟘 𝟘 ω 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟘 𝟘 ω 𝟘  ≤𝟙 ≤ω ()
+    𝟘 𝟘 ω 𝟘  ≤ω 𝟘  ()
+    𝟘 𝟘 ω 𝟘  ≤ω 𝟙  ()
+    𝟘 𝟘 ω 𝟘  ≤ω ≤𝟙 ()
+    𝟘 𝟘 ω 𝟘  ≤ω ≤ω ()
+    𝟘 𝟘 ω 𝟙  𝟘  𝟘  ()
+    𝟘 𝟘 ω 𝟙  𝟘  𝟙  ()
+    𝟘 𝟘 ω 𝟙  𝟘  ≤𝟙 ()
+    𝟘 𝟘 ω 𝟙  𝟘  ≤ω ()
+    𝟘 𝟘 ω 𝟙  𝟙  𝟘  ()
+    𝟘 𝟘 ω 𝟙  𝟙  𝟙  ()
+    𝟘 𝟘 ω 𝟙  𝟙  ≤𝟙 ()
+    𝟘 𝟘 ω 𝟙  𝟙  ≤ω ()
+    𝟘 𝟘 ω 𝟙  ≤𝟙 𝟘  ()
+    𝟘 𝟘 ω 𝟙  ≤𝟙 𝟙  ()
+    𝟘 𝟘 ω 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟘 𝟘 ω 𝟙  ≤𝟙 ≤ω ()
+    𝟘 𝟘 ω 𝟙  ≤ω 𝟘  ()
+    𝟘 𝟘 ω 𝟙  ≤ω 𝟙  ()
+    𝟘 𝟘 ω 𝟙  ≤ω ≤𝟙 ()
+    𝟘 𝟘 ω 𝟙  ≤ω ≤ω ()
+    𝟘 𝟘 ω ≤𝟙 𝟘  𝟘  ()
+    𝟘 𝟘 ω ≤𝟙 𝟘  𝟙  ()
+    𝟘 𝟘 ω ≤𝟙 𝟘  ≤𝟙 ()
+    𝟘 𝟘 ω ≤𝟙 𝟘  ≤ω ()
+    𝟘 𝟘 ω ≤𝟙 𝟙  𝟘  ()
+    𝟘 𝟘 ω ≤𝟙 𝟙  𝟙  ()
+    𝟘 𝟘 ω ≤𝟙 𝟙  ≤𝟙 ()
+    𝟘 𝟘 ω ≤𝟙 𝟙  ≤ω ()
+    𝟘 𝟘 ω ≤𝟙 ≤𝟙 𝟘  ()
+    𝟘 𝟘 ω ≤𝟙 ≤𝟙 𝟙  ()
+    𝟘 𝟘 ω ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟘 𝟘 ω ≤𝟙 ≤𝟙 ≤ω ()
+    𝟘 𝟘 ω ≤𝟙 ≤ω 𝟘  ()
+    𝟘 𝟘 ω ≤𝟙 ≤ω 𝟙  ()
+    𝟘 𝟘 ω ≤𝟙 ≤ω ≤𝟙 ()
+    𝟘 𝟘 ω ≤𝟙 ≤ω ≤ω ()
+    𝟘 𝟘 ω ≤ω 𝟘  𝟘  ()
+    𝟘 𝟘 ω ≤ω 𝟘  𝟙  ()
+    𝟘 𝟘 ω ≤ω 𝟘  ≤𝟙 ()
+    𝟘 𝟘 ω ≤ω 𝟘  ≤ω ()
+    𝟘 𝟘 ω ≤ω 𝟙  𝟘  ()
+    𝟘 𝟘 ω ≤ω 𝟙  𝟙  ()
+    𝟘 𝟘 ω ≤ω 𝟙  ≤𝟙 ()
+    𝟘 𝟘 ω ≤ω 𝟙  ≤ω ()
+    𝟘 𝟘 ω ≤ω ≤𝟙 𝟘  ()
+    𝟘 𝟘 ω ≤ω ≤𝟙 𝟙  ()
+    𝟘 𝟘 ω ≤ω ≤𝟙 ≤𝟙 ()
+    𝟘 𝟘 ω ≤ω ≤𝟙 ≤ω ()
+    𝟘 𝟘 ω ≤ω ≤ω 𝟘  ()
+    𝟘 𝟘 ω ≤ω ≤ω 𝟙  ()
+    𝟘 𝟘 ω ≤ω ≤ω ≤𝟙 ()
+    𝟘 𝟘 ω ≤ω ≤ω ≤ω ()
+    𝟘 𝟙 𝟘 𝟘  𝟘  𝟙  ()
+    𝟘 𝟙 𝟘 𝟘  𝟘  ≤𝟙 ()
+    𝟘 𝟙 𝟘 𝟘  𝟘  ≤ω ()
+    𝟘 𝟙 𝟘 𝟘  𝟙  𝟘  ()
+    𝟘 𝟙 𝟘 𝟘  𝟙  𝟙  ()
+    𝟘 𝟙 𝟘 𝟘  𝟙  ≤𝟙 ()
+    𝟘 𝟙 𝟘 𝟘  𝟙  ≤ω ()
+    𝟘 𝟙 𝟘 𝟘  ≤𝟙 𝟘  ()
+    𝟘 𝟙 𝟘 𝟘  ≤𝟙 𝟙  ()
+    𝟘 𝟙 𝟘 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟘 𝟙 𝟘 𝟘  ≤𝟙 ≤ω ()
+    𝟘 𝟙 𝟘 𝟘  ≤ω 𝟘  ()
+    𝟘 𝟙 𝟘 𝟘  ≤ω 𝟙  ()
+    𝟘 𝟙 𝟘 𝟘  ≤ω ≤𝟙 ()
+    𝟘 𝟙 𝟘 𝟘  ≤ω ≤ω ()
+    𝟘 𝟙 𝟘 𝟙  𝟘  𝟘  ()
+    𝟘 𝟙 𝟘 𝟙  𝟘  𝟙  ()
+    𝟘 𝟙 𝟘 𝟙  𝟘  ≤𝟙 ()
+    𝟘 𝟙 𝟘 𝟙  𝟘  ≤ω ()
+    𝟘 𝟙 𝟘 𝟙  𝟙  𝟘  ()
+    𝟘 𝟙 𝟘 𝟙  𝟙  𝟙  ()
+    𝟘 𝟙 𝟘 𝟙  𝟙  ≤𝟙 ()
+    𝟘 𝟙 𝟘 𝟙  𝟙  ≤ω ()
+    𝟘 𝟙 𝟘 𝟙  ≤𝟙 𝟘  ()
+    𝟘 𝟙 𝟘 𝟙  ≤𝟙 𝟙  ()
+    𝟘 𝟙 𝟘 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟘 𝟙 𝟘 𝟙  ≤𝟙 ≤ω ()
+    𝟘 𝟙 𝟘 𝟙  ≤ω 𝟘  ()
+    𝟘 𝟙 𝟘 𝟙  ≤ω 𝟙  ()
+    𝟘 𝟙 𝟘 𝟙  ≤ω ≤𝟙 ()
+    𝟘 𝟙 𝟘 𝟙  ≤ω ≤ω ()
+    𝟘 𝟙 𝟘 ≤𝟙 𝟘  𝟘  ()
+    𝟘 𝟙 𝟘 ≤𝟙 𝟘  𝟙  ()
+    𝟘 𝟙 𝟘 ≤𝟙 𝟘  ≤𝟙 ()
+    𝟘 𝟙 𝟘 ≤𝟙 𝟘  ≤ω ()
+    𝟘 𝟙 𝟘 ≤𝟙 𝟙  𝟘  ()
+    𝟘 𝟙 𝟘 ≤𝟙 𝟙  𝟙  ()
+    𝟘 𝟙 𝟘 ≤𝟙 𝟙  ≤𝟙 ()
+    𝟘 𝟙 𝟘 ≤𝟙 𝟙  ≤ω ()
+    𝟘 𝟙 𝟘 ≤𝟙 ≤𝟙 𝟘  ()
+    𝟘 𝟙 𝟘 ≤𝟙 ≤𝟙 𝟙  ()
+    𝟘 𝟙 𝟘 ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟘 𝟙 𝟘 ≤𝟙 ≤𝟙 ≤ω ()
+    𝟘 𝟙 𝟘 ≤𝟙 ≤ω 𝟘  ()
+    𝟘 𝟙 𝟘 ≤𝟙 ≤ω 𝟙  ()
+    𝟘 𝟙 𝟘 ≤𝟙 ≤ω ≤𝟙 ()
+    𝟘 𝟙 𝟘 ≤𝟙 ≤ω ≤ω ()
+    𝟘 𝟙 𝟘 ≤ω 𝟘  𝟘  ()
+    𝟘 𝟙 𝟘 ≤ω 𝟘  𝟙  ()
+    𝟘 𝟙 𝟘 ≤ω 𝟘  ≤𝟙 ()
+    𝟘 𝟙 𝟘 ≤ω 𝟘  ≤ω ()
+    𝟘 𝟙 𝟘 ≤ω 𝟙  𝟘  ()
+    𝟘 𝟙 𝟘 ≤ω 𝟙  𝟙  ()
+    𝟘 𝟙 𝟘 ≤ω 𝟙  ≤𝟙 ()
+    𝟘 𝟙 𝟘 ≤ω 𝟙  ≤ω ()
+    𝟘 𝟙 𝟘 ≤ω ≤𝟙 𝟘  ()
+    𝟘 𝟙 𝟘 ≤ω ≤𝟙 𝟙  ()
+    𝟘 𝟙 𝟘 ≤ω ≤𝟙 ≤𝟙 ()
+    𝟘 𝟙 𝟘 ≤ω ≤𝟙 ≤ω ()
+    𝟘 𝟙 𝟘 ≤ω ≤ω 𝟘  ()
+    𝟘 𝟙 𝟘 ≤ω ≤ω 𝟙  ()
+    𝟘 𝟙 𝟘 ≤ω ≤ω ≤𝟙 ()
+    𝟘 𝟙 𝟘 ≤ω ≤ω ≤ω ()
+    𝟘 𝟙 𝟙 𝟘  𝟘  𝟙  ()
+    𝟘 𝟙 𝟙 𝟘  𝟘  ≤𝟙 ()
+    𝟘 𝟙 𝟙 𝟘  𝟘  ≤ω ()
+    𝟘 𝟙 𝟙 𝟘  𝟙  𝟘  ()
+    𝟘 𝟙 𝟙 𝟘  𝟙  𝟙  ()
+    𝟘 𝟙 𝟙 𝟘  𝟙  ≤𝟙 ()
+    𝟘 𝟙 𝟙 𝟘  𝟙  ≤ω ()
+    𝟘 𝟙 𝟙 𝟘  ≤𝟙 𝟘  ()
+    𝟘 𝟙 𝟙 𝟘  ≤𝟙 𝟙  ()
+    𝟘 𝟙 𝟙 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟘 𝟙 𝟙 𝟘  ≤𝟙 ≤ω ()
+    𝟘 𝟙 𝟙 𝟘  ≤ω 𝟘  ()
+    𝟘 𝟙 𝟙 𝟘  ≤ω 𝟙  ()
+    𝟘 𝟙 𝟙 𝟘  ≤ω ≤𝟙 ()
+    𝟘 𝟙 𝟙 𝟘  ≤ω ≤ω ()
+    𝟘 𝟙 𝟙 𝟙  𝟘  𝟘  ()
+    𝟘 𝟙 𝟙 𝟙  𝟘  𝟙  ()
+    𝟘 𝟙 𝟙 𝟙  𝟘  ≤𝟙 ()
+    𝟘 𝟙 𝟙 𝟙  𝟘  ≤ω ()
+    𝟘 𝟙 𝟙 𝟙  𝟙  𝟘  ()
+    𝟘 𝟙 𝟙 𝟙  𝟙  𝟙  ()
+    𝟘 𝟙 𝟙 𝟙  𝟙  ≤𝟙 ()
+    𝟘 𝟙 𝟙 𝟙  𝟙  ≤ω ()
+    𝟘 𝟙 𝟙 𝟙  ≤𝟙 𝟘  ()
+    𝟘 𝟙 𝟙 𝟙  ≤𝟙 𝟙  ()
+    𝟘 𝟙 𝟙 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟘 𝟙 𝟙 𝟙  ≤𝟙 ≤ω ()
+    𝟘 𝟙 𝟙 𝟙  ≤ω 𝟘  ()
+    𝟘 𝟙 𝟙 𝟙  ≤ω 𝟙  ()
+    𝟘 𝟙 𝟙 𝟙  ≤ω ≤𝟙 ()
+    𝟘 𝟙 𝟙 𝟙  ≤ω ≤ω ()
+    𝟘 𝟙 𝟙 ≤𝟙 𝟘  𝟘  ()
+    𝟘 𝟙 𝟙 ≤𝟙 𝟘  𝟙  ()
+    𝟘 𝟙 𝟙 ≤𝟙 𝟘  ≤𝟙 ()
+    𝟘 𝟙 𝟙 ≤𝟙 𝟘  ≤ω ()
+    𝟘 𝟙 𝟙 ≤𝟙 𝟙  𝟘  ()
+    𝟘 𝟙 𝟙 ≤𝟙 𝟙  𝟙  ()
+    𝟘 𝟙 𝟙 ≤𝟙 𝟙  ≤𝟙 ()
+    𝟘 𝟙 𝟙 ≤𝟙 𝟙  ≤ω ()
+    𝟘 𝟙 𝟙 ≤𝟙 ≤𝟙 𝟘  ()
+    𝟘 𝟙 𝟙 ≤𝟙 ≤𝟙 𝟙  ()
+    𝟘 𝟙 𝟙 ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟘 𝟙 𝟙 ≤𝟙 ≤𝟙 ≤ω ()
+    𝟘 𝟙 𝟙 ≤𝟙 ≤ω 𝟘  ()
+    𝟘 𝟙 𝟙 ≤𝟙 ≤ω 𝟙  ()
+    𝟘 𝟙 𝟙 ≤𝟙 ≤ω ≤𝟙 ()
+    𝟘 𝟙 𝟙 ≤𝟙 ≤ω ≤ω ()
+    𝟘 𝟙 𝟙 ≤ω 𝟘  𝟘  ()
+    𝟘 𝟙 𝟙 ≤ω 𝟘  𝟙  ()
+    𝟘 𝟙 𝟙 ≤ω 𝟘  ≤𝟙 ()
+    𝟘 𝟙 𝟙 ≤ω 𝟘  ≤ω ()
+    𝟘 𝟙 𝟙 ≤ω 𝟙  𝟘  ()
+    𝟘 𝟙 𝟙 ≤ω 𝟙  𝟙  ()
+    𝟘 𝟙 𝟙 ≤ω 𝟙  ≤𝟙 ()
+    𝟘 𝟙 𝟙 ≤ω 𝟙  ≤ω ()
+    𝟘 𝟙 𝟙 ≤ω ≤𝟙 𝟘  ()
+    𝟘 𝟙 𝟙 ≤ω ≤𝟙 𝟙  ()
+    𝟘 𝟙 𝟙 ≤ω ≤𝟙 ≤𝟙 ()
+    𝟘 𝟙 𝟙 ≤ω ≤𝟙 ≤ω ()
+    𝟘 𝟙 𝟙 ≤ω ≤ω 𝟘  ()
+    𝟘 𝟙 𝟙 ≤ω ≤ω 𝟙  ()
+    𝟘 𝟙 𝟙 ≤ω ≤ω ≤𝟙 ()
+    𝟘 𝟙 𝟙 ≤ω ≤ω ≤ω ()
+    𝟘 𝟙 ω 𝟘  𝟘  𝟙  ()
+    𝟘 𝟙 ω 𝟘  𝟘  ≤𝟙 ()
+    𝟘 𝟙 ω 𝟘  𝟘  ≤ω ()
+    𝟘 𝟙 ω 𝟘  𝟙  𝟘  ()
+    𝟘 𝟙 ω 𝟘  𝟙  𝟙  ()
+    𝟘 𝟙 ω 𝟘  𝟙  ≤𝟙 ()
+    𝟘 𝟙 ω 𝟘  𝟙  ≤ω ()
+    𝟘 𝟙 ω 𝟘  ≤𝟙 𝟘  ()
+    𝟘 𝟙 ω 𝟘  ≤𝟙 𝟙  ()
+    𝟘 𝟙 ω 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟘 𝟙 ω 𝟘  ≤𝟙 ≤ω ()
+    𝟘 𝟙 ω 𝟘  ≤ω 𝟘  ()
+    𝟘 𝟙 ω 𝟘  ≤ω 𝟙  ()
+    𝟘 𝟙 ω 𝟘  ≤ω ≤𝟙 ()
+    𝟘 𝟙 ω 𝟘  ≤ω ≤ω ()
+    𝟘 𝟙 ω 𝟙  𝟘  𝟘  ()
+    𝟘 𝟙 ω 𝟙  𝟘  𝟙  ()
+    𝟘 𝟙 ω 𝟙  𝟘  ≤𝟙 ()
+    𝟘 𝟙 ω 𝟙  𝟘  ≤ω ()
+    𝟘 𝟙 ω 𝟙  𝟙  𝟘  ()
+    𝟘 𝟙 ω 𝟙  𝟙  𝟙  ()
+    𝟘 𝟙 ω 𝟙  𝟙  ≤𝟙 ()
+    𝟘 𝟙 ω 𝟙  𝟙  ≤ω ()
+    𝟘 𝟙 ω 𝟙  ≤𝟙 𝟘  ()
+    𝟘 𝟙 ω 𝟙  ≤𝟙 𝟙  ()
+    𝟘 𝟙 ω 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟘 𝟙 ω 𝟙  ≤𝟙 ≤ω ()
+    𝟘 𝟙 ω 𝟙  ≤ω 𝟘  ()
+    𝟘 𝟙 ω 𝟙  ≤ω 𝟙  ()
+    𝟘 𝟙 ω 𝟙  ≤ω ≤𝟙 ()
+    𝟘 𝟙 ω 𝟙  ≤ω ≤ω ()
+    𝟘 𝟙 ω ≤𝟙 𝟘  𝟘  ()
+    𝟘 𝟙 ω ≤𝟙 𝟘  𝟙  ()
+    𝟘 𝟙 ω ≤𝟙 𝟘  ≤𝟙 ()
+    𝟘 𝟙 ω ≤𝟙 𝟘  ≤ω ()
+    𝟘 𝟙 ω ≤𝟙 𝟙  𝟘  ()
+    𝟘 𝟙 ω ≤𝟙 𝟙  𝟙  ()
+    𝟘 𝟙 ω ≤𝟙 𝟙  ≤𝟙 ()
+    𝟘 𝟙 ω ≤𝟙 𝟙  ≤ω ()
+    𝟘 𝟙 ω ≤𝟙 ≤𝟙 𝟘  ()
+    𝟘 𝟙 ω ≤𝟙 ≤𝟙 𝟙  ()
+    𝟘 𝟙 ω ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟘 𝟙 ω ≤𝟙 ≤𝟙 ≤ω ()
+    𝟘 𝟙 ω ≤𝟙 ≤ω 𝟘  ()
+    𝟘 𝟙 ω ≤𝟙 ≤ω 𝟙  ()
+    𝟘 𝟙 ω ≤𝟙 ≤ω ≤𝟙 ()
+    𝟘 𝟙 ω ≤𝟙 ≤ω ≤ω ()
+    𝟘 𝟙 ω ≤ω 𝟘  𝟘  ()
+    𝟘 𝟙 ω ≤ω 𝟘  𝟙  ()
+    𝟘 𝟙 ω ≤ω 𝟘  ≤𝟙 ()
+    𝟘 𝟙 ω ≤ω 𝟘  ≤ω ()
+    𝟘 𝟙 ω ≤ω 𝟙  𝟘  ()
+    𝟘 𝟙 ω ≤ω 𝟙  𝟙  ()
+    𝟘 𝟙 ω ≤ω 𝟙  ≤𝟙 ()
+    𝟘 𝟙 ω ≤ω 𝟙  ≤ω ()
+    𝟘 𝟙 ω ≤ω ≤𝟙 𝟘  ()
+    𝟘 𝟙 ω ≤ω ≤𝟙 𝟙  ()
+    𝟘 𝟙 ω ≤ω ≤𝟙 ≤𝟙 ()
+    𝟘 𝟙 ω ≤ω ≤𝟙 ≤ω ()
+    𝟘 𝟙 ω ≤ω ≤ω 𝟘  ()
+    𝟘 𝟙 ω ≤ω ≤ω 𝟙  ()
+    𝟘 𝟙 ω ≤ω ≤ω ≤𝟙 ()
+    𝟘 𝟙 ω ≤ω ≤ω ≤ω ()
+    𝟘 ω 𝟘 𝟘  𝟘  𝟙  ()
+    𝟘 ω 𝟘 𝟘  𝟘  ≤𝟙 ()
+    𝟘 ω 𝟘 𝟘  𝟘  ≤ω ()
+    𝟘 ω 𝟘 𝟘  𝟙  𝟘  ()
+    𝟘 ω 𝟘 𝟘  𝟙  𝟙  ()
+    𝟘 ω 𝟘 𝟘  𝟙  ≤𝟙 ()
+    𝟘 ω 𝟘 𝟘  𝟙  ≤ω ()
+    𝟘 ω 𝟘 𝟘  ≤𝟙 𝟘  ()
+    𝟘 ω 𝟘 𝟘  ≤𝟙 𝟙  ()
+    𝟘 ω 𝟘 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟘 ω 𝟘 𝟘  ≤𝟙 ≤ω ()
+    𝟘 ω 𝟘 𝟘  ≤ω 𝟘  ()
+    𝟘 ω 𝟘 𝟘  ≤ω 𝟙  ()
+    𝟘 ω 𝟘 𝟘  ≤ω ≤𝟙 ()
+    𝟘 ω 𝟘 𝟘  ≤ω ≤ω ()
+    𝟘 ω 𝟘 𝟙  𝟘  𝟘  ()
+    𝟘 ω 𝟘 𝟙  𝟘  𝟙  ()
+    𝟘 ω 𝟘 𝟙  𝟘  ≤𝟙 ()
+    𝟘 ω 𝟘 𝟙  𝟘  ≤ω ()
+    𝟘 ω 𝟘 𝟙  𝟙  𝟘  ()
+    𝟘 ω 𝟘 𝟙  𝟙  𝟙  ()
+    𝟘 ω 𝟘 𝟙  𝟙  ≤𝟙 ()
+    𝟘 ω 𝟘 𝟙  𝟙  ≤ω ()
+    𝟘 ω 𝟘 𝟙  ≤𝟙 𝟘  ()
+    𝟘 ω 𝟘 𝟙  ≤𝟙 𝟙  ()
+    𝟘 ω 𝟘 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟘 ω 𝟘 𝟙  ≤𝟙 ≤ω ()
+    𝟘 ω 𝟘 𝟙  ≤ω 𝟘  ()
+    𝟘 ω 𝟘 𝟙  ≤ω 𝟙  ()
+    𝟘 ω 𝟘 𝟙  ≤ω ≤𝟙 ()
+    𝟘 ω 𝟘 𝟙  ≤ω ≤ω ()
+    𝟘 ω 𝟘 ≤𝟙 𝟘  𝟘  ()
+    𝟘 ω 𝟘 ≤𝟙 𝟘  𝟙  ()
+    𝟘 ω 𝟘 ≤𝟙 𝟘  ≤𝟙 ()
+    𝟘 ω 𝟘 ≤𝟙 𝟘  ≤ω ()
+    𝟘 ω 𝟘 ≤𝟙 𝟙  𝟘  ()
+    𝟘 ω 𝟘 ≤𝟙 𝟙  𝟙  ()
+    𝟘 ω 𝟘 ≤𝟙 𝟙  ≤𝟙 ()
+    𝟘 ω 𝟘 ≤𝟙 𝟙  ≤ω ()
+    𝟘 ω 𝟘 ≤𝟙 ≤𝟙 𝟘  ()
+    𝟘 ω 𝟘 ≤𝟙 ≤𝟙 𝟙  ()
+    𝟘 ω 𝟘 ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟘 ω 𝟘 ≤𝟙 ≤𝟙 ≤ω ()
+    𝟘 ω 𝟘 ≤𝟙 ≤ω 𝟘  ()
+    𝟘 ω 𝟘 ≤𝟙 ≤ω 𝟙  ()
+    𝟘 ω 𝟘 ≤𝟙 ≤ω ≤𝟙 ()
+    𝟘 ω 𝟘 ≤𝟙 ≤ω ≤ω ()
+    𝟘 ω 𝟘 ≤ω 𝟘  𝟘  ()
+    𝟘 ω 𝟘 ≤ω 𝟘  𝟙  ()
+    𝟘 ω 𝟘 ≤ω 𝟘  ≤𝟙 ()
+    𝟘 ω 𝟘 ≤ω 𝟘  ≤ω ()
+    𝟘 ω 𝟘 ≤ω 𝟙  𝟘  ()
+    𝟘 ω 𝟘 ≤ω 𝟙  𝟙  ()
+    𝟘 ω 𝟘 ≤ω 𝟙  ≤𝟙 ()
+    𝟘 ω 𝟘 ≤ω 𝟙  ≤ω ()
+    𝟘 ω 𝟘 ≤ω ≤𝟙 𝟘  ()
+    𝟘 ω 𝟘 ≤ω ≤𝟙 𝟙  ()
+    𝟘 ω 𝟘 ≤ω ≤𝟙 ≤𝟙 ()
+    𝟘 ω 𝟘 ≤ω ≤𝟙 ≤ω ()
+    𝟘 ω 𝟘 ≤ω ≤ω 𝟘  ()
+    𝟘 ω 𝟘 ≤ω ≤ω 𝟙  ()
+    𝟘 ω 𝟘 ≤ω ≤ω ≤𝟙 ()
+    𝟘 ω 𝟘 ≤ω ≤ω ≤ω ()
+    𝟘 ω 𝟙 𝟘  𝟘  𝟙  ()
+    𝟘 ω 𝟙 𝟘  𝟘  ≤𝟙 ()
+    𝟘 ω 𝟙 𝟘  𝟘  ≤ω ()
+    𝟘 ω 𝟙 𝟘  𝟙  𝟘  ()
+    𝟘 ω 𝟙 𝟘  𝟙  𝟙  ()
+    𝟘 ω 𝟙 𝟘  𝟙  ≤𝟙 ()
+    𝟘 ω 𝟙 𝟘  𝟙  ≤ω ()
+    𝟘 ω 𝟙 𝟘  ≤𝟙 𝟘  ()
+    𝟘 ω 𝟙 𝟘  ≤𝟙 𝟙  ()
+    𝟘 ω 𝟙 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟘 ω 𝟙 𝟘  ≤𝟙 ≤ω ()
+    𝟘 ω 𝟙 𝟘  ≤ω 𝟘  ()
+    𝟘 ω 𝟙 𝟘  ≤ω 𝟙  ()
+    𝟘 ω 𝟙 𝟘  ≤ω ≤𝟙 ()
+    𝟘 ω 𝟙 𝟘  ≤ω ≤ω ()
+    𝟘 ω 𝟙 𝟙  𝟘  𝟘  ()
+    𝟘 ω 𝟙 𝟙  𝟘  𝟙  ()
+    𝟘 ω 𝟙 𝟙  𝟘  ≤𝟙 ()
+    𝟘 ω 𝟙 𝟙  𝟘  ≤ω ()
+    𝟘 ω 𝟙 𝟙  𝟙  𝟘  ()
+    𝟘 ω 𝟙 𝟙  𝟙  𝟙  ()
+    𝟘 ω 𝟙 𝟙  𝟙  ≤𝟙 ()
+    𝟘 ω 𝟙 𝟙  𝟙  ≤ω ()
+    𝟘 ω 𝟙 𝟙  ≤𝟙 𝟘  ()
+    𝟘 ω 𝟙 𝟙  ≤𝟙 𝟙  ()
+    𝟘 ω 𝟙 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟘 ω 𝟙 𝟙  ≤𝟙 ≤ω ()
+    𝟘 ω 𝟙 𝟙  ≤ω 𝟘  ()
+    𝟘 ω 𝟙 𝟙  ≤ω 𝟙  ()
+    𝟘 ω 𝟙 𝟙  ≤ω ≤𝟙 ()
+    𝟘 ω 𝟙 𝟙  ≤ω ≤ω ()
+    𝟘 ω 𝟙 ≤𝟙 𝟘  𝟘  ()
+    𝟘 ω 𝟙 ≤𝟙 𝟘  𝟙  ()
+    𝟘 ω 𝟙 ≤𝟙 𝟘  ≤𝟙 ()
+    𝟘 ω 𝟙 ≤𝟙 𝟘  ≤ω ()
+    𝟘 ω 𝟙 ≤𝟙 𝟙  𝟘  ()
+    𝟘 ω 𝟙 ≤𝟙 𝟙  𝟙  ()
+    𝟘 ω 𝟙 ≤𝟙 𝟙  ≤𝟙 ()
+    𝟘 ω 𝟙 ≤𝟙 𝟙  ≤ω ()
+    𝟘 ω 𝟙 ≤𝟙 ≤𝟙 𝟘  ()
+    𝟘 ω 𝟙 ≤𝟙 ≤𝟙 𝟙  ()
+    𝟘 ω 𝟙 ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟘 ω 𝟙 ≤𝟙 ≤𝟙 ≤ω ()
+    𝟘 ω 𝟙 ≤𝟙 ≤ω 𝟘  ()
+    𝟘 ω 𝟙 ≤𝟙 ≤ω 𝟙  ()
+    𝟘 ω 𝟙 ≤𝟙 ≤ω ≤𝟙 ()
+    𝟘 ω 𝟙 ≤𝟙 ≤ω ≤ω ()
+    𝟘 ω 𝟙 ≤ω 𝟘  𝟘  ()
+    𝟘 ω 𝟙 ≤ω 𝟘  𝟙  ()
+    𝟘 ω 𝟙 ≤ω 𝟘  ≤𝟙 ()
+    𝟘 ω 𝟙 ≤ω 𝟘  ≤ω ()
+    𝟘 ω 𝟙 ≤ω 𝟙  𝟘  ()
+    𝟘 ω 𝟙 ≤ω 𝟙  𝟙  ()
+    𝟘 ω 𝟙 ≤ω 𝟙  ≤𝟙 ()
+    𝟘 ω 𝟙 ≤ω 𝟙  ≤ω ()
+    𝟘 ω 𝟙 ≤ω ≤𝟙 𝟘  ()
+    𝟘 ω 𝟙 ≤ω ≤𝟙 𝟙  ()
+    𝟘 ω 𝟙 ≤ω ≤𝟙 ≤𝟙 ()
+    𝟘 ω 𝟙 ≤ω ≤𝟙 ≤ω ()
+    𝟘 ω 𝟙 ≤ω ≤ω 𝟘  ()
+    𝟘 ω 𝟙 ≤ω ≤ω 𝟙  ()
+    𝟘 ω 𝟙 ≤ω ≤ω ≤𝟙 ()
+    𝟘 ω 𝟙 ≤ω ≤ω ≤ω ()
+    𝟘 ω ω 𝟘  𝟘  𝟙  ()
+    𝟘 ω ω 𝟘  𝟘  ≤𝟙 ()
+    𝟘 ω ω 𝟘  𝟘  ≤ω ()
+    𝟘 ω ω 𝟘  𝟙  𝟘  ()
+    𝟘 ω ω 𝟘  𝟙  𝟙  ()
+    𝟘 ω ω 𝟘  𝟙  ≤𝟙 ()
+    𝟘 ω ω 𝟘  𝟙  ≤ω ()
+    𝟘 ω ω 𝟘  ≤𝟙 𝟘  ()
+    𝟘 ω ω 𝟘  ≤𝟙 𝟙  ()
+    𝟘 ω ω 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟘 ω ω 𝟘  ≤𝟙 ≤ω ()
+    𝟘 ω ω 𝟘  ≤ω 𝟘  ()
+    𝟘 ω ω 𝟘  ≤ω 𝟙  ()
+    𝟘 ω ω 𝟘  ≤ω ≤𝟙 ()
+    𝟘 ω ω 𝟘  ≤ω ≤ω ()
+    𝟘 ω ω 𝟙  𝟘  𝟘  ()
+    𝟘 ω ω 𝟙  𝟘  𝟙  ()
+    𝟘 ω ω 𝟙  𝟘  ≤𝟙 ()
+    𝟘 ω ω 𝟙  𝟘  ≤ω ()
+    𝟘 ω ω 𝟙  𝟙  𝟘  ()
+    𝟘 ω ω 𝟙  𝟙  𝟙  ()
+    𝟘 ω ω 𝟙  𝟙  ≤𝟙 ()
+    𝟘 ω ω 𝟙  𝟙  ≤ω ()
+    𝟘 ω ω 𝟙  ≤𝟙 𝟘  ()
+    𝟘 ω ω 𝟙  ≤𝟙 𝟙  ()
+    𝟘 ω ω 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟘 ω ω 𝟙  ≤𝟙 ≤ω ()
+    𝟘 ω ω 𝟙  ≤ω 𝟘  ()
+    𝟘 ω ω 𝟙  ≤ω 𝟙  ()
+    𝟘 ω ω 𝟙  ≤ω ≤𝟙 ()
+    𝟘 ω ω 𝟙  ≤ω ≤ω ()
+    𝟘 ω ω ≤𝟙 𝟘  𝟘  ()
+    𝟘 ω ω ≤𝟙 𝟘  𝟙  ()
+    𝟘 ω ω ≤𝟙 𝟘  ≤𝟙 ()
+    𝟘 ω ω ≤𝟙 𝟘  ≤ω ()
+    𝟘 ω ω ≤𝟙 𝟙  𝟘  ()
+    𝟘 ω ω ≤𝟙 𝟙  𝟙  ()
+    𝟘 ω ω ≤𝟙 𝟙  ≤𝟙 ()
+    𝟘 ω ω ≤𝟙 𝟙  ≤ω ()
+    𝟘 ω ω ≤𝟙 ≤𝟙 𝟘  ()
+    𝟘 ω ω ≤𝟙 ≤𝟙 𝟙  ()
+    𝟘 ω ω ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟘 ω ω ≤𝟙 ≤𝟙 ≤ω ()
+    𝟘 ω ω ≤𝟙 ≤ω 𝟘  ()
+    𝟘 ω ω ≤𝟙 ≤ω 𝟙  ()
+    𝟘 ω ω ≤𝟙 ≤ω ≤𝟙 ()
+    𝟘 ω ω ≤𝟙 ≤ω ≤ω ()
+    𝟘 ω ω ≤ω 𝟘  𝟘  ()
+    𝟘 ω ω ≤ω 𝟘  𝟙  ()
+    𝟘 ω ω ≤ω 𝟘  ≤𝟙 ()
+    𝟘 ω ω ≤ω 𝟘  ≤ω ()
+    𝟘 ω ω ≤ω 𝟙  𝟘  ()
+    𝟘 ω ω ≤ω 𝟙  𝟙  ()
+    𝟘 ω ω ≤ω 𝟙  ≤𝟙 ()
+    𝟘 ω ω ≤ω 𝟙  ≤ω ()
+    𝟘 ω ω ≤ω ≤𝟙 𝟘  ()
+    𝟘 ω ω ≤ω ≤𝟙 𝟙  ()
+    𝟘 ω ω ≤ω ≤𝟙 ≤𝟙 ()
+    𝟘 ω ω ≤ω ≤𝟙 ≤ω ()
+    𝟘 ω ω ≤ω ≤ω 𝟘  ()
+    𝟘 ω ω ≤ω ≤ω 𝟙  ()
+    𝟘 ω ω ≤ω ≤ω ≤𝟙 ()
+    𝟘 ω ω ≤ω ≤ω ≤ω ()
+    𝟙 𝟘 𝟘 𝟘  𝟘  ≤ω ()
+    𝟙 𝟘 𝟘 𝟘  𝟙  𝟙  ()
+    𝟙 𝟘 𝟘 𝟘  𝟙  ≤𝟙 ()
+    𝟙 𝟘 𝟘 𝟘  𝟙  ≤ω ()
+    𝟙 𝟘 𝟘 𝟘  ≤𝟙 𝟙  ()
+    𝟙 𝟘 𝟘 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟙 𝟘 𝟘 𝟘  ≤𝟙 ≤ω ()
+    𝟙 𝟘 𝟘 𝟘  ≤ω 𝟘  ()
+    𝟙 𝟘 𝟘 𝟘  ≤ω 𝟙  ()
+    𝟙 𝟘 𝟘 𝟘  ≤ω ≤𝟙 ()
+    𝟙 𝟘 𝟘 𝟘  ≤ω ≤ω ()
+    𝟙 𝟘 𝟘 𝟙  𝟘  𝟙  ()
+    𝟙 𝟘 𝟘 𝟙  𝟘  ≤𝟙 ()
+    𝟙 𝟘 𝟘 𝟙  𝟘  ≤ω ()
+    𝟙 𝟘 𝟘 𝟙  𝟙  𝟙  ()
+    𝟙 𝟘 𝟘 𝟙  𝟙  ≤𝟙 ()
+    𝟙 𝟘 𝟘 𝟙  𝟙  ≤ω ()
+    𝟙 𝟘 𝟘 𝟙  ≤𝟙 𝟙  ()
+    𝟙 𝟘 𝟘 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟙 𝟘 𝟘 𝟙  ≤𝟙 ≤ω ()
+    𝟙 𝟘 𝟘 𝟙  ≤ω 𝟘  ()
+    𝟙 𝟘 𝟘 𝟙  ≤ω 𝟙  ()
+    𝟙 𝟘 𝟘 𝟙  ≤ω ≤𝟙 ()
+    𝟙 𝟘 𝟘 𝟙  ≤ω ≤ω ()
+    𝟙 𝟘 𝟘 ≤𝟙 𝟘  𝟙  ()
+    𝟙 𝟘 𝟘 ≤𝟙 𝟘  ≤𝟙 ()
+    𝟙 𝟘 𝟘 ≤𝟙 𝟘  ≤ω ()
+    𝟙 𝟘 𝟘 ≤𝟙 𝟙  𝟙  ()
+    𝟙 𝟘 𝟘 ≤𝟙 𝟙  ≤𝟙 ()
+    𝟙 𝟘 𝟘 ≤𝟙 𝟙  ≤ω ()
+    𝟙 𝟘 𝟘 ≤𝟙 ≤𝟙 𝟙  ()
+    𝟙 𝟘 𝟘 ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟙 𝟘 𝟘 ≤𝟙 ≤𝟙 ≤ω ()
+    𝟙 𝟘 𝟘 ≤𝟙 ≤ω 𝟘  ()
+    𝟙 𝟘 𝟘 ≤𝟙 ≤ω 𝟙  ()
+    𝟙 𝟘 𝟘 ≤𝟙 ≤ω ≤𝟙 ()
+    𝟙 𝟘 𝟘 ≤𝟙 ≤ω ≤ω ()
+    𝟙 𝟘 𝟘 ≤ω 𝟘  𝟘  ()
+    𝟙 𝟘 𝟘 ≤ω 𝟘  𝟙  ()
+    𝟙 𝟘 𝟘 ≤ω 𝟘  ≤𝟙 ()
+    𝟙 𝟘 𝟘 ≤ω 𝟘  ≤ω ()
+    𝟙 𝟘 𝟘 ≤ω 𝟙  𝟘  ()
+    𝟙 𝟘 𝟘 ≤ω 𝟙  𝟙  ()
+    𝟙 𝟘 𝟘 ≤ω 𝟙  ≤𝟙 ()
+    𝟙 𝟘 𝟘 ≤ω 𝟙  ≤ω ()
+    𝟙 𝟘 𝟘 ≤ω ≤𝟙 𝟘  ()
+    𝟙 𝟘 𝟘 ≤ω ≤𝟙 𝟙  ()
+    𝟙 𝟘 𝟘 ≤ω ≤𝟙 ≤𝟙 ()
+    𝟙 𝟘 𝟘 ≤ω ≤𝟙 ≤ω ()
+    𝟙 𝟘 𝟘 ≤ω ≤ω 𝟘  ()
+    𝟙 𝟘 𝟘 ≤ω ≤ω 𝟙  ()
+    𝟙 𝟘 𝟘 ≤ω ≤ω ≤𝟙 ()
+    𝟙 𝟘 𝟘 ≤ω ≤ω ≤ω ()
+    𝟙 𝟘 𝟙 𝟘  𝟘  ≤ω ()
+    𝟙 𝟘 𝟙 𝟘  𝟙  𝟘  ()
+    𝟙 𝟘 𝟙 𝟘  𝟙  𝟙  ()
+    𝟙 𝟘 𝟙 𝟘  𝟙  ≤𝟙 ()
+    𝟙 𝟘 𝟙 𝟘  𝟙  ≤ω ()
+    𝟙 𝟘 𝟙 𝟘  ≤𝟙 𝟘  ()
+    𝟙 𝟘 𝟙 𝟘  ≤𝟙 𝟙  ()
+    𝟙 𝟘 𝟙 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟙 𝟘 𝟙 𝟘  ≤𝟙 ≤ω ()
+    𝟙 𝟘 𝟙 𝟘  ≤ω 𝟘  ()
+    𝟙 𝟘 𝟙 𝟘  ≤ω 𝟙  ()
+    𝟙 𝟘 𝟙 𝟘  ≤ω ≤𝟙 ()
+    𝟙 𝟘 𝟙 𝟘  ≤ω ≤ω ()
+    𝟙 𝟘 𝟙 𝟙  𝟘  𝟙  ()
+    𝟙 𝟘 𝟙 𝟙  𝟘  ≤𝟙 ()
+    𝟙 𝟘 𝟙 𝟙  𝟘  ≤ω ()
+    𝟙 𝟘 𝟙 𝟙  𝟙  𝟘  ()
+    𝟙 𝟘 𝟙 𝟙  𝟙  𝟙  ()
+    𝟙 𝟘 𝟙 𝟙  𝟙  ≤𝟙 ()
+    𝟙 𝟘 𝟙 𝟙  𝟙  ≤ω ()
+    𝟙 𝟘 𝟙 𝟙  ≤𝟙 𝟘  ()
+    𝟙 𝟘 𝟙 𝟙  ≤𝟙 𝟙  ()
+    𝟙 𝟘 𝟙 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟙 𝟘 𝟙 𝟙  ≤𝟙 ≤ω ()
+    𝟙 𝟘 𝟙 𝟙  ≤ω 𝟘  ()
+    𝟙 𝟘 𝟙 𝟙  ≤ω 𝟙  ()
+    𝟙 𝟘 𝟙 𝟙  ≤ω ≤𝟙 ()
+    𝟙 𝟘 𝟙 𝟙  ≤ω ≤ω ()
+    𝟙 𝟘 𝟙 ≤𝟙 𝟘  𝟙  ()
+    𝟙 𝟘 𝟙 ≤𝟙 𝟘  ≤𝟙 ()
+    𝟙 𝟘 𝟙 ≤𝟙 𝟘  ≤ω ()
+    𝟙 𝟘 𝟙 ≤𝟙 𝟙  𝟘  ()
+    𝟙 𝟘 𝟙 ≤𝟙 𝟙  𝟙  ()
+    𝟙 𝟘 𝟙 ≤𝟙 𝟙  ≤𝟙 ()
+    𝟙 𝟘 𝟙 ≤𝟙 𝟙  ≤ω ()
+    𝟙 𝟘 𝟙 ≤𝟙 ≤𝟙 𝟘  ()
+    𝟙 𝟘 𝟙 ≤𝟙 ≤𝟙 𝟙  ()
+    𝟙 𝟘 𝟙 ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟙 𝟘 𝟙 ≤𝟙 ≤𝟙 ≤ω ()
+    𝟙 𝟘 𝟙 ≤𝟙 ≤ω 𝟘  ()
+    𝟙 𝟘 𝟙 ≤𝟙 ≤ω 𝟙  ()
+    𝟙 𝟘 𝟙 ≤𝟙 ≤ω ≤𝟙 ()
+    𝟙 𝟘 𝟙 ≤𝟙 ≤ω ≤ω ()
+    𝟙 𝟘 𝟙 ≤ω 𝟘  𝟘  ()
+    𝟙 𝟘 𝟙 ≤ω 𝟘  𝟙  ()
+    𝟙 𝟘 𝟙 ≤ω 𝟘  ≤𝟙 ()
+    𝟙 𝟘 𝟙 ≤ω 𝟘  ≤ω ()
+    𝟙 𝟘 𝟙 ≤ω 𝟙  𝟘  ()
+    𝟙 𝟘 𝟙 ≤ω 𝟙  𝟙  ()
+    𝟙 𝟘 𝟙 ≤ω 𝟙  ≤𝟙 ()
+    𝟙 𝟘 𝟙 ≤ω 𝟙  ≤ω ()
+    𝟙 𝟘 𝟙 ≤ω ≤𝟙 𝟘  ()
+    𝟙 𝟘 𝟙 ≤ω ≤𝟙 𝟙  ()
+    𝟙 𝟘 𝟙 ≤ω ≤𝟙 ≤𝟙 ()
+    𝟙 𝟘 𝟙 ≤ω ≤𝟙 ≤ω ()
+    𝟙 𝟘 𝟙 ≤ω ≤ω 𝟘  ()
+    𝟙 𝟘 𝟙 ≤ω ≤ω 𝟙  ()
+    𝟙 𝟘 𝟙 ≤ω ≤ω ≤𝟙 ()
+    𝟙 𝟘 𝟙 ≤ω ≤ω ≤ω ()
+    𝟙 𝟘 ω 𝟘  𝟘  𝟙  ()
+    𝟙 𝟘 ω 𝟘  𝟘  ≤𝟙 ()
+    𝟙 𝟘 ω 𝟘  𝟘  ≤ω ()
+    𝟙 𝟘 ω 𝟘  𝟙  𝟘  ()
+    𝟙 𝟘 ω 𝟘  𝟙  𝟙  ()
+    𝟙 𝟘 ω 𝟘  𝟙  ≤𝟙 ()
+    𝟙 𝟘 ω 𝟘  𝟙  ≤ω ()
+    𝟙 𝟘 ω 𝟘  ≤𝟙 𝟘  ()
+    𝟙 𝟘 ω 𝟘  ≤𝟙 𝟙  ()
+    𝟙 𝟘 ω 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟙 𝟘 ω 𝟘  ≤𝟙 ≤ω ()
+    𝟙 𝟘 ω 𝟘  ≤ω 𝟘  ()
+    𝟙 𝟘 ω 𝟘  ≤ω 𝟙  ()
+    𝟙 𝟘 ω 𝟘  ≤ω ≤𝟙 ()
+    𝟙 𝟘 ω 𝟘  ≤ω ≤ω ()
+    𝟙 𝟘 ω 𝟙  𝟘  𝟘  ()
+    𝟙 𝟘 ω 𝟙  𝟘  𝟙  ()
+    𝟙 𝟘 ω 𝟙  𝟘  ≤𝟙 ()
+    𝟙 𝟘 ω 𝟙  𝟘  ≤ω ()
+    𝟙 𝟘 ω 𝟙  𝟙  𝟘  ()
+    𝟙 𝟘 ω 𝟙  𝟙  𝟙  ()
+    𝟙 𝟘 ω 𝟙  𝟙  ≤𝟙 ()
+    𝟙 𝟘 ω 𝟙  𝟙  ≤ω ()
+    𝟙 𝟘 ω 𝟙  ≤𝟙 𝟘  ()
+    𝟙 𝟘 ω 𝟙  ≤𝟙 𝟙  ()
+    𝟙 𝟘 ω 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟙 𝟘 ω 𝟙  ≤𝟙 ≤ω ()
+    𝟙 𝟘 ω 𝟙  ≤ω 𝟘  ()
+    𝟙 𝟘 ω 𝟙  ≤ω 𝟙  ()
+    𝟙 𝟘 ω 𝟙  ≤ω ≤𝟙 ()
+    𝟙 𝟘 ω 𝟙  ≤ω ≤ω ()
+    𝟙 𝟘 ω ≤𝟙 𝟘  𝟘  ()
+    𝟙 𝟘 ω ≤𝟙 𝟘  𝟙  ()
+    𝟙 𝟘 ω ≤𝟙 𝟘  ≤𝟙 ()
+    𝟙 𝟘 ω ≤𝟙 𝟘  ≤ω ()
+    𝟙 𝟘 ω ≤𝟙 𝟙  𝟘  ()
+    𝟙 𝟘 ω ≤𝟙 𝟙  𝟙  ()
+    𝟙 𝟘 ω ≤𝟙 𝟙  ≤𝟙 ()
+    𝟙 𝟘 ω ≤𝟙 𝟙  ≤ω ()
+    𝟙 𝟘 ω ≤𝟙 ≤𝟙 𝟘  ()
+    𝟙 𝟘 ω ≤𝟙 ≤𝟙 𝟙  ()
+    𝟙 𝟘 ω ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟙 𝟘 ω ≤𝟙 ≤𝟙 ≤ω ()
+    𝟙 𝟘 ω ≤𝟙 ≤ω 𝟘  ()
+    𝟙 𝟘 ω ≤𝟙 ≤ω 𝟙  ()
+    𝟙 𝟘 ω ≤𝟙 ≤ω ≤𝟙 ()
+    𝟙 𝟘 ω ≤𝟙 ≤ω ≤ω ()
+    𝟙 𝟘 ω ≤ω 𝟘  𝟘  ()
+    𝟙 𝟘 ω ≤ω 𝟘  𝟙  ()
+    𝟙 𝟘 ω ≤ω 𝟘  ≤𝟙 ()
+    𝟙 𝟘 ω ≤ω 𝟘  ≤ω ()
+    𝟙 𝟘 ω ≤ω 𝟙  𝟘  ()
+    𝟙 𝟘 ω ≤ω 𝟙  𝟙  ()
+    𝟙 𝟘 ω ≤ω 𝟙  ≤𝟙 ()
+    𝟙 𝟘 ω ≤ω 𝟙  ≤ω ()
+    𝟙 𝟘 ω ≤ω ≤𝟙 𝟘  ()
+    𝟙 𝟘 ω ≤ω ≤𝟙 𝟙  ()
+    𝟙 𝟘 ω ≤ω ≤𝟙 ≤𝟙 ()
+    𝟙 𝟘 ω ≤ω ≤𝟙 ≤ω ()
+    𝟙 𝟘 ω ≤ω ≤ω 𝟘  ()
+    𝟙 𝟘 ω ≤ω ≤ω 𝟙  ()
+    𝟙 𝟘 ω ≤ω ≤ω ≤𝟙 ()
+    𝟙 𝟘 ω ≤ω ≤ω ≤ω ()
+    𝟙 𝟙 𝟘 𝟘  𝟘  ≤ω ()
+    𝟙 𝟙 𝟘 𝟘  𝟙  𝟙  ()
+    𝟙 𝟙 𝟘 𝟘  𝟙  ≤𝟙 ()
+    𝟙 𝟙 𝟘 𝟘  𝟙  ≤ω ()
+    𝟙 𝟙 𝟘 𝟘  ≤𝟙 𝟙  ()
+    𝟙 𝟙 𝟘 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟙 𝟙 𝟘 𝟘  ≤𝟙 ≤ω ()
+    𝟙 𝟙 𝟘 𝟘  ≤ω 𝟘  ()
+    𝟙 𝟙 𝟘 𝟘  ≤ω 𝟙  ()
+    𝟙 𝟙 𝟘 𝟘  ≤ω ≤𝟙 ()
+    𝟙 𝟙 𝟘 𝟘  ≤ω ≤ω ()
+    𝟙 𝟙 𝟘 𝟙  𝟘  𝟙  ()
+    𝟙 𝟙 𝟘 𝟙  𝟘  ≤𝟙 ()
+    𝟙 𝟙 𝟘 𝟙  𝟘  ≤ω ()
+    𝟙 𝟙 𝟘 𝟙  𝟙  𝟙  ()
+    𝟙 𝟙 𝟘 𝟙  𝟙  ≤𝟙 ()
+    𝟙 𝟙 𝟘 𝟙  𝟙  ≤ω ()
+    𝟙 𝟙 𝟘 𝟙  ≤𝟙 𝟙  ()
+    𝟙 𝟙 𝟘 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟙 𝟙 𝟘 𝟙  ≤𝟙 ≤ω ()
+    𝟙 𝟙 𝟘 𝟙  ≤ω 𝟘  ()
+    𝟙 𝟙 𝟘 𝟙  ≤ω 𝟙  ()
+    𝟙 𝟙 𝟘 𝟙  ≤ω ≤𝟙 ()
+    𝟙 𝟙 𝟘 𝟙  ≤ω ≤ω ()
+    𝟙 𝟙 𝟘 ≤𝟙 𝟘  𝟙  ()
+    𝟙 𝟙 𝟘 ≤𝟙 𝟘  ≤𝟙 ()
+    𝟙 𝟙 𝟘 ≤𝟙 𝟘  ≤ω ()
+    𝟙 𝟙 𝟘 ≤𝟙 𝟙  𝟙  ()
+    𝟙 𝟙 𝟘 ≤𝟙 𝟙  ≤𝟙 ()
+    𝟙 𝟙 𝟘 ≤𝟙 𝟙  ≤ω ()
+    𝟙 𝟙 𝟘 ≤𝟙 ≤𝟙 𝟙  ()
+    𝟙 𝟙 𝟘 ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟙 𝟙 𝟘 ≤𝟙 ≤𝟙 ≤ω ()
+    𝟙 𝟙 𝟘 ≤𝟙 ≤ω 𝟘  ()
+    𝟙 𝟙 𝟘 ≤𝟙 ≤ω 𝟙  ()
+    𝟙 𝟙 𝟘 ≤𝟙 ≤ω ≤𝟙 ()
+    𝟙 𝟙 𝟘 ≤𝟙 ≤ω ≤ω ()
+    𝟙 𝟙 𝟘 ≤ω 𝟘  𝟘  ()
+    𝟙 𝟙 𝟘 ≤ω 𝟘  𝟙  ()
+    𝟙 𝟙 𝟘 ≤ω 𝟘  ≤𝟙 ()
+    𝟙 𝟙 𝟘 ≤ω 𝟘  ≤ω ()
+    𝟙 𝟙 𝟘 ≤ω 𝟙  𝟘  ()
+    𝟙 𝟙 𝟘 ≤ω 𝟙  𝟙  ()
+    𝟙 𝟙 𝟘 ≤ω 𝟙  ≤𝟙 ()
+    𝟙 𝟙 𝟘 ≤ω 𝟙  ≤ω ()
+    𝟙 𝟙 𝟘 ≤ω ≤𝟙 𝟘  ()
+    𝟙 𝟙 𝟘 ≤ω ≤𝟙 𝟙  ()
+    𝟙 𝟙 𝟘 ≤ω ≤𝟙 ≤𝟙 ()
+    𝟙 𝟙 𝟘 ≤ω ≤𝟙 ≤ω ()
+    𝟙 𝟙 𝟘 ≤ω ≤ω 𝟘  ()
+    𝟙 𝟙 𝟘 ≤ω ≤ω 𝟙  ()
+    𝟙 𝟙 𝟘 ≤ω ≤ω ≤𝟙 ()
+    𝟙 𝟙 𝟘 ≤ω ≤ω ≤ω ()
+    𝟙 𝟙 𝟙 𝟘  𝟘  𝟙  ()
+    𝟙 𝟙 𝟙 𝟘  𝟘  ≤𝟙 ()
+    𝟙 𝟙 𝟙 𝟘  𝟘  ≤ω ()
+    𝟙 𝟙 𝟙 𝟘  𝟙  𝟘  ()
+    𝟙 𝟙 𝟙 𝟘  𝟙  𝟙  ()
+    𝟙 𝟙 𝟙 𝟘  𝟙  ≤𝟙 ()
+    𝟙 𝟙 𝟙 𝟘  𝟙  ≤ω ()
+    𝟙 𝟙 𝟙 𝟘  ≤𝟙 𝟘  ()
+    𝟙 𝟙 𝟙 𝟘  ≤𝟙 𝟙  ()
+    𝟙 𝟙 𝟙 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟙 𝟙 𝟙 𝟘  ≤𝟙 ≤ω ()
+    𝟙 𝟙 𝟙 𝟘  ≤ω 𝟘  ()
+    𝟙 𝟙 𝟙 𝟘  ≤ω 𝟙  ()
+    𝟙 𝟙 𝟙 𝟘  ≤ω ≤𝟙 ()
+    𝟙 𝟙 𝟙 𝟘  ≤ω ≤ω ()
+    𝟙 𝟙 𝟙 𝟙  𝟘  𝟙  ()
+    𝟙 𝟙 𝟙 𝟙  𝟘  ≤𝟙 ()
+    𝟙 𝟙 𝟙 𝟙  𝟘  ≤ω ()
+    𝟙 𝟙 𝟙 𝟙  𝟙  𝟘  ()
+    𝟙 𝟙 𝟙 𝟙  𝟙  𝟙  ()
+    𝟙 𝟙 𝟙 𝟙  𝟙  ≤𝟙 ()
+    𝟙 𝟙 𝟙 𝟙  𝟙  ≤ω ()
+    𝟙 𝟙 𝟙 𝟙  ≤𝟙 𝟘  ()
+    𝟙 𝟙 𝟙 𝟙  ≤𝟙 𝟙  ()
+    𝟙 𝟙 𝟙 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟙 𝟙 𝟙 𝟙  ≤𝟙 ≤ω ()
+    𝟙 𝟙 𝟙 𝟙  ≤ω 𝟘  ()
+    𝟙 𝟙 𝟙 𝟙  ≤ω 𝟙  ()
+    𝟙 𝟙 𝟙 𝟙  ≤ω ≤𝟙 ()
+    𝟙 𝟙 𝟙 𝟙  ≤ω ≤ω ()
+    𝟙 𝟙 𝟙 ≤𝟙 𝟘  𝟙  ()
+    𝟙 𝟙 𝟙 ≤𝟙 𝟘  ≤𝟙 ()
+    𝟙 𝟙 𝟙 ≤𝟙 𝟘  ≤ω ()
+    𝟙 𝟙 𝟙 ≤𝟙 𝟙  𝟘  ()
+    𝟙 𝟙 𝟙 ≤𝟙 𝟙  𝟙  ()
+    𝟙 𝟙 𝟙 ≤𝟙 𝟙  ≤𝟙 ()
+    𝟙 𝟙 𝟙 ≤𝟙 𝟙  ≤ω ()
+    𝟙 𝟙 𝟙 ≤𝟙 ≤𝟙 𝟘  ()
+    𝟙 𝟙 𝟙 ≤𝟙 ≤𝟙 𝟙  ()
+    𝟙 𝟙 𝟙 ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟙 𝟙 𝟙 ≤𝟙 ≤𝟙 ≤ω ()
+    𝟙 𝟙 𝟙 ≤𝟙 ≤ω 𝟘  ()
+    𝟙 𝟙 𝟙 ≤𝟙 ≤ω 𝟙  ()
+    𝟙 𝟙 𝟙 ≤𝟙 ≤ω ≤𝟙 ()
+    𝟙 𝟙 𝟙 ≤𝟙 ≤ω ≤ω ()
+    𝟙 𝟙 𝟙 ≤ω 𝟘  𝟘  ()
+    𝟙 𝟙 𝟙 ≤ω 𝟘  𝟙  ()
+    𝟙 𝟙 𝟙 ≤ω 𝟘  ≤𝟙 ()
+    𝟙 𝟙 𝟙 ≤ω 𝟘  ≤ω ()
+    𝟙 𝟙 𝟙 ≤ω 𝟙  𝟘  ()
+    𝟙 𝟙 𝟙 ≤ω 𝟙  𝟙  ()
+    𝟙 𝟙 𝟙 ≤ω 𝟙  ≤𝟙 ()
+    𝟙 𝟙 𝟙 ≤ω 𝟙  ≤ω ()
+    𝟙 𝟙 𝟙 ≤ω ≤𝟙 𝟘  ()
+    𝟙 𝟙 𝟙 ≤ω ≤𝟙 𝟙  ()
+    𝟙 𝟙 𝟙 ≤ω ≤𝟙 ≤𝟙 ()
+    𝟙 𝟙 𝟙 ≤ω ≤𝟙 ≤ω ()
+    𝟙 𝟙 𝟙 ≤ω ≤ω 𝟘  ()
+    𝟙 𝟙 𝟙 ≤ω ≤ω 𝟙  ()
+    𝟙 𝟙 𝟙 ≤ω ≤ω ≤𝟙 ()
+    𝟙 𝟙 𝟙 ≤ω ≤ω ≤ω ()
+    𝟙 𝟙 ω 𝟘  𝟘  𝟙  ()
+    𝟙 𝟙 ω 𝟘  𝟘  ≤𝟙 ()
+    𝟙 𝟙 ω 𝟘  𝟘  ≤ω ()
+    𝟙 𝟙 ω 𝟘  𝟙  𝟘  ()
+    𝟙 𝟙 ω 𝟘  𝟙  𝟙  ()
+    𝟙 𝟙 ω 𝟘  𝟙  ≤𝟙 ()
+    𝟙 𝟙 ω 𝟘  𝟙  ≤ω ()
+    𝟙 𝟙 ω 𝟘  ≤𝟙 𝟘  ()
+    𝟙 𝟙 ω 𝟘  ≤𝟙 𝟙  ()
+    𝟙 𝟙 ω 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟙 𝟙 ω 𝟘  ≤𝟙 ≤ω ()
+    𝟙 𝟙 ω 𝟘  ≤ω 𝟘  ()
+    𝟙 𝟙 ω 𝟘  ≤ω 𝟙  ()
+    𝟙 𝟙 ω 𝟘  ≤ω ≤𝟙 ()
+    𝟙 𝟙 ω 𝟘  ≤ω ≤ω ()
+    𝟙 𝟙 ω 𝟙  𝟘  𝟘  ()
+    𝟙 𝟙 ω 𝟙  𝟘  𝟙  ()
+    𝟙 𝟙 ω 𝟙  𝟘  ≤𝟙 ()
+    𝟙 𝟙 ω 𝟙  𝟘  ≤ω ()
+    𝟙 𝟙 ω 𝟙  𝟙  𝟘  ()
+    𝟙 𝟙 ω 𝟙  𝟙  𝟙  ()
+    𝟙 𝟙 ω 𝟙  𝟙  ≤𝟙 ()
+    𝟙 𝟙 ω 𝟙  𝟙  ≤ω ()
+    𝟙 𝟙 ω 𝟙  ≤𝟙 𝟘  ()
+    𝟙 𝟙 ω 𝟙  ≤𝟙 𝟙  ()
+    𝟙 𝟙 ω 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟙 𝟙 ω 𝟙  ≤𝟙 ≤ω ()
+    𝟙 𝟙 ω 𝟙  ≤ω 𝟘  ()
+    𝟙 𝟙 ω 𝟙  ≤ω 𝟙  ()
+    𝟙 𝟙 ω 𝟙  ≤ω ≤𝟙 ()
+    𝟙 𝟙 ω 𝟙  ≤ω ≤ω ()
+    𝟙 𝟙 ω ≤𝟙 𝟘  𝟘  ()
+    𝟙 𝟙 ω ≤𝟙 𝟘  𝟙  ()
+    𝟙 𝟙 ω ≤𝟙 𝟘  ≤𝟙 ()
+    𝟙 𝟙 ω ≤𝟙 𝟘  ≤ω ()
+    𝟙 𝟙 ω ≤𝟙 𝟙  𝟘  ()
+    𝟙 𝟙 ω ≤𝟙 𝟙  𝟙  ()
+    𝟙 𝟙 ω ≤𝟙 𝟙  ≤𝟙 ()
+    𝟙 𝟙 ω ≤𝟙 𝟙  ≤ω ()
+    𝟙 𝟙 ω ≤𝟙 ≤𝟙 𝟘  ()
+    𝟙 𝟙 ω ≤𝟙 ≤𝟙 𝟙  ()
+    𝟙 𝟙 ω ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟙 𝟙 ω ≤𝟙 ≤𝟙 ≤ω ()
+    𝟙 𝟙 ω ≤𝟙 ≤ω 𝟘  ()
+    𝟙 𝟙 ω ≤𝟙 ≤ω 𝟙  ()
+    𝟙 𝟙 ω ≤𝟙 ≤ω ≤𝟙 ()
+    𝟙 𝟙 ω ≤𝟙 ≤ω ≤ω ()
+    𝟙 𝟙 ω ≤ω 𝟘  𝟘  ()
+    𝟙 𝟙 ω ≤ω 𝟘  𝟙  ()
+    𝟙 𝟙 ω ≤ω 𝟘  ≤𝟙 ()
+    𝟙 𝟙 ω ≤ω 𝟘  ≤ω ()
+    𝟙 𝟙 ω ≤ω 𝟙  𝟘  ()
+    𝟙 𝟙 ω ≤ω 𝟙  𝟙  ()
+    𝟙 𝟙 ω ≤ω 𝟙  ≤𝟙 ()
+    𝟙 𝟙 ω ≤ω 𝟙  ≤ω ()
+    𝟙 𝟙 ω ≤ω ≤𝟙 𝟘  ()
+    𝟙 𝟙 ω ≤ω ≤𝟙 𝟙  ()
+    𝟙 𝟙 ω ≤ω ≤𝟙 ≤𝟙 ()
+    𝟙 𝟙 ω ≤ω ≤𝟙 ≤ω ()
+    𝟙 𝟙 ω ≤ω ≤ω 𝟘  ()
+    𝟙 𝟙 ω ≤ω ≤ω 𝟙  ()
+    𝟙 𝟙 ω ≤ω ≤ω ≤𝟙 ()
+    𝟙 𝟙 ω ≤ω ≤ω ≤ω ()
+    𝟙 ω 𝟘 𝟘  𝟘  𝟙  ()
+    𝟙 ω 𝟘 𝟘  𝟘  ≤𝟙 ()
+    𝟙 ω 𝟘 𝟘  𝟘  ≤ω ()
+    𝟙 ω 𝟘 𝟘  𝟙  𝟙  ()
+    𝟙 ω 𝟘 𝟘  𝟙  ≤𝟙 ()
+    𝟙 ω 𝟘 𝟘  𝟙  ≤ω ()
+    𝟙 ω 𝟘 𝟘  ≤𝟙 𝟙  ()
+    𝟙 ω 𝟘 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟙 ω 𝟘 𝟘  ≤𝟙 ≤ω ()
+    𝟙 ω 𝟘 𝟘  ≤ω 𝟘  ()
+    𝟙 ω 𝟘 𝟘  ≤ω 𝟙  ()
+    𝟙 ω 𝟘 𝟘  ≤ω ≤𝟙 ()
+    𝟙 ω 𝟘 𝟘  ≤ω ≤ω ()
+    𝟙 ω 𝟘 𝟙  𝟘  𝟙  ()
+    𝟙 ω 𝟘 𝟙  𝟘  ≤𝟙 ()
+    𝟙 ω 𝟘 𝟙  𝟘  ≤ω ()
+    𝟙 ω 𝟘 𝟙  𝟙  𝟙  ()
+    𝟙 ω 𝟘 𝟙  𝟙  ≤𝟙 ()
+    𝟙 ω 𝟘 𝟙  𝟙  ≤ω ()
+    𝟙 ω 𝟘 𝟙  ≤𝟙 𝟙  ()
+    𝟙 ω 𝟘 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟙 ω 𝟘 𝟙  ≤𝟙 ≤ω ()
+    𝟙 ω 𝟘 𝟙  ≤ω 𝟘  ()
+    𝟙 ω 𝟘 𝟙  ≤ω 𝟙  ()
+    𝟙 ω 𝟘 𝟙  ≤ω ≤𝟙 ()
+    𝟙 ω 𝟘 𝟙  ≤ω ≤ω ()
+    𝟙 ω 𝟘 ≤𝟙 𝟘  𝟙  ()
+    𝟙 ω 𝟘 ≤𝟙 𝟘  ≤𝟙 ()
+    𝟙 ω 𝟘 ≤𝟙 𝟘  ≤ω ()
+    𝟙 ω 𝟘 ≤𝟙 𝟙  𝟙  ()
+    𝟙 ω 𝟘 ≤𝟙 𝟙  ≤𝟙 ()
+    𝟙 ω 𝟘 ≤𝟙 𝟙  ≤ω ()
+    𝟙 ω 𝟘 ≤𝟙 ≤𝟙 𝟙  ()
+    𝟙 ω 𝟘 ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟙 ω 𝟘 ≤𝟙 ≤𝟙 ≤ω ()
+    𝟙 ω 𝟘 ≤𝟙 ≤ω 𝟘  ()
+    𝟙 ω 𝟘 ≤𝟙 ≤ω 𝟙  ()
+    𝟙 ω 𝟘 ≤𝟙 ≤ω ≤𝟙 ()
+    𝟙 ω 𝟘 ≤𝟙 ≤ω ≤ω ()
+    𝟙 ω 𝟘 ≤ω 𝟘  𝟘  ()
+    𝟙 ω 𝟘 ≤ω 𝟘  𝟙  ()
+    𝟙 ω 𝟘 ≤ω 𝟘  ≤𝟙 ()
+    𝟙 ω 𝟘 ≤ω 𝟘  ≤ω ()
+    𝟙 ω 𝟘 ≤ω 𝟙  𝟘  ()
+    𝟙 ω 𝟘 ≤ω 𝟙  𝟙  ()
+    𝟙 ω 𝟘 ≤ω 𝟙  ≤𝟙 ()
+    𝟙 ω 𝟘 ≤ω 𝟙  ≤ω ()
+    𝟙 ω 𝟘 ≤ω ≤𝟙 𝟘  ()
+    𝟙 ω 𝟘 ≤ω ≤𝟙 𝟙  ()
+    𝟙 ω 𝟘 ≤ω ≤𝟙 ≤𝟙 ()
+    𝟙 ω 𝟘 ≤ω ≤𝟙 ≤ω ()
+    𝟙 ω 𝟘 ≤ω ≤ω 𝟘  ()
+    𝟙 ω 𝟘 ≤ω ≤ω 𝟙  ()
+    𝟙 ω 𝟘 ≤ω ≤ω ≤𝟙 ()
+    𝟙 ω 𝟘 ≤ω ≤ω ≤ω ()
+    𝟙 ω 𝟙 𝟘  𝟘  𝟙  ()
+    𝟙 ω 𝟙 𝟘  𝟘  ≤𝟙 ()
+    𝟙 ω 𝟙 𝟘  𝟘  ≤ω ()
+    𝟙 ω 𝟙 𝟘  𝟙  𝟘  ()
+    𝟙 ω 𝟙 𝟘  𝟙  𝟙  ()
+    𝟙 ω 𝟙 𝟘  𝟙  ≤𝟙 ()
+    𝟙 ω 𝟙 𝟘  𝟙  ≤ω ()
+    𝟙 ω 𝟙 𝟘  ≤𝟙 𝟘  ()
+    𝟙 ω 𝟙 𝟘  ≤𝟙 𝟙  ()
+    𝟙 ω 𝟙 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟙 ω 𝟙 𝟘  ≤𝟙 ≤ω ()
+    𝟙 ω 𝟙 𝟘  ≤ω 𝟘  ()
+    𝟙 ω 𝟙 𝟘  ≤ω 𝟙  ()
+    𝟙 ω 𝟙 𝟘  ≤ω ≤𝟙 ()
+    𝟙 ω 𝟙 𝟘  ≤ω ≤ω ()
+    𝟙 ω 𝟙 𝟙  𝟘  𝟙  ()
+    𝟙 ω 𝟙 𝟙  𝟘  ≤𝟙 ()
+    𝟙 ω 𝟙 𝟙  𝟘  ≤ω ()
+    𝟙 ω 𝟙 𝟙  𝟙  𝟘  ()
+    𝟙 ω 𝟙 𝟙  𝟙  𝟙  ()
+    𝟙 ω 𝟙 𝟙  𝟙  ≤𝟙 ()
+    𝟙 ω 𝟙 𝟙  𝟙  ≤ω ()
+    𝟙 ω 𝟙 𝟙  ≤𝟙 𝟘  ()
+    𝟙 ω 𝟙 𝟙  ≤𝟙 𝟙  ()
+    𝟙 ω 𝟙 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟙 ω 𝟙 𝟙  ≤𝟙 ≤ω ()
+    𝟙 ω 𝟙 𝟙  ≤ω 𝟘  ()
+    𝟙 ω 𝟙 𝟙  ≤ω 𝟙  ()
+    𝟙 ω 𝟙 𝟙  ≤ω ≤𝟙 ()
+    𝟙 ω 𝟙 𝟙  ≤ω ≤ω ()
+    𝟙 ω 𝟙 ≤𝟙 𝟘  𝟙  ()
+    𝟙 ω 𝟙 ≤𝟙 𝟘  ≤𝟙 ()
+    𝟙 ω 𝟙 ≤𝟙 𝟘  ≤ω ()
+    𝟙 ω 𝟙 ≤𝟙 𝟙  𝟘  ()
+    𝟙 ω 𝟙 ≤𝟙 𝟙  𝟙  ()
+    𝟙 ω 𝟙 ≤𝟙 𝟙  ≤𝟙 ()
+    𝟙 ω 𝟙 ≤𝟙 𝟙  ≤ω ()
+    𝟙 ω 𝟙 ≤𝟙 ≤𝟙 𝟘  ()
+    𝟙 ω 𝟙 ≤𝟙 ≤𝟙 𝟙  ()
+    𝟙 ω 𝟙 ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟙 ω 𝟙 ≤𝟙 ≤𝟙 ≤ω ()
+    𝟙 ω 𝟙 ≤𝟙 ≤ω 𝟘  ()
+    𝟙 ω 𝟙 ≤𝟙 ≤ω 𝟙  ()
+    𝟙 ω 𝟙 ≤𝟙 ≤ω ≤𝟙 ()
+    𝟙 ω 𝟙 ≤𝟙 ≤ω ≤ω ()
+    𝟙 ω 𝟙 ≤ω 𝟘  𝟘  ()
+    𝟙 ω 𝟙 ≤ω 𝟘  𝟙  ()
+    𝟙 ω 𝟙 ≤ω 𝟘  ≤𝟙 ()
+    𝟙 ω 𝟙 ≤ω 𝟘  ≤ω ()
+    𝟙 ω 𝟙 ≤ω 𝟙  𝟘  ()
+    𝟙 ω 𝟙 ≤ω 𝟙  𝟙  ()
+    𝟙 ω 𝟙 ≤ω 𝟙  ≤𝟙 ()
+    𝟙 ω 𝟙 ≤ω 𝟙  ≤ω ()
+    𝟙 ω 𝟙 ≤ω ≤𝟙 𝟘  ()
+    𝟙 ω 𝟙 ≤ω ≤𝟙 𝟙  ()
+    𝟙 ω 𝟙 ≤ω ≤𝟙 ≤𝟙 ()
+    𝟙 ω 𝟙 ≤ω ≤𝟙 ≤ω ()
+    𝟙 ω 𝟙 ≤ω ≤ω 𝟘  ()
+    𝟙 ω 𝟙 ≤ω ≤ω 𝟙  ()
+    𝟙 ω 𝟙 ≤ω ≤ω ≤𝟙 ()
+    𝟙 ω 𝟙 ≤ω ≤ω ≤ω ()
+    𝟙 ω ω 𝟘  𝟘  𝟙  ()
+    𝟙 ω ω 𝟘  𝟘  ≤𝟙 ()
+    𝟙 ω ω 𝟘  𝟘  ≤ω ()
+    𝟙 ω ω 𝟘  𝟙  𝟘  ()
+    𝟙 ω ω 𝟘  𝟙  𝟙  ()
+    𝟙 ω ω 𝟘  𝟙  ≤𝟙 ()
+    𝟙 ω ω 𝟘  𝟙  ≤ω ()
+    𝟙 ω ω 𝟘  ≤𝟙 𝟘  ()
+    𝟙 ω ω 𝟘  ≤𝟙 𝟙  ()
+    𝟙 ω ω 𝟘  ≤𝟙 ≤𝟙 ()
+    𝟙 ω ω 𝟘  ≤𝟙 ≤ω ()
+    𝟙 ω ω 𝟘  ≤ω 𝟘  ()
+    𝟙 ω ω 𝟘  ≤ω 𝟙  ()
+    𝟙 ω ω 𝟘  ≤ω ≤𝟙 ()
+    𝟙 ω ω 𝟘  ≤ω ≤ω ()
+    𝟙 ω ω 𝟙  𝟘  𝟘  ()
+    𝟙 ω ω 𝟙  𝟘  𝟙  ()
+    𝟙 ω ω 𝟙  𝟘  ≤𝟙 ()
+    𝟙 ω ω 𝟙  𝟘  ≤ω ()
+    𝟙 ω ω 𝟙  𝟙  𝟘  ()
+    𝟙 ω ω 𝟙  𝟙  𝟙  ()
+    𝟙 ω ω 𝟙  𝟙  ≤𝟙 ()
+    𝟙 ω ω 𝟙  𝟙  ≤ω ()
+    𝟙 ω ω 𝟙  ≤𝟙 𝟘  ()
+    𝟙 ω ω 𝟙  ≤𝟙 𝟙  ()
+    𝟙 ω ω 𝟙  ≤𝟙 ≤𝟙 ()
+    𝟙 ω ω 𝟙  ≤𝟙 ≤ω ()
+    𝟙 ω ω 𝟙  ≤ω 𝟘  ()
+    𝟙 ω ω 𝟙  ≤ω 𝟙  ()
+    𝟙 ω ω 𝟙  ≤ω ≤𝟙 ()
+    𝟙 ω ω 𝟙  ≤ω ≤ω ()
+    𝟙 ω ω ≤𝟙 𝟘  𝟘  ()
+    𝟙 ω ω ≤𝟙 𝟘  𝟙  ()
+    𝟙 ω ω ≤𝟙 𝟘  ≤𝟙 ()
+    𝟙 ω ω ≤𝟙 𝟘  ≤ω ()
+    𝟙 ω ω ≤𝟙 𝟙  𝟘  ()
+    𝟙 ω ω ≤𝟙 𝟙  𝟙  ()
+    𝟙 ω ω ≤𝟙 𝟙  ≤𝟙 ()
+    𝟙 ω ω ≤𝟙 𝟙  ≤ω ()
+    𝟙 ω ω ≤𝟙 ≤𝟙 𝟘  ()
+    𝟙 ω ω ≤𝟙 ≤𝟙 𝟙  ()
+    𝟙 ω ω ≤𝟙 ≤𝟙 ≤𝟙 ()
+    𝟙 ω ω ≤𝟙 ≤𝟙 ≤ω ()
+    𝟙 ω ω ≤𝟙 ≤ω 𝟘  ()
+    𝟙 ω ω ≤𝟙 ≤ω 𝟙  ()
+    𝟙 ω ω ≤𝟙 ≤ω ≤𝟙 ()
+    𝟙 ω ω ≤𝟙 ≤ω ≤ω ()
+    𝟙 ω ω ≤ω 𝟘  𝟘  ()
+    𝟙 ω ω ≤ω 𝟘  𝟙  ()
+    𝟙 ω ω ≤ω 𝟘  ≤𝟙 ()
+    𝟙 ω ω ≤ω 𝟘  ≤ω ()
+    𝟙 ω ω ≤ω 𝟙  𝟘  ()
+    𝟙 ω ω ≤ω 𝟙  𝟙  ()
+    𝟙 ω ω ≤ω 𝟙  ≤𝟙 ()
+    𝟙 ω ω ≤ω 𝟙  ≤ω ()
+    𝟙 ω ω ≤ω ≤𝟙 𝟘  ()
+    𝟙 ω ω ≤ω ≤𝟙 𝟙  ()
+    𝟙 ω ω ≤ω ≤𝟙 ≤𝟙 ()
+    𝟙 ω ω ≤ω ≤𝟙 ≤ω ()
+    𝟙 ω ω ≤ω ≤ω 𝟘  ()
+    𝟙 ω ω ≤ω ≤ω 𝟙  ()
+    𝟙 ω ω ≤ω ≤ω ≤𝟙 ()
+    𝟙 ω ω ≤ω ≤ω ≤ω ()
 
   tr⁻¹-monotone : ∀ p q → p LA.≤ q → tr⁻¹ p A.≤ tr⁻¹ q
   tr⁻¹-monotone = λ where
@@ -4432,7 +6544,7 @@ affine⇨linear-or-affine {v₁ = v₁} {v₂ = v₂} {v₂-ok = v₂-ok} refl s
     ω ≤𝟙 → refl
     ω ≤ω → refl
 
-  tr-≤-no-star :
+  tr-≤-no-nr :
     ∀ s →
     tr′ p LA.≤ q₁ →
     q₁ LA.≤ q₂ LA.∧ q₃ LA.∧ (q₄ LA.+ tr′ r LA.· q₃ LA.+ tr′ s LA.· q₁) →
@@ -4442,7 +6554,7 @@ affine⇨linear-or-affine {v₁ = v₁} {v₂ = v₂} {v₂-ok = v₂-ok} refl s
        tr′ q₄′ LA.≤ q₄ ×
        p A.≤ q₁′ ×
        q₁′ A.≤ q₂′ A.∧ q₃′ A.∧ (q₄′ A.+ r A.· q₃′ A.+ s A.· q₁′)
-  tr-≤-no-star s = →tr-≤-no-star {s = s}
+  tr-≤-no-nr s = →tr-≤-no-nr {s = s}
     (affineModality v₁)
     (linear-or-affine v₂ v₂-ok)
     tr′
@@ -4463,20 +6575,21 @@ linear-or-affine⇨affine :
   let 𝕄₁ = linear-or-affine v₁ v₁-ok
       𝕄₂ = affineModality v₂
   in
-  Dedicated-star 𝕄₁ ⇔ Dedicated-star 𝕄₂ →
+  Dedicated-nr 𝕄₁ ⇔ Dedicated-nr 𝕄₂ →
   Is-morphism 𝕄₁ 𝕄₂ linear-or-affine→affine
 linear-or-affine⇨affine {v₂ = v₂} refl s⇔s = λ where
-    .Is-morphism.tr-𝟘-≤                      → refl
-    .Is-morphism.tr-≡-𝟘-⇔ _                  → tr-≡-𝟘 _
-                                             , λ { refl → refl }
-    .Is-morphism.tr-<-𝟘 not-ok ok            → ⊥-elim (not-ok ok)
-    .Is-morphism.tr-𝟙                        → refl
-    .Is-morphism.tr-+ {p = p}                → ≤-reflexive (tr-+ p _)
-    .Is-morphism.tr-·                        → tr-· _ _
-    .Is-morphism.tr-∧                        → ≤-reflexive (tr-∧ _ _)
-    .Is-morphism.tr-⊛ {r = r}                → ≤-reflexive (tr-⊛ _ _ r)
-    .Is-morphism.𝟘ᵐ-in-second-if-in-first    → idᶠ
-    .Is-morphism.star-in-first-iff-in-second → s⇔s
+    .Is-morphism.tr-𝟘-≤                    → refl
+    .Is-morphism.tr-≡-𝟘-⇔ _                → tr-≡-𝟘 _
+                                           , λ { refl → refl }
+    .Is-morphism.tr-<-𝟘 not-ok ok          → ⊥-elim (not-ok ok)
+    .Is-morphism.tr-𝟙                      → refl
+    .Is-morphism.tr-+ {p = p}              → ≤-reflexive (tr-+ p _)
+    .Is-morphism.tr-·                      → tr-· _ _
+    .Is-morphism.tr-∧                      → ≤-reflexive (tr-∧ _ _)
+    .Is-morphism.tr-nr {r = r}             → ≤-reflexive
+                                               (tr-nr _ r _ _ _)
+    .Is-morphism.𝟘ᵐ-in-second-if-in-first  → idᶠ
+    .Is-morphism.nr-in-first-iff-in-second → s⇔s
   where
   open Graded.Modality.Properties (affineModality v₂)
 
@@ -4539,71 +6652,1035 @@ linear-or-affine⇨affine {v₂ = v₂} refl s⇔s = λ where
   tr-∧ ≤ω ≤𝟙 = refl
   tr-∧ ≤ω ≤ω = refl
 
-  tr-⊛ : ∀ p q r → tr′ (p LA.⊛ q ▷ r) ≡ tr′ p A.⊛ tr′ q ▷ tr′ r
-  tr-⊛ 𝟘  𝟘  𝟘  = refl
-  tr-⊛ 𝟘  𝟘  𝟙  = refl
-  tr-⊛ 𝟘  𝟘  ≤𝟙 = refl
-  tr-⊛ 𝟘  𝟘  ≤ω = refl
-  tr-⊛ 𝟘  𝟙  𝟘  = refl
-  tr-⊛ 𝟘  𝟙  𝟙  = refl
-  tr-⊛ 𝟘  𝟙  ≤𝟙 = refl
-  tr-⊛ 𝟘  𝟙  ≤ω = refl
-  tr-⊛ 𝟘  ≤𝟙 𝟘  = refl
-  tr-⊛ 𝟘  ≤𝟙 𝟙  = refl
-  tr-⊛ 𝟘  ≤𝟙 ≤𝟙 = refl
-  tr-⊛ 𝟘  ≤𝟙 ≤ω = refl
-  tr-⊛ 𝟘  ≤ω 𝟘  = refl
-  tr-⊛ 𝟘  ≤ω 𝟙  = refl
-  tr-⊛ 𝟘  ≤ω ≤𝟙 = refl
-  tr-⊛ 𝟘  ≤ω ≤ω = refl
-  tr-⊛ 𝟙  𝟘  𝟘  = refl
-  tr-⊛ 𝟙  𝟘  𝟙  = refl
-  tr-⊛ 𝟙  𝟘  ≤𝟙 = refl
-  tr-⊛ 𝟙  𝟘  ≤ω = refl
-  tr-⊛ 𝟙  𝟙  𝟘  = refl
-  tr-⊛ 𝟙  𝟙  𝟙  = refl
-  tr-⊛ 𝟙  𝟙  ≤𝟙 = refl
-  tr-⊛ 𝟙  𝟙  ≤ω = refl
-  tr-⊛ 𝟙  ≤𝟙 𝟘  = refl
-  tr-⊛ 𝟙  ≤𝟙 𝟙  = refl
-  tr-⊛ 𝟙  ≤𝟙 ≤𝟙 = refl
-  tr-⊛ 𝟙  ≤𝟙 ≤ω = refl
-  tr-⊛ 𝟙  ≤ω 𝟘  = refl
-  tr-⊛ 𝟙  ≤ω 𝟙  = refl
-  tr-⊛ 𝟙  ≤ω ≤𝟙 = refl
-  tr-⊛ 𝟙  ≤ω ≤ω = refl
-  tr-⊛ ≤𝟙 𝟘  𝟘  = refl
-  tr-⊛ ≤𝟙 𝟘  𝟙  = refl
-  tr-⊛ ≤𝟙 𝟘  ≤𝟙 = refl
-  tr-⊛ ≤𝟙 𝟘  ≤ω = refl
-  tr-⊛ ≤𝟙 𝟙  𝟘  = refl
-  tr-⊛ ≤𝟙 𝟙  𝟙  = refl
-  tr-⊛ ≤𝟙 𝟙  ≤𝟙 = refl
-  tr-⊛ ≤𝟙 𝟙  ≤ω = refl
-  tr-⊛ ≤𝟙 ≤𝟙 𝟘  = refl
-  tr-⊛ ≤𝟙 ≤𝟙 𝟙  = refl
-  tr-⊛ ≤𝟙 ≤𝟙 ≤𝟙 = refl
-  tr-⊛ ≤𝟙 ≤𝟙 ≤ω = refl
-  tr-⊛ ≤𝟙 ≤ω 𝟘  = refl
-  tr-⊛ ≤𝟙 ≤ω 𝟙  = refl
-  tr-⊛ ≤𝟙 ≤ω ≤𝟙 = refl
-  tr-⊛ ≤𝟙 ≤ω ≤ω = refl
-  tr-⊛ ≤ω 𝟘  𝟘  = refl
-  tr-⊛ ≤ω 𝟘  𝟙  = refl
-  tr-⊛ ≤ω 𝟘  ≤𝟙 = refl
-  tr-⊛ ≤ω 𝟘  ≤ω = refl
-  tr-⊛ ≤ω 𝟙  𝟘  = refl
-  tr-⊛ ≤ω 𝟙  𝟙  = refl
-  tr-⊛ ≤ω 𝟙  ≤𝟙 = refl
-  tr-⊛ ≤ω 𝟙  ≤ω = refl
-  tr-⊛ ≤ω ≤𝟙 𝟘  = refl
-  tr-⊛ ≤ω ≤𝟙 𝟙  = refl
-  tr-⊛ ≤ω ≤𝟙 ≤𝟙 = refl
-  tr-⊛ ≤ω ≤𝟙 ≤ω = refl
-  tr-⊛ ≤ω ≤ω 𝟘  = refl
-  tr-⊛ ≤ω ≤ω 𝟙  = refl
-  tr-⊛ ≤ω ≤ω ≤𝟙 = refl
-  tr-⊛ ≤ω ≤ω ≤ω = refl
+  tr-nr :
+    ∀ p r z s n →
+    tr′ (LA.nr p r z s n) ≡
+    A.nr (tr′ p) (tr′ r) (tr′ z) (tr′ s) (tr′ n)
+  tr-nr = λ where
+    𝟘  𝟘  𝟘  𝟘  𝟘  → refl
+    𝟘  𝟘  𝟘  𝟘  𝟙  → refl
+    𝟘  𝟘  𝟘  𝟘  ≤𝟙 → refl
+    𝟘  𝟘  𝟘  𝟘  ≤ω → refl
+    𝟘  𝟘  𝟘  𝟙  𝟘  → refl
+    𝟘  𝟘  𝟘  𝟙  𝟙  → refl
+    𝟘  𝟘  𝟘  𝟙  ≤𝟙 → refl
+    𝟘  𝟘  𝟘  𝟙  ≤ω → refl
+    𝟘  𝟘  𝟘  ≤𝟙 𝟘  → refl
+    𝟘  𝟘  𝟘  ≤𝟙 𝟙  → refl
+    𝟘  𝟘  𝟘  ≤𝟙 ≤𝟙 → refl
+    𝟘  𝟘  𝟘  ≤𝟙 ≤ω → refl
+    𝟘  𝟘  𝟘  ≤ω 𝟘  → refl
+    𝟘  𝟘  𝟘  ≤ω 𝟙  → refl
+    𝟘  𝟘  𝟘  ≤ω ≤𝟙 → refl
+    𝟘  𝟘  𝟘  ≤ω ≤ω → refl
+    𝟘  𝟘  𝟙  𝟘  𝟘  → refl
+    𝟘  𝟘  𝟙  𝟘  𝟙  → refl
+    𝟘  𝟘  𝟙  𝟘  ≤𝟙 → refl
+    𝟘  𝟘  𝟙  𝟘  ≤ω → refl
+    𝟘  𝟘  𝟙  𝟙  𝟘  → refl
+    𝟘  𝟘  𝟙  𝟙  𝟙  → refl
+    𝟘  𝟘  𝟙  𝟙  ≤𝟙 → refl
+    𝟘  𝟘  𝟙  𝟙  ≤ω → refl
+    𝟘  𝟘  𝟙  ≤𝟙 𝟘  → refl
+    𝟘  𝟘  𝟙  ≤𝟙 𝟙  → refl
+    𝟘  𝟘  𝟙  ≤𝟙 ≤𝟙 → refl
+    𝟘  𝟘  𝟙  ≤𝟙 ≤ω → refl
+    𝟘  𝟘  𝟙  ≤ω 𝟘  → refl
+    𝟘  𝟘  𝟙  ≤ω 𝟙  → refl
+    𝟘  𝟘  𝟙  ≤ω ≤𝟙 → refl
+    𝟘  𝟘  𝟙  ≤ω ≤ω → refl
+    𝟘  𝟘  ≤𝟙 𝟘  𝟘  → refl
+    𝟘  𝟘  ≤𝟙 𝟘  𝟙  → refl
+    𝟘  𝟘  ≤𝟙 𝟘  ≤𝟙 → refl
+    𝟘  𝟘  ≤𝟙 𝟘  ≤ω → refl
+    𝟘  𝟘  ≤𝟙 𝟙  𝟘  → refl
+    𝟘  𝟘  ≤𝟙 𝟙  𝟙  → refl
+    𝟘  𝟘  ≤𝟙 𝟙  ≤𝟙 → refl
+    𝟘  𝟘  ≤𝟙 𝟙  ≤ω → refl
+    𝟘  𝟘  ≤𝟙 ≤𝟙 𝟘  → refl
+    𝟘  𝟘  ≤𝟙 ≤𝟙 𝟙  → refl
+    𝟘  𝟘  ≤𝟙 ≤𝟙 ≤𝟙 → refl
+    𝟘  𝟘  ≤𝟙 ≤𝟙 ≤ω → refl
+    𝟘  𝟘  ≤𝟙 ≤ω 𝟘  → refl
+    𝟘  𝟘  ≤𝟙 ≤ω 𝟙  → refl
+    𝟘  𝟘  ≤𝟙 ≤ω ≤𝟙 → refl
+    𝟘  𝟘  ≤𝟙 ≤ω ≤ω → refl
+    𝟘  𝟘  ≤ω 𝟘  𝟘  → refl
+    𝟘  𝟘  ≤ω 𝟘  𝟙  → refl
+    𝟘  𝟘  ≤ω 𝟘  ≤𝟙 → refl
+    𝟘  𝟘  ≤ω 𝟘  ≤ω → refl
+    𝟘  𝟘  ≤ω 𝟙  𝟘  → refl
+    𝟘  𝟘  ≤ω 𝟙  𝟙  → refl
+    𝟘  𝟘  ≤ω 𝟙  ≤𝟙 → refl
+    𝟘  𝟘  ≤ω 𝟙  ≤ω → refl
+    𝟘  𝟘  ≤ω ≤𝟙 𝟘  → refl
+    𝟘  𝟘  ≤ω ≤𝟙 𝟙  → refl
+    𝟘  𝟘  ≤ω ≤𝟙 ≤𝟙 → refl
+    𝟘  𝟘  ≤ω ≤𝟙 ≤ω → refl
+    𝟘  𝟘  ≤ω ≤ω 𝟘  → refl
+    𝟘  𝟘  ≤ω ≤ω 𝟙  → refl
+    𝟘  𝟘  ≤ω ≤ω ≤𝟙 → refl
+    𝟘  𝟘  ≤ω ≤ω ≤ω → refl
+    𝟘  𝟙  𝟘  𝟘  𝟘  → refl
+    𝟘  𝟙  𝟘  𝟘  𝟙  → refl
+    𝟘  𝟙  𝟘  𝟘  ≤𝟙 → refl
+    𝟘  𝟙  𝟘  𝟘  ≤ω → refl
+    𝟘  𝟙  𝟘  𝟙  𝟘  → refl
+    𝟘  𝟙  𝟘  𝟙  𝟙  → refl
+    𝟘  𝟙  𝟘  𝟙  ≤𝟙 → refl
+    𝟘  𝟙  𝟘  𝟙  ≤ω → refl
+    𝟘  𝟙  𝟘  ≤𝟙 𝟘  → refl
+    𝟘  𝟙  𝟘  ≤𝟙 𝟙  → refl
+    𝟘  𝟙  𝟘  ≤𝟙 ≤𝟙 → refl
+    𝟘  𝟙  𝟘  ≤𝟙 ≤ω → refl
+    𝟘  𝟙  𝟘  ≤ω 𝟘  → refl
+    𝟘  𝟙  𝟘  ≤ω 𝟙  → refl
+    𝟘  𝟙  𝟘  ≤ω ≤𝟙 → refl
+    𝟘  𝟙  𝟘  ≤ω ≤ω → refl
+    𝟘  𝟙  𝟙  𝟘  𝟘  → refl
+    𝟘  𝟙  𝟙  𝟘  𝟙  → refl
+    𝟘  𝟙  𝟙  𝟘  ≤𝟙 → refl
+    𝟘  𝟙  𝟙  𝟘  ≤ω → refl
+    𝟘  𝟙  𝟙  𝟙  𝟘  → refl
+    𝟘  𝟙  𝟙  𝟙  𝟙  → refl
+    𝟘  𝟙  𝟙  𝟙  ≤𝟙 → refl
+    𝟘  𝟙  𝟙  𝟙  ≤ω → refl
+    𝟘  𝟙  𝟙  ≤𝟙 𝟘  → refl
+    𝟘  𝟙  𝟙  ≤𝟙 𝟙  → refl
+    𝟘  𝟙  𝟙  ≤𝟙 ≤𝟙 → refl
+    𝟘  𝟙  𝟙  ≤𝟙 ≤ω → refl
+    𝟘  𝟙  𝟙  ≤ω 𝟘  → refl
+    𝟘  𝟙  𝟙  ≤ω 𝟙  → refl
+    𝟘  𝟙  𝟙  ≤ω ≤𝟙 → refl
+    𝟘  𝟙  𝟙  ≤ω ≤ω → refl
+    𝟘  𝟙  ≤𝟙 𝟘  𝟘  → refl
+    𝟘  𝟙  ≤𝟙 𝟘  𝟙  → refl
+    𝟘  𝟙  ≤𝟙 𝟘  ≤𝟙 → refl
+    𝟘  𝟙  ≤𝟙 𝟘  ≤ω → refl
+    𝟘  𝟙  ≤𝟙 𝟙  𝟘  → refl
+    𝟘  𝟙  ≤𝟙 𝟙  𝟙  → refl
+    𝟘  𝟙  ≤𝟙 𝟙  ≤𝟙 → refl
+    𝟘  𝟙  ≤𝟙 𝟙  ≤ω → refl
+    𝟘  𝟙  ≤𝟙 ≤𝟙 𝟘  → refl
+    𝟘  𝟙  ≤𝟙 ≤𝟙 𝟙  → refl
+    𝟘  𝟙  ≤𝟙 ≤𝟙 ≤𝟙 → refl
+    𝟘  𝟙  ≤𝟙 ≤𝟙 ≤ω → refl
+    𝟘  𝟙  ≤𝟙 ≤ω 𝟘  → refl
+    𝟘  𝟙  ≤𝟙 ≤ω 𝟙  → refl
+    𝟘  𝟙  ≤𝟙 ≤ω ≤𝟙 → refl
+    𝟘  𝟙  ≤𝟙 ≤ω ≤ω → refl
+    𝟘  𝟙  ≤ω 𝟘  𝟘  → refl
+    𝟘  𝟙  ≤ω 𝟘  𝟙  → refl
+    𝟘  𝟙  ≤ω 𝟘  ≤𝟙 → refl
+    𝟘  𝟙  ≤ω 𝟘  ≤ω → refl
+    𝟘  𝟙  ≤ω 𝟙  𝟘  → refl
+    𝟘  𝟙  ≤ω 𝟙  𝟙  → refl
+    𝟘  𝟙  ≤ω 𝟙  ≤𝟙 → refl
+    𝟘  𝟙  ≤ω 𝟙  ≤ω → refl
+    𝟘  𝟙  ≤ω ≤𝟙 𝟘  → refl
+    𝟘  𝟙  ≤ω ≤𝟙 𝟙  → refl
+    𝟘  𝟙  ≤ω ≤𝟙 ≤𝟙 → refl
+    𝟘  𝟙  ≤ω ≤𝟙 ≤ω → refl
+    𝟘  𝟙  ≤ω ≤ω 𝟘  → refl
+    𝟘  𝟙  ≤ω ≤ω 𝟙  → refl
+    𝟘  𝟙  ≤ω ≤ω ≤𝟙 → refl
+    𝟘  𝟙  ≤ω ≤ω ≤ω → refl
+    𝟘  ≤𝟙 𝟘  𝟘  𝟘  → refl
+    𝟘  ≤𝟙 𝟘  𝟘  𝟙  → refl
+    𝟘  ≤𝟙 𝟘  𝟘  ≤𝟙 → refl
+    𝟘  ≤𝟙 𝟘  𝟘  ≤ω → refl
+    𝟘  ≤𝟙 𝟘  𝟙  𝟘  → refl
+    𝟘  ≤𝟙 𝟘  𝟙  𝟙  → refl
+    𝟘  ≤𝟙 𝟘  𝟙  ≤𝟙 → refl
+    𝟘  ≤𝟙 𝟘  𝟙  ≤ω → refl
+    𝟘  ≤𝟙 𝟘  ≤𝟙 𝟘  → refl
+    𝟘  ≤𝟙 𝟘  ≤𝟙 𝟙  → refl
+    𝟘  ≤𝟙 𝟘  ≤𝟙 ≤𝟙 → refl
+    𝟘  ≤𝟙 𝟘  ≤𝟙 ≤ω → refl
+    𝟘  ≤𝟙 𝟘  ≤ω 𝟘  → refl
+    𝟘  ≤𝟙 𝟘  ≤ω 𝟙  → refl
+    𝟘  ≤𝟙 𝟘  ≤ω ≤𝟙 → refl
+    𝟘  ≤𝟙 𝟘  ≤ω ≤ω → refl
+    𝟘  ≤𝟙 𝟙  𝟘  𝟘  → refl
+    𝟘  ≤𝟙 𝟙  𝟘  𝟙  → refl
+    𝟘  ≤𝟙 𝟙  𝟘  ≤𝟙 → refl
+    𝟘  ≤𝟙 𝟙  𝟘  ≤ω → refl
+    𝟘  ≤𝟙 𝟙  𝟙  𝟘  → refl
+    𝟘  ≤𝟙 𝟙  𝟙  𝟙  → refl
+    𝟘  ≤𝟙 𝟙  𝟙  ≤𝟙 → refl
+    𝟘  ≤𝟙 𝟙  𝟙  ≤ω → refl
+    𝟘  ≤𝟙 𝟙  ≤𝟙 𝟘  → refl
+    𝟘  ≤𝟙 𝟙  ≤𝟙 𝟙  → refl
+    𝟘  ≤𝟙 𝟙  ≤𝟙 ≤𝟙 → refl
+    𝟘  ≤𝟙 𝟙  ≤𝟙 ≤ω → refl
+    𝟘  ≤𝟙 𝟙  ≤ω 𝟘  → refl
+    𝟘  ≤𝟙 𝟙  ≤ω 𝟙  → refl
+    𝟘  ≤𝟙 𝟙  ≤ω ≤𝟙 → refl
+    𝟘  ≤𝟙 𝟙  ≤ω ≤ω → refl
+    𝟘  ≤𝟙 ≤𝟙 𝟘  𝟘  → refl
+    𝟘  ≤𝟙 ≤𝟙 𝟘  𝟙  → refl
+    𝟘  ≤𝟙 ≤𝟙 𝟘  ≤𝟙 → refl
+    𝟘  ≤𝟙 ≤𝟙 𝟘  ≤ω → refl
+    𝟘  ≤𝟙 ≤𝟙 𝟙  𝟘  → refl
+    𝟘  ≤𝟙 ≤𝟙 𝟙  𝟙  → refl
+    𝟘  ≤𝟙 ≤𝟙 𝟙  ≤𝟙 → refl
+    𝟘  ≤𝟙 ≤𝟙 𝟙  ≤ω → refl
+    𝟘  ≤𝟙 ≤𝟙 ≤𝟙 𝟘  → refl
+    𝟘  ≤𝟙 ≤𝟙 ≤𝟙 𝟙  → refl
+    𝟘  ≤𝟙 ≤𝟙 ≤𝟙 ≤𝟙 → refl
+    𝟘  ≤𝟙 ≤𝟙 ≤𝟙 ≤ω → refl
+    𝟘  ≤𝟙 ≤𝟙 ≤ω 𝟘  → refl
+    𝟘  ≤𝟙 ≤𝟙 ≤ω 𝟙  → refl
+    𝟘  ≤𝟙 ≤𝟙 ≤ω ≤𝟙 → refl
+    𝟘  ≤𝟙 ≤𝟙 ≤ω ≤ω → refl
+    𝟘  ≤𝟙 ≤ω 𝟘  𝟘  → refl
+    𝟘  ≤𝟙 ≤ω 𝟘  𝟙  → refl
+    𝟘  ≤𝟙 ≤ω 𝟘  ≤𝟙 → refl
+    𝟘  ≤𝟙 ≤ω 𝟘  ≤ω → refl
+    𝟘  ≤𝟙 ≤ω 𝟙  𝟘  → refl
+    𝟘  ≤𝟙 ≤ω 𝟙  𝟙  → refl
+    𝟘  ≤𝟙 ≤ω 𝟙  ≤𝟙 → refl
+    𝟘  ≤𝟙 ≤ω 𝟙  ≤ω → refl
+    𝟘  ≤𝟙 ≤ω ≤𝟙 𝟘  → refl
+    𝟘  ≤𝟙 ≤ω ≤𝟙 𝟙  → refl
+    𝟘  ≤𝟙 ≤ω ≤𝟙 ≤𝟙 → refl
+    𝟘  ≤𝟙 ≤ω ≤𝟙 ≤ω → refl
+    𝟘  ≤𝟙 ≤ω ≤ω 𝟘  → refl
+    𝟘  ≤𝟙 ≤ω ≤ω 𝟙  → refl
+    𝟘  ≤𝟙 ≤ω ≤ω ≤𝟙 → refl
+    𝟘  ≤𝟙 ≤ω ≤ω ≤ω → refl
+    𝟘  ≤ω 𝟘  𝟘  𝟘  → refl
+    𝟘  ≤ω 𝟘  𝟘  𝟙  → refl
+    𝟘  ≤ω 𝟘  𝟘  ≤𝟙 → refl
+    𝟘  ≤ω 𝟘  𝟘  ≤ω → refl
+    𝟘  ≤ω 𝟘  𝟙  𝟘  → refl
+    𝟘  ≤ω 𝟘  𝟙  𝟙  → refl
+    𝟘  ≤ω 𝟘  𝟙  ≤𝟙 → refl
+    𝟘  ≤ω 𝟘  𝟙  ≤ω → refl
+    𝟘  ≤ω 𝟘  ≤𝟙 𝟘  → refl
+    𝟘  ≤ω 𝟘  ≤𝟙 𝟙  → refl
+    𝟘  ≤ω 𝟘  ≤𝟙 ≤𝟙 → refl
+    𝟘  ≤ω 𝟘  ≤𝟙 ≤ω → refl
+    𝟘  ≤ω 𝟘  ≤ω 𝟘  → refl
+    𝟘  ≤ω 𝟘  ≤ω 𝟙  → refl
+    𝟘  ≤ω 𝟘  ≤ω ≤𝟙 → refl
+    𝟘  ≤ω 𝟘  ≤ω ≤ω → refl
+    𝟘  ≤ω 𝟙  𝟘  𝟘  → refl
+    𝟘  ≤ω 𝟙  𝟘  𝟙  → refl
+    𝟘  ≤ω 𝟙  𝟘  ≤𝟙 → refl
+    𝟘  ≤ω 𝟙  𝟘  ≤ω → refl
+    𝟘  ≤ω 𝟙  𝟙  𝟘  → refl
+    𝟘  ≤ω 𝟙  𝟙  𝟙  → refl
+    𝟘  ≤ω 𝟙  𝟙  ≤𝟙 → refl
+    𝟘  ≤ω 𝟙  𝟙  ≤ω → refl
+    𝟘  ≤ω 𝟙  ≤𝟙 𝟘  → refl
+    𝟘  ≤ω 𝟙  ≤𝟙 𝟙  → refl
+    𝟘  ≤ω 𝟙  ≤𝟙 ≤𝟙 → refl
+    𝟘  ≤ω 𝟙  ≤𝟙 ≤ω → refl
+    𝟘  ≤ω 𝟙  ≤ω 𝟘  → refl
+    𝟘  ≤ω 𝟙  ≤ω 𝟙  → refl
+    𝟘  ≤ω 𝟙  ≤ω ≤𝟙 → refl
+    𝟘  ≤ω 𝟙  ≤ω ≤ω → refl
+    𝟘  ≤ω ≤𝟙 𝟘  𝟘  → refl
+    𝟘  ≤ω ≤𝟙 𝟘  𝟙  → refl
+    𝟘  ≤ω ≤𝟙 𝟘  ≤𝟙 → refl
+    𝟘  ≤ω ≤𝟙 𝟘  ≤ω → refl
+    𝟘  ≤ω ≤𝟙 𝟙  𝟘  → refl
+    𝟘  ≤ω ≤𝟙 𝟙  𝟙  → refl
+    𝟘  ≤ω ≤𝟙 𝟙  ≤𝟙 → refl
+    𝟘  ≤ω ≤𝟙 𝟙  ≤ω → refl
+    𝟘  ≤ω ≤𝟙 ≤𝟙 𝟘  → refl
+    𝟘  ≤ω ≤𝟙 ≤𝟙 𝟙  → refl
+    𝟘  ≤ω ≤𝟙 ≤𝟙 ≤𝟙 → refl
+    𝟘  ≤ω ≤𝟙 ≤𝟙 ≤ω → refl
+    𝟘  ≤ω ≤𝟙 ≤ω 𝟘  → refl
+    𝟘  ≤ω ≤𝟙 ≤ω 𝟙  → refl
+    𝟘  ≤ω ≤𝟙 ≤ω ≤𝟙 → refl
+    𝟘  ≤ω ≤𝟙 ≤ω ≤ω → refl
+    𝟘  ≤ω ≤ω 𝟘  𝟘  → refl
+    𝟘  ≤ω ≤ω 𝟘  𝟙  → refl
+    𝟘  ≤ω ≤ω 𝟘  ≤𝟙 → refl
+    𝟘  ≤ω ≤ω 𝟘  ≤ω → refl
+    𝟘  ≤ω ≤ω 𝟙  𝟘  → refl
+    𝟘  ≤ω ≤ω 𝟙  𝟙  → refl
+    𝟘  ≤ω ≤ω 𝟙  ≤𝟙 → refl
+    𝟘  ≤ω ≤ω 𝟙  ≤ω → refl
+    𝟘  ≤ω ≤ω ≤𝟙 𝟘  → refl
+    𝟘  ≤ω ≤ω ≤𝟙 𝟙  → refl
+    𝟘  ≤ω ≤ω ≤𝟙 ≤𝟙 → refl
+    𝟘  ≤ω ≤ω ≤𝟙 ≤ω → refl
+    𝟘  ≤ω ≤ω ≤ω 𝟘  → refl
+    𝟘  ≤ω ≤ω ≤ω 𝟙  → refl
+    𝟘  ≤ω ≤ω ≤ω ≤𝟙 → refl
+    𝟘  ≤ω ≤ω ≤ω ≤ω → refl
+    𝟙  𝟘  𝟘  𝟘  𝟘  → refl
+    𝟙  𝟘  𝟘  𝟘  𝟙  → refl
+    𝟙  𝟘  𝟘  𝟘  ≤𝟙 → refl
+    𝟙  𝟘  𝟘  𝟘  ≤ω → refl
+    𝟙  𝟘  𝟘  𝟙  𝟘  → refl
+    𝟙  𝟘  𝟘  𝟙  𝟙  → refl
+    𝟙  𝟘  𝟘  𝟙  ≤𝟙 → refl
+    𝟙  𝟘  𝟘  𝟙  ≤ω → refl
+    𝟙  𝟘  𝟘  ≤𝟙 𝟘  → refl
+    𝟙  𝟘  𝟘  ≤𝟙 𝟙  → refl
+    𝟙  𝟘  𝟘  ≤𝟙 ≤𝟙 → refl
+    𝟙  𝟘  𝟘  ≤𝟙 ≤ω → refl
+    𝟙  𝟘  𝟘  ≤ω 𝟘  → refl
+    𝟙  𝟘  𝟘  ≤ω 𝟙  → refl
+    𝟙  𝟘  𝟘  ≤ω ≤𝟙 → refl
+    𝟙  𝟘  𝟘  ≤ω ≤ω → refl
+    𝟙  𝟘  𝟙  𝟘  𝟘  → refl
+    𝟙  𝟘  𝟙  𝟘  𝟙  → refl
+    𝟙  𝟘  𝟙  𝟘  ≤𝟙 → refl
+    𝟙  𝟘  𝟙  𝟘  ≤ω → refl
+    𝟙  𝟘  𝟙  𝟙  𝟘  → refl
+    𝟙  𝟘  𝟙  𝟙  𝟙  → refl
+    𝟙  𝟘  𝟙  𝟙  ≤𝟙 → refl
+    𝟙  𝟘  𝟙  𝟙  ≤ω → refl
+    𝟙  𝟘  𝟙  ≤𝟙 𝟘  → refl
+    𝟙  𝟘  𝟙  ≤𝟙 𝟙  → refl
+    𝟙  𝟘  𝟙  ≤𝟙 ≤𝟙 → refl
+    𝟙  𝟘  𝟙  ≤𝟙 ≤ω → refl
+    𝟙  𝟘  𝟙  ≤ω 𝟘  → refl
+    𝟙  𝟘  𝟙  ≤ω 𝟙  → refl
+    𝟙  𝟘  𝟙  ≤ω ≤𝟙 → refl
+    𝟙  𝟘  𝟙  ≤ω ≤ω → refl
+    𝟙  𝟘  ≤𝟙 𝟘  𝟘  → refl
+    𝟙  𝟘  ≤𝟙 𝟘  𝟙  → refl
+    𝟙  𝟘  ≤𝟙 𝟘  ≤𝟙 → refl
+    𝟙  𝟘  ≤𝟙 𝟘  ≤ω → refl
+    𝟙  𝟘  ≤𝟙 𝟙  𝟘  → refl
+    𝟙  𝟘  ≤𝟙 𝟙  𝟙  → refl
+    𝟙  𝟘  ≤𝟙 𝟙  ≤𝟙 → refl
+    𝟙  𝟘  ≤𝟙 𝟙  ≤ω → refl
+    𝟙  𝟘  ≤𝟙 ≤𝟙 𝟘  → refl
+    𝟙  𝟘  ≤𝟙 ≤𝟙 𝟙  → refl
+    𝟙  𝟘  ≤𝟙 ≤𝟙 ≤𝟙 → refl
+    𝟙  𝟘  ≤𝟙 ≤𝟙 ≤ω → refl
+    𝟙  𝟘  ≤𝟙 ≤ω 𝟘  → refl
+    𝟙  𝟘  ≤𝟙 ≤ω 𝟙  → refl
+    𝟙  𝟘  ≤𝟙 ≤ω ≤𝟙 → refl
+    𝟙  𝟘  ≤𝟙 ≤ω ≤ω → refl
+    𝟙  𝟘  ≤ω 𝟘  𝟘  → refl
+    𝟙  𝟘  ≤ω 𝟘  𝟙  → refl
+    𝟙  𝟘  ≤ω 𝟘  ≤𝟙 → refl
+    𝟙  𝟘  ≤ω 𝟘  ≤ω → refl
+    𝟙  𝟘  ≤ω 𝟙  𝟘  → refl
+    𝟙  𝟘  ≤ω 𝟙  𝟙  → refl
+    𝟙  𝟘  ≤ω 𝟙  ≤𝟙 → refl
+    𝟙  𝟘  ≤ω 𝟙  ≤ω → refl
+    𝟙  𝟘  ≤ω ≤𝟙 𝟘  → refl
+    𝟙  𝟘  ≤ω ≤𝟙 𝟙  → refl
+    𝟙  𝟘  ≤ω ≤𝟙 ≤𝟙 → refl
+    𝟙  𝟘  ≤ω ≤𝟙 ≤ω → refl
+    𝟙  𝟘  ≤ω ≤ω 𝟘  → refl
+    𝟙  𝟘  ≤ω ≤ω 𝟙  → refl
+    𝟙  𝟘  ≤ω ≤ω ≤𝟙 → refl
+    𝟙  𝟘  ≤ω ≤ω ≤ω → refl
+    𝟙  𝟙  𝟘  𝟘  𝟘  → refl
+    𝟙  𝟙  𝟘  𝟘  𝟙  → refl
+    𝟙  𝟙  𝟘  𝟘  ≤𝟙 → refl
+    𝟙  𝟙  𝟘  𝟘  ≤ω → refl
+    𝟙  𝟙  𝟘  𝟙  𝟘  → refl
+    𝟙  𝟙  𝟘  𝟙  𝟙  → refl
+    𝟙  𝟙  𝟘  𝟙  ≤𝟙 → refl
+    𝟙  𝟙  𝟘  𝟙  ≤ω → refl
+    𝟙  𝟙  𝟘  ≤𝟙 𝟘  → refl
+    𝟙  𝟙  𝟘  ≤𝟙 𝟙  → refl
+    𝟙  𝟙  𝟘  ≤𝟙 ≤𝟙 → refl
+    𝟙  𝟙  𝟘  ≤𝟙 ≤ω → refl
+    𝟙  𝟙  𝟘  ≤ω 𝟘  → refl
+    𝟙  𝟙  𝟘  ≤ω 𝟙  → refl
+    𝟙  𝟙  𝟘  ≤ω ≤𝟙 → refl
+    𝟙  𝟙  𝟘  ≤ω ≤ω → refl
+    𝟙  𝟙  𝟙  𝟘  𝟘  → refl
+    𝟙  𝟙  𝟙  𝟘  𝟙  → refl
+    𝟙  𝟙  𝟙  𝟘  ≤𝟙 → refl
+    𝟙  𝟙  𝟙  𝟘  ≤ω → refl
+    𝟙  𝟙  𝟙  𝟙  𝟘  → refl
+    𝟙  𝟙  𝟙  𝟙  𝟙  → refl
+    𝟙  𝟙  𝟙  𝟙  ≤𝟙 → refl
+    𝟙  𝟙  𝟙  𝟙  ≤ω → refl
+    𝟙  𝟙  𝟙  ≤𝟙 𝟘  → refl
+    𝟙  𝟙  𝟙  ≤𝟙 𝟙  → refl
+    𝟙  𝟙  𝟙  ≤𝟙 ≤𝟙 → refl
+    𝟙  𝟙  𝟙  ≤𝟙 ≤ω → refl
+    𝟙  𝟙  𝟙  ≤ω 𝟘  → refl
+    𝟙  𝟙  𝟙  ≤ω 𝟙  → refl
+    𝟙  𝟙  𝟙  ≤ω ≤𝟙 → refl
+    𝟙  𝟙  𝟙  ≤ω ≤ω → refl
+    𝟙  𝟙  ≤𝟙 𝟘  𝟘  → refl
+    𝟙  𝟙  ≤𝟙 𝟘  𝟙  → refl
+    𝟙  𝟙  ≤𝟙 𝟘  ≤𝟙 → refl
+    𝟙  𝟙  ≤𝟙 𝟘  ≤ω → refl
+    𝟙  𝟙  ≤𝟙 𝟙  𝟘  → refl
+    𝟙  𝟙  ≤𝟙 𝟙  𝟙  → refl
+    𝟙  𝟙  ≤𝟙 𝟙  ≤𝟙 → refl
+    𝟙  𝟙  ≤𝟙 𝟙  ≤ω → refl
+    𝟙  𝟙  ≤𝟙 ≤𝟙 𝟘  → refl
+    𝟙  𝟙  ≤𝟙 ≤𝟙 𝟙  → refl
+    𝟙  𝟙  ≤𝟙 ≤𝟙 ≤𝟙 → refl
+    𝟙  𝟙  ≤𝟙 ≤𝟙 ≤ω → refl
+    𝟙  𝟙  ≤𝟙 ≤ω 𝟘  → refl
+    𝟙  𝟙  ≤𝟙 ≤ω 𝟙  → refl
+    𝟙  𝟙  ≤𝟙 ≤ω ≤𝟙 → refl
+    𝟙  𝟙  ≤𝟙 ≤ω ≤ω → refl
+    𝟙  𝟙  ≤ω 𝟘  𝟘  → refl
+    𝟙  𝟙  ≤ω 𝟘  𝟙  → refl
+    𝟙  𝟙  ≤ω 𝟘  ≤𝟙 → refl
+    𝟙  𝟙  ≤ω 𝟘  ≤ω → refl
+    𝟙  𝟙  ≤ω 𝟙  𝟘  → refl
+    𝟙  𝟙  ≤ω 𝟙  𝟙  → refl
+    𝟙  𝟙  ≤ω 𝟙  ≤𝟙 → refl
+    𝟙  𝟙  ≤ω 𝟙  ≤ω → refl
+    𝟙  𝟙  ≤ω ≤𝟙 𝟘  → refl
+    𝟙  𝟙  ≤ω ≤𝟙 𝟙  → refl
+    𝟙  𝟙  ≤ω ≤𝟙 ≤𝟙 → refl
+    𝟙  𝟙  ≤ω ≤𝟙 ≤ω → refl
+    𝟙  𝟙  ≤ω ≤ω 𝟘  → refl
+    𝟙  𝟙  ≤ω ≤ω 𝟙  → refl
+    𝟙  𝟙  ≤ω ≤ω ≤𝟙 → refl
+    𝟙  𝟙  ≤ω ≤ω ≤ω → refl
+    𝟙  ≤𝟙 𝟘  𝟘  𝟘  → refl
+    𝟙  ≤𝟙 𝟘  𝟘  𝟙  → refl
+    𝟙  ≤𝟙 𝟘  𝟘  ≤𝟙 → refl
+    𝟙  ≤𝟙 𝟘  𝟘  ≤ω → refl
+    𝟙  ≤𝟙 𝟘  𝟙  𝟘  → refl
+    𝟙  ≤𝟙 𝟘  𝟙  𝟙  → refl
+    𝟙  ≤𝟙 𝟘  𝟙  ≤𝟙 → refl
+    𝟙  ≤𝟙 𝟘  𝟙  ≤ω → refl
+    𝟙  ≤𝟙 𝟘  ≤𝟙 𝟘  → refl
+    𝟙  ≤𝟙 𝟘  ≤𝟙 𝟙  → refl
+    𝟙  ≤𝟙 𝟘  ≤𝟙 ≤𝟙 → refl
+    𝟙  ≤𝟙 𝟘  ≤𝟙 ≤ω → refl
+    𝟙  ≤𝟙 𝟘  ≤ω 𝟘  → refl
+    𝟙  ≤𝟙 𝟘  ≤ω 𝟙  → refl
+    𝟙  ≤𝟙 𝟘  ≤ω ≤𝟙 → refl
+    𝟙  ≤𝟙 𝟘  ≤ω ≤ω → refl
+    𝟙  ≤𝟙 𝟙  𝟘  𝟘  → refl
+    𝟙  ≤𝟙 𝟙  𝟘  𝟙  → refl
+    𝟙  ≤𝟙 𝟙  𝟘  ≤𝟙 → refl
+    𝟙  ≤𝟙 𝟙  𝟘  ≤ω → refl
+    𝟙  ≤𝟙 𝟙  𝟙  𝟘  → refl
+    𝟙  ≤𝟙 𝟙  𝟙  𝟙  → refl
+    𝟙  ≤𝟙 𝟙  𝟙  ≤𝟙 → refl
+    𝟙  ≤𝟙 𝟙  𝟙  ≤ω → refl
+    𝟙  ≤𝟙 𝟙  ≤𝟙 𝟘  → refl
+    𝟙  ≤𝟙 𝟙  ≤𝟙 𝟙  → refl
+    𝟙  ≤𝟙 𝟙  ≤𝟙 ≤𝟙 → refl
+    𝟙  ≤𝟙 𝟙  ≤𝟙 ≤ω → refl
+    𝟙  ≤𝟙 𝟙  ≤ω 𝟘  → refl
+    𝟙  ≤𝟙 𝟙  ≤ω 𝟙  → refl
+    𝟙  ≤𝟙 𝟙  ≤ω ≤𝟙 → refl
+    𝟙  ≤𝟙 𝟙  ≤ω ≤ω → refl
+    𝟙  ≤𝟙 ≤𝟙 𝟘  𝟘  → refl
+    𝟙  ≤𝟙 ≤𝟙 𝟘  𝟙  → refl
+    𝟙  ≤𝟙 ≤𝟙 𝟘  ≤𝟙 → refl
+    𝟙  ≤𝟙 ≤𝟙 𝟘  ≤ω → refl
+    𝟙  ≤𝟙 ≤𝟙 𝟙  𝟘  → refl
+    𝟙  ≤𝟙 ≤𝟙 𝟙  𝟙  → refl
+    𝟙  ≤𝟙 ≤𝟙 𝟙  ≤𝟙 → refl
+    𝟙  ≤𝟙 ≤𝟙 𝟙  ≤ω → refl
+    𝟙  ≤𝟙 ≤𝟙 ≤𝟙 𝟘  → refl
+    𝟙  ≤𝟙 ≤𝟙 ≤𝟙 𝟙  → refl
+    𝟙  ≤𝟙 ≤𝟙 ≤𝟙 ≤𝟙 → refl
+    𝟙  ≤𝟙 ≤𝟙 ≤𝟙 ≤ω → refl
+    𝟙  ≤𝟙 ≤𝟙 ≤ω 𝟘  → refl
+    𝟙  ≤𝟙 ≤𝟙 ≤ω 𝟙  → refl
+    𝟙  ≤𝟙 ≤𝟙 ≤ω ≤𝟙 → refl
+    𝟙  ≤𝟙 ≤𝟙 ≤ω ≤ω → refl
+    𝟙  ≤𝟙 ≤ω 𝟘  𝟘  → refl
+    𝟙  ≤𝟙 ≤ω 𝟘  𝟙  → refl
+    𝟙  ≤𝟙 ≤ω 𝟘  ≤𝟙 → refl
+    𝟙  ≤𝟙 ≤ω 𝟘  ≤ω → refl
+    𝟙  ≤𝟙 ≤ω 𝟙  𝟘  → refl
+    𝟙  ≤𝟙 ≤ω 𝟙  𝟙  → refl
+    𝟙  ≤𝟙 ≤ω 𝟙  ≤𝟙 → refl
+    𝟙  ≤𝟙 ≤ω 𝟙  ≤ω → refl
+    𝟙  ≤𝟙 ≤ω ≤𝟙 𝟘  → refl
+    𝟙  ≤𝟙 ≤ω ≤𝟙 𝟙  → refl
+    𝟙  ≤𝟙 ≤ω ≤𝟙 ≤𝟙 → refl
+    𝟙  ≤𝟙 ≤ω ≤𝟙 ≤ω → refl
+    𝟙  ≤𝟙 ≤ω ≤ω 𝟘  → refl
+    𝟙  ≤𝟙 ≤ω ≤ω 𝟙  → refl
+    𝟙  ≤𝟙 ≤ω ≤ω ≤𝟙 → refl
+    𝟙  ≤𝟙 ≤ω ≤ω ≤ω → refl
+    𝟙  ≤ω 𝟘  𝟘  𝟘  → refl
+    𝟙  ≤ω 𝟘  𝟘  𝟙  → refl
+    𝟙  ≤ω 𝟘  𝟘  ≤𝟙 → refl
+    𝟙  ≤ω 𝟘  𝟘  ≤ω → refl
+    𝟙  ≤ω 𝟘  𝟙  𝟘  → refl
+    𝟙  ≤ω 𝟘  𝟙  𝟙  → refl
+    𝟙  ≤ω 𝟘  𝟙  ≤𝟙 → refl
+    𝟙  ≤ω 𝟘  𝟙  ≤ω → refl
+    𝟙  ≤ω 𝟘  ≤𝟙 𝟘  → refl
+    𝟙  ≤ω 𝟘  ≤𝟙 𝟙  → refl
+    𝟙  ≤ω 𝟘  ≤𝟙 ≤𝟙 → refl
+    𝟙  ≤ω 𝟘  ≤𝟙 ≤ω → refl
+    𝟙  ≤ω 𝟘  ≤ω 𝟘  → refl
+    𝟙  ≤ω 𝟘  ≤ω 𝟙  → refl
+    𝟙  ≤ω 𝟘  ≤ω ≤𝟙 → refl
+    𝟙  ≤ω 𝟘  ≤ω ≤ω → refl
+    𝟙  ≤ω 𝟙  𝟘  𝟘  → refl
+    𝟙  ≤ω 𝟙  𝟘  𝟙  → refl
+    𝟙  ≤ω 𝟙  𝟘  ≤𝟙 → refl
+    𝟙  ≤ω 𝟙  𝟘  ≤ω → refl
+    𝟙  ≤ω 𝟙  𝟙  𝟘  → refl
+    𝟙  ≤ω 𝟙  𝟙  𝟙  → refl
+    𝟙  ≤ω 𝟙  𝟙  ≤𝟙 → refl
+    𝟙  ≤ω 𝟙  𝟙  ≤ω → refl
+    𝟙  ≤ω 𝟙  ≤𝟙 𝟘  → refl
+    𝟙  ≤ω 𝟙  ≤𝟙 𝟙  → refl
+    𝟙  ≤ω 𝟙  ≤𝟙 ≤𝟙 → refl
+    𝟙  ≤ω 𝟙  ≤𝟙 ≤ω → refl
+    𝟙  ≤ω 𝟙  ≤ω 𝟘  → refl
+    𝟙  ≤ω 𝟙  ≤ω 𝟙  → refl
+    𝟙  ≤ω 𝟙  ≤ω ≤𝟙 → refl
+    𝟙  ≤ω 𝟙  ≤ω ≤ω → refl
+    𝟙  ≤ω ≤𝟙 𝟘  𝟘  → refl
+    𝟙  ≤ω ≤𝟙 𝟘  𝟙  → refl
+    𝟙  ≤ω ≤𝟙 𝟘  ≤𝟙 → refl
+    𝟙  ≤ω ≤𝟙 𝟘  ≤ω → refl
+    𝟙  ≤ω ≤𝟙 𝟙  𝟘  → refl
+    𝟙  ≤ω ≤𝟙 𝟙  𝟙  → refl
+    𝟙  ≤ω ≤𝟙 𝟙  ≤𝟙 → refl
+    𝟙  ≤ω ≤𝟙 𝟙  ≤ω → refl
+    𝟙  ≤ω ≤𝟙 ≤𝟙 𝟘  → refl
+    𝟙  ≤ω ≤𝟙 ≤𝟙 𝟙  → refl
+    𝟙  ≤ω ≤𝟙 ≤𝟙 ≤𝟙 → refl
+    𝟙  ≤ω ≤𝟙 ≤𝟙 ≤ω → refl
+    𝟙  ≤ω ≤𝟙 ≤ω 𝟘  → refl
+    𝟙  ≤ω ≤𝟙 ≤ω 𝟙  → refl
+    𝟙  ≤ω ≤𝟙 ≤ω ≤𝟙 → refl
+    𝟙  ≤ω ≤𝟙 ≤ω ≤ω → refl
+    𝟙  ≤ω ≤ω 𝟘  𝟘  → refl
+    𝟙  ≤ω ≤ω 𝟘  𝟙  → refl
+    𝟙  ≤ω ≤ω 𝟘  ≤𝟙 → refl
+    𝟙  ≤ω ≤ω 𝟘  ≤ω → refl
+    𝟙  ≤ω ≤ω 𝟙  𝟘  → refl
+    𝟙  ≤ω ≤ω 𝟙  𝟙  → refl
+    𝟙  ≤ω ≤ω 𝟙  ≤𝟙 → refl
+    𝟙  ≤ω ≤ω 𝟙  ≤ω → refl
+    𝟙  ≤ω ≤ω ≤𝟙 𝟘  → refl
+    𝟙  ≤ω ≤ω ≤𝟙 𝟙  → refl
+    𝟙  ≤ω ≤ω ≤𝟙 ≤𝟙 → refl
+    𝟙  ≤ω ≤ω ≤𝟙 ≤ω → refl
+    𝟙  ≤ω ≤ω ≤ω 𝟘  → refl
+    𝟙  ≤ω ≤ω ≤ω 𝟙  → refl
+    𝟙  ≤ω ≤ω ≤ω ≤𝟙 → refl
+    𝟙  ≤ω ≤ω ≤ω ≤ω → refl
+    ≤𝟙 𝟘  𝟘  𝟘  𝟘  → refl
+    ≤𝟙 𝟘  𝟘  𝟘  𝟙  → refl
+    ≤𝟙 𝟘  𝟘  𝟘  ≤𝟙 → refl
+    ≤𝟙 𝟘  𝟘  𝟘  ≤ω → refl
+    ≤𝟙 𝟘  𝟘  𝟙  𝟘  → refl
+    ≤𝟙 𝟘  𝟘  𝟙  𝟙  → refl
+    ≤𝟙 𝟘  𝟘  𝟙  ≤𝟙 → refl
+    ≤𝟙 𝟘  𝟘  𝟙  ≤ω → refl
+    ≤𝟙 𝟘  𝟘  ≤𝟙 𝟘  → refl
+    ≤𝟙 𝟘  𝟘  ≤𝟙 𝟙  → refl
+    ≤𝟙 𝟘  𝟘  ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 𝟘  𝟘  ≤𝟙 ≤ω → refl
+    ≤𝟙 𝟘  𝟘  ≤ω 𝟘  → refl
+    ≤𝟙 𝟘  𝟘  ≤ω 𝟙  → refl
+    ≤𝟙 𝟘  𝟘  ≤ω ≤𝟙 → refl
+    ≤𝟙 𝟘  𝟘  ≤ω ≤ω → refl
+    ≤𝟙 𝟘  𝟙  𝟘  𝟘  → refl
+    ≤𝟙 𝟘  𝟙  𝟘  𝟙  → refl
+    ≤𝟙 𝟘  𝟙  𝟘  ≤𝟙 → refl
+    ≤𝟙 𝟘  𝟙  𝟘  ≤ω → refl
+    ≤𝟙 𝟘  𝟙  𝟙  𝟘  → refl
+    ≤𝟙 𝟘  𝟙  𝟙  𝟙  → refl
+    ≤𝟙 𝟘  𝟙  𝟙  ≤𝟙 → refl
+    ≤𝟙 𝟘  𝟙  𝟙  ≤ω → refl
+    ≤𝟙 𝟘  𝟙  ≤𝟙 𝟘  → refl
+    ≤𝟙 𝟘  𝟙  ≤𝟙 𝟙  → refl
+    ≤𝟙 𝟘  𝟙  ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 𝟘  𝟙  ≤𝟙 ≤ω → refl
+    ≤𝟙 𝟘  𝟙  ≤ω 𝟘  → refl
+    ≤𝟙 𝟘  𝟙  ≤ω 𝟙  → refl
+    ≤𝟙 𝟘  𝟙  ≤ω ≤𝟙 → refl
+    ≤𝟙 𝟘  𝟙  ≤ω ≤ω → refl
+    ≤𝟙 𝟘  ≤𝟙 𝟘  𝟘  → refl
+    ≤𝟙 𝟘  ≤𝟙 𝟘  𝟙  → refl
+    ≤𝟙 𝟘  ≤𝟙 𝟘  ≤𝟙 → refl
+    ≤𝟙 𝟘  ≤𝟙 𝟘  ≤ω → refl
+    ≤𝟙 𝟘  ≤𝟙 𝟙  𝟘  → refl
+    ≤𝟙 𝟘  ≤𝟙 𝟙  𝟙  → refl
+    ≤𝟙 𝟘  ≤𝟙 𝟙  ≤𝟙 → refl
+    ≤𝟙 𝟘  ≤𝟙 𝟙  ≤ω → refl
+    ≤𝟙 𝟘  ≤𝟙 ≤𝟙 𝟘  → refl
+    ≤𝟙 𝟘  ≤𝟙 ≤𝟙 𝟙  → refl
+    ≤𝟙 𝟘  ≤𝟙 ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 𝟘  ≤𝟙 ≤𝟙 ≤ω → refl
+    ≤𝟙 𝟘  ≤𝟙 ≤ω 𝟘  → refl
+    ≤𝟙 𝟘  ≤𝟙 ≤ω 𝟙  → refl
+    ≤𝟙 𝟘  ≤𝟙 ≤ω ≤𝟙 → refl
+    ≤𝟙 𝟘  ≤𝟙 ≤ω ≤ω → refl
+    ≤𝟙 𝟘  ≤ω 𝟘  𝟘  → refl
+    ≤𝟙 𝟘  ≤ω 𝟘  𝟙  → refl
+    ≤𝟙 𝟘  ≤ω 𝟘  ≤𝟙 → refl
+    ≤𝟙 𝟘  ≤ω 𝟘  ≤ω → refl
+    ≤𝟙 𝟘  ≤ω 𝟙  𝟘  → refl
+    ≤𝟙 𝟘  ≤ω 𝟙  𝟙  → refl
+    ≤𝟙 𝟘  ≤ω 𝟙  ≤𝟙 → refl
+    ≤𝟙 𝟘  ≤ω 𝟙  ≤ω → refl
+    ≤𝟙 𝟘  ≤ω ≤𝟙 𝟘  → refl
+    ≤𝟙 𝟘  ≤ω ≤𝟙 𝟙  → refl
+    ≤𝟙 𝟘  ≤ω ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 𝟘  ≤ω ≤𝟙 ≤ω → refl
+    ≤𝟙 𝟘  ≤ω ≤ω 𝟘  → refl
+    ≤𝟙 𝟘  ≤ω ≤ω 𝟙  → refl
+    ≤𝟙 𝟘  ≤ω ≤ω ≤𝟙 → refl
+    ≤𝟙 𝟘  ≤ω ≤ω ≤ω → refl
+    ≤𝟙 𝟙  𝟘  𝟘  𝟘  → refl
+    ≤𝟙 𝟙  𝟘  𝟘  𝟙  → refl
+    ≤𝟙 𝟙  𝟘  𝟘  ≤𝟙 → refl
+    ≤𝟙 𝟙  𝟘  𝟘  ≤ω → refl
+    ≤𝟙 𝟙  𝟘  𝟙  𝟘  → refl
+    ≤𝟙 𝟙  𝟘  𝟙  𝟙  → refl
+    ≤𝟙 𝟙  𝟘  𝟙  ≤𝟙 → refl
+    ≤𝟙 𝟙  𝟘  𝟙  ≤ω → refl
+    ≤𝟙 𝟙  𝟘  ≤𝟙 𝟘  → refl
+    ≤𝟙 𝟙  𝟘  ≤𝟙 𝟙  → refl
+    ≤𝟙 𝟙  𝟘  ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 𝟙  𝟘  ≤𝟙 ≤ω → refl
+    ≤𝟙 𝟙  𝟘  ≤ω 𝟘  → refl
+    ≤𝟙 𝟙  𝟘  ≤ω 𝟙  → refl
+    ≤𝟙 𝟙  𝟘  ≤ω ≤𝟙 → refl
+    ≤𝟙 𝟙  𝟘  ≤ω ≤ω → refl
+    ≤𝟙 𝟙  𝟙  𝟘  𝟘  → refl
+    ≤𝟙 𝟙  𝟙  𝟘  𝟙  → refl
+    ≤𝟙 𝟙  𝟙  𝟘  ≤𝟙 → refl
+    ≤𝟙 𝟙  𝟙  𝟘  ≤ω → refl
+    ≤𝟙 𝟙  𝟙  𝟙  𝟘  → refl
+    ≤𝟙 𝟙  𝟙  𝟙  𝟙  → refl
+    ≤𝟙 𝟙  𝟙  𝟙  ≤𝟙 → refl
+    ≤𝟙 𝟙  𝟙  𝟙  ≤ω → refl
+    ≤𝟙 𝟙  𝟙  ≤𝟙 𝟘  → refl
+    ≤𝟙 𝟙  𝟙  ≤𝟙 𝟙  → refl
+    ≤𝟙 𝟙  𝟙  ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 𝟙  𝟙  ≤𝟙 ≤ω → refl
+    ≤𝟙 𝟙  𝟙  ≤ω 𝟘  → refl
+    ≤𝟙 𝟙  𝟙  ≤ω 𝟙  → refl
+    ≤𝟙 𝟙  𝟙  ≤ω ≤𝟙 → refl
+    ≤𝟙 𝟙  𝟙  ≤ω ≤ω → refl
+    ≤𝟙 𝟙  ≤𝟙 𝟘  𝟘  → refl
+    ≤𝟙 𝟙  ≤𝟙 𝟘  𝟙  → refl
+    ≤𝟙 𝟙  ≤𝟙 𝟘  ≤𝟙 → refl
+    ≤𝟙 𝟙  ≤𝟙 𝟘  ≤ω → refl
+    ≤𝟙 𝟙  ≤𝟙 𝟙  𝟘  → refl
+    ≤𝟙 𝟙  ≤𝟙 𝟙  𝟙  → refl
+    ≤𝟙 𝟙  ≤𝟙 𝟙  ≤𝟙 → refl
+    ≤𝟙 𝟙  ≤𝟙 𝟙  ≤ω → refl
+    ≤𝟙 𝟙  ≤𝟙 ≤𝟙 𝟘  → refl
+    ≤𝟙 𝟙  ≤𝟙 ≤𝟙 𝟙  → refl
+    ≤𝟙 𝟙  ≤𝟙 ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 𝟙  ≤𝟙 ≤𝟙 ≤ω → refl
+    ≤𝟙 𝟙  ≤𝟙 ≤ω 𝟘  → refl
+    ≤𝟙 𝟙  ≤𝟙 ≤ω 𝟙  → refl
+    ≤𝟙 𝟙  ≤𝟙 ≤ω ≤𝟙 → refl
+    ≤𝟙 𝟙  ≤𝟙 ≤ω ≤ω → refl
+    ≤𝟙 𝟙  ≤ω 𝟘  𝟘  → refl
+    ≤𝟙 𝟙  ≤ω 𝟘  𝟙  → refl
+    ≤𝟙 𝟙  ≤ω 𝟘  ≤𝟙 → refl
+    ≤𝟙 𝟙  ≤ω 𝟘  ≤ω → refl
+    ≤𝟙 𝟙  ≤ω 𝟙  𝟘  → refl
+    ≤𝟙 𝟙  ≤ω 𝟙  𝟙  → refl
+    ≤𝟙 𝟙  ≤ω 𝟙  ≤𝟙 → refl
+    ≤𝟙 𝟙  ≤ω 𝟙  ≤ω → refl
+    ≤𝟙 𝟙  ≤ω ≤𝟙 𝟘  → refl
+    ≤𝟙 𝟙  ≤ω ≤𝟙 𝟙  → refl
+    ≤𝟙 𝟙  ≤ω ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 𝟙  ≤ω ≤𝟙 ≤ω → refl
+    ≤𝟙 𝟙  ≤ω ≤ω 𝟘  → refl
+    ≤𝟙 𝟙  ≤ω ≤ω 𝟙  → refl
+    ≤𝟙 𝟙  ≤ω ≤ω ≤𝟙 → refl
+    ≤𝟙 𝟙  ≤ω ≤ω ≤ω → refl
+    ≤𝟙 ≤𝟙 𝟘  𝟘  𝟘  → refl
+    ≤𝟙 ≤𝟙 𝟘  𝟘  𝟙  → refl
+    ≤𝟙 ≤𝟙 𝟘  𝟘  ≤𝟙 → refl
+    ≤𝟙 ≤𝟙 𝟘  𝟘  ≤ω → refl
+    ≤𝟙 ≤𝟙 𝟘  𝟙  𝟘  → refl
+    ≤𝟙 ≤𝟙 𝟘  𝟙  𝟙  → refl
+    ≤𝟙 ≤𝟙 𝟘  𝟙  ≤𝟙 → refl
+    ≤𝟙 ≤𝟙 𝟘  𝟙  ≤ω → refl
+    ≤𝟙 ≤𝟙 𝟘  ≤𝟙 𝟘  → refl
+    ≤𝟙 ≤𝟙 𝟘  ≤𝟙 𝟙  → refl
+    ≤𝟙 ≤𝟙 𝟘  ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 ≤𝟙 𝟘  ≤𝟙 ≤ω → refl
+    ≤𝟙 ≤𝟙 𝟘  ≤ω 𝟘  → refl
+    ≤𝟙 ≤𝟙 𝟘  ≤ω 𝟙  → refl
+    ≤𝟙 ≤𝟙 𝟘  ≤ω ≤𝟙 → refl
+    ≤𝟙 ≤𝟙 𝟘  ≤ω ≤ω → refl
+    ≤𝟙 ≤𝟙 𝟙  𝟘  𝟘  → refl
+    ≤𝟙 ≤𝟙 𝟙  𝟘  𝟙  → refl
+    ≤𝟙 ≤𝟙 𝟙  𝟘  ≤𝟙 → refl
+    ≤𝟙 ≤𝟙 𝟙  𝟘  ≤ω → refl
+    ≤𝟙 ≤𝟙 𝟙  𝟙  𝟘  → refl
+    ≤𝟙 ≤𝟙 𝟙  𝟙  𝟙  → refl
+    ≤𝟙 ≤𝟙 𝟙  𝟙  ≤𝟙 → refl
+    ≤𝟙 ≤𝟙 𝟙  𝟙  ≤ω → refl
+    ≤𝟙 ≤𝟙 𝟙  ≤𝟙 𝟘  → refl
+    ≤𝟙 ≤𝟙 𝟙  ≤𝟙 𝟙  → refl
+    ≤𝟙 ≤𝟙 𝟙  ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 ≤𝟙 𝟙  ≤𝟙 ≤ω → refl
+    ≤𝟙 ≤𝟙 𝟙  ≤ω 𝟘  → refl
+    ≤𝟙 ≤𝟙 𝟙  ≤ω 𝟙  → refl
+    ≤𝟙 ≤𝟙 𝟙  ≤ω ≤𝟙 → refl
+    ≤𝟙 ≤𝟙 𝟙  ≤ω ≤ω → refl
+    ≤𝟙 ≤𝟙 ≤𝟙 𝟘  𝟘  → refl
+    ≤𝟙 ≤𝟙 ≤𝟙 𝟘  𝟙  → refl
+    ≤𝟙 ≤𝟙 ≤𝟙 𝟘  ≤𝟙 → refl
+    ≤𝟙 ≤𝟙 ≤𝟙 𝟘  ≤ω → refl
+    ≤𝟙 ≤𝟙 ≤𝟙 𝟙  𝟘  → refl
+    ≤𝟙 ≤𝟙 ≤𝟙 𝟙  𝟙  → refl
+    ≤𝟙 ≤𝟙 ≤𝟙 𝟙  ≤𝟙 → refl
+    ≤𝟙 ≤𝟙 ≤𝟙 𝟙  ≤ω → refl
+    ≤𝟙 ≤𝟙 ≤𝟙 ≤𝟙 𝟘  → refl
+    ≤𝟙 ≤𝟙 ≤𝟙 ≤𝟙 𝟙  → refl
+    ≤𝟙 ≤𝟙 ≤𝟙 ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 ≤𝟙 ≤𝟙 ≤𝟙 ≤ω → refl
+    ≤𝟙 ≤𝟙 ≤𝟙 ≤ω 𝟘  → refl
+    ≤𝟙 ≤𝟙 ≤𝟙 ≤ω 𝟙  → refl
+    ≤𝟙 ≤𝟙 ≤𝟙 ≤ω ≤𝟙 → refl
+    ≤𝟙 ≤𝟙 ≤𝟙 ≤ω ≤ω → refl
+    ≤𝟙 ≤𝟙 ≤ω 𝟘  𝟘  → refl
+    ≤𝟙 ≤𝟙 ≤ω 𝟘  𝟙  → refl
+    ≤𝟙 ≤𝟙 ≤ω 𝟘  ≤𝟙 → refl
+    ≤𝟙 ≤𝟙 ≤ω 𝟘  ≤ω → refl
+    ≤𝟙 ≤𝟙 ≤ω 𝟙  𝟘  → refl
+    ≤𝟙 ≤𝟙 ≤ω 𝟙  𝟙  → refl
+    ≤𝟙 ≤𝟙 ≤ω 𝟙  ≤𝟙 → refl
+    ≤𝟙 ≤𝟙 ≤ω 𝟙  ≤ω → refl
+    ≤𝟙 ≤𝟙 ≤ω ≤𝟙 𝟘  → refl
+    ≤𝟙 ≤𝟙 ≤ω ≤𝟙 𝟙  → refl
+    ≤𝟙 ≤𝟙 ≤ω ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 ≤𝟙 ≤ω ≤𝟙 ≤ω → refl
+    ≤𝟙 ≤𝟙 ≤ω ≤ω 𝟘  → refl
+    ≤𝟙 ≤𝟙 ≤ω ≤ω 𝟙  → refl
+    ≤𝟙 ≤𝟙 ≤ω ≤ω ≤𝟙 → refl
+    ≤𝟙 ≤𝟙 ≤ω ≤ω ≤ω → refl
+    ≤𝟙 ≤ω 𝟘  𝟘  𝟘  → refl
+    ≤𝟙 ≤ω 𝟘  𝟘  𝟙  → refl
+    ≤𝟙 ≤ω 𝟘  𝟘  ≤𝟙 → refl
+    ≤𝟙 ≤ω 𝟘  𝟘  ≤ω → refl
+    ≤𝟙 ≤ω 𝟘  𝟙  𝟘  → refl
+    ≤𝟙 ≤ω 𝟘  𝟙  𝟙  → refl
+    ≤𝟙 ≤ω 𝟘  𝟙  ≤𝟙 → refl
+    ≤𝟙 ≤ω 𝟘  𝟙  ≤ω → refl
+    ≤𝟙 ≤ω 𝟘  ≤𝟙 𝟘  → refl
+    ≤𝟙 ≤ω 𝟘  ≤𝟙 𝟙  → refl
+    ≤𝟙 ≤ω 𝟘  ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 ≤ω 𝟘  ≤𝟙 ≤ω → refl
+    ≤𝟙 ≤ω 𝟘  ≤ω 𝟘  → refl
+    ≤𝟙 ≤ω 𝟘  ≤ω 𝟙  → refl
+    ≤𝟙 ≤ω 𝟘  ≤ω ≤𝟙 → refl
+    ≤𝟙 ≤ω 𝟘  ≤ω ≤ω → refl
+    ≤𝟙 ≤ω 𝟙  𝟘  𝟘  → refl
+    ≤𝟙 ≤ω 𝟙  𝟘  𝟙  → refl
+    ≤𝟙 ≤ω 𝟙  𝟘  ≤𝟙 → refl
+    ≤𝟙 ≤ω 𝟙  𝟘  ≤ω → refl
+    ≤𝟙 ≤ω 𝟙  𝟙  𝟘  → refl
+    ≤𝟙 ≤ω 𝟙  𝟙  𝟙  → refl
+    ≤𝟙 ≤ω 𝟙  𝟙  ≤𝟙 → refl
+    ≤𝟙 ≤ω 𝟙  𝟙  ≤ω → refl
+    ≤𝟙 ≤ω 𝟙  ≤𝟙 𝟘  → refl
+    ≤𝟙 ≤ω 𝟙  ≤𝟙 𝟙  → refl
+    ≤𝟙 ≤ω 𝟙  ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 ≤ω 𝟙  ≤𝟙 ≤ω → refl
+    ≤𝟙 ≤ω 𝟙  ≤ω 𝟘  → refl
+    ≤𝟙 ≤ω 𝟙  ≤ω 𝟙  → refl
+    ≤𝟙 ≤ω 𝟙  ≤ω ≤𝟙 → refl
+    ≤𝟙 ≤ω 𝟙  ≤ω ≤ω → refl
+    ≤𝟙 ≤ω ≤𝟙 𝟘  𝟘  → refl
+    ≤𝟙 ≤ω ≤𝟙 𝟘  𝟙  → refl
+    ≤𝟙 ≤ω ≤𝟙 𝟘  ≤𝟙 → refl
+    ≤𝟙 ≤ω ≤𝟙 𝟘  ≤ω → refl
+    ≤𝟙 ≤ω ≤𝟙 𝟙  𝟘  → refl
+    ≤𝟙 ≤ω ≤𝟙 𝟙  𝟙  → refl
+    ≤𝟙 ≤ω ≤𝟙 𝟙  ≤𝟙 → refl
+    ≤𝟙 ≤ω ≤𝟙 𝟙  ≤ω → refl
+    ≤𝟙 ≤ω ≤𝟙 ≤𝟙 𝟘  → refl
+    ≤𝟙 ≤ω ≤𝟙 ≤𝟙 𝟙  → refl
+    ≤𝟙 ≤ω ≤𝟙 ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 ≤ω ≤𝟙 ≤𝟙 ≤ω → refl
+    ≤𝟙 ≤ω ≤𝟙 ≤ω 𝟘  → refl
+    ≤𝟙 ≤ω ≤𝟙 ≤ω 𝟙  → refl
+    ≤𝟙 ≤ω ≤𝟙 ≤ω ≤𝟙 → refl
+    ≤𝟙 ≤ω ≤𝟙 ≤ω ≤ω → refl
+    ≤𝟙 ≤ω ≤ω 𝟘  𝟘  → refl
+    ≤𝟙 ≤ω ≤ω 𝟘  𝟙  → refl
+    ≤𝟙 ≤ω ≤ω 𝟘  ≤𝟙 → refl
+    ≤𝟙 ≤ω ≤ω 𝟘  ≤ω → refl
+    ≤𝟙 ≤ω ≤ω 𝟙  𝟘  → refl
+    ≤𝟙 ≤ω ≤ω 𝟙  𝟙  → refl
+    ≤𝟙 ≤ω ≤ω 𝟙  ≤𝟙 → refl
+    ≤𝟙 ≤ω ≤ω 𝟙  ≤ω → refl
+    ≤𝟙 ≤ω ≤ω ≤𝟙 𝟘  → refl
+    ≤𝟙 ≤ω ≤ω ≤𝟙 𝟙  → refl
+    ≤𝟙 ≤ω ≤ω ≤𝟙 ≤𝟙 → refl
+    ≤𝟙 ≤ω ≤ω ≤𝟙 ≤ω → refl
+    ≤𝟙 ≤ω ≤ω ≤ω 𝟘  → refl
+    ≤𝟙 ≤ω ≤ω ≤ω 𝟙  → refl
+    ≤𝟙 ≤ω ≤ω ≤ω ≤𝟙 → refl
+    ≤𝟙 ≤ω ≤ω ≤ω ≤ω → refl
+    ≤ω 𝟘  𝟘  𝟘  𝟘  → refl
+    ≤ω 𝟘  𝟘  𝟘  𝟙  → refl
+    ≤ω 𝟘  𝟘  𝟘  ≤𝟙 → refl
+    ≤ω 𝟘  𝟘  𝟘  ≤ω → refl
+    ≤ω 𝟘  𝟘  𝟙  𝟘  → refl
+    ≤ω 𝟘  𝟘  𝟙  𝟙  → refl
+    ≤ω 𝟘  𝟘  𝟙  ≤𝟙 → refl
+    ≤ω 𝟘  𝟘  𝟙  ≤ω → refl
+    ≤ω 𝟘  𝟘  ≤𝟙 𝟘  → refl
+    ≤ω 𝟘  𝟘  ≤𝟙 𝟙  → refl
+    ≤ω 𝟘  𝟘  ≤𝟙 ≤𝟙 → refl
+    ≤ω 𝟘  𝟘  ≤𝟙 ≤ω → refl
+    ≤ω 𝟘  𝟘  ≤ω 𝟘  → refl
+    ≤ω 𝟘  𝟘  ≤ω 𝟙  → refl
+    ≤ω 𝟘  𝟘  ≤ω ≤𝟙 → refl
+    ≤ω 𝟘  𝟘  ≤ω ≤ω → refl
+    ≤ω 𝟘  𝟙  𝟘  𝟘  → refl
+    ≤ω 𝟘  𝟙  𝟘  𝟙  → refl
+    ≤ω 𝟘  𝟙  𝟘  ≤𝟙 → refl
+    ≤ω 𝟘  𝟙  𝟘  ≤ω → refl
+    ≤ω 𝟘  𝟙  𝟙  𝟘  → refl
+    ≤ω 𝟘  𝟙  𝟙  𝟙  → refl
+    ≤ω 𝟘  𝟙  𝟙  ≤𝟙 → refl
+    ≤ω 𝟘  𝟙  𝟙  ≤ω → refl
+    ≤ω 𝟘  𝟙  ≤𝟙 𝟘  → refl
+    ≤ω 𝟘  𝟙  ≤𝟙 𝟙  → refl
+    ≤ω 𝟘  𝟙  ≤𝟙 ≤𝟙 → refl
+    ≤ω 𝟘  𝟙  ≤𝟙 ≤ω → refl
+    ≤ω 𝟘  𝟙  ≤ω 𝟘  → refl
+    ≤ω 𝟘  𝟙  ≤ω 𝟙  → refl
+    ≤ω 𝟘  𝟙  ≤ω ≤𝟙 → refl
+    ≤ω 𝟘  𝟙  ≤ω ≤ω → refl
+    ≤ω 𝟘  ≤𝟙 𝟘  𝟘  → refl
+    ≤ω 𝟘  ≤𝟙 𝟘  𝟙  → refl
+    ≤ω 𝟘  ≤𝟙 𝟘  ≤𝟙 → refl
+    ≤ω 𝟘  ≤𝟙 𝟘  ≤ω → refl
+    ≤ω 𝟘  ≤𝟙 𝟙  𝟘  → refl
+    ≤ω 𝟘  ≤𝟙 𝟙  𝟙  → refl
+    ≤ω 𝟘  ≤𝟙 𝟙  ≤𝟙 → refl
+    ≤ω 𝟘  ≤𝟙 𝟙  ≤ω → refl
+    ≤ω 𝟘  ≤𝟙 ≤𝟙 𝟘  → refl
+    ≤ω 𝟘  ≤𝟙 ≤𝟙 𝟙  → refl
+    ≤ω 𝟘  ≤𝟙 ≤𝟙 ≤𝟙 → refl
+    ≤ω 𝟘  ≤𝟙 ≤𝟙 ≤ω → refl
+    ≤ω 𝟘  ≤𝟙 ≤ω 𝟘  → refl
+    ≤ω 𝟘  ≤𝟙 ≤ω 𝟙  → refl
+    ≤ω 𝟘  ≤𝟙 ≤ω ≤𝟙 → refl
+    ≤ω 𝟘  ≤𝟙 ≤ω ≤ω → refl
+    ≤ω 𝟘  ≤ω 𝟘  𝟘  → refl
+    ≤ω 𝟘  ≤ω 𝟘  𝟙  → refl
+    ≤ω 𝟘  ≤ω 𝟘  ≤𝟙 → refl
+    ≤ω 𝟘  ≤ω 𝟘  ≤ω → refl
+    ≤ω 𝟘  ≤ω 𝟙  𝟘  → refl
+    ≤ω 𝟘  ≤ω 𝟙  𝟙  → refl
+    ≤ω 𝟘  ≤ω 𝟙  ≤𝟙 → refl
+    ≤ω 𝟘  ≤ω 𝟙  ≤ω → refl
+    ≤ω 𝟘  ≤ω ≤𝟙 𝟘  → refl
+    ≤ω 𝟘  ≤ω ≤𝟙 𝟙  → refl
+    ≤ω 𝟘  ≤ω ≤𝟙 ≤𝟙 → refl
+    ≤ω 𝟘  ≤ω ≤𝟙 ≤ω → refl
+    ≤ω 𝟘  ≤ω ≤ω 𝟘  → refl
+    ≤ω 𝟘  ≤ω ≤ω 𝟙  → refl
+    ≤ω 𝟘  ≤ω ≤ω ≤𝟙 → refl
+    ≤ω 𝟘  ≤ω ≤ω ≤ω → refl
+    ≤ω 𝟙  𝟘  𝟘  𝟘  → refl
+    ≤ω 𝟙  𝟘  𝟘  𝟙  → refl
+    ≤ω 𝟙  𝟘  𝟘  ≤𝟙 → refl
+    ≤ω 𝟙  𝟘  𝟘  ≤ω → refl
+    ≤ω 𝟙  𝟘  𝟙  𝟘  → refl
+    ≤ω 𝟙  𝟘  𝟙  𝟙  → refl
+    ≤ω 𝟙  𝟘  𝟙  ≤𝟙 → refl
+    ≤ω 𝟙  𝟘  𝟙  ≤ω → refl
+    ≤ω 𝟙  𝟘  ≤𝟙 𝟘  → refl
+    ≤ω 𝟙  𝟘  ≤𝟙 𝟙  → refl
+    ≤ω 𝟙  𝟘  ≤𝟙 ≤𝟙 → refl
+    ≤ω 𝟙  𝟘  ≤𝟙 ≤ω → refl
+    ≤ω 𝟙  𝟘  ≤ω 𝟘  → refl
+    ≤ω 𝟙  𝟘  ≤ω 𝟙  → refl
+    ≤ω 𝟙  𝟘  ≤ω ≤𝟙 → refl
+    ≤ω 𝟙  𝟘  ≤ω ≤ω → refl
+    ≤ω 𝟙  𝟙  𝟘  𝟘  → refl
+    ≤ω 𝟙  𝟙  𝟘  𝟙  → refl
+    ≤ω 𝟙  𝟙  𝟘  ≤𝟙 → refl
+    ≤ω 𝟙  𝟙  𝟘  ≤ω → refl
+    ≤ω 𝟙  𝟙  𝟙  𝟘  → refl
+    ≤ω 𝟙  𝟙  𝟙  𝟙  → refl
+    ≤ω 𝟙  𝟙  𝟙  ≤𝟙 → refl
+    ≤ω 𝟙  𝟙  𝟙  ≤ω → refl
+    ≤ω 𝟙  𝟙  ≤𝟙 𝟘  → refl
+    ≤ω 𝟙  𝟙  ≤𝟙 𝟙  → refl
+    ≤ω 𝟙  𝟙  ≤𝟙 ≤𝟙 → refl
+    ≤ω 𝟙  𝟙  ≤𝟙 ≤ω → refl
+    ≤ω 𝟙  𝟙  ≤ω 𝟘  → refl
+    ≤ω 𝟙  𝟙  ≤ω 𝟙  → refl
+    ≤ω 𝟙  𝟙  ≤ω ≤𝟙 → refl
+    ≤ω 𝟙  𝟙  ≤ω ≤ω → refl
+    ≤ω 𝟙  ≤𝟙 𝟘  𝟘  → refl
+    ≤ω 𝟙  ≤𝟙 𝟘  𝟙  → refl
+    ≤ω 𝟙  ≤𝟙 𝟘  ≤𝟙 → refl
+    ≤ω 𝟙  ≤𝟙 𝟘  ≤ω → refl
+    ≤ω 𝟙  ≤𝟙 𝟙  𝟘  → refl
+    ≤ω 𝟙  ≤𝟙 𝟙  𝟙  → refl
+    ≤ω 𝟙  ≤𝟙 𝟙  ≤𝟙 → refl
+    ≤ω 𝟙  ≤𝟙 𝟙  ≤ω → refl
+    ≤ω 𝟙  ≤𝟙 ≤𝟙 𝟘  → refl
+    ≤ω 𝟙  ≤𝟙 ≤𝟙 𝟙  → refl
+    ≤ω 𝟙  ≤𝟙 ≤𝟙 ≤𝟙 → refl
+    ≤ω 𝟙  ≤𝟙 ≤𝟙 ≤ω → refl
+    ≤ω 𝟙  ≤𝟙 ≤ω 𝟘  → refl
+    ≤ω 𝟙  ≤𝟙 ≤ω 𝟙  → refl
+    ≤ω 𝟙  ≤𝟙 ≤ω ≤𝟙 → refl
+    ≤ω 𝟙  ≤𝟙 ≤ω ≤ω → refl
+    ≤ω 𝟙  ≤ω 𝟘  𝟘  → refl
+    ≤ω 𝟙  ≤ω 𝟘  𝟙  → refl
+    ≤ω 𝟙  ≤ω 𝟘  ≤𝟙 → refl
+    ≤ω 𝟙  ≤ω 𝟘  ≤ω → refl
+    ≤ω 𝟙  ≤ω 𝟙  𝟘  → refl
+    ≤ω 𝟙  ≤ω 𝟙  𝟙  → refl
+    ≤ω 𝟙  ≤ω 𝟙  ≤𝟙 → refl
+    ≤ω 𝟙  ≤ω 𝟙  ≤ω → refl
+    ≤ω 𝟙  ≤ω ≤𝟙 𝟘  → refl
+    ≤ω 𝟙  ≤ω ≤𝟙 𝟙  → refl
+    ≤ω 𝟙  ≤ω ≤𝟙 ≤𝟙 → refl
+    ≤ω 𝟙  ≤ω ≤𝟙 ≤ω → refl
+    ≤ω 𝟙  ≤ω ≤ω 𝟘  → refl
+    ≤ω 𝟙  ≤ω ≤ω 𝟙  → refl
+    ≤ω 𝟙  ≤ω ≤ω ≤𝟙 → refl
+    ≤ω 𝟙  ≤ω ≤ω ≤ω → refl
+    ≤ω ≤𝟙 𝟘  𝟘  𝟘  → refl
+    ≤ω ≤𝟙 𝟘  𝟘  𝟙  → refl
+    ≤ω ≤𝟙 𝟘  𝟘  ≤𝟙 → refl
+    ≤ω ≤𝟙 𝟘  𝟘  ≤ω → refl
+    ≤ω ≤𝟙 𝟘  𝟙  𝟘  → refl
+    ≤ω ≤𝟙 𝟘  𝟙  𝟙  → refl
+    ≤ω ≤𝟙 𝟘  𝟙  ≤𝟙 → refl
+    ≤ω ≤𝟙 𝟘  𝟙  ≤ω → refl
+    ≤ω ≤𝟙 𝟘  ≤𝟙 𝟘  → refl
+    ≤ω ≤𝟙 𝟘  ≤𝟙 𝟙  → refl
+    ≤ω ≤𝟙 𝟘  ≤𝟙 ≤𝟙 → refl
+    ≤ω ≤𝟙 𝟘  ≤𝟙 ≤ω → refl
+    ≤ω ≤𝟙 𝟘  ≤ω 𝟘  → refl
+    ≤ω ≤𝟙 𝟘  ≤ω 𝟙  → refl
+    ≤ω ≤𝟙 𝟘  ≤ω ≤𝟙 → refl
+    ≤ω ≤𝟙 𝟘  ≤ω ≤ω → refl
+    ≤ω ≤𝟙 𝟙  𝟘  𝟘  → refl
+    ≤ω ≤𝟙 𝟙  𝟘  𝟙  → refl
+    ≤ω ≤𝟙 𝟙  𝟘  ≤𝟙 → refl
+    ≤ω ≤𝟙 𝟙  𝟘  ≤ω → refl
+    ≤ω ≤𝟙 𝟙  𝟙  𝟘  → refl
+    ≤ω ≤𝟙 𝟙  𝟙  𝟙  → refl
+    ≤ω ≤𝟙 𝟙  𝟙  ≤𝟙 → refl
+    ≤ω ≤𝟙 𝟙  𝟙  ≤ω → refl
+    ≤ω ≤𝟙 𝟙  ≤𝟙 𝟘  → refl
+    ≤ω ≤𝟙 𝟙  ≤𝟙 𝟙  → refl
+    ≤ω ≤𝟙 𝟙  ≤𝟙 ≤𝟙 → refl
+    ≤ω ≤𝟙 𝟙  ≤𝟙 ≤ω → refl
+    ≤ω ≤𝟙 𝟙  ≤ω 𝟘  → refl
+    ≤ω ≤𝟙 𝟙  ≤ω 𝟙  → refl
+    ≤ω ≤𝟙 𝟙  ≤ω ≤𝟙 → refl
+    ≤ω ≤𝟙 𝟙  ≤ω ≤ω → refl
+    ≤ω ≤𝟙 ≤𝟙 𝟘  𝟘  → refl
+    ≤ω ≤𝟙 ≤𝟙 𝟘  𝟙  → refl
+    ≤ω ≤𝟙 ≤𝟙 𝟘  ≤𝟙 → refl
+    ≤ω ≤𝟙 ≤𝟙 𝟘  ≤ω → refl
+    ≤ω ≤𝟙 ≤𝟙 𝟙  𝟘  → refl
+    ≤ω ≤𝟙 ≤𝟙 𝟙  𝟙  → refl
+    ≤ω ≤𝟙 ≤𝟙 𝟙  ≤𝟙 → refl
+    ≤ω ≤𝟙 ≤𝟙 𝟙  ≤ω → refl
+    ≤ω ≤𝟙 ≤𝟙 ≤𝟙 𝟘  → refl
+    ≤ω ≤𝟙 ≤𝟙 ≤𝟙 𝟙  → refl
+    ≤ω ≤𝟙 ≤𝟙 ≤𝟙 ≤𝟙 → refl
+    ≤ω ≤𝟙 ≤𝟙 ≤𝟙 ≤ω → refl
+    ≤ω ≤𝟙 ≤𝟙 ≤ω 𝟘  → refl
+    ≤ω ≤𝟙 ≤𝟙 ≤ω 𝟙  → refl
+    ≤ω ≤𝟙 ≤𝟙 ≤ω ≤𝟙 → refl
+    ≤ω ≤𝟙 ≤𝟙 ≤ω ≤ω → refl
+    ≤ω ≤𝟙 ≤ω 𝟘  𝟘  → refl
+    ≤ω ≤𝟙 ≤ω 𝟘  𝟙  → refl
+    ≤ω ≤𝟙 ≤ω 𝟘  ≤𝟙 → refl
+    ≤ω ≤𝟙 ≤ω 𝟘  ≤ω → refl
+    ≤ω ≤𝟙 ≤ω 𝟙  𝟘  → refl
+    ≤ω ≤𝟙 ≤ω 𝟙  𝟙  → refl
+    ≤ω ≤𝟙 ≤ω 𝟙  ≤𝟙 → refl
+    ≤ω ≤𝟙 ≤ω 𝟙  ≤ω → refl
+    ≤ω ≤𝟙 ≤ω ≤𝟙 𝟘  → refl
+    ≤ω ≤𝟙 ≤ω ≤𝟙 𝟙  → refl
+    ≤ω ≤𝟙 ≤ω ≤𝟙 ≤𝟙 → refl
+    ≤ω ≤𝟙 ≤ω ≤𝟙 ≤ω → refl
+    ≤ω ≤𝟙 ≤ω ≤ω 𝟘  → refl
+    ≤ω ≤𝟙 ≤ω ≤ω 𝟙  → refl
+    ≤ω ≤𝟙 ≤ω ≤ω ≤𝟙 → refl
+    ≤ω ≤𝟙 ≤ω ≤ω ≤ω → refl
+    ≤ω ≤ω 𝟘  𝟘  𝟘  → refl
+    ≤ω ≤ω 𝟘  𝟘  𝟙  → refl
+    ≤ω ≤ω 𝟘  𝟘  ≤𝟙 → refl
+    ≤ω ≤ω 𝟘  𝟘  ≤ω → refl
+    ≤ω ≤ω 𝟘  𝟙  𝟘  → refl
+    ≤ω ≤ω 𝟘  𝟙  𝟙  → refl
+    ≤ω ≤ω 𝟘  𝟙  ≤𝟙 → refl
+    ≤ω ≤ω 𝟘  𝟙  ≤ω → refl
+    ≤ω ≤ω 𝟘  ≤𝟙 𝟘  → refl
+    ≤ω ≤ω 𝟘  ≤𝟙 𝟙  → refl
+    ≤ω ≤ω 𝟘  ≤𝟙 ≤𝟙 → refl
+    ≤ω ≤ω 𝟘  ≤𝟙 ≤ω → refl
+    ≤ω ≤ω 𝟘  ≤ω 𝟘  → refl
+    ≤ω ≤ω 𝟘  ≤ω 𝟙  → refl
+    ≤ω ≤ω 𝟘  ≤ω ≤𝟙 → refl
+    ≤ω ≤ω 𝟘  ≤ω ≤ω → refl
+    ≤ω ≤ω 𝟙  𝟘  𝟘  → refl
+    ≤ω ≤ω 𝟙  𝟘  𝟙  → refl
+    ≤ω ≤ω 𝟙  𝟘  ≤𝟙 → refl
+    ≤ω ≤ω 𝟙  𝟘  ≤ω → refl
+    ≤ω ≤ω 𝟙  𝟙  𝟘  → refl
+    ≤ω ≤ω 𝟙  𝟙  𝟙  → refl
+    ≤ω ≤ω 𝟙  𝟙  ≤𝟙 → refl
+    ≤ω ≤ω 𝟙  𝟙  ≤ω → refl
+    ≤ω ≤ω 𝟙  ≤𝟙 𝟘  → refl
+    ≤ω ≤ω 𝟙  ≤𝟙 𝟙  → refl
+    ≤ω ≤ω 𝟙  ≤𝟙 ≤𝟙 → refl
+    ≤ω ≤ω 𝟙  ≤𝟙 ≤ω → refl
+    ≤ω ≤ω 𝟙  ≤ω 𝟘  → refl
+    ≤ω ≤ω 𝟙  ≤ω 𝟙  → refl
+    ≤ω ≤ω 𝟙  ≤ω ≤𝟙 → refl
+    ≤ω ≤ω 𝟙  ≤ω ≤ω → refl
+    ≤ω ≤ω ≤𝟙 𝟘  𝟘  → refl
+    ≤ω ≤ω ≤𝟙 𝟘  𝟙  → refl
+    ≤ω ≤ω ≤𝟙 𝟘  ≤𝟙 → refl
+    ≤ω ≤ω ≤𝟙 𝟘  ≤ω → refl
+    ≤ω ≤ω ≤𝟙 𝟙  𝟘  → refl
+    ≤ω ≤ω ≤𝟙 𝟙  𝟙  → refl
+    ≤ω ≤ω ≤𝟙 𝟙  ≤𝟙 → refl
+    ≤ω ≤ω ≤𝟙 𝟙  ≤ω → refl
+    ≤ω ≤ω ≤𝟙 ≤𝟙 𝟘  → refl
+    ≤ω ≤ω ≤𝟙 ≤𝟙 𝟙  → refl
+    ≤ω ≤ω ≤𝟙 ≤𝟙 ≤𝟙 → refl
+    ≤ω ≤ω ≤𝟙 ≤𝟙 ≤ω → refl
+    ≤ω ≤ω ≤𝟙 ≤ω 𝟘  → refl
+    ≤ω ≤ω ≤𝟙 ≤ω 𝟙  → refl
+    ≤ω ≤ω ≤𝟙 ≤ω ≤𝟙 → refl
+    ≤ω ≤ω ≤𝟙 ≤ω ≤ω → refl
+    ≤ω ≤ω ≤ω 𝟘  𝟘  → refl
+    ≤ω ≤ω ≤ω 𝟘  𝟙  → refl
+    ≤ω ≤ω ≤ω 𝟘  ≤𝟙 → refl
+    ≤ω ≤ω ≤ω 𝟘  ≤ω → refl
+    ≤ω ≤ω ≤ω 𝟙  𝟘  → refl
+    ≤ω ≤ω ≤ω 𝟙  𝟙  → refl
+    ≤ω ≤ω ≤ω 𝟙  ≤𝟙 → refl
+    ≤ω ≤ω ≤ω 𝟙  ≤ω → refl
+    ≤ω ≤ω ≤ω ≤𝟙 𝟘  → refl
+    ≤ω ≤ω ≤ω ≤𝟙 𝟙  → refl
+    ≤ω ≤ω ≤ω ≤𝟙 ≤𝟙 → refl
+    ≤ω ≤ω ≤ω ≤𝟙 ≤ω → refl
+    ≤ω ≤ω ≤ω ≤ω 𝟘  → refl
+    ≤ω ≤ω ≤ω ≤ω 𝟙  → refl
+    ≤ω ≤ω ≤ω ≤ω ≤𝟙 → refl
+    ≤ω ≤ω ≤ω ≤ω ≤ω → refl
 
 -- The function linear-or-affine→affine is not an order embedding from
 -- a linear or affine types modality to an affine types modality.
@@ -4622,20 +7699,21 @@ affine⇨linearity :
   let 𝕄₁ = affineModality v₁
       𝕄₂ = linearityModality v₂ v₂-ok
   in
-  Dedicated-star 𝕄₁ ⇔ Dedicated-star 𝕄₂ →
+  Dedicated-nr 𝕄₁ ⇔ Dedicated-nr 𝕄₂ →
   Is-morphism 𝕄₁ 𝕄₂ affine→linearity
 affine⇨linearity {v₂ = v₂} {v₂-ok = v₂-ok} refl s⇔s = λ where
-    .Is-morphism.tr-𝟘-≤                      → refl
-    .Is-morphism.tr-≡-𝟘-⇔ _                  → tr-≡-𝟘 _
-                                             , λ { refl → refl }
-    .Is-morphism.tr-<-𝟘 not-ok ok            → ⊥-elim (not-ok ok)
-    .Is-morphism.tr-𝟙                        → refl
-    .Is-morphism.tr-+ {p = p}                → ≤-reflexive (tr-+ p _)
-    .Is-morphism.tr-·                        → tr-· _ _
-    .Is-morphism.tr-∧ {p = p}                → ≤-reflexive (tr-∧ p _)
-    .Is-morphism.tr-⊛ {r = r}                → ≤-reflexive (tr-⊛ _ _ r)
-    .Is-morphism.𝟘ᵐ-in-second-if-in-first    → idᶠ
-    .Is-morphism.star-in-first-iff-in-second → s⇔s
+    .Is-morphism.tr-𝟘-≤                    → refl
+    .Is-morphism.tr-≡-𝟘-⇔ _                → tr-≡-𝟘 _
+                                           , λ { refl → refl }
+    .Is-morphism.tr-<-𝟘 not-ok ok          → ⊥-elim (not-ok ok)
+    .Is-morphism.tr-𝟙                      → refl
+    .Is-morphism.tr-+ {p = p}              → ≤-reflexive (tr-+ p _)
+    .Is-morphism.tr-·                      → tr-· _ _
+    .Is-morphism.tr-∧ {p = p}              → ≤-reflexive (tr-∧ p _)
+    .Is-morphism.tr-nr {r = r}             → ≤-reflexive
+                                               (tr-nr _ r _ _ _)
+    .Is-morphism.𝟘ᵐ-in-second-if-in-first  → idᶠ
+    .Is-morphism.nr-in-first-iff-in-second → s⇔s
   where
   open Graded.Modality.Properties (linearityModality v₂ v₂-ok)
 
@@ -4677,34 +7755,254 @@ affine⇨linearity {v₂ = v₂} {v₂-ok = v₂-ok} refl s⇔s = λ where
   tr-∧ ω 𝟙 = refl
   tr-∧ ω ω = refl
 
-  tr-⊛ : ∀ p q r → tr′ (p A.⊛ q ▷ r) ≡ tr′ p L.⊛ tr′ q ▷ tr′ r
-  tr-⊛ 𝟘 𝟘 𝟘 = refl
-  tr-⊛ 𝟘 𝟘 𝟙 = refl
-  tr-⊛ 𝟘 𝟘 ω = refl
-  tr-⊛ 𝟘 𝟙 𝟘 = refl
-  tr-⊛ 𝟘 𝟙 𝟙 = refl
-  tr-⊛ 𝟘 𝟙 ω = refl
-  tr-⊛ 𝟘 ω 𝟘 = refl
-  tr-⊛ 𝟘 ω 𝟙 = refl
-  tr-⊛ 𝟘 ω ω = refl
-  tr-⊛ 𝟙 𝟘 𝟘 = refl
-  tr-⊛ 𝟙 𝟘 𝟙 = refl
-  tr-⊛ 𝟙 𝟘 ω = refl
-  tr-⊛ 𝟙 𝟙 𝟘 = refl
-  tr-⊛ 𝟙 𝟙 𝟙 = refl
-  tr-⊛ 𝟙 𝟙 ω = refl
-  tr-⊛ 𝟙 ω 𝟘 = refl
-  tr-⊛ 𝟙 ω 𝟙 = refl
-  tr-⊛ 𝟙 ω ω = refl
-  tr-⊛ ω 𝟘 𝟘 = refl
-  tr-⊛ ω 𝟘 𝟙 = refl
-  tr-⊛ ω 𝟘 ω = refl
-  tr-⊛ ω 𝟙 𝟘 = refl
-  tr-⊛ ω 𝟙 𝟙 = refl
-  tr-⊛ ω 𝟙 ω = refl
-  tr-⊛ ω ω 𝟘 = refl
-  tr-⊛ ω ω 𝟙 = refl
-  tr-⊛ ω ω ω = refl
+  tr-nr :
+    ∀ p r z s n →
+    tr′ (A.nr p r z s n) ≡
+    L.nr (tr′ p) (tr′ r) (tr′ z) (tr′ s) (tr′ n)
+  tr-nr = λ where
+    𝟘 𝟘 𝟘 𝟘 𝟘 → refl
+    𝟘 𝟘 𝟘 𝟘 𝟙 → refl
+    𝟘 𝟘 𝟘 𝟘 ω → refl
+    𝟘 𝟘 𝟘 𝟙 𝟘 → refl
+    𝟘 𝟘 𝟘 𝟙 𝟙 → refl
+    𝟘 𝟘 𝟘 𝟙 ω → refl
+    𝟘 𝟘 𝟘 ω 𝟘 → refl
+    𝟘 𝟘 𝟘 ω 𝟙 → refl
+    𝟘 𝟘 𝟘 ω ω → refl
+    𝟘 𝟘 𝟙 𝟘 𝟘 → refl
+    𝟘 𝟘 𝟙 𝟘 𝟙 → refl
+    𝟘 𝟘 𝟙 𝟘 ω → refl
+    𝟘 𝟘 𝟙 𝟙 𝟘 → refl
+    𝟘 𝟘 𝟙 𝟙 𝟙 → refl
+    𝟘 𝟘 𝟙 𝟙 ω → refl
+    𝟘 𝟘 𝟙 ω 𝟘 → refl
+    𝟘 𝟘 𝟙 ω 𝟙 → refl
+    𝟘 𝟘 𝟙 ω ω → refl
+    𝟘 𝟘 ω 𝟘 𝟘 → refl
+    𝟘 𝟘 ω 𝟘 𝟙 → refl
+    𝟘 𝟘 ω 𝟘 ω → refl
+    𝟘 𝟘 ω 𝟙 𝟘 → refl
+    𝟘 𝟘 ω 𝟙 𝟙 → refl
+    𝟘 𝟘 ω 𝟙 ω → refl
+    𝟘 𝟘 ω ω 𝟘 → refl
+    𝟘 𝟘 ω ω 𝟙 → refl
+    𝟘 𝟘 ω ω ω → refl
+    𝟘 𝟙 𝟘 𝟘 𝟘 → refl
+    𝟘 𝟙 𝟘 𝟘 𝟙 → refl
+    𝟘 𝟙 𝟘 𝟘 ω → refl
+    𝟘 𝟙 𝟘 𝟙 𝟘 → refl
+    𝟘 𝟙 𝟘 𝟙 𝟙 → refl
+    𝟘 𝟙 𝟘 𝟙 ω → refl
+    𝟘 𝟙 𝟘 ω 𝟘 → refl
+    𝟘 𝟙 𝟘 ω 𝟙 → refl
+    𝟘 𝟙 𝟘 ω ω → refl
+    𝟘 𝟙 𝟙 𝟘 𝟘 → refl
+    𝟘 𝟙 𝟙 𝟘 𝟙 → refl
+    𝟘 𝟙 𝟙 𝟘 ω → refl
+    𝟘 𝟙 𝟙 𝟙 𝟘 → refl
+    𝟘 𝟙 𝟙 𝟙 𝟙 → refl
+    𝟘 𝟙 𝟙 𝟙 ω → refl
+    𝟘 𝟙 𝟙 ω 𝟘 → refl
+    𝟘 𝟙 𝟙 ω 𝟙 → refl
+    𝟘 𝟙 𝟙 ω ω → refl
+    𝟘 𝟙 ω 𝟘 𝟘 → refl
+    𝟘 𝟙 ω 𝟘 𝟙 → refl
+    𝟘 𝟙 ω 𝟘 ω → refl
+    𝟘 𝟙 ω 𝟙 𝟘 → refl
+    𝟘 𝟙 ω 𝟙 𝟙 → refl
+    𝟘 𝟙 ω 𝟙 ω → refl
+    𝟘 𝟙 ω ω 𝟘 → refl
+    𝟘 𝟙 ω ω 𝟙 → refl
+    𝟘 𝟙 ω ω ω → refl
+    𝟘 ω 𝟘 𝟘 𝟘 → refl
+    𝟘 ω 𝟘 𝟘 𝟙 → refl
+    𝟘 ω 𝟘 𝟘 ω → refl
+    𝟘 ω 𝟘 𝟙 𝟘 → refl
+    𝟘 ω 𝟘 𝟙 𝟙 → refl
+    𝟘 ω 𝟘 𝟙 ω → refl
+    𝟘 ω 𝟘 ω 𝟘 → refl
+    𝟘 ω 𝟘 ω 𝟙 → refl
+    𝟘 ω 𝟘 ω ω → refl
+    𝟘 ω 𝟙 𝟘 𝟘 → refl
+    𝟘 ω 𝟙 𝟘 𝟙 → refl
+    𝟘 ω 𝟙 𝟘 ω → refl
+    𝟘 ω 𝟙 𝟙 𝟘 → refl
+    𝟘 ω 𝟙 𝟙 𝟙 → refl
+    𝟘 ω 𝟙 𝟙 ω → refl
+    𝟘 ω 𝟙 ω 𝟘 → refl
+    𝟘 ω 𝟙 ω 𝟙 → refl
+    𝟘 ω 𝟙 ω ω → refl
+    𝟘 ω ω 𝟘 𝟘 → refl
+    𝟘 ω ω 𝟘 𝟙 → refl
+    𝟘 ω ω 𝟘 ω → refl
+    𝟘 ω ω 𝟙 𝟘 → refl
+    𝟘 ω ω 𝟙 𝟙 → refl
+    𝟘 ω ω 𝟙 ω → refl
+    𝟘 ω ω ω 𝟘 → refl
+    𝟘 ω ω ω 𝟙 → refl
+    𝟘 ω ω ω ω → refl
+    𝟙 𝟘 𝟘 𝟘 𝟘 → refl
+    𝟙 𝟘 𝟘 𝟘 𝟙 → refl
+    𝟙 𝟘 𝟘 𝟘 ω → refl
+    𝟙 𝟘 𝟘 𝟙 𝟘 → refl
+    𝟙 𝟘 𝟘 𝟙 𝟙 → refl
+    𝟙 𝟘 𝟘 𝟙 ω → refl
+    𝟙 𝟘 𝟘 ω 𝟘 → refl
+    𝟙 𝟘 𝟘 ω 𝟙 → refl
+    𝟙 𝟘 𝟘 ω ω → refl
+    𝟙 𝟘 𝟙 𝟘 𝟘 → refl
+    𝟙 𝟘 𝟙 𝟘 𝟙 → refl
+    𝟙 𝟘 𝟙 𝟘 ω → refl
+    𝟙 𝟘 𝟙 𝟙 𝟘 → refl
+    𝟙 𝟘 𝟙 𝟙 𝟙 → refl
+    𝟙 𝟘 𝟙 𝟙 ω → refl
+    𝟙 𝟘 𝟙 ω 𝟘 → refl
+    𝟙 𝟘 𝟙 ω 𝟙 → refl
+    𝟙 𝟘 𝟙 ω ω → refl
+    𝟙 𝟘 ω 𝟘 𝟘 → refl
+    𝟙 𝟘 ω 𝟘 𝟙 → refl
+    𝟙 𝟘 ω 𝟘 ω → refl
+    𝟙 𝟘 ω 𝟙 𝟘 → refl
+    𝟙 𝟘 ω 𝟙 𝟙 → refl
+    𝟙 𝟘 ω 𝟙 ω → refl
+    𝟙 𝟘 ω ω 𝟘 → refl
+    𝟙 𝟘 ω ω 𝟙 → refl
+    𝟙 𝟘 ω ω ω → refl
+    𝟙 𝟙 𝟘 𝟘 𝟘 → refl
+    𝟙 𝟙 𝟘 𝟘 𝟙 → refl
+    𝟙 𝟙 𝟘 𝟘 ω → refl
+    𝟙 𝟙 𝟘 𝟙 𝟘 → refl
+    𝟙 𝟙 𝟘 𝟙 𝟙 → refl
+    𝟙 𝟙 𝟘 𝟙 ω → refl
+    𝟙 𝟙 𝟘 ω 𝟘 → refl
+    𝟙 𝟙 𝟘 ω 𝟙 → refl
+    𝟙 𝟙 𝟘 ω ω → refl
+    𝟙 𝟙 𝟙 𝟘 𝟘 → refl
+    𝟙 𝟙 𝟙 𝟘 𝟙 → refl
+    𝟙 𝟙 𝟙 𝟘 ω → refl
+    𝟙 𝟙 𝟙 𝟙 𝟘 → refl
+    𝟙 𝟙 𝟙 𝟙 𝟙 → refl
+    𝟙 𝟙 𝟙 𝟙 ω → refl
+    𝟙 𝟙 𝟙 ω 𝟘 → refl
+    𝟙 𝟙 𝟙 ω 𝟙 → refl
+    𝟙 𝟙 𝟙 ω ω → refl
+    𝟙 𝟙 ω 𝟘 𝟘 → refl
+    𝟙 𝟙 ω 𝟘 𝟙 → refl
+    𝟙 𝟙 ω 𝟘 ω → refl
+    𝟙 𝟙 ω 𝟙 𝟘 → refl
+    𝟙 𝟙 ω 𝟙 𝟙 → refl
+    𝟙 𝟙 ω 𝟙 ω → refl
+    𝟙 𝟙 ω ω 𝟘 → refl
+    𝟙 𝟙 ω ω 𝟙 → refl
+    𝟙 𝟙 ω ω ω → refl
+    𝟙 ω 𝟘 𝟘 𝟘 → refl
+    𝟙 ω 𝟘 𝟘 𝟙 → refl
+    𝟙 ω 𝟘 𝟘 ω → refl
+    𝟙 ω 𝟘 𝟙 𝟘 → refl
+    𝟙 ω 𝟘 𝟙 𝟙 → refl
+    𝟙 ω 𝟘 𝟙 ω → refl
+    𝟙 ω 𝟘 ω 𝟘 → refl
+    𝟙 ω 𝟘 ω 𝟙 → refl
+    𝟙 ω 𝟘 ω ω → refl
+    𝟙 ω 𝟙 𝟘 𝟘 → refl
+    𝟙 ω 𝟙 𝟘 𝟙 → refl
+    𝟙 ω 𝟙 𝟘 ω → refl
+    𝟙 ω 𝟙 𝟙 𝟘 → refl
+    𝟙 ω 𝟙 𝟙 𝟙 → refl
+    𝟙 ω 𝟙 𝟙 ω → refl
+    𝟙 ω 𝟙 ω 𝟘 → refl
+    𝟙 ω 𝟙 ω 𝟙 → refl
+    𝟙 ω 𝟙 ω ω → refl
+    𝟙 ω ω 𝟘 𝟘 → refl
+    𝟙 ω ω 𝟘 𝟙 → refl
+    𝟙 ω ω 𝟘 ω → refl
+    𝟙 ω ω 𝟙 𝟘 → refl
+    𝟙 ω ω 𝟙 𝟙 → refl
+    𝟙 ω ω 𝟙 ω → refl
+    𝟙 ω ω ω 𝟘 → refl
+    𝟙 ω ω ω 𝟙 → refl
+    𝟙 ω ω ω ω → refl
+    ω 𝟘 𝟘 𝟘 𝟘 → refl
+    ω 𝟘 𝟘 𝟘 𝟙 → refl
+    ω 𝟘 𝟘 𝟘 ω → refl
+    ω 𝟘 𝟘 𝟙 𝟘 → refl
+    ω 𝟘 𝟘 𝟙 𝟙 → refl
+    ω 𝟘 𝟘 𝟙 ω → refl
+    ω 𝟘 𝟘 ω 𝟘 → refl
+    ω 𝟘 𝟘 ω 𝟙 → refl
+    ω 𝟘 𝟘 ω ω → refl
+    ω 𝟘 𝟙 𝟘 𝟘 → refl
+    ω 𝟘 𝟙 𝟘 𝟙 → refl
+    ω 𝟘 𝟙 𝟘 ω → refl
+    ω 𝟘 𝟙 𝟙 𝟘 → refl
+    ω 𝟘 𝟙 𝟙 𝟙 → refl
+    ω 𝟘 𝟙 𝟙 ω → refl
+    ω 𝟘 𝟙 ω 𝟘 → refl
+    ω 𝟘 𝟙 ω 𝟙 → refl
+    ω 𝟘 𝟙 ω ω → refl
+    ω 𝟘 ω 𝟘 𝟘 → refl
+    ω 𝟘 ω 𝟘 𝟙 → refl
+    ω 𝟘 ω 𝟘 ω → refl
+    ω 𝟘 ω 𝟙 𝟘 → refl
+    ω 𝟘 ω 𝟙 𝟙 → refl
+    ω 𝟘 ω 𝟙 ω → refl
+    ω 𝟘 ω ω 𝟘 → refl
+    ω 𝟘 ω ω 𝟙 → refl
+    ω 𝟘 ω ω ω → refl
+    ω 𝟙 𝟘 𝟘 𝟘 → refl
+    ω 𝟙 𝟘 𝟘 𝟙 → refl
+    ω 𝟙 𝟘 𝟘 ω → refl
+    ω 𝟙 𝟘 𝟙 𝟘 → refl
+    ω 𝟙 𝟘 𝟙 𝟙 → refl
+    ω 𝟙 𝟘 𝟙 ω → refl
+    ω 𝟙 𝟘 ω 𝟘 → refl
+    ω 𝟙 𝟘 ω 𝟙 → refl
+    ω 𝟙 𝟘 ω ω → refl
+    ω 𝟙 𝟙 𝟘 𝟘 → refl
+    ω 𝟙 𝟙 𝟘 𝟙 → refl
+    ω 𝟙 𝟙 𝟘 ω → refl
+    ω 𝟙 𝟙 𝟙 𝟘 → refl
+    ω 𝟙 𝟙 𝟙 𝟙 → refl
+    ω 𝟙 𝟙 𝟙 ω → refl
+    ω 𝟙 𝟙 ω 𝟘 → refl
+    ω 𝟙 𝟙 ω 𝟙 → refl
+    ω 𝟙 𝟙 ω ω → refl
+    ω 𝟙 ω 𝟘 𝟘 → refl
+    ω 𝟙 ω 𝟘 𝟙 → refl
+    ω 𝟙 ω 𝟘 ω → refl
+    ω 𝟙 ω 𝟙 𝟘 → refl
+    ω 𝟙 ω 𝟙 𝟙 → refl
+    ω 𝟙 ω 𝟙 ω → refl
+    ω 𝟙 ω ω 𝟘 → refl
+    ω 𝟙 ω ω 𝟙 → refl
+    ω 𝟙 ω ω ω → refl
+    ω ω 𝟘 𝟘 𝟘 → refl
+    ω ω 𝟘 𝟘 𝟙 → refl
+    ω ω 𝟘 𝟘 ω → refl
+    ω ω 𝟘 𝟙 𝟘 → refl
+    ω ω 𝟘 𝟙 𝟙 → refl
+    ω ω 𝟘 𝟙 ω → refl
+    ω ω 𝟘 ω 𝟘 → refl
+    ω ω 𝟘 ω 𝟙 → refl
+    ω ω 𝟘 ω ω → refl
+    ω ω 𝟙 𝟘 𝟘 → refl
+    ω ω 𝟙 𝟘 𝟙 → refl
+    ω ω 𝟙 𝟘 ω → refl
+    ω ω 𝟙 𝟙 𝟘 → refl
+    ω ω 𝟙 𝟙 𝟙 → refl
+    ω ω 𝟙 𝟙 ω → refl
+    ω ω 𝟙 ω 𝟘 → refl
+    ω ω 𝟙 ω 𝟙 → refl
+    ω ω 𝟙 ω ω → refl
+    ω ω ω 𝟘 𝟘 → refl
+    ω ω ω 𝟘 𝟙 → refl
+    ω ω ω 𝟘 ω → refl
+    ω ω ω 𝟙 𝟘 → refl
+    ω ω ω 𝟙 𝟙 → refl
+    ω ω ω 𝟙 ω → refl
+    ω ω ω ω 𝟘 → refl
+    ω ω ω ω 𝟙 → refl
+    ω ω ω ω ω → refl
 
 -- The function affine→linearity is not an order embedding from an
 -- affine types modality to a linear types modality.
@@ -4723,20 +8021,20 @@ linearity⇨affine :
   let 𝕄₁ = linearityModality v₁ v₁-ok
       𝕄₂ = affineModality v₂
   in
-  Dedicated-star 𝕄₁ ⇔ Dedicated-star 𝕄₂ →
+  Dedicated-nr 𝕄₁ ⇔ Dedicated-nr 𝕄₂ →
   Is-morphism 𝕄₁ 𝕄₂ linearity→affine
 linearity⇨affine {v₂ = v₂} refl s⇔s = λ where
-    .Is-morphism.tr-𝟘-≤                      → refl
-    .Is-morphism.tr-≡-𝟘-⇔ _                  → tr-≡-𝟘 _
-                                             , λ { refl → refl }
-    .Is-morphism.tr-<-𝟘 not-ok ok            → ⊥-elim (not-ok ok)
-    .Is-morphism.tr-𝟙                        → refl
-    .Is-morphism.tr-+ {p = p}                → ≤-reflexive (tr-+ p _)
-    .Is-morphism.tr-·                        → tr-· _ _
-    .Is-morphism.tr-∧ {p = p}                → tr-∧ p _
-    .Is-morphism.tr-⊛ {r = r}                → tr-⊛ _ _ r
-    .Is-morphism.𝟘ᵐ-in-second-if-in-first    → idᶠ
-    .Is-morphism.star-in-first-iff-in-second → s⇔s
+    .Is-morphism.tr-𝟘-≤                    → refl
+    .Is-morphism.tr-≡-𝟘-⇔ _                → tr-≡-𝟘 _
+                                           , λ { refl → refl }
+    .Is-morphism.tr-<-𝟘 not-ok ok          → ⊥-elim (not-ok ok)
+    .Is-morphism.tr-𝟙                      → refl
+    .Is-morphism.tr-+ {p = p}              → ≤-reflexive (tr-+ p _)
+    .Is-morphism.tr-·                      → tr-· _ _
+    .Is-morphism.tr-∧ {p = p}              → tr-∧ p _
+    .Is-morphism.tr-nr {r = r}             → tr-nr _ r _ _ _
+    .Is-morphism.𝟘ᵐ-in-second-if-in-first  → idᶠ
+    .Is-morphism.nr-in-first-iff-in-second → s⇔s
   where
   open Graded.Modality.Properties (affineModality v₂)
 
@@ -4778,34 +8076,254 @@ linearity⇨affine {v₂ = v₂} refl s⇔s = λ where
   tr-∧ ω 𝟙 = refl
   tr-∧ ω ω = refl
 
-  tr-⊛ : ∀ p q r → tr′ (p L.⊛ q ▷ r) A.≤ tr′ p A.⊛ tr′ q ▷ tr′ r
-  tr-⊛ 𝟘 𝟘 𝟘 = refl
-  tr-⊛ 𝟘 𝟘 𝟙 = refl
-  tr-⊛ 𝟘 𝟘 ω = refl
-  tr-⊛ 𝟘 𝟙 𝟘 = ≤-refl
-  tr-⊛ 𝟘 𝟙 𝟙 = refl
-  tr-⊛ 𝟘 𝟙 ω = refl
-  tr-⊛ 𝟘 ω 𝟘 = refl
-  tr-⊛ 𝟘 ω 𝟙 = refl
-  tr-⊛ 𝟘 ω ω = refl
-  tr-⊛ 𝟙 𝟘 𝟘 = ≤-refl
-  tr-⊛ 𝟙 𝟘 𝟙 = refl
-  tr-⊛ 𝟙 𝟘 ω = refl
-  tr-⊛ 𝟙 𝟙 𝟘 = refl
-  tr-⊛ 𝟙 𝟙 𝟙 = refl
-  tr-⊛ 𝟙 𝟙 ω = refl
-  tr-⊛ 𝟙 ω 𝟘 = refl
-  tr-⊛ 𝟙 ω 𝟙 = refl
-  tr-⊛ 𝟙 ω ω = refl
-  tr-⊛ ω 𝟘 𝟘 = refl
-  tr-⊛ ω 𝟘 𝟙 = refl
-  tr-⊛ ω 𝟘 ω = refl
-  tr-⊛ ω 𝟙 𝟘 = refl
-  tr-⊛ ω 𝟙 𝟙 = refl
-  tr-⊛ ω 𝟙 ω = refl
-  tr-⊛ ω ω 𝟘 = refl
-  tr-⊛ ω ω 𝟙 = refl
-  tr-⊛ ω ω ω = refl
+  tr-nr :
+    ∀ p r z s n →
+    tr′ (L.nr p r z s n) A.≤
+    A.nr (tr′ p) (tr′ r) (tr′ z) (tr′ s) (tr′ n)
+  tr-nr = λ where
+    𝟘 𝟘 𝟘 𝟘 𝟘 → refl
+    𝟘 𝟘 𝟘 𝟘 𝟙 → refl
+    𝟘 𝟘 𝟘 𝟘 ω → refl
+    𝟘 𝟘 𝟘 𝟙 𝟘 → refl
+    𝟘 𝟘 𝟘 𝟙 𝟙 → refl
+    𝟘 𝟘 𝟘 𝟙 ω → refl
+    𝟘 𝟘 𝟘 ω 𝟘 → refl
+    𝟘 𝟘 𝟘 ω 𝟙 → refl
+    𝟘 𝟘 𝟘 ω ω → refl
+    𝟘 𝟘 𝟙 𝟘 𝟘 → refl
+    𝟘 𝟘 𝟙 𝟘 𝟙 → refl
+    𝟘 𝟘 𝟙 𝟘 ω → refl
+    𝟘 𝟘 𝟙 𝟙 𝟘 → refl
+    𝟘 𝟘 𝟙 𝟙 𝟙 → refl
+    𝟘 𝟘 𝟙 𝟙 ω → refl
+    𝟘 𝟘 𝟙 ω 𝟘 → refl
+    𝟘 𝟘 𝟙 ω 𝟙 → refl
+    𝟘 𝟘 𝟙 ω ω → refl
+    𝟘 𝟘 ω 𝟘 𝟘 → refl
+    𝟘 𝟘 ω 𝟘 𝟙 → refl
+    𝟘 𝟘 ω 𝟘 ω → refl
+    𝟘 𝟘 ω 𝟙 𝟘 → refl
+    𝟘 𝟘 ω 𝟙 𝟙 → refl
+    𝟘 𝟘 ω 𝟙 ω → refl
+    𝟘 𝟘 ω ω 𝟘 → refl
+    𝟘 𝟘 ω ω 𝟙 → refl
+    𝟘 𝟘 ω ω ω → refl
+    𝟘 𝟙 𝟘 𝟘 𝟘 → refl
+    𝟘 𝟙 𝟘 𝟘 𝟙 → refl
+    𝟘 𝟙 𝟘 𝟘 ω → refl
+    𝟘 𝟙 𝟘 𝟙 𝟘 → refl
+    𝟘 𝟙 𝟘 𝟙 𝟙 → refl
+    𝟘 𝟙 𝟘 𝟙 ω → refl
+    𝟘 𝟙 𝟘 ω 𝟘 → refl
+    𝟘 𝟙 𝟘 ω 𝟙 → refl
+    𝟘 𝟙 𝟘 ω ω → refl
+    𝟘 𝟙 𝟙 𝟘 𝟘 → refl
+    𝟘 𝟙 𝟙 𝟘 𝟙 → refl
+    𝟘 𝟙 𝟙 𝟘 ω → refl
+    𝟘 𝟙 𝟙 𝟙 𝟘 → refl
+    𝟘 𝟙 𝟙 𝟙 𝟙 → refl
+    𝟘 𝟙 𝟙 𝟙 ω → refl
+    𝟘 𝟙 𝟙 ω 𝟘 → refl
+    𝟘 𝟙 𝟙 ω 𝟙 → refl
+    𝟘 𝟙 𝟙 ω ω → refl
+    𝟘 𝟙 ω 𝟘 𝟘 → refl
+    𝟘 𝟙 ω 𝟘 𝟙 → refl
+    𝟘 𝟙 ω 𝟘 ω → refl
+    𝟘 𝟙 ω 𝟙 𝟘 → refl
+    𝟘 𝟙 ω 𝟙 𝟙 → refl
+    𝟘 𝟙 ω 𝟙 ω → refl
+    𝟘 𝟙 ω ω 𝟘 → refl
+    𝟘 𝟙 ω ω 𝟙 → refl
+    𝟘 𝟙 ω ω ω → refl
+    𝟘 ω 𝟘 𝟘 𝟘 → refl
+    𝟘 ω 𝟘 𝟘 𝟙 → refl
+    𝟘 ω 𝟘 𝟘 ω → refl
+    𝟘 ω 𝟘 𝟙 𝟘 → refl
+    𝟘 ω 𝟘 𝟙 𝟙 → refl
+    𝟘 ω 𝟘 𝟙 ω → refl
+    𝟘 ω 𝟘 ω 𝟘 → refl
+    𝟘 ω 𝟘 ω 𝟙 → refl
+    𝟘 ω 𝟘 ω ω → refl
+    𝟘 ω 𝟙 𝟘 𝟘 → refl
+    𝟘 ω 𝟙 𝟘 𝟙 → refl
+    𝟘 ω 𝟙 𝟘 ω → refl
+    𝟘 ω 𝟙 𝟙 𝟘 → refl
+    𝟘 ω 𝟙 𝟙 𝟙 → refl
+    𝟘 ω 𝟙 𝟙 ω → refl
+    𝟘 ω 𝟙 ω 𝟘 → refl
+    𝟘 ω 𝟙 ω 𝟙 → refl
+    𝟘 ω 𝟙 ω ω → refl
+    𝟘 ω ω 𝟘 𝟘 → refl
+    𝟘 ω ω 𝟘 𝟙 → refl
+    𝟘 ω ω 𝟘 ω → refl
+    𝟘 ω ω 𝟙 𝟘 → refl
+    𝟘 ω ω 𝟙 𝟙 → refl
+    𝟘 ω ω 𝟙 ω → refl
+    𝟘 ω ω ω 𝟘 → refl
+    𝟘 ω ω ω 𝟙 → refl
+    𝟘 ω ω ω ω → refl
+    𝟙 𝟘 𝟘 𝟘 𝟘 → refl
+    𝟙 𝟘 𝟘 𝟘 𝟙 → refl
+    𝟙 𝟘 𝟘 𝟘 ω → refl
+    𝟙 𝟘 𝟘 𝟙 𝟘 → refl
+    𝟙 𝟘 𝟘 𝟙 𝟙 → refl
+    𝟙 𝟘 𝟘 𝟙 ω → refl
+    𝟙 𝟘 𝟘 ω 𝟘 → refl
+    𝟙 𝟘 𝟘 ω 𝟙 → refl
+    𝟙 𝟘 𝟘 ω ω → refl
+    𝟙 𝟘 𝟙 𝟘 𝟘 → refl
+    𝟙 𝟘 𝟙 𝟘 𝟙 → refl
+    𝟙 𝟘 𝟙 𝟘 ω → refl
+    𝟙 𝟘 𝟙 𝟙 𝟘 → refl
+    𝟙 𝟘 𝟙 𝟙 𝟙 → refl
+    𝟙 𝟘 𝟙 𝟙 ω → refl
+    𝟙 𝟘 𝟙 ω 𝟘 → refl
+    𝟙 𝟘 𝟙 ω 𝟙 → refl
+    𝟙 𝟘 𝟙 ω ω → refl
+    𝟙 𝟘 ω 𝟘 𝟘 → refl
+    𝟙 𝟘 ω 𝟘 𝟙 → refl
+    𝟙 𝟘 ω 𝟘 ω → refl
+    𝟙 𝟘 ω 𝟙 𝟘 → refl
+    𝟙 𝟘 ω 𝟙 𝟙 → refl
+    𝟙 𝟘 ω 𝟙 ω → refl
+    𝟙 𝟘 ω ω 𝟘 → refl
+    𝟙 𝟘 ω ω 𝟙 → refl
+    𝟙 𝟘 ω ω ω → refl
+    𝟙 𝟙 𝟘 𝟘 𝟘 → refl
+    𝟙 𝟙 𝟘 𝟘 𝟙 → refl
+    𝟙 𝟙 𝟘 𝟘 ω → refl
+    𝟙 𝟙 𝟘 𝟙 𝟘 → refl
+    𝟙 𝟙 𝟘 𝟙 𝟙 → refl
+    𝟙 𝟙 𝟘 𝟙 ω → refl
+    𝟙 𝟙 𝟘 ω 𝟘 → refl
+    𝟙 𝟙 𝟘 ω 𝟙 → refl
+    𝟙 𝟙 𝟘 ω ω → refl
+    𝟙 𝟙 𝟙 𝟘 𝟘 → refl
+    𝟙 𝟙 𝟙 𝟘 𝟙 → refl
+    𝟙 𝟙 𝟙 𝟘 ω → refl
+    𝟙 𝟙 𝟙 𝟙 𝟘 → refl
+    𝟙 𝟙 𝟙 𝟙 𝟙 → refl
+    𝟙 𝟙 𝟙 𝟙 ω → refl
+    𝟙 𝟙 𝟙 ω 𝟘 → refl
+    𝟙 𝟙 𝟙 ω 𝟙 → refl
+    𝟙 𝟙 𝟙 ω ω → refl
+    𝟙 𝟙 ω 𝟘 𝟘 → refl
+    𝟙 𝟙 ω 𝟘 𝟙 → refl
+    𝟙 𝟙 ω 𝟘 ω → refl
+    𝟙 𝟙 ω 𝟙 𝟘 → refl
+    𝟙 𝟙 ω 𝟙 𝟙 → refl
+    𝟙 𝟙 ω 𝟙 ω → refl
+    𝟙 𝟙 ω ω 𝟘 → refl
+    𝟙 𝟙 ω ω 𝟙 → refl
+    𝟙 𝟙 ω ω ω → refl
+    𝟙 ω 𝟘 𝟘 𝟘 → refl
+    𝟙 ω 𝟘 𝟘 𝟙 → refl
+    𝟙 ω 𝟘 𝟘 ω → refl
+    𝟙 ω 𝟘 𝟙 𝟘 → refl
+    𝟙 ω 𝟘 𝟙 𝟙 → refl
+    𝟙 ω 𝟘 𝟙 ω → refl
+    𝟙 ω 𝟘 ω 𝟘 → refl
+    𝟙 ω 𝟘 ω 𝟙 → refl
+    𝟙 ω 𝟘 ω ω → refl
+    𝟙 ω 𝟙 𝟘 𝟘 → refl
+    𝟙 ω 𝟙 𝟘 𝟙 → refl
+    𝟙 ω 𝟙 𝟘 ω → refl
+    𝟙 ω 𝟙 𝟙 𝟘 → refl
+    𝟙 ω 𝟙 𝟙 𝟙 → refl
+    𝟙 ω 𝟙 𝟙 ω → refl
+    𝟙 ω 𝟙 ω 𝟘 → refl
+    𝟙 ω 𝟙 ω 𝟙 → refl
+    𝟙 ω 𝟙 ω ω → refl
+    𝟙 ω ω 𝟘 𝟘 → refl
+    𝟙 ω ω 𝟘 𝟙 → refl
+    𝟙 ω ω 𝟘 ω → refl
+    𝟙 ω ω 𝟙 𝟘 → refl
+    𝟙 ω ω 𝟙 𝟙 → refl
+    𝟙 ω ω 𝟙 ω → refl
+    𝟙 ω ω ω 𝟘 → refl
+    𝟙 ω ω ω 𝟙 → refl
+    𝟙 ω ω ω ω → refl
+    ω 𝟘 𝟘 𝟘 𝟘 → refl
+    ω 𝟘 𝟘 𝟘 𝟙 → refl
+    ω 𝟘 𝟘 𝟘 ω → refl
+    ω 𝟘 𝟘 𝟙 𝟘 → refl
+    ω 𝟘 𝟘 𝟙 𝟙 → refl
+    ω 𝟘 𝟘 𝟙 ω → refl
+    ω 𝟘 𝟘 ω 𝟘 → refl
+    ω 𝟘 𝟘 ω 𝟙 → refl
+    ω 𝟘 𝟘 ω ω → refl
+    ω 𝟘 𝟙 𝟘 𝟘 → refl
+    ω 𝟘 𝟙 𝟘 𝟙 → refl
+    ω 𝟘 𝟙 𝟘 ω → refl
+    ω 𝟘 𝟙 𝟙 𝟘 → refl
+    ω 𝟘 𝟙 𝟙 𝟙 → refl
+    ω 𝟘 𝟙 𝟙 ω → refl
+    ω 𝟘 𝟙 ω 𝟘 → refl
+    ω 𝟘 𝟙 ω 𝟙 → refl
+    ω 𝟘 𝟙 ω ω → refl
+    ω 𝟘 ω 𝟘 𝟘 → refl
+    ω 𝟘 ω 𝟘 𝟙 → refl
+    ω 𝟘 ω 𝟘 ω → refl
+    ω 𝟘 ω 𝟙 𝟘 → refl
+    ω 𝟘 ω 𝟙 𝟙 → refl
+    ω 𝟘 ω 𝟙 ω → refl
+    ω 𝟘 ω ω 𝟘 → refl
+    ω 𝟘 ω ω 𝟙 → refl
+    ω 𝟘 ω ω ω → refl
+    ω 𝟙 𝟘 𝟘 𝟘 → refl
+    ω 𝟙 𝟘 𝟘 𝟙 → refl
+    ω 𝟙 𝟘 𝟘 ω → refl
+    ω 𝟙 𝟘 𝟙 𝟘 → refl
+    ω 𝟙 𝟘 𝟙 𝟙 → refl
+    ω 𝟙 𝟘 𝟙 ω → refl
+    ω 𝟙 𝟘 ω 𝟘 → refl
+    ω 𝟙 𝟘 ω 𝟙 → refl
+    ω 𝟙 𝟘 ω ω → refl
+    ω 𝟙 𝟙 𝟘 𝟘 → refl
+    ω 𝟙 𝟙 𝟘 𝟙 → refl
+    ω 𝟙 𝟙 𝟘 ω → refl
+    ω 𝟙 𝟙 𝟙 𝟘 → refl
+    ω 𝟙 𝟙 𝟙 𝟙 → refl
+    ω 𝟙 𝟙 𝟙 ω → refl
+    ω 𝟙 𝟙 ω 𝟘 → refl
+    ω 𝟙 𝟙 ω 𝟙 → refl
+    ω 𝟙 𝟙 ω ω → refl
+    ω 𝟙 ω 𝟘 𝟘 → refl
+    ω 𝟙 ω 𝟘 𝟙 → refl
+    ω 𝟙 ω 𝟘 ω → refl
+    ω 𝟙 ω 𝟙 𝟘 → refl
+    ω 𝟙 ω 𝟙 𝟙 → refl
+    ω 𝟙 ω 𝟙 ω → refl
+    ω 𝟙 ω ω 𝟘 → refl
+    ω 𝟙 ω ω 𝟙 → refl
+    ω 𝟙 ω ω ω → refl
+    ω ω 𝟘 𝟘 𝟘 → refl
+    ω ω 𝟘 𝟘 𝟙 → refl
+    ω ω 𝟘 𝟘 ω → refl
+    ω ω 𝟘 𝟙 𝟘 → refl
+    ω ω 𝟘 𝟙 𝟙 → refl
+    ω ω 𝟘 𝟙 ω → refl
+    ω ω 𝟘 ω 𝟘 → refl
+    ω ω 𝟘 ω 𝟙 → refl
+    ω ω 𝟘 ω ω → refl
+    ω ω 𝟙 𝟘 𝟘 → refl
+    ω ω 𝟙 𝟘 𝟙 → refl
+    ω ω 𝟙 𝟘 ω → refl
+    ω ω 𝟙 𝟙 𝟘 → refl
+    ω ω 𝟙 𝟙 𝟙 → refl
+    ω ω 𝟙 𝟙 ω → refl
+    ω ω 𝟙 ω 𝟘 → refl
+    ω ω 𝟙 ω 𝟙 → refl
+    ω ω 𝟙 ω ω → refl
+    ω ω ω 𝟘 𝟘 → refl
+    ω ω ω 𝟘 𝟙 → refl
+    ω ω ω 𝟘 ω → refl
+    ω ω ω 𝟙 𝟘 → refl
+    ω ω ω 𝟙 𝟙 → refl
+    ω ω ω 𝟙 ω → refl
+    ω ω ω ω 𝟘 → refl
+    ω ω ω ω 𝟙 → refl
+    ω ω ω ω ω → refl
 
 -- The function linearity→affine is not an order embedding from a
 -- linear types modality to an affine types modality.
@@ -4822,16 +8340,16 @@ linearity⇨affine {v₂ = v₂} refl s⇔s = λ where
 
 -- The function erasure→zero-one-many-Σ is an order embedding for Σ
 -- (with respect to erasure→zero-one-many) from an erasure modality to
--- a zero-one-many-greatest modality, given that if the second
+-- a zero-one-many-modality modality, given that if the second
 -- modality allows 𝟘ᵐ, then the first also does this. The
--- zero-one-many-greatest modality can be defined with either 𝟙 ≤ 𝟘 or
+-- zero-one-many-modality modality can be defined with either 𝟙 ≤ 𝟘 or
 -- 𝟙 ≰ 𝟘.
 
 erasure⇨zero-one-many-Σ :
   (T (𝟘ᵐ-allowed v₂) → T (𝟘ᵐ-allowed v₁)) →
   Is-Σ-order-embedding
     (ErasureModality v₁)
-    (zero-one-many-greatest 𝟙≤𝟘 v₂ v₂-ok)
+    (zero-one-many-modality 𝟙≤𝟘 v₂ v₂-ok)
     erasure→zero-one-many
     erasure→zero-one-many-Σ
 erasure⇨zero-one-many-Σ {𝟙≤𝟘 = 𝟙≤𝟘} ok₂₁ = record
@@ -4966,7 +8484,7 @@ affine→linear-or-affine-Σ-not-monotone mono =
   , affine→linear-or-affine-Σ-not-monotone ∘→
     Is-order-embedding.tr-monotone
   where
-  variant = ⊛-available-and-𝟘ᵐ-allowed-if _ true
+  variant = nr-available-and-𝟘ᵐ-allowed-if _ true
 
 -- The function affine→linearity-Σ is a Σ-morphism (with respect to
 -- affine→linearity) from an affine types modality to a linear types

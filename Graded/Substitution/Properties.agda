@@ -17,8 +17,8 @@ open Modality 𝕄
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Substitution 𝕄 R
-open import Graded.Modality.Dedicated-star 𝕄
-open import Graded.Modality.Natrec-star-instances
+open import Graded.Modality.Dedicated-nr 𝕄
+open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
 open import Graded.Usage 𝕄 R
 open import Graded.Usage.Properties 𝕄 R
@@ -145,6 +145,28 @@ private
       ≡⟨⟩
   ((γ ∙ p) <* (Ψ ⊙ η)) ⊛ᶜ ((δ ∙ q) <* (Ψ ⊙ η)) ▷ r ∎
   where open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+
+-- The function _<* Ψ sub-distributes over nrᶜ p r.
+
+<*-sub-distrib-nrᶜ :
+  ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+  (Ψ : Substₘ m n) (γ : Conₘ n) →
+  nrᶜ p r γ δ η <* Ψ ≤ᶜ nrᶜ p r (γ <* Ψ) (δ <* Ψ) (η <* Ψ)
+<*-sub-distrib-nrᶜ {p = p} {r = r} {δ = ε} {η = ε} [] ε = begin
+  𝟘ᶜ                ≈˘⟨ nrᶜ-𝟘ᶜ ⟩
+  nrᶜ p r 𝟘ᶜ 𝟘ᶜ 𝟘ᶜ  ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+<*-sub-distrib-nrᶜ
+  {p = p} {r = r} {δ = δ ∙ s} {η = η ∙ n} (Ψ ⊙ θ) (γ ∙ z) = begin
+  nr p r z s n ·ᶜ θ +ᶜ nrᶜ p r γ δ η <* Ψ                           ≤⟨ +ᶜ-monotone nrᶜ-·ᶜ (<*-sub-distrib-nrᶜ Ψ γ) ⟩
+
+  nrᶜ p r (z ·ᶜ θ) (s ·ᶜ θ) (n ·ᶜ θ) +ᶜ
+  nrᶜ p r (γ <* Ψ) (δ <* Ψ) (η <* Ψ)                                ≤⟨ nrᶜ-+ᶜ ⟩
+
+  nrᶜ p r (z ·ᶜ θ +ᶜ γ <* Ψ) (s ·ᶜ θ +ᶜ δ <* Ψ) (n ·ᶜ θ +ᶜ η <* Ψ)  ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
 --- The zero-context is a left zero to modality substitution application.
 -- 𝟘ᶜ <* Ψ ≡ 𝟘ᶜ.
@@ -604,6 +626,60 @@ wf-tailSubstₘ Ψ▶σ x =
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
+-- An inversion lemma for _▶[_]_ related to the nr function.
+
+▶-⌞nrᶜ⌟₁ :
+  ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+  (Ψ : Substₘ m n) (γ : Conₘ n) →
+  Ψ ▶[ ⌞ nrᶜ p r γ δ η ⌟ᶜ ] σ → Ψ ▶[ ⌞ γ ⌟ᶜ ] σ
+▶-⌞nrᶜ⌟₁ {p = p} {r = r} {δ = δ} {η = η} Ψ γ Ψ▶ x = sub
+  (▸-⌞nr⌟₁
+     (sub (▸-cong (cong ⌞_⌟ (nrᶜ-⟨⟩ γ)) (Ψ▶ x)) (begin
+        ⌜ ⌞ nr p r (γ ⟨ x ⟩) (δ ⟨ x ⟩) (η ⟨ x ⟩) ⌟ ⌝ ·ᶜ
+        (𝟘ᶜ , x ≔ 𝟙) <* Ψ                                ≡˘⟨ cong (λ p → ⌜ ⌞ p ⌟ ⌝ ·ᶜ _)
+                                                               (nrᶜ-⟨⟩ γ) ⟩
+        ⌜ ⌞ nrᶜ p r γ δ η ⌟ᶜ x ⌝ ·ᶜ (𝟘ᶜ , x ≔ 𝟙) <* Ψ    ≈⟨ ·ᶜ-<*-𝟘ᶜ,≔𝟙 Ψ ⟩
+        (𝟘ᶜ , x ≔ ⌜ ⌞ nrᶜ p r γ δ η ⌟ᶜ x ⌝) <* Ψ         ∎)))
+  (≤ᶜ-reflexive (≈ᶜ-sym (·ᶜ-<*-𝟘ᶜ,≔𝟙 Ψ)))
+  where
+  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+
+-- An inversion lemma for _▶[_]_ related to the nr function.
+
+▶-⌞nrᶜ⌟₂ :
+  ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+  (Ψ : Substₘ m n) (γ : Conₘ n) →
+  Ψ ▶[ ⌞ nrᶜ p r γ δ η ⌟ᶜ ] σ → Ψ ▶[ ⌞ δ ⌟ᶜ ] σ
+▶-⌞nrᶜ⌟₂ {p = p} {r = r} {δ = δ} {η = η} Ψ γ Ψ▶ x = sub
+  (▸-⌞nr⌟₂
+     (sub (▸-cong (cong ⌞_⌟ (nrᶜ-⟨⟩ γ)) (Ψ▶ x)) (begin
+        ⌜ ⌞ nr p r (γ ⟨ x ⟩) (δ ⟨ x ⟩) (η ⟨ x ⟩) ⌟ ⌝ ·ᶜ
+        (𝟘ᶜ , x ≔ 𝟙) <* Ψ                                ≡˘⟨ cong (λ p → ⌜ ⌞ p ⌟ ⌝ ·ᶜ _)
+                                                               (nrᶜ-⟨⟩ γ) ⟩
+        ⌜ ⌞ nrᶜ p r γ δ η ⌟ᶜ x ⌝ ·ᶜ (𝟘ᶜ , x ≔ 𝟙) <* Ψ    ≈⟨ ·ᶜ-<*-𝟘ᶜ,≔𝟙 Ψ ⟩
+        (𝟘ᶜ , x ≔ ⌜ ⌞ nrᶜ p r γ δ η ⌟ᶜ x ⌝) <* Ψ         ∎)))
+  (≤ᶜ-reflexive (≈ᶜ-sym (·ᶜ-<*-𝟘ᶜ,≔𝟙 Ψ)))
+  where
+  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+
+-- An inversion lemma for _▶[_]_ related to the nr function.
+
+▶-⌞nrᶜ⌟₃ :
+  ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+  (Ψ : Substₘ m n) (γ : Conₘ n) →
+  Ψ ▶[ ⌞ nrᶜ p r γ δ η ⌟ᶜ ] σ → Ψ ▶[ ⌞ η ⌟ᶜ ] σ
+▶-⌞nrᶜ⌟₃ {p = p} {r = r} {δ = δ} {η = η} Ψ γ Ψ▶ x = sub
+  (▸-⌞nr⌟₃
+     (sub (▸-cong (cong ⌞_⌟ (nrᶜ-⟨⟩ γ)) (Ψ▶ x)) (begin
+        ⌜ ⌞ nr p r (γ ⟨ x ⟩) (δ ⟨ x ⟩) (η ⟨ x ⟩) ⌟ ⌝ ·ᶜ
+        (𝟘ᶜ , x ≔ 𝟙) <* Ψ                                ≡˘⟨ cong (λ p → ⌜ ⌞ p ⌟ ⌝ ·ᶜ _)
+                                                               (nrᶜ-⟨⟩ γ) ⟩
+        ⌜ ⌞ nrᶜ p r γ δ η ⌟ᶜ x ⌝ ·ᶜ (𝟘ᶜ , x ≔ 𝟙) <* Ψ    ≈⟨ ·ᶜ-<*-𝟘ᶜ,≔𝟙 Ψ ⟩
+        (𝟘ᶜ , x ≔ ⌜ ⌞ nrᶜ p r γ δ η ⌟ᶜ x ⌝) <* Ψ         ∎)))
+  (≤ᶜ-reflexive (≈ᶜ-sym (·ᶜ-<*-𝟘ᶜ,≔𝟙 Ψ)))
+  where
+  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+
 ---------------------------------------
 -- Substitution lemma for modalities --
 ---------------------------------------
@@ -718,16 +794,14 @@ substₘ-lemma₀ ⦃ ok = ok ⦄ Ψ Ψ▶σ
            𝟘ᶜ ∙ 𝟘 · q        ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
            𝟘ᶜ                ∎)))
   (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-     𝟘ᶜ                               ≈˘⟨ ⊛ᶜ-idem-𝟘ᶜ _ ⟩
-     𝟘ᶜ ⊛ᶜ 𝟘ᶜ ▷ r                     ≈˘⟨ ⊛ᵣᶜ-congˡ (·ᶜ-zeroʳ _) ⟩
-     𝟘ᶜ ⊛ᶜ p ·ᶜ 𝟘ᶜ ▷ r                ≈˘⟨ ⊛ᵣᶜ-cong (∧ᶜ-idem _) (+ᶜ-identityˡ _) ⟩
-     (𝟘ᶜ ∧ᶜ 𝟘ᶜ) ⊛ᶜ 𝟘ᶜ +ᶜ p ·ᶜ 𝟘ᶜ ▷ r  ∎)
+     𝟘ᶜ                ≈˘⟨ nrᶜ-𝟘ᶜ ⟩
+     nrᶜ p r 𝟘ᶜ 𝟘ᶜ 𝟘ᶜ  ∎)
   where
-  open import Graded.Modality.Dedicated-star.Instance
+  open import Graded.Modality.Dedicated-nr.Instance
 
 substₘ-lemma₀ ⦃ ok = ok ⦄ Ψ Ψ▶σ
-  (natrec-no-starₘ {p = p} {r = r} {q = q} γ▸z δ▸s η▸n θ▸A fix) =
-  natrec-no-starₘ (substₘ-lemma₀ Ψ Ψ▶σ γ▸z)
+  (natrec-no-nrₘ {p = p} {r = r} {q = q} γ▸z δ▸s η▸n θ▸A fix) =
+  natrec-no-nrₘ (substₘ-lemma₀ Ψ Ψ▶σ γ▸z)
     (sub (substₘ-lemma₀ (liftSubstₘ (liftSubstₘ Ψ))
             (wf-liftSubstₘ {mo = 𝟘ᵐ} (wf-liftSubstₘ {mo = 𝟘ᵐ} Ψ▶σ))
             δ▸s)
@@ -919,21 +993,16 @@ substₘ-lemma₁
         (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
            θ <* Ψ ∙ ⌜ 𝟘ᵐ? ⌝ · q               ≈˘⟨ liftSubstₘ-app Ψ θ _ ⟩
            (θ ∙ ⌜ 𝟘ᵐ? ⌝ · q) <* liftSubstₘ Ψ  ∎)))
-  (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-     ((γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r) <* Ψ                 ≤⟨ <*-sub-distrib-⊛ᶜ Ψ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) _ ⟩
-     ((γ ∧ᶜ η) <* Ψ) ⊛ᶜ ((δ +ᶜ p ·ᶜ η) <* Ψ) ▷ r          ≈⟨ ⊛ᵣᶜ-congˡ (<*-distrib-+ᶜ Ψ δ (p ·ᶜ η)) ⟩
-     ((γ ∧ᶜ η) <* Ψ) ⊛ᶜ (δ <* Ψ +ᶜ (p ·ᶜ η) <* Ψ) ▷ r     ≤⟨ ⊛ᶜ-monotoneʳ (<*-sub-distrib-∧ᶜ Ψ γ η) ⟩
-     (γ <* Ψ ∧ᶜ η <* Ψ) ⊛ᶜ (δ <* Ψ +ᶜ (p ·ᶜ η) <* Ψ) ▷ r  ≈⟨ ⊛ᵣᶜ-congˡ (+ᶜ-congˡ (<*-distrib-·ᶜ Ψ _ η)) ⟩
-     (γ <* Ψ ∧ᶜ η <* Ψ) ⊛ᶜ (δ <* Ψ +ᶜ p ·ᶜ η <* Ψ) ▷ r    ∎)
+  (<*-sub-distrib-nrᶜ Ψ γ)
   where
-  open import Graded.Modality.Dedicated-star.Instance
+  open import Graded.Modality.Dedicated-nr.Instance
 
 substₘ-lemma₁
   {mo = 𝟙ᵐ} not-ok Ψ Ψ▶σ
-  (natrec-no-starₘ
+  (natrec-no-nrₘ
      {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {θ = θ} {q = q} {χ = χ}
      γ▸z δ▸s η▸n θ▸A fix) =
-  natrec-no-starₘ
+  natrec-no-nrₘ
     (substₘ-lemma₁ not-ok Ψ Ψ▶σ γ▸z)
     (sub
        (substₘ-lemma₁ not-ok (liftSubstₘ (liftSubstₘ Ψ))
@@ -1214,7 +1283,7 @@ substₘ-lemma
   (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {θ = θ} {q = q}
      γ▸z δ▸s η▸n θ▸A) = sub
   (natrecₘ
-     (substₘ-lemma Ψ (▶-⌞∧ᶜ⌟ˡ Ψ γ (▶-⌞⊛ᶜ⌟ˡ Ψ (γ ∧ᶜ _) Ψ▶σ)) γ▸z)
+     (substₘ-lemma Ψ (▶-⌞nrᶜ⌟₁ Ψ γ Ψ▶σ) γ▸z)
      (sub
        (substₘ-lemma (liftSubstₘ (liftSubstₘ Ψ))
           (▶-cong (liftSubstₘ (liftSubstₘ Ψ))
@@ -1223,28 +1292,23 @@ substₘ-lemma
                 (x0 +1)     → PE.refl
                 ((_ +1) +1) → PE.refl)
              (wf-liftSubstₘ
-                (wf-liftSubstₘ (▶-⌞+ᶜ⌟ˡ Ψ δ (▶-⌞⊛ᶜ⌟ʳ Ψ (γ ∧ᶜ _) Ψ▶σ)))))
+                (wf-liftSubstₘ (▶-⌞nrᶜ⌟₂ Ψ γ Ψ▶σ))))
           δ▸s)
        (*>∙∙≤liftSubst-listSubst*>∙∙ {δ = δ} Ψ))
-     (substₘ-lemma Ψ (▶-⌞∧ᶜ⌟ʳ Ψ γ (▶-⌞⊛ᶜ⌟ˡ Ψ (γ ∧ᶜ _) Ψ▶σ)) η▸n)
+     (substₘ-lemma Ψ (▶-⌞nrᶜ⌟₃ Ψ γ Ψ▶σ) η▸n)
      (substₘ-lemma-∙⌜𝟘ᵐ?⌝·▸[𝟘ᵐ?] Ψ Ψ▶σ θ▸A .proj₂))
-  (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-     ((γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r) <* Ψ                 ≤⟨ <*-sub-distrib-⊛ᶜ Ψ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) _ ⟩
-     ((γ ∧ᶜ η) <* Ψ) ⊛ᶜ ((δ +ᶜ p ·ᶜ η) <* Ψ) ▷ r          ≈⟨ ⊛ᵣᶜ-congˡ (<*-distrib-+ᶜ Ψ δ (p ·ᶜ η)) ⟩
-     ((γ ∧ᶜ η) <* Ψ) ⊛ᶜ (δ <* Ψ +ᶜ (p ·ᶜ η) <* Ψ) ▷ r     ≤⟨ ⊛ᶜ-monotoneʳ (<*-sub-distrib-∧ᶜ Ψ γ η) ⟩
-     (γ <* Ψ ∧ᶜ η <* Ψ) ⊛ᶜ (δ <* Ψ +ᶜ (p ·ᶜ η) <* Ψ) ▷ r  ≈⟨ ⊛ᵣᶜ-congˡ (+ᶜ-congˡ (<*-distrib-·ᶜ Ψ _ η)) ⟩
-     (γ <* Ψ ∧ᶜ η <* Ψ) ⊛ᶜ (δ <* Ψ +ᶜ p ·ᶜ η <* Ψ) ▷ r    ∎)
+  (<*-sub-distrib-nrᶜ Ψ γ)
   where
-  open import Graded.Modality.Dedicated-star.Instance
+  open import Graded.Modality.Dedicated-nr.Instance
 
 substₘ-lemma
   Ψ Ψ▶σ
-  ▸natrec@(natrec-no-starₘ
+  ▸natrec@(natrec-no-nrₘ
              {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
-             ⦃ no-star = no-star ⦄ γ▸z δ▸s η▸n θ▸A fix) =
+             ⦃ no-nr = no-nr ⦄ γ▸z δ▸s η▸n θ▸A fix) =
   𝟘ᵐ-allowed-elim
     (λ ok →
-       natrec-no-starₘ
+       natrec-no-nrₘ
          (substₘ-lemma Ψ
             (flip (▶-≤ Ψ) Ψ▶σ $
              let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
@@ -1266,7 +1330,7 @@ substₘ-lemma
                      χ                                  ≤⟨ fix ⟩
                      γ ∧ᶜ η ∧ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ)  ≤⟨ ∧ᶜ-decreasingʳ _ _ ⟩
                      η ∧ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ)       ≤⟨ ∧ᶜ-decreasingʳ _ _ ⟩
-                     δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ              ≤⟨ +ᶜ-decreasingˡ ok (no-star .No-dedicated-star.no-star) ⟩
+                     δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ              ≤⟨ +ᶜ-decreasingˡ ok (no-nr .No-dedicated-nr.no-nr) ⟩
                      δ                                  ∎))
               δ▸s)
            (*>∙∙≤liftSubst-listSubst*>∙∙ {δ = δ} Ψ))
@@ -1440,7 +1504,7 @@ doubleSubstₘ-lemma₃ {mo = 𝟙ᵐ} ▸t ▸u ▸u′ =
 -- x-th row of ∥ σ ∥ mos is equivalent to ⌈ σ x ⌉ (mos x).
 
 substₘ-calc-row :
-  ⦃ has-star : Has-star semiring-with-meet ⦄ →
+  ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
   (σ : Subst m n) (x : Fin n) →
   (𝟘ᶜ , x ≔ 𝟙) <* ∥ σ ∥ mos ≈ᶜ ⌈ σ x ⌉ (mos x)
 substₘ-calc-row {mos = mos} σ x0 = begin
@@ -1462,7 +1526,7 @@ substₘ-calc-row {mos = mos} σ (x +1) = begin
 -- potentially different values of p: 𝟙 and ⌜ mos x ⌝.
 
 ∥∥-*>-𝟘ᶜ,≔𝟙 :
-  ⦃ has-star : Has-star semiring-with-meet ⦄ →
+  ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
   (σ : Subst m n) →
   (𝟘ᶜ , x ≔ 𝟙) <* ∥ σ ∥ mos ≈ᶜ (𝟘ᶜ , x ≔ ⌜ mos x ⌝) <* ∥ σ ∥ mos
 ∥∥-*>-𝟘ᶜ,≔𝟙 {x = x} {mos = mos} σ = begin
@@ -1474,14 +1538,14 @@ substₘ-calc-row {mos = mos} σ (x +1) = begin
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
 
-open import Graded.Modality.Dedicated-star.Instance
+open import Graded.Modality.Dedicated-nr.Instance
 
 -- An inferred substitution matrix is well-formed if all substituted
 -- terms are well-resourced (for suitable modes), and there is a
--- dedicated natrec-star operator.
+-- dedicated nr function.
 
 substₘ-calc-correct :
-  ⦃ has-star : Dedicated-star ⦄ →
+  ⦃ has-nr : Dedicated-nr ⦄ →
   (σ : Subst m n) →
   (∀ x → ∃ λ γ → γ ▸[ mos x ] σ x) → ∥ σ ∥ mos ▶[ mos ] σ
 substₘ-calc-correct {mos = mos} σ prop x with prop x
@@ -1497,10 +1561,10 @@ substₘ-calc-correct {mos = mos} σ prop x with prop x
 
 -- If any substitution matrix is well-formed then the inferred
 -- substitution matrix is well-formed (for suitable modes) if there is
--- a dedicated natrec-star operator.
+-- a dedicated nr function.
 
 subst-calc-correct′ :
-  ⦃ has-star : Dedicated-star ⦄ →
+  ⦃ has-nr : Dedicated-nr ⦄ →
   (Ψ : Substₘ m n) →
   Ψ ▶[ mos ] σ → ∥ σ ∥ mos ▶[ mos ] σ
 subst-calc-correct′ {mos = mos} {σ = σ} (Ψ ⊙ γ) Ψ▶σ x0 = sub
@@ -1520,13 +1584,12 @@ subst-calc-correct′ (Ψ ⊙ γ) Ψ▶σ (x +1) =
   sub (subst-calc-correct′ Ψ (wf-tailSubstₘ Ψ▶σ) x)
       (≤ᶜ-reflexive (≈ᶜ-trans (+ᶜ-congʳ (·ᶜ-zeroˡ _)) (+ᶜ-identityˡ _)))
 
--- If there is a dedicated natrec-star operator, then each row of a
--- calculated substitution matrix is an upper bound of the usage
--- contexts (for a suitable mode) of the corresponding substituted
--- term.
+-- If there is a dedicated nr function, then each row of a calculated
+-- substitution matrix is an upper bound of the usage contexts (for a
+-- suitable mode) of the corresponding substituted term.
 
 substₘ-calc-upper-bound :
-  ⦃ has-star : Dedicated-star ⦄ →
+  ⦃ has-nr : Dedicated-nr ⦄ →
   {γ : Conₘ m} (σ : Subst m n) (x : Fin n) →
   γ ▸[ mos x ] σ x → γ ≤ᶜ  (𝟘ᶜ , x ≔ 𝟙) <* ∥ σ ∥ mos
 substₘ-calc-upper-bound σ x γ▸σx =

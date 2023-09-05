@@ -19,8 +19,8 @@ open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Usage 𝕄 R
 open import Graded.Usage.Inversion 𝕄 R
-open import Graded.Modality.Dedicated-star 𝕄
-open import Graded.Modality.Natrec-star-instances
+open import Graded.Modality.Dedicated-nr 𝕄
+open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 
@@ -49,7 +49,7 @@ private
     A F t u v : Term n
     G : Term (1+ n)
     γ δ η θ χ : Conₘ n
-    p q r : M
+    p q r s z : M
     m m₁ m₂ m′ : Mode
     b : Bool
     ok : T b
@@ -181,21 +181,15 @@ var-usage-lookup (there x) = var-usage-lookup x
      (▸-· η▸n)
      θ▸A)
   (begin
-     ⌜ m′ ⌝ ·ᶜ (γ ∧ᶜ η) ⊛ᶜ δ +ᶜ p ·ᶜ η ▷ r                                ≈⟨ ⌜⌝-·ᶜ-distribˡ-⊛ᶜ m′ ⟩
-     (⌜ m′ ⌝ ·ᶜ (γ ∧ᶜ η)) ⊛ᶜ ⌜ m′ ⌝ ·ᶜ (δ +ᶜ p ·ᶜ η) ▷ r                  ≈⟨ ⊛ᶜ-cong (·ᶜ-distribˡ-∧ᶜ _ _ _) (·ᶜ-distribˡ-+ᶜ _ _ _) refl ⟩
-     (⌜ m′ ⌝ ·ᶜ γ ∧ᶜ ⌜ m′ ⌝ ·ᶜ η) ⊛ᶜ ⌜ m′ ⌝ ·ᶜ δ +ᶜ ⌜ m′ ⌝ ·ᶜ p ·ᶜ η ▷ r  ≈⟨ ⊛ᵣᶜ-congˡ
-                                                                               (+ᶜ-congˡ
-                                                                                  (≈ᶜ-trans (≈ᶜ-sym (·ᶜ-assoc _ _ _))
-                                                                                     (≈ᶜ-trans (·ᶜ-congʳ (⌜⌝-·-comm m′))
-                                                                                        (·ᶜ-assoc _ _ _)))) ⟩
-     (⌜ m′ ⌝ ·ᶜ γ ∧ᶜ ⌜ m′ ⌝ ·ᶜ η) ⊛ᶜ ⌜ m′ ⌝ ·ᶜ δ +ᶜ p ·ᶜ ⌜ m′ ⌝ ·ᶜ η ▷ r  ∎)
+     ⌜ m′ ⌝ ·ᶜ nrᶜ p r γ δ η                            ≈⟨ ⌜⌝ᶜ-·ᶜ-distribˡ-nrᶜ m′ ⟩
+     nrᶜ p r (⌜ m′ ⌝ ·ᶜ γ) (⌜ m′ ⌝ ·ᶜ δ) (⌜ m′ ⌝ ·ᶜ η)  ∎)
   where
-  open import Graded.Modality.Dedicated-star.Instance
+  open import Graded.Modality.Dedicated-nr.Instance
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 ▸-· {m = m} {m′ = m′}
-  (natrec-no-starₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
+  (natrec-no-nrₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
      γ▸z δ▸s η▸n θ▸A fix) =
-  natrec-no-starₘ (▸-· γ▸z)
+  natrec-no-nrₘ (▸-· γ▸z)
     (sub (▸-· δ▸s)
        (≤ᶜ-reflexive (≈ᶜ-refl ∙ ·ᵐ-·-assoc m′ ∙ ·ᵐ-·-assoc m′)))
     (▸-· η▸n)
@@ -388,7 +382,7 @@ Usage-restrictions-satisfied = λ where
     ▸→Usage-restrictions-satisfied ▸t ,
     ▸→Usage-restrictions-satisfied ▸u ,
     ▸→Usage-restrictions-satisfied ▸v
-  (natrec-no-starₘ ▸t ▸u ▸v ▸A _) →
+  (natrec-no-nrₘ ▸t ▸u ▸v ▸A _) →
     ▸→Usage-restrictions-satisfied ▸A ,
     ▸→Usage-restrictions-satisfied ▸t ,
     ▸→Usage-restrictions-satisfied ▸u ,
@@ -408,7 +402,7 @@ Usage-restrictions-satisfied→▸[𝟘ᵐ] :
   Usage-restrictions-satisfied t → 𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] t
 Usage-restrictions-satisfied→▸[𝟘ᵐ] {ok = 𝟘ᵐ-ok} = lemma _
   where
-  open import Graded.Modality.Dedicated-star.Instance
+  open import Graded.Modality.Dedicated-nr.Instance
 
   lemma :
     (t : Term n) → Usage-restrictions-satisfied t →
@@ -488,16 +482,14 @@ Usage-restrictions-satisfied→▸[𝟘ᵐ] {ok = 𝟘ᵐ-ok} = lemma _
               𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · q  ≈⟨ ≈ᶜ-refl ∙ ·-congʳ (cong ⌜_⌝ (𝟘ᵐ?≡𝟘ᵐ {ok = 𝟘ᵐ-ok})) ⟩
               𝟘ᶜ ∙ 𝟘 · q        ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
               𝟘ᶜ                ∎
-      in case dedicated-star? of λ where
-        does-have-star →
+      in case dedicated-nr? of λ where
+        does-have-nr →
           sub (natrecₘ t-lemma u-lemma v-lemma A-lemma) $
           let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-            𝟘ᶜ                               ≈˘⟨ ⊛ᶜ-idem-𝟘ᶜ _ ⟩
-            𝟘ᶜ ⊛ᶜ 𝟘ᶜ ▷ r                     ≈˘⟨ ⊛ᵣᶜ-congˡ (·ᶜ-zeroʳ _) ⟩
-            𝟘ᶜ ⊛ᶜ p ·ᶜ 𝟘ᶜ ▷ r                ≈˘⟨ ⊛ᵣᶜ-cong (∧ᶜ-idem _) (+ᶜ-identityˡ _) ⟩
-            (𝟘ᶜ ∧ᶜ 𝟘ᶜ) ⊛ᶜ 𝟘ᶜ +ᶜ p ·ᶜ 𝟘ᶜ ▷ r  ∎
-        does-not-have-star →
-          natrec-no-starₘ t-lemma u-lemma v-lemma A-lemma $
+            𝟘ᶜ                ≈˘⟨ nrᶜ-𝟘ᶜ ⟩
+            nrᶜ p r 𝟘ᶜ 𝟘ᶜ 𝟘ᶜ  ∎
+        does-not-have-nr →
+          natrec-no-nrₘ t-lemma u-lemma v-lemma A-lemma $
           let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
             𝟘ᶜ                                        ≈˘⟨ ∧ᶜ-idem _ ⟩
             𝟘ᶜ ∧ᶜ 𝟘ᶜ                                  ≈˘⟨ ∧ᶜ-congˡ (+ᶜ-identityˡ _) ⟩
@@ -602,18 +594,14 @@ Usage-restrictions-satisfied→▸[𝟘ᵐ] {ok = 𝟘ᵐ-ok} = lemma _
   ▸-𝟘ᵐ γ▸
 ▸-𝟘ᵐ
   (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} γ▸ δ▸ η▸ _) = begin
-  (γ ∧ᶜ η) ⊛ᶜ δ +ᶜ p ·ᶜ η ▷ r      ≤⟨ ⊛ᶜ-monotone (∧ᶜ-monotone (▸-𝟘ᵐ γ▸) (▸-𝟘ᵐ η▸)) $
-                                      +ᶜ-monotone (tailₘ-monotone (tailₘ-monotone (▸-𝟘ᵐ δ▸))) $
-                                      ·ᶜ-monotoneʳ (▸-𝟘ᵐ η▸) ⟩
-  (𝟘ᶜ ∧ᶜ 𝟘ᶜ) ⊛ᶜ 𝟘ᶜ +ᶜ p ·ᶜ 𝟘ᶜ ▷ r  ≈⟨ ⊛ᵣᶜ-cong (∧ᶜ-idem _) (+ᶜ-identityˡ _) ⟩
-  𝟘ᶜ ⊛ᶜ p ·ᶜ 𝟘ᶜ ▷ r                ≈⟨ ⊛ᵣᶜ-congˡ (·ᶜ-zeroʳ _) ⟩
-  𝟘ᶜ ⊛ᶜ 𝟘ᶜ ▷ r                     ≈⟨ ⊛ᶜ-idem-𝟘ᶜ _ ⟩
-  𝟘ᶜ                               ∎
+  nrᶜ p r γ δ η     ≤⟨ nrᶜ-monotone (▸-𝟘ᵐ γ▸) (tailₘ-monotone (tailₘ-monotone (▸-𝟘ᵐ δ▸))) (▸-𝟘ᵐ η▸) ⟩
+  nrᶜ p r 𝟘ᶜ 𝟘ᶜ 𝟘ᶜ  ≈⟨ nrᶜ-𝟘ᶜ ⟩
+  𝟘ᶜ                ∎
   where
-  open import Graded.Modality.Dedicated-star.Instance
+  open import Graded.Modality.Dedicated-nr.Instance
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 ▸-𝟘ᵐ
-  (natrec-no-starₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
+  (natrec-no-nrₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
      γ▸ _ _ _ fix) = begin
   χ                                  ≤⟨ fix ⟩
   γ ∧ᶜ η ∧ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ)  ≤⟨ ∧ᶜ-decreasingˡ _ _ ⟩
@@ -734,6 +722,36 @@ Usage-restrictions-satisfied→▸[𝟘ᵐ] {ok = 𝟘ᵐ-ok} = lemma _
 ▸-⌞⊛⌟ʳ = ▸-conv λ ok ⌞p⊛q▷r⌟≡𝟘ᵐ →
   ≡𝟘→⌞⌟≡𝟘ᵐ (⊛≡𝟘ʳ ok (⌞⌟≡𝟘ᵐ→≡𝟘 ⌞p⊛q▷r⌟≡𝟘ᵐ))
 
+-- A kind of inversion lemma for _▸[_]_ related to the nr function.
+
+▸-⌞nr⌟₁ :
+  ∀ {n} ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+  ⌜ ⌞ nr p r z s n ⌟ ⌝ ·ᶜ γ ▸[ ⌞ nr p r z s n ⌟ ] t →
+  ⌜ ⌞ z ⌟ ⌝ ·ᶜ γ ▸[ ⌞ z ⌟ ] t
+▸-⌞nr⌟₁ = ▸-conv λ ok ⌞nr-przsn⌟≡𝟘ᵐ →
+  ≡𝟘→⌞⌟≡𝟘ᵐ $
+  nr-positive (𝟘-well-behaved ok) (⌞⌟≡𝟘ᵐ→≡𝟘 ⌞nr-przsn⌟≡𝟘ᵐ) .proj₁
+
+-- A kind of inversion lemma for _▸[_]_ related to the nr function.
+
+▸-⌞nr⌟₂ :
+  ∀ {n} ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+  ⌜ ⌞ nr p r z s n ⌟ ⌝ ·ᶜ γ ▸[ ⌞ nr p r z s n ⌟ ] t →
+  ⌜ ⌞ s ⌟ ⌝ ·ᶜ γ ▸[ ⌞ s ⌟ ] t
+▸-⌞nr⌟₂ = ▸-conv λ ok ⌞nr-przsn⌟≡𝟘ᵐ →
+  ≡𝟘→⌞⌟≡𝟘ᵐ $
+  nr-positive (𝟘-well-behaved ok) (⌞⌟≡𝟘ᵐ→≡𝟘 ⌞nr-przsn⌟≡𝟘ᵐ) .proj₂ .proj₁
+
+-- A kind of inversion lemma for _▸[_]_ related to the nr function.
+
+▸-⌞nr⌟₃ :
+  ∀ {n} ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+  ⌜ ⌞ nr p r z s n ⌟ ⌝ ·ᶜ γ ▸[ ⌞ nr p r z s n ⌟ ] t →
+  ⌜ ⌞ n ⌟ ⌝ ·ᶜ γ ▸[ ⌞ n ⌟ ] t
+▸-⌞nr⌟₃ = ▸-conv λ ok ⌞nr-przsn⌟≡𝟘ᵐ →
+  ≡𝟘→⌞⌟≡𝟘ᵐ $
+  nr-positive (𝟘-well-behaved ok) (⌞⌟≡𝟘ᵐ→≡𝟘 ⌞nr-przsn⌟≡𝟘ᵐ) .proj₂ .proj₂
+
 ------------------------------------------------------------------------
 -- The lemma Conₘ-interchange
 
@@ -851,11 +869,11 @@ Conₘ-interchange (sucₘ γ▸t) (sucₘ δ▸t) x =
 
 Conₘ-interchange
   (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η}
-     ⦃ has-star = s₁ ⦄ γ▸z δ▸s η▸n θ▸A)
+     ⦃ has-nr = nr₁ ⦄ γ▸z δ▸s η▸n θ▸A)
   (natrecₘ {γ = γ′} {δ = δ′} {η = η′}
-     ⦃ has-star = s₂ ⦄ γ′▸z δ′▸s η′▸n _)
+     ⦃ has-nr = nr₂ ⦄ γ′▸z δ′▸s η′▸n _)
   x =
-  case Dedicated-star-propositional s₁ s₂ of λ {
+  case Dedicated-nr-propositional nr₁ nr₂ of λ {
     refl →
   flip (subst (_▸[ _ ] _))
     (natrecₘ
@@ -863,45 +881,20 @@ Conₘ-interchange
        (Conₘ-interchange δ▸s δ′▸s (x +1 +1))
        (Conₘ-interchange η▸n η′▸n x)
        θ▸A)
-    ((γ' ∧ᶜ η') ⊛ᶜ δ' +ᶜ p ·ᶜ η' ▷ r                                 ≡˘⟨ cong (λ γ → (γ' ∧ᶜ _) ⊛ᶜ _ +ᶜ γ ▷ _) $
-                                                                         update-distrib-·ᶜ _ _ _ _ ⟩
-
-     (γ' ∧ᶜ η') ⊛ᶜ δ' +ᶜ pη' ▷ r                                     ≡˘⟨ cong (λ γ → (γ' ∧ᶜ _) ⊛ᶜ _ +ᶜ (_ , _ ≔ γ) ▷ _) $
-                                                                         lookup-distrib-·ᶜ η′ _ _ ⟩
-
-     (γ' ∧ᶜ η') ⊛ᶜ δ' +ᶜ (p ·ᶜ η , x ≔ (p ·ᶜ η′) ⟨ x ⟩) ▷ r          ≡˘⟨ cong (λ γ → (γ' ∧ᶜ _) ⊛ᶜ γ ▷ _) $
-                                                                         update-distrib-+ᶜ _ _ _ _ _ ⟩
-
-     (γ' ∧ᶜ η') ⊛ᶜ δ +ᶜ p ·ᶜ η , x ≔ δ′ ⟨ x ⟩ + (p ·ᶜ η′) ⟨ x ⟩ ▷ r  ≡˘⟨ cong₂ (λ γ δ → γ ⊛ᶜ _ , _ ≔ δ ▷ _)
-                                                                           (update-distrib-∧ᶜ _ _ _ _ _)
-                                                                           (lookup-distrib-+ᶜ δ′ _ _)   ⟩
-     (γ ∧ᶜ η , x ≔ γ′ ⟨ x ⟩ ∧ η′ ⟨ x ⟩) ⊛ᶜ
-     δ +ᶜ p ·ᶜ η , x ≔ (δ′ +ᶜ p ·ᶜ η′) ⟨ x ⟩ ▷ r                     ≡˘⟨ update-distrib-⊛ᶜ _ _ _ _ _ _ ⟩
-
-     (γ ∧ᶜ η) ⊛ᶜ δ +ᶜ p ·ᶜ η ▷ r ,
-     x ≔ (γ′ ⟨ x ⟩ ∧ η′ ⟨ x ⟩) ⊛ (δ′ +ᶜ p ·ᶜ η′) ⟨ x ⟩ ▷ r           ≡˘⟨ cong (λ p → _ , _ ≔ p ⊛ _ ▷ _) $
-                                                                         lookup-distrib-∧ᶜ γ′ _ _ ⟩
-     (γ ∧ᶜ η) ⊛ᶜ δ +ᶜ p ·ᶜ η ▷ r ,
-     x ≔ (γ′ ∧ᶜ η′) ⟨ x ⟩ ⊛ (δ′ +ᶜ p ·ᶜ η′) ⟨ x ⟩ ▷ r                ≡˘⟨ cong (_ , _ ≔_) $
-                                                                         lookup-distrib-⊛ᶜ (γ′ ∧ᶜ _) _ _ _ ⟩
-     (γ ∧ᶜ η) ⊛ᶜ δ +ᶜ p ·ᶜ η ▷ r ,
-     x ≔ ((γ′ ∧ᶜ η′) ⊛ᶜ δ′ +ᶜ p ·ᶜ η′ ▷ r) ⟨ x ⟩                     ∎) }
+    (nrᶜ p r (γ , x ≔ γ′ ⟨ x ⟩) (δ , x ≔ δ′ ⟨ x ⟩) (η , x ≔ η′ ⟨ x ⟩)  ≡⟨ ≈ᶜ→≡ nrᶜ-,≔ ⟩
+     nrᶜ p r γ δ η , x ≔ nr p r (γ′ ⟨ x ⟩) (δ′ ⟨ x ⟩) (η′ ⟨ x ⟩)       ≡˘⟨ cong (_ , _ ≔_) (nrᶜ-⟨⟩ γ′) ⟩
+     nrᶜ p r γ δ η , x ≔ nrᶜ p r γ′ δ′ η′ ⟨ x ⟩                        ∎) }
   where
-  open import Graded.Modality.Dedicated-star.Instance
+  open import Graded.Modality.Dedicated-nr.Instance
   open Tools.Reasoning.PropositionalEquality
 
-  γ'  = γ , x ≔ γ′ ⟨ x ⟩
-  δ'  = δ , x ≔ δ′ ⟨ x ⟩
-  η'  = η , x ≔ η′ ⟨ x ⟩
-  pη' = p ·ᶜ η , x ≔ p · η′ ⟨ x ⟩
-
 Conₘ-interchange
-  (natrec-no-starₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
-     ⦃ no-star = ns ⦄ γ▸z δ▸s η▸n θ▸A fix)
-  (natrec-no-starₘ {γ = γ′} {δ = δ′} {η = η′} {χ = χ′}
+  (natrec-no-nrₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
+     ⦃ no-nr = ¬nr ⦄ γ▸z δ▸s η▸n θ▸A fix)
+  (natrec-no-nrₘ {γ = γ′} {δ = δ′} {η = η′} {χ = χ′}
      γ′▸z δ′▸s η′▸n _ fix′)
   x =
-  natrec-no-starₘ ⦃ no-star = ns ⦄
+  natrec-no-nrₘ ⦃ no-nr = ¬nr ⦄
     (Conₘ-interchange γ▸z γ′▸z x)
     (Conₘ-interchange δ▸s δ′▸s (x +1 +1))
     (Conₘ-interchange η▸n η′▸n x)
@@ -940,11 +933,11 @@ Conₘ-interchange
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-Conₘ-interchange (natrecₘ _ _ _ _) (natrec-no-starₘ _ _ _ _ _) _ =
-  ⊥-elim not-star-and-no-star
+Conₘ-interchange (natrecₘ _ _ _ _) (natrec-no-nrₘ _ _ _ _ _) _ =
+  ⊥-elim not-nr-and-no-nr
 
-Conₘ-interchange (natrec-no-starₘ _ _ _ _ _) (natrecₘ _ _ _ _) _ =
-  ⊥-elim not-star-and-no-star
+Conₘ-interchange (natrec-no-nrₘ _ _ _ _ _) (natrecₘ _ _ _ _) _ =
+  ⊥-elim not-nr-and-no-nr
 
 Conₘ-interchange
   (emptyrecₘ {γ = γ} {m = m} {p = p} γ▸t η▸A)
@@ -979,65 +972,30 @@ Conₘ-interchange starₘ starₘ x =
   from {γ = _ ∙ _} {x = _ +1} eq   = there (from eq)
 
 ------------------------------------------------------------------------
--- Some lemmas related to natrec
-
--- The context used in the usage rule for natrec satisfies the neccessary inequalities
--- (γ ∧ η) ⊛ᶜ (δ + pη) ▷ r ≤ γ and
--- (γ ∧ η) ⊛ᶜ (δ + pη) ▷ r ≤ δ + pη + r ((γ ∧ η) ⊛ᶜ (δ + pη) ▷ r) and
--- (γ ∧ η) ⊛ᶜ (δ + pη) ▷ r ≤ η
-
-natrec-usage :
-  ⦃ has-star : Has-star semiring-with-meet ⦄ →
-  (γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r ≤ᶜ γ ×
-  (γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r ≤ᶜ
-    δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ (γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r ×
-  (γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r ≤ᶜ η
-natrec-usage {γ = γ} {η} {δ} {p} {r} =
-  ≤ᶜ-trans (⊛ᶜ-ineq₂ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r) (∧ᶜ-decreasingˡ γ η)
-  , ≤ᶜ-trans (⊛ᶜ-ineq₁ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r)
-             (≤ᶜ-reflexive (+ᶜ-assoc δ (p ·ᶜ η) (r ·ᶜ (γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r)))
-  , ≤ᶜ-trans (⊛ᶜ-ineq₂ (γ ∧ᶜ η) (δ +ᶜ p ·ᶜ η) r) (∧ᶜ-decreasingʳ γ η)
-
--- A variant of natrec-no-starₘ.
-
-natrec-no-star-⊛ₘ :
-  ⦃ no-star : No-dedicated-star ⦄
-  ⦃ has-star : Has-star semiring-with-meet ⦄ →
-  γ ▸[ m ] t →
-  δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] u →
-  η ▸[ m ] v →
-  θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A →
-  (γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r ▸[ m ] natrec p q r A t u v
-natrec-no-star-⊛ₘ ▸t ▸u ▸v ▸A =
-  natrec-no-starₘ ▸t ▸u ▸v ▸A
-    (∧ᶜ-greatest-lower-bound
-       (natrec-usage .proj₁)
-       (∧ᶜ-greatest-lower-bound
-          (natrec-usage .proj₂ .proj₂)
-          (natrec-usage .proj₂ .proj₁)))
+-- A lemma related to natrec
 
 module _ where
 
-  open import Graded.Modality.Dedicated-star.Instance
+  open import Graded.Modality.Dedicated-nr.Instance
 
-  -- A variant of natrecₘ and natrec-no-starₘ.
+  -- A variant of natrecₘ and natrec-no-nrₘ.
 
-  natrec-star-or-no-starₘ :
+  natrec-nr-or-no-nrₘ :
     γ ▸[ m ] t →
     δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] u →
     η ▸[ m ] v →
     θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A →
-    (⦃ has-star : Dedicated-star ⦄ →
-     χ ≤ᶜ (γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r) →
-    (⦃ no-star : No-dedicated-star ⦄ →
+    (⦃ has-nr : Dedicated-nr ⦄ →
+     χ ≤ᶜ nrᶜ p r γ δ η) →
+    (⦃ no-nr : No-dedicated-nr ⦄ →
      χ ≤ᶜ γ ∧ᶜ η ∧ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ)) →
     χ ▸[ m ] natrec p q r A t u v
-  natrec-star-or-no-starₘ ▸t ▸u ▸v ▸A hyp₁ hyp₂ =
-    case dedicated-star? of λ where
-      does-have-star →
+  natrec-nr-or-no-nrₘ ▸t ▸u ▸v ▸A hyp₁ hyp₂ =
+    case dedicated-nr? of λ where
+      does-have-nr →
         sub (natrecₘ ▸t ▸u ▸v ▸A) hyp₁
-      does-not-have-star →
-        natrec-no-starₘ ▸t ▸u ▸v ▸A hyp₂
+      does-not-have-nr →
+        natrec-no-nrₘ ▸t ▸u ▸v ▸A hyp₂
 
 ------------------------------------------------------------------------
 -- Lemmas related to ⌈_⌉
@@ -1045,7 +1003,7 @@ module _ where
 -- The context ⌈ t ⌉ 𝟘ᵐ[ ok ] is equivalent to 𝟘ᶜ.
 
 ⌈⌉-𝟘ᵐ :
-  ⦃ has-star : Has-star semiring-with-meet ⦄ →
+  ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
   (t : Term n) → ⌈ t ⌉ 𝟘ᵐ[ ok ] ≈ᶜ 𝟘ᶜ
 ⌈⌉-𝟘ᵐ (var x) = begin
   𝟘ᶜ , x ≔ 𝟘  ≡⟨ 𝟘ᶜ,≔𝟘 ⟩
@@ -1101,14 +1059,12 @@ module _ where
 ⌈⌉-𝟘ᵐ (suc t) =
   ⌈⌉-𝟘ᵐ t
 ⌈⌉-𝟘ᵐ {ok = ok} (natrec p _ r A z s n) = begin
-  (⌈ z ⌉ 𝟘ᵐ[ ok ] ∧ᶜ ⌈ n ⌉ 𝟘ᵐ[ ok ]) ⊛ᶜ
-    tailₘ (tailₘ (⌈ s ⌉ 𝟘ᵐ[ ok ])) +ᶜ p ·ᶜ ⌈ n ⌉ 𝟘ᵐ[ ok ] ▷ r  ≈⟨ ⊛ᵣᶜ-cong (∧ᶜ-cong (⌈⌉-𝟘ᵐ z) (⌈⌉-𝟘ᵐ n))
-                                                                    (+ᶜ-cong (tailₘ-cong (tailₘ-cong (⌈⌉-𝟘ᵐ s)))
-                                                                       (·ᶜ-congˡ (⌈⌉-𝟘ᵐ n))) ⟩
-  (𝟘ᶜ ∧ᶜ 𝟘ᶜ) ⊛ᶜ 𝟘ᶜ +ᶜ p ·ᶜ 𝟘ᶜ ▷ r                              ≈⟨ ⊛ᵣᶜ-cong (∧ᶜ-idem _) (+ᶜ-identityˡ _) ⟩
-  𝟘ᶜ ⊛ᶜ p ·ᶜ 𝟘ᶜ ▷ r                                            ≈⟨ ⊛ᵣᶜ-congˡ (·ᶜ-zeroʳ _) ⟩
-  𝟘ᶜ ⊛ᶜ 𝟘ᶜ ▷ r                                                 ≈⟨ ⊛ᶜ-idem-𝟘ᶜ _ ⟩
-  𝟘ᶜ                                                           ∎
+  nrᶜ p r (⌈ z ⌉ 𝟘ᵐ[ ok ]) (tailₘ (tailₘ (⌈ s ⌉ 𝟘ᵐ[ ok ])))
+    (⌈ n ⌉ 𝟘ᵐ[ ok ])                                         ≈⟨ nrᶜ-cong (⌈⌉-𝟘ᵐ z) (tailₘ-cong (tailₘ-cong (⌈⌉-𝟘ᵐ s))) (⌈⌉-𝟘ᵐ n) ⟩
+
+  nrᶜ p r 𝟘ᶜ 𝟘ᶜ 𝟘ᶜ                                           ≈⟨ nrᶜ-𝟘ᶜ ⟩
+
+  𝟘ᶜ                                                         ∎
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
 ⌈⌉-𝟘ᵐ Unit =
@@ -1128,7 +1084,7 @@ module _ where
 -- multiplied by ⌜ m ⌝.
 
 ·-⌈⌉ :
-  ⦃ has-star : Has-star semiring-with-meet ⦄ →
+  ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
   (t : Term n) → ⌜ m ⌝ ·ᶜ ⌈ t ⌉ m ≈ᶜ ⌈ t ⌉ m
 ·-⌈⌉ {m = 𝟘ᵐ} t = begin
   𝟘 ·ᶜ ⌈ t ⌉ 𝟘ᵐ  ≈⟨ ·ᶜ-zeroˡ _ ⟩
@@ -1142,14 +1098,13 @@ module _ where
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
 
-open import Graded.Modality.Dedicated-star.Instance
+open import Graded.Modality.Dedicated-nr.Instance
 
--- For dedicated natrec-star operators the function ⌈_⌉ provides upper
--- bounds for valid modality contexts: if γ ▸[ m ] t, then
--- γ ≤ᶜ ⌈ t ⌉ m.
+-- For dedicated nr functions the function ⌈_⌉ provides upper bounds
+-- for valid modality contexts: if γ ▸[ m ] t, then γ ≤ᶜ ⌈ t ⌉ m.
 
 usage-upper-bound :
-  ⦃ has-star : Dedicated-star ⦄ →
+  ⦃ has-nr : Dedicated-nr ⦄ →
   γ ▸[ m ] t → γ ≤ᶜ ⌈ t ⌉ m
 usage-upper-bound Uₘ     = ≤ᶜ-refl
 usage-upper-bound ℕₘ     = ≤ᶜ-refl
@@ -1186,9 +1141,9 @@ usage-upper-bound zeroₘ    = ≤ᶜ-refl
 usage-upper-bound (sucₘ t) = usage-upper-bound t
 
 usage-upper-bound
-  ⦃ has-star = s₁ ⦄
-  (natrecₘ {z = z} {s = s} {n = n} ⦃ has-star = s₂ ⦄ γ▸z δ▸s η▸n θ▸A) =
-  case Dedicated-star-propositional s₁ s₂ of λ {
+  ⦃ has-nr = nr₁ ⦄
+  (natrecₘ {z = z} {s = s} {n = n} ⦃ has-nr = nr₂ ⦄ γ▸z δ▸s η▸n θ▸A) =
+  case Dedicated-nr-propositional nr₁ nr₂ of λ {
     refl →
   case usage-upper-bound γ▸z of λ {
     γ≤γ′ →
@@ -1196,12 +1151,10 @@ usage-upper-bound
     δ≤δ′ →
   case usage-upper-bound η▸n of λ {
     η≤η′ →
-  ⊛ᶜ-monotone (∧ᶜ-monotone γ≤γ′ η≤η′)
-               (+ᶜ-monotone (tailₘ-monotone (tailₘ-monotone δ≤δ′))
-                            (·ᶜ-monotoneʳ η≤η′)) }}}}
+  nrᶜ-monotone γ≤γ′ (tailₘ-monotone (tailₘ-monotone δ≤δ′)) η≤η′ }}}}
 
-usage-upper-bound (natrec-no-starₘ _ _ _ _ _) =
-  ⊥-elim not-star-and-no-star
+usage-upper-bound (natrec-no-nrₘ _ _ _ _ _) =
+  ⊥-elim not-nr-and-no-nr
 
 usage-upper-bound (emptyrecₘ e A) =
   ·ᶜ-monotoneʳ (usage-upper-bound e)
@@ -1209,11 +1162,11 @@ usage-upper-bound starₘ = ≤ᶜ-refl
 usage-upper-bound (sub t x) = ≤ᶜ-trans x (usage-upper-bound t)
 
 
--- A valid modality context can be computed from a well-resourced
--- term (if there is a dedicated natrec-star operator).
+-- A valid modality context can be computed from a well-resourced term
+-- (if there is a dedicated nr functions).
 
 usage-inf :
-  ⦃ has-star : Dedicated-star ⦄ →
+  ⦃ has-nr : Dedicated-nr ⦄ →
   γ ▸[ m ] t → ⌈ t ⌉ m ▸[ m ] t
 usage-inf Uₘ = Uₘ
 usage-inf ℕₘ = ℕₘ
@@ -1251,9 +1204,9 @@ usage-inf (prodrecₘ {p = p} {u = u} γ▸t δ▸u η▸A ok) =
 usage-inf zeroₘ = zeroₘ
 usage-inf (sucₘ γ▸t) = sucₘ (usage-inf γ▸t)
 usage-inf
-  ⦃ has-star = s₁ ⦄
-  (natrecₘ {p = p} {r = r} {s = s} ⦃ has-star = s₂ ⦄ γ▸z δ▸s η▸n θ▸A) =
-  case Dedicated-star-propositional s₁ s₂ of λ {
+  ⦃ has-nr = nr₁ ⦄
+  (natrecₘ {p = p} {r = r} {s = s} ⦃ has-nr = nr₂ ⦄ γ▸z δ▸s η▸n θ▸A) =
+  case Dedicated-nr-propositional nr₁ nr₂ of λ {
     refl →
   natrecₘ (usage-inf γ▸z)
           (sub (usage-inf δ▸s)
@@ -1265,8 +1218,8 @@ usage-inf
                       (≤ᶜ-refl ∙ headₘ-monotone (tailₘ-monotone (usage-upper-bound δ▸s)) ∙ headₘ-monotone (usage-upper-bound δ▸s))))
           (usage-inf η▸n)
           θ▸A }
-usage-inf (natrec-no-starₘ _ _ _ _ _) =
-  ⊥-elim not-star-and-no-star
+usage-inf (natrec-no-nrₘ _ _ _ _ _) =
+  ⊥-elim not-nr-and-no-nr
 usage-inf (emptyrecₘ γ▸t δ▸A) = emptyrecₘ (usage-inf γ▸t) δ▸A
 usage-inf starₘ = starₘ
 usage-inf (sub γ▸t x) = usage-inf γ▸t

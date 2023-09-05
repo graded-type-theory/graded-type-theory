@@ -24,6 +24,7 @@ open import Graded.Modality.Properties.PartialOrder 𝕄
 open import Graded.Modality.Properties.Addition 𝕄
 open import Graded.Modality.Properties.Meet 𝕄
 open import Graded.Modality.Properties.Multiplication 𝕄
+import Graded.Modality.Properties.Star 𝕄 as Star
 open import Graded.Modality.Variant a
 
 open import Tools.Nullary
@@ -159,13 +160,13 @@ isModality :
   (variant : Modality-variant) →
   let open Modality-variant variant in
   (T 𝟘ᵐ-allowed → Has-well-behaved-zero 𝕄) →
-  (T 𝟘ᵐ-allowed → ¬ ⊛-available → ∀ p q → p + q ≤ p) →
+  (T 𝟘ᵐ-allowed → ¬ Nr-available → ∀ p q → p + q ≤ p) →
   Modality
 isModality variant 𝟘-well-behaved +-decreasingˡ = record
   { variant            = variant
   ; semiring-with-meet = 𝕄
   ; 𝟘-well-behaved     = 𝟘-well-behaved
-  ; has-star           = λ _ → has-star
+  ; has-nr             = λ _ → Star.has-nr ⦃ has-star = has-star ⦄
   ; +-decreasingˡ      = +-decreasingˡ
   }
 

@@ -16,7 +16,7 @@ open Modality 𝕄
 open Usage-restrictions R
 
 open import Graded.Context 𝕄
-open import Graded.Modality.Dedicated-star 𝕄
+open import Graded.Modality.Dedicated-nr 𝕄
 open import Graded.Mode 𝕄
 open import Definition.Untyped M hiding (_∙_)
 
@@ -38,14 +38,13 @@ private
     m m′ : Mode
     b : BinderMode
 
--- Modality context inference (for modalities with natrec-star
--- operators).
+-- Modality context inference (for modalities with nr functions).
 
 infix 50 ⌈_⌉
 
 mutual
   ⌈_⌉ :
-    ⦃ has-star : Has-star semiring-with-meet ⦄ →
+    ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
     Term n → Mode → Conₘ n
   ⌈ var x ⌉ m = 𝟘ᶜ , x ≔ ⌜ m ⌝
   ⌈ U ⌉ _ = 𝟘ᶜ
@@ -62,10 +61,7 @@ mutual
   ⌈ zero ⌉ _ = 𝟘ᶜ
   ⌈ suc t ⌉ m = ⌈ t ⌉ m
   ⌈ natrec p _ r _ z s n ⌉ m =
-    let γ = ⌈ z ⌉ m
-        δ = tailₘ (tailₘ (⌈ s ⌉ m))
-        η = ⌈ n ⌉ m
-    in  (γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r
+    nrᶜ p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m)
   ⌈ Unit ⌉ _ = 𝟘ᶜ
   ⌈ star ⌉ _ = 𝟘ᶜ
   ⌈ Empty ⌉ _ = 𝟘ᶜ
@@ -76,7 +72,7 @@ data _◂_∈_  : (x : Fin n) (p : M) (γ : Conₘ n) → Set a where
   here  :                       x0 ◂ p ∈ γ ∙ p
   there : (h : x ◂ p ∈ γ) → (x +1) ◂ p ∈ γ ∙ q
 
-open import Graded.Modality.Dedicated-star.Instance
+open import Graded.Modality.Dedicated-nr.Instance
 
 -- Well-usage relation for terms.
 --
@@ -129,19 +125,25 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
   sucₘ      : γ ▸[ m ] t
             → γ ▸[ m ] suc t
 
-  -- A usage rule for natrec which applies if a dedicated natrec-star
-  -- operator is available.
-  natrecₘ   : ∀ {n} ⦃ has-star : Dedicated-star ⦄
+  -- A usage rule for natrec which applies if a dedicated nr function
+  -- ("natrec usage function") is available.
+  natrecₘ   : ∀ {n} ⦃ has-nr : Dedicated-nr ⦄
             → γ ▸[ m ] z
             → δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s
             → η ▸[ m ] n
             → θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
-            → (γ ∧ᶜ η) ⊛ᶜ (δ +ᶜ p ·ᶜ η) ▷ r ▸[ m ] natrec p q r A z s n
+            → nrᶜ p r γ δ η ▸[ m ] natrec p q r A z s n
 
-  -- A usage rule for natrec which applies if a dedicated natrec-star
-  -- operator is not available.
-  natrec-no-starₘ :
-            ∀ {n} ⦃ no-star : No-dedicated-star ⦄
+  -- A usage rule for natrec which applies if a dedicated nr function
+  -- is not available.
+  --
+  -- Note that this rule may not always be appropriate. See
+  -- Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr,
+  -- Graded.Modality.Instances.Affine.Bad.No-dedicated-nr and
+  -- Graded.Modality.Instances.Linear-or-affine.Bad.No-dedicated-nr
+  -- for some examples.
+  natrec-no-nrₘ :
+            ∀ {n} ⦃ no-nr : No-dedicated-nr ⦄
             → γ ▸[ m ] z
             → δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s
             → η ▸[ m ] n

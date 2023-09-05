@@ -11,6 +11,7 @@ open import Tools.Relation
 open import Tools.Sum
 
 open import Graded.Modality.Instances.Erasure
+import Graded.Modality.Properties.Star as Star
 open import Graded.Modality.Variant lzero
 
 open import Graded.Modality Erasure public
@@ -65,13 +66,23 @@ instance
     ; ⊛-sub-distrib-∧ = λ r → ⊛-sub-distribˡ-∧ r , ⊛-sub-distribʳ-∧ r
     }
 
+  -- An nr function can be defined for Erasure.
+
+  erasure-has-nr : Has-nr erasure-semiring-with-meet
+  erasure-has-nr = Star.has-nr erasure-semiring-with-meet
+
+-- The nr function.
+
+nr : Erasure → Erasure → Erasure → Erasure → Erasure → Erasure
+nr = Has-nr.nr erasure-has-nr
+
 -- Erasure modality instances (for different modality variants).
 
 ErasureModality : Modality-variant → Modality
 ErasureModality variant = record
   { variant            = variant
   ; semiring-with-meet = erasure-semiring-with-meet
-  ; has-star           = λ _ → erasure-has-star
+  ; has-nr             = λ _ → erasure-has-nr
   ; 𝟘-well-behaved     = λ _ → erasure-has-well-behaved-zero
   ; +-decreasingˡ      = λ _ _ → +-decreasingˡ
   }

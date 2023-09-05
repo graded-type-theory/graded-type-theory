@@ -114,13 +114,12 @@ neNeg (natrecⱼ {p = p} {r = r} _ _ _ d) (natrecₙ n) γ▸u =
        _ _ θ▸n _ γ≤χ extra) →
   case
     (case extra of λ where
-       invUsageNatrecStar → begin
-         γ                            ≤⟨ γ≤χ ⟩
-         χ                            ≡⟨⟩
-         (δ ∧ᶜ θ) ⊛ᶜ η +ᶜ p ·ᶜ θ ▷ r  ≤⟨ ⊛ᶜ-ineq₂ _ _ _ ⟩
-         δ ∧ᶜ θ                       ≤⟨ ∧ᶜ-decreasingʳ _ _ ⟩
-         θ                            ∎
-       (invUsageNatrecNoStar fix) → begin
+       invUsageNatrecNr → begin
+         γ              ≤⟨ γ≤χ ⟩
+         χ              ≡⟨⟩
+         nrᶜ p r δ η θ  ≤⟨ nrᶜ-decreasing (λ z s n → nr-decreasing {r = r} {z = z} {s = s}) ⟩
+         θ              ∎
+       (invUsageNatrecNoNr fix) → begin
          γ                                  ≤⟨ γ≤χ ⟩
          χ                                  ≤⟨ fix ⟩
          δ ∧ᶜ θ ∧ᶜ (η +ᶜ p ·ᶜ θ +ᶜ r ·ᶜ χ)  ≤⟨ ∧ᶜ-decreasingʳ _ _ ⟩

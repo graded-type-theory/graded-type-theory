@@ -3,7 +3,7 @@
 ------------------------------------------------------------------------
 
 import Graded.Modality
-import Graded.Modality.Dedicated-star
+import Graded.Modality.Dedicated-nr
 open import Graded.Usage.Restrictions
 open import Tools.PropositionalEquality
 open import Tools.Relation
@@ -12,22 +12,22 @@ module Graded.Usage.Decidable
   {a} {M : Set a}
   (open Graded.Modality M)
   (𝕄 : Modality)
-  (open Graded.Modality.Dedicated-star 𝕄)
+  (open Graded.Modality.Dedicated-nr 𝕄)
   (R : Usage-restrictions M)
   (open Usage-restrictions R)
   -- Equality is assumed to be decidable for M.
   (_≟_ : Decidable (_≡_ {A = M}))
   -- The Prodrec-allowed relation is assumed to be decidable.
   (Prodrec? : ∀ r p q → Dec (Prodrec-allowed r p q))
-  -- A dedicated natrec-star operator is assumed to exist.
-  ⦃ has-star : Dedicated-star ⦄
+  -- A dedicated nr function is assumed to exist.
+  ⦃ has-nr : Dedicated-nr ⦄
   where
 
-open Modality 𝕄 hiding (has-star)
+open Modality 𝕄 hiding (has-nr)
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Modality.Dedicated-star.Instance
+open import Graded.Modality.Dedicated-nr.Instance
 open import Graded.Modality.Properties 𝕄
 open import Graded.Usage 𝕄 R
 open import Graded.Usage.Inversion 𝕄 R
@@ -286,13 +286,13 @@ infix 10 ⌈⌉▸[_]?_
         case inv-usage-natrec ▸nr of λ where
           (invUsageNatrec _ ▸s′ _ _ _ _) →
             mp≰ $ headₘ-monotone $ tailₘ-monotone $
-            usage-upper-bound ⦃ has-star = has-star ⦄ ▸s′
+            usage-upper-bound ▸s′
       (yes mp≤) → case ⌜ m ⌝ · r ≤? headₘ (⌈ s ⌉ m) of λ where
         (no mr≰) → inj₂ λ _ ▸nr →
           case inv-usage-natrec ▸nr of λ where
             (invUsageNatrec _ ▸s′ _ _ _ _) →
               mr≰ $ headₘ-monotone $
-              usage-upper-bound ⦃ has-star = has-star ⦄ ▸s′
+              usage-upper-bound ▸s′
         (yes mr≤) → case ⌈⌉▸[ m ]? n of λ where
           (inj₂ ¬▸n) → inj₂ λ _ ▸nr →
             case inv-usage-natrec ▸nr of λ where
@@ -309,7 +309,7 @@ infix 10 ⌈⌉▸[_]?_
                   case inv-usage-natrec ▸nr of λ where
                     (invUsageNatrec _ _ _ ▸A′ _ _) →
                       q≰ $ headₘ-monotone $
-                      usage-upper-bound ⦃ has-star = has-star ⦄ ▸A′
+                      usage-upper-bound ▸A′
                 (yes q≤) →
                   let lemma₁ =
                         let open Tools.Reasoning.PartialOrder ≤ᶜ-poset

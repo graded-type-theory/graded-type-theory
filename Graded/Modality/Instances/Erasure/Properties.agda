@@ -56,7 +56,7 @@ private
     γ δ : Conₘ n
     t u a : Term n
     x : Fin n
-    p : Erasure
+    p r s z : Erasure
     mo : Mode
     rs : Type-restrictions
 
@@ -185,6 +185,28 @@ least-elemᶜ (γ ∙ p) = (least-elemᶜ γ) ∙ (least-elem p)
 ≢𝟘→≡ω : p ≢ 𝟘 → p ≡ ω
 ≢𝟘→≡ω {p = 𝟘} 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 PE.refl)
 ≢𝟘→≡ω {p = ω} _   = PE.refl
+
+-- The nr function returns the sum of its last three arguments.
+
+nr≡ : ∀ {n} → nr p r z s n ≡ z + s + n
+nr≡ {p = 𝟘} {z = z} {s = s} {n = n} =
+  z + n + (s + 𝟘)  ≡⟨ PE.cong (λ s → z + _ + s) (EM.+-identityʳ _) ⟩
+  z + n + s        ≡⟨ EM.+-assoc z _ _ ⟩
+  z + (n + s)      ≡⟨ PE.cong (z +_) (EM.+-comm n _) ⟩
+  z + (s + n)      ≡˘⟨ EM.+-assoc z _ _ ⟩
+  z + s + n        ∎
+  where
+  open Tools.Reasoning.PropositionalEquality
+nr≡ {p = ω} {z = z} {s = s} {n = n} =
+  z + n + (s + n)    ≡⟨ EM.+-assoc z _ _ ⟩
+  z + (n + (s + n))  ≡˘⟨ PE.cong (z +_) (EM.+-assoc n _ _) ⟩
+  z + ((n + s) + n)  ≡⟨ PE.cong ((z +_) ∘→ (_+ _)) (EM.+-comm n _) ⟩
+  z + ((s + n) + n)  ≡⟨ PE.cong (z +_) (EM.+-assoc s _ _) ⟩
+  z + (s + (n + n))  ≡⟨ PE.cong ((z +_) ∘→ (s +_)) (EM.∧-idem _) ⟩
+  z + (s + n)        ≡˘⟨ EM.+-assoc z _ _ ⟩
+  z + s + n          ∎
+  where
+  open Tools.Reasoning.PropositionalEquality
 
 -- Division is correctly defined.
 

@@ -16,7 +16,7 @@ open Modality 𝕄
 open import Graded.Modality M hiding (Modality)
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Modality.Natrec-star-instances
+open import Graded.Modality.Nr-instances
 import Graded.Modality.Properties.Has-well-behaved-zero as WB𝟘
 open import Graded.Modality.Properties.PartialOrder
   semiring-with-meet
@@ -97,6 +97,20 @@ wk-⊛ᶜ id = ≈ᶜ-refl
 wk-⊛ᶜ (step ρ) = wk-⊛ᶜ ρ ∙ PE.sym (⊛-idem-𝟘 _)
 wk-⊛ᶜ {γ = γ ∙ p} {δ ∙ q} (lift ρ) = wk-⊛ᶜ ρ ∙ refl
 
+-- The function wkConₘ ρ commutes with nrᶜ p r.
+
+wk-nrᶜ :
+  ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+  (ρ : Wk m n) →
+  wkConₘ ρ (nrᶜ p r γ δ η) ≈ᶜ
+  nrᶜ p r (wkConₘ ρ γ) (wkConₘ ρ δ) (wkConₘ ρ η)
+wk-nrᶜ id =
+  ≈ᶜ-refl
+wk-nrᶜ (step ρ) =
+  wk-nrᶜ ρ ∙ PE.sym nr-𝟘
+wk-nrᶜ {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} (lift ρ) =
+  wk-nrᶜ ρ ∙ refl
+
 -- Weakening of modality contexts is monotone
 -- If γ ≤ᶜ δ then wkConₘ ρ γ ≤ᶜ wkConₘ ρ δ
 
@@ -151,16 +165,14 @@ wkUsage ρ zeroₘ =
 wkUsage ρ (sucₘ γ▸t) = sucₘ (wkUsage ρ γ▸t)
 wkUsage ρ (natrecₘ γ▸z δ▸s η▸n θ▸A) =
   sub (natrecₘ (wkUsage ρ γ▸z) (wkUsage (liftn ρ 2) δ▸s) (wkUsage ρ η▸n) (wkUsage (lift ρ) θ▸A))
-      (≤ᶜ-reflexive (≈ᶜ-trans (wk-⊛ᶜ ρ)
-                              (⊛ᵣᶜ-cong (wk-∧ᶜ ρ)
-                                       (≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-congˡ (wk-·ᶜ ρ))))))
+    (≤ᶜ-reflexive (wk-nrᶜ ρ))
   where
-  open import Graded.Modality.Dedicated-star.Instance
+  open import Graded.Modality.Dedicated-nr.Instance
 wkUsage
   ρ
-  (natrec-no-starₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
+  (natrec-no-nrₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
      ▸z ▸s ▸n ▸A fix) =
-  natrec-no-starₘ
+  natrec-no-nrₘ
     (wkUsage ρ ▸z)
     (wkUsage (liftn ρ 2) ▸s)
     (wkUsage ρ ▸n)
@@ -253,6 +265,20 @@ wkConₘ⁻¹-⊛ᶜ :
 wkConₘ⁻¹-⊛ᶜ                         id       = ≈ᶜ-refl
 wkConₘ⁻¹-⊛ᶜ {γ = _ ∙ _} {δ = _ ∙ _} (step ρ) = wkConₘ⁻¹-⊛ᶜ ρ
 wkConₘ⁻¹-⊛ᶜ {γ = _ ∙ _} {δ = _ ∙ _} (lift ρ) = wkConₘ⁻¹-⊛ᶜ ρ ∙ refl
+
+-- The function wkConₘ⁻¹ ρ commutes with nrᶜ p r.
+
+wkConₘ⁻¹-nrᶜ :
+  ⦃ has-nr : Has-nr semiring-with-meet ⦄
+  (ρ : Wk m n) →
+  wkConₘ⁻¹ ρ (nrᶜ p r γ δ η) ≈ᶜ
+  nrᶜ p r (wkConₘ⁻¹ ρ γ) (wkConₘ⁻¹ ρ δ) (wkConₘ⁻¹ ρ η)
+wkConₘ⁻¹-nrᶜ id =
+  ≈ᶜ-refl
+wkConₘ⁻¹-nrᶜ {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} (step ρ) =
+  wkConₘ⁻¹-nrᶜ ρ
+wkConₘ⁻¹-nrᶜ {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} (lift ρ) =
+  wkConₘ⁻¹-nrᶜ ρ ∙ refl
 
 -- The function wkConₘ⁻¹ ρ "commutes" in a certain sense with _,_≔_.
 
@@ -365,20 +391,13 @@ wkUsage⁻¹ ▸t = wkUsage⁻¹′ ▸t refl
         sub
           (natrecₘ (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸u)
              (wkUsage⁻¹ ▸v) (wkUsage⁻¹ ▸A))
-          (begin
-             wkConₘ⁻¹ ρ ((γ ∧ᶜ η) ⊛ᶜ δ +ᶜ p ·ᶜ η ▷ r)             ≈⟨ wkConₘ⁻¹-⊛ᶜ ρ ⟩
-
-             wkConₘ⁻¹ ρ (γ ∧ᶜ η) ⊛ᶜ wkConₘ⁻¹ ρ (δ +ᶜ p ·ᶜ η) ▷ r  ≈⟨ ⊛ᵣᶜ-cong (wkConₘ⁻¹-∧ᶜ ρ) (wkConₘ⁻¹-+ᶜ ρ) ⟩
-
-             (wkConₘ⁻¹ ρ γ ∧ᶜ wkConₘ⁻¹ ρ η) ⊛ᶜ
-               wkConₘ⁻¹ ρ δ +ᶜ wkConₘ⁻¹ ρ (p ·ᶜ η) ▷ r            ≈⟨ ⊛ᵣᶜ-congˡ (+ᶜ-congˡ (wkConₘ⁻¹-·ᶜ ρ)) ⟩
-
-             (wkConₘ⁻¹ ρ γ ∧ᶜ wkConₘ⁻¹ ρ η) ⊛ᶜ
-               wkConₘ⁻¹ ρ δ +ᶜ p ·ᶜ wkConₘ⁻¹ ρ η ▷ r              ∎) }
-      (natrec-no-starₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ} ▸t ▸u ▸v ▸A fix) eq →
+          (≤ᶜ-reflexive (wkConₘ⁻¹-nrᶜ ρ)) }
+      (natrec-no-nrₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
+         ▸t ▸u ▸v ▸A fix)
+        eq →
         case wk-natrec eq of λ {
           (_ , _ , _ , _ , refl , refl , refl , refl , refl) →
-        natrec-no-starₘ
+        natrec-no-nrₘ
           (wkUsage⁻¹ ▸t)
           (wkUsage⁻¹ ▸u)
           (wkUsage⁻¹ ▸v)
@@ -408,7 +427,7 @@ wkUsage⁻¹ ▸t = wkUsage⁻¹′ ▸t refl
       (sub ▸t leq) refl →
         sub (wkUsage⁻¹ ▸t) (wkConₘ⁻¹-monotone ρ leq)
     where
-    open import Graded.Modality.Dedicated-star.Instance
+    open import Graded.Modality.Dedicated-nr.Instance
 
 -- An inversion lemma for the usage relation and weakening.
 
@@ -550,96 +569,41 @@ module _
       (_ , _ , leq₁ , leq₃ , leq₄) →
     _ , _ , leq₁ ∙ leq₂ , leq₃ ∙ ≤-refl , leq₄ ∙ ≤-refl }
 
-  -- An inversion lemma for wkConₘ and the operation from the conclusion
-  -- of the usage rule for natrec.
+  -- An inversion lemma for wkConₘ and nrᶜ.
 
-  wkConₘ-⊛ᶜ′ :
-    ⦃ has-star : Has-star semiring-with-meet ⦄ →
-    ∀ ρ → wkConₘ ρ γ ≤ᶜ (δ ∧ᶜ θ) ⊛ᶜ η +ᶜ p ·ᶜ θ ▷ r →
-    p ≡ 𝟘 ×
-    (∃₃ λ δ′ η′ θ′ →
-       γ ≤ᶜ (δ′ ∧ᶜ θ′) ⊛ᶜ η′ ▷ r ×
-       wkConₘ ρ δ′ ≤ᶜ δ × wkConₘ ρ η′ ≤ᶜ η × wkConₘ ρ θ′ ≤ᶜ θ)
-      ⊎
-    (∃₃ λ δ′ η′ θ′ →
-       γ ≤ᶜ (δ′ ∧ᶜ θ′) ⊛ᶜ η′ +ᶜ p ·ᶜ θ′ ▷ r ×
-       wkConₘ ρ δ′ ≤ᶜ δ × wkConₘ ρ η′ ≤ᶜ η × wkConₘ ρ θ′ ≤ᶜ θ)
-  wkConₘ-⊛ᶜ′ id leq =
-    inj₂ (_ , _ , _ , leq , ≤ᶜ-refl , ≤ᶜ-refl , ≤ᶜ-refl)
-  wkConₘ-⊛ᶜ′ {δ = _ ∙ _} {θ = _ ∙ _} {η = η ∙ _}
+  wkConₘ-nrᶜ :
+    ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+    ∀ ρ → wkConₘ ρ γ ≤ᶜ nrᶜ p r δ η θ →
+    ∃₃ λ δ′ η′ θ′ →
+      γ ≤ᶜ nrᶜ p r δ′ η′ θ′ ×
+      wkConₘ ρ δ′ ≤ᶜ δ × wkConₘ ρ η′ ≤ᶜ η × wkConₘ ρ θ′ ≤ᶜ θ
+  wkConₘ-nrᶜ id leq =
+    _ , _ , _ , leq , ≤ᶜ-refl , ≤ᶜ-refl , ≤ᶜ-refl
+  wkConₘ-nrᶜ {δ = _ ∙ _} {η = η ∙ _} {θ = _ ∙ _}
     (step ρ) (leq₁ ∙ leq₂) =
-    case zero-product (+-positiveʳ (⊛≡𝟘ʳ (𝟘≮ leq₂))) of λ where
-      (inj₂ refl) →
-        case wkConₘ-⊛ᶜ′ ρ leq₁ of λ where
-          (inj₂ (_ , _ , _ , leq₁ , leq₃ , leq₄ , leq₅)) → inj₂
-            (_ , _ , _ , leq₁ ,
-             leq₃
-               ∙
-             ≤-reflexive (PE.sym (∧-positiveˡ (⊛≡𝟘ˡ (𝟘≮ leq₂)))) ,
-             leq₄
-               ∙
-             ≤-reflexive (PE.sym (+-positiveˡ (⊛≡𝟘ʳ (𝟘≮ leq₂)))) ,
-             leq₅ ∙ ≤-refl)
-          (inj₁ (refl , _ , _ , _ , leq₁ , leq₃ , leq₄ , leq₅)) → inj₁
-            (refl , _ , _ , _ , leq₁ ,
-             leq₃
-               ∙
-             ≤-reflexive (PE.sym (∧-positiveˡ (⊛≡𝟘ˡ (𝟘≮ leq₂)))) ,
-             leq₄
-               ∙
-             ≤-reflexive (PE.sym (+-positiveˡ (⊛≡𝟘ʳ (𝟘≮ leq₂)))) ,
-             leq₅ ∙ ≤-refl)
-      (inj₁ refl) →
-        case wkConₘ-⊛ᶜ′ ρ leq₁ of λ where
-          (inj₂ (_ , η′ , θ′ , leq₁ , leq₃ , leq₄ , leq₅)) → inj₁
-            (refl , _ , _ , _ , leq₁ ,
-             leq₃
-               ∙
-             ≤-reflexive (PE.sym (∧-positiveˡ (⊛≡𝟘ˡ (𝟘≮ leq₂)))) ,
-             (begin
-                wkConₘ ρ (η′ +ᶜ 𝟘 ·ᶜ θ′)  ≡⟨ cong (wkConₘ ρ) (≈ᶜ→≡ (+ᶜ-congˡ (·ᶜ-zeroˡ _))) ⟩
-                wkConₘ ρ (η′ +ᶜ 𝟘ᶜ)       ≡⟨ cong (wkConₘ ρ) (≈ᶜ→≡ (+ᶜ-identityʳ _)) ⟩
-                wkConₘ ρ η′               ≤⟨ leq₄ ⟩
-                η                         ∎)
-               ∙
-             ≤-reflexive (PE.sym (+-positiveˡ (⊛≡𝟘ʳ (𝟘≮ leq₂)))) ,
-             leq₅
-               ∙
-             ≤-reflexive (PE.sym (∧-positiveʳ (⊛≡𝟘ˡ (𝟘≮ leq₂)))))
-          (inj₁ (_ , _ , _ , _ , leq₁ , leq₃ , leq₄ , leq₅)) → inj₁
-            (refl , _ , _ , _ , leq₁ ,
-             leq₃
-               ∙
-             ≤-reflexive (PE.sym (∧-positiveˡ (⊛≡𝟘ˡ (𝟘≮ leq₂)))) ,
-             leq₄
-               ∙
-             ≤-reflexive (PE.sym (+-positiveˡ (⊛≡𝟘ʳ (𝟘≮ leq₂)))) ,
-             leq₅
-               ∙
-             ≤-reflexive (PE.sym (∧-positiveʳ (⊛≡𝟘ˡ (𝟘≮ leq₂)))))
-    where
-    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-  wkConₘ-⊛ᶜ′
-    {γ = _ ∙ p₁} {δ = _ ∙ p₂} {θ = _ ∙ p₃} {η = _ ∙ p₄} {r = r}
+    case wkConₘ-nrᶜ ρ leq₁ of λ where
+      (_ , _ , _ , leq₁ , leq₃ , leq₄ , leq₅) →
+        _ , _ , _ , leq₁ ,
+        leq₃
+          ∙
+        ≤-reflexive
+          (PE.sym $ nr-positive 𝟘-well-behaved (𝟘≮ leq₂) .proj₁) ,
+        leq₄
+          ∙
+        ≤-reflexive
+          (PE.sym $
+           nr-positive 𝟘-well-behaved (𝟘≮ leq₂) .proj₂ .proj₁) ,
+        leq₅
+          ∙
+        ≤-reflexive
+          (PE.sym $ nr-positive 𝟘-well-behaved (𝟘≮ leq₂) .proj₂ .proj₂)
+  wkConₘ-nrᶜ
+    {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} {θ = _ ∙ _}
     (lift ρ) (leq₁ ∙ leq₂) =
-    case wkConₘ-⊛ᶜ′ ρ leq₁ of λ where
-          (inj₂ (_ , η′ , θ′ , leq₁ , leq₃ , leq₄ , leq₅)) → inj₂
-            (_ , _ , _ ,
-             leq₁ ∙ leq₂ ,
-             leq₃ ∙ ≤-refl ,
-             leq₄ ∙ ≤-refl ,
-             leq₅ ∙ ≤-refl)
-          (inj₁ (refl , _ , _ , _ , leq₁ , leq₃ , leq₄ , leq₅)) → inj₁
-            (refl , _ , _ , _ ,
-             leq₁
-               ∙
-             (begin
-                p₁                           ≤⟨ leq₂ ⟩
-                (p₂ ∧ p₃) ⊛ p₄ + 𝟘 · p₃ ▷ r  ≡⟨ ⊛ᵣ-congˡ (+-congˡ (·-zeroˡ _)) ⟩
-                (p₂ ∧ p₃) ⊛ p₄ + 𝟘 ▷ r       ≡⟨ ⊛ᵣ-congˡ (+-identityʳ _) ⟩
-                (p₂ ∧ p₃) ⊛ p₄ ▷ r           ∎) ,
-             leq₃ ∙ ≤-refl ,
-             leq₄ ∙ ≤-refl ,
-             leq₅ ∙ ≤-refl)
-    where
-    open Tools.Reasoning.PartialOrder ≤-poset
+    case wkConₘ-nrᶜ ρ leq₁ of λ where
+      (_ , _ , _ , leq₁ , leq₃ , leq₄ , leq₅) →
+        _ , _ , _ ,
+        leq₁ ∙ leq₂ ,
+        leq₃ ∙ ≤-refl ,
+        leq₄ ∙ ≤-refl ,
+        leq₅ ∙ ≤-refl

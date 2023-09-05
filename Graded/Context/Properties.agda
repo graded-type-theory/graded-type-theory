@@ -23,6 +23,7 @@ open import Graded.Context.Properties.Has-well-behaved-zero 𝕄 public
 open import Graded.Context.Properties.Lookup 𝕄 public
 open import Graded.Context.Properties.Meet 𝕄 public
 open import Graded.Context.Properties.Multiplication 𝕄 public
+open import Graded.Context.Properties.Natrec 𝕄 public
 open import Graded.Context.Properties.PartialOrder 𝕄 public
 open import Graded.Context.Properties.Star 𝕄 public
 open import Graded.Context.Properties.Update 𝕄 public

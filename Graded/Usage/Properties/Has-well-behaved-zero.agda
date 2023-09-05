@@ -18,20 +18,23 @@ open import Definition.Untyped M using (var)
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
+open import Graded.Modality.Nr-instances
 open import Graded.Mode 𝕄
 open import Graded.Usage 𝕄 R
 open import Graded.Usage.Inversion 𝕄 R
 open import Graded.Modality.Properties.Has-well-behaved-zero
             semiring-with-meet 𝟘-well-behaved
 
+open import Tools.Bool using (T)
 open import Tools.Fin
 open import Tools.Function
+open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Sum
 
 private
   variable
-    γ δ : Conₘ _
+    γ δ η : Conₘ _
     x : Fin _
     p q r : M
 
@@ -113,6 +116,36 @@ x◂𝟘∈γ⊛δʳ {x = x0} {γ ∙ p} {δ ∙ q} p⊛q≡𝟘 here =
   subst (λ x → _ ◂ x ∈ δ ∙ q) (⊛≡𝟘ʳ p⊛q≡𝟘) here
 x◂𝟘∈γ⊛δʳ {x = x +1} {γ ∙ p} {δ ∙ q} eq (there d) =
   there (x◂𝟘∈γ⊛δʳ eq d)
+
+-- A kind of positivity property for nrᶜ and _◂_∈_.
+
+◂𝟘∈nrᶜ₁ :
+  ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+  q ≡ 𝟘 → x ◂ q ∈ nrᶜ p r γ δ η → x ◂ 𝟘 ∈ γ
+◂𝟘∈nrᶜ₁ {x = x0} {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} nrᶜ≡𝟘 here =
+  subst (_ ◂_∈ _) (nr-positive 𝟘-well-behaved nrᶜ≡𝟘 .proj₁) here
+◂𝟘∈nrᶜ₁ {x = _ +1} {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} eq (there p) =
+  there (◂𝟘∈nrᶜ₁ eq p)
+
+-- A kind of positivity property for nrᶜ and _◂_∈_.
+
+◂𝟘∈nrᶜ₂ :
+  ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+  q ≡ 𝟘 → x ◂ q ∈ nrᶜ p r γ δ η → x ◂ 𝟘 ∈ δ
+◂𝟘∈nrᶜ₂ {x = x0} {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} nrᶜ≡𝟘 here =
+  subst (_ ◂_∈ _) (nr-positive 𝟘-well-behaved nrᶜ≡𝟘 .proj₂ .proj₁) here
+◂𝟘∈nrᶜ₂ {x = _ +1} {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} eq (there p) =
+  there (◂𝟘∈nrᶜ₂ eq p)
+
+-- A kind of positivity property for nrᶜ and _◂_∈_.
+
+◂𝟘∈nrᶜ₃ :
+  ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+  q ≡ 𝟘 → x ◂ q ∈ nrᶜ p r γ δ η → x ◂ 𝟘 ∈ η
+◂𝟘∈nrᶜ₃ {x = x0} {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} nrᶜ≡𝟘 here =
+  subst (_ ◂_∈ _) (nr-positive 𝟘-well-behaved nrᶜ≡𝟘 .proj₂ .proj₂) here
+◂𝟘∈nrᶜ₃ {x = _ +1} {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} eq (there p) =
+  there (◂𝟘∈nrᶜ₃ eq p)
 
 -- A variant of the property that nothing is smaller than 𝟘 for the
 -- usage relation for variables.
