@@ -194,6 +194,18 @@ _ ∧ _ = ω
   (λ _ → refl)
   (λ _ → refl)
 
+-- The value ω is a right zero for _∧_.
+
+∧-zeroʳ : RightZero ω _∧_
+∧-zeroʳ 𝟘 = refl
+∧-zeroʳ 𝟙 = refl
+∧-zeroʳ ω = refl
+
+-- The value ω is a zero for _∧_.
+
+∧-zero : Zero ω _∧_
+∧-zero = (λ _ → refl) , ∧-zeroʳ
+
 ------------------------------------------------------------------------
 -- Ordering
 
