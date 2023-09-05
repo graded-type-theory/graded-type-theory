@@ -15,6 +15,7 @@ open import Graded.Modality.Properties.PartialOrder 𝕄
 open import Tools.Algebra M
 open import Tools.PropositionalEquality
 import Tools.Reasoning.PartialOrder
+import Tools.Reasoning.PropositionalEquality
 
 private
   variable
@@ -49,3 +50,17 @@ private
   (p + p′) ∧ (q + q′)                            ∎
   where
   open Tools.Reasoning.PartialOrder ≤-poset
+
+-- The operation _+_ is sub-interchangeable with itself (with respect
+-- to _≡_).
+
++-sub-interchangeable-+ : _+_ SubInterchangeable _+_ by _≡_
++-sub-interchangeable-+ p q r s =
+  (p + q) + (r + s)  ≡⟨ +-assoc _ _ _ ⟩
+  p + (q + (r + s))  ≡˘⟨ cong (_ +_) (+-assoc _ _ _) ⟩
+  p + ((q + r) + s)  ≡⟨ cong (_ +_) (cong (_+ _) (+-comm _ _)) ⟩
+  p + ((r + q) + s)  ≡⟨ cong (_ +_) (+-assoc _ _ _) ⟩
+  p + (r + (q + s))  ≡˘⟨ +-assoc _ _ _ ⟩
+  (p + r) + (q + s)  ∎
+  where
+  open Tools.Reasoning.PropositionalEquality
