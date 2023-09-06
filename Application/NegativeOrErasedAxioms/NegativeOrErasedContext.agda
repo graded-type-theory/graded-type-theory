@@ -23,8 +23,9 @@ open import Application.NegativeOrErasedAxioms.NegativeOrErasedType 𝕄 R
 open import Tools.Bool
 open import Tools.Empty
 open import Tools.Fin
+open import Tools.Function
 open import Tools.Nat using (Nat)
-open import Tools.PropositionalEquality as PE using (_≢_)
+open import Tools.PropositionalEquality as PE using (_≡_; _≢_)
 
 private
   Ctx = Con Term
@@ -64,6 +65,23 @@ lookupNegative ⊢Γ∙A@(⊢Γ ∙ Γ⊢A) (nΓγ ∙𝟘) (there h) ≢𝟘 =
 erasedContext : NegativeErasedContext Γ 𝟘ᶜ
 erasedContext {Γ = ε} = ε
 erasedContext {Γ = Γ ∙ A} = erasedContext ∙𝟘
+
+-- If NegativeErasedContext Γ γ holds, then NegativeErasedContext Γ δ
+-- holds if δ ⟨ x ⟩ is 𝟘 whenever γ ⟨ x ⟩ is 𝟘.
+
+NegativeErasedContext-𝟘 :
+  (∀ x → γ ⟨ x ⟩ ≡ 𝟘 → δ ⟨ x ⟩ ≡ 𝟘) →
+  NegativeErasedContext Γ γ →
+  NegativeErasedContext Γ δ
+NegativeErasedContext-𝟘 {γ = ε} {δ = ε} _ ε =
+  ε
+NegativeErasedContext-𝟘 {γ = _ ∙ _} {δ = _ ∙ _} ok (neΓγ ∙ neg) =
+  NegativeErasedContext-𝟘 (ok ∘→ _+1) neΓγ ∙ neg
+NegativeErasedContext-𝟘
+  {γ = _ ∙ _} {δ = _ ∙ _} ok (neΓγ ∙𝟘) =
+  PE.subst (λ p → NegativeErasedContext _ (_ ∙ p))
+    (PE.sym (ok x0 PE.refl))
+    (NegativeErasedContext-𝟘 (ok ∘→ _+1) neΓγ ∙𝟘)
 
 -- If 𝟘ᵐ is allowed, then NegativeErasedContext is upwards closed in
 -- its second argument.
