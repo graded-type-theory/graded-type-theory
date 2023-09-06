@@ -3,65 +3,86 @@
 -- canonicity.
 ------------------------------------------------------------------------
 
-open import Tools.Level
+module Application.NegativeOrErasedAxioms.Canonicity.ErasedMatches where
 
-open import Graded.Modality.Variant lzero
-
-module Application.NegativeOrErasedAxioms.Canonicity.ErasedMatches
-  (variant : Modality-variant)
-  where
-
-open import Graded.Modality.Instances.Erasure
-open import Graded.Modality.Instances.Erasure.Modality
-open import Application.NegativeOrErasedAxioms.NegativeOrErasedContext
-  (ErasureModality variant)
-import Definition.Typed
-open import Definition.Untyped Erasure hiding (_∷_)
-
-open import Graded.Context (ErasureModality variant)
-open import Graded.Context.Properties (ErasureModality variant)
-open import Graded.Modality.Properties (ErasureModality variant)
-open import Graded.Restrictions {M = Erasure}
-import Graded.Usage
-open import Graded.Usage.Restrictions Erasure
-open import Graded.Mode (ErasureModality variant)
-
-import Graded.Erasure.SucRed
-
-import Definition.Typed.Properties
-open import Definition.Typed.Restrictions Erasure
-import Definition.Typed.Consequences.Canonicity
-import Definition.Typed.Consequences.Substitution
-
-import Definition.Conversion
-import Definition.Conversion.Consequences.Completeness
-
+open import Tools.Bool
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
+open import Tools.Level
 open import Tools.Nat
-open import Tools.Nullary
-import Tools.PropositionalEquality as PE
 open import Tools.Product
+import Tools.PropositionalEquality as PE
 
-private
-  module EM = Modality (ErasureModality variant)
+import Application.NegativeOrErasedAxioms.NegativeOrErasedContext
 
-private variable
-  m : Nat
-  t : Term m
+import Definition.Conversion
+import Definition.Conversion.Consequences.Completeness
+import Definition.Typed
+import Definition.Typed.Consequences.Canonicity
+import Definition.Typed.Consequences.Substitution
+import Definition.Typed.Properties
+import Definition.Typed.Restrictions
+import Definition.Untyped hiding (_∷_)
 
-module Counterexample where
+import Graded.Context
+import Graded.Context.Properties
+import Graded.Erasure.SucRed
+import Graded.Modality
+import Graded.Modality.Properties
+open import Graded.Modality.Variant lzero
+import Graded.Mode
+open import Graded.Restrictions
+import Graded.Usage
+import Graded.Usage.Restrictions
 
-  open Definition.Conversion no-type-restrictions
-  open Definition.Conversion.Consequences.Completeness
-    no-type-restrictions
-  open Graded.Usage (ErasureModality variant) no-usage-restrictions
-  open Definition.Typed no-type-restrictions
-  open Definition.Typed.Consequences.Canonicity no-type-restrictions
-  open Definition.Typed.Consequences.Substitution no-type-restrictions
-  open Definition.Typed.Properties no-type-restrictions
-  open Graded.Erasure.SucRed no-type-restrictions
+open import Graded.Modality.Instances.Erasure
+import Graded.Modality.Instances.Erasure.Modality as EM
+
+module Counterexample
+  (variant : Modality-variant)
+  where
+
+  open Definition.Typed.Restrictions Erasure
+
+  open Graded.Modality Erasure
+  open Graded.Usage.Restrictions Erasure
+
+  private
+
+    -- The modality used in this local module.
+
+    𝕄 = EM.ErasureModality variant
+
+    module M = Modality 𝕄
+
+    -- The type and usage restrictions used in this local module.
+
+    TR : Type-restrictions
+    TR = no-type-restrictions
+
+    UR : Usage-restrictions
+    UR = no-usage-restrictions
+
+  open Application.NegativeOrErasedAxioms.NegativeOrErasedContext 𝕄 TR
+
+  open Definition.Conversion TR
+  open Definition.Conversion.Consequences.Completeness TR
+  open Definition.Typed TR
+  open Definition.Typed.Consequences.Canonicity TR
+  open Definition.Typed.Consequences.Substitution TR
+  open Definition.Typed.Properties TR
+  open Definition.Untyped Erasure
+
+  open Graded.Context 𝕄
+  open Graded.Context.Properties 𝕄
+  open Graded.Erasure.SucRed TR
+  open Graded.Modality.Properties 𝕄
+  open Graded.Mode 𝕄
+  open Graded.Usage 𝕄 UR
+
+  private variable
+    t : Term _
 
   -- A counterexample to canonicity. Note that the use of
   -- no-usage-restrictions above means that erased eliminations are
@@ -72,7 +93,7 @@ module Counterexample where
     → Γ ⊢ t ∷ ℕ
     × γ ▸[ 𝟙ᵐ ] t
     × γ PE.≡ 𝟘ᶜ
-    × NegativeErasedContext no-type-restrictions Γ γ
+    × NegativeErasedContext Γ γ
     × (∀ {u} → Γ ⊢ u ∷ Empty → ⊥)
     × ((∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ) → ⊥)
     × ((∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ) → ⊥)
@@ -82,7 +103,7 @@ module Counterexample where
     , ε ∙ (Σᵣ ω , 𝟘 ▷ ℕ ▹ ℕ) , _ , prodrec 𝟘 ω 𝟘 ℕ (var x0) zero
     , ⊢prodrec
     , prodrecₘ {η = 𝟘ᶜ} var zeroₘ
-        (sub ℕₘ (≤ᶜ-refl ∙ ≤-reflexive (EM.·-zeroʳ _))) _
+        (sub ℕₘ (≤ᶜ-refl ∙ ≤-reflexive (M.·-zeroʳ _))) _
     , PE.refl
     , ε ∙𝟘
     , (λ ⊢t → ¬Empty $
@@ -141,17 +162,29 @@ module Counterexample where
 -- the lemma cannot be proved (assuming that Agda is consistent).
 
 not-canonicityEq :
-  ¬ ((TR : Type-restrictions) →
-     let open Definition.Typed TR in
-     (UR : Usage-restrictions) →
-     let open Graded.Usage (ErasureModality variant) UR in
-     ∀ {n} {Γ : Con Term n} {γ} →
-     NegativeErasedContext TR Γ γ →
-     (∀ {t} → Γ ⊢ t ∷ Empty → ⊥) →
-     ∀ {t} → Γ ⊢ t ∷ ℕ → γ ▸[ 𝟙ᵐ ] t →
-     ∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ)
+  (∀ {a} {M : Set a} →
+   let open Graded.Modality M
+       open Graded.Usage.Restrictions M
+       open Definition.Typed.Restrictions M
+       open Definition.Untyped M
+   in
+   (𝕄 : Modality) →
+   let open Modality 𝕄
+       open Graded.Mode 𝕄
+       open Application.NegativeOrErasedAxioms.NegativeOrErasedContext 𝕄
+   in
+   (𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet)
+   (TR : Type-restrictions) →
+   let open Definition.Typed TR in
+   (UR : Usage-restrictions) →
+   let open Graded.Usage 𝕄 UR in
+   ∀ {m} {Γ : Con Term m} →
+   (∀ {t} → Γ ⊢ t ∷ Empty → ⊥) →
+   ∀ {t γ} → Γ ⊢ t ∷ ℕ → γ ▸[ 𝟙ᵐ ] t → NegativeErasedContext TR Γ γ →
+   ∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ) →
+  ⊥
 not-canonicityEq hyp =
-  case Counterexample.cEx of λ {
+  case Counterexample.cEx (nr-available-and-𝟘ᵐ-allowed-if true) of λ {
     (_ , _ , _ , _ , ⊢t , ▸t , _ , nec , con , not-numeral , _) →
   not-numeral
-    (hyp no-type-restrictions no-usage-restrictions nec con ⊢t ▸t) }
+    (hyp _ EM.erasure-has-well-behaved-zero _ _ con ⊢t ▸t nec) }

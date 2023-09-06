@@ -343,7 +343,6 @@ import Application.NegativeAxioms.Canonicity
 import Application.NegativeOrErasedAxioms.NegativeOrErasedType
 import Application.NegativeOrErasedAxioms.NegativeOrErasedContext
 import Application.NegativeOrErasedAxioms.Canonicity
-import Application.NegativeOrErasedAxioms.Canonicity.Erased
 -- ... but not if matching is allowed on erased pairs
 import Application.NegativeOrErasedAxioms.Canonicity.ErasedMatches
 
