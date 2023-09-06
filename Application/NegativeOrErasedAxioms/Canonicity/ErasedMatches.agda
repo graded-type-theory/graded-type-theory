@@ -14,7 +14,7 @@ module Application.NegativeOrErasedAxioms.Canonicity.ErasedMatches
 open import Graded.Modality.Instances.Erasure
 open import Graded.Modality.Instances.Erasure.Modality
 open import Application.NegativeOrErasedAxioms.NegativeOrErasedContext
-  (ErasureModality variant) (λ ())
+  (ErasureModality variant)
 import Definition.Typed
 open import Definition.Untyped Erasure hiding (_∷_)
 

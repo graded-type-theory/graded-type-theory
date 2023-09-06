@@ -24,7 +24,7 @@ module Application.NegativeOrErasedAxioms.Canonicity
   -- Erased matches are not allowed.
   (no-erased-matches : No-erased-matches (ErasureModality variant) UR)
   (open Application.NegativeOrErasedAxioms.NegativeOrErasedContext
-     (ErasureModality variant) (λ ()) TR)
+     (ErasureModality variant) TR)
   {m} {Γ : Con Term m} {γ}
   (nΓγ : NegativeErasedContext Γ γ)
   (consistent : ∀{t} → Γ ⊢ t ∷ Empty → ⊥)
@@ -82,10 +82,20 @@ private
 neNeg :
   (d : Γ ⊢ u ∷ A) (n : Neutral u) (f : γ ▸[ 𝟙ᵐ ] u) → NegativeType Γ A
 neNeg (var ⊢Γ h          ) (var x      ) γ▸u =
-  let γ≤γ′ = inv-usage-var γ▸u
-      γ⟨x⟩≤𝟙 = PE.subst (λ p → γ ⟨ x ⟩ ≤ p) (update-lookup 𝟘ᶜ x)
-                        (lookup-monotone x γ≤γ′)
-  in  lookupNegative ⊢Γ nΓγ h γ⟨x⟩≤𝟙
+  lookupNegative ⊢Γ nΓγ h
+    (                              $⟨ γ▸u ⟩
+     γ ▸[ 𝟙ᵐ ] var x               →⟨ inv-usage-var ⟩
+     γ ≤ᶜ 𝟘ᶜ , x ≔ ω               →⟨ lookup-monotone _ ⟩
+     γ ⟨ x ⟩ ≤ (𝟘ᶜ , x ≔ ω) ⟨ x ⟩  ≡⟨ PE.cong (γ ⟨ x ⟩ ≤_) (update-lookup 𝟘ᶜ x) ⟩→
+     γ ⟨ x ⟩ ≤ ω                   →⟨ (λ ≤ω ≡𝟘 →
+                                         case
+                                           ω        ≡⟨ ≤-antisym (least-elem (γ ⟨ x ⟩)) ≤ω ⟩
+                                           γ ⟨ x ⟩  ≡⟨ ≡𝟘 ⟩
+                                           𝟘        ∎
+                                         of λ ()) ⟩
+     γ ⟨ x ⟩ ≢ 𝟘                   □)
+  where
+  open Tools.Reasoning.PropositionalEquality
 neNeg (d ∘ⱼ ⊢t           ) (∘ₙ n       ) γ▸u =
   let invUsageApp δ▸g η▸a γ≤γ′ = inv-usage-app γ▸u
   in  appNeg (neNeg d n (sub δ▸g (≤ᶜ-trans γ≤γ′ (+ᶜ-decreasingˡ _ _))))

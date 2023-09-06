@@ -10,7 +10,6 @@ module Application.NegativeOrErasedAxioms.NegativeOrErasedContext
   {a} {M : Set a}
   (𝕄 : Modality M)
   (open Modality 𝕄)
-  (𝟘≰𝟙 : ¬ 𝟘 ≤ 𝟙)
   (R : Type-restrictions M)
   where
 
@@ -18,14 +17,14 @@ open import Definition.Untyped M
 open import Definition.Typed R
 open import Definition.Typed.Weakening R
 open import Graded.Context 𝕄
-open import Graded.Modality.Properties 𝕄 hiding (𝟘≰𝟙)
+open import Graded.Modality.Properties 𝕄
 open import Application.NegativeOrErasedAxioms.NegativeOrErasedType 𝕄 R
 
 open import Tools.Bool
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Nat using (Nat)
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE using (_≢_)
 
 private
   Ctx = Con Term
@@ -47,18 +46,20 @@ data NegativeErasedContext : Ctx m → Conₘ m → Set a where
   _∙_ : NegativeErasedContext Γ γ → NegativeType Γ A → NegativeErasedContext (Γ ∙ A) (γ ∙ p)
   _∙𝟘 : NegativeErasedContext Γ γ → NegativeErasedContext (Γ ∙ A) (γ ∙ 𝟘)
 
--- Lemma: Any entry in negative erased context is a negative type (needs weakening).
+-- In a negative erased context the entries with non-zero grades have
+-- negative types.
 
-lookupNegative : ⊢ Γ → NegativeErasedContext Γ γ → (x ∷ A ∈ Γ) → (γ ⟨ x ⟩ ≤ 𝟙)
-               → NegativeType Γ A
+lookupNegative :
+  ⊢ Γ → NegativeErasedContext Γ γ → x ∷ A ∈ Γ → γ ⟨ x ⟩ ≢ 𝟘 →
+  NegativeType Γ A
 lookupNegative ⊢Γ∙A (nΓγ ∙ nA) here _ =
   wkNeg (step id) ⊢Γ∙A nA
-lookupNegative ⊢Γ∙A@(⊢Γ ∙ Γ⊢A) (nΓγ ∙ nA) (there h) p≤𝟙 =
-  wkNeg (step id) ⊢Γ∙A (lookupNegative ⊢Γ nΓγ h p≤𝟙)
-lookupNegative ⊢Γ∙A (nΓγ ∙𝟘) here p≤𝟙 =
-  ⊥-elim (𝟘≰𝟙 p≤𝟙)
-lookupNegative ⊢Γ∙A@(⊢Γ ∙ Γ⊢A) (nΓγ ∙𝟘) (there h) p≤𝟙 =
-  wkNeg (step id) ⊢Γ∙A (lookupNegative ⊢Γ nΓγ h p≤𝟙)
+lookupNegative ⊢Γ∙A@(⊢Γ ∙ Γ⊢A) (nΓγ ∙ nA) (there h) ≢𝟘 =
+  wkNeg (step id) ⊢Γ∙A (lookupNegative ⊢Γ nΓγ h ≢𝟘)
+lookupNegative ⊢Γ∙A (nΓγ ∙𝟘) here ≢𝟘 =
+  ⊥-elim (≢𝟘 PE.refl)
+lookupNegative ⊢Γ∙A@(⊢Γ ∙ Γ⊢A) (nΓγ ∙𝟘) (there h) ≢𝟘 =
+  wkNeg (step id) ⊢Γ∙A (lookupNegative ⊢Γ nΓγ h ≢𝟘)
 
 erasedContext : NegativeErasedContext Γ 𝟘ᶜ
 erasedContext {Γ = ε} = ε
