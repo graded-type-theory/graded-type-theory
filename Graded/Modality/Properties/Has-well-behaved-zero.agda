@@ -34,10 +34,20 @@ private
 +-positiveʳ : p + q ≡ 𝟘 → q ≡ 𝟘
 +-positiveʳ p+q≡𝟘 = +-positiveˡ (trans (+-comm _ _) p+q≡𝟘)
 
+-- If p + q is zero, then p and q are zero.
+
++-positive : p + q ≡ 𝟘 → p ≡ 𝟘 × q ≡ 𝟘
++-positive p+q≡𝟘 = +-positiveˡ p+q≡𝟘 , +-positiveʳ p+q≡𝟘
+
 -- If p ∧ q is zero, then q is zero.
 
 ∧-positiveʳ : p ∧ q ≡ 𝟘 → q ≡ 𝟘
 ∧-positiveʳ p∧q≡𝟘 = ∧-positiveˡ (trans (∧-comm _ _) p∧q≡𝟘)
+
+-- If p ∧ q is zero, then p and q are zero.
+
+∧-positive : p ∧ q ≡ 𝟘 → p ≡ 𝟘 × q ≡ 𝟘
+∧-positive p∧q≡𝟘 = ∧-positiveˡ p∧q≡𝟘 , ∧-positiveʳ p∧q≡𝟘
 
 -- Every value that is "greater than or
 -- equal to" 𝟘 is equivalent to 𝟘.
