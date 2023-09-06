@@ -137,9 +137,8 @@ module Counterexample where
     neutral = prodrecₙ (var _)
 
 -- If one drops the assumption about erased matches from the statement
--- of
--- Application.NegativeAxioms.Canonicity.NegativeErased.canonicityEq,
--- then the lemma cannot be proved (assuming that Agda is consistent).
+-- of Application.NegativeOrErasedAxioms.Canonicity.canonicityEq, then
+-- the lemma cannot be proved (assuming that Agda is consistent).
 
 not-canonicityEq :
   ¬ ((TR : Type-restrictions) →
