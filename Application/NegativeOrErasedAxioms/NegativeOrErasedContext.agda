@@ -2,13 +2,14 @@
 -- Contexts in which all types either are negative or erased.
 ------------------------------------------------------------------------
 
-open import Graded.Modality
+import Graded.Modality
 open import Definition.Typed.Restrictions
 open import Tools.Nullary
 
 module Application.NegativeOrErasedAxioms.NegativeOrErasedContext
   {a} {M : Set a}
-  (𝕄 : Modality M)
+  (open Graded.Modality M)
+  (𝕄 : Modality)
   (open Modality 𝕄)
   (R : Type-restrictions M)
   where
@@ -17,7 +18,8 @@ open import Definition.Untyped M
 open import Definition.Typed R
 open import Definition.Typed.Weakening R
 open import Graded.Context 𝕄
-open import Graded.Modality.Properties 𝕄
+open import Graded.Modality.Properties.Has-well-behaved-zero
+  semiring-with-meet
 open import Application.NegativeOrErasedAxioms.NegativeOrErasedType 𝕄 R
 
 open import Tools.Bool
@@ -83,11 +85,11 @@ NegativeErasedContext-𝟘
     (PE.sym (ok x0 PE.refl))
     (NegativeErasedContext-𝟘 (ok ∘→ _+1) neΓγ ∙𝟘)
 
--- If 𝟘ᵐ is allowed, then NegativeErasedContext is upwards closed in
--- its second argument.
+-- If semiring-with-meet has a well-behaved zero, then
+-- NegativeErasedContext is upwards closed in its second argument.
 
 NegativeErasedContext-upwards-closed :
-  T 𝟘ᵐ-allowed →
+  Has-well-behaved-zero semiring-with-meet →
   γ ≤ᶜ δ →
   NegativeErasedContext Γ γ →
   NegativeErasedContext Γ δ
