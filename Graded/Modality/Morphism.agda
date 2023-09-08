@@ -141,15 +141,13 @@ record Is-morphism
   no-nr-in-first-iff-in-second :
     No-dedicated-nr 𝕄₁ ⇔ No-dedicated-nr 𝕄₂
   no-nr-in-first-iff-in-second =
-      (λ where
-         (no-dedicated-nr nn) → no-dedicated-nr
+      (λ nr → no-dedicated-nr $ T-not⇔¬-T .proj₂
            (M₂.Nr-available  →⟨ Dedicated-nr.nr ∘→ nr-in-first-iff-in-second .proj₂ ∘→ dedicated-nr ⟩
-            M₁.Nr-available  →⟨ nn ⟩
+            M₁.Nr-available  →⟨ No-dedicated-nr.no-nr nr ⟩
             ⊥                □))
-    , (λ where
-         (no-dedicated-nr nn) → no-dedicated-nr
+    , (λ nr → no-dedicated-nr $ T-not⇔¬-T .proj₂
            (M₁.Nr-available  →⟨ Dedicated-nr.nr ∘→ nr-in-first-iff-in-second .proj₁ ∘→ dedicated-nr ⟩
-            M₂.Nr-available  →⟨ nn ⟩
+            M₂.Nr-available  →⟨ No-dedicated-nr.no-nr nr ⟩
             ⊥                □))
 
   -- If the source modality does not have a dedicated nr function,

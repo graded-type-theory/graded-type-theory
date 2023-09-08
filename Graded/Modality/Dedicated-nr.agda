@@ -12,9 +12,11 @@ module Graded.Modality.Dedicated-nr
 
 open Modality 𝕄
 
+open import Tools.Bool
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Nullary
+open import Tools.Product
 open import Tools.PropositionalEquality
 
 private variable
@@ -29,13 +31,13 @@ private variable
 record Dedicated-nr : Set a where
   constructor dedicated-nr
   field
-    nr : Nr-available
+    nr : T nr-available
 
 -- This wrapper type is propositional.
 
 Dedicated-nr-propositional : (p q : Dedicated-nr) → p ≡ q
-Dedicated-nr-propositional (dedicated-nr n₁) (dedicated-nr n₂) =
-  cong dedicated-nr (Nr-available-propositional n₁ n₂)
+Dedicated-nr-propositional (dedicated-nr _) (dedicated-nr _) =
+  cong dedicated-nr T-propositional
 
 ------------------------------------------------------------------------
 -- No-dedicated-nr
@@ -46,7 +48,18 @@ Dedicated-nr-propositional (dedicated-nr n₁) (dedicated-nr n₂) =
 record No-dedicated-nr : Set a where
   constructor no-dedicated-nr
   field
-    no-nr : ¬ Nr-available
+    no-nr′ : T (not nr-available)
+
+  -- A dedicated nr function is not available.
+
+  no-nr : ¬ T nr-available
+  no-nr = T-not⇔¬-T .proj₁ no-nr′
+
+-- This wrapper type is propositional.
+
+No-dedicated-nr-propositional : (p q : No-dedicated-nr) → p ≡ q
+No-dedicated-nr-propositional (no-dedicated-nr _) (no-dedicated-nr _) =
+  cong no-dedicated-nr T-propositional
 
 ------------------------------------------------------------------------
 -- Some lemmas related to both Dedicated-nr and No-dedicated-nr
@@ -55,9 +68,10 @@ record No-dedicated-nr : Set a where
 
 not-nr-and-no-nr :
   ⦃ nr : Dedicated-nr ⦄ ⦃ no-nr : No-dedicated-nr ⦄ → ⊥
-not-nr-and-no-nr
-  ⦃ nr = dedicated-nr n ⦄ ⦃ no-nr = no-dedicated-nr nn ⦄ =
-  nn n
+not-nr-and-no-nr ⦃ nr = dedicated-nr n ⦄ ⦃ no-nr = no-dedicated-nr nn ⦄
+  with nr-available
+… | true  = nn
+… | false = n
 
 -- The property of either having or not having a dedicated nr
 -- function.
@@ -69,7 +83,9 @@ data Dedicated-nr? : Set a where
 -- One either has or does not have a dedicated nr function.
 
 dedicated-nr? : Dedicated-nr?
-dedicated-nr? = case Nr-available-decided of λ where
-  (yes has-nr) → does-have-nr ⦃ has-nr = dedicated-nr has-nr ⦄
-  (no no-nr)   →
-    does-not-have-nr ⦃ no-nr = no-dedicated-nr no-nr ⦄
+dedicated-nr? with nr-available in eq
+… | false =
+  does-not-have-nr
+    ⦃ no-nr = no-dedicated-nr (subst (T ∘→ not) (sym eq) _) ⦄
+… | true  =
+  does-have-nr ⦃ has-nr = dedicated-nr (subst T (sym eq) _) ⦄

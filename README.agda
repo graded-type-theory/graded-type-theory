@@ -295,9 +295,9 @@ no-erased-matches = Graded.Restrictions.no-erased-matches
 -- variant of the type theory in Sections 3-5 the mode 𝟘ᵐ should be
 -- disallowed, i.e. the Modality-variant field 𝟘ᵐ-allowed should be
 -- false. Furthermore there should be a dedicated nr function, i.e.
--- the Modality-variant field Nr-available should be an inhabited type
--- (and to match the paper the nr function should correspond to a
--- natrec-star operator).
+-- the Modality-variant field nr-available should be true (and to
+-- match the paper the nr function should correspond to a natrec-star
+-- operator).
 --
 -- Unlike in the paper equality is not required to be decidable.
 -- Instead this property is assumed where it is used.

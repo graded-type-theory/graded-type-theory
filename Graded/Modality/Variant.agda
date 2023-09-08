@@ -25,23 +25,20 @@ record Modality-variant : Set (lsuc a) where
     𝟘ᵐ-allowed : Bool
 
     -- Is a dedicated nr function available?
-    Nr-available : Set a
+    nr-available : Bool
 
-    -- The type nr-available is a proposition.
-    Nr-available-propositional : (p q : Nr-available) → p ≡ q
+  -- Is a dedicated nr function available?
 
-    -- The type nr-available is decided.
-    Nr-available-decided : Dec Nr-available
+  Nr-available : Set
+  Nr-available = T nr-available
 
 -- A variant for which a dedicated nr function must be available, and
 -- 𝟘ᵐ is allowed if the boolean is true.
 
 nr-available-and-𝟘ᵐ-allowed-if : Bool → Modality-variant
 nr-available-and-𝟘ᵐ-allowed-if ok = record
-  { 𝟘ᵐ-allowed                 = ok
-  ; Nr-available               = Lift _ ⊤
-  ; Nr-available-propositional = λ _ _ → refl
-  ; Nr-available-decided       = yes _
+  { 𝟘ᵐ-allowed   = ok
+  ; nr-available = true
   }
 
 -- A variant for which a dedicated nr function is not available, and
@@ -49,8 +46,6 @@ nr-available-and-𝟘ᵐ-allowed-if ok = record
 
 nr-not-available-and-𝟘ᵐ-allowed-if : Bool → Modality-variant
 nr-not-available-and-𝟘ᵐ-allowed-if ok = record
-  { 𝟘ᵐ-allowed                 = ok
-  ; Nr-available               = Lift _ ⊥
-  ; Nr-available-propositional = λ ()
-  ; Nr-available-decided       = no (λ ())
+  { 𝟘ᵐ-allowed   = ok
+  ; nr-available = false
   }

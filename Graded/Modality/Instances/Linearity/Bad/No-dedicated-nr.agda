@@ -3,7 +3,7 @@
 -- nr function
 ------------------------------------------------------------------------
 
-open import Tools.Bool using (T)
+open import Tools.Bool using (T; T-not⇔¬-T)
 open import Tools.Level
 open import Tools.Nullary
 
@@ -31,6 +31,7 @@ module Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr
 
 open import Tools.Empty
 open import Tools.Function
+open import Tools.Product
 import Tools.Reasoning.PartialOrder
 
 open import Graded.Context linearityModality
@@ -52,7 +53,7 @@ private instance
   -- A No-dedicated-nr instance.
 
   ¬-dedicated-nr : No-dedicated-nr
-  ¬-dedicated-nr = no-dedicated-nr not-available
+  ¬-dedicated-nr = no-dedicated-nr (T-not⇔¬-T .proj₂ not-available)
 
 -- The term double is well-resourced (even though it can be given a
 -- linear type).

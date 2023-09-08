@@ -1330,7 +1330,7 @@ substₘ-lemma
                      χ                                  ≤⟨ fix ⟩
                      γ ∧ᶜ η ∧ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ)  ≤⟨ ∧ᶜ-decreasingʳ _ _ ⟩
                      η ∧ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ)       ≤⟨ ∧ᶜ-decreasingʳ _ _ ⟩
-                     δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ              ≤⟨ +ᶜ-decreasingˡ ok (no-nr .No-dedicated-nr.no-nr) ⟩
+                     δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ              ≤⟨ +ᶜ-decreasingˡ ok (No-dedicated-nr.no-nr no-nr) ⟩
                      δ                                  ∎))
               δ▸s)
            (*>∙∙≤liftSubst-listSubst*>∙∙ {δ = δ} Ψ))
