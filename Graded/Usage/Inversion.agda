@@ -23,9 +23,12 @@ open import Graded.Modality.Dedicated-nr.Instance
 open import Graded.Mode 𝕄
 open import Definition.Untyped M hiding (_∙_)
 
+open import Tools.Bool using (T)
 open import Tools.Nat using (Nat; 1+)
 open import Tools.Nullary
+open import Tools.Product
 open import Tools.PropositionalEquality as PE
+open import Tools.Sum
 
 private
   variable
@@ -252,7 +255,12 @@ data InvUsageNatrec′ (p r : M) (γ δ η : Conₘ n) : Conₘ n → Set a wher
     InvUsageNatrec′ p r γ δ η (nrᶜ p r γ δ η)
   invUsageNatrecNoNr :
     ⦃ no-nr : No-dedicated-nr ⦄ →
-    χ ≤ᶜ γ ∧ᶜ η ∧ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ) →
+    χ ≤ᶜ γ →
+    (T 𝟘ᵐ-allowed →
+     χ ≤ᶜ δ) →
+    (Has-well-behaved-zero semiring-with-meet →
+     χ ≤ᶜ η) →
+    χ ≤ᶜ δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ →
     InvUsageNatrec′ p r γ δ η χ
 
 data InvUsageNatrec
@@ -275,8 +283,9 @@ inv-usage-natrec :
   γ ▸[ m ] natrec p q r G z s n → InvUsageNatrec γ m p q r G z s n
 inv-usage-natrec (natrecₘ δ▸z δ▸s η▸n θ▸A) =
   invUsageNatrec δ▸z δ▸s η▸n θ▸A ≤ᶜ-refl invUsageNatrecNr
-inv-usage-natrec (natrec-no-nrₘ ▸z ▸s ▸n ▸A fix) =
-  invUsageNatrec ▸z ▸s ▸n ▸A ≤ᶜ-refl (invUsageNatrecNoNr fix)
+inv-usage-natrec (natrec-no-nrₘ ▸z ▸s ▸n ▸A χ≤₁ χ≤₂ χ≤₃ χ≤₄) =
+  invUsageNatrec ▸z ▸s ▸n ▸A ≤ᶜ-refl
+    (invUsageNatrecNoNr χ≤₁ χ≤₂ χ≤₃ χ≤₄)
 inv-usage-natrec (sub γ▸natrec γ≤γ′) with inv-usage-natrec γ▸natrec
 ... | invUsageNatrec δ▸z η▸s θ▸n φ▸A γ′≤γ″ extra =
   invUsageNatrec δ▸z η▸s θ▸n φ▸A (≤ᶜ-trans γ≤γ′ γ′≤γ″) extra

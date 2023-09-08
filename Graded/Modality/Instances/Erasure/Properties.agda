@@ -17,7 +17,6 @@ open import Graded.Modality.Instances.Erasure.Modality
 
 open import Graded.Context (ErasureModality variant)
 open import Graded.Context.Properties (ErasureModality variant) public
-  hiding (+ᶜ-decreasingˡ)
 
 open import Graded.FullReduction.Assumptions
 

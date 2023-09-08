@@ -431,15 +431,19 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
         [A[n]] , ⊩ʳnatrec =
           natrecʳ {A = A} {z = z} {s = s} {m = n}
             [Γ] [A] [A₊] [A₀] [z] [s] [n] ⊩ʳz ⊩ʳs ⊩ʳn
-            (case extra of λ where
-               invUsageNatrecNr x →
+            (λ x → case extra of λ where
+               invUsageNatrecNr →
                  nrᶜ p r δ η θ ⟨ x ⟩ PE.≡ 𝟘                        →⟨ PE.trans (PE.sym (nrᶜ-⟨⟩ δ)) ⟩
                  nr p r (δ ⟨ x ⟩) (η ⟨ x ⟩) (θ ⟨ x ⟩) PE.≡ 𝟘       →⟨ (λ hyp →
                                                                          case nr-positive 𝟘-well-behaved hyp of λ {
                                                                            (p , q , r) → p , r , q }) ⟩
                  δ ⟨ x ⟩ PE.≡ 𝟘 × θ ⟨ x ⟩ PE.≡ 𝟘 × η ⟨ x ⟩ PE.≡ 𝟘  □
-               (invUsageNatrecNoNr fix) →
-                 ⟨⟩≡𝟘→⟨⟩≡𝟘-fixpoint 𝟘-well-behaved fix)
+               (invUsageNatrecNoNr {χ = χ} χ≤δ _ χ≤θ fix) →
+                 χ ⟨ x ⟩ PE.≡ 𝟘                                    →⟨ (λ hyp →
+                                                                           ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 𝟘-well-behaved χ≤δ hyp
+                                                                         , ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 𝟘-well-behaved (χ≤θ 𝟘-well-behaved) hyp
+                                                                         , ⟨⟩≡𝟘→⟨⟩≡𝟘-fixpoint 𝟘-well-behaved fix hyp) ⟩
+                 δ ⟨ x ⟩ PE.≡ 𝟘 × θ ⟨ x ⟩ PE.≡ 𝟘 × η ⟨ x ⟩ PE.≡ 𝟘  □)
     in  [Γ] , [A[n]] ,
         λ {_ _} →
           subsumption-≤ well-formed

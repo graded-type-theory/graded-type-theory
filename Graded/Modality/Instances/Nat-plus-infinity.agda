@@ -476,10 +476,7 @@ private
 
 ℕ⊎∞-modality : Modality-variant → Modality
 ℕ⊎∞-modality variant =
-  BS.isModality
-    variant
-    (λ _ → ℕ⊎∞-has-well-behaved-zero)
-    (λ _ _ _ _ → +-decreasingˡ)
+  BS.isModality variant (λ _ → ℕ⊎∞-has-well-behaved-zero)
 
 ------------------------------------------------------------------------
 -- A property related to division

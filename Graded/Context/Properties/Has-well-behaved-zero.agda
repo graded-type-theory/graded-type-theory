@@ -115,26 +115,22 @@ nrᶜ-positive-⟨⟩ {p = p} {r = r} {δ = δ} {η = η} {x = x} γ =
     (γ ∧ᶜ η) ⟨ x ⟩ ⊛ (δ +ᶜ p ·ᶜ η) ⟨ x ⟩ ▷ r            ≡˘⟨ lookup-distrib-⊛ᶜ (γ ∧ᶜ _) _ _ _ ⟩
     ((γ ∧ᶜ η) ⊛ᶜ δ +ᶜ p ·ᶜ η ▷ r) ⟨ x ⟩                 ∎
 
--- If χ ≤ᶜ γ ∧ᶜ η ∧ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ) and χ ⟨ x ⟩ is 𝟘, then
--- γ ⟨ x ⟩, δ ⟨ x ⟩ and η ⟨ x ⟩ are all 𝟘.
+-- If χ ≤ᶜ δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ and χ ⟨ x ⟩ is 𝟘, then δ ⟨ x ⟩ is 𝟘.
 
 ⟨⟩≡𝟘→⟨⟩≡𝟘-fixpoint :
-  χ ≤ᶜ γ ∧ᶜ η ∧ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ) →
-  (x : Fin n) →
-  χ ⟨ x ⟩ ≡ 𝟘 →
-  γ ⟨ x ⟩ ≡ 𝟘 × η ⟨ x ⟩ ≡ 𝟘 × δ ⟨ x ⟩ ≡ 𝟘
-⟨⟩≡𝟘→⟨⟩≡𝟘-fixpoint
-  {χ = χ} {γ = γ} {η = η} {δ = δ} {p = p} {r = r} fix x ≡𝟘 =
-    ∧-positiveˡ lemma
-  , ∧-positiveˡ (∧-positiveʳ lemma)
-  , +-positiveˡ (∧-positiveʳ (∧-positiveʳ lemma))
+  χ ≤ᶜ δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ →
+  χ ⟨ x ⟩ ≡ 𝟘 → δ ⟨ x ⟩ ≡ 𝟘
+⟨⟩≡𝟘→⟨⟩≡𝟘-fixpoint {χ = χ} {δ = δ} {p = p} {η = η} {r = r} {x = x}
+  fix ≡𝟘 =
+                                          $⟨ lemma ⟩
+  𝟘 ≤ δ ⟨ x ⟩ + (p ·ᶜ η +ᶜ r ·ᶜ χ) ⟨ x ⟩  →⟨ 𝟘≮ ⟩
+  δ ⟨ x ⟩ + (p ·ᶜ η +ᶜ r ·ᶜ χ) ⟨ x ⟩ ≡ 𝟘  →⟨ +-positiveˡ ⟩
+  δ ⟨ x ⟩ ≡ 𝟘                             □
   where
   open Tools.Reasoning.PartialOrder ≤-poset
 
-  lemma = 𝟘≮ $ begin
-    𝟘                                                         ≡˘⟨ ≡𝟘 ⟩
-    χ ⟨ x ⟩                                                   ≤⟨ lookup-monotone _ fix ⟩
-    (γ ∧ᶜ η ∧ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ)) ⟨ x ⟩                 ≡⟨ lookup-distrib-∧ᶜ γ _ _ ⟩
-    γ ⟨ x ⟩ ∧ (η ∧ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ)) ⟨ x ⟩            ≡⟨ cong (_ ∧_) $ lookup-distrib-∧ᶜ η _ _ ⟩
-    γ ⟨ x ⟩ ∧ η ⟨ x ⟩ ∧ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ) ⟨ x ⟩         ≡⟨ cong (γ ⟨ _ ⟩ ∧_) $ cong (_ ∧_) $ lookup-distrib-+ᶜ δ _ _ ⟩
-    γ ⟨ x ⟩ ∧ η ⟨ x ⟩ ∧ (δ ⟨ x ⟩ + (p ·ᶜ η +ᶜ r ·ᶜ χ) ⟨ x ⟩)  ∎
+  lemma = begin
+    𝟘                                   ≡˘⟨ ≡𝟘 ⟩
+    χ ⟨ x ⟩                             ≤⟨ lookup-monotone _ fix ⟩
+    (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ) ⟨ x ⟩       ≡⟨ lookup-distrib-+ᶜ δ _ _ ⟩
+    δ ⟨ x ⟩ + (p ·ᶜ η +ᶜ r ·ᶜ χ) ⟨ x ⟩  ∎

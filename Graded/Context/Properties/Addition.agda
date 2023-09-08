@@ -131,11 +131,3 @@ private
     }
   ; comm = λ γ δ → ≈ᶜ→≡ (+ᶜ-comm γ δ)
   }
-
--- If the mode 𝟘ᵐ is allowed and the modality does not come with a
--- dedicated nr function, then _+ᶜ δ is decreasing.
-
-+ᶜ-decreasingˡ : T 𝟘ᵐ-allowed → ¬ Nr-available → γ +ᶜ δ ≤ᶜ γ
-+ᶜ-decreasingˡ {γ = ε}     {δ = ε}     _  _     = ε
-+ᶜ-decreasingˡ {γ = _ ∙ _} {δ = _ ∙ _} ok no-nr =
-  +ᶜ-decreasingˡ ok no-nr ∙ +-decreasingˡ ok no-nr _ _

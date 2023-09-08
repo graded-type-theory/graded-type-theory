@@ -153,21 +153,19 @@ has-star = record
   ; ⊛-sub-distrib-∧ = λ r → ⊛-sub-distribˡ-∧ r , ⊛-sub-distribʳ-∧ r
   }
 
--- If certain properties hold, then 𝕄 can be turned into a certain
+-- If a certain property holds, then 𝕄 can be turned into a certain
 -- kind of modality.
 
 isModality :
   (variant : Modality-variant) →
   let open Modality-variant variant in
   (T 𝟘ᵐ-allowed → Has-well-behaved-zero 𝕄) →
-  (T 𝟘ᵐ-allowed → ¬ Nr-available → ∀ p q → p + q ≤ p) →
   Modality
-isModality variant 𝟘-well-behaved +-decreasingˡ = record
+isModality variant 𝟘-well-behaved = record
   { variant            = variant
   ; semiring-with-meet = 𝕄
   ; 𝟘-well-behaved     = 𝟘-well-behaved
   ; has-nr             = λ _ → Star.has-nr ⦃ has-star = has-star ⦄
-  ; +-decreasingˡ      = +-decreasingˡ
   }
 
 -- For an instance with a least element the solution given by _⊛_▷_ is

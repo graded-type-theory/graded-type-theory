@@ -503,19 +503,18 @@ erasure→unit-preserves-second-ΠΣ-quantities-𝟘-or-ω _ _ _ r =
 -- obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 erasure→zero-one-many-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  ∀ v₁ v₂ v₂-ok →
+  ∀ v₁ v₂ →
   Are-preserving-type-restrictions R₁ R₂
     erasure→zero-one-many erasure→zero-one-many →
   Are-preserving-type-restrictions
     (second-ΠΣ-quantities-𝟘-or-ω ω (ErasureModality v₁) R₁)
     (second-ΠΣ-quantities-𝟘-or-ω ω
-       (zero-one-many-modality 𝟙≤𝟘 v₂ v₂-ok) R₂)
+       (zero-one-many-modality 𝟙≤𝟘 v₂) R₂)
     erasure→zero-one-many erasure→zero-one-many
-erasure→zero-one-many-preserves-second-ΠΣ-quantities-𝟘-or-ω
-  v₁ v₂ v₂-ok =
+erasure→zero-one-many-preserves-second-ΠΣ-quantities-𝟘-or-ω v₁ v₂ =
   Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
     (ErasureModality v₁)
-    (zero-one-many-modality _ v₂ v₂-ok)
+    (zero-one-many-modality _ v₂)
     (λ _ → refl)
     (λ where
        {p = 𝟘} → (λ ()) , (λ ())
@@ -529,18 +528,18 @@ erasure→zero-one-many-preserves-second-ΠΣ-quantities-𝟘-or-ω
 -- obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  ∀ v₁ v₂ v₂-ok →
+  ∀ v₁ v₂ →
   Are-reflecting-type-restrictions R₁ R₂
     erasure→zero-one-many erasure→zero-one-many →
   Are-reflecting-type-restrictions
     (second-ΠΣ-quantities-𝟘-or-ω ω (ErasureModality v₁) R₁)
     (second-ΠΣ-quantities-𝟘-or-ω ω
-       (zero-one-many-modality 𝟙≤𝟘 v₂ v₂-ok) R₂)
+       (zero-one-many-modality 𝟙≤𝟘 v₂) R₂)
     erasure→zero-one-many erasure→zero-one-many
-erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω v₁ v₂ v₂-ok =
+erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω v₁ v₂ =
   Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
     (ErasureModality v₁)
-    (zero-one-many-modality _ v₂ v₂-ok)
+    (zero-one-many-modality _ v₂)
     (λ where
        {p = 𝟘} _  → refl
        {p = ω} ())
@@ -556,15 +555,14 @@ erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω v₁ v₂ v�
 -- second-ΠΣ-quantities-𝟘-or-ω.
 
 ¬-erasure→zero-one-many-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  ∀ v₁ v₂ v₂-ok →
+  ∀ v₁ v₂ →
   ¬ Are-preserving-type-restrictions
       (second-ΠΣ-quantities-𝟘-or-ω ω
          (ErasureModality v₁) no-type-restrictions)
       (second-ΠΣ-quantities-𝟘-or-ω ω
-         (zero-one-many-modality 𝟙≤𝟘 v₂ v₂-ok) R₂)
+         (zero-one-many-modality 𝟙≤𝟘 v₂) R₂)
       erasure→zero-one-many erasure→zero-one-many-Σ
-¬-erasure→zero-one-many-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω
-  _ _ _ r =
+¬-erasure→zero-one-many-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω _ _ r =
   case
     ΠΣ-preserved {b = BMΣ Σₚ} {p = ω} {q = ω}
       (_ , (λ _ → refl) , ⊥-elim ∘→ (_$ refl))
@@ -578,13 +576,13 @@ erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω v₁ v₂ v�
 -- second-ΠΣ-quantities-𝟘-or-ω.
 
 ¬-erasure→zero-one-many-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  ∀ v₁ v₂ v₂-ok →
+  ∀ v₁ v₂ →
   ¬ Are-reflecting-type-restrictions
       (second-ΠΣ-quantities-𝟘-or-ω ω (ErasureModality v₁) R₁)
       (second-ΠΣ-quantities-𝟘-or-ω ω
-         (zero-one-many-modality 𝟙≤𝟘 v₂ v₂-ok) no-type-restrictions)
+         (zero-one-many-modality 𝟙≤𝟘 v₂) no-type-restrictions)
       erasure→zero-one-many erasure→zero-one-many-Σ
-¬-erasure→zero-one-many-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω _ _ _ r =
+¬-erasure→zero-one-many-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω _ _ r =
   case
     ΠΣ-reflected {b = BMΣ Σₚ} {p = ω} {q = 𝟘}
       (_ , (λ ()) , (λ _ → refl))
@@ -597,13 +595,13 @@ erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω v₁ v₂ v�
 -- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 ¬-zero-one-many→erasure-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  ∀ v₁ v₁-ok v₂ →
+  ∀ v₁ v₂ →
   ¬ Are-preserving-type-restrictions
       (second-ΠΣ-quantities-𝟘-or-ω ω
-         (zero-one-many-modality 𝟙≤𝟘 v₁ v₁-ok) no-type-restrictions)
+         (zero-one-many-modality 𝟙≤𝟘 v₁) no-type-restrictions)
       (second-ΠΣ-quantities-𝟘-or-ω ω (ErasureModality v₂) R₂)
       zero-one-many→erasure zero-one-many→erasure
-¬-zero-one-many→erasure-preserves-second-ΠΣ-quantities-𝟘-or-ω _ _ _ r =
+¬-zero-one-many→erasure-preserves-second-ΠΣ-quantities-𝟘-or-ω _ _ r =
   case
     ΠΣ-preserved {b = BMΠ} {p = 𝟙} {q = 𝟘}
       (_ , (λ ()) , (λ _ → refl))
@@ -616,14 +614,14 @@ erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω v₁ v₂ v�
 -- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 ¬-zero-one-many→erasure-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  ∀ v₁ v₁-ok v₂ →
+  ∀ v₁ v₂ →
   ¬ Are-reflecting-type-restrictions
       (second-ΠΣ-quantities-𝟘-or-ω ω
-         (zero-one-many-modality 𝟙≤𝟘 v₁ v₁-ok) R)
+         (zero-one-many-modality 𝟙≤𝟘 v₁) R)
       (second-ΠΣ-quantities-𝟘-or-ω ω
          (ErasureModality v₂) no-type-restrictions)
       zero-one-many→erasure zero-one-many→erasure
-¬-zero-one-many→erasure-reflects-second-ΠΣ-quantities-𝟘-or-ω _ _ _ r =
+¬-zero-one-many→erasure-reflects-second-ΠΣ-quantities-𝟘-or-ω _ _ r =
   case
     ΠΣ-reflected {b = BMΠ} {p = ω} {q = 𝟙}
       (_ , (λ _ → refl) , ⊥-elim ∘→ (_$ refl))
@@ -638,18 +636,17 @@ erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω v₁ v₂ v�
 -- obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 linearity→linear-or-affine-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  ∀ v₁ v₁-ok v₂ v₂-ok →
+  ∀ v₁ v₂ →
   Are-preserving-type-restrictions R₁ R₂
     linearity→linear-or-affine linearity→linear-or-affine →
   Are-preserving-type-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ω (linearityModality v₁ v₁-ok) R₁)
-    (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine v₂ v₂-ok) R₂)
+    (second-ΠΣ-quantities-𝟘-or-ω ω (linearityModality v₁) R₁)
+    (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine v₂) R₂)
     linearity→linear-or-affine linearity→linear-or-affine
-linearity→linear-or-affine-preserves-second-ΠΣ-quantities-𝟘-or-ω
-  v₁ v₁-ok v₂ v₂-ok =
+linearity→linear-or-affine-preserves-second-ΠΣ-quantities-𝟘-or-ω v₁ v₂ =
   Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-    (linearityModality v₁ v₁-ok)
-    (linear-or-affine v₂ v₂-ok)
+    (linearityModality v₁)
+    (linear-or-affine v₂)
     (λ _ → refl)
     (λ where
        {p = 𝟘} → (λ ()) , (λ ())
@@ -665,18 +662,17 @@ linearity→linear-or-affine-preserves-second-ΠΣ-quantities-𝟘-or-ω
 -- obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 linearity→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  ∀ v₁ v₁-ok v₂ v₂-ok →
+  ∀ v₁ v₂ →
   Are-reflecting-type-restrictions R₁ R₂
     linearity→linear-or-affine linearity→linear-or-affine →
   Are-reflecting-type-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ω (linearityModality v₁ v₁-ok) R₁)
-    (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine v₂ v₂-ok) R₂)
+    (second-ΠΣ-quantities-𝟘-or-ω ω (linearityModality v₁) R₁)
+    (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine v₂) R₂)
     linearity→linear-or-affine linearity→linear-or-affine
-linearity→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω
-  v₁ v₁-ok v₂ v₂-ok =
+linearity→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω v₁ v₂ =
   Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-    (linearityModality v₁ v₁-ok)
-    (linear-or-affine v₂ v₂-ok)
+    (linearityModality v₁)
+    (linear-or-affine v₂)
     (λ where
        {p = 𝟘} _  → refl
        {p = 𝟙} ()
@@ -694,14 +690,14 @@ linearity→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω
 -- type restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 ¬-linear-or-affine→linearity-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  ∀ v₁ v₁-ok v₂ v₂-ok →
+  ∀ v₁ v₂ →
   ¬ Are-preserving-type-restrictions
-      (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine v₁ v₁-ok)
+      (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine v₁)
          no-type-restrictions)
-      (second-ΠΣ-quantities-𝟘-or-ω ω (linearityModality v₂ v₂-ok) R₂)
+      (second-ΠΣ-quantities-𝟘-or-ω ω (linearityModality v₂) R₂)
       linear-or-affine→linearity linear-or-affine→linearity
 ¬-linear-or-affine→linearity-preserves-second-ΠΣ-quantities-𝟘-or-ω
-  _ _ _ _ r =
+  _ _ r =
   case
     ΠΣ-preserved {b = BMΠ} {p = ≤𝟙} {q = 𝟘}
       (_ , (λ ()) , (λ _ → refl))
@@ -714,14 +710,14 @@ linearity→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω
 -- type restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 ¬-linear-or-affine→linearity-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  ∀ v₁ v₁-ok v₂ v₂-ok →
+  ∀ v₁ v₂ →
   ¬ Are-reflecting-type-restrictions
-      (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine v₁ v₁-ok) R)
+      (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine v₁) R)
       (second-ΠΣ-quantities-𝟘-or-ω ω
-         (linearityModality v₂ v₂-ok) no-type-restrictions)
+         (linearityModality v₂) no-type-restrictions)
       linear-or-affine→linearity linear-or-affine→linearity
 ¬-linear-or-affine→linearity-reflects-second-ΠΣ-quantities-𝟘-or-ω
-  _ _ _ _ r =
+  _ _ r =
   case
     ΠΣ-reflected {b = BMΠ} {p = ≤ω} {q = ≤𝟙}
       (_ , (λ _ → refl) , ⊥-elim ∘→ (_$ refl))
@@ -736,18 +732,18 @@ linearity→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω
 -- obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 affine→linear-or-affine-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  ∀ v₁ v₂ v₂-ok →
+  ∀ v₁ v₂ →
   Are-preserving-type-restrictions R₁ R₂
     affine→linear-or-affine affine→linear-or-affine →
   Are-preserving-type-restrictions
     (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality v₁) R₁)
-    (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine v₂ v₂-ok) R₂)
+    (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine v₂) R₂)
     affine→linear-or-affine affine→linear-or-affine
 affine→linear-or-affine-preserves-second-ΠΣ-quantities-𝟘-or-ω
-  v₁ v₂ v₂-ok =
+  v₁ v₂ =
   Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
     (affineModality v₁)
-    (linear-or-affine v₂ v₂-ok)
+    (linear-or-affine v₂)
     (λ _ → refl)
     (λ where
        {p = 𝟘} → (λ ()) , (λ ())
@@ -763,18 +759,17 @@ affine→linear-or-affine-preserves-second-ΠΣ-quantities-𝟘-or-ω
 -- obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 affine→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  ∀ v₁ v₂ v₂-ok →
+  ∀ v₁ v₂ →
   Are-reflecting-type-restrictions R₁ R₂
     affine→linear-or-affine affine→linear-or-affine →
   Are-reflecting-type-restrictions
     (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality v₁) R₁)
-    (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine v₂ v₂-ok) R₂)
+    (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine v₂) R₂)
     affine→linear-or-affine affine→linear-or-affine
-affine→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω
-  v₁ v₂ v₂-ok =
+affine→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω v₁ v₂ =
   Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
     (affineModality v₁)
-    (linear-or-affine v₂ v₂-ok)
+    (linear-or-affine v₂)
     (λ where
        {p = 𝟘} _  → refl
        {p = 𝟙} ()
@@ -794,18 +789,17 @@ affine→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω
 -- second-ΠΣ-quantities-𝟘-or-ω.
 
 affine→linear-or-affine-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  ∀ v₁ v₂ v₂-ok →
+  ∀ v₁ v₂ →
   Are-preserving-type-restrictions R₁ R₂
     affine→linear-or-affine affine→linear-or-affine-Σ →
   Are-preserving-type-restrictions
     (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality v₁) R₁)
-    (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine v₂ v₂-ok) R₂)
+    (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine v₂) R₂)
     affine→linear-or-affine affine→linear-or-affine-Σ
-affine→linear-or-affine-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω
-  v₁ v₂ v₂-ok =
+affine→linear-or-affine-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω v₁ v₂ =
   Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
     (affineModality v₁)
-    (linear-or-affine v₂ v₂-ok)
+    (linear-or-affine v₂)
     (λ _ → refl)
     (λ where
        {p = 𝟘} → (λ ()) , (λ ())
@@ -822,18 +816,17 @@ affine→linear-or-affine-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω
 -- second-ΠΣ-quantities-𝟘-or-ω.
 
 affine→linear-or-affine-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  ∀ v₁ v₂ v₂-ok →
+  ∀ v₁ v₂ →
   Are-reflecting-type-restrictions R₁ R₂
     affine→linear-or-affine affine→linear-or-affine-Σ →
   Are-reflecting-type-restrictions
     (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality v₁) R₁)
-    (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine v₂ v₂-ok) R₂)
+    (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine v₂) R₂)
     affine→linear-or-affine affine→linear-or-affine-Σ
-affine→linear-or-affine-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω
-  v₁ v₂ v₂-ok =
+affine→linear-or-affine-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω v₁ v₂ =
   Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
     (affineModality v₁)
-    (linear-or-affine v₂ v₂-ok)
+    (linear-or-affine v₂)
     (λ where
        {p = 𝟘} _  → refl
        {p = 𝟙} ()
@@ -852,17 +845,16 @@ affine→linear-or-affine-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω
 -- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 linear-or-affine→affine-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  ∀ v₁ v₁-ok v₂ →
+  ∀ v₁ v₂ →
   Are-preserving-type-restrictions R₁ R₂
     linear-or-affine→affine linear-or-affine→affine →
   Are-preserving-type-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine v₁ v₁-ok) R₁)
+    (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine v₁) R₁)
     (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality v₂) R₂)
     linear-or-affine→affine linear-or-affine→affine
-linear-or-affine→affine-preserves-second-ΠΣ-quantities-𝟘-or-ω
-  v₁ v₁-ok v₂ =
+linear-or-affine→affine-preserves-second-ΠΣ-quantities-𝟘-or-ω v₁ v₂ =
   Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-    (linear-or-affine v₁ v₁-ok)
+    (linear-or-affine v₁)
     (affineModality v₂)
     (λ _ → refl)
     (λ where
@@ -881,17 +873,16 @@ linear-or-affine→affine-preserves-second-ΠΣ-quantities-𝟘-or-ω
 -- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 linear-or-affine→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  ∀ v₁ v₁-ok v₂ →
+  ∀ v₁ v₂ →
   Are-reflecting-type-restrictions R₁ R₂
     linear-or-affine→affine linear-or-affine→affine →
   Are-reflecting-type-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine v₁ v₁-ok) R₁)
+    (second-ΠΣ-quantities-𝟘-or-ω ≤ω (linear-or-affine v₁) R₁)
     (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality v₂) R₂)
     linear-or-affine→affine linear-or-affine→affine
-linear-or-affine→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω
-  v₁ v₁-ok v₂ =
+linear-or-affine→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω v₁ v₂ =
   Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-    (linear-or-affine v₁ v₁-ok)
+    (linear-or-affine v₁)
     (affineModality v₂)
     (λ where
        {p = 𝟘}  _  → refl
@@ -913,13 +904,13 @@ linear-or-affine→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω
 -- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 ¬-affine→linearity-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  ∀ v₁ v₂ v₂-ok →
+  ∀ v₁ v₂ →
   ¬ Are-preserving-type-restrictions
       (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality v₁)
          no-type-restrictions)
-      (second-ΠΣ-quantities-𝟘-or-ω ω (linearityModality v₂ v₂-ok) R₂)
+      (second-ΠΣ-quantities-𝟘-or-ω ω (linearityModality v₂) R₂)
       affine→linearity affine→linearity
-¬-affine→linearity-preserves-second-ΠΣ-quantities-𝟘-or-ω _ _ _ r =
+¬-affine→linearity-preserves-second-ΠΣ-quantities-𝟘-or-ω _ _ r =
   case
     ΠΣ-preserved {b = BMΠ} {p = 𝟙} {q = 𝟘}
       (_ , (λ ()) , (λ _ → refl))
@@ -932,13 +923,13 @@ linear-or-affine→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω
 -- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 ¬-affine→linearity-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  ∀ v₁ v₂ v₂-ok →
+  ∀ v₁ v₂ →
   ¬ Are-reflecting-type-restrictions
       (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality v₁) R)
       (second-ΠΣ-quantities-𝟘-or-ω ω
-         (linearityModality v₂ v₂-ok) no-type-restrictions)
+         (linearityModality v₂) no-type-restrictions)
       affine→linearity affine→linearity
-¬-affine→linearity-reflects-second-ΠΣ-quantities-𝟘-or-ω _ _ _ r =
+¬-affine→linearity-reflects-second-ΠΣ-quantities-𝟘-or-ω _ _ r =
   case
     ΠΣ-reflected {b = BMΠ} {p = ω} {q = 𝟙}
       (_ , (λ _ → refl) , ⊥-elim ∘→ (_$ refl))
@@ -953,13 +944,13 @@ linear-or-affine→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω
 -- second-ΠΣ-quantities-𝟘-or-ω.
 
 ¬-affine→linearity-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  ∀ v₁ v₂ v₂-ok →
+  ∀ v₁ v₂ →
   ¬ Are-preserving-type-restrictions
       (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality v₁)
          no-type-restrictions)
-      (second-ΠΣ-quantities-𝟘-or-ω ω (linearityModality v₂ v₂-ok) R₂)
+      (second-ΠΣ-quantities-𝟘-or-ω ω (linearityModality v₂) R₂)
       affine→linearity affine→linearity-Σ
-¬-affine→linearity-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω _ _ _ r =
+¬-affine→linearity-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω _ _ r =
   case
     ΠΣ-preserved {b = BMΠ} {p = 𝟙} {q = 𝟘}
       (_ , (λ ()) , (λ _ → refl))
@@ -973,13 +964,13 @@ linear-or-affine→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω
 -- second-ΠΣ-quantities-𝟘-or-ω.
 
 ¬-affine→linearity-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  ∀ v₁ v₂ v₂-ok →
+  ∀ v₁ v₂ →
   ¬ Are-reflecting-type-restrictions
       (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality v₁) R)
       (second-ΠΣ-quantities-𝟘-or-ω ω
-         (linearityModality v₂ v₂-ok) no-type-restrictions)
+         (linearityModality v₂) no-type-restrictions)
       affine→linearity affine→linearity-Σ
-¬-affine→linearity-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω _ _ _ r =
+¬-affine→linearity-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω _ _ r =
   case
     ΠΣ-reflected {b = BMΠ} {p = ω} {q = 𝟙}
       (_ , (λ _ → refl) , ⊥-elim ∘→ (_$ refl))
@@ -994,16 +985,16 @@ linear-or-affine→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω
 -- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 linearity→affine-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  ∀ v₁ v₁-ok v₂ →
+  ∀ v₁ v₂ →
   Are-preserving-type-restrictions R₁ R₂
     linearity→affine linearity→affine →
   Are-preserving-type-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ω (linearityModality v₁ v₁-ok) R₁)
+    (second-ΠΣ-quantities-𝟘-or-ω ω (linearityModality v₁) R₁)
     (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality v₂) R₂)
     linearity→affine linearity→affine
-linearity→affine-preserves-second-ΠΣ-quantities-𝟘-or-ω v₁ v₁-ok v₂ =
+linearity→affine-preserves-second-ΠΣ-quantities-𝟘-or-ω v₁ v₂ =
   Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-    (linearityModality v₁ v₁-ok)
+    (linearityModality v₁)
     (affineModality v₂)
     (λ _ → refl)
     (λ where
@@ -1020,16 +1011,16 @@ linearity→affine-preserves-second-ΠΣ-quantities-𝟘-or-ω v₁ v₁-ok v₂
 -- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 linearity→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  ∀ v₁ v₁-ok v₂ →
+  ∀ v₁ v₂ →
   Are-reflecting-type-restrictions R₁ R₂
     linearity→affine linearity→affine →
   Are-reflecting-type-restrictions
-    (second-ΠΣ-quantities-𝟘-or-ω ω (linearityModality v₁ v₁-ok) R₁)
+    (second-ΠΣ-quantities-𝟘-or-ω ω (linearityModality v₁) R₁)
     (second-ΠΣ-quantities-𝟘-or-ω ω (affineModality v₂) R₂)
     linearity→affine linearity→affine
-linearity→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω v₁ v₁-ok v₂ =
+linearity→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω v₁ v₂ =
   Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-    (linearityModality v₁ v₁-ok)
+    (linearityModality v₁)
     (affineModality v₂)
     (λ where
        {p = 𝟘} _  → refl

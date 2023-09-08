@@ -20,10 +20,13 @@ open import Graded.Modality.Dedicated-nr 𝕄
 open import Graded.Mode 𝕄
 open import Definition.Untyped M hiding (_∙_)
 
+open import Tools.Bool using (T)
 open import Tools.Fin
 open import Tools.Nat using (Nat)
 open import Tools.Nullary
+open import Tools.Product
 open import Tools.PropositionalEquality using (_≡_)
+open import Tools.Sum using (_⊎_)
 
 infix 10 _▸[_]_
 
@@ -137,6 +140,25 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
   -- A usage rule for natrec which applies if a dedicated nr function
   -- is not available.
   --
+  -- There are four inequality assumptions:
+  --
+  -- * Two are always required to hold. These assumptions are (at the
+  --   time of writing) for instance used to prove the natrec-zero and
+  --   natrec-suc cases of the subject reduction lemma
+  --   Graded.Reduction.usagePresTerm.
+  --
+  -- * The assumption χ ≤ᶜ η is only required to hold if the
+  --   modality's zero is well-behaved. This assumption is (at the
+  --   time of writing) used, together with the two unrestricted
+  --   assumptions, to prove the fundamental lemma
+  --   Graded.Erasure.LogicalRelation.Fundamental.Fundamental.fundamental
+  --   (among other things). The statement of this lemma includes the
+  --   assumption that the modality's zero is well-behaved.
+  --
+  -- * The assumption χ ≤ᶜ δ is only required to hold if 𝟘ᵐ is
+  --   allowed. This assumption is used to prove the substitution
+  --   lemma Graded.Substitution.Properties.substₘ-lemma.
+  --
   -- Note that this rule may not always be appropriate. See
   -- Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr,
   -- Graded.Modality.Instances.Affine.Bad.No-dedicated-nr and
@@ -148,7 +170,12 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s
             → η ▸[ m ] n
             → θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
-            → χ ≤ᶜ γ ∧ᶜ η ∧ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ)
+            → χ ≤ᶜ γ
+            → (T 𝟘ᵐ-allowed →
+               χ ≤ᶜ δ)
+            → (Has-well-behaved-zero semiring-with-meet →
+               χ ≤ᶜ η)
+            → χ ≤ᶜ δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ
             → χ ▸[ m ] natrec p q r A z s n
 
   emptyrecₘ : γ ▸[ m ᵐ· p ] t

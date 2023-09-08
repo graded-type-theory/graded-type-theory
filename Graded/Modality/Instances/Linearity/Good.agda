@@ -6,6 +6,7 @@ open import Tools.Level
 
 open import Definition.Typed.Restrictions
 
+import Graded.Modality.Dedicated-nr
 import Graded.Modality.Instances.Linearity
 open import Graded.Modality.Variant lzero
 open import Graded.Usage.Restrictions
@@ -13,16 +14,15 @@ open import Graded.Usage.Restrictions
 module Graded.Modality.Instances.Linearity.Good
   -- The modality variant.
   (variant : Modality-variant)
-  (open Modality-variant variant)
-  -- There is a dedicated nr function.
-  (nr-available : Nr-available)
-  (open Graded.Modality.Instances.Linearity variant
-          (λ ¬-nr-available _ → ¬-nr-available nr-available))
+  (open Graded.Modality.Instances.Linearity variant)
+  (open Graded.Modality.Dedicated-nr linearityModality)
   (TR : Type-restrictions Linearity)
   (open Type-restrictions TR)
   (UR : Usage-restrictions Linearity)
   -- It is assumed that "Π 𝟙 , 𝟘" is allowed.
   (Π-𝟙-𝟘 : Π-allowed 𝟙 𝟘)
+  -- There is a dedicated nr function.
+  ⦃ has-nr : Dedicated-nr ⦄
   where
 
 open import Tools.Empty
@@ -36,20 +36,12 @@ open import Graded.Modality Linearity
 open import Graded.Modality.Instances.Examples
   linearityModality TR Π-𝟙-𝟘
 open import Graded.Modality.Properties linearityModality
-open import Graded.Modality.Dedicated-nr linearityModality
 open import Graded.Mode linearityModality
 open import Graded.Usage linearityModality UR
 open import Graded.Usage.Inversion linearityModality UR
 
 private
   module M = Modality linearityModality
-
-private instance
-
-  -- A Dedicated-nr instance.
-
-  has-dedicated-nr : Dedicated-nr
-  has-dedicated-nr = dedicated-nr nr-available
 
 -- The term double is not well-resourced.
 
@@ -58,7 +50,7 @@ private instance
   case inv-usage-lam ▸λ+ of λ {
     (invUsageLam {δ = ε} ▸+ ε) →
   case inv-usage-natrec ▸+ of λ {
-    (invUsageNatrec _ _ _ _ _ (invUsageNatrecNoNr _)) →
+    (invUsageNatrec _ _ _ _ _ (invUsageNatrecNoNr _ _ _ _)) →
        ⊥-elim not-nr-and-no-nr;
     (invUsageNatrec {δ = _ ∙ p} {η = _ ∙ q} {θ = _ ∙ r}
        ▸x0₁ _ ▸x0₂ _ (_ ∙ 𝟙≤nr) invUsageNatrecNr) →

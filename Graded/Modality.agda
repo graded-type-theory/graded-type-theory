@@ -235,7 +235,3 @@ record Modality : Set (lsuc a) where
     -- If the modality is supposed to come with a dedicated nr
     -- function, then such a function is available.
     has-nr : Nr-available → Has-nr semiring-with-meet
-
-    -- If the mode 𝟘ᵐ is allowed and the modality does not come with a
-    -- dedicated nr function, then _+ q is decreasing.
-    +-decreasingˡ : T 𝟘ᵐ-allowed → ¬ Nr-available → ∀ p q → p + q ≤ p

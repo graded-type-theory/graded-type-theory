@@ -133,16 +133,19 @@ neNeg {γ = γ}
   (natrecⱼ {A = A} {n = n} _ _ _ ⊢n) (natrecₙ n-ne) γ▸natrec =
   case inv-usage-natrec γ▸natrec of λ {
     (invUsageNatrec {δ = δ} {θ = θ} {χ = χ} _ _ θ▸n _ γ≤χ extra) →
-  NegativeErasedContext Γ γ  →⟨ NegativeErasedContext-upwards-closed 𝟘-well-behaved γ≤χ ⟩
-  NegativeErasedContext Γ χ  →⟨ (NegativeErasedContext-𝟘 λ _ → case extra of λ where
-                                   invUsageNatrecNr →
-                                     proj₂ ∘→ proj₂ ∘→ nrᶜ-positive-⟨⟩ 𝟘-well-behaved δ
-                                   (invUsageNatrecNoNr fix) →
-                                     proj₁ ∘→ proj₂ ∘→ ⟨⟩≡𝟘→⟨⟩≡𝟘-fixpoint 𝟘-well-behaved fix _) ⟩
-  NegativeErasedContext Γ θ  →⟨ neNeg ⊢n n-ne θ▸n ⟩
-  NegativeType Γ ℕ           →⟨ flip ¬negℕ (refl (ℕⱼ (wfTerm ⊢n))) ⟩
-  ⊥                          →⟨ ⊥-elim ⟩
-  NegativeType Γ (A [ n ]₀)  □ }
+  NegativeErasedContext Γ γ            →⟨ NegativeErasedContext-upwards-closed 𝟘-well-behaved γ≤χ ⟩
+  NegativeErasedContext Γ χ            →⟨ (NegativeErasedContext-𝟘 λ x → case extra of λ {
+                                             invUsageNatrecNr →
+                                               proj₂ ∘→ proj₂ ∘→ nrᶜ-positive-⟨⟩ 𝟘-well-behaved δ;
+                                             (invUsageNatrecNoNr _ _ χ≤θ _) →
+                                                $⟨ χ≤θ 𝟘-well-behaved ⟩
+    χ ≤ᶜ θ                                      →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 𝟘-well-behaved ⟩
+    (χ ⟨ x ⟩ PE.≡ 𝟘 → θ ⟨ x ⟩ PE.≡ 𝟘)           □ }) ⟩
+
+  NegativeErasedContext Γ θ            →⟨ neNeg ⊢n n-ne θ▸n ⟩
+  NegativeType Γ ℕ                     →⟨ flip ¬negℕ (refl (ℕⱼ (wfTerm ⊢n))) ⟩
+  ⊥                                    →⟨ ⊥-elim ⟩
+  NegativeType Γ (A [ n ]₀)            □ }
 neNeg
   {γ = γ}
   (prodrecⱼ {F = B} {G = C} {p = p} {q′ = q} {A = A} {t = t} {r = r}

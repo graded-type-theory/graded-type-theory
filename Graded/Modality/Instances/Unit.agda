@@ -192,7 +192,6 @@ UnitModality variant not-ok = record
   ; 𝟘-well-behaved     = ⊥-elim ∘→ not-ok
   ; has-nr             = λ _ →
                            Star.has-nr _ ⦃ has-star = unit-has-star ⦄
-  ; +-decreasingˡ      = ⊥-elim ∘→ not-ok
   }
 
 -- The full reduction assumptions hold for any instance of

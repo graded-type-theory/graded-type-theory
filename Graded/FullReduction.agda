@@ -166,10 +166,10 @@ module _ (as : Full-reduction-assumptions) where
             sub (natrecₘ (fullRedTermConv↑ t↑ ▸t) (fullRedTermConv↑ u↑ ▸u)
                    (fullRedNe~↓ v~ ▸v) (fullRedConv↑ A↑ ▸A))
               γ≤
-          (invUsageNatrecNoNr fix) →
+          (invUsageNatrecNoNr χ≤δ χ≤η χ≤θ fix) →
             sub (natrec-no-nrₘ (fullRedTermConv↑ t↑ ▸t)
                    (fullRedTermConv↑ u↑ ▸u) (fullRedNe~↓ v~ ▸v)
-                   (fullRedConv↑ A↑ ▸A) fix)
+                   (fullRedConv↑ A↑ ▸A) χ≤δ χ≤η χ≤θ fix)
               γ≤ }
       (prodrec-cong C↑ u~ v↑) ▸prodrec →
         case inv-usage-prodrec ▸prodrec of λ {

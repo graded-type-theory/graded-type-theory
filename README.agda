@@ -126,21 +126,6 @@ plus-linear  = Graded.Modality.Instances.Examples.⊢plus
 plus-not-ok₁ = Graded.Modality.Instances.Linearity.Bad.¬▸plus
 plus-not-ok₂ = Graded.Modality.Instances.Linear-or-affine.Bad.¬▸plus
 
--- The problems also affect the system with the alternative usage rule
--- for natrec from Section 7.1.4.
-
-double-ok₄ =
-  Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr.▸double
-double-ok₅ =
-  Graded.Modality.Instances.Affine.Bad.No-dedicated-nr.▸double
-double-ok₆ =
-  Graded.Modality.Instances.Linear-or-affine.Bad.No-dedicated-nr.▸double
-
-plus-not-ok₃ =
-  Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr.¬▸plus
-plus-not-ok₄ =
-  Graded.Modality.Instances.Linear-or-affine.Bad.No-dedicated-nr.¬▸plus
-
 -- In order to make the theory more flexible the natrec-star operator
 -- in the main usage rule for natrec has been replaced by an "nr
 -- function" (natrec usage function). Previously the usage rule had
@@ -196,9 +181,52 @@ double-not-ok₃ =
 plus-ok₁ = Graded.Modality.Instances.Linearity.Good.▸plus
 plus-ok₂ = Graded.Modality.Instances.Linear-or-affine.Good.▸plus
 
--- At the time of writing no changes have been made to the alternative
--- usage rule for natrec, so that rule should perhaps not be used for
--- linear or affine types.
+-- Section 7.1.4 in the paper briefly discusses an alternative usage
+-- rule for natrec. This rule has been changed:
+--
+-- * The inequality χ ≤ γ ∧ η ∧ (δ + pη + rχ) was replaced by three
+--   inequalities: χ ≤ γ, χ ≤ η and χ ≤ δ + pη + rχ.
+--
+-- * The inequality χ ≤ η is now only required to hold for modalities
+--   with a well-behaved zero, because that suffices for the proofs in
+--   the formalisation.
+--
+-- * A new inequality, χ ≤ δ, has been added. This inequality is only
+--   required to hold if the mode 𝟘ᵐ is allowed. Footnote 10 in the
+--   paper states that an extra assumption, p + q ≤ p, is used for the
+--   system with two modes: now the inequality χ ≤ δ is used instead.
+--
+-- The problems discussed above also affect the alternative usage rule
+-- for natrec:
+--
+-- * The linear/affine doubling function is well-resoured (for the
+--   linear or affine types modality, and the linear types modality,
+--   this is only the case if 𝟘ᵐ is not allowed).
+--
+-- * The linear addition function is not well-resourced.
+
+double-ok₄ =
+  Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr.▸double
+double-ok₅ =
+  Graded.Modality.Instances.Affine.Bad.No-dedicated-nr.▸double
+double-ok₆ =
+  Graded.Modality.Instances.Linear-or-affine.Bad.No-dedicated-nr.▸double
+
+plus-not-ok₃ =
+  Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr.¬▸plus
+plus-not-ok₄ =
+  Graded.Modality.Instances.Linear-or-affine.Bad.No-dedicated-nr.¬▸plus
+
+-- Thus this rule should perhaps not be used for linear or affine
+-- types.
+--
+-- For the linear or affine types modality, and the linear types
+-- modality, one could ensure that the doubling function is never
+-- well-resourced (irrespective of whether 𝟘ᵐ is allowed) by requiring
+-- that the new inequality χ ≤ δ holds for modalities with
+-- well-behaved zeros. However, the linear addition function would
+-- still not be well-resourced, and the doubling function would still
+-- be well-resourced for the affine types modality.
 
 ------------------------------------------------------------------------
 -- Differences between the paper and the code

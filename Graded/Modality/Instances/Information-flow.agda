@@ -657,16 +657,6 @@ L≤M≤H variant = record
   ; 𝟘-well-behaved     = λ _ → L≤M≤H-has-well-behaved-zero
   ; has-nr             = λ _ →
                            Star.has-nr _ ⦃ has-star = L≤M≤H-has-star ⦄
-  ; +-decreasingˡ      = λ _ _ → λ where
-      L L → refl
-      L M → refl
-      L H → refl
-      M L → refl
-      M M → refl
-      M H → refl
-      H L → refl
-      H M → refl
-      H H → refl
   }
 
 ------------------------------------------------------------------------

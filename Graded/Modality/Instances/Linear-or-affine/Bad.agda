@@ -6,6 +6,7 @@ open import Tools.Level
 
 open import Definition.Typed.Restrictions
 
+import Graded.Modality.Dedicated-nr
 open import Graded.Modality.Instances.Linear-or-affine
 open import Graded.Modality.Variant lzero
 open import Graded.Usage.Restrictions
@@ -13,14 +14,14 @@ open import Graded.Usage.Restrictions
 module Graded.Modality.Instances.Linear-or-affine.Bad
   -- The modality variant.
   (variant : Modality-variant)
-  (open Modality-variant variant)
+  (open Graded.Modality.Dedicated-nr (bad-linear-or-affine variant))
   (TR : Type-restrictions Linear-or-affine)
   (open Type-restrictions TR)
   (UR : Usage-restrictions Linear-or-affine)
-  -- There is a dedicated nr function.
-  (nr-available : Nr-available)
   -- It is assumed that "Π 𝟙 , 𝟘" is allowed.
   (Π-𝟙-𝟘 : Π-allowed 𝟙 𝟘)
+  -- There is a dedicated nr function.
+  ⦃ has-nr : Dedicated-nr ⦄
   where
 
 open import Tools.Empty
@@ -37,10 +38,7 @@ private
   -- The modality that is used in this file.
 
   linear-or-affine′ : Modality
-  linear-or-affine′ =
-    bad-linear-or-affine
-      variant
-      (λ ¬-nr-available _ → ¬-nr-available nr-available)
+  linear-or-affine′ = bad-linear-or-affine variant
 
   module M = Modality linear-or-affine′
 
@@ -49,17 +47,9 @@ open import Graded.Context.Properties linear-or-affine′
 open import Graded.Modality.Instances.Examples
   linear-or-affine′ TR Π-𝟙-𝟘
 open import Graded.Modality.Properties linear-or-affine′
-open import Graded.Modality.Dedicated-nr linear-or-affine′
 open import Graded.Mode linear-or-affine′
 open import Graded.Usage linear-or-affine′ UR
 open import Graded.Usage.Inversion linear-or-affine′ UR
-
-private instance
-
-  -- A Dedicated-nr instance.
-
-  has-dedicated-nr : Dedicated-nr
-  has-dedicated-nr = dedicated-nr nr-available
 
 -- The term double is well-resourced (even though it can be given a
 -- linear type).
@@ -86,7 +76,7 @@ private instance
     (invUsageLam {δ = _ ∙ ≤𝟙} _  (_ ∙ ()));
     (invUsageLam {δ = _ ∙ 𝟙}  ▸+ _) →
   case inv-usage-natrec ▸+ of λ {
-    (invUsageNatrec _ _ _ _ _ (invUsageNatrecNoNr _)) →
+    (invUsageNatrec _ _ _ _ _ (invUsageNatrecNoNr _ _ _ _)) →
        ⊥-elim not-nr-and-no-nr;
     (invUsageNatrec {δ = _ ∙ p ∙ _} {η = _ ∙ q ∙ _} {θ = _ ∙ r ∙ _}
        ▸x0 _ _ _ (_ ∙ 𝟙≤nr ∙ _) invUsageNatrecNr) →

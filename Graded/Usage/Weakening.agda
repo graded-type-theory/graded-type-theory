@@ -171,26 +171,23 @@ wkUsage ρ (natrecₘ γ▸z δ▸s η▸n θ▸A) =
 wkUsage
   ρ
   (natrec-no-nrₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
-     ▸z ▸s ▸n ▸A fix) =
+     ▸z ▸s ▸n ▸A χ≤γ χ≤δ χ≤η fix) =
   natrec-no-nrₘ
     (wkUsage ρ ▸z)
     (wkUsage (liftn ρ 2) ▸s)
     (wkUsage ρ ▸n)
     (wkUsage (lift ρ) ▸A)
+    (wk-≤ᶜ ρ χ≤γ)
+    (wk-≤ᶜ ρ ∘→ χ≤δ)
+    (wk-≤ᶜ ρ ∘→ χ≤η)
     (begin
-       wkConₘ ρ χ                                          ≤⟨ wk-≤ᶜ _ fix ⟩
+       wkConₘ ρ χ                                        ≤⟨ wk-≤ᶜ _ fix ⟩
 
-       wkConₘ ρ (γ ∧ᶜ η ∧ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ))        ≈⟨ ≈ᶜ-trans (wk-∧ᶜ ρ) $
-                                                              ∧ᶜ-congˡ $
-                                                              ≈ᶜ-trans (wk-∧ᶜ ρ) $
-                                                              ∧ᶜ-congˡ $
-                                                              ≈ᶜ-trans (wk-+ᶜ ρ) $
-                                                              +ᶜ-congˡ $
-                                                              ≈ᶜ-trans (wk-+ᶜ ρ) $
-                                                              +ᶜ-cong (wk-·ᶜ ρ) (wk-·ᶜ ρ) ⟩
-
-       wkConₘ ρ γ ∧ᶜ wkConₘ ρ η ∧ᶜ
-       (wkConₘ ρ δ +ᶜ p ·ᶜ wkConₘ ρ η +ᶜ r ·ᶜ wkConₘ ρ χ)  ∎)
+       wkConₘ ρ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ)                  ≈⟨ ≈ᶜ-trans (wk-+ᶜ ρ) $
+                                                            +ᶜ-congˡ $
+                                                            ≈ᶜ-trans (wk-+ᶜ ρ) $
+                                                            +ᶜ-cong (wk-·ᶜ ρ) (wk-·ᶜ ρ) ⟩
+       wkConₘ ρ δ +ᶜ p ·ᶜ wkConₘ ρ η +ᶜ r ·ᶜ wkConₘ ρ χ  ∎)
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 wkUsage ρ (emptyrecₘ γ▸t δ▸A) =
@@ -393,7 +390,7 @@ wkUsage⁻¹ ▸t = wkUsage⁻¹′ ▸t refl
              (wkUsage⁻¹ ▸v) (wkUsage⁻¹ ▸A))
           (≤ᶜ-reflexive (wkConₘ⁻¹-nrᶜ ρ)) }
       (natrec-no-nrₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
-         ▸t ▸u ▸v ▸A fix)
+         ▸t ▸u ▸v ▸A χ≤γ χ≤δ χ≤η fix)
         eq →
         case wk-natrec eq of λ {
           (_ , _ , _ , _ , refl , refl , refl , refl , refl) →
@@ -402,19 +399,17 @@ wkUsage⁻¹ ▸t = wkUsage⁻¹′ ▸t refl
           (wkUsage⁻¹ ▸u)
           (wkUsage⁻¹ ▸v)
           (wkUsage⁻¹ ▸A)
+          (wkConₘ⁻¹-monotone ρ χ≤γ)
+          (wkConₘ⁻¹-monotone ρ ∘→ χ≤δ)
+          (wkConₘ⁻¹-monotone ρ ∘→ χ≤η)
           (begin
-             wkConₘ⁻¹ ρ χ                                              ≤⟨ wkConₘ⁻¹-monotone ρ fix ⟩
+             wkConₘ⁻¹ ρ χ                                            ≤⟨ wkConₘ⁻¹-monotone ρ fix ⟩
 
-             wkConₘ⁻¹ ρ (γ ∧ᶜ η ∧ᶜ δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ)              ≈⟨ ≈ᶜ-trans (wkConₘ⁻¹-∧ᶜ ρ) $
-                                                                          ∧ᶜ-congˡ $
-                                                                          ≈ᶜ-trans (wkConₘ⁻¹-∧ᶜ ρ) $
-                                                                          ∧ᶜ-congˡ $
-                                                                          ≈ᶜ-trans (wkConₘ⁻¹-+ᶜ ρ) $
-                                                                          +ᶜ-congˡ $
-                                                                          ≈ᶜ-trans (wkConₘ⁻¹-+ᶜ ρ) $
-                                                                          +ᶜ-cong (wkConₘ⁻¹-·ᶜ ρ) (wkConₘ⁻¹-·ᶜ ρ) ⟩
-             wkConₘ⁻¹ ρ γ ∧ᶜ wkConₘ⁻¹ ρ η ∧ᶜ
-             (wkConₘ⁻¹ ρ δ +ᶜ p ·ᶜ wkConₘ⁻¹ ρ η +ᶜ r ·ᶜ wkConₘ⁻¹ ρ χ)  ∎) }
+             wkConₘ⁻¹ ρ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ)                      ≈⟨ ≈ᶜ-trans (wkConₘ⁻¹-+ᶜ ρ) $
+                                                                        +ᶜ-congˡ $
+                                                                        ≈ᶜ-trans (wkConₘ⁻¹-+ᶜ ρ) $
+                                                                        +ᶜ-cong (wkConₘ⁻¹-·ᶜ ρ) (wkConₘ⁻¹-·ᶜ ρ) ⟩
+             wkConₘ⁻¹ ρ δ +ᶜ p ·ᶜ wkConₘ⁻¹ ρ η +ᶜ r ·ᶜ wkConₘ⁻¹ ρ χ  ∎) }
       (emptyrecₘ ▸t ▸A) eq →
         case wk-emptyrec eq of λ {
           (_ , _ , refl , refl , refl) →

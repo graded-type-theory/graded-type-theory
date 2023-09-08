@@ -142,6 +142,5 @@ modality variant refl bl = L.isModality
   ⊥≤
   variant
   (λ ())
-  (λ ())
   where
   open Bounded-distributive-lattice bl

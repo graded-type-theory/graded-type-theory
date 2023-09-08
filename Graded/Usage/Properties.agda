@@ -188,32 +188,35 @@ var-usage-lookup (there x) = var-usage-lookup x
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 ▸-· {m = m} {m′ = m′}
   (natrec-no-nrₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
-     γ▸z δ▸s η▸n θ▸A fix) =
+     γ▸z δ▸s η▸n θ▸A χ≤γ χ≤δ χ≤η fix) =
   natrec-no-nrₘ (▸-· γ▸z)
     (sub (▸-· δ▸s)
        (≤ᶜ-reflexive (≈ᶜ-refl ∙ ·ᵐ-·-assoc m′ ∙ ·ᵐ-·-assoc m′)))
     (▸-· η▸n)
     θ▸A
     (begin
-       ⌜ m′ ⌝ ·ᶜ χ                                              ≤⟨ ·ᶜ-monotoneʳ fix ⟩
+       ⌜ m′ ⌝ ·ᶜ χ  ≤⟨ ·ᶜ-monotoneʳ χ≤γ ⟩
+       ⌜ m′ ⌝ ·ᶜ γ  ∎)
+    (λ ok → begin
+       ⌜ m′ ⌝ ·ᶜ χ  ≤⟨ ·ᶜ-monotoneʳ (χ≤δ ok) ⟩
+       ⌜ m′ ⌝ ·ᶜ δ  ∎)
+    (λ ok → begin
+       ⌜ m′ ⌝ ·ᶜ χ  ≤⟨ ·ᶜ-monotoneʳ (χ≤η ok) ⟩
+       ⌜ m′ ⌝ ·ᶜ η  ∎)
+    (begin
+       ⌜ m′ ⌝ ·ᶜ χ                                          ≤⟨ ·ᶜ-monotoneʳ fix ⟩
 
-       ⌜ m′ ⌝ ·ᶜ (γ ∧ᶜ η ∧ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ))            ≈⟨ ≈ᶜ-trans (·ᶜ-distribˡ-∧ᶜ _ _ _) $
-                                                                   ∧ᶜ-congˡ $
-                                                                   ≈ᶜ-trans (·ᶜ-distribˡ-∧ᶜ _ _ _) $
-                                                                   ∧ᶜ-congˡ $
-                                                                   ≈ᶜ-trans (·ᶜ-distribˡ-+ᶜ _ _ _) $
-                                                                   +ᶜ-congˡ $
-                                                                   ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
-       ⌜ m′ ⌝ ·ᶜ γ ∧ᶜ ⌜ m′ ⌝ ·ᶜ η ∧ᶜ
-       (⌜ m′ ⌝ ·ᶜ δ +ᶜ ⌜ m′ ⌝ ·ᶜ p ·ᶜ η +ᶜ ⌜ m′ ⌝ ·ᶜ r ·ᶜ χ)    ≈⟨ ∧ᶜ-congˡ $ ∧ᶜ-congˡ $ +ᶜ-congˡ $ +ᶜ-cong
-                                                                   (≈ᶜ-trans (≈ᶜ-sym (·ᶜ-assoc _ _ _)) $
-                                                                    ≈ᶜ-trans (·ᶜ-congʳ (⌜⌝-·-comm m′)) $
-                                                                    ·ᶜ-assoc _ _ _)
-                                                                   (≈ᶜ-trans (≈ᶜ-sym (·ᶜ-assoc _ _ _)) $
-                                                                    ≈ᶜ-trans (·ᶜ-congʳ (⌜⌝-·-comm m′)) $
-                                                                    ·ᶜ-assoc _ _ _) ⟩
-       ⌜ m′ ⌝ ·ᶜ γ ∧ᶜ ⌜ m′ ⌝ ·ᶜ η ∧ᶜ
-       (⌜ m′ ⌝ ·ᶜ δ +ᶜ p ·ᶜ ⌜ m′ ⌝ ·ᶜ η +ᶜ r ·ᶜ ⌜ m′ ⌝ ·ᶜ χ)    ∎)
+       ⌜ m′ ⌝ ·ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ)                    ≈⟨ ≈ᶜ-trans (·ᶜ-distribˡ-+ᶜ _ _ _) $
+                                                               +ᶜ-congˡ $
+                                                               ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
+       ⌜ m′ ⌝ ·ᶜ δ +ᶜ ⌜ m′ ⌝ ·ᶜ p ·ᶜ η +ᶜ ⌜ m′ ⌝ ·ᶜ r ·ᶜ χ  ≈⟨ +ᶜ-congˡ $ +ᶜ-cong
+                                                               (≈ᶜ-trans (≈ᶜ-sym (·ᶜ-assoc _ _ _)) $
+                                                                ≈ᶜ-trans (·ᶜ-congʳ (⌜⌝-·-comm m′)) $
+                                                                ·ᶜ-assoc _ _ _)
+                                                               (≈ᶜ-trans (≈ᶜ-sym (·ᶜ-assoc _ _ _)) $
+                                                                ≈ᶜ-trans (·ᶜ-congʳ (⌜⌝-·-comm m′)) $
+                                                                ·ᶜ-assoc _ _ _) ⟩
+       ⌜ m′ ⌝ ·ᶜ δ +ᶜ p ·ᶜ ⌜ m′ ⌝ ·ᶜ η +ᶜ r ·ᶜ ⌜ m′ ⌝ ·ᶜ χ  ∎)
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 ▸-· {m′ = m′} (emptyrecₘ {γ = γ} {m = m} {p = p} e A) = sub
@@ -382,7 +385,7 @@ Usage-restrictions-satisfied = λ where
     ▸→Usage-restrictions-satisfied ▸t ,
     ▸→Usage-restrictions-satisfied ▸u ,
     ▸→Usage-restrictions-satisfied ▸v
-  (natrec-no-nrₘ ▸t ▸u ▸v ▸A _) →
+  (natrec-no-nrₘ ▸t ▸u ▸v ▸A _ _ _ _) →
     ▸→Usage-restrictions-satisfied ▸A ,
     ▸→Usage-restrictions-satisfied ▸t ,
     ▸→Usage-restrictions-satisfied ▸u ,
@@ -489,14 +492,13 @@ Usage-restrictions-satisfied→▸[𝟘ᵐ] {ok = 𝟘ᵐ-ok} = lemma _
             𝟘ᶜ                ≈˘⟨ nrᶜ-𝟘ᶜ ⟩
             nrᶜ p r 𝟘ᶜ 𝟘ᶜ 𝟘ᶜ  ∎
         does-not-have-nr →
-          natrec-no-nrₘ t-lemma u-lemma v-lemma A-lemma $
+          natrec-no-nrₘ t-lemma u-lemma v-lemma A-lemma
+            ≤ᶜ-refl (λ _ → ≤ᶜ-refl) (λ _ → ≤ᶜ-refl) $
           let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-            𝟘ᶜ                                        ≈˘⟨ ∧ᶜ-idem _ ⟩
-            𝟘ᶜ ∧ᶜ 𝟘ᶜ                                  ≈˘⟨ ∧ᶜ-congˡ (+ᶜ-identityˡ _) ⟩
-            𝟘ᶜ ∧ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ)                          ≈˘⟨ ∧ᶜ-congˡ (+ᶜ-cong (·ᶜ-zeroʳ _) (·ᶜ-zeroʳ _)) ⟩
-            𝟘ᶜ ∧ᶜ (p ·ᶜ 𝟘ᶜ +ᶜ r ·ᶜ 𝟘ᶜ)                ≈˘⟨ ∧ᶜ-cong (∧ᶜ-idem _) (+ᶜ-identityˡ _) ⟩
-            (𝟘ᶜ ∧ᶜ 𝟘ᶜ) ∧ᶜ (𝟘ᶜ +ᶜ p ·ᶜ 𝟘ᶜ +ᶜ r ·ᶜ 𝟘ᶜ)  ≈⟨ ∧ᶜ-assoc _ _ _ ⟩
-            𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ (𝟘ᶜ +ᶜ p ·ᶜ 𝟘ᶜ +ᶜ r ·ᶜ 𝟘ᶜ)    ∎
+            𝟘ᶜ                        ≈˘⟨ +ᶜ-identityʳ _ ⟩
+            𝟘ᶜ +ᶜ 𝟘ᶜ                  ≈˘⟨ +ᶜ-cong (·ᶜ-zeroʳ _) (·ᶜ-zeroʳ _) ⟩
+            p ·ᶜ 𝟘ᶜ +ᶜ r ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityˡ _ ⟩
+            𝟘ᶜ +ᶜ p ·ᶜ 𝟘ᶜ +ᶜ r ·ᶜ 𝟘ᶜ  ∎
     (emptyrec p A t) (A-ok , t-ok) →
       let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
       sub (emptyrecₘ (lemma t t-ok) $
@@ -601,12 +603,10 @@ Usage-restrictions-satisfied→▸[𝟘ᵐ] {ok = 𝟘ᵐ-ok} = lemma _
   open import Graded.Modality.Dedicated-nr.Instance
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 ▸-𝟘ᵐ
-  (natrec-no-nrₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
-     γ▸ _ _ _ fix) = begin
-  χ                                  ≤⟨ fix ⟩
-  γ ∧ᶜ η ∧ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ)  ≤⟨ ∧ᶜ-decreasingˡ _ _ ⟩
-  γ                                  ≤⟨ ▸-𝟘ᵐ γ▸ ⟩
-  𝟘ᶜ                                 ∎
+  (natrec-no-nrₘ {γ = γ} {χ = χ} γ▸ _ _ _ χ≤γ _ _ _) = begin
+  χ   ≤⟨ χ≤γ ⟩
+  γ   ≤⟨ ▸-𝟘ᵐ γ▸ ⟩
+  𝟘ᶜ  ∎
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 ▸-𝟘ᵐ (emptyrecₘ {γ = γ} {p = p} γ▸ _) = begin
@@ -890,9 +890,9 @@ Conₘ-interchange
 
 Conₘ-interchange
   (natrec-no-nrₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
-     ⦃ no-nr = ¬nr ⦄ γ▸z δ▸s η▸n θ▸A fix)
+     ⦃ no-nr = ¬nr ⦄ γ▸z δ▸s η▸n θ▸A χ≤γ χ≤δ χ≤η fix)
   (natrec-no-nrₘ {γ = γ′} {δ = δ′} {η = η′} {χ = χ′}
-     γ′▸z δ′▸s η′▸n _ fix′)
+     γ′▸z δ′▸s η′▸n _ χ′≤γ′ χ′≤δ′ χ′≤η′ fix′)
   x =
   natrec-no-nrₘ ⦃ no-nr = ¬nr ⦄
     (Conₘ-interchange γ▸z γ′▸z x)
@@ -900,43 +900,40 @@ Conₘ-interchange
     (Conₘ-interchange η▸n η′▸n x)
     θ▸A
     (begin
-       χ , x ≔ χ′ ⟨ x ⟩                                      ≤⟨ update-monotone _ fix (lookup-monotone _ fix′) ⟩
+       χ , x ≔ χ′ ⟨ x ⟩  ≤⟨ update-monotone _ χ≤γ (lookup-monotone _ χ′≤γ′) ⟩
+       γ , x ≔ γ′ ⟨ x ⟩  ∎)
+    (λ ok → begin
+       χ , x ≔ χ′ ⟨ x ⟩  ≤⟨ update-monotone _ (χ≤δ ok) (lookup-monotone _ (χ′≤δ′ ok)) ⟩
+       δ , x ≔ δ′ ⟨ x ⟩  ∎)
+    (λ ok → begin
+       χ , x ≔ χ′ ⟨ x ⟩  ≤⟨ update-monotone _ (χ≤η ok) (lookup-monotone _ (χ′≤η′ ok)) ⟩
+       η , x ≔ η′ ⟨ x ⟩  ∎)
+    (begin
+       χ , x ≔ χ′ ⟨ x ⟩                                              ≤⟨ update-monotone _ fix (lookup-monotone _ fix′) ⟩
 
-       (γ ∧ᶜ η ∧ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ)) ,
-       x ≔ (γ′ ∧ᶜ η′ ∧ᶜ (δ′ +ᶜ p ·ᶜ η′ +ᶜ r ·ᶜ χ′)) ⟨ x ⟩    ≈⟨ update-congʳ $
-                                                                trans (lookup-distrib-∧ᶜ γ′ _ _) $
-                                                                cong (_ ∧_) $
-                                                                trans (lookup-distrib-∧ᶜ η′ _ _) $
-                                                                cong (_ ∧_) $
-                                                                trans (lookup-distrib-+ᶜ δ′ _ _) $
-                                                                cong (_ +_) $
-                                                                trans (lookup-distrib-+ᶜ (_ ·ᶜ η′) _ _) $
-                                                                cong₂ _+_
-                                                                  (lookup-distrib-·ᶜ η′ _ _)
-                                                                  (lookup-distrib-·ᶜ χ′ _ _) ⟩
-       (γ ∧ᶜ η ∧ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ)) ,
-       x ≔ γ′ ⟨ x ⟩ ∧ η′ ⟨ x ⟩ ∧
-           (δ′ ⟨ x ⟩ + p · η′ ⟨ x ⟩ + r · χ′ ⟨ x ⟩)          ≡⟨ trans (update-distrib-∧ᶜ _ _ _ _ _) $
-                                                                cong (_ ∧ᶜ_) $
-                                                                trans (update-distrib-∧ᶜ _ _ _ _ _) $
-                                                                cong (_ ∧ᶜ_) $
-                                                                trans (update-distrib-+ᶜ _ _ _ _ _) $
-                                                                cong (_ +ᶜ_) $
-                                                                trans (update-distrib-+ᶜ _ _ _ _ _) $
-                                                                cong₂ _+ᶜ_
-                                                                  (update-distrib-·ᶜ _ _ _ _)
-                                                                  (update-distrib-·ᶜ _ _ _ _) ⟩
-       (γ , x ≔ γ′ ⟨ x ⟩) ∧ᶜ
-       (η , x ≔ η′ ⟨ x ⟩) ∧ᶜ
-       ((δ , x ≔ δ′ ⟨ x ⟩) +ᶜ
-        p ·ᶜ (η , x ≔ η′ ⟨ x ⟩) +ᶜ r ·ᶜ (χ , x ≔ χ′ ⟨ x ⟩))  ∎)
+       δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ , x ≔ (δ′ +ᶜ p ·ᶜ η′ +ᶜ r ·ᶜ χ′) ⟨ x ⟩  ≈⟨ update-congʳ $
+                                                                        trans (lookup-distrib-+ᶜ δ′ _ _) $
+                                                                        cong (_ +_) $
+                                                                        trans (lookup-distrib-+ᶜ (_ ·ᶜ η′) _ _) $
+                                                                        cong₂ _+_
+                                                                          (lookup-distrib-·ᶜ η′ _ _)
+                                                                          (lookup-distrib-·ᶜ χ′ _ _) ⟩
+       δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ ,
+       x ≔ δ′ ⟨ x ⟩ + p · η′ ⟨ x ⟩ + r · χ′ ⟨ x ⟩                    ≡⟨ trans (update-distrib-+ᶜ _ _ _ _ _) $
+                                                                        cong (_ +ᶜ_) $
+                                                                        trans (update-distrib-+ᶜ _ _ _ _ _) $
+                                                                        cong₂ _+ᶜ_
+                                                                          (update-distrib-·ᶜ _ _ _ _)
+                                                                          (update-distrib-·ᶜ _ _ _ _) ⟩
+       (δ , x ≔ δ′ ⟨ x ⟩) +ᶜ
+       p ·ᶜ (η , x ≔ η′ ⟨ x ⟩) +ᶜ r ·ᶜ (χ , x ≔ χ′ ⟨ x ⟩)            ∎)
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-Conₘ-interchange (natrecₘ _ _ _ _) (natrec-no-nrₘ _ _ _ _ _) _ =
+Conₘ-interchange (natrecₘ _ _ _ _) (natrec-no-nrₘ _ _ _ _ _ _ _ _) _ =
   ⊥-elim not-nr-and-no-nr
 
-Conₘ-interchange (natrec-no-nrₘ _ _ _ _ _) (natrecₘ _ _ _ _) _ =
+Conₘ-interchange (natrec-no-nrₘ _ _ _ _ _ _ _ _) (natrecₘ _ _ _ _) _ =
   ⊥-elim not-nr-and-no-nr
 
 Conₘ-interchange
@@ -988,14 +985,21 @@ module _ where
     (⦃ has-nr : Dedicated-nr ⦄ →
      χ ≤ᶜ nrᶜ p r γ δ η) →
     (⦃ no-nr : No-dedicated-nr ⦄ →
-     χ ≤ᶜ γ ∧ᶜ η ∧ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ)) →
+     χ ≤ᶜ γ ×
+     (T 𝟘ᵐ-allowed →
+      χ ≤ᶜ δ) ×
+     (Has-well-behaved-zero semiring-with-meet →
+      χ ≤ᶜ η) ×
+     χ ≤ᶜ δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ) →
     χ ▸[ m ] natrec p q r A t u v
   natrec-nr-or-no-nrₘ ▸t ▸u ▸v ▸A hyp₁ hyp₂ =
     case dedicated-nr? of λ where
       does-have-nr →
         sub (natrecₘ ▸t ▸u ▸v ▸A) hyp₁
       does-not-have-nr →
-        natrec-no-nrₘ ▸t ▸u ▸v ▸A hyp₂
+        case hyp₂ of λ {
+          (χ≤γ , χ≤δ , χ≤η , fix) →
+        natrec-no-nrₘ ▸t ▸u ▸v ▸A χ≤γ χ≤δ χ≤η fix }
 
 ------------------------------------------------------------------------
 -- Lemmas related to ⌈_⌉
@@ -1153,7 +1157,7 @@ usage-upper-bound
     η≤η′ →
   nrᶜ-monotone γ≤γ′ (tailₘ-monotone (tailₘ-monotone δ≤δ′)) η≤η′ }}}}
 
-usage-upper-bound (natrec-no-nrₘ _ _ _ _ _) =
+usage-upper-bound (natrec-no-nrₘ _ _ _ _ _ _ _ _) =
   ⊥-elim not-nr-and-no-nr
 
 usage-upper-bound (emptyrecₘ e A) =
@@ -1218,7 +1222,7 @@ usage-inf
                       (≤ᶜ-refl ∙ headₘ-monotone (tailₘ-monotone (usage-upper-bound δ▸s)) ∙ headₘ-monotone (usage-upper-bound δ▸s))))
           (usage-inf η▸n)
           θ▸A }
-usage-inf (natrec-no-nrₘ _ _ _ _ _) =
+usage-inf (natrec-no-nrₘ _ _ _ _ _ _ _ _) =
   ⊥-elim not-nr-and-no-nr
 usage-inf (emptyrecₘ γ▸t δ▸A) = emptyrecₘ (usage-inf γ▸t) δ▸A
 usage-inf starₘ = starₘ

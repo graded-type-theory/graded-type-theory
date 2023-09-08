@@ -84,5 +84,4 @@ ErasureModality variant = record
   ; semiring-with-meet = erasure-semiring-with-meet
   ; has-nr             = λ _ → erasure-has-nr
   ; 𝟘-well-behaved     = λ _ → erasure-has-well-behaved-zero
-  ; +-decreasingˡ      = λ _ _ → +-decreasingˡ
   }

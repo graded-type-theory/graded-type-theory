@@ -13,10 +13,7 @@ import Graded.Modality.Instances.Linearity
 module Graded.Modality.Instances.Linearity.Properties
   (variant : Modality-variant)
   (open Modality-variant variant)
-  -- If there is no dedicated nr function, then 𝟘ᵐ must not be
-  -- allowed.
-  (variant-ok : ¬ Nr-available → ¬ T 𝟘ᵐ-allowed)
-  (open Graded.Modality.Instances.Linearity variant variant-ok)
+  (open Graded.Modality.Instances.Linearity variant)
   (UR : Usage-restrictions Linearity) where
 
 open Usage-restrictions UR

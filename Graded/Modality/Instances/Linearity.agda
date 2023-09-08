@@ -13,11 +13,9 @@ open import Graded.Modality.Variant lzero
 module Graded.Modality.Instances.Linearity
   -- The modality variant.
   (variant : Modality-variant)
-  (open Modality-variant variant)
-  -- If there is no dedicated nr function, then 𝟘ᵐ must not be
-  -- allowed.
-  (variant-ok : ¬ Nr-available → ¬ T 𝟘ᵐ-allowed)
   where
+
+open Modality-variant variant
 
 open 𝟘𝟙ω renaming (Zero-one-many to Linearity) public
 
@@ -39,7 +37,7 @@ private variable
 -- A "linear types" modality.
 
 linearityModality : Modality
-linearityModality = zero-one-many-modality variant (flip variant-ok)
+linearityModality = zero-one-many-modality variant
 
 -- An alternative (not very good) "linear types" modality.
 --
@@ -52,8 +50,7 @@ linearityModality = zero-one-many-modality variant (flip variant-ok)
 -- "linearity".
 
 bad-linearity-modality : Modality
-bad-linearity-modality =
-  zero-one-many-greatest variant (flip variant-ok)
+bad-linearity-modality = zero-one-many-greatest variant
 
 -- The nr function obtained from linearityModality (if any) is
 -- incomparable to (neither bounded from below nor from above by) the

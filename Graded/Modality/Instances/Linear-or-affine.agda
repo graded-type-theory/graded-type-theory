@@ -1380,8 +1380,7 @@ linear-or-affine-has-star = record
 ------------------------------------------------------------------------
 -- A modality
 
--- A (not very good) "linear or affine types" modality. If there is no
--- dedicated nr function, then 𝟘ᵐ must not be allowed.
+-- A (not very good) "linear or affine types" modality.
 --
 -- See Graded.Modality.Instances.Linear-or-affine.Bad for some
 -- examples that illustrate in what sense this modality is not very
@@ -1391,19 +1390,14 @@ linear-or-affine-has-star = record
 -- the time of writing, this formalisation does not contain any solid
 -- evidence showing that linear-or-affine is "correct".
 
-bad-linear-or-affine :
-  (variant : Modality-variant) →
-  let open Modality-variant variant in
-  (¬ Nr-available → ¬ T 𝟘ᵐ-allowed) →
-  Modality
-bad-linear-or-affine variant ok = record
+bad-linear-or-affine : Modality-variant → Modality
+bad-linear-or-affine variant = record
   { variant            = variant
   ; semiring-with-meet = linear-or-affine-semiring-with-meet
   ; 𝟘-well-behaved     = λ _ → linear-or-affine-has-well-behaved-zero
   ; has-nr             = λ _ →
                            Star.has-nr _
                              ⦃ has-star = linear-or-affine-has-star ⦄
-  ; +-decreasingˡ      = λ 𝟘ᵐ-ok no-star → ⊥-elim (ok no-star 𝟘ᵐ-ok)
   }
 
 ------------------------------------------------------------------------
@@ -3947,20 +3941,14 @@ linear-or-affine-has-nr = record
     ≤ω _  ≤ω ≤ω ≤𝟙 → refl
     ≤ω _  ≤ω ≤ω ≤ω → refl
 
--- A modality defined using linear-or-affine-has-nr. If there is no
--- dedicated nr function, then 𝟘ᵐ must not be allowed.
+-- A modality defined using linear-or-affine-has-nr.
 
-linear-or-affine :
-  (variant : Modality-variant) →
-  let open Modality-variant variant in
-  (¬ Nr-available → ¬ T 𝟘ᵐ-allowed) →
-  Modality
-linear-or-affine variant ok = record
+linear-or-affine : Modality-variant → Modality
+linear-or-affine variant = record
   { variant            = variant
   ; semiring-with-meet = linear-or-affine-semiring-with-meet
   ; 𝟘-well-behaved     = λ _ → linear-or-affine-has-well-behaved-zero
   ; has-nr             = λ _ → linear-or-affine-has-nr
-  ; +-decreasingˡ      = λ 𝟘ᵐ-ok no-star → ⊥-elim (ok no-star 𝟘ᵐ-ok)
   }
 
 ------------------------------------------------------------------------
@@ -4005,10 +3993,8 @@ suitable-for-full-reduction rs =
 -- linear-or-affine and any "suitable" Type-restrictions.
 
 full-reduction-assumptions :
-  let open Modality-variant variant in
-  {variant-ok : ¬ Nr-available → ¬ T 𝟘ᵐ-allowed} →
   Suitable-for-full-reduction trs →
-  Full-reduction-assumptions (linear-or-affine variant variant-ok) trs
+  Full-reduction-assumptions (linear-or-affine variant) trs
 full-reduction-assumptions (¬Unit , ¬𝟘 , ¬≤𝟙 , ¬≤ω) = record
   { 𝟙≤𝟘    = ⊥-elim ∘→ ¬Unit
   ; ≡𝟙⊎𝟙≤𝟘 = λ where

@@ -849,21 +849,15 @@ zero-one-many-lower-bounded-⊛ =
   open Has-star zero-one-many-lower-bounded-star
   open Tools.Reasoning.PropositionalEquality
 
--- A zero-one-many modality. The variant where 𝟘ᵐ is allowed and a
--- dedicated nr function is *not* available is only defined if 𝟙 ≤ 𝟘.
--- The dedicated nr function, if any, is defined using the
--- construction in Graded.Modality.Instances.LowerBounded.
+-- A zero-one-many modality. The dedicated nr function, if any, is
+-- defined using the construction in
+-- Graded.Modality.Instances.LowerBounded.
 
-zero-one-many-lower-bounded :
-  (variant : Modality-variant) →
-  let open Modality-variant variant in
-  (T 𝟘ᵐ-allowed → ¬ Nr-available → T 𝟙≤𝟘) →
-  Modality
-zero-one-many-lower-bounded variant hyp = LowerBounded.isModality
+zero-one-many-lower-bounded : Modality-variant → Modality
+zero-one-many-lower-bounded variant = LowerBounded.isModality
   zero-one-many-semiring-with-meet ω ω≤
   variant
   (λ _ → zero-one-many-has-well-behaved-zero)
-  (λ ok no-star → +-decreasingˡ (hyp ok no-star))
 
 ------------------------------------------------------------------------
 -- A variant of the modality with a "greatest" star operation
@@ -1190,23 +1184,17 @@ zero-one-many-greatest-star = record
 
 -- A zero-one-many modality (with arbitrary "restrictions").
 --
--- The variant where 𝟘ᵐ is allowed and a dedicated nr function is
--- *not* available is only defined if 𝟙 ≤ 𝟘. The dedicated nr
--- function, if any, is the "greatest" one defined above.
+-- The dedicated nr function, if any, is the "greatest" one defined
+-- above.
 
-zero-one-many-greatest :
-  (variant : Modality-variant) →
-  let open Modality-variant variant in
-  (T 𝟘ᵐ-allowed → ¬ Nr-available → T 𝟙≤𝟘) →
-  Modality
-zero-one-many-greatest variant hyp = record
+zero-one-many-greatest : Modality-variant → Modality
+zero-one-many-greatest variant = record
   { variant            = variant
   ; semiring-with-meet = zero-one-many-semiring-with-meet
   ; 𝟘-well-behaved     = λ _ → zero-one-many-has-well-behaved-zero
   ; has-nr             = λ _ →
                            Star.has-nr _
                              ⦃ has-star = zero-one-many-greatest-star ⦄
-  ; +-decreasingˡ      = λ ok no-star → +-decreasingˡ (hyp ok no-star)
   }
 
 ------------------------------------------------------------------------
@@ -1720,15 +1708,10 @@ zero-one-many-has-nr = record
 
 -- A modality defined using zero-one-many-has-nr.
 
-zero-one-many-modality :
-  (variant : Modality-variant) →
-  let open Modality-variant variant in
-  (T 𝟘ᵐ-allowed → ¬ Nr-available → T 𝟙≤𝟘) →
-  Modality
-zero-one-many-modality variant hyp = record
+zero-one-many-modality : Modality-variant → Modality
+zero-one-many-modality variant = record
   { variant            = variant
   ; semiring-with-meet = zero-one-many-semiring-with-meet
   ; 𝟘-well-behaved     = λ _ → zero-one-many-has-well-behaved-zero
   ; has-nr             = λ _ → zero-one-many-has-nr
-  ; +-decreasingˡ      = λ ok no-star → +-decreasingˡ (hyp ok no-star)
   }

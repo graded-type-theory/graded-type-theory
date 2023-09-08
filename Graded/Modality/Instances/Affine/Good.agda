@@ -49,7 +49,7 @@ private
   case inv-usage-lam ▸λ+ of λ {
     (invUsageLam {δ = ε} ▸+ ε) →
   case inv-usage-natrec ▸+ of λ {
-    (invUsageNatrec _ _ _ _ _ (invUsageNatrecNoNr _)) →
+    (invUsageNatrec _ _ _ _ _ (invUsageNatrecNoNr _ _ _ _)) →
        ⊥-elim not-nr-and-no-nr;
     (invUsageNatrec {δ = _ ∙ p} {η = _ ∙ q} {θ = _ ∙ r}
        ▸x0₁ _ ▸x0₂ _ (_ ∙ 𝟙≤nr) invUsageNatrecNr) →

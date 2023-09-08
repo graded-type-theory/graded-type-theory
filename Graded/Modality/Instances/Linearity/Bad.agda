@@ -6,6 +6,7 @@ open import Tools.Level
 
 open import Definition.Typed.Restrictions
 
+import Graded.Modality.Dedicated-nr
 import Graded.Modality.Instances.Linearity
 open import Graded.Modality.Variant lzero
 open import Graded.Usage.Restrictions
@@ -13,16 +14,15 @@ open import Graded.Usage.Restrictions
 module Graded.Modality.Instances.Linearity.Bad
   -- The modality variant.
   (variant : Modality-variant)
-  (open Modality-variant variant)
-  -- There is a dedicated nr function.
-  (nr-available : Nr-available)
-  (open Graded.Modality.Instances.Linearity variant
-          (λ ¬-nr-available _ → ¬-nr-available nr-available))
+  (open Graded.Modality.Instances.Linearity variant)
+  (open Graded.Modality.Dedicated-nr bad-linearity-modality)
   (TR : Type-restrictions Linearity)
   (open Type-restrictions TR)
   (UR : Usage-restrictions Linearity)
   -- It is assumed that "Π 𝟙 , 𝟘" is allowed.
   (Π-𝟙-𝟘 : Π-allowed 𝟙 𝟘)
+  -- There is a dedicated nr function.
+  ⦃ has-nr : Dedicated-nr ⦄
   where
 
 open import Tools.Empty
@@ -38,20 +38,12 @@ open import Graded.Modality Linearity
 open import Graded.Modality.Instances.Examples
   bad-linearity-modality TR Π-𝟙-𝟘
 open import Graded.Modality.Properties bad-linearity-modality
-open import Graded.Modality.Dedicated-nr bad-linearity-modality
 open import Graded.Mode bad-linearity-modality
 open import Graded.Usage bad-linearity-modality UR
 open import Graded.Usage.Inversion bad-linearity-modality UR
 
 private
   module M = Modality bad-linearity-modality
-
-private instance
-
-  -- A Dedicated-nr instance.
-
-  has-dedicated-nr : Dedicated-nr
-  has-dedicated-nr = dedicated-nr nr-available
 
 -- The term double is well-resourced (even though it can be given a
 -- linear type).
@@ -77,7 +69,7 @@ private instance
     (invUsageLam {δ = _ ∙ 𝟘} _  (_ ∙ ()));
     (invUsageLam {δ = _ ∙ 𝟙} ▸+ _) →
   case inv-usage-natrec ▸+ of λ {
-    (invUsageNatrec _ _ _ _ _ (invUsageNatrecNoNr _)) →
+    (invUsageNatrec _ _ _ _ _ (invUsageNatrecNoNr _ _ _ _)) →
        ⊥-elim not-nr-and-no-nr;
     (invUsageNatrec {δ = _ ∙ p ∙ _} {η = _ ∙ _ ∙ _} {θ = _ ∙ q ∙ _}
        ▸x0 _ _ _ (_ ∙ 𝟙≤nr ∙ _) invUsageNatrecNr) →

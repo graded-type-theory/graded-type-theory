@@ -428,51 +428,23 @@ module hasX (R : Usage-restrictions) where
 
       lemma₃ : γ , x ≔ nr p r (γ ⟨ x ⟩) (δ ⟨ x ⟩) (η ⟨ x ⟩) ▸[ 𝟙ᵐ ] z
       lemma₃ = sub γ▸z lemma₂
+  erased-hasX
+    erased (natrec-no-nrₘ γ▸z _ _ _ χ≤γ _ _ _) (natrecₓᶻ hasX) =
+    erased-hasX erased (sub γ▸z χ≤γ) hasX
+  erased-hasX erased (natrecₘ _ δ▸s _ _) (natrecₓˢ hasX) =
+    erased-hasX (there (there (◂𝟘∈nrᶜ₂ 𝟘-wb refl erased))) δ▸s hasX
   erased-hasX erased
-    (natrec-no-nrₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
-       γ▸z _ _ _ fix)
-    (natrecₓᶻ hasX) =
-    erased-hasX erased
-      (sub γ▸z $ begin
-         χ                                  ≤⟨ fix ⟩
-         γ ∧ᶜ η ∧ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ)  ≤⟨ ∧ᶜ-decreasingˡ _ _ ⟩
-         γ                                  ∎)
-      hasX
-    where
-    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-  erased-hasX erased
-    (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} γ▸z δ▸s η▸n θ▸A)
+    (natrec-no-nrₘ _ δ▸s _ _ _ _ _ fix)
     (natrecₓˢ hasX) =
     erased-hasX
-      (there (there (◂𝟘∈nrᶜ₂ 𝟘-wb refl erased)))
+      (there $ there $ x◂𝟘∈γ+δˡ 𝟘-wb refl $ x◂𝟘∈γ≤δ 𝟘-wb erased fix)
       δ▸s hasX
-  erased-hasX erased
-    (natrec-no-nrₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
-       _ δ▸s _ _ fix)
-    (natrecₓˢ hasX) =
-    erased-hasX
-      (there $ there $ x◂𝟘∈γ+δˡ 𝟘-wb refl $ x◂𝟘∈γ≤δ 𝟘-wb erased $ begin
-         χ                                  ≤⟨ fix ⟩
-         γ ∧ᶜ η ∧ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ)  ≤⟨ ∧ᶜ-decreasingʳ _ _ ⟩
-         η ∧ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ)       ≤⟨ ∧ᶜ-decreasingʳ _ _ ⟩
-         δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ              ∎)
-      δ▸s hasX
-    where
-    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
   erased-hasX erased (natrecₘ _ _ η▸n _) (natrecₓⁿ hasX) =
     erased-hasX (◂𝟘∈nrᶜ₃ 𝟘-wb refl erased) η▸n hasX
   erased-hasX erased
-    (natrec-no-nrₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
-       _ _ η▸n _ fix)
+    (natrec-no-nrₘ _ _ η▸n _ _ _ χ≤η _)
     (natrecₓⁿ hasX) =
-    erased-hasX
-      (x◂𝟘∈γ∧δʳ 𝟘-wb refl $ x◂𝟘∈γ≤δ 𝟘-wb erased $ begin
-         χ                                  ≤⟨ fix ⟩
-         γ ∧ᶜ η ∧ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ)  ≤⟨ ∧ᶜ-monotoneʳ (∧ᶜ-decreasingˡ _ _) ⟩
-         γ ∧ᶜ η                             ∎)
-      η▸n hasX
-    where
-    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+    erased-hasX (x◂𝟘∈γ≤δ 𝟘-wb erased (χ≤η 𝟘-wb)) η▸n hasX
 
   erased-hasX erased (sub δ▸t γ≤δ) hasX =
     erased-hasX (x◂𝟘∈γ≤δ 𝟘-wb erased γ≤δ) δ▸t hasX

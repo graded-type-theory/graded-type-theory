@@ -325,7 +325,6 @@ _≟_ = λ where
   ; semiring-with-meet = 𝟘≤𝟙-semiring-with-meet
   ; 𝟘-well-behaved     = λ ()
   ; has-nr             = λ _ → Star.has-nr _ ⦃ has-star = 𝟘≤𝟙-has-star ⦄
-  ; +-decreasingˡ      = λ ()
   }
 
 ------------------------------------------------------------------------

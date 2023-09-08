@@ -50,6 +50,9 @@ private
        𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ M.·-zeroʳ _ ⟩
        𝟘ᶜ                ∎)
     ≤ᶜ-refl
+    (λ _ → ≤ᶜ-refl)
+    (λ _ → ≤ᶜ-refl)
+    ≤ᶜ-refl
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
@@ -63,6 +66,9 @@ private
     (sub ℕₘ $ begin
        𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ M.·-zeroʳ _ ⟩
        𝟘ᶜ                ∎)
+    ≤ᶜ-refl
+    (λ _ → ≤ᶜ-refl)
+    (λ _ → ≤ᶜ-refl)
     ≤ᶜ-refl
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset

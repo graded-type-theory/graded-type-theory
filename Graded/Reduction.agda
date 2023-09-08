@@ -126,8 +126,11 @@ usagePresTerm γ▸natrec (natrec-subst x x₁ x₂ t⇒u) =
   case extra of λ where
     invUsageNatrecNr →
       sub (natrecₘ δ▸z η▸s (usagePresTerm θ▸n t⇒u) φ▸A) γ≤
-    (invUsageNatrecNoNr fix) →
-      sub (natrec-no-nrₘ δ▸z η▸s (usagePresTerm θ▸n t⇒u) φ▸A fix) γ≤ }
+    (invUsageNatrecNoNr χ≤γ χ≤δ χ≤η fix) →
+      sub
+        (natrec-no-nrₘ δ▸z η▸s (usagePresTerm θ▸n t⇒u)
+           φ▸A χ≤γ χ≤δ χ≤η fix)
+        γ≤ }
 
 usagePresTerm {γ = γ} ▸natrec (natrec-zero {p = p} {r = r} _ _ _) =
   case inv-usage-natrec ▸natrec of λ {
@@ -139,12 +142,11 @@ usagePresTerm {γ = γ} ▸natrec (natrec-zero {p = p} {r = r} _ _ _) =
         γ              ≤⟨ γ≤ ⟩
         nrᶜ p r δ η θ  ≤⟨ nrᶜ-zero (inv-usage-zero ▸zero) ⟩
         δ              ∎
-    (invUsageNatrecNoNr fix) →
+    (invUsageNatrecNoNr χ≤δ _ _ _) →
       sub ▸z $ begin
-        γ                                ≤⟨ γ≤ ⟩
-        χ                                ≤⟨ fix ⟩
-        δ ∧ᶜ θ ∧ᶜ η +ᶜ p ·ᶜ θ +ᶜ r ·ᶜ χ  ≤⟨ ∧ᶜ-decreasingˡ _ _ ⟩
-        δ                                ∎ }
+        γ  ≤⟨ γ≤ ⟩
+        χ  ≤⟨ χ≤δ ⟩
+        δ  ∎ }
   where
   open import Graded.Modality.Dedicated-nr.Instance
   open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
@@ -164,16 +166,14 @@ usagePresTerm {γ = γ} ▸natrec (natrec-suc {p = p} {r = r} _ _ _ _) =
         η +ᶜ p ·ᶜ θ +ᶜ r ·ᶜ nrᶜ p r δ η θ   ≈⟨ +ᶜ-congˡ (+ᶜ-comm _ _) ⟩
         η +ᶜ r ·ᶜ nrᶜ p r δ η θ +ᶜ p ·ᶜ θ   ≤⟨ +ᶜ-monotoneʳ (+ᶜ-monotoneʳ (·ᶜ-monotoneʳ θ≤θ′)) ⟩
         η +ᶜ r ·ᶜ nrᶜ p r δ η θ +ᶜ p ·ᶜ θ′  ∎
-    (invUsageNatrecNoNr fix) →
+    (invUsageNatrecNoNr χ≤γ χ≤δ χ≤η fix) →
       sub (doubleSubstₘ-lemma₃ ▸s
-             (natrec-no-nrₘ ▸z ▸s (sub ▸n θ≤θ′) ▸A fix) ▸n) $ begin
-        γ                                  ≤⟨ γ≤ ⟩
-        χ                                  ≤⟨ fix ⟩
-        δ ∧ᶜ θ ∧ᶜ (η +ᶜ p ·ᶜ θ +ᶜ r ·ᶜ χ)  ≤⟨ ∧ᶜ-decreasingʳ _ _ ⟩
-        θ ∧ᶜ (η +ᶜ p ·ᶜ θ +ᶜ r ·ᶜ χ)       ≤⟨ ∧ᶜ-decreasingʳ _ _ ⟩
-        η +ᶜ p ·ᶜ θ +ᶜ r ·ᶜ χ              ≤⟨ +ᶜ-monotoneʳ (+ᶜ-monotoneˡ (·ᶜ-monotoneʳ θ≤θ′)) ⟩
-        η +ᶜ p ·ᶜ θ′ +ᶜ r ·ᶜ χ             ≈⟨ +ᶜ-congˡ (+ᶜ-comm _ _) ⟩
-        η +ᶜ r ·ᶜ χ +ᶜ p ·ᶜ θ′             ∎ }}
+             (natrec-no-nrₘ ▸z ▸s (sub ▸n θ≤θ′) ▸A χ≤γ χ≤δ χ≤η fix) ▸n) $ begin
+        γ                       ≤⟨ γ≤ ⟩
+        χ                       ≤⟨ fix ⟩
+        η +ᶜ p ·ᶜ θ +ᶜ r ·ᶜ χ   ≤⟨ +ᶜ-monotoneʳ (+ᶜ-monotoneˡ (·ᶜ-monotoneʳ θ≤θ′)) ⟩
+        η +ᶜ p ·ᶜ θ′ +ᶜ r ·ᶜ χ  ≈⟨ +ᶜ-congˡ (+ᶜ-comm _ _) ⟩
+        η +ᶜ r ·ᶜ χ +ᶜ p ·ᶜ θ′  ∎ }}
   where
   open import Graded.Modality.Dedicated-nr.Instance
   open import Tools.Reasoning.PartialOrder ≤ᶜ-poset

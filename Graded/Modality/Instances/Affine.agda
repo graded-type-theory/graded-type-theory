@@ -37,7 +37,7 @@ private variable
 -- An "affine types" modality.
 
 affineModality : Modality
-affineModality = zero-one-many-modality variant _
+affineModality = zero-one-many-modality variant
 
 -- An alternative (not very good) "affine types" modality.
 --
@@ -50,7 +50,7 @@ affineModality = zero-one-many-modality variant _
 -- type".
 
 bad-affine-modality : Modality
-bad-affine-modality = zero-one-many-greatest variant _
+bad-affine-modality = zero-one-many-greatest variant
 
 -- The nr function obtained from bad-affine-modality (if any) is
 -- strictly greater than the one obtained from affineModality.
