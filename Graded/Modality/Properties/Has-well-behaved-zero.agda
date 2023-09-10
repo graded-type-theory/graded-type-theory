@@ -63,6 +63,11 @@ private
   where
   open Tools.Reasoning.PropositionalEquality
 
+-- If p is bounded by q and p is 𝟘, then q is 𝟘.
+
+≤→≡𝟘→≡𝟘 : p ≤ q → p ≡ 𝟘 → q ≡ 𝟘
+≤→≡𝟘→≡𝟘 p≤q refl = 𝟘≮ p≤q
+
 -- 𝟘 is not less than or equal to 𝟙
 
 𝟘≰𝟙 : 𝟘 ≤ 𝟙 → ⊥
