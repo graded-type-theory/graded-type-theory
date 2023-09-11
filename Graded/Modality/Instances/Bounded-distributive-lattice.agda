@@ -11,7 +11,8 @@ import Graded.Modality.Instances.LowerBounded as L
 open import Graded.Modality.Variant a
 
 open import Tools.Algebra M
-open import Tools.Bool using (false)
+open import Tools.Bool using (T; false)
+open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality
 import Tools.Reasoning.PropositionalEquality
@@ -132,15 +133,15 @@ has-star bl = L.has-star _ ⊥ ⊥≤
 -- (without 𝟘ᵐ).
 
 modality :
-  (variant : Modality-variant) →
+  (variant : Modality-variant)
+  (𝕃 : Bounded-distributive-lattice) →
   let open Modality-variant variant in
-  𝟘ᵐ-allowed ≡ false →
-  Bounded-distributive-lattice → Modality
-modality variant refl bl = L.isModality
-  (semiring-with-meet bl)
+  (T 𝟘ᵐ-allowed → Has-well-behaved-zero (semiring-with-meet 𝕃)) →
+  Modality
+modality variant 𝕃 = L.isModality
+  (semiring-with-meet 𝕃)
   ⊥
   ⊥≤
   variant
-  (λ ())
   where
-  open Bounded-distributive-lattice bl
+  open Bounded-distributive-lattice 𝕃
