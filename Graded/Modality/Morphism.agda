@@ -83,14 +83,6 @@ record Is-morphism
     𝟘ᵐ-in-second-if-in-first : T M₁.𝟘ᵐ-allowed → T M₂.𝟘ᵐ-allowed
 
     -- If the source modality does not have a dedicated nr function
-    -- and 𝟘ᵐ is allowed in the target modality or the target modality
-    -- is trivial, then 𝟘ᵐ is allowed in the source modality or the
-    -- source modality is trivial.
-    𝟘ᵐ-in-first-if-in-second :
-      ⦃ no-nr : No-dedicated-nr 𝕄₁ ⦄ →
-      T M₂.𝟘ᵐ-allowed ⊎ M₂.𝟙 ≡ M₂.𝟘 → T M₁.𝟘ᵐ-allowed ⊎ M₁.𝟙 ≡ M₁.𝟘
-
-    -- If the source modality does not have a dedicated nr function
     -- and the target modality has a well-behaved zero or is trivial,
     -- then the source modality has a well-behaved zero or is trivial.
     𝟘-well-behaved-in-first-if-in-second :
@@ -293,7 +285,7 @@ record Is-order-embedding
       ∀ {p q₁ q₂ q₃ q₄ r s} ⦃ no-nr : No-dedicated-nr 𝕄₁ ⦄ →
       tr p M₂.≤ q₁ →
       q₁ M₂.≤ q₂ →
-      (T M₂.𝟘ᵐ-allowed →
+      (Has-well-behaved-zero M₂ M₂.semiring-with-meet →
        q₁ M₂.≤ q₃) →
       (Has-well-behaved-zero M₂ M₂.semiring-with-meet →
        q₁ M₂.≤ q₄) →
@@ -304,7 +296,7 @@ record Is-order-embedding
          tr q₄′ M₂.≤ q₄ ×
          p M₁.≤ q₁′ ×
          q₁′ M₁.≤ q₂′ ×
-         (T M₁.𝟘ᵐ-allowed →
+         (Has-well-behaved-zero M₁ M₁.semiring-with-meet →
           q₁′ M₁.≤ q₃′) ×
          (Has-well-behaved-zero M₁ M₁.semiring-with-meet →
           q₁′ M₁.≤ q₄′) ×
@@ -507,7 +499,6 @@ Is-order-embedding-id {𝕄 = 𝕄} = λ where
       .tr-·                                    → refl
       .tr-∧                                    → ≤-refl
       .𝟘ᵐ-in-second-if-in-first                → idᶠ
-      .𝟘ᵐ-in-first-if-in-second                → idᶠ
       .𝟘-well-behaved-in-first-if-in-second    → idᶠ
       .nr-in-first-iff-in-second               → id⇔
       .tr-nr ⦃ has-nr₁ = n₁ ⦄ ⦃ has-nr₂ = n₂ ⦄ →
@@ -539,12 +530,6 @@ Is-morphism-∘
   {𝕄₂ = 𝕄₂} {𝕄₃ = 𝕄₃} {tr₁ = tr₁} {𝕄₁ = 𝕄₁} {tr₂ = tr₂} f g = λ where
     .Is-morphism.𝟘ᵐ-in-second-if-in-first →
       F.𝟘ᵐ-in-second-if-in-first ∘→ G.𝟘ᵐ-in-second-if-in-first
-    .Is-morphism.𝟘ᵐ-in-first-if-in-second →
-      let instance
-            no-nr : No-dedicated-nr 𝕄₂
-            no-nr = G.no-nr-in-second-if-in-first
-      in
-      G.𝟘ᵐ-in-first-if-in-second ∘→ F.𝟘ᵐ-in-first-if-in-second
     .Is-morphism.𝟘-well-behaved-in-first-if-in-second →
       let instance
             no-nr : No-dedicated-nr 𝕄₂
@@ -836,7 +821,6 @@ Is-Σ-order-embedding-∘
     module M₁ = Modality 𝕄₁
     module M₂ = Modality 𝕄₂
   in
-  (T M₁.𝟘ᵐ-allowed → T M₂.𝟘ᵐ-allowed) →
   (Has-well-behaved-zero M₁ M₁.semiring-with-meet →
    Has-well-behaved-zero M₂ M₂.semiring-with-meet) →
   (tr : M₁ → M₂)
@@ -849,7 +833,7 @@ Is-Σ-order-embedding-∘
   (∀ p q → tr⁻¹ (tr p M₂.· q) M₁.≤ p M₁.· tr⁻¹ q) →
   tr p M₂.≤ q₁ →
   q₁ M₂.≤ q₂ →
-  (T M₂.𝟘ᵐ-allowed →
+  (Has-well-behaved-zero M₂ M₂.semiring-with-meet →
    q₁ M₂.≤ q₃) →
   (Has-well-behaved-zero M₂ M₂.semiring-with-meet →
    q₁ M₂.≤ q₄) →
@@ -860,14 +844,14 @@ Is-Σ-order-embedding-∘
      tr q₄′ M₂.≤ q₄ ×
      p M₁.≤ q₁′ ×
      q₁′ M₁.≤ q₂′ ×
-     (T M₁.𝟘ᵐ-allowed →
+     (Has-well-behaved-zero M₁ M₁.semiring-with-meet →
       q₁′ M₁.≤ q₃′) ×
      (Has-well-behaved-zero M₁ M₁.semiring-with-meet →
       q₁′ M₁.≤ q₄′) ×
      q₁′ M₁.≤ q₃′ M₁.+ r M₁.· q₄′ M₁.+ s M₁.· q₁′
 →tr-≤-no-nr
   {q₁ = q₁} {q₂ = q₂} {q₃ = q₃} {q₄ = q₄} {r = r} {s = s}
-  𝕄₁ 𝕄₂ 𝟘ᵐ-in-second-if-in-first 𝟘-well-behaved-in-second-if-in-first
+  𝕄₁ 𝕄₂ 𝟘-well-behaved-in-second-if-in-first
   tr tr⁻¹ tr⁻¹-monotone tr≤→≤tr⁻¹ tr-tr⁻¹≤ tr⁻¹-+ tr⁻¹-∧ tr⁻¹-·
   hyp₁ hyp₂ hyp₃ hyp₄ hyp₅ =
     tr⁻¹ q₁
@@ -879,7 +863,7 @@ Is-Σ-order-embedding-∘
   , tr-tr⁻¹≤ _
   , tr≤→≤tr⁻¹ _ _ hyp₁
   , tr⁻¹-monotone _ _ hyp₂
-  , tr⁻¹-monotone _ _ ∘→ hyp₃ ∘→ 𝟘ᵐ-in-second-if-in-first
+  , tr⁻¹-monotone _ _ ∘→ hyp₃ ∘→ 𝟘-well-behaved-in-second-if-in-first
   , tr⁻¹-monotone _ _ ∘→ hyp₄ ∘→ 𝟘-well-behaved-in-second-if-in-first
   , (begin
        tr⁻¹ q₁                                                    ≤⟨ tr⁻¹-monotone _ _ hyp₅ ⟩
@@ -1014,7 +998,6 @@ unit⇨erasure {v₁-ok = v₁-ok} s⇔s = λ where
                            , refl , (λ _ → refl) , (λ _ → refl) , refl
     .tr-morphism           → λ where
       .𝟘ᵐ-in-second-if-in-first             → ⊥-elim ∘→ v₁-ok
-      .𝟘ᵐ-in-first-if-in-second _           → inj₂ refl
       .𝟘-well-behaved-in-first-if-in-second → λ _ → inj₂ refl
       .nr-in-first-iff-in-second            → s⇔s
       .tr-𝟘-≤                               → refl
@@ -1037,12 +1020,9 @@ erasure⇨unit :
   let 𝕄₁ = ErasureModality v₁
       𝕄₂ = UnitModality v₂ v₂-ok
   in
-  ⦃ has-nr₁ : Dedicated-nr 𝕄₁ ⦄
-  ⦃ has-nr₂ : Dedicated-nr 𝕄₂ ⦄ →
+  Dedicated-nr 𝕄₁ ⇔ Dedicated-nr 𝕄₂ →
   Is-morphism 𝕄₁ 𝕄₂ erasure→unit
-erasure⇨unit
-  {v₂-ok = v₂-ok} not-ok₁ ⦃ has-nr₁ = has-nr₁ ⦄ ⦃ has-nr₂ = has-nr₂ ⦄ =
-  λ where
+erasure⇨unit {v₂-ok = v₂-ok} not-ok₁ s⇔s = λ where
     .tr-𝟘-≤                                 → refl
     .tr-≡-𝟘-⇔                               → ⊥-elim ∘→ not-ok₁
     .tr-<-𝟘 _                               → ⊥-elim ∘→ v₂-ok
@@ -1051,44 +1031,20 @@ erasure⇨unit
     .tr-·                                   → refl
     .tr-∧                                   → refl
     .tr-nr                                  → refl
-    .nr-in-first-iff-in-second              → (λ _ → has-nr₂)
-                                            , (λ _ → has-nr₁)
+    .nr-in-first-iff-in-second              → s⇔s
     .𝟘ᵐ-in-second-if-in-first               → ⊥-elim ∘→ not-ok₁
-    .𝟘ᵐ-in-first-if-in-second               → ⊥-elim
-                                                (not-nr-and-no-nr _)
     .𝟘-well-behaved-in-first-if-in-second _ →
       inj₁ E.erasure-has-well-behaved-zero
   where
   open Is-morphism
 
--- The function erasure→unit is not a morphism from an erasure
--- modality to a unit modality if a certain assumption holds.
-
-¬erasure⇨unit :
-  let 𝕄₁ = ErasureModality v₁
-      𝕄₂ = UnitModality v₂ v₂-ok
-  in
-  No-dedicated-nr 𝕄₁ ⊎ No-dedicated-nr 𝕄₂ →
-  ¬ Is-morphism 𝕄₁ 𝕄₂ erasure→unit
-¬erasure⇨unit {v₂-ok = v₂-ok} no-nr′ m =
-  case
-    Is-morphism.𝟘ᵐ-in-first-if-in-second m ⦃ no-nr = no-nr ⦄ (inj₂ refl)
-  of λ {
-    (inj₁ ok) →
-  v₂-ok (Is-morphism.𝟘ᵐ-in-second-if-in-first m ok) }
-  where
-  no-nr = case no-nr′ of λ where
-    (inj₁ no-nr) → no-nr
-    (inj₂ no-nr) →
-      Is-morphism.no-nr-in-first-if-in-second m ⦃ no-nr = no-nr ⦄
-
 -- The function erasure→unit is not an order embedding from an erasure
 -- modality to a unit modality.
 
-¬erasure⇨unit′ :
+¬erasure⇨unit :
   ¬ Is-order-embedding (ErasureModality v₁) (UnitModality v₂ v₂-ok)
       erasure→unit
-¬erasure⇨unit′ m =
+¬erasure⇨unit m =
   case Is-order-embedding.tr-injective m {p = 𝟘} {q = ω} refl of λ ()
 
 -- The function erasure→zero-one-many is an order embedding from an
@@ -1127,9 +1083,8 @@ erasure⇨zero-one-many {v₁ = v₁} {v₂ = v₂} {𝟙≤𝟘 = 𝟙≤𝟘} 
       .Is-morphism.tr-nr {r = r} {z = z}     → ≤-reflexive
                                                  (tr-nr _ r z _ _)
       .Is-morphism.nr-in-first-iff-in-second → s⇔s
-      .Is-morphism.𝟘ᵐ-in-second-if-in-first  → idᶠ
-      .Is-morphism.𝟘ᵐ-in-first-if-in-second  → λ where
-        (inj₁ ok) → inj₁ ok
+      .Is-morphism.𝟘ᵐ-in-second-if-in-first  →
+        idᶠ
       .Is-morphism.𝟘-well-behaved-in-first-if-in-second _ →
         inj₁ E.erasure-has-well-behaved-zero
   where
@@ -1478,7 +1433,8 @@ erasure⇨zero-one-many {v₁ = v₁} {v₂ = v₂} {𝟙≤𝟘 = 𝟙≤𝟘} 
     ∀ s →
     tr′ p 𝟘𝟙ω.≤ q₁ →
     q₁ 𝟘𝟙ω.≤ q₂ →
-    (T (Modality-variant.𝟘ᵐ-allowed v₁) →
+    (Has-well-behaved-zero 𝟘𝟙ω.Zero-one-many
+       𝟘𝟙ω.zero-one-many-semiring-with-meet →
      q₁ 𝟘𝟙ω.≤ q₃) →
     (Has-well-behaved-zero 𝟘𝟙ω.Zero-one-many
        𝟘𝟙ω.zero-one-many-semiring-with-meet →
@@ -1490,7 +1446,7 @@ erasure⇨zero-one-many {v₁ = v₁} {v₂ = v₂} {𝟙≤𝟘 = 𝟙≤𝟘} 
        tr′ q₄′ 𝟘𝟙ω.≤ q₄ ×
        p E.≤ q₁′ ×
        q₁′ E.≤ q₂′ ×
-       (T (Modality-variant.𝟘ᵐ-allowed v₂) →
+       (Has-well-behaved-zero Erasure E.erasure-semiring-with-meet →
         q₁′ E.≤ q₃′) ×
        (Has-well-behaved-zero Erasure E.erasure-semiring-with-meet →
         q₁′ E.≤ q₄′) ×
@@ -1498,7 +1454,6 @@ erasure⇨zero-one-many {v₁ = v₁} {v₂ = v₂} {𝟙≤𝟘 = 𝟙≤𝟘} 
   tr-≤-no-nr s = →tr-≤-no-nr {s = s}
     (ErasureModality v₁)
     (zero-one-many-modality 𝟙≤𝟘 v₂)
-    idᶠ
     (λ _ → 𝟘𝟙ω.zero-one-many-has-well-behaved-zero)
     tr′
     tr⁻¹
@@ -1533,9 +1488,8 @@ zero-one-many⇨erasure {v₂ = v₂} {𝟙≤𝟘 = 𝟙≤𝟘} refl s⇔s = �
     .Is-morphism.tr-nr {r = r}             → ≤-reflexive
                                                (tr-nr _ r _ _ _)
     .Is-morphism.nr-in-first-iff-in-second → s⇔s
-    .Is-morphism.𝟘ᵐ-in-second-if-in-first  → idᶠ
-    .Is-morphism.𝟘ᵐ-in-first-if-in-second  → λ where
-      (inj₁ ok) → inj₁ ok
+    .Is-morphism.𝟘ᵐ-in-second-if-in-first  →
+      idᶠ
     .Is-morphism.𝟘-well-behaved-in-first-if-in-second _ →
       inj₁ 𝟘𝟙ω.zero-one-many-has-well-behaved-zero
   where
@@ -2199,9 +2153,8 @@ linearity⇨linear-or-affine {v₁ = v₁} {v₂ = v₂} refl s⇔s = λ where
       .Is-morphism.tr-∧                      → tr-∧ _ _
       .Is-morphism.tr-nr {r = r}             → tr-nr _ r _ _ _
       .Is-morphism.nr-in-first-iff-in-second → s⇔s
-      .Is-morphism.𝟘ᵐ-in-second-if-in-first  → idᶠ
-      .Is-morphism.𝟘ᵐ-in-first-if-in-second  → λ where
-        (inj₁ ok) → inj₁ ok
+      .Is-morphism.𝟘ᵐ-in-second-if-in-first  →
+        idᶠ
       .Is-morphism.𝟘-well-behaved-in-first-if-in-second _ →
         inj₁ (L.linearity-has-well-behaved-zero v₂)
   where
@@ -3785,7 +3738,8 @@ linearity⇨linear-or-affine {v₁ = v₁} {v₂ = v₂} refl s⇔s = λ where
     ∀ s →
     tr′ p LA.≤ q₁ →
     q₁ LA.≤ q₂ →
-    (T (Modality-variant.𝟘ᵐ-allowed v₁) →
+    (Has-well-behaved-zero Linear-or-affine
+       LA.linear-or-affine-semiring-with-meet →
      q₁ LA.≤ q₃) →
     (Has-well-behaved-zero Linear-or-affine
        LA.linear-or-affine-semiring-with-meet →
@@ -3797,7 +3751,8 @@ linearity⇨linear-or-affine {v₁ = v₁} {v₂ = v₂} refl s⇔s = λ where
        tr′ q₄′ LA.≤ q₄ ×
        p L.≤ q₁′ ×
        q₁′ L.≤ q₂′ ×
-       (T (Modality-variant.𝟘ᵐ-allowed v₂) →
+       (Has-well-behaved-zero Linearity
+          (Modality.semiring-with-meet (linearityModality v₂)) →
         q₁′ L.≤ q₃′) ×
        (Has-well-behaved-zero Linearity
           (Modality.semiring-with-meet (linearityModality v₂)) →
@@ -3806,7 +3761,6 @@ linearity⇨linear-or-affine {v₁ = v₁} {v₂ = v₂} refl s⇔s = λ where
   tr-≤-no-nr s = →tr-≤-no-nr {s = s}
     (linearityModality v₁)
     (linear-or-affine v₂)
-    idᶠ
     (λ _ → LA.linear-or-affine-has-well-behaved-zero)
     tr′
     tr⁻¹
@@ -3839,9 +3793,8 @@ linear-or-affine⇨linearity {v₂ = v₂} refl s⇔s = λ where
     .Is-morphism.tr-nr {r = r}             → ≤-reflexive
                                                (tr-nr _ r _ _ _)
     .Is-morphism.nr-in-first-iff-in-second → s⇔s
-    .Is-morphism.𝟘ᵐ-in-second-if-in-first  → idᶠ
-    .Is-morphism.𝟘ᵐ-in-first-if-in-second  → λ where
-      (inj₁ ok) → inj₁ ok
+    .Is-morphism.𝟘ᵐ-in-second-if-in-first  →
+      idᶠ
     .Is-morphism.𝟘-well-behaved-in-first-if-in-second _ →
       inj₁ LA.linear-or-affine-has-well-behaved-zero
   where
@@ -4979,9 +4932,8 @@ affine⇨linear-or-affine {v₁ = v₁} {v₂ = v₂} refl s⇔s = λ where
       .Is-morphism.tr-nr {r = r}             → ≤-reflexive
                                                  (tr-nr _ r _ _ _)
       .Is-morphism.nr-in-first-iff-in-second → s⇔s
-      .Is-morphism.𝟘ᵐ-in-second-if-in-first  → idᶠ
-      .Is-morphism.𝟘ᵐ-in-first-if-in-second  → λ where
-        (inj₁ ok) → inj₁ ok
+      .Is-morphism.𝟘ᵐ-in-second-if-in-first  →
+        idᶠ
       .Is-morphism.𝟘-well-behaved-in-first-if-in-second _ →
         inj₁ (A.affine-has-well-behaved-zero v₁)
   where
@@ -6581,7 +6533,8 @@ affine⇨linear-or-affine {v₁ = v₁} {v₂ = v₂} refl s⇔s = λ where
     ∀ s →
     tr′ p LA.≤ q₁ →
     q₁ LA.≤ q₂ →
-    (T (Modality-variant.𝟘ᵐ-allowed v₁) →
+    (Has-well-behaved-zero Linear-or-affine
+       LA.linear-or-affine-semiring-with-meet →
      q₁ LA.≤ q₃) →
     (Has-well-behaved-zero Linear-or-affine
        LA.linear-or-affine-semiring-with-meet →
@@ -6593,7 +6546,8 @@ affine⇨linear-or-affine {v₁ = v₁} {v₂ = v₂} refl s⇔s = λ where
        tr′ q₄′ LA.≤ q₄ ×
        p A.≤ q₁′ ×
        q₁′ A.≤ q₂′ ×
-       (T (Modality-variant.𝟘ᵐ-allowed v₂) →
+       (Has-well-behaved-zero Affine
+          (Modality.semiring-with-meet (affineModality v₂)) →
         q₁′ A.≤ q₃′) ×
        (Has-well-behaved-zero Affine
           (Modality.semiring-with-meet (affineModality v₂)) →
@@ -6602,7 +6556,6 @@ affine⇨linear-or-affine {v₁ = v₁} {v₂ = v₂} refl s⇔s = λ where
   tr-≤-no-nr s = →tr-≤-no-nr {s = s}
     (affineModality v₁)
     (linear-or-affine v₂)
-    idᶠ
     (λ _ → LA.linear-or-affine-has-well-behaved-zero)
     tr′
     tr⁻¹
@@ -6636,9 +6589,8 @@ linear-or-affine⇨affine {v₂ = v₂} refl s⇔s = λ where
     .Is-morphism.tr-nr {r = r}             → ≤-reflexive
                                                (tr-nr _ r _ _ _)
     .Is-morphism.nr-in-first-iff-in-second → s⇔s
-    .Is-morphism.𝟘ᵐ-in-second-if-in-first  → idᶠ
-    .Is-morphism.𝟘ᵐ-in-first-if-in-second  → λ where
-      (inj₁ ok) → inj₁ ok
+    .Is-morphism.𝟘ᵐ-in-second-if-in-first  →
+      idᶠ
     .Is-morphism.𝟘-well-behaved-in-first-if-in-second _ →
       inj₁ LA.linear-or-affine-has-well-behaved-zero
   where
@@ -7764,9 +7716,8 @@ affine⇨linearity {v₁ = v₁} {v₂ = v₂} refl s⇔s = λ where
     .Is-morphism.tr-nr {r = r}             → ≤-reflexive
                                                (tr-nr _ r _ _ _)
     .Is-morphism.nr-in-first-iff-in-second → s⇔s
-    .Is-morphism.𝟘ᵐ-in-second-if-in-first  → idᶠ
-    .Is-morphism.𝟘ᵐ-in-first-if-in-second  → λ where
-      (inj₁ ok) → inj₁ ok
+    .Is-morphism.𝟘ᵐ-in-second-if-in-first  →
+      idᶠ
     .Is-morphism.𝟘-well-behaved-in-first-if-in-second _ →
       inj₁ (A.affine-has-well-behaved-zero v₁)
   where
@@ -8089,9 +8040,8 @@ linearity⇨affine {v₁ = v₁} {v₂ = v₂} refl s⇔s = λ where
     .Is-morphism.tr-∧ {p = p}              → tr-∧ p _
     .Is-morphism.tr-nr {r = r}             → tr-nr _ r _ _ _
     .Is-morphism.nr-in-first-iff-in-second → s⇔s
-    .Is-morphism.𝟘ᵐ-in-second-if-in-first  → idᶠ
-    .Is-morphism.𝟘ᵐ-in-first-if-in-second  → λ where
-      (inj₁ ok) → inj₁ ok
+    .Is-morphism.𝟘ᵐ-in-second-if-in-first  →
+      idᶠ
     .Is-morphism.𝟘-well-behaved-in-first-if-in-second _ →
       inj₁ (L.linearity-has-well-behaved-zero v₁)
   where

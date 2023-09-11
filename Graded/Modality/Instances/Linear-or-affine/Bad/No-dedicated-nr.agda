@@ -56,51 +56,39 @@ open import Graded.Mode linear-or-affine′
 open import Graded.Usage linear-or-affine′ UR
 open import Graded.Usage.Inversion linear-or-affine′ UR
 
--- The term double is well-resourced (even though it can be given a
--- linear type) if and only if 𝟘ᵐ is not allowed.
+-- The term double is not well-resourced.
 
-▸double : (¬ T 𝟘ᵐ-allowed) ⇔ ε ▸[ 𝟙ᵐ ] double
-▸double =
-    (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
-     λ not-ok →
-       lamₘ $
-       natrec-no-nrₘ var (sucₘ var) var
-         (sub ℕₘ $ begin
-            𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ M.·-zeroʳ ⌜ 𝟘ᵐ? ⌝ ⟩
-            𝟘ᶜ                ∎)
-         ≤ᶜ-refl
-         (⊥-elim ∘→ not-ok)
-         (λ _ → ≤ᶜ-refl)
-         ≤ᶜ-refl)
-  , (let open Tools.Reasoning.PartialOrder ≤-poset in
-     λ ▸λ+ ok →
-       case inv-usage-lam ▸λ+ of λ {
-         (invUsageLam ▸+ _) →
-       case inv-usage-natrec ▸+ of λ {
-         (invUsageNatrec _ _ _ _ _ invUsageNatrecNr) →
-            ⊥-elim not-nr-and-no-nr;
-         (invUsageNatrec {η = _ ∙ p} {θ = _ ∙ q} {χ = _ ∙ r}
-            _ _ _ _ (_ ∙ 𝟙≤r)
-            (invUsageNatrecNoNr _ r≤₁ _ (_ ∙ r≤₂))) →
-       case r≤₁ ok of λ {
-         (_ ∙ r≤₁) →
-       case lemma p $ begin
-         𝟙                  ≤⟨ 𝟙≤r ⟩
-         r                  ≤⟨ r≤₂ ⟩
-         p + 𝟘 · q + 𝟙 · r  ≡⟨ cong (p +_) $
-                               trans (cong₂ _+_ (M.·-zeroˡ q) (M.·-identityˡ _)) $
-                               trans (M.+-identityˡ _) $
-                               𝟙-maximal 𝟙≤r ⟩
-         p + 𝟙              ∎
-       of λ {
-         p≡𝟘 →
-       case begin
-         𝟙  ≤⟨ 𝟙≤r ⟩
-         r  ≤⟨ r≤₁ ⟩
-         p  ≡⟨ p≡𝟘 ⟩
-         𝟘  ∎
-       of λ () }}}})
+¬▸double : ¬ ε ▸[ 𝟙ᵐ ] double
+¬▸double ▸λ+ =
+  case inv-usage-lam ▸λ+ of λ {
+    (invUsageLam ▸+ _) →
+  case inv-usage-natrec ▸+ of λ {
+    (invUsageNatrec _ _ _ _ _ invUsageNatrecNr) →
+       ⊥-elim not-nr-and-no-nr;
+    (invUsageNatrec {η = _ ∙ p} {θ = _ ∙ q} {χ = _ ∙ r}
+       _ _ _ _ (_ ∙ 𝟙≤r)
+       (invUsageNatrecNoNr _ r≤₁ _ (_ ∙ r≤₂))) →
+  case r≤₁ linear-or-affine-has-well-behaved-zero of λ {
+    (_ ∙ r≤₁) →
+  case lemma p $ begin
+    𝟙                  ≤⟨ 𝟙≤r ⟩
+    r                  ≤⟨ r≤₂ ⟩
+    p + 𝟘 · q + 𝟙 · r  ≡⟨ cong (p +_) $
+                          trans (cong₂ _+_ (M.·-zeroˡ q) (M.·-identityˡ _)) $
+                          trans (M.+-identityˡ _) $
+                          𝟙-maximal 𝟙≤r ⟩
+    p + 𝟙              ∎
+  of λ {
+    p≡𝟘 →
+  case begin
+    𝟙  ≤⟨ 𝟙≤r ⟩
+    r  ≤⟨ r≤₁ ⟩
+    p  ≡⟨ p≡𝟘 ⟩
+    𝟘  ∎
+  of λ () }}}}
   where
+  open Tools.Reasoning.PartialOrder ≤-poset
+
   lemma : ∀ p → 𝟙 ≤ p + 𝟙 → p ≡ 𝟘
   lemma 𝟘  refl = refl
   lemma 𝟙  ()

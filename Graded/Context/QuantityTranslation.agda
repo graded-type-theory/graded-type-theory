@@ -263,7 +263,7 @@ module Is-order-embedding (m : Is-order-embedding 𝕄₁ 𝕄₂ tr) where
     ⦃ no-nr : No-dedicated-nr 𝕄₁ ⦄ →
     tr-Conₘ γ C₂.≤ᶜ δ₁ →
     δ₁ C₂.≤ᶜ δ₂ →
-    (T M₂.𝟘ᵐ-allowed →
+    (Has-well-behaved-zero M₂ M₂.semiring-with-meet →
      δ₁ C₂.≤ᶜ δ₃) →
     (Has-well-behaved-zero M₂ M₂.semiring-with-meet →
      δ₁ C₂.≤ᶜ δ₄) →
@@ -274,7 +274,7 @@ module Is-order-embedding (m : Is-order-embedding 𝕄₁ 𝕄₂ tr) where
        tr-Conₘ δ₄′ C₂.≤ᶜ δ₄ ×
        γ C₁.≤ᶜ δ₁′ ×
        δ₁′ C₁.≤ᶜ δ₂′ ×
-       (T M₁.𝟘ᵐ-allowed →
+       (Has-well-behaved-zero M₁ M₁.semiring-with-meet →
         δ₁′ C₁.≤ᶜ δ₃′) ×
        (Has-well-behaved-zero M₁ M₁.semiring-with-meet →
         δ₁′ C₁.≤ᶜ δ₄′) ×

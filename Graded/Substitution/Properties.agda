@@ -1318,7 +1318,7 @@ substₘ-lemma
                     (x0 +1)   → PE.refl
                     (_ +1 +1) → PE.refl)
                  (wf-liftSubstₘ $ wf-liftSubstₘ $
-                  ▶-≤ Ψ (χ≤δ ok) Ψ▶σ))
+                  ▶-≤ Ψ (χ≤δ (𝟘-well-behaved ok)) Ψ▶σ))
               δ▸s)
            (*>∙∙≤liftSubst-listSubst*>∙∙ {δ = δ} Ψ))
          (substₘ-lemma Ψ (▶-≤ Ψ (χ≤η (𝟘-well-behaved ok)) Ψ▶σ) η▸n)

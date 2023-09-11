@@ -986,7 +986,7 @@ module _ where
      χ ≤ᶜ nrᶜ p r γ δ η) →
     (⦃ no-nr : No-dedicated-nr ⦄ →
      χ ≤ᶜ γ ×
-     (T 𝟘ᵐ-allowed →
+     (Has-well-behaved-zero semiring-with-meet →
       χ ≤ᶜ δ) ×
      (Has-well-behaved-zero semiring-with-meet →
       χ ≤ᶜ η) ×

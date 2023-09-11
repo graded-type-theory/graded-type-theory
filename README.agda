@@ -192,25 +192,20 @@ plus-ok₂ = Graded.Modality.Instances.Linear-or-affine.Good.▸plus
 --   the formalisation.
 --
 -- * A new inequality, χ ≤ δ, has been added. This inequality is only
---   required to hold if the mode 𝟘ᵐ is allowed. Footnote 10 in the
---   paper states that an extra assumption, p + q ≤ p, is used for the
---   system with two modes: now the inequality χ ≤ δ is used instead.
+--   required to hold for modalities with a well-behaved zero.
+--   Footnote 10 in the paper states that an extra assumption,
+--   p + q ≤ p, is used for the system with two modes: now the
+--   inequality χ ≤ δ is used instead.
 --
 -- The problems discussed above also affect the alternative usage rule
 -- for natrec:
 --
--- * The linear/affine doubling function is well-resoured (for the
---   linear or affine types modality, and the linear types modality,
---   this is only the case if 𝟘ᵐ is not allowed).
+-- * The affine doubling function is well-resoured.
 --
 -- * The linear addition function is not well-resourced.
 
 double-ok₄ =
-  Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr.▸double
-double-ok₅ =
   Graded.Modality.Instances.Affine.Bad.No-dedicated-nr.▸double
-double-ok₆ =
-  Graded.Modality.Instances.Linear-or-affine.Bad.No-dedicated-nr.▸double
 
 plus-not-ok₃ =
   Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr.¬▸plus
@@ -219,14 +214,6 @@ plus-not-ok₄ =
 
 -- Thus this rule should perhaps not be used for linear or affine
 -- types.
---
--- For the linear or affine types modality, and the linear types
--- modality, one could ensure that the doubling function is never
--- well-resourced (irrespective of whether 𝟘ᵐ is allowed) by requiring
--- that the new inequality χ ≤ δ holds for modalities with
--- well-behaved zeros. However, the linear addition function would
--- still not be well-resourced, and the doubling function would still
--- be well-resourced for the affine types modality.
 
 ------------------------------------------------------------------------
 -- Differences between the paper and the code

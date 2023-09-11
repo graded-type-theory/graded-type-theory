@@ -155,9 +155,10 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
   --   (among other things). The statement of this lemma includes the
   --   assumption that the modality's zero is well-behaved.
   --
-  -- * The assumption χ ≤ᶜ δ is only required to hold if 𝟘ᵐ is
-  --   allowed. This assumption is used to prove the substitution
-  --   lemma Graded.Substitution.Properties.substₘ-lemma.
+  -- * The assumption χ ≤ᶜ δ is also only required to hold if the
+  --   modality's zero is well-behaved. This assumption is used to
+  --   prove the substitution lemma
+  --   Graded.Substitution.Properties.substₘ-lemma.
   --
   -- Note that this rule may not always be appropriate. See
   -- Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr,
@@ -171,7 +172,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → η ▸[ m ] n
             → θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
             → χ ≤ᶜ γ
-            → (T 𝟘ᵐ-allowed →
+            → (Has-well-behaved-zero semiring-with-meet →
                χ ≤ᶜ δ)
             → (Has-well-behaved-zero semiring-with-meet →
                χ ≤ᶜ η)

@@ -48,44 +48,32 @@ open import Graded.Usage.Inversion linearityModality UR
 private
   module M = Modality linearityModality
 
--- The term double is well-resourced (even though it can be given a
--- linear type) if and only if 𝟘ᵐ is not allowed.
+-- The term double is not well-resourced.
 
-▸double : (¬ T 𝟘ᵐ-allowed) ⇔ ε ▸[ 𝟙ᵐ ] double
-▸double =
-    (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
-     λ not-ok →
-       lamₘ $
-       natrec-no-nrₘ var (sucₘ var) var
-         (sub ℕₘ $ begin
-            𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ M.·-zeroʳ _ ⟩
-            𝟘ᶜ                ∎)
-         ≤ᶜ-refl
-         (⊥-elim ∘→ not-ok)
-         (λ _ → ≤ᶜ-refl)
-         ≤ᶜ-refl)
-  , (let open Tools.Reasoning.PartialOrder ≤-poset in
-     λ ▸λ+ ok →
-       case inv-usage-lam ▸λ+ of λ {
-         (invUsageLam ▸+ _) →
-       case inv-usage-natrec ▸+ of λ {
-         (invUsageNatrec _ _ _ _ _ invUsageNatrecNr) →
-            ⊥-elim not-nr-and-no-nr;
-         (invUsageNatrec {η = _ ∙ q} {χ = _ ∙ p}
-            _ ▸suc _ _ (_ ∙ 𝟙≤p) (invUsageNatrecNoNr _ p≤q _ _)) →
-       case p≤q ok of λ {
-         (_ ∙ p≤q) →
-       case inv-usage-suc ▸suc of λ {
-         (invUsageSuc {δ = _ ∙ r ∙ _ ∙ _} ▸x0 (_ ∙ q≤r ∙ _ ∙ _)) →
-       case inv-usage-var ▸x0 of λ {
-         (_ ∙ r≤𝟘 ∙ _ ∙ _) →
-       case begin
-         𝟙  ≤⟨ 𝟙≤p ⟩
-         p  ≤⟨ p≤q ⟩
-         q  ≤⟨ q≤r ⟩
-         r  ≤⟨ r≤𝟘 ⟩
-         𝟘  ∎
-       of λ () }}}}})
+¬▸double : ¬ ε ▸[ 𝟙ᵐ ] double
+¬▸double ▸λ+ =
+  case inv-usage-lam ▸λ+ of λ {
+    (invUsageLam ▸+ _) →
+  case inv-usage-natrec ▸+ of λ {
+    (invUsageNatrec _ _ _ _ _ invUsageNatrecNr) →
+       ⊥-elim not-nr-and-no-nr;
+    (invUsageNatrec {η = _ ∙ q} {χ = _ ∙ p}
+       _ ▸suc _ _ (_ ∙ 𝟙≤p) (invUsageNatrecNoNr _ p≤q _ _)) →
+  case p≤q linearity-has-well-behaved-zero of λ {
+    (_ ∙ p≤q) →
+  case inv-usage-suc ▸suc of λ {
+    (invUsageSuc {δ = _ ∙ r ∙ _ ∙ _} ▸x0 (_ ∙ q≤r ∙ _ ∙ _)) →
+  case inv-usage-var ▸x0 of λ {
+    (_ ∙ r≤𝟘 ∙ _ ∙ _) →
+  case begin
+    𝟙  ≤⟨ 𝟙≤p ⟩
+    p  ≤⟨ p≤q ⟩
+    q  ≤⟨ q≤r ⟩
+    r  ≤⟨ r≤𝟘 ⟩
+    𝟘  ∎
+  of λ () }}}}}
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
 
 -- The term plus is not well-resourced.
 

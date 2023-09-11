@@ -216,9 +216,10 @@ module Is-morphism
         (tr-∙▸[𝟘ᵐ?] ▸P)
         (tr-Conₘ-monotone χ≤γ)
         (λ ok →
-           case 𝟘ᵐ-in-first-if-in-second (inj₁ ok) of λ where
-             (inj₁ ok) →
-               tr-Conₘ-monotone (χ≤δ ok)
+           case 𝟘-well-behaved-in-first-if-in-second (inj₁ ok)
+           of λ where
+             (inj₁ 𝟘-well-behaved) →
+               tr-Conₘ-monotone (χ≤δ 𝟘-well-behaved)
              (inj₂ trivial) → begin
                tr-Conₘ χ  ≡⟨ cong tr-Conₘ (CP₁.≈ᶜ→≡ (CP₁.≈ᶜ-trivial trivial)) ⟩
                tr-Conₘ δ  ∎)
