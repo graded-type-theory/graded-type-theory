@@ -9,6 +9,7 @@ module Graded.Modality.Instances.Linear-or-affine where
 
 import Tools.Algebra
 open import Tools.Bool using (T)
+open import Tools.Empty
 open import Tools.Function
 open import Tools.Level
 open import Tools.Nullary

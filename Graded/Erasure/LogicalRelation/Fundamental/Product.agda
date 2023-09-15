@@ -72,6 +72,7 @@ open import Graded.Erasure.Extraction.Properties 𝕄 𝟘-well-behaved
 import Graded.Erasure.Target as T
 import Graded.Erasure.Target.Properties as TP
 
+open import Tools.Empty
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
@@ -125,7 +126,7 @@ prodʳ
   [Γ] [F] [G] [G[t]] [t] [u] ⊩ʳt ⊩ʳu _ _ ok
     with is-𝟘? 𝟘
 ... | yes 𝟘≡𝟘 = Σᵛ [Γ] [F] [G] ok , _
-... | no 𝟘≢𝟘 = PE.⊥-elim (𝟘≢𝟘 PE.refl)
+... | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 PE.refl)
 prodʳ
   {Γ = Γ} {F = F} {G = G} {t = t} {u = u} {γ = γ} {m = 𝟙ᵐ} {p = p}
   {δ = δ} {s = s} {q = q} {l = l} {_⊕ᶜ_}
@@ -177,7 +178,7 @@ prodʳ
                       case PE.trans (PE.sym (lookup-distrib-·ᶜ γ p x))
                                     (propˡ pγ⊕δ≡𝟘) of λ pγ≡𝟘 →
                       case zero-product pγ≡𝟘 of λ where
-                        (inj₁ p≡𝟘) → PE.⊥-elim (p≢𝟘 p≡𝟘)
+                        (inj₁ p≡𝟘) → ⊥-elim (p≢𝟘 p≡𝟘)
                         (inj₂ γx≡𝟘) → γx≡𝟘
                     t₁®v₁ = ⊩ʳt [σ] (subsumptionSubstMode l σ®σ′ₜ)
                     t₁®v₁′ = irrelevanceQuant′ _ (PE.sym (wk-id _)) [σF] [σF]′ t₁®v₁
@@ -202,7 +203,7 @@ fstʳ′ : ∀ {l} {Γ : Con Term n}
       → γ ▸ Γ ⊩ʳ⟨ l ⟩ fst p t ∷[ m ] F / [Γ] / [F]
 fstʳ′ {m = 𝟘ᵐ} with is-𝟘? 𝟘
 ... | yes 𝟘≡𝟘 = _
-... | no 𝟘≢𝟘 = PE.⊥-elim (𝟘≢𝟘 PE.refl)
+... | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 PE.refl)
 fstʳ′ {F = F} {G = G} {p = p} {q = q} {t = t} {m = 𝟙ᵐ}
       [Γ] [F] [G] ok [t] ⊩ʳt γ▸fst {σ = σ} [σ] σ®σ′ with is-𝟘? 𝟙
 ... | yes 𝟙≡𝟘 = _
@@ -211,7 +212,7 @@ fstʳ′ {F = F} {G = G} {p = p} {q = q} {t = t} {m = 𝟙ᵐ}
   case inv-usage-fst γ▸fst of λ where
     (invUsageFst 𝟘ᵐ () _ _ _)
     (invUsageFst 𝟙ᵐ _ _ _ fst-ok) →
-      PE.⊥-elim (𝟘≰𝟙 (fst-ok PE.refl))
+      ⊥-elim (𝟘≰𝟙 (fst-ok PE.refl))
 ... | no p≢𝟘 =
   let [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
       [σF]′ = W.wk id ⊢Δ [σF]

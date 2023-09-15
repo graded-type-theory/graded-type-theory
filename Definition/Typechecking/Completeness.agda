@@ -21,10 +21,10 @@ open import Definition.Typed.Consequences.Stability R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Untyped M hiding (_∷_)
 
+open import Tools.Empty
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
-import Tools.PropositionalEquality as PE
 
 private
   variable
@@ -51,7 +51,7 @@ mutual
   -- Completeness of type inference
 
   completeness⇉ : Inferable t → Γ ⊢ t ∷ A → ∃ λ B → Γ ⊢ t ⇉ B × Γ ⊢ A ≡ B
-  completeness⇉ Uᵢ ⊢t = PE.⊥-elim (inversion-U ⊢t)
+  completeness⇉ Uᵢ ⊢t = ⊥-elim (inversion-U ⊢t)
   completeness⇉ (ΠΣᵢ F G) ⊢t =
     let ⊢F , ⊢G , A≡U , ok = inversion-ΠΣ-U ⊢t
         F⇇U = completeness⇇ F ⊢F

@@ -21,6 +21,7 @@ open import Definition.Typed.Consequences.Canonicity TR
 
 open import Graded.Restrictions
 
+open import Tools.Empty
 open import Tools.Nat
 open import Tools.PropositionalEquality
 open import Tools.Sum

@@ -33,6 +33,7 @@ open import Definition.LogicalRelation.Substitution.Properties R
 open import Definition.LogicalRelation.Substitution.Reflexivity R
 import Definition.LogicalRelation.Weakening R as W
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Nat
 open import Tools.Product
@@ -857,21 +858,21 @@ prodrecCong
 prodrecCong
   _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
   (Σₜ _ d _ prodₙ _) _ (Σₜ₌ _ _ d₁ _ (ne x) _ _ _ _ _) =
-  PE.⊥-elim (prod≢ne x (whrDet*Term (redₜ d , prodₙ) (redₜ d₁ , ne x)))
+  ⊥-elim (prod≢ne x (whrDet*Term (redₜ d , prodₙ) (redₜ d₁ , ne x)))
 prodrecCong
   _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ ⊢Σ≡Σ′ _ _ _ _ _
   (Σₜ _ d′ _ (ne x) _) (Σₜ₌ _ _ _ d′₁ _ prodₙ _ _ _ _) =
-  PE.⊥-elim
+  ⊥-elim
     (prod≢ne x
        (whrDet*Term (conv* (redₜ d′₁) ⊢Σ≡Σ′ , prodₙ) (redₜ d′ , ne x)))
 prodrecCong
   _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
   (Σₜ _ d _ (ne x) _) _ (Σₜ₌ _ _ d₁ _ prodₙ _ _ _ _ _) =
-  PE.⊥-elim (prod≢ne x (whrDet*Term (redₜ d₁ , prodₙ) (redₜ d , ne x)))
+  ⊥-elim (prod≢ne x (whrDet*Term (redₜ d₁ , prodₙ) (redₜ d , ne x)))
 prodrecCong
   _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ ⊢Σ≡Σ′ _ _ _ _ _
   (Σₜ _ d′ _ prodₙ _) (Σₜ₌ _ _ _ d′₁ _ (ne x) _ _ _ _) =
-  PE.⊥-elim
+  ⊥-elim
     (prod≢ne x
        (whrDet*Term (redₜ d′ , prodₙ)
           (conv* (redₜ d′₁) ⊢Σ≡Σ′ , ne x)))

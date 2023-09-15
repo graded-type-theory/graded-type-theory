@@ -53,6 +53,7 @@ open import Graded.Erasure.LogicalRelation.Subsumption 𝕄 R is-𝟘? ⊢Δ
 open import Graded.Erasure.LogicalRelation.Irrelevance 𝕄 R is-𝟘? ⊢Δ
 import Graded.Erasure.Target as T
 
+open import Tools.Empty
 open import Tools.Function
 open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
@@ -79,7 +80,7 @@ appʳ′ : ∀ {l} {Γ : Con Term n}
      → γ +ᶜ p ·ᶜ δ ▸ Γ ⊩ʳ⟨ l ⟩ t ∘⟨ p ⟩ u ∷[ m ] G [ u ]₀ / [Γ] / [G[u]]
 appʳ′ {m = 𝟘ᵐ} with is-𝟘? 𝟘
 ... | yes m≡𝟘 = _
-... | no m≢𝟘 = PE.⊥-elim (m≢𝟘 PE.refl)
+... | no m≢𝟘 = ⊥-elim (m≢𝟘 PE.refl)
 appʳ′
   {F = F} {G = G} {u = u} {p = p} {q = q} {γ = γ} {t = t} {m = 𝟙ᵐ}
   {δ = δ} {l = l} [Γ] [F] [G] [G[u]] [u] _ ⊩ʳt ⊩ʳu {σ = σ} [σ] σ®σ′
@@ -130,7 +131,7 @@ appʳ′
   where
   lem : ∀ {a b} → a + p · b PE.≡ 𝟘 → b PE.≡ 𝟘
   lem eq = case (zero-product (+-positiveʳ eq)) of λ where
-    (inj₁ p≡𝟘) → PE.⊥-elim (p≢𝟘 p≡𝟘)
+    (inj₁ p≡𝟘) → ⊥-elim (p≢𝟘 p≡𝟘)
     (inj₂ b≡𝟘) → b≡𝟘
 
 appʳ : ∀ {Γ : Con Term n}

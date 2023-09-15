@@ -13,7 +13,7 @@ open import Graded.Modality.Variant a
 open import Tools.Algebra M
 open import Tools.Bool using (false)
 open import Tools.Product
-open import Tools.PropositionalEquality hiding (⊥)
+open import Tools.PropositionalEquality
 import Tools.Reasoning.PropositionalEquality
 
 -- Bounded, distributive lattices over M.

@@ -27,6 +27,7 @@ open import Graded.Mode 𝕄
 open import Definition.Untyped M renaming (_[_,_] to _[_,,_])
 
 open import Tools.Bool using (T)
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat using (Nat)

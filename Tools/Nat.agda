@@ -27,6 +27,7 @@ open Data.Nat.Properties
   public
 open import Data.Nat.Show using (show) public
 
+open import Tools.Empty
 open import Tools.Function
 open import Tools.PropositionalEquality
 

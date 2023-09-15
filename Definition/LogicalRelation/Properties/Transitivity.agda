@@ -22,6 +22,7 @@ open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties.Conversion R
 
+open import Tools.Empty
 open import Tools.Function
 open import Tools.Level
 open import Tools.Nat
@@ -257,11 +258,11 @@ transEqTerm
 transEqTerm (Bᵣ′ BΣᵣ _ _ _ _ _ _ _ _ _ _)
             (Σₜ₌ p r d d′ prodₙ prodₙ p≅r [t] [u] prop)
             (Σₜ₌ p₁ r₁ d₁ d₁′ (ne x) (ne x₁) p≅r₁ [t]₁ [u]₁ prop₁) =
-  PE.⊥-elim (prod≢ne x (whrDet*Term (redₜ d′ , prodₙ) (redₜ d₁ , ne x)))
+  ⊥-elim (prod≢ne x (whrDet*Term (redₜ d′ , prodₙ) (redₜ d₁ , ne x)))
 transEqTerm (Bᵣ′ BΣᵣ _ _ _ _ _ _ _ _ _ _)
             (Σₜ₌ p r d d′ (ne x) (ne x₁) p≅r [t] [u] prop)
             (Σₜ₌ p₁ r₁ d₁ d₁′ prodₙ prodₙ p≅r₁ [t]₁ [u]₁ prop₁) =
-  PE.⊥-elim (prod≢ne x₁ (whrDet*Term (redₜ d₁ , prodₙ) (redₜ d′ , ne x₁)))
+  ⊥-elim (prod≢ne x₁ (whrDet*Term (redₜ d₁ , prodₙ) (redₜ d′ , ne x₁)))
 transEqTerm (Bᵣ′ BΣᵣ _ _ _ _ _ _ _ _ _ _)
             (Σₜ₌ p r d d′ prodₙ (ne x) p≅r [t] [u] (lift ()))
             (Σₜ₌ p₁ r₁ d₁ d₁′ pProd₁ rProd₁ p≅r₁ [t]₁ [u]₁ prop₁)

@@ -6,6 +6,7 @@ module Graded.Modality.Instances.Information-flow where
 
 import Tools.Algebra
 open import Tools.Bool using (T)
+open import Tools.Empty
 open import Tools.Function
 open import Tools.Level using (lzero)
 open import Tools.Nullary

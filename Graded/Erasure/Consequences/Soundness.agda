@@ -45,6 +45,7 @@ import Graded.Erasure.LogicalRelation.Fundamental
 import Graded.Erasure.LogicalRelation.Irrelevance 𝕄 TR is-𝟘? as LRI
 import Graded.Erasure.LogicalRelation.Subsumption 𝕄 TR is-𝟘? as LRS
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat

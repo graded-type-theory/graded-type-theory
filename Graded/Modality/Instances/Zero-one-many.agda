@@ -14,6 +14,7 @@ module Graded.Modality.Instances.Zero-one-many
   (𝟙≤𝟘 : Bool)
   where
 import Tools.Algebra
+open import Tools.Empty
 open import Tools.Function
 open import Tools.Level
 open import Tools.Nullary
@@ -649,7 +650,7 @@ zero-one-many-has-well-behaved-zero = record
       {p = 𝟘} {q = 𝟘} _     → refl
       {p = 𝟘} {q = 𝟙} _     → refl
       {p = 𝟙} {q = 𝟘} 𝟘∧𝟙≡𝟘 →
-        PE.⊥-elim (
+        ⊥-elim (
           case
             𝟙  ≡⟨ 𝟘-maximal (sym 𝟘∧𝟙≡𝟘) ⟩
             𝟘  ∎

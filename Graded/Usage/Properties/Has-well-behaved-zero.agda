@@ -26,6 +26,7 @@ open import Graded.Modality.Properties.Has-well-behaved-zero
             semiring-with-meet 𝟘-well-behaved
 
 open import Tools.Bool using (T)
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Product

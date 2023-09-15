@@ -29,6 +29,7 @@ open import Definition.Typed.Restrictions M
 open import Definition.Untyped M hiding (_∷_)
 
 open import Tools.Bool using (Bool; T)
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Level

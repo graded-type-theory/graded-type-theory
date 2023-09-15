@@ -6,6 +6,7 @@ module Graded.Modality.Instances.Zero-below-one where
 
 import Tools.Algebra
 open import Tools.Bool using (false)
+open import Tools.Empty
 open import Tools.Function
 open import Tools.Level
 open import Tools.Nullary

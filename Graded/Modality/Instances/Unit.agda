@@ -7,6 +7,7 @@ open import Tools.Unit
 
 module Graded.Modality.Instances.Unit where
 
+open import Tools.Empty
 open import Tools.Function
 open import Tools.Level
 open import Tools.Nullary

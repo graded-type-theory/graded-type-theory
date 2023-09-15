@@ -7,6 +7,7 @@ module Definition.Untyped.Properties {a} (M : Set a) where
 
 open import Definition.Untyped M
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat

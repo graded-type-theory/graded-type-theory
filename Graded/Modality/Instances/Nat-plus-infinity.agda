@@ -6,6 +6,7 @@ module Graded.Modality.Instances.Nat-plus-infinity where
 
 import Tools.Algebra
 open import Tools.Bool using (T)
+open import Tools.Empty
 open import Tools.Function
 open import Tools.Level
 open import Tools.Nat as N using (Nat; 1+)

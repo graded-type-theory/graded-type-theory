@@ -5,6 +5,7 @@
 module Graded.Modality.Morphism.Usage-restrictions where
 
 open import Tools.Bool
+open import Tools.Empty
 open import Tools.Function
 open import Tools.Level
 open import Tools.Nullary

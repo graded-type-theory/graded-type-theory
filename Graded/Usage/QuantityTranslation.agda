@@ -47,6 +47,7 @@ private
   module M₁  = Modality 𝕄₁
   module M₂  = Modality 𝕄₂
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Product

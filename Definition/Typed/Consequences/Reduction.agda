@@ -21,6 +21,7 @@ open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
 
+open import Tools.Empty
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -51,54 +52,54 @@ whNorm A = whNorm′ (reducible A)
       → ∃₂ λ F′ G′ → Γ ⊢ A ⇒* Π p , q ▷ F′ ▹ G′ × Γ ⊢ F ≡ F′
          × Γ ∙ F ⊢ G ≡ G′
 ΠNorm {A = A} ⊢A A≡ΠFG with whNorm ⊢A
-... | _ , Uₙ , D = PE.⊥-elim (U≢Π (trans (sym (subset* (red D))) A≡ΠFG))
+... | _ , Uₙ , D = ⊥-elim (U≢Π (trans (sym (subset* (red D))) A≡ΠFG))
 ... | _ , ΠΣₙ {b = BMΠ} , D =
   let Π≡Π′ = trans (sym A≡ΠFG) (subset* (red D))
       F≡F′ , G≡G′ , p≡p′ , q≡q′ = injectivity Π≡Π′
       D′ = PE.subst₂ (λ p q → _ ⊢ A ⇒* Π p , q ▷ _ ▹ _) (PE.sym p≡p′) (PE.sym q≡q′) (red D)
   in  _ , _ , D′ , F≡F′ , G≡G′
-... | _ , ΠΣₙ {b = BMΣ s} , D = PE.⊥-elim (Π≢Σⱼ (trans (sym A≡ΠFG) (subset* (red D))))
-... | _ , ℕₙ , D = PE.⊥-elim (ℕ≢Π (trans (sym (subset* (red D))) A≡ΠFG))
-... | _ , Unitₙ , D = PE.⊥-elim (Unit≢Πⱼ (trans (sym (subset* (red D))) A≡ΠFG))
-... | _ , Emptyₙ , D = PE.⊥-elim (Empty≢Πⱼ (trans (sym (subset* (red D))) A≡ΠFG))
+... | _ , ΠΣₙ {b = BMΣ s} , D = ⊥-elim (Π≢Σⱼ (trans (sym A≡ΠFG) (subset* (red D))))
+... | _ , ℕₙ , D = ⊥-elim (ℕ≢Π (trans (sym (subset* (red D))) A≡ΠFG))
+... | _ , Unitₙ , D = ⊥-elim (Unit≢Πⱼ (trans (sym (subset* (red D))) A≡ΠFG))
+... | _ , Emptyₙ , D = ⊥-elim (Empty≢Πⱼ (trans (sym (subset* (red D))) A≡ΠFG))
 ... | _ , lamₙ , [ ⊢A , univ ⊢B , A⇒B ] =
   let _ , _ , _ , _ , _ , U≡Π , _ = inversion-lam ⊢B
-  in  PE.⊥-elim (U≢Π U≡Π)
-... | _ , zeroₙ , [ ⊢A , univ ⊢B , A⇒B ] = PE.⊥-elim (U≢ℕ (inversion-zero ⊢B))
-... | _ , sucₙ , [ ⊢A , univ ⊢B , A⇒B ] = PE.⊥-elim (U≢ℕ (proj₂ (inversion-suc ⊢B)))
+  in  ⊥-elim (U≢Π U≡Π)
+... | _ , zeroₙ , [ ⊢A , univ ⊢B , A⇒B ] = ⊥-elim (U≢ℕ (inversion-zero ⊢B))
+... | _ , sucₙ , [ ⊢A , univ ⊢B , A⇒B ] = ⊥-elim (U≢ℕ (proj₂ (inversion-suc ⊢B)))
 ... | _ , starₙ , [ _ , univ ⊢B , _ ] =
-  PE.⊥-elim (U≢Unitⱼ (inversion-star ⊢B .proj₁))
+  ⊥-elim (U≢Unitⱼ (inversion-star ⊢B .proj₁))
 ... | _ , prodₙ , [ _ , univ ⊢B , _ ] =
   let _ , _ , _ , _ , _ , _ , _ , U≡Σ , _ = inversion-prod ⊢B
-  in  PE.⊥-elim (U≢Σ U≡Σ)
-... | _ , ne x , D = PE.⊥-elim (Π≢ne x (trans (sym A≡ΠFG) (subset* (red D))))
+  in  ⊥-elim (U≢Σ U≡Σ)
+... | _ , ne x , D = ⊥-elim (Π≢ne x (trans (sym A≡ΠFG) (subset* (red D))))
 
 ΣNorm : ∀ {A F G m} → Γ ⊢ A → Γ ⊢ A ≡ Σ⟨ m ⟩ p , q ▷ F ▹ G
       → ∃₂ λ F′ G′ → Γ ⊢ A ⇒* Σ⟨ m ⟩ p , q ▷ F′ ▹ G′
          × Γ ⊢ F ≡ F′ × Γ ∙ F ⊢ G ≡ G′
 ΣNorm {A = A} ⊢A A≡ΣFG with whNorm ⊢A
-... | _ , Uₙ , D = PE.⊥-elim (U≢Σ (trans (sym (subset* (red D))) A≡ΣFG))
-... | _ , (ΠΣₙ {b = BMΠ}) , D = PE.⊥-elim (Π≢Σⱼ (trans (sym (subset* (red D))) A≡ΣFG))
+... | _ , Uₙ , D = ⊥-elim (U≢Σ (trans (sym (subset* (red D))) A≡ΣFG))
+... | _ , (ΠΣₙ {b = BMΠ}) , D = ⊥-elim (Π≢Σⱼ (trans (sym (subset* (red D))) A≡ΣFG))
 ... | _ , (ΠΣₙ {b = BMΣ m}) , D =
   let Σ≡Σ′ = trans (sym A≡ΣFG) (subset* (red D))
       F≡F′ , G≡G′ , p≡p′ , q≡q′ , m≡m′ = Σ-injectivity Σ≡Σ′
       D′ = PE.subst₃ (λ m p q → _ ⊢ A ⇒* Σ⟨ m ⟩ p , q ▷ _ ▹ _)
                      (PE.sym m≡m′) (PE.sym p≡p′) (PE.sym q≡q′) (red D)
   in  _ , _ , D′ , F≡F′ , G≡G′
-... | _ , ℕₙ , D = PE.⊥-elim (ℕ≢Σ (trans (sym (subset* (red D))) A≡ΣFG))
-... | _ , Unitₙ , D = PE.⊥-elim (Unit≢Σⱼ (trans (sym (subset* (red D))) A≡ΣFG))
-... | _ , Emptyₙ , D = PE.⊥-elim (Empty≢Σⱼ (trans (sym (subset* (red D))) A≡ΣFG))
+... | _ , ℕₙ , D = ⊥-elim (ℕ≢Σ (trans (sym (subset* (red D))) A≡ΣFG))
+... | _ , Unitₙ , D = ⊥-elim (Unit≢Σⱼ (trans (sym (subset* (red D))) A≡ΣFG))
+... | _ , Emptyₙ , D = ⊥-elim (Empty≢Σⱼ (trans (sym (subset* (red D))) A≡ΣFG))
 ... | _ , lamₙ , [ ⊢A , univ ⊢B , A⇒B ] =
   let _ , _ , _ , _ , _ , U≡Π , _ = inversion-lam ⊢B
-  in  PE.⊥-elim (U≢Π U≡Π)
-... | _ , zeroₙ , [ ⊢A , univ ⊢B , A⇒B ] = PE.⊥-elim (U≢ℕ (inversion-zero ⊢B))
-... | _ , sucₙ , [ ⊢A , univ ⊢B , A⇒B ] = PE.⊥-elim (U≢ℕ (proj₂ (inversion-suc ⊢B)))
+  in  ⊥-elim (U≢Π U≡Π)
+... | _ , zeroₙ , [ ⊢A , univ ⊢B , A⇒B ] = ⊥-elim (U≢ℕ (inversion-zero ⊢B))
+... | _ , sucₙ , [ ⊢A , univ ⊢B , A⇒B ] = ⊥-elim (U≢ℕ (proj₂ (inversion-suc ⊢B)))
 ... | _ , starₙ , [ _ , univ ⊢B , _ ] =
-  PE.⊥-elim (U≢Unitⱼ (inversion-star ⊢B .proj₁))
+  ⊥-elim (U≢Unitⱼ (inversion-star ⊢B .proj₁))
 ... | _ , prodₙ , [ _ , univ ⊢B , _ ] =
   let _ , _ , _ , _ , _ , _ , _ , U≡Σ , _ = inversion-prod ⊢B
-  in  PE.⊥-elim (U≢Σ U≡Σ)
-... | _ , ne x , D = PE.⊥-elim (Σ≢ne x (trans (sym A≡ΣFG) (subset* (red D))))
+  in  ⊥-elim (U≢Σ U≡Σ)
+... | _ , ne x , D = ⊥-elim (Σ≢ne x (trans (sym A≡ΣFG) (subset* (red D))))
 
 -- Helper function where reducible all terms can be reduced to WHNF.
 whNormTerm′ : ∀ {a A l} ([A] : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ a ∷ A / [A]

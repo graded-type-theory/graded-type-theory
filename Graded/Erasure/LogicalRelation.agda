@@ -35,6 +35,7 @@ open import Definition.Typed.Weakening R
 open import Graded.Erasure.Target as T hiding (_⇒*_)
 open import Graded.Erasure.Extraction 𝕄 is-𝟘?
 
+open import Tools.Empty
 open import Tools.Function
 open import Tools.Level
 open import Tools.Nat
@@ -87,7 +88,7 @@ mutual
   t ®⟨ l ⟩ v ∷ A / ℕᵣ x     = t ® v ∷ℕ
   t ®⟨ l ⟩ v ∷ A / Emptyᵣ x = t ® v ∷Empty
   t ®⟨ l ⟩ v ∷ A / Unitᵣ x  = t ® v ∷Unit
-  t ®⟨ l ⟩ v ∷ A / ne′ K D neK K≡K = Lift a PE.⊥
+  t ®⟨ l ⟩ v ∷ A / ne′ K D neK K≡K = Lift a ⊥
 
   -- Π:
   t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΠ p q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _ =
@@ -195,7 +196,7 @@ _▸_⊩ʳ⟨_⟩_∷[_]_/_/_ :
             → Σ-® l F [F] t₁ v v₂ p
 Σ-®-intro-𝟘 {p = p} v⇒v₂ p≡𝟘 with is-𝟘? p
 ... | yes _ = lift v⇒v₂
-... | no p≢𝟘 = PE.⊥-elim (p≢𝟘 p≡𝟘)
+... | no p≢𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
 
 Σ-®-intro-ω : ∀ {l F [F] t₁ v v₂ p}
             → (v₁ : T.Term k)
@@ -204,7 +205,7 @@ _▸_⊩ʳ⟨_⟩_∷[_]_/_/_ :
             → p PE.≢ 𝟘
             → Σ-® l F [F] t₁ v v₂ p
 Σ-®-intro-ω {p = p} v₁ v⇒v′ t₁®v₁ p≢𝟘 with is-𝟘? p
-... | yes p≡𝟘 = PE.⊥-elim (p≢𝟘 p≡𝟘)
+... | yes p≡𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
 ... | no _ = v₁ , v⇒v′ , t₁®v₁
 
 Σ-®-elim : ∀ {b l F [F] t₁ v v₂ p}

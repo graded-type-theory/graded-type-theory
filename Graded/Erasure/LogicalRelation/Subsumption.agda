@@ -37,6 +37,7 @@ open import Graded.Erasure.Extraction 𝕄 is-𝟘?
 open import Graded.Erasure.LogicalRelation 𝕄 R is-𝟘? ⊢Δ
 open import Graded.Erasure.Target as T hiding (_⇒_; _⇒*_)
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Level
 open import Tools.Nat
@@ -64,7 +65,7 @@ subsumptionTerm : ∀ {l [A]}
 subsumptionTerm {p = p} {q} t®v prop with is-𝟘? q
 ... | yes PE.refl = _
 ... | no q≢𝟘 with is-𝟘? p
-... | yes PE.refl = PE.⊥-elim (q≢𝟘 (prop PE.refl))
+... | yes PE.refl = ⊥-elim (q≢𝟘 (prop PE.refl))
 ... | no p≢𝟘 = t®v
 
 -- Translations between quantified and non-quantified
@@ -75,7 +76,7 @@ _◀≢𝟘_ : ∀ {l [A]}
       → p PE.≢ 𝟘
       → t ®⟨ l ⟩ v ∷ A / [A]
 _◀≢𝟘_ {p = p} t®v p≢𝟘 with is-𝟘? p
-... | yes p≡𝟘 = PE.⊥-elim (p≢𝟘 p≡𝟘)
+... | yes p≡𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
 ... | no p≢𝟘 = t®v
 
 _◀_ : ∀ {l [A]}
@@ -91,7 +92,7 @@ t®v◂𝟘 : ∀ {l [A]}
       → t ®⟨ l ⟩ v ∷ A ◂ 𝟘 / [A]
 t®v◂𝟘 with is-𝟘? 𝟘
 ... | yes _ = _
-... | no 𝟘≢𝟘 = PE.⊥-elim (𝟘≢𝟘 PE.refl)
+... | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 PE.refl)
 
 -- Subsumption of related substitutions
 -- If σ ® σ′ ∷ Γ ◂ γ and whenever γ⟨x⟩ ≡ 𝟘 then δ⟨x⟩≡𝟘
@@ -105,13 +106,13 @@ subsumptionSubst {Γ = ε} {ε} {ε} {[Γ] = ε} {lift lower} σ®σ′ prop = _
 subsumptionSubst {m = 𝟘ᵐ} {Γ = Γ ∙ x} {γ ∙ p} {δ ∙ q} {l = l}
                  {[Γ] = [Γ] ∙ [A]} {_ , _} (σ®σ′ , t®v) prop with is-𝟘? (𝟘 · q)
 ... | yes _ = subsumptionSubst {l = l} σ®σ′ (λ x → prop (x +1)) , _
-... | no 𝟘q≢𝟘 = PE.⊥-elim (𝟘q≢𝟘 (·-zeroˡ q))
+... | no 𝟘q≢𝟘 = ⊥-elim (𝟘q≢𝟘 (·-zeroˡ q))
 subsumptionSubst {m = 𝟙ᵐ} {Γ = Γ ∙ x} {γ ∙ p} {δ ∙ q} {l = l}
                  {[Γ] = [Γ] ∙ [A]} {_ , _} (σ®σ′ , t®v) prop
   rewrite ·-identityˡ q rewrite ·-identityˡ p with is-𝟘? q
 ... | yes q≡𝟘 = subsumptionSubst {l = l} σ®σ′ (λ x → prop (x +1)) , _
 ... | no q≢𝟘 with is-𝟘? p
-... | yes p≡𝟘 = PE.⊥-elim (q≢𝟘 (prop x0 p≡𝟘))
+... | yes p≡𝟘 = ⊥-elim (q≢𝟘 (prop x0 p≡𝟘))
 ... | no p≢𝟘 = subsumptionSubst {l = l} σ®σ′ (λ x → prop (x +1)) , t®v
 
 -- If σₜ ®⟨ l ⟩ σᵥ ∷[ m ] Γ ◂ γ / [Γ] / [σ] holds when m is 𝟙ᵐ, then
@@ -128,7 +129,7 @@ subsumptionSubstMode {γ = ε} {[Γ] = ε} =
 subsumptionSubstMode {γ = _ ∙ p} {m = 𝟘ᵐ} {[Γ] = _ ∙ _} l (ok₁ , _)
   rewrite ·-zeroˡ p with is-𝟘? 𝟘
 ... | yes p≡𝟘 = subsumptionSubstMode l ok₁ , lift tt
-... | no p≢𝟘 = PE.⊥-elim (p≢𝟘 PE.refl)
+... | no p≢𝟘 = ⊥-elim (p≢𝟘 PE.refl)
 
 
 -- Subsumption of erasure validity
@@ -163,4 +164,4 @@ erasedSubst ε (lift tt) = lift tt
 erasedSubst {m = m} (_∙_ {l = l} [Γ] [A]) ([σ] , [t])
   rewrite ·-zeroʳ ⌜ m ⌝ with is-𝟘? 𝟘
 ... | yes p≡𝟘 = erasedSubst {l = l} [Γ] [σ] , lift tt
-... | no p≢𝟘 = PE.⊥-elim (p≢𝟘 PE.refl)
+... | no p≢𝟘 = ⊥-elim (p≢𝟘 PE.refl)

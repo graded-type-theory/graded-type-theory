@@ -51,6 +51,7 @@ open import Graded.Erasure.LogicalRelation.Subsumption 𝕄 R is-𝟘? ⊢Δ
 open import Graded.Erasure.Target.Properties as TP
 import Graded.Erasure.Target as T
 
+open import Tools.Empty
 open import Tools.Nat
 open import Tools.Product
 
@@ -122,7 +123,7 @@ lamʳ {F = F} {G = G} {t = t} {m = 𝟘ᵐ} {p = p} {q = q}
      [Γ] [F] [G] [t] ⊩ʳt _ {σ = σ} {σ′ = σ′} [σ] σ®σ′
      with is-𝟘? 𝟘
 ... | yes _ = _
-... | no 𝟘≢𝟘 = PE.⊥-elim (𝟘≢𝟘 PE.refl)
+... | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 PE.refl)
 lamʳ {F = F} {G = G} {t = t} {m = 𝟙ᵐ} {p = p} {q = q}
      [Γ] [F] [G] [t] ⊩ʳt ok {σ = σ} {σ′ = σ′} [σ] σ®σ′
      with is-𝟘? ⌜ 𝟙ᵐ ⌝

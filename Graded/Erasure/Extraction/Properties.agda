@@ -32,6 +32,7 @@ import Graded.Usage.Properties.Has-well-behaved-zero 𝕄 as MUP𝟘
 open import Graded.Usage.Restrictions M
 open import Graded.Mode 𝕄
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat using (Nat; 1+) renaming (_+_ to _+ⁿ_)
@@ -58,31 +59,31 @@ prod-𝟘 : p PE.≡ 𝟘
        → erase (U.prod k p t u) PE.≡ erase u
 prod-𝟘 {p = p} p≡𝟘 with is-𝟘? p
 ... | yes p≡𝟘 = PE.refl
-... | no p≢𝟘 = PE.⊥-elim (p≢𝟘 p≡𝟘)
+... | no p≢𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
 
 prod-ω : p PE.≢ 𝟘
        → erase (U.prod k p t u) PE.≡ T.prod (erase t) (erase u)
 prod-ω {p = p} p≢𝟘 with is-𝟘? p
-... | yes p≡𝟘 = PE.⊥-elim (p≢𝟘 p≡𝟘)
+... | yes p≡𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
 ... | no p≢𝟘 = PE.refl
 
 snd-𝟘 : p PE.≡ 𝟘
       → erase (U.snd p t) PE.≡ erase t
 snd-𝟘 {p = p} p≡𝟘 with is-𝟘? p
 ... | yes p≡𝟘 = PE.refl
-... | no p≢𝟘 = PE.⊥-elim (p≢𝟘 p≡𝟘)
+... | no p≢𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
 
 snd-ω : p PE.≢ 𝟘
       → erase (U.snd p t) PE.≡ T.snd (erase t)
 snd-ω {p = p} p≢𝟘 with is-𝟘? p
-... | yes p≡𝟘 = PE.⊥-elim (p≢𝟘 p≡𝟘)
+... | yes p≡𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
 ... | no p≢𝟘 = PE.refl
 
 prodrec-ω : ∀ p → r PE.≢ 𝟘
           → erase (U.prodrec r p q A t u)
           PE.≡ erase-prodrecω p (erase t) (erase u)
 prodrec-ω {r} p r≢𝟘 with is-𝟘? r
-... | yes r≡𝟘 = PE.⊥-elim (r≢𝟘 r≡𝟘)
+... | yes r≡𝟘 = ⊥-elim (r≢𝟘 r≡𝟘)
 ... | no r≢𝟘 with is-𝟘? p
 ... | yes p≡𝟘 = PE.refl
 ... | no p≢𝟘 = PE.refl

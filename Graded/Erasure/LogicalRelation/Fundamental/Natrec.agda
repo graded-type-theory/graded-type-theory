@@ -59,6 +59,7 @@ open import Graded.Erasure.Extraction 𝕄 is-𝟘?
 import Graded.Erasure.Target as T
 import Graded.Erasure.Target.Properties as TP
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat hiding (_+_)
@@ -102,7 +103,7 @@ natrecʳ″ : ∀ {l m w} {Γ : Con Term n}
            / proj₁ (unwrap [A] ⊢Δ ([σ] , [m]))
 natrecʳ″ {mo = 𝟘ᵐ} with is-𝟘? 𝟘
 ... | yes _ = _
-... | no 𝟘≢𝟘 = PE.⊥-elim (𝟘≢𝟘 PE.refl)
+... | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 PE.refl)
 
 natrecʳ″
   {n = n} {A = A} {z = z} {s = s} {σ = σ} {σ′ = σ′} {mo = 𝟙ᵐ} {γ = γ}
@@ -205,7 +206,7 @@ natrecʳ″
                  {σ′ = T.consSubst (T.consSubst σ′ w′) σnrw′}
                  (([σ] , [m′]) , [nrm′])
                  ( ( σ®σ′ₛ , m′®w′ ◀ _)
-                 , subsumptionTerm nrm′®nrw′ (λ 1≡𝟘 → PE.⊥-elim (𝟙≢𝟘 1≡𝟘))
+                 , subsumptionTerm nrm′®nrw′ (λ 1≡𝟘 → ⊥-elim (𝟙≢𝟘 1≡𝟘))
                  )
       s®s″ = irrelevanceTerm′ (PE.trans (substCompEq A)
                               (PE.trans (substVar-to-subst substLem A) (PE.sym (substCompEq A))))
@@ -270,7 +271,7 @@ natrecʳ′ : ∀ {l} {Γ : Con Term n}
              [Γ] / [A[m]]
 natrecʳ′ {mo = 𝟘ᵐ} with is-𝟘? 𝟘
 ... | yes _ = _
-... | no 𝟘≢𝟘 = PE.⊥-elim (𝟘≢𝟘 PE.refl)
+... | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 PE.refl)
 
 natrecʳ′
   {n = n} {A = A} {m = m} {z = z} {s = s} {γ = γ} {mo = 𝟙ᵐ} {δ = δ}

@@ -7,7 +7,6 @@ module Tools.PropositionalEquality where
 
 -- We reexport Agda's builtin equality type.
 
-open import Tools.Empty public
 open import Tools.Relation
 
 import Relation.Binary.PropositionalEquality as Eq

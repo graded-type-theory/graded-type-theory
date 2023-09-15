@@ -16,6 +16,7 @@ open import Graded.Modality.Properties.Meet 𝕄
 open import Graded.Modality.Properties.Multiplication 𝕄
 open import Graded.Modality.Properties.PartialOrder 𝕄
 
+open import Tools.Empty
 open import Tools.Function
 open import Tools.Nullary
 open import Tools.Product

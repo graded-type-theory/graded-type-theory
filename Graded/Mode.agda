@@ -17,6 +17,7 @@ open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
 open import Tools.Algebra
 open import Tools.Bool as B using (Bool; true; false; T)
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat using (Nat; 1+)

@@ -19,6 +19,7 @@ open import Definition.Typed.Properties R
 open import Definition.Typed R
 open import Definition.Typed.Weakening R
 
+open import Tools.Empty
 open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
@@ -444,11 +445,11 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
     [Σ]-prop
       Σᵣ t r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
       (prodₙ {t = p₁} {u = p₂}) (ne y) =
-      Lift a PE.⊥
+      Lift a ⊥
     [Σ]-prop
       Σᵣ t r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok)
       (ne x) (prodₙ {t = r₁} {u = r₂}) =
-      Lift a PE.⊥
+      Lift a ⊥
     [Σ]-prop
       {p = p} {q = q} Σᵣ t r Γ
       (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) (ne x) (ne y) =

@@ -46,6 +46,7 @@ import Definition.LogicalRelation.Irrelevance R as I
 import Definition.LogicalRelation.Weakening R as W
 import Definition.LogicalRelation.Substitution.Irrelevance R as IS
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
@@ -118,9 +119,9 @@ prodrecωʳ′-𝟘
   [Γ] [F] [G] ok [A] [A₊] ⊩ʳu [At] [u] [σ] σ®σ′ [t₁] [t₂] d d′ t₂®v₂
   p≡𝟘 r≢𝟘
   with is-𝟘? r
-... | yes r≡𝟘 = PE.⊥-elim (r≢𝟘 r≡𝟘)
+... | yes r≡𝟘 = ⊥-elim (r≢𝟘 r≡𝟘)
 ... | no _ with is-𝟘? p
-... | no p≢𝟘 = PE.⊥-elim (p≢𝟘 p≡𝟘)
+... | no p≢𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
 ... | yes PE.refl =
   convTermʳ [σ₊A₊] [σAt] (sym At≡Ap′) pr®pr′
   where
@@ -230,9 +231,9 @@ prodrecωʳ′-ω
   {σ = σ} {σ′ = σ′} {γ = γ} {t₁ = t₁} {t₂ = t₂} {v₁ = v₁} {v₂ = v₂}
   {Γ = Γ} [Γ] [F] [G] ok [A] [A₊] ⊩ʳu [At] [u] [σ] σ®σ′ [t₁] [t₂] d d′
   t₁®v₁ t₂®v₂ p≢𝟘 r≢𝟘 with is-𝟘? r
-... | yes r≡𝟘 = PE.⊥-elim (r≢𝟘 r≡𝟘)
+... | yes r≡𝟘 = ⊥-elim (r≢𝟘 r≡𝟘)
 ... | no _ with is-𝟘? p
-... | yes p≡𝟘 = PE.⊥-elim (p≢𝟘 p≡𝟘)
+... | yes p≡𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
 ... | no _ =
   let σ®σ′ᵤ = subsumptionSubst {l = l} σ®σ′ λ x rγ+δ≡𝟘 →
                 +-positiveʳ (PE.trans (PE.sym (lookup-distrib-+ᶜ (r ·ᶜ γ) δ x)) rγ+δ≡𝟘)
@@ -321,7 +322,7 @@ prodrecωʳ′
   (Σₜ p t⇒p p≅p prodₙ (foo , [t₁] , [t₂] , PE.refl))
   (t₁ , t₂ , d , [t₁]₁ , v₂ , t₂®v₂ , extra)
   with is-𝟘? r
-... | yes r≡𝟘 = PE.⊥-elim (r≢𝟘 r≡𝟘)
+... | yes r≡𝟘 = ⊥-elim (r≢𝟘 r≡𝟘)
 ... | no _
   with whrDet*Term (redₜ t⇒p , prodₙ) (d , prodₙ)
 ... | PE.refl = PE.subst (λ x → prodrec r p′ q′ A t u [ σ ] ®⟨ l ⟩ x ∷ A [ t ]₀ [ σ ] / [At] .unwrap ⊢Δ [σ] .proj₁)
@@ -474,10 +475,10 @@ prodrec𝟘ʳ  {n} {Γ} {l} {F} {G} {p} {q} {A} {δ} {u} {t} {r} {σ} {σ′} {q
 
   in  convTermʳ [σ₊A₊] [σAt] (sym At≡At‴) pr®pr′
 
-... | no r≢𝟘 = PE.⊥-elim (r≢𝟘 r≡𝟘)
+... | no r≢𝟘 = ⊥-elim (r≢𝟘 r≡𝟘)
 prodrec𝟘ʳ {n} {Γ} {l} {F} {G} {p} {q} {A} {δ} {u} {t} {r} {σ} {σ′} {q′}
           [Γ] [F] [G] _ x [A₊] x₁ [At] x₂ r≡𝟘 PE.refl [σ] x₄
-          (Σₜ t′ t⇒t′ p≅p (ne y) prop) = PE.⊥-elim (noClosedNe y)
+          (Σₜ t′ t⇒t′ p≅p (ne y) prop) = ⊥-elim (noClosedNe y)
 
 prodrecʳ :
   ([Γ] : ⊩ᵛ Γ)
@@ -500,12 +501,12 @@ prodrecʳ :
 prodrecʳ {m = 𝟘ᵐ} [Γ] [F] [G] [Σ] [A] [A₊] [t] [u] ⊩ʳt ⊩ʳu r≢𝟘
   with is-𝟘? 𝟘
 ... | yes _  = substS [Γ] [Σ] [A] [t] , _
-... | no 𝟘≢𝟘 = PE.⊥-elim (𝟘≢𝟘 PE.refl)
+... | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 PE.refl)
 prodrecʳ
   {Γ = Γ} {l = l} {p = p} {t = t} {u = u} {r = r} {γ = γ} {m = 𝟙ᵐ} {δ = δ}
   [Γ] [F] [G] [Σ] [A] [A₊] [t] [u] ⊩ʳt ⊩ʳu r≡𝟘→k≡0
   with is-𝟘? 𝟙
-... | yes 𝟙≡𝟘 = PE.⊥-elim (𝟙≢𝟘 𝟙≡𝟘)
+... | yes 𝟙≡𝟘 = ⊥-elim (𝟙≢𝟘 𝟙≡𝟘)
 ... | no 1≢𝟘 =
   let [At] = substS [Γ] [Σ] [A] [t]
   in  [At] , λ {σ} [σ] σ®σ′ →
@@ -540,7 +541,7 @@ prodrecʳ
       case zero-product (PE.trans (PE.sym (lookup-distrib-·ᶜ γ r x))
                         (+-positiveˡ (PE.trans (PE.sym (lookup-distrib-+ᶜ (r ·ᶜ γ) δ x))
                                              rγ+δ≡𝟘))) of λ where
-        (inj₁ r≡𝟘) → PE.⊥-elim (r≢𝟘 r≡𝟘)
+        (inj₁ r≡𝟘) → ⊥-elim (r≢𝟘 r≡𝟘)
         (inj₂ γx≡𝟘) → γx≡𝟘
     lemma′ : ∀ x → (δ ∙ (r · p) ∙ r) ⟨ x ⟩ PE.≡ 𝟘 → (δ ∙ (𝟙 · r · p) ∙ (𝟙 · r)) ⟨ x ⟩ PE.≡ 𝟘
     lemma′ x0 r≡𝟘 = PE.trans (·-identityˡ r) r≡𝟘

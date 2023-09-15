@@ -72,6 +72,7 @@ import Graded.Erasure.Target as T
 open import Graded.Erasure.Extraction 𝕄 is-𝟘?
 import Graded.Erasure.Target.Properties as TP
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
@@ -172,10 +173,10 @@ module _ (⊢Δ : ⊢ Δ) where
       γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ var x ∷[ m ] A / [Γ] / [A]
     lemma 𝟘ᵐ with is-𝟘? 𝟘
     ... | yes 𝟘≡𝟘 = _
-    ... | no 𝟘≢𝟘 = PE.⊥-elim (𝟘≢𝟘 PE.refl)
+    ... | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 PE.refl)
 
     lemma 𝟙ᵐ γ▸x [σ] σ®σ′ with is-𝟘? 𝟙
-    ... | yes 𝟙≡𝟘 = PE.⊥-elim (𝟙≢𝟘 𝟙≡𝟘)
+    ... | yes 𝟙≡𝟘 = ⊥-elim (𝟙≢𝟘 𝟙≡𝟘)
     ... | no 𝟙≢𝟘 =
        let [A]′ , t®v =
              fundamentalVar′ [Γ] x∷A∈Γ (inv-usage-var γ▸x) [σ] σ®σ′
@@ -229,7 +230,7 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
   ... | yes 𝟘≡𝟘 =
     case F.fundamental (syntacticTerm ⊢t) of λ ([Γ] , [A]) →
       [Γ] , [A] , _
-  ... | no 𝟘≢𝟘 = PE.⊥-elim (𝟘≢𝟘 PE.refl)
+  ... | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 PE.refl)
   fundamental Γ⊢ΠΣ@(ΠΣⱼ Γ⊢F:U _ _) γ▸t =
     let invUsageΠΣ δ▸F _ _ = inv-usage-ΠΣ γ▸t
         [Γ] , _ , _ = fundamental Γ⊢F:U δ▸F
@@ -377,7 +378,7 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
         ⊩ʳu′ = irrelevance {t = u}
                  [Γ]₂ ([Γ] ∙ [F] ∙ [G]) [A₊]₂ [A₊] ⊩ʳu
         r≡𝟘→k≡0 = case closed-or-no-erased-matches of λ where
-          (inj₁ nem) → λ r≡𝟘 → PE.⊥-elim (nem 𝟙≢𝟘 ok r≡𝟘)
+          (inj₁ nem) → λ r≡𝟘 → ⊥-elim (nem 𝟙≢𝟘 ok r≡𝟘)
           (inj₂ k≡0) → λ _ → k≡0
         [At] , ⊩ʳprodrec =
           prodrecʳ
@@ -497,7 +498,7 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
       t ®⟨ ¹ ⟩ erase t ∷ A ◂ ⌜ m ⌝ / [A]′
     lemma 𝟘ᵐ with is-𝟘? 𝟘
     ... | yes 𝟘≡𝟘 = _
-    ... | no 𝟘≢𝟘 = PE.⊥-elim (𝟘≢𝟘 PE.refl)
+    ... | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 PE.refl)
 
     lemma 𝟙ᵐ ⊩ʳt with is-𝟘? 𝟙
     ... | yes 𝟙≡𝟘 = ⊥-elim (𝟙≢𝟘 𝟙≡𝟘)
