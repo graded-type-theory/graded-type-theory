@@ -3,8 +3,8 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
-open import Tools.Nullary
 open import Tools.PropositionalEquality
+open import Tools.Relation
 
 module Graded.Erasure.Extraction {a} {M : Set a} (𝕄 : Modality M)
                                  (open Modality 𝕄)

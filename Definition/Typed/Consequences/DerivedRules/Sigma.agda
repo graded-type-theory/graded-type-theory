@@ -29,10 +29,10 @@ open import Definition.Untyped.Sigma M as Sigma using (prodrecₚ)
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat using (Nat; 1+)
-open import Tools.Nullary
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PropositionalEquality
+open import Tools.Relation
 
 private variable
   n                                     : Nat

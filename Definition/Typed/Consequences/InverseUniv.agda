@@ -18,7 +18,7 @@ import Tools.Sum as Sum
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 open import Tools.Product
 open import Tools.Empty
-open import Tools.Nullary
+open import Tools.Relation
 
 private
   variable

@@ -7,8 +7,8 @@ open import Definition.Typed.EqualityRelation
 import Definition.Typed as T
 open import Definition.Typed.Restrictions
 import Definition.Untyped as U hiding (_∷_)
-open import Tools.Nullary
 open import Tools.PropositionalEquality
+open import Tools.Relation
 
 module Graded.Erasure.LogicalRelation.Fundamental.Nat
   {a k} {M : Set a}

@@ -27,7 +27,6 @@ open import Graded.Modality.Properties.Multiplication 𝕄
 import Graded.Modality.Properties.Star 𝕄 as Star
 open import Graded.Modality.Variant a
 
-open import Tools.Nullary
 import Tools.Reasoning.Equivalence
 import Tools.Reasoning.PartialOrder
 open import Tools.Product

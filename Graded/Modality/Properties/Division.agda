@@ -18,7 +18,6 @@ open import Graded.Modality.Properties.PartialOrder 𝕄
 
 open import Tools.Empty
 open import Tools.Function
-open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality
 import Tools.Reasoning.PartialOrder

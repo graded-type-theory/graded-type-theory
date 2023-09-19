@@ -39,7 +39,6 @@ open import Tools.Function
 open import Tools.Nat using (Nat)
 open import Tools.Product
 open import Tools.Empty
-open import Tools.Nullary
 
 private
   variable

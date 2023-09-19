@@ -22,7 +22,6 @@ open import Tools.Fin
 open import Tools.Function
 open import Tools.Level
 open import Tools.Nat using (Nat)
-open import Tools.Nullary
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PartialOrder

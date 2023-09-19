@@ -10,7 +10,6 @@ open import Tools.Empty
 open import Tools.Function
 open import Tools.Level
 open import Tools.Nat as N using (Nat; 1+)
-open import Tools.Nullary
 open import Tools.Product as Σ
 open import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PartialOrder

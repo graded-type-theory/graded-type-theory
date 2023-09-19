@@ -49,9 +49,9 @@ open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
-open import Tools.Nullary
 open import Tools.Product
 import Tools.Reasoning.PartialOrder
+open import Tools.Relation
 open import Tools.PropositionalEquality as PE hiding (trans)
 open import Tools.Sum
 

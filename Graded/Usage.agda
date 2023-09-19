@@ -23,7 +23,6 @@ open import Definition.Untyped M hiding (_∙_)
 open import Tools.Bool using (T)
 open import Tools.Fin
 open import Tools.Nat using (Nat)
-open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality using (_≡_)
 open import Tools.Sum using (_⊎_)

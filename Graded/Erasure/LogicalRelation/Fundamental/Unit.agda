@@ -7,8 +7,8 @@ open import Definition.Typed.EqualityRelation
 import Definition.Typed
 open import Definition.Typed.Restrictions
 import Definition.Untyped
-open import Tools.Nullary
 open import Tools.PropositionalEquality
+open import Tools.Relation
 
 module Graded.Erasure.LogicalRelation.Fundamental.Unit
   {a k} {M : Set a}

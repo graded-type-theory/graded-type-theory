@@ -15,7 +15,6 @@ open import Graded.Modality.Properties 𝕄
 open import Tools.Algebra
 open import Tools.Bool
 open import Tools.Nat using (Nat)
-open import Tools.Nullary
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 

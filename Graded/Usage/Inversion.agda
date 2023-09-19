@@ -25,7 +25,6 @@ open import Definition.Untyped M hiding (_∙_)
 
 open import Tools.Bool using (T)
 open import Tools.Nat using (Nat; 1+)
-open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 open import Tools.Sum

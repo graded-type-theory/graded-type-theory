@@ -4,7 +4,6 @@
 
 import Graded.Modality
 open import Definition.Typed.Restrictions
-open import Tools.Nullary
 
 module Application.NegativeOrErasedAxioms.NegativeOrErasedContext
   {a} {M : Set a}

@@ -10,7 +10,6 @@ module Graded.Modality.Properties.PartialOrder
 open Semiring-with-meet 𝕄
 
 open import Tools.Function
-open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 open import Tools.Relation

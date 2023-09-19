@@ -5,7 +5,6 @@
 
 open import Tools.Bool using (T; T-not⇔¬-T)
 open import Tools.Level
-open import Tools.Nullary
 
 open import Definition.Typed.Restrictions
 
@@ -34,6 +33,7 @@ open import Tools.Empty
 open import Tools.Function
 open import Tools.Product
 import Tools.Reasoning.PartialOrder
+open import Tools.Relation
 
 open import Graded.Context linearityModality
 open import Graded.Context.Properties linearityModality

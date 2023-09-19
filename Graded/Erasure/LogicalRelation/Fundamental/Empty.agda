@@ -8,8 +8,8 @@ import Definition.Typed
 open import Definition.Typed.Restrictions
 import Definition.Untyped hiding (_∷_)
 open import Tools.Empty
-open import Tools.Nullary
 open import Tools.PropositionalEquality
+open import Tools.Relation
 
 module Graded.Erasure.LogicalRelation.Fundamental.Empty
   {a k} {M : Set a}

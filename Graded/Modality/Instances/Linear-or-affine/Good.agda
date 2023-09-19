@@ -26,8 +26,8 @@ module Graded.Modality.Instances.Linear-or-affine.Good
 
 open import Tools.Empty
 open import Tools.Function
-open import Tools.Nullary
 import Tools.Reasoning.PartialOrder
+open import Tools.Relation
 
 open import Graded.Modality Linear-or-affine
 

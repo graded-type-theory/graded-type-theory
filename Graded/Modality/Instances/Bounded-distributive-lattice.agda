@@ -12,7 +12,6 @@ open import Graded.Modality.Variant a
 
 open import Tools.Algebra M
 open import Tools.Bool using (T; false)
-open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality
 import Tools.Reasoning.PropositionalEquality

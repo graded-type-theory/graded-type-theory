@@ -7,7 +7,6 @@ open import Definition.Typed.EqualityRelation
 import Definition.Typed
 open import Definition.Typed.Restrictions
 import Definition.Untyped hiding (_∷_)
-open import Tools.Nullary
 open import Tools.Sum hiding (id; sym)
 import Tools.PropositionalEquality as PE
 
@@ -52,6 +51,7 @@ open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.Reasoning.PropositionalEquality
+open import Tools.Relation
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄

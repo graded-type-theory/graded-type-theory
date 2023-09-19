@@ -7,7 +7,6 @@ open import Definition.Typed.EqualityRelation
 import Definition.Typed
 open import Definition.Typed.Restrictions
 import Definition.Untyped
-open import Tools.Nullary
 open import Tools.Sum hiding (id)
 import Tools.PropositionalEquality as PE
 
@@ -58,6 +57,7 @@ open import Tools.Function
 open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 import Tools.Reasoning.PropositionalEquality
+open import Tools.Relation
 
 private
   variable

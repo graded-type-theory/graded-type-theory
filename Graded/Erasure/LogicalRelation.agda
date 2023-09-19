@@ -8,7 +8,7 @@ import Definition.Typed
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 import Tools.PropositionalEquality as PE
-open import Tools.Nullary
+open import Tools.Relation
 
 module Graded.Erasure.LogicalRelation
   {a} {M : Set a}

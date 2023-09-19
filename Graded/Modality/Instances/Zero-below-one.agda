@@ -9,7 +9,6 @@ open import Tools.Bool using (false)
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Level
-open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 open import Tools.Relation

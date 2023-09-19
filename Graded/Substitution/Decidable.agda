@@ -5,7 +5,6 @@
 
 open import Graded.Modality
 open import Graded.Usage.Restrictions
-open import Tools.Nullary
 open import Tools.PropositionalEquality
 open import Tools.Relation
 

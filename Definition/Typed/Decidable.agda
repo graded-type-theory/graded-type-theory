@@ -4,7 +4,7 @@
 
 open import Definition.Typed.Restrictions
 import Tools.PropositionalEquality as PE
-open import Tools.Relation
+open import Tools.Relation as Dec
 
 module Definition.Typed.Decidable
   {a} {M : Set a}
@@ -29,7 +29,6 @@ open import Definition.Typechecking.Decidable R _≟_ Unit-ok? ΠΣ-ok?
 
 open import Tools.Function
 open import Tools.Nat using (Nat)
-open import Tools.Nullary as Dec
 open import Tools.Product
 
 private

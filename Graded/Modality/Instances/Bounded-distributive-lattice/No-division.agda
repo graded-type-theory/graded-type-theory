@@ -15,10 +15,10 @@ open import Graded.Modality.Instances.Bounded-distributive-lattice
 open import Tools.Empty renaming (⊥ to ⊥′)
 open import Tools.Function
 open import Tools.Nat as N using (Nat; 1+; _⊔_; _⊓_)
-open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PropositionalEquality
+open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable

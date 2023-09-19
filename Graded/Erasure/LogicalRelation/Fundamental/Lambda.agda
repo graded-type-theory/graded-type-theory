@@ -7,8 +7,8 @@ open import Definition.Typed.EqualityRelation
 import Definition.Typed
 open import Definition.Typed.Restrictions
 import Definition.Untyped hiding (_∷_)
-open import Tools.Nullary
 import Tools.PropositionalEquality as PE
+open import Tools.Relation
 
 module Graded.Erasure.LogicalRelation.Fundamental.Lambda
   {a k} {M : Set a}

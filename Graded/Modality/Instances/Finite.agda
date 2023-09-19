@@ -29,8 +29,6 @@ open import Graded.Modality.Variant a
 open import Graded.Modality.Properties.Meet 𝕄
 open import Graded.Modality.Properties.PartialOrder 𝕄
 
-open import Tools.Nullary
-
 |M| : Nat
 |M| = 1+ (proj₁ fin)
 

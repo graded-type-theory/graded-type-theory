@@ -12,9 +12,9 @@ module Graded.Erasure.SucRed
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Nat
-open import Tools.Nullary
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Relation
 open import Tools.Unit
 
 open import Definition.Untyped M hiding (_∷_)

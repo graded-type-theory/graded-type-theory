@@ -24,9 +24,9 @@ open import Definition.Typed.Restrictions Affine
 
 open import Tools.Empty
 open import Tools.Function
-open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality
+open import Tools.Relation
 open import Tools.Sum
 open import Tools.Unit
 

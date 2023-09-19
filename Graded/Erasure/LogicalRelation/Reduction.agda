@@ -7,8 +7,8 @@ import Definition.Typed
 open import Definition.Typed.Restrictions
 import Definition.Untyped using (Con; Term)
 open import Graded.Modality
-open import Tools.Nullary
 import Tools.PropositionalEquality as PE
+open import Tools.Relation
 
 module Graded.Erasure.LogicalRelation.Reduction
   {a} {M : Set a}

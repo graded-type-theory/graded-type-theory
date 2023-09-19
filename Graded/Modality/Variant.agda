@@ -10,7 +10,6 @@ open import Tools.Bool
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Level
-open import Tools.Nullary
 open import Tools.PropositionalEquality
 open import Tools.Relation
 open import Tools.Unit

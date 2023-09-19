@@ -33,9 +33,9 @@ open import Graded.Derived.Erased.Untyped 𝕄
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nullary
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Relation
 
 private variable
   Γ       : Con Term _

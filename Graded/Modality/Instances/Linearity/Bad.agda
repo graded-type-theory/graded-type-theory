@@ -27,9 +27,9 @@ module Graded.Modality.Instances.Linearity.Bad
 
 open import Tools.Empty
 open import Tools.Function
-open import Tools.Nullary
 open import Tools.Product
 import Tools.Reasoning.PartialOrder
+open import Tools.Relation
 open import Tools.Sum
 
 open import Graded.Context bad-linearity-modality

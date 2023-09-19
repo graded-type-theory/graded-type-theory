@@ -3,7 +3,6 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
-open import Tools.Nullary
 open import Tools.PropositionalEquality as PE
 
 module Graded.Erasure.Extraction.Properties
@@ -37,6 +36,7 @@ open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat using (Nat; 1+) renaming (_+_ to _+ⁿ_)
 open import Tools.Product
+open import Tools.Relation
 
 import Tools.Reasoning.Equivalence
 import Tools.Reasoning.PartialOrder

@@ -30,7 +30,6 @@ open import Graded.Modality.Properties.PartialOrder 𝕄
 import Graded.Modality.Properties.Star 𝕄 as Star
 open import Graded.Modality.Variant a
 open import Tools.Algebra M
-open import Tools.Nullary
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
 

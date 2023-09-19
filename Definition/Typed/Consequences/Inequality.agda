@@ -22,8 +22,8 @@ open import Definition.Typed.Consequences.Syntactic R
 
 open import Tools.Function
 open import Tools.Nat
-open import Tools.Nullary
 open import Tools.Product
+open import Tools.Relation
 open import Tools.Empty
 import Tools.PropositionalEquality as PE
 

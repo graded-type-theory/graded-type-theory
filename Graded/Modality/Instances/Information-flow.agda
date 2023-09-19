@@ -9,7 +9,6 @@ open import Tools.Bool using (T)
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Level using (lzero)
-open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 open import Tools.Relation

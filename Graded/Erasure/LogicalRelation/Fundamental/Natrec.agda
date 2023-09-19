@@ -7,7 +7,6 @@ open import Definition.Typed.EqualityRelation
 import Definition.Typed
 open import Definition.Typed.Restrictions
 import Definition.Untyped hiding (_∷_)
-open import Tools.Nullary
 import Tools.PropositionalEquality as PE
 
 module Graded.Erasure.LogicalRelation.Fundamental.Natrec
@@ -64,6 +63,7 @@ open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat hiding (_+_)
 open import Tools.Product as Σ
+open import Tools.Relation
 
 private
   variable

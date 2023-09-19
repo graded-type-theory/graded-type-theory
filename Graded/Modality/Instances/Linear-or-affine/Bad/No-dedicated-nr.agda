@@ -5,7 +5,6 @@
 
 open import Tools.Bool using (T; T-not⇔¬-T)
 open import Tools.Level
-open import Tools.Nullary
 
 open import Definition.Typed.Restrictions
 
@@ -34,6 +33,7 @@ open import Tools.Function
 open import Tools.Product
 open import Tools.PropositionalEquality
 import Tools.Reasoning.PartialOrder
+open import Tools.Relation
 
 open import Graded.Modality Linear-or-affine
 

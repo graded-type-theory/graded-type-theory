@@ -4,7 +4,6 @@
 
 open import Tools.Bool
 open import Tools.Level
-open import Tools.Nullary
 
 open import Graded.Usage.Restrictions
 open import Graded.Modality.Variant lzero
@@ -27,8 +26,8 @@ open import Graded.Derived.Sigma linearityModality UR as S
 open import Graded.Mode  linearityModality
 open import Graded.Usage linearityModality UR
 
-open import Tools.Nullary
 open import Tools.PropositionalEquality
+open import Tools.Relation
 
 private variable
   p q : Linearity

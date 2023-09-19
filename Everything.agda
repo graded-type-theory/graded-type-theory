@@ -12,7 +12,6 @@ import Tools.Empty
 import Tools.Unit
 import Tools.Relation
 import Tools.PropositionalEquality
-import Tools.Nullary
 import Tools.Product
 import Tools.Function
 import Tools.Bool

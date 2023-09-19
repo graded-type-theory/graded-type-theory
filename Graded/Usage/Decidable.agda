@@ -38,7 +38,6 @@ open import Definition.Untyped M
 open import Tools.Function
 open import Tools.Level
 open import Tools.Nat using (Nat)
-open import Tools.Nullary
 open import Tools.Product
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality

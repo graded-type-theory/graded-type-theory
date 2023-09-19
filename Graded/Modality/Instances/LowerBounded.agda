@@ -22,7 +22,6 @@ open import Graded.Modality.Variant a
 
 open import Tools.Algebra M
 open import Tools.Bool hiding (_∧_)
-open import Tools.Nullary
 open import Tools.Product
 import Tools.Reasoning.Equivalence
 import Tools.Reasoning.PartialOrder

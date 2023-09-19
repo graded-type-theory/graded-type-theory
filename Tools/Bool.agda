@@ -9,7 +9,7 @@ open import Data.Bool.Base
   public
 
 open import Tools.Function
-open import Tools.Nullary
+open import Tools.Relation
 open import Tools.Product
 open import Tools.PropositionalEquality
 

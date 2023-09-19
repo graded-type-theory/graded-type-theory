@@ -15,10 +15,10 @@ open import Tools.Bool
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
-open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality
 import Tools.Reasoning.PartialOrder
+open import Tools.Relation
 open import Tools.Sum
 
 open import Graded.Context using (Conₘ; ε; _∙_)

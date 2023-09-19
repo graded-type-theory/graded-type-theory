@@ -8,7 +8,6 @@ open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
-open import Tools.Nullary
 open import Tools.PropositionalEquality as PE
 
 module Graded.Erasure.LogicalRelation.Fundamental.Counterexample
@@ -53,6 +52,7 @@ open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Product
+open import Tools.Relation
 
 private variable
   p : M

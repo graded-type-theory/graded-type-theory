@@ -20,7 +20,6 @@ open import Definition.Conversion.Soundness R
 open import Definition.Conversion.Consequences.Completeness R
 
 open import Tools.Nat
-open import Tools.Nullary
 
 private
   variable

@@ -27,8 +27,8 @@ module Graded.Modality.Instances.Affine.Good
 
 open import Tools.Empty
 open import Tools.Function
-open import Tools.Nullary
 import Tools.Reasoning.PartialOrder
+open import Tools.Relation
 
 open import Graded.Context affineModality
 open import Graded.Context.Properties affineModality

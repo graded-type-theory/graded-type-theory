@@ -8,9 +8,9 @@ open import Tools.Bool
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Level
-open import Tools.Nullary
 open import Tools.Product
 open import Tools.PropositionalEquality
+open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 open import Graded.Modality

@@ -76,10 +76,10 @@ open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
-open import Tools.Nullary
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PartialOrder
+open import Tools.Relation
 import Tools.PropositionalEquality as PE
 
 private

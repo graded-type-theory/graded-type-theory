@@ -4,7 +4,6 @@
 
 open import Tools.Bool using (T; false)
 open import Tools.Level
-open import Tools.Nullary
 open import Tools.Sum
 
 open import Graded.Modality.Instances.Zero-one-many false as 𝟘𝟙ω
@@ -29,6 +28,7 @@ open import Tools.Empty
 open import Tools.Function
 open import Tools.Product
 open import Tools.PropositionalEquality
+open import Tools.Relation
 open import Tools.Unit
 
 private variable
