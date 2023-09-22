@@ -56,6 +56,9 @@ private
     ok : T b
     x : Fin n
 
+------------------------------------------------------------------------
+-- Lemmas related to _◂_∈_
+
 -- Variables only have one annotation in a context
 
 unique-var-usage : x ◂ p ∈ γ → x ◂ q ∈ γ → p PE.≡ q
