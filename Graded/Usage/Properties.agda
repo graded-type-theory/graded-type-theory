@@ -411,6 +411,9 @@ Usage-restrictions-satisfied→▸[𝟘ᵐ] {ok = 𝟘ᵐ-ok} = lemma _
   where
   open import Graded.Modality.Dedicated-nr.Instance
 
+  𝟘ᵐ?≡𝟘ᵐ′ : 𝟘ᵐ? ≡ 𝟘ᵐ[ 𝟘ᵐ-ok ]
+  𝟘ᵐ?≡𝟘ᵐ′ = 𝟘ᵐ?≡𝟘ᵐ
+
   lemma :
     (t : Term n) → Usage-restrictions-satisfied t →
     𝟘ᶜ ▸[ 𝟘ᵐ[ 𝟘ᵐ-ok ] ] t
@@ -421,10 +424,10 @@ Usage-restrictions-satisfied→▸[𝟘ᵐ] {ok = 𝟘ᵐ-ok} = lemma _
               let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
                 𝟘ᶜ ∙ 𝟘 · r · p ∙ 𝟘 · r  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
                 𝟘ᶜ                      ∎)
-             (sub (▸-cong (PE.sym (𝟘ᵐ?≡𝟘ᵐ {ok = 𝟘ᵐ-ok})) $
+             (sub (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $
                    lemma A A-ok) $
               let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-                𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · q  ≈⟨ ≈ᶜ-refl ∙ ·-congʳ (cong ⌜_⌝ (𝟘ᵐ?≡𝟘ᵐ {ok = 𝟘ᵐ-ok})) ⟩
+                𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · q  ≈⟨ ≈ᶜ-refl ∙ ·-congʳ (cong ⌜_⌝ 𝟘ᵐ?≡𝟘ᵐ′) ⟩
                 𝟘ᶜ ∙ 𝟘 · q        ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
                 𝟘ᶜ                ∎)
              ok) $
@@ -483,10 +486,10 @@ Usage-restrictions-satisfied→▸[𝟘ᵐ] {ok = 𝟘ᵐ-ok} = lemma _
           v-lemma =
             lemma v v-ok
           A-lemma =
-            sub (▸-cong (PE.sym (𝟘ᵐ?≡𝟘ᵐ {ok = 𝟘ᵐ-ok})) $
+            sub (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $
                  lemma A A-ok) $
             let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-              𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · q  ≈⟨ ≈ᶜ-refl ∙ ·-congʳ (cong ⌜_⌝ (𝟘ᵐ?≡𝟘ᵐ {ok = 𝟘ᵐ-ok})) ⟩
+              𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · q  ≈⟨ ≈ᶜ-refl ∙ ·-congʳ (cong ⌜_⌝ 𝟘ᵐ?≡𝟘ᵐ′) ⟩
               𝟘ᶜ ∙ 𝟘 · q        ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
               𝟘ᶜ                ∎
       in case dedicated-nr? of λ where
@@ -506,7 +509,7 @@ Usage-restrictions-satisfied→▸[𝟘ᵐ] {ok = 𝟘ᵐ-ok} = lemma _
     (emptyrec p A t) (A-ok , t-ok) →
       let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
       sub (emptyrecₘ (lemma t t-ok) $
-           ▸-cong (PE.sym (𝟘ᵐ?≡𝟘ᵐ {ok = 𝟘ᵐ-ok})) $
+           ▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $
            lemma A A-ok) $
       begin
         𝟘ᶜ       ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
