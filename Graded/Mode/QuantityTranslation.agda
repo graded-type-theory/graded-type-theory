@@ -57,7 +57,7 @@ module Is-morphism
   -- Translation commutes with ⌜_⌝ up to _≤_.
 
   tr-⌜⌝ : ∀ m → tr Mo₁.⌜ m ⌝ ≤ Mo₂.⌜ tr-Mode m ⌝
-  tr-⌜⌝ 𝟘ᵐ[ ok ] = ≤-reflexive (tr-𝟘-≡ ok)
+  tr-⌜⌝ 𝟘ᵐ[ ok ] = ≤-reflexive (tr-𝟘-≡-𝟘ᵐ ok)
   tr-⌜⌝ 𝟙ᵐ       = tr-𝟙
 
   -- A variant of the previous property with _≡_ instead of _≤_.
@@ -66,7 +66,7 @@ module Is-morphism
   tr-⌜⌝-· {p = p} = λ where
       𝟘ᵐ[ ok ] → begin
         M₂.𝟘 M₂.· tr p    ≡⟨ M₂.·-zeroˡ _ ⟩
-        M₂.𝟘              ≡˘⟨ tr-𝟘-≡ ok ⟩
+        M₂.𝟘              ≡˘⟨ tr-𝟘-≡-𝟘ᵐ ok ⟩
         tr M₁.𝟘           ≡˘⟨ cong tr (M₁.·-zeroˡ _) ⟩
         tr (M₁.𝟘 M₁.· p)  ∎
       𝟙ᵐ → begin
@@ -119,7 +119,7 @@ module Is-morphism
       lemma 𝟘ᵐ[ ok ] 𝟙ᵐ p≡ tr-p≡ =
         ⊥-elim (Mo₂.⌞⌟≡𝟙ᵐ→≢𝟘 (𝟘ᵐ-in-second-if-in-first ok) tr-p≡ (
           tr′ p     ≡⟨ cong tr′ (Mo₁.⌞⌟≡𝟘ᵐ→≡𝟘 p≡) ⟩
-          tr′ M₁.𝟘  ≡⟨ tr-Σ-𝟘-≡ m ok ⟩
+          tr′ M₁.𝟘  ≡⟨ tr-Σ-𝟘-≡-𝟘ᵐ ok ⟩
           M₂.𝟘      ∎))
       lemma 𝟙ᵐ 𝟘ᵐ[ ok ] p≡ tr-p≡ = Mo₁.𝟘ᵐ-allowed-elim
         (λ ok →
@@ -162,7 +162,7 @@ module Is-order-embedding
   tr-≤-⌜tr-Mode⌝         𝟙ᵐ              = tr-≤-𝟙
   tr-≤-⌜tr-Mode⌝ {p = p} 𝟘ᵐ[ ok ] tr-p≤𝟘 = tr-order-reflecting (begin
     tr p     ≤⟨ tr-p≤𝟘 ⟩
-    M₂.𝟘     ≡˘⟨ tr-𝟘-≡ ok ⟩
+    M₂.𝟘     ≡˘⟨ tr-𝟘-≡-𝟘ᵐ ok ⟩
     tr M₁.𝟘  ∎)
     where
     open Tools.Reasoning.PartialOrder ≤-poset
@@ -192,7 +192,7 @@ module Is-order-embedding
            Mo₁.⌞ p ⌟  ≡⟨ Mo₁.≢𝟘→⌞⌟≡𝟙ᵐ
                            (λ { refl →
                                 Mo₂.⌞⌟≡𝟙ᵐ→≢𝟘 (𝟘ᵐ-in-second-if-in-first ok) ⌞tr-p⌟≡𝟙
-                                  (tr-Σ-𝟘-≡ tr-morphism ok) }) ⟩
+                                  (tr-Σ-𝟘-≡-𝟘ᵐ ok) }) ⟩
            𝟙ᵐ         ∎)
         Mo₁.Mode-propositional-without-𝟘ᵐ
     where

@@ -3,17 +3,19 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.Conversion.Whnf
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
 
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Conversion R
 
 open import Tools.Nat
-open import Tools.Product
+open import Tools.Product as Σ
 
 private
   variable
@@ -41,6 +43,12 @@ mutual
     in  prodrecₙ gNe , prodrecₙ hNe
   ne~↑ (emptyrec-cong x x₁) = let _ , q , w = ne~↓ x₁
                               in emptyrecₙ q , emptyrecₙ w
+  ne~↑ (J-cong _ _ _ _ _ w₁~w₂ _) =
+    Σ.map Jₙ Jₙ (ne~↓ w₁~w₂ .proj₂)
+  ne~↑ (K-cong _ _ _ _ v₁~v₂ _ _) =
+    Σ.map Kₙ Kₙ (ne~↓ v₁~v₂ .proj₂)
+  ne~↑ ([]-cong-cong _ _ _ v₁~v₂ _ _) =
+    Σ.map []-congₙ []-congₙ (ne~↓ v₁~v₂ .proj₂)
 
   -- Extraction of neutrality and WHNF from algorithmic equality of neutrals
   -- with type in WHNF.
@@ -60,6 +68,7 @@ whnfConv↓ (Unit-refl x _) = Unitₙ , Unitₙ
 whnfConv↓ (ne x) = let _ , neA , neB = ne~↓ x
                    in  ne neA , ne neB
 whnfConv↓ (ΠΣ-cong _ _ _ _) = ΠΣₙ , ΠΣₙ
+whnfConv↓ (Id-cong _ _ _) = Idₙ , Idₙ
 
 -- Extraction of WHNF from algorithmic equality of terms in WHNF.
 whnfConv↓Term : ∀ {t u A}
@@ -84,3 +93,7 @@ whnfConv↓Term (prod-cong _ _ _ _ _) = ΠΣₙ , prodₙ , prodₙ
 whnfConv↓Term (η-eq x₁ x₂ y y₁ x₃) = ΠΣₙ , functionWhnf y , functionWhnf y₁
 whnfConv↓Term (Σ-η _ _ pProd rProd _ _) = ΠΣₙ , productWhnf pProd , productWhnf rProd
 whnfConv↓Term (η-unit _ _ tWhnf uWhnf) = Unitₙ , tWhnf , uWhnf
+whnfConv↓Term (Id-ins _ v₁~v₂) =
+  Idₙ , Σ.map ne ne (ne~↓ v₁~v₂ .proj₂)
+whnfConv↓Term (rfl-refl _) =
+  Idₙ , rflₙ , rflₙ

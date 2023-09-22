@@ -8,9 +8,9 @@ open import Definition.Typed.Restrictions
 module Application.NegativeOrErasedAxioms.NegativeOrErasedContext
   {a} {M : Set a}
   (open Graded.Modality M)
-  (𝕄 : Modality)
+  {𝕄 : Modality}
   (open Modality 𝕄)
-  (R : Type-restrictions M)
+  (R : Type-restrictions 𝕄)
   where
 
 open import Definition.Untyped M
@@ -18,7 +18,7 @@ open import Definition.Typed R
 open import Definition.Typed.Weakening R
 open import Graded.Context 𝕄
 open import Graded.Modality.Properties 𝕄
-open import Application.NegativeOrErasedAxioms.NegativeOrErasedType 𝕄 R
+open import Application.NegativeOrErasedAxioms.NegativeOrErasedType R
 
 open import Tools.Bool
 open import Tools.Empty

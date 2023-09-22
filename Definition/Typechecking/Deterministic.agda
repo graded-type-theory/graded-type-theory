@@ -3,10 +3,12 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.Typechecking.Deterministic
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
 
 open import Definition.Typechecking R
@@ -57,3 +59,7 @@ deterministic⇉ (Unitᵢ _) (Unitᵢ _) = PE.refl
 deterministic⇉ (starᵢ _) (starᵢ _) = PE.refl
 deterministic⇉ Emptyᵢ Emptyᵢ = PE.refl
 deterministic⇉ (emptyrecᵢ x x₁) (emptyrecᵢ x₂ x₃) = PE.refl
+deterministic⇉ (Idᵢ _ _ _) (Idᵢ _ _ _) = PE.refl
+deterministic⇉ (Jᵢ _ _ _ _ _ _) (Jᵢ _ _ _ _ _ _) = PE.refl
+deterministic⇉ (Kᵢ _ _ _ _ _ _) (Kᵢ _ _ _ _ _ _) = PE.refl
+deterministic⇉ ([]-congᵢ _ _ _ _ _) ([]-congᵢ _ _ _ _ _) = PE.refl

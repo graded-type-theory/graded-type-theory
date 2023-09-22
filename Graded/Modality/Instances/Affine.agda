@@ -18,9 +18,10 @@ open Modality-variant variant
 open 𝟘𝟙ω renaming (Zero-one-many to Affine) public
 
 open import Graded.Modality Affine
+import Graded.Modality.Properties
 open import Graded.FullReduction.Assumptions
 
-open import Definition.Typed.Restrictions Affine
+import Definition.Typed.Restrictions
 open import Definition.Untyped
 
 open import Tools.Empty
@@ -33,12 +34,17 @@ open import Tools.Unit
 
 private variable
   p  : Affine
-  rs : Type-restrictions
 
 -- An "affine types" modality.
 
 affineModality : Modality
 affineModality = zero-one-many-modality variant
+
+open Definition.Typed.Restrictions affineModality
+open Graded.Modality.Properties    affineModality
+
+private variable
+  rs : Type-restrictions
 
 -- An alternative (not very good) "affine types" modality.
 --
@@ -351,6 +357,13 @@ suitable-for-full-reduction rs =
           ΠΣ-allowed b p q ×
           (b ≡ BMΣ Σₚ × p ≡ 𝟘 → T 𝟘ᵐ-allowed) ×
           ¬ (b ≡ BMΣ Σₚ × p ≡ ω)
+      ; []-cong-allowed =
+          []-cong-allowed × T 𝟘ᵐ-allowed
+      ; []-cong→Erased = λ (ok₁ , ok₂) →
+            []-cong→Erased ok₁ .proj₁ , []-cong→Erased ok₁ .proj₂
+          , (λ _ → ok₂) , λ ()
+      ; []-cong→¬Trivial =
+          𝟘ᵐ.non-trivial ∘→ proj₂
       }
   , (λ _ → (_$ (refl , refl)) ∘→ proj₁ ∘→ proj₂)
   , (λ _ → (_$ (refl , refl)) ∘→ proj₂ ∘→ proj₂)
@@ -362,7 +375,7 @@ suitable-for-full-reduction rs =
 
 full-reduction-assumptions :
   Suitable-for-full-reduction rs →
-  Full-reduction-assumptions affineModality rs
+  Full-reduction-assumptions rs
 full-reduction-assumptions (𝟘→𝟘ᵐ , ¬ω) = record
   { 𝟙≤𝟘    = λ _ → refl
   ; ≡𝟙⊎𝟙≤𝟘 = λ where

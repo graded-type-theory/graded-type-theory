@@ -2,11 +2,15 @@
 -- Soundness of algorithmic equality.
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.Conversion.Soundness
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
 
 open import Definition.Untyped M hiding (_∷_)
@@ -14,11 +18,13 @@ open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Conversion R
 open import Definition.Conversion.Whnf R
+open import Definition.Typed.Consequences.DerivedRules R
 open import Definition.Typed.Consequences.InverseUniv R
 open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Consequences.NeTypeEq R
 
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -57,6 +63,24 @@ mutual
     in  prodrec-cong ⊢F ⊢G C≡E g≡h u≡v ok
   soundness~↑ (emptyrec-cong x₁ k~l) =
     emptyrec-cong (soundnessConv↑ x₁) (soundness~↓ k~l)
+  soundness~↑ (J-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁~w₂ ≡Id) =
+    case soundnessConv↑ A₁≡A₂ of λ {
+      A₁≡A₂ →
+    case soundnessConv↑Term t₁≡t₂ of λ {
+      t₁≡t₂ →
+    J-cong (syntacticEq A₁≡A₂ .proj₁) A₁≡A₂
+      (syntacticEqTerm t₁≡t₂ .proj₂ .proj₁) t₁≡t₂ (soundnessConv↑ B₁≡B₂)
+      (soundnessConv↑Term u₁≡u₂) (soundnessConv↑Term v₁≡v₂)
+      (conv (soundness~↓ w₁~w₂) ≡Id) }}
+  soundness~↑ (K-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁~v₂ ≡Id ok) =
+    case soundnessConv↑Term t₁≡t₂ of λ {
+      t₁≡t₂ →
+    K-cong (soundnessConv↑ A₁≡A₂) (syntacticEqTerm t₁≡t₂ .proj₂ .proj₁)
+      t₁≡t₂ (soundnessConv↑ B₁≡B₂) (soundnessConv↑Term u₁≡u₂)
+      (conv (soundness~↓ v₁~v₂) ≡Id) ok }
+  soundness~↑ ([]-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ ≡Id ok) =
+    []-cong-cong (soundnessConv↑ A₁≡A₂) (soundnessConv↑Term t₁≡t₂)
+      (soundnessConv↑Term u₁≡u₂) (conv (soundness~↓ v₁~v₂) ≡Id) ok
 
   -- Algorithmic equality of neutrals in WHNF is well-formed.
   soundness~↓ : ∀ {k l A} → Γ ⊢ k ~ l ↓ A → Γ ⊢ k ≡ l ∷ A
@@ -76,6 +100,9 @@ mutual
   soundnessConv↓ (ne x) = univ (soundness~↓ x)
   soundnessConv↓ (ΠΣ-cong F c c₁ ok) =
     ΠΣ-cong F (soundnessConv↑ c) (soundnessConv↑ c₁) ok
+  soundnessConv↓ (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) =
+    Id-cong (soundnessConv↑ A₁≡A₂) (soundnessConv↑Term t₁≡t₂)
+      (soundnessConv↑Term u₁≡u₂)
 
   -- Algorithmic equality of terms is well-formed.
   soundnessConv↑Term : ∀ {a b A} → Γ ⊢ a [conv↑] b ∷ A → Γ ⊢ a ≡ b ∷ A
@@ -117,3 +144,13 @@ mutual
         snd≡ = soundnessConv↑Term sndConv
     in  Σ-η ⊢F ⊢G ⊢p ⊢r fst≡ snd≡
   soundnessConv↓Term (η-unit [a] [b] aUnit bUnit) = η-unit [a] [b]
+  soundnessConv↓Term
+    {Γ} (Id-ins {v₁} {t} {u} {A} {A′} {t′} {u′} ⊢v₁ v₁~v₂) =
+    case soundness~↓ v₁~v₂ of λ {
+      v₁≡v₂ →
+    conv v₁≡v₂
+      (                                          $⟨ syntacticEqTerm v₁≡v₂ .proj₂ .proj₁ , ⊢v₁ ⟩
+       Γ ⊢ v₁ ∷ Id A′ t′ u′ × Γ ⊢ v₁ ∷ Id A t u  →⟨ uncurry (neTypeEq (ne~↓ v₁~v₂ .proj₂ .proj₁)) ⟩
+       Γ ⊢ Id A′ t′ u′ ≡ Id A t u                □) }
+  soundnessConv↓Term (rfl-refl t≡u) =
+    refl (rflⱼ′ t≡u)

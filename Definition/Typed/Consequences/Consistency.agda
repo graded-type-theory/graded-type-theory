@@ -2,11 +2,15 @@
 -- Consistency of equality of natural numbers.
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.Typed.Consequences.Consistency
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
 
 open import Definition.Untyped M hiding (_∷_)
@@ -21,16 +25,18 @@ open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
 
 open import Tools.Empty
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Relation
 
 private
   variable
-    n : Nat
-    Γ : Con Term n
-    σ : Subst _ _
-    t : Term n
+    n   : Nat
+    Γ   : Con Term n
+    σ   : Subst _ _
+    t u : Term n
 
 opaque
 
@@ -60,3 +66,14 @@ zero≢suc 0≡s =
 
 zero≢one : Γ ⊢ zero ≡ suc zero ∷ ℕ → ⊥
 zero≢one = zero≢suc
+
+opaque
+
+  -- A variant of zero≢suc: the identity type Id ℕ zero (suc t) is not
+  -- inhabited in the empty context.
+
+  ¬-Id-ℕ-zero-suc : ¬ ε ⊢ u ∷ Id ℕ zero (suc t)
+  ¬-Id-ℕ-zero-suc {u} {t} =
+    ε ⊢ u ∷ Id ℕ zero (suc t)  →⟨ ε⊢∷Id→ε⊢≡∷ ⟩
+    ε ⊢ zero ≡ suc t ∷ ℕ       →⟨ zero≢suc ⟩
+    ⊥                          □

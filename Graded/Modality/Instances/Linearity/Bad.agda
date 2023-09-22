@@ -16,7 +16,7 @@ module Graded.Modality.Instances.Linearity.Bad
   (variant : Modality-variant)
   (open Graded.Modality.Instances.Linearity variant)
   (open Graded.Modality.Dedicated-nr bad-linearity-modality)
-  (TR : Type-restrictions Linearity)
+  (TR : Type-restrictions bad-linearity-modality)
   (open Type-restrictions TR)
   (UR : Usage-restrictions Linearity)
   -- It is assumed that "Π 𝟙 , 𝟘" is allowed.
@@ -35,8 +35,7 @@ open import Tools.Sum
 open import Graded.Context bad-linearity-modality
 open import Graded.Context.Properties bad-linearity-modality
 open import Graded.Modality Linearity
-open import Graded.Modality.Instances.Examples
-  bad-linearity-modality TR Π-𝟙-𝟘
+open import Graded.Modality.Instances.Examples TR Π-𝟙-𝟘
 open import Graded.Modality.Properties bad-linearity-modality
 open import Graded.Mode bad-linearity-modality
 open import Graded.Usage bad-linearity-modality UR

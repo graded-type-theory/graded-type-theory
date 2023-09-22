@@ -13,6 +13,7 @@ open import Graded.Modality.Properties 𝕄
 open import Graded.Context 𝕄
 
 open import Tools.Algebra M
+open import Tools.Function
 open import Tools.Nat using (Nat; 1+)
 open import Tools.PropositionalEquality
 import Tools.Reasoning.Equivalence
@@ -145,3 +146,44 @@ Conₘ-semimodule = record
   { +ᴹ-isCommutativeMonoid = +ᶜ-commutativeMonoid
   ; isPreleftSemimodule = Conₘ-preSemimodule
   }
+
+------------------------------------------------------------------------
+-- Some properties that are related to the usage rules for identity
+-- types
+
+private opaque
+
+  -- Some lemmas used below.
+
+  ⋀ᶜ⁴𝟘ᶜ : 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ≈ᶜ 𝟘ᶜ {n = n}
+  ⋀ᶜ⁴𝟘ᶜ =
+    flip ≈ᶜ-trans (∧ᶜ-idem _) $ ∧ᶜ-congˡ $
+    flip ≈ᶜ-trans (∧ᶜ-idem _) $ ∧ᶜ-congˡ $
+    ∧ᶜ-idem _
+
+  ⋀ᶜ⁵𝟘ᶜ : 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ≈ᶜ 𝟘ᶜ {n = n}
+  ⋀ᶜ⁵𝟘ᶜ = flip ≈ᶜ-trans (∧ᶜ-idem _) $ ∧ᶜ-congˡ ⋀ᶜ⁴𝟘ᶜ
+
+opaque
+
+  -- A lemma related to one of the usage rules for K.
+
+  ω·ᶜ⋀ᶜ⁴𝟘ᶜ : ω ·ᶜ (𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ) ≈ᶜ 𝟘ᶜ {n = n}
+  ω·ᶜ⋀ᶜ⁴𝟘ᶜ = begin
+    ω ·ᶜ (𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ)  ≈⟨ ·ᶜ-congˡ ⋀ᶜ⁴𝟘ᶜ ⟩
+    ω ·ᶜ 𝟘ᶜ                      ≈⟨ ·ᶜ-zeroʳ _ ⟩
+    𝟘ᶜ                           ∎
+    where
+    open Tools.Reasoning.Equivalence Conₘ-setoid
+
+opaque
+
+  -- A lemma related to one of the usage rules for J.
+
+  ω·ᶜ⋀ᶜ⁵𝟘ᶜ : ω ·ᶜ (𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ) ≈ᶜ 𝟘ᶜ {n = n}
+  ω·ᶜ⋀ᶜ⁵𝟘ᶜ = begin
+    ω ·ᶜ (𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ)  ≈⟨ ·ᶜ-congˡ ⋀ᶜ⁵𝟘ᶜ ⟩
+    ω ·ᶜ 𝟘ᶜ                            ≈⟨ ·ᶜ-zeroʳ _ ⟩
+    𝟘ᶜ                                 ∎
+    where
+    open Tools.Reasoning.Equivalence Conₘ-setoid

@@ -27,21 +27,33 @@ import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
 
 ------------------------------------------------------------------------
--- The type theory
+-- Graded modalities
 
--- Grammar of the language
+import Graded.Modality.Variant
+import Graded.Modality
+import Graded.Modality.Nr-instances
+import Graded.Modality.Dedicated-nr
+import Graded.Modality.Dedicated-nr.Instance
+
+------------------------------------------------------------------------
+-- The type theory's syntax
+
 import Definition.Untyped.NotParametrised
 import Definition.Untyped
-
--- Properties of the untyped syntax
 import Definition.Untyped.Inversion
 import Definition.Untyped.Properties
+import Graded.Derived.Erased.Untyped
+
+------------------------------------------------------------------------
+-- The type theory
 
 -- Typing and conversion rules of language
 import Definition.Typed.Restrictions
 import Definition.Typed
 import Definition.Typed.Reasoning.Type
 import Definition.Typed.Reasoning.Term
+import Definition.Typed.Properties.Well-formed
+import Graded.Derived.Erased.Typed.Primitive
 import Definition.Typed.Properties
 import Definition.Typed.Weakening
 import Definition.Typed.Reduction
@@ -51,20 +63,20 @@ import Definition.Typed.EqRelInstance
 
 -- The logical relation for reducibility
 import Definition.LogicalRelation
-import Definition.LogicalRelation.Properties.Escape
 import Definition.LogicalRelation.Properties.Reflexivity
+import Definition.LogicalRelation.Properties.Escape
 import Definition.LogicalRelation.ShapeView
 import Definition.LogicalRelation.Irrelevance
-import Definition.LogicalRelation.Weakening
 import Definition.LogicalRelation.Properties.Conversion
 import Definition.LogicalRelation.Properties.MaybeEmb
 import Definition.LogicalRelation.Properties.Symmetry
 import Definition.LogicalRelation.Properties.Neutral
 import Definition.LogicalRelation.Properties.Universe
-import Definition.LogicalRelation.Properties.Reduction
 import Definition.LogicalRelation.Properties.Successor
 import Definition.LogicalRelation.Properties.Transitivity
+import Definition.LogicalRelation.Properties.Reduction
 import Definition.LogicalRelation.Properties
+import Definition.LogicalRelation.Weakening
 import Definition.LogicalRelation.Application
 
 -- The logical relation for validity
@@ -97,28 +109,32 @@ import Definition.LogicalRelation.Substitution.Introductions.ProdBetaEta
 import Definition.LogicalRelation.Substitution.Introductions.Var
 import Definition.LogicalRelation.Substitution.Introductions.DoubleSubst
 import Definition.LogicalRelation.Substitution.Introductions.Prodrec
+import Definition.LogicalRelation.Substitution.Introductions.Erased
+import Definition.LogicalRelation.Substitution.Introductions.Identity
 import Definition.LogicalRelation.Substitution.Introductions
 import Definition.LogicalRelation.Fundamental
 import Definition.LogicalRelation.Fundamental.Reducibility
 
 -- Consequences of the logical relation for typing
-import Definition.Typed.Consequences.Canonicity
 import Definition.Typed.Consequences.Injectivity
 import Definition.Typed.Consequences.Syntactic
 import Definition.Typed.Consequences.Inequality
-import Definition.Typed.Consequences.Equality
 import Definition.Typed.Consequences.Substitution
 import Definition.Typed.Consequences.Stability
 import Definition.Typed.Consequences.Inversion
+import Definition.Typed.Consequences.Equality
+import Definition.Typed.Consequences.Canonicity
 import Definition.Typed.Consequences.Reduction
 import Definition.Typed.Reasoning.Reduction
 import Definition.Untyped.Sigma
+import Definition.Typed.Consequences.DerivedRules.Identity
 import Definition.Typed.Consequences.DerivedRules.Nat
 import Definition.Typed.Consequences.DerivedRules.Pi-Sigma
 import Definition.Typed.Consequences.DerivedRules.Pi
 import Definition.Typed.Consequences.DerivedRules.Sigma
 import Definition.Typed.Consequences.DerivedRules
 import Definition.Typed.Consequences.InverseUniv
+import Graded.Derived.Erased.Typed
 import Definition.Typed.Consequences.NeTypeEq
 import Definition.Typed.Consequences.Consistency
 import Definition.Typed.Consequences.RedSteps
@@ -156,13 +172,6 @@ import Definition.Typed.Decidable
 
 ------------------------------------------------------------------------
 -- Graded modalities and usage
-
--- Modality structure
-import Graded.Modality.Variant
-import Graded.Modality
-import Graded.Modality.Nr-instances
-import Graded.Modality.Dedicated-nr
-import Graded.Modality.Dedicated-nr.Instance
 
 -- Properties of the modality semiring
 import Graded.Modality.Properties.PartialOrder
@@ -266,8 +275,6 @@ import Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr
 import Graded.Modality.Instances.Linearity.Good
 
 -- The type Erased.
-import Graded.Derived.Erased.Untyped
-import Graded.Derived.Erased.Typed
 import Graded.Derived.Erased.Typed.Inversion
 import Graded.Derived.Erased.Usage
 
@@ -333,6 +340,7 @@ import Graded.Erasure.LogicalRelation.Fundamental.Natrec
 import Graded.Erasure.LogicalRelation.Fundamental.Prodrec
 import Graded.Erasure.LogicalRelation.Fundamental.Product
 import Graded.Erasure.LogicalRelation.Fundamental.Unit
+import Graded.Erasure.LogicalRelation.Fundamental.Identity
 import Graded.Erasure.LogicalRelation.Fundamental.Assumptions
 import Graded.Erasure.LogicalRelation.Fundamental
 

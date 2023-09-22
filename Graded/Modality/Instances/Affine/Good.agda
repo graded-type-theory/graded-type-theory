@@ -16,7 +16,7 @@ module Graded.Modality.Instances.Affine.Good
   (variant : Modality-variant)
   (open Graded.Modality.Instances.Affine variant)
   (open Graded.Modality.Dedicated-nr affineModality)
-  (TR : Type-restrictions Affine)
+  (TR : Type-restrictions affineModality)
   (open Type-restrictions TR)
   (UR : Usage-restrictions Affine)
   -- It is assumed that "Π 𝟙 , 𝟘" is allowed.
@@ -33,7 +33,7 @@ open import Tools.Relation
 open import Graded.Context affineModality
 open import Graded.Context.Properties affineModality
 open import Graded.Modality Affine
-open import Graded.Modality.Instances.Examples affineModality TR Π-𝟙-𝟘
+open import Graded.Modality.Instances.Examples TR Π-𝟙-𝟘
 open import Graded.Modality.Properties affineModality
 open import Graded.Mode affineModality
 open import Graded.Usage affineModality UR

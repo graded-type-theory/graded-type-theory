@@ -3,10 +3,12 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.Typed.Consequences.Stability
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
 
 open import Definition.Untyped M hiding (_∷_)
@@ -147,6 +149,39 @@ stabilityRedTerm Γ≡Δ (prodrec-β x x₁ x₂ x₃ x₄ x₅ x₆ ok) =
             x₆ ok
 stabilityRedTerm Γ≡Δ (emptyrec-subst x d) =
   emptyrec-subst (stability Γ≡Δ x) (stabilityRedTerm Γ≡Δ d)
+stabilityRedTerm Γ≡Δ (J-subst ⊢A ⊢t ⊢B ⊢u ⊢v w₁⇒w₂) =
+  J-subst (stability Γ≡Δ ⊢A) (stabilityTerm Γ≡Δ ⊢t)
+    (stability
+       (Γ≡Δ ∙ refl ⊢A ∙
+        refl (Idⱼ (wkTerm (step id) ⊢Γ∙A ⊢t) (var ⊢Γ∙A here)))
+       ⊢B)
+    (stabilityTerm Γ≡Δ ⊢u) (stabilityTerm Γ≡Δ ⊢v)
+    (stabilityRedTerm Γ≡Δ w₁⇒w₂)
+  where
+  ⊢Γ∙A = contextConvSubst Γ≡Δ .proj₁ ∙ ⊢A
+stabilityRedTerm Γ≡Δ (K-subst ⊢A ⊢t ⊢B ⊢u v₁⇒v₂ ok) =
+  K-subst (stability Γ≡Δ ⊢A) (stabilityTerm Γ≡Δ ⊢t)
+    (stability (Γ≡Δ ∙ refl (Idⱼ ⊢t ⊢t)) ⊢B) (stabilityTerm Γ≡Δ ⊢u)
+    (stabilityRedTerm Γ≡Δ v₁⇒v₂) ok
+stabilityRedTerm Γ≡Δ ([]-cong-subst ⊢A ⊢t ⊢u v₁⇒v₂ ok) =
+  []-cong-subst (stability Γ≡Δ ⊢A) (stabilityTerm Γ≡Δ ⊢t)
+    (stabilityTerm Γ≡Δ ⊢u) (stabilityRedTerm Γ≡Δ v₁⇒v₂) ok
+stabilityRedTerm Γ≡Δ (J-β ⊢A ⊢t ⊢t′ t≡t′ ⊢B ⊢B[t,rfl]≡B[t′,rfl] ⊢u) =
+  J-β (stability Γ≡Δ ⊢A) (stabilityTerm Γ≡Δ ⊢t) (stabilityTerm Γ≡Δ ⊢t′)
+    (stabilityEqTerm Γ≡Δ t≡t′)
+    (stability
+       (Γ≡Δ ∙ refl ⊢A ∙
+        refl (Idⱼ (wkTerm (step id) ⊢Γ∙A ⊢t) (var ⊢Γ∙A here)))
+       ⊢B)
+    (stabilityEq Γ≡Δ ⊢B[t,rfl]≡B[t′,rfl]) (stabilityTerm Γ≡Δ ⊢u)
+  where
+  ⊢Γ∙A = contextConvSubst Γ≡Δ .proj₁ ∙ ⊢A
+stabilityRedTerm Γ≡Δ (K-β ⊢t ⊢B ⊢u ok) =
+  K-β (stabilityTerm Γ≡Δ ⊢t) (stability (Γ≡Δ ∙ refl (Idⱼ ⊢t ⊢t)) ⊢B)
+    (stabilityTerm Γ≡Δ ⊢u) ok
+stabilityRedTerm Γ≡Δ ([]-cong-β ⊢A ⊢t ⊢t′ t≡t′ ok) =
+  []-cong-β (stability Γ≡Δ ⊢A) (stabilityTerm Γ≡Δ ⊢t)
+    (stabilityTerm Γ≡Δ ⊢t′) (stabilityEqTerm Γ≡Δ t≡t′) ok
 
 -- Stability of type reductions.
 stabilityRed : ∀ {A B} → ⊢ Γ ≡ Δ → Γ ⊢ A ⇒ B → Δ ⊢ A ⇒ B

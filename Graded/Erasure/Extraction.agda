@@ -62,6 +62,11 @@ erase Unit = ↯
 erase U.star = T.star
 erase Empty = ↯
 erase (emptyrec p A t) = ↯
+erase (Id _ _ _) = ↯
+erase U.rfl = T.rfl
+erase (J _ _ _ _ _ u _ _) = erase u
+erase (K _ _ _ _ u _) = erase u
+erase ([]-cong _ _ _ _) = T.rfl
 
 -- Extraction of substitutions.
 

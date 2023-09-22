@@ -17,9 +17,9 @@ module Graded.Erasure.LogicalRelation.Hidden
   {a} {M : Set a}
   (open Definition.Untyped M hiding (_∷_))
   (open Graded.Modality M)
-  (𝕄 : Modality)
+  {𝕄 : Modality}
   (open Modality 𝕄)
-  (TR : Type-restrictions M)
+  (TR : Type-restrictions 𝕄)
   (open Definition.Typed TR)
   (is-𝟘? : (p : M) → Dec (p ≡ 𝟘))
   {k} {Δ : Con Term k}
@@ -40,9 +40,9 @@ open import Definition.Untyped.Properties M
 
 open import Graded.Context 𝕄
 open import Graded.Erasure.Extraction 𝕄 is-𝟘?
-open import Graded.Erasure.LogicalRelation 𝕄 TR is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Irrelevance 𝕄 TR is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Subsumption 𝕄 TR is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation TR is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation.Irrelevance TR is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation.Subsumption TR is-𝟘? ⊢Δ
 import Graded.Erasure.Target as T
 import Graded.Erasure.Target.Properties as TP
 open import Graded.Mode 𝕄
@@ -145,6 +145,20 @@ opaque
   ®-ℕ (⊩ℕ′ , t®v) =
     irrelevanceTerm {l′ = ¹} ⊩ℕ′
       (ℕᵣ (extractMaybeEmb (ℕ-elim ⊩ℕ′) .proj₂)) t®v
+
+opaque
+  unfolding _®⟨_⟩_∷_
+
+  -- A rewriting lemma for Id.
+
+  ®-Id : t ®⟨ l ⟩ v ∷ Id A t₁ t₂ → t ® v ∷Id⟨ A ⟩⟨ t₁ ⟩⟨ t₂ ⟩
+  ®-Id (⊩Id , t®v) =
+    case extractMaybeEmb (Id-elim ⊩Id) .proj₂ of λ {
+      ⊩Id′ →
+    case irrelevanceTerm ⊩Id (Idᵣ ⊩Id′) t®v of λ {
+      (rflᵣ t⇒* v⇒*) →
+    rflᵣ (conv* t⇒* (sym (subset* (red (_⊩ₗId_.⇒*Id ⊩Id′)))))
+      v⇒* }}
 
 opaque
   unfolding _®⟨_⟩_∷_

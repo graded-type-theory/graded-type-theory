@@ -2,11 +2,15 @@
 -- The algorithmic equality is closed under weakening.
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.Conversion.Weakening
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
 
 open import Definition.Untyped M as U hiding (wk ; _∷_)
@@ -17,6 +21,7 @@ open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Conversion R
 open import Definition.Conversion.Soundness R
 
+open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
 import Tools.PropositionalEquality as PE
@@ -72,8 +77,55 @@ mutual
                   (PE.sym (wk-β C))
                   (prodrec-cong (wkConv↑ (lift [ρ]) (⊢Δ ∙ ⊢ρΣ) x)
                      ρg~ρh u↓v)
-  wk~↑ {ρ} {Δ = Δ} [ρ] ⊢Δ (emptyrec-cong {k} {l} {F} {G} x t~u) =
+  wk~↑ [ρ] ⊢Δ (emptyrec-cong x t~u) =
     emptyrec-cong (wkConv↑ [ρ] ⊢Δ x) (wk~↓ [ρ] ⊢Δ t~u)
+  wk~↑
+    {ρ} {Δ} [ρ] ⊢Δ
+    (J-cong {A₁} {B₁} {B₂} A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁~w₂ ≡Id) =
+    case syntacticEq (soundnessConv↑ A₁≡A₂) .proj₁ of λ {
+      ⊢A₁ →
+    case syntacticEqTerm (soundnessConv↑Term t₁≡t₂) .proj₂ .proj₁ of λ {
+      ⊢t₁ →
+    case ⊢Δ ∙ wk [ρ] ⊢Δ ⊢A₁ of λ {
+      ⊢Δ∙wk-ρ-A₁ →
+    PE.subst (_ ⊢ J _ _ _ _ _ _ _ _ ~ _ ↑_)
+      (PE.sym $ wk-β-doubleSubst _ B₁ _ _) $
+    J-cong (wkConv↑ [ρ] ⊢Δ A₁≡A₂) (wkConv↑Term [ρ] ⊢Δ t₁≡t₂)
+      (PE.subst
+         (λ Id →
+            Δ ∙ U.wk ρ A₁ ∙ Id ⊢
+              U.wk (lift (lift ρ)) B₁ [conv↑] U.wk (lift (lift ρ)) B₂)
+         (PE.cong₂ (λ A t → Id A t (var x0))
+            (PE.sym $ wk1-wk≡lift-wk1 _ _)
+            (PE.sym $ wk1-wk≡lift-wk1 _ _)) $
+       wkConv↑ (lift (lift [ρ]))
+         (⊢Δ∙wk-ρ-A₁ ∙
+          Idⱼ
+            (PE.subst₂ (_⊢_∷_ _)
+               (PE.sym $ lift-wk1 _ _)
+               (PE.sym $ lift-wk1 _ _) $
+             wkTerm (step [ρ]) ⊢Δ∙wk-ρ-A₁ ⊢t₁)
+            (PE.subst (_⊢_∷_ _ _) (wk1-wk≡lift-wk1 _ _) $
+             var ⊢Δ∙wk-ρ-A₁ here))
+         B₁≡B₂)
+      (PE.subst (_⊢_[conv↑]_∷_ _ _ _) (wk-β-doubleSubst _ B₁ _ _) $
+       wkConv↑Term [ρ] ⊢Δ u₁≡u₂)
+      (wkConv↑Term [ρ] ⊢Δ v₁≡v₂) (wk~↓ [ρ] ⊢Δ w₁~w₂)
+      (wkEq [ρ] ⊢Δ ≡Id) }}}
+  wk~↑ [ρ] ⊢Δ (K-cong {B₁} A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁~v₂ ≡Id ok) =
+    case syntacticEqTerm (soundnessConv↑Term t₁≡t₂) .proj₂ .proj₁ of λ {
+      ⊢t₁ →
+    PE.subst (_ ⊢ K _ _ _ _ _ _ ~ _ ↑_)
+      (PE.sym $ wk-β B₁) $
+    K-cong (wkConv↑ [ρ] ⊢Δ A₁≡A₂) (wkConv↑Term [ρ] ⊢Δ t₁≡t₂)
+      (wkConv↑ (lift [ρ]) (⊢Δ ∙ wk [ρ] ⊢Δ (Idⱼ ⊢t₁ ⊢t₁)) B₁≡B₂)
+      (PE.subst (_⊢_[conv↑]_∷_ _ _ _) (wk-β B₁) $
+       wkConv↑Term [ρ] ⊢Δ u₁≡u₂)
+      (wk~↓ [ρ] ⊢Δ v₁~v₂) (wkEq [ρ] ⊢Δ ≡Id) ok }
+  wk~↑ [ρ] ⊢Δ ([]-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ ≡Id ok) =
+    []-cong-cong (wkConv↑ [ρ] ⊢Δ A₁≡A₂) (wkConv↑Term [ρ] ⊢Δ t₁≡t₂)
+      (wkConv↑Term [ρ] ⊢Δ u₁≡u₂) (wk~↓ [ρ] ⊢Δ v₁~v₂) (wkEq [ρ] ⊢Δ ≡Id)
+      ok
 
   -- Weakening of algorithmic equality of neutrals in WHNF.
   wk~↓ : ∀ {t u A Γ Δ} ([ρ] : ρ ∷ Δ ⊇ Γ) → ⊢ Δ
@@ -103,6 +155,9 @@ mutual
     let ⊢ρF = wk ρ ⊢Δ x
     in  ΠΣ-cong ⊢ρF (wkConv↑ ρ ⊢Δ A<>B)
           (wkConv↑ (lift ρ) (⊢Δ ∙ ⊢ρF) A<>B₁) ok
+  wkConv↓ ρ ⊢Δ (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) =
+    Id-cong (wkConv↑ ρ ⊢Δ A₁≡A₂) (wkConv↑Term ρ ⊢Δ t₁≡t₂)
+      (wkConv↑Term ρ ⊢Δ u₁≡u₂)
 
   -- Weakening of algorithmic equality of terms.
   wkConv↑Term : ∀ {t u A Γ Δ} ([ρ] : ρ ∷ Δ ⊇ Γ) → ⊢ Δ
@@ -162,3 +217,7 @@ mutual
   wkConv↓Term {ρ = ρ} [ρ] ⊢Δ (η-unit [t] [u] tWhnf uWhnf) =
     η-unit (wkTerm [ρ] ⊢Δ [t]) (wkTerm [ρ] ⊢Δ [u])
            (wkWhnf ρ tWhnf) (wkWhnf ρ uWhnf)
+  wkConv↓Term ρ ⊢Δ (Id-ins ⊢v₁ v₁~v₂) =
+    Id-ins (wkTerm ρ ⊢Δ ⊢v₁) (wk~↓ ρ ⊢Δ v₁~v₂)
+  wkConv↓Term ρ ⊢Δ (rfl-refl t≡u) =
+    rfl-refl (wkEqTerm ρ ⊢Δ t≡u)

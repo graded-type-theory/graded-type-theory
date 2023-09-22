@@ -16,7 +16,7 @@ module Graded.Modality.Instances.Linearity.Good
   (variant : Modality-variant)
   (open Graded.Modality.Instances.Linearity variant)
   (open Graded.Modality.Dedicated-nr linearityModality)
-  (TR : Type-restrictions Linearity)
+  (TR : Type-restrictions linearityModality)
   (open Type-restrictions TR)
   (UR : Usage-restrictions Linearity)
   -- It is assumed that "Π 𝟙 , 𝟘" is allowed.
@@ -33,8 +33,7 @@ open import Tools.Relation
 open import Graded.Context linearityModality
 open import Graded.Context.Properties linearityModality
 open import Graded.Modality Linearity
-open import Graded.Modality.Instances.Examples
-  linearityModality TR Π-𝟙-𝟘
+open import Graded.Modality.Instances.Examples TR Π-𝟙-𝟘
 open import Graded.Modality.Properties linearityModality
 open import Graded.Mode linearityModality
 open import Graded.Usage linearityModality UR

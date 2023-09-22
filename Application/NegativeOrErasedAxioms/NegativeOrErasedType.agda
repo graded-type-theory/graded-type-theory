@@ -7,8 +7,8 @@ open import Definition.Typed.Restrictions
 
 module Application.NegativeOrErasedAxioms.NegativeOrErasedType
   {a} {M : Set a}
-  (𝕄 : Modality M)
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
 
 open Modality 𝕄
@@ -18,14 +18,16 @@ open import Definition.Untyped M as U hiding (_∷_)
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Weakening R as T
-open import Definition.Typed.Consequences.Inequality R
+open import Definition.Typed.Consequences.Inequality R as I
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Substitution R
 
 open import Tools.Empty
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 open import Tools.PropositionalEquality using (_≢_)
+open import Tools.Relation
 
 private variable
   m n   : Nat
@@ -33,7 +35,7 @@ private variable
   σ     : Subst m n
   Γ Δ   : Con Term m
   A B C : Term m
-  t     : Term m
+  t u   : Term m
   p q   : M
 
 -- Negative types.
@@ -172,3 +174,14 @@ appNeg (conv n c) c′ = appNeg n (trans c c′)
 ¬negΣᵣ (sigma-𝟘 _ _) c  = Σₚ≢Σᵣⱼ c
 ¬negΣᵣ (sigma _ _ _) c  = Σₚ≢Σᵣⱼ c
 ¬negΣᵣ (conv n c)    c′ = ¬negΣᵣ n (trans c c′)
+
+opaque
+
+  -- Identity types are not negative.
+
+  ¬negId : NegativeType Γ A → ¬ Γ ⊢ A ≡ Id B t u
+  ¬negId empty         = Id≢Empty ∘→ sym
+  ¬negId (pi _ _)      = I.Id≢ΠΣ ∘→ sym
+  ¬negId (sigma-𝟘 _ _) = I.Id≢ΠΣ ∘→ sym
+  ¬negId (sigma _ _ _) = I.Id≢ΠΣ ∘→ sym
+  ¬negId (conv n B≡A)  = ¬negId n ∘→ trans B≡A

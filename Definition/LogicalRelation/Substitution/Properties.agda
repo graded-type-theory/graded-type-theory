@@ -6,10 +6,12 @@
 
 open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.LogicalRelation.Substitution.Properties
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   {{eqrel : EqRelSet R}}
   where
 

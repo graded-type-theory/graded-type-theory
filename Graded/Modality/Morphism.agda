@@ -2,6 +2,8 @@
 -- Modality morphisms
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 module Graded.Modality.Morphism where
 
 open import Tools.Bool
@@ -48,8 +50,13 @@ record Is-morphism
   private
     module M₁ = Modality 𝕄₁
     open module M₂ = Modality 𝕄₂ using (_≤_; _<_)
+    module MP₁ = Graded.Modality.Properties 𝕄₁
 
   field
+    -- If the target modality is trivial, then the source modality is
+    -- trivial.
+    first-trivial-if-second-trivial : M₂.Trivial → M₁.Trivial
+
     -- If 𝟘ᵐ is allowed in the source modality, then it is allowed in
     -- the target modality.
     𝟘ᵐ-in-second-if-in-first : T M₁.𝟘ᵐ-allowed → T M₂.𝟘ᵐ-allowed
@@ -77,9 +84,9 @@ record Is-morphism
     -- The translation of 𝟘 is bounded by 𝟘.
     tr-𝟘-≤ : tr M₁.𝟘 ≤ M₂.𝟘
 
-    -- If 𝟘ᵐ is allowed in the source modality, then a quantity p is
+    -- If the source modality is not trivial, then a quantity p is
     -- mapped to 𝟘 exactly when p itself is 𝟘.
-    tr-≡-𝟘-⇔ : ∀ {p} → T M₁.𝟘ᵐ-allowed → tr p ≡ M₂.𝟘 ⇔ p ≡ M₁.𝟘
+    tr-≡-𝟘-⇔ : ∀ {p} → ¬ M₁.Trivial → tr p ≡ M₂.𝟘 ⇔ p ≡ M₁.𝟘
 
     -- If 𝟘ᵐ is allowed in the target modality but not the source
     -- modality, then quantities are translated to quantities that are
@@ -88,6 +95,9 @@ record Is-morphism
 
     -- The translation of 𝟙 is bounded by 𝟙.
     tr-𝟙 : tr M₁.𝟙 ≤ M₂.𝟙
+
+    -- The translation of ω is bounded by ω.
+    tr-ω : tr M₁.ω ≤ M₂.ω
 
     -- The translation commutes with addition up to _≤_.
     tr-+ : ∀ {p q} → tr (p M₁.+ q) ≤ tr p M₂.+ tr q
@@ -104,6 +114,12 @@ record Is-morphism
         ⦃ has-nr₁ : Dedicated-nr 𝕄₁ ⦄
         ⦃ has-nr₂ : Dedicated-nr 𝕄₂ ⦄ →
       tr (nr p r z s n) ≤ nr (tr p) (tr r) (tr z) (tr s) (tr n)
+
+  -- If the source modality is not trivial, then the target modality
+  -- is not trivial.
+
+  second-not-trivial-if-first-not : ¬ M₁.Trivial → ¬ M₂.Trivial
+  second-not-trivial-if-first-not = _∘→ first-trivial-if-second-trivial
 
   -- If the source modality has a dedicated nr function, then the
   -- target modality also has one.
@@ -156,11 +172,16 @@ record Is-morphism
   no-nr-in-first-if-in-second ⦃ no-nr = nn ⦄ =
     no-nr-in-first-iff-in-second .proj₂ nn
 
-  -- If 𝟘ᵐ is allowed in the source modality, then 𝟘 is translated to
-  -- 𝟘.
+  -- If the source modality is not trivial, then 𝟘 is translated to 𝟘.
 
-  tr-𝟘-≡ : T M₁.𝟘ᵐ-allowed → tr M₁.𝟘 ≡ M₂.𝟘
+  tr-𝟘-≡ : ¬ M₁.Trivial → tr M₁.𝟘 ≡ M₂.𝟘
   tr-𝟘-≡ ok = tr-≡-𝟘-⇔ ok .proj₂ refl
+
+  -- If 𝟘ᵐ is allowed in the source modality, then 𝟘 is translated
+  -- to 𝟘.
+
+  tr-𝟘-≡-𝟘ᵐ : T M₁.𝟘ᵐ-allowed → tr M₁.𝟘 ≡ M₂.𝟘
+  tr-𝟘-≡-𝟘ᵐ = tr-𝟘-≡ ∘→ MP₁.𝟘ᵐ.non-trivial
 
   -- The translation is monotone.
 
@@ -225,6 +246,9 @@ record Is-order-embedding
     -- 𝟙.
     tr-≤-𝟙 : ∀ {p} → tr p M₂.≤ M₂.𝟙 → p M₁.≤ M₁.𝟙
 
+    -- The translation of ω is equal to ω.
+    tr-ω : tr M₁.ω ≡ M₂.ω
+
     -- If the translation of p is bounded by q + r, then there are q′
     -- and r′ such that the translation of q′ is bounded by q, the
     -- translation of r′ is bounded by r, and p is bounded by q′ + r′.
@@ -284,7 +308,7 @@ record Is-order-embedding
           q₁′ M₁.≤ q₄′) ×
          q₁′ M₁.≤ q₃′ M₁.+ r M₁.· q₄′ M₁.+ s M₁.· q₁′
 
-  open Is-morphism tr-morphism public
+  open Is-morphism tr-morphism public hiding (tr-ω)
 
   -- The translation is injective.
 
@@ -307,13 +331,18 @@ record Is-Σ-morphism
   (𝕄₁ : Modality M₁) (𝕄₂ : Modality M₂)
   (tr tr-Σ : M₁ → M₂) : Set (a₁ ⊔ a₂) where
   private
-    module M₁ = Modality 𝕄₁
-    module M₂ = Modality 𝕄₂
+    module M₁  = Modality 𝕄₁
+    module M₂  = Modality 𝕄₂
+    module MP₁ = Graded.Modality.Properties 𝕄₁
 
   field
     -- The regular translation function tr is bounded by the
     -- Σ-translation tr-Σ.
     tr-≤-tr-Σ : ∀ {p} → tr p M₂.≤ tr-Σ p
+
+    -- If the source modality is not trivial, then tr-Σ translates 𝟘
+    -- to 𝟘.
+    tr-Σ-𝟘-≡ : ¬ M₁.Trivial → tr-Σ M₁.𝟘 ≡ M₂.𝟘
 
     -- If 𝟘ᵐ is allowed in the target modality and tr-Σ p is equal
     -- to 𝟘, then 𝟘ᵐ is allowed in the source modality and p is equal
@@ -329,6 +358,12 @@ record Is-Σ-morphism
     -- p · q.
     tr-·-tr-Σ-≤ : ∀ {p q} → tr p M₂.· tr-Σ q M₂.≤ tr (p M₁.· q)
 
+  -- If 𝟘ᵐ is allowed in the source modality, then tr-Σ translates 𝟘
+  -- to 𝟘.
+
+  tr-Σ-𝟘-≡-𝟘ᵐ : T M₁.𝟘ᵐ-allowed → tr-Σ M₁.𝟘 ≡ M₂.𝟘
+  tr-Σ-𝟘-≡-𝟘ᵐ = tr-Σ-𝟘-≡ ∘→ MP₁.𝟘ᵐ.non-trivial
+
   -- If 𝟘ᵐ is allowed in the target modality but not the source
   -- modality, then tr-Σ translates quantities to quantities that are
   -- not equal to 𝟘.
@@ -336,21 +371,6 @@ record Is-Σ-morphism
   tr-Σ-≢-𝟘 :
     ∀ {p} → ¬ T M₁.𝟘ᵐ-allowed → T M₂.𝟘ᵐ-allowed → tr-Σ p ≢ M₂.𝟘
   tr-Σ-≢-𝟘 not-ok ok tr-p≡𝟘 = not-ok (tr-Σ-≡-𝟘-→ ok tr-p≡𝟘 .proj₁)
-
-  -- If 𝟘ᵐ is allowed in the source and target modalities, then tr-Σ
-  -- translates 𝟘 to 𝟘 (assuming that tr is a morphism from 𝕄₁ to 𝕄₂).
-
-  tr-Σ-𝟘-≡ :
-    Is-morphism 𝕄₁ 𝕄₂ tr →
-    T M₁.𝟘ᵐ-allowed → tr-Σ M₁.𝟘 ≡ M₂.𝟘
-  tr-Σ-𝟘-≡ m ok = 𝟘ᵐ.𝟘≮ (𝟘ᵐ-in-second-if-in-first ok) (begin
-    M₂.𝟘       ≡˘⟨ tr-𝟘-≡ ok ⟩
-    tr M₁.𝟘    ≤⟨ tr-≤-tr-Σ ⟩
-    tr-Σ M₁.𝟘  ∎)
-    where
-    open Is-morphism m
-    open Graded.Modality.Properties 𝕄₂
-    open Tools.Reasoning.PartialOrder ≤-poset
 
   -- If tr-Σ p is bounded by 𝟙, then p is bounded by 𝟙 (assuming that
   -- tr is an order embedding from 𝕄₁ to 𝕄₂).
@@ -425,9 +445,11 @@ Is-morphism→Is-Σ-morphism :
 Is-morphism→Is-Σ-morphism {𝕄₁ = 𝕄₁} {𝕄₂ = 𝕄₂} {tr = tr} m = λ where
     .Is-Σ-morphism.tr-≤-tr-Σ →
       MP₂.≤-refl
+    .Is-Σ-morphism.tr-Σ-𝟘-≡ →
+      tr-𝟘-≡
     .Is-Σ-morphism.tr-Σ-≡-𝟘-→ ok tr-p≡𝟘 →
       𝟘ᵐ-allowed-elim 𝕄₁
-        (λ ok → ok , tr-≡-𝟘-⇔ ok .proj₁ tr-p≡𝟘)
+        (λ ok → ok , tr-≡-𝟘-⇔ (MP₁.𝟘ᵐ.non-trivial ok) .proj₁ tr-p≡𝟘)
         (λ not-ok → ⊥-elim (tr-<-𝟘 not-ok ok .proj₂ tr-p≡𝟘))
     .Is-Σ-morphism.tr-Σ-≤-𝟙 {p = p} p≤𝟙 → begin
       tr p     ≤⟨ tr-monotone p≤𝟙 ⟩
@@ -439,6 +461,7 @@ Is-morphism→Is-Σ-morphism {𝕄₁ = 𝕄₁} {𝕄₂ = 𝕄₂} {tr = tr} m
   where
   module M₁  = Modality 𝕄₁
   module M₂  = Modality 𝕄₂
+  module MP₁ = Graded.Modality.Properties 𝕄₁
   module MP₂ = Graded.Modality.Properties 𝕄₂
   open Is-morphism m
   open Tools.Reasoning.PartialOrder MP₂.≤-poset
@@ -469,17 +492,20 @@ Is-order-embedding-id {𝕄 = 𝕄} = λ where
     .trivial not-ok ok   → ⊥-elim (not-ok ok)
     .tr-≤                → _ , ≤-refl
     .tr-≤-𝟙              → idᶠ
+    .tr-ω                → refl
     .tr-≤-+ hyp          → _ , _ , ≤-refl , ≤-refl , hyp
     .tr-≤-· hyp          → _ , ≤-refl , hyp
     .tr-≤-∧ hyp          → _ , _ , ≤-refl , ≤-refl , hyp
     .tr-morphism         → λ where
       .tr-<-𝟘 not-ok ok                        → ⊥-elim (not-ok ok)
       .tr-𝟙                                    → ≤-refl
+      .tr-ω                                    → ≤-refl
       .tr-𝟘-≤                                  → ≤-refl
       .tr-≡-𝟘-⇔ _                              → idᶠ , idᶠ
       .tr-+                                    → ≤-refl
       .tr-·                                    → refl
       .tr-∧                                    → ≤-refl
+      .first-trivial-if-second-trivial         → idᶠ
       .𝟘ᵐ-in-second-if-in-first                → idᶠ
       .𝟘ᵐ-in-first-if-in-second                → idᶠ
       .𝟘-well-behaved-in-first-if-in-second    → idᶠ
@@ -511,6 +537,9 @@ Is-morphism-∘ :
   Is-morphism 𝕄₁ 𝕄₃ (tr₁ ∘→ tr₂)
 Is-morphism-∘
   {𝕄₂ = 𝕄₂} {𝕄₃ = 𝕄₃} {tr₁ = tr₁} {𝕄₁ = 𝕄₁} {tr₂ = tr₂} f g = λ where
+    .Is-morphism.first-trivial-if-second-trivial →
+      G.first-trivial-if-second-trivial ∘→
+      F.first-trivial-if-second-trivial
     .Is-morphism.𝟘ᵐ-in-second-if-in-first →
       F.𝟘ᵐ-in-second-if-in-first ∘→ G.𝟘ᵐ-in-second-if-in-first
     .Is-morphism.𝟘ᵐ-in-first-if-in-second →
@@ -533,7 +562,7 @@ Is-morphism-∘
        tr₁ M₂.𝟘        ≤⟨ F.tr-𝟘-≤ ⟩
        M₃.𝟘            ∎
     .Is-morphism.tr-≡-𝟘-⇔ ok →
-      G.tr-≡-𝟘-⇔ ok ∘⇔ F.tr-≡-𝟘-⇔ (G.𝟘ᵐ-in-second-if-in-first ok)
+      G.tr-≡-𝟘-⇔ ok ∘⇔ F.tr-≡-𝟘-⇔ (G.second-not-trivial-if-first-not ok)
     .Is-morphism.tr-<-𝟘 {p = p} not-ok₁ ok₃ →
       let open R in
       Mo₂.𝟘ᵐ-allowed-elim
@@ -543,7 +572,7 @@ Is-morphism-∘
                 tr₁ M₂.𝟘     ≤⟨ F.tr-𝟘-≤ ⟩
                 M₃.𝟘         ∎)
            , G.tr-<-𝟘 not-ok₁ ok₂ .proj₂ ∘→
-             F.tr-≡-𝟘-⇔ ok₂ .proj₁)
+             F.tr-≡-𝟘-⇔ (MP₂.𝟘ᵐ.non-trivial ok₂) .proj₁)
         (λ not-ok₂ →
              (begin
                 tr₁ (tr₂ p)  ≤⟨ F.tr-<-𝟘 not-ok₂ ok₃ .proj₁ ⟩
@@ -553,6 +582,10 @@ Is-morphism-∘
        tr₁ (tr₂ M₁.𝟙)  ≤⟨ F.tr-monotone G.tr-𝟙 ⟩
        tr₁ M₂.𝟙        ≤⟨ F.tr-𝟙 ⟩
        M₃.𝟙            ∎
+    .Is-morphism.tr-ω → let open R in begin
+       tr₁ (tr₂ M₁.ω)  ≤⟨ F.tr-monotone G.tr-ω ⟩
+       tr₁ M₂.ω        ≤⟨ F.tr-ω ⟩
+       M₃.ω            ∎
     .Is-morphism.tr-+ {p = p} {q = q} → let open R in begin
       tr₁ (tr₂ (p M₁.+ q))          ≤⟨ F.tr-monotone G.tr-+ ⟩
       tr₁ (tr₂ p M₂.+ tr₂ q)        ≤⟨ F.tr-+ ⟩
@@ -586,6 +619,7 @@ Is-morphism-∘
   module M₃  = Modality 𝕄₃
   module F   = Is-morphism f
   module G   = Is-morphism g
+  module MP₂ = Graded.Modality.Properties 𝕄₂
   open Graded.Modality.Properties 𝕄₃
   module R = Tools.Reasoning.PartialOrder ≤-poset
 
@@ -629,6 +663,11 @@ Is-order-embedding-∘
            p             ∎)
     .Is-order-embedding.tr-≤-𝟙 →
       G.tr-≤-𝟙 ∘→ F.tr-≤-𝟙
+    .Is-order-embedding.tr-ω →
+      let open Tools.Reasoning.PropositionalEquality in
+      tr₁ (tr₂ M₁.ω)  ≡⟨ cong tr₁ G.tr-ω ⟩
+      tr₁ M₂.ω        ≡⟨ F.tr-ω ⟩
+      M₃.ω            ∎
     .Is-order-embedding.tr-≤-+ {q = q} {r = r} tr-p≤q+r →
       case F.tr-≤-+ tr-p≤q+r of
         λ (q′ , r′ , tr-q′≤q , tr-r′≤r , tr-p≤q′+r′) →
@@ -736,27 +775,34 @@ Is-order-embedding-∘
   module F   = Is-order-embedding f
   module G   = Is-order-embedding g
 
--- Composition preserves Is-Σ-morphism given a certain assumption.
+-- Composition preserves Is-Σ-morphism given certain assumptions.
 
 Is-Σ-morphism-∘ :
   Is-morphism 𝕄₂ 𝕄₃ tr₁ →
+  Is-morphism 𝕄₁ 𝕄₂ tr₂ →
   Is-Σ-morphism 𝕄₂ 𝕄₃ tr₁ tr-Σ₁ →
   Is-Σ-morphism 𝕄₁ 𝕄₂ tr₂ tr-Σ₂ →
   Is-Σ-morphism 𝕄₁ 𝕄₃ (tr₁ ∘→ tr₂) (tr-Σ₁ ∘→ tr-Σ₂)
 Is-Σ-morphism-∘
-  {𝕄₂ = 𝕄₂} {𝕄₃ = 𝕄₃} {tr₁ = tr₁} {tr-Σ₁ = tr-Σ₁} {𝕄₁ = 𝕄₁} {tr₂ = tr₂}
-  {tr-Σ₂ = tr-Σ₂} m f g = record
-  { tr-≤-tr-Σ = λ {p = p} → begin
-      tr₁ (tr₂ p)      ≤⟨ Is-morphism.tr-monotone m G.tr-≤-tr-Σ ⟩
+  {𝕄₂} {𝕄₃} {tr₁} {𝕄₁} {tr₂} {tr-Σ₁} {tr-Σ₂} m₁ m₂ f g = record
+  { tr-≤-tr-Σ = λ {p = p} →
+      let open Tools.Reasoning.PartialOrder ≤-poset in begin
+      tr₁ (tr₂ p)      ≤⟨ Is-morphism.tr-monotone m₁ G.tr-≤-tr-Σ ⟩
       tr₁ (tr-Σ₂ p)    ≤⟨ F.tr-≤-tr-Σ ⟩
       tr-Σ₁ (tr-Σ₂ p)  ∎
+  ; tr-Σ-𝟘-≡ = λ not-trivial →
+      let open Tools.Reasoning.PropositionalEquality in
+      tr-Σ₁ (tr-Σ₂ M₁.𝟘)  ≡⟨ cong tr-Σ₁ (G.tr-Σ-𝟘-≡ not-trivial) ⟩
+      tr-Σ₁ M₂.𝟘          ≡⟨ F.tr-Σ-𝟘-≡ (Is-morphism.second-not-trivial-if-first-not m₂ not-trivial) ⟩
+      M₃.𝟘                ∎
   ; tr-Σ-≡-𝟘-→ =
       curry (uncurry G.tr-Σ-≡-𝟘-→ ∘→ uncurry F.tr-Σ-≡-𝟘-→)
   ; tr-Σ-≤-𝟙 =
       F.tr-Σ-≤-𝟙 ∘→ G.tr-Σ-≤-𝟙
-  ; tr-·-tr-Σ-≤ = λ {p = p} {q = q} → begin
+  ; tr-·-tr-Σ-≤ = λ {p = p} {q = q} →
+      let open Tools.Reasoning.PartialOrder ≤-poset in begin
       tr₁ (tr₂ p) M₃.· tr-Σ₁ (tr-Σ₂ q)  ≤⟨ F.tr-·-tr-Σ-≤ ⟩
-      tr₁ (tr₂ p M₂.· tr-Σ₂ q)          ≤⟨ Is-morphism.tr-monotone m G.tr-·-tr-Σ-≤ ⟩
+      tr₁ (tr₂ p M₂.· tr-Σ₂ q)          ≤⟨ Is-morphism.tr-monotone m₁ G.tr-·-tr-Σ-≤ ⟩
       tr₁ (tr₂ (p M₁.· q))              ∎
   }
   where
@@ -766,21 +812,20 @@ Is-Σ-morphism-∘
   module F  = Is-Σ-morphism f
   module G  = Is-Σ-morphism g
   open Graded.Modality.Properties 𝕄₃
-  open Tools.Reasoning.PartialOrder ≤-poset
 
--- Composition preserves Is-Σ-order-embedding given a certain
--- assumption.
+-- Composition preserves Is-Σ-order-embedding given certain
+-- assumptions.
 
 Is-Σ-order-embedding-∘ :
   Is-morphism 𝕄₂ 𝕄₃ tr₁ →
+  Is-morphism 𝕄₁ 𝕄₂ tr₂ →
   Is-Σ-order-embedding 𝕄₂ 𝕄₃ tr₁ tr-Σ₁ →
   Is-Σ-order-embedding 𝕄₁ 𝕄₂ tr₂ tr-Σ₂ →
   Is-Σ-order-embedding 𝕄₁ 𝕄₃ (tr₁ ∘→ tr₂) (tr-Σ₁ ∘→ tr-Σ₂)
 Is-Σ-order-embedding-∘
-  {𝕄₃ = 𝕄₃} {tr₁ = tr₁} {tr-Σ₁ = tr-Σ₁} {tr₂ = tr₂} {tr-Σ₂ = tr-Σ₂}
-  m f g = record
+  {𝕄₃} {tr₁} {tr₂} {tr-Σ₁} {tr-Σ₂} m₁ m₂ f g = record
   { tr-Σ-morphism =
-      Is-Σ-morphism-∘ m F.tr-Σ-morphism G.tr-Σ-morphism
+      Is-Σ-morphism-∘ m₁ m₂ F.tr-Σ-morphism G.tr-Σ-morphism
   ; tr-≤-tr-Σ-→ = λ {p = _} {q = _} {r = r} tr-p≤tr-q·r →
       case F.tr-≤-tr-Σ-→ tr-p≤tr-q·r of
         λ (r′ , tr-r′≤r , tr-p≤tr-q·r′) →
@@ -788,7 +833,7 @@ Is-Σ-order-embedding-∘
         λ (r″ , tr-r″≤r′ , p≤q·r″) →
         r″
       , (begin
-           tr₁ (tr₂ r″)  ≤⟨ Is-morphism.tr-monotone m tr-r″≤r′ ⟩
+           tr₁ (tr₂ r″)  ≤⟨ Is-morphism.tr-monotone m₁ tr-r″≤r′ ⟩
            tr₁ r′        ≤⟨ tr-r′≤r ⟩
            r             ∎)
       , p≤q·r″

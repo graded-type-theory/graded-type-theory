@@ -4,17 +4,21 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.Typed.EqualityRelation
   {ℓ} {M : Set ℓ}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
 
 open Type-restrictions R
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed R
+open import Definition.Typed R hiding (_,_)
 open import Definition.Typed.Weakening R using (_∷_⊇_)
+
+open import Graded.Derived.Erased.Untyped 𝕄 as Erased using (Erased)
 
 open import Tools.Fin
 open import Tools.Level
@@ -27,9 +31,9 @@ private
     Γ : Con Term n
     Δ : Con Term n′
     ρ : Wk n′ n
-    A A′ B B′ C : Term n
+    A A₁ A₂ A′ B B₁ B₂ B′ C : Term n
     a a′ b b′ e e′ : Term n
-    k l m t u v : Term n
+    k l m t t₁ t₂ u u₁ u₂ v v₁ v₂ w₁ w₂ : Term n
     s : SigmaMode
     bm : BinderMode
 
@@ -234,6 +238,56 @@ record EqRelSet : Set (lsuc ℓ) where
                → Γ ⊢ F ≅ F′
                → Γ ⊢ n ~ n′ ∷ Empty
                → Γ ⊢ emptyrec p F n ~ emptyrec p F′ n′ ∷ F
+
+    -- Id preserves "equality".
+    ≅-Id-cong
+      : Γ ⊢ A₁ ≅ A₂
+      → Γ ⊢ t₁ ≅ t₂ ∷ A₁
+      → Γ ⊢ u₁ ≅ u₂ ∷ A₁
+      → Γ ⊢ Id A₁ t₁ u₁ ≅ Id A₂ t₂ u₂
+    ≅ₜ-Id-cong
+      : Γ ⊢ A₁ ≅ A₂ ∷ U
+      → Γ ⊢ t₁ ≅ t₂ ∷ A₁
+      → Γ ⊢ u₁ ≅ u₂ ∷ A₁
+      → Γ ⊢ Id A₁ t₁ u₁ ≅ Id A₂ t₂ u₂ ∷ U
+
+    -- Reflexivity for rfl.
+    ≅ₜ-rflrefl : Γ ⊢ t ∷ A → Γ ⊢ rfl ≅ rfl ∷ Id A t t
+
+    -- J preserves the _⊢_~_ relation (in a certain way).
+    ~-J
+      : Γ ⊢ A₁
+      → Γ ⊢ A₁ ≅ A₂
+      → Γ ⊢ t₁ ∷ A₁
+      → Γ ⊢ t₁ ≅ t₂ ∷ A₁
+      → Γ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ ≅ B₂
+      → Γ ⊢ u₁ ≅ u₂ ∷ B₁ [ t₁ , rfl ]
+      → Γ ⊢ v₁ ≅ v₂ ∷ A₁
+      → Γ ⊢ w₁ ~ w₂ ∷ Id A₁ t₁ v₁
+      → Γ ⊢ J p q A₁ t₁ B₁ u₁ v₁ w₁ ~ J p q A₂ t₂ B₂ u₂ v₂ w₂ ∷
+          B₁ [ v₁ , w₁ ]
+
+    -- K preserves the _⊢_~_ relation (in a certain way).
+    ~-K
+      : Γ ⊢ A₁ ≅ A₂
+      → Γ ⊢ t₁ ∷ A₁
+      → Γ ⊢ t₁ ≅ t₂ ∷ A₁
+      → Γ ∙ Id A₁ t₁ t₁ ⊢ B₁ ≅ B₂
+      → Γ ⊢ u₁ ≅ u₂ ∷ B₁ [ rfl ]₀
+      → Γ ⊢ v₁ ~ v₂ ∷ Id A₁ t₁ t₁
+      → K-allowed
+      → Γ ⊢ K p A₁ t₁ B₁ u₁ v₁ ~ K p A₂ t₂ B₂ u₂ v₂ ∷ B₁ [ v₁ ]₀
+
+    -- If []-cong is allowed, then []-cong preserves the _⊢_~_
+    -- relation (in a certain way).
+    ~-[]-cong
+      : Γ ⊢ A₁ ≅ A₂
+      → Γ ⊢ t₁ ≅ t₂ ∷ A₁
+      → Γ ⊢ u₁ ≅ u₂ ∷ A₁
+      → Γ ⊢ v₁ ~ v₂ ∷ Id A₁ t₁ u₁
+      → []-cong-allowed
+      → Γ ⊢ []-cong A₁ t₁ u₁ v₁ ~ []-cong A₂ t₂ u₂ v₂ ∷
+          Id (Erased A₁) Erased.[ t₁ ] Erased.[ u₁ ]
 
   -- Star reflexivity
   ≅ₜ-starrefl : ⊢ Γ → Unit-allowed → Γ ⊢ star ≅ star ∷ Unit

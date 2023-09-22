@@ -10,9 +10,9 @@ import Graded.Modality
 module Graded.Modality.Instances.Examples
   {a} {M : Set a}
   (open Graded.Modality M)
-  (𝕄 : Modality)
+  {𝕄 : Modality}
   (open Modality 𝕄)
-  (R : Type-restrictions M)
+  (R : Type-restrictions 𝕄)
   (open Type-restrictions R)
   -- It is assumed that "Π 𝟙 , 𝟘" is allowed.
   (Π-𝟙-𝟘 : Π-allowed 𝟙 𝟘)

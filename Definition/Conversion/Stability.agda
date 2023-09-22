@@ -3,19 +3,24 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.Conversion.Stability
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
 
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Typed R
+open import Definition.Typed.Properties R
+import Definition.Typed.Weakening R as W
 open import Definition.Conversion R
 open import Definition.Conversion.Soundness R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Consequences.Stability R
 
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 
@@ -54,6 +59,32 @@ mutual
   stability~↑ Γ≡Δ (emptyrec-cong x₁ k~l) =
     emptyrec-cong (stabilityConv↑ Γ≡Δ x₁)
                   (stability~↓ Γ≡Δ k~l)
+  stability~↑ Γ≡Δ (J-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁~w₂ ≡Id) =
+    case syntacticEq (soundnessConv↑ A₁≡A₂) .proj₁ of λ {
+      ⊢A₁ →
+    case wf ⊢A₁ ∙ ⊢A₁ of λ {
+      ⊢Γ∙A₁ →
+    case syntacticEqTerm (soundnessConv↑Term t₁≡t₂) .proj₂ .proj₁ of λ {
+      ⊢t₁ →
+    J-cong (stabilityConv↑ Γ≡Δ A₁≡A₂) (stabilityConv↑Term Γ≡Δ t₁≡t₂)
+      (stabilityConv↑
+         (Γ≡Δ ∙ refl ⊢A₁ ∙
+          refl
+            (Idⱼ (W.wkTerm (W.step W.id) ⊢Γ∙A₁ ⊢t₁) (var ⊢Γ∙A₁ here)))
+         B₁≡B₂)
+      (stabilityConv↑Term Γ≡Δ u₁≡u₂) (stabilityConv↑Term Γ≡Δ v₁≡v₂)
+      (stability~↓ Γ≡Δ w₁~w₂) (stabilityEq Γ≡Δ ≡Id) }}}
+  stability~↑ Γ≡Δ (K-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁~v₂ ≡Id ok) =
+    case syntacticEqTerm (soundnessConv↑Term t₁≡t₂) .proj₂ .proj₁ of λ {
+      ⊢t₁ →
+    K-cong (stabilityConv↑ Γ≡Δ A₁≡A₂) (stabilityConv↑Term Γ≡Δ t₁≡t₂)
+      (stabilityConv↑ (Γ≡Δ ∙ refl (Idⱼ ⊢t₁ ⊢t₁)) B₁≡B₂)
+      (stabilityConv↑Term Γ≡Δ u₁≡u₂) (stability~↓ Γ≡Δ v₁~v₂)
+      (stabilityEq Γ≡Δ ≡Id) ok }
+  stability~↑ Γ≡Δ ([]-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ ≡Id ok) =
+    []-cong-cong (stabilityConv↑ Γ≡Δ A₁≡A₂)
+      (stabilityConv↑Term Γ≡Δ t₁≡t₂) (stabilityConv↑Term Γ≡Δ u₁≡u₂)
+      (stability~↓ Γ≡Δ v₁~v₂) (stabilityEq Γ≡Δ ≡Id) ok
 
   -- Stability of algorithmic equality of neutrals of types in WHNF.
   stability~↓ : ∀ {k l A}
@@ -94,6 +125,9 @@ mutual
   stabilityConv↓ Γ≡Δ (ΠΣ-cong F A<>B A<>B₁ ok) =
     ΠΣ-cong (stability Γ≡Δ F) (stabilityConv↑ Γ≡Δ A<>B)
       (stabilityConv↑ (Γ≡Δ ∙ refl F) A<>B₁) ok
+  stabilityConv↓ Γ≡Δ (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) =
+    Id-cong (stabilityConv↑ Γ≡Δ A₁≡A₂) (stabilityConv↑Term Γ≡Δ t₁≡t₂)
+      (stabilityConv↑Term Γ≡Δ u₁≡u₂)
 
   -- Stability of algorithmic equality of terms.
   stabilityConv↑Term : ∀ {t u A}
@@ -141,3 +175,7 @@ mutual
     let [t] = stabilityTerm Γ≡Δ [t]
         [u] = stabilityTerm Γ≡Δ [u]
     in  η-unit [t] [u] tUnit uUnit
+  stabilityConv↓Term Γ≡Δ (Id-ins ⊢v₁ v₁~v₂) =
+    Id-ins (stabilityTerm Γ≡Δ ⊢v₁) (stability~↓ Γ≡Δ v₁~v₂)
+  stabilityConv↓Term Γ≡Δ (rfl-refl t≡u) =
+    rfl-refl (stabilityEqTerm Γ≡Δ t≡u)

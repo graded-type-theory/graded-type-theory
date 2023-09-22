@@ -17,7 +17,7 @@ module Graded.Modality.Instances.Linear-or-affine.Bad.No-dedicated-nr
   -- The modality variant.
   (variant : Modality-variant)
   (open Graded.Modality.Dedicated-nr (linear-or-affine variant))
-  (TR : Type-restrictions Linear-or-affine)
+  (TR : Type-restrictions (linear-or-affine variant))
   (open Type-restrictions TR)
   (UR : Usage-restrictions Linear-or-affine)
   -- It is assumed that "Π 𝟙 , 𝟘" is allowed.
@@ -49,8 +49,7 @@ private
 open import Graded.Context linear-or-affine′
 open import Graded.Context.Properties linear-or-affine′
 open import Graded.Modality Linear-or-affine
-open import Graded.Modality.Instances.Examples
-  linear-or-affine′ TR Π-𝟙-𝟘
+open import Graded.Modality.Instances.Examples TR Π-𝟙-𝟘
 open import Graded.Modality.Properties linear-or-affine′
 open import Graded.Mode linear-or-affine′
 open import Graded.Usage linear-or-affine′ UR

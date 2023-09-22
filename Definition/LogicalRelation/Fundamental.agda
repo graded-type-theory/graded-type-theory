@@ -2,16 +2,21 @@
 -- The fundamental lemma of the logical relation for validity.
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.LogicalRelation.Fundamental
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   {{eqrel : EqRelSet R}}
   where
 
 open EqRelSet {{...}}
+open Type-restrictions R
 
 open import Definition.Untyped M hiding (_∷_) renaming (_[_,_] to _[_,,_])
 open import Definition.Untyped.Properties M
@@ -27,8 +32,12 @@ open import Definition.LogicalRelation.Substitution.Conversion R
 open import Definition.LogicalRelation.Substitution.Reduction R
 open import Definition.LogicalRelation.Substitution.Reflexivity R
 open import Definition.LogicalRelation.Substitution.Introductions R hiding (fundamentalVar)
+import Definition.LogicalRelation.Substitution.Introductions.Erased R
+  as Erased
 import Definition.LogicalRelation.Substitution.Irrelevance R as S
+open import Definition.LogicalRelation.Substitution.Weakening R
 
+import Graded.Derived.Erased.Untyped 𝕄 as E
 
 open import Tools.Fin
 open import Tools.Function
@@ -44,6 +53,8 @@ private
     Γ : Con Term n
     Δ : Con Term m
     σ σ′ : Subst m n
+    A A₁ A₂ t t₁ t₂ : Term _
+    ⊩Γ : ⊩ᵛ _
 
 open import Definition.LogicalRelation.Substitution.Introductions.Var R using (fundamentalVar) public
 
@@ -64,6 +75,10 @@ mutual
     with fundamental ⊢F | fundamental ⊢G
   … | [Γ] , [F] | [Γ∙F] , [G] =
     [Γ] , ΠΣᵛ [Γ] [F] (S.irrelevance [Γ∙F] ([Γ] ∙ [F]) [G]) ok
+  fundamental (Idⱼ ⊢t ⊢u) =
+    case fundamentalTerm ⊢t of λ {
+      (⊩Γ , ⊩A , ⊩t) →
+    ⊩Γ , Idᵛ ⊩A ⊩t (fundamentalTerm′ ⊩A ⊢u) }
   fundamental (univ {A} ⊢A) with fundamentalTerm ⊢A
   fundamental (univ {A} ⊢A) | [Γ] , [U] , [A] =
     [Γ] , univᵛ {A = A} [Γ] [U] [A]
@@ -90,9 +105,9 @@ mutual
         , (λ ⊢Δ [σ] → symEq (proj₁ (unwrap [B] ⊢Δ [σ]))
                             (proj₁ (unwrap [A] ⊢Δ [σ]))
                             ([B≡A] ⊢Δ [σ]))
-  fundamentalEq (trans {A} {B₁} {B} A≡B₁ B₁≡B)
+  fundamentalEq (trans A≡B₁ B₁≡B)
     with fundamentalEq A≡B₁ | fundamentalEq B₁≡B
-  fundamentalEq (trans {A} {B₁} {B} A≡B B≡C) | [Γ] , [A] , [B₁] , [A≡B₁]
+  fundamentalEq (trans {C = B} A≡B B≡C) | [Γ] , [A] , [B₁] , [A≡B₁]
     | [Γ]₁ , [B₁]₁ , [B] , [B₁≡B] =
       [Γ] , [A] , S.irrelevance {A = B} [Γ]₁ [Γ] [B]
           , (λ ⊢Δ [σ] →
@@ -127,6 +142,18 @@ mutual
       ,   Σᵛ {F = H} {E} [Γ] [H] [E]′ ok
       ,   Σ-congᵛ {F = F} {G} {H} {E}
             [Γ] [F] [G]′ [H] [E]′ [F≡H] [G≡E]′ ok
+  fundamentalEq (Id-cong {t₂} {u₂} A₁≡A₂ t₁≡t₂ u₁≡u₂) =
+    case fundamentalEq A₁≡A₂ of λ {
+      (⊩Γ , ⊩A₁ , ⊩A₂ , A₁≡A₂) →
+    case fundamentalTermEq″ ⊩A₁ ⊩A₂ A₁≡A₂ t₁≡t₂ of λ {
+      (⊩t₁ , _ , ⊩t₂ , t₁≡t₂) →
+    case fundamentalTermEq″ ⊩A₁ ⊩A₂ A₁≡A₂ u₁≡u₂ of λ {
+      (⊩u₁ , _ , ⊩u₂ , u₁≡u₂) →
+      ⊩Γ
+    , Idᵛ ⊩A₁ ⊩t₁ ⊩u₁
+    , Idᵛ ⊩A₂ ⊩t₂ ⊩u₂
+    , Id-congᵛ t₂ u₂ ⊩A₂ ⊩t₂ ⊩u₂ A₁≡A₂ t₁≡t₂ u₁≡u₂
+    }}}
 
   -- Fundamental theorem for terms.
   fundamentalTerm : ∀ {A t} → Γ ⊢ t ∷ A
@@ -166,7 +193,7 @@ mutual
         [t]′ = S.irrelevanceTerm {A = G} {t = t} [Γ]₁ ([Γ] ∙ [F]) [G] [G]′ [t]
     in  [Γ] , Πᵛ [Γ] [F] [G]′ ok
     ,   lamᵛ {F = F} {G} {t} [Γ] [F] [G]′ [t]′ ok
-  fundamentalTerm (_∘ⱼ_ {t = g} {F = F} {G} {a} Dt Du)
+  fundamentalTerm (_∘ⱼ_ {t = g} {F} {G} {u = a} Dt Du)
     with fundamentalTerm Dt | fundamentalTerm Du
   ... | [Γ] , [ΠFG] , [t] | [Γ]₁ , [F] , [u] =
     let [ΠFG]′ = S.irrelevance {A = Π _ , _ ▷ F ▹ G} [Γ] [Γ]₁ [ΠFG]
@@ -223,7 +250,7 @@ mutual
         [s]′ = S.irrelevanceTerm {A = G [ (suc (var x1)) ]↑²} {t = s} [Γ]₂ ([Γ]′ ∙ [ℕ] ∙ [G]′) [G₊] [G₊]′ [s]
     in [Γ]′ , [Gₙ]′
     , (natrecᵛ {F = G} {z} {s} {n} [Γ]′ [ℕ] [G]′ [G₀]′ [G₊]′ [Gₙ]′ [z]′ [s]′ [n])
-  fundamentalTerm (emptyrecⱼ {A = A} {n} ⊢A ⊢n)
+  fundamentalTerm (emptyrecⱼ {A} {t = n} ⊢A ⊢n)
     with fundamental ⊢A | fundamentalTerm ⊢n
   ... | [Γ] , [A] | [Γ]′ , [Empty] , [n] =
     let [A]′ = S.irrelevance {A = A} [Γ] [Γ]′ [A]
@@ -258,6 +285,91 @@ mutual
           [prodrec] = prodrecᵛ {r = r} {F = F} {G} {A} {t} {u}
                         [Γ] [F] [G]′ [Σ]′ [A]′ [A₊]′ [Aₜ] [t]′ [u]′
       in  [Γ] , [Aₜ] , [prodrec]
+  fundamentalTerm (Idⱼ {t} {u} ⊢A ⊢t ⊢u) =
+    case fundamentalTerm ⊢t of λ {
+      (⊩Γ , ⊩A , ⊩t) →
+    let ⊩U = Uᵛ ⊩Γ in
+      ⊩Γ
+    , ⊩U
+    , (λ {_ _ _} →
+         Idᵗᵛ t u ⊩A (fundamentalTerm′ ⊩U ⊢A) ⊩t
+           (fundamentalTerm′ ⊩A ⊢u)) }
+  fundamentalTerm (rflⱼ ⊢t) =
+    case fundamentalTerm ⊢t of λ {
+      (⊩Γ , ⊩A , ⊩t) →
+      ⊩Γ
+    , Idᵛ ⊩A ⊩t ⊩t
+    , rflᵛ }
+  fundamentalTerm (Jⱼ {t} {u} {w} ⊢A ⊢t ⊢B ⊢u ⊢v ⊢w) =
+    case fundamental ⊢A of λ {
+      (⊩Γ , ⊩A) →
+    let ⊩wk1-A = wk1ᵛ _ ⊩A ⊩A in
+    case (λ {k Δ σ} →
+            fundamentalTerm′ ⊩A ⊢t
+              {k = k} {Δ = Δ} {σ = σ}) of λ {
+      ⊩t →
+    case (λ {k Δ σ} →
+            fundamentalTerm′ ⊩A ⊢v
+              {k = k} {Δ = Δ} {σ = σ}) of λ {
+      ⊩v →
+    case (λ {k Δ σ} →
+            fundamentalTerm′ (Idᵛ ⊩A ⊩t ⊩v) ⊢w
+              {k = k} {Δ = Δ} {σ = σ}) of λ {
+      ⊩w →
+    case PE.subst (_ ⊩ᵛ⟨ ¹ ⟩_/ ⊩Γ) (≡Id-wk1-wk1-0[]₀ {t = t})
+           (Idᵛ ⊩A ⊩t ⊩t) of λ {
+      ⊩Id →
+    case PE.subst (_ ⊩ᵛ⟨ ¹ ⟩_/ ⊩Γ) (≡Id-wk1-wk1-0[]₀ {t = t})
+           (Idᵛ ⊩A ⊩t ⊩v) of λ {
+      ⊩Id′ →
+    case fundamental′ ⊢B of λ {
+      ⊩B →
+    case substD ⊩v ⊩Id′
+           (S.irrelevanceTerm′ {t = w} ≡Id-wk1-wk1-0[]₀ _ _
+              (Idᵛ ⊩A ⊩t ⊩v) ⊩Id′ ⊩w)
+           ⊩B of λ {
+      ⊩B[v,w] →
+    case substD
+           {⊩B = Idᵛ ⊩wk1-A (wk1Termᵛ t ⊩A ⊩A ⊩t) (varᵛ here _ ⊩wk1-A)}
+           ⊩t ⊩Id
+           (S.irrelevanceTerm′ {t = rfl} ≡Id-wk1-wk1-0[]₀ _ _
+              (Idᵛ ⊩A ⊩t ⊩t) ⊩Id rflᵛ)
+           ⊩B of λ {
+      ⊩B[t,rfl] →
+      ⊩Γ
+    , ⊩B[v,w]
+    , (λ {_ _ _} →
+         Jᵛ u ⊩B ⊩B[t,rfl] ⊩B[v,w]
+           (fundamentalTerm′ ⊩B[t,rfl] ⊢u) ⊩w) }}}}}}}}}
+  fundamentalTerm (Kⱼ {u} {v} ⊢t ⊢B ⊢u ⊢v ok) =
+    case fundamentalTerm ⊢t of λ {
+      (⊩Γ , ⊩A , ⊩t) →
+    let ⊩Id = Idᵛ ⊩A ⊩t ⊩t in
+    case fundamental′ ⊢B of λ {
+      ⊩B →
+    case (λ {k Δ σ} →
+            fundamentalTerm′ ⊩Id ⊢v
+              {k = k} {Δ = Δ} {σ = σ}) of λ {
+      ⊩v →
+    case substS {t = rfl} _ ⊩Id ⊩B rflᵛ of λ {
+      ⊩B[rfl] →
+    case substS {t = v} _ ⊩Id ⊩B ⊩v of λ {
+      ⊩B[v] →
+      ⊩Γ
+    , ⊩B[v]
+    , (λ {_ _ _} →
+         Kᵛ u ok ⊩B ⊩B[rfl]
+           (fundamentalTerm′ ⊩B[rfl] ⊢u) ⊩v ⊩B[v]) }}}}}
+  fundamentalTerm ([]-congⱼ {t} {u} {v} ⊢t ⊢u ⊢v ok) =
+    case fundamentalTerm ⊢t of λ {
+      (⊩Γ , ⊩A , ⊩t) →
+    let ⊩u = fundamentalTerm′ ⊩A ⊢u in
+      ⊩Γ
+    , Idᵛ (Erasedᵛ ⊩A) ([]ᵛ t ⊩t) ([]ᵛ u ⊩u)
+    , []-congᵛ v (fundamentalTerm′ (Idᵛ ⊩A ⊩t ⊩u) ⊢v)
+    }
+    where
+    open Erased ([]-cong→Erased ok) hiding ([]-congᵛ)
 
   -- Fundamental theorem for term equality.
   fundamentalTermEq : ∀ {A t t′} → Γ ⊢ t ≡ t′ ∷ A
@@ -273,9 +385,9 @@ mutual
     [Γ] , modelsTermEq [A] [t] [t′]
                        (λ ⊢Δ [σ] → symEqTerm (proj₁ (unwrap [A] ⊢Δ [σ]))
                                              ([t′≡t] ⊢Δ [σ]))
-  fundamentalTermEq (trans {t} {u} {r} {A} t≡u u≡t′)
+  fundamentalTermEq (trans t≡u u≡t′)
     with fundamentalTermEq t≡u | fundamentalTermEq u≡t′
-  fundamentalTermEq (trans {t} {u} {A} {r} t≡u u≡t′)
+  fundamentalTermEq (trans {A} {v = r} t≡u u≡t′)
     | [Γ] , modelsTermEq [A] [t] [u] [t≡u]
     | [Γ]₁ , modelsTermEq [A]₁ [t]₁ [u]₁ [t≡u]₁ =
       let [r]′ = S.irrelevanceTerm {A = A} {t = r} [Γ]₁ [Γ] [A]₁ [A] [u]₁
@@ -435,15 +547,14 @@ mutual
                                       [Γ]₁ [Γ]₁ [ΠFG]″ [ΠFG] [t≡t′]
     in  [Γ]₁ , modelsTermEq [ΠFG] [t] [t′]′ [t≡t′]′
   fundamentalTermEq (suc-cong x) with fundamentalTermEq x
-  fundamentalTermEq (suc-cong {t} {u} x)
+  fundamentalTermEq (suc-cong {m = t} {n = u} x)
     | [Γ] , modelsTermEq [A] [t] [u] [t≡u] =
       let [suct] = sucᵛ {n = t} [Γ] [A] [t]
           [sucu] = sucᵛ {n = u} [Γ] [A] [u]
       in  [Γ] , modelsTermEq [A] [suct] [sucu]
                              (λ ⊢Δ [σ] →
                                 sucEqTerm (proj₁ (unwrap [A] ⊢Δ [σ])) ([t≡u] ⊢Δ [σ]))
-  fundamentalTermEq (natrec-cong {z = z} {z′} {s} {s′} {n} {n′} {F} {F′}
-                                 ⊢F F≡F′ z≡z′ s≡s′ n≡n′)
+  fundamentalTermEq (natrec-cong ⊢F F≡F′ z≡z′ s≡s′ n≡n′)
     with fundamentalEq F≡F′ |
          fundamentalTermEq z≡z′      |
          fundamentalTermEq s≡s′      |
@@ -694,11 +805,10 @@ mutual
             [F[sucn]] [s₊]
 
     in  [Γ] , modelsTermEq [F[sucn]] [natrecₛₙ] [s₊] [nr≡s₊]
-  fundamentalTermEq (emptyrec-cong {A = F} {F′} {n} {n′}
-                                 F≡F′ n≡n′)
+  fundamentalTermEq (emptyrec-cong F≡F′ n≡n′)
     with fundamentalEq F≡F′ |
          fundamentalTermEq n≡n′
-  fundamentalTermEq (emptyrec-cong {A = F} {F′} {n} {n′}
+  fundamentalTermEq (emptyrec-cong {A = F} {B = F′} {t = n} {u = n′}
                                  F≡F′ n≡n′) |
     [Γ]  , [F] , [F′] , [F≡F′] |
     [Γ]′ , modelsTermEq [Empty] [n] [n′] [n≡n′] =
@@ -712,7 +822,7 @@ mutual
                      (emptyrec-congᵛ {F = F} {F′} {n} {n′}
                        [Γ]′ [Empty] [F]′ [F′]′ [F≡F′]′
                        [n] [n′] [n≡n′])
-  fundamentalTermEq (η-unit {e} {e'} ⊢e ⊢e')
+  fundamentalTermEq (η-unit {t = e} {t′ = e'} ⊢e ⊢e')
     with fundamentalTerm ⊢e | fundamentalTerm ⊢e'
   ... | [Γ] , [Unit] , [e] | [Γ]' , [Unit]' , [e'] =
     let [e'] = S.irrelevanceTerm {A = Unit} {t = e'} [Γ]' [Γ] [Unit]' [Unit] [e']
@@ -741,7 +851,7 @@ mutual
                    [Γ] [F] [G] ok [t]′ [t′]′ [t≡t′]′
     in  [Γ] , modelsTermEq [F] [fstt] [fstt′] [fst≡]
   fundamentalTermEq
-    {Γ = Γ} (snd-cong {F = F} {G} {t = t} {t′} ⊢F ⊢G t≡t′)
+    {Γ = Γ} (snd-cong {F} {G} {t} {u = t′} ⊢F ⊢G t≡t′)
     with fundamentalTermEq t≡t′ | fundamental ⊢F | fundamental ⊢G
   ... | [Γ] , modelsTermEq [ΣFG] [t] [t′] [t≡t′] | [Γ]₁ , [F]₁ | [Γ]₂ , [G]₂ =
     let ok = ⊩ᵛΠΣ→ΠΣ-allowed [ΣFG]
@@ -1002,7 +1112,358 @@ mutual
                                        (PE.trans (substVar-to-subst (λ{x0 → PE.refl; (x0 +1) → PE.refl; (x +1 +1) → PE.refl}) u)
                                                  (PE.sym (substCompEq u))))
                              (PE.sym (singleSubstLift A (prod! t t′))) [σA[p]]′ [σA[p]] [pr≡u₊]
+  fundamentalTermEq
+    (Id-cong {A₁} {A₂} {t₁} {t₂} {u₁} {u₂} A₁≡A₂ t₁≡t₂ u₁≡u₂) =
+    case fundamentalTermEq A₁≡A₂ of λ {
+      (⊩Γ , _) →
+    let ⊩U = Uᵛ ⊩Γ in
+    case fundamentalTermEq′ ⊩U A₁≡A₂ of λ {
+      (⊩A₁∷U , ⊩A₂∷U , A₁≡A₂∷U) →
+    case univᵛ {A = A₁} _ ⊩U ⊩A₁∷U of λ {
+      ⊩A₁ →
+    case univᵛ {A = A₂} _ ⊩U ⊩A₂∷U of λ {
+      ⊩A₂ →
+    case (λ {k Δ σ} →
+            univEqᵛ {B = A₂} _ ⊩U ⊩A₁ A₁≡A₂∷U
+              {k = k} {Δ = Δ} {σ = σ}) of λ {
+      A₁≡A₂ →
+    case fundamentalTermEq″ ⊩A₁ ⊩A₂ A₁≡A₂ t₁≡t₂ of λ {
+      (⊩t₁ , _ , ⊩t₂ , t₁≡t₂) →
+    case fundamentalTermEq″ ⊩A₁ ⊩A₂ A₁≡A₂ u₁≡u₂ of λ {
+      (⊩u₁ , _ , ⊩u₂ , u₁≡u₂) →
+      ⊩Γ
+    , modelsTermEq
+        (Uᵛ ⊩Γ)
+        (Idᵗᵛ t₁ u₁ ⊩A₁ ⊩A₁∷U ⊩t₁ ⊩u₁)
+        (Idᵗᵛ t₂ u₂ ⊩A₂ ⊩A₂∷U ⊩t₂ ⊩u₂)
+        (Id-congᵗᵛ t₁ t₂ u₁ u₂
+           ⊩A₁ ⊩A₂ ⊩A₁∷U ⊩A₂∷U ⊩t₁ ⊩t₂ ⊩u₁ ⊩u₂
+           A₁≡A₂∷U t₁≡t₂ u₁≡u₂) }}}}}}}
+  fundamentalTermEq
+    (J-cong {A₂} {t₁} {t₂} {B₂} {u₁} {u₂} {v₂} {w₁} {w₂}
+       _ A₁≡A₂ _ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) =
+    case fundamentalEq A₁≡A₂ of λ {
+      (⊩Γ , ⊩A₁ , ⊩A₂ , ⊩A₁≡A₂) →
+    let ⊩wk1-A₁ = wk1ᵛ _ ⊩A₁ ⊩A₁
+        ⊩wk1-A₂ = wk1ᵛ _ ⊩A₂ ⊩A₂
+    in
+    case fundamentalTermEq″ ⊩A₁ ⊩A₂ ⊩A₁≡A₂ t₁≡t₂ of λ {
+      (⊩t₁ , _ , ⊩t₂ , ⊩t₁≡t₂) →
+    case fundamentalEq′ B₁≡B₂ of λ {
+      (⊩B₁ , ⊩B₂ , ⊩B₁≡B₂) →
+    case (λ {k Δ σ} →
+            varᵛ here _ ⊩wk1-A₁
+              {k = k} {Δ = Δ} {σ = σ}) of λ {
+      ⊩0₁ →
+    case (λ {k Δ σ} →
+            wk1Eqᵛ {B = A₂} _ ⊩A₁ ⊩A₁ ⊩A₁≡A₂
+              {k = k} {Δ = Δ} {σ = σ}) of λ {
+      ⊩wk1-A₁≡wk1-A₂ →
+    case fundamentalTermEq″ ⊩A₁ ⊩A₂ ⊩A₁≡A₂ v₁≡v₂ of λ {
+      (⊩v₁ , _ , ⊩v₂ , ⊩v₁≡v₂) →
+    case fundamentalTermEq″
+           (Idᵛ ⊩A₁ ⊩t₁ ⊩v₁) (Idᵛ {t = t₂} {u = v₂} ⊩A₂ ⊩t₂ ⊩v₂)
+           (Id-congᵛ t₂ v₂ ⊩A₂ ⊩t₂ ⊩v₂ ⊩A₁≡A₂ ⊩t₁≡t₂ ⊩v₁≡v₂)
+           w₁≡w₂ of λ {
+      (⊩w₁ , _ , ⊩w₂ , ⊩w₁≡w₂) →
+    let ⊩Id-t₁-t₁ = Idᵛ ⊩A₁ ⊩t₁ ⊩t₁
+        ⊩Id-t₂-t₂ = Idᵛ ⊩A₂ ⊩t₂ ⊩t₂
+        ⊩Id-t₁-v₁ = Idᵛ ⊩A₁ ⊩t₁ ⊩v₁
+        ⊩Id-t₂-v₂ = Idᵛ ⊩A₂ ⊩t₂ ⊩v₂
+    in
+    case Idᵛ ⊩wk1-A₂ (wk1Termᵛ t₂ ⊩A₂ ⊩A₂ ⊩t₂)
+           (varᵛ here _ ⊩wk1-A₂) of λ {
+      ⊩Id-wk1-t₂-0 →
+    case (λ {k Δ σ} →
+            Id-congᵛ (wk1 t₂) (var x0) (wk1ᵛ _ ⊩A₁ ⊩A₂)
+              (wk1Termᵛ t₂ ⊩A₂ ⊩A₁ ⊩t₂)
+              (convᵛ _ ⊩wk1-A₁ (wk1ᵛ _ ⊩A₁ ⊩A₂) ⊩wk1-A₁≡wk1-A₂ ⊩0₁)
+              ⊩wk1-A₁≡wk1-A₂
+              (wk1EqTermᵛ t₁ t₂ ⊩t₁≡t₂)
+              (reflᵗᵛ _ ⊩wk1-A₁ ⊩0₁)
+              {k = k} {Δ = Δ} {σ = σ}) of λ {
+      ⊩Id₁≡Id₂ →
+    case S.irrelevanceLift₂ {⊩B₂ = ⊩Id-wk1-t₂-0}
+           ⊩A₁≡A₂ ⊩Id₁≡Id₂ ⊩B₂ of λ {
+      ⊩B₂ →
+    case PE.subst (_ ⊩ᵛ⟨ ¹ ⟩_/ ⊩Γ) ≡Id-wk1-wk1-0[]₀ ⊩Id-t₁-t₁ of λ {
+      ⊩Id-t₁-t₁′ →
+    case PE.subst (_ ⊩ᵛ⟨ ¹ ⟩_/ ⊩Γ) ≡Id-wk1-wk1-0[]₀ ⊩Id-t₂-t₂ of λ {
+      ⊩Id-t₂-t₂′ →
+    case PE.subst (_ ⊩ᵛ⟨ ¹ ⟩_/ ⊩Γ) ≡Id-wk1-wk1-0[]₀ ⊩Id-t₁-v₁ of λ {
+      ⊩Id-t₁-v₁′ →
+    case PE.subst (_ ⊩ᵛ⟨ ¹ ⟩_/ ⊩Γ) ≡Id-wk1-wk1-0[]₀ ⊩Id-t₂-v₂ of λ {
+      ⊩Id-t₂-v₂′ →
+    case substD ⊩v₁ ⊩Id-t₁-v₁′
+           (S.irrelevanceTerm′ {t = w₁} ≡Id-wk1-wk1-0[]₀ _ _
+              ⊩Id-t₁-v₁ ⊩Id-t₁-v₁′ ⊩w₁)
+           ⊩B₁ of λ {
+      ⊩B₁[v₁,w₁] →
+    case substD {u = w₂} ⊩v₂ ⊩Id-t₂-v₂′
+           (S.irrelevanceTerm′ {t = w₂} ≡Id-wk1-wk1-0[]₀ _ _
+              ⊩Id-t₂-v₂ ⊩Id-t₂-v₂′ ⊩w₂)
+           ⊩B₂ of λ {
+      ⊩B₂[v₂,w₂] →
+    case (λ {k Δ σ} →
+            substDEq {⊩t₁ = ⊩v₁} {⊩B₁[t₁] = ⊩Id-t₁-v₁′}
+              {⊩u₁ =
+                 S.irrelevanceTerm′ {t = w₁} ≡Id-wk1-wk1-0[]₀ _ _
+                   ⊩Id-t₁-v₁ ⊩Id-t₁-v₁′ ⊩w₁}
+              {⊩C₁ = ⊩B₁} ⊩A₁≡A₂ ⊩Id₁≡Id₂ ⊩v₂ ⊩v₁≡v₂ ⊩Id-t₂-v₂′
+              (S.irrelevanceTerm′ {t = w₂} ≡Id-wk1-wk1-0[]₀ _ _
+                 ⊩Id-t₂-v₂ ⊩Id-t₂-v₂′ ⊩w₂)
+              (S.irrelevanceEqTerm′ w₁ w₂ ≡Id-wk1-wk1-0[]₀
+                 ⊩Id-t₁-v₁ ⊩Id-t₁-v₁′ ⊩w₁≡w₂)
+              ⊩B₁[v₁,w₁] ⊩B₂ ⊩B₁≡B₂
+              {k = k} {Δ = Δ} {σ = σ}) of λ {
+      ⊩B₁[v₁,w₁]≡B₂[v₂,w₂] →
+    case substD
+           ⊩t₁ ⊩Id-t₁-t₁′
+           (S.irrelevanceTerm′ {t = rfl} ≡Id-wk1-wk1-0[]₀ _ _
+              ⊩Id-t₁-t₁ ⊩Id-t₁-t₁′ rflᵛ)
+           ⊩B₁ of λ {
+      ⊩B₁[t₁,rfl] →
+    case substD ⊩t₂ ⊩Id-t₂-t₂′
+           (S.irrelevanceTerm′ {t = rfl} ≡Id-wk1-wk1-0[]₀ _ _
+              ⊩Id-t₂-t₂ ⊩Id-t₂-t₂′ rflᵛ)
+           ⊩B₂ of λ {
+      ⊩B₂[t₂,rfl] →
+    case (λ {k Δ σ} →
+            substDEq
+              {⊩B₁ =
+                 Idᵛ ⊩wk1-A₁ (wk1Termᵛ t₁ ⊩A₁ ⊩A₁ ⊩t₁)
+                   (varᵛ here _ ⊩wk1-A₁)}
+              {⊩t₁ = ⊩t₁} {⊩B₁[t₁] = ⊩Id-t₁-t₁′}
+              {⊩u₁ =
+                 S.irrelevanceTerm′ {t = rfl} ≡Id-wk1-wk1-0[]₀ _ _
+                   ⊩Id-t₁-t₁ ⊩Id-t₁-t₁′ rflᵛ}
+              {⊩C₁ = ⊩B₁}
+              ⊩A₁≡A₂ ⊩Id₁≡Id₂ ⊩t₂ ⊩t₁≡t₂ ⊩Id-t₂-t₂′
+              (S.irrelevanceTerm′ {t = rfl} ≡Id-wk1-wk1-0[]₀ _ _
+                 ⊩Id-t₂-t₂ ⊩Id-t₂-t₂′ rflᵛ)
+              (S.irrelevanceEqTerm′ rfl rfl ≡Id-wk1-wk1-0[]₀
+                 ⊩Id-t₁-t₁ ⊩Id-t₁-t₁′ rfl-congᵛ)
+              ⊩B₁[t₁,rfl] ⊩B₂ ⊩B₁≡B₂
+              {k = k} {Δ = Δ} {σ = σ}) of λ {
+      ⊩B₁[t₁,rfl]≡B₂[t₂,rfl] →
+    case fundamentalTermEq″ ⊩B₁[t₁,rfl] ⊩B₂[t₂,rfl]
+           ⊩B₁[t₁,rfl]≡B₂[t₂,rfl] u₁≡u₂ of λ {
+      (⊩u₁ , _ , ⊩u₂ , ⊩u₁≡u₂) →
+      ⊩Γ
+    , modelsTermEq
+        ⊩B₁[v₁,w₁]
+        (Jᵛ u₁ ⊩B₁ ⊩B₁[t₁,rfl] ⊩B₁[v₁,w₁] ⊩u₁ ⊩w₁)
+        (conv₂ᵛ {t = J _ _ A₂ t₂ B₂ u₂ v₂ w₂} _
+           ⊩B₁[v₁,w₁] ⊩B₂[v₂,w₂] ⊩B₁[v₁,w₁]≡B₂[v₂,w₂]
+           (Jᵛ u₂ ⊩B₂ ⊩B₂[t₂,rfl] ⊩B₂[v₂,w₂] ⊩u₂ ⊩w₂))
+        (J-congᵛ u₁ u₂ w₂ ⊩A₁≡A₂ ⊩t₁≡t₂
+           ⊩B₁ ⊩B₂ ⊩B₁≡B₂ ⊩B₁[t₁,rfl] ⊩B₂[t₂,rfl] ⊩B₁[v₁,w₁]
+           ⊩u₁ ⊩u₂ ⊩u₁≡u₂ ⊩v₁≡v₂ ⊩w₁ ⊩w₂ ⊩w₁≡w₂) }}}}}}}}}}}}}}}}}}}}}
+  fundamentalTermEq
+    (K-cong {A₂} {t₂} {B₂} {u₁} {u₂} {v₂}
+       A₁≡A₂ _ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ ok) =
+    case fundamentalEq A₁≡A₂ of λ {
+      (_ , ⊩A₁ , ⊩A₂ , A₁≡A₂) →
+    case fundamentalTermEq″ ⊩A₁ ⊩A₂ A₁≡A₂ t₁≡t₂ of λ {
+      (⊩t₁ , _ , ⊩t₂ , t₁≡t₂) →
+    let ⊩Id₁ = Idᵛ ⊩A₁ ⊩t₁ ⊩t₁
+        ⊩Id₂ = Idᵛ {t = t₂} {u = t₂} ⊩A₂ ⊩t₂ ⊩t₂
+    in
+    case (λ {k Δ σ} →
+            Id-congᵛ t₂ t₂ ⊩A₂ ⊩t₂ ⊩t₂ A₁≡A₂ t₁≡t₂ t₁≡t₂
+              {k = k} {Δ = Δ} {σ = σ}) of λ {
+      Id₁≡Id₂ →
+    case fundamentalEq′ B₁≡B₂ of λ {
+      (⊩B₁ , ⊩B₂ , B₁≡B₂) →
+    case S.irrelevanceLift _ _ _ Id₁≡Id₂ ⊩B₂ of λ {
+      ⊩B₂ →
+    let ⊩B₁[rfl] = substS {t = rfl} _ ⊩Id₁ ⊩B₁ rflᵛ in
+    case substS {t = rfl} _ ⊩Id₂ ⊩B₂ rflᵛ of λ {
+      ⊩B₂[rfl] →
+    case fundamentalTermEq″
+           ⊩B₁[rfl] ⊩B₂[rfl]
+           (substSEq _ ⊩Id₁ ⊩Id₂ Id₁≡Id₂ ⊩B₁ ⊩B₂ B₁≡B₂
+              rflᵛ rflᵛ rfl-congᵛ)
+           u₁≡u₂ of λ {
+      (⊩u₁ , _ , ⊩u₂ , u₁≡u₂) →
+    case fundamentalTermEq″ ⊩Id₁ ⊩Id₂ Id₁≡Id₂ v₁≡v₂ of λ {
+      (⊩v₁ , _ , ⊩v₂ , v₁≡v₂) →
+    let ⊩B₁[v₁] = substS _ ⊩Id₁ ⊩B₁ ⊩v₁ in
+    case substS _ ⊩Id₂ ⊩B₂ ⊩v₂ of λ {
+      ⊩B₂[v₂] →
+      _
+    , modelsTermEq
+        ⊩B₁[v₁]
+        (Kᵛ u₁ ok ⊩B₁ ⊩B₁[rfl] ⊩u₁ ⊩v₁ ⊩B₁[v₁])
+        (conv₂ᵛ {t = K _ A₂ t₂ B₂ u₂ v₂} _ ⊩B₁[v₁] ⊩B₂[v₂]
+           (substSEq _ ⊩Id₁ ⊩Id₂ Id₁≡Id₂ ⊩B₁ ⊩B₂ B₁≡B₂ ⊩v₁ ⊩v₂ v₁≡v₂)
+           (Kᵛ {v = v₂} u₂ ok ⊩B₂ ⊩B₂[rfl] ⊩u₂ ⊩v₂ ⊩B₂[v₂]))
+        (K-congᵛ ok u₁ u₂ v₂
+           A₁≡A₂ t₁≡t₂ ⊩B₁ ⊩B₂ B₁≡B₂ ⊩B₁[rfl] ⊩B₂[rfl]
+           ⊩u₁ ⊩u₂ u₁≡u₂ ⊩v₁ ⊩v₂ v₁≡v₂
+           ⊩B₁[v₁]) }}}}}}}}}
+  fundamentalTermEq
+    ([]-cong-cong {A₂} {t₁} {t₂} {u₁} {u₂} {v₁} {v₂}
+       A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ ok) =
+    case fundamentalEq A₁≡A₂ of λ {
+      (⊩Γ , ⊩A₁ , ⊩A₂ , ⊩A₁≡A₂) →
+    case fundamentalTermEq″ ⊩A₁ ⊩A₂ ⊩A₁≡A₂ t₁≡t₂ of λ {
+      (⊩t₁ , ⊩t₂′ , ⊩t₂ , ⊩t₁≡t₂) →
+    case fundamentalTermEq″ ⊩A₁ ⊩A₂ ⊩A₁≡A₂ u₁≡u₂ of λ {
+      (⊩u₁ , ⊩u₂′ , ⊩u₂ , ⊩u₁≡u₂) →
+    case fundamentalTermEq″
+           (Idᵛ ⊩A₁ ⊩t₁ ⊩u₁)
+           (Idᵛ {t = t₂} {u = u₂} ⊩A₂ ⊩t₂ ⊩u₂)
+           (Id-congᵛ t₂ u₂ ⊩A₂ ⊩t₂ ⊩u₂ ⊩A₁≡A₂ ⊩t₁≡t₂ ⊩u₁≡u₂)
+           v₁≡v₂ of λ {
+      (⊩v₁ , _ , ⊩v₂ , ⊩v₁≡v₂) →
+      ⊩Γ
+    , modelsTermEq
+        (Idᵛ (Erasedᵛ ⊩A₁) ([]ᵛ t₁ ⊩t₁) ([]ᵛ u₁ ⊩u₁))
+        ([]-congᵛ v₁ ⊩v₁)
+        (conv₂ᵛ {t = []-cong A₂ t₂ u₂ v₂} _
+           (Idᵛ (Erasedᵛ ⊩A₁) ([]ᵛ t₁ ⊩t₁) ([]ᵛ u₁ ⊩u₁))
+           (Idᵛ (Erasedᵛ ⊩A₂) ([]ᵛ t₂ ⊩t₂) ([]ᵛ u₂ ⊩u₂))
+           (Id-congᵛ
+              E.[ t₂ ] E.[ u₂ ] (Erasedᵛ ⊩A₂) ([]ᵛ t₂ ⊩t₂) ([]ᵛ u₂ ⊩u₂)
+              (Erased-congᵛ ⊩A₂ ⊩A₁≡A₂)
+              ([]-congᵛ′ t₁ t₂ ⊩t₁ ⊩t₂′ ⊩t₁≡t₂)
+              ([]-congᵛ′ u₁ u₂ ⊩u₁ ⊩u₂′ ⊩u₁≡u₂))
+           ([]-congᵛ v₂ ⊩v₂))
+        ([]-cong-congᵛ t₂ u₂ v₁ v₂
+           ⊩A₂ ⊩A₁≡A₂ ⊩t₂ ⊩t₁≡t₂ ⊩u₂ ⊩u₁≡u₂ ⊩v₁≡v₂) }}}}
+    where
+    open Erased ([]-cong→Erased ok) renaming ([]-congᵛ to []-congᵛ′)
+  fundamentalTermEq (J-β {t} {u} ⊢A ⊢t ⊢B ⊢u PE.refl) =
+    case fundamental ⊢A of λ {
+      (⊩Γ , ⊩A) →
+    let ⊩wk1-A = wk1ᵛ _ ⊩A ⊩A in
+    case (λ {k Δ σ} →
+            fundamentalTerm′ ⊩A ⊢t
+              {k = k} {Δ = Δ} {σ = σ}) of λ {
+      ⊩t →
+    case fundamental′ ⊢B of λ {
+      ⊩B →
+    case PE.subst (_ ⊩ᵛ⟨ ¹ ⟩_/ ⊩Γ) (≡Id-wk1-wk1-0[]₀ {t = t})
+           (Idᵛ ⊩A ⊩t ⊩t) of λ {
+      ⊩Id →
+    case substD ⊩t ⊩Id
+           (S.irrelevanceTerm′ {t = rfl} ≡Id-wk1-wk1-0[]₀ _ _
+              (Idᵛ ⊩A ⊩t ⊩t) ⊩Id rflᵛ)
+           ⊩B of λ {
+      ⊩B[t,rfl] →
+    case (λ {k Δ σ} →
+            fundamentalTerm′ ⊩B[t,rfl] ⊢u
+              {k = k} {Δ = Δ} {σ = σ}) of λ {
+      ⊩u →
+      ⊩Γ
+    , modelsTermEq
+        ⊩B[t,rfl]
+        (Jᵛ {⊩t = ⊩t} u ⊩B ⊩B[t,rfl] ⊩B[t,rfl] ⊩u rflᵛ)
+        ⊩u
+        (J-βᵛ
+           {⊩Id = Idᵛ ⊩wk1-A (wk1Termᵛ t ⊩A ⊩A ⊩t) (varᵛ here _ ⊩wk1-A)}
+           u ⊩t ⊩B ⊩B[t,rfl] ⊩u) }}}}}}
+  fundamentalTermEq (K-β {u} ⊢t ⊢B ⊢u ok) =
+    case fundamentalTerm ⊢t of λ {
+      (⊩Γ , ⊩A , ⊩t) →
+    let ⊩Id = Idᵛ ⊩A ⊩t ⊩t in
+    case fundamental′ {⊩Γ = _ ∙ ⊩Id} ⊢B of λ {
+      ⊩B →
+    case substS {t = rfl} _ ⊩Id ⊩B rflᵛ of λ {
+      ⊩B[rfl] →
+    case (λ {k Δ σ} →
+            fundamentalTerm′ ⊩B[rfl] ⊢u
+              {k = k} {Δ = Δ} {σ = σ}) of λ {
+      ⊩u →
+     ⊩Γ
+    , modelsTermEq
+        ⊩B[rfl]
+        (Kᵛ u ok ⊩B ⊩B[rfl] ⊩u rflᵛ ⊩B[rfl])
+        ⊩u
+        (K-βᵛ u ok ⊩B ⊩B[rfl] ⊩u) }}}}
+  fundamentalTermEq ([]-cong-β {t = t} ⊢t PE.refl ok) =
+    case fundamentalTerm ⊢t of λ {
+      (⊩Γ , ⊩A , ⊩t) →
+      ⊩Γ
+    , modelsTermEq
+        (Idᵛ (Erasedᵛ ⊩A) ([]ᵛ t ⊩t) ([]ᵛ t ⊩t))
+        ([]-congᵛ rfl rflᵛ)
+        rflᵛ
+        []-cong-βᵛ }
+    where
+    open Erased ([]-cong→Erased ok) hiding ([]-congᵛ)
 
+  -- A variant of fundamental which can be used if "⊩Γ" is known.
+
+  fundamental′ : Γ ⊢ A → Γ ⊩ᵛ⟨ ¹ ⟩ A / ⊩Γ
+  fundamental′ ⊢A =
+    case fundamental ⊢A of λ {
+      (_ , ⊩A) →
+    S.irrelevance _ _ ⊩A }
+
+  -- A variant of fundamentalEq.
+
+  fundamentalEq′ :
+    Γ ⊢ A₁ ≡ A₂ →
+    ∃ λ (⊩A₁ : Γ ⊩ᵛ⟨ ¹ ⟩ A₁ / ⊩Γ) →
+    Γ ⊩ᵛ⟨ ¹ ⟩ A₂ / ⊩Γ ×
+    Γ ⊩ᵛ⟨ ¹ ⟩ A₁ ≡ A₂ / ⊩Γ / ⊩A₁
+  fundamentalEq′ {A₂} A₁≡A₂ =
+    case fundamentalEq A₁≡A₂ of λ {
+      (_ , ⊩A₁′ , ⊩A₂ , ⊩A₁≡A₂) →
+    case S.irrelevance _ _ ⊩A₁′ of λ {
+      ⊩A₁ →
+      ⊩A₁
+    , S.irrelevance _ _ ⊩A₂
+    , S.irrelevanceEq {B = A₂} _ _ ⊩A₁′ ⊩A₁ ⊩A₁≡A₂ }}
+
+  -- A variant of fundamentalTerm.
+
+  fundamentalTerm′ :
+    (⊩A : Γ ⊩ᵛ⟨ ¹ ⟩ A / ⊩Γ) →
+    Γ ⊢ t ∷ A →
+    Γ ⊩ᵛ⟨ ¹ ⟩ t ∷ A / ⊩Γ / ⊩A
+  fundamentalTerm′ {t} ⊩A ⊢t =
+    case fundamentalTerm ⊢t of λ {
+      (_ , ⊩A′ , ⊩t) →
+    S.irrelevanceTerm {t = t} _ _ ⊩A′ ⊩A ⊩t }
+
+  -- A variant of fundamentalTermEq.
+
+  fundamentalTermEq′ :
+    (⊩A : Γ ⊩ᵛ⟨ ¹ ⟩ A / ⊩Γ) →
+    Γ ⊢ t₁ ≡ t₂ ∷ A →
+    Γ ⊩ᵛ⟨ ¹ ⟩ t₁ ∷ A / ⊩Γ / ⊩A ×
+    Γ ⊩ᵛ⟨ ¹ ⟩ t₂ ∷ A / ⊩Γ / ⊩A ×
+    Γ ⊩ᵛ⟨ ¹ ⟩ t₁ ≡ t₂ ∷ A / ⊩Γ / ⊩A
+  fundamentalTermEq′ ⊩A t₁≡t₂ =
+    case fundamentalTermEq″ ⊩A ⊩A (reflᵛ _ ⊩A) t₁≡t₂ of λ {
+      (⊩t₁ , ⊩t₂ , _ , t₁≡t₂) →
+    ⊩t₁ , ⊩t₂ , t₁≡t₂ }
+
+  -- Another variant of fundamentalTermEq.
+
+  fundamentalTermEq″ :
+    (⊩A₁ : Γ ⊩ᵛ⟨ ¹ ⟩ A₁ / ⊩Γ)
+    (⊩A₂ : Γ ⊩ᵛ⟨ ¹ ⟩ A₂ / ⊩Γ) →
+    Γ ⊩ᵛ⟨ ¹ ⟩ A₁ ≡ A₂ / ⊩Γ / ⊩A₁ →
+    Γ ⊢ t₁ ≡ t₂ ∷ A₁ →
+    Γ ⊩ᵛ⟨ ¹ ⟩ t₁ ∷ A₁ / ⊩Γ / ⊩A₁ ×
+    Γ ⊩ᵛ⟨ ¹ ⟩ t₂ ∷ A₁ / ⊩Γ / ⊩A₁ ×
+    Γ ⊩ᵛ⟨ ¹ ⟩ t₂ ∷ A₂ / ⊩Γ / ⊩A₂ ×
+    Γ ⊩ᵛ⟨ ¹ ⟩ t₁ ≡ t₂ ∷ A₁ / ⊩Γ / ⊩A₁
+  fundamentalTermEq″ {t₁} {t₂} ⊩A₁ ⊩A₂ A₁≡A₂ t₁≡t₂ =
+    case fundamentalTermEq t₁≡t₂ of λ {
+      (_ , modelsTermEq ⊩A ⊩t₁ ⊩t₂ ⊩t₁≡t₂) →
+    case (λ {k Δ σ} →
+            S.irrelevanceTerm {t = t₂} _ _ ⊩A ⊩A₁ ⊩t₂
+              {k = k} {Δ = Δ} {σ = σ}) of λ {
+      ⊩t₂ →
+      S.irrelevanceTerm {t = t₁} _ _ ⊩A ⊩A₁ ⊩t₁
+    , ⊩t₂
+    , convᵛ {t = t₂} _ ⊩A₁ ⊩A₂ A₁≡A₂ ⊩t₂
+    , S.irrelevanceEqTerm {t = t₁} {u = t₂} _ _ ⊩A ⊩A₁ ⊩t₁≡t₂ }}
 
 -- Fundamental theorem for substitutions.
 fundamentalSubst : (⊢Γ : ⊢ Γ) (⊢Δ : ⊢ Δ)

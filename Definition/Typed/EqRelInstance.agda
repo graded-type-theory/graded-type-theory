@@ -4,10 +4,12 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.Typed.EqRelInstance
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
 
 open import Definition.Typed R
@@ -63,4 +65,10 @@ eqRelInstance = record {
   ~-snd = snd-cong;
   ~-natrec = natrec-cong;
   ~-prodrec = prodrec-cong;
-  ~-emptyrec = emptyrec-cong }
+  ~-emptyrec = emptyrec-cong;
+  ≅-Id-cong = Id-cong;
+  ≅ₜ-Id-cong = Id-cong;
+  ≅ₜ-rflrefl = refl ∘ᶠ rflⱼ;
+  ~-K = K-cong;
+  ~-J = J-cong;
+  ~-[]-cong = []-cong-cong }

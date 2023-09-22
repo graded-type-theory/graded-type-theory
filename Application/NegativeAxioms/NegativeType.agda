@@ -3,10 +3,12 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Application.NegativeAxioms.NegativeType
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
 
 open import Definition.Untyped M as U hiding (_∷_)
@@ -14,13 +16,15 @@ open import Definition.Untyped M as U hiding (_∷_)
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Weakening R as T
-open import Definition.Typed.Consequences.Inequality R
+open import Definition.Typed.Consequences.Inequality R as I
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Substitution R
 
 open import Tools.Empty
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
+open import Tools.Relation
 
 -- Preliminaries
 ---------------------------------------------------------------------------
@@ -147,3 +151,13 @@ appNeg (conv n c)    c' = appNeg n (trans c c')
 ¬negΣᵣ (pi _ _)      c = Π≢Σⱼ c
 ¬negΣᵣ (sigma _ _ _) c = Σₚ≢Σᵣⱼ c
 ¬negΣᵣ (conv n c)   c' = ¬negΣᵣ n (trans c c')
+
+opaque
+
+  -- Identity types are not negative.
+
+  ¬negId : NegativeType Γ A → ¬ Γ ⊢ A ≡ Id B t u
+  ¬negId empty         = Id≢Empty ∘→ sym
+  ¬negId (pi _ _)      = I.Id≢ΠΣ ∘→ sym
+  ¬negId (sigma _ _ _) = I.Id≢ΠΣ ∘→ sym
+  ¬negId (conv n B≡A)  = ¬negId n ∘→ trans B≡A

@@ -27,6 +27,7 @@ open import Tools.Bool using (T)
 open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
+open import Tools.Relation
 open import Tools.Sum
 
 private
@@ -34,7 +35,7 @@ private
     k n : Nat
     γ χ : Conₘ n
     p q r : M
-    A F t u z n' : Term n
+    A B F t t′ u v z n' : Term n
     G : Term (1+ n)
     m : Mode
     b : BinderMode
@@ -313,3 +314,145 @@ inv-usage-emptyrec (sub γ▸et γ≤γ′) with inv-usage-emptyrec γ▸et
 inv-usage-star : γ ▸[ m ] star → γ ≤ᶜ 𝟘ᶜ
 inv-usage-star starₘ = ≤ᶜ-refl
 inv-usage-star (sub  δ▸star γ≤δ) = ≤ᶜ-trans γ≤δ (inv-usage-star δ▸star)
+
+-- A type used to state inv-usage-Id.
+
+data InvUsageId
+       {n} (γ : Conₘ n) (m : Mode) (A t u : Term n) : Set a where
+  invUsageId :
+    {δ η θ : Conₘ n} →
+    ¬ Id-erased →
+    θ ▸[ 𝟘ᵐ? ] A →
+    δ ▸[ m ] t →
+    η ▸[ m ] u →
+    γ ≤ᶜ δ +ᶜ η →
+    InvUsageId γ m A t u
+  invUsageId₀ :
+    {δ η θ : Conₘ n} →
+    Id-erased →
+    θ ▸[ 𝟘ᵐ? ] A →
+    δ ▸[ 𝟘ᵐ? ] t →
+    η ▸[ 𝟘ᵐ? ] u →
+    γ ≤ᶜ 𝟘ᶜ →
+    InvUsageId γ m A t u
+
+-- A usage inversion lemma for Id.
+
+inv-usage-Id : γ ▸[ m ] Id A t u → InvUsageId γ m A t u
+inv-usage-Id (Idₘ ok ▸A ▸t ▸u) = invUsageId ok ▸A ▸t ▸u ≤ᶜ-refl
+inv-usage-Id (Id₀ₘ ok ▸A ▸t ▸u) = invUsageId₀ ok ▸A ▸t ▸u ≤ᶜ-refl
+inv-usage-Id (sub γ′▸ γ≤γ′) with inv-usage-Id γ′▸
+... | invUsageId ok ▸t ▸u ▸A γ′≤ =
+  invUsageId ok ▸t ▸u ▸A (≤ᶜ-trans γ≤γ′ γ′≤)
+... | invUsageId₀ ok ▸t ▸u ▸A γ′≤ =
+  invUsageId₀ ok ▸t ▸u ▸A (≤ᶜ-trans γ≤γ′ γ′≤)
+
+-- If γ ▸[ m ] rfl then γ ≤ᶜ 𝟘ᶜ.
+
+inv-usage-rfl : γ ▸[ m ] rfl → γ ≤ᶜ 𝟘ᶜ
+inv-usage-rfl rflₘ         = ≤ᶜ-refl
+inv-usage-rfl (sub δ▸ γ≤δ) = ≤ᶜ-trans γ≤δ (inv-usage-rfl δ▸)
+
+-- A type used to state inv-usage-J.
+
+data InvUsageJ
+       {n} (γ : Conₘ n) (m : Mode) (p q : M) (A t : Term n)
+       (B : Term (1+ (1+ n))) (u t′ v : Term n) : Set a where
+  invUsageJ :
+    {γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ : Conₘ n} →
+    ¬ Erased-matches-for-J →
+    γ₁ ▸[ 𝟘ᵐ? ] A →
+    γ₂ ▸[ m ] t →
+    γ₃ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · q ▸[ m ] B →
+    γ₄ ▸[ m ] u →
+    γ₅ ▸[ m ] t′ →
+    γ₆ ▸[ m ] v →
+    γ ≤ᶜ ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆) →
+    InvUsageJ γ m p q A t B u t′ v
+  invUsageJ₀ :
+    {γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ : Conₘ n} →
+    Erased-matches-for-J →
+    γ₁ ▸[ 𝟘ᵐ? ] A →
+    γ₂ ▸[ 𝟘ᵐ? ] t →
+    γ₃ ∙ ⌜ 𝟘ᵐ? ⌝ · p ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] B →
+    γ₄ ▸[ m ] u →
+    γ₅ ▸[ 𝟘ᵐ? ] t′ →
+    γ₆ ▸[ 𝟘ᵐ? ] v →
+    γ ≤ᶜ γ₄ →
+    InvUsageJ γ m p q A t B u t′ v
+
+-- A usage inversion lemma for J.
+
+inv-usage-J :
+  γ ▸[ m ] J p q A t B u t′ v → InvUsageJ γ m p q A t B u t′ v
+inv-usage-J (Jₘ ok ▸A ▸t ▸B ▸u ▸t′ ▸v) =
+  invUsageJ ok ▸A ▸t ▸B ▸u ▸t′ ▸v ≤ᶜ-refl
+inv-usage-J (J₀ₘ ok ▸A ▸t ▸B ▸u ▸t′ ▸v) =
+  invUsageJ₀ ok ▸A ▸t ▸B ▸u ▸t′ ▸v ≤ᶜ-refl
+inv-usage-J (sub γ′▸ γ≤γ′) with inv-usage-J γ′▸
+... | invUsageJ ok ▸t ▸B ▸u ▸t′ ▸v ▸A γ′≤ =
+  invUsageJ ok ▸t ▸B ▸u ▸t′ ▸v ▸A (≤ᶜ-trans γ≤γ′ γ′≤)
+... | invUsageJ₀ ok ▸t ▸B ▸u ▸t′ ▸v ▸A γ′≤ =
+  invUsageJ₀ ok ▸t ▸B ▸u ▸t′ ▸v ▸A (≤ᶜ-trans γ≤γ′ γ′≤)
+
+-- A type used to state inv-usage-K.
+
+data InvUsageK
+       {n} (γ : Conₘ n) (m : Mode) (p : M) (A t : Term n)
+       (B : Term (1+ n)) (u v : Term n) : Set a where
+  invUsageK :
+    {γ₁ γ₂ γ₃ γ₄ γ₅ : Conₘ n} →
+    ¬ Erased-matches-for-K →
+    γ₁ ▸[ 𝟘ᵐ? ] A →
+    γ₂ ▸[ m ] t →
+    γ₃ ∙ ⌜ m ⌝ · p ▸[ m ] B →
+    γ₄ ▸[ m ] u →
+    γ₅ ▸[ m ] v →
+    γ ≤ᶜ ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅) →
+    InvUsageK γ m p A t B u v
+  invUsageK₀ :
+    {γ₁ γ₂ γ₃ γ₄ γ₅ : Conₘ n} →
+    Erased-matches-for-K →
+    γ₁ ▸[ 𝟘ᵐ? ] A →
+    γ₂ ▸[ 𝟘ᵐ? ] t →
+    γ₃ ∙ ⌜ 𝟘ᵐ? ⌝ · p ▸[ 𝟘ᵐ? ] B →
+    γ₄ ▸[ m ] u →
+    γ₅ ▸[ 𝟘ᵐ? ] v →
+    γ ≤ᶜ γ₄ →
+    InvUsageK γ m p A t B u v
+
+-- A usage inversion lemma for K.
+
+inv-usage-K : γ ▸[ m ] K p A t B u v → InvUsageK γ m p A t B u v
+inv-usage-K (Kₘ ok ▸A ▸t ▸B ▸u ▸v) =
+  invUsageK ok ▸A ▸t ▸B ▸u ▸v ≤ᶜ-refl
+inv-usage-K (K₀ₘ ok ▸A ▸t ▸B ▸u ▸v) =
+  invUsageK₀ ok ▸A ▸t ▸B ▸u ▸v ≤ᶜ-refl
+inv-usage-K (sub γ′▸ γ≤γ′) with inv-usage-K γ′▸
+... | invUsageK ok ▸t ▸B ▸u ▸v ▸A γ′≤ =
+  invUsageK ok ▸t ▸B ▸u ▸v ▸A (≤ᶜ-trans γ≤γ′ γ′≤)
+... | invUsageK₀ ok ▸t ▸B ▸u ▸v ▸A γ′≤ =
+  invUsageK₀ ok ▸t ▸B ▸u ▸v ▸A (≤ᶜ-trans γ≤γ′ γ′≤)
+
+-- A type used to state inv-usage-[]-cong.
+
+record InvUsage-[]-cong
+         {n} (γ : Conₘ n) (A t u v : Term n) : Set a where
+  constructor invUsage-[]-cong
+  field
+    {γ₁ γ₂ γ₃ γ₄} : Conₘ n
+    ▸A            : γ₁ ▸[ 𝟘ᵐ? ] A
+    ▸t            : γ₂ ▸[ 𝟘ᵐ? ] t
+    ▸u            : γ₃ ▸[ 𝟘ᵐ? ] u
+    ▸v            : γ₄ ▸[ 𝟘ᵐ? ] v
+    ≤𝟘            : γ ≤ᶜ 𝟘ᶜ
+
+-- A usage inversion lemma for []-cong.
+
+inv-usage-[]-cong :
+  γ ▸[ m ] []-cong A t u v → InvUsage-[]-cong γ A t u v
+inv-usage-[]-cong ([]-congₘ ▸A ▸t ▸u ▸v) =
+  invUsage-[]-cong ▸A ▸t ▸u ▸v ≤ᶜ-refl
+inv-usage-[]-cong (sub γ′▸ γ≤γ′) with inv-usage-[]-cong γ′▸
+... | invUsage-[]-cong ▸A ▸t ▸u ▸v γ′≤ =
+  invUsage-[]-cong ▸A ▸t ▸u ▸v (≤ᶜ-trans γ≤γ′ γ′≤)

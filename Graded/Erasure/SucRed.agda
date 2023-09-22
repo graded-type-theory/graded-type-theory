@@ -3,10 +3,12 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Graded.Erasure.SucRed
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
 
 open import Tools.Empty
@@ -150,6 +152,7 @@ suc-view = λ where
   T.zero           → not-is-suc (λ ())
   (T.natrec _ _ _) → not-is-suc (λ ())
   T.star           → not-is-suc (λ ())
+  T.rfl            → not-is-suc (λ ())
   T.↯              → not-is-suc (λ ())
 
 -- If v reduces to w and v is of the form "T.suc something", then w is

@@ -11,12 +11,12 @@ open import Tools.Product
 open import Tools.PropositionalEquality
 
 private variable
-  x           : Fin _
-  ρ           : Wk _ _
-  A B t u v w : Term _
-  p q r       : M
-  s           : SigmaMode
-  b           : BinderMode
+  x              : Fin _
+  ρ              : Wk _ _
+  A B t t′ u v w : Term _
+  p q r          : M
+  s              : SigmaMode
+  b              : BinderMode
 
 -- Inversion for var.
 
@@ -134,4 +134,50 @@ wk-natrec :
      wk (lift ρ) A′ ≡ A ×
      wk ρ u′ ≡ u × wk (lift (lift ρ)) v′ ≡ v × wk ρ w′ ≡ w
 wk-natrec {t = natrec _ _ _ _ _ _ _} refl =
+  _ , _ , _ , _ , refl , refl , refl , refl , refl
+
+-- Inversion for Id.
+
+wk-Id :
+  wk ρ v ≡ Id A t u →
+  ∃₃ λ A′ t′ u′ →
+     v ≡ Id A′ t′ u′ ×
+     wk ρ A′ ≡ A × wk ρ t′ ≡ t × wk ρ u′ ≡ u
+wk-Id {v = Id _ _ _} refl = _ , _ , _ , refl , refl , refl , refl
+
+-- Inversion for rfl.
+
+wk-rfl : wk ρ t ≡ rfl → t ≡ rfl
+wk-rfl {t = rfl} refl = refl
+
+-- Inversion for J.
+
+wk-J :
+  wk ρ w ≡ J p q A t B u t′ v →
+  ∃₃ λ A′ t″ B′ → ∃₃ λ u′ t‴ v′ →
+     w ≡ J p q A′ t″ B′ u′ t‴ v′ ×
+     wk ρ A′ ≡ A × wk ρ t″ ≡ t × wk (lift (lift ρ)) B′ ≡ B ×
+     wk ρ u′ ≡ u × wk ρ t‴ ≡ t′ × wk ρ v′ ≡ v
+wk-J {w = J _ _ _ _ _ _ _ _} refl =
+  _ , _ , _ , _ , _ , _ , refl , refl , refl , refl , refl , refl , refl
+
+-- Inversion for K.
+
+wk-K :
+  wk ρ w ≡ K p A t B u v →
+  ∃₃ λ A′ t′ B′ → ∃₂ λ u′ v′ →
+     w ≡ K p A′ t′ B′ u′ v′ ×
+     wk ρ A′ ≡ A × wk ρ t′ ≡ t × wk (lift ρ) B′ ≡ B ×
+     wk ρ u′ ≡ u × wk ρ v′ ≡ v
+wk-K {w = K _ _ _ _ _ _} refl =
+  _ , _ , _ , _ , _ , refl , refl , refl , refl , refl , refl
+
+-- Inversion for []-cong.
+
+wk-[]-cong :
+  wk ρ w ≡ []-cong A t u v →
+  ∃₄ λ A′ t′ u′ v′ →
+     w ≡ []-cong A′ t′ u′ v′ ×
+     wk ρ A′ ≡ A × wk ρ t′ ≡ t × wk ρ u′ ≡ u × wk ρ v′ ≡ v
+wk-[]-cong {w = []-cong _ _ _ _} refl =
   _ , _ , _ , _ , refl , refl , refl , refl , refl

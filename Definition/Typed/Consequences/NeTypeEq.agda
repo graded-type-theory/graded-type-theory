@@ -2,19 +2,29 @@
 -- Neutral terms have only one type (up to type equality).
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.Typed.Consequences.NeTypeEq
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
 
+open Type-restrictions R
+
 open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Substitution R
 
+import Graded.Derived.Erased.Typed R as Erased
+
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -53,6 +63,16 @@ neTypeEq
   refl (substType ⊢A ⊢t)
 neTypeEq (emptyrecₙ neT) (emptyrecⱼ x t∷A) (emptyrecⱼ x₁ t∷B) =
   refl x₁
+neTypeEq {Γ} (Jₙ _) (Jⱼ {w} _ _ ⊢B _ ⊢v ⊢w) (Jⱼ _ _ _ _ _ _) =
+  refl $
+  substType₂ ⊢B ⊢v $
+  PE.subst (Γ ⊢ w ∷_) ≡Id-wk1-wk1-0[]₀ ⊢w
+neTypeEq (Kₙ _) (Kⱼ _ ⊢B _ ⊢v _) (Kⱼ _ _ _ _ _) =
+  refl (substType ⊢B ⊢v)
+neTypeEq ([]-congₙ _) ([]-congⱼ ⊢t ⊢u _ ok) ([]-congⱼ _ _ _ _) =
+  refl (Idⱼ ([]ⱼ ⊢t) ([]ⱼ ⊢u))
+  where
+  open Erased ([]-cong→Erased ok)
 neTypeEq x (conv t∷A x₁) t∷B = let q = neTypeEq x t∷A t∷B
                                in  trans (sym x₁) q
 neTypeEq x t∷A (conv t∷B x₃) = let q = neTypeEq x t∷A t∷B

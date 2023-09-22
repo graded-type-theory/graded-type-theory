@@ -7,9 +7,9 @@ open import Definition.Typed.Restrictions
 
 module Graded.Derived.Unrestricted.Eta.Typed
   {a} {M : Set a}
-  (𝕄 : Modality M)
+  {𝕄 : Modality M}
   (open Modality 𝕄)
-  (R : Type-restrictions M)
+  (R : Type-restrictions 𝕄)
   (open Type-restrictions R)
   -- The Unit type is assumed to be allowed.
   (Unit-ok : Unit-allowed)
@@ -85,9 +85,9 @@ Unrestricted-cong-U A≡B =
 
 -- A corresponding congruence rule.
 
-[]-cong :
+[]-cong′ :
   Γ ⊢ t ≡ u ∷ A → Γ ⊢ [ t ] ≡ [ u ] ∷ Unrestricted A
-[]-cong t≡u =
+[]-cong′ t≡u =
   prod-cong ⊢A (Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok) t≡u
     (refl (starⱼ (wf ⊢A) Unit-ok)) Σₚ-ok
   where

@@ -9,8 +9,8 @@ open import Definition.Typed.Restrictions
 
 module Graded.Reduction
   {a} {M : Set a}
-  (𝕄 : Modality M)
-  (TR : Type-restrictions M)
+  {𝕄 : Modality M}
+  (TR : Type-restrictions 𝕄)
   (UR : Usage-restrictions M)
   where
 
@@ -204,6 +204,70 @@ usagePresTerm
 usagePresTerm γ▸et (emptyrec-subst x t⇒u) =
   let invUsageemptyrec δ▸t η▸A γ≤δ = inv-usage-emptyrec γ▸et
   in  sub (emptyrecₘ (usagePresTerm δ▸t t⇒u) η▸A) γ≤δ
+
+usagePresTerm γ▸ (J-subst _ _ _ _ _ v⇒v′) =
+  case inv-usage-J γ▸ of λ where
+    (invUsageJ ok ▸A ▸t ▸B ▸u ▸t′ ▸v γ≤) → sub
+      (Jₘ ok ▸A ▸t ▸B ▸u ▸t′ (usagePresTerm ▸v v⇒v′))
+      γ≤
+    (invUsageJ₀ ok ▸A ▸t ▸B ▸u ▸t′ ▸v γ≤) → sub
+      (J₀ₘ ok ▸A ▸t ▸B ▸u ▸t′ (usagePresTerm ▸v v⇒v′))
+      γ≤
+
+usagePresTerm γ▸ (K-subst _ _ _ _ v⇒v′ _) =
+  case inv-usage-K γ▸ of λ where
+    (invUsageK ok ▸A ▸t ▸B ▸u ▸v γ≤) → sub
+      (Kₘ ok ▸A ▸t ▸B ▸u (usagePresTerm ▸v v⇒v′))
+      γ≤
+    (invUsageK₀ ok ▸A ▸t ▸B ▸u ▸v γ≤) → sub
+      (K₀ₘ ok ▸A ▸t ▸B ▸u (usagePresTerm ▸v v⇒v′))
+      γ≤
+
+usagePresTerm γ▸ ([]-cong-subst _ _ _ v⇒v′ _) =
+  case inv-usage-[]-cong γ▸ of
+    λ (invUsage-[]-cong ▸A ▸t ▸u ▸v γ≤) →
+  sub ([]-congₘ ▸A ▸t ▸u (usagePresTerm ▸v v⇒v′)) γ≤
+
+usagePresTerm {γ = γ} γ▸ (J-β _ _ _ _ _ _ _) =
+  case inv-usage-J γ▸ of λ where
+    (invUsageJ {γ₂ = γ₂} {γ₃ = γ₃} {γ₄ = γ₄} {γ₅ = γ₅} {γ₆ = γ₆}
+       _ _ _ _ ▸u _ _ γ≤) → sub
+      ▸u
+      (begin
+         γ                                  ≤⟨ γ≤ ⟩
+         ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆)  ≤⟨ ·ᶜ-monotoneʳ $
+                                               ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
+                                               ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
+                                               ∧ᶜ-decreasingˡ _ _ ⟩
+         ω ·ᶜ γ₄                            ≤⟨ ω·ᶜ-decreasing ⟩
+         γ₄                                 ∎)
+    (invUsageJ₀ _ _ _ _ ▸u _ _ γ≤) →
+      sub ▸u γ≤
+  where
+  open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
+
+usagePresTerm {γ = γ} γ▸ (K-β _ _ _ _) =
+  case inv-usage-K γ▸ of λ where
+    (invUsageK {γ₂ = γ₂} {γ₃ = γ₃} {γ₄ = γ₄} {γ₅ = γ₅}
+       _ _ _ _ ▸u _ γ≤) → sub
+      ▸u
+      (begin
+         γ                            ≤⟨ γ≤ ⟩
+         ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅)  ≤⟨ ·ᶜ-monotoneʳ $
+                                         ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
+                                         ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
+                                         ∧ᶜ-decreasingˡ _ _ ⟩
+         ω ·ᶜ γ₄                      ≤⟨ ω·ᶜ-decreasing ⟩
+         γ₄                           ∎)
+    (invUsageK₀ _ _ _ _ ▸u _ γ≤) →
+      sub ▸u γ≤
+  where
+  open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
+
+usagePresTerm γ▸ ([]-cong-β _ _ _ _ _) =
+  case inv-usage-[]-cong γ▸ of
+    λ (invUsage-[]-cong _ _ _ _ γ≤) →
+  sub rflₘ γ≤
 
 -- Type reduction preserves usage.
 

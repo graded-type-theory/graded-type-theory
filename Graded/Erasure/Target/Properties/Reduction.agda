@@ -101,3 +101,6 @@ prod-noRed refl = PE.refl
 
 star-noRed : star ⇒* t → t PE.≡ star
 star-noRed refl = PE.refl
+
+rfl-noRed : rfl ⇒* t → t PE.≡ rfl
+rfl-noRed refl = PE.refl

@@ -23,6 +23,7 @@ private
     s : SigmaMode
     bs bs′ : List _
     ts ts′ : GenTs _ _ _
+    ρ : Wk _ _
 
 infix 30 ΠΣ⟨_⟩_,_▷_▹_
 infix 30 Π_,_▷_▹_
@@ -69,6 +70,12 @@ data Kind : (ns : List Nat) → Set a where
   Emptykind    : Kind []
   Emptyreckind : (p : M) → Kind (0 ∷ 0 ∷ [])
 
+  Idkind      : Kind (0 ∷ 0 ∷ 0 ∷ [])
+  Reflkind    : Kind []
+  Jkind       : M → M → Kind (0 ∷ 0 ∷ 2 ∷ 0 ∷ 0 ∷ 0 ∷ [])
+  Kkind       : M → Kind (0 ∷ 0 ∷ 1 ∷ 0 ∷ 0 ∷ [])
+  Boxcongkind : Kind (0 ∷ 0 ∷ 0 ∷ 0 ∷ [])
+
 -- The type of terms is parametrised by the number of free variables.
 -- A term is either a variable (a de Bruijn index) or a generic term,
 -- consisting of a kind and a list of sub-terms.
@@ -82,9 +89,9 @@ data Term (n : Nat) : Set a where
 
 private
   variable
-    A F H t u t′ u′ v : Term n
-    B E G             : Term (1+ n)
-    k k′              : Kind _
+    A B F H t u t′ u′ v w : Term n
+    E G                   : Term (1+ n)
+    k k′                  : Kind _
 
 -- The Grammar of our language.
 
@@ -124,6 +131,12 @@ pattern natrec p q r A z s n = gen (Natreckind p q r) (A ∷ z ∷ s ∷ n ∷ [
 
 pattern star = gen Starkind []
 pattern emptyrec p A t = gen (Emptyreckind p) (A ∷ t ∷ [])
+
+pattern Id A t u = gen Idkind (A ∷ t ∷ u ∷ [])
+pattern rfl = gen Reflkind []
+pattern J p q A t B u v w = gen (Jkind p q) (A ∷ t ∷ B ∷ u ∷ v ∷ w ∷ [])
+pattern K p A t B u v = gen (Kkind p) (A ∷ t ∷ B ∷ u ∷ v ∷ [])
+pattern []-cong A t u v = gen Boxcongkind (A ∷ t ∷ u ∷ v ∷ [])
 
 
 data BindingType : Set a where
@@ -184,6 +197,9 @@ data Neutral : Term n → Set a where
   natrecₙ   : Neutral v   → Neutral (natrec p q r G t u v)
   prodrecₙ  : Neutral t   → Neutral (prodrec r p q A t u)
   emptyrecₙ : Neutral t   → Neutral (emptyrec p A t)
+  Jₙ        : Neutral w   → Neutral (J p q A t B u v w)
+  Kₙ        : Neutral v   → Neutral (K p A t B u v)
+  []-congₙ  : Neutral v   → Neutral ([]-cong A t u v)
 
 
 -- Weak head normal forms (whnfs).
@@ -198,6 +214,7 @@ data Whnf {n : Nat} : Term n → Set a where
   ℕₙ     : Whnf ℕ
   Unitₙ  : Whnf Unit
   Emptyₙ : Whnf Empty
+  Idₙ    : Whnf (Id A t u)
 
   -- Introductions are whnfs.
   lamₙ  : Whnf (lam p t)
@@ -205,6 +222,7 @@ data Whnf {n : Nat} : Term n → Set a where
   sucₙ  : Whnf (suc t)
   starₙ : Whnf star
   prodₙ : Whnf (prod s p t u)
+  rflₙ  : Whnf rfl
 
   -- Neutrals are whnfs.
   ne    : Neutral t → Whnf t
@@ -234,6 +252,9 @@ B≢ne (BΣ m p q) () PE.refl
 ΠΣ≢ne : ∀ b → Neutral A → ΠΣ⟨ b ⟩ p , q ▷ F ▹ G PE.≢ A
 ΠΣ≢ne BMΠ () PE.refl
 ΠΣ≢ne (BMΣ s) () PE.refl
+
+Id≢ne : Neutral B → Id A t u PE.≢ B
+Id≢ne () PE.refl
 
 U≢B : ∀ W → U PE.≢ ⟦ W ⟧ F ▹ G
 U≢B (BΠ p q) ()
@@ -267,6 +288,14 @@ Unit≢ΠΣ : ∀ b → Unit PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
 Unit≢ΠΣ BMΠ ()
 Unit≢ΠΣ (BMΣ _) ()
 
+Id≢⟦⟧▷ : ∀ W → Id A t u PE.≢ ⟦ W ⟧ F ▹ G
+Id≢⟦⟧▷ (BΠ _ _)   ()
+Id≢⟦⟧▷ (BΣ _ _ _) ()
+
+Id≢ΠΣ : ∀ b → Id A t u PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
+Id≢ΠΣ BMΠ     ()
+Id≢ΠΣ (BMΣ _) ()
+
 Π≢Σ : ∀ {m} → Π p₁ , q₁ ▷ F ▹ G PE.≢ Σ⟨ m ⟩ p₂ , q₂ ▷ H ▹ E
 Π≢Σ ()
 
@@ -282,6 +311,9 @@ suc≢ne () PE.refl
 prod≢ne : ∀ {m} → Neutral v → prod m p t u PE.≢ v
 prod≢ne () PE.refl
 
+rfl≢ne : Neutral t → rfl PE.≢ t
+rfl≢ne () PE.refl
+
 -- Several views on whnfs (note: not recursive).
 
 -- A whnf of type ℕ is either zero, suc t, or neutral.
@@ -292,14 +324,15 @@ data Natural {n : Nat} : Term n → Set a where
   ne    : Neutral t → Natural t
 
 
--- A (small) type in whnf is either Π A B, Σ A B, ℕ, Empty, Unit or neutral.
--- Large types could also be U.
+-- A (small) type in WHNF is either a Π-type, a Σ-type, ℕ, Empty,
+-- Unit, an identity type, or neutral. Large types could also be U.
 
 data Type {n : Nat} : Term n → Set a where
   ΠΣₙ    :             Type (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
   ℕₙ     :             Type ℕ
   Emptyₙ :             Type Empty
   Unitₙ  :             Type Unit
+  Idₙ    :             Type (Id A t u)
   ne     : Neutral t → Type t
 
 ⟦_⟧-type : ∀ (W : BindingType) → Type (⟦ W ⟧ F ▹ G)
@@ -324,8 +357,24 @@ data Star {n : Nat} : Term n → Set a where
   starₙ : Star star
   ne    : Neutral t → Star t
 
--- These views classify only WHNFs: Natural, Type, Function, Product
--- and Star are subsets of Whnf.
+-- A WHNF of type Id A t u is either rfl or a neutral term.
+
+data Identity {n} : Term n → Set a where
+  rflₙ : Identity rfl
+  ne   : Neutral t → Identity t
+
+-- A non-dependent eliminator for Identity. Note that the argument of
+-- ne is thrown away.
+
+Identity-rec :
+  ∀ {a} {A : Set a} →
+  Identity t → A → A → A
+Identity-rec rflₙ   r n = r
+Identity-rec (ne _) r n = n
+
+
+-- These views classify only WHNFs: Natural, Type, Function, Product,
+-- Star and Identity are subsets of Whnf.
 
 naturalWhnf : Natural t → Whnf t
 naturalWhnf sucₙ   = sucₙ
@@ -337,6 +386,7 @@ typeWhnf ΠΣₙ    = ΠΣₙ
 typeWhnf ℕₙ     = ℕₙ
 typeWhnf Emptyₙ = Emptyₙ
 typeWhnf Unitₙ  = Unitₙ
+typeWhnf Idₙ    = Idₙ
 typeWhnf (ne x) = ne x
 
 functionWhnf : Function t → Whnf t
@@ -350,6 +400,10 @@ productWhnf (ne x) = ne x
 starWhnf : Star t → Whnf t
 starWhnf starₙ  = starₙ
 starWhnf (ne n) = ne n
+
+identityWhnf : Identity t → Whnf t
+identityWhnf rflₙ   = rflₙ
+identityWhnf (ne n) = ne n
 
 ⟦_⟧ₙ : (W : BindingType) → Whnf (⟦ W ⟧ F ▹ G)
 ⟦_⟧ₙ (BΠ p q) = ΠΣₙ
@@ -374,6 +428,7 @@ data No-η-equality {n : Nat} : Term n → Set a where
   Σᵣₙ    : No-η-equality (Σᵣ p , q ▷ A ▹ B)
   Emptyₙ : No-η-equality Empty
   ℕₙ     : No-η-equality ℕ
+  Idₙ    : No-η-equality (Id A t u)
   neₙ    : Neutral A → No-η-equality A
 
 -- If No-η-equality A holds, then A is a WHNF.
@@ -384,6 +439,7 @@ No-η-equality→Whnf = λ where
   Σᵣₙ     → ΠΣₙ
   Emptyₙ  → Emptyₙ
   ℕₙ      → ℕₙ
+  Idₙ     → Idₙ
   (neₙ n) → ne n
 
 ------------------------------------------------------------------------
@@ -418,6 +474,9 @@ wkNeutral ρ (sndₙ n)      = sndₙ (wkNeutral ρ n)
 wkNeutral ρ (natrecₙ n)   = natrecₙ (wkNeutral ρ n)
 wkNeutral ρ (prodrecₙ n)  = prodrecₙ (wkNeutral ρ n)
 wkNeutral ρ (emptyrecₙ e) = emptyrecₙ (wkNeutral ρ e)
+wkNeutral ρ (Jₙ n)        = Jₙ (wkNeutral ρ n)
+wkNeutral ρ (Kₙ n)        = Kₙ (wkNeutral ρ n)
+wkNeutral ρ ([]-congₙ n)  = []-congₙ (wkNeutral ρ n)
 
 -- Weakening can be applied to our whnf views.
 
@@ -431,6 +490,7 @@ wkType ρ ΠΣₙ    = ΠΣₙ
 wkType ρ ℕₙ     = ℕₙ
 wkType ρ Emptyₙ = Emptyₙ
 wkType ρ Unitₙ  = Unitₙ
+wkType ρ Idₙ    = Idₙ
 wkType ρ (ne x) = ne (wkNeutral ρ x)
 
 wkFunction : ∀ ρ → Function t → Function {n = n} (wk ρ t)
@@ -441,17 +501,23 @@ wkProduct : ∀ ρ → Product t → Product {n = n} (wk ρ t)
 wkProduct ρ prodₙ  = prodₙ
 wkProduct ρ (ne x) = ne (wkNeutral ρ x)
 
+wkIdentity : Identity t → Identity (wk ρ t)
+wkIdentity rflₙ   = rflₙ
+wkIdentity (ne n) = ne (wkNeutral _ n)
+
 wkWhnf : ∀ ρ → Whnf t → Whnf {n = n} (wk ρ t)
 wkWhnf ρ Uₙ      = Uₙ
 wkWhnf ρ ΠΣₙ     = ΠΣₙ
 wkWhnf ρ ℕₙ      = ℕₙ
 wkWhnf ρ Emptyₙ  = Emptyₙ
 wkWhnf ρ Unitₙ   = Unitₙ
+wkWhnf ρ Idₙ     = Idₙ
 wkWhnf ρ lamₙ    = lamₙ
 wkWhnf ρ prodₙ   = prodₙ
 wkWhnf ρ zeroₙ   = zeroₙ
 wkWhnf ρ sucₙ    = sucₙ
 wkWhnf ρ starₙ   = starₙ
+wkWhnf ρ rflₙ    = rflₙ
 wkWhnf ρ (ne x)  = ne (wkNeutral ρ x)
 
 

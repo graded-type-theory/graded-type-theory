@@ -4,13 +4,19 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.Conversion.EqRelInstance
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
 
-open import Definition.Untyped M hiding (_∷_)
+open Type-restrictions R
+
+open import Definition.Untyped M
+  hiding (_∷_) renaming (_[_,_] to _[_,_]₁₀)
+open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Weakening R using (_∷_⊇_; wkEq)
@@ -32,6 +38,9 @@ open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Equality R
 open import Definition.Typed.Consequences.Reduction R
 
+import Graded.Derived.Erased.Typed R as ET
+open import Graded.Derived.Erased.Untyped 𝕄 as Erased using (Erased)
+
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
@@ -43,6 +52,7 @@ private
   variable
     m n : Nat
     Γ : Con Term n
+    A₁ A₂ B₁ B₂ t₁ t₂ u₁ u₂ v₁ v₂ w₁ w₂ : Term _
     ρ : Wk m n
     p p₁ p₂ p′ q q′ q₁ q₂ r r′ : M
 
@@ -176,6 +186,71 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
   in  ↑ (refl ⊢F)
         (emptyrec-cong x k~l′)
 
+opaque
+
+  ~-J :
+    Γ ⊢ A₁ →
+    Γ ⊢ A₁ [conv↑] A₂ →
+    Γ ⊢ t₁ ∷ A₁ →
+    Γ ⊢ t₁ [conv↑] t₂ ∷ A₁ →
+    Γ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ [conv↑] B₂ →
+    Γ ⊢ u₁ [conv↑] u₂ ∷ B₁ [ t₁ , rfl ]₁₀ →
+    Γ ⊢ v₁ [conv↑] v₂ ∷ A₁ →
+    Γ ⊢ w₁ ~ w₂ ∷ Id A₁ t₁ v₁ →
+    Γ ⊢ J p q A₁ t₁ B₁ u₁ v₁ w₁ ~ J p q A₂ t₂ B₂ u₂ v₂ w₂ ∷
+      B₁ [ v₁ , w₁ ]₁₀
+  ~-J _ A₁≡A₂ _ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ (↑ Id-t₁-v₁≡C w₁~w₂) =
+    case Id-norm (sym Id-t₁-v₁≡C) of λ {
+      (_ , _ , _ , C⇒*Id-t₃-v₃ , A₁≡A₃ , t₁≡t₃ , v₁≡v₃) →
+    ↑ (refl $
+       substType₂ (syntacticEq (soundnessConv↑ B₁≡B₂) .proj₁)
+         (syntacticEqTerm v₁≡v₃ .proj₂ .proj₁)
+         (conv (syntacticEqTerm (soundness~↑ w₁~w₂) .proj₂ .proj₁) $
+          PE.subst (_⊢_≡_ _ _) ≡Id-wk1-wk1-0[]₀ $
+          sym Id-t₁-v₁≡C))
+      (J-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂
+         ([~] _ C⇒*Id-t₃-v₃ Idₙ w₁~w₂)
+         (trans (sym (subset* C⇒*Id-t₃-v₃)) (sym Id-t₁-v₁≡C))) }
+
+  ~-K :
+    Γ ⊢ A₁ [conv↑] A₂ →
+    Γ ⊢ t₁ ∷ A₁ →
+    Γ ⊢ t₁ [conv↑] t₂ ∷ A₁ →
+    Γ ∙ Id A₁ t₁ t₁ ⊢ B₁ [conv↑] B₂ →
+    Γ ⊢ u₁ [conv↑] u₂ ∷ B₁ [ rfl ]₀ →
+    Γ ⊢ v₁ ~ v₂ ∷ Id A₁ t₁ t₁ →
+    K-allowed →
+    Γ ⊢ K p A₁ t₁ B₁ u₁ v₁ ~ K p A₂ t₂ B₂ u₂ v₂ ∷ B₁ [ v₁ ]₀
+  ~-K A₁≡A₂ _ t₁≡t₂ B₁≡B₂ u₁≡u₂ (↑ Id-t₁-t₁≡C v₁~v₂) ok =
+    case Id-norm (sym Id-t₁-t₁≡C) of λ {
+      (_ , _ , _ , C⇒*Id-t₃-t₄ , A₁≡A₃ , t₁≡t₃ , t₁≡t₄) →
+    ↑ (refl $
+       substType (syntacticEq (soundnessConv↑ B₁≡B₂) .proj₁) $
+       _⊢_∷_.conv (syntacticEqTerm (soundness~↑ v₁~v₂) .proj₂ .proj₁) $
+       sym Id-t₁-t₁≡C)
+      (K-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ ([~] _ C⇒*Id-t₃-t₄ Idₙ v₁~v₂)
+         (trans (sym (subset* C⇒*Id-t₃-t₄)) (sym Id-t₁-t₁≡C)) ok) }
+
+  ~-[]-cong :
+    Γ ⊢ A₁ [conv↑] A₂ →
+    Γ ⊢ t₁ [conv↑] t₂ ∷ A₁ →
+    Γ ⊢ u₁ [conv↑] u₂ ∷ A₁ →
+    Γ ⊢ v₁ ~ v₂ ∷ Id A₁ t₁ u₁ →
+    []-cong-allowed →
+    Γ ⊢ []-cong A₁ t₁ u₁ v₁ ~ []-cong A₂ t₂ u₂ v₂ ∷
+      Id (Erased A₁) Erased.[ t₁ ] Erased.[ u₁ ]
+  ~-[]-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ (↑ Id-t₁-u₁≡B v₁~v₂) ok =
+    case Id-norm (sym Id-t₁-u₁≡B) of λ {
+      (_ , _ , _ , B⇒*Id-t₃-u₃ , A₁≡A₃ , t₁≡t₃ , u₁≡u₃) →
+    ↑ (_⊢_≡_.refl $
+       Idⱼ ([]ⱼ (syntacticEqTerm t₁≡t₃ .proj₂ .proj₁))
+         ([]ⱼ (syntacticEqTerm u₁≡u₃ .proj₂ .proj₁)))
+      ([]-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ ([~] _ B⇒*Id-t₃-u₃ Idₙ v₁~v₂)
+         (trans (sym (subset* B⇒*Id-t₃-u₃)) (sym Id-t₁-u₁≡B))
+         ok) }
+    where
+    open ET ([]-cong→Erased ok)
+
 ~-sym : ∀ {k l A} → Γ ⊢ k ~ l ∷ A → Γ ⊢ l ~ k ∷ A
 ~-sym (↑ A≡B x) =
   let ⊢Γ = wfEq A≡B
@@ -271,4 +346,23 @@ eqRelInstance = record {
   ~-natrec = ~-natrec;
   ~-prodrec = λ ⊢A ⊢B C↑D t₁~t₂ u₁↑u₂ _ →
                 ~-prodrec ⊢A ⊢B C↑D t₁~t₂ u₁↑u₂;
-  ~-emptyrec = ~-emptyrec }
+  ~-emptyrec = ~-emptyrec;
+  ≅-Id-cong = λ { A₁≡A₂ t₁≡t₂ u₁≡u₂ →
+    liftConv (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) };
+  ≅ₜ-Id-cong = λ { A₁≡A₂ t₁≡t₂ u₁≡u₂ →
+    case soundnessConv↑Term A₁≡A₂ of λ {
+      ⊢A₁≡A₂ →
+    case syntacticEqTerm ⊢A₁≡A₂ of λ {
+      (_ , ⊢A₁ , ⊢A₂) →
+    case syntacticEqTerm (soundnessConv↑Term t₁≡t₂) of λ {
+      (_ , ⊢t₁ , ⊢t₂) →
+    case syntacticEqTerm (soundnessConv↑Term u₁≡u₂) of λ {
+      (_ , ⊢u₁ , ⊢u₂) →
+    liftConvTerm $
+    univ (Idⱼ ⊢A₁ ⊢t₁ ⊢u₁)
+      (Idⱼ ⊢A₂ (conv ⊢t₂ (univ ⊢A₁≡A₂)) (conv ⊢u₂ (univ ⊢A₁≡A₂)))
+      (Id-cong (univConv↑ A₁≡A₂) t₁≡t₂ u₁≡u₂) }}}}};
+  ≅ₜ-rflrefl = liftConvTerm ∘→ rfl-refl ∘→ refl;
+  ~-J = ~-J;
+  ~-K = ~-K;
+  ~-[]-cong = ~-[]-cong }

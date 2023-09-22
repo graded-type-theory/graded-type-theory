@@ -22,7 +22,7 @@ open import Graded.Modality Linearity
 open import Graded.FullReduction.Assumptions
 import Graded.Modality.Properties
 
-open import Definition.Typed.Restrictions Linearity
+import Definition.Typed.Restrictions
 open import Definition.Untyped using (BMΣ; Σₚ)
 
 open import Tools.Empty
@@ -32,13 +32,15 @@ open import Tools.PropositionalEquality
 open import Tools.Relation
 open import Tools.Unit
 
-private variable
-  rs : Type-restrictions
-
 -- A "linear types" modality.
 
 linearityModality : Modality
 linearityModality = zero-one-many-modality variant
+
+open Definition.Typed.Restrictions linearityModality
+
+private variable
+  rs : Type-restrictions
 
 -- An alternative (not very good) "linear types" modality.
 --
@@ -103,8 +105,16 @@ suitable-for-full-reduction :
   Type-restrictions → ∃ Suitable-for-full-reduction
 suitable-for-full-reduction rs =
     record rs
-      { Unit-allowed = ⊥
-      ; ΠΣ-allowed   = λ b p q → ΠΣ-allowed b p q × (b ≡ BMΣ Σₚ → p ≡ 𝟙)
+      { Unit-allowed =
+          ⊥
+      ; ΠΣ-allowed = λ b p q →
+          ΠΣ-allowed b p q × (b ≡ BMΣ Σₚ → p ≡ 𝟙)
+      ; []-cong-allowed =
+          ⊥
+      ; []-cong→Erased =
+          λ ()
+      ; []-cong→¬Trivial =
+          λ ()
       }
   , idᶠ
   , (λ _ → ((λ ()) ∘→ (_$ refl)) ∘→ proj₂)
@@ -117,7 +127,7 @@ suitable-for-full-reduction rs =
 
 full-reduction-assumptions :
   Suitable-for-full-reduction rs →
-  Full-reduction-assumptions linearityModality rs
+  Full-reduction-assumptions rs
 full-reduction-assumptions (¬Unit , ¬𝟘 , ¬ω) = record
   { 𝟙≤𝟘    = ⊥-elim ∘→ ¬Unit
   ; ≡𝟙⊎𝟙≤𝟘 = λ where

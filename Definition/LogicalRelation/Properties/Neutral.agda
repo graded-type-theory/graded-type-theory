@@ -4,16 +4,18 @@
 
 open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.LogicalRelation.Properties.Neutral
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   {{eqrel : EqRelSet R}}
   where
 
 open EqRelSet {{...}}
 
-open import Definition.Untyped M hiding (Wk; _∷_)
+open import Definition.Untyped M hiding (Wk; _∷_; K)
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
@@ -25,6 +27,7 @@ open import Definition.LogicalRelation.Properties.Reflexivity R
 open import Definition.LogicalRelation.Properties.Escape R
 open import Definition.LogicalRelation.Properties.Symmetry R
 
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -168,6 +171,15 @@ mutual
         ⊢n = conv ⊢n A≡ΣFG
         n~n = ~-conv n~n A≡ΣFG
     in  Σₜ _ (idRedTerm:*: ⊢n) (~-to-≅ₜ n~n) (ne neN) n~n
+  neuTerm (Idᵣ ⊩A) n-n ⊢n n~n =
+    case subset* (red ⇒*Id) of λ {
+      A≡Id →
+      _
+    , idRedTerm:*: (conv ⊢n A≡Id)
+    , ne n-n
+    , ~-conv n~n A≡Id }
+    where
+    open _⊩ₗId_ ⊩A
   neuTerm (emb 0<1 x) neN n = neuTerm x neN n
 
   -- Neutrally equal terms are of reducible equality.
@@ -316,4 +328,17 @@ mutual
             (ne neN) (ne neN′) (~-to-≅ₜ n~n′Σ)
             (neuTerm [ΣFG] neN ⊢n n~n) (neuTerm [ΣFG] neN′ ⊢n′ n′~n′)
             n~n′Σ
+  neuEqTerm (Idᵣ ⊩A) n-n n′-n ⊢n ⊢n′ n~n′ =
+    case subset* (red ⇒*Id) of λ {
+      A≡Id →
+    case ~-trans n~n′ (~-sym n~n′) of λ {
+      n~n →
+    case ~-trans (~-sym n~n′) n~n′ of λ {
+      n′~n′ →
+    ⊩Id≡∷
+      (neuTerm (Idᵣ ⊩A) n-n ⊢n n~n)
+      (neuTerm (Idᵣ ⊩A) n′-n ⊢n′ n′~n′)
+      (~-conv n~n′ A≡Id) }}}
+    where
+    open _⊩ₗId_ ⊩A
   neuEqTerm (emb 0<1 x) neN neN′ n:≡:n′ = neuEqTerm x neN neN′ n:≡:n′

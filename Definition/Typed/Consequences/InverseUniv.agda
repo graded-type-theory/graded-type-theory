@@ -3,19 +3,22 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.Typed.Consequences.InverseUniv
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
 
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Syntactic R
 
+open import Tools.Function
 open import Tools.Nat
 import Tools.Sum as Sum
-open import Tools.Sum using (_⊎_; inj₁; inj₂)
+open import Tools.Sum as ⊎ using (_⊎_; inj₁; inj₂)
 open import Tools.Product
 open import Tools.Empty
 open import Tools.Relation
@@ -24,7 +27,7 @@ private
   variable
     n : Nat
     Γ : Con Term n
-    A F H : Term n
+    A F H t u : Term n
     G E : Term (1+ n)
     p p′ q q′ : M
     b : BinderMode
@@ -34,6 +37,7 @@ data UFull : Term n → Set a where
   ∃U   : UFull {n} U
   ∃ΠΣ₁ : UFull F → UFull (ΠΣ⟨ b ⟩ p , q ▷ F ▹ G)
   ∃ΠΣ₂ : UFull G → UFull (ΠΣ⟨ b ⟩ p , q ▷ F ▹ G)
+  ∃Id  : UFull A → UFull (Id A t u)
 
 -- Terms cannot contain U.
 noU : ∀ {t A} → Γ ⊢ t ∷ A → ¬ (UFull t)
@@ -41,6 +45,7 @@ noU (ℕⱼ x) ()
 noU (Emptyⱼ x) ()
 noU (ΠΣⱼ t _ _) (∃ΠΣ₁ ufull) = noU t ufull
 noU (ΠΣⱼ _ t _) (∃ΠΣ₂ ufull) = noU t ufull
+noU (Idⱼ A _ _) (∃Id ufull) = noU A ufull
 noU (var x₁ x₂) ()
 noU (lamⱼ _ _ _) ()
 noU (t ∘ⱼ t₁) ()
@@ -56,6 +61,9 @@ noUNe (var n) ()
 noUNe (∘ₙ neA) ()
 noUNe (natrecₙ neA) ()
 noUNe (emptyrecₙ neA) ()
+noUNe (Jₙ _) ()
+noUNe (Kₙ _) ()
+noUNe ([]-congₙ _) ()
 
 -- Helper function where if at least one Π-type does not contain U,
 -- one of F and H will not contain U and one of G and E will not contain U.
@@ -76,6 +84,8 @@ inverseUniv q (ΠΣⱼ A B ok) =
   ΠΣⱼ (inverseUniv (λ x → q (∃ΠΣ₁ x)) A)
     (inverseUniv (λ x → q (∃ΠΣ₂ x)) B)
     ok
+inverseUniv q (Idⱼ t u) =
+  Idⱼ (inverseUniv (q ∘→ ∃Id) (syntacticTerm t)) t u
 inverseUniv q (univ x) = x
 
 -- If A is a neutral type, then A can be a term of U.
@@ -101,6 +111,9 @@ inverseUnivEq′ (inj₂ x) (trans A≡B A≡B₁) =
 inverseUnivEq′ q (ΠΣ-cong x A≡B A≡B₁ ok) =
   let w , e = pilem q
   in  ΠΣ-cong x (inverseUnivEq′ w A≡B) (inverseUnivEq′ e A≡B₁) ok
+inverseUnivEq′ q (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) =
+  Id-cong (inverseUnivEq′ (⊎.map (_∘→ ∃Id) (_∘→ ∃Id) q) A₁≡A₂)
+    t₁≡t₂ u₁≡u₂
 
 -- If A is a term of U, then the equality of types is an equality of terms of type U.
 inverseUnivEq : ∀ {A B} → Γ ⊢ A ∷ U → Γ ⊢ A ≡ B → Γ ⊢ A ≡ B ∷ U

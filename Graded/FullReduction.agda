@@ -9,8 +9,8 @@ open import Definition.Typed.Restrictions
 
 module Graded.FullReduction
   {a} {M : Set a}
-  (𝕄 : Modality M)
-  (TR : Type-restrictions M)
+  {𝕄 : Modality M}
+  (TR : Type-restrictions 𝕄)
   (UR : Usage-restrictions M)
   where
 
@@ -50,9 +50,9 @@ open import Definition.Conversion.Whnf TR
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.FullReduction.Assumptions 𝕄 TR
+open import Graded.FullReduction.Assumptions TR
 open import Graded.Modality.Properties 𝕄
-open import Graded.Reduction 𝕄 TR UR
+open import Graded.Reduction TR UR
 open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Inversion 𝕄 UR
 open import Graded.Usage.Properties 𝕄 UR
@@ -180,6 +180,36 @@ module _ (as : Full-reduction-assumptions) where
         case inv-usage-emptyrec ▸emptyrec of λ {
           (invUsageemptyrec ▸t ▸A γ≤) →
         sub (emptyrecₘ (fullRedNe~↓ t~ ▸t) (fullRedConv↑ A↑ ▸A)) γ≤ }
+      (J-cong A↑ t↑ B↑ u↑ v↑ w~ _) ▸J →
+        case inv-usage-J ▸J of λ where
+          (invUsageJ ok ▸A ▸t ▸B ▸u ▸v ▸w γ≤) →
+            sub (Jₘ ok (fullRedConv↑ A↑ ▸A) (fullRedTermConv↑ t↑ ▸t)
+                   (fullRedConv↑ B↑ ▸B) (fullRedTermConv↑ u↑ ▸u)
+                   (fullRedTermConv↑ v↑ ▸v) (fullRedNe~↓ w~ ▸w))
+              γ≤
+          (invUsageJ₀ ok ▸A ▸t ▸B ▸u ▸v ▸w γ≤) →
+            sub (J₀ₘ ok (fullRedConv↑ A↑ ▸A) (fullRedTermConv↑ t↑ ▸t)
+                   (fullRedConv↑ B↑ ▸B) (fullRedTermConv↑ u↑ ▸u)
+                   (fullRedTermConv↑ v↑ ▸v) (fullRedNe~↓ w~ ▸w))
+              γ≤
+      (K-cong A↑ t↑ B↑ u↑ v~ _ _) ▸K →
+        case inv-usage-K ▸K of λ where
+          (invUsageK ok ▸A ▸t ▸B ▸u ▸v γ≤) →
+            sub (Kₘ ok (fullRedConv↑ A↑ ▸A) (fullRedTermConv↑ t↑ ▸t)
+                   (fullRedConv↑ B↑ ▸B) (fullRedTermConv↑ u↑ ▸u)
+                   (fullRedNe~↓ v~ ▸v))
+              γ≤
+          (invUsageK₀ ok ▸A ▸t ▸B ▸u ▸v γ≤) →
+            sub (K₀ₘ ok (fullRedConv↑ A↑ ▸A) (fullRedTermConv↑ t↑ ▸t)
+                   (fullRedConv↑ B↑ ▸B) (fullRedTermConv↑ u↑ ▸u)
+                   (fullRedNe~↓ v~ ▸v))
+              γ≤
+      ([]-cong-cong A↑ t↑ u↑ v~ _ _) ▸[]-cong →
+        case inv-usage-[]-cong ▸[]-cong of λ {
+          (invUsage-[]-cong ▸A ▸t ▸u ▸v γ≤) →
+        sub ([]-congₘ (fullRedConv↑ A↑ ▸A) (fullRedTermConv↑ t↑ ▸t)
+               (fullRedTermConv↑ u↑ ▸u) (fullRedNe~↓ v~ ▸v))
+          γ≤ }
 
     fullRedNe~↓ :
       (⊢t : Γ ⊢ t ~ t′ ↓ A) → γ ▸[ m ] t →
@@ -206,6 +236,16 @@ module _ (as : Full-reduction-assumptions) where
         case inv-usage-ΠΣ ▸ΠΣAB of λ {
           (invUsageΠΣ ▸A ▸B γ≤) →
         sub (ΠΣₘ (fullRedConv↑ A↑ ▸A) (fullRedConv↑ B↑ ▸B)) γ≤ }
+      (Id-cong A↑ t↑ u↑) ▸Id →
+        case inv-usage-Id ▸Id of λ where
+          (invUsageId ok ▸A ▸t ▸u γ≤) →
+            sub (Idₘ ok (fullRedConv↑ A↑ ▸A) (fullRedTermConv↑ t↑ ▸t)
+                   (fullRedTermConv↑ u↑ ▸u))
+              γ≤
+          (invUsageId₀ ok ▸A ▸t ▸u γ≤) →
+            sub (Id₀ₘ ok (fullRedConv↑ A↑ ▸A) (fullRedTermConv↑ t↑ ▸t)
+                   (fullRedTermConv↑ u↑ ▸u))
+              γ≤
 
     fullRedTermConv↑ :
       (⊢t : Γ ⊢ t [conv↑] t′ ∷ A) → γ ▸[ m ] t →
@@ -258,6 +298,8 @@ module _ (as : Full-reduction-assumptions) where
           p ·ᶜ δ ∧ᶜ γ  ∎ }}
       (η-unit ⊢t _ _ _) ▸t →
         sub starₘ (▸→≤ᶜ𝟘ᶜ _ (⊢∷Unit→Unit-allowed ⊢t) ▸t)
+      (Id-ins _ v~) ▸v   → fullRedNe~↓ v~ ▸v
+      (rfl-refl _)  ▸rfl → sub rflₘ (inv-usage-rfl ▸rfl)
 
 ------------------------------------------------------------------------
 -- The main theorems

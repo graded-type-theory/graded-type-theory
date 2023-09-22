@@ -13,14 +13,14 @@ open import Tools.Nat using (Nat)
 module Graded.Erasure.Consequences.Non-interference
   {a} {M : Set a}
   (open Definition.Untyped M hiding (_∷_))
-  (𝕄 : Modality M)
+  {𝕄 : Modality M}
   (open Modality 𝕄)
-  (TR : Type-restrictions M)
+  (TR : Type-restrictions 𝕄)
   (UR : Usage-restrictions M)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
   {k : Nat}
   {Δ : Con Term k}
-  (FA : Fundamental-assumptions 𝕄 TR UR Δ)
+  (FA : Fundamental-assumptions TR UR Δ)
   {{eqrel : EqRelSet TR}}
   where
 
@@ -42,12 +42,12 @@ open import Graded.Mode 𝕄
 
 import Graded.Erasure.Target as T
 open import Graded.Erasure.Extraction 𝕄 is-𝟘?
-open import Graded.Erasure.LogicalRelation 𝕄 TR is-𝟘? well-formed
-open import Graded.Erasure.LogicalRelation.Fundamental 𝕄 TR UR
+open import Graded.Erasure.LogicalRelation TR is-𝟘? well-formed
+open import Graded.Erasure.LogicalRelation.Fundamental TR UR
 open import Graded.Erasure.LogicalRelation.Irrelevance
-  𝕄 TR is-𝟘? well-formed
+  TR is-𝟘? well-formed
 open import Graded.Erasure.LogicalRelation.Subsumption
-  𝕄 TR is-𝟘? well-formed
+  TR is-𝟘? well-formed
 
 open Fundamental FA
 

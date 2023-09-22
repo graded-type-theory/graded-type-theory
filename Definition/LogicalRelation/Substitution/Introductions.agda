@@ -4,10 +4,12 @@
 
 open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.LogicalRelation.Substitution.Introductions
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   {{eqrel : EqRelSet R}}
   where
 
@@ -27,4 +29,5 @@ open import Definition.LogicalRelation.Substitution.Introductions.Empty R public
 open import Definition.LogicalRelation.Substitution.Introductions.Emptyrec R public
 open import Definition.LogicalRelation.Substitution.Introductions.Unit R public
 open import Definition.LogicalRelation.Substitution.Introductions.Universe R public
+open import Definition.LogicalRelation.Substitution.Introductions.Identity R public
 open import Definition.LogicalRelation.Substitution.Introductions.Var R public

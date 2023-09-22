@@ -27,9 +27,9 @@ open import Graded.Usage (ErasureModality variant)
 open import Graded.Usage.Inversion (ErasureModality variant)
 open import Graded.Mode (ErasureModality variant)
 
-open import Definition.Typed.Restrictions Erasure
+open import Definition.Typed.Restrictions (ErasureModality variant)
 
-open import Definition.Untyped Erasure
+open import Definition.Untyped Erasure hiding (Identity)
 
 open import Tools.Algebra Erasure
 open import Tools.Bool hiding (_∧_)
@@ -37,7 +37,7 @@ open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat using (Nat)
-open import Tools.Product
+open import Tools.Product as Σ
 open import Tools.PropositionalEquality as PE using (_≡_; _≢_)
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
@@ -234,6 +234,13 @@ suitable-for-full-reduction rs =
     record rs
       { ΠΣ-allowed = λ b p q →
           ΠΣ-allowed b p q × (b ≡ BMΣ Σₚ × p ≡ 𝟘 → T 𝟘ᵐ-allowed)
+      ; []-cong-allowed =
+          []-cong-allowed × T 𝟘ᵐ-allowed
+      ; []-cong→Erased = λ (ok₁ , ok₂) →
+            []-cong→Erased ok₁ .proj₁ , []-cong→Erased ok₁ .proj₂
+          , (λ _ → ok₂)
+      ; []-cong→¬Trivial =
+          𝟘ᵐ.non-trivial ∘→ proj₂
       }
   , (λ _ → (_$ (PE.refl , PE.refl)) ∘→ proj₂)
   where
@@ -244,7 +251,7 @@ suitable-for-full-reduction rs =
 
 full-reduction-assumptions :
   Suitable-for-full-reduction rs →
-  Full-reduction-assumptions (ErasureModality variant) rs
+  Full-reduction-assumptions rs
 full-reduction-assumptions {rs = rs} 𝟘→𝟘ᵐ = record
   { 𝟙≤𝟘    = λ _ → PE.refl
   ; ≡𝟙⊎𝟙≤𝟘 = λ where

@@ -4,16 +4,18 @@
 
 open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.LogicalRelation.Properties.Reduction
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   {{eqrel : EqRelSet R}}
   where
 
 open EqRelSet {{...}}
 
-open import Definition.Untyped M hiding (Wk; _∷_)
+open import Definition.Untyped M hiding (Wk; _∷_; K)
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 import Definition.Typed.Weakening R as Wk
@@ -22,7 +24,9 @@ open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Properties.Reflexivity R
 open import Definition.LogicalRelation.Properties.Universe R
 open import Definition.LogicalRelation.Properties.Escape R
+open import Definition.LogicalRelation.Properties.Transitivity R
 
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -58,6 +62,18 @@ redSubst* D (Bᵣ′ W F G [ ⊢B , ⊢ΠFG , D′ ] ⊢F ⊢G A≡A [F] [G] G-e
   in  (Bᵣ′ W F G [ ⊢A , ⊢ΠFG , D ⇨* D′ ] ⊢F ⊢G A≡A [F] [G] G-ext ok)
   ,   (B₌ _ _ D′ A≡A (λ ρ ⊢Δ → reflEq ([F] ρ ⊢Δ))
         (λ ρ ⊢Δ [a] → reflEq ([G] ρ ⊢Δ [a])))
+redSubst* A⇒*B (Idᵣ ⊩B) =
+  case redFirst* A⇒*B of λ {
+    ⊢A →
+    (Idᵣ record
+       { ⇒*Id  = [ ⊢A , _⊢_:⇒*:_.⊢B ⇒*Id , A⇒*B ⇨* _⊢_:⇒*:_.D ⇒*Id ]
+       ; ⊩Ty   = ⊩Ty
+       ; ⊩lhs  = ⊩lhs
+       ; ⊩rhs  = ⊩rhs
+       })
+  , Id₌′ ⇒*Id (reflEq ⊩Ty) (reflEqTerm ⊩Ty ⊩lhs) (reflEqTerm ⊩Ty ⊩rhs) }
+  where
+  open _⊩ₗId_ ⊩B
 redSubst* D (emb 0<1 x) with redSubst* D x
 redSubst* D (emb 0<1 x) | y , y₁ = emb 0<1 y , y₁
 
@@ -146,6 +162,26 @@ redSubst*Term
       [d′] = [ conv (redFirst*Term t⇒u) A≡ΣFG , ⊢u , conv* t⇒u A≡ΣFG ⇨∷* d ]
       [u′] = Σₜ p [d′] p≅p (ne x) p~p
   in  [u′] , Σₜ₌ p p [d′] [d] (ne x) (ne x) p≅p [u′] [u] p~p
+redSubst*Term
+  {Γ = Γ} {A = A} {t = t} {l = l} t⇒*u (Idᵣ ⊩A) ⊩u@(u′ , u⇒*u′ , rest) =
+  case subset* (red ⇒*Id) of λ {
+    A≡Id →
+  let ⊩t : Γ ⊩⟨ l ⟩ t ∷ A / Idᵣ ⊩A
+      ⊩t =
+          u′
+        , [ conv (redFirst*Term t⇒*u) A≡Id
+          , _⊢_:⇒*:_∷_.⊢u u⇒*u′
+          , conv* t⇒*u A≡Id ⇨∷* (redₜ u⇒*u′)
+          ]
+        , rest
+  in
+    ⊩t
+  , ⊩Id≡∷ ⊩t ⊩u
+      (case ⊩Id∷-view-inhabited ⊩u of λ where
+         (ne _ u′~u′) → u′~u′
+         (rflᵣ _)     → _) }
+  where
+  open _⊩ₗId_ ⊩A
 redSubst*Term t⇒u (emb 0<1 x) [u] = redSubst*Term t⇒u x [u]
 
 -- Weak head expansion of reducible types with single reduction step.

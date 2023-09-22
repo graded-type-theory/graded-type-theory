@@ -4,32 +4,38 @@
 
 open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.LogicalRelation
   {a} {Mod : Set a}
-  (R : Type-restrictions Mod)
+  {𝕄 : Modality Mod}
+  (R : Type-restrictions 𝕄)
   {{eqrel : EqRelSet R}}
   where
 
 open EqRelSet {{...}}
 open Type-restrictions R
 
-open import Definition.Untyped Mod as U hiding (_∷_)
+open import Definition.Untyped Mod as U hiding (_∷_; K)
 open import Definition.Typed.Properties R
 open import Definition.Typed R
 open import Definition.Typed.Weakening R
 
 open import Tools.Empty
+open import Tools.Function
 open import Tools.Level
 open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Unit
 
 private
   variable
     p q : Mod
     ℓ : Nat
-    Γ : Con Term ℓ
+    Γ Δ : Con Term ℓ
+    t t′ u u′ : Term _
+    ρ : Wk _ _
 
 -- The different cases of the logical relation are spread out through out
 -- this file. This is due to them having different dependencies.
@@ -234,6 +240,9 @@ data TypeLevel : Set where
 
 pattern ¹ = ¹′ ⁰ PE.refl
 
+private variable
+  l : TypeLevel
+
 data _<_ : (i j : TypeLevel) → Set where
   0<1 : ⁰ < ¹
 
@@ -250,6 +259,7 @@ record LogRelKit : Set (lsuc a) where
   field
     _⊩U : (Γ : Con Term ℓ) → Set a
     _⊩B⟨_⟩_ : (Γ : Con Term ℓ) (W : BindingType) → Term ℓ → Set a
+    _⊩Id_ : Con Term ℓ → Term ℓ → Set a
 
     _⊩_ : (Γ : Con Term ℓ) → Term ℓ → Set a
     _⊩_≡_/_ : (Γ : Con Term ℓ) (A B : Term ℓ) → Γ ⊩ A → Set a
@@ -463,6 +473,79 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
       (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) (ne x) (ne y) =
         Γ ⊢ t ~ r ∷ Σᵣ p , q ▷ F ▹ G
 
+    -- Reducibility for identity types.
+
+    -- Well-formed identity types.
+    record _⊩ₗId_ (Γ : Con Term ℓ) (A : Term ℓ) : Set a where
+      inductive
+      constructor Idᵣ
+      eta-equality
+      field
+        Ty lhs rhs : Term ℓ
+        ⇒*Id       : Γ ⊢ A :⇒*: Id Ty lhs rhs
+        ⊩Ty        : Γ ⊩ₗ Ty
+        ⊩lhs       : Γ ⊩ₗ lhs ∷ Ty / ⊩Ty
+        ⊩rhs       : Γ ⊩ₗ rhs ∷ Ty / ⊩Ty
+
+    -- Well-formed identity type equality.
+    record _⊩ₗId_≡_/_
+      (Γ : Con Term ℓ) (A B : Term ℓ) (⊩A : Γ ⊩ₗId A) : Set a where
+      inductive
+      constructor Id₌
+      eta-equality
+
+      open _⊩ₗId_ ⊩A
+
+      field
+        Ty′ lhs′ rhs′ : Term ℓ
+        ⇒*Id′         : Γ ⊢ B :⇒*: Id Ty′ lhs′ rhs′
+        Ty≡Ty′        : Γ ⊩ₗ Ty ≡ Ty′ / ⊩Ty
+        lhs≡lhs′      : Γ ⊩ₗ lhs ≡ lhs′ ∷ Ty / ⊩Ty
+        rhs≡rhs′      : Γ ⊩ₗ rhs ≡ rhs′ ∷ Ty / ⊩Ty
+
+        -- The fact that the types of the following two fields are
+        -- inhabited follows from symmetry, transitivity and the
+        -- previous two fields, see
+        -- Definition.LogicalRelation.Properties.Transitivity.Id₌′.
+        -- The fields are used in
+        -- Definition.LogicalRelation.Properties.Conversion, which is
+        -- imported from
+        -- Definition.LogicalRelation.Properties.Transitivity.
+        lhs≡rhs→lhs′≡rhs′ : Γ ⊩ₗ lhs  ≡ rhs  ∷ Ty / ⊩Ty →
+                            Γ ⊩ₗ lhs′ ≡ rhs′ ∷ Ty / ⊩Ty
+        lhs′≡rhs′→lhs≡rhs : Γ ⊩ₗ lhs′ ≡ rhs′ ∷ Ty / ⊩Ty →
+                            Γ ⊩ₗ lhs  ≡ rhs  ∷ Ty / ⊩Ty
+
+    -- Well-formed identity terms.
+    _⊩ₗId_∷_/_ : (Γ : Con Term ℓ) (t A : Term ℓ) → Γ ⊩ₗId A → Set a
+    Γ ⊩ₗId t ∷ A / ⊩A =
+      ∃ λ u →
+      Γ ⊢ t :⇒*: u ∷ Id Ty lhs rhs ×
+      ∃ λ (u-id : Identity u) →
+      case u-id of λ where
+        (ne _) → Γ ⊢ u ~ u ∷ Id Ty lhs rhs
+        rflₙ   → Γ ⊩ₗ lhs ≡ rhs ∷ Ty / ⊩Ty
+      where
+      open _⊩ₗId_ ⊩A
+
+    -- Well-formed identity term equality.
+    _⊩ₗId_≡_∷_/_ : (Γ : Con Term ℓ) (t u A : Term ℓ) → Γ ⊩ₗId A → Set a
+    Γ ⊩ₗId t ≡ u ∷ A / ⊩A =
+      ∃₂ λ t′ u′ →
+      Γ ⊢ t :⇒*: t′ ∷ Id Ty lhs rhs ×
+      Γ ⊢ u :⇒*: u′ ∷ Id Ty lhs rhs ×
+      ∃ λ (t′-id : Identity t′) →
+      ∃ λ (u′-id : Identity u′) →
+      Identity-rec t′-id
+        (Identity-rec u′-id
+           (Γ ⊩ₗ lhs ≡ rhs ∷ Ty / ⊩Ty)
+           (Lift _ ⊥))
+        (Identity-rec u′-id
+           (Lift _ ⊥)
+           (Γ ⊢ t′ ~ u′ ∷ Id Ty lhs rhs))
+      where
+      open _⊩ₗId_ ⊩A
+
     -- Logical relation definition
     data _⊩ₗ_ (Γ : Con Term ℓ) : Term ℓ → Set a where
       Uᵣ  : Γ ⊩₁U → Γ ⊩ₗ U
@@ -471,6 +554,7 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
       Unitᵣ : ∀ {A} → Γ ⊩Unit A → Γ ⊩ₗ A
       ne  : ∀ {A} → Γ ⊩ne A → Γ ⊩ₗ A
       Bᵣ  : ∀ {A} W → Γ ⊩ₗB⟨ W ⟩ A → Γ ⊩ₗ A
+      Idᵣ : ∀ {A} → Γ ⊩ₗId A → Γ ⊩ₗ A
       emb : ∀ {A l′} (l< : l′ < l) (let open LogRelKit (rec l<))
             ([A] : Γ ⊩ A) → Γ ⊩ₗ A
 
@@ -481,6 +565,7 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
     Γ ⊩ₗ A ≡ B / Unitᵣ D = Γ ⊩Unit A ≡ B
     Γ ⊩ₗ A ≡ B / ne neA = Γ ⊩ne A ≡ B / neA
     Γ ⊩ₗ A ≡ B / Bᵣ W BA = Γ ⊩ₗB⟨ W ⟩ A ≡ B / BA
+    Γ ⊩ₗ A ≡ B / Idᵣ ⊩A = Γ ⊩ₗId A ≡ B / ⊩A
     Γ ⊩ₗ A ≡ B / emb l< [A] = Γ ⊩ A ≡ B / [A]
       where open LogRelKit (rec l<)
 
@@ -492,6 +577,7 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
     Γ ⊩ₗ t ∷ A / ne neA = Γ ⊩ne t ∷ A / neA
     Γ ⊩ₗ t ∷ A / Bᵣ BΠ! ΠA  = Γ ⊩ₗΠ t ∷ A / ΠA
     Γ ⊩ₗ t ∷ A / Bᵣ BΣ! ΣA  = Γ ⊩ₗΣ t ∷ A / ΣA
+    Γ ⊩ₗ t ∷ A / Idᵣ ⊩A = Γ ⊩ₗId t ∷ A / ⊩A
     Γ ⊩ₗ t ∷ A / emb l< [A] = Γ ⊩ t ∷ A / [A]
       where open LogRelKit (rec l<)
 
@@ -503,18 +589,20 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
     Γ ⊩ₗ t ≡ u ∷ A / ne neA = Γ ⊩ne t ≡ u ∷ A / neA
     Γ ⊩ₗ t ≡ u ∷ A / Bᵣ BΠ! ΠA = Γ ⊩ₗΠ t ≡ u ∷ A / ΠA
     Γ ⊩ₗ t ≡ u ∷ A / Bᵣ BΣ! ΣA  = Γ ⊩ₗΣ t ≡ u ∷ A / ΣA
+    Γ ⊩ₗ t ≡ u ∷ A / Idᵣ ⊩A = Γ ⊩ₗId t ≡ u ∷ A / ⊩A
     Γ ⊩ₗ t ≡ u ∷ A / emb l< [A] = Γ ⊩ t ≡ u ∷ A / [A]
       where open LogRelKit (rec l<)
 
     kit : LogRelKit
-    kit = Kit _⊩₁U _⊩ₗB⟨_⟩_
+    kit = Kit _⊩₁U _⊩ₗB⟨_⟩_ _⊩ₗId_
               _⊩ₗ_ _⊩ₗ_≡_/_ _⊩ₗ_∷_/_ _⊩ₗ_≡_∷_/_
 
 open LogRel public
   using
-    (Uᵣ; ℕᵣ; Emptyᵣ; Unitᵣ; ne; Bᵣ; B₌; emb; Uₜ; Uₜ₌;
+    (Uᵣ; ℕᵣ; Emptyᵣ; Unitᵣ; ne; Bᵣ; B₌; Idᵣ; Id₌; emb; Uₜ; Uₜ₌;
      module _⊩₁U; module _⊩₁U_∷U/_; module _⊩₁U_≡_∷U/_;
-     module _⊩ₗB⟨_⟩_; module _⊩ₗB⟨_⟩_≡_/_)
+     module _⊩ₗB⟨_⟩_; module _⊩ₗB⟨_⟩_≡_/_;
+     module _⊩ₗId_; module _⊩ₗId_≡_/_)
 
 -- Patterns for the non-records of Π
 pattern Πₜ f d funcF f≡f [f] [f]₁ = f , d , funcF , f≡f , [f] , [f]₁
@@ -537,6 +625,11 @@ _⊩′⟨_⟩U : (Γ : Con Term ℓ) (l : TypeLevel) → Set a
 _⊩′⟨_⟩B⟨_⟩_ : (Γ : Con Term ℓ) (l : TypeLevel) (W : BindingType) → Term ℓ → Set a
 Γ ⊩′⟨ l ⟩B⟨ W ⟩ A = Γ ⊩B⟨ W ⟩ A where open LogRelKit (kit l)
 
+_⊩′⟨_⟩Id_ : Con Term ℓ → TypeLevel → Term ℓ → Set a
+Γ ⊩′⟨ l ⟩Id A = Γ ⊩Id A
+  where
+  open LogRelKit (kit l)
+
 -- Reducibility of types
 
 _⊩⟨_⟩_ : (Γ : Con Term ℓ) (l : TypeLevel) → Term ℓ → Set a
@@ -556,3 +649,110 @@ _⊩⟨_⟩_∷_/_ : (Γ : Con Term ℓ) (l : TypeLevel) (t A : Term ℓ) → Γ
 
 _⊩⟨_⟩_≡_∷_/_ : (Γ : Con Term ℓ) (l : TypeLevel) (t u A : Term ℓ) → Γ ⊩⟨ l ⟩ A → Set a
 Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A] = Γ ⊩ t ≡ u ∷ A / [A] where open LogRelKit (kit l)
+
+------------------------------------------------------------------------
+-- Some definitions related to the identity type
+
+-- A view of parts of _⊩ₗId_∷_/_.
+
+data ⊩Id∷-view
+  {A : Term ℓ} (⊩A : Γ ⊩′⟨ l ⟩Id A) :
+  ∀ t → Identity t → Set a where
+  rflᵣ : let open _⊩ₗId_ ⊩A in
+         Γ ⊩⟨ l ⟩ lhs ≡ rhs ∷ Ty / ⊩Ty →
+         ⊩Id∷-view ⊩A rfl rflₙ
+  ne   : let open _⊩ₗId_ ⊩A in
+         (u-n : Neutral u) →
+         Γ ⊢ u ~ u ∷ Id Ty lhs rhs →
+         ⊩Id∷-view ⊩A u (ne u-n)
+
+-- The view is inhabited for well-formed identity terms.
+
+⊩Id∷-view-inhabited :
+  ∀ {A} {⊩A : Γ ⊩′⟨ l ⟩Id A}
+  ((u , _ , u-id , _) : Γ ⊩⟨ l ⟩ t ∷ A / Idᵣ ⊩A) →
+  ⊩Id∷-view ⊩A u u-id
+⊩Id∷-view-inhabited = λ where
+  (_ , _ , rflₙ , lhs≡rhs) → rflᵣ lhs≡rhs
+  (_ , _ , ne u-n , u~u)   → ne u-n u~u
+
+-- A view of parts of _⊩ₗId_≡_∷_/_.
+
+data ⊩Id≡∷-view
+  {Γ : Con Term ℓ} (lhs rhs {Ty} : Term ℓ) (⊩Ty : Γ ⊩⟨ l ⟩ Ty) :
+  ∀ t → Identity t → ∀ u → Identity u → Set a where
+  rfl₌ : (lhs≡rhs : Γ ⊩⟨ l ⟩ lhs ≡ rhs ∷ Ty / ⊩Ty) →
+         ⊩Id≡∷-view lhs rhs ⊩Ty rfl rflₙ rfl rflₙ
+  ne   : (t′-n : Neutral t′) (u′-n : Neutral u′) →
+         Γ ⊢ t′ ~ u′ ∷ Id Ty lhs rhs →
+         ⊩Id≡∷-view lhs rhs ⊩Ty t′ (ne t′-n) u′ (ne u′-n)
+
+-- The view is inhabited for instances of "well-formed identity term
+-- equality".
+
+⊩Id≡∷-view-inhabited :
+  ∀ {A} {Γ : Con Term ℓ}
+  (⊩A : Γ ⊩′⟨ l ⟩Id A) →
+  let open _⊩ₗId_ ⊩A in
+  ((t′ , u′ , _ , _ , t′-id , u′-id , _) :
+   Γ ⊩⟨ l ⟩ t ≡ u ∷ A / Idᵣ ⊩A) →
+  ⊩Id≡∷-view lhs rhs ⊩Ty t′ t′-id u′ u′-id
+⊩Id≡∷-view-inhabited _ = λ where
+  (_ , _ , _ , _ , rflₙ , rflₙ , lhs≡rhs) →
+    rfl₌ lhs≡rhs
+  (_ , _ , _ , _ , ne t′-n , ne u′-n , t′~u′) →
+    ne t′-n u′-n t′~u′
+  (_ , _ , _ , _ , rflₙ , ne _ , ())
+  (_ , _ , _ , _ , ne _ , rflₙ , ())
+
+-- A kind of constructor for _⊩ₗId_≡_∷_/_.
+
+⊩Id≡∷ :
+  ∀ {A} {Γ : Con Term ℓ} {⊩A : Γ ⊩′⟨ l ⟩Id A} →
+  let open _⊩ₗId_ ⊩A in
+  ((t′ , _ , t′-id , _) : Γ ⊩⟨ l ⟩ t ∷ A / Idᵣ ⊩A)
+  ((u′ , _ , u′-id , _) : Γ ⊩⟨ l ⟩ u ∷ A / Idᵣ ⊩A) →
+  Identity-rec t′-id
+    (Identity-rec u′-id
+       (Lift _ ⊤)
+       (Lift _ ⊥))
+    (Identity-rec u′-id
+       (Lift _ ⊥)
+       (Γ ⊢ t′ ~ u′ ∷ Id Ty lhs rhs)) →
+  Γ ⊩⟨ l ⟩ t ≡ u ∷ A / Idᵣ ⊩A
+⊩Id≡∷ ⊩t@(t′ , t⇒*t′ , t′-id , _) ⊩u@(u′ , u⇒*u′ , u′-id , _) rest =
+    t′ , u′ , t⇒*t′ , u⇒*u′ , t′-id , u′-id
+  , (case ⊩Id∷-view-inhabited ⊩t of λ where
+       (rflᵣ lhs≡rhs) → case ⊩Id∷-view-inhabited ⊩u of λ where
+         (rflᵣ _) → lhs≡rhs
+         (ne _ _) → case rest of λ ()
+       (ne _ _) → case ⊩Id∷-view-inhabited ⊩u of λ where
+         (rflᵣ _) → case rest of λ ()
+         (ne _ _) → rest)
+
+-- A kind of inverse of ⊩Id≡∷.
+
+⊩Id≡∷⁻¹ :
+  ∀ {A} {Γ : Con Term ℓ}
+  (⊩A : Γ ⊩′⟨ l ⟩Id A) →
+  let open _⊩ₗId_ ⊩A in
+  Γ ⊩⟨ l ⟩ t ≡ u ∷ A / Idᵣ ⊩A →
+  ∃ λ (⊩t@(t′ , _ , t′-id , _) : Γ ⊩⟨ l ⟩ t ∷ A / Idᵣ ⊩A) →
+  ∃ λ (⊩u@(u′ , _ , u′-id , _) : Γ ⊩⟨ l ⟩ u ∷ A / Idᵣ ⊩A) →
+  Identity-rec t′-id
+    (Identity-rec u′-id
+       (Lift _ ⊤)
+       (Lift _ ⊥))
+    (Identity-rec u′-id
+       (Lift _ ⊥)
+       (Γ ⊢ t′ ~ u′ ∷ Id Ty lhs rhs))
+⊩Id≡∷⁻¹ ⊩A t≡u@(t′ , u′ , t⇒*t′ , u⇒*u′ , t′-id , u′-id , rest) =
+  case ⊩Id≡∷-view-inhabited ⊩A t≡u of λ where
+    (rfl₌ lhs≡rhs) →
+        (t′ , t⇒*t′ , t′-id , lhs≡rhs)
+      , (u′ , u⇒*u′ , u′-id , lhs≡rhs)
+      , _
+    (ne _ _ t′~u′) →
+        (t′ , t⇒*t′ , t′-id , ~-trans t′~u′ (~-sym t′~u′))
+      , (u′ , u⇒*u′ , u′-id , ~-trans (~-sym t′~u′) t′~u′)
+      , t′~u′

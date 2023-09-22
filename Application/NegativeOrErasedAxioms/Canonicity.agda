@@ -3,35 +3,38 @@
 -- canonicity if erased matches are not allowed.
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 import Graded.Modality
-open import Graded.Restrictions
+import Graded.Restrictions
 import Graded.Usage.Restrictions
 import Definition.Typed
-import Definition.Typed.Restrictions
-import Definition.Untyped hiding (_∷_; ℕ≢B)
+open import Definition.Typed.Restrictions
+import Definition.Untyped
+  hiding (_∷_; ℕ≢B) renaming (_[_,_] to _[_,_]₁₀)
 
 module Application.NegativeOrErasedAxioms.Canonicity
   {a} {M : Set a}
   (open Graded.Modality M)
   (open Graded.Usage.Restrictions M)
-  (open Definition.Typed.Restrictions M)
   (open Definition.Untyped M)
-  (𝕄 : Modality)
+  {𝕄 : Modality}
+  (open Graded.Restrictions 𝕄)
   (open Modality 𝕄)
   -- The modality has a well-behaved zero.
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄
-  (TR : Type-restrictions)
+  (TR : Type-restrictions 𝕄)
   (open Definition.Typed TR)
   (UR : Usage-restrictions)
   -- Erased matches are not allowed.
-  (no-erased-matches : No-erased-matches 𝕄 UR)
+  (no-erased-matches : No-erased-matches TR UR)
   {m} {Γ : Con Term m}
   (consistent : Consistent Γ)
   where
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Reduction 𝕄 TR UR
+open import Graded.Reduction TR UR
 open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Inversion 𝕄 UR
 open import Graded.Usage.Properties 𝕄 UR
@@ -40,8 +43,8 @@ open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 
 open import Application.NegativeOrErasedAxioms.NegativeOrErasedContext
-  𝕄 TR
-open import Application.NegativeOrErasedAxioms.NegativeOrErasedType 𝕄 TR
+  TR
+open import Application.NegativeOrErasedAxioms.NegativeOrErasedType TR
 open import Graded.Erasure.SucRed TR
 
 open import Definition.Untyped.Normal-form M
@@ -151,7 +154,7 @@ neNeg
   γ▸prodrec =
   case inv-usage-prodrec γ▸prodrec of λ {
     (invUsageProdrec {δ = δ} {η = η} δ▸t _ _ ok₂ γ≤rδ+η) →
-  case no-erased-matches non-trivial ok₂ of λ {
+  case no-erased-matches non-trivial .proj₁ ok₂ of λ {
     r≢𝟘 →
   NegativeErasedContext Γ γ              →⟨ NegativeErasedContext-upwards-closed γ≤rδ+η ⟩
   NegativeErasedContext Γ (r ·ᶜ δ +ᶜ η)  →⟨ NegativeErasedContext-𝟘 (λ _ → proj₁ ∘→ +ᶜ-positive-⟨⟩ (_ ·ᶜ δ)) ⟩
@@ -166,6 +169,39 @@ neNeg
   NegativeType Γ (A [ t ]₀)              □ }}
 neNeg (emptyrecⱼ _ d) (emptyrecₙ _) _ _ =
   ⊥-elim (consistent _ d)
+neNeg {γ} (Jⱼ {A} {t} {B} {v} {w} _ ⊢t _ _ ⊢v ⊢w) (Jₙ w-ne) ▸J =
+  case inv-usage-J ▸J of λ where
+    (invUsageJ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} _ _ _ _ _ _ ▸w γ≤) →
+      NegativeErasedContext Γ γ                                    →⟨ NegativeErasedContext-upwards-closed γ≤ ⟩
+      NegativeErasedContext Γ (ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆))  →⟨ NegativeErasedContext-upwards-closed ω·ᶜ-decreasing ⟩
+      NegativeErasedContext Γ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆)         →⟨ NegativeErasedContext-upwards-closed $
+                                                                      ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
+                                                                      ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
+                                                                      ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
+                                                                      ∧ᶜ-decreasingʳ _ _ ⟩
+      NegativeErasedContext Γ γ₆                                   →⟨ neNeg ⊢w w-ne ▸w ⟩
+      NegativeType Γ (Id A t v)                                    →⟨ flip ¬negId (refl (Idⱼ ⊢t ⊢v)) ⟩
+      ⊥                                                            →⟨ ⊥-elim ⟩
+      NegativeType Γ (B [ v , w ]₁₀)                               □
+    (invUsageJ₀ em _ _ _ _ _ _ _) →
+      ⊥-elim (no-erased-matches non-trivial .proj₂ .proj₂ .proj₁ em)
+neNeg {γ} (Kⱼ {t} {A} {B} {v} ⊢t _ _ ⊢v ok) (Kₙ v-ne) ▸K =
+  case inv-usage-K ▸K of λ where
+    (invUsageK {γ₂} {γ₃} {γ₄} {γ₅} _ _ _ _ _ ▸v γ≤) →
+      NegativeErasedContext Γ γ                              →⟨ NegativeErasedContext-upwards-closed γ≤ ⟩
+      NegativeErasedContext Γ (ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅))  →⟨ NegativeErasedContext-upwards-closed ω·ᶜ-decreasing ⟩
+      NegativeErasedContext Γ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅)         →⟨ NegativeErasedContext-upwards-closed $
+                                                                ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
+                                                                ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
+                                                                ∧ᶜ-decreasingʳ _ _ ⟩
+      NegativeErasedContext Γ γ₅                             →⟨ neNeg ⊢v v-ne ▸v ⟩
+      NegativeType Γ (Id A t t)                              →⟨ flip ¬negId (refl (Idⱼ ⊢t ⊢t)) ⟩
+      ⊥                                                      →⟨ ⊥-elim ⟩
+      NegativeType Γ (B [ v ]₀)                              □
+    (invUsageK₀ em _ _ _ _ _ _) →
+      ⊥-elim (no-erased-matches non-trivial .proj₂ .proj₂ .proj₂ em)
+neNeg ([]-congⱼ _ _ _ ok) ([]-congₙ _) _ =
+  ⊥-elim (no-erased-matches non-trivial .proj₂ .proj₁ ok)
 neNeg (conv d c) n γ▸u nΓγ =
   conv (neNeg d n γ▸u nΓγ) c
 
@@ -197,15 +233,17 @@ nfN (conv d c) γ▸u nΓγ n c' =
 -- Impossible cases: type is not ℕ.
 
 -- * Canonical types
-nfN (ΠΣⱼ _ _ _) _ _ (ΠΣₙ _ _) c = ⊥-elim (U≢ℕ c)
-nfN (ℕⱼ _)      _ _ ℕₙ        c = ⊥-elim (U≢ℕ c)
-nfN (Emptyⱼ _)  _ _ Emptyₙ    c = ⊥-elim (U≢ℕ c)
-nfN (Unitⱼ _ _) _ _ Unitₙ     c = ⊥-elim (U≢ℕ c)
+nfN (ΠΣⱼ _ _ _) _ _ (ΠΣₙ _ _)   c = ⊥-elim (U≢ℕ c)
+nfN (ℕⱼ _)      _ _ ℕₙ          c = ⊥-elim (U≢ℕ c)
+nfN (Emptyⱼ _)  _ _ Emptyₙ      c = ⊥-elim (U≢ℕ c)
+nfN (Unitⱼ _ _) _ _ Unitₙ       c = ⊥-elim (U≢ℕ c)
+nfN (Idⱼ _ _ _) _ _ (Idₙ _ _ _) c = ⊥-elim (U≢ℕ c)
 
 -- * Canonical forms
 nfN (lamⱼ _ _ _)      _ _ (lamₙ _)    c = ⊥-elim (ℕ≢Π (sym c))
 nfN (prodⱼ _ _ _ _ _) _ _ (prodₙ _ _) c = ⊥-elim (ℕ≢Σ (sym c))
 nfN (starⱼ _ _)       _ _ starₙ       c = ⊥-elim (ℕ≢Unitⱼ (sym c))
+nfN (rflⱼ _)          _ _ rflₙ        c = ⊥-elim (Id≢ℕ c)
 -- q.e.d
 
 -- Terms of non-negative types reduce to non-neutrals

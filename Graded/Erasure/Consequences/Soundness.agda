@@ -8,9 +8,9 @@ open import Definition.Typed.Restrictions
 
 module Graded.Erasure.Consequences.Soundness
   {a} {M : Set a}
-  (𝕄 : Modality M)
+  {𝕄 : Modality M}
   (open Modality 𝕄)
-  (TR : Type-restrictions M)
+  (TR : Type-restrictions 𝕄)
   (UR : Usage-restrictions M)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
   where
@@ -22,6 +22,7 @@ open import Definition.Untyped M hiding (_∷_)
 
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Consistency TR
+open import Definition.Typed.Consequences.DerivedRules TR
 open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Consequences.Substitution TR
 import Definition.Typed.Consequences.Canonicity TR as TC
@@ -30,7 +31,11 @@ open import Definition.Typed.Properties TR
 open import Definition.LogicalRelation TR
 
 open import Graded.Context 𝕄
+import Graded.Derived.Erased.Typed TR as ET
+open import Graded.Derived.Erased.Untyped 𝕄 as Erased using (Erased)
+open import Graded.Derived.Erased.Usage 𝕄 UR
 open import Graded.Usage 𝕄 UR
+open import Graded.Usage.Properties 𝕄 UR
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
@@ -38,11 +43,11 @@ open import Graded.Mode 𝕄
 import Graded.Erasure.Target as T
 open import Graded.Erasure.Extraction 𝕄 is-𝟘?
 open import Graded.Erasure.SucRed TR
-import Graded.Erasure.LogicalRelation 𝕄 TR is-𝟘? as LR
-open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions 𝕄 TR UR
-import Graded.Erasure.LogicalRelation.Fundamental 𝕄 TR UR as LRF
-import Graded.Erasure.LogicalRelation.Irrelevance 𝕄 TR is-𝟘? as LRI
-import Graded.Erasure.LogicalRelation.Subsumption 𝕄 TR is-𝟘? as LRS
+import Graded.Erasure.LogicalRelation TR is-𝟘? as LR
+open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions TR UR
+import Graded.Erasure.LogicalRelation.Fundamental TR UR as LRF
+import Graded.Erasure.LogicalRelation.Irrelevance TR is-𝟘? as LRI
+import Graded.Erasure.LogicalRelation.Subsumption TR is-𝟘? as LRS
 
 open import Tools.Empty
 open import Tools.Fin
@@ -232,7 +237,7 @@ module Soundness₀ where
 -- soundness-ℕ-only-source without the assumption "erased matches are
 -- not allowed unless the context is empty".
 
-soundness-ℕ-only-source-counterexample :
+soundness-ℕ-only-source-counterexample₁ :
   Prodrec-allowed 𝟘 p 𝟘 →
   Σᵣ-allowed p 𝟘 →
   let Δ = ε ∙ (Σᵣ p , 𝟘 ▷ ℕ ▹ ℕ)
@@ -242,7 +247,7 @@ soundness-ℕ-only-source-counterexample :
   Δ ⊢ t ∷ ℕ ×
   𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
   ¬ ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
-soundness-ℕ-only-source-counterexample {p = p} P-ok Σᵣ-ok =
+soundness-ℕ-only-source-counterexample₁ {p = p} P-ok Σᵣ-ok =
     inhabited-consistent
       (singleSubst (prodⱼ ε⊢ℕ εℕ⊢ℕ (zeroⱼ ε) (zeroⱼ ε) Σᵣ-ok))
   , ⊢prodrec
@@ -284,10 +289,143 @@ soundness-ℕ-only-source-counterexample {p = p} P-ok Σᵣ-ok =
 -- The above counterexample for the source language is not a
 -- counterexample to canonicity for the target language.
 
-soundness-ℕ-only-target-not-counterexample :
+soundness-ℕ-only-target-not-counterexample₁ :
   let t = prodrec 𝟘 p 𝟘 ℕ (var {n = 1} x0) zero
   in  erase t ⇒ˢ* sucᵏ′ 0
-soundness-ℕ-only-target-not-counterexample
+soundness-ℕ-only-target-not-counterexample₁
   with is-𝟘? 𝟘
 ... | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 refl)
 ... | yes _ = trans (whred T.prodrec-β) refl
+
+opaque
+
+  -- If []-cong-allowed holds, then there is a counterexample to
+  -- soundness-ℕ-only-source without the assumption "erased matches
+  -- are not allowed unless the context is empty".
+
+  soundness-ℕ-only-source-counterexample₂ :
+    []-cong-allowed →
+    let Δ = ε ∙ Id ℕ zero zero
+        t = J 𝟘 𝟘 (Erased ℕ) Erased.[ zero ] ℕ zero Erased.[ zero ]
+              ([]-cong ℕ zero zero (var {n = 1} x0))
+    in
+    Consistent Δ ×
+    Δ ⊢ t ∷ ℕ ×
+    𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
+    ¬ ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
+  soundness-ℕ-only-source-counterexample₂ ok =
+    case ε ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε) of λ {
+      ⊢Id →
+      inhabited-consistent (singleSubst (rflⱼ (zeroⱼ ε)))
+    , Jⱼ′ (ℕⱼ (J-motive-context ([]ⱼ (zeroⱼ ⊢Id)))) (zeroⱼ ⊢Id)
+        ([]-congⱼ′ ok (var ⊢Id here))
+    , Jₘ′ (▸Erased ℕₘ) (▸[] zeroₘ)
+        (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
+         sub ℕₘ $ begin
+           𝟘ᶜ ∙ 𝟙 · 𝟘 ∙ 𝟙 · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
+           𝟘ᶜ                  ∎)
+        zeroₘ (▸[] zeroₘ) ([]-congₘ ℕₘ zeroₘ zeroₘ var)
+        (≤ᶜ-reflexive (≈ᶜ-sym ω·ᶜ⋀ᶜ⁵𝟘ᶜ))
+    , (λ where
+         (0 , whred J⇒ ⇨ˢ _) →
+           whnfRedTerm J⇒ (ne (Jₙ ([]-congₙ (var _))))
+         (1+ _ , whred J⇒ ⇨ˢ _) →
+           whnfRedTerm J⇒ (ne (Jₙ ([]-congₙ (var _))))) }
+    where
+    open ET ([]-cong→Erased ok)
+
+opaque
+
+  -- The counterexample above is not a counterexample to canonicity
+  -- for the target language.
+
+  soundness-ℕ-only-target-not-counterexample₂ :
+    let t = J 𝟘 𝟘 (Erased ℕ) Erased.[ zero ] ℕ zero Erased.[ zero ]
+              ([]-cong ℕ zero zero (var {n = 1} x0))
+    in  erase t ⇒ˢ* sucᵏ′ 0
+  soundness-ℕ-only-target-not-counterexample₂ =
+    refl
+
+opaque
+
+  -- If Erased-matches-for-J holds, then there is a counterexample to
+  -- soundness-ℕ-only-source without the assumption "erased matches
+  -- are not allowed unless the context is empty".
+
+  soundness-ℕ-only-source-counterexample₃ :
+    Erased-matches-for-J →
+    let Δ = ε ∙ Id ℕ zero zero
+        t = J 𝟘 𝟘 ℕ zero ℕ zero zero (var {n = 1} x0)
+    in
+    Consistent Δ ×
+    Δ ⊢ t ∷ ℕ ×
+    𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
+    ¬ ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
+  soundness-ℕ-only-source-counterexample₃ ok =
+    case ε ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε) of λ {
+      ⊢Id →
+      inhabited-consistent (singleSubst (rflⱼ (zeroⱼ ε)))
+    , Jⱼ′ (ℕⱼ (J-motive-context (zeroⱼ ⊢Id))) (zeroⱼ ⊢Id) (var ⊢Id here)
+    , J₀ₘ ok ℕₘ zeroₘ
+        (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
+         sub ℕₘ $ begin
+           𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
+           𝟘ᶜ                              ∎)
+        zeroₘ zeroₘ var
+    , (λ where
+         (0    , whred J⇒ ⇨ˢ _) → whnfRedTerm J⇒ (ne (Jₙ (var _)))
+         (1+ _ , whred J⇒ ⇨ˢ _) → whnfRedTerm J⇒ (ne (Jₙ (var _)))) }
+
+opaque
+
+  -- The counterexample above is not a counterexample to canonicity
+  -- for the target language.
+
+  soundness-ℕ-only-target-not-counterexample₃ :
+    let t = J 𝟘 𝟘 ℕ zero ℕ zero zero (var {n = 1} x0)
+    in  erase t ⇒ˢ* sucᵏ′ 0
+  soundness-ℕ-only-target-not-counterexample₃ =
+    refl
+
+opaque
+
+  -- If K-allowed and Erased-matches-for-K hold, then there is a
+  -- counterexample to soundness-ℕ-only-source without the assumption
+  -- "erased matches are not allowed unless the context is empty".
+
+  soundness-ℕ-only-source-counterexample₄ :
+    K-allowed →
+    Erased-matches-for-K →
+    let Δ = ε ∙ Id ℕ zero zero
+        t = K 𝟘 ℕ zero ℕ zero (var {n = 1} x0)
+    in
+    Consistent Δ ×
+    Δ ⊢ t ∷ ℕ ×
+    𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
+    ¬ ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
+  soundness-ℕ-only-source-counterexample₄ K-ok K₀-ok =
+    case ε ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε) of λ {
+      ⊢Id →
+      inhabited-consistent (singleSubst (rflⱼ (zeroⱼ ε)))
+    , Kⱼ′ (ℕⱼ (K-motive-context (zeroⱼ ⊢Id))) (zeroⱼ ⊢Id) (var ⊢Id here)
+        K-ok
+    , K₀ₘ K₀-ok ℕₘ zeroₘ
+        (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
+         sub ℕₘ $ begin
+           𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+           𝟘ᶜ                ∎)
+        zeroₘ var
+    , (λ where
+         (0    , whred K⇒ ⇨ˢ _) → whnfRedTerm K⇒ (ne (Kₙ (var _)))
+         (1+ _ , whred K⇒ ⇨ˢ _) → whnfRedTerm K⇒ (ne (Kₙ (var _)))) }
+
+opaque
+
+  -- The counterexample above is not a counterexample to canonicity
+  -- for the target language.
+
+  soundness-ℕ-only-target-not-counterexample₄ :
+    let t = K 𝟘 ℕ zero ℕ zero (var {n = 1} x0)
+    in  erase t ⇒ˢ* sucᵏ′ 0
+  soundness-ℕ-only-target-not-counterexample₄ =
+    refl

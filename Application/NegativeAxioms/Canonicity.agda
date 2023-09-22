@@ -3,10 +3,12 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Application.NegativeAxioms.Canonicity
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
 
 open import Application.NegativeAxioms.NegativeType R
@@ -68,6 +70,12 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
     in  ⊥-elim (¬negΣᵣ (neNeg d n) ⊢Σ)
   neNeg (emptyrecⱼ _ d     ) (emptyrecₙ n) =
     ⊥-elim (consistent _ d)
+  neNeg (Jⱼ _ ⊢t _ _ ⊢v ⊢w) (Jₙ w-ne) =
+    ⊥-elim (¬negId (neNeg ⊢w w-ne) (refl (Idⱼ ⊢t ⊢v)))
+  neNeg (Kⱼ ⊢t _ _ ⊢v _) (Kₙ v-ne) =
+    ⊥-elim (¬negId (neNeg ⊢v v-ne) (refl (Idⱼ ⊢t ⊢t)))
+  neNeg ([]-congⱼ ⊢t ⊢u ⊢v _) ([]-congₙ v-ne) =
+    ⊥-elim (¬negId (neNeg ⊢v v-ne) (refl (Idⱼ ⊢t ⊢u)))
   neNeg (conv d c          ) n          = conv (neNeg d n) c
 
   -- Lemma: A normal form of type ℕ is a numeral in a consistent negative context.
@@ -91,15 +99,17 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   -- Impossible cases: type is not ℕ.
 
   -- * Canonical types
-  nfN (ΠΣⱼ _ _ _) (ΠΣₙ _ _) c = ⊥-elim (U≢ℕ c)
-  nfN (ℕⱼ _)      ℕₙ        c = ⊥-elim (U≢ℕ c)
-  nfN (Emptyⱼ _)  Emptyₙ    c = ⊥-elim (U≢ℕ c)
-  nfN (Unitⱼ _ _) Unitₙ     c = ⊥-elim (U≢ℕ c)
+  nfN (ΠΣⱼ _ _ _) (ΠΣₙ _ _)   c = ⊥-elim (U≢ℕ c)
+  nfN (ℕⱼ _)      ℕₙ          c = ⊥-elim (U≢ℕ c)
+  nfN (Emptyⱼ _)  Emptyₙ      c = ⊥-elim (U≢ℕ c)
+  nfN (Unitⱼ _ _) Unitₙ       c = ⊥-elim (U≢ℕ c)
+  nfN (Idⱼ _ _ _) (Idₙ _ _ _) c = ⊥-elim (U≢ℕ c)
 
   -- * Canonical forms
   nfN (lamⱼ _ _ _)      (lamₙ _)    c = ⊥-elim (ℕ≢Π (sym c))
   nfN (prodⱼ _ _ _ _ _) (prodₙ _ _) c = ⊥-elim (ℕ≢Σ (sym c))
   nfN (starⱼ _ _)       starₙ       c = ⊥-elim (ℕ≢Unitⱼ (sym c))
+  nfN (rflⱼ _)          rflₙ        c = ⊥-elim (Id≢ℕ c)
   -- q.e.d
 
    -- Terms of non-negative types reduce to non-neutrals

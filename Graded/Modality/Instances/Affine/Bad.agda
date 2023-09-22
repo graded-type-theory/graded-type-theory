@@ -16,7 +16,7 @@ module Graded.Modality.Instances.Affine.Bad
   (variant : Modality-variant)
   (open Graded.Modality.Instances.Affine variant)
   (open Graded.Modality.Dedicated-nr bad-affine-modality)
-  (TR : Type-restrictions Affine)
+  (TR : Type-restrictions bad-affine-modality)
   (open Type-restrictions TR)
   (UR : Usage-restrictions Affine)
   -- It is assumed that "Π 𝟙 , 𝟘" is allowed.
@@ -31,8 +31,7 @@ import Tools.Reasoning.PartialOrder
 open import Graded.Context bad-affine-modality
 open import Graded.Context.Properties bad-affine-modality
 open import Graded.Modality Affine
-open import Graded.Modality.Instances.Examples
-  bad-affine-modality TR Π-𝟙-𝟘
+open import Graded.Modality.Instances.Examples TR Π-𝟙-𝟘
 open import Graded.Mode bad-affine-modality
 open import Graded.Usage bad-affine-modality UR
 

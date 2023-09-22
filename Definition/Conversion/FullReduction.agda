@@ -3,11 +3,15 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.Conversion.FullReduction
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
+
+open Type-restrictions R
 
 open import Definition.Conversion R
 open import Definition.Conversion.Consequences.Completeness R
@@ -25,9 +29,12 @@ open import Definition.Typed.Eta-long-normal-form R
 open import Definition.Typed.Properties R
 open import Definition.Untyped M hiding (_∷_)
 
+import Graded.Derived.Erased.Typed R as ET
+
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Product
+import Tools.PropositionalEquality as PE
 
 private variable
   Γ    : Con Term _
@@ -140,6 +147,75 @@ mutual
          Γ ⊢ne emptyrec p A′ t′ ∷ A′  →⟨ flip _⊢ne_∷_.convₙ (sym A≡A′) ⟩
          Γ ⊢ne emptyrec p A′ t′ ∷ A   □)
       , emptyrec-cong A≡A′ t≡t′ }}
+    (J-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁~w₂ C≡Id-t₁-v₁) →
+      case fullRedConv↑ A₁≡A₂ of λ {
+        (A₁′ , ⊢A₁′ , A₁≡A₁′) →
+      case fullRedTermConv↑ t₁≡t₂ of λ {
+        (t₁′ , ⊢t₁′ , t₁≡t₁′) →
+      case fullRedConv↑ B₁≡B₂ of λ {
+        (B₁′ , ⊢B₁′ , B₁≡B₁′) →
+      case fullRedTermConv↑ u₁≡u₂ of λ {
+        (u₁′ , ⊢u₁′ , u₁≡u₁′) →
+      case fullRedTermConv↑ v₁≡v₂ of λ {
+        (v₁′ , ⊢v₁′ , v₁≡v₁′) →
+      case fullRedNe~↓ w₁~w₂ of λ {
+        (w₁′ , ⊢w₁′ , w₁≡w₁′) →
+      case conv w₁≡w₁′ C≡Id-t₁-v₁ of λ {
+        w₁≡w₁′ →
+        J _ _ A₁′ t₁′ B₁′ u₁′ v₁′ w₁′
+      , convₙ
+          (Jₙ ⊢A₁′ (convₙ ⊢t₁′ A₁≡A₁′)
+             (⊢nf-stable (J-motive-context-cong′ A₁≡A₁′ t₁≡t₁′) ⊢B₁′)
+             (convₙ ⊢u₁′ (J-motive-rfl-cong B₁≡B₁′ t₁≡t₁′))
+             (convₙ ⊢v₁′ A₁≡A₁′)
+             (convₙ ⊢w₁′
+                (trans C≡Id-t₁-v₁ (Id-cong A₁≡A₁′ t₁≡t₁′ v₁≡v₁′))))
+          (sym (J-result-cong B₁≡B₁′ v₁≡v₁′ w₁≡w₁′))
+      , J-cong′ A₁≡A₁′ t₁≡t₁′ B₁≡B₁′ u₁≡u₁′ v₁≡v₁′ w₁≡w₁′ }}}}}}}
+    (K-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁~v₂ C≡Id-t₁-t₁ ok) →
+      case fullRedConv↑ A₁≡A₂ of λ {
+        (A₁′ , ⊢A₁′ , A₁≡A₁′) →
+      case fullRedTermConv↑ t₁≡t₂ of λ {
+        (t₁′ , ⊢t₁′ , t₁≡t₁′) →
+      case fullRedConv↑ B₁≡B₂ of λ {
+        (B₁′ , ⊢B₁′ , B₁≡B₁′) →
+      case fullRedTermConv↑ u₁≡u₂ of λ {
+        (u₁′ , ⊢u₁′ , u₁≡u₁′) →
+      case fullRedNe~↓ v₁~v₂ of λ {
+        (v₁′ , ⊢v₁′ , v₁≡v₁′) →
+      case conv v₁≡v₁′ C≡Id-t₁-t₁ of λ {
+        v₁≡v₁′ →
+        K _ A₁′ t₁′ B₁′ u₁′ v₁′
+      , convₙ
+          (Kₙ ⊢A₁′ (convₙ ⊢t₁′ A₁≡A₁′)
+             (⊢nf-stable (K-motive-context-cong′ A₁≡A₁′ t₁≡t₁′) ⊢B₁′)
+             (convₙ ⊢u₁′ (K-motive-rfl-cong B₁≡B₁′))
+             (convₙ ⊢v₁′
+                (trans C≡Id-t₁-t₁ (Id-cong A₁≡A₁′ t₁≡t₁′ t₁≡t₁′)))
+             ok)
+          (sym (substTypeEq B₁≡B₁′ v₁≡v₁′))
+      , K-cong′ A₁≡A₁′ t₁≡t₁′ B₁≡B₁′ u₁≡u₁′ v₁≡v₁′ ok }}}}}}
+    ([]-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ B≡Id-t₁-u₁ ok) →
+      let open ET ([]-cong→Erased ok) in
+      case fullRedConv↑ A₁≡A₂ of λ {
+        (A₁′ , ⊢A₁′ , A₁≡A₁′) →
+      case fullRedTermConv↑ t₁≡t₂ of λ {
+        (t₁′ , ⊢t₁′ , t₁≡t₁′) →
+      case fullRedTermConv↑ u₁≡u₂ of λ {
+        (u₁′ , ⊢u₁′ , u₁≡u₁′) →
+      case fullRedNe~↓ v₁~v₂ of λ {
+        (v₁′ , ⊢v₁′ , v₁≡v₁′) →
+        []-cong A₁′ t₁′ u₁′ v₁′
+      , convₙ
+          ([]-congₙ ⊢A₁′ (convₙ ⊢t₁′ A₁≡A₁′) (convₙ ⊢u₁′ A₁≡A₁′)
+             (convₙ ⊢v₁′
+                (trans B≡Id-t₁-u₁ (Id-cong A₁≡A₁′ t₁≡t₁′ u₁≡u₁′)))
+             ok)
+          (_⊢_≡_.sym $
+           Id-cong (Erased-cong A₁≡A₁′) ([]-cong′ t₁≡t₁′)
+             ([]-cong′ u₁≡u₁′))
+      , []-cong-cong A₁≡A₁′ t₁≡t₁′ u₁≡u₁′ (conv v₁≡v₁′ B≡Id-t₁-u₁)
+          ok }}}}
 
   fullRedNe~↓ :
     Γ ⊢ t ~ t′ ↓ A →
@@ -178,6 +254,16 @@ mutual
       ΠΣ⟨ _ ⟩ _ , _ ▷ A′ ▹ B′ ,
       ΠΣₙ A′-nf (⊢nf-stable (reflConEq (wfEq A≡A′) ∙ A≡A′) B′-nf) ok ,
       ΠΣ-cong ⊢A A≡A′ B≡B′ ok }}
+    (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) →
+      case fullRedConv↑ A₁≡A₂ of λ {
+        (A₁′ , ⊢A₁′ , A₁≡A₁′) →
+      case fullRedTermConv↑ t₁≡t₂ of λ {
+        (t₁′ , ⊢t₁′ , t₁≡t₁′) →
+      case fullRedTermConv↑ u₁≡u₂ of λ {
+        (u₁′ , ⊢u₁′ , u₁≡u₁′) →
+        Id A₁′ t₁′ u₁′
+      , Idₙ ⊢A₁′ (convₙ ⊢t₁′ A₁≡A₁′) (convₙ ⊢u₁′ A₁≡A₁′)
+      , Id-cong A₁≡A₁′ t₁≡t₁′ u₁≡u₁′ }}}
 
   fullRedTermConv↑ :
     Γ ⊢ t [conv↑] t′ ∷ A →
@@ -303,6 +389,21 @@ mutual
         star
       , starₙ ⊢Γ ok
       , η-unit ⊢t (starⱼ ⊢Γ ok) }}
+    (Id-ins ⊢t t~u) →
+      case fullRedNe~↓ t~u of λ {
+        (v , ⊢v , t≡v) →
+      case neTypeEq (ne~↓ t~u .proj₂ .proj₁)
+             (syntacticEqTerm t≡v .proj₂ .proj₁) ⊢t of λ {
+        Id≡Id →
+        v
+      , neₙ Idₙ (convₙ ⊢v Id≡Id)
+      , conv t≡v Id≡Id }}
+    (rfl-refl t≡u) →
+      case syntacticEqTerm t≡u of λ {
+        (⊢A , ⊢t , _) →
+        rfl
+      , convₙ (rflₙ ⊢t) (Id-cong (refl ⊢A) (refl ⊢t) t≡u)
+      , refl (rflⱼ′ t≡u) }
 
 -- If A is a well-formed type, then A is definitionally equal to a
 -- type in η-long normal form.

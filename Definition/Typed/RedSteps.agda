@@ -7,14 +7,21 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.Typed.RedSteps
   {ℓ} {M : Set ℓ}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
+
+open Type-restrictions R
 
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Typed R
+
+open import Graded.Derived.Erased.Untyped 𝕄 as Erased using (Erased)
+
 open import Tools.Nat
 
 private
@@ -22,7 +29,7 @@ private
     n : Nat
     Γ : Con Term n
     A B C : Term n
-    a t t′ u r : Term n
+    a t t′ u v₁ v₂ r : Term n
     p q : M
 
 -- Concatenation of type reduction closures
@@ -58,3 +65,35 @@ fst-subst* : Γ ⊢ t ⇒* t′ ∷ Σₚ p , q ▷ A ▹ B
            → Γ ⊢ fst p t ⇒* fst p t′ ∷ A
 fst-subst* (id x) ⊢F ⊢G = id (fstⱼ ⊢F ⊢G x)
 fst-subst* (x ⇨ t⇒t′) ⊢F ⊢G = (fst-subst ⊢F ⊢G x) ⇨ (fst-subst* t⇒t′ ⊢F ⊢G)
+
+-- A variant of []-cong-subst for _⊢_⇒*_∷_.
+
+[]-cong-subst* :
+  Γ ⊢ A →
+  Γ ⊢ t ∷ A →
+  Γ ⊢ u ∷ A →
+  Γ ⊢ v₁ ⇒* v₂ ∷ Id A t u →
+  []-cong-allowed →
+  Γ ⊢ []-cong A t u v₁ ⇒* []-cong A t u v₂ ∷
+    Id (Erased A) Erased.[ t ] Erased.[ u ]
+[]-cong-subst* ⊢A ⊢t ⊢u = λ where
+  (id ⊢v₁)         ok → id ([]-congⱼ ⊢t ⊢u ⊢v₁ ok)
+  (v₁⇒v₃ ⇨ v₃⇒*v₂) ok →
+    []-cong-subst  ⊢A ⊢t ⊢u v₁⇒v₃  ok ⇨
+    []-cong-subst* ⊢A ⊢t ⊢u v₃⇒*v₂ ok
+
+-- A variant of []-cong-subst for _⊢_:⇒*:_∷_.
+
+[]-cong-subst:*: :
+  Γ ⊢ A →
+  Γ ⊢ t ∷ A →
+  Γ ⊢ u ∷ A →
+  Γ ⊢ v₁ :⇒*: v₂ ∷ Id A t u →
+  []-cong-allowed →
+  Γ ⊢ []-cong A t u v₁ :⇒*: []-cong A t u v₂ ∷
+    Id (Erased A) Erased.[ t ] Erased.[ u ]
+[]-cong-subst:*: ⊢A ⊢t ⊢u [ ⊢v₁ , ⊢v₂ , v₁⇒*v₂ ] ok = record
+  { ⊢t = []-congⱼ ⊢t ⊢u ⊢v₁ ok
+  ; ⊢u = []-congⱼ ⊢t ⊢u ⊢v₂ ok
+  ; d  = []-cong-subst* ⊢A ⊢t ⊢u v₁⇒*v₂ ok
+  }

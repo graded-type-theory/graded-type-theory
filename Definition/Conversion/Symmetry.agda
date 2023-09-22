@@ -3,28 +3,35 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.Conversion.Symmetry
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
+
+open Type-restrictions R
 
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Weakening R as W hiding (wk)
 open import Definition.Conversion R
-open import Definition.Conversion.Stability R
 open import Definition.Conversion.Soundness R
 open import Definition.Conversion.Conversion R
+open import Definition.Conversion.Whnf R
+open import Definition.Typed.Consequences.DerivedRules R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Consequences.Equality R
 open import Definition.Typed.Consequences.Reduction R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Inversion R
+open import Definition.Typed.Consequences.NeTypeEq R
 open import Definition.Typed.Consequences.Substitution R
 open import Definition.Typed.Consequences.Stability R
-open import Definition.Typed.Consequences.DerivedRules.Nat R
+
+import Graded.Derived.Erased.Typed R as Erased
 
 open import Tools.Function
 open import Tools.Nat
@@ -118,6 +125,77 @@ mutual
     in  _ , soundnessConv↑ x
     , emptyrec-cong (symConv↑ Γ≡Δ x)
                     (PE.subst (λ x₁ → _ ⊢ _ ~ _ ↓ x₁) B≡Empty u~t)
+  sym~↑ Γ≡Δ (J-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁~w₂ C≡Id-t₁-v₁) =
+    case sym~↓ Γ≡Δ w₁~w₂ of λ {
+      (_ , _ , C≡D , w₂~w₁) →
+    case soundnessConv↑ A₁≡A₂ of λ {
+      ⊢A₁≡A₂ →
+    case soundnessConv↑ B₁≡B₂ of λ {
+      ⊢B₁≡B₂ →
+    case soundnessConv↑Term t₁≡t₂ of λ {
+      ⊢t₁≡t₂ →
+    case soundnessConv↑Term v₁≡v₂ of λ {
+      ⊢v₁≡v₂ →
+    case reflConEq (wfEq ⊢A₁≡A₂) of λ {
+      Γ≡Γ →
+      _
+    , J-result-cong ⊢B₁≡B₂ ⊢v₁≡v₂ (conv (soundness~↓ w₁~w₂) C≡Id-t₁-v₁)
+    , J-cong (symConv↑ Γ≡Δ A₁≡A₂)
+        (convConv↑Term Γ≡Δ ⊢A₁≡A₂ (symConv↑Term Γ≡Γ t₁≡t₂))
+        (symConv↑ (J-motive-context-cong Γ≡Δ ⊢A₁≡A₂ ⊢t₁≡t₂) B₁≡B₂)
+        (convConv↑Term Γ≡Δ (J-motive-rfl-cong ⊢B₁≡B₂ ⊢t₁≡t₂)
+           (symConv↑Term Γ≡Γ u₁≡u₂))
+        (convConv↑Term Γ≡Δ ⊢A₁≡A₂ (symConv↑Term Γ≡Γ v₁≡v₂)) w₂~w₁
+        (stabilityEq Γ≡Δ $
+         trans (trans (sym C≡D) C≡Id-t₁-v₁)
+           (Id-cong ⊢A₁≡A₂ ⊢t₁≡t₂ ⊢v₁≡v₂)) }}}}}}
+  sym~↑ Γ≡Δ (K-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁~v₂ C≡Id-t₁-t₁ ok) =
+    case sym~↓ Γ≡Δ v₁~v₂ of λ {
+      (_ , _ , C≡D , v₂~v₁) →
+    case soundnessConv↑ A₁≡A₂ of λ {
+      ⊢A₁≡A₂ →
+    case soundnessConv↑ B₁≡B₂ of λ {
+      ⊢B₁≡B₂ →
+    case soundnessConv↑Term t₁≡t₂ of λ {
+      ⊢t₁≡t₂ →
+    case reflConEq (wfEq ⊢A₁≡A₂) of λ {
+      Γ≡Γ →
+      _
+    , substTypeEq ⊢B₁≡B₂
+        (conv (soundness~↓ v₁~v₂) C≡Id-t₁-t₁)
+    , K-cong (symConv↑ Γ≡Δ A₁≡A₂)
+        (convConv↑Term Γ≡Δ ⊢A₁≡A₂ (symConv↑Term Γ≡Γ t₁≡t₂))
+        (symConv↑ (K-motive-context-cong Γ≡Δ ⊢A₁≡A₂ ⊢t₁≡t₂) B₁≡B₂)
+        (convConv↑Term Γ≡Δ (K-motive-rfl-cong ⊢B₁≡B₂)
+           (symConv↑Term Γ≡Γ u₁≡u₂))
+        v₂~v₁
+        (stabilityEq Γ≡Δ $
+         trans (trans (sym C≡D) C≡Id-t₁-t₁)
+           (Id-cong ⊢A₁≡A₂ ⊢t₁≡t₂ ⊢t₁≡t₂))
+        ok }}}}}
+  sym~↑ Γ≡Δ ([]-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ B≡Id-t₁-u₁ ok) =
+    case sym~↓ Γ≡Δ v₁~v₂ of λ {
+      (_ , _ , B≡C , v₂~v₁) →
+    case soundnessConv↑ A₁≡A₂ of λ {
+      ⊢A₁≡A₂ →
+    case soundnessConv↑Term t₁≡t₂ of λ {
+      ⊢t₁≡t₂ →
+    case soundnessConv↑Term u₁≡u₂ of λ {
+      ⊢u₁≡u₂ →
+    case reflConEq (wfEq ⊢A₁≡A₂) of λ {
+      Γ≡Γ →
+      _
+    , Id-cong (Erased-cong ⊢A₁≡A₂) ([]-cong′ ⊢t₁≡t₂) ([]-cong′ ⊢u₁≡u₂)
+    , []-cong-cong (symConv↑ Γ≡Δ A₁≡A₂)
+        (convConv↑Term Γ≡Δ ⊢A₁≡A₂ (symConv↑Term Γ≡Γ t₁≡t₂))
+        (convConv↑Term Γ≡Δ ⊢A₁≡A₂ (symConv↑Term Γ≡Γ u₁≡u₂))
+        v₂~v₁
+        (stabilityEq Γ≡Δ $
+         trans (trans (sym B≡C) B≡Id-t₁-u₁)
+           (Id-cong ⊢A₁≡A₂ ⊢t₁≡t₂ ⊢u₁≡u₂))
+        ok }}}}}
+    where
+    open Erased ([]-cong→Erased ok)
 
   -- Symmetry of algorithmic equality of neutrals of types in WHNF.
   sym~↓ : ∀ {t u A} → ⊢ Γ ≡ Δ → Γ ⊢ t ~ u ↓ A
@@ -158,6 +236,14 @@ mutual
         _ , ⊢H = syntacticEq (stabilityEq Γ≡Δ F≡H)
     in  ΠΣ-cong ⊢H (symConv↑ Γ≡Δ A<>B)
           (symConv↑ (Γ≡Δ ∙ F≡H) A<>B₁) ok
+  symConv↓ Γ≡Δ (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) =
+    case soundnessConv↑ A₁≡A₂ of λ {
+      ⊢A₁≡A₂ →
+    case reflConEq (wfEq ⊢A₁≡A₂) of λ {
+      Γ≡Γ →
+    Id-cong (symConv↑ Γ≡Δ A₁≡A₂)
+      (convConv↑Term Γ≡Δ ⊢A₁≡A₂ (symConv↑Term Γ≡Γ t₁≡t₂))
+      (convConv↑Term Γ≡Δ ⊢A₁≡A₂ (symConv↑Term Γ≡Γ u₁≡u₂)) }}
 
   -- Symmetry of algorithmic equality of terms.
   symConv↑Term : ∀ {t u A} → ⊢ Γ ≡ Δ → Γ ⊢ t [conv↑] u ∷ A → Δ ⊢ u [conv↑] t ∷ A
@@ -220,6 +306,18 @@ mutual
     let [t] = stabilityTerm Γ≡Δ [t]
         [u] = stabilityTerm Γ≡Δ [u]
     in  η-unit [u] [t] uUnit tUnit
+  symConv↓Term Γ≡Δ (Id-ins ⊢v₁ v₁~v₂) =
+    case sym~↓ Γ≡Δ v₁~v₂ of λ {
+      (_ , B-whnf , Id≡B , v₂~v₁) →
+    case Id≡Whnf Id≡B B-whnf of λ {
+      (_ , _ , _ , PE.refl) →
+    case syntacticEqTerm (soundness~↓ v₁~v₂) .proj₂ of λ {
+      (⊢v₁′ , ⊢v₂) →
+    case sym (neTypeEq (ne~↓ v₁~v₂ .proj₂ .proj₁) ⊢v₁ ⊢v₁′) of λ {
+      Id≡Id →
+    Id-ins (stabilityTerm Γ≡Δ (conv ⊢v₂ Id≡Id)) v₂~v₁ }}}}
+  symConv↓Term Γ≡Δ (rfl-refl t≡u) =
+    rfl-refl (stabilityEqTerm Γ≡Δ t≡u)
 
 symConv↓Term′ : ∀ {t u A} → Γ ⊢ t [conv↓] u ∷ A → Γ ⊢ u [conv↓] t ∷ A
 symConv↓Term′ tConvU =

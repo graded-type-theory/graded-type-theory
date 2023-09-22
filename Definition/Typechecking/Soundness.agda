@@ -3,23 +3,33 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.Typechecking.Soundness
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
+
+open Type-restrictions R
 
 open import Definition.Typechecking R
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 import Definition.Typed.Weakening R as W
+open import Definition.Typed.Consequences.DerivedRules R
 open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Consequences.Substitution R
 open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped.Properties M
 
+import Graded.Derived.Erased.Typed R as ET
+
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
+import Tools.PropositionalEquality as PE
 
 private
   variable
@@ -44,6 +54,8 @@ mutual
   soundness⇇Type ⊢Γ (ΠΣᶜ ⊢A ⊢B ok) =
     let ⊢F = soundness⇇Type ⊢Γ ⊢A
     in  ΠΣⱼ ⊢F (soundness⇇Type (⊢Γ ∙ ⊢F) ⊢B) ok
+  soundness⇇Type ⊢Γ (Idᶜ _ ⊢t ⊢u) =
+    Idⱼ (soundness⇇ ⊢Γ ⊢t) (soundness⇇ ⊢Γ ⊢u)
   soundness⇇Type ⊢Γ (univᶜ x) = univ (soundness⇇ ⊢Γ x)
 
   soundness⇉ : ⊢ Γ → Γ ⊢ t ⇉ A → (Γ ⊢ A) × (Γ ⊢ t ∷ A)
@@ -97,6 +109,40 @@ mutual
   soundness⇉ ⊢Γ (emptyrecᵢ A⇇Type t⇇Empty) =
     let ⊢A = soundness⇇Type ⊢Γ A⇇Type
     in  ⊢A , (emptyrecⱼ ⊢A (soundness⇇ ⊢Γ t⇇Empty))
+  soundness⇉ ⊢Γ (Idᵢ ⊢A ⊢t ⊢u) =
+    Uⱼ ⊢Γ , Idⱼ (soundness⇇ ⊢Γ ⊢A) (soundness⇇ ⊢Γ ⊢t) (soundness⇇ ⊢Γ ⊢u)
+  soundness⇉ ⊢Γ (Jᵢ ⊢A ⊢t ⊢B ⊢u ⊢v ⊢w) =
+    case soundness⇇Type ⊢Γ ⊢A of λ {
+      ⊢A →
+    case ⊢Γ ∙ ⊢A of λ {
+      ⊢Γ∙A →
+    case soundness⇇ ⊢Γ ⊢t of λ {
+      ⊢t →
+    case soundness⇇Type
+           (⊢Γ∙A ∙ Idⱼ (W.wkTerm (W.step W.id) ⊢Γ∙A ⊢t) (var ⊢Γ∙A here))
+           ⊢B of λ {
+      ⊢B →
+    case soundness⇇ ⊢Γ ⊢w of λ {
+      ⊢w →
+      substType₂ ⊢B (soundness⇇ ⊢Γ ⊢v)
+        (PE.subst (_⊢_∷_ _ _) ≡Id-wk1-wk1-0[]₀ ⊢w)
+    , Jⱼ′ ⊢B (soundness⇇ ⊢Γ ⊢u) ⊢w }}}}}
+  soundness⇉ ⊢Γ (Kᵢ ⊢A ⊢t ⊢B ⊢u ⊢v ok) =
+    case soundness⇇Type ⊢Γ ⊢A of λ {
+      ⊢A →
+    case soundness⇇ ⊢Γ ⊢t of λ {
+      ⊢t →
+    case soundness⇇Type (⊢Γ ∙ Idⱼ ⊢t ⊢t) ⊢B of λ {
+      ⊢B →
+    case soundness⇇ ⊢Γ ⊢v of λ {
+      ⊢v →
+      substType ⊢B ⊢v
+    , Kⱼ′ ⊢B (soundness⇇ ⊢Γ ⊢u) ⊢v ok }}}}
+  soundness⇉ ⊢Γ ([]-congᵢ _ ⊢t ⊢u ⊢v ok) =
+      Idⱼ ([]ⱼ (soundness⇇ ⊢Γ ⊢t)) ([]ⱼ (soundness⇇ ⊢Γ ⊢u))
+    , []-congⱼ′ ok (soundness⇇ ⊢Γ ⊢v)
+    where
+    open ET ([]-cong→Erased ok)
 
   soundness⇇ : ⊢ Γ → Γ ⊢ t ⇇ A → Γ ⊢ t ∷ A
   soundness⇇ ⊢Γ (lamᶜ A↘ΠFG t⇇G)=
@@ -112,4 +158,6 @@ mutual
         ⊢t = soundness⇇ ⊢Γ t⇇F
         ⊢u = soundness⇇ ⊢Γ u⇇Gt
     in  conv (prodⱼ ⊢F ⊢G ⊢t ⊢u ok) (sym A≡ΣFG)
+  soundness⇇ _ (rflᶜ (A⇒*Id , _) t≡u) =
+    conv (rflⱼ′ t≡u) (sym (subset* A⇒*Id))
   soundness⇇ ⊢Γ (infᶜ t⇉B A≡B) = conv (proj₂ (soundness⇉ ⊢Γ t⇉B)) A≡B

@@ -3,10 +3,12 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.Typed.Consequences.DerivedRules
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
 
 open import Definition.Typed R
@@ -14,6 +16,7 @@ open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Untyped M hiding (_∷_)
 
+open import Definition.Typed.Consequences.DerivedRules.Identity R public
 open import Definition.Typed.Consequences.DerivedRules.Nat R public
 open import Definition.Typed.Consequences.DerivedRules.Pi R public
 open import Definition.Typed.Consequences.DerivedRules.Pi-Sigma R public

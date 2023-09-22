@@ -2,6 +2,8 @@
 -- The fundamental lemma of the logical relation.
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.EqualityRelation
@@ -14,9 +16,9 @@ import Tools.PropositionalEquality as PE
 
 module Graded.Erasure.LogicalRelation.Fundamental
   {a} {M : Set a}
-  (𝕄 : Modality M)
+  {𝕄 : Modality M}
   (open Modality 𝕄)
-  (TR : Type-restrictions M)
+  (TR : Type-restrictions 𝕄)
   (UR : Usage-restrictions M)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
   {{eqrel : EqRelSet TR}}
@@ -32,8 +34,13 @@ open import Definition.LogicalRelation.Substitution TR
 open import Definition.LogicalRelation.Substitution.MaybeEmbed TR
 open import Definition.LogicalRelation.Substitution.Properties TR
 open import Definition.LogicalRelation.Substitution.Weakening TR
+open import
+  Definition.LogicalRelation.Substitution.Introductions.Identity TR
+open import Definition.LogicalRelation.Substitution.Introductions.DoubleSubst TR
 open import Definition.LogicalRelation.Substitution.Introductions.Pi TR
 open import Definition.LogicalRelation.Substitution.Introductions.Nat TR
+open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst TR
+import Definition.LogicalRelation.Substitution.Introductions.Var TR as V
 
 import Definition.LogicalRelation.Fundamental TR as F
 import Definition.LogicalRelation.Irrelevance TR as I
@@ -52,10 +59,11 @@ open import Graded.Mode 𝕄
 open import Definition.Untyped.Properties M
 open import Definition.Typed.Consequences.Syntactic TR
 
-import Graded.Erasure.LogicalRelation 𝕄 TR is-𝟘? as LR
-open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions 𝕄 TR UR
+import Graded.Erasure.LogicalRelation TR is-𝟘? as LR
+open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions TR UR
 import Graded.Erasure.LogicalRelation.Fundamental.Application
 import Graded.Erasure.LogicalRelation.Fundamental.Empty
+import Graded.Erasure.LogicalRelation.Fundamental.Identity
 import Graded.Erasure.LogicalRelation.Fundamental.Lambda
 import Graded.Erasure.LogicalRelation.Fundamental.Nat
 import Graded.Erasure.LogicalRelation.Fundamental.Natrec
@@ -91,6 +99,7 @@ private
      x : Fin n
      σ′ : T.Subst l n
      m : Mode
+     ⊩Γ : ⊩ᵛ _
 
 -- Some lemmas.
 
@@ -98,9 +107,9 @@ module _ (⊢Δ : ⊢ Δ) where
 
   open LR ⊢Δ
 
-  open Graded.Erasure.LogicalRelation.Conversion 𝕄 TR is-𝟘? ⊢Δ
-  open Graded.Erasure.LogicalRelation.Irrelevance 𝕄 TR is-𝟘? ⊢Δ
-  open Graded.Erasure.LogicalRelation.Subsumption 𝕄 TR is-𝟘? ⊢Δ
+  open Graded.Erasure.LogicalRelation.Conversion TR is-𝟘? ⊢Δ
+  open Graded.Erasure.LogicalRelation.Irrelevance TR is-𝟘? ⊢Δ
+  open Graded.Erasure.LogicalRelation.Subsumption TR is-𝟘? ⊢Δ
 
   -- A special case of subsumption.
 
@@ -191,24 +200,26 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
   open Fundamental-assumptions FA
 
   open Graded.Erasure.LogicalRelation.Fundamental.Application
-    𝕄 TR well-formed
+    TR well-formed
   open Graded.Erasure.LogicalRelation.Fundamental.Empty
-    𝕄 TR is-𝟘? well-formed consistent
+    TR is-𝟘? well-formed consistent
+  open Graded.Erasure.LogicalRelation.Fundamental.Identity
+    TR well-formed
   open Graded.Erasure.LogicalRelation.Fundamental.Lambda
-    𝕄 TR is-𝟘? non-trivial well-formed
+    TR is-𝟘? non-trivial well-formed
   open Graded.Erasure.LogicalRelation.Fundamental.Nat
-    𝕄 TR is-𝟘? well-formed
+    TR is-𝟘? well-formed
   open Graded.Erasure.LogicalRelation.Fundamental.Natrec
-    𝕄 TR well-formed
+    TR well-formed
   open Graded.Erasure.LogicalRelation.Fundamental.Prodrec
-    𝕄 TR well-formed
+    TR well-formed
   open Graded.Erasure.LogicalRelation.Fundamental.Product
-    𝕄 TR UR well-formed
+    TR UR well-formed
   open Graded.Erasure.LogicalRelation.Fundamental.Unit
-    𝕄 TR is-𝟘? well-formed
-  open Graded.Erasure.LogicalRelation.Conversion 𝕄 TR is-𝟘? well-formed
-  open Graded.Erasure.LogicalRelation.Irrelevance 𝕄 TR is-𝟘? well-formed
-  open Graded.Erasure.LogicalRelation.Subsumption 𝕄 TR is-𝟘? well-formed
+    TR is-𝟘? well-formed
+  open Graded.Erasure.LogicalRelation.Conversion TR is-𝟘? well-formed
+  open Graded.Erasure.LogicalRelation.Irrelevance TR is-𝟘? well-formed
+  open Graded.Erasure.LogicalRelation.Subsumption TR is-𝟘? well-formed
 
   open LR well-formed
 
@@ -226,6 +237,32 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
     Γ ⊢ t ∷ A → γ ▸[ m ] t →
     ∃₂ λ ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ]) →
       γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A / [Γ] / [A]
+
+  -- A variant of fundamental.
+
+  fundamental′ :
+    Γ ⊢ t ∷ A → γ ▸[ m ] t →
+    ∃ λ (⊩A : Γ ⊩ᵛ⟨ ¹ ⟩ A / ⊩Γ) →
+      γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A / ⊩Γ / ⊩A
+  fundamental′ {t} ⊢t ▸t =
+    case fundamental ⊢t ▸t of λ {
+      (_ , ⊩A′ , ⊩ʳt) →
+    case IS.irrelevance _ _ ⊩A′ of λ {
+      ⊩A →
+      ⊩A
+    , λ {_ _} → irrelevance {t = t} _ _ ⊩A′ ⊩A ⊩ʳt }}
+
+  -- Another variant of fundamental.
+
+  fundamental″ :
+    (⊩A : Γ ⊩ᵛ⟨ ¹ ⟩ A / ⊩Γ) →
+    Γ ⊢ t ∷ A → γ ▸[ m ] t →
+    γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A / ⊩Γ / ⊩A
+  fundamental″ {t} ⊩A ⊢t ▸t =
+    case fundamental ⊢t ▸t of λ {
+      (_ , ⊩A′ , ⊩ʳt) →
+    irrelevance {t = t} _ _ ⊩A′ ⊩A ⊩ʳt }
+
   fundamental {m = 𝟘ᵐ} ⊢t _ with is-𝟘? 𝟘
   ... | yes 𝟘≡𝟘 =
     case F.fundamental (syntacticTerm ⊢t) of λ ([Γ] , [A]) →
@@ -378,7 +415,7 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
         ⊩ʳu′ = irrelevance {t = u}
                  [Γ]₂ ([Γ] ∙ [F] ∙ [G]) [A₊]₂ [A₊] ⊩ʳu
         r≡𝟘→k≡0 = case closed-or-no-erased-matches of λ where
-          (inj₁ nem) → λ r≡𝟘 → ⊥-elim (nem non-trivial ok r≡𝟘)
+          (inj₁ nem) → λ r≡𝟘 → ⊥-elim (nem non-trivial .proj₁ ok r≡𝟘)
           (inj₂ k≡0) → λ _ → k≡0
         [At] , ⊩ʳprodrec =
           prodrecʳ
@@ -464,6 +501,109 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
                         [Γ] [Empty] [A] [t]
     in  [Γ] , [A] , γ⊩ʳemptyrec
   fundamental (starⱼ ⊢Γ ok) _ = starʳ ⊢Γ ok
+  fundamental (Idⱼ ⊢A ⊢t ⊢u) _ =
+    Idʳ ⊢A ⊢t ⊢u
+  fundamental (rflⱼ ⊢t) _ =
+    rflʳ ⊢t
+  fundamental {γ} (Jⱼ {A} {t} {B} {u} {v} {w} _ ⊢t ⊢B ⊢u ⊢v ⊢w) ▸J =
+    case F.fundamentalTerm ⊢t of λ {
+      (⊩Γ , ⊩A , ⊩t) →
+    case (λ {k Δ σ} →
+            F.fundamentalTerm′ ⊩A ⊢v
+              {k = k} {Δ = Δ} {σ = σ}) of λ {
+      ⊩v →
+    let ⊩Id-t-v        = Idᵛ {t = t} ⊩A ⊩t ⊩v
+        ⊩Id-wk1-t[v]-v = PE.subst (_ ⊩ᵛ⟨ ¹ ⟩_/ ⊩Γ) ≡Id-wk1-wk1-0[]₀ ⊩Id-t-v
+        ⊩wk1-A         = wk1ᵛ _ ⊩A ⊩A
+    in
+    case substD
+           {⊩B = Idᵛ ⊩wk1-A (wk1Termᵛ t ⊩A ⊩A ⊩t)
+                   (V.varᵛ here (_ ∙ ⊩A) ⊩wk1-A)}
+           ⊩v ⊩Id-wk1-t[v]-v
+           (F.fundamentalTerm′ ⊩Id-wk1-t[v]-v $
+            PE.subst (_⊢_∷_ _ _) ≡Id-wk1-wk1-0[]₀ ⊢w)
+           (F.fundamental′ ⊢B) of λ {
+      ⊩B[v,w] →
+      ⊩Γ
+    , ⊩B[v,w]
+    , (λ {_ _} →
+         case inv-usage-J ▸J of λ where
+           (invUsageJ₀ em _ _ _ ▸u _ _ γ≤) →
+             case fundamental′ ⊢u ▸u of λ {
+               (⊩B[t,rfl] , ⊩ʳu) →
+             Jʳ ⊢t ⊢B ⊢u ⊢v ⊢w ⊩B[t,rfl] ⊩B[v,w] γ≤ ⊩ʳu
+               (inj₁ $ case closed-or-no-erased-matches of λ where
+                  (inj₂ k≡0) → k≡0
+                  (inj₁ nem) →
+                    ⊥-elim (nem non-trivial .proj₂ .proj₂ .proj₁ em)) }
+           (invUsageJ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} _ _ _ _ ▸u _ ▸w γ≤) →
+             case fundamental′ ⊢u ▸u of λ {
+               (⊩B[t,rfl] , ⊩ʳu) →
+             subsumption {t = J _ _ A t B u v w} _ ⊩B[v,w]
+               (Jʳ ⊢t ⊢B ⊢u ⊢v ⊢w ⊩B[t,rfl] ⊩B[v,w]
+                  (∧ᶜ-decreasingˡ γ₄ _) ⊩ʳu
+                  (inj₂
+                     ( _ , _ , _ , _
+                     , ∧ᶜ-decreasingʳ γ₄ _
+                     , fundamental″ ⊩Id-t-v ⊢w ▸w
+                     )))
+               (λ x →
+                  γ ⟨ x ⟩ PE.≡ 𝟘                                        →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤ ⟩
+                  (ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆)) ⟨ x ⟩ PE.≡ 𝟘      →⟨ ·ᶜ-zero-product-⟨⟩ (γ₂ ∧ᶜ _) ⟩
+                  ω PE.≡ 𝟘 ⊎ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆) ⟨ x ⟩ PE.≡ 𝟘  →⟨ (λ { (inj₁ ω≡𝟘) → ⊥-elim (ω≢𝟘 ω≡𝟘); (inj₂ hyp) → hyp }) ⟩
+                  (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆) ⟨ x ⟩ PE.≡ 𝟘             →⟨ proj₂ ∘→ ∧ᶜ-positive-⟨⟩ γ₅ ∘→
+                                                                           ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 {γ = γ₄ ∧ᶜ _}
+                                                                             (≤ᶜ-reflexive $
+                                                                              ≈ᶜ-trans
+                                                                                (≈ᶜ-trans (≈ᶜ-sym (∧ᶜ-assoc _ _ _)) $
+                                                                                 ∧ᶜ-congʳ (∧ᶜ-comm _ _)) $
+                                                                              ∧ᶜ-assoc _ _ _) ∘→
+                                                                           proj₂ ∘→ ∧ᶜ-positive-⟨⟩ γ₃ ∘→
+                                                                           proj₂ ∘→ ∧ᶜ-positive-⟨⟩ γ₂ ⟩
+                  (γ₄ ∧ᶜ γ₆) ⟨ x ⟩ PE.≡ 𝟘                               □) }) }}}
+  fundamental {γ} (Kⱼ {t} {A} {B} {u} {v} ⊢t ⊢B ⊢u ⊢v ok) ▸K =
+    case F.fundamentalTerm ⊢t of λ {
+      (⊩Γ , ⊩A , ⊩t) →
+    let ⊩Id-t-t = Idᵛ ⊩A ⊩t ⊩t in
+    case substS _ ⊩Id-t-t (F.fundamental′ ⊢B)
+           (F.fundamentalTerm′ ⊩Id-t-t ⊢v) of λ {
+      ⊩B[v] →
+      ⊩Γ
+    , ⊩B[v]
+    , (λ {_ _} →
+         case inv-usage-K ▸K of λ where
+           (invUsageK₀ em _ _ _ ▸u _ γ≤) →
+             case fundamental′ ⊢u ▸u of λ {
+               (⊩B[rfl] , ⊩ʳu) →
+             Kʳ ⊢t ⊢B ⊢u ⊢v ok ⊩B[rfl] ⊩B[v] γ≤ ⊩ʳu
+               (inj₁ $ case closed-or-no-erased-matches of λ where
+                  (inj₂ k≡0) → k≡0
+                  (inj₁ nem) →
+                    ⊥-elim (nem non-trivial .proj₂ .proj₂ .proj₂ em)) }
+           (invUsageK {γ₂} {γ₃} {γ₄} {γ₅} _ _ _ _ ▸u ▸v γ≤) →
+             case fundamental′ ⊢u ▸u of λ {
+               (⊩B[rfl] , ⊩ʳu) →
+             subsumption {t = K _ A t B u v} _ ⊩B[v]
+               (Kʳ ⊢t ⊢B ⊢u ⊢v ok ⊩B[rfl] ⊩B[v]
+                  (∧ᶜ-decreasingˡ γ₄ _) ⊩ʳu
+                  (inj₂
+                     ( _ , _ , _
+                     , ∧ᶜ-decreasingʳ γ₄ _
+                     , fundamental″ ⊩Id-t-t ⊢v ▸v
+                     )))
+               (λ x →
+                  γ ⟨ x ⟩ PE.≡ 𝟘                                  →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤ ⟩
+                  (ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅)) ⟨ x ⟩ PE.≡ 𝟘      →⟨ ·ᶜ-zero-product-⟨⟩ (γ₂ ∧ᶜ _) ⟩
+                  ω PE.≡ 𝟘 ⊎ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘  →⟨ (λ { (inj₁ ω≡𝟘) → ⊥-elim (ω≢𝟘 ω≡𝟘); (inj₂ hyp) → hyp }) ⟩
+                  (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘             →⟨ proj₂ ∘→ ∧ᶜ-positive-⟨⟩ γ₃ ∘→
+                                                                     proj₂ ∘→ ∧ᶜ-positive-⟨⟩ γ₂ ⟩
+                  (γ₄ ∧ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘                         □) }) }}
+  fundamental ([]-congⱼ ⊢t ⊢u ⊢v ok) _ =
+    []-congʳ
+      (case closed-or-no-erased-matches of λ where
+         (inj₁ nem) → ⊥-elim (nem non-trivial .proj₂ .proj₁ ok)
+         (inj₂ k≡0) → k≡0)
+      ⊢t ⊢u ⊢v ok
   fundamental (conv {t = t} {A = A} {B = B} Γ⊢t:A A≡B) γ▸t =
     let [Γ] , [A] , ⊩ʳt = fundamental Γ⊢t:A γ▸t
         Γ⊢B = syntacticTerm (conv Γ⊢t:A A≡B)

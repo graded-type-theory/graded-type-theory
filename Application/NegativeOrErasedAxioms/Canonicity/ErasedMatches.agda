@@ -23,7 +23,7 @@ import Definition.Typed.Consequences.Canonicity
 import Definition.Typed.Consequences.Consistency
 import Definition.Typed.Consequences.Substitution
 import Definition.Typed.Properties
-import Definition.Typed.Restrictions
+open import Definition.Typed.Restrictions
 import Definition.Untyped hiding (_∷_)
 
 import Graded.Context
@@ -44,8 +44,6 @@ module Counterexample
   (variant : Modality-variant)
   where
 
-  open Definition.Typed.Restrictions Erasure
-
   open Graded.Modality Erasure
   open Graded.Usage.Restrictions Erasure
 
@@ -59,13 +57,13 @@ module Counterexample
 
     -- The type and usage restrictions used in this local module.
 
-    TR : Type-restrictions
-    TR = no-type-restrictions
+    TR : Type-restrictions 𝕄
+    TR = no-type-restrictions 𝕄
 
     UR : Usage-restrictions
-    UR = no-usage-restrictions
+    UR = no-usage-restrictions 𝕄
 
-  open Application.NegativeOrErasedAxioms.NegativeOrErasedContext 𝕄 TR
+  open Application.NegativeOrErasedAxioms.NegativeOrErasedContext TR
 
   open Definition.Conversion TR
   open Definition.Conversion.Consequences.Completeness TR
@@ -87,8 +85,8 @@ module Counterexample
     t : Term _
 
   -- A counterexample to canonicity. Note that the use of
-  -- no-usage-restrictions above means that erased eliminations are
-  -- allowed.
+  -- no-type-restrictions and no-usage-restrictions above means that
+  -- erased eliminations are allowed.
 
   cEx :
     ∃₄ λ (m : Nat) (Γ : Con Term m) (γ : Conₘ m) (t : Term m)
@@ -167,25 +165,27 @@ not-canonicityEq :
   (∀ {a} {M : Set a} →
    let open Graded.Modality M
        open Graded.Usage.Restrictions M
-       open Definition.Typed.Restrictions M
        open Definition.Untyped M
    in
-   (𝕄 : Modality) →
-   let open Modality 𝕄
-       open Graded.Mode 𝕄
-       open Application.NegativeOrErasedAxioms.NegativeOrErasedContext 𝕄
+   {𝕄 : Modality} →
+   let open Graded.Mode 𝕄
+       open Graded.Restrictions 𝕄
+       open Modality 𝕄
    in
    ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄
-   (TR : Type-restrictions) →
-   let open Definition.Typed TR in
+   (TR : Type-restrictions 𝕄) →
+   let open
+         Application.NegativeOrErasedAxioms.NegativeOrErasedContext TR
+       open Definition.Typed TR
+   in
    (UR : Usage-restrictions) →
    let open Graded.Usage 𝕄 UR in
    ∀ {m} {Γ : Con Term m} →
    Consistent Γ →
-   ∀ {t γ} → Γ ⊢ t ∷ ℕ → γ ▸[ 𝟙ᵐ ] t → NegativeErasedContext TR Γ γ →
+   ∀ {t γ} → Γ ⊢ t ∷ ℕ → γ ▸[ 𝟙ᵐ ] t → NegativeErasedContext Γ γ →
    ∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ) →
   ⊥
 not-canonicityEq hyp =
   case Counterexample.cEx (nr-available-and-𝟘ᵐ-allowed-if true) of λ {
     (_ , _ , _ , _ , ⊢t , ▸t , _ , nec , con , not-numeral , _) →
-  not-numeral (hyp _ _ _ con ⊢t ▸t nec) }
+  not-numeral (hyp _ _ con ⊢t ▸t nec) }

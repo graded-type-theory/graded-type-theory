@@ -12,6 +12,8 @@ open import Definition.Typed.Restrictions
 open import Definition.Untyped.NotParametrised
 open import Definition.Untyped.QuantityTranslation
 
+open import Graded.Modality
+
 private variable
   R R₁ R₂ R₃          : Type-restrictions _
   b                   : BinderMode
@@ -27,7 +29,8 @@ private variable
 
 record Are-preserving-type-restrictions
          {a₁ a₂} {M₁ : Set a₁} {M₂ : Set a₂}
-         (R₁ : Type-restrictions M₁) (R₂ : Type-restrictions M₂)
+         {𝕄₁ : Modality M₁} {𝕄₂ : Modality M₂}
+         (R₁ : Type-restrictions 𝕄₁) (R₂ : Type-restrictions 𝕄₂)
          (tr tr-Σ : M₁ → M₂) : Set (a₁ ⊔ a₂) where
   private
     module R₁ = Type-restrictions R₁
@@ -44,11 +47,20 @@ record Are-preserving-type-restrictions
       R₁.ΠΣ-allowed b p q →
       R₂.ΠΣ-allowed b (tr-BinderMode tr tr-Σ b p) (tr q)
 
+    -- If R₁.K-allowed holds, then R₂.K-allowed holds.
+    K-preserved :
+      R₁.K-allowed → R₂.K-allowed
+
+    -- If R₁.[]-cong-allowed holds, then R₂.[]-cong-allowed holds.
+    []-cong-preserved :
+      R₁.[]-cong-allowed → R₂.[]-cong-allowed
+
 -- The property of reflecting Type-restrictions.
 
 record Are-reflecting-type-restrictions
          {a₁ a₂} {M₁ : Set a₁} {M₂ : Set a₂}
-         (R₁ : Type-restrictions M₁) (R₂ : Type-restrictions M₂)
+         {𝕄₁ : Modality M₁} {𝕄₂ : Modality M₂}
+         (R₁ : Type-restrictions 𝕄₁) (R₂ : Type-restrictions 𝕄₂)
          (tr tr-Σ : M₁ → M₂) : Set (a₁ ⊔ a₂) where
   private
     module R₁ = Type-restrictions R₁
@@ -65,10 +77,18 @@ record Are-reflecting-type-restrictions
       R₂.ΠΣ-allowed b (tr-BinderMode tr tr-Σ b p) (tr q) →
       R₁.ΠΣ-allowed b p q
 
+    -- If R₂.K-allowed holds, then R₁.K-allowed holds.
+    K-reflected :
+      R₂.K-allowed → R₁.K-allowed
+
+    -- If R₂.[]-cong-allowed holds, then R₁.[]-cong-allowed holds.
+    []-cong-reflected :
+      R₂.[]-cong-allowed → R₁.[]-cong-allowed
+
 ------------------------------------------------------------------------
 -- Identity
 
--- For every value R of type Type-restrictions the identity function
+-- For every value R of type Type-restrictions 𝕄 the identity function
 -- preserves Type-restrictions for R and R.
 
 Are-preserving-type-restrictions-id :
@@ -77,11 +97,13 @@ Are-preserving-type-restrictions-id {R = R} = λ where
     .Unit-preserved           → idᶠ
     .ΠΣ-preserved {b = BMΠ}   → idᶠ
     .ΠΣ-preserved {b = BMΣ _} → idᶠ
+    .K-preserved              → idᶠ
+    .[]-cong-preserved        → idᶠ
   where
   open Are-preserving-type-restrictions
   open Type-restrictions R
 
--- For every value R of type Type-restrictions the identity function
+-- For every value R of type Type-restrictions 𝕄 the identity function
 -- reflects Type-restrictions for R and R.
 
 Are-reflecting-type-restrictions-id :
@@ -90,6 +112,8 @@ Are-reflecting-type-restrictions-id {R = R} = λ where
     .Unit-reflected           → idᶠ
     .ΠΣ-reflected {b = BMΠ}   → idᶠ
     .ΠΣ-reflected {b = BMΣ _} → idᶠ
+    .K-reflected              → idᶠ
+    .[]-cong-reflected        → idᶠ
   where
   open Are-reflecting-type-restrictions
   open Type-restrictions R
@@ -111,6 +135,10 @@ Are-preserving-type-restrictions-∘ m₁ m₂ = λ where
       M₁.ΠΣ-preserved ∘→ M₂.ΠΣ-preserved
     .ΠΣ-preserved {b = BMΣ _} →
       M₁.ΠΣ-preserved ∘→ M₂.ΠΣ-preserved
+    .K-preserved →
+      M₁.K-preserved ∘→ M₂.K-preserved
+    .[]-cong-preserved →
+      M₁.[]-cong-preserved ∘→ M₂.[]-cong-preserved
   where
   open Are-preserving-type-restrictions
   module M₁ = Are-preserving-type-restrictions m₁
@@ -129,6 +157,10 @@ Are-reflecting-type-restrictions-∘ m₁ m₂ = λ where
       M₂.ΠΣ-reflected ∘→ M₁.ΠΣ-reflected
     .ΠΣ-reflected {b = BMΣ _} →
       M₂.ΠΣ-reflected ∘→ M₁.ΠΣ-reflected
+    .K-reflected →
+      M₂.K-reflected ∘→ M₁.K-reflected
+    .[]-cong-reflected →
+      M₂.[]-cong-reflected ∘→ M₁.[]-cong-reflected
   where
   open Are-reflecting-type-restrictions
   module M₁ = Are-reflecting-type-restrictions m₁

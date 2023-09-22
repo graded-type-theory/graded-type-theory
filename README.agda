@@ -108,7 +108,9 @@ import Graded.Usage.Restrictions
 -- This is not the version of the code that the paper refers to. Some
 -- things have been added, but things have also changed.
 
--- One notable change is related to the natrec-star operators. The
+-- One difference is the addition of identity types.
+
+-- Another notable change is related to the natrec-star operators. The
 -- paper does not focus on linearity, but some modalities for linear
 -- and/or affine types are discussed. It was discovered that using
 -- those modalities, and in particular the natrec-star operators of
@@ -277,9 +279,10 @@ prodrec = Graded.Usage.Restrictions.Usage-restrictions
 
 prodrec-allowed = Graded.Usage.Inversion.inv-usage-prodrec
 
---   One can use this parameter to rule out erased matches:
+--   One can use this parameter to rule out erased matches for weak
+--   Σ-types:
 
-no-erased-matches = Graded.Restrictions.no-erased-matches
+no-erased-matches = Graded.Restrictions.no-erased-matches-UR
 
 -- Note that some results have only been proved for certain variants
 -- of the theory.
@@ -959,13 +962,13 @@ Theorem-7-1 =
 -- matches are not allowed unless the context is empty".
 
 counterexample₁ =
-  Graded.Erasure.Consequences.Soundness.soundness-ℕ-only-source-counterexample
+  Graded.Erasure.Consequences.Soundness.soundness-ℕ-only-source-counterexample₁
 
 -- The above counterexample is not a counterexample to canonicity for
 -- the target language.
 
 not-counterexample =
-  Graded.Erasure.Consequences.Soundness.soundness-ℕ-only-target-not-counterexample
+  Graded.Erasure.Consequences.Soundness.soundness-ℕ-only-target-not-counterexample₁
 
 -- If (certain kinds of) erased matches are allowed for weak Σ-types,
 -- and additionally some Σ-types are allowed, then one cannot prove a
@@ -974,7 +977,7 @@ not-counterexample =
 -- (assuming that Agda is consistent).
 
 counterexample₂ =
-  Graded.Erasure.LogicalRelation.Fundamental.Counterexample.negation-of-fundamental-lemma-with-erased-matches
+  Graded.Erasure.LogicalRelation.Fundamental.Counterexample.negation-of-fundamental-lemma-with-erased-matches₁
 
 ------------------------------------------------------------------------
 -- 7.3: Unit Type

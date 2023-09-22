@@ -14,9 +14,9 @@ open import Tools.Relation
 module Graded.Erasure.LogicalRelation.Subsumption
   {a} {M : Set a}
   (open Definition.Untyped M)
-  (𝕄 : Modality M)
+  {𝕄 : Modality M}
   (open Modality 𝕄)
-  (R : Type-restrictions M)
+  (R : Type-restrictions 𝕄)
   (open Definition.Typed R)
   (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘))
   {{eqrel : EqRelSet R}}
@@ -34,7 +34,7 @@ open import Graded.Context 𝕄
 open import Graded.Mode 𝕄
 
 open import Graded.Erasure.Extraction 𝕄 is-𝟘?
-open import Graded.Erasure.LogicalRelation 𝕄 R is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation R is-𝟘? ⊢Δ
 open import Graded.Erasure.Target as T hiding (_⇒_; _⇒*_)
 
 open import Tools.Empty

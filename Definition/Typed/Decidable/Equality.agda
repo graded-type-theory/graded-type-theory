@@ -3,12 +3,14 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 open import Tools.Relation
 import Tools.PropositionalEquality as PE
 
 module Definition.Typed.Decidable.Equality
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   (_≟_ : Decidable (PE._≡_ {A = M}))
   where
 

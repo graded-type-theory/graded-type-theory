@@ -4,24 +4,28 @@
 
 open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.LogicalRelation.Properties.Conversion
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   {{eqrel : EqRelSet R}}
   where
 
 open EqRelSet {{...}}
 
-open import Definition.Untyped M hiding (Wk; _∷_)
+open import Definition.Untyped M hiding (Wk; _∷_; K)
 open import Definition.Typed R
 open import Definition.Typed.RedSteps R
 open import Definition.Typed.Properties R
 import Definition.Typed.Weakening R as Wk
 open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Properties.Escape R
 open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Irrelevance R
 
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -142,6 +146,21 @@ mutual
     in  Σₜ f (convRed:*: d ΣFG≡ΣF₁G₁) (≅-conv f≡f ΣFG≡ΣF₁G₁)
            (ne x) (~-conv f~f ΣFG≡ΣF₁G₁)
   convTermT₁ (Uᵥ (Uᵣ .⁰ 0<1 ⊢Γ) (Uᵣ .⁰ 0<1 ⊢Γ₁)) A≡B t = t
+  convTermT₁ (Idᵥ ⊩A ⊩B) A≡B ⊩t@(_ , t⇒*u , _) =
+    case whrDet* (red (_⊩ₗId_.⇒*Id ⊩B) , Idₙ) (red ⇒*Id′ , Idₙ) of λ {
+      PE.refl →
+    case Id≅Id A≡B of λ {
+      Id≅Id′ →
+      _
+    , convRed:*: t⇒*u (≅-eq Id≅Id′)
+    , (case ⊩Id∷-view-inhabited ⊩t of λ where
+         (ne u-n u~u)   → ne u-n , ~-conv u~u (≅-eq Id≅Id′)
+         (rflᵣ lhs≡rhs) →
+             rflₙ
+           , convEqTerm₁ (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩B) Ty≡Ty′
+               (lhs≡rhs→lhs′≡rhs′ lhs≡rhs)) }}
+    where
+    open _⊩ₗId_≡_/_ A≡B
   convTermT₁ (emb⁰¹ x) A≡B t = convTermT₁ x A≡B t
   convTermT₁ (emb¹⁰ x) A≡B t = convTermT₁ x A≡B t
 
@@ -251,6 +270,22 @@ mutual
     in  Σₜ f (convRed:*: d (sym ΣFG≡ΣF₁G₁)) (≅-conv f≡f (sym ΣFG≡ΣF₁G₁))
            (ne x) (~-conv f~f (sym ΣFG≡ΣF₁G₁))
   convTermT₂ (Uᵥ (Uᵣ .⁰ 0<1 ⊢Γ) (Uᵣ .⁰ 0<1 ⊢Γ₁)) A≡B t = t
+  convTermT₂ (Idᵥ ⊩A ⊩B) A≡B ⊩t@(_ , t⇒*u , _) =
+    case whrDet* (red (_⊩ₗId_.⇒*Id ⊩B) , Idₙ) (red ⇒*Id′ , Idₙ) of λ {
+      PE.refl →
+    case Id≅Id A≡B of λ {
+      Id≅Id′ →
+      _
+    , convRed:*: t⇒*u (≅-eq (≅-sym Id≅Id′))
+    , (case ⊩Id∷-view-inhabited ⊩t of λ where
+         (ne u-n u~u)   → ne u-n , ~-conv u~u (sym (≅-eq Id≅Id′))
+         (rflᵣ lhs≡rhs) →
+             rflₙ
+           , lhs′≡rhs′→lhs≡rhs
+               (convEqTerm₂ (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩B) Ty≡Ty′
+                  lhs≡rhs)) }}
+    where
+    open _⊩ₗId_≡_/_ A≡B
   convTermT₂ (emb⁰¹ x) A≡B t = convTermT₂ x A≡B t
   convTermT₂ (emb¹⁰ x) A≡B t = convTermT₂ x A≡B t
 
@@ -411,6 +446,23 @@ mutual
             (convTerm₁ [A] [B] [A≡B] [t]) (convTerm₁ [A] [B] [A≡B] [u])
             p~r₁
   convEqTermT₁ (Uᵥ (Uᵣ .⁰ 0<1 ⊢Γ) (Uᵣ .⁰ 0<1 ⊢Γ₁)) A≡B t≡u = t≡u
+  convEqTermT₁ (Idᵥ ⊩A ⊩B) A≡B t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
+    case whrDet* (red (_⊩ₗId_.⇒*Id ⊩B) , Idₙ) (red ⇒*Id′ , Idₙ) of λ {
+      PE.refl →
+    case ≅-eq (Id≅Id A≡B) of λ {
+      Id≡Id′ →
+      _ , _
+    , convRed:*: t⇒*t′ Id≡Id′
+    , convRed:*: u⇒*u′ Id≡Id′
+    , (case ⊩Id≡∷-view-inhabited ⊩A t≡u of λ where
+         (ne t′-n u′-n t′~u′) →
+           ne t′-n , ne u′-n , ~-conv t′~u′ Id≡Id′
+         (rfl₌ lhs≡rhs) →
+             rflₙ , rflₙ
+           , convEqTerm₁ (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩B) Ty≡Ty′
+               (lhs≡rhs→lhs′≡rhs′ lhs≡rhs)) }}
+    where
+    open _⊩ₗId_≡_/_ A≡B
   convEqTermT₁ (emb⁰¹ x) A≡B t≡u = convEqTermT₁ x A≡B t≡u
   convEqTermT₁ (emb¹⁰ x) A≡B t≡u = convEqTermT₁ x A≡B t≡u
 
@@ -543,6 +595,24 @@ mutual
             (convTerm₂ [A] [B] [A≡B] [t]) (convTerm₂ [A] [B] [A≡B] [u])
             p~r
   convEqTermT₂ (Uᵥ (Uᵣ .⁰ 0<1 ⊢Γ) (Uᵣ .⁰ 0<1 ⊢Γ₁)) A≡B t≡u = t≡u
+  convEqTermT₂ (Idᵥ ⊩A ⊩B) A≡B t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
+    case whrDet* (red (_⊩ₗId_.⇒*Id ⊩B) , Idₙ) (red ⇒*Id′ , Idₙ) of λ {
+      PE.refl →
+    case ≅-eq (≅-sym (Id≅Id A≡B)) of λ {
+      Id≡Id′ →
+      _ , _
+    , convRed:*: t⇒*t′ Id≡Id′
+    , convRed:*: u⇒*u′ Id≡Id′
+    , (case ⊩Id≡∷-view-inhabited ⊩B t≡u of λ where
+         (ne t′-n u′-n t′~u′) →
+           ne t′-n , ne u′-n , ~-conv t′~u′ Id≡Id′
+         (rfl₌ lhs≡rhs) →
+             rflₙ , rflₙ
+           , lhs′≡rhs′→lhs≡rhs
+               (convEqTerm₂ (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩B) Ty≡Ty′
+                  lhs≡rhs)) }}
+    where
+    open _⊩ₗId_≡_/_ A≡B
   convEqTermT₂ (emb⁰¹ x) A≡B t≡u = convEqTermT₂ x A≡B t≡u
   convEqTermT₂ (emb¹⁰ x) A≡B t≡u = convEqTermT₂ x A≡B t≡u
 

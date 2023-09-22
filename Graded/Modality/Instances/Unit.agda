@@ -22,11 +22,10 @@ import Graded.Modality.Properties.Star as Star
 open import Graded.Modality.Variant lzero
 open import Graded.FullReduction.Assumptions
 
-open import Definition.Typed.Restrictions ⊤
+open import Definition.Typed.Restrictions
 
 private variable
   variant : Modality-variant
-  rs      : Type-restrictions
 
 -- Trivial addition (and multiplication and meet) operation
 
@@ -203,7 +202,8 @@ UnitModality variant not-ok = record
 full-reduction-assumptions :
   let open Modality-variant variant in
   (ok : ¬ T 𝟘ᵐ-allowed) →
-  Full-reduction-assumptions (UnitModality variant ok) rs
+  {rs : Type-restrictions (UnitModality variant ok)} →
+  Full-reduction-assumptions rs
 full-reduction-assumptions _ = record
   { 𝟙≤𝟘    = λ _ → refl
   ; ≡𝟙⊎𝟙≤𝟘 = λ _ → inj₁ refl

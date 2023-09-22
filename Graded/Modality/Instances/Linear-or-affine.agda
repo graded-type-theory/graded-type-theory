@@ -29,8 +29,12 @@ import Graded.Modality.Properties.PartialOrder as PartialOrder
 import Graded.Modality.Properties.Star as Star
 open import Graded.Modality.Variant lzero
 
-import Definition.Typed.Restrictions
+open import Definition.Typed.Restrictions
 open import Definition.Untyped using (BMΣ; Σₚ)
+
+private variable
+  variant : Modality-variant
+  trs     : Type-restrictions _
 
 ------------------------------------------------------------------------
 -- The type
@@ -40,14 +44,11 @@ open import Definition.Untyped using (BMΣ; Σₚ)
 data Linear-or-affine : Set where
   𝟘 𝟙 ≤𝟙 ≤ω : Linear-or-affine
 
-open Graded.Modality               Linear-or-affine
-open Definition.Typed.Restrictions Linear-or-affine
-open Tools.Algebra                 Linear-or-affine
+open Graded.Modality Linear-or-affine
+open Tools.Algebra   Linear-or-affine
 
 private variable
   n n₁ n₂ p q r s s₁ s₂ z z₁ z₂ : Linear-or-affine
-  variant                       : Modality-variant
-  trs                           : Type-restrictions
 
 ------------------------------------------------------------------------
 -- Basic operations
@@ -3960,16 +3961,16 @@ linear-or-affine variant = record
 ------------------------------------------------------------------------
 -- Instances of Full-reduction-assumptions
 
--- An instance of Type-restrictions is suitable for the full reduction
--- theorem if
+-- An instance of Type-restrictions (linear-or-affine variant) is
+-- suitable for the full reduction theorem if
 -- * Unit-allowed does not hold,
 -- * Σₚ-allowed 𝟘 p does not hold,
 -- * Σₚ-allowed ≤𝟙 p does not hold, and
 -- * Σₚ-allowed ≤ω p does not hold.
 
 Suitable-for-full-reduction :
-  Type-restrictions → Set
-Suitable-for-full-reduction rs =
+  ∀ variant → Type-restrictions (linear-or-affine variant) → Set
+Suitable-for-full-reduction _ rs =
   ¬ Unit-allowed ×
   (∀ p → ¬ Σₚ-allowed 𝟘 p) ×
   (∀ p → ¬ Σₚ-allowed ≤𝟙 p) ×
@@ -3977,15 +3978,20 @@ Suitable-for-full-reduction rs =
   where
   open Type-restrictions rs
 
--- Given an instance of Type-restrictions one can create a "suitable"
--- instance.
+-- Given an instance of Type-restrictions (linear-or-affine variant)
+-- one can create a "suitable" instance.
 
 suitable-for-full-reduction :
-  Type-restrictions → ∃ Suitable-for-full-reduction
+  Type-restrictions (linear-or-affine variant) →
+  ∃ (Suitable-for-full-reduction variant)
 suitable-for-full-reduction rs =
     record rs
-      { Unit-allowed = ⊥
-      ; ΠΣ-allowed   = λ b p q → ΠΣ-allowed b p q × (b ≡ BMΣ Σₚ → p ≡ 𝟙)
+      { Unit-allowed     = ⊥
+      ; ΠΣ-allowed       = λ b p q →
+                             ΠΣ-allowed b p q × (b ≡ BMΣ Σₚ → p ≡ 𝟙)
+      ; []-cong-allowed  = ⊥
+      ; []-cong→Erased   = λ ()
+      ; []-cong→¬Trivial = λ ()
       }
   , idᶠ
   , (λ _ → ((λ ()) ∘→ (_$ PE.refl)) ∘→ proj₂)
@@ -3995,11 +4001,11 @@ suitable-for-full-reduction rs =
   open Type-restrictions rs
 
 -- The full reduction assumptions hold for any instance of
--- linear-or-affine and any "suitable" Type-restrictions.
+-- linear-or-affine and any "suitable" instance of Type-restrictions.
 
 full-reduction-assumptions :
-  Suitable-for-full-reduction trs →
-  Full-reduction-assumptions (linear-or-affine variant) trs
+  Suitable-for-full-reduction variant trs →
+  Full-reduction-assumptions trs
 full-reduction-assumptions (¬Unit , ¬𝟘 , ¬≤𝟙 , ¬≤ω) = record
   { 𝟙≤𝟘    = ⊥-elim ∘→ ¬Unit
   ; ≡𝟙⊎𝟙≤𝟘 = λ where

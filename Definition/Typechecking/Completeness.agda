@@ -3,10 +3,12 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.Typechecking.Completeness
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
 
 open import Definition.Typechecking R
@@ -46,6 +48,11 @@ mutual
   completeness⇇Type A (Unitⱼ x ok) = Unitᶜ ok
   completeness⇇Type (infᶜ (ΠΣᵢ F G)) (ΠΣⱼ ⊢F ⊢G ok) =
     ΠΣᶜ (completeness⇇Type F ⊢F) (completeness⇇Type G ⊢G) ok
+  completeness⇇Type (infᶜ (Idᵢ A t u)) ⊢Id =
+    case inversion-Id ⊢Id of λ {
+      (⊢A , ⊢t , ⊢u) →
+    Idᶜ (completeness⇇Type A ⊢A) (completeness⇇ t ⊢t)
+      (completeness⇇ u ⊢u) }
   completeness⇇Type A (univ x) = univᶜ (completeness⇇ A x)
 
   -- Completeness of type inference
@@ -114,6 +121,36 @@ mutual
         t⇇Empty = completeness⇇ t ⊢t
         C⇇Type = completeness⇇Type C ⊢C
     in  _ , emptyrecᵢ C⇇Type t⇇Empty , A≡C
+  completeness⇉ (Idᵢ A t u) ⊢Id =
+    case inversion-Id-U ⊢Id of λ {
+      (⊢A , ⊢t , ⊢u , ≡U) →
+      _
+    , Idᵢ (completeness⇇ A ⊢A) (completeness⇇ t ⊢t)
+        (completeness⇇ u ⊢u)
+    , ≡U }
+  completeness⇉ (Jᵢ A t B u v w) ⊢J =
+    case inversion-J ⊢J of λ {
+      (⊢A , ⊢t , ⊢B , ⊢u , ⊢v , ⊢w , ≡B) →
+      _
+    , Jᵢ (completeness⇇Type A ⊢A) (completeness⇇ t ⊢t)
+        (completeness⇇Type B ⊢B) (completeness⇇ u ⊢u)
+        (completeness⇇ v ⊢v) (completeness⇇ w ⊢w)
+    , ≡B }
+  completeness⇉ (Kᵢ A t B u v) ⊢K =
+    case inversion-K ⊢K of λ {
+      (⊢A , ⊢t , ⊢B , ⊢u , ⊢v , ok , ≡B) →
+      _
+    , Kᵢ (completeness⇇Type A ⊢A) (completeness⇇ t ⊢t)
+        (completeness⇇Type B ⊢B) (completeness⇇ u ⊢u)
+        (completeness⇇ v ⊢v) ok
+    , ≡B }
+  completeness⇉ ([]-congᵢ A t u v) ⊢[]-cong =
+    case inversion-[]-cong ⊢[]-cong of λ {
+      (⊢A , ⊢t , ⊢u , ⊢v , ok , ≡B) →
+      _
+    , []-congᵢ (completeness⇇Type A ⊢A) (completeness⇇ t ⊢t)
+        (completeness⇇ u ⊢u) (completeness⇇ v ⊢v) ok
+    , ≡B }
 
   -- Completeness of type checking
 
@@ -131,6 +168,13 @@ mutual
         t⇇F = completeness⇇ t (conv ⊢t F≡F′)
         u⇇Gt = completeness⇇ u (conv ⊢u (substTypeEq G≡G′ (refl ⊢t)))
     in  prodᶜ (A⇒ΣF′G′ , ΠΣₙ) t⇇F u⇇Gt
+  completeness⇇ rflᶜ ⊢rfl =
+    case inversion-rfl ⊢rfl of λ {
+      (_ , _ , _ , _ , A≡Id-B-t-t) →
+    case Id-norm A≡Id-B-t-t of λ {
+      (_ , _ , _ , A⇒*Id-B′-t′-u′ , A≡A′ , t≡t′ , t≡u′) →
+    rflᶜ (A⇒*Id-B′-t′-u′ , Idₙ)
+      (conv (trans (sym t≡t′) t≡u′) A≡A′) }}
   completeness⇇ (infᶜ t) ⊢t =
     let B , t⇉B , A≡B = completeness⇉ t ⊢t
     in  infᶜ t⇉B (sym A≡B)

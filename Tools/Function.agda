@@ -5,7 +5,7 @@
 module Tools.Function where
 
 open import Function.Base
-  using (case_of_; flip; _$_)
+  using (case_of_; flip; _$_; _∋_)
   renaming (id to idᶠ; _∘_ to _∘→_)
   public
 

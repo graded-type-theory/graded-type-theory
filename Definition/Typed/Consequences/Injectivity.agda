@@ -3,10 +3,12 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.Typed.Consequences.Injectivity
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
 
 open import Definition.Untyped M hiding (wk; _∷_)
@@ -33,9 +35,10 @@ private
   variable
     n : Nat
     Γ : Con Term n
-    F F′ G G′ : Term _
+    A₁ A₂ F F′ G G′ t₁ t₂ u₁ u₂ : Term _
     p p′ q q′ : M
     b b′ : BinderMode
+    l : TypeLevel
 
 -- Helper function of injectivity for specific reducible Π-types
 injectivity′ : ∀ {F G H E l} W W′
@@ -61,8 +64,8 @@ injectivity′
       [F≡H]₁ = [F≡F′] id ⊢Γ
       [F≡H]′ = irrelevanceEq″ (wk-id _) (wk-id _) [F]₁ [F]′ [F≡H]₁
       [G≡E]₁ = [G≡G′] (step id) (⊢Γ ∙ ⊢F) [x∷F]
-      [G≡E]′ = irrelevanceEqLift″
-                 (wkSingleSubstId _) (wkSingleSubstId _) PE.refl
+      [G≡E]′ = irrelevanceEq″
+                 (wkSingleSubstId _) (wkSingleSubstId _)
                  [G]₁ [G]′ [G≡E]₁
   in escapeEq [F]′ [F≡H]′ , escapeEq [G]′ [G≡E]′ , PE.refl }}
 injectivity′ W W′ (emb 0<1 x) [WFG≡WHE] = injectivity′ W W′ x [WFG≡WHE]
@@ -106,6 +109,33 @@ injectivity x with B-injectivity BΠ! BΠ! x
 ΠΣ-injectivity {b = BMΣ _} {b′ = BMΠ} Σ≡Π =
   case B-injectivity (BΣ _ _ _) (BΠ _ _) Σ≡Π of λ {
     (_ , _ , ()) }
+
+opaque
+
+  -- Injectivity of Id.
+
+  Id-injectivity :
+    Γ ⊢ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂ →
+    (Γ ⊢ A₁ ≡ A₂) × Γ ⊢ t₁ ≡ t₂ ∷ A₁ × Γ ⊢ u₁ ≡ u₂ ∷ A₁
+  Id-injectivity Id≡Id =
+    case reducibleEq Id≡Id of λ {
+      (⊩Id , _ , ⊩Id≡Id) →
+    helper (Id-elim ⊩Id)
+      (irrelevanceEq ⊩Id (Id-intr (Id-elim ⊩Id)) ⊩Id≡Id) }
+    where
+    helper :
+      ∀ ⊩Id →
+      Γ ⊩⟨ l ⟩ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂ / Id-intr ⊩Id →
+      (Γ ⊢ A₁ ≡ A₂) × Γ ⊢ t₁ ≡ t₂ ∷ A₁ × Γ ⊢ u₁ ≡ u₂ ∷ A₁
+    helper (emb 0<1 ⊩Id) ⊩Id≡Id = helper ⊩Id ⊩Id≡Id
+    helper (noemb ⊩Id)   ⊩Id≡Id =
+      case whnfRed* (red (_⊩ₗId_.⇒*Id ⊩Id)) Idₙ of λ {
+        PE.refl →
+      case whnfRed* (red (_⊩ₗId_≡_/_.⇒*Id′ ⊩Id≡Id)) Idₙ of λ {
+        PE.refl →
+        escapeEq (_⊩ₗId_.⊩Ty ⊩Id) (_⊩ₗId_≡_/_.Ty≡Ty′ ⊩Id≡Id)
+      , escapeTermEq (_⊩ₗId_.⊩Ty ⊩Id) (_⊩ₗId_≡_/_.lhs≡lhs′ ⊩Id≡Id)
+      , escapeTermEq (_⊩ₗId_.⊩Ty ⊩Id) (_⊩ₗId_≡_/_.rhs≡rhs′ ⊩Id≡Id) }}
 
 -- Injectivity of suc
 

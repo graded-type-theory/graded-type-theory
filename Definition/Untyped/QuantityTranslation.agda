@@ -30,17 +30,17 @@ private
   module UP₂ = Definition.Untyped.Properties M₂
 
 private variable
-  m n         : Nat
-  bs          : List _
-  x           : Fin _
-  p q r       : M₂
-  s           : SigmaMode
-  b           : BinderMode
-  ts us       : GenTs _ _ _
-  k l         : Kind _ _
-  A B t u v w : Term _ _
-  ρ           : Wk _ _
-  σ           : Subst _ _ _
+  m n           : Nat
+  bs            : List _
+  x             : Fin _
+  p q r         : M₂
+  s             : SigmaMode
+  b             : BinderMode
+  ts us         : GenTs _ _ _
+  k l           : Kind _ _
+  A B j t u v w : Term _ _
+  ρ             : Wk _ _
+  σ             : Subst _ _ _
 
 ------------------------------------------------------------------------
 -- Translation
@@ -70,6 +70,11 @@ tr-Kind Unitkind            = Unitkind
 tr-Kind Starkind            = Starkind
 tr-Kind Emptykind           = Emptykind
 tr-Kind (Emptyreckind p)    = Emptyreckind (tr p)
+tr-Kind Idkind              = Idkind
+tr-Kind Reflkind            = Reflkind
+tr-Kind (Jkind p q)         = Jkind (tr p) (tr q)
+tr-Kind (Kkind p)           = Kkind (tr p)
+tr-Kind Boxcongkind         = Boxcongkind
 
 mutual
 
@@ -120,6 +125,9 @@ tr-Neutral (sndₙ n)      = sndₙ (tr-Neutral n)
 tr-Neutral (natrecₙ n)   = natrecₙ (tr-Neutral n)
 tr-Neutral (prodrecₙ n)  = prodrecₙ (tr-Neutral n)
 tr-Neutral (emptyrecₙ n) = emptyrecₙ (tr-Neutral n)
+tr-Neutral (Jₙ n)        = Jₙ (tr-Neutral n)
+tr-Neutral (Kₙ n)        = Kₙ (tr-Neutral n)
+tr-Neutral ([]-congₙ n)  = []-congₙ (tr-Neutral n)
 
 -- The function tr-Term takes WHNFs to WHNFs.
 
@@ -130,11 +138,13 @@ tr-Whnf (ΠΣₙ {b = BMΣ _}) = ΠΣₙ
 tr-Whnf ℕₙ                = ℕₙ
 tr-Whnf Unitₙ             = Unitₙ
 tr-Whnf Emptyₙ            = Emptyₙ
+tr-Whnf Idₙ               = Idₙ
 tr-Whnf lamₙ              = lamₙ
 tr-Whnf zeroₙ             = zeroₙ
 tr-Whnf sucₙ              = sucₙ
 tr-Whnf starₙ             = starₙ
 tr-Whnf prodₙ             = prodₙ
+tr-Whnf rflₙ              = rflₙ
 tr-Whnf (ne n)            = ne (tr-Neutral n)
 
 ------------------------------------------------------------------------
@@ -436,6 +446,53 @@ tr-Term-natrec {t = natrec _ _ _ _ _ _ _} refl =
   _ # _ # _ # _ # _ # _ # _ #
     refl # refl # refl # refl # refl # refl # refl # refl
 
+-- Inversion for Id.
+
+tr-Term-Id :
+  tr-Term v ≡ Id A t u →
+  ∃₃ λ A′ t′ u′ →
+     v ≡ Id A′ t′ u′ ×
+     tr-Term A′ ≡ A × tr-Term t′ ≡ t × tr-Term u′ ≡ u
+tr-Term-Id {v = Id _ _ _} refl = _ # _ # _ # refl # refl # refl # refl
+
+-- Inversion for rfl.
+
+tr-Term-rfl : tr-Term t ≡ rfl → t ≡ rfl
+tr-Term-rfl {t = rfl} refl = refl
+
+-- Inversion for J.
+
+tr-Term-J :
+  tr-Term j ≡ J p q A t B u v w →
+  ∃₂ λ p′ q′ → ∃₃ λ A′ t′ B′ → ∃₃ λ u′ v′ w′ →
+     j ≡ J p′ q′ A′ t′ B′ u′ v′ w′ × tr p′ ≡ p × tr q′ ≡ q ×
+     tr-Term A′ ≡ A × tr-Term t′ ≡ t × tr-Term B′ ≡ B ×
+     tr-Term u′ ≡ u × tr-Term v′ ≡ v × tr-Term w′ ≡ w
+tr-Term-J {j = J _ _ _ _ _ _ _ _} refl =
+  _ # _ # _ # _ # _ # _ # _ # _ #
+    refl # refl # refl # refl # refl # refl # refl # refl # refl
+
+-- Inversion for K.
+
+tr-Term-K :
+  tr-Term w ≡ K p A t B u v →
+  ∃₄ λ p′ A′ t′ B′ → ∃₂ λ u′ v′ →
+     w ≡ K p′ A′ t′ B′ u′ v′ × tr p′ ≡ p ×
+     tr-Term A′ ≡ A × tr-Term t′ ≡ t × tr-Term B′ ≡ B ×
+     tr-Term u′ ≡ u × tr-Term v′ ≡ v
+tr-Term-K {w = K _ _ _ _ _ _} refl =
+  _ # _ # _ # _ # _ # _ # refl # refl # refl # refl # refl # refl # refl
+
+-- Inversion for []-cong.
+
+tr-Term-[]-cong :
+  tr-Term w ≡ []-cong A t u v →
+  ∃₄ λ A′ t′ u′ v′ →
+     w ≡ []-cong A′ t′ u′ v′ ×
+     tr-Term A′ ≡ A × tr-Term t′ ≡ t × tr-Term u′ ≡ u × tr-Term v′ ≡ v
+tr-Term-[]-cong {w = []-cong _ _ _ _} refl =
+  _ # _ # _ # _ # refl # refl # refl # refl # refl
+
 mutual
 
   -- Inversion for wk.
@@ -486,13 +543,16 @@ module Injective
   -- The function tr-Kind is injective.
 
   tr-Kind-injective : tr-Kind k ≡ tr-Kind l → k ≡ l
-  tr-Kind-injective {k = Ukind}     {l = Ukind}     refl = refl
-  tr-Kind-injective {k = Natkind}   {l = Natkind}   refl = refl
-  tr-Kind-injective {k = Zerokind}  {l = Zerokind}  refl = refl
-  tr-Kind-injective {k = Suckind}   {l = Suckind}   refl = refl
-  tr-Kind-injective {k = Unitkind}  {l = Unitkind}  refl = refl
-  tr-Kind-injective {k = Starkind}  {l = Starkind}  refl = refl
-  tr-Kind-injective {k = Emptykind} {l = Emptykind} refl =
+  tr-Kind-injective {k = Ukind}       {l = Ukind}       refl = refl
+  tr-Kind-injective {k = Natkind}     {l = Natkind}     refl = refl
+  tr-Kind-injective {k = Zerokind}    {l = Zerokind}    refl = refl
+  tr-Kind-injective {k = Suckind}     {l = Suckind}     refl = refl
+  tr-Kind-injective {k = Unitkind}    {l = Unitkind}    refl = refl
+  tr-Kind-injective {k = Starkind}    {l = Starkind}    refl = refl
+  tr-Kind-injective {k = Emptykind}   {l = Emptykind}   refl = refl
+  tr-Kind-injective {k = Idkind}      {l = Idkind}      refl = refl
+  tr-Kind-injective {k = Reflkind}    {l = Reflkind}    refl = refl
+  tr-Kind-injective {k = Boxcongkind} {l = Boxcongkind} refl =
     refl
   tr-Kind-injective {k = Binderkind b p q} {l = Binderkind _ _ _} eq
     with tr-BinderMode b p in tr-p≡ | tr q in tr-q≡
@@ -534,6 +594,14 @@ module Injective
     with tr p in tr-p≡
   tr-Kind-injective refl | _ =
     cong Emptyreckind (tr-injective tr-p≡)
+  tr-Kind-injective {k = Jkind p q} {l = Jkind _ _} eq
+    with tr p in tr-p≡ | tr q in tr-q≡
+  tr-Kind-injective refl | _ | _ =
+    cong₂ Jkind (tr-injective tr-p≡) (tr-injective tr-q≡)
+  tr-Kind-injective {k = Kkind p}     {l = Kkind _} eq
+    with tr p in tr-p≡
+  tr-Kind-injective refl | _ =
+    cong Kkind (tr-injective tr-p≡)
 
   mutual
 

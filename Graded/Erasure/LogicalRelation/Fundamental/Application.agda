@@ -13,9 +13,9 @@ import Tools.PropositionalEquality as PE
 module Graded.Erasure.LogicalRelation.Fundamental.Application
   {a k} {M : Set a}
   (open Definition.Untyped M)
-  (𝕄 : Modality M)
+  {𝕄 : Modality M}
   (open Modality 𝕄)
-  (R : Type-restrictions M)
+  (R : Type-restrictions 𝕄)
   (open Definition.Typed R)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
   {{eqrel : EqRelSet R}}
@@ -46,9 +46,9 @@ open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 
-open import Graded.Erasure.LogicalRelation 𝕄 R is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Subsumption 𝕄 R is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Irrelevance 𝕄 R is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation R is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation.Subsumption R is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation.Irrelevance R is-𝟘? ⊢Δ
 import Graded.Erasure.Target as T
 
 open import Tools.Empty

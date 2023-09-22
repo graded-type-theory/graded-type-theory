@@ -47,6 +47,7 @@ mutual
   wkVar-to-wk eq (snd t) = cong snd (wkVar-to-wk eq t)
   wkVar-to-wk eq (prodrec t u) = cong₂ prodrec (wkVar-to-wk eq t) (wkVar-to-wk (wkVar-lift (wkVar-lift eq)) u)
   wkVar-to-wk eq star = refl
+  wkVar-to-wk _  rfl = refl
   wkVar-to-wk eq ↯ = refl
 
 
@@ -79,6 +80,7 @@ mutual
   wk-id (snd t) = cong snd (wk-id t)
   wk-id (prodrec t u) = cong₂ prodrec (wk-id t) (trans (wkVar-to-wk (wkVar-lifts-id 2) u) (wk-id u))
   wk-id star = refl
+  wk-id rfl = refl
   wk-id ↯ = refl
 
 -- lift id  is also the identity renaming.
@@ -120,6 +122,7 @@ mutual
   wk-comp ρ ρ′ (snd t) = cong snd (wk-comp ρ ρ′ t)
   wk-comp ρ ρ′ (prodrec t u) = cong₂ prodrec (wk-comp ρ ρ′ t) (wk-comp (lift (lift ρ)) (lift (lift ρ′)) u)
   wk-comp ρ ρ′ star = refl
+  wk-comp _ _  rfl = refl
   wk-comp ρ ρ′ ↯ = refl
 
 

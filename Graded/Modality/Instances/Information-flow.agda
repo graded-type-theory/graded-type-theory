@@ -21,8 +21,12 @@ open import Graded.Modality.Properties.Has-well-behaved-zero
 import Graded.Modality.Properties.Star as Star
 open import Graded.Modality.Variant lzero
 
-import Definition.Typed.Restrictions
+open import Definition.Typed.Restrictions
 open import Definition.Untyped
+
+private variable
+  variant : Modality-variant
+  trs     : Type-restrictions _
 
 -- Three information levels: low (public), medium (private), and high
 -- (more private).
@@ -30,14 +34,11 @@ open import Definition.Untyped
 data Level : Set where
   L M H : Level
 
-open Definition.Typed.Restrictions Level
-open Graded.Modality               Level
-open Tools.Algebra                 Level
+open Graded.Modality Level
+open Tools.Algebra   Level
 
 private variable
-  p q r   : Level
-  variant : Modality-variant
-  trs     : Type-restrictions
+  p q r : Level
 
 ------------------------------------------------------------------------
 -- Operators
@@ -733,13 +734,13 @@ L/≡L {p = p} = /≡→/≡ {q = p} $ D.𝟙/≡𝟙 {p = p} L≤
 ------------------------------------------------------------------------
 -- Instances of Full-reduction-assumptions
 
--- An instance of Modality-variant along with an instance of
--- Type-restrictions are suitable for the full reduction theorem if
+-- An instance of Type-restrictions (L≤M≤H variant) is suitable for
+-- the full reduction theorem if
 -- * Σₚ-allowed M p does not hold, and
 -- * Σₚ-allowed H p implies that 𝟘ᵐ is allowed.
 
 Suitable-for-full-reduction :
-  Modality-variant → Type-restrictions → Set
+  ∀ variant → Type-restrictions (L≤M≤H variant) → Set
 Suitable-for-full-reduction variant trs =
   (∀ p → ¬ Σₚ-allowed M p) ×
   (∀ p → Σₚ-allowed H p → T 𝟘ᵐ-allowed)
@@ -747,19 +748,25 @@ Suitable-for-full-reduction variant trs =
   open Modality-variant variant
   open Type-restrictions trs
 
--- Given an instance of Modality-variant and an instance of
--- Type-restrictions one can create a "suitable" instance of
--- Type-restrictions.
+-- Given an instance of Type-restrictions (L≤M≤H variant) one can
+-- create a "suitable" instance of Type-restrictions.
 
 suitable-for-full-reduction :
-  (variant : Modality-variant) → Type-restrictions →
+  Type-restrictions (L≤M≤H variant) →
   ∃ (Suitable-for-full-reduction variant)
-suitable-for-full-reduction variant trs =
+suitable-for-full-reduction {variant = variant} trs =
     record trs
       { ΠΣ-allowed = λ b p q →
           ΠΣ-allowed b p q ×
           ¬ (b ≡ BMΣ Σₚ × p ≡ M) ×
           (b ≡ BMΣ Σₚ × p ≡ H → T 𝟘ᵐ-allowed)
+      ; []-cong-allowed =
+          []-cong-allowed × T 𝟘ᵐ-allowed
+      ; []-cong→Erased = λ (ok₁ , ok₂) →
+            []-cong→Erased ok₁ .proj₁ , []-cong→Erased ok₁ .proj₂
+          , (λ { (_ , ()) }) , (λ _ → ok₂)
+      ; []-cong→¬Trivial =
+          λ _ ()
       }
   , (λ _ → (_$ (refl , refl)) ∘→ proj₁ ∘→ proj₂)
   , (λ _ → (_$ (refl , refl)) ∘→ proj₂ ∘→ proj₂)
@@ -768,11 +775,11 @@ suitable-for-full-reduction variant trs =
   open Type-restrictions trs
 
 -- The full reduction assumptions hold for L≤M≤H variant and any
--- "suitable" Type-restrictions.
+-- "suitable" instance of Type-restrictions.
 
 full-reduction-assumptions :
   Suitable-for-full-reduction variant trs →
-  Full-reduction-assumptions (L≤M≤H variant) trs
+  Full-reduction-assumptions trs
 full-reduction-assumptions (¬M , H→𝟘ᵐ) = record
   { 𝟙≤𝟘    = λ _ → refl
   ; ≡𝟙⊎𝟙≤𝟘 = λ where

@@ -4,23 +4,27 @@
 
 open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.LogicalRelation.Weakening
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   {{eqrel : EqRelSet R}}
   where
 
 open EqRelSet {{...}}
 
-open import Definition.Untyped M as U hiding (wk ; _∷_)
+open import Definition.Untyped M as U hiding (wk; _∷_; K)
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Weakening R as T hiding (wk; wkEq; wkTerm; wkEqTerm)
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Irrelevance R
+open import Definition.LogicalRelation.Properties R
 
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -30,8 +34,9 @@ private
   variable
     m n : Nat
     ρ : Wk m n
-    Δ : Con Term m
-    Γ : Con Term n
+    Γ Δ : Con Term m
+    A B t u : Term m
+    l : TypeLevel
 
 -- Weakening of neutrals in WHNF
 
@@ -113,7 +118,25 @@ wkEqTermUnit {ρ = ρ} [ρ] ⊢Δ (Unitₜ₌ ⊢t ⊢u) =
 
 -- Weakening of the logical relation
 
-wk : ∀ {m} {ρ : Wk m n} {Γ : Con Term n} {Δ A l} → ρ ∷ Δ ⊇ Γ → ⊢ Δ → Γ ⊩⟨ l ⟩ A → Δ ⊩⟨ l ⟩ U.wk ρ A
+wk :
+  {ρ : Wk m n} →
+  ρ ∷ Δ ⊇ Γ → ⊢ Δ → Γ ⊩⟨ l ⟩ A → Δ ⊩⟨ l ⟩ U.wk ρ A
+
+wkEq :
+  ([ρ] : ρ ∷ Δ ⊇ Γ) (⊢Δ : ⊢ Δ) ([A] : Γ ⊩⟨ l ⟩ A) →
+  Γ ⊩⟨ l ⟩ A ≡ B / [A] →
+  Δ ⊩⟨ l ⟩ U.wk ρ A ≡ U.wk ρ B / wk [ρ] ⊢Δ [A]
+
+wkTerm :
+  ([ρ] : ρ ∷ Δ ⊇ Γ) (⊢Δ : ⊢ Δ) ([A] : Γ ⊩⟨ l ⟩ A) →
+  Γ ⊩⟨ l ⟩ t ∷ A / [A] →
+  Δ ⊩⟨ l ⟩ U.wk ρ t ∷ U.wk ρ A / wk [ρ] ⊢Δ [A]
+
+wkEqTerm :
+  ([ρ] : ρ ∷ Δ ⊇ Γ) (⊢Δ : ⊢ Δ) ([A] : Γ ⊩⟨ l ⟩ A) →
+  Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A] →
+  Δ ⊩⟨ l ⟩ U.wk ρ t ≡ U.wk ρ u ∷ U.wk ρ A / wk [ρ] ⊢Δ [A]
+
 wk ρ ⊢Δ (Uᵣ′ l′ l< ⊢Γ) = Uᵣ′ l′ l< ⊢Δ
 wk ρ ⊢Δ (ℕᵣ D) = ℕᵣ (wkRed:*: ρ ⊢Δ D)
 wk ρ ⊢Δ (Emptyᵣ D) = Emptyᵣ (wkRed:*: ρ ⊢Δ D)
@@ -121,7 +144,7 @@ wk ρ ⊢Δ (Unitᵣ (Unitₜ D ok)) = Unitᵣ (Unitₜ (wkRed:*: ρ ⊢Δ D) ok
 wk {ρ = ρ} [ρ] ⊢Δ (ne′ K D neK K≡K) =
   ne′ (U.wk ρ K) (wkRed:*: [ρ] ⊢Δ D) (wkNeutral ρ neK) (~-wk [ρ] ⊢Δ K≡K)
 wk
-  {m = m} {ρ} {Γ} {Δ} {A} {l} [ρ] ⊢Δ
+  {m = m} {Δ = Δ} {Γ = Γ} {l = l} {A = A} {ρ = ρ} [ρ] ⊢Δ
   (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok) =
   let ⊢ρF = T.wk [ρ] ⊢Δ ⊢F
       [F]′ : ∀ {k} {ρ : Wk k m} {ρ′ E} ([ρ] : ρ ∷ E ⊇ Δ) ([ρ′] : ρ′ ∷ Δ ⊇ Γ) (⊢E : ⊢ E)
@@ -162,7 +185,7 @@ wk
                                          [a≡b]′))
            ok
 wk
-  {m = m} {ρ} {Γ} {Δ} {A} {l} [ρ] ⊢Δ
+  {m = m} {Δ = Δ} {Γ = Γ} {l = l} {A = A} {ρ = ρ} [ρ] ⊢Δ
   (Σᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok) =
   let ⊢ρF = T.wk [ρ] ⊢Δ ⊢F
       [F]′ : ∀ {k} {ρ : Wk k m} {ρ′ E} ([ρ] : ρ ∷ E ⊇ Δ) ([ρ′] : ρ′ ∷ Δ ⊇ Γ) (⊢E : ⊢ E)
@@ -202,12 +225,16 @@ wk
                                          ([a]′ [ρ₁] [ρ] ⊢Δ₁ [b])
                                          [a≡b]′))
            ok
+wk ρ∷⊇ ⊢Δ (Idᵣ ⊩A) = Idᵣ (record
+  { ⇒*Id  = wkRed:*: ρ∷⊇ ⊢Δ ⇒*Id
+  ; ⊩Ty   = wk ρ∷⊇ ⊢Δ ⊩Ty
+  ; ⊩lhs  = wkTerm ρ∷⊇ ⊢Δ ⊩Ty ⊩lhs
+  ; ⊩rhs  = wkTerm ρ∷⊇ ⊢Δ ⊩Ty ⊩rhs
+  })
+  where
+  open _⊩ₗId_ ⊩A
 wk ρ ⊢Δ (emb 0<1 x) = emb 0<1 (wk ρ ⊢Δ x)
 
-wkEq : ∀ {A B l} → ([ρ] : ρ ∷ Δ ⊇ Γ) (⊢Δ : ⊢ Δ)
-       ([A] : Γ ⊩⟨ l ⟩ A)
-     → Γ ⊩⟨ l ⟩ A ≡ B / [A]
-     → Δ ⊩⟨ l ⟩ U.wk ρ A ≡ U.wk ρ B / wk [ρ] ⊢Δ [A]
 wkEq ρ ⊢Δ (Uᵣ′ _ _ _) PE.refl = PE.refl
 wkEq ρ ⊢Δ (ℕᵣ D) A≡B = wkRed* ρ ⊢Δ A≡B
 wkEq ρ ⊢Δ (Emptyᵣ D) A≡B = wkRed* ρ ⊢Δ A≡B
@@ -257,12 +284,16 @@ wkEq {ρ = ρ} [ρ] ⊢Δ (Σᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
                             (irrelevance′ (wk-comp-subst ρ₁ ρ G)
                                           ([G] ([ρ₁] •ₜ [ρ]) ⊢Δ₁ [a]′))
                             ([G≡G′] ([ρ₁] •ₜ [ρ]) ⊢Δ₁ [a]′))
+wkEq ρ∷⊇ ⊢Δ (Idᵣ ⊩A) A≡B = Id₌′
+  (wkRed:*: ρ∷⊇ ⊢Δ ⇒*Id′)
+  (wkEq ρ∷⊇ ⊢Δ ⊩Ty Ty≡Ty′)
+  (wkEqTerm ρ∷⊇ ⊢Δ ⊩Ty lhs≡lhs′)
+  (wkEqTerm ρ∷⊇ ⊢Δ ⊩Ty rhs≡rhs′)
+  where
+  open _⊩ₗId_ ⊩A
+  open _⊩ₗId_≡_/_ A≡B
 wkEq ρ ⊢Δ (emb 0<1 x) A≡B = wkEq ρ ⊢Δ x A≡B
 
-wkTerm : ∀ {A t l} ([ρ] : ρ ∷ Δ ⊇ Γ) (⊢Δ : ⊢ Δ)
-         ([A] : Γ ⊩⟨ l ⟩ A)
-       → Γ ⊩⟨ l ⟩ t ∷ A / [A]
-       → Δ ⊩⟨ l ⟩ U.wk ρ t ∷ U.wk ρ A / wk [ρ] ⊢Δ [A]
 wkTerm {ρ = ρ} [ρ] ⊢Δ (Uᵣ′ .⁰ 0<1 ⊢Γ) (Uₜ A d typeA A≡A [t]) =
   Uₜ (U.wk ρ A) (wkRed:*:Term [ρ] ⊢Δ d)
      (wkType ρ typeA) (≅ₜ-wk [ρ] ⊢Δ A≡A) (wk [ρ] ⊢Δ [t])
@@ -375,12 +406,16 @@ wkTerm
         [ρsnd]
   in  Σₜ (U.wk ρ p) (wkRed:*:Term [ρ] ⊢Δ d) (≅ₜ-wk [ρ] ⊢Δ p≅p)
          (wkProduct ρ pProd) ([ρfst]′ , [ρsnd]′)
+wkTerm ρ∷⊇ ⊢Δ (Idᵣ ⊩A) ⊩t@(_ , t⇒*u , _) =
+    _
+  , wkRed:*:Term ρ∷⊇ ⊢Δ t⇒*u
+  , (case ⊩Id∷-view-inhabited ⊩t of λ where
+       (rflᵣ lhs≡rhs) → rflₙ , wkEqTerm ρ∷⊇ ⊢Δ ⊩Ty lhs≡rhs
+       (ne u-n u~u)   → ne (wkNeutral _ u-n) , ~-wk ρ∷⊇ ⊢Δ u~u)
+  where
+  open _⊩ₗId_ ⊩A
 wkTerm ρ ⊢Δ (emb 0<1 x) t = wkTerm ρ ⊢Δ x t
 
-wkEqTerm : ∀ {A t u l} ([ρ] : ρ ∷ Δ ⊇ Γ) (⊢Δ : ⊢ Δ)
-           ([A] : Γ ⊩⟨ l ⟩ A)
-         → Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
-         → Δ ⊩⟨ l ⟩ U.wk ρ t ≡ U.wk ρ u ∷ U.wk ρ A / wk [ρ] ⊢Δ [A]
 wkEqTerm {ρ = ρ} [ρ] ⊢Δ (Uᵣ′ .⁰ 0<1 ⊢Γ) (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) =
   Uₜ₌ (U.wk ρ A) (U.wk ρ B) (wkRed:*:Term [ρ] ⊢Δ d) (wkRed:*:Term [ρ] ⊢Δ d′)
       (wkType ρ typeA) (wkType ρ typeB) (≅ₜ-wk [ρ] ⊢Δ A≡B)
@@ -527,6 +562,20 @@ wkEqTerm {ρ = ρ} [ρ] ⊢Δ [A]@(Bᵣ′ BΣₚ F G D ⊢F ⊢G A≡A [F] [G] 
           (wkProduct ρ pProd) (wkProduct ρ rProd)
           (≅ₜ-wk [ρ] ⊢Δ p≅r) (wkTerm [ρ] ⊢Δ [A] [t]) (wkTerm [ρ] ⊢Δ [A] [u])
           ([ρfstp]′ , [ρfstr]′ , [ρfst≡]′ , [ρsnd≡]′)
+wkEqTerm ρ∷⊇ ⊢Δ (Idᵣ ⊩A) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
+    _ , _
+  , wkRed:*:Term ρ∷⊇ ⊢Δ t⇒*t′
+  , wkRed:*:Term ρ∷⊇ ⊢Δ u⇒*u′
+  , (case ⊩Id≡∷-view-inhabited ⊩A t≡u of λ where
+       (rfl₌ lhs≡rhs) →
+           rflₙ , rflₙ
+         , wkEqTerm ρ∷⊇ ⊢Δ ⊩Ty lhs≡rhs
+       (ne t′-n u′-n t′~u′) →
+           ne (wkNeutral _ t′-n)
+         , ne (wkNeutral _ u′-n)
+         , ~-wk ρ∷⊇ ⊢Δ t′~u′)
+  where
+  open _⊩ₗId_ ⊩A
 wkEqTerm ρ ⊢Δ (emb 0<1 x) t≡u = wkEqTerm ρ ⊢Δ x t≡u
 -- Impossible cases
 wkEqTerm ρ ⊢Δ (Bᵣ BΣᵣ x) (Σₜ₌ p r d d′ prodₙ (ne y) p≅r [t] [u] ())

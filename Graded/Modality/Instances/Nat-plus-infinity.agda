@@ -27,8 +27,12 @@ import Graded.Modality.Properties.Meet
 import Graded.Modality.Properties.PartialOrder
 open import Graded.Modality.Variant lzero
 
-import Definition.Typed.Restrictions
+open import Definition.Typed.Restrictions
 open import Definition.Untyped using (BMΣ; Σₚ)
+
+private variable
+  variant : Modality-variant
+  TRs     : Type-restrictions _
 
 -- The grades are the natural numbers extended with ∞.
 
@@ -36,14 +40,11 @@ data ℕ⊎∞ : Set where
   ⌞_⌟ : Nat → ℕ⊎∞
   ∞   : ℕ⊎∞
 
-open Definition.Typed.Restrictions ℕ⊎∞
-open Graded.Modality               ℕ⊎∞
-open Tools.Algebra                 ℕ⊎∞
+open Graded.Modality ℕ⊎∞
+open Tools.Algebra   ℕ⊎∞
 
 private variable
-  m n o   : ℕ⊎∞
-  TRs     : Type-restrictions
-  variant : Modality-variant
+  m n o : ℕ⊎∞
 
 ------------------------------------------------------------------------
 -- Operators
@@ -588,31 +589,36 @@ open Graded.Modality.Instances.Recursive.Sequences
 ------------------------------------------------------------------------
 -- Instances of Full-reduction-assumptions
 
--- An instance of Modality-variant along with an instance of
--- Type-restrictions are suitable for the full reduction theorem if
--- whenever Σₚ-allowed m n holds, then m is ⌞ 1 ⌟, or m is ⌞ 0 ⌟ and
--- 𝟘ᵐ is allowed.
+-- An instance of Type-restrictions (ℕ⊎∞-modality variant) is suitable
+-- for the full reduction theorem if whenever Σₚ-allowed m n holds,
+-- then m is ⌞ 1 ⌟, or m is ⌞ 0 ⌟ and 𝟘ᵐ is allowed.
 
 Suitable-for-full-reduction :
-  Modality-variant → Type-restrictions → Set
+  ∀ variant → Type-restrictions (ℕ⊎∞-modality variant) → Set
 Suitable-for-full-reduction variant TRs =
   ∀ m n → Σₚ-allowed m n → m ≡ ⌞ 1 ⌟ ⊎ m ≡ ⌞ 0 ⌟ × T 𝟘ᵐ-allowed
   where
   open Modality-variant variant
   open Type-restrictions TRs
 
--- Given an instance of Modality-variant and an instance of
--- Type-restrictions one can create a "suitable" instance of
--- Type-restrictions.
+-- Given an instance of Type-restrictions (ℕ⊎∞-modality variant) one
+-- can create a "suitable" instance of Type-restrictions.
 
 suitable-for-full-reduction :
-  (variant : Modality-variant) → Type-restrictions →
+  Type-restrictions (ℕ⊎∞-modality variant) →
   ∃ (Suitable-for-full-reduction variant)
-suitable-for-full-reduction variant TRs =
+suitable-for-full-reduction {variant = variant} TRs =
     record TRs
       { ΠΣ-allowed = λ b m n →
           ΠΣ-allowed b m n ×
           (b ≡ BMΣ Σₚ → m ≡ ⌞ 1 ⌟ ⊎ m ≡ ⌞ 0 ⌟ × T 𝟘ᵐ-allowed)
+      ; []-cong-allowed =
+          []-cong-allowed × T 𝟘ᵐ-allowed
+      ; []-cong→Erased = λ (ok₁ , ok₂) →
+            []-cong→Erased ok₁ .proj₁ , []-cong→Erased ok₁ .proj₂
+          , (λ _ → inj₂ (refl , ok₂))
+      ; []-cong→¬Trivial =
+          λ _ ()
       }
   , (λ _ _ → (_$ refl) ∘→ proj₂)
   where
@@ -620,11 +626,11 @@ suitable-for-full-reduction variant TRs =
   open Type-restrictions TRs
 
 -- The full reduction assumptions hold for ℕ⊎∞-modality variant and
--- any "suitable" Type-restrictions.
+-- any "suitable" instance of Type-restrictions.
 
 full-reduction-assumptions :
   Suitable-for-full-reduction variant TRs →
-  Full-reduction-assumptions (ℕ⊎∞-modality variant) TRs
+  Full-reduction-assumptions TRs
 full-reduction-assumptions ok = record
   { 𝟙≤𝟘    = λ _ → refl
   ; ≡𝟙⊎𝟙≤𝟘 = ⊎.map idᶠ (λ (p≡⌞0⌟ , ok) → p≡⌞0⌟ , ok , refl) ∘→ ok _ _

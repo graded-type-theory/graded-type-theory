@@ -13,9 +13,9 @@ open import Tools.Relation
 module Graded.Erasure.LogicalRelation.Fundamental.Unit
   {a k} {M : Set a}
   (open Definition.Untyped M)
-  (𝕄 : Modality M)
+  {𝕄 : Modality M}
   (open Modality 𝕄)
-  (R : Type-restrictions M)
+  (R : Type-restrictions 𝕄)
   (open Definition.Typed R)
   (is-𝟘? : (p : M) → Dec (p ≡ 𝟘))
   {{eqrel : EqRelSet R}}
@@ -25,8 +25,8 @@ module Graded.Erasure.LogicalRelation.Fundamental.Unit
 open EqRelSet {{...}}
 open Type-restrictions R
 
-open import Graded.Erasure.LogicalRelation 𝕄 R is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Subsumption 𝕄 R is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation R is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation.Subsumption R is-𝟘? ⊢Δ
 import Graded.Erasure.Target as T
 
 open import Definition.LogicalRelation R

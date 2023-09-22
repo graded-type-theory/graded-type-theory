@@ -145,6 +145,11 @@ wk-erase-comm ρ Unit = refl
 wk-erase-comm ρ U.star = refl
 wk-erase-comm ρ Empty = refl
 wk-erase-comm ρ (emptyrec p A t) = refl
+wk-erase-comm _ (Id _ _ _) = refl
+wk-erase-comm _ U.rfl = refl
+wk-erase-comm _ (J _ _ _ _ _ u _ _) = wk-erase-comm _ u
+wk-erase-comm _ (K _ _ _ _ u _) = wk-erase-comm _ u
+wk-erase-comm _ ([]-cong _ _ _ _) = refl
 
 -- Lifting substitutions commute with erase
 -- liftSubst (eraseSubst σ) x ≡ eraseSubst (liftSubst σ) x
@@ -194,6 +199,11 @@ liftSubst-erase-comm (x +1) | Unit = refl
 liftSubst-erase-comm (x +1) | U.star = refl
 liftSubst-erase-comm (x +1) | Empty = refl
 liftSubst-erase-comm (x +1) | emptyrec p A t = refl
+liftSubst-erase-comm _      | Id _ _ _ = refl
+liftSubst-erase-comm _      | U.rfl = refl
+liftSubst-erase-comm _      | J _ _ _ _ _ u _ _ = wk-erase-comm _ u
+liftSubst-erase-comm _      | K _ _ _ _ u _ = wk-erase-comm _ u
+liftSubst-erase-comm _      | []-cong _ _ _ _ = refl
 
 -- Multiple lifts commutes with erase
 -- liftSubstn (eraseSubst σ) n x ≡ eraseSubst (liftSubstn σ n) x
@@ -279,6 +289,11 @@ subst-erase-comm σ Unit = refl
 subst-erase-comm σ U.star = refl
 subst-erase-comm σ Empty = refl
 subst-erase-comm σ (emptyrec p A t) = refl
+subst-erase-comm _ (Id _ _ _) = refl
+subst-erase-comm _ U.rfl = refl
+subst-erase-comm _ (J _ _ _ _ _ u _ _) = subst-erase-comm _ u
+subst-erase-comm _ (K _ _ _ _ u _) = subst-erase-comm _ u
+subst-erase-comm _ ([]-cong _ _ _ _) = refl
 
 subst-undefined : (x : Fin (1+ n)) →
       eraseSubst (U.sgSubst Empty) x ≡
@@ -444,6 +459,21 @@ module hasX (R : Usage-restrictions) where
     (natrec-no-nrₘ _ _ η▸n _ _ _ χ≤η _)
     (natrecₓⁿ hasX) =
     erased-hasX (x◂𝟘∈γ≤δ erased χ≤η) η▸n hasX
+
+  erased-hasX erased (Jₘ _ _ _ _ ▸u _ _) hasX =
+    erased-hasX
+      (x◂𝟘∈γ∧δˡ refl $ x◂𝟘∈γ∧δʳ refl $ x◂𝟘∈γ∧δʳ refl $
+       x◂𝟘∈pγ refl ω≢𝟘 erased)
+      ▸u hasX
+  erased-hasX erased (J₀ₘ _ _ _ _ ▸u _ _) hasX =
+    erased-hasX erased ▸u hasX
+  erased-hasX erased (Kₘ _ _ _ _ ▸u _) hasX =
+    erased-hasX
+      (x◂𝟘∈γ∧δˡ refl $ x◂𝟘∈γ∧δʳ refl $ x◂𝟘∈γ∧δʳ refl $
+       x◂𝟘∈pγ refl ω≢𝟘 erased)
+      ▸u hasX
+  erased-hasX erased (K₀ₘ _ _ _ _ ▸u _) hasX =
+    erased-hasX erased ▸u hasX
 
   erased-hasX erased (sub δ▸t γ≤δ) hasX =
     erased-hasX (x◂𝟘∈γ≤δ erased γ≤δ) δ▸t hasX

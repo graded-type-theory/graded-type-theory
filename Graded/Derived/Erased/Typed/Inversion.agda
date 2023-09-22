@@ -8,8 +8,8 @@ import Graded.Modality
 module Graded.Derived.Erased.Typed.Inversion
   {a} {M : Set a}
   (open Graded.Modality M)
-  (𝕄 : Modality)
-  (R : Type-restrictions M)
+  {𝕄 : Modality}
+  (R : Type-restrictions 𝕄)
   where
 
 open Modality 𝕄
@@ -35,11 +35,6 @@ open import Tools.Relation
 private variable
   Γ     : Con Term _
   A B t : Term _
-
--- The type Erased A is only allowed if Erased-allowed holds.
-
-Erased-allowed : Set a
-Erased-allowed = Unit-allowed × Σₚ-allowed 𝟘 𝟘
 
 opaque
 

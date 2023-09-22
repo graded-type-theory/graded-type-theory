@@ -884,6 +884,30 @@ opaque
     t [ consSubst (consSubst σ (u [ σ ])) (v [ σ ]) ]  ≡˘⟨ doubleSubstComp t _ _ _ ⟩
     t [ liftSubstn σ 2 ] [ u [ σ ] , v [ σ ] ]         ∎
 
+opaque
+
+  -- A lemma related to Id.
+
+  ≡Id-wk1-wk1-0[]₀ :
+    Id A t u ≡ Id (wk1 A) (wk1 t) (var x0) [ u ]₀
+  ≡Id-wk1-wk1-0[]₀ {A} {t} {u} =
+    Id A t u                            ≡˘⟨ cong₂ (λ A t → Id A t _) (wk1-sgSubst _ _) (wk1-sgSubst _ _) ⟩
+    Id (wk1 A [ u ]₀) (wk1 t [ u ]₀) u  ≡⟨⟩
+    Id (wk1 A) (wk1 t) (var x0) [ u ]₀  ∎
+
+opaque
+
+  -- Another lemma related to Id.
+
+  Id-wk1-wk1-0[⇑]≡ :
+    ∀ A t →
+    Id (wk1 A) (wk1 t) (var x0) [ liftSubst σ ] ≡
+    Id (wk1 (A [ σ ])) (wk1 (t [ σ ])) (var x0)
+  Id-wk1-wk1-0[⇑]≡ {σ} A t =
+    Id (wk1 A) (wk1 t) (var x0) [ liftSubst σ ]                  ≡⟨⟩
+    Id (wk1 A [ liftSubst σ ]) (wk1 t [ liftSubst σ ]) (var x0)  ≡⟨ cong₂ (λ A t → Id A t _) (wk1-liftSubst A) (wk1-liftSubst t) ⟩
+    Id (wk1 (A [ σ ])) (wk1 (t [ σ ])) (var x0)                  ∎
+
 -- There are no closed neutral terms
 
 noClosedNe : {t : Term 0} → Neutral t → ⊥
@@ -893,6 +917,9 @@ noClosedNe (sndₙ net) = noClosedNe net
 noClosedNe (natrecₙ net) = noClosedNe net
 noClosedNe (prodrecₙ net) = noClosedNe net
 noClosedNe (emptyrecₙ net) = noClosedNe net
+noClosedNe (Jₙ net) = noClosedNe net
+noClosedNe (Kₙ net) = noClosedNe net
+noClosedNe ([]-congₙ net) = noClosedNe net
 
 -- Decidability of SigmaMode equality
 decSigmaMode : Decidable (_≡_ {A = SigmaMode})

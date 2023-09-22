@@ -2,14 +2,21 @@
 -- Restrictions on typing derivations
 ------------------------------------------------------------------------
 
+open import Graded.Modality
+
 module Definition.Typed.Restrictions
-  {a} (M : Set a)
+  {a} {M : Set a}
+  (𝕄 : Modality M)
   where
+
+open Modality 𝕄
 
 open import Definition.Untyped M
 
 open import Tools.Function
 open import Tools.Level
+open import Tools.Product
+open import Tools.Relation
 open import Tools.Unit
 
 -- Restrictions on typing derivations.
@@ -43,6 +50,24 @@ record Type-restrictions : Set (lsuc a) where
 
   Σᵣ-allowed : M → M → Set a
   Σᵣ-allowed = Σ-allowed Σᵣ
+
+  -- The type Erased A is only allowed if Erased-allowed holds.
+
+  Erased-allowed : Set a
+  Erased-allowed = Unit-allowed × Σₚ-allowed 𝟘 𝟘
+
+  field
+    -- The K rule is only allowed if the given predicate holds.
+    K-allowed : Set a
+
+    -- []-cong is only allowed if the given predicate holds.
+    []-cong-allowed : Set a
+
+    -- If []-cong is allowed, then Erased is allowed.
+    []-cong→Erased : []-cong-allowed → Erased-allowed
+
+    -- If []-cong is allowed, then the modality is not trivial.
+    []-cong→¬Trivial : []-cong-allowed → ¬ Trivial
 
   -- A variant of ΠΣ-allowed for BindingType.
 

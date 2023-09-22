@@ -13,9 +13,9 @@ open import Tools.Relation
 module Graded.Erasure.LogicalRelation.Irrelevance
   {a} {M : Set a}
   (open Definition.Untyped M)
-  (𝕄 : Modality M)
+  {𝕄 : Modality M}
   (open Modality 𝕄)
-  (R : Type-restrictions M)
+  (R : Type-restrictions 𝕄)
   (open Definition.Typed R)
   (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘))
   {{eqrel : EqRelSet R}}
@@ -24,7 +24,7 @@ module Graded.Erasure.LogicalRelation.Irrelevance
 
 open EqRelSet {{...}}
 
-open import Graded.Erasure.LogicalRelation 𝕄 R is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation R is-𝟘? ⊢Δ
 
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.ShapeView R
@@ -38,6 +38,7 @@ open import Definition.Typed.Properties R
 open import Graded.Context 𝕄
 open import Graded.Mode 𝕄
 
+open import Tools.Function
 open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
@@ -103,6 +104,11 @@ irrelevanceTermSV {v = v}
                  λ v₁ v⇒p t₁®v₁ p≢𝟘 →
                    Σ-®-intro-ω v₁ v⇒p (irrelevanceTermSV [F]′ [F]₁′ t₁®v₁
                                (goodCasesRefl [F]′ [F]₁′)) p≢𝟘
+irrelevanceTermSV _ _ t®v (Idᵥ ⊩A ⊩B) =
+  case whrDet* (red (_⊩ₗId_.⇒*Id ⊩A) , Idₙ)
+         (red (_⊩ₗId_.⇒*Id ⊩B) , Idₙ) of λ {
+    PE.refl →
+  t®v }
 irrelevanceTermSV (emb 0<1 [A]) [A]′ t®v (emb⁰¹ SV) =
   irrelevanceTermSV [A] [A]′ t®v SV
 irrelevanceTermSV [A] (emb 0<1 [A]′) t®v (emb¹⁰ SV) =

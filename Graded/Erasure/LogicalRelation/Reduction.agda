@@ -13,9 +13,9 @@ open import Tools.Relation
 module Graded.Erasure.LogicalRelation.Reduction
   {a} {M : Set a}
   (open Definition.Untyped M)
-  (𝕄 : Modality M)
+  {𝕄 : Modality M}
   (open Modality 𝕄)
-  (R : Type-restrictions M)
+  (R : Type-restrictions 𝕄)
   (open Definition.Typed R)
   (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘))
   {{eqrel : EqRelSet R}}
@@ -40,7 +40,7 @@ open import Definition.Typed.Weakening R
 
 open import Definition.Untyped.Properties M as UP using (wk-id ; wk-lift-id)
 
-open import Graded.Erasure.LogicalRelation 𝕄 R is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation R is-𝟘? ⊢Δ
 open import Graded.Erasure.Target as T hiding (_⇒_; _⇒*_)
 open import Graded.Erasure.Target.Properties as TP
 
@@ -93,6 +93,8 @@ sourceRedSubstTerm
   (Bᵣ′ BΣ! F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext _)
   (t₁ , t₂ , t′⇒p , [t₁] , v₂ , t₂®v₂ , extra) t⇒t′ =
   t₁ , t₂ , conv t⇒t′ (subset* D) ⇨ t′⇒p , [t₁] , v₂ , t₂®v₂ , extra
+sourceRedSubstTerm (Idᵣ ⊩A) (rflᵣ t′⇒*rfl v⇒*rfl) t⇒t′ =
+  rflᵣ (conv t⇒t′ (subset* (red (_⊩ₗId_.⇒*Id ⊩A))) ⇨ t′⇒*rfl) v⇒*rfl
 sourceRedSubstTerm (emb 0<1 [A]) t®v t⇒t′ = sourceRedSubstTerm [A] t®v t⇒t′
 
 
@@ -140,6 +142,8 @@ targetRedSubstTerm {A = A} {t = t} {v = v}
   extra′ = Σ-®-elim (λ _ → Σ-® _ F ([F] id ⊢Δ) t₁ v v₂ p) extra
                     (λ v′⇒v₂         → Σ-®-intro-𝟘 (trans v⇒v′ v′⇒v₂))
                     (λ v₁ v′⇒p t₁®v₁ → Σ-®-intro-ω v₁ (trans v⇒v′ v′⇒p) t₁®v₁)
+targetRedSubstTerm (Idᵣ _) (rflᵣ t⇒*rfl v′⇒*rfl) v⇒v′ =
+  rflᵣ t⇒*rfl (T.trans v⇒v′ v′⇒*rfl)
 targetRedSubstTerm (emb 0<1 [A]) t®v′ v⇒v′ = targetRedSubstTerm [A] t®v′ v⇒v′
 
 
@@ -222,6 +226,11 @@ sourceRedSubstTerm′
   t₁ , t₂
      , whrDet↘Term (t⇒p , prodₙ) (redMany (conv t⇒t′ (subset* (red D))))
      , [t₁] , v₂ , t₂®v₂ , extra
+sourceRedSubstTerm′ (Idᵣ ⊩A) (rflᵣ t⇒*rfl v⇒*rfl) t⇒t′ =
+  rflᵣ
+    (whrDet↘Term (t⇒*rfl , rflₙ)
+       (redMany (conv t⇒t′ (subset* (red (_⊩ₗId_.⇒*Id ⊩A))))))
+    v⇒*rfl
 sourceRedSubstTerm′ (emb 0<1 [A]) t®v t⇒t′ = sourceRedSubstTerm′ [A] t®v t⇒t′
 
 
@@ -290,6 +299,14 @@ targetRedSubstTerm′
              PE.refl → Σ-®-intro-ω v₁ refl t₁®v₁ p≢𝟘
            (inj₂ v′⇒p) → Σ-®-intro-ω v₁ v′⇒p t₁®v₁ p≢𝟘)
 
+targetRedSubstTerm′ (Idᵣ _) (rflᵣ t⇒*rfl v⇒*rfl) v⇒v′ =
+  rflᵣ t⇒*rfl
+    (case red*Det v⇒*rfl (T.trans v⇒v′ T.refl) of λ where
+       (inj₂ v′⇒*rfl) → v′⇒*rfl
+       (inj₁ rfl⇒*v′) →
+         case rfl-noRed rfl⇒*v′ of λ {
+           PE.refl →
+         T.refl })
 targetRedSubstTerm′ (emb 0<1 [A]) t®v v⇒v′ = targetRedSubstTerm′ [A] t®v v⇒v′
 
 

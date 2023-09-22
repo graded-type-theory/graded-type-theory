@@ -3,12 +3,14 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 import Tools.PropositionalEquality as PE
 open import Tools.Relation as Dec
 
 module Definition.Typed.Decidable
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   (open Type-restrictions R)
   -- Equality is assumed to be decidable for M.
   (_≟_ : Decidable (PE._≡_ {A = M}))
@@ -16,6 +18,10 @@ module Definition.Typed.Decidable
   (Unit-ok? : Dec Unit-allowed)
   -- ΠΣ-allowed is pointwise decidable.
   (ΠΣ-ok? : ∀ b p q → Dec (ΠΣ-allowed b p q))
+  -- It is decidable whether the K rule is allowed.
+  (K-allowed? : Dec K-allowed)
+  -- It is decidable whether []-cong is allowed.
+  ([]-cong-allowed? : Dec []-cong-allowed)
   where
 
 open import Definition.Untyped M hiding (_∷_)
@@ -25,7 +31,8 @@ open import Definition.Typed.Properties R
 open import Definition.Typechecking R
 open import Definition.Typechecking.Soundness R
 open import Definition.Typechecking.Completeness R
-open import Definition.Typechecking.Decidable R _≟_ Unit-ok? ΠΣ-ok?
+open import Definition.Typechecking.Decidable
+  R _≟_ Unit-ok? ΠΣ-ok? K-allowed? []-cong-allowed?
 
 open import Tools.Function
 open import Tools.Nat using (Nat)

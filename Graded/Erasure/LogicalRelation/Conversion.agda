@@ -2,6 +2,8 @@
 -- Type conversion lemmata for the logical relation
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 open import Definition.Typed.EqualityRelation
 import Definition.Typed
 open import Definition.Typed.Restrictions
@@ -13,9 +15,9 @@ open import Tools.Relation
 module Graded.Erasure.LogicalRelation.Conversion
   {a} {M : Set a}
   (open Definition.Untyped M)
-  (𝕄 : Modality M)
+  {𝕄 : Modality M}
   (open Modality 𝕄)
-  (R : Type-restrictions M)
+  (R : Type-restrictions 𝕄)
   (open Definition.Typed R)
   (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘))
   {{eqrel : EqRelSet R}}
@@ -24,7 +26,7 @@ module Graded.Erasure.LogicalRelation.Conversion
 
 open EqRelSet {{...}}
 
-open import Graded.Erasure.LogicalRelation 𝕄 R is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation R is-𝟘? ⊢Δ
 import Graded.Erasure.Target as T
 
 open import Definition.LogicalRelation R
@@ -41,6 +43,8 @@ open import Definition.Untyped.Properties M
 
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Substitution R
+open import Definition.Typed.Properties R
+open import Definition.Typed.Reasoning.Type R
 open import Definition.Typed.Reduction R
 open import Definition.Typed.RedSteps R
 open import Definition.Typed.Weakening R hiding (wk)
@@ -140,6 +144,14 @@ convTermʳ′ {v = v}
                    let t₁®v₁′ = convTermʳ′ [F]′ [F]₁′ F≡F₁′ SV₁ t₁®v₁
                    in  Σ-®-intro-ω v₁ v⇒p t₁®v₁′
   in  t₁ , t₂ , t⇒t″ , [t₁]′ , v₂ , t₂®v₂′ , extra′
+convTermʳ′ {A} {B} _ _ A≡B (Idᵥ ⊩A ⊩B) (rflᵣ t⇒*rfl v⇒*rfl) =
+  rflᵣ
+    (conv* t⇒*rfl
+       (Id (_⊩ₗId_.Ty ⊩A) (_⊩ₗId_.lhs ⊩A) (_⊩ₗId_.rhs ⊩A)  ≡˘⟨ subset* (red (_⊩ₗId_.⇒*Id ⊩A)) ⟩⊢
+        A                                                  ≡⟨ A≡B ⟩⊢
+        B                                                  ≡⟨ subset* (red (_⊩ₗId_.⇒*Id ⊩B)) ⟩⊢∎
+        Id (_⊩ₗId_.Ty ⊩B) (_⊩ₗId_.lhs ⊩B) (_⊩ₗId_.rhs ⊩B)  ∎))
+    v⇒*rfl
 convTermʳ′ (emb 0<1 [A]) [B] A≡B (emb⁰¹ SV) t®v =
   convTermʳ′ [A] [B] A≡B SV t®v
 convTermʳ′ [A] (emb 0<1 [B]) A≡B (emb¹⁰ SV) t®v =

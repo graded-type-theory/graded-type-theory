@@ -3,16 +3,21 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.Typechecking
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
 
 open Type-restrictions R
 
 open import Definition.Untyped M
+  hiding (_∷_) renaming (_[_,_] to _[_,_]₁₀)
 open import Definition.Typed R
+
+open import Graded.Derived.Erased.Untyped 𝕄 as Erased using (Erased)
 
 open import Tools.Fin
 open import Tools.Nat
@@ -21,7 +26,7 @@ private
   variable
     n : Nat
     Γ : Con Term n
-    t u A B F G : Term n
+    t u v w A B F G : Term n
     p q r p′ q′ : M
     b : BinderMode
 
@@ -39,6 +44,10 @@ mutual
        → Γ ∙ F ⊢ G ⇇Type
        → ΠΣ-allowed b p q
        → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ⇇Type
+    Idᶜ : Γ ⊢ A ⇇Type
+        → Γ ⊢ t ⇇ A
+        → Γ ⊢ u ⇇ A
+        → Γ ⊢ Id A t u ⇇Type
     univᶜ : Γ ⊢ A ⇇ U
           → Γ ⊢ A ⇇Type
 
@@ -83,6 +92,31 @@ mutual
     emptyrecᵢ : Γ ⊢ A ⇇Type
               → Γ ⊢ t ⇇ Empty
               → Γ ⊢ emptyrec p A t ⇉ A
+    Idᵢ : Γ ⊢ A ⇇ U
+        → Γ ⊢ t ⇇ A
+        → Γ ⊢ u ⇇ A
+        → Γ ⊢ Id A t u ⇉ U
+    Jᵢ : Γ ⊢ A ⇇Type
+       → Γ ⊢ t ⇇ A
+       → Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B ⇇Type
+       → Γ ⊢ u ⇇ B [ t , rfl ]₁₀
+       → Γ ⊢ v ⇇ A
+       → Γ ⊢ w ⇇ Id A t v
+       → Γ ⊢ J p q A t B u v w ⇉ B [ v , w ]₁₀
+    Kᵢ : Γ ⊢ A ⇇Type
+       → Γ ⊢ t ⇇ A
+       → Γ ∙ Id A t t ⊢ B ⇇Type
+       → Γ ⊢ u ⇇ B [ rfl ]₀
+       → Γ ⊢ v ⇇ Id A t t
+       → K-allowed
+       → Γ ⊢ K p A t B u v ⇉ B [ v ]₀
+    []-congᵢ : Γ ⊢ A ⇇Type
+             → Γ ⊢ t ⇇ A
+             → Γ ⊢ u ⇇ A
+             → Γ ⊢ v ⇇ Id A t u
+             → []-cong-allowed
+             → Γ ⊢ []-cong A t u v ⇉
+                 Id (Erased A) Erased.[ t ] Erased.[ u ]
 
   data _⊢_⇇_ (Γ : Con Term n) : (t A : Term n) → Set a where
     lamᶜ : Γ ⊢ A ↘ Π p , q ▷ F ▹ G
@@ -93,6 +127,9 @@ mutual
           → Γ ⊢ t ⇇ F
           → Γ ⊢ u ⇇ G [ t ]₀
           → Γ ⊢ prod m p t u ⇇ A
+    rflᶜ : Γ ⊢ A ↘ Id B t u
+         → Γ ⊢ t ≡ u ∷ B
+         → Γ ⊢ rfl ⇇ A
     infᶜ : Γ ⊢ t ⇉ A
          → Γ ⊢ A ≡ B
          → Γ ⊢ t ⇇ B
@@ -118,11 +155,18 @@ mutual
     starᵢ : Inferable star
     Emptyᵢ : Inferable Empty
     emptyrecᵢ : Checkable A → Checkable t → Inferable (emptyrec p A t)
-
+    Idᵢ : Checkable A → Checkable t → Checkable u → Inferable (Id A t u)
+    Jᵢ : Checkable A → Checkable t → Checkable B → Checkable u →
+         Checkable v → Checkable w → Inferable (J p q A t B u v w)
+    Kᵢ : Checkable A → Checkable t → Checkable B → Checkable u →
+         Checkable v → Inferable (K p A t B u v)
+    []-congᵢ : Checkable A → Checkable t → Checkable u → Checkable v →
+               Inferable ([]-cong A t u v)
 
   data Checkable : (Term n) → Set a where
     lamᶜ : Checkable t → Checkable (lam p t)
     prodᶜ : ∀ {m} → Checkable t → Checkable u → Checkable (prod m p t u)
+    rflᶜ : Checkable {n = n} rfl
     infᶜ : Inferable t → Checkable t
 
 -- CheckableCon Γ means that the types in Γ are checkable.
@@ -142,11 +186,14 @@ mutual
   Checkable⇇Type Emptyᶜ = infᶜ Emptyᵢ
   Checkable⇇Type (ΠΣᶜ F⇇Type G⇇Type _) =
     infᶜ (ΠΣᵢ (Checkable⇇Type F⇇Type) (Checkable⇇Type G⇇Type))
+  Checkable⇇Type (Idᶜ A t u) =
+    infᶜ (Idᵢ (Checkable⇇Type A) (Checkable⇇ t) (Checkable⇇ u))
   Checkable⇇Type (univᶜ x) = Checkable⇇ x
 
   Checkable⇇ : Γ ⊢ t ⇇ A → Checkable t
   Checkable⇇ (lamᶜ x t⇇A) = lamᶜ (Checkable⇇ t⇇A)
   Checkable⇇ (prodᶜ x t⇇A t⇇A₁) = prodᶜ (Checkable⇇ t⇇A) (Checkable⇇ t⇇A₁)
+  Checkable⇇ (rflᶜ _ _) = rflᶜ
   Checkable⇇ (infᶜ x x₁) = infᶜ (Inferable⇉ x)
 
   Inferable⇉ : Γ ⊢ t ⇉ A → Inferable t
@@ -165,3 +212,14 @@ mutual
   Inferable⇉ (starᵢ _) = starᵢ
   Inferable⇉ Emptyᵢ = Emptyᵢ
   Inferable⇉ (emptyrecᵢ x x₁) = emptyrecᵢ (Checkable⇇Type x) (Checkable⇇ x₁)
+  Inferable⇉ (Idᵢ A t u) =
+    Idᵢ (Checkable⇇ A) (Checkable⇇ t) (Checkable⇇ u)
+  Inferable⇉ (Jᵢ A t B u v w) =
+    Jᵢ (Checkable⇇Type A) (Checkable⇇ t) (Checkable⇇Type B)
+      (Checkable⇇ u) (Checkable⇇ v) (Checkable⇇ w)
+  Inferable⇉ (Kᵢ A t B u v _) =
+    Kᵢ (Checkable⇇Type A) (Checkable⇇ t) (Checkable⇇Type B)
+      (Checkable⇇ u) (Checkable⇇ v)
+  Inferable⇉ ([]-congᵢ A t u v _) =
+    []-congᵢ (Checkable⇇Type A) (Checkable⇇ t) (Checkable⇇ u)
+      (Checkable⇇ v)

@@ -20,11 +20,13 @@ open import Graded.Modality.Dedicated-nr 𝕄
 open import Graded.Mode 𝕄
 open import Definition.Untyped M hiding (_∙_)
 
-open import Tools.Bool using (T)
+open import Tools.Bool using (T; true; false)
 open import Tools.Fin
+open import Tools.Function
 open import Tools.Nat using (Nat)
 open import Tools.Product
 open import Tools.PropositionalEquality using (_≡_)
+open import Tools.Relation
 open import Tools.Sum using (_⊎_)
 
 infix 10 _▸[_]_
@@ -33,9 +35,9 @@ private
   variable
     n : Nat
     p q r : M
-    γ δ γ′ η θ χ : Conₘ n
-    A F G : Term n
-    s t u z : Term n
+    γ γ′ γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ δ η θ χ : Conₘ n
+    A B F G : Term n
+    s t u v w z : Term n
     x : Fin n
     m m′ : Mode
     b : BinderMode
@@ -68,6 +70,20 @@ mutual
   ⌈ star ⌉ _ = 𝟘ᶜ
   ⌈ Empty ⌉ _ = 𝟘ᶜ
   ⌈ emptyrec p _ t ⌉ m = p ·ᶜ ⌈ t ⌉ (m ᵐ· p)
+  ⌈ Id _ t u ⌉ m = case Id-erased? of λ where
+    (yes _) → 𝟘ᶜ
+    (no _)  → ⌈ t ⌉ m +ᶜ ⌈ u ⌉ m
+  ⌈ rfl ⌉ _ = 𝟘ᶜ
+  ⌈ J _ _ _ t B u v w ⌉ m = case Erased-matches-for-J? of λ where
+    (yes _) → ⌈ u ⌉ m
+    (no _)  →
+      ω ·ᶜ
+      (⌈ t ⌉ m ∧ᶜ tailₘ (tailₘ (⌈ B ⌉ m)) ∧ᶜ
+       ⌈ u ⌉ m ∧ᶜ ⌈ v ⌉ m ∧ᶜ ⌈ w ⌉ m)
+  ⌈ K _ _ t B u v ⌉ m = case Erased-matches-for-K? of λ where
+    (yes _) → ⌈ u ⌉ m
+    (no _)  → ω ·ᶜ (⌈ t ⌉ m ∧ᶜ tailₘ (⌈ B ⌉ m) ∧ᶜ ⌈ u ⌉ m ∧ᶜ ⌈ v ⌉ m)
+  ⌈ []-cong _ _ _ _ ⌉ _ = 𝟘ᶜ
 
 -- Well-usage of variables
 data _◂_∈_  : (x : Fin n) (p : M) (γ : Conₘ n) → Set a where
@@ -80,6 +96,99 @@ open import Graded.Modality.Dedicated-nr.Instance
 --
 -- The definition is partly based on Robert Atkey's "Syntax and
 -- Semantics of Quantitative Type Theory".
+--
+-- There are several sets of usage rules for Id, J and K. One (where
+-- Id-erased, Erased-matches-for-J and Erased-matches-for-K are all
+-- false) is based on the work of Abel, Danielsson and Vezzosi on
+-- adding support for erasure to cubical type theory, and is similar
+-- to the following Agda code:
+--
+--   {-# OPTIONS --erasure --safe --cubical-compatible #-}
+--
+--   data Id {@0 a} {@0 A : Set a} (x : A) : A → Set a where
+--     refl : Id x x
+--
+--   J :
+--     ∀ {@0 a} {p} {@0 A : Set a} {x : A}
+--     (P : ∀ {y} → Id x y → Set p) →
+--     P (refl {x = x}) →
+--     {y : A} (x≡y : Id x y) → P x≡y
+--   J _ r refl = r
+--
+-- Note that (at the time of writing) Agda rejects the code if one of
+-- the non-erased arguments is made erased. In particular, "P" cannot
+-- be made erased.
+--
+-- Another set of usage rules (where Id-erased, Erased-matches-for-J
+-- and Erased-matches-for-K are all true) is based on the following
+-- Agda code:
+--
+--   {-# OPTIONS --erasure --safe --with-K #-}
+--
+--   open import Agda.Builtin.Sigma
+--
+--   data Id {@0 a} {@0 A : Set a} (@0 x : A) : @0 A → Set a where
+--     refl : Id x x
+--
+--   J :
+--     ∀ {@0 a p} {@0 A : Set a} {@0 x : A}
+--     (@0 P : ∀ {y} → Id x y → Set p) →
+--     P (refl {x = x}) →
+--     {@0 y : A} (@0 x≡y : Id x y) → P x≡y
+--   J _ r refl = r
+--
+--   -- One variant of the K rule.
+--
+--   K :
+--     ∀ {@0 a p} {@0 A : Set a} {@0 x : A}
+--     (@0 P : Id x x → Set p) →
+--     P refl →
+--     (@0 x≡x : Id x x) → P x≡x
+--   K _ r refl = r
+--
+--   -- Another variant of the K rule, which can be defined using the
+--   -- first variant.
+--
+--   K′ :
+--     ∀ {@0 a p} {@0 A : Set a}
+--     (@0 P : ∀ x → Id x x → Set p) →
+--     (∀ x → P x refl) →
+--     (x : A) (@0 x≡x : Id x x) → P x x≡x
+--   K′ P r x x≡x = K (P x) (r x) x≡x
+--
+--   _ :
+--     ∀ {@0 a p} {@0 A : Set a}
+--     (@0 P : ∀ x → Id x x → Set p)
+--     (r : ∀ x → P x refl)
+--     (x : A) →
+--     Id (K′ P r x refl) (r x)
+--   _ = λ _ _ _ → refl
+--
+--   -- The first variant of the K rule can also be defined using the
+--   -- second (and J).
+--
+--   K″ :
+--     ∀ {@0 a p} {@0 A : Set a} {@0 x : A}
+--     (@0 P : Id x x → Set p) →
+--     P refl →
+--     (@0 x≡x : Id x x) → P x≡x
+--   K″ P r x≡x =
+--     J (λ {y = eq} _ → P refl → P eq)
+--       (λ p → p)
+--       (K′ (λ x (x≡x : Id x x) → Id refl x≡x) (λ _ → refl) _ x≡x)
+--       r
+--
+--   _ :
+--     ∀ {@0 a p} {@0 A : Set a} {@0 x : A}
+--     (@0 P : Id x x → Set p)
+--     (r : P refl)
+--     (@0 x≡x : Id x x) →
+--     Id (K″ P r refl) r
+--   _ = λ _ _ _ → refl
+--
+-- Note that the K rule is active in the Agda code. However, the
+-- variant of the J rule with an erased motive P can be considered
+-- also in the absence of the K rule.
 data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
   Uₘ        : 𝟘ᶜ ▸[ m ] U
   ℕₘ        : 𝟘ᶜ ▸[ m ] ℕ
@@ -183,6 +292,53 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → p ·ᶜ γ ▸[ m ] emptyrec p A t
 
   starₘ     : 𝟘ᶜ ▸[ m ] star
+
+  Idₘ       : ¬ Id-erased
+            → γ ▸[ 𝟘ᵐ? ] A
+            → δ ▸[ m ] t
+            → η ▸[ m ] u
+            → δ +ᶜ η ▸[ m ] Id A t u
+  Id₀ₘ      : Id-erased
+            → γ ▸[ 𝟘ᵐ? ] A
+            → δ ▸[ 𝟘ᵐ? ] t
+            → η ▸[ 𝟘ᵐ? ] u
+            → 𝟘ᶜ ▸[ m ] Id A t u
+  rflₘ      : 𝟘ᶜ ▸[ m ] rfl
+  Jₘ        : ¬ Erased-matches-for-J
+            → γ₁ ▸[ 𝟘ᵐ? ] A
+            → γ₂ ▸[ m ] t
+            → γ₃ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · q ▸[ m ] B
+            → γ₄ ▸[ m ] u
+            → γ₅ ▸[ m ] v
+            → γ₆ ▸[ m ] w
+            → ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆) ▸[ m ] J p q A t B u v w
+  J₀ₘ       : Erased-matches-for-J
+            → γ₁ ▸[ 𝟘ᵐ? ] A
+            → γ₂ ▸[ 𝟘ᵐ? ] t
+            → γ₃ ∙ ⌜ 𝟘ᵐ? ⌝ · p ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] B
+            → γ₄ ▸[ m ] u
+            → γ₅ ▸[ 𝟘ᵐ? ] v
+            → γ₆ ▸[ 𝟘ᵐ? ] w
+            → γ₄ ▸[ m ] J p q A t B u v w
+  Kₘ        : ¬ Erased-matches-for-K
+            → γ₁ ▸[ 𝟘ᵐ? ] A
+            → γ₂ ▸[ m ] t
+            → γ₃ ∙ ⌜ m ⌝ · p ▸[ m ] B
+            → γ₄ ▸[ m ] u
+            → γ₅ ▸[ m ] v
+            → ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅) ▸[ m ] K p A t B u v
+  K₀ₘ       : Erased-matches-for-K
+            → γ₁ ▸[ 𝟘ᵐ? ] A
+            → γ₂ ▸[ 𝟘ᵐ? ] t
+            → γ₃ ∙ ⌜ 𝟘ᵐ? ⌝ · p ▸[ 𝟘ᵐ? ] B
+            → γ₄ ▸[ m ] u
+            → γ₅ ▸[ 𝟘ᵐ? ] v
+            → γ₄ ▸[ m ] K p A t B u v
+  []-congₘ  : γ₁ ▸[ 𝟘ᵐ? ] A
+            → γ₂ ▸[ 𝟘ᵐ? ] t
+            → γ₃ ▸[ 𝟘ᵐ? ] u
+            → γ₄ ▸[ 𝟘ᵐ? ] v
+            → 𝟘ᶜ ▸[ m ] []-cong A t u v
 
   sub       : γ ▸[ m ] t
             → δ ≤ᶜ γ

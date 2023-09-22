@@ -13,9 +13,9 @@ open import Tools.Relation
 module Graded.Erasure.LogicalRelation.Fundamental.Lambda
   {a k} {M : Set a}
   (open Definition.Untyped M)
-  (𝕄 : Modality M)
+  {𝕄 : Modality M}
   (open Modality 𝕄)
-  (R : Type-restrictions M)
+  (R : Type-restrictions 𝕄)
   (open Definition.Typed R)
   (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘))
   (non-trivial : ¬ Trivial)
@@ -44,10 +44,10 @@ open import Definition.Typed.Weakening R hiding (wk)
 open import Definition.Typed.Consequences.Reduction R
 
 open import Graded.Erasure.Extraction 𝕄 is-𝟘?
-open import Graded.Erasure.LogicalRelation 𝕄 R is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Irrelevance 𝕄 R is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Reduction 𝕄 R is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Subsumption 𝕄 R is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation R is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation.Irrelevance R is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation.Reduction R is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation.Subsumption R is-𝟘? ⊢Δ
 open import Graded.Erasure.Target.Properties as TP
 import Graded.Erasure.Target as T
 

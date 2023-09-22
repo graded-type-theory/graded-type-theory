@@ -4,10 +4,12 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.Conversion.Lift
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
 
 open import Definition.Untyped M hiding (_∷_)
@@ -75,11 +77,11 @@ mutual
   lift~toConv↓′ (Unitᵣ (Unitₜ D _)) D₁ ([~] A D₂ whnfB k~l)
                 rewrite PE.sym (whrDet* (red D , Unitₙ) (D₁ , whnfB)) =
     Unit-ins ([~] A D₂ Unitₙ k~l)
-  lift~toConv↓′ (ne′ K D neK K≡K) D₁ ([~] A D₂ whnfB k~l)
-                rewrite PE.sym (whrDet* (red D , ne neK) (D₁ , whnfB)) =
+  lift~toConv↓′ (ne′ H D neH H≡H) D₁ ([~] A D₂ whnfB k~l)
+                rewrite PE.sym (whrDet* (red D , ne neH) (D₁ , whnfB)) =
     let _ , ⊢t , ⊢u = syntacticEqTerm (soundness~↑ k~l)
-        A≡K = subset* D₂
-    in  ne-ins (conv ⊢t A≡K) (conv ⊢u A≡K) neK ([~] A D₂ (ne neK) k~l)
+        A≡H = subset* D₂
+    in  ne-ins (conv ⊢t A≡H) (conv ⊢u A≡H) neH ([~] A D₂ (ne neH) k~l)
   lift~toConv↓′
     (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) D₁ ([~] A D₂ whnfB k~l)
     rewrite PE.sym (whrDet* (red D , ΠΣₙ) (D₁ , whnfB)) =
@@ -129,7 +131,12 @@ mutual
     let t~u↓ = [~] A″ D₂ ΠΣₙ t~u
         _ , ⊢t , ⊢u = syntacticEqTerm (soundness~↓ t~u↓)
     in  Σᵣ-ins ⊢t ⊢u t~u↓
-
+  lift~toConv↓′ (Idᵣ ⊩A′) A′⇒*A t~u@([~] _ _ A-whnf _) =
+    case whrDet* (red (_⊩ₗId_.⇒*Id ⊩A′) , Idₙ) (A′⇒*A , A-whnf) of λ {
+      PE.refl →
+    case syntacticEqTerm (soundness~↓ t~u) .proj₂ .proj₁ of λ {
+      ⊢t →
+    Id-ins ⊢t t~u }}
   lift~toConv↓′ (emb 0<1 [A]) D t~u = lift~toConv↓′ [A] D t~u
 
   -- Helper function for lifting from neutrals to generic terms.

@@ -7,8 +7,8 @@ open import Definition.Typed.Restrictions
 
 module Graded.FullReduction.Assumptions
   {a} {M : Set a}
-  (𝕄 : Modality M)
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
 
 open Modality 𝕄

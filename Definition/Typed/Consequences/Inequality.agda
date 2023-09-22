@@ -3,14 +3,17 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.Typed.Consequences.Inequality
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
 
 open import Definition.Untyped M as U
-  hiding (U≢ne; ℕ≢ne; B≢ne; ΠΣ≢ne; U≢B; ℕ≢B; zero≢ne; suc≢ne; _∷_)
+  hiding (U≢ne; ℕ≢ne; B≢ne; ΠΣ≢ne; Id≢ne; zero≢ne; suc≢ne; rfl≢ne;
+          U≢B; ℕ≢B; Id≢⟦⟧▷; Id≢ΠΣ; _∷_)
 open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Properties R
@@ -31,9 +34,11 @@ private
   variable
     n : Nat
     Γ : Con Term n
-    A B C F G K t u v : Term n
+    A B C D F G H t u v : Term n
     p p′ q q′ : M
     b : BinderMode
+    b′ : BindingType
+    m : SigmaMode
     l : TypeLevel
 
 A≢B : ∀ {A B Γ} (_⊩′⟨_⟩A_ _⊩′⟨_⟩B_ : Con Term n → TypeLevel → Term n → Set a)
@@ -369,13 +374,13 @@ B≢ne W neK W≡K =
   let ⊢W , ⊢K = syntacticEq W≡K
   in  B≢ne-red W (id ⊢W) (id ⊢K) neK W≡K
 
-Π≢ne : ∀ {Γ : Con Term n} {F G K p q} → _
-Π≢ne {Γ = Γ} {F} {G} {K} {p} {q} = B≢ne {Γ = Γ} {F} {G} {K} (BΠ p q)
-Σ≢ne : ∀ {Γ : Con Term n} {F G K p q m} → _
-Σ≢ne {Γ = Γ} {F} {G} {K} {p} {q} {m} =
-  B≢ne {Γ = Γ} {F} {G} {K} (BΣ m p q)
+Π≢ne : ∀ {Γ : Con Term n} {F G H p q} → _
+Π≢ne {Γ = Γ} {F} {G} {H} {p} {q} = B≢ne {Γ = Γ} {F} {G} {H} (BΠ p q)
+Σ≢ne : ∀ {Γ : Con Term n} {F G H p q m} → _
+Σ≢ne {Γ = Γ} {F} {G} {H} {p} {q} {m} =
+  B≢ne {Γ = Γ} {F} {G} {H} (BΣ m p q)
 
-ΠΣ≢ne : Neutral K → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ≡ K → ⊥
+ΠΣ≢ne : Neutral H → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ≡ H → ⊥
 ΠΣ≢ne {b = BMΠ}   = B≢ne (BΠ _ _)
 ΠΣ≢ne {b = BMΣ _} = B≢ne (BΣ _ _ _)
 
@@ -421,6 +426,82 @@ B≢ne W neK W≡K =
   let ⊢Σₚ , ⊢Σᵣ = syntacticEq Σₚ≡Σᵣ
   in  Σₚ≢Σᵣ-red (id ⊢Σₚ) (id ⊢Σᵣ) Σₚ≡Σᵣ
 
+opaque
+
+  -- Applications of Id are not definitionally equal to neutral types.
+
+  Id≢ne : Neutral B → Γ ⊢ Id A t u ≡ B → ⊥
+  Id≢ne B-ne =
+    A≢B _⊩′⟨_⟩Id_ (λ Γ _ A → Γ ⊩ne A) Idᵣ ne
+      (extractMaybeEmb ∘→ Id-elim)
+      (extractMaybeEmb ∘→ ne-elim B-ne)
+      (λ _ _ ())
+
+  -- Applications of Id are not definitionally equal to U.
+
+  Id≢U : Γ ⊢ Id A t u ≡ U → ⊥
+  Id≢U =
+    A≢B _⊩′⟨_⟩Id_ (λ Γ l _ → Γ ⊩′⟨ l ⟩U) Idᵣ Uᵣ
+      (extractMaybeEmb ∘→ Id-elim)
+      (extractMaybeEmb ∘→ U-elim)
+      (λ _ _ ())
+
+  -- Applications of Id are not definitionally equal to ℕ.
+
+  Id≢ℕ : Γ ⊢ Id A t u ≡ ℕ → ⊥
+  Id≢ℕ =
+    A≢B _⊩′⟨_⟩Id_ (λ Γ _ A → Γ ⊩ℕ A) Idᵣ ℕᵣ
+      (extractMaybeEmb ∘→ Id-elim)
+      (extractMaybeEmb ∘→ ℕ-elim)
+      (λ _ _ ())
+
+  -- Applications of Id are not definitionally equal to Unit.
+
+  Id≢Unit : Γ ⊢ Id A t u ≡ Unit → ⊥
+  Id≢Unit =
+    A≢B _⊩′⟨_⟩Id_ (λ Γ _ A → Γ ⊩Unit A) Idᵣ Unitᵣ
+      (extractMaybeEmb ∘→ Id-elim)
+      (extractMaybeEmb ∘→ Unit-elim)
+      (λ _ _ ())
+
+  -- Applications of Id are not definitionally equal to Empty.
+
+  Id≢Empty : Γ ⊢ Id A t u ≡ Empty → ⊥
+  Id≢Empty =
+    A≢B _⊩′⟨_⟩Id_ (λ Γ _ A → Γ ⊩Empty A) Idᵣ Emptyᵣ
+      (extractMaybeEmb ∘→ Id-elim)
+      (extractMaybeEmb ∘→ Empty-elim)
+      (λ _ _ ())
+
+  -- Applications of Id are not definitionally equal to applications of
+  -- Π or Σ.
+
+  Id≢⟦⟧▷ : Γ ⊢ Id A t u ≡ ⟦ b′ ⟧ B ▹ C → ⊥
+  Id≢⟦⟧▷ =
+    A≢B _⊩′⟨_⟩Id_ _⊩′⟨_⟩B⟨ _ ⟩_ Idᵣ (Bᵣ _)
+      (extractMaybeEmb ∘→ Id-elim)
+      (extractMaybeEmb ∘→ B-elim _)
+      (λ _ _ ())
+
+  -- Applications of Id are not definitionally equal to applications
+  -- of Π.
+
+  Id≢Π : Γ ⊢ Id A t u ≡ Π p , q ▷ B ▹ C → ⊥
+  Id≢Π = Id≢⟦⟧▷ {b′ = BΠ _ _}
+
+  -- Applications of Id are not definitionally equal to applications
+  -- of Σ.
+
+  Id≢Σ : Γ ⊢ Id A t u ≡ Σ⟨ m ⟩ p , q ▷ B ▹ C → ⊥
+  Id≢Σ = Id≢⟦⟧▷ {b′ = BΣ _ _ _}
+
+  -- Applications of Id are not definitionally equal to applications
+  -- of Π or Σ.
+
+  Id≢ΠΣ : Γ ⊢ Id A t u ≡ ΠΣ⟨ b ⟩ p , q ▷ B ▹ C → ⊥
+  Id≢ΠΣ {b = BMΠ}   = Id≢Π
+  Id≢ΠΣ {b = BMΣ _} = Id≢Σ
+
 -- If No-η-equality A holds, then A is not a Π-type.
 
 No-η-equality→≢Π : No-η-equality A → Γ ⊢ A ≡ Π p , q ▷ B ▹ C → ⊥
@@ -429,6 +510,7 @@ No-η-equality→≢Π = λ where
   Σᵣₙ        Σᵣ≡Π    → Π≢Σⱼ (sym Σᵣ≡Π)
   Emptyₙ     Empty≡Π → Empty≢ΠΣⱼ Empty≡Π
   ℕₙ         ℕ≡Π     → ℕ≢ΠΣⱼ ℕ≡Π
+  Idₙ        Id≡Π    → Id≢ΠΣ Id≡Π
   (neₙ A-ne) A≡Π     → ΠΣ≢ne A-ne (sym A≡Π)
 
 -- If No-η-equality A holds, then A is not a Σ-type with η-equality.
@@ -439,6 +521,7 @@ No-η-equality→≢Σₚ = λ where
   Σᵣₙ        Σᵣ≡Σ    → Σₚ≢Σᵣⱼ (sym Σᵣ≡Σ)
   Emptyₙ     Empty≡Σ → Empty≢ΠΣⱼ Empty≡Σ
   ℕₙ         ℕ≡Σ     → ℕ≢ΠΣⱼ ℕ≡Σ
+  Idₙ        Id≡Σ    → Id≢ΠΣ Id≡Σ
   (neₙ A-ne) A≡Σ     → ΠΣ≢ne A-ne (sym A≡Σ)
 
 -- If No-η-equality A holds, then A is not the unit type with
@@ -450,6 +533,7 @@ No-η-equality→≢Unit = λ where
   Σᵣₙ        Σᵣ≡Unit    → Unit≢ΠΣⱼ (sym Σᵣ≡Unit)
   Emptyₙ     Empty≡Unit → Empty≢Unitⱼ Empty≡Unit
   ℕₙ         ℕ≡Unit     → ℕ≢Unitⱼ ℕ≡Unit
+  Idₙ        Id≡Unit    → Id≢Unit Id≡Unit
   (neₙ A-ne) A≡Unit     → Unit≢neⱼ A-ne (sym A≡Unit)
 
 -- If A is a type without η-equality, then a non-neutral WHNF is not
@@ -505,18 +589,24 @@ whnf≢ne {A = A} {t = t} {u = u} ¬-A-η t-whnf ¬-t-ne u-ne =
     (Bᵣ BΣᵣ _) (_ , _ , t⇒*v , _ , _ , _ , _ , ne v-ne , _) →
       ¬t⇒*ne t⇒*v v-ne
     (Bᵣ BΣᵣ _) (_ , _ , _ , _ , _ , _ , _ , prodₙ , ne _  , ())
+    (Idᵣ ⊩Id) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) →
+      case ⊩Id≡∷-view-inhabited ⊩Id t≡u of λ where
+        (ne t′-ne _ _) → ¬t⇒*ne t⇒*t′ t′-ne
+        (rfl₌ _)       → U.rfl≢ne (u⇒*ne u⇒*u′) PE.refl
     (Uᵣ _) (Uₜ₌ _ _ t⇒*A u⇒*B A-type B-type A≡B _ _ _) →
       case B-type of λ where
         ΠΣₙ       → U.ΠΣ≢ne _  (u⇒*ne u⇒*B) PE.refl
         ℕₙ        → U.ℕ≢ne     (u⇒*ne u⇒*B) PE.refl
         Emptyₙ    → U.Empty≢ne (u⇒*ne u⇒*B) PE.refl
         Unitₙ     → U.Unit≢ne  (u⇒*ne u⇒*B) PE.refl
+        Idₙ       → U.Id≢ne    (u⇒*ne u⇒*B) PE.refl
         (ne B-ne) → case A-type of λ where
           (ne A-ne) → ⊥-elim (¬t⇒*ne t⇒*A A-ne)
           ΠΣₙ       → ΠΣ≢ne     B-ne (univ A≡B)
           ℕₙ        → ℕ≢ne      B-ne (univ A≡B)
           Emptyₙ    → Empty≢neⱼ B-ne (univ A≡B)
           Unitₙ     → Unit≢neⱼ  B-ne (univ A≡B)
+          Idₙ       → Id≢ne     B-ne (univ A≡B)
     (emb 0<1 [A]) [t≡u] →
       lemma [A] [t≡u]
 
@@ -543,3 +633,11 @@ prodᵣ≢ne :
   Neutral v →
   ¬ Γ ⊢ prodᵣ p t u ≡ v ∷ Σᵣ p , q ▷ A ▹ B
 prodᵣ≢ne = whnf≢ne Σᵣₙ prodₙ (λ ())
+
+-- The term rfl is not definitionally equal (at type Id A t u) to any
+-- neutral term.
+
+rfl≢ne :
+  Neutral v →
+  ¬ Γ ⊢ rfl ≡ v ∷ Id A t u
+rfl≢ne = whnf≢ne Idₙ rflₙ (λ ())

@@ -5,16 +5,19 @@
 {-# OPTIONS --hidden-argument-puns #-}
 
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.Typed.Consequences.Reduction
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
 
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.EqRelInstance R
+open import Definition.Typed.Consequences.Equality R
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Inversion R
@@ -35,7 +38,7 @@ private
   variable
     n : Nat
     Γ : Con Term n
-    A B t : Term _
+    A B t u v : Term _
     p q : M
     l : TypeLevel
     m : SigmaMode
@@ -115,6 +118,9 @@ opaque
                        inversion-Unit-U (⊢u-redₜ t⇒*u) .proj₁
            Emptyₙ    → ⊥-elim $ U≢Unitⱼ $ _⊢_≡_.sym $
                        inversion-Empty (⊢u-redₜ t⇒*u)
+           Idₙ       → ⊥-elim $ U≢Unitⱼ $ _⊢_≡_.sym $
+                       inversion-Id-U (⊢u-redₜ t⇒*u)
+                         .proj₂ .proj₂ .proj₂
            lamₙ      → ⊥-elim $ Unit≢ΠΣⱼ $
                        inversion-lam (⊢u-redₜ t⇒*u)
                          .proj₂ .proj₂ .proj₂ .proj₂ .proj₂ .proj₁
@@ -125,7 +131,10 @@ opaque
            prodₙ     → ⊥-elim $ Unit≢ΠΣⱼ $
                        inversion-prod (⊢u-redₜ t⇒*u)
                          .proj₂ .proj₂ .proj₂ .proj₂ .proj₂ .proj₂
-                         .proj₂ .proj₁)
+                         .proj₂ .proj₁
+           rflₙ      → ⊥-elim $ Id≢Unit $ _⊢_≡_.sym $
+                       inversion-rfl (⊢u-redₜ t⇒*u)
+                         .proj₂ .proj₂ .proj₂ .proj₂)
       , convRed:*: t⇒*u (sym (subset* (red A⇒*Unit)))
 
 opaque
@@ -198,6 +207,31 @@ opaque
       (noemb (Bᵣ _ _ A⇒*Σ _ _ _ _ _ _ _)) (u , t⇒*u , _ , u-prod , _) =
       u , u-prod , convRed:*: t⇒*u (sym (subset* (red A⇒*Σ)))
 
+opaque
+
+  -- If the type of t is Id A u v, then t reduces to rfl or a neutral
+  -- term.
+
+  red-Id :
+    Γ ⊢ t ∷ Id A u v →
+    ∃ λ w → Identity w × Γ ⊢ t :⇒*: w ∷ Id A u v
+  red-Id {Γ} {t} ⊢t =
+    case reducibleTerm ⊢t of λ {
+      (⊩Id , ⊩t) →
+    helper (Id-elim ⊩Id)
+      (irrelevanceTerm ⊩Id (Id-intr (Id-elim ⊩Id)) ⊩t) }
+    where
+    helper :
+      (⊩A : Γ ⊩⟨ l ⟩Id A) →
+      Γ ⊩⟨ l ⟩ t ∷ A / Id-intr ⊩A →
+      ∃ λ w → Identity w × Γ ⊢ t :⇒*: w ∷ A
+    helper (emb 0<1 ⊩A) ⊩t =
+      helper ⊩A ⊩t
+    helper (noemb ⊩A) (w , t⇒*w , w-id , _) =
+        w
+      , w-id
+      , convRed:*: t⇒*w (sym (subset* (red (_⊩ₗId_.⇒*Id ⊩A))))
+
 -- Helper function where all reducible types can be reduced to WHNF.
 whNorm′ : ∀ {A l} ([A] : Γ ⊩⟨ l ⟩ A)
                 → ∃ λ B → Whnf B × Γ ⊢ A :⇒*: B
@@ -205,9 +239,10 @@ whNorm′ (Uᵣ′ .⁰ 0<1 ⊢Γ) = U , Uₙ , idRed:*: (Uⱼ ⊢Γ)
 whNorm′ (ℕᵣ D) = ℕ , ℕₙ , D
 whNorm′ (Emptyᵣ D) = Empty , Emptyₙ , D
 whNorm′ (Unitᵣ (Unitₜ D _)) = Unit , Unitₙ , D
-whNorm′ (ne′ K D neK K≡K) = K , ne neK , D
+whNorm′ (ne′ H D neH H≡H) = H , ne neH , D
 whNorm′ (Πᵣ′ F G D _ _ _ _ _ _ _) = Π _ , _ ▷ F ▹ G , ΠΣₙ , D
 whNorm′ (Σᵣ′ F G D _ _ _ _ _ _ _) = Σ _ , _ ▷ F ▹ G , ΠΣₙ , D
+whNorm′ (Idᵣ ⊩Id) = _ , Idₙ , _⊩ₗId_.⇒*Id ⊩Id
 whNorm′ (emb 0<1 [A]) = whNorm′ [A]
 
 -- Well-formed types can all be reduced to WHNF.
@@ -228,6 +263,8 @@ whNorm A = whNorm′ (reducible A)
 ... | _ , ℕₙ , D = ⊥-elim (ℕ≢Π (trans (sym (subset* (red D))) A≡ΠFG))
 ... | _ , Unitₙ , D = ⊥-elim (Unit≢Πⱼ (trans (sym (subset* (red D))) A≡ΠFG))
 ... | _ , Emptyₙ , D = ⊥-elim (Empty≢Πⱼ (trans (sym (subset* (red D))) A≡ΠFG))
+... | _ , Idₙ , A⇒*Id =
+  ⊥-elim $ Id≢Π (trans (sym (subset* (red A⇒*Id))) A≡ΠFG)
 ... | _ , lamₙ , [ ⊢A , univ ⊢B , A⇒B ] =
   let _ , _ , _ , _ , _ , U≡Π , _ = inversion-lam ⊢B
   in  ⊥-elim (U≢Π U≡Π)
@@ -238,6 +275,8 @@ whNorm A = whNorm′ (reducible A)
 ... | _ , prodₙ , [ _ , univ ⊢B , _ ] =
   let _ , _ , _ , _ , _ , _ , _ , U≡Σ , _ = inversion-prod ⊢B
   in  ⊥-elim (U≢Σ U≡Σ)
+... | _ , rflₙ , [ _ , univ ⊢rfl , _ ] =
+  ⊥-elim $ Id≢U $ sym (inversion-rfl ⊢rfl .proj₂ .proj₂ .proj₂ .proj₂)
 ... | _ , ne x , D = ⊥-elim (Π≢ne x (trans (sym A≡ΠFG) (subset* (red D))))
 
 ΣNorm : ∀ {A F G m} → Γ ⊢ A → Γ ⊢ A ≡ Σ⟨ m ⟩ p , q ▷ F ▹ G
@@ -255,6 +294,8 @@ whNorm A = whNorm′ (reducible A)
 ... | _ , ℕₙ , D = ⊥-elim (ℕ≢Σ (trans (sym (subset* (red D))) A≡ΣFG))
 ... | _ , Unitₙ , D = ⊥-elim (Unit≢Σⱼ (trans (sym (subset* (red D))) A≡ΣFG))
 ... | _ , Emptyₙ , D = ⊥-elim (Empty≢Σⱼ (trans (sym (subset* (red D))) A≡ΣFG))
+... | _ , Idₙ , A⇒*Id =
+  ⊥-elim $ Id≢Σ (trans (sym (subset* (red A⇒*Id))) A≡ΣFG)
 ... | _ , lamₙ , [ ⊢A , univ ⊢B , A⇒B ] =
   let _ , _ , _ , _ , _ , U≡Π , _ = inversion-lam ⊢B
   in  ⊥-elim (U≢Π U≡Π)
@@ -265,7 +306,28 @@ whNorm A = whNorm′ (reducible A)
 ... | _ , prodₙ , [ _ , univ ⊢B , _ ] =
   let _ , _ , _ , _ , _ , _ , _ , U≡Σ , _ = inversion-prod ⊢B
   in  ⊥-elim (U≢Σ U≡Σ)
+... | _ , rflₙ , [ _ , univ ⊢rfl , _ ] =
+  ⊥-elim $ Id≢U $ sym (inversion-rfl ⊢rfl .proj₂ .proj₂ .proj₂ .proj₂)
 ... | _ , ne x , D = ⊥-elim (Σ≢ne x (trans (sym A≡ΣFG) (subset* (red D))))
+
+opaque
+
+  -- If A is definitionally equal to Id B t u, then A reduces to
+  -- Id B′ t′ u′ for some B′, t′ and u′ that are definitionally equal to
+  -- B, t and u.
+
+  Id-norm :
+    Γ ⊢ A ≡ Id B t u →
+    ∃₃ λ B′ t′ u′ → (Γ ⊢ A ⇒* Id B′ t′ u′) ×
+    (Γ ⊢ B ≡ B′) × Γ ⊢ t ≡ t′ ∷ B × Γ ⊢ u ≡ u′ ∷ B
+  Id-norm A≡Id =
+    case whNorm (syntacticEq A≡Id .proj₁) of λ {
+      (_ , A′-whnf , A⇒*A′) →
+    case trans (sym A≡Id) (subset* (red A⇒*A′)) of λ {
+      Id≡A′ →
+    case Id≡Whnf Id≡A′ A′-whnf of λ {
+      (_ , _ , _ , PE.refl) →
+    _ , _ , _ , red A⇒*A′ , Id-injectivity Id≡A′ }}}
 
 -- Helper function where reducible all terms can be reduced to WHNF.
 whNormTerm′ : ∀ {a A l} ([A] : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ a ∷ A / [A]
@@ -279,12 +341,15 @@ whNormTerm′ (Emptyᵣ x) (Emptyₜ n d n≡n prop) =
   in  n , ne emptyN , convRed:*: d (sym (subset* (red x)))
 whNormTerm′ (Unitᵣ (Unitₜ x _)) (Unitₜ n d prop) =
   n , prop , convRed:*: d (sym (subset* (red x)))
-whNormTerm′ (ne (ne K D neK K≡K)) (neₜ k d (neNfₜ neK₁ ⊢k k≡k)) =
-  k , ne neK₁ , convRed:*: d (sym (subset* (red D)))
+whNormTerm′ (ne (ne H D neH H≡H)) (neₜ k d (neNfₜ neH₁ ⊢k k≡k)) =
+  k , ne neH₁ , convRed:*: d (sym (subset* (red D)))
 whNormTerm′ (Πᵣ′ _ _ D _ _ _ _ _ _ _) (Πₜ f d funcF _ _ _) =
   f , functionWhnf funcF , convRed:*: d (sym (subset* (red D)))
 whNormTerm′ (Σᵣ′ _ _ D _ _ _ _ _ _ _) (Σₜ p d _ pProd _) =
   p , productWhnf pProd , convRed:*: d (sym (subset* (red D)))
+whNormTerm′ (Idᵣ ⊩Id) (a′ , a⇒*a′ , a′-id , _) =
+    a′ , identityWhnf a′-id
+  , convRed:*: a⇒*a′ (sym (subset* (red (_⊩ₗId_.⇒*Id ⊩Id))))
 whNormTerm′ (emb 0<1 [A]) [a] = whNormTerm′ [A] [a]
 
 -- Well-formed terms can all be reduced to WHNF.

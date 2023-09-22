@@ -14,9 +14,9 @@ open import Tools.Relation
 
 module Graded.Erasure.LogicalRelation
   {a} {M : Set a}
-  (𝕄 : Modality M)
+  {𝕄 : Modality M}
   (open Modality 𝕄)
-  (R : Type-restrictions M)
+  (R : Type-restrictions 𝕄)
   (open Definition.Typed R)
   (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘))
   {{eqrel : EqRelSet R}}
@@ -26,7 +26,7 @@ module Graded.Erasure.LogicalRelation
 
 open EqRelSet {{...}}
 
-open import Definition.Untyped M as U hiding (_∷_; _∘_)
+open import Definition.Untyped M as U hiding (_∷_; _∘_; K)
 
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Substitution R
@@ -80,6 +80,14 @@ data _®_∷Empty (t : U.Term k) (v : T.Term k) : Set a where
 data _®_∷Unit (t : U.Term k) (v : T.Term k) : Set a where
   starᵣ : Δ ⊢ t ∷ Unit → v T.⇒* T.star → t ® v ∷Unit
 
+-- Equality proofs are related if both terms reduce to rfl.
+
+data _®_∷Id⟨_⟩⟨_⟩⟨_⟩
+       (t : U.Term k) (v : T.Term k) (Ty lhs rhs : U.Term k) :
+       Set a where
+  rflᵣ : Δ ⊢ t ⇒* U.rfl ∷ Id Ty lhs rhs → v T.⇒* T.rfl →
+         t ® v ∷Id⟨ Ty ⟩⟨ lhs ⟩⟨ rhs ⟩
+
 mutual
 
   -- Logical relation for erasure
@@ -111,6 +119,11 @@ mutual
     ∃ λ v₂ →
     t₂ ®⟨ l ⟩ v₂ ∷ U.wk (lift id) G U.[ t₁ ]₀ / [G] id ⊢Δ [t₁] ×
     Σ-® l F ([F] id ⊢Δ) t₁ v v₂ p
+
+  -- Identity types.
+  t ®⟨ _ ⟩ v ∷ A / Idᵣ ⊩A = t ® v ∷Id⟨ Ty ⟩⟨ lhs ⟩⟨ rhs ⟩
+    where
+    open _⊩ₗId_ ⊩A
 
   -- Subsumption:
   t ®⟨ ¹ ⟩ v ∷ A / emb 0<1 [A] = t ®⟨ ⁰ ⟩ v ∷ A / [A]

@@ -5,6 +5,7 @@
 open import Tools.Level
 
 open import Graded.Modality.Instances.Erasure
+open import Graded.Modality.Instances.Erasure.Modality
 open import Graded.Modality.Variant lzero
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
@@ -12,7 +13,7 @@ open import Definition.Typed.Restrictions
 module Graded.Erasure.Examples
   {p q r}
   (variant : Modality-variant)
-  (TR : Type-restrictions Erasure)
+  (TR : Type-restrictions (ErasureModality variant))
   (open Type-restrictions TR)
   (UR : Usage-restrictions Erasure)
   -- It is assumed that "Π 𝟘 , p" is allowed.
@@ -24,6 +25,13 @@ module Graded.Erasure.Examples
   -- It is assumed that Unit is allowed.
   (Unit-ok : Unit-allowed)
   where
+
+private
+
+  -- The modality that is used in this module.
+
+  𝕄 : Modality
+  𝕄 = ErasureModality variant
 
 open import Tools.Empty
 open import Tools.Fin
@@ -47,8 +55,6 @@ import Definition.Typed.Weakening TR as W
 open import Definition.Untyped Erasure as U hiding (id; head; _∷_)
 open import Definition.Untyped.Properties Erasure
 
-open import Graded.Modality.Instances.Erasure.Modality
-
 private
 
   EM : Modality
@@ -59,7 +65,7 @@ private
 open import Graded.Modality.Instances.Erasure.Properties variant
 
 open import Graded.Context EM
-open import Graded.Erasure.Consequences.Soundness EM TR UR
+open import Graded.Erasure.Consequences.Soundness TR UR
 open import Graded.Erasure.Extraction EM is-𝟘?
 import Graded.Erasure.SucRed TR as S
 import Graded.Erasure.Target as T

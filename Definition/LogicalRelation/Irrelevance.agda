@@ -4,16 +4,18 @@
 
 open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.LogicalRelation.Irrelevance
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   {{eqrel : EqRelSet R}}
   where
 
 open EqRelSet {{...}}
 
-open import Definition.Untyped M hiding (Wk; _∷_)
+open import Definition.Untyped M hiding (Wk; _∷_; K)
 open import Definition.Typed R
 import Definition.Typed.Weakening R as Wk
 open import Definition.Typed.Properties R
@@ -29,6 +31,8 @@ private
   variable
     n : Nat
     Γ Γ′ : Con Term n
+    A A′ B B′ C C′ : Term _
+    l l′ : TypeLevel
 
 -- Irrelevance for propositionally equal types
 irrelevance′ : ∀ {A A′ l}
@@ -68,13 +72,13 @@ mutual
                   → Γ ⊩⟨ l ⟩ A ≡ B / p → Γ ⊩⟨ l ⟩ A ≡ B′ / p
   irrelevanceEqR′ PE.refl p A≡B = A≡B
 
-  -- Irrelevance for type equality with propositionally equal types and
-  -- a lifting of propositionally equal types
-  irrelevanceEqLift″ : ∀ {A A′ B B′ C C′ l l′}
-                        (eqA : A PE.≡ A′) (eqB : B PE.≡ B′) (eqC : C PE.≡ C′)
-                        (p : Γ ∙ C ⊩⟨ l ⟩ A) (q : Γ ∙ C′ ⊩⟨ l′ ⟩ A′)
-                      → Γ ∙ C ⊩⟨ l ⟩ A ≡ B / p → Γ ∙ C′ ⊩⟨ l′ ⟩ A′ ≡ B′ / q
-  irrelevanceEqLift″ PE.refl PE.refl PE.refl p q A≡B = irrelevanceEq p q A≡B
+  -- Irrelevance for type equality with propositionally equal types
+  -- and contexts.
+  irrelevanceEq‴ :
+    A PE.≡ A′ → B PE.≡ B′ → Γ PE.≡ Γ′ →
+    (⊩A : Γ ⊩⟨ l ⟩ A) (⊩A′ : Γ′ ⊩⟨ l′ ⟩ A′) →
+    Γ ⊩⟨ l ⟩ A ≡ B / ⊩A → Γ′ ⊩⟨ l′ ⟩ A′ ≡ B′ / ⊩A′
+  irrelevanceEq‴ PE.refl PE.refl PE.refl = irrelevanceEq
 
   -- Helper for irrelevance of type equality using shape view
   irrelevanceEqT : ∀ {A B l l′} {p : Γ ⊩⟨ l ⟩ A} {q : Γ ⊩⟨ l′ ⟩ A}
@@ -103,6 +107,29 @@ mutual
               in  irrelevanceEq′ (PE.cong (λ y → wk (lift ρ) y [ _ ]) G≡G₁)
                                  ([G] [ρ] ⊢Δ [a]) ([G]₁ [ρ] ⊢Δ [a]₁) ([G≡G′] [ρ] ⊢Δ [a]))
   irrelevanceEqT (Uᵥ (Uᵣ _ _ _) (Uᵣ _ _ _)) A≡B = A≡B
+  irrelevanceEqT (Idᵥ ⊩A ⊩A′) A≡B =
+    case
+      whrDet* (red (_⊩ₗId_.⇒*Id ⊩A) , Idₙ) (red (_⊩ₗId_.⇒*Id ⊩A′) , Idₙ)
+    of λ {
+      PE.refl →
+    record
+      { ⇒*Id′    = ⇒*Id′
+      ; Ty≡Ty′   = irrelevanceEq (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩A′) Ty≡Ty′
+      ; lhs≡lhs′ =
+          irrelevanceEqTerm (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩A′) lhs≡lhs′
+      ; rhs≡rhs′ =
+          irrelevanceEqTerm (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩A′) rhs≡rhs′
+      ; lhs≡rhs→lhs′≡rhs′ =
+          irrelevanceEqTerm (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩A′) ∘→
+          lhs≡rhs→lhs′≡rhs′ ∘→
+          irrelevanceEqTerm (_⊩ₗId_.⊩Ty ⊩A′) (_⊩ₗId_.⊩Ty ⊩A)
+      ; lhs′≡rhs′→lhs≡rhs =
+          irrelevanceEqTerm (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩A′) ∘→
+          lhs′≡rhs′→lhs≡rhs ∘→
+          irrelevanceEqTerm (_⊩ₗId_.⊩Ty ⊩A′) (_⊩ₗId_.⊩Ty ⊩A)
+      } }
+    where
+    open _⊩ₗId_≡_/_ A≡B
   irrelevanceEqT (emb⁰¹ x) A≡B = irrelevanceEqT x A≡B
   irrelevanceEqT (emb¹⁰ x) A≡B = irrelevanceEqT x A≡B
 
@@ -212,6 +239,19 @@ mutual
            (PE.subst (λ x →  Γ ⊢ p ≅ p ∷ x) ΣFG≡ΣF₁G₁ p≅p) (ne x)
            (PE.subst (λ x → Γ ⊢ p ~ p ∷ x) ΣFG≡ΣF₁G₁ p~p)
   irrelevanceTermT (Uᵥ (Uᵣ .⁰ 0<1 ⊢Γ) (Uᵣ .⁰ 0<1 ⊢Γ₁)) t = t
+  irrelevanceTermT (Idᵥ ⊩A ⊩A′) ⊩t@(_ , t⇒*u , _) =
+    case
+      whrDet* (red (_⊩ₗId_.⇒*Id ⊩A) , Idₙ) (red (_⊩ₗId_.⇒*Id ⊩A′) , Idₙ)
+    of λ {
+      PE.refl →
+      _
+    , t⇒*u
+    , (case ⊩Id∷-view-inhabited ⊩t of λ where
+         (ne u-n u~u)   → ne u-n , u~u
+         (rflᵣ lhs≡rhs) →
+             rflₙ
+           , irrelevanceEqTerm
+               (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩A′) lhs≡rhs) }
   irrelevanceTermT (emb⁰¹ x) t = irrelevanceTermT x t
   irrelevanceTermT (emb¹⁰ x) t = irrelevanceTermT x t
 
@@ -343,5 +383,18 @@ mutual
             (irrelevanceTerm [A] [A]₁ [t]) (irrelevanceTerm [A] [A]₁ [u])
             p~r′
   irrelevanceEqTermT (Uᵥ (Uᵣ .⁰ 0<1 ⊢Γ) (Uᵣ .⁰ 0<1 ⊢Γ₁)) t≡u = t≡u
+  irrelevanceEqTermT (Idᵥ ⊩A ⊩A′) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
+    case whrDet*
+           (red (_⊩ₗId_.⇒*Id ⊩A) , Idₙ)
+           (red (_⊩ₗId_.⇒*Id ⊩A′) , Idₙ) of λ {
+      PE.refl →
+      _ , _ , t⇒*t′ , u⇒*u′
+    , (case ⊩Id≡∷-view-inhabited ⊩A t≡u of λ where
+         (ne t′-n u′-n t′~u′) →
+           ne t′-n , ne u′-n , t′~u′
+         (rfl₌ lhs≡rhs) →
+             rflₙ , rflₙ
+           , irrelevanceEqTerm
+               (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩A′) lhs≡rhs) }
   irrelevanceEqTermT (emb⁰¹ x) t≡u = irrelevanceEqTermT x t≡u
   irrelevanceEqTermT (emb¹⁰ x) t≡u = irrelevanceEqTermT x t≡u

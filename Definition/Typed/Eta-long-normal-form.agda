@@ -3,10 +3,12 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.Typed.Eta-long-normal-form
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
 
 open Type-restrictions R
@@ -27,8 +29,11 @@ open import Definition.Typed.Consequences.Stability R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
 
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
+  hiding (_∷_) renaming (_[_,_] to _[_,_]₁₀)
 open import Definition.Untyped.Normal-form M
+
+open import Graded.Derived.Erased.Untyped 𝕄 as Erased using (Erased)
 
 open import Tools.Empty
 open import Tools.Fin
@@ -74,6 +79,10 @@ mutual
              Γ ⊢nf Unit
     ℕₙ     : ⊢ Γ →
              Γ ⊢nf ℕ
+    Idₙ    : Γ ⊢nf A →
+             Γ ⊢nf t ∷ A →
+             Γ ⊢nf u ∷ A →
+             Γ ⊢nf Id A t u
 
   -- Γ ⊢nf t ∷ A holds if t is a term in η-long normal form (with
   -- respect to the context Γ and the type A).
@@ -112,6 +121,12 @@ mutual
              Γ ⊢nf zero ∷ ℕ
     sucₙ   : Γ ⊢nf t ∷ ℕ →
              Γ ⊢nf suc t ∷ ℕ
+    Idₙ    : Γ ⊢nf A ∷ U →
+             Γ ⊢nf t ∷ A →
+             Γ ⊢nf u ∷ A →
+             Γ ⊢nf Id A t u ∷ U
+    rflₙ   : Γ ⊢ t ∷ A →
+             Γ ⊢nf rfl ∷ Id A t t
     neₙ    : No-η-equality A →
              Γ ⊢ne t ∷ A →
              Γ ⊢nf t ∷ A
@@ -155,6 +170,27 @@ mutual
                 Γ ∙ ℕ ∙ A ⊢nf u ∷ A [ suc (var x1) ]↑² →
                 Γ ⊢ne v ∷ ℕ →
                 Γ ⊢ne natrec p q r A t u v ∷ A [ v ]₀
+    Jₙ        : Γ ⊢nf A →
+                Γ ⊢nf t ∷ A →
+                Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢nf B →
+                Γ ⊢nf u ∷ B [ t , rfl ]₁₀ →
+                Γ ⊢nf v ∷ A →
+                Γ ⊢ne w ∷ Id A t v →
+                Γ ⊢ne J p q A t B u v w ∷ B [ v , w ]₁₀
+    Kₙ        : Γ ⊢nf A →
+                Γ ⊢nf t ∷ A →
+                Γ ∙ Id A t t ⊢nf B →
+                Γ ⊢nf u ∷ B [ rfl ]₀ →
+                Γ ⊢ne v ∷ Id A t t →
+                K-allowed →
+                Γ ⊢ne K p A t B u v ∷ B [ v ]₀
+    []-congₙ  : Γ ⊢nf A →
+                Γ ⊢nf t ∷ A →
+                Γ ⊢nf u ∷ A →
+                Γ ⊢ne v ∷ Id A t u →
+                []-cong-allowed →
+                Γ ⊢ne []-cong A t u v ∷
+                  Id (Erased A) Erased.[ t ] Erased.[ u ]
 
 ------------------------------------------------------------------------
 -- A lemma
@@ -169,9 +205,11 @@ mutual
     case inversion-ΠΣ-U ⊢ΠΣAB∷U of λ {
       (⊢A∷U , ⊢B∷U , _) →
     ΠΣₙ (⊢nf∷U→⊢nf∷U ⊢A ⊢A∷U) (⊢nf∷U→⊢nf∷U ⊢B ⊢B∷U) ok }
-  (Emptyₙ ⊢Γ)    _ → Emptyₙ ⊢Γ
-  (Unitₙ ⊢Γ ok)  _ → Unitₙ ⊢Γ ok
-  (ℕₙ ⊢Γ)        _ → ℕₙ ⊢Γ
+  (Emptyₙ ⊢Γ)    _     → Emptyₙ ⊢Γ
+  (Unitₙ ⊢Γ ok)  _     → Unitₙ ⊢Γ ok
+  (ℕₙ ⊢Γ)        _     → ℕₙ ⊢Γ
+  (Idₙ ⊢A ⊢t ⊢u) ⊢Id∷U →
+    Idₙ (⊢nf∷U→⊢nf∷U ⊢A (inversion-Id-U ⊢Id∷U .proj₁)) ⊢t ⊢u
 
 ------------------------------------------------------------------------
 -- Some conversion functions
@@ -188,6 +226,7 @@ mutual
     (Emptyₙ ⊢Γ)    → Emptyⱼ ⊢Γ
     (Unitₙ ⊢Γ ok)  → Unitⱼ ⊢Γ ok
     (ℕₙ ⊢Γ)        → ℕⱼ ⊢Γ
+    (Idₙ _ ⊢t ⊢u)  → Idⱼ (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u)
 
   -- If t is an η-long normal term, then t is well-typed.
 
@@ -203,6 +242,8 @@ mutual
     (ℕₙ ⊢Γ)                → ℕⱼ ⊢Γ
     (zeroₙ ⊢Γ)             → zeroⱼ ⊢Γ
     (sucₙ ⊢t)              → sucⱼ (⊢nf∷→⊢∷ ⊢t)
+    (Idₙ ⊢A ⊢t ⊢u)         → Idⱼ (⊢nf∷→⊢∷ ⊢A) (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u)
+    (rflₙ ⊢t)              → rflⱼ ⊢t
     (neₙ _ ⊢t)             → ⊢ne∷→⊢∷ ⊢t
 
   -- If Γ ⊢ne t ∷ A holds, then t is well-typed.
@@ -219,6 +260,13 @@ mutual
     (emptyrecₙ ⊢A ⊢t)            → emptyrecⱼ (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t)
     (natrecₙ ⊢A ⊢t ⊢u ⊢v)        → natrecⱼ (⊢nf→⊢ ⊢A) (⊢nf∷→⊢∷ ⊢t)
                                      (⊢nf∷→⊢∷ ⊢u) (⊢ne∷→⊢∷ ⊢v)
+    (Jₙ ⊢A ⊢t ⊢B ⊢u ⊢v ⊢w)       → Jⱼ (⊢nf→⊢ ⊢A) (⊢nf∷→⊢∷ ⊢t) (⊢nf→⊢ ⊢B)
+                                     (⊢nf∷→⊢∷ ⊢u) (⊢nf∷→⊢∷ ⊢v)
+                                     (⊢ne∷→⊢∷ ⊢w)
+    (Kₙ _ ⊢t ⊢B ⊢u ⊢v ok)        → Kⱼ (⊢nf∷→⊢∷ ⊢t) (⊢nf→⊢ ⊢B)
+                                     (⊢nf∷→⊢∷ ⊢u) (⊢ne∷→⊢∷ ⊢v) ok
+    ([]-congₙ _ ⊢t ⊢u ⊢v ok)     → []-congⱼ (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u)
+                                     (⊢ne∷→⊢∷ ⊢v) ok
 
 mutual
 
@@ -226,12 +274,13 @@ mutual
 
   ⊢nf→Nf : Γ ⊢nf A → Nf A
   ⊢nf→Nf = λ where
-    (Uₙ _)        → Uₙ
-    (univₙ ⊢A)    → ⊢nf∷→Nf ⊢A
-    (ΠΣₙ ⊢A ⊢B _) → ΠΣₙ (⊢nf→Nf ⊢A) (⊢nf→Nf ⊢B)
-    (Emptyₙ _)    → Emptyₙ
-    (Unitₙ _ _)   → Unitₙ
-    (ℕₙ _)        → ℕₙ
+    (Uₙ _)         → Uₙ
+    (univₙ ⊢A)     → ⊢nf∷→Nf ⊢A
+    (ΠΣₙ ⊢A ⊢B _)  → ΠΣₙ (⊢nf→Nf ⊢A) (⊢nf→Nf ⊢B)
+    (Emptyₙ _)     → Emptyₙ
+    (Unitₙ _ _)    → Unitₙ
+    (ℕₙ _)         → ℕₙ
+    (Idₙ ⊢A ⊢t ⊢u) → Idₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t) (⊢nf∷→Nf ⊢u)
 
   -- If t is an η-long normal term, then t is normal.
 
@@ -247,6 +296,8 @@ mutual
     (ℕₙ _)              → ℕₙ
     (zeroₙ _)           → zeroₙ
     (sucₙ ⊢t)           → sucₙ (⊢nf∷→Nf ⊢t)
+    (Idₙ ⊢A ⊢t ⊢u)      → Idₙ (⊢nf∷→Nf ⊢A) (⊢nf∷→Nf ⊢t) (⊢nf∷→Nf ⊢u)
+    (rflₙ ⊢t)           → rflₙ
     (neₙ _ ⊢t)          → ne (⊢ne∷→NfNeutral ⊢t)
 
   -- If Γ ⊢ne t ∷ A holds, then t is "NfNeutral".
@@ -263,6 +314,13 @@ mutual
     (emptyrecₙ ⊢A ⊢t)         → emptyrecₙ (⊢nf→Nf ⊢A)
                                   (⊢ne∷→NfNeutral ⊢t)
     (natrecₙ ⊢A ⊢t ⊢u ⊢v)     → natrecₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t)
+                                  (⊢nf∷→Nf ⊢u) (⊢ne∷→NfNeutral ⊢v)
+    (Jₙ ⊢A ⊢t ⊢B ⊢u ⊢v ⊢w)    → Jₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t) (⊢nf→Nf ⊢B)
+                                  (⊢nf∷→Nf ⊢u) (⊢nf∷→Nf ⊢v)
+                                  (⊢ne∷→NfNeutral ⊢w)
+    (Kₙ ⊢A ⊢t ⊢B ⊢u ⊢v _)     → Kₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t) (⊢nf→Nf ⊢B)
+                                  (⊢nf∷→Nf ⊢u) (⊢ne∷→NfNeutral ⊢v)
+    ([]-congₙ ⊢A ⊢t ⊢u ⊢v _)  → []-congₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t)
                                   (⊢nf∷→Nf ⊢u) (⊢ne∷→NfNeutral ⊢v)
 
 ------------------------------------------------------------------------
@@ -283,6 +341,8 @@ mutual
       (Emptyₙ ⊢Γ)    → Emptyₙ ⊢Δ
       (Unitₙ ⊢Γ ok)  → Unitₙ ⊢Δ ok
       (ℕₙ ⊢Γ)        → ℕₙ ⊢Δ
+      (Idₙ ⊢A ⊢t ⊢u) → Idₙ (⊢nf-stable Γ≡Δ ⊢A) (⊢nf∷-stable Γ≡Δ ⊢t)
+                         (⊢nf∷-stable Γ≡Δ ⊢u)
     where
     ⊢Δ = contextConvSubst Γ≡Δ .proj₂ .proj₁
 
@@ -316,6 +376,12 @@ mutual
       (zeroₙ ⊢Γ)    → zeroₙ ⊢Δ
       (sucₙ ⊢t)     → sucₙ
         (⊢nf∷-stable Γ≡Δ ⊢t)
+      (Idₙ ⊢A ⊢t ⊢u) → Idₙ
+        (⊢nf∷-stable Γ≡Δ ⊢A)
+        (⊢nf∷-stable Γ≡Δ ⊢t)
+        (⊢nf∷-stable Γ≡Δ ⊢u)
+      (rflₙ ⊢t) → rflₙ
+        (stabilityTerm Γ≡Δ ⊢t)
       (neₙ ok ⊢t) → neₙ
         ok
         (⊢ne∷-stable Γ≡Δ ⊢t)
@@ -363,6 +429,29 @@ mutual
         (⊢nf∷-stable Γ≡Δ ⊢t)
         (⊢nf∷-stable (⊢Γℕ≡Δℕ ∙ refl (⊢nf→⊢ ⊢A)) ⊢u)
         (⊢ne∷-stable Γ≡Δ ⊢v) }
+      (Jₙ ⊢A ⊢t ⊢B ⊢u ⊢v ⊢w) → Jₙ
+        (⊢nf-stable Γ≡Δ ⊢A)
+        (⊢nf∷-stable Γ≡Δ ⊢t)
+        (⊢nf-stable
+           (J-motive-context-cong Γ≡Δ (refl (⊢nf→⊢ ⊢A))
+              (refl (⊢nf∷→⊢∷ ⊢t)))
+           ⊢B)
+        (⊢nf∷-stable Γ≡Δ ⊢u)
+        (⊢nf∷-stable Γ≡Δ ⊢v)
+        (⊢ne∷-stable Γ≡Δ ⊢w)
+      (Kₙ ⊢A ⊢t ⊢B ⊢u ⊢v ok) → Kₙ
+        (⊢nf-stable Γ≡Δ ⊢A)
+        (⊢nf∷-stable Γ≡Δ ⊢t)
+        (⊢nf-stable (Γ≡Δ ∙ refl (Idⱼ (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢t))) ⊢B)
+        (⊢nf∷-stable Γ≡Δ ⊢u)
+        (⊢ne∷-stable Γ≡Δ ⊢v)
+        ok
+      ([]-congₙ ⊢A ⊢t ⊢u ⊢v ok) → []-congₙ
+        (⊢nf-stable Γ≡Δ ⊢A)
+        (⊢nf∷-stable Γ≡Δ ⊢t)
+        (⊢nf∷-stable Γ≡Δ ⊢u)
+        (⊢ne∷-stable Γ≡Δ ⊢v)
+        ok
     where
     ⊢Δ = contextConvSubst Γ≡Δ .proj₂ .proj₁
 
@@ -661,6 +750,198 @@ inversion-nf-ne-natrec :
 inversion-nf-ne-natrec (inj₁ ⊢nr) = inversion-nf-natrec ⊢nr
 inversion-nf-ne-natrec (inj₂ ⊢nr) = inversion-ne-natrec ⊢nr
 
+opaque
+
+  -- Inversion for terms that are identity types.
+
+  inversion-nf-Id-U :
+    Γ ⊢nf Id A t u ∷ B →
+    Γ ⊢nf A ∷ U × Γ ⊢nf t ∷ A × Γ ⊢nf u ∷ A × Γ ⊢ B ≡ U
+  inversion-nf-Id-U = λ where
+    (Idₙ ⊢A ⊢t ⊢u) →
+      ⊢A , ⊢t , ⊢u , refl (Uⱼ (wfTerm (⊢nf∷→⊢∷ ⊢A)))
+    (convₙ ⊢Id C≡B) →
+      case inversion-nf-Id-U ⊢Id of λ {
+        (⊢A , ⊢t , ⊢u , C≡U) →
+      ⊢A , ⊢t , ⊢u , trans (sym C≡B) C≡U }
+    (neₙ _ ⊢Id) →
+      case ⊢ne∷→NfNeutral ⊢Id of λ ()
+
+opaque
+
+  -- Inversion for identity types.
+
+  inversion-nf-Id :
+    Γ ⊢nf Id A t u →
+    (Γ ⊢nf A) × Γ ⊢nf t ∷ A × Γ ⊢nf u ∷ A
+  inversion-nf-Id = λ where
+    (Idₙ ⊢A ⊢t ⊢u) → ⊢A , ⊢t , ⊢u
+    (univₙ ⊢Id)    → case inversion-nf-Id-U ⊢Id of λ where
+      (⊢A , ⊢t , ⊢u , _) → univₙ ⊢A , ⊢t , ⊢u
+
+-- Inversion for J.
+
+opaque
+
+  inversion-ne-J :
+    Γ ⊢ne J p q A t B u v w ∷ C →
+    (Γ ⊢nf A) ×
+    Γ ⊢nf t ∷ A ×
+    (Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢nf B) ×
+    Γ ⊢nf u ∷ B [ t , rfl ]₁₀ ×
+    Γ ⊢nf v ∷ A ×
+    Γ ⊢ne w ∷ Id A t v ×
+    Γ ⊢ C ≡ B [ v , w ]₁₀
+  inversion-ne-J = λ where
+    ⊢J@(Jₙ ⊢A ⊢t ⊢B ⊢u ⊢v ⊢w) →
+      ⊢A , ⊢t , ⊢B , ⊢u , ⊢v , ⊢w , refl (syntacticTerm (⊢ne∷→⊢∷ ⊢J))
+    (convₙ ⊢J D≡C) →
+      case inversion-ne-J ⊢J of λ {
+        (⊢A , ⊢t , ⊢B , ⊢u , ⊢v , ⊢w , D≡B) →
+      ⊢A , ⊢t , ⊢B , ⊢u , ⊢v , ⊢w , trans (sym D≡C) D≡B }
+
+opaque
+
+  inversion-nf-J :
+    Γ ⊢nf J p q A t B u v w ∷ C →
+    (Γ ⊢nf A) ×
+    Γ ⊢nf t ∷ A ×
+    (Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢nf B) ×
+    Γ ⊢nf u ∷ B [ t , rfl ]₁₀ ×
+    Γ ⊢nf v ∷ A ×
+    Γ ⊢ne w ∷ Id A t v ×
+    Γ ⊢ C ≡ B [ v , w ]₁₀
+  inversion-nf-J = λ where
+    (neₙ _ ⊢J) →
+      inversion-ne-J ⊢J
+    (convₙ ⊢J C≡D) →
+      case inversion-nf-J ⊢J of λ {
+        (⊢A , ⊢t , ⊢B , ⊢u , ⊢v , ⊢w , C≡B) →
+      ⊢A , ⊢t , ⊢B , ⊢u , ⊢v , ⊢w , trans (sym C≡D) C≡B }
+
+opaque
+
+  inversion-nf-ne-J :
+    Γ ⊢nf J p q A t B u v w ∷ C ⊎ Γ ⊢ne J p q A t B u v w ∷ C →
+    (Γ ⊢nf A) ×
+    Γ ⊢nf t ∷ A ×
+    (Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢nf B) ×
+    Γ ⊢nf u ∷ B [ t , rfl ]₁₀ ×
+    Γ ⊢nf v ∷ A ×
+    Γ ⊢ne w ∷ Id A t v ×
+    Γ ⊢ C ≡ B [ v , w ]₁₀
+  inversion-nf-ne-J = λ where
+    (inj₁ ⊢J) → inversion-nf-J ⊢J
+    (inj₂ ⊢J) → inversion-ne-J ⊢J
+
+-- Inversion for K.
+
+opaque
+
+  inversion-ne-K :
+    Γ ⊢ne K p A t B u v ∷ C →
+    (Γ ⊢nf A) ×
+    Γ ⊢nf t ∷ A ×
+    (Γ ∙ Id A t t ⊢nf B) ×
+    Γ ⊢nf u ∷ B [ rfl ]₀ ×
+    Γ ⊢ne v ∷ Id A t t ×
+    K-allowed ×
+    Γ ⊢ C ≡ B [ v ]₀
+  inversion-ne-K = λ where
+    ⊢K@(Kₙ ⊢A ⊢t ⊢B ⊢u ⊢v ok) →
+      ⊢A , ⊢t , ⊢B , ⊢u , ⊢v , ok , refl (syntacticTerm (⊢ne∷→⊢∷ ⊢K))
+    (convₙ ⊢K D≡C) →
+      case inversion-ne-K ⊢K of λ {
+        (⊢A , ⊢t , ⊢B , ⊢u , ⊢v , ok , D≡B) →
+      ⊢A , ⊢t , ⊢B , ⊢u , ⊢v , ok , trans (sym D≡C) D≡B }
+
+opaque
+
+  inversion-nf-K :
+    Γ ⊢nf K p A t B u v ∷ C →
+    (Γ ⊢nf A) ×
+    Γ ⊢nf t ∷ A ×
+    (Γ ∙ Id A t t ⊢nf B) ×
+    Γ ⊢nf u ∷ B [ rfl ]₀ ×
+    Γ ⊢ne v ∷ Id A t t ×
+    K-allowed ×
+    Γ ⊢ C ≡ B [ v ]₀
+  inversion-nf-K = λ where
+    (neₙ _ ⊢K) →
+      inversion-ne-K ⊢K
+    (convₙ ⊢K C≡D) →
+      case inversion-nf-K ⊢K of λ {
+        (⊢A , ⊢t , ⊢B , ⊢u , ⊢v , ok , C≡B) →
+      ⊢A , ⊢t , ⊢B , ⊢u , ⊢v , ok , trans (sym C≡D) C≡B }
+
+opaque
+
+  inversion-nf-ne-K :
+    Γ ⊢nf K p A t B u v ∷ C ⊎ Γ ⊢ne K p A t B u v ∷ C →
+    (Γ ⊢nf A) ×
+    Γ ⊢nf t ∷ A ×
+    (Γ ∙ Id A t t ⊢nf B) ×
+    Γ ⊢nf u ∷ B [ rfl ]₀ ×
+    Γ ⊢ne v ∷ Id A t t ×
+    K-allowed ×
+    Γ ⊢ C ≡ B [ v ]₀
+  inversion-nf-ne-K = λ where
+    (inj₁ ⊢K) → inversion-nf-K ⊢K
+    (inj₂ ⊢K) → inversion-ne-K ⊢K
+
+-- Inversion for []-cong.
+
+opaque
+
+  inversion-ne-[]-cong :
+    Γ ⊢ne []-cong A t u v ∷ B →
+    (Γ ⊢nf A) ×
+    Γ ⊢nf t ∷ A ×
+    Γ ⊢nf u ∷ A ×
+    Γ ⊢ne v ∷ Id A t u ×
+    []-cong-allowed ×
+    Γ ⊢ B ≡ Id (Erased A) Erased.[ t ] Erased.[ u ]
+  inversion-ne-[]-cong = λ where
+    ⊢[]-cong@([]-congₙ ⊢A ⊢t ⊢u ⊢v ok) →
+        ⊢A , ⊢t , ⊢u , ⊢v , ok
+      , refl (syntacticTerm (⊢ne∷→⊢∷ ⊢[]-cong))
+    (convₙ ⊢[]-cong C≡B) →
+      case inversion-ne-[]-cong ⊢[]-cong of λ {
+        (⊢A , ⊢t , ⊢u , ⊢v , ok , C≡Id) →
+      ⊢A , ⊢t , ⊢u , ⊢v , ok , trans (sym C≡B) C≡Id }
+
+opaque
+
+  inversion-nf-[]-cong :
+    Γ ⊢nf []-cong A t u v ∷ B →
+    (Γ ⊢nf A) ×
+    Γ ⊢nf t ∷ A ×
+    Γ ⊢nf u ∷ A ×
+    Γ ⊢ne v ∷ Id A t u ×
+    []-cong-allowed ×
+    Γ ⊢ B ≡ Id (Erased A) Erased.[ t ] Erased.[ u ]
+  inversion-nf-[]-cong = λ where
+    (neₙ _ ⊢[]-cong) →
+      inversion-ne-[]-cong ⊢[]-cong
+    (convₙ ⊢[]-cong C≡B) →
+      case inversion-nf-[]-cong ⊢[]-cong of λ {
+        (⊢A , ⊢t , ⊢u , ⊢v , ok , C≡Id) →
+      ⊢A , ⊢t , ⊢u , ⊢v , ok , trans (sym C≡B) C≡Id }
+
+opaque
+
+  inversion-nf-ne-[]-cong :
+    Γ ⊢nf []-cong A t u v ∷ B ⊎ Γ ⊢ne []-cong A t u v ∷ B →
+    (Γ ⊢nf A) ×
+    Γ ⊢nf t ∷ A ×
+    Γ ⊢nf u ∷ A ×
+    Γ ⊢ne v ∷ Id A t u ×
+    []-cong-allowed ×
+    Γ ⊢ B ≡ Id (Erased A) Erased.[ t ] Erased.[ u ]
+  inversion-nf-ne-[]-cong = λ where
+    (inj₁ ⊢[]-cong) → inversion-nf-[]-cong ⊢[]-cong
+    (inj₂ ⊢[]-cong) → inversion-ne-[]-cong ⊢[]-cong
+
 ------------------------------------------------------------------------
 -- Lemmas related to η-long normal forms for types with η-equality
 
@@ -686,6 +967,8 @@ inversion-nf-ne-natrec (inj₂ ⊢nr) = inversion-ne-natrec ⊢nr
     (ℕₙ _)            _ ()
     (zeroₙ _)         _ ()
     (sucₙ _)          _ ()
+    (Idₙ _ _ _)       _ ()
+    (rflₙ _)          _ ()
 
 -- Normal forms of type Σₚ p , q ▷ A ▹ B are not neutral.
 
@@ -709,6 +992,8 @@ inversion-nf-ne-natrec (inj₂ ⊢nr) = inversion-ne-natrec ⊢nr
     (ℕₙ _)            _ ()
     (zeroₙ _)         _ ()
     (sucₙ _)          _ ()
+    (Idₙ _ _ _)       _ ()
+    (rflₙ _)          _ ()
 
 -- Normal forms of type Unit are equal to star.
 
@@ -730,6 +1015,8 @@ inversion-nf-ne-natrec (inj₂ ⊢nr) = inversion-ne-natrec ⊢nr
     (ℕₙ _)            → ⊥-elim (U≢Unitⱼ A≡Unit)
     (zeroₙ _)         → ⊥-elim (ℕ≢Unitⱼ A≡Unit)
     (sucₙ _)          → ⊥-elim (ℕ≢Unitⱼ A≡Unit)
+    (Idₙ _ _ _)       → ⊥-elim (U≢Unitⱼ A≡Unit)
+    (rflₙ _)          → ⊥-elim (Id≢Unit A≡Unit)
 
 ------------------------------------------------------------------------
 -- Normal forms (η-long) are unique
@@ -777,6 +1064,17 @@ mutual
               (reflConEq (wf (⊢nf→⊢ ⊢A)) ∙ sym (soundnessConv↑ A₁≡B₁))
               ⊢B₂)
            A₂≡B₂) }}
+    (Id-cong C₁≡C₂ t₁≡t₂ u₁≡u₂) →
+      case inversion-nf-Id ⊢A of λ {
+        (⊢C₁ , ⊢t₁ , ⊢u₁) →
+      case inversion-nf-Id ⊢B of λ {
+        (⊢C₂ , ⊢t₂ , ⊢u₂) →
+      case sym (soundnessConv↑ C₁≡C₂) of λ {
+        C₂≡C₁ →
+      PE.cong₃ Id
+        (normal-types-unique-[conv↑] ⊢C₁ ⊢C₂ C₁≡C₂)
+        (normal-terms-unique-[conv↑]∷ ⊢t₁ (convₙ ⊢t₂ C₂≡C₁) t₁≡t₂)
+        (normal-terms-unique-[conv↑]∷ ⊢u₁ (convₙ ⊢u₂ C₂≡C₁) u₁≡u₂) }}}
 
   normal-or-neutral-terms-unique-~↑ :
     Γ ⊢nf u ∷ A ⊎ Γ ⊢ne u ∷ A →
@@ -868,6 +1166,65 @@ mutual
       PE.cong₂ (emptyrec _)
         (normal-types-unique-[conv↑] ⊢A ⊢B A≡B)
         (neutral-terms-unique-~↓ ⊢u ⊢v u≡v) }}
+    (J-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁~w₂ _) →
+      case inversion-nf-ne-J ⊢u of λ {
+        (⊢A₁ , ⊢t₁ , ⊢B₁ , ⊢u₁ , ⊢v₁ , ⊢w₁ , _) →
+      case inversion-nf-ne-J ⊢v of λ {
+        (⊢A₂ , ⊢t₂ , ⊢B₂ , ⊢u₂ , ⊢v₂ , ⊢w₂ , _) →
+      case soundnessConv↑ A₁≡A₂ of λ {
+        ⊢A₁≡A₂ →
+      case soundnessConv↑Term t₁≡t₂ of λ {
+        ⊢t₁≡t₂ →
+      PE.cong₆ (J _ _)
+        (normal-types-unique-[conv↑] ⊢A₁ ⊢A₂ A₁≡A₂)
+        (normal-terms-unique-[conv↑]∷
+           ⊢t₁ (convₙ ⊢t₂ (sym ⊢A₁≡A₂)) t₁≡t₂)
+        (normal-types-unique-[conv↑] ⊢B₁
+           (⊢nf-stable (symConEq (J-motive-context-cong′ ⊢A₁≡A₂ ⊢t₁≡t₂))
+              ⊢B₂)
+           B₁≡B₂)
+        (normal-terms-unique-[conv↑]∷ ⊢u₁
+           (convₙ ⊢u₂ $ _⊢_≡_.sym $
+            J-motive-rfl-cong (soundnessConv↑ B₁≡B₂) ⊢t₁≡t₂)
+           u₁≡u₂)
+        (normal-terms-unique-[conv↑]∷
+           ⊢v₁ (convₙ ⊢v₂ (sym ⊢A₁≡A₂)) v₁≡v₂)
+        (neutral-terms-unique-~↓ ⊢w₁ ⊢w₂ w₁~w₂) }}}}
+    (K-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁~v₂ _ _) →
+      case inversion-nf-ne-K ⊢u of λ {
+        (⊢A₁ , ⊢t₁ , ⊢B₁ , ⊢u₁ , ⊢v₁ , _) →
+      case inversion-nf-ne-K ⊢v of λ {
+        (⊢A₂ , ⊢t₂ , ⊢B₂ , ⊢u₂ , ⊢v₂ , _) →
+      case soundnessConv↑ A₁≡A₂ of λ {
+        ⊢A₁≡A₂ →
+      PE.cong₅ (K _)
+        (normal-types-unique-[conv↑] ⊢A₁ ⊢A₂ A₁≡A₂)
+        (normal-terms-unique-[conv↑]∷
+           ⊢t₁ (convₙ ⊢t₂ (sym ⊢A₁≡A₂)) t₁≡t₂)
+        (normal-types-unique-[conv↑] ⊢B₁
+           (⊢nf-stable
+              (symConEq $
+               K-motive-context-cong′ ⊢A₁≡A₂
+                 (soundnessConv↑Term t₁≡t₂))
+              ⊢B₂)
+           B₁≡B₂)
+        (normal-terms-unique-[conv↑]∷ ⊢u₁
+           (convₙ ⊢u₂ $ _⊢_≡_.sym $
+            K-motive-rfl-cong (soundnessConv↑ B₁≡B₂))
+           u₁≡u₂)
+        (neutral-terms-unique-~↓ ⊢v₁ ⊢v₂ v₁~v₂) }}}
+    ([]-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ _ _) →
+      case inversion-nf-ne-[]-cong ⊢u of λ {
+        (⊢A₁ , ⊢t₁ , ⊢u₁ , ⊢v₁ , _) →
+      case inversion-nf-ne-[]-cong ⊢v of λ {
+        (⊢A₂ , ⊢t₂ , ⊢u₂ , ⊢v₂ , _) →
+      case sym (soundnessConv↑ A₁≡A₂) of λ {
+        A₂≡A₁ →
+      PE.cong₄ []-cong
+        (normal-types-unique-[conv↑] ⊢A₁ ⊢A₂ A₁≡A₂)
+        (normal-terms-unique-[conv↑]∷ ⊢t₁ (convₙ ⊢t₂ A₂≡A₁) t₁≡t₂)
+        (normal-terms-unique-[conv↑]∷ ⊢u₁ (convₙ ⊢u₂ A₂≡A₁) u₁≡u₂)
+        (neutral-terms-unique-~↓ ⊢v₁ ⊢v₂ v₁~v₂) }}}
 
   neutral-terms-unique-~↑ :
     Γ ⊢ne u ∷ A → Γ ⊢ne v ∷ B → Γ ⊢ u ~ v ↑ C → u PE.≡ v
@@ -999,6 +1356,10 @@ mutual
       case ⊢nf∷Unit→≡star ⊢v of λ {
         PE.refl →
       PE.refl }}
+    (Id-ins _ u~v) →
+      normal-terms-unique-~↓ ⊢u ⊢v u~v
+    (rfl-refl _) →
+      PE.refl
 
   normal-terms-unique-[conv↑]∷ :
     Γ ⊢nf u ∷ A → Γ ⊢nf v ∷ A → Γ ⊢ u [conv↑] v ∷ A → u PE.≡ v

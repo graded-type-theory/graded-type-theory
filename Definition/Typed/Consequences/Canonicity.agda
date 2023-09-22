@@ -3,29 +3,40 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.Typed.Consequences.Canonicity
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
 
 open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped.Properties M
 
 open import Definition.Typed R
+open import Definition.Typed.Consequences.Injectivity R
+open import Definition.Typed.Consequences.Inversion R
+open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
+open import Definition.Typed.RedSteps R
 open import Definition.Typed.EqRelInstance R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Irrelevance R
+open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
 
 open import Tools.Empty
+open import Tools.Function
 open import Tools.Nat
-open import Tools.Product
+open import Tools.Product as Σ
 
 private
   variable
-    n : Nat
+    n       : Nat
+    A t u v : Term _
+    l       : TypeLevel
 
 -- Turns a natural number into its term representation
 sucᵏ : Nat → Term n
@@ -71,3 +82,40 @@ canonicity ⊢t | [ℕ] , [t] =
       [n]′ = irrelevanceTerm [Empty] [Empty]′ [n]
 
   in ¬Empty′ [n]′
+
+opaque
+
+  -- Every closed equality proof reduces to rfl.
+
+  ε⊢⇒*rfl∷Id : ε ⊢ v ∷ Id A t u → ε ⊢ v ⇒* rfl ∷ Id A t u
+  ε⊢⇒*rfl∷Id ⊢v =
+    case reducibleTerm ⊢v of λ {
+      (⊩Id , ⊩v) →
+    helper (Id-elim ⊩Id)
+      (irrelevanceTerm ⊩Id (Id-intr (Id-elim ⊩Id)) ⊩v) }
+    where
+    helper :
+      (⊩Id : ε ⊩⟨ l ⟩Id Id A t u) →
+      ε ⊩⟨ l ⟩ v ∷ Id A t u / Id-intr ⊩Id →
+      ε ⊢ v ⇒* rfl ∷ Id A t u
+    helper (emb 0<1 ⊩Id) ⊩v                 = helper ⊩Id ⊩v
+    helper (noemb ⊩Id)   ⊩v@(_ , v⇒*v′ , _) =
+      case ⊩Id∷-view-inhabited ⊩v of λ where
+        (ne v′-n _) → ⊥-elim (noClosedNe v′-n)
+        (rflᵣ ⊩t≡u) →
+          conv* (redₜ v⇒*v′)
+            (sym (subset* (red (_⊩ₗId_.⇒*Id ⊩Id))))
+
+opaque
+
+  -- If Id A t u is inhabited in the empty context, then t is
+  -- definitionally equal to u at type A.
+
+  ε⊢∷Id→ε⊢≡∷ : ε ⊢ v ∷ Id A t u → ε ⊢ t ≡ u ∷ A
+  ε⊢∷Id→ε⊢≡∷ {v} {A} {t} {u} =
+    ε ⊢ v ∷ Id A t u                         →⟨ ε⊢⇒*rfl∷Id ⟩
+    ε ⊢ v ⇒* rfl ∷ Id A t u                  →⟨ proj₂ ∘→ proj₂ ∘→ syntacticEqTerm ∘→ subset*Term ⟩
+    ε ⊢ rfl ∷ Id A t u                       →⟨ Σ.map idᶠ (Σ.map idᶠ (proj₂ ∘→ proj₂)) ∘→ inversion-rfl ⟩
+    (∃₂ λ B v → ε ⊢ Id A t u ≡ Id B v v)     →⟨ Σ.map idᶠ (proj₂ ∘→ Id-injectivity) ∘→ proj₂ ⟩
+    (∃ λ v → ε ⊢ t ≡ v ∷ A × ε ⊢ u ≡ v ∷ A)  →⟨ (λ (_ , t≡ , u≡) → trans t≡ (sym u≡)) ⟩
+    ε ⊢ t ≡ u ∷ A                            □

@@ -3,21 +3,26 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.Conversion
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
 
 open Type-restrictions R
 
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
+  hiding (_∷_) renaming (_[_,_] to _[_,_]₁₀)
 open import Definition.Typed R
+
+open import Graded.Derived.Erased.Untyped 𝕄 as Erased using (Erased)
 
 open import Tools.Fin
 open import Tools.Nat
 open import Tools.Product
-open import Tools.PropositionalEquality
+import Tools.PropositionalEquality as PE
 
 
 infix 10 _⊢_~_↑_
@@ -31,10 +36,10 @@ private
   variable
     n : Nat
     Γ : Con Term n
-    C F H G E : Term n
-    a₀ b₀ g h k l t u v : Term n
+    A₁ A₂ B₁ B₂ C F H G E : Term n
+    a₀ b₀ g h k l t t₁ t₂ u u₁ u₂ v v₁ v₂ w₁ w₂ : Term n
     x y : Fin n
-    p p′ p″ p₁ p₂ q q′ q″ r r′ : M
+    p p′ p″ p₁ p₂ q q′ q″ q₁ q₂ r r′ : M
     b : BinderMode
 
 mutual
@@ -42,7 +47,7 @@ mutual
   data _⊢_~_↑_ (Γ : Con Term n) : (k l A : Term n) → Set a where
 
     var-refl      : Γ ⊢ var x ∷ C
-                  → x ≡ y
+                  → x PE.≡ y
                   → Γ ⊢ var x ~ var y ↑ C
 
     app-cong      : Γ ⊢ k ~ l ↓ Π p , q ▷ F ▹ G
@@ -69,6 +74,36 @@ mutual
     emptyrec-cong : Γ ⊢ F [conv↑] H
                   → Γ ⊢ k ~ l ↓ Empty
                   → Γ ⊢ emptyrec p F k ~ emptyrec p H l ↑ F
+
+    J-cong        : Γ ⊢ A₁ [conv↑] A₂
+                  → Γ ⊢ t₁ [conv↑] t₂ ∷ A₁
+                  → Γ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ [conv↑] B₂
+                  → Γ ⊢ u₁ [conv↑] u₂ ∷ B₁ [ t₁ , rfl ]₁₀
+                  → Γ ⊢ v₁ [conv↑] v₂ ∷ A₁
+                  → Γ ⊢ w₁ ~ w₂ ↓ C
+                  → Γ ⊢ C ≡ Id A₁ t₁ v₁
+                  → Γ ⊢ J p q A₁ t₁ B₁ u₁ v₁ w₁ ~
+                        J p q A₂ t₂ B₂ u₂ v₂ w₂ ↑ B₁ [ v₁ , w₁ ]₁₀
+
+    K-cong        : Γ ⊢ A₁ [conv↑] A₂
+                  → Γ ⊢ t₁ [conv↑] t₂ ∷ A₁
+                  → Γ ∙ Id A₁ t₁ t₁ ⊢ B₁ [conv↑] B₂
+                  → Γ ⊢ u₁ [conv↑] u₂ ∷ B₁ [ rfl ]₀
+                  → Γ ⊢ v₁ ~ v₂ ↓ C
+                  → Γ ⊢ C ≡ Id A₁ t₁ t₁
+                  → K-allowed
+                  → Γ ⊢ K p A₁ t₁ B₁ u₁ v₁ ~ K p A₂ t₂ B₂ u₂ v₂ ↑
+                      B₁ [ v₁ ]₀
+
+    []-cong-cong  : ∀ {B}
+                  → Γ ⊢ A₁ [conv↑] A₂
+                  → Γ ⊢ t₁ [conv↑] t₂ ∷ A₁
+                  → Γ ⊢ u₁ [conv↑] u₂ ∷ A₁
+                  → Γ ⊢ v₁ ~ v₂ ↓ B
+                  → Γ ⊢ B ≡ Id A₁ t₁ u₁
+                  → []-cong-allowed
+                  → Γ ⊢ []-cong A₁ t₁ u₁ v₁ ~ []-cong A₂ t₂ u₂ v₂ ↑
+                      Id (Erased A₁) Erased.[ t₁ ] Erased.[ u₁ ]
 
   -- Neutral equality with types in WHNF.
   record _⊢_~_↓_ (Γ : Con Term n) (k l B : Term n) : Set a where
@@ -113,6 +148,11 @@ mutual
                → Γ ∙ F ⊢ G [conv↑] E
                → ΠΣ-allowed b p q
                → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G [conv↓] ΠΣ⟨ b ⟩ p , q ▷ H ▹ E
+
+    Id-cong    : Γ ⊢ A₁ [conv↑] A₂
+               → Γ ⊢ t₁ [conv↑] t₂ ∷ A₁
+               → Γ ⊢ u₁ [conv↑] u₂ ∷ A₁
+               → Γ ⊢ Id A₁ t₁ u₁ [conv↓] Id A₂ t₂ u₂
 
   -- Term equality.
   record _⊢_[conv↑]_∷_ (Γ : Con Term n) (t u A : Term n) : Set a where
@@ -195,6 +235,15 @@ mutual
               → Whnf l
               → Γ ⊢ k [conv↓] l ∷ Unit
 
+    Id-ins    : ∀ {A A′ t′ u′}
+              → Γ ⊢ v₁ ∷ Id A t u
+              → Γ ⊢ v₁ ~ v₂ ↓ Id A′ t′ u′
+              → Γ ⊢ v₁ [conv↓] v₂ ∷ Id A t u
+
+    rfl-refl  : ∀ {A}
+              → Γ ⊢ t ≡ u ∷ A
+              → Γ ⊢ rfl [conv↓] rfl ∷ Id A t u
+
 star-refl : ⊢ Γ → Unit-allowed → Γ ⊢ star [conv↓] star ∷ Unit
 star-refl ⊢Γ ok = η-unit (starⱼ ⊢Γ ok) (starⱼ ⊢Γ ok) starₙ starₙ
 
@@ -203,11 +252,47 @@ star-refl ⊢Γ ok = η-unit (starⱼ ⊢Γ ok) (starⱼ ⊢Γ ok) starₙ star�
 prod-cong⁻¹ :
   ∀ {t′ u′} →
   Γ ⊢ prodᵣ p t u [conv↓] prodᵣ p′ t′ u′ ∷ Σᵣ p″ , q ▷ F ▹ G →
-  p ≡ p′ ×
-  p ≡ p″ ×
+  p PE.≡ p′ ×
+  p PE.≡ p″ ×
   Γ ⊢ F ×
   Γ ∙ F ⊢ G ×
   (Γ ⊢ t [conv↑] t′ ∷ F) ×
   (Γ ⊢ u [conv↑] u′ ∷ G [ t ]₀) ×
   Σᵣ-allowed p q
-prod-cong⁻¹ (prod-cong F G t u ok) = refl , refl , F , G , t , u , ok
+prod-cong⁻¹ (prod-cong F G t u ok) =
+  PE.refl , PE.refl , F , G , t , u , ok
+
+-- An inversion lemma for J-cong.
+
+J-cong⁻¹ :
+  Γ ⊢ J p₁ q₁ A₁ t₁ B₁ u₁ v₁ w₁ ~ J p₂ q₂ A₂ t₂ B₂ u₂ v₂ w₂ ↑ C →
+  ∃ λ D →
+  p₁ PE.≡ p₂ ×
+  q₁ PE.≡ q₂ ×
+  (Γ ⊢ A₁ [conv↑] A₂) ×
+  Γ ⊢ t₁ [conv↑] t₂ ∷ A₁ ×
+  (Γ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ [conv↑] B₂) ×
+  Γ ⊢ u₁ [conv↑] u₂ ∷ B₁ [ t₁ , rfl ]₁₀ ×
+  Γ ⊢ v₁ [conv↑] v₂ ∷ A₁ ×
+  Γ ⊢ w₁ ~ w₂ ↓ D ×
+  Γ ⊢ D ≡ Id A₁ t₁ v₁ ×
+  C PE.≡ B₁ [ v₁ , w₁ ]₁₀
+J-cong⁻¹ (J-cong A t B u v w D) =
+  _ , PE.refl , PE.refl , A , t , B , u , v , w , D , PE.refl
+
+-- An inversion lemma for K-cong.
+
+K-cong⁻¹ :
+  Γ ⊢ K p₁ A₁ t₁ B₁ u₁ v₁ ~ K p₂ A₂ t₂ B₂ u₂ v₂ ↑ C →
+  ∃ λ D →
+  p₁ PE.≡ p₂ ×
+  (Γ ⊢ A₁ [conv↑] A₂) ×
+  Γ ⊢ t₁ [conv↑] t₂ ∷ A₁ ×
+  (Γ ∙ Id A₁ t₁ t₁ ⊢ B₁ [conv↑] B₂) ×
+  Γ ⊢ u₁ [conv↑] u₂ ∷ B₁ [ rfl ]₀ ×
+  Γ ⊢ v₁ ~ v₂ ↓ D ×
+  Γ ⊢ D ≡ Id A₁ t₁ t₁ ×
+  K-allowed ×
+  C PE.≡ B₁ [ v₁ ]₀
+K-cong⁻¹ (K-cong A t B u v D ok) =
+  _ , PE.refl , A , t , B , u , v , D , ok , PE.refl

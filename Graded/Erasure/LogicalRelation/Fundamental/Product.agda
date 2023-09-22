@@ -15,9 +15,9 @@ open import Tools.Sum using (_⊎_; inj₁; inj₂)
 module Graded.Erasure.LogicalRelation.Fundamental.Product
   {a k} {M : Set a}
   (open Definition.Untyped M)
-  (𝕄 : Modality M)
+  {𝕄 : Modality M}
   (open Modality 𝕄)
-  (TR : Type-restrictions M)
+  (TR : Type-restrictions 𝕄)
   (open Definition.Typed TR)
   (UR : Usage-restrictions M)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
@@ -60,11 +60,11 @@ open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Inversion 𝕄 UR
 open import Graded.Mode 𝕄
 
-open import Graded.Erasure.LogicalRelation 𝕄 TR is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Conversion 𝕄 TR is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Reduction 𝕄 TR is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Subsumption 𝕄 TR is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Irrelevance 𝕄 TR is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation TR is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation.Conversion TR is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation.Reduction TR is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation.Subsumption TR is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation.Irrelevance TR is-𝟘? ⊢Δ
 
 open import Graded.Erasure.Extraction 𝕄 is-𝟘?
 open import Graded.Erasure.Extraction.Properties 𝕄

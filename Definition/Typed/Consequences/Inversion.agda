@@ -2,16 +2,21 @@
 -- Inversion lemmata for the typing relation.
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.Typed.Consequences.Inversion
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
 
 open Type-restrictions R
 
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
+  hiding (_∷_) renaming (_[_,_] to _[_,_]₁₀)
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 
@@ -20,6 +25,8 @@ open import Definition.Typed.Consequences.Stability R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Consequences.Substitution R
 open import Definition.Typed.Consequences.Inequality R
+
+open import Graded.Derived.Erased.Untyped 𝕄 as Erased using (Erased)
 
 open import Tools.Fin
 open import Tools.Function
@@ -35,7 +42,7 @@ private
     p p′ q q′ r : M
     b : BinderMode
     m m′ : SigmaMode
-    A B C t u : Term _
+    A B C t u v w : Term _
 
 -- Inversion of U (it has no type).
 inversion-U : ∀ {C} → Γ ⊢ U ∷ C → ⊥
@@ -263,6 +270,125 @@ inversion-emptyrec (conv ⊢t x) =
   let q , w , e = inversion-emptyrec ⊢t
   in  q , w , trans (sym x) e
 
+opaque
+
+  -- Inversion for terms that are identity types.
+
+  inversion-Id-U :
+    Γ ⊢ Id A t u ∷ B →
+    Γ ⊢ A ∷ U × Γ ⊢ t ∷ A × Γ ⊢ u ∷ A × Γ ⊢ B ≡ U
+  inversion-Id-U = λ where
+    (Idⱼ ⊢A ⊢t ⊢u) → ⊢A , ⊢t , ⊢u , refl (Uⱼ (wfTerm ⊢A))
+    (conv ⊢Id C≡B) →
+      case inversion-Id-U ⊢Id of λ {
+        (⊢A , ⊢t , ⊢u , C≡U) →
+      ⊢A , ⊢t , ⊢u , trans (sym C≡B) C≡U }
+
+opaque
+
+  -- Inversion for identity types.
+
+  inversion-Id :
+    Γ ⊢ Id A t u →
+    (Γ ⊢ A) × Γ ⊢ t ∷ A × Γ ⊢ u ∷ A
+  inversion-Id = λ where
+    (Idⱼ ⊢t ⊢u) → syntacticTerm ⊢t , ⊢t , ⊢u
+    (univ ⊢Id)  →
+      case inversion-Id-U ⊢Id of λ {
+        (⊢A , ⊢t , ⊢u , _) →
+      univ ⊢A , ⊢t , ⊢u }
+
+opaque
+
+  -- Inversion for rfl.
+
+  inversion-rfl :
+    Γ ⊢ rfl ∷ A →
+    ∃₂ λ B t → (Γ ⊢ B) × Γ ⊢ t ∷ B × Γ ⊢ A ≡ Id B t t
+  inversion-rfl = λ where
+    ⊢rfl@(rflⱼ ⊢t)  →
+      _ , _ , syntacticTerm ⊢t , ⊢t , refl (syntacticTerm ⊢rfl)
+    (conv ⊢rfl C≡A) →
+      case inversion-rfl ⊢rfl of λ {
+        (_ , _ , ⊢B , ⊢t , C≡Id) →
+      _ , _ , ⊢B , ⊢t , trans (sym C≡A) C≡Id }
+
+opaque
+
+  -- A variant of the previous lemma.
+
+  inversion-rfl-Id : Γ ⊢ rfl ∷ Id A t u → Γ ⊢ t ≡ u ∷ A
+  inversion-rfl-Id ⊢rfl =
+    case inversion-rfl ⊢rfl of λ {
+      (_ , _ , _ , _ , Id≡Id) →
+    case Id-injectivity Id≡Id of λ {
+      (_ , t≡v , u≡v) →
+    trans t≡v (sym u≡v) }}
+
+opaque
+
+  -- Inversion for J.
+
+  inversion-J :
+    Γ ⊢ J p q A t B u v w ∷ C →
+    (Γ ⊢ A) ×
+    Γ ⊢ t ∷ A ×
+    (Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B) ×
+    Γ ⊢ u ∷ B [ t , rfl ]₁₀ ×
+    Γ ⊢ v ∷ A ×
+    Γ ⊢ w ∷ Id A t v ×
+    Γ ⊢ C ≡ B [ v , w ]₁₀
+  inversion-J = λ where
+    ⊢J@(Jⱼ ⊢A ⊢t ⊢B ⊢u ⊢v ⊢w) →
+      ⊢A , ⊢t , ⊢B , ⊢u , ⊢v , ⊢w , refl (syntacticTerm ⊢J)
+    (conv ⊢J D≡C) →
+      case inversion-J ⊢J of λ {
+        (⊢A , ⊢t , ⊢B , ⊢u , ⊢v , ⊢w , D≡B) →
+      ⊢A , ⊢t , ⊢B , ⊢u , ⊢v , ⊢w , trans (sym D≡C) D≡B }
+
+opaque
+
+  -- Inversion for K.
+
+  inversion-K :
+    Γ ⊢ K p A t B u v ∷ C →
+    (Γ ⊢ A) ×
+    Γ ⊢ t ∷ A ×
+    (Γ ∙ Id A t t ⊢ B) ×
+    Γ ⊢ u ∷ B [ rfl ]₀ ×
+    Γ ⊢ v ∷ Id A t t ×
+    K-allowed ×
+    Γ ⊢ C ≡ B [ v ]₀
+  inversion-K = λ where
+    ⊢K@(Kⱼ ⊢t ⊢B ⊢u ⊢v ok) →
+        syntacticTerm ⊢t , ⊢t , ⊢B , ⊢u , ⊢v , ok
+      , refl (syntacticTerm ⊢K)
+    (conv ⊢K D≡C) →
+      case inversion-K ⊢K of λ {
+        (⊢A , ⊢t , ⊢B , ⊢u , ⊢v , ok , D≡B) →
+      ⊢A , ⊢t , ⊢B , ⊢u , ⊢v , ok , trans (sym D≡C) D≡B }
+
+opaque
+
+  -- Inversion for []-cong.
+
+  inversion-[]-cong :
+    Γ ⊢ []-cong A t u v ∷ B →
+    (Γ ⊢ A) ×
+    Γ ⊢ t ∷ A ×
+    Γ ⊢ u ∷ A ×
+    Γ ⊢ v ∷ Id A t u ×
+    []-cong-allowed ×
+    Γ ⊢ B ≡ Id (Erased A) Erased.[ t ] Erased.[ u ]
+  inversion-[]-cong = λ where
+    ⊢[]-cong@([]-congⱼ ⊢t ⊢u ⊢v ok) →
+        syntacticTerm ⊢t , ⊢t , ⊢u , ⊢v , ok
+      , refl (syntacticTerm ⊢[]-cong)
+    (conv ⊢[]-cong C≡B) →
+      case inversion-[]-cong ⊢[]-cong of λ {
+        (⊢A , ⊢t , ⊢u , ⊢v , ok , C≡Id) →
+      ⊢A , ⊢t , ⊢u , ⊢v , ok , trans (sym C≡B) C≡Id }
+
 -- Inversion of products in WHNF.
 whnfProduct :
   ∀ {p F G m} →
@@ -285,3 +411,7 @@ whnfProduct x sucₙ =
   let _ , A≡ℕ = inversion-suc x
   in  ⊥-elim (ℕ≢Σ (sym A≡ℕ))
 whnfProduct x starₙ = ⊥-elim (Unit≢Σⱼ (sym (inversion-star x .proj₁)))
+whnfProduct ⊢∷Σ Idₙ =
+  ⊥-elim (U≢Σ (sym (inversion-Id-U ⊢∷Σ .proj₂ .proj₂ .proj₂)))
+whnfProduct ⊢∷Σ rflₙ =
+  ⊥-elim (Id≢Σ (sym (inversion-rfl ⊢∷Σ .proj₂ .proj₂ .proj₂ .proj₂)))

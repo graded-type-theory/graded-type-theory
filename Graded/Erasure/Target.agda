@@ -34,6 +34,7 @@ data Term : Nat → Set where
   suc     : (t : Term n) → Term n
   natrec  : (z : Term m) (s : Term (1+ (1+ m))) (n : Term m) → Term m
   star    : Term n
+  rfl     : Term n
   ↯       : Term n
 
 private
@@ -100,6 +101,7 @@ wk ρ (fst t) = fst (wk ρ t)
 wk ρ (snd t) = snd (wk ρ t)
 wk ρ (prodrec t u) = prodrec (wk ρ t) (wk (lift (lift ρ)) u)
 wk ρ star = star
+wk _ rfl = rfl
 wk ρ ↯ = ↯
 
 -- Shift all variables in a term up by one
@@ -175,6 +177,7 @@ zero         [ σ ] = zero
 suc t        [ σ ] = suc (t [ σ ])
 natrec z s n [ σ ] = natrec (z [ σ ]) (s [ liftSubstn σ 2 ]) (n [ σ ])
 star         [ σ ] = star
+rfl          [ _ ] = rfl
 ↯            [ σ ] = ↯
 
 -- Compose two substitutions.

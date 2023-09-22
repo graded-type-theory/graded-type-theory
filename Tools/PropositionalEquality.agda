@@ -17,7 +17,9 @@ open Eq using
   public
 
 private variable
-  a : Level
+  a                                   : Level
+  A B C D E F G                       : Set _
+  a₁ a₂ b₁ b₂ c₁ c₂ d₁ d₂ e₁ e₂ f₁ f₂ : A
 
 -- Non-dependent congruence rules.
 
@@ -30,6 +32,18 @@ cong₄ : ∀ {ℓ} {A B C D E : Set ℓ} {a a′ b b′ c c′ d d′}
         (f : A → B → C → D → E) → a ≡ a′ → b ≡ b′ → c ≡ c′ → d ≡ d′
       → f a b c d ≡ f a′ b′ c′ d′
 cong₄ f refl refl refl refl = refl
+
+cong₅ :
+  (f : A → B → C → D → E → F) →
+  a₁ ≡ a₂ → b₁ ≡ b₂ → c₁ ≡ c₂ → d₁ ≡ d₂ → e₁ ≡ e₂ →
+  f a₁ b₁ c₁ d₁ e₁ ≡ f a₂ b₂ c₂ d₂ e₂
+cong₅ f refl refl refl refl refl = refl
+
+cong₆ :
+  (f : A → B → C → D → E → F → G) →
+  a₁ ≡ a₂ → b₁ ≡ b₂ → c₁ ≡ c₂ → d₁ ≡ d₂ → e₁ ≡ e₂ → f₁ ≡ f₂ →
+  f a₁ b₁ c₁ d₁ e₁ f₁ ≡ f a₂ b₂ c₂ d₂ e₂ f₂
+cong₆ f refl refl refl refl refl refl = refl
 
 -- Substitution (type-cast).
 

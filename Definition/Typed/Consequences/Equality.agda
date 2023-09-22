@@ -2,34 +2,45 @@
 -- Equality lemmata.
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.Typed.Consequences.Equality
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
 
-open import Definition.Untyped M
+open import Definition.Untyped M hiding (_∷_)
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.EqRelInstance R
-open import Definition.Typed.Consequences.Inequality R
+open import Definition.Typed.Consequences.Inequality R as I
+open import Definition.Typed.Consequences.Inversion R
+open import Definition.Typed.Consequences.Syntactic R
+open import Definition.Typed.RedSteps R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Irrelevance R
+open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
 
+open import Tools.Empty
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 private
   variable
-    n     : Nat
-    Γ     : Con Term n
-    A F G : Term _
-    b     : BinderMode
-    p q   : M
+    n             : Nat
+    Γ             : Con Term n
+    A B F G t u v : Term _
+    b             : BinderMode
+    p q           : M
+    l             : TypeLevel
 
 U≡A′ : ∀ {A l} ([U] : Γ ⊩⟨ l ⟩U)
     → Γ ⊩⟨ l ⟩ U ≡ A / (U-intr [U])
@@ -155,3 +166,69 @@ B≡A {A} W W≡A whnfA | [W] , [A] , [W≡A] =
   ∃₂ λ H E → A PE.≡ ΠΣ⟨ b ⟩ p , q ▷ H ▹ E
 ΠΣ≡Whnf {b = BMΠ}   = Π≡A
 ΠΣ≡Whnf {b = BMΣ _} = Σ≡A
+
+opaque
+
+  -- If the WHNF B is judgmentally equal to Id A t u, then there are
+  -- A′, t′ and u′ such that B is propositionally equal to
+  -- Id A′ t′ u′.
+
+  Id≡Whnf :
+    Γ ⊢ Id A t u ≡ B → Whnf B →
+    ∃₃ λ A′ t′ u′ → B PE.≡ Id A′ t′ u′
+  Id≡Whnf {Γ} {A} {t} {u} {B} Id≡B B-whnf =
+    case reducibleEq Id≡B of λ {
+      (⊩Id , ⊩B , ⊩Id≡B) →
+      helper (Id-elim ⊩Id)
+        (irrelevanceEq ⊩Id (Id-intr (Id-elim ⊩Id)) ⊩Id≡B) }
+    where
+    helper :
+      (⊩Id : Γ ⊩⟨ l ⟩Id Id A t u) →
+      Γ ⊩⟨ l ⟩ Id A t u ≡ B / Id-intr ⊩Id →
+      ∃₃ λ A′ t′ u′ → B PE.≡ Id A′ t′ u′
+    helper (emb 0<1 ⊩Id) ⊩Id≡B = helper ⊩Id ⊩Id≡B
+    helper (noemb ⊩Id)   ⊩Id≡B =
+      _ , _ , _ , whnfRed* (red (_⊩ₗId_≡_/_.⇒*Id′ ⊩Id≡B)) B-whnf
+
+opaque
+
+  -- If t is definitionally equal to rfl, then t reduces to rfl.
+
+  rfl-norm : Γ ⊢ t ≡ rfl ∷ A → Γ ⊢ t ⇒* rfl ∷ A
+  rfl-norm {Γ} {t} t≡rfl =
+    case inversion-rfl (syntacticEqTerm t≡rfl .proj₂ .proj₂) of λ {
+      (_ , _ , _ , _ , A≡Id) →
+    case reducibleEqTerm (conv t≡rfl A≡Id) of λ {
+      (⊩Id , ⊩t≡rfl) →
+    conv*
+      (helper (Id-elim ⊩Id)
+         (irrelevanceEqTerm ⊩Id (Id-intr (Id-elim ⊩Id)) ⊩t≡rfl))
+      (sym A≡Id) }}
+    where
+    helper :
+      (⊩Id : Γ ⊩⟨ l ⟩Id Id B u v) →
+      Γ ⊩⟨ l ⟩ t ≡ rfl ∷ Id B u v / Id-intr ⊩Id →
+      Γ ⊢ t ⇒* rfl ∷ Id B u v
+    helper (emb 0<1 ⊩Id) ⊩t≡rfl =
+      helper ⊩Id ⊩t≡rfl
+    helper {B} {u} {v} (noemb ⊩Id) ⊩t≡rfl@(t′ , _ , t⇒*t′ , _) =
+      case PE.subst (_⊢_⇒*_∷_ _ _ _)
+             (PE.sym $ whnfRed* (red (_⊩ₗId_.⇒*Id ⊩Id)) Idₙ)
+             (redₜ t⇒*t′) of λ {
+        t⇒*t′ →
+      case ⊩Id≡∷-view-inhabited ⊩Id ⊩t≡rfl of λ where
+        (rfl₌ _)       → t⇒*t′
+        (ne t′-ne _ _) →           $⟨ t⇒*t′ ⟩
+          Γ ⊢ t ⇒* t′ ∷ Id B u v   →⟨ subset*Term ⟩
+          Γ ⊢ t ≡ t′ ∷ Id B u v    →⟨ trans (sym (escapeTermEq (Idᵣ ⊩Id) ⊩t≡rfl)) ⟩
+          Γ ⊢ rfl ≡ t′ ∷ Id B u v  →⟨ I.rfl≢ne t′-ne ⟩
+          ⊥                        →⟨ ⊥-elim ⟩
+          Γ ⊢ t ⇒* rfl ∷ Id B u v  □ }
+
+opaque
+
+  -- If the WHNF t is judgmentally equal to rfl, then t is
+  -- propositionally equal to rfl.
+
+  whnf≡rfl : Γ ⊢ t ≡ rfl ∷ A → Whnf t → t PE.≡ rfl
+  whnf≡rfl = whnfRed*Term ∘→ rfl-norm

@@ -3,10 +3,12 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
+open import Graded.Modality
 
 module Definition.Conversion.Conversion
   {a} {M : Set a}
-  (R : Type-restrictions M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
 
 open import Definition.Untyped M hiding (_∷_)
@@ -113,6 +115,19 @@ mutual
     let [t] = stabilityTerm Γ≡Δ [t]
         [u] = stabilityTerm Γ≡Δ [u]
     in  η-unit [t] [u] tUnit uUnit
+  convConv↓Term Γ≡Δ Id-A-t-u≡B B-whnf (Id-ins ⊢v₁ v₁~v₂) =
+    case Id≡Whnf Id-A-t-u≡B B-whnf of λ {
+      (_ , _ , _ , PE.refl) →
+    Id-ins (stabilityTerm Γ≡Δ (conv ⊢v₁ Id-A-t-u≡B))
+      (stability~↓ Γ≡Δ v₁~v₂) }
+  convConv↓Term Γ≡Δ Id-A-t-u≡B B-whnf (rfl-refl t≡u) =
+    case Id≡Whnf Id-A-t-u≡B B-whnf of λ {
+      (_ , _ , _ , PE.refl) →
+    case Id-injectivity Id-A-t-u≡B of λ {
+      (A≡A′ , t≡t′ , u≡u′) →
+    rfl-refl
+      (stabilityEqTerm Γ≡Δ $
+       conv (trans (sym t≡t′) (trans t≡u u≡u′)) A≡A′) }}
 
 -- Conversion of algorithmic equality with the same context.
 convConvTerm : ∀ {t u A B}
