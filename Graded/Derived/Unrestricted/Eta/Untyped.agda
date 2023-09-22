@@ -8,8 +8,6 @@ open import Graded.Modality
 module Graded.Derived.Unrestricted.Eta.Untyped
   {a} {M : Set a}
   (𝕄 : Modality M)
-  -- A quantity that stands for "an unlimited number of uses".
-  (ω : M)
   where
 
 open Modality 𝕄

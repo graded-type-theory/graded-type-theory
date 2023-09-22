@@ -40,6 +40,16 @@ private
 ·-monotone : p ≤ p′ → q ≤ q′ → p · q ≤ p′ · q′
 ·-monotone p≤p′ q≤q′ = ≤-trans (·-monotoneˡ p≤p′) (·-monotoneʳ q≤q′)
 
+-- Multiplication by ω (from the left) is decreasing.
+
+ω·-decreasing : ω · p ≤ p
+ω·-decreasing {p = p} = begin
+  ω · p  ≤⟨ ·-monotoneˡ ω≤𝟙 ⟩
+  𝟙 · p  ≡⟨ ·-identityˡ _ ⟩
+  p      ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
+
 -- If the function p ·_ is injective, then it is order-reflecting.
 
 ·-order-reflectingˡ :

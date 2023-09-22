@@ -27,14 +27,11 @@ record Semiring-with-meet : Set a where
 
 
   field
-    -- A semiring with meet consists of a type M with three binary operations...
-    _+_ : Op₂ M -- Addition
-    _·_ : Op₂ M -- Multiplication
-    _∧_ : Op₂ M -- Meet
-
-    -- ... and two special elements
-    𝟘 : M
-    𝟙 : M
+    -- A semiring with meet consists of a type M with three binary
+    -- operations (addition, multiplication and meet), and three
+    -- special elements.
+    _+_ _·_ _∧_ : Op₂ M
+    𝟘 𝟙 ω       : M
 
     -- + and · form a semiring with 𝟙 as multiplicative unit and 𝟘 as zero
     +-·-Semiring  : IsSemiring _+_ _·_ 𝟘 𝟙
@@ -53,6 +50,12 @@ record Semiring-with-meet : Set a where
   -- A strict variant of the ordering relation.
   _<_ : Rel M a
   p < q = p ≤ q × p ≢ q
+
+  field
+    -- The grade ω might stand for "an unlimited number of uses", but
+    -- the only requirement on ω is that it is bounded from above
+    -- by 𝟙, so it is fine to let ω be 𝟙.
+    ω≤𝟙 : ω ≤ 𝟙
 
   ·-distribˡ-∧ : _·_ DistributesOverˡ _∧_
   ·-distribˡ-∧ = proj₁ ·-distrib-∧

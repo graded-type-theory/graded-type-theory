@@ -8,18 +8,15 @@ open import Definition.Typed.Restrictions
 module Graded.Derived.Unrestricted.Eta.Typed
   {a} {M : Set a}
   (𝕄 : Modality M)
+  (open Modality 𝕄)
   (R : Type-restrictions M)
   (open Type-restrictions R)
-  -- A quantity that stands for "an unlimited number of uses".
-  (ω : M)
   -- The Unit type is assumed to be allowed.
   (Unit-ok : Unit-allowed)
   -- It is assumed that Σ-types with η-equality are allowed for the
   -- quantities ω and ω.
   (Σₚ-ok : Σₚ-allowed ω ω)
   where
-
-open Modality 𝕄
 
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Inequality R
@@ -30,7 +27,7 @@ open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
 
 open import Definition.Untyped M hiding (_∷_; _[_])
-open import Graded.Derived.Unrestricted.Eta.Untyped 𝕄 ω
+open import Graded.Derived.Unrestricted.Eta.Untyped 𝕄
 
 open import Tools.Empty
 open import Tools.Fin

@@ -99,7 +99,7 @@ Meet-requirements-required M refl refl 𝟘∧𝟙≢𝟘 ω≤ =
        𝟙 ∧ 𝟘  ≡⟨ 𝟙∧𝟘≡𝟘 ⟩
        𝟘      ∎))
   where
-  open Semiring-with-meet M hiding (𝟘; 𝟙)
+  open Semiring-with-meet M hiding (𝟘; 𝟙; ω)
   open Meet M
   open PartialOrder M
   open Tools.Reasoning.PropositionalEquality
@@ -424,6 +424,8 @@ zero-one-many-semiring-with-meet = record
   ; _∧_          = _∧_
   ; 𝟘            = 𝟘
   ; 𝟙            = 𝟙
+  ; ω            = ω
+  ; ω≤𝟙          = refl
   ; +-·-Semiring = record
     { isSemiringWithoutAnnihilatingZero = record
       { +-isCommutativeMonoid = record
@@ -735,7 +737,7 @@ Star-requirements-required′
       , ⊛-ineq₂ _ _ _
       , ⊛-ineq₂ _ _ _
   where
-  open Semiring-with-meet M hiding (𝟘; 𝟙; _+_; _·_; _∧_; _≤_)
+  open Semiring-with-meet M hiding (𝟘; 𝟙; ω; _+_; _·_; _∧_; _≤_)
   open PartialOrder M
   open Meet M
   open Tools.Reasoning.PartialOrder ≤-poset
@@ -1024,7 +1026,7 @@ zero-one-many-greatest-star = record
   semiring-with-meet = zero-one-many-semiring-with-meet
 
   open Semiring-with-meet semiring-with-meet
-    hiding (𝟘; 𝟙; _+_; _·_; _∧_; _≤_)
+    hiding (𝟘; 𝟙; ω; _+_; _·_; _∧_; _≤_)
   open PartialOrder semiring-with-meet
   open Addition semiring-with-meet
   open Meet semiring-with-meet
@@ -1362,7 +1364,7 @@ nr≡nr′ : ∀ p r → nr p r z s n ≡ nr′ p r z s n
 nr≡nr′ p r = lemma _ _ _ _ _ (nr′-view p r _ _ _)
   where
   open Semiring-with-meet zero-one-many-semiring-with-meet
-    hiding (𝟘; 𝟙; _+_; _·_; _∧_)
+    hiding (𝟘; 𝟙; ω; _+_; _·_; _∧_)
   open Tools.Reasoning.PropositionalEquality
 
   lemma :
@@ -1536,7 +1538,7 @@ zero-one-many-has-nr = record
   }
   where
   open Semiring-with-meet zero-one-many-semiring-with-meet
-    hiding (𝟘; 𝟙; _+_; _·_; _∧_; _≤_)
+    hiding (𝟘; 𝟙; ω; _+_; _·_; _∧_; _≤_)
   open Addition zero-one-many-semiring-with-meet
   open Meet zero-one-many-semiring-with-meet
   open Multiplication zero-one-many-semiring-with-meet

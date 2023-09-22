@@ -123,3 +123,9 @@ private
 ·ᶜ-increasing {γ = ε}     _            = ε
 ·ᶜ-increasing {γ = _ ∙ _} ·-increasing =
   ·ᶜ-increasing ·-increasing ∙ ·-increasing
+
+-- Multiplication by ω is decreasing.
+
+ω·ᶜ-decreasing : ω ·ᶜ γ ≤ᶜ γ
+ω·ᶜ-decreasing {γ = ε}     = ε
+ω·ᶜ-decreasing {γ = _ ∙ _} = ω·ᶜ-decreasing ∙ ω·-decreasing

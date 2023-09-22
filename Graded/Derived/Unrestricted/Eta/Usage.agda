@@ -10,12 +10,8 @@ module Graded.Derived.Unrestricted.Eta.Usage
   (𝕄 : Modality M)
   (open Modality 𝕄)
   (R : Usage-restrictions M)
-  -- A quantity that stands for "an unlimited number of uses".
-  (ω : M)
   -- The quantity ω is strictly below 𝟘.
   (ω<𝟘 : ω < 𝟘)
-  -- The quantity ω is bounded by 𝟙.
-  (ω≤𝟙 : ω ≤ 𝟙)
   where
 
 open import Graded.Context 𝕄
@@ -28,7 +24,7 @@ open import Graded.Usage.Properties 𝕄 R
 open import Graded.Mode 𝕄
 
 open import Definition.Untyped M
-open import Graded.Derived.Unrestricted.Eta.Untyped 𝕄 ω
+open import Graded.Derived.Unrestricted.Eta.Untyped 𝕄
 
 open import Tools.Function
 open import Tools.Product
@@ -46,7 +42,7 @@ private
   -- The quantity ω is a right identity for _ᵐ·_.
 
   ᵐ·-identityʳ′ : m ᵐ· ω ≡ m
-  ᵐ·-identityʳ′ = ≢𝟘→ᵐ·≡ (ω<𝟘 .proj₂)
+  ᵐ·-identityʳ′ = ≢𝟘→ᵐ·≡  (ω<𝟘 .proj₂)
 
   -- The quantity ω · p is bounded by 𝟘.
 

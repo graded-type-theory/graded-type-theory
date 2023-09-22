@@ -25,6 +25,7 @@ open import Tools.Function
 open import Tools.Product
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
+open import Tools.Relation
 
 private
   variable
@@ -82,6 +83,22 @@ private
   , (𝟘 ∧ 𝟙 ≡ 𝟘  →⟨ sym ⟩
      𝟘 ≤ 𝟙      →⟨ 𝟘≰𝟙 ⟩
      ⊥          □)
+
+-- 𝟘 is not less than or equal to ω.
+
+𝟘≰ω : ¬ 𝟘 ≤ ω
+𝟘≰ω =
+  𝟘 ≤ ω    →⟨ curry (𝟘≰𝟙 ∘→ uncurry ≤-trans) ⟩
+  ¬ ω ≤ 𝟙  →⟨ _$ ω≤𝟙 ⟩
+  ⊥        □
+
+-- The grade ω is not equal to 𝟘.
+
+ω≢𝟘 : ω ≢ 𝟘
+ω≢𝟘 =
+  ω ≡ 𝟘  →⟨ ≤-reflexive ∘→ sym ⟩
+  𝟘 ≤ ω  →⟨ 𝟘≰ω ⟩
+  ⊥      □
 
 -- If p ⊛ q ▷ r is equal to zero, then p is equal to zero.
 

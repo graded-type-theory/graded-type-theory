@@ -4,12 +4,12 @@
 
 -- These sets do not form modalities, but they satisfy quite a few
 -- related properties (given certain assumptions). The only property
--- that is missing is distributivity of multiplication over addition.
--- This property holds if equality is replaced by inequality in a
--- certain way, but if the definition of a modality is changed so that
--- only the weaker variant of distributivity from this module is
--- required, then it seems hard to prove the substitution lemma in
--- Graded.Substitution.Properties.
+-- that is missing (if ω is defined to be 𝟙) is distributivity of
+-- multiplication over addition. This property holds if equality is
+-- replaced by inequality in a certain way, but if the definition of a
+-- modality is changed so that only the weaker variant of
+-- distributivity from this module is required, then it seems hard to
+-- prove the substitution lemma in Graded.Substitution.Properties.
 
 module Graded.Modality.Instances.Set.Non-empty where
 
