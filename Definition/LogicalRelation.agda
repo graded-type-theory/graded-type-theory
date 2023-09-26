@@ -229,8 +229,10 @@ record _⊩Unit_≡_∷Unit (Γ : Con Term ℓ) (t u : Term ℓ) : Set a where
 -- Type levels
 
 data TypeLevel : Set where
-  ⁰ : TypeLevel
-  ¹ : TypeLevel
+  ⁰  : TypeLevel
+  ¹′ : (ℓ : TypeLevel) → ℓ PE.≡ ⁰ → TypeLevel
+
+pattern ¹ = ¹′ ⁰ PE.refl
 
 data _<_ : (i j : TypeLevel) → Set where
   0<1 : ⁰ < ¹
@@ -516,14 +518,8 @@ pattern Bᵣ′ W a b c d e f g h i j = Bᵣ W (Bᵣ a b c d e f g h i j)
 pattern Πᵣ′ a b c d e f g h i j = Bᵣ′ BΠ! a b c d e f g h i j
 pattern Σᵣ′ a b c d e f g h i j = Bᵣ′ BΣ! a b c d e f g h i j
 
-logRelRec : ∀ l {l′} → l′ < l → LogRelKit
-logRelRec ⁰ = λ ()
-logRelRec ¹ 0<1 = LogRel.kit ⁰ (λ ())
-
-kit : ∀ (i : TypeLevel) → LogRelKit
-kit l = LogRel.kit l (logRelRec l)
--- a bit of repetition in "kit ¹" definition, would work better with Fin 2 for
--- TypeLevel because you could recurse.
+kit : TypeLevel → LogRelKit
+kit ℓ = LogRel.kit ℓ (λ { 0<1 → kit ⁰ })
 
 _⊩′⟨_⟩U : (Γ : Con Term ℓ) (l : TypeLevel) → Set a
 Γ ⊩′⟨ l ⟩U = Γ ⊩U where open LogRelKit (kit l)
