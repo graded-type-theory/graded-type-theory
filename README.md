@@ -29,4 +29,4 @@ version of the code contains changes made after publication, see
 ### Dependencies ###
 
 This project is written in Agda.
-It has been tested to be working with Agda version 2.6.3 and its standard library version 1.7.2.
+It has been tested to be working with Agda version 2.6.4 and its standard library version 1.7.3.

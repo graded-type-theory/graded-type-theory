@@ -3,6 +3,8 @@
 -- Laws for weakenings and substitutions.
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 module Definition.Untyped.Properties {a} (M : Set a) where
 
 open import Definition.Untyped M
@@ -311,6 +313,28 @@ mutual
   substGen-wkGen (_∷_ {b = b} t ts) =
     cong₂ _∷_ (trans (subst-wk t) (subst-lifts-ₛ• b t)) (substGen-wkGen ts)
 
+opaque
+
+  -- Applying wk1Subst σ is the same thing as applying σ and then
+  -- weakening one step.
+
+  wk1Subst-wk1 : ∀ t → t [ wk1Subst σ ] ≡ wk1 (t [ σ ])
+  wk1Subst-wk1 {σ} t =
+    t [ wk1Subst σ ]    ≡⟨⟩
+    t [ step id •ₛ σ ]  ≡˘⟨ wk-subst t ⟩
+    wk1 (t [ σ ])       ∎
+
+opaque
+
+  -- Applying liftSubst σ to wk1 t amounts to the same thing as first
+  -- applying σ and then weakening the result one step.
+
+  wk1-liftSubst : ∀ t → wk1 t [ liftSubst σ ] ≡ wk1 (t [ σ ])
+  wk1-liftSubst {σ} t =
+    wk1 t [ liftSubst σ ]         ≡⟨ subst-wk t ⟩
+    t [ liftSubst σ ₛ• step id ]  ≡⟨⟩
+    t [ wk1Subst σ ]              ≡⟨ wk1Subst-wk1 t ⟩
+    wk1 (t [ σ ])                 ∎
 
 -- Composition of liftings is lifting of the composition.
 
