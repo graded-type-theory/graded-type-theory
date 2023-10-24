@@ -21,6 +21,7 @@ import Graded.Modality.Properties.Star as Star
 open import Graded.Modality.Variant lzero
 
 import Definition.Typed.Restrictions
+open import Definition.Untyped using (BMΣ; Σₚ)
 
 -- The modality has two grades, 𝟘 and 𝟙.
 
@@ -352,11 +353,10 @@ suitable-for-full-reduction :
 suitable-for-full-reduction R =
     record R
       { Unit-allowed = ⊥
-      ; ΠΣ-allowed   = λ b p q →
-          ΠΣ-allowed b p q × p ≢ 𝟘
+      ; ΠΣ-allowed   = λ b p q → ΠΣ-allowed b p q × (b ≡ BMΣ Σₚ → p ≡ 𝟙)
       }
   , (λ ())
-  , (λ _ (_ , 𝟘≢𝟘) → 𝟘≢𝟘 refl)
+  , (λ _ → (λ ()) ∘→ (_$ refl) ∘→ proj₂)
   where
   open Type-restrictions R
 

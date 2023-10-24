@@ -28,6 +28,7 @@ import Graded.Modality.Properties.PartialOrder
 open import Graded.Modality.Variant lzero
 
 import Definition.Typed.Restrictions
+open import Definition.Untyped using (BMΣ; Σₚ)
 
 -- The grades are the natural numbers extended with ∞.
 
@@ -609,9 +610,9 @@ suitable-for-full-reduction variant TRs =
     record TRs
       { ΠΣ-allowed = λ b m n →
           ΠΣ-allowed b m n ×
-          (m ≡ ⌞ 1 ⌟ ⊎ m ≡ ⌞ 0 ⌟ × T 𝟘ᵐ-allowed)
+          (b ≡ BMΣ Σₚ → m ≡ ⌞ 1 ⌟ ⊎ m ≡ ⌞ 0 ⌟ × T 𝟘ᵐ-allowed)
       }
-  , (λ _ _ (_ , ok) → ok)
+  , (λ _ _ → (_$ refl) ∘→ proj₂)
   where
   open Modality-variant variant
   open Type-restrictions TRs

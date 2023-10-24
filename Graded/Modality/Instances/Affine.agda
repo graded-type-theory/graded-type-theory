@@ -21,6 +21,7 @@ open import Graded.Modality Affine
 open import Graded.FullReduction.Assumptions
 
 open import Definition.Typed.Restrictions Affine
+open import Definition.Untyped
 
 open import Tools.Empty
 open import Tools.Function
@@ -344,10 +345,12 @@ suitable-for-full-reduction :
 suitable-for-full-reduction rs =
     record rs
       { ΠΣ-allowed = λ b p q →
-          ΠΣ-allowed b p q × T 𝟘ᵐ-allowed × p ≢ ω
+          ΠΣ-allowed b p q ×
+          (b ≡ BMΣ Σₚ × p ≡ 𝟘 → T 𝟘ᵐ-allowed) ×
+          ¬ (b ≡ BMΣ Σₚ × p ≡ ω)
       }
-  , (λ _ → proj₁ ∘→ proj₂)
-  , (λ _ → (_$ refl) ∘→ proj₂ ∘→ proj₂)
+  , (λ _ → (_$ (refl , refl)) ∘→ proj₁ ∘→ proj₂)
+  , (λ _ → (_$ (refl , refl)) ∘→ proj₂ ∘→ proj₂)
   where
   open Type-restrictions rs
 

@@ -233,9 +233,9 @@ suitable-for-full-reduction :
 suitable-for-full-reduction rs =
     record rs
       { ΠΣ-allowed = λ b p q →
-          ΠΣ-allowed b p q × T 𝟘ᵐ-allowed
+          ΠΣ-allowed b p q × (b ≡ BMΣ Σₚ × p ≡ 𝟘 → T 𝟘ᵐ-allowed)
       }
-  , (λ _ → proj₂)
+  , (λ _ → (_$ (PE.refl , PE.refl)) ∘→ proj₂)
   where
   open Type-restrictions rs
 

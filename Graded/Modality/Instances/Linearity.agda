@@ -23,6 +23,7 @@ open import Graded.FullReduction.Assumptions
 import Graded.Modality.Properties
 
 open import Definition.Typed.Restrictions Linearity
+open import Definition.Untyped using (BMΣ; Σₚ)
 
 open import Tools.Empty
 open import Tools.Function
@@ -99,12 +100,11 @@ suitable-for-full-reduction :
 suitable-for-full-reduction rs =
     record rs
       { Unit-allowed = ⊥
-      ; ΠΣ-allowed   = λ b p q →
-          ΠΣ-allowed b p q × p ≢ 𝟘 × p ≢ ω
+      ; ΠΣ-allowed   = λ b p q → ΠΣ-allowed b p q × (b ≡ BMΣ Σₚ → p ≡ 𝟙)
       }
   , idᶠ
-  , (λ _ → (_$ refl) ∘→ proj₁ ∘→ proj₂)
-  , (λ _ → (_$ refl) ∘→ proj₂ ∘→ proj₂)
+  , (λ _ → ((λ ()) ∘→ (_$ refl)) ∘→ proj₂)
+  , (λ _ → ((λ ()) ∘→ (_$ refl)) ∘→ proj₂)
   where
   open Type-restrictions rs
 

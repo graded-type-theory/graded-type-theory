@@ -21,6 +21,7 @@ import Graded.Modality.Properties.Star as Star
 open import Graded.Modality.Variant lzero
 
 import Definition.Typed.Restrictions
+open import Definition.Untyped
 
 -- Three information levels: low (public), medium (private), and high
 -- (more private).
@@ -755,13 +756,12 @@ suitable-for-full-reduction :
 suitable-for-full-reduction variant trs =
     record trs
       { ΠΣ-allowed = λ b p q →
-          ΠΣ-allowed b p q × p ≢ M × (T 𝟘ᵐ-allowed ⊎ p ≢ H)
+          ΠΣ-allowed b p q ×
+          ¬ (b ≡ BMΣ Σₚ × p ≡ M) ×
+          (b ≡ BMΣ Σₚ × p ≡ H → T 𝟘ᵐ-allowed)
       }
-  , (λ _ → (_$ refl) ∘→ proj₁ ∘→ proj₂)
-  , (λ _ →
-       (λ { (inj₁ ok)  → ok
-          ; (inj₂ H≢H) → ⊥-elim (H≢H refl)
-          }) ∘→ proj₂ ∘→ proj₂)
+  , (λ _ → (_$ (refl , refl)) ∘→ proj₁ ∘→ proj₂)
+  , (λ _ → (_$ (refl , refl)) ∘→ proj₂ ∘→ proj₂)
   where
   open Modality-variant variant
   open Type-restrictions trs
