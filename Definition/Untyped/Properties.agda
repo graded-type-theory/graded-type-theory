@@ -854,6 +854,36 @@ doubleSubstComp {n = n} A t u σ = begin
   varEq (x +1 +1) = trans (wk1-tail (wk1 (σ x)))
                           (trans (wk1-tail (σ x)) (subst-id (σ x)))
 
+opaque
+
+  -- One can fuse an application of _[_,_] and an application of _[_]
+  -- into an application of _[_].
+
+  [,]-[]-fusion :
+    ∀ t →
+    t [ u , v ] [ σ ] ≡
+    t [ consSubst (consSubst σ (u [ σ ])) (v [ σ ]) ]
+  [,]-[]-fusion {u} {v} {σ} t =
+    t [ u , v ] [ σ ]                                  ≡⟨ substCompEq t ⟩
+    t [ σ ₛ•ₛ consSubst (sgSubst u) v ]                ≡⟨ (flip substVar-to-subst t λ where
+                                                             x0        → refl
+                                                             (x0 +1)   → refl
+                                                             (_ +1 +1) → refl) ⟩
+    t [ consSubst (consSubst σ (u [ σ ])) (v [ σ ]) ]  ∎
+
+opaque
+
+  -- The function _[_,_] kind of commutes with _[_].
+
+  [,]-[]-commute :
+    ∀ t →
+    t [ u , v ] [ σ ] ≡
+    t [ liftSubstn σ 2 ] [ u [ σ ] , v [ σ ] ]
+  [,]-[]-commute {u} {v} {σ} t =
+    t [ u , v ] [ σ ]                                  ≡⟨ [,]-[]-fusion t ⟩
+    t [ consSubst (consSubst σ (u [ σ ])) (v [ σ ]) ]  ≡˘⟨ doubleSubstComp t _ _ _ ⟩
+    t [ liftSubstn σ 2 ] [ u [ σ ] , v [ σ ] ]         ∎
+
 -- There are no closed neutral terms
 
 noClosedNe : {t : Term 0} → Neutral t → ⊥
