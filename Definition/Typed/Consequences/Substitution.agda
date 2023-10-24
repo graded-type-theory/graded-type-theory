@@ -11,7 +11,8 @@ module Definition.Typed.Consequences.Substitution
 
 open Type-restrictions R
 
-open import Definition.Untyped M hiding (_∷_; wk)
+open import Definition.Untyped M
+  hiding (_∷_; wk) renaming (_[_,_] to _[_,_]₁₀)
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
@@ -32,6 +33,7 @@ private
   variable
     ℓ m n : Nat
     Γ : Con Term n
+    A B C C₁ C₂ t t₁ t₂ u u₁ u₂ : Term _
     σ σ′ : Subst m n
     ρ : Wk ℓ m
     p q : M
@@ -294,3 +296,24 @@ subst↑²TypeEq-prod {Γ = Γ} {F = F} {G} {A} {B} A≡B ok =
   where
   splitCon : ∀ {Γ : Con Term n} {F} → ⊢ (Γ ∙ F) → ⊢ Γ × Γ ⊢ F
   splitCon (x ∙ x₁) = x , x₁
+
+opaque
+
+  -- A variant of substType for _[_,_]₁₀.
+
+  substType₂ :
+    Γ ∙ A ∙ B ⊢ C → Γ ⊢ t ∷ A → Γ ⊢ u ∷ B [ t ]₀ → Γ ⊢ C [ t , u ]₁₀
+  substType₂ ⊢C ⊢t ⊢u =
+    substitution ⊢C (singleSubst ⊢t , ⊢u) (wfTerm ⊢t)
+
+opaque
+
+  -- A variant of substTypeEq for _[_,_]₁₀.
+
+  substTypeEq₂ :
+    Γ ∙ A ∙ B ⊢ C₁ ≡ C₂ →
+    Γ ⊢ t₁ ≡ t₂ ∷ A →
+    Γ ⊢ u₁ ≡ u₂ ∷ B [ t₁ ]₀ →
+    Γ ⊢ C₁ [ t₁ , u₁ ]₁₀ ≡ C₂ [ t₂ , u₂ ]₁₀
+  substTypeEq₂ C₁≡C₂ t₁≡t₂ u₁≡u₂ =
+    substitutionEq C₁≡C₂ (singleSubstEq t₁≡t₂ , u₁≡u₂) (wfEqTerm t₁≡t₂)

@@ -14,10 +14,13 @@ module Definition.LogicalRelation.Substitution.Introductions.DoubleSubst
 open EqRelSet {{...}}
 open Type-restrictions R
 
-open import Definition.Untyped M as U hiding (_∷_)
+open import Definition.Untyped M as U
+  hiding (_∷_) renaming (_[_,_] to _[_,_]₁₀)
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
+open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Irrelevance R
+open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.Substitution R
 import Definition.LogicalRelation.Substitution.Irrelevance R as IS
 open import Definition.LogicalRelation.Substitution.Introductions.Nat R
@@ -25,9 +28,11 @@ open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst R
 open import Definition.LogicalRelation.Substitution.Introductions.Prod R
 open import Definition.LogicalRelation.Substitution.Introductions.Pi R
 open import Definition.LogicalRelation.Substitution.Introductions.Var R
+open import Definition.LogicalRelation.Substitution.Properties R
 open import Definition.LogicalRelation.Substitution.Weakening R
 
 open import Tools.Fin
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -37,7 +42,139 @@ private
     n   : Nat
     Γ   : Con Term n
     p q : M
-    F G A B C t : Term n
+    F G A B B₁ B₂ C C₁ C₂ t t₁ t₂ u u₁ u₂ : Term n
+    l : TypeLevel
+    ⊩Γ : ⊩ᵛ _
+
+opaque
+
+  -- If C, t and u are valid, then C [ t , u ]₁₀ is valid.
+
+  substD :
+    {⊩A : Γ ⊩ᵛ⟨ l ⟩ A / ⊩Γ}
+    {⊩B : Γ ∙ A ⊩ᵛ⟨ l ⟩ B / ⊩Γ ∙ ⊩A}
+    (⊩t : Γ ⊩ᵛ⟨ l ⟩ t ∷ A / ⊩Γ / ⊩A)
+    (⊩B[t] : Γ ⊩ᵛ⟨ l ⟩ B [ t ]₀ / ⊩Γ) →
+    Γ ⊩ᵛ⟨ l ⟩ u ∷ B [ t ]₀ / ⊩Γ / ⊩B[t] →
+    Γ ∙ A ∙ B ⊩ᵛ⟨ l ⟩ C / ⊩Γ ∙ ⊩A ∙ ⊩B →
+    Γ ⊩ᵛ⟨ l ⟩ C [ t , u ]₁₀ / ⊩Γ
+  substD {B = B} {C = C} {⊩B = ⊩B} ⊩t ⊩B[t] ⊩u ⊩C = wrap λ _ ⊩σ →
+    let ⊩C[σ,t,u]₁ , ⊩C[σ,t,u]₂ =
+          ⊩C .unwrap
+            _
+            ( (⊩σ , ⊩t _ _ .proj₁)
+            , irrelevanceTerm′
+                (PE.sym (substConsId B))
+                (⊩B[t] .unwrap _ _ .proj₁)
+                (⊩B .unwrap _ _ .proj₁)
+                (⊩u _ ⊩σ .proj₁)
+            )
+    in
+    case irrelevance′ (PE.sym ([,]-[]-fusion C)) ⊩C[σ,t,u]₁ of λ {
+      ⊩C[t,u][σ] →
+      ⊩C[t,u][σ]
+    , λ {_} ⊩σ′ ⊩σ≡σ′ →
+        irrelevanceEq″
+          (PE.sym ([,]-[]-fusion C))
+          (PE.sym ([,]-[]-fusion C))
+          ⊩C[σ,t,u]₁
+          ⊩C[t,u][σ]
+          (⊩C[σ,t,u]₂
+             ( (⊩σ′ , ⊩t _ _ .proj₁)
+             , irrelevanceTerm′
+                 (PE.sym (substConsId B))
+                 (⊩B[t] .unwrap _ _ .proj₁)
+                 (⊩B .unwrap _ _ .proj₁)
+                 (⊩u _ ⊩σ′ .proj₁)
+             )
+             ( (⊩σ≡σ′ , ⊩t _ _ .proj₂ ⊩σ′ ⊩σ≡σ′)
+             , irrelevanceEqTerm′
+                 (PE.sym (substConsId B))
+                 (⊩B[t] .unwrap _ _ .proj₁)
+                 (⊩B .unwrap _ _ .proj₁)
+                 (⊩u _ _ .proj₂ ⊩σ′ ⊩σ≡σ′)
+             )) }
+
+opaque
+
+  -- A variant of substD for equality.
+
+  substDEq :
+    {A₁ A₂ : Term n}
+    {⊩A₁ : Γ ⊩ᵛ⟨ l ⟩ A₁ / ⊩Γ}
+    {⊩A₂ : Γ ⊩ᵛ⟨ l ⟩ A₂ / ⊩Γ}
+    {⊩B₁ : Γ ∙ A₁ ⊩ᵛ⟨ l ⟩ B₁ / ⊩Γ ∙ ⊩A₁}
+    {⊩B₂ : Γ ∙ A₂ ⊩ᵛ⟨ l ⟩ B₂ / ⊩Γ ∙ ⊩A₂}
+    {⊩t₁ : Γ ⊩ᵛ⟨ l ⟩ t₁ ∷ A₁ / ⊩Γ / ⊩A₁}
+    {⊩B₁[t₁] : Γ ⊩ᵛ⟨ l ⟩ B₁ [ t₁ ]₀ / ⊩Γ}
+    {⊩u₁ : Γ ⊩ᵛ⟨ l ⟩ u₁ ∷ B₁ [ t₁ ]₀ / ⊩Γ / ⊩B₁[t₁]}
+    {⊩C₁ : Γ ∙ A₁ ∙ B₁ ⊩ᵛ⟨ l ⟩ C₁ / ⊩Γ ∙ ⊩A₁ ∙ ⊩B₁} →
+    Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ / ⊩Γ / ⊩A₁ →
+    Γ ∙ A₁ ⊩ᵛ⟨ l ⟩ B₁ ≡ B₂ / ⊩Γ ∙ ⊩A₁ / ⊩B₁ →
+    (⊩t₂ : Γ ⊩ᵛ⟨ l ⟩ t₂ ∷ A₂ / ⊩Γ / ⊩A₂) →
+    Γ ⊩ᵛ⟨ l ⟩ t₁ ≡ t₂ ∷ A₁ / ⊩Γ / ⊩A₁ →
+    (⊩B₂[t₂] : Γ ⊩ᵛ⟨ l ⟩ B₂ [ t₂ ]₀ / ⊩Γ) →
+    Γ ⊩ᵛ⟨ l ⟩ u₂ ∷ B₂ [ t₂ ]₀ / ⊩Γ / ⊩B₂[t₂] →
+    Γ ⊩ᵛ⟨ l ⟩ u₁ ≡ u₂ ∷ B₁ [ t₁ ]₀ / ⊩Γ / ⊩B₁[t₁] →
+    (⊩C₁[t₁,u₁] : Γ ⊩ᵛ⟨ l ⟩ C₁ [ t₁ , u₁ ]₁₀ / ⊩Γ) →
+    Γ ∙ A₂ ∙ B₂ ⊩ᵛ⟨ l ⟩ C₂ / ⊩Γ ∙ ⊩A₂ ∙ ⊩B₂ →
+    Γ ∙ A₁ ∙ B₁ ⊩ᵛ⟨ l ⟩ C₁ ≡ C₂ / ⊩Γ ∙ ⊩A₁ ∙ ⊩B₁ / ⊩C₁ →
+    Γ ⊩ᵛ⟨ l ⟩ C₁ [ t₁ , u₁ ]₁₀ ≡ C₂ [ t₂ , u₂ ]₁₀ / ⊩Γ / ⊩C₁[t₁,u₁]
+  substDEq
+    {B₁ = B₁} {B₂ = B₂} {C₁ = C₁} {C₂ = C₂}
+    {⊩A₁ = ⊩A₁} {⊩A₂ = ⊩A₂} {⊩B₁ = ⊩B₁} {⊩B₂ = ⊩B₂} {⊩t₁ = ⊩t₁}
+    {⊩B₁[t₁] = ⊩B₁[t₁]} {⊩u₁ = ⊩u₁} {⊩C₁ = ⊩C₁}
+    ⊩A₁≡A₂ ⊩B₁≡B₂ ⊩t₂ ⊩t₁≡t₂ ⊩B₂[t₂] ⊩u₂ ⊩u₁≡u₂ ⊩C₁[t₁,u₁] ⊩C₂ ⊩C₁≡C₂
+    _ ⊩σ =
+    let ⊩C₁[σ,t₁,u₁]₁ , ⊩C₁[σ,t₁,u₁]₂ =
+          ⊩C₁ .unwrap _
+            ( (⊩σ , ⊩t₁ _ _ .proj₁)
+            , irrelevanceTerm′
+                (PE.sym (substConsId B₁))
+                (⊩B₁[t₁] .unwrap _ _ .proj₁)
+                (⊩B₁ .unwrap _ _ .proj₁)
+                (⊩u₁ _ ⊩σ .proj₁)
+            )
+    in
+    case convTerm₂
+           (⊩A₁ .unwrap _ ⊩σ .proj₁)
+           (⊩A₂ .unwrap _ ⊩σ .proj₁)
+           (⊩A₁≡A₂ _ _)
+           (⊩t₂ _ _ .proj₁) of λ {
+      ⊩t₂[σ] →
+    case convTerm₂′
+           (PE.sym (substConsId B₂))
+           (⊩B₁ .unwrap _ _ .proj₁)
+           (⊩B₂[t₂] .unwrap _ _ .proj₁)
+           (⊩B₁≡B₂ _ (_ , ⊩t₂[σ]))
+           (⊩u₂ _ ⊩σ .proj₁) of λ {
+      ⊩u₂[σ] →
+    irrelevanceEq″
+       (PE.sym ([,]-[]-fusion C₁))
+       (PE.sym ([,]-[]-fusion C₂))
+       ⊩C₁[σ,t₁,u₁]₁
+       (⊩C₁[t₁,u₁] .unwrap _ _ .proj₁) $
+    transEq
+       ⊩C₁[σ,t₁,u₁]₁
+       (⊩C₁ .unwrap _ (_ , ⊩u₂[σ]) .proj₁)
+       (⊩C₂ .unwrap _
+          ( (⊩σ , ⊩t₂ _ _ .proj₁)
+          , irrelevanceTerm′
+              (PE.sym (substConsId B₂))
+              (⊩B₂[t₂] .unwrap _ _ .proj₁)
+              (⊩B₂ .unwrap _ _ .proj₁)
+              (⊩u₂ _ ⊩σ .proj₁)
+          ) .proj₁)
+       (⊩C₁[σ,t₁,u₁]₂
+          (_ , ⊩u₂[σ])
+          ( (reflSubst _ _ ⊩σ , ⊩t₁≡t₂ _ _)
+          , irrelevanceEqTerm′
+              (PE.sym (substConsId B₁))
+              (⊩B₁[t₁] .unwrap _ _ .proj₁)
+              (⊩B₁ .unwrap _ _ .proj₁)
+              (⊩u₁≡u₂ _ ⊩σ)
+          ))
+       (⊩C₁≡C₂ _ _) }}
 
 private
   [suc] : ∀ {l}
