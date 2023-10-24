@@ -2,6 +2,8 @@
 -- Irrelevance lemmata for the logical relation
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
 
@@ -15,6 +17,7 @@ open EqRelSet {{...}}
 
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Typed R
+open import Definition.LogicalRelation R
 import Definition.LogicalRelation.Irrelevance R as LR
 open import Definition.LogicalRelation.Substitution R
 
@@ -28,7 +31,10 @@ private
   variable
     m n : Nat
     Γ : Con Term n
+    A A₁ A₂ A′ B₁ B₂ C t u : Term _
     σ : Subst m n
+    l l′ : TypeLevel
+    ⊩Γ ⊩Γ′ : ⊩ᵛ _
 
 -- Irrelevance of valid substitutions with different derivations of contexts
 irrelevanceSubst : ∀ {Γ Δ}
@@ -110,6 +116,49 @@ irrelevanceLift [Γ] [F] [H] [F≡H] [A] = wrap λ { ⊢Δ ([tailσ] , [headσ])
                                           (proj₁ (unwrap [H] ⊢Δ [tailσ]))
                                           ([F≡H] ⊢Δ [tailσ])
                                           (proj₂ x)))}
+
+opaque
+
+  -- A variant of irrelevanceLift.
+
+  irrelevanceLift₂ :
+    {⊩A₁ : Γ ⊩ᵛ⟨ l ⟩ A₁ / ⊩Γ}
+    {⊩A₂ : Γ ⊩ᵛ⟨ l ⟩ A₂ / ⊩Γ}
+    {⊩B₁ : Γ ∙ A₁ ⊩ᵛ⟨ l ⟩ B₁ / ⊩Γ ∙ ⊩A₁}
+    {⊩B₂ : Γ ∙ A₂ ⊩ᵛ⟨ l ⟩ B₂ / ⊩Γ ∙ ⊩A₂} →
+    Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ / ⊩Γ / ⊩A₁ →
+    Γ ∙ A₁ ⊩ᵛ⟨ l ⟩ B₁ ≡ B₂ / ⊩Γ ∙ ⊩A₁ / ⊩B₁ →
+    Γ ∙ A₁ ∙ B₁ ⊩ᵛ⟨ l ⟩ C / ⊩Γ ∙ ⊩A₁ ∙ ⊩B₁ →
+    Γ ∙ A₂ ∙ B₂ ⊩ᵛ⟨ l ⟩ C / ⊩Γ ∙ ⊩A₂ ∙ ⊩B₂
+  irrelevanceLift₂ {⊩A₁} {⊩A₂} {⊩B₁} {⊩B₂} ⊩A₁≡A₂ ⊩B₁≡B₂ ⊩C =
+    wrap λ _ ((⊩σ , ⊩t) , ⊩u) →
+    let ⊩C[σ,t,u]₁ , ⊩C[σ,t,u]₂ =
+          ⊩C .unwrap _
+            ( ( ⊩σ
+              , convTerm₂ (⊩A₁ .unwrap _ _ .proj₁)
+                  (⊩A₂ .unwrap _ _ .proj₁) (⊩A₁≡A₂ _ _) ⊩t
+              )
+            , convTerm₂ (⊩B₁ .unwrap _ _ .proj₁)
+                (⊩B₂ .unwrap _ _ .proj₁) (⊩B₁≡B₂ _ _) ⊩u
+            )
+    in
+      ⊩C[σ,t,u]₁
+    , λ ((⊩σ′ , ⊩t′) , ⊩u′) ((⊩σ≡σ′ , ⊩t≡t′) , ⊩u≡u′) →
+        ⊩C[σ,t,u]₂
+          ( ( ⊩σ′
+            , convTerm₂ (⊩A₁ .unwrap _ _ .proj₁)
+                (⊩A₂ .unwrap _ _ .proj₁) (⊩A₁≡A₂ _ _) ⊩t′
+            )
+          , convTerm₂ (⊩B₁ .unwrap _ _ .proj₁)
+              (⊩B₂ .unwrap _ _ .proj₁) (⊩B₁≡B₂ _ _) ⊩u′
+          )
+          ( ( ⊩σ≡σ′
+            , convEqTerm₂ (⊩A₁ .unwrap _ _ .proj₁)
+                (⊩A₂ .unwrap _ _ .proj₁) (⊩A₁≡A₂ _ _) ⊩t≡t′
+            )
+          , convEqTerm₂ (⊩B₁ .unwrap _ _ .proj₁)
+              (⊩B₂ .unwrap _ _ .proj₁) (⊩B₁≡B₂ _ _) ⊩u≡u′
+          )
 
 -- Irrelevance of valid type equality with different derivations of
 -- contexts and types
@@ -195,3 +244,17 @@ irrelevanceEqTerm {A = A} {t = t} {u = u} [Γ] [Γ]′ [A] [A]′ [t≡u] ⊢Δ 
   in  LR.irrelevanceEqTerm (proj₁ (unwrap [A] ⊢Δ [σ]′))
                            (proj₁ (unwrap [A]′ ⊢Δ [σ]))
                            ([t≡u] ⊢Δ [σ]′)
+
+opaque
+
+  -- A variant of irrelevanceEqTerm.
+
+  irrelevanceEqTerm′ :
+    ∀ t u →
+    A PE.≡ A′ →
+    (⊩A  : Γ ⊩ᵛ⟨ l  ⟩ A / ⊩Γ)
+    (⊩A′ : Γ ⊩ᵛ⟨ l′ ⟩ A′ / ⊩Γ′) →
+    Γ ⊩ᵛ⟨ l  ⟩ t ≡ u ∷ A / ⊩Γ  / ⊩A →
+    Γ ⊩ᵛ⟨ l′ ⟩ t ≡ u ∷ A′ / ⊩Γ′ / ⊩A′
+  irrelevanceEqTerm′ t u PE.refl =
+    irrelevanceEqTerm {t = t} {u = u} _ _
