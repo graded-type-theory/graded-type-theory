@@ -16,6 +16,7 @@ open import Definition.Typed.Weakening R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Consequences.Substitution R
 
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -24,6 +25,7 @@ private
   variable
     n : Nat
     Γ Δ : Con Term n
+    A t u : Term _
 
 -- Equality of contexts.
 data ⊢_≡_ : (Γ Δ : Con Term n) → Set a where
@@ -77,6 +79,17 @@ stabilityTerm Γ≡Δ t =
   let ⊢Γ , ⊢Δ , σ = contextConvSubst Γ≡Δ
       q = substitutionTerm t σ ⊢Δ
   in  PE.subst₂ (λ x y → _ ⊢ x ∷ y) (subst-id _) (subst-id _) q
+
+-- Stability of term equality.
+stabilityEqTerm : ⊢ Γ ≡ Δ → Γ ⊢ t ≡ u ∷ A → Δ ⊢ t ≡ u ∷ A
+stabilityEqTerm Γ≡Δ t≡u =
+  case contextConvSubst Γ≡Δ of λ {
+    (_ , ⊢Δ , ⊢id) →
+  PE.subst₃ (_ ⊢_≡_∷_)
+    (subst-id _)
+    (subst-id _)
+    (subst-id _)
+    (substitutionEqTerm t≡u (substRefl ⊢id) ⊢Δ) }
 
 -- Stability of term reduction.
 stabilityRedTerm : ∀ {t u A} → ⊢ Γ ≡ Δ → Γ ⊢ t ⇒ u ∷ A → Δ ⊢ t ⇒ u ∷ A
