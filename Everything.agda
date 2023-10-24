@@ -40,6 +40,8 @@ import Definition.Untyped.Properties
 -- Typing and conversion rules of language
 import Definition.Typed.Restrictions
 import Definition.Typed
+import Definition.Typed.Reasoning.Type
+import Definition.Typed.Reasoning.Term
 import Definition.Typed.Properties
 import Definition.Typed.Weakening
 import Definition.Typed.Reduction
@@ -108,6 +110,7 @@ import Definition.Typed.Consequences.Equality
 import Definition.Typed.Consequences.Substitution
 import Definition.Typed.Consequences.Inversion
 import Definition.Typed.Consequences.Reduction
+import Definition.Typed.Reasoning.Reduction
 import Definition.Typed.Consequences.Stability
 import Definition.Untyped.Sigma
 import Definition.Typed.Consequences.DerivedRules.Nat
