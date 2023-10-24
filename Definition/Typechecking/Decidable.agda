@@ -136,80 +136,64 @@ mutual
   -- Decidability of terms being checkable
 
   dec-Checkable : (t : Term n) → Dec (Checkable t)
-  dec-Checkable (var x) = yes (infᶜ varᵢ)
-  dec-Checkable U = yes (infᶜ Uᵢ)
-  dec-Checkable (ΠΣ⟨ b ⟩ p , q ▷ F ▹ G) = case dec-Checkable F of λ where
-    (yes F′) → case dec-Checkable G of λ where
-      (yes G′) → yes (infᶜ (ΠΣᵢ F′ G′))
-      (no ¬G′) → no λ where
-        (infᶜ (ΠΣᵢ x x₁)) → ¬G′ x₁
-    (no ¬F′) → no λ where
-      (infᶜ (ΠΣᵢ x x₁)) → ¬F′ x
-  dec-Checkable (lam p t) = case dec-Checkable t of λ where
-    (yes t′) → yes (lamᶜ t′)
-    (no ¬t′) → no λ where
-      (lamᶜ x) → ¬t′ x
-  dec-Checkable (t ∘⟨ p ⟩ u) = case dec-Inferable t of λ where
-    (yes t′) → case dec-Checkable u of λ where
-      (yes u′) → yes (infᶜ (∘ᵢ t′ u′))
-      (no ¬u′) → no λ where
-        (infᶜ (∘ᵢ x x₁)) → ¬u′ x₁
-    (no ¬t′) → no λ where
-      (infᶜ (∘ᵢ x x₁)) → ¬t′ x
-  dec-Checkable (prod! t u) = case dec-Checkable t of λ where
-    (yes t′) → case dec-Checkable u of λ where
-      (yes u′) → yes (prodᶜ t′ u′)
-      (no ¬u′) → no λ where
-        (prodᶜ x x₁) → ¬u′ x₁
-    (no ¬t′) → no λ where
-      (prodᶜ x x₁) → ¬t′ x
-  dec-Checkable (fst p t) = case dec-Inferable t of λ where
-    (yes t′) → yes (infᶜ (fstᵢ t′))
-    (no ¬t′) → no λ where
-      (infᶜ (fstᵢ t′)) → ¬t′ t′
-  dec-Checkable (snd p t) = case dec-Inferable t of λ where
-    (yes t′) → yes (infᶜ (sndᵢ t′))
-    (no ¬t′) → no λ where
-      (infᶜ (sndᵢ t′)) → ¬t′ t′
-  dec-Checkable (prodrec r p q A t u) = case dec-Checkable A of λ where
-    (yes A′) → case dec-Inferable t of λ where
-      (yes t′) → case dec-Checkable u of λ where
-        (yes u′) → yes (infᶜ (prodrecᵢ A′ t′ u′))
-        (no ¬u′) → no λ where
-          (infᶜ (prodrecᵢ x x₁ x₂)) → ¬u′ x₂
-      (no ¬t′) → no λ where
-        (infᶜ (prodrecᵢ x x₁ x₂)) → ¬t′ x₁
-    (no ¬A′) → no λ where
-      (infᶜ (prodrecᵢ x x₁ x₂)) → ¬A′ x
-  dec-Checkable ℕ = yes (infᶜ ℕᵢ)
-  dec-Checkable zero = yes (infᶜ zeroᵢ)
-  dec-Checkable (suc t) = case dec-Checkable t of λ where
-    (yes t′) → yes (infᶜ (sucᵢ t′))
-    (no ¬t′) → no λ where
-      (infᶜ (sucᵢ x)) → ¬t′ x
-  dec-Checkable (natrec p q r A z s n) = case dec-Checkable A of λ where
-    (yes A′) → case dec-Checkable z of λ where
-      (yes z′) → case dec-Checkable s of λ where
-        (yes s′) → case dec-Checkable n of λ where
-          (yes n′) → yes (infᶜ (natrecᵢ A′ z′ s′ n′))
-          (no ¬n′) → no λ where
-            (infᶜ (natrecᵢ x x₁ x₂ x₃)) → ¬n′ x₃
-        (no ¬s′) → no λ where
-          (infᶜ (natrecᵢ x x₁ x₂ x₃)) → ¬s′ x₂
-      (no ¬z′) → no λ where
-        (infᶜ (natrecᵢ x x₁ x₂ x₃)) → ¬z′ x₁
-    (no ¬A′) → no λ where
-      (infᶜ (natrecᵢ x x₁ x₂ x₃)) → ¬A′ x
-  dec-Checkable Unit = yes (infᶜ Unitᵢ)
-  dec-Checkable star = yes (infᶜ starᵢ)
-  dec-Checkable Empty = yes (infᶜ Emptyᵢ)
-  dec-Checkable (emptyrec p A t) = case dec-Checkable A of λ where
-    (yes A′) → case dec-Checkable t of λ where
-      (yes t′) → yes (infᶜ (emptyrecᵢ A′ t′))
-      (no ¬t′) → no λ where
-        (infᶜ (emptyrecᵢ x x₁)) → ¬t′ x₁
-    (no ¬A′) → no λ where
-      (infᶜ (emptyrecᵢ x x₁)) → ¬A′ x
+  dec-Checkable t = helper t (dec-Inferable t)
+    where
+    helper : (t : Term n) → Dec (Inferable t) → Dec (Checkable t)
+    helper (lam _ t) _ =
+      case dec-Checkable t of λ where
+        (no ¬t) → no λ { (lamᶜ t) → ¬t t }
+        (yes t) → yes (lamᶜ t)
+    helper (prod! t u) _ =
+      case dec-Checkable t of λ where
+        (no ¬t) → no λ { (prodᶜ t _) → ¬t t }
+        (yes t) → case dec-Checkable u of λ where
+          (no ¬u) → no λ { (prodᶜ _ u) → ¬u u }
+          (yes u) → yes (prodᶜ t u)
+    helper (var _) = λ where
+      (yes t) → yes (infᶜ t)
+      (no ¬t) → no λ { (infᶜ t) → ¬t t }
+    helper U = λ where
+      (yes t) → yes (infᶜ t)
+      (no ¬t) → no λ { (infᶜ t) → ¬t t }
+    helper (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = λ where
+      (yes t) → yes (infᶜ t)
+      (no ¬t) → no λ { (infᶜ t) → ¬t t }
+    helper (_ ∘⟨ _ ⟩ _) = λ where
+      (yes t) → yes (infᶜ t)
+      (no ¬t) → no λ { (infᶜ t) → ¬t t }
+    helper (fst _ _) = λ where
+      (yes t) → yes (infᶜ t)
+      (no ¬t) → no λ { (infᶜ t) → ¬t t }
+    helper (snd _ _) = λ where
+      (yes t) → yes (infᶜ t)
+      (no ¬t) → no λ { (infᶜ t) → ¬t t }
+    helper (prodrec _ _ _ _ _ _) = λ where
+      (yes t) → yes (infᶜ t)
+      (no ¬t) → no λ { (infᶜ t) → ¬t t }
+    helper ℕ = λ where
+      (yes t) → yes (infᶜ t)
+      (no ¬t) → no λ { (infᶜ t) → ¬t t }
+    helper zero = λ where
+      (yes t) → yes (infᶜ t)
+      (no ¬t) → no λ { (infᶜ t) → ¬t t }
+    helper (suc _) = λ where
+      (yes t) → yes (infᶜ t)
+      (no ¬t) → no λ { (infᶜ t) → ¬t t }
+    helper (natrec _ _ _ _ _ _ _) = λ where
+      (yes t) → yes (infᶜ t)
+      (no ¬t) → no λ { (infᶜ t) → ¬t t }
+    helper Unit = λ where
+      (yes t) → yes (infᶜ t)
+      (no ¬t) → no λ { (infᶜ t) → ¬t t }
+    helper star = λ where
+      (yes t) → yes (infᶜ t)
+      (no ¬t) → no λ { (infᶜ t) → ¬t t }
+    helper Empty = λ where
+      (yes t) → yes (infᶜ t)
+      (no ¬t) → no λ { (infᶜ t) → ¬t t }
+    helper (emptyrec _ _ _) = λ where
+      (yes t) → yes (infᶜ t)
+      (no ¬t) → no λ { (infᶜ t) → ¬t t }
 
 mutual
 
