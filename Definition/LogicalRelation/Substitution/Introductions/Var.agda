@@ -70,11 +70,13 @@ fundamentalVar (there {A = A} h) ([Γ] ∙ [B]) =
               irrelevanceEqTerm′ (PE.sym (subst-wk A)) [σA] [σA′]
                                  (proj₂ [h′] (proj₁ [σ′]) (proj₁ [σ≡σ′]))))
 
-varᵛ : ∀ {A x l}
-     → x ∷ A ∈ Γ
-     → ([Γ] : ⊩ᵛ Γ)
-     → ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ])
-     → Γ ⊩ᵛ⟨ l ⟩ var x ∷ A / [Γ] / [A]
-varᵛ d [Γ] [A] =
-  let [A]′ , [x] = fundamentalVar d [Γ]
-  in  IS.irrelevanceTerm [Γ] [Γ] [A]′ [A] [x]
+opaque
+
+  varᵛ : ∀ {A x l}
+       → x ∷ A ∈ Γ
+       → ([Γ] : ⊩ᵛ Γ)
+       → ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ])
+       → Γ ⊩ᵛ⟨ l ⟩ var x ∷ A / [Γ] / [A]
+  varᵛ d [Γ] [A] =
+    let [A]′ , [x] = fundamentalVar d [Γ]
+    in  IS.irrelevanceTerm [Γ] [Γ] [A]′ [A] [x]

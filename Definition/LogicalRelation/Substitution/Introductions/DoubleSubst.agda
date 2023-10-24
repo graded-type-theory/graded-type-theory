@@ -142,24 +142,30 @@ subst↑²S {A = A} {B = B} {t = t} [Γ] [F] [G] [A] [B] [t] = wrap λ {k} {Δ} 
                          {σ′ = σ′₊} [σ′₊] ([σ₋≡σ′₋] , [σt≡σ′t])
     in  irrelevanceEq″ (substComp↑² B t) (substComp↑² B t) [σB]′ [σB] [σB≡σ′B]
 
-subst↑²S-suc :
-  ∀ {Γ : Con Term n} {F l}
-  ([Γ] : ⊩ᵛ Γ)
-  ([F] : Γ ∙ ℕ ⊩ᵛ⟨ l ⟩ F / _∙_ {l = l} [Γ] (ℕᵛ [Γ])) →
-  Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ F [ suc (var x1) ]↑² / [Γ] ∙ ℕᵛ [Γ] ∙ [F]
-subst↑²S-suc {n} {Γ} {F} {l} [Γ] [F] =
-  let [ℕ] = ℕᵛ [Γ]
-  in  subst↑²S {t = suc (var x1)} [Γ] [ℕ] [F] [ℕ] [F] (λ {_} {_} {σ} → [suc] [Γ] [F] {σ = σ})
+opaque
+  unfolding wk1ᵛ
 
-subst↑²S-suc′ :
-  ∀ {Γ : Con Term n} {F G l}
-  ([Γ] : ⊩ᵛ Γ)
-  ([F] : Γ ∙ ℕ ⊩ᵛ⟨ l ⟩ F / _∙_ {l = l} [Γ] (ℕᵛ [Γ])) →
-  ([G] : Γ ∙ ℕ ⊩ᵛ⟨ l ⟩ G / _∙_ {l = l} [Γ] (ℕᵛ [Γ])) →
-  Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ G [ suc (var x1) ]↑² / [Γ] ∙ ℕᵛ [Γ] ∙ [F]
-subst↑²S-suc′ {n} {Γ} {F} {l} [Γ] [F] [G] =
-  let [ℕ] = ℕᵛ [Γ]
-  in  subst↑²S {t = suc (var x1)} [Γ] [ℕ] [F] [ℕ] [G] (λ {_} {_} {σ} → [suc] [Γ] [F] {σ = σ})
+  subst↑²S-suc :
+    ∀ {Γ : Con Term n} {F l}
+    ([Γ] : ⊩ᵛ Γ)
+    ([F] : Γ ∙ ℕ ⊩ᵛ⟨ l ⟩ F / _∙_ {l = l} [Γ] (ℕᵛ [Γ])) →
+    Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ F [ suc (var x1) ]↑² / [Γ] ∙ ℕᵛ [Γ] ∙ [F]
+  subst↑²S-suc {n} {Γ} {F} {l} [Γ] [F] =
+    let [ℕ] = ℕᵛ [Γ]
+    in  subst↑²S {t = suc (var x1)} [Γ] [ℕ] [F] [ℕ] [F] (λ {_} {_} {σ} → [suc] [Γ] [F] {σ = σ})
+
+opaque
+  unfolding wk1ᵛ
+
+  subst↑²S-suc′ :
+    ∀ {Γ : Con Term n} {F G l}
+    ([Γ] : ⊩ᵛ Γ)
+    ([F] : Γ ∙ ℕ ⊩ᵛ⟨ l ⟩ F / _∙_ {l = l} [Γ] (ℕᵛ [Γ])) →
+    ([G] : Γ ∙ ℕ ⊩ᵛ⟨ l ⟩ G / _∙_ {l = l} [Γ] (ℕᵛ [Γ])) →
+    Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ G [ suc (var x1) ]↑² / [Γ] ∙ ℕᵛ [Γ] ∙ [F]
+  subst↑²S-suc′ {n} {Γ} {F} {l} [Γ] [F] [G] =
+    let [ℕ] = ℕᵛ [Γ]
+    in  subst↑²S {t = suc (var x1)} [Γ] [ℕ] [F] [ℕ] [G] (λ {_} {_} {σ} → [suc] [Γ] [F] {σ = σ})
 
 
 subst↑²S-prod :
@@ -200,25 +206,31 @@ subst↑²SEq {Γ} {F} {G} {A} {B} {C} {t} [Γ] [F] [G] [A] [B] [C] [B≡C] [t] 
       [σB≡σC] = [B≡C] {σ = σ₊} ⊢Δ [σ₊]
   in  irrelevanceEq″ (substComp↑² B t) (substComp↑² C t) [σB] [σB↑²] [σB≡σC]
 
-subst↑²SEq-suc : ∀ {Γ : Con Term n} {F l}
-  ([Γ] : ⊩ᵛ Γ)
-  ([F] : Γ ∙ ℕ ⊩ᵛ⟨ l ⟩ F / _∙_ {l = l} [Γ] (ℕᵛ [Γ]))
-  ([G] : Γ ∙ ℕ ⊩ᵛ⟨ l ⟩ G / _∙_ {l = l} [Γ] (ℕᵛ [Γ]))
-  ([F≡G] : Γ ∙ ℕ ⊩ᵛ⟨ l ⟩ F ≡ G / _∙_ {l = l} [Γ] (ℕᵛ [Γ]) / [F]) →
-  Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ F [ suc (var x1) ]↑² ≡ G [ suc (var x1) ]↑² / [Γ] ∙ ℕᵛ [Γ] ∙ [F] / subst↑²S-suc [Γ] [F]
-subst↑²SEq-suc {l = l} [Γ] [F] [G] [F≡G] =
-  let [ℕ] = ℕᵛ [Γ]
-  in  subst↑²SEq [Γ] [ℕ] [F] [ℕ] [F] [G] [F≡G] (λ {_} {_} {σ} → [suc] [Γ] [F] {σ = σ})
+opaque
+  unfolding subst↑²S-suc
 
-subst↑²SEq-suc′ : ∀ {Γ : Con Term n} {F l}
-  ([Γ] : ⊩ᵛ Γ)
-  ([F] : Γ ∙ ℕ ⊩ᵛ⟨ l ⟩ F / _∙_ {l = l} [Γ] (ℕᵛ [Γ]))
-  ([G] : Γ ∙ ℕ ⊩ᵛ⟨ l ⟩ G / _∙_ {l = l} [Γ] (ℕᵛ [Γ]))
-  ([F≡G] : Γ ∙ ℕ ⊩ᵛ⟨ l ⟩ F ≡ G / _∙_ {l = l} [Γ] (ℕᵛ [Γ]) / [F]) →
-  Γ ∙ ℕ ∙ G ⊩ᵛ⟨ l ⟩ F [ suc (var x1) ]↑² ≡ G [ suc (var x1) ]↑² / [Γ] ∙ ℕᵛ [Γ] ∙ [G] / subst↑²S-suc′ [Γ] [G] [F]
-subst↑²SEq-suc′ {l = l} [Γ] [F] [G] [F≡G] =
-  let [ℕ] = ℕᵛ [Γ]
-  in  subst↑²SEq [Γ] [ℕ] [G] [ℕ] [F] [G] [F≡G] (λ {_} {_} {σ} → [suc] [Γ] [G] {σ = σ})
+  subst↑²SEq-suc : ∀ {Γ : Con Term n} {F l}
+    ([Γ] : ⊩ᵛ Γ)
+    ([F] : Γ ∙ ℕ ⊩ᵛ⟨ l ⟩ F / _∙_ {l = l} [Γ] (ℕᵛ [Γ]))
+    ([G] : Γ ∙ ℕ ⊩ᵛ⟨ l ⟩ G / _∙_ {l = l} [Γ] (ℕᵛ [Γ]))
+    ([F≡G] : Γ ∙ ℕ ⊩ᵛ⟨ l ⟩ F ≡ G / _∙_ {l = l} [Γ] (ℕᵛ [Γ]) / [F]) →
+    Γ ∙ ℕ ∙ F ⊩ᵛ⟨ l ⟩ F [ suc (var x1) ]↑² ≡ G [ suc (var x1) ]↑² / [Γ] ∙ ℕᵛ [Γ] ∙ [F] / subst↑²S-suc [Γ] [F]
+  subst↑²SEq-suc {l = l} [Γ] [F] [G] [F≡G] =
+    let [ℕ] = ℕᵛ [Γ]
+    in  subst↑²SEq [Γ] [ℕ] [F] [ℕ] [F] [G] [F≡G] (λ {_} {_} {σ} → [suc] [Γ] [F] {σ = σ})
+
+opaque
+  unfolding subst↑²S-suc′
+
+  subst↑²SEq-suc′ : ∀ {Γ : Con Term n} {F l}
+    ([Γ] : ⊩ᵛ Γ)
+    ([F] : Γ ∙ ℕ ⊩ᵛ⟨ l ⟩ F / _∙_ {l = l} [Γ] (ℕᵛ [Γ]))
+    ([G] : Γ ∙ ℕ ⊩ᵛ⟨ l ⟩ G / _∙_ {l = l} [Γ] (ℕᵛ [Γ]))
+    ([F≡G] : Γ ∙ ℕ ⊩ᵛ⟨ l ⟩ F ≡ G / _∙_ {l = l} [Γ] (ℕᵛ [Γ]) / [F]) →
+    Γ ∙ ℕ ∙ G ⊩ᵛ⟨ l ⟩ F [ suc (var x1) ]↑² ≡ G [ suc (var x1) ]↑² / [Γ] ∙ ℕᵛ [Γ] ∙ [G] / subst↑²S-suc′ [Γ] [G] [F]
+  subst↑²SEq-suc′ {l = l} [Γ] [F] [G] [F≡G] =
+    let [ℕ] = ℕᵛ [Γ]
+    in  subst↑²SEq [Γ] [ℕ] [G] [ℕ] [F] [G] [F≡G] (λ {_} {_} {σ} → [suc] [Γ] [G] {σ = σ})
 
 subst↑²SEq-prod :
   ∀ {Γ : Con Term n} {F G A A′ m l} →
