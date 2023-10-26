@@ -67,6 +67,14 @@ nrᶜ-positive {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} (p ∙ q) =
   γ ⟨ x ⟩ + δ ⟨ x ⟩ ≡ 𝟘      →⟨ +-positive ⟩
   γ ⟨ x ⟩ ≡ 𝟘 × δ ⟨ x ⟩ ≡ 𝟘  □
 
+-- If (γ ∧ᶜ δ) ⟨ x ⟩ is 𝟘, then γ ⟨ x ⟩ and δ ⟨ x ⟩ are both 𝟘.
+
+∧ᶜ-positive-⟨⟩ : ∀ γ → (γ ∧ᶜ δ) ⟨ x ⟩ ≡ 𝟘 → γ ⟨ x ⟩ ≡ 𝟘 × δ ⟨ x ⟩ ≡ 𝟘
+∧ᶜ-positive-⟨⟩ {δ = δ} {x = x} γ =
+  (γ ∧ᶜ δ) ⟨ x ⟩ ≡ 𝟘         ≡⟨ cong (_≡ _) (lookup-distrib-∧ᶜ γ _ _) ⟩→
+  γ ⟨ x ⟩ ∧ δ ⟨ x ⟩ ≡ 𝟘      →⟨ ∧-positive ⟩
+  γ ⟨ x ⟩ ≡ 𝟘 × δ ⟨ x ⟩ ≡ 𝟘  □
+
 -- If (p ·ᶜ γ) ⟨ x ⟩ is 𝟘, then p is 𝟘 or γ ⟨ x ⟩ is 𝟘.
 
 ·ᶜ-zero-product-⟨⟩ : ∀ γ → (p ·ᶜ γ) ⟨ x ⟩ ≡ 𝟘 → p ≡ 𝟘 ⊎ γ ⟨ x ⟩ ≡ 𝟘
