@@ -2,6 +2,8 @@
 -- Properties of the reduction relation.
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 open import Definition.Typed.Restrictions
 
 module Definition.Typed.Consequences.Reduction
@@ -18,10 +20,13 @@ open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
+open import Definition.LogicalRelation.ShapeView R
 
 open import Tools.Empty
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -30,7 +35,168 @@ private
   variable
     n : Nat
     Γ : Con Term n
+    A B t : Term _
     p q : M
+    l : TypeLevel
+    m : SigmaMode
+
+opaque
+
+  -- If the type of t is U, then t reduces to an application of a type
+  -- constructor or a neutral term.
+
+  red-U : Γ ⊢ t ∷ U → ∃ λ u → Type u × Γ ⊢ t :⇒*: u ∷ U
+  red-U {Γ} {t} ⊢t =
+    case reducibleTerm ⊢t of λ {
+      (⊩U , ⊩t) →
+    helper (U-elim ⊩U) (irrelevanceTerm ⊩U (U-intr (U-elim ⊩U)) ⊩t) }
+    where
+    helper :
+      (⊩U : Γ ⊩⟨ l ⟩U) →
+      Γ ⊩⟨ l ⟩ t ∷ U / U-intr ⊩U →
+      ∃ λ u → Type u × Γ ⊢ t :⇒*: u ∷ U
+    helper (emb 0<1 ⊩U) ⊩t =
+      helper ⊩U ⊩t
+    helper (noemb (Uᵣ _ _ _)) (Uₜ u t⇒*u u-type _ _) =
+      u , u-type , t⇒*u
+
+opaque
+
+  -- If the type of t is Empty, then t reduces to a neutral term.
+
+  red-Empty : Γ ⊢ t ∷ Empty → ∃ λ u → Neutral u × Γ ⊢ t :⇒*: u ∷ Empty
+  red-Empty {Γ} {t} ⊢t =
+    case reducibleTerm ⊢t of λ {
+      (⊩Empty′ , ⊩t) →
+    helper (Empty-elim ⊩Empty′)
+      (irrelevanceTerm ⊩Empty′ (Empty-intr (Empty-elim ⊩Empty′)) ⊩t) }
+    where
+    helper :
+      (⊩A : Γ ⊩⟨ l ⟩Empty A) →
+      Γ ⊩⟨ l ⟩ t ∷ A / Empty-intr ⊩A →
+      ∃ λ u → Neutral u × Γ ⊢ t :⇒*: u ∷ A
+    helper (emb 0<1 ⊩A) ⊩t =
+      helper ⊩A ⊩t
+    helper (noemb A⇒*Empty) (Emptyₜ u t⇒*u _ (ne (neNfₜ u-ne _ _))) =
+        u
+      , u-ne
+      , convRed:*: t⇒*u (sym (subset* (red A⇒*Empty)))
+
+opaque
+
+  -- If the type of t is Unit, then t reduces to star or a neutral
+  -- term.
+
+  red-Unit : Γ ⊢ t ∷ Unit → ∃ λ u → Star u × Γ ⊢ t :⇒*: u ∷ Unit
+  red-Unit {Γ} {t} ⊢t =
+    case reducibleTerm ⊢t of λ {
+      (⊩Unit′ , ⊩t) →
+    helper (Unit-elim ⊩Unit′)
+      (irrelevanceTerm ⊩Unit′ (Unit-intr (Unit-elim ⊩Unit′)) ⊩t) }
+    where
+    helper :
+      (⊩A : Γ ⊩⟨ l ⟩Unit A) →
+      Γ ⊩⟨ l ⟩ t ∷ A / Unit-intr ⊩A →
+      ∃ λ u → Star u × Γ ⊢ t :⇒*: u ∷ A
+    helper (emb 0<1 ⊩A) ⊩t =
+      helper ⊩A ⊩t
+    helper (noemb (Unitₜ A⇒*Unit _)) (Unitₜ u t⇒*u u-whnf) =
+        u
+      , (case u-whnf of λ where
+           starₙ     → starₙ
+           (ne u-ne) → ne u-ne
+           Uₙ        → ⊥-elim $ inversion-U (⊢u-redₜ t⇒*u)
+           ΠΣₙ       → ⊥-elim $ U≢Unitⱼ $ _⊢_≡_.sym $
+                       inversion-ΠΣ-U (⊢u-redₜ t⇒*u)
+                         .proj₂ .proj₂ .proj₁
+           ℕₙ        → ⊥-elim $ U≢Unitⱼ $ _⊢_≡_.sym $
+                       inversion-ℕ (⊢u-redₜ t⇒*u)
+           Unitₙ     → ⊥-elim $ U≢Unitⱼ $ _⊢_≡_.sym $
+                       inversion-Unit-U (⊢u-redₜ t⇒*u) .proj₁
+           Emptyₙ    → ⊥-elim $ U≢Unitⱼ $ _⊢_≡_.sym $
+                       inversion-Empty (⊢u-redₜ t⇒*u)
+           lamₙ      → ⊥-elim $ Unit≢ΠΣⱼ $
+                       inversion-lam (⊢u-redₜ t⇒*u)
+                         .proj₂ .proj₂ .proj₂ .proj₂ .proj₂ .proj₁
+           zeroₙ     → ⊥-elim $ ℕ≢Unitⱼ $ _⊢_≡_.sym $
+                       inversion-zero (⊢u-redₜ t⇒*u)
+           sucₙ      → ⊥-elim $ ℕ≢Unitⱼ $ _⊢_≡_.sym $
+                       inversion-suc (⊢u-redₜ t⇒*u) .proj₂
+           prodₙ     → ⊥-elim $ Unit≢ΠΣⱼ $
+                       inversion-prod (⊢u-redₜ t⇒*u)
+                         .proj₂ .proj₂ .proj₂ .proj₂ .proj₂ .proj₂
+                         .proj₂ .proj₁)
+      , convRed:*: t⇒*u (sym (subset* (red A⇒*Unit)))
+
+opaque
+
+  -- If the type of t is ℕ, then t reduces to zero, an application of
+  -- suc, or a neutral term.
+
+  red-ℕ : Γ ⊢ t ∷ ℕ → ∃ λ u → Natural u × Γ ⊢ t :⇒*: u ∷ ℕ
+  red-ℕ {Γ} {t} ⊢t =
+    case reducibleTerm ⊢t of λ {
+      (⊩ℕ′ , ⊩t) →
+    helper (ℕ-elim ⊩ℕ′) (irrelevanceTerm ⊩ℕ′ (ℕ-intr (ℕ-elim ⊩ℕ′)) ⊩t) }
+    where
+    helper :
+      (⊩A : Γ ⊩⟨ l ⟩ℕ A) →
+      Γ ⊩⟨ l ⟩ t ∷ A / ℕ-intr ⊩A →
+      ∃ λ u → Natural u × Γ ⊢ t :⇒*: u ∷ A
+    helper (emb 0<1 ⊩A) ⊩t =
+      helper ⊩A ⊩t
+    helper (noemb A⇒*ℕ) (ℕₜ u t⇒*u _ ok) =
+        u
+      , (case ok of λ where
+           zeroᵣ                 → zeroₙ
+           (sucᵣ _)              → sucₙ
+           (ne (neNfₜ u-ne _ _)) → ne u-ne)
+      , convRed:*: t⇒*u (sym (subset* (red A⇒*ℕ)))
+
+opaque
+
+  -- If t has a Π-type, then t reduces to a lambda or a neutral term.
+
+  red-Π :
+    Γ ⊢ t ∷ Π p , q ▷ A ▹ B →
+    ∃ λ u → Function u × Γ ⊢ t :⇒*: u ∷ Π p , q ▷ A ▹ B
+  red-Π {Γ} {t} {p} {q} ⊢t =
+    case reducibleTerm ⊢t of λ {
+      (⊩Π , ⊩t) →
+    helper (Π-elim ⊩Π)
+      (irrelevanceTerm ⊩Π (B-intr (BΠ p q) (Π-elim ⊩Π)) ⊩t) }
+    where
+    helper :
+      (⊩A : Γ ⊩⟨ l ⟩B⟨ BΠ p q ⟩ A) →
+      Γ ⊩⟨ l ⟩ t ∷ A / B-intr (BΠ p q) ⊩A →
+      ∃ λ u → Function u × Γ ⊢ t :⇒*: u ∷ A
+    helper (emb 0<1 ⊩A) ⊩t =
+      helper ⊩A ⊩t
+    helper (noemb (Bᵣ _ _ A⇒*Π _ _ _ _ _ _ _)) (u , t⇒*u , u-fun , _) =
+      u , u-fun , convRed:*: t⇒*u (sym (subset* (red A⇒*Π)))
+
+opaque
+
+  -- If t has a Σ-type, then t reduces to a pair or a neutral term.
+
+  red-Σ :
+    Γ ⊢ t ∷ Σ⟨ m ⟩ p , q ▷ A ▹ B →
+    ∃ λ u → Product u × Γ ⊢ t :⇒*: u ∷ Σ⟨ m ⟩ p , q ▷ A ▹ B
+  red-Σ {Γ} {t} {m} {p} {q} ⊢t =
+    case reducibleTerm ⊢t of λ {
+      (⊩Σ , ⊩t) →
+    helper (Σ-elim ⊩Σ)
+      (irrelevanceTerm ⊩Σ (B-intr (BΣ m p q) (Σ-elim ⊩Σ)) ⊩t) }
+    where
+    helper :
+      (⊩A : Γ ⊩⟨ l ⟩B⟨ BΣ m p q ⟩ A) →
+      Γ ⊩⟨ l ⟩ t ∷ A / B-intr (BΣ m p q) ⊩A →
+      ∃ λ u → Product u × Γ ⊢ t :⇒*: u ∷ A
+    helper (emb 0<1 ⊩A) ⊩t =
+      helper ⊩A ⊩t
+    helper
+      (noemb (Bᵣ _ _ A⇒*Σ _ _ _ _ _ _ _)) (u , t⇒*u , _ , u-prod , _) =
+      u , u-prod , convRed:*: t⇒*u (sym (subset* (red A⇒*Σ)))
 
 -- Helper function where all reducible types can be reduced to WHNF.
 whNorm′ : ∀ {A l} ([A] : Γ ⊩⟨ l ⟩ A)

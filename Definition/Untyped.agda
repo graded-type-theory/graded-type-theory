@@ -318,9 +318,14 @@ data Product {n : Nat} : Term n → Set a where
   prodₙ : ∀ {m} → Product (prod m p t u)
   ne    : Neutral t → Product t
 
+-- A WHNF of type Unit is either star or a neutral term.
 
--- These views classify only whnfs.
--- Natural, Type, Function and Product are a subsets of Whnf.
+data Star {n : Nat} : Term n → Set a where
+  starₙ : Star star
+  ne    : Neutral t → Star t
+
+-- These views classify only WHNFs: Natural, Type, Function, Product
+-- and Star are subsets of Whnf.
 
 naturalWhnf : Natural t → Whnf t
 naturalWhnf sucₙ   = sucₙ
@@ -341,6 +346,10 @@ functionWhnf (ne x) = ne x
 productWhnf : Product t → Whnf t
 productWhnf prodₙ  = prodₙ
 productWhnf (ne x) = ne x
+
+starWhnf : Star t → Whnf t
+starWhnf starₙ  = starₙ
+starWhnf (ne n) = ne n
 
 ⟦_⟧ₙ : (W : BindingType) → Whnf (⟦ W ⟧ F ▹ G)
 ⟦_⟧ₙ (BΠ p q) = ΠΣₙ
