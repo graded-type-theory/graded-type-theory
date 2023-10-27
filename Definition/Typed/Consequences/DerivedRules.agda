@@ -67,28 +67,13 @@ lam-cong {B = B} t≡u ok = η-eq ⊢A (lamⱼ ⊢A ⊢t ok) (lamⱼ ⊢A ⊢u o
   ⊢∙A∙A = ⊢∙A ∙ A⊢A
   A∙A⊢B = W.wk (lift (step id)) ⊢∙A∙A ⊢B
 
--- A variant of the inversion lemma for lam.
-
-inversion-lam′ :
-  Γ ⊢ lam p t ∷ Π q , r ▷ A ▹ B →
-  Γ ∙ A ⊢ t ∷ B × p PE.≡ q × Π-allowed q r
-inversion-lam′ ⊢lam =
-  case inversion-lam ⊢lam of λ {
-    (_ , _ , _ , _ , ⊢t , ≡ΠΣ , ok) →
-  case ΠΣ-injectivity ≡ΠΣ of λ {
-    (A≡ , B≡ , PE.refl , PE.refl , _) →
-  conv (S.stabilityTerm (S.reflConEq (wfTerm ⊢lam) S.∙ sym A≡) ⊢t)
-    (sym B≡) ,
-  PE.refl ,
-  ok }}
-
 -- A reduction rule for weakened lambdas applied to variable zero.
 
 wk1-lam∘0⇒ :
   Γ ⊢ lam p t ∷ Π q , r ▷ A ▹ B →
   Γ ∙ A ⊢ wk1 (lam p t) ∘⟨ p ⟩ var x0 ⇒ t ∷ B
 wk1-lam∘0⇒ {p = p} {t = t} ⊢lam =
-  case inversion-lam′ ⊢lam of λ {
+  case inversion-lam-Π ⊢lam of λ {
     (⊢t , PE.refl , ok) →
   let ⊢ΓA  = wfTerm ⊢t
       ΓA⊢A = case ⊢ΓA of λ {
@@ -136,7 +121,7 @@ lam-cong⁻¹
   ⊢ΓA    = ⊢Γ ∙ ⊢A
   ⊢lam-t = syntacticEqTerm lam-t≡lam-u .proj₂ .proj₁
   ⊢lam-u = syntacticEqTerm lam-t≡lam-u .proj₂ .proj₂
-  ok     = inversion-lam′ ⊢lam-t .proj₂ .proj₂
+  ok     = inversion-lam-Π ⊢lam-t .proj₂ .proj₂
 
 -- An injectivity lemma for lam.
 
@@ -148,9 +133,9 @@ lam-injective
   {A = A} {B = B} lam-t≡lam-u =
   case syntacticEqTerm lam-t≡lam-u of λ {
     (_ , ⊢lam₁ , ⊢lam₂) →
-  case inversion-lam′ ⊢lam₁ of λ {
+  case inversion-lam-Π ⊢lam₁ of λ {
     (_ , PE.refl , _) →
-  case inversion-lam′ ⊢lam₂ of λ {
+  case inversion-lam-Π ⊢lam₂ of λ {
     (_ , PE.refl , _) →
   case lam-cong⁻¹ lam-t≡lam-u of λ {
     (t≡u , ok) →

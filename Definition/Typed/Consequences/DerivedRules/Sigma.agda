@@ -74,24 +74,6 @@ private variable
   ⊢fst     = fstⱼ ⊢A ⊢B ⊢t
   ⊢snd     = sndⱼ ⊢A ⊢B ⊢t
 
--- A variant of the inversion lemma for prod.
-
-inversion-prod′ :
-  Γ ⊢ prod s p t u ∷ Σ⟨ s′ ⟩ q , r ▷ A ▹ B →
-  (Γ ∙ A ⊢ B) × Γ ⊢ t ∷ A × Γ ⊢ u ∷ B [ t ]₀ ×
-  s PE.≡ s′ × p PE.≡ q × Σ-allowed s q r
-inversion-prod′ ⊢prod =
-  case inversion-prod ⊢prod of λ {
-    (_ , _ , _ , _ , _ , ⊢t , ⊢u , ≡Σ , ok) →
-  case ΠΣ-injectivity ≡Σ of λ {
-    (A≡ , B≡ , PE.refl , PE.refl , PE.refl) →
-  case conv ⊢t (sym A≡) of λ {
-    ⊢t →
-  syntacticEq B≡ .proj₁ ,
-  ⊢t ,
-  conv ⊢u (substTypeEq (sym B≡) (refl ⊢t)) ,
-  PE.refl , PE.refl , ok }}}
-
 -- An "inverse" of prod-cong for Σₚ.
 
 prod-cong⁻¹-Σₚ :
@@ -108,11 +90,11 @@ prod-cong⁻¹-Σₚ
   ⊢B   = inversion-ΠΣ ⊢ΣAB .proj₂ .proj₁
   ok   = inversion-ΠΣ ⊢ΣAB .proj₂ .proj₂
   ⊢t,u = syntacticEqTerm prod≡prod .proj₂ .proj₁
-  ⊢t   = inversion-prod′ ⊢t,u .proj₂ .proj₁
-  ⊢u   = inversion-prod′ ⊢t,u .proj₂ .proj₂ .proj₁
+  ⊢t   = inversion-prod-Σ ⊢t,u .proj₁
+  ⊢u   = inversion-prod-Σ ⊢t,u .proj₂ .proj₁
   ⊢v,w = syntacticEqTerm prod≡prod .proj₂ .proj₂
-  ⊢v   = inversion-prod′ ⊢v,w .proj₂ .proj₁
-  ⊢w   = inversion-prod′ ⊢v,w .proj₂ .proj₂ .proj₁
+  ⊢v   = inversion-prod-Σ ⊢v,w .proj₁
+  ⊢w   = inversion-prod-Σ ⊢v,w .proj₂ .proj₁
 
   fst-t,u≡t = Σ-β₁ ⊢A ⊢B ⊢t ⊢u PE.refl ok
 
@@ -876,11 +858,11 @@ prod-cong⁻¹-Σᵣ
   ⊢B   = inversion-ΠΣ ⊢ΣAB .proj₂ .proj₁
   ok   = inversion-ΠΣ ⊢ΣAB .proj₂ .proj₂
   ⊢t,u = syntacticEqTerm prod≡prod .proj₂ .proj₁
-  ⊢t   = inversion-prod′ ⊢t,u .proj₂ .proj₁
-  ⊢u   = inversion-prod′ ⊢t,u .proj₂ .proj₂ .proj₁
+  ⊢t   = inversion-prod-Σ ⊢t,u .proj₁
+  ⊢u   = inversion-prod-Σ ⊢t,u .proj₂ .proj₁
   ⊢v,w = syntacticEqTerm prod≡prod .proj₂ .proj₂
-  ⊢v   = inversion-prod′ ⊢v,w .proj₂ .proj₁
-  ⊢w   = inversion-prod′ ⊢v,w .proj₂ .proj₂ .proj₁
+  ⊢v   = inversion-prod-Σ ⊢v,w .proj₁
+  ⊢w   = inversion-prod-Σ ⊢v,w .proj₂ .proj₁
 
   open Fstᵣ-sndᵣ p p
 

@@ -15,6 +15,8 @@ open import Definition.Untyped M hiding (_∷_)
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 
+open import Definition.Typed.Consequences.Injectivity R
+open import Definition.Typed.Consequences.Stability R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Consequences.Substitution R
 open import Definition.Typed.Consequences.Inequality R
@@ -23,6 +25,7 @@ open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
+import Tools.PropositionalEquality as PE
 open import Tools.Empty using (⊥; ⊥-elim)
 
 private
@@ -31,7 +34,8 @@ private
     Γ : Con Term n
     p p′ q q′ r : M
     b : BinderMode
-    A B C t : Term _
+    m m′ : SigmaMode
+    A B C t u : Term _
 
 -- Inversion of U (it has no type).
 inversion-U : ∀ {C} → Γ ⊢ U ∷ C → ⊥
@@ -150,6 +154,23 @@ inversion-lam (conv x x₁) =
   let a , b , c , d , e , f , g = inversion-lam x
   in  a , b , c , d , e , trans (sym x₁) f , g
 
+opaque
+
+  -- A variant of the previous lemma.
+
+  inversion-lam-Π :
+    Γ ⊢ lam p′ t ∷ Π p , q ▷ A ▹ B →
+    Γ ∙ A ⊢ t ∷ B × p PE.≡ p′ × Π-allowed p q
+  inversion-lam-Π ⊢lam =
+    case inversion-lam ⊢lam of λ {
+      (_ , _ , _ , _ , ⊢t , Π≡Π , ok) →
+    case ΠΣ-injectivity Π≡Π of λ {
+      (A≡A′ , B≡B′ , PE.refl , PE.refl , _) →
+      conv (stabilityTerm (reflConEq (wfTerm ⊢lam) ∙ sym A≡A′) ⊢t)
+        (sym B≡B′)
+    , PE.refl
+    , ok }}
+
 -- Inversion of products.
 inversion-prod :
   ∀ {t u A m} →
@@ -167,6 +188,27 @@ inversion-prod (prodⱼ ⊢F ⊢G ⊢t ⊢u ok) =
 inversion-prod (conv x x₁) =
   let F , G , q , a , b , c , d , e , ok = inversion-prod x
   in F , G , q , a , b , c , d , trans (sym x₁) e , ok
+
+opaque
+
+  -- A variant of the previous lemma.
+
+  inversion-prod-Σ :
+    Γ ⊢ prod m′ p′ t u ∷ Σ⟨ m ⟩ p , q ▷ A ▹ B →
+    Γ ⊢ t ∷ A × Γ ⊢ u ∷ B [ t ]₀ ×
+    m PE.≡ m′ × p PE.≡ p′ × Σ-allowed m p q
+  inversion-prod-Σ ⊢prod =
+    case inversion-prod ⊢prod of λ {
+      (_ , _ , _ , _ , _ , ⊢t , ⊢u , Σ≡Σ , ok) →
+    case ΠΣ-injectivity Σ≡Σ of λ {
+      (A≡A′ , B≡B′ , PE.refl , PE.refl , PE.refl) →
+    case conv ⊢t (sym A≡A′) of λ {
+      ⊢t →
+      ⊢t
+    , conv ⊢u (sym (substTypeEq B≡B′ (refl ⊢t)))
+    , PE.refl
+    , PE.refl
+    , ok }}}
 
 -- Inversion of projections
 inversion-fst : ∀ {t A} → Γ ⊢ fst p t ∷ A →
