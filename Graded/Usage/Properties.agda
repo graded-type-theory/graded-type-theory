@@ -71,6 +71,19 @@ var-usage-lookup : x ◂ p ∈ γ → γ ⟨ x ⟩ ≡ p
 var-usage-lookup here = PE.refl
 var-usage-lookup (there x) = var-usage-lookup x
 
+-- An alternative characterisation of _◂_∈_.
+
+◂∈⇔ : x ◂ p ∈ γ ⇔ γ ⟨ x ⟩ ≡ p
+◂∈⇔ = to , from
+  where
+  to : x ◂ p ∈ γ → γ ⟨ x ⟩ ≡ p
+  to here      = refl
+  to (there q) = to q
+
+  from : γ ⟨ x ⟩ ≡ p → x ◂ p ∈ γ
+  from {γ = _ ∙ _} {x = x0}   refl = here
+  from {γ = _ ∙ _} {x = _ +1} eq   = there (from eq)
+
 ------------------------------------------------------------------------
 -- Replacing one usage mode with another
 
@@ -958,22 +971,6 @@ Conₘ-interchange
 
 Conₘ-interchange starₘ starₘ x =
   subst (_▸[ _ ] _) (PE.sym (update-self 𝟘ᶜ x)) starₘ
-
-------------------------------------------------------------------------
--- A lemma related to _◂_∈_
-
--- An alternative characterisation of _◂_∈_.
-
-◂∈⇔ : x ◂ p ∈ γ ⇔ γ ⟨ x ⟩ ≡ p
-◂∈⇔ = to , from
-  where
-  to : x ◂ p ∈ γ → γ ⟨ x ⟩ ≡ p
-  to here      = refl
-  to (there q) = to q
-
-  from : γ ⟨ x ⟩ ≡ p → x ◂ p ∈ γ
-  from {γ = _ ∙ _} {x = x0}   refl = here
-  from {γ = _ ∙ _} {x = _ +1} eq   = there (from eq)
 
 ------------------------------------------------------------------------
 -- A lemma related to natrec
