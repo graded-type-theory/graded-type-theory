@@ -16,7 +16,7 @@ module Graded.Erasure.LogicalRelation.Fundamental.Counterexample
   (open Modality 𝕄)
   (TR : Type-restrictions M)
   (UR : Usage-restrictions M)
-  (𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet)
+  ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
   {{eqrel : EqRelSet TR}}
   where
 
@@ -26,10 +26,7 @@ open Usage-restrictions UR
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Modality.Properties.Has-well-behaved-zero
-  semiring-with-meet 𝟘-well-behaved
-open import Graded.Modality.Properties.PartialOrder
-  semiring-with-meet
+open import Graded.Modality.Properties 𝕄
 open import Graded.Usage 𝕄 UR
 open import Graded.Mode 𝕄
 

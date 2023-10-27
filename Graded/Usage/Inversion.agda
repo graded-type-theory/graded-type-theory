@@ -257,7 +257,7 @@ data InvUsageNatrec′ (p r : M) (γ δ η : Conₘ n) : Conₘ n → Set a wher
     χ ≤ᶜ γ →
     (T 𝟘ᵐ-allowed →
      χ ≤ᶜ δ) →
-    (Has-well-behaved-zero semiring-with-meet →
+    (⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
      χ ≤ᶜ η) →
     χ ≤ᶜ δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ →
     InvUsageNatrec′ p r γ δ η χ

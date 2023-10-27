@@ -433,24 +433,26 @@ _≟_ = λ where
   +-distrib-∧ =
     +-distribˡ-∧ , comm+distrˡ⇒distrʳ +-comm +-distribˡ-∧
 
--- The semiring has a well-behaved zero.
+instance
 
-ℕ⊎∞-has-well-behaved-zero :
-  Has-well-behaved-zero ℕ⊎∞-semiring-with-meet
-ℕ⊎∞-has-well-behaved-zero = record
-  { 𝟙≢𝟘          = λ ()
-  ; is-𝟘?        = _≟ ⌞ 0 ⌟
-  ; zero-product = λ where
-      {p = ⌞ 0 ⌟} {q = ⌞ _ ⌟} _ → inj₁ refl
-      {p = ⌞ 0 ⌟} {q = ∞}     _ → inj₁ refl
-      {p = ⌞ _ ⌟} {q = ⌞ 0 ⌟} _ → inj₂ refl
-      {p = ∞}     {q = ⌞ 0 ⌟} _ → inj₂ refl
-  ; +-positiveˡ  = λ where
-      {p = ⌞ 0 ⌟} {q = ⌞ _ ⌟} _ → refl
-  ; ∧-positiveˡ  = λ where
-      {p = ⌞ 0 ⌟}    {q = ⌞ _ ⌟} _  → refl
-      {p = ⌞ 1+ _ ⌟} {q = ⌞ 0 ⌟} ()
-  }
+  -- The semiring has a well-behaved zero.
+
+  ℕ⊎∞-has-well-behaved-zero :
+    Has-well-behaved-zero ℕ⊎∞-semiring-with-meet
+  ℕ⊎∞-has-well-behaved-zero = record
+    { 𝟙≢𝟘          = λ ()
+    ; is-𝟘?        = _≟ ⌞ 0 ⌟
+    ; zero-product = λ where
+        {p = ⌞ 0 ⌟} {q = ⌞ _ ⌟} _ → inj₁ refl
+        {p = ⌞ 0 ⌟} {q = ∞}     _ → inj₁ refl
+        {p = ⌞ _ ⌟} {q = ⌞ 0 ⌟} _ → inj₂ refl
+        {p = ∞}     {q = ⌞ 0 ⌟} _ → inj₂ refl
+    ; +-positiveˡ  = λ where
+        {p = ⌞ 0 ⌟} {q = ⌞ _ ⌟} _ → refl
+    ; ∧-positiveˡ  = λ where
+        {p = ⌞ 0 ⌟}    {q = ⌞ _ ⌟} _  → refl
+        {p = ⌞ 1+ _ ⌟} {q = ⌞ 0 ⌟} ()
+    }
 
 private
   module BS =

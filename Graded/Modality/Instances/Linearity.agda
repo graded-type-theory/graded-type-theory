@@ -70,10 +70,14 @@ incomparable _ =
     (𝟘 , 𝟙 , 𝟘 , 𝟘 , 𝟙 , (λ ()))
   , (𝟘 , 𝟙 , 𝟙 , 𝟘 , 𝟙 , (λ ()))
 
--- The "linear types" modality has a well-behaved zero.
+instance
 
-linearity-has-well-behaved-zero : Has-well-behaved-zero (Modality.semiring-with-meet linearityModality)
-linearity-has-well-behaved-zero = zero-one-many-has-well-behaved-zero
+  -- The "linear types" modality has a well-behaved zero.
+
+  linearity-has-well-behaved-zero :
+    Has-well-behaved-zero
+      (Modality.semiring-with-meet linearityModality)
+  linearity-has-well-behaved-zero = zero-one-many-has-well-behaved-zero
 
 open Graded.Modality.Properties linearityModality
 

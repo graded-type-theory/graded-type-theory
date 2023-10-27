@@ -9,7 +9,7 @@ module Graded.Modality.Properties.Has-well-behaved-zero
   (open Graded.Modality M)
   (𝕄 : Semiring-with-meet)
   (open Semiring-with-meet 𝕄)
-  (𝟘-well-behaved : Has-well-behaved-zero 𝕄)
+  ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄
   where
 
 

@@ -439,7 +439,7 @@ wf-tailSubstₘ Ψ▶σ x =
   Ψ ▶[ ⌞ p ·ᶜ γ ⌟ᶜ ] σ →
   (p ≡ 𝟘 × T 𝟘ᵐ-allowed) ⊎ (Ψ ▶[ ⌞ γ ⌟ᶜ ] σ)
 ▶-⌞·⌟ {p = p} {σ = σ} Ψ γ Ψ▶ = 𝟘ᵐ-allowed-elim
-  (λ ok → case is-𝟘? ok p of λ where
+  (λ ok → case 𝟘ᵐ.is-𝟘? ok p of λ where
      (yes p≡𝟘) → inj₁ (p≡𝟘 , ok)
      (no p≢𝟘)  → inj₂ λ x →
        case ▸-⌞·⌟
@@ -816,7 +816,7 @@ substₘ-lemma₀ ⦃ ok = ok ⦄ Ψ Ψ▶σ
           𝟘ᶜ                ∎))
     ≤ᶜ-refl
     (λ _ → ≤ᶜ-refl)
-    (λ _ → ≤ᶜ-refl)
+    ≤ᶜ-refl
     (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
        𝟘ᶜ                        ≈˘⟨ +ᶜ-identityʳ _ ⟩
        𝟘ᶜ +ᶜ 𝟘ᶜ                  ≈˘⟨ +ᶜ-cong (·ᶜ-zeroʳ _) (·ᶜ-zeroʳ _) ⟩
@@ -1014,7 +1014,7 @@ substₘ-lemma₁
            (θ ∙ ⌜ 𝟘ᵐ? ⌝ · q) <* liftSubstₘ Ψ  ∎))
     (<*-monotone Ψ χ≤γ)
     (<*-monotone Ψ ∘→ χ≤δ)
-    (<*-monotone Ψ ∘→ χ≤η)
+    (<*-monotone Ψ χ≤η)
     (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
        χ <* Ψ                                ≤⟨ <*-monotone Ψ fix ⟩
        (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ) <* Ψ          ≤⟨ +·+·<*≤ Ψ δ ⟩
@@ -1321,11 +1321,13 @@ substₘ-lemma
                   ▶-≤ Ψ (χ≤δ ok) Ψ▶σ))
               δ▸s)
            (*>∙∙≤liftSubst-listSubst*>∙∙ {δ = δ} Ψ))
-         (substₘ-lemma Ψ (▶-≤ Ψ (χ≤η (𝟘-well-behaved ok)) Ψ▶σ) η▸n)
+         (substₘ-lemma Ψ
+            (▶-≤ Ψ (χ≤η ⦃ 𝟘-well-behaved = 𝟘-well-behaved ok ⦄) Ψ▶σ)
+            η▸n)
          (substₘ-lemma-∙⌜𝟘ᵐ?⌝·▸[𝟘ᵐ?] Ψ Ψ▶σ θ▸A .proj₂)
          (<*-monotone Ψ χ≤γ)
          (<*-monotone Ψ ∘→ χ≤δ)
-         (<*-monotone Ψ ∘→ χ≤η)
+         (<*-monotone Ψ χ≤η)
          (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
             χ <* Ψ                                ≤⟨ <*-monotone Ψ fix ⟩
             (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ) <* Ψ          ≤⟨ +·+·<*≤ Ψ δ ⟩

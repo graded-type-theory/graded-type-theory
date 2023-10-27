@@ -59,10 +59,8 @@ private
 open import Graded.Modality.Instances.Erasure.Properties variant
 
 open import Graded.Context EM
-open import Graded.Erasure.Consequences.Soundness
-  EM TR UR erasure-has-well-behaved-zero
-open import Graded.Erasure.Extraction
-  EM (Has-well-behaved-zero.is-𝟘? erasure-has-well-behaved-zero)
+open import Graded.Erasure.Consequences.Soundness EM TR UR
+open import Graded.Erasure.Extraction EM is-𝟘?
 import Graded.Erasure.SucRed TR as S
 import Graded.Erasure.Target as T
 import Graded.Erasure.Target.Properties as TP
@@ -327,7 +325,7 @@ Vec = lam ω Vec-body₁
     ≤ᶜ-refl
     ( ≤ᶜ-refl
     , (λ _ → ≤ᶜ-refl)
-    , (λ _ → ≤ᶜ-refl)
+    , ≤ᶜ-refl
     , ≤ᶜ-refl
     )
 
@@ -543,7 +541,7 @@ Non-zero = lam ω Non-zero-body
     ≤ᶜ-refl
     ( ≤ᶜ-refl
     , (λ _ → ≤ᶜ-refl)
-    , (λ _ → ≤ᶜ-refl)
+    , ≤ᶜ-refl
     , ≤ᶜ-refl
     )
 
@@ -663,7 +661,7 @@ erase-head = PE.refl
     ≤ᶜ-refl
     ( ≤ᶜ-refl
     , (λ _ → ≤ᶜ-refl)
-    , (λ _ → ≤ᶜ-refl)
+    , ≤ᶜ-refl
     , ≤ᶜ-refl
     )
   where

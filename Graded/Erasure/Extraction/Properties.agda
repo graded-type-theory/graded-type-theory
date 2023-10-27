@@ -8,14 +8,12 @@ open import Tools.PropositionalEquality as PE
 module Graded.Erasure.Extraction.Properties
   {a} {M : Set a} (𝕄 : Modality M)
   (open Modality 𝕄)
-  (𝟘-wb : Has-well-behaved-zero M semiring-with-meet)
+  ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
   where
 
 open import Graded.Modality.Dedicated-nr.Instance
 open import Graded.Modality.Nr-instances
-open import Graded.Modality.Properties.PartialOrder semiring-with-meet
-open import Graded.Modality.Properties.Has-well-behaved-zero
-  semiring-with-meet 𝟘-wb
+open import Graded.Modality.Properties 𝕄
 
 open import Graded.Erasure.Extraction 𝕄 is-𝟘?
 open import Graded.Erasure.Target as T hiding (refl; trans)
@@ -312,7 +310,7 @@ module hasX (R : Usage-restrictions) where
   erased-hasX : x ◂ 𝟘 ∈ γ → γ ▸[ 𝟙ᵐ ] t → HasX x (erase t) → ⊥
 
   erased-hasX erased γ▸t@var varₓ =
-    valid-var-usage 𝟘-wb γ▸t (var-usage-lookup erased)
+    valid-var-usage γ▸t (var-usage-lookup erased)
 
   erased-hasX erased (lamₘ γ▸t) (lamₓ hasX) =
     erased-hasX (there erased) γ▸t hasX
@@ -321,13 +319,13 @@ module hasX (R : Usage-restrictions) where
     with is-𝟘? p
   erased-hasX erased (_∘ₘ_ {γ = γ} {δ = δ} {p = p} γ▸t δ▸u) (∘ₓˡ hasX)
     | yes p≡𝟘 =
-    erased-hasX (x◂𝟘∈γ+δˡ 𝟘-wb refl erased) γ▸t hasX
+    erased-hasX (x◂𝟘∈γ+δˡ refl erased) γ▸t hasX
   erased-hasX erased (_∘ₘ_ {γ = γ} {δ = δ} {_} γ▸t δ▸u) (∘ₓˡ hasX)
     | no _ =
-    erased-hasX (x◂𝟘∈γ+δˡ 𝟘-wb refl erased) γ▸t hasX
+    erased-hasX (x◂𝟘∈γ+δˡ refl erased) γ▸t hasX
   erased-hasX erased (_∘ₘ_ {γ = γ} {δ = δ} {_} γ▸t δ▸u) (∘ₓʳ hasX)
     | no p≢𝟘 =
-    erased-hasX (x◂𝟘∈pγ 𝟘-wb refl p≢𝟘 (x◂𝟘∈γ+δʳ 𝟘-wb refl erased))
+    erased-hasX (x◂𝟘∈pγ refl p≢𝟘 (x◂𝟘∈γ+δʳ refl erased))
                 (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) δ▸u) hasX
 
   erased-hasX erased (prodᵣₘ {γ = γ} {p = p} {δ = δ} _ δ▸) hasX
@@ -345,18 +343,18 @@ module hasX (R : Usage-restrictions) where
     open Tools.Reasoning.Equivalence Conₘ-setoid
   erased-hasX erased (prodᵣₘ {γ = γ} {p = _} {δ = δ} γ▸ _) (prodₓˡ hasX)
     | no p≢𝟘 =
-    erased-hasX (x◂𝟘∈pγ 𝟘-wb refl p≢𝟘 (x◂𝟘∈γ+δˡ 𝟘-wb refl erased))
+    erased-hasX (x◂𝟘∈pγ refl p≢𝟘 (x◂𝟘∈γ+δˡ refl erased))
                 (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸) hasX
   erased-hasX erased (prodᵣₘ {γ = γ} {p = _} {δ = δ} _ δ▸) (prodₓʳ hasX)
     | no _ =
-    erased-hasX (x◂𝟘∈γ+δʳ 𝟘-wb refl erased) δ▸ hasX
+    erased-hasX (x◂𝟘∈γ+δʳ refl erased) δ▸ hasX
 
   erased-hasX erased (prodₚₘ {γ = γ} {p = p} {δ = δ} _ γ▸u) hasX
     with is-𝟘? p
-  ... | yes refl = erased-hasX (x◂𝟘∈γ∧δʳ 𝟘-wb refl erased) γ▸u hasX
+  ... | yes refl = erased-hasX (x◂𝟘∈γ∧δʳ refl erased) γ▸u hasX
   erased-hasX erased (prodₚₘ {γ = γ} {p = p} {δ = δ} γ▸ _) (prodₓˡ hasX)
     | no p≢𝟘 =
-    erased-hasX (x◂𝟘∈pγ 𝟘-wb refl p≢𝟘 (x◂𝟘∈γ∧δˡ 𝟘-wb refl erased))
+    erased-hasX (x◂𝟘∈pγ refl p≢𝟘 (x◂𝟘∈γ∧δˡ refl erased))
                 (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸) hasX
   erased-hasX erased (prodₚₘ {γ = γ} {p = _} {δ = δ} _ δ▸) (prodₓʳ hasX)
     | no p≢𝟘 =
@@ -381,22 +379,22 @@ module hasX (R : Usage-restrictions) where
   erased-hasX erased (prodrecₘ ▸t ▸u _ _) (prodrecₓˡ (prodₓʳ ()))
     | yes _
   erased-hasX erased (prodrecₘ ▸t ▸u _ _) (prodrecₓʳ hasX) | yes _ =
-    erased-hasX (there (there (x◂𝟘∈γ+δʳ 𝟘-wb refl erased))) ▸u hasX
+    erased-hasX (there (there (x◂𝟘∈γ+δʳ refl erased))) ▸u hasX
   ... | no _ with is-𝟘? p
   erased-hasX erased (prodrecₘ ▸t ▸u _ _)
               (prodrecₓˡ (prodₓʳ hasX)) | no r≢𝟘 | yes _ =
-    erased-hasX (x◂𝟘∈pγ 𝟘-wb refl r≢𝟘 (x◂𝟘∈γ+δˡ 𝟘-wb refl erased))
+    erased-hasX (x◂𝟘∈pγ refl r≢𝟘 (x◂𝟘∈γ+δˡ refl erased))
                 (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ r≢𝟘) ▸t) hasX
   erased-hasX erased (prodrecₘ ▸t ▸u _ _) (prodrecₓʳ hasX)
     | no _ | yes _ =
-    erased-hasX (there (there (x◂𝟘∈γ+δʳ 𝟘-wb refl erased))) ▸u hasX
+    erased-hasX (there (there (x◂𝟘∈γ+δʳ refl erased))) ▸u hasX
   erased-hasX erased (prodrecₘ ▸t ▸u _ _) (prodrecₓˡ hasX)
     | no r≢𝟘 | no _ =
-    erased-hasX (x◂𝟘∈pγ 𝟘-wb refl r≢𝟘 (x◂𝟘∈γ+δˡ 𝟘-wb refl erased))
+    erased-hasX (x◂𝟘∈pγ refl r≢𝟘 (x◂𝟘∈γ+δˡ refl erased))
                 (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ r≢𝟘) ▸t) hasX
   erased-hasX erased (prodrecₘ ▸t ▸u _ _) (prodrecₓʳ hasX)
     | no _ | no _ =
-    erased-hasX (there (there (x◂𝟘∈γ+δʳ 𝟘-wb refl erased))) ▸u hasX
+    erased-hasX (there (there (x◂𝟘∈γ+δʳ refl erased))) ▸u hasX
 
   erased-hasX erased (sucₘ γ▸t) (sucₓ hasX) =
     erased-hasX erased γ▸t hasX
@@ -415,7 +413,7 @@ module hasX (R : Usage-restrictions) where
         x ◂ 𝟘 ∈ γ , x ≔ nr p r (γ ⟨ x ⟩) (δ ⟨ x ⟩) (η ⟨ x ⟩)      □
 
       lemma₁ =                                          $⟨ erased ⟩
-        x ◂ 𝟘 ∈ nrᶜ p r γ δ η                           →⟨ ◂𝟘∈nrᶜ₃ 𝟘-wb refl ⟩
+        x ◂ 𝟘 ∈ nrᶜ p r γ δ η                           →⟨ ◂𝟘∈nrᶜ₃ refl ⟩
         x ◂ 𝟘 ∈ η                                       →⟨ ◂∈⇔ .proj₁ ⟩
         η ⟨ x ⟩ ≡ 𝟘                                     →⟨ nr-zero ∘→ ≤-reflexive ⟩
         nr p r (γ ⟨ x ⟩) (δ ⟨ x ⟩) (η ⟨ x ⟩) ≤ γ ⟨ x ⟩  □
@@ -433,19 +431,19 @@ module hasX (R : Usage-restrictions) where
     erased (natrec-no-nrₘ γ▸z _ _ _ χ≤γ _ _ _) (natrecₓᶻ hasX) =
     erased-hasX erased (sub γ▸z χ≤γ) hasX
   erased-hasX erased (natrecₘ _ δ▸s _ _) (natrecₓˢ hasX) =
-    erased-hasX (there (there (◂𝟘∈nrᶜ₂ 𝟘-wb refl erased))) δ▸s hasX
+    erased-hasX (there (there (◂𝟘∈nrᶜ₂ refl erased))) δ▸s hasX
   erased-hasX erased
     (natrec-no-nrₘ _ δ▸s _ _ _ _ _ fix)
     (natrecₓˢ hasX) =
     erased-hasX
-      (there $ there $ x◂𝟘∈γ+δˡ 𝟘-wb refl $ x◂𝟘∈γ≤δ 𝟘-wb erased fix)
+      (there $ there $ x◂𝟘∈γ+δˡ refl $ x◂𝟘∈γ≤δ erased fix)
       δ▸s hasX
   erased-hasX erased (natrecₘ _ _ η▸n _) (natrecₓⁿ hasX) =
-    erased-hasX (◂𝟘∈nrᶜ₃ 𝟘-wb refl erased) η▸n hasX
+    erased-hasX (◂𝟘∈nrᶜ₃ refl erased) η▸n hasX
   erased-hasX erased
     (natrec-no-nrₘ _ _ η▸n _ _ _ χ≤η _)
     (natrecₓⁿ hasX) =
-    erased-hasX (x◂𝟘∈γ≤δ 𝟘-wb erased (χ≤η 𝟘-wb)) η▸n hasX
+    erased-hasX (x◂𝟘∈γ≤δ erased χ≤η) η▸n hasX
 
   erased-hasX erased (sub δ▸t γ≤δ) hasX =
-    erased-hasX (x◂𝟘∈γ≤δ 𝟘-wb erased γ≤δ) δ▸t hasX
+    erased-hasX (x◂𝟘∈γ≤δ erased γ≤δ) δ▸t hasX

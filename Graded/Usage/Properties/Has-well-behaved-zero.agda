@@ -11,7 +11,7 @@ module Graded.Usage.Properties.Has-well-behaved-zero
   (𝕄 : Modality)
   (R : Usage-restrictions M)
   (open Modality 𝕄)
-  (𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet)
+  ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄
   where
 
 open import Definition.Untyped M using (var)
@@ -19,11 +19,10 @@ open import Definition.Untyped M using (var)
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Nr-instances
+open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 open import Graded.Usage 𝕄 R
 open import Graded.Usage.Inversion 𝕄 R
-open import Graded.Modality.Properties.Has-well-behaved-zero
-            semiring-with-meet 𝟘-well-behaved
 
 open import Tools.Bool using (T)
 open import Tools.Empty
@@ -124,7 +123,7 @@ x◂𝟘∈γ⊛δʳ {x = x +1} {γ ∙ p} {δ ∙ q} eq (there d) =
   ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
   q ≡ 𝟘 → x ◂ q ∈ nrᶜ p r γ δ η → x ◂ 𝟘 ∈ γ
 ◂𝟘∈nrᶜ₁ {x = x0} {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} nrᶜ≡𝟘 here =
-  subst (_ ◂_∈ _) (nr-positive 𝟘-well-behaved nrᶜ≡𝟘 .proj₁) here
+  subst (_ ◂_∈ _) (nr-positive nrᶜ≡𝟘 .proj₁) here
 ◂𝟘∈nrᶜ₁ {x = _ +1} {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} eq (there p) =
   there (◂𝟘∈nrᶜ₁ eq p)
 
@@ -134,7 +133,7 @@ x◂𝟘∈γ⊛δʳ {x = x +1} {γ ∙ p} {δ ∙ q} eq (there d) =
   ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
   q ≡ 𝟘 → x ◂ q ∈ nrᶜ p r γ δ η → x ◂ 𝟘 ∈ δ
 ◂𝟘∈nrᶜ₂ {x = x0} {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} nrᶜ≡𝟘 here =
-  subst (_ ◂_∈ _) (nr-positive 𝟘-well-behaved nrᶜ≡𝟘 .proj₂ .proj₁) here
+  subst (_ ◂_∈ _) (nr-positive nrᶜ≡𝟘 .proj₂ .proj₁) here
 ◂𝟘∈nrᶜ₂ {x = _ +1} {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} eq (there p) =
   there (◂𝟘∈nrᶜ₂ eq p)
 
@@ -144,7 +143,7 @@ x◂𝟘∈γ⊛δʳ {x = x +1} {γ ∙ p} {δ ∙ q} eq (there d) =
   ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
   q ≡ 𝟘 → x ◂ q ∈ nrᶜ p r γ δ η → x ◂ 𝟘 ∈ η
 ◂𝟘∈nrᶜ₃ {x = x0} {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} nrᶜ≡𝟘 here =
-  subst (_ ◂_∈ _) (nr-positive 𝟘-well-behaved nrᶜ≡𝟘 .proj₂ .proj₂) here
+  subst (_ ◂_∈ _) (nr-positive nrᶜ≡𝟘 .proj₂ .proj₂) here
 ◂𝟘∈nrᶜ₃ {x = _ +1} {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} eq (there p) =
   there (◂𝟘∈nrᶜ₃ eq p)
 

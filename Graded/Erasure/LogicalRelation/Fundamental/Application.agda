@@ -17,7 +17,7 @@ module Graded.Erasure.LogicalRelation.Fundamental.Application
   (open Modality 𝕄)
   (R : Type-restrictions M)
   (open Definition.Typed R)
-  (𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet)
+  ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
   {{eqrel : EqRelSet R}}
   {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   where
@@ -43,8 +43,7 @@ import Definition.LogicalRelation.Substitution.Irrelevance R as IS
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Modality.Properties.Has-well-behaved-zero
-  semiring-with-meet 𝟘-well-behaved
+open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 
 open import Graded.Erasure.LogicalRelation 𝕄 R is-𝟘? ⊢Δ

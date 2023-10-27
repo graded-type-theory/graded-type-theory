@@ -172,7 +172,8 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → χ ≤ᶜ γ
             → (T 𝟘ᵐ-allowed →
                χ ≤ᶜ δ)
-            → (Has-well-behaved-zero semiring-with-meet →
+            → (⦃ 𝟘-well-behaved :
+                   Has-well-behaved-zero semiring-with-meet ⦄ →
                χ ≤ᶜ η)
             → χ ≤ᶜ δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ
             → χ ▸[ m ] natrec p q r A z s n

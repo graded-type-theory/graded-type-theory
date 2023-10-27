@@ -17,11 +17,7 @@ open import Graded.Modality M hiding (Modality)
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Nr-instances
-import Graded.Modality.Properties.Has-well-behaved-zero as WB𝟘
-open import Graded.Modality.Properties.PartialOrder
-  semiring-with-meet
-open import Graded.Modality.Properties.Star
-  semiring-with-meet
+open import Graded.Modality.Properties 𝕄
 open import Graded.Usage 𝕄 R
 open import Graded.Usage.Properties 𝕄 R
 open import Graded.Mode 𝕄
@@ -179,7 +175,7 @@ wkUsage
     (wkUsage (lift ρ) ▸A)
     (wk-≤ᶜ ρ χ≤γ)
     (wk-≤ᶜ ρ ∘→ χ≤δ)
-    (wk-≤ᶜ ρ ∘→ χ≤η)
+    (wk-≤ᶜ ρ χ≤η)
     (begin
        wkConₘ ρ χ                                        ≤⟨ wk-≤ᶜ _ fix ⟩
 
@@ -401,7 +397,7 @@ wkUsage⁻¹ ▸t = wkUsage⁻¹′ ▸t refl
           (wkUsage⁻¹ ▸A)
           (wkConₘ⁻¹-monotone ρ χ≤γ)
           (wkConₘ⁻¹-monotone ρ ∘→ χ≤δ)
-          (wkConₘ⁻¹-monotone ρ ∘→ χ≤η)
+          (wkConₘ⁻¹-monotone ρ χ≤η)
           (begin
              wkConₘ⁻¹ ρ χ                                            ≤⟨ wkConₘ⁻¹-monotone ρ fix ⟩
 
@@ -464,10 +460,8 @@ wkConₘ-,-wkVar-≔
 -- assumption that the zero is well-behaved.
 
 module _
-  (𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet)
+  ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄
   where
-
-  open WB𝟘 semiring-with-meet 𝟘-well-behaved
 
   -- An inversion lemma for wkConₘ and _+ᶜ_.
 
@@ -581,17 +575,13 @@ module _
         _ , _ , _ , leq₁ ,
         leq₃
           ∙
-        ≤-reflexive
-          (PE.sym $ nr-positive 𝟘-well-behaved (𝟘≮ leq₂) .proj₁) ,
+        ≤-reflexive (PE.sym $ nr-positive (𝟘≮ leq₂) .proj₁) ,
         leq₄
           ∙
-        ≤-reflexive
-          (PE.sym $
-           nr-positive 𝟘-well-behaved (𝟘≮ leq₂) .proj₂ .proj₁) ,
+        ≤-reflexive (PE.sym $ nr-positive (𝟘≮ leq₂) .proj₂ .proj₁) ,
         leq₅
           ∙
-        ≤-reflexive
-          (PE.sym $ nr-positive 𝟘-well-behaved (𝟘≮ leq₂) .proj₂ .proj₂)
+        ≤-reflexive (PE.sym $ nr-positive (𝟘≮ leq₂) .proj₂ .proj₂)
   wkConₘ-nrᶜ
     {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} {θ = _ ∙ _}
     (lift ρ) (leq₁ ∙ leq₂) =

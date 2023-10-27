@@ -267,7 +267,8 @@ record Is-order-embedding
       q₁ M₂.≤ q₂ →
       (T M₂.𝟘ᵐ-allowed →
        q₁ M₂.≤ q₃) →
-      (Has-well-behaved-zero M₂ M₂.semiring-with-meet →
+      (⦃ 𝟘-well-behaved :
+           Has-well-behaved-zero M₂ M₂.semiring-with-meet ⦄ →
        q₁ M₂.≤ q₄) →
       q₁ M₂.≤ q₃ M₂.+ tr r M₂.· q₄ M₂.+ tr s M₂.· q₁ →
       ∃₄ λ q₁′ q₂′ q₃′ q₄′ →
@@ -278,7 +279,8 @@ record Is-order-embedding
          q₁′ M₁.≤ q₂′ ×
          (T M₁.𝟘ᵐ-allowed →
           q₁′ M₁.≤ q₃′) ×
-         (Has-well-behaved-zero M₁ M₁.semiring-with-meet →
+         (⦃ 𝟘-well-behaved :
+              Has-well-behaved-zero M₁ M₁.semiring-with-meet ⦄ →
           q₁′ M₁.≤ q₄′) ×
          q₁′ M₁.≤ q₃′ M₁.+ r M₁.· q₄′ M₁.+ s M₁.· q₁′
 
@@ -341,7 +343,7 @@ record Is-Σ-morphism
   tr-Σ-𝟘-≡ :
     Is-morphism 𝕄₁ 𝕄₂ tr →
     T M₁.𝟘ᵐ-allowed → tr-Σ M₁.𝟘 ≡ M₂.𝟘
-  tr-Σ-𝟘-≡ m ok = 𝟘≮ (𝟘ᵐ-in-second-if-in-first ok) (begin
+  tr-Σ-𝟘-≡ m ok = 𝟘ᵐ.𝟘≮ (𝟘ᵐ-in-second-if-in-first ok) (begin
     M₂.𝟘       ≡˘⟨ tr-𝟘-≡ ok ⟩
     tr M₁.𝟘    ≤⟨ tr-≤-tr-Σ ⟩
     tr-Σ M₁.𝟘  ∎)
@@ -724,7 +726,7 @@ Is-order-embedding-∘
            tr₁ (tr₂ q₄″)  ≤⟨ F.tr-monotone q₄″≤q₄′ ⟩
            tr₁ q₄′        ≤⟨ q₄′≤q₄ ⟩
            q₄             ∎)
-      , p≤q₁″ , q₁″≤q₂″ , q₁″≤q₃″ , q₁″≤q₄″ , fix″ }}
+      , p≤q₁″ , q₁″≤q₂″ , q₁″≤q₃″ , (λ ⦃ _ ⦄ → q₁″≤q₄″) , fix″ }}
   where
   module MP₂ = Graded.Modality.Properties 𝕄₂
   module MP₃ = Graded.Modality.Properties 𝕄₃
@@ -809,7 +811,8 @@ Is-Σ-order-embedding-∘
     module M₂ = Modality 𝕄₂
   in
   (T M₁.𝟘ᵐ-allowed → T M₂.𝟘ᵐ-allowed) →
-  (Has-well-behaved-zero M₁ M₁.semiring-with-meet →
+  (⦃ 𝟘-well-behaved :
+       Has-well-behaved-zero M₁ M₁.semiring-with-meet ⦄ →
    Has-well-behaved-zero M₂ M₂.semiring-with-meet) →
   (tr : M₁ → M₂)
   (tr⁻¹ : M₂ → M₁) →
@@ -823,7 +826,7 @@ Is-Σ-order-embedding-∘
   q₁ M₂.≤ q₂ →
   (T M₂.𝟘ᵐ-allowed →
    q₁ M₂.≤ q₃) →
-  (Has-well-behaved-zero M₂ M₂.semiring-with-meet →
+  (⦃ 𝟘-well-behaved : Has-well-behaved-zero M₂ M₂.semiring-with-meet ⦄ →
    q₁ M₂.≤ q₄) →
   q₁ M₂.≤ q₃ M₂.+ tr r M₂.· q₄ M₂.+ tr s M₂.· q₁ →
   ∃₄ λ q₁′ q₂′ q₃′ q₄′ →
@@ -834,7 +837,8 @@ Is-Σ-order-embedding-∘
      q₁′ M₁.≤ q₂′ ×
      (T M₁.𝟘ᵐ-allowed →
       q₁′ M₁.≤ q₃′) ×
-     (Has-well-behaved-zero M₁ M₁.semiring-with-meet →
+     (⦃ 𝟘-well-behaved :
+          Has-well-behaved-zero M₁ M₁.semiring-with-meet ⦄ →
       q₁′ M₁.≤ q₄′) ×
      q₁′ M₁.≤ q₃′ M₁.+ r M₁.· q₄′ M₁.+ s M₁.· q₁′
 →tr-≤-no-nr
@@ -852,7 +856,8 @@ Is-Σ-order-embedding-∘
   , tr≤→≤tr⁻¹ _ _ hyp₁
   , tr⁻¹-monotone _ _ hyp₂
   , tr⁻¹-monotone _ _ ∘→ hyp₃ ∘→ 𝟘ᵐ-in-second-if-in-first
-  , tr⁻¹-monotone _ _ ∘→ hyp₄ ∘→ 𝟘-well-behaved-in-second-if-in-first
+  , tr⁻¹-monotone _ _
+      (hyp₄ ⦃ 𝟘-well-behaved = 𝟘-well-behaved-in-second-if-in-first ⦄)
   , (begin
        tr⁻¹ q₁                                                    ≤⟨ tr⁻¹-monotone _ _ hyp₅ ⟩
        tr⁻¹ (q₃ M₂.+ tr r M₂.· q₄ M₂.+ tr s M₂.· q₁)              ≤⟨ ≤-trans (tr⁻¹-+ _ _) $ +-monotoneʳ $ tr⁻¹-+ _ _ ⟩

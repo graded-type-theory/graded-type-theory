@@ -16,7 +16,7 @@ open Semiring-with-meet 𝕄
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties.PartialOrder 𝕄
 open import Graded.Modality.Properties.Addition 𝕄
-import Graded.Modality.Properties.Has-well-behaved-zero
+open import Graded.Modality.Properties.Has-well-behaved-zero 𝕄
 open import Graded.Modality.Properties.Meet 𝕄
 open import Graded.Modality.Properties.Multiplication 𝕄
 
@@ -148,16 +148,13 @@ has-nr = record
     open Tools.Reasoning.PropositionalEquality
 
   nr′-positive :
-    Has-well-behaved-zero 𝕄 →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
     nr′ p r z s n ≡ 𝟘 → z ≡ 𝟘 × s ≡ 𝟘 × n ≡ 𝟘
-  nr′-positive {p = p} {r = r} {z = z} {s = s} {n = n} 𝟘-well-behaved =
+  nr′-positive {p = p} {r = r} {z = z} {s = s} {n = n} =
     (z ∧ n) ⊛ s + p · n ▷ r ≡ 𝟘  →⟨ (λ hyp → ⊛≡𝟘ˡ hyp , ⊛≡𝟘ʳ hyp) ⟩
     z ∧ n ≡ 𝟘 × s + p · n ≡ 𝟘    →⟨ (λ (hyp₁ , hyp₂) →
                                        ∧-positiveˡ hyp₁ , +-positiveˡ hyp₂ , ∧-positiveʳ hyp₁) ⟩
     z ≡ 𝟘 × s ≡ 𝟘 × n ≡ 𝟘        □
-    where
-    open Graded.Modality.Properties.Has-well-behaved-zero
-           𝕄 𝟘-well-behaved
 
   -- The argument of type n ≤ 𝟘 is not used.
 

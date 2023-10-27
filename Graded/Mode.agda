@@ -170,7 +170,7 @@ private
   -- A function used in the implementation of ⌞_⌟.
 
   ⌞_⌟′ : M → T 𝟘ᵐ-allowed → Mode
-  ⌞ p ⌟′ ok = case is-𝟘? ok p of λ where
+  ⌞ p ⌟′ ok = case 𝟘ᵐ.is-𝟘? ok p of λ where
     (yes _) → 𝟘ᵐ[ ok ]
     (no _)  → 𝟙ᵐ
 
@@ -261,7 +261,7 @@ Mode-propositional-without-𝟘ᵐ {m₁ = m₁} {m₂ = m₂} not-ok =
 
 Mode-propositional-if-𝟙≡𝟘 : 𝟙 ≡ 𝟘 → m₁ ≡ m₂
 Mode-propositional-if-𝟙≡𝟘 𝟙≡𝟘 =
-  Mode-propositional-without-𝟘ᵐ (flip 𝟘ᵐ→𝟙≢𝟘 𝟙≡𝟘)
+  Mode-propositional-without-𝟘ᵐ (flip 𝟘ᵐ.𝟙≢𝟘 𝟙≡𝟘)
 
 ------------------------------------------------------------------------
 -- Properties related to 𝟘ᵐ?
@@ -577,7 +577,7 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
       (λ ok → ⌞ 𝟘 ⌟′ (subst T eq ok))
       (λ _ → 𝟙ᵐ) ≡
     𝟘ᵐ[ subst T eq ok ]
-  lemma true refl with is-𝟘? tt 𝟘
+  lemma true refl with 𝟘ᵐ.is-𝟘? tt 𝟘
   … | yes _  = refl
   … | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 refl)
 
@@ -612,7 +612,7 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
       (λ _ → 𝟙ᵐ) ≡
     𝟘ᵐ[ ok ] →
     p ≡ 𝟘
-  lemma true refl with is-𝟘? tt p
+  lemma true refl with 𝟘ᵐ.is-𝟘? tt p
   … | yes p≡𝟘 = λ _ → p≡𝟘
   … | no _    = λ ()
 
@@ -628,7 +628,7 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
       (λ _ → 𝟙ᵐ) ≡
     𝟙ᵐ
   lemma false refl = refl
-  lemma true  refl with is-𝟘? tt p
+  lemma true  refl with 𝟘ᵐ.is-𝟘? tt p
   … | no _    = refl
   … | yes p≡𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
 
@@ -646,7 +646,7 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
     𝟙ᵐ →
     p ≢ 𝟘
   lemma false refl = ⊥-elim ok
-  lemma true  refl with is-𝟘? tt p
+  lemma true  refl with 𝟘ᵐ.is-𝟘? tt p
   … | yes _  = λ ()
   … | no p≢𝟘 = λ _ → p≢𝟘
 
@@ -654,7 +654,7 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
 
 ⌞𝟙⌟ : ⌞ 𝟙 ⌟ ≡ 𝟙ᵐ
 ⌞𝟙⌟ = 𝟘ᵐ-allowed-elim
-  (λ ok → ≢𝟘→⌞⌟≡𝟙ᵐ (𝟘ᵐ→𝟙≢𝟘 ok))
+  (λ ok → ≢𝟘→⌞⌟≡𝟙ᵐ (𝟘ᵐ.𝟙≢𝟘 ok))
   only-𝟙ᵐ-without-𝟘ᵐ
 
 -- The function taking p to ⌜ ⌞ p ⌟ ⌝ preserves equivalence.
@@ -672,7 +672,7 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
   lemma 𝟙ᵐ       𝟙ᵐ _      _      = ≤-refl
   lemma 𝟙ᵐ       𝟘ᵐ _      _      = 𝟙≤𝟘
   lemma 𝟘ᵐ[ ok ] 𝟙ᵐ ⌞p⌟≡𝟘ᵐ ⌞q⌟≡𝟙ᵐ =
-    ⊥-elim (⌞⌟≡𝟙ᵐ→≢𝟘 ok ⌞q⌟≡𝟙ᵐ (𝟘≮ ok (begin
+    ⊥-elim (⌞⌟≡𝟙ᵐ→≢𝟘 ok ⌞q⌟≡𝟙ᵐ (𝟘ᵐ.𝟘≮ ok (begin
       𝟘  ≈˘⟨ ⌞⌟≡𝟘ᵐ→≡𝟘 ⌞p⌟≡𝟘ᵐ ⟩
       p  ≤⟨ p≤q ⟩
       q  ∎)))
@@ -798,7 +798,7 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
       𝟙ᵐ         ∎
     of λ ()
   lemma 𝟙ᵐ 𝟙ᵐ 𝟘ᵐ[ ok ] ⌞p⌟≡𝟙ᵐ ⌞q⌟≡𝟙ᵐ ⌞pq⌟≡𝟘ᵐ =
-    case zero-product ok (⌞⌟≡𝟘ᵐ→≡𝟘 ⌞pq⌟≡𝟘ᵐ) of λ where
+    case 𝟘ᵐ.zero-product ok (⌞⌟≡𝟘ᵐ→≡𝟘 ⌞pq⌟≡𝟘ᵐ) of λ where
       (inj₁ refl) →
         case
           𝟘ᵐ[ ok ]  ≡˘⟨ ⌞𝟘⌟ ⟩

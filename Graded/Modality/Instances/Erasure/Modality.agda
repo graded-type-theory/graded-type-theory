@@ -33,27 +33,30 @@ erasure-semiring-with-meet = record
   ; +-distrib-∧ = +-distrib-+
   }
 
--- The zero of the erasure semiring is well-behaved
+instance
 
-erasure-has-well-behaved-zero : Has-well-behaved-zero erasure-semiring-with-meet
-erasure-has-well-behaved-zero = record
-  { 𝟙≢𝟘 = λ ()
-  ; is-𝟘? = λ where
-      𝟘 → yes refl
-      ω → no (λ ())
-  ; zero-product = λ where
-      {p = 𝟘} {q = 𝟘} _  → inj₁ refl
-      {p = 𝟘} {q = ω} _  → inj₁ refl
-      {p = ω} {q = 𝟘} _  → inj₂ refl
-      {p = ω} {q = ω} ()
-  ; +-positiveˡ = λ where
-      {p = 𝟘}         _  → refl
-      {p = ω} {q = 𝟘} ()
-      {p = ω} {q = ω} ()
-  ; ∧-positiveˡ = λ where
-      {p = 𝟘} _ → refl
-      {p = ω} ()
-  }
+  -- The zero of the erasure semiring is well-behaved.
+
+  erasure-has-well-behaved-zero :
+    Has-well-behaved-zero erasure-semiring-with-meet
+  erasure-has-well-behaved-zero = record
+    { 𝟙≢𝟘 = λ ()
+    ; is-𝟘? = λ where
+        𝟘 → yes refl
+        ω → no (λ ())
+    ; zero-product = λ where
+        {p = 𝟘} {q = 𝟘} _  → inj₁ refl
+        {p = 𝟘} {q = ω} _  → inj₁ refl
+        {p = ω} {q = 𝟘} _  → inj₂ refl
+        {p = ω} {q = ω} ()
+    ; +-positiveˡ = λ where
+        {p = 𝟘}         _  → refl
+        {p = ω} {q = 𝟘} ()
+        {p = ω} {q = ω} ()
+    ; ∧-positiveˡ = λ where
+        {p = 𝟘} _ → refl
+        {p = ω} ()
+    }
 
 instance
 

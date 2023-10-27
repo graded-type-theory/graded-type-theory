@@ -101,7 +101,7 @@ var-usage-lookup (there x) = var-usage-lookup x
 -- If 𝟙 ≡ 𝟘, then one can convert usage modes freely.
 
 ▸-𝟙≡𝟘 : 𝟙 ≡ 𝟘 → γ ▸[ m ] t → γ ▸[ m′ ] t
-▸-𝟙≡𝟘 𝟙≡𝟘 = ▸-without-𝟘ᵐ (flip 𝟘ᵐ→𝟙≢𝟘 𝟙≡𝟘)
+▸-𝟙≡𝟘 𝟙≡𝟘 = ▸-without-𝟘ᵐ (flip 𝟘ᵐ.𝟙≢𝟘 𝟙≡𝟘)
 
 ------------------------------------------------------------------------
 -- The lemma ▸-· and some corollaries
@@ -217,8 +217,8 @@ var-usage-lookup (there x) = var-usage-lookup x
     (λ ok → begin
        ⌜ m′ ⌝ ·ᶜ χ  ≤⟨ ·ᶜ-monotoneʳ (χ≤δ ok) ⟩
        ⌜ m′ ⌝ ·ᶜ δ  ∎)
-    (λ ok → begin
-       ⌜ m′ ⌝ ·ᶜ χ  ≤⟨ ·ᶜ-monotoneʳ (χ≤η ok) ⟩
+    (begin
+       ⌜ m′ ⌝ ·ᶜ χ  ≤⟨ ·ᶜ-monotoneʳ χ≤η ⟩
        ⌜ m′ ⌝ ·ᶜ η  ∎)
     (begin
        ⌜ m′ ⌝ ·ᶜ χ                                          ≤⟨ ·ᶜ-monotoneʳ fix ⟩
@@ -291,7 +291,7 @@ var-usage-lookup (there x) = var-usage-lookup x
     where
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
   lemma 𝟘ᵐ[ ok ] 𝟙ᵐ ⌞p⌟≡𝟘ᵐ ⌞q⌟≡𝟙ᵐ ▸t =
-    ⊥-elim (⌞⌟≡𝟙ᵐ→≢𝟘 ok ⌞q⌟≡𝟙ᵐ (𝟘≮ ok (begin
+    ⊥-elim (⌞⌟≡𝟙ᵐ→≢𝟘 ok ⌞q⌟≡𝟙ᵐ (𝟘ᵐ.𝟘≮ ok (begin
       𝟘  ≈˘⟨ ⌞⌟≡𝟘ᵐ→≡𝟘 ⌞p⌟≡𝟘ᵐ ⟩
       p  ≤⟨ p≤q ⟩
       q  ∎)))
@@ -513,7 +513,7 @@ Usage-restrictions-satisfied→▸[𝟘ᵐ] {ok = 𝟘ᵐ-ok} = lemma _
             nrᶜ p r 𝟘ᶜ 𝟘ᶜ 𝟘ᶜ  ∎
         does-not-have-nr →
           natrec-no-nrₘ t-lemma u-lemma v-lemma A-lemma
-            ≤ᶜ-refl (λ _ → ≤ᶜ-refl) (λ _ → ≤ᶜ-refl) $
+            ≤ᶜ-refl (λ _ → ≤ᶜ-refl) ≤ᶜ-refl $
           let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
             𝟘ᶜ                        ≈˘⟨ +ᶜ-identityʳ _ ⟩
             𝟘ᶜ +ᶜ 𝟘ᶜ                  ≈˘⟨ +ᶜ-cong (·ᶜ-zeroʳ _) (·ᶜ-zeroʳ _) ⟩
@@ -698,7 +698,7 @@ Usage-restrictions-satisfied→▸[𝟘ᵐ] {ok = 𝟘ᵐ-ok} = lemma _
   ⌜ ⌞ p + q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p + q ⌟ ] t →
   ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⌟ ] t
 ▸-⌞+⌟ˡ = ▸-conv λ ok ⌞p+q⌟≡𝟘ᵐ →
-  ≡𝟘→⌞⌟≡𝟘ᵐ (+-positiveˡ ok (⌞⌟≡𝟘ᵐ→≡𝟘 ⌞p+q⌟≡𝟘ᵐ))
+  ≡𝟘→⌞⌟≡𝟘ᵐ (𝟘ᵐ.+-positiveˡ ok (⌞⌟≡𝟘ᵐ→≡𝟘 ⌞p+q⌟≡𝟘ᵐ))
 
 -- A kind of inversion lemma for _▸[_]_ related to addition.
 
@@ -714,7 +714,7 @@ Usage-restrictions-satisfied→▸[𝟘ᵐ] {ok = 𝟘ᵐ-ok} = lemma _
   ⌜ ⌞ p ∧ q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ∧ q ⌟ ] t →
   ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⌟ ] t
 ▸-⌞∧⌟ˡ = ▸-conv λ ok ⌞p∧q⌟≡𝟘ᵐ →
-  ≡𝟘→⌞⌟≡𝟘ᵐ (∧-positiveˡ ok (⌞⌟≡𝟘ᵐ→≡𝟘 ⌞p∧q⌟≡𝟘ᵐ))
+  ≡𝟘→⌞⌟≡𝟘ᵐ (𝟘ᵐ.∧-positiveˡ ok (⌞⌟≡𝟘ᵐ→≡𝟘 ⌞p∧q⌟≡𝟘ᵐ))
 
 -- A kind of inversion lemma for _▸[_]_ related to the meet operation.
 
@@ -731,7 +731,7 @@ Usage-restrictions-satisfied→▸[𝟘ᵐ] {ok = 𝟘ᵐ-ok} = lemma _
   ⌜ ⌞ p ⊛ q ▷ r ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⊛ q ▷ r ⌟ ] t →
   ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⌟ ] t
 ▸-⌞⊛⌟ˡ = ▸-conv λ ok ⌞p⊛q▷r⌟≡𝟘ᵐ →
-  ≡𝟘→⌞⌟≡𝟘ᵐ (⊛≡𝟘ˡ ok (⌞⌟≡𝟘ᵐ→≡𝟘 ⌞p⊛q▷r⌟≡𝟘ᵐ))
+  ≡𝟘→⌞⌟≡𝟘ᵐ (𝟘ᵐ.⊛≡𝟘ˡ ok (⌞⌟≡𝟘ᵐ→≡𝟘 ⌞p⊛q▷r⌟≡𝟘ᵐ))
 
 -- A kind of inversion lemma for _▸[_]_ related to the star operation.
 
@@ -740,7 +740,7 @@ Usage-restrictions-satisfied→▸[𝟘ᵐ] {ok = 𝟘ᵐ-ok} = lemma _
   ⌜ ⌞ p ⊛ q ▷ r ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⊛ q ▷ r ⌟ ] t →
   ⌜ ⌞ q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ q ⌟ ] t
 ▸-⌞⊛⌟ʳ = ▸-conv λ ok ⌞p⊛q▷r⌟≡𝟘ᵐ →
-  ≡𝟘→⌞⌟≡𝟘ᵐ (⊛≡𝟘ʳ ok (⌞⌟≡𝟘ᵐ→≡𝟘 ⌞p⊛q▷r⌟≡𝟘ᵐ))
+  ≡𝟘→⌞⌟≡𝟘ᵐ (𝟘ᵐ.⊛≡𝟘ʳ ok (⌞⌟≡𝟘ᵐ→≡𝟘 ⌞p⊛q▷r⌟≡𝟘ᵐ))
 
 -- A kind of inversion lemma for _▸[_]_ related to the nr function.
 
@@ -750,7 +750,8 @@ Usage-restrictions-satisfied→▸[𝟘ᵐ] {ok = 𝟘ᵐ-ok} = lemma _
   ⌜ ⌞ z ⌟ ⌝ ·ᶜ γ ▸[ ⌞ z ⌟ ] t
 ▸-⌞nr⌟₁ = ▸-conv λ ok ⌞nr-przsn⌟≡𝟘ᵐ →
   ≡𝟘→⌞⌟≡𝟘ᵐ $
-  nr-positive (𝟘-well-behaved ok) (⌞⌟≡𝟘ᵐ→≡𝟘 ⌞nr-przsn⌟≡𝟘ᵐ) .proj₁
+  nr-positive ⦃ 𝟘-well-behaved = 𝟘-well-behaved ok ⦄
+    (⌞⌟≡𝟘ᵐ→≡𝟘 ⌞nr-przsn⌟≡𝟘ᵐ) .proj₁
 
 -- A kind of inversion lemma for _▸[_]_ related to the nr function.
 
@@ -760,7 +761,8 @@ Usage-restrictions-satisfied→▸[𝟘ᵐ] {ok = 𝟘ᵐ-ok} = lemma _
   ⌜ ⌞ s ⌟ ⌝ ·ᶜ γ ▸[ ⌞ s ⌟ ] t
 ▸-⌞nr⌟₂ = ▸-conv λ ok ⌞nr-przsn⌟≡𝟘ᵐ →
   ≡𝟘→⌞⌟≡𝟘ᵐ $
-  nr-positive (𝟘-well-behaved ok) (⌞⌟≡𝟘ᵐ→≡𝟘 ⌞nr-przsn⌟≡𝟘ᵐ) .proj₂ .proj₁
+  nr-positive ⦃ 𝟘-well-behaved = 𝟘-well-behaved ok ⦄
+    (⌞⌟≡𝟘ᵐ→≡𝟘 ⌞nr-przsn⌟≡𝟘ᵐ) .proj₂ .proj₁
 
 -- A kind of inversion lemma for _▸[_]_ related to the nr function.
 
@@ -770,7 +772,8 @@ Usage-restrictions-satisfied→▸[𝟘ᵐ] {ok = 𝟘ᵐ-ok} = lemma _
   ⌜ ⌞ n ⌟ ⌝ ·ᶜ γ ▸[ ⌞ n ⌟ ] t
 ▸-⌞nr⌟₃ = ▸-conv λ ok ⌞nr-przsn⌟≡𝟘ᵐ →
   ≡𝟘→⌞⌟≡𝟘ᵐ $
-  nr-positive (𝟘-well-behaved ok) (⌞⌟≡𝟘ᵐ→≡𝟘 ⌞nr-przsn⌟≡𝟘ᵐ) .proj₂ .proj₂
+  nr-positive ⦃ 𝟘-well-behaved = 𝟘-well-behaved ok ⦄
+    (⌞⌟≡𝟘ᵐ→≡𝟘 ⌞nr-przsn⌟≡𝟘ᵐ) .proj₂ .proj₂
 
 ------------------------------------------------------------------------
 -- The lemma Conₘ-interchange
@@ -925,8 +928,8 @@ Conₘ-interchange
     (λ ok → begin
        χ , x ≔ χ′ ⟨ x ⟩  ≤⟨ update-monotone _ (χ≤δ ok) (lookup-monotone _ (χ′≤δ′ ok)) ⟩
        δ , x ≔ δ′ ⟨ x ⟩  ∎)
-    (λ ok → begin
-       χ , x ≔ χ′ ⟨ x ⟩  ≤⟨ update-monotone _ (χ≤η ok) (lookup-monotone _ (χ′≤η′ ok)) ⟩
+    (begin
+       χ , x ≔ χ′ ⟨ x ⟩  ≤⟨ update-monotone _ χ≤η (lookup-monotone _ χ′≤η′) ⟩
        η , x ≔ η′ ⟨ x ⟩  ∎)
     (begin
        χ , x ≔ χ′ ⟨ x ⟩                                              ≤⟨ update-monotone _ fix (lookup-monotone _ fix′) ⟩
@@ -992,7 +995,7 @@ module _ where
      χ ≤ᶜ γ ×
      (T 𝟘ᵐ-allowed →
       χ ≤ᶜ δ) ×
-     (Has-well-behaved-zero semiring-with-meet →
+     (⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
       χ ≤ᶜ η) ×
      χ ≤ᶜ δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ) →
     χ ▸[ m ] natrec p q r A t u v

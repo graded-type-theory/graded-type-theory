@@ -10,7 +10,7 @@ module Graded.Context.Properties.Has-well-behaved-zero
   (open Graded.Modality M)
   (𝕄 : Modality)
   (open Modality 𝕄)
-  (𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet)
+  ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄
   where
 
 open import Tools.Fin
@@ -26,10 +26,8 @@ open import Graded.Context 𝕄
 open import Graded.Context.Properties.Lookup 𝕄
 open import Graded.Context.Properties.Natrec 𝕄
 open import Graded.Modality.Nr-instances
-open import Graded.Modality.Properties.Has-well-behaved-zero
-  semiring-with-meet 𝟘-well-behaved
-open import Graded.Modality.Properties.Star semiring-with-meet as Star
-open import Graded.Modality.Properties.PartialOrder semiring-with-meet
+open import Graded.Modality.Properties 𝕄
+import Graded.Modality.Properties.Star semiring-with-meet as Star
 
 private variable
   n       : Nat
@@ -55,7 +53,7 @@ nrᶜ-positive {γ = ε} {δ = ε} {η = ε} _ =
 nrᶜ-positive {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} (p ∙ q) =
   case nrᶜ-positive p of λ {
     (p₁ , p₂ , p₃) →
-  case nr-positive 𝟘-well-behaved q of λ {
+  case nr-positive q of λ {
     (q₁ , q₂ , q₃) →
   p₁ ∙ q₁ , p₂ ∙ q₂ , p₃ ∙ q₃ }}
 
@@ -93,7 +91,7 @@ nrᶜ-positive-⟨⟩ :
   γ ⟨ x ⟩ ≡ 𝟘 × δ ⟨ x ⟩ ≡ 𝟘 × η ⟨ x ⟩ ≡ 𝟘
 nrᶜ-positive-⟨⟩ {p = p} {r = r} {δ = δ} {η = η} {x = x} γ =
   nrᶜ p r γ δ η ⟨ x ⟩ ≡ 𝟘                   ≡⟨ cong (_≡ _) (nrᶜ-⟨⟩ γ) ⟩→
-  nr p r (γ ⟨ x ⟩) (δ ⟨ x ⟩) (η ⟨ x ⟩) ≡ 𝟘  →⟨ nr-positive 𝟘-well-behaved ⟩
+  nr p r (γ ⟨ x ⟩) (δ ⟨ x ⟩) (η ⟨ x ⟩) ≡ 𝟘  →⟨ nr-positive ⟩
   γ ⟨ x ⟩ ≡ 𝟘 × δ ⟨ x ⟩ ≡ 𝟘 × η ⟨ x ⟩ ≡ 𝟘   □
 
 -- If ((γ ∧ᶜ η) ⊛ᶜ δ +ᶜ p ·ᶜ η ▷ r) ⟨ x ⟩ is 𝟘, then γ ⟨ x ⟩, δ ⟨ x ⟩
@@ -106,7 +104,7 @@ nrᶜ-positive-⟨⟩ {p = p} {r = r} {δ = δ} {η = η} {x = x} γ =
   γ ⟨ x ⟩ ≡ 𝟘 × δ ⟨ x ⟩ ≡ 𝟘 × η ⟨ x ⟩ ≡ 𝟘
 ⟨⟩≡𝟘→⟨⟩≡𝟘-⊛ {η = η} {δ = δ} {p = p} {r = r} γ x =
   ((γ ∧ᶜ η) ⊛ᶜ δ +ᶜ p ·ᶜ η ▷ r) ⟨ x ⟩ ≡ 𝟘   →⟨ trans lemma ⟩
-  nr p r (γ ⟨ x ⟩) (δ ⟨ x ⟩) (η ⟨ x ⟩) ≡ 𝟘  →⟨ nr-positive 𝟘-well-behaved ⟩
+  nr p r (γ ⟨ x ⟩) (δ ⟨ x ⟩) (η ⟨ x ⟩) ≡ 𝟘  →⟨ nr-positive ⟩
   γ ⟨ x ⟩ ≡ 𝟘 × δ ⟨ x ⟩ ≡ 𝟘 × η ⟨ x ⟩ ≡ 𝟘   □
   where
   open Tools.Reasoning.PropositionalEquality

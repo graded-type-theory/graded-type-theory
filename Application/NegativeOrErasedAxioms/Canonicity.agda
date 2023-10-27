@@ -21,7 +21,7 @@ module Application.NegativeOrErasedAxioms.Canonicity
   (𝕄 : Modality)
   (open Modality 𝕄)
   -- The modality has a well-behaved zero.
-  (𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet)
+  ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄
   (TR : Type-restrictions)
   (open Definition.Typed TR)
   (UR : Usage-restrictions)
@@ -38,9 +38,7 @@ open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Inversion 𝕄 UR
 open import Graded.Usage.Properties 𝕄 UR
 open import Graded.Modality.Dedicated-nr.Instance
-open import Graded.Modality.Properties.Has-well-behaved-zero
-  semiring-with-meet 𝟘-well-behaved
-open import Graded.Modality.Properties.PartialOrder semiring-with-meet
+open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 
 open import Application.NegativeOrErasedAxioms.NegativeOrErasedContext
@@ -106,8 +104,8 @@ neNeg {γ = γ}
   (_∘ⱼ_ {p = p} {q = q} {F = A} {G = B} {u = u} ⊢t ⊢u) (∘ₙ t-ne) γ▸tu =
   case inv-usage-app γ▸tu of λ {
     (invUsageApp {δ = δ} {η = η} δ▸t _ γ≤δ+pη) →
-  NegativeErasedContext Γ γ              →⟨ NegativeErasedContext-upwards-closed 𝟘-well-behaved γ≤δ+pη ⟩
-  NegativeErasedContext Γ (δ +ᶜ p ·ᶜ η)  →⟨ NegativeErasedContext-𝟘 (λ _ → proj₁ ∘→ +ᶜ-positive-⟨⟩ 𝟘-well-behaved δ) ⟩
+  NegativeErasedContext Γ γ              →⟨ NegativeErasedContext-upwards-closed γ≤δ+pη ⟩
+  NegativeErasedContext Γ (δ +ᶜ p ·ᶜ η)  →⟨ NegativeErasedContext-𝟘 (λ _ → proj₁ ∘→ +ᶜ-positive-⟨⟩ δ) ⟩
   NegativeErasedContext Γ δ              →⟨ neNeg ⊢t t-ne δ▸t ⟩
   NegativeType Γ (Π p , q ▷ A ▹ B)       →⟨ (λ hyp → appNeg hyp (refl (syntacticTerm ⊢t)) ⊢u) ⟩
   NegativeType Γ (B [ u ]₀)              □ }
@@ -133,13 +131,13 @@ neNeg {γ = γ}
   (natrecⱼ {A = A} {n = n} _ _ _ ⊢n) (natrecₙ n-ne) γ▸natrec =
   case inv-usage-natrec γ▸natrec of λ {
     (invUsageNatrec {δ = δ} {θ = θ} {χ = χ} _ _ θ▸n _ γ≤χ extra) →
-  NegativeErasedContext Γ γ            →⟨ NegativeErasedContext-upwards-closed 𝟘-well-behaved γ≤χ ⟩
+  NegativeErasedContext Γ γ            →⟨ NegativeErasedContext-upwards-closed γ≤χ ⟩
   NegativeErasedContext Γ χ            →⟨ (NegativeErasedContext-𝟘 λ x → case extra of λ {
                                              invUsageNatrecNr →
-                                               proj₂ ∘→ proj₂ ∘→ nrᶜ-positive-⟨⟩ 𝟘-well-behaved δ;
+                                               proj₂ ∘→ proj₂ ∘→ nrᶜ-positive-⟨⟩ δ;
                                              (invUsageNatrecNoNr _ _ χ≤θ _) →
-                                                $⟨ χ≤θ 𝟘-well-behaved ⟩
-    χ ≤ᶜ θ                                      →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 𝟘-well-behaved ⟩
+                                                $⟨ χ≤θ ⟩
+    χ ≤ᶜ θ                                      →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 ⟩
     (χ ⟨ x ⟩ PE.≡ 𝟘 → θ ⟨ x ⟩ PE.≡ 𝟘)           □ }) ⟩
 
   NegativeErasedContext Γ θ            →⟨ neNeg ⊢n n-ne θ▸n ⟩
@@ -156,13 +154,13 @@ neNeg
     (invUsageProdrec {δ = δ} {η = η} δ▸t _ _ ok₂ γ≤rδ+η) →
   case no-erased-matches 𝟙≢𝟘 ok₂ of λ {
     r≢𝟘 →
-  NegativeErasedContext Γ γ              →⟨ NegativeErasedContext-upwards-closed 𝟘-well-behaved γ≤rδ+η ⟩
-  NegativeErasedContext Γ (r ·ᶜ δ +ᶜ η)  →⟨ NegativeErasedContext-𝟘 (λ _ → proj₁ ∘→ +ᶜ-positive-⟨⟩ 𝟘-well-behaved (_ ·ᶜ δ)) ⟩
+  NegativeErasedContext Γ γ              →⟨ NegativeErasedContext-upwards-closed γ≤rδ+η ⟩
+  NegativeErasedContext Γ (r ·ᶜ δ +ᶜ η)  →⟨ NegativeErasedContext-𝟘 (λ _ → proj₁ ∘→ +ᶜ-positive-⟨⟩ (_ ·ᶜ δ)) ⟩
   NegativeErasedContext Γ (r ·ᶜ δ)       →⟨ (NegativeErasedContext-𝟘 λ _ →
                                                (λ { (inj₁ r≡𝟘)    → ⊥-elim (r≢𝟘 r≡𝟘)
                                                   ; (inj₂ δ⟨x⟩≡𝟘) → δ⟨x⟩≡𝟘
                                                   }) ∘→
-                                               ·ᶜ-zero-product-⟨⟩ 𝟘-well-behaved δ) ⟩
+                                               ·ᶜ-zero-product-⟨⟩ δ) ⟩
   NegativeErasedContext Γ δ              →⟨ neNeg ⊢t t-ne (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ r≢𝟘) δ▸t) ⟩
   NegativeType Γ (Σᵣ p , q ▷ B ▹ C)      →⟨ flip ¬negΣᵣ (refl (ΠΣⱼ ⊢B ⊢C ok₁)) ⟩
   ⊥                                      →⟨ ⊥-elim ⟩

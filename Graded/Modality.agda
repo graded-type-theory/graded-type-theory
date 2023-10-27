@@ -174,7 +174,7 @@ record Has-nr (𝕄 : Semiring-with-meet) : Set a where
     -- If the zero is well-behaved, then nr p r is only 𝟘 for 𝟘, 𝟘
     -- and 𝟘.
     nr-positive :
-      Has-well-behaved-zero 𝕄 →
+      ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
       nr p r z s n ≡ 𝟘 → z ≡ 𝟘 × s ≡ 𝟘 × n ≡ 𝟘
 
     -- If n is bounded by 𝟘, then nr p r z s n is bounded by n. This

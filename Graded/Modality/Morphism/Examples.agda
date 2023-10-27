@@ -164,7 +164,7 @@ unit⇨erasure {v₁-ok = v₁-ok} s⇔s = λ where
     .tr-≤-∧ _              → _ , _ , refl , refl , refl
     .tr-≤-nr _             → _ , _ , _ , refl , refl , refl , refl
     .tr-≤-no-nr _ _ _ _ _  → _ , _ , _ , _ , refl , refl , refl , refl
-                           , refl , (λ _ → refl) , (λ _ → refl) , refl
+                           , refl , (λ _ → refl) , refl , refl
     .tr-morphism           → λ where
       .𝟘ᵐ-in-second-if-in-first             → ⊥-elim ∘→ v₁-ok
       .𝟘ᵐ-in-first-if-in-second _           → inj₂ refl
@@ -633,8 +633,9 @@ erasure⇨zero-one-many {v₁ = v₁} {v₂ = v₂} {𝟙≤𝟘 = 𝟙≤𝟘} 
     q₁ 𝟘𝟙ω.≤ q₂ →
     (T (Modality-variant.𝟘ᵐ-allowed v₁) →
      q₁ 𝟘𝟙ω.≤ q₃) →
-    (Has-well-behaved-zero 𝟘𝟙ω.Zero-one-many
-       𝟘𝟙ω.zero-one-many-semiring-with-meet →
+    (⦃ 𝟘-well-behaved :
+         Has-well-behaved-zero 𝟘𝟙ω.Zero-one-many
+           𝟘𝟙ω.zero-one-many-semiring-with-meet ⦄ →
      q₁ 𝟘𝟙ω.≤ q₄) →
     q₁ 𝟘𝟙ω.≤ q₃ 𝟘𝟙ω.+ tr′ r 𝟘𝟙ω.· q₄ 𝟘𝟙ω.+ tr′ s 𝟘𝟙ω.· q₁ →
     ∃₄ λ q₁′ q₂′ q₃′ q₄′ →
@@ -645,14 +646,16 @@ erasure⇨zero-one-many {v₁ = v₁} {v₂ = v₂} {𝟙≤𝟘 = 𝟙≤𝟘} 
        q₁′ E.≤ q₂′ ×
        (T (Modality-variant.𝟘ᵐ-allowed v₂) →
         q₁′ E.≤ q₃′) ×
-       (Has-well-behaved-zero Erasure E.erasure-semiring-with-meet →
+       (⦃ 𝟘-well-behaved :
+            Has-well-behaved-zero Erasure
+              E.erasure-semiring-with-meet ⦄ →
         q₁′ E.≤ q₄′) ×
        q₁′ E.≤ q₃′ E.+ (r E.· q₄′ E.+ s E.· q₁′)
   tr-≤-no-nr s = →tr-≤-no-nr {s = s}
     (ErasureModality v₁)
     (zero-one-many-modality 𝟙≤𝟘 v₂)
     idᶠ
-    (λ _ → 𝟘𝟙ω.zero-one-many-has-well-behaved-zero)
+    𝟘𝟙ω.zero-one-many-has-well-behaved-zero
     tr′
     tr⁻¹
     tr⁻¹-monotone
@@ -2940,8 +2943,9 @@ linearity⇨linear-or-affine {v₁ = v₁} {v₂ = v₂} refl s⇔s = λ where
     q₁ LA.≤ q₂ →
     (T (Modality-variant.𝟘ᵐ-allowed v₁) →
      q₁ LA.≤ q₃) →
-    (Has-well-behaved-zero Linear-or-affine
-       LA.linear-or-affine-semiring-with-meet →
+    (⦃ 𝟘-well-behaved :
+         Has-well-behaved-zero Linear-or-affine
+           LA.linear-or-affine-semiring-with-meet ⦄ →
      q₁ LA.≤ q₄) →
     q₁ LA.≤ q₃ LA.+ tr′ r LA.· q₄ LA.+ tr′ s LA.· q₁ →
     ∃₄ λ q₁′ q₂′ q₃′ q₄′ →
@@ -2952,15 +2956,16 @@ linearity⇨linear-or-affine {v₁ = v₁} {v₂ = v₂} refl s⇔s = λ where
        q₁′ L.≤ q₂′ ×
        (T (Modality-variant.𝟘ᵐ-allowed v₂) →
         q₁′ L.≤ q₃′) ×
-       (Has-well-behaved-zero Linearity
-          (Modality.semiring-with-meet (linearityModality v₂)) →
+       (⦃ 𝟘-well-behaved :
+            Has-well-behaved-zero Linearity
+              (Modality.semiring-with-meet (linearityModality v₂)) ⦄ →
         q₁′ L.≤ q₄′) ×
        q₁′ L.≤ q₃′ L.+ r L.· q₄′ L.+ s L.· q₁′
   tr-≤-no-nr s = →tr-≤-no-nr {s = s}
     (linearityModality v₁)
     (linear-or-affine v₂)
     idᶠ
-    (λ _ → LA.linear-or-affine-has-well-behaved-zero)
+    LA.linear-or-affine-has-well-behaved-zero
     tr′
     tr⁻¹
     tr⁻¹-monotone
@@ -5736,8 +5741,9 @@ affine⇨linear-or-affine {v₁ = v₁} {v₂ = v₂} refl s⇔s = λ where
     q₁ LA.≤ q₂ →
     (T (Modality-variant.𝟘ᵐ-allowed v₁) →
      q₁ LA.≤ q₃) →
-    (Has-well-behaved-zero Linear-or-affine
-       LA.linear-or-affine-semiring-with-meet →
+    (⦃ 𝟘-well-behaved :
+         Has-well-behaved-zero Linear-or-affine
+           LA.linear-or-affine-semiring-with-meet ⦄ →
      q₁ LA.≤ q₄) →
     q₁ LA.≤ q₃ LA.+ tr′ r LA.· q₄ LA.+ tr′ s LA.· q₁ →
     ∃₄ λ q₁′ q₂′ q₃′ q₄′ →
@@ -5748,15 +5754,16 @@ affine⇨linear-or-affine {v₁ = v₁} {v₂ = v₂} refl s⇔s = λ where
        q₁′ A.≤ q₂′ ×
        (T (Modality-variant.𝟘ᵐ-allowed v₂) →
         q₁′ A.≤ q₃′) ×
-       (Has-well-behaved-zero Affine
-          (Modality.semiring-with-meet (affineModality v₂)) →
+       (⦃ 𝟘-well-behaved :
+            Has-well-behaved-zero Affine
+              (Modality.semiring-with-meet (affineModality v₂)) ⦄ →
         q₁′ A.≤ q₄′) ×
        q₁′ A.≤ q₃′ A.+ r A.· q₄′ A.+ s A.· q₁′
   tr-≤-no-nr s = →tr-≤-no-nr {s = s}
     (affineModality v₁)
     (linear-or-affine v₂)
     idᶠ
-    (λ _ → LA.linear-or-affine-has-well-behaved-zero)
+    LA.linear-or-affine-has-well-behaved-zero
     tr′
     tr⁻¹
     tr⁻¹-monotone

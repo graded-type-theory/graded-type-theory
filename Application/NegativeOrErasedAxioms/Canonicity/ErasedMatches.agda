@@ -173,7 +173,7 @@ not-canonicityEq :
        open Graded.Mode 𝕄
        open Application.NegativeOrErasedAxioms.NegativeOrErasedContext 𝕄
    in
-   (𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet)
+   ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄
    (TR : Type-restrictions) →
    let open Definition.Typed TR in
    (UR : Usage-restrictions) →
@@ -186,5 +186,4 @@ not-canonicityEq :
 not-canonicityEq hyp =
   case Counterexample.cEx (nr-available-and-𝟘ᵐ-allowed-if true) of λ {
     (_ , _ , _ , _ , ⊢t , ▸t , _ , nec , con , not-numeral , _) →
-  not-numeral
-    (hyp _ EM.erasure-has-well-behaved-zero _ _ con ⊢t ▸t nec) }
+  not-numeral (hyp _ _ _ con ⊢t ▸t nec) }

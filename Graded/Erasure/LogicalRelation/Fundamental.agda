@@ -18,7 +18,7 @@ module Graded.Erasure.LogicalRelation.Fundamental
   (open Modality 𝕄)
   (TR : Type-restrictions M)
   (UR : Usage-restrictions M)
-  (𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet)
+  ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
   {{eqrel : EqRelSet TR}}
   where
 
@@ -43,9 +43,7 @@ open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Dedicated-nr.Instance
 open import Graded.Modality.Nr-instances
-open import Graded.Modality.Properties.PartialOrder semiring-with-meet
-open import Graded.Modality.Properties.Has-well-behaved-zero
-  semiring-with-meet 𝟘-well-behaved
+open import Graded.Modality.Properties 𝕄
 open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Inversion 𝕄 UR
 open import Graded.Usage.Properties 𝕄 UR
@@ -191,7 +189,7 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
   open Fundamental-assumptions FA
 
   open Graded.Erasure.LogicalRelation.Fundamental.Application
-    𝕄 TR 𝟘-well-behaved well-formed
+    𝕄 TR well-formed
   open Graded.Erasure.LogicalRelation.Fundamental.Empty
     𝕄 TR is-𝟘? well-formed consistent
   open Graded.Erasure.LogicalRelation.Fundamental.Lambda
@@ -199,11 +197,11 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
   open Graded.Erasure.LogicalRelation.Fundamental.Nat
     𝕄 TR is-𝟘? well-formed
   open Graded.Erasure.LogicalRelation.Fundamental.Natrec
-    𝕄 TR 𝟘-well-behaved well-formed
+    𝕄 TR well-formed
   open Graded.Erasure.LogicalRelation.Fundamental.Prodrec
-    𝕄 TR 𝟘-well-behaved well-formed
+    𝕄 TR well-formed
   open Graded.Erasure.LogicalRelation.Fundamental.Product
-    𝕄 TR UR 𝟘-well-behaved well-formed
+    𝕄 TR UR well-formed
   open Graded.Erasure.LogicalRelation.Fundamental.Unit
     𝕄 TR is-𝟘? well-formed
   open Graded.Erasure.LogicalRelation.Conversion 𝕄 TR is-𝟘? well-formed
@@ -436,14 +434,14 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
                invUsageNatrecNr →
                  nrᶜ p r δ η θ ⟨ x ⟩ PE.≡ 𝟘                        →⟨ PE.trans (PE.sym (nrᶜ-⟨⟩ δ)) ⟩
                  nr p r (δ ⟨ x ⟩) (η ⟨ x ⟩) (θ ⟨ x ⟩) PE.≡ 𝟘       →⟨ (λ hyp →
-                                                                         case nr-positive 𝟘-well-behaved hyp of λ {
+                                                                         case nr-positive hyp of λ {
                                                                            (p , q , r) → p , r , q }) ⟩
                  δ ⟨ x ⟩ PE.≡ 𝟘 × θ ⟨ x ⟩ PE.≡ 𝟘 × η ⟨ x ⟩ PE.≡ 𝟘  □
                (invUsageNatrecNoNr {χ = χ} χ≤δ _ χ≤θ fix) →
                  χ ⟨ x ⟩ PE.≡ 𝟘                                    →⟨ (λ hyp →
-                                                                           ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 𝟘-well-behaved χ≤δ hyp
-                                                                         , ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 𝟘-well-behaved (χ≤θ 𝟘-well-behaved) hyp
-                                                                         , ⟨⟩≡𝟘→⟨⟩≡𝟘-fixpoint 𝟘-well-behaved fix hyp) ⟩
+                                                                           ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 χ≤δ hyp
+                                                                         , ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 χ≤θ hyp
+                                                                         , ⟨⟩≡𝟘→⟨⟩≡𝟘-fixpoint fix hyp) ⟩
                  δ ⟨ x ⟩ PE.≡ 𝟘 × θ ⟨ x ⟩ PE.≡ 𝟘 × η ⟨ x ⟩ PE.≡ 𝟘  □)
     in  [Γ] , [A[n]] ,
         λ {_ _} →

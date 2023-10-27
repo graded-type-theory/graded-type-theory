@@ -634,31 +634,34 @@ zero-one-many-semiring-with-meet = record
     𝟙 ω _ → refl
     ω _ _ → refl
 
-zero-one-many-has-well-behaved-zero : Has-well-behaved-zero zero-one-many-semiring-with-meet
-zero-one-many-has-well-behaved-zero = record
-  { 𝟙≢𝟘 = λ ()
-  ; is-𝟘? = λ where
-      𝟘 → yes refl
-      𝟙 → no (λ ())
-      ω → no (λ ())
-  ; zero-product =  λ where
-      {p = 𝟘} _ → inj₁ refl
-      {q = 𝟘} _ → inj₂ refl
-  ; +-positiveˡ =  λ where
-      {p = 𝟘} {q = 𝟘} _  → refl
-      {p = 𝟘} {q = 𝟙} ()
-      {p = 𝟘} {q = ω} ()
-  ; ∧-positiveˡ = λ where
-      {p = 𝟘} {q = 𝟘} _     → refl
-      {p = 𝟘} {q = 𝟙} _     → refl
-      {p = 𝟙} {q = 𝟘} 𝟘∧𝟙≡𝟘 →
-        ⊥-elim (
-          case
-            𝟙  ≡⟨ 𝟘-maximal (sym 𝟘∧𝟙≡𝟘) ⟩
-            𝟘  ∎
-          of λ ())
-  }
-  where open Tools.Reasoning.PropositionalEquality
+instance
+
+  zero-one-many-has-well-behaved-zero :
+    Has-well-behaved-zero zero-one-many-semiring-with-meet
+  zero-one-many-has-well-behaved-zero = record
+    { 𝟙≢𝟘 = λ ()
+    ; is-𝟘? = λ where
+        𝟘 → yes refl
+        𝟙 → no (λ ())
+        ω → no (λ ())
+    ; zero-product =  λ where
+        {p = 𝟘} _ → inj₁ refl
+        {q = 𝟘} _ → inj₂ refl
+    ; +-positiveˡ =  λ where
+        {p = 𝟘} {q = 𝟘} _  → refl
+        {p = 𝟘} {q = 𝟙} ()
+        {p = 𝟘} {q = ω} ()
+    ; ∧-positiveˡ = λ where
+        {p = 𝟘} {q = 𝟘} _     → refl
+        {p = 𝟘} {q = 𝟙} _     → refl
+        {p = 𝟙} {q = 𝟘} 𝟘∧𝟙≡𝟘 →
+          ⊥-elim (
+            case
+              𝟙  ≡⟨ 𝟘-maximal (sym 𝟘∧𝟙≡𝟘) ⟩
+              𝟘  ∎
+            of λ ())
+    }
+    where open Tools.Reasoning.PropositionalEquality
 
 ------------------------------------------------------------------------
 -- Star
@@ -1532,7 +1535,7 @@ zero-one-many-has-nr = record
   ; nr-+        = λ {p = p} {r = r} → nr-+ p r
   ; nr-𝟘        = λ {p = p} {r = r} →
                     nr-𝟘 p r .proj₂ (refl , refl , refl)
-  ; nr-positive = λ {p = p} {r = r} _ → nr-𝟘 p r .proj₁
+  ; nr-positive = λ {p = p} {r = r} → nr-𝟘 p r .proj₁
   ; nr-zero     = λ {n = _} {p = p} {r = r} n≤𝟘 → nr-zero p r n≤𝟘
   ; nr-suc      = λ {p = p} {r = r} → nr-suc p r
   }

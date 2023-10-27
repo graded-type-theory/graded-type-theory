@@ -265,7 +265,8 @@ module Is-order-embedding (m : Is-order-embedding 𝕄₁ 𝕄₂ tr) where
     δ₁ C₂.≤ᶜ δ₂ →
     (T M₂.𝟘ᵐ-allowed →
      δ₁ C₂.≤ᶜ δ₃) →
-    (Has-well-behaved-zero M₂ M₂.semiring-with-meet →
+    (⦃ 𝟘-well-behaved :
+         Has-well-behaved-zero M₂ M₂.semiring-with-meet ⦄ →
      δ₁ C₂.≤ᶜ δ₄) →
     δ₁ C₂.≤ᶜ δ₃ C₂.+ᶜ tr p C₂.·ᶜ δ₄ C₂.+ᶜ tr q C₂.·ᶜ δ₁ →
     ∃₄ λ δ₁′ δ₂′ δ₃′ δ₄′ →
@@ -276,11 +277,12 @@ module Is-order-embedding (m : Is-order-embedding 𝕄₁ 𝕄₂ tr) where
        δ₁′ C₁.≤ᶜ δ₂′ ×
        (T M₁.𝟘ᵐ-allowed →
         δ₁′ C₁.≤ᶜ δ₃′) ×
-       (Has-well-behaved-zero M₁ M₁.semiring-with-meet →
+       (⦃ 𝟘-well-behaved :
+            Has-well-behaved-zero M₁ M₁.semiring-with-meet ⦄ →
         δ₁′ C₁.≤ᶜ δ₄′) ×
        δ₁′ C₁.≤ᶜ δ₃′ C₁.+ᶜ p C₁.·ᶜ δ₄′ C₁.+ᶜ q C₁.·ᶜ δ₁′
   tr-≤ᶜ-no-nr {γ = ε} {δ₁ = ε} {δ₂ = ε} {δ₃ = ε} {δ₄ = ε} _ _ _ _ _ =
-    _ , _ , _ , _ , ε , ε , ε , ε , ε , (λ _ → ε) , (λ _ → ε) , ε
+    _ , _ , _ , _ , ε , ε , ε , ε , ε , (λ _ → ε) , ε , ε
   tr-≤ᶜ-no-nr
     {γ = _ ∙ _} {δ₁ = _ ∙ _} {δ₂ = _ ∙ _} {δ₃ = _ ∙ _} {δ₄ = _ ∙ _}
     (hyp₁₁ ∙ hyp₁₂) (hyp₂₁ ∙ hyp₂₂) hyp₃ hyp₄ (hyp₅₁ ∙ hyp₅₂) =
@@ -288,7 +290,7 @@ module Is-order-embedding (m : Is-order-embedding 𝕄₁ 𝕄₂ tr) where
            hyp₁₁ hyp₂₁
            (λ ok → case hyp₃ ok of λ {
               (le ∙ _) → le })
-           (λ ok → case hyp₄ ok of λ {
+           (case hyp₄ of λ {
               (le ∙ _) → le })
            hyp₅₁ of λ {
       (_ , _ , _ , _ ,
@@ -297,7 +299,7 @@ module Is-order-embedding (m : Is-order-embedding 𝕄₁ 𝕄₂ tr) where
            hyp₁₂ hyp₂₂
            (λ ok → case hyp₃ ok of λ {
               (_ ∙ le) → le })
-           (λ ok → case hyp₄ ok of λ {
+           (case hyp₄ of λ {
               (_ ∙ le) → le })
            hyp₅₂ of λ {
       (_ , _ , _ , _ ,
@@ -306,5 +308,5 @@ module Is-order-embedding (m : Is-order-embedding 𝕄₁ 𝕄₂ tr) where
     , le₁₁ ∙ le₁₂ , le₂₁ ∙ le₂₂ , le₃₁ ∙ le₃₂ , le₄₁ ∙ le₄₂
     , le₅₁ ∙ le₅₂
     , (λ ok → le₆₁ ok ∙ le₆₂ ok)
-    , (λ ok → le₇₁ ok ∙ le₇₂ ok)
+    , (λ ⦃ _ ⦄ → le₇₁ ∙ le₇₂)
     , le₈₁ ∙ le₈₂ }}

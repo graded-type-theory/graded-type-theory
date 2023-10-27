@@ -12,7 +12,7 @@ module Graded.Erasure.Consequences.Soundness
   (open Modality 𝕄)
   (TR : Type-restrictions M)
   (UR : Usage-restrictions M)
-  (𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet)
+  ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
   where
 
 open Type-restrictions TR
@@ -31,8 +31,7 @@ open import Definition.LogicalRelation TR
 open import Graded.Context 𝕄
 open import Graded.Usage 𝕄 UR
 open import Graded.Context.Properties 𝕄
-open import Graded.Modality.Properties.Has-well-behaved-zero
-  semiring-with-meet 𝟘-well-behaved
+open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 
 import Graded.Erasure.Target as T
@@ -40,8 +39,7 @@ open import Graded.Erasure.Extraction 𝕄 is-𝟘?
 open import Graded.Erasure.SucRed TR
 import Graded.Erasure.LogicalRelation 𝕄 TR is-𝟘? as LR
 open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions 𝕄 TR UR
-import Graded.Erasure.LogicalRelation.Fundamental
-  𝕄 TR UR 𝟘-well-behaved as LRF
+import Graded.Erasure.LogicalRelation.Fundamental 𝕄 TR UR as LRF
 import Graded.Erasure.LogicalRelation.Irrelevance 𝕄 TR is-𝟘? as LRI
 import Graded.Erasure.LogicalRelation.Subsumption 𝕄 TR is-𝟘? as LRS
 

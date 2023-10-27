@@ -314,7 +314,7 @@ _≟_ = λ where
   ⊥-elim (𝟘≰𝟙 refl)
   where
   open Graded.Modality.Properties.Has-well-behaved-zero
-         𝟘≤𝟙-semiring-with-meet well-behaved
+         𝟘≤𝟙-semiring-with-meet ⦃ 𝟘-well-behaved = well-behaved ⦄
 
 -- A modality for Grade (without 𝟘ᵐ).
 

@@ -70,7 +70,7 @@ open import Graded.Usage.Inversion linear-or-affine′ UR
             𝟘ᶜ                ∎)
          ≤ᶜ-refl
          (⊥-elim ∘→ not-ok)
-         (λ _ → ≤ᶜ-refl)
+         ≤ᶜ-refl
          ≤ᶜ-refl)
   , (let open Tools.Reasoning.PartialOrder ≤-poset in
      λ ▸λ+ ok →

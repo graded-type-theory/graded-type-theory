@@ -51,7 +51,7 @@ private
        𝟘ᶜ                ∎)
     ≤ᶜ-refl
     (λ _ → ≤ᶜ-refl)
-    (λ _ → ≤ᶜ-refl)
+    ≤ᶜ-refl
     ≤ᶜ-refl
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
@@ -68,7 +68,7 @@ private
        𝟘ᶜ                ∎)
     ≤ᶜ-refl
     (λ _ → ≤ᶜ-refl)
-    (λ _ → ≤ᶜ-refl)
+    ≤ᶜ-refl
     ≤ᶜ-refl
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset

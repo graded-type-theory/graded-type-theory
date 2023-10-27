@@ -17,6 +17,7 @@ open import Tools.Sum
 open import Graded.FullReduction.Assumptions
 import Graded.Modality
 import Graded.Modality.Properties.Division
+open import Graded.Modality.Properties.Has-well-behaved-zero
 import Graded.Modality.Properties.Star as Star
 open import Graded.Modality.Variant lzero
 
@@ -402,41 +403,43 @@ L≤M≤H-semiring-with-meet = record
   +-distrib-∧ =
     +-distribˡ-∧ , comm+distrˡ⇒distrʳ +-comm +-distribˡ-∧
 
--- This semiring has a well-behaved zero.
+instance
 
-L≤M≤H-has-well-behaved-zero :
-  Has-well-behaved-zero L≤M≤H-semiring-with-meet
-L≤M≤H-has-well-behaved-zero = record
-  { 𝟙≢𝟘   = λ ()
-  ; is-𝟘? = λ where
-      L → no (λ ())
-      M → no (λ ())
-      H → yes refl
-  ; zero-product = λ where
-      {p = L} {q = L} ()
-      {p = L} {q = M} ()
-      {p = L} {q = H} refl → inj₂ refl
-      {p = M} {q = L} ()
-      {p = M} {q = M} ()
-      {p = M} {q = H} refl → inj₂ refl
-      {p = H}         _    → inj₁ refl
-  ; +-positiveˡ = λ where
-      {p = L} {q = L} ()
-      {p = L} {q = M} ()
-      {p = L} {q = H} ()
-      {p = M} {q = L} ()
-      {p = M} {q = M} ()
-      {p = M} {q = H} ()
-      {p = H}         _  → refl
-  ; ∧-positiveˡ = λ where
-      {p = L} {q = L} ()
-      {p = L} {q = M} ()
-      {p = L} {q = H} ()
-      {p = M} {q = L} ()
-      {p = M} {q = M} ()
-      {p = M} {q = H} ()
-      {p = H}         _  → refl
-  }
+  -- This semiring has a well-behaved zero.
+
+  L≤M≤H-has-well-behaved-zero :
+    Has-well-behaved-zero L≤M≤H-semiring-with-meet
+  L≤M≤H-has-well-behaved-zero = record
+    { 𝟙≢𝟘   = λ ()
+    ; is-𝟘? = λ where
+        L → no (λ ())
+        M → no (λ ())
+        H → yes refl
+    ; zero-product = λ where
+        {p = L} {q = L} ()
+        {p = L} {q = M} ()
+        {p = L} {q = H} refl → inj₂ refl
+        {p = M} {q = L} ()
+        {p = M} {q = M} ()
+        {p = M} {q = H} refl → inj₂ refl
+        {p = H}         _    → inj₁ refl
+    ; +-positiveˡ = λ where
+        {p = L} {q = L} ()
+        {p = L} {q = M} ()
+        {p = L} {q = H} ()
+        {p = M} {q = L} ()
+        {p = M} {q = M} ()
+        {p = M} {q = H} ()
+        {p = H}         _  → refl
+    ; ∧-positiveˡ = λ where
+        {p = L} {q = L} ()
+        {p = L} {q = M} ()
+        {p = L} {q = H} ()
+        {p = M} {q = L} ()
+        {p = M} {q = M} ()
+        {p = M} {q = H} ()
+        {p = H}         _  → refl
+    }
 
 -- A natrec-star operator can be defined for L≤M≤H-semiring-with-meet.
 
@@ -716,8 +719,6 @@ private
 
 H/≡H : p ≢ H → H / p ≡ H
 H/≡H p≢H = /≡→/≡ $ D.𝟘/≡𝟘 zero-product p≢H
-  where
-  open Has-well-behaved-zero L≤M≤H-has-well-behaved-zero
 
 -- The value of p divided by H is L.
 

@@ -17,8 +17,7 @@ open import Definition.Untyped M
 open import Definition.Typed R
 open import Definition.Typed.Weakening R
 open import Graded.Context 𝕄
-open import Graded.Modality.Properties.Has-well-behaved-zero
-  semiring-with-meet
+open import Graded.Modality.Properties 𝕄
 open import Application.NegativeOrErasedAxioms.NegativeOrErasedType 𝕄 R
 
 open import Tools.Bool
@@ -88,18 +87,18 @@ NegativeErasedContext-𝟘
 -- NegativeErasedContext is upwards closed in its second argument.
 
 NegativeErasedContext-upwards-closed :
-  Has-well-behaved-zero semiring-with-meet →
+  ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
   γ ≤ᶜ δ →
   NegativeErasedContext Γ γ →
   NegativeErasedContext Γ δ
 NegativeErasedContext-upwards-closed
-  {γ = ε} {δ = ε} _ ε ε =
+  {γ = ε} {δ = ε} ε ε =
   ε
 NegativeErasedContext-upwards-closed
-  {γ = _ ∙ _} {δ = _ ∙ _} ok (γ≤δ ∙ _) (neΓγ ∙ neg) =
-  NegativeErasedContext-upwards-closed ok γ≤δ neΓγ ∙ neg
+  {γ = _ ∙ _} {δ = _ ∙ _} (γ≤δ ∙ _) (neΓγ ∙ neg) =
+  NegativeErasedContext-upwards-closed γ≤δ neΓγ ∙ neg
 NegativeErasedContext-upwards-closed
-  {γ = _ ∙ _} {δ = _ ∙ _} ok (γ≤δ ∙ 𝟘≤p) (neΓγ ∙𝟘) =
+  {γ = _ ∙ _} {δ = _ ∙ _} (γ≤δ ∙ 𝟘≤p) (neΓγ ∙𝟘) =
   PE.subst (λ p → NegativeErasedContext _ (_ ∙ p))
-    (PE.sym (𝟘≮ ok 𝟘≤p))
-    (NegativeErasedContext-upwards-closed ok γ≤δ neΓγ ∙𝟘)
+    (PE.sym (𝟘≮ 𝟘≤p))
+    (NegativeErasedContext-upwards-closed γ≤δ neΓγ ∙𝟘)

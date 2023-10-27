@@ -2,6 +2,8 @@
 -- Modality morphisms preserve some things related to usage
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 open import Graded.Modality
 open import Graded.Modality.Morphism as M
   using (Is-morphism; Is-order-embedding;
@@ -223,11 +225,12 @@ module Is-morphism
              (inj₂ trivial) → begin
                tr-Conₘ χ  ≡⟨ cong tr-Conₘ (CP₁.≈ᶜ→≡ (CP₁.≈ᶜ-trivial trivial)) ⟩
                tr-Conₘ δ  ∎)
-        (λ ok →
-           case 𝟘-well-behaved-in-first-if-in-second (inj₁ ok)
-           of λ where
+        (λ ⦃ 𝟘-well-behaved ⦄ →
+           case 𝟘-well-behaved-in-first-if-in-second
+                  (inj₁ 𝟘-well-behaved) of λ where
              (inj₁ 𝟘-well-behaved) →
-               tr-Conₘ-monotone (χ≤η 𝟘-well-behaved)
+               tr-Conₘ-monotone
+                 (χ≤η ⦃ 𝟘-well-behaved = 𝟘-well-behaved ⦄)
              (inj₂ trivial) → begin
                tr-Conₘ χ  ≡⟨ cong tr-Conₘ (CP₁.≈ᶜ→≡ (CP₁.≈ᶜ-trivial trivial)) ⟩
                tr-Conₘ η  ∎)
@@ -385,7 +388,7 @@ module Is-order-embedding
     tr-▸⁻¹-𝟙≡𝟘′ {m = m} {m′ = m′} (fst p _) (fstₘ m″ ▸t mp≡m₂ ok) = fstₘ
       𝟙ᵐ
       (tr-▸⁻¹-𝟙≡𝟘′ _ ▸t)
-      (Mo₁.Mode-propositional-without-𝟘ᵐ (flip MP₁.𝟘ᵐ→𝟙≢𝟘 𝟙≡𝟘))
+      (Mo₁.Mode-propositional-without-𝟘ᵐ (flip MP₁.𝟘ᵐ.𝟙≢𝟘 𝟙≡𝟘))
       λ {refl → MP₁.≤-reflexive (MP₁.≡-trivial 𝟙≡𝟘)}
 
     tr-▸⁻¹-𝟙≡𝟘′ (prodrec _ _ _ _ _ _) (prodrecₘ ▸t ▸u ▸Q ok) = sub
@@ -416,7 +419,7 @@ module Is-order-embedding
         (tr-▸⁻¹-𝟙≡𝟘″ ▸P)
         (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
         (λ _ → CP₁.≈ᶜ-trivial 𝟙≡𝟘)
-        (λ _ → CP₁.≈ᶜ-trivial 𝟙≡𝟘)
+        (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
         (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
       where
       open import
