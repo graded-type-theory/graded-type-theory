@@ -21,6 +21,7 @@ open Usage-restrictions UR
 open import Definition.Untyped M hiding (_∷_)
 
 open import Definition.Typed TR
+open import Definition.Typed.Consequences.Consistency TR
 open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Consequences.Substitution TR
 import Definition.Typed.Consequences.Canonicity TR as TC
@@ -237,13 +238,13 @@ soundness-ℕ-only-source-counterexample :
   let Δ = ε ∙ (Σᵣ p , 𝟘 ▷ ℕ ▹ ℕ)
       t = prodrec 𝟘 p 𝟘 ℕ (var x0) zero
   in
-  (∀ {u} → Δ ⊢ u ∷ Empty → ⊥) ×
+  Consistent Δ ×
   Δ ⊢ t ∷ ℕ ×
   𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
   ¬ ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
 soundness-ℕ-only-source-counterexample {p = p} P-ok Σᵣ-ok =
-    (λ ⊢t → TC.¬Empty $
-            substTerm ⊢t (prodⱼ ε⊢ℕ εℕ⊢ℕ (zeroⱼ ε) (zeroⱼ ε) Σᵣ-ok))
+    inhabited-consistent
+      (singleSubst (prodⱼ ε⊢ℕ εℕ⊢ℕ (zeroⱼ ε) (zeroⱼ ε) Σᵣ-ok))
   , ⊢prodrec
   , sub
       (prodrecₘ var

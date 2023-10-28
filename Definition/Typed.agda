@@ -17,6 +17,7 @@ open import Tools.Fin
 open import Tools.Nat
 open import Tools.Product hiding (_,_)
 import Tools.PropositionalEquality as PE
+open import Tools.Relation
 
 
 infixl 24 _∙_
@@ -435,3 +436,8 @@ data _⊢ˢ_≡_∷_ {k} (Δ : Con Term k) :
      → Γ     ⊢ ⟦ W ⟧ F ▹ G ∷ U
 ⟦ BΠ _ _   ⟧ⱼᵤ = ΠΣⱼ
 ⟦ BΣ _ _ _ ⟧ⱼᵤ = ΠΣⱼ
+
+-- A context Γ is consistent if the empty type is not inhabited in Γ.
+
+Consistent : Con Term n → Set ℓ
+Consistent Γ = ∀ t → ¬ Γ ⊢ t ∷ Empty

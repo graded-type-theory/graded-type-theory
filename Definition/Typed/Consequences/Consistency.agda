@@ -11,6 +11,8 @@ module Definition.Typed.Consequences.Consistency
 
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Typed R
+open import Definition.Typed.Consequences.Canonicity R
+open import Definition.Typed.Consequences.Substitution R
 open import Definition.Typed.Properties R
 open import Definition.Typed.EqRelInstance R
 open import Definition.LogicalRelation R
@@ -27,7 +29,16 @@ private
   variable
     n : Nat
     Γ : Con Term n
+    σ : Subst _ _
     t : Term n
+
+opaque
+
+  -- If there is some way to instantiate all the types in Γ, then Γ is
+  -- consistent.
+
+  inhabited-consistent : ε ⊢ˢ σ ∷ Γ → Consistent Γ
+  inhabited-consistent ⊢σ _ ⊢t = ¬Empty (substitutionTerm ⊢t ⊢σ ε)
 
 zero≢suc′ : ∀ {l} ([ℕ] : Γ ⊩⟨ l ⟩ℕ ℕ)
            → Γ ⊩⟨ l ⟩ zero ≡ suc t ∷ ℕ / ℕ-intr [ℕ] → ⊥

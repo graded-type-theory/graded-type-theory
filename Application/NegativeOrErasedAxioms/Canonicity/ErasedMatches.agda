@@ -20,6 +20,7 @@ import Definition.Conversion
 import Definition.Conversion.Consequences.Completeness
 import Definition.Typed
 import Definition.Typed.Consequences.Canonicity
+import Definition.Typed.Consequences.Consistency
 import Definition.Typed.Consequences.Substitution
 import Definition.Typed.Properties
 import Definition.Typed.Restrictions
@@ -70,6 +71,7 @@ module Counterexample
   open Definition.Conversion.Consequences.Completeness TR
   open Definition.Typed TR
   open Definition.Typed.Consequences.Canonicity TR
+  open Definition.Typed.Consequences.Consistency TR
   open Definition.Typed.Consequences.Substitution TR
   open Definition.Typed.Properties TR
   open Definition.Untyped Erasure
@@ -94,7 +96,7 @@ module Counterexample
     × γ ▸[ 𝟙ᵐ ] t
     × γ PE.≡ 𝟘ᶜ
     × NegativeErasedContext Γ γ
-    × (∀ {u} → Γ ⊢ u ∷ Empty → ⊥)
+    × Consistent Γ
     × ((∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ) → ⊥)
     × ((∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ) → ⊥)
     × (∃ λ u → Γ ⊢ t ⇒* u ∷ ℕ × Whnf u × Neutral u)
@@ -106,8 +108,8 @@ module Counterexample
         (sub ℕₘ (≤ᶜ-refl ∙ ≤-reflexive (M.·-zeroʳ _))) _
     , PE.refl
     , ε ∙𝟘
-    , (λ ⊢t → ¬Empty $
-              substTerm ⊢t (prodⱼ ε⊢ℕ εℕ⊢ℕ (zeroⱼ ε) (zeroⱼ ε) _))
+    , inhabited-consistent
+        (singleSubst (prodⱼ ε⊢ℕ εℕ⊢ℕ (zeroⱼ ε) (zeroⱼ ε) _))
     , (λ { (.zero , zeroₙ , t≡u) → lem (completeEqTerm t≡u)
          ; (.(suc _) , sucₙ numU , t≡u) → lem′ (completeEqTerm t≡u)
          })
@@ -179,7 +181,7 @@ not-canonicityEq :
    (UR : Usage-restrictions) →
    let open Graded.Usage 𝕄 UR in
    ∀ {m} {Γ : Con Term m} →
-   (∀ {t} → Γ ⊢ t ∷ Empty → ⊥) →
+   Consistent Γ →
    ∀ {t γ} → Γ ⊢ t ∷ ℕ → γ ▸[ 𝟙ᵐ ] t → NegativeErasedContext TR Γ γ →
    ∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ) →
   ⊥

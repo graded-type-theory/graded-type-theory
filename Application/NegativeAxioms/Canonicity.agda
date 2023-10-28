@@ -47,7 +47,7 @@ private
     t u   : Term m
 
 module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
-            (consistent : ∀ {t} → Γ ⊢ t ∷ Empty → ⊥) where
+            (consistent : Consistent Γ) where
 
   -- Lemma: A neutral has negative type in a consistent negative/erased context.
 
@@ -67,7 +67,7 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
     let ⊢Σ = refl (ΠΣⱼ ⊢A A⊢B ok)
     in  ⊥-elim (¬negΣᵣ (neNeg d n) ⊢Σ)
   neNeg (emptyrecⱼ _ d     ) (emptyrecₙ n) =
-    ⊥-elim (consistent d)
+    ⊥-elim (consistent _ d)
   neNeg (conv d c          ) n          = conv (neNeg d n) c
 
   -- Lemma: A normal form of type ℕ is a numeral in a consistent negative context.

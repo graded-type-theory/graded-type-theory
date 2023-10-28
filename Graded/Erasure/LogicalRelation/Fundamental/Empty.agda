@@ -7,7 +7,6 @@ open import Definition.Typed.EqualityRelation
 import Definition.Typed
 open import Definition.Typed.Restrictions
 import Definition.Untyped hiding (_∷_)
-open import Tools.Empty
 open import Tools.PropositionalEquality
 open import Tools.Relation
 
@@ -21,7 +20,7 @@ module Graded.Erasure.LogicalRelation.Fundamental.Empty
   (is-𝟘? : (p : M) → Dec (p ≡ 𝟘))
   {{eqrel : EqRelSet R}}
   {Δ : Con Term k} (⊢Δ : ⊢ Δ)
-  (consistent : ∀ {t} → Δ ⊢ t ∷ Empty → ⊥)
+  (consistent : Consistent Δ)
   where
 
 open EqRelSet {{...}}
@@ -40,6 +39,7 @@ open import Definition.LogicalRelation.Substitution.Introductions.Empty R
 open import Graded.Context 𝕄
 open import Graded.Mode 𝕄
 
+open import Tools.Empty
 open import Tools.Nat
 open import Tools.Product
 
@@ -67,7 +67,8 @@ emptyrecʳ′ : ∀ {l p} → ([Γ] : ⊩ᵛ Γ)
           → ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ Empty / [Γ] / Emptyᵛ [Γ])
           → γ ▸ Γ ⊩ʳ⟨ l ⟩ emptyrec p A t ∷[ m ] A / [Γ] / [A]
 emptyrecʳ′ [Γ] [A] [t] [σ] σ®σ′ with proj₁ ([t] ⊢Δ [σ])
-... | Emptyₜ n d n≡n (ne (neNfₜ neK ⊢k k≡k)) = ⊥-elim (consistent ⊢k)
+... | Emptyₜ n d n≡n (ne (neNfₜ neK ⊢k k≡k)) =
+  ⊥-elim (consistent _ ⊢k)
 
 
 emptyrecʳ : ∀ {l p} → ([Γ] : ⊩ᵛ Γ)

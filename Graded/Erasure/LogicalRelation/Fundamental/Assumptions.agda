@@ -17,11 +17,10 @@ module Graded.Erasure.LogicalRelation.Fundamental.Assumptions
 
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Typed TR
-open import Definition.Typed.Consequences.Canonicity TR
+open import Definition.Typed.Consequences.Consistency TR
 
 open import Graded.Restrictions
 
-open import Tools.Empty
 open import Tools.Nat
 open import Tools.PropositionalEquality
 open import Tools.Sum
@@ -36,7 +35,7 @@ record Fundamental-assumptions⁻ (Δ : Con Term k) : Set a where
   no-eta-equality
   field
     -- The context is consistent.
-    consistent : ∀ {t} → Δ ⊢ t ∷ Empty → ⊥
+    consistent : Consistent Δ
     -- Erased matches are not allowed unless the context is empty.
     closed-or-no-erased-matches : No-erased-matches 𝕄 UR ⊎ k ≡ 0
 
@@ -57,7 +56,8 @@ record Fundamental-assumptions (Δ : Con Term k) : Set a where
 
 fundamental-assumptions⁻₀ : Fundamental-assumptions⁻ ε
 fundamental-assumptions⁻₀ = record
-  { consistent                  = ¬Empty
+  { consistent                  = inhabited-consistent
+                                    (_⊢ˢ_∷_.id {σ = idSubst})
   ; closed-or-no-erased-matches = inj₂ refl
   }
 

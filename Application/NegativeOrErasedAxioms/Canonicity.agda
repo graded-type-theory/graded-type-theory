@@ -3,8 +3,6 @@
 -- canonicity if erased matches are not allowed.
 ------------------------------------------------------------------------
 
-open import Tools.Empty
-
 import Graded.Modality
 open import Graded.Restrictions
 import Graded.Usage.Restrictions
@@ -28,7 +26,7 @@ module Application.NegativeOrErasedAxioms.Canonicity
   -- Erased matches are not allowed.
   (no-erased-matches : No-erased-matches 𝕄 UR)
   {m} {Γ : Con Term m}
-  (consistent : ∀{t} → Γ ⊢ t ∷ Empty → ⊥)
+  (consistent : Consistent Γ)
   where
 
 open import Graded.Context 𝕄
@@ -59,6 +57,7 @@ open import Definition.LogicalRelation TR
 open import Definition.LogicalRelation.Irrelevance TR
 open import Definition.LogicalRelation.Fundamental.Reducibility TR
 
+open import Tools.Empty
 open import Tools.Function
 open import Tools.PropositionalEquality as PE using (_≢_)
 open import Tools.Product
@@ -166,7 +165,7 @@ neNeg
   ⊥                                      →⟨ ⊥-elim ⟩
   NegativeType Γ (A [ t ]₀)              □ }}
 neNeg (emptyrecⱼ _ d) (emptyrecₙ _) _ _ =
-  ⊥-elim (consistent d)
+  ⊥-elim (consistent _ d)
 neNeg (conv d c) n γ▸u nΓγ =
   conv (neNeg d n γ▸u nΓγ) c
 

@@ -32,7 +32,7 @@ open import Graded.Mode 𝕄
 
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Typed TR
-open import Definition.Typed.Consequences.Canonicity TR
+open import Definition.Typed.Consequences.Consistency TR
 open import Definition.Typed.Consequences.Substitution TR
 open import Definition.Typed.Properties TR
 open import Definition.LogicalRelation TR
@@ -66,7 +66,7 @@ negation-of-fundamental-lemma-with-erased-matches :
   Σᵣ-allowed p 𝟘 →
   ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
      let open LR ⊢Δ in
-     (∀ {t} → Δ ⊢ t ∷ Empty → ⊥) →
+     Consistent Δ →
      ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
      Γ ⊢ t ∷ A → γ ▸[ m ] t →
      ∃₂ λ ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ]) →
@@ -83,13 +83,10 @@ negation-of-fundamental-lemma-with-erased-matches
   ⊢Δ : ⊢ Δ
   ⊢Δ = ε ∙ ΠΣⱼ (ℕⱼ ε) (ℕⱼ (ε ∙ ℕⱼ ε)) Σᵣ-ok
 
-  consistent : ∀ {t} → Δ ⊢ t ∷ Empty → ⊥
-  consistent {t = t} ⊢t = ¬Empty ∷Empty
-    where
-    ∷Empty : ε ⊢ t [ prodᵣ p zero zero ]₀ ∷ Empty
-    ∷Empty =
-      substTerm ⊢t
-        (prodⱼ (ℕⱼ ε) (ℕⱼ (ε ∙ ℕⱼ ε)) (zeroⱼ ε) (zeroⱼ ε) Σᵣ-ok)
+  consistent : Consistent Δ
+  consistent =
+    inhabited-consistent $ singleSubst $
+    prodⱼ (ℕⱼ ε) (ℕⱼ (ε ∙ ℕⱼ ε)) (zeroⱼ ε) (zeroⱼ ε) Σᵣ-ok
 
   open LR ⊢Δ
   open LRI ⊢Δ
