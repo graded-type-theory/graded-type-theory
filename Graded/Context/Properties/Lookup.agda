@@ -19,7 +19,9 @@ open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties.PartialOrder semiring-with-meet
 
 open import Tools.Fin
+open import Tools.Function
 open import Tools.Nat using (Nat)
+open import Tools.Product
 open import Tools.PropositionalEquality as PE
 
 private
@@ -94,3 +96,19 @@ lookup-distrib-⊛ᶜ (γ ∙ p) (δ ∙ q) r (x +1) = lookup-distrib-⊛ᶜ γ 
 update-lookup : (γ : Conₘ n) (x : Fin n) → (γ , x ≔ p) ⟨ x ⟩ ≡ p
 update-lookup (_ ∙ _) x0     = PE.refl
 update-lookup (γ ∙ _) (x +1) = update-lookup γ x
+
+opaque
+
+  -- One can express "is equal to 𝟘ᶜ" using the lookup operation.
+
+  ≈ᶜ𝟘ᶜ⇔⟨⟩≡𝟘 : γ ≈ᶜ 𝟘ᶜ ⇔ (∀ x → γ ⟨ x ⟩ ≡ 𝟘)
+  ≈ᶜ𝟘ᶜ⇔⟨⟩≡𝟘 = to , from
+    where
+    to : γ ≈ᶜ 𝟘ᶜ → ∀ x → γ ⟨ x ⟩ ≡ 𝟘
+    to {γ = ε}     ε         ()
+    to {γ = _ ∙ _} (_  ∙ ≡𝟘) x0     = ≡𝟘
+    to {γ = _ ∙ _} (≈𝟘 ∙ _)  (x +1) = to ≈𝟘 x
+
+    from : (∀ x → γ ⟨ x ⟩ ≡ 𝟘) → γ ≈ᶜ 𝟘ᶜ
+    from {γ = ε}     _   = ε
+    from {γ = _ ∙ _} hyp = from (hyp ∘→ _+1) ∙ hyp x0
