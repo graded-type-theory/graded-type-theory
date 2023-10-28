@@ -11,10 +11,12 @@ open Semiring-with-meet 𝕄
 
 open import Graded.Modality.Properties.PartialOrder 𝕄
 
+open import Tools.Function
 open import Tools.Product
 open import Tools.PropositionalEquality
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
+open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private
   variable
@@ -87,6 +89,35 @@ private
   p ∧ (q ∧ r)  ∎
   where
   open Tools.Reasoning.PropositionalEquality
+
+-- If _≤_ is total, then p ∧ q ≤ r holds if and only if either p ≤ r
+-- or q ≤ r holds.
+
+∧≤⇔ :
+  (∀ p q → p ≤ q ⊎ q ≤ p) →
+  p ∧ q ≤ r ⇔ (p ≤ r ⊎ q ≤ r)
+∧≤⇔ {p = p} {q = q} {r = r} total =
+    (λ p∧q≤r →
+       case total p q of λ where
+         (inj₁ p≤q) → inj₁ $ begin
+           p      ≤⟨ ∧-greatest-lower-bound ≤-refl p≤q ⟩
+           p ∧ q  ≤⟨ p∧q≤r ⟩
+           r      ∎
+         (inj₂ q≤p) → inj₂ $ begin
+           q      ≤⟨ ∧-greatest-lower-bound q≤p ≤-refl ⟩
+           p ∧ q  ≤⟨ p∧q≤r ⟩
+           r      ∎)
+  , (λ where
+       (inj₁ p≤r) → begin
+         p ∧ q  ≤⟨ ∧-decreasingˡ _ _ ⟩
+         p      ≤⟨ p≤r ⟩
+         r      ∎
+       (inj₂ q≤r) → begin
+         p ∧ q  ≤⟨ ∧-decreasingʳ _ _ ⟩
+         q      ≤⟨ q≤r ⟩
+         r      ∎)
+  where
+  open Tools.Reasoning.PartialOrder ≤-poset
 
 -- If p is the largest value, then p ∧ q is equal to q.
 
