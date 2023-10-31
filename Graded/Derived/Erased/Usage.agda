@@ -2,6 +2,8 @@
 -- Some properties related to usage and Erased
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 
@@ -51,33 +53,37 @@ private
 ------------------------------------------------------------------------
 -- Usage rules
 
--- A usage rule for Erased.
+opaque
 
-▸Erased :
-  γ ▸[ 𝟘ᵐ[ ok ] ] A →
-  𝟘ᶜ ▸[ m ] Erased A
-▸Erased {γ = γ} {ok = ok} {m = m} ▸A = sub
-  (ΠΣₘ
-     (▸-cong (PE.sym (ᵐ·𝟘≡𝟘ᵐ m ok)) (▸-𝟘 ▸A))
-     (sub Unitₘ
-        (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-           𝟘ᶜ ∙ ⌜ m ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
-           𝟘ᶜ              ∎)))
-  (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-     𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
-     𝟘ᶜ +ᶜ 𝟘ᶜ  ∎)
+  -- A usage rule for Erased.
 
--- A usage rule for [_].
+  ▸Erased :
+    γ ▸[ 𝟘ᵐ? ] A →
+    γ ▸[ m ] Erased A
+  ▸Erased {γ} {m} ▸A = sub
+    (ΠΣₘ
+       (▸-cong (PE.sym (ᵐ·-zeroʳ m)) ▸A)
+       (sub Unitₘ
+          (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+             𝟘ᶜ ∙ ⌜ m ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+             𝟘ᶜ              ∎)))
+    (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+       γ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
+       γ +ᶜ 𝟘ᶜ  ∎)
 
-▸[] : γ ▸[ 𝟘ᵐ[ ok ] ] t → 𝟘ᶜ ▸[ m ] [ t ]
-▸[] {ok = ok} {m = m} ▸t = sub
-  (prodₚₘ (▸-cong (PE.sym (ᵐ·𝟘≡𝟘ᵐ m ok)) (▸-𝟘 ▸t)) starₘ)
-  (begin
-     𝟘ᶜ             ≈˘⟨ ∧ᶜ-idem _ ⟩
-     𝟘ᶜ ∧ᶜ 𝟘ᶜ       ≈˘⟨ ∧ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
-     𝟘 ·ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ  ∎)
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+opaque
+
+  -- A usage rule for [_].
+
+  ▸[] : γ ▸[ 𝟘ᵐ? ] t → 𝟘ᶜ ▸[ m ] [ t ]
+  ▸[] {γ} {m} ▸t = sub
+    (prodₚₘ (▸-cong (PE.sym (ᵐ·-zeroʳ m)) ▸t) starₘ)
+    (begin
+       𝟘ᶜ             ≈˘⟨ ∧ᶜ-idem _ ⟩
+       𝟘ᶜ ∧ᶜ 𝟘ᶜ       ≈˘⟨ ∧ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
+       𝟘 ·ᶜ γ ∧ᶜ 𝟘ᶜ  ∎)
+    where
+    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
 -- A usage rule for erased.
 
@@ -97,37 +103,39 @@ private
 ------------------------------------------------------------------------
 -- Inversion lemmas for usage
 
--- An inversion lemma for Erased.
+opaque
 
-inv-usage-Erased : γ ▸[ m ] Erased A → 𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] A × γ ≤ᶜ 𝟘ᶜ
-inv-usage-Erased {γ = γ} {m = m} {ok = ok} ▸Erased =
-  case inv-usage-ΠΣ ▸Erased of
-    λ (invUsageΠΣ {δ = δ} {η = η} ▸A ▸Unit γ≤) →
-    ▸-𝟘 ▸A
-  , (begin
-       γ        ≤⟨ γ≤ ⟩
-       δ +ᶜ η   ≤⟨ +ᶜ-monotoneʳ (tailₘ-monotone (inv-usage-Unit ▸Unit)) ⟩
-       δ +ᶜ 𝟘ᶜ  ≈⟨ +ᶜ-identityʳ _ ⟩
-       δ        ≤⟨ ▸-𝟘ᵐ (▸-cong (ᵐ·𝟘≡𝟘ᵐ m ok) ▸A) ⟩
-       𝟘ᶜ       ∎)
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+  -- An inversion lemma for Erased.
 
--- An inversion lemma for [_].
+  inv-usage-Erased : γ ▸[ m ] Erased A → γ ▸[ 𝟘ᵐ? ] A
+  inv-usage-Erased {γ} {m} ▸Erased =
+    case inv-usage-ΠΣ ▸Erased of λ {
+      (invUsageΠΣ {δ = δ} {η = η} ▸A ▸Unit γ≤) →
+    sub (▸-cong (ᵐ·-zeroʳ m) ▸A) $ begin
+      γ        ≤⟨ γ≤ ⟩
+      δ +ᶜ η   ≤⟨ +ᶜ-monotoneʳ (tailₘ-monotone (inv-usage-Unit ▸Unit)) ⟩
+      δ +ᶜ 𝟘ᶜ  ≈⟨ +ᶜ-identityʳ _ ⟩
+      δ        ∎ }
+    where
+    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-inv-usage-[] : γ ▸[ m ] [ t ] → (∀ {ok} → 𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] t) × γ ≤ᶜ 𝟘ᶜ
-inv-usage-[] {γ = γ} {m = m} ▸[] =
-  case inv-usage-prodₚ ▸[] of
-    λ (invUsageProdₚ {δ = δ} {η = η} ▸t ▸star γ≤) →
-    (λ {_} → ▸-𝟘 ▸t)
-  , (begin
-       γ            ≤⟨ γ≤ ⟩
-       𝟘 ·ᶜ δ ∧ᶜ η  ≈⟨ ∧ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
-       𝟘ᶜ ∧ᶜ η      ≤⟨ ∧ᶜ-monotoneʳ (inv-usage-star ▸star) ⟩
-       𝟘ᶜ ∧ᶜ 𝟘ᶜ     ≈⟨ ∧ᶜ-idem _ ⟩
-       𝟘ᶜ           ∎)
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+opaque
+
+  -- An inversion lemma for [_].
+
+  inv-usage-[] : γ ▸[ m ] [ t ] → (∃ λ δ → δ ▸[ 𝟘ᵐ? ] t) × γ ≤ᶜ 𝟘ᶜ
+  inv-usage-[] {γ} {m} ▸[] =
+    case inv-usage-prodₚ ▸[] of λ {
+      (invUsageProdₚ {δ = δ} {η = η} ▸t ▸star γ≤) →
+      (_ , ▸-cong (ᵐ·-zeroʳ m) ▸t)
+    , (begin
+         γ            ≤⟨ γ≤ ⟩
+         𝟘 ·ᶜ δ ∧ᶜ η  ≈⟨ ∧ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
+         𝟘ᶜ ∧ᶜ η      ≤⟨ ∧ᶜ-monotoneʳ (inv-usage-star ▸star) ⟩
+         𝟘ᶜ ∧ᶜ 𝟘ᶜ     ≈⟨ ∧ᶜ-idem _ ⟩
+         𝟘ᶜ           ∎) }
+    where
+    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
 -- An inversion lemma for erased.
 
