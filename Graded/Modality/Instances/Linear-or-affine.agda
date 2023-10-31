@@ -28,7 +28,6 @@ import Graded.Modality.Properties.Multiplication as Multiplication
 import Graded.Modality.Properties.PartialOrder as PartialOrder
 import Graded.Modality.Properties.Star as Star
 open import Graded.Modality.Variant lzero
-import Graded.Restrictions
 
 import Definition.Typed.Restrictions
 open import Definition.Untyped using (BMΣ; Σₚ)
