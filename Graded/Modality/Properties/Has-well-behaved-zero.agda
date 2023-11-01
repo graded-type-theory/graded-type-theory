@@ -73,7 +73,7 @@ private
 -- 𝟘 is not less than or equal to 𝟙
 
 𝟘≰𝟙 : 𝟘 ≤ 𝟙 → ⊥
-𝟘≰𝟙 𝟘≤𝟙 = 𝟙≢𝟘 (𝟘≮ 𝟘≤𝟙)
+𝟘≰𝟙 𝟘≤𝟙 = non-trivial (𝟘≮ 𝟘≤𝟙)
 
 -- The meet of 𝟘 and 𝟙 is strictly below 𝟘.
 

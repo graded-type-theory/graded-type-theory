@@ -205,7 +205,8 @@ natrecʳ″
                  {σ′ = T.consSubst (T.consSubst σ′ w′) σnrw′}
                  (([σ] , [m′]) , [nrm′])
                  ( ( σ®σ′ₛ , m′®w′ ◀ _)
-                 , subsumptionTerm nrm′®nrw′ (λ 1≡𝟘 → ⊥-elim (𝟙≢𝟘 1≡𝟘))
+                 , subsumptionTerm nrm′®nrw′
+                     (λ 1≡𝟘 → ⊥-elim (non-trivial 1≡𝟘))
                  )
       s®s″ = irrelevanceTerm′ (PE.trans (substCompEq A)
                               (PE.trans (substVar-to-subst substLem A) (PE.sym (substCompEq A))))

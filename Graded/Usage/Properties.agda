@@ -98,10 +98,11 @@ var-usage-lookup (there x) = var-usage-lookup x
 ▸-without-𝟘ᵐ not-ok =
   ▸-cong (Mode-propositional-without-𝟘ᵐ not-ok)
 
--- If 𝟙 ≡ 𝟘, then one can convert usage modes freely.
+-- If the modality is trivial, then one can convert usage modes
+-- freely.
 
-▸-𝟙≡𝟘 : 𝟙 ≡ 𝟘 → γ ▸[ m ] t → γ ▸[ m′ ] t
-▸-𝟙≡𝟘 𝟙≡𝟘 = ▸-without-𝟘ᵐ (flip 𝟘ᵐ.𝟙≢𝟘 𝟙≡𝟘)
+▸-trivial : Trivial → γ ▸[ m ] t → γ ▸[ m′ ] t
+▸-trivial 𝟙≡𝟘 = ▸-without-𝟘ᵐ (flip 𝟘ᵐ.non-trivial 𝟙≡𝟘)
 
 ------------------------------------------------------------------------
 -- The lemma ▸-· and some corollaries
@@ -1244,11 +1245,11 @@ module _ (TR : Type-restrictions) where
 
   -- It is always the case that Γ ⊢ t ∷ A implies Γ ⊢ A (see
   -- Definition.Typed.Consequences.Syntactic.syntacticTerm), but if
-  -- 𝟙 ≢ 𝟘, then it is not necessarily the case that Γ ⊢ t ∷ A and
-  -- γ ▸[ 𝟙ᵐ ] t imply γ ▸[ 𝟙ᵐ ] A.
+  -- the modality is not trivial, then it is not necessarily the case
+  -- that Γ ⊢ t ∷ A and γ ▸[ 𝟙ᵐ ] t imply γ ▸[ 𝟙ᵐ ] A.
 
   ▸-term→▸-type :
-    𝟙 ≢ 𝟘 →
+    ¬ Trivial →
     ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} →
        Γ ⊢ t ∷ A → γ ▸[ 𝟙ᵐ ] t → γ ▸[ 𝟙ᵐ ] A)
   ▸-term→▸-type 𝟙≢𝟘 hyp =

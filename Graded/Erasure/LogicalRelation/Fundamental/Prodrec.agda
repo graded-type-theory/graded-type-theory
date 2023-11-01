@@ -195,7 +195,7 @@ prodrecωʳ′-𝟘
   t₂®v₂′ = targetRedSubstTerm* [σGt₁] t₂®v₂ d′ ◀ _
   σ₊®σ′₊ = (σ®σ′ᵤ , t₁®v₁) , t₂®v₂′
   u®u′   = ⊩ʳu [σ₊] σ₊®σ′₊
-  pr®pr′ = redSubstTerm* [σ₊A₊] (u®u′ ◀≢𝟘 𝟙≢𝟘) red′ red″
+  pr®pr′ = redSubstTerm* [σ₊A₊] (u®u′ ◀≢𝟘 non-trivial) red′ red″
 
 prodrecωʳ′-ω :
   {Γ : Con Term n}
@@ -282,7 +282,7 @@ prodrecωʳ′-ω
                        (T.prodrec-β {t = v₁} {v₂} {erase u T.[ T.liftSubstn σ′ 2 ]})
       red′ = TP.red*concat red′₁ (T.trans red′₂ T.refl)
 
-      pr®pr′ = redSubstTerm* [σ₊A₊] (u®u′ ◀≢𝟘 𝟙≢𝟘) red red′
+      pr®pr′ = redSubstTerm* [σ₊A₊] (u®u′ ◀≢𝟘 non-trivial) red red′
       At≡Ap′ = PE.subst₂ (λ x y → Δ ⊢ x ≡ y)
                          (PE.sym (singleSubstLift A t))
                          (substCompProdrec A t₁ t₂ σ)
@@ -467,7 +467,7 @@ prodrec𝟘ʳ  {n} {Γ} {l} {F} {G} {p} {q} {A} {δ} {u} {t} {r} {σ} {σ′} {q
                       (T.prodrec-β {t = T.↯} {T.↯} {erase u T.[ T.liftSubstn σ′ 2 ]})
 
 
-      pr®pr′ = redSubstTerm* [σ₊A₊] (σ₊u®σ′₊u′ ◀≢𝟘 𝟙≢𝟘)
+      pr®pr′ = redSubstTerm* [σ₊A₊] (σ₊u®σ′₊u′ ◀≢𝟘 non-trivial)
                              red (T.trans red′ T.refl)
       [σAt] = proj₁ (unwrap [At] ⊢Δ [σ])
       At≡At‴ = PE.subst (λ x → Δ ⊢ x ≡ _) (PE.sym (singleSubstLift A t)) At≡At″
@@ -505,7 +505,7 @@ prodrecʳ
   {Γ = Γ} {l = l} {p = p} {t = t} {u = u} {r = r} {γ = γ} {m = 𝟙ᵐ} {δ = δ}
   [Γ] [F] [G] [Σ] [A] [A₊] [t] [u] ⊩ʳt ⊩ʳu r≡𝟘→k≡0
   with is-𝟘? 𝟙
-... | yes 𝟙≡𝟘 = ⊥-elim (𝟙≢𝟘 𝟙≡𝟘)
+... | yes 𝟙≡𝟘 = ⊥-elim (non-trivial 𝟙≡𝟘)
 ... | no 1≢𝟘 =
   let [At] = substS [Γ] [Σ] [A] [t]
   in  [At] , λ {σ} [σ] σ®σ′ →
@@ -533,7 +533,7 @@ prodrecʳ
         let ⊩ʳt′ = irrelevance {t = t} [Γ] [Γ] [Σ] [Σ]′ (subsumption′ {t = t} [Γ] [Σ] (⊩ʳt r≢𝟘))
             t®t′ = ⊩ʳt′ [σ] (subsumptionSubst {l = l} σ®σ′ (lemma r≢𝟘))
         in  prodrecωʳ′ [Γ] [F] [G] ok [A]′ [A₊] ⊩ʳu′ [At] [u]
-              r≢𝟘 [σ] σ®σ′ [σt] (t®t′ ◀≢𝟘 𝟙≢𝟘)
+              r≢𝟘 [σ] σ®σ′ [σt] (t®t′ ◀≢𝟘 non-trivial)
     where
     lemma : (r PE.≢ 𝟘) → (x : Fin _) → (r ·ᶜ γ +ᶜ δ) ⟨ x ⟩ PE.≡ 𝟘 → γ ⟨ x ⟩ PE.≡ 𝟘
     lemma r≢𝟘 x rγ+δ≡𝟘 =

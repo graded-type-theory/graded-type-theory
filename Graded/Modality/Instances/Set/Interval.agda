@@ -988,7 +988,7 @@ record Is-non-empty-interval (S : Set a) : Set (lsuc (lsuc a)) where
 
     has-well-behaved-zero : Has-well-behaved-zero semiring-with-meet
     has-well-behaved-zero = λ where
-      .Has-well-behaved-zero.𝟙≢𝟘          → 𝟙≢𝟘
+      .Has-well-behaved-zero.non-trivial  → 𝟙≢𝟘
       .Has-well-behaved-zero.∧-positiveˡ  → proj₁ ∘→ ∪-positive
       .Has-well-behaved-zero.+-positiveˡ  → proj₁ ∘→ +-positive
       .Has-well-behaved-zero.zero-product → zero-product

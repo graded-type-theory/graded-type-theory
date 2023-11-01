@@ -139,7 +139,9 @@ module _ (⊢Δ : ⊢ Δ) where
         A≡A′ = PE.subst (Δ ⊢ A [ tail σ ] ≡_)
                         (PE.sym (wk1-tail A)) A≡A
         σ0®σ′0′ = σ0®σ′0 ◀≢𝟘 λ 𝟙p≡𝟘 →
-          𝟙≢𝟘 (𝟘≮ (≤-trans (≤-reflexive (PE.trans (PE.sym 𝟙p≡𝟘) (·-identityˡ _))) p≤𝟙))
+          𝟘≰𝟙 $
+          ≤-trans (≤-reflexive (PE.trans (PE.sym 𝟙p≡𝟘) (·-identityˡ _)))
+            p≤𝟙
     in  [↑A]′ , convTermʳ [A]′ [σ↑A] A≡A′ σ0®σ′0′
   fundamentalVar′ (_∙_ {A = A} [Γ] [A]) (there {A = B} x) (γ≤eᵢ ∙ _)
                   ([tailσ] , [headσ]) (σ®σ′ , σ0®σ′0) =
@@ -174,7 +176,7 @@ module _ (⊢Δ : ⊢ Δ) where
     ... | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 PE.refl)
 
     lemma 𝟙ᵐ γ▸x [σ] σ®σ′ with is-𝟘? 𝟙
-    ... | yes 𝟙≡𝟘 = ⊥-elim (𝟙≢𝟘 𝟙≡𝟘)
+    ... | yes 𝟙≡𝟘 = ⊥-elim (non-trivial 𝟙≡𝟘)
     ... | no 𝟙≢𝟘 =
        let [A]′ , t®v =
              fundamentalVar′ [Γ] x∷A∈Γ (inv-usage-var γ▸x) [σ] σ®σ′
@@ -193,7 +195,7 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
   open Graded.Erasure.LogicalRelation.Fundamental.Empty
     𝕄 TR is-𝟘? well-formed consistent
   open Graded.Erasure.LogicalRelation.Fundamental.Lambda
-    𝕄 TR is-𝟘? 𝟙≢𝟘 well-formed
+    𝕄 TR is-𝟘? non-trivial well-formed
   open Graded.Erasure.LogicalRelation.Fundamental.Nat
     𝕄 TR is-𝟘? well-formed
   open Graded.Erasure.LogicalRelation.Fundamental.Natrec
@@ -376,7 +378,7 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
         ⊩ʳu′ = irrelevance {t = u}
                  [Γ]₂ ([Γ] ∙ [F] ∙ [G]) [A₊]₂ [A₊] ⊩ʳu
         r≡𝟘→k≡0 = case closed-or-no-erased-matches of λ where
-          (inj₁ nem) → λ r≡𝟘 → ⊥-elim (nem 𝟙≢𝟘 ok r≡𝟘)
+          (inj₁ nem) → λ r≡𝟘 → ⊥-elim (nem non-trivial ok r≡𝟘)
           (inj₂ k≡0) → λ _ → k≡0
         [At] , ⊩ʳprodrec =
           prodrecʳ
@@ -499,7 +501,7 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
     ... | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 PE.refl)
 
     lemma 𝟙ᵐ ⊩ʳt with is-𝟘? 𝟙
-    ... | yes 𝟙≡𝟘 = ⊥-elim (𝟙≢𝟘 𝟙≡𝟘)
+    ... | yes 𝟙≡𝟘 = ⊥-elim (non-trivial 𝟙≡𝟘)
     ... | no 𝟙≢𝟘 =
       PE.subst₂ (λ x y → x ®⟨ ¹ ⟩ y ∷ A / [A]′)
         (subst-id t) (TP.subst-id (erase t)) t®t″

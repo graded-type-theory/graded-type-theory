@@ -9,6 +9,7 @@ open import Tools.Function
 open import Tools.Level
 open import Tools.Product
 open import Tools.PropositionalEquality
+open import Tools.Relation
 open import Tools.Unit
 
 open import Graded.Modality M
@@ -78,7 +79,7 @@ second-ΠΣ-quantities-𝟘-or-ω 𝕄 R = record R
 
 No-erased-matches : Modality → Usage-restrictions → Set a
 No-erased-matches 𝕄 R =
-  𝟙 ≢ 𝟘 → ∀ {r p q} → Prodrec-allowed r p q → r ≢ 𝟘
+  ¬ Trivial → ∀ {r p q} → Prodrec-allowed r p q → r ≢ 𝟘
   where
   open Modality 𝕄
   open Usage-restrictions R
@@ -89,7 +90,7 @@ No-erased-matches 𝕄 R =
 no-erased-matches : Modality → Usage-restrictions → Usage-restrictions
 no-erased-matches 𝕄 R = record R
   { Prodrec-allowed = λ r p q →
-      Prodrec-allowed r p q × (𝟙 ≢ 𝟘 → r ≢ 𝟘)
+      Prodrec-allowed r p q × (¬ Trivial → r ≢ 𝟘)
   }
   where
   open Modality 𝕄
@@ -102,9 +103,9 @@ No-erased-matches-no-erased-matches :
   ∀ 𝕄 R → No-erased-matches 𝕄 (no-erased-matches 𝕄 R)
 No-erased-matches-no-erased-matches
   𝕄 R 𝟙≢𝟘 {r = r} {p = p} {q = q} =
-  Prodrec-allowed r p q × (𝟙 ≢ 𝟘 → r ≢ 𝟘)  →⟨ proj₂ ⟩
-  (𝟙 ≢ 𝟘 → r ≢ 𝟘)                          →⟨ _$ 𝟙≢𝟘 ⟩
-  r ≢ 𝟘                                    □
+  Prodrec-allowed r p q × (¬ Trivial → r ≢ 𝟘)  →⟨ proj₂ ⟩
+  (¬ Trivial → r ≢ 𝟘)                          →⟨ _$ 𝟙≢𝟘 ⟩
+  r ≢ 𝟘                                        □
   where
   open Modality 𝕄
   open Usage-restrictions R

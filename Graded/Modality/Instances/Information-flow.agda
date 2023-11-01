@@ -410,8 +410,8 @@ instance
   L≤M≤H-has-well-behaved-zero :
     Has-well-behaved-zero L≤M≤H-semiring-with-meet
   L≤M≤H-has-well-behaved-zero = record
-    { 𝟙≢𝟘   = λ ()
-    ; is-𝟘? = λ where
+    { non-trivial = λ ()
+    ; is-𝟘?       = λ where
         L → no (λ ())
         M → no (λ ())
         H → yes refl

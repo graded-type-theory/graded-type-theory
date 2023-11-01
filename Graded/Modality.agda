@@ -57,6 +57,14 @@ record Semiring-with-meet : Set a where
     -- by 𝟙, so it is fine to let ω be 𝟙.
     ω≤𝟙 : ω ≤ 𝟙
 
+  -- A semiring with meet is said to be trivial if 𝟙 ≡ 𝟘.
+  --
+  -- This implies that all values of type M are equal, see
+  -- Graded.Modality.Properties.Equivalence.≡-trivial.
+
+  Trivial : Set a
+  Trivial = 𝟙 ≡ 𝟘
+
   ·-distribˡ-∧ : _·_ DistributesOverˡ _∧_
   ·-distribˡ-∧ = proj₁ ·-distrib-∧
 
@@ -119,8 +127,8 @@ record Semiring-with-meet : Set a where
 record Has-well-behaved-zero (𝕄 : Semiring-with-meet) : Set a where
   open Semiring-with-meet 𝕄
   field
-    -- 𝟙 is not equal to 𝟘.
-    𝟙≢𝟘 : 𝟙 ≢ 𝟘
+    -- 𝕄 is non-trivial.
+    non-trivial : ¬ Trivial
 
     -- It is decidable whether a value is equal to 𝟘.
     is-𝟘? : (p : M) → Dec (p ≡ 𝟘)

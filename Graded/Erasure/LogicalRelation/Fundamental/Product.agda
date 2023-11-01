@@ -161,7 +161,8 @@ prodʳ
               ok
     σGt≡ρσGt = PE.trans (singleSubstLift G t)
                         (PE.cong (_[ _ ]₀) (PE.sym (wk-lift-id (G [ liftSubst σ ]))))
-    u®u″ = irrelevanceQuant′ _ σGt≡ρσGt [σG[t]] [σG[t]]″ u®u′ ◀≢𝟘 𝟙≢𝟘
+    u®u″ = irrelevanceQuant′ _ σGt≡ρσGt [σG[t]] [σG[t]]″ u®u′
+             ◀≢𝟘 non-trivial
     open Tools.Reasoning.PropositionalEquality
     extra = case is-𝟘? p of λ where
               (yes p≡𝟘) →
@@ -181,7 +182,7 @@ prodʳ
                         (inj₂ γx≡𝟘) → γx≡𝟘
                     t₁®v₁ = ⊩ʳt [σ] (subsumptionSubstMode l σ®σ′ₜ)
                     t₁®v₁′ = irrelevanceQuant′ _ (PE.sym (wk-id _)) [σF] [σF]′ t₁®v₁
-                    t₁®v₁″ = t₁®v₁′ ◀≢𝟘 λ ⌞p⌟≡𝟘 → 𝟙≢𝟘
+                    t₁®v₁″ = t₁®v₁′ ◀≢𝟘 λ ⌞p⌟≡𝟘 → non-trivial
                       (begin
                         𝟙         ≡˘⟨ PE.cong ⌜_⌝ (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) ⟩
                         ⌜ ⌞ p ⌟ ⌝ ≡⟨ ⌞p⌟≡𝟘 ⟩

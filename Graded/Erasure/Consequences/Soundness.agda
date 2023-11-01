@@ -107,7 +107,7 @@ module Soundness′
     let ⊢t = redFirst*Term t⇒zero
         [ℕ] , t®t′ = fundamentalErased ⊢t 𝟘▸t
         t®t″ = irrelevanceTerm {l′ = ¹} [ℕ]
-                 (ℕᵣ (idRed:*: (ℕⱼ well-formed))) (t®t′ ◀≢𝟘 𝟙≢𝟘)
+                 (ℕᵣ (idRed:*: (ℕⱼ well-formed))) (t®t′ ◀≢𝟘 non-trivial)
     in  soundness-zero′ t®t″ t⇒zero
 
   -- Helper lemma for WH reduction soundness of suc
@@ -131,7 +131,7 @@ module Soundness′
     let ⊢t = redFirst*Term t⇒suc
         [ℕ] , t®t′ = fundamentalErased ⊢t 𝟘▸t
         t®t″ = irrelevanceTerm {l′ = ¹} [ℕ]
-                 (ℕᵣ (idRed:*: (ℕⱼ well-formed))) (t®t′ ◀≢𝟘 𝟙≢𝟘)
+                 (ℕᵣ (idRed:*: (ℕⱼ well-formed))) (t®t′ ◀≢𝟘 non-trivial)
     in  soundness-suc′ t®t″ t⇒suc
 
   -- Helper lemma for soundness of natural numbers
@@ -180,7 +180,7 @@ module Soundness (FA⁻ : Fundamental-assumptions⁻ Δ) where
     let [ℕ] , t®v = fundamentalErased ⊢t 𝟘▸t
     in  soundness-ℕ′ $
         irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ (idRed:*: (ℕⱼ ⊢Δ)))
-          (t®v ◀≢𝟘 𝟙≢𝟘)
+          (t®v ◀≢𝟘 non-trivial)
     where
     ⊢Δ = wfTerm ⊢t
 
@@ -212,7 +212,7 @@ module Soundness (FA⁻ : Fundamental-assumptions⁻ Δ) where
         t®t″ = irrelevanceTerm {l′ = ¹}
                  [⊤]
                  (Unitᵣ (Unitₜ (idRed:*: (Unitⱼ ⊢Δ ok)) ok))
-                 (t®t′ ◀≢𝟘 𝟙≢𝟘)
+                 (t®t′ ◀≢𝟘 non-trivial)
     in  soundness-star′ t®t″
     where
     ⊢Δ = wfTerm (redFirst*Term t⇒star)

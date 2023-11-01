@@ -186,7 +186,7 @@ Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
   lemma₂ {p = p} {q = q} hyp p≢ω₁ =
     case hyp p≢ω₁ of λ {
       refl →
-    tr-𝟘 (≢→𝟙≢𝟘 p≢ω₁) }
+    tr-𝟘 (≢→non-trivial p≢ω₁) }
 
   lemma₃ :
     ∀ {p q} b →

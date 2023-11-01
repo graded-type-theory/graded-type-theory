@@ -440,7 +440,7 @@ instance
   ℕ⊎∞-has-well-behaved-zero :
     Has-well-behaved-zero ℕ⊎∞-semiring-with-meet
   ℕ⊎∞-has-well-behaved-zero = record
-    { 𝟙≢𝟘          = λ ()
+    { non-trivial  = λ ()
     ; is-𝟘?        = _≟ ⌞ 0 ⌟
     ; zero-product = λ where
         {p = ⌞ 0 ⌟} {q = ⌞ _ ⌟} _ → inj₁ refl

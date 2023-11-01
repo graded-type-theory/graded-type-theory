@@ -151,7 +151,7 @@ neNeg
   γ▸prodrec =
   case inv-usage-prodrec γ▸prodrec of λ {
     (invUsageProdrec {δ = δ} {η = η} δ▸t _ _ ok₂ γ≤rδ+η) →
-  case no-erased-matches 𝟙≢𝟘 ok₂ of λ {
+  case no-erased-matches non-trivial ok₂ of λ {
     r≢𝟘 →
   NegativeErasedContext Γ γ              →⟨ NegativeErasedContext-upwards-closed γ≤rδ+η ⟩
   NegativeErasedContext Γ (r ·ᶜ δ +ᶜ η)  →⟨ NegativeErasedContext-𝟘 (λ _ → proj₁ ∘→ +ᶜ-positive-⟨⟩ (_ ·ᶜ δ)) ⟩

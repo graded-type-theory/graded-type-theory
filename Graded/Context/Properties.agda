@@ -99,11 +99,11 @@ headₘ-monotone : {γ δ : Conₘ (1+ n)} → γ ≤ᶜ δ → headₘ γ ≤ h
 headₘ-monotone {γ = γ ∙ p} {δ ∙ q} (γ≤δ ∙ p≤q) = p≤q
 
 ------------------------------------------------------------------------
--- Properties that hold if 𝟙 ≡ 𝟘
+-- Properties that hold for trivial modalities
 
--- If 𝟙 ≡ 𝟘, then every vector is equal to 𝟘ᶜ.
+-- If the modality is trivial, then every vector is equal to 𝟘ᶜ.
 
-≈ᶜ𝟘ᶜ : 𝟙 ≡ 𝟘 → γ ≈ᶜ 𝟘ᶜ
+≈ᶜ𝟘ᶜ : Trivial → γ ≈ᶜ 𝟘ᶜ
 ≈ᶜ𝟘ᶜ {γ = γ} 𝟙≡𝟘 = begin
   γ       ≈˘⟨ ·ᶜ-identityˡ _ ⟩
   𝟙 ·ᶜ γ  ≈⟨ ·ᶜ-congʳ 𝟙≡𝟘 ⟩
@@ -112,9 +112,9 @@ headₘ-monotone {γ = γ ∙ p} {δ ∙ q} (γ≤δ ∙ p≤q) = p≤q
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
 
--- If 𝟙 ≡ 𝟘, then _≈ᶜ_ is trivial.
+-- If the modality is trivial, then _≈ᶜ_ is trivial.
 
-≈ᶜ-trivial : 𝟙 ≡ 𝟘 → γ ≈ᶜ δ
+≈ᶜ-trivial : Trivial → γ ≈ᶜ δ
 ≈ᶜ-trivial {γ = γ} {δ = δ} 𝟙≡𝟘 = begin
   γ   ≈⟨ ≈ᶜ𝟘ᶜ 𝟙≡𝟘 ⟩
   𝟘ᶜ  ≈˘⟨ ≈ᶜ𝟘ᶜ 𝟙≡𝟘 ⟩

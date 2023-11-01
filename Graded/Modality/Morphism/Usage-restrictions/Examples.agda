@@ -49,8 +49,8 @@ private variable
 
 Are-preserving-usage-restrictions-no-erased-matches :
   ∀ 𝕄₁ 𝕄₂ →
-  (Modality.𝟙 𝕄₂ ≢ Modality.𝟘 𝕄₂ →
-   Modality.𝟙 𝕄₁ ≢ Modality.𝟘 𝕄₁ ×
+  (¬ Modality.Trivial 𝕄₂ →
+   ¬ Modality.Trivial 𝕄₁ ×
    (∀ {p} → tr p ≡ Modality.𝟘 𝕄₂ → p ≡ Modality.𝟘 𝕄₁) ⊎
    (∀ {p} → tr p ≢ Modality.𝟘 𝕄₂)) →
   Are-preserving-usage-restrictions R₁ R₂ tr tr-Σ →
@@ -82,8 +82,8 @@ Are-preserving-usage-restrictions-no-erased-matches
 
 Are-reflecting-usage-restrictions-no-erased-matches :
   ∀ 𝕄₁ 𝕄₂ →
-  (Modality.𝟙 𝕄₁ ≢ Modality.𝟘 𝕄₁ →
-   Modality.𝟙 𝕄₂ ≢ Modality.𝟘 𝕄₂ ×
+  (¬ Modality.Trivial 𝕄₁ →
+   ¬ Modality.Trivial 𝕄₂ ×
    (∀ {p} → p ≡ Modality.𝟘 𝕄₁ → tr p ≡ Modality.𝟘 𝕄₂)) →
   Are-reflecting-usage-restrictions R₁ R₂ tr tr-Σ →
   Are-reflecting-usage-restrictions

@@ -112,7 +112,7 @@ negation-of-fundamental-lemma-with-erased-matches
         pr®pr = ⊩ʳpr [σ] σ®σ′
         [σA] = proj₁ (unwrap [A] ⊢Δ [σ])
         [ℕ] = ℕᵣ {l = ¹} (idRed:*: (ℕⱼ ⊢Δ))
-        pr®pr′ = irrelevanceTerm [σA] [ℕ] (pr®pr ◀≢𝟘 𝟙≢𝟘)
+        pr®pr′ = irrelevanceTerm [σA] [ℕ] (pr®pr ◀≢𝟘 non-trivial)
     in  cEx″ pr®pr′
 
   cEx : ∃ λ n

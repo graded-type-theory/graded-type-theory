@@ -32,11 +32,12 @@ private variable
     (yes q≤p) → yes (≤-antisym p≤q q≤p)
 
 ------------------------------------------------------------------------
--- Properties related to "𝟙 ≡ 𝟘"
+-- Some lemmas related to Trivial
 
--- If 𝟙 ≡ 𝟘, then every value is equal to 𝟘.
+-- If the semiring with meet is trivial, then every value is equal
+-- to 𝟘.
 
-≡𝟘 : 𝟙 ≡ 𝟘 → p ≡ 𝟘
+≡𝟘 : Trivial → p ≡ 𝟘
 ≡𝟘 {p = p} 𝟙≡𝟘 = begin
   p      ≡˘⟨ ·-identityˡ _ ⟩
   𝟙 · p  ≡⟨ ·-congʳ 𝟙≡𝟘 ⟩
@@ -45,9 +46,9 @@ private variable
   where
   open Tools.Reasoning.PropositionalEquality
 
--- If 𝟙 ≡ 𝟘, then _≡_ is trivial.
+-- If the semiring with meet is trivial, then _≡_ is trivial.
 
-≡-trivial : 𝟙 ≡ 𝟘 → p ≡ q
+≡-trivial : Trivial → p ≡ q
 ≡-trivial {p = p} {q = q} 𝟙≡𝟘 = begin
   p  ≡⟨ ≡𝟘 𝟙≡𝟘 ⟩
   𝟘  ≡˘⟨ ≡𝟘 𝟙≡𝟘 ⟩
@@ -55,7 +56,8 @@ private variable
   where
   open Tools.Reasoning.PropositionalEquality
 
--- If there are two distinct values, then 𝟙 ≢ 𝟘.
+-- If there are two distinct values, then the semiring with meet is
+-- non-trivial.
 
-≢→𝟙≢𝟘 : p ≢ q → 𝟙 ≢ 𝟘
-≢→𝟙≢𝟘 p≢q = p≢q ∘→ ≡-trivial
+≢→non-trivial : p ≢ q → ¬ Trivial
+≢→non-trivial p≢q = p≢q ∘→ ≡-trivial

@@ -332,91 +332,92 @@ module Is-order-embedding
 
   -- Preservation of _▸[_]_ for trivial source modalities.
 
-  tr-▸⁻¹-𝟙≡𝟘 :
-    M₁.𝟙 ≡ M₁.𝟘 → γ U₂.▸[ m ] tr-Term t → C₁.𝟘ᶜ U₁.▸[ 𝟙ᵐ ] t
-  tr-▸⁻¹-𝟙≡𝟘 {m = m₁} 𝟙≡𝟘 = tr-▸⁻¹-𝟙≡𝟘′ _
+  tr-▸⁻¹-trivial :
+    M₁.Trivial → γ U₂.▸[ m ] tr-Term t → C₁.𝟘ᶜ U₁.▸[ 𝟙ᵐ ] t
+  tr-▸⁻¹-trivial {m = m₁} 𝟙≡𝟘 = tr-▸⁻¹-trivial′ _
     where mutual
-    tr-▸⁻¹-𝟙≡𝟘′ : ∀ t → γ U₂.▸[ m ] tr-Term t → C₁.𝟘ᶜ U₁.▸[ m′ ] t
-    tr-▸⁻¹-𝟙≡𝟘′ U Uₘ =
+    tr-▸⁻¹-trivial′ : ∀ t → γ U₂.▸[ m ] tr-Term t → C₁.𝟘ᶜ U₁.▸[ m′ ] t
+    tr-▸⁻¹-trivial′ U Uₘ =
       Uₘ
 
-    tr-▸⁻¹-𝟙≡𝟘′ Unit Unitₘ =
+    tr-▸⁻¹-trivial′ Unit Unitₘ =
       Unitₘ
 
-    tr-▸⁻¹-𝟙≡𝟘′ star starₘ =
+    tr-▸⁻¹-trivial′ star starₘ =
       starₘ
 
-    tr-▸⁻¹-𝟙≡𝟘′ Empty Emptyₘ =
+    tr-▸⁻¹-trivial′ Empty Emptyₘ =
       Emptyₘ
 
-    tr-▸⁻¹-𝟙≡𝟘′ ℕ ℕₘ =
+    tr-▸⁻¹-trivial′ ℕ ℕₘ =
       ℕₘ
 
-    tr-▸⁻¹-𝟙≡𝟘′ zero zeroₘ =
+    tr-▸⁻¹-trivial′ zero zeroₘ =
       zeroₘ
 
-    tr-▸⁻¹-𝟙≡𝟘′ (suc _) (sucₘ ▸t) =
-      sucₘ (tr-▸⁻¹-𝟙≡𝟘′ _ ▸t)
+    tr-▸⁻¹-trivial′ (suc _) (sucₘ ▸t) =
+      sucₘ (tr-▸⁻¹-trivial′ _ ▸t)
 
-    tr-▸⁻¹-𝟙≡𝟘′ (snd _ _) (sndₘ ▸t) =
-      sndₘ (tr-▸⁻¹-𝟙≡𝟘′ _ ▸t)
+    tr-▸⁻¹-trivial′ (snd _ _) (sndₘ ▸t) =
+      sndₘ (tr-▸⁻¹-trivial′ _ ▸t)
 
-    tr-▸⁻¹-𝟙≡𝟘′ (var _) var =
+    tr-▸⁻¹-trivial′ (var _) var =
       sub var (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
 
-    tr-▸⁻¹-𝟙≡𝟘′ (lam _ _) (lamₘ ▸t) =
-      lamₘ (tr-▸⁻¹-𝟙≡𝟘″ ▸t)
+    tr-▸⁻¹-trivial′ (lam _ _) (lamₘ ▸t) =
+      lamₘ (tr-▸⁻¹-trivial″ ▸t)
 
-    tr-▸⁻¹-𝟙≡𝟘′ (_ ∘⟨ _ ⟩ _) (_∘ₘ_ ▸t ▸u) = sub
-      (tr-▸⁻¹-𝟙≡𝟘′ _ ▸t ∘ₘ tr-▸⁻¹-𝟙≡𝟘′ _ ▸u)
+    tr-▸⁻¹-trivial′ (_ ∘⟨ _ ⟩ _) (_∘ₘ_ ▸t ▸u) = sub
+      (tr-▸⁻¹-trivial′ _ ▸t ∘ₘ tr-▸⁻¹-trivial′ _ ▸u)
       (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
 
-    tr-▸⁻¹-𝟙≡𝟘′ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) (ΠΣₘ ▸A ▸P) = sub
+    tr-▸⁻¹-trivial′ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) (ΠΣₘ ▸A ▸P) = sub
       (ΠΣₘ {δ = C₁.𝟘ᶜ}
-         (tr-▸⁻¹-𝟙≡𝟘′ _ ▸A)
-         (tr-▸⁻¹-𝟙≡𝟘″ ▸P))
+         (tr-▸⁻¹-trivial′ _ ▸A)
+         (tr-▸⁻¹-trivial″ ▸P))
       (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
 
-    tr-▸⁻¹-𝟙≡𝟘′ (prodᵣ _ _ _) (prodᵣₘ ▸t ▸u) = sub
-      (prodᵣₘ (tr-▸⁻¹-𝟙≡𝟘′ _ ▸t) (tr-▸⁻¹-𝟙≡𝟘′ _ ▸u))
+    tr-▸⁻¹-trivial′ (prodᵣ _ _ _) (prodᵣₘ ▸t ▸u) = sub
+      (prodᵣₘ (tr-▸⁻¹-trivial′ _ ▸t) (tr-▸⁻¹-trivial′ _ ▸u))
       (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
 
-    tr-▸⁻¹-𝟙≡𝟘′ (prodₚ _ _ _) (prodₚₘ ▸t ▸u) = sub
-      (prodₚₘ (tr-▸⁻¹-𝟙≡𝟘′ _ ▸t) (tr-▸⁻¹-𝟙≡𝟘′ _ ▸u))
+    tr-▸⁻¹-trivial′ (prodₚ _ _ _) (prodₚₘ ▸t ▸u) = sub
+      (prodₚₘ (tr-▸⁻¹-trivial′ _ ▸t) (tr-▸⁻¹-trivial′ _ ▸u))
       (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
 
-    tr-▸⁻¹-𝟙≡𝟘′ {m = m} {m′ = m′} (fst p _) (fstₘ m″ ▸t mp≡m₂ ok) = fstₘ
+    tr-▸⁻¹-trivial′
+      {m = m} {m′ = m′} (fst p _) (fstₘ m″ ▸t mp≡m₂ ok) = fstₘ
       𝟙ᵐ
-      (tr-▸⁻¹-𝟙≡𝟘′ _ ▸t)
-      (Mo₁.Mode-propositional-without-𝟘ᵐ (flip MP₁.𝟘ᵐ.𝟙≢𝟘 𝟙≡𝟘))
+      (tr-▸⁻¹-trivial′ _ ▸t)
+      (Mo₁.Mode-propositional-without-𝟘ᵐ (flip MP₁.𝟘ᵐ.non-trivial 𝟙≡𝟘))
       λ {refl → MP₁.≤-reflexive (MP₁.≡-trivial 𝟙≡𝟘)}
 
-    tr-▸⁻¹-𝟙≡𝟘′ (prodrec _ _ _ _ _ _) (prodrecₘ ▸t ▸u ▸Q ok) = sub
+    tr-▸⁻¹-trivial′ (prodrec _ _ _ _ _ _) (prodrecₘ ▸t ▸u ▸Q ok) = sub
       (prodrecₘ {δ = C₁.𝟘ᶜ} {η = C₁.𝟘ᶜ}
-         (tr-▸⁻¹-𝟙≡𝟘′ _ ▸t)
-         (tr-▸⁻¹-𝟙≡𝟘″ ▸u)
-         (tr-▸⁻¹-𝟙≡𝟘″ ▸Q)
+         (tr-▸⁻¹-trivial′ _ ▸t)
+         (tr-▸⁻¹-trivial″ ▸u)
+         (tr-▸⁻¹-trivial″ ▸Q)
          (Prodrec-reflected ok))
       (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
 
-    tr-▸⁻¹-𝟙≡𝟘′ (natrec _ _ _ _ _ _ _) (natrecₘ ▸z ▸s ▸n ▸P) = sub
+    tr-▸⁻¹-trivial′ (natrec _ _ _ _ _ _ _) (natrecₘ ▸z ▸s ▸n ▸P) = sub
       (natrecₘ {δ = C₁.𝟘ᶜ} {θ = C₁.𝟘ᶜ}
-         (tr-▸⁻¹-𝟙≡𝟘′ _ ▸z)
-         (tr-▸⁻¹-𝟙≡𝟘″ ▸s)
-         (tr-▸⁻¹-𝟙≡𝟘′ _ ▸n)
-         (tr-▸⁻¹-𝟙≡𝟘″ ▸P))
+         (tr-▸⁻¹-trivial′ _ ▸z)
+         (tr-▸⁻¹-trivial″ ▸s)
+         (tr-▸⁻¹-trivial′ _ ▸n)
+         (tr-▸⁻¹-trivial″ ▸P))
       (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
       where
       open import
         Graded.Modality.Morphism.Backward-instances tr-morphism
 
-    tr-▸⁻¹-𝟙≡𝟘′
+    tr-▸⁻¹-trivial′
       (natrec _ _ _ _ _ _ _) (natrec-no-nrₘ ▸z ▸s ▸n ▸P _ _ _ _) =
       natrec-no-nrₘ {δ = C₁.𝟘ᶜ} {θ = C₁.𝟘ᶜ}
-        (tr-▸⁻¹-𝟙≡𝟘′ _ ▸z)
-        (tr-▸⁻¹-𝟙≡𝟘″ ▸s)
-        (tr-▸⁻¹-𝟙≡𝟘′ _ ▸n)
-        (tr-▸⁻¹-𝟙≡𝟘″ ▸P)
+        (tr-▸⁻¹-trivial′ _ ▸z)
+        (tr-▸⁻¹-trivial″ ▸s)
+        (tr-▸⁻¹-trivial′ _ ▸n)
+        (tr-▸⁻¹-trivial″ ▸P)
         (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
         (λ _ → CP₁.≈ᶜ-trivial 𝟙≡𝟘)
         (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
@@ -425,18 +426,18 @@ module Is-order-embedding
       open import
         Graded.Modality.Morphism.Backward-instances tr-morphism
 
-    tr-▸⁻¹-𝟙≡𝟘′ (emptyrec _ _ _) (emptyrecₘ ▸t ▸A) = sub
+    tr-▸⁻¹-trivial′ (emptyrec _ _ _) (emptyrecₘ ▸t ▸A) = sub
       (emptyrecₘ
-         (tr-▸⁻¹-𝟙≡𝟘′ _ ▸t)
-         (tr-▸⁻¹-𝟙≡𝟘′ _ ▸A))
+         (tr-▸⁻¹-trivial′ _ ▸t)
+         (tr-▸⁻¹-trivial′ _ ▸A))
       (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
 
-    tr-▸⁻¹-𝟙≡𝟘′ _ (sub ▸t _) =
-      tr-▸⁻¹-𝟙≡𝟘″ ▸t
+    tr-▸⁻¹-trivial′ _ (sub ▸t _) =
+      tr-▸⁻¹-trivial″ ▸t
 
-    tr-▸⁻¹-𝟙≡𝟘″ : γ U₂.▸[ m ] tr-Term t → δ U₁.▸[ m′ ] t
-    tr-▸⁻¹-𝟙≡𝟘″ ▸t = sub
-      (tr-▸⁻¹-𝟙≡𝟘′ _ ▸t)
+    tr-▸⁻¹-trivial″ : γ U₂.▸[ m ] tr-Term t → δ U₁.▸[ m′ ] t
+    tr-▸⁻¹-trivial″ ▸t = sub
+      (tr-▸⁻¹-trivial′ _ ▸t)
       (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
 
   -- Preservation of _▸[_]_.
@@ -680,7 +681,7 @@ module Is-order-embedding
       (λ not-ok → Mo₂.𝟘ᵐ?-elim
          (λ m → γ U₂.▸[ m ] tr-Term t → ∃ λ δ → δ U₁.▸[ 𝟙ᵐ ] t)
          (λ ⦃ ok = ok ⦄ ▸t →
-            C₁.𝟘ᶜ , tr-▸⁻¹-𝟙≡𝟘 (trivial not-ok ok) ▸t)
+            C₁.𝟘ᶜ , tr-▸⁻¹-trivial (trivial not-ok ok) ▸t)
          (λ _ ▸t →
             case tr-Conₘ-≤ᶜ of λ (δ , ≤γ) →
             δ , tr-▸⁻¹′ _ ▸t refl ≤γ))
@@ -706,7 +707,7 @@ module Is-order-embedding
             ∃ λ δ → δ ∙ M₁.𝟙 M₁.· p U₁.▸[ 𝟙ᵐ ] t)
          (λ ⦃ ok = ok ⦄ ▸t →
             let triv = trivial not-ok ok in
-            C₁.𝟘ᶜ , sub (tr-▸⁻¹-𝟙≡𝟘 triv ▸t) (CP₁.≈ᶜ-trivial triv))
+            C₁.𝟘ᶜ , sub (tr-▸⁻¹-trivial triv ▸t) (CP₁.≈ᶜ-trivial triv))
          (λ _ ▸t →
             case tr-Conₘ-≤ᶜ of λ (δ , ≤γ) →
             δ , tr-▸⁻¹′ _ ▸t refl (begin

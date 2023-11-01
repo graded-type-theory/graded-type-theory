@@ -249,7 +249,7 @@ semiring-with-meet =
 
 has-well-behaved-zero : Has-well-behaved-zero semiring-with-meet
 has-well-behaved-zero = record
-  { 𝟙≢𝟘          = λ ()
+  { non-trivial  = λ ()
   ; is-𝟘?        = Z.is-𝟘?
   ; +-positiveˡ  = Z.∧-positiveˡ
   ; ∧-positiveˡ  = Z.∧-positiveˡ

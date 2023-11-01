@@ -241,7 +241,7 @@ module _ (fe : Function-extensionality lzero lzero) where
 
   has-well-behaved-zero : Has-well-behaved-zero semiring-with-meet
   has-well-behaved-zero = record
-    { 𝟙≢𝟘 =
+    { non-trivial =
       ℕ ≡ ∅         →⟨ cong (λ xs → xs .proj₁ 0) ⟩
       true ≡ false  →⟨ (λ ()) ⟩
       ⊥             □

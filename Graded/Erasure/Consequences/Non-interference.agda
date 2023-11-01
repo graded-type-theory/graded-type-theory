@@ -73,5 +73,5 @@ non-interference ⊢t ▸t ⊢σ =
       [σℕ]′ = proj₁ (unwrap {l = ¹} (ℕᵛ [Γ]) well-formed [σ])
   in  [Γ] , [σ] , λ σ®σ′ →
     let t®t′ = ⊩ʳt [σ] σ®σ′
-        t®t′∷ℕ = irrelevanceTerm [σℕ] [σℕ]′ (t®t′ ◀≢𝟘 𝟙≢𝟘)
+        t®t′∷ℕ = irrelevanceTerm [σℕ] [σℕ]′ (t®t′ ◀≢𝟘 non-trivial)
     in  t®t′∷ℕ

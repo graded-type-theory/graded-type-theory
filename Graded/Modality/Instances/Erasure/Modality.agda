@@ -40,7 +40,7 @@ instance
   erasure-has-well-behaved-zero :
     Has-well-behaved-zero erasure-semiring-with-meet
   erasure-has-well-behaved-zero = record
-    { 𝟙≢𝟘 = λ ()
+    { non-trivial = λ ()
     ; is-𝟘? = λ where
         𝟘 → yes refl
         ω → no (λ ())

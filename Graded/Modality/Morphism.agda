@@ -60,15 +60,15 @@ record Is-morphism
     -- source modality is trivial.
     𝟘ᵐ-in-first-if-in-second :
       ⦃ no-nr : No-dedicated-nr 𝕄₁ ⦄ →
-      T M₂.𝟘ᵐ-allowed ⊎ M₂.𝟙 ≡ M₂.𝟘 → T M₁.𝟘ᵐ-allowed ⊎ M₁.𝟙 ≡ M₁.𝟘
+      T M₂.𝟘ᵐ-allowed ⊎ M₂.Trivial → T M₁.𝟘ᵐ-allowed ⊎ M₁.Trivial
 
     -- If the source modality does not have a dedicated nr function
     -- and the target modality has a well-behaved zero or is trivial,
     -- then the source modality has a well-behaved zero or is trivial.
     𝟘-well-behaved-in-first-if-in-second :
       ⦃ no-nr : No-dedicated-nr 𝕄₁ ⦄ →
-      Has-well-behaved-zero M₂ M₂.semiring-with-meet ⊎ M₂.𝟙 ≡ M₂.𝟘 →
-      Has-well-behaved-zero M₁ M₁.semiring-with-meet ⊎ M₁.𝟙 ≡ M₁.𝟘
+      Has-well-behaved-zero M₂ M₂.semiring-with-meet ⊎ M₂.Trivial →
+      Has-well-behaved-zero M₁ M₁.semiring-with-meet ⊎ M₁.Trivial
 
     -- The source modality has a dedicated nr function if and only if
     -- the target modality also has one.
@@ -211,11 +211,11 @@ record Is-order-embedding
 
     -- If 𝟘ᵐ is allowed in the target modality but not the source
     -- modality, then the source modality is trivial.
-    trivial : ¬ T M₁.𝟘ᵐ-allowed → T M₂.𝟘ᵐ-allowed → M₁.𝟙 ≡ M₁.𝟘
+    trivial : ¬ T M₁.𝟘ᵐ-allowed → T M₂.𝟘ᵐ-allowed → M₁.Trivial
 
     -- Either the source modality is trivial, or the translation of 𝟘
     -- is equal to 𝟘.
-    trivial-⊎-tr-𝟘 : (M₁.𝟙 ≡ M₁.𝟘) ⊎ (tr M₁.𝟘 ≡ M₂.𝟘)
+    trivial-⊎-tr-𝟘 : M₁.Trivial ⊎ (tr M₁.𝟘 ≡ M₂.𝟘)
 
     -- For every target quantity p there is a source quantity p′ such
     -- that the translation of p′ is bounded by p.
