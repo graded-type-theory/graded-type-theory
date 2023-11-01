@@ -269,6 +269,13 @@ var-usage-lookup (there x) = var-usage-lookup x
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
+opaque
+
+  -- A variant of ▸-𝟘.
+
+  ▸-𝟘ᵐ? : T 𝟘ᵐ-allowed → γ ▸[ m ] t → 𝟘ᶜ ▸[ 𝟘ᵐ? ] t
+  ▸-𝟘ᵐ? ok = ▸-cong (PE.sym $ 𝟘ᵐ?≡𝟘ᵐ {ok = ok}) ∘→ ▸-𝟘
+
 -- If a term does not use any resources, then it is well-resourced
 -- with respect to any mode.
 
