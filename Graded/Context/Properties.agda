@@ -122,6 +122,9 @@ headₘ-monotone {γ = γ ∙ p} {δ ∙ q} (γ≤δ ∙ p≤q) = p≤q
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
 
+------------------------------------------------------------------------
+-- Left semimodules
+
 -- Contexts form a preleft semimodule
 
 Conₘ-preSemimodule : ∀ {n} → IsPreleftSemimodule +-·-Semiring′ _≡_ _+ᶜ_ (𝟘ᶜ {n}) _·ᶜ_
