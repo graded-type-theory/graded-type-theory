@@ -236,7 +236,7 @@ soundness-ℕ-only-source-counterexample :
   Prodrec-allowed 𝟘 p 𝟘 →
   Σᵣ-allowed p 𝟘 →
   let Δ = ε ∙ (Σᵣ p , 𝟘 ▷ ℕ ▹ ℕ)
-      t = prodrec 𝟘 p 𝟘 ℕ (var x0) zero
+      t = prodrec 𝟘 p 𝟘 ℕ (var {n = 1} x0) zero
   in
   Consistent Δ ×
   Δ ⊢ t ∷ ℕ ×
