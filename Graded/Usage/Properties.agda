@@ -652,6 +652,89 @@ Usage-restrictions-satisfied→▸[𝟘ᵐ] {ok = 𝟘ᵐ-ok} = lemma _
     (λ ▸t → ▸-𝟘ᵐ ▸t , ▸→Usage-restrictions-satisfied ▸t)
   , (λ (γ≤𝟘 , ok) → sub (Usage-restrictions-satisfied→▸[𝟘ᵐ] ok) γ≤𝟘)
 
+opaque
+
+  -- If the modality is trivial and Usage-restrictions-satisfied t
+  -- holds, then γ ▸[ m ] t holds.
+
+  Trivial→Usage-restrictions-satisfied→▸ :
+    Trivial → Usage-restrictions-satisfied t → γ ▸[ m ] t
+  Trivial→Usage-restrictions-satisfied→▸ 𝟙≡𝟘 = lemma _
+    where mutual
+    lemma₀ :
+      (t : Term n) → Usage-restrictions-satisfied t →
+      𝟘ᶜ ▸[ m ] t
+    lemma₀ = lemma
+
+    lemma :
+      (t : Term n) → Usage-restrictions-satisfied t →
+      γ ▸[ m ] t
+    lemma = λ where
+      (prodrec r p q A t u) (ok , A-ok , t-ok , u-ok) →
+        sub
+          (prodrecₘ {δ = 𝟘ᶜ} {η = 𝟘ᶜ} (lemma₀ t t-ok) (lemma u u-ok)
+             (lemma A A-ok) ok)
+          (≈ᶜ-trivial 𝟙≡𝟘)
+      (ΠΣ⟨ _ ⟩ _ , q ▷ A ▹ B) (A-ok , B-ok) →
+        sub (ΠΣₘ {δ = 𝟘ᶜ} (lemma₀ A A-ok) (lemma B B-ok))
+          (≈ᶜ-trivial 𝟙≡𝟘)
+      (lam p t) t-ok →
+        lamₘ (lemma t t-ok)
+      (t ∘⟨ p ⟩ u) (t-ok , u-ok) →
+        sub (lemma₀ t t-ok ∘ₘ lemma₀ u u-ok) (≈ᶜ-trivial 𝟙≡𝟘)
+      (prodₚ p t u) (t-ok , u-ok) →
+        sub (prodₚₘ (lemma₀ t t-ok) (lemma₀ u u-ok)) (≈ᶜ-trivial 𝟙≡𝟘)
+      (prodᵣ p t u) (t-ok , u-ok) →
+        sub (prodᵣₘ (lemma₀ t t-ok) (lemma₀ u u-ok)) (≈ᶜ-trivial 𝟙≡𝟘)
+      (fst p t) t-ok →
+        fstₘ 𝟙ᵐ (lemma t t-ok) (Mode-propositional-if-trivial 𝟙≡𝟘)
+          (λ _ → ≡-trivial 𝟙≡𝟘)
+      (snd _ t) t-ok →
+        sndₘ (lemma t t-ok)
+      (suc t) t-ok →
+        sucₘ (lemma t t-ok)
+      (natrec p q r A t u v) (A-ok , t-ok , u-ok , v-ok) →
+        let t-lemma = lemma₀ t t-ok
+            u-lemma = lemma  u u-ok
+            v-lemma = lemma₀ v v-ok
+            A-lemma = lemma  A A-ok
+        in case dedicated-nr? of λ where
+          does-have-nr →
+            sub
+              (natrecₘ {δ = 𝟘ᶜ} {θ = 𝟘ᶜ} t-lemma u-lemma v-lemma
+                 A-lemma)
+              (≈ᶜ-trivial 𝟙≡𝟘)
+          does-not-have-nr →
+            natrec-no-nrₘ t-lemma u-lemma v-lemma A-lemma
+              (≈ᶜ-trivial 𝟙≡𝟘) (λ _ → (≈ᶜ-trivial 𝟙≡𝟘)) (≈ᶜ-trivial 𝟙≡𝟘)
+              (≈ᶜ-trivial 𝟙≡𝟘)
+      (emptyrec p A t) (A-ok , t-ok) →
+        sub (emptyrecₘ (lemma₀ t t-ok) (lemma₀ A A-ok)) (≈ᶜ-trivial 𝟙≡𝟘)
+      (var x) _ →
+        sub var (≈ᶜ-trivial 𝟙≡𝟘)
+      U _ →
+        sub Uₘ (≈ᶜ-trivial 𝟙≡𝟘)
+      ℕ _ →
+        sub ℕₘ (≈ᶜ-trivial 𝟙≡𝟘)
+      Empty _ →
+        sub Emptyₘ (≈ᶜ-trivial 𝟙≡𝟘)
+      Unit _ →
+        sub Unitₘ (≈ᶜ-trivial 𝟙≡𝟘)
+      zero _ →
+        sub zeroₘ (≈ᶜ-trivial 𝟙≡𝟘)
+      star _ →
+        sub starₘ (≈ᶜ-trivial 𝟙≡𝟘)
+
+opaque
+
+  -- An alternative characterisation of γ ▸[ m ] t for trivial
+  -- modalities.
+
+  Trivial→▸⇔ : Trivial → γ ▸[ m ] t ⇔ Usage-restrictions-satisfied t
+  Trivial→▸⇔ 𝟙≡𝟘 =
+      ▸→Usage-restrictions-satisfied
+    , Trivial→Usage-restrictions-satisfied→▸ 𝟙≡𝟘
+
 ------------------------------------------------------------------------
 -- Inversion lemmas
 
