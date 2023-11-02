@@ -18,6 +18,7 @@ import Tools.PropositionalEquality as PE
 
 import Definition.Typed.Consequences.Stability R as S
 open import Definition.Typed R
+open import Definition.Typed.Consequences.DerivedRules.Pi-Sigma R public
 open import Definition.Typed.Consequences.DerivedRules.Sigma R public
 open import Definition.Typed.Consequences.DerivedRules.Nat R public
 open import Definition.Typed.Consequences.Injectivity R
@@ -32,7 +33,6 @@ private variable
   Γ           : Con Term _
   A B C D t u : Term _
   p p′ p″ q r : M
-  b : BinderMode
 
 -- Lambdas preserve definitional equality.
 
@@ -168,15 +168,6 @@ lam-injective
     Γ ∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ wk (lift (step id)) B [ var x0 ]₀  →⟨ PE.subst (_ ⊢ _ ∷_) (wkSingleSubstId _) ⟩
     Γ ∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ B                                  →⟨ flip (lamⱼ ⊢A) ok ⟩
     Γ ⊢ lam p (wk1 t ∘⟨ p ⟩ var x0) ∷ Π p , q ▷ A ▹ B                □
-
--- An alternative congruence rule for Π- and Σ-types.
-
-ΠΣ-cong′ : Γ ⊢ A ≡ C
-         → Γ ∙ A ⊢ B ≡ D
-         → ΠΣ-allowed b p q
-         → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ≡ ΠΣ⟨ b ⟩ p , q ▷ C ▹ D
-ΠΣ-cong′ A≡C B≡D ok =
-  ΠΣ-cong (proj₁ (syntacticEq A≡C)) A≡C B≡D ok
 
 -- An η-rule for the Unit type.
 

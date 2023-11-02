@@ -12,6 +12,7 @@ module Definition.Typed.Consequences.DerivedRules.Sigma
 open Type-restrictions R
 
 open import Definition.Typed R
+open import Definition.Typed.Consequences.DerivedRules.Pi-Sigma R
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Inversion R
@@ -312,7 +313,7 @@ module Fstᵣ-sndᵣ (r′ q′ : M) where
       Γ ∙ A ⊢ B →
       Σᵣ-allowed p q →
       Γ ∙ (Σᵣ p , q ▷ A ▹ B) ⊢ wk1 A
-    Σ⊢wk1 ⊢B ok = ⊢wk1 (ΠΣⱼ ⊢A ⊢B ok) ⊢A
+    Σ⊢wk1 ⊢B ok = ⊢wk1 (ΠΣⱼ′ ⊢B ok) ⊢A
       where
       ⊢A = case wf ⊢B of λ where
              (_ ∙ ⊢A) → ⊢A
@@ -486,7 +487,7 @@ module Fstᵣ-sndᵣ (r′ q′ : M) where
     Γ ⊢ fstᵣ p A₁ t₁ ≡ fstᵣ p A₂ t₂ ∷ A₁
   fstᵣ-cong
     {Γ = Γ} {A₁ = A₁} {A₂ = A₂} {B₁ = B₁} {t₁ = t₁} {t₂ = t₂}
-    {p = p} {q = q} A₁≡A₂ ⊢B₁ t₁≡t₂ =                              $⟨ W.wkEq (step id) (wfEq A₁≡A₂ ∙ ΠΣⱼ ⊢A₁ ⊢B₁ ok) A₁≡A₂
+    {p = p} {q = q} A₁≡A₂ ⊢B₁ t₁≡t₂ =                              $⟨ W.wkEq (step id) (wfEq A₁≡A₂ ∙ ΠΣⱼ′ ⊢B₁ ok) A₁≡A₂
                                                                     , 1∷wk1[1,0] ⊢B₁
                                                                     ⟩
     (Γ ∙ (Σᵣ p , q ▷ A₁ ▹ B₁) ⊢ wk1 A₁ ≡ wk1 A₂) ×
@@ -664,7 +665,7 @@ module Fstᵣ-sndᵣ (r′ q′ : M) where
       where
       ⊢A₁     = syntacticEq A₁≡A₂ .proj₁
       ⊢B₁     = syntacticEq B₁≡B₂ .proj₁
-      ⊢ΣA₁B₁  = ΠΣⱼ ⊢A₁ ⊢B₁ ok
+      ⊢ΣA₁B₁  = ΠΣⱼ′ ⊢B₁ ok
       ⊢ΓΣA₁B₁ = wf ⊢A₁ ∙ ⊢ΣA₁B₁
 
     ⊢[fstᵣ-0]↑ :
@@ -801,7 +802,7 @@ module Fstᵣ-sndᵣ (r′ q′ : M) where
     t′ = var x0
 
     ⊢Γ : ⊢ Γ′
-    ⊢Γ = ε ∙ ΠΣⱼ (ℕⱼ ε) (ℕⱼ (ε ∙ ℕⱼ ε)) Σ-ok
+    ⊢Γ = ε ∙ ΠΣⱼ′ (ℕⱼ (ε ∙ ℕⱼ ε)) Σ-ok
 
     ⊢B : Γ′ ∙ A′ ⊢ B′
     ⊢B = ℕⱼ (⊢Γ ∙ ℕⱼ ⊢Γ)
