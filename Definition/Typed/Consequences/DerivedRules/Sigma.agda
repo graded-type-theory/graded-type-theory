@@ -36,11 +36,11 @@ import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 
 private variable
-  n                                     : Nat
-  Γ                                     : Con _ _
-  A A₁ A₂ B B₁ B₂ C t t₁ t₂ u u₁ u₂ v w : Term _
-  p q r                                 : M
-  s s′                                  : SigmaMode
+  n                                           : Nat
+  Γ                                           : Con _ _
+  A A₁ A₂ B B₁ B₂ C C₁ C₂ t t₁ t₂ u u₁ u₂ v w : Term _
+  p q q′ r                                    : M
+  s s′                                        : SigmaMode
 
 ------------------------------------------------------------------------
 -- Some derived rules
@@ -55,25 +55,251 @@ private variable
   Γ ⊢ prod s p t u ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B
 ⊢prod ⊢B ⊢t = prodⱼ (syntacticTerm ⊢t) ⊢B ⊢t
 
+opaque
+
+  -- A variant of the typing rule for fst.
+
+  fstⱼ′ :
+    Γ ⊢ t ∷ Σₚ p , q ▷ A ▹ B →
+    Γ ⊢ fst p t ∷ A
+  fstⱼ′ ⊢t =
+    case inversion-ΠΣ (syntacticTerm ⊢t) of λ {
+      (⊢A , ⊢B , _) →
+    fstⱼ ⊢A ⊢B ⊢t }
+
+opaque
+
+  -- A variant of the typing rule for snd.
+
+  sndⱼ′ :
+    Γ ⊢ t ∷ Σₚ p , q ▷ A ▹ B →
+    Γ ⊢ snd p t ∷ B [ fst p t ]₀
+  sndⱼ′ ⊢t =
+    case inversion-ΠΣ (syntacticTerm ⊢t) of λ {
+      (⊢A , ⊢B , _) →
+    sndⱼ ⊢A ⊢B ⊢t }
+
+opaque
+
+  -- A variant of the typing rule for prodrec.
+
+  prodrecⱼ′ :
+    Γ ∙ Σᵣ p , q′ ▷ A ▹ B ⊢ C →
+    Γ ⊢ t ∷ Σᵣ p , q′ ▷ A ▹ B →
+    Γ ∙ A ∙ B ⊢ u ∷ C [ prodᵣ p (var x1) (var x0) ]↑² →
+    Γ ⊢ prodrec r p q C t u ∷ C [ t ]₀
+  prodrecⱼ′ ⊢C ⊢t ⊢u =
+    case inversion-ΠΣ (syntacticTerm ⊢t) of λ {
+      (⊢A , ⊢B , ok) →
+    prodrecⱼ ⊢A ⊢B ⊢C ⊢t ⊢u ok }
+
+opaque
+
+  -- A variant of prod-cong.
+
+  prod-cong′ :
+    Γ ∙ A ⊢ B →
+    Γ ⊢ t₁ ≡ t₂ ∷ A →
+    Γ ⊢ u₁ ≡ u₂ ∷ B [ t₁ ]₀ →
+    Σ-allowed s p q →
+    Γ ⊢ prod s p t₁ u₁ ≡ prod s p t₂ u₂ ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B
+  prod-cong′ ⊢B t₁≡t₂ =
+    prod-cong (syntacticEqTerm t₁≡t₂ .proj₁) ⊢B t₁≡t₂
+
+opaque
+
+  -- A variant of fst-subst.
+
+  fst-subst′ :
+    Γ ⊢ t ⇒ u ∷ Σₚ p , q ▷ A ▹ B →
+    Γ ⊢ fst p t ⇒ fst p u ∷ A
+  fst-subst′ t⇒u =
+    case inversion-ΠΣ (syntacticTerm (redFirstTerm t⇒u)) of λ {
+      (⊢A , ⊢B , _) →
+    fst-subst ⊢A ⊢B t⇒u }
+
+opaque
+
+  -- A variant of fst-cong.
+
+  fst-cong′ :
+    Γ ⊢ t ≡ u ∷ Σₚ p , q ▷ A ▹ B →
+    Γ ⊢ fst p t ≡ fst p u ∷ A
+  fst-cong′ t≡u =
+    case inversion-ΠΣ (syntacticEqTerm t≡u .proj₁) of λ {
+      (⊢A , ⊢B , _) →
+    fst-cong ⊢A ⊢B t≡u }
+
+opaque
+
+  -- A variant of snd-subst.
+
+  snd-subst′ :
+    Γ ⊢ t ⇒ u ∷ Σₚ p , q ▷ A ▹ B →
+    Γ ⊢ snd p t ⇒ snd p u ∷ B [ fst p t ]₀
+  snd-subst′ t⇒u =
+    case inversion-ΠΣ (syntacticTerm (redFirstTerm t⇒u)) of λ {
+      (⊢A , ⊢B , _) →
+    snd-subst ⊢A ⊢B t⇒u }
+
+opaque
+
+  -- A variant of snd-cong.
+
+  snd-cong′ :
+    Γ ⊢ t ≡ u ∷ Σₚ p , q ▷ A ▹ B →
+    Γ ⊢ snd p t ≡ snd p u ∷ B [ fst p t ]₀
+  snd-cong′ t≡u =
+    case inversion-ΠΣ (syntacticEqTerm t≡u .proj₁) of λ {
+      (⊢A , ⊢B , _) →
+    snd-cong ⊢A ⊢B t≡u }
+
+opaque
+
+  -- A variant of prodrec-subst.
+
+  prodrec-subst′ :
+    Γ ∙ (Σᵣ p , q′ ▷ A ▹ B) ⊢ C →
+    Γ ∙ A ∙ B ⊢ u ∷ C [ prodᵣ p (var x1) (var x0) ]↑² →
+    Γ ⊢ t₁ ⇒ t₂ ∷ Σᵣ p , q′ ▷ A ▹ B →
+    Σᵣ-allowed p q′ →
+    Γ ⊢ prodrec r p q C t₁ u ⇒ prodrec r p q C t₂ u ∷ C [ t₁ ]₀
+  prodrec-subst′ ⊢C ⊢u t₁⇒t₂ =
+    case inversion-ΠΣ (syntacticTerm (redFirstTerm t₁⇒t₂)) of λ {
+      (⊢A , ⊢B , _) →
+    prodrec-subst ⊢A ⊢B ⊢C ⊢u t₁⇒t₂ }
+
+opaque
+
+  -- A variant of prodrec-cong.
+
+  prodrec-cong′ :
+    Γ ∙ (Σᵣ p , q′ ▷ A ▹ B) ⊢ C₁ ≡ C₂ →
+    Γ ⊢ t₁ ≡ t₂ ∷ Σᵣ p , q′ ▷ A ▹ B →
+    Γ ∙ A ∙ B ⊢ u₁ ≡ u₂ ∷ C₁ [ prodᵣ p (var x1) (var x0) ]↑² →
+    Γ ⊢ prodrec r p q C₁ t₁ u₁ ≡ prodrec r p q C₂ t₂ u₂ ∷ C₁ [ t₁ ]₀
+  prodrec-cong′ C₁≡C₂ t₁≡t₂ u₁≡u₂ =
+    case inversion-ΠΣ (syntacticEqTerm t₁≡t₂ .proj₁) of λ {
+      (⊢A , ⊢B , ok) →
+    prodrec-cong ⊢A ⊢B C₁≡C₂ t₁≡t₂ u₁≡u₂ ok }
+
+opaque
+
+  -- A variant of the reduction rule Σ-β₁.
+
+  Σ-β₁-⇒ :
+    Γ ∙ A ⊢ B →
+    Γ ⊢ t ∷ A →
+    Γ ⊢ u ∷ B [ t ]₀ →
+    Σₚ-allowed p q →
+    Γ ⊢ fst p (prodₚ p t u) ⇒ t ∷ A
+  Σ-β₁-⇒ ⊢B ⊢t ⊢u =
+    Σ-β₁ (syntacticTerm ⊢t) ⊢B ⊢t ⊢u PE.refl
+
+opaque
+
+  -- A variant of the equality rule Σ-β₁.
+
+  Σ-β₁-≡ :
+    Γ ∙ A ⊢ B →
+    Γ ⊢ t ∷ A →
+    Γ ⊢ u ∷ B [ t ]₀ →
+    Σₚ-allowed p q →
+    Γ ⊢ fst p (prodₚ p t u) ≡ t ∷ A
+  Σ-β₁-≡ ⊢B ⊢t ⊢u ok =
+    subsetTerm (Σ-β₁-⇒ ⊢B ⊢t ⊢u ok)
+
+opaque
+
+  -- A variant of the reduction rule Σ-β₂.
+
+  Σ-β₂-⇒ :
+    Γ ∙ A ⊢ B →
+    Γ ⊢ t ∷ A →
+    Γ ⊢ u ∷ B [ t ]₀ →
+    Σₚ-allowed p q →
+    Γ ⊢ snd p (prodₚ p t u) ⇒ u ∷ B [ fst p (prodₚ p t u) ]₀
+  Σ-β₂-⇒ ⊢B ⊢t ⊢u =
+    Σ-β₂ (syntacticTerm ⊢t) ⊢B ⊢t ⊢u PE.refl
+
+opaque
+
+  -- A variant of the equality rule Σ-β₂.
+
+  Σ-β₂-≡ :
+    Γ ∙ A ⊢ B →
+    Γ ⊢ t ∷ A →
+    Γ ⊢ u ∷ B [ t ]₀ →
+    Σₚ-allowed p q →
+    Γ ⊢ snd p (prodₚ p t u) ≡ u ∷ B [ fst p (prodₚ p t u) ]₀
+  Σ-β₂-≡ ⊢B ⊢t ⊢u ok =
+    subsetTerm (Σ-β₂-⇒ ⊢B ⊢t ⊢u ok)
+
+opaque
+
+  -- A variant of the reduction rule prodrec-β.
+
+  prodrec-β-⇒ :
+    Γ ∙ (Σᵣ p , q′ ▷ A ▹ B) ⊢ C →
+    Γ ⊢ t ∷ A →
+    Γ ⊢ u ∷ B [ t ]₀ →
+    Γ ∙ A ∙ B ⊢ v ∷ C [ prodᵣ p (var x1) (var x0) ]↑² →
+    Σᵣ-allowed p q′ →
+    Γ ⊢ prodrec r p q C (prodᵣ p t u) v ⇒ v [ t ∣ u ] ∷
+      C [ prodᵣ p t u ]₀
+  prodrec-β-⇒ ⊢C ⊢t ⊢u ⊢v ok =
+    case wf ⊢C of λ {
+      (_ ∙ ⊢ΣAB) →
+    case inversion-ΠΣ ⊢ΣAB of λ {
+      (⊢A , ⊢B , _) →
+    prodrec-β ⊢A ⊢B ⊢C ⊢t ⊢u ⊢v PE.refl ok }}
+
+opaque
+
+  -- A variant of the equality rule prodrec-β.
+
+  prodrec-β-≡ :
+    Γ ∙ (Σᵣ p , q′ ▷ A ▹ B) ⊢ C →
+    Γ ⊢ t ∷ A →
+    Γ ⊢ u ∷ B [ t ]₀ →
+    Γ ∙ A ∙ B ⊢ v ∷ C [ prodᵣ p (var x1) (var x0) ]↑² →
+    Σᵣ-allowed p q′ →
+    Γ ⊢ prodrec r p q C (prodᵣ p t u) v ≡ v [ t ∣ u ] ∷
+      C [ prodᵣ p t u ]₀
+  prodrec-β-≡ ⊢C ⊢t ⊢u ⊢v ok =
+    subsetTerm (prodrec-β-⇒ ⊢C ⊢t ⊢u ⊢v ok)
+
+opaque
+
+  -- A variant of Σ-η.
+
+  Σ-η′ :
+    Γ ⊢ t ∷ Σₚ p , q ▷ A ▹ B →
+    Γ ⊢ u ∷ Σₚ p , q ▷ A ▹ B →
+    Γ ⊢ fst p t ≡ fst p u ∷ A →
+    Γ ⊢ snd p t ≡ snd p u ∷ B [ fst p t ]₀ →
+    Γ ⊢ t ≡ u ∷ Σₚ p , q ▷ A ▹ B
+  Σ-η′ ⊢t =
+    case inversion-ΠΣ (syntacticTerm ⊢t) of λ {
+      (⊢A , ⊢B , _) →
+    Σ-η ⊢A ⊢B ⊢t }
+
 -- An η-rule for strong Σ-types.
 
 Σ-η-prod-fst-snd :
   Γ ⊢ t ∷ Σₚ p , q ▷ A ▹ B →
   Γ ⊢ prodₚ p (fst p t) (snd p t) ≡ t ∷ Σₚ p , q ▷ A ▹ B
-Σ-η-prod-fst-snd ⊢t = Σ-η
-  ⊢A
-  ⊢B
+Σ-η-prod-fst-snd ⊢t = Σ-η′
   (⊢prod ⊢B ⊢fst ⊢snd ok)
   ⊢t
-  (Σ-β₁ ⊢A ⊢B ⊢fst ⊢snd PE.refl ok)
-  (Σ-β₂ ⊢A ⊢B ⊢fst ⊢snd PE.refl ok)
+  (Σ-β₁-≡ ⊢B ⊢fst ⊢snd ok)
+  (Σ-β₂-≡ ⊢B ⊢fst ⊢snd ok)
   where
-  ⊢A,⊢B,ok = inversion-ΠΣ (syntacticTerm ⊢t)
-  ⊢A       = ⊢A,⊢B,ok .proj₁
-  ⊢B       = ⊢A,⊢B,ok .proj₂ .proj₁
-  ok       = ⊢A,⊢B,ok .proj₂ .proj₂
-  ⊢fst     = fstⱼ ⊢A ⊢B ⊢t
-  ⊢snd     = sndⱼ ⊢A ⊢B ⊢t
+  ⊢B,ok = inversion-ΠΣ (syntacticTerm ⊢t) .proj₂
+  ⊢B    = ⊢B,ok .proj₁
+  ok    = ⊢B,ok .proj₂
+  ⊢fst  = fstⱼ′ ⊢t
+  ⊢snd  = sndⱼ′ ⊢t
 
 -- An "inverse" of prod-cong for Σₚ.
 
@@ -87,7 +313,6 @@ prod-cong⁻¹-Σₚ
   ⊢B , t≡v , u≡w , ok
   where
   ⊢ΣAB = syntacticEqTerm prod≡prod .proj₁
-  ⊢A   = inversion-ΠΣ ⊢ΣAB .proj₁
   ⊢B   = inversion-ΠΣ ⊢ΣAB .proj₂ .proj₁
   ok   = inversion-ΠΣ ⊢ΣAB .proj₂ .proj₂
   ⊢t,u = syntacticEqTerm prod≡prod .proj₂ .proj₁
@@ -97,25 +322,23 @@ prod-cong⁻¹-Σₚ
   ⊢v   = inversion-prod-Σ ⊢v,w .proj₁
   ⊢w   = inversion-prod-Σ ⊢v,w .proj₂ .proj₁
 
-  fst-t,u≡t = Σ-β₁ ⊢A ⊢B ⊢t ⊢u PE.refl ok
+  fst-t,u≡t = Σ-β₁-≡ ⊢B ⊢t ⊢u ok
 
   t≡v =                                                $⟨ prod≡prod ⟩
-    Γ ⊢ prodₚ p t u ≡ prodₚ p v w ∷ Σₚ p , q ▷ A ▹ B   →⟨ fst-cong ⊢A ⊢B ⟩
-    Γ ⊢ fst p (prodₚ p t u) ≡ fst p (prodₚ p v w) ∷ A  →⟨ (λ hyp → trans (sym fst-t,u≡t)
-                                                             (trans hyp
-                                                                (Σ-β₁ ⊢A ⊢B ⊢v ⊢w PE.refl ok))) ⟩
+    Γ ⊢ prodₚ p t u ≡ prodₚ p v w ∷ Σₚ p , q ▷ A ▹ B   →⟨ fst-cong′ ⟩
+    Γ ⊢ fst p (prodₚ p t u) ≡ fst p (prodₚ p v w) ∷ A  →⟨ (λ hyp → trans (sym fst-t,u≡t) (trans hyp (Σ-β₁-≡ ⊢B ⊢v ⊢w ok))) ⟩
     Γ ⊢ t ≡ v ∷ A                                      □
 
   u≡w =                                               $⟨ prod≡prod ⟩
-    Γ ⊢ prodₚ p t u ≡ prodₚ p v w ∷ Σₚ p , q ▷ A ▹ B  →⟨ snd-cong ⊢A ⊢B ⟩
+    Γ ⊢ prodₚ p t u ≡ prodₚ p v w ∷ Σₚ p , q ▷ A ▹ B  →⟨ snd-cong′ ⟩
 
     Γ ⊢ snd p (prodₚ p t u) ≡ snd p (prodₚ p v w) ∷
       B [ fst p (prodₚ p t u) ]₀                       →⟨ (λ hyp → trans
-                                                            (sym (Σ-β₂ ⊢A ⊢B ⊢t ⊢u PE.refl ok))
+                                                            (sym (Σ-β₂-≡ ⊢B ⊢t ⊢u ok))
                                                                (trans hyp
-                                                                  (conv (Σ-β₂ ⊢A ⊢B ⊢v ⊢w PE.refl ok)
+                                                                  (conv (Σ-β₂-≡ ⊢B ⊢v ⊢w ok)
                                                                      (substTypeEq (refl ⊢B)
-                                                                        (fst-cong ⊢A ⊢B (sym prod≡prod)))))) ⟩
+                                                                        (fst-cong′ (sym prod≡prod)))))) ⟩
 
     Γ ⊢ u ≡ w ∷ B [ fst p (prodₚ p t u) ]₀             →⟨ flip _⊢_≡_∷_.conv (substTypeEq (refl ⊢B) fst-t,u≡t) ⟩
 
@@ -167,9 +390,7 @@ prodrecₚⱼ :
   Γ ⊢ prodrecₚ p t u ∷ C [ t ]₀
 prodrecₚⱼ
   {Γ = Γ} {p = p} {q = q} {A = A} {B = B} {C = C} {t = t} {u = u}
-  ⊢C ⊢t ⊢u =                                                 $⟨ fstⱼ ⊢A ⊢B ⊢t
-                                                              , sndⱼ ⊢A ⊢B ⊢t
-                                                              ⟩
+  ⊢C ⊢t ⊢u =                                                 $⟨ fstⱼ′ ⊢t , sndⱼ′ ⊢t ⟩
   Γ ⊢ fst p t ∷ A ×
   Γ ⊢ snd p t ∷ B [ fst p t ]₀                                →⟨ (λ (hyp₁ , hyp₂) →
                                                                    PE.subst (_ ⊢ _ ∷_) (PE.sym (subst-id _)) hyp₁ , hyp₂) ⟩
@@ -186,10 +407,7 @@ prodrecₚⱼ
 
   Γ ⊢ prodrecₚ p t u ∷ C [ t ]₀                               □
   where
-  ⊢Γ    = wfTerm ⊢t
-  ⊢A,⊢B = inversion-ΠΣ (syntacticTerm ⊢t)
-  ⊢A    = ⊢A,⊢B .proj₁
-  ⊢B    = ⊢A,⊢B .proj₂ .proj₁
+  ⊢Γ = wfTerm ⊢t
 
 -- An equality rule for prodrecₚ.
 
@@ -201,8 +419,8 @@ prodrecₚ-β :
   Γ ⊢ prodrecₚ p (prodₚ p t u) v ≡ v [ t ∣ u ] ∷ C [ prodₚ p t u ]₀
 prodrecₚ-β
   {Γ = Γ} {t = t} {A = A} {u = u} {B = B} {v = v} {C = C} {p = p}
-  ⊢t ⊢u ⊢v ok =                                                     $⟨ Σ-β₁ ⊢A ⊢B ⊢t ⊢u PE.refl ok
-                                                                     , Σ-β₂ ⊢A ⊢B ⊢t ⊢u PE.refl ok
+  ⊢t ⊢u ⊢v ok =                                                     $⟨ Σ-β₁-≡ ⊢B ⊢t ⊢u ok
+                                                                     , Σ-β₂-≡ ⊢B ⊢t ⊢u ok
                                                                      ⟩
   Γ ⊢ fst p (prodₚ p t u) ≡ t ∷ A ×
   Γ ⊢ snd p (prodₚ p t u) ≡ u ∷ B [ fst p (prodₚ p t u) ]₀           →⟨ (λ (hyp₁ , hyp₂) →
@@ -225,7 +443,6 @@ prodrecₚ-β
   Γ ⊢ prodrecₚ p (prodₚ p t u) v ≡ v [ t ∣ u ] ∷ C [ prodₚ p t u ]₀  □
   where
   ⊢Γ = wfTerm ⊢t
-  ⊢A = syntacticTerm ⊢t
   ⊢B = case wfTerm ⊢v of λ where
          (_ ∙ _ ∙ ⊢B) → ⊢B
 
@@ -238,9 +455,7 @@ prodrecₚ-cong :
   Γ ⊢ prodrecₚ p t₁ u₁ ≡ prodrecₚ p t₂ u₂ ∷ C [ t₁ ]₀
 prodrecₚ-cong
   {Γ = Γ} {p = p} {q = q} {A = A} {B = B} {C = C} {t₁ = t₁} {t₂ = t₂}
-  {u₁ = u₁} {u₂ = u₂} ⊢C t₁≡t₂ u₁≡u₂ =                         $⟨ fst-cong ⊢A ⊢B t₁≡t₂
-                                                                , snd-cong ⊢A ⊢B t₁≡t₂
-                                                                ⟩
+  {u₁ = u₁} {u₂ = u₂} ⊢C t₁≡t₂ u₁≡u₂ =                         $⟨ fst-cong′ t₁≡t₂ , snd-cong′ t₁≡t₂ ⟩
   Γ ⊢ fst p t₁ ≡ fst p t₂ ∷ A ×
   Γ ⊢ snd p t₁ ≡ snd p t₂ ∷ B [ fst p t₁ ]₀                     →⟨ (λ (hyp₁ , hyp₂) →
                                                                      PE.subst (_ ⊢ _ ≡ _ ∷_) (PE.sym (subst-id _)) hyp₁ , hyp₂) ⟩
@@ -259,13 +474,8 @@ prodrecₚ-cong
 
   Γ ⊢ prodrecₚ p t₁ u₁ ≡ prodrecₚ p t₂ u₂ ∷ C [ t₁ ]₀           □
   where
-  ⊢Γ   = wfEqTerm t₁≡t₂
-  ⊢t₁  = syntacticEqTerm t₁≡t₂ .proj₂ .proj₁
-  ⊢ΓAB = wfEqTerm u₁≡u₂
-  ⊢A   = case ⊢ΓAB of λ where
-           (_ ∙ ⊢A ∙ _) → ⊢A
-  ⊢B   = case ⊢ΓAB of λ where
-           (_ ∙ _ ∙ ⊢B) → ⊢B
+  ⊢Γ  = wfEqTerm t₁≡t₂
+  ⊢t₁ = syntacticEqTerm t₁≡t₂ .proj₂ .proj₁
 
 -- This module does not contain proofs of any reduction rules for
 -- prodrecₚ. One might have hoped that the following rules should
@@ -415,8 +625,7 @@ module Fstᵣ-sndᵣ (r′ q′ : M) where
     Γ ⊢ fstᵣ p A t ∷ A
   fstᵣⱼ {Γ = Γ} {t = t} {p = p} {q = q} {A = A} {B = B} ⊢t =    $⟨ Σ⊢wk1 ⊢B ok , 1∷wk1[1,0] ⊢B ⟩
     (Γ ∙ (Σᵣ p , q ▷ A ▹ B) ⊢ wk1 A) ×
-    Γ ∙ A ∙ B ⊢ var x1 ∷ wk1 A [ prodᵣ p (var x1) (var x0) ]↑²  →⟨ (λ (hyp₁ , hyp₂) →
-                                                                      prodrecⱼ ⊢A ⊢B hyp₁ ⊢t hyp₂ ok) ⟩
+    Γ ∙ A ∙ B ⊢ var x1 ∷ wk1 A [ prodᵣ p (var x1) (var x0) ]↑²  →⟨ (λ (hyp₁ , hyp₂) → prodrecⱼ′ hyp₁ ⊢t hyp₂) ⟩
 
     Γ ⊢ fstᵣ p A t ∷ wk1 A [ t ]₀                                →⟨ flip conv (⊢wk1[]≡ ⊢A) ⟩
 
@@ -439,7 +648,7 @@ module Fstᵣ-sndᵣ (r′ q′ : M) where
     {Γ = Γ} {A = A} {B = B} {t = t} {u = u} {p = p} {q = q}
     ⊢B ⊢t ⊢u ok =                                                $⟨ Σ⊢wk1 ⊢B ok , 1∷wk1[1,0] ⊢B ⟩
     (Γ ∙ (Σᵣ p , q ▷ A ▹ B) ⊢ wk1 A) ×
-    Γ ∙ A ∙ B ⊢ var x1 ∷ wk1 A [ prodᵣ p (var x1) (var x0) ]↑²   →⟨ (λ (hyp₁ , hyp₂) → prodrec-β ⊢A ⊢B hyp₁ ⊢t ⊢u hyp₂ PE.refl ok) ⟩
+    Γ ∙ A ∙ B ⊢ var x1 ∷ wk1 A [ prodᵣ p (var x1) (var x0) ]↑²   →⟨ (λ (hyp₁ , hyp₂) → prodrec-β-⇒ hyp₁ ⊢t ⊢u hyp₂ ok) ⟩
 
     Γ ⊢ fstᵣ p A (prodᵣ p t u) ⇒ t ∷ wk1 A [ prodᵣ p t u ]₀      →⟨ flip conv (⊢wk1[]≡ ⊢A) ⟩
 
@@ -457,7 +666,7 @@ module Fstᵣ-sndᵣ (r′ q′ : M) where
     {Γ = Γ} {A = A} {B = B} {t₁ = t₁} {t₂ = t₂} {p = p} {q = q}
     ⊢B t₁⇒t₂ =                                                   $⟨ Σ⊢wk1 ⊢B ok , 1∷wk1[1,0] ⊢B ⟩
     (Γ ∙ (Σᵣ p , q ▷ A ▹ B) ⊢ wk1 A) ×
-    Γ ∙ A ∙ B ⊢ var x1 ∷ wk1 A [ prodᵣ p (var x1) (var x0) ]↑²   →⟨ (λ (hyp₁ , hyp₂) → prodrec-subst ⊢A ⊢B hyp₁ hyp₂ t₁⇒t₂ ok) ⟩
+    Γ ∙ A ∙ B ⊢ var x1 ∷ wk1 A [ prodᵣ p (var x1) (var x0) ]↑²   →⟨ (λ (hyp₁ , hyp₂) → prodrec-subst′ hyp₁ hyp₂ t₁⇒t₂ ok) ⟩
 
     Γ ⊢ fstᵣ p A t₁ ⇒ fstᵣ p A t₂ ∷ wk1 A [ t₁ ]₀                →⟨ flip conv (⊢wk1[]≡ ⊢A) ⟩
 
@@ -491,7 +700,7 @@ module Fstᵣ-sndᵣ (r′ q′ : M) where
                                                                     , 1∷wk1[1,0] ⊢B₁
                                                                     ⟩
     (Γ ∙ (Σᵣ p , q ▷ A₁ ▹ B₁) ⊢ wk1 A₁ ≡ wk1 A₂) ×
-    Γ ∙ A₁ ∙ B₁ ⊢ var x1 ∷ wk1 A₁ [ prodᵣ p (var x1) (var x0) ]↑²  →⟨ (λ (hyp₁ , hyp₂) → prodrec-cong ⊢A₁ ⊢B₁ hyp₁ t₁≡t₂ (refl hyp₂) ok) ⟩
+    Γ ∙ A₁ ∙ B₁ ⊢ var x1 ∷ wk1 A₁ [ prodᵣ p (var x1) (var x0) ]↑²  →⟨ (λ (hyp₁ , hyp₂) → prodrec-cong′ hyp₁ t₁≡t₂ (refl hyp₂)) ⟩
 
     Γ ⊢ fstᵣ p A₁ t₁ ≡ fstᵣ p A₂ t₂ ∷ wk1 A₁ [ t₁ ]₀               →⟨ flip conv (⊢wk1[]≡ ⊢A₁) ⟩
 
@@ -736,18 +945,17 @@ module Fstᵣ-sndᵣ (r′ q′ : M) where
     Γ ⊢ sndᵣ p q A B t₁ ⇒ sndᵣ p q A B t₂ ∷ B [ fstᵣ p A t₁ ]₀
   sndᵣ-subst
     {Γ = Γ} {t₁ = t₁} {t₂ = t₂} {p = p} {q = q} {A = A} {B = B} t₁⇒t₂ =
-                                              $⟨ prodrec-subst ⊢A ⊢B (⊢[fstᵣ-0]↑ ⊢B ok) (⊢0∷[fstᵣ-0]↑[1,0]↑² ⊢B ok) t₁⇒t₂ ok ⟩
+                                              $⟨ prodrec-subst′ (⊢[fstᵣ-0]↑ ⊢B ok) (⊢0∷[fstᵣ-0]↑[1,0]↑² ⊢B ok) t₁⇒t₂ ok ⟩
     Γ ⊢ sndᵣ p q A B t₁ ⇒ sndᵣ p q A B t₂ ∷
       B [ fstᵣ p (wk1 A) (var x0) ]↑ [ t₁ ]₀  →⟨ flip conv (⊢≡[fstᵣ] ⊢t₁) ⟩
 
     Γ ⊢ sndᵣ p q A B t₁ ⇒ sndᵣ p q A B t₂ ∷
       B [ fstᵣ p A t₁ ]₀                      □
     where
-    ⊢t₁      = syntacticEqTerm (subsetTerm t₁⇒t₂) .proj₂ .proj₁
-    ⊢A,⊢B,ok = inversion-ΠΣ (syntacticTerm ⊢t₁)
-    ⊢A       = ⊢A,⊢B,ok .proj₁
-    ⊢B       = ⊢A,⊢B,ok .proj₂ .proj₁
-    ok       = ⊢A,⊢B,ok .proj₂ .proj₂
+    ⊢t₁   = syntacticEqTerm (subsetTerm t₁⇒t₂) .proj₂ .proj₁
+    ⊢B,ok = inversion-ΠΣ (syntacticTerm ⊢t₁) .proj₂
+    ⊢B    = ⊢B,ok .proj₁
+    ok    = ⊢B,ok .proj₂
 
   -- An equality rule for sndᵣ.
 
@@ -768,19 +976,18 @@ module Fstᵣ-sndᵣ (r′ q′ : M) where
     Γ ⊢ sndᵣ p q A₁ B₁ t₁ ≡ sndᵣ p q A₂ B₂ t₂ ∷ B₁ [ fstᵣ p A₁ t₁ ]₀
   sndᵣ-cong
     {Γ = Γ} {A₁ = A₁} {A₂ = A₂} {B₁ = B₁} {B₂ = B₂} {t₁ = t₁} {t₂ = t₂}
-    {p = p} {q = q} A₁≡A₂ B₁≡B₂ t₁≡t₂ =           $⟨ prodrec-cong ⊢A ⊢B (⊢[fstᵣ-0]↑≡[fstᵣ-0]↑ A₁≡A₂ B₁≡B₂ ok)
-                                                      t₁≡t₂ (refl (⊢0∷[fstᵣ-0]↑[1,0]↑² ⊢B ok)) ok ⟩
+    {p = p} {q = q} A₁≡A₂ B₁≡B₂ t₁≡t₂ =           $⟨ prodrec-cong′ (⊢[fstᵣ-0]↑≡[fstᵣ-0]↑ A₁≡A₂ B₁≡B₂ ok)
+                                                       t₁≡t₂ (refl (⊢0∷[fstᵣ-0]↑[1,0]↑² ⊢B ok)) ⟩
     Γ ⊢ sndᵣ p q A₁ B₁ t₁ ≡ sndᵣ p q A₂ B₂ t₂ ∷
       B₁ [ fstᵣ p (wk1 A₁) (var x0) ]↑ [ t₁ ]₀    →⟨ flip conv (⊢≡[fstᵣ] ⊢t₁) ⟩
 
     Γ ⊢ sndᵣ p q A₁ B₁ t₁ ≡ sndᵣ p q A₂ B₂ t₂ ∷
       B₁ [ fstᵣ p A₁ t₁ ]₀                        □
     where
-    ⊢t₁      = syntacticEqTerm t₁≡t₂ .proj₂ .proj₁
-    ⊢A,⊢B,ok = inversion-ΠΣ (syntacticTerm ⊢t₁)
-    ⊢A       = ⊢A,⊢B,ok .proj₁
-    ⊢B       = ⊢A,⊢B,ok .proj₂ .proj₁
-    ok       = ⊢A,⊢B,ok .proj₂ .proj₂
+    ⊢t₁   = syntacticEqTerm t₁≡t₂ .proj₂ .proj₁
+    ⊢B,ok = inversion-ΠΣ (syntacticTerm ⊢t₁) .proj₂
+    ⊢B    = ⊢B,ok .proj₁
+    ok    = ⊢B,ok .proj₂
 
   -- If Σᵣ-allowed p q holds for some p and q, then a certain η-rule
   -- for Σᵣ, fstᵣ and sndᵣ does not hold in general.
