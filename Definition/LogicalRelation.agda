@@ -510,7 +510,11 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
     kit = Kit _⊩₁U _⊩ₗB⟨_⟩_
               _⊩ₗ_ _⊩ₗ_≡_/_ _⊩ₗ_∷_/_ _⊩ₗ_≡_∷_/_
 
-open LogRel public using (Uᵣ; ℕᵣ; Emptyᵣ; Unitᵣ; ne; Bᵣ; B₌; emb; Uₜ; Uₜ₌)
+open LogRel public
+  using
+    (Uᵣ; ℕᵣ; Emptyᵣ; Unitᵣ; ne; Bᵣ; B₌; emb; Uₜ; Uₜ₌;
+     module _⊩₁U; module _⊩₁U_∷U/_; module _⊩₁U_≡_∷U/_;
+     module _⊩ₗB⟨_⟩_; module _⊩ₗB⟨_⟩_≡_/_)
 
 -- Patterns for the non-records of Π
 pattern Πₜ f d funcF f≡f [f] [f]₁ = f , d , funcF , f≡f , [f] , [f]₁
