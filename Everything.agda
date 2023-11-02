@@ -268,6 +268,7 @@ import Graded.Modality.Instances.Linearity.Good
 -- The type Erased.
 import Graded.Derived.Erased.Untyped
 import Graded.Derived.Erased.Typed
+import Graded.Derived.Erased.Typed.Inversion
 import Graded.Derived.Erased.Usage
 
 -- The type Unrestricted (defined using a Σ-type with η-equality).
