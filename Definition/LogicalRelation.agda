@@ -237,6 +237,12 @@ pattern ¹ = ¹′ ⁰ PE.refl
 data _<_ : (i j : TypeLevel) → Set where
   0<1 : ⁰ < ¹
 
+-- Ordering of type levels.
+
+data _≤_ (l : TypeLevel) : TypeLevel → Set where
+  refl : l ≤ l
+  emb  : ∀ {l′} → l < l′ → l ≤ l′
+
 -- Logical relation
 -- Exported interface
 record LogRelKit : Set (lsuc a) where

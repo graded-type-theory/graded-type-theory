@@ -53,7 +53,7 @@ open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Consequences.Reduction TR
 open import Definition.Typed.Consequences.Syntactic TR
 
-open import Definition.LogicalRelation TR
+open import Definition.LogicalRelation TR hiding (_≤_)
 open import Definition.LogicalRelation.Irrelevance TR
 open import Definition.LogicalRelation.Fundamental.Reducibility TR
 
