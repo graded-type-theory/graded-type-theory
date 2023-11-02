@@ -2,6 +2,8 @@
 -- The Logical relation for erasure.
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 open import Definition.Typed.EqualityRelation
 import Definition.Untyped as U′ using (Con; Term)
 import Definition.Typed
@@ -46,12 +48,13 @@ open import Tools.Unit
 private
   variable
     m n : Nat
-    t′ : U.Term n
-    v′ : T.Term n
+    A B t t₁ t′ u : U.Term n
+    v v₂ v′ w : T.Term n
     p : M
+    l : TypeLevel
 
--- Logical relation for erasure for base types
-----------------------------------------------
+------------------------------------------------------------------------
+-- The logical relation
 
 -- Terms of type U are related to anything.
 -- (All types are erased by the extraction function.)
@@ -189,6 +192,37 @@ _▸_⊩ʳ⟨_⟩_∷[_]_/_/_ :
   t U.[ σ ] ®⟨ l ⟩ erase t T.[ σ′ ] ∷ A U.[ σ ] ◂ ⌜ m ⌝ /
     proj₁ (unwrap [A] ⊢Δ [σ])
 
+------------------------------------------------------------------------
+-- Helper functions
+
+opaque
+
+  -- A "reduction" rule for Π-®.
+
+  Π-®-𝟘 :
+    {⊩A : Δ ⊩⟨ l ⟩ U.wk id A}
+    {⊩B[u] : Δ ⊩⟨ l ⟩ U.wk (lift id) B U.[ u ]₀}
+    (d : Dec (𝟘 PE.≡ 𝟘)) →
+    Π-® l A B t u v ⊩A ⊩B[u] 𝟘 d →
+    (t ∘⟨ 𝟘 ⟩ u) ®⟨ l ⟩ v ∘ ↯ ∷ U.wk (lift id) B U.[ u ]₀ / ⊩B[u]
+  Π-®-𝟘 (no 𝟘≢𝟘) = λ _ → ⊥-elim (𝟘≢𝟘 PE.refl)
+  Π-®-𝟘 (yes _)  = idᶠ
+
+opaque
+
+  -- A "reduction" rule for Π-®.
+
+  Π-®-ω :
+    {⊩A : Δ ⊩⟨ l ⟩ U.wk id A}
+    {⊩B[u] : Δ ⊩⟨ l ⟩ U.wk (lift id) B U.[ u ]₀} →
+    p PE.≢ 𝟘 →
+    (d : Dec (p PE.≡ 𝟘)) →
+    Π-® l A B t u v ⊩A ⊩B[u] p d →
+    u ®⟨ l ⟩ w ∷ U.wk id A / ⊩A →
+    (t ∘⟨ p ⟩ u) ®⟨ l ⟩ v ∘ w ∷ U.wk (lift id) B U.[ u ]₀ / ⊩B[u]
+  Π-®-ω p≢𝟘 (yes p≡𝟘) _   = ⊥-elim (p≢𝟘 p≡𝟘)
+  Π-®-ω _   (no _)    hyp = hyp
+
 -- Helper introduction and elimination lemmata for Σ-®
 
 Σ-®-intro-𝟘 : ∀ {l F [F] t₁ v v₂ p}
@@ -217,3 +251,27 @@ _▸_⊩ʳ⟨_⟩_∷[_]_/_/_ :
 Σ-®-elim {p = p} P extra f g with is-𝟘? p
 Σ-®-elim {p = p} P (lift v⇒v₂) f g | yes p≡𝟘 = f v⇒v₂ p≡𝟘
 Σ-®-elim {p = p} P (v₁ , v⇒v₁,v₂ , t₁®v₁) f g | no p≢𝟘 = g v₁ v⇒v₁,v₂ t₁®v₁ p≢𝟘
+
+opaque
+
+  -- A "reduction" rule for Σ-®.
+
+  Σ-®-𝟘 :
+    {⊩A : Δ ⊩⟨ l ⟩ U.wk id A} →
+    Σ-® l A ⊩A t₁ v v₂ 𝟘 →
+    v T.⇒* v₂
+  Σ-®-𝟘 x =
+    Σ-®-elim _ x (λ v⇒ _ → v⇒) (λ _ _ _ 𝟘≢𝟘 → ⊥-elim $ 𝟘≢𝟘 PE.refl)
+
+opaque
+
+  -- A "reduction" rule for Σ-®.
+
+  Σ-®-ω :
+    {⊩A : Δ ⊩⟨ l ⟩ U.wk id A} →
+    p PE.≢ 𝟘 →
+    Σ-® l A ⊩A t₁ v v₂ p →
+    ∃ λ v₁ → v T.⇒* T.prod v₁ v₂ × t₁ ®⟨ l ⟩ v₁ ∷ U.wk id A / ⊩A
+  Σ-®-ω p≢𝟘 x =
+    Σ-®-elim _ x (λ _ p≡𝟘 → ⊥-elim $ p≢𝟘 p≡𝟘)
+      (λ _ v⇒ t₁®v₁ _ → _ , v⇒ , t₁®v₁)
