@@ -31,7 +31,7 @@ open import Definition.Typed.Consequences.Substitution R
 open import Definition.Typed.Consequences.Stability R
 open import Definition.Typed.Consequences.NeTypeEq R
 
-import Graded.Derived.Erased.Typed R as Erased
+open import Graded.Derived.Erased.Typed R
 
 open import Tools.Function
 open import Tools.Nat
@@ -146,14 +146,15 @@ mutual
     ([]-cong-cong A₂≡A₃ t₂≡t₃ u₂≡u₃ v₂~v₃ _ _) =
     case soundnessConv↑ A₁≡A₂ of λ {
       ⊢A₁≡A₂ →
+    case []-cong→Erased ok of λ {
+      Erased-ok →
       []-cong-cong (transConv↑ A₁≡A₂ A₂≡A₃)
         (transConv↑Term ⊢A₁≡A₂ t₁≡t₂ t₂≡t₃)
         (transConv↑Term ⊢A₁≡A₂ u₁≡u₂ u₂≡u₃)
         (trans~↓ v₁~v₂ v₂~v₃ .proj₁) B₁≡Id-t₁-u₁ ok
-    , Id-cong (Erased-cong ⊢A₁≡A₂) ([]-cong′ (soundnessConv↑Term t₁≡t₂))
-        ([]-cong′ (soundnessConv↑Term u₁≡u₂)) }
-    where
-    open Erased ([]-cong→Erased ok)
+    , Id-cong (Erased-cong Erased-ok ⊢A₁≡A₂)
+        ([]-cong′ Erased-ok (soundnessConv↑Term t₁≡t₂))
+        ([]-cong′ Erased-ok (soundnessConv↑Term u₁≡u₂)) }}
 
   -- Transitivity of algorithmic equality of neutrals with types in WHNF.
   trans~↓ : ∀ {t u v A B}

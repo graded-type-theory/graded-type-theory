@@ -22,7 +22,7 @@ open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Substitution R
 
-import Graded.Derived.Erased.Typed R as Erased
+open import Graded.Derived.Erased.Typed R
 
 open import Tools.Function
 open import Tools.Nat
@@ -70,9 +70,7 @@ neTypeEq {Γ} (Jₙ _) (Jⱼ {w} _ _ ⊢B _ ⊢v ⊢w) (Jⱼ _ _ _ _ _ _) =
 neTypeEq (Kₙ _) (Kⱼ _ ⊢B _ ⊢v _) (Kⱼ _ _ _ _ _) =
   refl (substType ⊢B ⊢v)
 neTypeEq ([]-congₙ _) ([]-congⱼ ⊢t ⊢u _ ok) ([]-congⱼ _ _ _ _) =
-  refl (Idⱼ ([]ⱼ ⊢t) ([]ⱼ ⊢u))
-  where
-  open Erased ([]-cong→Erased ok)
+  refl (Idⱼ ([]ⱼ ([]-cong→Erased ok) ⊢t) ([]ⱼ ([]-cong→Erased ok) ⊢u))
 neTypeEq x (conv t∷A x₁) t∷B = let q = neTypeEq x t∷A t∷B
                                in  trans (sym x₁) q
 neTypeEq x t∷A (conv t∷B x₃) = let q = neTypeEq x t∷A t∷B

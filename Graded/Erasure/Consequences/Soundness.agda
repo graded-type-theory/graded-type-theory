@@ -30,7 +30,7 @@ open import Definition.Typed.Properties TR
 open import Definition.LogicalRelation TR
 
 open import Graded.Context 𝕄
-import Graded.Derived.Erased.Typed TR as ET
+open import Graded.Derived.Erased.Typed TR
 open import Graded.Derived.Erased.Untyped 𝕄 as Erased using (Erased)
 open import Graded.Derived.Erased.Usage 𝕄 UR
 open import Graded.Usage 𝕄 UR
@@ -358,8 +358,8 @@ opaque
     case ε ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε) of λ {
       ⊢Id →
       inhabited-consistent (singleSubst (rflⱼ (zeroⱼ ε)))
-    , Jⱼ′ (ℕⱼ (J-motive-context ([]ⱼ (zeroⱼ ⊢Id)))) (zeroⱼ ⊢Id)
-        ([]-congⱼ′ ok (var ⊢Id here))
+    , Jⱼ′ (ℕⱼ (J-motive-context ([]ⱼ ([]-cong→Erased ok) (zeroⱼ ⊢Id))))
+        (zeroⱼ ⊢Id) ([]-congⱼ′ ok (var ⊢Id here))
     , Jₘ′ (▸Erased ℕₘ) (▸[] zeroₘ)
         (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
          sub ℕₘ $ begin
@@ -372,8 +372,6 @@ opaque
            whnfRedTerm J⇒ (ne (Jₙ ([]-congₙ (var _))))
          (1+ _ , whred J⇒ ⇨ˢ _) →
            whnfRedTerm J⇒ (ne (Jₙ ([]-congₙ (var _))))) }
-    where
-    open ET ([]-cong→Erased ok)
 
 opaque
 

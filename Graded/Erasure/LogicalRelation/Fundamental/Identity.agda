@@ -52,7 +52,6 @@ open import Definition.Untyped.Properties M
 open import Graded.Context 𝕄
 open import Graded.Context.Properties.Has-well-behaved-zero 𝕄
 open import Graded.Derived.Erased.Untyped 𝕄 as Erased using (Erased)
-import Graded.Derived.Erased.Typed R as ET
 open import Graded.Erasure.LogicalRelation R is-𝟘? ⊢Δ
 open import Graded.Erasure.LogicalRelation.Conversion R is-𝟘? ⊢Δ
 open import Graded.Erasure.LogicalRelation.Reduction R is-𝟘? ⊢Δ
@@ -160,7 +159,6 @@ opaque
           ◀ _ }}}}
     where
     open IE ([]-cong→Erased ok)
-    open ET ([]-cong→Erased ok)
 
 opaque
   unfolding Idᵛ ⊩Id

@@ -29,7 +29,7 @@ open import Definition.Typed.Eta-long-normal-form R
 open import Definition.Typed.Properties R
 open import Definition.Untyped M hiding (_∷_)
 
-import Graded.Derived.Erased.Typed R as ET
+open import Graded.Derived.Erased.Typed R
 
 open import Tools.Fin
 open import Tools.Function
@@ -196,7 +196,6 @@ mutual
           (sym (substTypeEq B₁≡B₁′ v₁≡v₁′))
       , K-cong′ A₁≡A₁′ t₁≡t₁′ B₁≡B₁′ u₁≡u₁′ v₁≡v₁′ ok }}}}}}
     ([]-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ B≡Id-t₁-u₁ ok) →
-      let open ET ([]-cong→Erased ok) in
       case fullRedConv↑ A₁≡A₂ of λ {
         (A₁′ , ⊢A₁′ , A₁≡A₁′) →
       case fullRedTermConv↑ t₁≡t₂ of λ {
@@ -205,6 +204,8 @@ mutual
         (u₁′ , ⊢u₁′ , u₁≡u₁′) →
       case fullRedNe~↓ v₁~v₂ of λ {
         (v₁′ , ⊢v₁′ , v₁≡v₁′) →
+      case []-cong→Erased ok of λ {
+        Erased-ok →
         []-cong A₁′ t₁′ u₁′ v₁′
       , convₙ
           ([]-congₙ ⊢A₁′ (convₙ ⊢t₁′ A₁≡A₁′) (convₙ ⊢u₁′ A₁≡A₁′)
@@ -212,10 +213,10 @@ mutual
                 (trans B≡Id-t₁-u₁ (Id-cong A₁≡A₁′ t₁≡t₁′ u₁≡u₁′)))
              ok)
           (_⊢_≡_.sym $
-           Id-cong (Erased-cong A₁≡A₁′) ([]-cong′ t₁≡t₁′)
-             ([]-cong′ u₁≡u₁′))
+           Id-cong (Erased-cong Erased-ok A₁≡A₁′)
+             ([]-cong′ Erased-ok t₁≡t₁′) ([]-cong′ Erased-ok u₁≡u₁′))
       , []-cong-cong A₁≡A₁′ t₁≡t₁′ u₁≡u₁′ (conv v₁≡v₁′ B≡Id-t₁-u₁)
-          ok }}}}
+          ok }}}}}
 
   fullRedNe~↓ :
     Γ ⊢ t ~ t′ ↓ A →

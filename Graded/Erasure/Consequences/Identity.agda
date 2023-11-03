@@ -29,7 +29,7 @@ open import Definition.Typed.Properties TR
 open import Definition.Untyped M hiding (_∷_)
 
 open import Graded.Context 𝕄
-import Graded.Derived.Erased.Typed TR as ET
+open import Graded.Derived.Erased.Typed TR
 open import Graded.Derived.Erased.Untyped 𝕄 as Erased using (Erased)
 open import Graded.Derived.Erased.Usage 𝕄 UR
 import Graded.Erasure.LogicalRelation TR as L
@@ -127,7 +127,7 @@ opaque
     Γ ⊢ v ∷ Erased (Id A t u) →
     Γ ⊢ t ≡ u ∷ A
   Id→≡″ {Γ} {A} {t} {u} {v} []-cong-ok ok ▸A ▸t ▸u ▸v =
-    Γ ⊢ v ∷ Erased (Id A t u)       →⟨ ET.erasedⱼ ([]-cong→Erased []-cong-ok) ⟩
+    Γ ⊢ v ∷ Erased (Id A t u)       →⟨ erasedⱼ ⟩
     Γ ⊢ Erased.erased v ∷ Id A t u  →⟨ Id→≡′ []-cong-ok ok
                                          (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸A) (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸t)
                                          (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸u) (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $ ▸erased ▸v) ⟩

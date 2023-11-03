@@ -24,7 +24,7 @@ open import Definition.Typed.Consequences.Substitution R
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Untyped.Properties M
 
-import Graded.Derived.Erased.Typed R as ET
+open import Graded.Derived.Erased.Typed R
 
 open import Tools.Function
 open import Tools.Nat
@@ -139,10 +139,9 @@ mutual
       substType ⊢B ⊢v
     , Kⱼ′ ⊢B (soundness⇇ ⊢Γ ⊢u) ⊢v ok }}}}
   soundness⇉ ⊢Γ ([]-congᵢ _ ⊢t ⊢u ⊢v ok) =
-      Idⱼ ([]ⱼ (soundness⇇ ⊢Γ ⊢t)) ([]ⱼ (soundness⇇ ⊢Γ ⊢u))
+      Idⱼ ([]ⱼ ([]-cong→Erased ok) (soundness⇇ ⊢Γ ⊢t))
+        ([]ⱼ ([]-cong→Erased ok) (soundness⇇ ⊢Γ ⊢u))
     , []-congⱼ′ ok (soundness⇇ ⊢Γ ⊢v)
-    where
-    open ET ([]-cong→Erased ok)
 
   soundness⇇ : ⊢ Γ → Γ ⊢ t ⇇ A → Γ ⊢ t ∷ A
   soundness⇇ ⊢Γ (lamᶜ A↘ΠFG t⇇G)=

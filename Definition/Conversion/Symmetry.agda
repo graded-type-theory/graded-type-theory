@@ -31,7 +31,7 @@ open import Definition.Typed.Consequences.NeTypeEq R
 open import Definition.Typed.Consequences.Substitution R
 open import Definition.Typed.Consequences.Stability R
 
-import Graded.Derived.Erased.Typed R as Erased
+open import Graded.Derived.Erased.Typed R
 
 open import Tools.Function
 open import Tools.Nat
@@ -184,8 +184,11 @@ mutual
       ⊢u₁≡u₂ →
     case reflConEq (wfEq ⊢A₁≡A₂) of λ {
       Γ≡Γ →
+    case []-cong→Erased ok of λ {
+      Erased-ok →
       _
-    , Id-cong (Erased-cong ⊢A₁≡A₂) ([]-cong′ ⊢t₁≡t₂) ([]-cong′ ⊢u₁≡u₂)
+    , Id-cong (Erased-cong Erased-ok ⊢A₁≡A₂) ([]-cong′ Erased-ok ⊢t₁≡t₂)
+        ([]-cong′ Erased-ok ⊢u₁≡u₂)
     , []-cong-cong (symConv↑ Γ≡Δ A₁≡A₂)
         (convConv↑Term Γ≡Δ ⊢A₁≡A₂ (symConv↑Term Γ≡Γ t₁≡t₂))
         (convConv↑Term Γ≡Δ ⊢A₁≡A₂ (symConv↑Term Γ≡Γ u₁≡u₂))
@@ -193,9 +196,7 @@ mutual
         (stabilityEq Γ≡Δ $
          trans (trans (sym B≡C) B≡Id-t₁-u₁)
            (Id-cong ⊢A₁≡A₂ ⊢t₁≡t₂ ⊢u₁≡u₂))
-        ok }}}}}
-    where
-    open Erased ([]-cong→Erased ok)
+        ok }}}}}}
 
   -- Symmetry of algorithmic equality of neutrals of types in WHNF.
   sym~↓ : ∀ {t u A} → ⊢ Γ ≡ Δ → Γ ⊢ t ~ u ↓ A

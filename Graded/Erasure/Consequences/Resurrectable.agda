@@ -32,7 +32,7 @@ open import Definition.Untyped M hiding (_∷_)
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-import Graded.Derived.Erased.Typed TR as ET
+open import Graded.Derived.Erased.Typed TR
 open import Graded.Derived.Erased.Untyped 𝕄 as Erased using (Erased)
 open import Graded.Derived.Erased.Usage 𝕄 UR
 open import Graded.Erasure.Consequences.Identity TR UR
@@ -100,11 +100,11 @@ opaque
          𝟙 ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
          𝟙 ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎)
     , (lamⱼ′ ok₁ $
-       ⊢prod (Erasedⱼ (Idⱼ (var ⊢₂ here) (var ⊢₂ (there here))))
+       ⊢prod
+         (Erasedⱼ Erased-ok (Idⱼ (var ⊢₂ here) (var ⊢₂ (there here))))
          (starⱼ ⊢₁ Unit-ok)
-         ([]ⱼ (rflⱼ′ (Unit-η (var ⊢₁ here)))) ok₂)
+         ([]ⱼ Erased-ok (rflⱼ′ (Unit-η (var ⊢₁ here)))) ok₂)
     where
-    open ET Erased-ok
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
     ⊢₁ : ⊢ Γ ∙ Unit
@@ -206,7 +206,6 @@ opaque
               (inj₂ suc⇒zero) →
                 case TP.suc-noRed suc⇒zero of λ () }}}}}}
     where
-    open ET ok
     open Fundamental-assumptions fundamental-assumptions₀
     open H is-𝟘? well-formed
     open L is-𝟘? well-formed

@@ -38,7 +38,7 @@ open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Equality R
 open import Definition.Typed.Consequences.Reduction R
 
-import Graded.Derived.Erased.Typed R as ET
+open import Graded.Derived.Erased.Typed R
 open import Graded.Derived.Erased.Untyped 𝕄 as Erased using (Erased)
 
 open import Tools.Fin
@@ -243,13 +243,13 @@ opaque
     case Id-norm (sym Id-t₁-u₁≡B) of λ {
       (_ , _ , _ , B⇒*Id-t₃-u₃ , A₁≡A₃ , t₁≡t₃ , u₁≡u₃) →
     ↑ (_⊢_≡_.refl $
-       Idⱼ ([]ⱼ (syntacticEqTerm t₁≡t₃ .proj₂ .proj₁))
-         ([]ⱼ (syntacticEqTerm u₁≡u₃ .proj₂ .proj₁)))
+       Idⱼ
+         ([]ⱼ ([]-cong→Erased ok) (syntacticEqTerm t₁≡t₃ .proj₂ .proj₁))
+         ([]ⱼ ([]-cong→Erased ok)
+            (syntacticEqTerm u₁≡u₃ .proj₂ .proj₁)))
       ([]-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ ([~] _ B⇒*Id-t₃-u₃ Idₙ v₁~v₂)
          (trans (sym (subset* B⇒*Id-t₃-u₃)) (sym Id-t₁-u₁≡B))
          ok) }
-    where
-    open ET ([]-cong→Erased ok)
 
 ~-sym : ∀ {k l A} → Γ ⊢ k ~ l ∷ A → Γ ⊢ l ~ k ∷ A
 ~-sym (↑ A≡B x) =

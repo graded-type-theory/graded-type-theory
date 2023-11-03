@@ -33,7 +33,7 @@ open import Definition.Untyped.Properties M
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-import Graded.Derived.Erased.Typed TR as ET
+open import Graded.Derived.Erased.Typed TR hiding ([]-cong′)
 open import Graded.Derived.Erased.Untyped 𝕄 as Erased using (Erased)
 open import Graded.Derived.Erased.Usage 𝕄 UR
 open import Graded.Modality.Properties 𝕄
@@ -171,9 +171,11 @@ opaque
   J₀→[]-cong J₀-ok Erased-ok ok₁ ok₂ ok₃ ok₄ =
     case lamⱼ′ ok₁ $ lamⱼ′ ok₂ $ lamⱼ′ ok₃ $ lamⱼ′ ok₄ $
          Jⱼ′
-           (Idⱼ ([]ⱼ (var ⊢₆ (there (there (there (there here))))))
-              ([]ⱼ (var ⊢₆ (there here))))
-           (rflⱼ ([]ⱼ (var ⊢₄ (there (there here)))))
+           (Idⱼ
+              ([]ⱼ Erased-ok
+                 (var ⊢₆ (there (there (there (there here))))))
+              ([]ⱼ Erased-ok (var ⊢₆ (there here))))
+           (rflⱼ ([]ⱼ Erased-ok (var ⊢₄ (there (there here)))))
            (var ⊢₄ here) of λ {
       ⊢[]-cong →
       ( []-cong′
@@ -203,14 +205,13 @@ opaque
           rfl t rfl                                            ⇒⟨ PE.subst (_⊢_⇒_∷_ _ _ _) lemma $
                                                                   J-β-⇒ (refl ⊢t)
                                                                     (Idⱼ
-                                                                       ([]ⱼ (W.wkTerm (W.step W.id) ⊢Γ∙A∙Id (W.wkTerm (W.step W.id) ⊢Γ∙A ⊢t)))
-                                                                       ([]ⱼ (var ⊢Γ∙A∙Id (there here))))
+                                                                       ([]ⱼ Erased-ok $
+                                                                        W.wkTerm (W.step W.id) ⊢Γ∙A∙Id (W.wkTerm (W.step W.id) ⊢Γ∙A ⊢t))
+                                                                       ([]ⱼ Erased-ok (var ⊢Γ∙A∙Id (there here))))
                                                                     (PE.subst (_⊢_∷_ _ _) (PE.sym lemma) $
-                                                                     rflⱼ ([]ⱼ ⊢t)) ⟩∎
+                                                                     rflⱼ ([]ⱼ Erased-ok ⊢t)) ⟩∎
         rfl                                                    ∎ }}}}
     where
-    open ET Erased-ok hiding ([]-cong′)
-
     []-cong′ : Term 0
     []-cong′ =
       lam 𝟘 $ lam 𝟘 $ lam 𝟘 $ lam 𝟘 $
