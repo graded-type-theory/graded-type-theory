@@ -2027,17 +2027,17 @@ module _ (TR : Type-restrictions) where
 
   -- It is always the case that Γ ⊢ t ∷ A implies Γ ⊢ A (see
   -- Definition.Typed.Consequences.Syntactic.syntacticTerm), but if
-  -- the modality is not trivial, then it is not necessarily the case
-  -- that Γ ⊢ t ∷ A and γ ▸[ 𝟙ᵐ ] t imply γ ▸[ 𝟙ᵐ ] A.
+  -- Γ ⊢ t ∷ A and γ ▸[ 𝟙ᵐ ] t always imply γ ▸[ 𝟙ᵐ ] A, then the
+  -- modality is trivial.
 
   ▸-term→▸-type :
-    ¬ Trivial →
-    ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} →
-       Γ ⊢ t ∷ A → γ ▸[ 𝟙ᵐ ] t → γ ▸[ 𝟙ᵐ ] A)
-  ▸-term→▸-type 𝟙≢𝟘 hyp =
+    (∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} →
+       Γ ⊢ t ∷ A → γ ▸[ 𝟙ᵐ ] t → γ ▸[ 𝟙ᵐ ] A) →
+    Trivial
+  ▸-term→▸-type hyp =
     case inv-usage-var (hyp ⊢t ▸t) of λ {
       (ε ∙ 𝟘≤𝟙 ∙ 𝟙≤𝟘) →
-    𝟙≢𝟘 (≤-antisym 𝟙≤𝟘 𝟘≤𝟙) }
+    ≤-antisym 𝟙≤𝟘 𝟘≤𝟙 }
     where
     Γ′ = ε ∙ U ∙ var x0
     t′ = var x0
