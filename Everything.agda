@@ -359,6 +359,7 @@ import Graded.Erasure.Consequences.Non-interference
 
 -- More consequences of the fundamental lemma.
 import Graded.Erasure.Consequences.Identity
+import Graded.Erasure.Consequences.Resurrectable
 
 -- A result related to neutral terms and usage.
 import Graded.Neutral
