@@ -356,6 +356,9 @@ import Graded.Erasure.Consequences.Soundness
 -- Non-interference
 import Graded.Erasure.Consequences.Non-interference
 
+-- A result related to neutral terms and usage.
+import Graded.Neutral
+
 -- Some examples related to the erasure modality and extraction
 
 import Graded.Erasure.Examples
