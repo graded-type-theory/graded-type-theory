@@ -166,8 +166,8 @@ import Graded.Modality.Properties.Meet
 import Graded.Modality.Properties.Addition
 import Graded.Modality.Properties.Multiplication
 import Graded.Modality.Properties.Division
-import Graded.Modality.Properties.Star
 import Graded.Modality.Properties.Has-well-behaved-zero
+import Graded.Modality.Properties.Star
 import Graded.Modality.Properties
 
 -- Modality contexts and their properties
