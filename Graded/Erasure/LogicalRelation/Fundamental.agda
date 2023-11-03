@@ -71,6 +71,7 @@ import Graded.Erasure.LogicalRelation.Fundamental.Prodrec
 import Graded.Erasure.LogicalRelation.Fundamental.Product
 import Graded.Erasure.LogicalRelation.Fundamental.Unit
 import Graded.Erasure.LogicalRelation.Conversion
+import Graded.Erasure.LogicalRelation.Hidden
 import Graded.Erasure.LogicalRelation.Irrelevance
 import Graded.Erasure.LogicalRelation.Subsumption
 
@@ -218,6 +219,7 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
   open Graded.Erasure.LogicalRelation.Fundamental.Unit
     TR is-𝟘? well-formed
   open Graded.Erasure.LogicalRelation.Conversion TR is-𝟘? well-formed
+  open Graded.Erasure.LogicalRelation.Hidden TR is-𝟘? well-formed
   open Graded.Erasure.LogicalRelation.Irrelevance TR is-𝟘? well-formed
   open Graded.Erasure.LogicalRelation.Subsumption TR is-𝟘? well-formed
 
@@ -649,3 +651,15 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
       id®id′ = erasedSubst {l = ¹} {σ′ = T.idSubst} [Δ] [id]
       t®t′ = ⊩ʳt [id] id®id′
       t®t″ = irrelevanceTerm′ (subst-id A) [idA] [A]′ t®t′
+
+  opaque
+
+    -- A variant of fundamentalErased.
+
+    fundamentalErased-𝟙ᵐ :
+      Δ ⊢ t ∷ A → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
+      t ®⟨ ¹ ⟩ erase t ∷ A
+    fundamentalErased-𝟙ᵐ ⊢t ▸t =
+      case fundamentalErased ⊢t ▸t of λ {
+        (⊩A , t®t) →
+      hidden-®-intro ⊩A (t®t ◀≢𝟘 non-trivial) }
