@@ -357,6 +357,9 @@ import Graded.Erasure.Consequences.Soundness
 -- Non-interference
 import Graded.Erasure.Consequences.Non-interference
 
+-- More consequences of the fundamental lemma.
+import Graded.Erasure.Consequences.Identity
+
 -- A result related to neutral terms and usage.
 import Graded.Neutral
 
