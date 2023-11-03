@@ -482,7 +482,7 @@ inv-usage-fstᵣ′-≢𝟘-𝟙ᵐ r≢𝟘⊎𝟙≡𝟘 ▸fstᵣ′ =
     ▸t ,
   ▸A , leq₂ , leq₃ , ok }
 
--- An inversion lemma for fstᵣ′ with the mode set to 𝟙ᵐ, r set to
+-- An inversion lemma for fstᵣ′ with the mode set to 𝟙ᵐ, "r" set to
 -- 𝟘 ∧ 𝟙, and either 𝟘 ≰ 𝟙 or 𝟙 ≡ 𝟘.
 
 inv-usage-fstᵣ′-𝟘∧𝟙-𝟙ᵐ :
