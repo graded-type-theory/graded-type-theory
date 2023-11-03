@@ -360,6 +360,10 @@ import Graded.Erasure.Consequences.Non-interference
 -- A result related to neutral terms and usage.
 import Graded.Neutral
 
+-- Some discussion of under what circumstances a []-cong combinator
+-- can be defined.
+import Graded.Box-cong
+
 -- Some examples related to the erasure modality and extraction
 
 import Graded.Erasure.Examples
