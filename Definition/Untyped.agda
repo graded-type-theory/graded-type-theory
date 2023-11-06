@@ -5,6 +5,7 @@
 module Definition.Untyped {a} (M : Set a) where
 
 open import Tools.Fin
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 open import Tools.List
@@ -479,6 +480,16 @@ mutual
 
 wk1 : Term n → Term (1+ n)
 wk1 = wk (step id)
+
+-- Two successive uses of wk1.
+
+wk2 : Term n → Term (1+ (1+ n))
+wk2 = wk1 ∘→ wk1
+
+-- Three successive uses of wk1.
+
+wk3 : Term n → Term (1+ (1+ (1+ n)))
+wk3 = wk1 ∘→ wk2
 
 -- Weakening of a neutral term.
 

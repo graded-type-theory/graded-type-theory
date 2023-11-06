@@ -667,11 +667,11 @@ wk1-tail {σ = σ} t = begin
 wk1-tailId : (t : Term n) → wk1 t ≡ t [ tail idSubst ]
 wk1-tailId t = trans (sym (subst-id (wk1 t))) (subst-wk t)
 
-wk2-tail : (t : Term n) → wk1 (wk1 t) [ σ ] ≡ t [ tail (tail σ) ]
+wk2-tail : (t : Term n) → wk2 t [ σ ] ≡ t [ tail (tail σ) ]
 wk2-tail {σ = σ} t = begin
-  wk1 (wk1 t) [ σ ]   ≡⟨ wk1-tail (wk1 t) ⟩
-  wk1 t [ tail σ ]    ≡⟨ wk1-tail t ⟩
-  t [ tail (tail σ) ] ∎
+  wk2 t [ σ ]          ≡⟨ wk1-tail (wk1 t) ⟩
+  wk1 t [ tail σ ]     ≡⟨ wk1-tail t ⟩
+  t [ tail (tail σ) ]  ∎
 
 wk2-tail-B′ : ∀ (W : BindingType) (F : Term n) (G : Term (1+ n))
            → ⟦ W ⟧ wk1 (wk1 F) [ σ ] ▹ (wk (lift (step (step id))) G [ liftSubst σ ])
@@ -712,9 +712,9 @@ wk1-sgSubst t t' rewrite wk1-tailId t =
 -- Applying _[ u ]↑ to a doubly weakened term amounts to the same
 -- thing as doing nothing.
 
-wk1-wk1-[]↑ : wk1 (wk1 t) [ u ]↑ ≡ wk1 (wk1 t)
-wk1-wk1-[]↑ {t = t} {u = u} =
-  wk1 (wk1 t) [ u ]↑                                       ≡⟨⟩
+wk2-[]↑ : wk2 t [ u ]↑ ≡ wk2 t
+wk2-[]↑ {t = t} {u = u} =
+  wk2 t [ u ]↑                                             ≡⟨⟩
   wk (step id) (wk1 t) [ consSubst (wk1Subst idSubst) u ]  ≡⟨ subst-wk (wk1 t) ⟩
   wk1 t [ consSubst (wk1Subst idSubst) u ₛ• step id ]      ≡⟨ subst-wk t ⟩
   t [ toSubst (step (step id)) ]                           ≡˘⟨ wk≡subst _ _ ⟩
