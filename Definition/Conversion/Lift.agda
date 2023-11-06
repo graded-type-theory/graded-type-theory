@@ -89,9 +89,10 @@ mutual
         ⊢F , ⊢G = syntacticΠ ⊢ΠFG
         neT , neU = ne~↑ k~l
         ⊢Γ = wf ⊢F
-        var0 = neuTerm ([F] (step id) (⊢Γ ∙ ⊢F)) (var x0) (var (⊢Γ ∙ ⊢F) here)
-                       (refl (var (⊢Γ ∙ ⊢F) here))
-        0≡0 = lift~toConv↑′ ([F] (step id) (⊢Γ ∙ ⊢F)) (var-refl (var (⊢Γ ∙ ⊢F) here) PE.refl)
+        var0 = neuTerm ([F] (step id) (⊢Γ ∙ ⊢F)) (var x0) (var₀ ⊢F)
+                 (refl (var₀ ⊢F))
+        0≡0 = lift~toConv↑′ ([F] (step id) (⊢Γ ∙ ⊢F))
+                (var-refl (var₀ ⊢F) PE.refl)
     in  η-eq ⊢t ⊢u (ne neT) (ne neU)
           (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x) (wkSingleSubstId _) $
            lift~toConv↑′ ([G] (step id) (⊢Γ ∙ ⊢F) var0) $

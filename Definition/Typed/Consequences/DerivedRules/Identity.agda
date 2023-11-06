@@ -192,7 +192,7 @@ opaque
   J-motive-context ⊢t =
     case syntacticTerm ⊢t of λ {
       ⊢A →
-    wf ⊢A ∙ ⊢A ∙ Idⱼ (wkTerm₁ ⊢A ⊢t) (var (wf ⊢A ∙ ⊢A) here) }
+    wf ⊢A ∙ ⊢A ∙ Idⱼ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A) }
 
 opaque
 
@@ -208,8 +208,7 @@ opaque
     case syntacticEq A₁≡A₂ .proj₁ of λ {
       ⊢A₁ →
     Γ₁≡Γ₂ ∙ A₁≡A₂ ∙
-    Id-cong (wkEq₁ ⊢A₁ A₁≡A₂) (wkEqTerm₁ ⊢A₁ t₁≡t₂)
-      (refl (var (wf ⊢A₁ ∙ ⊢A₁) here)) }
+    Id-cong (wkEq₁ ⊢A₁ A₁≡A₂) (wkEqTerm₁ ⊢A₁ t₁≡t₂) (refl (var₀ ⊢A₁)) }
 
 opaque
 

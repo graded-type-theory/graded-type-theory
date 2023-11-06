@@ -21,6 +21,7 @@ open import Definition.Typed R
 import Graded.Derived.Erased.Typed.Primitive R as Erased
 
 open import Tools.Empty using (⊥; ⊥-elim)
+open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
@@ -30,7 +31,7 @@ private
   variable
     n : Nat
     Γ : Con Term n
-    A A′ B B′ C U′ : Term n
+    A A′ B B′ C D E F U′ : Term n
     a b t u u′ v : Term n
     p p′ q : M
 
@@ -424,3 +425,56 @@ redU* (x ⇨ A⇒*U) rewrite redU* A⇒*U = ⊥-elim (redU x)
 det∈ : ∀ {x} → x ∷ A ∈ Γ → x ∷ B ∈ Γ → A PE.≡ B
 det∈ here here = PE.refl
 det∈ (there x) (there y) = PE.cong wk1 (det∈ x y)
+
+------------------------------------------------------------------------
+-- Some derived typing rules
+
+opaque
+
+  -- A typing rule for variable 0.
+
+  var₀ : Γ ⊢ A → Γ ∙ A ⊢ var x0 ∷ wk1 A
+  var₀ ⊢A = var (wf ⊢A ∙ ⊢A) here
+
+opaque
+
+  -- A typing rule for variable 1.
+
+  var₁ : Γ ∙ A ⊢ B → Γ ∙ A ∙ B ⊢ var x1 ∷ wk1 (wk1 A)
+  var₁ ⊢B = var (wf ⊢B ∙ ⊢B) (there here)
+
+opaque
+
+  -- A typing rule for variable 2.
+
+  var₂ : Γ ∙ A ∙ B ⊢ C → Γ ∙ A ∙ B ∙ C ⊢ var x2 ∷ wk1 (wk1 (wk1 A))
+  var₂ ⊢C = var (wf ⊢C ∙ ⊢C) (there (there here))
+
+opaque
+
+  -- A typing rule for variable 3.
+
+  var₃ :
+    Γ ∙ A ∙ B ∙ C ⊢ D →
+    Γ ∙ A ∙ B ∙ C ∙ D ⊢ var x3 ∷ wk1 (wk1 (wk1 (wk1 A)))
+  var₃ ⊢D = var (wf ⊢D ∙ ⊢D) (there (there (there here)))
+
+opaque
+
+  -- A typing rule for variable 4.
+
+  var₄ :
+    Γ ∙ A ∙ B ∙ C ∙ D ⊢ E →
+    Γ ∙ A ∙ B ∙ C ∙ D ∙ E ⊢ var x4 ∷ wk1 (wk1 (wk1 (wk1 (wk1 A))))
+  var₄ ⊢E = var (wf ⊢E ∙ ⊢E) (there (there (there (there here))))
+
+opaque
+
+  -- A typing rule for variable 5.
+
+  var₅ :
+    Γ ∙ A ∙ B ∙ C ∙ D ∙ E ⊢ F →
+    Γ ∙ A ∙ B ∙ C ∙ D ∙ E ∙ F ⊢ var x5 ∷
+      wk1 (wk1 (wk1 (wk1 (wk1 (wk1 A)))))
+  var₅ ⊢F =
+    var (wf ⊢F ∙ ⊢F) (there (there (there (there (there here)))))

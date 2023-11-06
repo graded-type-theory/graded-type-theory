@@ -21,6 +21,7 @@ open import Definition.Untyped M
   hiding (_∷_) renaming (_[_,_] to _[_,_]₁₀)
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
+open import Definition.Typed.Properties R
 open import Definition.Typed.Weakening R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Substitution R
@@ -179,7 +180,7 @@ opaque
   liftSubstS′ {A} {σ₁} {⊢Δ} {⊩σ₁} ⊩A ⊩σ₂ ⊩σ₁≡σ₂ =
     case wk1SubstS _ _ _ ⊩σ₂ of λ {
       ⊩wk1Subst-σ₂ →
-    case conv (var (⊢Δ ∙ escape (⊩A .unwrap _ ⊩σ₁ .proj₁)) here)
+    case conv (var₀ (escape (⊩A .unwrap _ ⊩σ₁ .proj₁)))
            (PE.subst
               (_ ∙ A [ σ₁ ] ⊢_≡ _)
               (wk1Subst-wk1 A)
@@ -233,7 +234,7 @@ opaque
       ⊢B[⇑σ₁] →
     case wk1SubstS _ _ _ (wk1SubstS _ _ _ ⊩σ₂) of λ {
       ⊩wk2Subst-σ₂ →
-    case conv (var (⊢Δ ∙ ⊢A[σ₁] ∙ ⊢B[⇑σ₁]) (there here))
+    case conv (var₁ ⊢B[⇑σ₁])
            (PE.subst
               (_ ∙ A [ _ ] ∙ _ ⊢_≡ _)
               (A [ wk1Subst (wk1Subst σ₁) ]  ≡⟨ wk1Subst-wk1 A ⟩
@@ -243,7 +244,7 @@ opaque
               (wk1SubstS _ _ ⊢B[⇑σ₁] (wk1SubstS _ _ ⊢A[σ₁] ⊩σ₂))
               (wk1SubstSEq _ _ _ _ (wk1SubstSEq _ _ _ _ ⊩σ₁≡σ₂))) of λ {
       ⊢1 →
-    case conv (var (⊢Δ ∙ ⊢A[σ₁] ∙ ⊢B[⇑σ₁]) here)
+    case conv (var₀ ⊢B[⇑σ₁])
            (PE.subst
               (_ ∙ _ ∙ B [ _ ] ⊢_≡ _)
               (wk1Subst-wk1 B)

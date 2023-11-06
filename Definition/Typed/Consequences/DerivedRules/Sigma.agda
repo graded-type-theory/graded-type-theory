@@ -609,7 +609,7 @@ module Fstʷ-sndʷ (r′ q′ : M) where
       Γ ∙ A ⊢ B                                                          →⟨ ⊢wk1-wk1 ⟩
       Γ ∙ A ∙ B ⊢ wk1 (wk1 A)                                            →⟨ refl ⟩
       (Γ ∙ A ∙ B ⊢ wk1 (wk1 A) ≡ wk1 (wk1 A))                            →⟨ PE.subst (_⊢_≡_ _ _) (PE.sym wk1-[]↑²) ⟩
-      (Γ ∙ A ∙ B ⊢ wk1 (wk1 A) ≡ wk1 A [ prodʷ p (var x1) (var x0) ]↑²)  →⟨ conv (var (wf ⊢B ∙ ⊢B) (there here)) ⟩
+      (Γ ∙ A ∙ B ⊢ wk1 (wk1 A) ≡ wk1 A [ prodʷ p (var x1) (var x0) ]↑²)  →⟨ conv (var₁ ⊢B) ⟩
       (Γ ∙ A ∙ B ⊢ var x1 ∷ wk1 A [ prodʷ p (var x1) (var x0) ]↑²)       □
 
   -- A typing rule for fstʷ.
@@ -795,7 +795,7 @@ module Fstʷ-sndʷ (r′ q′ : M) where
         consSubst (wk1Subst (wk1Subst idSubst)) (var x1) ≡
         consSubst (wk1Subst (wk1Subst idSubst))
           (fstʷ p (wk1 (wk1 A)) (prodʷ p (var x1) (var x0))) ∷
-        Γ ∙ A                                                           →⟨ flip (substitutionEq (refl ⊢B)) ⊢ΓAB ⟩
+        Γ ∙ A                                                           →⟨ flip (substitutionEq (refl ⊢B)) (wf ⊢B ∙ ⊢B) ⟩
 
       Γ ∙ A ∙ B ⊢
         B [ var x1 ]↑² ≡
@@ -805,17 +805,15 @@ module Fstʷ-sndʷ (r′ q′ : M) where
         wk1 B ≡
         B [ fstʷ p (wk1 A) (var x0) ]↑ [ prodʷ p (var x1) (var x0) ]↑²  □
       where
-      ⊢ΓAB = wf ⊢B ∙ ⊢B
-
       lemma =                                                  $⟨ W.wk₁ ⊢B ⊢B ⟩
 
         (Γ ∙ A ∙ B ⊢ wk1 B)                                    →⟨ refl ⟩
 
         Γ ∙ A ∙ B ⊢ wk1 B ≡ wk1 B                              →⟨ PE.subst₂ (_ ⊢_≡_) PE.refl (PE.sym (wk1-sgSubst (wk1 B) _)) ⟩
 
-        Γ ∙ A ∙ B ⊢ wk1 B ≡ wk1 (wk1 B) [ var x1 ]₀            →⟨ conv (var ⊢ΓAB here) ⟩
+        Γ ∙ A ∙ B ⊢ wk1 B ≡ wk1 (wk1 B) [ var x1 ]₀            →⟨ conv (var₀ ⊢B) ⟩
 
-        (Γ ∙ A ∙ B ⊢ var x0 ∷ wk1 (wk1 B) [ var x1 ]₀)         →⟨ (λ ⊢0 → ⊢wk1-wk1 (⊢wk1-wk1 ⊢B) , var ⊢ΓAB (there here) , ⊢0) ⟩
+        (Γ ∙ A ∙ B ⊢ var x0 ∷ wk1 (wk1 B) [ var x1 ]₀)         →⟨ (λ ⊢0 → ⊢wk1-wk1 (⊢wk1-wk1 ⊢B) , var₁ ⊢B , ⊢0) ⟩
 
         (Γ ∙ A ∙ B ∙ wk1 (wk1 A) ⊢ wk1 (wk1 B)) ×
         (Γ ∙ A ∙ B ⊢ var x1 ∷ wk1 (wk1 A)) ×
@@ -840,7 +838,7 @@ module Fstʷ-sndʷ (r′ q′ : M) where
         B₂ [ fstʷ p (wk1 A₂) (var x0) ]↑
     ⊢[fstʷ-0]↑≡[fstʷ-0]↑
       {Γ = Γ} {A₁ = A₁} {A₂ = A₂} {B₁ = B₁} {B₂ = B₂} {p = p} {q = q}
-      A₁≡A₂ B₁≡B₂ ok =                                             $⟨ refl (var ⊢ΓΣA₁B₁ here) ⟩
+      A₁≡A₂ B₁≡B₂ ok =                                             $⟨ refl (var₀ ⊢ΣA₁B₁) ⟩
       Γ ∙ (Σʷ p , q ▷ A₁ ▹ B₁) ⊢
         var x0 ≡
         var x0 ∷
@@ -888,7 +886,7 @@ module Fstʷ-sndʷ (r′ q′ : M) where
         var x0 ∷
         B [ fstʷ p (wk1 A) (var x0) ]↑ [ prodʷ p (var x1) (var x0) ]↑²
     ⊢0∷[fstʷ-0]↑[1,0]↑² {Γ = Γ} {A = A} {B = B} {p = p} ⊢B ok =
-                                                                        $⟨ var (wf ⊢B ∙ ⊢B) here ⟩
+                                                                        $⟨ var₀ ⊢B ⟩
 
       Γ ∙ A ∙ B ⊢ var x0 ∷ wk1 B                                        →⟨ flip conv (⊢≡[fstʷ-0]↑[1,0]↑² ⊢B ok) ⟩
 

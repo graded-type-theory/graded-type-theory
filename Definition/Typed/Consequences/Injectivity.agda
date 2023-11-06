@@ -58,8 +58,8 @@ injectivity′
   let ⊢Γ = wf ⊢F
       [F]₁ = [F] id ⊢Γ
       [F]′ = irrelevance′ (wk-id _) [F]₁
-      [x∷F] = neuTerm ([F] (step id) (⊢Γ ∙ ⊢F)) (var x0) (var (⊢Γ ∙ ⊢F) here)
-                      (refl (var (⊢Γ ∙ ⊢F) here))
+      [x∷F] = neuTerm ([F] (step id) (⊢Γ ∙ ⊢F)) (var x0) (var₀ ⊢F)
+                (refl (var₀ ⊢F))
       [G]₁ = [G] (step id) (⊢Γ ∙ ⊢F) [x∷F]
       [G]′ = PE.subst (_ ∙ _ ⊩⟨ _ ⟩_) (wkSingleSubstId _) [G]₁
       [F≡H]₁ = [F≡F′] id ⊢Γ

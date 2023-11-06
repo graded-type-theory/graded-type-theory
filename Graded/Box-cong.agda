@@ -66,27 +66,20 @@ private opaque
 
   -- Some lemmas used below.
 
-  ⊢₄ : ⊢ ε ∙ U ∙ var x0 ∙ var x1 ∙ Id (var x2) (var x1) (var x0)
-  ⊢₄ = ⊢₃ ∙ Idⱼ (var ⊢₃ (there here)) (var ⊢₃ here)
+  ⊢Id-2-1-0 : ε ∙ U ∙ var x0 ∙ var x1 ⊢ Id (var x2) (var x1) (var x0)
+  ⊢Id-2-1-0 = Idⱼ (var₁ ⊢1) (var₀ ⊢1)
     where
-    ⊢₁ : ⊢ ε ∙ U
-    ⊢₁ = ε ∙ Uⱼ ε
+    ⊢1 : ε ∙ U ∙ var x0 ⊢ var x1
+    ⊢1 = univ (var₁ (univ (var₀ (Uⱼ ε))))
 
-    ⊢₂ : ⊢ ε ∙ U ∙ var x0
-    ⊢₂ = ⊢₁ ∙ univ (var ⊢₁ here)
-
-    ⊢₃ : ⊢ ε ∙ U ∙ var x0 ∙ var x1
-    ⊢₃ = ⊢₂ ∙ univ (var ⊢₂ (there here))
-
-  ⊢₆ :
-    ⊢ ε ∙ U ∙ var x0 ∙ var x1 ∙ Id (var x2) (var x1) (var x0) ∙ var x3 ∙
-      Id (var x4) (var x3) (var x0)
-  ⊢₆ =
-    ⊢₅ ∙ Idⱼ (var ⊢₅ (there (there (there here)))) (var ⊢₅ here)
+  ⊢Id-4-3-0 :
+    ε ∙ U ∙ var x0 ∙ var x1 ∙ Id (var x2) (var x1) (var x0) ∙ var x3 ⊢
+    Id (var x4) (var x3) (var x0)
+  ⊢Id-4-3-0 = Idⱼ (var₃ ⊢3) (var₀ ⊢3)
     where
-    ⊢₅ :
-      ⊢ ε ∙ U ∙ var x0 ∙ var x1 ∙ Id (var x2) (var x1) (var x0) ∙ var x3
-    ⊢₅ = ⊢₄ ∙ univ (var ⊢₄ (there (there (there here))))
+    ⊢3 :
+      ε ∙ U ∙ var x0 ∙ var x1 ∙ Id (var x2) (var x1) (var x0) ⊢ var x3
+    ⊢3 = univ (var₃ ⊢Id-2-1-0)
 
 ------------------------------------------------------------------------
 -- Has-[]-cong
@@ -136,7 +129,7 @@ opaque
     Has-computing-[]-cong s q₁ q₂ q₃ q₄
   []-cong→[]-cong {s} ok ok₁ ok₂ ok₃ ok₄ =
     case lamⱼ′ ok₁ $ lamⱼ′ ok₂ $ lamⱼ′ ok₃ $ lamⱼ′ ok₄ $
-         []-congⱼ′ ok (var ⊢₄ here) of λ {
+         []-congⱼ′ ok (var₀ ⊢Id-2-1-0) of λ {
       ⊢[]-cong →
       ( []-cong′
       , (lamₘ $ lamₘ $ lamₘ $ lamₘ $
@@ -174,12 +167,10 @@ opaque
   J₀→[]-cong {s} J₀-ok Erased-ok ok₁ ok₂ ok₃ ok₄ =
     case lamⱼ′ ok₁ $ lamⱼ′ ok₂ $ lamⱼ′ ok₃ $ lamⱼ′ ok₄ $
          Jⱼ′
-           (Idⱼ
-              ([]ⱼ Erased-ok
-                 (var ⊢₆ (there (there (there (there here))))))
-              ([]ⱼ Erased-ok (var ⊢₆ (there here))))
-           (rflⱼ ([]ⱼ Erased-ok (var ⊢₄ (there (there here)))))
-           (var ⊢₄ here) of λ {
+           (Idⱼ ([]ⱼ Erased-ok (var₄ ⊢Id-4-3-0))
+              ([]ⱼ Erased-ok (var₁ ⊢Id-4-3-0)))
+           (rflⱼ ([]ⱼ Erased-ok (var₂ ⊢Id-2-1-0)))
+           (var₀ ⊢Id-2-1-0) of λ {
       ⊢[]-cong →
       ( []-cong′
       , (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
@@ -190,9 +181,7 @@ opaque
       , ⊢[]-cong
       )
     , λ _ _ A t ⊢A ⊢t →
-        case wfTerm ⊢A ∙ univ ⊢A of λ {
-          ⊢Γ∙A →
-        case Idⱼ (W.wkTerm₁ (univ ⊢A) ⊢t) (var ⊢Γ∙A here) of λ {
+        case Idⱼ (W.wkTerm₁ (univ ⊢A) ⊢t) (var₀ (univ ⊢A)) of λ {
           ⊢Id →
         case PE.cong₂
                (λ A′ t′ → Id (Erased A′) ([ t′ ]) ([ t ]))
@@ -209,10 +198,10 @@ opaque
                                                                     (Idⱼ
                                                                        ([]ⱼ Erased-ok $
                                                                         W.wkTerm₁ ⊢Id (W.wkTerm₁ (univ ⊢A) ⊢t))
-                                                                       ([]ⱼ Erased-ok (var (⊢Γ∙A ∙ ⊢Id) (there here))))
+                                                                       ([]ⱼ Erased-ok (var₁ ⊢Id)))
                                                                     (PE.subst (_⊢_∷_ _ _) (PE.sym lemma) $
                                                                      rflⱼ ([]ⱼ Erased-ok ⊢t)) ⟩∎
-        rfl                                                    ∎ }}}}
+        rfl                                                    ∎ }}}
     where
     open Erased s
     open ErasedU s

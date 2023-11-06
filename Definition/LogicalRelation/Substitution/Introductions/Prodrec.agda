@@ -614,7 +614,7 @@ prodrecCong {n = n} {m = m} {p = p′} {q = q} {Δ = Δ} {r = r}
       ⊢σΣ′≡σ′Σ′ = escapeEq [σΣ′] [σΣ′≡σ′Σ′]
       wk⊢σΣ′≡σ′Σ′ = ≅-wk (step id) (⊢Δ ∙ ⊢σΣ′) ⊢σΣ′≡σ′Σ′
       var0′ : Δ ∙ _ ⊢ var x0 ∷ _
-      var0′ = var (⊢Δ ∙ ⊢σΣ′) here
+      var0′ = var₀ ⊢σΣ′
       var0 : Δ ∙ _ ⊢ var x0 ∷ _
       var0 = conv var0′ (PE.subst (λ (x : Term (1+ m)) → Δ ∙ σΣ′ ⊢ U.wk (step id) σΣ′ ≡ x)
                                   (wk-subst (Σ _ , q ▷ F′ ▹ G′))
@@ -651,7 +651,7 @@ prodrecCong {n = n} {m = m} {p = p′} {q = q} {Δ = Δ} {r = r}
       ⊢σF′≅σ′F′ = escapeEq [σF′] [σF′≡σ′F′]
       wk⊢σF′≅σ′F′ = ≅-wk (step id) (⊢Δ ∙ ⊢σF′ ∙ ⊢σG′)
                            (≅-wk (step id) (⊢Δ ∙ ⊢σF′) ⊢σF′≅σ′F′)
-      var1 = var (⊢Δ ∙ ⊢σF′ ∙ ⊢σG′) (there here)
+      var1 = var₁ ⊢σG′
       var1′ = conv var1 (PE.subst (λ x → Δ ∙ σF′ ∙ σG′ ⊢ wk1 (wk1 σF′) ≡ x)
                                   (PE.trans (PE.cong wk1 (wk-subst {ρ = step id} {σ = σ′} F′))
                                             (wk-subst F′))
@@ -663,7 +663,7 @@ prodrecCong {n = n} {m = m} {p = p′} {q = q} {Δ = Δ} {r = r}
       [↑⇑σ′] :  Δ ∙ F′ [ σ ] ∙ G′ [ liftSubst σ ] ⊩ˢ consSubst (wk1Subst (wk1Subst σ′)) (var (x0 +1))
                   ∷ Γ ∙ F′ / [Γ] ∙ [F′] / ⊢Δ ∙ ⊢σF′ ∙ ⊢σG′
       [↑⇑σ′] = [↑²σ′] , [var1]
-      var0₁′ = var (⊢Δ ∙ ⊢σF′) here
+      var0₁′ = var₀ ⊢σF′
       wk1⊢σF′≅σ′F′ = ≅-wk (step id) (⊢Δ ∙ ⊢σF′) ⊢σF′≅σ′F′
       var0₁ = conv var0₁′ (PE.subst (λ x → Δ ∙ σF′ ⊢ wk1 σF′ ≡ x)
                                   (wk-subst F′) (≅-eq wk1⊢σF′≅σ′F′))
@@ -682,7 +682,7 @@ prodrecCong {n = n} {m = m} {p = p′} {q = q} {Δ = Δ} {r = r}
       ⊢σG′≅σ′G′ = escapeEq [σG′] [σG′≡σ′G′]
       wk1⊢σG′≅σ′G′ = ≅-wk (step id) (⊢Δ ∙ ⊢σF′ ∙ ⊢σG′) ⊢σG′≅σ′G′
       var0₂ : _ ⊢ var x0 ∷ _
-      var0₂ = var (⊢Δ ∙ ⊢σF′ ∙ ⊢σG′) here
+      var0₂ = var₀ ⊢σG′
       var0₂′ : _ ⊢ var x0 ∷ _
       var0₂′ = conv var0₂ (PE.subst (λ x → Δ ∙ σF′ ∙ σG′ ⊢ wk1 σG′ ≡ x)
                                   (wk-subst G′) (≅-eq wk1⊢σG′≅σ′G′))

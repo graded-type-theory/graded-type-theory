@@ -182,7 +182,7 @@ mutual
              wkTerm (step ρ) ⊢ΔA′ ⊢t)
             (PE.subst (_ ∙ U.wk _ _ ⊢ _ ∷_)
                (wk1-wk≡lift-wk1 _ _) $
-             var ⊢ΔA′ here))
+             var₀ ⊢A′))
          ⊢B)
       (PE.subst (_ ⊢ _ ∷_)
          (wk-β-doubleSubst _ B _ _) $
@@ -417,7 +417,7 @@ mutual
              wkTerm (step ρ) ⊢ΔA′ ⊢t)
             (PE.subst (_ ∙ U.wk _ _ ⊢ _ ∷_)
                (wk1-wk≡lift-wk1 _ _) $
-             var ⊢ΔA′ here))
+             var₀ ⊢A′))
          ⊢B)
       (PE.subst (_ ⊢ _ ≡ _ ∷_)
          (wk-β-doubleSubst _ B₁ _ _) $
@@ -455,7 +455,7 @@ mutual
              wkTerm (step ρ) ⊢ΔA′ ⊢t)
             (PE.subst (_ ∙ U.wk _ _ ⊢ _ ∷_)
                (wk1-wk≡lift-wk1 _ _) $
-             var ⊢ΔA′ here))
+             var₀ ⊢A′))
          ⊢B)
       (PE.subst (_ ⊢ _ ∷_) (wk-β-doubleSubst _ B _ _) $
        wkTerm ρ ⊢Δ ⊢u)
@@ -671,7 +671,7 @@ mutual
              wkTerm (step ρ) ⊢ΔA′ ⊢t)
             (PE.subst (_ ∙ U.wk _ _ ⊢ _ ∷_)
                (wk1-wk≡lift-wk1 _ _) $
-             var ⊢ΔA′ here))
+             var₀ ⊢A′))
          ⊢B)
       (PE.subst (_ ⊢ _ ∷_)
          (wk-β-doubleSubst _ B _ _) $
@@ -710,7 +710,7 @@ mutual
              wkTerm (step ρ) ⊢ΔA′ ⊢t)
             (PE.subst (_ ∙ U.wk _ _ ⊢ _ ∷_)
                (wk1-wk≡lift-wk1 _ _) $
-             var ⊢ΔA′ here))
+             var₀ ⊢A′))
          ⊢B)
       (PE.subst₂ (_ ⊢_≡_)
          (wk-β-doubleSubst _ B _ _)

@@ -347,7 +347,7 @@ mutual
         in  case dec⇇ ⊢Γ z ⊢A₀ of λ where
           (yes z⇇A₀) →
             let ⊢Γ₊ = ⊢Γ ∙ ℕⱼ ⊢Γ ∙ ⊢A
-                ⊢A₊ =  subst↑²Type (ℕⱼ ⊢Γ) ⊢A ⊢A (sucⱼ (var ⊢Γ₊ (there here)))
+                ⊢A₊ =  subst↑²Type (ℕⱼ ⊢Γ) ⊢A ⊢A (sucⱼ (var₁ ⊢A))
             in  case dec⇇ ⊢Γ₊ s ⊢A₊ of λ where
               (yes s⇇A₊) → yes (_ , natrecᵢ A⇇Type z⇇A₀ s⇇A₊ n⇇ℕ)
               (no ¬s⇇A₊) → no λ where
@@ -450,8 +450,7 @@ mutual
             (yes t) →
               case soundness⇇ ⊢Γ t of λ {
                 ⊢t →
-              case ⊢Γ ∙ ⊢A ∙
-                   Idⱼ (wkTerm₁ ⊢A ⊢t) (var (⊢Γ ∙ ⊢A) here) of λ {
+              case ⊢Γ ∙ ⊢A ∙ Idⱼ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A) of λ {
                 ⊢Γ∙A∙Id-t-0 →
               case dec⇇Type ⊢Γ∙A∙Id-t-0 B of λ where
                 (no ¬B) → no λ { (_ , Jᵢ _ _ B _ _ _) → ¬B B }

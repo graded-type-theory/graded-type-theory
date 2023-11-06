@@ -38,7 +38,8 @@ private
     t A : Term n
 
 soundness⇉-var : ∀ {x} →  ⊢ Γ → x ∷ A ∈ Γ → (Γ ⊢ A) × (Γ ⊢ var x ∷ A)
-soundness⇉-var (⊢Γ ∙ ⊢A) here = W.wk₁ ⊢A ⊢A , var (⊢Γ ∙ ⊢A) here
+soundness⇉-var (_ ∙ ⊢A) here =
+  W.wk₁ ⊢A ⊢A , var₀ ⊢A
 soundness⇉-var (⊢Γ ∙ ⊢B) (there x) =
   let ⊢A , ⊢x = soundness⇉-var ⊢Γ x
   in  W.wk₁ ⊢B ⊢A , var (⊢Γ ∙ ⊢B) (there x)
@@ -121,18 +122,16 @@ mutual
   soundness⇉ ⊢Γ (Jᵢ ⊢A ⊢t ⊢B ⊢u ⊢v ⊢w) =
     case soundness⇇Type ⊢Γ ⊢A of λ {
       ⊢A →
-    case ⊢Γ ∙ ⊢A of λ {
-      ⊢Γ∙A →
     case soundness⇇ ⊢Γ ⊢t of λ {
       ⊢t →
-    case soundness⇇Type (⊢Γ∙A ∙ Idⱼ (W.wkTerm₁ ⊢A ⊢t) (var ⊢Γ∙A here))
+    case soundness⇇Type (⊢Γ ∙ ⊢A ∙ Idⱼ (W.wkTerm₁ ⊢A ⊢t) (var₀ ⊢A))
            ⊢B of λ {
       ⊢B →
     case soundness⇇ ⊢Γ ⊢w of λ {
       ⊢w →
       substType₂ ⊢B (soundness⇇ ⊢Γ ⊢v)
         (PE.subst (_⊢_∷_ _ _) ≡Id-wk1-wk1-0[]₀ ⊢w)
-    , Jⱼ′ ⊢B (soundness⇇ ⊢Γ ⊢u) ⊢w }}}}}
+    , Jⱼ′ ⊢B (soundness⇇ ⊢Γ ⊢u) ⊢w }}}}
   soundness⇉ ⊢Γ (Kᵢ ⊢A ⊢t ⊢B ⊢u ⊢v ok) =
     case soundness⇇Type ⊢Γ ⊢A of λ {
       ⊢A →

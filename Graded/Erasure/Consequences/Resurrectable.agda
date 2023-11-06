@@ -101,17 +101,20 @@ opaque
          𝟙 ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎)
     , (lamⱼ′ ok₁ $
        ⊢prod
-         (Erasedⱼ Erased-ok (Idⱼ (var ⊢₂ here) (var ⊢₂ (there here))))
-         (starⱼ ⊢₁ Unit-ok)
-         ([]ⱼ Erased-ok (rflⱼ′ (Unit-η (var ⊢₁ here)))) ok₂)
+         (Erasedⱼ Erased-ok (Idⱼ (var₀ ⊢Unit₂) (var₁ ⊢Unit₂)))
+         (starⱼ ⊢Γ∙Unit Unit-ok)
+         ([]ⱼ Erased-ok (rflⱼ′ (Unit-η (var₀ ⊢Unit₁)))) ok₂)
     where
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-    ⊢₁ : ⊢ Γ ∙ Unitˢ
-    ⊢₁ = ⊢Γ ∙ Unitⱼ ⊢Γ Unit-ok
+    ⊢Unit₁ : Γ ⊢ Unitˢ
+    ⊢Unit₁ = Unitⱼ ⊢Γ Unit-ok
 
-    ⊢₂ : ⊢ Γ ∙ Unitˢ ∙ Unitˢ
-    ⊢₂ = ⊢₁ ∙ Unitⱼ ⊢₁ Unit-ok
+    ⊢Γ∙Unit : ⊢ Γ ∙ Unitˢ
+    ⊢Γ∙Unit = wf ⊢Unit₁ ∙ ⊢Unit₁
+
+    ⊢Unit₂ : Γ ∙ Unitˢ ⊢ Unitˢ
+    ⊢Unit₂ = Unitⱼ ⊢Γ∙Unit Unit-ok
 
 opaque
 

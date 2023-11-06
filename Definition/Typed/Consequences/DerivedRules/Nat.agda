@@ -32,11 +32,11 @@ sucCong : ∀ {F G} → Γ ∙ ℕ ⊢ F ≡ G
 sucCong F≡G with wfEq F≡G
 sucCong F≡G | ⊢Γ ∙ ⊢ℕ =
   let ⊢F , ⊢G = syntacticEq F≡G
-  in subst↑²TypeEq ⊢ℕ ⊢F F≡G (refl (sucⱼ (var (⊢Γ ∙ ⊢ℕ ∙ ⊢F) (there here))))
+  in subst↑²TypeEq ⊢ℕ ⊢F F≡G (refl (sucⱼ (var₁ ⊢F)))
 
 sucCong′ : ∀ {F G} → Γ ∙ ℕ ⊢ F ≡ G
         → Γ ∙ ℕ ∙ G ⊢ F [ suc (var x1) ]↑² ≡ G [ suc (var x1) ]↑²
 sucCong′ F≡G with wfEq F≡G
 sucCong′ F≡G | ⊢Γ ∙ ⊢ℕ =
   let ⊢F , ⊢G = syntacticEq F≡G
-  in subst↑²TypeEq ⊢ℕ ⊢G F≡G (refl (sucⱼ (var (⊢Γ ∙ ⊢ℕ ∙ ⊢G) (there here))))
+  in subst↑²TypeEq ⊢ℕ ⊢G F≡G (refl (sucⱼ (var₁ ⊢G)))

@@ -71,9 +71,7 @@ mutual
       ⊢t₁ →
     J-cong (stabilityConv↑ Γ≡Δ A₁≡A₂) (stabilityConv↑Term Γ≡Δ t₁≡t₂)
       (stabilityConv↑
-         (Γ≡Δ ∙ refl ⊢A₁ ∙
-          refl
-            (Idⱼ (W.wkTerm₁ ⊢A₁ ⊢t₁) (var (wf ⊢A₁ ∙ ⊢A₁) here)))
+         (Γ≡Δ ∙ refl ⊢A₁ ∙ refl (Idⱼ (W.wkTerm₁ ⊢A₁ ⊢t₁) (var₀ ⊢A₁)))
          B₁≡B₂)
       (stabilityConv↑Term Γ≡Δ u₁≡u₂) (stabilityConv↑Term Γ≡Δ v₁≡v₂)
       (stability~↓ Γ≡Δ w₁~w₂) (stabilityEq Γ≡Δ ≡Id) }}

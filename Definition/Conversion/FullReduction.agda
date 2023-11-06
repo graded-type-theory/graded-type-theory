@@ -100,14 +100,11 @@ mutual
         (⊢A , ⊢A′) →
       case wfEqTerm v≡v′ of λ {
         ⊢Γ →
-      case ⊢Γ ∙ ℕⱼ ⊢Γ of λ {
-        ⊢Γℕ →
         natrec p q r A′ t′ u′ v′
       , (                                             $⟨ u′-nf ⟩
-         Γ ∙ ℕ ∙ A ⊢nf u′ ∷ A [ suc (var x1) ]↑²      →⟨ ⊢nf∷-stable (reflConEq ⊢Γℕ ∙ A≡A′) ⟩
+         Γ ∙ ℕ ∙ A ⊢nf u′ ∷ A [ suc (var x1) ]↑²      →⟨ ⊢nf∷-stable (reflConEq (⊢Γ ∙ ℕⱼ ⊢Γ) ∙ A≡A′) ⟩
          Γ ∙ ℕ ∙ A′ ⊢nf u′ ∷ A [ suc (var x1) ]↑²     →⟨ flip _⊢nf_∷_.convₙ $
-                                                         subst↑²TypeEq (ℕⱼ ⊢Γ) ⊢A′ A≡A′
-                                                           (refl (sucⱼ (var (⊢Γℕ ∙ ⊢A′) (there here)))) ⟩
+                                                         subst↑²TypeEq (ℕⱼ ⊢Γ) ⊢A′ A≡A′ (refl (sucⱼ (var₁ ⊢A′))) ⟩
          Γ ∙ ℕ ∙ A′ ⊢nf u′ ∷ A′ [ suc (var x1) ]↑²    →⟨ (λ hyp → natrecₙ
                                                             A′-nf
                                                             (convₙ t′-nf (substTypeEq A≡A′ (refl (zeroⱼ ⊢Γ))))
@@ -116,7 +113,7 @@ mutual
          Γ ⊢ne natrec p q r A′ t′ u′ v′ ∷ A′ [ v′ ]₀  →⟨ flip _⊢ne_∷_.convₙ $ _⊢_≡_.sym $
                                                          substTypeEq A≡A′ v≡v′ ⟩
          Γ ⊢ne natrec p q r A′ t′ u′ v′ ∷ A [ v ]₀    □)
-      , natrec-cong ⊢A A≡A′ t≡t′ u≡u′ v≡v′ }}}}}}}
+      , natrec-cong ⊢A A≡A′ t≡t′ u≡u′ v≡v′ }}}}}}
     (prodrec-cong
        {p = p} {F = A} {G = B} {C = C} {g = u} {r = r} {q′ = q}
        C↑ u~ v↑) →

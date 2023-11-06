@@ -14,6 +14,7 @@ module Definition.Typed.Consequences.Stability
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
+open import Definition.Typed.Properties R
 open import Definition.Typed.Weakening R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Consequences.Substitution R
@@ -45,7 +46,7 @@ mutual
         Δ⊢B = stability Γ≡Δ ⊢B
     in  ⊢Γ ∙ ⊢A , ⊢Δ ∙ Δ⊢B
         , (wk1Subst′ ⊢Γ ⊢Δ Δ⊢B [σ]
-        , conv (var (⊢Δ ∙ Δ⊢B) here)
+        , conv (var₀ Δ⊢B)
                (PE.subst (λ x → _ ⊢ _ ≡ x)
                          (wk1-tailId A)
                          (wkEq₁ Δ⊢B (stabilityEq Γ≡Δ (sym A≡B)))))
@@ -159,14 +160,10 @@ stabilityRedTerm Γ≡Δ (unitrec-β x x₁ x₂) =
                 (stabilityTerm Γ≡Δ x₁) x₂
 stabilityRedTerm Γ≡Δ (J-subst ⊢A ⊢t ⊢B ⊢u ⊢v w₁⇒w₂) =
   J-subst (stability Γ≡Δ ⊢A) (stabilityTerm Γ≡Δ ⊢t)
-    (stability
-       (Γ≡Δ ∙ refl ⊢A ∙
-        refl (Idⱼ (wkTerm₁ ⊢A ⊢t) (var ⊢Γ∙A here)))
+    (stability (Γ≡Δ ∙ refl ⊢A ∙ refl (Idⱼ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A)))
        ⊢B)
     (stabilityTerm Γ≡Δ ⊢u) (stabilityTerm Γ≡Δ ⊢v)
     (stabilityRedTerm Γ≡Δ w₁⇒w₂)
-  where
-  ⊢Γ∙A = contextConvSubst Γ≡Δ .proj₁ ∙ ⊢A
 stabilityRedTerm Γ≡Δ (K-subst ⊢A ⊢t ⊢B ⊢u v₁⇒v₂ ok) =
   K-subst (stability Γ≡Δ ⊢A) (stabilityTerm Γ≡Δ ⊢t)
     (stability (Γ≡Δ ∙ refl (Idⱼ ⊢t ⊢t)) ⊢B) (stabilityTerm Γ≡Δ ⊢u)
@@ -177,13 +174,9 @@ stabilityRedTerm Γ≡Δ ([]-cong-subst ⊢A ⊢t ⊢u v₁⇒v₂ ok) =
 stabilityRedTerm Γ≡Δ (J-β ⊢A ⊢t ⊢t′ t≡t′ ⊢B ⊢B[t,rfl]≡B[t′,rfl] ⊢u) =
   J-β (stability Γ≡Δ ⊢A) (stabilityTerm Γ≡Δ ⊢t) (stabilityTerm Γ≡Δ ⊢t′)
     (stabilityEqTerm Γ≡Δ t≡t′)
-    (stability
-       (Γ≡Δ ∙ refl ⊢A ∙
-        refl (Idⱼ (wkTerm₁ ⊢A ⊢t) (var ⊢Γ∙A here)))
+    (stability (Γ≡Δ ∙ refl ⊢A ∙ refl (Idⱼ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A)))
        ⊢B)
     (stabilityEq Γ≡Δ ⊢B[t,rfl]≡B[t′,rfl]) (stabilityTerm Γ≡Δ ⊢u)
-  where
-  ⊢Γ∙A = contextConvSubst Γ≡Δ .proj₁ ∙ ⊢A
 stabilityRedTerm Γ≡Δ (K-β ⊢t ⊢B ⊢u ok) =
   K-β (stabilityTerm Γ≡Δ ⊢t) (stability (Γ≡Δ ∙ refl (Idⱼ ⊢t ⊢t)) ⊢B)
     (stabilityTerm Γ≡Δ ⊢u) ok

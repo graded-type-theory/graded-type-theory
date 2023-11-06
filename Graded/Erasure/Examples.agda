@@ -124,7 +124,7 @@ private
   ⊢UℕℕU = ⊢Uℕℕ ∙ Uℕℕ⊢U
 
   UℕℕU⊢3 : ε ∙ U ∙ ℕ ∙ ℕ ∙ U ⊢ var x3 ∷ U
-  UℕℕU⊢3 = var ⊢UℕℕU (there (there (there here)))
+  UℕℕU⊢3 = var₃ Uℕℕ⊢U
 
   ⊢UℕℕU3 : ⊢ ε ∙ U ∙ ℕ ∙ ℕ ∙ U ∙ var x3
   ⊢UℕℕU3 = ⊢UℕℕU ∙ univ UℕℕU⊢3
@@ -168,7 +168,7 @@ id-x1-x0 = id ∘⟨ 𝟘 ⟩ var x1 ∘⟨ ω ⟩ var x0
 ⊢id-x1-x0 : ε ∙ U ∙ var x0 ⊢ id-x1-x0 ∷ var x1
 ⊢id-x1-x0 = (⊢id ⊢Γ ∘ⱼ var ⊢Γ (there here)) ∘ⱼ var ⊢Γ here
   where
-  ⊢Γ = ε ∙ Uⱼ ε ∙ univ (var (ε ∙ Uⱼ ε) here)
+  ⊢Γ = ε ∙ Uⱼ ε ∙ univ (var₀ (Uⱼ ε))
 
 -- The term id-x1-x0 is well-resourced (with respect to a specific
 -- usage context).
@@ -229,7 +229,7 @@ id₀ = lam 𝟘 (var x0)
 -- The function id₀ is well-typed (in the empty context).
 
 ⊢id₀ : ε ⊢ id₀ ∷ Π 𝟘 , p ▷ ℕ ▹ ℕ
-⊢id₀ = lamⱼ (ℕⱼ ε) (var (ε ∙ ℕⱼ ε) here) Π-𝟘-ok
+⊢id₀ = lamⱼ (ℕⱼ ε) (var₀ (ℕⱼ ε)) Π-𝟘-ok
 
 -- The function id₀ is not well-resourced.
 
@@ -470,7 +470,7 @@ Vec∘zero⇒* {A = A} ⊢A =
   (β-red (ℕⱼ ⊢Γ) Γℕ⊢U ⊢Vec-body₂′ (zeroⱼ ⊢Γ) PE.refl Π-ω-ok ⇨
    (redMany $
     _⊢_⇒_∷_.natrec-zero Γℕ⊢U (Unitⱼ ⊢Γ Unit-ok) $
-    ΠΣⱼ ΓℕU⊢A (var (⊢ΓℕU ∙ univ ΓℕU⊢A) (there here)) Σˢ-ω-ok))
+    ΠΣⱼ ΓℕU⊢A (var₁ (univ ΓℕU⊢A)) Σˢ-ω-ok))
   where
   open Vec-lemmas ⊢A
 
@@ -492,7 +492,7 @@ Vec∘suc≡ {Γ = Γ} {A = A} {t = t} ⊢A ⊢t =
     (β-red (ℕⱼ ⊢Γ) Γℕ⊢U ⊢Vec-body₂′ (sucⱼ ⊢t) PE.refl Π-ω-ok) $
   _⊢_≡_∷_.trans
     (flip (_⊢_≡_∷_.natrec-suc Γℕ⊢U (Unitⱼ ⊢Γ Unit-ok)) ⊢t $
-     ΠΣⱼ ΓℕU⊢A (var (⊢ΓℕU ∙ univ ΓℕU⊢A) (there here)) Σˢ-ω-ok) $
+     ΠΣⱼ ΓℕU⊢A (var₁ (univ ΓℕU⊢A)) Σˢ-ω-ok) $
   _⊢_≡_∷_.trans
     (_⊢_≡_∷_.sym $
      ΠΣ-cong (univ ⊢A)
@@ -701,18 +701,17 @@ erase-head = PE.refl
     (flip (lamⱼ (univ ⊢Vec-1-0)) Π-ω-ok $
      flip (lamⱼ (univ ⊢Non-zero-zero)) Π-𝟘-ok $
      emptyrecⱼ
-       (univ (var ⊢Uℕ∙Vec∙Non-zero (there (there (there here)))))
-       (_⊢_∷_.conv (var ⊢Uℕ∙Vec∙Non-zero here) $
+       (univ (var₃ (univ ⊢Non-zero-zero)))
+       (_⊢_∷_.conv (var₀ (univ ⊢Non-zero-zero)) $
         _⊢_≡_.univ $
         subset*Term $
         Non-zero∘zero⇒* ⊢Uℕ∙Vec∙Non-zero))
     (flip (lamⱼ (univ ⊢Vec-3-1+1)) Π-ω-ok $
      flip (lamⱼ (univ ⊢Non-zero-1+2)) Π-𝟘-ok $
      fstⱼ (univ ⊢5) (univ ⊢Vec-6-4) $
-     _⊢_∷_.conv (var ⊢Uℕℕ∙ΠΠ∙Vec∙Non-zero (there here)) $
+     _⊢_∷_.conv (var₁ (univ ⊢Non-zero-1+2)) $
      _⊢_≡_.univ $
-     Vec∘suc≡ ⊢5
-       (var ⊢Uℕℕ∙ΠΠ∙Vec∙Non-zero (there (there (there here)))))
+     Vec∘suc≡ ⊢5 (var₃ (univ ⊢Non-zero-1+2)))
     (var ⊢Uℕ here)
   where
   ⊢Vec-2-0 :
@@ -796,9 +795,7 @@ erase-head = PE.refl
   ⊢Uℕℕ∙ΠΠ∙Vec∙Non-zero = ⊢Uℕℕ∙ΠΠ∙Vec ∙ univ ⊢Non-zero-1+2
 
   ⊢5 : Uℕℕ∙ΠΠ∙Vec∙Non-zero ⊢ var x5 ∷ U
-  ⊢5 = var
-    ⊢Uℕℕ∙ΠΠ∙Vec∙Non-zero
-    (there (there (there (there (there here)))))
+  ⊢5 = var₅ (univ ⊢Non-zero-1+2)
 
   Uℕℕ∙ΠΠ∙Vec∙Non-zero∙5  = Uℕℕ∙ΠΠ∙Vec∙Non-zero ∙ var x5
   ⊢Uℕℕ∙ΠΠ∙Vec∙Non-zero∙5 = ⊢Uℕℕ∙ΠΠ∙Vec∙Non-zero ∙ univ ⊢5

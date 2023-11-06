@@ -29,6 +29,7 @@ open import Graded.Mode 𝕄
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.DerivedRules TR
 open import Definition.Typed.Eta-long-normal-form TR
+open import Definition.Typed.Properties TR
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Untyped.Normal-form M
 
@@ -358,7 +359,7 @@ Well-resourced-normal-form-without-η-long-normal-form =
                (≤ᶜ-trans (ε ∙ 𝟙≤𝟘) (≤ᶜ-reflexive (≈ᶜ-sym (·ᶜ-identityˡ _))))} )
   where
   ⊢Unit = Unitⱼ ε ok
-  ⊢0    = var (ε ∙ ⊢Unit) here
+  ⊢0    = var₀ ⊢Unit
 
 -- If "Π 𝟙 , q" and "Unitˢ" are allowed, then the identity function
 -- lam 𝟙 (var x0) has type Π 𝟙 , q ▷ Unit ▹ Unit, is well-resourced in
@@ -465,7 +466,7 @@ well-resourced-normal-form-without-η-long-normal-form-Unit 𝟙≰𝟘 ¬sink o
   Σℕℕ⊢ℕ   = ℕⱼ (ε ∙ ⊢Σℕℕ)
   ε∙Σℕℕ∙ℕ = ε ∙ ⊢Σℕℕ ∙ Σℕℕ⊢ℕ
   Σℕℕ∙ℕ⊢ℕ = ℕⱼ ε∙Σℕℕ∙ℕ
-  ⊢0      = var (ε ∙ ⊢Σℕℕ) here
+  ⊢0      = var₀ ⊢Σℕℕ
 
   lemma₁ : ε ∙ 𝟙 ▸[ 𝟙ᵐ ] u′ ⇔ (𝟙 ≤ p × (⌞ p ⌟ PE.≡ 𝟙ᵐ → p ≤ 𝟙))
   lemma₁ =

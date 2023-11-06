@@ -210,7 +210,7 @@ opaque
     _⊢_≡_∷_.trans
       (PE.subst (_ ⊢ _ ≡ _ ∷_)
          (wkSingleSubstId _)
-         (β-red-≡ (wkTerm ρ ⊢∙A∙A ⊢t) (var ⊢∙A here) ok)) $
+         (β-red-≡ (wkTerm ρ ⊢∙A∙A ⊢t) (var₀ ⊢A) ok)) $
     _⊢_≡_∷_.trans
       (PE.subst₂ (_ ⊢_≡_∷ _)
         (PE.sym (wkSingleSubstId _))
@@ -219,7 +219,7 @@ opaque
     _⊢_≡_∷_.sym $
     PE.subst (_ ⊢ _ ≡ _ ∷_)
       (wkSingleSubstId _)
-      (β-red-≡ (wkTerm ρ ⊢∙A∙A ⊢u) (var ⊢∙A here) ok) }}}}
+      (β-red-≡ (wkTerm ρ ⊢∙A∙A ⊢u) (var₀ ⊢A) ok) }}}}
 
 opaque
 
@@ -238,7 +238,7 @@ opaque
       (wkSingleSubstId _)
       (β-red-⇒
          (wkTerm (lift (step id)) (⊢ΓA ∙ W.wk (step id) ⊢ΓA ⊢A) ⊢t)
-         (var ⊢ΓA here) ok) }}
+         (var₀ ⊢A) ok) }}
 
 opaque
 
@@ -264,7 +264,7 @@ opaque
 
     Γ ⊢ lam p t ≡ lam p u ∷ Π p , q ▷ A ▹ B                              →⟨ wkEqTerm₁ ⊢A ⟩
 
-    Γ ∙ A ⊢ wk1 (lam p t) ≡ wk1 (lam p u) ∷ wk1 (Π p , q ▷ A ▹ B)        →⟨ flip app-cong (refl (var (wf ⊢A ∙ ⊢A) here)) ⟩
+    Γ ∙ A ⊢ wk1 (lam p t) ≡ wk1 (lam p u) ∷ wk1 (Π p , q ▷ A ▹ B)        →⟨ flip app-cong (refl (var₀ ⊢A)) ⟩
 
     Γ ∙ A ⊢ wk1 (lam p t) ∘⟨ p ⟩ var x0 ≡ wk1 (lam p u) ∘⟨ p ⟩ var x0 ∷
       wk (lift (step id)) B [ var x0 ]₀                                  →⟨ PE.subst (_ ⊢ _ ≡ _ ∷_) (wkSingleSubstId _) ⟩
@@ -306,9 +306,7 @@ opaque
   Π-η {Γ} {t} {p} {q} {A} {B} ⊢t =
     case inversion-ΠΣ (syntacticTerm ⊢t) of λ {
       (⊢A , _ , ok) →
-    case wfTerm ⊢t ∙ ⊢A of λ {
-      ⊢ΓA →
-    case                                                               $⟨ wkTerm₁ ⊢A ⊢t ∘ⱼ var ⊢ΓA here ⟩
+    case                                                               $⟨ wkTerm₁ ⊢A ⊢t ∘ⱼ var₀ ⊢A ⟩
       Γ ∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ wk (lift (step id)) B [ var x0 ]₀  →⟨ PE.subst (_ ⊢ _ ∷_) (wkSingleSubstId _) ⟩
       Γ ∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ B                                  →⟨ flip (lamⱼ ⊢A) ok ⟩
       Γ ⊢ lam p (wk1 t ∘⟨ p ⟩ var x0) ∷ Π p , q ▷ A ▹ B                □
@@ -322,4 +320,4 @@ opaque
        Γ ∙ A ⊢
          wk1 (lam p (wk1 t ∘⟨ p ⟩ var x0)) ∘⟨ p ⟩ var x0 ≡
          wk1 t ∘⟨ p ⟩ var x0 ∷
-         B                                                  □) }}}
+         B                                                  □) }}

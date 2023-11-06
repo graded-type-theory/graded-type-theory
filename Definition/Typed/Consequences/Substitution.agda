@@ -123,7 +123,7 @@ idSubst′ : (⊢Γ : ⊢ Γ)
 idSubst′ ε = id
 idSubst′ (_∙_ {Γ = Γ} {A} ⊢Γ ⊢A) =
   wk1Subst′ ⊢Γ ⊢Γ ⊢A (idSubst′ ⊢Γ)
-  , PE.subst (λ x → Γ ∙ A ⊢ _ ∷ x) (wk1-tailId A) (var (⊢Γ ∙ ⊢A) here)
+  , PE.subst (λ x → Γ ∙ A ⊢ _ ∷ x) (wk1-tailId A) (var₀ ⊢A)
 
 -- Well-formed substitution composition.
 substComp′ : ∀ {Γ Δ Δ′} (⊢Γ : ⊢ Γ) (⊢Δ : ⊢ Δ) (⊢Δ′ : ⊢ Δ′)
@@ -230,13 +230,13 @@ subst↑²Type-prod {Γ = Γ} {F = F} {G} {A} ⊢A ok =
       var1 = PE.subst (λ x → Γ ∙ F ∙ G ⊢ var (x0 +1) ∷ x)
                       (PE.trans (wk-comp (step id) (step id) F)
                                 (wk≡subst (step id • step id) F))
-                      (var ⊢ΓFG (there here))
+                      (var₁ ⊢G)
       var0 = PE.subst (λ x → Γ ∙ F ∙ G ⊢ var x0 ∷ x)
                       (PE.trans (wk≡subst (step id) G)
                                 (PE.trans (substVar-to-subst (λ{x0 → PE.refl
                                                              ; (x +1) → PE.refl}) G)
                                           (PE.sym (substCompEq G))))
-                      (var ⊢ΓFG here)
+                      (var₀ ⊢G)
   in  substitution ⊢A
                    (wk1Subst′ ⊢Γ (⊢Γ ∙ ⊢F) ⊢G (wk1Subst′ ⊢Γ ⊢Γ ⊢F (idSubst′ ⊢Γ))
                    , prodⱼ ⊢ρF′ ⊢ρG′ var1 var0 ok)
@@ -282,13 +282,13 @@ subst↑²TypeEq-prod {Γ = Γ} {F = F} {G} {A} {B} A≡B ok =
       var1 = PE.subst (λ x → Γ ∙ F ∙ G ⊢ var (x0 +1) ∷ x)
                       (PE.trans (wk-comp (step id) (step id) F)
                                 (wk≡subst (step id • step id) F))
-                      (var ⊢ΓFG (there here))
+                      (var₁ ⊢G)
       var0 = PE.subst (λ x → Γ ∙ F ∙ G ⊢ var x0 ∷ x)
                       (PE.trans (wk≡subst (step id) G)
                                 (PE.trans (substVar-to-subst (λ{x0 → PE.refl
                                                              ; (x +1) → PE.refl}) G)
                                           (PE.sym (substCompEq G))))
-                      (var ⊢ΓFG here)
+                      (var₀ ⊢G)
   in  substitutionEq A≡B
                      (substRefl (wk1Subst′ ⊢Γ (⊢Γ ∙ ⊢F) ⊢G
                                            (wk1Subst′ ⊢Γ ⊢Γ ⊢F
