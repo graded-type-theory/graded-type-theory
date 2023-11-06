@@ -67,18 +67,16 @@ mutual
   stability~↑ Γ≡Δ (J-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁~w₂ ≡Id) =
     case syntacticEq (soundnessConv↑ A₁≡A₂) .proj₁ of λ {
       ⊢A₁ →
-    case wf ⊢A₁ ∙ ⊢A₁ of λ {
-      ⊢Γ∙A₁ →
     case syntacticEqTerm (soundnessConv↑Term t₁≡t₂) .proj₂ .proj₁ of λ {
       ⊢t₁ →
     J-cong (stabilityConv↑ Γ≡Δ A₁≡A₂) (stabilityConv↑Term Γ≡Δ t₁≡t₂)
       (stabilityConv↑
          (Γ≡Δ ∙ refl ⊢A₁ ∙
           refl
-            (Idⱼ (W.wkTerm (W.step W.id) ⊢Γ∙A₁ ⊢t₁) (var ⊢Γ∙A₁ here)))
+            (Idⱼ (W.wkTerm₁ ⊢A₁ ⊢t₁) (var (wf ⊢A₁ ∙ ⊢A₁) here)))
          B₁≡B₂)
       (stabilityConv↑Term Γ≡Δ u₁≡u₂) (stabilityConv↑Term Γ≡Δ v₁≡v₂)
-      (stability~↓ Γ≡Δ w₁~w₂) (stabilityEq Γ≡Δ ≡Id) }}}
+      (stability~↓ Γ≡Δ w₁~w₂) (stabilityEq Γ≡Δ ≡Id) }}
   stability~↑ Γ≡Δ (K-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁~v₂ ≡Id ok) =
     case syntacticEqTerm (soundnessConv↑Term t₁≡t₂) .proj₂ .proj₁ of λ {
       ⊢t₁ →

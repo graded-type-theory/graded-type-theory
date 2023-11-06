@@ -48,7 +48,7 @@ mutual
         , conv (var (⊢Δ ∙ Δ⊢B) here)
                (PE.subst (λ x → _ ⊢ _ ≡ x)
                          (wk1-tailId A)
-                         (wkEq (step id) (⊢Δ ∙ Δ⊢B) (stabilityEq Γ≡Δ (sym A≡B)))))
+                         (wkEq₁ Δ⊢B (stabilityEq Γ≡Δ (sym A≡B)))))
 
   -- Stability of types under equal contexts.
   stability : ∀ {A} → ⊢ Γ ≡ Δ → Γ ⊢ A → Δ ⊢ A
@@ -161,7 +161,7 @@ stabilityRedTerm Γ≡Δ (J-subst ⊢A ⊢t ⊢B ⊢u ⊢v w₁⇒w₂) =
   J-subst (stability Γ≡Δ ⊢A) (stabilityTerm Γ≡Δ ⊢t)
     (stability
        (Γ≡Δ ∙ refl ⊢A ∙
-        refl (Idⱼ (wkTerm (step id) ⊢Γ∙A ⊢t) (var ⊢Γ∙A here)))
+        refl (Idⱼ (wkTerm₁ ⊢A ⊢t) (var ⊢Γ∙A here)))
        ⊢B)
     (stabilityTerm Γ≡Δ ⊢u) (stabilityTerm Γ≡Δ ⊢v)
     (stabilityRedTerm Γ≡Δ w₁⇒w₂)
@@ -179,7 +179,7 @@ stabilityRedTerm Γ≡Δ (J-β ⊢A ⊢t ⊢t′ t≡t′ ⊢B ⊢B[t,rfl]≡B[t
     (stabilityEqTerm Γ≡Δ t≡t′)
     (stability
        (Γ≡Δ ∙ refl ⊢A ∙
-        refl (Idⱼ (wkTerm (step id) ⊢Γ∙A ⊢t) (var ⊢Γ∙A here)))
+        refl (Idⱼ (wkTerm₁ ⊢A ⊢t) (var ⊢Γ∙A here)))
        ⊢B)
     (stabilityEq Γ≡Δ ⊢B[t,rfl]≡B[t′,rfl]) (stabilityTerm Γ≡Δ ⊢u)
   where

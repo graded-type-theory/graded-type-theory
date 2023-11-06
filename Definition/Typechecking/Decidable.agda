@@ -451,8 +451,7 @@ mutual
               case soundness⇇ ⊢Γ t of λ {
                 ⊢t →
               case ⊢Γ ∙ ⊢A ∙
-                   Idⱼ (wkTerm (step id) (⊢Γ ∙ ⊢A) ⊢t)
-                     (var (⊢Γ ∙ ⊢A) here) of λ {
+                   Idⱼ (wkTerm₁ ⊢A ⊢t) (var (⊢Γ ∙ ⊢A) here) of λ {
                 ⊢Γ∙A∙Id-t-0 →
               case dec⇇Type ⊢Γ∙A∙Id-t-0 B of λ where
                 (no ¬B) → no λ { (_ , Jᵢ _ _ B _ _ _) → ¬B B }

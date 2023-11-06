@@ -192,9 +192,8 @@ opaque
     , λ _ _ A t ⊢A ⊢t →
         case wfTerm ⊢A ∙ univ ⊢A of λ {
           ⊢Γ∙A →
-        case ⊢Γ∙A ∙
-             Idⱼ (W.wkTerm (W.step W.id) ⊢Γ∙A ⊢t) (var ⊢Γ∙A here) of λ {
-          ⊢Γ∙A∙Id →
+        case Idⱼ (W.wkTerm₁ (univ ⊢A) ⊢t) (var ⊢Γ∙A here) of λ {
+          ⊢Id →
         case PE.cong₂
                (λ A′ t′ → Id (Erased A′) ([ t′ ]) ([ t ]))
                (PE.trans (wk2-tail A) (subst-id A))
@@ -209,8 +208,8 @@ opaque
                                                                   J-β-⇒ (refl ⊢t)
                                                                     (Idⱼ
                                                                        ([]ⱼ Erased-ok $
-                                                                        W.wkTerm (W.step W.id) ⊢Γ∙A∙Id (W.wkTerm (W.step W.id) ⊢Γ∙A ⊢t))
-                                                                       ([]ⱼ Erased-ok (var ⊢Γ∙A∙Id (there here))))
+                                                                        W.wkTerm₁ ⊢Id (W.wkTerm₁ (univ ⊢A) ⊢t))
+                                                                       ([]ⱼ Erased-ok (var (⊢Γ∙A ∙ ⊢Id) (there here))))
                                                                     (PE.subst (_⊢_∷_ _ _) (PE.sym lemma) $
                                                                      rflⱼ ([]ⱼ Erased-ok ⊢t)) ⟩∎
         rfl                                                    ∎ }}}}

@@ -38,10 +38,10 @@ private
     t A : Term n
 
 soundness⇉-var : ∀ {x} →  ⊢ Γ → x ∷ A ∈ Γ → (Γ ⊢ A) × (Γ ⊢ var x ∷ A)
-soundness⇉-var (⊢Γ ∙ ⊢A) here = W.wk (W.step W.id) (⊢Γ ∙ ⊢A) ⊢A , var (⊢Γ ∙ ⊢A) here
+soundness⇉-var (⊢Γ ∙ ⊢A) here = W.wk₁ ⊢A ⊢A , var (⊢Γ ∙ ⊢A) here
 soundness⇉-var (⊢Γ ∙ ⊢B) (there x) =
   let ⊢A , ⊢x = soundness⇉-var ⊢Γ x
-  in  W.wk (W.step W.id) (⊢Γ ∙ ⊢B) ⊢A , var (⊢Γ ∙ ⊢B) (there x)
+  in  W.wk₁ ⊢B ⊢A , var (⊢Γ ∙ ⊢B) (there x)
 
 
 mutual
@@ -125,8 +125,7 @@ mutual
       ⊢Γ∙A →
     case soundness⇇ ⊢Γ ⊢t of λ {
       ⊢t →
-    case soundness⇇Type
-           (⊢Γ∙A ∙ Idⱼ (W.wkTerm (W.step W.id) ⊢Γ∙A ⊢t) (var ⊢Γ∙A here))
+    case soundness⇇Type (⊢Γ∙A ∙ Idⱼ (W.wkTerm₁ ⊢A ⊢t) (var ⊢Γ∙A here))
            ⊢B of λ {
       ⊢B →
     case soundness⇇ ⊢Γ ⊢w of λ {

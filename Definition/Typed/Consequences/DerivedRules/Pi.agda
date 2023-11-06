@@ -202,7 +202,7 @@ opaque
       (⊢B , ⊢t , ⊢u) →
     case wf ⊢B of λ {
       ⊢∙A@(_ ∙ ⊢A) →
-    case ⊢∙A ∙ W.wk (step id) ⊢∙A ⊢A of λ {
+    case ⊢∙A ∙ W.wk₁ ⊢A ⊢A of λ {
       ⊢∙A∙A →
     case lift (step id) of λ {
       ρ →
@@ -259,12 +259,12 @@ opaque
   lam-cong⁻¹ {Γ} {p} {t} {u} {q} {A} {B} lam-t≡lam-u =
     case syntacticEqTerm lam-t≡lam-u of λ {
       (⊢ΠAB , ⊢lam-t , ⊢lam-u) →
-    case wfEqTerm lam-t≡lam-u ∙ inversion-ΠΣ ⊢ΠAB .proj₁ of λ {
-      ⊢ΓA →                                                              $⟨ lam-t≡lam-u ⟩
+    case inversion-ΠΣ ⊢ΠAB .proj₁ of λ {
+      ⊢A →                                                               $⟨ lam-t≡lam-u ⟩
 
-    Γ ⊢ lam p t ≡ lam p u ∷ Π p , q ▷ A ▹ B                              →⟨ wkEqTerm (step id) ⊢ΓA ⟩
+    Γ ⊢ lam p t ≡ lam p u ∷ Π p , q ▷ A ▹ B                              →⟨ wkEqTerm₁ ⊢A ⟩
 
-    Γ ∙ A ⊢ wk1 (lam p t) ≡ wk1 (lam p u) ∷ wk1 (Π p , q ▷ A ▹ B)        →⟨ flip app-cong (refl (var ⊢ΓA here)) ⟩
+    Γ ∙ A ⊢ wk1 (lam p t) ≡ wk1 (lam p u) ∷ wk1 (Π p , q ▷ A ▹ B)        →⟨ flip app-cong (refl (var (wf ⊢A ∙ ⊢A) here)) ⟩
 
     Γ ∙ A ⊢ wk1 (lam p t) ∘⟨ p ⟩ var x0 ≡ wk1 (lam p u) ∘⟨ p ⟩ var x0 ∷
       wk (lift (step id)) B [ var x0 ]₀                                  →⟨ PE.subst (_ ⊢ _ ≡ _ ∷_) (wkSingleSubstId _) ⟩
@@ -308,7 +308,7 @@ opaque
       (⊢A , _ , ok) →
     case wfTerm ⊢t ∙ ⊢A of λ {
       ⊢ΓA →
-    case                                                               $⟨ wkTerm (step id) ⊢ΓA ⊢t ∘ⱼ var ⊢ΓA here ⟩
+    case                                                               $⟨ wkTerm₁ ⊢A ⊢t ∘ⱼ var ⊢ΓA here ⟩
       Γ ∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ wk (lift (step id)) B [ var x0 ]₀  →⟨ PE.subst (_ ⊢ _ ∷_) (wkSingleSubstId _) ⟩
       Γ ∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ B                                  →⟨ flip (lamⱼ ⊢A) ok ⟩
       Γ ⊢ lam p (wk1 t ∘⟨ p ⟩ var x0) ∷ Π p , q ▷ A ▹ B                □

@@ -14,6 +14,7 @@ module Definition.Typed.Weakening
 open import Definition.Untyped M as U hiding (wk ; _∷_)
 open import Definition.Untyped.Properties M
 open import Definition.Typed R hiding (_,_)
+open import Definition.Typed.Properties R
 
 open import Tools.Fin
 open import Tools.Function
@@ -23,7 +24,7 @@ import Tools.PropositionalEquality as PE
 private
   variable
     ℓ n m  : Nat
-    A B t u : Term n
+    A B C t u : Term n
     Γ  : Con Term n
     Δ  : Con Term m
     Δ′ : Con Term ℓ
@@ -474,6 +475,34 @@ mutual
     ⊢t′ = wkTerm ρ ⊢Δ ⊢t
   wkEqTerm ρ ⊢Δ ([]-cong-β t PE.refl ok) =
     []-cong-β (wkTerm ρ ⊢Δ t) PE.refl ok
+
+opaque
+
+  -- A special case of wk.
+
+  wk₁ : Γ ⊢ B → Γ ⊢ A → Γ ∙ B ⊢ wk1 A
+  wk₁ ⊢B ⊢A = wk (step id) (wf ⊢B ∙ ⊢B) ⊢A
+
+opaque
+
+  -- A special case of wkEq.
+
+  wkEq₁ : Γ ⊢ C → Γ ⊢ A ≡ B → Γ ∙ C ⊢ wk1 A ≡ wk1 B
+  wkEq₁ ⊢C A≡B = wkEq (step id) (wf ⊢C ∙ ⊢C) A≡B
+
+opaque
+
+  -- A special case of wkTerm.
+
+  wkTerm₁ : Γ ⊢ B → Γ ⊢ t ∷ A → Γ ∙ B ⊢ wk1 t ∷ wk1 A
+  wkTerm₁ ⊢B ⊢t = wkTerm (step id) (wf ⊢B ∙ ⊢B) ⊢t
+
+opaque
+
+  -- A special case of wkEqTerm.
+
+  wkEqTerm₁ : Γ ⊢ B → Γ ⊢ t ≡ u ∷ A → Γ ∙ B ⊢ wk1 t ≡ wk1 u ∷ wk1 A
+  wkEqTerm₁ ⊢B t≡u = wkEqTerm (step id) (wf ⊢B ∙ ⊢B) t≡u
 
 mutual
   wkRed : ρ ∷ Δ ⊇ Γ →

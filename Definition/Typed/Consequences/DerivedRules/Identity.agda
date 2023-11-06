@@ -190,9 +190,9 @@ opaque
     Γ ⊢ t ∷ A →
     ⊢ Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0)
   J-motive-context ⊢t =
-    case wfTerm ⊢t ∙ syntacticTerm ⊢t of λ {
-      ⊢Γ∙A →
-    ⊢Γ∙A ∙ Idⱼ (wkTerm (step id) ⊢Γ∙A ⊢t) (var ⊢Γ∙A here) }
+    case syntacticTerm ⊢t of λ {
+      ⊢A →
+    wf ⊢A ∙ ⊢A ∙ Idⱼ (wkTerm₁ ⊢A ⊢t) (var (wf ⊢A ∙ ⊢A) here) }
 
 opaque
 
@@ -205,11 +205,11 @@ opaque
     ⊢ Γ₁ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ≡
       Γ₂ ∙ A₂ ∙ Id (wk1 A₂) (wk1 t₂) (var x0)
   J-motive-context-cong Γ₁≡Γ₂ A₁≡A₂ t₁≡t₂ =
-    case wfEq A₁≡A₂ ∙ syntacticEq A₁≡A₂ .proj₁ of λ {
-      ⊢Γ₁∙A₁ →
+    case syntacticEq A₁≡A₂ .proj₁ of λ {
+      ⊢A₁ →
     Γ₁≡Γ₂ ∙ A₁≡A₂ ∙
-    Id-cong (wkEq (step id) ⊢Γ₁∙A₁ A₁≡A₂)
-      (wkEqTerm (step id) ⊢Γ₁∙A₁ t₁≡t₂) (refl (var ⊢Γ₁∙A₁ here)) }
+    Id-cong (wkEq₁ ⊢A₁ A₁≡A₂) (wkEqTerm₁ ⊢A₁ t₁≡t₂)
+      (refl (var (wf ⊢A₁ ∙ ⊢A₁) here)) }
 
 opaque
 

@@ -515,17 +515,11 @@ module Fstʷ-sndʷ (r′ q′ : M) where
 
     -- Some lemmas used below.
 
-    ⊢wk1 :
-      Γ ⊢ A →
-      Γ ⊢ B →
-      Γ ∙ A ⊢ wk1 B
-    ⊢wk1 ⊢A = W.wk (step id) (wf ⊢A ∙ ⊢A)
-
     Σ⊢wk1 :
       Γ ∙ A ⊢ B →
       Σʷ-allowed p q →
       Γ ∙ (Σʷ p , q ▷ A ▹ B) ⊢ wk1 A
-    Σ⊢wk1 ⊢B ok = ⊢wk1 (ΠΣⱼ′ ⊢B ok) ⊢A
+    Σ⊢wk1 ⊢B ok = W.wk₁ (ΠΣⱼ′ ⊢B ok) ⊢A
       where
       ⊢A = case wf ⊢B of λ where
              (_ ∙ ⊢A) → ⊢A
@@ -533,12 +527,10 @@ module Fstʷ-sndʷ (r′ q′ : M) where
     ⊢wk1-wk1 :
       Γ ∙ A ⊢ B →
       Γ ∙ A ∙ B ⊢ wk1 (wk1 A)
-    ⊢wk1-wk1 ⊢B = W.wk (step id) ⊢ΓAB (W.wk (step id) ⊢ΓA ⊢A)
+    ⊢wk1-wk1 ⊢B = W.wk₁ ⊢B (W.wk₁ ⊢A ⊢A)
       where
-      ⊢ΓA  = wf ⊢B
-      ⊢A   = case ⊢ΓA of λ where
-               (_ ∙ ⊢A) → ⊢A
-      ⊢ΓAB = ⊢ΓA ∙ ⊢B
+      ⊢A = case wf ⊢B of λ where
+             (_ ∙ ⊢A) → ⊢A
 
     ⊢wk1[]≡ :
       Γ ⊢ A →
@@ -553,7 +545,7 @@ module Fstʷ-sndʷ (r′ q′ : M) where
       Γ ⊢ B →
       Γ ∙ A ⊢ wk1 B ≡ B [ wk1Subst idSubst ]
     ⊢wk1≡ {Γ = Γ} {A = A} {B = B} ⊢A =
-      Γ ⊢ B                                         →⟨ ⊢wk1 ⊢A ⟩
+      Γ ⊢ B                                         →⟨ W.wk₁ ⊢A ⟩
       Γ ∙ A ⊢ wk1 B                                 →⟨ refl ⟩
       (Γ ∙ A ⊢ wk1 B ≡ wk1 B)                       →⟨ PE.subst₂ (_ ⊢_≡_) PE.refl lemma ⟩
       (Γ ∙ A ⊢ wk1 B ≡ B [ wk1Subst idSubst ])  □
@@ -698,7 +690,7 @@ module Fstʷ-sndʷ (r′ q′ : M) where
     Γ ⊢ fstʷ p A₁ t₁ ≡ fstʷ p A₂ t₂ ∷ A₁
   fstʷ-cong
     {Γ = Γ} {A₁ = A₁} {A₂ = A₂} {B₁ = B₁} {t₁ = t₁} {t₂ = t₂}
-    {p = p} {q = q} A₁≡A₂ ⊢B₁ t₁≡t₂ =                              $⟨ W.wkEq (step id) (wfEq A₁≡A₂ ∙ ΠΣⱼ′ ⊢B₁ ok) A₁≡A₂
+    {p = p} {q = q} A₁≡A₂ ⊢B₁ t₁≡t₂ =                              $⟨ W.wkEq₁ (ΠΣⱼ′ ⊢B₁ ok) A₁≡A₂
                                                                     , 1∷wk1[1,0] ⊢B₁
                                                                     ⟩
     (Γ ∙ (Σʷ p , q ▷ A₁ ▹ B₁) ⊢ wk1 A₁ ≡ wk1 A₂) ×
@@ -815,7 +807,7 @@ module Fstʷ-sndʷ (r′ q′ : M) where
       where
       ⊢ΓAB = wf ⊢B ∙ ⊢B
 
-      lemma =                                                  $⟨ ⊢wk1 ⊢B ⊢B ⟩
+      lemma =                                                  $⟨ W.wk₁ ⊢B ⊢B ⟩
 
         (Γ ∙ A ∙ B ⊢ wk1 B)                                    →⟨ refl ⟩
 
@@ -854,7 +846,7 @@ module Fstʷ-sndʷ (r′ q′ : M) where
         var x0 ∷
         wk1 (Σʷ p , q ▷ A₁ ▹ B₁)                                   →⟨ fstʷ-cong
                                                                         (wkEq (step id) ⊢ΓΣA₁B₁ A₁≡A₂)
-                                                                        (W.wk (lift (step id)) (⊢ΓΣA₁B₁ ∙ ⊢wk1 ⊢ΣA₁B₁ ⊢A₁) ⊢B₁) ⟩
+                                                                        (W.wk (lift (step id)) (⊢ΓΣA₁B₁ ∙ W.wk₁ ⊢ΣA₁B₁ ⊢A₁) ⊢B₁) ⟩
       Γ ∙ (Σʷ p , q ▷ A₁ ▹ B₁) ⊢
         fstʷ p (wk1 A₁) (var x0) ≡
         fstʷ p (wk1 A₂) (var x0) ∷

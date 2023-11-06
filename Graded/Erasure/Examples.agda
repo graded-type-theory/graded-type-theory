@@ -454,8 +454,7 @@ private module Vec-lemmas (⊢A : Γ ⊢ A ∷ U) where
   ⊢Vec-body₂″ = substitutionTerm
     {σ = liftSubst (consSubst (toSubst wk₀) (wk1 A))}
     ⊢Vec-body₂
-    (liftSubst′ ⊢U ⊢ΓA U⊢ℕ
-       (DT.id , W.wkTerm (W.step W.id) ⊢ΓA ⊢A))
+    (liftSubst′ ⊢U ⊢ΓA U⊢ℕ (DT.id , W.wkTerm₁ (univ ⊢A) ⊢A))
     ⊢ΓAℕ
 
 -- A computation rule for Vec.
@@ -503,15 +502,15 @@ Vec∘suc≡ {Γ = Γ} {A = A} {t = t} ⊢A ⊢t =
            PE.cong (Σˢ _ , _ ▷_▹ _) $
            wk3[]≡ A) $
         β-red (ℕⱼ ⊢ΓA) (Uⱼ ⊢ΓAℕ) ⊢Vec-body₂″
-          (W.wkTerm (W.step W.id) ⊢ΓA ⊢t) PE.refl Π-ω-ok)
+          (W.wkTerm₁ (univ ⊢A) ⊢t) PE.refl Π-ω-ok)
        Σˢ-ω-ok) $
   _⊢_≡_∷_.sym $
   flip (_⊢_≡_∷_.ΠΣ-cong (univ ⊢A) (refl ⊢A)) Σˢ-ω-ok $
   app-cong
     (β-red (Uⱼ ⊢ΓA) (syntacticTerm ⊢Vec-body₁″)
-      ⊢Vec-body₁″ (W.wkTerm (W.step W.id) ⊢ΓA ⊢A) PE.refl Π-ω-ok) $
+       ⊢Vec-body₁″ (W.wkTerm₁ (univ ⊢A) ⊢A) PE.refl Π-ω-ok) $
   _⊢_≡_∷_.refl $
-  W.wkTerm (W.step W.id) ⊢ΓA ⊢t
+  W.wkTerm₁ (univ ⊢A) ⊢t
   where
   open Vec-lemmas ⊢A
 
@@ -738,8 +737,7 @@ erase-head = PE.refl
   ⊢Non-zero-1 :
     ε ∙ U ∙ ℕ ∙ ℕ ∙ wk wk₀ Vec ∘⟨ ω ⟩ var x2 ∘⟨ ω ⟩ var x0 ⊢
     wk wk₀ Non-zero ∘⟨ ω ⟩ var x1 ∷ U
-  ⊢Non-zero-1 =
-    W.wkTerm (W.step W.id) ⊢Uℕℕ∙Vec ⊢Non-zero-0
+  ⊢Non-zero-1 = W.wkTerm₁ (univ ⊢Vec-2-0) ⊢Non-zero-0
 
   ⊢Uℕ∙Vec = ⊢Uℕ ∙ univ ⊢Vec-1-0
 
