@@ -186,13 +186,25 @@ opaque
 
   -- A lemma related to the context of one of the assumptions of J.
 
+  J-motive-context-type :
+    Γ ⊢ t ∷ A →
+    Γ ∙ A ⊢ Id (wk1 A) (wk1 t) (var x0)
+  J-motive-context-type ⊢t =
+    case syntacticTerm ⊢t of λ {
+      ⊢A →
+    Idⱼ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A) }
+
+opaque
+
+  -- A lemma related to the context of one of the assumptions of J.
+
   J-motive-context :
     Γ ⊢ t ∷ A →
     ⊢ Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0)
   J-motive-context ⊢t =
-    case syntacticTerm ⊢t of λ {
-      ⊢A →
-    wf ⊢A ∙ ⊢A ∙ Idⱼ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A) }
+    case J-motive-context-type ⊢t of λ {
+      ⊢Id →
+    wf ⊢Id ∙ ⊢Id }
 
 opaque
 
@@ -324,8 +336,15 @@ opaque
 
   -- A lemma related to the context of one of the assumptions of K.
 
+  K-motive-context-type : Γ ⊢ t ∷ A → Γ ⊢ Id A t t
+  K-motive-context-type ⊢t = Idⱼ ⊢t ⊢t
+
+opaque
+
+  -- A lemma related to the context of one of the assumptions of K.
+
   K-motive-context : Γ ⊢ t ∷ A → ⊢ Γ ∙ Id A t t
-  K-motive-context ⊢t = wfTerm ⊢t ∙ Idⱼ ⊢t ⊢t
+  K-motive-context ⊢t = wfTerm ⊢t ∙ K-motive-context-type ⊢t
 
 opaque
 
