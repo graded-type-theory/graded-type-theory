@@ -2,6 +2,8 @@
 -- Derived rules related to Σ-types
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 
@@ -11,9 +13,11 @@ module Definition.Typed.Consequences.DerivedRules.Sigma
   (R : Type-restrictions 𝕄)
   where
 
+open Modality 𝕄
 open Type-restrictions R
 
 open import Definition.Typed R
+open import Definition.Typed.Consequences.DerivedRules.Identity R
 open import Definition.Typed.Consequences.DerivedRules.Pi-Sigma R
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Injectivity R
@@ -22,6 +26,7 @@ open import Definition.Typed.Consequences.Reduction R
 open import Definition.Typed.Consequences.Substitution R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
+open import Definition.Typed.Reasoning.Term R
 open import Definition.Typed.Weakening R as W
 
 open import Definition.Untyped M as U
@@ -34,7 +39,7 @@ open import Tools.Function
 open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
-import Tools.Reasoning.PropositionalEquality
+open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 
 private variable
@@ -981,8 +986,9 @@ module Fstʷ-sndʷ (r′ q′ : M) where
     ⊢B    = ⊢B,ok .proj₁
     ok    = ⊢B,ok .proj₂
 
-  -- If Σʷ-allowed p q holds for some p and q, then a certain η-rule
-  -- for Σʷ, fstʷ and sndʷ does not hold in general.
+  -- If Σʷ-allowed p q holds for some p and q, then a certain
+  -- definitional η-rule for Σʷ, fstʷ and sndʷ does not hold in
+  -- general.
 
   ¬-Σʷ-η-prodʷ-fstʷ-sndʷ :
     ∀ {p q} →
@@ -1019,8 +1025,133 @@ module Fstʷ-sndʷ (r′ q′ : M) where
           Σʷ p , q ▷ A′ ▹ B′
     ¬fst,snd≡ = prodʷ≢ne (var _)
 
-  -- If Σʷ-allowed p q holds for some p and q, then a certain η-rule
-  -- for Σʷ, fstʷ and sndʷ does not hold in general.
+  opaque
+
+    -- However, the corresponding propositional η-rule does hold.
+
+    -- The η-rule's witness.
+
+    Σʷ-η-prodʷ-fstʷ-sndʷ :
+      M → M → Term n → Term (1+ n) → Term n → Term n
+    Σʷ-η-prodʷ-fstʷ-sndʷ p q A B t =
+      prodrec 𝟘 p 𝟙
+        (Id (wk1 (Σʷ p , q ▷ A ▹ B))
+           (prodʷ p (fstʷ p (wk1 A) (var x0))
+              (sndʷ p q (wk1 A) (U.wk (lift (step id)) B) (var x0)))
+           (var x0))
+        t
+        rfl
+
+  opaque
+    unfolding Σʷ-η-prodʷ-fstʷ-sndʷ
+
+    -- The η-rule's typing rule.
+
+    ⊢Σʷ-η-prodʷ-fstʷ-sndʷ :
+      Γ ⊢ t ∷ Σʷ p , q ▷ A ▹ B →
+      Γ ⊢ Σʷ-η-prodʷ-fstʷ-sndʷ p q A B t ∷
+        Id (Σʷ p , q ▷ A ▹ B) (prodʷ p (fstʷ p A t) (sndʷ p q A B t)) t
+    ⊢Σʷ-η-prodʷ-fstʷ-sndʷ {t} {p} {q} {A} {B} ⊢t =
+      let pair = prodʷ p (var x1) (var x0) in
+      case syntacticTerm ⊢t of λ {
+        ⊢ΣAB →
+      case inversion-ΠΣ ⊢ΣAB of λ {
+        (⊢A , ⊢B , ok) →
+      case
+        wk1 A [ pair ]↑²         ≡⟨ wk1-[]↑² ⟩
+        wk2 A                    ≡⟨ wk-comp _ _ _ ⟩
+        U.wk (step (step id)) A  ∎
+      of λ {
+        eq₁ →
+      case
+        U.wk (lift (step id)) B
+          [ liftSubst (consSubst (wk1Subst (wk1Subst idSubst)) pair) ]   ≡⟨ subst-wk B ⟩
+
+        B [ liftSubst (consSubst (wk1Subst (wk1Subst idSubst)) pair) ₛ•
+            lift (step id) ]                                             ≡⟨ (flip substVar-to-subst B λ where
+                                                                               x0     → PE.refl
+                                                                               (_ +1) → PE.refl) ⟩
+
+        B [ toSubst (lift (step (step id))) ]                            ≡˘⟨ wk≡subst _ _ ⟩
+
+        U.wk (lift (step (step id))) B                                   ∎
+      of λ {
+        eq₂ →
+      case W.wk (lift (step (step id)))
+             (wf ⊢B ∙ ⊢B ∙ W.wk (step (step id)) (wf ⊢B ∙ ⊢B) ⊢A)
+             ⊢B of λ {
+        ⊢B′ →
+      case W.wk (lift (step id)) (wf ⊢A ∙ ⊢ΣAB ∙ wk₁ ⊢ΣAB ⊢A) ⊢B of λ {
+        ⊢B″ →
+      case PE.subst (_⊢_∷_ _ _) (wk-comp _ _ _) $ var₁ ⊢B of λ {
+        ⊢₁ →
+      case PE.subst (_⊢_∷_ _ _) (PE.sym $ wkSingleSubstWk1 B) $
+           var₀ ⊢B of λ {
+        ⊢₀ →
+      PE.subst (_⊢_∷_ _ _)
+        (Id (Σʷ p , q ▷ wk1 A ▹ U.wk (lift (step id)) B)
+           (prodʷ p (fstʷ p (wk1 A) (var x0))
+              (sndʷ p q (wk1 A) (U.wk (lift (step id)) B) (var x0)))
+           (var x0)
+           [ t ]₀                                                     ≡⟨ PE.cong
+                                                                           (λ x →
+                                                                              Id (Σʷ p , q ▷ wk1 A [ t ]₀ ▹
+                                                                                  (U.wk (lift (step id)) B [ liftSubst (sgSubst t) ]))
+                                                                                 x t) $
+                                                                         PE.cong₂ (prodʷ p)
+                                                                           (fstrʷ-[] (wk1 A) (var x0))
+                                                                           (sndʷ-[] (U.wk (lift (step id)) B) (var x0)) ⟩
+         Id
+           (Σʷ p , q ▷ wk1 A [ t ]₀ ▹
+            (U.wk (lift (step id)) B [ liftSubst (sgSubst t) ]))
+           (prodʷ p (fstʷ p (wk1 A [ t ]₀) t)
+              (sndʷ p q (wk1 A [ t ]₀)
+                 (U.wk (lift (step id)) B
+                    [ liftSubst (sgSubst t) ]) t))
+           t                                                          ≡⟨ PE.cong₂
+                                                                           (λ A B →
+                                                                              Id (Σʷ p , q ▷ A ▹ B) (prodʷ p (fstʷ p A t) (sndʷ p q A B t)) t)
+                                                                           (wk1-sgSubst _ _)
+                                                                           (PE.trans (subst-wk B) $
+                                                                            PE.trans
+                                                                              (flip substVar-to-subst B λ where
+                                                                                 x0     → PE.refl
+                                                                                 (_ +1) → PE.refl) $
+                                                                            subst-id _) ⟩
+         Id (Σʷ p , q ▷ A ▹ B)
+           (prodʷ p (fstʷ p A t) (sndʷ p q A B t)) t                  ∎) $
+      prodrecⱼ′
+        (Idⱼ
+           (⊢prod ⊢B″ (fstʷⱼ (var₀ ⊢ΣAB)) (sndʷⱼ (var₀ ⊢ΣAB)) ok)
+           (var₀ ⊢ΣAB))
+        ⊢t
+        (rflⱼ′
+           (prodʷ p (fstʷ p (wk1 A) (var x0) [ pair ]↑²)
+              (sndʷ p q (wk1 A) (U.wk (lift (step id)) B) (var x0)
+                 [ pair ]↑²)                                           ≡⟨ PE.cong₂ (prodʷ p)
+                                                                            (fstrʷ-[] (wk1 A) (var x0))
+                                                                            (sndʷ-[] (U.wk (lift (step id)) B) (var x0)) ⟩⊢≡
+            prodʷ p (fstʷ p (wk1 A [ pair ]↑²) pair)
+              (sndʷ p q (wk1 A [ pair ]↑²)
+                 (U.wk (lift (step id)) B
+                    [ liftSubst $
+                      consSubst (wk1Subst (wk1Subst idSubst)) pair ])
+                 pair)                                                 ≡⟨ PE.cong₂ (λ A B → prodʷ _ (fstʷ _ A _) (sndʷ _ _ A B _)) eq₁ eq₂ ⟩⊢≡
+
+            prodʷ p (fstʷ p (U.wk (step (step id)) A) pair)
+              (sndʷ p q (U.wk (step (step id)) A)
+                 (U.wk (lift (step (step id))) B) pair)                ≡⟨ PE.subst (_⊢_≡_∷_ _ _ _)
+                                                                            (PE.sym $ PE.cong₂ (Σʷ _ , _ ▷_▹_) eq₁ eq₂) $
+                                                                          prod-cong′ ⊢B′
+                                                                            (fstʷ-β-≡ ⊢B′ ⊢₁ ⊢₀ ok)
+                                                                            (sndʷ-β-≡ ⊢B′ ⊢₁ ⊢₀ ok)
+                                                                            ok ⟩⊢∎
+
+            pair                                                       ∎)) }}}}}}}}
+
+  -- If Σʷ-allowed p q holds for some p and q, then a certain
+  -- definitional η-rule for Σʷ, fstʷ and sndʷ does not hold in
+  -- general.
 
   ¬-Σʷ-η :
     ∀ {p q} →
