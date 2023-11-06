@@ -13,16 +13,20 @@ module Definition.Typed.Consequences.DerivedRules.Identity
   (R : Type-restrictions 𝕄)
   where
 
+open Modality 𝕄
 open Type-restrictions R
 
-open import Definition.Untyped M
+open import Definition.Untyped M as U
   hiding (_∷_) renaming (_[_,_] to _[_,_]₁₀)
 open import Definition.Typed R
+open import Definition.Typed.Consequences.DerivedRules.Pi R
+open import Definition.Typed.Consequences.DerivedRules.Pi-Sigma R
 open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Stability R
 open import Definition.Typed.Consequences.Substitution R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
+open import Definition.Typed.Reasoning.Term R
 import Definition.Typed.RedSteps R as R
 open import Definition.Typed.Weakening R
 open import Definition.Untyped.Properties M
@@ -31,14 +35,19 @@ import Graded.Derived.Erased.Untyped 𝕄 as Erased
 
 open import Tools.Fin
 open import Tools.Function
+open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Reasoning.PropositionalEquality
 
 private variable
-  Γ Γ₁ Γ₂                                            : Con Term _
-  A A₁ A₂ B B₁ B₂ t t₁ t₂ t′ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
-  p q                                                : M
-  s                                                  : Strength
+  n                                               : Nat
+  Γ Γ₁ Γ₂                                         : Con Term _
+  A A₁ A₂ B B₁ B₂
+    eq eq₁ eq₂ t t₁ t₂ t′ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
+  σ                                               : Subst _ _
+  p q                                             : M
+  s                                               : Strength
 
 ------------------------------------------------------------------------
 -- Lemmas related to rfl
@@ -430,3 +439,602 @@ opaque
     case syntacticEqTerm t≡t′ of λ {
       (⊢A , ⊢t , ⊢t′) →
     []-cong-β ⊢A ⊢t ⊢t′ t≡t′ }
+
+------------------------------------------------------------------------
+-- Subst
+
+opaque
+
+  -- Substitutivity.
+
+  subst :
+    Term n → Term (1+ n) → Term n → Term n → Term n → Term n → Term n
+  subst A B t u v w =
+    J ω 𝟘 A t (wk1 B) w u v
+
+opaque
+  unfolding subst
+
+  -- A typing rule for subst.
+
+  ⊢subst :
+    Γ ∙ A ⊢ B →
+    Γ ⊢ v ∷ Id A t u →
+    Γ ⊢ w ∷ B [ t ]₀ →
+    Γ ⊢ subst A B t u v w ∷ B [ u ]₀
+  ⊢subst {B} ⊢B ⊢v ⊢w =
+    case inversion-Id (syntacticTerm ⊢v) of λ {
+      (_ , ⊢t , _) →
+    PE.subst (_⊢_∷_ _ _) (subst-wk B) $
+    Jⱼ′ (wk₁ (J-motive-context-type ⊢t) ⊢B)
+      (PE.subst (_⊢_∷_ _ _) (PE.sym $ subst-wk B) ⊢w)
+      ⊢v }
+
+opaque
+  unfolding subst
+
+  -- A reduction rule for subst.
+
+  subst-⇒ :
+    Γ ∙ A ⊢ B →
+    Γ ⊢ t ∷ A →
+    Γ ⊢ u ∷ B [ t ]₀ →
+    Γ ⊢ subst A B t t rfl u ⇒ u ∷ B [ t ]₀
+  subst-⇒ {B} ⊢B ⊢t ⊢u =
+    PE.subst (_⊢_⇒_∷_ _ _ _) (subst-wk B) $
+    J-β-⇒ (refl ⊢t) (wk₁ (J-motive-context-type ⊢t) ⊢B)
+      (PE.subst (_⊢_∷_ _ _) (PE.sym $ subst-wk B) ⊢u)
+
+opaque
+
+  -- An equality rule for subst.
+
+  subst-≡ :
+    Γ ∙ A ⊢ B →
+    Γ ⊢ t ∷ A →
+    Γ ⊢ u ∷ B [ t ]₀ →
+    Γ ⊢ subst A B t t rfl u ≡ u ∷ B [ t ]₀
+  subst-≡ ⊢B ⊢t ⊢u =
+    subsetTerm (subst-⇒ ⊢B ⊢t ⊢u)
+
+opaque
+  unfolding subst
+
+  -- A substitution lemma for subst.
+
+  subst-[] :
+    subst A B t u v w [ σ ] PE.≡
+    subst (A [ σ ]) (B [ liftSubst σ ]) (t [ σ ]) (u [ σ ]) (v [ σ ])
+      (w [ σ ])
+  subst-[] {B} =
+    PE.cong₄ (J _ _ _ _) (wk1-liftSubst B) PE.refl PE.refl PE.refl
+
+------------------------------------------------------------------------
+-- Symmetry
+
+opaque
+
+  -- Symmetry.
+
+  symmetry :
+    Term n → Term n → Term n → Term n → Term n
+  symmetry A t u eq =
+    subst A (Id (wk1 A) (var x0) (wk1 t)) t u eq rfl
+
+opaque
+  unfolding symmetry
+
+  -- A typing rule for symmetry.
+
+  ⊢symmetry :
+    Γ ⊢ eq ∷ Id A t u →
+    Γ ⊢ symmetry A t u eq ∷ Id A u t
+  ⊢symmetry ⊢eq =
+    case inversion-Id (syntacticTerm ⊢eq) of λ
+      (⊢A , ⊢t , _) →
+    PE.subst (_⊢_∷_ _ _)
+      (PE.cong₃ Id (wk1-sgSubst _ _) PE.refl (wk1-sgSubst _ _)) $
+    ⊢subst
+      (Idⱼ (var₀ ⊢A) (wkTerm₁ ⊢A ⊢t))
+      ⊢eq
+      (PE.subst (_⊢_∷_ _ _)
+         (PE.sym $
+          PE.cong₃ Id (wk1-sgSubst _ _) PE.refl (wk1-sgSubst _ _)) $
+       rflⱼ ⊢t)
+
+opaque
+  unfolding symmetry
+
+  -- A reduction rule for symmetry.
+
+  symmetry-⇒ :
+    Γ ⊢ t ∷ A →
+    Γ ⊢ symmetry A t t rfl ⇒ rfl ∷ Id A t t
+  symmetry-⇒ ⊢t =
+    case syntacticTerm ⊢t of λ
+      ⊢A →
+    case PE.cong₃ Id (wk1-sgSubst _ _) PE.refl (wk1-sgSubst _ _) of λ
+      Id≡Id →
+    PE.subst (_⊢_⇒_∷_ _ _ _) Id≡Id $
+    subst-⇒
+      (Idⱼ (var₀ ⊢A) (wkTerm₁ ⊢A ⊢t))
+      ⊢t
+      (PE.subst (_⊢_∷_ _ _) (PE.sym Id≡Id) $
+       rflⱼ ⊢t)
+
+opaque
+
+  -- An equality rule for symmetry.
+
+  symmetry-≡ :
+    Γ ⊢ t ∷ A →
+    Γ ⊢ symmetry A t t rfl ≡ rfl ∷ Id A t t
+  symmetry-≡ ⊢t =
+    subsetTerm (symmetry-⇒ ⊢t)
+
+opaque
+  unfolding symmetry
+
+  -- A substitution lemma for symmetry.
+
+  symmetry-[] :
+    symmetry A t u eq [ σ ] PE.≡
+    symmetry (A [ σ ]) (t [ σ ]) (u [ σ ]) (eq [ σ ])
+  symmetry-[] {A} {t} {u} {eq} {σ} =
+    subst A (Id (wk1 A) (var x0) (wk1 t)) t u eq rfl [ σ ]           ≡⟨ subst-[] ⟩
+
+    subst (A [ σ ])
+      (Id (wk1 A [ liftSubst σ ]) (var x0) (wk1 t [ liftSubst σ ]))
+      (t [ σ ]) (u [ σ ]) (eq [ σ ]) rfl                             ≡⟨ PE.cong₅ (subst _)
+                                                                          (PE.cong₃ Id (wk1-liftSubst A) PE.refl (wk1-liftSubst t))
+                                                                          PE.refl PE.refl PE.refl PE.refl ⟩
+    subst (A [ σ ])
+      (Id (wk1 (A [ σ ])) (var x0) (wk1 (t [ σ ])))
+      (t [ σ ]) (u [ σ ]) (eq [ σ ]) rfl                             ∎
+
+------------------------------------------------------------------------
+-- Transitivity
+
+opaque
+
+  -- Transitivity.
+
+  transitivity :
+    Term n → Term n → Term n → Term n → Term n → Term n → Term n
+  transitivity A t u v eq₁ eq₂ =
+    subst A (Id (wk1 A) (wk1 t) (var x0)) u v eq₂ eq₁
+
+opaque
+  unfolding transitivity
+
+  -- A typing rule for transitivity.
+
+  ⊢transitivity :
+    Γ ⊢ eq₁ ∷ Id A t u →
+    Γ ⊢ eq₂ ∷ Id A u v →
+    Γ ⊢ transitivity A t u v eq₁ eq₂ ∷ Id A t v
+  ⊢transitivity {A} {t} {u} {eq₂} {v} ⊢eq₁ ⊢eq₂ =
+    case inversion-Id (syntacticTerm ⊢eq₁) of λ {
+      (_ , ⊢t , _) →
+    PE.subst (_⊢_∷_ _ _) (PE.sym ≡Id-wk1-wk1-0[]₀) $
+    ⊢subst
+      (J-motive-context-type ⊢t)
+      ⊢eq₂
+      (PE.subst (_⊢_∷_ _ _) ≡Id-wk1-wk1-0[]₀ ⊢eq₁) }
+
+opaque
+  unfolding transitivity
+
+  -- A reduction rule for transitivity.
+
+  transitivity-⇒ :
+    Γ ⊢ eq ∷ Id A t u →
+    Γ ⊢ transitivity A t u u eq rfl ⇒ eq ∷ Id A t u
+  transitivity-⇒ ⊢eq =
+    case inversion-Id (syntacticTerm ⊢eq) of λ
+      (⊢A , ⊢t , ⊢u) →
+    case PE.cong₃ Id (wk1-sgSubst _ _) (wk1-sgSubst _ _) PE.refl of λ
+      Id≡Id →
+    PE.subst (_⊢_⇒_∷_ _ _ _) Id≡Id $
+    subst-⇒
+      (Idⱼ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A))
+      ⊢u
+      (PE.subst (_⊢_∷_ _ _) (PE.sym Id≡Id) ⊢eq)
+
+opaque
+
+  -- An equality rule for transitivity.
+
+  transitivity-≡ :
+    Γ ⊢ eq ∷ Id A t u →
+    Γ ⊢ transitivity A t u u eq rfl ≡ eq ∷ Id A t u
+  transitivity-≡ ⊢eq =
+    subsetTerm (transitivity-⇒ ⊢eq)
+
+opaque
+  unfolding transitivity
+
+  -- A substitution lemma for transitivity.
+
+  transitivity-[] :
+    transitivity A t u v eq₁ eq₂ [ σ ] PE.≡
+    transitivity (A [ σ ]) (t [ σ ]) (u [ σ ]) (v [ σ ]) (eq₁ [ σ ])
+      (eq₂ [ σ ])
+  transitivity-[] {A} {t} {u} {v} {eq₁} {eq₂} {σ} =
+    subst A (Id (wk1 A) (wk1 t) (var x0)) u v eq₂ eq₁ [ σ ]          ≡⟨ subst-[] ⟩
+
+    subst (A [ σ ])
+      (Id (wk1 A [ liftSubst σ ]) (wk1 t [ liftSubst σ ]) (var x0))
+      (u [ σ ]) (v [ σ ]) (eq₂ [ σ ]) (eq₁ [ σ ])                    ≡⟨ PE.cong₅ (subst _)
+                                                                          (PE.cong₃ Id (wk1-liftSubst A) (wk1-liftSubst t) PE.refl)
+                                                                          PE.refl PE.refl PE.refl PE.refl ⟩
+    subst (A [ σ ]) (Id (wk1 (A [ σ ])) (wk1 (t [ σ ])) (var x0))
+      (u [ σ ]) (v [ σ ]) (eq₂ [ σ ]) (eq₁ [ σ ])                    ∎
+
+------------------------------------------------------------------------
+-- The lemma transitivity-symmetryˡ
+
+opaque
+
+  -- A simplification lemma for transitivity and symmetry.
+
+  transitivity-symmetryˡ :
+    Term n → Term n → Term n → Term n → Term n
+  transitivity-symmetryˡ A t u eq =
+    J ω ω A t
+      (Id (Id (wk2 A) (var x1) (var x1))
+         (transitivity (wk2 A) (var x1) (wk2 t) (var x1)
+            (symmetry (wk2 A) (wk2 t) (var x1) (var x0))
+            (var x0))
+         rfl)
+      rfl u eq
+
+opaque
+  unfolding transitivity-symmetryˡ
+
+  -- A typing rule for transitivity-symmetryˡ.
+
+  ⊢transitivity-symmetryˡ :
+    Γ ⊢ eq ∷ Id A t u →
+    Γ ⊢ transitivity-symmetryˡ A t u eq ∷
+      Id (Id A u u) (transitivity A u t u (symmetry A t u eq) eq) rfl
+  ⊢transitivity-symmetryˡ {eq} {A} {t} {u} ⊢eq =
+    case inversion-Id (syntacticTerm ⊢eq) of λ
+      (⊢A , ⊢t , _) →
+    case Idⱼ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A) of λ
+      ⊢Id-t′-0 →
+    PE.subst (_⊢_∷_ _ _)
+      (PE.cong₃ Id
+         (PE.cong₃ Id wk2-[,] PE.refl PE.refl)
+         (transitivity (wk2 A) (var x1) (wk2 t) (var x1)
+            (symmetry (wk2 A) (wk2 t) (var x1) (var x0)) (var x0)
+            [ u , eq ]₁₀                                               ≡⟨ transitivity-[] ⟩
+
+          transitivity (wk2 A [ u , eq ]₁₀) u (wk2 t [ u , eq ]₁₀) u
+            (symmetry (wk2 A) (wk2 t) (var x1) (var x0) [ u , eq ]₁₀)
+            eq                                                         ≡⟨ PE.cong₆ transitivity wk2-[,] PE.refl wk2-[,] PE.refl
+                                                                            symmetry-[] PE.refl ⟩
+          transitivity A u t u
+            (symmetry (wk2 A [ u , eq ]₁₀) (wk2 t [ u , eq ]₁₀) u eq)
+            eq                                                         ≡⟨ PE.cong₂ (transitivity _ _ _ _)
+                                                                            (PE.cong₄ symmetry wk2-[,] wk2-[,] PE.refl PE.refl)
+                                                                            PE.refl ⟩
+          transitivity A u t u (symmetry A t u eq) eq                  ∎)
+         PE.refl) $
+    Jⱼ′
+      (Idⱼ
+         (⊢transitivity (⊢symmetry (var₀ ⊢Id-t′-0)) (var₀ ⊢Id-t′-0))
+         (rflⱼ (var₁ ⊢Id-t′-0)))
+      (rflⱼ′
+         (transitivity (wk2 A) (var x1) (wk2 t) (var x1)
+            (symmetry (wk2 A) (wk2 t) (var x1) (var x0)) (var x0)
+            [ t , rfl ]₁₀                                                 ≡⟨ transitivity-[] ⟩⊢≡
+
+          transitivity (wk2 A [ t , rfl ]₁₀) t (wk2 t [ t , rfl ]₁₀) t
+            (symmetry (wk2 A) (wk2 t) (var x1) (var x0) [ t , rfl ]₁₀)
+            rfl                                                           ≡⟨ PE.cong₆ transitivity wk2-[,] PE.refl wk2-[,] PE.refl
+                                                                               symmetry-[] PE.refl ⟩⊢≡
+          transitivity A t t t
+            (symmetry (wk2 A [ t , rfl ]₁₀) (wk2 t [ t , rfl ]₁₀) t rfl)
+            rfl                                                           ≡⟨ PE.cong₂ (transitivity _ _ _ _)
+                                                                               (PE.cong₄ symmetry wk2-[,] wk2-[,] PE.refl PE.refl)
+                                                                               PE.refl ⟩⊢≡
+
+          transitivity A t t t (symmetry A t t rfl) rfl                   ≡⟨ transitivity-≡ (⊢symmetry (rflⱼ ⊢t)) ⟩⊢
+                                                                           ⟨ PE.subst (flip (_⊢_≡_ _) _)
+                                                                               (PE.sym $ PE.cong₃ Id wk2-[,] PE.refl PE.refl) $
+                                                                             refl (Idⱼ ⊢t ⊢t) ⟩
+
+          symmetry A t t rfl                                              ≡⟨ symmetry-≡ ⊢t ⟩⊢∎
+
+          rfl                                                             ∎))
+      ⊢eq
+
+------------------------------------------------------------------------
+-- Congruence
+
+opaque
+
+  -- Congruence.
+
+  cong :
+    Term n → Term n → Term n → Term n → Term (1+ n) → Term n → Term n
+  cong A t u B v w =
+    subst A (Id (wk1 B) (wk1 (v [ t ]₀)) v) t u w rfl
+
+opaque
+  unfolding cong
+
+  -- A typing rule for cong.
+
+  ⊢cong :
+    Γ ∙ A ⊢ v ∷ wk1 B →
+    Γ ⊢ w ∷ Id A t u →
+    Γ ⊢ cong A t u B v w ∷ Id B (v [ t ]₀) (v [ u ]₀)
+  ⊢cong ⊢v ⊢w =
+    case inversion-Id (syntacticTerm ⊢w) of λ
+      (⊢A , ⊢t , _) →
+    PE.subst (_⊢_∷_ _ _)
+      (PE.cong₃ Id (wk1-sgSubst _ _) (wk1-sgSubst _ _) PE.refl) $
+    ⊢subst
+      (Idⱼ
+         (PE.subst (_⊢_∷_ _ _) (PE.cong wk1 $ wk1-sgSubst _ _) $
+          wkTerm₁ ⊢A (substTerm ⊢v ⊢t))
+         ⊢v)
+      ⊢w
+      (PE.subst (_⊢_∷_ _ _)
+         (PE.sym $ PE.cong₃ Id PE.refl (wk1-sgSubst _ _) PE.refl) $
+       rflⱼ (substTerm ⊢v ⊢t))
+
+opaque
+  unfolding cong
+
+  -- A reduction rule for cong.
+
+  cong-⇒ :
+    Γ ⊢ t ∷ A →
+    Γ ∙ A ⊢ u ∷ wk1 B →
+    Γ ⊢ cong A t t B u rfl ⇒ rfl ∷ Id B (u [ t ]₀) (u [ t ]₀)
+  cong-⇒ ⊢t ⊢u =
+    PE.subst (_⊢_⇒_∷_ _ _ _)
+      (PE.cong₃ Id (wk1-sgSubst _ _) (wk1-sgSubst _ _) PE.refl) $
+    subst-⇒
+      (Idⱼ
+         (PE.subst (_⊢_∷_ _ _)
+            (PE.cong wk1 $ wk1-sgSubst _ _) $
+          wkTerm₁ (syntacticTerm ⊢t) (substTerm ⊢u ⊢t))
+         ⊢u)
+      ⊢t
+      (PE.subst (_⊢_∷_ _ _)
+         (PE.sym $ PE.cong₃ Id PE.refl (wk1-sgSubst _ _) PE.refl) $
+       rflⱼ (substTerm ⊢u ⊢t))
+
+opaque
+
+  -- An equality rule for cong.
+
+  cong-≡ :
+    Γ ⊢ t ∷ A →
+    Γ ∙ A ⊢ u ∷ wk1 B →
+    Γ ⊢ cong A t t B u rfl ≡ rfl ∷ Id B (u [ t ]₀) (u [ t ]₀)
+  cong-≡ ⊢t ⊢u =
+    subsetTerm (cong-⇒ ⊢t ⊢u)
+
+opaque
+  unfolding cong
+
+  -- A substitution lemma for cong.
+
+  cong-[] :
+    cong A t u B v w [ σ ] PE.≡
+    cong (A [ σ ]) (t [ σ ]) (u [ σ ]) (B [ σ ]) (v [ liftSubst σ ])
+      (w [ σ ])
+  cong-[] {A} {t} {u} {B} {v} {w} {σ} =
+    subst A (Id (wk1 B) (wk1 (v [ t ]₀)) v) t u w rfl [ σ ]          ≡⟨ subst-[] ⟩
+
+    subst (A [ σ ])
+      (Id (wk1 B [ liftSubst σ ]) (wk1 (v [ t ]₀) [ liftSubst σ ])
+         (v [ liftSubst σ ]))
+      (t [ σ ]) (u [ σ ]) (w [ σ ]) rfl                              ≡⟨ PE.cong₅ (subst _)
+                                                                          (PE.cong₃ Id
+                                                                             (wk1-liftSubst B)
+                                                                             (
+      wk1 (v [ t ]₀) [ liftSubst σ ]                                          ≡⟨ wk1-liftSubst (v [ _ ]₀) ⟩
+      wk1 (v [ t ]₀ [ σ ])                                                    ≡⟨ PE.cong wk1 $ singleSubstLift v _ ⟩
+      wk1 (v [ liftSubst σ ] [ t [ σ ] ]₀)                                    ∎)
+                                                                             PE.refl)
+                                                                          PE.refl PE.refl PE.refl PE.refl ⟩
+    subst (A [ σ ])
+      (Id (wk1 (B [ σ ])) (wk1 (v [ liftSubst σ ] [ t [ σ ] ]₀))
+         (v [ liftSubst σ ]))
+      (t [ σ ]) (u [ σ ]) (w [ σ ]) rfl                              ∎
+
+------------------------------------------------------------------------
+-- Pointwise equality of functions
+
+opaque
+
+  -- If two functions are equal, then they are pointwise equal.
+
+  pointwise-equality :
+    M → M → Term n → Term (1+ n) → Term n → Term n → Term n → Term n →
+    Term n
+  pointwise-equality p q A B t u v w =
+    cong (Π p , q ▷ A ▹ B) t u (B [ w ]₀) (var x0 ∘⟨ p ⟩ wk1 w) v
+
+opaque
+  unfolding pointwise-equality
+
+  -- A typing rule for pointwise-equality.
+
+  ⊢pointwise-equality :
+    Γ ⊢ v ∷ Id (Π p , q ▷ A ▹ B) t u →
+    Γ ⊢ w ∷ A →
+    Γ ⊢ pointwise-equality p q A B t u v w ∷
+      Id (B [ w ]₀) (t ∘⟨ p ⟩ w) (u ∘⟨ p ⟩ w)
+  ⊢pointwise-equality {B} {w} ⊢v ⊢w =
+    case inversion-Id (syntacticTerm ⊢v) of λ
+      (⊢ΠAB , _ , _) →
+    PE.subst (_⊢_∷_ _ _)
+      (PE.cong₂ (Id (B [ w ]₀))
+         (PE.cong (_ ∘⟨ _ ⟩_) $ wk1-sgSubst _ _)
+         (PE.cong (_ ∘⟨ _ ⟩_) $ wk1-sgSubst _ _)) $
+    ⊢cong
+      (PE.subst (_⊢_∷_ _ _) (PE.sym $ wk-β B) $
+       var₀ ⊢ΠAB ∘ⱼ wkTerm₁ ⊢ΠAB ⊢w)
+      ⊢v
+
+opaque
+  unfolding pointwise-equality
+
+  -- A reduction rule for pointwise-equality.
+
+  pointwise-equality-⇒ :
+    Γ ⊢ t ∷ Π p , q ▷ A ▹ B →
+    Γ ⊢ u ∷ A →
+    Γ ⊢ pointwise-equality p q A B t t rfl u ⇒ rfl ∷
+      Id (B [ u ]₀) (t ∘⟨ p ⟩ u) (t ∘⟨ p ⟩ u)
+  pointwise-equality-⇒ {B} {u} ⊢t ⊢u =
+    case syntacticTerm ⊢t of λ
+      ⊢ΠAB →
+    PE.subst (_⊢_⇒_∷_ _ _ _)
+      (PE.cong₃ Id
+         PE.refl
+         (PE.cong (_∘⟨_⟩_ _ _) $ wk1-sgSubst _ _)
+         (PE.cong (_∘⟨_⟩_ _ _) $ wk1-sgSubst _ _)) $
+    cong-⇒ ⊢t
+      (PE.subst (_⊢_∷_ _ _) (PE.sym $ wk-β B) $
+       var₀ ⊢ΠAB ∘ⱼ wkTerm₁ ⊢ΠAB ⊢u)
+
+opaque
+
+  -- An equality rule for pointwise-equality.
+
+  pointwise-equality-≡ :
+    Γ ⊢ t ∷ Π p , q ▷ A ▹ B →
+    Γ ⊢ u ∷ A →
+    Γ ⊢ pointwise-equality p q A B t t rfl u ≡ rfl ∷
+      Id (B [ u ]₀) (t ∘⟨ p ⟩ u) (t ∘⟨ p ⟩ u)
+  pointwise-equality-≡ ⊢t ⊢u =
+    subsetTerm (pointwise-equality-⇒ ⊢t ⊢u)
+
+opaque
+  unfolding pointwise-equality
+
+  -- A substitution lemma for pointwise-equality.
+
+  pointwise-equality-[] :
+    pointwise-equality p q A B t u v w [ σ ] PE.≡
+    pointwise-equality p q (A [ σ ]) (B [ liftSubst σ ]) (t [ σ ])
+      (u [ σ ]) (v [ σ ]) (w [ σ ])
+  pointwise-equality-[] {p} {q} {A} {B} {t} {u} {v} {w} {σ} =
+    cong (Π p , q ▷ A ▹ B) t u (B [ w ]₀) (var x0 ∘⟨ p ⟩ wk1 w) v [ σ ]  ≡⟨ cong-[] ⟩
+
+    cong (Π p , q ▷ A [ σ ] ▹ (B [ liftSubst σ ])) (t [ σ ]) (u [ σ ])
+      (B [ w ]₀ [ σ ]) (var x0 ∘⟨ p ⟩ wk1 w [ liftSubst σ ]) (v [ σ ])   ≡⟨ PE.cong₃ (cong _ _ _)
+                                                                              (singleSubstLift B _)
+                                                                              (PE.cong (_∘⟨_⟩_ _ _) $ wk1-liftSubst w)
+                                                                              PE.refl ⟩
+    cong (Π p , q ▷ A [ σ ] ▹ (B [ liftSubst σ ])) (t [ σ ]) (u [ σ ])
+      (B [ liftSubst σ ] [ w [ σ ] ]₀) (var x0 ∘⟨ p ⟩ wk1 (w [ σ ]))
+      (v [ σ ])                                                          ∎
+
+------------------------------------------------------------------------
+-- Uniqueness of identity proofs (UIP)
+
+opaque
+
+  -- UIP.
+
+  uip : M → M → Term n → Term n → Term n → Term n → Term n → Term n
+  uip p q A t u eq₁ eq₂ =
+    J ω 𝟙 A t
+      (Π p , q ▷ wk1 (Id (wk1 A) (wk1 t) (var x0)) ▹
+       Id (wk2 (Id (wk1 A) (wk1 t) (var x0))) (var x1) (var x0))
+      (lam p $
+       K 𝟙 (wk1 A) (wk1 t) (Id (wk2 (Id A t t)) rfl (var x0)) rfl
+         (var x0))
+      u eq₁ ∘⟨ p ⟩
+    eq₂
+
+opaque
+  unfolding uip
+
+  -- A typing rule for UIP. Note that this typing rule requires that K
+  -- is allowed.
+
+  ⊢uip :
+    K-allowed →
+    Π-allowed p q →
+    Γ ⊢ eq₁ ∷ Id A t u →
+    Γ ⊢ eq₂ ∷ Id A t u →
+    Γ ⊢ uip p q A t u eq₁ eq₂ ∷ Id (Id A t u) eq₁ eq₂
+  ⊢uip {p} {q} {eq₁} {A} {t} K-ok Π-ok ⊢eq₁ ⊢eq₂ =
+    case inversion-Id (syntacticTerm ⊢eq₁) of λ {
+      (_ , ⊢t , _) →
+    case PE.subst (_⊢_ _) ≡Id-wk2-wk2-1[,] $
+         K-motive-context-type ⊢t of λ
+      (⊢Id-wk2-t[,]-t :
+       _ ⊢ Id (wk2 A [ t , rfl ]₁₀) (wk2 t [ t , rfl ]₁₀) t) →
+    case wk₁ ⊢Id-wk2-t[,]-t (K-motive-context-type ⊢t) of λ
+      (⊢wk1-Id-t-t : _ ⊢ wk1 (Id A t t)) →
+    case wkTerm₁ ⊢wk1-Id-t-t (wkTerm₁ ⊢Id-wk2-t[,]-t ⊢t) of λ
+      (⊢t′ : _ ⊢ wk2 t ∷ wk2 A) →
+    case PE.subst₂ (_⊢_∷_ _)
+           (PE.sym $ wk1-sgSubst _ _)
+           (PE.sym $ wk1-sgSubst _ _) $
+         wkTerm₁ ⊢Id-wk2-t[,]-t ⊢t of λ
+      (⊢t″ : _ ⊢ wk2 t [ rfl ]₀ ∷ wk2 A [ rfl ]₀) →
+    case wk₁ (J-motive-context-type ⊢t) (J-motive-context-type ⊢t) of λ
+      (⊢wk1-Id-wk1-t-0 : _ ⊢ wk1 (Id (wk1 A) (wk1 t) (var x0))) →
+    PE.subst (_⊢_∷_ _ _) (PE.sym ≡Id-wk1-wk1-0[]₀) $
+    PE.subst (_⊢_∷_ _ _) lemma₂
+      (Jⱼ′
+         (ΠΣⱼ′ (Idⱼ (var₁ ⊢wk1-Id-wk1-t-0) (var₀ ⊢wk1-Id-wk1-t-0)) Π-ok)
+         (lamⱼ′ Π-ok $
+          PE.subst (_⊢_∷_ _ _) lemma₃ $
+          Kⱼ′ (Idⱼ (rflⱼ ⊢t′) (var₀ ⊢wk1-Id-t-t)) (rflⱼ (rflⱼ ⊢t″))
+            (PE.subst (_⊢_∷_ _ _)
+               (PE.cong wk1 $ PE.sym ≡Id-wk2-wk2-1[,]) $
+             var₀ ⊢Id-wk2-t[,]-t)
+            K-ok)
+         ⊢eq₁) ∘ⱼ
+    ⊢eq₂ }
+    where
+    lemma₁ :
+      (t u v : Term n) →
+      wk3 t [ liftSubst (consSubst (sgSubst u) v) ] PE.≡
+      wk1 t
+    lemma₁ t u v =
+      wk3 t [ liftSubst (consSubst (sgSubst u) v) ]  ≡⟨ wk1-liftSubst (wk2 t) ⟩
+      wk1 (wk2 t [ u , v ]₁₀)                        ≡⟨ PE.cong wk1 wk2-[,] ⟩
+      wk1 t                                          ∎
+
+    lemma₂ :
+      (Π p , q ▷ wk1 (Id (wk1 A) (wk1 t) (var x0)) ▹
+       Id (wk2 (Id (wk1 A) (wk1 t) (var x0))) (var x1) (var x0))
+        [ u , eq₁ ]₁₀ PE.≡
+      Π p , q ▷ Id A t u ▹ Id (wk1 (Id A t u)) (wk1 eq₁) (var x0)
+    lemma₂ =
+      PE.cong₂ (Π p , q ▷_▹_)
+        (PE.sym ≡Id-wk2-wk2-1[,])
+        (PE.cong (λ A → Id A (wk1 eq₁) (var x0)) $
+         PE.cong₂ (λ A t → Id A t _)
+           (lemma₁ _ _ _)
+           (lemma₁ _ _ _))
+
+    lemma₃ :
+      Id (wk2 (Id A t t) [ var x0 ]₀) rfl (var x0) PE.≡
+      Id
+        (Id (wk3 A [ liftSubst (consSubst (sgSubst t) rfl) ])
+           (wk3 t [ liftSubst (consSubst (sgSubst t) rfl) ]) (wk1 t))
+        rfl (var x0)
+    lemma₃ =
+      PE.cong (λ A → Id A rfl (var x0))
+        (wk2 (Id A t t) [ var x0 ]₀                                    ≡⟨ wk1-sgSubst _ _ ⟩
+
+         wk1 (Id A t t)                                                ≡˘⟨ PE.cong₂ (λ A t → Id A t (wk1 _))
+                                                                             (lemma₁ _ _ _)
+                                                                             (lemma₁ _ _ _) ⟩
+         Id (wk3 A [ liftSubst (consSubst (sgSubst t) rfl) ])
+            (wk3 t [ liftSubst (consSubst (sgSubst t) rfl) ]) (wk1 t)  ∎)
