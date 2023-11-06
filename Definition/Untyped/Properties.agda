@@ -709,6 +709,17 @@ wk1-sgSubst t t' rewrite wk1-tailId t =
         (substVar-to-subst (substVar-sgSubst-tail t') t))
       (subst-id t)
 
+opaque
+
+  -- Weakening twice and then substituting something for the two new
+  -- variables amounts to the same thing as doing nothing.
+
+  wk2-[,] : wk2 t [ u , v ] ≡ t
+  wk2-[,] {t} {u} {v} =
+    wk2 t [ u , v ]  ≡⟨ wk2-tail t ⟩
+    t [ idSubst ]    ≡⟨ subst-id _ ⟩
+    t                ∎
+
 -- Applying _[ u ]↑ to a doubly weakened term amounts to the same
 -- thing as doing nothing.
 
@@ -894,6 +905,17 @@ opaque
     Id A t u                            ≡˘⟨ cong₂ (λ A t → Id A t _) (wk1-sgSubst _ _) (wk1-sgSubst _ _) ⟩
     Id (wk1 A [ u ]₀) (wk1 t [ u ]₀) u  ≡⟨⟩
     Id (wk1 A) (wk1 t) (var x0) [ u ]₀  ∎
+
+opaque
+
+  -- A variant of the previous lemma.
+
+  ≡Id-wk2-wk2-1[,] :
+    Id A t u ≡ Id (wk2 A) (wk2 t) (var x1) [ u , v ]
+  ≡Id-wk2-wk2-1[,] {A} {t} {u} {v} =
+    Id A t u                                  ≡˘⟨ cong₂ (λ A t → Id A t _) wk2-[,] wk2-[,] ⟩
+    Id (wk2 A [ u , v ]) (wk2 t [ u , v ]) u  ≡⟨⟩
+    Id (wk2 A) (wk2 t) (var x1) [ u , v ]     ∎
 
 opaque
 
