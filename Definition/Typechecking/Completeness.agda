@@ -115,6 +115,16 @@ mutual
     case inversion-star ⊢t of λ {
       (≡Unit , ok) →
     _ , starᵢ ok , ≡Unit }
+  completeness⇉ (unitrecᵢ A t u) ⊢t =
+    case inversion-unitrec ⊢t of λ {
+      (⊢A , ⊢t , ⊢u , A≡Ct) →
+    case completeness⇇Type A ⊢A of λ
+      A⇇Type →
+    case completeness⇇ t ⊢t of λ
+      t⇇Unit →
+    case completeness⇇ u ⊢u of λ
+      u⇇A₊ →
+    _ , unitrecᵢ A⇇Type t⇇Unit u⇇A₊ , A≡Ct }
   completeness⇉ Emptyᵢ ⊢t = _ , Emptyᵢ , inversion-Empty ⊢t
   completeness⇉ (emptyrecᵢ C t) ⊢t =
     let ⊢C , ⊢t , A≡C = inversion-emptyrec ⊢t

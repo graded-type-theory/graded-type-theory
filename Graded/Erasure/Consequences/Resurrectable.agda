@@ -32,9 +32,9 @@ open import Definition.Untyped M hiding (_∷_)
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Derived.Erased.Typed TR
-open import Graded.Derived.Erased.Untyped 𝕄 as Erased using (Erased)
-open import Graded.Derived.Erased.Usage 𝕄 UR
+open import Graded.Derived.Erased.Eta.Typed TR
+open import Graded.Derived.Erased.Eta.Untyped 𝕄 as Erased using (Erased)
+open import Graded.Derived.Erased.Eta.Usage 𝕄 UR
 open import Graded.Erasure.Consequences.Identity TR UR
 import Graded.Erasure.LogicalRelation TR as L
 open import Graded.Erasure.LogicalRelation.Fundamental TR UR
@@ -80,19 +80,19 @@ Resurrectable q₁ q₂ Γ A =
 
 opaque
 
-  -- If Erased and Unit are allowed, then Unit is resurrectable with
+  -- If Erased and Unitˢ are allowed, then Unitˢ is resurrectable with
   -- respect to any well-formed context and grades that satisfy
   -- certain properties.
 
   Unit-resurrectable :
-    Erased-allowed →
-    Unit-allowed →
+    Erasedˢ-allowed →
+    Unitˢ-allowed →
     Π-allowed 𝟘 q₁ →
     Σᵣ-allowed 𝟙 q₂ →
     ⊢ Γ →
-    Resurrectable q₁ q₂ Γ Unit
+    Resurrectable q₁ q₂ Γ Unitˢ
   Unit-resurrectable {Γ} Erased-ok Unit-ok ok₁ ok₂ ⊢Γ =
-      lam 𝟘 (prodᵣ 𝟙 star Erased.[ rfl ])
+      lam 𝟘 (prodᵣ 𝟙 starˢ Erased.[ rfl ])
     , (lamₘ $
        sub (prodᵣₘ starₘ (▸[] rflₘ)) $ begin
          𝟘ᶜ ∙ 𝟙 · 𝟘     ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
@@ -107,10 +107,10 @@ opaque
     where
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-    ⊢₁ : ⊢ Γ ∙ Unit
+    ⊢₁ : ⊢ Γ ∙ Unitˢ
     ⊢₁ = ⊢Γ ∙ Unitⱼ ⊢Γ Unit-ok
 
-    ⊢₂ : ⊢ Γ ∙ Unit ∙ Unit
+    ⊢₂ : ⊢ Γ ∙ Unitˢ ∙ Unitˢ
     ⊢₂ = ⊢₁ ∙ Unitⱼ ⊢₁ Unit-ok
 
 opaque
@@ -120,7 +120,7 @@ opaque
 
   ¬-ℕ-resurrectable-ε :
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
-    Erased-allowed →
+    Erasedˢ-allowed →
     ¬ Resurrectable q₁ q₂ ε ℕ
   ¬-ℕ-resurrectable-ε ok (_ , ▸t , ⊢t) =
     -- By the fundamental theorem t is related to erase t.
@@ -222,7 +222,7 @@ opaque
   ¬-ℕ-resurrectable :
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄
     ⦃ ok : T 𝟘ᵐ-allowed ⦄ →
-    []-cong-allowed →
+    []-congˢ-allowed →
     Fundamental-assumptions⁻ Γ →
     ¬ Resurrectable q₁ q₂ Γ ℕ
   ¬-ℕ-resurrectable {Γ} []-cong-ok ok (_ , ▸t , ⊢t) =

@@ -38,7 +38,7 @@ open import Definition.Untyped M as U
 open import Definition.Untyped.Properties M
 
 import Graded.Derived.Erased.Typed.Primitive R as ETP
-open import Graded.Derived.Erased.Untyped 𝕄
+import Graded.Derived.Erased.Untyped
 
 open import Tools.Fin using (x0)
 open import Tools.Function
@@ -53,15 +53,17 @@ private variable
   ⊩Γ                                              : ⊩ᵛ _
   m n                                             : Nat
   p q                                             : M
+  s                                               : SigmaMode
 
 private
 
   -- Some definitions used in proofs below.
 
-  module E (ok : []-cong-allowed) where
+  module E {s} (ok : []-cong-allowed s) where
 
     open Erased ([]-cong→Erased ok) public hiding ([]-congᵛ)
     open ETP    ([]-cong→Erased ok) public
+    open Graded.Derived.Erased.Untyped 𝕄 s public
 
 ------------------------------------------------------------------------
 -- Id
@@ -479,7 +481,7 @@ private opaque
   -- A lemma used to implement []-congᵛ and []-cong-congᵛ.
 
   []-cong-cong′ :
-    (ok : []-cong-allowed) →
+    (ok : []-cong-allowed s) →
     let open E ok in
     {⊩A₁ : Γ ⊩⟨ l ⟩ A₁}
     (⊩A₂ : Γ ⊩⟨ l ⟩ A₂) →
@@ -501,10 +503,10 @@ private opaque
     _⊩ₗId_.lhs ⊩Id-[]-[] PE.≡ [ t₁ ] →
     _⊩ₗId_.rhs ⊩Id-[]-[] PE.≡ [ u₁ ] →
     Γ ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ Id A₁ t₁ u₁ / Idᵣ ⊩Id →
-    Γ ⊩⟨ l ⟩ []-cong A₁ t₁ u₁ v₁ ≡ []-cong A₂ t₂ u₂ v₂ ∷
+    Γ ⊩⟨ l ⟩ []-cong s A₁ t₁ u₁ v₁ ≡ []-cong s A₂ t₂ u₂ v₂ ∷
       Id (Erased A₁) [ t₁ ] [ u₁ ] / Idᵣ ⊩Id-[]-[]
   []-cong-cong′
-    {A₁} {A₂} {t₁} {t₂} {u₁} {u₂} ok
+    {s} {A₁} {A₂} {t₁} {t₂} {u₁} {u₂} ok
     {⊩A₁} ⊩A₂ ⊩A₁≡A₂ ⊩t₁ ⊩t₂ ⊩t₁≡t₂ ⊩u₁ ⊩u₂ ⊩u₁≡u₂ ⊩Id
     PE.refl PE.refl PE.refl PE.refl _ PE.refl PE.refl PE.refl PE.refl
     ⊩v₁≡v₂ =
@@ -548,8 +550,8 @@ private opaque
         ⊢v₂ →
       case ⊩Id≡∷-view-inhabited ⊩Id ⊩v₁≡v₂ of λ where
         (ne v₁′-n v₂′-n v₁′~v₂′) →
-            []-cong A₁ t₁ u₁ v₁′
-          , []-cong A₂ t₂ u₂ v₂′
+            []-cong s A₁ t₁ u₁ v₁′
+          , []-cong s A₂ t₂ u₂ v₂′
           , []-cong-subst:*: ⊢A₁ ⊢t₁ ⊢u₁ v₁⇒*v₁′ ok
           , convRed:*:
               ([]-cong-subst:*: ⊢A₂ ⊢t₂ ⊢u₂
@@ -605,25 +607,29 @@ private opaque
     open E ok
 
 opaque
-  unfolding Idᵛ ⊩Id Erased.Erasedᵛ Erased.⊩Erased
+  unfolding Idᵛ ⊩Id Erased.Erasedᵛ
 
   -- Validity of []-cong.
 
   []-congᵛ :
-    {ok : []-cong-allowed} →
+    {ok : []-cong-allowed s} →
     let open E ok in
     {⊩A : Γ ⊩ᵛ⟨ l ⟩ A / ⊩Γ}
     {⊩t : Γ ⊩ᵛ⟨ l ⟩ t ∷ A / ⊩Γ / ⊩A}
     {⊩u : Γ ⊩ᵛ⟨ l ⟩ u ∷ A / ⊩Γ / ⊩A} →
     ∀ v →
     Γ ⊩ᵛ⟨ l ⟩ v ∷ Id A t u / ⊩Γ / Idᵛ ⊩A ⊩t ⊩u →
-    Γ ⊩ᵛ⟨ l ⟩ []-cong A t u v ∷ Id (Erased A) [ t ] [ u ] / ⊩Γ /
+    Γ ⊩ᵛ⟨ l ⟩ []-cong s A t u v ∷ Id (Erased A) [ t ] [ u ] / ⊩Γ /
       Idᵛ (Erasedᵛ ⊩A) ([]ᵛ t ⊩t) ([]ᵛ u ⊩u)
-  []-congᵛ
+
+  []-congᵛ {s}
     {Γ} {l} {A} {⊩Γ} {t} {u} {ok} {⊩A} {⊩t} {⊩u} v ⊩v {Δ} {σ} ⊢Δ ⊩σ =
     lemma₁ , lemma₂
     where
     open E ok
+
+    open import Definition.LogicalRelation.Substitution.Introductions.Prod R
+    import Definition.LogicalRelation.Weakening R as W
 
     ⊩Id-[t]-[u] : Δ ⊩⟨ l ⟩ Id (Erased A) [ t ] [ u ] U.[ σ ]
     ⊩Id-[t]-[u] =
@@ -632,7 +638,7 @@ opaque
         .unwrap ⊢Δ ⊩σ .proj₁
 
     lemma₁ :
-      Δ ⊩⟨ l ⟩ []-cong A t u v U.[ σ ] ∷
+      Δ ⊩⟨ l ⟩ []-cong s A t u v U.[ σ ] ∷
         Id (Erased A) [ t ] [ u ] U.[ σ ] / ⊩Id-[t]-[u]
     lemma₁ =
       case reflᵛ _ ⊩A ⊢Δ ⊩σ of λ {
@@ -662,7 +668,7 @@ opaque
         u≅u →
       case ⊩v ⊢Δ ⊩σ .proj₁ of λ where
         (v′ , v⇒*v′ , ne v′-n , v′~v′) →
-            []-cong (A U.[ σ ]) (t U.[ σ ]) (u U.[ σ ]) v′
+            []-cong s (A U.[ σ ]) (t U.[ σ ]) (u U.[ σ ]) v′
           , []-cong-subst:*: ⊢A ⊢t ⊢u v⇒*v′ ok
           , ne ([]-congₙ v′-n)
           , ~-[]-cong A≅A t≅t u≅u v′~v′ ok
@@ -685,13 +691,30 @@ opaque
                          id ⊢rfl)
                  }
             , rflₙ
-            , ⊩[]≡[] ⊩A ⊩t ⊩u ⊩t≡u }}}}}}}}}}}}}}}
+            , let Unit-ok , Σ-ok = []-cong→Erased ok
+                  ⊢Unit = Unitⱼ ⊢Δ Unit-ok
+                  ⊩Unit = Unitᵣ (Unitₜ (idRed:*: ⊢Unit) Unit-ok)
+                  ⊩star = Unitₜ star! (idRedTerm:*: (starⱼ ⊢Δ Unit-ok)) (≅ₜ-starrefl ⊢Δ Unit-ok) starᵣ
+                  ⊢A = escape ⊩A
+                  D = id (Unitⱼ (⊢Δ ∙ ⊢A) Unit-ok)
+              in  prod-cong″ {m = s} {p = 𝟘} {q = 𝟘} {G = Unit s} {u = star s} {u′ = star s} {l′ = l}
+                             ⊩A ⊩t ⊩u ⊩t≡u ⊩Unit ⊩star ⊩star (reflEqTerm ⊩Unit ⊩star)
+                             (Σᵣ′ _ Unit! (idRed:*: (ΠΣⱼ ⊢A (Unitⱼ (⊢Δ ∙ ⊢A) Unit-ok) Σ-ok))
+                                  ⊢A (Unitⱼ (⊢Δ ∙ ⊢A) Unit-ok)
+                                  (≅-ΠΣ-cong ⊢A (escapeEq ⊩A (reflEq ⊩A))
+                                             (≅-red D D Unitₙ Unitₙ (≅-Unitrefl (⊢Δ ∙ ⊢A) Unit-ok))
+                                             Σ-ok)
+                                  (λ [ρ] ⊢Δ′ → W.wk [ρ] ⊢Δ′ ⊩A)
+                                  (λ _ ⊢Δ′ _ → Unitᵣ (Unitₜ (idRed:*: (Unitⱼ ⊢Δ′ Unit-ok)) Unit-ok))
+                                  (λ _ ⊢Δ′ _ _ _ → id (Unitⱼ ⊢Δ′ Unit-ok))
+                                  Σ-ok)
+            }}}}}}}}}}}}}}}
 
     lemma₂ :
       ∀ {σ′} →
       Δ ⊩ˢ σ′ ∷ Γ / ⊩Γ / ⊢Δ →
       Δ ⊩ˢ σ ≡ σ′ ∷ Γ / ⊩Γ / ⊢Δ / ⊩σ →
-      Δ ⊩⟨ l ⟩ []-cong A t u v U.[ σ ] ≡ []-cong A t u v U.[ σ′ ] ∷
+      Δ ⊩⟨ l ⟩ []-cong s A t u v U.[ σ ] ≡ []-cong s A t u v U.[ σ′ ] ∷
         Id (Erased A) [ t ] [ u ] U.[ σ ] / ⊩Id-[t]-[u]
     lemma₂ {σ′} ⊩σ′ σ≡σ′ =
       let ⊩A₁ , _ = ⊩A .unwrap ⊢Δ ⊩σ in
@@ -730,11 +753,11 @@ opaque
   -- Validity of the []-cong β rule.
 
   []-cong-βᵛ :
-    {ok : []-cong-allowed} →
+    {ok : []-cong-allowed s} →
     let open E ok in
     {⊩A : Γ ⊩ᵛ⟨ l ⟩ A / ⊩Γ}
     {⊩t : Γ ⊩ᵛ⟨ l ⟩ t ∷ A / ⊩Γ / ⊩A} →
-    Γ ⊩ᵛ⟨ l ⟩ []-cong A t t rfl ≡ rfl ∷
+    Γ ⊩ᵛ⟨ l ⟩ []-cong s A t t rfl ≡ rfl ∷
       Id (Erased A) [ t ] [ t ] / ⊩Γ /
       Idᵛ (Erasedᵛ ⊩A) ([]ᵛ t ⊩t) ([]ᵛ t ⊩t)
   []-cong-βᵛ {t} {ok} {⊩A} {⊩t} ⊢Δ ⊩σ =
@@ -755,7 +778,7 @@ opaque
   -- Validity of equality preservation for []-cong.
 
   []-cong-congᵛ :
-    {ok : []-cong-allowed} →
+    {ok : []-cong-allowed s} →
     let open E ok in
     {⊩A₁ : Γ ⊩ᵛ⟨ l ⟩ A₁ / ⊩Γ}
     {⊩t₁ : Γ ⊩ᵛ⟨ l ⟩ t₁ ∷ A₁ / ⊩Γ / ⊩A₁}
@@ -768,7 +791,7 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ u₂ ∷ A₂ / ⊩Γ / ⊩A₂ →
     Γ ⊩ᵛ⟨ l ⟩ u₁ ≡ u₂ ∷ A₁ / ⊩Γ / ⊩A₁ →
     Γ ⊩ᵛ⟨ l ⟩ v₁ ≡ v₂ ∷ Id A₁ t₁ u₁ / ⊩Γ / Idᵛ ⊩A₁ ⊩t₁ ⊩u₁ →
-    Γ ⊩ᵛ⟨ l ⟩ []-cong A₁ t₁ u₁ v₁ ≡ []-cong A₂ t₂ u₂ v₂ ∷
+    Γ ⊩ᵛ⟨ l ⟩ []-cong s A₁ t₁ u₁ v₁ ≡ []-cong s A₂ t₂ u₂ v₂ ∷
       Id (Erased A₁) [ t₁ ] [ u₁ ] / ⊩Γ /
       Idᵛ (Erasedᵛ ⊩A₁) ([]ᵛ t₁ ⊩t₁) ([]ᵛ u₁ ⊩u₁)
   []-cong-congᵛ

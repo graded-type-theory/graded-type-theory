@@ -17,6 +17,8 @@ module Graded.Substitution.Decidable
   (_≟_ : Decidable (_≡_ {A = M}))
   -- The Prodrec-allowed relation is assumed to be decidable.
   (Prodrec? : ∀ r p q → Dec (Prodrec-allowed r p q))
+  -- The Unitrec-allowed relation is assumed to be decidable.
+  (Unitrec? : ∀ p q → Dec (Unitrec-allowed p q))
   where
 
 open Modality 𝕄
@@ -31,7 +33,7 @@ open import Graded.Modality.Dedicated-nr 𝕄
 open import Graded.Modality.Dedicated-nr.Instance
 open import Graded.Modality.Properties 𝕄
 open import Graded.Usage 𝕄 R
-open import Graded.Usage.Decidable 𝕄 R _≟_ Prodrec?
+open import Graded.Usage.Decidable 𝕄 R _≟_ Prodrec? Unitrec?
 open import Graded.Usage.Properties 𝕄 R
 open import Graded.Mode 𝕄
 
@@ -54,6 +56,7 @@ private
 
 ∥∥▶?_ :
   ⦃ has-nr : Dedicated-nr ⦄ →
+  ⦃ no-sink : ¬Starˢ-sink ⦄ →
   (σ : Subst m n) →
   (∥ σ ∥ mos ▶[ mos ] σ) ⊎ (∀ Ψ → ¬ Ψ ▶[ mos ] σ)
 ∥∥▶?_ {n = 0}                _ = inj₁ (λ ())
@@ -130,6 +133,7 @@ _eᵢ≤ᶜ?_eᵢ_ :
 
 _▶?_ :
   ⦃ has-nr : Dedicated-nr ⦄ →
+  ⦃ no-sink : ¬Starˢ-sink ⦄ →
   (Ψ : Substₘ m n) (σ : Subst m n) → Dec (Ψ ▶[ mos ] σ)
 _▶?_ {mos = mos} Ψ σ = case ∥∥▶? σ of λ where
     (inj₂ ¬▶σ) → no (¬▶σ Ψ)

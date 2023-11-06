@@ -39,7 +39,7 @@ open import Definition.Typed.Consequences.Equality R
 open import Definition.Typed.Consequences.Reduction R
 
 open import Graded.Derived.Erased.Typed R
-open import Graded.Derived.Erased.Untyped 𝕄 as Erased using (Erased)
+import Graded.Derived.Erased.Untyped 𝕄 as Erased
 
 open import Tools.Fin
 open import Tools.Function
@@ -55,6 +55,7 @@ private
     A₁ A₂ B₁ B₂ t₁ t₂ u₁ u₂ v₁ v₂ w₁ w₂ : Term _
     ρ : Wk m n
     p p₁ p₂ p′ q q′ q₁ q₂ r r′ : M
+    s : SigmaMode
 
 -- Algorithmic equality of neutrals with injected conversion.
 record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
@@ -186,6 +187,24 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
   in  ↑ (refl ⊢F)
         (emptyrec-cong x k~l′)
 
+~-unitrec : ∀ {A A′ t t′ u u′}
+          → Γ ∙ Unitʷ ⊢ A [conv↑] A′
+          → Γ ⊢ t ~ t′ ∷ Unitʷ
+          → Γ ⊢ u [conv↑] u′ ∷ A [ starʷ ]₀
+          → Unitʷ-allowed
+          → Γ ⊢ unitrec p q A t u ~ unitrec p q A′ t′ u′ ∷ A [ t ]₀
+~-unitrec A<>A′ (↑ A≡B t~t′) u<>u′ ok =
+  let _ , ⊢B = syntacticEq A≡B
+      B′ , whnfB′ , D = whNorm ⊢B
+      Unit≡B′ = trans A≡B (subset* (red D))
+      B≡Unit = Unit≡A Unit≡B′ whnfB′
+      t~t″ = PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡Unit
+                      ([~] _ (red D) whnfB′ t~t′)
+      ⊢A , _ = syntacticEq (soundnessConv↑ A<>A′)
+      _ , ⊢t , _ = syntacticEqTerm (soundness~↓ t~t″)
+  in  ↑ (refl (substType ⊢A ⊢t))
+        (unitrec-cong A<>A′ t~t″ u<>u′)
+
 opaque
 
   ~-J :
@@ -236,9 +255,10 @@ opaque
     Γ ⊢ t₁ [conv↑] t₂ ∷ A₁ →
     Γ ⊢ u₁ [conv↑] u₂ ∷ A₁ →
     Γ ⊢ v₁ ~ v₂ ∷ Id A₁ t₁ u₁ →
-    []-cong-allowed →
-    Γ ⊢ []-cong A₁ t₁ u₁ v₁ ~ []-cong A₂ t₂ u₂ v₂ ∷
-      Id (Erased A₁) Erased.[ t₁ ] Erased.[ u₁ ]
+    []-cong-allowed s →
+    let open Erased s in
+    Γ ⊢ []-cong s A₁ t₁ u₁ v₁ ~ []-cong s A₂ t₂ u₂ v₂ ∷
+      Id (Erased A₁) ([ t₁ ]) ([ u₁ ])
   ~-[]-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ (↑ Id-t₁-u₁≡B v₁~v₂) ok =
     case Id-norm (sym Id-t₁-u₁≡B) of λ {
       (_ , _ , _ , B⇒*Id-t₃-u₃ , A₁≡A₃ , t₁≡t₃ , u₁≡u₃) →
@@ -315,7 +335,7 @@ eqRelInstance = record {
                                u' , u'Whnf , u'Red = whNormTerm [e']
                                [u] = ⊢u-redₜ uRed
                                [u'] = ⊢u-redₜ u'Red
-                           in  [↑]ₜ Unit u u'
+                           in  [↑]ₜ Unit! u u'
                                (red (idRed:*: (syntacticTerm [e])))
                                (redₜ uRed)
                                (redₜ u'Red)
@@ -334,6 +354,7 @@ eqRelInstance = record {
     liftConvTerm $
     univ (ΠΣⱼ F∷U G∷U ok) (ΠΣⱼ H∷U E∷U′ ok) (ΠΣ-cong x F<>H G<>E ok);
   ≅ₜ-zerorefl = liftConvTerm ∘ᶠ zero-refl;
+  ≅ₜ-starrefl = λ x x₁ → liftConvTerm (star-refl x x₁);
   ≅-suc-cong = liftConvTerm ∘ᶠ suc-cong;
   ≅-prod-cong = λ x x₁ x₂ x₃ x₄ →
                   liftConvTerm (prod-cong x x₁ x₂ x₃ x₄);
@@ -347,6 +368,7 @@ eqRelInstance = record {
   ~-prodrec = λ ⊢A ⊢B C↑D t₁~t₂ u₁↑u₂ _ →
                 ~-prodrec ⊢A ⊢B C↑D t₁~t₂ u₁↑u₂;
   ~-emptyrec = ~-emptyrec;
+  ~-unitrec = ~-unitrec;
   ≅-Id-cong = λ { A₁≡A₂ t₁≡t₂ u₁≡u₂ →
     liftConv (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) };
   ≅ₜ-Id-cong = λ { A₁≡A₂ t₁≡t₂ u₁≡u₂ →

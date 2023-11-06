@@ -4,6 +4,7 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Definition.Untyped.NotParametrised
 
 module Graded.Derived.Unrestricted.Eta.Untyped
   {a} {M : Set a}
@@ -22,12 +23,12 @@ private variable
 -- The type constructor Unrestricted.
 
 Unrestricted : Term n → Term n
-Unrestricted A = Σₚ ω , ω ▷ A ▹ Unit
+Unrestricted A = Σₚ ω , ω ▷ A ▹ Unitˢ
 
 -- The constructor [_].
 
 [_] : Term n → Term n
-[ t ] = prodₚ ω t star
+[ t ] = prodₚ ω t starˢ
 
 -- The projection unbox.
 

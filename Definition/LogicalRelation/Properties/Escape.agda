@@ -35,6 +35,7 @@ private
     A B t u : Term n
     l : TypeLevel
     b : BinderMode
+    s : SigmaMode
     p q : M
 
 -- Reducible types are well-formed.
@@ -57,7 +58,7 @@ escapeTerm (ℕᵣ D) (ℕₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
   conv ⊢t (sym (subset* (red D)))
 escapeTerm (Emptyᵣ D) (Emptyₜ e [ ⊢t , ⊢u , d ] t≡t prop) =
   conv ⊢t (sym (subset* (red D)))
-escapeTerm (Unitᵣ (Unitₜ D _)) (Unitₜ e [ ⊢t , ⊢u , d ] prop) =
+escapeTerm (Unitᵣ (Unitₜ D _)) (Unitₜ e [ ⊢t , ⊢u , d ] _ prop) =
   conv ⊢t (sym (subset* (red D)))
 escapeTerm (ne′ K D neK K≡K) (neₜ k [ ⊢t , ⊢u , d ] nf) =
   conv ⊢t (sym (subset* (red D)))
@@ -126,10 +127,14 @@ escapeTermEq (Emptyᵣ D) (Emptyₜ₌ k k′ d d′ k≡k′ prop) =
   let natK , natK′ = esplit prop
   in  ≅ₜ-red (red D) (redₜ d) (redₜ d′) Emptyₙ
              (ne natK) (ne natK′) k≡k′
-escapeTermEq {l} {Γ} {A} {t} {u} (Unitᵣ (Unitₜ D _)) (Unitₜ₌ ⊢t ⊢u) =
+escapeTermEq {l} {A} {t} {u} (Unitᵣ {s = Σₚ} (Unitₜ D _)) (Unitₜ₌ ⊢t ⊢u) =
   let t≅u = ≅ₜ-η-unit ⊢t ⊢u
       A≡Unit = subset* (red D)
   in  ≅-conv t≅u (sym A≡Unit)
+escapeTermEq {l} {Γ} {A} {t} {u} (Unitᵣ {s = Σᵣ} (Unitₜ D _)) (Unitₜ₌ k k′ d d′ k≡k′ prop) =
+  let whK , whK′ = usplit prop
+  in  ≅ₜ-red (red D) (redₜ d) (redₜ d′) Unitₙ
+             whK whK′ k≡k′
 escapeTermEq (ne′ K D neK K≡K)
                  (neₜ₌ k m d d′ (neNfₜ₌ neT neU t≡u)) =
   ≅ₜ-red (red D) (redₜ d) (redₜ d′) (ne neK) (ne neT) (ne neU)
@@ -161,40 +166,40 @@ escapeTermEq {Γ = Γ} (Idᵣ ⊩A) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
   lemma = ≅ₜ-red (red ⇒*Id) (redₜ t⇒*t′) (redₜ u⇒*u′) Idₙ
 escapeTermEq (emb 0<1 A) t≡u = escapeTermEq A t≡u
 
--- If the type Unit is in the logical relation, then the Unit type is
--- allowed.
+-- If the type Unit (of some mode) is in the logical relation, then the
+-- Unit type (of the same mode) is allowed.
 
 ⊩Unit→Unit-allowed :
-  Γ ⊩⟨ l ⟩ Unit → Unit-allowed
+  Γ ⊩⟨ l ⟩ Unit s → Unit-allowed s
 ⊩Unit→Unit-allowed {Γ = Γ} = λ where
   (ℕᵣ [ ⊢Unit , _ , D ]) →
                   $⟨ D , ℕₙ ⟩
-    Γ ⊢ Unit ↘ ℕ  →⟨ flip whrDet* (id ⊢Unit , Unitₙ) ⟩
-    ℕ PE.≡ Unit   →⟨ (case_of λ ()) ⟩
-    Unit-allowed  □
+    Γ ⊢ Unit! ↘ ℕ  →⟨ flip whrDet* (id ⊢Unit , Unitₙ) ⟩
+    ℕ PE.≡ Unit!   →⟨ (case_of λ ()) ⟩
+    Unit-allowed _  □
   (Emptyᵣ [ ⊢Unit , _ , D ]) →
                       $⟨ D , Emptyₙ ⟩
-    Γ ⊢ Unit ↘ Empty  →⟨ flip whrDet* (id ⊢Unit , Unitₙ) ⟩
-    Empty PE.≡ Unit   →⟨ (case_of λ ()) ⟩
-    Unit-allowed      □
-  (Unitᵣ (Unitₜ _ ok)) →
-    ok
+    Γ ⊢ Unit! ↘ Empty  →⟨ flip whrDet* (id ⊢Unit , Unitₙ) ⟩
+    Empty PE.≡ Unit!   →⟨ (case_of λ ()) ⟩
+    Unit-allowed _     □
+  (Unitᵣ (Unitₜ [ _ , _ , D ] ok)) → case whnfRed* D Unitₙ of λ where
+    PE.refl → ok
   (ne (ne A [ ⊢Unit , _ , D ] neA _)) →
                   $⟨ D , ne neA ⟩
-    Γ ⊢ Unit ↘ A  →⟨ whrDet* (id ⊢Unit , Unitₙ) ⟩
-    Unit PE.≡ A   →⟨ ⊥-elim ∘→ Unit≢ne neA ⟩
-    Unit-allowed  □
+    Γ ⊢ Unit! ↘ A  →⟨ whrDet* (id ⊢Unit , Unitₙ) ⟩
+    Unit! PE.≡ A   →⟨ ⊥-elim ∘→ Unit≢ne neA ⟩
+    Unit-allowed _  □
   (Bᵣ′ b A B [ ⊢Unit , _ , D ] _ _ _ _ _ _ _) →
                             $⟨ D , ⟦ b ⟧ₙ ⟩
-    Γ ⊢ Unit ↘ ⟦ b ⟧ A ▹ B  →⟨ whrDet* (id ⊢Unit , Unitₙ) ⟩
-    Unit PE.≡ ⟦ b ⟧ A ▹ B   →⟨ ⊥-elim ∘→ Unit≢B b ⟩
-    Unit-allowed            □
+    Γ ⊢ Unit! ↘ ⟦ b ⟧ A ▹ B  →⟨ whrDet* (id ⊢Unit , Unitₙ) ⟩
+    Unit! PE.≡ ⟦ b ⟧ A ▹ B   →⟨ ⊥-elim ∘→ Unit≢B b ⟩
+    Unit-allowed _           □
   (Idᵣ ⊩A) →
     let open _⊩ₗId_ ⊩A in
                               $⟨ red ⇒*Id , Idₙ ⟩
-    Γ ⊢ Unit ↘ Id Ty lhs rhs  →⟨ whrDet* (id (⊢A-red ⇒*Id) , Unitₙ) ⟩
-    Unit PE.≡ Id Ty lhs rhs   →⟨ (λ ()) ⟩
-    Unit-allowed              □
+    Γ ⊢ Unit! ↘ Id Ty lhs rhs  →⟨ whrDet* (id (⊢A-red ⇒*Id) , Unitₙ) ⟩
+    Unit! PE.≡ Id Ty lhs rhs   →⟨ (λ ()) ⟩
+    Unit-allowed _             □
   (emb 0<1 [Unit]) →
     ⊩Unit→Unit-allowed [Unit]
 

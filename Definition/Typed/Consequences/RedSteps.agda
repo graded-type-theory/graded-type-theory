@@ -86,6 +86,21 @@ prodrec-subst* (x ⇨ t⇒t′) ⊢F ⊢G ⊢A ⊢u =
   where
   ok = ⊢∷ΠΣ→ΠΣ-allowed (var (wf ⊢A) here)
 
+-- Unitrec substitution of reduction closures
+
+unitrec-subst* : Γ ⊢ t ⇒* t′ ∷ Unitʷ
+               → Γ ∙ Unitʷ ⊢ A
+               → Γ ⊢ u ∷ A [ starʷ ]₀
+               → Γ ⊢ unitrec p q A t u ⇒* unitrec p q A t′ u ∷ A [ t ]₀
+unitrec-subst* (id x) ⊢A ⊢u =
+  id (unitrecⱼ ⊢A x ⊢u (⊢∷Unit→Unit-allowed x))
+unitrec-subst* (x ⇨ d) ⊢A ⊢u =
+  unitrec-subst ⊢A ⊢u x ok ⇨
+  conv* (unitrec-subst* d ⊢A ⊢u)
+        (substTypeEq (refl ⊢A) (sym (subsetTerm x)))
+  where
+  ok = ⊢∷Unit→Unit-allowed (redFirstTerm x)
+
 opaque
 
   -- A variant of K-subst for _⊢_⇒*_∷_.

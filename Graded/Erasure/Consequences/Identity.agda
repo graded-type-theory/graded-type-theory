@@ -29,9 +29,9 @@ open import Definition.Typed.Properties TR
 open import Definition.Untyped M hiding (_∷_)
 
 open import Graded.Context 𝕄
-open import Graded.Derived.Erased.Typed TR
-open import Graded.Derived.Erased.Untyped 𝕄 as Erased using (Erased)
-open import Graded.Derived.Erased.Usage 𝕄 UR
+open import Graded.Derived.Erased.Eta.Typed TR
+import Graded.Derived.Erased.Untyped 𝕄 as Erased
+open import Graded.Derived.Erased.Eta.Usage 𝕄 UR
 import Graded.Erasure.LogicalRelation TR as L
 open import Graded.Erasure.LogicalRelation.Fundamental TR UR
 open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions TR UR
@@ -50,6 +50,7 @@ private variable
   Γ           : Con Term _
   γ₁ γ₂ γ₃ γ₄ : Conₘ _
   A t u v     : Term _
+  s           : SigmaMode
 
 opaque
 
@@ -94,7 +95,7 @@ opaque
 
   Id→≡′ :
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
-    []-cong-allowed →
+    []-cong-allowed s →
     Fundamental-assumptions⁻ Γ →
     γ₁ ▸[ 𝟘ᵐ? ] A →
     γ₂ ▸[ 𝟘ᵐ? ] t →
@@ -102,11 +103,13 @@ opaque
     γ₄ ▸[ 𝟘ᵐ? ] v →
     Γ ⊢ v ∷ Id A t u →
     Γ ⊢ t ≡ u ∷ A
-  Id→≡′ {Γ} {A} {t} {u} {v} []-cong-ok ok ▸A ▸t ▸u ▸v =
-    Γ ⊢ v ∷ Id A t u                                               →⟨ []-congⱼ′ []-cong-ok ⟩
-    Γ ⊢ []-cong A t u v ∷ Id (Erased A) Erased.[ t ] Erased.[ u ]  →⟨ flip (Id→≡ ok) ([]-congₘ ▸A ▸t ▸u ▸v) ⟩
-    Γ ⊢ Erased.[ t ] ≡ Erased.[ u ] ∷ Erased A                     →⟨ proj₁ ∘→ proj₂ ∘→ prod-cong⁻¹-Σₚ ⟩
-    Γ ⊢ t ≡ u ∷ A                                                  □
+  Id→≡′ {s} {Γ} {A} {t} {u} {v} []-cong-ok ok ▸A ▸t ▸u ▸v =
+    Γ ⊢ v ∷ Id A t u                                       →⟨ []-congⱼ′ []-cong-ok ⟩
+    Γ ⊢ []-cong _ A t u v ∷ Id (Erased A) ([ t ]) ([ u ])  →⟨ flip (Id→≡ ok) ([]-congₘ ▸A ▸t ▸u ▸v) ⟩
+    Γ ⊢ ([ t ]) ≡ ([ u ]) ∷ Erased A                       →⟨ proj₁ ∘→ proj₂ ∘→ prod-cong⁻¹ ⟩
+    Γ ⊢ t ≡ u ∷ A                                          □
+    where
+    open Erased s
 
 opaque
 
@@ -118,17 +121,19 @@ opaque
   Id→≡″ :
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄
     ⦃ ok : T 𝟘ᵐ-allowed ⦄ →
-    []-cong-allowed →
+    []-cong-allowed s →
     Fundamental-assumptions⁻ Γ →
     γ₁ ▸[ 𝟘ᵐ ] A →
     γ₂ ▸[ 𝟘ᵐ ] t →
     γ₃ ▸[ 𝟘ᵐ ] u →
     γ₄ ▸[ 𝟘ᵐ ] v →
-    Γ ⊢ v ∷ Erased (Id A t u) →
+    Γ ⊢ v ∷ Erased.Erased Σₚ (Id A t u) →
     Γ ⊢ t ≡ u ∷ A
   Id→≡″ {Γ} {A} {t} {u} {v} []-cong-ok ok ▸A ▸t ▸u ▸v =
-    Γ ⊢ v ∷ Erased (Id A t u)       →⟨ erasedⱼ ⟩
-    Γ ⊢ Erased.erased v ∷ Id A t u  →⟨ Id→≡′ []-cong-ok ok
-                                         (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸A) (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸t)
-                                         (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸u) (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $ ▸erased ▸v) ⟩
-    Γ ⊢ t ≡ u ∷ A                   □
+    Γ ⊢ v ∷ Erased (Id A t u)  →⟨ erasedⱼ ⟩
+    Γ ⊢ erased v ∷ Id A t u    →⟨ Id→≡′ []-cong-ok ok
+                                    (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸A) (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸t)
+                                    (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸u) (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $ ▸erased ▸v) ⟩
+    Γ ⊢ t ≡ u ∷ A              □
+    where
+    open import Graded.Derived.Erased.Eta.Untyped 𝕄

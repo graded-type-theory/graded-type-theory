@@ -248,8 +248,19 @@ var-usage-lookup (there x) = var-usage-lookup x
      p ·ᶜ ⌜ m′ ⌝ ·ᶜ γ   ∎)
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-▸-· starₘ =
-  sub starₘ (≤ᶜ-reflexive (·ᶜ-zeroʳ _))
+▸-· starʷₘ = sub starʷₘ (≤ᶜ-reflexive (·ᶜ-zeroʳ _))
+▸-· {m′ = m′} (starˢₘ prop) =
+  sub (starˢₘ prop) (≤ᶜ-reflexive (≈ᶜ-sym (·ᵐ-·ᶜ-assoc m′)))
+▸-· {m′ = m′} (unitrecₘ {γ = γ} {p = p} {δ = δ} γ▸t δ▸u η▸A ok) = sub
+  (unitrecₘ (▸-cong (PE.sym (·ᵐ-ᵐ·-assoc m′)) (▸-· γ▸t)) (▸-· δ▸u) η▸A ok)
+  (begin
+    ⌜ m′ ⌝ ·ᶜ (p ·ᶜ γ +ᶜ δ)           ≈⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
+    ⌜ m′ ⌝ ·ᶜ p ·ᶜ γ +ᶜ ⌜ m′ ⌝ ·ᶜ δ   ≈˘⟨ +ᶜ-congʳ (·ᶜ-assoc _ _ _) ⟩
+    (⌜ m′ ⌝ · p) ·ᶜ γ +ᶜ ⌜ m′ ⌝ ·ᶜ δ  ≈⟨ +ᶜ-congʳ (·ᶜ-congʳ (⌜⌝-·-comm m′)) ⟩
+    (p · ⌜ m′ ⌝) ·ᶜ γ +ᶜ ⌜ m′ ⌝ ·ᶜ δ  ≈⟨ +ᶜ-congʳ (·ᶜ-assoc _ _ _) ⟩
+    p ·ᶜ ⌜ m′ ⌝ ·ᶜ γ +ᶜ ⌜ m′ ⌝ ·ᶜ δ   ∎)
+  where
+  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 ▸-· (Idₘ ok ▸A ▸t ▸u) = sub
   (Idₘ ok ▸A (▸-· ▸t) (▸-· ▸u))
   (≤ᶜ-reflexive (·ᶜ-distribˡ-+ᶜ _ _ _))
@@ -411,6 +422,10 @@ Usage-restrictions-satisfied = λ where
                             Usage-restrictions-satisfied v
   (emptyrec _ A t)        → Usage-restrictions-satisfied A ×
                             Usage-restrictions-satisfied t
+  (unitrec p q A t u)     → Unitrec-allowed p q ×
+                            Usage-restrictions-satisfied A ×
+                            Usage-restrictions-satisfied t ×
+                            Usage-restrictions-satisfied u
   (Id A t u)              → Usage-restrictions-satisfied A ×
                             Usage-restrictions-satisfied t ×
                             Usage-restrictions-satisfied u
@@ -425,7 +440,7 @@ Usage-restrictions-satisfied = λ where
                             Usage-restrictions-satisfied B ×
                             Usage-restrictions-satisfied u ×
                             Usage-restrictions-satisfied v
-  ([]-cong A t u v)       → Usage-restrictions-satisfied A ×
+  ([]-cong _ A t u v)     → Usage-restrictions-satisfied A ×
                             Usage-restrictions-satisfied t ×
                             Usage-restrictions-satisfied u ×
                             Usage-restrictions-satisfied v
@@ -433,9 +448,9 @@ Usage-restrictions-satisfied = λ where
   U                       → Lift _ ⊤
   ℕ                       → Lift _ ⊤
   Empty                   → Lift _ ⊤
-  Unit                    → Lift _ ⊤
+  Unit!                   → Lift _ ⊤
   zero                    → Lift _ ⊤
-  star                    → Lift _ ⊤
+  star!                   → Lift _ ⊤
   rfl                     → Lift _ ⊤
 
 -- If t is well-resourced (with respect to any context and mode), then
@@ -494,8 +509,15 @@ Usage-restrictions-satisfied = λ where
   (emptyrecₘ ▸t ▸A) →
     ▸→Usage-restrictions-satisfied ▸A ,
     ▸→Usage-restrictions-satisfied ▸t
-  starₘ →
+  starʷₘ →
     _
+  (starˢₘ _) →
+    _
+  (unitrecₘ ▸t ▸u ▸A ok) →
+    ok ,
+    ▸→Usage-restrictions-satisfied ▸A ,
+    ▸→Usage-restrictions-satisfied ▸t ,
+    ▸→Usage-restrictions-satisfied ▸u
   (Idₘ _ ▸A ▸t ▸u) →
     ▸→Usage-restrictions-satisfied ▸A ,
     ▸→Usage-restrictions-satisfied ▸t ,
@@ -652,6 +674,19 @@ Usage-restrictions-satisfied→▸[𝟘ᵐ] {ok = 𝟘ᵐ-ok} = lemma _
       begin
         𝟘ᶜ       ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
         p ·ᶜ 𝟘ᶜ  ∎
+    (unitrec p q A t u) (ok , A-ok , t-ok , u-ok) →
+      let t-lemma = lemma t t-ok
+          u-lemma = lemma u u-ok
+          A-lemma = sub (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) (lemma A A-ok)) $
+            let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+              𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · q  ≈⟨ ≈ᶜ-refl ∙ ·-congʳ (cong ⌜_⌝ (𝟘ᵐ?≡𝟘ᵐ {ok = 𝟘ᵐ-ok})) ⟩
+              𝟘ᶜ ∙ 𝟘 · q        ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
+              𝟘ᶜ                ∎
+      in  sub (unitrecₘ t-lemma u-lemma A-lemma ok) $
+        let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+          𝟘ᶜ             ≈˘⟨ +ᶜ-identityˡ _ ⟩
+          𝟘ᶜ +ᶜ 𝟘ᶜ       ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
+          p ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎
     (Id A t u) (A-ok , t-ok , u-ok) →
       case Id-erased? of λ where
         (yes erased) →
@@ -721,7 +756,7 @@ Usage-restrictions-satisfied→▸[𝟘ᵐ] {ok = 𝟘ᵐ-ok} = lemma _
           let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
             𝟘ᶜ                           ≈˘⟨ ω·ᶜ⋀ᶜ⁴𝟘ᶜ ⟩
             ω ·ᶜ (𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ)  ∎
-    ([]-cong A t u v) (A-ok , t-ok , u-ok , v-ok) →
+    ([]-cong _ A t u v) (A-ok , t-ok , u-ok , v-ok) →
       []-congₘ
         (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $ lemma A A-ok)
         (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $ lemma t t-ok)
@@ -738,11 +773,11 @@ Usage-restrictions-satisfied→▸[𝟘ᵐ] {ok = 𝟘ᵐ-ok} = lemma _
       ℕₘ
     Empty _ →
       Emptyₘ
-    Unit _ →
+    Unit! _ →
       Unitₘ
     zero _ →
       zeroₘ
-    star _ →
+    star! _ →
       starₘ
     rfl _ →
       rflₘ
@@ -837,8 +872,15 @@ Usage-restrictions-satisfied→▸[𝟘ᵐ] {ok = 𝟘ᵐ-ok} = lemma _
   𝟘ᶜ       ∎
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-▸-𝟘ᵐ starₘ =
-  ≤ᶜ-refl
+▸-𝟘ᵐ starʷₘ = ≤ᶜ-refl
+▸-𝟘ᵐ (starˢₘ prop) = ≤ᶜ-reflexive (·ᶜ-zeroˡ _)
+▸-𝟘ᵐ (unitrecₘ {γ = γ} {p = p} {δ = δ} γ▸ δ▸ η▸ ok) = begin
+  p ·ᶜ γ +ᶜ δ     ≤⟨ +ᶜ-monotone (·ᶜ-monotoneʳ (▸-𝟘ᵐ γ▸)) (▸-𝟘ᵐ δ▸) ⟩
+  p ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ≈⟨ +ᶜ-identityʳ _ ⟩
+  p ·ᶜ 𝟘ᶜ        ≈⟨ ·ᶜ-zeroʳ _ ⟩
+  𝟘ᶜ             ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 ▸-𝟘ᵐ (Idₘ {δ = δ} {η = η} _ _ δ▸ η▸) = begin
   δ +ᶜ η    ≤⟨ +ᶜ-monotone (▸-𝟘ᵐ δ▸) (▸-𝟘ᵐ η▸) ⟩
   𝟘ᶜ +ᶜ 𝟘ᶜ  ≈⟨ +ᶜ-identityʳ _ ⟩
@@ -946,6 +988,9 @@ opaque
               (≈ᶜ-trivial 𝟙≡𝟘)
       (emptyrec p A t) (A-ok , t-ok) →
         sub (emptyrecₘ (lemma₀ t t-ok) (lemma₀ A A-ok)) (≈ᶜ-trivial 𝟙≡𝟘)
+      (unitrec p q A t u) (ok , A-ok , t-ok , u-ok) →
+        sub (unitrecₘ {η = 𝟘ᶜ} (lemma₀ t t-ok) (lemma₀ u u-ok) (lemma A A-ok) ok)
+            (≈ᶜ-trivial 𝟙≡𝟘)
       (Id A t u) (A-ok , t-ok , u-ok) →
         case Id-erased? of λ where
           (yes erased) →
@@ -983,7 +1028,7 @@ opaque
               (Kₘ {γ₃ = 𝟘ᶜ} not-ok (lemma₀ A A-ok) (lemma₀ t t-ok)
                  (lemma  B B-ok) (lemma₀ u u-ok) (lemma₀ v v-ok))
               (≈ᶜ-trivial 𝟙≡𝟘)
-      ([]-cong A t u v) (A-ok , t-ok , u-ok , v-ok) →
+      ([]-cong _ A t u v) (A-ok , t-ok , u-ok , v-ok) →
         sub
           ([]-congₘ (lemma₀ A A-ok) (lemma₀ t t-ok) (lemma₀ u u-ok)
              (lemma₀ v v-ok))
@@ -996,11 +1041,11 @@ opaque
         sub ℕₘ (≈ᶜ-trivial 𝟙≡𝟘)
       Empty _ →
         sub Emptyₘ (≈ᶜ-trivial 𝟙≡𝟘)
-      Unit _ →
+      Unit! _ →
         sub Unitₘ (≈ᶜ-trivial 𝟙≡𝟘)
       zero _ →
         sub zeroₘ (≈ᶜ-trivial 𝟙≡𝟘)
-      star _ →
+      star! _ →
         sub starₘ (≈ᶜ-trivial 𝟙≡𝟘)
       rfl _ →
         sub rflₘ (≈ᶜ-trivial 𝟙≡𝟘)
@@ -1336,8 +1381,38 @@ Conₘ-interchange
   where
   open Tools.Reasoning.PropositionalEquality
 
-Conₘ-interchange starₘ starₘ x =
+Conₘ-interchange starʷₘ starʷₘ x =
   subst (_▸[ _ ] _) (PE.sym (update-self 𝟘ᶜ x)) starₘ
+
+Conₘ-interchange (starˢₘ {γ = γ} {m = m} prop) (starˢₘ {γ = δ} prop′) x =
+  sub (starˢₘ prop″)
+      (≤ᶜ-reflexive eq)
+  where
+  open Tools.Reasoning.Equivalence Conₘ-setoid
+  eq = begin
+    ⌜ m ⌝ ·ᶜ γ , x ≔ (⌜ m ⌝ ·ᶜ δ) ⟨ x ⟩  ≡⟨ cong (_ , _ ≔_) (lookup-distrib-·ᶜ δ ⌜ m ⌝ x) ⟩
+    ⌜ m ⌝ ·ᶜ γ , x ≔ (⌜ m ⌝ · δ ⟨ x ⟩)   ≡⟨ update-distrib-·ᶜ γ ⌜ m ⌝ (δ ⟨ x ⟩) x ⟩
+    ⌜ m ⌝ ·ᶜ (γ , x ≔ δ ⟨ x ⟩)           ∎
+  prop″ = λ ¬sink → begin
+    𝟘ᶜ                ≡˘⟨ 𝟘ᶜ,≔𝟘 ⟩
+    𝟘ᶜ , x ≔ 𝟘        ≡˘⟨ cong (𝟘ᶜ , x ≔_) (𝟘ᶜ-lookup x) ⟩
+    𝟘ᶜ , x ≔ 𝟘ᶜ ⟨ x ⟩  ≈⟨ update-cong (prop ¬sink) (lookup-cong (prop′ ¬sink)) ⟩
+    γ , x ≔ δ ⟨ x ⟩    ∎
+
+
+Conₘ-interchange (unitrecₘ {γ = γ} {p = p} {δ = δ} γ▸t δ▸u η▸A ok)
+                 (unitrecₘ {γ = γ′} {δ = δ′} γ′▸t δ′▸u _ _) x =
+  subst (_▸[ _ ] _)
+    (begin
+       p ·ᶜ (γ , x ≔ γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩)      ≡˘⟨ cong (_+ᶜ _) (update-distrib-·ᶜ γ p (γ′ ⟨ x ⟩) x) ⟩
+       (p ·ᶜ γ , x ≔ p · γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩)  ≡˘⟨ update-distrib-+ᶜ (p ·ᶜ γ) δ (p · γ′ ⟨ x ⟩) (δ′ ⟨ x ⟩) x ⟩
+       p ·ᶜ γ +ᶜ δ , x ≔ p · γ′ ⟨ x ⟩ + δ′ ⟨ x ⟩          ≡˘⟨ cong (p ·ᶜ γ +ᶜ δ , x ≔_) (cong (_+ _) (lookup-distrib-·ᶜ γ′ p x)) ⟩
+       p ·ᶜ γ +ᶜ δ , x ≔ (p ·ᶜ γ′) ⟨ x ⟩ + δ′ ⟨ x ⟩       ≡˘⟨ cong (_ , x ≔_) (lookup-distrib-+ᶜ (p ·ᶜ γ′) δ′ x) ⟩
+       p ·ᶜ γ +ᶜ δ , x ≔ (p ·ᶜ γ′ +ᶜ δ′) ⟨ x ⟩           ∎)
+    (unitrecₘ (Conₘ-interchange γ▸t γ′▸t x)
+              (Conₘ-interchange δ▸u δ′▸u x) η▸A ok)
+  where
+  open Tools.Reasoning.PropositionalEquality
 
 Conₘ-interchange
   (Idₘ {δ = δ} {η = η} ok ▸A ▸t ▸u)
@@ -1348,7 +1423,7 @@ Conₘ-interchange
        δ +ᶜ η , x ≔ δ′ ⟨ x ⟩ + η′ ⟨ x ⟩          ≡˘⟨ cong (_ , x ≔_) (lookup-distrib-+ᶜ δ′ _ _) ⟩
        δ +ᶜ η , x ≔ (δ′ +ᶜ η′) ⟨ x ⟩             ∎)
     (Idₘ ok ▸A (Conₘ-interchange ▸t ▸t′ x) (Conₘ-interchange ▸u ▸u′ x))
-  where
+    where
   open Tools.Reasoning.PropositionalEquality
 
 Conₘ-interchange (Id₀ₘ ok ▸A ▸t ▸u) (Id₀ₘ _ _ _ _) x =
@@ -1471,6 +1546,31 @@ Conₘ-interchange ([]-congₘ ▸A₁ ▸t₁ ▸u₁ ▸v₁) ([]-congₘ _ _ 
   subst (_▸[ _ ] _)
     (PE.sym (update-self 𝟘ᶜ x))
     ([]-congₘ ▸A₁ ▸t₁ ▸u₁ ▸v₁)
+
+-- Some variants of Conₘ-interchange
+
+Conₘ-interchange₁ : γ ▸[ m ] t → δ ▸[ m ] t
+                  → tailₘ γ ∙ δ ⟨ x0 ⟩ ▸[ m ] t
+Conₘ-interchange₁ {γ = γ} {m} {t} {δ} γ▸t δ▸t =
+  subst (_▸[ m ] t) (update-head γ (δ ⟨ x0 ⟩))
+        (Conₘ-interchange γ▸t δ▸t x0)
+
+
+Conₘ-interchange₂ : γ ▸[ m ] t → δ ▸[ m ] t
+                  → tailₘ (tailₘ γ) ∙ δ ⟨ x1 ⟩ ∙ δ ⟨ x0 ⟩ ▸[ m ] t
+Conₘ-interchange₂ {γ = γ} {m} {t} {δ} γ▸t δ▸t =
+  subst (_▸[ m ] t) eq
+        (Conₘ-interchange (Conₘ-interchange γ▸t δ▸t x1) δ▸t x0)
+  where
+  open Tools.Reasoning.PropositionalEquality
+  δ₁ = δ ⟨ x1 ⟩
+  δ₀ = δ ⟨ x0 ⟩
+  eq = begin
+    γ , x1 ≔ δ₁ , x0 ≔ δ₀ ≡⟨ update-head _ _ ⟩
+    tailₘ (γ , x1 ≔ δ₁) ∙ δ₀ ≡⟨ cong (λ x → tailₘ x ∙ δ₀) (update-step γ δ₁ x0) ⟩
+    (tailₘ γ , x0 ≔ δ₁) ∙ δ₀ ≡⟨ cong (_∙ _) (update-head (tailₘ γ) δ₁) ⟩
+    tailₘ (tailₘ γ) ∙ δ₁ ∙ δ₀ ∎
+
 
 ------------------------------------------------------------------------
 -- Variants of some usage rules
@@ -1683,6 +1783,13 @@ opaque
   𝟘ᶜ                                                     ∎
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
+⌈⌉-𝟘ᵐ {ok = ok} (unitrec p q A t u) = begin
+  p ·ᶜ ⌈ t ⌉ 𝟘ᵐ[ ok ] +ᶜ ⌈ u ⌉ 𝟘ᵐ[ ok ]  ≈⟨ +ᶜ-cong (·ᶜ-congˡ (⌈⌉-𝟘ᵐ t)) (⌈⌉-𝟘ᵐ u) ⟩
+  p ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ                          ≈⟨ +ᶜ-identityʳ _ ⟩
+  p ·ᶜ 𝟘ᶜ                                ≈⟨ ·ᶜ-zeroʳ _ ⟩
+  𝟘ᶜ                                     ∎
+  where
+  open Tools.Reasoning.Equivalence Conₘ-setoid
 ⌈⌉-𝟘ᵐ ℕ =
   ≈ᶜ-refl
 ⌈⌉-𝟘ᵐ zero =
@@ -1698,10 +1805,9 @@ opaque
   𝟘ᶜ                                                         ∎
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
-⌈⌉-𝟘ᵐ Unit =
+⌈⌉-𝟘ᵐ Unit! =
   ≈ᶜ-refl
-⌈⌉-𝟘ᵐ star =
-  ≈ᶜ-refl
+⌈⌉-𝟘ᵐ star! = ≈ᶜ-refl
 ⌈⌉-𝟘ᵐ Empty =
   ≈ᶜ-refl
 ⌈⌉-𝟘ᵐ {ok = ok} (emptyrec p _ t) = begin
@@ -1766,7 +1872,7 @@ opaque
   𝟘ᶜ                                                              ∎
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
-⌈⌉-𝟘ᵐ ([]-cong _ _ _ _) =
+⌈⌉-𝟘ᵐ ([]-cong _ _ _ _ _) =
   ≈ᶜ-refl
 
 -- The context ⌈ t ⌉ m does not change (up to _≈ᶜ_) if it is
@@ -1790,10 +1896,12 @@ opaque
 open import Graded.Modality.Dedicated-nr.Instance
 
 -- For dedicated nr functions the function ⌈_⌉ provides upper bounds
--- for valid modality contexts: if γ ▸[ m ] t, then γ ≤ᶜ ⌈ t ⌉ m.
+-- for valid modality contexts when the strong unit type is dissallowed:
+-- if γ ▸[ m ] t, then γ ≤ᶜ ⌈ t ⌉ m.
 
 usage-upper-bound :
   ⦃ has-nr : Dedicated-nr ⦄ →
+  ⦃ no-sink : ¬Starˢ-sink ⦄ →
   γ ▸[ m ] t → γ ≤ᶜ ⌈ t ⌉ m
 usage-upper-bound Uₘ     = ≤ᶜ-refl
 usage-upper-bound ℕₘ     = ≤ᶜ-refl
@@ -1847,7 +1955,14 @@ usage-upper-bound (natrec-no-nrₘ _ _ _ _ _ _ _ _) =
 
 usage-upper-bound (emptyrecₘ e A) =
   ·ᶜ-monotoneʳ (usage-upper-bound e)
-usage-upper-bound starₘ = ≤ᶜ-refl
+
+usage-upper-bound starʷₘ = ≤ᶜ-refl
+usage-upper-bound ⦃ no-sink = ns ⦄ (starˢₘ prop) =
+  ≤ᶜ-reflexive (≈ᶜ-trans (·ᶜ-congˡ (≈ᶜ-sym (prop ns)))
+                 (·ᶜ-zeroʳ _))
+
+usage-upper-bound (unitrecₘ t u A ok) =
+  +ᶜ-monotone (·ᶜ-monotoneʳ (usage-upper-bound t)) (usage-upper-bound u)
 
 usage-upper-bound {m} (Idₘ {δ} {t} {η} {u} not-ok _ ▸t ▸u)
   with Id-erased?
@@ -1922,55 +2037,39 @@ usage-inf ℕₘ = ℕₘ
 usage-inf Emptyₘ = Emptyₘ
 usage-inf Unitₘ = Unitₘ
 usage-inf (ΠΣₘ {G = G} γ▸F δ▸G) =
-  ΠΣₘ (usage-inf γ▸F)
-      (sub (usage-inf δ▸G)
-           (subst (tailₘ (⌈ G ⌉ _) ∙ _ ≤ᶜ_)
-                  (headₘ-tailₘ-correct (⌈ G ⌉ _))
-                  (≤ᶜ-refl ∙ headₘ-monotone (usage-upper-bound δ▸G))))
+  ΠΣₘ (usage-inf γ▸F) (Conₘ-interchange₁ (usage-inf δ▸G) δ▸G)
 usage-inf var = var
 usage-inf (lamₘ {p = p} {t = t} γ▸t) =
-  lamₘ (sub (usage-inf γ▸t)
-            (PE.subst (⌈ lam p t ⌉ _ ∙ _ ≤ᶜ_)
-                      (headₘ-tailₘ-correct (⌈ t ⌉ _))
-                      (≤ᶜ-refl ∙ headₘ-monotone (usage-upper-bound γ▸t))))
+  lamₘ (Conₘ-interchange₁ (usage-inf γ▸t) γ▸t)
 usage-inf (γ▸t ∘ₘ γ▸t₁) = usage-inf γ▸t ∘ₘ usage-inf γ▸t₁
 usage-inf (prodᵣₘ γ▸t γ▸t₁) = prodᵣₘ (usage-inf γ▸t) (usage-inf γ▸t₁)
 usage-inf (prodₚₘ γ▸t γ▸t₁) = prodₚₘ (usage-inf γ▸t) (usage-inf γ▸t₁)
 usage-inf (fstₘ m γ▸t PE.refl ok) =
   fstₘ m (usage-inf γ▸t) PE.refl ok
 usage-inf (sndₘ γ▸t) = sndₘ (usage-inf γ▸t)
-usage-inf (prodrecₘ {p = p} {u = u} γ▸t δ▸u η▸A ok) =
+usage-inf {m = m} (prodrecₘ {r = r} {δ = δ} {p = p} {u = u} γ▸t δ▸u η▸A ok) =
   prodrecₘ (usage-inf γ▸t)
-           (sub (usage-inf δ▸u)
-                (subst (tailₘ (tailₘ (⌈ u ⌉ _)) ∙ _ ∙ _ ≤ᶜ_)
-                       (PE.trans
-                          (cong (_∙ headₘ (⌈ u ⌉ _))
-                             (headₘ-tailₘ-correct (tailₘ (⌈ u ⌉ _))))
-                          (headₘ-tailₘ-correct (⌈ u ⌉ _)))
-                       (≤ᶜ-refl ∙ headₘ-monotone (tailₘ-monotone (usage-upper-bound δ▸u)) ∙ headₘ-monotone (usage-upper-bound δ▸u))))
+           (Conₘ-interchange₂ (usage-inf δ▸u) δ▸u)
            η▸A
            ok
 usage-inf zeroₘ = zeroₘ
 usage-inf (sucₘ γ▸t) = sucₘ (usage-inf γ▸t)
-usage-inf
+usage-inf {m = m}
   ⦃ has-nr = nr₁ ⦄
   (natrecₘ {p = p} {r = r} {s = s} ⦃ has-nr = nr₂ ⦄ γ▸z δ▸s η▸n θ▸A) =
   case Dedicated-nr-propositional nr₁ nr₂ of λ {
     refl →
   natrecₘ (usage-inf γ▸z)
-          (sub (usage-inf δ▸s)
-               (subst (tailₘ (tailₘ (⌈ s ⌉ _)) ∙ _ ∙ _ ≤ᶜ_)
-                      (PE.trans
-                         (cong (_∙ headₘ (⌈ s ⌉ _))
-                            (headₘ-tailₘ-correct (tailₘ (⌈ s ⌉ _))))
-                         (headₘ-tailₘ-correct (⌈ s ⌉ _)))
-                      (≤ᶜ-refl ∙ headₘ-monotone (tailₘ-monotone (usage-upper-bound δ▸s)) ∙ headₘ-monotone (usage-upper-bound δ▸s))))
+          (Conₘ-interchange₂ (usage-inf δ▸s) δ▸s)
           (usage-inf η▸n)
           θ▸A }
 usage-inf (natrec-no-nrₘ _ _ _ _ _ _ _ _) =
   ⊥-elim not-nr-and-no-nr
 usage-inf (emptyrecₘ γ▸t δ▸A) = emptyrecₘ (usage-inf γ▸t) δ▸A
-usage-inf starₘ = starₘ
+usage-inf starʷₘ = starʷₘ
+usage-inf (starˢₘ prop) = starₘ
+usage-inf (unitrecₘ γ▸t δ▸u η▸A ok) =
+  unitrecₘ (usage-inf γ▸t) (usage-inf δ▸u) η▸A ok
 usage-inf (Idₘ not-ok ▸A ▸t ▸u) with Id-erased?
 … | yes ok = ⊥-elim (not-ok ok)
 … | no _   = Idₘ not-ok ▸A (usage-inf ▸t) (usage-inf ▸u)
@@ -1984,18 +2083,8 @@ usage-inf {m} (Jₘ {p} {q} {B} not-ok ▸A ▸t ▸B ▸u ▸v ▸w)
 … | yes ok = ⊥-elim (not-ok ok)
 … | no _   =
   Jₘ not-ok ▸A (usage-inf ▸t)
-    (sub (usage-inf ▸B) $ begin
-       tailₘ (tailₘ (⌈ B ⌉ m)) ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · q      ≤⟨ ≤ᶜ-refl ∙ headₘ-monotone (tailₘ-monotone (usage-upper-bound ▸B)) ∙
-                                                               headₘ-monotone (usage-upper-bound ▸B) ⟩
-       tailₘ (tailₘ (⌈ B ⌉ m)) ∙ headₘ (tailₘ (⌈ B ⌉ m)) ∙
-       headₘ (⌈ B ⌉ m)                                      ≡⟨ cong (_∙ headₘ (⌈ B ⌉ _)) (headₘ-tailₘ-correct _) ⟩
-
-       tailₘ (⌈ B ⌉ m) ∙ headₘ (⌈ B ⌉ m)                    ≡⟨ headₘ-tailₘ-correct _ ⟩
-
-       ⌈ B ⌉ m                                              ∎)
-    (usage-inf ▸u) (usage-inf ▸v) (usage-inf ▸w)
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+     (Conₘ-interchange₂ (usage-inf ▸B) ▸B)
+     (usage-inf ▸u) (usage-inf ▸v) (usage-inf ▸w)
 usage-inf (J₀ₘ ok ▸A ▸t ▸B ▸u ▸v ▸w) with Erased-matches-for-J?
 … | no not-ok = ⊥-elim (not-ok ok)
 … | yes _     = J₀ₘ ok ▸A ▸t ▸B (usage-inf ▸u) ▸v ▸w
@@ -2004,13 +2093,8 @@ usage-inf {m} (Kₘ {p} {B} not-ok ▸A ▸t ▸B ▸u ▸v)
 … | yes ok = ⊥-elim (not-ok ok)
 … | no _   =
   Kₘ not-ok ▸A (usage-inf ▸t)
-    (sub (usage-inf ▸B) $ begin
-       tailₘ (⌈ B ⌉ m) ∙ ⌜ m ⌝ · p        ≤⟨ ≤ᶜ-refl ∙ headₘ-monotone (usage-upper-bound ▸B) ⟩
-       tailₘ (⌈ B ⌉ m) ∙ headₘ (⌈ B ⌉ m)  ≡⟨ headₘ-tailₘ-correct _ ⟩
-       ⌈ B ⌉ m                            ∎)
-    (usage-inf ▸u) (usage-inf ▸v)
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+     (Conₘ-interchange₁ (usage-inf ▸B) ▸B)
+     (usage-inf ▸u) (usage-inf ▸v)
 usage-inf (K₀ₘ ok ▸A ▸t ▸B ▸u ▸v) with Erased-matches-for-K?
 … | no not-ok = ⊥-elim (not-ok ok)
 … | yes _     = K₀ₘ ok ▸A ▸t ▸B (usage-inf ▸u) ▸v

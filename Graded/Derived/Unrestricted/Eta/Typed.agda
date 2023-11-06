@@ -11,8 +11,8 @@ module Graded.Derived.Unrestricted.Eta.Typed
   (open Modality 𝕄)
   (R : Type-restrictions 𝕄)
   (open Type-restrictions R)
-  -- The Unit type is assumed to be allowed.
-  (Unit-ok : Unit-allowed)
+  -- The Unit type with η-equality is assumed to be allowed.
+  (Unit-ok : Unitˢ-allowed)
   -- It is assumed that Σ-types with η-equality are allowed for the
   -- quantities ω and ω.
   (Σₚ-ok : Σₚ-allowed ω ω)
@@ -125,12 +125,13 @@ Unrestricted-η :
   Γ ⊢ u ∷ Unrestricted A →
   Γ ⊢ unbox t ≡ unbox u ∷ A →
   Γ ⊢ t ≡ u ∷ Unrestricted A
-Unrestricted-η ⊢t ⊢u t≡u = Σ-η
-  ⊢A Γ∙A⊢Unit ⊢t ⊢u t≡u
-  (η-unit (sndⱼ ⊢A Γ∙A⊢Unit ⊢t) (sndⱼ ⊢A Γ∙A⊢Unit ⊢u))
-  where
-  ⊢A       = syntacticEqTerm t≡u .proj₁
-  Γ∙A⊢Unit = Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok
+Unrestricted-η ⊢t ⊢u t≡u =
+  case syntacticEqTerm t≡u of λ
+    (⊢A , _) →
+  case Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok of λ
+    Γ∙A⊢Unit → Σ-η
+      ⊢A Γ∙A⊢Unit ⊢t ⊢u t≡u
+      (η-unit (sndⱼ ⊢A Γ∙A⊢Unit ⊢t) (sndⱼ ⊢A Γ∙A⊢Unit ⊢u))
 
 -- An instance of the η-rule.
 
@@ -171,7 +172,7 @@ inversion-[] :
   ∃₃ λ B q C →
      Γ ⊢ t ∷ B ×
      Γ ⊢ A ≡ Σₚ ω , q ▷ B ▹ C ×
-     Γ ⊢ C [ t ]₀ ≡ Unit
+     Γ ⊢ C [ t ]₀ ≡ Unitˢ
 inversion-[] ⊢[] =
   case inversion-prod ⊢[] of
     λ (B , C , q , ⊢B , _ , ⊢t , ⊢star , A≡ , _) →
@@ -193,12 +194,12 @@ inversion-[]′ ⊢[] =
 ¬-inversion-[]′ :
   ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} →
      Γ ⊢ [ t ] ∷ A →
-     ∃₂ λ B q → Γ ⊢ t ∷ B × Γ ⊢ A ≡ Σₚ ω , q ▷ B ▹ Unit)
+     ∃₂ λ B q → Γ ⊢ t ∷ B × Γ ⊢ A ≡ Σₚ ω , q ▷ B ▹ Unitˢ)
 ¬-inversion-[]′ inversion-[] = bad
   where
   Γ′ = ε
   t′ = zero
-  A′ = Σₚ ω , ω ▷ ℕ ▹ natrec 𝟙 𝟙 𝟙 U Unit ℕ (var x0)
+  A′ = Σₚ ω , ω ▷ ℕ ▹ natrec 𝟙 𝟙 𝟙 U Unitˢ ℕ (var x0)
 
   ⊢Γ′∙ℕ : ⊢ Γ′ ∙ ℕ
   ⊢Γ′∙ℕ = ε ∙ ℕⱼ ε
@@ -223,7 +224,7 @@ inversion-[]′ ⊢[] =
         univ (natrec-zero (Uⱼ ⊢Γ′∙ℕ) (Unitⱼ ε Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U))))
     Σₚ-ok
 
-  ℕ≡Unit : Γ′ ⊢ ℕ ≡ Unit
+  ℕ≡Unit : Γ′ ⊢ ℕ ≡ Unitˢ
   ℕ≡Unit =
     case inversion-[] ⊢[t′] of
       λ (_ , _ , _ , A′≡) →
@@ -269,7 +270,7 @@ inversion-unbox ⊢unbox =
 ¬-inversion-unbox′ :
   ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} →
      Γ ⊢ unbox t ∷ A →
-     ∃ λ q → Γ ⊢ t ∷ Σₚ ω , q ▷ A ▹ Unit)
+     ∃ λ q → Γ ⊢ t ∷ Σₚ ω , q ▷ A ▹ Unitˢ)
 ¬-inversion-unbox′ inversion-unbox = bad
   where
   Γ′ = ε
@@ -289,13 +290,13 @@ inversion-unbox ⊢unbox =
   unbox-t′≡zero =
     Σ-β₁ (ℕⱼ ε) (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) PE.refl Σₚ-ok
 
-  ⊢t′₂ : ∃ λ q → Γ′ ⊢ t′ ∷ Σₚ ω , q ▷ A′ ▹ Unit
+  ⊢t′₂ : ∃ λ q → Γ′ ⊢ t′ ∷ Σₚ ω , q ▷ A′ ▹ Unitˢ
   ⊢t′₂ = inversion-unbox ⊢unbox-t′
 
-  ⊢snd-t′ : Γ′ ⊢ snd ω t′ ∷ Unit
+  ⊢snd-t′ : Γ′ ⊢ snd ω t′ ∷ Unitˢ
   ⊢snd-t′ = sndⱼ (ℕⱼ ε) (Unitⱼ ⊢Γ′∙ℕ Unit-ok) (⊢t′₂ .proj₂)
 
-  ℕ≡Unit : Γ′ ⊢ ℕ ≡ Unit
+  ℕ≡Unit : Γ′ ⊢ ℕ ≡ Unitˢ
   ℕ≡Unit =
     case inversion-snd ⊢snd-t′ of
       λ (_ , _ , _ , _ , _ , ⊢t′ , Unit≡) →

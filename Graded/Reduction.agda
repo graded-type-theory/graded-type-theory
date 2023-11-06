@@ -16,6 +16,7 @@ module Graded.Reduction
 
 open Modality 𝕄
 open Type-restrictions TR
+open Usage-restrictions UR
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
@@ -31,7 +32,7 @@ open import Definition.Typed.Eta-long-normal-form TR
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Untyped.Normal-form M
 
-open import Tools.Bool using (T)
+open import Tools.Bool using (T; true; false)
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
@@ -205,6 +206,23 @@ usagePresTerm γ▸et (emptyrec-subst x t⇒u) =
   let invUsageemptyrec δ▸t η▸A γ≤δ = inv-usage-emptyrec γ▸et
   in  sub (emptyrecₘ (usagePresTerm δ▸t t⇒u) η▸A) γ≤δ
 
+usagePresTerm γ▸ur (unitrec-subst x x₁ t⇒t′ _) =
+  let invUsageUnitrec δ▸t η▸u θ▸A ok γ≤γ′ = inv-usage-unitrec γ▸ur
+      δ▸t′ = usagePresTerm δ▸t t⇒t′
+  in  sub (unitrecₘ δ▸t′ η▸u θ▸A ok) γ≤γ′
+
+usagePresTerm {γ = γ} γ▸ur (unitrec-β {p = p} x x₁ _) =
+  let invUsageUnitrec {δ = δ} {η = η} δ▸t η▸u θ▸A ok γ≤γ′ = inv-usage-unitrec γ▸ur
+      δ≤𝟘 = inv-usage-starʷ δ▸t
+  in  sub η▸u (begin
+    γ             ≤⟨ γ≤γ′ ⟩
+    p ·ᶜ δ +ᶜ η   ≤⟨ +ᶜ-monotoneˡ (·ᶜ-monotoneʳ δ≤𝟘) ⟩
+    p ·ᶜ 𝟘ᶜ +ᶜ η  ≈⟨ +ᶜ-congʳ (·ᶜ-zeroʳ p) ⟩
+    𝟘ᶜ +ᶜ η       ≈⟨ +ᶜ-identityˡ η ⟩
+    η             ∎)
+  where
+  open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
+
 usagePresTerm γ▸ (J-subst _ _ _ _ _ v⇒v′) =
   case inv-usage-J γ▸ of λ where
     (invUsageJ ok ▸A ▸t ▸B ▸u ▸t′ ▸v γ≤) → sub
@@ -303,63 +321,66 @@ Well-resourced-normal-form-without-η-long-normal-form =
     ε ⊢ t ∷ A × Nf t × ε ▸[ 𝟙ᵐ ] t ×
     ¬ ∃ λ u → ε ⊢nf u ∷ A × ε ⊢ t ≡ u ∷ A × ε ▸[ 𝟙ᵐ ] u
 
--- If "Unit" is allowed, then variable 0 is well-typed and
+-- If "Unitˢ" is allowed, then variable 0 is well-typed and
 -- well-resourced (with respect to the usage context ε ∙ 𝟙), and is
 -- definitionally equal to the η-long normal form star. However, this
 -- η-long normal form is well-resourced with respect to the usage
--- context ε ∙ 𝟙 if and only if 𝟙 ≤ 𝟘.
+-- context ε ∙ 𝟙 if and only if the unit type can be used as a sink
+-- or 𝟙 ≤ 𝟘.
 
-η-long-nf-for-0⇔𝟙≤𝟘 :
-  Unit-allowed →
-  let Γ = ε ∙ Unit
+η-long-nf-for-0⇔sink⊎𝟙≤𝟘 :
+  Unitˢ-allowed →
+  let Γ = ε ∙ Unitˢ
       γ = ε ∙ 𝟙
-      A = Unit
+      A = Unitˢ
       t = var x0
-      u = star
+      u = starˢ
   in
   Γ ⊢ t ∷ A ×
   γ ▸[ 𝟙ᵐ ] t ×
   Γ ⊢nf u ∷ A ×
   Γ ⊢ t ≡ u ∷ A ×
-  (γ ▸[ 𝟙ᵐ ] u ⇔ 𝟙 ≤ 𝟘)
-η-long-nf-for-0⇔𝟙≤𝟘 ok =
+  (γ ▸[ 𝟙ᵐ ] u ⇔ (Starˢ-sink ⊎ 𝟙 ≤ 𝟘))
+η-long-nf-for-0⇔sink⊎𝟙≤𝟘 ok =
     ⊢0
   , var
   , starₙ (ε ∙ ⊢Unit) ok
   , sym (Unit-η ⊢0)
-  , (λ ▸* →
-       case inv-usage-star ▸* of λ {
-         (_ ∙ 𝟙≤𝟘) →
-       𝟙≤𝟘 })
-  , (λ 𝟙≤𝟘 →
-       sub starₘ $
-       let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-         ε ∙ 𝟙  ≤⟨ ε ∙ 𝟙≤𝟘 ⟩
-         ε ∙ 𝟘  ∎)
+  , (λ ▸* → case sink-or-no-sink of λ {
+       (inj₁ sink) → inj₁ sink ;
+       (inj₂ ¬sink) → case inv-usage-starˢ ▸* ¬sink of λ {
+         (_ ∙ 𝟙≤𝟘) → inj₂ 𝟙≤𝟘 }})
+  , (λ { (inj₁ sink) →
+           sub (starˢₘ (λ ¬sink → ⊥-elim (not-sink-and-no-sink sink ¬sink)))
+               (≤ᶜ-reflexive (≈ᶜ-sym (·ᶜ-identityˡ _)))
+       ; (inj₂ 𝟙≤𝟘) →
+           sub (starˢₘ (λ _ → ≈ᶜ-refl))
+               (≤ᶜ-trans (ε ∙ 𝟙≤𝟘) (≤ᶜ-reflexive (≈ᶜ-sym (·ᶜ-identityˡ _))))} )
   where
   ⊢Unit = Unitⱼ ε ok
   ⊢0    = var (ε ∙ ⊢Unit) here
 
--- If "Π 𝟙 , p" and "Unit" are allowed, then the identity function
--- lam 𝟙 (var x0) has type Π 𝟙 , p ▷ Unit ▹ Unit, is well-resourced in
+-- If "Π 𝟙 , q" and "Unitˢ" are allowed, then the identity function
+-- lam 𝟙 (var x0) has type Π 𝟙 , q ▷ Unit ▹ Unit, is well-resourced in
 -- the empty context, and is definitionally equal to the η-long normal
 -- form lam 𝟙 star, however, this η-long normal form is well-resourced
--- in the empty context if and only if 𝟙 ≤ 𝟘.
+-- in the empty context if and only if unit type can be used as a sink
+-- or 𝟙 ≤ 𝟘.
 
-η-long-nf-for-id⇔𝟙≤𝟘 :
-  Π-allowed 𝟙 p →
-  Unit-allowed →
-  let A = Π 𝟙 , p ▷ Unit ▹ Unit
+η-long-nf-for-id⇔sink⊎𝟙≤𝟘 :
+  Π-allowed 𝟙 q →
+  Unitˢ-allowed →
+  let A = Π 𝟙 , q ▷ Unitˢ ▹ Unitˢ
       t = lam 𝟙 (var x0)
-      u = lam 𝟙 star
+      u = lam 𝟙 starˢ
   in
   ε ⊢ t ∷ A ×
   ε ▸[ 𝟙ᵐ ] t ×
   ε ⊢nf u ∷ A ×
   ε ⊢ t ≡ u ∷ A ×
-  (ε ▸[ 𝟙ᵐ ] u ⇔ 𝟙 ≤ 𝟘)
-η-long-nf-for-id⇔𝟙≤𝟘 ok₁ ok₂ =
-  case η-long-nf-for-0⇔𝟙≤𝟘 ok₂ of λ {
+  (ε ▸[ 𝟙ᵐ ] u ⇔ (Starˢ-sink ⊎ 𝟙 ≤ 𝟘))
+η-long-nf-for-id⇔sink⊎𝟙≤𝟘 ok₁ ok₂ =
+  case η-long-nf-for-0⇔sink⊎𝟙≤𝟘 ok₂ of λ {
     (⊢t , ▸t , ⊢u , t≡u , ▸u⇔) →
     lamⱼ ⊢Unit ⊢t ok₁
   , lamₘ (sub ▸t $
@@ -368,39 +389,42 @@ Well-resourced-normal-form-without-η-long-normal-form =
             𝟘ᶜ ∙ 𝟙      ∎)
   , lamₙ ⊢Unit ⊢u ok₁
   , lam-cong t≡u ok₁
-  , (ε ▸[ 𝟙ᵐ ] lam 𝟙 star    ⇔⟨ (λ ▸λ* → case inv-usage-lam ▸λ* of λ where
+  , (ε ▸[ 𝟙ᵐ ] lam 𝟙 star!    ⇔⟨ (λ ▸λ* → case inv-usage-lam ▸λ* of λ where
                                    (invUsageLam {δ = ε} ▸* _) → ▸*)
-                              , lamₘ
-                              ⟩
-     ε ∙ 𝟙 · 𝟙 ▸[ 𝟙ᵐ ] star  ≡⟨ PE.cong (λ p → _ ∙ p ▸[ _ ] _) (·-identityˡ _) ⟩⇔
-     ε ∙ 𝟙 ▸[ 𝟙ᵐ ] star      ⇔⟨ ▸u⇔ ⟩
-     𝟙 ≤ 𝟘                   □⇔) }
+                               , lamₘ
+                               ⟩
+     ε ∙ 𝟙 · 𝟙 ▸[ 𝟙ᵐ ] star!  ≡⟨ PE.cong (λ p → _ ∙ p ▸[ _ ] _) (·-identityˡ _) ⟩⇔
+     ε ∙ 𝟙 ▸[ 𝟙ᵐ ] star!      ⇔⟨ ▸u⇔ ⟩
+     Starˢ-sink ⊎ 𝟙 ≤ 𝟘                   □⇔) }
   where
   ⊢Unit = Unitⱼ ε ok₂
 
 -- The type
 -- Well-resourced-normal-form-without-η-long-normal-form is
 -- inhabited if the Unit type with η-equality is allowed, 𝟙 is not
--- bounded by 𝟘, and Π-allowed 𝟙 q holds for some q.
+-- bounded by 𝟘, the unit type is not allowed to be used as a sink
+-- and Π-allowed 𝟙 q holds for some q.
 
 well-resourced-normal-form-without-η-long-normal-form-Unit :
   ¬ 𝟙 ≤ 𝟘 →
-  Unit-allowed →
+  ¬Starˢ-sink →
+  Unitˢ-allowed →
   Π-allowed 𝟙 q →
   Well-resourced-normal-form-without-η-long-normal-form
-well-resourced-normal-form-without-η-long-normal-form-Unit 𝟙≰𝟘 ok₁ ok₂ =
-  case η-long-nf-for-id⇔𝟙≤𝟘 ok₂ ok₁ of λ {
+well-resourced-normal-form-without-η-long-normal-form-Unit 𝟙≰𝟘 ¬sink ok₁ ok₂ =
+  case η-long-nf-for-id⇔sink⊎𝟙≤𝟘 ok₂ ok₁ of λ {
     (⊢t , ▸t , ⊢u , t≡u , ▸u→ , _) →
     _ , _
   , ⊢t
   , lamₙ (ne (var _))
   , ▸t
   , λ (v , ⊢v , t≡v , ▸v) →
-                            $⟨ ▸v ⟩
-      ε ▸[ 𝟙ᵐ ] v           →⟨ PE.subst (_ ▸[ _ ]_) (normal-terms-unique ⊢v ⊢u (trans (sym t≡v) t≡u)) ⟩
-      ε ▸[ 𝟙ᵐ ] lam 𝟙 star  →⟨ ▸u→ ⟩
-      𝟙 ≤ 𝟘                 →⟨ 𝟙≰𝟘 ⟩
-      ⊥                     □ }
+                             $⟨ ▸v ⟩
+      ε ▸[ 𝟙ᵐ ] v            →⟨ PE.subst (_ ▸[ _ ]_) (normal-terms-unique ⊢v ⊢u (trans (sym t≡v) t≡u)) ⟩
+      ε ▸[ 𝟙ᵐ ] lam 𝟙 star!  →⟨ ▸u→ ⟩
+      Starˢ-sink ⊎ 𝟙 ≤ 𝟘     →⟨ (λ { (inj₁ sink) → not-sink-and-no-sink sink ¬sink
+                                   ; (inj₂ 𝟙≤𝟘) → 𝟙≰𝟘 𝟙≤𝟘 }) ⟩
+      ⊥                      □ }
 
 -- If "Σₚ p , q" is allowed, then variable 0 is well-typed and
 -- well-resourced (with respect to the usage context ε ∙ 𝟙), and is

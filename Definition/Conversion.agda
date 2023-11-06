@@ -17,7 +17,7 @@ open import Definition.Untyped M
   hiding (_∷_) renaming (_[_,_] to _[_,_]₁₀)
 open import Definition.Typed R
 
-open import Graded.Derived.Erased.Untyped 𝕄 as Erased using (Erased)
+import Graded.Derived.Erased.Untyped 𝕄 as Erased
 
 open import Tools.Fin
 open import Tools.Nat
@@ -41,6 +41,7 @@ private
     x y : Fin n
     p p′ p″ p₁ p₂ q q′ q″ q₁ q₂ r r′ : M
     b : BinderMode
+    s : SigmaMode
 
 mutual
   -- Neutral equality.
@@ -75,6 +76,11 @@ mutual
                   → Γ ⊢ k ~ l ↓ Empty
                   → Γ ⊢ emptyrec p F k ~ emptyrec p H l ↑ F
 
+    unitrec-cong : Γ ∙ Unitʷ ⊢ F [conv↑] H
+                 → Γ ⊢ k ~ l ↓ Unitʷ
+                 → Γ ⊢ u [conv↑] v ∷ F [ starʷ ]₀
+                 → Γ ⊢ unitrec p q F k u ~ unitrec p q H l v ↑ F [ k ]₀
+
     J-cong        : Γ ⊢ A₁ [conv↑] A₂
                   → Γ ⊢ t₁ [conv↑] t₂ ∷ A₁
                   → Γ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ [conv↑] B₂
@@ -101,9 +107,10 @@ mutual
                   → Γ ⊢ u₁ [conv↑] u₂ ∷ A₁
                   → Γ ⊢ v₁ ~ v₂ ↓ B
                   → Γ ⊢ B ≡ Id A₁ t₁ u₁
-                  → []-cong-allowed
-                  → Γ ⊢ []-cong A₁ t₁ u₁ v₁ ~ []-cong A₂ t₂ u₂ v₂ ↑
-                      Id (Erased A₁) Erased.[ t₁ ] Erased.[ u₁ ]
+                  → []-cong-allowed s
+                  → let open Erased s in
+                    Γ ⊢ []-cong s A₁ t₁ u₁ v₁ ~ []-cong s A₂ t₂ u₂ v₂ ↑
+                      Id (Erased A₁) ([ t₁ ]) ([ u₁ ])
 
   -- Neutral equality with types in WHNF.
   record _⊢_~_↓_ (Γ : Con Term n) (k l B : Term n) : Set a where
@@ -136,7 +143,7 @@ mutual
 
     Empty-refl : ⊢ Γ → Γ ⊢ Empty [conv↓] Empty
 
-    Unit-refl  : ⊢ Γ → Unit-allowed → Γ ⊢ Unit [conv↓] Unit
+    Unit-refl  : ⊢ Γ → Unit-allowed s → Γ ⊢ Unit s [conv↓] Unit s
 
     ne         : ∀ {K L}
                → Γ ⊢ K ~ L ↓ U
@@ -177,8 +184,8 @@ mutual
     Empty-ins : Γ ⊢ k ~ l ↓ Empty
               → Γ ⊢ k [conv↓] l ∷ Empty
 
-    Unit-ins  : Γ ⊢ k ~ l ↓ Unit
-              → Γ ⊢ k [conv↓] l ∷ Unit
+    Unit-ins  : Γ ⊢ k ~ l ↓ Unit s
+              → Γ ⊢ k [conv↓] l ∷ Unit s
 
     Σᵣ-ins    : Γ ⊢ k ∷ Σᵣ p , q ▷ F ▹ G
               → Γ ⊢ l ∷ Σᵣ p , q ▷ F ▹ G
@@ -199,6 +206,9 @@ mutual
               → Γ ⊢ A [conv↓] B ∷ U
 
     zero-refl : ⊢ Γ → Γ ⊢ zero [conv↓] zero ∷ ℕ
+
+    starʷ-refl : ⊢ Γ → Unitʷ-allowed
+               → Γ ⊢ starʷ [conv↓] starʷ ∷ Unitʷ
 
     suc-cong  : ∀ {m n}
               → Γ ⊢ m [conv↑] n ∷ ℕ
@@ -229,11 +239,11 @@ mutual
               → Γ ⊢ k [conv↓] l ∷ Σₚ p , q ▷ F ▹ G
 
     η-unit    : ∀ {k l}
-              → Γ ⊢ k ∷ Unit
-              → Γ ⊢ l ∷ Unit
+              → Γ ⊢ k ∷ Unitˢ
+              → Γ ⊢ l ∷ Unitˢ
               → Whnf k
               → Whnf l
-              → Γ ⊢ k [conv↓] l ∷ Unit
+              → Γ ⊢ k [conv↓] l ∷ Unitˢ
 
     Id-ins    : ∀ {A A′ t′ u′}
               → Γ ⊢ v₁ ∷ Id A t u
@@ -244,8 +254,9 @@ mutual
               → Γ ⊢ t ≡ u ∷ A
               → Γ ⊢ rfl [conv↓] rfl ∷ Id A t u
 
-star-refl : ⊢ Γ → Unit-allowed → Γ ⊢ star [conv↓] star ∷ Unit
-star-refl ⊢Γ ok = η-unit (starⱼ ⊢Γ ok) (starⱼ ⊢Γ ok) starₙ starₙ
+star-refl : ⊢ Γ → Unit-allowed s → Γ ⊢ star s [conv↓] star s ∷ Unit s
+star-refl {s = Σₚ} ⊢Γ ok = η-unit (starⱼ ⊢Γ ok) (starⱼ ⊢Γ ok) starₙ starₙ
+star-refl {s = Σᵣ} = starʷ-refl
 
 -- An inversion lemma for prod-cong.
 

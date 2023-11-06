@@ -24,14 +24,14 @@ mutual
     ΠΣₙ    : Nf A → Nf B → Nf (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
     ℕₙ     : Nf ℕ
     Emptyₙ : Nf Empty
-    Unitₙ  : Nf Unit
+    Unitₙ  : Nf (Unit s)
     Idₙ    : Nf A → Nf t → Nf u → Nf (Id A t u)
 
     lamₙ   : Nf t → Nf (lam q t)
     prodₙ  : Nf t → Nf u → Nf (prod s p t u)
     zeroₙ  : Nf zero
     sucₙ   : Nf t → Nf (suc t)
-    starₙ  : Nf star
+    starₙ  : Nf (star s)
     rflₙ   : Nf rfl
 
     ne     : NfNeutral n → Nf n
@@ -49,12 +49,14 @@ mutual
     prodrecₙ  : Nf C → NfNeutral t → Nf u →
                 NfNeutral (prodrec r p q C t u)
     emptyrecₙ : Nf C → NfNeutral k → NfNeutral (emptyrec p C k)
+    unitrecₙ  : Nf C → NfNeutral t → Nf u →
+                NfNeutral (unitrec p q A t u)
     Jₙ        : Nf A → Nf t → Nf B → Nf u → Nf t′ → NfNeutral v →
                 NfNeutral (J p q A t B u t′ v)
     Kₙ        : Nf A → Nf t → Nf B → Nf u → NfNeutral v →
                 NfNeutral (K p A t B u v)
     []-congₙ  : Nf A → Nf t → Nf u → NfNeutral v →
-                NfNeutral ([]-cong A t u v)
+                NfNeutral ([]-cong s A t u v)
 
 -- If NfNeutral n holds, then n is neutral.
 
@@ -67,6 +69,7 @@ nfNeutral = λ where
   (natrecₙ _ _ _ n)  → natrecₙ (nfNeutral n)
   (prodrecₙ _ n _)   → prodrecₙ (nfNeutral n)
   (emptyrecₙ _ n)    → emptyrecₙ (nfNeutral n)
+  (unitrecₙ _ n _)   → unitrecₙ (nfNeutral n)
   (Jₙ _ _ _ _ _ n)   → Jₙ (nfNeutral n)
   (Kₙ _ _ _ _ n)     → Kₙ (nfNeutral n)
   ([]-congₙ _ _ _ n) → []-congₙ (nfNeutral n)

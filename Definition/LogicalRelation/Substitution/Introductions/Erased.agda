@@ -16,7 +16,8 @@ module Definition.LogicalRelation.Substitution.Introductions.Erased
   (R : Type-restrictions 𝕄)
   (open Type-restrictions R)
   -- Erased is assumed to be allowed.
-  (Erased-ok@(Unit-ok , Σₚ-ok) : Erased-allowed)
+  {s}
+  (Erased-ok@(Unit-ok , Σ-ok) : Erased-allowed s)
   ⦃ eqrel : EqRelSet R ⦄
   where
 
@@ -35,7 +36,9 @@ open import Definition.Typed.Properties R
 open import Definition.Untyped M hiding (_∷_)
 
 open import Graded.Derived.Erased.Typed.Primitive R Erased-ok
-open import Graded.Derived.Erased.Untyped 𝕄
+open import Graded.Derived.Erased.Untyped 𝕄 s
+
+open import Tools.Function
 
 private variable
   Γ           : Con Term _
@@ -52,12 +55,12 @@ opaque
   ⊩Erased : Γ ⊩⟨ l ⟩ A → Γ ⊩⟨ l ⟩ Erased A
   ⊩Erased {Γ} {A} ⊩A =
     Σᵣ′ _
-      Unit
+      Unit!
       (idRed:*: (Erasedⱼ ⊢A))
       ⊢A
       (Unitⱼ ⊢ΓA Unit-ok)
       (≅-ΠΣ-cong ⊢A (escapeEq ⊩A (reflEq ⊩A))
-         (≅-Unitrefl ⊢ΓA Unit-ok) Σₚ-ok)
+         (≅-Unitrefl ⊢ΓA Unit-ok) Σ-ok)
       (λ ρ∷⊇ ⊢Δ → W.wk ρ∷⊇ ⊢Δ ⊩A)
       (λ _ ⊢Δ _ → Unitᵣ
          (record
@@ -65,7 +68,7 @@ opaque
             ; ok      = Unit-ok
             }))
       (λ ρ∷⊇ ⊢Δ ⊩x ⊩y x≡y → id (Unitⱼ ⊢Δ Unit-ok))
-      Σₚ-ok
+      Σ-ok
     where
     ⊢A : Γ ⊢ A
     ⊢A = escape ⊩A
@@ -80,7 +83,7 @@ opaque
   Erasedᵛ :
     Γ ⊩ᵛ⟨ l ⟩ A / ⊩Γ →
     Γ ⊩ᵛ⟨ l ⟩ Erased A / ⊩Γ
-  Erasedᵛ ⊩A = Σᵛ _ ⊩A (Unitᵛ (_ ∙ ⊩A) Unit-ok) Σₚ-ok
+  Erasedᵛ ⊩A = Σᵛ _ ⊩A (Unitᵛ (_ ∙ ⊩A) Unit-ok) Σ-ok
 
 opaque
   unfolding Erasedᵛ
@@ -102,7 +105,7 @@ opaque
       (λ {k Δ σ} →
          reflᵛ {l = l} _ (Unitᵛ (_ ∙ ⊩ᵛA₁) Unit-ok)
            {k = k} {Δ = Δ} {σ = σ})
-      Σₚ-ok
+      Σ-ok
 
 opaque
 
@@ -122,19 +125,21 @@ opaque
       ⊢Γ : ⊢ Γ
       ⊢Γ = wf (escape ⊩A)
 
-      ⊢star : Γ ⊢ star ∷ Unit
+      ⊢star : Γ ⊢ star s ∷ Unit s
       ⊢star = starⱼ ⊢Γ Unit-ok
 
-      ⊩Unit′ : Γ ⊩⟨ l ⟩ Unit
+      ⊩Unit′ : Γ ⊩⟨ l ⟩ Unit s
       ⊩Unit′ = Unitᵣ record
         { ⇒*-Unit = idRed:*: (Unitⱼ ⊢Γ Unit-ok)
         ; ok      = Unit-ok
         }
 
-      ⊩star : Γ ⊩⟨ l ⟩ star ∷ Unit / ⊩Unit′
+      ⊩star : Γ ⊩⟨ l ⟩ star s ∷ Unit s / ⊩Unit′
       ⊩star = record
-        { d    = idRedTerm:*: ⊢star
-        ; prop = starₙ
+        { n    = _
+        ; d    = idRedTerm:*: ⊢star
+        ; n≡n  = ≅ₜ-starrefl ⊢Γ Unit-ok
+        ; prop = starᵣ
         }
 
 opaque
@@ -148,10 +153,10 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ t ∷ A / ⊩Γ / ⊩A →
     Γ ⊩ᵛ⟨ l ⟩ [ t ] ∷ Erased A / ⊩Γ / Erasedᵛ ⊩A
   []ᵛ {l} {⊩A} t ⊩t =
-    prodᵛ {t = t} {u = star} _ _
+    prodᵛ {t = t} {u = star!} _ _
       (Unitᵛ (_ ∙ ⊩A) Unit-ok)
       ⊩t
-      (starᵛ {l = l} _ Unit-ok) Σₚ-ok
+      (starᵛ {l = l} _ Unit-ok) Σ-ok
 
 opaque
 
@@ -172,28 +177,27 @@ opaque
       ⊩Unit′
       ⊩star
       ⊩star
-      (record
-         { ⊢t = ⊢star
-         ; ⊢u = ⊢star
-         })
+      (reflEqTerm ⊩Unit′ ⊩star)
       (⊩Erased ⊩A)
       where
       ⊢Γ : ⊢ Γ
       ⊢Γ = wf (escape ⊩A)
 
-      ⊢star : Γ ⊢ star ∷ Unit
+      ⊢star : Γ ⊢ star s ∷ Unit s
       ⊢star = starⱼ ⊢Γ Unit-ok
 
-      ⊩Unit′ : Γ ⊩⟨ l ⟩ Unit
+      ⊩Unit′ : Γ ⊩⟨ l ⟩ Unit s
       ⊩Unit′ = Unitᵣ record
         { ⇒*-Unit = idRed:*: (Unitⱼ ⊢Γ Unit-ok)
         ; ok      = Unit-ok
         }
 
-      ⊩star : Γ ⊩⟨ l ⟩ star ∷ Unit / ⊩Unit′
+      ⊩star : Γ ⊩⟨ l ⟩ star s ∷ Unit s / ⊩Unit′
       ⊩star = record
-        { d    = idRedTerm:*: ⊢star
-        ; prop = starₙ
+        { n    = _
+        ; d    = idRedTerm:*: ⊢star
+        ; n≡n  = ≅ₜ-starrefl ⊢Γ Unit-ok
+        ; prop = starᵣ
         }
 
 opaque
@@ -211,8 +215,8 @@ opaque
     prod-congᵛ
       {t = t}
       {t′ = u}
-      {u = star}
-      {u′ = star}
+      {u = star!}
+      {u′ = star!}
       ⊩Γ
       ⊩ᵛA
       (Unitᵛ (_ ∙ ⊩ᵛA) Unit-ok)
@@ -221,8 +225,8 @@ opaque
       ⊩t≡u
       ⊩star
       ⊩star
-      (reflᵗᵛ {t = star} {l = l} ⊩Γ (Unitᵛ ⊩Γ Unit-ok) ⊩star)
-      Σₚ-ok
+      (reflᵗᵛ {t = star!} {l = l} ⊩Γ (Unitᵛ ⊩Γ Unit-ok) ⊩star)
+      Σ-ok
     where
-    ⊩star : Γ ⊩ᵛ⟨ l ⟩ star ∷ Unit / ⊩Γ / Unitᵛ ⊩Γ Unit-ok
+    ⊩star : Γ ⊩ᵛ⟨ l ⟩ star s ∷ Unit s / ⊩Γ / Unitᵛ ⊩Γ Unit-ok
     ⊩star = starᵛ {l = l} ⊩Γ Unit-ok

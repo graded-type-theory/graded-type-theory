@@ -25,7 +25,7 @@ infixr 45 _·ᶜ_
 infixr 45 _*_
 infix  50 _⊛ᶜ_▷_
 infix  10 _≤ᶜ_
-infix  35 _,_≔_
+infixl 35 _,_≔_
 infix  60 _⟨_⟩
 
 private

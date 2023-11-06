@@ -49,6 +49,7 @@ wfTerm (rflⱼ ⊢t) = wfTerm ⊢t
 wfTerm (Jⱼ _ ⊢t _ _ _ _) = wfTerm ⊢t
 wfTerm (Kⱼ ⊢t _ _ _ _) = wfTerm ⊢t
 wfTerm ([]-congⱼ ⊢t _ _ _) = wfTerm ⊢t
+wfTerm (unitrecⱼ _ ⊢t _ _) = wfTerm ⊢t
 
 -- If a type is well-typed with respect to Γ, then Γ is well-formed.
 
@@ -94,6 +95,8 @@ wfEqTerm (K-cong _ _ t₁≡t₂ _ _ _ _) = wfEqTerm t₁≡t₂
 wfEqTerm (K-β ⊢t _ _ _) = wfTerm ⊢t
 wfEqTerm ([]-cong-cong _ t₁≡t₂ _ _ _) = wfEqTerm t₁≡t₂
 wfEqTerm ([]-cong-β ⊢t _ _) = wfTerm ⊢t
+wfEqTerm (unitrec-cong _ t≡t′ _ _) = wfEqTerm t≡t′
+wfEqTerm (unitrec-β _ ⊢u _) = wfTerm ⊢u
 
 -- If a type equality is well-formed with respect to Γ, then Γ is
 -- well-formed.

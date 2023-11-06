@@ -1,12 +1,18 @@
 ------------------------------------------------------------------------
 -- The type constructor Erased
+--
+-- See Graded.Derived.Erased.Eta.Untyped or
+-- Graded.Derived.Erased.Eta.Untyped for the definition of the
+-- projection "erased".
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Definition.Untyped.NotParametrised
 
 module Graded.Derived.Erased.Untyped
   {a} {M : Set a}
   (𝕄 : Modality M)
+  (s : SigmaMode)
   where
 
 open Modality 𝕄
@@ -21,14 +27,9 @@ private variable
 -- The type constructor Erased.
 
 Erased : Term n → Term n
-Erased A = Σₚ 𝟘 , 𝟘 ▷ A ▹ Unit
+Erased A = Σ⟨ s ⟩ 𝟘 , 𝟘 ▷ A ▹ Unit s
 
 -- The constructor [_].
 
 [_] : Term n → Term n
-[ t ] = prodₚ 𝟘 t star
-
--- The projection erased.
-
-erased : Term n → Term n
-erased t = fst 𝟘 t
+[ t ] = prod s 𝟘 t (star s)

@@ -26,7 +26,7 @@ open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Consequences.Substitution R
 open import Definition.Typed.Consequences.Inequality R
 
-open import Graded.Derived.Erased.Untyped 𝕄 as Erased using (Erased)
+import Graded.Derived.Erased.Untyped 𝕄 as Erased
 
 open import Tools.Fin
 open import Tools.Function
@@ -41,7 +41,7 @@ private
     Γ : Con Term n
     p p′ q q′ r : M
     b : BinderMode
-    m m′ : SigmaMode
+    s s′ : SigmaMode
     A B C t u v w : Term _
 
 -- Inversion of U (it has no type).
@@ -59,7 +59,7 @@ inversion-Empty (Emptyⱼ x) = refl (Uⱼ x)
 inversion-Empty (conv x x₁) = trans (sym x₁) (inversion-Empty x)
 
 -- Inversion for the term Unit.
-inversion-Unit-U : Γ ⊢ Unit ∷ C → Γ ⊢ C ≡ U × Unit-allowed
+inversion-Unit-U : Γ ⊢ Unit s ∷ C → Γ ⊢ C ≡ U × Unit-allowed s
 inversion-Unit-U (Unitⱼ ⊢Γ ok) = refl (Uⱼ ⊢Γ) , ok
 inversion-Unit-U (conv ⊢Unit A≡B) =
   case inversion-Unit-U ⊢Unit of λ {
@@ -67,18 +67,18 @@ inversion-Unit-U (conv ⊢Unit A≡B) =
   trans (sym A≡B) A≡U , ok }
 
 -- Inversion for the Unit type.
-inversion-Unit : Γ ⊢ Unit → Unit-allowed
+inversion-Unit : Γ ⊢ Unit s → Unit-allowed s
 inversion-Unit = λ where
   (Unitⱼ _ ok) → ok
   (univ ⊢Unit) → case inversion-Unit-U ⊢Unit of λ where
     (_ , ok) → ok
 
 -- If a term has type Unit, then Unit-allowed holds.
-⊢∷Unit→Unit-allowed : Γ ⊢ t ∷ Unit → Unit-allowed
-⊢∷Unit→Unit-allowed {Γ = Γ} {t = t} =
-  Γ ⊢ t ∷ Unit  →⟨ syntacticTerm ⟩
-  Γ ⊢ Unit      →⟨ inversion-Unit ⟩
-  Unit-allowed  □
+⊢∷Unit→Unit-allowed : Γ ⊢ t ∷ Unit s → Unit-allowed s
+⊢∷Unit→Unit-allowed {Γ = Γ} {t = t} {s = s} =
+  Γ ⊢ t ∷ Unit s  →⟨ syntacticTerm ⟩
+  Γ ⊢ Unit s      →⟨ inversion-Unit ⟩
+  Unit-allowed s  □
 
 -- Inversion for terms that are Π- or Σ-types.
 inversion-ΠΣ-U :
@@ -201,9 +201,9 @@ opaque
   -- A variant of the previous lemma.
 
   inversion-prod-Σ :
-    Γ ⊢ prod m′ p′ t u ∷ Σ⟨ m ⟩ p , q ▷ A ▹ B →
+    Γ ⊢ prod s′ p′ t u ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B →
     Γ ⊢ t ∷ A × Γ ⊢ u ∷ B [ t ]₀ ×
-    m PE.≡ m′ × p PE.≡ p′ × Σ-allowed m p q
+    s PE.≡ s′ × p PE.≡ p′ × Σ-allowed s p q
   inversion-prod-Σ ⊢prod =
     case inversion-prod ⊢prod of λ {
       (_ , _ , _ , _ , _ , ⊢t , ⊢u , Σ≡Σ , ok) →
@@ -255,12 +255,24 @@ inversion-prodrec (conv x x₁) =
   in  F , G , q , a , b , c , d , e , trans (sym x₁) f
 
 -- Inversion of star.
-inversion-star : Γ ⊢ star ∷ C → Γ ⊢ C ≡ Unit × Unit-allowed
+inversion-star : Γ ⊢ star s ∷ C → Γ ⊢ C ≡ Unit s × Unit-allowed s
 inversion-star (starⱼ ⊢Γ ok) = refl (Unitⱼ ⊢Γ ok) , ok
 inversion-star (conv ⊢star A≡B) =
   case inversion-star ⊢star of λ {
     (A≡Unit , ok) →
   trans (sym A≡B) A≡Unit , ok }
+
+-- Inversion of unitrec
+inversion-unitrec : Γ ⊢ unitrec p q A t u ∷ C
+                  → (Γ ∙ Unitʷ ⊢ A)
+                  × (Γ ⊢ t ∷ Unitʷ)
+                  × (Γ ⊢ u ∷ A [ starʷ ]₀)
+                  × (Γ ⊢ C ≡ A [ t ]₀)
+inversion-unitrec (unitrecⱼ ⊢A ⊢t ⊢u _) =
+  ⊢A , ⊢t , ⊢u , refl (substType ⊢A ⊢t)
+inversion-unitrec (conv x x₁) =
+  let ⊢A , ⊢t , ⊢u , x = inversion-unitrec x
+  in  ⊢A , ⊢t , ⊢u , trans (sym x₁) x
 
 -- Inversion of emptyrec
 inversion-emptyrec : ∀ {C A t} → Γ ⊢ emptyrec p A t ∷ C
@@ -373,13 +385,14 @@ opaque
   -- Inversion for []-cong.
 
   inversion-[]-cong :
-    Γ ⊢ []-cong A t u v ∷ B →
-    (Γ ⊢ A) ×
-    Γ ⊢ t ∷ A ×
-    Γ ⊢ u ∷ A ×
-    Γ ⊢ v ∷ Id A t u ×
-    []-cong-allowed ×
-    Γ ⊢ B ≡ Id (Erased A) Erased.[ t ] Erased.[ u ]
+    Γ ⊢ []-cong s A t u v ∷ B →
+    let open Erased s in
+      (Γ ⊢ A) ×
+      Γ ⊢ t ∷ A ×
+      Γ ⊢ u ∷ A ×
+      Γ ⊢ v ∷ Id A t u ×
+      []-cong-allowed s ×
+      Γ ⊢ B ≡ Id (Erased A) ([ t ]) ([ u ])
   inversion-[]-cong = λ where
     ⊢[]-cong@([]-congⱼ ⊢t ⊢u ⊢v ok) →
         syntacticTerm ⊢t , ⊢t , ⊢u , ⊢v , ok

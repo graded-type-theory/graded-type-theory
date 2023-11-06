@@ -15,6 +15,7 @@ module Graded.Substitution.Properties
   where
 
 open Modality 𝕄
+open Usage-restrictions R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
@@ -831,8 +832,26 @@ substₘ-lemma₀ Ψ Ψ▶σ (emptyrecₘ γ▸t δ▸A) =
          (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) (substₘ-lemma₀ Ψ Ψ▶σ δ▸A)))
     (≤ᶜ-reflexive (≈ᶜ-sym (·ᶜ-zeroʳ _)))
 
-substₘ-lemma₀ _ _ starₘ =
-  starₘ
+substₘ-lemma₀ _ _ starʷₘ =
+  starʷₘ
+
+substₘ-lemma₀ _ _ (starˢₘ _) =
+  sub (starˢₘ (λ _ → ≈ᶜ-refl))
+      (≤ᶜ-reflexive (≈ᶜ-sym (·ᶜ-zeroˡ 𝟘ᶜ)))
+
+substₘ-lemma₀ ⦃ ok = ok ⦄ Ψ Ψ▶σ (unitrecₘ {p = p} {η = η} {q = q} γ▸t δ▸u η▸A ok′) =
+  let γ′▸t = substₘ-lemma₀ Ψ Ψ▶σ γ▸t
+      δ′▸u = substₘ-lemma₀ Ψ Ψ▶σ δ▸u
+      η′▸A = sub (▸-cong (sym 𝟘ᵐ?≡𝟘ᵐ) (substₘ-lemma₀ (liftSubstₘ Ψ) (wf-liftSubstₘ {mo = 𝟘ᵐ} Ψ▶σ) η▸A))
+                 (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+                   𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · q  ≈⟨ ≈ᶜ-refl ∙ ·-congʳ (⌜𝟘ᵐ?⌝≡𝟘 ok) ⟩
+                   𝟘ᶜ ∙ 𝟘 · q        ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ q ⟩
+                   𝟘ᶜ                ∎)
+  in  sub (unitrecₘ γ′▸t δ′▸u η′▸A ok′)
+          let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+            𝟘ᶜ             ≈˘⟨ +ᶜ-identityˡ _ ⟩
+            𝟘ᶜ +ᶜ 𝟘ᶜ       ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
+            p ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎
 
 substₘ-lemma₀ Ψ Ψ▶σ (Idₘ ok ▸A ▸t ▸u) = sub
   (Idₘ ok
@@ -1162,9 +1181,26 @@ substₘ-lemma₁
         (substₘ-lemma₁ not-ok Ψ Ψ▶σ δ▸A)))
   (≤ᶜ-reflexive (<*-distrib-·ᶜ Ψ _ γ))
 
-substₘ-lemma₁ _ Ψ _ starₘ = sub
+substₘ-lemma₁ _ Ψ _ starʷₘ = sub
   starₘ
   (≤ᶜ-reflexive (<*-zeroˡ Ψ))
+
+substₘ-lemma₁ {mo = 𝟙ᵐ} _ Ψ _ (starˢₘ {γ = γ} prop) = sub
+  (starˢₘ (λ ns → ≈ᶜ-trans (≈ᶜ-sym (<*-zeroˡ Ψ)) (<*-cong Ψ (prop ns))))
+  (≤ᶜ-reflexive (<*-distrib-·ᶜ Ψ 𝟙 γ ))
+
+substₘ-lemma₁ {mo = 𝟙ᵐ} not-ok Ψ Ψ▶σ
+              (unitrecₘ {γ = γ} {p = p} {δ = δ} {η = η} {q = q} γ▸t δ▸u η▸A ok) =
+  let η′▸A = sub (▸-cong (sym (only-𝟙ᵐ-without-𝟘ᵐ not-ok))
+                   (substₘ-lemma₁ not-ok (liftSubstₘ Ψ) (wf-liftSubstₘ {mo = 𝟙ᵐ} Ψ▶σ) η▸A))
+                 (≤ᶜ-reflexive (≈ᶜ-sym (liftSubstₘ-app Ψ η _)))
+  in  sub (unitrecₘ (▸-without-𝟘ᵐ not-ok (substₘ-lemma₁ not-ok Ψ Ψ▶σ γ▸t))
+                    (substₘ-lemma₁ not-ok Ψ Ψ▶σ δ▸u)
+                    η′▸A ok)
+      let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+        (p ·ᶜ γ +ᶜ δ) <* Ψ       ≈⟨ <*-distrib-+ᶜ Ψ (p ·ᶜ γ) δ ⟩
+        (p ·ᶜ γ) <* Ψ +ᶜ δ <* Ψ  ≈⟨ +ᶜ-congʳ (<*-distrib-·ᶜ Ψ p γ) ⟩
+        p ·ᶜ γ <* Ψ +ᶜ δ <* Ψ    ∎
 
 substₘ-lemma₁ not-ok Ψ Ψ▶σ (Idₘ {δ = δ} ok ▸A ▸t ▸u) = sub
   (Idₘ ok
@@ -1617,9 +1653,36 @@ substₘ-lemma {mo = mo} Ψ Ψ▶σ (emptyrecₘ {γ = γ} {p = p} γ▸t δ▸A
          p ·ᶜ γ <* Ψ    ≈⟨ ≡𝟘→·<*≈ᶜ·𝟘 {δ = γ} Ψ p≡𝟘 ⟩
          p ·ᶜ 𝟘ᶜ        ∎)
 
-substₘ-lemma Ψ Ψ▶σ starₘ = sub
-  starₘ
+substₘ-lemma Ψ Ψ▶σ starʷₘ = sub
+  starʷₘ
   (≤ᶜ-reflexive (<*-zeroˡ Ψ))
+
+substₘ-lemma Ψ _ (starˢₘ {γ = γ} prop) = sub
+  (starˢₘ (λ ns → ≈ᶜ-trans (≈ᶜ-sym (<*-zeroˡ Ψ)) (<*-cong Ψ (prop ns))))
+  (≤ᶜ-reflexive (<*-distrib-·ᶜ Ψ _ γ))
+
+substₘ-lemma {mo = mo} Ψ Ψ▶σ (unitrecₘ {γ = γ} {p = p} {δ = δ} {η = η} γ▸t δ▸u η▸A ok) =
+  let ▸u = substₘ-lemma Ψ (▶-⌞+ᶜ⌟ʳ Ψ (_ ·ᶜ γ) Ψ▶σ) δ▸u
+      ▸A = substₘ-lemma-∙⌜𝟘ᵐ?⌝·▸[𝟘ᵐ?] Ψ Ψ▶σ η▸A .proj₂
+      le = begin
+        (p ·ᶜ γ +ᶜ δ) <* Ψ       ≈⟨ <*-distrib-+ᶜ Ψ (p ·ᶜ γ) δ ⟩
+        (p ·ᶜ γ) <* Ψ +ᶜ δ <* Ψ  ≈⟨ +ᶜ-congʳ (<*-distrib-·ᶜ Ψ p γ) ⟩
+        p ·ᶜ γ <* Ψ +ᶜ δ <* Ψ    ∎
+  in  case ▶-⌞·⌟ Ψ γ (▶-⌞+ᶜ⌟ˡ Ψ (p ·ᶜ γ) Ψ▶σ) of λ where
+    (inj₁ (p≡𝟘 , ok′)) →
+      let ▸t = ▸-cong (≡𝟘→𝟘ᵐ≡ᵐ· ⦃ ok = ok′ ⦄ mo p≡𝟘) (substₘ-lemma₀ ⦃ ok = ok′ ⦄ Ψ Ψ▶σ γ▸t)
+      in  sub (unitrecₘ ▸t ▸u ▸A ok)
+              (begin
+                (p ·ᶜ γ +ᶜ δ) <* Ψ     ≤⟨ le ⟩
+                p ·ᶜ γ <* Ψ +ᶜ δ <* Ψ  ≡⟨ cong (λ p → p ·ᶜ γ <* Ψ +ᶜ δ <* Ψ) p≡𝟘 ⟩
+                𝟘 ·ᶜ γ <* Ψ +ᶜ δ <* Ψ  ≈⟨ +ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
+                𝟘ᶜ +ᶜ δ <* Ψ           ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
+                p ·ᶜ 𝟘ᶜ +ᶜ δ <* Ψ ∎)
+    (inj₂ Ψ▶σ′) →
+      let ▸t = substₘ-lemma Ψ Ψ▶σ′ γ▸t
+      in  sub (unitrecₘ ▸t ▸u ▸A ok) le
+  where
+  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
 substₘ-lemma Ψ Ψ▶σ (Idₘ {δ = δ} ok ▸A ▸t ▸u) = sub
   (Idₘ ok
@@ -1747,7 +1810,8 @@ sgSubstₘ-lemma₂ {γ = γ} {mo = 𝟙ᵐ} {p = p} {δ = δ} γ▸t δ▸u = s
      γ +ᶜ (𝟙 · p) ·ᶜ δ  ∎)
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-sgSubstₘ-lemma₂ {γ = γ} {mo = 𝟘ᵐ} {p = p} {δ = δ} γ▸t δ▸u = sub
+sgSubstₘ-lemma₂ {γ = γ} {mo = 𝟘ᵐ} {p = p} {δ = δ} γ▸t δ▸u =
+  sub
   (sgSubstₘ-lemma₁ γ▸t δ▸u)
   (begin
      γ +ᶜ p ·ᶜ δ        ≤⟨ +ᶜ-monotoneʳ (·ᶜ-monotoneʳ (▸-𝟘ᵐ δ▸u)) ⟩
@@ -1930,6 +1994,7 @@ subst-calc-correct′ (Ψ ⊙ γ) Ψ▶σ (x +1) =
 
 substₘ-calc-upper-bound :
   ⦃ has-nr : Dedicated-nr ⦄ →
+  ⦃ ¬Starˢ-sink ⦄ →
   {γ : Conₘ m} (σ : Subst m n) (x : Fin n) →
   γ ▸[ mos x ] σ x → γ ≤ᶜ  (𝟘ᶜ , x ≔ 𝟙) <* ∥ σ ∥ mos
 substₘ-calc-upper-bound σ x γ▸σx =

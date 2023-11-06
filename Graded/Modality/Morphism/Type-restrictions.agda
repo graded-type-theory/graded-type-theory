@@ -20,6 +20,7 @@ private variable
   M M₁ M₂             : Set _
   tr₁ tr₂ tr-Σ₁ tr-Σ₂ : M₁ → M₂
   p q                 : M
+  s                   : SigmaMode
 
 ------------------------------------------------------------------------
 -- Are-preserving-type-restrictions and
@@ -37,9 +38,9 @@ record Are-preserving-type-restrictions
     module R₂ = Type-restrictions R₂
 
   field
-    -- If R₁.Unit-allowed holds, then R₂.Unit-allowed holds.
+    -- If R₁.Unit-allowed s holds, then R₂.Unit-allowed s holds.
     Unit-preserved :
-      R₁.Unit-allowed → R₂.Unit-allowed
+      R₁.Unit-allowed s → R₂.Unit-allowed s
 
     -- The functions tr and tr-Σ preserve the ΠΣ-allowed property in a
     -- certain way.
@@ -53,7 +54,7 @@ record Are-preserving-type-restrictions
 
     -- If R₁.[]-cong-allowed holds, then R₂.[]-cong-allowed holds.
     []-cong-preserved :
-      R₁.[]-cong-allowed → R₂.[]-cong-allowed
+      R₁.[]-cong-allowed s → R₂.[]-cong-allowed s
 
 -- The property of reflecting Type-restrictions.
 
@@ -67,9 +68,9 @@ record Are-reflecting-type-restrictions
     module R₂ = Type-restrictions R₂
 
   field
-    -- If R₂.Unit-allowed holds, then R₁.Unit-allowed holds.
+    -- If R₂.Unit-allowed s holds, then R₁.Unit-allowed s holds.
     Unit-reflected :
-      R₂.Unit-allowed → R₁.Unit-allowed
+      R₂.Unit-allowed s → R₁.Unit-allowed s
 
     -- The functions tr and tr-Σ reflect the ΠΣ-allowed property in a
     -- certain way.
@@ -83,7 +84,7 @@ record Are-reflecting-type-restrictions
 
     -- If R₂.[]-cong-allowed holds, then R₁.[]-cong-allowed holds.
     []-cong-reflected :
-      R₂.[]-cong-allowed → R₁.[]-cong-allowed
+      R₂.[]-cong-allowed s → R₁.[]-cong-allowed s
 
 ------------------------------------------------------------------------
 -- Identity

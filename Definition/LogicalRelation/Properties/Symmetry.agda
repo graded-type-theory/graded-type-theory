@@ -52,6 +52,13 @@ symEmpty-prop : ∀ {k k′}
               → [Empty]-prop Γ k′ k
 symEmpty-prop (ne prop) = ne (symNeutralTerm prop)
 
+symUnit-prop : ∀ {k k′}
+             → [Unitʷ]-prop Γ k k′
+             → [Unitʷ]-prop Γ k′ k
+symUnit-prop starᵣ = starᵣ
+symUnit-prop (ne prop) = ne (symNeutralTerm prop)
+
+
 -- Helper function for symmetry of type equality using shape views.
 symEqT :
   ∀ {Γ : Con Term n} {A B l l′}
@@ -149,8 +156,10 @@ symEqTerm (ℕᵣ D) (ℕₜ₌ k k′ d d′ t≡u prop) =
   ℕₜ₌ k′ k d′ d (≅ₜ-sym t≡u) (symNatural-prop prop)
 symEqTerm (Emptyᵣ D) (Emptyₜ₌ k k′ d d′ t≡u prop) =
   Emptyₜ₌ k′ k d′ d (≅ₜ-sym t≡u) (symEmpty-prop prop)
-symEqTerm (Unitᵣ D) (Unitₜ₌ ⊢t ⊢u) =
+symEqTerm (Unitᵣ {s = Σₚ} D) (Unitₜ₌ ⊢t ⊢u) =
   Unitₜ₌ ⊢u ⊢t
+symEqTerm (Unitᵣ {s = Σᵣ} D) (Unitₜ₌ k k′ d d′ k≡k′ prop) =
+  Unitₜ₌ k′ k d′ d (≅ₜ-sym k≡k′) (symUnit-prop prop)
 symEqTerm (ne′ K D neK K≡K) (neₜ₌ k m d d′ nf) =
   neₜ₌ m k d′ d (symNeutralTerm nf)
 symEqTerm (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext _)

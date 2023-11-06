@@ -49,10 +49,10 @@ var-only-equal-to-itself =
     _        _ (univ _ _ x≡t)     → [conv↓]-lemma x≡t
     _        _ (Σᵣ-ins _ _ x≡t)   → ~↓-lemma x≡t
     _        _ (Empty-ins x≡t)    → ~↓-lemma x≡t
+    _        _ (Unit-ins x≡t)     → ~↓-lemma x≡t
     _        _ (ℕ-ins x≡t)        → ~↓-lemma x≡t
     _        _ (Id-ins _ x≡t)     → ~↓-lemma x≡t
     _        _ (ne-ins _ _ _ x≡t) → ~↓-lemma x≡t
-    (neₙ ()) _ (Unit-ins _)
     (neₙ ()) _ (η-eq _ _ _ _ _)
     (neₙ ()) _ (Σ-η _ _ _ _ _ _)
     (neₙ ()) _ (η-unit _ _ _ _)

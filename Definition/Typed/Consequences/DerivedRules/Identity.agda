@@ -27,7 +27,7 @@ import Definition.Typed.RedSteps R as R
 open import Definition.Typed.Weakening R
 open import Definition.Untyped.Properties M
 
-open import Graded.Derived.Erased.Untyped 𝕄 as Erased using (Erased)
+import Graded.Derived.Erased.Untyped 𝕄 as Erased
 
 open import Tools.Fin
 open import Tools.Function
@@ -38,6 +38,7 @@ private variable
   Γ Γ₁ Γ₂                                            : Con Term _
   A A₁ A₂ B B₁ B₂ t t₁ t₂ t′ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
   p q                                                : M
+  s                                                  : SigmaMode
 
 ------------------------------------------------------------------------
 -- Lemmas related to rfl
@@ -358,9 +359,10 @@ opaque
   -- A variant of the typing rule for []-cong.
 
   []-congⱼ′ :
-    []-cong-allowed →
+    []-cong-allowed s →
     Γ ⊢ v ∷ Id A t u →
-    Γ ⊢ []-cong A t u v ∷ Id (Erased A) Erased.[ t ] Erased.[ u ]
+    let open Erased s in
+      Γ ⊢ []-cong s A t u v ∷ Id (Erased A) ([ t ]) ([ u ])
   []-congⱼ′ ok ⊢v =
     case inversion-Id (syntacticTerm ⊢v) of λ {
       (_ , ⊢t , ⊢u) →
@@ -372,9 +374,10 @@ opaque
 
   []-cong-subst′ :
     Γ ⊢ v₁ ⇒ v₂ ∷ Id A t u →
-    []-cong-allowed →
-    Γ ⊢ []-cong A t u v₁ ⇒ []-cong A t u v₂ ∷
-      Id (Erased A) Erased.[ t ] Erased.[ u ]
+    []-cong-allowed s →
+    let open Erased s in
+      Γ ⊢ []-cong s A t u v₁ ⇒ []-cong s A t u v₂ ∷
+        Id (Erased A) ([ t ]) ([ u ])
   []-cong-subst′ v₁⇒v₂ =
     case inversion-Id (syntacticTerm (redFirstTerm v₁⇒v₂)) of λ {
       (⊢A , ⊢t , ⊢u) →
@@ -386,9 +389,10 @@ opaque
 
   []-cong-subst* :
     Γ ⊢ v₁ ⇒* v₂ ∷ Id A t u →
-    []-cong-allowed →
-    Γ ⊢ []-cong A t u v₁ ⇒* []-cong A t u v₂ ∷
-      Id (Erased A) Erased.[ t ] Erased.[ u ]
+    []-cong-allowed s →
+    let open Erased s in
+      Γ ⊢ []-cong s A t u v₁ ⇒* []-cong s A t u v₂ ∷
+        Id (Erased A) ([ t ]) ([ u ])
   []-cong-subst* v₁⇒*v₂ =
     case inversion-Id (syntacticTerm (redFirst*Term v₁⇒*v₂)) of λ {
       (⊢A , ⊢t , ⊢u) →
@@ -400,9 +404,10 @@ opaque
 
   []-cong-β-⇒ :
     Γ ⊢ t ≡ t′ ∷ A →
-    []-cong-allowed →
-    Γ ⊢ []-cong A t t′ rfl ⇒ rfl ∷
-      Id (Erased A) Erased.[ t ] Erased.[ t′ ]
+    []-cong-allowed s →
+    let open Erased s in
+      Γ ⊢ []-cong s A t t′ rfl ⇒ rfl ∷
+        Id (Erased A) ([ t ]) ([ t′ ])
   []-cong-β-⇒ t≡t′ =
     case syntacticEqTerm t≡t′ of λ {
       (⊢A , ⊢t , ⊢t′) →

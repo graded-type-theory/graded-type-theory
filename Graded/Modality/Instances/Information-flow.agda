@@ -21,12 +21,10 @@ open import Graded.Modality.Properties.Has-well-behaved-zero
 import Graded.Modality.Properties.Star as Star
 open import Graded.Modality.Variant lzero
 
-open import Definition.Typed.Restrictions
 open import Definition.Untyped
 
-private variable
-  variant : Modality-variant
-  trs     : Type-restrictions _
+open import Definition.Typed.Restrictions
+import Graded.Usage.Restrictions
 
 -- Three information levels: low (public), medium (private), and high
 -- (more private).
@@ -34,11 +32,15 @@ private variable
 data Level : Set where
   L M H : Level
 
-open Graded.Modality Level
-open Tools.Algebra   Level
+open Graded.Usage.Restrictions     Level
+open Graded.Modality               Level
+open Tools.Algebra                 Level
 
 private variable
-  p q r : Level
+  p q r   : Level
+  variant : Modality-variant
+  trs     : Type-restrictions _
+  urs     : Usage-restrictions
 
 ------------------------------------------------------------------------
 -- Operators
@@ -760,8 +762,8 @@ suitable-for-full-reduction {variant = variant} trs =
           ΠΣ-allowed b p q ×
           ¬ (b ≡ BMΣ Σₚ × p ≡ M) ×
           (b ≡ BMΣ Σₚ × p ≡ H → T 𝟘ᵐ-allowed)
-      ; []-cong-allowed =
-          []-cong-allowed × T 𝟘ᵐ-allowed
+      ; []-cong-allowed = λ s →
+          []-cong-allowed s × T 𝟘ᵐ-allowed
       ; []-cong→Erased = λ (ok₁ , ok₂) →
             []-cong→Erased ok₁ .proj₁ , []-cong→Erased ok₁ .proj₂
           , (λ { (_ , ()) }) , (λ _ → ok₂)
@@ -779,9 +781,9 @@ suitable-for-full-reduction {variant = variant} trs =
 
 full-reduction-assumptions :
   Suitable-for-full-reduction variant trs →
-  Full-reduction-assumptions trs
+  Full-reduction-assumptions trs urs
 full-reduction-assumptions (¬M , H→𝟘ᵐ) = record
-  { 𝟙≤𝟘    = λ _ → refl
+  { sink⊎𝟙≤𝟘    = λ _ → inj₂ refl
   ; ≡𝟙⊎𝟙≤𝟘 = λ where
       {p = L} _  → inj₁ refl
       {p = M} ok → ⊥-elim (¬M _ ok)

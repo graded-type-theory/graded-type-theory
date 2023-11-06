@@ -64,8 +64,9 @@ data Kind : (ns : List Nat) → Set a where
   Suckind    : Kind (0 ∷ [])
   Natreckind : (p q r : M) → Kind (1 ∷ 0 ∷ 2 ∷ 0 ∷ [])
 
-  Unitkind : Kind []
-  Starkind : Kind []
+  Unitkind : SigmaMode → Kind []
+  Starkind : SigmaMode → Kind []
+  Unitreckind : (p q : M) → Kind (1 ∷ 0 ∷ 0 ∷ [])
 
   Emptykind    : Kind []
   Emptyreckind : (p : M) → Kind (0 ∷ 0 ∷ [])
@@ -74,13 +75,13 @@ data Kind : (ns : List Nat) → Set a where
   Reflkind    : Kind []
   Jkind       : M → M → Kind (0 ∷ 0 ∷ 2 ∷ 0 ∷ 0 ∷ 0 ∷ [])
   Kkind       : M → Kind (0 ∷ 0 ∷ 1 ∷ 0 ∷ 0 ∷ [])
-  Boxcongkind : Kind (0 ∷ 0 ∷ 0 ∷ 0 ∷ [])
+  Boxcongkind : SigmaMode → Kind (0 ∷ 0 ∷ 0 ∷ 0 ∷ [])
 
 -- The type of terms is parametrised by the number of free variables.
 -- A term is either a variable (a de Bruijn index) or a generic term,
 -- consisting of a kind and a list of sub-terms.
 --
--- A term (gen k (n₁ ∷ … ∷ nₖ)) consists of k sub-terms (possibly zero)
+-- A term (gen k (n₁ ∷ … ∷ nₘ)) consists of m sub-terms (possibly zero)
 -- each binding nᵢ variables.
 
 data Term (n : Nat) : Set a where
@@ -103,7 +104,10 @@ private
 pattern U = gen Ukind []
 pattern ℕ = gen Natkind []
 pattern Empty = gen Emptykind []
-pattern Unit = gen Unitkind []
+pattern Unit! = gen (Unitkind _) []
+pattern Unit s = gen (Unitkind s) []
+pattern Unitʷ = gen (Unitkind Σᵣ) []
+pattern Unitˢ = gen (Unitkind Σₚ) []
 
 pattern ΠΣ⟨_⟩_,_▷_▹_ b p q F G = gen (Binderkind b p q) (F ∷ G ∷ [])
 pattern Π_,_▷_▹_ p q F G = gen (Binderkind BMΠ p q) (F ∷ G ∷ [])
@@ -129,14 +133,21 @@ pattern zero = gen Zerokind []
 pattern suc t = gen Suckind (t ∷ [])
 pattern natrec p q r A z s n = gen (Natreckind p q r) (A ∷ z ∷ s ∷ n ∷ [])
 
-pattern star = gen Starkind []
+pattern star! = gen (Starkind _) []
+pattern star s = gen (Starkind s) []
+pattern starʷ = gen (Starkind Σᵣ) []
+pattern starˢ = gen (Starkind Σₚ) []
+pattern unitrec p q A t u = gen (Unitreckind p q) (A ∷ t ∷ u ∷ [])
 pattern emptyrec p A t = gen (Emptyreckind p) (A ∷ t ∷ [])
 
 pattern Id A t u = gen Idkind (A ∷ t ∷ u ∷ [])
 pattern rfl = gen Reflkind []
 pattern J p q A t B u v w = gen (Jkind p q) (A ∷ t ∷ B ∷ u ∷ v ∷ w ∷ [])
 pattern K p A t B u v = gen (Kkind p) (A ∷ t ∷ B ∷ u ∷ v ∷ [])
-pattern []-cong A t u v = gen Boxcongkind (A ∷ t ∷ u ∷ v ∷ [])
+pattern []-cong! A t u v = gen (Boxcongkind _) (A ∷ t ∷ u ∷ v ∷ [])
+pattern []-cong m A t u v = gen (Boxcongkind m) (A ∷ t ∷ u ∷ v ∷ [])
+pattern []-congʷ A t u v = gen (Boxcongkind Σᵣ) (A ∷ t ∷ u ∷ v ∷ [])
+pattern []-congˢ A t u v = gen (Boxcongkind Σₚ) (A ∷ t ∷ u ∷ v ∷ [])
 
 
 data BindingType : Set a where
@@ -197,10 +208,10 @@ data Neutral : Term n → Set a where
   natrecₙ   : Neutral v   → Neutral (natrec p q r G t u v)
   prodrecₙ  : Neutral t   → Neutral (prodrec r p q A t u)
   emptyrecₙ : Neutral t   → Neutral (emptyrec p A t)
+  unitrecₙ  : Neutral t   → Neutral (unitrec p q A t u)
   Jₙ        : Neutral w   → Neutral (J p q A t B u v w)
   Kₙ        : Neutral v   → Neutral (K p A t B u v)
-  []-congₙ  : Neutral v   → Neutral ([]-cong A t u v)
-
+  []-congₙ  : Neutral v   → Neutral ([]-cong s A t u v)
 
 -- Weak head normal forms (whnfs).
 
@@ -212,7 +223,7 @@ data Whnf {n : Nat} : Term n → Set a where
   Uₙ     : Whnf U
   ΠΣₙ    : Whnf (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
   ℕₙ     : Whnf ℕ
-  Unitₙ  : Whnf Unit
+  Unitₙ  : Whnf (Unit s)
   Emptyₙ : Whnf Empty
   Idₙ    : Whnf (Id A t u)
 
@@ -220,7 +231,7 @@ data Whnf {n : Nat} : Term n → Set a where
   lamₙ  : Whnf (lam p t)
   zeroₙ : Whnf zero
   sucₙ  : Whnf (suc t)
-  starₙ : Whnf star
+  starₙ : Whnf (star s)
   prodₙ : Whnf (prod s p t u)
   rflₙ  : Whnf rfl
 
@@ -242,7 +253,7 @@ U≢ne () PE.refl
 Empty≢ne : Neutral A → Empty PE.≢ A
 Empty≢ne () PE.refl
 
-Unit≢ne : Neutral A → Unit PE.≢ A
+Unit≢ne : Neutral A → Unit s PE.≢ A
 Unit≢ne () PE.refl
 
 B≢ne : ∀ W → Neutral A → ⟦ W ⟧ F ▹ G PE.≢ A
@@ -280,11 +291,11 @@ Empty≢ΠΣ : ∀ b → Empty PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
 Empty≢ΠΣ BMΠ ()
 Empty≢ΠΣ (BMΣ _) ()
 
-Unit≢B : ∀ W → Unit PE.≢ ⟦ W ⟧ F ▹ G
+Unit≢B : ∀ W → Unit s PE.≢ ⟦ W ⟧ F ▹ G
 Unit≢B (BΠ p q) ()
 Unit≢B (BΣ m p q) ()
 
-Unit≢ΠΣ : ∀ b → Unit PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
+Unit≢ΠΣ : ∀ b → Unit s PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
 Unit≢ΠΣ BMΠ ()
 Unit≢ΠΣ (BMΣ _) ()
 
@@ -314,6 +325,9 @@ prod≢ne () PE.refl
 rfl≢ne : Neutral t → rfl PE.≢ t
 rfl≢ne () PE.refl
 
+star≢ne : Neutral t → star s PE.≢ t
+star≢ne () PE.refl
+
 -- Several views on whnfs (note: not recursive).
 
 -- A whnf of type ℕ is either zero, suc t, or neutral.
@@ -331,7 +345,7 @@ data Type {n : Nat} : Term n → Set a where
   ΠΣₙ    :             Type (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
   ℕₙ     :             Type ℕ
   Emptyₙ :             Type Empty
-  Unitₙ  :             Type Unit
+  Unitₙ  :             Type (Unit s)
   Idₙ    :             Type (Id A t u)
   ne     : Neutral t → Type t
 
@@ -354,7 +368,7 @@ data Product {n : Nat} : Term n → Set a where
 -- A WHNF of type Unit is either star or a neutral term.
 
 data Star {n : Nat} : Term n → Set a where
-  starₙ : Star star
+  starₙ : Star (star s)
   ne    : Neutral t → Star t
 
 -- A WHNF of type Id A t u is either rfl or a neutral term.
@@ -428,6 +442,7 @@ data No-η-equality {n : Nat} : Term n → Set a where
   Σᵣₙ    : No-η-equality (Σᵣ p , q ▷ A ▹ B)
   Emptyₙ : No-η-equality Empty
   ℕₙ     : No-η-equality ℕ
+  Unitʷₙ : No-η-equality Unitʷ
   Idₙ    : No-η-equality (Id A t u)
   neₙ    : Neutral A → No-η-equality A
 
@@ -439,6 +454,7 @@ No-η-equality→Whnf = λ where
   Σᵣₙ     → ΠΣₙ
   Emptyₙ  → Emptyₙ
   ℕₙ      → ℕₙ
+  Unitʷₙ  → Unitₙ
   Idₙ     → Idₙ
   (neₙ n) → ne n
 
@@ -474,6 +490,7 @@ wkNeutral ρ (sndₙ n)      = sndₙ (wkNeutral ρ n)
 wkNeutral ρ (natrecₙ n)   = natrecₙ (wkNeutral ρ n)
 wkNeutral ρ (prodrecₙ n)  = prodrecₙ (wkNeutral ρ n)
 wkNeutral ρ (emptyrecₙ e) = emptyrecₙ (wkNeutral ρ e)
+wkNeutral ρ (unitrecₙ n)  = unitrecₙ (wkNeutral ρ n)
 wkNeutral ρ (Jₙ n)        = Jₙ (wkNeutral ρ n)
 wkNeutral ρ (Kₙ n)        = Kₙ (wkNeutral ρ n)
 wkNeutral ρ ([]-congₙ n)  = []-congₙ (wkNeutral ρ n)

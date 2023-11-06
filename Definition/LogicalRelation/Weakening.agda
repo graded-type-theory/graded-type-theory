@@ -105,16 +105,33 @@ wkEqTermEmpty {ρ = ρ} [ρ] ⊢Δ (Emptyₜ₌ k k′ d d′ t≡u prop) =
       (wk[Empty]-prop [ρ] ⊢Δ prop)
 
 -- Unit
-wkTermUnit : ∀ {n} → ρ ∷ Δ ⊇ Γ → (⊢Δ : ⊢ Δ)
-           → Γ ⊩Unit n ∷Unit → Δ ⊩Unit U.wk ρ n ∷Unit
-wkTermUnit {ρ = ρ} [ρ] ⊢Δ (Unitₜ n d prop) =
-  Unitₜ (U.wk ρ n) (wkRed:*:Term [ρ] ⊢Δ d) (wkWhnf ρ prop)
+wkUnit-prop : ∀ {s t} → ρ ∷ Δ ⊇ Γ → (⊢Δ : ⊢ Δ)
+            → Unit-prop Γ s t
+            → Unit-prop Δ s (U.wk ρ t)
+wkUnit-prop [ρ] ⊢Δ starᵣ = starᵣ
+wkUnit-prop [ρ] ⊢Δ (ne x) = ne (wkTermNe [ρ] ⊢Δ x)
 
-wkEqTermUnit : ∀ {t u} → ρ ∷ Δ ⊇ Γ → (⊢Δ : ⊢ Δ)
-          → Γ ⊩Unit t ≡ u ∷Unit
-          → Δ ⊩Unit U.wk ρ t ≡ U.wk ρ u ∷Unit
-wkEqTermUnit {ρ = ρ} [ρ] ⊢Δ (Unitₜ₌ ⊢t ⊢u) =
+wk[Unitʷ]-prop : ∀ {t u} → ρ ∷ Δ ⊇ Γ → (⊢Δ : ⊢ Δ)
+               → [Unitʷ]-prop Γ t u
+               → [Unitʷ]-prop Δ (U.wk ρ t) (U.wk ρ u)
+wk[Unitʷ]-prop [ρ] ⊢Δ starᵣ = starᵣ
+wk[Unitʷ]-prop [ρ] ⊢Δ (ne x) = ne (wkEqTermNe [ρ] ⊢Δ x)
+
+wkTermUnit : ∀ {n s} → ρ ∷ Δ ⊇ Γ → (⊢Δ : ⊢ Δ)
+           → Γ ⊩Unit⟨ s ⟩ n ∷Unit → Δ ⊩Unit⟨ s ⟩ U.wk ρ n ∷Unit
+wkTermUnit {ρ = ρ} [ρ] ⊢Δ (Unitₜ n d n≡n prop) =
+  Unitₜ (U.wk ρ n) (wkRed:*:Term [ρ] ⊢Δ d)
+        (≅ₜ-wk [ρ] ⊢Δ n≡n) (wkUnit-prop [ρ] ⊢Δ prop)
+
+wkEqTermUnit : ∀ {t u s} → ρ ∷ Δ ⊇ Γ → (⊢Δ : ⊢ Δ)
+          → Γ ⊩Unit⟨ s ⟩ t ≡ u ∷Unit
+          → Δ ⊩Unit⟨ s ⟩ U.wk ρ t ≡ U.wk ρ u ∷Unit
+wkEqTermUnit {ρ = ρ} {s = Σₚ} [ρ] ⊢Δ (Unitₜ₌ ⊢t ⊢u) =
   Unitₜ₌ (T.wkTerm [ρ] ⊢Δ ⊢t) (T.wkTerm [ρ] ⊢Δ ⊢u)
+wkEqTermUnit {ρ = ρ} {s = Σᵣ} [ρ] ⊢Δ (Unitₜ₌ k k′ d d′ k≡k′ prop) =
+  Unitₜ₌ (U.wk ρ k) (U.wk ρ k′) (wkRed:*:Term [ρ] ⊢Δ d)
+         (wkRed:*:Term [ρ] ⊢Δ d′) (≅ₜ-wk [ρ] ⊢Δ k≡k′)
+         (wk[Unitʷ]-prop [ρ] ⊢Δ prop)
 
 -- Weakening of the logical relation
 
@@ -140,7 +157,8 @@ wkEqTerm :
 wk ρ ⊢Δ (Uᵣ′ l′ l< ⊢Γ) = Uᵣ′ l′ l< ⊢Δ
 wk ρ ⊢Δ (ℕᵣ D) = ℕᵣ (wkRed:*: ρ ⊢Δ D)
 wk ρ ⊢Δ (Emptyᵣ D) = Emptyᵣ (wkRed:*: ρ ⊢Δ D)
-wk ρ ⊢Δ (Unitᵣ (Unitₜ D ok)) = Unitᵣ (Unitₜ (wkRed:*: ρ ⊢Δ D) ok)
+wk ρ ⊢Δ (Unitᵣ (Unitₜ D ok)) =
+  Unitᵣ (Unitₜ (wkRed:*: ρ ⊢Δ D) ok)
 wk {ρ = ρ} [ρ] ⊢Δ (ne′ K D neK K≡K) =
   ne′ (U.wk ρ K) (wkRed:*: [ρ] ⊢Δ D) (wkNeutral ρ neK) (~-wk [ρ] ⊢Δ K≡K)
 wk

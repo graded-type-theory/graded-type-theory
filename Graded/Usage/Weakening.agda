@@ -107,6 +107,13 @@ wk-nrᶜ (step ρ) =
 wk-nrᶜ {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} (lift ρ) =
   wk-nrᶜ ρ ∙ refl
 
+-- Congruence of modality context weakening
+
+wk-≈ᶜ : (ρ : Wk m n) → γ ≈ᶜ δ → wkConₘ ρ γ ≈ᶜ wkConₘ ρ δ
+wk-≈ᶜ id γ≈δ = γ≈δ
+wk-≈ᶜ (step ρ) γ≈δ = wk-≈ᶜ ρ γ≈δ ∙ refl
+wk-≈ᶜ (lift ρ) (γ≈δ ∙ p≈q) = wk-≈ᶜ ρ γ≈δ ∙ p≈q
+
 -- Weakening of modality contexts is monotone
 -- If γ ≤ᶜ δ then wkConₘ ρ γ ≤ᶜ wkConₘ ρ δ
 
@@ -134,7 +141,7 @@ wkUsage ρ ℕₘ = PE.subst (λ γ → γ ▸[ _ ] ℕ) (PE.sym (wk-𝟘ᶜ ρ)
 wkUsage ρ Emptyₘ =
   PE.subst (λ γ → γ ▸[ _ ] Empty) (PE.sym (wk-𝟘ᶜ ρ)) Emptyₘ
 wkUsage ρ Unitₘ =
-  PE.subst (λ γ → γ ▸[ _ ] Unit) (PE.sym (wk-𝟘ᶜ ρ)) Unitₘ
+  PE.subst (λ γ → γ ▸[ _ ] Unit!) (PE.sym (wk-𝟘ᶜ ρ)) Unitₘ
 wkUsage ρ (ΠΣₘ γ▸F δ▸G) =
   sub (ΠΣₘ (wkUsage ρ γ▸F) (wkUsage (lift ρ) δ▸G))
       (≤ᶜ-reflexive (wk-+ᶜ ρ))
@@ -188,7 +195,13 @@ wkUsage
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 wkUsage ρ (emptyrecₘ γ▸t δ▸A) =
   sub (emptyrecₘ (wkUsage ρ γ▸t) (wkUsage ρ δ▸A)) (≤ᶜ-reflexive (wk-·ᶜ ρ))
-wkUsage ρ starₘ = subst (λ γ → γ ▸[ _ ] star) (PE.sym (wk-𝟘ᶜ ρ)) starₘ
+wkUsage ρ starʷₘ = subst (λ γ → γ ▸[ _ ] starʷ) (PE.sym (wk-𝟘ᶜ ρ)) starʷₘ
+wkUsage ρ (starˢₘ prop) =
+  sub (starˢₘ (λ ns → subst (λ γ → γ ≈ᶜ wkConₘ ρ _) (wk-𝟘ᶜ ρ) (wk-≈ᶜ ρ (prop ns))))
+      (≤ᶜ-reflexive (wk-·ᶜ ρ))
+wkUsage ρ (unitrecₘ γ▸t δ▸u η▸A ok) =
+  sub (unitrecₘ (wkUsage ρ γ▸t) (wkUsage ρ δ▸u) (wkUsage (lift ρ) η▸A) ok)
+      (≤ᶜ-reflexive (≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-congʳ (wk-·ᶜ ρ))))
 wkUsage ρ (Idₘ {δ = δ} {η = η} ok ▸A ▸t ▸u) = sub
   (Idₘ ok (wkUsage _ ▸A) (wkUsage _ ▸t) (wkUsage _ ▸u))
   (begin
@@ -271,6 +284,13 @@ wkConₘ⁻¹-wkConₘ : (ρ : Wk m n) → wkConₘ⁻¹ ρ (wkConₘ ρ γ) ≡
 wkConₘ⁻¹-wkConₘ             id       = refl
 wkConₘ⁻¹-wkConₘ             (step ρ) = wkConₘ⁻¹-wkConₘ ρ
 wkConₘ⁻¹-wkConₘ {γ = _ ∙ _} (lift ρ) = cong (_∙ _) (wkConₘ⁻¹-wkConₘ ρ)
+
+-- Congruence of the function wkConₘ⁻¹ ρ.
+
+wkConₘ⁻¹-≈ᶜ : (ρ : Wk m n) → γ ≈ᶜ δ → wkConₘ⁻¹ ρ γ ≈ᶜ wkConₘ⁻¹ ρ δ
+wkConₘ⁻¹-≈ᶜ id γ≈δ = γ≈δ
+wkConₘ⁻¹-≈ᶜ (step ρ) (γ≈δ ∙ _) = wkConₘ⁻¹-≈ᶜ ρ γ≈δ
+wkConₘ⁻¹-≈ᶜ (lift ρ) (γ≈δ ∙ p≈q) = wkConₘ⁻¹-≈ᶜ ρ γ≈δ ∙ p≈q
 
 -- The function wkConₘ⁻¹ ρ is monotone.
 
@@ -475,10 +495,21 @@ wkUsage⁻¹ ▸t = wkUsage⁻¹′ ▸t refl
           (_ , _ , refl , refl , refl) →
         sub (emptyrecₘ (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸A))
           (≤ᶜ-reflexive (wkConₘ⁻¹-·ᶜ ρ)) }
-      starₘ eq →
+      starʷₘ eq →
         case wk-star eq of λ {
           refl →
         sub starₘ (≤ᶜ-reflexive (wkConₘ⁻¹-𝟘ᶜ ρ)) }
+      (starˢₘ prop) eq →
+        case wk-star eq of λ {
+          refl →
+        sub (starˢₘ (λ ns → ≈ᶜ-trans (≈ᶜ-sym (wkConₘ⁻¹-𝟘ᶜ ρ))
+                                    (wkConₘ⁻¹-≈ᶜ ρ (prop ns))))
+            (≤ᶜ-reflexive (wkConₘ⁻¹-·ᶜ ρ))  }
+      (unitrecₘ ▸t ▸u ▸A ok) eq →
+        case wk-unitrec eq of λ {
+          (_ , _ , _ , refl , refl , refl , refl) →
+        sub (unitrecₘ (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸u) (wkUsage⁻¹ ▸A) ok)
+            (≤ᶜ-reflexive (≈ᶜ-trans (wkConₘ⁻¹-+ᶜ ρ) (+ᶜ-congʳ (wkConₘ⁻¹-·ᶜ ρ)))) }
       (Idₘ ok ▸A ▸t ▸u) eq →
         case wk-Id eq of λ {
           (_ , _ , _ , refl , refl , refl , refl) →

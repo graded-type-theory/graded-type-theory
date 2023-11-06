@@ -41,23 +41,22 @@ substVar-lifts eq (1+ n) (x +1) = cong wk1 (substVar-lifts eq n x)
 
 -- If  σ = σ′  then  t [ σ ] = t [ σ′ ].
 
-mutual
-  substVar-to-subst : ((x : Fin n) → σ x ≡ σ′ x)
-                    → (t : Term n) → t [ σ ] ≡ t [ σ′ ]
-  substVar-to-subst eq (var x) = eq x
-  substVar-to-subst eq (lam t) = cong lam (substVar-to-subst (substVar-lift eq) t)
-  substVar-to-subst eq (t ∘ u) = cong₂ _∘_ (substVar-to-subst eq t) (substVar-to-subst eq u)
-  substVar-to-subst eq zero = refl
-  substVar-to-subst eq (suc t) = cong suc (substVar-to-subst eq t)
-  substVar-to-subst eq (natrec z s n) = cong₃ natrec (substVar-to-subst eq z) (substVar-to-subst (substVar-lifts eq 2) s) (substVar-to-subst eq n)
-  substVar-to-subst eq (prod t u) = cong₂ prod (substVar-to-subst eq t) (substVar-to-subst eq u)
-  substVar-to-subst eq (fst t) = cong fst (substVar-to-subst eq t)
-  substVar-to-subst eq (snd t) = cong snd (substVar-to-subst eq t)
-  substVar-to-subst eq (prodrec t u) = cong₂ prodrec (substVar-to-subst eq t) (substVar-to-subst (substVar-lifts eq 2) u)
-  substVar-to-subst eq star = refl
-  substVar-to-subst _  rfl = refl
-  substVar-to-subst eq ↯ = refl
-
+substVar-to-subst : ((x : Fin n) → σ x ≡ σ′ x)
+                  → (t : Term n) → t [ σ ] ≡ t [ σ′ ]
+substVar-to-subst eq (var x) = eq x
+substVar-to-subst eq (lam t) = cong lam (substVar-to-subst (substVar-lift eq) t)
+substVar-to-subst eq (t ∘ u) = cong₂ _∘_ (substVar-to-subst eq t) (substVar-to-subst eq u)
+substVar-to-subst eq zero = refl
+substVar-to-subst eq (suc t) = cong suc (substVar-to-subst eq t)
+substVar-to-subst eq (natrec z s n) = cong₃ natrec (substVar-to-subst eq z) (substVar-to-subst (substVar-lifts eq 2) s) (substVar-to-subst eq n)
+substVar-to-subst eq (prod t u) = cong₂ prod (substVar-to-subst eq t) (substVar-to-subst eq u)
+substVar-to-subst eq (fst t) = cong fst (substVar-to-subst eq t)
+substVar-to-subst eq (snd t) = cong snd (substVar-to-subst eq t)
+substVar-to-subst eq (prodrec t u) = cong₂ prodrec (substVar-to-subst eq t) (substVar-to-subst (substVar-lifts eq 2) u)
+substVar-to-subst eq star = refl
+substVar-to-subst eq (unitrec t u) = cong₂ unitrec (substVar-to-subst eq t) (substVar-to-subst eq u)
+substVar-to-subst _  rfl = refl
+substVar-to-subst eq ↯ = refl
 
 -- lift id = id  (as substitutions)
 
@@ -72,21 +71,21 @@ subst-lifts-id (1+ n) (x +1) = cong wk1 (subst-lifts-id n x)
 
 -- Identity substitution.
 
-mutual
-  subst-id : (t : Term n) → t [ idSubst ] ≡ t
-  subst-id (var x) = refl
-  subst-id (lam t) = cong lam (trans (substVar-to-subst subst-lift-id t) (subst-id t))
-  subst-id (t ∘ u) = cong₂ _∘_ (subst-id t) (subst-id u)
-  subst-id zero = refl
-  subst-id (suc t) = cong suc (subst-id t)
-  subst-id (natrec z s n) = cong₃ natrec (subst-id z) (trans (substVar-to-subst (subst-lifts-id 2) s) (subst-id s)) (subst-id n)
-  subst-id (prod t u) = cong₂ prod (subst-id t) (subst-id u)
-  subst-id (fst t) = cong fst (subst-id t)
-  subst-id (snd t) = cong snd (subst-id t)
-  subst-id (prodrec t u) = cong₂ prodrec (subst-id t) (trans (substVar-to-subst (subst-lifts-id 2) u) (subst-id u))
-  subst-id star = refl
-  subst-id rfl = refl
-  subst-id ↯ = refl
+subst-id : (t : Term n) → t [ idSubst ] ≡ t
+subst-id (var x) = refl
+subst-id (lam t) = cong lam (trans (substVar-to-subst subst-lift-id t) (subst-id t))
+subst-id (t ∘ u) = cong₂ _∘_ (subst-id t) (subst-id u)
+subst-id zero = refl
+subst-id (suc t) = cong suc (subst-id t)
+subst-id (natrec z s n) = cong₃ natrec (subst-id z) (trans (substVar-to-subst (subst-lifts-id 2) s) (subst-id s)) (subst-id n)
+subst-id (prod t u) = cong₂ prod (subst-id t) (subst-id u)
+subst-id (fst t) = cong fst (subst-id t)
+subst-id (snd t) = cong snd (subst-id t)
+subst-id (prodrec t u) = cong₂ prodrec (subst-id t) (trans (substVar-to-subst (subst-lifts-id 2) u) (subst-id u))
+subst-id star = refl
+subst-id (unitrec t u) = cong₂ unitrec (subst-id t) (subst-id u)
+subst-id rfl = refl
+subst-id ↯ = refl
 
 
 -- Correctness of composition of weakening and substitution.
@@ -137,39 +136,39 @@ subst-lifts-ₛ• (1+ n) t = substVar-to-subst (helper2 n) t
 
 -- wk ρ ∘ _[ σ ] = _[ ρ •ₛ σ ]
 
-mutual
-  wk-subst : ∀ t → wk ρ (t [ σ ]) ≡ t [ ρ •ₛ σ ]
-  wk-subst (var x) = refl
-  wk-subst (lam t) = cong lam (trans (wk-subst t) (subst-lift-•ₛ t))
-  wk-subst (t ∘ u) = cong₂ _∘_ (wk-subst t) (wk-subst u)
-  wk-subst zero = refl
-  wk-subst (suc t) = cong suc (wk-subst t)
-  wk-subst (natrec z s n) = cong₃ natrec (wk-subst z) (trans (wk-subst s) (subst-lifts-•ₛ 2 s)) (wk-subst n)
-  wk-subst (prod t u) = cong₂ prod (wk-subst t) (wk-subst u)
-  wk-subst (fst t) = cong fst (wk-subst t)
-  wk-subst (snd t) = cong snd (wk-subst t)
-  wk-subst (prodrec t u) = cong₂ prodrec (wk-subst t) (trans (wk-subst u) (subst-lifts-•ₛ 2 u))
-  wk-subst star = refl
-  wk-subst rfl = refl
-  wk-subst ↯ = refl
+wk-subst : ∀ t → wk ρ (t [ σ ]) ≡ t [ ρ •ₛ σ ]
+wk-subst (var x) = refl
+wk-subst (lam t) = cong lam (trans (wk-subst t) (subst-lift-•ₛ t))
+wk-subst (t ∘ u) = cong₂ _∘_ (wk-subst t) (wk-subst u)
+wk-subst zero = refl
+wk-subst (suc t) = cong suc (wk-subst t)
+wk-subst (natrec z s n) = cong₃ natrec (wk-subst z) (trans (wk-subst s) (subst-lifts-•ₛ 2 s)) (wk-subst n)
+wk-subst (prod t u) = cong₂ prod (wk-subst t) (wk-subst u)
+wk-subst (fst t) = cong fst (wk-subst t)
+wk-subst (snd t) = cong snd (wk-subst t)
+wk-subst (prodrec t u) = cong₂ prodrec (wk-subst t) (trans (wk-subst u) (subst-lifts-•ₛ 2 u))
+wk-subst star = refl
+wk-subst (unitrec t u) = cong₂ unitrec (wk-subst t) (wk-subst u)
+wk-subst rfl = refl
+wk-subst ↯ = refl
 
 -- _[ σ ] ∘ wk ρ = _[ σ •ₛ ρ ]
 
-mutual
-  subst-wk : ∀ t → wk ρ t [ σ ] ≡ t [ σ ₛ• ρ ]
-  subst-wk (var x) = refl
-  subst-wk (lam t) = cong lam (trans (subst-wk t) (subst-lift-ₛ• t))
-  subst-wk (t ∘ u) = cong₂ _∘_ (subst-wk t) (subst-wk u)
-  subst-wk zero = refl
-  subst-wk (suc t) = cong suc (subst-wk t)
-  subst-wk (natrec z s n) = cong₃ natrec (subst-wk z) (trans (subst-wk s) (subst-lifts-ₛ• 2 s)) (subst-wk n)
-  subst-wk (prod t u) = cong₂ prod (subst-wk t) (subst-wk u)
-  subst-wk (fst t) = cong fst (subst-wk t)
-  subst-wk (snd t) = cong snd (subst-wk t)
-  subst-wk (prodrec t u) = cong₂ prodrec (subst-wk t) (trans (subst-wk u) (subst-lifts-ₛ• 2 u))
-  subst-wk star = refl
-  subst-wk rfl = refl
-  subst-wk ↯ = refl
+subst-wk : ∀ t → wk ρ t [ σ ] ≡ t [ σ ₛ• ρ ]
+subst-wk (var x) = refl
+subst-wk (lam t) = cong lam (trans (subst-wk t) (subst-lift-ₛ• t))
+subst-wk (t ∘ u) = cong₂ _∘_ (subst-wk t) (subst-wk u)
+subst-wk zero = refl
+subst-wk (suc t) = cong suc (subst-wk t)
+subst-wk (natrec z s n) = cong₃ natrec (subst-wk z) (trans (subst-wk s) (subst-lifts-ₛ• 2 s)) (subst-wk n)
+subst-wk (prod t u) = cong₂ prod (subst-wk t) (subst-wk u)
+subst-wk (fst t) = cong fst (subst-wk t)
+subst-wk (snd t) = cong snd (subst-wk t)
+subst-wk (prodrec t u) = cong₂ prodrec (subst-wk t) (trans (subst-wk u) (subst-lifts-ₛ• 2 u))
+subst-wk star = refl
+subst-wk (unitrec t u) = cong₂ unitrec (subst-wk t) (subst-wk u)
+subst-wk rfl = refl
+subst-wk ↯ = refl
 
 
 -- Composition of liftings is lifting of the composition.
@@ -205,22 +204,22 @@ substCompLifts {σ = σ} {σ′ = σ′} (1+ n) (x +1) =
 
 -- Soundness of the composition of substitutions.
 
-mutual
-  substCompEq : ∀ (t : Term n)
-              → t [ σ′ ] [ σ ] ≡ t [ σ ₛ•ₛ σ′ ]
-  substCompEq (var x) = refl
-  substCompEq (lam t) = cong lam (trans (substCompEq t) (substVar-to-subst substCompLift t))
-  substCompEq (t ∘ u) = cong₂ _∘_ (substCompEq t) (substCompEq u)
-  substCompEq zero = refl
-  substCompEq (suc t) = cong suc (substCompEq t)
-  substCompEq (natrec z s n) = cong₃ natrec (substCompEq z) (trans (substCompEq s) (substVar-to-subst (substCompLifts 2) s)) (substCompEq n)
-  substCompEq (prod t u) = cong₂ prod (substCompEq t) (substCompEq u)
-  substCompEq (fst t) = cong fst (substCompEq t)
-  substCompEq (snd t) = cong snd (substCompEq t)
-  substCompEq (prodrec t u) = cong₂ prodrec (substCompEq t) (trans (substCompEq u) (substVar-to-subst (substCompLifts 2) u))
-  substCompEq star = refl
-  substCompEq rfl = refl
-  substCompEq ↯ = refl
+substCompEq : ∀ (t : Term n)
+            → t [ σ′ ] [ σ ] ≡ t [ σ ₛ•ₛ σ′ ]
+substCompEq (var x) = refl
+substCompEq (lam t) = cong lam (trans (substCompEq t) (substVar-to-subst substCompLift t))
+substCompEq (t ∘ u) = cong₂ _∘_ (substCompEq t) (substCompEq u)
+substCompEq zero = refl
+substCompEq (suc t) = cong suc (substCompEq t)
+substCompEq (natrec z s n) = cong₃ natrec (substCompEq z) (trans (substCompEq s) (substVar-to-subst (substCompLifts 2) s)) (substCompEq n)
+substCompEq (prod t u) = cong₂ prod (substCompEq t) (substCompEq u)
+substCompEq (fst t) = cong fst (substCompEq t)
+substCompEq (snd t) = cong snd (substCompEq t)
+substCompEq (prodrec t u) = cong₂ prodrec (substCompEq t) (trans (substCompEq u) (substVar-to-subst (substCompLifts 2) u))
+substCompEq star = refl
+substCompEq (unitrec t u) = cong₂ unitrec (substCompEq t) (substCompEq u)
+substCompEq rfl = refl
+substCompEq ↯ = refl
 
 -- Weakening single substitutions.
 

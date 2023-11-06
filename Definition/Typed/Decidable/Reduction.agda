@@ -112,7 +112,7 @@ opaque
       no λ (_ , _ , _ , _ , _ , _ , A⇒*Id) →
         Id≢Unit $
         trans (sym (subset* A⇒*Id))
-          (subset* (red (_⊩Unit_.⇒*-Unit ⊩Unit)))
+          (subset* (red (_⊩Unit⟨_⟩_.⇒*-Unit ⊩Unit)))
     helper (ne ⊩A) =
       no λ (_ , _ , _ , _ , _ , _ , A⇒*Id) →
         Id≢ne neK $ trans (sym (subset* A⇒*Id)) (subset* (red D))

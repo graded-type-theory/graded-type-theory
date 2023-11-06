@@ -11,7 +11,7 @@ open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
 
 module Graded.Erasure.Examples
-  {p q r}
+  {p q r s}
   (variant : Modality-variant)
   (TR : Type-restrictions (ErasureModality variant))
   (open Type-restrictions TR)
@@ -22,8 +22,8 @@ module Graded.Erasure.Examples
   (Π-ω-ok : Π-allowed ω q)
   -- It is assumed that "Σₚ ω , r" is allowed.
   (Σₚ-ω-ok : Σₚ-allowed ω r)
-  -- It is assumed that Unit is allowed.
-  (Unit-ok : Unit-allowed)
+  -- It is assumed that Unit s is allowed.
+  (Unit-ok : Unit-allowed s)
   where
 
 private
@@ -296,7 +296,7 @@ private
   Vec-body₂ =
     natrec 𝟘 𝟘 ω
       U
-      Unit
+      (Unit s)
       (Σₚ ω , r ▷ var x3 ▹ var x1)
       (var x0)
 
@@ -462,7 +462,7 @@ private module Vec-lemmas (⊢A : Γ ⊢ A ∷ U) where
 
 Vec∘zero⇒* :
   Γ ⊢ A ∷ U →
-  Γ ⊢ wk wk₀ Vec ∘⟨ ω ⟩ A ∘⟨ ω ⟩ zero ⇒* Unit ∷ U
+  Γ ⊢ wk wk₀ Vec ∘⟨ ω ⟩ A ∘⟨ ω ⟩ zero ⇒* Unit s ∷ U
 Vec∘zero⇒* {A = A} ⊢A =
   app-subst
     (β-red (Uⱼ ⊢Γ) (syntacticTerm ⊢Vec-body₁′)
@@ -499,7 +499,7 @@ Vec∘suc≡ {Γ = Γ} {A = A} {t = t} ⊢A ⊢t =
      ΠΣ-cong (univ ⊢A)
        (PE.subst (_ ⊢ _ ≡_∷ _) (≡wk3[][] A) (refl ⊢A))
        (PE.subst (Γ ∙ A ⊢ (Vec-body₁ [ wk1 A ]₀) ∘⟨ ω ⟩ wk1 t ≡_∷ U)
-          (PE.cong (flip (natrec 𝟘 𝟘 ω U Unit) _) $
+          (PE.cong (flip (natrec 𝟘 𝟘 ω U (Unit s)) _) $
            PE.cong (Σₚ _ , _ ▷_▹ _) $
            wk3[]≡ A) $
         β-red (ℕⱼ ⊢ΓA) (Uⱼ ⊢ΓAℕ) ⊢Vec-body₂″
@@ -524,7 +524,7 @@ private
     natrec 𝟘 𝟘 𝟘
       U
       Empty
-      Unit
+      (Unit s)
       (var x0)
 
 -- A natural number predicate that holds for non-zero numbers.
@@ -584,7 +584,7 @@ Non-zero∘zero⇒* ⊢Γ =
 
 Non-zero∘suc⇒* :
   Γ ⊢ t ∷ ℕ →
-  Γ ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ suc t ⇒* Unit ∷ U
+  Γ ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ suc t ⇒* Unit s ∷ U
 Non-zero∘suc⇒* ⊢t =
   β-red (ℕⱼ ⊢Γ) (Uⱼ ⊢Γℕ)
     (W.wkTerm (W.lift W.wk₀∷⊇) ⊢Γℕ ⊢Non-zero-body)
@@ -816,7 +816,7 @@ erase-head = PE.refl
 -- A concrete vector which contains a single natural number.
 
 [0] : Term 0
-[0] = prodₚ ω zero star
+[0] = prodₚ ω zero (star s)
 
 -- [0] is well-resourced.
 
@@ -844,7 +844,7 @@ erase-head = PE.refl
 -- An application of head to [0] and some other arguments.
 
 head-[0] : Term 0
-head-[0] = head ∘⟨ 𝟘 ⟩ ℕ ∘⟨ ω ⟩ suc zero ∘⟨ ω ⟩ [0] ∘⟨ 𝟘 ⟩ star
+head-[0] = head ∘⟨ 𝟘 ⟩ ℕ ∘⟨ ω ⟩ suc zero ∘⟨ ω ⟩ [0] ∘⟨ 𝟘 ⟩ (star s)
 
 -- The erasure of head-[0] includes several erased parts (T.↯).
 

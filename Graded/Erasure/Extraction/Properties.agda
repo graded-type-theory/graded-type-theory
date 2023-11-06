@@ -141,15 +141,22 @@ wk-erase-comm ρ (U.natrec p q r A z s n) =
   cong₃ T.natrec (wk-erase-comm ρ z)
                  (wk-erase-comm (lift (lift ρ)) s)
                  (wk-erase-comm ρ n)
-wk-erase-comm ρ Unit = refl
-wk-erase-comm ρ U.star = refl
+wk-erase-comm ρ Unit! = refl
+wk-erase-comm ρ U.star! = refl
+wk-erase-comm ρ (U.unitrec p q A t u)
+  with is-𝟘? p
+... | yes _ =
+  cong (T.unitrec T.star) (wk-erase-comm ρ u)
+... | no _ =
+  cong₂ T.unitrec (wk-erase-comm ρ t)
+                  (wk-erase-comm ρ u)
 wk-erase-comm ρ Empty = refl
 wk-erase-comm ρ (emptyrec p A t) = refl
 wk-erase-comm _ (Id _ _ _) = refl
 wk-erase-comm _ U.rfl = refl
 wk-erase-comm _ (J _ _ _ _ _ u _ _) = wk-erase-comm _ u
 wk-erase-comm _ (K _ _ _ _ u _) = wk-erase-comm _ u
-wk-erase-comm _ ([]-cong _ _ _ _) = refl
+wk-erase-comm _ ([]-cong _ _ _ _ _) = refl
 
 -- Lifting substitutions commute with erase
 -- liftSubst (eraseSubst σ) x ≡ eraseSubst (liftSubst σ) x
@@ -195,15 +202,21 @@ liftSubst-erase-comm (x +1) | U.natrec p q r A z s n =
   cong₃ T.natrec (wk-erase-comm (step id) z)
                  (wk-erase-comm (lift (lift (step id))) s)
                  (wk-erase-comm (step id) n)
-liftSubst-erase-comm (x +1) | Unit = refl
-liftSubst-erase-comm (x +1) | U.star = refl
+liftSubst-erase-comm (x +1) | Unit! = refl
+liftSubst-erase-comm (x +1) | U.star! = refl
+liftSubst-erase-comm (x +1) | U.unitrec p q A t u with is-𝟘? p
+... | yes _ =
+  cong (T.unitrec T.star) (wk-erase-comm (step id) u)
+... | no _ =
+  cong₂ Term.unitrec (wk-erase-comm (step id) t)
+                     (wk-erase-comm (step id) u)
 liftSubst-erase-comm (x +1) | Empty = refl
 liftSubst-erase-comm (x +1) | emptyrec p A t = refl
 liftSubst-erase-comm _      | Id _ _ _ = refl
 liftSubst-erase-comm _      | U.rfl = refl
 liftSubst-erase-comm _      | J _ _ _ _ _ u _ _ = wk-erase-comm _ u
 liftSubst-erase-comm _      | K _ _ _ _ u _ = wk-erase-comm _ u
-liftSubst-erase-comm _      | []-cong _ _ _ _ = refl
+liftSubst-erase-comm _      | []-cong _ _ _ _ _ = refl
 
 -- Multiple lifts commutes with erase
 -- liftSubstn (eraseSubst σ) n x ≡ eraseSubst (liftSubstn σ n) x
@@ -285,15 +298,21 @@ subst-erase-comm σ (U.natrec p q r A z s n) = cong₃ T.natrec
   (trans (substVar-to-subst (liftSubsts-erase-comm 2) (erase s))
          (subst-erase-comm (U.liftSubst (U.liftSubst σ)) s))
   (subst-erase-comm σ n)
-subst-erase-comm σ Unit = refl
-subst-erase-comm σ U.star = refl
+subst-erase-comm σ Unit! = refl
+subst-erase-comm σ U.star! = refl
+subst-erase-comm σ (U.unitrec p q A t u) with is-𝟘? p
+... | yes _ =
+  cong (T.unitrec T.star) (subst-erase-comm σ u)
+... | no _ =
+  cong₂ T.unitrec (subst-erase-comm σ t)
+                  (subst-erase-comm σ u)
 subst-erase-comm σ Empty = refl
 subst-erase-comm σ (emptyrec p A t) = refl
 subst-erase-comm _ (Id _ _ _) = refl
 subst-erase-comm _ U.rfl = refl
 subst-erase-comm _ (J _ _ _ _ _ u _ _) = subst-erase-comm _ u
 subst-erase-comm _ (K _ _ _ _ u _) = subst-erase-comm _ u
-subst-erase-comm _ ([]-cong _ _ _ _) = refl
+subst-erase-comm _ ([]-cong _ _ _ _ _) = refl
 
 subst-undefined : (x : Fin (1+ n)) →
       eraseSubst (U.sgSubst Empty) x ≡
@@ -474,6 +493,16 @@ module hasX (R : Usage-restrictions) where
       ▸u hasX
   erased-hasX erased (K₀ₘ _ _ _ _ ▸u _) hasX =
     erased-hasX erased ▸u hasX
+
+  erased-hasX erased (unitrecₘ {p = p} γ▸t δ▸u η▸A ok) hasX
+    with is-𝟘? p
+  erased-hasX erased (unitrecₘ {p = _} γ▸t δ▸u η▸A ok) (unitrecₓʳ hasX) | yes _ =
+    erased-hasX (x◂𝟘∈γ+δʳ refl erased) δ▸u hasX
+  erased-hasX erased (unitrecₘ {p = _} γ▸t δ▸u η▸A ok) (unitrecₓˡ hasX) | no p≢𝟘 =
+    erased-hasX (x◂𝟘∈pγ refl p≢𝟘 (x◂𝟘∈γ+δˡ refl erased))
+                (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸t) hasX
+  erased-hasX erased (unitrecₘ {p = _} γ▸t δ▸u η▸A ok) (unitrecₓʳ hasX) | no _ =
+    erased-hasX (x◂𝟘∈γ+δʳ refl erased) δ▸u hasX
 
   erased-hasX erased (sub δ▸t γ≤δ) hasX =
     erased-hasX (x◂𝟘∈γ≤δ erased γ≤δ) δ▸t hasX

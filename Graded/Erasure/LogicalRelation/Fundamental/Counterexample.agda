@@ -24,7 +24,7 @@ open Usage-restrictions UR
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Derived.Erased.Untyped 𝕄 as Erased using (Erased)
+import Graded.Derived.Erased.Untyped 𝕄 as Erased
 open import Graded.Modality.Properties 𝕄
 open import Graded.Usage 𝕄 UR
 open import Graded.Mode 𝕄
@@ -50,7 +50,8 @@ import Tools.Reasoning.PartialOrder
 open import Tools.Relation
 
 private variable
-  p : M
+  p q : M
+  s   : SigmaMode
 
 -- If Prodrec-allowed 𝟘 p 𝟘 holds for some p (which means that certain
 -- kinds of erased matches are allowed), and if additionally
@@ -132,7 +133,7 @@ opaque
   -- empty".
 
   negation-of-fundamental-lemma-with-erased-matches₂ :
-    []-cong-allowed →
+    []-cong-allowed s →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
        let open LR ⊢Δ in
        Consistent Δ →
@@ -140,18 +141,19 @@ opaque
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
        ∃₂ λ ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ]) →
          γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A / [Γ] / [A])
-  negation-of-fundamental-lemma-with-erased-matches₂ ok hyp =
+  negation-of-fundamental-lemma-with-erased-matches₂ {s = s} ok hyp =
     ¬t®t $ hidden-®-intro-fundamental non-trivial $
     hyp ⊢Δ consistent ⊢t ▸t
     where
+    open Erased s
     Δ : Con Term 1
     Δ = ε ∙ Id ℕ zero zero
 
     t : Term 1
-    t = []-cong ℕ zero zero (var x0)
+    t = []-cong s ℕ zero zero (var x0)
 
     A : Term 1
-    A = Id (Erased ℕ) Erased.[ zero ] Erased.[ zero ]
+    A = Id (Erased ℕ) ([ zero ]) ([ zero ])
 
     ⊢Δ : ⊢ Δ
     ⊢Δ = ε ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε)
@@ -287,3 +289,65 @@ opaque
     ¬t®t t®t = case ®-ℕ t®t of λ where
       (zeroᵣ t⇒* _)  → case whnfRed*Term t⇒* (ne (Kₙ (var _))) of λ ()
       (sucᵣ t⇒* _ _) → case whnfRed*Term t⇒* (ne (Kₙ (var _))) of λ ()
+
+opaque
+
+-- If Unitrec-allowed 𝟘 𝟘 holds (which means that certain
+-- kinds of erased matches are allowed), and if additionally
+-- Unitʷ-allowed holds, then one cannot prove a variant of the
+-- fundamental lemma without the assumption "erased matches are not
+-- allowed or the context is empty" (assuming that Agda is
+-- consistent).
+
+  negation-of-fundamental-lemma-with-erased-matches₅ :
+    Unitʷ-allowed →
+    Unitrec-allowed 𝟘 𝟘 →
+    ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
+       let open LR ⊢Δ in
+       Consistent Δ →
+       ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
+       Γ ⊢ t ∷ A → γ ▸[ m ] t →
+       ∃₂ λ ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ]) →
+         γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A / [Γ] / [A])
+  negation-of-fundamental-lemma-with-erased-matches₅ Unit-ok ok hyp =
+    ¬t®t $ hidden-®-intro-fundamental non-trivial $
+    hyp ⊢Δ consistent ⊢t ▸t
+    where
+    Δ : Con Term 1
+    Δ = ε ∙ Unitʷ
+
+    t : Term 1
+    t = unitrec 𝟘 𝟘 ℕ (var x0) zero
+
+    A : Term 1
+    A = ℕ
+
+    ⊢Δ : ⊢ Δ
+    ⊢Δ = ε ∙ Unitⱼ ε Unit-ok
+
+    consistent : Consistent Δ
+    consistent = inhabited-consistent (singleSubst (starⱼ ε Unit-ok))
+
+    ⊢t : Δ ⊢ t ∷ A
+    ⊢t = unitrecⱼ (ℕⱼ (⊢Δ ∙ Unitⱼ ⊢Δ Unit-ok)) (var ⊢Δ here) (zeroⱼ ⊢Δ) Unit-ok
+
+    ▸t : 𝟘ᶜ ▸[ 𝟙ᵐ ] t
+    ▸t = sub (unitrecₘ var zeroₘ
+             (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
+               sub ℕₘ $ begin
+                 𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+                 𝟘ᶜ                ∎)
+               ok)
+             let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
+               begin
+                 𝟘ᶜ                                  ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
+                 𝟘 ·ᶜ (𝟘ᶜ , x0 ≔ ⌜ 𝟙ᵐ ᵐ· 𝟘 ⌝)        ≈˘⟨ +ᶜ-identityʳ _ ⟩
+                 𝟘 ·ᶜ (𝟘ᶜ , x0 ≔ ⌜ 𝟙ᵐ ᵐ· 𝟘 ⌝) +ᶜ 𝟘ᶜ  ∎
+
+    open LR ⊢Δ
+    open LRH ⊢Δ
+
+    ¬t®t : ¬ t ®⟨ ¹ ⟩ erase t ∷ A
+    ¬t®t t®t = case ®-ℕ t®t of λ where
+      (zeroᵣ t⇒* _)  → case whnfRed*Term t⇒* (ne (unitrecₙ (var _))) of λ ()
+      (sucᵣ t⇒* _ _) → case whnfRed*Term t⇒* (ne (unitrecₙ (var _))) of λ ()

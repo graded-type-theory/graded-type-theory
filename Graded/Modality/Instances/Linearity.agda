@@ -22,8 +22,9 @@ open import Graded.Modality Linearity
 open import Graded.FullReduction.Assumptions
 import Graded.Modality.Properties
 
+open import Definition.Untyped using (BMΣ; Σₚ; Σᵣ)
 import Definition.Typed.Restrictions
-open import Definition.Untyped using (BMΣ; Σₚ)
+open import Graded.Usage.Restrictions Linearity
 
 open import Tools.Empty
 open import Tools.Function
@@ -41,6 +42,8 @@ open Definition.Typed.Restrictions linearityModality
 
 private variable
   rs : Type-restrictions
+  us : Usage-restrictions
+
 
 -- An alternative (not very good) "linear types" modality.
 --
@@ -83,54 +86,57 @@ instance
 
 open Graded.Modality.Properties linearityModality
 
--- An instance of Type-restrictions is suitable for the full reduction
--- theorem if
--- * Unit-allowed does not hold,
+-- Instances of Type-restrictions and Usage-restrictions are suitable
+-- for the full reduction theorem if
+-- * Unitˢ-allowed does not hold or Starˢ-sink holds,
 -- * Σₚ-allowed 𝟘 p does not hold, and
 -- * Σₚ-allowed ω p does not hold.
 
 Suitable-for-full-reduction :
-  Type-restrictions → Set
-Suitable-for-full-reduction rs =
-  ¬ Unit-allowed ×
+  Type-restrictions → Usage-restrictions → Set
+Suitable-for-full-reduction rs us =
+  (¬ Unitˢ-allowed ⊎ Starˢ-sink) ×
   (∀ p → ¬ Σₚ-allowed 𝟘 p) ×
   (∀ p → ¬ Σₚ-allowed ω p)
   where
   open Type-restrictions rs
+  open Usage-restrictions us
 
 -- Given an instance of Type-restrictions one can create a "suitable"
 -- instance.
 
 suitable-for-full-reduction :
-  Type-restrictions → ∃ Suitable-for-full-reduction
+  Type-restrictions → ∃ λ rs → Suitable-for-full-reduction rs us
 suitable-for-full-reduction rs =
     record rs
       { Unit-allowed =
-          ⊥
+          λ { Σᵣ → Unitʷ-allowed ; Σₚ → ⊥ }
       ; ΠΣ-allowed = λ b p q →
           ΠΣ-allowed b p q × (b ≡ BMΣ Σₚ → p ≡ 𝟙)
       ; []-cong-allowed =
-          ⊥
+          λ _ → ⊥
       ; []-cong→Erased =
           λ ()
       ; []-cong→¬Trivial =
           λ ()
       }
-  , idᶠ
+  , inj₁ idᶠ
   , (λ _ → ((λ ()) ∘→ (_$ refl)) ∘→ proj₂)
   , (λ _ → ((λ ()) ∘→ (_$ refl)) ∘→ proj₂)
   where
   open Type-restrictions rs
 
 -- The full reduction assumptions hold for linearityModality and any
--- "suitable" Type-restrictions.
+-- "suitable" Type-restrictions and Usage-restrictions.
 
 full-reduction-assumptions :
-  Suitable-for-full-reduction rs →
-  Full-reduction-assumptions rs
-full-reduction-assumptions (¬Unit , ¬𝟘 , ¬ω) = record
-  { 𝟙≤𝟘    = ⊥-elim ∘→ ¬Unit
-  ; ≡𝟙⊎𝟙≤𝟘 = λ where
+  Suitable-for-full-reduction rs us →
+  Full-reduction-assumptions rs us
+full-reduction-assumptions (¬Unit⊎sink , ¬𝟘 , ¬ω) = record
+  { sink⊎𝟙≤𝟘 = case ¬Unit⊎sink of λ where
+    (inj₁ ¬Unit) → ⊥-elim ∘→ ¬Unit
+    (inj₂ sink)  → λ _ → inj₁ sink
+  ; ≡𝟙⊎𝟙≤𝟘   = λ where
       {p = 𝟘} ok → ⊥-elim (¬𝟘 _ ok)
       {p = ω} ok → ⊥-elim (¬ω _ ok)
       {p = 𝟙} _  → inj₁ refl

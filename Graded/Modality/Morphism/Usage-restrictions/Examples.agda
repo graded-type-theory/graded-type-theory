@@ -93,6 +93,18 @@ Are-preserving-usage-restrictions-no-erased-matches-UR
            (inj₂ ≢𝟘) →
              tr r ≡ M₂.𝟘  →⟨ ≢𝟘 ⟩
              ⊥            □)
+  ; Unitrec-preserved = λ {p = p} (P , ≢𝟘) →
+        Unitrec-preserved P
+      , λ 𝟙≢𝟘 → case hyp 𝟙≢𝟘 of λ where
+         (inj₁ (𝟙≢𝟘 , tr-≡-𝟘-→)) →
+           tr p ≡ M₂.𝟘  →⟨ tr-≡-𝟘-→ ⟩
+           p ≡ M₁.𝟘     →⟨ ≢𝟘 𝟙≢𝟘 ⟩
+           ⊥            □
+         (inj₂ ≢𝟘) →
+           tr p ≡ M₂.𝟘  →⟨ ≢𝟘 ⟩
+           ⊥            □
+
+  ; starˢ-sink-preserved = starˢ-sink-preserved
   ; same-usage-restrictions =
       Same-usage-restrictions-no-erased-matches-UR 𝕄₁ 𝕄₂
         same-usage-restrictions
@@ -124,6 +136,14 @@ Are-reflecting-usage-restrictions-no-erased-matches-UR
            r ≡ M₁.𝟘     →⟨ hyp 𝟙≢𝟘 .proj₂ ⟩
            tr r ≡ M₂.𝟘  →⟨ ≢𝟘 (hyp 𝟙≢𝟘 .proj₁) ⟩
            ⊥            □)
+  ; Unitrec-reflected = λ {p = p} (P , ≢𝟘) →
+        Unitrec-reflected P
+      , λ 𝟙≢𝟘 →
+          p ≡ M₁.𝟘     →⟨ hyp 𝟙≢𝟘 .proj₂ ⟩
+          tr p ≡ M₂.𝟘  →⟨ ≢𝟘 (hyp 𝟙≢𝟘 .proj₁) ⟩
+          ⊥            □
+
+  ; starˢ-sink-reflected = starˢ-sink-reflected
   ; same-usage-restrictions =
       Same-usage-restrictions-no-erased-matches-UR 𝕄₁ 𝕄₂
         same-usage-restrictions

@@ -21,22 +21,26 @@ import Graded.Modality.Properties.Star as Star
 open import Graded.Modality.Variant lzero
 
 open import Definition.Typed.Restrictions
-open import Definition.Untyped using (BMΣ; Σₚ)
+open import Definition.Untyped using (BMΣ; Σₚ; Σᵣ)
 
 private variable
   variant : Modality-variant
   R       : Type-restrictions _
+
+import Graded.Usage.Restrictions
 
 -- The modality has two grades, 𝟘 and 𝟙.
 
 data Grade : Set where
   𝟘 𝟙 : Grade
 
-open Graded.Modality Grade
-open Tools.Algebra   Grade
+open Graded.Usage.Restrictions     Grade
+open Graded.Modality               Grade
+open Tools.Algebra                 Grade
 
 private variable
-  p : Grade
+  p       : Grade
+  UR      : Usage-restrictions
 
 ------------------------------------------------------------------------
 -- Operators
@@ -334,52 +338,56 @@ _≟_ = λ where
 ------------------------------------------------------------------------
 -- Instances of Full-reduction-assumptions
 
--- An instance of Type-restrictions (𝟘≤𝟙 variant ok) is suitable for
--- the full reduction theorem if
--- * Unit-allowed does not hold, and
+-- Instances of Type-restrictions (𝟘≤𝟙 variant ok) and
+-- Usage-restrictions are suitable for the full reduction theorem if
+-- * Unit-allowed does not hold or Starˢ-sink holds, and
 -- * Σₚ-allowed 𝟘 p does not hold.
 
 Suitable-for-full-reduction :
-  ∀ variant ok → Type-restrictions (𝟘≤𝟙 variant ok) → Set
-Suitable-for-full-reduction _ _ R =
-  ¬ Unit-allowed ×
+  ∀ variant ok → Type-restrictions (𝟘≤𝟙 variant ok) →
+  Usage-restrictions → Set
+Suitable-for-full-reduction _ _ TR UR =
+  (¬ Unitˢ-allowed ⊎ Starˢ-sink) ×
   (∀ p → ¬ Σₚ-allowed 𝟘 p)
   where
-  open Type-restrictions R
+  open Type-restrictions TR
+  open Usage-restrictions UR
 
 -- Given an instance of Type-restrictions (𝟘≤𝟙 variant ok) one can
 -- create a "suitable" instance of Type-restrictions.
 
 suitable-for-full-reduction :
   ∀ ok → Type-restrictions (𝟘≤𝟙 variant ok) →
-  ∃ (Suitable-for-full-reduction variant ok)
+  ∃ λ TR → (Suitable-for-full-reduction variant ok TR UR)
 suitable-for-full-reduction refl R =
     record R
       { Unit-allowed =
-          ⊥
+          λ { Σₚ → ⊥ ; Σᵣ → Unitʷ-allowed }
       ; ΠΣ-allowed = λ b p q →
           ΠΣ-allowed b p q × (b ≡ BMΣ Σₚ → p ≡ 𝟙)
       ; []-cong-allowed =
-          ⊥
+          λ _ → ⊥
       ; []-cong→Erased =
           λ ()
       ; []-cong→¬Trivial =
           λ _ ()
       }
-  , (λ ())
+  , inj₁ idᶠ
   , (λ _ → (λ ()) ∘→ (_$ refl) ∘→ proj₂)
   where
   open Type-restrictions R
 
 -- The full reduction assumptions hold for any instance of 𝟘≤𝟙 and any
--- "suitable" instance of Type-restrictions.
+-- "suitable" Type-restrictionsa and Usage-restrictions.
 
 full-reduction-assumptions :
-  ∀ ok {R} →
-  Suitable-for-full-reduction variant ok R →
-  Full-reduction-assumptions R
-full-reduction-assumptions refl (¬Unit , ¬𝟘) = record
-  { 𝟙≤𝟘    = ⊥-elim ∘→ ¬Unit
+  ∀ ok {TR} →
+  Suitable-for-full-reduction variant ok TR UR →
+  Full-reduction-assumptions TR UR
+full-reduction-assumptions refl (¬Unit⊎sink , ¬𝟘) = record
+  { sink⊎𝟙≤𝟘    = case ¬Unit⊎sink of λ where
+      (inj₁ ¬Unit) → ⊥-elim ∘→ ¬Unit
+      (inj₂ sink) → λ _ → inj₁ sink
   ; ≡𝟙⊎𝟙≤𝟘 = λ where
       {p = 𝟘} ok → ⊥-elim (¬𝟘 _ ok)
       {p = 𝟙} _  → inj₁ refl

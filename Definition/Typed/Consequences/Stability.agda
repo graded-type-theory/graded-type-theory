@@ -149,6 +149,14 @@ stabilityRedTerm Γ≡Δ (prodrec-β x x₁ x₂ x₃ x₄ x₅ x₆ ok) =
             x₆ ok
 stabilityRedTerm Γ≡Δ (emptyrec-subst x d) =
   emptyrec-subst (stability Γ≡Δ x) (stabilityRedTerm Γ≡Δ d)
+stabilityRedTerm Γ≡Δ (unitrec-subst x x₁ x₂ x₃) =
+  let ⊢Γ , _ , _ = contextConvSubst Γ≡Δ
+  in  unitrec-subst (stability (Γ≡Δ ∙ refl (Unitⱼ ⊢Γ x₃)) x)
+                    (stabilityTerm Γ≡Δ x₁) (stabilityRedTerm Γ≡Δ x₂) x₃
+stabilityRedTerm Γ≡Δ (unitrec-β x x₁ x₂) =
+  let ⊢Γ , _ , _ = contextConvSubst Γ≡Δ
+  in  unitrec-β (stability (Γ≡Δ ∙ refl (Unitⱼ ⊢Γ x₂)) x)
+                (stabilityTerm Γ≡Δ x₁) x₂
 stabilityRedTerm Γ≡Δ (J-subst ⊢A ⊢t ⊢B ⊢u ⊢v w₁⇒w₂) =
   J-subst (stability Γ≡Δ ⊢A) (stabilityTerm Γ≡Δ ⊢t)
     (stability

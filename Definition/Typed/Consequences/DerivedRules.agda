@@ -26,11 +26,11 @@ private variable
   Γ : Con Term _
   t : Term _
 
--- An η-rule for the Unit type.
+-- An η-rule for the (strong) Unit type.
 
 Unit-η :
-  Γ ⊢ t ∷ Unit →
-  Γ ⊢ star ≡ t ∷ Unit
+  Γ ⊢ t ∷ Unitˢ →
+  Γ ⊢ starˢ ≡ t ∷ Unitˢ
 Unit-η ⊢t = η-unit
   (starⱼ (wfTerm ⊢t) (⊢∷Unit→Unit-allowed ⊢t))
   ⊢t

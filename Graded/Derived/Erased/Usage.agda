@@ -6,11 +6,13 @@
 
 open import Graded.Modality
 open import Graded.Usage.Restrictions
+open import Definition.Untyped.NotParametrised using (SigmaMode)
 
 module Graded.Derived.Erased.Usage
   {a} {M : Set a}
   (𝕄 : Modality M)
   (R : Usage-restrictions M)
+  (s : SigmaMode)
   where
 
 open Modality 𝕄
@@ -23,7 +25,8 @@ open import Graded.Usage.Properties 𝕄 R
 open import Graded.Mode 𝕄
 
 open import Definition.Untyped M hiding (_∷_)
-open import Graded.Derived.Erased.Untyped 𝕄
+import Graded.Derived.Erased.Untyped
+open Graded.Derived.Erased.Untyped 𝕄 s
 
 open import Tools.Bool
 open import Tools.Function
@@ -36,19 +39,6 @@ private variable
   A t : Term _
   γ   : Conₘ _
   m   : Mode
-  ok  : T _
-
-private
-
-  -- A lemma used below.
-
-  ᵐ·𝟘≡𝟘ᵐ : ∀ m ok → m ᵐ· 𝟘 PE.≡ 𝟘ᵐ[ ok ]
-  ᵐ·𝟘≡𝟘ᵐ m _ =
-    m ᵐ· 𝟘   ≡⟨ ᵐ·-zeroʳ m ⟩
-    𝟘ᵐ?      ≡⟨ 𝟘ᵐ?≡𝟘ᵐ ⟩
-    𝟘ᵐ[ _ ]  ∎
-    where
-    open Tools.Reasoning.PropositionalEquality
 
 ------------------------------------------------------------------------
 -- Usage rules
@@ -73,32 +63,23 @@ opaque
 
 opaque
 
-  -- A usage rule for [_].
-
   ▸[] : γ ▸[ 𝟘ᵐ? ] t → 𝟘ᶜ ▸[ m ] [ t ]
-  ▸[] {γ} {m} ▸t = sub
-    (prodₚₘ (▸-cong (PE.sym (ᵐ·-zeroʳ m)) ▸t) starₘ)
-    (begin
-       𝟘ᶜ             ≈˘⟨ ∧ᶜ-idem _ ⟩
-       𝟘ᶜ ∧ᶜ 𝟘ᶜ       ≈˘⟨ ∧ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
-       𝟘 ·ᶜ γ ∧ᶜ 𝟘ᶜ  ∎)
+  ▸[] {(n)} {γ} {t} {m} ▸t = lemma s PE.refl
     where
-    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-
--- A usage rule for erased.
-
-▸erased : γ ▸[ 𝟘ᵐ[ ok ] ] t → 𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] erased t
-▸erased {ok = ok} ▸t = fstₘ
-  𝟘ᵐ[ ok ]
-  (▸-cong (PE.sym lemma) (▸-𝟘 ▸t))
-  lemma
-  λ ()
-  where
-  open Tools.Reasoning.PropositionalEquality
-
-  lemma =
-    𝟘ᵐ[ ok ] ᵐ· 𝟘  ≡⟨ ᵐ·𝟘≡𝟘ᵐ 𝟘ᵐ[ ok ] _ ⟩
-    𝟘ᵐ[ ok ]       ∎
+    open Tools.Reasoning.PartialOrder (≤ᶜ-poset {n})
+    lemma : ∀ s′ → s PE.≡ s′ → 𝟘ᶜ ▸[ m ] [ t ]
+    lemma Σₚ PE.refl = sub
+      (prodₚₘ (▸-cong (PE.sym (ᵐ·-zeroʳ m)) ▸t) starₘ)
+      (begin
+         𝟘ᶜ             ≈˘⟨ ∧ᶜ-idem _ ⟩
+         𝟘ᶜ ∧ᶜ 𝟘ᶜ       ≈˘⟨ ∧ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
+         𝟘 ·ᶜ γ ∧ᶜ 𝟘ᶜ  ∎)
+    lemma Σᵣ PE.refl = sub
+      (prodᵣₘ (▸-cong (PE.sym (ᵐ·-zeroʳ m)) ▸t) starₘ)
+      (begin
+         𝟘ᶜ             ≈˘⟨ +ᶜ-identityˡ _ ⟩
+         𝟘ᶜ +ᶜ 𝟘ᶜ       ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
+         𝟘 ·ᶜ γ +ᶜ 𝟘ᶜ  ∎)
 
 ------------------------------------------------------------------------
 -- Inversion lemmas for usage
@@ -124,31 +105,28 @@ opaque
   -- An inversion lemma for [_].
 
   inv-usage-[] : γ ▸[ m ] [ t ] → (∃ λ δ → δ ▸[ 𝟘ᵐ? ] t) × γ ≤ᶜ 𝟘ᶜ
-  inv-usage-[] {γ} {m} ▸[] =
-    case inv-usage-prodₚ ▸[] of λ {
-      (invUsageProdₚ {δ = δ} {η = η} ▸t ▸star γ≤) →
-      (_ , ▸-cong (ᵐ·-zeroʳ m) ▸t)
-    , (begin
-         γ            ≤⟨ γ≤ ⟩
-         𝟘 ·ᶜ δ ∧ᶜ η  ≈⟨ ∧ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
-         𝟘ᶜ ∧ᶜ η      ≤⟨ ∧ᶜ-monotoneʳ (inv-usage-star ▸star) ⟩
-         𝟘ᶜ ∧ᶜ 𝟘ᶜ     ≈⟨ ∧ᶜ-idem _ ⟩
-         𝟘ᶜ           ∎) }
+  inv-usage-[] {(n)} {γ} {m} {t} ▸[] = lemma s PE.refl
     where
-    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-
--- An inversion lemma for erased.
-
-inv-usage-erased :
-  γ ▸[ m ] erased t → 𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] t × γ ≤ᶜ 𝟘ᶜ × m PE.≡ 𝟘ᵐ[ ok ]
-inv-usage-erased {γ = γ} {ok = ok} ▸[] =
-  case inv-usage-fst ▸[] of λ where
-    (invUsageFst {δ = δ} m PE.refl ▸t γ≤ _) →
-        ▸-𝟘 ▸t
+    open Tools.Reasoning.PartialOrder (≤ᶜ-poset {n})
+    lemma : ∀ s′ → s PE.≡ s′ → (∃ λ δ → δ ▸[ 𝟘ᵐ? ] t) × γ ≤ᶜ 𝟘ᶜ
+    lemma Σₚ PE.refl =
+      case inv-usage-prodₚ ▸[] of λ {
+        (invUsageProdₚ {δ = δ} {η = η} ▸t ▸star γ≤) →
+      (_ , ▸-cong (ᵐ·-zeroʳ m) ▸t)
       , (begin
-           γ   ≤⟨ γ≤ ⟩
-           δ   ≤⟨ ▸-𝟘ᵐ (▸-cong (ᵐ·𝟘≡𝟘ᵐ m ok) ▸t) ⟩
-           𝟘ᶜ  ∎)
-      , ᵐ·𝟘≡𝟘ᵐ m _
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+          γ            ≤⟨ γ≤ ⟩
+          𝟘 ·ᶜ δ ∧ᶜ η  ≈⟨ ∧ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
+          𝟘ᶜ ∧ᶜ η      ≤⟨ ∧ᶜ-decreasingˡ _ _ ⟩
+          𝟘ᶜ           ∎) }
+    lemma Σᵣ PE.refl =
+      case inv-usage-prodᵣ ▸[] of λ {
+        (invUsageProdᵣ {δ = δ} {η} ▸t ▸star γ≤) →
+      case inv-usage-starʷ ▸star of λ
+        η≤𝟘 →
+      (_ , ▸-cong (ᵐ·-zeroʳ m) ▸t)
+      , (begin
+          γ            ≤⟨ γ≤ ⟩
+          𝟘 ·ᶜ δ +ᶜ η  ≈⟨ +ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
+          𝟘ᶜ +ᶜ η      ≈⟨ +ᶜ-identityˡ _ ⟩
+          η            ≤⟨ η≤𝟘 ⟩
+          𝟘ᶜ           ∎) }

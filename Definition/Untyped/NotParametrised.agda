@@ -36,6 +36,8 @@ data GenTs (A : Nat → Set a) : Nat → List Nat → Set a where
   _∷_ : {n b : Nat} {bs : List Nat} (t : A (b + n)) (ts : GenTs A n bs) → GenTs A n (b ∷ bs)
 
 -- Sigma types have two modes, allowing either projections or prodrec
+-- TODO: Currently also used for the modes of the Unit type.
+-- Rename or split into two definitions?
 data SigmaMode : Set where
   Σₚ Σᵣ : SigmaMode
 

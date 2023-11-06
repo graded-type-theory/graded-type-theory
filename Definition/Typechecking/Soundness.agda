@@ -105,6 +105,13 @@ mutual
     in  substType ⊢A ⊢n , (natrecⱼ ⊢A ⊢z ⊢s ⊢n)
   soundness⇉ ⊢Γ (Unitᵢ ok) = Uⱼ ⊢Γ , Unitⱼ ⊢Γ ok
   soundness⇉ ⊢Γ (starᵢ ok) = Unitⱼ ⊢Γ ok , starⱼ ⊢Γ ok
+  soundness⇉ ⊢Γ (unitrecᵢ A⇇Type t⇇Unit u⇇A₊) =
+    let ⊢t = soundness⇇ ⊢Γ t⇇Unit
+        ⊢Unit = syntacticTerm ⊢t
+        ok = inversion-Unit ⊢Unit
+        ⊢A = soundness⇇Type (⊢Γ ∙ ⊢Unit) A⇇Type
+        ⊢u = soundness⇇ ⊢Γ u⇇A₊
+    in  substType ⊢A ⊢t , unitrecⱼ ⊢A ⊢t ⊢u ok
   soundness⇉ ⊢Γ Emptyᵢ = (Uⱼ ⊢Γ) , (Emptyⱼ ⊢Γ)
   soundness⇉ ⊢Γ (emptyrecᵢ A⇇Type t⇇Empty) =
     let ⊢A = soundness⇇Type ⊢Γ A⇇Type

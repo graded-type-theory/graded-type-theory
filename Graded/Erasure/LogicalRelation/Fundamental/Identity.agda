@@ -51,7 +51,7 @@ open import Definition.Untyped.Properties M
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties.Has-well-behaved-zero 𝕄
-open import Graded.Derived.Erased.Untyped 𝕄 as Erased using (Erased)
+import Graded.Derived.Erased.Untyped 𝕄 as Erased
 open import Graded.Erasure.LogicalRelation R is-𝟘? ⊢Δ
 open import Graded.Erasure.LogicalRelation.Conversion R is-𝟘? ⊢Δ
 open import Graded.Erasure.LogicalRelation.Reduction R is-𝟘? ⊢Δ
@@ -74,6 +74,7 @@ private variable
   m           : Mode
   ⊩Γ          : ⊩ᵛ _
   p q         : M
+  s           : SigmaMode
 
 opaque
 
@@ -134,11 +135,12 @@ opaque
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ A →
     Γ ⊢ v ∷ Id A t u →
-    []-cong-allowed →
+    []-cong-allowed s →
+    let open Erased s in
     ∃ λ (⊩Γ : ⊩ᵛ Γ) →
-    ∃ λ (⊩Id : Γ ⊩ᵛ⟨ ¹ ⟩ Id (Erased A) Erased.[ t ] Erased.[ u ] / ⊩Γ) →
-    γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ []-cong A t u v ∷[ m ]
-      Id (Erased A) Erased.[ t ] Erased.[ u ] / ⊩Γ / ⊩Id
+    ∃ λ (⊩Id : Γ ⊩ᵛ⟨ ¹ ⟩ Id (Erased A) ([ t ]) ([ u ]) / ⊩Γ) →
+    γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ []-cong s A t u v ∷[ m ]
+      Id (Erased A) ([ t ]) ([ u ]) / ⊩Γ / ⊩Id
   []-congʳ {t} {A} {u} {v} PE.refl ⊢t ⊢u ⊢v ok =
     case ≡0→≡ε PE.refl Δ of λ {
       PE.refl →
@@ -152,9 +154,9 @@ opaque
         case ε⊢∷Id→ε⊢≡∷ ⊢v[σ] of λ {
           t[σ]≡u[σ] →
         rflᵣ
-          (([]-cong A t u v) [ σ ]    ⇒*⟨ []-cong-subst* (ε⊢⇒*rfl∷Id ⊢v[σ]) ok ⟩
-           ([]-cong A t u rfl) [ σ ]  ⇒⟨ []-cong-β-⇒ t[σ]≡u[σ] ok ⟩∎
-           rfl                        ∎)
+          (([]-cong _ A t u v) [ σ ]    ⇒*⟨ []-cong-subst* (ε⊢⇒*rfl∷Id ⊢v[σ]) ok ⟩
+           ([]-cong _ A t u rfl) [ σ ]  ⇒⟨ []-cong-β-⇒ t[σ]≡u[σ] ok ⟩∎
+           rfl                          ∎)
           T.refl
           ◀ _ }}}}
     where

@@ -908,6 +908,22 @@ opaque
     Id (wk1 A [ liftSubst σ ]) (wk1 t [ liftSubst σ ]) (var x0)  ≡⟨ cong₂ (λ A t → Id A t _) (wk1-liftSubst A) (wk1-liftSubst t) ⟩
     Id (wk1 (A [ σ ])) (wk1 (t [ σ ])) (var x0)                  ∎
 
+opaque
+
+  -- A _[t]₀ after _[u]↑ has the same effect as _[u[t]₀]₀.
+
+  []↑-[]₀ :
+    ∀ A →
+    A [ u ]↑ [ t ]₀ ≡ A [ u [ t ]₀ ]₀
+  []↑-[]₀ {u} {t} A = begin
+    (A [ u ]↑) [ t ]₀                                   ≡⟨ substCompEq A ⟩
+    A [ sgSubst t ₛ•ₛ consSubst (wk1Subst idSubst) u ]  ≡⟨ substVar-to-subst lemma A ⟩
+    A [ u [ t ]₀ ]₀                                     ∎
+    where
+    lemma : ∀ x → (sgSubst t ₛ•ₛ consSubst (wk1Subst idSubst) u) x ≡ sgSubst (u [ t ]₀) x
+    lemma x0 = refl
+    lemma (_+1 x) = refl
+
 -- There are no closed neutral terms
 
 noClosedNe : {t : Term 0} → Neutral t → ⊥
@@ -917,6 +933,7 @@ noClosedNe (sndₙ net) = noClosedNe net
 noClosedNe (natrecₙ net) = noClosedNe net
 noClosedNe (prodrecₙ net) = noClosedNe net
 noClosedNe (emptyrecₙ net) = noClosedNe net
+noClosedNe (unitrecₙ net) = noClosedNe net
 noClosedNe (Jₙ net) = noClosedNe net
 noClosedNe (Kₙ net) = noClosedNe net
 noClosedNe ([]-congₙ net) = noClosedNe net

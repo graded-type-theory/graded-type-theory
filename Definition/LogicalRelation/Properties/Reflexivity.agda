@@ -43,6 +43,13 @@ reflEmpty-prop : ∀ {n}
                  → [Empty]-prop Γ n n
 reflEmpty-prop (ne (neNfₜ neK ⊢k k≡k)) = ne (neNfₜ₌ neK neK k≡k)
 
+reflUnitʷ-prop : ∀ {t}
+               → Unit-prop Γ Σᵣ t
+               → [Unitʷ]-prop Γ t t
+reflUnitʷ-prop starᵣ = starᵣ
+reflUnitʷ-prop (ne (neNfₜ neK ⊢k k≡k)) = ne (neNfₜ₌ neK neK k≡k)
+
+
 -- Reflexivity of reducible types.
 reflEq : ∀ {l A} ([A] : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ A ≡ A / [A]
 
@@ -81,8 +88,11 @@ reflEqTerm (ℕᵣ D) (ℕₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
 reflEqTerm (Emptyᵣ D) (Emptyₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
   Emptyₜ₌ n n [ ⊢t , ⊢u , d ] [ ⊢t , ⊢u , d ] t≡t
     (reflEmpty-prop prop)
-reflEqTerm (Unitᵣ D) (Unitₜ n [ ⊢t , ⊢u , d ] prop) =
+reflEqTerm (Unitᵣ {s = Σₚ} D) (Unitₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
   Unitₜ₌ ⊢t ⊢t
+reflEqTerm (Unitᵣ {s = Σᵣ} D) (Unitₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
+  Unitₜ₌ n n [ ⊢t , ⊢u , d ] [ ⊢t , ⊢u , d ]
+         t≡t (reflUnitʷ-prop prop)
 reflEqTerm (ne′ K D neK K≡K) (neₜ k d (neNfₜ neK₁ ⊢k k≡k)) =
   neₜ₌ k k d d (neNfₜ₌ neK₁ neK₁ k≡k)
 reflEqTerm

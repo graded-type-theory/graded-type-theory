@@ -61,7 +61,7 @@ inv-usage-Empty (sub γ▸⊥ γ≤δ) = ≤ᶜ-trans γ≤δ (inv-usage-Empty �
 
 -- If γ ▸[ m ] Unit then γ ≤ᶜ 𝟘ᶜ.
 
-inv-usage-Unit : γ ▸[ m ] Unit → γ ≤ᶜ 𝟘ᶜ
+inv-usage-Unit : γ ▸[ m ] Unit s → γ ≤ᶜ 𝟘ᶜ
 inv-usage-Unit Unitₘ = ≤ᶜ-refl
 inv-usage-Unit (sub γ▸⊤ γ≤δ) = ≤ᶜ-trans γ≤δ (inv-usage-Unit γ▸⊤)
 
@@ -309,11 +309,41 @@ inv-usage-emptyrec (emptyrecₘ δ▸t η▸A) = invUsageemptyrec δ▸t η▸A 
 inv-usage-emptyrec (sub γ▸et γ≤γ′) with inv-usage-emptyrec γ▸et
 ... | invUsageemptyrec δ▸t η▸A γ′≤δ = invUsageemptyrec δ▸t η▸A (≤ᶜ-trans γ≤γ′ γ′≤δ)
 
--- If γ ▸[ m ] star then γ ≤ᶜ 𝟘ᶜ.
+-- If γ ▸[ m ] starʷ then γ ≤ᶜ 𝟘ᶜ.
 
-inv-usage-star : γ ▸[ m ] star → γ ≤ᶜ 𝟘ᶜ
-inv-usage-star starₘ = ≤ᶜ-refl
-inv-usage-star (sub  δ▸star γ≤δ) = ≤ᶜ-trans γ≤δ (inv-usage-star δ▸star)
+inv-usage-starʷ : γ ▸[ m ] starʷ → γ ≤ᶜ 𝟘ᶜ
+inv-usage-starʷ starʷₘ = ≤ᶜ-refl
+inv-usage-starʷ (sub  δ▸star γ≤δ) = ≤ᶜ-trans γ≤δ (inv-usage-starʷ δ▸star)
+
+-- If γ ▸[ m ] starˢ and the strong unit type cannot be used as a sink
+-- then 𝟘ᶜ ≈ᶜ γ.
+
+inv-usage-starˢ : γ ▸[ m ] starˢ → (¬Starˢ-sink → γ ≤ᶜ 𝟘ᶜ)
+inv-usage-starˢ (starˢₘ prop) ¬sink =
+  ≤ᶜ-reflexive (≈ᶜ-trans (≈ᶜ-sym (·ᶜ-congˡ (prop ¬sink))) (·ᶜ-zeroʳ _))
+inv-usage-starˢ (sub γ▸star γ≤γ′) ¬sink with inv-usage-starˢ γ▸star ¬sink
+... | γ′≤𝟘 = ≤ᶜ-trans γ≤γ′ γ′≤𝟘
+
+record InvUsageUnitrec {n} (γ : Conₘ n) (m : Mode) (p q : M)
+                       (A : Term (1+ n)) (t u : Term n) : Set a where
+  constructor invUsageUnitrec
+  field
+    {δ η θ} : Conₘ n
+    δ▸t : δ ▸[ m ᵐ· p ] t
+    η▸u : η ▸[ m ] u
+    θ▸A : θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
+    P : Unitrec-allowed p q
+    γ≤δ+η : γ ≤ᶜ p ·ᶜ δ +ᶜ η
+
+-- If γ ▸[ m ] unitrec A t u then δ ▸[ m ] t, η ▸[ m ] u,
+-- θ ▸[ 𝟘ᵐ? ] A and γ ≤ᶜ δ +ᶜ η.
+
+inv-usage-unitrec : γ ▸[ m ] unitrec p q A t u → InvUsageUnitrec γ m p q A t u
+inv-usage-unitrec (unitrecₘ δ▸t η▸u θ▸A ok) =
+  invUsageUnitrec δ▸t η▸u θ▸A ok ≤ᶜ-refl
+inv-usage-unitrec (sub γ′▸ur γ≤γ′) with inv-usage-unitrec γ′▸ur
+... | invUsageUnitrec δ▸t η▸u θ▸A ok γ′≤pδ+η =
+  invUsageUnitrec δ▸t η▸u θ▸A ok (≤ᶜ-trans γ≤γ′ γ′≤pδ+η)
 
 -- A type used to state inv-usage-Id.
 
@@ -450,7 +480,7 @@ record InvUsage-[]-cong
 -- A usage inversion lemma for []-cong.
 
 inv-usage-[]-cong :
-  γ ▸[ m ] []-cong A t u v → InvUsage-[]-cong γ A t u v
+  γ ▸[ m ] []-cong s A t u v → InvUsage-[]-cong γ A t u v
 inv-usage-[]-cong ([]-congₘ ▸A ▸t ▸u ▸v) =
   invUsage-[]-cong ▸A ▸t ▸u ▸v ≤ᶜ-refl
 inv-usage-[]-cong (sub γ′▸ γ≤γ′) with inv-usage-[]-cong γ′▸

@@ -28,13 +28,13 @@ import Graded.Modality.Properties.Multiplication as Multiplication
 import Graded.Modality.Properties.PartialOrder as PartialOrder
 import Graded.Modality.Properties.Star as Star
 open import Graded.Modality.Variant lzero
-
 open import Definition.Typed.Restrictions
-open import Definition.Untyped using (BMΣ; Σₚ)
+import Graded.Usage.Restrictions
+
+open import Definition.Untyped using (BMΣ; Σₚ; Σᵣ)
 
 private variable
   variant : Modality-variant
-  trs     : Type-restrictions _
 
 ------------------------------------------------------------------------
 -- The type
@@ -44,11 +44,14 @@ private variable
 data Linear-or-affine : Set where
   𝟘 𝟙 ≤𝟙 ≤ω : Linear-or-affine
 
-open Graded.Modality Linear-or-affine
-open Tools.Algebra   Linear-or-affine
+open Graded.Modality               Linear-or-affine
+open Tools.Algebra                 Linear-or-affine
+open Graded.Usage.Restrictions     Linear-or-affine
 
 private variable
   n n₁ n₂ p q r s s₁ s₂ z z₁ z₂ : Linear-or-affine
+  urs                           : Usage-restrictions
+  trs                           : Type-restrictions _
 
 ------------------------------------------------------------------------
 -- Basic operations
@@ -3961,53 +3964,57 @@ linear-or-affine variant = record
 ------------------------------------------------------------------------
 -- Instances of Full-reduction-assumptions
 
--- An instance of Type-restrictions (linear-or-affine variant) is
--- suitable for the full reduction theorem if
--- * Unit-allowed does not hold,
+-- Instances of Type-restrictions and Usage-restrictions are suitable
+-- for the full reduction theorem if
+-- * Unitˢ-allowed does not hold or Starˢ-sink holds,
 -- * Σₚ-allowed 𝟘 p does not hold,
 -- * Σₚ-allowed ≤𝟙 p does not hold, and
 -- * Σₚ-allowed ≤ω p does not hold.
 
 Suitable-for-full-reduction :
-  ∀ variant → Type-restrictions (linear-or-affine variant) → Set
-Suitable-for-full-reduction _ rs =
-  ¬ Unit-allowed ×
+  ∀ variant →
+  Type-restrictions (linear-or-affine variant) → Usage-restrictions → Set
+Suitable-for-full-reduction variant rs us =
+  (¬ Unitˢ-allowed ⊎ Starˢ-sink) ×
   (∀ p → ¬ Σₚ-allowed 𝟘 p) ×
   (∀ p → ¬ Σₚ-allowed ≤𝟙 p) ×
   (∀ p → ¬ Σₚ-allowed ≤ω p)
   where
-  open Type-restrictions rs
+  open Type-restrictions  rs
+  open Usage-restrictions us
 
 -- Given an instance of Type-restrictions (linear-or-affine variant)
 -- one can create a "suitable" instance.
 
 suitable-for-full-reduction :
   Type-restrictions (linear-or-affine variant) →
-  ∃ (Suitable-for-full-reduction variant)
+  ∃ λ rs → Suitable-for-full-reduction variant rs urs
 suitable-for-full-reduction rs =
     record rs
-      { Unit-allowed     = ⊥
-      ; ΠΣ-allowed       = λ b p q →
-                             ΠΣ-allowed b p q × (b ≡ BMΣ Σₚ → p ≡ 𝟙)
-      ; []-cong-allowed  = ⊥
+      { Unit-allowed = λ { Σₚ → ⊥ ; Σᵣ → Unitʷ-allowed }
+      ; ΠΣ-allowed   = λ b p q →
+          ΠΣ-allowed b p q × p ≢ 𝟘 × p ≢ ≤𝟙 × p ≢ ≤ω
+      ; []-cong-allowed  = λ _ → ⊥
       ; []-cong→Erased   = λ ()
       ; []-cong→¬Trivial = λ ()
       }
-  , idᶠ
-  , (λ _ → ((λ ()) ∘→ (_$ PE.refl)) ∘→ proj₂)
-  , (λ _ → ((λ ()) ∘→ (_$ PE.refl)) ∘→ proj₂)
-  , (λ _ → ((λ ()) ∘→ (_$ PE.refl)) ∘→ proj₂)
+  , inj₁ idᶠ
+  , (λ _ → (_$ refl) ∘→ proj₁ ∘→ proj₂)
+  , (λ _ → (_$ refl) ∘→ proj₁ ∘→ proj₂ ∘→ proj₂)
+  , (λ _ → (_$ refl) ∘→ proj₂ ∘→ proj₂ ∘→ proj₂)
   where
   open Type-restrictions rs
 
--- The full reduction assumptions hold for any instance of
--- linear-or-affine and any "suitable" instance of Type-restrictions.
+-- -- The full reduction assumptions hold for any instance of
+-- linear-or-affine and any "suitable" Type-restrictions and Usage-restrictions.
 
 full-reduction-assumptions :
-  Suitable-for-full-reduction variant trs →
-  Full-reduction-assumptions trs
-full-reduction-assumptions (¬Unit , ¬𝟘 , ¬≤𝟙 , ¬≤ω) = record
-  { 𝟙≤𝟘    = ⊥-elim ∘→ ¬Unit
+  Suitable-for-full-reduction variant trs urs →
+  Full-reduction-assumptions trs urs
+full-reduction-assumptions (¬Unit⊎sink , ¬𝟘 , ¬≤𝟙 , ¬≤ω) = record
+  { sink⊎𝟙≤𝟘 = case ¬Unit⊎sink of λ where
+     (inj₁ ¬Unit) → ⊥-elim ∘→ ¬Unit
+     (inj₂ sink) → λ _ → inj₁ sink
   ; ≡𝟙⊎𝟙≤𝟘 = λ where
       {p = 𝟘}  ok → ⊥-elim (¬𝟘 _ ok)
       {p = ≤𝟙} ok → ⊥-elim (¬≤𝟙 _ ok)

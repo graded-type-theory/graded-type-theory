@@ -79,6 +79,16 @@ mutual
                      ρg~ρh u↓v)
   wk~↑ [ρ] ⊢Δ (emptyrec-cong x t~u) =
     emptyrec-cong (wkConv↑ [ρ] ⊢Δ x) (wk~↓ [ρ] ⊢Δ t~u)
+  wk~↑ {ρ = ρ} {Δ = Δ} [ρ] ⊢Δ (unitrec-cong {F = F} x x₁ x₂) =
+    let k~l = wk~↓ [ρ] ⊢Δ x₁
+        ⊢Unit , _ = syntacticEqTerm (soundness~↓ k~l)
+        u↑v = PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x)
+                       (wk-β F)
+                       (wkConv↑Term [ρ] ⊢Δ x₂)
+    in  PE.subst (λ x → _ ⊢ U.wk ρ (unitrec _ _ _ _ _) ~ _ ↑ x)
+                 (PE.sym (wk-β F))
+                 (unitrec-cong (wkConv↑ (lift [ρ]) (⊢Δ ∙ ⊢Unit) x)
+                               k~l u↑v)
   wk~↑
     {ρ} {Δ} [ρ] ⊢Δ
     (J-cong {A₁} {B₁} {B₂} A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁~w₂ ≡Id) =
@@ -186,6 +196,7 @@ mutual
   wkConv↓Term ρ ⊢Δ (univ x x₁ x₂) =
     univ (wkTerm ρ ⊢Δ x) (wkTerm ρ ⊢Δ x₁) (wkConv↓ ρ ⊢Δ x₂)
   wkConv↓Term ρ ⊢Δ (zero-refl x) = zero-refl ⊢Δ
+  wkConv↓Term ρ ⊢Δ (starʷ-refl x ok) = starʷ-refl ⊢Δ ok
   wkConv↓Term ρ ⊢Δ (suc-cong t<>u) = suc-cong (wkConv↑Term ρ ⊢Δ t<>u)
   wkConv↓Term ρ ⊢Δ (prod-cong {G = G} x x₁ x₂ x₃ ok) =
     let ⊢ρF = wk ρ ⊢Δ x

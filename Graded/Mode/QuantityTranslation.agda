@@ -48,6 +48,13 @@ module Is-morphism
 
   open Modality 𝕄₂ using (_≤_)
 
+  open import Graded.Context.QuantityTranslation 𝕄₁ 𝕄₂ tr
+  import Graded.Context 𝕄₁ as MC₁
+  import Graded.Context 𝕄₂ as MC₂
+
+  private variable
+    γ : MC₁.Conₘ _
+
   -- Translation of modes.
 
   tr-Mode : Mo₁.Mode → Mo₂.Mode
@@ -75,6 +82,12 @@ module Is-morphism
         tr (M₁.𝟙 M₁.· p)  ∎
     where
     open Tools.Reasoning.PropositionalEquality
+
+  -- A variant of the previous lemma for usage contexts
+
+  tr-⌜⌝-·ᶜ : ∀ m → Mo₂.⌜ tr-Mode m ⌝ MC₂.·ᶜ tr-Conₘ γ MC₂.≈ᶜ tr-Conₘ (Mo₁.⌜ m ⌝ MC₁.·ᶜ γ)
+  tr-⌜⌝-·ᶜ {γ = MC₁.ε} _ = MC₂.ε
+  tr-⌜⌝-·ᶜ {γ = γ MC₁.∙ p} m = tr-⌜⌝-·ᶜ m MC₂.∙ tr-⌜⌝-· m
 
   -- The translation of Mo₁.⌜ Mo₁.𝟘ᵐ? ⌝ is bounded by Mo₂.⌜ Mo₂.𝟘ᵐ? ⌝.
 

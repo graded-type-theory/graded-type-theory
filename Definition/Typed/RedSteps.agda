@@ -20,7 +20,7 @@ open Type-restrictions R
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Typed R
 
-open import Graded.Derived.Erased.Untyped 𝕄 as Erased using (Erased)
+import Graded.Derived.Erased.Untyped 𝕄 as Erased
 
 open import Tools.Nat
 
@@ -31,6 +31,7 @@ private
     A B C : Term n
     a t t′ u v₁ v₂ r : Term n
     p q : M
+    s : SigmaMode
 
 -- Concatenation of type reduction closures
 _⇨*_ : Γ ⊢ A ⇒* B → Γ ⊢ B ⇒* C → Γ ⊢ A ⇒* C
@@ -73,9 +74,10 @@ fst-subst* (x ⇨ t⇒t′) ⊢F ⊢G = (fst-subst ⊢F ⊢G x) ⇨ (fst-subst* 
   Γ ⊢ t ∷ A →
   Γ ⊢ u ∷ A →
   Γ ⊢ v₁ ⇒* v₂ ∷ Id A t u →
-  []-cong-allowed →
-  Γ ⊢ []-cong A t u v₁ ⇒* []-cong A t u v₂ ∷
-    Id (Erased A) Erased.[ t ] Erased.[ u ]
+  []-cong-allowed s →
+  let open Erased s in
+    Γ ⊢ []-cong s A t u v₁ ⇒* []-cong s A t u v₂ ∷
+      Id (Erased A) ([ t ]) ([ u ])
 []-cong-subst* ⊢A ⊢t ⊢u = λ where
   (id ⊢v₁)         ok → id ([]-congⱼ ⊢t ⊢u ⊢v₁ ok)
   (v₁⇒v₃ ⇨ v₃⇒*v₂) ok →
@@ -89,9 +91,10 @@ fst-subst* (x ⇨ t⇒t′) ⊢F ⊢G = (fst-subst ⊢F ⊢G x) ⇨ (fst-subst* 
   Γ ⊢ t ∷ A →
   Γ ⊢ u ∷ A →
   Γ ⊢ v₁ :⇒*: v₂ ∷ Id A t u →
-  []-cong-allowed →
-  Γ ⊢ []-cong A t u v₁ :⇒*: []-cong A t u v₂ ∷
-    Id (Erased A) Erased.[ t ] Erased.[ u ]
+  []-cong-allowed s →
+  let open Erased s in
+    Γ ⊢ []-cong s A t u v₁ :⇒*: []-cong s A t u v₂ ∷
+      Id (Erased A) ([ t ]) ([ u ])
 []-cong-subst:*: ⊢A ⊢t ⊢u [ ⊢v₁ , ⊢v₂ , v₁⇒*v₂ ] ok = record
   { ⊢t = []-congⱼ ⊢t ⊢u ⊢v₁ ok
   ; ⊢u = []-congⱼ ⊢t ⊢u ⊢v₂ ok

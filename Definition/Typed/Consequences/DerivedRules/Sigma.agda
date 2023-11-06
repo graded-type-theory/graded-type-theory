@@ -1049,6 +1049,38 @@ module Fstᵣ-sndᵣ (r′ q′ : M) where
         (fstᵣ-β-≡ ⊢B (fstᵣⱼ ⊢t) (sndᵣⱼ ⊢t) ok)
         (sndᵣ-β-≡ ⊢B (fstᵣⱼ ⊢t) (sndᵣⱼ ⊢t) ok) }
 
+
+  -- Inversion lemma for fstᵣ.
+
+  inversion-fstᵣ : Γ ⊢ fstᵣ p A t ∷ C →
+    ∃₂ λ q B → Γ ⊢ t ∷ Σᵣ p , q ▷ A ▹ B × Γ ⊢ C ≡ A
+  inversion-fstᵣ {p = p} {A} {t} ⊢t₁ =
+    case inversion-prodrec ⊢t₁ of λ
+      (F , G , q , ⊢F , ⊢G , ⊢wk1A , ⊢t , ⊢x₁ , C≡) →
+    case inversion-var ⊢x₁ of λ {
+      (_ , there here , ≡wk2F) →
+    case PE.subst (_ ⊢ _ ≡_) (wk1-sgSubst A t) C≡ of λ
+      C≡A →
+    case PE.subst (_ ⊢_≡ _) (wk1-[]↑² {t = A}) ≡wk2F of λ
+      wk2A≡wk2F →
+    case PE.subst (_ ⊢ fstᵣ p F t ∷_) (PE.sym (subst-id F)) (fstᵣⱼ ⊢t) of λ
+      ⊢t₁ →
+    case sndᵣⱼ ⊢t of λ
+      ⊢t₂ →
+    case substRefl {σ = consSubst (sgSubst (fstᵣ p F t)) (sndᵣ p q F G t)}
+                   ((idSubst′ (wfTerm ⊢t₁) , ⊢t₁) , ⊢t₂) of λ
+      [σ] →
+    case substitutionEq wk2A≡wk2F [σ] (wfTerm ⊢t₁) of λ
+      A≡F′ →
+    case PE.subst₂ (_ ⊢_≡_)
+                   (PE.trans (wk2-tail A) (subst-id A))
+                   (PE.trans (wk2-tail F) (subst-id F))
+                   A≡F′ of λ
+      A≡F →
+    case inversion-ΠΣ (syntacticTerm ⊢t) of λ
+      (_ , _ , Σ-ok) →
+    q , G , conv ⊢t (ΠΣ-cong ⊢F (sym A≡F) (refl ⊢G) Σ-ok) , C≡A  }
+
 ------------------------------------------------------------------------
 -- More derived rules
 

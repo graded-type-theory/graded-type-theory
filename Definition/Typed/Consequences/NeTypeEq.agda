@@ -63,6 +63,8 @@ neTypeEq
   refl (substType ⊢A ⊢t)
 neTypeEq (emptyrecₙ neT) (emptyrecⱼ x t∷A) (emptyrecⱼ x₁ t∷B) =
   refl x₁
+neTypeEq (unitrecₙ neT) (unitrecⱼ ⊢A ⊢t _ _) (unitrecⱼ _ _ _ _) =
+  refl (substType ⊢A ⊢t)
 neTypeEq {Γ} (Jₙ _) (Jⱼ {w} _ _ ⊢B _ ⊢v ⊢w) (Jⱼ _ _ _ _ _ _) =
   refl $
   substType₂ ⊢B ⊢v $

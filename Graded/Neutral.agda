@@ -46,6 +46,7 @@ private variable
   A t : Term _
   χ   : Conₘ _
   p   : M
+  s   : SigmaMode
 
 opaque
 
@@ -109,6 +110,18 @@ opaque
         ⊥        □ }
       (emptyrecₙ _) ⊢er _ →
         ⊥-elim $ consistent _ (inversion-emptyrec ⊢er .proj₂ .proj₁)
+      (unitrecₙ t-n) ⊢ur (unitrecₘ {γ} {p} {δ} ▸t _ _ ok) →
+        case inversion-unitrec ⊢ur of λ {
+          (_ , ⊢t , _ , _) →
+        case nem non-trivial .proj₂ .proj₁ ok of λ
+          p≢𝟘 →
+          p ·ᶜ γ +ᶜ δ ≈ᶜ 𝟘ᶜ →⟨ proj₁ ∘→ +ᶜ-positive ⟩
+          p ·ᶜ γ ≈ᶜ 𝟘ᶜ  →⟨ ·ᶜ-zero-product ⟩
+          p ≡ 𝟘 ⊎ γ ≈ᶜ 𝟘ᶜ →⟨ (λ where
+                                (inj₁ p≡𝟘) → ⊥-elim (p≢𝟘 p≡𝟘)
+                                (inj₂ γ≈𝟘) → γ≈𝟘) ⟩
+          γ ≈ᶜ 𝟘ᶜ →⟨ helper t-n ⊢t (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) ▸t) ⟩
+          ⊥ □ }
       (Jₙ w-n) ⊢J (Jₘ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} _ _ _ _ _ _ ▸w) →
         case inversion-J ⊢J of λ {
           (_ , _ , _ , _ , _ , ⊢w , _) →
@@ -123,7 +136,7 @@ opaque
         γ₆ ≈ᶜ 𝟘ᶜ                                  →⟨ helper w-n ⊢w ▸w ⟩
         ⊥                                         □ }
       (Jₙ _) _ (J₀ₘ em _ _ _ _ _ _) →
-        ⊥-elim $ nem non-trivial .proj₂ .proj₂ .proj₁ em
+        ⊥-elim $ nem non-trivial .proj₂ .proj₂ .proj₂ .proj₁ em
       (Kₙ v-n) ⊢K (Kₘ {γ₂} {γ₃} {γ₄} {γ₅} _ _ _ _ _ ▸v) →
         case inversion-K ⊢K of λ {
           (_ , _ , _ , _ , ⊢v , _) →
@@ -137,11 +150,11 @@ opaque
         γ₅ ≈ᶜ 𝟘ᶜ                            →⟨ helper v-n ⊢v ▸v ⟩
         ⊥                                   □ }
       (Kₙ _) _ (K₀ₘ em _ _ _ _ _) →
-        ⊥-elim $ nem non-trivial .proj₂ .proj₂ .proj₂ em
+        ⊥-elim $ nem non-trivial .proj₂ .proj₂ .proj₂ .proj₂ em
       ([]-congₙ _) ⊢bc _ →
         case inversion-[]-cong ⊢bc of λ {
           (_ , _ , _ , _ , ok , _) →
-        ⊥-elim $ nem non-trivial .proj₂ .proj₁ ok }
+        ⊥-elim $ nem non-trivial .proj₂ .proj₂ .proj₁ ok }
       t-n ⊢t (sub {γ} ▸t χ≤γ) →
         χ ≈ᶜ 𝟘ᶜ  →⟨ ≤ᶜ→≈ᶜ𝟘ᶜ→≈ᶜ𝟘ᶜ χ≤γ ⟩
         γ ≈ᶜ 𝟘ᶜ  →⟨ helper t-n ⊢t ▸t ⟩
@@ -173,7 +186,7 @@ opaque
   -- well-resourced, neutral term in a consistent, erased context.
 
   neutral-well-resourced₂ :
-    []-cong-allowed →
+    []-cong-allowed s →
     ∃₄ λ n (Γ : Con Term n) (t A : Term n) →
     Consistent Γ ×
     Neutral t ×

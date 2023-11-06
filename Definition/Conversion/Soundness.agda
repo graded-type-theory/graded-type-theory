@@ -63,6 +63,12 @@ mutual
     in  prodrec-cong ⊢F ⊢G C≡E g≡h u≡v ok
   soundness~↑ (emptyrec-cong x₁ k~l) =
     emptyrec-cong (soundnessConv↑ x₁) (soundness~↓ k~l)
+  soundness~↑ (unitrec-cong x x₁ x₂) =
+    let F≡H = soundnessConv↑ x
+        k≡l = soundness~↓ x₁
+        u≡v = soundnessConv↑Term x₂
+        ok = inversion-Unit (proj₁ (syntacticEqTerm k≡l))
+    in  unitrec-cong F≡H k≡l u≡v ok
   soundness~↑ (J-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁~w₂ ≡Id) =
     case soundnessConv↑ A₁≡A₂ of λ {
       A₁≡A₂ →
@@ -130,6 +136,7 @@ mutual
     in  conv (soundness~↓ x₁) M≡A
   soundnessConv↓Term (univ x x₁ x₂) = inverseUnivEq x (soundnessConv↓ x₂)
   soundnessConv↓Term (zero-refl ⊢Γ) = refl (zeroⱼ ⊢Γ)
+  soundnessConv↓Term (starʷ-refl ⊢Γ ok) = refl (starⱼ ⊢Γ ok)
   soundnessConv↓Term (suc-cong c) = suc-cong (soundnessConv↑Term c)
   soundnessConv↓Term (prod-cong x x₁ x₂ x₃ ok) =
     prod-cong x x₁ (soundnessConv↑Term x₂) (soundnessConv↑Term x₃) ok

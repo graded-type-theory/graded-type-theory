@@ -41,6 +41,7 @@ private
     b             : BinderMode
     p q           : M
     l             : TypeLevel
+    s             : SigmaMode
 
 U≡A′ : ∀ {A l} ([U] : Γ ⊩⟨ l ⟩U)
     → Γ ⊩⟨ l ⟩ U ≡ A / (U-intr [U])
@@ -88,17 +89,17 @@ Empty≡A {A} Empty≡A whnfA with reducibleEq Empty≡A
 Empty≡A {A} Empty≡A whnfA | [Empty] , [A] , [Empty≡A] =
   Empty≡A′ (Empty-elim [Empty]) (irrelevanceEq [Empty] (Empty-intr (Empty-elim [Empty])) [Empty≡A]) whnfA
 
-Unit≡A′ : ∀ {A l} ([Unit] : Γ ⊩⟨ l ⟩Unit Unit)
-    → Γ ⊩⟨ l ⟩ Unit ≡ A / (Unit-intr [Unit])
+Unit≡A′ : ∀ {A l} ([Unit] : Γ ⊩⟨ l ⟩Unit⟨ s ⟩ Unit s)
+    → Γ ⊩⟨ l ⟩ Unit! ≡ A / (Unit-intr [Unit])
     → Whnf A
-    → A PE.≡ Unit
+    → A PE.≡ Unit s
 Unit≡A′ (noemb x) [Unit≡A] whnfA = whnfRed* [Unit≡A] whnfA
 Unit≡A′ (emb 0<1 [Unit]) [Unit≡A] whnfA = Unit≡A′ [Unit] [Unit≡A] whnfA
 
 Unit≡A : ∀ {A}
-    → Γ ⊢ Unit ≡ A
+    → Γ ⊢ Unit s ≡ A
     → Whnf A
-    → A PE.≡ Unit
+    → A PE.≡ Unit s
 Unit≡A {A} Unit≡A whnfA with reducibleEq Unit≡A
 Unit≡A {A} Unit≡A whnfA | [Unit] , [A] , [Unit≡A] =
   Unit≡A′ (Unit-elim [Unit]) (irrelevanceEq [Unit] (Unit-intr (Unit-elim [Unit])) [Unit≡A]) whnfA

@@ -45,6 +45,10 @@ prodrec-subst* : t ⇒* t′ → prodrec t u ⇒* prodrec t′ u
 prodrec-subst* refl = refl
 prodrec-subst* (trans x t⇒t′) = trans (prodrec-subst x) (prodrec-subst* t⇒t′)
 
+unitrec-subst* : t ⇒* t′ → unitrec t u ⇒* unitrec t′ u
+unitrec-subst* refl = refl
+unitrec-subst* (trans x d) = trans (unitrec-subst x) (unitrec-subst* d)
+
 
 -- Reduction is deterministic
 -- If a ⇒ b and a ⇒ c then b ≡ c
@@ -72,6 +76,9 @@ redDet (prodrec a a₁) (prodrec-subst u⇒t) (prodrec-subst u⇒t′) =
   PE.cong (λ z → prodrec z a₁) (redDet a u⇒t u⇒t′)
 redDet (prodrec .(prod _ _) a) prodrec-β prodrec-β = PE.refl
 redDet star () u⇒t′
+redDet (unitrec _ _) (unitrec-subst u⇒t) (unitrec-subst u⇒t′) =
+  PE.cong (λ z → unitrec z _) (redDet _ u⇒t u⇒t′)
+redDet (unitrec _ _) unitrec-β unitrec-β = PE.refl
 redDet ↯ () u⇒t′
 
 -- Reduction closure is deterministic

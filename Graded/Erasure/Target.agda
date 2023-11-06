@@ -34,6 +34,7 @@ data Term : Nat → Set where
   suc     : (t : Term n) → Term n
   natrec  : (z : Term m) (s : Term (1+ (1+ m))) (n : Term m) → Term m
   star    : Term n
+  unitrec : (t u : Term n) → Term n
   rfl     : Term n
   ↯       : Term n
 
@@ -58,6 +59,8 @@ data HasX (x : Fin n) : (t : Term n) → Set where
   sndₓ : HasX x t → HasX x (snd t)
   prodrecₓˡ : HasX x t → HasX x (prodrec t u)
   prodrecₓʳ : HasX (x +1 +1) u → HasX x (prodrec t u)
+  unitrecₓˡ : HasX x t → HasX x (unitrec t u)
+  unitrecₓʳ : HasX x u → HasX x (unitrec t u)
 
 -- Weakenings in the same style as the source language
 
@@ -101,6 +104,7 @@ wk ρ (fst t) = fst (wk ρ t)
 wk ρ (snd t) = snd (wk ρ t)
 wk ρ (prodrec t u) = prodrec (wk ρ t) (wk (lift (lift ρ)) u)
 wk ρ star = star
+wk ρ (unitrec t u) = unitrec (wk ρ t) (wk ρ u)
 wk _ rfl = rfl
 wk ρ ↯ = ↯
 
@@ -177,6 +181,7 @@ zero         [ σ ] = zero
 suc t        [ σ ] = suc (t [ σ ])
 natrec z s n [ σ ] = natrec (z [ σ ]) (s [ liftSubstn σ 2 ]) (n [ σ ])
 star         [ σ ] = star
+unitrec t u  [ σ ] = unitrec (t [ σ ]) (u [ σ ])
 rfl          [ _ ] = rfl
 ↯            [ σ ] = ↯
 
@@ -219,6 +224,8 @@ data _⇒_ : (t u : Term n) → Set where
   natrec-subst    : t ⇒ t′ → natrec z s t ⇒ natrec z s t′
   natrec-zero     : natrec z s zero ⇒ z
   natrec-suc      : natrec z s (suc t) ⇒ s [ t , natrec z s t ]
+  unitrec-subst   : t ⇒ t′ → unitrec t u ⇒ unitrec t′ u
+  unitrec-β       : unitrec star u ⇒ u
 
 -- Reflexive transitive closure of reduction relation
 

@@ -131,7 +131,7 @@ opaque
 
   -- A rewriting lemma for Unit.
 
-  ®-Unit : t ®⟨ l ⟩ v ∷ Unit → t ® v ∷Unit
+  ®-Unit : t ®⟨ l ⟩ v ∷ Unit s → t ® v ∷Unit⟨ s ⟩
   ®-Unit (⊩Unit′ , t®v) =
     irrelevanceTerm {l′ = ¹} ⊩Unit′
       (Unitᵣ (extractMaybeEmb (Unit-elim ⊩Unit′) .proj₂)) t®v

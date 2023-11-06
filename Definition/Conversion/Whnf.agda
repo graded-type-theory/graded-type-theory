@@ -43,6 +43,9 @@ mutual
     in  prodrecₙ gNe , prodrecₙ hNe
   ne~↑ (emptyrec-cong x x₁) = let _ , q , w = ne~↓ x₁
                               in emptyrecₙ q , emptyrecₙ w
+  ne~↑ (unitrec-cong _ k~l _) =
+    let _ , kNe , lNe = ne~↓ k~l
+    in  unitrecₙ kNe , unitrecₙ lNe
   ne~↑ (J-cong _ _ _ _ _ w₁~w₂ _) =
     Σ.map Jₙ Jₙ (ne~↓ w₁~w₂ .proj₂)
   ne~↑ (K-cong _ _ _ _ v₁~v₂ _ _) =
@@ -88,6 +91,7 @@ whnfConv↓Term (ne-ins t u x x₁) =
   in ne x , ne neT , ne neU
 whnfConv↓Term (univ x x₁ x₂) = Uₙ , whnfConv↓ x₂
 whnfConv↓Term (zero-refl x) = ℕₙ , zeroₙ , zeroₙ
+whnfConv↓Term (starʷ-refl x x₁) = Unitₙ , starₙ , starₙ
 whnfConv↓Term (suc-cong x) = ℕₙ , sucₙ , sucₙ
 whnfConv↓Term (prod-cong _ _ _ _ _) = ΠΣₙ , prodₙ , prodₙ
 whnfConv↓Term (η-eq x₁ x₂ y y₁ x₃) = ΠΣₙ , functionWhnf y , functionWhnf y₁

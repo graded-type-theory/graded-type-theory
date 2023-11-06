@@ -205,32 +205,65 @@ esplit (ne (neNfₜ₌ neK neM k≡m)) = neK , neM
 -- Reducibility of Unit
 
 -- Unit type
-record _⊩Unit_ (Γ : Con Term ℓ) (A : Term ℓ) : Set a where
+record _⊩Unit⟨_⟩_ (Γ : Con Term ℓ) (s : SigmaMode) (A : Term ℓ) : Set a where
   no-eta-equality
   pattern
   constructor Unitₜ
   field
-    ⇒*-Unit : Γ ⊢ A :⇒*: Unit
-    ok      : Unit-allowed
+    ⇒*-Unit : Γ ⊢ A :⇒*: Unit s
+    ok      : Unit-allowed s
 
 -- Unit type equality
-_⊩Unit_≡_ : (Γ : Con Term ℓ) (A B : Term ℓ) → Set a
-Γ ⊩Unit A ≡ B = Γ ⊢ B ⇒* Unit
+_⊩Unit⟨_⟩_≡_ : (Γ : Con Term ℓ) (s : SigmaMode) (A B : Term ℓ) → Set a
+Γ ⊩Unit⟨ s ⟩ A ≡ B = Γ ⊢ B ⇒* Unit s
 
-record _⊩Unit_∷Unit (Γ : Con Term ℓ) (t : Term ℓ) : Set a where
+data Unit-prop (Γ : Con Term ℓ) (s : SigmaMode) : (t : Term ℓ) → Set a where
+  starᵣ : Unit-prop Γ s (star s)
+  ne : ∀ {n} → Γ ⊩neNf n ∷ Unit s → Unit-prop Γ s n
+
+record _⊩Unit⟨_⟩_∷Unit (Γ : Con Term ℓ) (s : SigmaMode) (t : Term ℓ) : Set a where
   inductive
   constructor Unitₜ
   field
     n : Term ℓ
-    d : Γ ⊢ t :⇒*: n ∷ Unit
-    prop : Whnf n
+    d : Γ ⊢ t :⇒*: n ∷ Unit s
+    n≡n : Γ ⊢ n ≅ n ∷ Unit s
+    prop : Unit-prop Γ s n
 
 -- Unit term equality
-record _⊩Unit_≡_∷Unit (Γ : Con Term ℓ) (t u : Term ℓ) : Set a where
+
+record _⊩Unitˢ_≡_∷Unit (Γ : Con Term ℓ) (t u : Term ℓ) : Set a where
+  inductive
   constructor Unitₜ₌
   field
-    ⊢t : Γ ⊢ t ∷ Unit
-    ⊢u : Γ ⊢ u ∷ Unit
+    ⊢t : Γ ⊢ t ∷ Unitˢ
+    ⊢u : Γ ⊢ u ∷ Unitˢ
+
+data [Unitʷ]-prop (Γ : Con Term ℓ) : (t u : Term ℓ) → Set a where
+  starᵣ : [Unitʷ]-prop Γ starʷ starʷ
+  ne : ∀ {n n′} → Γ ⊩neNf n ≡ n′ ∷ Unitʷ → [Unitʷ]-prop Γ n n′
+
+unit : ∀ {s a} → Unit-prop Γ s a → Whnf a
+unit starᵣ = starₙ
+unit (ne (neNfₜ neK ⊢k k≡k)) = ne neK
+
+usplit : ∀ {a b} → [Unitʷ]-prop Γ a b → Whnf a × Whnf b
+usplit starᵣ = starₙ , starₙ
+usplit (ne (neNfₜ₌ neK neM k≡m)) = ne neK , ne neM
+
+record _⊩Unitʷ_≡_∷Unit (Γ : Con Term ℓ) (t u : Term ℓ) : Set a where
+  inductive
+  constructor Unitₜ₌
+  field
+    k k′ : Term ℓ
+    d : Γ ⊢ t :⇒*: k  ∷ Unitʷ
+    d′ : Γ ⊢ u :⇒*: k′ ∷ Unitʷ
+    k≡k′ : Γ ⊢ k ≅ k′ ∷ Unitʷ
+    prop : [Unitʷ]-prop Γ k k′
+
+_⊩Unit⟨_⟩_≡_∷Unit : (Γ : Con Term ℓ) (s : SigmaMode) (t u : Term ℓ) → Set a
+Γ ⊩Unit⟨ Σₚ ⟩ t ≡ u ∷Unit = Γ ⊩Unitˢ t ≡ u ∷Unit
+Γ ⊩Unit⟨ Σᵣ ⟩ t ≡ u ∷Unit = Γ ⊩Unitʷ t ≡ u ∷Unit
 
 -- Type levels
 
@@ -551,7 +584,7 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
       Uᵣ  : Γ ⊩₁U → Γ ⊩ₗ U
       ℕᵣ  : ∀ {A} → Γ ⊩ℕ A → Γ ⊩ₗ A
       Emptyᵣ : ∀ {A} → Γ ⊩Empty A → Γ ⊩ₗ A
-      Unitᵣ : ∀ {A} → Γ ⊩Unit A → Γ ⊩ₗ A
+      Unitᵣ : ∀ {A} {s : SigmaMode} → Γ ⊩Unit⟨ s ⟩ A → Γ ⊩ₗ A
       ne  : ∀ {A} → Γ ⊩ne A → Γ ⊩ₗ A
       Bᵣ  : ∀ {A} W → Γ ⊩ₗB⟨ W ⟩ A → Γ ⊩ₗ A
       Idᵣ : ∀ {A} → Γ ⊩ₗId A → Γ ⊩ₗ A
@@ -562,7 +595,7 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
     Γ ⊩ₗ A ≡ B / Uᵣ UA = Γ ⊩₁U≡ B
     Γ ⊩ₗ A ≡ B / ℕᵣ D = Γ ⊩ℕ A ≡ B
     Γ ⊩ₗ A ≡ B / Emptyᵣ D = Γ ⊩Empty A ≡ B
-    Γ ⊩ₗ A ≡ B / Unitᵣ D = Γ ⊩Unit A ≡ B
+    Γ ⊩ₗ A ≡ B / Unitᵣ {s = s} D = Γ ⊩Unit⟨ s ⟩ A ≡ B
     Γ ⊩ₗ A ≡ B / ne neA = Γ ⊩ne A ≡ B / neA
     Γ ⊩ₗ A ≡ B / Bᵣ W BA = Γ ⊩ₗB⟨ W ⟩ A ≡ B / BA
     Γ ⊩ₗ A ≡ B / Idᵣ ⊩A = Γ ⊩ₗId A ≡ B / ⊩A
@@ -573,7 +606,7 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
     Γ ⊩ₗ t ∷ .U / Uᵣ (Uᵣ l′ l< ⊢Γ) = Γ ⊩₁U t ∷U/ l<
     Γ ⊩ₗ t ∷ A / ℕᵣ D = Γ ⊩ℕ t ∷ℕ
     Γ ⊩ₗ t ∷ A / Emptyᵣ D = Γ ⊩Empty t ∷Empty
-    Γ ⊩ₗ t ∷ A / Unitᵣ D = Γ ⊩Unit t ∷Unit
+    Γ ⊩ₗ t ∷ A / Unitᵣ {s = s} D = Γ ⊩Unit⟨ s ⟩ t ∷Unit
     Γ ⊩ₗ t ∷ A / ne neA = Γ ⊩ne t ∷ A / neA
     Γ ⊩ₗ t ∷ A / Bᵣ BΠ! ΠA  = Γ ⊩ₗΠ t ∷ A / ΠA
     Γ ⊩ₗ t ∷ A / Bᵣ BΣ! ΣA  = Γ ⊩ₗΣ t ∷ A / ΣA
@@ -585,7 +618,7 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
     Γ ⊩ₗ t ≡ u ∷ .U / Uᵣ (Uᵣ l′ l< ⊢Γ) = Γ ⊩₁U t ≡ u ∷U/ l<
     Γ ⊩ₗ t ≡ u ∷ A / ℕᵣ D = Γ ⊩ℕ t ≡ u ∷ℕ
     Γ ⊩ₗ t ≡ u ∷ A / Emptyᵣ D = Γ ⊩Empty t ≡ u ∷Empty
-    Γ ⊩ₗ t ≡ u ∷ A / Unitᵣ D = Γ ⊩Unit t ≡ u ∷Unit
+    Γ ⊩ₗ t ≡ u ∷ A / Unitᵣ {s = s} D = Γ ⊩Unit⟨ s ⟩ t ≡ u ∷Unit
     Γ ⊩ₗ t ≡ u ∷ A / ne neA = Γ ⊩ne t ≡ u ∷ A / neA
     Γ ⊩ₗ t ≡ u ∷ A / Bᵣ BΠ! ΠA = Γ ⊩ₗΠ t ≡ u ∷ A / ΠA
     Γ ⊩ₗ t ≡ u ∷ A / Bᵣ BΣ! ΣA  = Γ ⊩ₗΣ t ≡ u ∷ A / ΣA

@@ -90,7 +90,7 @@ opaque
   -- If the type of t is Unit, then t reduces to star or a neutral
   -- term.
 
-  red-Unit : Γ ⊢ t ∷ Unit → ∃ λ u → Star u × Γ ⊢ t :⇒*: u ∷ Unit
+  red-Unit : Γ ⊢ t ∷ Unit m → ∃ λ u → Star u × Γ ⊢ t :⇒*: u ∷ Unit m
   red-Unit {Γ} {t} ⊢t =
     case reducibleTerm ⊢t of λ {
       (⊩Unit′ , ⊩t) →
@@ -98,43 +98,16 @@ opaque
       (irrelevanceTerm ⊩Unit′ (Unit-intr (Unit-elim ⊩Unit′)) ⊩t) }
     where
     helper :
-      (⊩A : Γ ⊩⟨ l ⟩Unit A) →
+      (⊩A : Γ ⊩⟨ l ⟩Unit⟨ m ⟩ A) →
       Γ ⊩⟨ l ⟩ t ∷ A / Unit-intr ⊩A →
       ∃ λ u → Star u × Γ ⊢ t :⇒*: u ∷ A
     helper (emb 0<1 ⊩A) ⊩t =
       helper ⊩A ⊩t
-    helper (noemb (Unitₜ A⇒*Unit _)) (Unitₜ u t⇒*u u-whnf) =
+    helper (noemb (Unitₜ A⇒*Unit _)) (Unitₜ u t⇒*u _ prop) =
         u
-      , (case u-whnf of λ where
-           starₙ     → starₙ
-           (ne u-ne) → ne u-ne
-           Uₙ        → ⊥-elim $ inversion-U (⊢u-redₜ t⇒*u)
-           ΠΣₙ       → ⊥-elim $ U≢Unitⱼ $ _⊢_≡_.sym $
-                       inversion-ΠΣ-U (⊢u-redₜ t⇒*u)
-                         .proj₂ .proj₂ .proj₁
-           ℕₙ        → ⊥-elim $ U≢Unitⱼ $ _⊢_≡_.sym $
-                       inversion-ℕ (⊢u-redₜ t⇒*u)
-           Unitₙ     → ⊥-elim $ U≢Unitⱼ $ _⊢_≡_.sym $
-                       inversion-Unit-U (⊢u-redₜ t⇒*u) .proj₁
-           Emptyₙ    → ⊥-elim $ U≢Unitⱼ $ _⊢_≡_.sym $
-                       inversion-Empty (⊢u-redₜ t⇒*u)
-           Idₙ       → ⊥-elim $ U≢Unitⱼ $ _⊢_≡_.sym $
-                       inversion-Id-U (⊢u-redₜ t⇒*u)
-                         .proj₂ .proj₂ .proj₂
-           lamₙ      → ⊥-elim $ Unit≢ΠΣⱼ $
-                       inversion-lam (⊢u-redₜ t⇒*u)
-                         .proj₂ .proj₂ .proj₂ .proj₂ .proj₂ .proj₁
-           zeroₙ     → ⊥-elim $ ℕ≢Unitⱼ $ _⊢_≡_.sym $
-                       inversion-zero (⊢u-redₜ t⇒*u)
-           sucₙ      → ⊥-elim $ ℕ≢Unitⱼ $ _⊢_≡_.sym $
-                       inversion-suc (⊢u-redₜ t⇒*u) .proj₂
-           prodₙ     → ⊥-elim $ Unit≢ΠΣⱼ $
-                       inversion-prod (⊢u-redₜ t⇒*u)
-                         .proj₂ .proj₂ .proj₂ .proj₂ .proj₂ .proj₂
-                         .proj₂ .proj₁
-           rflₙ      → ⊥-elim $ Id≢Unit $ _⊢_≡_.sym $
-                       inversion-rfl (⊢u-redₜ t⇒*u)
-                         .proj₂ .proj₂ .proj₂ .proj₂)
+      , (case prop of λ where
+              starᵣ → starₙ
+              (ne (neNfₜ neK ⊢k k≡k)) → ne neK)
       , convRed:*: t⇒*u (sym (subset* (red A⇒*Unit)))
 
 opaque
@@ -238,7 +211,7 @@ whNorm′ : ∀ {A l} ([A] : Γ ⊩⟨ l ⟩ A)
 whNorm′ (Uᵣ′ .⁰ 0<1 ⊢Γ) = U , Uₙ , idRed:*: (Uⱼ ⊢Γ)
 whNorm′ (ℕᵣ D) = ℕ , ℕₙ , D
 whNorm′ (Emptyᵣ D) = Empty , Emptyₙ , D
-whNorm′ (Unitᵣ (Unitₜ D _)) = Unit , Unitₙ , D
+whNorm′ (Unitᵣ (Unitₜ D _)) = Unit! , Unitₙ , D
 whNorm′ (ne′ H D neH H≡H) = H , ne neH , D
 whNorm′ (Πᵣ′ F G D _ _ _ _ _ _ _) = Π _ , _ ▷ F ▹ G , ΠΣₙ , D
 whNorm′ (Σᵣ′ F G D _ _ _ _ _ _ _) = Σ _ , _ ▷ F ▹ G , ΠΣₙ , D
@@ -339,8 +312,8 @@ whNormTerm′ (ℕᵣ x) (ℕₜ n d n≡n prop) =
 whNormTerm′ (Emptyᵣ x) (Emptyₜ n d n≡n prop) =
   let emptyN = empty prop
   in  n , ne emptyN , convRed:*: d (sym (subset* (red x)))
-whNormTerm′ (Unitᵣ (Unitₜ x _)) (Unitₜ n d prop) =
-  n , prop , convRed:*: d (sym (subset* (red x)))
+whNormTerm′ (Unitᵣ (Unitₜ x _)) (Unitₜ n d n≡n prop) =
+  n , unit prop , convRed:*: d (sym (subset* (red x)))
 whNormTerm′ (ne (ne H D neH H≡H)) (neₜ k d (neNfₜ neH₁ ⊢k k≡k)) =
   k , ne neH₁ , convRed:*: d (sym (subset* (red D)))
 whNormTerm′ (Πᵣ′ _ _ D _ _ _ _ _ _ _) (Πₜ f d funcF _ _ _) =

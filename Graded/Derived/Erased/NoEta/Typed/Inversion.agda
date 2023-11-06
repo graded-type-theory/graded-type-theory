@@ -1,0 +1,147 @@
+------------------------------------------------------------------------
+-- Some inversion lemmas related to typing and Erased without
+-- η-equality.
+------------------------------------------------------------------------
+
+open import Definition.Typed.Restrictions
+import Graded.Modality
+
+module Graded.Derived.Erased.NoEta.Typed.Inversion
+  {a} {M : Set a}
+  (open Graded.Modality M)
+  {𝕄 : Modality}
+  (R : Type-restrictions 𝕄)
+  where
+
+open Modality 𝕄
+open Type-restrictions R
+
+open import Definition.Typed R
+open import Definition.Typed.Properties.Well-formed R
+open import Definition.Typed.Consequences.Inequality R
+open import Definition.Typed.Consequences.Injectivity R
+open import Definition.Typed.Consequences.DerivedRules.Sigma R
+open import Definition.Typed.Consequences.Inversion R
+open import Definition.Typed.Consequences.Syntactic R
+open import Definition.Typed.Consequences.Substitution R
+
+open import Definition.Untyped M as U hiding (_∷_)
+open import Definition.Untyped.Properties M
+open import Graded.Derived.Erased.NoEta.Untyped 𝕄
+
+open import Tools.Empty
+open import Tools.Function
+open import Tools.Product
+import Tools.PropositionalEquality as PE
+open import Tools.Relation
+
+open import Graded.Derived.Erased.Typed.Inversion R Σᵣ public
+
+open Fstᵣ-sndᵣ (𝟘 ∧ 𝟙) 𝟘
+
+private variable
+  Γ       : Con Term _
+  A B C t : Term _
+
+opaque
+
+  -- An inversion lemma for erased.
+  --
+  -- TODO: Make it possible to replace the conclusion with
+  --
+  --   Γ ⊢ t ∷ Erased A × Erased-allowed?
+
+  inversion-erased :
+    Γ ⊢ erased C t ∷ A →
+    ∃₂ λ q B → Γ ⊢ t ∷ Σᵣ 𝟘 , q ▷ A ▹ B × Σᵣ-allowed 𝟘 q
+  inversion-erased {C = C} {t} ⊢erased =
+    case inversion-fstᵣ ⊢erased of λ
+      (q , B , ⊢t , A≡C) →
+    case inversion-ΠΣ (syntacticTerm ⊢t) of λ
+      (⊢C , ⊢B , Σ-ok) →
+    q , B , conv ⊢t (ΠΣ-cong ⊢C (sym A≡C) (refl ⊢B) Σ-ok) , Σ-ok
+
+
+opaque
+
+  -- If Erased is allowed, then a certain form of inversion for erased
+  -- does not hold.
+
+  ¬-inversion-erased′ :
+    Erasedʷ-allowed →
+    ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} →
+       Γ ⊢ erased A t ∷ A →
+       ∃ λ q → Γ ⊢ t ∷ Σᵣ 𝟘 , q ▷ A ▹ Unitʷ)
+  ¬-inversion-erased′ (Unit-ok , Σᵣ-ok) inversion-erased = bad
+    where
+    Γ′ : Con Term 0
+    Γ′ = ε
+
+    t′ : Term 0
+    t′ = prodᵣ 𝟘 zero zero
+
+    A′ : Term 0
+    A′ = ℕ
+
+    ⊢Γ′∙ℕ : ⊢ Γ′ ∙ ℕ
+    ⊢Γ′∙ℕ = ε ∙ ℕⱼ ε
+
+    ⊢t′₁ : Γ′ ⊢ t′ ∷ Σᵣ 𝟘 , 𝟘 ▷ ℕ ▹ ℕ
+    ⊢t′₁ = prodⱼ (ℕⱼ ε) (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) Σᵣ-ok
+
+    ⊢erased-t′ : Γ′ ⊢ erased A′ t′ ∷ A′
+    ⊢erased-t′ = fstᵣⱼ ⊢t′₁
+
+    erased-t′≡zero : Γ′ ⊢ erased A′ t′ ≡ zero ∷ A′
+    erased-t′≡zero = fstᵣ-β-≡ (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) Σᵣ-ok
+
+    ⊢t′₂ : ∃ λ q → Γ′ ⊢ t′ ∷ Σᵣ 𝟘 , q ▷ A′ ▹ Unitʷ
+    ⊢t′₂ = inversion-erased ⊢erased-t′
+
+    ⊢snd-t′ : Γ′ ⊢ sndᵣ 𝟘 (⊢t′₂ .proj₁) A′ Unitʷ t′ ∷ Unitʷ
+    ⊢snd-t′ = sndᵣⱼ (⊢t′₂ .proj₂)
+
+    ℕ≡Unit : Γ′ ⊢ ℕ ≡ Unitʷ
+    ℕ≡Unit =
+      case inversion-prodrec ⊢snd-t′ of
+        λ (F , G , _ , _ , _ , _ , ⊢t′ , ⊢x₀ , Unit≡) →
+      case inversion-var ⊢x₀ of λ {
+        (Q , here , Unit≡′) →
+      case inversion-prod ⊢t′ of
+        λ (F′ , G′ , _ , _ , _ , ⊢zero , ⊢zero′ , Σ≡Σ , _) →
+      case Σ-injectivity Σ≡Σ of
+        λ (F≡F′ , G≡G′ , _ , _ , _) →
+      case inversion-zero ⊢zero of
+        λ ≡ℕ →
+      case inversion-zero ⊢zero′ of
+        λ ≡ℕ′ →
+      case conv ⊢zero (sym F≡F′) of
+        λ ⊢zero″ →
+      case substTypeEq G≡G′ (refl ⊢zero″)  of
+        λ G₀≡G′₀ →
+      let ⊢σ : Γ′ ⊢ˢ consSubst (sgSubst zero) zero ∷ (Γ′ ∙ F ∙ G)
+          ⊢σ = (idSubst′ ε , PE.subst (Γ′ ⊢ zero ∷_) (PE.sym (subst-id F)) ⊢zero″)
+                , conv ⊢zero′ (sym G₀≡G′₀)
+      in case PE.subst (Γ′ ⊢ Unitʷ ≡_) (wk1-tail G)
+               (substitutionEq Unit≡′ (substRefl ⊢σ) ε) of
+        λ Unit≡″ →
+      _⊢_≡_.sym $
+      _⊢_≡_.trans Unit≡″ $
+        trans G₀≡G′₀ ≡ℕ′ }
+
+    bad : ⊥
+    bad = ℕ≢Unitⱼ ℕ≡Unit
+
+opaque
+
+  -- If Erased is allowed, then another form of inversion for erased
+  -- also does not hold.
+
+  ¬-inversion-erased :
+    Erasedʷ-allowed →
+    ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} →
+       Γ ⊢ erased A t ∷ A →
+       Γ ⊢ t ∷ Erased A)
+  ¬-inversion-erased Erased-ok inversion-erased =
+    ¬-inversion-erased′ Erased-ok λ ⊢erased →
+    _ , inversion-erased ⊢erased

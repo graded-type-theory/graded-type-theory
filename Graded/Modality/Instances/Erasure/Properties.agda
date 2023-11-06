@@ -24,6 +24,7 @@ open import Graded.Modality.Properties (ErasureModality variant) as P
   public
 
 open import Graded.Usage (ErasureModality variant)
+open import Graded.Usage.Restrictions Erasure
 open import Graded.Usage.Inversion (ErasureModality variant)
 open import Graded.Mode (ErasureModality variant)
 
@@ -57,6 +58,7 @@ private
     p r s z : Erasure
     mo : Mode
     rs : Type-restrictions
+    us : Usage-restrictions
 
 -- Addition on the right is a decreasing function
 -- γ + δ ≤ᶜ δ
@@ -234,8 +236,8 @@ suitable-for-full-reduction rs =
     record rs
       { ΠΣ-allowed = λ b p q →
           ΠΣ-allowed b p q × (b ≡ BMΣ Σₚ × p ≡ 𝟘 → T 𝟘ᵐ-allowed)
-      ; []-cong-allowed =
-          []-cong-allowed × T 𝟘ᵐ-allowed
+      ; []-cong-allowed = λ s →
+          []-cong-allowed s × T 𝟘ᵐ-allowed
       ; []-cong→Erased = λ (ok₁ , ok₂) →
             []-cong→Erased ok₁ .proj₁ , []-cong→Erased ok₁ .proj₂
           , (λ _ → ok₂)
@@ -251,10 +253,10 @@ suitable-for-full-reduction rs =
 
 full-reduction-assumptions :
   Suitable-for-full-reduction rs →
-  Full-reduction-assumptions rs
+  Full-reduction-assumptions rs us
 full-reduction-assumptions {rs = rs} 𝟘→𝟘ᵐ = record
-  { 𝟙≤𝟘    = λ _ → PE.refl
-  ; ≡𝟙⊎𝟙≤𝟘 = λ where
+  { sink⊎𝟙≤𝟘 = λ _ → inj₂ PE.refl
+  ; ≡𝟙⊎𝟙≤𝟘   = λ where
       {p = ω} _  → inj₁ PE.refl
       {p = 𝟘} ok → inj₂ (PE.refl , 𝟘→𝟘ᵐ _ ok , PE.refl)
   }

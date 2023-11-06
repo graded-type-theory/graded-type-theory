@@ -17,7 +17,7 @@ open import Definition.Untyped M
   hiding (_∷_) renaming (_[_,_] to _[_,_]₁₀)
 open import Definition.Typed R
 
-open import Graded.Derived.Erased.Untyped 𝕄 as Erased using (Erased)
+import Graded.Derived.Erased.Untyped 𝕄 as Erased
 
 open import Tools.Fin
 open import Tools.Nat
@@ -29,6 +29,7 @@ private
     t u v w A B F G : Term n
     p q r p′ q′ : M
     b : BinderMode
+    s : SigmaMode
 
 -- Bi-directional typechecking relations
 
@@ -37,8 +38,8 @@ mutual
   data _⊢_⇇Type (Γ : Con Term n) : (A : Term n) → Set a where
     Uᶜ : Γ ⊢ U ⇇Type
     ℕᶜ : Γ ⊢ ℕ ⇇Type
-    Unitᶜ : Unit-allowed
-          → Γ ⊢ Unit ⇇Type
+    Unitᶜ : Unit-allowed s
+          → Γ ⊢ Unit s ⇇Type
     Emptyᶜ : Γ ⊢ Empty ⇇Type
     ΠΣᶜ : Γ ⊢ F ⇇Type
        → Γ ∙ F ⊢ G ⇇Type
@@ -84,10 +85,14 @@ mutual
             → Γ ∙ ℕ ∙ A ⊢ s ⇇ A [ suc (var x1) ]↑²
             → Γ ⊢ n ⇇ ℕ
             → Γ ⊢ natrec p q r A z s n ⇉ A [ n ]₀
-    Unitᵢ : Unit-allowed
-          → Γ ⊢ Unit ⇉ U
-    starᵢ : Unit-allowed
-          → Γ ⊢ star ⇉ Unit
+    Unitᵢ : Unit-allowed s
+          → Γ ⊢ Unit s ⇉ U
+    starᵢ : Unit-allowed s
+          → Γ ⊢ star s ⇉ Unit s
+    unitrecᵢ : Γ ∙ Unitʷ ⊢ A ⇇Type
+             → Γ ⊢ t ⇇ Unitʷ
+             → Γ ⊢ u ⇇ A [ starʷ ]₀
+             → Γ ⊢ unitrec p q A t u ⇉ A [ t ]₀
     Emptyᵢ : Γ ⊢ Empty ⇉ U
     emptyrecᵢ : Γ ⊢ A ⇇Type
               → Γ ⊢ t ⇇ Empty
@@ -114,9 +119,10 @@ mutual
              → Γ ⊢ t ⇇ A
              → Γ ⊢ u ⇇ A
              → Γ ⊢ v ⇇ Id A t u
-             → []-cong-allowed
-             → Γ ⊢ []-cong A t u v ⇉
-                 Id (Erased A) Erased.[ t ] Erased.[ u ]
+             → []-cong-allowed s
+             → let open Erased s in
+               Γ ⊢ []-cong s A t u v ⇉
+                 Id (Erased A) ([ t ]) ([ u ])
 
   data _⊢_⇇_ (Γ : Con Term n) : (t A : Term n) → Set a where
     lamᶜ : Γ ⊢ A ↘ Π p , q ▷ F ▹ G
@@ -151,8 +157,9 @@ mutual
     zeroᵢ : Inferable zero
     sucᵢ : Checkable t → Inferable (suc t)
     natrecᵢ : ∀ {z s n} → Checkable A → Checkable z → Checkable s → Checkable n → Inferable (natrec p q r A z s n)
-    Unitᵢ : Inferable Unit
-    starᵢ : Inferable star
+    Unitᵢ : Inferable (Unit s)
+    starᵢ : Inferable (star s)
+    unitrecᵢ : Checkable A → Checkable t → Checkable u → Inferable (unitrec p q A t u)
     Emptyᵢ : Inferable Empty
     emptyrecᵢ : Checkable A → Checkable t → Inferable (emptyrec p A t)
     Idᵢ : Checkable A → Checkable t → Checkable u → Inferable (Id A t u)
@@ -161,7 +168,7 @@ mutual
     Kᵢ : Checkable A → Checkable t → Checkable B → Checkable u →
          Checkable v → Inferable (K p A t B u v)
     []-congᵢ : Checkable A → Checkable t → Checkable u → Checkable v →
-               Inferable ([]-cong A t u v)
+               Inferable ([]-cong s A t u v)
 
   data Checkable : (Term n) → Set a where
     lamᶜ : Checkable t → Checkable (lam p t)
@@ -210,6 +217,7 @@ mutual
   Inferable⇉ (natrecᵢ x x₁ x₂ x₃) = natrecᵢ (Checkable⇇Type x) (Checkable⇇ x₁) (Checkable⇇ x₂) (Checkable⇇ x₃)
   Inferable⇉ (Unitᵢ _) = Unitᵢ
   Inferable⇉ (starᵢ _) = starᵢ
+  Inferable⇉ (unitrecᵢ x x₁ x₂) = unitrecᵢ (Checkable⇇Type x) (Checkable⇇ x₁) (Checkable⇇ x₂)
   Inferable⇉ Emptyᵢ = Emptyᵢ
   Inferable⇉ (emptyrecᵢ x x₁) = emptyrecᵢ (Checkable⇇Type x) (Checkable⇇ x₁)
   Inferable⇉ (Idᵢ A t u) =

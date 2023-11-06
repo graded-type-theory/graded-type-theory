@@ -15,7 +15,7 @@ open Type-restrictions R
 
 open import Definition.Untyped M hiding (_∷_)
 
-open import Graded.Derived.Erased.Untyped 𝕄 as Erased using (Erased)
+import Graded.Derived.Erased.Untyped 𝕄 as Erased
 
 open import Tools.Fin
 open import Tools.Nat
@@ -58,7 +58,7 @@ mutual
     Uⱼ     : ⊢ Γ → Γ ⊢ U
     ℕⱼ     : ⊢ Γ → Γ ⊢ ℕ
     Emptyⱼ : ⊢ Γ → Γ ⊢ Empty
-    Unitⱼ  : ⊢ Γ → Unit-allowed → Γ ⊢ Unit
+    Unitⱼ  : ⊢ Γ → Unit-allowed k → Γ ⊢ Unit k
     ΠΣⱼ    : Γ     ⊢ F
            → Γ ∙ F ⊢ G
            → ΠΣ-allowed b p q
@@ -77,7 +77,7 @@ mutual
               → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ∷ U
     ℕⱼ        : ⊢ Γ → Γ ⊢ ℕ ∷ U
     Emptyⱼ    : ⊢ Γ → Γ ⊢ Empty ∷ U
-    Unitⱼ     : ⊢ Γ → Unit-allowed → Γ ⊢ Unit ∷ U
+    Unitⱼ     : ⊢ Γ → Unit-allowed k → Γ ⊢ Unit k ∷ U
 
     conv      : Γ ⊢ t ∷ A
               → Γ ⊢ A ≡ B
@@ -130,7 +130,12 @@ mutual
 
     emptyrecⱼ : Γ ⊢ A → Γ ⊢ t ∷ Empty → Γ ⊢ emptyrec p A t ∷ A
 
-    starⱼ     : ⊢ Γ → Unit-allowed → Γ ⊢ star ∷ Unit
+    starⱼ     : ⊢ Γ → Unit-allowed k → Γ ⊢ star k ∷ Unit k
+    unitrecⱼ  : Γ ∙ Unitʷ ⊢ A
+              → Γ ⊢ t ∷ Unitʷ
+              → Γ ⊢ u ∷ A [ starʷ ]₀
+              → Unitʷ-allowed
+              → Γ ⊢ unitrec p q A t u ∷ A [ t ]₀
 
     Idⱼ       : Γ ⊢ A ∷ U
               → Γ ⊢ t ∷ A
@@ -154,9 +159,10 @@ mutual
     []-congⱼ  : Γ ⊢ t ∷ A
               → Γ ⊢ u ∷ A
               → Γ ⊢ v ∷ Id A t u
-              → []-cong-allowed
-              → Γ ⊢ []-cong A t u v ∷
-                  Id (Erased A) Erased.[ t ] Erased.[ u ]
+              → []-cong-allowed k
+              → let open Erased k in
+                Γ ⊢ []-cong k A t u v ∷
+                  Id (Erased A) ([ t ]) ([ u ])
 
   -- Type equality
   data _⊢_≡_ (Γ : Con Term n) : Term n → Term n → Set ℓ where
@@ -297,9 +303,18 @@ mutual
     emptyrec-cong : Γ ⊢ A ≡ B
                   → Γ ⊢ t ≡ u ∷ Empty
                   → Γ ⊢ emptyrec p A t ≡ emptyrec p B u ∷ A
-    η-unit        : Γ ⊢ t ∷ Unit
-                  → Γ ⊢ t′ ∷ Unit
-                  → Γ ⊢ t ≡ t′ ∷ Unit
+    unitrec-cong  : Γ ∙ Unitʷ ⊢ A ≡ A′
+                  → Γ ⊢ t ≡ t′ ∷ Unitʷ
+                  → Γ ⊢ u ≡ u′ ∷ A [ starʷ ]₀
+                  → Unitʷ-allowed
+                  → Γ ⊢ unitrec p q A t u ≡ unitrec p q A′ t′ u′ ∷ A [ t ]₀
+    unitrec-β     : Γ ∙ Unitʷ ⊢ A
+                  → Γ ⊢ u ∷ A [ starʷ ]₀
+                  → Unitʷ-allowed
+                  → Γ ⊢ unitrec p q A starʷ u ≡ u ∷ A [ starʷ ]₀
+    η-unit        : Γ ⊢ t ∷ Unitˢ
+                  → Γ ⊢ t′ ∷ Unitˢ
+                  → Γ ⊢ t ≡ t′ ∷ Unitˢ
     Id-cong       : Γ ⊢ A₁ ≡ A₂ ∷ U
                   → Γ ⊢ t₁ ≡ t₂ ∷ A₁
                   → Γ ⊢ u₁ ≡ u₂ ∷ A₁
@@ -327,9 +342,10 @@ mutual
                   → Γ ⊢ t₁ ≡ t₂ ∷ A₁
                   → Γ ⊢ u₁ ≡ u₂ ∷ A₁
                   → Γ ⊢ v₁ ≡ v₂ ∷ Id A₁ t₁ u₁
-                  → []-cong-allowed
-                  → Γ ⊢ []-cong A₁ t₁ u₁ v₁ ≡ []-cong A₂ t₂ u₂ v₂ ∷
-                      Id (Erased A₁) Erased.[ t₁ ] Erased.[ u₁ ]
+                  → []-cong-allowed k
+                  → let open Erased k in
+                    Γ ⊢ []-cong k A₁ t₁ u₁ v₁ ≡ []-cong k A₂ t₂ u₂ v₂ ∷
+                      Id (Erased A₁) ([ t₁ ]) ([ u₁ ])
     J-β           : Γ ⊢ A
                   → Γ ⊢ t ∷ A
                   → Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B
@@ -343,9 +359,10 @@ mutual
                   → Γ ⊢ K p A t B u rfl ≡ u ∷ B [ rfl ]₀
     []-cong-β     : Γ ⊢ t ∷ A
                   → t PE.≡ t′
-                  → []-cong-allowed
-                  → Γ ⊢ []-cong A t t′ rfl ≡ rfl ∷
-                      Id (Erased A) Erased.[ t ] Erased.[ t′ ]
+                  → []-cong-allowed k
+                  → let open Erased k in
+                    Γ ⊢ []-cong k A t t′ rfl ≡ rfl ∷
+                      Id (Erased A) ([ t ]) ([ t′ ])
 
 
 -- Term reduction
@@ -429,6 +446,15 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                  → Γ ⊢ A
                  → Γ     ⊢ n ⇒ n′ ∷ Empty
                  → Γ     ⊢ emptyrec p A n ⇒ emptyrec p A n′ ∷ A
+  unitrec-subst : Γ ∙ Unitʷ ⊢ A
+                → Γ ⊢ u ∷ A [ starʷ ]₀
+                → Γ ⊢ t ⇒ t′ ∷ Unitʷ
+                → Unitʷ-allowed
+                → Γ ⊢ unitrec p q A t u ⇒ unitrec p q A t′ u ∷ A [ t ]₀
+  unitrec-β     : Γ ∙ Unitʷ ⊢ A
+                → Γ ⊢ u ∷ A [ starʷ ]₀
+                → Unitʷ-allowed
+                → Γ ⊢ unitrec p q A starʷ u ⇒ u ∷ A [ starʷ ]₀
   J-subst        : Γ ⊢ A
                  → Γ ⊢ t ∷ A
                  → Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B
@@ -448,9 +474,10 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                  → Γ ⊢ t ∷ A
                  → Γ ⊢ u ∷ A
                  → Γ ⊢ v₁ ⇒ v₂ ∷ Id A t u
-                 → []-cong-allowed
-                 → Γ ⊢ []-cong A t u v₁ ⇒ []-cong A t u v₂ ∷
-                     Id (Erased A) Erased.[ t ] Erased.[ u ]
+                 → []-cong-allowed k
+                 → let open Erased k in
+                   Γ ⊢ []-cong k A t u v₁ ⇒ []-cong k A t u v₂ ∷
+                     Id (Erased A) ([ t ]) ([ u ])
   J-β            : Γ ⊢ A
                  → Γ ⊢ t ∷ A
                  → Γ ⊢ t′ ∷ A
@@ -468,9 +495,10 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                  → Γ ⊢ t ∷ A
                  → Γ ⊢ t′ ∷ A
                  → Γ ⊢ t ≡ t′ ∷ A
-                 → []-cong-allowed
-                 → Γ ⊢ []-cong A t t′ rfl ⇒ rfl ∷
-                     Id (Erased A) Erased.[ t ] Erased.[ t′ ]
+                 → []-cong-allowed k
+                 → let open Erased k in
+                   Γ ⊢ []-cong k A t t′ rfl ⇒ rfl ∷
+                     Id (Erased A) ([ t ]) ([ t′ ])
 
 -- Type reduction
 data _⊢_⇒_ (Γ : Con Term n) : Term n → Term n → Set ℓ where

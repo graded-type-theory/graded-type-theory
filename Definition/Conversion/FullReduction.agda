@@ -147,6 +147,24 @@ mutual
          Γ ⊢ne emptyrec p A′ t′ ∷ A′  →⟨ flip _⊢ne_∷_.convₙ (sym A≡A′) ⟩
          Γ ⊢ne emptyrec p A′ t′ ∷ A   □)
       , emptyrec-cong A≡A′ t≡t′ }}
+    (unitrec-cong {F = A} {k = t} A↑ t~ u↑) →
+      case fullRedConv↑ A↑ of λ {
+        (A′ , A′-nf , A≡A′) →
+      case fullRedNe~↓ t~ of λ {
+        (t′ , t′-ne , t≡t′) →
+      case fullRedTermConv↑ u↑ of λ {
+        (u′ , u′-nf , u≡u′) →
+      case inversion-Unit (syntacticEqTerm t≡t′ .proj₁) of λ {
+        ok →
+        unitrec _ _ A′ t′ u′
+      , ( $⟨ u′-nf ⟩
+         Γ ⊢nf u′ ∷ A [ starʷ ]₀                  →⟨ flip _⊢nf_∷_.convₙ $
+                                                 substTypeEq A≡A′ (refl (starⱼ (wfEqTerm t≡t′) ok)) ⟩
+         Γ ⊢nf u′ ∷ A′ [ starʷ ]₀                 →⟨ flip (unitrecₙ A′-nf t′-ne) ok ⟩
+         Γ ⊢ne unitrec _ _ A′ t′ u′ ∷ A′ [ t′ ]₀  →⟨ flip _⊢ne_∷_.convₙ $ _⊢_≡_.sym $
+                                                 substTypeEq A≡A′ t≡t′ ⟩
+         Γ ⊢ne unitrec _ _ A′ t′ u′ ∷ A [ t ]₀    □)
+      , unitrec-cong A≡A′ t≡t′ u≡u′ ok  }}}}
     (J-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁~w₂ C≡Id-t₁-v₁) →
       case fullRedConv↑ A₁≡A₂ of λ {
         (A₁′ , ⊢A₁′ , A₁≡A₁′) →
@@ -206,7 +224,7 @@ mutual
         (v₁′ , ⊢v₁′ , v₁≡v₁′) →
       case []-cong→Erased ok of λ {
         Erased-ok →
-        []-cong A₁′ t₁′ u₁′ v₁′
+        []-cong _ A₁′ t₁′ u₁′ v₁′
       , convₙ
           ([]-congₙ ⊢A₁′ (convₙ ⊢t₁′ A₁≡A₁′) (convₙ ⊢u₁′ A₁≡A₁′)
              (convₙ ⊢v₁′
@@ -242,7 +260,7 @@ mutual
     (ℕ-refl     ⊢Γ)    → ℕ     , ℕₙ     ⊢Γ , refl (ℕⱼ     ⊢Γ)
     (Empty-refl ⊢Γ)    → Empty , Emptyₙ ⊢Γ , refl (Emptyⱼ ⊢Γ)
     (Unit-refl  ⊢Γ ok) →
-      Unit , Unitₙ ⊢Γ ok , refl (Unitⱼ ⊢Γ ok)
+      Unit! , Unitₙ ⊢Γ ok , refl (Unitⱼ ⊢Γ ok)
     (ne A~) →
       case fullRedNe~↓ A~ of λ {
         (B , B-ne , A≡B) →
@@ -291,16 +309,20 @@ mutual
       case fullRedNe~↓ t~ of λ {
         (u , u-nf , t≡u) →
       u , neₙ Emptyₙ u-nf , t≡u }
-    (Unit-ins t~) →
+    (Unit-ins {s = Σₚ} t~) →
       case syntacticEqTerm (soundness~↓ t~) of λ {
         (Γ⊢ , ⊢t , _) →
       case wf Γ⊢ of λ {
         ⊢Γ →
       case ⊢∷Unit→Unit-allowed ⊢t of λ {
         ok →
-        star
+        starˢ
       , starₙ ⊢Γ ok
       , η-unit ⊢t (starⱼ ⊢Γ ok) }}}
+    (Unit-ins {s = Σᵣ} t~) →
+      case fullRedNe~↓ t~ of λ {
+        (u , u-nf , t≡u) →
+      u , neₙ Unitʷₙ u-nf , t≡u }
     (Σᵣ-ins ⊢t∷ΣAB _ t~) →
       case fullRedNe~↓ t~ of λ {
         (v , v-ne , t≡v) →
@@ -339,6 +361,8 @@ mutual
       , inverseUnivEq ⊢A A≡B }
     (zero-refl ⊢Γ) →
       zero , zeroₙ ⊢Γ , refl (zeroⱼ ⊢Γ)
+    (starʷ-refl ⊢Γ ok) →
+      starʷ , starₙ ⊢Γ ok , refl (starⱼ ⊢Γ ok)
     (suc-cong t↑) →
       case fullRedTermConv↑ t↑ of λ {
         (u , u-nf , t≡u) →
@@ -387,7 +411,7 @@ mutual
         ⊢Γ →
       case ⊢∷Unit→Unit-allowed ⊢t of λ {
         ok →
-        star
+        star!
       , starₙ ⊢Γ ok
       , η-unit ⊢t (starⱼ ⊢Γ ok) }}
     (Id-ins ⊢t t~u) →

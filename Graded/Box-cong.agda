@@ -34,8 +34,8 @@ open import Definition.Untyped.Properties M
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Derived.Erased.Typed TR hiding ([]-cong′)
-open import Graded.Derived.Erased.Untyped 𝕄 as Erased using (Erased)
-open import Graded.Derived.Erased.Usage 𝕄 UR
+import Graded.Derived.Erased.Untyped 𝕄 as Erased
+import Graded.Derived.Erased.Usage 𝕄 UR as ErasedU
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 open import Graded.Neutral TR UR
@@ -57,6 +57,7 @@ private variable
   Γ             : Con Term _
   A B u         : Term _
   p q₁ q₂ q₃ q₄ : M
+  s             : SigmaMode
 
 ------------------------------------------------------------------------
 -- Some lemmas
@@ -96,8 +97,9 @@ private opaque
 -- Note that, unlike the []-cong primitive, the first argument must be
 -- a type in U.
 
-Has-[]-cong : M → M → M → M → Set a
-Has-[]-cong q₁ q₂ q₃ q₄ =
+Has-[]-cong : SigmaMode → M → M → M → M → Set a
+Has-[]-cong s q₁ q₂ q₃ q₄ =
+  let open Erased s in
   ∃ λ ([]-cong : Term 0) →
   ε ▸[ 𝟙ᵐ ] []-cong ×
   ε ⊢ []-cong ∷
@@ -105,19 +107,20 @@ Has-[]-cong q₁ q₂ q₃ q₄ =
     Π 𝟘 , q₂ ▷ var x0 ▹
     Π 𝟘 , q₃ ▷ var x1 ▹
     Π 𝟘 , q₄ ▷ Id (var x2) (var x1) (var x0) ▹
-    Id (Erased (var x3)) Erased.[ var x2 ] Erased.[ var x1 ]
+    Id (Erased (var x3)) ([ var x2 ]) ([ var x1 ])
 
 -- The property of supporting a []-cong combinator that computes
 -- correctly.
 
-Has-computing-[]-cong : M → M → M → M → Set a
-Has-computing-[]-cong q₁ q₂ q₃ q₄ =
-  ∃ λ (([]-cong′ , _) : Has-[]-cong q₁ q₂ q₃ q₄) →
+Has-computing-[]-cong : SigmaMode → M → M → M → M → Set a
+Has-computing-[]-cong s q₁ q₂ q₃ q₄ =
+  let open Erased s in
+  ∃ λ (([]-cong′ , _) : Has-[]-cong s q₁ q₂ q₃ q₄) →
   ∀ n (Γ : Con Term n) (A t : Term n) →
   Γ ⊢ A ∷ U →
   Γ ⊢ t ∷ A →
   Γ ⊢ wk wk₀ []-cong′ ∘⟨ 𝟘 ⟩ A ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ rfl ⇒* rfl ∷
-    Id (Erased A) Erased.[ t ] Erased.[ t ]
+    Id (Erased A) ([ t ]) ([ t ])
 
 opaque
 
@@ -125,13 +128,13 @@ opaque
   -- for grades for which "Π 𝟘" are allowed.
 
   []-cong→[]-cong :
-    []-cong-allowed →
+    []-cong-allowed s →
     Π-allowed 𝟘 q₁ →
     Π-allowed 𝟘 q₂ →
     Π-allowed 𝟘 q₃ →
     Π-allowed 𝟘 q₄ →
-    Has-computing-[]-cong q₁ q₂ q₃ q₄
-  []-cong→[]-cong ok ok₁ ok₂ ok₃ ok₄ =
+    Has-computing-[]-cong s q₁ q₂ q₃ q₄
+  []-cong→[]-cong {s} ok ok₁ ok₂ ok₃ ok₄ =
     case lamⱼ′ ok₁ $ lamⱼ′ ok₂ $ lamⱼ′ ok₃ $ lamⱼ′ ok₄ $
          []-congⱼ′ ok (var ⊢₄ here) of λ {
       ⊢[]-cong →
@@ -144,7 +147,7 @@ opaque
       )
     , λ _ _ A t ⊢A ⊢t →
         wk wk₀ []-cong′ ∘⟨ 𝟘 ⟩ A ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ rfl  ⇒*⟨ β-red-⇒₄ (W.wkTerm W.wk₀∷⊇ (wfTerm ⊢A) ⊢[]-cong) ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩
-        []-cong A t t rfl                                      ⇒⟨ []-cong-β-⇒ (refl ⊢t) ok ⟩∎
+        []-cong s A t t rfl                                    ⇒⟨ []-cong-β-⇒ (refl ⊢t) ok ⟩∎
         rfl                                                    ∎ }
     where
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
@@ -152,7 +155,7 @@ opaque
     []-cong′ : Term 0
     []-cong′ =
       lam 𝟘 $ lam 𝟘 $ lam 𝟘 $ lam 𝟘 $
-      []-cong (var x3) (var x2) (var x1) (var x0)
+      []-cong s (var x3) (var x2) (var x1) (var x0)
 
 opaque
 
@@ -162,13 +165,13 @@ opaque
 
   J₀→[]-cong :
     Erased-matches-for-J →
-    Erased-allowed →
+    Erased-allowed s →
     Π-allowed 𝟘 q₁ →
     Π-allowed 𝟘 q₂ →
     Π-allowed 𝟘 q₃ →
     Π-allowed 𝟘 q₄ →
-    Has-computing-[]-cong q₁ q₂ q₃ q₄
-  J₀→[]-cong J₀-ok Erased-ok ok₁ ok₂ ok₃ ok₄ =
+    Has-computing-[]-cong s q₁ q₂ q₃ q₄
+  J₀→[]-cong {s} J₀-ok Erased-ok ok₁ ok₂ ok₃ ok₄ =
     case lamⱼ′ ok₁ $ lamⱼ′ ok₂ $ lamⱼ′ ok₃ $ lamⱼ′ ok₄ $
          Jⱼ′
            (Idⱼ
@@ -193,15 +196,15 @@ opaque
              Idⱼ (W.wkTerm (W.step W.id) ⊢Γ∙A ⊢t) (var ⊢Γ∙A here) of λ {
           ⊢Γ∙A∙Id →
         case PE.cong₂
-               (λ A′ t′ → Id (Erased A′) Erased.[ t′ ] Erased.[ t ])
+               (λ A′ t′ → Id (Erased A′) ([ t′ ]) ([ t ]))
                (PE.trans (wk2-tail A) (subst-id A))
                (PE.trans (wk2-tail t) (subst-id t)) of λ {
           lemma →
         wk wk₀ []-cong′ ∘⟨ 𝟘 ⟩ A ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ rfl  ⇒*⟨ β-red-⇒₄ (W.wkTerm W.wk₀∷⊇ (wfTerm ⊢A) ⊢[]-cong) ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩
 
         J 𝟘 𝟘 A t
-          (Id (Erased (wk1 (wk1 A))) Erased.[ wk1 (wk1 t) ]
-             Erased.[ var x1 ])
+          (Id (Erased (wk1 (wk1 A))) ([ wk1 (wk1 t) ])
+             ([ var x1 ]))
           rfl t rfl                                            ⇒⟨ PE.subst (_⊢_⇒_∷_ _ _ _) lemma $
                                                                   J-β-⇒ (refl ⊢t)
                                                                     (Idⱼ
@@ -212,11 +215,14 @@ opaque
                                                                      rflⱼ ([]ⱼ Erased-ok ⊢t)) ⟩∎
         rfl                                                    ∎ }}}}
     where
+    open Erased s
+    open ErasedU s
+
     []-cong′ : Term 0
     []-cong′ =
       lam 𝟘 $ lam 𝟘 $ lam 𝟘 $ lam 𝟘 $
       J 𝟘 𝟘 (var x3) (var x2)
-        (Id (Erased (var x5)) Erased.[ var x4 ] Erased.[ var x1 ])
+        (Id (Erased (var x5)) ([ var x4 ]) ([ var x1 ]))
         rfl (var x1) (var x0)
 
     lemma : 𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘 ≈ᶜ 𝟘ᶜ {n = 6}
@@ -224,7 +230,7 @@ opaque
 
     ▸Id :
       𝟘ᶜ {n = 4} ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘 ▸[ 𝟘ᵐ? ]
-        Id (Erased (var x5)) Erased.[ var x4 ] Erased.[ var x1 ]
+        Id (Erased (var x5)) ([ var x4 ]) ([ var x1 ])
     ▸Id = Idₘ′ (▸Erased var) (▸[] var) (▸[] var)
       (begin
          𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ lemma ⟩
@@ -245,7 +251,7 @@ opaque
   ¬-[]-cong :
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
     No-erased-matches TR UR →
-    ¬ Has-[]-cong q₁ q₂ q₃ q₄
+    ¬ Has-[]-cong s q₁ q₂ q₃ q₄
   ¬-[]-cong nem (_ , ▸[]-cong , ⊢[]-cong) =
     case lemma
            (lemma
@@ -258,7 +264,7 @@ opaque
     case red-Id ⊢t of λ where
       (_ , rflₙ , ⇒*rfl) →
         case var-only-equal-to-itself (neₙ (var _)) (ne (var _)) $
-             prod-cong⁻¹-Σₚ (inversion-rfl-Id (⊢u-redₜ ⇒*rfl))
+             prod-cong⁻¹ (inversion-rfl-Id (⊢u-redₜ ⇒*rfl))
                .proj₂ .proj₁ of λ ()
       (_ , ne u-ne , t⇒*u) →
         neutral-not-well-resourced nem (inhabited-consistent ⊢σ) u-ne

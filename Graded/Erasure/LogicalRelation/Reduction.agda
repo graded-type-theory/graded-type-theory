@@ -70,8 +70,8 @@ sourceRedSubstTerm (ℕᵣ ([ ⊢A , ⊢B , D ])) (zeroᵣ t′⇒zero v⇒v′)
 sourceRedSubstTerm (ℕᵣ ([ ⊢A , ⊢B , D ])) (sucᵣ t′⇒suc v⇒v′ t®v) t⇒t′ =
   sucᵣ ((conv t⇒t′ (subset* D)) ⇨ t′⇒suc) v⇒v′ t®v
 sourceRedSubstTerm
-  (Unitᵣ (Unitₜ [ _ , _ , D ] _)) (starᵣ _ v⇒star) t⇒t′ =
-  starᵣ (conv (redFirstTerm t⇒t′) (subset* D)) v⇒star
+  (Unitᵣ (Unitₜ [ _ , _ , D ] _)) (starᵣ t′⇒star v⇒star) t⇒t′ =
+  starᵣ (conv t⇒t′ (subset* D) ⇨ t′⇒star) v⇒star
 sourceRedSubstTerm
   (Bᵣ′ (BΠ p q) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext _)
   t®v′ t⇒t′ {a = a} [a] with is-𝟘? p
@@ -196,9 +196,9 @@ sourceRedSubstTerm′ (ℕᵣ [ ⊢A , ⊢B , D ]) (zeroᵣ t⇒zero v⇒zero) t
 sourceRedSubstTerm′ (ℕᵣ [ ⊢A , ⊢B , D ]) (sucᵣ t⇒suc v⇒suc t®v) t⇒t′
   with whrDet↘Term (t⇒suc , sucₙ) (conv* (redMany t⇒t′) (subset* D))
 ... | t′⇒suc = sucᵣ t′⇒suc v⇒suc t®v
-sourceRedSubstTerm′ (Unitᵣ (Unitₜ x _)) (starᵣ _ v⇒star) t⇒t′
-  with syntacticRedTerm (redMany t⇒t′)
-... | _ , _ , Δ⊢t′∷Unit = starᵣ (conv Δ⊢t′∷Unit (subset* (red x))) v⇒star
+sourceRedSubstTerm′ (Unitᵣ (Unitₜ x _)) (starᵣ t⇒star v⇒star) t⇒t′
+  with whrDet↘Term (t⇒star , starₙ) (redMany (conv t⇒t′ (subset* (red x))))
+... | t′⇒star = starᵣ t′⇒star v⇒star
 sourceRedSubstTerm′
   (Bᵣ′ (BΠ p q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _) t®v′ t⇒t′ {a = a} [a]
   with is-𝟘? p

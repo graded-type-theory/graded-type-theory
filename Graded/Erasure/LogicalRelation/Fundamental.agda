@@ -217,7 +217,7 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
   open Graded.Erasure.LogicalRelation.Fundamental.Product
     TR UR well-formed
   open Graded.Erasure.LogicalRelation.Fundamental.Unit
-    TR is-𝟘? well-formed
+    TR well-formed
   open Graded.Erasure.LogicalRelation.Conversion TR is-𝟘? well-formed
   open Graded.Erasure.LogicalRelation.Hidden TR is-𝟘? well-formed
   open Graded.Erasure.LogicalRelation.Irrelevance TR is-𝟘? well-formed
@@ -503,6 +503,23 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
                         [Γ] [Empty] [A] [t]
     in  [Γ] , [A] , γ⊩ʳemptyrec
   fundamental (starⱼ ⊢Γ ok) _ = starʳ ⊢Γ ok
+  fundamental (unitrecⱼ {A = A} {t} {u} ⊢A ⊢t:Unit ⊢u:A₊ ok) γ▸ur =
+    let invUsageUnitrec δ▸t η▸u _ ok′ γ≤γ′ = inv-usage-unitrec γ▸ur
+        [Γ] , [Unit] , ⊩ʳt = fundamental ⊢t:Unit δ▸t
+        [Γ]₁ , [A₊]₁ , ⊩ʳu′ = fundamental ⊢u:A₊ η▸u
+        [Γ]₂ , [A]₂ = F.fundamental ⊢A
+        [Γ]₃ , [Unit]₃ , [t]₃ = F.fundamentalTerm ⊢t:Unit
+        [Γ]₄ , [A₊]₄ , [u]₄ = F.fundamentalTerm ⊢u:A₊
+        [A] = IS.irrelevance [Γ]₂ ([Γ] ∙ [Unit]) [A]₂
+        [A₊] = IS.irrelevance [Γ]₁ [Γ] [A₊]₁
+        [t] = IS.irrelevanceTerm {t = t} [Γ]₃ [Γ] [Unit]₃ [Unit] [t]₃
+        [u] = IS.irrelevanceTerm {t = u} [Γ]₄ [Γ] [A₊]₄ [A₊] [u]₄
+        ⊩ʳu = irrelevance {t = u} [Γ]₁ [Γ] [A₊]₁ [A₊] ⊩ʳu′
+        p≡𝟘→k≡0 = λ p≡𝟘 → case closed-or-no-erased-matches of λ where
+          (inj₁ nem) → ⊥-elim (nem non-trivial .proj₂ .proj₁ ok′ p≡𝟘)
+          (inj₂ k≡0) → k≡0
+        [Aₜ] , ⊩ʳur = unitrecʳ {u = u} [Γ] ok [Unit] [A] [A₊] [t] [u] ⊩ʳt ⊩ʳu p≡𝟘→k≡0
+    in  [Γ] , [Aₜ] , subsumption-≤ well-formed {t = unitrec _ _ A t u} [Γ] [Aₜ] ⊩ʳur γ≤γ′
   fundamental (Idⱼ ⊢A ⊢t ⊢u) _ =
     Idʳ ⊢A ⊢t ⊢u
   fundamental (rflⱼ ⊢t) _ =
@@ -537,7 +554,7 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
                (inj₁ $ case closed-or-no-erased-matches of λ where
                   (inj₂ k≡0) → k≡0
                   (inj₁ nem) →
-                    ⊥-elim (nem non-trivial .proj₂ .proj₂ .proj₁ em)) }
+                    ⊥-elim (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₁ em)) }
            (invUsageJ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} _ _ _ _ ▸u _ ▸w γ≤) →
              case fundamental′ ⊢u ▸u of λ {
                (⊩B[t,rfl] , ⊩ʳu) →
@@ -581,7 +598,7 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
                (inj₁ $ case closed-or-no-erased-matches of λ where
                   (inj₂ k≡0) → k≡0
                   (inj₁ nem) →
-                    ⊥-elim (nem non-trivial .proj₂ .proj₂ .proj₂ em)) }
+                    ⊥-elim (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₂ em)) }
            (invUsageK {γ₂} {γ₃} {γ₄} {γ₅} _ _ _ _ ▸u ▸v γ≤) →
              case fundamental′ ⊢u ▸u of λ {
                (⊩B[rfl] , ⊩ʳu) →
@@ -603,7 +620,7 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
   fundamental ([]-congⱼ ⊢t ⊢u ⊢v ok) _ =
     []-congʳ
       (case closed-or-no-erased-matches of λ where
-         (inj₁ nem) → ⊥-elim (nem non-trivial .proj₂ .proj₁ ok)
+         (inj₁ nem) → ⊥-elim (nem non-trivial .proj₂ .proj₂ .proj₁ ok)
          (inj₂ k≡0) → k≡0)
       ⊢t ⊢u ⊢v ok
   fundamental (conv {t = t} {A = A} {B = B} Γ⊢t:A A≡B) γ▸t =

@@ -169,6 +169,22 @@ neNeg
   NegativeType Γ (A [ t ]₀)              □ }}
 neNeg (emptyrecⱼ _ d) (emptyrecₙ _) _ _ =
   ⊥-elim (consistent _ d)
+neNeg {γ = γ} (unitrecⱼ {A = A} {t} {p = p} _ d _ ok) (unitrecₙ n) γ▸unitrec =
+  case inv-usage-unitrec γ▸unitrec of λ {
+   (invUsageUnitrec {δ = δ} {η = η} δ▸t _ _ ok′ γ≤pδ+η) →
+  case no-erased-matches non-trivial .proj₂ .proj₁ ok′ of λ
+    p≢𝟘 →
+  NegativeErasedContext Γ γ               →⟨ NegativeErasedContext-upwards-closed γ≤pδ+η ⟩
+  NegativeErasedContext Γ (p ·ᶜ δ +ᶜ η)   →⟨ NegativeErasedContext-𝟘 (λ _ → proj₁ ∘→ +ᶜ-positive-⟨⟩ (p ·ᶜ δ)) ⟩
+  NegativeErasedContext Γ (p ·ᶜ δ)        →⟨ NegativeErasedContext-𝟘 (λ _ →
+                                               (λ { (inj₁ p≡𝟘)   → ⊥-elim (p≢𝟘 p≡𝟘)
+                                                  ; (inj₂ δ⟨x⟩≡𝟘) → δ⟨x⟩≡𝟘
+                                                  }) ∘→
+                                               ·ᶜ-zero-product-⟨⟩ δ) ⟩
+  NegativeErasedContext Γ δ               →⟨ neNeg d n (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) δ▸t) ⟩
+  NegativeType Γ Unitʷ                    →⟨ flip ¬negUnit (refl (Unitⱼ (wfTerm d) ok)) ⟩
+  ⊥                                       →⟨ ⊥-elim ⟩
+  NegativeType Γ (A [ t ]₀)               □ }
 neNeg {γ} (Jⱼ {A} {t} {B} {v} {w} _ ⊢t _ _ ⊢v ⊢w) (Jₙ w-ne) ▸J =
   case inv-usage-J ▸J of λ where
     (invUsageJ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} _ _ _ _ _ _ ▸w γ≤) →
@@ -184,7 +200,7 @@ neNeg {γ} (Jⱼ {A} {t} {B} {v} {w} _ ⊢t _ _ ⊢v ⊢w) (Jₙ w-ne) ▸J =
       ⊥                                                            →⟨ ⊥-elim ⟩
       NegativeType Γ (B [ v , w ]₁₀)                               □
     (invUsageJ₀ em _ _ _ _ _ _ _) →
-      ⊥-elim (no-erased-matches non-trivial .proj₂ .proj₂ .proj₁ em)
+      ⊥-elim (no-erased-matches non-trivial .proj₂ .proj₂ .proj₂ .proj₁ em)
 neNeg {γ} (Kⱼ {t} {A} {B} {v} ⊢t _ _ ⊢v ok) (Kₙ v-ne) ▸K =
   case inv-usage-K ▸K of λ where
     (invUsageK {γ₂} {γ₃} {γ₄} {γ₅} _ _ _ _ _ ▸v γ≤) →
@@ -199,9 +215,9 @@ neNeg {γ} (Kⱼ {t} {A} {B} {v} ⊢t _ _ ⊢v ok) (Kₙ v-ne) ▸K =
       ⊥                                                      →⟨ ⊥-elim ⟩
       NegativeType Γ (B [ v ]₀)                              □
     (invUsageK₀ em _ _ _ _ _ _) →
-      ⊥-elim (no-erased-matches non-trivial .proj₂ .proj₂ .proj₂ em)
+      ⊥-elim (no-erased-matches non-trivial .proj₂ .proj₂ .proj₂ .proj₂ em)
 neNeg ([]-congⱼ _ _ _ ok) ([]-congₙ _) _ =
-  ⊥-elim (no-erased-matches non-trivial .proj₂ .proj₁ ok)
+  ⊥-elim (no-erased-matches non-trivial .proj₂ .proj₂ .proj₁ ok)
 neNeg (conv d c) n γ▸u nΓγ =
   conv (neNeg d n γ▸u nΓγ) c
 

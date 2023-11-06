@@ -78,6 +78,9 @@ mutual
   convConv↓Term Γ≡Δ A≡B whnfB (zero-refl x) rewrite ℕ≡A A≡B whnfB =
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
     in  zero-refl ⊢Δ
+  convConv↓Term Γ≡Δ A≡B whnfB (starʷ-refl x ok) rewrite Unit≡A A≡B whnfB =
+    let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
+    in  starʷ-refl ⊢Δ ok
   convConv↓Term Γ≡Δ A≡B whnfB (suc-cong x) rewrite ℕ≡A A≡B whnfB =
     suc-cong (stabilityConv↑Term Γ≡Δ x)
   convConv↓Term Γ≡Δ A≡B whnfB (prod-cong x x₁ x₂ x₃ ok)

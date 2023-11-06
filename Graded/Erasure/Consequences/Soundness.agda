@@ -31,7 +31,7 @@ open import Definition.LogicalRelation TR
 
 open import Graded.Context 𝕄
 open import Graded.Derived.Erased.Typed TR
-open import Graded.Derived.Erased.Untyped 𝕄 as Erased using (Erased)
+import Graded.Derived.Erased.Untyped 𝕄 as Erased
 open import Graded.Derived.Erased.Usage 𝕄 UR
 open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Properties 𝕄 UR
@@ -66,6 +66,7 @@ private
     G : Term (1+ n)
     v v′ w : T.Term n
     p : M
+    s : SigmaMode
 
 -- WH reduction soundness of natural numbers
 
@@ -163,7 +164,7 @@ module _
 
     -- Helper lemma for WH reduction soundness of unit
 
-    soundness-star′ : t ® v ∷Unit → v T.⇒* T.star
+    soundness-star′ : t ® v ∷Unit⟨ s ⟩ → v T.⇒* T.star
     soundness-star′ (starᵣ _ v⇒star) = v⇒star
 
   -- The following results make use of some assumptions.
@@ -222,10 +223,9 @@ module _
     -- Note the assumptions of the local module Soundness.
 
     soundness-star :
-      Δ ⊢ t ⇒* star ∷ Unit → 𝟘ᶜ ▸[ 𝟙ᵐ ] t → erase t T.⇒* T.star
-    soundness-star t⇒star γ▸t =
-      let ⊢t = redFirst*Term t⇒star
-          [⊤] , t®t′ = fundamentalErased ⊢t γ▸t
+      Δ ⊢ t ∷ Unit s → 𝟘ᶜ ▸[ 𝟙ᵐ ] t → erase t T.⇒* T.star
+    soundness-star ⊢t γ▸t =
+      let [⊤] , t®t′ = fundamentalErased ⊢t γ▸t
           ok = ⊢∷Unit→Unit-allowed ⊢t
           t®t″ = irrelevanceTerm {l′ = ¹}
                    [⊤]
@@ -233,7 +233,7 @@ module _
                    (t®t′ ◀≢𝟘 non-trivial)
       in  soundness-star′ t®t″
       where
-      ⊢Δ = wfTerm (redFirst*Term t⇒star)
+      ⊢Δ = wfTerm ⊢t
 
       open L ⊢Δ
 
@@ -259,8 +259,9 @@ module _
   opaque
 
     soundness-ℕ-only-target-not-counterexample₂ :
-      let t = J 𝟘 𝟘 (Erased ℕ) Erased.[ zero ] ℕ zero Erased.[ zero ]
-                ([]-cong ℕ zero zero (var {n = 1} x0))
+      let open Erased s
+          t = J 𝟘 𝟘 (Erased ℕ) ([ zero ]) ℕ zero ([ zero ])
+                ([]-cong s ℕ zero zero (var {n = 1} x0))
       in  erase t ⇒ˢ* sucᵏ′ 0
     soundness-ℕ-only-target-not-counterexample₂ =
       refl
@@ -345,27 +346,28 @@ opaque
   -- assumption that the modality's zero is well-behaved).
 
   soundness-ℕ-only-source-counterexample₂ :
-    []-cong-allowed →
+    []-cong-allowed s →
     let Δ = ε ∙ Id ℕ zero zero
-        t = J 𝟘 𝟘 (Erased ℕ) Erased.[ zero ] ℕ zero Erased.[ zero ]
-              ([]-cong ℕ zero zero (var {n = 1} x0))
+        open Erased s
+        t = J 𝟘 𝟘 (Erased ℕ) ([ zero ]) ℕ zero ([ zero ])
+              ([]-cong s ℕ zero zero (var {n = 1} x0))
     in
     Consistent Δ ×
     Δ ⊢ t ∷ ℕ ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     ¬ ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
-  soundness-ℕ-only-source-counterexample₂ ok =
+  soundness-ℕ-only-source-counterexample₂ {s = s} ok =
     case ε ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε) of λ {
       ⊢Id →
       inhabited-consistent (singleSubst (rflⱼ (zeroⱼ ε)))
     , Jⱼ′ (ℕⱼ (J-motive-context ([]ⱼ ([]-cong→Erased ok) (zeroⱼ ⊢Id))))
         (zeroⱼ ⊢Id) ([]-congⱼ′ ok (var ⊢Id here))
-    , Jₘ′ (▸Erased ℕₘ) (▸[] zeroₘ)
+    , Jₘ′ (▸Erased s ℕₘ) (▸[] s zeroₘ)
         (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
          sub ℕₘ $ begin
            𝟘ᶜ ∙ 𝟙 · 𝟘 ∙ 𝟙 · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
            𝟘ᶜ                  ∎)
-        zeroₘ (▸[] zeroₘ) ([]-congₘ ℕₘ zeroₘ zeroₘ var)
+        zeroₘ (▸[] s zeroₘ) ([]-congₘ ℕₘ zeroₘ zeroₘ var)
         (≤ᶜ-reflexive (≈ᶜ-sym ω·ᶜ⋀ᶜ⁵𝟘ᶜ))
     , (λ where
          (0 , whred J⇒ ⇨ˢ _) →

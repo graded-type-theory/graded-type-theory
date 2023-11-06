@@ -87,13 +87,23 @@ wk-prodrec {t = prodrec _ _ _ _ _ _} refl =
 
 -- Inversion for Unit.
 
-wk-Unit : wk ρ t ≡ Unit → t ≡ Unit
-wk-Unit {t = Unit} refl = refl
+wk-Unit : wk ρ t ≡ Unit s → t ≡ Unit s
+wk-Unit {t = Unit!} refl = refl
 
 -- Inversion for star.
 
-wk-star : wk ρ t ≡ star → t ≡ star
-wk-star {t = star} refl = refl
+wk-star : wk ρ t ≡ star s → t ≡ star s
+wk-star {t = star!} refl = refl
+
+-- Inversion for unitrec.
+
+wk-unitrec :
+  wk ρ t ≡ unitrec p q A u v →
+  ∃₃ λ A′ u′ v′ →
+     t ≡ unitrec p q A′ u′ v′ ×
+     wk (lift ρ) A′ ≡ A × wk ρ u′ ≡ u × wk ρ v′ ≡ v
+wk-unitrec {t = unitrec _ _ _ _ _} refl =
+  _ , _ , _ , refl , refl , refl , refl
 
 -- Inversion for Empty.
 
@@ -175,9 +185,9 @@ wk-K {w = K _ _ _ _ _ _} refl =
 -- Inversion for []-cong.
 
 wk-[]-cong :
-  wk ρ w ≡ []-cong A t u v →
+  wk ρ w ≡ []-cong s A t u v →
   ∃₄ λ A′ t′ u′ v′ →
-     w ≡ []-cong A′ t′ u′ v′ ×
+     w ≡ []-cong s A′ t′ u′ v′ ×
      wk ρ A′ ≡ A × wk ρ t′ ≡ t × wk ρ u′ ≡ u × wk ρ v′ ≡ v
-wk-[]-cong {w = []-cong _ _ _ _} refl =
+wk-[]-cong {w = []-cong _ _ _ _ _} refl =
   _ , _ , _ , _ , refl , refl , refl , refl , refl

@@ -1,15 +1,18 @@
 ------------------------------------------------------------------------
--- Some inversion lemmas related to typing and Erased
+-- Some inversion lemmas related to typing and Erased with and without
+-- η-equality.
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
 import Graded.Modality
+open import Definition.Untyped.NotParametrised using (SigmaMode)
 
 module Graded.Derived.Erased.Typed.Inversion
   {a} {M : Set a}
   (open Graded.Modality M)
   {𝕄 : Modality}
   (R : Type-restrictions 𝕄)
+  (s : SigmaMode)
   where
 
 open Modality 𝕄
@@ -23,7 +26,7 @@ open import Definition.Typed.Consequences.Substitution R
 
 open import Definition.Untyped M as U hiding (_∷_)
 
-open import Graded.Derived.Erased.Untyped 𝕄
+open import Graded.Derived.Erased.Untyped 𝕄 s
 
 open import Tools.Empty
 open import Tools.Fin
@@ -42,7 +45,7 @@ opaque
 
   inversion-Erased-∷ :
     Γ ⊢ Erased A ∷ B →
-    Γ ⊢ A ∷ U × Erased-allowed × Γ ⊢ B ≡ U
+    Γ ⊢ A ∷ U × Erased-allowed s × Γ ⊢ B ≡ U
   inversion-Erased-∷ ⊢Erased =
     case inversion-ΠΣ-U ⊢Erased of λ {
       (⊢A , ⊢Unit , B≡ , Σₚ-ok) →
@@ -52,7 +55,7 @@ opaque
 
   -- Another inversion lemma for Erased.
 
-  inversion-Erased : Γ ⊢ Erased A → Γ ⊢ A × Erased-allowed
+  inversion-Erased : Γ ⊢ Erased A → Γ ⊢ A × Erased-allowed s
   inversion-Erased ⊢Erased =
     case inversion-ΠΣ ⊢Erased of λ {
       (⊢A , ⊢Unit , Σₚ-ok) →
@@ -70,9 +73,9 @@ opaque
     Γ ⊢ [ t ] ∷ A →
     ∃₃ λ B q C →
        Γ ⊢ t ∷ B ×
-       (Unit-allowed × Σₚ-allowed 𝟘 q) ×
-       Γ ⊢ A ≡ Σₚ 𝟘 , q ▷ B ▹ C ×
-       Γ ⊢ C U.[ t ]₀ ≡ Unit
+       (Unit-allowed s × Σ-allowed s 𝟘 q) ×
+       Γ ⊢ A ≡ Σ⟨ s ⟩ 𝟘 , q ▷ B ▹ C ×
+       Γ ⊢ C U.[ t ]₀ ≡ Unit s
   inversion-[] ⊢[] =
     case inversion-prod ⊢[] of λ {
       (B , C , q , ⊢B , _ , ⊢t , ⊢star , A≡ , Σₚ-ok) →
@@ -86,7 +89,7 @@ opaque
 
   inversion-[]′ :
     Γ ⊢ [ t ] ∷ Erased A →
-    Γ ⊢ t ∷ A × Erased-allowed
+    Γ ⊢ t ∷ A × Erased-allowed s
   inversion-[]′ ⊢[] =
     case inversion-[] ⊢[] of λ {
       (_ , _ , _ , ⊢t , Erased-ok , Erased-A≡ , _) →
@@ -100,11 +103,11 @@ opaque
   -- does not hold.
 
   ¬-inversion-[]′ :
-    Erased-allowed →
+    Erased-allowed s →
     ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} →
        Γ ⊢ [ t ] ∷ A →
-       ∃₂ λ B q → Γ ⊢ t ∷ B × Γ ⊢ A ≡ Σₚ 𝟘 , q ▷ B ▹ Unit)
-  ¬-inversion-[]′ (Unit-ok , Σₚ-ok) inversion-[] = bad
+       ∃₂ λ B q → Γ ⊢ t ∷ B × Γ ⊢ A ≡ Σ⟨ s ⟩ 𝟘 , q ▷ B ▹ Unit s)
+  ¬-inversion-[]′ (Unit-ok , Σ-ok) inversion-[] = bad
     where
     Γ′ : Con Term 0
     Γ′ = ε
@@ -113,7 +116,7 @@ opaque
     t′ = zero
 
     A′ : Term 0
-    A′ = Σₚ 𝟘 , 𝟘 ▷ ℕ ▹ natrec 𝟙 𝟙 𝟙 U Unit ℕ (var x0)
+    A′ = Σ 𝟘 , 𝟘 ▷ ℕ ▹ natrec 𝟙 𝟙 𝟙 U Unit! ℕ (var x0)
 
     ⊢Γ′∙ℕ : ⊢ Γ′ ∙ ℕ
     ⊢Γ′∙ℕ = ε ∙ ℕⱼ ε
@@ -136,9 +139,9 @@ opaque
       (conv (starⱼ ε Unit-ok)
          (_⊢_≡_.sym $
           univ (natrec-zero (Uⱼ ⊢Γ′∙ℕ) (Unitⱼ ε Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U))))
-      Σₚ-ok
+      Σ-ok
 
-    ℕ≡Unit : Γ′ ⊢ ℕ ≡ Unit
+    ℕ≡Unit : Γ′ ⊢ ℕ ≡ Unit s
     ℕ≡Unit =
       case inversion-[] ⊢[t′] of
         λ (_ , _ , _ , A′≡) →
@@ -158,7 +161,7 @@ opaque
   -- does not hold.
 
   ¬-inversion-[] :
-    Erased-allowed →
+    Erased-allowed s →
     ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} →
        Γ ⊢ [ t ] ∷ A →
        ∃ λ B → Γ ⊢ t ∷ B × Γ ⊢ A ≡ Erased B)
@@ -167,100 +170,3 @@ opaque
     case inversion-[] ⊢[] of λ {
       (B , ⊢t , A≡) →
     B , 𝟘 , ⊢t , A≡ }
-
-opaque
-
-  -- An inversion lemma for erased.
-  --
-  -- TODO: Make it possible to replace the conclusion with
-  --
-  --   Γ ⊢ t ∷ Erased A × Erased-allowed?
-
-  inversion-erased :
-    Γ ⊢ erased t ∷ A →
-    ∃₂ λ q B → Γ ⊢ t ∷ Σₚ 𝟘 , q ▷ A ▹ B × Σₚ-allowed 𝟘 q
-  inversion-erased ⊢erased =
-    case inversion-fst ⊢erased of λ {
-      (_ , C , q , ⊢B , ⊢C , ⊢t , ≡B) →
-    case ⊢∷ΠΣ→ΠΣ-allowed ⊢t of λ {
-      Σₚ-ok →
-      q
-    , C
-    , conv ⊢t (ΠΣ-cong ⊢B (_⊢_≡_.sym ≡B) (refl ⊢C) Σₚ-ok)
-    , Σₚ-ok }}
-
-opaque
-
-  -- If Erased is allowed, then a certain form of inversion for erased
-  -- does not hold.
-
-  ¬-inversion-erased′ :
-    Erased-allowed →
-    ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} →
-       Γ ⊢ erased t ∷ A →
-       ∃ λ q → Γ ⊢ t ∷ Σₚ 𝟘 , q ▷ A ▹ Unit)
-  ¬-inversion-erased′ (Unit-ok , Σₚ-ok) inversion-erased = bad
-    where
-    Γ′ : Con Term 0
-    Γ′ = ε
-
-    t′ : Term 0
-    t′ = prodₚ 𝟘 zero zero
-
-    A′ : Term 0
-    A′ = ℕ
-
-    ⊢Γ′∙ℕ : ⊢ Γ′ ∙ ℕ
-    ⊢Γ′∙ℕ = ε ∙ ℕⱼ ε
-
-    ⊢t′₁ : Γ′ ⊢ t′ ∷ Σₚ 𝟘 , 𝟘 ▷ ℕ ▹ ℕ
-    ⊢t′₁ = prodⱼ (ℕⱼ ε) (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) Σₚ-ok
-
-    ⊢erased-t′ : Γ′ ⊢ erased t′ ∷ A′
-    ⊢erased-t′ = fstⱼ (ℕⱼ ε) (ℕⱼ ⊢Γ′∙ℕ) ⊢t′₁
-
-    erased-t′≡zero : Γ′ ⊢ erased t′ ≡ zero ∷ A′
-    erased-t′≡zero =
-      Σ-β₁ (ℕⱼ ε) (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) PE.refl Σₚ-ok
-
-    ⊢t′₂ : ∃ λ q → Γ′ ⊢ t′ ∷ Σₚ 𝟘 , q ▷ A′ ▹ Unit
-    ⊢t′₂ = inversion-erased ⊢erased-t′
-
-    ⊢snd-t′ : Γ′ ⊢ snd 𝟘 t′ ∷ Unit
-    ⊢snd-t′ = sndⱼ (ℕⱼ ε) (Unitⱼ ⊢Γ′∙ℕ Unit-ok) (⊢t′₂ .proj₂)
-
-    ℕ≡Unit : Γ′ ⊢ ℕ ≡ Unit
-    ℕ≡Unit =
-      case inversion-snd ⊢snd-t′ of
-        λ (_ , _ , _ , _ , _ , ⊢t′ , Unit≡) →
-      case inversion-prod ⊢t′ of
-        λ (_ , _ , _ , _ , _ , ⊢zero , ⊢zero′ , Σ≡Σ , _) →
-      case Σ-injectivity Σ≡Σ of
-        λ (F≡F′ , G≡G′ , _ , _ , _) →
-      case inversion-zero ⊢zero of
-        λ ≡ℕ →
-      case inversion-zero ⊢zero′ of
-        λ ≡ℕ′ →
-      _⊢_≡_.sym $
-      _⊢_≡_.trans Unit≡ $
-      trans
-        (substTypeEq G≡G′ $
-         conv erased-t′≡zero (_⊢_≡_.sym (trans F≡F′ ≡ℕ)))
-      ≡ℕ′
-
-    bad : ⊥
-    bad = ℕ≢Unitⱼ ℕ≡Unit
-
-opaque
-
-  -- If Erased is allowed, then another form of inversion for erased
-  -- also does not hold.
-
-  ¬-inversion-erased :
-    Erased-allowed →
-    ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} →
-       Γ ⊢ erased t ∷ A →
-       Γ ⊢ t ∷ Erased A)
-  ¬-inversion-erased Erased-ok inversion-erased =
-    ¬-inversion-erased′ Erased-ok λ ⊢erased →
-    _ , inversion-erased ⊢erased

@@ -93,6 +93,30 @@ transEqTermEmpty {n} (Emptyₜ₌ k k′ d d′ t≡u prop)
   in Emptyₜ₌ k k″ d d″ (≅ₜ-trans t≡u (PE.subst (λ (x : Term n) → _ ⊢ x ≅ _ ∷ _) k₁≡k′ t≡u₁))
      (transEmpty-prop prop prop′)
 
+transUnit-prop : ∀ {k k′ k″}
+  → [Unitʷ]-prop Γ k k′
+  → [Unitʷ]-prop Γ k′ k″
+  → [Unitʷ]-prop Γ k k″
+transUnit-prop starᵣ starᵣ = starᵣ
+transUnit-prop (ne [k≡k′]) (ne [k′≡k″]) = ne (transEqTermNe [k≡k′] [k′≡k″])
+
+transEqTermUnit : ∀ {s n n′ n″}
+  → Γ ⊩Unit⟨ s ⟩ n  ≡ n′ ∷Unit
+  → Γ ⊩Unit⟨ s ⟩ n′ ≡ n″ ∷Unit
+  → Γ ⊩Unit⟨ s ⟩ n  ≡ n″ ∷Unit
+transEqTermUnit {s = Σₚ} (Unitₜ₌ ⊢t _) (Unitₜ₌ _ ⊢v) = Unitₜ₌ ⊢t ⊢v
+transEqTermUnit {n} {s = Σᵣ} (Unitₜ₌ k k′ d d′ k≡k′ prop)
+                (Unitₜ₌ k″ k‴ d″ d‴ k″≡k‴ prop′) =
+  let whK″ = proj₁ (usplit prop′)
+      whK′ = proj₂ (usplit prop)
+      k″≡k′ = whrDet*Term (redₜ d″ , whK″) (redₜ d′ , whK′)
+      k′≡k‴ = PE.subst (λ (x : Term n) → _ ⊢ x ≅ _ ∷ _)
+                       k″≡k′ k″≡k‴
+      prop″ = PE.subst (λ (x : Term n) → [Unitʷ]-prop _ x _) k″≡k′ prop′
+  in  Unitₜ₌ k k‴ d d‴ (≅ₜ-trans k≡k′ k′≡k‴)
+             (transUnit-prop prop prop″)
+
+
 -- Helper function for transitivity of type equality using shape views.
 transEqT : ∀ {n} {Γ : Con Term n} {A B C l l′ l″}
            {[A] : Γ ⊩⟨ l ⟩ A} {[B] : Γ ⊩⟨ l′ ⟩ B} {[C] : Γ ⊩⟨ l″ ⟩ C}
@@ -241,7 +265,7 @@ transEqTerm (Uᵣ′ .⁰ 0<1 ⊢Γ)
     (transEq [t] [u] [u]₁ [t≡u] (irrelevanceEq [t]₁ [u] [t≡u]₁))
 transEqTerm (ℕᵣ D) [t≡u] [u≡v] = transEqTermℕ [t≡u] [u≡v]
 transEqTerm (Emptyᵣ D) [t≡u] [u≡v] = transEqTermEmpty [t≡u] [u≡v]
-transEqTerm (Unitᵣ D) (Unitₜ₌ ⊢t _) (Unitₜ₌ _ ⊢v) = Unitₜ₌ ⊢t ⊢v
+transEqTerm (Unitᵣ D) [t≡u] [u≡v] = transEqTermUnit [t≡u] [u≡v]
 transEqTerm {n} (ne′ K D neK K≡K) (neₜ₌ k m d d′ (neNfₜ₌ neK₁ neM k≡m))
                               (neₜ₌ k₁ m₁ d₁ d″ (neNfₜ₌ neK₂ neM₁ k≡m₁)) =
   let k₁≡m = whrDet*Term (redₜ d₁ , ne neK₂) (redₜ d′ , ne neM)

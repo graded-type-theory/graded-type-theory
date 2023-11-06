@@ -16,6 +16,7 @@ open Modality 𝕄
 open Usage-restrictions R
 
 open import Graded.Context 𝕄
+open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Dedicated-nr 𝕄
 open import Graded.Mode 𝕄
 open import Definition.Untyped M hiding (_∙_)
@@ -37,10 +38,11 @@ private
     p q r : M
     γ γ′ γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ δ η θ χ : Conₘ n
     A B F G : Term n
-    s t u v w z : Term n
+    t u v w z : Term n
     x : Fin n
     m m′ : Mode
     b : BinderMode
+    s : SigmaMode
 
 -- Modality context inference (for modalities with nr functions).
 
@@ -66,8 +68,9 @@ mutual
   ⌈ suc t ⌉ m = ⌈ t ⌉ m
   ⌈ natrec p _ r _ z s n ⌉ m =
     nrᶜ p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m)
-  ⌈ Unit ⌉ _ = 𝟘ᶜ
-  ⌈ star ⌉ _ = 𝟘ᶜ
+  ⌈ Unit! ⌉ _ = 𝟘ᶜ
+  ⌈ star! ⌉ _ = 𝟘ᶜ
+  ⌈ unitrec p q A t u ⌉ m = p ·ᶜ ⌈ t ⌉ (m ᵐ· p) +ᶜ ⌈ u ⌉ m
   ⌈ Empty ⌉ _ = 𝟘ᶜ
   ⌈ emptyrec p _ t ⌉ m = p ·ᶜ ⌈ t ⌉ (m ᵐ· p)
   ⌈ Id _ t u ⌉ m = case Id-erased? of λ where
@@ -83,7 +86,7 @@ mutual
   ⌈ K _ _ t B u v ⌉ m = case Erased-matches-for-K? of λ where
     (yes _) → ⌈ u ⌉ m
     (no _)  → ω ·ᶜ (⌈ t ⌉ m ∧ᶜ tailₘ (⌈ B ⌉ m) ∧ᶜ ⌈ u ⌉ m ∧ᶜ ⌈ v ⌉ m)
-  ⌈ []-cong _ _ _ _ ⌉ _ = 𝟘ᶜ
+  ⌈ []-cong _ _ _ _ _ ⌉ _ = 𝟘ᶜ
 
 -- Well-usage of variables
 data _◂_∈_  : (x : Fin n) (p : M) (γ : Conₘ n) → Set a where
@@ -193,7 +196,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
   Uₘ        : 𝟘ᶜ ▸[ m ] U
   ℕₘ        : 𝟘ᶜ ▸[ m ] ℕ
   Emptyₘ    : 𝟘ᶜ ▸[ m ] Empty
-  Unitₘ     : 𝟘ᶜ ▸[ m ] Unit
+  Unitₘ     : 𝟘ᶜ ▸[ m ] Unit s
 
   ΠΣₘ       : γ ▸[ m ᵐ· p ] F
             → δ ∙ ⌜ m ⌝ · q ▸[ m ] G
@@ -238,7 +241,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
 
   -- A usage rule for natrec which applies if a dedicated nr function
   -- ("natrec usage function") is available.
-  natrecₘ   : ∀ {n} ⦃ has-nr : Dedicated-nr ⦄
+  natrecₘ   : ∀ {s n} ⦃ has-nr : Dedicated-nr ⦄
             → γ ▸[ m ] z
             → δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s
             → η ▸[ m ] n
@@ -273,7 +276,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
   -- Graded.Modality.Instances.Linear-or-affine.Bad.No-dedicated-nr
   -- for some examples.
   natrec-no-nrₘ :
-            ∀ {n} ⦃ no-nr : No-dedicated-nr ⦄
+            ∀ {n s} ⦃ no-nr : No-dedicated-nr ⦄
             → γ ▸[ m ] z
             → δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s
             → η ▸[ m ] n
@@ -291,7 +294,18 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → δ ▸[ 𝟘ᵐ? ] A
             → p ·ᶜ γ ▸[ m ] emptyrec p A t
 
-  starₘ     : 𝟘ᶜ ▸[ m ] star
+  starʷₘ    : 𝟘ᶜ ▸[ m ] starʷ
+
+  -- If the strong unit type is not allowed to be used as a sink
+  -- then its resources must be 𝟘ᶜ.
+  starˢₘ    : (¬Starˢ-sink → 𝟘ᶜ ≈ᶜ γ)
+            → ⌜ m ⌝ ·ᶜ γ ▸[ m ] starˢ
+
+  unitrecₘ : γ ▸[ m ᵐ· p ] t
+           → δ ▸[ m ] u
+           → η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
+           → Unitrec-allowed p q
+           → p ·ᶜ γ +ᶜ δ ▸[ m ] unitrec p q A t u
 
   Idₘ       : ¬ Id-erased
             → γ ▸[ 𝟘ᵐ? ] A
@@ -338,8 +352,14 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → γ₂ ▸[ 𝟘ᵐ? ] t
             → γ₃ ▸[ 𝟘ᵐ? ] u
             → γ₄ ▸[ 𝟘ᵐ? ] v
-            → 𝟘ᶜ ▸[ m ] []-cong A t u v
+            → 𝟘ᶜ ▸[ m ] []-cong s A t u v
 
   sub       : γ ▸[ m ] t
             → δ ≤ᶜ γ
             → δ ▸[ m ] t
+
+starₘ : 𝟘ᶜ {n} ▸[ m ] star s
+starₘ {s = Σₚ} =
+  sub (starˢₘ λ _ → ≈ᶜ-refl)
+      (≤ᶜ-reflexive (≈ᶜ-sym (·ᶜ-zeroʳ _)))
+starₘ {s = Σᵣ} = starʷₘ

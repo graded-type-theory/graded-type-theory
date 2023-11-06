@@ -20,6 +20,7 @@ open 𝟘𝟙ω renaming (Zero-one-many to Affine) public
 open import Graded.Modality Affine
 import Graded.Modality.Properties
 open import Graded.FullReduction.Assumptions
+open import Graded.Usage.Restrictions Affine
 
 import Definition.Typed.Restrictions
 open import Definition.Untyped
@@ -34,6 +35,7 @@ open import Tools.Unit
 
 private variable
   p  : Affine
+  us : Usage-restrictions
 
 -- An "affine types" modality.
 
@@ -357,8 +359,8 @@ suitable-for-full-reduction rs =
           ΠΣ-allowed b p q ×
           (b ≡ BMΣ Σₚ × p ≡ 𝟘 → T 𝟘ᵐ-allowed) ×
           ¬ (b ≡ BMΣ Σₚ × p ≡ ω)
-      ; []-cong-allowed =
-          []-cong-allowed × T 𝟘ᵐ-allowed
+      ; []-cong-allowed = λ s →
+          []-cong-allowed s × T 𝟘ᵐ-allowed
       ; []-cong→Erased = λ (ok₁ , ok₂) →
             []-cong→Erased ok₁ .proj₁ , []-cong→Erased ok₁ .proj₂
           , (λ _ → ok₂) , λ ()
@@ -375,10 +377,10 @@ suitable-for-full-reduction rs =
 
 full-reduction-assumptions :
   Suitable-for-full-reduction rs →
-  Full-reduction-assumptions rs
+  Full-reduction-assumptions rs us
 full-reduction-assumptions (𝟘→𝟘ᵐ , ¬ω) = record
-  { 𝟙≤𝟘    = λ _ → refl
-  ; ≡𝟙⊎𝟙≤𝟘 = λ where
+  { sink⊎𝟙≤𝟘 = λ _ → inj₂ refl
+  ; ≡𝟙⊎𝟙≤𝟘   = λ where
       {p = ω} ok → ⊥-elim (¬ω _ ok)
       {p = 𝟙} _  → inj₁ refl
       {p = 𝟘} ok → inj₂ (refl , 𝟘→𝟘ᵐ _ ok , refl)

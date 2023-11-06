@@ -38,6 +38,7 @@ private
     A B : Term n
     l : TypeLevel
     b : BinderMode
+    s : SigmaMode
     p q : M
     [Γ] : ⊩ᵛ _
 
@@ -87,13 +88,13 @@ escapeEqTermᵛ [Γ] [A] [t≡u] =
 -- If the type Unit is valid, then it is allowed.
 
 ⊩ᵛUnit→Unit-allowed :
-  Γ ⊩ᵛ⟨ l ⟩ Unit / [Γ] →
-  Unit-allowed
-⊩ᵛUnit→Unit-allowed {Γ = Γ} {l = l} {[Γ] = [Γ]} =
-  Γ ⊩ᵛ⟨ l ⟩ Unit / [Γ]                                        →⟨ (λ hyp _ σ → proj₁ (unwrap hyp _ σ)) ⟩
-  ((⊢Γ : ⊢ Γ) → Γ ⊩ˢ idSubst ∷ Γ / [Γ] / ⊢Γ → Γ ⊩⟨ l ⟩ Unit)  →⟨ (_$ idSubstS _) ∘→ (_$ _) ⟩
-  Γ ⊩⟨ l ⟩ Unit                                               →⟨ ⊩Unit→Unit-allowed ⟩
-  Unit-allowed                                                □
+  Γ ⊩ᵛ⟨ l ⟩ Unit s / [Γ] →
+  Unit-allowed s
+⊩ᵛUnit→Unit-allowed {Γ = Γ} {l = l} {s = s} {[Γ] = [Γ]} =
+  Γ ⊩ᵛ⟨ l ⟩ Unit s / [Γ]                                        →⟨ (λ hyp _ σ → proj₁ (unwrap hyp _ σ)) ⟩
+  ((⊢Γ : ⊢ Γ) → Γ ⊩ˢ idSubst ∷ Γ / [Γ] / ⊢Γ → Γ ⊩⟨ l ⟩ Unit s)  →⟨ (_$ idSubstS _) ∘→ (_$ _) ⟩
+  Γ ⊩⟨ l ⟩ Unit s                                               →⟨ ⊩Unit→Unit-allowed ⟩
+  Unit-allowed s                                                □
 
 -- If the type ΠΣ⟨ b ⟩ p , q ▷ A ▹ B is valid, then it is allowed.
 

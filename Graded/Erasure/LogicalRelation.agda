@@ -52,6 +52,7 @@ private
     v v₂ v′ w : T.Term n
     p : M
     l : TypeLevel
+    s : SigmaMode
 
 ------------------------------------------------------------------------
 -- The logical relation
@@ -74,11 +75,10 @@ data _®_∷ℕ (t : U.Term k) (v : T.Term k) : Set a where
 
 data _®_∷Empty (t : U.Term k) (v : T.Term k) : Set a where
 
--- Terms of type Unit are related to terms which reduce to star.
--- Note that we have η-equality of the unit type.
+-- Terms of type Unit are related if both reduce to star.
 
-data _®_∷Unit (t : U.Term k) (v : T.Term k) : Set a where
-  starᵣ : Δ ⊢ t ∷ Unit → v T.⇒* T.star → t ® v ∷Unit
+data _®_∷Unit⟨_⟩ (t : U.Term k) (v : T.Term k) (s : SigmaMode) : Set a where
+  starᵣ : Δ ⊢ t ⇒* U.star s ∷ Unit s → v T.⇒* T.star → t ® v ∷Unit⟨ s ⟩
 
 -- Equality proofs are related if both terms reduce to rfl.
 
@@ -98,7 +98,7 @@ mutual
   t ®⟨ l ⟩ v ∷ A / Uᵣ x     = t ® v ∷U
   t ®⟨ l ⟩ v ∷ A / ℕᵣ x     = t ® v ∷ℕ
   t ®⟨ l ⟩ v ∷ A / Emptyᵣ x = t ® v ∷Empty
-  t ®⟨ l ⟩ v ∷ A / Unitᵣ x  = t ® v ∷Unit
+  t ®⟨ l ⟩ v ∷ A / Unitᵣ {s = s} x  = t ® v ∷Unit⟨ s ⟩
   t ®⟨ l ⟩ v ∷ A / ne′ K D neK K≡K = Lift a ⊥
 
   -- Π:

@@ -35,10 +35,10 @@ private variable
 
 no-type-restrictions : Type-restrictions
 no-type-restrictions = λ where
-    .Unit-allowed     → Lift _ ⊤
+    .Unit-allowed     → λ _ → Lift _ ⊤
     .ΠΣ-allowed       → λ _ _ _ → Lift _ ⊤
     .K-allowed        → Lift _ ⊤
-    .[]-cong-allowed  → ¬ Trivial
+    .[]-cong-allowed  → λ _ → ¬ Trivial
     .[]-cong→Erased   → _
     .[]-cong→¬Trivial → idᶠ
   where
@@ -49,13 +49,17 @@ no-type-restrictions = λ where
 
 no-usage-restrictions : Usage-restrictions
 no-usage-restrictions = λ where
-  .Usage-restrictions.Prodrec-allowed       → λ _ _ _ → Lift _ ⊤
-  .Usage-restrictions.Id-erased             → Lift _ ⊤
-  .Usage-restrictions.Id-erased?            → yes _
-  .Usage-restrictions.Erased-matches-for-J  → Lift _ ⊤
-  .Usage-restrictions.Erased-matches-for-J? → yes _
-  .Usage-restrictions.Erased-matches-for-K  → Lift _ ⊤
-  .Usage-restrictions.Erased-matches-for-K? → yes _
+    .Usage-restrictions.Prodrec-allowed       → λ _ _ _ → Lift _ ⊤
+    .Unitrec-allowed                          → λ _ _ → Lift _ ⊤
+    .starˢ-sink                                → true
+    .Usage-restrictions.Id-erased             → Lift _ ⊤
+    .Usage-restrictions.Id-erased?            → yes _
+    .Usage-restrictions.Erased-matches-for-J  → Lift _ ⊤
+    .Usage-restrictions.Erased-matches-for-J? → yes _
+    .Usage-restrictions.Erased-matches-for-K  → Lift _ ⊤
+    .Usage-restrictions.Erased-matches-for-K? → yes _
+  where
+  open Usage-restrictions
 
 -- The function adds the restriction that the two quantities on a Π-
 -- or Σ-type have to be equal.
@@ -111,7 +115,8 @@ No-erased-matches : Type-restrictions → Usage-restrictions → Set a
 No-erased-matches TR UR =
   ¬ Trivial →
   (∀ {r p q} → Prodrec-allowed r p q → r ≢ 𝟘) ×
-  ¬ []-cong-allowed ×
+  (∀ {p q}   → Unitrec-allowed p q   → p ≢ 𝟘) ×
+  (∀ {s} → ¬ ([]-cong-allowed s)) ×
   ¬ Erased-matches-for-J ×
   ¬ Erased-matches-for-K
   where
@@ -121,9 +126,10 @@ No-erased-matches TR UR =
 -- The function adds the restriction that erased matches are not
 -- allowed.
 
+-- <<<<<<< HEAD
 no-erased-matches-TR : Type-restrictions → Type-restrictions
 no-erased-matches-TR TR = record TR
-  { []-cong-allowed  = Lift _ ⊥
+  { []-cong-allowed  = λ _ → Lift _ ⊥
   ; []-cong→Erased   = λ ()
   ; []-cong→¬Trivial = λ ()
   }
@@ -131,14 +137,17 @@ no-erased-matches-TR TR = record TR
   open Type-restrictions TR
 
 -- The function adds the restriction that erased matches are not
--- allowed (for prodrec the restriction only applies to non-trivial
--- modalities).
+-- allowed (for prodrec and unitrec the restriction only applies
+-- to non-trivial modalities).
 
 no-erased-matches-UR : Usage-restrictions → Usage-restrictions
 no-erased-matches-UR UR = record UR
   { Prodrec-allowed       = λ r p q →
                               Prodrec-allowed r p q ×
                               (¬ Trivial → r ≢ 𝟘)
+  ; Unitrec-allowed       = λ p q →
+                              Unitrec-allowed p q ×
+                              (¬ Trivial → p ≢ 𝟘)
   ; Erased-matches-for-J  = Lift _ ⊥
   ; Erased-matches-for-J? = no (λ ())
   ; Erased-matches-for-K  = Lift _ ⊥
@@ -154,4 +163,4 @@ No-erased-matches-no-erased-matches :
   ∀ TR UR →
   No-erased-matches (no-erased-matches-TR TR) (no-erased-matches-UR UR)
 No-erased-matches-no-erased-matches _ _ 𝟙≢𝟘 =
-  (_$ 𝟙≢𝟘) ∘→ proj₂ , (λ ()) , (λ ()) , (λ ())
+  (_$ 𝟙≢𝟘) ∘→ proj₂ , (_$ 𝟙≢𝟘) ∘→ proj₂ , (λ ()) , (λ ()) , (λ ())

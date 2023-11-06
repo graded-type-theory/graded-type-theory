@@ -175,6 +175,15 @@ appNeg (conv n c) c′ = appNeg n (trans c c′)
 ¬negΣᵣ (sigma _ _ _) c  = Σₚ≢Σᵣⱼ c
 ¬negΣᵣ (conv n c)    c′ = ¬negΣᵣ n (trans c c′)
 
+-- Unit types are not negative
+
+¬negUnit : ∀ {s} → NegativeType Γ C → Γ ⊢ C ≡ Unit s → ⊥
+¬negUnit empty         c  = Empty≢Unitⱼ c
+¬negUnit (pi _ _)      c  = Unit≢Πⱼ (sym c)
+¬negUnit (sigma-𝟘 _ _) c  = Unit≢Σⱼ (sym c)
+¬negUnit (sigma _ _ _) c  = Unit≢Σⱼ (sym c)
+¬negUnit (conv n c)    c′ = ¬negUnit n (trans c c′)
+
 opaque
 
   -- Identity types are not negative.

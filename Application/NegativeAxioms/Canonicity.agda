@@ -70,6 +70,9 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
     in  ⊥-elim (¬negΣᵣ (neNeg d n) ⊢Σ)
   neNeg (emptyrecⱼ _ d     ) (emptyrecₙ n) =
     ⊥-elim (consistent _ d)
+  neNeg (unitrecⱼ _ d _ ok) (unitrecₙ n) =
+    let ⊢Unit = refl (Unitⱼ (wfTerm d) ok)
+    in  ⊥-elim (¬negUnit (neNeg d n) ⊢Unit)
   neNeg (Jⱼ _ ⊢t _ _ ⊢v ⊢w) (Jₙ w-ne) =
     ⊥-elim (¬negId (neNeg ⊢w w-ne) (refl (Idⱼ ⊢t ⊢v)))
   neNeg (Kⱼ ⊢t _ _ ⊢v _) (Kₙ v-ne) =

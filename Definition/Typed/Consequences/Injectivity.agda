@@ -39,6 +39,7 @@ private
     p p′ q q′ : M
     b b′ : BinderMode
     l : TypeLevel
+    s s′ : SigmaMode
 
 -- Helper function of injectivity for specific reducible Π-types
 injectivity′ : ∀ {F G H E l} W W′
@@ -157,3 +158,23 @@ suc-injectivity ⊢suct≡sucu =
       [suct≡sucu]′ = irrelevanceEqTerm [ℕ] [ℕ]′ [suct≡sucu]
       [t≡u] = suc-injectivity′ (ℕ-elim [ℕ]) [suct≡sucu]′
   in  escapeTermEq [ℕ]′ [t≡u]
+
+-- Injectivity of Unit
+
+Unit-injectivity′ : ∀ {l}
+                  → ([Unit] : Γ ⊩⟨ l ⟩Unit⟨ s ⟩ Unit s)
+                  → Γ ⊩⟨ l ⟩ Unit s ≡ Unit s′ / Unit-intr [Unit]
+                  → s PE.≡ s′
+Unit-injectivity′ (noemb (Unitₜ ⇒*-Unit ok)) D
+  with whnfRed* D Unitₙ
+... | PE.refl = PE.refl
+Unit-injectivity′ (emb 0<1 [Unit]) [Unit≡Unit] =
+  Unit-injectivity′ [Unit] [Unit≡Unit]
+
+Unit-injectivity : Γ ⊢ Unit s ≡ Unit s′
+                 → s PE.≡ s′
+Unit-injectivity x =
+  let [Unit] , _ , [Unit≡Unit] = reducibleEq x
+      [Unit]′ = Unit-intr (Unit-elim [Unit])
+      [Unit≡Unit]′ = irrelevanceEq [Unit] [Unit]′ [Unit≡Unit]
+  in  Unit-injectivity′ (Unit-elim [Unit]) [Unit≡Unit]′

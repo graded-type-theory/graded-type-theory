@@ -19,8 +19,12 @@ module Graded.Usage.Decidable
   (_≟_ : Decidable (_≡_ {A = M}))
   -- The Prodrec-allowed relation is assumed to be decidable.
   (Prodrec? : ∀ r p q → Dec (Prodrec-allowed r p q))
+  -- The Unitrec-allowed relation is assumed to be decidable.
+  (Unitrec? : ∀ p q → Dec (Unitrec-allowed p q))
   -- A dedicated nr function is assumed to exist.
   ⦃ has-nr : Dedicated-nr ⦄
+  -- The strong unit type is not allowed to be used as a sink.
+  ⦃ no-sink : ¬Starˢ-sink ⦄
   where
 
 open Modality 𝕄 hiding (has-nr)
@@ -71,13 +75,13 @@ infix 10 ⌈⌉▸[_]?_
 
 ⌈⌉▸[ m ]? ℕ       = inj₁ ℕₘ
 
-⌈⌉▸[ m ]? Unit    = inj₁ Unitₘ
+⌈⌉▸[ m ]? Unit!   = inj₁ Unitₘ
 
 ⌈⌉▸[ m ]? Empty   = inj₁ Emptyₘ
 
 ⌈⌉▸[ m ]? zero    = inj₁ zeroₘ
 
-⌈⌉▸[ m ]? star    = inj₁ starₘ
+⌈⌉▸[ m ]? star!   = inj₁ starₘ
 
 ⌈⌉▸[ m ]? var _   = inj₁ var
 
@@ -210,6 +214,35 @@ infix 10 ⌈⌉▸[_]?_
       case inv-usage-prodₚ ▸prod of λ (invUsageProdₚ _ ▸u _) →
       ¬▸u _ ▸u
     (inj₁ ▸u) → inj₁ (prodₚₘ ▸t ▸u)
+
+⌈⌉▸[ m ]? unitrec p q A t u = case Unitrec? p q of λ where
+  (no not-ok) → inj₂ λ _ ▸ur →
+          case inv-usage-unitrec ▸ur of λ (invUsageUnitrec _ _ _ ok _) →
+          not-ok ok
+  (yes ok) → case ⌈⌉▸[ m ᵐ· p ]? t of λ where
+    (inj₂ ¬▸t) → inj₂ λ _ ▸ur →
+      case inv-usage-unitrec ▸ur of λ (invUsageUnitrec ▸t _ _ _ _) →
+      ¬▸t _ ▸t
+    (inj₁ ▸t) → case ⌈⌉▸[ m ]? u of λ where
+      (inj₂ ¬▸u) → inj₂ λ _ ▸ur →
+          case inv-usage-unitrec ▸ur of λ (invUsageUnitrec _ ▸u _ _ _) →
+          ¬▸u _ ▸u
+      (inj₁ ▸u) → case ⌈⌉▸[ 𝟘ᵐ? ]? A of λ where
+        (inj₂ ¬▸A) → inj₂ λ _ ▸ur →
+          case inv-usage-unitrec ▸ur of λ (invUsageUnitrec _ _ ▸A _ _) →
+          ¬▸A _ ▸A
+        (inj₁ ▸A) → case ⌜ 𝟘ᵐ? ⌝ · q ≤? headₘ (⌈ A ⌉ 𝟘ᵐ?) of λ where
+          (no q≰) → inj₂ λ _ ▸ur →
+            case inv-usage-unitrec ▸ur of λ (invUsageUnitrec _ _ ▸A _ _) →
+            q≰ (headₘ-monotone (usage-upper-bound ▸A))
+          (yes q≤) →
+            let lemma =
+                  let open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+                  in begin
+                  tailₘ (⌈ A ⌉ 𝟘ᵐ?) ∙ (⌜ 𝟘ᵐ? ⌝ · q)      ≤⟨ ≤ᶜ-refl ∙ q≤ ⟩
+                  tailₘ (⌈ A ⌉ 𝟘ᵐ?) ∙ headₘ (⌈ A ⌉ 𝟘ᵐ?)  ≡⟨ headₘ-tailₘ-correct _ ⟩
+                  ⌈ A ⌉ 𝟘ᵐ?                              ∎
+            in  inj₁ (unitrecₘ ▸t ▸u (sub ▸A lemma) ok)
 
 ⌈⌉▸[ m ]? prodrec r p q A t u = case Prodrec? r p q of λ where
   (no not-ok) → inj₂ λ _ ▸pr →
@@ -580,7 +613,7 @@ infix 10 ⌈⌉▸[_]?_
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-⌈⌉▸[ m ]? []-cong A t u v = case ⌈⌉▸[ 𝟘ᵐ? ]? A of λ where
+⌈⌉▸[ m ]? []-cong _ A t u v = case ⌈⌉▸[ 𝟘ᵐ? ]? A of λ where
   (inj₂ ¬▸A) → inj₂ λ _ ▸bc →
     case inv-usage-[]-cong ▸bc of λ (invUsage-[]-cong ▸A _ _ _ _) →
     ¬▸A _ ▸A

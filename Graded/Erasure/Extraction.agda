@@ -58,15 +58,18 @@ erase ℕ = ↯
 erase U.zero = T.zero
 erase (U.suc t) = T.suc (erase t)
 erase (U.natrec p q r A z s n) = T.natrec (erase z) (erase s) (erase n)
-erase Unit = ↯
-erase U.star = T.star
+erase Unit! = ↯
+erase U.star! = T.star
+erase (U.unitrec p q A t u) = case is-𝟘? p of λ where
+  (yes p≡𝟘) → T.unitrec T.star (erase u)
+  (no p≢𝟘) → T.unitrec (erase t) (erase u)
 erase Empty = ↯
 erase (emptyrec p A t) = ↯
 erase (Id _ _ _) = ↯
 erase U.rfl = T.rfl
 erase (J _ _ _ _ _ u _ _) = erase u
 erase (K _ _ _ _ u _) = erase u
-erase ([]-cong _ _ _ _) = T.rfl
+erase ([]-cong _ _ _ _ _) = T.rfl
 
 -- Extraction of substitutions.
 

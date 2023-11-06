@@ -14,14 +14,14 @@ module Definition.Typechecking.Decidable
   (open Type-restrictions R)
   -- Equality is assumed to be decidable for M.
   (_≟_ : Decidable (PE._≡_ {A = M}))
-  -- It is decidable whether the Unit type is allowed.
-  (Unit-ok? : Dec Unit-allowed)
+  -- It is decidable whether the Unit types are allowed.
+  (Unit-ok? : ∀ s → Dec (Unit-allowed s))
   -- ΠΣ-allowed is pointwise decidable.
   (ΠΣ-ok? : ∀ b p q → Dec (ΠΣ-allowed b p q))
   -- It is decidable whether the K rule is allowed.
   (K-allowed? : Dec K-allowed)
   -- It is decidable whether []-cong is allowed.
-  ([]-cong-allowed? : Dec []-cong-allowed)
+  ([]-cong-allowed? : ∀ s → Dec ([]-cong-allowed s))
   where
 
 open import Definition.Typechecking R
@@ -128,8 +128,18 @@ mutual
         (natrecᵢ x x₁ x₂ x₃) → ¬z′ x₁
     (no ¬A′) → no λ where
       (natrecᵢ x x₁ x₂ x₃) → ¬A′ x
-  dec-Inferable Unit = yes Unitᵢ
-  dec-Inferable star = yes starᵢ
+  dec-Inferable Unit! = yes Unitᵢ
+  dec-Inferable star! = yes starᵢ
+  dec-Inferable (unitrec p q A t u) = case dec-Checkable A of λ where
+    (yes A′) → case dec-Checkable t of λ where
+      (yes t′) → case dec-Checkable u of λ where
+        (yes u′) → yes (unitrecᵢ A′ t′ u′)
+        (no ¬u′) → no λ where
+          (unitrecᵢ x x₁ x₂) → ¬u′ x₂
+      (no ¬t′) → no λ where
+        (unitrecᵢ x x₁ x₂) → ¬t′ x₁
+    (no ¬A′) → no λ where
+      (unitrecᵢ x x₁ x₂) → ¬A′ x
   dec-Inferable Empty = yes Emptyᵢ
   dec-Inferable (emptyrec p A t) = case dec-Checkable A of λ where
     (yes A′) → case dec-Checkable t of λ where
@@ -176,7 +186,7 @@ mutual
             (yes u) → case dec-Checkable v of λ where
               (no ¬v) → no λ { (Kᵢ _ _ _ _ v) → ¬v v }
               (yes v) → yes (Kᵢ A t B u v)
-  dec-Inferable ([]-cong A t u v) =
+  dec-Inferable ([]-cong s A t u v) =
     case dec-Checkable A of λ where
       (no ¬A) → no λ { ([]-congᵢ A _ _ _) → ¬A A }
       (yes A) → case dec-Checkable t of λ where
@@ -238,10 +248,13 @@ mutual
     helper (natrec _ _ _ _ _ _ _) = λ where
       (yes t) → yes (infᶜ t)
       (no ¬t) → no λ { (infᶜ t) → ¬t t }
-    helper Unit = λ where
+    helper Unit!  = λ where
       (yes t) → yes (infᶜ t)
       (no ¬t) → no λ { (infᶜ t) → ¬t t }
-    helper star = λ where
+    helper star! = λ where
+      (yes t) → yes (infᶜ t)
+      (no ¬t) → no λ { (infᶜ t) → ¬t t }
+    helper (unitrec _ _ _ _ _) = λ where
       (yes t) → yes (infᶜ t)
       (no ¬t) → no λ { (infᶜ t) → ¬t t }
     helper Empty = λ where
@@ -259,7 +272,7 @@ mutual
     helper (K _ _ _ _ _ _) = λ where
       (yes t) → yes (infᶜ t)
       (no ¬t) → no λ { (infᶜ t) → ¬t t }
-    helper ([]-cong _ _ _ _) = λ where
+    helper ([]-cong _ _ _ _ _) = λ where
       (yes t) → yes (infᶜ t)
       (no ¬t) → no λ { (infᶜ t) → ¬t t }
 
@@ -397,6 +410,27 @@ mutual
     (no ¬A⇇Type) → no λ where
       (_ , emptyrecᵢ x x₁) → ¬A⇇Type x
 
+  dec⇉-unitrec : ⊢ Γ → Checkable A → Checkable t
+              → Checkable u → Dec (∃ λ B → Γ ⊢ unitrec p q A t u ⇉ B)
+  dec⇉-unitrec ⊢Γ A t u = case Unit-ok? Σᵣ of λ where
+    (yes ok) → case Unitⱼ ⊢Γ ok of λ
+      ⊢Unit → case dec⇇Type (⊢Γ ∙ ⊢Unit) A of λ where
+        (yes A⇇Type) → case dec⇇ ⊢Γ t ⊢Unit of λ where
+          (yes t⇇Unit) → case dec⇇ ⊢Γ u (substType (soundness⇇Type (⊢Γ ∙ ⊢Unit) A⇇Type)
+                                                   (starⱼ ⊢Γ ok)) of λ where
+            (yes u⇇A₊) → yes (_ , unitrecᵢ A⇇Type t⇇Unit u⇇A₊)
+            (no ¬u⇇A₊) → no λ where
+              (_ , unitrecᵢ x x₁ x₂) → ¬u⇇A₊ x₂
+          (no ¬t⇇Unit) → no λ where
+            (_ , unitrecᵢ x x₁ x₂) → ¬t⇇Unit x₁
+        (no ¬A⇇Type) → no λ where
+          (_ , unitrecᵢ x x₁ x₂) → ¬A⇇Type x
+    (no not-ok) → no λ where
+      (_ , unitrecᵢ x x₁ x₂) →
+        let ⊢t = soundness⇇ ⊢Γ x₁
+            ⊢Unit = syntacticTerm ⊢t
+        in  not-ok (inversion-Unit ⊢Unit)
+
   private
 
     -- Some lemmas used below.
@@ -533,13 +567,21 @@ mutual
           PE.refl → A≢U x₁
     (no ¬pr⇉A) → no λ where
       (univᶜ (infᶜ x x₁)) → ¬pr⇉A (_ , x)
-  dec⇉Type ⊢Γ Unitᵢ = case Unit-ok? of λ where
+  dec⇉Type ⊢Γ (Unitᵢ {s = s}) = case Unit-ok? s of λ where
     (yes ok)    → yes (Unitᶜ ok)
     (no not-ok) → no λ where
       (Unitᶜ ok)                  → not-ok ok
       (univᶜ (infᶜ (Unitᵢ ok) _)) → not-ok ok
   dec⇉Type ⊢Γ starᵢ = no λ where
     (univᶜ (infᶜ (starᵢ _) x)) → U≢Unitⱼ (sym x)
+  dec⇉Type ⊢Γ (unitrecᵢ A t u) = case dec⇉-unitrec ⊢Γ A t u of λ where
+    (yes (_ , ur⇉A)) → case decEq (proj₁ (soundness⇉ ⊢Γ ur⇉A)) (Uⱼ ⊢Γ) of λ where
+      (yes A≡U) → yes (univᶜ (infᶜ ur⇉A A≡U))
+      (no A≢U) → no λ where
+        (univᶜ (infᶜ x x₁)) → case deterministic⇉ ur⇉A x of λ where
+          PE.refl → A≢U x₁
+    (no ¬ur⇉A) → no λ where
+      (univᶜ (infᶜ x x₁)) → ¬ur⇉A (_ , x)
   dec⇉Type ⊢Γ Emptyᵢ = yes Emptyᶜ
   dec⇉Type ⊢Γ (emptyrecᵢ B t) = case dec⇉-emptyrec ⊢Γ B t of λ where
     (yes (A , pr⇉A)) → case decEq (proj₁ (soundness⇉ ⊢Γ pr⇉A)) (Uⱼ ⊢Γ) of λ where
@@ -631,14 +673,15 @@ mutual
     (no ¬t⇇ℕ) → no λ where
       (_ , sucᵢ x) → ¬t⇇ℕ x
   dec⇉ ⊢Γ (natrecᵢ A z s n) = dec⇉-natrec ⊢Γ A z s n
-  dec⇉ ⊢Γ Unitᵢ = case Unit-ok? of λ where
+  dec⇉ ⊢Γ (Unitᵢ {s = s}) = case Unit-ok? s of λ where
     (yes ok)    → yes (U , Unitᵢ ok)
     (no not-ok) → no λ where
       (_ , Unitᵢ ok) → not-ok ok
-  dec⇉ ⊢Γ starᵢ = case Unit-ok? of λ where
-    (yes ok)    → yes (Unit , starᵢ ok)
+  dec⇉ ⊢Γ (starᵢ {s = s}) = case Unit-ok? s of λ where
+    (yes ok)    → yes (Unit! , starᵢ ok)
     (no not-ok) → no λ where
       (_ , starᵢ ok) → not-ok ok
+  dec⇉ ⊢Γ (unitrecᵢ A t u) = dec⇉-unitrec ⊢Γ A t u
   dec⇉ ⊢Γ Emptyᵢ = yes (U , Emptyᵢ)
   dec⇉ ⊢Γ (emptyrecᵢ A t) = dec⇉-emptyrec ⊢Γ A t
   dec⇉ ⊢Γ (Idᵢ A t u) =
@@ -657,8 +700,8 @@ mutual
     dec⇉-J ⊢Γ A t B u v w
   dec⇉ ⊢Γ (Kᵢ A t B u v) =
     dec⇉-K ⊢Γ A t B u v
-  dec⇉ ⊢Γ ([]-congᵢ A t u v) =
-    case []-cong-allowed? of λ where
+  dec⇉ ⊢Γ ([]-congᵢ {s = s} A t u v) =
+    case []-cong-allowed? s of λ where
       (no not-ok) → no λ { (_ , []-congᵢ _ _ _ _ ok) → not-ok ok }
       (yes ok)    → case dec⇇Type ⊢Γ A of λ where
         (no ¬A) → no λ { (_ , []-congᵢ A _ _ _ _) → ¬A A }

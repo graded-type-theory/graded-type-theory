@@ -14,14 +14,14 @@ module Definition.Typed.Decidable
   (open Type-restrictions R)
   -- Equality is assumed to be decidable for M.
   (_≟_ : Decidable (PE._≡_ {A = M}))
-  -- It is decidable whether the Unit type is allowed.
-  (Unit-ok? : Dec Unit-allowed)
+  -- It is decidable whether the Unit types are allowed.
+  (Unit-ok? : ∀ s → Dec (Unit-allowed s))
   -- ΠΣ-allowed is pointwise decidable.
   (ΠΣ-ok? : ∀ b p q → Dec (ΠΣ-allowed b p q))
   -- It is decidable whether the K rule is allowed.
   (K-allowed? : Dec K-allowed)
   -- It is decidable whether []-cong is allowed.
-  ([]-cong-allowed? : Dec []-cong-allowed)
+  ([]-cong-allowed? : ∀ s → Dec ([]-cong-allowed s))
   where
 
 open import Definition.Untyped M hiding (_∷_)

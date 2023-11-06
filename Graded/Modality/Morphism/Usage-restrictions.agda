@@ -4,8 +4,10 @@
 
 module Graded.Modality.Morphism.Usage-restrictions where
 
+open import Tools.Bool
 open import Tools.Function
 open import Tools.Level
+open import Tools.PropositionalEquality
 
 open import Graded.Usage.Restrictions
 
@@ -59,6 +61,13 @@ record Are-preserving-usage-restrictions
     Prodrec-preserved :
       R₁.Prodrec-allowed r p q →
       R₂.Prodrec-allowed (tr r) (tr-Σ p) (tr q)
+    -- The function tr preserves the Unitrec-allowed property
+    Unitrec-preserved :
+      R₁.Unitrec-allowed p q →
+      R₂.Unitrec-allowed (tr p) (tr q)
+    -- The property that the strong unit acts as a sink is preserved.
+    starˢ-sink-preserved :
+      R₁.starˢ-sink ≡ R₂.starˢ-sink
 
     -- The other usage restrictions are "the same".
     --
@@ -87,6 +96,13 @@ record Are-reflecting-usage-restrictions
     Prodrec-reflected :
       R₂.Prodrec-allowed (tr r) (tr-Σ p) (tr q) →
       R₁.Prodrec-allowed r p q
+    -- The function ts reflects the Unitrec-allowed property.
+    Unitrec-reflected :
+      R₂.Unitrec-allowed (tr p) (tr q) →
+      R₁.Unitrec-allowed p q
+    -- The property that the strong unit acts as a sink is reflected.
+    starˢ-sink-reflected :
+      R₂.starˢ-sink ≡ R₁.starˢ-sink
 
     -- The other usage restrictions are "the same".
     same-usage-restrictions : Same-usage-restrictions R₁ R₂
@@ -116,6 +132,8 @@ Are-preserving-usage-restrictions-id :
   Are-preserving-usage-restrictions R R idᶠ idᶠ
 Are-preserving-usage-restrictions-id {R = R} = λ where
     .Prodrec-preserved       → idᶠ
+    .Unitrec-preserved → idᶠ
+    .starˢ-sink-preserved → refl
     .same-usage-restrictions → Same-usage-restrictions-reflexive
   where
   open Are-preserving-usage-restrictions
@@ -128,6 +146,8 @@ Are-reflecting-usage-restrictions-id :
   Are-reflecting-usage-restrictions R R idᶠ idᶠ
 Are-reflecting-usage-restrictions-id {R = R} = λ where
     .Prodrec-reflected       → idᶠ
+    .Unitrec-reflected → idᶠ
+    .starˢ-sink-reflected → refl
     .same-usage-restrictions → Same-usage-restrictions-reflexive
   where
   open Are-reflecting-usage-restrictions
@@ -168,6 +188,10 @@ Are-preserving-usage-restrictions-∘ :
 Are-preserving-usage-restrictions-∘ m₁ m₂ = λ where
     .Prodrec-preserved →
       M₁.Prodrec-preserved ∘→ M₂.Prodrec-preserved
+    .Unitrec-preserved →
+      M₁.Unitrec-preserved ∘→ M₂.Unitrec-preserved
+    .starˢ-sink-preserved →
+      trans M₂.starˢ-sink-preserved M₁.starˢ-sink-preserved
     .same-usage-restrictions →
       Same-usage-restrictions-transitive M₁.same-usage-restrictions
         M₂.same-usage-restrictions
@@ -185,6 +209,10 @@ Are-reflecting-usage-restrictions-∘ :
 Are-reflecting-usage-restrictions-∘ m₁ m₂ = λ where
     .Prodrec-reflected →
       M₂.Prodrec-reflected ∘→ M₁.Prodrec-reflected
+    .Unitrec-reflected →
+      M₂.Unitrec-reflected ∘→ M₁.Unitrec-reflected
+    .starˢ-sink-reflected →
+      trans M₁.starˢ-sink-reflected M₂.starˢ-sink-reflected
     .same-usage-restrictions →
       Same-usage-restrictions-transitive M₁.same-usage-restrictions
         M₂.same-usage-restrictions
