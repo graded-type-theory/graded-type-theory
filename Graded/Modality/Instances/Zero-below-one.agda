@@ -392,3 +392,23 @@ full-reduction-assumptions refl (¬Unit⊎sink , ¬𝟘) = record
       {p = 𝟘} ok → ⊥-elim (¬𝟘 _ ok)
       {p = 𝟙} _  → inj₁ refl
   }
+
+-- Type and usage restrictions that satisfy the full reduction
+-- assumptions are "suitable".
+
+full-reduction-assumptions-suitable :
+  ∀ {ok UR} {TR : Type-restrictions (𝟘≤𝟙 variant ok)} →
+  Full-reduction-assumptions TR UR →
+  Suitable-for-full-reduction variant ok TR UR
+full-reduction-assumptions-suitable {ok = refl} {UR = UR} as =
+    (case sink-or-no-sink of λ where
+      (inj₁ sink) → inj₂ sink
+      (inj₂ ¬sink) → inj₁ (λ Unit-ok → case sink⊎𝟙≤𝟘 Unit-ok of λ where
+        (inj₁ sink) → not-sink-and-no-sink sink ¬sink
+        (inj₂ ())))
+  , λ p Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
+     (inj₁ ())
+     (inj₂ (_ , () , _))
+  where
+  open Full-reduction-assumptions as
+  open Usage-restrictions UR

@@ -261,6 +261,19 @@ full-reduction-assumptions {rs = rs} 𝟘→𝟘ᵐ = record
       {p = 𝟘} ok → inj₂ (PE.refl , 𝟘→𝟘ᵐ _ ok , PE.refl)
   }
 
+
+-- Type and usage restrictions that satisfy the full reduction
+-- assumptions are "suitable".
+
+full-reduction-assumptions-suitable :
+  Full-reduction-assumptions rs us → Suitable-for-full-reduction rs
+full-reduction-assumptions-suitable as =
+    λ p Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
+      (inj₁ ())
+      (inj₂ (_ , 𝟘ᵐ-ok , _)) → 𝟘ᵐ-ok
+  where
+  open Full-reduction-assumptions as
+
 -- If _∧_ is defined in the given way and 𝟘 is the additive unit, then
 -- there is only one lawful way to define addition (up to pointwise
 -- equality).

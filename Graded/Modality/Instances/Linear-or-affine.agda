@@ -4021,3 +4021,29 @@ full-reduction-assumptions (¬Unit⊎sink , ¬𝟘 , ¬≤𝟙 , ¬≤ω) = reco
       {p = ≤ω} ok → ⊥-elim (¬≤ω _ ok)
       {p = 𝟙}  _  → inj₁ refl
   }
+
+-- Type and usage restrictions that satisfy the full reduction
+-- assumptions are "suitable".
+
+full-reduction-assumptions-suitable :
+  Full-reduction-assumptions trs urs →
+  Suitable-for-full-reduction variant trs urs
+full-reduction-assumptions-suitable {urs = urs} as =
+     (case sink-or-no-sink of λ where
+       (inj₁ sink) → inj₂ sink
+       (inj₂ ¬sink) → inj₁ (λ Unit-ok →
+         case sink⊎𝟙≤𝟘 Unit-ok of λ where
+           (inj₁ sink) → not-sink-and-no-sink sink ¬sink
+           (inj₂ ())))
+   , (λ p Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
+        (inj₁ ())
+        (inj₂ (_ , _ , ())))
+   , (λ p Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
+        (inj₁ ())
+        (inj₂ (() , _)))
+   , λ p Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
+        (inj₁ ())
+        (inj₂ (() , _))
+  where
+  open Full-reduction-assumptions as
+  open Usage-restrictions urs

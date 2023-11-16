@@ -789,3 +789,19 @@ full-reduction-assumptions (¬M , H→𝟘ᵐ) = record
       {p = M} ok → ⊥-elim (¬M _ ok)
       {p = H} ok → inj₂ (refl , H→𝟘ᵐ _ ok , refl)
   }
+
+-- Type and usage restrictions that satisfy the full reduction
+-- assumptions are "suitable".
+
+full-reduction-assumptions-suitable :
+  Full-reduction-assumptions trs urs →
+  Suitable-for-full-reduction variant trs
+full-reduction-assumptions-suitable as =
+    (λ p Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
+      (inj₁ ())
+      (inj₂ (() , _)))
+  , λ p Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
+      (inj₁ ())
+      (inj₂ (_ , 𝟘ᵐ-ok , _)) → 𝟘ᵐ-ok
+  where
+  open Full-reduction-assumptions as

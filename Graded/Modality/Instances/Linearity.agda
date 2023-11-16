@@ -107,24 +107,29 @@ Suitable-for-full-reduction rs us =
 
 suitable-for-full-reduction :
   Type-restrictions → ∃ λ rs → Suitable-for-full-reduction rs us
-suitable-for-full-reduction rs =
+suitable-for-full-reduction {us} rs =
     record rs
       { Unit-allowed =
-          λ { 𝕨 → Unitʷ-allowed ; 𝕤 → ⊥ }
+          λ { 𝕨 → Unitʷ-allowed ; 𝕤 → Unitˢ-allowed × Starˢ-sink }
       ; ΠΣ-allowed = λ b p q →
           ΠΣ-allowed b p q × (b ≡ BMΣ 𝕤 → p ≡ 𝟙)
       ; []-cong-allowed =
-          λ _ → ⊥
+          λ { 𝕨 → []-congʷ-allowed ; 𝕤 → ⊥ }
       ; []-cong→Erased =
-          λ ()
-      ; []-cong→¬Trivial =
-          λ ()
+          λ { {𝕨} ok →
+                []-cong→Erased ok .proj₁ , []-cong→Erased ok .proj₂
+              , λ ()
+            ; {𝕤} () }
+      ; []-cong→¬Trivial = λ { {𝕨} ok () ; {𝕤} () }
       }
-  , inj₁ idᶠ
+  , (case sink-or-no-sink of λ where
+      (inj₁ sink) → inj₂ sink
+      (inj₂ ¬sink) → inj₁ (λ x → not-sink-and-no-sink (proj₂ x) ¬sink))
   , (λ _ → ((λ ()) ∘→ (_$ refl)) ∘→ proj₂)
   , (λ _ → ((λ ()) ∘→ (_$ refl)) ∘→ proj₂)
   where
   open Type-restrictions rs
+  open Usage-restrictions us
 
 -- The full reduction assumptions hold for linearityModality and any
 -- "suitable" Type-restrictions and Usage-restrictions.
@@ -141,3 +146,24 @@ full-reduction-assumptions (¬Unit⊎sink , ¬𝟘 , ¬ω) = record
       {p = ω} ok → ⊥-elim (¬ω _ ok)
       {p = 𝟙} _  → inj₁ refl
   }
+
+-- Type and usage restrictions that satisfy the full reduction
+-- assumptions are "suitable".
+
+full-reduction-assumptions-suitable :
+  Full-reduction-assumptions rs us → Suitable-for-full-reduction rs us
+full-reduction-assumptions-suitable {us = us} as =
+    (case sink-or-no-sink of λ where
+      (inj₁ sink)  → inj₂ sink
+      (inj₂ ¬sink) → inj₁ (λ Unit-ok → case sink⊎𝟙≤𝟘 Unit-ok of λ where
+        (inj₁ sink) → not-sink-and-no-sink sink ¬sink
+        (inj₂ ())))
+  , (λ p Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
+      (inj₁ ())
+      (inj₂ (_ , _ , ())))
+  , (λ p Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
+      (inj₁ ())
+      (inj₂ (() , _)))
+  where
+  open Full-reduction-assumptions as
+  open Usage-restrictions us

@@ -636,3 +636,17 @@ full-reduction-assumptions ok = record
   { sink⊎𝟙≤𝟘    = λ _ → inj₂ refl
   ; ≡𝟙⊎𝟙≤𝟘 = ⊎.map idᶠ (λ (p≡⌞0⌟ , ok) → p≡⌞0⌟ , ok , refl) ∘→ ok _ _
   }
+
+-- Type and usage restrictions that satisfy the full reduction
+-- assumptions are "suitable".
+
+full-reduction-assumptions-suitable :
+  Full-reduction-assumptions TRs URs →
+  Suitable-for-full-reduction variant TRs
+full-reduction-assumptions-suitable as =
+  λ m n Σ-ok →
+    case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
+      (inj₁ m≡𝟙) → inj₁ m≡𝟙
+      (inj₂ (m≡𝟘 , 𝟘ᵐ-ok , _)) → inj₂ (m≡𝟘 , 𝟘ᵐ-ok)
+  where
+  open Full-reduction-assumptions as
