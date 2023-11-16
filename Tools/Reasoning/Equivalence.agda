@@ -2,6 +2,8 @@
 -- Equational resoning for equivalences
 ------------------------------------------------------------------------
 
+{-# OPTIONS --no-opaque #-}
+
 open import Tools.Relation
 
 -- Reasoning for equivalence relations using preorder relation syntax

@@ -2,6 +2,8 @@
 -- Function combinators
 ------------------------------------------------------------------------
 
+{-# OPTIONS --no-opaque #-}
+
 module Tools.Function where
 
 open import Function.Base
@@ -235,35 +237,41 @@ Function-extensionality a p =
     ∃ λ (f⁻¹-f : ∀ x → f⁻¹ (f x) ≡ x) →
     ∀ x → cong f (f⁻¹-f x) ≡ f-f⁻¹ (f x)
 
--- If function extensionality holds, then pointwise equal functions
--- are equal.
+opaque
 
-ext :
-  {A : Set a} {P : A → Set p} {f g : (x : A) → P x} →
-  Function-extensionality a p →
-  (∀ x → f x ≡ g x) → f ≡ g
-ext fe = fe .proj₁
+  -- If function extensionality holds, then pointwise equal functions
+  -- are equal.
 
--- Is-proposition is closed under Π A (assuming function
--- extensionality).
+  ext :
+    {A : Set a} {P : A → Set p} {f g : (x : A) → P x} →
+    Function-extensionality a p →
+    (∀ x → f x ≡ g x) → f ≡ g
+  ext fe = fe .proj₁
 
-Is-proposition-Π :
-  {A : Set a} {P : A → Set p} →
-  Function-extensionality a p →
-  (∀ x → Is-proposition (P x)) →
-  Is-proposition (∀ x → P x)
-Is-proposition-Π fe prop = ext fe λ _ → prop _
+opaque
 
--- If A is a proposition, then Dec A is a proposition, assuming
--- function extensionality.
+  -- Is-proposition is closed under Π A (assuming function
+  -- extensionality).
 
-Is-proposition-Dec :
-  {A : Set a} →
-  Function-extensionality a lzero →
-  Is-proposition A → Is-proposition (Dec A)
-Is-proposition-Dec = λ where
-  _  prop {x = yes x} {y = yes y} → cong yes prop
-  _  _    {x = yes x} {y = no y}  → ⊥-elim (y x)
-  _  _    {x = no x}  {y = yes y} → ⊥-elim (x y)
-  fe _    {x = no x}  {y = no y}  →
-    cong no (Is-proposition-Π fe λ _ → ⊥-propositional)
+  Is-proposition-Π :
+    {A : Set a} {P : A → Set p} →
+    Function-extensionality a p →
+    (∀ x → Is-proposition (P x)) →
+    Is-proposition (∀ x → P x)
+  Is-proposition-Π fe prop = ext fe λ _ → prop _
+
+opaque
+
+  -- If A is a proposition, then Dec A is a proposition, assuming
+  -- function extensionality.
+
+  Is-proposition-Dec :
+    {A : Set a} →
+    Function-extensionality a lzero →
+    Is-proposition A → Is-proposition (Dec A)
+  Is-proposition-Dec = λ where
+    _  prop {x = yes x} {y = yes y} → cong yes prop
+    _  _    {x = yes x} {y = no y}  → ⊥-elim (y x)
+    _  _    {x = no x}  {y = yes y} → ⊥-elim (x y)
+    fe _    {x = no x}  {y = no y}  →
+      cong no (Is-proposition-Π fe λ _ → ⊥-propositional)

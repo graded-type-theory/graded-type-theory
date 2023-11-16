@@ -2,6 +2,8 @@
 -- Modality variants
 ------------------------------------------------------------------------
 
+{-# OPTIONS --no-opaque #-}
+
 open import Tools.Level
 
 module Graded.Modality.Variant (a : Level) where

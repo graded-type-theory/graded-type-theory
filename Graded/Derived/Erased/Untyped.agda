@@ -2,6 +2,8 @@
 -- The type constructor Erased
 ------------------------------------------------------------------------
 
+{-# OPTIONS --no-opaque #-}
+
 open import Graded.Modality
 
 module Graded.Derived.Erased.Untyped

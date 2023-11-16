@@ -2,6 +2,8 @@
 -- Raw terms, weakening (renaming) and substitution.
 ------------------------------------------------------------------------
 
+{-# OPTIONS --no-opaque #-}
+
 module Definition.Untyped {a} (M : Set a) where
 
 open import Tools.Fin

@@ -60,15 +60,17 @@ private
   ; antisym    = ≤-antisym
   }
 
--- (M, ≤) is a poset
+transparent
 
-≤-poset : Poset _ _ _
-≤-poset = record
-  { Carrier        = M
-  ; _≈_            = _≡_
-  ; _≤_            = _≤_
-  ; isPartialOrder = ≤-partial
-  }
+  -- (M, ≤) is a poset
+
+  ≤-poset : Poset a a a
+  ≤-poset = record
+    { Carrier        = M
+    ; _≈_            = _≡_
+    ; _≤_            = _≤_
+    ; isPartialOrder = ≤-partial
+    }
 
 -- If _≡_ is decidable (for M), then _≤_ is decidable.
 

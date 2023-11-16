@@ -3,6 +3,8 @@
 -- cartesian product (also used as conjunction).
 ------------------------------------------------------------------------
 
+{-# OPTIONS --no-opaque #-}
+
 module Tools.Product where
 
 open import Level

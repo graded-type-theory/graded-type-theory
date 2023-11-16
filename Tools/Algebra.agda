@@ -2,6 +2,8 @@
 -- Algebraic structures and properties
 ------------------------------------------------------------------------
 
+{-# OPTIONS --no-opaque #-}
+
 open import Tools.Relation
 
 module Tools.Algebra {a} (A : Set a) where

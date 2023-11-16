@@ -36,20 +36,27 @@ private
 ℕᵛ : ∀ {l} ([Γ] : ⊩ᵛ Γ) → Γ ⊩ᵛ⟨ l ⟩ ℕ / [Γ]
 ℕᵛ [Γ] = wrap λ ⊢Δ [σ] → ℕᵣ (idRed:*: (ℕⱼ ⊢Δ)) , λ _ x₂ → id (ℕⱼ ⊢Δ)
 
--- Validity of the natural number type as a term.
-ℕᵗᵛ : ([Γ] : ⊩ᵛ Γ)
-    → Γ ⊩ᵛ⟨ ¹ ⟩ ℕ ∷ U / [Γ] / Uᵛ [Γ]
-ℕᵗᵛ [Γ] ⊢Δ [σ] = let ⊢ℕ  = ℕⱼ ⊢Δ
+opaque
+  unfolding Uᵛ
+
+  -- Validity of the natural number type as a term.
+  ℕᵗᵛ : ([Γ] : ⊩ᵛ Γ)
+      → Γ ⊩ᵛ⟨ ¹ ⟩ ℕ ∷ U / [Γ] / Uᵛ [Γ]
+  ℕᵗᵛ [Γ] ⊢Δ [σ] =
+                 let ⊢ℕ  = ℕⱼ ⊢Δ
                      [ℕ] = ℕᵣ (idRed:*: (ℕⱼ ⊢Δ))
                  in  Uₜ ℕ (idRedTerm:*: ⊢ℕ) ℕₙ (≅ₜ-ℕrefl ⊢Δ) [ℕ]
                  ,   (λ x x₁ → Uₜ₌ ℕ ℕ (idRedTerm:*: ⊢ℕ) (idRedTerm:*: ⊢ℕ) ℕₙ ℕₙ
                                    (≅ₜ-ℕrefl ⊢Δ) [ℕ] [ℕ] (id (ℕⱼ ⊢Δ)))
 
--- Validity of zero.
-zeroᵛ : ∀ {l} ([Γ] : ⊩ᵛ Γ)
-      → Γ ⊩ᵛ⟨ l ⟩ zero ∷ ℕ / [Γ] / ℕᵛ [Γ]
-zeroᵛ [Γ] ⊢Δ [σ] =
-  ℕₜ zero (idRedTerm:*: (zeroⱼ ⊢Δ)) (≅ₜ-zerorefl ⊢Δ) zeroᵣ
+opaque
+  unfolding ℕᵛ
+
+  -- Validity of zero.
+  zeroᵛ : ∀ {l} ([Γ] : ⊩ᵛ Γ)
+        → Γ ⊩ᵛ⟨ l ⟩ zero ∷ ℕ / [Γ] / ℕᵛ [Γ]
+  zeroᵛ [Γ] ⊢Δ [σ] =
+      ℕₜ zero (idRedTerm:*: (zeroⱼ ⊢Δ)) (≅ₜ-zerorefl ⊢Δ) zeroᵣ
     , (λ _ x₁ → ℕₜ₌ zero zero (idRedTerm:*: (zeroⱼ ⊢Δ)) (idRedTerm:*: (zeroⱼ ⊢Δ))
                     (≅ₜ-zerorefl ⊢Δ) zeroᵣ)
 

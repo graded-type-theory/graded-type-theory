@@ -2,6 +2,8 @@
 -- Restrictions on typing derivations
 ------------------------------------------------------------------------
 
+{-# OPTIONS --no-opaque #-}
+
 open import Graded.Modality
 
 module Definition.Typed.Restrictions

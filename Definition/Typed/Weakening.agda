@@ -2,6 +2,8 @@
 -- Typing and reduction are closed under weakenings
 ------------------------------------------------------------------------
 
+{-# OPTIONS --no-opaque #-}
+
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 
@@ -85,9 +87,10 @@ mutual
   wk ρ ⊢Δ (Emptyⱼ ⊢Γ) = Emptyⱼ ⊢Δ
   wk ρ ⊢Δ (Unitⱼ ⊢Γ ok) = Unitⱼ ⊢Δ ok
   wk ρ ⊢Δ (Uⱼ ⊢Γ) = Uⱼ ⊢Δ
-  wk ρ ⊢Δ (ΠΣⱼ F G ok) = ΠΣⱼ ρF (wk (lift ρ) (⊢Δ ∙ ρF) G) ok
-    where
-    ρF = wk ρ ⊢Δ F
+  wk ρ ⊢Δ (ΠΣⱼ F G ok) =
+    case wk ρ ⊢Δ F of λ
+      ρF →
+    ΠΣⱼ ρF (wk (lift ρ) (⊢Δ ∙ ρF) G) ok
   wk ρ ⊢Δ (Idⱼ t u) = Idⱼ (wkTerm ρ ⊢Δ t) (wkTerm ρ ⊢Δ u)
   wk ρ ⊢Δ (univ A) = univ (wkTerm ρ ⊢Δ A)
 
@@ -99,14 +102,14 @@ mutual
   wkTerm ρ ⊢Δ (Emptyⱼ ⊢Γ) = Emptyⱼ ⊢Δ
   wkTerm ρ ⊢Δ (Unitⱼ ⊢Γ ok) = Unitⱼ ⊢Δ ok
   wkTerm ρ ⊢Δ (ΠΣⱼ F G ok) =
+    case wkTerm ρ ⊢Δ F of λ
+      ρF →
     ΠΣⱼ ρF (wkTerm (lift ρ) (⊢Δ ∙ univ ρF) G) ok
-    where
-    ρF = wkTerm ρ ⊢Δ F
   wkTerm ρ ⊢Δ (var ⊢Γ x) = var ⊢Δ (wkIndex ρ x)
   wkTerm ρ ⊢Δ (lamⱼ F t ok) =
+    case wk ρ ⊢Δ F of λ
+      ρF →
     lamⱼ ρF (wkTerm (lift ρ) (⊢Δ ∙ ρF) t) ok
-    where
-    ρF = wk ρ ⊢Δ F
   wkTerm ρ ⊢Δ (_∘ⱼ_ {G = G} g a) = PE.subst (λ x → _ ⊢ _ ∷ x)
                                            (PE.sym (wk-β G))
                                            (wkTerm ρ ⊢Δ g ∘ⱼ wkTerm ρ ⊢Δ a)
@@ -158,6 +161,10 @@ mutual
     Idⱼ (wkTerm ρ ⊢Δ A) (wkTerm ρ ⊢Δ t) (wkTerm ρ ⊢Δ u)
   wkTerm ρ ⊢Δ (rflⱼ t) = rflⱼ (wkTerm ρ ⊢Δ t)
   wkTerm ρ ⊢Δ (Jⱼ {B = B} ⊢A ⊢t ⊢B ⊢u ⊢t′ ⊢v) =
+    case wk ρ ⊢Δ ⊢A of λ
+      ⊢A′ →
+    case ⊢Δ ∙ ⊢A′ of λ
+      ⊢ΔA′ →
     PE.subst (_ ⊢ U.wk _ (J _ _ _ _ _ _ _ _) ∷_)
       (PE.sym $ wk-β-doubleSubst _ B _ _) $
     Jⱼ ⊢A′ (wkTerm ρ ⊢Δ ⊢t)
@@ -179,10 +186,9 @@ mutual
          (wk-β-doubleSubst _ B _ _) $
        wkTerm ρ ⊢Δ ⊢u)
       (wkTerm ρ ⊢Δ ⊢t′) (wkTerm ρ ⊢Δ ⊢v)
-    where
-    ⊢A′  = wk ρ ⊢Δ ⊢A
-    ⊢ΔA′ = ⊢Δ ∙ ⊢A′
   wkTerm ρ ⊢Δ (Kⱼ {B = B} ⊢t ⊢B ⊢u ⊢v ok) =
+    case wkTerm ρ ⊢Δ ⊢t of λ
+      ⊢t′ →
     PE.subst (_ ⊢ U.wk _ (K _ _ _ _ _ _) ∷_)
       (PE.sym $ wk-β B) $
     Kⱼ ⊢t′
@@ -190,8 +196,6 @@ mutual
       (PE.subst (_ ⊢ _ ∷_) (wk-β B) $
        wkTerm ρ ⊢Δ ⊢u)
       (wkTerm ρ ⊢Δ ⊢v) ok
-    where
-    ⊢t′ = wkTerm ρ ⊢Δ ⊢t
   wkTerm ρ ⊢Δ ([]-congⱼ t u v ok) =
     []-congⱼ (wkTerm ρ ⊢Δ t)
       (wkTerm ρ ⊢Δ u) (wkTerm ρ ⊢Δ v) ok
@@ -206,9 +210,9 @@ mutual
   wkEq ρ ⊢Δ (sym A≡B) = sym (wkEq ρ ⊢Δ A≡B)
   wkEq ρ ⊢Δ (trans A≡B B≡C) = trans (wkEq ρ ⊢Δ A≡B) (wkEq ρ ⊢Δ B≡C)
   wkEq ρ ⊢Δ (ΠΣ-cong F F≡H G≡E ok) =
+    case wk ρ ⊢Δ F of λ
+      ρF →
     ΠΣ-cong ρF (wkEq ρ ⊢Δ F≡H) (wkEq (lift ρ) (⊢Δ ∙ ρF) G≡E) ok
-    where
-    ρF = wk ρ ⊢Δ F
   wkEq ρ ⊢Δ (Id-cong A t u) =
     Id-cong (wkEq ρ ⊢Δ A) (wkEqTerm ρ ⊢Δ t) (wkEqTerm ρ ⊢Δ u)
 
@@ -378,6 +382,10 @@ mutual
   wkEqTerm ρ ⊢Δ (Id-cong A t u) =
     Id-cong (wkEqTerm ρ ⊢Δ A) (wkEqTerm ρ ⊢Δ t) (wkEqTerm ρ ⊢Δ u)
   wkEqTerm ρ ⊢Δ (J-cong {B₁ = B₁} ⊢A ⊢A≡ ⊢t ⊢t≡ ⊢B ⊢u ⊢t′ ⊢v) =
+    case wk ρ ⊢Δ ⊢A of λ
+      ⊢A′ →
+    case ⊢Δ ∙ ⊢A′ of λ
+      ⊢ΔA′ →
     PE.subst (_ ⊢ U.wk _ (J _ _ _ _ _ _ _ _) ≡ _ ∷_)
       (PE.sym $ wk-β-doubleSubst _ B₁ _ _) $
     J-cong ⊢A′ (wkEq ρ ⊢Δ ⊢A≡) (wkTerm ρ ⊢Δ ⊢t) (wkEqTerm ρ ⊢Δ ⊢t≡)
@@ -399,10 +407,9 @@ mutual
          (wk-β-doubleSubst _ B₁ _ _) $
        wkEqTerm ρ ⊢Δ ⊢u)
       (wkEqTerm ρ ⊢Δ ⊢t′) (wkEqTerm ρ ⊢Δ ⊢v)
-    where
-    ⊢A′  = wk ρ ⊢Δ ⊢A
-    ⊢ΔA′ = ⊢Δ ∙ ⊢A′
   wkEqTerm ρ ⊢Δ (K-cong {B₁ = B₁} ⊢A≡ ⊢t ⊢t≡ ⊢B ⊢u ⊢v ok) =
+    case wkTerm ρ ⊢Δ ⊢t of λ
+      ⊢t′ →
     PE.subst (_ ⊢ U.wk _ (K _ _ _ _ _ _) ≡ _ ∷_)
       (PE.sym $ wk-β B₁) $
     K-cong (wkEq ρ ⊢Δ ⊢A≡) ⊢t′ (wkEqTerm ρ ⊢Δ ⊢t≡)
@@ -410,12 +417,14 @@ mutual
       (PE.subst (_ ⊢ _ ≡ _ ∷_) (wk-β B₁) $
        wkEqTerm ρ ⊢Δ ⊢u)
       (wkEqTerm ρ ⊢Δ ⊢v) ok
-    where
-    ⊢t′ = wkTerm ρ ⊢Δ ⊢t
   wkEqTerm ρ ⊢Δ ([]-cong-cong A t u v ok) =
     []-cong-cong (wkEq ρ ⊢Δ A) (wkEqTerm ρ ⊢Δ t)
       (wkEqTerm ρ ⊢Δ u) (wkEqTerm ρ ⊢Δ v) ok
   wkEqTerm ρ ⊢Δ (J-β {B = B} ⊢A ⊢t ⊢B ⊢u PE.refl) =
+    case wk ρ ⊢Δ ⊢A of λ
+      ⊢A′ →
+    case ⊢Δ ∙ ⊢A′ of λ
+      ⊢ΔA′ →
     PE.subst (_ ⊢ U.wk _ (J _ _ _ _ _ _ _ rfl) ≡ _ ∷_)
       (PE.sym $ wk-β-doubleSubst _ B _ _) $
     J-β ⊢A′ (wkTerm ρ ⊢Δ ⊢t)
@@ -436,10 +445,9 @@ mutual
       (PE.subst (_ ⊢ _ ∷_) (wk-β-doubleSubst _ B _ _) $
        wkTerm ρ ⊢Δ ⊢u)
       PE.refl
-    where
-    ⊢A′  = wk ρ ⊢Δ ⊢A
-    ⊢ΔA′ = ⊢Δ ∙ ⊢A′
   wkEqTerm ρ ⊢Δ (K-β {B = B} ⊢t ⊢B ⊢u ok) =
+    case wkTerm ρ ⊢Δ ⊢t of λ
+      ⊢t′ →
     PE.subst (_ ⊢ U.wk _ (K _ _ _ _ _ rfl) ≡ _ ∷_)
       (PE.sym $ wk-β B) $
     K-β ⊢t′
@@ -447,8 +455,6 @@ mutual
       (PE.subst (_ ⊢ _ ∷_) (wk-β B) $
        wkTerm ρ ⊢Δ ⊢u)
       ok
-    where
-    ⊢t′ = wkTerm ρ ⊢Δ ⊢t
   wkEqTerm ρ ⊢Δ ([]-cong-β t PE.refl ok) =
     []-cong-β (wkTerm ρ ⊢Δ t) PE.refl ok
 
@@ -589,6 +595,10 @@ mutual
     (emptyrec-subst (wk [ρ] ⊢Δ ⊢A)
                     (wkRedTerm [ρ] ⊢Δ n⇒n′))
   wkRedTerm ρ ⊢Δ (J-subst {B = B} ⊢A ⊢t ⊢B ⊢u ⊢t′ ⊢v) =
+    case wk ρ ⊢Δ ⊢A of λ
+      ⊢A′ →
+    case ⊢Δ ∙ ⊢A′ of λ
+      ⊢ΔA′ →
     PE.subst (_ ⊢ U.wk _ (J _ _ _ _ _ _ _ _) ⇒ _ ∷_)
       (PE.sym $ wk-β-doubleSubst _ B _ _) $
     J-subst ⊢A′ (wkTerm ρ ⊢Δ ⊢t)
@@ -610,10 +620,11 @@ mutual
          (wk-β-doubleSubst _ B _ _) $
        wkTerm ρ ⊢Δ ⊢u)
       (wkTerm ρ ⊢Δ ⊢t′) (wkRedTerm ρ ⊢Δ ⊢v)
-    where
-    ⊢A′  = wk ρ ⊢Δ ⊢A
-    ⊢ΔA′ = ⊢Δ ∙ ⊢A′
   wkRedTerm ρ ⊢Δ (K-subst {B = B} ⊢A ⊢t ⊢B ⊢u ⊢v ok) =
+    case wk ρ ⊢Δ ⊢A of λ
+      ⊢A′ →
+    case wkTerm ρ ⊢Δ ⊢t of λ
+      ⊢t′ →
     PE.subst (_ ⊢ U.wk _ (K _ _ _ _ _ _) ⇒ _ ∷_)
       (PE.sym $ wk-β B) $
     K-subst ⊢A′ ⊢t′
@@ -621,13 +632,14 @@ mutual
       (PE.subst (_ ⊢ _ ∷_) (wk-β B) $
        wkTerm ρ ⊢Δ ⊢u)
       (wkRedTerm ρ ⊢Δ ⊢v) ok
-    where
-    ⊢A′ = wk ρ ⊢Δ ⊢A
-    ⊢t′ = wkTerm ρ ⊢Δ ⊢t
   wkRedTerm ρ ⊢Δ ([]-cong-subst A t u v ok) =
     []-cong-subst (wk ρ ⊢Δ A) (wkTerm ρ ⊢Δ t)
       (wkTerm ρ ⊢Δ u) (wkRedTerm ρ ⊢Δ v) ok
   wkRedTerm ρ ⊢Δ (J-β {B = B} ⊢A ⊢t ⊢t′ t≡t′ ⊢B B≡B ⊢u) =
+    case wk ρ ⊢Δ ⊢A of λ
+      ⊢A′ →
+    case ⊢Δ ∙ ⊢A′ of λ
+      ⊢ΔA′ →
     PE.subst (_ ⊢ U.wk _ (J _ _ _ _ _ _ _ rfl) ⇒ _ ∷_)
       (PE.sym $ wk-β-doubleSubst _ B _ _) $
     J-β ⊢A′ (wkTerm ρ ⊢Δ ⊢t) (wkTerm ρ ⊢Δ ⊢t′) (wkEqTerm ρ ⊢Δ t≡t′)
@@ -651,10 +663,9 @@ mutual
          (wkEq ρ ⊢Δ B≡B))
       (PE.subst (_ ⊢ _ ∷_) (wk-β-doubleSubst _ B _ _) $
        wkTerm ρ ⊢Δ ⊢u)
-    where
-    ⊢A′  = wk ρ ⊢Δ ⊢A
-    ⊢ΔA′ = ⊢Δ ∙ ⊢A′
   wkRedTerm ρ ⊢Δ (K-β {B = B} ⊢t ⊢B ⊢u ok) =
+    case wkTerm ρ ⊢Δ ⊢t of λ
+      ⊢t′ →
     PE.subst (_ ⊢ U.wk _ (K _ _ _ _ _ rfl) ⇒ _ ∷_)
       (PE.sym $ wk-β B) $
     K-β ⊢t′
@@ -662,8 +673,6 @@ mutual
       (PE.subst (_ ⊢ _ ∷_) (wk-β B) $
        wkTerm ρ ⊢Δ ⊢u)
       ok
-    where
-    ⊢t′ = wkTerm ρ ⊢Δ ⊢t
   wkRedTerm ρ ⊢Δ ([]-cong-β ⊢A ⊢t ⊢t′ t≡t′ ok) =
     []-cong-β (wk ρ ⊢Δ ⊢A) (wkTerm ρ ⊢Δ ⊢t) (wkTerm ρ ⊢Δ ⊢t′)
       (wkEqTerm ρ ⊢Δ t≡t′) ok

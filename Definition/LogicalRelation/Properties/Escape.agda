@@ -143,6 +143,8 @@ escapeTermEq
   ≅ₜ-red (red D) (redₜ d) (redₜ d′) ΠΣₙ
     (productWhnf pProd) (productWhnf rProd) p≅r
 escapeTermEq {Γ = Γ} (Idᵣ ⊩A) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
+  case ≅ₜ-red (red ⇒*Id) (redₜ t⇒*t′) (redₜ u⇒*u′) Idₙ of λ
+    lemma →
   case ⊩Id≡∷-view-inhabited ⊩A t≡u of λ where
     (ne t′-n u′-n t′~u′) →
       lemma (ne t′-n) (ne u′-n) (~-to-≅ₜ t′~u′)
@@ -157,8 +159,6 @@ escapeTermEq {Γ = Γ} (Idᵣ ⊩A) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
          (Γ ⊢ rfl ≅ rfl ∷ Id Ty lhs rhs)    □)
   where
   open _⊩ₗId_ ⊩A
-
-  lemma = ≅ₜ-red (red ⇒*Id) (redₜ t⇒*t′) (redₜ u⇒*u′) Idₙ
 escapeTermEq (emb 0<1 A) t≡u = escapeTermEq A t≡u
 
 -- If the type Unit is in the logical relation, then the Unit type is

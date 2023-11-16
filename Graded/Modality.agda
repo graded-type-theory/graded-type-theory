@@ -57,13 +57,15 @@ record Semiring-with-meet : Set a where
     -- by 𝟙, so it is fine to let ω be 𝟙.
     ω≤𝟙 : ω ≤ 𝟙
 
-  -- A semiring with meet is said to be trivial if 𝟙 ≡ 𝟘.
-  --
-  -- This implies that all values of type M are equal, see
-  -- Graded.Modality.Properties.Equivalence.≡-trivial.
+  transparent
 
-  Trivial : Set a
-  Trivial = 𝟙 ≡ 𝟘
+    -- A semiring with meet is said to be trivial if 𝟙 ≡ 𝟘.
+    --
+    -- This implies that all values of type M are equal, see
+    -- Graded.Modality.Properties.Equivalence.≡-trivial.
+
+    Trivial : Set a
+    Trivial = 𝟙 ≡ 𝟘
 
   ·-distribˡ-∧ : _·_ DistributesOverˡ _∧_
   ·-distribˡ-∧ = proj₁ ·-distrib-∧
@@ -77,16 +79,18 @@ record Semiring-with-meet : Set a where
   +-distribʳ-∧ : _+_ DistributesOverʳ _∧_
   +-distribʳ-∧ = proj₂ +-distrib-∧
 
-  +-·-Semiring′ : Semiring a a
-  +-·-Semiring′ = record
-    { Carrier = M
-    ; _≈_ = _≡_
-    ; _+_ = _+_
-    ; _*_ = _·_
-    ; 0# = 𝟘
-    ; 1# = 𝟙
-    ; isSemiring = +-·-Semiring
-    }
+  transparent
+
+    +-·-Semiring′ : Semiring a a
+    +-·-Semiring′ = record
+      { Carrier = M
+      ; _≈_ = _≡_
+      ; _+_ = _+_
+      ; _*_ = _·_
+      ; 0# = 𝟘
+      ; 1# = 𝟙
+      ; isSemiring = +-·-Semiring
+      }
 
   open IsSemiring +-·-Semiring public
     using (

@@ -44,17 +44,21 @@ neu : ∀ {l A} (neA : Neutral A)
     → Γ ⊩⟨ l ⟩ A
 neu neA A A~A = ne′ _ (idRed:*: A) neA A~A
 
-  -- Helper function for reducible neutral equality of a specific type of derivation.
-neuEq′ : ∀ {l A B} ([A] : Γ ⊩⟨ l ⟩ne A)
-         (neA : Neutral A)
-         (neB : Neutral B)
-       → Γ ⊢ A → Γ ⊢ B
-       → Γ ⊢ A ~ B ∷ U
-       → Γ ⊩⟨ l ⟩ A ≡ B / ne-intr [A]
-neuEq′ (noemb (ne K [ ⊢A , ⊢B , D ] neK K≡K)) neA neB A B A~B =
-  let A≡K = whnfRed* D (ne neA)
-  in  ne₌ _ (idRed:*: B) neB (PE.subst (λ x → _ ⊢ x ~ _ ∷ _) A≡K A~B)
-neuEq′ (emb 0<1 x) neB A:≡:B = neuEq′ x neB A:≡:B
+opaque
+  unfolding ne-intr
+
+  -- Helper function for reducible neutral equality of a specific type
+  -- of derivation.
+  neuEq′ : ∀ {l A B} ([A] : Γ ⊩⟨ l ⟩ne A)
+           (neA : Neutral A)
+           (neB : Neutral B)
+         → Γ ⊢ A → Γ ⊢ B
+         → Γ ⊢ A ~ B ∷ U
+         → Γ ⊩⟨ l ⟩ A ≡ B / ne-intr [A]
+  neuEq′ (noemb (ne K [ ⊢A , ⊢B , D ] neK K≡K)) neA neB A B A~B =
+    let A≡K = whnfRed* D (ne neA)
+    in  ne₌ _ (idRed:*: B) neB (PE.subst (λ x → _ ⊢ x ~ _ ∷ _) A≡K A~B)
+  neuEq′ (emb 0<1 x) neB A:≡:B = neuEq′ x neB A:≡:B
 
 -- Neutrally equal types are of reducible equality.
 neuEq : ∀ {l A B} ([A] : Γ ⊩⟨ l ⟩ A)

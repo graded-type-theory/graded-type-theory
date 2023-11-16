@@ -2,6 +2,8 @@
 -- The logical relation for validity
 ------------------------------------------------------------------------
 
+{-# OPTIONS --no-opaque #-}
+
 open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
 open import Graded.Modality

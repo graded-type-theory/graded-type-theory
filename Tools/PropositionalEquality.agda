@@ -3,6 +3,8 @@
 -- (we do not assume uniqueness of identity proofs).
 ------------------------------------------------------------------------
 
+{-# OPTIONS --no-opaque #-}
+
 module Tools.PropositionalEquality where
 
 -- We reexport Agda's builtin equality type.

@@ -768,7 +768,9 @@ subst-β-prodrec {n = n} A σ = begin
      ≡˘⟨ substCompEq A ⟩
    A [ liftSubst σ ] [ t₂ ]↑² ∎
    where
+   t₁ : Term (2 + n)
    t₁ = prod! (var (x0 +1)) (var x0)
+   t₂ : Term (2 + m)
    t₂ = prod! (var (x0 +1)) (var x0)
    varEq :
      (x : Fin (1+ n)) →
@@ -806,7 +808,7 @@ substCompProdrec :
   ∀ {s} (A : Term (1+ n)) (t u : Term m) (σ : Subst m n) →
   A [ liftSubst σ ] [ prod s p t u ]₀ ≡
   A [ prod s p (var x1) (var x0) ]↑² [ consSubst (consSubst σ t) u ]
-substCompProdrec {n = n} A t u σ = begin
+substCompProdrec {n} {p} {s} A t u σ = begin
    A [ liftSubst σ ] [ prod! t u ]₀
      ≡⟨ substCompEq A ⟩
    A [ sgSubst (prod! t u) ₛ•ₛ liftSubst σ ]
@@ -815,9 +817,10 @@ substCompProdrec {n = n} A t u σ = begin
      ≡˘⟨ substCompEq A ⟩
    A [ px ]↑² [ consSubst (consSubst σ t) u ] ∎
    where
+   px : Term (2 + n)
    px = prod! (var (x0 +1)) (var x0)
    varEq : (x : Fin (1+ n))
-         → (sgSubst (prod! t u) ₛ•ₛ liftSubst σ) x
+         → (sgSubst (prod s p t u) ₛ•ₛ liftSubst σ) x
          ≡ (consSubst (consSubst σ t) u ₛ•ₛ consSubst (wk1Subst (wk1Subst idSubst)) px) x
    varEq x0 = refl
    varEq (x +1) = trans (wk1-tail (σ x)) (subst-id (σ x))

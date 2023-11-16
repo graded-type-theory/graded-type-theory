@@ -2,6 +2,8 @@
 -- The logical relation for reducibility
 ------------------------------------------------------------------------
 
+{-# OPTIONS --no-opaque #-}
+
 open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
 open import Graded.Modality
@@ -146,17 +148,21 @@ mutual
     zeroᵣ : [Natural]-prop Γ zero zero
     ne    : ∀ {n n′} → Γ ⊩neNf n ≡ n′ ∷ ℕ → [Natural]-prop Γ n n′
 
--- Natural extraction from term WHNF property
-natural : ∀ {n} → Natural-prop Γ n → Natural n
-natural (sucᵣ x) = sucₙ
-natural zeroᵣ = zeroₙ
-natural (ne (neNfₜ neK ⊢k k≡k)) = ne neK
+opaque
 
--- Natural extraction from term equality WHNF property
-split : ∀ {a b} → [Natural]-prop Γ a b → Natural a × Natural b
-split (sucᵣ x) = sucₙ , sucₙ
-split zeroᵣ = zeroₙ , zeroₙ
-split (ne (neNfₜ₌ neK neM k≡m)) = ne neK , ne neM
+  -- Natural extraction from term WHNF property
+  natural : ∀ {n} → Natural-prop Γ n → Natural n
+  natural (sucᵣ x) = sucₙ
+  natural zeroᵣ = zeroₙ
+  natural (ne (neNfₜ neK ⊢k k≡k)) = ne neK
+
+opaque
+
+  -- Natural extraction from term equality WHNF property
+  split : ∀ {a b} → [Natural]-prop Γ a b → Natural a × Natural b
+  split (sucᵣ x) = sucₙ , sucₙ
+  split zeroᵣ = zeroₙ , zeroₙ
+  split (ne (neNfₜ₌ neK neM k≡m)) = ne neK , ne neM
 
 -- Reducibility of Empty
 
@@ -196,11 +202,15 @@ record _⊩Empty_≡_∷Empty (Γ : Con Term ℓ) (t u : Term ℓ) : Set a where
     k≡k′ : Γ ⊢ k ≅ k′ ∷ Empty
     prop : [Empty]-prop Γ k k′
 
-empty : ∀ {n} → Empty-prop Γ n → Neutral n
-empty (ne (neNfₜ neK _ _)) = neK
+opaque
 
-esplit : ∀ {a b} → [Empty]-prop Γ a b → Neutral a × Neutral b
-esplit (ne (neNfₜ₌ neK neM k≡m)) = neK , neM
+  empty : ∀ {n} → Empty-prop Γ n → Neutral n
+  empty (ne (neNfₜ neK _ _)) = neK
+
+opaque
+
+  esplit : ∀ {a b} → [Empty]-prop Γ a b → Neutral a × Neutral b
+  esplit (ne (neNfₜ₌ neK neM k≡m)) = neK , neM
 
 -- Reducibility of Unit
 
@@ -705,30 +715,32 @@ data ⊩Id≡∷-view
   (_ , _ , _ , _ , rflₙ , ne _ , ())
   (_ , _ , _ , _ , ne _ , rflₙ , ())
 
--- A kind of constructor for _⊩ₗId_≡_∷_/_.
+opaque
 
-⊩Id≡∷ :
-  ∀ {A} {Γ : Con Term ℓ} {⊩A : Γ ⊩′⟨ l ⟩Id A} →
-  let open _⊩ₗId_ ⊩A in
-  ((t′ , _ , t′-id , _) : Γ ⊩⟨ l ⟩ t ∷ A / Idᵣ ⊩A)
-  ((u′ , _ , u′-id , _) : Γ ⊩⟨ l ⟩ u ∷ A / Idᵣ ⊩A) →
-  Identity-rec t′-id
-    (Identity-rec u′-id
-       (Lift _ ⊤)
-       (Lift _ ⊥))
-    (Identity-rec u′-id
-       (Lift _ ⊥)
-       (Γ ⊢ t′ ~ u′ ∷ Id Ty lhs rhs)) →
-  Γ ⊩⟨ l ⟩ t ≡ u ∷ A / Idᵣ ⊩A
-⊩Id≡∷ ⊩t@(t′ , t⇒*t′ , t′-id , _) ⊩u@(u′ , u⇒*u′ , u′-id , _) rest =
-    t′ , u′ , t⇒*t′ , u⇒*u′ , t′-id , u′-id
-  , (case ⊩Id∷-view-inhabited ⊩t of λ where
-       (rflᵣ lhs≡rhs) → case ⊩Id∷-view-inhabited ⊩u of λ where
-         (rflᵣ _) → lhs≡rhs
-         (ne _ _) → case rest of λ ()
-       (ne _ _) → case ⊩Id∷-view-inhabited ⊩u of λ where
-         (rflᵣ _) → case rest of λ ()
-         (ne _ _) → rest)
+  -- A kind of constructor for _⊩ₗId_≡_∷_/_.
+
+  ⊩Id≡∷ :
+    ∀ {A} {Γ : Con Term ℓ} {⊩A : Γ ⊩′⟨ l ⟩Id A} →
+    let open _⊩ₗId_ ⊩A in
+    ((t′ , _ , t′-id , _) : Γ ⊩⟨ l ⟩ t ∷ A / Idᵣ ⊩A)
+    ((u′ , _ , u′-id , _) : Γ ⊩⟨ l ⟩ u ∷ A / Idᵣ ⊩A) →
+    Identity-rec t′-id
+      (Identity-rec u′-id
+         (Lift _ ⊤)
+         (Lift _ ⊥))
+      (Identity-rec u′-id
+         (Lift _ ⊥)
+         (Γ ⊢ t′ ~ u′ ∷ Id Ty lhs rhs)) →
+    Γ ⊩⟨ l ⟩ t ≡ u ∷ A / Idᵣ ⊩A
+  ⊩Id≡∷ ⊩t@(t′ , t⇒*t′ , t′-id , _) ⊩u@(u′ , u⇒*u′ , u′-id , _) rest =
+      t′ , u′ , t⇒*t′ , u⇒*u′ , t′-id , u′-id
+    , (case ⊩Id∷-view-inhabited ⊩t of λ where
+         (rflᵣ lhs≡rhs) → case ⊩Id∷-view-inhabited ⊩u of λ where
+           (rflᵣ _) → lhs≡rhs
+           (ne _ _) → case rest of λ ()
+         (ne _ _) → case ⊩Id∷-view-inhabited ⊩u of λ where
+           (rflᵣ _) → case rest of λ ()
+           (ne _ _) → rest)
 
 -- A kind of inverse of ⊩Id≡∷.
 

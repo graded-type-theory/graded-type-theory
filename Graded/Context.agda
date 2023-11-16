@@ -2,6 +2,8 @@
 -- Modality (grade) contexts.
 ------------------------------------------------------------------------
 
+{-# OPTIONS --no-opaque #-}
+
 import Graded.Modality
 
 module Graded.Context

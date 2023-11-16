@@ -189,97 +189,109 @@ T-== = ≡ᵇ⇒≡ _ _ , ≡⇒≡ᵇ _ _
 ∃< 0      p = false
 ∃< (1+ n) p = p n ∨ ∃< n p
 
--- ∃< is correctly defined.
+opaque
+  unfolding ∃<
 
-∃<⇔ : T (∃< n p) ⇔ (∃ λ m → m < n × T (p m))
-∃<⇔ {n = 0} {p = p} =
-  ⊥                          ⇔⟨ (⊥-elim , λ { (_ , () , _) }) ⟩
-  (∃ λ m → m < 0 × T (p m))  □⇔
-∃<⇔ {n = 1+ n} {p = p} =
-  T (p n ∨ ∃< n p)                     ⇔⟨ T-∨ ⟩
-  T (p n) ⊎ T (∃< n p)                 ⇔⟨ id⇔ ⊎-cong-⇔ ∃<⇔ ⟩
-  T (p n) ⊎ (∃ λ m → m < n × T (p m))  ⇔⟨ (λ where
-                                             (inj₁ p-n)             → n , ≤-refl , p-n
-                                             (inj₂ (m , m<n , p-m)) → m , ≤-trans m<n (n≤1+n _) , p-m)
-                                        , (λ (m , m<1+n , p-m) →
-                                             case <-cmp m n of λ where
-                                               (tri< m<n _    _)   → inj₂ (m , m<n , p-m)
-                                               (tri≈ _   refl _)   → inj₁ p-m
-                                               (tri> _   _    m>n) → ⊥-elim (m+n≮n _ _ (≤-trans m<1+n m>n)))
-                                        ⟩
-  (∃ λ m → m < 1+ n × T (p m))         □⇔
+  -- ∃< is correctly defined.
+
+  ∃<⇔ : T (∃< n p) ⇔ (∃ λ m → m < n × T (p m))
+  ∃<⇔ {n = 0} {p = p} =
+    ⊥                          ⇔⟨ (⊥-elim , λ { (_ , () , _) }) ⟩
+    (∃ λ m → m < 0 × T (p m))  □⇔
+  ∃<⇔ {n = 1+ n} {p = p} =
+    T (p n ∨ ∃< n p)                     ⇔⟨ T-∨ ⟩
+    T (p n) ⊎ T (∃< n p)                 ⇔⟨ id⇔ ⊎-cong-⇔ ∃<⇔ ⟩
+    T (p n) ⊎ (∃ λ m → m < n × T (p m))  ⇔⟨ (λ where
+                                               (inj₁ p-n)             → n , ≤-refl , p-n
+                                               (inj₂ (m , m<n , p-m)) → m , ≤-trans m<n (n≤1+n _) , p-m)
+                                          , (λ (m , m<1+n , p-m) →
+                                               case <-cmp m n of λ where
+                                                 (tri< m<n _    _)   → inj₂ (m , m<n , p-m)
+                                                 (tri≈ _   refl _)   → inj₁ p-m
+                                                 (tri> _   _    m>n) → ⊥-elim (m+n≮n _ _ (≤-trans m<1+n m>n)))
+                                          ⟩
+    (∃ λ m → m < 1+ n × T (p m))         □⇔
 
 -- ∃≤ n p is true if there is some m ≤ n such that p m holds.
 
 ∃≤ : Nat → (Nat → Bool) → Bool
 ∃≤ n = ∃< (1+ n)
 
--- ∃≤ is correctly defined.
+opaque
+  unfolding ∃≤
 
-∃≤⇔ : T (∃≤ n p) ⇔ (∃ λ m → m ≤ n × T (p m))
-∃≤⇔ {n = n} {p = p} =
-  T (∃≤ n p)                    ⇔⟨ id⇔ ⟩
-  T (∃< (1+ n) p)               ⇔⟨ ∃<⇔ ⟩
-  (∃ λ m → m < 1+ n × T (p m))  ⇔⟨ (Σ-cong-⇔ λ _ → ((λ { (s≤s m≤n) → m≤n }) , s≤s) ×-cong-⇔ id⇔) ⟩
-  (∃ λ m → m ≤ n × T (p m))     □⇔
+  -- ∃≤ is correctly defined.
+
+  ∃≤⇔ : T (∃≤ n p) ⇔ (∃ λ m → m ≤ n × T (p m))
+  ∃≤⇔ {n = n} {p = p} =
+    T (∃≤ n p)                    ⇔⟨ id⇔ ⟩
+    T (∃< (1+ n) p)               ⇔⟨ ∃<⇔ ⟩
+    (∃ λ m → m < 1+ n × T (p m))  ⇔⟨ (Σ-cong-⇔ λ _ → ((λ { (s≤s m≤n) → m≤n }) , s≤s) ×-cong-⇔ id⇔) ⟩
+    (∃ λ m → m ≤ n × T (p m))     □⇔
 
 -- ∃-least P means that there is a least number n for which P n holds.
 
 ∃-least : (ℕ → Set a) → Set a
 ∃-least P = ∃ λ n → P n × ∀ m → m < n → ¬ P m
 
--- A decidable predicate holds for some number if and only if there is
--- a least number for which it holds.
+opaque
+  unfolding ∃-least
 
-∃⇔∃-least : (∃ λ n → T (p n)) ⇔ ∃-least (λ n → T (p n))
-∃⇔∃-least = (uncurry λ _ → ∃→∃-least) , Σ.map idᶠ proj₁
-  where
-  ∃→∃-least : T (p n) → ∃-least (λ n → T (p n))
-  ∃→∃-least {n = 0} ok =
-    0 , ok , λ _ ()
-  ∃→∃-least {p = p} {n = 1+ n} ok = lemma _ refl
+  -- A decidable predicate holds for some number if and only if there
+  -- is a least number for which it holds.
+
+  ∃⇔∃-least : (∃ λ n → T (p n)) ⇔ ∃-least (λ n → T (p n))
+  ∃⇔∃-least = (uncurry λ _ → ∃→∃-least) , Σ.map idᶠ proj₁
     where
-    lemma :
-      ∀ b → b ≡ p 0 →
-      ∃ λ n → T (p n) × ∀ m → m < n → ¬ T (p m)
-    lemma true  eq = 0 , subst T eq _ , λ _ ()
-    lemma false eq =
-      case ∃→∃-least {p = p ∘→ 1+} ok of λ {
-        (n , ok , least) →
-        1+ n
-      , ok
-      , (λ where
-           0 _ →
-             T (p 0)  →⟨ subst T (sym eq) ⟩
-             ⊥        □
-           (1+ m) 1+m<1+n →
-             T (p (1+ m))  →⟨ least m (+-cancelˡ-< 1 1+m<1+n) ⟩
-             ⊥             □) }
+    ∃→∃-least : T (p n) → ∃-least (λ n → T (p n))
+    ∃→∃-least {n = 0} ok =
+      0 , ok , λ _ ()
+    ∃→∃-least {p = p} {n = 1+ n} ok = lemma _ refl
+      where
+      lemma :
+        ∀ b → b ≡ p 0 →
+        ∃ λ n → T (p n) × ∀ m → m < n → ¬ T (p m)
+      lemma true  eq = 0 , subst T eq _ , λ _ ()
+      lemma false eq =
+        case ∃→∃-least {p = p ∘→ 1+} ok of λ {
+          (n , ok , least) →
+          1+ n
+        , ok
+        , (λ where
+             0 _ →
+               T (p 0)  →⟨ subst T (sym eq) ⟩
+               ⊥        □
+             (1+ m) 1+m<1+n →
+               T (p (1+ m))  →⟨ least m (+-cancelˡ-< 1 1+m<1+n) ⟩
+               ⊥             □) }
 
--- Is-proposition is closed under ∃-least (assuming function
--- extensionality).
+opaque
+  unfolding ∃-least
 
-∃-least-propositional :
-  ∀ {p} {P : ℕ → Set p} →
-  Function-extensionality lzero p →
-  Function-extensionality p lzero →
-  (∀ n → Is-proposition (P n)) →
-  Is-proposition (∃-least P)
-∃-least-propositional
-  fe₁ fe₂ P-prop
-  {x = n₁ , p₁ , least₁}
-  {y = n₂ , p₂ , least₂} =
-  case n₁≡n₂ of λ {
-    refl →
-  cong₂ (λ p least → _ , p , least)
-    (P-prop _)
-    (Is-proposition-Π fe₁ λ _ →
-     Is-proposition-Π fe₁ λ _ →
-     Is-proposition-Π fe₂ λ _ →
-     ⊥-propositional) }
-  where
-  n₁≡n₂ : n₁ ≡ n₂
-  n₁≡n₂ = case <-cmp n₁ n₂ of λ where
-    (tri< n₁<n₂ _     _)     → ⊥-elim (least₂ _ n₁<n₂ p₁)
-    (tri≈ _     n₁≡n₂ _)     → n₁≡n₂
-    (tri> _     _     n₁>n₂) → ⊥-elim (least₁ _ n₁>n₂ p₂)
+  -- Is-proposition is closed under ∃-least (assuming function
+  -- extensionality).
+
+  ∃-least-propositional :
+    ∀ {p} {P : ℕ → Set p} →
+    Function-extensionality lzero p →
+    Function-extensionality p lzero →
+    (∀ n → Is-proposition (P n)) →
+    Is-proposition (∃-least P)
+  ∃-least-propositional
+    fe₁ fe₂ P-prop
+    {x = n₁ , p₁ , least₁}
+    {y = n₂ , p₂ , least₂} =
+    case n₁≡n₂ of λ {
+      refl →
+    cong₂ (λ p least → _ , p , least)
+      (P-prop _)
+      (Is-proposition-Π fe₁ λ _ →
+       Is-proposition-Π fe₁ λ _ →
+       Is-proposition-Π fe₂ λ _ →
+       ⊥-propositional) }
+    where
+    n₁≡n₂ : n₁ ≡ n₂
+    n₁≡n₂ = case <-cmp n₁ n₂ of λ where
+      (tri< n₁<n₂ _     _)     → ⊥-elim (least₂ _ n₁<n₂ p₁)
+      (tri≈ _     n₁≡n₂ _)     → n₁≡n₂
+      (tri> _     _     n₁>n₂) → ⊥-elim (least₁ _ n₁>n₂ p₂)

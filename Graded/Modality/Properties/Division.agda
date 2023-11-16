@@ -2,6 +2,8 @@
 -- Division
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 import Graded.Modality
 
 module Graded.Modality.Properties.Division
@@ -31,27 +33,29 @@ private variable
 ------------------------------------------------------------------------
 -- The relation _/_≡_
 
--- Least-such-that P p means that p is the least value which
--- satisfies P.
+transparent
 
-Least-such-that : (M → Set a) → M → Set a
-Least-such-that P p = P p × (∀ q → P q → p ≤ q)
+  -- Least-such-that P p means that p is the least value which
+  -- satisfies P.
 
--- The relation p / q ≤ r is inhabited if "p divided by q" is bounded
--- by r.
+  Least-such-that : (M → Set a) → M → Set a
+  Least-such-that P p = P p × (∀ q → P q → p ≤ q)
 
-infix 4 _/_≤_
+  -- The relation p / q ≤ r is inhabited if "p divided by q" is
+  -- bounded by r.
 
-_/_≤_ : M → M → M → Set a
-p / q ≤ r = p ≤ q · r
+  infix 4 _/_≤_
 
--- The relation p / q ≡ r is inhabited if r is the least value for
--- which p / q ≤_ is inhabited.
+  _/_≤_ : M → M → M → Set a
+  p / q ≤ r = p ≤ q · r
 
-infix 4 _/_≡_
+  -- The relation p / q ≡ r is inhabited if r is the least value for
+  -- which p / q ≤_ is inhabited.
 
-_/_≡_ : M → M → M → Set a
-p / q ≡ r = Least-such-that (p / q ≤_) r
+  infix 4 _/_≡_
+
+  _/_≡_ : M → M → M → Set a
+  p / q ≡ r = Least-such-that (p / q ≤_) r
 
 -- The relation _/_≤_ is total if 𝟘 is the greatest value.
 
@@ -63,32 +67,35 @@ p / q ≡ r = Least-such-that (p / q ≤_) r
      p ≤ q · 𝟘  →⟨ idᶠ ⟩
      p / q ≤ 𝟘  □)
 
--- The relation _/_≡_ is total if equality is decidable, 𝟘 is the
--- greatest value, and all "decidable subsets" that contain 𝟘 and are
--- closed under _∧_ have a least value.
+opaque
+  unfolding /≤-total
 
-/≡-total :
-  Decidable (_≡_ {A = M}) →
-  (∀ p → p ≤ 𝟘) →
-  ((P : M → Set a) → (∀ p → Dec (P p)) →
-   P 𝟘 → (∀ p q → P p → P q → P (p ∧ q)) →
-   ∃ (Least-such-that P)) →
-  ∃ (p / q ≡_)
-/≡-total {p = p} {q = q} dec ≤𝟘 limit =
-  limit (p / q ≤_) p/q≤? (/≤-total ≤𝟘 .proj₂) lemma
-  where
-  p/q≤? : ∀ r → Dec (p / q ≤ r)
-  p/q≤? _ = ≡-decidable→≤-decidable dec _ _
+  -- The relation _/_≡_ is total if equality is decidable, 𝟘 is the
+  -- greatest value, and all "decidable subsets" that contain 𝟘 and
+  -- are closed under _∧_ have a least value.
 
-  lemma :
-    (r₁ r₂ : M) →
-    p / q ≤ r₁ → p / q ≤ r₂ → p / q ≤ r₁ ∧ r₂
-  lemma r₁ r₂ p/q≤r₁ p/q≤r₂ = begin
-    p                ≤⟨ ∧-greatest-lower-bound p/q≤r₁ p/q≤r₂ ⟩
-    q · r₁ ∧ q · r₂  ≡˘⟨ ·-distribˡ-∧ _ _ _ ⟩
-    q · (r₁ ∧ r₂)    ∎
+  /≡-total :
+    Decidable (_≡_ {A = M}) →
+    (∀ p → p ≤ 𝟘) →
+    ((P : M → Set a) → (∀ p → Dec (P p)) →
+     P 𝟘 → (∀ p q → P p → P q → P (p ∧ q)) →
+     ∃ (Least-such-that P)) →
+    ∃ (p / q ≡_)
+  /≡-total {p = p} {q = q} dec ≤𝟘 limit =
+    limit (p / q ≤_) p/q≤? (/≤-total ≤𝟘 .proj₂) lemma
     where
-    open Tools.Reasoning.PartialOrder ≤-poset
+    p/q≤? : ∀ r → Dec (p / q ≤ r)
+    p/q≤? _ = ≡-decidable→≤-decidable dec _ _
+
+    lemma :
+      (r₁ r₂ : M) →
+      p / q ≤ r₁ → p / q ≤ r₂ → p / q ≤ r₁ ∧ r₂
+    lemma r₁ r₂ p/q≤r₁ p/q≤r₂ = begin
+      p                ≤⟨ ∧-greatest-lower-bound p/q≤r₁ p/q≤r₂ ⟩
+      q · r₁ ∧ q · r₂  ≡˘⟨ ·-distribˡ-∧ _ _ _ ⟩
+      q · (r₁ ∧ r₂)    ∎
+      where
+      open Tools.Reasoning.PartialOrder ≤-poset
 
 -- The relation _/_≡_ is functional.
 
@@ -165,6 +172,7 @@ p / q ≡ r = Least-such-that (p / q ≤_) r
   where
   open Tools.Reasoning.PartialOrder ≤-poset
 
+  r′ : M
   r′ = surj .proj₁
 
   p≡qr′ : p ≡ q · r′
@@ -246,16 +254,18 @@ p / q ≡ r = Least-such-that (p / q ≤_) r
 ------------------------------------------------------------------------
 -- The predicate Supports-division-by
 
--- The property of supporting division by a given value.
+transparent
 
-Supports-division-by : M → Set a
-Supports-division-by q =
-  ∃ λ (_/q : M → M) → ∀ p r → (p /q) ≤ r ⇔ p ≤ q · r
+  -- The property of supporting division by a given value.
 
--- The property of supporting division.
+  Supports-division-by : M → Set a
+  Supports-division-by q =
+    ∃ λ (_/q : M → M) → ∀ p r → (p /q) ≤ r ⇔ p ≤ q · r
 
-Supports-division : Set a
-Supports-division = ∀ p → Supports-division-by p
+  -- The property of supporting division.
+
+  Supports-division : Set a
+  Supports-division = ∀ p → Supports-division-by p
 
 -- "𝕄 supports division by q" is logically equivalent to "for all p
 -- there is an r such that p / q ≡ r".
@@ -282,15 +292,16 @@ Supports-division-by⇔ {q = q} =
   where
   open Tools.Reasoning.PartialOrder ≤-poset
 
--- If 𝕄 supports division by q, then "p / q" is the least r such that
--- p ≤ q · r.
+opaque
+  unfolding Supports-division-by⇔
 
-/-least-≤· :
-  ((_/q , _) : Supports-division-by q) →
-  Least-such-that (λ r → p ≤ q · r) (p /q)
-/-least-≤· s = div _ .proj₂
-  where
-  div = Supports-division-by⇔ .proj₁ s
+  -- If 𝕄 supports division by q, then "p / q" is the least r such
+  -- that p ≤ q · r.
+
+  /-least-≤· :
+    ((_/q , _) : Supports-division-by q) →
+    Least-such-that (λ r → p ≤ q · r) (p /q)
+  /-least-≤· s = Supports-division-by⇔ .proj₁ s _ .proj₂
 
 -- If 𝕄 supports division by q, then p / q ≡ r is logically equivalent
 -- to "p / q is equal to r".
@@ -302,32 +313,43 @@ Supports-division-by⇔ {q = q} =
     /≡-functional (/-least-≤· s)
   , (λ { refl → /-least-≤· s })
 
--- If 𝕄 supports division by q, then the associated division operation
--- is monotone.
+opaque
+  unfolding Supports-division-by⇔
 
-/-monotoneˡ′ :
-  ((_/q , _) : Supports-division-by q) →
-  ∀ p₁ p₂ → p₁ ≤ p₂ → (p₁ /q) ≤ (p₂ /q)
-/-monotoneˡ′ s p₁ p₂ = /-monotoneˡ (div p₁ .proj₂) (div p₂ .proj₂)
-  where
-  div = Supports-division-by⇔ .proj₁ s
+  -- If 𝕄 supports division by q, then the associated division
+  -- operation is monotone.
 
--- Division by 𝟙 is supported, and the value of p divided by 𝟙 is p.
+  /-monotoneˡ′ :
+    ((_/q , _) : Supports-division-by q) →
+    ∀ p₁ p₂ → p₁ ≤ p₂ → (p₁ /q) ≤ (p₂ /q)
+  /-monotoneˡ′ {q} s p₁ p₂ =
+    /-monotoneˡ (div p₁ .proj₂) (div p₂ .proj₂)
+    where
+    div : ∀ p → ∃ λ r → p / q ≡ r
+    div = Supports-division-by⇔ .proj₁ s
 
-/𝟙≡′ : ∃ λ ((_/𝟙 , _) : Supports-division-by 𝟙) → (p /𝟙) ≡ p
-/𝟙≡′ =
-    Supports-division-by⇔ .proj₂ (λ _ → _ , /𝟙≡)
-  , refl
+opaque
+  unfolding Supports-division-by⇔
 
--- If 𝟙 is the least value and 𝟘 the greatest one, then division by 𝟘
--- is supported and the value of p divided by 𝟘 is 𝟙.
+  -- Division by 𝟙 is supported, and the value of p divided by 𝟙 is p.
 
-/𝟘≡𝟙′ :
-  (∀ p → 𝟙 ≤ p) → (∀ p → p ≤ 𝟘) →
-  (∃ λ ((_/𝟘 , _) : Supports-division-by 𝟘) → (p /𝟘) ≡ 𝟙)
-/𝟘≡𝟙′ 𝟙≤ ≤𝟘 =
-    Supports-division-by⇔ .proj₂ (λ _ → _ , /𝟘≡𝟙 𝟙≤ (≤𝟘 _))
-  , refl
+  /𝟙≡′ : ∃ λ ((_/𝟙 , _) : Supports-division-by 𝟙) → (p /𝟙) ≡ p
+  /𝟙≡′ =
+      Supports-division-by⇔ .proj₂ (λ _ → _ , /𝟙≡)
+    , refl
+
+opaque
+  unfolding Supports-division-by⇔
+
+  -- If 𝟙 is the least value and 𝟘 the greatest one, then division by
+  -- 𝟘 is supported and the value of p divided by 𝟘 is 𝟙.
+
+  /𝟘≡𝟙′ :
+    (∀ p → 𝟙 ≤ p) → (∀ p → p ≤ 𝟘) →
+    (∃ λ ((_/𝟘 , _) : Supports-division-by 𝟘) → (p /𝟘) ≡ 𝟙)
+  /𝟘≡𝟙′ 𝟙≤ ≤𝟘 =
+      Supports-division-by⇔ .proj₂ (λ _ → _ , /𝟘≡𝟙 𝟙≤ (≤𝟘 _))
+    , refl
 
 -- If 𝟙 is the least value and division by p is supported, then the
 -- value of p divided by p is 𝟙.

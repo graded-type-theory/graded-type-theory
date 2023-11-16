@@ -2,6 +2,8 @@
 -- Typing and reduction relations
 ------------------------------------------------------------------------
 
+{-# OPTIONS --no-opaque #-}
+
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 
@@ -545,26 +547,30 @@ data _⊢ˢ_≡_∷_ {k} (Δ : Con Term k) :
       → Δ ⊢  head σ ≡ head σ′ ∷ A [ tail σ ]
       → Δ ⊢ˢ      σ ≡ σ′      ∷ Γ ∙ A
 
--- Note that we cannot use the well-formed substitutions.
--- For that, we need to prove the fundamental theorem for substitutions.
+opaque
 
-⟦_⟧ⱼ : (W : BindingType) → ∀ {F G}
-     → Γ     ⊢ F
-     → Γ ∙ F ⊢ G
-     → BindingType-allowed W
-     → Γ     ⊢ ⟦ W ⟧ F ▹ G
-⟦ BΠ _ _   ⟧ⱼ = ΠΣⱼ
-⟦ BΣ _ _ _ ⟧ⱼ = ΠΣⱼ
+  -- Note that we cannot use the well-formed substitutions.
+  -- For that, we need to prove the fundamental theorem for
+  -- substitutions.
 
-⟦_⟧ⱼᵤ : (W : BindingType) → ∀ {F G}
-     → Γ     ⊢ F ∷ U
-     → Γ ∙ F ⊢ G ∷ U
-     → BindingType-allowed W
-     → Γ     ⊢ ⟦ W ⟧ F ▹ G ∷ U
-⟦ BΠ _ _   ⟧ⱼᵤ = ΠΣⱼ
-⟦ BΣ _ _ _ ⟧ⱼᵤ = ΠΣⱼ
+  ⟦_⟧ⱼ : (W : BindingType) → ∀ {F G}
+       → Γ     ⊢ F
+       → Γ ∙ F ⊢ G
+       → BindingType-allowed W
+       → Γ     ⊢ ⟦ W ⟧ F ▹ G
+  ⟦ BΠ _ _   ⟧ⱼ = ΠΣⱼ
+  ⟦ BΣ _ _ _ ⟧ⱼ = ΠΣⱼ
 
--- A context Γ is consistent if the empty type is not inhabited in Γ.
+  ⟦_⟧ⱼᵤ : (W : BindingType) → ∀ {F G}
+       → Γ     ⊢ F ∷ U
+       → Γ ∙ F ⊢ G ∷ U
+       → BindingType-allowed W
+       → Γ     ⊢ ⟦ W ⟧ F ▹ G ∷ U
+  ⟦ BΠ _ _   ⟧ⱼᵤ = ΠΣⱼ
+  ⟦ BΣ _ _ _ ⟧ⱼᵤ = ΠΣⱼ
+
+-- A context Γ is consistent if the empty type is not inhabited
+-- in Γ.
 
 Consistent : Con Term n → Set ℓ
 Consistent Γ = ∀ t → ¬ Γ ⊢ t ∷ Empty

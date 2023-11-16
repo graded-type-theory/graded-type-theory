@@ -204,34 +204,39 @@ irrelevanceTerm′ : ∀ {l l′ A A′ t}
 irrelevanceTerm′ {A = A} {t = t} PE.refl [Γ] [Γ]′ [A] [A]′ [t] =
   irrelevanceTerm {A = A} {t = t} [Γ] [Γ]′ [A] [A]′ [t]
 
--- Irrelevance of valid terms with different derivations of
--- contexts and types with a lifting of equal types
-irrelevanceTermLift : ∀ {l A F H t}
-              ([Γ] : ⊩ᵛ Γ)
-              ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
-              ([H] : Γ ⊩ᵛ⟨ l ⟩ H / [Γ])
-              ([F≡H] : Γ ⊩ᵛ⟨ l ⟩ F ≡ H / [Γ] / [F])
-              ([A] : Γ ∙ F ⊩ᵛ⟨ l ⟩ A / [Γ] ∙ [F])
-            → Γ ∙ F ⊩ᵛ⟨ l ⟩ t ∷ A / [Γ] ∙ [F] / [A]
-            → Γ ∙ H ⊩ᵛ⟨ l ⟩ t ∷ A / [Γ] ∙ [H]
-                           / irrelevanceLift {A = A} {F = F} {H = H}
-                                             [Γ] [F] [H] [F≡H] [A]
-irrelevanceTermLift [Γ] [F] [H] [F≡H] [A] [t] ⊢Δ ([tailσ] , [headσ]) =
-  let [σ]′ = [tailσ] , convTerm₂ (proj₁ (unwrap [F] ⊢Δ [tailσ]))
-                                 (proj₁ (unwrap [H] ⊢Δ [tailσ]))
-                                 ([F≡H] ⊢Δ [tailσ]) [headσ]
-  in  proj₁ ([t] ⊢Δ [σ]′)
-  , (λ [σ′] x →
-       let [σ′]′ = proj₁ [σ′] , convTerm₂ (proj₁ (unwrap [F] ⊢Δ (proj₁ [σ′])))
-                                          (proj₁ (unwrap [H] ⊢Δ (proj₁ [σ′])))
-                                          ([F≡H] ⊢Δ (proj₁ [σ′]))
-                                          (proj₂ [σ′])
-           [tailσ′] = proj₁ [σ′]
-       in  proj₂ ([t] ⊢Δ [σ]′) [σ′]′
-                 (proj₁ x , convEqTerm₂ (proj₁ (unwrap [F] ⊢Δ [tailσ]))
-                                        (proj₁ (unwrap [H] ⊢Δ [tailσ]))
-                                        ([F≡H] ⊢Δ [tailσ])
-                                        (proj₂ x)))
+opaque
+  unfolding irrelevanceLift
+
+  -- Irrelevance of valid terms with different derivations of
+  -- contexts and types with a lifting of equal types
+  irrelevanceTermLift : ∀ {l A F H t}
+                ([Γ] : ⊩ᵛ Γ)
+                ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
+                ([H] : Γ ⊩ᵛ⟨ l ⟩ H / [Γ])
+                ([F≡H] : Γ ⊩ᵛ⟨ l ⟩ F ≡ H / [Γ] / [F])
+                ([A] : Γ ∙ F ⊩ᵛ⟨ l ⟩ A / [Γ] ∙ [F])
+              → Γ ∙ F ⊩ᵛ⟨ l ⟩ t ∷ A / [Γ] ∙ [F] / [A]
+              → Γ ∙ H ⊩ᵛ⟨ l ⟩ t ∷ A / [Γ] ∙ [H]
+                             / irrelevanceLift {A = A} {F = F} {H = H}
+                                               [Γ] [F] [H] [F≡H] [A]
+  irrelevanceTermLift [Γ] [F] [H] [F≡H] [A] [t] ⊢Δ ([tailσ] , [headσ]) =
+    let [σ]′ = [tailσ] , convTerm₂ (proj₁ (unwrap [F] ⊢Δ [tailσ]))
+                                   (proj₁ (unwrap [H] ⊢Δ [tailσ]))
+                                   ([F≡H] ⊢Δ [tailσ]) [headσ]
+    in  proj₁ ([t] ⊢Δ [σ]′)
+    , (λ [σ′] x →
+         let [σ′]′ =
+               proj₁ [σ′] ,
+               convTerm₂ (proj₁ (unwrap [F] ⊢Δ (proj₁ [σ′])))
+                         (proj₁ (unwrap [H] ⊢Δ (proj₁ [σ′])))
+                         ([F≡H] ⊢Δ (proj₁ [σ′]))
+                         (proj₂ [σ′])
+             [tailσ′] = proj₁ [σ′]
+         in  proj₂ ([t] ⊢Δ [σ]′) [σ′]′
+               (proj₁ x , convEqTerm₂ (proj₁ (unwrap [F] ⊢Δ [tailσ]))
+                                      (proj₁ (unwrap [H] ⊢Δ [tailσ]))
+                                      ([F≡H] ⊢Δ [tailσ])
+                                      (proj₂ x)))
 
 -- Irrelevance of valid term equality with different derivations of
 -- contexts and types

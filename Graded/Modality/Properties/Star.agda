@@ -68,32 +68,23 @@ private
 -- The operator _⊛_▷ r is idempotent on 𝟘.
 
 ⊛-idem-𝟘 : (r : M) → (_⊛_▷ r) IdempotentOn 𝟘
-⊛-idem-𝟘 r = ≤-antisym (⊛-ineq₂ 𝟘 𝟘 r) 𝟘≤𝟘⊛𝟘
+⊛-idem-𝟘 r =
+  ≤-antisym (⊛-ineq₂ 𝟘 𝟘 r) $ begin
+    𝟘                      ≈˘⟨ ·-zeroʳ (𝟘 ⊛ 𝟘 ▷ r) ⟩
+    (𝟘 ⊛ 𝟘 ▷ r) · 𝟘        ≤⟨ ·-sub-distribʳ-⊛ r 𝟘 𝟘 𝟘 ⟩
+    (𝟘 · 𝟘) ⊛ (𝟘 · 𝟘) ▷ r  ≈⟨ ⊛ᵣ-cong (·-zeroˡ 𝟘) (·-zeroˡ 𝟘) ⟩
+    𝟘 ⊛ 𝟘 ▷ r              ∎
   where
   open import Tools.Reasoning.PartialOrder ≤-poset
-  𝟘≤𝟘⊛𝟘 = begin
-    𝟘                     ≈˘⟨ ·-zeroʳ (𝟘 ⊛ 𝟘 ▷ r) ⟩
-    (𝟘 ⊛ 𝟘 ▷ r) · 𝟘       ≤⟨ ·-sub-distribʳ-⊛ r 𝟘 𝟘 𝟘 ⟩
-    (𝟘 · 𝟘) ⊛ (𝟘 · 𝟘) ▷ r ≈⟨ ⊛ᵣ-cong (·-zeroˡ 𝟘) (·-zeroˡ 𝟘) ⟩
-    𝟘 ⊛ 𝟘 ▷ r ∎
 
--- If a "semiring with meet" has a natrec-star operator, then it has
--- an nr function.
+-- Some definitions used to implement has-nr.
 
-has-nr : Has-nr 𝕄
-has-nr = record
-  { nr          = nr′
-  ; nr-monotone = nr′-monotone
-  ; nr-·        = nr′-·
-  ; nr-+        = nr′-+
-  ; nr-𝟘        = nr′-𝟘
-  ; nr-positive = nr′-positive
-  ; nr-zero     = nr′-zero
-  ; nr-suc      = nr′-suc
-  }
-  where
-  nr′ : M → M → M → M → M → M
-  nr′ p r z s n = (z ∧ n) ⊛ s + p · n ▷ r
+private module Has-nr-lemmas where
+
+  transparent
+
+    nr′ : M → M → M → M → M → M
+    nr′ p r z s n = (z ∧ n) ⊛ s + p · n ▷ r
 
   nr′-monotone :
     z₁ ≤ z₂ → s₁ ≤ s₂ → n₁ ≤ n₂ →
@@ -129,6 +120,7 @@ has-nr = record
     where
     open Tools.Reasoning.PartialOrder ≤-poset
 
+    lemma : (s₁ + p · n₁) + (s₂ + p · n₂) ≤ (s₁ + s₂) + p · (n₁ + n₂)
     lemma = begin
       (s₁ + p · n₁) + (s₂ + p · n₂)  ≡⟨ +-assoc _ _ _ ⟩
       s₁ + (p · n₁ + (s₂ + p · n₂))  ≡˘⟨ cong (_ +_) (+-assoc _ _ _) ⟩
@@ -173,6 +165,25 @@ has-nr = record
     s + p · n + r · ((z ∧ n) ⊛ s + p · n ▷ r)    ∎
     where
     open Tools.Reasoning.PartialOrder ≤-poset
+
+transparent
+
+  -- If a "semiring with meet" has a natrec-star operator, then it has
+  -- an nr function.
+
+  has-nr : Has-nr 𝕄
+  has-nr = record
+    { nr          = nr′
+    ; nr-monotone = nr′-monotone
+    ; nr-·        = nr′-·
+    ; nr-+        = nr′-+
+    ; nr-𝟘        = nr′-𝟘
+    ; nr-positive = nr′-positive
+    ; nr-zero     = nr′-zero
+    ; nr-suc      = nr′-suc
+    }
+    where
+    open Has-nr-lemmas
 
 -- The function Has-nr.nr has-nr p r z s is decreasing.
 

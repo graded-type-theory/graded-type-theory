@@ -3,6 +3,8 @@
 -- do not depend on that module's module parameter
 ------------------------------------------------------------------------
 
+{-# OPTIONS --no-opaque #-}
+
 module Definition.Untyped.NotParametrised where
 
 open import Tools.Fin

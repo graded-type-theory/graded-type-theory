@@ -67,9 +67,7 @@ Erased-cong-U ⊢A A≡B =
   Γ ⊢ t ∷ A →
   Γ ⊢ [ t ] ∷ Erased A
 []ⱼ ⊢A ⊢t =
-  prodⱼ ⊢A (Unitⱼ (⊢Γ ∙ ⊢A) Unit-ok) ⊢t (starⱼ ⊢Γ Unit-ok) Σₚ-ok
-  where
-  ⊢Γ = wf ⊢A
+  prodⱼ ⊢A (Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok) ⊢t (starⱼ (wf ⊢A) Unit-ok) Σₚ-ok
 
 -- A corresponding congruence rule.
 
@@ -104,9 +102,8 @@ Erased-β :
   Γ ⊢ t ∷ A →
   Γ ⊢ erased [ t ] ≡ t ∷ A
 Erased-β ⊢A ⊢t =
-  Σ-β₁ ⊢A (Unitⱼ (⊢Γ ∙ ⊢A) Unit-ok) ⊢t (starⱼ ⊢Γ Unit-ok) PE.refl Σₚ-ok
-  where
-  ⊢Γ = wf ⊢A
+  Σ-β₁ ⊢A (Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok) ⊢t (starⱼ (wf ⊢A) Unit-ok)
+    PE.refl Σₚ-ok
 
 -- An η-rule for Erased.
 
@@ -116,11 +113,11 @@ Erased-η :
   Γ ⊢ u ∷ Erased A →
   Γ ⊢ erased t ≡ erased u ∷ A →
   Γ ⊢ t ≡ u ∷ Erased A
-Erased-η ⊢A ⊢t ⊢u t≡u = Σ-η
-  ⊢A Γ∙A⊢Unit ⊢t ⊢u t≡u
-  (η-unit (sndⱼ ⊢A Γ∙A⊢Unit ⊢t) (sndⱼ ⊢A Γ∙A⊢Unit ⊢u))
-  where
-  Γ∙A⊢Unit = Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok
+Erased-η ⊢A ⊢t ⊢u t≡u =
+  case Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok of λ {
+    Γ∙A⊢Unit →
+  Σ-η ⊢A Γ∙A⊢Unit ⊢t ⊢u t≡u
+    (η-unit (sndⱼ ⊢A Γ∙A⊢Unit ⊢t) (sndⱼ ⊢A Γ∙A⊢Unit ⊢u)) }
 
 -- An instance of the η-rule.
 

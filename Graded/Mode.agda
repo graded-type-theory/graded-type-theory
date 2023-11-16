@@ -54,6 +54,8 @@ private variable
 ------------------------------------------------------------------------
 -- Some eliminators or similar principles
 
+-- transparent
+
 private
 
   -- A lemma used in the implementation of 𝟘ᵐ-allowed-elim.
@@ -66,16 +68,19 @@ private
   𝟘ᵐ-allowed-elim-helper true  t f = t _
   𝟘ᵐ-allowed-elim-helper false t f = f (λ ())
 
--- One can prove that a predicate holds for 𝟘ᵐ-allowed by proving that
--- it holds given that T 𝟘ᵐ-allowed is inhabited, and that it holds
--- given that T 𝟘ᵐ-allowed is not inhabited.
+opaque
+  unfolding 𝟘ᵐ-allowed-elim-helper
 
-𝟘ᵐ-allowed-elim :
-  ∀ {p} {P : Set p} →
-  (T 𝟘ᵐ-allowed → P) →
-  ((not-ok : ¬ T 𝟘ᵐ-allowed) → P) →
-  P
-𝟘ᵐ-allowed-elim = 𝟘ᵐ-allowed-elim-helper 𝟘ᵐ-allowed
+  -- One can prove that a predicate holds for 𝟘ᵐ-allowed by proving
+  -- that it holds given that T 𝟘ᵐ-allowed is inhabited, and that it
+  -- holds given that T 𝟘ᵐ-allowed is not inhabited.
+
+  𝟘ᵐ-allowed-elim :
+    ∀ {p} {P : Set p} →
+    (T 𝟘ᵐ-allowed → P) →
+    ((not-ok : ¬ T 𝟘ᵐ-allowed) → P) →
+    P
+  𝟘ᵐ-allowed-elim = 𝟘ᵐ-allowed-elim-helper 𝟘ᵐ-allowed
 
 -- An eliminator for modes.
 
@@ -91,42 +96,55 @@ Mode-elim _ z o = λ where
 ------------------------------------------------------------------------
 -- 𝟘ᵐ? and 𝟙ᵐ′
 
--- A mode that is 𝟘ᵐ[ something ] if 𝟘ᵐ-allowed is true, and otherwise
--- 𝟙ᵐ.
+opaque
+  unfolding 𝟘ᵐ-allowed-elim
 
-𝟘ᵐ? : Mode
-𝟘ᵐ? = 𝟘ᵐ-allowed-elim 𝟘ᵐ[_] (λ _ → 𝟙ᵐ)
+  -- A mode that is 𝟘ᵐ[ something ] if 𝟘ᵐ-allowed is true, and otherwise
+  -- 𝟙ᵐ.
 
--- One can prove that a predicate holds for 𝟘ᵐ? by proving that it
--- holds for 𝟘ᵐ[ ok ] (for any ok) and that it holds for 𝟙ᵐ (under the
--- assumption that T 𝟘ᵐ-allowed is not inhabited).
+  𝟘ᵐ? : Mode
+  𝟘ᵐ? = 𝟘ᵐ-allowed-elim 𝟘ᵐ[_] (λ _ → 𝟙ᵐ)
 
-𝟘ᵐ?-elim :
-  ∀ {p} (P : Mode → Set p) →
-  (⦃ ok : T 𝟘ᵐ-allowed ⦄ → P 𝟘ᵐ) →
-  (¬ T 𝟘ᵐ-allowed → P 𝟙ᵐ) →
-  P 𝟘ᵐ?
-𝟘ᵐ?-elim P = lemma _ refl
-  where
-  lemma :
-    ∀ b (eq : b ≡ 𝟘ᵐ-allowed)
-    (z : ⦃ ok : T b ⦄ → P 𝟘ᵐ[ subst T eq ok ])
-    (o : ¬ T b → P 𝟙ᵐ) →
-    P (𝟘ᵐ-allowed-elim-helper b (λ ok → 𝟘ᵐ[ subst T eq ok ]) (λ _ → 𝟙ᵐ))
-  lemma true  _ z _ = z ⦃ ok = _ ⦄
-  lemma false _ _ o = o (λ ())
+opaque
+  unfolding 𝟘ᵐ?
 
--- A variant of 𝟙ᵐ.
+  -- One can prove that a predicate holds for 𝟘ᵐ? by proving that it
+  -- holds for 𝟘ᵐ[ ok ] (for any ok) and that it holds for 𝟙ᵐ (under
+  -- the assumption that T 𝟘ᵐ-allowed is not inhabited).
 
-𝟙ᵐ′ : Mode
-𝟙ᵐ′ = 𝟘ᵐ-allowed-elim (λ _ → 𝟙ᵐ) (λ _ → 𝟙ᵐ)
+  𝟘ᵐ?-elim :
+    ∀ {p} (P : Mode → Set p) →
+    (⦃ ok : T 𝟘ᵐ-allowed ⦄ → P 𝟘ᵐ) →
+    (¬ T 𝟘ᵐ-allowed → P 𝟙ᵐ) →
+    P 𝟘ᵐ?
+  𝟘ᵐ?-elim P = lemma _ refl
+    where
+    lemma :
+      ∀ b (eq : b ≡ 𝟘ᵐ-allowed)
+      (z : ⦃ ok : T b ⦄ → P 𝟘ᵐ[ subst T eq ok ])
+      (o : ¬ T b → P 𝟙ᵐ) →
+      P (𝟘ᵐ-allowed-elim-helper
+           b (λ ok → 𝟘ᵐ[ subst T eq ok ]) (λ _ → 𝟙ᵐ))
+    lemma true  _ z _ = z ⦃ ok = _ ⦄
+    lemma false _ _ o = o (λ ())
 
--- 𝟙ᵐ′ is equal to 𝟙ᵐ.
+opaque
+  unfolding 𝟘ᵐ-allowed-elim
 
-𝟙ᵐ′≡𝟙ᵐ : 𝟙ᵐ′ ≡ 𝟙ᵐ
-𝟙ᵐ′≡𝟙ᵐ with 𝟘ᵐ-allowed
-… | true  = refl
-… | false = refl
+  -- A variant of 𝟙ᵐ.
+
+  𝟙ᵐ′ : Mode
+  𝟙ᵐ′ = 𝟘ᵐ-allowed-elim (λ _ → 𝟙ᵐ) (λ _ → 𝟙ᵐ)
+
+opaque
+  unfolding 𝟙ᵐ′
+
+  -- 𝟙ᵐ′ is equal to 𝟙ᵐ.
+
+  𝟙ᵐ′≡𝟙ᵐ : 𝟙ᵐ′ ≡ 𝟙ᵐ
+  𝟙ᵐ′≡𝟙ᵐ with 𝟘ᵐ-allowed
+  … | true  = refl
+  … | false = refl
 
 -- 𝟙ᵐ′ is not equal to 𝟘ᵐ[ ok ].
 
@@ -143,27 +161,29 @@ Mode-elim _ z o = λ where
 ------------------------------------------------------------------------
 -- Some basic definitions
 
--- The join of two modes.
+transparent
 
-infixr 40 _∨ᵐ_
+  -- The join of two modes.
 
-_∨ᵐ_ : Mode → Mode → Mode
-𝟘ᵐ ∨ᵐ m = m
-𝟙ᵐ ∨ᵐ m = 𝟙ᵐ
+  infixr 40 _∨ᵐ_
 
--- Multiplication of modes.
+  _∨ᵐ_ : Mode → Mode → Mode
+  𝟘ᵐ ∨ᵐ m = m
+  𝟙ᵐ ∨ᵐ m = 𝟙ᵐ
 
-infixr 45 _·ᵐ_
+  -- Multiplication of modes.
 
-_·ᵐ_ : Mode → Mode → Mode
-𝟘ᵐ ·ᵐ _ = 𝟘ᵐ
-𝟙ᵐ ·ᵐ m = m
+  infixr 45 _·ᵐ_
 
--- Modes can be translated to quantities.
+  _·ᵐ_ : Mode → Mode → Mode
+  𝟘ᵐ ·ᵐ _ = 𝟘ᵐ
+  𝟙ᵐ ·ᵐ m = m
 
-⌜_⌝ : Mode → M
-⌜ 𝟘ᵐ ⌝ = 𝟘
-⌜ 𝟙ᵐ ⌝ = 𝟙
+  -- Modes can be translated to quantities.
+
+  ⌜_⌝ : Mode → M
+  ⌜ 𝟘ᵐ ⌝ = 𝟘
+  ⌜ 𝟙ᵐ ⌝ = 𝟙
 
 private
 
@@ -174,69 +194,78 @@ private
     (yes _) → 𝟘ᵐ[ ok ]
     (no _)  → 𝟙ᵐ
 
--- Quantities can be translated to modes (in a potentially lossy way).
+opaque
+  unfolding 𝟘ᵐ-allowed-elim ⌞_⌟′
 
-⌞_⌟ : M → Mode
-⌞ p ⌟ = 𝟘ᵐ-allowed-elim ⌞ p ⌟′ (λ _ → 𝟙ᵐ)
+  -- Quantities can be translated to modes (in a potentially lossy
+  -- way).
 
--- Modes can be scaled by quantities.
---
--- This definition is based on the typing rule for application in
--- Robert Atkey's "Syntax and Semantics of Quantitative Type Theory".
+  ⌞_⌟ : M → Mode
+  ⌞ p ⌟ = 𝟘ᵐ-allowed-elim ⌞ p ⌟′ (λ _ → 𝟙ᵐ)
 
-infixr 45 _ᵐ·_
+transparent
 
-_ᵐ·_ : Mode → M → Mode
-𝟘ᵐ ᵐ· _ = 𝟘ᵐ
-𝟙ᵐ ᵐ· p = ⌞ p ⌟
+  -- Modes can be scaled by quantities.
+  --
+  -- This definition is based on the typing rule for application in
+  -- Robert Atkey's "Syntax and Semantics of Quantitative Type
+  -- Theory".
+
+  infixr 45 _ᵐ·_
+
+  _ᵐ·_ : Mode → M → Mode
+  𝟘ᵐ ᵐ· _ = 𝟘ᵐ
+  𝟙ᵐ ᵐ· p = ⌞ p ⌟
 
 ------------------------------------------------------------------------
 -- Mode vectors
 
--- Mode vectors of the given length.
+transparent
 
-Mode-vector : Nat → Set
-Mode-vector n = Fin n → Mode
+  -- Mode vectors of the given length.
 
-private variable
-  ms : Mode-vector n
+  Mode-vector : Nat → Set
+  Mode-vector n = Fin n → Mode
 
--- An empty mode vector.
+  private variable
+    ms : Mode-vector n
 
-nilᵐ : Mode-vector 0
-nilᵐ ()
+  -- An empty mode vector.
 
--- Adds an element to the mode vector.
+  nilᵐ : Mode-vector 0
+  nilᵐ ()
 
-consᵐ : Mode → Mode-vector n → Mode-vector (1+ n)
-consᵐ m ρ x0     = m
-consᵐ m ρ (x +1) = ρ x
+  -- Adds an element to the mode vector.
 
--- The head of the mode vector.
+  consᵐ : Mode → Mode-vector n → Mode-vector (1+ n)
+  consᵐ m ρ x0     = m
+  consᵐ m ρ (x +1) = ρ x
 
-headᵐ : Mode-vector (1+ n) → Mode
-headᵐ ρ = ρ x0
+  -- The head of the mode vector.
 
--- The tail of the mode vector.
+  headᵐ : Mode-vector (1+ n) → Mode
+  headᵐ ρ = ρ x0
 
-tailᵐ : Mode-vector (1+ n) → Mode-vector n
-tailᵐ ρ x = ρ (x +1)
+  -- The tail of the mode vector.
 
--- A constant vector.
+  tailᵐ : Mode-vector (1+ n) → Mode-vector n
+  tailᵐ ρ x = ρ (x +1)
 
-replicateᵐ : Mode → Mode-vector n
-replicateᵐ m _ = m
+  -- A constant vector.
 
--- Converts usage contexts to mode vectors.
+  replicateᵐ : Mode → Mode-vector n
+  replicateᵐ m _ = m
 
-⌞_⌟ᶜ : Conₘ n → Mode-vector n
-⌞ γ ⌟ᶜ x = ⌞ γ ⟨ x ⟩ ⌟
+  -- Converts usage contexts to mode vectors.
 
--- Converts mode vectors to usage contexts.
+  ⌞_⌟ᶜ : Conₘ n → Mode-vector n
+  ⌞ γ ⌟ᶜ x = ⌞ γ ⟨ x ⟩ ⌟
 
-⌜_⌝ᶜ : Mode-vector n → Conₘ n
-⌜_⌝ᶜ {n = 0}    _ = ε
-⌜_⌝ᶜ {n = 1+ _} ρ = ⌜ tailᵐ ρ ⌝ᶜ ∙ ⌜ headᵐ ρ ⌝
+  -- Converts mode vectors to usage contexts.
+
+  ⌜_⌝ᶜ : Mode-vector n → Conₘ n
+  ⌜_⌝ᶜ {n = 0}    _ = ε
+  ⌜_⌝ᶜ {n = 1+ _} ρ = ⌜ tailᵐ ρ ⌝ᶜ ∙ ⌜ headᵐ ρ ⌝
 
 ------------------------------------------------------------------------
 -- Properties related to 𝟘ᵐ-allowed
@@ -566,20 +595,23 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
   x0     → ⌞⌟-cong p≡q
   (x +1) → ⌞⌟ᶜ-cong γ≈ᶜδ x
 
--- ⌞ 𝟘 ⌟ is equal to 𝟘ᵐ[ ok ].
+opaque
+  unfolding ⌞_⌟
 
-⌞𝟘⌟ : ⌞ 𝟘 ⌟ ≡ 𝟘ᵐ[ ok ]
-⌞𝟘⌟ = lemma _ refl
-  where
-  lemma :
-    ∀ b (eq : b ≡ 𝟘ᵐ-allowed) {ok : T b} →
-    𝟘ᵐ-allowed-elim-helper b
-      (λ ok → ⌞ 𝟘 ⌟′ (subst T eq ok))
-      (λ _ → 𝟙ᵐ) ≡
-    𝟘ᵐ[ subst T eq ok ]
-  lemma true refl with 𝟘ᵐ.is-𝟘? tt 𝟘
-  … | yes _  = refl
-  … | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 refl)
+  -- ⌞ 𝟘 ⌟ is equal to 𝟘ᵐ[ ok ].
+
+  ⌞𝟘⌟ : ⌞ 𝟘 ⌟ ≡ 𝟘ᵐ[ ok ]
+  ⌞𝟘⌟ = lemma _ refl
+    where
+    lemma :
+      ∀ b (eq : b ≡ 𝟘ᵐ-allowed) {ok : T b} →
+      𝟘ᵐ-allowed-elim-helper b
+        (λ ok → ⌞ 𝟘 ⌟′ (subst T eq ok))
+        (λ _ → 𝟙ᵐ) ≡
+      𝟘ᵐ[ subst T eq ok ]
+    lemma true refl with 𝟘ᵐ.is-𝟘? tt 𝟘
+    … | yes _  = refl
+    … | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 refl)
 
 
 -- If p is equal to 𝟘, then ⌞ p ⌟ is equal to 𝟘ᵐ[ ok ].
@@ -600,55 +632,64 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
 ≡𝟘→⌞⌟≡𝟘ᵐ? : p ≡ 𝟘 → ⌞ p ⌟ ≡ 𝟘ᵐ?
 ≡𝟘→⌞⌟≡𝟘ᵐ? refl = ⌞𝟘⌟≡𝟘ᵐ?
 
--- If ⌞ p ⌟ is equal to 𝟘ᵐ[ ok ], then p is equal to 𝟘.
+opaque
+  unfolding ⌞_⌟
 
-⌞⌟≡𝟘ᵐ→≡𝟘 : ⌞ p ⌟ ≡ 𝟘ᵐ[ ok ] → p ≡ 𝟘
-⌞⌟≡𝟘ᵐ→≡𝟘 {p = p} = lemma _ refl
-  where
-  lemma :
-    ∀ b (eq : b ≡ 𝟘ᵐ-allowed) →
-    𝟘ᵐ-allowed-elim-helper b
-      (λ ok → ⌞ p ⌟′ (subst T eq ok))
-      (λ _ → 𝟙ᵐ) ≡
-    𝟘ᵐ[ ok ] →
-    p ≡ 𝟘
-  lemma true refl with 𝟘ᵐ.is-𝟘? tt p
-  … | yes p≡𝟘 = λ _ → p≡𝟘
-  … | no _    = λ ()
+  -- If ⌞ p ⌟ is equal to 𝟘ᵐ[ ok ], then p is equal to 𝟘.
 
--- If p is not equal to 𝟘, then ⌞ p ⌟ is equal to 𝟙ᵐ.
+  ⌞⌟≡𝟘ᵐ→≡𝟘 : ⌞ p ⌟ ≡ 𝟘ᵐ[ ok ] → p ≡ 𝟘
+  ⌞⌟≡𝟘ᵐ→≡𝟘 {p = p} = lemma _ refl
+    where
+    lemma :
+      ∀ b (eq : b ≡ 𝟘ᵐ-allowed) →
+      𝟘ᵐ-allowed-elim-helper b
+        (λ ok → ⌞ p ⌟′ (subst T eq ok))
+        (λ _ → 𝟙ᵐ) ≡
+      𝟘ᵐ[ ok ] →
+      p ≡ 𝟘
+    lemma true refl with 𝟘ᵐ.is-𝟘? tt p
+    … | yes p≡𝟘 = λ _ → p≡𝟘
+    … | no _    = λ ()
 
-≢𝟘→⌞⌟≡𝟙ᵐ : p ≢ 𝟘 → ⌞ p ⌟ ≡ 𝟙ᵐ
-≢𝟘→⌞⌟≡𝟙ᵐ {p = p} p≢𝟘 = lemma _ refl
-  where
-  lemma :
-    ∀ b (eq : b ≡ 𝟘ᵐ-allowed) →
-    𝟘ᵐ-allowed-elim-helper b
-      (λ ok → ⌞ p ⌟′ (subst T eq ok))
-      (λ _ → 𝟙ᵐ) ≡
-    𝟙ᵐ
-  lemma false refl = refl
-  lemma true  refl with 𝟘ᵐ.is-𝟘? tt p
-  … | no _    = refl
-  … | yes p≡𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
+opaque
+  unfolding ⌞_⌟
 
--- If 𝟘ᵐ is allowed and ⌞ p ⌟ is equal to 𝟙ᵐ, then p is not equal to
--- 𝟘.
+  -- If p is not equal to 𝟘, then ⌞ p ⌟ is equal to 𝟙ᵐ.
 
-⌞⌟≡𝟙ᵐ→≢𝟘 : T 𝟘ᵐ-allowed → ⌞ p ⌟ ≡ 𝟙ᵐ → p ≢ 𝟘
-⌞⌟≡𝟙ᵐ→≢𝟘 {p = p} ok = lemma _ refl
-  where
-  lemma :
-    ∀ b (eq : b ≡ 𝟘ᵐ-allowed) →
-    𝟘ᵐ-allowed-elim-helper b
-      (λ ok → ⌞ p ⌟′ (subst T eq ok))
-      (λ _ → 𝟙ᵐ) ≡
-    𝟙ᵐ →
-    p ≢ 𝟘
-  lemma false refl = ⊥-elim ok
-  lemma true  refl with 𝟘ᵐ.is-𝟘? tt p
-  … | yes _  = λ ()
-  … | no p≢𝟘 = λ _ → p≢𝟘
+  ≢𝟘→⌞⌟≡𝟙ᵐ : p ≢ 𝟘 → ⌞ p ⌟ ≡ 𝟙ᵐ
+  ≢𝟘→⌞⌟≡𝟙ᵐ {p = p} p≢𝟘 = lemma _ refl
+    where
+    lemma :
+      ∀ b (eq : b ≡ 𝟘ᵐ-allowed) →
+      𝟘ᵐ-allowed-elim-helper b
+        (λ ok → ⌞ p ⌟′ (subst T eq ok))
+        (λ _ → 𝟙ᵐ) ≡
+      𝟙ᵐ
+    lemma false refl = refl
+    lemma true  refl with 𝟘ᵐ.is-𝟘? tt p
+    … | no _    = refl
+    … | yes p≡𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
+
+opaque
+  unfolding ⌞_⌟
+
+  -- If 𝟘ᵐ is allowed and ⌞ p ⌟ is equal to 𝟙ᵐ, then p is not equal to
+  -- 𝟘.
+
+  ⌞⌟≡𝟙ᵐ→≢𝟘 : T 𝟘ᵐ-allowed → ⌞ p ⌟ ≡ 𝟙ᵐ → p ≢ 𝟘
+  ⌞⌟≡𝟙ᵐ→≢𝟘 {p = p} ok = lemma _ refl
+    where
+    lemma :
+      ∀ b (eq : b ≡ 𝟘ᵐ-allowed) →
+      𝟘ᵐ-allowed-elim-helper b
+        (λ ok → ⌞ p ⌟′ (subst T eq ok))
+        (λ _ → 𝟙ᵐ) ≡
+      𝟙ᵐ →
+      p ≢ 𝟘
+    lemma false refl = ⊥-elim ok
+    lemma true  refl with 𝟘ᵐ.is-𝟘? tt p
+    … | yes _  = λ ()
+    … | no p≢𝟘 = λ _ → p≢𝟘
 
 -- ⌞ 𝟙 ⌟ is equal to 𝟙ᵐ.
 

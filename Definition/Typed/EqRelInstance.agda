@@ -3,6 +3,8 @@
 -- equality relations.
 ------------------------------------------------------------------------
 
+{-# OPTIONS --no-opaque #-}
+
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 

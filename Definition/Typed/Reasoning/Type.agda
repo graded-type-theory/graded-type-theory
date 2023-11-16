@@ -2,6 +2,8 @@
 -- Equational reasoning combinators for definitional equality of types
 ------------------------------------------------------------------------
 
+{-# OPTIONS --no-opaque #-}
+
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 

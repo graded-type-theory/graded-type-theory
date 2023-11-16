@@ -22,6 +22,7 @@ open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.ShapeView R
 
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 
@@ -30,19 +31,22 @@ private
     m : Nat
     Γ : Con Term m
 
+opaque
+  unfolding ℕ-intr
 
--- Helper function for successors for specific reducible derivations.
-sucTerm′ : ∀ {l n}
-           ([ℕ] : Γ ⊩⟨ l ⟩ℕ ℕ)
-         → Γ ⊩⟨ l ⟩ n ∷ ℕ / ℕ-intr [ℕ]
-         → Γ ⊩⟨ l ⟩ suc n ∷ ℕ / ℕ-intr [ℕ]
-sucTerm′ (noemb D) (ℕₜ n [ ⊢t , ⊢u , d ] n≡n prop) =
-  let natN = natural prop
-  in  ℕₜ _ [ sucⱼ ⊢t , sucⱼ ⊢t , id (sucⱼ ⊢t) ]
-         (≅-suc-cong (≅ₜ-red (red D) d d ℕₙ
-                             (naturalWhnf natN) (naturalWhnf natN) n≡n))
-         (sucᵣ (ℕₜ n [ ⊢t , ⊢u , d ] n≡n prop))
-sucTerm′ (emb 0<1 x) [n] = sucTerm′ x [n]
+  -- Helper function for successors for specific reducible derivations.
+  sucTerm′ : ∀ {l n}
+             ([ℕ] : Γ ⊩⟨ l ⟩ℕ ℕ)
+           → Γ ⊩⟨ l ⟩ n ∷ ℕ / ℕ-intr [ℕ]
+           → Γ ⊩⟨ l ⟩ suc n ∷ ℕ / ℕ-intr [ℕ]
+  sucTerm′ (noemb D) (ℕₜ n [ ⊢t , ⊢u , d ] n≡n prop) =
+    let natN = natural prop
+    in  ℕₜ _ [ sucⱼ ⊢t , sucⱼ ⊢t , id (sucⱼ ⊢t) ]
+           (≅-suc-cong $
+            ≅ₜ-red (red D) d d ℕₙ
+              (naturalWhnf natN) (naturalWhnf natN) n≡n)
+           (sucᵣ (ℕₜ n [ ⊢t , ⊢u , d ] n≡n prop))
+  sucTerm′ (emb 0<1 x) [n] = sucTerm′ x [n]
 
 -- Reducible natural numbers can be used to construct reducible successors.
 sucTerm : ∀ {l n} ([ℕ] : Γ ⊩⟨ l ⟩ ℕ)
@@ -54,18 +58,24 @@ sucTerm [ℕ] [n] =
                       [ℕ]
                       (sucTerm′ (ℕ-elim [ℕ]) [n]′)
 
--- Helper function for successor equality for specific reducible derivations.
-sucEqTerm′ : ∀ {l n n′}
-             ([ℕ] : Γ ⊩⟨ l ⟩ℕ ℕ)
-           → Γ ⊩⟨ l ⟩ n ≡ n′ ∷ ℕ / ℕ-intr [ℕ]
-           → Γ ⊩⟨ l ⟩ suc n ≡ suc n′ ∷ ℕ / ℕ-intr [ℕ]
-sucEqTerm′ (noemb D) (ℕₜ₌ k k′ [ ⊢t , ⊢u , d ]
-                              [ ⊢t₁ , ⊢u₁ , d₁ ] t≡u prop) =
-  let natK , natK′ = split prop
-  in  ℕₜ₌ _ _ (idRedTerm:*: (sucⱼ ⊢t)) (idRedTerm:*: (sucⱼ ⊢t₁))
-        (≅-suc-cong (≅ₜ-red (red D) d d₁ ℕₙ (naturalWhnf natK) (naturalWhnf natK′) t≡u))
-        (sucᵣ (ℕₜ₌ k k′ [ ⊢t , ⊢u , d ] [ ⊢t₁ , ⊢u₁ , d₁ ] t≡u prop))
-sucEqTerm′ (emb 0<1 x) [n≡n′] = sucEqTerm′ x [n≡n′]
+opaque
+  unfolding ℕ-intr
+
+  -- Helper function for successor equality for specific reducible
+  -- derivations.
+  sucEqTerm′ : ∀ {l n n′}
+               ([ℕ] : Γ ⊩⟨ l ⟩ℕ ℕ)
+             → Γ ⊩⟨ l ⟩ n ≡ n′ ∷ ℕ / ℕ-intr [ℕ]
+             → Γ ⊩⟨ l ⟩ suc n ≡ suc n′ ∷ ℕ / ℕ-intr [ℕ]
+  sucEqTerm′ (noemb D) (ℕₜ₌ k k′ [ ⊢t , ⊢u , d ]
+                                [ ⊢t₁ , ⊢u₁ , d₁ ] t≡u prop) =
+    let natK , natK′ = split prop
+    in  ℕₜ₌ _ _ (idRedTerm:*: (sucⱼ ⊢t)) (idRedTerm:*: (sucⱼ ⊢t₁))
+          (≅-suc-cong $
+           ≅ₜ-red (red D) d d₁ ℕₙ (naturalWhnf natK) (naturalWhnf natK′)
+             t≡u)
+          (sucᵣ (ℕₜ₌ k k′ [ ⊢t , ⊢u , d ] [ ⊢t₁ , ⊢u₁ , d₁ ] t≡u prop))
+  sucEqTerm′ (emb 0<1 x) [n≡n′] = sucEqTerm′ x [n≡n′]
 
 -- Reducible natural number equality can be used to construct reducible equality
 -- of the successors of the numbers.

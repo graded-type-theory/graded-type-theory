@@ -42,31 +42,37 @@ Unitᵛ _ ok =
     Unitᵣ (Unitₜ (idRed:*: (Unitⱼ ⊢Δ ok)) ok)
   , λ _ _ → id (Unitⱼ ⊢Δ ok)
 
--- Validity of the Unit type as a term.
-Unitᵗᵛ :
-  ([Γ] : ⊩ᵛ Γ) →
-  Unit-allowed →
-  Γ ⊩ᵛ⟨ ¹ ⟩ Unit ∷ U / [Γ] / Uᵛ [Γ]
-Unitᵗᵛ _ ok ⊢Δ _ =
-    Uₜ Unit (idRedTerm:*: ⊢Unit) Unitₙ Unit≅Unit [Unit]
-  , (λ _ _ →
-       Uₜ₌ Unit Unit (idRedTerm:*: ⊢Unit) (idRedTerm:*: ⊢Unit)
-         Unitₙ Unitₙ Unit≅Unit [Unit] [Unit] (id ⊢Unit′))
-  where
-  ⊢Unit     = Unitⱼ ⊢Δ ok
-  ⊢Unit′    = univ ⊢Unit
-  Unit≅Unit = ≅ₜ-Unitrefl ⊢Δ ok
-  [Unit]    = Unitᵣ (Unitₜ (idRed:*: ⊢Unit′) ok)
+opaque
+  unfolding Uᵛ
 
--- Validity of star.
-starᵛ :
-  ∀ {l} ([Γ] : ⊩ᵛ Γ) (ok : Unit-allowed) →
-  Γ ⊩ᵛ⟨ l ⟩ star ∷ Unit / [Γ] / Unitᵛ [Γ] ok
-starᵛ [Γ] ok ⊢Δ _ =
-    Unitₜ star (idRedTerm:*: ⊢star) starₙ
-  , (λ _ _ → Unitₜ₌ ⊢star ⊢star)
-  where
-  ⊢star = starⱼ ⊢Δ ok
+  -- Validity of the Unit type as a term.
+  Unitᵗᵛ :
+    ([Γ] : ⊩ᵛ Γ) →
+    Unit-allowed →
+    Γ ⊩ᵛ⟨ ¹ ⟩ Unit ∷ U / [Γ] / Uᵛ [Γ]
+  Unitᵗᵛ _ ok ⊢Δ _ =
+    let
+      ⊢Unit     = Unitⱼ ⊢Δ ok
+      ⊢Unit′    = univ ⊢Unit
+      Unit≅Unit = ≅ₜ-Unitrefl ⊢Δ ok
+      [Unit]    = Unitᵣ (Unitₜ (idRed:*: ⊢Unit′) ok)
+    in
+      Uₜ Unit (idRedTerm:*: ⊢Unit) Unitₙ Unit≅Unit [Unit]
+    , (λ _ _ →
+         Uₜ₌ Unit Unit (idRedTerm:*: ⊢Unit) (idRedTerm:*: ⊢Unit)
+           Unitₙ Unitₙ Unit≅Unit [Unit] [Unit] (id ⊢Unit′))
+
+opaque
+  unfolding Unitᵛ
+
+  -- Validity of star.
+  starᵛ :
+    ∀ {l} ([Γ] : ⊩ᵛ Γ) (ok : Unit-allowed) →
+    Γ ⊩ᵛ⟨ l ⟩ star ∷ Unit / [Γ] / Unitᵛ [Γ] ok
+  starᵛ [Γ] ok ⊢Δ _ =
+    let ⊢star = starⱼ ⊢Δ ok in
+      Unitₜ star (idRedTerm:*: ⊢star) starₙ
+    , (λ _ _ → Unitₜ₌ ⊢star ⊢star)
 
 -- Validity of η-unit.
 η-unitᵛ : ∀ {l e e'} ([Γ] : ⊩ᵛ Γ)

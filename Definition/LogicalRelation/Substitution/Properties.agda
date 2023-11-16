@@ -91,16 +91,19 @@ consSubstS : ∀ {l t A Γ Δ} ([Γ] : ⊩ᵛ Γ) (⊢Δ : ⊢ Δ)
          → Δ ⊩ˢ consSubst σ t ∷ Γ ∙ A / [Γ] ∙ [A] / ⊢Δ
 consSubstS [Γ] ⊢Δ [σ] [A] [t] = [σ] , [t]
 
--- Extend a valid substitution equality with a term
-consSubstSEq : ∀ {l t A Γ Δ} ([Γ] : ⊩ᵛ Γ) (⊢Δ : ⊢ Δ)
-             ([σ]    : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
-             ([σ≡σ′] : Δ ⊩ˢ σ ≡ σ′ ∷ Γ / [Γ] / ⊢Δ / [σ])
-             ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ])
-             ([t] : Δ ⊩⟨ l ⟩ t ∷ A [ σ ] / proj₁ (unwrap [A] ⊢Δ [σ]))
-           → Δ ⊩ˢ consSubst σ t ≡ consSubst σ′ t ∷ Γ ∙ A / [Γ] ∙ [A] / ⊢Δ
-               / consSubstS {t = t} {A = A} [Γ] ⊢Δ [σ] [A] [t]
-consSubstSEq [Γ] ⊢Δ [σ] [σ≡σ′] [A] [t] =
-  [σ≡σ′] , reflEqTerm (proj₁ (unwrap [A] ⊢Δ [σ])) [t]
+opaque
+  unfolding consSubstS
+
+  -- Extend a valid substitution equality with a term
+  consSubstSEq : ∀ {l t A Γ Δ} ([Γ] : ⊩ᵛ Γ) (⊢Δ : ⊢ Δ)
+               ([σ]    : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
+               ([σ≡σ′] : Δ ⊩ˢ σ ≡ σ′ ∷ Γ / [Γ] / ⊢Δ / [σ])
+               ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ])
+               ([t] : Δ ⊩⟨ l ⟩ t ∷ A [ σ ] / proj₁ (unwrap [A] ⊢Δ [σ]))
+             → Δ ⊩ˢ consSubst σ t ≡ consSubst σ′ t ∷ Γ ∙ A / [Γ] ∙ [A] /
+                 ⊢Δ / consSubstS {t = t} {A = A} [Γ] ⊢Δ [σ] [A] [t]
+  consSubstSEq [Γ] ⊢Δ [σ] [σ≡σ′] [A] [t] =
+    [σ≡σ′] , reflEqTerm (proj₁ (unwrap [A] ⊢Δ [σ])) [t]
 
 -- Weakening of valid substitutions
 wkSubstS : ∀ {Γ Δ Δ′} ([Γ] : ⊩ᵛ Γ) (⊢Δ : ⊢ Δ) (⊢Δ′ : ⊢ Δ′)
@@ -116,19 +119,24 @@ wkSubstS {σ = σ} {Γ = Γ ∙ A} ([Γ] ∙ x) ⊢Δ ⊢Δ′ ρ [σ] =
         (proj₁ (unwrap x ⊢Δ′ [tailσ]))
         (LR.wkTerm ρ ⊢Δ′ (proj₁ (unwrap x ⊢Δ (proj₁ [σ]))) (proj₂ [σ]))
 
--- Weakening of valid substitution equality
-wkSubstSEq : ∀ {Γ Δ Δ′} ([Γ] : ⊩ᵛ Γ) (⊢Δ : ⊢ Δ) (⊢Δ′ : ⊢ Δ′)
-             ([ρ] : ρ ∷ Δ′ ⊇ Δ)
-             ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
-             ([σ≡σ′] : Δ ⊩ˢ σ ≡ σ′ ∷ Γ / [Γ] / ⊢Δ / [σ])
-           → Δ′ ⊩ˢ ρ •ₛ σ ≡ ρ •ₛ σ′ ∷ Γ / [Γ]
-                / ⊢Δ′ / wkSubstS [Γ] ⊢Δ ⊢Δ′ [ρ] [σ]
-wkSubstSEq ε ⊢Δ ⊢Δ′ ρ [σ] [σ≡σ′] = lift tt
-wkSubstSEq {Γ = Γ ∙ A} ([Γ] ∙ x) ⊢Δ ⊢Δ′ ρ [σ] [σ≡σ′] =
-  wkSubstSEq [Γ] ⊢Δ ⊢Δ′ ρ (proj₁ [σ]) (proj₁ [σ≡σ′])
-  , irrelevanceEqTerm′ (wk-subst A) (LR.wk ρ ⊢Δ′ (proj₁ (unwrap x ⊢Δ (proj₁ [σ]))))
-                            (proj₁ (unwrap x ⊢Δ′ (wkSubstS [Γ] ⊢Δ ⊢Δ′ ρ (proj₁ [σ]))))
-                            (LR.wkEqTerm ρ ⊢Δ′ (proj₁ (unwrap x ⊢Δ (proj₁ [σ]))) (proj₂ [σ≡σ′]))
+opaque
+  unfolding wkSubstS
+
+  -- Weakening of valid substitution equality
+  wkSubstSEq : ∀ {Γ Δ Δ′} ([Γ] : ⊩ᵛ Γ) (⊢Δ : ⊢ Δ) (⊢Δ′ : ⊢ Δ′)
+               ([ρ] : ρ ∷ Δ′ ⊇ Δ)
+               ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
+               ([σ≡σ′] : Δ ⊩ˢ σ ≡ σ′ ∷ Γ / [Γ] / ⊢Δ / [σ])
+             → Δ′ ⊩ˢ ρ •ₛ σ ≡ ρ •ₛ σ′ ∷ Γ / [Γ]
+                  / ⊢Δ′ / wkSubstS [Γ] ⊢Δ ⊢Δ′ [ρ] [σ]
+  wkSubstSEq ε ⊢Δ ⊢Δ′ ρ [σ] [σ≡σ′] = lift tt
+  wkSubstSEq {Γ = Γ ∙ A} ([Γ] ∙ x) ⊢Δ ⊢Δ′ ρ [σ] [σ≡σ′] =
+    wkSubstSEq [Γ] ⊢Δ ⊢Δ′ ρ (proj₁ [σ]) (proj₁ [σ≡σ′])
+    , irrelevanceEqTerm′ (wk-subst A)
+        (LR.wk ρ ⊢Δ′ (proj₁ (unwrap x ⊢Δ (proj₁ [σ]))))
+        (proj₁ (unwrap x ⊢Δ′ (wkSubstS [Γ] ⊢Δ ⊢Δ′ ρ (proj₁ [σ]))))
+        (LR.wkEqTerm ρ ⊢Δ′ (proj₁ (unwrap x ⊢Δ (proj₁ [σ])))
+           (proj₂ [σ≡σ′]))
 
 -- Weaken a valid substitution by one type
 wk1SubstS : ∀ {F Γ Δ} ([Γ] : ⊩ᵛ Γ) (⊢Δ : ⊢ Δ)
@@ -139,15 +147,18 @@ wk1SubstS : ∀ {F Γ Δ} ([Γ] : ⊩ᵛ Γ) (⊢Δ : ⊢ Δ)
 wk1SubstS [Γ] ⊢Δ ⊢F [σ] =
   wkSubstS [Γ] ⊢Δ (⊢Δ ∙ ⊢F) (step id) [σ]
 
--- Weaken a valid substitution equality by one type
-wk1SubstSEq : ∀ {F Γ Δ} ([Γ] : ⊩ᵛ Γ) (⊢Δ : ⊢ Δ)
-              (⊢F : Δ ⊢ F)
-              ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
-              ([σ≡σ′] : Δ ⊩ˢ σ ≡ σ′ ∷ Γ / [Γ] / ⊢Δ / [σ])
-            → (Δ ∙ F) ⊩ˢ wk1Subst σ ≡ wk1Subst σ′ ∷ Γ / [Γ]
-                            / (⊢Δ ∙ ⊢F) / wk1SubstS [Γ] ⊢Δ ⊢F [σ]
-wk1SubstSEq [Γ] ⊢Δ ⊢F [σ] [σ≡σ′] =
-  wkSubstSEq [Γ] ⊢Δ (⊢Δ ∙ ⊢F) (step id) [σ] [σ≡σ′]
+opaque
+  unfolding wk1SubstS
+
+  -- Weaken a valid substitution equality by one type
+  wk1SubstSEq : ∀ {F Γ Δ} ([Γ] : ⊩ᵛ Γ) (⊢Δ : ⊢ Δ)
+                (⊢F : Δ ⊢ F)
+                ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
+                ([σ≡σ′] : Δ ⊩ˢ σ ≡ σ′ ∷ Γ / [Γ] / ⊢Δ / [σ])
+              → (Δ ∙ F) ⊩ˢ wk1Subst σ ≡ wk1Subst σ′ ∷ Γ / [Γ]
+                              / (⊢Δ ∙ ⊢F) / wk1SubstS [Γ] ⊢Δ ⊢F [σ]
+  wk1SubstSEq [Γ] ⊢Δ ⊢F [σ] [σ≡σ′] =
+    wkSubstSEq [Γ] ⊢Δ (⊢Δ ∙ ⊢F) (step id) [σ] [σ≡σ′]
 
 -- Lift a valid substitution
 liftSubstS : ∀ {l F Γ Δ} ([Γ] : ⊩ᵛ Γ) (⊢Δ : ⊢ Δ)
@@ -193,21 +204,30 @@ opaque
         ⊢0
         (~-var ⊢0) }}
 
--- Lift a valid substitution equality
-liftSubstSEq : ∀ {l F Γ Δ} ([Γ] : ⊩ᵛ Γ) (⊢Δ : ⊢ Δ)
-             ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
-             ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
-             ([σ≡σ′] : Δ ⊩ˢ σ ≡ σ′ ∷ Γ / [Γ] / ⊢Δ / [σ])
-           → (Δ ∙ F [ σ ]) ⊩ˢ liftSubst σ ≡ liftSubst σ′ ∷ Γ ∙ F / [Γ] ∙ [F]
-                             / (⊢Δ ∙ escape (proj₁ (unwrap [F] ⊢Δ [σ])))
-                             / liftSubstS {F = F} [Γ] ⊢Δ [F] [σ]
-liftSubstSEq {σ = σ} {σ′ = σ′} {F = F} {Δ = Δ} [Γ] ⊢Δ [F] [σ] [σ≡σ′] =
-  let ⊢F = escape (proj₁ (unwrap [F] ⊢Δ [σ]))
-      [tailσ] = wk1SubstS {F = F [ σ ]} [Γ] ⊢Δ (escape (proj₁ (unwrap [F] ⊢Δ [σ]))) [σ]
-      [tailσ≡σ′] = wk1SubstSEq [Γ] ⊢Δ (escape (proj₁ (unwrap [F] ⊢Δ [σ]))) [σ] [σ≡σ′]
-      var0 = var (⊢Δ ∙ ⊢F) (PE.subst (λ x → x0 ∷ x ∈ (Δ ∙ F [ σ ])) (wk-subst F) here)
-  in  [tailσ≡σ′] , neuEqTerm (proj₁ (unwrap [F] (⊢Δ ∙ ⊢F) [tailσ])) (var x0) (var x0)
-                         var0 var0 (~-var var0)
+opaque
+  unfolding liftSubstS
+
+  -- Lift a valid substitution equality
+  liftSubstSEq :
+    ∀ {l F Γ Δ} ([Γ] : ⊩ᵛ Γ) (⊢Δ : ⊢ Δ)
+    ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
+    ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
+    ([σ≡σ′] : Δ ⊩ˢ σ ≡ σ′ ∷ Γ / [Γ] / ⊢Δ / [σ]) →
+    Δ ∙ F [ σ ] ⊩ˢ liftSubst σ ≡ liftSubst σ′ ∷ Γ ∙ F / [Γ] ∙ [F] /
+      ⊢Δ ∙ escape (proj₁ (unwrap [F] ⊢Δ [σ])) /
+      liftSubstS {F = F} [Γ] ⊢Δ [F] [σ]
+  liftSubstSEq {σ = σ} {σ′ = σ′} {F = F} {Δ = Δ} [Γ] ⊢Δ [F] [σ] [σ≡σ′] =
+    let ⊢F = escape (proj₁ (unwrap [F] ⊢Δ [σ]))
+        [tailσ] = wk1SubstS {F = F [ σ ]} [Γ] ⊢Δ
+                    (escape (proj₁ (unwrap [F] ⊢Δ [σ]))) [σ]
+        [tailσ≡σ′] = wk1SubstSEq [Γ] ⊢Δ
+                       (escape (proj₁ (unwrap [F] ⊢Δ [σ]))) [σ] [σ≡σ′]
+        var0 = var (⊢Δ ∙ ⊢F)
+                 (PE.subst (λ x → x0 ∷ x ∈ (Δ ∙ F [ σ ])) (wk-subst F)
+                    here)
+    in  [tailσ≡σ′] ,
+        neuEqTerm (proj₁ (unwrap [F] (⊢Δ ∙ ⊢F) [tailσ])) (var x0)
+          (var x0) var0 var0 (~-var var0)
 
 opaque
 
