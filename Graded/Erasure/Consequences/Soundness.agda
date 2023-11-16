@@ -66,7 +66,7 @@ private
     G : Term (1+ n)
     v v′ w : T.Term n
     p : M
-    s : SigmaMode
+    s : Strength
 
 -- WH reduction soundness of natural numbers
 
@@ -284,24 +284,24 @@ module _
 
 -- If Prodrec-allowed 𝟘 p 𝟘 holds for some p (which means that certain
 -- kinds of erased matches are allowed), and if additionally
--- Σᵣ-allowed p 𝟘 holds, then there is a counterexample to
+-- Σʷ-allowed p 𝟘 holds, then there is a counterexample to
 -- soundness-ℕ-only-source without the assumption "erased matches are
 -- not allowed unless the context is empty" (and without the
 -- assumption that the modality's zero is well-behaved).
 
 soundness-ℕ-only-source-counterexample₁ :
   Prodrec-allowed 𝟘 p 𝟘 →
-  Σᵣ-allowed p 𝟘 →
-  let Δ = ε ∙ (Σᵣ p , 𝟘 ▷ ℕ ▹ ℕ)
+  Σʷ-allowed p 𝟘 →
+  let Δ = ε ∙ (Σʷ p , 𝟘 ▷ ℕ ▹ ℕ)
       t = prodrec 𝟘 p 𝟘 ℕ (var {n = 1} x0) zero
   in
   Consistent Δ ×
   Δ ⊢ t ∷ ℕ ×
   𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
   ¬ ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
-soundness-ℕ-only-source-counterexample₁ {p = p} P-ok Σᵣ-ok =
+soundness-ℕ-only-source-counterexample₁ {p = p} P-ok Σʷ-ok =
     inhabited-consistent
-      (singleSubst (prodⱼ ε⊢ℕ εℕ⊢ℕ (zeroⱼ ε) (zeroⱼ ε) Σᵣ-ok))
+      (singleSubst (prodⱼ ε⊢ℕ εℕ⊢ℕ (zeroⱼ ε) (zeroⱼ ε) Σʷ-ok))
   , ⊢prodrec
   , sub
       (prodrecₘ var
@@ -326,17 +326,17 @@ soundness-ℕ-only-source-counterexample₁ {p = p} P-ok Σᵣ-ok =
   ε⊢ℕ = ℕⱼ ε
   ⊢εℕ = ε ∙ ε⊢ℕ
   εℕ⊢ℕ = ℕⱼ ⊢εℕ
-  ε⊢Σ = ΠΣⱼ ε⊢ℕ εℕ⊢ℕ Σᵣ-ok
+  ε⊢Σ = ΠΣⱼ ε⊢ℕ εℕ⊢ℕ Σʷ-ok
   ⊢εΣ = ε ∙ ε⊢Σ
   εΣ⊢ℕ = ℕⱼ ⊢εΣ
   ⊢εΣℕ = ⊢εΣ ∙ εΣ⊢ℕ
   εΣℕ⊢ℕ = ℕⱼ ⊢εΣℕ
-  εΣ⊢Σ = ΠΣⱼ εΣ⊢ℕ εΣℕ⊢ℕ Σᵣ-ok
+  εΣ⊢Σ = ΠΣⱼ εΣ⊢ℕ εΣℕ⊢ℕ Σʷ-ok
   ⊢εΣΣ = ⊢εΣ ∙ εΣ⊢Σ
   εΣΣ⊢ℕ = ℕⱼ ⊢εΣΣ
   ⊢εΣℕℕ = ⊢εΣℕ ∙ εΣℕ⊢ℕ
   ⊢prodrec =
-    prodrecⱼ {r = 𝟘} εΣ⊢ℕ εΣℕ⊢ℕ εΣΣ⊢ℕ (var ⊢εΣ here) (zeroⱼ ⊢εΣℕℕ) Σᵣ-ok
+    prodrecⱼ {r = 𝟘} εΣ⊢ℕ εΣℕ⊢ℕ εΣΣ⊢ℕ (var ⊢εΣ here) (zeroⱼ ⊢εΣℕℕ) Σʷ-ok
 
 opaque
 

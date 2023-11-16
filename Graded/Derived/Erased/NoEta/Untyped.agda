@@ -18,7 +18,7 @@ open import Definition.Untyped.Sigma M
 open import Tools.Fin
 open import Tools.Nat
 
-open import Graded.Derived.Erased.Untyped 𝕄 Σᵣ public
+open import Graded.Derived.Erased.Untyped 𝕄 𝕨 public
 
 private variable
   n : Nat
@@ -26,6 +26,6 @@ private variable
 -- The "projection" erased.
 
 erased : Term n → Term n → Term n
-erased = fstᵣ 𝟘
+erased = fstʷ 𝟘
   where
-  open Fstᵣ-sndᵣ (𝟘 ∧ 𝟙) 𝟘
+  open Fstʷ-sndʷ (𝟘 ∧ 𝟙) 𝟘

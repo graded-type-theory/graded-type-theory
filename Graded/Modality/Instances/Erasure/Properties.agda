@@ -218,12 +218,12 @@ nr≡ {p = ω} {z = z} {s = s} {n = n} =
   ω ω → PE.refl , λ _ → idᶠ
 
 -- An instance of Type-restrictions is suitable for the full reduction
--- theorem if Σₚ-allowed 𝟘 p implies that 𝟘ᵐ is allowed.
+-- theorem if Σˢ-allowed 𝟘 p implies that 𝟘ᵐ is allowed.
 
 Suitable-for-full-reduction :
   Type-restrictions → Set
 Suitable-for-full-reduction rs =
-  ∀ p → Σₚ-allowed 𝟘 p → T 𝟘ᵐ-allowed
+  ∀ p → Σˢ-allowed 𝟘 p → T 𝟘ᵐ-allowed
   where
   open Type-restrictions rs
 
@@ -235,7 +235,7 @@ suitable-for-full-reduction :
 suitable-for-full-reduction rs =
     record rs
       { ΠΣ-allowed = λ b p q →
-          ΠΣ-allowed b p q × (b ≡ BMΣ Σₚ × p ≡ 𝟘 → T 𝟘ᵐ-allowed)
+          ΠΣ-allowed b p q × (b ≡ BMΣ 𝕤 × p ≡ 𝟘 → T 𝟘ᵐ-allowed)
       ; []-cong-allowed = λ s →
           []-cong-allowed s × T 𝟘ᵐ-allowed
       ; []-cong→Erased = λ (ok₁ , ok₂) →

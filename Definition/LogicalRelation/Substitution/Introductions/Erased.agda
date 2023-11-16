@@ -54,7 +54,7 @@ opaque
 
   ⊩Erased : Γ ⊩⟨ l ⟩ A → Γ ⊩⟨ l ⟩ Erased A
   ⊩Erased {Γ} {A} ⊩A =
-    Σᵣ′ _
+    𝕨′ _
       Unit!
       (idRed:*: (Erasedⱼ ⊢A))
       ⊢A

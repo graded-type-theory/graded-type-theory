@@ -34,7 +34,7 @@ private
     A A₁ A₂ A′ B B₁ B₂ B′ C : Term n
     a a′ b b′ e e′ : Term n
     k l m t t₁ t₂ u u₁ u₂ v v₁ v₂ w₁ w₂ : Term n
-    s : SigmaMode
+    s : Strength
     bm : BinderMode
 
 -- Generic equality relation used with the logical relation
@@ -167,8 +167,8 @@ record EqRelSet : Set (lsuc ℓ) where
                 → Γ ∙ F ⊢ G
                 → Γ ⊢ t ≅ t′ ∷ F
                 → Γ ⊢ u ≅ u′ ∷ G [ t ]₀
-                → Σᵣ-allowed p q
-                → Γ ⊢ prodᵣ p t u ≅ prodᵣ p t′ u′ ∷ Σᵣ p , q ▷ F ▹ G
+                → Σʷ-allowed p q
+                → Γ ⊢ prodʷ p t u ≅ prodʷ p t′ u′ ∷ Σʷ p , q ▷ F ▹ G
 
     -- η-equality
     ≅-η-eq : ∀ {f g F G}
@@ -184,13 +184,13 @@ record EqRelSet : Set (lsuc ℓ) where
     ≅-Σ-η : ∀ {r s F G}
           → Γ ⊢ F
           → Γ ∙ F ⊢ G
-          → Γ ⊢ r ∷ Σₚ p , q ▷ F ▹ G
-          → Γ ⊢ s ∷ Σₚ p , q ▷ F ▹ G
+          → Γ ⊢ r ∷ Σˢ p , q ▷ F ▹ G
+          → Γ ⊢ s ∷ Σˢ p , q ▷ F ▹ G
           → Product r
           → Product s
           → Γ ⊢ fst p r ≅ fst p s ∷ F
           → Γ ⊢ snd p r ≅ snd p s ∷ G [ fst p r ]₀
-          → Γ ⊢ r ≅ s ∷ Σₚ p , q ▷ F ▹ G
+          → Γ ⊢ r ≅ s ∷ Σˢ p , q ▷ F ▹ G
 
     -- Variable reflexivity
     ~-var : ∀ {x A} → Γ ⊢ var x ∷ A → Γ ⊢ var x ~ var x ∷ A
@@ -205,13 +205,13 @@ record EqRelSet : Set (lsuc ℓ) where
     ~-fst : ∀ {r s F G}
           → Γ ⊢ F
           → Γ ∙ F ⊢ G
-          → Γ ⊢ r ~ s ∷ Σₚ p , q ▷ F ▹ G
+          → Γ ⊢ r ~ s ∷ Σˢ p , q ▷ F ▹ G
           → Γ ⊢ fst p r ~ fst p s ∷ F
 
     ~-snd : ∀ {r s F G}
           → Γ ⊢ F
           → Γ ∙ F ⊢ G
-          → Γ ⊢ r ~ s ∷ Σₚ p , q ▷ F ▹ G
+          → Γ ⊢ r ~ s ∷ Σˢ p , q ▷ F ▹ G
           → Γ ⊢ snd p r ~ snd p s ∷ G [ fst p r ]₀
 
     -- Natural recursion congruence
@@ -227,10 +227,10 @@ record EqRelSet : Set (lsuc ℓ) where
     ~-prodrec : ∀ {F G A A′ t t′ u u′}
              → Γ                      ⊢ F
              → Γ ∙ F                  ⊢ G
-             → Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ A ≅ A′
-             → Γ                      ⊢ t ~ t′ ∷ Σᵣ p , q ▷ F ▹ G
-             → Γ ∙ F ∙ G              ⊢ u ≅ u′ ∷ A [ prodᵣ p (var x1) (var x0) ]↑²
-             → Σᵣ-allowed p q
+             → Γ ∙ (Σʷ p , q ▷ F ▹ G) ⊢ A ≅ A′
+             → Γ                      ⊢ t ~ t′ ∷ Σʷ p , q ▷ F ▹ G
+             → Γ ∙ F ∙ G              ⊢ u ≅ u′ ∷ A [ prodʷ p (var x1) (var x0) ]↑²
+             → Σʷ-allowed p q
              → Γ                      ⊢ prodrec r p q′ A t u ~ prodrec r p q′ A′ t′ u′ ∷ A [ t ]₀
 
     -- Empty recursion congruence

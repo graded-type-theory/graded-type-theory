@@ -52,7 +52,7 @@ private
     v v₂ v′ w : T.Term n
     p : M
     l : TypeLevel
-    s : SigmaMode
+    s : Strength
 
 ------------------------------------------------------------------------
 -- The logical relation
@@ -77,7 +77,7 @@ data _®_∷Empty (t : U.Term k) (v : T.Term k) : Set a where
 
 -- Terms of type Unit are related if both reduce to star.
 
-data _®_∷Unit⟨_⟩ (t : U.Term k) (v : T.Term k) (s : SigmaMode) : Set a where
+data _®_∷Unit⟨_⟩ (t : U.Term k) (v : T.Term k) (s : Strength) : Set a where
   starᵣ : Δ ⊢ t ⇒* U.star s ∷ Unit s → v T.⇒* T.star → t ® v ∷Unit⟨ s ⟩
 
 -- Equality proofs are related if both terms reduce to rfl.

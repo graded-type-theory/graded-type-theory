@@ -20,7 +20,7 @@ private
     p p′ p₁ p₂ q q₁ q₂ r : M
     n m ℓ : Nat
     b : BinderMode
-    s : SigmaMode
+    s : Strength
     bs bs′ : List _
     ts ts′ : GenTs _ _ _
     ρ : Wk _ _
@@ -28,8 +28,8 @@ private
 infix 30 ΠΣ⟨_⟩_,_▷_▹_
 infix 30 Π_,_▷_▹_
 infix 30 Σ_,_▷_▹_
-infix 30 Σₚ_,_▷_▹_
-infix 30 Σᵣ_,_▷_▹_
+infix 30 Σˢ_,_▷_▹_
+infix 30 Σʷ_,_▷_▹_
 infix 30 Σ⟨_⟩_,_▷_▹_
 infixl 30 _∘⟨_⟩_
 infixl 30 _∘_
@@ -54,7 +54,7 @@ data Kind : (ns : List Nat) → Set a where
   Lamkind : (p : M)   → Kind (1 ∷ [])
   Appkind : (p : M)   → Kind (0 ∷ 0 ∷ [])
 
-  Prodkind    : SigmaMode → (p : M) → Kind (0 ∷ 0 ∷ [])
+  Prodkind    : Strength → (p : M) → Kind (0 ∷ 0 ∷ [])
   Fstkind     : (p : M) → Kind (0 ∷ [])
   Sndkind     : (p : M) → Kind (0 ∷ [])
   Prodreckind : (r p q : M) → Kind (1 ∷ 0 ∷ 2 ∷ [])
@@ -64,8 +64,8 @@ data Kind : (ns : List Nat) → Set a where
   Suckind    : Kind (0 ∷ [])
   Natreckind : (p q r : M) → Kind (1 ∷ 0 ∷ 2 ∷ 0 ∷ [])
 
-  Unitkind : SigmaMode → Kind []
-  Starkind : SigmaMode → Kind []
+  Unitkind : Strength → Kind []
+  Starkind : Strength → Kind []
   Unitreckind : (p q : M) → Kind (1 ∷ 0 ∷ 0 ∷ [])
 
   Emptykind    : Kind []
@@ -75,7 +75,7 @@ data Kind : (ns : List Nat) → Set a where
   Reflkind    : Kind []
   Jkind       : M → M → Kind (0 ∷ 0 ∷ 2 ∷ 0 ∷ 0 ∷ 0 ∷ [])
   Kkind       : M → Kind (0 ∷ 0 ∷ 1 ∷ 0 ∷ 0 ∷ [])
-  Boxcongkind : SigmaMode → Kind (0 ∷ 0 ∷ 0 ∷ 0 ∷ [])
+  Boxcongkind : Strength → Kind (0 ∷ 0 ∷ 0 ∷ 0 ∷ [])
 
 -- The type of terms is parametrised by the number of free variables.
 -- A term is either a variable (a de Bruijn index) or a generic term,
@@ -106,13 +106,13 @@ pattern ℕ = gen Natkind []
 pattern Empty = gen Emptykind []
 pattern Unit! = gen (Unitkind _) []
 pattern Unit s = gen (Unitkind s) []
-pattern Unitʷ = gen (Unitkind Σᵣ) []
-pattern Unitˢ = gen (Unitkind Σₚ) []
+pattern Unitʷ = gen (Unitkind 𝕨) []
+pattern Unitˢ = gen (Unitkind 𝕤) []
 
 pattern ΠΣ⟨_⟩_,_▷_▹_ b p q F G = gen (Binderkind b p q) (F ∷ G ∷ [])
 pattern Π_,_▷_▹_ p q F G = gen (Binderkind BMΠ p q) (F ∷ G ∷ [])
-pattern Σₚ_,_▷_▹_ p q F G = gen (Binderkind (BMΣ Σₚ) p q) (F ∷ G ∷ [])
-pattern Σᵣ_,_▷_▹_ p q F G = gen (Binderkind (BMΣ Σᵣ) p q) (F ∷ G ∷ [])
+pattern Σˢ_,_▷_▹_ p q F G = gen (Binderkind (BMΣ 𝕤) p q) (F ∷ G ∷ [])
+pattern Σʷ_,_▷_▹_ p q F G = gen (Binderkind (BMΣ 𝕨) p q) (F ∷ G ∷ [])
 pattern Σ_,_▷_▹_ p q F G = gen (Binderkind (BMΣ _) p q) (F ∷ G ∷ [])
 pattern Σ⟨_⟩_,_▷_▹_ s p q F G =
   gen (Binderkind (BMΣ s) p q) (F ∷ G ∷ [])
@@ -121,8 +121,8 @@ pattern lam p t = gen (Lamkind p) (t ∷ [])
 pattern _∘⟨_⟩_ t p u = gen (Appkind p) (t ∷ u ∷ [])
 pattern _∘_ t u = gen (Appkind _) (t ∷ u ∷ [])
 
-pattern prodₚ p t u = gen (Prodkind Σₚ p) (t ∷ u ∷ [])
-pattern prodᵣ p t u = gen (Prodkind Σᵣ p) (t ∷ u ∷ [])
+pattern prodˢ p t u = gen (Prodkind 𝕤 p) (t ∷ u ∷ [])
+pattern prodʷ p t u = gen (Prodkind 𝕨 p) (t ∷ u ∷ [])
 pattern prod m p t u = gen (Prodkind m p) (t ∷ u ∷ [])
 pattern prod! t u = gen (Prodkind _ _) (t ∷ u ∷ [])
 pattern fst p t = gen (Fstkind p) (t ∷ [])
@@ -135,8 +135,8 @@ pattern natrec p q r A z s n = gen (Natreckind p q r) (A ∷ z ∷ s ∷ n ∷ [
 
 pattern star! = gen (Starkind _) []
 pattern star s = gen (Starkind s) []
-pattern starʷ = gen (Starkind Σᵣ) []
-pattern starˢ = gen (Starkind Σₚ) []
+pattern starʷ = gen (Starkind 𝕨) []
+pattern starˢ = gen (Starkind 𝕤) []
 pattern unitrec p q A t u = gen (Unitreckind p q) (A ∷ t ∷ u ∷ [])
 pattern emptyrec p A t = gen (Emptyreckind p) (A ∷ t ∷ [])
 
@@ -146,8 +146,8 @@ pattern J p q A t B u v w = gen (Jkind p q) (A ∷ t ∷ B ∷ u ∷ v ∷ w ∷
 pattern K p A t B u v = gen (Kkind p) (A ∷ t ∷ B ∷ u ∷ v ∷ [])
 pattern []-cong! A t u v = gen (Boxcongkind _) (A ∷ t ∷ u ∷ v ∷ [])
 pattern []-cong m A t u v = gen (Boxcongkind m) (A ∷ t ∷ u ∷ v ∷ [])
-pattern []-congʷ A t u v = gen (Boxcongkind Σᵣ) (A ∷ t ∷ u ∷ v ∷ [])
-pattern []-congˢ A t u v = gen (Boxcongkind Σₚ) (A ∷ t ∷ u ∷ v ∷ [])
+pattern []-congʷ A t u v = gen (Boxcongkind 𝕨) (A ∷ t ∷ u ∷ v ∷ [])
+pattern []-congˢ A t u v = gen (Boxcongkind 𝕤) (A ∷ t ∷ u ∷ v ∷ [])
 
 
 data BindingType : Set a where
@@ -157,8 +157,8 @@ pattern BΠ p q = BM BMΠ p q
 pattern BΠ! = BΠ _ _
 pattern BΣ s p q = BM (BMΣ s) p q
 pattern BΣ! = BΣ _ _ _
-pattern BΣᵣ = BΣ Σᵣ _ _
-pattern BΣₚ = BΣ Σₚ _ _
+pattern BΣʷ = BΣ 𝕨 _ _
+pattern BΣˢ = BΣ 𝕤 _ _
 
 ⟦_⟧_▹_ : BindingType → Term n → Term (1+ n) → Term n
 ⟦ BΠ p q   ⟧ F ▹ G = Π p , q ▷ F ▹ G
@@ -310,8 +310,8 @@ Id≢ΠΣ (BMΣ _) ()
 Π≢Σ : ∀ {m} → Π p₁ , q₁ ▷ F ▹ G PE.≢ Σ⟨ m ⟩ p₂ , q₂ ▷ H ▹ E
 Π≢Σ ()
 
-Σₚ≢Σᵣ : Σₚ p₁ , q₁ ▷ F ▹ G PE.≢ Σᵣ p₂ , q₂ ▷ H ▹ E
-Σₚ≢Σᵣ ()
+Σˢ≢Σʷ : Σˢ p₁ , q₁ ▷ F ▹ G PE.≢ Σʷ p₂ , q₂ ▷ H ▹ E
+Σˢ≢Σʷ ()
 
 zero≢ne : Neutral t → zero PE.≢ t
 zero≢ne () PE.refl
@@ -439,7 +439,7 @@ data Numeral {n : Nat} : Term n → Set a where
 
 data No-η-equality {n : Nat} : Term n → Set a where
   Uₙ     : No-η-equality U
-  Σᵣₙ    : No-η-equality (Σᵣ p , q ▷ A ▹ B)
+  Σʷₙ    : No-η-equality (Σʷ p , q ▷ A ▹ B)
   Emptyₙ : No-η-equality Empty
   ℕₙ     : No-η-equality ℕ
   Unitʷₙ : No-η-equality Unitʷ
@@ -451,7 +451,7 @@ data No-η-equality {n : Nat} : Term n → Set a where
 No-η-equality→Whnf : No-η-equality A → Whnf A
 No-η-equality→Whnf = λ where
   Uₙ      → Uₙ
-  Σᵣₙ     → ΠΣₙ
+  Σʷₙ     → ΠΣₙ
   Emptyₙ  → Emptyₙ
   ℕₙ      → ℕₙ
   Unitʷₙ  → Unitₙ

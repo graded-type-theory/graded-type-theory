@@ -21,7 +21,7 @@ open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Consequences.DerivedRules.Sigma R
 
-open Fstᵣ-sndᵣ (𝟘 ∧ 𝟙) 𝟘
+open Fstʷ-sndʷ (𝟘 ∧ 𝟙) 𝟘
 
 open import Definition.Untyped M hiding (_∷_; _[_])
 
@@ -37,7 +37,7 @@ private variable
 -- Some lemmas that are proved under the assumption that Erased
 -- without η-equality is allowed.
 
-module _ (Erased-ok@(Unit-ok , Σ-ok) : Erased-allowed Σᵣ) where
+module _ (Erased-ok@(Unit-ok , Σ-ok) : Erasedʷ-allowed) where
 
   open import Graded.Derived.Erased.Typed R Erased-ok public
 
@@ -47,7 +47,7 @@ module _ (Erased-ok@(Unit-ok , Σ-ok) : Erased-allowed Σᵣ) where
     Γ ⊢ t ∷ A →
     Γ ⊢ erased A [ t ] ≡ t ∷ A
   Erased-β ⊢t =
-    fstᵣ-β-≡ (Unitⱼ ⊢ΓA Unit-ok) ⊢t (starⱼ ⊢Γ Unit-ok) Σ-ok
+    fstʷ-β-≡ (Unitⱼ ⊢ΓA Unit-ok) ⊢t (starⱼ ⊢Γ Unit-ok) Σ-ok
     where
     ⊢Γ = wfTerm ⊢t
     ⊢ΓA = ⊢Γ ∙ syntacticTerm ⊢t
@@ -55,7 +55,7 @@ module _ (Erased-ok@(Unit-ok , Σ-ok) : Erased-allowed Σᵣ) where
 -- An elimination rule for Erased.
 
 erasedⱼ : Γ ⊢ t ∷ Erased A → Γ ⊢ erased A t ∷ A
-erasedⱼ ⊢t = fstᵣⱼ ⊢t
+erasedⱼ ⊢t = fstʷⱼ ⊢t
 
 -- A corresponding congruence rule.
 
@@ -67,4 +67,4 @@ erased-cong t≡u =
     (⊢A , ⊢Unit) →
   case inversion-Unit ⊢Unit of λ
     Unit-ok →
-  fstᵣ-cong (refl ⊢A) (Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok) t≡u }}
+  fstʷ-cong (refl ⊢A) (Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok) t≡u }}

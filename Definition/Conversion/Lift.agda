@@ -97,7 +97,7 @@ mutual
            lift~toConv↑′ ([G] (step id) (⊢Γ ∙ ⊢F) var0) $
            app-cong (wk~↓ (step id) (⊢Γ ∙ ⊢F) ([~] A D₂ ΠΣₙ k~l)) 0≡0)
   lift~toConv↓′
-    (Bᵣ′ BΣₚ F G D ⊢F ⊢G Σ≡Σ [F] [G] G-ext _) D₁ ([~] A″ D₂ whnfA t~u)
+    (Bᵣ′ BΣˢ F G D ⊢F ⊢G Σ≡Σ [F] [G] G-ext _) D₁ ([~] A″ D₂ whnfA t~u)
     rewrite
       -- Σ F ▹ G ≡ A.
       PE.sym (whrDet* (red D , ΠΣₙ) (D₁ , whnfA)) =
@@ -124,13 +124,13 @@ mutual
             (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x) wkLiftId
                       (lift~toConv↑′ wk[Gfst] wksnd~))
   lift~toConv↓′
-    (Bᵣ′ BΣᵣ F G D ⊢F ⊢G Σ≡Σ [F] [G] G-ext _) D₁ ([~] A″ D₂ whnfA t~u)
+    (Bᵣ′ BΣʷ F G D ⊢F ⊢G Σ≡Σ [F] [G] G-ext _) D₁ ([~] A″ D₂ whnfA t~u)
     rewrite
       -- Σ F ▹ G ≡ A.
       PE.sym (whrDet* (red D , ΠΣₙ) (D₁ , whnfA)) =
     let t~u↓ = [~] A″ D₂ ΠΣₙ t~u
         _ , ⊢t , ⊢u = syntacticEqTerm (soundness~↓ t~u↓)
-    in  Σᵣ-ins ⊢t ⊢u t~u↓
+    in  Σʷ-ins ⊢t ⊢u t~u↓
   lift~toConv↓′ (Idᵣ ⊩A′) A′⇒*A t~u@([~] _ _ A-whnf _) =
     case whrDet* (red (_⊩ₗId_.⇒*Id ⊩A′) , Idₙ) (A′⇒*A , A-whnf) of λ {
       PE.refl →

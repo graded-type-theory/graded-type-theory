@@ -104,13 +104,13 @@ redSubst*Term t⇒u (Emptyᵣ D) (Emptyₜ n [ ⊢u , ⊢n , d ] n≡n prop) =
   in  Emptyₜ n [ ⊢t , ⊢n , t⇒u′ ⇨∷* d ] n≡n prop
   ,   Emptyₜ₌ n n [ ⊢t , ⊢n , t⇒u′ ⇨∷* d ] [ ⊢u , ⊢n , d ]
           n≡n (reflEmpty-prop prop)
-redSubst*Term t⇒u (Unitᵣ {s = Σₚ} (Unitₜ D _)) (Unitₜ n [ ⊢u , ⊢n , d ] n≡n prop) =
+redSubst*Term t⇒u (Unitᵣ {s = 𝕤} (Unitₜ D _)) (Unitₜ n [ ⊢u , ⊢n , d ] n≡n prop) =
   let A≡Unit  = subset* (red D)
       ⊢t   = conv (redFirst*Term t⇒u) A≡Unit
       t⇒u′ = conv* t⇒u A≡Unit
   in  Unitₜ n [ ⊢t , ⊢n , t⇒u′ ⇨∷* d ] n≡n prop
   ,   Unitₜ₌ ⊢t ⊢u
-redSubst*Term t⇒u (Unitᵣ {s = Σᵣ} (Unitₜ D _)) (Unitₜ n [ ⊢u , ⊢n , d ] n≡n prop) =
+redSubst*Term t⇒u (Unitᵣ {s = 𝕨} (Unitₜ D _)) (Unitₜ n [ ⊢u , ⊢n , d ] n≡n prop) =
   let A≡Unit  = subset* (red D)
       ⊢t   = conv (redFirst*Term t⇒u) A≡Unit
       t⇒u′ = conv* t⇒u A≡Unit
@@ -135,7 +135,7 @@ redSubst*Term
         [f] [ρ] ⊢Δ [a] [a] (reflEqTerm ([F] [ρ] ⊢Δ) [a])
 redSubst*Term
   {Γ = Γ} {A} {t} {u} {l}
-  t⇒u (Bᵣ′ BΣₚ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
+  t⇒u (Bᵣ′ BΣˢ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
   [u]@(Σₜ p [d]@([ ⊢t , ⊢u , d ]) p≅p pProd pProp) =
 
   let A≡ΣFG = subset* (red D)
@@ -148,12 +148,12 @@ redSubst*Term
                    reflEqTerm ([G] Wk.id (wf ⊢F) [fstp]) [sndp])
 redSubst*Term
   {Γ = Γ} {A} {t} {u} {l}
-  t⇒u (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
+  t⇒u (Bᵣ′ BΣʷ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
   [u]@(Σₜ p [d]@([ ⊢t , ⊢u , d ]) p≅p prodₙ pProp) =
   let A≡ΣFG = subset* (red D)
       t⇒u′  = conv* t⇒u A≡ΣFG
       [d′] = [ conv (redFirst*Term t⇒u) A≡ΣFG , ⊢u , conv* t⇒u A≡ΣFG ⇨∷* d ]
-      p′≡p″ , [p₁] , [p₂] , m≡Σᵣ = pProp
+      p′≡p″ , [p₁] , [p₂] , m≡Σʷ = pProp
       [p₁≡p₁] = reflEqTerm ([F] Wk.id (wf ⊢F)) [p₁]
       [p₂≡p₂] = reflEqTerm ([G] Wk.id (wf ⊢F) [p₁]) [p₂]
       [u′] = Σₜ p [d′] p≅p prodₙ pProp
@@ -162,7 +162,7 @@ redSubst*Term
         (p′≡p″ , p′≡p″ , [p₁] , [p₁] , [p₂] , [p₂] , [p₁≡p₁] , [p₂≡p₂])
 redSubst*Term
   {Γ = Γ} {A} {t} {u} {l}
-  t⇒u (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
+  t⇒u (Bᵣ′ BΣʷ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
   [u]@(Σₜ p [d]@([ ⊢t , ⊢u , d ]) p≅p (ne x) p~p) =
   let A≡ΣFG = subset* (red D)
       t⇒u′  = conv* t⇒u A≡ΣFG

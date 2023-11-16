@@ -37,7 +37,7 @@ open import Graded.Mode 𝕄
 
 open import Definition.Untyped M
 open import Definition.Untyped.Sigma M as Sigma
-  using (prodrecₚ; module Fstᵣ-sndᵣ)
+  using (prodrecˢ; module Fstʷ-sndʷ)
 
 open import Tools.Bool using (T)
 open import Tools.Empty
@@ -125,36 +125,36 @@ private
 -- Pair constructors
 
 -- If _+_ is pointwise bounded by _∧_, then a usage rule like the one
--- for prodᵣ can be derived for prodₚ.
+-- for prodʷ can be derived for prodˢ.
 
-prodₚᵣₘ :
+prodˢʷₘ :
   (∀ p q → p + q ≤ p ∧ q) →
   γ ▸[ m ᵐ· p ] t →
   δ ▸[ m ] u →
-  p ·ᶜ γ +ᶜ δ ▸[ m ] prodₚ p t u
-prodₚᵣₘ +≤∧ ▸t ▸u = sub (prodₚₘ ▸t ▸u) (+ᶜ≤ᶜ∧ᶜ +≤∧)
+  p ·ᶜ γ +ᶜ δ ▸[ m ] prodˢ p t u
+prodˢʷₘ +≤∧ ▸t ▸u = sub (prodˢₘ ▸t ▸u) (+ᶜ≤ᶜ∧ᶜ +≤∧)
 
 -- If _∧_ is pointwise bounded by _+_, then a usage rule like the one
--- for prodₚ can be derived for prodᵣ.
+-- for prodˢ can be derived for prodʷ.
 
-prodᵣₚₘ :
+prodʷˢₘ :
   (∀ p q → p ∧ q ≤ p + q) →
   γ ▸[ m ᵐ· p ] t →
   δ ▸[ m ] u →
-  p ·ᶜ γ ∧ᶜ δ ▸[ m ] prodᵣ p t u
-prodᵣₚₘ ∧≤+ ▸t ▸u = sub (prodᵣₘ ▸t ▸u) (∧ᶜ≤ᶜ+ᶜ ∧≤+)
+  p ·ᶜ γ ∧ᶜ δ ▸[ m ] prodʷ p t u
+prodʷˢₘ ∧≤+ ▸t ▸u = sub (prodʷₘ ▸t ▸u) (∧ᶜ≤ᶜ+ᶜ ∧≤+)
 
 ------------------------------------------------------------------------
--- Usage lemmas for prodrecₚ
+-- Usage lemmas for prodrecˢ
 
--- A usage lemma for prodrecₚ.
+-- A usage lemma for prodrecˢ.
 
-prodrecₚₘ :
+prodrecˢₘ :
   (m ᵐ· r · p PE.≡ 𝟙ᵐ → p ≤ 𝟙) →
   γ ▸[ m ᵐ· r ] t →
   δ ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u →
-  (⌜ m ⌝ · r · (𝟙 + p)) ·ᶜ γ +ᶜ δ ▸[ m ] prodrecₚ p t u
-prodrecₚₘ {m = m} {r = r} {p = p} {γ = γ} {δ = δ} mrp≡𝟙→p≤𝟙 ▸t ▸u = sub
+  (⌜ m ⌝ · r · (𝟙 + p)) ·ᶜ γ +ᶜ δ ▸[ m ] prodrecˢ p t u
+prodrecˢₘ {m = m} {r = r} {p = p} {γ = γ} {δ = δ} mrp≡𝟙→p≤𝟙 ▸t ▸u = sub
   (doubleSubstₘ-lemma₁ ▸u
      (sndₘ ▸t)
      (fstₘ (m ᵐ· r) (▸-cong (lemma m) (▸-· ▸t)) (ᵐ·-·-assoc m) mrp≡𝟙→p≤𝟙))
@@ -196,16 +196,16 @@ prodrecₚₘ {m = m} {r = r} {p = p} {γ = γ} {δ = δ} mrp≡𝟙→p≤𝟙 
 
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
--- A variant of the main usage lemma for prodrecₚ with the mode set
+-- A variant of the main usage lemma for prodrecˢ with the mode set
 -- to 𝟘ᵐ.
 
-prodrecₚₘ-𝟘ᵐ :
+prodrecˢₘ-𝟘ᵐ :
   ⦃ ok : T 𝟘ᵐ-allowed ⦄ →
   γ ▸[ 𝟘ᵐ ] t →
   δ ∙ 𝟘 ∙ 𝟘 ▸[ 𝟘ᵐ ] u →
-  δ ▸[ 𝟘ᵐ ] prodrecₚ p t u
-prodrecₚₘ-𝟘ᵐ {γ = γ} {δ = δ} {p = p} ⦃ ok = ok ⦄ ▸t ▸u = sub
-  (prodrecₚₘ
+  δ ▸[ 𝟘ᵐ ] prodrecˢ p t u
+prodrecˢₘ-𝟘ᵐ {γ = γ} {δ = δ} {p = p} ⦃ ok = ok ⦄ ▸t ▸u = sub
+  (prodrecˢₘ
      (λ ())
      ▸t
      (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
@@ -218,16 +218,16 @@ prodrecₚₘ-𝟘ᵐ {γ = γ} {δ = δ} {p = p} ⦃ ok = ok ⦄ ▸t ▸u = su
      𝟘 ·ᶜ γ +ᶜ δ                  ≈˘⟨ +ᶜ-congʳ (·ᶜ-congʳ (·-zeroˡ _)) ⟩
      (𝟘 · 𝟘 · (𝟙 + p)) ·ᶜ γ +ᶜ δ  ∎)
 
--- A variant of the main usage lemma for prodrecₚ with the mode set to
+-- A variant of the main usage lemma for prodrecˢ with the mode set to
 -- 𝟙ᵐ and the quantity p to 𝟘.
 
-prodrecₚₘ-𝟙ᵐ-𝟘 :
+prodrecˢₘ-𝟙ᵐ-𝟘 :
   𝟘 ≤ 𝟙 ⊎ T 𝟘ᵐ-allowed →
   γ ▸[ ⌞ r ⌟ ] t →
   δ ∙ 𝟘 ∙ r ▸[ 𝟙ᵐ ] u →
-  r ·ᶜ γ +ᶜ δ ▸[ 𝟙ᵐ ] prodrecₚ 𝟘 t u
-prodrecₚₘ-𝟙ᵐ-𝟘 {γ = γ} {r = r} {δ = δ} ok ▸t ▸u = sub
-  (prodrecₚₘ
+  r ·ᶜ γ +ᶜ δ ▸[ 𝟙ᵐ ] prodrecˢ 𝟘 t u
+prodrecˢₘ-𝟙ᵐ-𝟘 {γ = γ} {r = r} {δ = δ} ok ▸t ▸u = sub
+  (prodrecˢₘ
      (λ ⌞r𝟘⌟≡𝟙 → case ok of λ where
        (inj₁ 𝟘≤𝟙) → 𝟘≤𝟙
        (inj₂ 𝟘ᵐ-ok) → let open Tools.Reasoning.PropositionalEquality in
@@ -250,17 +250,17 @@ prodrecₚₘ-𝟙ᵐ-𝟘 {γ = γ} {r = r} {δ = δ} ok ▸t ▸u = sub
                                       ·-identityʳ _ ⟩
      (𝟙 · r · (𝟙 + 𝟘)) ·ᶜ γ +ᶜ δ  ∎)
 
--- A variant of the main usage lemma for prodrecₚ with the mode set to
+-- A variant of the main usage lemma for prodrecˢ with the mode set to
 -- 𝟙ᵐ and the quantity p to 𝟙. Note that the context in the conclusion
 -- is (r + r) ·ᶜ γ +ᶜ δ, while the corresponding context in the usage
 -- rule for prodrec is r ·ᶜ γ +ᶜ δ.
 
-prodrecₚₘ-𝟙ᵐ-𝟙 :
+prodrecˢₘ-𝟙ᵐ-𝟙 :
   γ ▸[ ⌞ r ⌟ ] t →
   δ ∙ r ∙ r ▸[ 𝟙ᵐ ] u →
-  (r + r) ·ᶜ γ +ᶜ δ ▸[ 𝟙ᵐ ] prodrecₚ 𝟙 t u
-prodrecₚₘ-𝟙ᵐ-𝟙 {γ = γ} {r = r} {δ = δ} ▸t ▸u = sub
-  (prodrecₚₘ
+  (r + r) ·ᶜ γ +ᶜ δ ▸[ 𝟙ᵐ ] prodrecˢ 𝟙 t u
+prodrecˢₘ-𝟙ᵐ-𝟙 {γ = γ} {r = r} {δ = δ} ▸t ▸u = sub
+  (prodrecˢₘ
      (λ _ → ≤-refl)
      ▸t
      (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
@@ -277,13 +277,13 @@ prodrecₚₘ-𝟙ᵐ-𝟙 {γ = γ} {r = r} {δ = δ} ▸t ▸u = sub
 -- A variant of the previous lemma with the assumption that _∧_ is
 -- pointwise bounded by _+_.
 
-prodrecₚₘ-𝟙ᵐ-𝟙-∧≤+ :
+prodrecˢₘ-𝟙ᵐ-𝟙-∧≤+ :
   (∀ p q → p ∧ q ≤ p + q) →
   γ ▸[ ⌞ r ⌟ ] t →
   δ ∙ r ∙ r ▸[ 𝟙ᵐ ] u →
-  r ·ᶜ γ +ᶜ δ ▸[ 𝟙ᵐ ] prodrecₚ 𝟙 t u
-prodrecₚₘ-𝟙ᵐ-𝟙-∧≤+ {γ = γ} {r = r} {δ = δ} ∧≤+ ▸t ▸u = sub
-  (prodrecₚₘ-𝟙ᵐ-𝟙 ▸t ▸u)
+  r ·ᶜ γ +ᶜ δ ▸[ 𝟙ᵐ ] prodrecˢ 𝟙 t u
+prodrecˢₘ-𝟙ᵐ-𝟙-∧≤+ {γ = γ} {r = r} {δ = δ} ∧≤+ ▸t ▸u = sub
+  (prodrecˢₘ-𝟙ᵐ-𝟙 ▸t ▸u)
   (begin
      r ·ᶜ γ +ᶜ δ        ≈˘⟨ +ᶜ-congʳ (·ᶜ-congʳ (∧-idem _)) ⟩
      (r ∧ r) ·ᶜ γ +ᶜ δ  ≤⟨ +ᶜ-monotoneˡ (·ᶜ-monotoneˡ (∧≤+ _ _)) ⟩
@@ -292,7 +292,7 @@ prodrecₚₘ-𝟙ᵐ-𝟙-∧≤+ {γ = γ} {r = r} {δ = δ} ∧≤+ ▸t ▸u
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
 -- One cannot in general derive the usage rule of prodrec for
--- prodrecₚ.
+-- prodrecˢ.
 --
 -- Note that the assumption 𝟙 ≰ 𝟙 + 𝟙 is satisfied by, for instance,
 -- the linearity modality, see
@@ -305,11 +305,11 @@ prodrecₚₘ-𝟙ᵐ-𝟙-∧≤+ {γ = γ} {r = r} {δ = δ} ∧≤+ ▸t ▸u
                → δ ∙ ⌜ m ⌝ · r  · p ∙ ⌜ m ⌝ · r ▸[ m ] u
                → η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
                → Prodrec-allowed r p q
-               → r ·ᶜ γ +ᶜ δ ▸[ m ] prodrecₚ p t u)
-¬prodrecₘ ok 𝟙≰𝟚 prodrecₚₘ′ =
-  let t = prod Σₚ 𝟙 (var x0) (var x0)
-      u = prod Σᵣ 𝟙 (var x1) (var x0)
-      γ▸t′ = prodₚₘ {γ = ε ∙ 𝟙} {m = 𝟙ᵐ} {p = 𝟙} {δ = ε ∙ 𝟙}
+               → r ·ᶜ γ +ᶜ δ ▸[ m ] prodrecˢ p t u)
+¬prodrecₘ ok 𝟙≰𝟚 prodrecˢₘ′ =
+  let t = prod 𝕤 𝟙 (var x0) (var x0)
+      u = prod 𝕨 𝟙 (var x1) (var x0)
+      γ▸t′ = prodˢₘ {γ = ε ∙ 𝟙} {m = 𝟙ᵐ} {p = 𝟙} {δ = ε ∙ 𝟙}
                       (PE.subst (λ x → _ ▸[ x ] var x0) (PE.sym ᵐ·-identityʳ) var)
                       (var {x = x0})
 
@@ -318,7 +318,7 @@ prodrecₚₘ-𝟙ᵐ-𝟙-∧≤+ {γ = γ} {r = r} {δ = δ} ∧≤+ ▸t ▸u
                                                 (∧-idem 𝟙)))
                       (PE.sym ᵐ·-identityʳ) γ▸t′
       δ▸u′ : _ ▸[ 𝟙ᵐ ] u
-      δ▸u′ = prodᵣₘ var var
+      δ▸u′ = prodʷₘ var var
       δ▸u = let open Tools.Reasoning.PropositionalEquality
             in  PE.subst₃ (λ x y z → ε ∙ x ∙ y ∙ z ▸[ 𝟙ᵐ ] u)
                       (PE.trans (+-identityʳ _) (·-identityˡ 𝟘))
@@ -333,17 +333,17 @@ prodrecₚₘ-𝟙ᵐ-𝟙-∧≤+ {γ = γ} {r = r} {δ = δ} ∧≤+ ▸t ▸u
                        ⌜ 𝟙ᵐ ⌝          ≡˘⟨ ·-identityʳ _ ⟩
                        ⌜ 𝟙ᵐ ⌝ · 𝟙      ∎)
                       δ▸u′
-      η▸A′ = ΠΣₘ {γ = 𝟘ᶜ} {p = 𝟘} {δ = 𝟘ᶜ} {b = BMΣ Σᵣ}
+      η▸A′ = ΠΣₘ {γ = 𝟘ᶜ} {p = 𝟘} {δ = 𝟘ᶜ} {b = BMΣ 𝕨}
                  ℕₘ (sub ℕₘ (≤ᶜ-refl ∙ ≤-reflexive (·-zeroʳ _)))
       η▸A = sub η▸A′ (≤ᶜ-reflexive (≈ᶜ-sym (+ᶜ-identityˡ 𝟘ᶜ) ∙
                                    PE.trans (·-zeroʳ _) (PE.sym (+-identityˡ 𝟘))))
-  in  case prodrecₚₘ′ {η = 𝟘ᶜ} γ▸t δ▸u η▸A ok of λ ▸pr′ →
-      case inv-usage-prodᵣ ▸pr′ of λ {
-        (invUsageProdᵣ {δ = ε ∙ a} {ε ∙ b} a▸fstt b▸sndt 𝟙≤a+b) → case inv-usage-fst a▸fstt of λ {
+  in  case prodrecˢₘ′ {η = 𝟘ᶜ} γ▸t δ▸u η▸A ok of λ ▸pr′ →
+      case inv-usage-prodʷ ▸pr′ of λ {
+        (invUsageProdʷ {δ = ε ∙ a} {ε ∙ b} a▸fstt b▸sndt 𝟙≤a+b) → case inv-usage-fst a▸fstt of λ {
         (invUsageFst {δ = ε ∙ c} m′ eq c▸t a≤c _) → case inv-usage-snd b▸sndt of λ {
-        (invUsageSnd {δ = ε ∙ d} d▸t b≤d) → case inv-usage-prodₚ c▸t of λ {
-        (invUsageProdₚ {δ = ε ∙ e} {η = ε ∙ f} e▸x₀ f▸x₀ c≤e∧f) → case inv-usage-prodₚ d▸t of λ {
-        (invUsageProdₚ {δ = ε ∙ g} {η = ε ∙ h} g▸x₀ h▸x₀ d≤g∧h) →
+        (invUsageSnd {δ = ε ∙ d} d▸t b≤d) → case inv-usage-prodˢ c▸t of λ {
+        (invUsageProdˢ {δ = ε ∙ e} {η = ε ∙ f} e▸x₀ f▸x₀ c≤e∧f) → case inv-usage-prodˢ d▸t of λ {
+        (invUsageProdˢ {δ = ε ∙ g} {η = ε ∙ h} g▸x₀ h▸x₀ d≤g∧h) →
           let i = ⌜ (𝟙ᵐ ᵐ· 𝟙) ᵐ· 𝟙 ⌝
               j = ⌜ 𝟙ᵐ ᵐ· 𝟙 ⌝
               open Tools.Reasoning.PartialOrder ≤-poset
@@ -376,13 +376,13 @@ prodrecₚₘ-𝟙ᵐ-𝟙-∧≤+ {γ = γ} {r = r} {δ = δ} ∧≤+ ▸t ▸u
 
 -- A generalised first projection with two extra quantities.
 
-fstᵣ′ : M → M → M → Term n → Term n → Term n
-fstᵣ′ r p q = Fstᵣ-sndᵣ.fstᵣ r q p
+fstʷ′ : M → M → M → Term n → Term n → Term n
+fstʷ′ r p q = Fstʷ-sndʷ.fstʷ r q p
 
--- An inversion lemma for fstᵣ′.
+-- An inversion lemma for fstʷ′.
 
-inv-usage-fstᵣ′ :
-  γ ▸[ m ] fstᵣ′ r p q A t →
+inv-usage-fstʷ′ :
+  γ ▸[ m ] fstʷ′ r p q A t →
   ∃₂ λ η δ →
     γ ≤ᶜ r ·ᶜ η ×
     η ▸[ m ᵐ· r ] t ×
@@ -390,8 +390,8 @@ inv-usage-fstᵣ′ :
     ⌜ m ⌝ · r · p ≤ ⌜ m ⌝ ×
     ⌜ m ⌝ · r ≤ 𝟘 ×
     Prodrec-allowed r p q
-inv-usage-fstᵣ′ {γ = γ} {m = m} {r = r} {p = p} {q = q} ▸fstᵣ′ =
-  case inv-usage-prodrec ▸fstᵣ′ of λ {
+inv-usage-fstʷ′ {γ = γ} {m = m} {r = r} {p = p} {q = q} ▸fstʷ′ =
+  case inv-usage-prodrec ▸fstʷ′ of λ {
     (invUsageProdrec {δ = δ} {η = η} {θ = θ} ▸t ▸var ▸A ok γ≤rδ+η) →
   case inv-usage-var ▸var of λ {
     (η≤𝟘 ∙ mrp≤m ∙ mr≤𝟘) →
@@ -408,10 +408,10 @@ inv-usage-fstᵣ′ {γ = γ} {m = m} {r = r} {p = p} {q = q} ▸fstᵣ′ =
   , mr≤𝟘
   , ok }}
 
--- An inversion lemma for fstᵣ′ with the mode set to 𝟙ᵐ.
+-- An inversion lemma for fstʷ′ with the mode set to 𝟙ᵐ.
 
-inv-usage-fstᵣ′-𝟙ᵐ :
-  γ ▸[ 𝟙ᵐ ] fstᵣ′ r p q A t →
+inv-usage-fstʷ′-𝟙ᵐ :
+  γ ▸[ 𝟙ᵐ ] fstʷ′ r p q A t →
   ∃₂ λ η δ →
     γ ≤ᶜ r ·ᶜ η ×
     η ▸[ ⌞ r ⌟ ] t ×
@@ -419,8 +419,8 @@ inv-usage-fstᵣ′-𝟙ᵐ :
     r · p ≤ 𝟙 ×
     r ≤ 𝟘 ×
     Prodrec-allowed r p q
-inv-usage-fstᵣ′-𝟙ᵐ {r = r} {p = p} ▸fstᵣ′ =
-  case inv-usage-fstᵣ′ ▸fstᵣ′ of λ {
+inv-usage-fstʷ′-𝟙ᵐ {r = r} {p = p} ▸fstʷ′ =
+  case inv-usage-fstʷ′ ▸fstʷ′ of λ {
     (_ , _ , leq₁ , ▸t , ▸A , leq₂ , leq₃ , ok) →
   _ , _ , leq₁ , ▸t , ▸A ,
   (begin
@@ -435,34 +435,34 @@ inv-usage-fstᵣ′-𝟙ᵐ {r = r} {p = p} ▸fstᵣ′ =
   where
   open Tools.Reasoning.PartialOrder ≤-poset
 
--- If 𝟘 ≰ 𝟙 then no application of fstᵣ′ 𝟘 is well-resourced (with
+-- If 𝟘 ≰ 𝟙 then no application of fstʷ′ 𝟘 is well-resourced (with
 -- respect to the mode 𝟙ᵐ).
 
-𝟘≰𝟙→fstᵣ′-𝟘-not-ok :
+𝟘≰𝟙→fstʷ′-𝟘-not-ok :
   ¬ 𝟘 ≤ 𝟙 →
-  ¬ γ ▸[ 𝟙ᵐ ] fstᵣ′ 𝟘 p q A t
-𝟘≰𝟙→fstᵣ′-𝟘-not-ok {γ = γ} {p = p} {q = q} {A = A} {t = t} 𝟘≰𝟙 =
-  γ ▸[ 𝟙ᵐ ] fstᵣ′ 𝟘 p q A t  →⟨ proj₁ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ inv-usage-fstᵣ′-𝟙ᵐ ⟩
+  ¬ γ ▸[ 𝟙ᵐ ] fstʷ′ 𝟘 p q A t
+𝟘≰𝟙→fstʷ′-𝟘-not-ok {γ = γ} {p = p} {q = q} {A = A} {t = t} 𝟘≰𝟙 =
+  γ ▸[ 𝟙ᵐ ] fstʷ′ 𝟘 p q A t  →⟨ proj₁ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ inv-usage-fstʷ′-𝟙ᵐ ⟩
   𝟘 · p ≤ 𝟙                  →⟨ ≤-trans (≤-reflexive (PE.sym (·-zeroˡ _))) ⟩
   𝟘 ≤ 𝟙                      →⟨ 𝟘≰𝟙 ⟩
   ⊥                          □
 
--- If 𝟙 ≰ 𝟘 then no application of fstᵣ′ 𝟙 is well-resourced (with
+-- If 𝟙 ≰ 𝟘 then no application of fstʷ′ 𝟙 is well-resourced (with
 -- respect to the mode 𝟙ᵐ).
 
-𝟙≰𝟘→fstᵣ′-𝟙-not-ok :
+𝟙≰𝟘→fstʷ′-𝟙-not-ok :
   ¬ 𝟙 ≤ 𝟘 →
-  ¬ γ ▸[ 𝟙ᵐ ] fstᵣ′ 𝟙 p q A t
-𝟙≰𝟘→fstᵣ′-𝟙-not-ok {γ = γ} {p = p} {q = q} {A = A} {t = t} 𝟙≰𝟘 =
-  γ ▸[ 𝟙ᵐ ] fstᵣ′ 𝟙 p q A t  →⟨ proj₁ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ inv-usage-fstᵣ′-𝟙ᵐ ⟩
+  ¬ γ ▸[ 𝟙ᵐ ] fstʷ′ 𝟙 p q A t
+𝟙≰𝟘→fstʷ′-𝟙-not-ok {γ = γ} {p = p} {q = q} {A = A} {t = t} 𝟙≰𝟘 =
+  γ ▸[ 𝟙ᵐ ] fstʷ′ 𝟙 p q A t  →⟨ proj₁ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ inv-usage-fstʷ′-𝟙ᵐ ⟩
   𝟙 ≤ 𝟘                      →⟨ 𝟙≰𝟘 ⟩
   ⊥                          □
 
--- An inversion lemma for fstᵣ′ with the mode set to 𝟙ᵐ.
+-- An inversion lemma for fstʷ′ with the mode set to 𝟙ᵐ.
 
-inv-usage-fstᵣ′-≢𝟘-𝟙ᵐ :
+inv-usage-fstʷ′-≢𝟘-𝟙ᵐ :
   r ≢ 𝟘 ⊎ Trivial →
-  γ ▸[ 𝟙ᵐ ] fstᵣ′ r p q A t →
+  γ ▸[ 𝟙ᵐ ] fstʷ′ r p q A t →
   ∃₂ λ η δ →
     γ ≤ᶜ r ·ᶜ η ×
     η ▸[ 𝟙ᵐ ] t ×
@@ -470,8 +470,8 @@ inv-usage-fstᵣ′-≢𝟘-𝟙ᵐ :
     r · p ≤ 𝟙 ×
     r ≤ 𝟘 ×
     Prodrec-allowed r p q
-inv-usage-fstᵣ′-≢𝟘-𝟙ᵐ r≢𝟘⊎𝟙≡𝟘 ▸fstᵣ′ =
-  case inv-usage-fstᵣ′-𝟙ᵐ ▸fstᵣ′ of λ {
+inv-usage-fstʷ′-≢𝟘-𝟙ᵐ r≢𝟘⊎𝟙≡𝟘 ▸fstʷ′ =
+  case inv-usage-fstʷ′-𝟙ᵐ ▸fstʷ′ of λ {
     (_ , _ , leq₁ , ▸t , ▸A , leq₂ , leq₃ , ok) →
   _ , _ , leq₁ ,
   ▸-cong
@@ -481,19 +481,19 @@ inv-usage-fstᵣ′-≢𝟘-𝟙ᵐ r≢𝟘⊎𝟙≡𝟘 ▸fstᵣ′ =
     ▸t ,
   ▸A , leq₂ , leq₃ , ok }
 
--- An inversion lemma for fstᵣ′ with the mode set to 𝟙ᵐ and "r" set to
+-- An inversion lemma for fstʷ′ with the mode set to 𝟙ᵐ and "r" set to
 -- 𝟘 ∧ 𝟙.
 
-inv-usage-fstᵣ′-𝟘∧𝟙-𝟙ᵐ :
+inv-usage-fstʷ′-𝟘∧𝟙-𝟙ᵐ :
   ¬ 𝟘 ≤ 𝟙 ⊎ Trivial →
-  γ ▸[ 𝟙ᵐ ] fstᵣ′ (𝟘 ∧ 𝟙) p q A t →
+  γ ▸[ 𝟙ᵐ ] fstʷ′ (𝟘 ∧ 𝟙) p q A t →
   ∃₂ λ η δ →
     γ ≤ᶜ 𝟘ᶜ ∧ᶜ η × η ▸[ 𝟙ᵐ ] t ×
     δ ▸[ 𝟘ᵐ? ] A ×
     𝟘 ∧ p ≤ 𝟙 ×
     Prodrec-allowed (𝟘 ∧ 𝟙) p q
-inv-usage-fstᵣ′-𝟘∧𝟙-𝟙ᵐ {γ = γ} {p = p} 𝟘≰𝟙⊎𝟙≡𝟘 ▸fstᵣ′ =
-  case inv-usage-fstᵣ′-≢𝟘-𝟙ᵐ 𝟘∧𝟙≢𝟘⊎𝟙≡𝟘 ▸fstᵣ′ of λ {
+inv-usage-fstʷ′-𝟘∧𝟙-𝟙ᵐ {γ = γ} {p = p} 𝟘≰𝟙⊎𝟙≡𝟘 ▸fstʷ′ =
+  case inv-usage-fstʷ′-≢𝟘-𝟙ᵐ 𝟘∧𝟙≢𝟘⊎𝟙≡𝟘 ▸fstʷ′ of λ {
     (η , _ , leq₁ , ▸t , ▸A , leq₂ , _ , ok) →
   _ , _ ,
   (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
@@ -511,26 +511,26 @@ inv-usage-fstᵣ′-𝟘∧𝟙-𝟙ᵐ {γ = γ} {p = p} 𝟘≰𝟙⊎𝟙≡�
     (inj₁ 𝟘≰𝟙) → inj₁ (𝟘≰𝟙→𝟘∧𝟙≢𝟘 𝟘≰𝟙)
     (inj₂ 𝟙≡𝟘) → inj₂ 𝟙≡𝟘
 
--- If a certain usage rule holds for fstᵣ′ r 𝟙 q A (where A has type
+-- If a certain usage rule holds for fstʷ′ r 𝟙 q A (where A has type
 -- Term 1), then r is equal to 𝟙 and 𝟙 ≤ 𝟘.
 
-fstᵣ′ₘ→≡𝟙≤𝟘 :
+fstʷ′ₘ→≡𝟙≤𝟘 :
   {A : Term 1} →
   (∀ {γ t} →
    γ ▸[ 𝟙ᵐ ] t →
-   γ ▸[ 𝟙ᵐ ] fstᵣ′ r 𝟙 q A t) →
+   γ ▸[ 𝟙ᵐ ] fstʷ′ r 𝟙 q A t) →
   r PE.≡ 𝟙 × 𝟙 ≤ 𝟘
-fstᵣ′ₘ→≡𝟙≤𝟘 {r = r} {q = q} {A = A} =
-  (∀ {γ t} → γ ▸[ 𝟙ᵐ ] t → γ ▸[ 𝟙ᵐ ] fstᵣ′ r 𝟙 q A t)  →⟨ _$ var ⟩
-  γ′ ▸[ 𝟙ᵐ ] fstᵣ′ r 𝟙 q A t′                          →⟨ lemma ⟩
+fstʷ′ₘ→≡𝟙≤𝟘 {r = r} {q = q} {A = A} =
+  (∀ {γ t} → γ ▸[ 𝟙ᵐ ] t → γ ▸[ 𝟙ᵐ ] fstʷ′ r 𝟙 q A t)  →⟨ _$ var ⟩
+  γ′ ▸[ 𝟙ᵐ ] fstʷ′ r 𝟙 q A t′                          →⟨ lemma ⟩
   r PE.≡ 𝟙 × 𝟙 ≤ 𝟘                                     □
   where
   γ′ = ε ∙ 𝟙
   t′ = var x0
 
-  lemma : γ′ ▸[ 𝟙ᵐ ] fstᵣ′ r 𝟙 q A t′ → r PE.≡ 𝟙 × 𝟙 ≤ 𝟘
+  lemma : γ′ ▸[ 𝟙ᵐ ] fstʷ′ r 𝟙 q A t′ → r PE.≡ 𝟙 × 𝟙 ≤ 𝟘
   lemma ▸fst-t =
-    case inv-usage-fstᵣ′ ▸fst-t of λ {
+    case inv-usage-fstʷ′ ▸fst-t of λ {
       (ε ∙ p , _ , ε ∙ 𝟙≤rp , ▸t , _ , 𝟙r𝟙≤𝟙 , 𝟙r≤𝟘 , _) →
     case inv-usage-var ▸t of λ {
       (ε ∙ p≤⌜⌞r⌟⌝) →
@@ -561,50 +561,50 @@ fstᵣ′ₘ→≡𝟙≤𝟘 {r = r} {q = q} {A = A} =
     open Tools.Reasoning.PartialOrder ≤-poset
 
 -- If 𝟙 is not bounded by 𝟘, then a certain usage rule for
--- fstᵣ′ r 𝟙 q A (where A has type Term 1) does not hold.
+-- fstʷ′ r 𝟙 q A (where A has type Term 1) does not hold.
 
-¬fstᵣ′ₘ′ :
+¬fstʷ′ₘ′ :
   {A : Term 1} →
   ¬ 𝟙 ≤ 𝟘 →
   ¬ ({γ : Conₘ 1} {t : Term 1} →
      γ ▸[ 𝟙ᵐ ] t →
-     γ ▸[ 𝟙ᵐ ] fstᵣ′ r 𝟙 q A t)
-¬fstᵣ′ₘ′ 𝟙≰𝟘 hyp = 𝟙≰𝟘 (fstᵣ′ₘ→≡𝟙≤𝟘 hyp .proj₂)
+     γ ▸[ 𝟙ᵐ ] fstʷ′ r 𝟙 q A t)
+¬fstʷ′ₘ′ 𝟙≰𝟘 hyp = 𝟙≰𝟘 (fstʷ′ₘ→≡𝟙≤𝟘 hyp .proj₂)
 
--- If 𝟙 is not bounded by 𝟘, then a certain usage rule for fstᵣ′ does
+-- If 𝟙 is not bounded by 𝟘, then a certain usage rule for fstʷ′ does
 -- not hold.
 
-¬fstᵣ′ₘ :
+¬fstʷ′ₘ :
   ¬ 𝟙 ≤ 𝟘 →
   ¬ (∀ {γ : Conₘ 1} {t : Term 1} {p m′} m →
      γ ▸[ m ᵐ· p ] t →
      m ᵐ· p PE.≡ m′ →
      (m′ PE.≡ 𝟙ᵐ → p ≤ 𝟙) →
-     γ ▸[ m′ ] fstᵣ′ r p q A t)
-¬fstᵣ′ₘ 𝟙≰𝟘 hyp =
-  ¬fstᵣ′ₘ′ 𝟙≰𝟘 λ ▸t →
+     γ ▸[ m′ ] fstʷ′ r p q A t)
+¬fstʷ′ₘ 𝟙≰𝟘 hyp =
+  ¬fstʷ′ₘ′ 𝟙≰𝟘 λ ▸t →
     hyp 𝟙ᵐ (▸-cong (PE.sym ⌞𝟙⌟) ▸t) ⌞𝟙⌟ (λ _ → ≤-refl)
 
 ------------------------------------------------------------------------
 -- The first and second projections for weak Σ-types
 
-open Fstᵣ-sndᵣ (𝟘 ∧ 𝟙) 𝟘 public using (fstᵣ; sndᵣ)
+open Fstʷ-sndʷ (𝟘 ∧ 𝟙) 𝟘 public using (fstʷ; sndʷ)
 
 ------------------------------------------------------------------------
--- Inversion lemmas for usage for fstᵣ
+-- Inversion lemmas for usage for fstʷ
 
--- An inversion lemma for fstᵣ.
+-- An inversion lemma for fstʷ.
 
-inv-usage-fstᵣ :
+inv-usage-fstʷ :
   ¬ 𝟘 ≤ 𝟙 ⊎ Trivial ⊎ m ≢ 𝟙ᵐ →
-  γ ▸[ m ] fstᵣ p A t →
+  γ ▸[ m ] fstʷ p A t →
   ∃₂ λ η δ →
     γ ≤ᶜ 𝟘ᶜ ∧ᶜ η × η ▸[ m ] t ×
     δ ▸[ 𝟘ᵐ? ] A ×
     𝟘 ∧ ⌜ m ⌝ · p ≤ ⌜ m ⌝ ×
     Prodrec-allowed (𝟘 ∧ 𝟙) p 𝟘
-inv-usage-fstᵣ {m = m} {γ = γ} {p = p} 𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ ▸fstᵣ =
-  case inv-usage-fstᵣ′ ▸fstᵣ of λ {
+inv-usage-fstʷ {m = m} {γ = γ} {p = p} 𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ ▸fstʷ =
+  case inv-usage-fstʷ′ ▸fstʷ of λ {
     (η , δ , leq₁ , ▸t , ▸A , leq₂ , leq₃ , ok) →
   _ , _ ,
   (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
@@ -619,17 +619,17 @@ inv-usage-fstᵣ {m = m} {γ = γ} {p = p} 𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙�
      ⌜ m ⌝                ∎) ,
   ok }
 
--- An inversion lemma for fstᵣ with the mode set to 𝟘ᵐ.
+-- An inversion lemma for fstʷ with the mode set to 𝟘ᵐ.
 
-inv-usage-fstᵣ-𝟘ᵐ :
+inv-usage-fstʷ-𝟘ᵐ :
   ⦃ ok : T 𝟘ᵐ-allowed ⦄ →
-  γ ▸[ 𝟘ᵐ ] fstᵣ p A t →
+  γ ▸[ 𝟘ᵐ ] fstʷ p A t →
   ∃ λ δ →
     γ ≤ᶜ 𝟘ᶜ × 𝟘ᶜ ▸[ 𝟘ᵐ ] t ×
     δ ▸[ 𝟘ᵐ ] A ×
     Prodrec-allowed (𝟘 ∧ 𝟙) p 𝟘
-inv-usage-fstᵣ-𝟘ᵐ {γ = γ} ▸fstᵣ =
-  case inv-usage-fstᵣ (inj₂ (inj₂ (λ ()))) ▸fstᵣ of λ {
+inv-usage-fstʷ-𝟘ᵐ {γ = γ} ▸fstʷ =
+  case inv-usage-fstʷ (inj₂ (inj₂ (λ ()))) ▸fstʷ of λ {
     (η , _ , leq₁ , ▸t , ▸A , leq₂ , ok) →
   _ ,
   (begin
@@ -644,18 +644,18 @@ inv-usage-fstᵣ-𝟘ᵐ {γ = γ} ▸fstᵣ =
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
--- An inversion lemma for fstᵣ with the mode set to 𝟙ᵐ.
+-- An inversion lemma for fstʷ with the mode set to 𝟙ᵐ.
 
-inv-usage-fstᵣ-𝟙ᵐ :
+inv-usage-fstʷ-𝟙ᵐ :
   ¬ 𝟘 ≤ 𝟙 ⊎ Trivial →
-  γ ▸[ 𝟙ᵐ ] fstᵣ p A t →
+  γ ▸[ 𝟙ᵐ ] fstʷ p A t →
   ∃₂ λ η δ →
     γ ≤ᶜ 𝟘ᶜ ∧ᶜ η × η ▸[ 𝟙ᵐ ] t ×
     δ ▸[ 𝟘ᵐ? ] A ×
     𝟘 ∧ p ≤ 𝟙 ×
     Prodrec-allowed (𝟘 ∧ 𝟙) p 𝟘
-inv-usage-fstᵣ-𝟙ᵐ {p = p} 𝟘≰𝟙⊎𝟙≡𝟘 ▸fstᵣ =
-  case inv-usage-fstᵣ 𝟘≰𝟙⊎𝟙≡𝟘⊎𝟙ᵐ≢𝟙ᵐ ▸fstᵣ of λ {
+inv-usage-fstʷ-𝟙ᵐ {p = p} 𝟘≰𝟙⊎𝟙≡𝟘 ▸fstʷ =
+  case inv-usage-fstʷ 𝟘≰𝟙⊎𝟙≡𝟘⊎𝟙ᵐ≢𝟙ᵐ ▸fstʷ of λ {
     (_ , _ , leq₁ , ▸t , ▸A , leq₂ , ok) →
   _ , _ , leq₁ , ▸t , ▸A ,
   (begin
@@ -671,18 +671,18 @@ inv-usage-fstᵣ-𝟙ᵐ {p = p} 𝟘≰𝟙⊎𝟙≡𝟘 ▸fstᵣ =
     (inj₂ 𝟙≡𝟘) → inj₂ (inj₁ 𝟙≡𝟘)
 
 ------------------------------------------------------------------------
--- Usage lemmas for fstᵣ
+-- Usage lemmas for fstʷ
 
--- A usage lemma for fstᵣ.
+-- A usage lemma for fstʷ.
 
-fstᵣₘ :
+fstʷₘ :
   ¬ 𝟘 ≤ 𝟙 ⊎ Trivial ⊎ m ≢ 𝟙ᵐ →
   𝟘 ∧ ⌜ m ⌝ · p ≤ ⌜ m ⌝ →
   Prodrec-allowed (𝟘 ∧ 𝟙) p 𝟘 →
   γ ▸[ m ] t →
   δ ▸[ 𝟘ᵐ? ] A →
-  𝟘ᶜ ∧ᶜ γ ▸[ m ] fstᵣ p A t
-fstᵣₘ {m = m} {p = p} {γ = γ} {δ = δ} 𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ 𝟘∧mp≤m ok ▸t ▸A = sub
+  𝟘ᶜ ∧ᶜ γ ▸[ m ] fstʷ p A t
+fstʷₘ {m = m} {p = p} {γ = γ} {δ = δ} 𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ 𝟘∧mp≤m ok ▸t ▸A = sub
   (prodrecₘ
      (▸-cong (PE.sym (𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ→ᵐ·[𝟘∧𝟙]≡ _ 𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ)) ▸t)
      (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
@@ -700,16 +700,16 @@ fstᵣₘ {m = m} {p = p} {γ = γ} {δ = δ} 𝟘≰𝟙⊎𝟙≡𝟘⊎≢�
      (𝟘 ∧ 𝟙) ·ᶜ γ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
      (𝟘 ∧ 𝟙) ·ᶜ γ +ᶜ 𝟘ᶜ  ∎)
 
--- A usage lemma for fstᵣ with the mode set to 𝟘ᵐ.
+-- A usage lemma for fstʷ with the mode set to 𝟘ᵐ.
 
-fstᵣₘ-𝟘ᵐ :
+fstʷₘ-𝟘ᵐ :
   ⦃ ok : T 𝟘ᵐ-allowed ⦄ →
   Prodrec-allowed (𝟘 ∧ 𝟙) p 𝟘 →
   γ ▸[ 𝟘ᵐ ] t →
   δ ▸[ 𝟘ᵐ ] A →
-  γ ▸[ 𝟘ᵐ ] fstᵣ p A t
-fstᵣₘ-𝟘ᵐ {p = p} {γ = γ} {δ = δ} ok ▸t ▸A = sub
-  (fstᵣₘ
+  γ ▸[ 𝟘ᵐ ] fstʷ p A t
+fstʷₘ-𝟘ᵐ {p = p} {γ = γ} {δ = δ} ok ▸t ▸A = sub
+  (fstʷₘ
      (inj₂ (inj₂ (λ ())))
      (let open Tools.Reasoning.PartialOrder ≤-poset in begin
         𝟘 ∧ 𝟘 · p  ≡⟨ ∧-congˡ (·-zeroˡ _) ⟩
@@ -722,16 +722,16 @@ fstᵣₘ-𝟘ᵐ {p = p} {γ = γ} {δ = δ} ok ▸t ▸A = sub
      γ        ≤⟨ ∧ᶜ-greatest-lower-bound (▸-𝟘ᵐ ▸t) ≤ᶜ-refl ⟩
      𝟘ᶜ ∧ᶜ γ  ∎)
 
--- A usage lemma for fstᵣ with the mode set to 𝟙ᵐ.
+-- A usage lemma for fstʷ with the mode set to 𝟙ᵐ.
 
-fstᵣₘ-𝟙ᵐ :
+fstʷₘ-𝟙ᵐ :
   ¬ 𝟘 ≤ 𝟙 ⊎ Trivial →
   𝟘 ∧ p ≤ 𝟙 →
   Prodrec-allowed (𝟘 ∧ 𝟙) p 𝟘 →
   γ ▸[ 𝟙ᵐ ] t →
   δ ▸[ 𝟘ᵐ? ] A →
-  𝟘ᶜ ∧ᶜ γ ▸[ 𝟙ᵐ ] fstᵣ p A t
-fstᵣₘ-𝟙ᵐ {p = p} 𝟘≰𝟙⊎𝟙≢𝟘 𝟘∧p≤𝟙 = fstᵣₘ
+  𝟘ᶜ ∧ᶜ γ ▸[ 𝟙ᵐ ] fstʷ p A t
+fstʷₘ-𝟙ᵐ {p = p} 𝟘≰𝟙⊎𝟙≢𝟘 𝟘∧p≤𝟙 = fstʷₘ
   (case 𝟘≰𝟙⊎𝟙≢𝟘 of λ where
      (inj₁ 𝟘≰𝟙) → inj₁ 𝟘≰𝟙
      (inj₂ 𝟙≢𝟘) → inj₂ (inj₁ 𝟙≢𝟘))
@@ -742,19 +742,19 @@ fstᵣₘ-𝟙ᵐ {p = p} 𝟘≰𝟙⊎𝟙≢𝟘 𝟘∧p≤𝟙 = fstᵣₘ
   where
   open Tools.Reasoning.PartialOrder ≤-poset
 
--- A usage lemma for fstᵣ with the mode set to 𝟙ᵐ and the assumption
+-- A usage lemma for fstʷ with the mode set to 𝟙ᵐ and the assumption
 -- that 𝟘 is the largest quantity.
 
-fstᵣₘ-𝟙ᵐ-≤𝟘 :
+fstʷₘ-𝟙ᵐ-≤𝟘 :
   Trivial ⊎ ¬ Trivial →
   (∀ p → p ≤ 𝟘) →
   p ≤ 𝟙 →
   Prodrec-allowed (𝟘 ∧ 𝟙) p 𝟘 →
   γ ▸[ 𝟙ᵐ ] t →
   δ ▸[ 𝟘ᵐ? ] A →
-  γ ▸[ 𝟙ᵐ ] fstᵣ p A t
-fstᵣₘ-𝟙ᵐ-≤𝟘 {p = p} {γ = γ} 𝟙≡𝟘⊎𝟙≢𝟘 ≤𝟘 p≤𝟙 ok ▸t ▸A = sub
-  (fstᵣₘ-𝟙ᵐ
+  γ ▸[ 𝟙ᵐ ] fstʷ p A t
+fstʷₘ-𝟙ᵐ-≤𝟘 {p = p} {γ = γ} 𝟙≡𝟘⊎𝟙≢𝟘 ≤𝟘 p≤𝟙 ok ▸t ▸A = sub
+  (fstʷₘ-𝟙ᵐ
      (≤𝟘→𝟘≰𝟙⊎𝟙≡𝟘 𝟙≡𝟘⊎𝟙≢𝟘 ≤𝟘)
      (let open Tools.Reasoning.PartialOrder ≤-poset in begin
         𝟘 ∧ p  ≤⟨ ∧-decreasingʳ _ _ ⟩
@@ -767,65 +767,65 @@ fstᵣₘ-𝟙ᵐ-≤𝟘 {p = p} {γ = γ} 𝟙≡𝟘⊎𝟙≢𝟘 ≤𝟘 p�
      γ        ≤⟨ ∧ᶜ-greatest-lower-bound (≤ᶜ𝟘ᶜ (≤𝟘 _)) ≤ᶜ-refl ⟩
      𝟘ᶜ ∧ᶜ γ  ∎)
 
--- A usage lemma for fstᵣ with the mode set to 𝟙ᵐ and the assumption
+-- A usage lemma for fstʷ with the mode set to 𝟙ᵐ and the assumption
 -- that _+_ is pointwise bounded by _∧_.
 
-fstᵣₘ-𝟙ᵐ-∧≤+ :
+fstʷₘ-𝟙ᵐ-∧≤+ :
   Trivial ⊎ ¬ Trivial →
   (∀ p q → p + q ≤ p ∧ q) →
   p ≤ 𝟙 →
   Prodrec-allowed (𝟘 ∧ 𝟙) p 𝟘 →
   γ ▸[ 𝟙ᵐ ] t →
   δ ▸[ 𝟘ᵐ? ] A →
-  γ ▸[ 𝟙ᵐ ] fstᵣ p A t
-fstᵣₘ-𝟙ᵐ-∧≤+ 𝟙≡𝟘⊎𝟙≢𝟘 +≤∧ = fstᵣₘ-𝟙ᵐ-≤𝟘 𝟙≡𝟘⊎𝟙≢𝟘 (+≤∧→≤𝟘 +≤∧)
+  γ ▸[ 𝟙ᵐ ] fstʷ p A t
+fstʷₘ-𝟙ᵐ-∧≤+ 𝟙≡𝟘⊎𝟙≢𝟘 +≤∧ = fstʷₘ-𝟙ᵐ-≤𝟘 𝟙≡𝟘⊎𝟙≢𝟘 (+≤∧→≤𝟘 +≤∧)
 
--- If 𝟙 is not bounded by 𝟘, then a certain usage rule for fstᵣ 𝟙 A
+-- If 𝟙 is not bounded by 𝟘, then a certain usage rule for fstʷ 𝟙 A
 -- (where A has type Term 1) does not hold.
 --
 -- Note that the assumption 𝟙 ≰ 𝟘 is satisfied by, for instance, the
 -- linearity modality, see
--- Graded.Modality.Instances.Linearity.Properties.¬fstᵣₘ′.
+-- Graded.Modality.Instances.Linearity.Properties.¬fstʷₘ′.
 
-¬fstᵣₘ′ :
+¬fstʷₘ′ :
   {A : Term 1} →
   ¬ 𝟙 ≤ 𝟘 →
   ¬ ({γ : Conₘ 1} {t : Term 1} →
      γ ▸[ 𝟙ᵐ ] t →
-     γ ▸[ 𝟙ᵐ ] fstᵣ 𝟙 A t)
-¬fstᵣₘ′ = ¬fstᵣ′ₘ′
+     γ ▸[ 𝟙ᵐ ] fstʷ 𝟙 A t)
+¬fstʷₘ′ = ¬fstʷ′ₘ′
 
--- If 𝟙 is not bounded by 𝟘, then a certain usage rule for fstᵣ does
+-- If 𝟙 is not bounded by 𝟘, then a certain usage rule for fstʷ does
 -- not hold.
 --
 -- Note that the assumption 𝟙 ≰ 𝟘 is satisfied by, for instance, the
 -- linearity modality, see
--- Graded.Modality.Instances.Linearity.Properties.¬fstᵣₘ.
+-- Graded.Modality.Instances.Linearity.Properties.¬fstʷₘ.
 
-¬fstᵣₘ :
+¬fstʷₘ :
   ¬ 𝟙 ≤ 𝟘 →
   ¬ (∀ {γ : Conₘ 1} {t : Term 1} {p m′} m →
      γ ▸[ m ᵐ· p ] t →
      m ᵐ· p PE.≡ m′ →
      (m′ PE.≡ 𝟙ᵐ → p ≤ 𝟙) →
-     γ ▸[ m′ ] fstᵣ p A t)
-¬fstᵣₘ = ¬fstᵣ′ₘ
+     γ ▸[ m′ ] fstʷ p A t)
+¬fstʷₘ = ¬fstʷ′ₘ
 
 ------------------------------------------------------------------------
--- Inversion lemmas for usage for sndᵣ
+-- Inversion lemmas for usage for sndʷ
 
--- An inversion lemma for sndᵣ.
+-- An inversion lemma for sndʷ.
 
-inv-usage-sndᵣ :
+inv-usage-sndʷ :
   ¬ 𝟘 ≤ 𝟙 ⊎ Trivial ⊎ m ≢ 𝟙ᵐ →
   ∀ B →
-  γ ▸[ m ] sndᵣ p q A B t →
+  γ ▸[ m ] sndʷ p q A B t →
   ∃₂ λ η δ →
     γ ≤ᶜ 𝟘ᶜ ∧ᶜ η × η ▸[ m ] t ×
-    δ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] B [ fstᵣ p (wk1 A) (var x0) ]↑ ×
+    δ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] B [ fstʷ p (wk1 A) (var x0) ]↑ ×
     Prodrec-allowed (𝟘 ∧ 𝟙) p q
-inv-usage-sndᵣ {γ = γ} 𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ _ ▸sndᵣ =
-  case inv-usage-prodrec ▸sndᵣ of λ {
+inv-usage-sndʷ {γ = γ} 𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ _ ▸sndʷ =
+  case inv-usage-prodrec ▸sndʷ of λ {
     (invUsageProdrec {δ = δ} {η = η} {θ = θ} ▸t ▸var ▸B ok γ≤[𝟘∧𝟙]δ+η) →
   case inv-usage-var ▸var of λ {
     (η≤𝟘 ∙ _ ∙ _) →
@@ -843,18 +843,18 @@ inv-usage-sndᵣ {γ = γ} 𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ _ ▸sndᵣ =
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
--- An inversion lemma for sndᵣ with the mode set to 𝟘ᵐ.
+-- An inversion lemma for sndʷ with the mode set to 𝟘ᵐ.
 
-inv-usage-sndᵣ-𝟘ᵐ :
+inv-usage-sndʷ-𝟘ᵐ :
   ⦃ ok : T 𝟘ᵐ-allowed ⦄ →
   ∀ B →
-  γ ▸[ 𝟘ᵐ ] sndᵣ p q A B t →
+  γ ▸[ 𝟘ᵐ ] sndʷ p q A B t →
   ∃ λ δ →
     γ ≤ᶜ 𝟘ᶜ × 𝟘ᶜ ▸[ 𝟘ᵐ ] t ×
-    δ ∙ 𝟘 ▸[ 𝟘ᵐ ] B [ fstᵣ p (wk1 A) (var x0) ]↑ ×
+    δ ∙ 𝟘 ▸[ 𝟘ᵐ ] B [ fstʷ p (wk1 A) (var x0) ]↑ ×
     Prodrec-allowed (𝟘 ∧ 𝟙) p q
-inv-usage-sndᵣ-𝟘ᵐ {γ = γ} {q = q} ⦃ ok = 𝟘ᵐ-ok ⦄ B ▸sndᵣ =
-  case inv-usage-sndᵣ (inj₂ (inj₂ (λ ()))) B ▸sndᵣ of λ {
+inv-usage-sndʷ-𝟘ᵐ {γ = γ} {q = q} ⦃ ok = 𝟘ᵐ-ok ⦄ B ▸sndʷ =
+  case inv-usage-sndʷ (inj₂ (inj₂ (λ ()))) B ▸sndʷ of λ {
     (η , δ , leq , ▸t , ▸B , ok) →
     _
   , (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
@@ -874,18 +874,18 @@ inv-usage-sndᵣ-𝟘ᵐ {γ = γ} {q = q} ⦃ ok = 𝟘ᵐ-ok ⦄ B ▸sndᵣ =
   , ok }
 
 ------------------------------------------------------------------------
--- Usage lemmas for sndᵣ
+-- Usage lemmas for sndʷ
 
--- A usage lemma for sndᵣ.
+-- A usage lemma for sndʷ.
 
-sndᵣₘ :
+sndʷₘ :
   ¬ 𝟘 ≤ 𝟙 ⊎ Trivial ⊎ m ≢ 𝟙ᵐ →
   Prodrec-allowed (𝟘 ∧ 𝟙) p q →
   ∀ B →
   γ ▸[ m ] t →
-  δ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] B [ fstᵣ p (wk1 A) (var x0) ]↑ →
-  𝟘ᶜ ∧ᶜ γ ▸[ m ] sndᵣ p q A B t
-sndᵣₘ {m = m} {p = p} {γ = γ} 𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ ok _ ▸t ▸B = sub
+  δ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] B [ fstʷ p (wk1 A) (var x0) ]↑ →
+  𝟘ᶜ ∧ᶜ γ ▸[ m ] sndʷ p q A B t
+sndʷₘ {m = m} {p = p} {γ = γ} 𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ ok _ ▸t ▸B = sub
   (prodrecₘ
      (▸-cong (PE.sym (𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ→ᵐ·[𝟘∧𝟙]≡ _ 𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ)) ▸t)
      (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
@@ -900,17 +900,17 @@ sndᵣₘ {m = m} {p = p} {γ = γ} 𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ ok _ 
      (𝟘 ∧ 𝟙) ·ᶜ γ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
      (𝟘 ∧ 𝟙) ·ᶜ γ +ᶜ 𝟘ᶜ  ∎)
 
--- A usage lemma for sndᵣ with the mode set to 𝟘ᵐ.
+-- A usage lemma for sndʷ with the mode set to 𝟘ᵐ.
 
-sndᵣₘ-𝟘ᵐ :
+sndʷₘ-𝟘ᵐ :
   ⦃ ok : T 𝟘ᵐ-allowed ⦄ →
   Prodrec-allowed (𝟘 ∧ 𝟙) p q →
   ∀ B →
   γ ▸[ 𝟘ᵐ ] t →
-  δ ∙ 𝟘 ▸[ 𝟘ᵐ ] B [ fstᵣ p (wk1 A) (var x0) ]↑ →
-  γ ▸[ 𝟘ᵐ ] sndᵣ p q A B t
-sndᵣₘ-𝟘ᵐ {p = p} {q = q} {γ = γ} {δ = δ} ⦃ ok = 𝟘ᵐ-ok ⦄ ok B ▸t ▸B = sub
-  (sndᵣₘ
+  δ ∙ 𝟘 ▸[ 𝟘ᵐ ] B [ fstʷ p (wk1 A) (var x0) ]↑ →
+  γ ▸[ 𝟘ᵐ ] sndʷ p q A B t
+sndʷₘ-𝟘ᵐ {p = p} {q = q} {γ = γ} {δ = δ} ⦃ ok = 𝟘ᵐ-ok ⦄ ok B ▸t ▸B = sub
+  (sndʷₘ
      (inj₂ (inj₂ (λ ())))
      ok
      B
@@ -924,19 +924,19 @@ sndᵣₘ-𝟘ᵐ {p = p} {q = q} {γ = γ} {δ = δ} ⦃ ok = 𝟘ᵐ-ok ⦄ ok
      γ        ≤⟨ ∧ᶜ-greatest-lower-bound (▸-𝟘ᵐ ▸t) ≤ᶜ-refl ⟩
      𝟘ᶜ ∧ᶜ γ  ∎)
 
--- A usage lemma for sndᵣ with the mode set to 𝟙ᵐ and the assumption
+-- A usage lemma for sndʷ with the mode set to 𝟙ᵐ and the assumption
 -- that 𝟘 is the largest quantity.
 
-sndᵣₘ-𝟙ᵐ-≤𝟘 :
+sndʷₘ-𝟙ᵐ-≤𝟘 :
   Trivial ⊎ ¬ Trivial →
   (∀ p → p ≤ 𝟘) →
   Prodrec-allowed (𝟘 ∧ 𝟙) p q →
   ∀ B →
   γ ▸[ 𝟙ᵐ ] t →
-  δ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] B [ fstᵣ p (wk1 A) (var x0) ]↑ →
-  γ ▸[ 𝟙ᵐ ] sndᵣ p q A B t
-sndᵣₘ-𝟙ᵐ-≤𝟘 {γ = γ} 𝟙≡𝟘⊎𝟙≢𝟘 ≤𝟘 ok B ▸t ▸B = sub
-  (sndᵣₘ
+  δ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] B [ fstʷ p (wk1 A) (var x0) ]↑ →
+  γ ▸[ 𝟙ᵐ ] sndʷ p q A B t
+sndʷₘ-𝟙ᵐ-≤𝟘 {γ = γ} 𝟙≡𝟘⊎𝟙≢𝟘 ≤𝟘 ok B ▸t ▸B = sub
+  (sndʷₘ
      (case ≤𝟘→𝟘≰𝟙⊎𝟙≡𝟘 𝟙≡𝟘⊎𝟙≢𝟘 ≤𝟘 of λ where
         (inj₁ 𝟘≰𝟙) → inj₁ 𝟘≰𝟙
         (inj₂ 𝟙≡𝟘) → inj₂ (inj₁ 𝟙≡𝟘))
@@ -950,37 +950,37 @@ sndᵣₘ-𝟙ᵐ-≤𝟘 {γ = γ} 𝟙≡𝟘⊎𝟙≢𝟘 ≤𝟘 ok B ▸t 
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
--- A usage lemma for sndᵣ with the mode set to 𝟙ᵐ and the assumption
+-- A usage lemma for sndʷ with the mode set to 𝟙ᵐ and the assumption
 -- that _+_ is pointwise bounded by _∧_.
 
-sndᵣₘ-𝟙ᵐ-+≤∧ :
+sndʷₘ-𝟙ᵐ-+≤∧ :
   Trivial ⊎ ¬ Trivial →
   (∀ p q → p + q ≤ p ∧ q) →
   Prodrec-allowed (𝟘 ∧ 𝟙) p q →
   ∀ B →
   γ ▸[ 𝟙ᵐ ] t →
-  δ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] B [ fstᵣ p (wk1 A) (var x0) ]↑ →
-  γ ▸[ 𝟙ᵐ ] sndᵣ p q A B t
-sndᵣₘ-𝟙ᵐ-+≤∧ 𝟙≡𝟘⊎𝟙≢𝟘 +≤∧ = sndᵣₘ-𝟙ᵐ-≤𝟘 𝟙≡𝟘⊎𝟙≢𝟘 (+≤∧→≤𝟘 +≤∧)
+  δ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] B [ fstʷ p (wk1 A) (var x0) ]↑ →
+  γ ▸[ 𝟙ᵐ ] sndʷ p q A B t
+sndʷₘ-𝟙ᵐ-+≤∧ 𝟙≡𝟘⊎𝟙≢𝟘 +≤∧ = sndʷₘ-𝟙ᵐ-≤𝟘 𝟙≡𝟘⊎𝟙≢𝟘 (+≤∧→≤𝟘 +≤∧)
 
--- If a certain usage rule holds for sndᵣ p q A B (where A has type
+-- If a certain usage rule holds for sndʷ p q A B (where A has type
 -- Term 1), then 𝟙 ≤ 𝟘.
 
-sndᵣₘ→𝟙≤𝟘 :
+sndʷₘ→𝟙≤𝟘 :
   {A : Term 1} (B : Term 2) →
   (∀ {γ t} →
    γ ▸[ 𝟙ᵐ ] t →
-   γ ▸[ 𝟙ᵐ ] sndᵣ p q A B t) →
+   γ ▸[ 𝟙ᵐ ] sndʷ p q A B t) →
   𝟙 ≤ 𝟘
-sndᵣₘ→𝟙≤𝟘 {p = p} {q = q} {A = A} B =
-  (∀ {γ t} → γ ▸[ 𝟙ᵐ ] t → γ ▸[ 𝟙ᵐ ] sndᵣ p q A B t)  →⟨ _$ var ⟩
-  γ′ ▸[ 𝟙ᵐ ] sndᵣ p q A B t′                          →⟨ lemma ⟩
+sndʷₘ→𝟙≤𝟘 {p = p} {q = q} {A = A} B =
+  (∀ {γ t} → γ ▸[ 𝟙ᵐ ] t → γ ▸[ 𝟙ᵐ ] sndʷ p q A B t)  →⟨ _$ var ⟩
+  γ′ ▸[ 𝟙ᵐ ] sndʷ p q A B t′                          →⟨ lemma ⟩
   𝟙 ≤ 𝟘                                               □
   where
   γ′ = ε ∙ 𝟙
   t′ = var x0
 
-  lemma : γ′ ▸[ 𝟙ᵐ ] sndᵣ p q A B t′ → 𝟙 ≤ 𝟘
+  lemma : γ′ ▸[ 𝟙ᵐ ] sndʷ p q A B t′ → 𝟙 ≤ 𝟘
   lemma ▸snd-t =
     case inv-usage-prodrec ▸snd-t of λ {
       (invUsageProdrec
@@ -1001,16 +1001,16 @@ sndᵣₘ→𝟙≤𝟘 {p = p} {q = q} {A = A} B =
     open Tools.Reasoning.PartialOrder ≤-poset
 
 -- If 𝟙 is not bounded by 𝟘, then a certain usage rule for
--- sndᵣ p q A B (where A has type Term 1) does not hold.
+-- sndʷ p q A B (where A has type Term 1) does not hold.
 --
 -- Note that the assumption 𝟙 ≰ 𝟘 is satisfied by, for instance, the
 -- linearity modality, see
--- Graded.Modality.Instances.Linearity.Properties.¬sndᵣₘ.
+-- Graded.Modality.Instances.Linearity.Properties.¬sndʷₘ.
 
-¬sndᵣₘ :
+¬sndʷₘ :
   {A : Term 1} (B : Term 2) →
   ¬ 𝟙 ≤ 𝟘 →
   ¬ ({γ : Conₘ 1} {t : Term 1} →
      γ ▸[ 𝟙ᵐ ] t →
-     γ ▸[ 𝟙ᵐ ] sndᵣ p q A B t)
-¬sndᵣₘ B 𝟙≰𝟘 hyp = 𝟙≰𝟘 (sndᵣₘ→𝟙≤𝟘 B hyp)
+     γ ▸[ 𝟙ᵐ ] sndʷ p q A B t)
+¬sndʷₘ B 𝟙≰𝟘 hyp = 𝟙≰𝟘 (sndʷₘ→𝟙≤𝟘 B hyp)

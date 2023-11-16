@@ -130,9 +130,9 @@ mutual
         (⊢A , ⊢B , ok) →
         prodrec r p q C′ u′ v′
       , (                                                       $⟨ v′-nf ⟩
-         Γ ∙ A ∙ B ⊢nf v′ ∷ C [ prodᵣ p (var x1) (var x0) ]↑²   →⟨ flip _⊢nf_∷_.convₙ $
+         Γ ∙ A ∙ B ⊢nf v′ ∷ C [ prodʷ p (var x1) (var x0) ]↑²   →⟨ flip _⊢nf_∷_.convₙ $
                                                                    subst↑²TypeEq-prod C≡C′ ok ⟩
-         Γ ∙ A ∙ B ⊢nf v′ ∷ C′ [ prodᵣ p (var x1) (var x0) ]↑²  →⟨ flip (prodrecₙ ⊢A ⊢B C′-nf u′-ne) ok ⟩
+         Γ ∙ A ∙ B ⊢nf v′ ∷ C′ [ prodʷ p (var x1) (var x0) ]↑²  →⟨ flip (prodrecₙ ⊢A ⊢B C′-nf u′-ne) ok ⟩
          Γ ⊢ne prodrec r p q C′ u′ v′ ∷ C′ [ u′ ]₀              →⟨ flip _⊢ne_∷_.convₙ $ _⊢_≡_.sym $
                                                                    substTypeEq C≡C′ u≡u′ ⟩
          Γ ⊢ne prodrec r p q C′ u′ v′ ∷ C [ u ]₀                □)
@@ -309,7 +309,7 @@ mutual
       case fullRedNe~↓ t~ of λ {
         (u , u-nf , t≡u) →
       u , neₙ Emptyₙ u-nf , t≡u }
-    (Unit-ins {s = Σₚ} t~) →
+    (Unit-ins {s = 𝕤} t~) →
       case syntacticEqTerm (soundness~↓ t~) of λ {
         (Γ⊢ , ⊢t , _) →
       case wf Γ⊢ of λ {
@@ -319,11 +319,11 @@ mutual
         starˢ
       , starₙ ⊢Γ ok
       , η-unit ⊢t (starⱼ ⊢Γ ok) }}}
-    (Unit-ins {s = Σᵣ} t~) →
+    (Unit-ins {s = 𝕨} t~) →
       case fullRedNe~↓ t~ of λ {
         (u , u-nf , t≡u) →
       u , neₙ Unitʷₙ u-nf , t≡u }
-    (Σᵣ-ins ⊢t∷ΣAB _ t~) →
+    (Σʷ-ins ⊢t∷ΣAB _ t~) →
       case fullRedNe~↓ t~ of λ {
         (v , v-ne , t≡v) →
       case syntacticEqTerm t≡v of λ {
@@ -335,7 +335,7 @@ mutual
       case inversion-ΠΣ (syntacticTerm ⊢t∷ΣAB) of λ {
         (⊢A , ⊢B) →
         v
-      , neₙ Σᵣₙ (convₙ v-ne ΣCD≡ΣAB)
+      , neₙ Σʷₙ (convₙ v-ne ΣCD≡ΣAB)
       , conv t≡v ΣCD≡ΣAB }}}}}
     (ne-ins ⊢t∷A _ A-ne t~↓B) →
       case fullRedNe~↓ t~↓B of λ {
@@ -377,7 +377,7 @@ mutual
          Γ ⊢nf u′ ∷ B [ t ]₀                   →⟨ flip _⊢nf_∷_.convₙ $
                                                   substTypeEq (refl ⊢B) t≡t′ ⟩
          Γ ⊢nf u′ ∷ B [ t′ ]₀                  →⟨ flip (_⊢nf_∷_.prodₙ ⊢A ⊢B t′-nf) ok ⟩
-         Γ ⊢nf prod! t′ u′ ∷ Σᵣ p , q ▷ A ▹ B  □)
+         Γ ⊢nf prod! t′ u′ ∷ Σʷ p , q ▷ A ▹ B  □)
       , prod-cong ⊢A ⊢B t≡t′ u≡u′ ok }}
     (η-eq {p = p} {q = q} {f = t} {F = A} {G = B} ⊢t _ _ _ t0≡u0) →
       case fullRedTermConv↑ t0≡u0 of λ {
@@ -396,16 +396,16 @@ mutual
         (u₁ , u₁-nf , fst-t≡u₁) →
       case fullRedTermConv↑ snd-t↑ of λ {
         (u₂ , u₂-nf , snd-t≡u₂) →
-        prodₚ p u₁ u₂
+        prodˢ p u₁ u₂
       , (                                        $⟨ u₂-nf ⟩
          Γ ⊢nf u₂ ∷ B [ fst p t ]₀               →⟨ flip _⊢nf_∷_.convₙ $
                                                     substTypeEq (refl ⊢B) fst-t≡u₁ ⟩
          Γ ⊢nf u₂ ∷ B [ u₁ ]₀                    →⟨ flip (prodₙ ⊢A ⊢B u₁-nf) ok ⟩
-         Γ ⊢nf prodₚ p u₁ u₂ ∷ Σₚ p , q ▷ A ▹ B  □)
+         Γ ⊢nf prodˢ p u₁ u₂ ∷ Σˢ p , q ▷ A ▹ B  □)
       , (                                                        $⟨ sym (Σ-η-prod-fst-snd ⊢t) ⟩
-         Γ ⊢ t ≡ prodₚ p (fst p t) (snd p t) ∷ Σₚ p , q ▷ A ▹ B  →⟨ flip _⊢_≡_∷_.trans $
+         Γ ⊢ t ≡ prodˢ p (fst p t) (snd p t) ∷ Σˢ p , q ▷ A ▹ B  →⟨ flip _⊢_≡_∷_.trans $
                                                                     prod-cong ⊢A ⊢B fst-t≡u₁ snd-t≡u₂ ok ⟩
-         Γ ⊢ t ≡ prodₚ p u₁ u₂ ∷ Σₚ p , q ▷ A ▹ B                □) }}}
+         Γ ⊢ t ≡ prodˢ p u₁ u₂ ∷ Σˢ p , q ▷ A ▹ B                □) }}}
     (η-unit ⊢t _ _ _) →
       case wfTerm ⊢t of λ {
         ⊢Γ →

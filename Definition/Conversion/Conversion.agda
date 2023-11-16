@@ -64,9 +64,9 @@ mutual
     Empty-ins (stability~↓ Γ≡Δ x)
   convConv↓Term Γ≡Δ A≡B whnfB (Unit-ins x) rewrite Unit≡A A≡B whnfB =
     Unit-ins (stability~↓ Γ≡Δ x)
-  convConv↓Term Γ≡Δ  A≡B whnfB (Σᵣ-ins x x₁ x₂) with Σ≡A A≡B whnfB
+  convConv↓Term Γ≡Δ  A≡B whnfB (Σʷ-ins x x₁ x₂) with Σ≡A A≡B whnfB
   ... | _ , _ , PE.refl =
-    Σᵣ-ins (stabilityTerm Γ≡Δ (conv x A≡B))
+    Σʷ-ins (stabilityTerm Γ≡Δ (conv x A≡B))
            (stabilityTerm Γ≡Δ (conv x₁ A≡B))
            (stability~↓ Γ≡Δ x₂)
   convConv↓Term Γ≡Δ A≡B whnfB (ne-ins t u x x₁) with ne≡A x A≡B whnfB

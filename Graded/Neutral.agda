@@ -46,7 +46,7 @@ private variable
   A t : Term _
   χ   : Conₘ _
   p   : M
-  s   : SigmaMode
+  s   : Strength
 
 opaque
 
@@ -164,12 +164,12 @@ opaque
 
   -- If Prodrec-allowed 𝟘 p 𝟘 holds for some p (which means that
   -- certain kinds of erased matches are allowed), and if additionally
-  -- Σᵣ-allowed p 𝟘 holds, then there is a well-typed, well-resourced,
+  -- Σʷ-allowed p 𝟘 holds, then there is a well-typed, well-resourced,
   -- neutral term in a consistent, erased context.
 
   neutral-well-resourced₁ :
     Prodrec-allowed 𝟘 p 𝟘 →
-    Σᵣ-allowed p 𝟘 →
+    Σʷ-allowed p 𝟘 →
     ∃₄ λ n (Γ : Con Term n) (t A : Term n) →
     Consistent Γ ×
     Neutral t ×

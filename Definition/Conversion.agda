@@ -41,7 +41,7 @@ private
     x y : Fin n
     p p′ p″ p₁ p₂ q q′ q″ q₁ q₂ r r′ : M
     b : BinderMode
-    s : SigmaMode
+    s : Strength
 
 mutual
   -- Neutral equality.
@@ -55,10 +55,10 @@ mutual
                   → Γ ⊢ t [conv↑] v ∷ F
                   → Γ ⊢ k ∘⟨ p ⟩ t ~ l ∘⟨ p ⟩ v ↑ G [ t ]₀
 
-    fst-cong      : Γ ⊢ k ~ l ↓ Σₚ p , q ▷ F ▹ G
+    fst-cong      : Γ ⊢ k ~ l ↓ Σˢ p , q ▷ F ▹ G
                   → Γ ⊢ fst p k ~ fst p l ↑ F
 
-    snd-cong      : Γ ⊢ k ~ l ↓ Σₚ p , q ▷ F ▹ G
+    snd-cong      : Γ ⊢ k ~ l ↓ Σˢ p , q ▷ F ▹ G
                   → Γ ⊢ snd p k ~ snd p l ↑ G [ fst p k ]₀
 
     natrec-cong   : Γ ∙ ℕ ⊢ F [conv↑] G
@@ -67,9 +67,9 @@ mutual
                   → Γ ⊢ k ~ l ↓ ℕ
                   → Γ ⊢ natrec p q r F a₀ h k ~ natrec p q r G b₀ g l ↑ F [ k ]₀
 
-    prodrec-cong  : Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ C [conv↑] E
-                  → Γ ⊢ g ~ h ↓ Σᵣ p , q ▷ F ▹ G
-                  → Γ ∙ F ∙ G ⊢ u [conv↑] v ∷ C [ prodᵣ p (var x1) (var x0) ]↑²
+    prodrec-cong  : Γ ∙ (Σʷ p , q ▷ F ▹ G) ⊢ C [conv↑] E
+                  → Γ ⊢ g ~ h ↓ Σʷ p , q ▷ F ▹ G
+                  → Γ ∙ F ∙ G ⊢ u [conv↑] v ∷ C [ prodʷ p (var x1) (var x0) ]↑²
                   → Γ ⊢ prodrec r p q′ C g u ~ prodrec r p q′ E h v ↑ C [ g ]₀
 
     emptyrec-cong : Γ ⊢ F [conv↑] H
@@ -187,10 +187,10 @@ mutual
     Unit-ins  : Γ ⊢ k ~ l ↓ Unit s
               → Γ ⊢ k [conv↓] l ∷ Unit s
 
-    Σᵣ-ins    : Γ ⊢ k ∷ Σᵣ p , q ▷ F ▹ G
-              → Γ ⊢ l ∷ Σᵣ p , q ▷ F ▹ G
-              → Γ ⊢ k ~ l ↓ Σᵣ p′ , q′ ▷ H ▹ E
-              → Γ ⊢ k [conv↓] l ∷ Σᵣ p , q ▷ F ▹ G
+    Σʷ-ins    : Γ ⊢ k ∷ Σʷ p , q ▷ F ▹ G
+              → Γ ⊢ l ∷ Σʷ p , q ▷ F ▹ G
+              → Γ ⊢ k ~ l ↓ Σʷ p′ , q′ ▷ H ▹ E
+              → Γ ⊢ k [conv↓] l ∷ Σʷ p , q ▷ F ▹ G
 
     ne-ins    : ∀ {k l M N}
               → Γ ⊢ k ∷ N
@@ -219,8 +219,8 @@ mutual
               → Γ ∙ F ⊢ G
               → Γ ⊢ t [conv↑] t′ ∷ F
               → Γ ⊢ u [conv↑] u′ ∷ G [ t ]₀
-              → Σᵣ-allowed p q
-              → Γ ⊢ prodᵣ p t u [conv↓] prodᵣ p t′ u′ ∷ Σᵣ p , q ▷ F ▹ G
+              → Σʷ-allowed p q
+              → Γ ⊢ prodʷ p t u [conv↓] prodʷ p t′ u′ ∷ Σʷ p , q ▷ F ▹ G
 
     η-eq      : ∀ {f g F G}
               → Γ ⊢ f ∷ Π p , q ▷ F ▹ G
@@ -230,13 +230,13 @@ mutual
               → Γ ∙ F ⊢ wk1 f ∘⟨ p ⟩ var x0 [conv↑] wk1 g ∘⟨ p ⟩ var x0 ∷ G
               → Γ ⊢ f [conv↓] g ∷ Π p , q ▷ F ▹ G
 
-    Σ-η       : Γ ⊢ k ∷ Σₚ p , q ▷ F ▹ G
-              → Γ ⊢ l ∷ Σₚ p , q ▷ F ▹ G
+    Σ-η       : Γ ⊢ k ∷ Σˢ p , q ▷ F ▹ G
+              → Γ ⊢ l ∷ Σˢ p , q ▷ F ▹ G
               → Product k
               → Product l
               → Γ ⊢ fst p k [conv↑] fst p l ∷ F
               → Γ ⊢ snd p k [conv↑] snd p l ∷ G [ fst p k ]₀
-              → Γ ⊢ k [conv↓] l ∷ Σₚ p , q ▷ F ▹ G
+              → Γ ⊢ k [conv↓] l ∷ Σˢ p , q ▷ F ▹ G
 
     η-unit    : ∀ {k l}
               → Γ ⊢ k ∷ Unitˢ
@@ -255,21 +255,21 @@ mutual
               → Γ ⊢ rfl [conv↓] rfl ∷ Id A t u
 
 star-refl : ⊢ Γ → Unit-allowed s → Γ ⊢ star s [conv↓] star s ∷ Unit s
-star-refl {s = Σₚ} ⊢Γ ok = η-unit (starⱼ ⊢Γ ok) (starⱼ ⊢Γ ok) starₙ starₙ
-star-refl {s = Σᵣ} = starʷ-refl
+star-refl {s = 𝕤} ⊢Γ ok = η-unit (starⱼ ⊢Γ ok) (starⱼ ⊢Γ ok) starₙ starₙ
+star-refl {s = 𝕨} = starʷ-refl
 
 -- An inversion lemma for prod-cong.
 
 prod-cong⁻¹ :
   ∀ {t′ u′} →
-  Γ ⊢ prodᵣ p t u [conv↓] prodᵣ p′ t′ u′ ∷ Σᵣ p″ , q ▷ F ▹ G →
+  Γ ⊢ prodʷ p t u [conv↓] prodʷ p′ t′ u′ ∷ Σʷ p″ , q ▷ F ▹ G →
   p PE.≡ p′ ×
   p PE.≡ p″ ×
   Γ ⊢ F ×
   Γ ∙ F ⊢ G ×
   (Γ ⊢ t [conv↑] t′ ∷ F) ×
   (Γ ⊢ u [conv↑] u′ ∷ G [ t ]₀) ×
-  Σᵣ-allowed p q
+  Σʷ-allowed p q
 prod-cong⁻¹ (prod-cong F G t u ok) =
   PE.refl , PE.refl , F , G , t , u , ok
 

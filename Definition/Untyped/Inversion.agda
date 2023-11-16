@@ -15,7 +15,7 @@ private variable
   ρ              : Wk _ _
   A B t t′ u v w : Term _
   p q r          : M
-  s              : SigmaMode
+  s              : Strength
   b              : BinderMode
 
 -- Inversion for var.

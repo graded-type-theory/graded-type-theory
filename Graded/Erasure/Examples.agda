@@ -20,8 +20,8 @@ module Graded.Erasure.Examples
   (Π-𝟘-ok : Π-allowed 𝟘 p)
   -- It is assumed that "Π ω , q" is allowed.
   (Π-ω-ok : Π-allowed ω q)
-  -- It is assumed that "Σₚ ω , r" is allowed.
-  (Σₚ-ω-ok : Σₚ-allowed ω r)
+  -- It is assumed that "Σˢ ω , r" is allowed.
+  (Σˢ-ω-ok : Σˢ-allowed ω r)
   -- It is assumed that Unit s is allowed.
   (Unit-ok : Unit-allowed s)
   where
@@ -297,7 +297,7 @@ private
     natrec 𝟘 𝟘 ω
       U
       (Unit s)
-      (Σₚ ω , r ▷ var x3 ▹ var x1)
+      (Σˢ ω , r ▷ var x3 ▹ var x1)
       (var x0)
 
   Vec-body₁ : Term (1+ n)
@@ -342,7 +342,7 @@ private
   ⊢Vec-body₂ : ε ∙ U ∙ ℕ ⊢ Vec-body₂ ∷ U
   ⊢Vec-body₂ =
     natrecⱼ Uℕℕ⊢U (Unitⱼ ⊢Uℕ Unit-ok)
-      (ΠΣⱼ UℕℕU⊢3 (var ⊢UℕℕU3 (there here)) Σₚ-ω-ok)
+      (ΠΣⱼ UℕℕU⊢3 (var ⊢UℕℕU3 (there here)) Σˢ-ω-ok)
       (var ⊢Uℕ here)
 
   -- A typing rule for Vec-body₁.
@@ -471,7 +471,7 @@ Vec∘zero⇒* {A = A} ⊢A =
   (β-red (ℕⱼ ⊢Γ) Γℕ⊢U ⊢Vec-body₂′ (zeroⱼ ⊢Γ) PE.refl Π-ω-ok ⇨
    (redMany $
     _⊢_⇒_∷_.natrec-zero Γℕ⊢U (Unitⱼ ⊢Γ Unit-ok) $
-    ΠΣⱼ ΓℕU⊢A (var (⊢ΓℕU ∙ univ ΓℕU⊢A) (there here)) Σₚ-ω-ok))
+    ΠΣⱼ ΓℕU⊢A (var (⊢ΓℕU ∙ univ ΓℕU⊢A) (there here)) Σˢ-ω-ok))
   where
   open Vec-lemmas ⊢A
 
@@ -482,7 +482,7 @@ Vec∘suc≡ :
   Γ ⊢ t ∷ ℕ →
   Γ ⊢
     wk wk₀ Vec ∘⟨ ω ⟩ A ∘⟨ ω ⟩ suc t ≡
-    Σₚ ω , r ▷ A ▹ (wk wk₀ Vec ∘⟨ ω ⟩ wk1 A ∘⟨ ω ⟩ wk1 t) ∷ U
+    Σˢ ω , r ▷ A ▹ (wk wk₀ Vec ∘⟨ ω ⟩ wk1 A ∘⟨ ω ⟩ wk1 t) ∷ U
 Vec∘suc≡ {Γ = Γ} {A = A} {t = t} ⊢A ⊢t =
   _⊢_≡_∷_.trans
     (app-cong
@@ -493,20 +493,20 @@ Vec∘suc≡ {Γ = Γ} {A = A} {t = t} ⊢A ⊢t =
     (β-red (ℕⱼ ⊢Γ) Γℕ⊢U ⊢Vec-body₂′ (sucⱼ ⊢t) PE.refl Π-ω-ok) $
   _⊢_≡_∷_.trans
     (flip (_⊢_≡_∷_.natrec-suc Γℕ⊢U (Unitⱼ ⊢Γ Unit-ok)) ⊢t $
-     ΠΣⱼ ΓℕU⊢A (var (⊢ΓℕU ∙ univ ΓℕU⊢A) (there here)) Σₚ-ω-ok) $
+     ΠΣⱼ ΓℕU⊢A (var (⊢ΓℕU ∙ univ ΓℕU⊢A) (there here)) Σˢ-ω-ok) $
   _⊢_≡_∷_.trans
     (_⊢_≡_∷_.sym $
      ΠΣ-cong (univ ⊢A)
        (PE.subst (_ ⊢ _ ≡_∷ _) (≡wk3[][] A) (refl ⊢A))
        (PE.subst (Γ ∙ A ⊢ (Vec-body₁ [ wk1 A ]₀) ∘⟨ ω ⟩ wk1 t ≡_∷ U)
           (PE.cong (flip (natrec 𝟘 𝟘 ω U (Unit s)) _) $
-           PE.cong (Σₚ _ , _ ▷_▹ _) $
+           PE.cong (Σˢ _ , _ ▷_▹ _) $
            wk3[]≡ A) $
         β-red (ℕⱼ ⊢ΓA) (Uⱼ ⊢ΓAℕ) ⊢Vec-body₂″
           (W.wkTerm (W.step W.id) ⊢ΓA ⊢t) PE.refl Π-ω-ok)
-       Σₚ-ω-ok) $
+       Σˢ-ω-ok) $
   _⊢_≡_∷_.sym $
-  flip (_⊢_≡_∷_.ΠΣ-cong (univ ⊢A) (refl ⊢A)) Σₚ-ω-ok $
+  flip (_⊢_≡_∷_.ΠΣ-cong (univ ⊢A) (refl ⊢A)) Σˢ-ω-ok $
   app-cong
     (β-red (Uⱼ ⊢ΓA) (syntacticTerm ⊢Vec-body₁″)
       ⊢Vec-body₁″ (W.wkTerm (W.step W.id) ⊢ΓA ⊢A) PE.refl Π-ω-ok) $
@@ -816,12 +816,12 @@ erase-head = PE.refl
 -- A concrete vector which contains a single natural number.
 
 [0] : Term 0
-[0] = prodₚ ω zero (star s)
+[0] = prodˢ ω zero (star s)
 
 -- [0] is well-resourced.
 
 ▸[0] : ε ▸[ 𝟙ᵐ ] [0]
-▸[0] = prodₚₘ zeroₘ starₘ
+▸[0] = prodˢₘ zeroₘ starₘ
 
 -- [0] is in η-long normal form.
 
@@ -829,12 +829,12 @@ erase-head = PE.refl
 [0]-normal =
   _⊢nf_∷_.convₙ
     (prodₙ (ℕⱼ ε) (Unitⱼ ⊢ℕ Unit-ok) (zeroₙ ε)
-       (starₙ ε Unit-ok) Σₚ-ω-ok) $
+       (starₙ ε Unit-ok) Σˢ-ω-ok) $
   _⊢_≡_.univ $
   _⊢_≡_∷_.sym $
   _⊢_≡_∷_.trans (Vec∘suc≡ (ℕⱼ ε) (zeroⱼ ε)) $
   ΠΣ-cong (ℕⱼ ε) (refl (ℕⱼ ε))
-    (subset*Term (Vec∘zero⇒* (ℕⱼ (ε ∙ ℕⱼ ε)))) Σₚ-ω-ok
+    (subset*Term (Vec∘zero⇒* (ℕⱼ (ε ∙ ℕⱼ ε)))) Σˢ-ω-ok
 
 -- A typing rule for [0].
 

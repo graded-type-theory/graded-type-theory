@@ -540,9 +540,9 @@ wkEq = Definition.Typed.Weakening.wkEq
 -- One can define something like prodrec for the Σ-types with
 -- η-equality.
 
-prodrec-for-Σₚ              = Definition.Untyped.Sigma.prodrecₚ
+prodrec-for-Σₚ              = Definition.Untyped.Sigma.prodrecˢ
 prodrec-for-Σₚ-type-correct =
-  Definition.Typed.Consequences.DerivedRules.Sigma.prodrecₚⱼ
+  Definition.Typed.Consequences.DerivedRules.Sigma.prodrecˢⱼ
 
 -- However, our definition does not in general satisfy the usage rule
 -- for prodrec.
@@ -551,13 +551,13 @@ prodrec-for-Σₚ-usage = Graded.Derived.Sigma.¬prodrecₘ
 
 -- One can also define projections for weak Σ-types by using prodrec.
 
-fst-for-Σᵣ = Definition.Untyped.Sigma.Fstᵣ-sndᵣ.fstᵣ
-snd-for-Σᵣ = Definition.Untyped.Sigma.Fstᵣ-sndᵣ.sndᵣ
+fst-for-Σᵣ = Definition.Untyped.Sigma.Fstʷ-sndʷ.fstʷ
+snd-for-Σᵣ = Definition.Untyped.Sigma.Fstʷ-sndʷ.sndʷ
 
 -- However, η-equality does not hold in general for our definitions.
 
 no-η-equality-Σᵣ =
-  Definition.Typed.Consequences.DerivedRules.Sigma.Fstᵣ-sndᵣ.¬-Σᵣ-η-prodᵣ-fstᵣ-sndᵣ
+  Definition.Typed.Consequences.DerivedRules.Sigma.Fstʷ-sndʷ.¬-Σʷ-η-prodʷ-fstʷ-sndʷ
 
 -- Reduction relations
 

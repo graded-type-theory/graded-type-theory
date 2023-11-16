@@ -826,15 +826,15 @@ substCompProdrec {n = n} A t u σ = begin
 
 [1,0]↑²[,] :
   (t : Term (1+ n)) →
-  t [ prodₚ p (var x1) (var x0) ]↑² [ u , v ] ≡
-  t [ prodₚ p u v ]₀
+  t [ prodˢ p (var x1) (var x0) ]↑² [ u , v ] ≡
+  t [ prodˢ p u v ]₀
 [1,0]↑²[,] {p = p} {u = u} {v = v} t =
-  t [ prodₚ p (var x1) (var x0) ]↑² [ u , v ]  ≡˘⟨ substCompProdrec t _ _ _ ⟩
+  t [ prodˢ p (var x1) (var x0) ]↑² [ u , v ]  ≡˘⟨ substCompProdrec t _ _ _ ⟩
 
-  t [ liftSubst idSubst ] [ prodₚ p u v ]₀     ≡⟨ cong _[ _ ] $
+  t [ liftSubst idSubst ] [ prodˢ p u v ]₀     ≡⟨ cong _[ _ ] $
                                                   trans (substVar-to-subst subst-lift-id t) $
                                                   subst-id t ⟩
-  t [ prodₚ p u v ]₀                           ∎
+  t [ prodˢ p u v ]₀                           ∎
 
 doubleSubstComp : (A : Term (1+ (1+ n))) (t u : Term m) (σ : Subst m n)
                 → A [ liftSubstn σ 2 ] [ t , u ]
@@ -938,12 +938,12 @@ noClosedNe (Jₙ net) = noClosedNe net
 noClosedNe (Kₙ net) = noClosedNe net
 noClosedNe ([]-congₙ net) = noClosedNe net
 
--- Decidability of SigmaMode equality
-decSigmaMode : Decidable (_≡_ {A = SigmaMode})
-decSigmaMode Σₚ Σₚ = yes refl
-decSigmaMode Σₚ Σᵣ = no λ{()}
-decSigmaMode Σᵣ Σₚ = no λ{()}
-decSigmaMode Σᵣ Σᵣ = yes refl
+-- Decidability of Strength equality
+decStrength : Decidable (_≡_ {A = Strength})
+decStrength 𝕤 𝕤 = yes refl
+decStrength 𝕤 𝕨 = no λ{()}
+decStrength 𝕨 𝕤 = no λ{()}
+decStrength 𝕨 𝕨 = yes refl
 
 -- Decidability of equality for BinderMode.
 decBinderMode : Decidable (_≡_ {A = BinderMode})
@@ -951,7 +951,7 @@ decBinderMode = λ where
   BMΠ      BMΠ      → yes refl
   BMΠ      (BMΣ _)  → no (λ ())
   (BMΣ _)  BMΠ      → no (λ ())
-  (BMΣ s₁) (BMΣ s₂) → case decSigmaMode s₁ s₂ of λ where
+  (BMΣ s₁) (BMΣ s₂) → case decStrength s₁ s₂ of λ where
     (yes refl) → yes refl
     (no s₁≢s₂)    → no λ where
       refl → s₁≢s₂ refl

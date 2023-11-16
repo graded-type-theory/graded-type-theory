@@ -53,11 +53,11 @@ private
         ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
         ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ F / [Γ] / [F])
         ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ G [ t ]₀ / [Γ] / substS {F = F} {G} [Γ] [F] [G] [t])
-      → Σₚ-allowed p q
-      → Γ ⊩ᵛ⟨ l ⟩ fst p (prodₚ p t u) ≡ t ∷ F / [Γ] / [F]
+      → Σˢ-allowed p q
+      → Γ ⊩ᵛ⟨ l ⟩ fst p (prodˢ p t u) ≡ t ∷ F / [Γ] / [F]
 Σ-β₁ᵛ {Γ = Γ} {F = F} {G} {t} {u} {l} [Γ] [F] [G] [t] [u] ok =
   let [Gt] = substS {F = F} {G} {t} [Γ] [F] [G] [t]
-      fst⇒t : Γ ⊩ᵛ fst _ (prodₚ _ t u) ⇒ t ∷ F / [Γ]
+      fst⇒t : Γ ⊩ᵛ fst _ (prodˢ _ t u) ⇒ t ∷ F / [Γ]
       fst⇒t = (λ {_} {Δ} {σ} ⊢Δ [σ] →
                 let ⊩σF = proj₁ (unwrap [F] ⊢Δ [σ])
                     ⊢σF = escape ⊩σF
@@ -77,7 +77,7 @@ private
                     ⊩σu = irrelevanceTerm′ (singleSubstLift G t) ⊩σGt₁ ⊩σGt ⊩σu₁
                     ⊢σu = escapeTerm ⊩σGt ⊩σu
                 in  Σ-β₁ ⊢σF ⊢σG ⊢σt ⊢σu PE.refl ok)
-  in  redSubstTermᵛ {A = F} {fst _ (prodₚ _ t u)} {t} [Γ] fst⇒t [F] [t]
+  in  redSubstTermᵛ {A = F} {fst _ (prodˢ _ t u)} {t} [Γ] fst⇒t [F] [t]
         .proj₂
 
 Σ-β₂ᵛ :
@@ -87,15 +87,15 @@ private
   ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
   ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ F / [Γ] / [F])
   ([u] : Γ ⊩ᵛ⟨ l ⟩ u ∷ G [ t ]₀ / [Γ] / substS [Γ] [F] [G] [t])
-  (ok : Σₚ-allowed p q) →
-  Γ ⊩ᵛ⟨ l ⟩ snd p (prodₚ p t u) ≡ u ∷ G [ fst p (prodₚ p t u) ]₀ / [Γ] /
+  (ok : Σˢ-allowed p q) →
+  Γ ⊩ᵛ⟨ l ⟩ snd p (prodˢ p t u) ≡ u ∷ G [ fst p (prodˢ p t u) ]₀ / [Γ] /
     substS {F = F} {G} [Γ] [F] [G]
-      (fstᵛ {q = q} {t = prodₚ p t u} [Γ] [F] [G] ok
+      (fstᵛ {q = q} {t = prodˢ p t u} [Γ] [F] [G] ok
          (prodᵛ {t = t} {u} [Γ] [F] [G] [t] [u] ok))
 Σ-β₂ᵛ {Γ = Γ} {F = F} {G} {t} {u} {l} [Γ] [F] [G] [t] [u] ok =
   let [Gt] = substS {F = F} {G} {t} [Γ] [F] [G] [t]
       [prod] = prodᵛ {F = F} {G} {t} {u} [Γ] [F] [G] [t] [u] ok
-      [fst] = fstᵛ {t = prodₚ _ t u} [Γ] [F] [G] ok [prod]
+      [fst] = fstᵛ {t = prodˢ _ t u} [Γ] [F] [G] ok [prod]
       [Gfst] = substS [Γ] [F] [G] [fst]
       [fst≡t] = Σ-β₁ᵛ {F = F} {G} {t} {u} [Γ] [F] [G] [t] [u] ok
       [Gfst≡Gt] = substSEq [Γ] [F] [F] (reflᵛ {A = F} [Γ] [F])
@@ -104,7 +104,7 @@ private
 
       [u]Gfst = conv₂ᵛ {t = u} [Γ] [Gfst] [Gt] [Gfst≡Gt] [u]
 
-      snd⇒t : Γ ⊩ᵛ snd _ (prodₚ _ t u) ⇒ u ∷ G [ fst _ (prodₚ _ t u) ]₀ /
+      snd⇒t : Γ ⊩ᵛ snd _ (prodˢ _ t u) ⇒ u ∷ G [ fst _ (prodˢ _ t u) ]₀ /
                 [Γ]
       snd⇒t = (λ {_} {Δ} {σ} ⊢Δ [σ] →
                 let ⊩σF = proj₁ (unwrap [F] ⊢Δ [σ])
@@ -129,18 +129,18 @@ private
                     snd⇒t = Σ-β₂ ⊢σF ⊢σG ⊢σt ⊢σu PE.refl ok
                     σGfst≡σGfst = PE.subst
                       (λ x →
-                         Δ ⊢ x ≡ G [ fst _ (prodₚ _ t u) ]₀ [ σ ])
-                      (singleSubstLift G (fst _ (prodₚ _ t u)))
+                         Δ ⊢ x ≡ G [ fst _ (prodˢ _ t u) ]₀ [ σ ])
+                      (singleSubstLift G (fst _ (prodˢ _ t u)))
                       (refl (escape (proj₁ (unwrap [Gfst] ⊢Δ [σ]))))
               in  conv snd⇒t σGfst≡σGfst)
-  in  redSubstTermᵛ {t = snd _ (prodₚ _ t u)} {u}
+  in  redSubstTermᵛ {t = snd _ (prodˢ _ t u)} {u}
         [Γ] snd⇒t [Gfst] [u]Gfst .proj₂
 
 Σ-η′ :
   ∀ {F G p r l l′}
   ([F] : Γ ⊩⟨ l′ ⟩ F)
   ([Gfstp] : Γ ⊩⟨ l′ ⟩ G [ fst p′ p ]₀)
-  ([ΣFG]₁ : Γ ⊩⟨ l ⟩B⟨ BΣ Σₚ p′ q ⟩ Σₚ p′ , q ▷ F ▹ G )
+  ([ΣFG]₁ : Γ ⊩⟨ l ⟩B⟨ BΣ 𝕤 p′ q ⟩ Σˢ p′ , q ▷ F ▹ G )
   ([p] : Γ ⊩⟨ l ⟩ p ∷ Σ p′ , q ▷ F ▹ G / B-intr BΣ! [ΣFG]₁)
   ([r] : Γ ⊩⟨ l ⟩ r ∷ Σ p′ , q ▷ F ▹ G / B-intr BΣ! [ΣFG]₁)
   ([fst≡] : Γ ⊩⟨ l′ ⟩ fst p′ p ≡ fst p′ r ∷ F / [F])
@@ -262,7 +262,7 @@ private
   ∀ {F G p r l}
   ([F] : Γ ⊩⟨ l ⟩ F)
   ([Gfst] : Γ ⊩⟨ l ⟩ G [ fst p′ p ]₀)
-  ([ΣFG] : Γ ⊩⟨ l ⟩ Σₚ p′ , q ▷ F ▹ G)
+  ([ΣFG] : Γ ⊩⟨ l ⟩ Σˢ p′ , q ▷ F ▹ G)
   ([p] : Γ ⊩⟨ l ⟩ p ∷ Σ p′ , q ▷ F ▹ G / [ΣFG])
   ([r] : Γ ⊩⟨ l ⟩ r ∷ Σ p′ , q ▷ F ▹ G / [ΣFG])
   ([fst≡] : Γ ⊩⟨ l ⟩ fst p′ p ≡ fst p′ r ∷ F / [F])
@@ -283,7 +283,7 @@ private
   ([Γ] : ⊩ᵛ Γ)
   ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
   ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
-  (ok : Σₚ-allowed p′ q) →
+  (ok : Σˢ-allowed p′ q) →
   let [ΣFG] = Σᵛ {q = q} [Γ] [F] [G] ok in
   ([p] : Γ ⊩ᵛ⟨ l ⟩ p ∷ Σ _ , _ ▷ F ▹ G / [Γ] / [ΣFG])
   ([r] : Γ ⊩ᵛ⟨ l ⟩ r ∷ Σ _ , _ ▷ F ▹ G / [Γ] / [ΣFG])

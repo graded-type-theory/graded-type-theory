@@ -42,7 +42,7 @@ private
     x : Fin n
     m m′ : Mode
     b : BinderMode
-    s : SigmaMode
+    s : Strength
 
 -- Modality context inference (for modalities with nr functions).
 
@@ -57,8 +57,8 @@ mutual
   ⌈ ΠΣ⟨ _ ⟩ p , q ▷ F ▹ G ⌉ m = ⌈ F ⌉ (m ᵐ· p) +ᶜ tailₘ (⌈ G ⌉ m)
   ⌈ lam p t ⌉ m = tailₘ (⌈ t ⌉ m)
   ⌈ t ∘⟨ p ⟩ u ⌉ m = ⌈ t ⌉ m +ᶜ p ·ᶜ ⌈ u ⌉ (m ᵐ· p)
-  ⌈ prod Σᵣ p t u ⌉ m = p ·ᶜ ⌈ t ⌉ (m ᵐ· p) +ᶜ ⌈ u ⌉ m
-  ⌈ prod Σₚ p t u ⌉ m = p ·ᶜ ⌈ t ⌉ (m ᵐ· p) ∧ᶜ ⌈ u ⌉ m
+  ⌈ prod 𝕨 p t u ⌉ m = p ·ᶜ ⌈ t ⌉ (m ᵐ· p) +ᶜ ⌈ u ⌉ m
+  ⌈ prod 𝕤 p t u ⌉ m = p ·ᶜ ⌈ t ⌉ (m ᵐ· p) ∧ᶜ ⌈ u ⌉ m
   ⌈ fst p t ⌉ m = ⌈ t ⌉ m
   ⌈ snd p t ⌉ m = ⌈ t ⌉ m
   ⌈ prodrec r _ _ _ t u ⌉ m =
@@ -211,13 +211,13 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → δ ▸[ m ᵐ· p ] u
             → γ +ᶜ p ·ᶜ δ ▸[ m ] t ∘⟨ p ⟩ u
 
-  prodᵣₘ    : γ ▸[ m ᵐ· p ] t
+  prodʷₘ    : γ ▸[ m ᵐ· p ] t
             → δ ▸[ m ] u
-            → p ·ᶜ γ +ᶜ δ ▸[ m ] prodᵣ p t u
+            → p ·ᶜ γ +ᶜ δ ▸[ m ] prodʷ p t u
 
-  prodₚₘ   : γ ▸[ m ᵐ· p ] t
+  prodˢₘ   : γ ▸[ m ᵐ· p ] t
            → δ ▸[ m ] u
-           → p ·ᶜ γ ∧ᶜ δ ▸[ m ] prodₚ p t u
+           → p ·ᶜ γ ∧ᶜ δ ▸[ m ] prodˢ p t u
 
   -- Note that either p ≤ 𝟙 or m′ ≡ 𝟘ᵐ
   fstₘ      : ∀ m
@@ -359,7 +359,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → δ ▸[ m ] t
 
 starₘ : 𝟘ᶜ {n} ▸[ m ] star s
-starₘ {s = Σₚ} =
+starₘ {s = 𝕤} =
   sub (starˢₘ λ _ → ≈ᶜ-refl)
       (≤ᶜ-reflexive (≈ᶜ-sym (·ᶜ-zeroʳ _)))
-starₘ {s = Σᵣ} = starʷₘ
+starₘ {s = 𝕨} = starʷₘ

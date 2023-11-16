@@ -45,7 +45,7 @@ private
 
 -- Second projector substitution of reduction closures
 
-snd-subst* : Γ ⊢ t ⇒* t′ ∷ Σₚ p , q ▷ F ▹ G
+snd-subst* : Γ ⊢ t ⇒* t′ ∷ Σˢ p , q ▷ F ▹ G
            → Γ ⊢ F
            → Γ ∙ F ⊢ G
            → Γ ⊢ snd p t ⇒* snd p t′ ∷ G [ fst p t ]₀
@@ -69,11 +69,11 @@ natrec-subst* (x ⇨ t⇒t′) ⊢A ⊢z ⊢s =
 
 -- Prodrec substitution of reduction closures
 
-prodrec-subst* : Γ ⊢ t ⇒* t′ ∷ Σᵣ p , q ▷ F ▹ G
+prodrec-subst* : Γ ⊢ t ⇒* t′ ∷ Σʷ p , q ▷ F ▹ G
                → Γ ⊢ F
                → Γ ∙ F ⊢ G
-               → Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ A
-               → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var x1) (var x0) ]↑²
+               → Γ ∙ (Σʷ p , q ▷ F ▹ G) ⊢ A
+               → Γ ∙ F ∙ G ⊢ u ∷ A [ prodʷ p (var x1) (var x0) ]↑²
                → Γ ⊢ prodrec r p q′ A t u ⇒* prodrec r p q′ A t′ u ∷ A [ t ]₀
 prodrec-subst* (id x) ⊢F ⊢G ⊢A ⊢u =
   id (prodrecⱼ ⊢F ⊢G ⊢A x ⊢u ok)

@@ -303,7 +303,7 @@ mutual
 
   dec⇉-fst : ⊢ Γ → Inferable t → Dec (∃ λ A → Γ ⊢ fst p t ⇉ A)
   dec⇉-fst {p = p′} ⊢Γ t = case dec⇉ ⊢Γ t of λ where
-    (yes (A , t⇉A)) → case isΣₚ (proj₁ (soundness⇉ ⊢Γ t⇉A)) of λ where
+    (yes (A , t⇉A)) → case isΣˢ (proj₁ (soundness⇉ ⊢Γ t⇉A)) of λ where
       (yes (F , G , p , q , ⊢F , ⊢G , A⇒Σ)) → case p ≟ p′ of λ where
         (yes PE.refl) → yes (_ , fstᵢ t⇉A (A⇒Σ , U.ΠΣₙ))
         (no p≢p′) → no λ where
@@ -321,7 +321,7 @@ mutual
 
   dec⇉-snd : ⊢ Γ → Inferable t → Dec (∃ λ A → Γ ⊢ snd p t ⇉ A)
   dec⇉-snd {p = p′} ⊢Γ t = case dec⇉ ⊢Γ t of λ where
-    (yes (A , t⇉A)) → case isΣₚ (proj₁ (soundness⇉ ⊢Γ t⇉A)) of λ where
+    (yes (A , t⇉A)) → case isΣˢ (proj₁ (soundness⇉ ⊢Γ t⇉A)) of λ where
       (yes (F , G , p , q , ⊢F , ⊢G , A⇒Σ)) → case p ≟ p′ of λ where
         (yes PE.refl) → yes (_ , sndᵢ t⇉A (A⇒Σ , U.ΠΣₙ))
         (no p≢p′) → no λ where
@@ -363,7 +363,7 @@ mutual
                → Dec (∃ λ B → Γ ⊢ prodrec r p q A t u ⇉ B)
   dec⇉-prodrec {r = r} {p = p′} {q = q} ⊢Γ A t u =
     case dec⇉ ⊢Γ t of λ where
-      (yes (B , t⇉B)) → case isΣᵣ (proj₁ (soundness⇉ ⊢Γ t⇉B)) of λ where
+      (yes (B , t⇉B)) → case isΣʷ (proj₁ (soundness⇉ ⊢Γ t⇉B)) of λ where
         (yes (F , G , p , _ , ⊢F , ⊢G , B⇒Σ)) →
           case inversion-ΠΣ (syntacticRed B⇒Σ .proj₂) of λ {
             (_ , _ , ok) →
@@ -412,7 +412,7 @@ mutual
 
   dec⇉-unitrec : ⊢ Γ → Checkable A → Checkable t
               → Checkable u → Dec (∃ λ B → Γ ⊢ unitrec p q A t u ⇉ B)
-  dec⇉-unitrec ⊢Γ A t u = case Unit-ok? Σᵣ of λ where
+  dec⇉-unitrec ⊢Γ A t u = case Unit-ok? 𝕨 of λ where
     (yes ok) → case Unitⱼ ⊢Γ ok of λ
       ⊢Unit → case dec⇇Type (⊢Γ ∙ ⊢Unit) A of λ where
         (yes A⇇Type) → case dec⇇ ⊢Γ t ⊢Unit of λ where
@@ -742,7 +742,7 @@ mutual
     (yes (F , G , m , p , q , ⊢F , ⊢G , A⇒Σ)) → case dec⇇ ⊢Γ t ⊢F of λ where
       (yes t⇇F) → case dec⇇ ⊢Γ u (substType ⊢G (soundness⇇ ⊢Γ t⇇F)) of λ where
         (yes u⇇Gₜ) → case p ≟ p′ of λ where
-          (yes PE.refl) → case decSigmaMode m m′ of λ where
+          (yes PE.refl) → case decStrength m m′ of λ where
             (yes PE.refl) → yes (prodᶜ (A⇒Σ , ΠΣₙ) t⇇F u⇇Gₜ)
             (no m≢m′) → no λ where
               (prodᶜ x x₁ x₂) →

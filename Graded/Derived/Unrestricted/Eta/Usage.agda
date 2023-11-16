@@ -86,7 +86,7 @@ private
 
 ▸[] : γ ▸[ m ] t → ω ·ᶜ γ ▸[ m ] [ t ]
 ▸[] {γ = γ} {m = m} ▸t = sub
-  (prodₚₘ (▸-cong (PE.sym ᵐ·-identityʳ′) ▸t) starₘ)
+  (prodˢₘ (▸-cong (PE.sym ᵐ·-identityʳ′) ▸t) starₘ)
   (begin
      ω ·ᶜ γ        ≤⟨ ∧ᶜ-greatest-lower-bound ≤ᶜ-refl ω·ᶜ≤ᶜ𝟘ᶜ ⟩
      ω ·ᶜ γ ∧ᶜ 𝟘ᶜ  ∎)
@@ -128,8 +128,8 @@ inv-usage-Unrestricted {γ = γ} {m = m} ▸Unrestricted =
 
 inv-usage-[] : γ ▸[ m ] [ t ] → ∃ λ δ → δ ▸[ m ] t × γ ≤ᶜ ω ·ᶜ δ
 inv-usage-[] {γ = γ} {m = m} ▸[] =
-  case inv-usage-prodₚ ▸[] of λ {
-    (invUsageProdₚ {δ = δ} {η = η} ▸t ▸star γ≤) →
+  case inv-usage-prodˢ ▸[] of λ {
+    (invUsageProdˢ {δ = δ} {η = η} ▸t ▸star γ≤) →
     δ
   , ▸-cong ᵐ·-identityʳ′ ▸t
   , (begin

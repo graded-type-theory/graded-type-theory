@@ -5,14 +5,14 @@
 
 open import Definition.Typed.Restrictions
 import Graded.Modality
-open import Definition.Untyped.NotParametrised using (SigmaMode)
+open import Definition.Untyped.NotParametrised using (Strength)
 
 module Graded.Derived.Erased.Typed.Inversion
   {a} {M : Set a}
   (open Graded.Modality M)
   {𝕄 : Modality}
   (R : Type-restrictions 𝕄)
-  (s : SigmaMode)
+  (s : Strength)
   where
 
 open Modality 𝕄
@@ -48,8 +48,8 @@ opaque
     Γ ⊢ A ∷ U × Erased-allowed s × Γ ⊢ B ≡ U
   inversion-Erased-∷ ⊢Erased =
     case inversion-ΠΣ-U ⊢Erased of λ {
-      (⊢A , ⊢Unit , B≡ , Σₚ-ok) →
-    ⊢A , (inversion-Unit (univ ⊢Unit) , Σₚ-ok) , B≡ }
+      (⊢A , ⊢Unit , B≡ , Σˢ-ok) →
+    ⊢A , (inversion-Unit (univ ⊢Unit) , Σˢ-ok) , B≡ }
 
 opaque
 
@@ -58,8 +58,8 @@ opaque
   inversion-Erased : Γ ⊢ Erased A → Γ ⊢ A × Erased-allowed s
   inversion-Erased ⊢Erased =
     case inversion-ΠΣ ⊢Erased of λ {
-      (⊢A , ⊢Unit , Σₚ-ok) →
-    ⊢A , inversion-Unit ⊢Unit , Σₚ-ok }
+      (⊢A , ⊢Unit , Σˢ-ok) →
+    ⊢A , inversion-Unit ⊢Unit , Σˢ-ok }
 
 opaque
 
@@ -78,10 +78,10 @@ opaque
        Γ ⊢ C U.[ t ]₀ ≡ Unit s
   inversion-[] ⊢[] =
     case inversion-prod ⊢[] of λ {
-      (B , C , q , ⊢B , _ , ⊢t , ⊢star , A≡ , Σₚ-ok) →
+      (B , C , q , ⊢B , _ , ⊢t , ⊢star , A≡ , Σˢ-ok) →
     case inversion-star ⊢star of λ {
       (≡Unit , Unit-ok) →
-    B , q , C , ⊢t , (Unit-ok , Σₚ-ok) , A≡ , ≡Unit }}
+    B , q , C , ⊢t , (Unit-ok , Σˢ-ok) , A≡ , ≡Unit }}
 
 opaque
 

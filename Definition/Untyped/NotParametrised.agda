@@ -35,17 +35,16 @@ data GenTs (A : Nat → Set a) : Nat → List Nat → Set a where
   []  : {n : Nat} → GenTs A n []
   _∷_ : {n b : Nat} {bs : List Nat} (t : A (b + n)) (ts : GenTs A n bs) → GenTs A n (b ∷ bs)
 
--- Sigma types have two modes, allowing either projections or prodrec
--- TODO: Currently also used for the modes of the Unit type.
--- Rename or split into two definitions?
-data SigmaMode : Set where
-  Σₚ Σᵣ : SigmaMode
+-- Sigma and Unit types have two modes, allowing either projections
+-- and η-equality (strong) or elimination by prodrec/unitrec (weak).
+data Strength : Set where
+  𝕤 𝕨 : Strength
 
 -- Π- or Σ-types.
 
 data BinderMode : Set where
   BMΠ : BinderMode
-  BMΣ : (s : SigmaMode) → BinderMode
+  BMΣ : (s : Strength) → BinderMode
 
 ------------------------------------------------------------------------
 -- Weakening

@@ -51,18 +51,18 @@ open import Tools.Relation
 
 private variable
   p q : M
-  s   : SigmaMode
+  s   : Strength
 
 -- If Prodrec-allowed 𝟘 p 𝟘 holds for some p (which means that certain
 -- kinds of erased matches are allowed), and if additionally
--- Σᵣ-allowed p 𝟘 holds, then one cannot prove a variant of the
+-- Σʷ-allowed p 𝟘 holds, then one cannot prove a variant of the
 -- fundamental lemma without the assumption "erased matches are not
 -- allowed or the context is empty" (assuming that Agda is
 -- consistent).
 
 negation-of-fundamental-lemma-with-erased-matches₁ :
   Prodrec-allowed 𝟘 p 𝟘 →
-  Σᵣ-allowed p 𝟘 →
+  Σʷ-allowed p 𝟘 →
   ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
      let open LR ⊢Δ in
      Consistent Δ →
@@ -71,12 +71,12 @@ negation-of-fundamental-lemma-with-erased-matches₁ :
      ∃₂ λ ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ]) →
        γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A / [Γ] / [A])
 negation-of-fundamental-lemma-with-erased-matches₁
-  {p = p} P-ok Σᵣ-ok hyp =
+  {p = p} P-ok Σʷ-ok hyp =
   ¬t®t $ hidden-®-intro-fundamental non-trivial $
   hyp ⊢Δ consistent ⊢t ▸t
   where
   Δ : Con Term 1
-  Δ = ε ∙ (Σᵣ p , 𝟘 ▷ ℕ ▹ ℕ)
+  Δ = ε ∙ (Σʷ p , 𝟘 ▷ ℕ ▹ ℕ)
 
   t : Term 1
   t = prodrec 𝟘 p 𝟘 ℕ (var x0) zero
@@ -85,16 +85,16 @@ negation-of-fundamental-lemma-with-erased-matches₁
   A = ℕ
 
   ⊢Δ : ⊢ Δ
-  ⊢Δ = ε ∙ ΠΣⱼ (ℕⱼ ε) (ℕⱼ (ε ∙ ℕⱼ ε)) Σᵣ-ok
+  ⊢Δ = ε ∙ ΠΣⱼ (ℕⱼ ε) (ℕⱼ (ε ∙ ℕⱼ ε)) Σʷ-ok
 
   consistent : Consistent Δ
   consistent =
     inhabited-consistent $ singleSubst $
-    prodⱼ (ℕⱼ ε) (ℕⱼ (ε ∙ ℕⱼ ε)) (zeroⱼ ε) (zeroⱼ ε) Σᵣ-ok
+    prodⱼ (ℕⱼ ε) (ℕⱼ (ε ∙ ℕⱼ ε)) (zeroⱼ ε) (zeroⱼ ε) Σʷ-ok
 
   ⊢t : Δ ⊢ t ∷ A
   ⊢t = prodrecⱼ′
-    (ℕⱼ (⊢Δ ∙ ΠΣⱼ (ℕⱼ ⊢Δ) (ℕⱼ (⊢Δ ∙ ℕⱼ ⊢Δ)) Σᵣ-ok))
+    (ℕⱼ (⊢Δ ∙ ΠΣⱼ (ℕⱼ ⊢Δ) (ℕⱼ (⊢Δ ∙ ℕⱼ ⊢Δ)) Σʷ-ok))
     (var ⊢Δ here)
     (zeroⱼ (⊢Δ ∙ ℕⱼ ⊢Δ ∙ ℕⱼ (⊢Δ ∙ ℕⱼ ⊢Δ)))
 

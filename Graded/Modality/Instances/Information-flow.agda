@@ -738,14 +738,14 @@ L/≡L {p = p} = /≡→/≡ {q = p} $ D.𝟙/≡𝟙 {p = p} L≤
 
 -- An instance of Type-restrictions (L≤M≤H variant) is suitable for
 -- the full reduction theorem if
--- * Σₚ-allowed M p does not hold, and
--- * Σₚ-allowed H p implies that 𝟘ᵐ is allowed.
+-- * Σˢ-allowed M p does not hold, and
+-- * Σˢ-allowed H p implies that 𝟘ᵐ is allowed.
 
 Suitable-for-full-reduction :
   ∀ variant → Type-restrictions (L≤M≤H variant) → Set
 Suitable-for-full-reduction variant trs =
-  (∀ p → ¬ Σₚ-allowed M p) ×
-  (∀ p → Σₚ-allowed H p → T 𝟘ᵐ-allowed)
+  (∀ p → ¬ Σˢ-allowed M p) ×
+  (∀ p → Σˢ-allowed H p → T 𝟘ᵐ-allowed)
   where
   open Modality-variant variant
   open Type-restrictions trs
@@ -760,8 +760,8 @@ suitable-for-full-reduction {variant = variant} trs =
     record trs
       { ΠΣ-allowed = λ b p q →
           ΠΣ-allowed b p q ×
-          ¬ (b ≡ BMΣ Σₚ × p ≡ M) ×
-          (b ≡ BMΣ Σₚ × p ≡ H → T 𝟘ᵐ-allowed)
+          ¬ (b ≡ BMΣ 𝕤 × p ≡ M) ×
+          (b ≡ BMΣ 𝕤 × p ≡ H → T 𝟘ᵐ-allowed)
       ; []-cong-allowed = λ s →
           []-cong-allowed s × T 𝟘ᵐ-allowed
       ; []-cong→Erased = λ (ok₁ , ok₂) →

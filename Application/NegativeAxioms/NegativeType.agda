@@ -40,7 +40,7 @@ private
     A B C : Term m
     t u   : Term m
     p q   : M
-    s     : SigmaMode
+    s     : Strength
 
 -- Negative types
 ---------------------------------------------------------------------------
@@ -59,7 +59,7 @@ data NegativeType (Γ : Cxt m) : Ty m → Set a where
   sigma : Γ ⊢ A
         → NegativeType Γ A
         → NegativeType (Γ ∙ A) B
-        → NegativeType Γ (Σₚ p , q ▷ A ▹ B)
+        → NegativeType Γ (Σˢ p , q ▷ A ▹ B)
 
   conv  : NegativeType Γ A
         → Γ ⊢ A ≡ B
@@ -108,7 +108,7 @@ subNeg1 n ⊢t = subNeg n (singleSubst ⊢t) (wfTerm ⊢t)
 
 fstNeg :
   NegativeType Γ C →
-  Γ ⊢ C ≡ Σₚ p , q ▷ A ▹ B →
+  Γ ⊢ C ≡ Σˢ p , q ▷ A ▹ B →
   NegativeType Γ A
 fstNeg empty          c = ⊥-elim (Empty≢Σⱼ c)
 fstNeg (pi _ _)       c = ⊥-elim (Π≢Σⱼ c)
@@ -119,7 +119,7 @@ fstNeg (conv n c)    c' = fstNeg n (trans c c')
 
 sndNeg :
   NegativeType Γ C →
-  Γ ⊢ C ≡ Σₚ p , q ▷ A ▹ B →
+  Γ ⊢ C ≡ Σˢ p , q ▷ A ▹ B →
   Γ ⊢ t ∷ A →
   NegativeType Γ (B [ t ]₀)
 sndNeg empty          c = ⊥-elim (Empty≢Σⱼ c)
@@ -145,13 +145,13 @@ appNeg (conv n c)    c' = appNeg n (trans c c')
 ¬negℕ (sigma _ _ _) c = ℕ≢Σ (sym c)
 ¬negℕ (conv n c)   c' = ¬negℕ n (trans c c')
 
--- Lemma: The type Σᵣ is not negative
+-- Lemma: The type Σʷ is not negative
 
-¬negΣᵣ : NegativeType Γ C → Γ ⊢ C ≡ Σᵣ p , q ▷ A ▹ B → ⊥
-¬negΣᵣ empty         c = Empty≢Bⱼ BΣ! c
-¬negΣᵣ (pi _ _)      c = Π≢Σⱼ c
-¬negΣᵣ (sigma _ _ _) c = Σₚ≢Σᵣⱼ c
-¬negΣᵣ (conv n c)   c' = ¬negΣᵣ n (trans c c')
+¬negΣʷ : NegativeType Γ C → Γ ⊢ C ≡ Σʷ p , q ▷ A ▹ B → ⊥
+¬negΣʷ empty         c = Empty≢Bⱼ BΣ! c
+¬negΣʷ (pi _ _)      c = Π≢Σⱼ c
+¬negΣʷ (sigma _ _ _) c = Σˢ≢Σʷⱼ c
+¬negΣʷ (conv n c)   c' = ¬negΣʷ n (trans c c')
 
 -- Lemma: The type Unit is not negative.
 

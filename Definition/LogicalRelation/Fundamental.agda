@@ -955,7 +955,7 @@ mutual
         [fst≡t] = Σ-β₁ᵛ {F = F} {G} {t} {u} [Γ] [F] [G] [t] [u] ok
 
         [Gfst≡Gt] = substSEq {F = F} {F′ = F} {G = G} {G′ = G}
-                             {t = fst _ (prodₚ _ t u)} {t′ = t} [Γ]
+                             {t = fst _ (prodˢ _ t u)} {t′ = t} [Γ]
                              [F] [F] (reflᵛ {A = F} [Γ] [F])
                              [G] [G] (reflᵛ {Γ = Γ ∙ F} {A = G} ([Γ] ∙ [F]) [G])
                              [fst] [t] [fst≡t]
@@ -965,7 +965,7 @@ mutual
         [snd≡u] = Σ-β₂ᵛ {F = F} {G} {t} {u} [Γ] [F] [G] [t] [u] ok
 
         [u]fst = conv₂ᵛ {t = u}
-                        {A = G [ fst _ (prodₚ _ t u) ]₀} {B = G [ t ]₀}
+                        {A = G [ fst _ (prodˢ _ t u) ]₀} {B = G [ t ]₀}
                         [Γ] [Gfst] [Gt] [Gfst≡Gt] [u]
     in  [Γ] , modelsTermEq [Gfst] [snd] [u]fst [snd≡u]
   fundamentalTermEq

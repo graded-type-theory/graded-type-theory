@@ -31,7 +31,7 @@ open import Graded.Modality.Variant lzero
 open import Definition.Typed.Restrictions
 import Graded.Usage.Restrictions
 
-open import Definition.Untyped using (BMΣ; Σₚ; Σᵣ)
+open import Definition.Untyped using (BMΣ; 𝕤; 𝕨)
 
 private variable
   variant : Modality-variant
@@ -3967,18 +3967,18 @@ linear-or-affine variant = record
 -- Instances of Type-restrictions and Usage-restrictions are suitable
 -- for the full reduction theorem if
 -- * Unitˢ-allowed does not hold or Starˢ-sink holds,
--- * Σₚ-allowed 𝟘 p does not hold,
--- * Σₚ-allowed ≤𝟙 p does not hold, and
--- * Σₚ-allowed ≤ω p does not hold.
+-- * Σˢ-allowed 𝟘 p does not hold,
+-- * Σˢ-allowed ≤𝟙 p does not hold, and
+-- * Σˢ-allowed ≤ω p does not hold.
 
 Suitable-for-full-reduction :
   ∀ variant →
   Type-restrictions (linear-or-affine variant) → Usage-restrictions → Set
 Suitable-for-full-reduction variant rs us =
   (¬ Unitˢ-allowed ⊎ Starˢ-sink) ×
-  (∀ p → ¬ Σₚ-allowed 𝟘 p) ×
-  (∀ p → ¬ Σₚ-allowed ≤𝟙 p) ×
-  (∀ p → ¬ Σₚ-allowed ≤ω p)
+  (∀ p → ¬ Σˢ-allowed 𝟘 p) ×
+  (∀ p → ¬ Σˢ-allowed ≤𝟙 p) ×
+  (∀ p → ¬ Σˢ-allowed ≤ω p)
   where
   open Type-restrictions  rs
   open Usage-restrictions us
@@ -3991,7 +3991,7 @@ suitable-for-full-reduction :
   ∃ λ rs → Suitable-for-full-reduction variant rs urs
 suitable-for-full-reduction rs =
     record rs
-      { Unit-allowed = λ { Σₚ → ⊥ ; Σᵣ → Unitʷ-allowed }
+      { Unit-allowed = λ { 𝕤 → ⊥ ; 𝕨 → Unitʷ-allowed }
       ; ΠΣ-allowed   = λ b p q →
           ΠΣ-allowed b p q × p ≢ 𝟘 × p ≢ ≤𝟙 × p ≢ ≤ω
       ; []-cong-allowed  = λ _ → ⊥

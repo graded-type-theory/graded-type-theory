@@ -29,7 +29,7 @@ private
     t u v w A B F G : Term n
     p q r p′ q′ : M
     b : BinderMode
-    s : SigmaMode
+    s : Strength
 
 -- Bi-directional typechecking relations
 
@@ -65,15 +65,15 @@ mutual
          → Γ ⊢ u ⇇ F
          → Γ ⊢ t ∘⟨ p ⟩ u ⇉ G [ u ]₀
     fstᵢ : Γ ⊢ t ⇉ A
-         → Γ ⊢ A ↘ Σₚ p , q ▷ F ▹ G
+         → Γ ⊢ A ↘ Σˢ p , q ▷ F ▹ G
          → Γ ⊢ fst p t ⇉ F
     sndᵢ : Γ ⊢ t ⇉ A
-         → Γ ⊢ A ↘ Σₚ p , q ▷ F ▹ G
+         → Γ ⊢ A ↘ Σˢ p , q ▷ F ▹ G
          → Γ ⊢ snd p t ⇉ G [ fst p t ]₀
-    prodrecᵢ : Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ A ⇇Type
+    prodrecᵢ : Γ ∙ (Σʷ p , q ▷ F ▹ G) ⊢ A ⇇Type
              → Γ ⊢ t ⇉ B
-             → Γ ⊢ B ↘ Σᵣ p , q ▷ F ▹ G
-             → Γ ∙ F ∙ G ⊢ u ⇇ (A [ prodᵣ p (var x1) (var x0) ]↑²)
+             → Γ ⊢ B ↘ Σʷ p , q ▷ F ▹ G
+             → Γ ∙ F ∙ G ⊢ u ⇇ (A [ prodʷ p (var x1) (var x0) ]↑²)
              → Γ ⊢ prodrec r p q′ A t u ⇉ A [ t ]₀
     ℕᵢ : Γ ⊢ ℕ ⇉ U
     zeroᵢ : Γ ⊢ zero ⇉ ℕ

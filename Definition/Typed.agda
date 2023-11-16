@@ -37,7 +37,7 @@ private
     x : Fin _
     p p′ q q′ r : M
     b : BinderMode
-    k : SigmaMode
+    k : Strength
 
 -- Well-typed variables
 data _∷_∈_ : (x : Fin n) (A : Term n) (Γ : Con Term n) → Set ℓ where
@@ -103,18 +103,18 @@ mutual
               → Γ ⊢ prod k p t u ∷ Σ⟨ k ⟩ p , q ▷ F ▹ G
     fstⱼ      : Γ ⊢ F
               → Γ ∙ F ⊢ G
-              → Γ ⊢ t ∷ Σₚ p , q ▷ F ▹ G
+              → Γ ⊢ t ∷ Σˢ p , q ▷ F ▹ G
               → Γ ⊢ fst p t ∷ F
     sndⱼ      : Γ ⊢ F
               → Γ ∙ F ⊢ G
-              → Γ ⊢ t ∷ Σₚ p , q ▷ F ▹ G
+              → Γ ⊢ t ∷ Σˢ p , q ▷ F ▹ G
               → Γ ⊢ snd p t ∷ G [ fst p t ]₀
     prodrecⱼ  : Γ ⊢ F
               → Γ ∙ F ⊢ G
-              → Γ ∙ (Σᵣ p , q′ ▷ F ▹ G) ⊢ A
-              → Γ ⊢ t ∷ Σᵣ p , q′ ▷ F ▹ G
-              → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var x1) (var x0) ]↑²
-              → Σᵣ-allowed p q′
+              → Γ ∙ (Σʷ p , q′ ▷ F ▹ G) ⊢ A
+              → Γ ⊢ t ∷ Σʷ p , q′ ▷ F ▹ G
+              → Γ ∙ F ∙ G ⊢ u ∷ A [ prodʷ p (var x1) (var x0) ]↑²
+              → Σʷ-allowed p q′
               → Γ ⊢ prodrec r p q A t u ∷ A [ t ]₀
     zeroⱼ     : ⊢ Γ
               → Γ ⊢ zero ∷ ℕ
@@ -224,11 +224,11 @@ mutual
                   → Γ     ⊢ f ≡ g ∷ Π p , q ▷ F ▹ G
     fst-cong      : Γ ⊢ F
                   → Γ ∙ F ⊢ G
-                  → Γ ⊢ t ≡ t′ ∷ Σₚ p , q ▷ F ▹ G
+                  → Γ ⊢ t ≡ t′ ∷ Σˢ p , q ▷ F ▹ G
                   → Γ ⊢ fst p t ≡ fst p t′ ∷ F
     snd-cong      : Γ ⊢ F
                   → Γ ∙ F ⊢ G
-                  → Γ ⊢ t ≡ u ∷ Σₚ p , q ▷ F ▹ G
+                  → Γ ⊢ t ≡ u ∷ Σˢ p , q ▷ F ▹ G
                   → Γ ⊢ snd p t ≡ snd p u ∷ G [ fst p t ]₀
     Σ-β₁          : Γ ⊢ F
                   → Γ ∙ F ⊢ G
@@ -236,23 +236,23 @@ mutual
                   → Γ ⊢ u ∷ G [ t ]₀
                   → p PE.≡ p′
                   → -- Note that q can be chosen arbitrarily.
-                    Σₚ-allowed p q
-                  → Γ ⊢ fst p (prodₚ p′ t u) ≡ t ∷ F
+                    Σˢ-allowed p q
+                  → Γ ⊢ fst p (prodˢ p′ t u) ≡ t ∷ F
     Σ-β₂          : Γ ⊢ F
                   → Γ ∙ F ⊢ G
                   → Γ ⊢ t ∷ F
                   → Γ ⊢ u ∷ G [ t ]₀
                   → p PE.≡ p′
                   → -- Note that q can be chosen arbitrarily.
-                    Σₚ-allowed p q
-                  → Γ ⊢ snd p (prodₚ p′ t u) ≡ u ∷ G [ fst p (prodₚ p′ t u) ]₀
+                    Σˢ-allowed p q
+                  → Γ ⊢ snd p (prodˢ p′ t u) ≡ u ∷ G [ fst p (prodˢ p′ t u) ]₀
     Σ-η           : Γ ⊢ F
                   → Γ ∙ F ⊢ G
-                  → Γ ⊢ t ∷ Σₚ p , q ▷ F ▹ G
-                  → Γ ⊢ u ∷ Σₚ p , q ▷ F ▹ G
+                  → Γ ⊢ t ∷ Σˢ p , q ▷ F ▹ G
+                  → Γ ⊢ u ∷ Σˢ p , q ▷ F ▹ G
                   → Γ ⊢ fst p t ≡ fst p u ∷ F
                   → Γ ⊢ snd p t ≡ snd p u ∷ G [ fst p t ]₀
-                  → Γ ⊢ t ≡ u ∷ Σₚ p , q ▷ F ▹ G
+                  → Γ ⊢ t ≡ u ∷ Σˢ p , q ▷ F ▹ G
     prod-cong     : Γ ⊢ F
                   → Γ ∙ F ⊢ G
                   → Γ ⊢ t ≡ t′ ∷ F
@@ -261,21 +261,21 @@ mutual
                   → Γ ⊢ prod k p t u ≡ prod k p t′ u′ ∷ Σ⟨ k ⟩ p , q ▷ F ▹ G
     prodrec-cong  : Γ ⊢ F
                   → Γ ∙ F ⊢ G
-                  → Γ ∙ (Σᵣ p , q′ ▷ F ▹ G) ⊢ A ≡ A′
-                  → Γ ⊢ t ≡ t′ ∷ Σᵣ p , q′ ▷ F ▹ G
-                  → Γ ∙ F ∙ G ⊢ u ≡ u′ ∷ A [ prodᵣ p (var x1) (var x0) ]↑²
-                  → Σᵣ-allowed p q′
+                  → Γ ∙ (Σʷ p , q′ ▷ F ▹ G) ⊢ A ≡ A′
+                  → Γ ⊢ t ≡ t′ ∷ Σʷ p , q′ ▷ F ▹ G
+                  → Γ ∙ F ∙ G ⊢ u ≡ u′ ∷ A [ prodʷ p (var x1) (var x0) ]↑²
+                  → Σʷ-allowed p q′
                   → Γ ⊢ prodrec r p q A t u ≡ prodrec r p q A′ t′ u′ ∷ A [ t ]₀
     prodrec-β     : Γ ⊢ F
                   → Γ ∙ F ⊢ G
-                  → Γ ∙ (Σᵣ p , q′ ▷ F ▹ G) ⊢ A
+                  → Γ ∙ (Σʷ p , q′ ▷ F ▹ G) ⊢ A
                   → Γ ⊢ t ∷ F
                   → Γ ⊢ t′ ∷ G [ t ]₀
-                  → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var x1) (var x0) ]↑²
+                  → Γ ∙ F ∙ G ⊢ u ∷ A [ prodʷ p (var x1) (var x0) ]↑²
                   → p PE.≡ p′
-                  → Σᵣ-allowed p q′
-                  → Γ ⊢ prodrec r p q A (prodᵣ p′ t t′) u ≡
-                        u [ t , t′ ] ∷ A [ prodᵣ p′ t t′ ]₀
+                  → Σʷ-allowed p q′
+                  → Γ ⊢ prodrec r p q A (prodʷ p′ t t′) u ≡
+                        u [ t , t′ ] ∷ A [ prodʷ p′ t t′ ]₀
     suc-cong      : ∀ {n}
                   → Γ ⊢ m ≡ n ∷ ℕ
                   → Γ ⊢ suc m ≡ suc n ∷ ℕ
@@ -383,11 +383,11 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                  → Γ     ⊢ lam p t ∘⟨ p′ ⟩ a ⇒ t [ a ]₀ ∷ G [ a ]₀
   fst-subst      : Γ ⊢ F
                  → Γ ∙ F ⊢ G
-                 → Γ ⊢ t ⇒ u ∷ Σₚ p , q ▷ F ▹ G
+                 → Γ ⊢ t ⇒ u ∷ Σˢ p , q ▷ F ▹ G
                  → Γ ⊢ fst p t ⇒ fst p u ∷ F
   snd-subst      : Γ ⊢ F
                  → Γ ∙ F ⊢ G
-                 → Γ ⊢ t ⇒ u ∷ Σₚ p , q ▷ F ▹ G
+                 → Γ ⊢ t ⇒ u ∷ Σˢ p , q ▷ F ▹ G
                  → Γ ⊢ snd p t ⇒ snd p u ∷ G [ fst p t ]₀
   Σ-β₁           : Γ ⊢ F
                  → Γ ∙ F ⊢ G
@@ -395,33 +395,33 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                  → Γ ⊢ u ∷ G [ t ]₀
                  → p PE.≡ p′
                  → -- Note that q can be chosen arbitrarily.
-                   Σₚ-allowed p q
-                 → Γ ⊢ fst p (prodₚ p′ t u) ⇒ t ∷ F
+                   Σˢ-allowed p q
+                 → Γ ⊢ fst p (prodˢ p′ t u) ⇒ t ∷ F
   Σ-β₂           : Γ ⊢ F
                  → Γ ∙ F ⊢ G
                  → Γ ⊢ t ∷ F
                  → Γ ⊢ u ∷ G [ t ]₀
                  → p PE.≡ p′
                  → -- Note that q can be chosen arbitrarily.
-                   Σₚ-allowed p q
-                 → Γ ⊢ snd p (prodₚ p′ t u) ⇒ u ∷ G [ fst p (prodₚ p′ t u) ]₀
+                   Σˢ-allowed p q
+                 → Γ ⊢ snd p (prodˢ p′ t u) ⇒ u ∷ G [ fst p (prodˢ p′ t u) ]₀
   prodrec-subst  : Γ ⊢ F
                  → Γ ∙ F ⊢ G
-                 → Γ ∙ (Σᵣ p , q′ ▷ F ▹ G) ⊢ A
-                 → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var x1) (var x0) ]↑²
-                 → Γ ⊢ t ⇒ t′ ∷ Σᵣ p , q′ ▷ F ▹ G
-                 → Σᵣ-allowed p q′
+                 → Γ ∙ (Σʷ p , q′ ▷ F ▹ G) ⊢ A
+                 → Γ ∙ F ∙ G ⊢ u ∷ A [ prodʷ p (var x1) (var x0) ]↑²
+                 → Γ ⊢ t ⇒ t′ ∷ Σʷ p , q′ ▷ F ▹ G
+                 → Σʷ-allowed p q′
                  → Γ ⊢ prodrec r p q A t u ⇒ prodrec r p q A t′ u ∷ A [ t ]₀
   prodrec-β      : Γ ⊢ F
                  → Γ ∙ F ⊢ G
-                 → Γ ∙ (Σᵣ p , q′ ▷ F ▹ G) ⊢ A
+                 → Γ ∙ (Σʷ p , q′ ▷ F ▹ G) ⊢ A
                  → Γ ⊢ t ∷ F
                  → Γ ⊢ t′ ∷ G [ t ]₀
-                 → Γ ∙ F ∙ G ⊢ u ∷ A [ prodᵣ p (var x1) (var x0) ]↑²
+                 → Γ ∙ F ∙ G ⊢ u ∷ A [ prodʷ p (var x1) (var x0) ]↑²
                  → p PE.≡ p′
-                 → Σᵣ-allowed p q′
-                 → Γ ⊢ prodrec r p q A (prodᵣ p′ t t′) u ⇒
-                       u [ t , t′ ] ∷ A [ prodᵣ p′ t t′ ]₀
+                 → Σʷ-allowed p q′
+                 → Γ ⊢ prodrec r p q A (prodʷ p′ t t′) u ⇒
+                       u [ t , t′ ] ∷ A [ prodʷ p′ t t′ ]₀
   natrec-subst   : ∀ {n}
                  → Γ ∙ ℕ     ⊢ A
                  → Γ         ⊢ z ∷ A [ zero ]₀

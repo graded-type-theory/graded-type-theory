@@ -12,7 +12,7 @@ open import Definition.Untyped.NotParametrised
 module Graded.Derived.Erased.Untyped
   {a} {M : Set a}
   (𝕄 : Modality M)
-  (s : SigmaMode)
+  (s : Strength)
   where
 
 open Modality 𝕄

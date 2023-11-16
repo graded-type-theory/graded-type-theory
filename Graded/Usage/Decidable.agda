@@ -195,25 +195,25 @@ infix 10 ⌈⌉▸[_]?_
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-⌈⌉▸[ m ]? prod Σᵣ p t u = case ⌈⌉▸[ m ᵐ· p ]? t of λ where
+⌈⌉▸[ m ]? prod 𝕨 p t u = case ⌈⌉▸[ m ᵐ· p ]? t of λ where
   (inj₂ ¬▸t) → inj₂ λ _ ▸prod →
-    case inv-usage-prodᵣ ▸prod of λ (invUsageProdᵣ ▸t _ _) →
+    case inv-usage-prodʷ ▸prod of λ (invUsageProdʷ ▸t _ _) →
     ¬▸t _ ▸t
   (inj₁ ▸t) → case ⌈⌉▸[ m ]? u of λ where
     (inj₂ ¬▸u) → inj₂ λ _ ▸prod →
-      case inv-usage-prodᵣ ▸prod of λ (invUsageProdᵣ _ ▸u _) →
+      case inv-usage-prodʷ ▸prod of λ (invUsageProdʷ _ ▸u _) →
       ¬▸u _ ▸u
-    (inj₁ ▸u) → inj₁ (prodᵣₘ ▸t ▸u)
+    (inj₁ ▸u) → inj₁ (prodʷₘ ▸t ▸u)
 
-⌈⌉▸[ m ]? prod Σₚ p t u = case ⌈⌉▸[ m ᵐ· p ]? t of λ where
+⌈⌉▸[ m ]? prod 𝕤 p t u = case ⌈⌉▸[ m ᵐ· p ]? t of λ where
   (inj₂ ¬▸t) → inj₂ λ _ ▸prod →
-    case inv-usage-prodₚ ▸prod of λ (invUsageProdₚ ▸t _ _) →
+    case inv-usage-prodˢ ▸prod of λ (invUsageProdˢ ▸t _ _) →
     ¬▸t _ ▸t
   (inj₁ ▸t) → case ⌈⌉▸[ m ]? u of λ where
     (inj₂ ¬▸u) → inj₂ λ _ ▸prod →
-      case inv-usage-prodₚ ▸prod of λ (invUsageProdₚ _ ▸u _) →
+      case inv-usage-prodˢ ▸prod of λ (invUsageProdˢ _ ▸u _) →
       ¬▸u _ ▸u
-    (inj₁ ▸u) → inj₁ (prodₚₘ ▸t ▸u)
+    (inj₁ ▸u) → inj₁ (prodˢₘ ▸t ▸u)
 
 ⌈⌉▸[ m ]? unitrec p q A t u = case Unitrec? p q of λ where
   (no not-ok) → inj₂ λ _ ▸ur →

@@ -38,7 +38,7 @@ private
     A B : Term n
     l : TypeLevel
     b : BinderMode
-    s : SigmaMode
+    s : Strength
     p q : M
     [Γ] : ⊩ᵛ _
 

@@ -34,7 +34,7 @@ private variable
 -- Some lemmas that are proved under the assumption that Erased
 -- with η-equality is allowed.
 
-module _ (Erased-ok@(Unit-ok , Σ-ok) : Erased-allowed Σₚ) where
+module _ (Erased-ok@(Unit-ok , Σ-ok) : Erased-allowed 𝕤) where
 
   open import Graded.Derived.Erased.Typed R Erased-ok public
 
@@ -62,8 +62,8 @@ erasedⱼ ⊢t =
 erased-cong : Γ ⊢ t ≡ u ∷ Erased A → Γ ⊢ erased t ≡ erased u ∷ A
 erased-cong t≡u =
   case inversion-ΠΣ (syntacticEqTerm t≡u .proj₁) of λ {
-    (⊢A , ⊢Unit , Σₚ-ok) →
-  P.erased-cong (inversion-Unit ⊢Unit , Σₚ-ok) ⊢A t≡u }
+    (⊢A , ⊢Unit , Σˢ-ok) →
+  P.erased-cong (inversion-Unit ⊢Unit , Σˢ-ok) ⊢A t≡u }
 
 -- An η-rule for Erased.
 
@@ -74,8 +74,8 @@ Erased-η :
   Γ ⊢ t ≡ u ∷ Erased A
 Erased-η ⊢t =
   case inversion-ΠΣ (syntacticTerm ⊢t) of λ {
-    (⊢A , ⊢Unit , Σₚ-ok) →
-  P.Erased-η (inversion-Unit ⊢Unit , Σₚ-ok) ⊢A ⊢t }
+    (⊢A , ⊢Unit , Σˢ-ok) →
+  P.Erased-η (inversion-Unit ⊢Unit , Σˢ-ok) ⊢A ⊢t }
 
 -- An instance of the η-rule.
 
@@ -84,5 +84,5 @@ Erased-η ⊢t =
   Γ ⊢ [ erased t ] ≡ t ∷ Erased A
 [erased] ⊢t =
   case inversion-ΠΣ (syntacticTerm ⊢t) of λ {
-    (⊢A , ⊢Unit , Σₚ-ok) →
-  P.[erased] (inversion-Unit ⊢Unit , Σₚ-ok) ⊢A ⊢t }
+    (⊢A , ⊢Unit , Σˢ-ok) →
+  P.[erased] (inversion-Unit ⊢Unit , Σˢ-ok) ⊢A ⊢t }

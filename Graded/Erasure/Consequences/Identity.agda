@@ -50,7 +50,7 @@ private variable
   Γ           : Con Term _
   γ₁ γ₂ γ₃ γ₄ : Conₘ _
   A t u v     : Term _
-  s           : SigmaMode
+  s           : Strength
 
 opaque
 
@@ -127,7 +127,7 @@ opaque
     γ₂ ▸[ 𝟘ᵐ ] t →
     γ₃ ▸[ 𝟘ᵐ ] u →
     γ₄ ▸[ 𝟘ᵐ ] v →
-    Γ ⊢ v ∷ Erased.Erased Σₚ (Id A t u) →
+    Γ ⊢ v ∷ Erased.Erased 𝕤 (Id A t u) →
     Γ ⊢ t ≡ u ∷ A
   Id→≡″ {Γ} {A} {t} {u} {v} []-cong-ok ok ▸A ▸t ▸u ▸v =
     Γ ⊢ v ∷ Erased (Id A t u)  →⟨ erasedⱼ ⟩

@@ -76,7 +76,7 @@ Resurrectable q₁ q₂ Γ A =
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     Γ ⊢ t ∷
       Π 𝟘 , q₁ ▷ A ▹
-      Σᵣ 𝟙 , q₂ ▷ wk1 A ▹ Erased (Id (wk1 (wk1 A)) (var x0) (var x1))
+      Σʷ 𝟙 , q₂ ▷ wk1 A ▹ Erased (Id (wk1 (wk1 A)) (var x0) (var x1))
 
 opaque
 
@@ -88,13 +88,13 @@ opaque
     Erasedˢ-allowed →
     Unitˢ-allowed →
     Π-allowed 𝟘 q₁ →
-    Σᵣ-allowed 𝟙 q₂ →
+    Σʷ-allowed 𝟙 q₂ →
     ⊢ Γ →
     Resurrectable q₁ q₂ Γ Unitˢ
   Unit-resurrectable {Γ} Erased-ok Unit-ok ok₁ ok₂ ⊢Γ =
-      lam 𝟘 (prodᵣ 𝟙 starˢ Erased.[ rfl ])
+      lam 𝟘 (prodʷ 𝟙 starˢ Erased.[ rfl ])
     , (lamₘ $
-       sub (prodᵣₘ starₘ (▸[] rflₘ)) $ begin
+       sub (prodʷₘ starₘ (▸[] rflₘ)) $ begin
          𝟘ᶜ ∙ 𝟙 · 𝟘     ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
          𝟘ᶜ             ≈˘⟨ ·ᶜ-identityˡ _ ⟩
          𝟙 ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
@@ -135,8 +135,8 @@ opaque
        t∘0⇒t₁,t₂ , erase-t∘↯⇒v₁,v₂ , t₁®v₁ , _) →
 
     -- The term t₁ is definitionally equal to zero.
-    case inv-usage-prodᵣ (usagePres*Term (▸t ∘ₘ zeroₘ) t∘0⇒t₁,t₂) of λ {
-      (invUsageProdᵣ ▸t₁ ▸t₂ _) →
+    case inv-usage-prodʷ (usagePres*Term (▸t ∘ₘ zeroₘ) t∘0⇒t₁,t₂) of λ {
+      (invUsageProdʷ ▸t₁ ▸t₂ _) →
     case ε⊢∷Id→ε⊢≡∷ $
          erasedⱼ $
          inversion-prod-Σ
@@ -164,10 +164,10 @@ opaque
            t∘1⇒t₁′,t₂′ , erase-t∘↯⇒v₁′,v₂′ , t₁′®v₁′ , _) →
 
         -- The term t₁′ is definitionally equal to suc zero.
-        case inv-usage-prodᵣ
+        case inv-usage-prodʷ
                (usagePres*Term (▸t ∘ₘ sucₘ zeroₘ)
                   t∘1⇒t₁′,t₂′) of λ {
-          (invUsageProdᵣ ▸t₁′ ▸t₂′ _) →
+          (invUsageProdʷ ▸t₁′ ▸t₂′ _) →
         case ε⊢∷Id→ε⊢≡∷ $
              erasedⱼ $
              inversion-prod-Σ
@@ -242,8 +242,8 @@ opaque
        t∘0⇒t₁,t₂ , erase-t∘↯⇒v₁,v₂ , t₁®v₁ , _) →
 
     -- The term t₁ is definitionally equal to zero.
-    case inv-usage-prodᵣ (usagePres*Term (▸t ∘ₘ zeroₘ) t∘0⇒t₁,t₂) of λ {
-      (invUsageProdᵣ ▸t₁ ▸t₂ _) →
+    case inv-usage-prodʷ (usagePres*Term (▸t ∘ₘ zeroₘ) t∘0⇒t₁,t₂) of λ {
+      (invUsageProdʷ ▸t₁ ▸t₂ _) →
     case Id→≡″ []-cong-ok ok ℕₘ (▸-𝟘 ▸t₁) zeroₘ (▸-𝟘 ▸t₂) $
          inversion-prod-Σ
            (syntacticEqTerm (subset*Term t∘0⇒t₁,t₂) .proj₂ .proj₂)
@@ -270,10 +270,10 @@ opaque
            t∘1⇒t₁′,t₂′ , erase-t∘↯⇒v₁′,v₂′ , t₁′®v₁′ , _) →
 
         -- The term t₁′ is definitionally equal to suc zero.
-        case inv-usage-prodᵣ
+        case inv-usage-prodʷ
                (usagePres*Term (▸t ∘ₘ sucₘ zeroₘ)
                   t∘1⇒t₁′,t₂′) of λ {
-          (invUsageProdᵣ ▸t₁′ ▸t₂′ _) →
+          (invUsageProdʷ ▸t₁′ ▸t₂′ _) →
         case Id→≡″ []-cong-ok ok ℕₘ (▸-𝟘 ▸t₁′) (sucₘ zeroₘ)
                (▸-𝟘 ▸t₂′) $
              inversion-prod-Σ

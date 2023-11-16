@@ -164,7 +164,7 @@ neNeg
                                                   }) ∘→
                                                ·ᶜ-zero-product-⟨⟩ δ) ⟩
   NegativeErasedContext Γ δ              →⟨ neNeg ⊢t t-ne (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ r≢𝟘) δ▸t) ⟩
-  NegativeType Γ (Σᵣ p , q ▷ B ▹ C)      →⟨ flip ¬negΣᵣ (refl (ΠΣⱼ ⊢B ⊢C ok₁)) ⟩
+  NegativeType Γ (Σʷ p , q ▷ B ▹ C)      →⟨ flip ¬negΣʷ (refl (ΠΣⱼ ⊢B ⊢C ok₁)) ⟩
   ⊥                                      →⟨ ⊥-elim ⟩
   NegativeType Γ (A [ t ]₀)              □ }}
 neNeg (emptyrecⱼ _ d) (emptyrecₙ _) _ _ =

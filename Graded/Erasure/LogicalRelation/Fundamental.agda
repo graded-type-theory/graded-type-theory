@@ -316,10 +316,10 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
         subsumption-≤ well-formed {A = G [ u ]₀} {t = t ∘⟨ p ⟩ u}
           [Γ] [G[u]] ⊩ʳt∘u γ≤δ+pη
   fundamental
-    (prodⱼ {F = F} {G = G} {t = t} {u = u} {k = Σₚ}
+    (prodⱼ {F = F} {G = G} {t = t} {u = u} {k = 𝕤}
        Γ⊢F Γ⊢G Γ⊢t:F Γ⊢u:G ok)
     γ▸t =
-    let invUsageProdₚ δ▸t η▸u γ≤pδ∧η = inv-usage-prodₚ γ▸t
+    let invUsageProdˢ δ▸t η▸u γ≤pδ∧η = inv-usage-prodˢ γ▸t
         [Γ]₁ , [F] , ⊩ʳt = fundamental Γ⊢t:F δ▸t
         [Γ]₂ , [G[t]]′ , ⊩ʳu = fundamental Γ⊢u:G η▸u
         [Γ] = [Γ]₁
@@ -348,10 +348,10 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
     in  [Γ] , [Σ] ,
         subsumption-≤ well-formed {t = prod! t u} [Γ] [Σ] ⊩ʳp γ≤pδ∧η
   fundamental
-    (prodⱼ {F = F} {G = G} {t = t} {u = u} {k = Σᵣ}
+    (prodⱼ {F = F} {G = G} {t = t} {u = u} {k = 𝕨}
        Γ⊢F Γ⊢G Γ⊢t:F Γ⊢u:G ok)
     γ▸t =
-    let invUsageProdᵣ δ▸t η▸u γ≤pδ+η = inv-usage-prodᵣ γ▸t
+    let invUsageProdʷ δ▸t η▸u γ≤pδ+η = inv-usage-prodʷ γ▸t
         [Γ]₁ , [F] , ⊩ʳt = fundamental Γ⊢t:F δ▸t
         [Γ]₂ , [G[t]]′ , ⊩ʳu = fundamental Γ⊢u:G η▸u
         [Γ] = [Γ]₁
@@ -406,7 +406,7 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
         [Γ]₅ , [A]₅ = F.fundamental Γ⊢A
         [Γ]₆ , [Σ]₆ , [t]₆ = F.fundamentalTerm Γ⊢t
         [Γ]₇ , [A₊]₇ , [u]₇ = F.fundamentalTerm Γ⊢u
-        A₊ = A [ prodᵣ _ (var (x0 +1)) (var x0) ]↑²
+        A₊ = A [ prodʷ _ (var (x0 +1)) (var x0) ]↑²
         [F] = IS.irrelevance {A = F} [Γ]₃ [Γ] [F]₃
         [G] = IS.irrelevance {A = G} [Γ]₄ ([Γ] ∙ [F]) [G]₄
         [A₊] = IS.irrelevance {A = A₊} [Γ]₂ ([Γ] ∙ [F] ∙ [G]) [A₊]₂

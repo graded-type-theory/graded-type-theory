@@ -38,7 +38,7 @@ private variable
   Γ Γ₁ Γ₂                                            : Con Term _
   A A₁ A₂ B B₁ B₂ t t₁ t₂ t′ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
   p q                                                : M
-  s                                                  : SigmaMode
+  s                                                  : Strength
 
 ------------------------------------------------------------------------
 -- Lemmas related to rfl

@@ -54,7 +54,7 @@ private variable
   A B t t₁ t₂ : Term _
   v           : T.Term _
   p q         : M
-  s           : SigmaMode
+  s           : Strength
   l           : TypeLevel
 
 ------------------------------------------------------------------------

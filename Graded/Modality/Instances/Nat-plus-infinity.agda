@@ -28,7 +28,7 @@ import Graded.Modality.Properties.PartialOrder
 open import Graded.Modality.Variant lzero
 
 open import Definition.Typed.Restrictions
-open import Definition.Untyped using (BMΣ; Σₚ)
+open import Definition.Untyped using (BMΣ; 𝕤)
 import Graded.Usage.Restrictions
 
 -- The grades are the natural numbers extended with ∞.
@@ -591,13 +591,13 @@ open Graded.Modality.Instances.Recursive.Sequences
 -- Instances of Full-reduction-assumptions
 
 -- An instance of Type-restrictions (ℕ⊎∞-modality variant) is suitable
--- for the full reduction theorem if whenever Σₚ-allowed m n holds,
+-- for the full reduction theorem if whenever Σˢ-allowed m n holds,
 -- then m is ⌞ 1 ⌟, or m is ⌞ 0 ⌟ and 𝟘ᵐ is allowed.
 
 Suitable-for-full-reduction :
   ∀ variant → Type-restrictions (ℕ⊎∞-modality variant) → Set
 Suitable-for-full-reduction variant TRs =
-  ∀ m n → Σₚ-allowed m n → m ≡ ⌞ 1 ⌟ ⊎ m ≡ ⌞ 0 ⌟ × T 𝟘ᵐ-allowed
+  ∀ m n → Σˢ-allowed m n → m ≡ ⌞ 1 ⌟ ⊎ m ≡ ⌞ 0 ⌟ × T 𝟘ᵐ-allowed
   where
   open Modality-variant variant
   open Type-restrictions TRs
@@ -612,7 +612,7 @@ suitable-for-full-reduction {variant = variant} TRs =
     record TRs
       { ΠΣ-allowed = λ b m n →
           ΠΣ-allowed b m n ×
-          (b ≡ BMΣ Σₚ → m ≡ ⌞ 1 ⌟ ⊎ m ≡ ⌞ 0 ⌟ × T 𝟘ᵐ-allowed)
+          (b ≡ BMΣ 𝕤 → m ≡ ⌞ 1 ⌟ ⊎ m ≡ ⌞ 0 ⌟ × T 𝟘ᵐ-allowed)
       ; []-cong-allowed = λ s →
           []-cong-allowed s × T 𝟘ᵐ-allowed
       ; []-cong→Erased = λ (ok₁ , ok₂) →

@@ -44,7 +44,7 @@ reflEmpty-prop : ∀ {n}
 reflEmpty-prop (ne (neNfₜ neK ⊢k k≡k)) = ne (neNfₜ₌ neK neK k≡k)
 
 reflUnitʷ-prop : ∀ {t}
-               → Unit-prop Γ Σᵣ t
+               → Unit-prop Γ 𝕨 t
                → [Unitʷ]-prop Γ t t
 reflUnitʷ-prop starᵣ = starᵣ
 reflUnitʷ-prop (ne (neNfₜ neK ⊢k k≡k)) = ne (neNfₜ₌ neK neK k≡k)
@@ -88,9 +88,9 @@ reflEqTerm (ℕᵣ D) (ℕₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
 reflEqTerm (Emptyᵣ D) (Emptyₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
   Emptyₜ₌ n n [ ⊢t , ⊢u , d ] [ ⊢t , ⊢u , d ] t≡t
     (reflEmpty-prop prop)
-reflEqTerm (Unitᵣ {s = Σₚ} D) (Unitₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
+reflEqTerm (Unitᵣ {s = 𝕤} D) (Unitₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
   Unitₜ₌ ⊢t ⊢t
-reflEqTerm (Unitᵣ {s = Σᵣ} D) (Unitₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
+reflEqTerm (Unitᵣ {s = 𝕨} D) (Unitₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
   Unitₜ₌ n n [ ⊢t , ⊢u , d ] [ ⊢t , ⊢u , d ]
          t≡t (reflUnitʷ-prop prop)
 reflEqTerm (ne′ K D neK K≡K) (neₜ k d (neNfₜ neK₁ ⊢k k≡k)) =
@@ -100,18 +100,18 @@ reflEqTerm
   Πₜ₌ f f d d funcF funcF f≡f [t] [t]
       (λ ρ ⊢Δ [a] → [f] ρ ⊢Δ [a] [a] (reflEqTerm ([F] ρ ⊢Δ) [a]))
 reflEqTerm
-  (Bᵣ′ BΣₚ _ _ _ ⊢F _ _ [F] [G] _ _)
+  (Bᵣ′ BΣˢ _ _ _ ⊢F _ _ [F] [G] _ _)
   [t]@(Σₜ p d p≅p prodP ([fstp] , [sndp])) =
   Σₜ₌ p p d d prodP prodP p≅p [t] [t]
       ([fstp] , [fstp] , reflEqTerm ([F] id (wf ⊢F)) [fstp] , reflEqTerm ([G] id (wf ⊢F) [fstp]) [sndp])
 reflEqTerm
-  (Bᵣ′ BΣᵣ _ _ _ ⊢F _ _ [F] [G] _ _)
+  (Bᵣ′ BΣʷ _ _ _ ⊢F _ _ [F] [G] _ _)
   [t]@(Σₜ p d p≅p prodₙ (PE.refl , [p₁] , [p₂] , PE.refl)) =
   Σₜ₌ p p d d prodₙ prodₙ p≅p [t] [t]
       (PE.refl , PE.refl , [p₁] , [p₁] , [p₂] , [p₂] ,
         reflEqTerm ([F] id (wf ⊢F)) [p₁] ,
         reflEqTerm ([G] id (wf ⊢F) [p₁]) [p₂])
-reflEqTerm (Bᵣ′ BΣᵣ _ _ _ _ _ _ _ _ _ _) [t]@(Σₜ p d p≅p (ne x) p~p) =
+reflEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _ _ _) [t]@(Σₜ p d p≅p (ne x) p~p) =
   Σₜ₌ p p d d (ne x) (ne x) p≅p [t] [t] p~p
 reflEqTerm (Idᵣ _) ⊩t =
   ⊩Id≡∷ ⊩t ⊩t

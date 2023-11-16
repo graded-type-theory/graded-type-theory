@@ -41,7 +41,7 @@ private
     A B t u v : Term _
     p q : M
     l : TypeLevel
-    m : SigmaMode
+    m : Strength
 
 opaque
 
@@ -214,7 +214,7 @@ whNorm′ (Emptyᵣ D) = Empty , Emptyₙ , D
 whNorm′ (Unitᵣ (Unitₜ D _)) = Unit! , Unitₙ , D
 whNorm′ (ne′ H D neH H≡H) = H , ne neH , D
 whNorm′ (Πᵣ′ F G D _ _ _ _ _ _ _) = Π _ , _ ▷ F ▹ G , ΠΣₙ , D
-whNorm′ (Σᵣ′ F G D _ _ _ _ _ _ _) = Σ _ , _ ▷ F ▹ G , ΠΣₙ , D
+whNorm′ (𝕨′ F G D _ _ _ _ _ _ _) = Σ _ , _ ▷ F ▹ G , ΠΣₙ , D
 whNorm′ (Idᵣ ⊩Id) = _ , Idₙ , _⊩ₗId_.⇒*Id ⊩Id
 whNorm′ (emb 0<1 [A]) = whNorm′ [A]
 
@@ -318,7 +318,7 @@ whNormTerm′ (ne (ne H D neH H≡H)) (neₜ k d (neNfₜ neH₁ ⊢k k≡k)) =
   k , ne neH₁ , convRed:*: d (sym (subset* (red D)))
 whNormTerm′ (Πᵣ′ _ _ D _ _ _ _ _ _ _) (Πₜ f d funcF _ _ _) =
   f , functionWhnf funcF , convRed:*: d (sym (subset* (red D)))
-whNormTerm′ (Σᵣ′ _ _ D _ _ _ _ _ _ _) (Σₜ p d _ pProd _) =
+whNormTerm′ (𝕨′ _ _ D _ _ _ _ _ _ _) (Σₜ p d _ pProd _) =
   p , productWhnf pProd , convRed:*: d (sym (subset* (red D)))
 whNormTerm′ (Idᵣ ⊩Id) (a′ , a⇒*a′ , a′-id , _) =
     a′ , identityWhnf a′-id

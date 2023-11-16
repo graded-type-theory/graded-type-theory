@@ -76,7 +76,7 @@ private
     σ : Subst _ _
     σ′ : T.Subst _ _
     m : Mode
-    s : SigmaMode
+    s : Strength
     l : TypeLevel
     p q : M
 

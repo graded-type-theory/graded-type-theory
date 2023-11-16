@@ -13,7 +13,7 @@ private variable
   A B C c g k n t t′ u v : Term _
   p q r                  : M
   b                      : BinderMode
-  s                      : SigmaMode
+  s                      : Strength
 
 mutual
 

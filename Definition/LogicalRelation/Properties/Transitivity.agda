@@ -104,8 +104,8 @@ transEqTermUnit : ∀ {s n n′ n″}
   → Γ ⊩Unit⟨ s ⟩ n  ≡ n′ ∷Unit
   → Γ ⊩Unit⟨ s ⟩ n′ ≡ n″ ∷Unit
   → Γ ⊩Unit⟨ s ⟩ n  ≡ n″ ∷Unit
-transEqTermUnit {s = Σₚ} (Unitₜ₌ ⊢t _) (Unitₜ₌ _ ⊢v) = Unitₜ₌ ⊢t ⊢v
-transEqTermUnit {n} {s = Σᵣ} (Unitₜ₌ k k′ d d′ k≡k′ prop)
+transEqTermUnit {s = 𝕤} (Unitₜ₌ ⊢t _) (Unitₜ₌ _ ⊢v) = Unitₜ₌ ⊢t ⊢v
+transEqTermUnit {n} {s = 𝕨} (Unitₜ₌ k k′ d d′ k≡k′ prop)
                 (Unitₜ₌ k″ k‴ d″ d‴ k″≡k‴ prop′) =
   let whK″ = proj₁ (usplit prop′)
       whK′ = proj₂ (usplit prop)
@@ -281,7 +281,7 @@ transEqTerm (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
                 (λ ρ ⊢Δ [a] → transEqTerm ([G] ρ ⊢Δ [a])
                                 ([f≡g] ρ ⊢Δ [a]) ([f≡g]₁ ρ ⊢Δ [a]))
 transEqTerm
-  {n = n} {Γ = Γ} (Bᵣ′ (BΣ Σₚ p′ q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
+  {n = n} {Γ = Γ} (Bᵣ′ (BΣ 𝕤 p′ q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
   (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u]
      ([fstp] , [fstr] , [fst≡] , [snd≡]))
   (Σₜ₌ p₁ r₁ d₁ d₁′ pProd₁ rProd₁ p≅r₁ [t]₁ [u]₁
@@ -290,7 +290,7 @@ transEqTerm
       p₁≡r = whrDet*Term (redₜ d₁ , productWhnf pProd₁) (redₜ d′ , productWhnf rProd)
       p≅r₁ = ≅ₜ-trans p≅r
                (PE.subst
-                  (λ (x : Term n) → Γ ⊢ x ≅ r₁ ∷ Σₚ p′ , q ▷ F ▹ G)
+                  (λ (x : Term n) → Γ ⊢ x ≅ r₁ ∷ Σˢ p′ , q ▷ F ▹ G)
                   p₁≡r p≅r₁)
       [F]′ = [F] Weak.id ⊢Γ
       [fst≡]′ = transEqTerm [F]′ [fst≡]
@@ -315,7 +315,7 @@ transEqTerm
   in  Σₜ₌ p r₁ d d₁′ pProd rProd₁ p≅r₁ [t] [u]₁ ([fstp] , [fstr]₁ , [fst≡]′ , [snd≡]′)
 transEqTerm
   {n = n} {Γ = Γ}
-  (Bᵣ′ (BΣ Σᵣ p″ q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
+  (Bᵣ′ (BΣ 𝕨 p″ q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
   (Σₜ₌ p r d d′ prodₙ prodₙ p≅r [t] [u]
      (PE.refl , PE.refl ,
       [p₁] , [r₁] , [p₂] , [r₂] , [p₁≡r₁] , [p₂≡r₂]))
@@ -326,7 +326,7 @@ transEqTerm
       p′≡r = whrDet*Term (redₜ d₁ , prodₙ) (redₜ d′ , prodₙ)
       _ , _ , p′₁≡r₁ , p′₂≡r₂ = prod-PE-injectivity p′≡r
       p≅r′ = ≅ₜ-trans p≅r
-                (PE.subst (λ x → Γ ⊢ x ≅ r′ ∷ Σᵣ p″ , q ▷ F ▹ G)
+                (PE.subst (λ x → Γ ⊢ x ≅ r′ ∷ Σʷ p″ , q ▷ F ▹ G)
                    p′≡r p′≅r′)
       [F]′ = [F] Weak.id ⊢Γ
       [p₁≡r′₁] = transEqTerm [F]′ [p₁≡r₁] (PE.subst (λ (x : Term n) → Γ ⊩⟨ _ ⟩ x ≡ _ ∷ wk id F / [F]′) p′₁≡r₁ [p′₁≡r′₁])
@@ -343,37 +343,37 @@ transEqTerm
         (PE.refl , PE.refl ,
          [p₁] , [r₁]′ , [p₂] , [r₂]′ , [p₁≡r′₁] , [p₂≡r′₂])
 transEqTerm
-  {n = n} {Γ = Γ} (Bᵣ′ (BΣ Σᵣ p′ q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
+  {n = n} {Γ = Γ} (Bᵣ′ (BΣ 𝕨 p′ q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
   (Σₜ₌ p r d d′ (ne x) (ne x₁) p≅r [t] [u] p~r)
   (Σₜ₌ p₁ r₁ d₁ d₁′ (ne x₂) (ne x₃) p≅r₁ [t]₁ [u]₁ p₁~r₁) =
   let p₁≡r = whrDet*Term (redₜ d₁ , ne x₂) (redₜ d′ , ne x₁)
       p≅r₁ = ≅ₜ-trans p≅r
                 (PE.subst
-                   (λ (x : Term n) → Γ ⊢ x ≅ r₁ ∷ Σᵣ p′ , q ▷ F ▹ G)
+                   (λ (x : Term n) → Γ ⊢ x ≅ r₁ ∷ Σʷ p′ , q ▷ F ▹ G)
                    p₁≡r p≅r₁)
       p~r₁ = ~-trans p~r
                (PE.subst
-                  (λ (x : Term n) → Γ ⊢ x ~ _ ∷ Σᵣ p′ , q ▷ F ▹ G)
+                  (λ (x : Term n) → Γ ⊢ x ~ _ ∷ Σʷ p′ , q ▷ F ▹ G)
                   p₁≡r p₁~r₁)
   in  Σₜ₌ p r₁ d d₁′ (ne x) (ne x₃) p≅r₁ [t] [u]₁ p~r₁
-transEqTerm (Bᵣ′ BΣᵣ _ _ _ _ _ _ _ _ _ _)
+transEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _ _ _)
             (Σₜ₌ p r d d′ prodₙ prodₙ p≅r [t] [u] prop)
             (Σₜ₌ p₁ r₁ d₁ d₁′ (ne x) (ne x₁) p≅r₁ [t]₁ [u]₁ prop₁) =
   ⊥-elim (prod≢ne x (whrDet*Term (redₜ d′ , prodₙ) (redₜ d₁ , ne x)))
-transEqTerm (Bᵣ′ BΣᵣ _ _ _ _ _ _ _ _ _ _)
+transEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _ _ _)
             (Σₜ₌ p r d d′ (ne x) (ne x₁) p≅r [t] [u] prop)
             (Σₜ₌ p₁ r₁ d₁ d₁′ prodₙ prodₙ p≅r₁ [t]₁ [u]₁ prop₁) =
   ⊥-elim (prod≢ne x₁ (whrDet*Term (redₜ d₁ , prodₙ) (redₜ d′ , ne x₁)))
-transEqTerm (Bᵣ′ BΣᵣ _ _ _ _ _ _ _ _ _ _)
+transEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _ _ _)
             (Σₜ₌ p r d d′ prodₙ (ne x) p≅r [t] [u] (lift ()))
             (Σₜ₌ p₁ r₁ d₁ d₁′ pProd₁ rProd₁ p≅r₁ [t]₁ [u]₁ prop₁)
-transEqTerm (Bᵣ′ BΣᵣ _ _ _ _ _ _ _ _ _ _)
+transEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _ _ _)
             (Σₜ₌ p r d d′ (ne x) prodₙ p≅r [t] [u] (lift ()))
             (Σₜ₌ p₁ r₁ d₁ d₁′ pProd₁ rProd₁ p≅r₁ [t]₁ [u]₁ prop₁)
-transEqTerm (Bᵣ′ BΣᵣ _ _ _ _ _ _ _ _ _ _)
+transEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _ _ _)
             (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] prop)
             (Σₜ₌ p₁ r₁ d₁ d₁′ prodₙ (ne x) p≅r₁ [t]₁ [u]₁ (lift ()))
-transEqTerm (Bᵣ′ BΣᵣ _ _ _ _ _ _ _ _ _ _)
+transEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _ _ _)
             (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] prop)
             (Σₜ₌ p₁ r₁ d₁ d₁′ (ne x) prodₙ p≅r₁ [t]₁ [u]₁ (lift ()))
 transEqTerm

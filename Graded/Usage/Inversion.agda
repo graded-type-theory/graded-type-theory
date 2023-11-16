@@ -39,7 +39,7 @@ private
     G : Term (1+ n)
     m : Mode
     b : BinderMode
-    s : SigmaMode
+    s : Strength
 
 -- If γ ▸[ m ] U then γ ≤ᶜ 𝟘ᶜ.
 
@@ -129,29 +129,29 @@ inv-usage-app (sub γ▸t∘p▷u γ′≤γ) with inv-usage-app γ▸t∘p▷u
 ... | invUsageApp δ▸t η▸u γ≤δ+pη = invUsageApp δ▸t η▸u (≤ᶜ-trans γ′≤γ γ≤δ+pη)
 
 
-record InvUsageProdᵣ
+record InvUsageProdʷ
          {n} (γ : Conₘ n) (m : Mode) (p : M) (t u : Term n) :
          Set a where
-  constructor invUsageProdᵣ
+  constructor invUsageProdʷ
   field
     {δ η} : Conₘ n
     δ▸t   : δ ▸[ m ᵐ· p ] t
     η▸u   : η ▸[ m ] u
     γ≤γ′  : γ ≤ᶜ p ·ᶜ δ +ᶜ η
 
--- If γ ▸[ m ] prodᵣ p t u then δ ▸[ m ᵐ· p ] t, η ▸[ m ] u and
+-- If γ ▸[ m ] prodʷ p t u then δ ▸[ m ᵐ· p ] t, η ▸[ m ] u and
 -- γ ≤ᶜ p ·ᶜ δ +ᶜ η.
 
-inv-usage-prodᵣ : γ ▸[ m ] prodᵣ p t u → InvUsageProdᵣ γ m p t u
-inv-usage-prodᵣ (prodᵣₘ γ▸t δ▸u) = invUsageProdᵣ γ▸t δ▸u ≤ᶜ-refl
-inv-usage-prodᵣ (sub γ▸tu γ≤γ′) with inv-usage-prodᵣ γ▸tu
-... | invUsageProdᵣ δ▸t η▸u γ′≤γ″ =
-  invUsageProdᵣ δ▸t η▸u (≤ᶜ-trans γ≤γ′ γ′≤γ″)
+inv-usage-prodʷ : γ ▸[ m ] prodʷ p t u → InvUsageProdʷ γ m p t u
+inv-usage-prodʷ (prodʷₘ γ▸t δ▸u) = invUsageProdʷ γ▸t δ▸u ≤ᶜ-refl
+inv-usage-prodʷ (sub γ▸tu γ≤γ′) with inv-usage-prodʷ γ▸tu
+... | invUsageProdʷ δ▸t η▸u γ′≤γ″ =
+  invUsageProdʷ δ▸t η▸u (≤ᶜ-trans γ≤γ′ γ′≤γ″)
 
-record InvUsageProdₚ
+record InvUsageProdˢ
          {n} (γ : Conₘ n) (m : Mode) (p : M) (t u : Term n) :
          Set a where
-  constructor invUsageProdₚ
+  constructor invUsageProdˢ
   field
     {δ η}  : Conₘ n
     δ▸t    : δ ▸[ m ᵐ· p ] t
@@ -161,10 +161,10 @@ record InvUsageProdₚ
 -- If γ ▸[ m ] prod p t u then δ ▸[ m ᵐ· p ] t, η ▸[ m ] u and
 -- γ ≤ᶜ p ·ᶜ δ ∧ᶜ η.
 
-inv-usage-prodₚ : γ ▸[ m ] prodₚ p t u → InvUsageProdₚ γ m p t u
-inv-usage-prodₚ (prodₚₘ γ▸t γ▸u) = invUsageProdₚ γ▸t γ▸u ≤ᶜ-refl
-inv-usage-prodₚ (sub δ▸tu γ≤γ′) with inv-usage-prodₚ δ▸tu
-... | invUsageProdₚ δ▸t δ▸u γ′≤δ = invUsageProdₚ δ▸t δ▸u (≤ᶜ-trans γ≤γ′ γ′≤δ)
+inv-usage-prodˢ : γ ▸[ m ] prodˢ p t u → InvUsageProdˢ γ m p t u
+inv-usage-prodˢ (prodˢₘ γ▸t γ▸u) = invUsageProdˢ γ▸t γ▸u ≤ᶜ-refl
+inv-usage-prodˢ (sub δ▸tu γ≤γ′) with inv-usage-prodˢ δ▸tu
+... | invUsageProdˢ δ▸t δ▸u γ′≤δ = invUsageProdˢ δ▸t δ▸u (≤ᶜ-trans γ≤γ′ γ′≤δ)
 
 
 record InvUsageFst

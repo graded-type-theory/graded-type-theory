@@ -71,7 +71,7 @@ private
     γ : Conₘ n
     m : Mode
     q r : M
-    s : SigmaMode
+    s : Strength
 
 ------------------------------------------------------------------------
 -- Some lemmas
@@ -113,14 +113,14 @@ module _ (as : Full-reduction-assumptions) where
 
     -- A lemma used in the Σ-η case of fullRedTermConv↓.
     --
-    -- Note that the Σₚ-allowed assumption is only used when the mode
+    -- Note that the Σˢ-allowed assumption is only used when the mode
     -- is 𝟙ᵐ. Currently the typing relation does not track modes, but
-    -- if it did, then it might suffice to require that the Σₚ-allowed
+    -- if it did, then it might suffice to require that the Σˢ-allowed
     -- assumptions hold when the mode is 𝟙ᵐ.
 
     Σ-η-lemma :
       ∀ m →
-      Σₚ-allowed p q →
+      Σˢ-allowed p q →
       γ ▸[ m ] t →
       ∃ λ δ → δ ▸[ m ᵐ· p ] fst p t × γ ≤ᶜ p ·ᶜ δ
     Σ-η-lemma {p = p} {γ = γ} = λ where
@@ -277,14 +277,14 @@ module _ (as : Full-reduction-assumptions) where
     fullRedTermConv↓ {Γ = Γ} {t = t} {γ = γ} {m = m} = λ where
       (ℕ-ins t~)     ▸t → fullRedNe~↓ t~ ▸t
       (Empty-ins t~) ▸t → fullRedNe~↓ t~ ▸t
-      (Unit-ins {s = Σᵣ} t~)  ▸t → fullRedNe~↓ t~ ▸t
-      (Unit-ins {s = Σₚ} t~)  ▸t →
+      (Unit-ins {s = 𝕨} t~)  ▸t → fullRedNe~↓ t~ ▸t
+      (Unit-ins {s = 𝕤} t~)  ▸t →
         case syntacticEqTerm (soundness~↓ t~) of λ
           (⊢Unit , _ , _) →
         case Unitˢ-lemma m (inversion-Unit ⊢Unit) ▸t of λ {
           (_ , prop , γ≤) →
         sub (starˢₘ prop) γ≤  }
-      (Σᵣ-ins _ _ t~)     ▸t     → fullRedNe~↓ t~ ▸t
+      (Σʷ-ins _ _ t~)     ▸t     → fullRedNe~↓ t~ ▸t
       (ne-ins _ _ _ t~↓B) ▸t     → fullRedNe~↓ t~↓B ▸t
       (univ _ _ A↓)       ▸A     → fullRedConv↓ A↓ ▸A
       (zero-refl _)       ▸zero  → ▸zero
@@ -294,9 +294,9 @@ module _ (as : Full-reduction-assumptions) where
           (invUsageSuc ▸t γ≤) →
         sub (sucₘ (fullRedTermConv↑ t↑ ▸t)) γ≤ }
       (prod-cong _ _ t↑ u↑ _) ▸t,u →
-        case inv-usage-prodᵣ ▸t,u of λ {
-          (invUsageProdᵣ ▸t ▸u γ≤) →
-        sub (prodᵣₘ (fullRedTermConv↑ t↑ ▸t) (fullRedTermConv↑ u↑ ▸u))
+        case inv-usage-prodʷ ▸t,u of λ {
+          (invUsageProdʷ ▸t ▸u γ≤) →
+        sub (prodʷₘ (fullRedTermConv↑ t↑ ▸t) (fullRedTermConv↑ u↑ ▸u))
           γ≤ }
       (η-eq {p = p} _ _ _ _ t0≡u0) ▸t →
         let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
@@ -313,7 +313,7 @@ module _ (as : Full-reduction-assumptions) where
         case Σ-η-lemma m ok ▸t of λ {
           (δ , ▸fst-t , γ≤) →
         let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
-        sub (prodₚₘ (fullRedTermConv↑ fst-t↑ ▸fst-t)
+        sub (prodˢₘ (fullRedTermConv↑ fst-t↑ ▸fst-t)
                (fullRedTermConv↑ snd-t↑ (sndₘ ▸t))) $
         begin
           γ            ≤⟨ ∧ᶜ-greatest-lower-bound γ≤ ≤ᶜ-refl ⟩
@@ -410,13 +410,13 @@ Full-reduction-term⇔Full-reduction-assumptions =
          Starˢ-sink ⊎ 𝟙 ≤ 𝟘                                                  □
 
        .≡𝟙⊎𝟙≤𝟘 {p = p} {q = q} →
-         Σₚ-allowed p q                                                   →⟨ η-long-nf-for-0⇔≡𝟙⊎≡𝟘 ⟩
+         Σˢ-allowed p q                                                   →⟨ η-long-nf-for-0⇔≡𝟙⊎≡𝟘 ⟩
 
-         (let Γ = ε ∙ (Σₚ p , q ▷ ℕ ▹ ℕ)
+         (let Γ = ε ∙ (Σˢ p , q ▷ ℕ ▹ ℕ)
               γ = ε ∙ 𝟙
-              A = Σₚ p , q ▷ ℕ ▹ ℕ
+              A = Σˢ p , q ▷ ℕ ▹ ℕ
               t = var x0
-              u = prodₚ p (fst p (var x0)) (snd p (var x0))
+              u = prodˢ p (fst p (var x0)) (snd p (var x0))
           in
           Γ ⊢ t ∷ A ×
           γ ▸[ 𝟙ᵐ ] t ×
@@ -424,11 +424,11 @@ Full-reduction-term⇔Full-reduction-assumptions =
           Γ ⊢ t ≡ u ∷ A ×
           (γ ▸[ 𝟙ᵐ ] u ⇔ (p PE.≡ 𝟙 ⊎ p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘)))   →⟨ (λ (⊢t , ▸t , ⊢u , t≡u , ▸u⇔) →
                                                                                ⊢u , t≡u , ▸u⇔ , red ⊢t ▸t) ⟩
-         (let Γ = ε ∙ (Σₚ p , q ▷ ℕ ▹ ℕ)
+         (let Γ = ε ∙ (Σˢ p , q ▷ ℕ ▹ ℕ)
               γ = ε ∙ 𝟙
-              A = Σₚ p , q ▷ ℕ ▹ ℕ
+              A = Σˢ p , q ▷ ℕ ▹ ℕ
               t = var x0
-              u = prodₚ p (fst p (var x0)) (snd p (var x0))
+              u = prodˢ p (fst p (var x0)) (snd p (var x0))
           in
           Γ ⊢nf u ∷ A ×
           Γ ⊢ t ≡ u ∷ A ×
@@ -503,11 +503,11 @@ Full-reduction-term-ε→Full-reduction-assumptions
       Starˢ-sink ⊎ 𝟙 ≤ 𝟘                                   □
 
     .≡𝟙⊎𝟙≤𝟘 {p = p} {q = q} →
-      Σₚ-allowed p q                                                  →⟨ η-long-nf-for-id⇔≡𝟙⊎≡𝟘 ok ⟩
+      Σˢ-allowed p q                                                  →⟨ η-long-nf-for-id⇔≡𝟙⊎≡𝟘 ok ⟩
 
-      (let A = Π 𝟙 , r ▷ Σₚ p , q ▷ ℕ ▹ ℕ ▹ Σₚ p , q ▷ ℕ ▹ ℕ
+      (let A = Π 𝟙 , r ▷ Σˢ p , q ▷ ℕ ▹ ℕ ▹ Σˢ p , q ▷ ℕ ▹ ℕ
            t = lam 𝟙 (var x0)
-           u = lam 𝟙 (prodₚ p (fst p (var x0)) (snd p (var x0)))
+           u = lam 𝟙 (prodˢ p (fst p (var x0)) (snd p (var x0)))
        in
        ε ⊢ t ∷ A ×
        ε ▸[ 𝟙ᵐ ] t ×
@@ -515,9 +515,9 @@ Full-reduction-term-ε→Full-reduction-assumptions
        ε ⊢ t ≡ u ∷ A ×
        (ε ▸[ 𝟙ᵐ ] u ⇔ (p PE.≡ 𝟙 ⊎ p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘)))  →⟨ (λ (⊢t , ▸t , ⊢u , t≡u , ▸u⇔) →
                                                                            ⊢u , t≡u , ▸u⇔ , red ⊢t ▸t) ⟩
-      (let A = Π 𝟙 , r ▷ Σₚ p , q ▷ ℕ ▹ ℕ ▹ Σₚ p , q ▷ ℕ ▹ ℕ
+      (let A = Π 𝟙 , r ▷ Σˢ p , q ▷ ℕ ▹ ℕ ▹ Σˢ p , q ▷ ℕ ▹ ℕ
            t = lam 𝟙 (var x0)
-           u = lam 𝟙 (prodₚ p (fst p (var x0)) (snd p (var x0)))
+           u = lam 𝟙 (prodˢ p (fst p (var x0)) (snd p (var x0)))
        in
        ε ⊢nf u ∷ A ×
        ε ⊢ t ≡ u ∷ A ×

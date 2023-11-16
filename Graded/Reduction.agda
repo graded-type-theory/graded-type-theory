@@ -81,8 +81,8 @@ usagePresTerm
   {γ = γ} {m′} ▸t′ (Σ-β₁ {t = t} {p = p} _ _ _ _ PE.refl _) =
   case inv-usage-fst ▸t′ of λ where
     (invUsageFst {δ = δ} m PE.refl ▸tu γ≤δ fst-ok) →
-      case inv-usage-prodₚ ▸tu of λ where
-        (invUsageProdₚ {δ = ζ} {η = η} ▸t ▸u δ≤pζ∧η) →
+      case inv-usage-prodˢ ▸tu of λ where
+        (invUsageProdˢ {δ = ζ} {η = η} ▸t ▸u δ≤pζ∧η) →
          let γ≤pζ =
                 begin
                   γ            ≤⟨ γ≤δ ⟩
@@ -112,8 +112,8 @@ usagePresTerm
 
 usagePresTerm {γ = γ} ▸t′ (Σ-β₂ {p = p} _ _ _ _ PE.refl _) =
   case inv-usage-snd ▸t′ of λ where
-    (invUsageSnd {δ = δ} ▸tu γ≤δ) → case inv-usage-prodₚ ▸tu of λ where
-      (invUsageProdₚ {δ = ζ} {η = η} ▸t ▸u δ≤pζ∧η) → sub ▸u (begin
+    (invUsageSnd {δ = δ} ▸tu γ≤δ) → case inv-usage-prodˢ ▸tu of λ where
+      (invUsageProdˢ {δ = ζ} {η = η} ▸t ▸u δ≤pζ∧η) → sub ▸u (begin
         γ            ≤⟨ γ≤δ ⟩
         δ            ≤⟨ δ≤pζ∧η ⟩
         p ·ᶜ ζ ∧ᶜ η  ≤⟨ ∧ᶜ-decreasingʳ _ _ ⟩
@@ -188,8 +188,8 @@ usagePresTerm
      _ _ _ _ _ _ PE.refl _) =
   case inv-usage-prodrec γ▸prodrec of λ where
     (invUsageProdrec {δ = δ} {η = η} ▸t ▸u _ _ γ≤rδ+η) →
-      case inv-usage-prodᵣ ▸t of λ where
-        (invUsageProdᵣ {δ = δ′} {η = η′} ▸t₁ ▸t₂ δ≤pδ′+η′) → sub
+      case inv-usage-prodʷ ▸t of λ where
+        (invUsageProdʷ {δ = δ′} {η = η′} ▸t₁ ▸t₂ δ≤pδ′+η′) → sub
           (doubleSubstₘ-lemma₂ ▸u ▸t₂ (▸-cong (ᵐ·-·-assoc m) ▸t₁))
           (begin
              γ                              ≤⟨ γ≤rδ+η ⟩
@@ -305,7 +305,7 @@ usagePres* γ▸A (id x) = γ▸A
 usagePres* γ▸A (x ⇨ A⇒B) = usagePres* (usagePres γ▸A x) A⇒B
 
 -- Note that reduction does not include η-expansion (for WHNFs, see
--- no-η-expansion-Unit and no-η-expansion-Σₚ in
+-- no-η-expansion-Unitˢ and no-η-expansion-Σˢ in
 -- Definition.Typed.Properties). In Graded.FullReduction it is proved
 -- that a well-resourced term has a well-resourced η-long normal form,
 -- *given certain assumptions*. Here it is proved that, given certain
@@ -426,21 +426,21 @@ well-resourced-normal-form-without-η-long-normal-form-Unit 𝟙≰𝟘 ¬sink o
                                    ; (inj₂ 𝟙≤𝟘) → 𝟙≰𝟘 𝟙≤𝟘 }) ⟩
       ⊥                      □ }
 
--- If "Σₚ p , q" is allowed, then variable 0 is well-typed and
+-- If "Σˢ p , q" is allowed, then variable 0 is well-typed and
 -- well-resourced (with respect to the usage context ε ∙ 𝟙), and is
 -- definitionally equal to the η-long normal form
--- prodₚ p (fst p (var x0)) (snd p (var x0)). However, this η-long
+-- prodˢ p (fst p (var x0)) (snd p (var x0)). However, this η-long
 -- normal form is well-resourced with respect to the usage context
 -- ε ∙ 𝟙 if and only if either p is 𝟙, or p is 𝟘, 𝟘ᵐ is allowed, and
 -- 𝟙 ≤ 𝟘.
 
 η-long-nf-for-0⇔≡𝟙⊎≡𝟘 :
-  Σₚ-allowed p q →
-  let Γ = ε ∙ (Σₚ p , q ▷ ℕ ▹ ℕ)
+  Σˢ-allowed p q →
+  let Γ = ε ∙ (Σˢ p , q ▷ ℕ ▹ ℕ)
       γ = ε ∙ 𝟙
-      A = Σₚ p , q ▷ ℕ ▹ ℕ
+      A = Σˢ p , q ▷ ℕ ▹ ℕ
       t = var x0
-      u = prodₚ p (fst p (var x0)) (snd p (var x0))
+      u = prodˢ p (fst p (var x0)) (snd p (var x0))
   in
   Γ ⊢ t ∷ A ×
   γ ▸[ 𝟙ᵐ ] t ×
@@ -460,7 +460,7 @@ well-resourced-normal-form-without-η-long-normal-form-Unit 𝟙≰𝟘 ¬sink o
      (𝟙 ≤ p × (p ≤ 𝟙 ⊎ T 𝟘ᵐ-allowed × p PE.≡ 𝟘))   ⇔⟨ lemma₂ ⟩
      (p PE.≡ 𝟙 ⊎ p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘)  □⇔)
   where
-  u′      = prodₚ p (fst p (var x0)) (snd p (var x0))
+  u′      = prodˢ p (fst p (var x0)) (snd p (var x0))
   ⊢Σℕℕ    = ΠΣⱼ (ℕⱼ ε) (ℕⱼ (ε ∙ ℕⱼ ε)) ok
   Σℕℕ⊢ℕ   = ℕⱼ (ε ∙ ⊢Σℕℕ)
   ε∙Σℕℕ∙ℕ = ε ∙ ⊢Σℕℕ ∙ Σℕℕ⊢ℕ
@@ -471,8 +471,8 @@ well-resourced-normal-form-without-η-long-normal-form-Unit 𝟙≰𝟘 ¬sink o
   lemma₁ =
       (λ ▸1,2 →
          let open Tools.Reasoning.PartialOrder ≤-poset in
-         case inv-usage-prodₚ ▸1,2 of λ {
-           (invUsageProdₚ {δ = _ ∙ q₁} {η = _ ∙ q₂} ▸1 _ (_ ∙ 𝟙≤pq₁∧q₂)) →
+         case inv-usage-prodˢ ▸1,2 of λ {
+           (invUsageProdˢ {δ = _ ∙ q₁} {η = _ ∙ q₂} ▸1 _ (_ ∙ 𝟙≤pq₁∧q₂)) →
          case inv-usage-fst ▸1 of λ {
            (invUsageFst {δ = _ ∙ q₃} _ _ ▸0 (_ ∙ q₁≤q₃) ⌞p⌟≡𝟙ᵐ→p≤𝟙) →
          case inv-usage-var ▸0 of λ {
@@ -487,7 +487,7 @@ well-resourced-normal-form-without-η-long-normal-form-Unit 𝟙≰𝟘 ¬sink o
          , ⌞p⌟≡𝟙ᵐ→p≤𝟙 }}})
     , (λ (𝟙≤p , ⌞p⌟≡𝟙→≤𝟙) →
          sub
-           (prodₚₘ (fstₘ 𝟙ᵐ var PE.refl ⌞p⌟≡𝟙→≤𝟙) (sndₘ var))
+           (prodˢₘ (fstₘ 𝟙ᵐ var PE.refl ⌞p⌟≡𝟙→≤𝟙) (sndₘ var))
            (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
               ε ∙ 𝟙                  ≤⟨ ε ∙ ∧-greatest-lower-bound 𝟙≤p ≤-refl ⟩
               ε ∙ p ∧ 𝟙              ≈˘⟨ ε ∙ ∧-congʳ ·⌜⌞⌟⌝ ⟩
@@ -508,20 +508,20 @@ well-resourced-normal-form-without-η-long-normal-form-Unit 𝟙≰𝟘 ¬sink o
          (inj₂ (PE.refl , ok , 𝟙≤𝟘)) →
            𝟙≤𝟘 , inj₂ (ok , PE.refl))
 
--- If "Π 𝟙 , r" and "Σₚ p , q" are allowed, then the identity function
+-- If "Π 𝟙 , r" and "Σˢ p , q" are allowed, then the identity function
 -- lam 𝟙 (var x0) has type
--- Π 𝟙 , r ▷ Σₚ p , q ▷ ℕ ▹ ℕ ▹ Σₚ p , q ▷ ℕ ▹ ℕ, is well-resourced in
+-- Π 𝟙 , r ▷ Σˢ p , q ▷ ℕ ▹ ℕ ▹ Σˢ p , q ▷ ℕ ▹ ℕ, is well-resourced in
 -- the empty context, and is definitionally equal to the η-long normal
--- form lam 𝟙 (prodₚ p (fst p (var x0)) (snd p (var x0))), however,
+-- form lam 𝟙 (prodˢ p (fst p (var x0)) (snd p (var x0))), however,
 -- this η-long normal form is well-resourced in the empty context if
 -- and only if either p is 𝟙, or p is 𝟘, 𝟘ᵐ is allowed, and 𝟙 ≤ 𝟘.
 
 η-long-nf-for-id⇔≡𝟙⊎≡𝟘 :
   Π-allowed 𝟙 r →
-  Σₚ-allowed p q →
-  let A = Π 𝟙 , r ▷ Σₚ p , q ▷ ℕ ▹ ℕ ▹ Σₚ p , q ▷ ℕ ▹ ℕ
+  Σˢ-allowed p q →
+  let A = Π 𝟙 , r ▷ Σˢ p , q ▷ ℕ ▹ ℕ ▹ Σˢ p , q ▷ ℕ ▹ ℕ
       t = lam 𝟙 (var x0)
-      u = lam 𝟙 (prodₚ p (fst p (var x0)) (snd p (var x0)))
+      u = lam 𝟙 (prodˢ p (fst p (var x0)) (snd p (var x0)))
   in
   ε ⊢ t ∷ A ×
   ε ▸[ 𝟙ᵐ ] t ×
@@ -546,7 +546,7 @@ well-resourced-normal-form-without-η-long-normal-form-Unit 𝟙≰𝟘 ¬sink o
      ε ∙ 𝟙 ▸[ 𝟙ᵐ ] u′                              ⇔⟨ ▸u⇔ ⟩
      (p PE.≡ 𝟙 ⊎ p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘)  □⇔) }
   where
-  u′   = prodₚ p (fst p (var x0)) (snd p (var x0))
+  u′   = prodˢ p (fst p (var x0)) (snd p (var x0))
   ⊢Σℕℕ = ΠΣⱼ (ℕⱼ ε) (ℕⱼ (ε ∙ ℕⱼ ε)) ok₂
 
 -- The type
@@ -554,16 +554,16 @@ well-resourced-normal-form-without-η-long-normal-form-Unit 𝟙≰𝟘 ¬sink o
 -- inhabited if there are quantities p, q and r such that
 -- * p is distinct from 𝟙,
 -- * "p is 𝟘 and 𝟘ᵐ is allowed and 𝟙 ≤ 𝟘" does not hold,
--- * Σₚ-allowed p q holds, and
+-- * Σˢ-allowed p q holds, and
 -- * Π-allowed 𝟙 r holds.
 
-well-resourced-normal-form-without-η-long-normal-form-Σₚ :
+well-resourced-normal-form-without-η-long-normal-form-Σˢ :
   p ≢ 𝟙 →
   ¬ (p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘) →
-  Σₚ-allowed p q →
+  Σˢ-allowed p q →
   Π-allowed 𝟙 r →
   Well-resourced-normal-form-without-η-long-normal-form
-well-resourced-normal-form-without-η-long-normal-form-Σₚ
+well-resourced-normal-form-without-η-long-normal-form-Σˢ
   {p = p} p≢𝟙 ¬[p≡𝟘×𝟘ᵐ×𝟙≤𝟘] ok₁ ok₂ =
   case η-long-nf-for-id⇔≡𝟙⊎≡𝟘 ok₂ ok₁ of λ {
     (⊢t , ▸t , ⊢u , t≡u , ▸u→ , _) →
@@ -573,6 +573,6 @@ well-resourced-normal-form-without-η-long-normal-form-Σₚ
   , ▸t
   , λ (v , ⊢v , t≡v , ▸v) →                                        $⟨ ▸v ⟩
       ε ▸[ 𝟙ᵐ ] v                                                  →⟨ PE.subst (_ ▸[ _ ]_) (normal-terms-unique ⊢v ⊢u (trans (sym t≡v) t≡u)) ⟩
-      ε ▸[ 𝟙ᵐ ] lam 𝟙 (prodₚ p (fst p (var x0)) (snd p (var x0)))  →⟨ ▸u→ ⟩
+      ε ▸[ 𝟙ᵐ ] lam 𝟙 (prodˢ p (fst p (var x0)) (snd p (var x0)))  →⟨ ▸u→ ⟩
       p PE.≡ 𝟙 ⊎ p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘                   →⟨ (λ { (inj₁ p≡𝟙) → p≢𝟙 p≡𝟙; (inj₂ hyp) → ¬[p≡𝟘×𝟘ᵐ×𝟙≤𝟘] hyp }) ⟩
       ⊥                                                            □ }

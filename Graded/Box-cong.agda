@@ -57,7 +57,7 @@ private variable
   Γ             : Con Term _
   A B u         : Term _
   p q₁ q₂ q₃ q₄ : M
-  s             : SigmaMode
+  s             : Strength
 
 ------------------------------------------------------------------------
 -- Some lemmas
@@ -97,7 +97,7 @@ private opaque
 -- Note that, unlike the []-cong primitive, the first argument must be
 -- a type in U.
 
-Has-[]-cong : SigmaMode → M → M → M → M → Set a
+Has-[]-cong : Strength → M → M → M → M → Set a
 Has-[]-cong s q₁ q₂ q₃ q₄ =
   let open Erased s in
   ∃ λ ([]-cong : Term 0) →
@@ -112,7 +112,7 @@ Has-[]-cong s q₁ q₂ q₃ q₄ =
 -- The property of supporting a []-cong combinator that computes
 -- correctly.
 
-Has-computing-[]-cong : SigmaMode → M → M → M → M → Set a
+Has-computing-[]-cong : Strength → M → M → M → M → Set a
 Has-computing-[]-cong s q₁ q₂ q₃ q₄ =
   let open Erased s in
   ∃ λ (([]-cong′ , _) : Has-[]-cong s q₁ q₂ q₃ q₄) →

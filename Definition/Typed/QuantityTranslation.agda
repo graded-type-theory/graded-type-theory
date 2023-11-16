@@ -54,7 +54,7 @@ private variable
   A B t u : Term _ _
   σ σ′    : Subst _ _ _
   p q     : M₁
-  s       : SigmaMode
+  s       : Strength
 
 opaque
 

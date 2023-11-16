@@ -31,7 +31,7 @@ private
     A B C : Term n
     a t t′ u v₁ v₂ r : Term n
     p q : M
-    s : SigmaMode
+    s : Strength
 
 -- Concatenation of type reduction closures
 _⇨*_ : Γ ⊢ A ⇒* B → Γ ⊢ B ⇒* C → Γ ⊢ A ⇒* C
@@ -60,7 +60,7 @@ app-subst* (id x) a₁ = id (x ∘ⱼ a₁)
 app-subst* (x ⇨ t⇒t′) a₁ = app-subst x a₁ ⇨ app-subst* t⇒t′ a₁
 
 -- First projection substitution of reduction closures
-fst-subst* : Γ ⊢ t ⇒* t′ ∷ Σₚ p , q ▷ A ▹ B
+fst-subst* : Γ ⊢ t ⇒* t′ ∷ Σˢ p , q ▷ A ▹ B
            → Γ ⊢ A
            → Γ ∙ A ⊢ B
            → Γ ⊢ fst p t ⇒* fst p t′ ∷ A

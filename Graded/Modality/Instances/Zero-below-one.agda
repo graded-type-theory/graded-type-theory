@@ -21,7 +21,7 @@ import Graded.Modality.Properties.Star as Star
 open import Graded.Modality.Variant lzero
 
 open import Definition.Typed.Restrictions
-open import Definition.Untyped using (BMΣ; Σₚ; Σᵣ)
+open import Definition.Untyped using (BMΣ; 𝕤; 𝕨)
 
 private variable
   variant : Modality-variant
@@ -341,14 +341,14 @@ _≟_ = λ where
 -- Instances of Type-restrictions (𝟘≤𝟙 variant ok) and
 -- Usage-restrictions are suitable for the full reduction theorem if
 -- * Unit-allowed does not hold or Starˢ-sink holds, and
--- * Σₚ-allowed 𝟘 p does not hold.
+-- * Σˢ-allowed 𝟘 p does not hold.
 
 Suitable-for-full-reduction :
   ∀ variant ok → Type-restrictions (𝟘≤𝟙 variant ok) →
   Usage-restrictions → Set
 Suitable-for-full-reduction _ _ TR UR =
   (¬ Unitˢ-allowed ⊎ Starˢ-sink) ×
-  (∀ p → ¬ Σₚ-allowed 𝟘 p)
+  (∀ p → ¬ Σˢ-allowed 𝟘 p)
   where
   open Type-restrictions TR
   open Usage-restrictions UR
@@ -362,9 +362,9 @@ suitable-for-full-reduction :
 suitable-for-full-reduction refl R =
     record R
       { Unit-allowed =
-          λ { Σₚ → ⊥ ; Σᵣ → Unitʷ-allowed }
+          λ { 𝕤 → ⊥ ; 𝕨 → Unitʷ-allowed }
       ; ΠΣ-allowed = λ b p q →
-          ΠΣ-allowed b p q × (b ≡ BMΣ Σₚ → p ≡ 𝟙)
+          ΠΣ-allowed b p q × (b ≡ BMΣ 𝕤 → p ≡ 𝟙)
       ; []-cong-allowed =
           λ _ → ⊥
       ; []-cong→Erased =

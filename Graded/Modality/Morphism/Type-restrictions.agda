@@ -20,7 +20,7 @@ private variable
   M M₁ M₂             : Set _
   tr₁ tr₂ tr-Σ₁ tr-Σ₂ : M₁ → M₂
   p q                 : M
-  s                   : SigmaMode
+  s                   : Strength
 
 ------------------------------------------------------------------------
 -- Are-preserving-type-restrictions and

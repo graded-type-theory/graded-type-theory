@@ -43,7 +43,7 @@ record Full-reduction-assumptions : Set a where
     -- If a Σ-type with η-equality and the "first component
     -- quantity" p is allowed, then either p ≡ 𝟙, or p ≡ 𝟘, 𝟘ᵐ is
     -- allowed and 𝟙 ≤ 𝟘.
-    ≡𝟙⊎𝟙≤𝟘 : Σₚ-allowed p q → p ≡ 𝟙 ⊎ p ≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘
+    ≡𝟙⊎𝟙≤𝟘 : Σˢ-allowed p q → p ≡ 𝟙 ⊎ p ≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘
 
 -- An alternative way to state Full-reduction-assumptions.
 
@@ -57,11 +57,11 @@ record Full-reduction-assumptions′ : Set a where
 
     -- If a Σ-type with η-equality and the "first component
     -- quantity" p is allowed, then p ·_ must be increasing.
-    ·-increasing : Σₚ-allowed p q → r ≤ p · r
+    ·-increasing : Σˢ-allowed p q → r ≤ p · r
 
     -- If a Σ-type with η-equality and the "first component
     -- quantity" p is allowed, and ⌞ p ⌟ is 𝟙ᵐ, then p ≤ 𝟙 must hold.
-    ⌞⌟≡𝟙ᵐ→≤𝟙 : Σₚ-allowed p q → ⌞ p ⌟ ≡ 𝟙ᵐ → p ≤ 𝟙
+    ⌞⌟≡𝟙ᵐ→≤𝟙 : Σˢ-allowed p q → ⌞ p ⌟ ≡ 𝟙ᵐ → p ≤ 𝟙
 
 -- Full-reduction-assumptions is logically equivalent to
 -- Full-reduction-assumptions′.
@@ -78,7 +78,7 @@ Full-reduction-assumptions⇔Full-reduction-assumptions′ =
            𝟘 · p               ≡⟨ ·-zeroˡ _ ⟩
            𝟘 ∎ )}
        ; ·-increasing = λ {p = p} {q = q} {r = r} →
-           Σₚ-allowed p q                        →⟨ ≡𝟙⊎𝟙≤𝟘 as ⟩
+           Σˢ-allowed p q                        →⟨ ≡𝟙⊎𝟙≤𝟘 as ⟩
 
            p ≡ 𝟙 ⊎ p ≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘  →⟨ (λ { (inj₁ refl) → begin
 
@@ -91,7 +91,7 @@ Full-reduction-assumptions⇔Full-reduction-assumptions′ =
                                                        }) ⟩
            r ≤ p · r                             □
        ; ⌞⌟≡𝟙ᵐ→≤𝟙 = λ {p = p} {q = q} →
-           Σₚ-allowed p q                        →⟨ ≡𝟙⊎𝟙≤𝟘 as ⟩
+           Σˢ-allowed p q                        →⟨ ≡𝟙⊎𝟙≤𝟘 as ⟩
            p ≡ 𝟙 ⊎ p ≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘  →⟨ ⊎.map ≤-reflexive (λ (p≡𝟘 , ok , _) → (ok , p≡𝟘)) ⟩
            p ≤ 𝟙 ⊎ T 𝟘ᵐ-allowed × p ≡ 𝟘          →⟨ ⌞⌟≡𝟙→⇔⊎𝟘ᵐ×≡𝟘 .proj₂ ⟩
            (⌞ p ⌟ ≡ 𝟙ᵐ → p ≤ 𝟙)                  □
@@ -101,7 +101,7 @@ Full-reduction-assumptions⇔Full-reduction-assumptions′ =
            (inj₁ sink) → inj₁ sink  ;
            (inj₂ ≤𝟘)   → inj₂ ≤𝟘   }
        ; ≡𝟙⊎𝟙≤𝟘 = λ {p = p} {q = q} →
-           Σₚ-allowed p q                          →⟨ (λ ok → ·-increasing as ok , ⌞⌟≡𝟙ᵐ→≤𝟙 as ok) ⟩
+           Σˢ-allowed p q                          →⟨ (λ ok → ·-increasing as ok , ⌞⌟≡𝟙ᵐ→≤𝟙 as ok) ⟩
            𝟙 ≤ p · 𝟙 × (⌞ p ⌟ ≡ 𝟙ᵐ → p ≤ 𝟙)        →⟨ (λ (𝟙≤p1 , ⌞⌟≡𝟙ᵐ→≤𝟙) →
                                                           subst (_ ≤_) (·-identityʳ _) 𝟙≤p1
                                                         , ⌞⌟≡𝟙→⇔⊎𝟘ᵐ×≡𝟘 .proj₁ ⌞⌟≡𝟙ᵐ→≤𝟙) ⟩

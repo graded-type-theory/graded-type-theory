@@ -34,7 +34,7 @@ private variable
   bs            : List _
   x             : Fin _
   p q r         : M₂
-  s             : SigmaMode
+  s             : Strength
   b             : BinderMode
   ts us         : GenTs _ _ _
   k l           : Kind _ _

@@ -55,7 +55,7 @@ private
     A₁ A₂ B₁ B₂ t₁ t₂ u₁ u₂ v₁ v₂ w₁ w₂ : Term _
     ρ : Wk m n
     p p₁ p₂ p′ q q′ q₁ q₂ r r′ : M
-    s : SigmaMode
+    s : Strength
 
 -- Algorithmic equality of neutrals with injected conversion.
 record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
@@ -95,7 +95,7 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
 
 ~-fst :
   ∀ {p r F G} →
-  Γ ⊢ p ~ r ∷ Σₚ p′ , q ▷ F ▹ G →
+  Γ ⊢ p ~ r ∷ Σˢ p′ , q ▷ F ▹ G →
   Γ ⊢ fst p′ p ~ fst p′ r ∷ F
 ~-fst (↑ A≡B p~r) =
   case syntacticEq A≡B of λ (_ , ⊢B) →
@@ -149,9 +149,9 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
   ∀ {F G A A′ t t′ u u′} →
   Γ ⊢ F →
   Γ ∙ F ⊢ G →
-  Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ A [conv↑] A′ →
-  Γ ⊢ t ~ t′ ∷ (Σᵣ p , q ▷ F ▹ G) →
-  Γ ∙ F ∙ G ⊢ u [conv↑] u′ ∷ A [ prodᵣ p (var x1) (var x0) ]↑² →
+  Γ ∙ (Σʷ p , q ▷ F ▹ G) ⊢ A [conv↑] A′ →
+  Γ ⊢ t ~ t′ ∷ (Σʷ p , q ▷ F ▹ G) →
+  Γ ∙ F ∙ G ⊢ u [conv↑] u′ ∷ A [ prodʷ p (var x1) (var x0) ]↑² →
   Γ ⊢ prodrec r p q′ A t u ~ prodrec r p q′ A′ t′ u′ ∷ (A [ t ]₀)
 ~-prodrec x x₁ x₂ (↑ A≡B k~↑l) x₄ =
   case syntacticEq A≡B of λ (_ , ⊢B) →

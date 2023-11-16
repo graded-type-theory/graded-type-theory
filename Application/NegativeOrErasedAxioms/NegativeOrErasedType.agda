@@ -49,12 +49,12 @@ data NegativeType (Γ : Con Term m) : Term m → Set a where
 
   sigma-𝟘 : Γ ⊢ A →
             NegativeType (Γ ∙ A) B →
-            NegativeType Γ (Σₚ 𝟘 , q ▷ A ▹ B)
+            NegativeType Γ (Σˢ 𝟘 , q ▷ A ▹ B)
 
   sigma : Γ ⊢ A →
           NegativeType Γ A →
           NegativeType (Γ ∙ A) B →
-          NegativeType Γ (Σₚ p , q ▷ A ▹ B)
+          NegativeType Γ (Σˢ p , q ▷ A ▹ B)
 
   conv  : NegativeType Γ A →
           Γ ⊢ A ≡ B →
@@ -114,7 +114,7 @@ subNeg1 n ⊢t = subNeg n (singleSubst ⊢t) (wfTerm ⊢t)
 
 fstNeg :
   NegativeType Γ C →
-  Γ ⊢ C ≡ Σₚ p , q ▷ A ▹ B →
+  Γ ⊢ C ≡ Σˢ p , q ▷ A ▹ B →
   𝟘 ≢ p →
   NegativeType Γ A
 fstNeg empty          c  _   = ⊥-elim (Empty≢Σⱼ c)
@@ -129,7 +129,7 @@ fstNeg (conv n c)     c′ 𝟘≢p = fstNeg n (trans c c′) 𝟘≢p
 
 sndNeg :
   NegativeType Γ C →
-  Γ ⊢ C ≡ Σₚ p , q ▷ A ▹ B →
+  Γ ⊢ C ≡ Σˢ p , q ▷ A ▹ B →
   Γ ⊢ t ∷ A →
   NegativeType Γ (B [ t ]₀)
 sndNeg empty          c    = ⊥-elim (Empty≢Σⱼ c)
@@ -166,14 +166,14 @@ appNeg (conv n c) c′ = appNeg n (trans c c′)
 ¬negℕ (sigma _ _ _) c  = ℕ≢Σ (sym c)
 ¬negℕ (conv n c)    c′ = ¬negℕ n (trans c c′)
 
--- Σᵣ-types are not negative.
+-- Σʷ-types are not negative.
 
-¬negΣᵣ : NegativeType Γ C → Γ ⊢ C ≡ Σᵣ p , q ▷ A ▹ B → ⊥
-¬negΣᵣ empty         c  = Empty≢Bⱼ BΣ! c
-¬negΣᵣ (pi _ _)      c  = Π≢Σⱼ c
-¬negΣᵣ (sigma-𝟘 _ _) c  = Σₚ≢Σᵣⱼ c
-¬negΣᵣ (sigma _ _ _) c  = Σₚ≢Σᵣⱼ c
-¬negΣᵣ (conv n c)    c′ = ¬negΣᵣ n (trans c c′)
+¬negΣʷ : NegativeType Γ C → Γ ⊢ C ≡ Σʷ p , q ▷ A ▹ B → ⊥
+¬negΣʷ empty         c  = Empty≢Bⱼ BΣ! c
+¬negΣʷ (pi _ _)      c  = Π≢Σⱼ c
+¬negΣʷ (sigma-𝟘 _ _) c  = Σˢ≢Σʷⱼ c
+¬negΣʷ (sigma _ _ _) c  = Σˢ≢Σʷⱼ c
+¬negΣʷ (conv n c)    c′ = ¬negΣʷ n (trans c c′)
 
 -- Unit types are not negative
 

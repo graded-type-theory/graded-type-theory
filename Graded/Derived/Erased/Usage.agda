@@ -6,13 +6,13 @@
 
 open import Graded.Modality
 open import Graded.Usage.Restrictions
-open import Definition.Untyped.NotParametrised using (SigmaMode)
+open import Definition.Untyped.NotParametrised using (Strength)
 
 module Graded.Derived.Erased.Usage
   {a} {M : Set a}
   (𝕄 : Modality M)
   (R : Usage-restrictions M)
-  (s : SigmaMode)
+  (s : Strength)
   where
 
 open Modality 𝕄
@@ -68,14 +68,14 @@ opaque
     where
     open Tools.Reasoning.PartialOrder (≤ᶜ-poset {n})
     lemma : ∀ s′ → s PE.≡ s′ → 𝟘ᶜ ▸[ m ] [ t ]
-    lemma Σₚ PE.refl = sub
-      (prodₚₘ (▸-cong (PE.sym (ᵐ·-zeroʳ m)) ▸t) starₘ)
+    lemma 𝕤 PE.refl = sub
+      (prodˢₘ (▸-cong (PE.sym (ᵐ·-zeroʳ m)) ▸t) starₘ)
       (begin
          𝟘ᶜ             ≈˘⟨ ∧ᶜ-idem _ ⟩
          𝟘ᶜ ∧ᶜ 𝟘ᶜ       ≈˘⟨ ∧ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
          𝟘 ·ᶜ γ ∧ᶜ 𝟘ᶜ  ∎)
-    lemma Σᵣ PE.refl = sub
-      (prodᵣₘ (▸-cong (PE.sym (ᵐ·-zeroʳ m)) ▸t) starₘ)
+    lemma 𝕨 PE.refl = sub
+      (prodʷₘ (▸-cong (PE.sym (ᵐ·-zeroʳ m)) ▸t) starₘ)
       (begin
          𝟘ᶜ             ≈˘⟨ +ᶜ-identityˡ _ ⟩
          𝟘ᶜ +ᶜ 𝟘ᶜ       ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
@@ -109,18 +109,18 @@ opaque
     where
     open Tools.Reasoning.PartialOrder (≤ᶜ-poset {n})
     lemma : ∀ s′ → s PE.≡ s′ → (∃ λ δ → δ ▸[ 𝟘ᵐ? ] t) × γ ≤ᶜ 𝟘ᶜ
-    lemma Σₚ PE.refl =
-      case inv-usage-prodₚ ▸[] of λ {
-        (invUsageProdₚ {δ = δ} {η = η} ▸t ▸star γ≤) →
+    lemma 𝕤 PE.refl =
+      case inv-usage-prodˢ ▸[] of λ {
+        (invUsageProdˢ {δ = δ} {η = η} ▸t ▸star γ≤) →
       (_ , ▸-cong (ᵐ·-zeroʳ m) ▸t)
       , (begin
           γ            ≤⟨ γ≤ ⟩
           𝟘 ·ᶜ δ ∧ᶜ η  ≈⟨ ∧ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
           𝟘ᶜ ∧ᶜ η      ≤⟨ ∧ᶜ-decreasingˡ _ _ ⟩
           𝟘ᶜ           ∎) }
-    lemma Σᵣ PE.refl =
-      case inv-usage-prodᵣ ▸[] of λ {
-        (invUsageProdᵣ {δ = δ} {η} ▸t ▸star γ≤) →
+    lemma 𝕨 PE.refl =
+      case inv-usage-prodʷ ▸[] of λ {
+        (invUsageProdʷ {δ = δ} {η} ▸t ▸star γ≤) →
       case inv-usage-starʷ ▸star of λ
         η≤𝟘 →
       (_ , ▸-cong (ᵐ·-zeroʳ m) ▸t)

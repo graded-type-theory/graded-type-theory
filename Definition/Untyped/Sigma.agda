@@ -20,20 +20,20 @@ private variable
 
 -- A definition of prodrec for strong Σ-types.
 
-prodrecₚ : M → Term n → Term (1+ (1+ n)) → Term n
-prodrecₚ p t u = u [ fst p t , snd p t ]
+prodrecˢ : M → Term n → Term (1+ (1+ n)) → Term n
+prodrecˢ p t u = u [ fst p t , snd p t ]
 
 -- The projections are defined using some extra quantities r′ and q′.
 
-module Fstᵣ-sndᵣ (r′ q′ : M) where
+module Fstʷ-sndʷ (r′ q′ : M) where
 
   -- The first projection.
 
-  fstᵣ : M → Term n → Term n → Term n
-  fstᵣ p A t = prodrec r′ p q′ (wk1 A) t (var x1)
+  fstʷ : M → Term n → Term n → Term n
+  fstʷ p A t = prodrec r′ p q′ (wk1 A) t (var x1)
 
   -- The second projection.
 
-  sndᵣ : M → M → Term n → Term (1+ n) → Term n → Term n
-  sndᵣ p q A B t =
-    prodrec r′ p q (B [ fstᵣ p (wk1 A) (var x0) ]↑) t (var x0)
+  sndʷ : M → M → Term n → Term (1+ n) → Term n → Term n
+  sndʷ p q A B t =
+    prodrec r′ p q (B [ fstʷ p (wk1 A) (var x0) ]↑) t (var x0)

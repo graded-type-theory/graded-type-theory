@@ -40,7 +40,7 @@ private
     p q : M
     Γ   : Con Term n
     F   : Term n
-    m   : SigmaMode
+    m   : Strength
 
 prod′ : ∀ {Γ : Con Term n} {F : Term n} {G t u l l′ l″}
        ([F] : Γ ⊩⟨ l ⟩ F)
@@ -50,7 +50,7 @@ prod′ : ∀ {Γ : Con Term n} {F : Term n} {G t u l l′ l″}
        ([ΣFG] : Γ ⊩⟨ l′ ⟩B⟨ BΣ m p q ⟩ Σ⟨ m ⟩ p , q ▷ F ▹ G)
      → Γ ⊩⟨ l′ ⟩ prod m p t u ∷ Σ p , q ▷ F ▹ G / B-intr BΣ! [ΣFG]
 prod′
-  {m = Σₚ} {p = p} {q = q} {Γ = Γ} {F} {G} {t} {u} {l} {l′} {l″}
+  {m = 𝕤} {p = p} {q = q} {Γ = Γ} {F} {G} {t} {u} {l} {l′} {l″}
   [F] [t] [Gt] [u]
   [ΣFG]@(noemb (Bᵣ F₁ G₁ D ⊢F ⊢G A≡A [F]₁ [G]₁ G-ext ok))
   with B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) ΠΣₙ)
@@ -60,14 +60,14 @@ prod′
       ⊢Γ = wf ⊢F
       ⊢prod = prodⱼ ⊢F ⊢G ⊢t ⊢u ok
 
-      fst⇒t : Γ ⊢ fst _ (prodₚ _ t u) ⇒ t ∷ F
+      fst⇒t : Γ ⊢ fst _ (prodˢ _ t u) ⇒ t ∷ F
       fst⇒t = Σ-β₁ ⊢F ⊢G ⊢t ⊢u PE.refl ok
       [fstprod] , [fstprod≡t] = redSubstTerm fst⇒t [F] [t]
       [fstprod]′ = irrelevanceTerm′ (PE.sym (wk-id F))
                                     [F] ([F]₁ id ⊢Γ)
                                     [fstprod]
 
-      wkLiftIdEq = PE.cong (λ x → x [ fst _ (prodₚ _ t u ) ]₀)
+      wkLiftIdEq = PE.cong (λ x → x [ fst _ (prodˢ _ t u ) ]₀)
                      (wk-lift-id G)
       [Gfst] = [G]₁ id ⊢Γ [fstprod]′
       [Gfst]′ = irrelevance′ wkLiftIdEq [Gfst]
@@ -85,7 +85,7 @@ prod′
                                  (G-ext id ⊢Γ [fstprod]′ [t]′ [fstprod≡t]′)
       [u]′ = convTerm₂ [Gfst]′ [Gt] [Gfst≡Gt] [u]
 
-      snd⇒u : Γ ⊢ snd _ (prodₚ _ t u) ⇒ u ∷ G [ fst _ (prodₚ _ t u) ]₀
+      snd⇒u : Γ ⊢ snd _ (prodˢ _ t u) ⇒ u ∷ G [ fst _ (prodˢ _ t u) ]₀
       snd⇒u = Σ-β₂ ⊢F ⊢G ⊢t ⊢u PE.refl ok
       [sndprod] , [sndprod≡u] = redSubstTerm snd⇒u [Gfst]′ [u]′
       [sndprod]′ = irrelevanceTerm′ (PE.cong (_[ _ ]₀) (PE.sym (wk-lift-id G)))
@@ -94,13 +94,13 @@ prod′
 
       [fstRefl] = transEqTerm [F] [fstprod≡t] (symEqTerm [F] [fstprod≡t])
       [sndRefl] = transEqTerm [Gfst]′ [sndprod≡u] (symEqTerm [Gfst]′ [sndprod≡u])
-  in  Σₜ (prodₚ _ t u) (idRedTerm:*: ⊢prod)
+  in  Σₜ (prodˢ _ t u) (idRedTerm:*: ⊢prod)
          (≅-Σ-η ⊢F ⊢G ⊢prod ⊢prod prodₙ prodₙ
                 (escapeTermEq [F] [fstRefl])
                 (escapeTermEq [Gfst]′ [sndRefl]))
          prodₙ ([fstprod]′ , [sndprod]′)
 
-prod′ {m = Σᵣ} {q = q} {Γ = Γ} {F} {G} {t} {u} {l} {l′} {l″} [F] [t] [Gt] [u]
+prod′ {m = 𝕨} {q = q} {Γ = Γ} {F} {G} {t} {u} {l} {l′} {l″} [F] [t] [Gt] [u]
       [ΣFG]@(noemb (Bᵣ F₁ G₁ D ⊢F ⊢G A≡A [F]₁ [G]₁ G-ext ok)) with
         B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) ΠΣₙ)
 ... | PE.refl , PE.refl , _ =
@@ -116,7 +116,7 @@ prod′ {m = Σᵣ} {q = q} {Γ = Γ} {F} {G} {t} {u} {l} {l′} {l″} [F] [t] 
       [u]′ = irrelevanceTerm′ (PE.cong (_[ _ ]₀) (PE.sym (wk-lift-id G)))
                               [Gt] ([G]₁ id ⊢Γ [t]′) [u]
 
-  in  Σₜ (prodᵣ _ t u) (idRedTerm:*: ⊢prod)
+  in  Σₜ (prodʷ _ t u) (idRedTerm:*: ⊢prod)
          (≅-prod-cong ⊢F ⊢G (escapeTermEq [F] [t≡t])
             (escapeTermEq [Gt] [u≡u]) ok)
          prodₙ
@@ -149,12 +149,12 @@ prod-cong′ :
   Γ ⊩⟨ l′ ⟩ prod m p t u ≡ prod m p t′ u′ ∷ Σ p , q ▷ F ▹ G /
     B-intr BΣ! [ΣFG]
 prod-cong′
-  {m = Σₚ} {p = p} {q = q} {Γ = Γ} {F} {G} {t} {t′} {u} {u′} {l} {l′}
+  {m = 𝕤} {p = p} {q = q} {Γ = Γ} {F} {G} {t} {t′} {u} {u′} {l} {l′}
   [F] [t] [t′] [t≡t′] [Gt] [u] [u′] [u≡u′]
   [ΣFG]@(noemb (Bᵣ F₁ G₁ D ⊢F ⊢G A≡A [F]₁ [G]₁ G-ext ok))
   with B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) ΠΣₙ)
 ... | PE.refl , PE.refl , _ =
-  let [prod] = prod′ {m = Σₚ} [F] [t] [Gt] [u] [ΣFG]
+  let [prod] = prod′ {m = 𝕤} [F] [t] [Gt] [u] [ΣFG]
 
       ⊢Γ = wf ⊢F
       wk[F] = [F]₁ id ⊢Γ
@@ -209,7 +209,7 @@ prod-cong′
                                         [fst≡fst′]
 
       -- snd (prod t u) ≡ u ∷ G [ fst (prod t u) ]₀
-      wkLiftIdEq = PE.cong (λ x → x [ fst _ (prodₚ _ t u ) ]₀)
+      wkLiftIdEq = PE.cong (λ x → x [ fst _ (prodˢ _ t u ) ]₀)
                      (wk-lift-id G)
       wk[Gfst] = [G]₁ id ⊢Γ wk[fst]
       [Gfst] = irrelevance′ wkLiftIdEq wk[Gfst]
@@ -226,7 +226,7 @@ prod-cong′
       [u≡u′]Gfst = convEqTerm₂ [Gfst] [Gt] [Gfst≡Gt] [u≡u′]
 
       -- u′ ≡ snd (prod t′ u′) ∷ G [ fst (prod t u) ]₀
-      wkLiftIdEq′ = PE.cong (λ x → x [ fst _ (prodₚ _ t′ u′) ]₀)
+      wkLiftIdEq′ = PE.cong (λ x → x [ fst _ (prodˢ _ t′ u′) ]₀)
                       (wk-lift-id G)
       wk[Gfst′] = [G]₁ id ⊢Γ wk[fst′]
       [Gfst′] = irrelevance′ wkLiftIdEq′ wk[Gfst′]
@@ -250,7 +250,7 @@ prod-cong′
                                (transEqTerm [Gfst] [u≡u′]Gfst
                                             (symEqTerm [Gfst] [snd≡u′]Gfst))
       wk[snd≡snd′] = irrelevanceEqTerm′
-        (PE.cong (λ x → x [ fst _ (prodₚ _ t u) ]₀)
+        (PE.cong (λ x → x [ fst _ (prodˢ _ t u) ]₀)
            (PE.sym (wk-lift-id G)))
         [Gfst] wk[Gfst]
         [snd≡snd′]
@@ -258,7 +258,7 @@ prod-cong′
       ⊢prod = escapeTerm (B-intr BΣ! [ΣFG]) [prod]
       ⊢prod′ = escapeTerm (B-intr BΣ! [ΣFG]) [prod′]
 
-  in  Σₜ₌ (prodₚ _ t u) (prodₚ _ t′ u′)
+  in  Σₜ₌ (prodˢ _ t u) (prodˢ _ t′ u′)
           (idRedTerm:*: ⊢prod) (idRedTerm:*: ⊢prod′)
           prodₙ prodₙ
           (≅-Σ-η ⊢F ⊢G ⊢prod ⊢prod′ prodₙ prodₙ
@@ -267,7 +267,7 @@ prod-cong′
           [prod] [prod′]
           (wk[fst] , wk[fst′] , wk[fst≡fst′] , wk[snd≡snd′])
 
-prod-cong′ {m = Σᵣ} {q = q} {Γ = Γ} {F} {G} {t} {t′} {u} {u′} {l} {l′}
+prod-cong′ {m = 𝕨} {q = q} {Γ = Γ} {F} {G} {t} {t′} {u} {u′} {l} {l′}
            [F] [t] [t′] [t≡t′] [Gt] [u] [u′] [u≡u′]
            [ΣFG]@(noemb (Bᵣ F₁ G₁ D ⊢F ⊢G A≡A [F]₁ [G]₁ G-ext ok))
            with B-PE-injectivity BΣ! BΣ! (whnfRed* (red D) ΠΣₙ)
@@ -293,11 +293,11 @@ prod-cong′ {m = Σᵣ} {q = q} {Γ = Γ} {F} {G} {t} {t′} {u} {u′} {l} {l�
       wk[u′] = irrelevanceTerm′ (PE.sym (PE.cong (_[ t′ ]₀) (wk-lift-id G)))
                                 [Gt′] wk[Gt′] [u′]Gt′
 
-      [prod] = prod′ {m = Σᵣ} [F] [t] [Gt] [u] [ΣFG]
+      [prod] = prod′ {m = 𝕨} [F] [t] [Gt] [u] [ΣFG]
       [prod′] = prod′ [F] [t′] [Gt′] [u′]Gt′ [ΣFG]
       ⊢prod = escapeTerm (B-intr BΣ! [ΣFG]) [prod]
       ⊢prod′ = escapeTerm (B-intr BΣ! [ΣFG]) [prod′]
-  in  Σₜ₌ (prodᵣ _ t u) (prodᵣ _ t′ u′)
+  in  Σₜ₌ (prodʷ _ t u) (prodʷ _ t′ u′)
           (idRedTerm:*: ⊢prod)
           (idRedTerm:*: ⊢prod′)
           prodₙ prodₙ

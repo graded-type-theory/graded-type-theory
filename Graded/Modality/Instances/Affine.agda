@@ -337,14 +337,14 @@ instance
 
 -- An instance of Type-restrictions is suitable for the full reduction
 -- theorem if
--- * Σₚ-allowed 𝟘 p implies that 𝟘ᵐ is allowed, and
--- * Σₚ-allowed ω p does not hold.
+-- * Σˢ-allowed 𝟘 p implies that 𝟘ᵐ is allowed, and
+-- * Σˢ-allowed ω p does not hold.
 
 Suitable-for-full-reduction :
   Type-restrictions → Set
 Suitable-for-full-reduction rs =
-  (∀ p → Σₚ-allowed 𝟘 p → T 𝟘ᵐ-allowed) ×
-  (∀ p → ¬ Σₚ-allowed ω p)
+  (∀ p → Σˢ-allowed 𝟘 p → T 𝟘ᵐ-allowed) ×
+  (∀ p → ¬ Σˢ-allowed ω p)
   where
   open Type-restrictions rs
 
@@ -357,8 +357,8 @@ suitable-for-full-reduction rs =
     record rs
       { ΠΣ-allowed = λ b p q →
           ΠΣ-allowed b p q ×
-          (b ≡ BMΣ Σₚ × p ≡ 𝟘 → T 𝟘ᵐ-allowed) ×
-          ¬ (b ≡ BMΣ Σₚ × p ≡ ω)
+          (b ≡ BMΣ 𝕤 × p ≡ 𝟘 → T 𝟘ᵐ-allowed) ×
+          ¬ (b ≡ BMΣ 𝕤 × p ≡ ω)
       ; []-cong-allowed = λ s →
           []-cong-allowed s × T 𝟘ᵐ-allowed
       ; []-cong→Erased = λ (ok₁ , ok₂) →

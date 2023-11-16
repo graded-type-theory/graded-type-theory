@@ -151,11 +151,11 @@ wkUsage ρ (lamₘ γ▸t) = lamₘ (wkUsage (lift ρ) γ▸t)
 wkUsage ρ (γ▸t ∘ₘ δ▸u) =
   sub ((wkUsage ρ γ▸t) ∘ₘ (wkUsage ρ δ▸u))
       (≤ᶜ-reflexive (≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-congˡ (wk-·ᶜ ρ))))
-wkUsage ρ (prodᵣₘ γ▸t δ▸u) =
-  sub (prodᵣₘ (wkUsage ρ γ▸t) (wkUsage ρ δ▸u))
+wkUsage ρ (prodʷₘ γ▸t δ▸u) =
+  sub (prodʷₘ (wkUsage ρ γ▸t) (wkUsage ρ δ▸u))
       (≤ᶜ-reflexive (≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-congʳ (wk-·ᶜ ρ))))
-wkUsage ρ (prodₚₘ γ▸t γ▸u) = sub
-  (prodₚₘ (wkUsage ρ γ▸t) (wkUsage ρ γ▸u))
+wkUsage ρ (prodˢₘ γ▸t γ▸u) = sub
+  (prodˢₘ (wkUsage ρ γ▸t) (wkUsage ρ γ▸u))
   (≤ᶜ-reflexive (≈ᶜ-trans (wk-∧ᶜ ρ) (∧ᶜ-congʳ (wk-·ᶜ ρ))))
 wkUsage ρ (fstₘ m γ▸t PE.refl ok) = fstₘ m (wkUsage ρ γ▸t) PE.refl ok
 wkUsage ρ (sndₘ γ▸t) = sndₘ (wkUsage ρ γ▸t)
@@ -422,17 +422,17 @@ wkUsage⁻¹ ▸t = wkUsage⁻¹′ ▸t refl
           wkConₘ⁻¹ ρ (γ +ᶜ p ·ᶜ δ)             ≈⟨ wkConₘ⁻¹-+ᶜ ρ ⟩
           wkConₘ⁻¹ ρ γ +ᶜ wkConₘ⁻¹ ρ (p ·ᶜ δ)  ≈⟨ +ᶜ-congˡ (wkConₘ⁻¹-·ᶜ ρ) ⟩
           wkConₘ⁻¹ ρ γ +ᶜ p ·ᶜ wkConₘ⁻¹ ρ δ    ∎) }
-      (prodᵣₘ {γ = γ} {p = p} {δ = δ} ▸t ▸u) eq →
+      (prodʷₘ {γ = γ} {p = p} {δ = δ} ▸t ▸u) eq →
         case wk-prod eq of λ {
           (_ , _ , refl , refl , refl) →
-        sub (prodᵣₘ (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸u)) (begin
+        sub (prodʷₘ (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸u)) (begin
           wkConₘ⁻¹ ρ (p ·ᶜ γ +ᶜ δ)             ≈⟨ wkConₘ⁻¹-+ᶜ ρ ⟩
           wkConₘ⁻¹ ρ (p ·ᶜ γ) +ᶜ wkConₘ⁻¹ ρ δ  ≈⟨ +ᶜ-congʳ (wkConₘ⁻¹-·ᶜ ρ) ⟩
           p ·ᶜ wkConₘ⁻¹ ρ γ +ᶜ wkConₘ⁻¹ ρ δ    ∎) }
-      (prodₚₘ {γ = γ} {p = p} {δ = δ} ▸t ▸u) eq →
+      (prodˢₘ {γ = γ} {p = p} {δ = δ} ▸t ▸u) eq →
         case wk-prod eq of λ {
           (_ , _ , refl , refl , refl) →
-        sub (prodₚₘ (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸u)) (begin
+        sub (prodˢₘ (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸u)) (begin
           wkConₘ⁻¹ ρ (p ·ᶜ γ ∧ᶜ δ)             ≈⟨ wkConₘ⁻¹-∧ᶜ ρ ⟩
           wkConₘ⁻¹ ρ (p ·ᶜ γ) ∧ᶜ wkConₘ⁻¹ ρ δ  ≈⟨ ∧ᶜ-congʳ (wkConₘ⁻¹-·ᶜ ρ) ⟩
           p ·ᶜ wkConₘ⁻¹ ρ γ ∧ᶜ wkConₘ⁻¹ ρ δ    ∎) }

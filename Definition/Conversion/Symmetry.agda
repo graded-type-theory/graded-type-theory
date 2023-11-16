@@ -281,11 +281,11 @@ mutual
     let B , whnfB , A≡B , u~t = sym~↓ Γ≡Δ t~u
         B≡Unit = Unit≡A A≡B whnfB
     in  Unit-ins (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡Unit u~t)
-  symConv↓Term Γ≡Δ (Σᵣ-ins t u t~u) =
+  symConv↓Term Γ≡Δ (Σʷ-ins t u t~u) =
     case sym~↓ Γ≡Δ t~u of λ (B , whnfB , A≡B , u~t) →
     case Σ≡A A≡B whnfB of λ where
       (_ , B≡Σ , PE.refl) →
-        Σᵣ-ins (stabilityTerm Γ≡Δ u) (stabilityTerm Γ≡Δ t) u~t
+        Σʷ-ins (stabilityTerm Γ≡Δ u) (stabilityTerm Γ≡Δ t) u~t
   symConv↓Term Γ≡Δ (ne-ins t u x t~u) =
     let B , whnfB , A≡B , u~t = sym~↓ Γ≡Δ t~u
     in  ne-ins (stabilityTerm Γ≡Δ u) (stabilityTerm Γ≡Δ t) x u~t

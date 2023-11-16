@@ -100,7 +100,7 @@ module Counterexample
     × (∃ λ u → Γ ⊢ t ⇒* u ∷ ℕ × Whnf u × Neutral u)
   cEx =
       _
-    , ε ∙ (Σᵣ ω , 𝟘 ▷ ℕ ▹ ℕ) , _ , prodrec 𝟘 ω 𝟘 ℕ (var x0) zero
+    , ε ∙ (Σʷ ω , 𝟘 ▷ ℕ ▹ ℕ) , _ , prodrec 𝟘 ω 𝟘 ℕ (var x0) zero
     , ⊢prodrec
     , prodrecₘ {η = 𝟘ᶜ} var zeroₘ
         (sub ℕₘ (≤ᶜ-refl ∙ ≤-reflexive (M.·-zeroʳ _))) _
@@ -115,7 +115,7 @@ module Counterexample
     , (_ , id ⊢prodrec , ne neutral , neutral)
     where
     lem :
-      ε ∙ (Σᵣ ω , 𝟘 ▷ ℕ ▹ ℕ) ⊢
+      ε ∙ (Σʷ ω , 𝟘 ▷ ℕ ▹ ℕ) ⊢
         prodrec 𝟘 ω 𝟘 ℕ (var x0) zero [conv↑] zero ∷ ℕ →
       ⊥
     lem ([↑]ₜ B t′ u′ D d d′ whnfB whnft′ whnfu′ t<>u)
@@ -128,7 +128,7 @@ module Counterexample
       | PE.refl | PE.refl | PE.refl
 
     lem′ :
-      ε ∙ (Σᵣ ω , 𝟘 ▷ ℕ ▹ ℕ) ⊢
+      ε ∙ (Σʷ ω , 𝟘 ▷ ℕ ▹ ℕ) ⊢
         prodrec 𝟘 ω 𝟘 ℕ (var x0) zero [conv↑] suc t ∷ ℕ →
       ⊥
     lem′ ([↑]ₜ B t′ u′ D d d′ whnfB whnft′ whnfu′ t<>u)

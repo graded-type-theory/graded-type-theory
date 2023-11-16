@@ -35,9 +35,9 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 
-open import Graded.Derived.Erased.Typed.Inversion R Σᵣ public
+open import Graded.Derived.Erased.Typed.Inversion R 𝕨 public
 
-open Fstᵣ-sndᵣ (𝟘 ∧ 𝟙) 𝟘
+open Fstʷ-sndʷ (𝟘 ∧ 𝟙) 𝟘
 
 private variable
   Γ       : Con Term _
@@ -53,9 +53,9 @@ opaque
 
   inversion-erased :
     Γ ⊢ erased C t ∷ A →
-    ∃₂ λ q B → Γ ⊢ t ∷ Σᵣ 𝟘 , q ▷ A ▹ B × Σᵣ-allowed 𝟘 q
+    ∃₂ λ q B → Γ ⊢ t ∷ Σʷ 𝟘 , q ▷ A ▹ B × Σʷ-allowed 𝟘 q
   inversion-erased {C = C} {t} ⊢erased =
-    case inversion-fstᵣ ⊢erased of λ
+    case inversion-fstʷ ⊢erased of λ
       (q , B , ⊢t , A≡C) →
     case inversion-ΠΣ (syntacticTerm ⊢t) of λ
       (⊢C , ⊢B , Σ-ok) →
@@ -71,14 +71,14 @@ opaque
     Erasedʷ-allowed →
     ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} →
        Γ ⊢ erased A t ∷ A →
-       ∃ λ q → Γ ⊢ t ∷ Σᵣ 𝟘 , q ▷ A ▹ Unitʷ)
-  ¬-inversion-erased′ (Unit-ok , Σᵣ-ok) inversion-erased = bad
+       ∃ λ q → Γ ⊢ t ∷ Σʷ 𝟘 , q ▷ A ▹ Unitʷ)
+  ¬-inversion-erased′ (Unit-ok , Σʷ-ok) inversion-erased = bad
     where
     Γ′ : Con Term 0
     Γ′ = ε
 
     t′ : Term 0
-    t′ = prodᵣ 𝟘 zero zero
+    t′ = prodʷ 𝟘 zero zero
 
     A′ : Term 0
     A′ = ℕ
@@ -86,20 +86,20 @@ opaque
     ⊢Γ′∙ℕ : ⊢ Γ′ ∙ ℕ
     ⊢Γ′∙ℕ = ε ∙ ℕⱼ ε
 
-    ⊢t′₁ : Γ′ ⊢ t′ ∷ Σᵣ 𝟘 , 𝟘 ▷ ℕ ▹ ℕ
-    ⊢t′₁ = prodⱼ (ℕⱼ ε) (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) Σᵣ-ok
+    ⊢t′₁ : Γ′ ⊢ t′ ∷ Σʷ 𝟘 , 𝟘 ▷ ℕ ▹ ℕ
+    ⊢t′₁ = prodⱼ (ℕⱼ ε) (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) Σʷ-ok
 
     ⊢erased-t′ : Γ′ ⊢ erased A′ t′ ∷ A′
-    ⊢erased-t′ = fstᵣⱼ ⊢t′₁
+    ⊢erased-t′ = fstʷⱼ ⊢t′₁
 
     erased-t′≡zero : Γ′ ⊢ erased A′ t′ ≡ zero ∷ A′
-    erased-t′≡zero = fstᵣ-β-≡ (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) Σᵣ-ok
+    erased-t′≡zero = fstʷ-β-≡ (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) Σʷ-ok
 
-    ⊢t′₂ : ∃ λ q → Γ′ ⊢ t′ ∷ Σᵣ 𝟘 , q ▷ A′ ▹ Unitʷ
+    ⊢t′₂ : ∃ λ q → Γ′ ⊢ t′ ∷ Σʷ 𝟘 , q ▷ A′ ▹ Unitʷ
     ⊢t′₂ = inversion-erased ⊢erased-t′
 
-    ⊢snd-t′ : Γ′ ⊢ sndᵣ 𝟘 (⊢t′₂ .proj₁) A′ Unitʷ t′ ∷ Unitʷ
-    ⊢snd-t′ = sndᵣⱼ (⊢t′₂ .proj₂)
+    ⊢snd-t′ : Γ′ ⊢ sndʷ 𝟘 (⊢t′₂ .proj₁) A′ Unitʷ t′ ∷ Unitʷ
+    ⊢snd-t′ = sndʷⱼ (⊢t′₂ .proj₂)
 
     ℕ≡Unit : Γ′ ⊢ ℕ ≡ Unitʷ
     ℕ≡Unit =

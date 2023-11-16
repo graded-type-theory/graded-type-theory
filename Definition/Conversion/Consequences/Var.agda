@@ -47,7 +47,7 @@ var-only-equal-to-itself =
     No-η-equality A → Whnf t → Γ ⊢ var x [conv↓] t ∷ A → var x PE.≡ t
   [conv↓]∷-lemma = λ where
     _        _ (univ _ _ x≡t)     → [conv↓]-lemma x≡t
-    _        _ (Σᵣ-ins _ _ x≡t)   → ~↓-lemma x≡t
+    _        _ (Σʷ-ins _ _ x≡t)   → ~↓-lemma x≡t
     _        _ (Empty-ins x≡t)    → ~↓-lemma x≡t
     _        _ (Unit-ins x≡t)     → ~↓-lemma x≡t
     _        _ (ℕ-ins x≡t)        → ~↓-lemma x≡t

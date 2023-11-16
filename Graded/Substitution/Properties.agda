@@ -733,8 +733,8 @@ substₘ-lemma₀ Ψ Ψ▶σ (_∘ₘ_ {p = p} γ▸t δ▸u) = sub
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-substₘ-lemma₀ Ψ Ψ▶σ (prodᵣₘ {p = p} γ▸t δ▸u) = sub
-  (prodᵣₘ (substₘ-lemma₀ Ψ Ψ▶σ γ▸t) (substₘ-lemma₀ Ψ Ψ▶σ δ▸u))
+substₘ-lemma₀ Ψ Ψ▶σ (prodʷₘ {p = p} γ▸t δ▸u) = sub
+  (prodʷₘ (substₘ-lemma₀ Ψ Ψ▶σ γ▸t) (substₘ-lemma₀ Ψ Ψ▶σ δ▸u))
   (begin
      𝟘ᶜ             ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
      p ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
@@ -742,8 +742,8 @@ substₘ-lemma₀ Ψ Ψ▶σ (prodᵣₘ {p = p} γ▸t δ▸u) = sub
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-substₘ-lemma₀ Ψ Ψ▶σ (prodₚₘ {p = p} γ▸t γ▸u) = sub
-  (prodₚₘ (substₘ-lemma₀ Ψ Ψ▶σ γ▸t) (substₘ-lemma₀ Ψ Ψ▶σ γ▸u))
+substₘ-lemma₀ Ψ Ψ▶σ (prodˢₘ {p = p} γ▸t γ▸u) = sub
+  (prodˢₘ (substₘ-lemma₀ Ψ Ψ▶σ γ▸t) (substₘ-lemma₀ Ψ Ψ▶σ γ▸u))
   (begin
      𝟘ᶜ             ≈˘⟨ ∧ᶜ-idem _ ⟩
      𝟘ᶜ ∧ᶜ 𝟘ᶜ       ≈˘⟨ ∧ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
@@ -1070,8 +1070,8 @@ substₘ-lemma₁ not-ok Ψ Ψ▶σ (_∘ₘ_ {γ = γ} {δ = δ} {p = p} γ▸t
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
 substₘ-lemma₁
-  not-ok Ψ Ψ▶σ (prodᵣₘ {γ = γ} {p = p} {δ = δ} γ▸t δ▸u) = sub
-  (prodᵣₘ (▸-without-𝟘ᵐ not-ok (substₘ-lemma₁ not-ok Ψ Ψ▶σ γ▸t))
+  not-ok Ψ Ψ▶σ (prodʷₘ {γ = γ} {p = p} {δ = δ} γ▸t δ▸u) = sub
+  (prodʷₘ (▸-without-𝟘ᵐ not-ok (substₘ-lemma₁ not-ok Ψ Ψ▶σ γ▸t))
      (substₘ-lemma₁ not-ok Ψ Ψ▶σ δ▸u))
   (begin
      (p ·ᶜ γ +ᶜ δ) <* Ψ       ≈⟨ <*-distrib-+ᶜ Ψ (p ·ᶜ γ) δ ⟩
@@ -1081,8 +1081,8 @@ substₘ-lemma₁
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
 substₘ-lemma₁
-  not-ok Ψ Ψ▶σ (prodₚₘ {γ = γ} {p = p} {δ = δ} γ▸t δ▸u) = sub
-  (prodₚₘ (▸-without-𝟘ᵐ not-ok (substₘ-lemma₁ not-ok Ψ Ψ▶σ γ▸t))
+  not-ok Ψ Ψ▶σ (prodˢₘ {γ = γ} {p = p} {δ = δ} γ▸t δ▸u) = sub
+  (prodˢₘ (▸-without-𝟘ᵐ not-ok (substₘ-lemma₁ not-ok Ψ Ψ▶σ γ▸t))
      (substₘ-lemma₁ not-ok Ψ Ψ▶σ δ▸u))
   (begin
      (p ·ᶜ γ ∧ᶜ δ) <* Ψ       ≤⟨ <*-sub-distrib-∧ᶜ Ψ (p ·ᶜ γ) δ ⟩
@@ -1485,7 +1485,7 @@ substₘ-lemma
 
 substₘ-lemma
   {σ = σ} {mo = mo} Ψ Ψ▶σ
-  (prodᵣₘ {γ = γ} {p = p} {t = t} {δ = δ} {u = u} γ▸t δ▸u) =
+  (prodʷₘ {γ = γ} {p = p} {t = t} {δ = δ} {u = u} γ▸t δ▸u) =
   case ▶-⌞·⌟ Ψ γ (▶-⌞+ᶜ⌟ˡ Ψ (_ ·ᶜ γ) Ψ▶σ) of λ where
     (inj₂ Ψ▶σ)        → lemma (substₘ-lemma Ψ Ψ▶σ γ▸t) ≈ᶜ-refl
     (inj₁ (p≡𝟘 , ok)) → lemma
@@ -1496,9 +1496,9 @@ substₘ-lemma
   lemma :
     η ▸[ mo ᵐ· p ] t [ σ ] →
     p ·ᶜ γ <* Ψ ≈ᶜ p ·ᶜ η →
-    (p ·ᶜ γ +ᶜ δ) <* Ψ ▸[ mo ] prodᵣ p t u [ σ ]
+    (p ·ᶜ γ +ᶜ δ) <* Ψ ▸[ mo ] prodʷ p t u [ σ ]
   lemma {η = η} hyp₁ hyp₂ = sub
-    (prodᵣₘ hyp₁ (substₘ-lemma Ψ (▶-⌞+ᶜ⌟ʳ Ψ (_ ·ᶜ γ) Ψ▶σ) δ▸u))
+    (prodʷₘ hyp₁ (substₘ-lemma Ψ (▶-⌞+ᶜ⌟ʳ Ψ (_ ·ᶜ γ) Ψ▶σ) δ▸u))
     (begin
        (p ·ᶜ γ +ᶜ δ) <* Ψ       ≈⟨ <*-distrib-+ᶜ Ψ (p ·ᶜ γ) δ ⟩
        (p ·ᶜ γ) <* Ψ +ᶜ δ <* Ψ  ≈⟨ +ᶜ-congʳ (<*-distrib-·ᶜ Ψ _ γ) ⟩
@@ -1509,7 +1509,7 @@ substₘ-lemma
 
 substₘ-lemma
   {σ = σ} {mo = mo} Ψ Ψ▶σ
-  (prodₚₘ {γ = γ} {p = p} {t = t} {δ = δ} {u = u} γ▸t δ▸u) =
+  (prodˢₘ {γ = γ} {p = p} {t = t} {δ = δ} {u = u} γ▸t δ▸u) =
   case ▶-⌞·⌟ Ψ γ (▶-⌞∧ᶜ⌟ˡ Ψ (_ ·ᶜ γ) Ψ▶σ) of λ where
     (inj₂ Ψ▶σ)        → lemma (substₘ-lemma Ψ Ψ▶σ γ▸t) ≈ᶜ-refl
     (inj₁ (p≡𝟘 , ok)) → lemma
@@ -1520,9 +1520,9 @@ substₘ-lemma
   lemma :
     η ▸[ mo ᵐ· p ] t [ σ ] →
     p ·ᶜ γ <* Ψ ≈ᶜ p ·ᶜ η →
-    (p ·ᶜ γ ∧ᶜ δ) <* Ψ ▸[ mo ] prodₚ p t u [ σ ]
+    (p ·ᶜ γ ∧ᶜ δ) <* Ψ ▸[ mo ] prodˢ p t u [ σ ]
   lemma {η = η} hyp₁ hyp₂ = sub
-    (prodₚₘ hyp₁ (substₘ-lemma Ψ (▶-⌞∧ᶜ⌟ʳ Ψ (_ ·ᶜ γ) Ψ▶σ) δ▸u))
+    (prodˢₘ hyp₁ (substₘ-lemma Ψ (▶-⌞∧ᶜ⌟ʳ Ψ (_ ·ᶜ γ) Ψ▶σ) δ▸u))
     (begin
        (p ·ᶜ γ ∧ᶜ δ) <* Ψ       ≤⟨ <*-sub-distrib-∧ᶜ Ψ (p ·ᶜ γ) δ ⟩
        (p ·ᶜ γ) <* Ψ ∧ᶜ δ <* Ψ  ≈⟨ ∧ᶜ-congʳ (<*-distrib-·ᶜ Ψ _ γ) ⟩

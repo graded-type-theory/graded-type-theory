@@ -39,7 +39,7 @@ private
     p p′ q q′ : M
     b b′ : BinderMode
     l : TypeLevel
-    s s′ : SigmaMode
+    s s′ : Strength
 
 -- Helper function of injectivity for specific reducible Π-types
 injectivity′ : ∀ {F G H E l} W W′

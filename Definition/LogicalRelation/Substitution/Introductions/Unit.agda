@@ -42,7 +42,7 @@ private
     n : Nat
     Γ Δ : Con Term n
     σ σ′ : Subst _ _
-    s : SigmaMode
+    s : Strength
     l : TypeLevel
     A A′ t t′ u u′ : Term n
     p q : M
@@ -140,7 +140,7 @@ private
     in  unitrec-subst ⊢σA ⊢σu x ok ⇨ conv* d′ ⊢At₁≡At
 
   [Unitʷ]-prop→Unit-prop : [Unitʷ]-prop Γ t u → Γ ⊢ t ∷ Unitʷ → Γ ⊢ u ∷ Unitʷ
-                         → Unit-prop Γ Σᵣ t × Unit-prop Γ Σᵣ u
+                         → Unit-prop Γ 𝕨 t × Unit-prop Γ 𝕨 u
   [Unitʷ]-prop→Unit-prop starᵣ _ _ = starᵣ , starᵣ
   [Unitʷ]-prop→Unit-prop (ne (neNfₜ₌ neK neM k≡m)) ⊢t ⊢u =
       ne (neNfₜ neK ⊢t (~-trans k≡m (~-sym k≡m)))

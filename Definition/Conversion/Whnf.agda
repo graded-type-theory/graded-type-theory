@@ -83,7 +83,7 @@ whnfConv↓Term (Empty-ins x) = let _ , neT , neU = ne~↓ x
                               in Emptyₙ , ne neT , ne neU
 whnfConv↓Term (Unit-ins x) = let _ , neT , neU = ne~↓ x
                              in Unitₙ , ne neT , ne neU
-whnfConv↓Term (Σᵣ-ins x x₁ x₂) =
+whnfConv↓Term (Σʷ-ins x x₁ x₂) =
   let _ , neT , neU = ne~↓ x₂
   in  ΠΣₙ , ne neT , ne neU
 whnfConv↓Term (ne-ins t u x x₁) =

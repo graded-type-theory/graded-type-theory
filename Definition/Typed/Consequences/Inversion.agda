@@ -41,7 +41,7 @@ private
     Γ : Con Term n
     p p′ q q′ r : M
     b : BinderMode
-    s s′ : SigmaMode
+    s s′ : Strength
     A B C t u v w : Term _
 
 -- Inversion of U (it has no type).
@@ -221,7 +221,7 @@ opaque
 inversion-fst : ∀ {t A} → Γ ⊢ fst p t ∷ A →
   ∃₃ λ F G q →
     Γ ⊢ F × Γ ∙ F ⊢ G ×
-    (Γ ⊢ t ∷ Σₚ p , q ▷ F ▹ G) × (Γ ⊢ A ≡ F)
+    (Γ ⊢ t ∷ Σˢ p , q ▷ F ▹ G) × (Γ ⊢ A ≡ F)
 inversion-fst (fstⱼ ⊢F ⊢G ⊢t) = _ , _ , _ , ⊢F , ⊢G , ⊢t , refl ⊢F
 inversion-fst (conv ⊢t x) =
   let F , G , q , a , b , c , d = inversion-fst ⊢t
@@ -230,7 +230,7 @@ inversion-fst (conv ⊢t x) =
 inversion-snd : ∀ {t A} → Γ ⊢ snd p t ∷ A →
   ∃₃ λ F G q →
     Γ ⊢ F × Γ ∙ F ⊢ G ×
-    (Γ ⊢ t ∷ Σₚ p , q ▷ F ▹ G) × (Γ ⊢ A ≡ G [ fst p t ]₀)
+    (Γ ⊢ t ∷ Σˢ p , q ▷ F ▹ G) × (Γ ⊢ A ≡ G [ fst p t ]₀)
 inversion-snd (sndⱼ ⊢F ⊢G ⊢t) =
   _ , _ , _ , ⊢F , ⊢G , ⊢t , refl (substType ⊢G (fstⱼ ⊢F ⊢G ⊢t))
 inversion-snd (conv ⊢t x) =
@@ -244,9 +244,9 @@ inversion-prodrec :
   ∃₃ λ F G q →
     (Γ ⊢ F) ×
     (Γ ∙ F ⊢ G) ×
-    (Γ ∙ (Σᵣ p , q ▷ F ▹ G) ⊢ C) ×
-    Γ ⊢ t ∷ Σᵣ p , q ▷ F ▹ G ×
-    Γ ∙ F ∙ G ⊢ u ∷ C [ prodᵣ p (var x1) (var x0) ]↑² ×
+    (Γ ∙ (Σʷ p , q ▷ F ▹ G) ⊢ C) ×
+    Γ ⊢ t ∷ Σʷ p , q ▷ F ▹ G ×
+    Γ ∙ F ∙ G ⊢ u ∷ C [ prodʷ p (var x1) (var x0) ]↑² ×
     Γ ⊢ A ≡ C [ t ]₀
 inversion-prodrec (prodrecⱼ ⊢F ⊢G ⊢C ⊢t ⊢u _) =
   _ , _ , _ , ⊢F , ⊢G , ⊢C , ⊢t , ⊢u , refl (substType ⊢C ⊢t)

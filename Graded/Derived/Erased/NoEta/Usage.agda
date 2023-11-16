@@ -25,7 +25,7 @@ open import Graded.Mode 𝕄
 
 open import Definition.Untyped M hiding (_∷_)
 open import Graded.Derived.Erased.NoEta.Untyped 𝕄
-open import Graded.Derived.Erased.Usage 𝕄 R Σᵣ public
+open import Graded.Derived.Erased.Usage 𝕄 R 𝕨 public
 
 open import Graded.Derived.Sigma 𝕄 R
 
@@ -53,7 +53,7 @@ private variable
           Prodrec-allowed (𝟘 ∧ 𝟙) 𝟘 𝟘 →
           γ ▸[ 𝟘ᵐ[ ok ] ] erased A t
 ▸erased {ok = ok} ▸t ▸A P-ok =
-  fstᵣₘ-𝟘ᵐ ⦃ ok ⦄ P-ok ▸t ▸A
+  fstʷₘ-𝟘ᵐ ⦃ ok ⦄ P-ok ▸t ▸A
 
 ------------------------------------------------------------------------
 -- Inversion lemmas for usage
@@ -67,7 +67,7 @@ inv-usage-erased :
   γ ≤ᶜ 𝟘ᶜ × Prodrec-allowed (𝟘 ∧ 𝟙) 𝟘 𝟘
   -- γ ≤ᶜ 𝟘ᶜ × m PE.≡ 𝟘ᵐ[ ok ]
 inv-usage-erased {γ = γ} ok ▸[] =
-  case inv-usage-fstᵣ (inj₁ 𝟘≰𝟙) ▸[] of λ {
+  case inv-usage-fstʷ (inj₁ 𝟘≰𝟙) ▸[] of λ {
     (η , δ , γ≤ , ▸t , ▸A , _ , P-ok) →
   sub ▸t (≤ᶜ-trans γ≤ (∧ᶜ-decreasingʳ _ _))
   , _ , ▸A , ≤ᶜ-trans γ≤ (∧ᶜ-decreasingˡ _ _) , P-ok }

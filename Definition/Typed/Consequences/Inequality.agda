@@ -38,8 +38,8 @@ private
     p p′ q q′ : M
     b : BinderMode
     b′ : BindingType
-    m : SigmaMode
-    s : SigmaMode
+    m : Strength
+    s : Strength
     l l′ : TypeLevel
 
 A≢B : ∀ {A B Γ} (_⊩′⟨_⟩A_ _⊩′⟨_⟩B_ : Con Term n → TypeLevel → Term n → Set a)
@@ -406,39 +406,39 @@ B≢ne W neK W≡K =
   let ⊢Π , ⊢Σ = syntacticEq Π≡Σ
   in  Π≢Σ-red (id ⊢Π) (id ⊢Σ) Π≡Σ
 
-Σₚ≢Σᵣ′ :
+Σˢ≢Σʷ′ :
   ∀ {A B l l′ q q′}
-  ([A] : Γ ⊩′⟨ l ⟩B⟨ BΣ Σₚ p q ⟩ A)
-  ([B] : Γ ⊩′⟨ l′ ⟩B⟨ BΣ Σᵣ p′ q′ ⟩ B) →
-  ShapeView Γ l l′ _ _ (Bᵣ (BΣ Σₚ p q) [A]) (Bᵣ (BΣ Σᵣ p′ q′) [B]) → ⊥
-Σₚ≢Σᵣ′ _ _ ()
+  ([A] : Γ ⊩′⟨ l ⟩B⟨ BΣ 𝕤 p q ⟩ A)
+  ([B] : Γ ⊩′⟨ l′ ⟩B⟨ BΣ 𝕨 p′ q′ ⟩ B) →
+  ShapeView Γ l l′ _ _ (Bᵣ (BΣ 𝕤 p q) [A]) (Bᵣ (BΣ 𝕨 p′ q′) [B]) → ⊥
+Σˢ≢Σʷ′ _ _ ()
 
-Σₚ≢Σᵣ-red : ∀ {A B F G H E} → Γ ⊢ A ⇒* Σₚ p , q ▷ F ▹ G
-          → Γ ⊢ B ⇒* Σᵣ p′ , q′ ▷ H ▹ E → Γ ⊢ A ≡ B → ⊥
-Σₚ≢Σᵣ-red D D′ = A≢B (λ Γ l A → Γ ⊩′⟨ l ⟩B⟨ BΣₚ ⟩ A)
-                     (λ Γ l B → Γ ⊩′⟨ l ⟩B⟨ BΣᵣ ⟩ B)
+Σˢ≢Σʷ-red : ∀ {A B F G H E} → Γ ⊢ A ⇒* Σˢ p , q ▷ F ▹ G
+          → Γ ⊢ B ⇒* Σʷ p′ , q′ ▷ H ▹ E → Γ ⊢ A ≡ B → ⊥
+Σˢ≢Σʷ-red D D′ = A≢B (λ Γ l A → Γ ⊩′⟨ l ⟩B⟨ BΣˢ ⟩ A)
+                     (λ Γ l B → Γ ⊩′⟨ l ⟩B⟨ BΣʷ ⟩ B)
                      (Bᵣ BΣ!) (Bᵣ BΣ!)
                      (λ x → extractMaybeEmb (B-elim′ BΣ! D x))
                      (λ x → extractMaybeEmb (B-elim′ BΣ! D′ x))
-                     Σₚ≢Σᵣ′
+                     Σˢ≢Σʷ′
 
-Σₚ≢Σᵣⱼ : ∀ {F G H E} → Γ ⊢ Σₚ p , q ▷ F ▹ G ≡ Σᵣ p′ , q′ ▷ H ▹ E → ⊥
-Σₚ≢Σᵣⱼ Σₚ≡Σᵣ =
-  let ⊢Σₚ , ⊢Σᵣ = syntacticEq Σₚ≡Σᵣ
-  in  Σₚ≢Σᵣ-red (id ⊢Σₚ) (id ⊢Σᵣ) Σₚ≡Σᵣ
+Σˢ≢Σʷⱼ : ∀ {F G H E} → Γ ⊢ Σˢ p , q ▷ F ▹ G ≡ Σʷ p′ , q′ ▷ H ▹ E → ⊥
+Σˢ≢Σʷⱼ Σˢ≡Σʷ =
+  let ⊢Σˢ , ⊢Σʷ = syntacticEq Σˢ≡Σʷ
+  in  Σˢ≢Σʷ-red (id ⊢Σˢ) (id ⊢Σʷ) Σˢ≡Σʷ
 
 -- Weak and strong unit types
 
-Unitʷ≢Unitˢ′ : ([A] : Γ ⊩Unit⟨ Σᵣ ⟩ A)
-               ([B] : Γ ⊩Unit⟨ Σₚ ⟩ B)
+Unitʷ≢Unitˢ′ : ([A] : Γ ⊩Unit⟨ 𝕨 ⟩ A)
+               ([B] : Γ ⊩Unit⟨ 𝕤 ⟩ B)
              → ShapeView Γ l l′ A B (Unitᵣ [A]) (Unitᵣ [B]) → ⊥
 Unitʷ≢Unitˢ′ [A] [B] ()
 
 Unitʷ≢Unitˢ-red : Γ ⊢ A ⇒* Unitʷ
                 → Γ ⊢ B ⇒* Unitˢ
                 → Γ ⊢ A ≡ B → ⊥
-Unitʷ≢Unitˢ-red D D′ = A≢B (λ Γ l A → Γ ⊩Unit⟨ Σᵣ ⟩ A)
-                           (λ Γ l B → Γ ⊩Unit⟨ Σₚ ⟩ B)
+Unitʷ≢Unitˢ-red D D′ = A≢B (λ Γ l A → Γ ⊩Unit⟨ 𝕨 ⟩ A)
+                           (λ Γ l B → Γ ⊩Unit⟨ 𝕤 ⟩ B)
                            Unitᵣ Unitᵣ
                            (λ x → extractMaybeEmb (Unit-elim′ D x))
                            (λ x → extractMaybeEmb (Unit-elim′ D′ x))
@@ -530,7 +530,7 @@ opaque
 No-η-equality→≢Π : No-η-equality A → Γ ⊢ A ≡ Π p , q ▷ B ▹ C → ⊥
 No-η-equality→≢Π = λ where
   Uₙ         U≡Π     → U≢ΠΣⱼ U≡Π
-  Σᵣₙ        Σᵣ≡Π    → Π≢Σⱼ (sym Σᵣ≡Π)
+  Σʷₙ        Σʷ≡Π    → Π≢Σⱼ (sym Σʷ≡Π)
   Emptyₙ     Empty≡Π → Empty≢ΠΣⱼ Empty≡Π
   ℕₙ         ℕ≡Π     → ℕ≢ΠΣⱼ ℕ≡Π
   Idₙ        Id≡Π    → Id≢ΠΣ Id≡Π
@@ -539,10 +539,10 @@ No-η-equality→≢Π = λ where
 
 -- If No-η-equality A holds, then A is not a Σ-type with η-equality.
 
-No-η-equality→≢Σₚ : No-η-equality A → Γ ⊢ A ≡ Σₚ p , q ▷ B ▹ C → ⊥
-No-η-equality→≢Σₚ = λ where
+No-η-equality→≢Σˢ : No-η-equality A → Γ ⊢ A ≡ Σˢ p , q ▷ B ▹ C → ⊥
+No-η-equality→≢Σˢ = λ where
   Uₙ         U≡Σ     → U≢ΠΣⱼ U≡Σ
-  Σᵣₙ        Σᵣ≡Σ    → Σₚ≢Σᵣⱼ (sym Σᵣ≡Σ)
+  Σʷₙ        Σʷ≡Σ    → Σˢ≢Σʷⱼ (sym Σʷ≡Σ)
   Emptyₙ     Empty≡Σ → Empty≢ΠΣⱼ Empty≡Σ
   ℕₙ         ℕ≡Σ     → ℕ≢ΠΣⱼ ℕ≡Σ
   Idₙ        Id≡Σ    → Id≢ΠΣ Id≡Σ
@@ -555,7 +555,7 @@ No-η-equality→≢Σₚ = λ where
 No-η-equality→≢Unit : No-η-equality A → Γ ⊢ A ≡ Unitˢ → ⊥
 No-η-equality→≢Unit = λ where
   Uₙ         U≡Unit     → U≢Unitⱼ U≡Unit
-  Σᵣₙ        Σᵣ≡Unit    → Unit≢ΠΣⱼ (sym Σᵣ≡Unit)
+  Σʷₙ        Σʷ≡Unit    → Unit≢ΠΣⱼ (sym Σʷ≡Unit)
   Emptyₙ     Empty≡Unit → Empty≢Unitⱼ Empty≡Unit
   ℕₙ         ℕ≡Unit     → ℕ≢Unitⱼ ℕ≡Unit
   Idₙ        Id≡Unit    → Id≢Unit Id≡Unit
@@ -610,14 +610,14 @@ whnf≢ne {A = A} {t = t} {u = u} ¬-A-η t-whnf ¬-t-ne u-ne =
     (Bᵣ BΠ! (Bᵣ _ _ A⇒*Π _ _ _ _ _ _ _)) _ →
       case A⇒*no-η A⇒*Π of λ where
         (neₙ ())
-    (Bᵣ BΣₚ (Bᵣ _ _ A⇒*Σ _ _ _ _ _ _ _)) _ →
+    (Bᵣ BΣˢ (Bᵣ _ _ A⇒*Σ _ _ _ _ _ _ _)) _ →
       case A⇒*no-η A⇒*Σ of λ where
         (neₙ ())
-    (Bᵣ BΣᵣ _) (_ , _ , _ , u⇒*w , _ , _ , _ , _ , prodₙ , _) →
+    (Bᵣ BΣʷ _) (_ , _ , _ , u⇒*w , _ , _ , _ , _ , prodₙ , _) →
       U.prod≢ne (u⇒*ne u⇒*w) PE.refl
-    (Bᵣ BΣᵣ _) (_ , _ , t⇒*v , _ , _ , _ , _ , ne v-ne , _) →
+    (Bᵣ BΣʷ _) (_ , _ , t⇒*v , _ , _ , _ , _ , ne v-ne , _) →
       ¬t⇒*ne t⇒*v v-ne
-    (Bᵣ BΣᵣ _) (_ , _ , _ , _ , _ , _ , _ , prodₙ , ne _  , ())
+    (Bᵣ BΣʷ _) (_ , _ , _ , _ , _ , _ , _ , prodₙ , ne _  , ())
     (Idᵣ ⊩Id) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) →
       case ⊩Id≡∷-view-inhabited ⊩Id t≡u of λ where
         (ne t′-ne _ _) → ¬t⇒*ne t⇒*t′ t′-ne
@@ -655,13 +655,13 @@ suc≢ne :
   ¬ Γ ⊢ suc t ≡ u ∷ ℕ
 suc≢ne = whnf≢ne ℕₙ sucₙ (λ ())
 
--- The term prodᵣ p t u is not definitionally equal (at type
--- Σᵣ p , q ▷ A ▹ B) to any neutral term.
+-- The term prodʷ p t u is not definitionally equal (at type
+-- Σʷ p , q ▷ A ▹ B) to any neutral term.
 
-prodᵣ≢ne :
+prodʷ≢ne :
   Neutral v →
-  ¬ Γ ⊢ prodᵣ p t u ≡ v ∷ Σᵣ p , q ▷ A ▹ B
-prodᵣ≢ne = whnf≢ne Σᵣₙ prodₙ (λ ())
+  ¬ Γ ⊢ prodʷ p t u ≡ v ∷ Σʷ p , q ▷ A ▹ B
+prodʷ≢ne = whnf≢ne Σʷₙ prodₙ (λ ())
 
 -- The term rfl is not definitionally equal (at type Id A t u) to any
 -- neutral term.

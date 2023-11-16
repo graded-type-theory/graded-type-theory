@@ -35,7 +35,7 @@ private
     A B t u : Term n
     l : TypeLevel
     b : BinderMode
-    s : SigmaMode
+    s : Strength
     p q : M
 
 -- Reducible types are well-formed.
@@ -127,11 +127,11 @@ escapeTermEq (Emptyᵣ D) (Emptyₜ₌ k k′ d d′ k≡k′ prop) =
   let natK , natK′ = esplit prop
   in  ≅ₜ-red (red D) (redₜ d) (redₜ d′) Emptyₙ
              (ne natK) (ne natK′) k≡k′
-escapeTermEq {l} {A} {t} {u} (Unitᵣ {s = Σₚ} (Unitₜ D _)) (Unitₜ₌ ⊢t ⊢u) =
+escapeTermEq {l} {A} {t} {u} (Unitᵣ {s = 𝕤} (Unitₜ D _)) (Unitₜ₌ ⊢t ⊢u) =
   let t≅u = ≅ₜ-η-unit ⊢t ⊢u
       A≡Unit = subset* (red D)
   in  ≅-conv t≅u (sym A≡Unit)
-escapeTermEq {l} {Γ} {A} {t} {u} (Unitᵣ {s = Σᵣ} (Unitₜ D _)) (Unitₜ₌ k k′ d d′ k≡k′ prop) =
+escapeTermEq {l} {Γ} {A} {t} {u} (Unitᵣ {s = 𝕨} (Unitₜ D _)) (Unitₜ₌ k k′ d d′ k≡k′ prop) =
   let whK , whK′ = usplit prop
   in  ≅ₜ-red (red D) (redₜ d) (redₜ d′) Unitₙ
              whK whK′ k≡k′

@@ -156,9 +156,9 @@ symEqTerm (ℕᵣ D) (ℕₜ₌ k k′ d d′ t≡u prop) =
   ℕₜ₌ k′ k d′ d (≅ₜ-sym t≡u) (symNatural-prop prop)
 symEqTerm (Emptyᵣ D) (Emptyₜ₌ k k′ d d′ t≡u prop) =
   Emptyₜ₌ k′ k d′ d (≅ₜ-sym t≡u) (symEmpty-prop prop)
-symEqTerm (Unitᵣ {s = Σₚ} D) (Unitₜ₌ ⊢t ⊢u) =
+symEqTerm (Unitᵣ {s = 𝕤} D) (Unitₜ₌ ⊢t ⊢u) =
   Unitₜ₌ ⊢u ⊢t
-symEqTerm (Unitᵣ {s = Σᵣ} D) (Unitₜ₌ k k′ d d′ k≡k′ prop) =
+symEqTerm (Unitᵣ {s = 𝕨} D) (Unitₜ₌ k k′ d d′ k≡k′ prop) =
   Unitₜ₌ k′ k d′ d (≅ₜ-sym k≡k′) (symUnit-prop prop)
 symEqTerm (ne′ K D neK K≡K) (neₜ₌ k m d d′ nf) =
   neₜ₌ m k d′ d (symNeutralTerm nf)
@@ -166,7 +166,7 @@ symEqTerm (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
           (Πₜ₌ f g d d′ funcF funcG f≡g [f] [g] [f≡g]) =
   Πₜ₌ g f d′ d funcG funcF (≅ₜ-sym f≡g) [g] [f]
       (λ ρ ⊢Δ [a] → symEqTerm ([G] ρ ⊢Δ [a]) ([f≡g] ρ ⊢Δ [a]))
-symEqTerm (Bᵣ′ BΣₚ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
+symEqTerm (Bᵣ′ BΣˢ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
           (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] ([fstp] , [fstr] , [fst≡] , [snd≡])) =
   let ⊢Γ = wf ⊢F
       [Gfstp≡Gfstr] = G-ext W.id ⊢Γ [fstp] [fstr] [fst≡]
@@ -177,7 +177,7 @@ symEqTerm (Bᵣ′ BΣₚ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
             [Gfstp≡Gfstr]
             (symEqTerm ([G] W.id ⊢Γ [fstp]) [snd≡])))
 symEqTerm
-  (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
+  (Bᵣ′ BΣʷ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
   (Σₜ₌ p r d d′ prodₙ prodₙ p≅r [t] [u]
      (PE.refl , PE.refl ,
       [p₁] , [r₁] , [p₂] , [r₂] , [fst≡] , [snd≡])) =
@@ -190,12 +190,12 @@ symEqTerm
            ([G] W.id ⊢Γ [p₁]) ([G] W.id ⊢Γ [r₁])
            [Gfstp≡Gfstr]
            (symEqTerm ([G] W.id ⊢Γ [p₁]) [snd≡]))
-symEqTerm (Bᵣ′ BΣᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
+symEqTerm (Bᵣ′ BΣʷ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
           (Σₜ₌ p r d d′ (ne x) (ne y) p≅r [t] [u] p~r) =
   Σₜ₌ r p d′ d (ne y) (ne x) (≅ₜ-sym p≅r) [u] [t] (~-sym p~r)
-symEqTerm (Bᵣ′ BΣᵣ _ _ _ _ _ _ _ _ _ _)
+symEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _ _ _)
           (Σₜ₌ p r d d′ prodₙ (ne y) p≅r [t] [u] ())
-symEqTerm (Bᵣ′ BΣᵣ _ _ _ _ _ _ _ _ _ _)
+symEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _ _ _)
           (Σₜ₌ p r d d′ (ne x) prodₙ p≅r [t] [u] ())
 symEqTerm (Idᵣ ⊩A) t≡u =
   let ⊩t , ⊩u , _ = ⊩Id≡∷⁻¹ ⊩A t≡u in

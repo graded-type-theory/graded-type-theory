@@ -5,7 +5,6 @@
 import Graded.Modality
 open import Definition.Typed.Restrictions
 open import Tools.Product
-open import Definition.Untyped.NotParametrised using (Σₚ)
 
 module Graded.Derived.Erased.Eta.Typed.Primitive
   {a} {M : Set a}
@@ -15,7 +14,7 @@ module Graded.Derived.Erased.Eta.Typed.Primitive
   (R : Type-restrictions 𝕄)
   (open Type-restrictions R)
   -- Erased with η-equality is assumed to be allowed.
-  ((Unit-ok , Σ-ok) : Erased-allowed Σₚ)
+  ((Unit-ok , Σ-ok) : Erasedˢ-allowed)
   where
 
 open import Definition.Typed R

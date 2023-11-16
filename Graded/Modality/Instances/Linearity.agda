@@ -22,7 +22,7 @@ open import Graded.Modality Linearity
 open import Graded.FullReduction.Assumptions
 import Graded.Modality.Properties
 
-open import Definition.Untyped using (BMΣ; Σₚ; Σᵣ)
+open import Definition.Untyped using (BMΣ; 𝕤; 𝕨)
 import Definition.Typed.Restrictions
 open import Graded.Usage.Restrictions Linearity
 
@@ -89,15 +89,15 @@ open Graded.Modality.Properties linearityModality
 -- Instances of Type-restrictions and Usage-restrictions are suitable
 -- for the full reduction theorem if
 -- * Unitˢ-allowed does not hold or Starˢ-sink holds,
--- * Σₚ-allowed 𝟘 p does not hold, and
--- * Σₚ-allowed ω p does not hold.
+-- * Σˢ-allowed 𝟘 p does not hold, and
+-- * Σˢ-allowed ω p does not hold.
 
 Suitable-for-full-reduction :
   Type-restrictions → Usage-restrictions → Set
 Suitable-for-full-reduction rs us =
   (¬ Unitˢ-allowed ⊎ Starˢ-sink) ×
-  (∀ p → ¬ Σₚ-allowed 𝟘 p) ×
-  (∀ p → ¬ Σₚ-allowed ω p)
+  (∀ p → ¬ Σˢ-allowed 𝟘 p) ×
+  (∀ p → ¬ Σˢ-allowed ω p)
   where
   open Type-restrictions rs
   open Usage-restrictions us
@@ -110,9 +110,9 @@ suitable-for-full-reduction :
 suitable-for-full-reduction rs =
     record rs
       { Unit-allowed =
-          λ { Σᵣ → Unitʷ-allowed ; Σₚ → ⊥ }
+          λ { 𝕨 → Unitʷ-allowed ; 𝕤 → ⊥ }
       ; ΠΣ-allowed = λ b p q →
-          ΠΣ-allowed b p q × (b ≡ BMΣ Σₚ → p ≡ 𝟙)
+          ΠΣ-allowed b p q × (b ≡ BMΣ 𝕤 → p ≡ 𝟙)
       ; []-cong-allowed =
           λ _ → ⊥
       ; []-cong→Erased =

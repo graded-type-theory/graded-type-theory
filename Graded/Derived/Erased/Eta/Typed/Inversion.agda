@@ -30,7 +30,7 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 
-open import Graded.Derived.Erased.Typed.Inversion R Σₚ public
+open import Graded.Derived.Erased.Typed.Inversion R 𝕤 public
 
 private variable
   Γ     : Con Term _
@@ -46,16 +46,16 @@ opaque
 
   inversion-erased :
     Γ ⊢ erased t ∷ A →
-    ∃₂ λ q B → Γ ⊢ t ∷ Σₚ 𝟘 , q ▷ A ▹ B × Σₚ-allowed 𝟘 q
+    ∃₂ λ q B → Γ ⊢ t ∷ Σˢ 𝟘 , q ▷ A ▹ B × Σˢ-allowed 𝟘 q
   inversion-erased ⊢erased =
     case inversion-fst ⊢erased of λ {
       (_ , C , q , ⊢B , ⊢C , ⊢t , ≡B) →
     case ⊢∷ΠΣ→ΠΣ-allowed ⊢t of λ {
-      Σₚ-ok →
+      Σˢ-ok →
       q
     , C
-    , conv ⊢t (ΠΣ-cong ⊢B (_⊢_≡_.sym ≡B) (refl ⊢C) Σₚ-ok)
-    , Σₚ-ok }}
+    , conv ⊢t (ΠΣ-cong ⊢B (_⊢_≡_.sym ≡B) (refl ⊢C) Σˢ-ok)
+    , Σˢ-ok }}
 
 opaque
 
@@ -66,14 +66,14 @@ opaque
     Erasedˢ-allowed →
     ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} →
        Γ ⊢ erased t ∷ A →
-       ∃ λ q → Γ ⊢ t ∷ Σₚ 𝟘 , q ▷ A ▹ Unitˢ)
-  ¬-inversion-erased′ (Unit-ok , Σₚ-ok) inversion-erased = bad
+       ∃ λ q → Γ ⊢ t ∷ Σˢ 𝟘 , q ▷ A ▹ Unitˢ)
+  ¬-inversion-erased′ (Unit-ok , Σˢ-ok) inversion-erased = bad
     where
     Γ′ : Con Term 0
     Γ′ = ε
 
     t′ : Term 0
-    t′ = prodₚ 𝟘 zero zero
+    t′ = prodˢ 𝟘 zero zero
 
     A′ : Term 0
     A′ = ℕ
@@ -81,17 +81,17 @@ opaque
     ⊢Γ′∙ℕ : ⊢ Γ′ ∙ ℕ
     ⊢Γ′∙ℕ = ε ∙ ℕⱼ ε
 
-    ⊢t′₁ : Γ′ ⊢ t′ ∷ Σₚ 𝟘 , 𝟘 ▷ ℕ ▹ ℕ
-    ⊢t′₁ = prodⱼ (ℕⱼ ε) (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) Σₚ-ok
+    ⊢t′₁ : Γ′ ⊢ t′ ∷ Σˢ 𝟘 , 𝟘 ▷ ℕ ▹ ℕ
+    ⊢t′₁ = prodⱼ (ℕⱼ ε) (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) Σˢ-ok
 
     ⊢erased-t′ : Γ′ ⊢ erased t′ ∷ A′
     ⊢erased-t′ = fstⱼ (ℕⱼ ε) (ℕⱼ ⊢Γ′∙ℕ) ⊢t′₁
 
     erased-t′≡zero : Γ′ ⊢ erased t′ ≡ zero ∷ A′
     erased-t′≡zero =
-      Σ-β₁ (ℕⱼ ε) (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) PE.refl Σₚ-ok
+      Σ-β₁ (ℕⱼ ε) (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) PE.refl Σˢ-ok
 
-    ⊢t′₂ : ∃ λ q → Γ′ ⊢ t′ ∷ Σₚ 𝟘 , q ▷ A′ ▹ Unitˢ
+    ⊢t′₂ : ∃ λ q → Γ′ ⊢ t′ ∷ Σˢ 𝟘 , q ▷ A′ ▹ Unitˢ
     ⊢t′₂ = inversion-erased ⊢erased-t′
 
     ⊢snd-t′ : Γ′ ⊢ snd 𝟘 t′ ∷ Unitˢ

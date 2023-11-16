@@ -141,8 +141,8 @@ module Is-morphism
          tr-Conₘ γ C₂.+ᶜ tr p C₂.·ᶜ tr-Conₘ δ  ∎)
       where
       open CR₂
-    tr-▸ (prodᵣₘ {γ = γ} {m = m} {p = p} {δ = δ} ▸t ▸u) = sub
-      (prodᵣₘ (▸-cong (tr-Mode-ᵐ· m (BMΣ Σᵣ)) (tr-▸ ▸t)) (tr-▸ ▸u))
+    tr-▸ (prodʷₘ {γ = γ} {m = m} {p = p} {δ = δ} ▸t ▸u) = sub
+      (prodʷₘ (▸-cong (tr-Mode-ᵐ· m (BMΣ 𝕨)) (tr-▸ ▸t)) (tr-▸ ▸u))
       (begin
          tr-Conₘ (p C₁.·ᶜ γ C₁.+ᶜ δ)             ≤⟨ tr-Conₘ-+ᶜ ⟩
          tr-Conₘ (p C₁.·ᶜ γ) C₂.+ᶜ tr-Conₘ δ     ≈⟨ +ᶜ-congʳ tr-Conₘ-·ᶜ ⟩
@@ -150,8 +150,8 @@ module Is-morphism
          tr-Σ p C₂.·ᶜ tr-Conₘ γ C₂.+ᶜ tr-Conₘ δ  ∎)
       where
       open CR₂
-    tr-▸ (prodₚₘ {γ = γ} {m = m} {p = p} {δ = δ} ▸t ▸u) = sub
-      (prodₚₘ (▸-cong (tr-Mode-ᵐ· m (BMΣ Σₚ)) (tr-▸ ▸t)) (tr-▸ ▸u))
+    tr-▸ (prodˢₘ {γ = γ} {m = m} {p = p} {δ = δ} ▸t ▸u) = sub
+      (prodˢₘ (▸-cong (tr-Mode-ᵐ· m (BMΣ 𝕤)) (tr-▸ ▸t)) (tr-▸ ▸u))
       (begin
          tr-Conₘ (p C₁.·ᶜ γ C₁.∧ᶜ δ)             ≤⟨ tr-Conₘ-∧ᶜ ⟩
          tr-Conₘ (p C₁.·ᶜ γ) C₂.∧ᶜ tr-Conₘ δ     ≈⟨ ∧ᶜ-congʳ tr-Conₘ-·ᶜ ⟩
@@ -161,8 +161,8 @@ module Is-morphism
       open CR₂
     tr-▸ (fstₘ {p = p} m ▸t refl ok) = fstₘ
       (tr-Mode m)
-      (▸-cong (tr-Mode-ᵐ· m (BMΣ Σₚ)) (tr-▸ ▸t))
-      (sym (tr-Mode-ᵐ· m (BMΣ Σₚ)))
+      (▸-cong (tr-Mode-ᵐ· m (BMΣ 𝕤)) (tr-▸ ▸t))
+      (sym (tr-Mode-ᵐ· m (BMΣ 𝕤)))
       λ mp≡𝟙 → tr-Σ-≤-𝟙 (ok (tr-Mode-injective mp≡𝟙))
     tr-▸ (sndₘ ▸t) =
       sndₘ (tr-▸ ▸t)
@@ -523,12 +523,12 @@ module Is-order-embedding
          (tr-▸⁻¹-trivial″ ▸P))
       (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
 
-    tr-▸⁻¹-trivial′ (prodᵣ _ _ _) (prodᵣₘ ▸t ▸u) = sub
-      (prodᵣₘ (tr-▸⁻¹-trivial′ _ ▸t) (tr-▸⁻¹-trivial′ _ ▸u))
+    tr-▸⁻¹-trivial′ (prodʷ _ _ _) (prodʷₘ ▸t ▸u) = sub
+      (prodʷₘ (tr-▸⁻¹-trivial′ _ ▸t) (tr-▸⁻¹-trivial′ _ ▸u))
       (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
 
-    tr-▸⁻¹-trivial′ (prodₚ _ _ _) (prodₚₘ ▸t ▸u) = sub
-      (prodₚₘ (tr-▸⁻¹-trivial′ _ ▸t) (tr-▸⁻¹-trivial′ _ ▸u))
+    tr-▸⁻¹-trivial′ (prodˢ _ _ _) (prodˢₘ ▸t ▸u) = sub
+      (prodˢₘ (tr-▸⁻¹-trivial′ _ ▸t) (tr-▸⁻¹-trivial′ _ ▸u))
       (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
 
     tr-▸⁻¹-trivial′
@@ -795,12 +795,12 @@ module Is-order-embedding
       open CR₂
 
     tr-▸⁻¹′
-      {m = m} {γ = γ} (prodᵣ p _ _)
-      (prodᵣₘ {γ = δ} {δ = η} ▸t ▸u) refl ≤γ′ =
+      {m = m} {γ = γ} (prodʷ p _ _)
+      (prodʷₘ {γ = δ} {δ = η} ▸t ▸u) refl ≤γ′ =
       case tr-Conₘ-≤ᶜ-+ᶜ ≤γ′ of λ (δ′ , η′ , ≤pδ , ≤η , γ≤) →
       case tr-Conₘ-≤ᶜ-tr-Σ-·ᶜ ≤pδ of λ (δ″ , ≤δ , δ′≤) →
       sub
-        (prodᵣₘ (tr-▸⁻¹′ _ ▸t (sym (tr-Mode-ᵐ· m (BMΣ Σᵣ))) ≤δ)
+        (prodʷₘ (tr-▸⁻¹′ _ ▸t (sym (tr-Mode-ᵐ· m (BMΣ 𝕨))) ≤δ)
            (tr-▸⁻¹′ _ ▸u refl ≤η))
         (begin
            γ                    ≤⟨ γ≤ ⟩
@@ -810,12 +810,12 @@ module Is-order-embedding
       open CR₁
 
     tr-▸⁻¹′
-      {m = m} {γ = γ} (prodₚ p _ _)
-      (prodₚₘ {γ = δ} {δ = η} ▸t ▸u) refl ≤γ′ =
+      {m = m} {γ = γ} (prodˢ p _ _)
+      (prodˢₘ {γ = δ} {δ = η} ▸t ▸u) refl ≤γ′ =
       case tr-Conₘ-≤ᶜ-∧ᶜ ≤γ′ of λ (δ′ , η′ , ≤pδ , ≤η , γ≤) →
       case tr-Conₘ-≤ᶜ-tr-Σ-·ᶜ ≤pδ of λ (δ″ , ≤δ , δ′≤) →
       sub
-        (prodₚₘ (tr-▸⁻¹′ _ ▸t (sym (tr-Mode-ᵐ· m (BMΣ Σₚ))) ≤δ)
+        (prodˢₘ (tr-▸⁻¹′ _ ▸t (sym (tr-Mode-ᵐ· m (BMΣ 𝕤))) ≤δ)
            (tr-▸⁻¹′ _ ▸u refl ≤η))
         (begin
            γ                    ≤⟨ γ≤ ⟩
@@ -830,7 +830,7 @@ module Is-order-embedding
         (tr-▸⁻¹′ _ ▸t
            (let open Tools.Reasoning.PropositionalEquality in
               m′ Mo₂.ᵐ· tr-Σ p          ≡˘⟨ cong (Mo₂._ᵐ· _) ≡m′ ⟩
-              tr-Mode m″ Mo₂.ᵐ· tr-Σ p  ≡˘⟨ tr-Mode-ᵐ· m″ (BMΣ Σₚ) ⟩
+              tr-Mode m″ Mo₂.ᵐ· tr-Σ p  ≡˘⟨ tr-Mode-ᵐ· m″ (BMΣ 𝕤) ⟩
               tr-Mode (m″ Mo₁.ᵐ· p)     ∎)
            ≤γ′)
         ≡m

@@ -74,7 +74,7 @@ private variable
   m           : Mode
   ⊩Γ          : ⊩ᵛ _
   p q         : M
-  s           : SigmaMode
+  s           : Strength
 
 opaque
 

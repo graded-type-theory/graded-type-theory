@@ -123,7 +123,7 @@ mutual
   soundnessConv↓Term (ℕ-ins x) = soundness~↓ x
   soundnessConv↓Term (Empty-ins x) = soundness~↓ x
   soundnessConv↓Term (Unit-ins x) = soundness~↓ x
-  soundnessConv↓Term (Σᵣ-ins x x₁ x₂) =
+  soundnessConv↓Term (Σʷ-ins x x₁ x₂) =
     let a≡b = soundness~↓ x₂
         _ , neA , _ = ne~↓ x₂
         _ , ⊢a , _ = syntacticEqTerm a≡b

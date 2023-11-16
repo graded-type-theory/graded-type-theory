@@ -53,7 +53,7 @@ private variable
   ⊩Γ                                              : ⊩ᵛ _
   m n                                             : Nat
   p q                                             : M
-  s                                               : SigmaMode
+  s                                               : Strength
 
 private
 
@@ -699,7 +699,7 @@ opaque
                   D = id (Unitⱼ (⊢Δ ∙ ⊢A) Unit-ok)
               in  prod-cong″ {m = s} {p = 𝟘} {q = 𝟘} {G = Unit s} {u = star s} {u′ = star s} {l′ = l}
                              ⊩A ⊩t ⊩u ⊩t≡u ⊩Unit ⊩star ⊩star (reflEqTerm ⊩Unit ⊩star)
-                             (Σᵣ′ _ Unit! (idRed:*: (ΠΣⱼ ⊢A (Unitⱼ (⊢Δ ∙ ⊢A) Unit-ok) Σ-ok))
+                             (𝕨′ _ Unit! (idRed:*: (ΠΣⱼ ⊢A (Unitⱼ (⊢Δ ∙ ⊢A) Unit-ok) Σ-ok))
                                   ⊢A (Unitⱼ (⊢Δ ∙ ⊢A) Unit-ok)
                                   (≅-ΠΣ-cong ⊢A (escapeEq ⊩A (reflEq ⊩A))
                                              (≅-red D D Unitₙ Unitₙ (≅-Unitrefl (⊢Δ ∙ ⊢A) Unit-ok))

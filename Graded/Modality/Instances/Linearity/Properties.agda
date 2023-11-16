@@ -22,7 +22,7 @@ open import Definition.Untyped.Sigma Linearity
 
 open import Graded.Context linearityModality
 open import Graded.Derived.Sigma linearityModality UR as S
-  using (fstᵣ; sndᵣ)
+  using (fstʷ; sndʷ)
 open import Graded.Mode  linearityModality
 open import Graded.Usage linearityModality UR
 
@@ -39,35 +39,35 @@ private variable
                         → δ ∙ ⌜ m ⌝ · r  · p ∙ ⌜ m ⌝ · r ▸[ m ] u
                         → η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
                         → Prodrec-allowed r p q
-                        → r ·ᶜ γ +ᶜ δ ▸[ m ] prodrecₚ p t u)
+                        → r ·ᶜ γ +ᶜ δ ▸[ m ] prodrecˢ p t u)
 ¬prodrecₘ-Linearity ok = S.¬prodrecₘ ok (λ ())
 
--- A certain usage rule for fstᵣ 𝟙 A (where A has type Term 1) does
+-- A certain usage rule for fstʷ 𝟙 A (where A has type Term 1) does
 -- not hold.
 
-¬fstᵣₘ′ :
+¬fstʷₘ′ :
   {A : Term 1} →
   ¬ ({γ : Conₘ 1} {t : Term 1} →
      γ ▸[ 𝟙ᵐ ] t →
-     γ ▸[ 𝟙ᵐ ] fstᵣ 𝟙 A t)
-¬fstᵣₘ′ = S.¬fstᵣₘ′ (λ ())
+     γ ▸[ 𝟙ᵐ ] fstʷ 𝟙 A t)
+¬fstʷₘ′ = S.¬fstʷₘ′ (λ ())
 
--- A certain usage rule for fstᵣ does not hold.
+-- A certain usage rule for fstʷ does not hold.
 
-¬fstᵣₘ :
+¬fstʷₘ :
   ¬ (∀ {γ : Conₘ 1} {t : Term 1} {p m′} m →
      γ ▸[ m ᵐ· p ] t →
      m ᵐ· p ≡ m′ →
      (m′ ≡ 𝟙ᵐ → p ≤ 𝟙) →
-     γ ▸[ m′ ] fstᵣ p A t)
-¬fstᵣₘ = S.¬fstᵣₘ (λ ())
+     γ ▸[ m′ ] fstʷ p A t)
+¬fstʷₘ = S.¬fstʷₘ (λ ())
 
--- A certain usage rule for sndᵣ p q A B (where A has type Term 1)
+-- A certain usage rule for sndʷ p q A B (where A has type Term 1)
 -- does not hold.
 
-¬sndᵣₘ :
+¬sndʷₘ :
   {A : Term 1} (B : Term 2) →
   ¬ ({γ : Conₘ 1} {t : Term 1} →
      γ ▸[ 𝟙ᵐ ] t →
-     γ ▸[ 𝟙ᵐ ] sndᵣ p q A B t)
-¬sndᵣₘ B = S.¬sndᵣₘ B (λ ())
+     γ ▸[ 𝟙ᵐ ] sndʷ p q A B t)
+¬sndʷₘ B = S.¬sndʷₘ B (λ ())

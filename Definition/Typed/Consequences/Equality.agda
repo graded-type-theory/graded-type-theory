@@ -41,7 +41,7 @@ private
     b             : BinderMode
     p q           : M
     l             : TypeLevel
-    s             : SigmaMode
+    s             : Strength
 
 U≡A′ : ∀ {A l} ([U] : Γ ⊩⟨ l ⟩U)
     → Γ ⊩⟨ l ⟩ U ≡ A / (U-intr [U])

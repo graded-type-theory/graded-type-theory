@@ -343,14 +343,14 @@ no-η-expansion-Unit : Whnf t → Γ ⊢ t ⇒* starˢ ∷ Unitˢ → t PE.≡ s
 no-η-expansion-Unit = flip whnfRed*Term
 
 -- Reduction does not include η-expansion for Σ-types with η-equality
--- (for WHNFs): if a WHNF t reduces to prodₚ p u v (at type
--- Σₚ p′ , q ▷ A ▹ B), then t is equal to prodₚ p u v.
+-- (for WHNFs): if a WHNF t reduces to prodˢ p u v (at type
+-- Σˢ p′ , q ▷ A ▹ B), then t is equal to prodˢ p u v.
 
-no-η-expansion-Σₚ :
+no-η-expansion-Σˢ :
   Whnf t →
-  Γ ⊢ t ⇒* prodₚ p u v ∷ Σₚ p′ , q ▷ A ▹ B →
-  t PE.≡ prodₚ p u v
-no-η-expansion-Σₚ = flip whnfRed*Term
+  Γ ⊢ t ⇒* prodˢ p u v ∷ Σˢ p′ , q ▷ A ▹ B →
+  t PE.≡ prodˢ p u v
+no-η-expansion-Σˢ = flip whnfRed*Term
 
 -- Identity of syntactic reduction
 

@@ -323,7 +323,7 @@ Are-reflecting-type-restrictions-no-erased-matches-TR r = record
       (equal-binder-quantities 𝕄₂ R)
       erasure→zero-one-many erasure→zero-one-many-Σ
 ¬-erasure→zero-one-many-Σ-preserves-equal-binder-quantities _ r =
-  case ΠΣ-preserved {b = BMΣ Σₚ} {p = ω} (_ , refl) .proj₂ of λ ()
+  case ΠΣ-preserved {b = BMΣ 𝕤} {p = ω} (_ , refl) .proj₂ of λ ()
   where
   open Are-preserving-type-restrictions r
 
@@ -338,7 +338,7 @@ Are-reflecting-type-restrictions-no-erased-matches-TR r = record
       (equal-binder-quantities 𝕄₂ R)
       affine→linear-or-affine affine→linear-or-affine-Σ
 ¬-affine→linear-or-affine-Σ-preserves-equal-binder-quantities _ r =
-  case ΠΣ-preserved {b = BMΣ Σₚ} {p = 𝟙} (_ , refl) .proj₂ of λ ()
+  case ΠΣ-preserved {b = BMΣ 𝕤} {p = 𝟙} (_ , refl) .proj₂ of λ ()
   where
   open Are-preserving-type-restrictions r
 
@@ -483,7 +483,7 @@ erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω =
       erasure→zero-one-many erasure→zero-one-many-Σ
 ¬-erasure→zero-one-many-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω _ r =
   case
-    ΠΣ-preserved {b = BMΣ Σₚ} {p = ω} {q = ω}
+    ΠΣ-preserved {b = BMΣ 𝕤} {p = ω} {q = ω}
       (_ , (λ _ → refl) , ⊥-elim ∘→ (_$ refl))
       .proj₂ .proj₂ (λ ())
   of λ ()
@@ -505,7 +505,7 @@ erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω =
       erasure→zero-one-many erasure→zero-one-many-Σ
 ¬-erasure→zero-one-many-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω _ r =
   case
-    ΠΣ-reflected {b = BMΣ Σₚ} {p = ω} {q = 𝟘}
+    ΠΣ-reflected {b = BMΣ 𝕤} {p = ω} {q = 𝟘}
       (_ , (λ ()) , (λ _ → refl))
       .proj₂ .proj₁ refl
   of λ ()

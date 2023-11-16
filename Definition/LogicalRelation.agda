@@ -205,7 +205,7 @@ esplit (ne (neNfₜ₌ neK neM k≡m)) = neK , neM
 -- Reducibility of Unit
 
 -- Unit type
-record _⊩Unit⟨_⟩_ (Γ : Con Term ℓ) (s : SigmaMode) (A : Term ℓ) : Set a where
+record _⊩Unit⟨_⟩_ (Γ : Con Term ℓ) (s : Strength) (A : Term ℓ) : Set a where
   no-eta-equality
   pattern
   constructor Unitₜ
@@ -214,14 +214,14 @@ record _⊩Unit⟨_⟩_ (Γ : Con Term ℓ) (s : SigmaMode) (A : Term ℓ) : Set
     ok      : Unit-allowed s
 
 -- Unit type equality
-_⊩Unit⟨_⟩_≡_ : (Γ : Con Term ℓ) (s : SigmaMode) (A B : Term ℓ) → Set a
+_⊩Unit⟨_⟩_≡_ : (Γ : Con Term ℓ) (s : Strength) (A B : Term ℓ) → Set a
 Γ ⊩Unit⟨ s ⟩ A ≡ B = Γ ⊢ B ⇒* Unit s
 
-data Unit-prop (Γ : Con Term ℓ) (s : SigmaMode) : (t : Term ℓ) → Set a where
+data Unit-prop (Γ : Con Term ℓ) (s : Strength) : (t : Term ℓ) → Set a where
   starᵣ : Unit-prop Γ s (star s)
   ne : ∀ {n} → Γ ⊩neNf n ∷ Unit s → Unit-prop Γ s n
 
-record _⊩Unit⟨_⟩_∷Unit (Γ : Con Term ℓ) (s : SigmaMode) (t : Term ℓ) : Set a where
+record _⊩Unit⟨_⟩_∷Unit (Γ : Con Term ℓ) (s : Strength) (t : Term ℓ) : Set a where
   inductive
   constructor Unitₜ
   field
@@ -261,9 +261,9 @@ record _⊩Unitʷ_≡_∷Unit (Γ : Con Term ℓ) (t u : Term ℓ) : Set a where
     k≡k′ : Γ ⊢ k ≅ k′ ∷ Unitʷ
     prop : [Unitʷ]-prop Γ k k′
 
-_⊩Unit⟨_⟩_≡_∷Unit : (Γ : Con Term ℓ) (s : SigmaMode) (t u : Term ℓ) → Set a
-Γ ⊩Unit⟨ Σₚ ⟩ t ≡ u ∷Unit = Γ ⊩Unitˢ t ≡ u ∷Unit
-Γ ⊩Unit⟨ Σᵣ ⟩ t ≡ u ∷Unit = Γ ⊩Unitʷ t ≡ u ∷Unit
+_⊩Unit⟨_⟩_≡_∷Unit : (Γ : Con Term ℓ) (s : Strength) (t u : Term ℓ) → Set a
+Γ ⊩Unit⟨ 𝕤 ⟩ t ≡ u ∷Unit = Γ ⊩Unitˢ t ≡ u ∷Unit
+Γ ⊩Unit⟨ 𝕨 ⟩ t ≡ u ∷Unit = Γ ⊩Unitʷ t ≡ u ∷Unit
 
 -- Type levels
 
@@ -429,7 +429,7 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
 
     -- Term reducibility of Σ-type
     _⊩ₗΣ_∷_/_ :
-      {p q : Mod} {m : SigmaMode} (Γ : Con Term ℓ) (t A : Term ℓ)
+      {p q : Mod} {m : Strength} (Γ : Con Term ℓ) (t A : Term ℓ)
       ([A] : Γ ⊩ₗB⟨ BΣ m p q ⟩ A) → Set a
     _⊩ₗΣ_∷_/_
       {p = p} {q = q} {m = m} Γ t A
@@ -439,27 +439,27 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
             × Σ (Product u) λ pProd
             → Σ-prop m u Γ [A] pProd
 
-    Σ-prop : ∀ {A p q} (m : SigmaMode) (t : Term ℓ) → (Γ : Con Term ℓ)
+    Σ-prop : ∀ {A p q} (m : Strength) (t : Term ℓ) → (Γ : Con Term ℓ)
            → ([A] : Γ ⊩ₗB⟨ BΣ m p q ⟩ A) → (Product t) → Set a
-    Σ-prop {p = p} Σₚ t Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) _ =
+    Σ-prop {p = p} 𝕤 t Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) _ =
       Σ (Γ ⊩ₗ fst p t ∷ U.wk id F / [F] id (wf ⊢F)) λ [fst] →
       Γ ⊩ₗ snd p t ∷ U.wk (lift id) G [ fst p t ]₀ /
         [G] id (wf ⊢F) [fst]
     Σ-prop
-      {p = p} Σᵣ t Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
+      {p = p} 𝕨 t Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
       (prodₙ {p = p′} {t = p₁} {u = p₂} {m = m}) =
            p PE.≡ p′ ×
            Σ (Γ ⊩ₗ p₁ ∷ U.wk id F / [F] id (wf ⊢F)) λ [p₁]
            → Γ ⊩ₗ p₂ ∷ U.wk (lift id) G [ p₁ ]₀ / [G] id (wf ⊢F) [p₁]
-           × m PE.≡ Σᵣ
+           × m PE.≡ 𝕨
     Σ-prop
       {p = p} {q = q}
-      Σᵣ t Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) (ne x) =
-      Γ ⊢ t ~ t ∷ Σᵣ p , q ▷ F ▹ G
+      𝕨 t Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) (ne x) =
+      Γ ⊢ t ~ t ∷ Σʷ p , q ▷ F ▹ G
 
     -- Term equality of Σ-type
     _⊩ₗΣ_≡_∷_/_ :
-      {p q : Mod} {m : SigmaMode} (Γ : Con Term ℓ) (t u A : Term ℓ)
+      {p q : Mod} {m : Strength} (Γ : Con Term ℓ) (t u A : Term ℓ)
       ([A] : Γ ⊩ₗB⟨ BΣ m p q ⟩ A) → Set a
     _⊩ₗΣ_≡_∷_/_
       {p = p} {q = q} {m} Γ t u A
@@ -474,16 +474,16 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
                  → [Σ]-prop m t′ u′ Γ [A] pProd rProd
 
     [Σ]-prop :
-      ∀ {A p q} (m : SigmaMode) (t r : Term ℓ) (Γ : Con Term ℓ)
+      ∀ {A p q} (m : Strength) (t r : Term ℓ) (Γ : Con Term ℓ)
       ([A] : Γ ⊩ₗB⟨ BΣ m p q ⟩ A) → Product t → Product r → Set a
-    [Σ]-prop {p = p} Σₚ t r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) _ _ =
+    [Σ]-prop {p = p} 𝕤 t r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) _ _ =
       Σ (Γ ⊩ₗ fst p t ∷ U.wk id F / [F] id (wf ⊢F)) λ [fstp]
       → Γ ⊩ₗ fst p r ∷ U.wk id F / [F] id (wf ⊢F)
       × Γ ⊩ₗ fst p t ≡ fst p r ∷ U.wk id F / [F] id (wf ⊢F)
       × Γ ⊩ₗ snd p t ≡ snd p r ∷ U.wk (lift id) G [ fst p t ]₀
         / [G] id (wf ⊢F) [fstp]
     [Σ]-prop
-      {p = p} Σᵣ t r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
+      {p = p} 𝕨 t r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
       (prodₙ {p = p′} {t = p₁} {u = p₂})
       (prodₙ {p = p″} {t = r₁} {u = r₂}) =
              p PE.≡ p′ × p PE.≡ p″ ×
@@ -494,17 +494,17 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
              × (Γ ⊩ₗ p₁ ≡ r₁ ∷ U.wk id F / [F] id (wf ⊢F))
              × (Γ ⊩ₗ p₂ ≡ r₂ ∷ U.wk (lift id) G [ p₁ ]₀ / [G] id (wf ⊢F) [p₁])
     [Σ]-prop
-      Σᵣ t r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
+      𝕨 t r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
       (prodₙ {t = p₁} {u = p₂}) (ne y) =
       Lift a ⊥
     [Σ]-prop
-      Σᵣ t r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok)
+      𝕨 t r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok)
       (ne x) (prodₙ {t = r₁} {u = r₂}) =
       Lift a ⊥
     [Σ]-prop
-      {p = p} {q = q} Σᵣ t r Γ
+      {p = p} {q = q} 𝕨 t r Γ
       (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) (ne x) (ne y) =
-        Γ ⊢ t ~ r ∷ Σᵣ p , q ▷ F ▹ G
+        Γ ⊢ t ~ r ∷ Σʷ p , q ▷ F ▹ G
 
     -- Reducibility for identity types.
 
@@ -584,7 +584,7 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
       Uᵣ  : Γ ⊩₁U → Γ ⊩ₗ U
       ℕᵣ  : ∀ {A} → Γ ⊩ℕ A → Γ ⊩ₗ A
       Emptyᵣ : ∀ {A} → Γ ⊩Empty A → Γ ⊩ₗ A
-      Unitᵣ : ∀ {A} {s : SigmaMode} → Γ ⊩Unit⟨ s ⟩ A → Γ ⊩ₗ A
+      Unitᵣ : ∀ {A} {s : Strength} → Γ ⊩Unit⟨ s ⟩ A → Γ ⊩ₗ A
       ne  : ∀ {A} → Γ ⊩ne A → Γ ⊩ₗ A
       Bᵣ  : ∀ {A} W → Γ ⊩ₗB⟨ W ⟩ A → Γ ⊩ₗ A
       Idᵣ : ∀ {A} → Γ ⊩ₗId A → Γ ⊩ₗ A
@@ -647,7 +647,7 @@ pattern Uᵣ′ a b c = Uᵣ (Uᵣ a b c)
 pattern ne′ a b c d = ne (ne a b c d)
 pattern Bᵣ′ W a b c d e f g h i j = Bᵣ W (Bᵣ a b c d e f g h i j)
 pattern Πᵣ′ a b c d e f g h i j = Bᵣ′ BΠ! a b c d e f g h i j
-pattern Σᵣ′ a b c d e f g h i j = Bᵣ′ BΣ! a b c d e f g h i j
+pattern 𝕨′ a b c d e f g h i j = Bᵣ′ BΣ! a b c d e f g h i j
 
 kit : TypeLevel → LogRelKit
 kit ℓ = LogRel.kit ℓ (λ { 0<1 → kit ⁰ })

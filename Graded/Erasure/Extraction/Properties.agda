@@ -49,7 +49,7 @@ private
     γ : Conₘ n
     x : Fin n
     p q r : M
-    k : SigmaMode
+    k : Strength
 
 -- Lemmata on how erase computes
 
@@ -362,7 +362,7 @@ module hasX (R : Usage-restrictions) where
     erased-hasX (x◂𝟘∈pγ refl p≢𝟘 (x◂𝟘∈γ+δʳ refl erased))
                 (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) δ▸u) hasX
 
-  erased-hasX erased (prodᵣₘ {γ = γ} {p = p} {δ = δ} _ δ▸) hasX
+  erased-hasX erased (prodʷₘ {γ = γ} {p = p} {δ = δ} _ δ▸) hasX
     with is-𝟘? p
   ... | yes refl =
     erased-hasX
@@ -375,22 +375,22 @@ module hasX (R : Usage-restrictions) where
       δ▸ hasX
     where
     open Tools.Reasoning.Equivalence Conₘ-setoid
-  erased-hasX erased (prodᵣₘ {γ = γ} {p = _} {δ = δ} γ▸ _) (prodₓˡ hasX)
+  erased-hasX erased (prodʷₘ {γ = γ} {p = _} {δ = δ} γ▸ _) (prodₓˡ hasX)
     | no p≢𝟘 =
     erased-hasX (x◂𝟘∈pγ refl p≢𝟘 (x◂𝟘∈γ+δˡ refl erased))
                 (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸) hasX
-  erased-hasX erased (prodᵣₘ {γ = γ} {p = _} {δ = δ} _ δ▸) (prodₓʳ hasX)
+  erased-hasX erased (prodʷₘ {γ = γ} {p = _} {δ = δ} _ δ▸) (prodₓʳ hasX)
     | no _ =
     erased-hasX (x◂𝟘∈γ+δʳ refl erased) δ▸ hasX
 
-  erased-hasX erased (prodₚₘ {γ = γ} {p = p} {δ = δ} _ γ▸u) hasX
+  erased-hasX erased (prodˢₘ {γ = γ} {p = p} {δ = δ} _ γ▸u) hasX
     with is-𝟘? p
   ... | yes refl = erased-hasX (x◂𝟘∈γ∧δʳ refl erased) γ▸u hasX
-  erased-hasX erased (prodₚₘ {γ = γ} {p = p} {δ = δ} γ▸ _) (prodₓˡ hasX)
+  erased-hasX erased (prodˢₘ {γ = γ} {p = p} {δ = δ} γ▸ _) (prodₓˡ hasX)
     | no p≢𝟘 =
     erased-hasX (x◂𝟘∈pγ refl p≢𝟘 (x◂𝟘∈γ∧δˡ refl erased))
                 (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸) hasX
-  erased-hasX erased (prodₚₘ {γ = γ} {p = _} {δ = δ} _ δ▸) (prodₓʳ hasX)
+  erased-hasX erased (prodˢₘ {γ = γ} {p = _} {δ = δ} _ δ▸) (prodₓʳ hasX)
     | no p≢𝟘 =
     erased-hasX erased (sub δ▸ (∧ᶜ-decreasingʳ _ _)) hasX
 

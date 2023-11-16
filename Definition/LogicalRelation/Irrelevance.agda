@@ -204,7 +204,7 @@ mutual
                                   ([f]₁ [ρ] ⊢Δ [a])
   irrelevanceTermT
     {Γ = Γ} {t = t}
-    (Bᵥ BΣₚ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
+    (Bᵥ BΣˢ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
        (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
     (Σₜ p d p≅p pProd ([fstt] , [sndt])) =
     let ΣFG≡ΣF₁G₁       = whrDet* (red D , ΠΣₙ) (red D₁ , ΠΣₙ)
@@ -217,7 +217,7 @@ mutual
            (PE.subst (λ x →  Γ ⊢ p ≅ p ∷ x) ΣFG≡ΣF₁G₁ p≅p) pProd ([fstt]′ , [sndt]′)
   irrelevanceTermT
     {Γ = Γ} {t = t}
-    (Bᵥ BΣᵣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
+    (Bᵥ BΣʷ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
        (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
     (Σₜ p d p≅p prodₙ (PE.refl , [t₁] , [t₂] , PE.refl)) =
     let ΣFG≡ΣF₁G₁       = whrDet* (red D , ΠΣₙ) (red D₁ , ΠΣₙ)
@@ -231,7 +231,7 @@ mutual
           (PE.refl , [t₁]′ , [t₂]′ , PE.refl)
   irrelevanceTermT
     {Γ = Γ} {t = t}
-    (Bᵥ BΣᵣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
+    (Bᵥ BΣʷ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
        (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
     (Σₜ p d p≅p (ne x) p~p) =
     let ΣFG≡ΣF₁G₁       = whrDet* (red D , ΠΣₙ) (red D₁ , ΠΣₙ)
@@ -303,7 +303,7 @@ mutual
             ([f≡g] [ρ] ⊢Δ [a])
   irrelevanceEqTermT
     {Γ = Γ} {t = t} {u = u}
-    (Bᵥ BΣₚ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok)
+    (Bᵥ BΣˢ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok)
        (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁))
     (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u]
        ([fstp] , [fstr] , [fst≡] , [snd≡])) =
@@ -332,7 +332,7 @@ mutual
             ([fstp]′ , [fstr]′ , [fst≡]′ ,  [snd≡]′)
   irrelevanceEqTermT
     {Γ = Γ} {t = t} {u = u}
-    (Bᵥ BΣᵣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok)
+    (Bᵥ BΣʷ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok)
        (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁))
     (Σₜ₌ p r d d′ prodₙ prodₙ p≅r [t] [u]
        (PE.refl , PE.refl ,
@@ -368,7 +368,7 @@ mutual
              [p₁]′ , [r₁]′ , [p₂]′ , [r₂]′ , [fst≡]′ ,  [snd≡]′)
   irrelevanceEqTermT
     {Γ = Γ} {t = t} {u = u}
-    (Bᵥ BΣᵣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok)
+    (Bᵥ BΣʷ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok)
        (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁))
     (Σₜ₌ p r d d′ (ne x) (ne y) p≅r [t] [u] p~r) =
     let ΣFG≡ΣF₁G₁       = whrDet* (red D , ΠΣₙ) (red D₁ , ΠΣₙ)
