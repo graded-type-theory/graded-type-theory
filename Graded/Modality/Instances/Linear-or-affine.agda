@@ -3986,15 +3986,15 @@ suitable-for-full-reduction rs =
     record rs
       { Unit-allowed = λ { 𝕤 → ⊥ ; 𝕨 → Unitʷ-allowed }
       ; ΠΣ-allowed   = λ b p q →
-          ΠΣ-allowed b p q × p ≢ 𝟘 × p ≢ ≤𝟙 × p ≢ ≤ω
+          ΠΣ-allowed b p q × (b ≡ BMΣ 𝕤 → p ≡ 𝟙)
       ; []-cong-allowed  = λ _ → ⊥
       ; []-cong→Erased   = λ ()
       ; []-cong→¬Trivial = λ ()
       }
   , inj₁ idᶠ
-  , (λ _ → (_$ refl) ∘→ proj₁ ∘→ proj₂)
-  , (λ _ → (_$ refl) ∘→ proj₁ ∘→ proj₂ ∘→ proj₂)
-  , (λ _ → (_$ refl) ∘→ proj₂ ∘→ proj₂ ∘→ proj₂)
+  , (λ _ → ((λ ()) ∘→ (_$ PE.refl)) ∘→ proj₂)
+  , (λ _ → ((λ ()) ∘→ (_$ PE.refl)) ∘→ proj₂)
+  , (λ _ → ((λ ()) ∘→ (_$ PE.refl)) ∘→ proj₂)
   where
   open Type-restrictions rs
 
