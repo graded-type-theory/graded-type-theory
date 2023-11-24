@@ -2,6 +2,8 @@
 -- A modality with simultaneous support for affine and linear types
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 -- It might make sense to replace some of the proofs with automated
 -- proofs.
 
@@ -3982,21 +3984,27 @@ Suitable-for-full-reduction variant rs us =
 suitable-for-full-reduction :
   Type-restrictions (linear-or-affine variant) →
   ∃ λ rs → Suitable-for-full-reduction variant rs urs
-suitable-for-full-reduction rs =
+suitable-for-full-reduction {urs} rs =
     record rs
-      { Unit-allowed = λ { 𝕤 → ⊥ ; 𝕨 → Unitʷ-allowed }
+      { Unit-allowed = λ where
+          𝕤 → Unitˢ-allowed × Starˢ-sink
+          𝕨 → Unitʷ-allowed
       ; ΠΣ-allowed   = λ b p q →
           ΠΣ-allowed b p q × (b ≡ BMΣ 𝕤 → p ≡ 𝟙)
       ; []-cong-allowed  = λ _ → ⊥
       ; []-cong→Erased   = λ ()
       ; []-cong→¬Trivial = λ ()
       }
-  , inj₁ idᶠ
+  , (case sink-or-no-sink of λ where
+       (inj₁ ok)     → inj₂ ok
+       (inj₂ not-ok) →
+         inj₁ (Tools.Bool.T-not⇔¬-T .proj₁ not-ok ∘→ proj₂))
   , (λ _ → ((λ ()) ∘→ (_$ PE.refl)) ∘→ proj₂)
   , (λ _ → ((λ ()) ∘→ (_$ PE.refl)) ∘→ proj₂)
   , (λ _ → ((λ ()) ∘→ (_$ PE.refl)) ∘→ proj₂)
   where
   open Type-restrictions rs
+  open Usage-restrictions urs
 
 -- The full reduction assumptions hold for any instance of
 -- linear-or-affine and any "suitable" Type-restrictions and
