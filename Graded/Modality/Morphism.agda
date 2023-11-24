@@ -324,7 +324,7 @@ record Is-order-embedding
 -- function).
 --
 -- Note that Σ-morphisms do not have to be morphisms (see
--- Σ-order-embedding-but-not-order-embedding below).
+-- Graded.Modality.Morphism.Examples.Σ-order-embedding-but-not-order-embedding).
 
 record Is-Σ-morphism
   {M₁ : Set a₁} {M₂ : Set a₂}
@@ -408,7 +408,8 @@ record Is-Σ-morphism
 -- given function).
 --
 -- Note that these "order embeddings" do not need to be order
--- embeddings (see Σ-order-embedding-but-not-order-embedding below).
+-- embeddings (see
+-- Graded.Modality.Morphism.Examples.Σ-order-embedding-but-not-order-embedding).
 
 record Is-Σ-order-embedding
   {M₁ : Set a₁} {M₂ : Set a₂}

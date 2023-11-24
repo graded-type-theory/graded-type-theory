@@ -3998,8 +3998,9 @@ suitable-for-full-reduction rs =
   where
   open Type-restrictions rs
 
--- -- The full reduction assumptions hold for any instance of
--- linear-or-affine and any "suitable" Type-restrictions and Usage-restrictions.
+-- The full reduction assumptions hold for any instance of
+-- linear-or-affine and any "suitable" Type-restrictions and
+-- Usage-restrictions.
 
 full-reduction-assumptions :
   Suitable-for-full-reduction variant trs urs →

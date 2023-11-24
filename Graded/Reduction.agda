@@ -323,10 +323,10 @@ Well-resourced-normal-form-without-η-long-normal-form =
 
 -- If "Unitˢ" is allowed, then variable 0 is well-typed and
 -- well-resourced (with respect to the usage context ε ∙ 𝟙), and is
--- definitionally equal to the η-long normal form star. However, this
+-- definitionally equal to the η-long normal form starˢ. However, this
 -- η-long normal form is well-resourced with respect to the usage
--- context ε ∙ 𝟙 if and only if the unit type can be used as a sink
--- or 𝟙 ≤ 𝟘.
+-- context ε ∙ 𝟙 if and only if the strong unit type can be used as a
+-- sink or 𝟙 ≤ 𝟘.
 
 η-long-nf-for-0⇔sink⊎𝟙≤𝟘 :
   Unitˢ-allowed →
@@ -363,9 +363,9 @@ Well-resourced-normal-form-without-η-long-normal-form =
 -- If "Π 𝟙 , q" and "Unitˢ" are allowed, then the identity function
 -- lam 𝟙 (var x0) has type Π 𝟙 , q ▷ Unit ▹ Unit, is well-resourced in
 -- the empty context, and is definitionally equal to the η-long normal
--- form lam 𝟙 star, however, this η-long normal form is well-resourced
--- in the empty context if and only if unit type can be used as a sink
--- or 𝟙 ≤ 𝟘.
+-- form lam 𝟙 starˢ, however, this η-long normal form is
+-- well-resourced in the empty context if and only if the strong unit
+-- type can be used as a sink or 𝟙 ≤ 𝟘.
 
 η-long-nf-for-id⇔sink⊎𝟙≤𝟘 :
   Π-allowed 𝟙 q →

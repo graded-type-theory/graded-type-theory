@@ -25,7 +25,7 @@ record Usage-restrictions : Set (lsuc a) where
     -- predicate.
     Unitrec-allowed : (p q : M) → Set a
 
-    -- Should the strong unit act as a "sink"
+    -- Should the strong unit type act as a "sink"?
     starˢ-sink : Bool
 
     -- Are most things erased in the usage rule for Id?
@@ -50,17 +50,28 @@ record Usage-restrictions : Set (lsuc a) where
     -- Erased-matches-for-K is decided.
     Erased-matches-for-K? : Dec Erased-matches-for-K
 
+  -- Does the strong unit type act as a "sink"?
 
   Starˢ-sink : Set
   Starˢ-sink = T starˢ-sink
 
+  -- Does the strong unit type not act as a "sink"?
+  --
+  -- This type is used instead of ¬ Starˢ-sink because "¬ A" does not
+  -- work well as the type of an instance argument.
+
   ¬Starˢ-sink : Set
   ¬Starˢ-sink = T (not starˢ-sink)
+
+  -- The strong unit type is not allowed to both act and not act as a
+  -- sink.
 
   not-sink-and-no-sink : Starˢ-sink → ¬Starˢ-sink → ⊥
   not-sink-and-no-sink sink ¬sink with starˢ-sink
   … | false = sink
   … | true = ¬sink
+
+  -- The strong unit type either acts or does not act as a sink.
 
   sink-or-no-sink : Starˢ-sink ⊎ ¬Starˢ-sink
   sink-or-no-sink with starˢ-sink

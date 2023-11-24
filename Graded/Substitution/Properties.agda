@@ -1988,7 +1988,8 @@ subst-calc-correct′ (Ψ ⊙ γ) Ψ▶σ (x +1) =
   sub (subst-calc-correct′ Ψ (wf-tailSubstₘ Ψ▶σ) x)
       (≤ᶜ-reflexive (≈ᶜ-trans (+ᶜ-congʳ (·ᶜ-zeroˡ _)) (+ᶜ-identityˡ _)))
 
--- If there is a dedicated nr function, then each row of a calculated
+-- If there is a dedicated nr function and the strong unit type is not
+-- allowed to be used as a sink, then each row of a calculated
 -- substitution matrix is an upper bound of the usage contexts (for a
 -- suitable mode) of the corresponding substituted term.
 

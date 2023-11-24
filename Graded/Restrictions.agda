@@ -126,7 +126,6 @@ No-erased-matches TR UR =
 -- The function adds the restriction that erased matches are not
 -- allowed.
 
--- <<<<<<< HEAD
 no-erased-matches-TR : Type-restrictions → Type-restrictions
 no-erased-matches-TR TR = record TR
   { []-cong-allowed  = λ _ → Lift _ ⊥

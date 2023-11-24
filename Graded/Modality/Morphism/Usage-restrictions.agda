@@ -96,7 +96,7 @@ record Are-reflecting-usage-restrictions
     Prodrec-reflected :
       R₂.Prodrec-allowed (tr r) (tr-Σ p) (tr q) →
       R₁.Prodrec-allowed r p q
-    -- The function ts reflects the Unitrec-allowed property.
+    -- The function tr reflects the Unitrec-allowed property.
     Unitrec-reflected :
       R₂.Unitrec-allowed (tr p) (tr q) →
       R₁.Unitrec-allowed p q

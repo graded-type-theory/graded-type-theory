@@ -65,7 +65,6 @@ inv-usage-erased :
   γ ▸[ m ] erased A t →
   γ ▸[ m ] t × ∃ λ δ → δ ▸[ 𝟘ᵐ? ] A ×
   γ ≤ᶜ 𝟘ᶜ × Prodrec-allowed (𝟘 ∧ 𝟙) 𝟘 𝟘
-  -- γ ≤ᶜ 𝟘ᶜ × m PE.≡ 𝟘ᵐ[ ok ]
 inv-usage-erased {γ = γ} ok ▸[] =
   case inv-usage-fstʷ (inj₁ 𝟘≰𝟙) ▸[] of λ {
     (η , δ , γ≤ , ▸t , ▸A , _ , P-ok) →

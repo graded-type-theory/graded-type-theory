@@ -49,8 +49,9 @@ private
     m n : Nat
     mos : Mode-vector n
 
--- If there is a dedicated nr function, then a given substitution is
--- either well-resourced with respect to a given mode vector and the
+-- If there is a dedicated nr function and the strong unit type is not
+-- allowed to be used as a sink, then a given substitution is either
+-- well-resourced with respect to a given mode vector and the
 -- substitution matrix computed by ∥_∥, or it is not well-resourced
 -- with respect to any substitution matrix (and the given mode).
 

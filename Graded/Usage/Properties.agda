@@ -397,8 +397,8 @@ opaque
 ------------------------------------------------------------------------
 -- Usage-restrictions-satisfied
 
--- Usage-restrictions-satisfied t means that the usage restriction for
--- Prodrec holds for every subterm in t.
+-- Usage-restrictions-satisfied t means that the usage restrictions
+-- for Prodrec and Unitrec hold for every subterm in t.
 
 Usage-restrictions-satisfied : Term n → Set a
 Usage-restrictions-satisfied = λ where
@@ -1896,8 +1896,8 @@ opaque
 open import Graded.Modality.Dedicated-nr.Instance
 
 -- For dedicated nr functions the function ⌈_⌉ provides upper bounds
--- for valid modality contexts when the strong unit type is dissallowed:
--- if γ ▸[ m ] t, then γ ≤ᶜ ⌈ t ⌉ m.
+-- for valid modality contexts when the strong unit type is not
+-- allowed to be used as a sink: if γ ▸[ m ] t, then γ ≤ᶜ ⌈ t ⌉ m.
 
 usage-upper-bound :
   ⦃ has-nr : Dedicated-nr ⦄ →

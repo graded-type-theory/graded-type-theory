@@ -108,7 +108,9 @@ import Graded.Usage.Restrictions
 -- This is not the version of the code that the paper refers to. Some
 -- things have been added, but things have also changed.
 
--- One difference is the addition of identity types.
+-- One difference is the addition of identity types. A weak unit type
+-- has also been added, and the strong unit type can now optionally be
+-- used as a "sink".
 
 -- Another notable change is related to the natrec-star operators. The
 -- paper does not focus on linearity, but some modalities for linear
@@ -945,13 +947,11 @@ not-greatest =
 -- Theorem 7.1.
 --
 -- Instead of the assumption "erased matches are not allowed for weak
--- Σ-types" the theorem uses the assumption "either erased matches are
--- not allowed for weak Σ-types, or the context is empty".
---
--- Furthermore "erased matches are not allowed for weak Σ-types" is
--- expressed in a different way: erased matches are actually allowed
--- if 1 = 0. However, another assumption is that the modality has a
--- well-behaved zero, which implies that 1 ≠ 0.
+-- Σ-types" the theorem uses the assumption "either (the modality is
+-- non-trivial implies that erased matches are not allowed for weak
+-- Σ-types, weak unit types, and identity types) or the context is
+-- empty". However, note that another assumption is that the modality
+-- has a well-behaved zero, which implies that 1 ≠ 0.
 
 Theorem-7-1 =
   Graded.Erasure.Consequences.Soundness.Soundness.soundness-ℕ-only-source
@@ -1134,15 +1134,15 @@ erasure =
 affine = Graded.Modality.Instances.Affine.full-reduction-assumptions
 
 -- The conditions are satisfied for the linear types modality if the
--- unit type with η-equality is not allowed, Σ_&,0^q is not allowed,
--- and Σ_&,ω^q is not allowed.
+-- unit type with η-equality is not allowed (or it can be used as a
+-- sink), Σ_&,0^q is not allowed, and Σ_&,ω^q is not allowed.
 
 linear = Graded.Modality.Instances.Linearity.full-reduction-assumptions
 
 -- The conditions are satisfied for the linear or affine types
--- modality if the unit type with η-equality is not allowed, Σ_&,0^q
--- is not allowed, Σ_&,01^q is not allowed, and Σ_&,ω^q is not
--- allowed.
+-- modality if the unit type with η-equality is not allowed (or it can
+-- be used as a sink), Σ_&,0^q is not allowed, Σ_&,01^q is not
+-- allowed, and Σ_&,ω^q is not allowed.
 
 linear-or-affine =
   Graded.Modality.Instances.Linear-or-affine.full-reduction-assumptions
