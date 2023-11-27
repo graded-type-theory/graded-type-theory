@@ -108,3 +108,25 @@ wfEq (sym A≡B) = wfEq A≡B
 wfEq (trans A≡B B≡C) = wfEq A≡B
 wfEq (ΠΣ-cong F _ _ _) = wf F
 wfEq (Id-cong A₁≡A₂ _ _) = wfEq A₁≡A₂
+
+opaque
+
+  -- If Γ ⊢ A holds, then ⊢ Γ ∙ A also holds.
+
+  ⊢→⊢∙ : Γ ⊢ A → ⊢ Γ ∙ A
+  ⊢→⊢∙ ⊢A = wf ⊢A ∙ ⊢A
+
+opaque
+
+  -- A lemma which could perhaps be used to make certain proofs more
+  -- readable.
+
+  infixl 24 _∙[_]
+
+  _∙[_] : ⊢ Γ → (⊢ Γ → Γ ⊢ A) → ⊢ Γ ∙ A
+  ⊢Γ ∙[ f ] = ⊢→⊢∙ (f ⊢Γ)
+
+-- An example of how _∙[_] can be used.
+
+_ : ⊢ ε ∙ ℕ ∙ U ∙ Empty
+_ = ε ∙[ ℕⱼ ] ∙[ Uⱼ ] ∙[ Emptyⱼ ]
