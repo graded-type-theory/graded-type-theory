@@ -133,7 +133,7 @@ unitrecʳ′ {n} {Γ} {l} {A} {t} {u} {γ} {𝟙ᵐ} {p} {δ} {q}
       ⊢σu = escapeTerm [σA₊] [σu]
       ⊢σu′ = PE.subst (λ x → _ ⊢ _ ∷ x) (singleSubstLift A star!) ⊢σu
 
-      σ®σ′ᵤ = subsumptionSubst {l = l} σ®σ′ λ x pγ+δ≡𝟘 →
+      σ®σ′ᵤ = subsumptionSubst σ®σ′ λ x pγ+δ≡𝟘 →
                 +-positiveʳ (PE.trans (PE.sym (lookup-distrib-+ᶜ (p ·ᶜ γ) δ x)) pγ+δ≡𝟘)
       u®u′ = ⊩ʳu [σ] σ®σ′ᵤ ◀≢𝟘 non-trivial
 
@@ -169,13 +169,13 @@ unitrecʳ′ {n} {Γ} {l} {A} {t} {u} {γ} {𝟙ᵐ} {p} {δ} {q}
   where
   lemma : (p PE.≢ 𝟘) → Δ ⊢ t [ σ ] ⇒* starʷ ∷ Unitʷ × erase t T.[ σ′ ] T.⇒* T.star
   lemma p≢𝟘 =
-    let σ®σ′ₜ = subsumptionSubst {l = l} σ®σ′ λ x pγ+δ≡𝟘 →
+    let σ®σ′ₜ = subsumptionSubst σ®σ′ λ x pγ+δ≡𝟘 →
                  case zero-product (PE.trans (PE.sym (lookup-distrib-·ᶜ γ p x))
                                              (+-positiveˡ (PE.trans (PE.sym (lookup-distrib-+ᶜ (p ·ᶜ γ) δ x))
                                                           pγ+δ≡𝟘))) of λ where
                    (inj₁ p≡𝟘) → ⊥-elim (p≢𝟘 p≡𝟘)
                    (inj₂ γx≡𝟘) → γx≡𝟘
-        σ®σ′ₜ′ = PE.subst (λ m → σ ®⟨ l ⟩ σ′ ∷[ m ] Γ ◂ γ / [Γ] / [σ])
+        σ®σ′ₜ′ = PE.subst (λ m → σ ® σ′ ∷[ m ] Γ ◂ γ / [Γ] / [σ])
                           (PE.sym (≢𝟘→ᵐ·≡ p≢𝟘)) σ®σ′ₜ
 
     in  case ⊩ʳt [σ] σ®σ′ₜ′ ◀≢𝟘 (λ x →

@@ -2,6 +2,8 @@
 -- Irrelevance lemmata for the logical relation
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 open import Definition.Typed.EqualityRelation
 import Definition.Typed
 open import Definition.Typed.Restrictions
@@ -159,16 +161,16 @@ irrelevanceQuant′ p PE.refl = irrelevanceQuant p
 
 -- Irrelevance of related substitutions
 
-irrelevanceSubst : ∀ {σ σ′ l}
+irrelevanceSubst : ∀ {σ σ′}
                  → ([Γ] [Γ]′ : ⊩ᵛ Γ)
                    ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
                    ([σ]′ : Δ ⊩ˢ σ ∷ Γ / [Γ]′ / ⊢Δ)
-                   (σ®σ′ : σ ®⟨ l ⟩ σ′ ∷[ m ] Γ ◂ γ / [Γ] / [σ])
-                 → (σ ®⟨ l ⟩ σ′ ∷[ m ] Γ ◂ γ / [Γ]′ / [σ]′)
+                   (σ®σ′ : σ ® σ′ ∷[ m ] Γ ◂ γ / [Γ] / [σ])
+                 → (σ ® σ′ ∷[ m ] Γ ◂ γ / [Γ]′ / [σ]′)
 irrelevanceSubst {Γ = ε} {γ = ε} ε ε (lift tt) (lift tt) (lift tt) = lift tt
-irrelevanceSubst {Γ = Γ ∙ A} {m = m} {γ = γ ∙ p} {l = l}
+irrelevanceSubst {Γ = Γ ∙ A} {m = m} {γ = γ ∙ p}
                  ([Γ] ∙ [A]) ([Γ]′ ∙ [A]′) ([tailσ] , b) ([tailσ]′ , d) (σ®σ , t®v) =
-  let σ®σ′ = irrelevanceSubst {l = l} [Γ] [Γ]′ [tailσ] [tailσ]′ σ®σ
+  let σ®σ′ = irrelevanceSubst [Γ] [Γ]′ [tailσ] [tailσ]′ σ®σ
       [σA] = proj₁ (unwrap [A] ⊢Δ [tailσ])
       t®v′ = irrelevanceQuant (⌜ m ⌝ · _)
                (proj₁ (unwrap [A] ⊢Δ [tailσ]))
@@ -184,9 +186,9 @@ irrelevance : ∀ {l l′}
               ([A]′ : Γ ⊩ᵛ⟨ l′ ⟩ A / [Γ]′)
               (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A / [Γ] / [A])
             → (γ ▸ Γ ⊩ʳ⟨ l′ ⟩ t ∷[ m ] A / [Γ]′ / [A]′)
-irrelevance {m = m} {l = l} [Γ] [Γ]′ [A] [A]′ ⊩ʳt [σ]′ σ®σ′ =
+irrelevance {m} [Γ] [Γ]′ [A] [A]′ ⊩ʳt [σ]′ σ®σ′ =
   let [σ] = IS.irrelevanceSubst [Γ]′ [Γ] ⊢Δ ⊢Δ [σ]′
-      σ®σ = irrelevanceSubst {l = l} [Γ]′ [Γ] [σ]′ [σ] σ®σ′
+      σ®σ = irrelevanceSubst [Γ]′ [Γ] [σ]′ [σ] σ®σ′
       t®v = ⊩ʳt [σ] σ®σ
   in  irrelevanceQuant ⌜ m ⌝
         (proj₁ (unwrap [A] ⊢Δ [σ]))

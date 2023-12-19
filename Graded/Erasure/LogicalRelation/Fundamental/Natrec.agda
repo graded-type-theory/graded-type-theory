@@ -2,6 +2,8 @@
 -- Graded.Erasure validity of natrec.
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 import Graded.Modality
 open import Definition.Typed.EqualityRelation
 import Definition.Typed
@@ -87,7 +89,7 @@ natrecʳ″ : ∀ {l m w} {Γ : Con Term n}
            ([z] : Γ ⊩ᵛ⟨ l ⟩ z ∷ A [ zero ]₀ / [Γ] / [A₀])
            ([s] : Γ ∙ ℕ ∙ A ⊩ᵛ⟨ l ⟩ s ∷  A [ (suc (var x1)) ]↑² / [Γ] ∙ [ℕ] ∙ [A] / [A₊])
            ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
-         → (σ®σ′ : σ ®⟨ l ⟩ σ′ ∷[ mo ] Γ ◂ χ / [Γ] / [σ])
+         → (σ®σ′ : σ ® σ′ ∷[ mo ] Γ ◂ χ / [Γ] / [σ])
          → (⊩ʳz : γ ▸ Γ ⊩ʳ⟨ l ⟩ z ∷[ mo ] A [ zero ]₀ / [Γ] / [A₀])
          → (⊩ʳs : δ ∙ ⌜ mo ⌝ · p ∙ ⌜ mo ⌝ · r ▸ Γ ∙ ℕ ∙ A ⊩ʳ⟨ l ⟩ s
                   ∷[ mo ] A [ (suc (var x1)) ]↑²
@@ -136,7 +138,7 @@ natrecʳ″
       nrw⇒nr0 = TP.natrec-subst* {s = erase s T.[ T.liftSubstn σ′ 2 ]} w⇒zero
       nrw⇒z = TP.red*concat nrw⇒nr0 (T.trans T.natrec-zero T.refl)
       z®z′ = ⊩ʳz [σ] $
-             subsumptionSubst {l = l} σ®σ′ (λ _ → proj₁ ∘→ ≡𝟘→≡𝟘 _)
+             subsumptionSubst σ®σ′ (λ _ → proj₁ ∘→ ≡𝟘→≡𝟘 _)
       [σA₀]′ = I.irrelevance′ (singleSubstLift A zero) [σA₀]
       z®z″ = irrelevanceTerm′ (singleSubstLift A zero) [σA₀] [σA₀]′ z®z′
       nr®nr = redSubstTerm* [σA₀]′ z®z″ nrm⇒z nrw⇒z
@@ -195,7 +197,7 @@ natrecʳ″
                                      {s = erase s T.[ T.liftSubstn σ′ 2 ]}
                                      w⇒sucw′
       nrw⇒s = TP.red*concat nrw⇒nrsucw′ (T.trans T.natrec-suc T.refl)
-      σ®σ′ₛ = subsumptionSubst {l = l} σ®σ′ (λ _ → proj₂ ∘→ ≡𝟘→≡𝟘 _)
+      σ®σ′ₛ = subsumptionSubst σ®σ′ (λ _ → proj₂ ∘→ ≡𝟘→≡𝟘 _)
       nrm′®nrw′ = natrecʳ″ {A = A} {z = z} {s = s}
                            [Γ] [A] [A₊] [A₀] [z] [s] [σ] σ®σ′
                            (subsumption′ {t = z} [Γ] [A₀] ⊩ʳz)
@@ -274,8 +276,7 @@ natrecʳ′ {mo = 𝟘ᵐ} with is-𝟘? 𝟘
 ... | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 PE.refl)
 
 natrecʳ′
-  {n = n} {A = A} {m = m} {z = z} {s = s} {γ = γ} {mo = 𝟙ᵐ} {δ = δ}
-  {p = p} {r = r} {η = η} {l = l} {Γ = Γ}
+  {n} {A} {m} {z} {s} {γ} {mo = 𝟙ᵐ} {δ} {p} {r} {η} {Γ}
   [Γ] [A] [A₊] [A₀] [A[m]] [z] [s] [m] ⊩ʳz ⊩ʳs ⊩ʳm ≡𝟘→≡𝟘
   {σ} {σ′} [σ] σ®σ′
   with is-𝟘? 𝟙
@@ -283,7 +284,7 @@ natrecʳ′
 ... | no 𝟙≢𝟘 =
   let [σm] = proj₁ ([m] ⊢Δ [σ])
       m®w = ⊩ʳm [σ] $
-            subsumptionSubst {l = l} σ®σ′
+            subsumptionSubst σ®σ′
               (λ _ → proj₁ ∘→ proj₂ ∘→ ≡𝟘→≡𝟘 _)
       nr®nr = natrecʳ″ {A = A} {z = z} {s = s}
                        [Γ] [A] [A₊] [A₀] [z] [s] [σ] σ®σ′

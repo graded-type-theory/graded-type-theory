@@ -141,7 +141,7 @@ prodʳ
   lemma ⊩ʳt ⊩ʳu {σ = σ} {σ′ = σ′} [σ] σ®σ′ =
     (t [ σ ] , u [ σ ] , id ⊢prod , [σt]′ , erase u T.[ σ′ ] , u®u″ , extra) ◀ 𝟙
     where
-    σ®σ′ᵤ = subsumptionSubst {l = l} σ®σ′ λ _ → propʳ
+    σ®σ′ᵤ = subsumptionSubst σ®σ′ λ _ → propʳ
     u®u′ = ⊩ʳu [σ] σ®σ′ᵤ
     [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
     [σF]′ = W.wk id ⊢Δ [σF]
@@ -174,13 +174,13 @@ prodʳ
                 let d = PE.subst (λ x → x T.[ σ′ ] T.⇒* _)
                                  (PE.sym (prod-ω {k = s} p≢𝟘))
                                  T.refl
-                    σ®σ′ₜ = subsumptionSubst {l = l} σ®σ′ λ x pγ⊕δ≡𝟘 →
+                    σ®σ′ₜ = subsumptionSubst σ®σ′ λ x pγ⊕δ≡𝟘 →
                       case PE.trans (PE.sym (lookup-distrib-·ᶜ γ p x))
                                     (propˡ pγ⊕δ≡𝟘) of λ pγ≡𝟘 →
                       case zero-product pγ≡𝟘 of λ where
                         (inj₁ p≡𝟘) → ⊥-elim (p≢𝟘 p≡𝟘)
                         (inj₂ γx≡𝟘) → γx≡𝟘
-                    t₁®v₁ = ⊩ʳt [σ] (subsumptionSubstMode l σ®σ′ₜ)
+                    t₁®v₁ = ⊩ʳt [σ] (subsumptionSubstMode σ®σ′ₜ)
                     t₁®v₁′ = irrelevanceQuant′ _ (PE.sym (wk-id _)) [σF] [σF]′ t₁®v₁
                     t₁®v₁″ = t₁®v₁′ ◀≢𝟘 λ ⌞p⌟≡𝟘 → non-trivial
                       (begin

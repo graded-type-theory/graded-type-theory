@@ -98,37 +98,37 @@ t®v◂𝟘 with is-𝟘? 𝟘
 -- If σ ® σ′ ∷ Γ ◂ γ and whenever γ⟨x⟩ ≡ 𝟘 then δ⟨x⟩≡𝟘
 -- then σ ® σ′ ∷ Γ ◂ δ
 
-subsumptionSubst : ∀ {l σₜ σᵥ [Γ] [σ]}
-                 → σₜ ®⟨ l ⟩ σᵥ ∷[ m ] Γ ◂ γ / [Γ] / [σ]
+subsumptionSubst : ∀ {σₜ σᵥ [Γ] [σ]}
+                 → σₜ ® σᵥ ∷[ m ] Γ ◂ γ / [Γ] / [σ]
                  → (∀ x → γ ⟨ x ⟩ PE.≡ 𝟘 → δ ⟨ x ⟩ PE.≡ 𝟘)
-                 → σₜ ®⟨ l ⟩ σᵥ ∷[ m ] Γ ◂ δ / [Γ] / [σ]
+                 → σₜ ® σᵥ ∷[ m ] Γ ◂ δ / [Γ] / [σ]
 subsumptionSubst {Γ = ε} {ε} {ε} {[Γ] = ε} {lift lower} σ®σ′ prop = _
-subsumptionSubst {m = 𝟘ᵐ} {Γ = Γ ∙ x} {γ ∙ p} {δ ∙ q} {l = l}
+subsumptionSubst {m = 𝟘ᵐ} {Γ = Γ ∙ x} {γ ∙ p} {δ ∙ q}
                  {[Γ] = [Γ] ∙ [A]} {_ , _} (σ®σ′ , t®v) prop with is-𝟘? (𝟘 · q)
-... | yes _ = subsumptionSubst {l = l} σ®σ′ (λ x → prop (x +1)) , _
+... | yes _ = subsumptionSubst σ®σ′ (λ x → prop (x +1)) , _
 ... | no 𝟘q≢𝟘 = ⊥-elim (𝟘q≢𝟘 (·-zeroˡ q))
-subsumptionSubst {m = 𝟙ᵐ} {Γ = Γ ∙ x} {γ ∙ p} {δ ∙ q} {l = l}
+subsumptionSubst {m = 𝟙ᵐ} {Γ = Γ ∙ x} {γ ∙ p} {δ ∙ q}
                  {[Γ] = [Γ] ∙ [A]} {_ , _} (σ®σ′ , t®v) prop
   rewrite ·-identityˡ q rewrite ·-identityˡ p with is-𝟘? q
-... | yes q≡𝟘 = subsumptionSubst {l = l} σ®σ′ (λ x → prop (x +1)) , _
+... | yes q≡𝟘 = subsumptionSubst σ®σ′ (λ x → prop (x +1)) , _
 ... | no q≢𝟘 with is-𝟘? p
 ... | yes p≡𝟘 = ⊥-elim (q≢𝟘 (prop x0 p≡𝟘))
-... | no p≢𝟘 = subsumptionSubst {l = l} σ®σ′ (λ x → prop (x +1)) , t®v
+... | no p≢𝟘 = subsumptionSubst σ®σ′ (λ x → prop (x +1)) , t®v
 
--- If σₜ ®⟨ l ⟩ σᵥ ∷[ m ] Γ ◂ γ / [Γ] / [σ] holds when m is 𝟙ᵐ, then
--- it holds for any mode.
+-- If σₜ ® σᵥ ∷[ m ] Γ ◂ γ / [Γ] / [σ] holds when m is 𝟙ᵐ, then it
+-- holds for any mode.
 
 subsumptionSubstMode :
-  ∀ {σₜ σᵥ [Γ] [σ]} l →
-  σₜ ®⟨ l ⟩ σᵥ ∷[ 𝟙ᵐ ] Γ ◂ γ / [Γ] / [σ] →
-  σₜ ®⟨ l ⟩ σᵥ ∷[ m ] Γ ◂ γ / [Γ] / [σ]
-subsumptionSubstMode {m = 𝟙ᵐ} _ ok =
+  ∀ {σₜ σᵥ [Γ] [σ]} →
+  σₜ ® σᵥ ∷[ 𝟙ᵐ ] Γ ◂ γ / [Γ] / [σ] →
+  σₜ ® σᵥ ∷[ m ] Γ ◂ γ / [Γ] / [σ]
+subsumptionSubstMode {m = 𝟙ᵐ} ok =
   ok
 subsumptionSubstMode {γ = ε} {[Γ] = ε} =
   _
-subsumptionSubstMode {γ = _ ∙ p} {m = 𝟘ᵐ} {[Γ] = _ ∙ _} l (ok₁ , _)
+subsumptionSubstMode {γ = _ ∙ p} {m = 𝟘ᵐ} {[Γ] = _ ∙ _} (ok₁ , _)
   rewrite ·-zeroˡ p with is-𝟘? 𝟘
-... | yes p≡𝟘 = subsumptionSubstMode l ok₁ , lift tt
+... | yes p≡𝟘 = subsumptionSubstMode ok₁ , lift tt
 ... | no p≢𝟘 = ⊥-elim (p≢𝟘 PE.refl)
 
 
@@ -141,14 +141,14 @@ subsumption : ∀ {l} {Γ : U.Con U.Term n} {t A : U.Term n}
             → δ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A / [Γ] / [A]
             → (∀ x → γ ⟨ x ⟩ PE.≡ 𝟘 → δ ⟨ x ⟩ PE.≡ 𝟘)
             → γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A / [Γ] / [A]
-subsumption {l = l} [Γ] [A] δ⊩ʳt prop [σ] σ®σ′ =
-  δ⊩ʳt [σ] (subsumptionSubst {l = l} σ®σ′ prop)
+subsumption [Γ] [A] δ⊩ʳt prop [σ] σ®σ′ =
+  δ⊩ʳt [σ] (subsumptionSubst σ®σ′ prop)
 
 subsumption′ : ∀ {l} {Γ : U.Con U.Term n} {t A : U.Term n}
              → ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ])
              → (∀ {σ σ′}
                 → ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
-                → σ ®⟨ l ⟩ σ′ ∷[ m ] Γ ◂ γ / [Γ] / [σ]
+                → σ ® σ′ ∷[ m ] Γ ◂ γ / [Γ] / [σ]
                 → t U.[ σ ] ®⟨ l ⟩ erase t T.[ σ′ ]
                   ∷ A U.[ σ ] / proj₁ (unwrap [A] ⊢Δ [σ]))
              → γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A / [Γ] / [A]
@@ -156,12 +156,12 @@ subsumption′ [Γ] [A] ⊩ʳt [σ] σ®σ′ = ⊩ʳt [σ] σ®σ′ ◀ _
 
 -- Under erased contexts, any substitutions are related
 
-erasedSubst : ∀ {l σ σ′}
+erasedSubst : ∀ {σ σ′}
             → ([Γ] : ⊩ᵛ Γ)
             → ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ)
-            → σ ®⟨ l ⟩ σ′ ∷[ m ] Γ ◂ 𝟘ᶜ / [Γ] / [σ]
+            → σ ® σ′ ∷[ m ] Γ ◂ 𝟘ᶜ / [Γ] / [σ]
 erasedSubst ε (lift tt) = lift tt
-erasedSubst {m = m} (_∙_ {l = l} [Γ] [A]) ([σ] , [t])
+erasedSubst {m = m} ([Γ] ∙ [A]) ([σ] , [t])
   rewrite ·-zeroʳ ⌜ m ⌝ with is-𝟘? 𝟘
-... | yes p≡𝟘 = erasedSubst {l = l} [Γ] [σ] , lift tt
+... | yes p≡𝟘 = erasedSubst [Γ] [σ] , lift tt
 ... | no p≢𝟘 = ⊥-elim (p≢𝟘 PE.refl)

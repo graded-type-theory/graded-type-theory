@@ -2,6 +2,8 @@
 -- Graded.Erasure validity of application.
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 open import Graded.Modality
 open import Definition.Typed.EqualityRelation
 import Definition.Typed
@@ -81,8 +83,8 @@ appʳ′ {m = 𝟘ᵐ} with is-𝟘? 𝟘
 ... | yes m≡𝟘 = _
 ... | no m≢𝟘 = ⊥-elim (m≢𝟘 PE.refl)
 appʳ′
-  {F = F} {G = G} {u = u} {p = p} {q = q} {γ = γ} {t = t} {m = 𝟙ᵐ}
-  {δ = δ} {l = l} [Γ] [F] [G] [G[u]] [u] _ ⊩ʳt ⊩ʳu {σ = σ} [σ] σ®σ′
+  {F} {G} {u} {p} {q} {γ} {t} {m = 𝟙ᵐ} {δ}
+  [Γ] [F] [G] [G[u]] [u] _ ⊩ʳt ⊩ʳu {σ} [σ] σ®σ′
   with is-𝟘? 𝟙
 ... | yes 𝟙≡𝟘 = _
 ... | no 𝟙≢𝟘
@@ -94,7 +96,7 @@ appʳ′
       [σu]′ = I.irrelevanceTerm′ (PE.sym (wk-id (F [ σ ]))) [σF] [ρσF] [σu]
       [σu]″ = I.irrelevanceTerm′ (wk-subst F) [ρσF]
                                  (proj₁ (unwrap [F] ⊢Δ (wkSubstS [Γ] ⊢Δ ⊢Δ id [σ]))) [σu]′
-      tu®v↯ = ⊩ʳt [σ] (subsumptionSubst {l = l} σ®σ′ λ x γ+pδ≡𝟘 →
+      tu®v↯ = ⊩ʳt [σ] (subsumptionSubst σ®σ′ λ x γ+pδ≡𝟘 →
                         +-positiveˡ (PE.trans (PE.sym (lookup-distrib-+ᶜ γ _ x)) γ+pδ≡𝟘))
                   [σu]′
       [σG[u]] = I.irrelevance′ (PE.sym (singleSubstWkComp (u [ σ ]) σ G))
@@ -110,16 +112,16 @@ appʳ′
       [σu]′ = I.irrelevanceTerm′ (PE.sym (wk-id (F [ σ ]))) [σF] [ρσF] [σu]
       [σu]″ = I.irrelevanceTerm′ (wk-subst F) [ρσF]
                                  (proj₁ (unwrap [F] ⊢Δ (wkSubstS [Γ] ⊢Δ ⊢Δ id [σ]))) [σu]′
-      σ®σ′ᵤ = subsumptionSubst {l = l} σ®σ′ λ x γ+pδ≡𝟘 →
+      σ®σ′ᵤ = subsumptionSubst σ®σ′ λ x γ+pδ≡𝟘 →
                lem (PE.trans (+-congˡ (PE.sym (lookup-distrib-·ᶜ δ p x)))
                    (PE.trans (PE.sym (lookup-distrib-+ᶜ γ _ x)) γ+pδ≡𝟘))
-      u®w′ = ⊩ʳu [σ] (subsumptionSubstMode l σ®σ′ᵤ)
+      u®w′ = ⊩ʳu [σ] (subsumptionSubstMode σ®σ′ᵤ)
       u®w = irrelevanceTerm′ (PE.sym (wk-id (F [ σ ]))) [σF] [ρσF]
                              (u®w′ ◀≢𝟘 (λ ⌜⌞p⌟⌝≡𝟘 →
                                    𝟙≢𝟘 (PE.trans (PE.cong ⌜_⌝ (PE.sym (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘))) ⌜⌞p⌟⌝≡𝟘)))
-      σ®σ′ₜ = subsumptionSubst {l = l} σ®σ′ λ x γ+pδ≡𝟘 →
+      σ®σ′ₜ = subsumptionSubst σ®σ′ λ x γ+pδ≡𝟘 →
                 +-positiveˡ (PE.trans (PE.sym (lookup-distrib-+ᶜ γ _ x)) γ+pδ≡𝟘)
-      t∘u®v∘w = ⊩ʳt [σ] (subsumptionSubstMode l σ®σ′ₜ)
+      t∘u®v∘w = ⊩ʳt [σ] (subsumptionSubstMode σ®σ′ₜ)
                     [σu]′ u®w
       [σG[u]] = I.irrelevance′ (PE.sym (singleSubstWkComp (u [ σ ]) σ G))
                                (proj₁ (unwrap [G] ⊢Δ (wkSubstS [Γ] ⊢Δ ⊢Δ id [σ] , [σu]″)))

@@ -839,10 +839,10 @@ _⊩′ᵛ⟨_⟩_/_ = Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_/_
 
 -- Definition 6.6: The logical relation for substitutions.
 --
--- In the paper the type level is written as a subscript instead of
--- within brackets.
+-- The paper's definition includes an unused type level. This level is
+-- not present in this version of the code.
 
-_®⟨_⟩_∷_◂_/_/_ = Graded.Erasure.LogicalRelation._®⟨_⟩_∷[_]_◂_/_/_
+_®_∷_◂_/_/_ = Graded.Erasure.LogicalRelation._®_∷[_]_◂_/_/_
 
 -- Definition 6.7: Erasure validity.
 --

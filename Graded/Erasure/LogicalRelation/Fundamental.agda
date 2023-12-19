@@ -134,7 +134,7 @@ module _ (⊢Δ : ⊢ Δ) where
     x ∷ A ∈ Γ →
     γ ≤ᶜ 𝟘ᶜ , x ≔ 𝟙 →
     ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ) →
-    (σ®σ′ : σ ®⟨ ¹ ⟩ σ′ ∷[ 𝟙ᵐ ] Γ ◂ γ / [Γ] / [σ]) →
+    (σ®σ′ : σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ γ / [Γ] / [σ]) →
     ∃ λ ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ]) →
       σ x ®⟨ ¹ ⟩ σ′ x ∷ A [ σ ] / proj₁ (unwrap [A] ⊢Δ [σ])
   fundamentalVar′ ε ()
@@ -665,7 +665,7 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
       PE.subst₂ (λ x y → x ®⟨ ¹ ⟩ y ∷ A / [A]′)
         (subst-id t) (TP.subst-id (erase t)) t®t″
       where
-      id®id′ = erasedSubst {l = ¹} {σ′ = T.idSubst} [Δ] [id]
+      id®id′ = erasedSubst {σ′ = T.idSubst} [Δ] [id]
       t®t′ = ⊩ʳt [id] id®id′
       t®t″ = irrelevanceTerm′ (subst-id A) [idA] [A]′ t®t′
 
