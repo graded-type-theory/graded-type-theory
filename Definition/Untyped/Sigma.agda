@@ -13,14 +13,14 @@ module Definition.Untyped.Sigma {a} (M : Set a) where
 open import Definition.Untyped M
 
 open import Tools.Fin
-open import Tools.Nat using (Nat; 1+)
+open import Tools.Nat using (Nat; 1+; 2+)
 
 private variable
   n : Nat
 
 -- A definition of prodrec for strong Σ-types.
 
-prodrecˢ : M → Term n → Term (1+ (1+ n)) → Term n
+prodrecˢ : M → Term n → Term (2+ n) → Term n
 prodrecˢ p t u = u [ fst p t , snd p t ]
 
 -- The projections are defined using some extra quantities r′ and q′.

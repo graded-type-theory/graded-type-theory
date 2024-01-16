@@ -24,7 +24,7 @@ open import Graded.Mode 𝕄
 open import Definition.Untyped M hiding (_∙_)
 
 open import Tools.Bool using (T)
-open import Tools.Nat using (Nat; 1+)
+open import Tools.Nat using (Nat; 1+; 2+)
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 open import Tools.Relation
@@ -206,7 +206,7 @@ inv-usage-snd (sub ▸t γ≤γ′) with inv-usage-snd ▸t
 
 record InvUsageProdrec
          {n} (γ : Conₘ n) (m : Mode) (r p q : M) (A : Term (1+ n))
-         (t : Term n) (u : Term (1+ (1+ n))) : Set a where
+         (t : Term n) (u : Term (2+ n)) : Set a where
   constructor invUsageProdrec
   field
     {δ η θ} : Conₘ n
@@ -265,7 +265,7 @@ data InvUsageNatrec′ (p r : M) (γ δ η : Conₘ n) : Conₘ n → Set a wher
 
 data InvUsageNatrec
        (γ : Conₘ k) (m : Mode) (p q r : M) (A : Term (1+ k))
-       (z : Term k) (s : Term (1+ (1+ k))) (n : Term k) : Set a where
+       (z : Term k) (s : Term (2+ k)) (n : Term k) : Set a where
   invUsageNatrec :
     {δ η θ φ χ : Conₘ k} →
     δ ▸[ m ] z →
@@ -279,7 +279,7 @@ data InvUsageNatrec
 -- An inversion lemma for natrec.
 
 inv-usage-natrec :
-  {s : Term (1+ (1+ k))} {n : Term k} →
+  {s : Term (2+ k)} {n : Term k} →
   γ ▸[ m ] natrec p q r G z s n → InvUsageNatrec γ m p q r G z s n
 inv-usage-natrec (natrecₘ δ▸z δ▸s η▸n θ▸A) =
   invUsageNatrec δ▸z δ▸s η▸n θ▸A ≤ᶜ-refl invUsageNatrecNr
@@ -387,7 +387,7 @@ inv-usage-rfl (sub δ▸ γ≤δ) = ≤ᶜ-trans γ≤δ (inv-usage-rfl δ▸)
 
 data InvUsageJ
        {n} (γ : Conₘ n) (m : Mode) (p q : M) (A t : Term n)
-       (B : Term (1+ (1+ n))) (u t′ v : Term n) : Set a where
+       (B : Term (2+ n)) (u t′ v : Term n) : Set a where
   invUsageJ :
     {γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ : Conₘ n} →
     ¬ Erased-matches-for-J →

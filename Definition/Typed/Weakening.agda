@@ -370,7 +370,7 @@ mutual
         ρu = wkTerm (lift (lift [ρ])) (⊢Δ ∙ ρF ∙ ρG) ⊢u
     in  PE.subst₂ (λ x y → _ ⊢ prodrec _ _ _ _ _ _ ≡ x ∷ y)
                   (PE.trans (subst-wk u)
-                    (PE.trans (substVar-to-subst (λ{x0 → PE.refl; (x0 +1) → PE.refl; (x +1 +1) → PE.refl}) u)
+                    (PE.trans (substVar-to-subst (λ{x0 → PE.refl; (x0 +1) → PE.refl; (x +2) → PE.refl}) u)
                               (PE.sym (wk-subst u))))
                   (PE.sym (wk-β A))
                  (prodrec-β ρF ρG ρA ρt
@@ -552,9 +552,9 @@ mutual
           (PE.trans (subst-wk u)
             (PE.trans (substVar-to-subst
                          (λ where
-                            x0        → PE.refl
-                            (x0 +1)   → PE.refl
-                            (x +1 +1) → PE.refl)
+                            x0      → PE.refl
+                            (x0 +1) → PE.refl
+                            (x +2)  → PE.refl)
                          u)
             (PE.sym (wk-subst u))))
           (PE.sym (wk-β A))

@@ -12,6 +12,8 @@ open import Tools.Nat
 private variable
   n : Nat
 
+pattern _+2 x = x +1 +1
+
 -- One.
 
 x1 : Fin (2 + n)

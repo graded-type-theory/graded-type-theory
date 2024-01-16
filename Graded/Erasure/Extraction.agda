@@ -26,7 +26,7 @@ private
 
 -- Extraction for prodrec when the match is not erased.
 
-erase-prodrecω : (p : M) (t : T.Term n) (u : T.Term (1+ (1+ n)))
+erase-prodrecω : (p : M) (t : T.Term n) (u : T.Term (2+ n))
                → T.Term n
 erase-prodrecω p t u = case is-𝟘? p of λ where
     (yes p≡𝟘) → T.prodrec (T.prod ↯ t) u

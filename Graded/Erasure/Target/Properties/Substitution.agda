@@ -248,9 +248,9 @@ wk-lift-β {ρ = ρ} {t = t} u =
   wk (lift ρ) (u [ liftSubst (sgSubst t) ])              ≡⟨ wk-subst u ⟩
   u [ lift ρ •ₛ liftSubst (sgSubst t) ]                  ≡˘⟨ substVar-to-subst
                                                                      (λ where
-                                                                        x0          → refl
-                                                                        (x0 +1)     → wk1-wk≡lift-wk1 _ _
-                                                                        ((_ +1) +1) → refl)
+                                                                        x0      → refl
+                                                                        (x0 +1) → wk1-wk≡lift-wk1 _ _
+                                                                        (_ +2)  → refl)
                                                                      u ⟩
   u [ liftSubst (sgSubst (wk ρ t)) ₛ• lift (lift ρ) ]    ≡˘⟨ subst-wk u ⟩
   wk (lift (lift ρ)) u [ liftSubst (sgSubst (wk ρ t)) ]  ∎
@@ -258,7 +258,7 @@ wk-lift-β {ρ = ρ} {t = t} u =
 -- Pushing a weakening into a double substitution
 -- ρ (t[a,b]) = ((lift (lift ρ)) t) [ ρ a , ρ b ]
 
-wk-β-doubleSubst : ∀ (ρ : Wk m n) (s : Term (1+ (1+ n))) (t u : Term n)
+wk-β-doubleSubst : ∀ (ρ : Wk m n) (s : Term (2+ n)) (t u : Term n)
                  → wk ρ (s [ u , t ])
                  ≡ wk (lift (lift ρ)) s [ wk ρ u , wk ρ t ]
 wk-β-doubleSubst ρ s t u =
@@ -266,12 +266,12 @@ wk-β-doubleSubst ρ s t u =
     wk ρ (s [ σₜ t u ])
        ≡⟨ wk-subst s ⟩
      s [ ρ •ₛ (σₜ t u) ]
-       ≡⟨ substVar-to-subst (λ { x0 → refl ; (x0 +1) → refl ; (x +1 +1) → refl}) s ⟩
+       ≡⟨ substVar-to-subst (λ { x0 → refl ; (x0 +1) → refl ; (x +2) → refl}) s ⟩
      s [ (σₜ (wk ρ t) (wk ρ u)) ₛ• (lift (lift ρ)) ]
        ≡⟨ sym (subst-wk s) ⟩
      wk (lift (lift ρ)) s [ wk ρ u , wk ρ t ] ∎
   where
-    σₜ : (x y : Term ℓ) → Subst ℓ (1+ (1+ ℓ))
+    σₜ : (x y : Term ℓ) → Subst ℓ (2+ ℓ)
     σₜ x y = consSubst (consSubst idSubst y) x
 
 -- Composing a singleton substitution and a lifted substitution.
@@ -320,7 +320,7 @@ singleSubstLift G t =
 
 -- Pushing a substiution into a double substitution
 
-doubleSubstLift : (σ : Subst m n) (G : Term (1+ (1+ n))) (t u : Term n)
+doubleSubstLift : (σ : Subst m n) (G : Term (2+ n)) (t u : Term n)
                 → G [ t , u ] [ σ ]
                 ≡ G [ liftSubstn σ 2 ] [ t [ σ ] , u [ σ ] ]
 doubleSubstLift {n = n} σ G t u = begin
@@ -338,17 +338,17 @@ doubleSubstLift {n = n} σ G t u = begin
   where
   σ₁ =  consSubst (sgSubst t) u
   σ₂ = consSubst (sgSubst (t [ σ ])) (u [ σ ])
-  eq : (x : Fin (1+ (1+ n))) → (σ ₛ•ₛ σ₁) x ≡ (σ₂ ₛ•ₛ (liftSubstn σ 2)) x
+  eq : (x : Fin (2+ n)) → (σ ₛ•ₛ σ₁) x ≡ (σ₂ ₛ•ₛ (liftSubstn σ 2)) x
   eq x0 = refl
   eq (_+1 x0) = refl
-  eq (x +1 +1) = begin
-    (σ ₛ•ₛ σ₁) (x +1 +1)                         ≡⟨⟩
-    σ x                                          ≡˘⟨ subst-id (σ x) ⟩
-    (σ x) [ idSubst ]                            ≡⟨⟩
-    (σ x) [ σ₂ ₛ• (step id • step id) ]          ≡˘⟨ subst-wk (σ x) ⟩
-    wk ((step id) • (step id)) (σ x) [ σ₂ ]      ≡˘⟨ cong (_[ σ₂ ]) (wk-comp (step id) (step id) (σ x)) ⟩
-    wk1 (wk1 (σ x)) [     σ₂ ]                   ≡⟨⟩
-    (σ₂ ₛ•ₛ (liftSubst (liftSubst σ))) (x +1 +1) ∎
+  eq (x +2) = begin
+    (σ ₛ•ₛ σ₁) (x +2)                          ≡⟨⟩
+    σ x                                        ≡˘⟨ subst-id (σ x) ⟩
+    (σ x) [ idSubst ]                          ≡⟨⟩
+    (σ x) [ σ₂ ₛ• (step id • step id) ]        ≡˘⟨ subst-wk (σ x) ⟩
+    wk ((step id) • (step id)) (σ x) [ σ₂ ]    ≡˘⟨ cong (_[ σ₂ ]) (wk-comp (step id) (step id) (σ x)) ⟩
+    wk1 (wk1 (σ x)) [ σ₂ ]                     ≡⟨⟩
+    (σ₂ ₛ•ₛ (liftSubst (liftSubst σ))) (x +2)  ∎
 
 wk1-tail : (t : Term n) → wk1 t [ σ ] ≡ t [ tail σ ]
 wk1-tail {σ = σ} t = begin
@@ -369,7 +369,7 @@ wk1-sgSubst t t' rewrite wk1-tailId t =
         (substVar-to-subst (substVar-sgSubst-tail t') t))
       (subst-id t)
 
-doubleSubstComp : (A : Term (1+ (1+ n))) (t u : Term m) (σ : Subst m n)
+doubleSubstComp : (A : Term (2+ n)) (t u : Term m) (σ : Subst m n)
                 → A [ liftSubstn σ 2 ] [ t , u ]
                 ≡ A [ consSubst (consSubst σ t) u ]
 doubleSubstComp {n = n} A t u σ = begin
@@ -379,13 +379,13 @@ doubleSubstComp {n = n} A t u σ = begin
     ≡⟨ substVar-to-subst varEq A ⟩
   A [ consSubst (consSubst σ t) u ] ∎
   where
-  varEq : (x : Fin (1+ (1+ n)))
+  varEq : (x : Fin (2+ n))
         → (consSubst (consSubst idSubst t) u ₛ•ₛ liftSubstn σ 2) x
         ≡  consSubst (consSubst σ t) u x
   varEq x0 = refl
   varEq (x0 +1) = refl
-  varEq (x +1 +1) = trans (wk1-tail (wk1 (σ x)))
-                          (trans (wk1-tail (σ x)) (subst-id (σ x)))
+  varEq (x +2) = trans (wk1-tail (wk1 (σ x)))
+                       (trans (wk1-tail (σ x)) (subst-id (σ x)))
 
 -- Lifted substitutions kind of commute with lifted single
 -- substitutions.

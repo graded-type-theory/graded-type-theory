@@ -726,9 +726,9 @@ mutual
                                 [σ₊] = ([σ] , [σn]) , [σnatrecₙ]′
                                 [σ₊s] = proj₁ ([s]′ {σ = consSubst (consSubst σ (n [ σ ])) (natrec p q r F z s n [ σ ])} ⊢Δ [σ₊])
                                 [σ₊s]′ = irrelevanceTerm″ (PE.trans (sucCaseSubstEq F) (PE.sym (singleSubstLift F (suc n))))
-                                                          (PE.trans (substVar-to-subst (λ { x0 → PE.refl
+                                                          (PE.trans (substVar-to-subst (λ { x0      → PE.refl
                                                                                           ; (x0 +1) → PE.refl
-                                                                                          ; (x +1 +1) → PE.refl})
+                                                                                          ; (x +2)  → PE.refl})
                                                                                        s)
                                                                     (PE.sym (substCompEq {σ′ = consSubst (sgSubst n) (natrec p q r F z s n)} {σ = σ} s)))
                                                           (proj₁ (unwrap [F₊] ⊢Δ (S.irrelevanceSubst ([Γ] ∙ [ℕ] ∙ [F]′) [Γ]₃ ⊢Δ ⊢Δ [σ₊])))
@@ -749,13 +749,13 @@ mutual
                                                              irrelevanceEqTerm′ (PE.trans (singleSubstLift F n) (singleSubstComp (n [ σ ]) σ F))
                                                                                 (proj₁ (unwrap [Fₙ]′ ⊢Δ [σ])) (proj₁ (unwrap [F]′ ⊢Δ ([σ] , proj₁ ([n] ⊢Δ [σ]))))
                                                                                 [σnr≡σ′nr])
-                                in  irrelevanceEqTerm″ (PE.trans (substVar-to-subst (λ { x0 → PE.refl
+                                in  irrelevanceEqTerm″ (PE.trans (substVar-to-subst (λ { x0      → PE.refl
                                                                                        ; (x0 +1) → PE.refl
-                                                                                       ; (x +1 +1) → PE.refl}) s)
+                                                                                       ; (x +2)  → PE.refl}) s)
                                                                  (PE.sym (substCompEq s)))
-                                                       (PE.trans (substVar-to-subst (λ { x0 → PE.refl
+                                                       (PE.trans (substVar-to-subst (λ { x0      → PE.refl
                                                                                        ; (x0 +1) → PE.refl
-                                                                                       ; (x +1 +1) → PE.refl}) s)
+                                                                                       ; (x +2)  → PE.refl}) s)
                                                                  (PE.sym (substCompEq s)))
                                                        (PE.trans (sucCaseSubstEq F) (PE.sym (singleSubstLift F (suc n))))
                                                        (proj₁ (unwrap [F₊]′ ⊢Δ (([σ] , proj₁ ([n] ⊢Δ [σ]))
@@ -805,9 +805,9 @@ mutual
                           (natrec p q r F z s n [ σ ]) σ)
                        (PE.trans
                           (substVar-to-subst
-                             (λ { x0        → PE.refl
-                                ; (x0 +1)   → PE.refl
-                                ; (x +1 +1) → PE.refl
+                             (λ { x0      → PE.refl
+                                ; (x0 +1) → PE.refl
+                                ; (x +2)  → PE.refl
                                 })
                              s)
                           (PE.sym (substCompEq s))))
@@ -1114,13 +1114,13 @@ mutual
           [σu₊] = proj₁ ([u₊] ⊢Δ [σ])
           [σu₊]′ = irrelevanceTerm″ (singleSubstLift A (prod! t t′))
                                     (PE.sym (PE.trans (doubleSubstComp u (t [ σ ]) (t′ [ σ ]) σ)
-                                                      (PE.trans (substVar-to-subst (λ {x0 → PE.refl; (x0 +1) → PE.refl; (x +1 +1) → PE.refl}) u)
+                                                      (PE.trans (substVar-to-subst (λ {x0 → PE.refl; (x0 +1) → PE.refl; (x +2) → PE.refl}) u)
                                                                 (PE.sym (substCompEq u)))))
                                     [σA[p]] [σA[p]]′ [σu₊]
           _ , [pr≡u₊] = redSubstTerm red [σA[p]]′ [σu₊]′
       in  irrelevanceEqTerm″ PE.refl
                              (PE.trans (doubleSubstComp u (t [ σ ]) (t′ [ σ ]) σ)
-                                       (PE.trans (substVar-to-subst (λ{x0 → PE.refl; (x0 +1) → PE.refl; (x +1 +1) → PE.refl}) u)
+                                       (PE.trans (substVar-to-subst (λ{x0 → PE.refl; (x0 +1) → PE.refl; (x +2) → PE.refl}) u)
                                                  (PE.sym (substCompEq u))))
                              (PE.sym (singleSubstLift A (prod! t t′))) [σA[p]]′ [σA[p]] [pr≡u₊]
   fundamentalTermEq (unitrec-cong {A = A} {A′} {t} {t′} {u} {u′} ⊢A≡A′ ⊢t≡t′ ⊢u≡u′ ok)

@@ -456,5 +456,5 @@ subst↑²STerm {Γ = Γ} {F = F} {G} {A} {t} {t′} {u}
     where
     substEq : (σ : Subst k _) → u [ consSubst (consSubst σ (t [ σ ])) (t′ [ σ ]) ]
                            PE.≡ (u [ consSubst (sgSubst t) t′ ]) [ σ ]
-    substEq σ = PE.trans (substVar-to-subst (λ{x0 → PE.refl; (x0 +1) → PE.refl; (x +1 +1) → PE.refl}) u)
+    substEq σ = PE.trans (substVar-to-subst (λ{x0 → PE.refl; (x0 +1) → PE.refl; (x +2) → PE.refl}) u)
                          (PE.sym (substCompEq u))

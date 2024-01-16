@@ -179,9 +179,9 @@ prodrecωʳ′-𝟘
            erase u T.[ T.consSubst (T.sgSubst T.↯) (erase t T.[ σ′ ]) T.ₛ•ₛ
                        T.liftSubst (T.liftSubst σ′) ]                        ≡⟨ TP.substVar-to-subst
                                                                                 (λ where
-                                                                                  x0        → PE.refl
-                                                                                  (x0 +1)   → PE.refl
-                                                                                  (x +1 +1) → lemma′ x)
+                                                                                  x0      → PE.refl
+                                                                                  (x0 +1) → PE.refl
+                                                                                  (x +2)  → lemma′ x)
                                                                                 (erase u) ⟩
            erase u T.[ T.consSubst (T.consSubst σ′ T.↯) (erase t T.[ σ′ ]) ] ∎
 
@@ -545,4 +545,4 @@ prodrecʳ
     lemma′ : ∀ x → (δ ∙ (r · p) ∙ r) ⟨ x ⟩ PE.≡ 𝟘 → (δ ∙ (𝟙 · r · p) ∙ (𝟙 · r)) ⟨ x ⟩ PE.≡ 𝟘
     lemma′ x0 r≡𝟘 = PE.trans (·-identityˡ r) r≡𝟘
     lemma′ (x0 +1) rp≡𝟘 = PE.trans (·-identityˡ (r · p)) rp≡𝟘
-    lemma′ (x +1 +1) δx≡𝟘 = δx≡𝟘
+    lemma′ (x +2) δx≡𝟘 = δx≡𝟘

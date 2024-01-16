@@ -29,10 +29,10 @@ data Term : Nat → Set where
   prod    : (t u : Term n) → Term n
   fst     : (t : Term n) → Term n
   snd     : (t : Term n) → Term n
-  prodrec : (t : Term n) (u : Term (1+ (1+ n))) → Term n
+  prodrec : (t : Term n) (u : Term (2+ n)) → Term n
   zero    : Term n
   suc     : (t : Term n) → Term n
-  natrec  : (z : Term m) (s : Term (1+ (1+ m))) (n : Term m) → Term m
+  natrec  : (z : Term m) (s : Term (2+ m)) (n : Term m) → Term m
   star    : Term n
   unitrec : (t u : Term n) → Term n
   rfl     : Term n
@@ -51,14 +51,14 @@ data HasX (x : Fin n) : (t : Term n) → Set where
   ∘ₓʳ : HasX x u → HasX x (t ∘ u)
   sucₓ : HasX x t → HasX x (suc t)
   natrecₓᶻ : HasX x z → HasX x (natrec z s t)
-  natrecₓˢ : HasX (x +1 +1) s → HasX x (natrec z s t)
+  natrecₓˢ : HasX (x +2) s → HasX x (natrec z s t)
   natrecₓⁿ : HasX x t → HasX x (natrec z s t)
   prodₓˡ : HasX x t → HasX x (prod t u)
   prodₓʳ : HasX x u → HasX x (prod t u)
   fstₓ : HasX x t → HasX x (fst t)
   sndₓ : HasX x t → HasX x (snd t)
   prodrecₓˡ : HasX x t → HasX x (prodrec t u)
-  prodrecₓʳ : HasX (x +1 +1) u → HasX x (prodrec t u)
+  prodrecₓʳ : HasX (x +2) u → HasX x (prodrec t u)
   unitrecₓˡ : HasX x t → HasX x (unitrec t u)
   unitrecₓʳ : HasX x u → HasX x (unitrec t u)
 
@@ -206,7 +206,7 @@ t [ u ]₀ = t [ sgSubst u ]
 
 -- Substitute the first two variables of a term with other terms.
 
-_[_,_] : (t : Term (1+ (1+ n))) → (u v : Term n) → Term n
+_[_,_] : (t : Term (2+ n)) → (u v : Term n) → Term n
 t [ u , v ] = t [ consSubst (sgSubst u) v ]
 
 

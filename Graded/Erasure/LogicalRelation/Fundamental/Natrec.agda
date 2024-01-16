@@ -70,7 +70,7 @@ private
     Γ : Con Term n
     t z m : Term n
     A : Term (1+ n)
-    s : Term (1+ (1+ n))
+    s : Term (2+ n)
     v w : T.Term n
     p q r : M
     γ δ η χ : Conₘ n
@@ -224,19 +224,19 @@ natrecʳ″
   σnr = natrec p q r (A [ liftSubst σ ]) (z [ σ ])
                (s [ liftSubstn σ 2 ]) m′
   substLem : (x : Fin (1+ n))
-           → (consSubst (consSubst σ m′) σnr ₛ•ₛ consSubst (λ z → var ((z +1) +1)) (suc (var x1))) x
+           → (consSubst (consSubst σ m′) σnr ₛ•ₛ consSubst (λ z → var (z +2)) (suc (var x1))) x
            PE.≡ (sgSubst (suc m′) ₛ•ₛ liftSubst σ) x
   substLem x0 = PE.refl
   substLem (x +1) = PE.sym (PE.trans (wk1-tail (σ x)) (subst-id (σ x)))
 
-  substLem′ : (x : Fin (1+ (1+ n)))
+  substLem′ : (x : Fin (2+ n))
             → consSubst (consSubst σ m′) σnr x
             PE.≡ (consSubst (sgSubst m′) σnr ₛ•ₛ liftSubstn σ 2) x
   substLem′ x0 = PE.refl
   substLem′ (x0 +1) = PE.refl
-  substLem′ (x +1 +1) = PE.sym (PE.trans (wk1-tail (wk1 (σ x)))
+  substLem′ (x +2) = PE.sym (PE.trans (wk1-tail (wk1 (σ x)))
                                          (PE.trans (wk1-tail (σ x)) (subst-id (σ x))))
-  substLem″ : (x : Fin (1+ (1+ n)))
+  substLem″ : (x : Fin (2+ n))
             → T.consSubst (T.consSubst σ′ w′) (T.natrec (erase z T.[ σ′ ])
                           (erase s T.[ T.liftSubstn σ′ 2 ]) w′) x
             PE.≡ (T.consSubst (T.consSubst T.idSubst w′)
@@ -245,7 +245,7 @@ natrecʳ″
                  T.ₛ•ₛ T.liftSubst (T.liftSubst σ′)) x
   substLem″ x0 = PE.refl
   substLem″ (x0 +1) = PE.refl
-  substLem″ (x +1 +1) = PE.sym (PE.trans (TP.wk1-tail (T.wk1 (σ′ x)))
+  substLem″ (x +2) = PE.sym (PE.trans (TP.wk1-tail (T.wk1 (σ′ x)))
                                          (PE.trans (TP.wk1-tail (σ′ x)) (TP.subst-id (σ′ x))))
 
 

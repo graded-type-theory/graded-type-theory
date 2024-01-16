@@ -36,7 +36,7 @@ private
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat using (Nat; 1+)
+open import Tools.Nat using (Nat; 1+; 2+)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PartialOrder
@@ -292,7 +292,7 @@ private
 
   -- Parts of the implementation of Vec.
 
-  Vec-body₂ : Term (1+ (1+ n))
+  Vec-body₂ : Term (2+ n)
   Vec-body₂ =
     natrec 𝟘 𝟘 ω
       U

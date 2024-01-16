@@ -1288,7 +1288,7 @@ Conₘ-interchange
        r ·ᶜ γ +ᶜ δ , x ≔ (r ·ᶜ γ′ +ᶜ δ′) ⟨ x ⟩            ∎)
     (prodrecₘ
        (Conₘ-interchange γ▸t γ▸t₁ x)
-       (Conₘ-interchange δ▸t δ▸t₁ (x +1 +1))
+       (Conₘ-interchange δ▸t δ▸t₁ (x +2))
        η▸A
        ok)
   where
@@ -1310,7 +1310,7 @@ Conₘ-interchange
   flip (subst (_▸[ _ ] _))
     (natrecₘ
        (Conₘ-interchange γ▸z γ′▸z x)
-       (Conₘ-interchange δ▸s δ′▸s (x +1 +1))
+       (Conₘ-interchange δ▸s δ′▸s (x +2))
        (Conₘ-interchange η▸n η′▸n x)
        θ▸A)
     (nrᶜ p r (γ , x ≔ γ′ ⟨ x ⟩) (δ , x ≔ δ′ ⟨ x ⟩) (η , x ≔ η′ ⟨ x ⟩)  ≡⟨ ≈ᶜ→≡ nrᶜ-,≔ ⟩
@@ -1328,7 +1328,7 @@ Conₘ-interchange
   x =
   natrec-no-nrₘ ⦃ no-nr = ¬nr ⦄
     (Conₘ-interchange γ▸z γ′▸z x)
-    (Conₘ-interchange δ▸s δ′▸s (x +1 +1))
+    (Conₘ-interchange δ▸s δ′▸s (x +2))
     (Conₘ-interchange η▸n η′▸n x)
     θ▸A
     (begin
@@ -1478,7 +1478,7 @@ Conₘ-interchange
        x ≔ (ω ·ᶜ (δ₂ ∧ᶜ δ₃ ∧ᶜ δ₄ ∧ᶜ δ₅ ∧ᶜ δ₆)) ⟨ x ⟩   ∎)
     (Jₘ ok ▸A
        (Conₘ-interchange ▸t₁ ▸t₂ x)
-       (Conₘ-interchange ▸F₁ ▸F₂ (x +1 +1))
+       (Conₘ-interchange ▸F₁ ▸F₂ (x +2))
        (Conₘ-interchange ▸u₁ ▸u₂ x)
        (Conₘ-interchange ▸v₁ ▸v₂ x)
        (Conₘ-interchange ▸w₁ ▸w₂ x))

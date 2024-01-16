@@ -1558,9 +1558,9 @@ substₘ-lemma
        (sub (substₘ-lemma (liftSubstₘ (liftSubstₘ Ψ))
                (▶-cong (liftSubstₘ (liftSubstₘ Ψ))
                   (λ where
-                     x0          → PE.refl
-                     (x0 +1)     → PE.refl
-                     ((_ +1) +1) → PE.refl)
+                     x0      → PE.refl
+                     (x0 +1) → PE.refl
+                     (_ +2)  → PE.refl)
                   (wf-liftSubstₘ
                      (wf-liftSubstₘ (▶-⌞+ᶜ⌟ʳ Ψ (_ ·ᶜ γ) Ψ▶σ))))
                δ▸u)
@@ -1589,9 +1589,9 @@ substₘ-lemma
        (substₘ-lemma (liftSubstₘ (liftSubstₘ Ψ))
           (▶-cong (liftSubstₘ (liftSubstₘ Ψ))
              (λ where
-                x0          → PE.refl
-                (x0 +1)     → PE.refl
-                ((_ +1) +1) → PE.refl)
+                x0      → PE.refl
+                (x0 +1) → PE.refl
+                (_ +2)  → PE.refl)
              (wf-liftSubstₘ
                 (wf-liftSubstₘ (▶-⌞nrᶜ⌟₂ Ψ γ Ψ▶σ))))
           δ▸s)
@@ -1615,9 +1615,9 @@ substₘ-lemma
            (substₘ-lemma (liftSubstₘ (liftSubstₘ Ψ))
               (▶-cong (liftSubstₘ (liftSubstₘ Ψ))
                  (λ where
-                    x0        → PE.refl
-                    (x0 +1)   → PE.refl
-                    (_ +1 +1) → PE.refl)
+                    x0      → PE.refl
+                    (x0 +1) → PE.refl
+                    (_ +2)  → PE.refl)
                  (wf-liftSubstₘ $ wf-liftSubstₘ $
                   ▶-≤ Ψ (χ≤δ ok) Ψ▶σ))
               δ▸s)
@@ -1710,9 +1710,9 @@ substₘ-lemma Ψ Ψ▶σ (Jₘ {γ₂} {γ₃} {γ₄} {γ₅} ok ▸A ▸t ▸
        (substₘ-lemma (liftSubstₘ (liftSubstₘ Ψ))
           (▶-cong (liftSubstₘ (liftSubstₘ Ψ))
              (λ where
-                x0          → PE.refl
-                (x0 +1)     → PE.refl
-                ((_ +1) +1) → PE.refl)
+                x0      → PE.refl
+                (x0 +1) → PE.refl
+                (_ +2)  → PE.refl)
              (wf-liftSubstₘ (wf-liftSubstₘ (▶-⌞∧ᶜ⌟ˡ Ψ γ₃ Ψ▶σ″))))
           ▸B)
        (*>∙∙≤liftSubst-listSubst*>∙∙ {δ = γ₃} _))
@@ -1846,9 +1846,9 @@ doubleSubstₘ-lemma₁
   (substₘ-lemma (consSubstₘ (sgSubstₘ _) _)
      (▶-cong (consSubstₘ (sgSubstₘ _) _)
         (λ where
-           x0          → PE.sym (⌞⌜⌝·⌟ mo)
-           (x0 +1)     → PE.sym (⌞⌜⌝·⌟ mo)
-           ((_ +1) +1) → PE.refl)
+           x0      → PE.sym (⌞⌜⌝·⌟ mo)
+           (x0 +1) → PE.sym (⌞⌜⌝·⌟ mo)
+           (_ +2)  → PE.refl)
         (wf-consSubstₘ (wf-sgSubstₘ (▸-·′ η▸u′)) (▸-·′ δ▸u)))
      γ▸t)
   (begin
