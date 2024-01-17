@@ -23,7 +23,7 @@ open Setoid S
 ≈-preorder = record
   { Carrier = Carrier
   ; _≈_ = _≈_
-  ; _∼_ = _≈_
+  ; _≲_ = _≈_
   ; isPreorder = ≈-isPreorder
   }
 

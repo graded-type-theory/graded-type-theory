@@ -9,11 +9,10 @@ open import Data.Bool.Base
   public
 open import Data.Bool.Properties
   using (∨-comm; ∨-assoc; ∨-identityʳ;
-         ∧-comm; ∧-assoc;
-         ∧-distribʳ-∨; ∨-∧-absorptive)
+         ∧-comm; ∧-assoc; ∨-∧-absorptive;
+         ∧-distribʳ-∨; ∧-distribˡ-∨; ∨-distribʳ-∧; ∨-distribˡ-∧)
   public
-import Function.Equality as Equa
-import Function.Equivalence as Equi
+import Function.Bundles as Fun
 
 open import Tools.Empty
 open import Tools.Function
@@ -48,15 +47,15 @@ T⇔T {x = true}  {y = true}  = (λ _ → refl) , (λ _ → id⇔)
 
 T-∧ : T (x ∧ y) ⇔ (T x × T y)
 T-∧ =
-    Data.Bool.Properties.T-∧ .Equi.Equivalence.to   .Equa._⟨$⟩_
-  , Data.Bool.Properties.T-∧ .Equi.Equivalence.from .Equa._⟨$⟩_
+    Data.Bool.Properties.T-∧ .Fun.Equivalence.to
+  , Data.Bool.Properties.T-∧ .Fun.Equivalence.from
 
 -- T (x ∨ y) is logically equivalent to T x ⊎ T y.
 
 T-∨ : T (x ∨ y) ⇔ (T x ⊎ T y)
 T-∨ =
-    Data.Bool.Properties.T-∨ .Equi.Equivalence.to   .Equa._⟨$⟩_
-  , Data.Bool.Properties.T-∨ .Equi.Equivalence.from .Equa._⟨$⟩_
+    Data.Bool.Properties.T-∨ .Fun.Equivalence.to
+  , Data.Bool.Properties.T-∨ .Fun.Equivalence.from
 
 -- The statement ¬ T b is logically equivalent to b ≡ false.
 

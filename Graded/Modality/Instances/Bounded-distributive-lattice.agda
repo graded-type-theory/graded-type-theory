@@ -73,10 +73,9 @@ semiring-with-meet bl = record
           }
         ; comm = ∧-comm
         }
-      ; *-isMonoid = record
-        { isSemigroup = ∨-isSemigroup
-        ; identity    = ∨-identityˡ , comm+idˡ⇒idʳ ∨-comm ∨-identityˡ
-        }
+      ; *-cong = cong₂ _∨_
+      ; *-assoc = ∨-assoc
+      ; *-identity = ∨-identityˡ , comm+idˡ⇒idʳ ∨-comm ∨-identityˡ
       ; distrib = ∨-distrib-∧
       }
     ; zero = ∨-zeroˡ , comm+zeˡ⇒zeʳ ∨-comm ∨-zeroˡ

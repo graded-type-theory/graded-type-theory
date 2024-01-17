@@ -311,7 +311,7 @@ p ≤ q = p ≡ p ∧ q
 
 -- Addition forms a semilattice
 
-+-Semilattice : IsSemilattice _+_
++-Semilattice : IsMeetSemilattice _+_
 +-Semilattice = record
   { isBand = +-Band
   ; comm   = +-Commutative
@@ -352,7 +352,9 @@ p ≤ q = p ≡ p ∧ q
 +-·-SemiringWithoutAnnihilatingZero : IsSemiringWithoutAnnihilatingZero _+_ _·_ 𝟘 ω
 +-·-SemiringWithoutAnnihilatingZero = record
   { +-isCommutativeMonoid = +-CommutativeMonoid
-  ; *-isMonoid = ·-Monoid
+  ; *-cong = cong₂ _·_
+  ; *-assoc = ·-Associative
+  ; *-identity = ·-Identity
   ; distrib = ·-distrib-+
   }
 

@@ -36,7 +36,7 @@ record Semiring-with-meet : Set a where
     -- + and · form a semiring with 𝟙 as multiplicative unit and 𝟘 as zero
     +-·-Semiring  : IsSemiring _+_ _·_ 𝟘 𝟙
     -- ∧ forms a semilattice
-    ∧-Semilattice       : IsSemilattice _∧_
+    ∧-Semilattice       : IsMeetSemilattice _∧_
 
     -- Multiplation distributes over meet
     ·-distrib-∧         : _·_ DistributesOver _∧_
@@ -116,7 +116,7 @@ record Semiring-with-meet : Set a where
               zeroʳ to ·-zeroʳ
              )
 
-  open IsSemilattice ∧-Semilattice public
+  open IsMeetSemilattice ∧-Semilattice public
     using (∧-cong; ∧-congˡ; ∧-congʳ)
     renaming (comm to ∧-comm;
               idem to ∧-idem;

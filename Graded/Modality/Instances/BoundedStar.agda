@@ -58,7 +58,7 @@ p ⊛ q ▷ r = (r *) · (p ∧ q)
 ⊛-ineq₂ : (p q r : M) → p ⊛ q ▷ r ≤ p
 ⊛-ineq₂ p q r with bounds r
 ... | inj₁ r*≤𝟘 = begin
-  p ⊛ q ▷ r ≈⟨⟩
+  p ⊛ q ▷ r               ≡⟨⟩
   (r *) · (p ∧ q)         ≤⟨ ·-monotoneʳ (∧-decreasingˡ p q) ⟩
   (r *) · p               ≈⟨ ·-congʳ (*-rec r) ⟩
   (𝟙 + r · (r *)) · p     ≈⟨ ·-distribʳ-+ p 𝟙 _ ⟩

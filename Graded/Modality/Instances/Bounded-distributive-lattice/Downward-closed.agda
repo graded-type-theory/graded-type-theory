@@ -196,10 +196,22 @@ module _ (fe : Function-extensionality lzero lzero) where
                              ∨-∧-absorptive .proj₁
                                (xs .proj₁ n) (ys .proj₁ n))
         }
-      ; ∨-distribʳ-∧ = λ xs ys zs →
+      ; ∨-distrib-∧ = (λ xs ys zs →
+                         predicates-equal→sets-equal $ ext fe λ n →
+                         ∧-distribˡ-∨ (xs .proj₁ n) (ys .proj₁ n)
+                           (zs .proj₁ n))
+                    , (λ xs ys zs →
                          predicates-equal→sets-equal $ ext fe λ n →
                          ∧-distribʳ-∨ (xs .proj₁ n) (ys .proj₁ n)
-                           (zs .proj₁ n)
+                           (zs .proj₁ n))
+      ; ∧-distrib-∨ = (λ xs ys zs →
+                        predicates-equal→sets-equal $ ext fe (λ n →
+                        ∨-distribˡ-∧ (xs .proj₁ n) (ys .proj₁ n)
+                          (zs .proj₁ n)))
+                    , (λ xs ys zs →
+                        predicates-equal→sets-equal $ ext fe (λ n →
+                        ∨-distribʳ-∧ (xs .proj₁ n) (ys .proj₁ n)
+                          (zs .proj₁ n)))
       }
     ; ⊥≤ = λ _ →
              predicates-equal→sets-equal $ ext fe λ _ →

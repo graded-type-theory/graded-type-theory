@@ -10,7 +10,7 @@ open import Tools.Product
 open import Tools.PropositionalEquality
 
 open import Algebra.Consequences.Propositional public
-  using (comm+idˡ⇒idʳ; comm+zeˡ⇒zeʳ; comm+distrˡ⇒distrʳ)
+  using (comm+idˡ⇒idʳ; comm+zeˡ⇒zeʳ; comm+distrˡ⇒distrʳ; comm+distrʳ⇒distrˡ)
 open import Algebra.Core using (Op₁; Op₂) public
 open import Algebra.Definitions (_≡_ {A = A})
      using (Associative; Commutative; Congruent₂;
@@ -22,14 +22,16 @@ open import Algebra.Definitions (_≡_ {A = A})
      public
 open import Algebra.Structures (_≡_ {A = A})
      using (IsBand; IsCommutativeMonoid; IsMagma; IsMonoid;
-            IsSemigroup; IsSemilattice; IsSemiring;
-            IsSemiringWithoutAnnihilatingZero; IsCommutativeSemiring;
-            IsDistributiveLattice)
+            IsSemigroup; IsSemiring;
+            IsSemiringWithoutAnnihilatingZero; IsCommutativeSemiring)
+     public
+open import Algebra.Lattice.Structures (_≡_ {A = A})
+     using (IsMeetSemilattice; IsDistributiveLattice)
      public
 open import Algebra.Bundles using (Semiring) public
 open import Algebra.Module.Structures
      using (IsLeftSemimodule; IsPreleftSemimodule) public
-import Algebra.Properties.DistributiveLattice
+import Algebra.Lattice.Properties.DistributiveLattice
 
 Op₃ : ∀ {ℓ} → Set ℓ → Set ℓ
 Op₃ A = A → A → A → A
@@ -59,6 +61,6 @@ module DistributiveLattice
   (dl : IsDistributiveLattice _∨_ _∧_)
   where
 
-  open Algebra.Properties.DistributiveLattice
+  open Algebra.Lattice.Properties.DistributiveLattice
     (record { isDistributiveLattice = dl })
     public

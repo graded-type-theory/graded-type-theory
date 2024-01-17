@@ -313,7 +313,7 @@ private
     where
     open N.≤-Reasoning
   ≤if-∞·if-∞ {l = ∞} {m = ∞} {n = n@(1+ _)} {n₁ = n₁} {n₂ = n₂} _ = begin
-    n                          ≤⟨ N.m≤m*n _ N.0<1+n ⟩
+    n                          ≤⟨ N.m≤m*n n n ⟩
     n N.* n                    ≤⟨ N.*-mono-≤ (N.m≤m⊔n _ n₁) (N.m≤m⊔n _ n₂) ⟩
     (n N.⊔ n₁) N.* (n N.⊔ n₂)  ∎
     where
@@ -326,7 +326,7 @@ private
     where
     open N.≤-Reasoning
   ≤if-∞·if-∞ {l = ∞} {m = ⌞ m@(1+ _) ⌟} {n = n} {n₁ = n₁} _ = begin
-    n                 ≤⟨ N.m≤m*n _ N.0<1+n ⟩
+    n                 ≤⟨ N.m≤m*n n m ⟩
     n N.* m           ≤⟨ N.*-mono-≤ (N.m≤m⊔n n _) N.≤-refl ⟩
     (n N.⊔ n₁) N.* m  ∎
     where
@@ -337,7 +337,7 @@ private
     where
     open N.≤-Reasoning
   ≤if-∞·if-∞ {l = ⌞ l@(1+ _) ⌟} {m = ∞} {n = n} {n₂ = n₂} _ = begin
-    n                 ≤⟨ N.m≤n*m n {n = l} N.0<1+n ⟩
+    n                 ≤⟨ N.m≤n*m n l ⟩
     l N.* n           ≤⟨ N.*-mono-≤ (N.≤-refl {x = l}) (N.m≤m⊔n _ _) ⟩
     l N.* (n N.⊔ n₂)  ∎
     where

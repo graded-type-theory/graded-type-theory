@@ -163,22 +163,15 @@ _≟_ = λ where
           }
         ; comm = +-comm
         }
-      ; *-isMonoid = record
-        { isSemigroup = record
-          { isMagma = record
-            { isEquivalence = PE.isEquivalence
-            ; ∙-cong        = cong₂ _·_
-            }
-          ; assoc = ·-assoc
-          }
-        ; identity =
+      ; *-cong = cong₂ _·_
+      ; *-assoc = ·-assoc
+      ; *-identity =
               (λ where
                  𝟘 → refl
                  𝟙 → refl)
             , (λ where
                  𝟘 → refl
                  𝟙 → refl)
-        }
       ; distrib = ·-distrib-+
       }
     ; zero =

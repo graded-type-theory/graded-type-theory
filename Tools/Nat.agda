@@ -11,7 +11,7 @@ open import Agda.Builtin.Nat using (zero; suc)
 import Data.Fin as F
 import Data.Fin.Properties as FP
 open import Data.Nat.Base
-open Data.Nat.Base using (_≤_; _<_; _⊔_; _⊓_) public
+open Data.Nat.Base using (_≤_; _<_; _⊔_; _⊓_; >-nonZero; nonZero) public
 open _≤_ public
 open import Data.Nat.DivMod
 open Data.Nat.DivMod using (_/_; m/n*n≤m) public
@@ -24,7 +24,8 @@ open Data.Nat.Properties
          m*n≡0⇒m≡0∨n≡0;
          ⊔-identityʳ; ⊔-assoc; ⊔-comm; ⊔-idem; m≥n⇒m⊔n≡m; m⊔n≡m⇒n≤m;
          ⊓-assoc; ⊓-comm;
-         +-distribˡ-⊔; *-distribˡ-+; *-distribˡ-⊔; ⊓-distribʳ-⊔;
+         +-distribˡ-⊔; *-distribˡ-+; *-distribˡ-⊔;
+         ⊓-distribʳ-⊔; ⊔-distribʳ-⊓;
          ⊔-absorbs-⊓; ⊓-absorbs-⊔;
          ≤-refl; ≤-reflexive; ≤-trans; ≤-antisym; module ≤-Reasoning;
          n≮n;
@@ -159,7 +160,7 @@ private
                                                 trans (sym (+-assoc k (1+ m) _)) $
                                                 trans (cong (_+ 1+ m * o) (+-comm k _)) $
                                                 +-assoc (1+ m) _ _ ⟩→
-    1+ m + 1+ m * n ≤ 1+ m + (k + 1+ m * o)  →⟨ +-cancelˡ-≤ (1+ m) ⟩
+    1+ m + 1+ m * n ≤ 1+ m + (k + 1+ m * o)  →⟨ +-cancelˡ-≤ (1+ m) (n + m * n) (k + (o + m * o)) ⟩
     1+ m * n ≤ k + 1+ m * o                  →⟨ 1+*≤+1+*→1+*≤1+* k≤m ⟩
     1+ m * n ≤ 1+ m * o                      →⟨ +-mono-≤ (≤-refl {x = 1+ m}) ⟩
     1+ m + 1+ m * n ≤ 1+ m + 1+ m * o        ≡⟨ sym $ cong₂ _≤_ (*-suc (1+ m) _) (*-suc (1+ m) _) ⟩→
@@ -176,7 +177,7 @@ private
   helper (record { quotient = q; remainder = r; property = refl }) =
     1+ m * n ≤ F.toℕ r + q * 1+ m  ≡⟨ cong (λ o → 1+ m * n ≤ F.toℕ r + o) (*-comm q _) ⟩→
     1+ m * n ≤ F.toℕ r + 1+ m * q  →⟨ 1+*≤+1+*→1+*≤1+* (FP.toℕ≤pred[n] r) ⟩
-    1+ m * n ≤ 1+ m * q            →⟨ *-cancelˡ-≤ m ⟩
+    1+ m * n ≤ 1+ m * q            →⟨ *-cancelˡ-≤ (1+ m) ⟩
     n ≤ q                          □
 
 -- T (m == n) is logically equivalent to m ≡ n.
@@ -254,7 +255,7 @@ T-== = ≡ᵇ⇒≡ _ _ , ≡⇒≡ᵇ _ _
              T (p 0)  →⟨ subst T (sym eq) ⟩
              ⊥        □
            (1+ m) 1+m<1+n →
-             T (p (1+ m))  →⟨ least m (+-cancelˡ-< 1 1+m<1+n) ⟩
+             T (p (1+ m))  →⟨ least m (+-cancelˡ-< 1 m n 1+m<1+n) ⟩
              ⊥             □) }
 
 -- Is-proposition is closed under ∃-least (assuming function

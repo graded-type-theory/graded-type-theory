@@ -253,18 +253,11 @@ linear-or-affine-semiring-with-meet  = record
           }
         ; comm = +-comm
         }
-      ; *-isMonoid = record
-        { isSemigroup = record
-          { isMagma = record
-            { isEquivalence = PE.isEquivalence
-            ; ∙-cong        = cong₂ _·_
-            }
-          ; assoc = ·-assoc
-          }
-        ; identity =
+      ; *-cong = cong₂ _·_
+      ; *-assoc = ·-assoc
+      ; *-identity =
               ·-identityˡ
             , comm+idˡ⇒idʳ ·-comm ·-identityˡ
-        }
       ; distrib =
             ·-distribˡ-+
           , comm+distrˡ⇒distrʳ ·-comm ·-distribˡ-+

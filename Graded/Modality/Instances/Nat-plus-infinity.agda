@@ -260,24 +260,17 @@ _≟_ = λ where
           }
         ; comm = +-comm
         }
-      ; *-isMonoid = record
-        { isSemigroup = record
-          { isMagma = record
-            { isEquivalence = PE.isEquivalence
-            ; ∙-cong        = cong₂ _·_
-            }
-          ; assoc = ·-assoc
-          }
-        ; identity =
-              (λ where
-                 ⌞ 0 ⌟    → refl
-                 ⌞ 1+ _ ⌟ → cong ⌞_⌟ (N.+-identityʳ _)
-                 ∞        → refl)
-            , (λ where
-                 ⌞ 0 ⌟    → refl
-                 ⌞ 1+ _ ⌟ → cong (⌞_⌟ ∘→ 1+) (N.*-identityʳ _)
-                 ∞        → refl)
-        }
+      ; *-cong = cong₂ _·_
+      ; *-assoc = ·-assoc
+      ; *-identity =
+            (λ where
+               ⌞ 0 ⌟    → refl
+               ⌞ 1+ _ ⌟ → cong ⌞_⌟ (N.+-identityʳ _)
+               ∞        → refl)
+          , (λ where
+               ⌞ 0 ⌟    → refl
+               ⌞ 1+ _ ⌟ → cong (⌞_⌟ ∘→ 1+) (N.*-identityʳ _)
+               ∞        → refl)
       ; distrib = ·-distrib-+
       }
     ; zero =

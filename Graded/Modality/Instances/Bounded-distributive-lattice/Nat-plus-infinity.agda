@@ -184,7 +184,13 @@ bounded-distributive-lattice = record
         ; ∧-cong        = cong₂ _∪_
         ; absorptive    = absorptive
         }
-      ; ∨-distribʳ-∧ = ∩-distribʳ-∪
+      -- ; ∨-distribʳ-∧ = ∩-distribʳ-∪
+      ; ∨-distrib-∧ =
+            comm+distrʳ⇒distrˡ ∩-comm ∩-distribʳ-∪
+          , ∩-distribʳ-∪
+      ; ∧-distrib-∨ =
+            comm+distrʳ⇒distrˡ R.∧-comm ∪-distribʳ-∩
+          , ∪-distribʳ-∩
       }
   }
   where
@@ -233,6 +239,17 @@ bounded-distributive-lattice = record
       m N.⊔ (m N.⊓ n)  ≡⟨ cong (_ N.⊔_) (N.⊓-comm m _) ⟩
       m N.⊔ (n N.⊓ m)  ∎)
     ⌞ _ ⌟ ∞     ∞     → cong ⌞_⌟ (sym (N.⊔-idem _))
+    ∞     ⌞ _ ⌟ ⌞ _ ⌟ → refl
+    ∞     ⌞ _ ⌟ ∞     → refl
+    ∞     ∞     ⌞ _ ⌟ → refl
+    ∞     ∞     ∞     → refl
+
+  ∪-distribʳ-∩ : _∪_ DistributesOverʳ _∩_
+  ∪-distribʳ-∩ = λ where
+    ⌞ _ ⌟ ⌞ _ ⌟ ⌞ o ⌟ → cong ⌞_⌟ (N.⊔-distribʳ-⊓ _ _ o)
+    ⌞ m ⌟ ⌞ n ⌟ ∞     → refl
+    ⌞ m ⌟ ∞ ⌞ n ⌟     → refl
+    ⌞ _ ⌟ ∞     ∞     → refl
     ∞     ⌞ _ ⌟ ⌞ _ ⌟ → refl
     ∞     ⌞ _ ⌟ ∞     → refl
     ∞     ∞     ⌞ _ ⌟ → refl

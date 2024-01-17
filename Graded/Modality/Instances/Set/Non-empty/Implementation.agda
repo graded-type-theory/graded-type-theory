@@ -438,12 +438,12 @@ private module Multiplication (xs ys : Set-ℕ) where
                                                        , (λ (m₁ , m₂ , m₁m₂≡n , m₁∈xs , m₂∈ys) →
                                                               m₁
                                                             , (begin
-                                                                 m₁         ≤⟨ ℕ.m≤m*n _ (ℕ.*≡1+→0< {m = m₁} m₁m₂≡n .proj₂) ⟩
+                                                                 m₁         ≤⟨ ℕ.m≤m*n m₁ m₂ ⦃ ℕ.>-nonZero (ℕ.*≡1+→0< {m = m₁} m₁m₂≡n .proj₂) ⦄ ⟩
                                                                  m₁ ℕ.* m₂  ≡⟨ m₁m₂≡n ⟩
                                                                  n          ∎)
                                                             , m₂
                                                             , (begin
-                                                                 m₂         ≤⟨ ℕ.m≤n*m _ (ℕ.*≡1+→0< {m = m₁} m₁m₂≡n .proj₁) ⟩
+                                                                 m₂         ≤⟨ ℕ.m≤n*m m₂ m₁ ⦃ ℕ.>-nonZero (ℕ.*≡1+→0< {m = m₁} m₁m₂≡n .proj₁) ⦄ ⟩
                                                                  m₁ ℕ.* m₂  ≡⟨ m₁m₂≡n ⟩
                                                                  n          ∎)
                                                             , m₁m₂≡n

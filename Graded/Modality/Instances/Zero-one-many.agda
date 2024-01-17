@@ -450,13 +450,8 @@ zero-one-many-semiring-with-meet = record
           }
         ; comm = +-comm
         }
-      ; *-isMonoid = record
-        { isSemigroup = record
-          { isMagma = record
-            { isEquivalence = PE.isEquivalence
-            ; ∙-cong        = cong₂ _·_
-            }
-          ; assoc = λ where
+        ; *-cong = cong₂ _·_
+        ; *-assoc = λ where
               𝟘 _ _ → refl
               𝟙 𝟘 _ → refl
               𝟙 𝟙 𝟘 → refl
@@ -472,11 +467,9 @@ zero-one-many-semiring-with-meet = record
               ω ω 𝟘 → refl
               ω ω 𝟙 → refl
               ω ω ω → refl
-          }
-        ; identity =
-              ·-identityˡ
-            , comm+idˡ⇒idʳ ·-comm ·-identityˡ
-        }
+        ; *-identity =
+                ·-identityˡ
+              , comm+idˡ⇒idʳ ·-comm ·-identityˡ
       ; distrib =
             ·-distrib-+ˡ
           , comm+distrˡ⇒distrʳ ·-comm ·-distrib-+ˡ

@@ -311,7 +311,7 @@ record Is-non-empty-interval (S : Set a) : Set (lsuc (lsuc a)) where
 
     -- The union operator forms a semilattice.
 
-    ∪-semilattice : IsSemilattice _∪_
+    ∪-semilattice : IsMeetSemilattice _∪_
     ∪-semilattice = record
       { isBand = record
         { isSemigroup = record
@@ -351,7 +351,7 @@ record Is-non-empty-interval (S : Set a) : Set (lsuc (lsuc a)) where
         Closure (λ n → n ∈ ys ⊎ n ∈ xs) n  ⇔˘⟨ ∈∪⇔ ⟩
         n ∈ ys ∪ xs                        □⇔
 
-    open IsSemilattice ∪-semilattice
+    open IsMeetSemilattice ∪-semilattice
       using () renaming (comm to ∪-comm)
 
     -- Union is positive.
@@ -974,11 +974,12 @@ record Is-non-empty-interval (S : Set a) : Set (lsuc (lsuc a)) where
       .Semiring-with-meet.∧-Semilattice → ∪-semilattice
       .Semiring-with-meet.+-·-Semiring  → record
         { isSemiringWithoutAnnihilatingZero = record
-          { +-isCommutativeMonoid = +-𝟘-commutative-monoid
-          ; *-isMonoid            = IsCommutativeMonoid.isMonoid
-                                      ·-𝟙-commutative-monoid
-          ; distrib               = ·-distrib-+
-          }
+           { +-isCommutativeMonoid = +-𝟘-commutative-monoid
+           ; *-cong = cong₂ _·_
+           ; *-assoc = ·-𝟙-commutative-monoid .IsCommutativeMonoid.isMonoid .IsMonoid.assoc
+           ; *-identity = ·-𝟙-commutative-monoid .IsCommutativeMonoid.isMonoid .IsMonoid.identity
+           ; distrib = ·-distrib-+
+           }
         ; zero = ·-zero
         }
       .Semiring-with-meet.+-distrib-∧   → +-distrib-∪

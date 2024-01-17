@@ -30,6 +30,8 @@ data ⊤⊎ℕ⊎ℕ : Set where
   ⊥          : ⊤⊎ℕ⊎ℕ
   left right : Nat → ⊤⊎ℕ⊎ℕ
 
+open import Tools.Algebra ⊤⊎ℕ⊎ℕ
+
 -- One can turn ⊤⊎ℕ⊎ℕ into a bounded distributive lattice with the
 -- following ordering:
 --
@@ -50,16 +52,7 @@ bounded-distributive-lattice = record
   ; is-distributive-lattice = record
     { isLattice = record
       { isEquivalence = PE.isEquivalence
-      ; ∨-comm        = λ where
-          ⊥         ⊥         → refl
-          ⊥         (left  _) → refl
-          ⊥         (right _) → refl
-          (left  _) ⊥         → refl
-          (left  _) (left  _) → cong left  (N.⊓-comm _ _)
-          (left  _) (right _) → cong right (N.⊓-comm _ _)
-          (right _) ⊥         → refl
-          (right _) (left  _) → cong right (N.⊓-comm _ _)
-          (right _) (right _) → cong right (N.⊓-comm _ _)
+      ; ∨-comm        = ∨-comm
       ; ∨-assoc = λ where
           ⊥         _         _         → refl
           (left  _) ⊥         _         → refl
@@ -77,16 +70,7 @@ bounded-distributive-lattice = record
           (right _) (right _) (left  _) → cong right (N.⊓-assoc _ _ _)
           (right _) (right _) (right _) → cong right (N.⊓-assoc _ _ _)
       ; ∨-cong = PE.cong₂ _∨_
-      ; ∧-comm = λ where
-          ⊥         ⊥         → refl
-          ⊥         (left  _) → refl
-          ⊥         (right _) → refl
-          (left  _) ⊥         → refl
-          (left  m) (left  _) → cong left  (N.⊔-comm m _)
-          (left  m) (right _) → cong left  (N.⊔-comm m _)
-          (right _) ⊥         → refl
-          (right m) (left  _) → cong left  (N.⊔-comm m _)
-          (right m) (right _) → cong right (N.⊔-comm m _)
+      ; ∧-comm = ∧-comm
       ; ∧-assoc = λ where
           ⊥         _         _         → refl
           (left  _) ⊥         _         → refl
@@ -122,34 +106,13 @@ bounded-distributive-lattice = record
                (right _) ⊥         → cong right (N.⊔-idem _)
                ⊥         _         → refl)
       }
-    ; ∨-distribʳ-∧ = λ where
-        (left  _) (left  n) (left  _) → cong left  (N.⊓-distribʳ-⊔ _ n _)
-        (right _) (left  n) (left  _) → cong right (N.⊓-distribʳ-⊔ _ n _)
-        ⊥         (left  _) (left  _) → refl
-        (left  _) (left  n) (right _) → cong left  (N.⊓-distribʳ-⊔ _ n _)
-        (right _) (left  n) (right _) → cong right (N.⊓-distribʳ-⊔ _ n _)
-        ⊥         (left  _) (right _) → refl
-        (left  _) (left  _) ⊥         → cong left  lemma₂
-        (right _) (left  _) ⊥         → cong right lemma₂
-        ⊥         (left  _) ⊥         → refl
-        (left  _) (right n) (left  _) → cong left  (N.⊓-distribʳ-⊔ _ n _)
-        (right _) (right n) (left  _) → cong right (N.⊓-distribʳ-⊔ _ n _)
-        ⊥         (right _) (left  _) → refl
-        (left  _) (right n) (right _) → cong right (N.⊓-distribʳ-⊔ _ n _)
-        (right _) (right n) (right _) → cong right (N.⊓-distribʳ-⊔ _ n _)
-        ⊥         (right _) (right _) → refl
-        (left  _) (right _) ⊥         → cong left  lemma₂
-        (right _) (right _) ⊥         → cong right lemma₂
-        ⊥         (right _) ⊥         → refl
-        (left  _) ⊥         (left  _) → cong left  lemma₁
-        (right _) ⊥         (left  _) → cong right lemma₁
-        ⊥         ⊥         (left  _) → refl
-        (left  _) ⊥         (right _) → cong left  lemma₁
-        (right _) ⊥         (right _) → cong right lemma₁
-        ⊥         ⊥         (right _) → refl
-        (left  _) ⊥         ⊥         → cong left  (sym (N.⊔-idem _))
-        (right _) ⊥         ⊥         → cong right (sym (N.⊔-idem _))
-        ⊥         ⊥         ⊥         → refl
+    ; ∨-distrib-∧ =
+          comm+distrʳ⇒distrˡ ∨-comm ∨-distribʳ-∧
+        , ∨-distribʳ-∧
+    ; ∧-distrib-∨ =
+          comm+distrʳ⇒distrˡ ∧-comm ∧-distribʳ-∨
+        , ∧-distribʳ-∨
+
     }
   ; ⊥≤ = λ _ → refl
   ; ≤⊤ = λ where
@@ -178,6 +141,30 @@ bounded-distributive-lattice = record
   left  m ∨ right n = right (m ⊓ n)
   right m ∨ left  n = right (m ⊓ n)
 
+  ∧-comm : Commutative _∧_
+  ∧-comm = λ where
+    ⊥         ⊥         → refl
+    ⊥         (left  _) → refl
+    ⊥         (right _) → refl
+    (left  _) ⊥         → refl
+    (left  m) (left  _) → cong left  (N.⊔-comm m _)
+    (left  m) (right _) → cong left  (N.⊔-comm m _)
+    (right _) ⊥         → refl
+    (right m) (left  _) → cong left  (N.⊔-comm m _)
+    (right m) (right _) → cong right (N.⊔-comm m _)
+
+  ∨-comm : Commutative _∨_
+  ∨-comm = λ where
+    ⊥         ⊥         → refl
+    ⊥         (left  _) → refl
+    ⊥         (right _) → refl
+    (left  _) ⊥         → refl
+    (left  _) (left  _) → cong left  (N.⊓-comm _ _)
+    (left  _) (right _) → cong right (N.⊓-comm _ _)
+    (right _) ⊥         → refl
+    (right _) (left  _) → cong right (N.⊓-comm _ _)
+    (right _) (right _) → cong right (N.⊓-comm _ _)
+
   lemma₁ : m ≡ m ⊔ (n ⊓ m)
   lemma₁ {m = m} {n = n} =
     m            ≡˘⟨ N.⊔-absorbs-⊓ m n ⟩
@@ -189,6 +176,68 @@ bounded-distributive-lattice = record
     m            ≡⟨ lemma₁ ⟩
     m ⊔ (n ⊓ m)  ≡⟨ N.⊔-comm m _ ⟩
     (n ⊓ m) ⊔ m  ∎
+
+  ∨-distribʳ-∧ : _∨_ DistributesOverʳ _∧_
+  ∨-distribʳ-∧ = λ where
+    (left  _) (left  n) (left  _) → cong left  (N.⊓-distribʳ-⊔ _ n _)
+    (right _) (left  n) (left  _) → cong right (N.⊓-distribʳ-⊔ _ n _)
+    ⊥         (left  _) (left  _) → refl
+    (left  _) (left  n) (right _) → cong left  (N.⊓-distribʳ-⊔ _ n _)
+    (right _) (left  n) (right _) → cong right (N.⊓-distribʳ-⊔ _ n _)
+    ⊥         (left  _) (right _) → refl
+    (left  _) (left  _) ⊥         → cong left  lemma₂
+    (right _) (left  _) ⊥         → cong right lemma₂
+    ⊥         (left  _) ⊥         → refl
+    (left  _) (right n) (left  _) → cong left  (N.⊓-distribʳ-⊔ _ n _)
+    (right _) (right n) (left  _) → cong right (N.⊓-distribʳ-⊔ _ n _)
+    ⊥         (right _) (left  _) → refl
+    (left  _) (right n) (right _) → cong right (N.⊓-distribʳ-⊔ _ n _)
+    (right _) (right n) (right _) → cong right (N.⊓-distribʳ-⊔ _ n _)
+    ⊥         (right _) (right _) → refl
+    (left  _) (right _) ⊥         → cong left  lemma₂
+    (right _) (right _) ⊥         → cong right lemma₂
+    ⊥         (right _) ⊥         → refl
+    (left  _) ⊥         (left  _) → cong left  lemma₁
+    (right _) ⊥         (left  _) → cong right lemma₁
+    ⊥         ⊥         (left  _) → refl
+    (left  _) ⊥         (right _) → cong left  lemma₁
+    (right _) ⊥         (right _) → cong right lemma₁
+    ⊥         ⊥         (right _) → refl
+    (left  _) ⊥         ⊥         → cong left  (sym (N.⊔-idem _))
+    (right _) ⊥         ⊥         → cong right (sym (N.⊔-idem _))
+    ⊥         ⊥         ⊥         → refl
+
+  ∧-distribʳ-∨ : _∧_ DistributesOverʳ _∨_
+  ∧-distribʳ-∨ = λ where
+    (left  _) (left  n) (left  _) → cong left (N.⊔-distribʳ-⊓ _ n _)
+    (right _) (left  n) (left  _) → cong left (N.⊔-distribʳ-⊓ _ n _)
+    ⊥         (left  _) (left  _) → refl
+    (left  _) (left  n) (right _) → cong left (N.⊔-distribʳ-⊓ _ n _)
+    (right _) (left  n) (right _) → cong right (N.⊔-distribʳ-⊓ _ n _)
+    ⊥         (left  _) (right _) → refl
+    (left  _) (left  _) ⊥         → refl
+    (right _) (left  _) ⊥         → refl
+    ⊥         (left  _) ⊥         → refl
+    (left  _) (right n) (left  _) → cong left (N.⊔-distribʳ-⊓ _ n _)
+    (right _) (right n) (left  _) → cong right (N.⊔-distribʳ-⊓ _ n _)
+    ⊥         (right _) (left  _) → refl
+    (left  _) (right n) (right _) → cong left (N.⊔-distribʳ-⊓ _ n _)
+    (right _) (right n) (right _) → cong right (N.⊔-distribʳ-⊓ _ n _)
+    ⊥         (right _) (right _) → refl
+    (left  _) (right _) ⊥         → refl
+    (right _) (right _) ⊥         → refl
+    ⊥         (right _) ⊥         → refl
+    (left  _) ⊥         (left  _) → refl
+    (right _) ⊥         (left  _) → refl
+    ⊥         ⊥         (left  _) → refl
+    (left  _) ⊥         (right _) → refl
+    (right _) ⊥         (right _) → refl
+    ⊥         ⊥         (right _) → refl
+    (left  _) ⊥         ⊥         → refl
+    (right _) ⊥         ⊥         → refl
+    ⊥         ⊥         ⊥         → refl
+
+
 
 -- The "semiring with meet" associated to
 -- bounded-distributive-lattice.

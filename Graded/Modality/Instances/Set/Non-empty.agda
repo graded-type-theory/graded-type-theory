@@ -350,7 +350,7 @@ record Is-non-empty-set (S : Set a) : Set (lsuc (lsuc a)) where
 
     -- The union operator forms a semilattice.
 
-    ∪-semilattice : IsSemilattice _∪_
+    ∪-semilattice : IsMeetSemilattice _∪_
     ∪-semilattice = record
       { isBand = record
         { isSemigroup = record
@@ -385,7 +385,7 @@ record Is-non-empty-set (S : Set a) : Set (lsuc (lsuc a)) where
         n ∈ ys ⊎ n ∈ xs  ⇔˘⟨ ∈∪⇔ ⟩
         n ∈ ys ∪ xs      □⇔
 
-    open IsSemilattice ∪-semilattice
+    open IsMeetSemilattice ∪-semilattice
       using () renaming (comm to ∪-comm)
 
     -- Union is positive.

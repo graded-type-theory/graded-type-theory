@@ -134,7 +134,7 @@ _ ⊛ _ ▷ _ = tt
 
 -- Addition forms a semilattice
 
-+-Semilattice : IsSemilattice _+_
++-Semilattice : IsMeetSemilattice _+_
 +-Semilattice = record
   { isBand = +-Band
   ; comm   = +-Commutative
@@ -143,7 +143,9 @@ _ ⊛ _ ▷ _ = tt
 +-+-SemiringWithoutAnnihilatingZero : IsSemiringWithoutAnnihilatingZero _+_ _+_ tt tt
 +-+-SemiringWithoutAnnihilatingZero = record
   { +-isCommutativeMonoid = +-CommutativeMonoid
-  ; *-isMonoid = +-Monoid
+  ; *-cong = cong₂ _+_
+  ; *-assoc = +-Associative
+  ; *-identity = +-Identity
   ; distrib = +-Distributiveˡ , +-Distributiveʳ
   }
 

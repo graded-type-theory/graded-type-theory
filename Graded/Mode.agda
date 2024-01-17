@@ -338,22 +338,15 @@ Mode-propositional-if-trivial 𝟙≡𝟘 =
             𝟙ᵐ 𝟘ᵐ → PE.refl
             𝟙ᵐ 𝟙ᵐ → PE.refl
         }
-      ; *-isMonoid = record
-        { isSemigroup = record
-          { isMagma = record
-            { isEquivalence = PE.isEquivalence
-            ; ∙-cong        = cong₂ _·ᵐ_
-            }
-          ; assoc = λ where
-              𝟘ᵐ _ _ → PE.refl
-              𝟙ᵐ _ _ → PE.refl
-          }
-        ; identity =
+        ; *-cong = cong₂ _·ᵐ_
+        ; *-assoc = λ where
+            𝟘ᵐ _ _ → PE.refl
+            𝟙ᵐ _ _ → PE.refl
+        ; *-identity =
               (λ _ → PE.refl)
             , (λ where
                  𝟘ᵐ → PE.refl
                  𝟙ᵐ → PE.refl)
-        }
       ; distrib =
             (λ where
                𝟘ᵐ _ _ → PE.refl

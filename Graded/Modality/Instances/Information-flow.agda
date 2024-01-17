@@ -216,15 +216,9 @@ L≤M≤H-semiring-with-meet = record
           }
         ; comm = +-comm
         }
-      ; *-isMonoid = record
-        { isSemigroup = record
-          { isMagma = record
-            { isEquivalence = PE.isEquivalence
-            ; ∙-cong        = cong₂ _·_
-            }
-          ; assoc = ·-assoc
-          }
-        ; identity =
+      ; *-cong = cong₂ _·_
+      ; *-assoc = ·-assoc
+      ; *-identity =
               (λ where
                  L → refl
                  M → refl
@@ -233,7 +227,6 @@ L≤M≤H-semiring-with-meet = record
                  L → refl
                  M → refl
                  H → refl)
-        }
       ; distrib = ·-distrib-+
       }
     ; zero =

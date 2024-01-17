@@ -85,8 +85,16 @@ module _ (fe : Function-extensionality lzero lzero) where
                         , (λ xs ys → ext fe λ n →
                              ∨-∧-absorptive .proj₁ (xs n) (ys n))
         }
-      ; ∨-distribʳ-∧ = λ xs ys zs → ext fe λ n →
-                         ∧-distribʳ-∨ (xs n) (ys n) (zs n)
+      ; ∨-distrib-∧ =
+           (λ xs ys zs → ext fe λ n →
+               ∧-distribˡ-∨ (xs n) (ys n) (zs n))
+         , (λ xs ys zs → ext fe λ n →
+               ∧-distribʳ-∨ (xs n) (ys n) (zs n))
+      ; ∧-distrib-∨ =
+          (λ xs ys zs → ext fe λ n →
+               ∨-distribˡ-∧ (xs n) (ys n) (zs n))
+         , (λ xs ys zs → ext fe λ n →
+               ∨-distribʳ-∧ (xs n) (ys n) (zs n))
       }
     ; ⊥≤ = λ _ → ext fe λ _ →
              refl

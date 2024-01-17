@@ -10,8 +10,8 @@
 --
 -- The code also depends on some libraries:
 --
--- * Agda's standard library, version 1.7.3.
--- * The builtin modules that are shipped with Agda 2.6.4.
+-- * Agda's standard library, version 2.0.
+-- * The builtin modules that are shipped with Agda 2.6.4.1.
 --
 -- When HTML code is generated from this file code is also generated
 -- for the two libraries above, so URLs for their licences are
