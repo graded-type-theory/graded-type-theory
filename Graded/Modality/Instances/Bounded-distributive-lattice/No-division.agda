@@ -107,10 +107,10 @@ bounded-distributive-lattice = record
                ⊥         _         → refl)
       }
     ; ∨-distrib-∧ =
-          comm+distrʳ⇒distrˡ ∨-comm ∨-distribʳ-∧
+          comm∧distrʳ⇒distrˡ ∨-comm ∨-distribʳ-∧
         , ∨-distribʳ-∧
     ; ∧-distrib-∨ =
-          comm+distrʳ⇒distrˡ ∧-comm ∧-distribʳ-∨
+          comm∧distrʳ⇒distrˡ ∧-comm ∧-distribʳ-∨
         , ∧-distribʳ-∨
 
     }

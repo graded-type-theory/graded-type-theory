@@ -579,14 +579,14 @@ record Is-non-empty-interval (S : Set a) : Set (lsuc (lsuc a)) where
           n ∈ xs                                             □⇔
 
         identity : Identity [ ε ] _⊙_
-        identity = identityˡ , comm+idˡ⇒idʳ comm identityˡ
+        identity = identityˡ , comm∧idˡ⇒idʳ comm identityˡ
 
       -- The binary operator _⊙_ distributes over union.
 
       distrib-∪ : _⊙_ DistributesOver _∪_
       distrib-∪ =
           distribˡ-∪
-        , comm+distrˡ⇒distrʳ
+        , comm∧distrˡ⇒distrʳ
             (IsCommutativeMonoid.comm commutative-monoid)
             distribˡ-∪
         where
@@ -759,7 +759,7 @@ record Is-non-empty-interval (S : Set a) : Set (lsuc (lsuc a)) where
     -- 𝟘 is a zero for multiplication.
 
     ·-zero : Zero 𝟘 _·_
-    ·-zero = ·-zeroˡ , comm+zeˡ⇒zeʳ ·-comm ·-zeroˡ
+    ·-zero = ·-zeroˡ , comm∧zeˡ⇒zeʳ ·-comm ·-zeroˡ
       where
       ·-zeroˡ : LeftZero 𝟘 _·_
       ·-zeroˡ xs = ≡⇔ ext .proj₂ λ n →
@@ -816,7 +816,7 @@ record Is-non-empty-interval (S : Set a) : Set (lsuc (lsuc a)) where
     -- Multiplication distributes over addition.
 
     ·-distrib-+ : _·_ DistributesOver _+_
-    ·-distrib-+ = ·-distribˡ-+ , comm+distrˡ⇒distrʳ ·-comm ·-distribˡ-+
+    ·-distrib-+ = ·-distribˡ-+ , comm∧distrˡ⇒distrʳ ·-comm ·-distribˡ-+
       where
       ·-distribˡ-+ : _·_ DistributesOverˡ _+_
       ·-distribˡ-+ xs ys zs = ≡⇔ ext .proj₂ λ n →

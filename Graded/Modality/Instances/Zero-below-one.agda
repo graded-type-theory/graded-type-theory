@@ -243,7 +243,7 @@ _≟_ = λ where
 
   ·-distrib-+ : _·_ DistributesOver _+_
   ·-distrib-+ =
-    ·-distribˡ-+ , comm+distrˡ⇒distrʳ ·-comm ·-distribˡ-+
+    ·-distribˡ-+ , comm∧distrˡ⇒distrʳ ·-comm ·-distribˡ-+
 
   ∧-assoc : Associative _∧_
   ∧-assoc = λ where
@@ -276,7 +276,7 @@ _≟_ = λ where
 
   ·-distrib-∧ : _·_ DistributesOver _∧_
   ·-distrib-∧ =
-    ·-distribˡ-∧ , comm+distrˡ⇒distrʳ ·-comm ·-distribˡ-∧
+    ·-distribˡ-∧ , comm∧distrˡ⇒distrʳ ·-comm ·-distribˡ-∧
 
   +-distribˡ-∧ : _+_ DistributesOverˡ _∧_
   +-distribˡ-∧ = λ where
@@ -291,7 +291,7 @@ _≟_ = λ where
 
   +-distrib-∧ : _+_ DistributesOver _∧_
   +-distrib-∧ =
-    +-distribˡ-∧ , comm+distrˡ⇒distrʳ +-comm +-distribˡ-∧
+    +-distribˡ-∧ , comm∧distrˡ⇒distrʳ +-comm +-distribˡ-∧
 
 -- A natrec-star operator can be defined for Grade.
 

@@ -69,21 +69,21 @@ semiring-with-meet bl = record
       { +-isCommutativeMonoid = record
         { isMonoid = record
           { isSemigroup = ∧-isSemigroup
-          ; identity    = ∧-identityˡ , comm+idˡ⇒idʳ ∧-comm ∧-identityˡ
+          ; identity    = ∧-identityˡ , comm∧idˡ⇒idʳ ∧-comm ∧-identityˡ
           }
         ; comm = ∧-comm
         }
       ; *-cong = cong₂ _∨_
       ; *-assoc = ∨-assoc
-      ; *-identity = ∨-identityˡ , comm+idˡ⇒idʳ ∨-comm ∨-identityˡ
+      ; *-identity = ∨-identityˡ , comm∧idˡ⇒idʳ ∨-comm ∨-identityˡ
       ; distrib = ∨-distrib-∧
       }
-    ; zero = ∨-zeroˡ , comm+zeˡ⇒zeʳ ∨-comm ∨-zeroˡ
+    ; zero = ∨-zeroˡ , comm∧zeˡ⇒zeʳ ∨-comm ∨-zeroˡ
     }
   ; ∧-Semilattice = ∧-isSemilattice
   ; ·-distrib-∧   = ∨-distrib-∧
   ; +-distrib-∧   =
-      ∧-distribˡ-∧ , comm+distrˡ⇒distrʳ ∧-comm ∧-distribˡ-∧
+      ∧-distribˡ-∧ , comm∧distrˡ⇒distrʳ ∧-comm ∧-distribˡ-∧
   }
   where
   open Bounded-distributive-lattice bl

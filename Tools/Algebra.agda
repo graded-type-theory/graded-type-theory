@@ -10,7 +10,7 @@ open import Tools.Product
 open import Tools.PropositionalEquality
 
 open import Algebra.Consequences.Propositional public
-  using (comm+idˡ⇒idʳ; comm+zeˡ⇒zeʳ; comm+distrˡ⇒distrʳ; comm+distrʳ⇒distrˡ)
+  using (comm∧idˡ⇒idʳ; comm∧zeˡ⇒zeʳ; comm∧distrˡ⇒distrʳ; comm∧distrʳ⇒distrˡ)
 open import Algebra.Core using (Op₁; Op₂) public
 open import Algebra.Definitions (_≡_ {A = A})
      using (Associative; Commutative; Congruent₂;

@@ -363,7 +363,7 @@ L≤M≤H-semiring-with-meet = record
 
   ·-distrib-+ : _·_ DistributesOver _+_
   ·-distrib-+ =
-    ·-distribˡ-+ , comm+distrˡ⇒distrʳ ·-comm ·-distribˡ-+
+    ·-distribˡ-+ , comm∧distrˡ⇒distrʳ ·-comm ·-distribˡ-+
 
   +-distribˡ-∧ : _+_ DistributesOverˡ _∧_
   +-distribˡ-∧ = λ where
@@ -397,7 +397,7 @@ L≤M≤H-semiring-with-meet = record
 
   +-distrib-∧ : _+_ DistributesOver _∧_
   +-distrib-∧ =
-    +-distribˡ-∧ , comm+distrˡ⇒distrʳ +-comm +-distribˡ-∧
+    +-distribˡ-∧ , comm∧distrˡ⇒distrʳ +-comm +-distribˡ-∧
 
 instance
 

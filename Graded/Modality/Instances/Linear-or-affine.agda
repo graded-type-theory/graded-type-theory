@@ -249,7 +249,7 @@ linear-or-affine-semiring-with-meet  = record
             }
           ; identity =
                 (λ _ → refl)
-              , comm+idˡ⇒idʳ +-comm (λ _ → refl)
+              , comm∧idˡ⇒idʳ +-comm (λ _ → refl)
           }
         ; comm = +-comm
         }
@@ -257,14 +257,14 @@ linear-or-affine-semiring-with-meet  = record
       ; *-assoc = ·-assoc
       ; *-identity =
               ·-identityˡ
-            , comm+idˡ⇒idʳ ·-comm ·-identityˡ
+            , comm∧idˡ⇒idʳ ·-comm ·-identityˡ
       ; distrib =
             ·-distribˡ-+
-          , comm+distrˡ⇒distrʳ ·-comm ·-distribˡ-+
+          , comm∧distrˡ⇒distrʳ ·-comm ·-distribˡ-+
       }
     ; zero =
           (λ _ → refl)
-        , comm+zeˡ⇒zeʳ ·-comm (λ _ → refl)
+        , comm∧zeˡ⇒zeʳ ·-comm (λ _ → refl)
     }
   ; ∧-Semilattice = record
     { isBand = record
@@ -285,10 +285,10 @@ linear-or-affine-semiring-with-meet  = record
     }
   ; ·-distrib-∧ =
         ·-distribˡ-∧
-      , comm+distrˡ⇒distrʳ ·-comm ·-distribˡ-∧
+      , comm∧distrˡ⇒distrʳ ·-comm ·-distribˡ-∧
   ; +-distrib-∧ =
         +-distribˡ-∧
-      , comm+distrˡ⇒distrʳ +-comm +-distribˡ-∧
+      , comm∧distrˡ⇒distrʳ +-comm +-distribˡ-∧
   }
   where
   +-assoc : Associative _+_

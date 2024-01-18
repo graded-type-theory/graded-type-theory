@@ -446,7 +446,7 @@ zero-one-many-semiring-with-meet = record
             }
           ; identity =
                 (λ _ → refl)
-              , comm+idˡ⇒idʳ +-comm (λ _ → refl)
+              , comm∧idˡ⇒idʳ +-comm (λ _ → refl)
           }
         ; comm = +-comm
         }
@@ -469,14 +469,14 @@ zero-one-many-semiring-with-meet = record
               ω ω ω → refl
         ; *-identity =
                 ·-identityˡ
-              , comm+idˡ⇒idʳ ·-comm ·-identityˡ
+              , comm∧idˡ⇒idʳ ·-comm ·-identityˡ
       ; distrib =
             ·-distrib-+ˡ
-          , comm+distrˡ⇒distrʳ ·-comm ·-distrib-+ˡ
+          , comm∧distrˡ⇒distrʳ ·-comm ·-distrib-+ˡ
       }
     ; zero =
           (λ _ → refl)
-        , comm+zeˡ⇒zeʳ ·-comm (λ _ → refl)
+        , comm∧zeˡ⇒zeʳ ·-comm (λ _ → refl)
     }
   ; ∧-Semilattice = record
     { isBand = record
@@ -533,10 +533,10 @@ zero-one-many-semiring-with-meet = record
     }
   ; ·-distrib-∧ =
         ·-distrib-∧ˡ
-      , comm+distrˡ⇒distrʳ ·-comm ·-distrib-∧ˡ
+      , comm∧distrˡ⇒distrʳ ·-comm ·-distrib-∧ˡ
   ; +-distrib-∧ =
         +-distrib-∧ˡ
-      , comm+distrˡ⇒distrʳ +-comm +-distrib-∧ˡ
+      , comm∧distrˡ⇒distrʳ +-comm +-distrib-∧ˡ
   }
   where
   open Tools.Reasoning.PropositionalEquality

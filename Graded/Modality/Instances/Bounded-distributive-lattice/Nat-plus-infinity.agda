@@ -184,12 +184,11 @@ bounded-distributive-lattice = record
         ; ∧-cong        = cong₂ _∪_
         ; absorptive    = absorptive
         }
-      -- ; ∨-distribʳ-∧ = ∩-distribʳ-∪
       ; ∨-distrib-∧ =
-            comm+distrʳ⇒distrˡ ∩-comm ∩-distribʳ-∪
+            comm∧distrʳ⇒distrˡ ∩-comm ∩-distribʳ-∪
           , ∩-distribʳ-∪
       ; ∧-distrib-∨ =
-            comm+distrʳ⇒distrˡ R.∧-comm ∪-distribʳ-∩
+            comm∧distrʳ⇒distrˡ R.∧-comm ∪-distribʳ-∩
           , ∪-distribʳ-∩
       }
   }
