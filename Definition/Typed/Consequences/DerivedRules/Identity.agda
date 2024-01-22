@@ -948,14 +948,29 @@ opaque
 
   uip : M → M → Term n → Term n → Term n → Term n → Term n → Term n
   uip p q A t u eq₁ eq₂ =
-    J ω 𝟙 A t
-      (Π p , q ▷ wk1 (Id (wk1 A) (wk1 t) (var x0)) ▹
-       Id (wk2 (Id (wk1 A) (wk1 t) (var x0))) (var x1) (var x0))
-      (lam p $
-       K 𝟙 (wk1 A) (wk1 t) (Id (wk2 (Id A t t)) rfl (var x0)) rfl
-         (var x0))
-      u eq₁ ∘⟨ p ⟩
-    eq₂
+    transitivity
+      (Id A t u)
+      eq₁
+      (transitivity A t u u eq₂
+         (transitivity A u t u (symmetry A t u eq₁) eq₁))
+      eq₂
+      (J ω ω A t
+         (Id
+            (Id (wk2 A) (wk2 t) (var x1))
+            (var x0)
+            (transitivity (wk2 A) (wk2 t) (wk2 u) (var x1) (wk2 eq₂)
+               (transitivity (wk2 A) (wk2 u) (wk2 t) (var x1)
+                  (symmetry (wk2 A) (wk2 t) (wk2 u) (wk2 eq₁))
+                  (var x0))))
+         (K ω A t (Id (Id (wk1 A) (wk1 t) (wk1 t)) rfl (var x0)) rfl
+            (transitivity A t u t eq₂
+               (transitivity A u t t (symmetry A t u eq₁) rfl)))
+         u eq₁)
+      (cong (Id A u u) (transitivity A u t u (symmetry A t u eq₁) eq₁)
+         rfl (Id A t u)
+         (transitivity (wk1 A) (wk1 t) (wk1 u) (wk1 u) (wk1 eq₂)
+            (var x0))
+         (transitivity-symmetryˡ A t u eq₁))
 
 opaque
   unfolding uip
@@ -965,76 +980,121 @@ opaque
 
   ⊢uip :
     K-allowed →
-    Π-allowed p q →
     Γ ⊢ eq₁ ∷ Id A t u →
     Γ ⊢ eq₂ ∷ Id A t u →
     Γ ⊢ uip p q A t u eq₁ eq₂ ∷ Id (Id A t u) eq₁ eq₂
-  ⊢uip {p} {q} {eq₁} {A} {t} K-ok Π-ok ⊢eq₁ ⊢eq₂ =
-    case inversion-Id (syntacticTerm ⊢eq₁) of λ {
-      (_ , ⊢t , _) →
-    case PE.subst (_⊢_ _) ≡Id-wk2-wk2-1[,] $
-         K-motive-context-type ⊢t of λ
-      (⊢Id-wk2-t[,]-t :
-       _ ⊢ Id (wk2 A [ t , rfl ]₁₀) (wk2 t [ t , rfl ]₁₀) t) →
-    case wk₁ ⊢Id-wk2-t[,]-t (K-motive-context-type ⊢t) of λ
-      (⊢wk1-Id-t-t : _ ⊢ wk1 (Id A t t)) →
-    case wkTerm₁ ⊢wk1-Id-t-t (wkTerm₁ ⊢Id-wk2-t[,]-t ⊢t) of λ
-      (⊢t′ : _ ⊢ wk2 t ∷ wk2 A) →
-    case PE.subst₂ (_⊢_∷_ _)
-           (PE.sym $ wk1-sgSubst _ _)
-           (PE.sym $ wk1-sgSubst _ _) $
-         wkTerm₁ ⊢Id-wk2-t[,]-t ⊢t of λ
-      (⊢t″ : _ ⊢ wk2 t [ rfl ]₀ ∷ wk2 A [ rfl ]₀) →
-    case wk₁ (J-motive-context-type ⊢t) (J-motive-context-type ⊢t) of λ
-      (⊢wk1-Id-wk1-t-0 : _ ⊢ wk1 (Id (wk1 A) (wk1 t) (var x0))) →
-    PE.subst (_⊢_∷_ _ _) (PE.sym ≡Id-wk1-wk1-0[]₀) $
-    PE.subst (_⊢_∷_ _ _) lemma₂
-      (Jⱼ′
-         (ΠΣⱼ′ (Idⱼ (var₁ ⊢wk1-Id-wk1-t-0) (var₀ ⊢wk1-Id-wk1-t-0)) Π-ok)
-         (lamⱼ′ Π-ok $
-          PE.subst (_⊢_∷_ _ _) lemma₃ $
-          Kⱼ′ (Idⱼ (rflⱼ ⊢t′) (var₀ ⊢wk1-Id-t-t)) (rflⱼ (rflⱼ ⊢t″))
-            (PE.subst (_⊢_∷_ _ _)
-               (PE.cong wk1 $ PE.sym ≡Id-wk2-wk2-1[,]) $
-             var₀ ⊢Id-wk2-t[,]-t)
-            K-ok)
-         ⊢eq₁) ∘ⱼ
-    ⊢eq₂ }
-    where
-    lemma₁ :
-      (t u v : Term n) →
-      wk3 t [ liftSubst (consSubst (sgSubst u) v) ] PE.≡
-      wk1 t
-    lemma₁ t u v =
-      wk3 t [ liftSubst (consSubst (sgSubst u) v) ]  ≡⟨ wk1-liftSubst (wk2 t) ⟩
-      wk1 (wk2 t [ u , v ]₁₀)                        ≡⟨ PE.cong wk1 wk2-[,] ⟩
-      wk1 t                                          ∎
+  ⊢uip {eq₁} {A} {t} {u} {eq₂} ok ⊢eq₁ ⊢eq₂ =
+    case inversion-Id (syntacticTerm ⊢eq₁) of λ
+      (⊢A , ⊢t , ⊢u) →
+    case Idⱼ ⊢t ⊢t of λ
+      ⊢Id-t-t →
+    case Idⱼ ⊢u ⊢u of λ
+      ⊢Id-u-u →
+    ⊢transitivity
+      (PE.subst (_⊢_∷_ _ _) lemma₁ $
+       Jⱼ′
+         (Idⱼ
+            (var₀ (J-motive-context-type ⊢t))
+            (⊢transitivity
+               (wkTerm₁ (J-motive-context-type ⊢t) (wkTerm₁ ⊢A ⊢eq₂)) $
+             ⊢transitivity
+               (⊢symmetry
+                  (wkTerm₁ (J-motive-context-type ⊢t)
+                     (wkTerm₁ ⊢A ⊢eq₁))) $
+             var₀ (J-motive-context-type ⊢t)))
+         (PE.subst (_⊢_∷_ _ _)
+            (Id (wk1 (Id A t t)) rfl (var x0)
+               [ transitivity A t u t eq₂
+                   (transitivity A u t t (symmetry A t u eq₁) rfl) ]₀    ≡⟨ PE.cong₃ Id (wk1-sgSubst _ _) PE.refl PE.refl ⟩
 
-    lemma₂ :
-      (Π p , q ▷ wk1 (Id (wk1 A) (wk1 t) (var x0)) ▹
-       Id (wk2 (Id (wk1 A) (wk1 t) (var x0))) (var x1) (var x0))
-        [ u , eq₁ ]₁₀ PE.≡
-      Π p , q ▷ Id A t u ▹ Id (wk1 (Id A t u)) (wk1 eq₁) (var x0)
-    lemma₂ =
-      PE.cong₂ (Π p , q ▷_▹_)
-        (PE.sym ≡Id-wk2-wk2-1[,])
-        (PE.cong (λ A → Id A (wk1 eq₁) (var x0)) $
-         PE.cong₂ (λ A t → Id A t _)
-           (lemma₁ _ _ _)
-           (lemma₁ _ _ _))
+             Id (Id A t t) rfl
+               (transitivity A t u t eq₂
+                  (transitivity A u t t (symmetry A t u eq₁) rfl))       ≡˘⟨ lemma₁ ⟩
 
-    lemma₃ :
-      Id (wk2 (Id A t t) [ var x0 ]₀) rfl (var x0) PE.≡
-      Id
-        (Id (wk3 A [ liftSubst (consSubst (sgSubst t) rfl) ])
-           (wk3 t [ liftSubst (consSubst (sgSubst t) rfl) ]) (wk1 t))
-        rfl (var x0)
-    lemma₃ =
-      PE.cong (λ A → Id A rfl (var x0))
-        (wk2 (Id A t t) [ var x0 ]₀                                    ≡⟨ wk1-sgSubst _ _ ⟩
+             Id (Id (wk2 A) (wk2 t) (var x1)) (var x0)
+               (transitivity (wk2 A) (wk2 t) (wk2 u) (var x1) (wk2 eq₂)
+                  (transitivity (wk2 A) (wk2 u) (wk2 t) (var x1)
+                     (symmetry (wk2 A) (wk2 t) (wk2 u) (wk2 eq₁))
+                     (var x0)))
+               [ t , rfl ]₁₀                                             ∎) $
+          Kⱼ′
+            (Idⱼ (rflⱼ (wkTerm₁ ⊢Id-t-t ⊢t)) (var₀ ⊢Id-t-t))
+            (rflⱼ $ rflⱼ $
+             PE.subst₂ (_⊢_∷_ _)
+               (PE.sym $ wk1-sgSubst _ _)
+               (PE.sym $ wk1-sgSubst _ _)
+               ⊢t)
+            (⊢transitivity ⊢eq₂ $
+             ⊢transitivity (⊢symmetry ⊢eq₁) (rflⱼ ⊢t))
+            ok)
+         ⊢eq₁)
+      (conv
+         (⊢cong
+            (⊢transitivity (wkTerm₁ ⊢Id-u-u ⊢eq₂) (var₀ ⊢Id-u-u))
+            (⊢transitivity-symmetryˡ ⊢eq₁))
+         (Id-cong
+            (refl (Idⱼ ⊢t ⊢u))
+            (transitivity (wk1 A) (wk1 t) (wk1 u) (wk1 u) (wk1 eq₂)
+               (var x0)
+               [ transitivity A u t u (symmetry A t u eq₁) eq₁ ]₀       ≡⟨ lemma₂ ⟩⊢≡
 
-         wk1 (Id A t t)                                                ≡˘⟨ PE.cong₂ (λ A t → Id A t (wk1 _))
-                                                                             (lemma₁ _ _ _)
-                                                                             (lemma₁ _ _ _) ⟩
-         Id (wk3 A [ liftSubst (consSubst (sgSubst t) rfl) ])
-            (wk3 t [ liftSubst (consSubst (sgSubst t) rfl) ]) (wk1 t)  ∎)
+             transitivity A t u u eq₂
+               (transitivity A u t u (symmetry A t u eq₁) eq₁)          ∎⟨ ⊢transitivity ⊢eq₂ (⊢transitivity (⊢symmetry ⊢eq₁) ⊢eq₁) ⟩⊢)
+            (transitivity (wk1 A) (wk1 t) (wk1 u) (wk1 u) (wk1 eq₂)
+               (var x0) [ rfl ]₀                                        ≡⟨ lemma₂ ⟩⊢≡
+
+             transitivity A t u u eq₂ rfl                               ≡⟨ transitivity-≡ ⊢eq₂ ⟩⊢∎
+
+             eq₂                                                        ∎)))
+      where
+      lemma₁ :
+        Id (Id (wk2 A) (wk2 t) (var x1)) (var x0)
+          (transitivity (wk2 A) (wk2 t) (wk2 u) (var x1) (wk2 eq₂)
+             (transitivity (wk2 A) (wk2 u) (wk2 t) (var x1)
+                (symmetry (wk2 A) (wk2 t) (wk2 u) (wk2 eq₁))
+                (var x0)))
+          [ v , eq ]₁₀ PE.≡
+        Id (Id A t v) eq
+          (transitivity A t u v eq₂
+             (transitivity A u t v (symmetry A t u eq₁) eq))
+      lemma₁ {v} {eq} =
+        Id (Id (wk2 A) (wk2 t) (var x1)) (var x0)
+          (transitivity (wk2 A) (wk2 t) (wk2 u) (var x1) (wk2 eq₂)
+             (transitivity (wk2 A) (wk2 u) (wk2 t) (var x1)
+                (symmetry (wk2 A) (wk2 t) (wk2 u) (wk2 eq₁))
+                (var x0)))
+          [ v , eq ]₁₀                                                  ≡⟨ PE.cong (Id _ _) $
+                                                                           PE.trans transitivity-[] $
+                                                                           PE.cong (transitivity _ _ _ _ _) $
+                                                                           PE.trans transitivity-[] $
+                                                                           PE.cong (flip (transitivity _ _ _ _) _)
+                                                                           symmetry-[] ⟩
+        Id (Id (wk2 A [ _ ]) (wk2 t [ _ ]) v) eq
+          (transitivity (wk2 A [ _ ]) (wk2 t [ _ ]) (wk2 u [ _ ]) v
+             (wk2 eq₂ [ _ ])
+             (transitivity (wk2 A [ _ ]) (wk2 u [ _ ]) (wk2 t [ _ ]) v
+                (symmetry (wk2 A [ _ ]) (wk2 t [ _ ]) (wk2 u [ _ ])
+                   (wk2 eq₁ [ _ ]))
+                eq))                                                    ≡⟨ PE.cong₃ Id
+                                                                             (PE.cong₃ Id wk2-[,] wk2-[,] PE.refl)
+                                                                             PE.refl
+                                                                             (PE.cong₆ transitivity wk2-[,] wk2-[,] wk2-[,] PE.refl wk2-[,] $
+                                                                              PE.cong₆ transitivity wk2-[,] wk2-[,] wk2-[,] PE.refl
+                                                                                (PE.cong₄ symmetry wk2-[,] wk2-[,] wk2-[,] wk2-[,])
+                                                                                PE.refl) ⟩
+        Id (Id A t v) eq
+          (transitivity A t u v eq₂
+             (transitivity A u t v (symmetry A t u eq₁) eq))            ∎
+
+      lemma₂ :
+        transitivity (wk1 A) (wk1 t) (wk1 u) (wk1 u) (wk1 eq₂) (var x0)
+          [ eq ]₀ PE.≡
+        transitivity A t u u eq₂ eq
+      lemma₂ {eq} =
+        transitivity (wk1 A) (wk1 t) (wk1 u) (wk1 u) (wk1 eq₂) (var x0)
+          [ eq ]₀                                                        ≡⟨ transitivity-[] ⟩
+
+        transitivity (wk1 A [ _ ]₀) (wk1 t [ _ ]₀) (wk1 u [ _ ]₀)
+          (wk1 u [ _ ]₀) (wk1 eq₂ [ _ ]₀) eq                             ≡⟨ PE.cong₆ transitivity (wk1-sgSubst _ _) (wk1-sgSubst _ _)
+                                                                              (wk1-sgSubst _ _) (wk1-sgSubst _ _) (wk1-sgSubst _ _) PE.refl ⟩
+        transitivity A t u u eq₂ eq                                      ∎
