@@ -19,7 +19,7 @@ permissions:
 
 env:
   AGDA_VERSION: 2.6.4
-  STDLIB_VERSION: 1.7.3
+  STDLIB_VERSION: 2.0
   DEPLOY_DIR: ${{ github.ref_name }}
   HTML_DIR: html/${{ github.ref_name }}
   MAIN: Everything.agda
@@ -31,7 +31,7 @@ jobs:
     steps:
 
       # Checkout to $HOME empties $HOME so we have to do it before we put stuff there.
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Agda
         uses: wenkokke/setup-agda@latest
@@ -41,7 +41,7 @@ jobs:
           agda-stdlib-version: ${{ env.STDLIB_VERSION }}
 
       - name: Restore cache
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v4
         id:   cache
         with:
           key: agda-${{ steps.setup.outputs.agda-version }}-stdlib-${{ env.STDLIB_VERSION }}-commit-${{ github.sha }}
@@ -56,7 +56,7 @@ jobs:
       - name: Save cache
         # Primary cache key is unique, so we can always save.
         if:   ${{ always() }}
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v4
         with:
           key: ${{ steps.cache.outputs.cache-primary-key }}
           path: |
