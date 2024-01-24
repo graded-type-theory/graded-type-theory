@@ -11,7 +11,7 @@ module Graded.Reduction
   {a} {M : Set a}
   {𝕄 : Modality M}
   (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions M)
+  (UR : Usage-restrictions 𝕄)
   where
 
 open Modality 𝕄

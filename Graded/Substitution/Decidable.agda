@@ -11,14 +11,14 @@ open import Tools.Relation
 module Graded.Substitution.Decidable
   {a} {M : Set a}
   (𝕄 : Modality M)
-  (R : Usage-restrictions M)
+  (R : Usage-restrictions 𝕄)
   (open Usage-restrictions R)
   -- Equality is assumed to be decidable for M.
   (_≟_ : Decidable (_≡_ {A = M}))
   -- The Prodrec-allowed relation is assumed to be decidable.
-  (Prodrec? : ∀ r p q → Dec (Prodrec-allowed r p q))
+  (Prodrec? : ∀ m r p q → Dec (Prodrec-allowed m r p q))
   -- The Unitrec-allowed relation is assumed to be decidable.
-  (Unitrec? : ∀ p q → Dec (Unitrec-allowed p q))
+  (Unitrec? : ∀ m p q → Dec (Unitrec-allowed m p q))
   where
 
 open Modality 𝕄

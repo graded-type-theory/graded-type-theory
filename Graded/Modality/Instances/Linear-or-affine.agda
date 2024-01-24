@@ -31,12 +31,14 @@ import Graded.Modality.Properties.PartialOrder as PartialOrder
 import Graded.Modality.Properties.Star as Star
 open import Graded.Modality.Variant lzero
 open import Definition.Typed.Restrictions
-import Graded.Usage.Restrictions
+open import Graded.Usage.Restrictions
 
 open import Definition.Untyped using (BMΣ; 𝕤; 𝕨)
 
 private variable
   variant : Modality-variant
+  trs     : Type-restrictions _
+  urs     : Usage-restrictions _
 
 ------------------------------------------------------------------------
 -- The type
@@ -46,14 +48,11 @@ private variable
 data Linear-or-affine : Set where
   𝟘 𝟙 ≤𝟙 ≤ω : Linear-or-affine
 
-open Graded.Modality               Linear-or-affine
-open Tools.Algebra                 Linear-or-affine
-open Graded.Usage.Restrictions     Linear-or-affine
+open Graded.Modality Linear-or-affine
+open Tools.Algebra   Linear-or-affine
 
 private variable
   n n₁ n₂ p q r s s₁ s₂ z z₁ z₂ : Linear-or-affine
-  urs                           : Usage-restrictions
-  trs                           : Type-restrictions _
 
 ------------------------------------------------------------------------
 -- Basic operations
@@ -3968,7 +3967,9 @@ linear-or-affine variant = record
 
 Suitable-for-full-reduction :
   ∀ variant →
-  Type-restrictions (linear-or-affine variant) → Usage-restrictions → Set
+  Type-restrictions (linear-or-affine variant) →
+  Usage-restrictions (linear-or-affine variant) →
+  Set
 Suitable-for-full-reduction variant rs us =
   (¬ Unitˢ-allowed ⊎ Starˢ-sink) ×
   (∀ p → ¬ Σˢ-allowed 𝟘 p) ×

@@ -9,7 +9,7 @@ module Graded.Usage.Properties.Has-well-behaved-zero
   {a} {M : Set a}
   (open Graded.Modality M)
   (𝕄 : Modality)
-  (R : Usage-restrictions M)
+  (R : Usage-restrictions 𝕄)
   (open Modality 𝕄)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄
   where

@@ -10,7 +10,7 @@ open import Graded.Usage.Restrictions
 module Graded.Derived.Erased.NoEta.Usage
   {a} {M : Set a}
   (𝕄 : Modality M)
-  (R : Usage-restrictions M)
+  (R : Usage-restrictions 𝕄)
   where
 
 open Modality 𝕄
@@ -50,7 +50,7 @@ private variable
 
 ▸erased : γ ▸[ 𝟘ᵐ[ ok ] ] t →
           δ ▸[ 𝟘ᵐ[ ok ] ] A →
-          Prodrec-allowed (𝟘 ∧ 𝟙) 𝟘 𝟘 →
+          Prodrec-allowed 𝟘ᵐ[ ok ] (𝟘 ∧ 𝟙) 𝟘 𝟘 →
           γ ▸[ 𝟘ᵐ[ ok ] ] erased A t
 ▸erased {ok = ok} ▸t ▸A P-ok =
   fstʷₘ-𝟘ᵐ ⦃ ok ⦄ P-ok ▸t ▸A
@@ -64,7 +64,7 @@ inv-usage-erased :
   (ok : T 𝟘ᵐ-allowed) →
   γ ▸[ m ] erased A t →
   γ ▸[ m ] t × ∃ λ δ → δ ▸[ 𝟘ᵐ? ] A ×
-  γ ≤ᶜ 𝟘ᶜ × Prodrec-allowed (𝟘 ∧ 𝟙) 𝟘 𝟘
+  γ ≤ᶜ 𝟘ᶜ × Prodrec-allowed m (𝟘 ∧ 𝟙) 𝟘 𝟘
 inv-usage-erased {γ = γ} ok ▸[] =
   case inv-usage-fstʷ (inj₁ 𝟘≰𝟙) ▸[] of λ {
     (η , δ , γ≤ , ▸t , ▸A , _ , P-ok) →

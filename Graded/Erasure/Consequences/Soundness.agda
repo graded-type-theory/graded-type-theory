@@ -13,7 +13,7 @@ module Graded.Erasure.Consequences.Soundness
   {𝕄 : Modality M}
   (open Modality 𝕄)
   (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions M)
+  (UR : Usage-restrictions 𝕄)
   where
 
 open Type-restrictions TR
@@ -247,15 +247,15 @@ module _
 
     open Soundness fundamental-assumptions⁻₀ public
 
--- If Prodrec-allowed 𝟘 p 𝟘 holds for some p (which means that certain
--- kinds of erased matches are allowed), and if additionally
+-- If Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 holds for some p (which means that
+-- certain kinds of erased matches are allowed), and if additionally
 -- Σʷ-allowed p 𝟘 holds, then there is a counterexample to
 -- soundness-ℕ-only-source without the assumption "erased matches are
 -- not allowed unless the context is empty" (and without the
 -- assumption that the modality's zero is well-behaved).
 
 soundness-ℕ-only-source-counterexample₁ :
-  Prodrec-allowed 𝟘 p 𝟘 →
+  Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 →
   Σʷ-allowed p 𝟘 →
   let Δ = ε ∙ (Σʷ p , 𝟘 ▷ ℕ ▹ ℕ)
       t = prodrec 𝟘 p 𝟘 ℕ (var {n = 1} x0) zero
@@ -344,13 +344,13 @@ opaque
 
 opaque
 
-  -- If Erased-matches-for-J holds, then there is a counterexample to
-  -- soundness-ℕ-only-source without the assumption "erased matches
+  -- If Erased-matches-for-J 𝟙ᵐ holds, then there is a counterexample
+  -- to soundness-ℕ-only-source without the assumption "erased matches
   -- are not allowed unless the context is empty" (and without the
   -- assumption that the modality's zero is well-behaved).
 
   soundness-ℕ-only-source-counterexample₃ :
-    Erased-matches-for-J →
+    Erased-matches-for-J 𝟙ᵐ →
     let Δ = ε ∙ Id ℕ zero zero
         t = J 𝟘 𝟘 ℕ zero ℕ zero zero (var {n = 1} x0)
     in
@@ -375,14 +375,14 @@ opaque
 
 opaque
 
-  -- If K-allowed and Erased-matches-for-K hold, then there is a
+  -- If K-allowed and Erased-matches-for-K 𝟙ᵐ hold, then there is a
   -- counterexample to soundness-ℕ-only-source without the assumption
   -- "erased matches are not allowed unless the context is empty" (and
   -- without the assumption that the modality's zero is well-behaved).
 
   soundness-ℕ-only-source-counterexample₄ :
     K-allowed →
-    Erased-matches-for-K →
+    Erased-matches-for-K 𝟙ᵐ →
     let Δ = ε ∙ Id ℕ zero zero
         t = K 𝟘 ℕ zero ℕ zero (var {n = 1} x0)
     in
@@ -408,13 +408,13 @@ opaque
 
 opaque
 
-  -- If Unitrec-allowed 𝟘 𝟘 and Unitʷ-allowed hold, then there is a
+  -- If Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 and Unitʷ-allowed hold, then there is a
   -- counterexample to soundness-ℕ-only-source without the assumption
   -- "erased matches are not allowed unless the context is empty" (and
   -- without the assumption that the modality's zero is well-behaved).
 
   soundness-ℕ-only-source-counterexample₅ :
-    Unitrec-allowed 𝟘 𝟘 →
+    Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 →
     Unitʷ-allowed →
     let Δ = ε ∙ Unitʷ
         t = unitrec 𝟘 𝟘 ℕ (var {n = 1} x0) zero

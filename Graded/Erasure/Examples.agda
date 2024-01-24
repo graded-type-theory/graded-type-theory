@@ -15,7 +15,7 @@ module Graded.Erasure.Examples
   (variant : Modality-variant)
   (TR : Type-restrictions (ErasureModality variant))
   (open Type-restrictions TR)
-  (UR : Usage-restrictions Erasure)
+  (UR : Usage-restrictions (ErasureModality variant))
   -- It is assumed that "Π 𝟘 , p" is allowed.
   (Π-𝟘-ok : Π-allowed 𝟘 p)
   -- It is assumed that "Π ω , q" is allowed.

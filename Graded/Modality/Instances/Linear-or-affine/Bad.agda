@@ -17,7 +17,7 @@ module Graded.Modality.Instances.Linear-or-affine.Bad
   (open Graded.Modality.Dedicated-nr (bad-linear-or-affine variant))
   (TR : Type-restrictions (bad-linear-or-affine variant))
   (open Type-restrictions TR)
-  (UR : Usage-restrictions Linear-or-affine)
+  (UR : Usage-restrictions (bad-linear-or-affine variant))
   -- It is assumed that "Π 𝟙 , 𝟘" is allowed.
   (Π-𝟙-𝟘 : Π-allowed 𝟙 𝟘)
   -- There is a dedicated nr function.

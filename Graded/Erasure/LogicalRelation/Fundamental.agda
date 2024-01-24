@@ -19,7 +19,7 @@ module Graded.Erasure.LogicalRelation.Fundamental
   {𝕄 : Modality M}
   (open Modality 𝕄)
   (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions M)
+  (UR : Usage-restrictions 𝕄)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
   {{eqrel : EqRelSet TR}}
   where
@@ -394,6 +394,7 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
     in  [Γ] , [G] ,
         subsumption-≤ well-formed {t = snd _ t} [Γ] [G] ⊩ʳt₂ γ≤δ
   fundamental
+    {m = 𝟙ᵐ}
     (prodrecⱼ {F = F} {G} {A = A} {t = t} {u} {r = r}
        Γ⊢F Γ⊢G Γ⊢A Γ⊢t Γ⊢u _)
     γ▸prodrec =
@@ -503,7 +504,8 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
                         [Γ] [Empty] [A] [t]
     in  [Γ] , [A] , γ⊩ʳemptyrec
   fundamental (starⱼ ⊢Γ ok) _ = starʳ ⊢Γ ok
-  fundamental (unitrecⱼ {A = A} {t} {u} ⊢A ⊢t:Unit ⊢u:A₊ ok) γ▸ur =
+  fundamental
+    {m = 𝟙ᵐ} (unitrecⱼ {A = A} {t} {u} ⊢A ⊢t:Unit ⊢u:A₊ ok) γ▸ur =
     let invUsageUnitrec δ▸t η▸u _ ok′ γ≤γ′ = inv-usage-unitrec γ▸ur
         [Γ] , [Unit] , ⊩ʳt = fundamental ⊢t:Unit δ▸t
         [Γ]₁ , [A₊]₁ , ⊩ʳu′ = fundamental ⊢u:A₊ η▸u
@@ -524,7 +526,8 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
     Idʳ ⊢A ⊢t ⊢u
   fundamental (rflⱼ ⊢t) _ =
     rflʳ ⊢t
-  fundamental {γ} (Jⱼ {A} {t} {B} {u} {v} {w} _ ⊢t ⊢B ⊢u ⊢v ⊢w) ▸J =
+  fundamental
+    {γ} {m = 𝟙ᵐ} (Jⱼ {A} {t} {B} {u} {v} {w} _ ⊢t ⊢B ⊢u ⊢v ⊢w) ▸J =
     case F.fundamentalTerm ⊢t of λ {
       (⊩Γ , ⊩A , ⊩t) →
     case (λ {k Δ σ} →
@@ -580,7 +583,7 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
                                                                            proj₂ ∘→ ∧ᶜ-positive-⟨⟩ γ₃ ∘→
                                                                            proj₂ ∘→ ∧ᶜ-positive-⟨⟩ γ₂ ⟩
                   (γ₄ ∧ᶜ γ₆) ⟨ x ⟩ PE.≡ 𝟘                               □) }) }}}
-  fundamental {γ} (Kⱼ {t} {A} {B} {u} {v} ⊢t ⊢B ⊢u ⊢v ok) ▸K =
+  fundamental {γ} {m = 𝟙ᵐ} (Kⱼ {t} {A} {B} {u} {v} ⊢t ⊢B ⊢u ⊢v ok) ▸K =
     case F.fundamentalTerm ⊢t of λ {
       (⊩Γ , ⊩A , ⊩t) →
     let ⊩Id-t-t = Idᵛ ⊩A ⊩t ⊩t in

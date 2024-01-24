@@ -16,7 +16,7 @@ module Graded.Erasure.Consequences.Non-interference
   {𝕄 : Modality M}
   (open Modality 𝕄)
   (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions M)
+  (UR : Usage-restrictions 𝕄)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
   {k : Nat}
   {Δ : Con Term k}

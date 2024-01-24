@@ -19,7 +19,7 @@ module Graded.Modality.Instances.Affine.Bad.No-dedicated-nr
   (open Graded.Modality.Dedicated-nr affineModality)
   (TR : Type-restrictions affineModality)
   (open Type-restrictions TR)
-  (UR : Usage-restrictions Affine)
+  (UR : Usage-restrictions affineModality)
   -- It is assumed that "Π 𝟙 , 𝟘" is allowed.
   (Π-𝟙-𝟘 : Π-allowed 𝟙 𝟘)
   -- There is no dedicated nr function.

@@ -13,7 +13,7 @@ module Graded.Modality.Instances.Linearity.Properties
   (variant : Modality-variant)
   (open Modality-variant variant)
   (open Graded.Modality.Instances.Linearity variant)
-  (UR : Usage-restrictions Linearity) where
+  (UR : Usage-restrictions linearityModality) where
 
 open Usage-restrictions UR
 
@@ -33,12 +33,12 @@ private variable
   p q : Linearity
   A   : Term _
 
-¬prodrecₘ-Linearity : Prodrec-allowed 𝟙 𝟙 𝟘
+¬prodrecₘ-Linearity : Prodrec-allowed 𝟙ᵐ 𝟙 𝟙 𝟘
                     → ¬ (∀ {n} {γ η : Conₘ n} {δ m r p q t u A}
                         → γ ▸[ m ᵐ· r ] t
                         → δ ∙ ⌜ m ⌝ · r  · p ∙ ⌜ m ⌝ · r ▸[ m ] u
                         → η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
-                        → Prodrec-allowed r p q
+                        → Prodrec-allowed m r p q
                         → r ·ᶜ γ +ᶜ δ ▸[ m ] prodrecˢ p t u)
 ¬prodrecₘ-Linearity ok = S.¬prodrecₘ ok (λ ())
 

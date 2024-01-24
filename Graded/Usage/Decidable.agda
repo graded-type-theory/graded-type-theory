@@ -13,14 +13,14 @@ module Graded.Usage.Decidable
   (open Graded.Modality M)
   (𝕄 : Modality)
   (open Graded.Modality.Dedicated-nr 𝕄)
-  (R : Usage-restrictions M)
+  (R : Usage-restrictions 𝕄)
   (open Usage-restrictions R)
   -- Equality is assumed to be decidable for M.
   (_≟_ : Decidable (_≡_ {A = M}))
   -- The Prodrec-allowed relation is assumed to be decidable.
-  (Prodrec? : ∀ r p q → Dec (Prodrec-allowed r p q))
+  (Prodrec? : ∀ m r p q → Dec (Prodrec-allowed m r p q))
   -- The Unitrec-allowed relation is assumed to be decidable.
-  (Unitrec? : ∀ p q → Dec (Unitrec-allowed p q))
+  (Unitrec? : ∀ m p q → Dec (Unitrec-allowed m p q))
   -- A dedicated nr function is assumed to exist.
   ⦃ has-nr : Dedicated-nr ⦄
   -- The strong unit type is not allowed to be used as a sink.
@@ -215,7 +215,7 @@ infix 10 ⌈⌉▸[_]?_
       ¬▸u _ ▸u
     (inj₁ ▸u) → inj₁ (prodˢₘ ▸t ▸u)
 
-⌈⌉▸[ m ]? unitrec p q A t u = case Unitrec? p q of λ where
+⌈⌉▸[ m ]? unitrec p q A t u = case Unitrec? m p q of λ where
   (no not-ok) → inj₂ λ _ ▸ur →
           case inv-usage-unitrec ▸ur of λ (invUsageUnitrec _ _ _ ok _) →
           not-ok ok
@@ -244,7 +244,7 @@ infix 10 ⌈⌉▸[_]?_
                   ⌈ A ⌉ 𝟘ᵐ?                              ∎
             in  inj₁ (unitrecₘ ▸t ▸u (sub ▸A lemma) ok)
 
-⌈⌉▸[ m ]? prodrec r p q A t u = case Prodrec? r p q of λ where
+⌈⌉▸[ m ]? prodrec r p q A t u = case Prodrec? m r p q of λ where
   (no not-ok) → inj₂ λ _ ▸pr →
     case inv-usage-prodrec ▸pr of λ (invUsageProdrec _ _ _ ok _) →
     not-ok ok
@@ -406,7 +406,7 @@ infix 10 ⌈⌉▸[_]?_
 ⌈⌉▸[ m ]? rfl =
   inj₁ rflₘ
 
-⌈⌉▸[ m ]? J p q A t B u t′ v with Erased-matches-for-J?
+⌈⌉▸[ m ]? J p q A t B u t′ v with Erased-matches-for-J? m
 … | yes ok =
   case ⌈⌉▸[ 𝟘ᵐ? ]? A of λ where
     (inj₂ ¬▸A) → inj₂ λ _ ▸J →
@@ -529,7 +529,7 @@ infix 10 ⌈⌉▸[_]?_
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-⌈⌉▸[ m ]? K p A t B u v with Erased-matches-for-K?
+⌈⌉▸[ m ]? K p A t B u v with Erased-matches-for-K? m
 … | yes ok =
   case ⌈⌉▸[ 𝟘ᵐ? ]? A of λ where
     (inj₂ ¬▸A) → inj₂ λ _ ▸K →

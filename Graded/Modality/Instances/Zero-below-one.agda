@@ -19,6 +19,7 @@ import Graded.Modality
 import Graded.Modality.Properties.Has-well-behaved-zero
 import Graded.Modality.Properties.Star as Star
 open import Graded.Modality.Variant lzero
+open import Graded.Usage.Restrictions
 
 open import Definition.Typed.Restrictions
 open import Definition.Untyped using (BMΣ; 𝕤; 𝕨)
@@ -26,21 +27,18 @@ open import Definition.Untyped using (BMΣ; 𝕤; 𝕨)
 private variable
   variant : Modality-variant
   R       : Type-restrictions _
-
-import Graded.Usage.Restrictions
+  UR      : Usage-restrictions _
 
 -- The modality has two grades, 𝟘 and 𝟙.
 
 data Grade : Set where
   𝟘 𝟙 : Grade
 
-open Graded.Usage.Restrictions     Grade
-open Graded.Modality               Grade
-open Tools.Algebra                 Grade
+open Graded.Modality Grade
+open Tools.Algebra   Grade
 
 private variable
-  p       : Grade
-  UR      : Usage-restrictions
+  p : Grade
 
 ------------------------------------------------------------------------
 -- Operators
@@ -337,8 +335,10 @@ _≟_ = λ where
 -- * Σˢ-allowed 𝟘 p does not hold.
 
 Suitable-for-full-reduction :
-  ∀ variant ok → Type-restrictions (𝟘≤𝟙 variant ok) →
-  Usage-restrictions → Set
+  ∀ variant ok →
+  Type-restrictions (𝟘≤𝟙 variant ok) →
+  Usage-restrictions (𝟘≤𝟙 variant ok) →
+  Set
 Suitable-for-full-reduction _ _ TR UR =
   (¬ Unitˢ-allowed ⊎ Starˢ-sink) ×
   (∀ p → ¬ Σˢ-allowed 𝟘 p)
@@ -350,7 +350,7 @@ Suitable-for-full-reduction _ _ TR UR =
 -- create a "suitable" instance of Type-restrictions.
 
 suitable-for-full-reduction :
-  ∀ ok → Type-restrictions (𝟘≤𝟙 variant ok) →
+  ∀ ok {UR} → Type-restrictions (𝟘≤𝟙 variant ok) →
   ∃ λ TR → (Suitable-for-full-reduction variant ok TR UR)
 suitable-for-full-reduction refl R =
     record R
@@ -374,7 +374,7 @@ suitable-for-full-reduction refl R =
 -- "suitable" Type-restrictionsa and Usage-restrictions.
 
 full-reduction-assumptions :
-  ∀ ok {TR} →
+  ∀ ok {TR UR} →
   Suitable-for-full-reduction variant ok TR UR →
   Full-reduction-assumptions TR UR
 full-reduction-assumptions refl (¬Unit⊎sink , ¬𝟘) = record

@@ -26,7 +26,7 @@ open import Graded.Context.Properties 𝕄
 import Graded.Usage 𝕄 as MU
 import Graded.Usage.Properties 𝕄 as MUP
 import Graded.Usage.Properties.Has-well-behaved-zero 𝕄 as MUP𝟘
-open import Graded.Usage.Restrictions M
+open import Graded.Usage.Restrictions 𝕄
 open import Graded.Mode 𝕄
 
 open import Tools.Empty

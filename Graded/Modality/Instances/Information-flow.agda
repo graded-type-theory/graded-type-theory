@@ -24,7 +24,7 @@ open import Graded.Modality.Variant lzero
 open import Definition.Untyped
 
 open import Definition.Typed.Restrictions
-import Graded.Usage.Restrictions
+open import Graded.Usage.Restrictions
 
 -- Three information levels: low (public), medium (private), and high
 -- (more private).
@@ -32,15 +32,14 @@ import Graded.Usage.Restrictions
 data Level : Set where
   L M H : Level
 
-open Graded.Usage.Restrictions     Level
-open Graded.Modality               Level
-open Tools.Algebra                 Level
+open Graded.Modality Level
+open Tools.Algebra   Level
 
 private variable
   p q r   : Level
   variant : Modality-variant
   trs     : Type-restrictions _
-  urs     : Usage-restrictions
+  urs     : Usage-restrictions _
 
 ------------------------------------------------------------------------
 -- Operators

@@ -8,7 +8,7 @@ open import Graded.Usage.Restrictions
 module Graded.Usage.Weakening
   {a} {M : Set a}
   (𝕄 : Modality M)
-  (R : Usage-restrictions M)
+  (R : Usage-restrictions 𝕄)
   where
 
 open Modality 𝕄

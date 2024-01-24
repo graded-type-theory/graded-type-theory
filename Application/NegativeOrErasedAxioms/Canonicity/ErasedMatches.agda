@@ -35,7 +35,7 @@ open import Graded.Modality.Variant lzero
 import Graded.Mode
 open import Graded.Restrictions
 import Graded.Usage
-import Graded.Usage.Restrictions
+open import Graded.Usage.Restrictions
 
 open import Graded.Modality.Instances.Erasure
 import Graded.Modality.Instances.Erasure.Modality as EM
@@ -45,7 +45,6 @@ module Counterexample
   where
 
   open Graded.Modality Erasure
-  open Graded.Usage.Restrictions Erasure
 
   private
 
@@ -60,7 +59,7 @@ module Counterexample
     TR : Type-restrictions 𝕄
     TR = no-type-restrictions 𝕄
 
-    UR : Usage-restrictions
+    UR : Usage-restrictions 𝕄
     UR = no-usage-restrictions 𝕄
 
   open Application.NegativeOrErasedAxioms.NegativeOrErasedContext TR
@@ -164,7 +163,6 @@ module Counterexample
 not-canonicityEq :
   (∀ {a} {M : Set a} →
    let open Graded.Modality M
-       open Graded.Usage.Restrictions M
        open Definition.Untyped M
    in
    {𝕄 : Modality} →
@@ -178,7 +176,7 @@ not-canonicityEq :
          Application.NegativeOrErasedAxioms.NegativeOrErasedContext TR
        open Definition.Typed TR
    in
-   (UR : Usage-restrictions) →
+   (UR : Usage-restrictions 𝕄) →
    let open Graded.Usage 𝕄 UR in
    ∀ {m} {Γ : Con Term m} →
    Consistent Γ →

@@ -11,7 +11,7 @@ open import Definition.Untyped.NotParametrised using (Strength)
 module Graded.Derived.Erased.Usage
   {a} {M : Set a}
   (𝕄 : Modality M)
-  (R : Usage-restrictions M)
+  (R : Usage-restrictions 𝕄)
   (s : Strength)
   where
 

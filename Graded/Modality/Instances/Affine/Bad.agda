@@ -18,7 +18,7 @@ module Graded.Modality.Instances.Affine.Bad
   (open Graded.Modality.Dedicated-nr bad-affine-modality)
   (TR : Type-restrictions bad-affine-modality)
   (open Type-restrictions TR)
-  (UR : Usage-restrictions Affine)
+  (UR : Usage-restrictions bad-affine-modality)
   -- It is assumed that "Π 𝟙 , 𝟘" is allowed.
   (Π-𝟙-𝟘 : Π-allowed 𝟙 𝟘)
   -- There is a dedicated nr function.

@@ -13,38 +13,45 @@ module Graded.Mode.QuantityTranslation
   (tr tr-Σ : M₁ → M₂)
   where
 
-open import Graded.Modality.Properties 𝕄₂
+open import Graded.Modality.Morphism.Usage-restrictions
+import Graded.Modality.Properties
 open import Graded.Mode
 open import Definition.Untyped
 open import Definition.Untyped.QuantityTranslation tr tr-Σ
 
+open Graded.Modality.Properties 𝕄₂
+
 private
   module Mo₁ = Graded.Mode 𝕄₁
   module Mo₂ = Graded.Mode 𝕄₂
+  module MP₁ = Graded.Modality.Properties 𝕄₁
   module M₁  = Modality 𝕄₁
   module M₂  = Modality 𝕄₂
 
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Product
-open import Tools.PropositionalEquality
+open import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
 
 private variable
-  p    : M₁
-  m m′ : Mode _
+  p          : M₁
+  m m₁ m₂ m′ : Mode _
+  b          : BinderMode
 
 ------------------------------------------------------------------------
 -- Definitions that are made under the assumptions that tr is a
 -- morphism and that tr-Σ is a Σ-morphism with respect to tr
 
 module Is-morphism
-  (m   : Is-morphism 𝕄₁ 𝕄₂ tr)
-  (m-Σ : Is-Σ-morphism 𝕄₁ 𝕄₂ tr tr-Σ)
+  (tr-morphism   : Is-morphism 𝕄₁ 𝕄₂ tr)
+  (tr-Σ-morphism : Is-Σ-morphism 𝕄₁ 𝕄₂ tr tr-Σ)
   where
 
-  open M.Is-morphism m
+  open M.Is-morphism tr-morphism
+  private
+    module ΣM = M.Is-Σ-morphism tr-Σ-morphism
 
   open Modality 𝕄₂ using (_≤_)
 
@@ -60,6 +67,117 @@ module Is-morphism
   tr-Mode : Mo₁.Mode → Mo₂.Mode
   tr-Mode 𝟘ᵐ[ ok ] = 𝟘ᵐ[ 𝟘ᵐ-in-second-if-in-first ok ]
   tr-Mode 𝟙ᵐ       = 𝟙ᵐ
+
+  opaque
+
+    -- The relation _≈ᵐ_ relates m and tr-Mode m.
+
+    ≈ᵐ-tr-Mode : m ≈ᵐ tr-Mode m
+    ≈ᵐ-tr-Mode {m = 𝟙ᵐ}       = 𝟙ᵐ
+    ≈ᵐ-tr-Mode {m = 𝟘ᵐ[ ok ]} =
+      𝟘ᵐ ⦃ ok₂ = 𝟘ᵐ-in-second-if-in-first ok ⦄
+
+  opaque
+
+    -- The relation _≈ᵐ_ relates Mo₁.⌞ p ⌟ and Mo₂.⌞ tr p ⌟.
+
+    ⌞⌟≈ᵐ⌞⌟ : Mo₁.⌞ p ⌟ ≈ᵐ Mo₂.⌞ tr p ⌟
+    ⌞⌟≈ᵐ⌞⌟ {p}
+      with Mo₁.⌞ p    ⌟ | Mo₁.⌞⌟-view-total p
+         | Mo₂.⌞ tr p ⌟ | Mo₂.⌞⌟-view-total (tr p)
+    … | 𝟙ᵐ | _ | 𝟙ᵐ | _ = 𝟙ᵐ
+    … | 𝟘ᵐ | _ | 𝟘ᵐ | _ = 𝟘ᵐ
+
+    … | .𝟙ᵐ | 𝟘ᵐ-not-allowed not-ok refl | .𝟘ᵐ | 𝟘ᵐ ⦃ ok ⦄ tr-p≡𝟘 refl =
+      ⊥-elim $ tr-<-𝟘 not-ok ok .proj₂ tr-p≡𝟘
+    … | .𝟙ᵐ | 𝟙ᵐ ⦃ ok ⦄ p≢𝟘 refl | .𝟘ᵐ | 𝟘ᵐ tr-p≡𝟘 refl =
+      ⊥-elim $ p≢𝟘 $ tr-≡-𝟘-⇔ (MP₁.𝟘ᵐ.non-trivial ok) .proj₁ tr-p≡𝟘
+    … | .𝟘ᵐ | 𝟘ᵐ ⦃ ok ⦄ _ refl | .𝟙ᵐ | 𝟘ᵐ-not-allowed not-ok refl =
+      ⊥-elim $ not-ok (𝟘ᵐ-in-second-if-in-first ok)
+    … | .𝟘ᵐ | 𝟘ᵐ ⦃ ok ⦄ p≡𝟘 refl | .𝟙ᵐ | 𝟙ᵐ tr-p≢𝟘 refl =
+      ⊥-elim $ tr-p≢𝟘 $ tr-≡-𝟘-⇔ (MP₁.𝟘ᵐ.non-trivial ok) .proj₂ p≡𝟘
+
+  opaque
+
+    -- The relation _≈ᵐ_ relates Mo₁.⌞ p ⌟ and Mo₂.⌞ tr-Σ p ⌟.
+
+    ⌞⌟≈ᵐ⌞⌟-Σ : Mo₁.⌞ p ⌟ ≈ᵐ Mo₂.⌞ tr-Σ p ⌟
+    ⌞⌟≈ᵐ⌞⌟-Σ {p}
+      with Mo₁.⌞ p      ⌟ | Mo₁.⌞⌟-view-total p
+         | Mo₂.⌞ tr-Σ p ⌟ | Mo₂.⌞⌟-view-total (tr-Σ p)
+    … | 𝟙ᵐ | _ | 𝟙ᵐ | _ = 𝟙ᵐ
+    … | 𝟘ᵐ | _ | 𝟘ᵐ | _ = 𝟘ᵐ
+
+    … | .𝟙ᵐ | 𝟘ᵐ-not-allowed not-ok refl | .𝟘ᵐ | 𝟘ᵐ ⦃ ok ⦄ tr-p≡𝟘 refl =
+      ⊥-elim $ not-ok (ΣM.tr-Σ-≡-𝟘-→ ok tr-p≡𝟘 .proj₁)
+    … | .𝟙ᵐ | 𝟙ᵐ ⦃ ok ⦄ p≢𝟘 refl | .𝟘ᵐ | 𝟘ᵐ tr-p≡𝟘 refl =
+      ⊥-elim $
+      p≢𝟘 $ ΣM.tr-Σ-≡-𝟘-→ (𝟘ᵐ-in-second-if-in-first ok) tr-p≡𝟘 .proj₂
+    … | .𝟘ᵐ | 𝟘ᵐ ⦃ ok ⦄ _ refl | .𝟙ᵐ | 𝟘ᵐ-not-allowed not-ok refl =
+      ⊥-elim $ not-ok (𝟘ᵐ-in-second-if-in-first ok)
+    … | .𝟘ᵐ | 𝟘ᵐ ⦃ ok ⦄ p≡𝟘 refl | .𝟙ᵐ | 𝟙ᵐ tr-p≢𝟘 refl =
+      ⊥-elim $ tr-p≢𝟘 $ subst (λ p → tr-Σ p ≡ _) (PE.sym p≡𝟘) $
+      ΣM.tr-Σ-𝟘-≡ (MP₁.𝟘ᵐ.non-trivial ok)
+
+  opaque
+
+    -- If m₁ ≈ᵐ m₂ holds, then m₁ Mo₁.ᵐ· p ≈ᵐ m₂ Mo₂.ᵐ· tr p also
+    -- holds.
+
+    ᵐ·≈ᵐᵐ· : m₁ ≈ᵐ m₂ → m₁ Mo₁.ᵐ· p ≈ᵐ m₂ Mo₂.ᵐ· tr p
+    ᵐ·≈ᵐᵐ· 𝟘ᵐ = 𝟘ᵐ
+    ᵐ·≈ᵐᵐ· 𝟙ᵐ = ⌞⌟≈ᵐ⌞⌟
+
+  opaque
+
+    -- If m₁ ≈ᵐ m₂ holds, then m₁ Mo₁.ᵐ· p ≈ᵐ m₂ Mo₂.ᵐ· tr-Σ p also
+    -- holds.
+
+    ᵐ·≈ᵐᵐ·-Σ : m₁ ≈ᵐ m₂ → m₁ Mo₁.ᵐ· p ≈ᵐ m₂ Mo₂.ᵐ· tr-Σ p
+    ᵐ·≈ᵐᵐ·-Σ 𝟘ᵐ = 𝟘ᵐ
+    ᵐ·≈ᵐᵐ·-Σ 𝟙ᵐ = ⌞⌟≈ᵐ⌞⌟-Σ
+
+  opaque
+
+    -- If m₁ ≈ᵐ m₂ holds, then
+    -- m₁ Mo₁.ᵐ· p ≈ᵐ m₂ Mo₂.ᵐ· tr-BinderMode b p also holds.
+
+    ᵐ·≈ᵐᵐ·-BinderMode :
+      m₁ ≈ᵐ m₂ → m₁ Mo₁.ᵐ· p ≈ᵐ m₂ Mo₂.ᵐ· tr-BinderMode b p
+    ᵐ·≈ᵐᵐ·-BinderMode {b = BMΠ}   = ᵐ·≈ᵐᵐ·
+    ᵐ·≈ᵐᵐ·-BinderMode {b = BMΣ _} = ᵐ·≈ᵐᵐ·-Σ
+
+  opaque
+
+    -- If m₁ ≳ᵐ m₂ holds, then m₁ Mo₁.ᵐ· p ≳ᵐ m₂ Mo₂.ᵐ· tr p also
+    -- holds.
+
+    ᵐ·≳ᵐᵐ· : m₁ ≳ᵐ m₂ → m₁ Mo₁.ᵐ· p ≳ᵐ m₂ Mo₂.ᵐ· tr p
+    ᵐ·≳ᵐᵐ· [ m₁≈m₂ ]        = [ ᵐ·≈ᵐᵐ· m₁≈m₂ ]
+    ᵐ·≳ᵐᵐ· (𝟙ᵐ≳𝟘ᵐ trivial₁) =
+      subst (_≳ᵐ _) (Mo₁.Mode-propositional-if-trivial trivial₁) $
+      𝟙ᵐ≳𝟘ᵐ trivial₁
+
+  opaque
+
+    -- If m₁ ≳ᵐ m₂ holds, then m₁ Mo₁.ᵐ· p ≳ᵐ m₂ Mo₂.ᵐ· tr-Σ p also
+    -- holds.
+
+    ᵐ·≳ᵐᵐ·-Σ : m₁ ≳ᵐ m₂ → m₁ Mo₁.ᵐ· p ≳ᵐ m₂ Mo₂.ᵐ· tr-Σ p
+    ᵐ·≳ᵐᵐ·-Σ [ m₁≈m₂ ]        = [ ᵐ·≈ᵐᵐ·-Σ m₁≈m₂ ]
+    ᵐ·≳ᵐᵐ·-Σ (𝟙ᵐ≳𝟘ᵐ trivial₁) =
+      subst (_≳ᵐ _) (Mo₁.Mode-propositional-if-trivial trivial₁) $
+      𝟙ᵐ≳𝟘ᵐ trivial₁
+
+  opaque
+
+    -- If m₁ ≳ᵐ m₂ holds, then
+    -- m₁ Mo₁.ᵐ· p ≳ᵐ m₂ Mo₂.ᵐ· tr-BinderMode b p also holds.
+
+    ᵐ·≳ᵐᵐ·-BinderMode :
+      m₁ ≳ᵐ m₂ → m₁ Mo₁.ᵐ· p ≳ᵐ m₂ Mo₂.ᵐ· tr-BinderMode b p
+    ᵐ·≳ᵐᵐ·-BinderMode {b = BMΠ}   = ᵐ·≳ᵐᵐ·
+    ᵐ·≳ᵐᵐ·-BinderMode {b = BMΣ _} = ᵐ·≳ᵐᵐ·-Σ
 
   -- Translation commutes with ⌜_⌝ up to _≤_.
 
@@ -114,8 +232,9 @@ module Is-morphism
     ∀ m b → tr-Mode (m Mo₁.ᵐ· p) ≡ (tr-Mode m Mo₂.ᵐ· tr-BinderMode b p)
   tr-Mode-ᵐ·         𝟘ᵐ = λ _ → refl
   tr-Mode-ᵐ· {p = p} 𝟙ᵐ = λ where
-      BMΠ     → lemma (M.Is-morphism→Is-Σ-morphism m) _ _ refl refl
-      (BMΣ _) → lemma m-Σ                             _ _ refl refl
+      BMΠ     → lemma (M.Is-morphism→Is-Σ-morphism tr-morphism)
+                  _ _ refl refl
+      (BMΣ _) → lemma tr-Σ-morphism _ _ refl refl
     where
     module _
       {tr′ : M₁ → M₂}

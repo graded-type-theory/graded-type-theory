@@ -14,7 +14,7 @@ module Graded.Erasure.LogicalRelation.Fundamental.Counterexample
   {𝕄 : Modality M}
   (open Modality 𝕄)
   (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions M)
+  (UR : Usage-restrictions 𝕄)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
   {{eqrel : EqRelSet TR}}
   where
@@ -53,15 +53,15 @@ private variable
   p q : M
   s   : Strength
 
--- If Prodrec-allowed 𝟘 p 𝟘 holds for some p (which means that certain
--- kinds of erased matches are allowed), and if additionally
+-- If Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 holds for some p (which means that
+-- certain kinds of erased matches are allowed), and if additionally
 -- Σʷ-allowed p 𝟘 holds, then one cannot prove a variant of the
 -- fundamental lemma without the assumption "erased matches are not
 -- allowed or the context is empty" (assuming that Agda is
 -- consistent).
 
 negation-of-fundamental-lemma-with-erased-matches₁ :
-  Prodrec-allowed 𝟘 p 𝟘 →
+  Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 →
   Σʷ-allowed p 𝟘 →
   ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
      let open LR ⊢Δ in
@@ -178,13 +178,13 @@ opaque
 
 opaque
 
-  -- If Erased-matches-for-J holds, then one can prove a negation of a
-  -- variant of the statement of the fundamental lemma without the
-  -- assumption "erased matches are not allowed or the context is
+  -- If Erased-matches-for-J 𝟙ᵐ holds, then one can prove a negation
+  -- of a variant of the statement of the fundamental lemma without
+  -- the assumption "erased matches are not allowed or the context is
   -- empty".
 
   negation-of-fundamental-lemma-with-erased-matches₃ :
-    Erased-matches-for-J →
+    Erased-matches-for-J 𝟙ᵐ →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
        let open LR ⊢Δ in
        Consistent Δ →
@@ -234,14 +234,14 @@ opaque
 
 opaque
 
-  -- If K-allowed and Erased-matches-for-K hold, then one can prove a
-  -- negation of a variant of the statement of the fundamental lemma
+  -- If K-allowed and Erased-matches-for-K 𝟙ᵐ hold, then one can prove
+  -- a negation of a variant of the statement of the fundamental lemma
   -- without the assumption "erased matches are not allowed or the
   -- context is empty".
 
   negation-of-fundamental-lemma-with-erased-matches₄ :
     K-allowed →
-    Erased-matches-for-K →
+    Erased-matches-for-K 𝟙ᵐ →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
        let open LR ⊢Δ in
        Consistent Δ →
@@ -292,16 +292,15 @@ opaque
 
 opaque
 
--- If Unitrec-allowed 𝟘 𝟘 holds (which means that certain
--- kinds of erased matches are allowed), and if additionally
--- Unitʷ-allowed holds, then one cannot prove a variant of the
--- fundamental lemma without the assumption "erased matches are not
--- allowed or the context is empty" (assuming that Agda is
--- consistent).
+  -- If Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 holds (which means that certain kinds
+  -- of erased matches are allowed), and if additionally Unitʷ-allowed
+  -- holds, then one cannot prove a variant of the fundamental lemma
+  -- without the assumption "erased matches are not allowed or the
+  -- context is empty" (assuming that Agda is consistent).
 
   negation-of-fundamental-lemma-with-erased-matches₅ :
     Unitʷ-allowed →
-    Unitrec-allowed 𝟘 𝟘 →
+    Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
        let open LR ⊢Δ in
        Consistent Δ →

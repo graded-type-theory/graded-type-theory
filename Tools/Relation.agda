@@ -11,7 +11,9 @@ open import Relation.Binary
         ; IsEquivalence; IsPartialOrder; IsPreorder
         )
   public
-open import Relation.Nullary using (¬_; Dec; yes; no) public
+open import Relation.Nullary
+  using (¬_; Dec; yes; no; ¬?)
+  public
 
 -- If A and B are logically equivalent, then so are Dec A and Dec B.
 

@@ -12,7 +12,7 @@ module Graded.Box-cong
   (open Graded.Modality M)
   {𝕄 : Modality}
   (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions M)
+  (UR : Usage-restrictions 𝕄)
   where
 
 open Modality 𝕄
@@ -152,12 +152,12 @@ opaque
 
 opaque
 
-  -- If erased matches are allowed for J and the type Erased is
-  -- allowed, then []-cong is supported for grades for which "Π 𝟘" are
-  -- allowed.
+  -- If erased matches are allowed for J (when the mode is 𝟙ᵐ) and the
+  -- type Erased is allowed, then []-cong is supported for grades for
+  -- which "Π 𝟘" are allowed.
 
   J₀→[]-cong :
-    Erased-matches-for-J →
+    Erased-matches-for-J 𝟙ᵐ →
     Erased-allowed s →
     Π-allowed 𝟘 q₁ →
     Π-allowed 𝟘 q₂ →

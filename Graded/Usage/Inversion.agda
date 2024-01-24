@@ -9,7 +9,7 @@ module Graded.Usage.Inversion
   {a} {M : Set a}
   (open Graded.Modality M)
   (𝕄 : Modality)
-  (R : Usage-restrictions M)
+  (R : Usage-restrictions 𝕄)
   where
 
 open Modality 𝕄
@@ -213,12 +213,12 @@ record InvUsageProdrec
     δ▸t : δ ▸[ m ᵐ· r ] t
     η▸u : η ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u
     θ▸A : θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
-    P : Prodrec-allowed r p q
+    P : Prodrec-allowed m r p q
     γ≤γ′ : γ ≤ᶜ r ·ᶜ δ +ᶜ η
 
 -- If γ ▸[ m ] prodrec r p q A t u then δ ▸[ m ᵐ· r ] t,
 -- η ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u, θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A,
--- Prodrec-allowed r p q and γ ≤ᶜ r ·ᶜ δ +ᶜ η.
+-- Prodrec-allowed m r p q and γ ≤ᶜ r ·ᶜ δ +ᶜ η.
 
 inv-usage-prodrec :
   γ ▸[ m ] prodrec r p q A t u → InvUsageProdrec γ m r p q A t u
@@ -332,11 +332,10 @@ record InvUsageUnitrec {n} (γ : Conₘ n) (m : Mode) (p q : M)
     δ▸t : δ ▸[ m ᵐ· p ] t
     η▸u : η ▸[ m ] u
     θ▸A : θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
-    P : Unitrec-allowed p q
+    P : Unitrec-allowed m p q
     γ≤δ+η : γ ≤ᶜ p ·ᶜ δ +ᶜ η
 
--- If γ ▸[ m ] unitrec A t u then δ ▸[ m ] t, η ▸[ m ] u,
--- θ ▸[ 𝟘ᵐ? ] A and γ ≤ᶜ δ +ᶜ η.
+-- A usage inversion lemma for unitrec.
 
 inv-usage-unitrec : γ ▸[ m ] unitrec p q A t u → InvUsageUnitrec γ m p q A t u
 inv-usage-unitrec (unitrecₘ δ▸t η▸u θ▸A ok) =
@@ -390,7 +389,7 @@ data InvUsageJ
        (B : Term (2+ n)) (u t′ v : Term n) : Set a where
   invUsageJ :
     {γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ : Conₘ n} →
-    ¬ Erased-matches-for-J →
+    ¬ Erased-matches-for-J m →
     γ₁ ▸[ 𝟘ᵐ? ] A →
     γ₂ ▸[ m ] t →
     γ₃ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · q ▸[ m ] B →
@@ -401,7 +400,7 @@ data InvUsageJ
     InvUsageJ γ m p q A t B u t′ v
   invUsageJ₀ :
     {γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ : Conₘ n} →
-    Erased-matches-for-J →
+    Erased-matches-for-J m →
     γ₁ ▸[ 𝟘ᵐ? ] A →
     γ₂ ▸[ 𝟘ᵐ? ] t →
     γ₃ ∙ ⌜ 𝟘ᵐ? ⌝ · p ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] B →
@@ -432,7 +431,7 @@ data InvUsageK
        (B : Term (1+ n)) (u v : Term n) : Set a where
   invUsageK :
     {γ₁ γ₂ γ₃ γ₄ γ₅ : Conₘ n} →
-    ¬ Erased-matches-for-K →
+    ¬ Erased-matches-for-K m →
     γ₁ ▸[ 𝟘ᵐ? ] A →
     γ₂ ▸[ m ] t →
     γ₃ ∙ ⌜ m ⌝ · p ▸[ m ] B →
@@ -442,7 +441,7 @@ data InvUsageK
     InvUsageK γ m p A t B u v
   invUsageK₀ :
     {γ₁ γ₂ γ₃ γ₄ γ₅ : Conₘ n} →
-    Erased-matches-for-K →
+    Erased-matches-for-K m →
     γ₁ ▸[ 𝟘ᵐ? ] A →
     γ₂ ▸[ 𝟘ᵐ? ] t →
     γ₃ ∙ ⌜ 𝟘ᵐ? ⌝ · p ▸[ 𝟘ᵐ? ] B →

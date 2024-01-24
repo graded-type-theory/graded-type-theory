@@ -11,7 +11,7 @@ module Graded.Usage.Properties
   {a} {M : Set a}
   (open Graded.Modality M)
   (𝕄 : Modality)
-  (R : Usage-restrictions M)
+  (R : Usage-restrictions 𝕄)
   where
 
 open Modality 𝕄
@@ -54,6 +54,8 @@ private
     γ γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ δ η θ χ : Conₘ n
     p q r s z : M
     m m₁ m₂ m′ : Mode
+    bm : BinderMode
+    str : Strength
     b : Bool
     ok : T b
     x : Fin n
@@ -107,11 +109,37 @@ var-usage-lookup (there x) = var-usage-lookup x
 ▸-trivial 𝟙≡𝟘 = ▸-without-𝟘ᵐ (flip 𝟘ᵐ.non-trivial 𝟙≡𝟘)
 
 ------------------------------------------------------------------------
--- The lemma ▸-· and some corollaries
+-- The lemma ▸-· and some related results
 
 -- The relation _▸[_]_ respects multiplication (in a certain sense).
 
 ▸-· : γ ▸[ m ] t → ⌜ m′ ⌝ ·ᶜ γ ▸[ m′ ·ᵐ m ] t
+
+-- If a term is well-resourced with respect to any context and mode,
+-- then it is well-resourced with respect to the zero usage context
+-- and the mode 𝟘ᵐ[ ok ].
+
+▸-𝟘 : γ ▸[ m ] t → 𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] t
+▸-𝟘 {γ} ▸t = sub
+  (▸-· ▸t)
+  (begin
+     𝟘ᶜ      ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
+     𝟘 ·ᶜ γ  ∎)
+  where
+  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+
+-- If a term is well-resourced with respect to any context and mode,
+-- then it is well-resourced with respect to some usage context and
+-- the mode 𝟘ᵐ?.
+
+▸-𝟘ᵐ? : γ ▸[ m ] t → ∃ λ δ → δ ▸[ 𝟘ᵐ? ] t
+▸-𝟘ᵐ? {m = 𝟘ᵐ[ ok ]} ▸t =
+  _ , ▸-cong (PE.sym $ 𝟘ᵐ?≡𝟘ᵐ {ok = ok}) (▸-𝟘 ▸t)
+▸-𝟘ᵐ? {m = 𝟙ᵐ} {t} ▸t = 𝟘ᵐ?-elim
+  (λ m → ∃ λ δ → δ ▸[ m ] t)
+  (_ , ▸-𝟘 ▸t)
+  (λ _ → _ , ▸t)
+
 ▸-· Uₘ =
   sub Uₘ (≤ᶜ-reflexive (·ᶜ-zeroʳ _))
 ▸-· ℕₘ =
@@ -178,7 +206,7 @@ var-usage-lookup (there x) = var-usage-lookup x
      (sub (▸-· u)
         (≤ᶜ-reflexive (≈ᶜ-refl ∙ ·ᵐ-·-assoc m′ ∙ ·ᵐ-·-assoc m′)))
      A
-     ok)
+     (Prodrec-allowed-·ᵐ ok))
   (begin
      ⌜ m′ ⌝ ·ᶜ (r ·ᶜ γ +ᶜ δ)          ≈⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
      ⌜ m′ ⌝ ·ᶜ r ·ᶜ γ +ᶜ ⌜ m′ ⌝ ·ᶜ δ  ≈⟨ +ᶜ-congʳ
@@ -252,7 +280,8 @@ var-usage-lookup (there x) = var-usage-lookup x
 ▸-· {m′ = m′} (starˢₘ prop) =
   sub (starˢₘ prop) (≤ᶜ-reflexive (≈ᶜ-sym (·ᵐ-·ᶜ-assoc m′)))
 ▸-· {m′ = m′} (unitrecₘ {γ = γ} {p = p} {δ = δ} γ▸t δ▸u η▸A ok) = sub
-  (unitrecₘ (▸-cong (PE.sym (·ᵐ-ᵐ·-assoc m′)) (▸-· γ▸t)) (▸-· δ▸u) η▸A ok)
+  (unitrecₘ (▸-cong (PE.sym (·ᵐ-ᵐ·-assoc m′)) (▸-· γ▸t)) (▸-· δ▸u) η▸A
+     (Unitrec-allowed-·ᵐ ok))
   (begin
     ⌜ m′ ⌝ ·ᶜ (p ·ᶜ γ +ᶜ δ)           ≈⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
     ⌜ m′ ⌝ ·ᶜ p ·ᶜ γ +ᶜ ⌜ m′ ⌝ ·ᶜ δ   ≈˘⟨ +ᶜ-congʳ (·ᶜ-assoc _ _ _) ⟩
@@ -270,49 +299,110 @@ var-usage-lookup (there x) = var-usage-lookup x
 ▸-· rflₘ =
   sub rflₘ (≤ᶜ-reflexive (·ᶜ-zeroʳ _))
 ▸-· {m} {m′}
-  (Jₘ {γ₂} {γ₃} {p} {q} {γ₄} {γ₅} {γ₆} ok ▸A ▸t ▸F ▸u ▸v ▸w) = sub
-  (Jₘ ok ▸A (▸-· ▸t)
-     (sub (▸-· ▸F)
-        (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-           ⌜ m′ ⌝ ·ᶜ γ₃ ∙ ⌜ m′ ·ᵐ m ⌝ · p ∙ ⌜ m′ ·ᵐ m ⌝ · q            ≈⟨ ≈ᶜ-refl ∙ ·-congʳ (⌜·ᵐ⌝ m′) ∙ ·-congʳ (⌜·ᵐ⌝ m′) ⟩
-           ⌜ m′ ⌝ ·ᶜ γ₃ ∙ (⌜ m′ ⌝ · ⌜ m ⌝) · p ∙ (⌜ m′ ⌝ · ⌜ m ⌝) · q  ≈⟨ ≈ᶜ-refl ∙ ·-assoc _ _ _ ∙ ·-assoc _ _ _ ⟩
-           ⌜ m′ ⌝ ·ᶜ γ₃ ∙ ⌜ m′ ⌝ · ⌜ m ⌝ · p ∙ ⌜ m′ ⌝ · ⌜ m ⌝ · q      ∎))
-     (▸-· ▸u) (▸-· ▸v) (▸-· ▸w))
-  (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-     ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆)                       ≈⟨ ≈ᶜ-trans (≈ᶜ-sym (·ᶜ-assoc _ _ _)) $
-                                                                          ≈ᶜ-trans (·ᶜ-congʳ (⌜⌝-·-comm m′)) $
-                                                                          ·ᶜ-assoc _ _ _ ⟩
+  (Jₘ {γ₂} {γ₃} {p} {q} {B} {γ₄} {γ₅} {γ₆} _ ▸A ▸t ▸B ▸u ▸v ▸w) =
+  case Erased-matches-for-J? (m′ ·ᵐ m) of λ where
+    (no ok) → sub
+      (Jₘ ok ▸A (▸-· ▸t)
+         (sub (▸-· ▸B)
+            (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+               ⌜ m′ ⌝ ·ᶜ γ₃ ∙ ⌜ m′ ·ᵐ m ⌝ · p ∙ ⌜ m′ ·ᵐ m ⌝ · q            ≈⟨ ≈ᶜ-refl ∙ ·-congʳ (⌜·ᵐ⌝ m′) ∙ ·-congʳ (⌜·ᵐ⌝ m′) ⟩
+               ⌜ m′ ⌝ ·ᶜ γ₃ ∙ (⌜ m′ ⌝ · ⌜ m ⌝) · p ∙ (⌜ m′ ⌝ · ⌜ m ⌝) · q  ≈⟨ ≈ᶜ-refl ∙ ·-assoc _ _ _ ∙ ·-assoc _ _ _ ⟩
+               ⌜ m′ ⌝ ·ᶜ γ₃ ∙ ⌜ m′ ⌝ · ⌜ m ⌝ · p ∙ ⌜ m′ ⌝ · ⌜ m ⌝ · q      ∎))
+         (▸-· ▸u) (▸-· ▸v) (▸-· ▸w))
+      (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+         ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆)                       ≈⟨ ≈ᶜ-trans (≈ᶜ-sym (·ᶜ-assoc _ _ _)) $
+                                                                              ≈ᶜ-trans (·ᶜ-congʳ (⌜⌝-·-comm m′)) $
+                                                                              ·ᶜ-assoc _ _ _ ⟩
 
-     ω ·ᶜ ⌜ m′ ⌝ ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆)                       ≈⟨ ·ᶜ-congˡ $
-                                                                          ≈ᶜ-trans (·ᶜ-distribˡ-∧ᶜ _ _ _) $ ∧ᶜ-congˡ $
-                                                                          ≈ᶜ-trans (·ᶜ-distribˡ-∧ᶜ _ _ _) $ ∧ᶜ-congˡ $
+         ω ·ᶜ ⌜ m′ ⌝ ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆)                       ≈⟨ ·ᶜ-congˡ $
+                                                                              ≈ᶜ-trans (·ᶜ-distribˡ-∧ᶜ _ _ _) $ ∧ᶜ-congˡ $
+                                                                              ≈ᶜ-trans (·ᶜ-distribˡ-∧ᶜ _ _ _) $ ∧ᶜ-congˡ $
+                                                                              ≈ᶜ-trans (·ᶜ-distribˡ-∧ᶜ _ _ _) $ ∧ᶜ-congˡ $
+                                                                              ·ᶜ-distribˡ-∧ᶜ _ _ _ ⟩
+         ω ·ᶜ
+         (⌜ m′ ⌝ ·ᶜ γ₂ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₃ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₄ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₅ ∧ᶜ
+          ⌜ m′ ⌝ ·ᶜ γ₆)                                                    ∎)
+    (yes ok) → sub
+      (J₀ₘ ok ▸A (▸-𝟘ᵐ? ▸t .proj₂)
+         (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
+          𝟘ᵐ?-elim (λ m′ → ∃ λ δ → δ ∙ ⌜ m′ ⌝ · p ∙ ⌜ m′ ⌝ · q ▸[ m′ ] B)
+            ( 𝟘ᶜ
+            , sub (▸-𝟘 ▸B) (begin
+                𝟘ᶜ ∙ 𝟘 · p ∙ 𝟘 · q  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
+                𝟘ᶜ                  ∎)
+            )
+            (λ not-ok →
+                 γ₃
+               , sub (▸-cong (only-𝟙ᵐ-without-𝟘ᵐ not-ok) ▸B) (begin
+                   γ₃ ∙ 𝟙 · p ∙ 𝟙 · q          ≈⟨ ≈ᶜ-refl ∙
+                                                  cong (λ m → ⌜ m ⌝ · p) (Mode-propositional-without-𝟘ᵐ {m₁ = 𝟙ᵐ} {m₂ = m} not-ok) ∙
+                                                  cong (λ m → ⌜ m ⌝ · q) (Mode-propositional-without-𝟘ᵐ {m₁ = 𝟙ᵐ} {m₂ = m} not-ok) ⟩
+                   γ₃ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · q  ∎))
+            .proj₂)
+         (▸-· ▸u) (▸-𝟘ᵐ? ▸v .proj₂) (▸-𝟘ᵐ? ▸w .proj₂))
+      (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+         ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆)      ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ-decreasing ⟩
+
+         ⌜ m′ ⌝ ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆)           ≈⟨ ≈ᶜ-trans (·ᶜ-distribˡ-∧ᶜ _ _ _) $ ∧ᶜ-congˡ $
+                                                             ≈ᶜ-trans (·ᶜ-distribˡ-∧ᶜ _ _ _) $ ∧ᶜ-congˡ $
+                                                             ·ᶜ-distribˡ-∧ᶜ _ _ _ ⟩
+         ⌜ m′ ⌝ ·ᶜ γ₂ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₃ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₄ ∧ᶜ
+         ⌜ m′ ⌝ ·ᶜ (γ₅ ∧ᶜ γ₆)                             ≤⟨ ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
+                                                             ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
+                                                             ∧ᶜ-decreasingˡ _ _ ⟩
+         ⌜ m′ ⌝ ·ᶜ γ₄                                     ∎)
+▸-· (J₀ₘ ok ▸A ▸t ▸F ▸u ▸v ▸w) =
+  J₀ₘ (Erased-matches-for-J-·ᵐ ok) ▸A ▸t ▸F (▸-· ▸u) ▸v ▸w
+▸-· {m} {m′} (Kₘ {γ₂} {γ₃} {p} {B} {γ₄} {γ₅} _ ▸A ▸t ▸B ▸u ▸v) =
+  case Erased-matches-for-K? (m′ ·ᵐ m) of λ where
+    (no ok) → sub
+      (Kₘ ok ▸A (▸-· ▸t)
+         (sub (▸-· ▸B)
+            (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+               ⌜ m′ ⌝ ·ᶜ γ₃ ∙ ⌜ m′ ·ᵐ m ⌝ · p       ≈⟨ ≈ᶜ-refl ∙ ·-congʳ (⌜·ᵐ⌝ m′) ⟩
+               ⌜ m′ ⌝ ·ᶜ γ₃ ∙ (⌜ m′ ⌝ · ⌜ m ⌝) · p  ≈⟨ ≈ᶜ-refl ∙ ·-assoc _ _ _ ⟩
+               ⌜ m′ ⌝ ·ᶜ γ₃ ∙ ⌜ m′ ⌝ · ⌜ m ⌝ · p    ∎))
+         (▸-· ▸u) (▸-· ▸v))
+      (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+         ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅)                           ≈⟨ ≈ᶜ-trans (≈ᶜ-sym (·ᶜ-assoc _ _ _)) $
+                                                                            ≈ᶜ-trans (·ᶜ-congʳ (⌜⌝-·-comm m′)) $
+                                                                            ·ᶜ-assoc _ _ _ ⟩
+
+         ω ·ᶜ ⌜ m′ ⌝ ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅)                           ≈⟨ ·ᶜ-congˡ $
+                                                                            ≈ᶜ-trans (·ᶜ-distribˡ-∧ᶜ _ _ _) $ ∧ᶜ-congˡ $
+                                                                            ≈ᶜ-trans (·ᶜ-distribˡ-∧ᶜ _ _ _) $ ∧ᶜ-congˡ $
+                                                                            ·ᶜ-distribˡ-∧ᶜ _ _ _ ⟩
+         ω ·ᶜ
+         (⌜ m′ ⌝ ·ᶜ γ₂ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₃ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₄ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₅)  ∎)
+    (yes ok) → sub
+      (K₀ₘ ok ▸A (▸-𝟘ᵐ? ▸t .proj₂)
+         (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
+          𝟘ᵐ?-elim (λ m′ → ∃ λ δ → δ ∙ ⌜ m′ ⌝ · p ▸[ m′ ] B)
+            ( 𝟘ᶜ
+            , sub (▸-𝟘 ▸B) (begin
+                𝟘ᶜ ∙ 𝟘 · p  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
+                𝟘ᶜ          ∎)
+            )
+            (λ not-ok →
+                 γ₃
+               , sub (▸-cong (only-𝟙ᵐ-without-𝟘ᵐ not-ok) ▸B) (begin
+                   γ₃ ∙ 𝟙 · p      ≈⟨ ≈ᶜ-refl ∙
+                                      cong (λ m → ⌜ m ⌝ · p) (Mode-propositional-without-𝟘ᵐ {m₁ = 𝟙ᵐ} {m₂ = m} not-ok) ⟩
+                   γ₃ ∙ ⌜ m ⌝ · p  ∎))
+            .proj₂)
+         (▸-· ▸u) (▸-𝟘ᵐ? ▸v .proj₂))
+      (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+         ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅)                         ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ-decreasing ⟩
+
+         ⌜ m′ ⌝ ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅)                              ≈⟨ ≈ᶜ-trans (·ᶜ-distribˡ-∧ᶜ _ _ _) $ ∧ᶜ-congˡ $
                                                                           ≈ᶜ-trans (·ᶜ-distribˡ-∧ᶜ _ _ _) $ ∧ᶜ-congˡ $
                                                                           ·ᶜ-distribˡ-∧ᶜ _ _ _ ⟩
-     ω ·ᶜ
-     (⌜ m′ ⌝ ·ᶜ γ₂ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₃ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₄ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₅ ∧ᶜ
-      ⌜ m′ ⌝ ·ᶜ γ₆)                                                    ∎)
-▸-· (J₀ₘ ok ▸A ▸t ▸F ▸u ▸v ▸w) =
-  J₀ₘ ok ▸A ▸t ▸F (▸-· ▸u) ▸v ▸w
-▸-· {m} {m′} (Kₘ {γ₂} {γ₃} {p} {γ₄} {γ₅} ok ▸A ▸t ▸F ▸u ▸v) = sub
-  (Kₘ ok ▸A (▸-· ▸t)
-     (sub (▸-· ▸F)
-        (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-           ⌜ m′ ⌝ ·ᶜ γ₃ ∙ ⌜ m′ ·ᵐ m ⌝ · p       ≈⟨ ≈ᶜ-refl ∙ ·-congʳ (⌜·ᵐ⌝ m′) ⟩
-           ⌜ m′ ⌝ ·ᶜ γ₃ ∙ (⌜ m′ ⌝ · ⌜ m ⌝) · p  ≈⟨ ≈ᶜ-refl ∙ ·-assoc _ _ _ ⟩
-           ⌜ m′ ⌝ ·ᶜ γ₃ ∙ ⌜ m′ ⌝ · ⌜ m ⌝ · p    ∎))
-     (▸-· ▸u) (▸-· ▸v))
-  (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-     ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅)                                ≈⟨ ≈ᶜ-trans (≈ᶜ-sym (·ᶜ-assoc _ _ _)) $
-                                                                             ≈ᶜ-trans (·ᶜ-congʳ (⌜⌝-·-comm m′)) $
-                                                                             ·ᶜ-assoc _ _ _ ⟩
-
-     ω ·ᶜ ⌜ m′ ⌝ ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅)                                ≈⟨ ·ᶜ-congˡ $
-                                                                             ≈ᶜ-trans (·ᶜ-distribˡ-∧ᶜ _ _ _) $ ∧ᶜ-congˡ $
-                                                                             ≈ᶜ-trans (·ᶜ-distribˡ-∧ᶜ _ _ _) $ ∧ᶜ-congˡ $
-                                                                             ·ᶜ-distribˡ-∧ᶜ _ _ _ ⟩
-     ω ·ᶜ (⌜ m′ ⌝ ·ᶜ γ₂ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₃ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₄ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₅)  ∎)
+         ⌜ m′ ⌝ ·ᶜ γ₂ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₃ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₄ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₅  ≤⟨ ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
+                                                                          ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
+                                                                          ∧ᶜ-decreasingˡ _ _ ⟩
+         ⌜ m′ ⌝ ·ᶜ γ₄                                                  ∎)
 ▸-· (K₀ₘ ok ▸A ▸t ▸F ▸u ▸v) =
-  K₀ₘ ok ▸A ▸t ▸F (▸-· ▸u) ▸v
+  K₀ₘ (Erased-matches-for-K-·ᵐ ok) ▸A ▸t ▸F (▸-· ▸u) ▸v
 ▸-· ([]-congₘ ▸A ▸t ▸u ▸v) = sub
   ([]-congₘ ▸A ▸t ▸u ▸v)
   (≤ᶜ-reflexive (·ᶜ-zeroʳ _))
@@ -324,25 +414,12 @@ var-usage-lookup (there x) = var-usage-lookup x
 ▸-·′ : γ ▸[ m ] t → ⌜ m ⌝ ·ᶜ γ ▸[ m ] t
 ▸-·′ ▸t = ▸-cong ·ᵐ-idem (▸-· ▸t)
 
--- If a term is well-resourced with respect to any context and mode,
--- then it is well-resourced with respect to the zero usage context
--- and the mode 𝟘ᵐ[ ok ].
-
-▸-𝟘 : γ ▸[ m ] t → 𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] t
-▸-𝟘 {γ = γ} ▸t = sub
-  (▸-· ▸t)
-  (begin
-     𝟘ᶜ      ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
-     𝟘 ·ᶜ γ  ∎)
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-
 opaque
 
   -- A variant of ▸-𝟘.
 
-  ▸-𝟘ᵐ? : T 𝟘ᵐ-allowed → γ ▸[ m ] t → 𝟘ᶜ ▸[ 𝟘ᵐ? ] t
-  ▸-𝟘ᵐ? ok = ▸-cong (PE.sym $ 𝟘ᵐ?≡𝟘ᵐ {ok = ok}) ∘→ ▸-𝟘
+  𝟘ᶜ▸[𝟘ᵐ?] : T 𝟘ᵐ-allowed → γ ▸[ m ] t → 𝟘ᶜ ▸[ 𝟘ᵐ? ] t
+  𝟘ᶜ▸[𝟘ᵐ?] ok = ▸-cong (PE.sym $ 𝟘ᵐ?≡𝟘ᵐ {ok = ok}) ∘→ ▸-𝟘
 
 -- If a term does not use any resources, then it is well-resourced
 -- with respect to any mode.
@@ -397,177 +474,240 @@ opaque
 ------------------------------------------------------------------------
 -- Usage-restrictions-satisfied
 
--- Usage-restrictions-satisfied t means that the usage restrictions
--- for Prodrec and Unitrec hold for every subterm in t.
+-- Usage-restrictions-satisfied m t means that the usage restrictions
+-- for Prodrec and Unitrec hold, for certain modes, for every subterm
+-- in t.
 
-Usage-restrictions-satisfied : Term n → Set a
-Usage-restrictions-satisfied = λ where
-  (prodrec r p q A t u)   → Prodrec-allowed r p q ×
-                            Usage-restrictions-satisfied A ×
-                            Usage-restrictions-satisfied t ×
-                            Usage-restrictions-satisfied u
-  (ΠΣ⟨ _ ⟩ _ , _ ▷ A ▹ B) → Usage-restrictions-satisfied A ×
-                            Usage-restrictions-satisfied B
-  (lam _ t)               → Usage-restrictions-satisfied t
-  (t ∘⟨ _ ⟩ u)            → Usage-restrictions-satisfied t ×
-                            Usage-restrictions-satisfied u
-  (prod _ _ t u)          → Usage-restrictions-satisfied t ×
-                            Usage-restrictions-satisfied u
-  (fst _ t)               → Usage-restrictions-satisfied t
-  (snd _ t)               → Usage-restrictions-satisfied t
-  (suc t)                 → Usage-restrictions-satisfied t
-  (natrec _ _ _ A t u v)  → Usage-restrictions-satisfied A ×
-                            Usage-restrictions-satisfied t ×
-                            Usage-restrictions-satisfied u ×
-                            Usage-restrictions-satisfied v
-  (emptyrec _ A t)        → Usage-restrictions-satisfied A ×
-                            Usage-restrictions-satisfied t
-  (unitrec p q A t u)     → Unitrec-allowed p q ×
-                            Usage-restrictions-satisfied A ×
-                            Usage-restrictions-satisfied t ×
-                            Usage-restrictions-satisfied u
-  (Id A t u)              → Usage-restrictions-satisfied A ×
-                            Usage-restrictions-satisfied t ×
-                            Usage-restrictions-satisfied u
-  (J _ _ A t B u v w)     → Usage-restrictions-satisfied A ×
-                            Usage-restrictions-satisfied t ×
-                            Usage-restrictions-satisfied B ×
-                            Usage-restrictions-satisfied u ×
-                            Usage-restrictions-satisfied v ×
-                            Usage-restrictions-satisfied w
-  (K _ A t B u v)         → Usage-restrictions-satisfied A ×
-                            Usage-restrictions-satisfied t ×
-                            Usage-restrictions-satisfied B ×
-                            Usage-restrictions-satisfied u ×
-                            Usage-restrictions-satisfied v
-  ([]-cong _ A t u v)     → Usage-restrictions-satisfied A ×
-                            Usage-restrictions-satisfied t ×
-                            Usage-restrictions-satisfied u ×
-                            Usage-restrictions-satisfied v
-  (var _)                 → Lift _ ⊤
-  U                       → Lift _ ⊤
-  ℕ                       → Lift _ ⊤
-  Empty                   → Lift _ ⊤
-  Unit!                   → Lift _ ⊤
-  zero                    → Lift _ ⊤
-  star!                   → Lift _ ⊤
-  rfl                     → Lift _ ⊤
+data Usage-restrictions-satisfied {n} (m : Mode) : Term n → Set a where
+  varᵤ :
+    Usage-restrictions-satisfied m (var x)
+  Emptyᵤ :
+    Usage-restrictions-satisfied m Empty
+  emptyrecᵤ :
+    Usage-restrictions-satisfied 𝟘ᵐ? A →
+    Usage-restrictions-satisfied (m ᵐ· p) t →
+    Usage-restrictions-satisfied m (emptyrec p A t)
+  Unitᵤ :
+    Usage-restrictions-satisfied m (Unit str)
+  starᵤ :
+    Usage-restrictions-satisfied m (star str)
+  unitrecᵤ :
+    Unitrec-allowed m p q →
+    Usage-restrictions-satisfied 𝟘ᵐ? A →
+    Usage-restrictions-satisfied (m ᵐ· p) t →
+    Usage-restrictions-satisfied m u →
+    Usage-restrictions-satisfied m (unitrec p q A t u)
+  ΠΣᵤ :
+    Usage-restrictions-satisfied (m ᵐ· p) A →
+    Usage-restrictions-satisfied m B →
+    Usage-restrictions-satisfied m (ΠΣ⟨ bm ⟩ p , q ▷ A ▹ B)
+  lamᵤ :
+    Usage-restrictions-satisfied m t →
+    Usage-restrictions-satisfied m (lam p t)
+  ∘ᵤ :
+    Usage-restrictions-satisfied m t →
+    Usage-restrictions-satisfied (m ᵐ· p) u →
+    Usage-restrictions-satisfied m (t ∘⟨ p ⟩ u)
+  prodᵤ :
+    Usage-restrictions-satisfied (m ᵐ· p) t →
+    Usage-restrictions-satisfied m u →
+    Usage-restrictions-satisfied m (prod str p t u)
+  prodrecᵤ :
+    Prodrec-allowed m r p q →
+    Usage-restrictions-satisfied 𝟘ᵐ? A →
+    Usage-restrictions-satisfied (m ᵐ· r) t →
+    Usage-restrictions-satisfied m u →
+    Usage-restrictions-satisfied m (prodrec r p q A t u)
+  fstᵤ :
+    Usage-restrictions-satisfied m t →
+    Usage-restrictions-satisfied m (fst p t)
+  sndᵤ :
+    Usage-restrictions-satisfied m t →
+    Usage-restrictions-satisfied m (snd p t)
+  ℕᵤ :
+    Usage-restrictions-satisfied m ℕ
+  zeroᵤ :
+    Usage-restrictions-satisfied m zero
+  sucᵤ :
+    Usage-restrictions-satisfied m t →
+    Usage-restrictions-satisfied m (suc t)
+  natrecᵤ :
+    Usage-restrictions-satisfied 𝟘ᵐ? A →
+    Usage-restrictions-satisfied m t →
+    Usage-restrictions-satisfied m u →
+    Usage-restrictions-satisfied m v →
+    Usage-restrictions-satisfied m (natrec p q r A t u v)
+  Uᵤ :
+    Usage-restrictions-satisfied m U
+  Idᵤ :
+    ¬ Id-erased →
+    Usage-restrictions-satisfied 𝟘ᵐ? A →
+    Usage-restrictions-satisfied m t →
+    Usage-restrictions-satisfied m u →
+    Usage-restrictions-satisfied m (Id A t u)
+  Id₀ᵤ :
+    Id-erased →
+    Usage-restrictions-satisfied 𝟘ᵐ? A →
+    Usage-restrictions-satisfied 𝟘ᵐ? t →
+    Usage-restrictions-satisfied 𝟘ᵐ? u →
+    Usage-restrictions-satisfied m (Id A t u)
+  rflᵤ :
+    Usage-restrictions-satisfied m rfl
+  Jᵤ :
+    ¬ Erased-matches-for-J m →
+    Usage-restrictions-satisfied 𝟘ᵐ? A →
+    Usage-restrictions-satisfied m t →
+    Usage-restrictions-satisfied m B →
+    Usage-restrictions-satisfied m u →
+    Usage-restrictions-satisfied m v →
+    Usage-restrictions-satisfied m w →
+    Usage-restrictions-satisfied m (J p q A t B u v w)
+  J₀ᵤ :
+    Erased-matches-for-J m →
+    Usage-restrictions-satisfied 𝟘ᵐ? A →
+    Usage-restrictions-satisfied 𝟘ᵐ? t →
+    Usage-restrictions-satisfied 𝟘ᵐ? B →
+    Usage-restrictions-satisfied m u →
+    Usage-restrictions-satisfied 𝟘ᵐ? v →
+    Usage-restrictions-satisfied 𝟘ᵐ? w →
+    Usage-restrictions-satisfied m (J p q A t B u v w)
+  Kᵤ :
+    ¬ Erased-matches-for-K m →
+    Usage-restrictions-satisfied 𝟘ᵐ? A →
+    Usage-restrictions-satisfied m t →
+    Usage-restrictions-satisfied m B →
+    Usage-restrictions-satisfied m u →
+    Usage-restrictions-satisfied m v →
+    Usage-restrictions-satisfied m (K p A t B u v)
+  K₀ᵤ :
+    Erased-matches-for-K m →
+    Usage-restrictions-satisfied 𝟘ᵐ? A →
+    Usage-restrictions-satisfied 𝟘ᵐ? t →
+    Usage-restrictions-satisfied 𝟘ᵐ? B →
+    Usage-restrictions-satisfied m u →
+    Usage-restrictions-satisfied 𝟘ᵐ? v →
+    Usage-restrictions-satisfied m (K p A t B u v)
+  []-congᵤ :
+    Usage-restrictions-satisfied 𝟘ᵐ? A →
+    Usage-restrictions-satisfied 𝟘ᵐ? t →
+    Usage-restrictions-satisfied 𝟘ᵐ? u →
+    Usage-restrictions-satisfied 𝟘ᵐ? v →
+    Usage-restrictions-satisfied m ([]-cong str A t u v)
 
--- If t is well-resourced (with respect to any context and mode), then
--- Usage-restrictions-satisfied t holds.
+-- If t is well-resourced (with respect to any context and the
+-- mode m), then Usage-restrictions-satisfied m t holds.
 
 ▸→Usage-restrictions-satisfied :
-  γ ▸[ m ] t → Usage-restrictions-satisfied t
+  γ ▸[ m ] t → Usage-restrictions-satisfied m t
 ▸→Usage-restrictions-satisfied = λ where
-  Uₘ →
-    _
-  ℕₘ →
-    _
-  Emptyₘ →
-    _
-  Unitₘ →
-    _
-  (ΠΣₘ ▸A ▸B) →
-    ▸→Usage-restrictions-satisfied ▸A ,
-    ▸→Usage-restrictions-satisfied ▸B
   var →
-    _
-  (lamₘ ▸t) →
-    ▸→Usage-restrictions-satisfied ▸t
-  (▸t ∘ₘ ▸u) →
-    ▸→Usage-restrictions-satisfied ▸t ,
-    ▸→Usage-restrictions-satisfied ▸u
-  (prodʷₘ ▸t ▸u) →
-    ▸→Usage-restrictions-satisfied ▸t ,
-    ▸→Usage-restrictions-satisfied ▸u
-  (prodˢₘ ▸t ▸u) →
-    ▸→Usage-restrictions-satisfied ▸t ,
-    ▸→Usage-restrictions-satisfied ▸u
-  (fstₘ _ ▸t _ _) →
-    ▸→Usage-restrictions-satisfied ▸t
-  (sndₘ ▸t) →
-    ▸→Usage-restrictions-satisfied ▸t
-  (prodrecₘ ▸t ▸u ▸A ok) →
-    ok ,
-    ▸→Usage-restrictions-satisfied ▸A ,
-    ▸→Usage-restrictions-satisfied ▸t ,
-    ▸→Usage-restrictions-satisfied ▸u
-  zeroₘ →
-    _
-  (sucₘ ▸t) →
-    ▸→Usage-restrictions-satisfied ▸t
-  (natrecₘ ▸t ▸u ▸v ▸A) →
-    ▸→Usage-restrictions-satisfied ▸A ,
-    ▸→Usage-restrictions-satisfied ▸t ,
-    ▸→Usage-restrictions-satisfied ▸u ,
-    ▸→Usage-restrictions-satisfied ▸v
-  (natrec-no-nrₘ ▸t ▸u ▸v ▸A _ _ _ _) →
-    ▸→Usage-restrictions-satisfied ▸A ,
-    ▸→Usage-restrictions-satisfied ▸t ,
-    ▸→Usage-restrictions-satisfied ▸u ,
-    ▸→Usage-restrictions-satisfied ▸v
+    varᵤ
+  Emptyₘ →
+    Emptyᵤ
   (emptyrecₘ ▸t ▸A) →
-    ▸→Usage-restrictions-satisfied ▸A ,
-    ▸→Usage-restrictions-satisfied ▸t
+    emptyrecᵤ (▸→Usage-restrictions-satisfied ▸A)
+      (▸→Usage-restrictions-satisfied ▸t)
+  Unitₘ →
+    Unitᵤ
   starʷₘ →
-    _
+    starᵤ
   (starˢₘ _) →
-    _
+    starᵤ
   (unitrecₘ ▸t ▸u ▸A ok) →
-    ok ,
-    ▸→Usage-restrictions-satisfied ▸A ,
-    ▸→Usage-restrictions-satisfied ▸t ,
-    ▸→Usage-restrictions-satisfied ▸u
-  (Idₘ _ ▸A ▸t ▸u) →
-    ▸→Usage-restrictions-satisfied ▸A ,
-    ▸→Usage-restrictions-satisfied ▸t ,
-    ▸→Usage-restrictions-satisfied ▸u
-  (Id₀ₘ _ ▸A ▸t ▸u) →
-    ▸→Usage-restrictions-satisfied ▸A ,
-    ▸→Usage-restrictions-satisfied ▸t ,
-    ▸→Usage-restrictions-satisfied ▸u
+    unitrecᵤ ok
+      (▸→Usage-restrictions-satisfied ▸A)
+      (▸→Usage-restrictions-satisfied ▸t)
+      (▸→Usage-restrictions-satisfied ▸u)
+  (ΠΣₘ ▸A ▸B) →
+    ΠΣᵤ (▸→Usage-restrictions-satisfied ▸A)
+      (▸→Usage-restrictions-satisfied ▸B)
+  (lamₘ ▸t) →
+    lamᵤ (▸→Usage-restrictions-satisfied ▸t)
+  (▸t ∘ₘ ▸u) →
+    ∘ᵤ (▸→Usage-restrictions-satisfied ▸t)
+      (▸→Usage-restrictions-satisfied ▸u)
+  (prodʷₘ ▸t ▸u) →
+    prodᵤ (▸→Usage-restrictions-satisfied ▸t)
+      (▸→Usage-restrictions-satisfied ▸u)
+  (prodˢₘ ▸t ▸u) →
+    prodᵤ (▸→Usage-restrictions-satisfied ▸t)
+      (▸→Usage-restrictions-satisfied ▸u)
+  (prodrecₘ ▸t ▸u ▸A ok) →
+    prodrecᵤ ok (▸→Usage-restrictions-satisfied ▸A)
+      (▸→Usage-restrictions-satisfied ▸t)
+      (▸→Usage-restrictions-satisfied ▸u)
+  (fstₘ _ ▸t PE.refl _) →
+    fstᵤ (▸→Usage-restrictions-satisfied ▸t)
+  (sndₘ ▸t) →
+    sndᵤ (▸→Usage-restrictions-satisfied ▸t)
+  ℕₘ →
+    ℕᵤ
+  zeroₘ →
+    zeroᵤ
+  (sucₘ ▸t) →
+    sucᵤ (▸→Usage-restrictions-satisfied ▸t)
+  (natrecₘ ▸t ▸u ▸v ▸A) →
+    natrecᵤ (▸→Usage-restrictions-satisfied ▸A)
+      (▸→Usage-restrictions-satisfied ▸t)
+      (▸→Usage-restrictions-satisfied ▸u)
+      (▸→Usage-restrictions-satisfied ▸v)
+  (natrec-no-nrₘ ▸t ▸u ▸v ▸A _ _ _ _) →
+    natrecᵤ (▸→Usage-restrictions-satisfied ▸A)
+      (▸→Usage-restrictions-satisfied ▸t)
+      (▸→Usage-restrictions-satisfied ▸u)
+      (▸→Usage-restrictions-satisfied ▸v)
+  Uₘ →
+    Uᵤ
+  (Idₘ ok ▸A ▸t ▸u) →
+    Idᵤ ok (▸→Usage-restrictions-satisfied ▸A)
+      (▸→Usage-restrictions-satisfied ▸t)
+      (▸→Usage-restrictions-satisfied ▸u)
+  (Id₀ₘ ok ▸A ▸t ▸u) →
+    Id₀ᵤ ok (▸→Usage-restrictions-satisfied ▸A)
+      (▸→Usage-restrictions-satisfied ▸t)
+      (▸→Usage-restrictions-satisfied ▸u)
   rflₘ →
-    _
-  (Jₘ _ ▸A ▸t ▸B ▸u ▸v ▸w) →
-    ▸→Usage-restrictions-satisfied ▸A ,
-    ▸→Usage-restrictions-satisfied ▸t ,
-    ▸→Usage-restrictions-satisfied ▸B ,
-    ▸→Usage-restrictions-satisfied ▸u ,
-    ▸→Usage-restrictions-satisfied ▸v ,
-    ▸→Usage-restrictions-satisfied ▸w
-  (J₀ₘ _ ▸A ▸t ▸B ▸u ▸v ▸w) →
-    ▸→Usage-restrictions-satisfied ▸A ,
-    ▸→Usage-restrictions-satisfied ▸t ,
-    ▸→Usage-restrictions-satisfied ▸B ,
-    ▸→Usage-restrictions-satisfied ▸u ,
-    ▸→Usage-restrictions-satisfied ▸v ,
-    ▸→Usage-restrictions-satisfied ▸w
-  (Kₘ _ ▸A ▸t ▸B ▸u ▸v) →
-    ▸→Usage-restrictions-satisfied ▸A ,
-    ▸→Usage-restrictions-satisfied ▸t ,
-    ▸→Usage-restrictions-satisfied ▸B ,
-    ▸→Usage-restrictions-satisfied ▸u ,
-    ▸→Usage-restrictions-satisfied ▸v
-  (K₀ₘ _ ▸A ▸t ▸B ▸u ▸v) →
-    ▸→Usage-restrictions-satisfied ▸A ,
-    ▸→Usage-restrictions-satisfied ▸t ,
-    ▸→Usage-restrictions-satisfied ▸B ,
-    ▸→Usage-restrictions-satisfied ▸u ,
-    ▸→Usage-restrictions-satisfied ▸v
+    rflᵤ
+  (Jₘ ok ▸A ▸t ▸B ▸u ▸v ▸w) →
+    Jᵤ ok (▸→Usage-restrictions-satisfied ▸A)
+      (▸→Usage-restrictions-satisfied ▸t)
+      (▸→Usage-restrictions-satisfied ▸B)
+      (▸→Usage-restrictions-satisfied ▸u)
+      (▸→Usage-restrictions-satisfied ▸v)
+      (▸→Usage-restrictions-satisfied ▸w)
+  (J₀ₘ ok ▸A ▸t ▸B ▸u ▸v ▸w) →
+    J₀ᵤ ok (▸→Usage-restrictions-satisfied ▸A)
+      (▸→Usage-restrictions-satisfied ▸t)
+      (▸→Usage-restrictions-satisfied ▸B)
+      (▸→Usage-restrictions-satisfied ▸u)
+      (▸→Usage-restrictions-satisfied ▸v)
+      (▸→Usage-restrictions-satisfied ▸w)
+  (Kₘ ok ▸A ▸t ▸B ▸u ▸v) →
+    Kᵤ ok (▸→Usage-restrictions-satisfied ▸A)
+      (▸→Usage-restrictions-satisfied ▸t)
+      (▸→Usage-restrictions-satisfied ▸B)
+      (▸→Usage-restrictions-satisfied ▸u)
+      (▸→Usage-restrictions-satisfied ▸v)
+  (K₀ₘ ok ▸A ▸t ▸B ▸u ▸v) →
+    K₀ᵤ ok (▸→Usage-restrictions-satisfied ▸A)
+      (▸→Usage-restrictions-satisfied ▸t)
+      (▸→Usage-restrictions-satisfied ▸B)
+      (▸→Usage-restrictions-satisfied ▸u)
+      (▸→Usage-restrictions-satisfied ▸v)
   ([]-congₘ ▸A ▸t ▸u ▸v) →
-    ▸→Usage-restrictions-satisfied ▸A ,
-    ▸→Usage-restrictions-satisfied ▸t ,
-    ▸→Usage-restrictions-satisfied ▸u ,
-    ▸→Usage-restrictions-satisfied ▸v
+    []-congᵤ (▸→Usage-restrictions-satisfied ▸A)
+      (▸→Usage-restrictions-satisfied ▸t)
+      (▸→Usage-restrictions-satisfied ▸u)
+      (▸→Usage-restrictions-satisfied ▸v)
   (sub ▸t _) →
     ▸→Usage-restrictions-satisfied ▸t
 
--- If Usage-restrictions-satisfied t holds, then t is well-resourced
--- with respect to 𝟘ᶜ and 𝟘ᵐ[ ok ].
+-- If Usage-restrictions-satisfied 𝟘ᵐ[ ok ] t holds, then t is
+-- well-resourced with respect to 𝟘ᶜ and 𝟘ᵐ[ ok ].
 
 Usage-restrictions-satisfied→▸[𝟘ᵐ] :
-  Usage-restrictions-satisfied t → 𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] t
-Usage-restrictions-satisfied→▸[𝟘ᵐ] {ok = 𝟘ᵐ-ok} = lemma _
+  Usage-restrictions-satisfied 𝟘ᵐ[ ok ] t → 𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] t
+Usage-restrictions-satisfied→▸[𝟘ᵐ] {ok = 𝟘ᵐ-ok} = lemma
   where
   open import Graded.Modality.Dedicated-nr.Instance
 
@@ -575,17 +715,25 @@ Usage-restrictions-satisfied→▸[𝟘ᵐ] {ok = 𝟘ᵐ-ok} = lemma _
   𝟘ᵐ?≡𝟘ᵐ′ = 𝟘ᵐ?≡𝟘ᵐ
 
   lemma :
-    (t : Term n) → Usage-restrictions-satisfied t →
+    Usage-restrictions-satisfied 𝟘ᵐ[ 𝟘ᵐ-ok ] t →
     𝟘ᶜ ▸[ 𝟘ᵐ[ 𝟘ᵐ-ok ] ] t
+
+  lemma-𝟘ᵐ? :
+    Usage-restrictions-satisfied 𝟘ᵐ? t →
+    𝟘ᶜ ▸[ 𝟘ᵐ? ] t
+  lemma-𝟘ᵐ? =
+    ▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ∘→
+    lemma ∘→
+    PE.subst (λ m → Usage-restrictions-satisfied m _) 𝟘ᵐ?≡𝟘ᵐ
+
   lemma = λ where
-    (prodrec r p q A t u) (ok , A-ok , t-ok , u-ok) →
-      sub (prodrecₘ (lemma t t-ok)
-             (sub (lemma u u-ok) $
+    (prodrecᵤ {r} {p} {q} ok A-ok t-ok u-ok) →
+      sub (prodrecₘ (lemma t-ok)
+             (sub (lemma u-ok) $
               let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
                 𝟘ᶜ ∙ 𝟘 · r · p ∙ 𝟘 · r  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
                 𝟘ᶜ                      ∎)
-             (sub (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $
-                   lemma A A-ok) $
+             (sub (lemma-𝟘ᵐ? A-ok) $
               let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
                 𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · q  ≈⟨ ≈ᶜ-refl ∙ ·-congʳ (cong ⌜_⌝ 𝟘ᵐ?≡𝟘ᵐ′) ⟩
                 𝟘ᶜ ∙ 𝟘 · q        ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
@@ -595,196 +743,182 @@ Usage-restrictions-satisfied→▸[𝟘ᵐ] {ok = 𝟘ᵐ-ok} = lemma _
         𝟘ᶜ             ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
         r ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
         r ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎
-    (ΠΣ⟨ _ ⟩ _ , q ▷ A ▹ B) (A-ok , B-ok) →
-      sub (ΠΣₘ (lemma A A-ok) $ sub (lemma B B-ok) $
+    (ΠΣᵤ {q} A-ok B-ok) →
+      sub (ΠΣₘ (lemma A-ok) $ sub (lemma B-ok) $
            let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
              𝟘ᶜ ∙ 𝟘 · q  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
              𝟘ᶜ          ∎) $
       let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
         𝟘ᶜ        ≈˘⟨ +ᶜ-identityˡ _ ⟩
         𝟘ᶜ +ᶜ 𝟘ᶜ  ∎
-    (lam p t) t-ok →
+    (lamᵤ {p} t-ok) →
       let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
-      lamₘ $ sub (lemma t t-ok) $ begin
+      lamₘ $ sub (lemma t-ok) $ begin
         𝟘ᶜ ∙ 𝟘 · p  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
         𝟘ᶜ          ∎
-    (t ∘⟨ p ⟩ u) (t-ok , u-ok) →
+    (∘ᵤ {p} t-ok u-ok) →
       let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
-      sub (lemma t t-ok ∘ₘ lemma u u-ok) $
+      sub (lemma t-ok ∘ₘ lemma u-ok) $
       begin
         𝟘ᶜ             ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
         p ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityˡ _ ⟩
         𝟘ᶜ +ᶜ p ·ᶜ 𝟘ᶜ  ∎
-    (prodˢ p t u) (t-ok , u-ok) →
+    (prodᵤ {p} {str = 𝕤} t-ok u-ok) →
       let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
-      sub (prodˢₘ (lemma t t-ok) (lemma u u-ok)) $
+      sub (prodˢₘ (lemma t-ok) (lemma u-ok)) $
       begin
         𝟘ᶜ             ≈˘⟨ ∧ᶜ-idem _ ⟩
         𝟘ᶜ ∧ᶜ 𝟘ᶜ       ≈˘⟨ ∧ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
         p ·ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ  ∎
-    (prodʷ p t u) (t-ok , u-ok) →
+    (prodᵤ {p} {str = 𝕨} t-ok u-ok) →
       let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
-      sub (prodʷₘ (lemma t t-ok) (lemma u u-ok)) $
+      sub (prodʷₘ (lemma t-ok) (lemma u-ok)) $
       begin
         𝟘ᶜ             ≈˘⟨ +ᶜ-identityˡ _ ⟩
         𝟘ᶜ +ᶜ 𝟘ᶜ       ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
         p ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎
-    (fst p t) t-ok →
-      fstₘ 𝟘ᵐ[ 𝟘ᵐ-ok ] (lemma t t-ok) refl (λ ())
-    (snd _ t) t-ok →
-      sndₘ (lemma t t-ok)
-    (suc t) t-ok →
-      sucₘ (lemma t t-ok)
-    (natrec p q r A t u v) (A-ok , t-ok , u-ok , v-ok) →
-      let t-lemma =
-            lemma t t-ok
-          u-lemma =
-            sub (lemma u u-ok) $
+    (fstᵤ t-ok) →
+      fstₘ 𝟘ᵐ[ 𝟘ᵐ-ok ] (lemma t-ok) refl (λ ())
+    (sndᵤ t-ok) →
+      sndₘ (lemma t-ok)
+    (sucᵤ t-ok) →
+      sucₘ (lemma t-ok)
+    (natrecᵤ {p} {q} {r} A-ok t-ok u-ok v-ok) →
+      let u-lemma =
+            sub (lemma u-ok) $
             let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
               𝟘ᶜ ∙ 𝟘 · p ∙ 𝟘 · r  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
               𝟘ᶜ                  ∎
-          v-lemma =
-            lemma v v-ok
           A-lemma =
-            sub (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $
-                 lemma A A-ok) $
+            sub (lemma-𝟘ᵐ? A-ok) $
             let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
               𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · q  ≈⟨ ≈ᶜ-refl ∙ ·-congʳ (cong ⌜_⌝ 𝟘ᵐ?≡𝟘ᵐ′) ⟩
               𝟘ᶜ ∙ 𝟘 · q        ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
               𝟘ᶜ                ∎
       in case dedicated-nr? of λ where
         does-have-nr →
-          sub (natrecₘ t-lemma u-lemma v-lemma A-lemma) $
+          sub (natrecₘ (lemma t-ok) u-lemma (lemma v-ok) A-lemma) $
           let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
             𝟘ᶜ                ≈˘⟨ nrᶜ-𝟘ᶜ ⟩
             nrᶜ p r 𝟘ᶜ 𝟘ᶜ 𝟘ᶜ  ∎
         does-not-have-nr →
-          natrec-no-nrₘ t-lemma u-lemma v-lemma A-lemma
+          natrec-no-nrₘ (lemma t-ok) u-lemma (lemma v-ok) A-lemma
             ≤ᶜ-refl (λ _ → ≤ᶜ-refl) ≤ᶜ-refl $
           let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
             𝟘ᶜ                        ≈˘⟨ +ᶜ-identityʳ _ ⟩
             𝟘ᶜ +ᶜ 𝟘ᶜ                  ≈˘⟨ +ᶜ-cong (·ᶜ-zeroʳ _) (·ᶜ-zeroʳ _) ⟩
             p ·ᶜ 𝟘ᶜ +ᶜ r ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityˡ _ ⟩
             𝟘ᶜ +ᶜ p ·ᶜ 𝟘ᶜ +ᶜ r ·ᶜ 𝟘ᶜ  ∎
-    (emptyrec p A t) (A-ok , t-ok) →
+    (emptyrecᵤ {p} A-ok t-ok) →
       let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
-      sub (emptyrecₘ (lemma t t-ok) $
-           ▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $
-           lemma A A-ok) $
+      sub (emptyrecₘ (lemma t-ok) (lemma-𝟘ᵐ? A-ok)) $
       begin
         𝟘ᶜ       ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
         p ·ᶜ 𝟘ᶜ  ∎
-    (unitrec p q A t u) (ok , A-ok , t-ok , u-ok) →
-      let t-lemma = lemma t t-ok
-          u-lemma = lemma u u-ok
-          A-lemma = sub (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) (lemma A A-ok)) $
+    (unitrecᵤ {p} {q} ok A-ok t-ok u-ok) →
+      let A-lemma =
+            sub (lemma-𝟘ᵐ? A-ok) $
             let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
               𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · q  ≈⟨ ≈ᶜ-refl ∙ ·-congʳ (cong ⌜_⌝ (𝟘ᵐ?≡𝟘ᵐ {ok = 𝟘ᵐ-ok})) ⟩
               𝟘ᶜ ∙ 𝟘 · q        ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
               𝟘ᶜ                ∎
-      in  sub (unitrecₘ t-lemma u-lemma A-lemma ok) $
+      in  sub (unitrecₘ (lemma t-ok) (lemma u-ok) A-lemma ok) $
         let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
           𝟘ᶜ             ≈˘⟨ +ᶜ-identityˡ _ ⟩
           𝟘ᶜ +ᶜ 𝟘ᶜ       ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
           p ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎
-    (Id A t u) (A-ok , t-ok , u-ok) →
-      case Id-erased? of λ where
-        (yes erased) →
-          Id₀ₘ erased
-            (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $ lemma A A-ok)
-            (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $ lemma t t-ok)
-            (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $ lemma u u-ok)
-        (no not-erased) → sub
-          (Idₘ not-erased
-             (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $ lemma A A-ok)
-             (lemma t t-ok)
-             (lemma u u-ok)) $
+    (Idᵤ not-erased A-ok t-ok u-ok) → sub
+      (Idₘ not-erased
+         (lemma-𝟘ᵐ? A-ok)
+         (lemma t-ok)
+         (lemma u-ok)) $
+      let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+        𝟘ᶜ        ≈˘⟨ +ᶜ-identityˡ _ ⟩
+        𝟘ᶜ +ᶜ 𝟘ᶜ  ∎
+    (Id₀ᵤ erased A-ok t-ok u-ok) →
+      Id₀ₘ erased
+        (lemma-𝟘ᵐ? A-ok)
+        (lemma-𝟘ᵐ? t-ok)
+        (lemma-𝟘ᵐ? u-ok)
+    (Jᵤ {p} {q} not-ok A-ok t-ok B-ok u-ok v-ok w-ok) → sub
+      (Jₘ not-ok
+         (lemma-𝟘ᵐ? A-ok)
+         (lemma t-ok)
+         (sub (lemma B-ok) $
           let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-            𝟘ᶜ        ≈˘⟨ +ᶜ-identityˡ _ ⟩
-            𝟘ᶜ +ᶜ 𝟘ᶜ  ∎
-    (J p q A t B u v w) (A-ok , t-ok , B-ok , u-ok , v-ok , w-ok) →
-      case Erased-matches-for-J? of λ where
-        (yes ok) →
-          J₀ₘ ok
-            (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $ lemma A A-ok)
-            (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $ lemma t t-ok)
-            (sub (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $ lemma B B-ok) $
-             let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-               𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · p ∙ ⌜ 𝟘ᵐ? ⌝ · q  ≈⟨ ≈ᶜ-refl ∙ ·-congʳ (cong ⌜_⌝ 𝟘ᵐ?≡𝟘ᵐ′) ∙ ·-congʳ (cong ⌜_⌝ 𝟘ᵐ?≡𝟘ᵐ′) ⟩
-               𝟘ᶜ ∙ 𝟘 · p ∙ 𝟘 · q              ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
-               𝟘ᶜ                              ∎)
-            (lemma u u-ok)
-            (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $ lemma v v-ok)
-            (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $ lemma w w-ok)
-        (no not-ok) → sub
-          (Jₘ not-ok
-             (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $ lemma A A-ok)
-             (lemma t t-ok)
-             (sub (lemma B B-ok) $
-              let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-                𝟘ᶜ ∙ 𝟘 · p ∙ 𝟘 · q  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
-                𝟘ᶜ                  ∎)
-             (lemma u u-ok)
-             (lemma v v-ok)
-             (lemma w w-ok)) $
+            𝟘ᶜ ∙ 𝟘 · p ∙ 𝟘 · q  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
+            𝟘ᶜ                  ∎)
+         (lemma u-ok)
+         (lemma v-ok)
+         (lemma w-ok)) $
+      let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+        𝟘ᶜ                                 ≈˘⟨ ω·ᶜ⋀ᶜ⁵𝟘ᶜ ⟩
+        ω ·ᶜ (𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ)  ∎
+    (J₀ᵤ {p} {q} ok A-ok t-ok B-ok u-ok v-ok w-ok) →
+      J₀ₘ ok
+        (lemma-𝟘ᵐ? A-ok)
+        (lemma-𝟘ᵐ? t-ok)
+        (sub (lemma-𝟘ᵐ? B-ok) $
+         let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+           𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · p ∙ ⌜ 𝟘ᵐ? ⌝ · q  ≈⟨ ≈ᶜ-refl ∙ ·-congʳ (cong ⌜_⌝ 𝟘ᵐ?≡𝟘ᵐ′) ∙ ·-congʳ (cong ⌜_⌝ 𝟘ᵐ?≡𝟘ᵐ′) ⟩
+           𝟘ᶜ ∙ 𝟘 · p ∙ 𝟘 · q              ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
+           𝟘ᶜ                              ∎)
+        (lemma u-ok)
+        (lemma-𝟘ᵐ? v-ok)
+        (lemma-𝟘ᵐ? w-ok)
+    (Kᵤ {p} not-ok A-ok t-ok B-ok u-ok v-ok) → sub
+      (Kₘ not-ok
+         (lemma-𝟘ᵐ? A-ok)
+         (lemma t-ok)
+         (sub (lemma B-ok) $
           let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-            𝟘ᶜ                                 ≈˘⟨ ω·ᶜ⋀ᶜ⁵𝟘ᶜ ⟩
-            ω ·ᶜ (𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ)  ∎
-    (K p A t B u v) (A-ok , t-ok , B-ok , u-ok , v-ok) →
-      case Erased-matches-for-K? of λ where
-        (yes ok) →
-          K₀ₘ ok
-            (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $ lemma A A-ok)
-            (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $ lemma t t-ok)
-            (sub (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $ lemma B B-ok) $
-             let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-               𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · p  ≈⟨ ≈ᶜ-refl ∙ ·-congʳ (cong ⌜_⌝ 𝟘ᵐ?≡𝟘ᵐ′) ⟩
-               𝟘ᶜ ∙ 𝟘 · p        ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
-               𝟘ᶜ                ∎)
-            (lemma u u-ok)
-            (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $ lemma v v-ok)
-        (no not-ok) → sub
-          (Kₘ not-ok
-             (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $ lemma A A-ok)
-             (lemma t t-ok)
-             (sub (lemma B B-ok) $
-              let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-                𝟘ᶜ ∙ 𝟘 · p  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
-                𝟘ᶜ          ∎)
-             (lemma u u-ok)
-             (lemma v v-ok)) $
-          let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-            𝟘ᶜ                           ≈˘⟨ ω·ᶜ⋀ᶜ⁴𝟘ᶜ ⟩
-            ω ·ᶜ (𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ)  ∎
-    ([]-cong _ A t u v) (A-ok , t-ok , u-ok , v-ok) →
+            𝟘ᶜ ∙ 𝟘 · p  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
+            𝟘ᶜ          ∎)
+         (lemma u-ok)
+         (lemma v-ok)) $
+      let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+        𝟘ᶜ                           ≈˘⟨ ω·ᶜ⋀ᶜ⁴𝟘ᶜ ⟩
+        ω ·ᶜ (𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ)  ∎
+    (K₀ᵤ {p} ok A-ok t-ok B-ok u-ok v-ok) →
+      K₀ₘ ok
+        (lemma-𝟘ᵐ? A-ok)
+        (lemma-𝟘ᵐ? t-ok)
+        (sub (lemma-𝟘ᵐ? B-ok) $
+         let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+           𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · p  ≈⟨ ≈ᶜ-refl ∙ ·-congʳ (cong ⌜_⌝ 𝟘ᵐ?≡𝟘ᵐ′) ⟩
+           𝟘ᶜ ∙ 𝟘 · p        ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
+           𝟘ᶜ                ∎)
+        (lemma u-ok)
+        (lemma-𝟘ᵐ? v-ok)
+    ([]-congᵤ A-ok t-ok u-ok v-ok) →
       []-congₘ
-        (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $ lemma A A-ok)
-        (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $ lemma t t-ok)
-        (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $ lemma u u-ok)
-        (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $ lemma v v-ok)
-    (var x) _ →
+        (lemma-𝟘ᵐ? A-ok)
+        (lemma-𝟘ᵐ? t-ok)
+        (lemma-𝟘ᵐ? u-ok)
+        (lemma-𝟘ᵐ? v-ok)
+    (varᵤ {x}) →
       let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
       sub var $ begin
         𝟘ᶜ          ≡˘⟨ 𝟘ᶜ,≔𝟘 ⟩
         𝟘ᶜ , x ≔ 𝟘  ∎
-    U _ →
+    Uᵤ →
       Uₘ
-    ℕ _ →
+    ℕᵤ →
       ℕₘ
-    Empty _ →
+    Emptyᵤ →
       Emptyₘ
-    Unit! _ →
+    Unitᵤ →
       Unitₘ
-    zero _ →
+    zeroᵤ →
       zeroₘ
-    star! _ →
+    starᵤ →
       starₘ
-    rfl _ →
+    rflᵤ →
       rflₘ
 
 -- An alternative characterisation of 𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] t.
 
-𝟘ᶜ▸[𝟘ᵐ]⇔ : 𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] t ⇔ Usage-restrictions-satisfied t
+𝟘ᶜ▸[𝟘ᵐ]⇔ : 𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] t ⇔ Usage-restrictions-satisfied 𝟘ᵐ[ ok ] t
 𝟘ᶜ▸[𝟘ᵐ]⇔ =
     ▸→Usage-restrictions-satisfied
   , Usage-restrictions-satisfied→▸[𝟘ᵐ]
@@ -925,129 +1059,118 @@ Usage-restrictions-satisfied→▸[𝟘ᵐ] {ok = 𝟘ᵐ-ok} = lemma _
 
 -- An alternative characterisation of γ ▸[ 𝟘ᵐ[ ok ] ] t.
 
-▸[𝟘ᵐ]⇔ : γ ▸[ 𝟘ᵐ[ ok ] ] t ⇔ (γ ≤ᶜ 𝟘ᶜ × Usage-restrictions-satisfied t)
+▸[𝟘ᵐ]⇔ :
+  γ ▸[ 𝟘ᵐ[ ok ] ] t ⇔
+  (γ ≤ᶜ 𝟘ᶜ × Usage-restrictions-satisfied 𝟘ᵐ[ ok ] t)
 ▸[𝟘ᵐ]⇔ =
     (λ ▸t → ▸-𝟘ᵐ ▸t , ▸→Usage-restrictions-satisfied ▸t)
   , (λ (γ≤𝟘 , ok) → sub (Usage-restrictions-satisfied→▸[𝟘ᵐ] ok) γ≤𝟘)
 
 opaque
 
-  -- If the modality is trivial and Usage-restrictions-satisfied t
+  -- If the modality is trivial and Usage-restrictions-satisfied m t
   -- holds, then γ ▸[ m ] t holds.
 
   Trivial→Usage-restrictions-satisfied→▸ :
-    Trivial → Usage-restrictions-satisfied t → γ ▸[ m ] t
-  Trivial→Usage-restrictions-satisfied→▸ 𝟙≡𝟘 = lemma _
+    Trivial → Usage-restrictions-satisfied m t → γ ▸[ m ] t
+  Trivial→Usage-restrictions-satisfied→▸ 𝟙≡𝟘 = lemma
     where mutual
-    lemma₀ :
-      (t : Term n) → Usage-restrictions-satisfied t →
-      𝟘ᶜ ▸[ m ] t
+    lemma₀ : Usage-restrictions-satisfied m t → 𝟘ᶜ ▸[ m ] t
     lemma₀ = lemma
 
-    lemma :
-      (t : Term n) → Usage-restrictions-satisfied t →
-      γ ▸[ m ] t
+    lemma : Usage-restrictions-satisfied m t → γ ▸[ m ] t
     lemma = λ where
-      (prodrec r p q A t u) (ok , A-ok , t-ok , u-ok) →
+      (prodrecᵤ ok A-ok t-ok u-ok) →
         sub
-          (prodrecₘ {δ = 𝟘ᶜ} {η = 𝟘ᶜ} (lemma₀ t t-ok) (lemma u u-ok)
-             (lemma A A-ok) ok)
+          (prodrecₘ {δ = 𝟘ᶜ} {η = 𝟘ᶜ} (lemma₀ t-ok) (lemma u-ok)
+             (lemma A-ok) ok)
           (≈ᶜ-trivial 𝟙≡𝟘)
-      (ΠΣ⟨ _ ⟩ _ , q ▷ A ▹ B) (A-ok , B-ok) →
-        sub (ΠΣₘ {δ = 𝟘ᶜ} (lemma₀ A A-ok) (lemma B B-ok))
+      (ΠΣᵤ A-ok B-ok) →
+        sub (ΠΣₘ {δ = 𝟘ᶜ} (lemma₀ A-ok) (lemma B-ok))
           (≈ᶜ-trivial 𝟙≡𝟘)
-      (lam p t) t-ok →
-        lamₘ (lemma t t-ok)
-      (t ∘⟨ p ⟩ u) (t-ok , u-ok) →
-        sub (lemma₀ t t-ok ∘ₘ lemma₀ u u-ok) (≈ᶜ-trivial 𝟙≡𝟘)
-      (prodˢ p t u) (t-ok , u-ok) →
-        sub (prodˢₘ (lemma₀ t t-ok) (lemma₀ u u-ok)) (≈ᶜ-trivial 𝟙≡𝟘)
-      (prodʷ p t u) (t-ok , u-ok) →
-        sub (prodʷₘ (lemma₀ t t-ok) (lemma₀ u u-ok)) (≈ᶜ-trivial 𝟙≡𝟘)
-      (fst p t) t-ok →
-        fstₘ 𝟙ᵐ (lemma t t-ok) (Mode-propositional-if-trivial 𝟙≡𝟘)
+      (lamᵤ t-ok) →
+        lamₘ (lemma t-ok)
+      (∘ᵤ t-ok u-ok) →
+        sub (lemma₀ t-ok ∘ₘ lemma₀ u-ok) (≈ᶜ-trivial 𝟙≡𝟘)
+      (prodᵤ {str = 𝕤} t-ok u-ok) →
+        sub (prodˢₘ (lemma₀ t-ok) (lemma₀ u-ok)) (≈ᶜ-trivial 𝟙≡𝟘)
+      (prodᵤ {str = 𝕨} t-ok u-ok) →
+        sub (prodʷₘ (lemma₀ t-ok) (lemma₀ u-ok)) (≈ᶜ-trivial 𝟙≡𝟘)
+      (fstᵤ t-ok) →
+        fstₘ 𝟙ᵐ
+          (▸-cong (Mode-propositional-if-trivial 𝟙≡𝟘) (lemma t-ok))
+          (Mode-propositional-if-trivial 𝟙≡𝟘)
           (λ _ → ≡-trivial 𝟙≡𝟘)
-      (snd _ t) t-ok →
-        sndₘ (lemma t t-ok)
-      (suc t) t-ok →
-        sucₘ (lemma t t-ok)
-      (natrec p q r A t u v) (A-ok , t-ok , u-ok , v-ok) →
-        let t-lemma = lemma₀ t t-ok
-            u-lemma = lemma  u u-ok
-            v-lemma = lemma₀ v v-ok
-            A-lemma = lemma  A A-ok
-        in case dedicated-nr? of λ where
+      (sndᵤ t-ok) →
+        sndₘ (lemma t-ok)
+      (sucᵤ t-ok) →
+        sucₘ (lemma t-ok)
+      (natrecᵤ A-ok t-ok u-ok v-ok) →
+        case dedicated-nr? of λ where
           does-have-nr →
             sub
-              (natrecₘ {δ = 𝟘ᶜ} {θ = 𝟘ᶜ} t-lemma u-lemma v-lemma
-                 A-lemma)
+              (natrecₘ {δ = 𝟘ᶜ} {θ = 𝟘ᶜ} (lemma₀ t-ok) (lemma u-ok)
+                 (lemma₀ v-ok) (lemma A-ok))
               (≈ᶜ-trivial 𝟙≡𝟘)
           does-not-have-nr →
-            natrec-no-nrₘ t-lemma u-lemma v-lemma A-lemma
-              (≈ᶜ-trivial 𝟙≡𝟘) (λ _ → (≈ᶜ-trivial 𝟙≡𝟘)) (≈ᶜ-trivial 𝟙≡𝟘)
-              (≈ᶜ-trivial 𝟙≡𝟘)
-      (emptyrec p A t) (A-ok , t-ok) →
-        sub (emptyrecₘ (lemma₀ t t-ok) (lemma₀ A A-ok)) (≈ᶜ-trivial 𝟙≡𝟘)
-      (unitrec p q A t u) (ok , A-ok , t-ok , u-ok) →
-        sub (unitrecₘ {η = 𝟘ᶜ} (lemma₀ t t-ok) (lemma₀ u u-ok) (lemma A A-ok) ok)
-            (≈ᶜ-trivial 𝟙≡𝟘)
-      (Id A t u) (A-ok , t-ok , u-ok) →
-        case Id-erased? of λ where
-          (yes erased) →
-            sub
-              (Id₀ₘ erased (lemma₀ A A-ok) (lemma₀ t t-ok)
-                 (lemma₀ u u-ok))
-              (≈ᶜ-trivial 𝟙≡𝟘)
-          (no not-erased) → sub
-            (Idₘ not-erased (lemma₀ A A-ok) (lemma₀ t t-ok)
-               (lemma₀ u u-ok))
-            (≈ᶜ-trivial 𝟙≡𝟘)
-      (J p q A t B u v w) (A-ok , t-ok , B-ok , u-ok , v-ok , w-ok) →
-        case Erased-matches-for-J? of λ where
-          (yes ok) →
-            sub
-              (J₀ₘ {γ₃ = 𝟘ᶜ} ok (lemma₀ A A-ok) (lemma₀ t t-ok)
-                 (lemma  B B-ok) (lemma₀ u u-ok) (lemma₀ v v-ok)
-                 (lemma₀ w w-ok))
-              (≈ᶜ-trivial 𝟙≡𝟘)
-          (no not-ok) →
-            sub
-              (Jₘ {γ₃ = 𝟘ᶜ} not-ok (lemma₀ A A-ok) (lemma₀ t t-ok)
-                 (lemma  B B-ok) (lemma₀ u u-ok) (lemma₀ v v-ok)
-                 (lemma₀ w w-ok))
-              (≈ᶜ-trivial 𝟙≡𝟘)
-      (K p A t B u v) (A-ok , t-ok , B-ok , u-ok , v-ok) →
-        case Erased-matches-for-K? of λ where
-          (yes ok) →
-            sub
-              (K₀ₘ {γ₃ = 𝟘ᶜ} ok (lemma₀ A A-ok) (lemma₀ t t-ok)
-                 (lemma  B B-ok) (lemma₀ u u-ok) (lemma₀ v v-ok))
-              (≈ᶜ-trivial 𝟙≡𝟘)
-          (no not-ok) →
-            sub
-              (Kₘ {γ₃ = 𝟘ᶜ} not-ok (lemma₀ A A-ok) (lemma₀ t t-ok)
-                 (lemma  B B-ok) (lemma₀ u u-ok) (lemma₀ v v-ok))
-              (≈ᶜ-trivial 𝟙≡𝟘)
-      ([]-cong _ A t u v) (A-ok , t-ok , u-ok , v-ok) →
+            natrec-no-nrₘ {δ = 𝟘ᶜ} {θ = 𝟘ᶜ} (lemma₀ t-ok) (lemma u-ok)
+              (lemma₀ v-ok) (lemma A-ok) (≈ᶜ-trivial 𝟙≡𝟘)
+              (λ _ → ≈ᶜ-trivial 𝟙≡𝟘) (≈ᶜ-trivial 𝟙≡𝟘) (≈ᶜ-trivial 𝟙≡𝟘)
+      (emptyrecᵤ A-ok t-ok) →
+        sub (emptyrecₘ (lemma₀ t-ok) (lemma₀ A-ok)) (≈ᶜ-trivial 𝟙≡𝟘)
+      (unitrecᵤ ok A-ok t-ok u-ok) →
         sub
-          ([]-congₘ (lemma₀ A A-ok) (lemma₀ t t-ok) (lemma₀ u u-ok)
-             (lemma₀ v v-ok))
+          (unitrecₘ {η = 𝟘ᶜ} (lemma₀ t-ok) (lemma₀ u-ok) (lemma A-ok)
+             ok)
           (≈ᶜ-trivial 𝟙≡𝟘)
-      (var x) _ →
+      (Idᵤ not-erased A-ok t-ok u-ok) →
+        sub
+          (Idₘ not-erased (lemma₀ A-ok) (lemma₀ t-ok) (lemma₀ u-ok))
+          (≈ᶜ-trivial 𝟙≡𝟘)
+      (Id₀ᵤ erased A-ok t-ok u-ok) →
+        sub
+          (Id₀ₘ erased (lemma₀ A-ok) (lemma₀ t-ok) (lemma₀ u-ok))
+          (≈ᶜ-trivial 𝟙≡𝟘)
+      (Jᵤ not-ok A-ok t-ok B-ok u-ok v-ok w-ok) →
+        sub
+          (Jₘ {γ₃ = 𝟘ᶜ} not-ok (lemma₀ A-ok) (lemma₀ t-ok) (lemma B-ok)
+             (lemma₀ u-ok) (lemma₀ v-ok) (lemma₀ w-ok))
+          (≈ᶜ-trivial 𝟙≡𝟘)
+      (J₀ᵤ ok A-ok t-ok B-ok u-ok v-ok w-ok) →
+        sub
+          (J₀ₘ {γ₃ = 𝟘ᶜ} ok (lemma₀ A-ok) (lemma₀ t-ok) (lemma B-ok)
+             (lemma₀ u-ok) (lemma₀ v-ok) (lemma₀ w-ok))
+          (≈ᶜ-trivial 𝟙≡𝟘)
+      (Kᵤ not-ok A-ok t-ok B-ok u-ok v-ok) →
+        sub
+          (Kₘ {γ₃ = 𝟘ᶜ} not-ok (lemma₀ A-ok) (lemma₀ t-ok) (lemma B-ok)
+             (lemma₀ u-ok) (lemma₀ v-ok))
+          (≈ᶜ-trivial 𝟙≡𝟘)
+      (K₀ᵤ ok A-ok t-ok B-ok u-ok v-ok) →
+        sub
+          (K₀ₘ {γ₃ = 𝟘ᶜ} ok (lemma₀ A-ok) (lemma₀ t-ok) (lemma B-ok)
+             (lemma₀ u-ok) (lemma₀ v-ok))
+          (≈ᶜ-trivial 𝟙≡𝟘)
+      ([]-congᵤ A-ok t-ok u-ok v-ok) →
+        sub
+          ([]-congₘ (lemma₀ A-ok) (lemma₀ t-ok) (lemma₀ u-ok)
+             (lemma₀ v-ok))
+          (≈ᶜ-trivial 𝟙≡𝟘)
+      varᵤ →
         sub var (≈ᶜ-trivial 𝟙≡𝟘)
-      U _ →
+      Uᵤ →
         sub Uₘ (≈ᶜ-trivial 𝟙≡𝟘)
-      ℕ _ →
+      ℕᵤ →
         sub ℕₘ (≈ᶜ-trivial 𝟙≡𝟘)
-      Empty _ →
+      Emptyᵤ →
         sub Emptyₘ (≈ᶜ-trivial 𝟙≡𝟘)
-      Unit! _ →
+      Unitᵤ →
         sub Unitₘ (≈ᶜ-trivial 𝟙≡𝟘)
-      zero _ →
+      zeroᵤ →
         sub zeroₘ (≈ᶜ-trivial 𝟙≡𝟘)
-      star! _ →
+      starᵤ →
         sub starₘ (≈ᶜ-trivial 𝟙≡𝟘)
-      rfl _ →
+      rflᵤ →
         sub rflₘ (≈ᶜ-trivial 𝟙≡𝟘)
 
 opaque
@@ -1055,7 +1178,7 @@ opaque
   -- An alternative characterisation of γ ▸[ m ] t for trivial
   -- modalities.
 
-  Trivial→▸⇔ : Trivial → γ ▸[ m ] t ⇔ Usage-restrictions-satisfied t
+  Trivial→▸⇔ : Trivial → γ ▸[ m ] t ⇔ Usage-restrictions-satisfied m t
   Trivial→▸⇔ 𝟙≡𝟘 =
       ▸→Usage-restrictions-satisfied
     , Trivial→Usage-restrictions-satisfied→▸ 𝟙≡𝟘
@@ -1620,7 +1743,8 @@ opaque
     case Id-erased? of λ where
       (no not-erased) → sub (Idₘ not-erased ▸A ▸t ▸u) δ≤γ₂+γ₃
       (yes erased)    → 𝟘ᵐ-allowed-elim
-        (λ ok → sub (Id₀ₘ erased ▸A (▸-𝟘ᵐ? ok ▸t) (▸-𝟘ᵐ? ok ▸u)) δ≤𝟘ᶜ)
+        (λ ok →
+           sub (Id₀ₘ erased ▸A (𝟘ᶜ▸[𝟘ᵐ?] ok ▸t) (𝟘ᶜ▸[𝟘ᵐ?] ok ▸u)) δ≤𝟘ᶜ)
         (λ not-ok →
            sub
              (Id₀ₘ erased ▸A (▸-without-𝟘ᵐ not-ok ▸t)
@@ -1641,21 +1765,21 @@ opaque
     δ ≤ᶜ ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆) →
     δ ▸[ m ] J p q A t B u v w
   Jₘ′ {γ₂} {m} {γ₃} {p} {q} {γ₄} {γ₅} {γ₆} {δ} ▸A ▸t ▸B ▸u ▸v ▸w δ≤ =
-    case Erased-matches-for-J? of λ where
+    case Erased-matches-for-J? m of λ where
       (no not-erased) →
         sub (Jₘ not-erased ▸A ▸t ▸B ▸u ▸v ▸w) δ≤
       (yes erased) → 𝟘ᵐ-allowed-elim
         (λ ok →
            sub
-             (J₀ₘ erased ▸A (▸-𝟘ᵐ? ok ▸t)
+             (J₀ₘ erased ▸A (𝟘ᶜ▸[𝟘ᵐ?] ok ▸t)
                 (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
-                 sub (▸-𝟘ᵐ? ok ▸B) $ begin
+                 sub (𝟘ᶜ▸[𝟘ᵐ?] ok ▸B) $ begin
                    𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · p ∙ ⌜ 𝟘ᵐ? ⌝ · q  ≈⟨ ≈ᶜ-refl ∙
                                                       cong (λ m → ⌜ m ⌝ · p) (𝟘ᵐ?≡𝟘ᵐ {ok = ok}) ∙
                                                       cong (λ m → ⌜ m ⌝ · q) (𝟘ᵐ?≡𝟘ᵐ {ok = ok}) ⟩
                    𝟘ᶜ ∙ 𝟘 · p ∙ 𝟘 · q              ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
                    𝟘ᶜ                              ∎)
-                ▸u (▸-𝟘ᵐ? ok ▸v) (▸-𝟘ᵐ? ok ▸w))
+                ▸u (𝟘ᶜ▸[𝟘ᵐ?] ok ▸v) (𝟘ᶜ▸[𝟘ᵐ?] ok ▸w))
              δ≤γ₄)
         (λ not-ok →
            sub
@@ -1693,19 +1817,19 @@ opaque
     δ ≤ᶜ ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅) →
     δ ▸[ m ] K p A t B u v
   Kₘ′ {γ₂} {m} {γ₃} {p} {γ₄} {γ₅} {δ} ▸A ▸t ▸B ▸u ▸v δ≤ =
-    case Erased-matches-for-K? of λ where
+    case Erased-matches-for-K? m of λ where
       (no not-erased) →
         sub (Kₘ not-erased ▸A ▸t ▸B ▸u ▸v) δ≤
       (yes erased) → 𝟘ᵐ-allowed-elim
         (λ ok →
            sub
-             (K₀ₘ erased ▸A (▸-𝟘ᵐ? ok ▸t)
+             (K₀ₘ erased ▸A (𝟘ᶜ▸[𝟘ᵐ?] ok ▸t)
                 (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
-                 sub (▸-𝟘ᵐ? ok ▸B) $ begin
+                 sub (𝟘ᶜ▸[𝟘ᵐ?] ok ▸B) $ begin
                    𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · p  ≈⟨ ≈ᶜ-refl ∙ cong (λ m → ⌜ m ⌝ · p) (𝟘ᵐ?≡𝟘ᵐ {ok = ok}) ⟩
                    𝟘ᶜ ∙ 𝟘 · p        ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
                    𝟘ᶜ                ∎)
-                ▸u (▸-𝟘ᵐ? ok ▸v))
+                ▸u (𝟘ᶜ▸[𝟘ᵐ?] ok ▸v))
              δ≤γ₄)
         (λ not-ok →
            sub
@@ -1826,7 +1950,7 @@ opaque
   open Tools.Reasoning.Equivalence Conₘ-setoid
 ⌈⌉-𝟘ᵐ rfl =
   ≈ᶜ-refl
-⌈⌉-𝟘ᵐ {ok} (J _ _ _ t B u v w) with Erased-matches-for-J?
+⌈⌉-𝟘ᵐ {ok} (J _ _ _ t B u v w) with Erased-matches-for-J? 𝟘ᵐ[ ok ]
 … | yes _ = ⌈⌉-𝟘ᵐ u
 … | no _  = begin
   ω ·ᶜ
@@ -1850,7 +1974,7 @@ opaque
   𝟘ᶜ                                                                      ∎
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
-⌈⌉-𝟘ᵐ {ok} (K _ _ t B u v) with Erased-matches-for-K?
+⌈⌉-𝟘ᵐ {ok} (K _ _ t B u v) with Erased-matches-for-K? 𝟘ᵐ[ ok ]
 … | yes _ = ⌈⌉-𝟘ᵐ u
 … | no _  = begin
   ω ·ᶜ
@@ -1984,7 +2108,7 @@ usage-upper-bound
   {m}
   (Jₘ {γ₂} {t} {γ₃} {B} {γ₄} {u} {γ₅} {v} {γ₆} {w}
      not-ok _ ▸t ▸B ▸u ▸v ▸w)
-  with Erased-matches-for-J?
+  with Erased-matches-for-J? m
 … | yes ok = ⊥-elim (not-ok ok)
 … | no _   = begin
   ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆)                                      ≤⟨ ·ᶜ-monotoneʳ $
@@ -1998,13 +2122,13 @@ usage-upper-bound
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-usage-upper-bound (J₀ₘ ok _ _ _ ▸u _ _) with Erased-matches-for-J?
+usage-upper-bound {m} (J₀ₘ ok _ _ _ ▸u _ _) with Erased-matches-for-J? m
 … | no not-ok = ⊥-elim (not-ok ok)
 … | yes _     = usage-upper-bound ▸u
 
 usage-upper-bound
   {m} (Kₘ {γ₂} {t} {γ₃} {B} {γ₄} {u} {γ₅} {v} not-ok _ ▸t ▸B ▸u ▸v)
-  with Erased-matches-for-K?
+  with Erased-matches-for-K? m
 … | yes ok = ⊥-elim (not-ok ok)
 … | no _   = begin
   ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅)                              ≤⟨ ·ᶜ-monotoneʳ $
@@ -2016,7 +2140,7 @@ usage-upper-bound
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-usage-upper-bound (K₀ₘ ok _ _ _ ▸u _) with Erased-matches-for-K?
+usage-upper-bound {m} (K₀ₘ ok _ _ _ ▸u _) with Erased-matches-for-K? m
 … | no not-ok = ⊥-elim (not-ok ok)
 … | yes _     = usage-upper-bound ▸u
 
@@ -2079,23 +2203,23 @@ usage-inf (Id₀ₘ ok ▸A ▸t ▸u) with Id-erased?
 usage-inf rflₘ =
   rflₘ
 usage-inf {m} (Jₘ {p} {q} {B} not-ok ▸A ▸t ▸B ▸u ▸v ▸w)
-  with Erased-matches-for-J?
+  with Erased-matches-for-J? m
 … | yes ok = ⊥-elim (not-ok ok)
 … | no _   =
   Jₘ not-ok ▸A (usage-inf ▸t)
      (Conₘ-interchange₂ (usage-inf ▸B) ▸B)
      (usage-inf ▸u) (usage-inf ▸v) (usage-inf ▸w)
-usage-inf (J₀ₘ ok ▸A ▸t ▸B ▸u ▸v ▸w) with Erased-matches-for-J?
+usage-inf {m} (J₀ₘ ok ▸A ▸t ▸B ▸u ▸v ▸w) with Erased-matches-for-J? m
 … | no not-ok = ⊥-elim (not-ok ok)
 … | yes _     = J₀ₘ ok ▸A ▸t ▸B (usage-inf ▸u) ▸v ▸w
 usage-inf {m} (Kₘ {p} {B} not-ok ▸A ▸t ▸B ▸u ▸v)
-  with Erased-matches-for-K?
+  with Erased-matches-for-K? m
 … | yes ok = ⊥-elim (not-ok ok)
 … | no _   =
   Kₘ not-ok ▸A (usage-inf ▸t)
      (Conₘ-interchange₁ (usage-inf ▸B) ▸B)
      (usage-inf ▸u) (usage-inf ▸v)
-usage-inf (K₀ₘ ok ▸A ▸t ▸B ▸u ▸v) with Erased-matches-for-K?
+usage-inf {m} (K₀ₘ ok ▸A ▸t ▸B ▸u ▸v) with Erased-matches-for-K? m
 … | no not-ok = ⊥-elim (not-ok ok)
 … | yes _     = K₀ₘ ok ▸A ▸t ▸B (usage-inf ▸u) ▸v
 usage-inf ([]-congₘ ▸A ▸t ▸u ▸v) =

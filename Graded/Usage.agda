@@ -9,7 +9,7 @@ module Graded.Usage
   {a} {M : Set a}
   (open Graded.Modality M)
   (𝕄 : Modality)
-  (R : Usage-restrictions M)
+  (R : Usage-restrictions 𝕄)
   where
 
 open Modality 𝕄
@@ -77,13 +77,13 @@ mutual
     (yes _) → 𝟘ᶜ
     (no _)  → ⌈ t ⌉ m +ᶜ ⌈ u ⌉ m
   ⌈ rfl ⌉ _ = 𝟘ᶜ
-  ⌈ J _ _ _ t B u v w ⌉ m = case Erased-matches-for-J? of λ where
+  ⌈ J _ _ _ t B u v w ⌉ m = case Erased-matches-for-J? m of λ where
     (yes _) → ⌈ u ⌉ m
     (no _)  →
       ω ·ᶜ
       (⌈ t ⌉ m ∧ᶜ tailₘ (tailₘ (⌈ B ⌉ m)) ∧ᶜ
        ⌈ u ⌉ m ∧ᶜ ⌈ v ⌉ m ∧ᶜ ⌈ w ⌉ m)
-  ⌈ K _ _ t B u v ⌉ m = case Erased-matches-for-K? of λ where
+  ⌈ K _ _ t B u v ⌉ m = case Erased-matches-for-K? m of λ where
     (yes _) → ⌈ u ⌉ m
     (no _)  → ω ·ᶜ (⌈ t ⌉ m ∧ᶜ tailₘ (⌈ B ⌉ m) ∧ᶜ ⌈ u ⌉ m ∧ᶜ ⌈ v ⌉ m)
   ⌈ []-cong _ _ _ _ _ ⌉ _ = 𝟘ᶜ
@@ -232,7 +232,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
   prodrecₘ  : γ ▸[ m ᵐ· r ] t
             → δ ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u
             → η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
-            → Prodrec-allowed r p q
+            → Prodrec-allowed m r p q
             → r ·ᶜ γ +ᶜ δ ▸[ m ] prodrec r p q A t u
 
   zeroₘ     : 𝟘ᶜ ▸[ m ] zero
@@ -304,7 +304,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
   unitrecₘ : γ ▸[ m ᵐ· p ] t
            → δ ▸[ m ] u
            → η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
-           → Unitrec-allowed p q
+           → Unitrec-allowed m p q
            → p ·ᶜ γ +ᶜ δ ▸[ m ] unitrec p q A t u
 
   Idₘ       : ¬ Id-erased
@@ -318,7 +318,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → η ▸[ 𝟘ᵐ? ] u
             → 𝟘ᶜ ▸[ m ] Id A t u
   rflₘ      : 𝟘ᶜ ▸[ m ] rfl
-  Jₘ        : ¬ Erased-matches-for-J
+  Jₘ        : ¬ Erased-matches-for-J m
             → γ₁ ▸[ 𝟘ᵐ? ] A
             → γ₂ ▸[ m ] t
             → γ₃ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · q ▸[ m ] B
@@ -326,7 +326,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → γ₅ ▸[ m ] v
             → γ₆ ▸[ m ] w
             → ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆) ▸[ m ] J p q A t B u v w
-  J₀ₘ       : Erased-matches-for-J
+  J₀ₘ       : Erased-matches-for-J m
             → γ₁ ▸[ 𝟘ᵐ? ] A
             → γ₂ ▸[ 𝟘ᵐ? ] t
             → γ₃ ∙ ⌜ 𝟘ᵐ? ⌝ · p ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] B
@@ -334,14 +334,14 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → γ₅ ▸[ 𝟘ᵐ? ] v
             → γ₆ ▸[ 𝟘ᵐ? ] w
             → γ₄ ▸[ m ] J p q A t B u v w
-  Kₘ        : ¬ Erased-matches-for-K
+  Kₘ        : ¬ Erased-matches-for-K m
             → γ₁ ▸[ 𝟘ᵐ? ] A
             → γ₂ ▸[ m ] t
             → γ₃ ∙ ⌜ m ⌝ · p ▸[ m ] B
             → γ₄ ▸[ m ] u
             → γ₅ ▸[ m ] v
             → ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅) ▸[ m ] K p A t B u v
-  K₀ₘ       : Erased-matches-for-K
+  K₀ₘ       : Erased-matches-for-K m
             → γ₁ ▸[ 𝟘ᵐ? ] A
             → γ₂ ▸[ 𝟘ᵐ? ] t
             → γ₃ ∙ ⌜ 𝟘ᵐ? ⌝ · p ▸[ 𝟘ᵐ? ] B

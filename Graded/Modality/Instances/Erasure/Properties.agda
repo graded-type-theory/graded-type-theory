@@ -24,7 +24,7 @@ open import Graded.Modality.Properties (ErasureModality variant) as P
   public
 
 open import Graded.Usage (ErasureModality variant)
-open import Graded.Usage.Restrictions Erasure
+open import Graded.Usage.Restrictions (ErasureModality variant)
 open import Graded.Usage.Inversion (ErasureModality variant)
 open import Graded.Mode (ErasureModality variant)
 

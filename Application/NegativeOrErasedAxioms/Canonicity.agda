@@ -7,7 +7,7 @@
 
 import Graded.Modality
 import Graded.Restrictions
-import Graded.Usage.Restrictions
+open import Graded.Usage.Restrictions
 import Definition.Typed
 open import Definition.Typed.Restrictions
 import Definition.Untyped
@@ -16,7 +16,6 @@ import Definition.Untyped
 module Application.NegativeOrErasedAxioms.Canonicity
   {a} {M : Set a}
   (open Graded.Modality M)
-  (open Graded.Usage.Restrictions M)
   (open Definition.Untyped M)
   {𝕄 : Modality}
   (open Graded.Restrictions 𝕄)
@@ -25,7 +24,7 @@ module Application.NegativeOrErasedAxioms.Canonicity
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄
   (TR : Type-restrictions 𝕄)
   (open Definition.Typed TR)
-  (UR : Usage-restrictions)
+  (UR : Usage-restrictions 𝕄)
   -- Erased matches are not allowed.
   (no-erased-matches : No-erased-matches TR UR)
   {m} {Γ : Con Term m}

@@ -9,7 +9,7 @@ module Graded.Substitution
   {a} {M : Set a}
   (open Graded.Modality M)
   (𝕄 : Modality)
-  (R : Usage-restrictions M)
+  (R : Usage-restrictions 𝕄)
   where
 
 open Modality 𝕄

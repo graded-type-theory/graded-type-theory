@@ -11,7 +11,7 @@ module Graded.Substitution.Properties
   {a} {M : Set a}
   (open Graded.Modality M)
   (𝕄 : Modality)
-  (R : Usage-restrictions M)
+  (R : Usage-restrictions 𝕄)
   where
 
 open Modality 𝕄
@@ -46,12 +46,12 @@ private
   variable
     ℓ m n : Nat
     x y : Fin n
-    γ γ′ γ₂ γ₃ γ₄ γ₅ δ η θ χ : Conₘ n
+    γ γ′ γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ δ η θ χ : Conₘ n
     Ψ : Substₘ m n
-    t u u′ : Term n
+    A B t u u′ v w : Term n
     σ : Subst m n
     p q r : M
-    mo mo′ : Mode
+    mo mo₁ mo₂ mo₃ mo′ : Mode
     mos mos₁ mos₂ : Mode-vector n
 
 ----------------------
@@ -701,13 +701,70 @@ substₘ-lemma₀ :
 
 private
 
-  -- A variant of substₘ-lemma₀.
+  -- Some lemmas used in the proof of substₘ-lemma₀.
 
   substₘ-lemma₀-𝟘ᵐ? :
     ⦃ ok : T 𝟘ᵐ-allowed ⦄ (Ψ : Substₘ m n) →
     Ψ ▶[ mos ] σ → γ ▸[ mo ] t → 𝟘ᶜ ▸[ 𝟘ᵐ? ] t [ σ ]
   substₘ-lemma₀-𝟘ᵐ? Ψ Ψ▶ γ▸ =
     ▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) (substₘ-lemma₀ Ψ Ψ▶ γ▸)
+
+  substₘ-lemma₀-J₀ :
+    ⦃ ok : T 𝟘ᵐ-allowed ⦄ →
+    Erased-matches-for-J mo₁ →
+    (Ψ : Substₘ m n) →
+    Ψ ▶[ mos ] σ →
+    γ₁ ▸[ 𝟘ᵐ? ] A →
+    γ₂ ▸[ mo₂ ] t →
+    γ₃ ▸[ mo₂ ] B →
+    γ₄ ▸[ mo₃ ] u →
+    γ₅ ▸[ mo₂ ] v →
+    γ₆ ▸[ mo₂ ] w →
+    𝟘ᶜ ▸[ 𝟘ᵐ ] J p q A t B u v w [ σ ]
+  substₘ-lemma₀-J₀ {p} {q} ⦃ ok ⦄ erased Ψ Ψ▶σ ▸A ▸t ▸B ▸u ▸v ▸w = J₀ₘ
+    (Erased-matches-for-J-·ᵐ erased)
+    (substₘ-lemma₀-𝟘ᵐ? Ψ Ψ▶σ ▸A)
+    (substₘ-lemma₀-𝟘ᵐ? Ψ Ψ▶σ ▸t)
+    (sub
+       (substₘ-lemma₀-𝟘ᵐ? (liftSubstₘ (liftSubstₘ Ψ))
+          (wf-liftSubstₘ {mo = 𝟘ᵐ} (wf-liftSubstₘ {mo = 𝟘ᵐ} Ψ▶σ))
+          ▸B)
+       (begin
+          𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · p ∙ ⌜ 𝟘ᵐ? ⌝ · q  ≈⟨ ≈ᶜ-refl ∙ ·-congʳ (⌜𝟘ᵐ?⌝≡𝟘 ok) ∙ ·-congʳ (⌜𝟘ᵐ?⌝≡𝟘 ok) ⟩
+          𝟘ᶜ ∙ 𝟘 · p ∙ 𝟘 · q              ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
+          𝟘ᶜ                              ∎))
+    (substₘ-lemma₀ Ψ Ψ▶σ ▸u)
+    (substₘ-lemma₀-𝟘ᵐ? Ψ Ψ▶σ ▸v)
+    (substₘ-lemma₀-𝟘ᵐ? Ψ Ψ▶σ ▸w)
+    where
+    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+
+  substₘ-lemma₀-K₀ :
+    ⦃ ok : T 𝟘ᵐ-allowed ⦄ →
+    Erased-matches-for-K mo₁ →
+    (Ψ : Substₘ m n) →
+    Ψ ▶[ mos ] σ →
+    γ₁ ▸[ 𝟘ᵐ? ] A →
+    γ₂ ▸[ mo₂ ] t →
+    γ₃ ▸[ mo₂ ] B →
+    γ₄ ▸[ mo₃ ] u →
+    γ₅ ▸[ mo₂ ] v →
+    𝟘ᶜ ▸[ 𝟘ᵐ ] K p A t B u v [ σ ]
+  substₘ-lemma₀-K₀ {p} ⦃ ok ⦄ erased Ψ Ψ▶σ ▸A ▸t ▸B ▸u ▸v = K₀ₘ
+    (Erased-matches-for-K-·ᵐ erased)
+    (substₘ-lemma₀-𝟘ᵐ? Ψ Ψ▶σ ▸A)
+    (substₘ-lemma₀-𝟘ᵐ? Ψ Ψ▶σ ▸t)
+    (sub
+       (substₘ-lemma₀-𝟘ᵐ? (liftSubstₘ Ψ) (wf-liftSubstₘ {mo = 𝟘ᵐ} Ψ▶σ)
+          ▸B)
+       (begin
+          𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · p  ≈⟨ ≈ᶜ-refl ∙ ·-congʳ (⌜𝟘ᵐ?⌝≡𝟘 ok) ⟩
+          𝟘ᶜ ∙ 𝟘 · p        ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
+          𝟘ᶜ                ∎))
+    (substₘ-lemma₀ Ψ Ψ▶σ ▸u)
+    (substₘ-lemma₀-𝟘ᵐ? Ψ Ψ▶σ ▸v)
+    where
+    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
 substₘ-lemma₀ _ _ Uₘ =
   Uₘ
@@ -780,7 +837,7 @@ substₘ-lemma₀ ⦃ ok = ok ⦄ Ψ Ψ▶σ (prodrecₘ {r = r} {q = q} γ▸t 
            𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · q  ≈⟨ ≈ᶜ-refl ∙ ·-congʳ (⌜𝟘ᵐ?⌝≡𝟘 ok) ⟩
            𝟘ᶜ ∙ 𝟘 · q        ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
            𝟘ᶜ                ∎))
-     P)
+     (Prodrec-allowed-·ᵐ P))
   (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
      𝟘ᶜ             ≈˘⟨ +ᶜ-identityˡ _ ⟩
      𝟘ᶜ +ᶜ 𝟘ᶜ       ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
@@ -856,7 +913,7 @@ substₘ-lemma₀ ⦃ ok = ok ⦄ Ψ Ψ▶σ (unitrecₘ {p = p} {η = η} {q = 
                    𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · q  ≈⟨ ≈ᶜ-refl ∙ ·-congʳ (⌜𝟘ᵐ?⌝≡𝟘 ok) ⟩
                    𝟘ᶜ ∙ 𝟘 · q        ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ q ⟩
                    𝟘ᶜ                ∎)
-  in  sub (unitrecₘ γ′▸t δ′▸u η′▸A ok′)
+  in  sub (unitrecₘ γ′▸t δ′▸u η′▸A (Unitrec-allowed-·ᵐ ok′))
           let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
             𝟘ᶜ             ≈˘⟨ +ᶜ-identityˡ _ ⟩
             𝟘ᶜ +ᶜ 𝟘ᶜ       ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
@@ -881,78 +938,62 @@ substₘ-lemma₀ Ψ Ψ▶σ (Id₀ₘ ok ▸A ▸t ▸u) = Id₀ₘ ok
 substₘ-lemma₀ _ _ rflₘ =
   rflₘ
 
-substₘ-lemma₀ Ψ Ψ▶σ (Jₘ {p} {q} ok ▸A ▸t ▸B ▸u ▸t′ ▸v) = sub
-  (Jₘ ok
-     (substₘ-lemma₀-𝟘ᵐ? Ψ Ψ▶σ ▸A)
-     (substₘ-lemma₀ Ψ Ψ▶σ ▸t)
-     (sub
-        (substₘ-lemma₀ (liftSubstₘ (liftSubstₘ Ψ))
-           (wf-liftSubstₘ {mo = 𝟘ᵐ} (wf-liftSubstₘ {mo = 𝟘ᵐ} Ψ▶σ))
-           ▸B)
-        (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-           𝟘ᶜ ∙ 𝟘 · p ∙ 𝟘 · q  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
-           𝟘ᶜ                  ∎))
-     (substₘ-lemma₀ Ψ Ψ▶σ ▸u)
-     (substₘ-lemma₀ Ψ Ψ▶σ ▸t′)
-     (substₘ-lemma₀ Ψ Ψ▶σ ▸v))
-  (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-     𝟘ᶜ                                 ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
-     ω ·ᶜ 𝟘ᶜ                            ≈⟨ ·ᶜ-congˡ $
-                                           ≈ᶜ-trans (≈ᶜ-sym $ ∧ᶜ-idem _) $ ∧ᶜ-congˡ $
-                                           ≈ᶜ-trans (≈ᶜ-sym $ ∧ᶜ-idem _) $ ∧ᶜ-congˡ $
-                                           ≈ᶜ-trans (≈ᶜ-sym $ ∧ᶜ-idem _) $ ∧ᶜ-congˡ $
-                                           ≈ᶜ-sym $ ∧ᶜ-idem _ ⟩
-     ω ·ᶜ (𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ)  ∎)
+substₘ-lemma₀ Ψ Ψ▶σ (Jₘ {p} {q} _ ▸A ▸t ▸B ▸u ▸v ▸w) =
+  case Erased-matches-for-J? 𝟘ᵐ of λ where
+    (yes erased) →
+      substₘ-lemma₀-J₀ erased Ψ Ψ▶σ ▸A ▸t ▸B ▸u ▸v ▸w
+    (no not-erased) → sub
+      (Jₘ not-erased
+         (substₘ-lemma₀-𝟘ᵐ? Ψ Ψ▶σ ▸A)
+         (substₘ-lemma₀ Ψ Ψ▶σ ▸t)
+         (sub
+            (substₘ-lemma₀ (liftSubstₘ (liftSubstₘ Ψ))
+               (wf-liftSubstₘ {mo = 𝟘ᵐ} (wf-liftSubstₘ {mo = 𝟘ᵐ} Ψ▶σ))
+               ▸B)
+            (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+               𝟘ᶜ ∙ 𝟘 · p ∙ 𝟘 · q  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
+               𝟘ᶜ                  ∎))
+         (substₘ-lemma₀ Ψ Ψ▶σ ▸u)
+         (substₘ-lemma₀ Ψ Ψ▶σ ▸v)
+         (substₘ-lemma₀ Ψ Ψ▶σ ▸w))
+      (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+         𝟘ᶜ                                 ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
+         ω ·ᶜ 𝟘ᶜ                            ≈⟨ ·ᶜ-congˡ $
+                                               ≈ᶜ-trans (≈ᶜ-sym $ ∧ᶜ-idem _) $ ∧ᶜ-congˡ $
+                                               ≈ᶜ-trans (≈ᶜ-sym $ ∧ᶜ-idem _) $ ∧ᶜ-congˡ $
+                                               ≈ᶜ-trans (≈ᶜ-sym $ ∧ᶜ-idem _) $ ∧ᶜ-congˡ $
+                                               ≈ᶜ-sym $ ∧ᶜ-idem _ ⟩
+         ω ·ᶜ (𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ)  ∎)
 
-substₘ-lemma₀ ⦃ ok ⦄ Ψ Ψ▶σ (J₀ₘ {p} {q} k ▸A ▸t ▸B ▸u ▸t′ ▸v) = J₀ₘ k
-  (substₘ-lemma₀-𝟘ᵐ? Ψ Ψ▶σ ▸A)
-  (substₘ-lemma₀-𝟘ᵐ? Ψ Ψ▶σ ▸t)
-  (sub
-     (substₘ-lemma₀-𝟘ᵐ? (liftSubstₘ (liftSubstₘ Ψ))
-        (wf-liftSubstₘ {mo = 𝟘ᵐ} (wf-liftSubstₘ {mo = 𝟘ᵐ} Ψ▶σ))
-        ▸B)
-     (begin
-        𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · p ∙ ⌜ 𝟘ᵐ? ⌝ · q  ≈⟨ ≈ᶜ-refl ∙ ·-congʳ (⌜𝟘ᵐ?⌝≡𝟘 ok) ∙ ·-congʳ (⌜𝟘ᵐ?⌝≡𝟘 ok) ⟩
-        𝟘ᶜ ∙ 𝟘 · p ∙ 𝟘 · q              ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
-        𝟘ᶜ                              ∎))
-  (substₘ-lemma₀ Ψ Ψ▶σ ▸u)
-  (substₘ-lemma₀-𝟘ᵐ? Ψ Ψ▶σ ▸t′)
-  (substₘ-lemma₀-𝟘ᵐ? Ψ Ψ▶σ ▸v)
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+substₘ-lemma₀ Ψ Ψ▶σ (J₀ₘ erased ▸A ▸t ▸B ▸u ▸v ▸w) =
+  substₘ-lemma₀-J₀ erased Ψ Ψ▶σ ▸A ▸t ▸B ▸u ▸v ▸w
 
-substₘ-lemma₀ Ψ Ψ▶σ (Kₘ {p} ok ▸A ▸t ▸B ▸u ▸v) = sub
-  (Kₘ ok
-     (substₘ-lemma₀-𝟘ᵐ? Ψ Ψ▶σ ▸A)
-     (substₘ-lemma₀ Ψ Ψ▶σ ▸t)
-     (sub
-        (substₘ-lemma₀ (liftSubstₘ Ψ) (wf-liftSubstₘ {mo = 𝟘ᵐ} Ψ▶σ) ▸B)
-        (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-           𝟘ᶜ ∙ 𝟘 · p  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
-           𝟘ᶜ          ∎))
-     (substₘ-lemma₀ Ψ Ψ▶σ ▸u)
-     (substₘ-lemma₀ Ψ Ψ▶σ ▸v))
-  (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-     𝟘ᶜ                           ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
-     ω ·ᶜ 𝟘ᶜ                      ≈⟨ ·ᶜ-congˡ $
-                                     ≈ᶜ-trans (≈ᶜ-sym $ ∧ᶜ-idem _) $ ∧ᶜ-congˡ $
-                                     ≈ᶜ-trans (≈ᶜ-sym $ ∧ᶜ-idem _) $ ∧ᶜ-congˡ $
-                                     ≈ᶜ-sym $ ∧ᶜ-idem _ ⟩
-     ω ·ᶜ (𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ)  ∎)
+substₘ-lemma₀ Ψ Ψ▶σ (Kₘ {p} _ ▸A ▸t ▸B ▸u ▸v) =
+  case Erased-matches-for-K? 𝟘ᵐ of λ where
+    (yes erased) →
+      substₘ-lemma₀-K₀ erased Ψ Ψ▶σ ▸A ▸t ▸B ▸u ▸v
+    (no not-erased) → sub
+      (Kₘ not-erased
+         (substₘ-lemma₀-𝟘ᵐ? Ψ Ψ▶σ ▸A)
+         (substₘ-lemma₀ Ψ Ψ▶σ ▸t)
+         (sub
+            (substₘ-lemma₀ (liftSubstₘ Ψ) (wf-liftSubstₘ {mo = 𝟘ᵐ} Ψ▶σ)
+               ▸B)
+            (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+               𝟘ᶜ ∙ 𝟘 · p  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
+               𝟘ᶜ          ∎))
+         (substₘ-lemma₀ Ψ Ψ▶σ ▸u)
+         (substₘ-lemma₀ Ψ Ψ▶σ ▸v))
+      (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+         𝟘ᶜ                           ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
+         ω ·ᶜ 𝟘ᶜ                      ≈⟨ ·ᶜ-congˡ $
+                                         ≈ᶜ-trans (≈ᶜ-sym $ ∧ᶜ-idem _) $ ∧ᶜ-congˡ $
+                                         ≈ᶜ-trans (≈ᶜ-sym $ ∧ᶜ-idem _) $ ∧ᶜ-congˡ $
+                                         ≈ᶜ-sym $ ∧ᶜ-idem _ ⟩
+         ω ·ᶜ (𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ)  ∎)
 
-substₘ-lemma₀ ⦃ ok ⦄ Ψ Ψ▶σ (K₀ₘ {p} k ▸A ▸t ▸B ▸u ▸v) = K₀ₘ k
-  (substₘ-lemma₀-𝟘ᵐ? Ψ Ψ▶σ ▸A)
-  (substₘ-lemma₀-𝟘ᵐ? Ψ Ψ▶σ ▸t)
-  (sub
-     (substₘ-lemma₀-𝟘ᵐ? (liftSubstₘ Ψ) (wf-liftSubstₘ {mo = 𝟘ᵐ} Ψ▶σ) ▸B)
-     (begin
-        𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · p  ≈⟨ ≈ᶜ-refl ∙ ·-congʳ (⌜𝟘ᵐ?⌝≡𝟘 ok) ⟩
-        𝟘ᶜ ∙ 𝟘 · p        ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
-        𝟘ᶜ                ∎))
-  (substₘ-lemma₀ Ψ Ψ▶σ ▸u)
-  (substₘ-lemma₀-𝟘ᵐ? Ψ Ψ▶σ ▸v)
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+substₘ-lemma₀ Ψ Ψ▶σ (K₀ₘ erased ▸A ▸t ▸B ▸u ▸v) =
+  substₘ-lemma₀-K₀ erased Ψ Ψ▶σ ▸A ▸t ▸B ▸u ▸v
 
 substₘ-lemma₀ Ψ Ψ▶σ ([]-congₘ ▸A ▸t ▸u ▸v) = []-congₘ
   (substₘ-lemma₀-𝟘ᵐ? Ψ Ψ▶σ ▸A)
@@ -1248,7 +1289,7 @@ substₘ-lemma₁
   (·ᶜ⋀ᶜ⁵<* γ₂)
 
 substₘ-lemma₁ not-ok Ψ Ψ▶σ (J₀ₘ {γ₃} ok ▸A ▸t ▸B ▸u ▸t′ ▸v) = J₀ₘ
-  ok
+  (subst Erased-matches-for-J (Mode-propositional-without-𝟘ᵐ not-ok) ok)
   (substₘ-lemma₁′ not-ok Ψ Ψ▶σ ▸A)
   (substₘ-lemma₁′ not-ok Ψ Ψ▶σ ▸t)
   (sub
@@ -1274,7 +1315,7 @@ substₘ-lemma₁
   (·ᶜ⋀ᶜ⁴<* γ₂)
 
 substₘ-lemma₁ not-ok Ψ Ψ▶σ (K₀ₘ {γ₃} ok ▸A ▸t ▸B ▸u ▸v) = K₀ₘ
-  ok
+  (subst Erased-matches-for-K (Mode-propositional-without-𝟘ᵐ not-ok) ok)
   (substₘ-lemma₁′ not-ok Ψ Ψ▶σ ▸A)
   (substₘ-lemma₁′ not-ok Ψ Ψ▶σ ▸t)
   (sub

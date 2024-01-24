@@ -13,7 +13,7 @@ module Graded.Neutral
   (open Graded.Modality M)
   {𝕄 : Modality}
   (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions M)
+  (UR : Usage-restrictions 𝕄)
   where
 
 open Modality 𝕄
@@ -162,13 +162,13 @@ opaque
 
 opaque
 
-  -- If Prodrec-allowed 𝟘 p 𝟘 holds for some p (which means that
+  -- If Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 holds for some p (which means that
   -- certain kinds of erased matches are allowed), and if additionally
   -- Σʷ-allowed p 𝟘 holds, then there is a well-typed, well-resourced,
   -- neutral term in a consistent, erased context.
 
   neutral-well-resourced₁ :
-    Prodrec-allowed 𝟘 p 𝟘 →
+    Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 →
     Σʷ-allowed p 𝟘 →
     ∃₄ λ n (Γ : Con Term n) (t A : Term n) →
     Consistent Γ ×
@@ -199,11 +199,12 @@ opaque
 
 opaque
 
-  -- If erased matches are allowed for J, then there is a well-typed,
-  -- well-resourced, neutral term in a consistent, erased context.
+  -- If erased matches are allowed for J (when the mode is 𝟙ᵐ), then
+  -- there is a well-typed, well-resourced, neutral term in a
+  -- consistent, erased context.
 
   neutral-well-resourced₃ :
-    Erased-matches-for-J →
+    Erased-matches-for-J 𝟙ᵐ →
     ∃₄ λ n (Γ : Con Term n) (t A : Term n) →
     Consistent Γ ×
     Neutral t ×
@@ -216,13 +217,13 @@ opaque
 
 opaque
 
-  -- If K is allowed and erased matches are allowed for K, then there
-  -- is a well-typed, well-resourced, neutral term in a consistent,
-  -- erased context.
+  -- If K is allowed and erased matches are allowed for K (when the
+  -- mode is 𝟙ᵐ), then there is a well-typed, well-resourced, neutral
+  -- term in a consistent, erased context.
 
   neutral-well-resourced₄ :
     K-allowed →
-    Erased-matches-for-K →
+    Erased-matches-for-K 𝟙ᵐ →
     ∃₄ λ n (Γ : Con Term n) (t A : Term n) →
     Consistent Γ ×
     Neutral t ×
@@ -235,12 +236,12 @@ opaque
 
 opaque
 
-  -- If Unitrec-allowed 𝟘 𝟘 and Unitʷ-allowed hold, then there is a
+  -- If Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 and Unitʷ-allowed hold, then there is a
   -- well-typed, well-resourced, neutral term in a consistent, erased
   -- context.
 
   neutral-well-resourced₅ :
-    Unitrec-allowed 𝟘 𝟘 →
+    Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 →
     Unitʷ-allowed →
     ∃₄ λ n (Γ : Con Term n) (t A : Term n) →
     Consistent Γ ×

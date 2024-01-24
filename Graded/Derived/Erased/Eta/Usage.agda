@@ -10,7 +10,7 @@ open import Graded.Usage.Restrictions
 module Graded.Derived.Erased.Eta.Usage
   {a} {M : Set a}
   (𝕄 : Modality M)
-  (R : Usage-restrictions M)
+  (R : Usage-restrictions 𝕄)
   where
 
 open Modality 𝕄

@@ -18,7 +18,7 @@ open import Graded.Usage.Restrictions
 module Graded.Derived.Sigma
   {a} {M : Set a}
   (𝕄 : Modality M)
-  (UR : Usage-restrictions M)
+  (UR : Usage-restrictions 𝕄)
   where
 
 open Modality 𝕄
@@ -298,13 +298,13 @@ prodrecˢₘ-𝟙ᵐ-𝟙-∧≤+ {γ = γ} {r = r} {δ = δ} ∧≤+ ▸t ▸u 
 -- the linearity modality, see
 -- Graded.Modality.Instances.Linearity.Properties.¬prodrecₘ-Linearity.
 
-¬prodrecₘ : Prodrec-allowed 𝟙 𝟙 𝟘
+¬prodrecₘ : Prodrec-allowed 𝟙ᵐ 𝟙 𝟙 𝟘
           → ¬ (𝟙 ≤ 𝟙 + 𝟙)
           → ¬ (∀ {n} {γ η : Conₘ n} {δ m r p q t u A}
                → γ ▸[ m ᵐ· r ] t
                → δ ∙ ⌜ m ⌝ · r  · p ∙ ⌜ m ⌝ · r ▸[ m ] u
                → η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
-               → Prodrec-allowed r p q
+               → Prodrec-allowed m r p q
                → r ·ᶜ γ +ᶜ δ ▸[ m ] prodrecˢ p t u)
 ¬prodrecₘ ok 𝟙≰𝟚 prodrecˢₘ′ =
   let t = prod 𝕤 𝟙 (var x0) (var x0)
@@ -389,7 +389,7 @@ inv-usage-fstʷ′ :
     δ ▸[ 𝟘ᵐ? ] A ×
     ⌜ m ⌝ · r · p ≤ ⌜ m ⌝ ×
     ⌜ m ⌝ · r ≤ 𝟘 ×
-    Prodrec-allowed r p q
+    Prodrec-allowed m r p q
 inv-usage-fstʷ′ {γ = γ} {m = m} {r = r} {p = p} {q = q} ▸fstʷ′ =
   case inv-usage-prodrec ▸fstʷ′ of λ {
     (invUsageProdrec {δ = δ} {η = η} {θ = θ} ▸t ▸var ▸A ok γ≤rδ+η) →
@@ -418,7 +418,7 @@ inv-usage-fstʷ′-𝟙ᵐ :
     δ ▸[ 𝟘ᵐ? ] A ×
     r · p ≤ 𝟙 ×
     r ≤ 𝟘 ×
-    Prodrec-allowed r p q
+    Prodrec-allowed 𝟙ᵐ r p q
 inv-usage-fstʷ′-𝟙ᵐ {r = r} {p = p} ▸fstʷ′ =
   case inv-usage-fstʷ′ ▸fstʷ′ of λ {
     (_ , _ , leq₁ , ▸t , ▸A , leq₂ , leq₃ , ok) →
@@ -469,7 +469,7 @@ inv-usage-fstʷ′-≢𝟘-𝟙ᵐ :
     δ ▸[ 𝟘ᵐ? ] A ×
     r · p ≤ 𝟙 ×
     r ≤ 𝟘 ×
-    Prodrec-allowed r p q
+    Prodrec-allowed 𝟙ᵐ r p q
 inv-usage-fstʷ′-≢𝟘-𝟙ᵐ r≢𝟘⊎𝟙≡𝟘 ▸fstʷ′ =
   case inv-usage-fstʷ′-𝟙ᵐ ▸fstʷ′ of λ {
     (_ , _ , leq₁ , ▸t , ▸A , leq₂ , leq₃ , ok) →
@@ -491,7 +491,7 @@ inv-usage-fstʷ′-𝟘∧𝟙-𝟙ᵐ :
     γ ≤ᶜ 𝟘ᶜ ∧ᶜ η × η ▸[ 𝟙ᵐ ] t ×
     δ ▸[ 𝟘ᵐ? ] A ×
     𝟘 ∧ p ≤ 𝟙 ×
-    Prodrec-allowed (𝟘 ∧ 𝟙) p q
+    Prodrec-allowed 𝟙ᵐ (𝟘 ∧ 𝟙) p q
 inv-usage-fstʷ′-𝟘∧𝟙-𝟙ᵐ {γ = γ} {p = p} 𝟘≰𝟙⊎𝟙≡𝟘 ▸fstʷ′ =
   case inv-usage-fstʷ′-≢𝟘-𝟙ᵐ 𝟘∧𝟙≢𝟘⊎𝟙≡𝟘 ▸fstʷ′ of λ {
     (η , _ , leq₁ , ▸t , ▸A , leq₂ , _ , ok) →
@@ -602,7 +602,7 @@ inv-usage-fstʷ :
     γ ≤ᶜ 𝟘ᶜ ∧ᶜ η × η ▸[ m ] t ×
     δ ▸[ 𝟘ᵐ? ] A ×
     𝟘 ∧ ⌜ m ⌝ · p ≤ ⌜ m ⌝ ×
-    Prodrec-allowed (𝟘 ∧ 𝟙) p 𝟘
+    Prodrec-allowed m (𝟘 ∧ 𝟙) p 𝟘
 inv-usage-fstʷ {m = m} {γ = γ} {p = p} 𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ ▸fstʷ =
   case inv-usage-fstʷ′ ▸fstʷ of λ {
     (η , δ , leq₁ , ▸t , ▸A , leq₂ , leq₃ , ok) →
@@ -627,7 +627,7 @@ inv-usage-fstʷ-𝟘ᵐ :
   ∃ λ δ →
     γ ≤ᶜ 𝟘ᶜ × 𝟘ᶜ ▸[ 𝟘ᵐ ] t ×
     δ ▸[ 𝟘ᵐ ] A ×
-    Prodrec-allowed (𝟘 ∧ 𝟙) p 𝟘
+    Prodrec-allowed 𝟘ᵐ (𝟘 ∧ 𝟙) p 𝟘
 inv-usage-fstʷ-𝟘ᵐ {γ = γ} ▸fstʷ =
   case inv-usage-fstʷ (inj₂ (inj₂ (λ ()))) ▸fstʷ of λ {
     (η , _ , leq₁ , ▸t , ▸A , leq₂ , ok) →
@@ -653,7 +653,7 @@ inv-usage-fstʷ-𝟙ᵐ :
     γ ≤ᶜ 𝟘ᶜ ∧ᶜ η × η ▸[ 𝟙ᵐ ] t ×
     δ ▸[ 𝟘ᵐ? ] A ×
     𝟘 ∧ p ≤ 𝟙 ×
-    Prodrec-allowed (𝟘 ∧ 𝟙) p 𝟘
+    Prodrec-allowed 𝟙ᵐ (𝟘 ∧ 𝟙) p 𝟘
 inv-usage-fstʷ-𝟙ᵐ {p = p} 𝟘≰𝟙⊎𝟙≡𝟘 ▸fstʷ =
   case inv-usage-fstʷ 𝟘≰𝟙⊎𝟙≡𝟘⊎𝟙ᵐ≢𝟙ᵐ ▸fstʷ of λ {
     (_ , _ , leq₁ , ▸t , ▸A , leq₂ , ok) →
@@ -678,7 +678,7 @@ inv-usage-fstʷ-𝟙ᵐ {p = p} 𝟘≰𝟙⊎𝟙≡𝟘 ▸fstʷ =
 fstʷₘ :
   ¬ 𝟘 ≤ 𝟙 ⊎ Trivial ⊎ m ≢ 𝟙ᵐ →
   𝟘 ∧ ⌜ m ⌝ · p ≤ ⌜ m ⌝ →
-  Prodrec-allowed (𝟘 ∧ 𝟙) p 𝟘 →
+  Prodrec-allowed m (𝟘 ∧ 𝟙) p 𝟘 →
   γ ▸[ m ] t →
   δ ▸[ 𝟘ᵐ? ] A →
   𝟘ᶜ ∧ᶜ γ ▸[ m ] fstʷ p A t
@@ -704,7 +704,7 @@ fstʷₘ {m = m} {p = p} {γ = γ} {δ = δ} 𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙
 
 fstʷₘ-𝟘ᵐ :
   ⦃ ok : T 𝟘ᵐ-allowed ⦄ →
-  Prodrec-allowed (𝟘 ∧ 𝟙) p 𝟘 →
+  Prodrec-allowed 𝟘ᵐ (𝟘 ∧ 𝟙) p 𝟘 →
   γ ▸[ 𝟘ᵐ ] t →
   δ ▸[ 𝟘ᵐ ] A →
   γ ▸[ 𝟘ᵐ ] fstʷ p A t
@@ -727,7 +727,7 @@ fstʷₘ-𝟘ᵐ {p = p} {γ = γ} {δ = δ} ok ▸t ▸A = sub
 fstʷₘ-𝟙ᵐ :
   ¬ 𝟘 ≤ 𝟙 ⊎ Trivial →
   𝟘 ∧ p ≤ 𝟙 →
-  Prodrec-allowed (𝟘 ∧ 𝟙) p 𝟘 →
+  Prodrec-allowed 𝟙ᵐ (𝟘 ∧ 𝟙) p 𝟘 →
   γ ▸[ 𝟙ᵐ ] t →
   δ ▸[ 𝟘ᵐ? ] A →
   𝟘ᶜ ∧ᶜ γ ▸[ 𝟙ᵐ ] fstʷ p A t
@@ -749,7 +749,7 @@ fstʷₘ-𝟙ᵐ-≤𝟘 :
   Trivial ⊎ ¬ Trivial →
   (∀ p → p ≤ 𝟘) →
   p ≤ 𝟙 →
-  Prodrec-allowed (𝟘 ∧ 𝟙) p 𝟘 →
+  Prodrec-allowed 𝟙ᵐ (𝟘 ∧ 𝟙) p 𝟘 →
   γ ▸[ 𝟙ᵐ ] t →
   δ ▸[ 𝟘ᵐ? ] A →
   γ ▸[ 𝟙ᵐ ] fstʷ p A t
@@ -774,7 +774,7 @@ fstʷₘ-𝟙ᵐ-∧≤+ :
   Trivial ⊎ ¬ Trivial →
   (∀ p q → p + q ≤ p ∧ q) →
   p ≤ 𝟙 →
-  Prodrec-allowed (𝟘 ∧ 𝟙) p 𝟘 →
+  Prodrec-allowed 𝟙ᵐ (𝟘 ∧ 𝟙) p 𝟘 →
   γ ▸[ 𝟙ᵐ ] t →
   δ ▸[ 𝟘ᵐ? ] A →
   γ ▸[ 𝟙ᵐ ] fstʷ p A t
@@ -823,7 +823,7 @@ inv-usage-sndʷ :
   ∃₂ λ η δ →
     γ ≤ᶜ 𝟘ᶜ ∧ᶜ η × η ▸[ m ] t ×
     δ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] B [ fstʷ p (wk1 A) (var x0) ]↑ ×
-    Prodrec-allowed (𝟘 ∧ 𝟙) p q
+    Prodrec-allowed m (𝟘 ∧ 𝟙) p q
 inv-usage-sndʷ {γ = γ} 𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ _ ▸sndʷ =
   case inv-usage-prodrec ▸sndʷ of λ {
     (invUsageProdrec {δ = δ} {η = η} {θ = θ} ▸t ▸var ▸B ok γ≤[𝟘∧𝟙]δ+η) →
@@ -852,7 +852,7 @@ inv-usage-sndʷ-𝟘ᵐ :
   ∃ λ δ →
     γ ≤ᶜ 𝟘ᶜ × 𝟘ᶜ ▸[ 𝟘ᵐ ] t ×
     δ ∙ 𝟘 ▸[ 𝟘ᵐ ] B [ fstʷ p (wk1 A) (var x0) ]↑ ×
-    Prodrec-allowed (𝟘 ∧ 𝟙) p q
+    Prodrec-allowed 𝟘ᵐ (𝟘 ∧ 𝟙) p q
 inv-usage-sndʷ-𝟘ᵐ {γ = γ} {q = q} ⦃ ok = 𝟘ᵐ-ok ⦄ B ▸sndʷ =
   case inv-usage-sndʷ (inj₂ (inj₂ (λ ()))) B ▸sndʷ of λ {
     (η , δ , leq , ▸t , ▸B , ok) →
@@ -880,7 +880,7 @@ inv-usage-sndʷ-𝟘ᵐ {γ = γ} {q = q} ⦃ ok = 𝟘ᵐ-ok ⦄ B ▸sndʷ =
 
 sndʷₘ :
   ¬ 𝟘 ≤ 𝟙 ⊎ Trivial ⊎ m ≢ 𝟙ᵐ →
-  Prodrec-allowed (𝟘 ∧ 𝟙) p q →
+  Prodrec-allowed m (𝟘 ∧ 𝟙) p q →
   ∀ B →
   γ ▸[ m ] t →
   δ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] B [ fstʷ p (wk1 A) (var x0) ]↑ →
@@ -904,7 +904,7 @@ sndʷₘ {m = m} {p = p} {γ = γ} 𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ ok _ �
 
 sndʷₘ-𝟘ᵐ :
   ⦃ ok : T 𝟘ᵐ-allowed ⦄ →
-  Prodrec-allowed (𝟘 ∧ 𝟙) p q →
+  Prodrec-allowed 𝟘ᵐ (𝟘 ∧ 𝟙) p q →
   ∀ B →
   γ ▸[ 𝟘ᵐ ] t →
   δ ∙ 𝟘 ▸[ 𝟘ᵐ ] B [ fstʷ p (wk1 A) (var x0) ]↑ →
@@ -930,7 +930,7 @@ sndʷₘ-𝟘ᵐ {p = p} {q = q} {γ = γ} {δ = δ} ⦃ ok = 𝟘ᵐ-ok ⦄ ok 
 sndʷₘ-𝟙ᵐ-≤𝟘 :
   Trivial ⊎ ¬ Trivial →
   (∀ p → p ≤ 𝟘) →
-  Prodrec-allowed (𝟘 ∧ 𝟙) p q →
+  Prodrec-allowed 𝟙ᵐ (𝟘 ∧ 𝟙) p q →
   ∀ B →
   γ ▸[ 𝟙ᵐ ] t →
   δ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] B [ fstʷ p (wk1 A) (var x0) ]↑ →
@@ -956,7 +956,7 @@ sndʷₘ-𝟙ᵐ-≤𝟘 {γ = γ} 𝟙≡𝟘⊎𝟙≢𝟘 ≤𝟘 ok B ▸t �
 sndʷₘ-𝟙ᵐ-+≤∧ :
   Trivial ⊎ ¬ Trivial →
   (∀ p q → p + q ≤ p ∧ q) →
-  Prodrec-allowed (𝟘 ∧ 𝟙) p q →
+  Prodrec-allowed 𝟙ᵐ (𝟘 ∧ 𝟙) p q →
   ∀ B →
   γ ▸[ 𝟙ᵐ ] t →
   δ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] B [ fstʷ p (wk1 A) (var x0) ]↑ →

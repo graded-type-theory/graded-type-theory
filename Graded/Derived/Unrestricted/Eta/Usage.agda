@@ -10,7 +10,7 @@ module Graded.Derived.Unrestricted.Eta.Usage
   {a} {M : Set a}
   (𝕄 : Modality M)
   (open Modality 𝕄)
-  (R : Usage-restrictions M)
+  (R : Usage-restrictions 𝕄)
   -- The quantity ω is strictly below 𝟘.
   (ω<𝟘 : ω < 𝟘)
   where

@@ -21,7 +21,7 @@ open import Graded.Modality ⊤ public
 import Graded.Modality.Properties.Star as Star
 open import Graded.Modality.Variant lzero
 open import Graded.FullReduction.Assumptions
-open import Graded.Usage.Restrictions ⊤
+open import Graded.Usage.Restrictions
 
 open import Definition.Typed.Restrictions
 
@@ -206,7 +206,7 @@ full-reduction-assumptions :
   let open Modality-variant variant in
   (ok : ¬ T 𝟘ᵐ-allowed) →
   {rs : Type-restrictions (UnitModality variant ok)} →
-  {us : Usage-restrictions} →
+  {us : Usage-restrictions (UnitModality variant ok)} →
   Full-reduction-assumptions rs us
 full-reduction-assumptions _ = record
   { sink⊎𝟙≤𝟘 = λ _ → inj₂ refl

@@ -2,20 +2,245 @@
 -- Preserving/reflecting usage restrictions
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 module Graded.Modality.Morphism.Usage-restrictions where
 
 open import Tools.Bool
+open import Tools.Empty
 open import Tools.Function
 open import Tools.Level
+open import Tools.Product
 open import Tools.PropositionalEquality
+open import Tools.Relation
+open import Tools.Sum
 
+open import Graded.Modality
+import Graded.Modality.Properties
+open import Graded.Mode
 open import Graded.Usage.Restrictions
 
 private variable
-  R R₁ R₂ R₃          : Usage-restrictions _
+  a₁ a₂ p₁ p₂ p₃      : Level
   M M₁ M₂             : Set _
+  P P₃                : M → Set _
   tr₁ tr₂ tr-Σ₁ tr-Σ₂ : M₁ → M₂
   p q r               : M
+  𝕄 𝕄₁ 𝕄₂ 𝕄₃          : Modality _
+  R R₁ R₂ R₃          : Usage-restrictions _
+  m₁ m₂ m₃            : Mode _
+  ⦃ ok₁ ok₂ ⦄         : T _
+
+------------------------------------------------------------------------
+-- The relations _≈ᵐ_ and _≳ᵐ_
+
+-- Two modes from two possibly different modalities are equivalent if
+-- they are both 𝟙ᵐ or both 𝟘ᵐ (with arbitrary proofs).
+
+infix 4 _≈ᵐ_
+
+data _≈ᵐ_
+       {M₁ : Set a₁} {M₂ : Set a₂}
+       {𝕄₁ : Modality M₁} {𝕄₂ : Modality M₂} :
+       Mode 𝕄₁ → Mode 𝕄₂ → Set (a₁ ⊔ a₂) where
+  𝟘ᵐ : 𝟘ᵐ[ ok₁ ] ≈ᵐ 𝟘ᵐ[ ok₂ ]
+  𝟙ᵐ : 𝟙ᵐ        ≈ᵐ 𝟙ᵐ
+
+-- A variant of _≈ᵐ_. 𝟙ᵐ ≳ᵐ 𝟘ᵐ[ ok₂ ] is allowed if the "first"
+-- modality is trivial.
+
+infix 4 _≳ᵐ_
+
+data _≳ᵐ_
+       {M₁ : Set a₁} {M₂ : Set a₂}
+       {𝕄₁ : Modality M₁} {𝕄₂ : Modality M₂} :
+       Mode 𝕄₁ → Mode 𝕄₂ → Set (a₁ ⊔ a₂) where
+  [_]   : m₁ ≈ᵐ m₂ → m₁ ≳ᵐ m₂
+  𝟙ᵐ≳𝟘ᵐ : Modality.Trivial 𝕄₁ → 𝟙ᵐ ≳ᵐ 𝟘ᵐ[ ok₂ ]
+
+opaque
+
+  -- The relation _≈ᵐ_ is symmetric.
+
+  ≈ᵐ-symmetric : m₁ ≈ᵐ m₂ → m₂ ≈ᵐ m₁
+  ≈ᵐ-symmetric 𝟘ᵐ = 𝟘ᵐ
+  ≈ᵐ-symmetric 𝟙ᵐ = 𝟙ᵐ
+
+opaque
+
+  -- If m₁ ≈ᵐ m₂ holds, then m₂ ≡ 𝟙ᵐ implies m₁ ≡ 𝟙ᵐ.
+
+  ≈ᵐ→≡𝟙ᵐ→≡𝟙ᵐ : m₁ ≈ᵐ m₂ → m₂ ≡ 𝟙ᵐ → m₁ ≡ 𝟙ᵐ
+  ≈ᵐ→≡𝟙ᵐ→≡𝟙ᵐ 𝟙ᵐ refl = refl
+
+opaque
+
+  -- If m₁ ≈ᵐ m₂ holds, then m₁ ≡ 𝟙ᵐ implies m₂ ≡ 𝟙ᵐ.
+
+  ≈ᵐ→≡𝟙ᵐ←≡𝟙ᵐ : m₁ ≈ᵐ m₂ → m₁ ≡ 𝟙ᵐ → m₂ ≡ 𝟙ᵐ
+  ≈ᵐ→≡𝟙ᵐ←≡𝟙ᵐ = ≈ᵐ→≡𝟙ᵐ→≡𝟙ᵐ ∘→ ≈ᵐ-symmetric
+
+private opaque
+
+  -- Some lemmas used below.
+
+  ≈ᵐ→→₁ : m₁ ≈ᵐ m₂ → P m₁ → P m₂
+  ≈ᵐ→→₁     𝟙ᵐ           = idᶠ
+  ≈ᵐ→→₁ {P} (𝟘ᵐ ⦃ ok₁ ⦄) =
+    subst (λ ok → P 𝟘ᵐ[ ok₁ ] → P 𝟘ᵐ[ ok ]) T-propositional idᶠ
+
+  ≈ᵐ→←₁ : m₁ ≈ᵐ m₂ → P m₂ → P m₁
+  ≈ᵐ→←₁ = ≈ᵐ→→₁ ∘→ ≈ᵐ-symmetric
+
+  ≳ᵐ→←₁ :
+    {P : Mode 𝕄 → Set p} →
+    m₁ ≳ᵐ m₂ → P m₂ → P m₁
+  ≳ᵐ→←₁ [ m₁≈m₂ ] =
+    ≈ᵐ→←₁ m₁≈m₂
+  ≳ᵐ→←₁ {𝕄} (𝟙ᵐ≳𝟘ᵐ ⦃ ok₂ = ok ⦄ trivial) =
+    ⊥-elim $ MP.𝟘ᵐ.non-trivial ok trivial
+    where
+    module MP = Graded.Modality.Properties 𝕄
+
+  ≈ᵐ→→₂ :
+    {P₁ : Mode 𝕄₁ → Set p₁}
+    {P₂ : Mode 𝕄₂ → Set p₂} →
+    let module M₁ = Modality 𝕄₁
+        module M₂ = Modality 𝕄₂
+    in
+    (T M₁.𝟘ᵐ-allowed → T M₂.𝟘ᵐ-allowed) →
+    (∀ {m₁ m₂} → m₁ ≈ᵐ m₂ → P₁ m₁ → P₂ m₂) →
+    (∀ {m₂ m₃} → m₂ ≈ᵐ m₃ → P₂ m₂ → P₃ m₃) →
+    m₁ ≈ᵐ m₃ → P₁ m₁ → P₃ m₃
+  ≈ᵐ→→₂ _ hyp₁ hyp₂ 𝟙ᵐ =
+    hyp₂ 𝟙ᵐ ∘→ hyp₁ 𝟙ᵐ
+  ≈ᵐ→→₂ 𝟘ᵐ→𝟘ᵐ hyp₁ hyp₂ (𝟘ᵐ ⦃ ok₁ ⦄) =
+    case 𝟘ᵐ→𝟘ᵐ ok₁ of λ
+      ok₂ →
+    hyp₂ (𝟘ᵐ ⦃ ok₁ = ok₂ ⦄) ∘→ hyp₁ (𝟘ᵐ ⦃ ok₂ = ok₂ ⦄)
+
+  ≈ᵐ→←₂ :
+    {P₁ : Mode 𝕄₁ → Set p₁}
+    {P₂ : Mode 𝕄₂ → Set p₂} →
+    let module M₁ = Modality 𝕄₁
+        module M₂ = Modality 𝕄₂
+    in
+    (T M₁.𝟘ᵐ-allowed → T M₂.𝟘ᵐ-allowed) →
+    (∀ {m₂ m₃} → m₂ ≈ᵐ m₃ → P₃ m₃ → P₂ m₂) →
+    (∀ {m₁ m₂} → m₁ ≈ᵐ m₂ → P₂ m₂ → P₁ m₁) →
+    m₁ ≈ᵐ m₃ → P₃ m₃ → P₁ m₁
+  ≈ᵐ→←₂ _ hyp₁ hyp₂ 𝟙ᵐ =
+    hyp₂ 𝟙ᵐ ∘→ hyp₁ 𝟙ᵐ
+  ≈ᵐ→←₂ 𝟘ᵐ→𝟘ᵐ hyp₁ hyp₂ (𝟘ᵐ ⦃ ok₁ ⦄ ⦃ ok₂ = ok₃ ⦄) =
+    case 𝟘ᵐ→𝟘ᵐ ok₁ of λ
+      ok₂ →
+    hyp₂ (𝟘ᵐ ⦃ ok₂ = ok₂ ⦄) ∘→ hyp₁ (𝟘ᵐ ⦃ ok₁ = ok₂ ⦄)
+
+  ≳ᵐ→←₂ :
+    {P₁ : Mode 𝕄₁ → Set p₁}
+    {P₂ : Mode 𝕄₂ → Set p₂}
+    {P₃ : Mode 𝕄₃ → Set p₃} →
+    let module M₁ = Modality 𝕄₁
+        module M₂ = Modality 𝕄₂
+        module M₃ = Modality 𝕄₃
+    in
+    (T M₁.𝟘ᵐ-allowed → T M₂.𝟘ᵐ-allowed) →
+    (T M₃.𝟘ᵐ-allowed ⊎ M₃.Trivial → T M₂.𝟘ᵐ-allowed ⊎ M₂.Trivial) →
+    (∀ {m₂ m₃} → m₂ ≳ᵐ m₃ → P₃ m₃ → P₂ m₂) →
+    (∀ {m₁ m₂} → m₁ ≳ᵐ m₂ → P₂ m₂ → P₁ m₁) →
+    m₁ ≳ᵐ m₃ → P₃ m₃ → P₁ m₁
+  ≳ᵐ→←₂ 𝟘ᵐ→𝟘ᵐ _ hyp₁ hyp₂ [ m₁≈m₂ ] =
+    ≈ᵐ→←₂ 𝟘ᵐ→𝟘ᵐ (hyp₁ ∘→ [_]) (hyp₂ ∘→ [_]) m₁≈m₂
+  ≳ᵐ→←₂
+    {𝕄₂} {m₁ = 𝟙ᵐ} {m₃ = 𝟘ᵐ[ ok₃ ]}
+    _ 𝟘ᵐ←𝟘ᵐ hyp₁ hyp₂ (𝟙ᵐ≳𝟘ᵐ ⦃ ok₂ = ok₃ ⦄ trivial₁) =
+    case 𝟘ᵐ←𝟘ᵐ (inj₁ ok₃) of λ where
+      (inj₁ ok₂) →
+        hyp₂ (𝟙ᵐ≳𝟘ᵐ ⦃ ok₂ = ok₂ ⦄ trivial₁) ∘→
+        hyp₁ [ 𝟘ᵐ ⦃ ok₁ = ok₂ ⦄ ]
+      (inj₂ trivial₂) →
+        hyp₂ [ 𝟙ᵐ ] ∘→ hyp₁ (𝟙ᵐ≳𝟘ᵐ trivial₂)
+
+------------------------------------------------------------------------
+-- Common-properties
+
+-- Properties common to Are-preserving-usage-restrictions and
+-- Are-reflecting-usage-restrictions.
+
+record Common-properties
+  {M₁ : Set a₁} {M₂ : Set a₂}
+  {𝕄₁ : Modality M₁} {𝕄₂ : Modality M₂}
+  (R₁ : Usage-restrictions 𝕄₁) (R₂ : Usage-restrictions 𝕄₂) :
+  Set (a₁ ⊔ a₂) where
+  private
+    module M₁ = Modality 𝕄₁
+    module M₂ = Modality 𝕄₂
+    module R₁ = Usage-restrictions R₁
+    module R₂ = Usage-restrictions R₂
+
+  field
+    -- If 𝟘ᵐ is allowed for 𝕄₁, then 𝟘ᵐ is allowed for 𝕄₂.
+    --
+    -- Note that this property is also (at the time of writing) part
+    -- of Is-morphism.
+    𝟘ᵐ-preserved : T M₁.𝟘ᵐ-allowed → T M₂.𝟘ᵐ-allowed
+
+    -- The property that the strong unit acts as a sink is preserved.
+    starˢ-sink-preserved : R₁.starˢ-sink ≡ R₂.starˢ-sink
+
+    -- R₁.Id-erased holds if and only if R₂.Id-erased holds.
+    Id-erased-preserved : R₁.Id-erased ⇔ R₂.Id-erased
+
+    -- If m₁ ≈ᵐ m₂ and R₁.Erased-matches-for-J m₁ hold, then
+    -- R₂.Erased-matches-for-J m₂ holds.
+    Erased-matches-for-J-preserved :
+      m₁ ≈ᵐ m₂ →
+      R₁.Erased-matches-for-J m₁ → R₂.Erased-matches-for-J m₂
+
+    -- If m₁ ≈ᵐ m₂ and R₁.Erased-matches-for-K m₁ hold, then
+    -- R₂.Erased-matches-for-K m₂ holds.
+    Erased-matches-for-K-preserved :
+      m₁ ≈ᵐ m₂ →
+      R₁.Erased-matches-for-K m₁ → R₂.Erased-matches-for-K m₂
+
+opaque
+
+  -- The relation Common-properties is reflexive.
+
+  Common-properties-reflexive : Common-properties R R
+  Common-properties-reflexive = λ where
+      .𝟘ᵐ-preserved                   → idᶠ
+      .starˢ-sink-preserved           → refl
+      .Id-erased-preserved            → id⇔
+      .Erased-matches-for-J-preserved → ≈ᵐ→→₁
+      .Erased-matches-for-K-preserved → ≈ᵐ→→₁
+    where
+    open Common-properties
+
+opaque
+
+  -- The relation Common-properties is transitive.
+
+  Common-properties-transitive :
+    Common-properties R₁ R₂ → Common-properties R₂ R₃ →
+    Common-properties R₁ R₃
+  Common-properties-transitive cp₁ cp₂ = λ where
+      .𝟘ᵐ-preserved →
+        CP₂.𝟘ᵐ-preserved ∘→ CP₁.𝟘ᵐ-preserved
+      .starˢ-sink-preserved →
+        trans CP₁.starˢ-sink-preserved CP₂.starˢ-sink-preserved
+      .Id-erased-preserved →
+        CP₂.Id-erased-preserved ∘⇔ CP₁.Id-erased-preserved
+      .Erased-matches-for-J-preserved →
+        ≈ᵐ→→₂ CP₁.𝟘ᵐ-preserved CP₁.Erased-matches-for-J-preserved
+          CP₂.Erased-matches-for-J-preserved
+      .Erased-matches-for-K-preserved →
+        ≈ᵐ→→₂ CP₁.𝟘ᵐ-preserved CP₁.Erased-matches-for-K-preserved
+          CP₂.Erased-matches-for-K-preserved
+    where
+    open Common-properties
+    module CP₁ = Common-properties cp₁
+    module CP₂ = Common-properties cp₂
 
 ------------------------------------------------------------------------
 -- Are-preserving-usage-restrictions
@@ -23,62 +248,52 @@ private variable
 -- The property of preserving Usage-restrictions.
 
 record Are-preserving-usage-restrictions
-         {a₁ a₂} {M₁ : Set a₁} {M₂ : Set a₂}
-         (R₁ : Usage-restrictions M₁) (R₂ : Usage-restrictions M₂)
+         {M₁ : Set a₁} {M₂ : Set a₂}
+         {𝕄₁ : Modality M₁} {𝕄₂ : Modality M₂}
+         (R₁ : Usage-restrictions 𝕄₁) (R₂ : Usage-restrictions 𝕄₂)
          (tr tr-Σ : M₁ → M₂) : Set (a₁ ⊔ a₂) where
   private
     module R₁ = Usage-restrictions R₁
     module R₂ = Usage-restrictions R₂
 
   field
-    -- The functions tr and tr-Σ preserve the Prodrec-allowed property
-    -- in a certain way.
+    -- Common properties.
+    common-properties : Common-properties R₁ R₂
+
+    -- The functions tr and tr-Σ preserve the Prodrec-allowed
+    -- property in a certain way.
     Prodrec-preserved :
-      R₁.Prodrec-allowed r p q →
-      R₂.Prodrec-allowed (tr r) (tr-Σ p) (tr q)
+      m₁ ≈ᵐ m₂ →
+      R₁.Prodrec-allowed m₁ r p q →
+      R₂.Prodrec-allowed m₂ (tr r) (tr-Σ p) (tr q)
 
-    -- The function tr preserves the Unitrec-allowed property
+    -- The function tr preserves the Unitrec-allowed property in a
+    -- certain way.
     Unitrec-preserved :
-      R₁.Unitrec-allowed p q →
-      R₂.Unitrec-allowed (tr p) (tr q)
+      m₁ ≈ᵐ m₂ →
+      R₁.Unitrec-allowed m₁ p q →
+      R₂.Unitrec-allowed m₂ (tr p) (tr q)
 
-    -- The property that the strong unit acts as a sink is preserved.
-    starˢ-sink-preserved :
-      R₁.starˢ-sink ≡ R₂.starˢ-sink
-
-    -- R₁.Id-erased holds if and only if R₂.Id-erased holds.
-    Id-erased-preserved : R₁.Id-erased ⇔ R₂.Id-erased
-
-    -- If R₁.Erased-matches-for-J holds, then R₂.Erased-matches-for-J
-    -- holds.
-    Erased-matches-for-J-preserved :
-      R₁.Erased-matches-for-J → R₂.Erased-matches-for-J
-
-    -- If R₁.Erased-matches-for-K holds, then R₂.Erased-matches-for-K
-    -- holds.
-    Erased-matches-for-K-preserved :
-      R₁.Erased-matches-for-K → R₂.Erased-matches-for-K
+  open Common-properties common-properties public
 
 opaque
 
-  -- For every value R of type Usage-restrictions the identity
-  -- function preserves Usage-restrictions for R and R.
+  -- For every value R the identity function preserves
+  -- Usage-restrictions for R and R.
 
   Are-preserving-usage-restrictions-id :
     Are-preserving-usage-restrictions R R idᶠ idᶠ
-  Are-preserving-usage-restrictions-id {R = R} = λ where
-      .Prodrec-preserved              → idᶠ
-      .Unitrec-preserved              → idᶠ
-      .starˢ-sink-preserved           → refl
-      .Id-erased-preserved            → id⇔
-      .Erased-matches-for-J-preserved → idᶠ
-      .Erased-matches-for-K-preserved → idᶠ
+  Are-preserving-usage-restrictions-id = λ where
+      .common-properties → Common-properties-reflexive
+      .Prodrec-preserved → ≈ᵐ→→₁
+      .Unitrec-preserved → ≈ᵐ→→₁
     where
     open Are-preserving-usage-restrictions
 
 opaque
 
-  -- Composition preserves Are-preserving-usage-restrictions.
+  -- Composition preserves Are-preserving-usage-restrictions (in a
+  -- certain sense).
 
   Are-preserving-usage-restrictions-∘ :
     Are-preserving-usage-restrictions R₂ R₃ tr₁ tr-Σ₁ →
@@ -86,24 +301,17 @@ opaque
     Are-preserving-usage-restrictions
       R₁ R₃ (tr₁ ∘→ tr₂) (tr-Σ₁ ∘→ tr-Σ₂)
   Are-preserving-usage-restrictions-∘ m₁ m₂ = λ where
+      .common-properties →
+        Common-properties-transitive P₂.common-properties
+          P₁.common-properties
       .Prodrec-preserved →
-        M₁.Prodrec-preserved ∘→ M₂.Prodrec-preserved
+        ≈ᵐ→→₂ P₂.𝟘ᵐ-preserved P₂.Prodrec-preserved P₁.Prodrec-preserved
       .Unitrec-preserved →
-        M₁.Unitrec-preserved ∘→ M₂.Unitrec-preserved
-      .starˢ-sink-preserved →
-        trans M₂.starˢ-sink-preserved M₁.starˢ-sink-preserved
-      .Id-erased-preserved →
-        M₁.Id-erased-preserved ∘⇔ M₂.Id-erased-preserved
-      .Erased-matches-for-J-preserved →
-        M₁.Erased-matches-for-J-preserved ∘→
-        M₂.Erased-matches-for-J-preserved
-      .Erased-matches-for-K-preserved →
-        M₁.Erased-matches-for-K-preserved ∘→
-        M₂.Erased-matches-for-K-preserved
+        ≈ᵐ→→₂ P₂.𝟘ᵐ-preserved P₂.Unitrec-preserved P₁.Unitrec-preserved
     where
     open Are-preserving-usage-restrictions
-    module M₁ = Are-preserving-usage-restrictions m₁
-    module M₂ = Are-preserving-usage-restrictions m₂
+    module P₁ = Are-preserving-usage-restrictions m₁
+    module P₂ = Are-preserving-usage-restrictions m₂
 
 ------------------------------------------------------------------------
 -- Are-reflecting-usage-restrictions
@@ -111,63 +319,74 @@ opaque
 -- The property of reflecting Usage-restrictions.
 
 record Are-reflecting-usage-restrictions
-         {a₁ a₂} {M₁ : Set a₁} {M₂ : Set a₂}
-         (R₁ : Usage-restrictions M₁) (R₂ : Usage-restrictions M₂)
+         {M₁ : Set a₁} {M₂ : Set a₂}
+         {𝕄₁ : Modality M₁} {𝕄₂ : Modality M₂}
+         (R₁ : Usage-restrictions 𝕄₁) (R₂ : Usage-restrictions 𝕄₂)
          (tr tr-Σ : M₁ → M₂) : Set (a₁ ⊔ a₂) where
   private
+    module M₁ = Modality 𝕄₁
+    module M₂ = Modality 𝕄₂
     module R₁ = Usage-restrictions R₁
     module R₂ = Usage-restrictions R₂
 
   field
+    -- Common properties.
+    common-properties : Common-properties R₁ R₂
+
+    -- If 𝟘ᵐ is allowed for 𝕄₂ or 𝕄₂ is trivial, then 𝟘ᵐ is allowed
+    -- for 𝕄₁ or 𝕄₁ is trivial.
+    𝟘ᵐ-reflected :
+      T M₂.𝟘ᵐ-allowed ⊎ M₂.Trivial → T M₁.𝟘ᵐ-allowed ⊎ M₁.Trivial
+
     -- The functions tr and tr-Σ reflect the Prodrec-allowed property
     -- in a certain way.
     Prodrec-reflected :
-      R₂.Prodrec-allowed (tr r) (tr-Σ p) (tr q) →
-      R₁.Prodrec-allowed r p q
+      m₁ ≳ᵐ m₂ →
+      R₂.Prodrec-allowed m₂ (tr r) (tr-Σ p) (tr q) →
+      R₁.Prodrec-allowed m₁ r p q
 
-    -- The function tr reflects the Unitrec-allowed property.
+    -- The function tr reflects the Unitrec-allowed property in a
+    -- certain way.
     Unitrec-reflected :
-      R₂.Unitrec-allowed (tr p) (tr q) →
-      R₁.Unitrec-allowed p q
+      m₁ ≳ᵐ m₂ →
+      R₂.Unitrec-allowed m₂ (tr p) (tr q) →
+      R₁.Unitrec-allowed m₁ p q
 
-    -- The property that the strong unit acts as a sink is reflected.
-    starˢ-sink-reflected :
-      R₂.starˢ-sink ≡ R₁.starˢ-sink
-
-    -- R₂.Id-erased holds if and only if R₁.Id-erased holds.
-    Id-erased-reflected : R₂.Id-erased ⇔ R₁.Id-erased
-
-    -- If R₂.Erased-matches-for-J holds, then R₁.Erased-matches-for-J
-    -- holds.
+    -- If m₁ ≈ᵐ m₂ holds, then R₂.Erased-matches-for-J m₂ implies
+    -- R₁.Erased-matches-for-J m₁.
     Erased-matches-for-J-reflected :
-      R₂.Erased-matches-for-J → R₁.Erased-matches-for-J
+      m₁ ≈ᵐ m₂ →
+      R₂.Erased-matches-for-J m₂ → R₁.Erased-matches-for-J m₁
 
-    -- If R₂.Erased-matches-for-K holds, then R₁.Erased-matches-for-K
-    -- holds.
+    -- If m₁ ≈ᵐ m₂ holds, then R₂.Erased-matches-for-K m₂ implies
+    -- R₁.Erased-matches-for-K m₁.
     Erased-matches-for-K-reflected :
-      R₂.Erased-matches-for-K → R₁.Erased-matches-for-K
+      m₁ ≈ᵐ m₂ →
+      R₂.Erased-matches-for-K m₂ → R₁.Erased-matches-for-K m₁
+
+  open Common-properties common-properties public
 
 opaque
 
-  -- For every value R of type Usage-restrictions the identity
-  -- function reflects Usage-restrictions for R and R.
+  -- For every value R the identity function reflects
+  -- Usage-restrictions for R and R.
 
   Are-reflecting-usage-restrictions-id :
     Are-reflecting-usage-restrictions R R idᶠ idᶠ
-  Are-reflecting-usage-restrictions-id {R = R} = λ where
-      .Prodrec-reflected              → idᶠ
-      .Unitrec-reflected              → idᶠ
-      .starˢ-sink-reflected           → refl
-      .Id-erased-reflected            → id⇔
-      .Erased-matches-for-J-reflected → idᶠ
-      .Erased-matches-for-K-reflected → idᶠ
+  Are-reflecting-usage-restrictions-id = λ where
+      .common-properties              → Common-properties-reflexive
+      .𝟘ᵐ-reflected                   → idᶠ
+      .Prodrec-reflected              → ≳ᵐ→←₁
+      .Unitrec-reflected              → ≳ᵐ→←₁
+      .Erased-matches-for-J-reflected → ≈ᵐ→←₁
+      .Erased-matches-for-K-reflected → ≈ᵐ→←₁
     where
     open Are-reflecting-usage-restrictions
-    open Usage-restrictions R
 
 opaque
 
-  -- Composition preserves Are-reflecting-usage-restrictions.
+  -- Composition preserves Are-reflecting-usage-restrictions (in a
+  -- certain sense).
 
   Are-reflecting-usage-restrictions-∘ :
     Are-reflecting-usage-restrictions R₂ R₃ tr₁ tr-Σ₁ →
@@ -175,21 +394,26 @@ opaque
     Are-reflecting-usage-restrictions
       R₁ R₃ (tr₁ ∘→ tr₂) (tr-Σ₁ ∘→ tr-Σ₂)
   Are-reflecting-usage-restrictions-∘ m₁ m₂ = λ where
+      .common-properties →
+        Common-properties-transitive R₂.common-properties
+          R₁.common-properties
+      .𝟘ᵐ-reflected →
+        R₂.𝟘ᵐ-reflected ∘→ R₁.𝟘ᵐ-reflected
       .Prodrec-reflected →
-        M₂.Prodrec-reflected ∘→ M₁.Prodrec-reflected
+        ≳ᵐ→←₂ R₂.𝟘ᵐ-preserved R₁.𝟘ᵐ-reflected R₁.Prodrec-reflected
+          R₂.Prodrec-reflected
       .Unitrec-reflected →
-        M₂.Unitrec-reflected ∘→ M₁.Unitrec-reflected
-      .starˢ-sink-reflected →
-        trans M₁.starˢ-sink-reflected M₂.starˢ-sink-reflected
-      .Id-erased-reflected →
-        M₂.Id-erased-reflected ∘⇔ M₁.Id-erased-reflected
+        ≳ᵐ→←₂ R₂.𝟘ᵐ-preserved R₁.𝟘ᵐ-reflected R₁.Unitrec-reflected
+          R₂.Unitrec-reflected
       .Erased-matches-for-J-reflected →
-        M₂.Erased-matches-for-J-reflected ∘→
-        M₁.Erased-matches-for-J-reflected
+        ≈ᵐ→←₂ R₂.𝟘ᵐ-preserved
+          R₁.Erased-matches-for-J-reflected
+          R₂.Erased-matches-for-J-reflected
       .Erased-matches-for-K-reflected →
-        M₂.Erased-matches-for-K-reflected ∘→
-        M₁.Erased-matches-for-K-reflected
+        ≈ᵐ→←₂ R₂.𝟘ᵐ-preserved
+          R₁.Erased-matches-for-K-reflected
+          R₂.Erased-matches-for-K-reflected
     where
     open Are-reflecting-usage-restrictions
-    module M₁ = Are-reflecting-usage-restrictions m₁
-    module M₂ = Are-reflecting-usage-restrictions m₂
+    module R₁ = Are-reflecting-usage-restrictions m₁
+    module R₂ = Are-reflecting-usage-restrictions m₂

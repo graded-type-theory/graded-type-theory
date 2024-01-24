@@ -18,7 +18,7 @@ module Graded.Modality.Instances.Linearity.Bad
   (open Graded.Modality.Dedicated-nr bad-linearity-modality)
   (TR : Type-restrictions bad-linearity-modality)
   (open Type-restrictions TR)
-  (UR : Usage-restrictions Linearity)
+  (UR : Usage-restrictions bad-linearity-modality)
   -- It is assumed that "Π 𝟙 , 𝟘" is allowed.
   (Π-𝟙-𝟘 : Π-allowed 𝟙 𝟘)
   -- There is a dedicated nr function.

@@ -20,7 +20,7 @@ module Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr
   (open Graded.Modality.Dedicated-nr linearityModality)
   (TR : Type-restrictions linearityModality)
   (open Type-restrictions TR)
-  (UR : Usage-restrictions Linearity)
+  (UR : Usage-restrictions linearityModality)
   -- It is assumed that "Π 𝟙 , 𝟘" is allowed.
   (Π-𝟙-𝟘 : Π-allowed 𝟙 𝟘)
   -- There is no dedicated nr function.

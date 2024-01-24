@@ -29,7 +29,7 @@ open import Graded.Modality.Variant lzero
 
 open import Definition.Typed.Restrictions
 open import Definition.Untyped using (BMΣ; 𝕤)
-import Graded.Usage.Restrictions
+open import Graded.Usage.Restrictions
 
 -- The grades are the natural numbers extended with ∞.
 
@@ -37,14 +37,13 @@ data ℕ⊎∞ : Set where
   ⌞_⌟ : Nat → ℕ⊎∞
   ∞   : ℕ⊎∞
 
-open Graded.Usage.Restrictions ℕ⊎∞
-open Graded.Modality           ℕ⊎∞
-open Tools.Algebra             ℕ⊎∞
+open Graded.Modality ℕ⊎∞
+open Tools.Algebra   ℕ⊎∞
 
 private variable
   m n o   : ℕ⊎∞
   TRs     : Type-restrictions _
-  URs     : Usage-restrictions
+  URs     : Usage-restrictions _
   variant : Modality-variant
 
 ------------------------------------------------------------------------

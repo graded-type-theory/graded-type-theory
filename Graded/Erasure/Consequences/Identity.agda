@@ -14,7 +14,7 @@ module Graded.Erasure.Consequences.Identity
   (open Graded.Modality M)
   {𝕄 : Modality}
   (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions M)
+  (UR : Usage-restrictions 𝕄)
   where
 
 open Modality 𝕄

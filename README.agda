@@ -271,13 +271,14 @@ Unit-allowed =
 ΠΣ-allowed =
   Definition.Typed.Consequences.Inversion.⊢∷ΠΣ→ΠΣ-allowed
 
--- * One can choose whether to allow the term prodrec_r,p^q:
+-- * One can choose whether to allow the term prodrec_r,p^q (and one
+--   can choose to only allow this term for the mode 𝟘ᵐ):
 
 prodrec = Graded.Usage.Restrictions.Usage-restrictions
 
 --   This only affects the usage relation. If prodrec_r,p^q A t u is
---   well-resourced (with respect to any mode), then the term is
---   allowed:
+--   well-resourced (with respect to a given mode), then the term is
+--   allowed (for that mode):
 
 prodrec-allowed = Graded.Usage.Inversion.inv-usage-prodrec
 
@@ -627,7 +628,7 @@ decTypeCheckType′ = Definition.Typed.Decidable.dec
 --
 -- The usage rule for prodrec in the paper contains the side condition
 -- "Prodrec r". This condition has been replaced by
--- "Prodrec-allowed r p q".
+-- "Prodrec-allowed m r p q".
 --
 -- There are two alternative usage rules for natrec. One is the one
 -- from Section 5, but with an nr function instead of a natrec-star

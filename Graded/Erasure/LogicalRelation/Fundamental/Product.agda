@@ -19,7 +19,7 @@ module Graded.Erasure.LogicalRelation.Fundamental.Product
   (open Modality 𝕄)
   (TR : Type-restrictions 𝕄)
   (open Definition.Typed TR)
-  (UR : Usage-restrictions M)
+  (UR : Usage-restrictions 𝕄)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
   {{eqrel : EqRelSet TR}}
   {Δ : Con Term k} (⊢Δ : ⊢ Δ)

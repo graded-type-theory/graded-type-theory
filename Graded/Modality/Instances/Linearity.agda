@@ -24,7 +24,7 @@ import Graded.Modality.Properties
 
 open import Definition.Untyped using (BMΣ; 𝕤; 𝕨)
 import Definition.Typed.Restrictions
-open import Graded.Usage.Restrictions Linearity
+import Graded.Usage.Restrictions
 
 open import Tools.Empty
 open import Tools.Function
@@ -39,6 +39,7 @@ linearityModality : Modality
 linearityModality = zero-one-many-modality variant
 
 open Definition.Typed.Restrictions linearityModality
+open Graded.Usage.Restrictions linearityModality
 
 private variable
   rs : Type-restrictions

@@ -20,7 +20,7 @@ open 𝟘𝟙ω renaming (Zero-one-many to Affine) public
 open import Graded.Modality Affine
 import Graded.Modality.Properties
 open import Graded.FullReduction.Assumptions
-open import Graded.Usage.Restrictions Affine
+import Graded.Usage.Restrictions
 
 import Definition.Typed.Restrictions
 open import Definition.Untyped
@@ -35,7 +35,6 @@ open import Tools.Unit
 
 private variable
   p  : Affine
-  us : Usage-restrictions
 
 -- An "affine types" modality.
 
@@ -44,9 +43,11 @@ affineModality = zero-one-many-modality variant
 
 open Definition.Typed.Restrictions affineModality
 open Graded.Modality.Properties    affineModality
+open Graded.Usage.Restrictions     affineModality
 
 private variable
   rs : Type-restrictions
+  us : Usage-restrictions
 
 -- An alternative (not very good) "affine types" modality.
 --
