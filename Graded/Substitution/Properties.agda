@@ -51,7 +51,7 @@ private
     t u u′ : Term n
     σ : Subst m n
     p q r : M
-    mo : Mode
+    mo mo′ : Mode
     mos mos₁ mos₂ : Mode-vector n
 
 ----------------------
@@ -1028,6 +1028,18 @@ substₘ-lemma₁ :
   ¬ T 𝟘ᵐ-allowed →
   (Ψ : Substₘ m n) →
   Ψ ▶[ mos ] σ → γ ▸[ mo ] t → substₘ Ψ γ ▸[ 𝟙ᵐ ] t [ σ ]
+
+private
+
+  -- A variant of substₘ-lemma₁.
+
+  substₘ-lemma₁′ :
+    ¬ T 𝟘ᵐ-allowed →
+    (Ψ : Substₘ m n) →
+    Ψ ▶[ mos ] σ → γ ▸[ mo ] t → substₘ Ψ γ ▸[ mo′ ] t [ σ ]
+  substₘ-lemma₁′ not-ok Ψ Ψ▶ γ▸ =
+    ▸-without-𝟘ᵐ not-ok (substₘ-lemma₁ not-ok Ψ Ψ▶ γ▸)
+
 substₘ-lemma₁ {mo = 𝟘ᵐ[ ok ]} not-ok = ⊥-elim (not-ok ok)
 
 substₘ-lemma₁ _ Ψ _ Uₘ =
@@ -1043,8 +1055,7 @@ substₘ-lemma₁ _ Ψ _ Unitₘ =
   sub Unitₘ (≤ᶜ-reflexive (<*-zeroˡ Ψ))
 
 substₘ-lemma₁ {mo = 𝟙ᵐ} not-ok Ψ Ψ▶σ (ΠΣₘ {γ = γ} {δ = δ} γ▸F δ▸G) = sub
-  (ΠΣₘ (▸-without-𝟘ᵐ not-ok
-          (substₘ-lemma₁ not-ok Ψ Ψ▶σ γ▸F))
+  (ΠΣₘ (substₘ-lemma₁′ not-ok Ψ Ψ▶σ γ▸F)
      (sub (substₘ-lemma₁ not-ok (liftSubstₘ Ψ)
              (wf-liftSubstₘ {mo = 𝟙ᵐ} Ψ▶σ)
              δ▸G)
@@ -1068,7 +1079,7 @@ substₘ-lemma₁ {mo = 𝟙ᵐ} not-ok Ψ Ψ▶σ (lamₘ {γ = γ} {p = p} γ�
 
 substₘ-lemma₁ not-ok Ψ Ψ▶σ (_∘ₘ_ {γ = γ} {δ = δ} {p = p} γ▸t δ▸u) = sub
   (substₘ-lemma₁ not-ok Ψ Ψ▶σ γ▸t ∘ₘ
-   ▸-without-𝟘ᵐ not-ok (substₘ-lemma₁ not-ok Ψ Ψ▶σ δ▸u))
+   substₘ-lemma₁′ not-ok Ψ Ψ▶σ δ▸u)
   (begin
      (γ +ᶜ p ·ᶜ δ) <* Ψ       ≈⟨ <*-distrib-+ᶜ Ψ γ (p ·ᶜ δ) ⟩
      γ <* Ψ +ᶜ (p ·ᶜ δ) <* Ψ  ≈⟨ +ᶜ-congˡ (<*-distrib-·ᶜ Ψ _ δ) ⟩
@@ -1078,7 +1089,7 @@ substₘ-lemma₁ not-ok Ψ Ψ▶σ (_∘ₘ_ {γ = γ} {δ = δ} {p = p} γ▸t
 
 substₘ-lemma₁
   not-ok Ψ Ψ▶σ (prodʷₘ {γ = γ} {p = p} {δ = δ} γ▸t δ▸u) = sub
-  (prodʷₘ (▸-without-𝟘ᵐ not-ok (substₘ-lemma₁ not-ok Ψ Ψ▶σ γ▸t))
+  (prodʷₘ (substₘ-lemma₁′ not-ok Ψ Ψ▶σ γ▸t)
      (substₘ-lemma₁ not-ok Ψ Ψ▶σ δ▸u))
   (begin
      (p ·ᶜ γ +ᶜ δ) <* Ψ       ≈⟨ <*-distrib-+ᶜ Ψ (p ·ᶜ γ) δ ⟩
@@ -1089,7 +1100,7 @@ substₘ-lemma₁
 
 substₘ-lemma₁
   not-ok Ψ Ψ▶σ (prodˢₘ {γ = γ} {p = p} {δ = δ} γ▸t δ▸u) = sub
-  (prodˢₘ (▸-without-𝟘ᵐ not-ok (substₘ-lemma₁ not-ok Ψ Ψ▶σ γ▸t))
+  (prodˢₘ (substₘ-lemma₁′ not-ok Ψ Ψ▶σ γ▸t)
      (substₘ-lemma₁ not-ok Ψ Ψ▶σ δ▸u))
   (begin
      (p ·ᶜ γ ∧ᶜ δ) <* Ψ       ≤⟨ <*-sub-distrib-∧ᶜ Ψ (p ·ᶜ γ) δ ⟩
@@ -1099,7 +1110,7 @@ substₘ-lemma₁
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
 substₘ-lemma₁ {mo = 𝟙ᵐ} not-ok Ψ Ψ▶σ (fstₘ m γ▸t _ ok) =
-  fstₘ m (▸-without-𝟘ᵐ not-ok (substₘ-lemma₁ not-ok Ψ Ψ▶σ γ▸t))
+  fstₘ m (substₘ-lemma₁′ not-ok Ψ Ψ▶σ γ▸t)
     (only-𝟙ᵐ-without-𝟘ᵐ not-ok) ok
 
 substₘ-lemma₁ not-ok Ψ Ψ▶σ (sndₘ γ▸t) =
@@ -1109,15 +1120,13 @@ substₘ-lemma₁
   {mo = 𝟙ᵐ} not-ok Ψ Ψ▶σ
   (prodrecₘ {γ = γ} {r = r} {δ = δ} {η = η} {q = q}
      γ▸t δ▸u η▸A P) = sub
-  (prodrecₘ (▸-without-𝟘ᵐ not-ok (substₘ-lemma₁ not-ok Ψ Ψ▶σ γ▸t))
+  (prodrecₘ (substₘ-lemma₁′ not-ok Ψ Ψ▶σ γ▸t)
      (sub (substₘ-lemma₁ not-ok (liftSubstₘ (liftSubstₘ Ψ))
              (wf-liftSubstₘ {mo = 𝟙ᵐ} (wf-liftSubstₘ {mo = 𝟙ᵐ} Ψ▶σ))
              δ▸u)
         (*>∙∙≤liftSubst-listSubst*>∙∙ {δ = δ} Ψ))
-     (sub (▸-cong (PE.sym (only-𝟙ᵐ-without-𝟘ᵐ not-ok))
-             (substₘ-lemma₁ not-ok (liftSubstₘ Ψ)
-                (wf-liftSubstₘ {mo = 𝟙ᵐ} Ψ▶σ)
-                η▸A))
+     (sub (substₘ-lemma₁′ not-ok (liftSubstₘ Ψ)
+             (wf-liftSubstₘ {mo = 𝟙ᵐ} Ψ▶σ) η▸A)
         (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
            η <* Ψ ∙ ⌜ 𝟘ᵐ? ⌝ · q               ≈˘⟨ liftSubstₘ-app Ψ η _ ⟩
            (η ∙ ⌜ 𝟘ᵐ? ⌝ · q) <* liftSubstₘ Ψ  ∎))
@@ -1144,9 +1153,8 @@ substₘ-lemma₁
           (wf-liftSubstₘ {mo = 𝟙ᵐ} (wf-liftSubstₘ {mo = 𝟙ᵐ} Ψ▶σ)) δ▸s)
        (*>∙∙≤liftSubst-listSubst*>∙∙ {δ = δ} Ψ))
      (substₘ-lemma₁ not-ok Ψ Ψ▶σ η▸n)
-     (sub (▸-cong (PE.sym (only-𝟙ᵐ-without-𝟘ᵐ not-ok))
-             (substₘ-lemma₁ not-ok (liftSubstₘ Ψ)
-                (wf-liftSubstₘ {mo = 𝟙ᵐ} Ψ▶σ) θ▸A))
+     (sub (substₘ-lemma₁′ not-ok (liftSubstₘ Ψ)
+             (wf-liftSubstₘ {mo = 𝟙ᵐ} Ψ▶σ) θ▸A)
         (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
            θ <* Ψ ∙ ⌜ 𝟘ᵐ? ⌝ · q               ≈˘⟨ liftSubstₘ-app Ψ θ _ ⟩
            (θ ∙ ⌜ 𝟘ᵐ? ⌝ · q) <* liftSubstₘ Ψ  ∎)))
@@ -1166,9 +1174,8 @@ substₘ-lemma₁
           (wf-liftSubstₘ {mo = 𝟙ᵐ} (wf-liftSubstₘ {mo = 𝟙ᵐ} Ψ▶σ)) δ▸s)
        (*>∙∙≤liftSubst-listSubst*>∙∙ {δ = δ} Ψ))
     (substₘ-lemma₁ not-ok Ψ Ψ▶σ η▸n)
-    (sub (▸-cong (PE.sym (only-𝟙ᵐ-without-𝟘ᵐ not-ok))
-             (substₘ-lemma₁ not-ok (liftSubstₘ Ψ)
-                (wf-liftSubstₘ {mo = 𝟙ᵐ} Ψ▶σ) θ▸A))
+    (sub (substₘ-lemma₁′ not-ok (liftSubstₘ Ψ)
+            (wf-liftSubstₘ {mo = 𝟙ᵐ} Ψ▶σ) θ▸A)
         (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
            θ <* Ψ ∙ ⌜ 𝟘ᵐ? ⌝ · q               ≈˘⟨ liftSubstₘ-app Ψ θ _ ⟩
            (θ ∙ ⌜ 𝟘ᵐ? ⌝ · q) <* liftSubstₘ Ψ  ∎))
@@ -1183,9 +1190,8 @@ substₘ-lemma₁
 substₘ-lemma₁
   {mo = 𝟙ᵐ} not-ok Ψ Ψ▶σ
   (emptyrecₘ {γ = γ} {p = p} γ▸t δ▸A) = sub
-  (emptyrecₘ (▸-without-𝟘ᵐ not-ok (substₘ-lemma₁ not-ok Ψ Ψ▶σ γ▸t))
-     (▸-cong (PE.sym (only-𝟙ᵐ-without-𝟘ᵐ not-ok))
-        (substₘ-lemma₁ not-ok Ψ Ψ▶σ δ▸A)))
+  (emptyrecₘ (substₘ-lemma₁′ not-ok Ψ Ψ▶σ γ▸t)
+     (substₘ-lemma₁′ not-ok Ψ Ψ▶σ δ▸A))
   (≤ᶜ-reflexive (<*-distrib-·ᶜ Ψ _ γ))
 
 substₘ-lemma₁ _ Ψ _ starʷₘ = sub
@@ -1198,10 +1204,10 @@ substₘ-lemma₁ {mo = 𝟙ᵐ} _ Ψ _ (starˢₘ {γ = γ} prop) = sub
 
 substₘ-lemma₁ {mo = 𝟙ᵐ} not-ok Ψ Ψ▶σ
               (unitrecₘ {γ = γ} {p = p} {δ = δ} {η = η} {q = q} γ▸t δ▸u η▸A ok) =
-  let η′▸A = sub (▸-cong (sym (only-𝟙ᵐ-without-𝟘ᵐ not-ok))
-                   (substₘ-lemma₁ not-ok (liftSubstₘ Ψ) (wf-liftSubstₘ {mo = 𝟙ᵐ} Ψ▶σ) η▸A))
+  let η′▸A = sub (substₘ-lemma₁′ not-ok (liftSubstₘ Ψ)
+                    (wf-liftSubstₘ {mo = 𝟙ᵐ} Ψ▶σ) η▸A)
                  (≤ᶜ-reflexive (≈ᶜ-sym (liftSubstₘ-app Ψ η _)))
-  in  sub (unitrecₘ (▸-without-𝟘ᵐ not-ok (substₘ-lemma₁ not-ok Ψ Ψ▶σ γ▸t))
+  in  sub (unitrecₘ (substₘ-lemma₁′ not-ok Ψ Ψ▶σ γ▸t)
                     (substₘ-lemma₁ not-ok Ψ Ψ▶σ δ▸u)
                     η′▸A ok)
       let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
@@ -1211,20 +1217,16 @@ substₘ-lemma₁ {mo = 𝟙ᵐ} not-ok Ψ Ψ▶σ
 
 substₘ-lemma₁ not-ok Ψ Ψ▶σ (Idₘ {δ = δ} ok ▸A ▸t ▸u) = sub
   (Idₘ ok
-     (▸-cong (PE.sym (only-𝟙ᵐ-without-𝟘ᵐ not-ok))
-        (substₘ-lemma₁ not-ok Ψ Ψ▶σ ▸A))
+     (substₘ-lemma₁′ not-ok Ψ Ψ▶σ ▸A)
      (substₘ-lemma₁ not-ok Ψ Ψ▶σ ▸t)
      (substₘ-lemma₁ not-ok Ψ Ψ▶σ ▸u))
   (≤ᶜ-reflexive (<*-distrib-+ᶜ _ δ _))
 
 substₘ-lemma₁ not-ok Ψ Ψ▶σ (Id₀ₘ ok ▸A ▸t ▸u) = sub
   (Id₀ₘ ok
-     (▸-cong (PE.sym (only-𝟙ᵐ-without-𝟘ᵐ not-ok))
-        (substₘ-lemma₁ not-ok Ψ Ψ▶σ ▸A))
-     (▸-cong (PE.sym (only-𝟙ᵐ-without-𝟘ᵐ not-ok))
-        (substₘ-lemma₁ not-ok Ψ Ψ▶σ ▸t))
-     (▸-cong (PE.sym (only-𝟙ᵐ-without-𝟘ᵐ not-ok))
-        (substₘ-lemma₁ not-ok Ψ Ψ▶σ ▸u)))
+     (substₘ-lemma₁′ not-ok Ψ Ψ▶σ ▸A)
+     (substₘ-lemma₁′ not-ok Ψ Ψ▶σ ▸t)
+     (substₘ-lemma₁′ not-ok Ψ Ψ▶σ ▸u))
   (≤ᶜ-reflexive (<*-zeroˡ Ψ))
 
 substₘ-lemma₁ _ Ψ _ rflₘ = sub
@@ -1234,8 +1236,7 @@ substₘ-lemma₁ _ Ψ _ rflₘ = sub
 substₘ-lemma₁
   {mo = 𝟙ᵐ} not-ok Ψ Ψ▶σ (Jₘ {γ₂} {γ₃} ok ▸A ▸t ▸B ▸u ▸t′ ▸v) = sub
   (Jₘ ok
-     (▸-cong (PE.sym (only-𝟙ᵐ-without-𝟘ᵐ not-ok))
-        (substₘ-lemma₁ not-ok Ψ Ψ▶σ ▸A))
+     (substₘ-lemma₁′ not-ok Ψ Ψ▶σ ▸A)
      (substₘ-lemma₁ not-ok Ψ Ψ▶σ ▸t)
      (sub
        (substₘ-lemma₁ not-ok (liftSubstₘ (liftSubstₘ Ψ))
@@ -1248,27 +1249,21 @@ substₘ-lemma₁
 
 substₘ-lemma₁ not-ok Ψ Ψ▶σ (J₀ₘ {γ₃} ok ▸A ▸t ▸B ▸u ▸t′ ▸v) = J₀ₘ
   ok
-  (▸-cong (PE.sym (only-𝟙ᵐ-without-𝟘ᵐ not-ok))
-     (substₘ-lemma₁ not-ok Ψ Ψ▶σ ▸A))
-  (▸-cong (PE.sym (only-𝟙ᵐ-without-𝟘ᵐ not-ok))
-     (substₘ-lemma₁ not-ok Ψ Ψ▶σ ▸t))
+  (substₘ-lemma₁′ not-ok Ψ Ψ▶σ ▸A)
+  (substₘ-lemma₁′ not-ok Ψ Ψ▶σ ▸t)
   (sub
-    (▸-cong (PE.sym (only-𝟙ᵐ-without-𝟘ᵐ not-ok))
-       (substₘ-lemma₁ not-ok (liftSubstₘ (liftSubstₘ Ψ))
-          (wf-liftSubstₘ {mo = 𝟙ᵐ} (wf-liftSubstₘ {mo = 𝟙ᵐ} Ψ▶σ))
-          ▸B))
+    (substₘ-lemma₁′ not-ok (liftSubstₘ (liftSubstₘ Ψ))
+       (wf-liftSubstₘ {mo = 𝟙ᵐ} (wf-liftSubstₘ {mo = 𝟙ᵐ} Ψ▶σ))
+       ▸B)
     (*>∙∙≤liftSubst-listSubst*>∙∙ {δ = γ₃} _))
   (substₘ-lemma₁ not-ok Ψ Ψ▶σ ▸u)
-  (▸-cong (PE.sym (only-𝟙ᵐ-without-𝟘ᵐ not-ok))
-     (substₘ-lemma₁ not-ok Ψ Ψ▶σ ▸t′))
-  (▸-cong (PE.sym (only-𝟙ᵐ-without-𝟘ᵐ not-ok))
-     (substₘ-lemma₁ not-ok Ψ Ψ▶σ ▸v))
+  (substₘ-lemma₁′ not-ok Ψ Ψ▶σ ▸t′)
+  (substₘ-lemma₁′ not-ok Ψ Ψ▶σ ▸v)
 
 substₘ-lemma₁
   {mo = 𝟙ᵐ} not-ok Ψ Ψ▶σ (Kₘ {γ₂} {γ₃} ok ▸A ▸t ▸B ▸u ▸v) = sub
   (Kₘ ok
-     (▸-cong (PE.sym (only-𝟙ᵐ-without-𝟘ᵐ not-ok))
-        (substₘ-lemma₁ not-ok Ψ Ψ▶σ ▸A))
+     (substₘ-lemma₁′ not-ok Ψ Ψ▶σ ▸A)
      (substₘ-lemma₁ not-ok Ψ Ψ▶σ ▸t)
      (sub
        (substₘ-lemma₁ not-ok (liftSubstₘ Ψ)
@@ -1280,30 +1275,21 @@ substₘ-lemma₁
 
 substₘ-lemma₁ not-ok Ψ Ψ▶σ (K₀ₘ {γ₃} ok ▸A ▸t ▸B ▸u ▸v) = K₀ₘ
   ok
-  (▸-cong (PE.sym (only-𝟙ᵐ-without-𝟘ᵐ not-ok))
-     (substₘ-lemma₁ not-ok Ψ Ψ▶σ ▸A))
-  (▸-cong (PE.sym (only-𝟙ᵐ-without-𝟘ᵐ not-ok))
-     (substₘ-lemma₁ not-ok Ψ Ψ▶σ ▸t))
+  (substₘ-lemma₁′ not-ok Ψ Ψ▶σ ▸A)
+  (substₘ-lemma₁′ not-ok Ψ Ψ▶σ ▸t)
   (sub
-    (▸-cong (PE.sym (only-𝟙ᵐ-without-𝟘ᵐ not-ok))
-       (substₘ-lemma₁ not-ok (liftSubstₘ Ψ)
-          (wf-liftSubstₘ {mo = 𝟙ᵐ} Ψ▶σ)
-          ▸B))
-    (≤ᶜ-reflexive (≈ᶜ-sym (liftSubstₘ-app _ γ₃ _))))
+     (substₘ-lemma₁′ not-ok (liftSubstₘ Ψ)
+        (wf-liftSubstₘ {mo = 𝟙ᵐ} Ψ▶σ) ▸B)
+     (≤ᶜ-reflexive (≈ᶜ-sym (liftSubstₘ-app _ γ₃ _))))
   (substₘ-lemma₁ not-ok Ψ Ψ▶σ ▸u)
-  (▸-cong (PE.sym (only-𝟙ᵐ-without-𝟘ᵐ not-ok))
-     (substₘ-lemma₁ not-ok Ψ Ψ▶σ ▸v))
+  (substₘ-lemma₁′ not-ok Ψ Ψ▶σ ▸v)
 
 substₘ-lemma₁ not-ok Ψ Ψ▶σ ([]-congₘ ▸A ▸t ▸u ▸v) = sub
   ([]-congₘ
-     (▸-cong (PE.sym (only-𝟙ᵐ-without-𝟘ᵐ not-ok))
-        (substₘ-lemma₁ not-ok Ψ Ψ▶σ ▸A))
-     (▸-cong (PE.sym (only-𝟙ᵐ-without-𝟘ᵐ not-ok))
-        (substₘ-lemma₁ not-ok Ψ Ψ▶σ ▸t))
-     (▸-cong (PE.sym (only-𝟙ᵐ-without-𝟘ᵐ not-ok))
-        (substₘ-lemma₁ not-ok Ψ Ψ▶σ ▸u))
-     (▸-cong (PE.sym (only-𝟙ᵐ-without-𝟘ᵐ not-ok))
-        (substₘ-lemma₁ not-ok Ψ Ψ▶σ ▸v)))
+     (substₘ-lemma₁′ not-ok Ψ Ψ▶σ ▸A)
+     (substₘ-lemma₁′ not-ok Ψ Ψ▶σ ▸t)
+     (substₘ-lemma₁′ not-ok Ψ Ψ▶σ ▸u)
+     (substₘ-lemma₁′ not-ok Ψ Ψ▶σ ▸v))
   (≤ᶜ-reflexive (<*-zeroˡ Ψ))
 
 substₘ-lemma₁ not-ok Ψ Ψ▶σ (sub γ▸t γ≤δ) = sub
@@ -1324,9 +1310,7 @@ private
        , substₘ-lemma₀-𝟘ᵐ? ⦃ ok = ok ⦄ Ψ Ψ▶ γ▸)
     (λ not-ok →
          _
-       , ▸-cong
-           (PE.sym (only-𝟙ᵐ-without-𝟘ᵐ not-ok))
-           (substₘ-lemma₁ not-ok Ψ Ψ▶ γ▸))
+       , substₘ-lemma₁′ not-ok Ψ Ψ▶ γ▸)
 
   substₘ-lemma-∙⌜𝟘ᵐ?⌝·▸[𝟘ᵐ?] :
     (Ψ : Substₘ m n) →
@@ -1344,14 +1328,12 @@ private
              𝟘ᶜ                ∎))
     (λ not-ok →
         _
-      , ▸-cong
-          (PE.sym (only-𝟙ᵐ-without-𝟘ᵐ not-ok))
-          (sub (substₘ-lemma₁ not-ok (liftSubstₘ Ψ)
-                  (wf-liftSubstₘ {mo = 𝟙ᵐ} Ψ▶) γ▸)
-             (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
-              begin
-                γ <* Ψ ∙ ⌜ 𝟘ᵐ? ⌝ · p               ≈˘⟨ liftSubstₘ-app Ψ γ _ ⟩
-                (γ ∙ ⌜ 𝟘ᵐ? ⌝ · p) <* liftSubstₘ Ψ  ∎)))
+      , sub (substₘ-lemma₁′ not-ok (liftSubstₘ Ψ)
+               (wf-liftSubstₘ {mo = 𝟙ᵐ} Ψ▶) γ▸)
+          (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
+           begin
+             γ <* Ψ ∙ ⌜ 𝟘ᵐ? ⌝ · p               ≈˘⟨ liftSubstₘ-app Ψ γ _ ⟩
+             (γ ∙ ⌜ 𝟘ᵐ? ⌝ · p) <* liftSubstₘ Ψ  ∎))
 
   substₘ-lemma-∙⌜𝟘ᵐ?⌝·∙⌜𝟘ᵐ?⌝·▸[𝟘ᵐ?] :
     Ψ ▶[ mos ] σ → γ ∙ ⌜ 𝟘ᵐ? ⌝ · p ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ mo ] t →
@@ -1371,19 +1353,18 @@ private
                𝟘ᶜ                              ∎))
       (λ not-ok →
           _
-        , (▸-cong (PE.sym (only-𝟙ᵐ-without-𝟘ᵐ not-ok)) $
-           sub
-             (substₘ-lemma₁ not-ok
-                (liftSubstₘ (liftSubstₘ Ψ))
-                (wf-liftSubstₘ {mo = 𝟙ᵐ} (wf-liftSubstₘ {mo = 𝟙ᵐ} Ψ▶))
-                γ▸)
-             (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-                γ <* Ψ ∙ ⌜ 𝟘ᵐ? ⌝ · p ∙ ⌜ 𝟘ᵐ? ⌝ · q               ≈˘⟨ liftSubstₘ-app _ γ _ ∙ refl ⟩
+        , sub
+            (substₘ-lemma₁′ not-ok
+               (liftSubstₘ (liftSubstₘ Ψ))
+               (wf-liftSubstₘ {mo = 𝟙ᵐ} (wf-liftSubstₘ {mo = 𝟙ᵐ} Ψ▶))
+               γ▸)
+            (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+               γ <* Ψ ∙ ⌜ 𝟘ᵐ? ⌝ · p ∙ ⌜ 𝟘ᵐ? ⌝ · q               ≈˘⟨ liftSubstₘ-app _ γ _ ∙ refl ⟩
 
-                (γ ∙ ⌜ 𝟘ᵐ? ⌝ · p) <* liftSubstₘ Ψ ∙ ⌜ 𝟘ᵐ? ⌝ · q  ≈˘⟨ liftSubstₘ-app (liftSubstₘ _) (γ ∙ _) _ ⟩
+               (γ ∙ ⌜ 𝟘ᵐ? ⌝ · p) <* liftSubstₘ Ψ ∙ ⌜ 𝟘ᵐ? ⌝ · q  ≈˘⟨ liftSubstₘ-app (liftSubstₘ _) (γ ∙ _) _ ⟩
 
-                (γ ∙ ⌜ 𝟘ᵐ? ⌝ · p ∙ ⌜ 𝟘ᵐ? ⌝ · q) <*
-                  liftSubstₘ (liftSubstₘ Ψ)                      ∎)))
+               (γ ∙ ⌜ 𝟘ᵐ? ⌝ · p ∙ ⌜ 𝟘ᵐ? ⌝ · q) <*
+                 liftSubstₘ (liftSubstₘ Ψ)                      ∎))
 
   ≡𝟘→𝟘ᵐ≡ᵐ· : ∀ ⦃ ok ⦄ mo → p ≡ 𝟘 → 𝟘ᵐ[ ok ] ≡ mo ᵐ· p
   ≡𝟘→𝟘ᵐ≡ᵐ· {p = p} mo p≡𝟘 =
@@ -1634,8 +1615,7 @@ substₘ-lemma
             χ <* Ψ                                ≤⟨ <*-monotone Ψ fix ⟩
             (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ) <* Ψ          ≤⟨ +·+·<*≤ Ψ δ ⟩
             δ <* Ψ +ᶜ p ·ᶜ η <* Ψ +ᶜ r ·ᶜ χ <* Ψ  ∎))
-    (λ not-ok →
-       ▸-without-𝟘ᵐ not-ok (substₘ-lemma₁ not-ok Ψ Ψ▶σ ▸natrec))
+    (λ not-ok → substₘ-lemma₁′ not-ok Ψ Ψ▶σ ▸natrec)
 
 substₘ-lemma {mo = mo} Ψ Ψ▶σ (emptyrecₘ {γ = γ} {p = p} γ▸t δ▸A) =
   case ▶-⌞·⌟ Ψ γ Ψ▶σ of λ where
