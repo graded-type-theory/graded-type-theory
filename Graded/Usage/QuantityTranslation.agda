@@ -27,7 +27,7 @@ open import Graded.Context.QuantityTranslation 𝕄₁ 𝕄₂ tr
   as CQ using (tr-Conₘ)
 import Graded.Modality.Properties
 open import Graded.Usage
-open import Graded.Usage.Properties 𝕄₂ R₂
+import Graded.Usage.Properties
 open import Graded.Modality.Morphism.Usage-restrictions
 
 open import Graded.Mode
@@ -35,6 +35,7 @@ open import Graded.Mode.QuantityTranslation 𝕄₁ 𝕄₂ tr tr-Σ
   as MQ hiding (module Is-morphism; module Is-order-embedding)
 
 open Graded.Modality.Properties 𝕄₂
+open Graded.Usage.Properties 𝕄₂ R₂
 
 private
   module C₁  = Graded.Context 𝕄₁
@@ -44,6 +45,8 @@ private
   module MP₁ = Graded.Modality.Properties 𝕄₁
   module U₁  = Graded.Usage 𝕄₁ R₁
   module U₂  = Graded.Usage 𝕄₂ R₂
+  module UP₁ = Graded.Usage.Properties 𝕄₁ R₁
+  module UP₂ = Graded.Usage.Properties 𝕄₂ R₂
   module Mo₁ = Graded.Mode 𝕄₁
   module Mo₂ = Graded.Mode 𝕄₂
   module M₁  = Modality 𝕄₁
@@ -53,7 +56,8 @@ open import Tools.Bool
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Product
+open import Tools.Nat using (Nat)
+open import Tools.Product as Σ
 open import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
@@ -66,6 +70,7 @@ private
   module CR₂ {n} = Tools.Reasoning.PartialOrder (CP₂.≤ᶜ-poset {n = n})
 
 private variable
+  n      : Nat
   x      : Fin _
   p q    : M₁
   p′     : M₂
@@ -473,188 +478,90 @@ module Is-order-embedding
     tr-◂∈⁻¹′ {γ = _ ∙ _} here      eq   =
       PE.subst (_ U₁.◂_∈ _) (tr-injective eq) here
 
+  opaque
+
+    -- Preservation of Usage-restrictions-satisfied.
+
+    Usage-restrictions-satisfied-tr-Term :
+      (t : Term M₁ n) →
+      UP₂.Usage-restrictions-satisfied (tr-Term t) →
+      UP₁.Usage-restrictions-satisfied t
+    Usage-restrictions-satisfied-tr-Term = λ where
+      (prodrec _ _ _ A t u) →
+        Σ.map Prodrec-reflected $
+        Σ.map (Usage-restrictions-satisfied-tr-Term A) $
+        Σ.map (Usage-restrictions-satisfied-tr-Term t) $
+        Usage-restrictions-satisfied-tr-Term u
+      (ΠΣ⟨ _ ⟩ _ , _ ▷ A ▹ B) →
+        Σ.map (Usage-restrictions-satisfied-tr-Term A) $
+        Usage-restrictions-satisfied-tr-Term B
+      (lam _ t) →
+        Usage-restrictions-satisfied-tr-Term t
+      (t ∘⟨ _ ⟩ u) →
+        Σ.map (Usage-restrictions-satisfied-tr-Term t) $
+        Usage-restrictions-satisfied-tr-Term u
+      (prod _ _ t u) →
+        Σ.map (Usage-restrictions-satisfied-tr-Term t) $
+        Usage-restrictions-satisfied-tr-Term u
+      (fst _ t) →
+        Usage-restrictions-satisfied-tr-Term t
+      (snd _ t) →
+        Usage-restrictions-satisfied-tr-Term t
+      (suc t) →
+        Usage-restrictions-satisfied-tr-Term t
+      (natrec _ _ _ A t u v)  →
+        Σ.map (Usage-restrictions-satisfied-tr-Term A) $
+        Σ.map (Usage-restrictions-satisfied-tr-Term t) $
+        Σ.map (Usage-restrictions-satisfied-tr-Term u) $
+        Usage-restrictions-satisfied-tr-Term v
+      (emptyrec _ A t) →
+        Σ.map (Usage-restrictions-satisfied-tr-Term A) $
+        Usage-restrictions-satisfied-tr-Term t
+      (unitrec _ _ A t u) →
+        Σ.map Unitrec-reflected $
+        Σ.map (Usage-restrictions-satisfied-tr-Term A) $
+        Σ.map (Usage-restrictions-satisfied-tr-Term t) $
+        Usage-restrictions-satisfied-tr-Term u
+      (Id A t u) →
+        Σ.map (Usage-restrictions-satisfied-tr-Term A) $
+        Σ.map (Usage-restrictions-satisfied-tr-Term t) $
+        Usage-restrictions-satisfied-tr-Term u
+      (J _ _ A t B u v w) →
+        Σ.map (Usage-restrictions-satisfied-tr-Term A) $
+        Σ.map (Usage-restrictions-satisfied-tr-Term t) $
+        Σ.map (Usage-restrictions-satisfied-tr-Term B) $
+        Σ.map (Usage-restrictions-satisfied-tr-Term u) $
+        Σ.map (Usage-restrictions-satisfied-tr-Term v) $
+        Usage-restrictions-satisfied-tr-Term w
+      (K _ A t B u v) →
+        Σ.map (Usage-restrictions-satisfied-tr-Term A) $
+        Σ.map (Usage-restrictions-satisfied-tr-Term t) $
+        Σ.map (Usage-restrictions-satisfied-tr-Term B) $
+        Σ.map (Usage-restrictions-satisfied-tr-Term u) $
+        Usage-restrictions-satisfied-tr-Term v
+      ([]-cong _ A t u v) →
+        Σ.map (Usage-restrictions-satisfied-tr-Term A) $
+        Σ.map (Usage-restrictions-satisfied-tr-Term t) $
+        Σ.map (Usage-restrictions-satisfied-tr-Term u) $
+        Usage-restrictions-satisfied-tr-Term v
+      (var _) → _
+      U       → _
+      ℕ       → _
+      Empty   → _
+      Unit!   → _
+      zero    → _
+      star!   → _
+      rfl     → _
+
   -- Preservation of _▸[_]_ for trivial source modalities.
 
   tr-▸⁻¹-trivial :
     M₁.Trivial → γ U₂.▸[ m ] tr-Term t → C₁.𝟘ᶜ U₁.▸[ 𝟙ᵐ ] t
-  tr-▸⁻¹-trivial {m = m₁} 𝟙≡𝟘 = tr-▸⁻¹-trivial′ _
-    where mutual
-    tr-▸⁻¹-trivial′ : ∀ t → γ U₂.▸[ m ] tr-Term t → C₁.𝟘ᶜ U₁.▸[ m′ ] t
-    tr-▸⁻¹-trivial′ U Uₘ =
-      Uₘ
-
-    tr-▸⁻¹-trivial′ Unit! Unitₘ =
-      Unitₘ
-
-    tr-▸⁻¹-trivial′ starʷ starʷₘ = starʷₘ
-
-    tr-▸⁻¹-trivial′ starˢ (starˢₘ prop) =
-      sub (starˢₘ λ _ → CP₁.≈ᶜ-refl)
-          (CP₁.≤ᶜ-reflexive (CP₁.≈ᶜ-sym (CP₁.·ᶜ-zeroʳ _)))
-
-    tr-▸⁻¹-trivial′ Empty Emptyₘ =
-      Emptyₘ
-
-    tr-▸⁻¹-trivial′ ℕ ℕₘ =
-      ℕₘ
-
-    tr-▸⁻¹-trivial′ zero zeroₘ =
-      zeroₘ
-
-    tr-▸⁻¹-trivial′ (suc _) (sucₘ ▸t) =
-      sucₘ (tr-▸⁻¹-trivial′ _ ▸t)
-
-    tr-▸⁻¹-trivial′ (snd _ _) (sndₘ ▸t) =
-      sndₘ (tr-▸⁻¹-trivial′ _ ▸t)
-
-    tr-▸⁻¹-trivial′ (var _) var =
-      sub var (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
-
-    tr-▸⁻¹-trivial′ (lam _ _) (lamₘ ▸t) =
-      lamₘ (tr-▸⁻¹-trivial″ ▸t)
-
-    tr-▸⁻¹-trivial′ (_ ∘⟨ _ ⟩ _) (_∘ₘ_ ▸t ▸u) = sub
-      (tr-▸⁻¹-trivial′ _ ▸t ∘ₘ tr-▸⁻¹-trivial′ _ ▸u)
-      (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
-
-    tr-▸⁻¹-trivial′ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) (ΠΣₘ ▸A ▸P) = sub
-      (ΠΣₘ {δ = C₁.𝟘ᶜ}
-         (tr-▸⁻¹-trivial′ _ ▸A)
-         (tr-▸⁻¹-trivial″ ▸P))
-      (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
-
-    tr-▸⁻¹-trivial′ (prodʷ _ _ _) (prodʷₘ ▸t ▸u) = sub
-      (prodʷₘ (tr-▸⁻¹-trivial′ _ ▸t) (tr-▸⁻¹-trivial′ _ ▸u))
-      (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
-
-    tr-▸⁻¹-trivial′ (prodˢ _ _ _) (prodˢₘ ▸t ▸u) = sub
-      (prodˢₘ (tr-▸⁻¹-trivial′ _ ▸t) (tr-▸⁻¹-trivial′ _ ▸u))
-      (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
-
-    tr-▸⁻¹-trivial′
-      {m = m} {m′ = m′} (fst p _) (fstₘ m″ ▸t mp≡m₂ ok) = fstₘ
-      𝟙ᵐ
-      (tr-▸⁻¹-trivial′ _ ▸t)
-      (Mo₁.Mode-propositional-without-𝟘ᵐ (flip MP₁.𝟘ᵐ.non-trivial 𝟙≡𝟘))
-      λ {refl → MP₁.≤-reflexive (MP₁.≡-trivial 𝟙≡𝟘)}
-
-    tr-▸⁻¹-trivial′ (prodrec _ _ _ _ _ _) (prodrecₘ ▸t ▸u ▸Q ok) = sub
-      (prodrecₘ {δ = C₁.𝟘ᶜ} {η = C₁.𝟘ᶜ}
-         (tr-▸⁻¹-trivial′ _ ▸t)
-         (tr-▸⁻¹-trivial″ ▸u)
-         (tr-▸⁻¹-trivial″ ▸Q)
-         (Prodrec-reflected ok))
-      (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
-
-    tr-▸⁻¹-trivial′ (natrec _ _ _ _ _ _ _) (natrecₘ ▸z ▸s ▸n ▸P) = sub
-      (natrecₘ {δ = C₁.𝟘ᶜ} {θ = C₁.𝟘ᶜ}
-         (tr-▸⁻¹-trivial′ _ ▸z)
-         (tr-▸⁻¹-trivial″ ▸s)
-         (tr-▸⁻¹-trivial′ _ ▸n)
-         (tr-▸⁻¹-trivial″ ▸P))
-      (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
-      where
-      open import
-        Graded.Modality.Morphism.Backward-instances tr-morphism
-
-    tr-▸⁻¹-trivial′
-      (natrec _ _ _ _ _ _ _) (natrec-no-nrₘ ▸z ▸s ▸n ▸P _ _ _ _) =
-      natrec-no-nrₘ {δ = C₁.𝟘ᶜ} {θ = C₁.𝟘ᶜ}
-        (tr-▸⁻¹-trivial′ _ ▸z)
-        (tr-▸⁻¹-trivial″ ▸s)
-        (tr-▸⁻¹-trivial′ _ ▸n)
-        (tr-▸⁻¹-trivial″ ▸P)
-        (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
-        (λ _ → CP₁.≈ᶜ-trivial 𝟙≡𝟘)
-        (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
-        (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
-      where
-      open import
-        Graded.Modality.Morphism.Backward-instances tr-morphism
-
-    tr-▸⁻¹-trivial′ (emptyrec _ _ _) (emptyrecₘ ▸t ▸A) = sub
-      (emptyrecₘ
-         (tr-▸⁻¹-trivial′ _ ▸t)
-         (tr-▸⁻¹-trivial′ _ ▸A))
-      (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
-
-    tr-▸⁻¹-trivial′ (unitrec _ _ _ _ _) (unitrecₘ ▸t ▸u ▸A ok) = sub
-      (unitrecₘ
-        (tr-▸⁻¹-trivial′ _ ▸t)
-        (tr-▸⁻¹-trivial′ _ ▸u)
-        (tr-▸⁻¹-trivial″ {δ = C₁.𝟘ᶜ ∙ _} ▸A)
-        (Unitrec-reflected ok))
-      (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
-
-    tr-▸⁻¹-trivial′ (Id _ _ _) (Idₘ ok ▸A ▸t ▸u) = sub
-      (Idₘ (ok ∘→ Id-erased-preserved .proj₁)
-         (tr-▸⁻¹-trivial′ _ ▸A)
-         (tr-▸⁻¹-trivial′ _ ▸t)
-         (tr-▸⁻¹-trivial′ _ ▸u))
-      (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
-
-    tr-▸⁻¹-trivial′ (Id _ _ _) (Id₀ₘ ok ▸A ▸t ▸u) = sub
-      (Id₀ₘ (Id-erased-preserved .proj₂ ok)
-         (tr-▸⁻¹-trivial′ _ ▸A)
-         (tr-▸⁻¹-trivial′ _ ▸t)
-         (tr-▸⁻¹-trivial′ _ ▸u))
-      (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
-
-    tr-▸⁻¹-trivial′ rfl rflₘ =
-      rflₘ
-
-    tr-▸⁻¹-trivial′ (J _ _ _ _ _ _ _ _) (Jₘ ok ▸A ▸t ▸B ▸u ▸v ▸w) = sub
-      (Jₘ {γ₃ = C₁.𝟘ᶜ} (ok ∘→ Erased-matches-for-J-preserved .proj₁)
-         (tr-▸⁻¹-trivial′ _ ▸A)
-         (tr-▸⁻¹-trivial′ _ ▸t)
-         (tr-▸⁻¹-trivial″ ▸B)
-         (tr-▸⁻¹-trivial′ _ ▸u)
-         (tr-▸⁻¹-trivial′ _ ▸v)
-         (tr-▸⁻¹-trivial′ _ ▸w))
-      (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
-
-    tr-▸⁻¹-trivial′ (J _ _ _ _ _ _ _ _) (J₀ₘ ok ▸A ▸t ▸B ▸u ▸v ▸w) = J₀ₘ
-      {γ₃ = C₁.𝟘ᶜ}
-      (Erased-matches-for-J-preserved .proj₂ ok)
-      (tr-▸⁻¹-trivial′ _ ▸A)
-      (tr-▸⁻¹-trivial′ _ ▸t)
-      (tr-▸⁻¹-trivial″ ▸B)
-      (tr-▸⁻¹-trivial′ _ ▸u)
-      (tr-▸⁻¹-trivial′ _ ▸v)
-      (tr-▸⁻¹-trivial′ _ ▸w)
-
-    tr-▸⁻¹-trivial′ (K _ _ _ _ _ _) (Kₘ ok ▸A ▸t ▸B ▸u ▸v) = sub
-      (Kₘ {γ₃ = C₁.𝟘ᶜ}
-         (ok ∘→ Erased-matches-for-K-preserved .proj₁)
-         (tr-▸⁻¹-trivial′ _ ▸A)
-         (tr-▸⁻¹-trivial′ _ ▸t)
-         (tr-▸⁻¹-trivial″ ▸B)
-         (tr-▸⁻¹-trivial′ _ ▸u)
-         (tr-▸⁻¹-trivial′ _ ▸v))
-      (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
-
-    tr-▸⁻¹-trivial′ (K _ _ _ _ _ _) (K₀ₘ ok ▸A ▸t ▸B ▸u ▸v) = K₀ₘ
-      {γ₃ = C₁.𝟘ᶜ}
-      (Erased-matches-for-K-preserved .proj₂ ok)
-      (tr-▸⁻¹-trivial′ _ ▸A)
-      (tr-▸⁻¹-trivial′ _ ▸t)
-      (tr-▸⁻¹-trivial″ ▸B)
-      (tr-▸⁻¹-trivial′ _ ▸u)
-      (tr-▸⁻¹-trivial′ _ ▸v)
-
-    tr-▸⁻¹-trivial′ ([]-cong _ _ _ _ _) ([]-congₘ ▸A ▸t ▸u ▸v) = []-congₘ
-      (tr-▸⁻¹-trivial′ _ ▸A)
-      (tr-▸⁻¹-trivial′ _ ▸t)
-      (tr-▸⁻¹-trivial′ _ ▸u)
-      (tr-▸⁻¹-trivial′ _ ▸v)
-
-    tr-▸⁻¹-trivial′ _ (sub ▸t _) =
-      tr-▸⁻¹-trivial″ ▸t
-
-    tr-▸⁻¹-trivial″ : γ U₂.▸[ m ] tr-Term t → δ U₁.▸[ m′ ] t
-    tr-▸⁻¹-trivial″ ▸t = sub
-      (tr-▸⁻¹-trivial′ _ ▸t)
-      (CP₁.≈ᶜ-trivial 𝟙≡𝟘)
+  tr-▸⁻¹-trivial {γ} {m} {t} 𝟙≡𝟘 =
+    γ U₂.▸[ m ] tr-Term t                     →⟨ ▸→Usage-restrictions-satisfied ⟩
+    Usage-restrictions-satisfied (tr-Term t)  →⟨ Usage-restrictions-satisfied-tr-Term t ⟩
+    UP₁.Usage-restrictions-satisfied t        →⟨ UP₁.Trivial→▸⇔ 𝟙≡𝟘 .proj₂ ⟩
+    C₁.𝟘ᶜ U₁.▸[ 𝟙ᵐ ] t                        □
 
   -- Preservation of _▸[_]_.
 
