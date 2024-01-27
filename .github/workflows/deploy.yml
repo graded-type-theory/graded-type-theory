@@ -51,7 +51,7 @@ jobs:
             ~/.agda/libraries.d
 
       - name: Run Agda
-        run: agda "${{ env.MAIN }}"
+        run: agda "${{ env.MAIN }}" +RTS -M6G -RTS
 
       - name: Save cache
         # Primary cache key is unique, so we can always save.
