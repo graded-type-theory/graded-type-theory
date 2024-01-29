@@ -2,6 +2,8 @@
 -- Modes
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 import Graded.Modality
 
 module Graded.Mode
@@ -559,26 +561,101 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
   x0     → ⌞⌟-cong p≡q
   (x +1) → ⌞⌟ᶜ-cong γ≈ᶜδ x
 
--- ⌞ 𝟘 ⌟ is equal to 𝟘ᵐ[ ok ].
+-- A view for ⌞_⌟.
 
-⌞𝟘⌟ : ⌞ 𝟘 ⌟ ≡ 𝟘ᵐ[ ok ]
-⌞𝟘⌟ = lemma _ refl
-  where
-  lemma :
-    ∀ b (eq : b ≡ 𝟘ᵐ-allowed) {ok : T b} →
-    𝟘ᵐ-allowed-elim-helper b
-      (λ ok → ⌞ 𝟘 ⌟′ (subst T eq ok))
-      (λ _ → 𝟙ᵐ) ≡
-    𝟘ᵐ[ subst T eq ok ]
-  lemma true refl with 𝟘ᵐ.is-𝟘? tt 𝟘
-  … | yes _  = refl
-  … | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 refl)
+data ⌞⌟-view (p : M) (m : Mode) : Set a where
+  𝟘ᵐ-not-allowed : ¬ T 𝟘ᵐ-allowed                → m ≡ 𝟙ᵐ → ⌞⌟-view p m
+  𝟙ᵐ             : ⦃ ok : T 𝟘ᵐ-allowed ⦄ → p ≢ 𝟘 → m ≡ 𝟙ᵐ → ⌞⌟-view p m
+  𝟘ᵐ             : ⦃ ok : T 𝟘ᵐ-allowed ⦄ → p ≡ 𝟘 → m ≡ 𝟘ᵐ → ⌞⌟-view p m
 
+opaque
+
+  -- The view is total.
+
+  ⌞⌟-view-total : ∀ p → ⌞⌟-view p ⌞ p ⌟
+  ⌞⌟-view-total p = lemma _ refl
+    where
+    lemma :
+      ∀ b (eq : b ≡ 𝟘ᵐ-allowed) →
+      ⌞⌟-view p
+        (𝟘ᵐ-allowed-elim-helper b
+           (λ ok → ⌞ p ⌟′ (subst T eq ok))
+           (λ _ → 𝟙ᵐ))
+    lemma false refl = 𝟘ᵐ-not-allowed idᶠ refl
+    lemma true  refl with 𝟘ᵐ.is-𝟘? tt p
+    … | no p≢𝟘  = 𝟙ᵐ ⦃ ok = _ ⦄ p≢𝟘 refl
+    … | yes p≡𝟘 = 𝟘ᵐ ⦃ ok = _ ⦄ p≡𝟘 refl
+
+opaque
+
+  -- The value of ⌞ p ⌟ is 𝟙ᵐ if and only if
+  -- * 𝟘ᵐ is not allowed, or
+  -- * 𝟘ᵐ is allowed and p is not equal to 𝟘.
+
+  ⌞⌟≡𝟙ᵐ⇔≢𝟘 : ⌞ p ⌟ ≡ 𝟙ᵐ ⇔ (¬ T 𝟘ᵐ-allowed ⊎ T 𝟘ᵐ-allowed × p ≢ 𝟘)
+  ⌞⌟≡𝟙ᵐ⇔≢𝟘 = case ⌞⌟-view-total _ of λ where
+    (𝟘ᵐ-not-allowed not-ok ≡𝟙ᵐ) → (λ _ → inj₁ not-ok) , (λ _ → ≡𝟙ᵐ)
+    (𝟙ᵐ ⦃ ok ⦄ ≢𝟘 ≡𝟙ᵐ)          → (λ _ → inj₂ (ok , ≢𝟘)) , (λ _ → ≡𝟙ᵐ)
+    (𝟘ᵐ ⦃ ok ⦄ ≡𝟘 ≡𝟘ᵐ)          →
+        (λ ≡𝟙ᵐ → inj₂ (ok , (case trans (PE.sym ≡𝟘ᵐ) ≡𝟙ᵐ of λ ())))
+      , (λ where
+           (inj₁ not-ok)   → ⊥-elim $ not-ok ok
+           (inj₂ (_ , ≢𝟘)) → ⊥-elim $ ≢𝟘 ≡𝟘)
+
+opaque
+
+  -- The value of ⌞ p ⌟ is 𝟘ᵐ[ ok ] if and only if p is 𝟘.
+
+  ⌞⌟≡𝟘ᵐ⇔≡𝟘 : ⌞ p ⌟ ≡ 𝟘ᵐ[ ok ] ⇔ p ≡ 𝟘
+  ⌞⌟≡𝟘ᵐ⇔≡𝟘 {ok} = case ⌞⌟-view-total _ of λ where
+    (𝟘ᵐ-not-allowed not-ok ≡𝟙ᵐ) → ⊥-elim $ not-ok ok
+    (𝟘ᵐ ≡𝟘 ≡𝟘ᵐ)                 → (λ _ → ≡𝟘) , (λ _ → trans ≡𝟘ᵐ 𝟘ᵐ-cong)
+    (𝟙ᵐ ≢𝟘 ≡𝟙ᵐ)                 →
+        (λ ≡𝟘ᵐ → case trans (PE.sym ≡𝟘ᵐ) ≡𝟙ᵐ of λ ())
+      , (λ ≡𝟘 → ⊥-elim $ ≢𝟘 ≡𝟘)
+
+opaque
+
+  -- The value of ⌞ p ⌟ is 𝟘ᵐ? if and only if
+  -- * 𝟘ᵐ is not allowed or
+  -- * 𝟘ᵐ is allowed and p is equal to 𝟘.
+
+  ⌞⌟≡𝟘ᵐ?⇔≡𝟘 : ⌞ p ⌟ ≡ 𝟘ᵐ? ⇔ (¬ T 𝟘ᵐ-allowed ⊎ T 𝟘ᵐ-allowed × p ≡ 𝟘)
+  ⌞⌟≡𝟘ᵐ?⇔≡𝟘 {p} = lemma _ refl
+    where
+    lemma :
+      ∀ b (eq : b ≡ 𝟘ᵐ-allowed) →
+      𝟘ᵐ-allowed-elim-helper b
+        (λ ok → ⌞ p ⌟′ (subst T eq ok))
+        (λ _ → 𝟙ᵐ) ≡
+      𝟘ᵐ?
+        ⇔
+      (¬ T 𝟘ᵐ-allowed ⊎ T 𝟘ᵐ-allowed × p ≡ 𝟘)
+    lemma false refl =
+      𝟘ᵐ?-elim
+        (λ m →
+           𝟙ᵐ ≡ m ⇔ (¬ T 𝟘ᵐ-allowed ⊎ T 𝟘ᵐ-allowed × p ≡ 𝟘))
+        (λ ⦃ ok = ok ⦄ → ⊥-elim ok)
+        (λ _ → (λ _ → inj₁ idᶠ) , (λ _ → refl))
+    lemma true refl with 𝟘ᵐ.is-𝟘? tt p
+    … | no p≢𝟘 =
+        (λ ())
+      , (λ where
+           (inj₁ ¬⊤)        → ⊥-elim $ ¬⊤ _
+           (inj₂ (_ , p≡𝟘)) → ⊥-elim $ p≢𝟘 p≡𝟘)
+    … | yes p≡𝟘 =
+        (λ _ → inj₂ (_ , p≡𝟘))
+      , (λ _ → refl)
 
 -- If p is equal to 𝟘, then ⌞ p ⌟ is equal to 𝟘ᵐ[ ok ].
 
 ≡𝟘→⌞⌟≡𝟘ᵐ : p ≡ 𝟘 → ⌞ p ⌟ ≡ 𝟘ᵐ[ ok ]
-≡𝟘→⌞⌟≡𝟘ᵐ refl = ⌞𝟘⌟
+≡𝟘→⌞⌟≡𝟘ᵐ = ⌞⌟≡𝟘ᵐ⇔≡𝟘 .proj₂
+
+-- ⌞ 𝟘 ⌟ is equal to 𝟘ᵐ[ ok ].
+
+⌞𝟘⌟ : ⌞ 𝟘 ⌟ ≡ 𝟘ᵐ[ ok ]
+⌞𝟘⌟ = ≡𝟘→⌞⌟≡𝟘ᵐ refl
 
 -- ⌞ 𝟘 ⌟ is equal to 𝟘ᵐ?.
 
@@ -596,52 +673,23 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
 -- If ⌞ p ⌟ is equal to 𝟘ᵐ[ ok ], then p is equal to 𝟘.
 
 ⌞⌟≡𝟘ᵐ→≡𝟘 : ⌞ p ⌟ ≡ 𝟘ᵐ[ ok ] → p ≡ 𝟘
-⌞⌟≡𝟘ᵐ→≡𝟘 {p = p} = lemma _ refl
-  where
-  lemma :
-    ∀ b (eq : b ≡ 𝟘ᵐ-allowed) →
-    𝟘ᵐ-allowed-elim-helper b
-      (λ ok → ⌞ p ⌟′ (subst T eq ok))
-      (λ _ → 𝟙ᵐ) ≡
-    𝟘ᵐ[ ok ] →
-    p ≡ 𝟘
-  lemma true refl with 𝟘ᵐ.is-𝟘? tt p
-  … | yes p≡𝟘 = λ _ → p≡𝟘
-  … | no _    = λ ()
+⌞⌟≡𝟘ᵐ→≡𝟘 = ⌞⌟≡𝟘ᵐ⇔≡𝟘 .proj₁
 
 -- If p is not equal to 𝟘, then ⌞ p ⌟ is equal to 𝟙ᵐ.
 
 ≢𝟘→⌞⌟≡𝟙ᵐ : p ≢ 𝟘 → ⌞ p ⌟ ≡ 𝟙ᵐ
-≢𝟘→⌞⌟≡𝟙ᵐ {p = p} p≢𝟘 = lemma _ refl
-  where
-  lemma :
-    ∀ b (eq : b ≡ 𝟘ᵐ-allowed) →
-    𝟘ᵐ-allowed-elim-helper b
-      (λ ok → ⌞ p ⌟′ (subst T eq ok))
-      (λ _ → 𝟙ᵐ) ≡
-    𝟙ᵐ
-  lemma false refl = refl
-  lemma true  refl with 𝟘ᵐ.is-𝟘? tt p
-  … | no _    = refl
-  … | yes p≡𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
+≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘 =
+  𝟘ᵐ-allowed-elim
+    (λ ok → ⌞⌟≡𝟙ᵐ⇔≢𝟘 .proj₂ (inj₂ (ok , p≢𝟘)))
+    (λ not-ok → ⌞⌟≡𝟙ᵐ⇔≢𝟘 .proj₂ (inj₁ not-ok))
 
 -- If 𝟘ᵐ is allowed and ⌞ p ⌟ is equal to 𝟙ᵐ, then p is not equal to
 -- 𝟘.
 
 ⌞⌟≡𝟙ᵐ→≢𝟘 : T 𝟘ᵐ-allowed → ⌞ p ⌟ ≡ 𝟙ᵐ → p ≢ 𝟘
-⌞⌟≡𝟙ᵐ→≢𝟘 {p = p} ok = lemma _ refl
-  where
-  lemma :
-    ∀ b (eq : b ≡ 𝟘ᵐ-allowed) →
-    𝟘ᵐ-allowed-elim-helper b
-      (λ ok → ⌞ p ⌟′ (subst T eq ok))
-      (λ _ → 𝟙ᵐ) ≡
-    𝟙ᵐ →
-    p ≢ 𝟘
-  lemma false refl = ⊥-elim ok
-  lemma true  refl with 𝟘ᵐ.is-𝟘? tt p
-  … | yes _  = λ ()
-  … | no p≢𝟘 = λ _ → p≢𝟘
+⌞⌟≡𝟙ᵐ→≢𝟘 ok ≡𝟙ᵐ = case ⌞⌟≡𝟙ᵐ⇔≢𝟘 .proj₁ ≡𝟙ᵐ of λ where
+  (inj₁ not-ok)    → ⊥-elim $ not-ok ok
+  (inj₂ (_ , p≢𝟘)) → p≢𝟘
 
 -- ⌞ 𝟙 ⌟ is equal to 𝟙ᵐ.
 
