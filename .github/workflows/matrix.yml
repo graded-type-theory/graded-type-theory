@@ -22,8 +22,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        agda: [2.6.4, 2.6.4.1]
-        maxheap: [3.5G, 4G, 4.5G, 5G]
+        agda: [2.6.4.1] #, 2.6.4]
+        maxheap: [5G, 6G, 8G, 10G]
+          # With 4.5G we still ran out of heap:
+          # https://github.com/graded-type-theory/graded-type-theory/issues/23
 
     steps:
 
