@@ -1,36 +1,37 @@
 <!DOCTYPE HTML>
 <html><head><meta charset="utf-8"><title>Graded.Derived.Erased.Untyped</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
 <a id="74" class="Comment">-- The type constructor Erased</a>
-<a id="105" class="Comment">------------------------------------------------------------------------</a>
+<a id="105" class="Comment">--</a>
+<a id="108" class="Comment">-- See Graded.Derived.Erased.Eta.Untyped or</a>
+<a id="152" class="Comment">-- Graded.Derived.Erased.Eta.Untyped for the definition of the</a>
+<a id="215" class="Comment">-- projection &quot;erased&quot;.</a>
+<a id="239" class="Comment">------------------------------------------------------------------------</a>
 
-<a id="179" class="Keyword">open</a> <a id="184" class="Keyword">import</a> <a id="191" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+<a id="313" class="Keyword">open</a> <a id="318" class="Keyword">import</a> <a id="325" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+<a id="341" class="Keyword">open</a> <a id="346" class="Keyword">import</a> <a id="353" href="Definition.Untyped.NotParametrised.html" class="Module">Definition.Untyped.NotParametrised</a>
 
-<a id="208" class="Keyword">module</a> <a id="215" href="Graded.Derived.Erased.Untyped.html" class="Module">Graded.Derived.Erased.Untyped</a>
-  <a id="247" class="Symbol">{</a><a id="248" href="Graded.Derived.Erased.Untyped.html#248" class="Bound">a</a><a id="249" class="Symbol">}</a> <a id="251" class="Symbol">{</a><a id="252" href="Graded.Derived.Erased.Untyped.html#252" class="Bound">M</a> <a id="254" class="Symbol">:</a> <a id="256" href="Agda.Primitive.html#320" class="Primitive">Set</a> <a id="260" href="Graded.Derived.Erased.Untyped.html#248" class="Bound">a</a><a id="261" class="Symbol">}</a>
-  <a id="265" class="Symbol">(</a><a id="266" href="Graded.Derived.Erased.Untyped.html#266" class="Bound">𝕄</a> <a id="268" class="Symbol">:</a> <a id="270" href="Graded.Modality.html#6709" class="Record">Modality</a> <a id="279" href="Graded.Derived.Erased.Untyped.html#252" class="Bound">M</a><a id="280" class="Symbol">)</a>
-  <a id="284" class="Keyword">where</a>
+<a id="389" class="Keyword">module</a> <a id="396" href="Graded.Derived.Erased.Untyped.html" class="Module">Graded.Derived.Erased.Untyped</a>
+  <a id="428" class="Symbol">{</a><a id="429" href="Graded.Derived.Erased.Untyped.html#429" class="Bound">a</a><a id="430" class="Symbol">}</a> <a id="432" class="Symbol">{</a><a id="433" href="Graded.Derived.Erased.Untyped.html#433" class="Bound">M</a> <a id="435" class="Symbol">:</a> <a id="437" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="441" href="Graded.Derived.Erased.Untyped.html#429" class="Bound">a</a><a id="442" class="Symbol">}</a>
+  <a id="446" class="Symbol">(</a><a id="447" href="Graded.Derived.Erased.Untyped.html#447" class="Bound">𝕄</a> <a id="449" class="Symbol">:</a> <a id="451" href="Graded.Modality.html#7142" class="Record">Modality</a> <a id="460" href="Graded.Derived.Erased.Untyped.html#433" class="Bound">M</a><a id="461" class="Symbol">)</a>
+  <a id="465" class="Symbol">(</a><a id="466" href="Graded.Derived.Erased.Untyped.html#466" class="Bound">s</a> <a id="468" class="Symbol">:</a> <a id="470" href="Definition.Untyped.NotParametrised.html#1382" class="Datatype">Strength</a><a id="478" class="Symbol">)</a>
+  <a id="482" class="Keyword">where</a>
 
-<a id="291" class="Keyword">open</a> <a id="296" href="Graded.Modality.html#6709" class="Module">Modality</a> <a id="305" href="Graded.Derived.Erased.Untyped.html#266" class="Bound">𝕄</a>
+<a id="489" class="Keyword">open</a> <a id="494" href="Graded.Modality.html#7142" class="Module">Modality</a> <a id="503" href="Graded.Derived.Erased.Untyped.html#447" class="Bound">𝕄</a>
 
-<a id="308" class="Keyword">open</a> <a id="313" class="Keyword">import</a> <a id="320" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="339" href="Graded.Derived.Erased.Untyped.html#252" class="Bound">M</a>
+<a id="506" class="Keyword">open</a> <a id="511" class="Keyword">import</a> <a id="518" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="537" href="Graded.Derived.Erased.Untyped.html#433" class="Bound">M</a>
 
-<a id="342" class="Keyword">open</a> <a id="347" class="Keyword">import</a> <a id="354" href="Tools.Nat.html" class="Module">Tools.Nat</a>
+<a id="540" class="Keyword">open</a> <a id="545" class="Keyword">import</a> <a id="552" href="Tools.Nat.html" class="Module">Tools.Nat</a>
 
-<a id="365" class="Keyword">private</a> <a id="373" class="Keyword">variable</a>
-  <a id="384" href="Graded.Derived.Erased.Untyped.html#384" class="Generalizable">n</a> <a id="386" class="Symbol">:</a> <a id="388" href="Agda.Builtin.Nat.html#186" class="Datatype">Nat</a>
+<a id="563" class="Keyword">private</a> <a id="571" class="Keyword">variable</a>
+  <a id="582" href="Graded.Derived.Erased.Untyped.html#582" class="Generalizable">n</a> <a id="584" class="Symbol">:</a> <a id="586" href="Agda.Builtin.Nat.html#203" class="Datatype">Nat</a>
 
-<a id="393" class="Comment">-- The type constructor Erased.</a>
+<a id="591" class="Comment">-- The type constructor Erased.</a>
 
-<a id="Erased"></a><a id="426" href="Graded.Derived.Erased.Untyped.html#426" class="Function">Erased</a> <a id="433" class="Symbol">:</a> <a id="435" href="Definition.Untyped.html#2121" class="Datatype">Term</a> <a id="440" href="Graded.Derived.Erased.Untyped.html#384" class="Generalizable">n</a> <a id="442" class="Symbol">→</a> <a id="444" href="Definition.Untyped.html#2121" class="Datatype">Term</a> <a id="449" href="Graded.Derived.Erased.Untyped.html#384" class="Generalizable">n</a>
-<a id="451" href="Graded.Derived.Erased.Untyped.html#426" class="Function">Erased</a> <a id="458" href="Graded.Derived.Erased.Untyped.html#458" class="Bound">A</a> <a id="460" class="Symbol">=</a> <a id="462" href="Definition.Untyped.html#2853" class="InductiveConstructor Operator">Σₚ</a> <a id="465" href="Graded.Modality.html#870" class="Function">𝟘</a> <a id="467" href="Definition.Untyped.html#2853" class="InductiveConstructor Operator">,</a> <a id="469" href="Graded.Modality.html#870" class="Function">𝟘</a> <a id="471" href="Definition.Untyped.html#2853" class="InductiveConstructor Operator">▷</a> <a id="473" href="Graded.Derived.Erased.Untyped.html#458" class="Bound">A</a> <a id="475" href="Definition.Untyped.html#2853" class="InductiveConstructor Operator">▹</a> <a id="477" href="Definition.Untyped.html#2687" class="InductiveConstructor">Unit</a>
+<a id="Erased"></a><a id="624" href="Graded.Derived.Erased.Untyped.html#624" class="Function">Erased</a> <a id="631" class="Symbol">:</a> <a id="633" href="Definition.Untyped.html#2457" class="Datatype">Term</a> <a id="638" href="Graded.Derived.Erased.Untyped.html#582" class="Generalizable">n</a> <a id="640" class="Symbol">→</a> <a id="642" href="Definition.Untyped.html#2457" class="Datatype">Term</a> <a id="647" href="Graded.Derived.Erased.Untyped.html#582" class="Generalizable">n</a>
+<a id="649" href="Graded.Derived.Erased.Untyped.html#624" class="Function">Erased</a> <a id="656" href="Graded.Derived.Erased.Untyped.html#656" class="Bound">A</a> <a id="658" class="Symbol">=</a> <a id="660" href="Definition.Untyped.html#3524" class="InductiveConstructor Operator">Σ⟨</a> <a id="663" href="Graded.Derived.Erased.Untyped.html#466" class="Bound">s</a> <a id="665" href="Definition.Untyped.html#3524" class="InductiveConstructor Operator">⟩</a> <a id="667" href="Graded.Modality.html#847" class="Function">𝟘</a> <a id="669" href="Definition.Untyped.html#3524" class="InductiveConstructor Operator">,</a> <a id="671" href="Graded.Modality.html#847" class="Function">𝟘</a> <a id="673" href="Definition.Untyped.html#3524" class="InductiveConstructor Operator">▷</a> <a id="675" href="Graded.Derived.Erased.Untyped.html#656" class="Bound">A</a> <a id="677" href="Definition.Untyped.html#3524" class="InductiveConstructor Operator">▹</a> <a id="679" href="Definition.Untyped.html#3071" class="InductiveConstructor">Unit</a> <a id="684" href="Graded.Derived.Erased.Untyped.html#466" class="Bound">s</a>
 
-<a id="483" class="Comment">-- The constructor [_].</a>
+<a id="687" class="Comment">-- The constructor [_].</a>
 
-<a id="[_]"></a><a id="508" href="Graded.Derived.Erased.Untyped.html#508" class="Function Operator">[_]</a> <a id="512" class="Symbol">:</a> <a id="514" href="Definition.Untyped.html#2121" class="Datatype">Term</a> <a id="519" href="Graded.Derived.Erased.Untyped.html#384" class="Generalizable">n</a> <a id="521" class="Symbol">→</a> <a id="523" href="Definition.Untyped.html#2121" class="Datatype">Term</a> <a id="528" href="Graded.Derived.Erased.Untyped.html#384" class="Generalizable">n</a>
-<a id="530" href="Graded.Derived.Erased.Untyped.html#508" class="Function Operator">[</a> <a id="532" href="Graded.Derived.Erased.Untyped.html#532" class="Bound">t</a> <a id="534" href="Graded.Derived.Erased.Untyped.html#508" class="Function Operator">]</a> <a id="536" class="Symbol">=</a> <a id="538" href="Definition.Untyped.html#3284" class="InductiveConstructor">prodₚ</a> <a id="544" href="Graded.Modality.html#870" class="Function">𝟘</a> <a id="546" href="Graded.Derived.Erased.Untyped.html#532" class="Bound">t</a> <a id="548" href="Definition.Untyped.html#3803" class="InductiveConstructor">star</a>
-
-<a id="554" class="Comment">-- The projection erased.</a>
-
-<a id="erased"></a><a id="581" href="Graded.Derived.Erased.Untyped.html#581" class="Function">erased</a> <a id="588" class="Symbol">:</a> <a id="590" href="Definition.Untyped.html#2121" class="Datatype">Term</a> <a id="595" href="Graded.Derived.Erased.Untyped.html#384" class="Generalizable">n</a> <a id="597" class="Symbol">→</a> <a id="599" href="Definition.Untyped.html#2121" class="Datatype">Term</a> <a id="604" href="Graded.Derived.Erased.Untyped.html#384" class="Generalizable">n</a>
-<a id="606" href="Graded.Derived.Erased.Untyped.html#581" class="Function">erased</a> <a id="613" href="Graded.Derived.Erased.Untyped.html#613" class="Bound">t</a> <a id="615" class="Symbol">=</a> <a id="617" href="Definition.Untyped.html#3501" class="InductiveConstructor">fst</a> <a id="621" href="Graded.Modality.html#870" class="Function">𝟘</a> <a id="623" href="Graded.Derived.Erased.Untyped.html#613" class="Bound">t</a>
+<a id="[_]"></a><a id="712" href="Graded.Derived.Erased.Untyped.html#712" class="Function Operator">[_]</a> <a id="716" class="Symbol">:</a> <a id="718" href="Definition.Untyped.html#2457" class="Datatype">Term</a> <a id="723" href="Graded.Derived.Erased.Untyped.html#582" class="Generalizable">n</a> <a id="725" class="Symbol">→</a> <a id="727" href="Definition.Untyped.html#2457" class="Datatype">Term</a> <a id="732" href="Graded.Derived.Erased.Untyped.html#582" class="Generalizable">n</a>
+<a id="734" href="Graded.Derived.Erased.Untyped.html#712" class="Function Operator">[</a> <a id="736" href="Graded.Derived.Erased.Untyped.html#736" class="Bound">t</a> <a id="738" href="Graded.Derived.Erased.Untyped.html#712" class="Function Operator">]</a> <a id="740" class="Symbol">=</a> <a id="742" href="Definition.Untyped.html#3852" class="InductiveConstructor">prod</a> <a id="747" href="Graded.Derived.Erased.Untyped.html#466" class="Bound">s</a> <a id="749" href="Graded.Modality.html#847" class="Function">𝟘</a> <a id="751" href="Graded.Derived.Erased.Untyped.html#736" class="Bound">t</a> <a id="753" class="Symbol">(</a><a id="754" href="Definition.Untyped.html#4297" class="InductiveConstructor">star</a> <a id="759" href="Graded.Derived.Erased.Untyped.html#466" class="Bound">s</a><a id="760" class="Symbol">)</a>
 </pre></body></html>

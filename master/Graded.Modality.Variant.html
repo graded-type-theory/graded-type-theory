@@ -5,7 +5,7 @@
 
 <a id="169" class="Keyword">open</a> <a id="174" class="Keyword">import</a> <a id="181" href="Tools.Level.html" class="Module">Tools.Level</a>
 
-<a id="194" class="Keyword">module</a> <a id="201" href="Graded.Modality.Variant.html" class="Module">Graded.Modality.Variant</a> <a id="225" class="Symbol">(</a><a id="226" href="Graded.Modality.Variant.html#226" class="Bound">a</a> <a id="228" class="Symbol">:</a> <a id="230" href="Agda.Primitive.html#591" class="Postulate">Level</a><a id="235" class="Symbol">)</a> <a id="237" class="Keyword">where</a>
+<a id="194" class="Keyword">module</a> <a id="201" href="Graded.Modality.Variant.html" class="Module">Graded.Modality.Variant</a> <a id="225" class="Symbol">(</a><a id="226" href="Graded.Modality.Variant.html#226" class="Bound">a</a> <a id="228" class="Symbol">:</a> <a id="230" href="Agda.Primitive.html#742" class="Postulate">Level</a><a id="235" class="Symbol">)</a> <a id="237" class="Keyword">where</a>
 
 <a id="244" class="Keyword">open</a> <a id="249" class="Keyword">import</a> <a id="256" href="Tools.Bool.html" class="Module">Tools.Bool</a>
 <a id="267" class="Keyword">open</a> <a id="272" class="Keyword">import</a> <a id="279" href="Tools.Empty.html" class="Module">Tools.Empty</a>
@@ -21,34 +21,34 @@
 <a id="582" class="Comment">--   function. Even if they don&#39;t come with a *dedicated* nr function</a>
 <a id="652" class="Comment">--   such functions can perhaps still be defined.</a>
 
-<a id="703" class="Keyword">record</a> <a id="Modality-variant"></a><a id="710" href="Graded.Modality.Variant.html#710" class="Record">Modality-variant</a> <a id="727" class="Symbol">:</a> <a id="729" href="Agda.Primitive.html#320" class="Primitive">Set</a> <a id="733" class="Symbol">(</a><a id="734" href="Agda.Primitive.html#774" class="Primitive">lsuc</a> <a id="739" href="Graded.Modality.Variant.html#226" class="Bound">a</a><a id="740" class="Symbol">)</a> <a id="742" class="Keyword">where</a>
+<a id="703" class="Keyword">record</a> <a id="Modality-variant"></a><a id="710" href="Graded.Modality.Variant.html#710" class="Record">Modality-variant</a> <a id="727" class="Symbol">:</a> <a id="729" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="733" class="Symbol">(</a><a id="734" href="Agda.Primitive.html#931" class="Primitive">lsuc</a> <a id="739" href="Graded.Modality.Variant.html#226" class="Bound">a</a><a id="740" class="Symbol">)</a> <a id="742" class="Keyword">where</a>
   <a id="750" class="Keyword">field</a>
     <a id="760" class="Comment">-- Is the mode 𝟘ᵐ allowed?</a>
-    <a id="Modality-variant.𝟘ᵐ-allowed"></a><a id="791" href="Graded.Modality.Variant.html#791" class="Field">𝟘ᵐ-allowed</a> <a id="802" class="Symbol">:</a> <a id="804" href="Agda.Builtin.Bool.html#156" class="Datatype">Bool</a>
+    <a id="Modality-variant.𝟘ᵐ-allowed"></a><a id="791" href="Graded.Modality.Variant.html#791" class="Field">𝟘ᵐ-allowed</a> <a id="802" class="Symbol">:</a> <a id="804" href="Agda.Builtin.Bool.html#173" class="Datatype">Bool</a>
 
     <a id="814" class="Comment">-- Is a dedicated nr function available?</a>
-    <a id="Modality-variant.nr-available"></a><a id="859" href="Graded.Modality.Variant.html#859" class="Field">nr-available</a> <a id="872" class="Symbol">:</a> <a id="874" href="Agda.Builtin.Bool.html#156" class="Datatype">Bool</a>
+    <a id="Modality-variant.nr-available"></a><a id="859" href="Graded.Modality.Variant.html#859" class="Field">nr-available</a> <a id="872" class="Symbol">:</a> <a id="874" href="Agda.Builtin.Bool.html#173" class="Datatype">Bool</a>
 
   <a id="882" class="Comment">-- Is a dedicated nr function available?</a>
 
-  <a id="Modality-variant.Nr-available"></a><a id="926" href="Graded.Modality.Variant.html#926" class="Function">Nr-available</a> <a id="939" class="Symbol">:</a> <a id="941" href="Agda.Primitive.html#320" class="Primitive">Set</a>
-  <a id="947" href="Graded.Modality.Variant.html#926" class="Function">Nr-available</a> <a id="960" class="Symbol">=</a> <a id="962" href="Data.Bool.Base.html#1460" class="Function">T</a> <a id="964" href="Graded.Modality.Variant.html#859" class="Field">nr-available</a>
+  <a id="Modality-variant.Nr-available"></a><a id="926" href="Graded.Modality.Variant.html#926" class="Function">Nr-available</a> <a id="939" class="Symbol">:</a> <a id="941" href="Agda.Primitive.html#388" class="Primitive">Set</a>
+  <a id="947" href="Graded.Modality.Variant.html#926" class="Function">Nr-available</a> <a id="960" class="Symbol">=</a> <a id="962" href="Data.Bool.Base.html#1348" class="Function">T</a> <a id="964" href="Graded.Modality.Variant.html#859" class="Field">nr-available</a>
 
 <a id="978" class="Comment">-- A variant for which a dedicated nr function must be available, and</a>
 <a id="1048" class="Comment">-- 𝟘ᵐ is allowed if the boolean is true.</a>
 
-<a id="nr-available-and-𝟘ᵐ-allowed-if"></a><a id="1090" href="Graded.Modality.Variant.html#1090" class="Function">nr-available-and-𝟘ᵐ-allowed-if</a> <a id="1121" class="Symbol">:</a> <a id="1123" href="Agda.Builtin.Bool.html#156" class="Datatype">Bool</a> <a id="1128" class="Symbol">→</a> <a id="1130" href="Graded.Modality.Variant.html#710" class="Record">Modality-variant</a>
+<a id="nr-available-and-𝟘ᵐ-allowed-if"></a><a id="1090" href="Graded.Modality.Variant.html#1090" class="Function">nr-available-and-𝟘ᵐ-allowed-if</a> <a id="1121" class="Symbol">:</a> <a id="1123" href="Agda.Builtin.Bool.html#173" class="Datatype">Bool</a> <a id="1128" class="Symbol">→</a> <a id="1130" href="Graded.Modality.Variant.html#710" class="Record">Modality-variant</a>
 <a id="1147" href="Graded.Modality.Variant.html#1090" class="Function">nr-available-and-𝟘ᵐ-allowed-if</a> <a id="1178" href="Graded.Modality.Variant.html#1178" class="Bound">ok</a> <a id="1181" class="Symbol">=</a> <a id="1183" class="Keyword">record</a>
   <a id="1192" class="Symbol">{</a> <a id="1194" href="Graded.Modality.Variant.html#791" class="Field">𝟘ᵐ-allowed</a>   <a id="1207" class="Symbol">=</a> <a id="1209" href="Graded.Modality.Variant.html#1178" class="Bound">ok</a>
-  <a id="1214" class="Symbol">;</a> <a id="1216" href="Graded.Modality.Variant.html#859" class="Field">nr-available</a> <a id="1229" class="Symbol">=</a> <a id="1231" href="Agda.Builtin.Bool.html#181" class="InductiveConstructor">true</a>
+  <a id="1214" class="Symbol">;</a> <a id="1216" href="Graded.Modality.Variant.html#859" class="Field">nr-available</a> <a id="1229" class="Symbol">=</a> <a id="1231" href="Agda.Builtin.Bool.html#198" class="InductiveConstructor">true</a>
   <a id="1238" class="Symbol">}</a>
 
 <a id="1241" class="Comment">-- A variant for which a dedicated nr function is not available, and</a>
 <a id="1310" class="Comment">-- 𝟘ᵐ is allowed if the boolean is true.</a>
 
-<a id="nr-not-available-and-𝟘ᵐ-allowed-if"></a><a id="1352" href="Graded.Modality.Variant.html#1352" class="Function">nr-not-available-and-𝟘ᵐ-allowed-if</a> <a id="1387" class="Symbol">:</a> <a id="1389" href="Agda.Builtin.Bool.html#156" class="Datatype">Bool</a> <a id="1394" class="Symbol">→</a> <a id="1396" href="Graded.Modality.Variant.html#710" class="Record">Modality-variant</a>
+<a id="nr-not-available-and-𝟘ᵐ-allowed-if"></a><a id="1352" href="Graded.Modality.Variant.html#1352" class="Function">nr-not-available-and-𝟘ᵐ-allowed-if</a> <a id="1387" class="Symbol">:</a> <a id="1389" href="Agda.Builtin.Bool.html#173" class="Datatype">Bool</a> <a id="1394" class="Symbol">→</a> <a id="1396" href="Graded.Modality.Variant.html#710" class="Record">Modality-variant</a>
 <a id="1413" href="Graded.Modality.Variant.html#1352" class="Function">nr-not-available-and-𝟘ᵐ-allowed-if</a> <a id="1448" href="Graded.Modality.Variant.html#1448" class="Bound">ok</a> <a id="1451" class="Symbol">=</a> <a id="1453" class="Keyword">record</a>
   <a id="1462" class="Symbol">{</a> <a id="1464" href="Graded.Modality.Variant.html#791" class="Field">𝟘ᵐ-allowed</a>   <a id="1477" class="Symbol">=</a> <a id="1479" href="Graded.Modality.Variant.html#1448" class="Bound">ok</a>
-  <a id="1484" class="Symbol">;</a> <a id="1486" href="Graded.Modality.Variant.html#859" class="Field">nr-available</a> <a id="1499" class="Symbol">=</a> <a id="1501" href="Agda.Builtin.Bool.html#175" class="InductiveConstructor">false</a>
+  <a id="1484" class="Symbol">;</a> <a id="1486" href="Graded.Modality.Variant.html#859" class="Field">nr-available</a> <a id="1499" class="Symbol">=</a> <a id="1501" href="Agda.Builtin.Bool.html#192" class="InductiveConstructor">false</a>
   <a id="1509" class="Symbol">}</a>
 </pre></body></html>

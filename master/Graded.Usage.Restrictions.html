@@ -4,17 +4,78 @@
 <a id="111" class="Comment">------------------------------------------------------------------------</a>
 
 <a id="185" class="Keyword">module</a> <a id="192" href="Graded.Usage.Restrictions.html" class="Module">Graded.Usage.Restrictions</a>
-  <a id="220" class="Symbol">{</a><a id="221" href="Graded.Usage.Restrictions.html#221" class="Bound">a</a><a id="222" class="Symbol">}</a> <a id="224" class="Symbol">(</a><a id="225" href="Graded.Usage.Restrictions.html#225" class="Bound">M</a> <a id="227" class="Symbol">:</a> <a id="229" href="Agda.Primitive.html#320" class="Primitive">Set</a> <a id="233" href="Graded.Usage.Restrictions.html#221" class="Bound">a</a><a id="234" class="Symbol">)</a>
+  <a id="220" class="Symbol">{</a><a id="221" href="Graded.Usage.Restrictions.html#221" class="Bound">a</a><a id="222" class="Symbol">}</a> <a id="224" class="Symbol">(</a><a id="225" href="Graded.Usage.Restrictions.html#225" class="Bound">M</a> <a id="227" class="Symbol">:</a> <a id="229" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="233" href="Graded.Usage.Restrictions.html#221" class="Bound">a</a><a id="234" class="Symbol">)</a>
   <a id="238" class="Keyword">where</a>
 
-<a id="245" class="Keyword">open</a> <a id="250" class="Keyword">import</a> <a id="257" href="Tools.Level.html" class="Module">Tools.Level</a>
+<a id="245" class="Keyword">open</a> <a id="250" class="Keyword">import</a> <a id="257" href="Tools.Bool.html" class="Module">Tools.Bool</a>
+<a id="268" class="Keyword">open</a> <a id="273" class="Keyword">import</a> <a id="280" href="Tools.Level.html" class="Module">Tools.Level</a>
+<a id="292" class="Keyword">open</a> <a id="297" class="Keyword">import</a> <a id="304" href="Tools.Relation.html" class="Module">Tools.Relation</a>
+<a id="319" class="Keyword">open</a> <a id="324" class="Keyword">import</a> <a id="331" href="Tools.Sum.html" class="Module">Tools.Sum</a>
+<a id="341" class="Keyword">open</a> <a id="346" class="Keyword">import</a> <a id="353" href="Tools.Empty.html" class="Module">Tools.Empty</a>
 
-<a id="270" class="Comment">-- Restrictions on usage derivations.</a>
+<a id="366" class="Comment">-- Restrictions on/choices for usage derivations.</a>
 
-<a id="309" class="Keyword">record</a> <a id="Usage-restrictions"></a><a id="316" href="Graded.Usage.Restrictions.html#316" class="Record">Usage-restrictions</a> <a id="335" class="Symbol">:</a> <a id="337" href="Agda.Primitive.html#320" class="Primitive">Set</a> <a id="341" class="Symbol">(</a><a id="342" href="Agda.Primitive.html#774" class="Primitive">lsuc</a> <a id="347" href="Graded.Usage.Restrictions.html#221" class="Bound">a</a><a id="348" class="Symbol">)</a> <a id="350" class="Keyword">where</a>
-  <a id="358" class="Keyword">no-eta-equality</a>
-  <a id="376" class="Keyword">field</a>
-    <a id="386" class="Comment">-- The prodrec constructor&#39;s quantities have to satisfy this</a>
-    <a id="451" class="Comment">-- predicate.</a>
-    <a id="Usage-restrictions.Prodrec-allowed"></a><a id="469" href="Graded.Usage.Restrictions.html#469" class="Field">Prodrec-allowed</a> <a id="485" class="Symbol">:</a> <a id="487" class="Symbol">(</a><a id="488" href="Graded.Usage.Restrictions.html#488" class="Bound">r</a> <a id="490" href="Graded.Usage.Restrictions.html#490" class="Bound">p</a> <a id="492" href="Graded.Usage.Restrictions.html#492" class="Bound">q</a> <a id="494" class="Symbol">:</a> <a id="496" href="Graded.Usage.Restrictions.html#225" class="Bound">M</a><a id="497" class="Symbol">)</a> <a id="499" class="Symbol">→</a> <a id="501" href="Agda.Primitive.html#320" class="Primitive">Set</a> <a id="505" href="Graded.Usage.Restrictions.html#221" class="Bound">a</a>
+<a id="417" class="Keyword">record</a> <a id="Usage-restrictions"></a><a id="424" href="Graded.Usage.Restrictions.html#424" class="Record">Usage-restrictions</a> <a id="443" class="Symbol">:</a> <a id="445" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="449" class="Symbol">(</a><a id="450" href="Agda.Primitive.html#931" class="Primitive">lsuc</a> <a id="455" href="Graded.Usage.Restrictions.html#221" class="Bound">a</a><a id="456" class="Symbol">)</a> <a id="458" class="Keyword">where</a>
+  <a id="466" class="Keyword">no-eta-equality</a>
+  <a id="484" class="Keyword">field</a>
+    <a id="494" class="Comment">-- The prodrec constructor&#39;s quantities have to satisfy this</a>
+    <a id="559" class="Comment">-- predicate.</a>
+    <a id="Usage-restrictions.Prodrec-allowed"></a><a id="577" href="Graded.Usage.Restrictions.html#577" class="Field">Prodrec-allowed</a> <a id="593" class="Symbol">:</a> <a id="595" class="Symbol">(</a><a id="596" href="Graded.Usage.Restrictions.html#596" class="Bound">r</a> <a id="598" href="Graded.Usage.Restrictions.html#598" class="Bound">p</a> <a id="600" href="Graded.Usage.Restrictions.html#600" class="Bound">q</a> <a id="602" class="Symbol">:</a> <a id="604" href="Graded.Usage.Restrictions.html#225" class="Bound">M</a><a id="605" class="Symbol">)</a> <a id="607" class="Symbol">→</a> <a id="609" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="613" href="Graded.Usage.Restrictions.html#221" class="Bound">a</a>
+
+    <a id="620" class="Comment">-- The unitrec constructor&#39;s quantities have to satisfy this</a>
+    <a id="685" class="Comment">-- predicate.</a>
+    <a id="Usage-restrictions.Unitrec-allowed"></a><a id="703" href="Graded.Usage.Restrictions.html#703" class="Field">Unitrec-allowed</a> <a id="719" class="Symbol">:</a> <a id="721" class="Symbol">(</a><a id="722" href="Graded.Usage.Restrictions.html#722" class="Bound">p</a> <a id="724" href="Graded.Usage.Restrictions.html#724" class="Bound">q</a> <a id="726" class="Symbol">:</a> <a id="728" href="Graded.Usage.Restrictions.html#225" class="Bound">M</a><a id="729" class="Symbol">)</a> <a id="731" class="Symbol">→</a> <a id="733" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="737" href="Graded.Usage.Restrictions.html#221" class="Bound">a</a>
+
+    <a id="744" class="Comment">-- Should the strong unit type act as a &quot;sink&quot;?</a>
+    <a id="Usage-restrictions.starˢ-sink"></a><a id="796" href="Graded.Usage.Restrictions.html#796" class="Field">starˢ-sink</a> <a id="807" class="Symbol">:</a> <a id="809" href="Agda.Builtin.Bool.html#173" class="Datatype">Bool</a>
+
+    <a id="819" class="Comment">-- Are most things erased in the usage rule for Id?</a>
+    <a id="Usage-restrictions.Id-erased"></a><a id="875" href="Graded.Usage.Restrictions.html#875" class="Field">Id-erased</a> <a id="885" class="Symbol">:</a> <a id="887" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="891" href="Graded.Usage.Restrictions.html#221" class="Bound">a</a>
+
+    <a id="898" class="Comment">-- Id-erased is decided.</a>
+    <a id="Usage-restrictions.Id-erased?"></a><a id="927" href="Graded.Usage.Restrictions.html#927" class="Field">Id-erased?</a> <a id="938" class="Symbol">:</a> <a id="940" href="Relation.Nullary.Decidable.Core.html#1485" class="Record">Dec</a> <a id="944" href="Graded.Usage.Restrictions.html#875" class="Field">Id-erased</a>
+
+    <a id="959" class="Comment">-- Are erased matches allowed for the J rule? In that case all</a>
+    <a id="1026" class="Comment">-- arguments but one are erased, and the non-erased argument is</a>
+    <a id="1094" class="Comment">-- treated as &quot;linear&quot;.</a>
+    <a id="Usage-restrictions.Erased-matches-for-J"></a><a id="1122" href="Graded.Usage.Restrictions.html#1122" class="Field">Erased-matches-for-J</a> <a id="1143" class="Symbol">:</a> <a id="1145" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="1149" href="Graded.Usage.Restrictions.html#221" class="Bound">a</a>
+
+    <a id="1156" class="Comment">-- Erased-matches-for-J is decided.</a>
+    <a id="Usage-restrictions.Erased-matches-for-J?"></a><a id="1196" href="Graded.Usage.Restrictions.html#1196" class="Field">Erased-matches-for-J?</a> <a id="1218" class="Symbol">:</a> <a id="1220" href="Relation.Nullary.Decidable.Core.html#1485" class="Record">Dec</a> <a id="1224" href="Graded.Usage.Restrictions.html#1122" class="Field">Erased-matches-for-J</a>
+
+    <a id="1250" class="Comment">-- Are erased matches allowed for the K rule? In that case all</a>
+    <a id="1317" class="Comment">-- arguments but one are erased, and the non-erased argument is</a>
+    <a id="1385" class="Comment">-- treated as &quot;linear&quot;.</a>
+    <a id="Usage-restrictions.Erased-matches-for-K"></a><a id="1413" href="Graded.Usage.Restrictions.html#1413" class="Field">Erased-matches-for-K</a> <a id="1434" class="Symbol">:</a> <a id="1436" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="1440" href="Graded.Usage.Restrictions.html#221" class="Bound">a</a>
+
+    <a id="1447" class="Comment">-- Erased-matches-for-K is decided.</a>
+    <a id="Usage-restrictions.Erased-matches-for-K?"></a><a id="1487" href="Graded.Usage.Restrictions.html#1487" class="Field">Erased-matches-for-K?</a> <a id="1509" class="Symbol">:</a> <a id="1511" href="Relation.Nullary.Decidable.Core.html#1485" class="Record">Dec</a> <a id="1515" href="Graded.Usage.Restrictions.html#1413" class="Field">Erased-matches-for-K</a>
+
+  <a id="1539" class="Comment">-- Does the strong unit type act as a &quot;sink&quot;?</a>
+
+  <a id="Usage-restrictions.Starˢ-sink"></a><a id="1588" href="Graded.Usage.Restrictions.html#1588" class="Function">Starˢ-sink</a> <a id="1599" class="Symbol">:</a> <a id="1601" href="Agda.Primitive.html#388" class="Primitive">Set</a>
+  <a id="1607" href="Graded.Usage.Restrictions.html#1588" class="Function">Starˢ-sink</a> <a id="1618" class="Symbol">=</a> <a id="1620" href="Data.Bool.Base.html#1348" class="Function">T</a> <a id="1622" href="Graded.Usage.Restrictions.html#796" class="Field">starˢ-sink</a>
+
+  <a id="1636" class="Comment">-- Does the strong unit type not act as a &quot;sink&quot;?</a>
+  <a id="1688" class="Comment">--</a>
+  <a id="1693" class="Comment">-- This type is used instead of ¬ Starˢ-sink because &quot;¬ A&quot; does not</a>
+  <a id="1763" class="Comment">-- work well as the type of an instance argument.</a>
+
+  <a id="Usage-restrictions.¬Starˢ-sink"></a><a id="1816" href="Graded.Usage.Restrictions.html#1816" class="Function">¬Starˢ-sink</a> <a id="1828" class="Symbol">:</a> <a id="1830" href="Agda.Primitive.html#388" class="Primitive">Set</a>
+  <a id="1836" href="Graded.Usage.Restrictions.html#1816" class="Function">¬Starˢ-sink</a> <a id="1848" class="Symbol">=</a> <a id="1850" href="Data.Bool.Base.html#1348" class="Function">T</a> <a id="1852" class="Symbol">(</a><a id="1853" href="Data.Bool.Base.html#941" class="Function">not</a> <a id="1857" href="Graded.Usage.Restrictions.html#796" class="Field">starˢ-sink</a><a id="1867" class="Symbol">)</a>
+
+  <a id="1872" class="Comment">-- The strong unit type is not allowed to both act and not act as a</a>
+  <a id="1942" class="Comment">-- sink.</a>
+
+  <a id="Usage-restrictions.not-sink-and-no-sink"></a><a id="1954" href="Graded.Usage.Restrictions.html#1954" class="Function">not-sink-and-no-sink</a> <a id="1975" class="Symbol">:</a> <a id="1977" href="Graded.Usage.Restrictions.html#1588" class="Function">Starˢ-sink</a> <a id="1988" class="Symbol">→</a> <a id="1990" href="Graded.Usage.Restrictions.html#1816" class="Function">¬Starˢ-sink</a> <a id="2002" class="Symbol">→</a> <a id="2004" href="Data.Empty.html#895" class="Function">⊥</a>
+  <a id="2008" href="Graded.Usage.Restrictions.html#1954" class="Function">not-sink-and-no-sink</a> <a id="2029" href="Graded.Usage.Restrictions.html#2029" class="Bound">sink</a> <a id="2034" href="Graded.Usage.Restrictions.html#2034" class="Bound">¬sink</a> <a id="2040" class="Keyword">with</a> <a id="2045" href="Graded.Usage.Restrictions.html#796" class="Field">starˢ-sink</a>
+  <a id="2058" class="Symbol">…</a> <a id="2060" class="Symbol">|</a> <a id="2062" href="Agda.Builtin.Bool.html#192" class="InductiveConstructor">false</a> <a id="2068" class="Symbol">=</a> <a id="2070" class="Bound">sink</a>
+  <a id="2077" class="Symbol">…</a> <a id="2079" class="Symbol">|</a> <a id="2081" href="Agda.Builtin.Bool.html#198" class="InductiveConstructor">true</a> <a id="2086" class="Symbol">=</a> <a id="2088" class="Bound">¬sink</a>
+
+  <a id="2097" class="Comment">-- The strong unit type either acts or does not act as a sink.</a>
+
+  <a id="Usage-restrictions.sink-or-no-sink"></a><a id="2163" href="Graded.Usage.Restrictions.html#2163" class="Function">sink-or-no-sink</a> <a id="2179" class="Symbol">:</a> <a id="2181" href="Graded.Usage.Restrictions.html#1588" class="Function">Starˢ-sink</a> <a id="2192" href="Data.Sum.Base.html#625" class="Datatype Operator">⊎</a> <a id="2194" href="Graded.Usage.Restrictions.html#1816" class="Function">¬Starˢ-sink</a>
+  <a id="2208" href="Graded.Usage.Restrictions.html#2163" class="Function">sink-or-no-sink</a> <a id="2224" class="Keyword">with</a> <a id="2229" href="Graded.Usage.Restrictions.html#796" class="Field">starˢ-sink</a>
+  <a id="2242" href="Graded.Usage.Restrictions.html#2163" class="Function">…</a> <a id="2244" class="Symbol">|</a> <a id="2246" href="Agda.Builtin.Bool.html#192" class="InductiveConstructor">false</a> <a id="2252" class="Symbol">=</a> <a id="2254" href="Data.Sum.Base.html#700" class="InductiveConstructor">inj₂</a> <a id="2259" class="Symbol">_</a>
+  <a id="2263" href="Graded.Usage.Restrictions.html#2163" class="Function">…</a> <a id="2265" class="Symbol">|</a> <a id="2267" href="Agda.Builtin.Bool.html#198" class="InductiveConstructor">true</a> <a id="2272" class="Symbol">=</a> <a id="2274" href="Data.Sum.Base.html#675" class="InductiveConstructor">inj₁</a> <a id="2279" class="Symbol">_</a>
 </pre></body></html>
