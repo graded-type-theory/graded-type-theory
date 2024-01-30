@@ -1,0 +1,40 @@
+# Test several settings (Agda version, heap size)
+
+name: Matrix
+
+on:
+  push:
+    branches:
+      - master
+      - ci-*
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+env:
+  STDLIB_VERSION: '2.0'
+  MAIN: Everything.agda
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        agda: [2.6.4, 2.6.4.1]
+        maxheap: [3.5G, 4G, 4.5G, 5G]
+
+    steps:
+
+      # Checkout to $HOME empties $HOME so we have to do it before we put stuff there.
+      - uses: actions/checkout@v4
+
+      - name: Setup Agda
+        uses: wenkokke/setup-agda@latest
+        with:
+          agda-version: ${{ matrix.agda }}
+          agda-stdlib-version: ${{ env.STDLIB_VERSION }}
+
+      - name: Run Agda
+        run: agda "${{ env.MAIN }}" +RTS -M${{ matrix.maxheap }} -RTS
