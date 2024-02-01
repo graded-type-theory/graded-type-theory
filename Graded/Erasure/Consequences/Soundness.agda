@@ -406,6 +406,48 @@ opaque
          (0    , whred K⇒ ⇨ˢ _) → whnfRedTerm K⇒ (ne (Kₙ (var _)))
          (1+ _ , whred K⇒ ⇨ˢ _) → whnfRedTerm K⇒ (ne (Kₙ (var _)))) }
 
+opaque
+
+  -- If Unitrec-allowed 𝟘 𝟘 and Unitʷ-allowed hold, then there is a
+  -- counterexample to soundness-ℕ-only-source without the assumption
+  -- "erased matches are not allowed unless the context is empty" (and
+  -- without the assumption that the modality's zero is well-behaved).
+
+  soundness-ℕ-only-source-counterexample₅ :
+    Unitrec-allowed 𝟘 𝟘 →
+    Unitʷ-allowed →
+    let Δ = ε ∙ Unitʷ
+        t = unitrec 𝟘 𝟘 ℕ (var {n = 1} x0) zero
+    in
+    Consistent Δ ×
+    Δ ⊢ t ∷ ℕ ×
+    𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
+    ¬ ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
+  soundness-ℕ-only-source-counterexample₅ unitrec-ok Unit-ok =
+    case Unitⱼ ε Unit-ok of λ
+      ⊢Unit →
+    case ε ∙ ⊢Unit of λ
+      ⊢∙Unit →
+      inhabited-consistent (singleSubst (starⱼ ε Unit-ok))
+    , unitrecⱼ (ℕⱼ (⊢∙Unit ∙[ flip Unitⱼ Unit-ok ])) (var₀ ⊢Unit)
+        (zeroⱼ ⊢∙Unit) Unit-ok
+    , sub
+        (unitrecₘ var zeroₘ
+           (sub ℕₘ $
+            let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+              𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+              𝟘ᶜ                ∎)
+           unitrec-ok)
+        (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+           𝟘ᶜ                                ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
+           𝟘 ·ᶜ (𝟘ᶜ , x0 ≔ ⌜ ⌞ 𝟘 ⌟ ⌝)        ≈˘⟨ +ᶜ-identityʳ _ ⟩
+           𝟘 ·ᶜ (𝟘ᶜ , x0 ≔ ⌜ ⌞ 𝟘 ⌟ ⌝) +ᶜ 𝟘ᶜ  ∎)
+    , (λ where
+         (0 , whred unitrec⇒ ⇨ˢ _) →
+           whnfRedTerm unitrec⇒ (ne (unitrecₙ (var _)))
+         (1+ _ , whred unitrec⇒ ⇨ˢ _) →
+           whnfRedTerm unitrec⇒ (ne (unitrecₙ (var _))))
+
 module _ (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘)) where
 
   open E is-𝟘?

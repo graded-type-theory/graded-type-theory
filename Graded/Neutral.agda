@@ -232,3 +232,22 @@ opaque
     case soundness-ℕ-only-source-counterexample₄ ok₁ ok₂ of λ {
       (consistent , ⊢t , ▸t , _) →
     _ , _ , _ , _ , consistent , Kₙ (var _) , ⊢t , ▸t }
+
+opaque
+
+  -- If Unitrec-allowed 𝟘 𝟘 and Unitʷ-allowed hold, then there is a
+  -- well-typed, well-resourced, neutral term in a consistent, erased
+  -- context.
+
+  neutral-well-resourced₅ :
+    Unitrec-allowed 𝟘 𝟘 →
+    Unitʷ-allowed →
+    ∃₄ λ n (Γ : Con Term n) (t A : Term n) →
+    Consistent Γ ×
+    Neutral t ×
+    Γ ⊢ t ∷ A ×
+    𝟘ᶜ ▸[ 𝟙ᵐ ] t
+  neutral-well-resourced₅ ok₁ ok₂ =
+    case soundness-ℕ-only-source-counterexample₅ ok₁ ok₂ of λ {
+      (consistent , ⊢t , ▸t , _) →
+    _ , _ , _ , _ , consistent , unitrecₙ (var _) , ⊢t , ▸t }
