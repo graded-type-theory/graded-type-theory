@@ -18,68 +18,6 @@ private variable
   p q r               : M
 
 ------------------------------------------------------------------------
--- Same-usage-restrictions
-
--- The property that some of the usage restrictions are "the same".
-
-record Same-usage-restrictions
-         {a₁ a₂} {M₁ : Set a₁} {M₂ : Set a₂}
-         (R₁ : Usage-restrictions M₁) (R₂ : Usage-restrictions M₂) :
-         Set (a₁ ⊔ a₂) where
-  private
-    module R₁ = Usage-restrictions R₁
-    module R₂ = Usage-restrictions R₂
-
-  field
-    -- R₁.Id-erased holds if and only if R₂.Id-erased holds.
-    Id-erased-preserved : R₁.Id-erased ⇔ R₂.Id-erased
-
-    -- If R₁.Erased-matches-for-J holds if and only if
-    -- R₂.Erased-matches-for-J holds.
-    Erased-matches-for-J-preserved :
-      R₁.Erased-matches-for-J ⇔ R₂.Erased-matches-for-J
-
-    -- If R₁.Erased-matches-for-K holds if and only if
-    -- R₂.Erased-matches-for-K holds.
-    Erased-matches-for-K-preserved :
-      R₁.Erased-matches-for-K ⇔ R₂.Erased-matches-for-K
-
-opaque
-
-  -- Same-usage-restrictions is reflexive.
-
-  Same-usage-restrictions-reflexive :
-    Same-usage-restrictions R R
-  Same-usage-restrictions-reflexive = λ where
-      .Id-erased-preserved            → id⇔
-      .Erased-matches-for-J-preserved → id⇔
-      .Erased-matches-for-K-preserved → id⇔
-    where
-    open Same-usage-restrictions
-
-opaque
-
-  -- Same-usage-restrictions is transitive.
-
-  Same-usage-restrictions-transitive :
-    Same-usage-restrictions R₂ R₃ →
-    Same-usage-restrictions R₁ R₂ →
-    Same-usage-restrictions R₁ R₃
-  Same-usage-restrictions-transitive s₁ s₂ = λ where
-      .Id-erased-preserved →
-        S₁.Id-erased-preserved ∘⇔ S₂.Id-erased-preserved
-      .Erased-matches-for-J-preserved →
-        S₁.Erased-matches-for-J-preserved ∘⇔
-        S₂.Erased-matches-for-J-preserved
-      .Erased-matches-for-K-preserved →
-        S₁.Erased-matches-for-K-preserved ∘⇔
-        S₂.Erased-matches-for-K-preserved
-    where
-    open Same-usage-restrictions
-    module S₁ = Same-usage-restrictions s₁
-    module S₂ = Same-usage-restrictions s₂
-
-------------------------------------------------------------------------
 -- Are-preserving-usage-restrictions
 
 -- The property of preserving Usage-restrictions.
@@ -98,24 +36,28 @@ record Are-preserving-usage-restrictions
     Prodrec-preserved :
       R₁.Prodrec-allowed r p q →
       R₂.Prodrec-allowed (tr r) (tr-Σ p) (tr q)
+
     -- The function tr preserves the Unitrec-allowed property
     Unitrec-preserved :
       R₁.Unitrec-allowed p q →
       R₂.Unitrec-allowed (tr p) (tr q)
+
     -- The property that the strong unit acts as a sink is preserved.
     starˢ-sink-preserved :
       R₁.starˢ-sink ≡ R₂.starˢ-sink
 
-    -- The other usage restrictions are "the same".
-    --
-    -- These restrictions are required to be "the same" because they
-    -- are used both "positively" and "negatively". For instance,
-    -- Id-erased is used both in a positive way (Id-erased in the type
-    -- of Id₀ₘ) and in a negative way (¬ Id-erased in the type of
-    -- Idₘ).
-    same-usage-restrictions : Same-usage-restrictions R₁ R₂
+    -- R₁.Id-erased holds if and only if R₂.Id-erased holds.
+    Id-erased-preserved : R₁.Id-erased ⇔ R₂.Id-erased
 
-  open Same-usage-restrictions same-usage-restrictions public
+    -- If R₁.Erased-matches-for-J holds, then R₂.Erased-matches-for-J
+    -- holds.
+    Erased-matches-for-J-preserved :
+      R₁.Erased-matches-for-J → R₂.Erased-matches-for-J
+
+    -- If R₁.Erased-matches-for-K holds, then R₂.Erased-matches-for-K
+    -- holds.
+    Erased-matches-for-K-preserved :
+      R₁.Erased-matches-for-K → R₂.Erased-matches-for-K
 
 opaque
 
@@ -125,13 +67,14 @@ opaque
   Are-preserving-usage-restrictions-id :
     Are-preserving-usage-restrictions R R idᶠ idᶠ
   Are-preserving-usage-restrictions-id {R = R} = λ where
-      .Prodrec-preserved       → idᶠ
-      .Unitrec-preserved → idᶠ
-      .starˢ-sink-preserved → refl
-      .same-usage-restrictions → Same-usage-restrictions-reflexive
+      .Prodrec-preserved              → idᶠ
+      .Unitrec-preserved              → idᶠ
+      .starˢ-sink-preserved           → refl
+      .Id-erased-preserved            → id⇔
+      .Erased-matches-for-J-preserved → idᶠ
+      .Erased-matches-for-K-preserved → idᶠ
     where
     open Are-preserving-usage-restrictions
-    open Usage-restrictions R
 
 opaque
 
@@ -149,9 +92,14 @@ opaque
         M₁.Unitrec-preserved ∘→ M₂.Unitrec-preserved
       .starˢ-sink-preserved →
         trans M₂.starˢ-sink-preserved M₁.starˢ-sink-preserved
-      .same-usage-restrictions →
-        Same-usage-restrictions-transitive M₁.same-usage-restrictions
-          M₂.same-usage-restrictions
+      .Id-erased-preserved →
+        M₁.Id-erased-preserved ∘⇔ M₂.Id-erased-preserved
+      .Erased-matches-for-J-preserved →
+        M₁.Erased-matches-for-J-preserved ∘→
+        M₂.Erased-matches-for-J-preserved
+      .Erased-matches-for-K-preserved →
+        M₁.Erased-matches-for-K-preserved ∘→
+        M₂.Erased-matches-for-K-preserved
     where
     open Are-preserving-usage-restrictions
     module M₁ = Are-preserving-usage-restrictions m₁
@@ -176,18 +124,28 @@ record Are-reflecting-usage-restrictions
     Prodrec-reflected :
       R₂.Prodrec-allowed (tr r) (tr-Σ p) (tr q) →
       R₁.Prodrec-allowed r p q
+
     -- The function tr reflects the Unitrec-allowed property.
     Unitrec-reflected :
       R₂.Unitrec-allowed (tr p) (tr q) →
       R₁.Unitrec-allowed p q
+
     -- The property that the strong unit acts as a sink is reflected.
     starˢ-sink-reflected :
       R₂.starˢ-sink ≡ R₁.starˢ-sink
 
-    -- The other usage restrictions are "the same".
-    same-usage-restrictions : Same-usage-restrictions R₁ R₂
+    -- R₂.Id-erased holds if and only if R₁.Id-erased holds.
+    Id-erased-reflected : R₂.Id-erased ⇔ R₁.Id-erased
 
-  open Same-usage-restrictions same-usage-restrictions public
+    -- If R₂.Erased-matches-for-J holds, then R₁.Erased-matches-for-J
+    -- holds.
+    Erased-matches-for-J-reflected :
+      R₂.Erased-matches-for-J → R₁.Erased-matches-for-J
+
+    -- If R₂.Erased-matches-for-K holds, then R₁.Erased-matches-for-K
+    -- holds.
+    Erased-matches-for-K-reflected :
+      R₂.Erased-matches-for-K → R₁.Erased-matches-for-K
 
 opaque
 
@@ -197,10 +155,12 @@ opaque
   Are-reflecting-usage-restrictions-id :
     Are-reflecting-usage-restrictions R R idᶠ idᶠ
   Are-reflecting-usage-restrictions-id {R = R} = λ where
-      .Prodrec-reflected       → idᶠ
-      .Unitrec-reflected → idᶠ
-      .starˢ-sink-reflected → refl
-      .same-usage-restrictions → Same-usage-restrictions-reflexive
+      .Prodrec-reflected              → idᶠ
+      .Unitrec-reflected              → idᶠ
+      .starˢ-sink-reflected           → refl
+      .Id-erased-reflected            → id⇔
+      .Erased-matches-for-J-reflected → idᶠ
+      .Erased-matches-for-K-reflected → idᶠ
     where
     open Are-reflecting-usage-restrictions
     open Usage-restrictions R
@@ -221,9 +181,14 @@ opaque
         M₂.Unitrec-reflected ∘→ M₁.Unitrec-reflected
       .starˢ-sink-reflected →
         trans M₁.starˢ-sink-reflected M₂.starˢ-sink-reflected
-      .same-usage-restrictions →
-        Same-usage-restrictions-transitive M₁.same-usage-restrictions
-          M₂.same-usage-restrictions
+      .Id-erased-reflected →
+        M₂.Id-erased-reflected ∘⇔ M₁.Id-erased-reflected
+      .Erased-matches-for-J-reflected →
+        M₂.Erased-matches-for-J-reflected ∘→
+        M₁.Erased-matches-for-J-reflected
+      .Erased-matches-for-K-reflected →
+        M₂.Erased-matches-for-K-reflected ∘→
+        M₁.Erased-matches-for-K-reflected
     where
     open Are-reflecting-usage-restrictions
     module M₁ = Are-reflecting-usage-restrictions m₁

@@ -46,26 +46,6 @@ private variable
 ------------------------------------------------------------------------
 -- Preserving/reflecting certain usage restrictions
 
-opaque
-
-  -- If R₁ and R₂ have the same usage restrictions, then this applies
-  -- also to no-erased-matches-UR 𝕄₁ R₁ and
-  -- no-erased-matches-UR 𝕄₂ R₂.
-
-  Same-usage-restrictions-no-erased-matches-UR :
-    ∀ 𝕄₁ 𝕄₂ →
-    Same-usage-restrictions R₁ R₂ →
-    Same-usage-restrictions
-      (no-erased-matches-UR 𝕄₁ R₁)
-      (no-erased-matches-UR 𝕄₂ R₂)
-  Same-usage-restrictions-no-erased-matches-UR _ _ s = record
-    { Id-erased-preserved            = Id-erased-preserved
-    ; Erased-matches-for-J-preserved = (λ ()) , (λ ())
-    ; Erased-matches-for-K-preserved = (λ ()) , (λ ())
-    }
-    where
-    open Same-usage-restrictions s
-
 -- If the functions tr and tr-Σ preserve certain usage restrictions,
 -- then they also do this for certain usage restrictions obtained
 -- using no-erased-matches-UR, given that a certain assumption holds.
@@ -103,11 +83,10 @@ Are-preserving-usage-restrictions-no-erased-matches-UR
          (inj₂ ≢𝟘) →
            tr p ≡ M₂.𝟘  →⟨ ≢𝟘 ⟩
            ⊥            □
-
-  ; starˢ-sink-preserved = starˢ-sink-preserved
-  ; same-usage-restrictions =
-      Same-usage-restrictions-no-erased-matches-UR 𝕄₁ 𝕄₂
-        same-usage-restrictions
+  ; starˢ-sink-preserved           = starˢ-sink-preserved
+  ; Id-erased-preserved            = Id-erased-preserved
+  ; Erased-matches-for-J-preserved = λ ()
+  ; Erased-matches-for-K-preserved = λ ()
   }
   where
   module M₁ = Modality 𝕄₁
@@ -142,11 +121,10 @@ Are-reflecting-usage-restrictions-no-erased-matches-UR
           p ≡ M₁.𝟘     →⟨ hyp 𝟙≢𝟘 .proj₂ ⟩
           tr p ≡ M₂.𝟘  →⟨ ≢𝟘 (hyp 𝟙≢𝟘 .proj₁) ⟩
           ⊥            □
-
-  ; starˢ-sink-reflected = starˢ-sink-reflected
-  ; same-usage-restrictions =
-      Same-usage-restrictions-no-erased-matches-UR 𝕄₁ 𝕄₂
-        same-usage-restrictions
+  ; starˢ-sink-reflected           = starˢ-sink-reflected
+  ; Id-erased-reflected            = Id-erased-reflected
+  ; Erased-matches-for-J-reflected = λ ()
+  ; Erased-matches-for-K-reflected = λ ()
   }
   where
   module M₁ = Modality 𝕄₁
