@@ -23,7 +23,7 @@ jobs:
       fail-fast: false
       matrix:
         agda: [2.6.4.1] #, 2.6.4]
-        maxheap: [5G, 6G, 8G, 10G]
+        maxheap: ['', '-M5G', '-M6G'] # , '-M8G', '-M10G']
           # With 4.5G we still ran out of heap:
           # https://github.com/graded-type-theory/graded-type-theory/issues/23
 
@@ -39,4 +39,4 @@ jobs:
           agda-stdlib-version: ${{ env.STDLIB_VERSION }}
 
       - name: Run Agda
-        run: agda "${{ env.MAIN }}" +RTS -M${{ matrix.maxheap }} -RTS
+        run: agda "${{ env.MAIN }}" +RTS ${{ matrix.maxheap }} -RTS
