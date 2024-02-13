@@ -36,13 +36,13 @@ open import Graded.Restrictions
 open import Graded.Usage.Restrictions
 
 private variable
-  𝟙≤𝟘 ok    : Bool
-  v₂        : Modality-variant _
-  R R₁ R₂   : Usage-restrictions _
-  A M M₁ M₂ : Set _
-  𝕄₁ 𝕄₂     : Modality M
-  tr tr-Σ   : M₁ → M₂
-  v₂-ok     : A
+  𝟙≤𝟘 ok  : Bool
+  v₂      : Modality-variant _
+  R R₁ R₂ : Usage-restrictions _
+  A M₁ M₂ : Set _
+  𝕄₁ 𝕄₂   : Modality _
+  tr tr-Σ : M₁ → M₂
+  v₂-ok   : A
 
 ------------------------------------------------------------------------
 -- Preserving/reflecting no usage restrictions

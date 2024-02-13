@@ -16,6 +16,7 @@ open import Tools.Product
 open import Tools.PropositionalEquality
 import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
+open import Tools.Sum as ⊎
 open import Tools.Unit
 
 open import Graded.Modality
@@ -80,7 +81,8 @@ opaque
   -- obtained from no-type-restrictions, given a certain assumption.
 
   Are-reflecting-type-restrictions-no-type-restrictions :
-    (¬ Modality.Trivial 𝕄₂ → ¬ Modality.Trivial 𝕄₁) →
+    (Modality.Trivial 𝕄₂ ⊎ ¬ Modality.Trivial 𝕄₂ →
+     Modality.Trivial 𝕄₁ ⊎ ¬ Modality.Trivial 𝕄₁) →
     Are-reflecting-type-restrictions
       (no-type-restrictions 𝕄₁)
       (no-type-restrictions 𝕄₂)
@@ -89,7 +91,7 @@ opaque
       .Unit-reflected    → _
       .ΠΣ-reflected      → _
       .K-reflected       → _
-      .[]-cong-reflected → hyp
+      .[]-cong-reflected → ⊎.sym ∘→ hyp ∘→ ⊎.sym
     where
     open Are-reflecting-type-restrictions
 
@@ -333,19 +335,26 @@ Are-preserving-type-restrictions-no-erased-matches-TR r = record
 
 -- If the functions tr and tr-Σ reflect certain type restrictions,
 -- then they do this also for certain type restrictions obtained using
--- no-erased-matches-TR.
+-- no-erased-matches-TR, given a certain assumption.
 
 Are-reflecting-type-restrictions-no-erased-matches-TR :
+  (∀ {s} →
+   Modality.Trivial 𝕄₂ →
+   ¬ Type-restrictions.[]-cong-allowed R₁ s) →
   Are-reflecting-type-restrictions R₁ R₂ tr tr-Σ →
   Are-reflecting-type-restrictions
     (no-erased-matches-TR 𝕄₁ R₁)
     (no-erased-matches-TR 𝕄₂ R₂)
     tr tr-Σ
-Are-reflecting-type-restrictions-no-erased-matches-TR r = record
+Are-reflecting-type-restrictions-no-erased-matches-TR hyp r = record
   { Unit-reflected    = Unit-reflected
   ; ΠΣ-reflected      = ΠΣ-reflected
   ; K-reflected       = K-reflected
-  ; []-cong-reflected = λ ()
+  ; []-cong-reflected = λ {s = s} → λ where
+      (inj₂ trivial₂) →
+        case []-cong-reflected {s = s} (inj₂ trivial₂) of λ where
+          (inj₁ ok)       → ⊥-elim $ hyp trivial₂ ok
+          (inj₂ trivial₁) → inj₂ trivial₁
   }
   where
   open Are-reflecting-type-restrictions r

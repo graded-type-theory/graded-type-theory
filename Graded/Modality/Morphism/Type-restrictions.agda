@@ -6,6 +6,7 @@ module Graded.Modality.Morphism.Type-restrictions where
 
 open import Tools.Function
 open import Tools.Level
+open import Tools.Sum
 
 open import Definition.Typed.Restrictions
 
@@ -64,6 +65,8 @@ record Are-reflecting-type-restrictions
          (R₁ : Type-restrictions 𝕄₁) (R₂ : Type-restrictions 𝕄₂)
          (tr tr-Σ : M₁ → M₂) : Set (a₁ ⊔ a₂) where
   private
+    module M₁ = Modality 𝕄₁
+    module M₂ = Modality 𝕄₂
     module R₁ = Type-restrictions R₁
     module R₂ = Type-restrictions R₂
 
@@ -82,9 +85,11 @@ record Are-reflecting-type-restrictions
     K-reflected :
       R₂.K-allowed → R₁.K-allowed
 
-    -- If R₂.[]-cong-allowed holds, then R₁.[]-cong-allowed holds.
+    -- If R₂.[]-cong-allowed s holds or 𝕄₂ is trivial, then
+    -- R₁.[]-cong-allowed s holds or 𝕄₁ is trivial.
     []-cong-reflected :
-      R₂.[]-cong-allowed s → R₁.[]-cong-allowed s
+      R₂.[]-cong-allowed s ⊎ M₂.Trivial →
+      R₁.[]-cong-allowed s ⊎ M₁.Trivial
 
 ------------------------------------------------------------------------
 -- Identity
