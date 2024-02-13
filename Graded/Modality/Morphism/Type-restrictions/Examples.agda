@@ -1,7 +1,8 @@
 ------------------------------------------------------------------------
 -- Lemmas related to
 -- Are-preserving-type-restrictions/Are-reflecting-type-restrictions
--- and specific type restriction transformers
+-- and specific type restriction transformers (and
+-- no-type-restrictions)
 ------------------------------------------------------------------------
 
 {-# OPTIONS --hidden-argument-puns #-}
@@ -50,6 +51,47 @@ private variable
   tr tr-Σ     : M₁ → M₂
   v₁ v₂       : Modality-variant _
   v₁-ok v₂-ok : ¬ _
+
+------------------------------------------------------------------------
+-- Preserving/reflecting no type restrictions
+
+opaque
+
+  -- The functions tr and tr-Σ preserve certain type restrictions
+  -- obtained from no-type-restrictions, given a certain assumption.
+
+  Are-preserving-type-restrictions-no-type-restrictions :
+    (¬ Modality.Trivial 𝕄₁ → ¬ Modality.Trivial 𝕄₂) →
+    Are-preserving-type-restrictions
+      (no-type-restrictions 𝕄₁)
+      (no-type-restrictions 𝕄₂)
+      tr tr-Σ
+  Are-preserving-type-restrictions-no-type-restrictions hyp = λ where
+      .Unit-preserved    → _
+      .ΠΣ-preserved      → _
+      .K-preserved       → _
+      .[]-cong-preserved → hyp
+    where
+    open Are-preserving-type-restrictions
+
+opaque
+
+  -- The functions tr and tr-Σ reflect certain type restrictions
+  -- obtained from no-type-restrictions, given a certain assumption.
+
+  Are-reflecting-type-restrictions-no-type-restrictions :
+    (¬ Modality.Trivial 𝕄₂ → ¬ Modality.Trivial 𝕄₁) →
+    Are-reflecting-type-restrictions
+      (no-type-restrictions 𝕄₁)
+      (no-type-restrictions 𝕄₂)
+      tr tr-Σ
+  Are-reflecting-type-restrictions-no-type-restrictions hyp = λ where
+      .Unit-reflected    → _
+      .ΠΣ-reflected      → _
+      .K-reflected       → _
+      .[]-cong-reflected → hyp
+    where
+    open Are-reflecting-type-restrictions
 
 ------------------------------------------------------------------------
 -- Preserving/reflecting certain type restrictions

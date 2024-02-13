@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------
 -- Lemmas related to
 -- Are-preserving-usage-restrictions/Are-reflecting-usage-restrictions
--- and specific usage restriction transformers (at the time of writing
--- only one, no-erased-matches-UR)
+-- and specific usage restriction transformers (and
+-- no-usage-restrictions)
 ------------------------------------------------------------------------
 
 module Graded.Modality.Morphism.Usage-restrictions.Examples where
@@ -36,12 +36,56 @@ open import Graded.Restrictions
 open import Graded.Usage.Restrictions
 
 private variable
-  𝟙≤𝟘 ok  : Bool
-  v₂      : Modality-variant _
-  R R₁ R₂ : Usage-restrictions _
-  A M₁ M₂ : Set _
-  tr tr-Σ : M₁ → M₂
-  v₂-ok   : A
+  𝟙≤𝟘 ok    : Bool
+  v₂        : Modality-variant _
+  R R₁ R₂   : Usage-restrictions _
+  A M M₁ M₂ : Set _
+  𝕄₁ 𝕄₂     : Modality M
+  tr tr-Σ   : M₁ → M₂
+  v₂-ok     : A
+
+------------------------------------------------------------------------
+-- Preserving/reflecting no usage restrictions
+
+opaque
+
+  -- The functions tr and tr-Σ preserve certain usage restrictions
+  -- obtained from no-usage-restrictions.
+
+  Are-preserving-usage-restrictions-no-usage-restrictions :
+    Are-preserving-usage-restrictions
+      (no-usage-restrictions 𝕄₁)
+      (no-usage-restrictions 𝕄₂)
+      tr tr-Σ
+  Are-preserving-usage-restrictions-no-usage-restrictions = λ where
+      .Prodrec-preserved              → _
+      .Unitrec-preserved              → _
+      .starˢ-sink-preserved           → refl
+      .Id-erased-preserved            → _
+      .Erased-matches-for-J-preserved → _
+      .Erased-matches-for-K-preserved → _
+    where
+    open Are-preserving-usage-restrictions
+
+opaque
+
+  -- The functions tr and tr-Σ reflect certain usage restrictions
+  -- obtained from no-usage-restrictions.
+
+  Are-reflecting-usage-restrictions-no-usage-restrictions :
+    Are-reflecting-usage-restrictions
+      (no-usage-restrictions 𝕄₁)
+      (no-usage-restrictions 𝕄₂)
+      tr tr-Σ
+  Are-reflecting-usage-restrictions-no-usage-restrictions = λ where
+      .Prodrec-reflected              → _
+      .Unitrec-reflected              → _
+      .starˢ-sink-reflected           → refl
+      .Id-erased-reflected            → _
+      .Erased-matches-for-J-reflected → _
+      .Erased-matches-for-K-reflected → _
+    where
+    open Are-reflecting-usage-restrictions
 
 ------------------------------------------------------------------------
 -- Preserving/reflecting certain usage restrictions
