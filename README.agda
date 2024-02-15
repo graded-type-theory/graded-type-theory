@@ -18,8 +18,8 @@
 -- included here. At the time of writing the licence texts can be
 -- found at the following URLs:
 --
--- * https://github.com/agda/agda-stdlib/blob/v1.7.3/LICENCE
--- * https://github.com/agda/agda/blob/v2.6.4/LICENSE
+-- * https://github.com/agda/agda-stdlib/blob/v2.0/LICENCE
+-- * https://github.com/agda/agda/blob/v2.6.4.1/LICENSE
 
 module README where
 
