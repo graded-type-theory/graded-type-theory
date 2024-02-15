@@ -36,7 +36,7 @@ open import Graded.Modality.Properties 𝕄
 open import Graded.Usage 𝕄 R
 open import Graded.Usage.Inversion 𝕄 R
 open import Graded.Usage.Properties 𝕄 R
-open import Graded.Mode 𝕄
+open import Graded.Mode 𝕄 hiding (_≟_)
 open import Definition.Untyped M
 
 open import Tools.Bool using (T; true; false)

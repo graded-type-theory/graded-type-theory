@@ -35,7 +35,7 @@ open import Graded.Modality.Properties 𝕄
 open import Graded.Usage 𝕄 R
 open import Graded.Usage.Decidable 𝕄 R _≟_ Prodrec? Unitrec?
 open import Graded.Usage.Properties 𝕄 R
-open import Graded.Mode 𝕄
+open import Graded.Mode 𝕄 hiding (_≟_)
 
 open import Tools.Fin
 open import Tools.Function
