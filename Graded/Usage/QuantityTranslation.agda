@@ -234,7 +234,7 @@ module Is-morphism
              (inj₂ trivial) → begin
                tr-Conₘ χ  ≡⟨ cong tr-Conₘ (CP₁.≈ᶜ→≡ (CP₁.≈ᶜ-trivial trivial)) ⟩
                tr-Conₘ δ  ∎)
-        (λ ⦃ 𝟘-well-behaved ⦄ →
+        (λ ⦃ 𝟘-well-behaved = 𝟘-well-behaved ⦄ →
            case 𝟘-well-behaved-in-first-if-in-second
                   (inj₁ 𝟘-well-behaved) of λ where
              (inj₁ 𝟘-well-behaved) →
