@@ -115,7 +115,10 @@ second-ΠΣ-quantities-𝟘-or-ω R = record R
 -- The property of not allowing erased matches.
 --
 -- "Erased" matches are allowed for trivial modalities. Erased matches
--- are also allowed when the mode is not 𝟙ᵐ, except for []-cong.
+-- are also allowed when the mode is not 𝟙ᵐ, except for []-cong. (Note
+-- that a variant of []-cong that—given a certain assumption—works
+-- when the mode is not 𝟙ᵐ can be defined without the use of []-cong,
+-- see Graded.Box-cong.[]-cong₀.)
 
 No-erased-matches : Type-restrictions → Usage-restrictions → Set a
 No-erased-matches TR UR =
