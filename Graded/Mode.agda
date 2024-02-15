@@ -91,6 +91,36 @@ Mode-elim _ z o = λ where
   𝟙ᵐ       → o
 
 ------------------------------------------------------------------------
+-- Properties related to 𝟘ᵐ-allowed
+
+-- Any two applications of 𝟘ᵐ[_] are equal.
+
+𝟘ᵐ-cong : 𝟘ᵐ[ ok₁ ] ≡ 𝟘ᵐ[ ok₂ ]
+𝟘ᵐ-cong = PE.cong 𝟘ᵐ[_] B.T-propositional
+
+-- If 𝟘ᵐ is not allowed, then every mode is equal to 𝟙ᵐ.
+
+only-𝟙ᵐ-without-𝟘ᵐ : ¬ T 𝟘ᵐ-allowed → m ≡ 𝟙ᵐ
+only-𝟙ᵐ-without-𝟘ᵐ {m = 𝟘ᵐ[ ok ]} not-ok = ⊥-elim (not-ok ok)
+only-𝟙ᵐ-without-𝟘ᵐ {m = 𝟙ᵐ}       _      = PE.refl
+
+-- If 𝟘ᵐ is not allowed, then all modes are equal.
+
+Mode-propositional-without-𝟘ᵐ : ¬ T 𝟘ᵐ-allowed → m₁ ≡ m₂
+Mode-propositional-without-𝟘ᵐ {m₁ = m₁} {m₂ = m₂} not-ok =
+  m₁  ≡⟨ only-𝟙ᵐ-without-𝟘ᵐ not-ok ⟩
+  𝟙ᵐ  ≡˘⟨ only-𝟙ᵐ-without-𝟘ᵐ not-ok ⟩
+  m₂  ∎
+  where
+  open Tools.Reasoning.PropositionalEquality
+
+-- If the modality is trivial, then all modes are equal.
+
+Mode-propositional-if-trivial : Trivial → m₁ ≡ m₂
+Mode-propositional-if-trivial 𝟙≡𝟘 =
+  Mode-propositional-without-𝟘ᵐ (flip 𝟘ᵐ.non-trivial 𝟙≡𝟘)
+
+------------------------------------------------------------------------
 -- 𝟘ᵐ? and 𝟙ᵐ′
 
 -- A mode that is 𝟘ᵐ[ something ] if 𝟘ᵐ-allowed is true, and otherwise
@@ -117,6 +147,14 @@ Mode-elim _ z o = λ where
     P (𝟘ᵐ-allowed-elim-helper b (λ ok → 𝟘ᵐ[ subst T eq ok ]) (λ _ → 𝟙ᵐ))
   lemma true  _ z _ = z ⦃ ok = _ ⦄
   lemma false _ _ o = o (λ ())
+
+-- 𝟘ᵐ? is equal to 𝟘ᵐ[ ok ].
+
+𝟘ᵐ?≡𝟘ᵐ : 𝟘ᵐ? ≡ 𝟘ᵐ[ ok ]
+𝟘ᵐ?≡𝟘ᵐ {ok = ok} = 𝟘ᵐ?-elim
+  (λ m → m ≡ 𝟘ᵐ[ ok ])
+  𝟘ᵐ-cong
+  (λ not-ok → ⊥-elim (not-ok ok))
 
 -- A variant of 𝟙ᵐ.
 
@@ -239,47 +277,6 @@ replicateᵐ m _ = m
 ⌜_⌝ᶜ : Mode-vector n → Conₘ n
 ⌜_⌝ᶜ {n = 0}    _ = ε
 ⌜_⌝ᶜ {n = 1+ _} ρ = ⌜ tailᵐ ρ ⌝ᶜ ∙ ⌜ headᵐ ρ ⌝
-
-------------------------------------------------------------------------
--- Properties related to 𝟘ᵐ-allowed
-
--- If 𝟘ᵐ is not allowed, then every mode is equal to 𝟙ᵐ.
-
-only-𝟙ᵐ-without-𝟘ᵐ : ¬ T 𝟘ᵐ-allowed → m ≡ 𝟙ᵐ
-only-𝟙ᵐ-without-𝟘ᵐ {m = 𝟘ᵐ[ ok ]} not-ok = ⊥-elim (not-ok ok)
-only-𝟙ᵐ-without-𝟘ᵐ {m = 𝟙ᵐ}       _      = PE.refl
-
--- If 𝟘ᵐ is not allowed, then all modes are equal.
-
-Mode-propositional-without-𝟘ᵐ : ¬ T 𝟘ᵐ-allowed → m₁ ≡ m₂
-Mode-propositional-without-𝟘ᵐ {m₁ = m₁} {m₂ = m₂} not-ok =
-  m₁  ≡⟨ only-𝟙ᵐ-without-𝟘ᵐ not-ok ⟩
-  𝟙ᵐ  ≡˘⟨ only-𝟙ᵐ-without-𝟘ᵐ not-ok ⟩
-  m₂  ∎
-  where
-  open Tools.Reasoning.PropositionalEquality
-
--- If the modality is trivial, then all modes are equal.
-
-Mode-propositional-if-trivial : Trivial → m₁ ≡ m₂
-Mode-propositional-if-trivial 𝟙≡𝟘 =
-  Mode-propositional-without-𝟘ᵐ (flip 𝟘ᵐ.non-trivial 𝟙≡𝟘)
-
-------------------------------------------------------------------------
--- Properties related to 𝟘ᵐ?
-
--- Any two applications of 𝟘ᵐ[_] are equal.
-
-𝟘ᵐ-cong : 𝟘ᵐ[ ok₁ ] ≡ 𝟘ᵐ[ ok₂ ]
-𝟘ᵐ-cong = PE.cong 𝟘ᵐ[_] B.T-propositional
-
--- 𝟘ᵐ? is equal to 𝟘ᵐ[ ok ].
-
-𝟘ᵐ?≡𝟘ᵐ : 𝟘ᵐ? ≡ 𝟘ᵐ[ ok ]
-𝟘ᵐ?≡𝟘ᵐ {ok = ok} = 𝟘ᵐ?-elim
-  (λ m → m ≡ 𝟘ᵐ[ ok ])
-  𝟘ᵐ-cong
-  (λ not-ok → ⊥-elim (not-ok ok))
 
 ------------------------------------------------------------------------
 -- Properties related to _∨ᵐ_ and _·ᵐ_
