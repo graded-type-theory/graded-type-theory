@@ -232,6 +232,9 @@ import Graded.FullReduction.Assumptions
 -- Σ-types, and vice versa.
 import Graded.Derived.Sigma
 
+-- Properties related to usage and Id.
+import Graded.Derived.Identity
+
 -- Some structures that are not modalities.
 import Graded.Modality.Instances.Set
 import Graded.Modality.Instances.Set.Non-empty
