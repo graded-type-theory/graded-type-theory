@@ -500,6 +500,45 @@ opaque
 opaque
   unfolding subst
 
+  -- An equality rule for subst.
+
+  subst-cong :
+    Γ ⊢ A₁ ≡ A₂ →
+    Γ ∙ A₁ ⊢ B₁ ≡ B₂ →
+    Γ ⊢ t₁ ≡ t₂ ∷ A₁ →
+    Γ ⊢ u₁ ≡ u₂ ∷ A₁ →
+    Γ ⊢ v₁ ≡ v₂ ∷ Id A₁ t₁ u₁ →
+    Γ ⊢ w₁ ≡ w₂ ∷ B₁ [ t₁ ]₀ →
+    Γ ⊢ subst A₁ B₁ t₁ u₁ v₁ w₁ ≡ subst A₂ B₂ t₂ u₂ v₂ w₂ ∷ B₁ [ u₁ ]₀
+  subst-cong {B₁} A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂ =
+    PE.subst (_⊢_≡_∷_ _ _ _) (subst-wk B₁) $
+    J-cong′ A₁≡A₂ t₁≡t₂
+      (wkEq₁
+         (J-motive-context-type (syntacticEqTerm t₁≡t₂ .proj₂ .proj₁))
+         B₁≡B₂)
+      (PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ subst-wk B₁) w₁≡w₂) u₁≡u₂
+      v₁≡v₂
+
+opaque
+  unfolding subst
+
+  -- A reduction rule for subst.
+
+  subst-subst :
+    Γ ∙ A ⊢ B →
+    Γ ⊢ v₁ ⇒ v₂ ∷ Id A t u →
+    Γ ⊢ w ∷ B [ t ]₀ →
+    Γ ⊢ subst A B t u v₁ w ⇒ subst A B t u v₂ w ∷ B [ u ]₀
+  subst-subst {B} ⊢B v₁⇒v₂ ⊢w =
+    case inversion-Id (syntacticEqTerm (subsetTerm v₁⇒v₂) .proj₁) of λ {
+      (_ , ⊢t , _) →
+    PE.subst (_⊢_⇒_∷_ _ _ _) (subst-wk B) $
+    J-subst′ (wk₁ (J-motive-context-type ⊢t) ⊢B)
+      (PE.subst (_⊢_∷_ _ _) (PE.sym $ subst-wk B) ⊢w) v₁⇒v₂ }
+
+opaque
+  unfolding subst
+
   -- A substitution lemma for subst.
 
   subst-[] :
