@@ -35,7 +35,7 @@ private
   variable
     ℓ m n : Nat
     Γ : Con Term n
-    A B C C₁ C₂ t t₁ t₂ u u₁ u₂ : Term _
+    A B C C₁ C₂ t t₁ t₂ u u₁ u₂ v : Term _
     σ σ′ : Subst m n
     ρ : Wk ℓ m
     p q : M
@@ -319,3 +319,13 @@ opaque
     Γ ⊢ C₁ [ t₁ , u₁ ]₁₀ ≡ C₂ [ t₂ , u₂ ]₁₀
   substTypeEq₂ C₁≡C₂ t₁≡t₂ u₁≡u₂ =
     substitutionEq C₁≡C₂ (singleSubstEq t₁≡t₂ , u₁≡u₂) (wfEqTerm t₁≡t₂)
+
+opaque
+
+  -- A variant of substTerm for _[_,_]₁₀.
+
+  substTerm₂ :
+    Γ ∙ A ∙ B ⊢ t ∷ C → Γ ⊢ u ∷ A → Γ ⊢ v ∷ B [ u ]₀ →
+    Γ ⊢ t [ u , v ]₁₀ ∷ C [ u , v ]₁₀
+  substTerm₂ ⊢t ⊢u ⊢v =
+    substitutionTerm ⊢t (singleSubst ⊢u , ⊢v) (wfTerm ⊢u)
