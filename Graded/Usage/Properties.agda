@@ -1265,365 +1265,456 @@ opaque
 ------------------------------------------------------------------------
 -- The lemma Conₘ-interchange
 
--- The contents of two valid modality contexts can be freely
--- interchanged.
+opaque
 
-Conₘ-interchange :
-  γ ▸[ m ] t → δ ▸[ m ] t → (x : Fin n) → (γ , x ≔ δ ⟨ x ⟩) ▸[ m ] t
-Conₘ-interchange (sub γ▸t γ≤γ′) δ▸t x  = sub
-  (Conₘ-interchange γ▸t δ▸t x)
-  (update-monotoneˡ x γ≤γ′)
-Conₘ-interchange γ▸t (sub γ′▸t δ≤γ′) x = sub
-  (Conₘ-interchange γ▸t γ′▸t x)
-  (update-monotoneʳ x (lookup-monotone x δ≤γ′))
-Conₘ-interchange Uₘ Uₘ x =
-  subst (_▸[ _ ] _) (PE.sym (update-self 𝟘ᶜ x)) Uₘ
-Conₘ-interchange ℕₘ ℕₘ x =
-  subst (_▸[ _ ] _) (PE.sym (update-self 𝟘ᶜ x)) ℕₘ
-Conₘ-interchange Emptyₘ Emptyₘ x =
-  subst (_▸[ _ ] _) (PE.sym (update-self 𝟘ᶜ x)) Emptyₘ
-Conₘ-interchange Unitₘ Unitₘ x =
-  subst (_▸[ _ ] _) (PE.sym (update-self 𝟘ᶜ x)) Unitₘ
+  -- The contents of two valid modality contexts can be freely
+  -- interchanged.
 
-Conₘ-interchange
-  (ΠΣₘ {γ = γ} {δ = δ} γ▸t δ▸u)
-  (ΠΣₘ {γ = γ′} {δ = δ′} γ′▸t δ′▸u) x =
-  subst (_▸[ _ ] _)
+  Conₘ-interchange :
+    γ ▸[ m ] t → δ ▸[ m ] t → (x : Fin n) → (γ , x ≔ δ ⟨ x ⟩) ▸[ m ] t
+  Conₘ-interchange (sub γ▸t γ≤γ′) δ▸t x = sub
+    (Conₘ-interchange γ▸t δ▸t x)
+    (update-monotoneˡ x γ≤γ′)
+
+  Conₘ-interchange {m} {δ} (var {x = y}) ▸var x = sub
+    var
     (begin
-       (γ , x ≔ γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩)  ≡˘⟨ update-distrib-+ᶜ γ _ _ _ x ⟩
-       γ +ᶜ δ , x ≔ γ′ ⟨ x ⟩ + δ′ ⟨ x ⟩          ≡˘⟨ cong (_ , x ≔_) (lookup-distrib-+ᶜ γ′ _ _) ⟩
-       γ +ᶜ δ , x ≔ (γ′ +ᶜ δ′) ⟨ x ⟩             ∎)
-    (ΠΣₘ (Conₘ-interchange γ▸t γ′▸t x)
-       (Conₘ-interchange δ▸u δ′▸u (x +1)))
-  where
-  open Tools.Reasoning.PropositionalEquality
-
-Conₘ-interchange (var {x = y}) var x = subst (_▸[ _ ] _)
-  (PE.sym (update-self (𝟘ᶜ , y ≔ _) x)) var
-
-Conₘ-interchange (lamₘ γ▸t) (lamₘ δ▸t) x = lamₘ (Conₘ-interchange γ▸t δ▸t (x +1))
-
-Conₘ-interchange
-  (_∘ₘ_ {γ = γ} {δ = δ} {p = p} γ▸t δ▸u)
-  (_∘ₘ_ {γ = γ′} {δ = δ′} γ′▸t δ′▸u)
-  x =
-  subst (_▸[ _ ] _) eq
-    (Conₘ-interchange γ▸t γ′▸t x ∘ₘ
-     Conₘ-interchange δ▸u δ′▸u x)
-  where
-  open Tools.Reasoning.PropositionalEquality
-  eq = begin
-    (γ , x ≔ (γ′ ⟨ x ⟩)) +ᶜ p ·ᶜ (δ , x ≔ (δ′ ⟨ x ⟩))
-       ≡˘⟨ cong (_ +ᶜ_) (update-distrib-·ᶜ δ p _ x) ⟩
-    (γ , x ≔ (γ′ ⟨ x ⟩)) +ᶜ (p ·ᶜ δ , x ≔ (p · δ′ ⟨ x ⟩))
-       ≡˘⟨ cong (_ +ᶜ_) (cong (_ , x ≔_) (lookup-distrib-·ᶜ δ′ p x)) ⟩
-    (γ , x ≔ (γ′ ⟨ x ⟩)) +ᶜ (p ·ᶜ δ , x ≔ ((p ·ᶜ δ′) ⟨ x ⟩))
-       ≡˘⟨ update-distrib-+ᶜ γ _ _ _ x ⟩
-    (γ +ᶜ p ·ᶜ δ) , x ≔ γ′ ⟨ x ⟩ + (p ·ᶜ δ′) ⟨ x ⟩
-       ≡˘⟨ cong (_ , x ≔_) (lookup-distrib-+ᶜ γ′ (p ·ᶜ δ′) x) ⟩
-    (γ +ᶜ p ·ᶜ δ) , x ≔ (γ′ +ᶜ p ·ᶜ δ′) ⟨ x ⟩ ∎
-
-Conₘ-interchange
-  (prodʷₘ {γ = γ} {p = p} {δ = δ} ▸t ▸u)
-  (prodʷₘ {γ = γ′} {δ = δ′} ▸t′ ▸u′) x = subst
-  (_▸[ _ ] _)
-  (p ·ᶜ (γ , x ≔ γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩)      ≡˘⟨ cong (_+ᶜ _) (update-distrib-·ᶜ _ _ _ _) ⟩
-   (p ·ᶜ γ , x ≔ p · γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩)  ≡˘⟨ update-distrib-+ᶜ _ _ _ _ _ ⟩
-   p ·ᶜ γ +ᶜ δ , x ≔ p · γ′ ⟨ x ⟩ + δ′ ⟨ x ⟩          ≡˘⟨ cong (λ γ → _ , x ≔ γ + _) (lookup-distrib-·ᶜ γ′ _ _) ⟩
-   p ·ᶜ γ +ᶜ δ , x ≔ (p ·ᶜ γ′) ⟨ x ⟩ + δ′ ⟨ x ⟩       ≡˘⟨ cong (_ , _ ≔_) (lookup-distrib-+ᶜ (_ ·ᶜ γ′) _ _) ⟩
-   p ·ᶜ γ +ᶜ δ , x ≔ (p ·ᶜ γ′ +ᶜ δ′) ⟨ x ⟩            ∎)
-  (prodʷₘ (Conₘ-interchange ▸t ▸t′ x) (Conₘ-interchange ▸u ▸u′ x))
-  where
-  open Tools.Reasoning.PropositionalEquality
-
-Conₘ-interchange
-  (prodˢₘ {γ = γ} {p = p} {δ = δ} ▸t ▸u)
-  (prodˢₘ {γ = γ′} {δ = δ′} ▸t′ ▸u′) x = subst
-  (_▸[ _ ] _)
-  (p ·ᶜ (γ , x ≔ γ′ ⟨ x ⟩) ∧ᶜ (δ , x ≔ δ′ ⟨ x ⟩)      ≡˘⟨ cong (_∧ᶜ _) (update-distrib-·ᶜ _ _ _ _) ⟩
-   (p ·ᶜ γ , x ≔ p · γ′ ⟨ x ⟩) ∧ᶜ (δ , x ≔ δ′ ⟨ x ⟩)  ≡˘⟨ update-distrib-∧ᶜ _ _ _ _ _ ⟩
-   p ·ᶜ γ ∧ᶜ δ , x ≔ p · γ′ ⟨ x ⟩ ∧ δ′ ⟨ x ⟩          ≡˘⟨ cong (λ p → _ , x ≔ p ∧ _) (lookup-distrib-·ᶜ γ′ _ _) ⟩
-   p ·ᶜ γ ∧ᶜ δ , x ≔ (p ·ᶜ γ′) ⟨ x ⟩ ∧ δ′ ⟨ x ⟩       ≡˘⟨ cong (_ , _ ≔_) (lookup-distrib-∧ᶜ (_ ·ᶜ γ′) _ _) ⟩
-   p ·ᶜ γ ∧ᶜ δ , x ≔ (p ·ᶜ γ′ ∧ᶜ δ′) ⟨ x ⟩            ∎)
-  (prodˢₘ (Conₘ-interchange ▸t ▸t′ x) (Conₘ-interchange ▸u ▸u′ x))
-  where
-  open Tools.Reasoning.PropositionalEquality
-
-Conₘ-interchange (fstₘ m γ▸t PE.refl ok) (fstₘ _ δ▸t eq _) x =
-  fstₘ m (Conₘ-interchange γ▸t (▸-cong eq δ▸t) x) PE.refl ok
-Conₘ-interchange (sndₘ γ▸t) (sndₘ δ▸t) x =
-  sndₘ (Conₘ-interchange γ▸t δ▸t x)
-
-Conₘ-interchange
-  (prodrecₘ {γ = γ} {r = r} {δ = δ} γ▸t δ▸t η▸A _)
-  (prodrecₘ {γ = γ′} {δ = δ′} γ▸t₁ δ▸t₁ _ ok)
-  x = subst (_▸[ _ ] _)
-    (begin
-       r ·ᶜ (γ , x ≔ γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩)      ≡˘⟨ cong (_+ᶜ _) (update-distrib-·ᶜ _ _ _ _) ⟩
-       (r ·ᶜ γ , x ≔ r · γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩)  ≡˘⟨ update-distrib-+ᶜ _ _ _ _ _ ⟩
-       r ·ᶜ γ +ᶜ δ , x ≔ r · γ′ ⟨ x ⟩ + δ′ ⟨ x ⟩          ≡˘⟨ cong (λ y → _ , _ ≔ y + _) (lookup-distrib-·ᶜ γ′ _ _) ⟩
-       r ·ᶜ γ +ᶜ δ , x ≔ (r ·ᶜ γ′) ⟨ x ⟩ + δ′ ⟨ x ⟩       ≡˘⟨ cong (λ y → _ , _ ≔ y) (lookup-distrib-+ᶜ (_ ·ᶜ γ′) _ _) ⟩
-       r ·ᶜ γ +ᶜ δ , x ≔ (r ·ᶜ γ′ +ᶜ δ′) ⟨ x ⟩            ∎)
-    (prodrecₘ
-       (Conₘ-interchange γ▸t γ▸t₁ x)
-       (Conₘ-interchange δ▸t δ▸t₁ (x +2))
-       η▸A
-       ok)
-  where
-  open Tools.Reasoning.PropositionalEquality
-
-Conₘ-interchange zeroₘ zeroₘ x           =
-  subst (_▸[ _ ] _) (PE.sym (update-self 𝟘ᶜ x)) zeroₘ
-Conₘ-interchange (sucₘ γ▸t) (sucₘ δ▸t) x =
-  sucₘ (Conₘ-interchange γ▸t δ▸t x)
-
-Conₘ-interchange
-  (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η}
-     ⦃ has-nr = nr₁ ⦄ γ▸z δ▸s η▸n θ▸A)
-  (natrecₘ {γ = γ′} {δ = δ′} {η = η′}
-     ⦃ has-nr = nr₂ ⦄ γ′▸z δ′▸s η′▸n _)
-  x =
-  case Dedicated-nr-propositional nr₁ nr₂ of λ {
-    refl →
-  flip (subst (_▸[ _ ] _))
-    (natrecₘ
-       (Conₘ-interchange γ▸z γ′▸z x)
-       (Conₘ-interchange δ▸s δ′▸s (x +2))
-       (Conₘ-interchange η▸n η′▸n x)
-       θ▸A)
-    (nrᶜ p r (γ , x ≔ γ′ ⟨ x ⟩) (δ , x ≔ δ′ ⟨ x ⟩) (η , x ≔ η′ ⟨ x ⟩)  ≡⟨ ≈ᶜ→≡ nrᶜ-,≔ ⟩
-     nrᶜ p r γ δ η , x ≔ nr p r (γ′ ⟨ x ⟩) (δ′ ⟨ x ⟩) (η′ ⟨ x ⟩)       ≡˘⟨ cong (_ , _ ≔_) (nrᶜ-⟨⟩ γ′) ⟩
-     nrᶜ p r γ δ η , x ≔ nrᶜ p r γ′ δ′ η′ ⟨ x ⟩                        ∎) }
-  where
-  open import Graded.Modality.Dedicated-nr.Instance
-  open Tools.Reasoning.PropositionalEquality
-
-Conₘ-interchange
-  (natrec-no-nrₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
-     ⦃ no-nr = ¬nr ⦄ γ▸z δ▸s η▸n θ▸A χ≤γ χ≤δ χ≤η fix)
-  (natrec-no-nrₘ {γ = γ′} {δ = δ′} {η = η′} {χ = χ′}
-     γ′▸z δ′▸s η′▸n _ χ′≤γ′ χ′≤δ′ χ′≤η′ fix′)
-  x =
-  natrec-no-nrₘ ⦃ no-nr = ¬nr ⦄
-    (Conₘ-interchange γ▸z γ′▸z x)
-    (Conₘ-interchange δ▸s δ′▸s (x +2))
-    (Conₘ-interchange η▸n η′▸n x)
-    θ▸A
-    (begin
-       χ , x ≔ χ′ ⟨ x ⟩  ≤⟨ update-monotone _ χ≤γ (lookup-monotone _ χ′≤γ′) ⟩
-       γ , x ≔ γ′ ⟨ x ⟩  ∎)
-    (λ ok → begin
-       χ , x ≔ χ′ ⟨ x ⟩  ≤⟨ update-monotone _ (χ≤δ ok) (lookup-monotone _ (χ′≤δ′ ok)) ⟩
-       δ , x ≔ δ′ ⟨ x ⟩  ∎)
-    (begin
-       χ , x ≔ χ′ ⟨ x ⟩  ≤⟨ update-monotone _ χ≤η (lookup-monotone _ χ′≤η′) ⟩
-       η , x ≔ η′ ⟨ x ⟩  ∎)
-    (begin
-       χ , x ≔ χ′ ⟨ x ⟩                                              ≤⟨ update-monotone _ fix (lookup-monotone _ fix′) ⟩
-
-       δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ , x ≔ (δ′ +ᶜ p ·ᶜ η′ +ᶜ r ·ᶜ χ′) ⟨ x ⟩  ≈⟨ update-congʳ $
-                                                                        trans (lookup-distrib-+ᶜ δ′ _ _) $
-                                                                        cong (_ +_) $
-                                                                        trans (lookup-distrib-+ᶜ (_ ·ᶜ η′) _ _) $
-                                                                        cong₂ _+_
-                                                                          (lookup-distrib-·ᶜ η′ _ _)
-                                                                          (lookup-distrib-·ᶜ χ′ _ _) ⟩
-       δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ ,
-       x ≔ δ′ ⟨ x ⟩ + p · η′ ⟨ x ⟩ + r · χ′ ⟨ x ⟩                    ≡⟨ trans (update-distrib-+ᶜ _ _ _ _ _) $
-                                                                        cong (_ +ᶜ_) $
-                                                                        trans (update-distrib-+ᶜ _ _ _ _ _) $
-                                                                        cong₂ _+ᶜ_
-                                                                          (update-distrib-·ᶜ _ _ _ _)
-                                                                          (update-distrib-·ᶜ _ _ _ _) ⟩
-       (δ , x ≔ δ′ ⟨ x ⟩) +ᶜ
-       p ·ᶜ (η , x ≔ η′ ⟨ x ⟩) +ᶜ r ·ᶜ (χ , x ≔ χ′ ⟨ x ⟩)            ∎)
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-
-Conₘ-interchange (natrecₘ _ _ _ _) (natrec-no-nrₘ _ _ _ _ _ _ _ _) _ =
-  ⊥-elim not-nr-and-no-nr
-
-Conₘ-interchange (natrec-no-nrₘ _ _ _ _ _ _ _ _) (natrecₘ _ _ _ _) _ =
-  ⊥-elim not-nr-and-no-nr
-
-Conₘ-interchange
-  (emptyrecₘ {γ = γ} {m = m} {p = p} γ▸t η▸A)
-  (emptyrecₘ {γ = δ} δ▸t _)
-  x =
-  subst (_▸[ _ ] _)
-    (begin
-       p ·ᶜ (γ , x ≔ δ ⟨ x ⟩)       ≡˘⟨ update-distrib-·ᶜ _ _ _ _ ⟩
-       p ·ᶜ γ , x ≔ p · (δ ⟨ x ⟩)   ≡˘⟨ cong (_ , _ ≔_) (lookup-distrib-·ᶜ δ _ _) ⟩
-       p ·ᶜ γ , x ≔ (p ·ᶜ δ) ⟨ x ⟩  ∎)
-    (emptyrecₘ (Conₘ-interchange γ▸t δ▸t x) η▸A)
-  where
-  open Tools.Reasoning.PropositionalEquality
-
-Conₘ-interchange starʷₘ starʷₘ x =
-  subst (_▸[ _ ] _) (PE.sym (update-self 𝟘ᶜ x)) starₘ
-
-Conₘ-interchange (starˢₘ {γ = γ} {m = m} prop) (starˢₘ {γ = δ} prop′) x =
-  sub (starˢₘ prop″)
-      (≤ᶜ-reflexive eq)
-  where
-  open Tools.Reasoning.Equivalence Conₘ-setoid
-  eq = begin
-    ⌜ m ⌝ ·ᶜ γ , x ≔ (⌜ m ⌝ ·ᶜ δ) ⟨ x ⟩  ≡⟨ cong (_ , _ ≔_) (lookup-distrib-·ᶜ δ ⌜ m ⌝ x) ⟩
-    ⌜ m ⌝ ·ᶜ γ , x ≔ (⌜ m ⌝ · δ ⟨ x ⟩)   ≡⟨ update-distrib-·ᶜ γ ⌜ m ⌝ (δ ⟨ x ⟩) x ⟩
-    ⌜ m ⌝ ·ᶜ (γ , x ≔ δ ⟨ x ⟩)           ∎
-  prop″ = λ ¬sink → begin
-    𝟘ᶜ                ≡˘⟨ 𝟘ᶜ,≔𝟘 ⟩
-    𝟘ᶜ , x ≔ 𝟘        ≡˘⟨ cong (𝟘ᶜ , x ≔_) (𝟘ᶜ-lookup x) ⟩
-    𝟘ᶜ , x ≔ 𝟘ᶜ ⟨ x ⟩  ≈⟨ update-cong (prop ¬sink) (lookup-cong (prop′ ¬sink)) ⟩
-    γ , x ≔ δ ⟨ x ⟩    ∎
-
-
-Conₘ-interchange (unitrecₘ {γ = γ} {p = p} {δ = δ} γ▸t δ▸u η▸A ok)
-                 (unitrecₘ {γ = γ′} {δ = δ′} γ′▸t δ′▸u _ _) x =
-  subst (_▸[ _ ] _)
-    (begin
-       p ·ᶜ (γ , x ≔ γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩)      ≡˘⟨ cong (_+ᶜ _) (update-distrib-·ᶜ γ p (γ′ ⟨ x ⟩) x) ⟩
-       (p ·ᶜ γ , x ≔ p · γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩)  ≡˘⟨ update-distrib-+ᶜ (p ·ᶜ γ) δ (p · γ′ ⟨ x ⟩) (δ′ ⟨ x ⟩) x ⟩
-       p ·ᶜ γ +ᶜ δ , x ≔ p · γ′ ⟨ x ⟩ + δ′ ⟨ x ⟩          ≡˘⟨ cong (p ·ᶜ γ +ᶜ δ , x ≔_) (cong (_+ _) (lookup-distrib-·ᶜ γ′ p x)) ⟩
-       p ·ᶜ γ +ᶜ δ , x ≔ (p ·ᶜ γ′) ⟨ x ⟩ + δ′ ⟨ x ⟩       ≡˘⟨ cong (_ , x ≔_) (lookup-distrib-+ᶜ (p ·ᶜ γ′) δ′ x) ⟩
-       p ·ᶜ γ +ᶜ δ , x ≔ (p ·ᶜ γ′ +ᶜ δ′) ⟨ x ⟩           ∎)
-    (unitrecₘ (Conₘ-interchange γ▸t γ′▸t x)
-              (Conₘ-interchange δ▸u δ′▸u x) η▸A ok)
-  where
-  open Tools.Reasoning.PropositionalEquality
-
-Conₘ-interchange
-  (Idₘ {δ = δ} {η = η} ok ▸A ▸t ▸u)
-  (Idₘ {δ = δ′} {η = η′} _ _ ▸t′ ▸u′) x =
-  subst (_▸[ _ ] _)
-    (begin
-       (δ , x ≔ δ′ ⟨ x ⟩) +ᶜ (η , x ≔ η′ ⟨ x ⟩)  ≡˘⟨ update-distrib-+ᶜ δ _ _ _ x ⟩
-       δ +ᶜ η , x ≔ δ′ ⟨ x ⟩ + η′ ⟨ x ⟩          ≡˘⟨ cong (_ , x ≔_) (lookup-distrib-+ᶜ δ′ _ _) ⟩
-       δ +ᶜ η , x ≔ (δ′ +ᶜ η′) ⟨ x ⟩             ∎)
-    (Idₘ ok ▸A (Conₘ-interchange ▸t ▸t′ x) (Conₘ-interchange ▸u ▸u′ x))
+       𝟘ᶜ , y ≔ ⌜ m ⌝ , x ≔ δ ⟨ x ⟩                 ≤⟨ update-monotoneʳ _ $ lookup-monotone _ $ inv-usage-var ▸var ⟩
+       𝟘ᶜ , y ≔ ⌜ m ⌝ , x ≔ (𝟘ᶜ , y ≔ ⌜ m ⌝) ⟨ x ⟩  ≡⟨ update-self _ _ ⟩
+       𝟘ᶜ , y ≔ ⌜ m ⌝                               ∎)
     where
-  open Tools.Reasoning.PropositionalEquality
+    open CR
 
-Conₘ-interchange (Id₀ₘ ok ▸A ▸t ▸u) (Id₀ₘ _ _ _ _) x =
-  subst (_▸[ _ ] _)
+  Conₘ-interchange {δ} Uₘ ▸U x = sub
+    Uₘ
     (begin
+       𝟘ᶜ , x ≔ δ ⟨ x ⟩   ≤⟨ update-monotoneʳ _ $ lookup-monotone _ $ inv-usage-U ▸U ⟩
+       𝟘ᶜ , x ≔ 𝟘ᶜ ⟨ x ⟩  ≡⟨ update-self _ _ ⟩
+       𝟘ᶜ                 ∎)
+    where
+    open CR
+
+  Conₘ-interchange {δ = η} (ΠΣₘ {γ} {δ} ▸t ▸u) ▸ΠΣ x =
+    case inv-usage-ΠΣ ▸ΠΣ of λ
+      (invUsageΠΣ {δ = γ′} {η = δ′} ▸t′ ▸u′ η≤γ′+δ′) → sub
+    (ΠΣₘ (Conₘ-interchange ▸t ▸t′ x) (Conₘ-interchange ▸u ▸u′ (x +1)))
+    (begin
+       γ +ᶜ δ , x ≔ η ⟨ x ⟩                      ≤⟨ update-monotoneʳ _ $ lookup-monotone _ η≤γ′+δ′ ⟩
+       γ +ᶜ δ , x ≔ (γ′ +ᶜ δ′) ⟨ x ⟩             ≡⟨ cong (_ , x ≔_) (lookup-distrib-+ᶜ γ′ _ _) ⟩
+       γ +ᶜ δ , x ≔ γ′ ⟨ x ⟩ + δ′ ⟨ x ⟩          ≡⟨ update-distrib-+ᶜ γ _ _ _ x ⟩
+       (γ , x ≔ γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩)  ∎)
+    where
+    open CR
+
+  Conₘ-interchange {δ} (lamₘ {γ} ▸t) ▸lam x =
+    case inv-usage-lam ▸lam of λ
+      (invUsageLam {δ = γ′} ▸t′ δ≤γ′) → sub
+    (lamₘ (Conₘ-interchange ▸t ▸t′ (x +1)))
+    (begin
+       γ , x ≔ δ ⟨ x ⟩   ≤⟨ update-monotoneʳ _ $ lookup-monotone _ δ≤γ′ ⟩
+       γ , x ≔ γ′ ⟨ x ⟩  ∎)
+    where
+    open CR
+
+  Conₘ-interchange {δ = η} (_∘ₘ_ {γ} {δ} {p} ▸t ▸u) ▸∘ x =
+    case inv-usage-app ▸∘ of λ
+      (invUsageApp {δ = γ′} {η = δ′} ▸t′ ▸u′ η≤γ′+pδ′) → sub
+    (Conₘ-interchange ▸t ▸t′ x ∘ₘ Conₘ-interchange ▸u ▸u′ x)
+    (begin
+       γ +ᶜ p ·ᶜ δ , x ≔ η ⟨ x ⟩                             ≤⟨ update-monotoneʳ _ $ lookup-monotone _ η≤γ′+pδ′ ⟩
+       (γ +ᶜ p ·ᶜ δ) , x ≔ (γ′ +ᶜ p ·ᶜ δ′) ⟨ x ⟩             ≡⟨ cong (_ , _ ≔_) $ lookup-distrib-+ᶜ γ′ _ _ ⟩
+       (γ +ᶜ p ·ᶜ δ) , x ≔ γ′ ⟨ x ⟩ + (p ·ᶜ δ′) ⟨ x ⟩        ≡⟨ update-distrib-+ᶜ _ _ _ _ _ ⟩
+       (γ , x ≔ γ′ ⟨ x ⟩) +ᶜ (p ·ᶜ δ , x ≔ (p ·ᶜ δ′) ⟨ x ⟩)  ≡⟨ cong (_ +ᶜ_) $ cong (_ , _ ≔_) $ lookup-distrib-·ᶜ δ′ _ _ ⟩
+       (γ , x ≔ γ′ ⟨ x ⟩) +ᶜ (p ·ᶜ δ , x ≔ p · δ′ ⟨ x ⟩)     ≡⟨ cong (_ +ᶜ_) $ update-distrib-·ᶜ _ _ _ _ ⟩
+       (γ , x ≔ γ′ ⟨ x ⟩) +ᶜ p ·ᶜ (δ , x ≔ δ′ ⟨ x ⟩)         ∎)
+    where
+    open CR
+
+  Conₘ-interchange {δ = η} (prodʷₘ {γ} {p} {δ} ▸t ▸u) ▸prod x =
+    case inv-usage-prodʷ ▸prod of λ
+      (invUsageProdʷ {δ = γ′} {η = δ′} ▸t′ ▸u′ η≤pγ′+δ′) → sub
+    (prodʷₘ (Conₘ-interchange ▸t ▸t′ x) (Conₘ-interchange ▸u ▸u′ x))
+    (begin
+       p ·ᶜ γ +ᶜ δ , x ≔ η ⟨ x ⟩                          ≤⟨ update-monotoneʳ _ $ lookup-monotone _ η≤pγ′+δ′ ⟩
+       p ·ᶜ γ +ᶜ δ , x ≔ (p ·ᶜ γ′ +ᶜ δ′) ⟨ x ⟩            ≡⟨ cong (_ , _ ≔_) $ lookup-distrib-+ᶜ (_ ·ᶜ γ′) _ _ ⟩
+       p ·ᶜ γ +ᶜ δ , x ≔ (p ·ᶜ γ′) ⟨ x ⟩ + δ′ ⟨ x ⟩       ≡⟨ cong (_,_≔_ _ _) $ cong (_+ _) $ lookup-distrib-·ᶜ γ′ _ _ ⟩
+       p ·ᶜ γ +ᶜ δ , x ≔ p · γ′ ⟨ x ⟩ + δ′ ⟨ x ⟩          ≡⟨ update-distrib-+ᶜ _ _ _ _ _ ⟩
+       (p ·ᶜ γ , x ≔ p · γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩)  ≡⟨ cong (_+ᶜ _) $ update-distrib-·ᶜ _ _ _ _ ⟩
+       p ·ᶜ (γ , x ≔ γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩)      ∎)
+    where
+    open CR
+
+  Conₘ-interchange {δ = η} (prodˢₘ {γ} {p} {δ} ▸t ▸u) ▸prod x =
+    case inv-usage-prodˢ ▸prod of λ
+      (invUsageProdˢ {δ = γ′} {η = δ′} ▸t′ ▸u′ η≤pγ′∧δ′) → sub
+    (prodˢₘ (Conₘ-interchange ▸t ▸t′ x) (Conₘ-interchange ▸u ▸u′ x))
+    (begin
+       p ·ᶜ γ ∧ᶜ δ , x ≔ η ⟨ x ⟩                          ≤⟨ update-monotoneʳ _ $ lookup-monotone _ η≤pγ′∧δ′ ⟩
+       p ·ᶜ γ ∧ᶜ δ , x ≔ (p ·ᶜ γ′ ∧ᶜ δ′) ⟨ x ⟩            ≡⟨ cong (_ , _ ≔_) $ lookup-distrib-∧ᶜ (_ ·ᶜ γ′) _ _ ⟩
+       p ·ᶜ γ ∧ᶜ δ , x ≔ (p ·ᶜ γ′) ⟨ x ⟩ ∧ δ′ ⟨ x ⟩       ≡⟨ cong (_,_≔_ _ _) $ cong (_∧ _) $ lookup-distrib-·ᶜ γ′ _ _ ⟩
+       p ·ᶜ γ ∧ᶜ δ , x ≔ p · γ′ ⟨ x ⟩ ∧ δ′ ⟨ x ⟩          ≡⟨ update-distrib-∧ᶜ _ _ _ _ _ ⟩
+       (p ·ᶜ γ , x ≔ p · γ′ ⟨ x ⟩) ∧ᶜ (δ , x ≔ δ′ ⟨ x ⟩)  ≡⟨ cong (_∧ᶜ _) $ update-distrib-·ᶜ _ _ _ _ ⟩
+       p ·ᶜ (γ , x ≔ γ′ ⟨ x ⟩) ∧ᶜ (δ , x ≔ δ′ ⟨ x ⟩)      ∎)
+    where
+    open CR
+
+  Conₘ-interchange {δ} (fstₘ {γ} m ▸t PE.refl ok) ▸fst x =
+    case inv-usage-fst ▸fst of λ
+      (invUsageFst {δ = γ′} _ _ ▸t′ δ≤γ′ _) → sub
+    (fstₘ m (Conₘ-interchange ▸t ▸t′ x) PE.refl ok)
+    (begin
+       γ , x ≔ δ ⟨ x ⟩   ≤⟨ update-monotoneʳ _ $ lookup-monotone _ δ≤γ′ ⟩
+       γ , x ≔ γ′ ⟨ x ⟩  ∎)
+    where
+    open CR
+
+  Conₘ-interchange {δ} (sndₘ {γ} ▸t) ▸snd x =
+    case inv-usage-snd ▸snd of λ
+      (invUsageSnd {δ = γ′} ▸t′ δ≤γ′) → sub
+    (sndₘ (Conₘ-interchange ▸t ▸t′ x))
+    (begin
+       γ , x ≔ δ ⟨ x ⟩   ≤⟨ update-monotoneʳ _ $ lookup-monotone _ δ≤γ′ ⟩
+       γ , x ≔ γ′ ⟨ x ⟩  ∎)
+    where
+    open CR
+
+  Conₘ-interchange {δ = η} (prodrecₘ {γ} {r} {δ} ▸t ▸u ▸A ok) ▸pr x =
+    case inv-usage-prodrec ▸pr of λ
+      (invUsageProdrec
+         {δ = γ′} {η = δ′} ▸t′ ▸u′ _ _ η≤rγ+δ′) → sub
+    (prodrecₘ (Conₘ-interchange ▸t ▸t′ x)
+       (Conₘ-interchange ▸u ▸u′ (x +2)) ▸A ok)
+    (begin
+       r ·ᶜ γ +ᶜ δ , x ≔ η ⟨ x ⟩                          ≤⟨ update-monotoneʳ _ $ lookup-monotone _ η≤rγ+δ′ ⟩
+       r ·ᶜ γ +ᶜ δ , x ≔ (r ·ᶜ γ′ +ᶜ δ′) ⟨ x ⟩            ≡⟨ cong (_,_≔_ _ _) $ lookup-distrib-+ᶜ (_ ·ᶜ γ′) _ _ ⟩
+       r ·ᶜ γ +ᶜ δ , x ≔ (r ·ᶜ γ′) ⟨ x ⟩ + δ′ ⟨ x ⟩       ≡⟨ cong (_,_≔_ _ _) $ cong (_+ _) $ lookup-distrib-·ᶜ γ′ _ _ ⟩
+       r ·ᶜ γ +ᶜ δ , x ≔ r · γ′ ⟨ x ⟩ + δ′ ⟨ x ⟩          ≡⟨ update-distrib-+ᶜ _ _ _ _ _ ⟩
+       (r ·ᶜ γ , x ≔ r · γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩)  ≡⟨ cong (_+ᶜ _) $ update-distrib-·ᶜ _ _ _ _ ⟩
+       r ·ᶜ (γ , x ≔ γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩)      ∎)
+    where
+    open CR
+
+  Conₘ-interchange {δ} Emptyₘ ▸Empty x = sub
+    Emptyₘ
+    (begin
+       𝟘ᶜ , x ≔ δ ⟨ x ⟩   ≤⟨ update-monotoneʳ _ $ lookup-monotone _ $ inv-usage-Empty ▸Empty ⟩
+       𝟘ᶜ , x ≔ 𝟘ᶜ ⟨ x ⟩  ≡⟨ update-self _ _ ⟩
+       𝟘ᶜ                 ∎)
+    where
+    open CR
+
+  Conₘ-interchange {δ} (emptyrecₘ {γ} {p} ▸t ▸A) ▸er x =
+    case inv-usage-emptyrec ▸er of λ
+      (invUsageemptyrec {δ = γ′} ▸t′ _ δ≤pγ′) → sub
+    (emptyrecₘ (Conₘ-interchange ▸t ▸t′ x) ▸A)
+    (begin
+       p ·ᶜ γ , x ≔ δ ⟨ x ⟩          ≤⟨ update-monotoneʳ _ $ lookup-monotone _ δ≤pγ′ ⟩
+       p ·ᶜ γ , x ≔ (p ·ᶜ γ′) ⟨ x ⟩  ≡⟨ cong (_ , _ ≔_) $ lookup-distrib-·ᶜ γ′ _ _ ⟩
+       p ·ᶜ γ , x ≔ p · (γ′ ⟨ x ⟩)   ≡⟨ update-distrib-·ᶜ _ _ _ _ ⟩
+       p ·ᶜ (γ , x ≔ γ′ ⟨ x ⟩)       ∎)
+    where
+    open CR
+
+  Conₘ-interchange {δ} Unitₘ ▸Unit x = sub
+    Unitₘ
+    (begin
+       𝟘ᶜ , x ≔ δ ⟨ x ⟩   ≤⟨ update-monotoneʳ _ $ lookup-monotone _ $ inv-usage-Unit ▸Unit ⟩
+       𝟘ᶜ , x ≔ 𝟘ᶜ ⟨ x ⟩  ≡⟨ update-self _ _ ⟩
+       𝟘ᶜ                 ∎)
+    where
+    open CR
+
+  Conₘ-interchange {δ} starʷₘ ▸star x = sub
+    starʷₘ
+    (begin
+       𝟘ᶜ , x ≔ δ ⟨ x ⟩   ≤⟨ update-monotoneʳ _ $ lookup-monotone _ $ inv-usage-starʷ ▸star ⟩
+       𝟘ᶜ , x ≔ 𝟘ᶜ ⟨ x ⟩  ≡⟨ update-self _ _ ⟩
+       𝟘ᶜ                 ∎)
+    where
+    open CR
+
+  Conₘ-interchange {δ} (starˢₘ {γ} {m} ok) ▸star x =
+    case inv-usage-starˢ ▸star of λ
+      (invUsageStarˢ {δ = γ′} δ≤⌜m⌝γ′ 𝟘≈γ′) → sub
+    (let open Tools.Reasoning.Equivalence Conₘ-setoid in
+     starˢₘ λ not-sink → begin
        𝟘ᶜ                 ≡˘⟨ update-self _ _ ⟩
-       𝟘ᶜ , x ≔ 𝟘ᶜ ⟨ x ⟩  ∎)
-    (Id₀ₘ ok ▸A ▸t ▸u)
-  where
-  open Tools.Reasoning.PropositionalEquality
+       𝟘ᶜ , x ≔ 𝟘ᶜ ⟨ x ⟩  ≈⟨ update-cong (ok not-sink) (lookup-cong $ 𝟘≈γ′ not-sink) ⟩
+       γ , x ≔ γ′ ⟨ x ⟩   ∎)
+    (let open CR in begin
+       ⌜ m ⌝ ·ᶜ γ , x ≔ δ ⟨ x ⟩              ≤⟨ update-monotoneʳ _ $ lookup-monotone _ δ≤⌜m⌝γ′ ⟩
+       ⌜ m ⌝ ·ᶜ γ , x ≔ (⌜ m ⌝ ·ᶜ γ′) ⟨ x ⟩  ≡⟨ cong (_ , _ ≔_) $ lookup-distrib-·ᶜ γ′ _ _ ⟩
+       ⌜ m ⌝ ·ᶜ γ , x ≔ ⌜ m ⌝ · γ′ ⟨ x ⟩     ≡⟨ update-distrib-·ᶜ _ _ _ _ ⟩
+       ⌜ m ⌝ ·ᶜ (γ , x ≔ γ′ ⟨ x ⟩)           ∎)
 
-Conₘ-interchange (Idₘ not-ok _ _ _) (Id₀ₘ ok _ _ _) =
-  ⊥-elim (not-ok ok)
-
-Conₘ-interchange (Id₀ₘ ok _ _ _) (Idₘ not-ok _ _ _) =
-  ⊥-elim (not-ok ok)
-
-Conₘ-interchange rflₘ rflₘ x =
-  subst (_▸[ _ ] _) (PE.sym (update-self 𝟘ᶜ x)) rflₘ
-
-Conₘ-interchange
-  (Jₘ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} ok ▸A ▸t₁ ▸F₁ ▸u₁ ▸v₁ ▸w₁)
-  (Jₘ {γ₂ = δ₂} {γ₃ = δ₃} {γ₄ = δ₄} {γ₅ = δ₅} {γ₆ = δ₆}
-     _ _ ▸t₂ ▸F₂ ▸u₂ ▸v₂ ▸w₂)
-  x =
-  subst (_▸[ _ ] _)
+  Conₘ-interchange {δ = η} (unitrecₘ {γ} {p} {δ} ▸t ▸u ▸A ok) ▸ur x =
+    case inv-usage-unitrec ▸ur of λ
+      (invUsageUnitrec {δ = γ′} {η = δ′} ▸t′ ▸u′ _ _ η≤pγ′+δ′) → sub
+    (unitrecₘ (Conₘ-interchange ▸t ▸t′ x) (Conₘ-interchange ▸u ▸u′ x) ▸A
+       ok)
     (begin
-       ω ·ᶜ
-       ((γ₂ , x ≔ δ₂ ⟨ x ⟩) ∧ᶜ (γ₃ , x ≔ δ₃ ⟨ x ⟩) ∧ᶜ
-        (γ₄ , x ≔ δ₄ ⟨ x ⟩) ∧ᶜ (γ₅ , x ≔ δ₅ ⟨ x ⟩) ∧ᶜ
-        (γ₆ , x ≔ δ₆ ⟨ x ⟩))                           ≡˘⟨ cong (ω ·ᶜ_) $
-                                                           trans (cong (_ , _ ≔_) $ lookup-distrib-∧ᶜ δ₂ _ _) $
-                                                           trans (update-distrib-∧ᶜ _ _ _ _ _) $
-                                                           cong (_ ∧ᶜ_) $
-                                                           trans (cong (_ , _ ≔_) $ lookup-distrib-∧ᶜ δ₃ _ _) $
-                                                           trans (update-distrib-∧ᶜ _ _ _ _ _) $
-                                                           cong (_ ∧ᶜ_) $
-                                                           trans (cong (_ , _ ≔_) $ lookup-distrib-∧ᶜ δ₄ _ _) $
-                                                           trans (update-distrib-∧ᶜ _ _ _ _ _) $
-                                                           cong (_ ∧ᶜ_) $
-                                                           trans (cong (_ , _ ≔_) $ lookup-distrib-∧ᶜ δ₅ _ _) $
-                                                           update-distrib-∧ᶜ _ _ _ _ _ ⟩
-       ω ·ᶜ
-       (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆ ,
-        x ≔ (δ₂ ∧ᶜ δ₃ ∧ᶜ δ₄ ∧ᶜ δ₅ ∧ᶜ δ₆) ⟨ x ⟩)        ≡˘⟨ update-distrib-·ᶜ _ _ _ _ ⟩
+       p ·ᶜ γ +ᶜ δ , x ≔ η ⟨ x ⟩                          ≤⟨ update-monotoneʳ _ $ lookup-monotone _ η≤pγ′+δ′ ⟩
+       p ·ᶜ γ +ᶜ δ , x ≔ (p ·ᶜ γ′ +ᶜ δ′) ⟨ x ⟩            ≡⟨ cong (_ , _ ≔_) $ lookup-distrib-+ᶜ (_ ·ᶜ γ′) _ _ ⟩
+       p ·ᶜ γ +ᶜ δ , x ≔ (p ·ᶜ γ′) ⟨ x ⟩ + δ′ ⟨ x ⟩       ≡⟨ cong (_,_≔_ _ _) $ cong (_+ _) $ lookup-distrib-·ᶜ γ′ _ _ ⟩
+       p ·ᶜ γ +ᶜ δ , x ≔ p · γ′ ⟨ x ⟩ + δ′ ⟨ x ⟩          ≡⟨ update-distrib-+ᶜ _ _ _ _ _ ⟩
+       (p ·ᶜ γ , x ≔ p · γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩)  ≡⟨ cong (_+ᶜ _) $ update-distrib-·ᶜ _ _ _ _ ⟩
+       p ·ᶜ (γ , x ≔ γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩)      ∎)
+    where
+    open CR
 
-
-       ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆) ,
-       x ≔ ω · (δ₂ ∧ᶜ δ₃ ∧ᶜ δ₄ ∧ᶜ δ₅ ∧ᶜ δ₆) ⟨ x ⟩      ≡˘⟨ cong (_ , _ ≔_) $ lookup-distrib-·ᶜ (δ₂ ∧ᶜ _) _ _ ⟩
-
-       ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆) ,
-       x ≔ (ω ·ᶜ (δ₂ ∧ᶜ δ₃ ∧ᶜ δ₄ ∧ᶜ δ₅ ∧ᶜ δ₆)) ⟨ x ⟩   ∎)
-    (Jₘ ok ▸A
-       (Conₘ-interchange ▸t₁ ▸t₂ x)
-       (Conₘ-interchange ▸F₁ ▸F₂ (x +2))
-       (Conₘ-interchange ▸u₁ ▸u₂ x)
-       (Conₘ-interchange ▸v₁ ▸v₂ x)
-       (Conₘ-interchange ▸w₁ ▸w₂ x))
-  where
-  open Tools.Reasoning.PropositionalEquality
-
-Conₘ-interchange
-  (J₀ₘ ok ▸A ▸t₁ ▸F₁ ▸u₁ ▸v₁ ▸w₁)
-  (J₀ₘ _ _ _ _ ▸u₂ _ _)
-  x =
-  J₀ₘ ok ▸A ▸t₁ ▸F₁ (Conₘ-interchange ▸u₁ ▸u₂ x) ▸v₁ ▸w₁
-
-Conₘ-interchange (Jₘ ≡none _ _ _ _ _ _) (J₀ₘ ≡all _ _ _ _ _ _) =
-  case trans (PE.sym ≡none) ≡all of λ ()
-
-Conₘ-interchange (J₀ₘ ≡all _ _ _ _ _ _) (Jₘ ≡none _ _ _ _ _ _) =
-  case trans (PE.sym ≡none) ≡all of λ ()
-
-Conₘ-interchange
-  (Kₘ {γ₂} {γ₃} {γ₄} {γ₅} ok ▸A ▸t₁ ▸F₁ ▸u₁ ▸v₁)
-  (Kₘ {γ₂ = δ₂} {γ₃ = δ₃} {γ₄ = δ₄} {γ₅ = δ₅}
-     _ _ ▸t₂ ▸F₂ ▸u₂ ▸v₂)
-  x =
-  subst (_▸[ _ ] _)
+  Conₘ-interchange {δ} ℕₘ ▸ℕ x = sub
+    ℕₘ
     (begin
-       ω ·ᶜ
-       ((γ₂ , x ≔ δ₂ ⟨ x ⟩) ∧ᶜ (γ₃ , x ≔ δ₃ ⟨ x ⟩) ∧ᶜ
-        (γ₄ , x ≔ δ₄ ⟨ x ⟩) ∧ᶜ (γ₅ , x ≔ δ₅ ⟨ x ⟩))    ≡˘⟨ cong (ω ·ᶜ_) $
-                                                           trans (cong (_ , _ ≔_) $ lookup-distrib-∧ᶜ δ₂ _ _) $
-                                                           trans (update-distrib-∧ᶜ _ _ _ _ _) $
-                                                           cong (_ ∧ᶜ_) $
-                                                           trans (cong (_ , _ ≔_) $ lookup-distrib-∧ᶜ δ₃ _ _) $
-                                                           trans (update-distrib-∧ᶜ _ _ _ _ _) $
-                                                           cong (_ ∧ᶜ_) $
-                                                           trans (cong (_ , _ ≔_) $ lookup-distrib-∧ᶜ δ₄ _ _) $
-                                                           update-distrib-∧ᶜ _ _ _ _ _ ⟩
-       ω ·ᶜ
-       (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ,
-        x ≔ (δ₂ ∧ᶜ δ₃ ∧ᶜ δ₄ ∧ᶜ δ₅) ⟨ x ⟩)              ≡˘⟨ update-distrib-·ᶜ _ _ _ _ ⟩
+       𝟘ᶜ , x ≔ δ ⟨ x ⟩   ≤⟨ update-monotoneʳ _ $ lookup-monotone _ $ inv-usage-ℕ ▸ℕ ⟩
+       𝟘ᶜ , x ≔ 𝟘ᶜ ⟨ x ⟩  ≡⟨ update-self _ _ ⟩
+       𝟘ᶜ                 ∎)
+    where
+    open CR
 
+  Conₘ-interchange {δ} zeroₘ ▸zero x = sub
+    zeroₘ
+    (begin
+       𝟘ᶜ , x ≔ δ ⟨ x ⟩   ≤⟨ update-monotoneʳ _ $ lookup-monotone _ $ inv-usage-zero ▸zero ⟩
+       𝟘ᶜ , x ≔ 𝟘ᶜ ⟨ x ⟩  ≡⟨ update-self _ _ ⟩
+       𝟘ᶜ                 ∎)
+    where
+    open CR
 
-       ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅) ,
-       x ≔ ω · (δ₂ ∧ᶜ δ₃ ∧ᶜ δ₄ ∧ᶜ δ₅) ⟨ x ⟩            ≡˘⟨ cong (_ , _ ≔_) $ lookup-distrib-·ᶜ (δ₂ ∧ᶜ _) _ _ ⟩
+  Conₘ-interchange {δ} (sucₘ {γ} ▸t) ▸suc x =
+    case inv-usage-suc ▸suc of λ
+      (invUsageSuc {δ = γ′} ▸t′ δ≤γ′) → sub
+    (sucₘ (Conₘ-interchange ▸t ▸t′ x))
+    (begin
+       γ , x ≔ δ ⟨ x ⟩   ≤⟨ update-monotoneʳ _ $ lookup-monotone _ δ≤γ′ ⟩
+       γ , x ≔ γ′ ⟨ x ⟩  ∎)
+    where
+    open CR
 
-       ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅) ,
-       x ≔ (ω ·ᶜ (δ₂ ∧ᶜ δ₃ ∧ᶜ δ₄ ∧ᶜ δ₅)) ⟨ x ⟩         ∎)
-    (Kₘ ok ▸A
-       (Conₘ-interchange ▸t₁ ▸t₂ x)
-       (Conₘ-interchange ▸F₁ ▸F₂ (x +1))
-       (Conₘ-interchange ▸u₁ ▸u₂ x)
-       (Conₘ-interchange ▸v₁ ▸v₂ x))
-  where
-  open Tools.Reasoning.PropositionalEquality
+  Conₘ-interchange
+    {δ = θ}
+    (natrecₘ {γ} {δ} {p} {r} {η} ⦃ has-nr = nr₁ ⦄ ▸z ▸s ▸n ▸A) ▸nr x =
+    case inv-usage-natrec ▸nr of λ {
+      (invUsageNatrec
+         {δ = γ′} {η = δ′} {θ = η′} ▸z′ ▸s′ ▸n′ _ θ≤ more) →
+    case more of λ where
+      (invUsageNatrecNoNr _ _ _ _) →
+        ⊥-elim not-nr-and-no-nr
+      (invUsageNatrecNr ⦃ has-nr = nr₂ ⦄) →
+        case Dedicated-nr-propositional nr₁ nr₂ of λ {
+          refl → sub
+        (natrecₘ (Conₘ-interchange ▸z ▸z′ x)
+           (Conₘ-interchange ▸s ▸s′ (x +2)) (Conₘ-interchange ▸n ▸n′ x)
+           ▸A)
+        (begin
+           nrᶜ p r γ δ η , x ≔ θ ⟨ x ⟩                                  ≤⟨ update-monotoneʳ _ $ lookup-monotone _ θ≤ ⟩
 
-Conₘ-interchange (K₀ₘ ok ▸A ▸t₁ ▸F₁ ▸u₁ ▸v₁) (K₀ₘ _ _ _ _ ▸u₂ _) x =
-  K₀ₘ ok ▸A ▸t₁ ▸F₁ (Conₘ-interchange ▸u₁ ▸u₂ x) ▸v₁
+           nrᶜ p r γ δ η , x ≔ nrᶜ p r γ′ δ′ η′ ⟨ x ⟩                   ≡⟨ cong (_ , _ ≔_) $ nrᶜ-⟨⟩ γ′ ⟩
 
-Conₘ-interchange (Kₘ ≡none _ _ _ _ _) (K₀ₘ ≡all _ _ _ _ _) =
-  case trans (PE.sym ≡none) ≡all of λ ()
+           nrᶜ p r γ δ η , x ≔ nr p r (γ′ ⟨ x ⟩) (δ′ ⟨ x ⟩) (η′ ⟨ x ⟩)  ≡˘⟨ ≈ᶜ→≡ nrᶜ-,≔ ⟩
 
-Conₘ-interchange (K₀ₘ ≡all _ _ _ _ _) (Kₘ ≡none _ _ _ _ _) =
-  case trans (PE.sym ≡none) ≡all of λ ()
+           nrᶜ p r (γ , x ≔ γ′ ⟨ x ⟩) (δ , x ≔ δ′ ⟨ x ⟩)
+             (η , x ≔ η′ ⟨ x ⟩)                                         ∎) }}
+    where
+    open CR
+    open import Graded.Modality.Dedicated-nr.Instance
 
-Conₘ-interchange ([]-congₘ ▸A₁ ▸t₁ ▸u₁ ▸v₁) ([]-congₘ _ _ _ _) x =
-  subst (_▸[ _ ] _)
-    (PE.sym (update-self 𝟘ᶜ x))
-    ([]-congₘ ▸A₁ ▸t₁ ▸u₁ ▸v₁)
+  Conₘ-interchange
+    {δ = θ}
+    (natrec-no-nrₘ {γ} {δ} {p} {r} {η} {χ} ⦃ no-nr = ¬nr ⦄
+       ▸z ▸s ▸n ▸A χ≤γ χ≤δ χ≤η fix)
+    ▸nr x =
+    case inv-usage-natrec ▸nr of λ {
+      (invUsageNatrec
+         {δ = γ′} {η = δ′} {θ = η′} {χ = χ′} ▸z′ ▸s′ ▸n′ _ θ≤χ′ more) →
+    case more of λ where
+      invUsageNatrecNr →
+        ⊥-elim not-nr-and-no-nr
+      (invUsageNatrecNoNr χ′≤γ′ χ′≤δ′ χ′≤η′ fix′) → sub
+        (natrec-no-nrₘ ⦃ no-nr = ¬nr ⦄ (Conₘ-interchange ▸z ▸z′ x)
+           (Conₘ-interchange ▸s ▸s′ (x +2)) (Conₘ-interchange ▸n ▸n′ x)
+           ▸A
+           (begin
+              χ , x ≔ χ′ ⟨ x ⟩  ≤⟨ update-monotone _ χ≤γ $ lookup-monotone _ χ′≤γ′ ⟩
+              γ , x ≔ γ′ ⟨ x ⟩  ∎)
+           (λ ok → begin
+              χ , x ≔ χ′ ⟨ x ⟩  ≤⟨ update-monotone _ (χ≤δ ok) (lookup-monotone _ (χ′≤δ′ ok)) ⟩
+              δ , x ≔ δ′ ⟨ x ⟩  ∎)
+           (begin
+              χ , x ≔ χ′ ⟨ x ⟩  ≤⟨ update-monotone _ χ≤η (lookup-monotone _ χ′≤η′) ⟩
+              η , x ≔ η′ ⟨ x ⟩  ∎)
+           (begin
+              χ , x ≔ χ′ ⟨ x ⟩                                    ≤⟨ update-monotone _ fix (lookup-monotone _ fix′) ⟩
+
+              δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ ,
+              x ≔ (δ′ +ᶜ p ·ᶜ η′ +ᶜ r ·ᶜ χ′) ⟨ x ⟩                ≈⟨ update-congʳ $
+                                                                     trans (lookup-distrib-+ᶜ δ′ _ _) $
+                                                                     cong (_ +_) $
+                                                                     trans (lookup-distrib-+ᶜ (_ ·ᶜ η′) _ _) $
+                                                                     cong₂ _+_
+                                                                       (lookup-distrib-·ᶜ η′ _ _)
+                                                                       (lookup-distrib-·ᶜ χ′ _ _) ⟩
+              δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ ,
+              x ≔ δ′ ⟨ x ⟩ + p · η′ ⟨ x ⟩ + r · χ′ ⟨ x ⟩          ≡⟨ trans (update-distrib-+ᶜ _ _ _ _ _) $
+                                                                     cong (_ +ᶜ_) $
+                                                                     trans (update-distrib-+ᶜ _ _ _ _ _) $
+                                                                     cong₂ _+ᶜ_
+                                                                       (update-distrib-·ᶜ _ _ _ _)
+                                                                       (update-distrib-·ᶜ _ _ _ _) ⟩
+              (δ , x ≔ δ′ ⟨ x ⟩) +ᶜ
+              p ·ᶜ (η , x ≔ η′ ⟨ x ⟩) +ᶜ r ·ᶜ (χ , x ≔ χ′ ⟨ x ⟩)  ∎))
+        (begin
+           χ , x ≔ θ ⟨ x ⟩   ≤⟨ update-monotoneʳ _ $ lookup-monotone _ θ≤χ′ ⟩
+           χ , x ≔ χ′ ⟨ x ⟩  ∎) }
+    where
+    open CR
+
+  Conₘ-interchange {δ = θ} (Idₘ {δ} {η} not-erased ▸A ▸t ▸u) ▸Id x =
+    case inv-usage-Id ▸Id of λ where
+      (invUsageId₀ erased _ _ _ _) →
+        ⊥-elim $ not-erased erased
+      (invUsageId {δ = δ′} {η = η′} _ _ ▸t′ ▸u′ θ≤δ′+η′) → sub
+        (Idₘ not-erased ▸A (Conₘ-interchange ▸t ▸t′ x)
+           (Conₘ-interchange ▸u ▸u′ x))
+        (begin
+           δ +ᶜ η , x ≔ θ ⟨ x ⟩                      ≤⟨ update-monotoneʳ _ $ lookup-monotone _ θ≤δ′+η′ ⟩
+           δ +ᶜ η , x ≔ (δ′ +ᶜ η′) ⟨ x ⟩             ≡⟨ cong (_ , _ ≔_) $ lookup-distrib-+ᶜ δ′ _ _ ⟩
+           δ +ᶜ η , x ≔ δ′ ⟨ x ⟩ + η′ ⟨ x ⟩          ≡⟨ update-distrib-+ᶜ _ _ _ _ _ ⟩
+           (δ , x ≔ δ′ ⟨ x ⟩) +ᶜ (η , x ≔ η′ ⟨ x ⟩)  ∎)
+    where
+    open CR
+
+  Conₘ-interchange {δ} (Id₀ₘ erased ▸A ▸t ▸u) ▸Id x =
+    case inv-usage-Id ▸Id of λ where
+      (invUsageId not-erased _ _ _ _) →
+        ⊥-elim $ not-erased erased
+      (invUsageId₀ _ _ ▸t′ ▸u′ γ≤𝟘) → sub
+        (Id₀ₘ erased ▸A (Conₘ-interchange ▸t ▸t′ x)
+           (Conₘ-interchange ▸u ▸u′ x))
+        (begin
+           𝟘ᶜ , x ≔ δ ⟨ x ⟩   ≤⟨ update-monotoneʳ _ $ lookup-monotone _ γ≤𝟘 ⟩
+           𝟘ᶜ , x ≔ 𝟘ᶜ ⟨ x ⟩  ≡⟨ update-self _ _ ⟩
+           𝟘ᶜ                 ∎)
+    where
+    open CR
+
+  Conₘ-interchange {δ} rflₘ ▸rfl x = sub
+    rflₘ
+    (begin
+       𝟘ᶜ , x ≔ δ ⟨ x ⟩   ≤⟨ update-monotoneʳ _ $ lookup-monotone _ $ inv-usage-rfl ▸rfl ⟩
+       𝟘ᶜ , x ≔ 𝟘ᶜ ⟨ x ⟩  ≡⟨ update-self _ _ ⟩
+       𝟘ᶜ                 ∎)
+    where
+    open CR
+
+  Conₘ-interchange
+    {δ = η} (Jₘ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} ≡none ▸A ▸t ▸F ▸u ▸v ▸w) ▸J x =
+    case inv-usage-J ▸J of λ where
+      (invUsageJ₀ ≡all _ _ _ _ _ _ _) →
+        case trans (PE.sym ≡none) ≡all of λ ()
+      (invUsageJ {γ₂ = δ₂} {γ₃ = δ₃} {γ₄ = δ₄} {γ₅ = δ₅} {γ₆ = δ₆}
+         _ _ ▸t′ ▸F′ ▸u′ ▸v′ ▸w′ η≤ω·) → sub
+        (Jₘ ≡none ▸A (Conₘ-interchange ▸t ▸t′ x)
+           (Conₘ-interchange ▸F ▸F′ (x +2)) (Conₘ-interchange ▸u ▸u′ x)
+           (Conₘ-interchange ▸v ▸v′ x) (Conₘ-interchange ▸w ▸w′ x))
+        (begin
+           ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆) , x ≔ η ⟨ x ⟩  ≤⟨ update-monotoneʳ _ $ lookup-monotone _ η≤ω· ⟩
+
+           ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆) ,
+           x ≔ (ω ·ᶜ (δ₂ ∧ᶜ δ₃ ∧ᶜ δ₄ ∧ᶜ δ₅ ∧ᶜ δ₆)) ⟨ x ⟩    ≡⟨ cong (_ , _ ≔_) $ lookup-distrib-·ᶜ (δ₂ ∧ᶜ _) _ _ ⟩
+
+           ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆) ,
+           x ≔ ω · (δ₂ ∧ᶜ δ₃ ∧ᶜ δ₄ ∧ᶜ δ₅ ∧ᶜ δ₆) ⟨ x ⟩       ≡⟨ update-distrib-·ᶜ _ _ _ _ ⟩
+
+           ω ·ᶜ
+           (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆ ,
+            x ≔ (δ₂ ∧ᶜ δ₃ ∧ᶜ δ₄ ∧ᶜ δ₅ ∧ᶜ δ₆) ⟨ x ⟩)         ≡⟨ cong (ω ·ᶜ_) $
+                                                               trans (cong (_ , _ ≔_) $ lookup-distrib-∧ᶜ δ₂ _ _) $
+                                                               trans (update-distrib-∧ᶜ _ _ _ _ _) $
+                                                               cong (_ ∧ᶜ_) $
+                                                               trans (cong (_ , _ ≔_) $ lookup-distrib-∧ᶜ δ₃ _ _) $
+                                                               trans (update-distrib-∧ᶜ _ _ _ _ _) $
+                                                               cong (_ ∧ᶜ_) $
+                                                               trans (cong (_ , _ ≔_) $ lookup-distrib-∧ᶜ δ₄ _ _) $
+                                                               trans (update-distrib-∧ᶜ _ _ _ _ _) $
+                                                               cong (_ ∧ᶜ_) $
+                                                               trans (cong (_ , _ ≔_) $ lookup-distrib-∧ᶜ δ₅ _ _) $
+                                                               update-distrib-∧ᶜ _ _ _ _ _ ⟩
+           ω ·ᶜ
+           ((γ₂ , x ≔ δ₂ ⟨ x ⟩) ∧ᶜ (γ₃ , x ≔ δ₃ ⟨ x ⟩) ∧ᶜ
+            (γ₄ , x ≔ δ₄ ⟨ x ⟩) ∧ᶜ (γ₅ , x ≔ δ₅ ⟨ x ⟩) ∧ᶜ
+            (γ₆ , x ≔ δ₆ ⟨ x ⟩))                            ∎)
+    where
+    open CR
+
+  Conₘ-interchange {δ} (J₀ₘ {γ₄} ≡all ▸A ▸t ▸F ▸u ▸v ▸w) ▸J x =
+    case inv-usage-J ▸J of λ where
+      (invUsageJ ≡none _ _ _ _ _ _ _) →
+        case trans (PE.sym ≡all) ≡none of λ ()
+      (invUsageJ₀ {γ₄ = γ₄′} _ _ _ _ ▸u′ _ _ δ≤γ₄′) → sub
+        (J₀ₘ ≡all ▸A ▸t ▸F (Conₘ-interchange ▸u ▸u′ x) ▸v ▸w)
+        (begin
+           γ₄ , x ≔ δ ⟨ x ⟩    ≤⟨ update-monotoneʳ _ $ lookup-monotone _ δ≤γ₄′ ⟩
+           γ₄ , x ≔ γ₄′ ⟨ x ⟩  ∎)
+    where
+    open CR
+
+  Conₘ-interchange
+    {δ = η} (Kₘ {γ₂} {γ₃} {γ₄} {γ₅} ≡none ▸A ▸t ▸F ▸u ▸v) ▸K x =
+    case inv-usage-K ▸K of λ where
+      (invUsageK₀ ≡all _ _ _ _ _ _) →
+        case trans (PE.sym ≡none) ≡all of λ ()
+      (invUsageK {γ₂ = δ₂} {γ₃ = δ₃} {γ₄ = δ₄} {γ₅ = δ₅}
+         _ _ ▸t′ ▸F′ ▸u′ ▸v′ η≤ω·) → sub
+        (Kₘ ≡none ▸A (Conₘ-interchange ▸t ▸t′ x)
+           (Conₘ-interchange ▸F ▸F′ (x +1)) (Conₘ-interchange ▸u ▸u′ x)
+           (Conₘ-interchange ▸v ▸v′ x))
+        (begin
+           ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅) , x ≔ η ⟨ x ⟩                  ≤⟨ update-monotoneʳ _ $ lookup-monotone _ η≤ω· ⟩
+
+           ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅) ,
+           x ≔ (ω ·ᶜ (δ₂ ∧ᶜ δ₃ ∧ᶜ δ₄ ∧ᶜ δ₅)) ⟨ x ⟩                    ≡⟨ cong (_ , _ ≔_) $ lookup-distrib-·ᶜ (δ₂ ∧ᶜ _) _ _ ⟩
+
+           ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅) ,
+           x ≔ ω · (δ₂ ∧ᶜ δ₃ ∧ᶜ δ₄ ∧ᶜ δ₅) ⟨ x ⟩                       ≡⟨ update-distrib-·ᶜ _ _ _ _ ⟩
+
+           ω ·ᶜ
+           (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ , x ≔ (δ₂ ∧ᶜ δ₃ ∧ᶜ δ₄ ∧ᶜ δ₅) ⟨ x ⟩)  ≡⟨ cong (ω ·ᶜ_) $
+                                                                         trans (cong (_ , _ ≔_) $ lookup-distrib-∧ᶜ δ₂ _ _) $
+                                                                         trans (update-distrib-∧ᶜ _ _ _ _ _) $
+                                                                         cong (_ ∧ᶜ_) $
+                                                                         trans (cong (_ , _ ≔_) $ lookup-distrib-∧ᶜ δ₃ _ _) $
+                                                                         trans (update-distrib-∧ᶜ _ _ _ _ _) $
+                                                                         cong (_ ∧ᶜ_) $
+                                                                         trans (cong (_ , _ ≔_) $ lookup-distrib-∧ᶜ δ₄ _ _) $
+                                                                         update-distrib-∧ᶜ _ _ _ _ _ ⟩
+           ω ·ᶜ
+           ((γ₂ , x ≔ δ₂ ⟨ x ⟩) ∧ᶜ (γ₃ , x ≔ δ₃ ⟨ x ⟩) ∧ᶜ
+            (γ₄ , x ≔ δ₄ ⟨ x ⟩) ∧ᶜ (γ₅ , x ≔ δ₅ ⟨ x ⟩))               ∎)
+    where
+    open CR
+
+  Conₘ-interchange {δ} (K₀ₘ {γ₄} ≡all ▸A ▸t ▸F ▸u ▸v) ▸K x =
+    case inv-usage-K ▸K of λ where
+      (invUsageK ≡none _ _ _ _ _ _) →
+        case trans (PE.sym ≡all) ≡none of λ ()
+      (invUsageK₀ {γ₄ = γ₄′} _ _ _ _ ▸u′ _ δ≤γ₄′) → sub
+        (K₀ₘ ≡all ▸A ▸t ▸F (Conₘ-interchange ▸u ▸u′ x) ▸v)
+        (begin
+           γ₄ , x ≔ δ ⟨ x ⟩    ≤⟨ update-monotoneʳ _ $ lookup-monotone _ δ≤γ₄′ ⟩
+           γ₄ , x ≔ γ₄′ ⟨ x ⟩  ∎)
+    where
+    open CR
+
+  Conₘ-interchange {δ} ([]-congₘ ▸A ▸t ▸u ▸v) ▸bc x =
+    case inv-usage-[]-cong ▸bc of λ
+      (invUsage-[]-cong _ _ _ _ δ≤𝟘) → sub
+    ([]-congₘ ▸A ▸t ▸u ▸v)
+    (begin
+       𝟘ᶜ , x ≔ δ ⟨ x ⟩   ≤⟨ update-monotoneʳ _ $ lookup-monotone _ δ≤𝟘 ⟩
+       𝟘ᶜ , x ≔ 𝟘ᶜ ⟨ x ⟩  ≡⟨ update-self _ _ ⟩
+       𝟘ᶜ                 ∎)
+    where
+    open CR
 
 -- Some variants of Conₘ-interchange
 
