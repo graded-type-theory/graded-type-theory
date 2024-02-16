@@ -52,10 +52,10 @@ record Semiring-with-meet : Set a where
   p < q = p ≤ q × p ≢ q
 
   field
-    -- The grade ω might stand for "an unlimited number of uses", but
-    -- the only requirement on ω is that it is bounded from above
-    -- by 𝟙, so it is fine to let ω be 𝟙.
-    ω≤𝟙 : ω ≤ 𝟙
+    -- In some modalities the grade ω stands for "an unlimited number
+    -- of uses", but the only requirement on ω is that it is bounded
+    -- from above by the meet of 𝟘 and 𝟙.
+    ω≤𝟘∧𝟙 : ω ≤ 𝟘 ∧ 𝟙
 
   -- A semiring with meet is said to be trivial if 𝟙 ≡ 𝟘.
   --

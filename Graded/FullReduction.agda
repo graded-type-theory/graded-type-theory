@@ -205,6 +205,11 @@ module _ (as : Full-reduction-assumptions) where
                    (fullRedConv↑ B↑ ▸B) (fullRedTermConv↑ u↑ ▸u)
                    (fullRedTermConv↑ v↑ ▸v) (fullRedNe~↓ w~ ▸w))
               γ≤
+          (invUsageJ′ ok ▸A ▸t ▸B ▸u ▸v ▸w γ≤) →
+            sub (Jₘ′ ok (fullRedConv↑ A↑ ▸A) (fullRedTermConv↑ t↑ ▸t)
+                   (fullRedConv↑ B↑ ▸B) (fullRedTermConv↑ u↑ ▸u)
+                   (fullRedTermConv↑ v↑ ▸v) (fullRedNe~↓ w~ ▸w))
+              γ≤
           (invUsageJ₀ ok ▸A ▸t ▸B ▸u ▸v ▸w γ≤) →
             sub (J₀ₘ ok (fullRedConv↑ A↑ ▸A) (fullRedTermConv↑ t↑ ▸t)
                    (fullRedConv↑ B↑ ▸B) (fullRedTermConv↑ u↑ ▸u)
@@ -214,6 +219,11 @@ module _ (as : Full-reduction-assumptions) where
         case inv-usage-K ▸K of λ where
           (invUsageK ok ▸A ▸t ▸B ▸u ▸v γ≤) →
             sub (Kₘ ok (fullRedConv↑ A↑ ▸A) (fullRedTermConv↑ t↑ ▸t)
+                   (fullRedConv↑ B↑ ▸B) (fullRedTermConv↑ u↑ ▸u)
+                   (fullRedNe~↓ v~ ▸v))
+              γ≤
+          (invUsageK′ ok ▸A ▸t ▸B ▸u ▸v γ≤) →
+            sub (Kₘ′ ok (fullRedConv↑ A↑ ▸A) (fullRedTermConv↑ t↑ ▸t)
                    (fullRedConv↑ B↑ ▸B) (fullRedTermConv↑ u↑ ▸u)
                    (fullRedNe~↓ v~ ▸v))
               γ≤

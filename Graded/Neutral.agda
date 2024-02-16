@@ -35,6 +35,7 @@ open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Properties 𝕄 UR
 
+open import Tools.Bool using (T)
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Product
@@ -136,6 +137,11 @@ opaque
                                                      proj₂ ∘→ ∧ᶜ-positive ⟩
         γ₆ ≈ᶜ 𝟘ᶜ                                  →⟨ helper w-n ⊢w ▸w ⟩
         ⊥                                         □ }
+      (Jₙ _) _ (Jₘ′ em _ _ _ _ _ _) →
+        case
+          PE.trans (PE.sym em)
+            (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₁)
+        of λ ()
       (Jₙ _) _ (J₀ₘ em _ _ _ _ _ _) →
         case
           PE.trans (PE.sym em)
@@ -153,6 +159,11 @@ opaque
                                                proj₂ ∘→ ∧ᶜ-positive ⟩
         γ₅ ≈ᶜ 𝟘ᶜ                            →⟨ helper v-n ⊢v ▸v ⟩
         ⊥                                   □ }
+      (Kₙ _) _ (Kₘ′ em _ _ _ _ _) →
+        case
+          PE.trans (PE.sym em)
+            (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₂)
+        of λ ()
       (Kₙ _) _ (K₀ₘ em _ _ _ _ _) →
         case
           PE.trans (PE.sym em)
@@ -206,38 +217,50 @@ opaque
 
 opaque
 
-  -- If erased matches are allowed for J (when the mode is 𝟙ᵐ), then
-  -- there is a well-typed, well-resourced, neutral term in a
+  -- If
+  --
+  -- * erased-matches-for-J 𝟙ᵐ is not equal to none, and
+  -- * if it is equal to some, then 𝟘ᵐ is allowed,
+  --
+  -- then there is a well-typed, well-resourced, neutral term in a
   -- consistent, erased context.
 
   neutral-well-resourced₃ :
     erased-matches-for-J 𝟙ᵐ ≢ none →
+    (erased-matches-for-J 𝟙ᵐ ≡ some → T 𝟘ᵐ-allowed) →
     ∃₄ λ n (Γ : Con Term n) (t A : Term n) →
     Consistent Γ ×
     Neutral t ×
     Γ ⊢ t ∷ A ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t
-  neutral-well-resourced₃ ok =
-    case soundness-ℕ-only-source-counterexample₃ ok of λ {
+  neutral-well-resourced₃ ok₁ ok₂ =
+    case soundness-ℕ-only-source-counterexample₃ ok₁ ok₂ of λ {
       (consistent , ⊢t , ▸t , _) →
     _ , _ , _ , _ , consistent , Jₙ (var _) , ⊢t , ▸t }
 
 opaque
 
-  -- If K is allowed and erased matches are allowed for K (when the
-  -- mode is 𝟙ᵐ), then there is a well-typed, well-resourced, neutral
-  -- term in a consistent, erased context.
+  -- If
+  --
+  -- * K-allowed holds,
+  -- * erased-matches-for-K 𝟙ᵐ is not equal to none, and
+  -- * if erased-matches-for-K 𝟙ᵐ is equal to some, then 𝟘ᵐ is
+  --   allowed,
+  --
+  -- then there is a well-typed, well-resourced, neutral term in a
+  -- consistent, erased context.
 
   neutral-well-resourced₄ :
     K-allowed →
     erased-matches-for-K 𝟙ᵐ ≢ none →
+    (erased-matches-for-K 𝟙ᵐ ≡ some → T 𝟘ᵐ-allowed) →
     ∃₄ λ n (Γ : Con Term n) (t A : Term n) →
     Consistent Γ ×
     Neutral t ×
     Γ ⊢ t ∷ A ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t
-  neutral-well-resourced₄ ok₁ ok₂ =
-    case soundness-ℕ-only-source-counterexample₄ ok₁ ok₂ of λ {
+  neutral-well-resourced₄ ok₁ ok₂ ok₃ =
+    case soundness-ℕ-only-source-counterexample₄ ok₁ ok₂ ok₃ of λ {
       (consistent , ⊢t , ▸t , _) →
     _ , _ , _ , _ , consistent , Kₙ (var _) , ⊢t , ▸t }
 

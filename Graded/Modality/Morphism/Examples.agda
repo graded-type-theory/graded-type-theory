@@ -225,7 +225,7 @@ erasure⇨zero-one-many {v₁ = v₁} {v₂ = v₂} {𝟙≤𝟘 = 𝟙≤𝟘} 
       .Is-morphism.tr-<-𝟘 not-ok ok          → ⊥-elim (not-ok ok)
       .Is-morphism.tr-𝟙                      → refl
       .Is-morphism.tr-ω                      → refl
-      .Is-morphism.tr-+ {p = p}              → ≤-reflexive (tr-+ p _)
+      .Is-morphism.tr-+ {p = p}              → tr-+ p _
       .Is-morphism.tr-· {p = p}              → tr-· p _
       .Is-morphism.tr-∧ {p = p}              → ≤-reflexive (tr-∧ p _)
       .Is-morphism.tr-nr {r = r} {z = z}     → ≤-reflexive
@@ -635,7 +635,7 @@ zero-one-many⇨erasure {v₂ = v₂} {𝟙≤𝟘 = 𝟙≤𝟘} refl s⇔s = �
     .Is-morphism.tr-<-𝟘 not-ok ok          → ⊥-elim (not-ok ok)
     .Is-morphism.tr-𝟙                      → refl
     .Is-morphism.tr-ω                      → refl
-    .Is-morphism.tr-+ {p = p}              → ≤-reflexive (tr-+ p _)
+    .Is-morphism.tr-+ {p = p}              → tr-+ p _
     .Is-morphism.tr-· {p = p}              → tr-· p _
     .Is-morphism.tr-∧ {p = p}              → ≤-reflexive (tr-∧ p _)
     .Is-morphism.tr-nr {r = r}             → ≤-reflexive
@@ -1304,7 +1304,7 @@ linearity⇨linear-or-affine {v₁ = v₁} {v₂ = v₂} refl s⇔s = λ where
       .Is-morphism.tr-<-𝟘 not-ok ok          → ⊥-elim (not-ok ok)
       .Is-morphism.tr-𝟙                      → refl
       .Is-morphism.tr-ω                      → refl
-      .Is-morphism.tr-+ {p = p}              → ≤-reflexive (tr-+ p _)
+      .Is-morphism.tr-+ {p = p}              → tr-+ p _
       .Is-morphism.tr-·                      → tr-· _ _
       .Is-morphism.tr-∧                      → tr-∧ _ _
       .Is-morphism.tr-nr {r = r}             → tr-nr _ r _ _ _
@@ -2946,7 +2946,7 @@ linear-or-affine⇨linearity {v₂ = v₂} refl s⇔s = λ where
     .Is-morphism.tr-<-𝟘 not-ok ok          → ⊥-elim (not-ok ok)
     .Is-morphism.tr-𝟙                      → refl
     .Is-morphism.tr-ω                      → refl
-    .Is-morphism.tr-+ {p = p}              → ≤-reflexive (tr-+ p _)
+    .Is-morphism.tr-+ {p = p}              → tr-+ p _
     .Is-morphism.tr-·                      → tr-· _ _
     .Is-morphism.tr-∧                      → ≤-reflexive (tr-∧ _ _)
     .Is-morphism.tr-nr {r = r}             → ≤-reflexive
@@ -4088,7 +4088,7 @@ affine⇨linear-or-affine {v₁ = v₁} {v₂ = v₂} refl s⇔s = λ where
       .Is-morphism.tr-<-𝟘 not-ok ok          → ⊥-elim (not-ok ok)
       .Is-morphism.tr-𝟙                      → refl
       .Is-morphism.tr-ω                      → refl
-      .Is-morphism.tr-+ {p = p}              → ≤-reflexive (tr-+ p _)
+      .Is-morphism.tr-+ {p = p}              → tr-+ p _
       .Is-morphism.tr-·                      → tr-· _ _
       .Is-morphism.tr-∧                      → ≤-reflexive (tr-∧ _ _)
       .Is-morphism.tr-nr {r = r}             → ≤-reflexive
@@ -5748,7 +5748,7 @@ linear-or-affine⇨affine {v₂ = v₂} refl s⇔s = λ where
     .Is-morphism.tr-<-𝟘 not-ok ok          → ⊥-elim (not-ok ok)
     .Is-morphism.tr-𝟙                      → refl
     .Is-morphism.tr-ω                      → refl
-    .Is-morphism.tr-+ {p = p}              → ≤-reflexive (tr-+ p _)
+    .Is-morphism.tr-+ {p = p}              → tr-+ p _
     .Is-morphism.tr-·                      → tr-· _ _
     .Is-morphism.tr-∧                      → ≤-reflexive (tr-∧ _ _)
     .Is-morphism.tr-nr {r = r}             → ≤-reflexive
@@ -6877,7 +6877,7 @@ affine⇨linearity {v₁ = v₁} {v₂ = v₂} refl s⇔s = λ where
     .Is-morphism.tr-<-𝟘 not-ok ok          → ⊥-elim (not-ok ok)
     .Is-morphism.tr-𝟙                      → refl
     .Is-morphism.tr-ω                      → refl
-    .Is-morphism.tr-+ {p = p}              → ≤-reflexive (tr-+ p _)
+    .Is-morphism.tr-+ {p = p}              → tr-+ p _
     .Is-morphism.tr-·                      → tr-· _ _
     .Is-morphism.tr-∧ {p = p}              → ≤-reflexive (tr-∧ p _)
     .Is-morphism.tr-nr {r = r}             → ≤-reflexive
@@ -7204,7 +7204,7 @@ linearity⇨affine {v₁ = v₁} {v₂ = v₂} refl s⇔s = λ where
     .Is-morphism.tr-<-𝟘 not-ok ok          → ⊥-elim (not-ok ok)
     .Is-morphism.tr-𝟙                      → refl
     .Is-morphism.tr-ω                      → refl
-    .Is-morphism.tr-+ {p = p}              → ≤-reflexive (tr-+ p _)
+    .Is-morphism.tr-+ {p = p}              → tr-+ p _
     .Is-morphism.tr-·                      → tr-· _ _
     .Is-morphism.tr-∧ {p = p}              → tr-∧ p _
     .Is-morphism.tr-nr {r = r}             → tr-nr _ r _ _ _

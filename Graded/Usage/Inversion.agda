@@ -407,6 +407,17 @@ data InvUsageJ
     γ₆ ▸[ m ] v →
     γ ≤ᶜ ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆) →
     InvUsageJ γ m p q A t B u t′ v
+  invUsageJ′ :
+    {γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ : Conₘ n} →
+    erased-matches-for-J m ≡ some →
+    γ₁ ▸[ 𝟘ᵐ? ] A →
+    γ₂ ▸[ m ᵐ· (p + q) ] t →
+    γ₃ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · q ▸[ m ] B →
+    γ₄ ▸[ m ] u →
+    γ₅ ▸[ m ᵐ· (p + q) ] t′ →
+    γ₆ ▸[ m ᵐ· (p + q) ] v →
+    γ ≤ᶜ ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆) →
+    InvUsageJ γ m p q A t B u t′ v
   invUsageJ₀ :
     {γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ : Conₘ n} →
     erased-matches-for-J m ≡ all →
@@ -425,11 +436,15 @@ inv-usage-J :
   γ ▸[ m ] J p q A t B u t′ v → InvUsageJ γ m p q A t B u t′ v
 inv-usage-J (Jₘ ok ▸A ▸t ▸B ▸u ▸t′ ▸v) =
   invUsageJ ok ▸A ▸t ▸B ▸u ▸t′ ▸v ≤ᶜ-refl
+inv-usage-J (Jₘ′ ok ▸A ▸t ▸B ▸u ▸t′ ▸v) =
+  invUsageJ′ ok ▸A ▸t ▸B ▸u ▸t′ ▸v ≤ᶜ-refl
 inv-usage-J (J₀ₘ ok ▸A ▸t ▸B ▸u ▸t′ ▸v) =
   invUsageJ₀ ok ▸A ▸t ▸B ▸u ▸t′ ▸v ≤ᶜ-refl
 inv-usage-J (sub γ′▸ γ≤γ′) with inv-usage-J γ′▸
 ... | invUsageJ ok ▸t ▸B ▸u ▸t′ ▸v ▸A γ′≤ =
   invUsageJ ok ▸t ▸B ▸u ▸t′ ▸v ▸A (≤ᶜ-trans γ≤γ′ γ′≤)
+... | invUsageJ′ ok ▸t ▸B ▸u ▸t′ ▸v ▸A γ′≤ =
+  invUsageJ′ ok ▸t ▸B ▸u ▸t′ ▸v ▸A (≤ᶜ-trans γ≤γ′ γ′≤)
 ... | invUsageJ₀ ok ▸t ▸B ▸u ▸t′ ▸v ▸A γ′≤ =
   invUsageJ₀ ok ▸t ▸B ▸u ▸t′ ▸v ▸A (≤ᶜ-trans γ≤γ′ γ′≤)
 
@@ -448,6 +463,16 @@ data InvUsageK
     γ₅ ▸[ m ] v →
     γ ≤ᶜ ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅) →
     InvUsageK γ m p A t B u v
+  invUsageK′ :
+    {γ₁ γ₂ γ₃ γ₄ γ₅ : Conₘ n} →
+    erased-matches-for-K m ≡ some →
+    γ₁ ▸[ 𝟘ᵐ? ] A →
+    γ₂ ▸[ m ᵐ· p ] t →
+    γ₃ ∙ ⌜ m ⌝ · p ▸[ m ] B →
+    γ₄ ▸[ m ] u →
+    γ₅ ▸[ m ᵐ· p ] v →
+    γ ≤ᶜ ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅) →
+    InvUsageK γ m p A t B u v
   invUsageK₀ :
     {γ₁ γ₂ γ₃ γ₄ γ₅ : Conₘ n} →
     erased-matches-for-K m ≡ all →
@@ -464,11 +489,15 @@ data InvUsageK
 inv-usage-K : γ ▸[ m ] K p A t B u v → InvUsageK γ m p A t B u v
 inv-usage-K (Kₘ ok ▸A ▸t ▸B ▸u ▸v) =
   invUsageK ok ▸A ▸t ▸B ▸u ▸v ≤ᶜ-refl
+inv-usage-K (Kₘ′ ok ▸A ▸t ▸B ▸u ▸v) =
+  invUsageK′ ok ▸A ▸t ▸B ▸u ▸v ≤ᶜ-refl
 inv-usage-K (K₀ₘ ok ▸A ▸t ▸B ▸u ▸v) =
   invUsageK₀ ok ▸A ▸t ▸B ▸u ▸v ≤ᶜ-refl
 inv-usage-K (sub γ′▸ γ≤γ′) with inv-usage-K γ′▸
 ... | invUsageK ok ▸t ▸B ▸u ▸v ▸A γ′≤ =
   invUsageK ok ▸t ▸B ▸u ▸v ▸A (≤ᶜ-trans γ≤γ′ γ′≤)
+... | invUsageK′ ok ▸t ▸B ▸u ▸v ▸A γ′≤ =
+  invUsageK′ ok ▸t ▸B ▸u ▸v ▸A (≤ᶜ-trans γ≤γ′ γ′≤)
 ... | invUsageK₀ ok ▸t ▸B ▸u ▸v ▸A γ′≤ =
   invUsageK₀ ok ▸t ▸B ▸u ▸v ▸A (≤ᶜ-trans γ≤γ′ γ′≤)
 

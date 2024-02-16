@@ -9,11 +9,10 @@ open import Definition.Untyped.NotParametrised
 module Graded.Derived.Unrestricted.Eta.Usage
   {a} {M : Set a}
   (𝕄 : Modality M)
-  (open Modality 𝕄)
   (R : Usage-restrictions 𝕄)
-  -- The quantity ω is strictly below 𝟘.
-  (ω<𝟘 : ω < 𝟘)
   where
+
+open Modality 𝕄
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
@@ -43,13 +42,13 @@ private
   -- The quantity ω is a right identity for _ᵐ·_.
 
   ᵐ·-identityʳ′ : m ᵐ· ω ≡ m
-  ᵐ·-identityʳ′ = ≢𝟘→ᵐ·≡  (ω<𝟘 .proj₂)
+  ᵐ·-identityʳ′ = ≢𝟘→ᵐ·≡′ 𝟘ᵐ.ω≢𝟘
 
   -- The quantity ω · p is bounded by 𝟘.
 
   ω·≤𝟘 : ω · p ≤ 𝟘
   ω·≤𝟘 {p = p} = begin
-    ω · p  ≤⟨ ·-monotoneˡ (ω<𝟘 .proj₁) ⟩
+    ω · p  ≤⟨ ·-monotoneˡ ω≤𝟘 ⟩
     𝟘 · p  ≈⟨ ·-zeroˡ _ ⟩
     𝟘      ∎
     where

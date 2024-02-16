@@ -2,6 +2,8 @@
 -- The usage relation is closed under weakening.
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 open import Graded.Modality using (Modality)
 open import Graded.Usage.Restrictions
 
@@ -239,6 +241,20 @@ wkUsage ρ
       wkConₘ ρ γ₆)                                                 ∎)
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+wkUsage ρ (Jₘ′ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} ok ▸A ▸t ▸B ▸u ▸t′ ▸v) = sub
+  (Jₘ′ ok (wkUsage _ ▸A) (wkUsage _ ▸t) (wkUsage _ ▸B) (wkUsage _ ▸u)
+     (wkUsage _ ▸t′) (wkUsage _ ▸v))
+  (begin
+     wkConₘ ρ (ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆))                  ≈⟨ ≈ᶜ-trans (wk-·ᶜ ρ) $ ·ᶜ-congˡ $
+                                                                      ≈ᶜ-trans (wk-∧ᶜ ρ) $ ∧ᶜ-congˡ $
+                                                                      ≈ᶜ-trans (wk-∧ᶜ ρ) $ ∧ᶜ-congˡ $
+                                                                      ≈ᶜ-trans (wk-∧ᶜ ρ) $ ∧ᶜ-congˡ $
+                                                                      wk-∧ᶜ ρ ⟩
+     ω ·ᶜ
+     (wkConₘ ρ γ₂ ∧ᶜ wkConₘ ρ γ₃ ∧ᶜ wkConₘ ρ γ₄ ∧ᶜ wkConₘ ρ γ₅ ∧ᶜ
+      wkConₘ ρ γ₆)                                                 ∎)
+  where
+  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 wkUsage _ (J₀ₘ ok ▸A ▸t ▸B ▸u ▸t′ ▸v) =
   J₀ₘ ok (wkUsage _ ▸A) (wkUsage _ ▸t) (wkUsage _ ▸B) (wkUsage _ ▸u)
     (wkUsage _ ▸t′) (wkUsage _ ▸v)
@@ -246,6 +262,17 @@ wkUsage ρ
   (Kₘ {γ₂ = γ₂} {γ₃ = γ₃} {γ₄ = γ₄} {γ₅ = γ₅}
      ok ▸A ▸t ▸B ▸u ▸v) = sub
   (Kₘ ok (wkUsage _ ▸A) (wkUsage _ ▸t) (wkUsage _ ▸B) (wkUsage _ ▸u)
+     (wkUsage _ ▸v))
+  (begin
+     wkConₘ ρ (ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅))                           ≈⟨ ≈ᶜ-trans (wk-·ᶜ ρ) $ ·ᶜ-congˡ $
+                                                                         ≈ᶜ-trans (wk-∧ᶜ ρ) $ ∧ᶜ-congˡ $
+                                                                         ≈ᶜ-trans (wk-∧ᶜ ρ) $ ∧ᶜ-congˡ $
+                                                                         wk-∧ᶜ ρ ⟩
+     ω ·ᶜ (wkConₘ ρ γ₂ ∧ᶜ wkConₘ ρ γ₃ ∧ᶜ wkConₘ ρ γ₄ ∧ᶜ wkConₘ ρ γ₅)  ∎)
+  where
+  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+wkUsage ρ (Kₘ′ {γ₂} {γ₃} {γ₄} {γ₅} ok ▸A ▸t ▸B ▸u ▸v) = sub
+  (Kₘ′ ok (wkUsage _ ▸A) (wkUsage _ ▸t) (wkUsage _ ▸B) (wkUsage _ ▸u)
      (wkUsage _ ▸v))
   (begin
      wkConₘ ρ (ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅))                           ≈⟨ ≈ᶜ-trans (wk-·ᶜ ρ) $ ·ᶜ-congˡ $
@@ -543,6 +570,23 @@ wkUsage⁻¹ ▸t = wkUsage⁻¹′ ▸t refl
         ω ·ᶜ
           (wkConₘ⁻¹ ρ γ₂ ∧ᶜ wkConₘ⁻¹ ρ γ₃ ∧ᶜ wkConₘ⁻¹ ρ γ₄ ∧ᶜ
            wkConₘ⁻¹ ρ γ₅ ∧ᶜ wkConₘ⁻¹ ρ γ₆)                     ∎ }
+      (Jₘ′ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} ok ▸A ▸t ▸B ▸u ▸t′ ▸v) eq →
+        case wk-J eq of λ {
+          (_ , _ , _ , _ , _ , _ ,
+           refl , refl , refl , refl , refl , refl , refl) →
+        sub
+          (Jₘ′ ok (wkUsage⁻¹ ▸A) (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸B)
+             (wkUsage⁻¹ ▸u) (wkUsage⁻¹ ▸t′) (wkUsage⁻¹ ▸v)) $ begin
+        wkConₘ⁻¹ ρ (ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆))         ≈⟨ wkConₘ⁻¹-·ᶜ ρ ⟩
+
+        ω ·ᶜ wkConₘ⁻¹ ρ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆)           ≈⟨ ·ᶜ-congˡ $
+                                                                  ≈ᶜ-trans (wkConₘ⁻¹-∧ᶜ ρ) $ ∧ᶜ-congˡ $
+                                                                  ≈ᶜ-trans (wkConₘ⁻¹-∧ᶜ ρ) $ ∧ᶜ-congˡ $
+                                                                  ≈ᶜ-trans (wkConₘ⁻¹-∧ᶜ ρ) $ ∧ᶜ-congˡ $
+                                                                  wkConₘ⁻¹-∧ᶜ ρ ⟩
+        ω ·ᶜ
+          (wkConₘ⁻¹ ρ γ₂ ∧ᶜ wkConₘ⁻¹ ρ γ₃ ∧ᶜ wkConₘ⁻¹ ρ γ₄ ∧ᶜ
+           wkConₘ⁻¹ ρ γ₅ ∧ᶜ wkConₘ⁻¹ ρ γ₆)                     ∎ }
       (J₀ₘ ok ▸A ▸t ▸B ▸u ▸t′ ▸v) eq →
         case wk-J eq of λ {
           (_ , _ , _ , _ , _ , _ ,
@@ -556,6 +600,22 @@ wkUsage⁻¹ ▸t = wkUsage⁻¹′ ▸t refl
            refl , refl , refl , refl , refl , refl) →
         sub
           (Kₘ ok (wkUsage⁻¹ ▸A) (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸B)
+             (wkUsage⁻¹ ▸u) (wkUsage⁻¹ ▸v)) $ begin
+        wkConₘ⁻¹ ρ (ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅))               ≈⟨ wkConₘ⁻¹-·ᶜ ρ ⟩
+
+        ω ·ᶜ wkConₘ⁻¹ ρ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅)                 ≈⟨ ·ᶜ-congˡ $
+                                                                  ≈ᶜ-trans (wkConₘ⁻¹-∧ᶜ ρ) $ ∧ᶜ-congˡ $
+                                                                  ≈ᶜ-trans (wkConₘ⁻¹-∧ᶜ ρ) $ ∧ᶜ-congˡ $
+                                                                  wkConₘ⁻¹-∧ᶜ ρ ⟩
+        ω ·ᶜ
+          (wkConₘ⁻¹ ρ γ₂ ∧ᶜ wkConₘ⁻¹ ρ γ₃ ∧ᶜ wkConₘ⁻¹ ρ γ₄ ∧ᶜ
+           wkConₘ⁻¹ ρ γ₅)                                      ∎ }
+      (Kₘ′ {γ₂} {γ₃} {γ₄} {γ₅} ok ▸A ▸t ▸B ▸u ▸v) eq →
+        case wk-K eq of λ {
+          (_ , _ , _ , _ , _ ,
+           refl , refl , refl , refl , refl , refl) →
+        sub
+          (Kₘ′ ok (wkUsage⁻¹ ▸A) (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸B)
              (wkUsage⁻¹ ▸u) (wkUsage⁻¹ ▸v)) $ begin
         wkConₘ⁻¹ ρ (ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅))               ≈⟨ wkConₘ⁻¹-·ᶜ ρ ⟩
 

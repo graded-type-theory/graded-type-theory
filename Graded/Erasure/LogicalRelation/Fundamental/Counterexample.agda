@@ -43,12 +43,14 @@ open import Graded.Erasure.Extraction 𝕄 is-𝟘?
 import Graded.Erasure.LogicalRelation TR is-𝟘? as LR
 import Graded.Erasure.LogicalRelation.Hidden TR is-𝟘? as LRH
 
+open import Tools.Bool using (T)
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Product
-open import Tools.PropositionalEquality using (_≢_)
+open import Tools.PropositionalEquality using (_≡_; _≢_)
 open import Tools.Relation
+open import Tools.Sum
 
 private variable
   p q : M
@@ -153,13 +155,18 @@ opaque
 
 opaque
 
-  -- If erased-matches-for-J 𝟙ᵐ is not equal to none, then one can
-  -- prove a negation of a variant of the statement of the fundamental
-  -- lemma without the assumption "erased matches are not allowed or
-  -- the context is empty".
+  -- If
+  --
+  -- * erased-matches-for-J 𝟙ᵐ is not equal to none, and
+  -- * if it is equal to some, then 𝟘ᵐ is allowed,
+  --
+  -- then one can prove a negation of a variant of the statement of
+  -- the fundamental lemma without the assumption "erased matches are
+  -- not allowed or the context is empty".
 
   negation-of-fundamental-lemma-with-erased-matches₃ :
     erased-matches-for-J 𝟙ᵐ ≢ none →
+    (erased-matches-for-J 𝟙ᵐ ≡ some → T 𝟘ᵐ-allowed) →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
        let open LR ⊢Δ in
        Consistent Δ →
@@ -167,8 +174,8 @@ opaque
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
        ∃₂ λ ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ]) →
          γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A / [Γ] / [A])
-  negation-of-fundamental-lemma-with-erased-matches₃ ok hyp =
-    case soundness-ℕ-only-source-counterexample₃ ok of λ
+  negation-of-fundamental-lemma-with-erased-matches₃ ≢none 𝟘ᵐ-ok hyp =
+    case soundness-ℕ-only-source-counterexample₃ ≢none 𝟘ᵐ-ok of λ
       (consistent , ⊢t , ▸t , _) →
     ¬t®t $ hidden-®-intro-fundamental non-trivial $
     hyp ⊢Δ consistent ⊢t ▸t
@@ -195,14 +202,21 @@ opaque
 
 opaque
 
-  -- If K-allowed holds and erased-matches-for-K 𝟙ᵐ is not equal to
-  -- none, then one can prove a negation of a variant of the statement
-  -- of the fundamental lemma without the assumption "erased matches
-  -- are not allowed or the context is empty".
+  -- If
+  --
+  -- * K-allowed holds,
+  -- * erased-matches-for-K 𝟙ᵐ is not equal to none, and
+  -- * if erased-matches-for-K 𝟙ᵐ is equal to some, then 𝟘ᵐ is
+  --   allowed,
+  --
+  -- then one can prove a negation of a variant of the statement of
+  -- the fundamental lemma without the assumption "erased matches are
+  -- not allowed or the context is empty".
 
   negation-of-fundamental-lemma-with-erased-matches₄ :
     K-allowed →
     erased-matches-for-K 𝟙ᵐ ≢ none →
+    (erased-matches-for-K 𝟙ᵐ ≡ some → T 𝟘ᵐ-allowed) →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
        let open LR ⊢Δ in
        Consistent Δ →
@@ -210,8 +224,9 @@ opaque
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
        ∃₂ λ ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ]) →
          γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A / [Γ] / [A])
-  negation-of-fundamental-lemma-with-erased-matches₄ K-ok K₀-ok hyp =
-    case soundness-ℕ-only-source-counterexample₄ K-ok K₀-ok of λ
+  negation-of-fundamental-lemma-with-erased-matches₄
+    K-ok ≢none 𝟘ᵐ-ok hyp =
+    case soundness-ℕ-only-source-counterexample₄ K-ok ≢none 𝟘ᵐ-ok of λ
       (consistent , ⊢t , ▸t , _) →
     ¬t®t $ hidden-®-intro-fundamental non-trivial $
     hyp ⊢Δ consistent ⊢t ▸t

@@ -970,7 +970,7 @@ record Is-non-empty-interval (S : Set a) : Set (lsuc (lsuc a)) where
       .Semiring-with-meet.𝟘             → 𝟘
       .Semiring-with-meet.𝟙             → 𝟙
       .Semiring-with-meet.ω             → ℕ
-      .Semiring-with-meet.ω≤𝟙           → ℕ-least
+      .Semiring-with-meet.ω≤𝟘∧𝟙         → ℕ-least
       .Semiring-with-meet.∧-Semilattice → ∪-semilattice
       .Semiring-with-meet.+-·-Semiring  → record
         { isSemiringWithoutAnnihilatingZero = record

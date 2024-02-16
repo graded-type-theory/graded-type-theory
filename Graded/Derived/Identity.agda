@@ -28,6 +28,7 @@ open import Graded.Usage.Weakening 𝕄 UR
 open import Definition.Untyped M
 open import Definition.Typed.Consequences.DerivedRules.Identity TR
 
+open import Tools.Bool
 open import Tools.Function
 import Tools.Reasoning.PartialOrder
 

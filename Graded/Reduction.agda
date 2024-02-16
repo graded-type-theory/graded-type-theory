@@ -3,6 +3,8 @@
 -- Notably, subject reduction.
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
@@ -78,8 +80,7 @@ usagePresTerm γ▸t (fst-subst x x₁ t⇒u) =
 usagePresTerm γ▸t (snd-subst x x₁ t⇒u) =
   let invUsageSnd ▸t γ≤ = inv-usage-snd γ▸t
   in  sub (sndₘ (usagePresTerm ▸t t⇒u)) γ≤
-usagePresTerm
-  {γ = γ} {m′} ▸t′ (Σ-β₁ {t = t} {p = p} _ _ _ _ PE.refl _) =
+usagePresTerm {γ} {m = m′} ▸t′ (Σ-β₁ {t} {p} _ _ _ _ PE.refl _) =
   case inv-usage-fst ▸t′ of λ where
     (invUsageFst {δ = δ} m PE.refl ▸tu γ≤δ fst-ok) →
       case inv-usage-prodˢ ▸tu of λ where
@@ -229,6 +230,9 @@ usagePresTerm γ▸ (J-subst _ _ _ _ _ v⇒v′) =
     (invUsageJ ok ▸A ▸t ▸B ▸u ▸t′ ▸v γ≤) → sub
       (Jₘ ok ▸A ▸t ▸B ▸u ▸t′ (usagePresTerm ▸v v⇒v′))
       γ≤
+    (invUsageJ′ ok ▸A ▸t ▸B ▸u ▸t′ ▸v γ≤) → sub
+      (Jₘ′ ok ▸A ▸t ▸B ▸u ▸t′ (usagePresTerm ▸v v⇒v′))
+      γ≤
     (invUsageJ₀ ok ▸A ▸t ▸B ▸u ▸t′ ▸v γ≤) → sub
       (J₀ₘ ok ▸A ▸t ▸B ▸u ▸t′ (usagePresTerm ▸v v⇒v′))
       γ≤
@@ -237,6 +241,9 @@ usagePresTerm γ▸ (K-subst _ _ _ _ v⇒v′ _) =
   case inv-usage-K γ▸ of λ where
     (invUsageK ok ▸A ▸t ▸B ▸u ▸v γ≤) → sub
       (Kₘ ok ▸A ▸t ▸B ▸u (usagePresTerm ▸v v⇒v′))
+      γ≤
+    (invUsageK′ ok ▸A ▸t ▸B ▸u ▸v γ≤) → sub
+      (Kₘ′ ok ▸A ▸t ▸B ▸u (usagePresTerm ▸v v⇒v′))
       γ≤
     (invUsageK₀ ok ▸A ▸t ▸B ▸u ▸v γ≤) → sub
       (K₀ₘ ok ▸A ▸t ▸B ▸u (usagePresTerm ▸v v⇒v′))
@@ -260,6 +267,16 @@ usagePresTerm {γ = γ} γ▸ (J-β _ _ _ _ _ _ _) =
                                                ∧ᶜ-decreasingˡ _ _ ⟩
          ω ·ᶜ γ₄                            ≤⟨ ω·ᶜ-decreasing ⟩
          γ₄                                 ∎)
+    (invUsageJ′ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} _ _ _ _ ▸u _ _ γ≤) → sub
+      ▸u
+      (begin
+         γ                                  ≤⟨ γ≤ ⟩
+         ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆)  ≤⟨ ·ᶜ-monotoneʳ $
+                                               ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
+                                               ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
+                                               ∧ᶜ-decreasingˡ _ _ ⟩
+         ω ·ᶜ γ₄                            ≤⟨ ω·ᶜ-decreasing ⟩
+         γ₄                                 ∎)
     (invUsageJ₀ _ _ _ _ ▸u _ _ γ≤) →
       sub ▸u γ≤
   where
@@ -269,6 +286,16 @@ usagePresTerm {γ = γ} γ▸ (K-β _ _ _ _) =
   case inv-usage-K γ▸ of λ where
     (invUsageK {γ₂ = γ₂} {γ₃ = γ₃} {γ₄ = γ₄} {γ₅ = γ₅}
        _ _ _ _ ▸u _ γ≤) → sub
+      ▸u
+      (begin
+         γ                            ≤⟨ γ≤ ⟩
+         ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅)  ≤⟨ ·ᶜ-monotoneʳ $
+                                         ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
+                                         ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
+                                         ∧ᶜ-decreasingˡ _ _ ⟩
+         ω ·ᶜ γ₄                      ≤⟨ ω·ᶜ-decreasing ⟩
+         γ₄                           ∎)
+    (invUsageK′ {γ₂} {γ₃} {γ₄} {γ₅} _ _ _ _ ▸u _ γ≤) → sub
       ▸u
       (begin
          γ                            ≤⟨ γ≤ ⟩

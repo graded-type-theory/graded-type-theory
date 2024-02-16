@@ -386,19 +386,25 @@ opaque
 
 opaque
 
-  -- If erased matches are allowed for J (when the mode is 𝟙ᵐ) and the
-  -- type Erased is allowed, then []-cong is supported for 𝟙ᵐ and
-  -- grades for which "Π 𝟘" are allowed.
+  -- If
+  --
+  -- * erased-matches-for-J 𝟙ᵐ is not equal to none,
+  -- * if it is equal to some, then 𝟘ᵐ is allowed, and
+  -- * the type Erased is allowed,
+  --
+  -- then []-cong is supported for 𝟙ᵐ and grades for which "Π 𝟘" are
+  -- allowed.
 
   J₀→[]-cong :
     erased-matches-for-J 𝟙ᵐ ≢ none →
+    (erased-matches-for-J 𝟙ᵐ PE.≡ some → T 𝟘ᵐ-allowed) →
     Erased-allowed s →
     Π-allowed 𝟘 q₁ →
     Π-allowed 𝟘 q₂ →
     Π-allowed 𝟘 q₃ →
     Π-allowed 𝟘 q₄ →
     Has-computing-[]-cong s 𝟙ᵐ q₁ q₂ q₃ q₄
-  J₀→[]-cong {s} J₀-ok Erased-ok ok₁ ok₂ ok₃ ok₄ =
+  J₀→[]-cong {s} ≢none 𝟘ᵐ-ok Erased-ok ok₁ ok₂ ok₃ ok₄ =
     case lamⱼ′ ok₁ $ lamⱼ′ ok₂ $ lamⱼ′ ok₃ $ lamⱼ′ ok₄ $
          Jⱼ′
            (Idⱼ ([]ⱼ Erased-ok (var₄ ⊢Id-4-3-0))
@@ -409,9 +415,29 @@ opaque
       ( []-cong′
       , (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
          lamₘ $ lamₘ $ lamₘ $ lamₘ $
-         sub (J₀ₘ (≢none→≡all J₀-ok) var var ▸Id rflₘ var var) $ begin
-           ε ∙ 𝟙 · 𝟘 ∙ 𝟙 · 𝟘 ∙ 𝟙 · 𝟘 ∙ 𝟙 · 𝟘  ≈⟨ ε ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
-           𝟘ᶜ                                 ∎)
+         case PE.singleton $ erased-matches-for-J 𝟙ᵐ of λ where
+           (all , ≡all) →
+             sub (J₀ₘ ≡all var var ▸[𝟘ᵐ?]Id rflₘ var var) $ begin
+               ε ∙ 𝟙 · 𝟘 ∙ 𝟙 · 𝟘 ∙ 𝟙 · 𝟘 ∙ 𝟙 · 𝟘  ≈⟨ ε ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
+               𝟘ᶜ                                 ∎
+           (some , ≡some) →
+             sub (Jₘ′ ≡some var var ▸[𝟙ᵐ]Id rflₘ var var) $ begin
+               𝟙 ·ᶜ 𝟘ᶜ                                                ≈⟨ ·ᶜ-zeroʳ _ ⟩
+
+               𝟘ᶜ                                                     ≈˘⟨ ω·ᶜ⋀ᶜ⁵𝟘ᶜ ⟩
+
+               ω ·ᶜ (𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ)                      ≡˘⟨ PE.cong
+                                                                            (λ m →
+                                                                               ω ·ᶜ
+                                                                               ((𝟘ᶜ , x2 ≔ ⌜ m ⌝) ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ
+                                                                                (𝟘ᶜ , x1 ≔ ⌜ m ⌝) ∧ᶜ (𝟘ᶜ ∙ ⌜ m ⌝))) $
+                                                                          PE.trans (PE.cong ⌞_⌟ $ +-identityʳ _) $
+                                                                          ⌞𝟘⌟ {ok = 𝟘ᵐ-ok ≡some} ⟩
+               ω ·ᶜ
+                 ((𝟘ᶜ , x2 ≔ ⌜ ⌞ 𝟘 + 𝟘 ⌟ ⌝) ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ
+                  (𝟘ᶜ , x1 ≔ ⌜ ⌞ 𝟘 + 𝟘 ⌟ ⌝) ∧ᶜ (𝟘ᶜ ∙ ⌜ ⌞ 𝟘 + 𝟘 ⌟ ⌝))  ∎
+           (none , ≡none) →
+             ⊥-elim $ ≢none ≡none)
       , ⊢[]-cong
       )
     , λ _ _ A t ⊢A ⊢t →
@@ -447,13 +473,10 @@ opaque
         (Id (Erased (var x5)) ([ var x4 ]) ([ var x1 ]))
         rfl (var x1) (var x0)
 
-    lemma : 𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘 ≈ᶜ 𝟘ᶜ {n = 6}
-    lemma = ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _
-
-    ▸Id :
+    ▸[𝟘ᵐ?]Id :
       𝟘ᶜ {n = 4} ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘 ▸[ 𝟘ᵐ? ]
         Id (Erased (var x5)) ([ var x4 ]) ([ var x1 ])
-    ▸Id = Idₘ′ (▸Erased var) (▸[] var) (▸[] var)
+    ▸[𝟘ᵐ?]Id = Idₘ′ (▸Erased var) (▸[] var) (▸[] var)
       (begin
          𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ lemma ⟩
          𝟘ᶜ                              ∎)
@@ -463,6 +486,26 @@ opaque
          𝟘ᶜ +ᶜ 𝟘ᶜ                        ∎)
       where
       open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+
+      lemma : 𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘 ≈ᶜ 𝟘ᶜ {n = 6}
+      lemma = ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _
+
+    ▸[𝟙ᵐ]Id :
+      𝟘ᶜ {n = 4} ∙ 𝟙 · 𝟘 ∙ 𝟙 · 𝟘 ▸[ 𝟙ᵐ ]
+        Id (Erased (var x5)) [ var x4 ] ([ var x1 ])
+    ▸[𝟙ᵐ]Id = Idₘ′ (▸Erased var) (▸[] var) (▸[] var)
+      (begin
+         𝟘ᶜ ∙ 𝟙 · 𝟘 ∙ 𝟙 · 𝟘  ≈⟨ lemma ⟩
+         𝟘ᶜ                  ∎)
+      (begin
+         𝟘ᶜ ∙ 𝟙 · 𝟘 ∙ 𝟙 · 𝟘  ≈⟨ lemma ⟩
+         𝟘ᶜ                  ≈˘⟨ +ᶜ-identityʳ _ ⟩
+         𝟘ᶜ +ᶜ 𝟘ᶜ            ∎)
+      where
+      open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+
+      lemma : 𝟘ᶜ ∙ 𝟙 · 𝟘 ∙ 𝟙 · 𝟘 ≈ᶜ 𝟘ᶜ {n = 6}
+      lemma = ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _
 
 opaque
 

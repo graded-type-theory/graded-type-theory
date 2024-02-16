@@ -52,14 +52,15 @@ import Graded.Erasure.LogicalRelation.Fundamental TR UR as LRF
 import Graded.Erasure.LogicalRelation.Irrelevance TR as LRI
 import Graded.Erasure.LogicalRelation.Subsumption TR as LRS
 
+open import Tools.Bool using (T)
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat
+open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 import Tools.Reasoning.PartialOrder
 open import Tools.Relation
-open import Tools.PropositionalEquality as PE using (_≢_)
+open import Tools.PropositionalEquality as PE using (_≡_; _≢_)
 open import Tools.Sum
 
 private
@@ -346,13 +347,19 @@ opaque
 
 opaque
 
-  -- If erased-matches-for-J 𝟙ᵐ is not equal to none, then there is a
-  -- counterexample to soundness-ℕ-only-source without the assumption
-  -- "erased matches are not allowed unless the context is empty" (and
-  -- without the assumption that the modality's zero is well-behaved).
+  -- If
+  --
+  -- * erased-matches-for-J 𝟙ᵐ is not equal to none, and
+  -- * if it is equal to some, then 𝟘ᵐ is allowed,
+  --
+  -- then there is a counterexample to soundness-ℕ-only-source without
+  -- the assumption "erased matches are not allowed unless the context
+  -- is empty" (and without the assumption that the modality's zero is
+  -- well-behaved).
 
   soundness-ℕ-only-source-counterexample₃ :
     erased-matches-for-J 𝟙ᵐ ≢ none →
+    (erased-matches-for-J 𝟙ᵐ ≡ some → T 𝟘ᵐ-allowed) →
     let Δ = ε ∙ Id ℕ zero zero
         t = J 𝟘 𝟘 ℕ zero ℕ zero zero (var {n = 1} x0)
     in
@@ -360,32 +367,56 @@ opaque
     Δ ⊢ t ∷ ℕ ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     ¬ ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
-  soundness-ℕ-only-source-counterexample₃ ok =
+  soundness-ℕ-only-source-counterexample₃ ≢none 𝟘ᵐ-ok =
     case ε ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε) of λ {
       ⊢Id →
       inhabited-consistent (singleSubst (rflⱼ (zeroⱼ ε)))
     , Jⱼ′ (ℕⱼ (J-motive-context (zeroⱼ ⊢Id))) (zeroⱼ ⊢Id) (var ⊢Id here)
-    , J₀ₘ (≢none→≡all ok) ℕₘ zeroₘ
-        (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
-         sub ℕₘ $ begin
-           𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
-           𝟘ᶜ                              ∎)
-        zeroₘ zeroₘ var
+    , (case PE.singleton $ erased-matches-for-J 𝟙ᵐ of λ where
+         (none , ≡none) →
+           ⊥-elim $ ≢none ≡none
+         (all , ≡all) →
+           J₀ₘ ≡all ℕₘ zeroₘ
+             (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
+              sub ℕₘ $ begin
+                𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
+                𝟘ᶜ                              ∎)
+             zeroₘ zeroₘ var
+         (some , ≡some) → sub
+           (Jₘ′ ≡some ℕₘ zeroₘ
+              (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
+               sub ℕₘ $ begin
+                 𝟘ᶜ ∙ 𝟙 · 𝟘 ∙ 𝟙 · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
+                 𝟘ᶜ                  ∎)
+              zeroₘ zeroₘ var)
+           (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+              𝟘ᶜ                                       ≈˘⟨ ω·ᶜ⋀ᶜ⁵𝟘ᶜ ⟩
+              ε ∙ ω · (𝟘 ∧ 𝟘 ∧ 𝟘 ∧ 𝟘 ∧ 𝟘)              ≡˘⟨ PE.cong (λ m → ε ∙ ω · (𝟘 ∧ 𝟘 ∧ 𝟘 ∧ 𝟘 ∧ ⌜ m ⌝)) $
+                                                           PE.trans (PE.cong ⌞_⌟ $ +-identityʳ _) $
+                                                           ⌞𝟘⌟ {ok = 𝟘ᵐ-ok ≡some} ⟩
+              ε ∙ ω · (𝟘 ∧ 𝟘 ∧ 𝟘 ∧ 𝟘 ∧ ⌜ ⌞ 𝟘 + 𝟘 ⌟ ⌝)  ∎))
     , (λ where
          (0    , whred J⇒ ⇨ˢ _) → whnfRedTerm J⇒ (ne (Jₙ (var _)))
          (1+ _ , whred J⇒ ⇨ˢ _) → whnfRedTerm J⇒ (ne (Jₙ (var _)))) }
 
 opaque
 
-  -- If K-allowed holds and erased-matches-for-K 𝟙ᵐ is not equal to
-  -- none, then there is a counterexample to soundness-ℕ-only-source
-  -- without the assumption "erased matches are not allowed unless the
-  -- context is empty" (and without the assumption that the modality's
-  -- zero is well-behaved).
+  -- If
+  --
+  -- * K-allowed holds,
+  -- * erased-matches-for-K 𝟙ᵐ is not equal to none, and
+  -- * if erased-matches-for-K 𝟙ᵐ is equal to some, then 𝟘ᵐ is
+  --   allowed,
+  --
+  -- then there is a counterexample to soundness-ℕ-only-source without
+  -- the assumption "erased matches are not allowed unless the context
+  -- is empty" (and without the assumption that the modality's zero is
+  -- well-behaved).
 
   soundness-ℕ-only-source-counterexample₄ :
     K-allowed →
     erased-matches-for-K 𝟙ᵐ ≢ none →
+    (erased-matches-for-K 𝟙ᵐ ≡ some → T 𝟘ᵐ-allowed) →
     let Δ = ε ∙ Id ℕ zero zero
         t = K 𝟘 ℕ zero ℕ zero (var {n = 1} x0)
     in
@@ -393,18 +424,34 @@ opaque
     Δ ⊢ t ∷ ℕ ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     ¬ ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
-  soundness-ℕ-only-source-counterexample₄ K-ok K₀-ok =
+  soundness-ℕ-only-source-counterexample₄ K-ok ≢none 𝟘ᵐ-ok =
     case ε ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε) of λ {
       ⊢Id →
       inhabited-consistent (singleSubst (rflⱼ (zeroⱼ ε)))
     , Kⱼ′ (ℕⱼ (K-motive-context (zeroⱼ ⊢Id))) (zeroⱼ ⊢Id) (var ⊢Id here)
         K-ok
-    , K₀ₘ (≢none→≡all K₀-ok) ℕₘ zeroₘ
-        (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
-         sub ℕₘ $ begin
-           𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
-           𝟘ᶜ                ∎)
-        zeroₘ var
+    , (case PE.singleton $ erased-matches-for-K 𝟙ᵐ of λ where
+         (none , ≡none) →
+           ⊥-elim $ ≢none ≡none
+         (all , ≡all) →
+           K₀ₘ ≡all ℕₘ zeroₘ
+             (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
+              sub ℕₘ $ begin
+                𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+                𝟘ᶜ                ∎)
+             zeroₘ var
+         (some , ≡some) → sub
+           (Kₘ′ ≡some ℕₘ zeroₘ
+              (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
+               sub ℕₘ $ begin
+                 𝟘ᶜ ∙ 𝟙 · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+                 𝟘ᶜ          ∎)
+              zeroₘ var)
+           (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+              𝟘ᶜ                               ≈˘⟨ ω·ᶜ⋀ᶜ⁴𝟘ᶜ ⟩
+              ε ∙ ω · (𝟘 ∧ 𝟘 ∧ 𝟘 ∧ 𝟘)          ≡˘⟨ PE.cong (λ m → ε ∙ ω · (𝟘 ∧ 𝟘 ∧ 𝟘 ∧ ⌜ m ⌝)) $
+                                                   ⌞𝟘⌟ {ok = 𝟘ᵐ-ok ≡some} ⟩
+              ε ∙ ω · (𝟘 ∧ 𝟘 ∧ 𝟘 ∧ ⌜ ⌞ 𝟘 ⌟ ⌝)  ∎))
     , (λ where
          (0    , whred K⇒ ⇨ˢ _) → whnfRedTerm K⇒ (ne (Kₙ (var _)))
          (1+ _ , whred K⇒ ⇨ˢ _) → whnfRedTerm K⇒ (ne (Kₙ (var _)))) }

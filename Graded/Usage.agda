@@ -78,14 +78,21 @@ mutual
     (yes _) → 𝟘ᶜ
     (no _)  → ⌈ t ⌉ m +ᶜ ⌈ u ⌉ m
   ⌈ rfl ⌉ _ = 𝟘ᶜ
-  ⌈ J _ _ _ t B u v w ⌉ m = case erased-matches-for-J m of λ where
+  ⌈ J p q _ t B u v w ⌉ m = case erased-matches-for-J m of λ where
     all  → ⌈ u ⌉ m
+    some →
+      ω ·ᶜ
+      (⌈ t ⌉ (m ᵐ· (p + q)) ∧ᶜ tailₘ (tailₘ (⌈ B ⌉ m)) ∧ᶜ
+       ⌈ u ⌉ m ∧ᶜ ⌈ v ⌉ (m ᵐ· (p + q)) ∧ᶜ ⌈ w ⌉ (m ᵐ· (p + q)))
     none →
       ω ·ᶜ
       (⌈ t ⌉ m ∧ᶜ tailₘ (tailₘ (⌈ B ⌉ m)) ∧ᶜ
        ⌈ u ⌉ m ∧ᶜ ⌈ v ⌉ m ∧ᶜ ⌈ w ⌉ m)
-  ⌈ K _ _ t B u v ⌉ m = case erased-matches-for-K m of λ where
+  ⌈ K p _ t B u v ⌉ m = case erased-matches-for-K m of λ where
     all  → ⌈ u ⌉ m
+    some →
+      ω ·ᶜ
+      (⌈ t ⌉ (m ᵐ· p) ∧ᶜ tailₘ (⌈ B ⌉ m) ∧ᶜ ⌈ u ⌉ m ∧ᶜ ⌈ v ⌉ (m ᵐ· p))
     none → ω ·ᶜ (⌈ t ⌉ m ∧ᶜ tailₘ (⌈ B ⌉ m) ∧ᶜ ⌈ u ⌉ m ∧ᶜ ⌈ v ⌉ m)
   ⌈ []-cong _ _ _ _ _ ⌉ _ = 𝟘ᶜ
 
@@ -193,6 +200,14 @@ open import Graded.Modality.Dedicated-nr.Instance
 -- Note that the K rule is active in the Agda code. However, the
 -- variant of the J rule with an erased motive P can be considered
 -- also in the absence of the K rule.
+--
+-- Yet another set of usage rules (where erased-matches-for-J and
+-- erased-matches-for-K are both equal to some) provides an
+-- alternative to []-cong. The given usage rule for J is intended to
+-- more or less give the power of []-cong (if 𝟘ᵐ is allowed). At the
+-- time of writing this formalisation does not contain a complete
+-- proof of this, but Graded.Box-cong.J₀→[]-cong shows that one can
+-- define something like []-cong using J.
 data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
   Uₘ        : 𝟘ᶜ ▸[ m ] U
   ℕₘ        : 𝟘ᶜ ▸[ m ] ℕ
@@ -327,6 +342,14 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → γ₅ ▸[ m ] v
             → γ₆ ▸[ m ] w
             → ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆) ▸[ m ] J p q A t B u v w
+  Jₘ′       : erased-matches-for-J m ≡ some
+            → γ₁ ▸[ 𝟘ᵐ? ] A
+            → γ₂ ▸[ m ᵐ· (p + q) ] t
+            → γ₃ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · q ▸[ m ] B
+            → γ₄ ▸[ m ] u
+            → γ₅ ▸[ m ᵐ· (p + q) ] v
+            → γ₆ ▸[ m ᵐ· (p + q) ] w
+            → ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆) ▸[ m ] J p q A t B u v w
   J₀ₘ       : erased-matches-for-J m ≡ all
             → γ₁ ▸[ 𝟘ᵐ? ] A
             → γ₂ ▸[ 𝟘ᵐ? ] t
@@ -341,6 +364,13 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → γ₃ ∙ ⌜ m ⌝ · p ▸[ m ] B
             → γ₄ ▸[ m ] u
             → γ₅ ▸[ m ] v
+            → ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅) ▸[ m ] K p A t B u v
+  Kₘ′       : erased-matches-for-K m ≡ some
+            → γ₁ ▸[ 𝟘ᵐ? ] A
+            → γ₂ ▸[ m ᵐ· p ] t
+            → γ₃ ∙ ⌜ m ⌝ · p ▸[ m ] B
+            → γ₄ ▸[ m ] u
+            → γ₅ ▸[ m ᵐ· p ] v
             → ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅) ▸[ m ] K p A t B u v
   K₀ₘ       : erased-matches-for-K m ≡ all
             → γ₁ ▸[ 𝟘ᵐ? ] A

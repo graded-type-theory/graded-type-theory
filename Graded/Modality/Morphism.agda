@@ -99,8 +99,8 @@ record Is-morphism
     -- The translation of ω is bounded by ω.
     tr-ω : tr M₁.ω ≤ M₂.ω
 
-    -- The translation commutes with addition up to _≤_.
-    tr-+ : ∀ {p q} → tr (p M₁.+ q) ≤ tr p M₂.+ tr q
+    -- The translation commutes with addition.
+    tr-+ : ∀ {p q} → tr (p M₁.+ q) ≡ tr p M₂.+ tr q
 
     -- The translation commutes with multiplication.
     tr-· : ∀ {p q} → tr (p M₁.· q) ≡ tr p M₂.· tr q
@@ -503,7 +503,7 @@ Is-order-embedding-id {𝕄 = 𝕄} = λ where
       .tr-ω                                    → ≤-refl
       .tr-𝟘-≤                                  → ≤-refl
       .tr-≡-𝟘-⇔ _                              → idᶠ , idᶠ
-      .tr-+                                    → ≤-refl
+      .tr-+                                    → refl
       .tr-·                                    → refl
       .tr-∧                                    → ≤-refl
       .first-trivial-if-second-trivial         → idᶠ
@@ -587,9 +587,10 @@ Is-morphism-∘
        tr₁ (tr₂ M₁.ω)  ≤⟨ F.tr-monotone G.tr-ω ⟩
        tr₁ M₂.ω        ≤⟨ F.tr-ω ⟩
        M₃.ω            ∎
-    .Is-morphism.tr-+ {p = p} {q = q} → let open R in begin
-      tr₁ (tr₂ (p M₁.+ q))          ≤⟨ F.tr-monotone G.tr-+ ⟩
-      tr₁ (tr₂ p M₂.+ tr₂ q)        ≤⟨ F.tr-+ ⟩
+    .Is-morphism.tr-+ {p = p} {q = q} →
+      let open Tools.Reasoning.PropositionalEquality in
+      tr₁ (tr₂ (p M₁.+ q))          ≡⟨ cong tr₁ G.tr-+ ⟩
+      tr₁ (tr₂ p M₂.+ tr₂ q)        ≡⟨ F.tr-+ ⟩
       tr₁ (tr₂ p) M₃.+ tr₁ (tr₂ q)  ∎
     .Is-morphism.tr-· {p = p} {q = q} →
       let open Tools.Reasoning.PropositionalEquality in

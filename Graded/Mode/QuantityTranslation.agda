@@ -36,7 +36,7 @@ import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
 
 private variable
-  p          : M₁
+  p q        : M₁
   m m₁ m₂ m′ : Mode _
   b          : BinderMode
 
@@ -266,6 +266,20 @@ module Is-morphism
              Mo₂.⌞ tr′ p ⌟  ≡⟨ tr-p≡ ⟩
              Mo₂.𝟘ᵐ         ∎
            of λ ())
+
+  opaque
+
+    -- A corollary of tr-Mode-ᵐ·.
+
+    tr-Mode-ᵐ·-+ :
+      ∀ m →
+      tr-Mode (m Mo₁.ᵐ· (p M₁.+ q)) ≡ tr-Mode m Mo₂.ᵐ· (tr p M₂.+ tr q)
+    tr-Mode-ᵐ·-+ {p} {q} m =
+      tr-Mode (m Mo₁.ᵐ· (p M₁.+ q))      ≡⟨ tr-Mode-ᵐ· m _ ⟩
+      tr-Mode m Mo₂.ᵐ· tr (p M₁.+ q)     ≡⟨ cong (tr-Mode m Mo₂.ᵐ·_) tr-+ ⟩
+      tr-Mode m Mo₂.ᵐ· (tr p M₂.+ tr q)  ∎
+      where
+      open Tools.Reasoning.PropositionalEquality
 
   -- Translation is injective
 

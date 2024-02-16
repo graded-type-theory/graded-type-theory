@@ -90,6 +90,30 @@ private
   where
   open Tools.Reasoning.PropositionalEquality
 
+opaque
+
+  -- The grade ω is bounded by 𝟘.
+
+  ω≤𝟘 : ω ≤ 𝟘
+  ω≤𝟘 = begin
+    ω      ≤⟨ ω≤𝟘∧𝟙 ⟩
+    𝟘 ∧ 𝟙  ≤⟨ ∧-decreasingˡ _ _ ⟩
+    𝟘      ∎
+    where
+    open Tools.Reasoning.PartialOrder ≤-poset
+
+opaque
+
+  -- The grade ω is bounded by 𝟙.
+
+  ω≤𝟙 : ω ≤ 𝟙
+  ω≤𝟙 = begin
+    ω      ≤⟨ ω≤𝟘∧𝟙 ⟩
+    𝟘 ∧ 𝟙  ≤⟨ ∧-decreasingʳ _ _ ⟩
+    𝟙      ∎
+    where
+    open Tools.Reasoning.PartialOrder ≤-poset
+
 -- If _≤_ is total, then p ∧ q ≤ r holds if and only if either p ≤ r
 -- or q ≤ r holds.
 

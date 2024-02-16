@@ -198,6 +198,11 @@ neNeg {γ} (Jⱼ {A} {t} {B} {v} {w} _ ⊢t _ _ ⊢v ⊢w) (Jₙ w-ne) ▸J =
       NegativeType Γ (Id A t v)                                    →⟨ flip ¬negId (refl (Idⱼ ⊢t ⊢v)) ⟩
       ⊥                                                            →⟨ ⊥-elim ⟩
       NegativeType Γ (B [ v , w ]₁₀)                               □
+    (invUsageJ′ em _ _ _ _ _ _ _) →
+      case
+        PE.trans (PE.sym em)
+          (no-erased-matches non-trivial .proj₂ .proj₂ .proj₂ .proj₁)
+      of λ ()
     (invUsageJ₀ em _ _ _ _ _ _ _) →
       case
         PE.trans (PE.sym em)
@@ -216,6 +221,11 @@ neNeg {γ} (Kⱼ {t} {A} {B} {v} ⊢t _ _ ⊢v ok) (Kₙ v-ne) ▸K =
       NegativeType Γ (Id A t t)                              →⟨ flip ¬negId (refl (Idⱼ ⊢t ⊢t)) ⟩
       ⊥                                                      →⟨ ⊥-elim ⟩
       NegativeType Γ (B [ v ]₀)                              □
+    (invUsageK′ em _ _ _ _ _ _) →
+      case
+        PE.trans (PE.sym em)
+          (no-erased-matches non-trivial .proj₂ .proj₂ .proj₂ .proj₂)
+      of λ ()
     (invUsageK₀ em _ _ _ _ _ _) →
       case
         PE.trans (PE.sym em)

@@ -112,9 +112,9 @@ module Is-morphism (m : Is-morphism 𝕄₁ 𝕄₂ tr) where
   tr-Conₘ-𝟘ᶜ-≤ᶜ {n = 0}    = CP₂.≤ᶜ-refl
   tr-Conₘ-𝟘ᶜ-≤ᶜ {n = 1+ _} = tr-Conₘ-𝟘ᶜ-≤ᶜ ∙ tr-𝟘-≤
 
-  -- Translation commutes with _+ᶜ_ up to _≤ᶜ_.
+  -- Translation commutes with _+ᶜ_.
 
-  tr-Conₘ-+ᶜ : tr-Conₘ (γ C₁.+ᶜ δ) ≤ᶜ tr-Conₘ γ C₂.+ᶜ tr-Conₘ δ
+  tr-Conₘ-+ᶜ : tr-Conₘ (γ C₁.+ᶜ δ) ≈ᶜ tr-Conₘ γ C₂.+ᶜ tr-Conₘ δ
   tr-Conₘ-+ᶜ {γ = ε}     {δ = ε}     = ε
   tr-Conₘ-+ᶜ {γ = _ ∙ _} {δ = _ ∙ _} = tr-Conₘ-+ᶜ ∙ tr-+
 

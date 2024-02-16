@@ -63,7 +63,8 @@ record Usage-restrictions : Set (lsuc a) where
     erased-matches-for-J : Mode → Erased-matches
 
     -- The usage rule for J is at least as permissive for 𝟘ᵐ[ ok ] as
-    -- for 𝟙ᵐ. (See Graded.Usage.Properties.Jₘ-generalised.)
+    -- for 𝟙ᵐ. (See Graded.Usage.Properties.Jₘ-generalised and
+    -- Graded.Usage.Properties.Jₘ′-generalised.)
     erased-matches-for-J-≤ᵉᵐ :
       erased-matches-for-J 𝟙ᵐ ≤ᵉᵐ erased-matches-for-J 𝟘ᵐ[ ok ]
 
@@ -72,7 +73,8 @@ record Usage-restrictions : Set (lsuc a) where
     erased-matches-for-K : Mode → Erased-matches
 
     -- The usage rule for K is at least as permissive for 𝟘ᵐ[ ok ] as
-    -- for 𝟙ᵐ. (See Graded.Usage.Properties.Kₘ-generalised.)
+    -- for 𝟙ᵐ. (See Graded.Usage.Properties.Kₘ-generalised and
+    -- Graded.Usage.Properties.Kₘ′-generalised.)
     erased-matches-for-K-≤ᵉᵐ :
       erased-matches-for-K 𝟙ᵐ ≤ᵉᵐ erased-matches-for-K 𝟘ᵐ[ ok ]
 
@@ -153,7 +155,8 @@ record Usage-restrictions : Set (lsuc a) where
   opaque
 
     -- The usage rule for J is at least as permissive for m′ ·ᵐ m as
-    -- for m. (See Graded.Usage.Properties.Jₘ-generalised.)
+    -- for m. (See Graded.Usage.Properties.Jₘ-generalised and
+    -- Graded.Usage.Properties.Jₘ′-generalised.)
 
     erased-matches-for-J-≤ᵉᵐ·ᵐ :
       erased-matches-for-J m ≤ᵉᵐ erased-matches-for-J (m′ ·ᵐ m)
@@ -163,7 +166,8 @@ record Usage-restrictions : Set (lsuc a) where
   opaque
 
     -- The usage rule for K is at least as permissive for m′ ·ᵐ m as
-    -- for m. (See Graded.Usage.Properties.Kₘ-generalised.)
+    -- for m. (See Graded.Usage.Properties.Kₘ-generalised and
+    -- Graded.Usage.Properties.Kₘ′-generalised.)
 
     erased-matches-for-K-≤ᵉᵐ·ᵐ :
       erased-matches-for-K m ≤ᵉᵐ erased-matches-for-K (m′ ·ᵐ m)
