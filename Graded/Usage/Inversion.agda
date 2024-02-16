@@ -316,14 +316,22 @@ inv-usage-starʷ : γ ▸[ m ] starʷ → γ ≤ᶜ 𝟘ᶜ
 inv-usage-starʷ starʷₘ = ≤ᶜ-refl
 inv-usage-starʷ (sub  δ▸star γ≤δ) = ≤ᶜ-trans γ≤δ (inv-usage-starʷ δ▸star)
 
--- If γ ▸[ m ] starˢ and the strong unit type cannot be used as a sink
--- then 𝟘ᶜ ≈ᶜ γ.
+-- A type used to state inv-usage-starˢ.
 
-inv-usage-starˢ : γ ▸[ m ] starˢ → (¬Starˢ-sink → γ ≤ᶜ 𝟘ᶜ)
-inv-usage-starˢ (starˢₘ prop) ¬sink =
-  ≤ᶜ-reflexive (≈ᶜ-trans (≈ᶜ-sym (·ᶜ-congˡ (prop ¬sink))) (·ᶜ-zeroʳ _))
-inv-usage-starˢ (sub γ▸star γ≤γ′) ¬sink with inv-usage-starˢ γ▸star ¬sink
-... | γ′≤𝟘 = ≤ᶜ-trans γ≤γ′ γ′≤𝟘
+record InvUsageStarˢ {n} (γ : Conₘ n) (m : Mode) : Set a where
+  constructor invUsageStarˢ
+  field
+    {δ}  : Conₘ n
+    ≤⌜⌝· : γ ≤ᶜ ⌜ m ⌝ ·ᶜ δ
+    𝟘≈   : ¬Starˢ-sink → 𝟘ᶜ ≈ᶜ δ
+
+-- A usage inversion lemma for starˢ.
+
+inv-usage-starˢ : γ ▸[ m ] starˢ → InvUsageStarˢ γ m
+inv-usage-starˢ (starˢₘ ok) =
+  invUsageStarˢ ≤ᶜ-refl ok
+inv-usage-starˢ (sub γ▸star γ≤γ′) with inv-usage-starˢ γ▸star
+… | invUsageStarˢ ≤⌜⌝· 𝟘ᶜ≈ = invUsageStarˢ (≤ᶜ-trans γ≤γ′ ≤⌜⌝·) 𝟘ᶜ≈
 
 record InvUsageUnitrec {n} (γ : Conₘ n) (m : Mode) (p q : M)
                        (A : Term (1+ n)) (t u : Term n) : Set a where

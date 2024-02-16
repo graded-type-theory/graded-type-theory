@@ -347,10 +347,18 @@ Well-resourced-normal-form-without-η-long-normal-form =
   , var
   , starₙ (ε ∙ ⊢Unit) ok
   , sym (Unit-η ⊢0)
-  , (λ ▸* → case sink-or-no-sink of λ {
-       (inj₁ sink) → inj₁ sink ;
-       (inj₂ ¬sink) → case inv-usage-starˢ ▸* ¬sink of λ {
-         (_ ∙ 𝟙≤𝟘) → inj₂ 𝟙≤𝟘 }})
+  , (λ ▸* → case sink-or-no-sink of λ where
+       (inj₁ sink)     → inj₁ sink
+       (inj₂ not-sink) →
+         case inv-usage-starˢ ▸* of λ {
+           (invUsageStarˢ {δ = _ ∙ p} (_ ∙ 𝟙≤𝟙p) 𝟘ᶜ≈) →
+         case 𝟘ᶜ≈ not-sink of λ {
+           (_ ∙ 𝟘≡p) →
+         inj₂ $ begin
+           𝟙      ≤⟨ 𝟙≤𝟙p ⟩
+           𝟙 · p  ≡˘⟨ PE.cong (_·_ _) 𝟘≡p ⟩
+           𝟙 · 𝟘  ≡⟨ ·-zeroʳ _ ⟩
+           𝟘      ∎ }})
   , (λ { (inj₁ sink) →
            sub (starˢₘ (λ ¬sink → ⊥-elim (not-sink-and-no-sink sink ¬sink)))
                (≤ᶜ-reflexive (≈ᶜ-sym (·ᶜ-identityˡ _)))
@@ -358,6 +366,8 @@ Well-resourced-normal-form-without-η-long-normal-form =
            sub (starˢₘ (λ _ → ≈ᶜ-refl))
                (≤ᶜ-trans (ε ∙ 𝟙≤𝟘) (≤ᶜ-reflexive (≈ᶜ-sym (·ᶜ-identityˡ _))))} )
   where
+  open Tools.Reasoning.PartialOrder ≤-poset
+
   ⊢Unit = Unitⱼ ε ok
   ⊢0    = var₀ ⊢Unit
 
