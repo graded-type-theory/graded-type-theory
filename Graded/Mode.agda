@@ -898,13 +898,31 @@ opaque
 ᵐ·-idem 𝟘ᵐ = PE.refl
 ᵐ·-idem 𝟙ᵐ = ⌞⌟·ᵐ-idem
 
--- A lemma relating _ᵐ·_ and _·ᵐ_.
+opaque
+
+  -- A lemma relating _ᵐ·_ and _·ᵐ_.
+
+  ᵐ·-·ᵐ-comm : ∀ m₁ → (m₁ ᵐ· p) ·ᵐ m₂ ≡ (m₁ ·ᵐ m₂) ᵐ· p
+  ᵐ·-·ᵐ-comm               𝟘ᵐ = refl
+  ᵐ·-·ᵐ-comm {p} {m₂ = 𝟙ᵐ} 𝟙ᵐ =
+    ⌞ p ⌟ ·ᵐ 𝟙ᵐ  ≡⟨ ·ᵐ-identityʳ _ ⟩
+    ⌞ p ⌟        ∎
+    where
+    open Tools.Reasoning.PropositionalEquality
+  ᵐ·-·ᵐ-comm {p} {m₂ = 𝟘ᵐ} 𝟙ᵐ =
+    ⌞ p ⌟ ·ᵐ 𝟘ᵐ  ≡⟨ ·ᵐ-comm ⌞ _ ⌟ _ ⟩
+    𝟘ᵐ ·ᵐ ⌞ p ⌟  ≡⟨⟩
+    𝟘ᵐ           ∎
+    where
+    open Tools.Reasoning.PropositionalEquality
+
+-- Another lemma relating _ᵐ·_ and _·ᵐ_.
 
 ᵐ·-·ᵐ : ∀ m → (m ᵐ· p) ·ᵐ m ≡ m ᵐ· p
-ᵐ·-·ᵐ         𝟘ᵐ = PE.refl
-ᵐ·-·ᵐ {p = p} 𝟙ᵐ =
-  ⌞ p ⌟ ·ᵐ 𝟙ᵐ  ≡⟨ ·ᵐ-identityʳ _ ⟩
-  ⌞ p ⌟        ∎
+ᵐ·-·ᵐ {p} m =
+  (m ᵐ· p) ·ᵐ m  ≡⟨ ᵐ·-·ᵐ-comm m ⟩
+  (m ·ᵐ m) ᵐ· p  ≡⟨ cong (_ᵐ· _) $ ·ᵐ-idem {m = m} ⟩
+  m ᵐ· p         ∎
   where
   open Tools.Reasoning.PropositionalEquality
 
