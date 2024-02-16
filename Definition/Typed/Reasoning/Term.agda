@@ -21,7 +21,7 @@ private variable
   A B u v : Term _
   Γ       : Con Term _
 
-infix  -1 _∎⟨_⟩⊢ finally finally-˘ finally-≡
+infix  -1 _∎⟨_⟩⊢ finally finally-˘ finally-≡ finally-˘≡
 infixr -2 step-≡ step-≡˘ step-≡≡ step-≡˘≡ _≡⟨⟩⊢_ step-≡-conv step-≡-≡
 
 -- A regular reasoning step.
@@ -120,3 +120,10 @@ finally-≡ : ∀ t → u PE.≡ v → Γ ⊢ t ≡ u ∷ A → Γ ⊢ t ≡ v �
 finally-≡ _ PE.refl t≡u = t≡u
 
 syntax finally-≡ t u≡v t≡u = t ≡⟨ t≡u ⟩⊢∎≡ u≡v
+
+-- A variant of finally-≡.
+
+finally-˘≡ : ∀ t → u PE.≡ v → Γ ⊢ u ≡ t ∷ A → Γ ⊢ t ≡ v ∷ A
+finally-˘≡ _ PE.refl u≡t = sym u≡t
+
+syntax finally-˘≡ t u≡v u≡t = t ≡˘⟨ u≡t ⟩⊢∎≡ u≡v
