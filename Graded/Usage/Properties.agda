@@ -47,6 +47,9 @@ import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
 
 private
+  module CR {n} = Tools.Reasoning.PartialOrder (≤ᶜ-poset {n = n})
+
+private
   variable
     n : Nat
     Γ : Con Term n
@@ -110,24 +113,251 @@ var-usage-lookup (there x) = var-usage-lookup x
 ▸-trivial 𝟙≡𝟘 = ▸-without-𝟘ᵐ (flip 𝟘ᵐ.non-trivial 𝟙≡𝟘)
 
 ------------------------------------------------------------------------
--- The lemma ▸-· and some related results
+-- The lemma ▸-𝟘 and some related results
 
--- The relation _▸[_]_ respects multiplication (in a certain sense).
+opaque
 
-▸-· : γ ▸[ m ] t → ⌜ m′ ⌝ ·ᶜ γ ▸[ m′ ·ᵐ m ] t
+  -- If a term is well-resourced with respect to any context and mode,
+  -- then it is well-resourced with respect to the zero usage context
+  -- and the mode 𝟘ᵐ[ ok ].
 
--- If a term is well-resourced with respect to any context and mode,
--- then it is well-resourced with respect to the zero usage context
--- and the mode 𝟘ᵐ[ ok ].
+  ▸-𝟘 : γ ▸[ m ] t → 𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] t
 
-▸-𝟘 : γ ▸[ m ] t → 𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] t
-▸-𝟘 {γ} ▸t = sub
-  (▸-· ▸t)
-  (begin
-     𝟘ᶜ      ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
-     𝟘 ·ᶜ γ  ∎)
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+  -- A variant of ▸-𝟘.
+
+  𝟘ᶜ▸[𝟘ᵐ?] : T 𝟘ᵐ-allowed → γ ▸[ m ] t → 𝟘ᶜ ▸[ 𝟘ᵐ? ] t
+  𝟘ᶜ▸[𝟘ᵐ?] ok = ▸-cong (PE.sym $ 𝟘ᵐ?≡𝟘ᵐ {ok = ok}) ∘→ ▸-𝟘
+
+  ▸-𝟘 Uₘ =
+    Uₘ
+  ▸-𝟘 ℕₘ =
+    ℕₘ
+  ▸-𝟘 Emptyₘ =
+    Emptyₘ
+  ▸-𝟘 Unitₘ =
+    Unitₘ
+  ▸-𝟘 (ΠΣₘ {q} F G) = sub
+    (ΠΣₘ (▸-𝟘 F)
+       (sub (▸-𝟘 G) $ begin
+          𝟘ᶜ ∙ 𝟘 · q  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
+          𝟘ᶜ ∙ 𝟘      ∎))
+    (begin
+       𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
+       𝟘ᶜ +ᶜ 𝟘ᶜ  ∎)
+    where
+    open CR
+  ▸-𝟘 (var {x}) = sub var
+    (begin
+       𝟘ᶜ          ≡˘⟨ 𝟘ᶜ,≔𝟘 ⟩
+       𝟘ᶜ , x ≔ 𝟘  ∎)
+    where
+    open CR
+  ▸-𝟘 (lamₘ {p} t) = lamₘ
+    (sub (▸-𝟘 t) $ begin
+       𝟘ᶜ ∙ 𝟘 · p  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
+       𝟘ᶜ          ∎)
+    where
+    open CR
+  ▸-𝟘 (_∘ₘ_ {p} t u) = sub
+    (▸-𝟘 t ∘ₘ ▸-𝟘 u)
+    (begin
+       𝟘ᶜ             ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
+       p ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityˡ _ ⟩
+       𝟘ᶜ +ᶜ p ·ᶜ 𝟘ᶜ  ∎)
+    where
+    open CR
+  ▸-𝟘 (prodʷₘ {p} t u) = sub
+    (prodʷₘ (▸-𝟘 t) (▸-𝟘 u))
+    (begin
+       𝟘ᶜ             ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
+       p ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
+       p ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎)
+    where
+    open CR
+  ▸-𝟘 (prodˢₘ {p} t u) = sub
+    (prodˢₘ (▸-𝟘 t) (▸-𝟘 u))
+    (begin
+       𝟘ᶜ             ≈˘⟨ ∧ᶜ-idem _ ⟩
+       𝟘ᶜ ∧ᶜ 𝟘ᶜ       ≈˘⟨ ∧ᶜ-congʳ $ ·ᶜ-zeroʳ _ ⟩
+       p ·ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ  ∎)
+    where
+    open CR
+  ▸-𝟘 {ok} (fstₘ _ t _ _) = fstₘ
+    𝟘ᵐ[ ok ]
+    (▸-𝟘 t)
+    refl
+    (λ ())
+  ▸-𝟘 (sndₘ t) =
+    sndₘ (▸-𝟘 t)
+  ▸-𝟘 (prodrecₘ {r} {p} t u A ok) = sub
+    (prodrecₘ
+       (▸-𝟘 t)
+       (sub (▸-𝟘 u) $ begin
+          𝟘ᶜ ∙ 𝟘 · r · p ∙ 𝟘 · r  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
+          𝟘ᶜ                      ∎)
+       A
+       (Prodrec-allowed-·ᵐ ok))
+    (begin
+       𝟘ᶜ             ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
+       r ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
+       r ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎)
+    where
+    open CR
+  ▸-𝟘 zeroₘ =
+    zeroₘ
+  ▸-𝟘 (sucₘ t) =
+    sucₘ (▸-𝟘 t)
+  ▸-𝟘 (natrecₘ {p} {r} ▸z ▸s ▸n ▸A) = sub
+    (natrecₘ (▸-𝟘 ▸z)
+       (sub (▸-𝟘 ▸s) $ begin
+          𝟘ᶜ ∙ 𝟘 · p ∙ 𝟘 · r  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
+          𝟘ᶜ                  ∎)
+       (▸-𝟘 ▸n)
+       ▸A)
+    (begin
+       𝟘ᶜ                ≈˘⟨ nrᶜ-𝟘ᶜ ⟩
+       nrᶜ p r 𝟘ᶜ 𝟘ᶜ 𝟘ᶜ  ∎)
+    where
+    open import Graded.Modality.Dedicated-nr.Instance
+    open CR
+  ▸-𝟘 (natrec-no-nrₘ {p} {r} γ▸z δ▸s η▸n θ▸A χ≤γ χ≤δ χ≤η fix) =
+    natrec-no-nrₘ (▸-𝟘 γ▸z)
+      (sub (▸-𝟘 δ▸s) $ begin
+         𝟘ᶜ ∙ 𝟘 · p ∙ 𝟘 · r  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
+         𝟘ᶜ                  ∎)
+      (▸-𝟘 η▸n)
+      θ▸A
+      ≤ᶜ-refl
+      (λ _ → ≤ᶜ-refl)
+      ≤ᶜ-refl
+      (begin
+         𝟘ᶜ                        ≈˘⟨ +ᶜ-identityʳ _ ⟩
+         𝟘ᶜ +ᶜ 𝟘ᶜ                  ≈˘⟨ +ᶜ-cong (·ᶜ-zeroʳ _) (·ᶜ-zeroʳ _) ⟩
+         p ·ᶜ 𝟘ᶜ +ᶜ r ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityˡ _ ⟩
+         𝟘ᶜ +ᶜ p ·ᶜ 𝟘ᶜ +ᶜ r ·ᶜ 𝟘ᶜ  ∎)
+    where
+    open CR
+  ▸-𝟘 (emptyrecₘ {p} e A) = sub
+    (emptyrecₘ (▸-𝟘 e) A)
+    (begin
+       𝟘ᶜ       ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
+       p ·ᶜ 𝟘ᶜ  ∎)
+    where
+    open CR
+  ▸-𝟘 starʷₘ =
+    starʷₘ
+  ▸-𝟘 (starˢₘ {γ} ok) = sub
+    (starˢₘ ok)
+    (begin
+       𝟘ᶜ      ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
+       𝟘 ·ᶜ γ  ∎)
+    where
+    open CR
+  ▸-𝟘 (unitrecₘ {p} ▸t ▸u ▸A ok) = sub
+    (unitrecₘ (▸-𝟘 ▸t) (▸-𝟘 ▸u) ▸A (Unitrec-allowed-·ᵐ ok))
+    (begin
+       𝟘ᶜ             ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
+       p ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
+       p ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎)
+    where
+    open CR
+  ▸-𝟘 (Idₘ ok ▸A ▸t ▸u) = sub
+    (Idₘ ok ▸A (▸-𝟘 ▸t) (▸-𝟘 ▸u))
+    (begin
+       𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
+       𝟘ᶜ +ᶜ 𝟘ᶜ  ∎)
+    where
+    open CR
+  ▸-𝟘 (Id₀ₘ ok ▸A ▸t ▸u) =
+    Id₀ₘ ok ▸A ▸t ▸u
+  ▸-𝟘 rflₘ =
+    rflₘ
+  ▸-𝟘 {m} {ok = 𝟘ᵐ-ok} (Jₘ {γ₃} {p} {q} {B} _ ▸A ▸t ▸B ▸u ▸v ▸w) =
+    case singleton $ erased-matches-for-J 𝟘ᵐ[ 𝟘ᵐ-ok ] of λ where
+      (none , ok) → sub
+        (Jₘ ok ▸A (▸-𝟘 ▸t)
+           (sub (▸-𝟘 ▸B) $ begin
+              𝟘ᶜ ∙ 𝟘 · p ∙ 𝟘 · q  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
+              𝟘ᶜ                  ∎)
+           (▸-𝟘 ▸u) (▸-𝟘 ▸v) (▸-𝟘 ▸w))
+        (begin
+           𝟘ᶜ                                 ≈˘⟨ ω·ᶜ⋀ᶜ⁵𝟘ᶜ ⟩
+           ω ·ᶜ (𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ)  ∎)
+      (all , ok) → J₀ₘ
+        ok ▸A (𝟘ᶜ▸[𝟘ᵐ?] 𝟘ᵐ-ok ▸t)
+        (𝟘ᵐ?-elim
+           (λ m′ → ∃ λ δ → δ ∙ ⌜ m′ ⌝ · p ∙ ⌜ m′ ⌝ · q ▸[ m′ ] B)
+           ( 𝟘ᶜ
+           , sub (▸-𝟘 ▸B) (begin
+               𝟘ᶜ ∙ 𝟘 · p ∙ 𝟘 · q  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
+               𝟘ᶜ                  ∎)
+           )
+           (λ not-ok →
+                γ₃
+              , sub (▸-cong (only-𝟙ᵐ-without-𝟘ᵐ not-ok) ▸B) (begin
+                  γ₃ ∙ 𝟙 · p ∙ 𝟙 · q          ≈⟨ ≈ᶜ-refl ∙
+                                                 cong (λ m → ⌜ m ⌝ · p) (Mode-propositional-without-𝟘ᵐ {m₁ = 𝟙ᵐ} {m₂ = m} not-ok) ∙
+                                                 cong (λ m → ⌜ m ⌝ · q) (Mode-propositional-without-𝟘ᵐ {m₁ = 𝟙ᵐ} {m₂ = m} not-ok) ⟩
+                  γ₃ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · q  ∎))
+           .proj₂)
+        (▸-𝟘 ▸u) (𝟘ᶜ▸[𝟘ᵐ?] 𝟘ᵐ-ok ▸v) (𝟘ᶜ▸[𝟘ᵐ?] 𝟘ᵐ-ok ▸w)
+    where
+    open CR
+  ▸-𝟘 (J₀ₘ ok ▸A ▸t ▸F ▸u ▸v ▸w) =
+    J₀ₘ (≤ᵉᵐ→≡all→≡all erased-matches-for-J-≤ᵉᵐ·ᵐ ok) ▸A ▸t ▸F (▸-𝟘 ▸u)
+      ▸v ▸w
+  ▸-𝟘 {m} {ok = 𝟘ᵐ-ok} (Kₘ {γ₃} {p} {B} _ ▸A ▸t ▸B ▸u ▸v) =
+    case singleton $ erased-matches-for-K 𝟘ᵐ[ 𝟘ᵐ-ok ] of λ where
+      (none , ok) → sub
+        (Kₘ ok ▸A (▸-𝟘 ▸t)
+           (sub (▸-𝟘 ▸B) $ begin
+              𝟘ᶜ ∙ 𝟘 · p  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
+              𝟘ᶜ          ∎)
+           (▸-𝟘 ▸u) (▸-𝟘 ▸v))
+        (begin
+           𝟘ᶜ                           ≈˘⟨ ω·ᶜ⋀ᶜ⁴𝟘ᶜ ⟩
+           ω ·ᶜ (𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ)  ∎)
+      (all , ok) → K₀ₘ
+        ok ▸A (𝟘ᶜ▸[𝟘ᵐ?] 𝟘ᵐ-ok ▸t)
+        (𝟘ᵐ?-elim
+           (λ m′ → ∃ λ δ → δ ∙ ⌜ m′ ⌝ · p ▸[ m′ ] B)
+           ( 𝟘ᶜ
+           , sub (▸-𝟘 ▸B) (begin
+               𝟘ᶜ ∙ 𝟘 · p  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
+               𝟘ᶜ          ∎)
+           )
+           (λ not-ok →
+                γ₃
+              , sub (▸-cong (only-𝟙ᵐ-without-𝟘ᵐ not-ok) ▸B) (begin
+                  γ₃ ∙ 𝟙 · p      ≈⟨ ≈ᶜ-refl ∙ cong (λ m → ⌜ m ⌝ · p) (Mode-propositional-without-𝟘ᵐ {m₁ = 𝟙ᵐ} {m₂ = m} not-ok) ⟩
+                  γ₃ ∙ ⌜ m ⌝ · p  ∎))
+           .proj₂)
+        (▸-𝟘 ▸u) (𝟘ᶜ▸[𝟘ᵐ?] 𝟘ᵐ-ok ▸v)
+    where
+    open CR
+  ▸-𝟘 (K₀ₘ ok ▸A ▸t ▸F ▸u ▸v) =
+    K₀ₘ (≤ᵉᵐ→≡all→≡all erased-matches-for-K-≤ᵉᵐ·ᵐ ok) ▸A ▸t ▸F (▸-𝟘 ▸u)
+      ▸v
+  ▸-𝟘 ([]-congₘ ▸A ▸t ▸u ▸v) =
+    []-congₘ ▸A ▸t ▸u ▸v
+  ▸-𝟘 (sub γ▸t _) =
+    ▸-𝟘 γ▸t
+
+opaque
+
+  -- The relation _▸[_]_ respects multiplication (in a certain sense).
+
+  ▸-· : γ ▸[ m ] t → ⌜ m′ ⌝ ·ᶜ γ ▸[ m′ ·ᵐ m ] t
+  ▸-· {γ} {m′ = 𝟘ᵐ} ▸t = sub (▸-𝟘 ▸t) $ begin
+    𝟘 ·ᶜ γ  ≈⟨ ·ᶜ-zeroˡ _ ⟩
+    𝟘ᶜ      ∎
+    where
+    open CR
+  ▸-· {γ} {m′ = 𝟙ᵐ} ▸t = sub ▸t $ begin
+    𝟙 ·ᶜ γ  ≈⟨ ·ᶜ-identityˡ _ ⟩
+    γ       ∎
+    where
+    open CR
 
 -- If a term is well-resourced with respect to any context and mode,
 -- then it is well-resourced with respect to some usage context and
@@ -141,287 +371,10 @@ var-usage-lookup (there x) = var-usage-lookup x
   (_ , ▸-𝟘 ▸t)
   (λ _ → _ , ▸t)
 
-▸-· Uₘ =
-  sub Uₘ (≤ᶜ-reflexive (·ᶜ-zeroʳ _))
-▸-· ℕₘ =
-  sub ℕₘ (≤ᶜ-reflexive (·ᶜ-zeroʳ _))
-▸-· Emptyₘ =
-  sub Emptyₘ (≤ᶜ-reflexive (·ᶜ-zeroʳ _))
-▸-· Unitₘ =
-  sub Unitₘ (≤ᶜ-reflexive (·ᶜ-zeroʳ _))
-▸-· {m′ = m′} (ΠΣₘ F G) = sub
-  (ΠΣₘ (▸-cong (PE.sym (·ᵐ-ᵐ·-assoc m′)) (▸-· F))
-       (sub (▸-· G) (≤ᶜ-reflexive (≈ᶜ-refl ∙ ·ᵐ-·-assoc m′))))
-  (≤ᶜ-reflexive (·ᶜ-distribˡ-+ᶜ _ _ _))
-▸-· {m = m} {m′ = m′} (var {x = x}) = sub var
-  (begin
-     ⌜ m′ ⌝ ·ᶜ (𝟘ᶜ , x ≔ ⌜ m ⌝)    ≡˘⟨ update-distrib-·ᶜ _ _ _ _ ⟩
-     ⌜ m′ ⌝ ·ᶜ 𝟘ᶜ , x ≔ ⌜ m′ ⌝ · ⌜ m ⌝  ≈⟨ update-congˡ (·ᶜ-zeroʳ _) ⟩
-     𝟘ᶜ , x ≔ ⌜ m′ ⌝ · ⌜ m ⌝            ≈˘⟨ update-congʳ (⌜·ᵐ⌝ m′) ⟩
-     𝟘ᶜ , x ≔ ⌜ m′ ·ᵐ m ⌝               ∎)
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-▸-· {m′ = m′} (lamₘ t) = lamₘ
-  (sub (▸-· t) (≤ᶜ-reflexive (≈ᶜ-refl ∙ ·ᵐ-·-assoc m′)))
-▸-· {m′ = m′} (_∘ₘ_ {γ = γ} {δ = δ} {p = p} t u) = sub
-  (▸-· t ∘ₘ ▸-cong (PE.sym (·ᵐ-ᵐ·-assoc m′)) (▸-· u))
-  (begin
-     ⌜ m′ ⌝ ·ᶜ (γ +ᶜ p ·ᶜ δ)          ≈⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
-     ⌜ m′ ⌝ ·ᶜ γ +ᶜ ⌜ m′ ⌝ ·ᶜ p ·ᶜ δ  ≈⟨ +ᶜ-congˡ
-                                           (≈ᶜ-trans (≈ᶜ-sym (·ᶜ-assoc _ _ _))
-                                              (≈ᶜ-trans (·ᶜ-congʳ (⌜⌝-·-comm m′))
-                                                 (·ᶜ-assoc _ _ _))) ⟩
-     ⌜ m′ ⌝ ·ᶜ γ +ᶜ p ·ᶜ ⌜ m′ ⌝ ·ᶜ δ  ∎)
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-▸-· {m′ = m′} (prodʷₘ {γ = γ} {p = p} {δ = δ} t u) = sub
-  (prodʷₘ (▸-cong (PE.sym (·ᵐ-ᵐ·-assoc m′)) (▸-· t)) (▸-· u))
-  (begin
-     ⌜ m′ ⌝ ·ᶜ (p ·ᶜ γ +ᶜ δ)           ≈⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
-     ⌜ m′ ⌝ ·ᶜ p ·ᶜ γ +ᶜ ⌜ m′ ⌝ ·ᶜ δ   ≈˘⟨ +ᶜ-congʳ (·ᶜ-assoc _ _ _) ⟩
-     (⌜ m′ ⌝ · p) ·ᶜ γ +ᶜ ⌜ m′ ⌝ ·ᶜ δ  ≈⟨ +ᶜ-congʳ (·ᶜ-congʳ (⌜⌝-·-comm m′)) ⟩
-     (p · ⌜ m′ ⌝) ·ᶜ γ +ᶜ ⌜ m′ ⌝ ·ᶜ δ  ≈⟨ +ᶜ-congʳ (·ᶜ-assoc _ _ _) ⟩
-     p ·ᶜ ⌜ m′ ⌝ ·ᶜ γ +ᶜ ⌜ m′ ⌝ ·ᶜ δ   ∎)
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-▸-· {m′ = m′} (prodˢₘ {γ = γ} {m = m} {p = p} {δ = δ} t u) = sub
-  (prodˢₘ (▸-cong (PE.sym (·ᵐ-ᵐ·-assoc m′)) (▸-· t)) (▸-· u))
-  (begin
-     ⌜ m′ ⌝ ·ᶜ (p ·ᶜ γ ∧ᶜ δ)           ≈⟨ ·ᶜ-distribˡ-∧ᶜ _ _ _ ⟩
-     ⌜ m′ ⌝ ·ᶜ p ·ᶜ γ ∧ᶜ ⌜ m′ ⌝ ·ᶜ δ   ≈˘⟨ ∧ᶜ-congʳ (·ᶜ-assoc _ _ _) ⟩
-     (⌜ m′ ⌝ · p) ·ᶜ γ ∧ᶜ ⌜ m′ ⌝ ·ᶜ δ  ≈⟨ ∧ᶜ-congʳ (·ᶜ-congʳ (⌜⌝-·-comm m′)) ⟩
-     (p · ⌜ m′ ⌝) ·ᶜ γ ∧ᶜ ⌜ m′ ⌝ ·ᶜ δ  ≈⟨ ∧ᶜ-congʳ (·ᶜ-assoc _ _ _) ⟩
-     p ·ᶜ ⌜ m′ ⌝ ·ᶜ γ ∧ᶜ ⌜ m′ ⌝ ·ᶜ δ   ∎)
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-▸-· {m′ = m′} (fstₘ m t PE.refl ok) = fstₘ
-  (m′ ·ᵐ m)
-  (▸-cong (PE.sym (·ᵐ-ᵐ·-assoc m′)) (▸-· t))
-  (·ᵐ-ᵐ·-assoc m′)
-  λ m′·m≡𝟙 → ok (·ᵐ-𝟙ʳ m′·m≡𝟙)
-▸-· (sndₘ t) =
-  sndₘ (▸-· t)
-▸-· {m′ = m′} (prodrecₘ {γ = γ} {m = m} {r = r} {δ = δ} t u A ok) = sub
-  (prodrecₘ
-     (▸-cong (PE.sym (·ᵐ-ᵐ·-assoc m′)) (▸-· t))
-     (sub (▸-· u)
-        (≤ᶜ-reflexive (≈ᶜ-refl ∙ ·ᵐ-·-assoc m′ ∙ ·ᵐ-·-assoc m′)))
-     A
-     (Prodrec-allowed-·ᵐ ok))
-  (begin
-     ⌜ m′ ⌝ ·ᶜ (r ·ᶜ γ +ᶜ δ)          ≈⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
-     ⌜ m′ ⌝ ·ᶜ r ·ᶜ γ +ᶜ ⌜ m′ ⌝ ·ᶜ δ  ≈⟨ +ᶜ-congʳ
-                                           (≈ᶜ-trans (≈ᶜ-sym (·ᶜ-assoc _ _ _))
-                                              (≈ᶜ-trans (·ᶜ-congʳ (⌜⌝-·-comm m′))
-                                                 (·ᶜ-assoc _ _ _))) ⟩
-     r ·ᶜ ⌜ m′ ⌝ ·ᶜ γ +ᶜ ⌜ m′ ⌝ ·ᶜ δ  ∎)
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-▸-· zeroₘ =
-  sub zeroₘ (≤ᶜ-reflexive (·ᶜ-zeroʳ _))
-▸-· (sucₘ t) =
-  sucₘ (▸-· t)
-▸-· {m = m} {m′ = m′}
-  (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η}
-     γ▸z δ▸s η▸n θ▸A) = sub
-  (natrecₘ (▸-· γ▸z)
-     (sub (▸-· δ▸s)
-        (≤ᶜ-reflexive (≈ᶜ-refl ∙ ·ᵐ-·-assoc m′ ∙ ·ᵐ-·-assoc m′)))
-     (▸-· η▸n)
-     θ▸A)
-  (begin
-     ⌜ m′ ⌝ ·ᶜ nrᶜ p r γ δ η                            ≈⟨ ⌜⌝ᶜ-·ᶜ-distribˡ-nrᶜ m′ ⟩
-     nrᶜ p r (⌜ m′ ⌝ ·ᶜ γ) (⌜ m′ ⌝ ·ᶜ δ) (⌜ m′ ⌝ ·ᶜ η)  ∎)
-  where
-  open import Graded.Modality.Dedicated-nr.Instance
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-▸-· {m = m} {m′ = m′}
-  (natrec-no-nrₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
-     γ▸z δ▸s η▸n θ▸A χ≤γ χ≤δ χ≤η fix) =
-  natrec-no-nrₘ (▸-· γ▸z)
-    (sub (▸-· δ▸s)
-       (≤ᶜ-reflexive (≈ᶜ-refl ∙ ·ᵐ-·-assoc m′ ∙ ·ᵐ-·-assoc m′)))
-    (▸-· η▸n)
-    θ▸A
-    (begin
-       ⌜ m′ ⌝ ·ᶜ χ  ≤⟨ ·ᶜ-monotoneʳ χ≤γ ⟩
-       ⌜ m′ ⌝ ·ᶜ γ  ∎)
-    (λ ok → begin
-       ⌜ m′ ⌝ ·ᶜ χ  ≤⟨ ·ᶜ-monotoneʳ (χ≤δ ok) ⟩
-       ⌜ m′ ⌝ ·ᶜ δ  ∎)
-    (begin
-       ⌜ m′ ⌝ ·ᶜ χ  ≤⟨ ·ᶜ-monotoneʳ χ≤η ⟩
-       ⌜ m′ ⌝ ·ᶜ η  ∎)
-    (begin
-       ⌜ m′ ⌝ ·ᶜ χ                                          ≤⟨ ·ᶜ-monotoneʳ fix ⟩
-
-       ⌜ m′ ⌝ ·ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ)                    ≈⟨ ≈ᶜ-trans (·ᶜ-distribˡ-+ᶜ _ _ _) $
-                                                               +ᶜ-congˡ $
-                                                               ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
-       ⌜ m′ ⌝ ·ᶜ δ +ᶜ ⌜ m′ ⌝ ·ᶜ p ·ᶜ η +ᶜ ⌜ m′ ⌝ ·ᶜ r ·ᶜ χ  ≈⟨ +ᶜ-congˡ $ +ᶜ-cong
-                                                               (≈ᶜ-trans (≈ᶜ-sym (·ᶜ-assoc _ _ _)) $
-                                                                ≈ᶜ-trans (·ᶜ-congʳ (⌜⌝-·-comm m′)) $
-                                                                ·ᶜ-assoc _ _ _)
-                                                               (≈ᶜ-trans (≈ᶜ-sym (·ᶜ-assoc _ _ _)) $
-                                                                ≈ᶜ-trans (·ᶜ-congʳ (⌜⌝-·-comm m′)) $
-                                                                ·ᶜ-assoc _ _ _) ⟩
-       ⌜ m′ ⌝ ·ᶜ δ +ᶜ p ·ᶜ ⌜ m′ ⌝ ·ᶜ η +ᶜ r ·ᶜ ⌜ m′ ⌝ ·ᶜ χ  ∎)
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-▸-· {m′ = m′} (emptyrecₘ {γ = γ} {m = m} {p = p} e A) = sub
-  (emptyrecₘ (▸-cong (PE.sym (·ᵐ-ᵐ·-assoc m′)) (▸-· e)) A)
-  (begin
-     ⌜ m′ ⌝ ·ᶜ p ·ᶜ γ   ≈˘⟨ ·ᶜ-assoc _ _ _ ⟩
-     (⌜ m′ ⌝ · p) ·ᶜ γ  ≈⟨ ·ᶜ-congʳ (⌜⌝-·-comm m′) ⟩
-     (p · ⌜ m′ ⌝) ·ᶜ γ  ≈⟨ ·ᶜ-assoc _ _ _ ⟩
-     p ·ᶜ ⌜ m′ ⌝ ·ᶜ γ   ∎)
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-▸-· starʷₘ = sub starʷₘ (≤ᶜ-reflexive (·ᶜ-zeroʳ _))
-▸-· {m′ = m′} (starˢₘ prop) =
-  sub (starˢₘ prop) (≤ᶜ-reflexive (≈ᶜ-sym (·ᵐ-·ᶜ-assoc m′)))
-▸-· {m′ = m′} (unitrecₘ {γ = γ} {p = p} {δ = δ} γ▸t δ▸u η▸A ok) = sub
-  (unitrecₘ (▸-cong (PE.sym (·ᵐ-ᵐ·-assoc m′)) (▸-· γ▸t)) (▸-· δ▸u) η▸A
-     (Unitrec-allowed-·ᵐ ok))
-  (begin
-    ⌜ m′ ⌝ ·ᶜ (p ·ᶜ γ +ᶜ δ)           ≈⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
-    ⌜ m′ ⌝ ·ᶜ p ·ᶜ γ +ᶜ ⌜ m′ ⌝ ·ᶜ δ   ≈˘⟨ +ᶜ-congʳ (·ᶜ-assoc _ _ _) ⟩
-    (⌜ m′ ⌝ · p) ·ᶜ γ +ᶜ ⌜ m′ ⌝ ·ᶜ δ  ≈⟨ +ᶜ-congʳ (·ᶜ-congʳ (⌜⌝-·-comm m′)) ⟩
-    (p · ⌜ m′ ⌝) ·ᶜ γ +ᶜ ⌜ m′ ⌝ ·ᶜ δ  ≈⟨ +ᶜ-congʳ (·ᶜ-assoc _ _ _) ⟩
-    p ·ᶜ ⌜ m′ ⌝ ·ᶜ γ +ᶜ ⌜ m′ ⌝ ·ᶜ δ   ∎)
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-▸-· (Idₘ ok ▸A ▸t ▸u) = sub
-  (Idₘ ok ▸A (▸-· ▸t) (▸-· ▸u))
-  (≤ᶜ-reflexive (·ᶜ-distribˡ-+ᶜ _ _ _))
-▸-· (Id₀ₘ ok ▸A ▸t ▸u) = sub
-  (Id₀ₘ ok ▸A ▸t ▸u)
-  (≤ᶜ-reflexive (·ᶜ-zeroʳ _))
-▸-· rflₘ =
-  sub rflₘ (≤ᶜ-reflexive (·ᶜ-zeroʳ _))
-▸-· {m} {m′}
-  (Jₘ {γ₂} {γ₃} {p} {q} {B} {γ₄} {γ₅} {γ₆} _ ▸A ▸t ▸B ▸u ▸v ▸w) =
-  case singleton $ erased-matches-for-J (m′ ·ᵐ m) of λ where
-    (none , ok) → sub
-      (Jₘ ok ▸A (▸-· ▸t)
-         (sub (▸-· ▸B)
-            (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-               ⌜ m′ ⌝ ·ᶜ γ₃ ∙ ⌜ m′ ·ᵐ m ⌝ · p ∙ ⌜ m′ ·ᵐ m ⌝ · q            ≈⟨ ≈ᶜ-refl ∙ ·-congʳ (⌜·ᵐ⌝ m′) ∙ ·-congʳ (⌜·ᵐ⌝ m′) ⟩
-               ⌜ m′ ⌝ ·ᶜ γ₃ ∙ (⌜ m′ ⌝ · ⌜ m ⌝) · p ∙ (⌜ m′ ⌝ · ⌜ m ⌝) · q  ≈⟨ ≈ᶜ-refl ∙ ·-assoc _ _ _ ∙ ·-assoc _ _ _ ⟩
-               ⌜ m′ ⌝ ·ᶜ γ₃ ∙ ⌜ m′ ⌝ · ⌜ m ⌝ · p ∙ ⌜ m′ ⌝ · ⌜ m ⌝ · q      ∎))
-         (▸-· ▸u) (▸-· ▸v) (▸-· ▸w))
-      (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-         ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆)                       ≈⟨ ≈ᶜ-trans (≈ᶜ-sym (·ᶜ-assoc _ _ _)) $
-                                                                              ≈ᶜ-trans (·ᶜ-congʳ (⌜⌝-·-comm m′)) $
-                                                                              ·ᶜ-assoc _ _ _ ⟩
-
-         ω ·ᶜ ⌜ m′ ⌝ ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆)                       ≈⟨ ·ᶜ-congˡ $
-                                                                              ≈ᶜ-trans (·ᶜ-distribˡ-∧ᶜ _ _ _) $ ∧ᶜ-congˡ $
-                                                                              ≈ᶜ-trans (·ᶜ-distribˡ-∧ᶜ _ _ _) $ ∧ᶜ-congˡ $
-                                                                              ≈ᶜ-trans (·ᶜ-distribˡ-∧ᶜ _ _ _) $ ∧ᶜ-congˡ $
-                                                                              ·ᶜ-distribˡ-∧ᶜ _ _ _ ⟩
-         ω ·ᶜ
-         (⌜ m′ ⌝ ·ᶜ γ₂ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₃ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₄ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₅ ∧ᶜ
-          ⌜ m′ ⌝ ·ᶜ γ₆)                                                    ∎)
-    (all , ok) → sub
-      (J₀ₘ ok ▸A (▸-𝟘ᵐ? ▸t .proj₂)
-         (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
-          𝟘ᵐ?-elim (λ m′ → ∃ λ δ → δ ∙ ⌜ m′ ⌝ · p ∙ ⌜ m′ ⌝ · q ▸[ m′ ] B)
-            ( 𝟘ᶜ
-            , sub (▸-𝟘 ▸B) (begin
-                𝟘ᶜ ∙ 𝟘 · p ∙ 𝟘 · q  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
-                𝟘ᶜ                  ∎)
-            )
-            (λ not-ok →
-                 γ₃
-               , sub (▸-cong (only-𝟙ᵐ-without-𝟘ᵐ not-ok) ▸B) (begin
-                   γ₃ ∙ 𝟙 · p ∙ 𝟙 · q          ≈⟨ ≈ᶜ-refl ∙
-                                                  cong (λ m → ⌜ m ⌝ · p) (Mode-propositional-without-𝟘ᵐ {m₁ = 𝟙ᵐ} {m₂ = m} not-ok) ∙
-                                                  cong (λ m → ⌜ m ⌝ · q) (Mode-propositional-without-𝟘ᵐ {m₁ = 𝟙ᵐ} {m₂ = m} not-ok) ⟩
-                   γ₃ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · q  ∎))
-            .proj₂)
-         (▸-· ▸u) (▸-𝟘ᵐ? ▸v .proj₂) (▸-𝟘ᵐ? ▸w .proj₂))
-      (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-         ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆)      ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ-decreasing ⟩
-
-         ⌜ m′ ⌝ ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆)           ≈⟨ ≈ᶜ-trans (·ᶜ-distribˡ-∧ᶜ _ _ _) $ ∧ᶜ-congˡ $
-                                                             ≈ᶜ-trans (·ᶜ-distribˡ-∧ᶜ _ _ _) $ ∧ᶜ-congˡ $
-                                                             ·ᶜ-distribˡ-∧ᶜ _ _ _ ⟩
-         ⌜ m′ ⌝ ·ᶜ γ₂ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₃ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₄ ∧ᶜ
-         ⌜ m′ ⌝ ·ᶜ (γ₅ ∧ᶜ γ₆)                             ≤⟨ ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
-                                                             ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
-                                                             ∧ᶜ-decreasingˡ _ _ ⟩
-         ⌜ m′ ⌝ ·ᶜ γ₄                                     ∎)
-▸-· (J₀ₘ ok ▸A ▸t ▸F ▸u ▸v ▸w) =
-  J₀ₘ (≤ᵉᵐ→≡all→≡all erased-matches-for-J-≤ᵉᵐ·ᵐ ok) ▸A ▸t ▸F (▸-· ▸u) ▸v
-    ▸w
-▸-· {m} {m′} (Kₘ {γ₂} {γ₃} {p} {B} {γ₄} {γ₅} _ ▸A ▸t ▸B ▸u ▸v) =
-  case singleton $ erased-matches-for-K (m′ ·ᵐ m) of λ where
-    (none , ok) → sub
-      (Kₘ ok ▸A (▸-· ▸t)
-         (sub (▸-· ▸B)
-            (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-               ⌜ m′ ⌝ ·ᶜ γ₃ ∙ ⌜ m′ ·ᵐ m ⌝ · p       ≈⟨ ≈ᶜ-refl ∙ ·-congʳ (⌜·ᵐ⌝ m′) ⟩
-               ⌜ m′ ⌝ ·ᶜ γ₃ ∙ (⌜ m′ ⌝ · ⌜ m ⌝) · p  ≈⟨ ≈ᶜ-refl ∙ ·-assoc _ _ _ ⟩
-               ⌜ m′ ⌝ ·ᶜ γ₃ ∙ ⌜ m′ ⌝ · ⌜ m ⌝ · p    ∎))
-         (▸-· ▸u) (▸-· ▸v))
-      (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-         ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅)                           ≈⟨ ≈ᶜ-trans (≈ᶜ-sym (·ᶜ-assoc _ _ _)) $
-                                                                            ≈ᶜ-trans (·ᶜ-congʳ (⌜⌝-·-comm m′)) $
-                                                                            ·ᶜ-assoc _ _ _ ⟩
-
-         ω ·ᶜ ⌜ m′ ⌝ ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅)                           ≈⟨ ·ᶜ-congˡ $
-                                                                            ≈ᶜ-trans (·ᶜ-distribˡ-∧ᶜ _ _ _) $ ∧ᶜ-congˡ $
-                                                                            ≈ᶜ-trans (·ᶜ-distribˡ-∧ᶜ _ _ _) $ ∧ᶜ-congˡ $
-                                                                            ·ᶜ-distribˡ-∧ᶜ _ _ _ ⟩
-         ω ·ᶜ
-         (⌜ m′ ⌝ ·ᶜ γ₂ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₃ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₄ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₅)  ∎)
-    (all , ok) → sub
-      (K₀ₘ ok ▸A (▸-𝟘ᵐ? ▸t .proj₂)
-         (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
-          𝟘ᵐ?-elim (λ m′ → ∃ λ δ → δ ∙ ⌜ m′ ⌝ · p ▸[ m′ ] B)
-            ( 𝟘ᶜ
-            , sub (▸-𝟘 ▸B) (begin
-                𝟘ᶜ ∙ 𝟘 · p  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
-                𝟘ᶜ          ∎)
-            )
-            (λ not-ok →
-                 γ₃
-               , sub (▸-cong (only-𝟙ᵐ-without-𝟘ᵐ not-ok) ▸B) (begin
-                   γ₃ ∙ 𝟙 · p      ≈⟨ ≈ᶜ-refl ∙
-                                      cong (λ m → ⌜ m ⌝ · p) (Mode-propositional-without-𝟘ᵐ {m₁ = 𝟙ᵐ} {m₂ = m} not-ok) ⟩
-                   γ₃ ∙ ⌜ m ⌝ · p  ∎))
-            .proj₂)
-         (▸-· ▸u) (▸-𝟘ᵐ? ▸v .proj₂))
-      (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-         ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅)                         ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ-decreasing ⟩
-
-         ⌜ m′ ⌝ ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅)                              ≈⟨ ≈ᶜ-trans (·ᶜ-distribˡ-∧ᶜ _ _ _) $ ∧ᶜ-congˡ $
-                                                                          ≈ᶜ-trans (·ᶜ-distribˡ-∧ᶜ _ _ _) $ ∧ᶜ-congˡ $
-                                                                          ·ᶜ-distribˡ-∧ᶜ _ _ _ ⟩
-         ⌜ m′ ⌝ ·ᶜ γ₂ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₃ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₄ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₅  ≤⟨ ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
-                                                                          ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
-                                                                          ∧ᶜ-decreasingˡ _ _ ⟩
-         ⌜ m′ ⌝ ·ᶜ γ₄                                                  ∎)
-▸-· (K₀ₘ ok ▸A ▸t ▸F ▸u ▸v) =
-  K₀ₘ (≤ᵉᵐ→≡all→≡all erased-matches-for-K-≤ᵉᵐ·ᵐ ok) ▸A ▸t ▸F (▸-· ▸u) ▸v
-▸-· ([]-congₘ ▸A ▸t ▸u ▸v) = sub
-  ([]-congₘ ▸A ▸t ▸u ▸v)
-  (≤ᶜ-reflexive (·ᶜ-zeroʳ _))
-▸-· (sub γ▸t δ≤γ) =
-  sub (▸-· γ▸t) (·ᶜ-monotoneʳ δ≤γ)
-
 -- The relation _▸[_]_ respects multiplication (in a certain sense).
 
 ▸-·′ : γ ▸[ m ] t → ⌜ m ⌝ ·ᶜ γ ▸[ m ] t
 ▸-·′ ▸t = ▸-cong ·ᵐ-idem (▸-· ▸t)
-
-opaque
-
-  -- A variant of ▸-𝟘.
-
-  𝟘ᶜ▸[𝟘ᵐ?] : T 𝟘ᵐ-allowed → γ ▸[ m ] t → 𝟘ᶜ ▸[ 𝟘ᵐ? ] t
-  𝟘ᶜ▸[𝟘ᵐ?] ok = ▸-cong (PE.sym $ 𝟘ᵐ?≡𝟘ᵐ {ok = ok}) ∘→ ▸-𝟘
 
 -- If a term does not use any resources, then it is well-resourced
 -- with respect to any mode.
