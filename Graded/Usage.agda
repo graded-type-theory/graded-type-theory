@@ -19,6 +19,7 @@ open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Dedicated-nr 𝕄
 open import Graded.Mode 𝕄
+open import Graded.Usage.Erased-matches
 open import Definition.Untyped M hiding (_∙_)
 
 open import Tools.Bool using (T; true; false)
@@ -77,15 +78,15 @@ mutual
     (yes _) → 𝟘ᶜ
     (no _)  → ⌈ t ⌉ m +ᶜ ⌈ u ⌉ m
   ⌈ rfl ⌉ _ = 𝟘ᶜ
-  ⌈ J _ _ _ t B u v w ⌉ m = case Erased-matches-for-J? m of λ where
-    (yes _) → ⌈ u ⌉ m
-    (no _)  →
+  ⌈ J _ _ _ t B u v w ⌉ m = case erased-matches-for-J m of λ where
+    all  → ⌈ u ⌉ m
+    none →
       ω ·ᶜ
       (⌈ t ⌉ m ∧ᶜ tailₘ (tailₘ (⌈ B ⌉ m)) ∧ᶜ
        ⌈ u ⌉ m ∧ᶜ ⌈ v ⌉ m ∧ᶜ ⌈ w ⌉ m)
-  ⌈ K _ _ t B u v ⌉ m = case Erased-matches-for-K? m of λ where
-    (yes _) → ⌈ u ⌉ m
-    (no _)  → ω ·ᶜ (⌈ t ⌉ m ∧ᶜ tailₘ (⌈ B ⌉ m) ∧ᶜ ⌈ u ⌉ m ∧ᶜ ⌈ v ⌉ m)
+  ⌈ K _ _ t B u v ⌉ m = case erased-matches-for-K m of λ where
+    all  → ⌈ u ⌉ m
+    none → ω ·ᶜ (⌈ t ⌉ m ∧ᶜ tailₘ (⌈ B ⌉ m) ∧ᶜ ⌈ u ⌉ m ∧ᶜ ⌈ v ⌉ m)
   ⌈ []-cong _ _ _ _ _ ⌉ _ = 𝟘ᶜ
 
 -- Well-usage of variables
@@ -101,10 +102,10 @@ open import Graded.Modality.Dedicated-nr.Instance
 -- Semantics of Quantitative Type Theory".
 --
 -- There are several sets of usage rules for Id, J and K. One (where
--- Id-erased, Erased-matches-for-J and Erased-matches-for-K are all
--- false) is based on the work of Abel, Danielsson and Vezzosi on
--- adding support for erasure to cubical type theory, and is similar
--- to the following Agda code:
+-- Id-erased is not inhabited and erased-matches-for-J and
+-- erased-matches-for-K are both equal to none) is based on the work
+-- of Abel, Danielsson and Vezzosi on adding support for erasure to
+-- cubical type theory, and is similar to the following Agda code:
 --
 --   {-# OPTIONS --erasure --safe --cubical-compatible #-}
 --
@@ -122,9 +123,9 @@ open import Graded.Modality.Dedicated-nr.Instance
 -- the non-erased arguments is made erased. In particular, "P" cannot
 -- be made erased.
 --
--- Another set of usage rules (where Id-erased, Erased-matches-for-J
--- and Erased-matches-for-K are all true) is based on the following
--- Agda code:
+-- Another set of usage rules (where Id-erased is inhabited and
+-- erased-matches-for-J and erased-matches-for-K are both equal to
+-- all) is based on the following Agda code:
 --
 --   {-# OPTIONS --erasure --safe --with-K #-}
 --
@@ -318,7 +319,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → η ▸[ 𝟘ᵐ? ] u
             → 𝟘ᶜ ▸[ m ] Id A t u
   rflₘ      : 𝟘ᶜ ▸[ m ] rfl
-  Jₘ        : ¬ Erased-matches-for-J m
+  Jₘ        : erased-matches-for-J m ≡ none
             → γ₁ ▸[ 𝟘ᵐ? ] A
             → γ₂ ▸[ m ] t
             → γ₃ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · q ▸[ m ] B
@@ -326,7 +327,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → γ₅ ▸[ m ] v
             → γ₆ ▸[ m ] w
             → ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆) ▸[ m ] J p q A t B u v w
-  J₀ₘ       : Erased-matches-for-J m
+  J₀ₘ       : erased-matches-for-J m ≡ all
             → γ₁ ▸[ 𝟘ᵐ? ] A
             → γ₂ ▸[ 𝟘ᵐ? ] t
             → γ₃ ∙ ⌜ 𝟘ᵐ? ⌝ · p ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] B
@@ -334,14 +335,14 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → γ₅ ▸[ 𝟘ᵐ? ] v
             → γ₆ ▸[ 𝟘ᵐ? ] w
             → γ₄ ▸[ m ] J p q A t B u v w
-  Kₘ        : ¬ Erased-matches-for-K m
+  Kₘ        : erased-matches-for-K m ≡ none
             → γ₁ ▸[ 𝟘ᵐ? ] A
             → γ₂ ▸[ m ] t
             → γ₃ ∙ ⌜ m ⌝ · p ▸[ m ] B
             → γ₄ ▸[ m ] u
             → γ₅ ▸[ m ] v
             → ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅) ▸[ m ] K p A t B u v
-  K₀ₘ       : Erased-matches-for-K m
+  K₀ₘ       : erased-matches-for-K m ≡ all
             → γ₁ ▸[ 𝟘ᵐ? ] A
             → γ₂ ▸[ 𝟘ᵐ? ] t
             → γ₃ ∙ ⌜ 𝟘ᵐ? ⌝ · p ▸[ 𝟘ᵐ? ] B

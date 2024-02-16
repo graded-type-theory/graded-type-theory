@@ -27,6 +27,7 @@ open import Graded.Context.Properties 𝕄
 import Graded.Derived.Erased.Untyped 𝕄 as Erased
 open import Graded.Modality.Properties 𝕄
 open import Graded.Usage 𝕄 UR
+open import Graded.Usage.Erased-matches
 open import Graded.Mode 𝕄
 
 open import Definition.Untyped M hiding (_∷_)
@@ -42,10 +43,11 @@ open import Graded.Erasure.Extraction 𝕄 is-𝟘?
 import Graded.Erasure.LogicalRelation TR is-𝟘? as LR
 import Graded.Erasure.LogicalRelation.Hidden TR is-𝟘? as LRH
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Product
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE using (_≢_)
 import Tools.Reasoning.PartialOrder
 open import Tools.Relation
 
@@ -178,13 +180,13 @@ opaque
 
 opaque
 
-  -- If Erased-matches-for-J 𝟙ᵐ holds, then one can prove a negation
-  -- of a variant of the statement of the fundamental lemma without
-  -- the assumption "erased matches are not allowed or the context is
-  -- empty".
+  -- If erased-matches-for-J 𝟙ᵐ is not equal to none, then one can
+  -- prove a negation of a variant of the statement of the fundamental
+  -- lemma without the assumption "erased matches are not allowed or
+  -- the context is empty".
 
   negation-of-fundamental-lemma-with-erased-matches₃ :
-    Erased-matches-for-J 𝟙ᵐ →
+    erased-matches-for-J 𝟙ᵐ ≢ none →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
        let open LR ⊢Δ in
        Consistent Δ →
@@ -217,7 +219,7 @@ opaque
 
     ▸t : 𝟘ᶜ ▸[ 𝟙ᵐ ] t
     ▸t =
-      J₀ₘ ok ℕₘ zeroₘ
+      J₀ₘ (≢none→≡all ok) ℕₘ zeroₘ
         (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
          sub ℕₘ $ begin
            𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
@@ -234,14 +236,14 @@ opaque
 
 opaque
 
-  -- If K-allowed and Erased-matches-for-K 𝟙ᵐ hold, then one can prove
-  -- a negation of a variant of the statement of the fundamental lemma
-  -- without the assumption "erased matches are not allowed or the
-  -- context is empty".
+  -- If K-allowed holds and erased-matches-for-K 𝟙ᵐ is not equal to
+  -- none, then one can prove a negation of a variant of the statement
+  -- of the fundamental lemma without the assumption "erased matches
+  -- are not allowed or the context is empty".
 
   negation-of-fundamental-lemma-with-erased-matches₄ :
     K-allowed →
-    Erased-matches-for-K 𝟙ᵐ →
+    erased-matches-for-K 𝟙ᵐ ≢ none →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
        let open LR ⊢Δ in
        Consistent Δ →
@@ -275,7 +277,7 @@ opaque
 
     ▸t : 𝟘ᶜ ▸[ 𝟙ᵐ ] t
     ▸t =
-      K₀ₘ K₀-ok ℕₘ zeroₘ
+      K₀ₘ (≢none→≡all K₀-ok) ℕₘ zeroₘ
         (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
          sub ℕₘ $ begin
            𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩

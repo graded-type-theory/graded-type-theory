@@ -27,6 +27,7 @@ open import Graded.Context.QuantityTranslation 𝕄₁ 𝕄₂ tr
   as CQ using (tr-Conₘ)
 import Graded.Modality.Properties
 open import Graded.Usage
+open import Graded.Usage.Erased-matches
 import Graded.Usage.Properties
 open import Graded.Modality.Morphism.Usage-restrictions
 
@@ -302,8 +303,8 @@ module Is-morphism
       sub rflₘ tr-Conₘ-𝟘ᶜ-≤ᶜ
     tr-▸
       (Jₘ {m} {γ₂} {γ₃} {p} {q} {γ₄} {γ₅} {γ₆} ok ▸A ▸t ▸B ▸u ▸v ▸w) =
-      case UR₂.Erased-matches-for-J? (tr-Mode m) of λ where
-        (yes ok) → sub
+      case singleton $ UR₂.erased-matches-for-J (tr-Mode m) of λ where
+        (all , ok) → sub
           (J₀ₘ ok (tr-▸[𝟘ᵐ?] ▸A) (tr-▸[𝟘ᵐ?]′ ▸t .proj₂)
              (tr-∙∙▸[𝟘ᵐ?]′ ▸B .proj₂) (tr-▸ ▸u) (tr-▸[𝟘ᵐ?]′ ▸v .proj₂)
              (tr-▸[𝟘ᵐ?]′ ▸w .proj₂))
@@ -324,7 +325,7 @@ module Is-morphism
                                                                              ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
                                                                              ∧ᶜ-decreasingˡ _ _ ⟩
              tr-Conₘ γ₄                                                   ∎)
-        (no not-ok) → sub
+        (none , not-ok) → sub
           (Jₘ not-ok (tr-▸[𝟘ᵐ?] ▸A) (tr-▸ ▸t)
              (sub (tr-▸ ▸B) $ begin
                 tr-Conₘ γ₃ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr p ∙
@@ -346,12 +347,12 @@ module Is-morphism
       where
       open CR₂
     tr-▸ (J₀ₘ ok ▸A ▸t ▸B ▸u ▸v ▸w) = J₀ₘ
-      (Erased-matches-for-J-preserved ≈ᵐ-tr-Mode ok) (tr-▸[𝟘ᵐ?] ▸A)
-      (tr-▸[𝟘ᵐ?] ▸t) (tr-∙∙▸[𝟘ᵐ?] ▸B) (tr-▸ ▸u) (tr-▸[𝟘ᵐ?] ▸v)
-      (tr-▸[𝟘ᵐ?] ▸w)
+      (≤ᵉᵐ→≡all→≡all (erased-matches-for-J-preserved ≈ᵐ-tr-Mode) ok)
+      (tr-▸[𝟘ᵐ?] ▸A) (tr-▸[𝟘ᵐ?] ▸t) (tr-∙∙▸[𝟘ᵐ?] ▸B) (tr-▸ ▸u)
+      (tr-▸[𝟘ᵐ?] ▸v) (tr-▸[𝟘ᵐ?] ▸w)
     tr-▸ (Kₘ {m} {γ₂} {γ₃} {p} {γ₄} {γ₅} ok ▸A ▸t ▸B ▸u ▸v) =
-      case UR₂.Erased-matches-for-K? (tr-Mode m) of λ where
-        (yes ok) → sub
+      case singleton $ UR₂.erased-matches-for-K (tr-Mode m) of λ where
+        (all , ok) → sub
           (K₀ₘ ok (tr-▸[𝟘ᵐ?] ▸A) (tr-▸[𝟘ᵐ?]′ ▸t .proj₂)
              (tr-∙▸[𝟘ᵐ?]′ ▸B .proj₂) (tr-▸ ▸u) (tr-▸[𝟘ᵐ?]′ ▸v .proj₂))
           (begin
@@ -369,7 +370,7 @@ module Is-morphism
                                                                        ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
                                                                        ∧ᶜ-decreasingˡ _ _ ⟩
              tr-Conₘ γ₄                                             ∎)
-        (no not-ok) → sub
+        (none , not-ok) → sub
           (Kₘ not-ok (tr-▸[𝟘ᵐ?] ▸A) (tr-▸ ▸t)
              (sub (tr-▸ ▸B) $ begin
                 tr-Conₘ γ₃ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr p  ≈⟨ ≈ᶜ-refl ∙ tr-⌜⌝-· m ⟩
@@ -388,8 +389,9 @@ module Is-morphism
       where
       open CR₂
     tr-▸ (K₀ₘ ok ▸A ▸t ▸B ▸u ▸v) = K₀ₘ
-      (Erased-matches-for-K-preserved ≈ᵐ-tr-Mode ok) (tr-▸[𝟘ᵐ?] ▸A)
-      (tr-▸[𝟘ᵐ?] ▸t) (tr-∙▸[𝟘ᵐ?] ▸B) (tr-▸ ▸u) (tr-▸[𝟘ᵐ?] ▸v)
+      (≤ᵉᵐ→≡all→≡all (erased-matches-for-K-preserved ≈ᵐ-tr-Mode) ok)
+      (tr-▸[𝟘ᵐ?] ▸A) (tr-▸[𝟘ᵐ?] ▸t) (tr-∙▸[𝟘ᵐ?] ▸B) (tr-▸ ▸u)
+      (tr-▸[𝟘ᵐ?] ▸v)
     tr-▸ ([]-congₘ ▸A ▸t ▸u ▸v) = sub
       ([]-congₘ (tr-▸[𝟘ᵐ?] ▸A) (tr-▸[𝟘ᵐ?] ▸t)
          (tr-▸[𝟘ᵐ?] ▸u) (tr-▸[𝟘ᵐ?] ▸v))
@@ -710,31 +712,34 @@ module Is-order-embedding
           case m₁≳m₂ of λ where
             [ m₁≈m₂ ] →
               UP₁.Jᵤ
-                (not-ok ∘→ Erased-matches-for-J-preserved m₁≈m₂)
+                (≤ᵉᵐ→≡none→≡none (erased-matches-for-J-preserved m₁≈m₂)
+                   not-ok)
                 (lemma-𝟘ᵐ? A) (lemma m₁≳m₂ _ t) (lemma m₁≳m₂ _ B)
                 (lemma m₁≳m₂ _ u) (lemma m₁≳m₂ _ v) (lemma m₁≳m₂ _ w)
             (𝟙ᵐ≳𝟘ᵐ _) →
-              case UR₁.Erased-matches-for-J? m₁ of λ where
-                (no not-ok) →
+              case singleton $ UR₁.erased-matches-for-J m₁ of λ where
+                (none , not-ok) →
                   UP₁.Jᵤ not-ok (lemma-𝟘ᵐ? A) (lemma m₁≳m₂ _ t)
                     (lemma m₁≳m₂ _ B) (lemma m₁≳m₂ _ u)
                     (lemma m₁≳m₂ _ v) (lemma m₁≳m₂ _ w)
-                (yes ok) →
+                (all , ok) →
                   UP₁.J₀ᵤ ok (lemma-𝟘ᵐ? A) (lemma-𝟘ᵐ-𝟘ᵐ? t)
                     (lemma-𝟘ᵐ-𝟘ᵐ? B) (lemma m₁≳m₂ _ u) (lemma-𝟘ᵐ-𝟘ᵐ? v)
                     (lemma-𝟘ᵐ-𝟘ᵐ? w)
         (J _ _ _ _ _ _ _ _) (J₀ᵤ ok A t B u v w) →
           case m₁≳m₂ of λ where
             [ m₁≈m₂ ] →
-              UP₁.J₀ᵤ (Erased-matches-for-J-reflected m₁≈m₂ ok)
+              UP₁.J₀ᵤ
+                (≤ᵉᵐ→≡all→≡all (erased-matches-for-J-reflected m₁≈m₂)
+                   ok)
                 (lemma-𝟘ᵐ? A) (lemma-𝟘ᵐ? t) (lemma-𝟘ᵐ? B)
                 (lemma m₁≳m₂ _ u) (lemma-𝟘ᵐ? v) (lemma-𝟘ᵐ? w)
             (𝟙ᵐ≳𝟘ᵐ _) →
-              case UR₁.Erased-matches-for-J? m₁ of λ where
-                (yes ok) →
+              case singleton $ UR₁.erased-matches-for-J m₁ of λ where
+                (all , ok) →
                   UP₁.J₀ᵤ ok (lemma-𝟘ᵐ? A) (lemma-𝟘ᵐ? t) (lemma-𝟘ᵐ? B)
                     (lemma m₁≳m₂ _ u) (lemma-𝟘ᵐ? v) (lemma-𝟘ᵐ? w)
-                (no not-ok) →
+                (none , not-ok) →
                   UP₁.Jᵤ not-ok (lemma-𝟘ᵐ? A) (lemma-𝟘ᵐ?-𝟙ᵐ m₁≳m₂ t)
                     (lemma-𝟘ᵐ?-𝟙ᵐ m₁≳m₂ B) (lemma m₁≳m₂ _ u)
                     (lemma-𝟘ᵐ?-𝟙ᵐ m₁≳m₂ v) (lemma-𝟘ᵐ?-𝟙ᵐ m₁≳m₂ w)
@@ -742,30 +747,33 @@ module Is-order-embedding
           case m₁≳m₂ of λ where
             [ m₁≈m₂ ] →
               UP₁.Kᵤ
-                (not-ok ∘→ Erased-matches-for-K-preserved m₁≈m₂)
+                (≤ᵉᵐ→≡none→≡none (erased-matches-for-K-preserved m₁≈m₂)
+                   not-ok)
                 (lemma-𝟘ᵐ? A) (lemma m₁≳m₂ _ t) (lemma m₁≳m₂ _ B)
                 (lemma m₁≳m₂ _ u) (lemma m₁≳m₂ _ v)
             (𝟙ᵐ≳𝟘ᵐ _) →
-              case UR₁.Erased-matches-for-K? m₁ of λ where
-                (no not-ok) →
+              case singleton $ UR₁.erased-matches-for-K m₁ of λ where
+                (none , not-ok) →
                   UP₁.Kᵤ not-ok (lemma-𝟘ᵐ? A) (lemma m₁≳m₂ _ t)
                     (lemma m₁≳m₂ _ B) (lemma m₁≳m₂ _ u)
                     (lemma m₁≳m₂ _ v)
-                (yes ok) →
+                (all , ok) →
                   UP₁.K₀ᵤ ok (lemma-𝟘ᵐ? A) (lemma-𝟘ᵐ-𝟘ᵐ? t)
                     (lemma-𝟘ᵐ-𝟘ᵐ? B) (lemma m₁≳m₂ _ u) (lemma-𝟘ᵐ-𝟘ᵐ? v)
         (K _ _ _ _ _ _) (K₀ᵤ ok A t B u v) →
           case m₁≳m₂ of λ where
             [ m₁≈m₂ ] →
-              UP₁.K₀ᵤ (Erased-matches-for-K-reflected m₁≈m₂ ok)
+              UP₁.K₀ᵤ
+                (≤ᵉᵐ→≡all→≡all (erased-matches-for-K-reflected m₁≈m₂)
+                   ok)
                 (lemma-𝟘ᵐ? A) (lemma-𝟘ᵐ? t) (lemma-𝟘ᵐ? B)
                 (lemma m₁≳m₂ _ u) (lemma-𝟘ᵐ? v)
             (𝟙ᵐ≳𝟘ᵐ _) →
-              case UR₁.Erased-matches-for-K? m₁ of λ where
-                (yes ok) →
+              case singleton $ UR₁.erased-matches-for-K m₁ of λ where
+                (all , ok) →
                   UP₁.K₀ᵤ ok (lemma-𝟘ᵐ? A) (lemma-𝟘ᵐ? t) (lemma-𝟘ᵐ? B)
                     (lemma m₁≳m₂ _ u) (lemma-𝟘ᵐ? v)
-                (no not-ok) →
+                (none , not-ok) →
                   UP₁.Kᵤ not-ok (lemma-𝟘ᵐ? A) (lemma-𝟘ᵐ?-𝟙ᵐ m₁≳m₂ t)
                     (lemma-𝟘ᵐ?-𝟙ᵐ m₁≳m₂ B) (lemma m₁≳m₂ _ u)
                     (lemma-𝟘ᵐ?-𝟙ᵐ m₁≳m₂ v)
@@ -1093,7 +1101,9 @@ module Is-order-embedding
            tr M₁.ω C₂.·ᶜ (γ₂ C₂.∧ᶜ γ₃ C₂.∧ᶜ γ₄ C₂.∧ᶜ γ₅ C₂.∧ᶜ γ₆)  ∎)
       of λ {
         (γ′ , γ′≤γ₂∧γ₃∧γ₄∧γ₅∧γ₆ , γ≤ωγ′) → sub
-      (Jₘ (ok ∘→ Erased-matches-for-J-preserved ≈ᵐ-tr-Mode)
+      (Jₘ
+         (≤ᵉᵐ→≡none→≡none (erased-matches-for-J-preserved ≈ᵐ-tr-Mode)
+            ok)
          (tr-▸[𝟘ᵐ?]⁻¹ ▸A .proj₂)
          (let open CR₂ in
           tr-▸⁻¹′ _ ▸t refl $ begin
@@ -1151,7 +1161,7 @@ module Is-order-embedding
 
     tr-▸⁻¹′
       (J _ _ _ _ _ _ _ _) (J₀ₘ ok ▸A ▸t ▸B ▸u ▸v ▸w) refl ≤γ′ = J₀ₘ
-      (Erased-matches-for-J-reflected ≈ᵐ-tr-Mode ok)
+      (≤ᵉᵐ→≡all→≡all (erased-matches-for-J-reflected ≈ᵐ-tr-Mode) ok)
       (tr-▸[𝟘ᵐ?]⁻¹ ▸A .proj₂) (tr-▸[𝟘ᵐ?]⁻¹ ▸t .proj₂)
       (tr-∙∙▸[𝟘ᵐ?]⁻¹ ▸B .proj₂) (tr-▸⁻¹′ _ ▸u refl ≤γ′)
       (tr-▸[𝟘ᵐ?]⁻¹ ▸v .proj₂) (tr-▸[𝟘ᵐ?]⁻¹ ▸w .proj₂)
@@ -1167,7 +1177,9 @@ module Is-order-embedding
            tr M₁.ω C₂.·ᶜ (γ₂ C₂.∧ᶜ γ₃ C₂.∧ᶜ γ₄ C₂.∧ᶜ γ₅)  ∎)
       of λ {
         (γ′ , γ′≤γ₂∧γ₃∧γ₄∧γ₅ , γ≤ωγ′) → sub
-      (Kₘ (ok ∘→ Erased-matches-for-K-preserved ≈ᵐ-tr-Mode)
+      (Kₘ
+         (≤ᵉᵐ→≡none→≡none (erased-matches-for-K-preserved ≈ᵐ-tr-Mode)
+            ok)
          (tr-▸[𝟘ᵐ?]⁻¹ ▸A .proj₂)
          (let open CR₂ in
           tr-▸⁻¹′ _ ▸t refl $ begin
@@ -1209,7 +1221,7 @@ module Is-order-embedding
          M₁.ω C₁.·ᶜ (γ′ C₁.∧ᶜ γ′ C₁.∧ᶜ γ′ C₁.∧ᶜ γ′)  ∎) }
 
     tr-▸⁻¹′ (K _ _ _ _ _ _) (K₀ₘ ok ▸A ▸t ▸B ▸u ▸v) refl ≤γ′ = K₀ₘ
-      (Erased-matches-for-K-reflected ≈ᵐ-tr-Mode ok)
+      (≤ᵉᵐ→≡all→≡all (erased-matches-for-K-reflected ≈ᵐ-tr-Mode) ok)
       (tr-▸[𝟘ᵐ?]⁻¹ ▸A .proj₂) (tr-▸[𝟘ᵐ?]⁻¹ ▸t .proj₂)
       (tr-∙▸[𝟘ᵐ?]⁻¹ ▸B .proj₂) (tr-▸⁻¹′ _ ▸u refl ≤γ′)
       (tr-▸[𝟘ᵐ?]⁻¹ ▸v .proj₂)

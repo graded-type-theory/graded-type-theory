@@ -199,7 +199,10 @@ neNeg {γ} (Jⱼ {A} {t} {B} {v} {w} _ ⊢t _ _ ⊢v ⊢w) (Jₙ w-ne) ▸J =
       ⊥                                                            →⟨ ⊥-elim ⟩
       NegativeType Γ (B [ v , w ]₁₀)                               □
     (invUsageJ₀ em _ _ _ _ _ _ _) →
-      ⊥-elim (no-erased-matches non-trivial .proj₂ .proj₂ .proj₂ .proj₁ em)
+      case
+        PE.trans (PE.sym em)
+          (no-erased-matches non-trivial .proj₂ .proj₂ .proj₂ .proj₁)
+        of λ ()
 neNeg {γ} (Kⱼ {t} {A} {B} {v} ⊢t _ _ ⊢v ok) (Kₙ v-ne) ▸K =
   case inv-usage-K ▸K of λ where
     (invUsageK {γ₂} {γ₃} {γ₄} {γ₅} _ _ _ _ _ ▸v γ≤) →
@@ -214,7 +217,10 @@ neNeg {γ} (Kⱼ {t} {A} {B} {v} ⊢t _ _ ⊢v ok) (Kₙ v-ne) ▸K =
       ⊥                                                      →⟨ ⊥-elim ⟩
       NegativeType Γ (B [ v ]₀)                              □
     (invUsageK₀ em _ _ _ _ _ _) →
-      ⊥-elim (no-erased-matches non-trivial .proj₂ .proj₂ .proj₂ .proj₂ em)
+      case
+        PE.trans (PE.sym em)
+          (no-erased-matches non-trivial .proj₂ .proj₂ .proj₂ .proj₂)
+      of λ ()
 neNeg ([]-congⱼ _ _ _ ok) ([]-congₙ _) _ =
   ⊥-elim (no-erased-matches non-trivial .proj₂ .proj₂ .proj₁ ok)
 neNeg (conv d c) n γ▸u nΓγ =

@@ -23,6 +23,7 @@ open import Tools.Unit
 
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
+open import Graded.Usage.Erased-matches
 open import Graded.Usage.Restrictions 𝕄
 
 open import Definition.Typed.Restrictions 𝕄
@@ -45,24 +46,23 @@ no-type-restrictions = λ where
   where
   open Type-restrictions
 
--- No usage restrictions, and Id-erased, Erased-matches-for-J m and
--- Erased-matches-for-K m are all inhabited.
+-- No restrictions for prodrec or unitrec, all erased matches are
+-- allowed for J and K, Id-erased is inhabited, and starˢ is treated
+-- as a sink.
 
 no-usage-restrictions : Usage-restrictions
 no-usage-restrictions = λ where
-    .Prodrec-allowed                       → λ _ _ _ _ → Lift _ ⊤
-    .Prodrec-allowed-downwards-closed      → _
-    .Unitrec-allowed                       → λ _ _ _ → Lift _ ⊤
-    .Unitrec-allowed-downwards-closed      → _
-    .starˢ-sink                            → true
-    .Id-erased                             → Lift _ ⊤
-    .Id-erased?                            → yes _
-    .Erased-matches-for-J                  → λ _ → Lift _ ⊤
-    .Erased-matches-for-J?                 → λ _ → yes _
-    .Erased-matches-for-J-downwards-closed → _
-    .Erased-matches-for-K                  → λ _ → Lift _ ⊤
-    .Erased-matches-for-K?                 → λ _ → yes _
-    .Erased-matches-for-K-downwards-closed → _
+    .Prodrec-allowed                  → λ _ _ _ _ → Lift _ ⊤
+    .Prodrec-allowed-downwards-closed → _
+    .Unitrec-allowed                  → λ _ _ _ → Lift _ ⊤
+    .Unitrec-allowed-downwards-closed → _
+    .starˢ-sink                       → true
+    .Id-erased                        → Lift _ ⊤
+    .Id-erased?                       → yes _
+    .erased-matches-for-J             → λ _ → all
+    .erased-matches-for-J-≤ᵉᵐ         → _
+    .erased-matches-for-K             → λ _ → all
+    .erased-matches-for-K-≤ᵉᵐ         → _
   where
   open Usage-restrictions
 
@@ -126,8 +126,8 @@ No-erased-matches TR UR =
   (∀ {r p q} → Prodrec-allowed 𝟙ᵐ r p q → r ≢ 𝟘) ×
   (∀ {p q}   → Unitrec-allowed 𝟙ᵐ p q   → p ≢ 𝟘) ×
   (∀ {s} → ¬ ([]-cong-allowed s)) ×
-  ¬ Erased-matches-for-J 𝟙ᵐ ×
-  ¬ Erased-matches-for-K 𝟙ᵐ
+  erased-matches-for-J 𝟙ᵐ ≡ none ×
+  erased-matches-for-K 𝟙ᵐ ≡ none
   where
   open Type-restrictions TR
   open Usage-restrictions UR
@@ -160,18 +160,16 @@ no-erased-matches-UR UR = record UR
       (¬ Trivial → m ≡ 𝟙ᵐ → p ≢ 𝟘)
   ; Unitrec-allowed-downwards-closed =
       Σ.map Unitrec-allowed-downwards-closed (λ _ _ ())
-  ; Erased-matches-for-J = λ m →
-      Erased-matches-for-J m × m ≢ 𝟙ᵐ
-  ; Erased-matches-for-J? = λ m →
-      Erased-matches-for-J? m ×-dec ¬? (m ≟ 𝟙ᵐ)
-  ; Erased-matches-for-J-downwards-closed =
-      Σ.map Erased-matches-for-J-downwards-closed (λ _ ())
-  ; Erased-matches-for-K = λ m →
-      Erased-matches-for-K m × m ≢ 𝟙ᵐ
-  ; Erased-matches-for-K? = λ m →
-      Erased-matches-for-K? m ×-dec ¬? (m ≟ 𝟙ᵐ)
-  ; Erased-matches-for-K-downwards-closed =
-      Σ.map Erased-matches-for-K-downwards-closed (λ _ ())
+  ; erased-matches-for-J = λ where
+      𝟙ᵐ → none
+      𝟘ᵐ → erased-matches-for-J 𝟘ᵐ
+  ; erased-matches-for-J-≤ᵉᵐ =
+      _
+  ; erased-matches-for-K = λ where
+      𝟙ᵐ → none
+      𝟘ᵐ → erased-matches-for-K 𝟘ᵐ
+  ; erased-matches-for-K-≤ᵉᵐ =
+      _
   }
   where
   open Usage-restrictions UR
@@ -186,5 +184,5 @@ No-erased-matches-no-erased-matches _ _ 𝟙≢𝟘 =
     (_$ refl) ∘→ (_$ 𝟙≢𝟘) ∘→ proj₂
   , (_$ refl) ∘→ (_$ 𝟙≢𝟘) ∘→ proj₂
   , (λ ())
-  , (_$ refl) ∘→ proj₂
-  , (_$ refl) ∘→ proj₂
+  , refl
+  , refl

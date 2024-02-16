@@ -18,18 +18,19 @@ open import Tools.Sum
 open import Graded.Modality
 import Graded.Modality.Properties
 open import Graded.Mode
+open import Graded.Usage.Erased-matches
 open import Graded.Usage.Restrictions
 
 private variable
-  a₁ a₂ p₁ p₂ p₃      : Level
-  M M₁ M₂             : Set _
-  P P₃                : M → Set _
-  tr₁ tr₂ tr-Σ₁ tr-Σ₂ : M₁ → M₂
-  p q r               : M
-  𝕄 𝕄₁ 𝕄₂ 𝕄₃          : Modality _
-  R R₁ R₂ R₃          : Usage-restrictions _
-  m₁ m₂ m₃            : Mode _
-  ⦃ ok₁ ok₂ ⦄         : T _
+  a₁ a₂ p₁ p₂ p₃           : Level
+  M M₁ M₂                  : Set _
+  P P₃                     : M → Set _
+  f f₃ tr₁ tr₂ tr-Σ₁ tr-Σ₂ : M₁ → M₂
+  p q r                    : M
+  𝕄 𝕄₁ 𝕄₂ 𝕄₃               : Modality _
+  R R₁ R₂ R₃               : Usage-restrictions _
+  m₁ m₂ m₃                 : Mode _
+  ⦃ ok₁ ok₂ ⦄              : T _
 
 ------------------------------------------------------------------------
 -- The relations _≈ᵐ_ and _≳ᵐ_
@@ -84,23 +85,41 @@ private opaque
 
   -- Some lemmas used below.
 
+  ≈ᵐ→≤ᵉᵐ₁ : m₁ ≈ᵐ m₂ → f m₁ ≤ᵉᵐ f m₂
+  ≈ᵐ→≤ᵉᵐ₁     𝟙ᵐ = ≤ᵉᵐ-reflexive
+  ≈ᵐ→≤ᵉᵐ₁ {f} 𝟘ᵐ = subst (_≤ᵉᵐ_ _) (cong f (𝟘ᵐ-cong _)) ≤ᵉᵐ-reflexive
+
   ≈ᵐ→→₁ : m₁ ≈ᵐ m₂ → P m₁ → P m₂
   ≈ᵐ→→₁     𝟙ᵐ           = idᶠ
   ≈ᵐ→→₁ {P} (𝟘ᵐ ⦃ ok₁ ⦄) =
     subst (λ ok → P 𝟘ᵐ[ ok₁ ] → P 𝟘ᵐ[ ok ]) T-propositional idᶠ
 
-  ≈ᵐ→←₁ : m₁ ≈ᵐ m₂ → P m₂ → P m₁
-  ≈ᵐ→←₁ = ≈ᵐ→→₁ ∘→ ≈ᵐ-symmetric
-
   ≳ᵐ→←₁ :
     {P : Mode 𝕄 → Set p} →
     m₁ ≳ᵐ m₂ → P m₂ → P m₁
   ≳ᵐ→←₁ [ m₁≈m₂ ] =
-    ≈ᵐ→←₁ m₁≈m₂
+    ≈ᵐ→→₁ $ ≈ᵐ-symmetric m₁≈m₂
   ≳ᵐ→←₁ {𝕄} (𝟙ᵐ≳𝟘ᵐ ⦃ ok₂ = ok ⦄ trivial) =
     ⊥-elim $ MP.𝟘ᵐ.non-trivial ok trivial
     where
     module MP = Graded.Modality.Properties 𝕄
+
+  ≈ᵐ→≤ᵉᵐ₂ :
+    {f₁ : Mode 𝕄₁ → Erased-matches}
+    {f₂ : Mode 𝕄₂ → Erased-matches} →
+    let module M₁ = Modality 𝕄₁
+        module M₂ = Modality 𝕄₂
+    in
+    (T M₁.𝟘ᵐ-allowed → T M₂.𝟘ᵐ-allowed) →
+    (∀ {m₁ m₂} → m₁ ≈ᵐ m₂ → f₁ m₁ ≤ᵉᵐ f₂ m₂) →
+    (∀ {m₂ m₃} → m₂ ≈ᵐ m₃ → f₂ m₂ ≤ᵉᵐ f₃ m₃) →
+    m₁ ≈ᵐ m₃ → f₁ m₁ ≤ᵉᵐ f₃ m₃
+  ≈ᵐ→≤ᵉᵐ₂ _ hyp₁ hyp₂ 𝟙ᵐ =
+    ≤ᵉᵐ-transitive (hyp₁ 𝟙ᵐ) (hyp₂ 𝟙ᵐ)
+  ≈ᵐ→≤ᵉᵐ₂ 𝟘ᵐ→𝟘ᵐ hyp₁ hyp₂ (𝟘ᵐ ⦃ ok₁ ⦄) =
+    case 𝟘ᵐ→𝟘ᵐ ok₁ of λ
+      ok₂ →
+    ≤ᵉᵐ-transitive (hyp₁ (𝟘ᵐ ⦃ ok₂ = ok₂ ⦄)) (hyp₂ (𝟘ᵐ ⦃ ok₁ = ok₂ ⦄))
 
   ≈ᵐ→→₂ :
     {P₁ : Mode 𝕄₁ → Set p₁}
@@ -119,22 +138,22 @@ private opaque
       ok₂ →
     hyp₂ (𝟘ᵐ ⦃ ok₁ = ok₂ ⦄) ∘→ hyp₁ (𝟘ᵐ ⦃ ok₂ = ok₂ ⦄)
 
-  ≈ᵐ→←₂ :
-    {P₁ : Mode 𝕄₁ → Set p₁}
-    {P₂ : Mode 𝕄₂ → Set p₂} →
+  ≈ᵐ→≥ᵉᵐ₂ :
+    {f₁ : Mode 𝕄₁ → Erased-matches}
+    {f₂ : Mode 𝕄₂ → Erased-matches} →
     let module M₁ = Modality 𝕄₁
         module M₂ = Modality 𝕄₂
     in
     (T M₁.𝟘ᵐ-allowed → T M₂.𝟘ᵐ-allowed) →
-    (∀ {m₂ m₃} → m₂ ≈ᵐ m₃ → P₃ m₃ → P₂ m₂) →
-    (∀ {m₁ m₂} → m₁ ≈ᵐ m₂ → P₂ m₂ → P₁ m₁) →
-    m₁ ≈ᵐ m₃ → P₃ m₃ → P₁ m₁
-  ≈ᵐ→←₂ _ hyp₁ hyp₂ 𝟙ᵐ =
-    hyp₂ 𝟙ᵐ ∘→ hyp₁ 𝟙ᵐ
-  ≈ᵐ→←₂ 𝟘ᵐ→𝟘ᵐ hyp₁ hyp₂ (𝟘ᵐ ⦃ ok₁ ⦄ ⦃ ok₂ = ok₃ ⦄) =
+    (∀ {m₂ m₃} → m₂ ≈ᵐ m₃ → f₃ m₃ ≤ᵉᵐ f₂ m₂) →
+    (∀ {m₁ m₂} → m₁ ≈ᵐ m₂ → f₂ m₂ ≤ᵉᵐ f₁ m₁) →
+    m₁ ≈ᵐ m₃ → f₃ m₃ ≤ᵉᵐ f₁ m₁
+  ≈ᵐ→≥ᵉᵐ₂ _ hyp₁ hyp₂ 𝟙ᵐ =
+    ≤ᵉᵐ-transitive (hyp₁ 𝟙ᵐ) (hyp₂ 𝟙ᵐ)
+  ≈ᵐ→≥ᵉᵐ₂ 𝟘ᵐ→𝟘ᵐ hyp₁ hyp₂ (𝟘ᵐ ⦃ ok₁ ⦄ ⦃ ok₂ = ok₃ ⦄) =
     case 𝟘ᵐ→𝟘ᵐ ok₁ of λ
       ok₂ →
-    hyp₂ (𝟘ᵐ ⦃ ok₂ = ok₂ ⦄) ∘→ hyp₁ (𝟘ᵐ ⦃ ok₁ = ok₂ ⦄)
+    ≤ᵉᵐ-transitive (hyp₁ (𝟘ᵐ ⦃ ok₁ = ok₂ ⦄)) (hyp₂ (𝟘ᵐ ⦃ ok₂ = ok₂ ⦄))
 
   ≳ᵐ→←₂ :
     {P₁ : Mode 𝕄₁ → Set p₁}
@@ -149,8 +168,12 @@ private opaque
     (∀ {m₂ m₃} → m₂ ≳ᵐ m₃ → P₃ m₃ → P₂ m₂) →
     (∀ {m₁ m₂} → m₁ ≳ᵐ m₂ → P₂ m₂ → P₁ m₁) →
     m₁ ≳ᵐ m₃ → P₃ m₃ → P₁ m₁
-  ≳ᵐ→←₂ 𝟘ᵐ→𝟘ᵐ _ hyp₁ hyp₂ [ m₁≈m₂ ] =
-    ≈ᵐ→←₂ 𝟘ᵐ→𝟘ᵐ (hyp₁ ∘→ [_]) (hyp₂ ∘→ [_]) m₁≈m₂
+  ≳ᵐ→←₂ _ _ hyp₁ hyp₂ [ 𝟙ᵐ ] =
+    hyp₂ [ 𝟙ᵐ ] ∘→ hyp₁ [ 𝟙ᵐ ]
+  ≳ᵐ→←₂ 𝟘ᵐ→𝟘ᵐ _ hyp₁ hyp₂ [ 𝟘ᵐ ⦃ ok₁ ⦄ ⦃ ok₂ = ok₃ ⦄ ] =
+    case 𝟘ᵐ→𝟘ᵐ ok₁ of λ
+      ok₂ →
+    hyp₂ [ 𝟘ᵐ ⦃ ok₂ = ok₂ ⦄ ] ∘→ hyp₁ [ 𝟘ᵐ ⦃ ok₁ = ok₂ ⦄ ]
   ≳ᵐ→←₂
     {𝕄₂} {m₁ = 𝟙ᵐ} {m₃ = 𝟘ᵐ[ ok₃ ]}
     _ 𝟘ᵐ←𝟘ᵐ hyp₁ hyp₂ (𝟙ᵐ≳𝟘ᵐ ⦃ ok₂ = ok₃ ⦄ trivial₁) =
@@ -191,17 +214,17 @@ record Common-properties
     -- R₁.Id-erased holds if and only if R₂.Id-erased holds.
     Id-erased-preserved : R₁.Id-erased ⇔ R₂.Id-erased
 
-    -- If m₁ ≈ᵐ m₂ and R₁.Erased-matches-for-J m₁ hold, then
-    -- R₂.Erased-matches-for-J m₂ holds.
-    Erased-matches-for-J-preserved :
+    -- If m₁ ≈ᵐ m₂, then R₁.erased-matches-for-J m₁ is bounded by
+    -- R₂.erased-matches-for-J m₂.
+    erased-matches-for-J-preserved :
       m₁ ≈ᵐ m₂ →
-      R₁.Erased-matches-for-J m₁ → R₂.Erased-matches-for-J m₂
+      R₁.erased-matches-for-J m₁ ≤ᵉᵐ R₂.erased-matches-for-J m₂
 
-    -- If m₁ ≈ᵐ m₂ and R₁.Erased-matches-for-K m₁ hold, then
-    -- R₂.Erased-matches-for-K m₂ holds.
-    Erased-matches-for-K-preserved :
+    -- If m₁ ≈ᵐ m₂, then R₁.erased-matches-for-K m₁ is bounded by
+    -- R₂.erased-matches-for-K m₂.
+    erased-matches-for-K-preserved :
       m₁ ≈ᵐ m₂ →
-      R₁.Erased-matches-for-K m₁ → R₂.Erased-matches-for-K m₂
+      R₁.erased-matches-for-K m₁ ≤ᵉᵐ R₂.erased-matches-for-K m₂
 
 opaque
 
@@ -212,8 +235,8 @@ opaque
       .𝟘ᵐ-preserved                   → idᶠ
       .starˢ-sink-preserved           → refl
       .Id-erased-preserved            → id⇔
-      .Erased-matches-for-J-preserved → ≈ᵐ→→₁
-      .Erased-matches-for-K-preserved → ≈ᵐ→→₁
+      .erased-matches-for-J-preserved → ≈ᵐ→≤ᵉᵐ₁
+      .erased-matches-for-K-preserved → ≈ᵐ→≤ᵉᵐ₁
     where
     open Common-properties
 
@@ -231,12 +254,12 @@ opaque
         trans CP₁.starˢ-sink-preserved CP₂.starˢ-sink-preserved
       .Id-erased-preserved →
         CP₂.Id-erased-preserved ∘⇔ CP₁.Id-erased-preserved
-      .Erased-matches-for-J-preserved →
-        ≈ᵐ→→₂ CP₁.𝟘ᵐ-preserved CP₁.Erased-matches-for-J-preserved
-          CP₂.Erased-matches-for-J-preserved
-      .Erased-matches-for-K-preserved →
-        ≈ᵐ→→₂ CP₁.𝟘ᵐ-preserved CP₁.Erased-matches-for-K-preserved
-          CP₂.Erased-matches-for-K-preserved
+      .erased-matches-for-J-preserved →
+        ≈ᵐ→≤ᵉᵐ₂ CP₁.𝟘ᵐ-preserved CP₁.erased-matches-for-J-preserved
+          CP₂.erased-matches-for-J-preserved
+      .erased-matches-for-K-preserved →
+        ≈ᵐ→≤ᵉᵐ₂ CP₁.𝟘ᵐ-preserved CP₁.erased-matches-for-K-preserved
+          CP₂.erased-matches-for-K-preserved
     where
     open Common-properties
     module CP₁ = Common-properties cp₁
@@ -352,17 +375,17 @@ record Are-reflecting-usage-restrictions
       R₂.Unitrec-allowed m₂ (tr p) (tr q) →
       R₁.Unitrec-allowed m₁ p q
 
-    -- If m₁ ≈ᵐ m₂ holds, then R₂.Erased-matches-for-J m₂ implies
-    -- R₁.Erased-matches-for-J m₁.
-    Erased-matches-for-J-reflected :
+    -- If m₁ ≈ᵐ m₂ holds, then R₂.Erased-matches-for-J m₂ is bounded
+    -- by R₁.erased-matches-for-J m₁.
+    erased-matches-for-J-reflected :
       m₁ ≈ᵐ m₂ →
-      R₂.Erased-matches-for-J m₂ → R₁.Erased-matches-for-J m₁
+      R₂.erased-matches-for-J m₂ ≤ᵉᵐ R₁.erased-matches-for-J m₁
 
-    -- If m₁ ≈ᵐ m₂ holds, then R₂.Erased-matches-for-K m₂ implies
-    -- R₁.Erased-matches-for-K m₁.
-    Erased-matches-for-K-reflected :
+    -- If m₁ ≈ᵐ m₂ holds, then R₂.Erased-matches-for-K m₂ is bounded
+    -- by R₁.erased-matches-for-K m₁.
+    erased-matches-for-K-reflected :
       m₁ ≈ᵐ m₂ →
-      R₂.Erased-matches-for-K m₂ → R₁.Erased-matches-for-K m₁
+      R₂.erased-matches-for-K m₂ ≤ᵉᵐ R₁.erased-matches-for-K m₁
 
   open Common-properties common-properties public
 
@@ -378,8 +401,8 @@ opaque
       .𝟘ᵐ-reflected                   → idᶠ
       .Prodrec-reflected              → ≳ᵐ→←₁
       .Unitrec-reflected              → ≳ᵐ→←₁
-      .Erased-matches-for-J-reflected → ≈ᵐ→←₁
-      .Erased-matches-for-K-reflected → ≈ᵐ→←₁
+      .erased-matches-for-J-reflected → ≈ᵐ→≤ᵉᵐ₁ ∘→ ≈ᵐ-symmetric
+      .erased-matches-for-K-reflected → ≈ᵐ→≤ᵉᵐ₁ ∘→ ≈ᵐ-symmetric
     where
     open Are-reflecting-usage-restrictions
 
@@ -405,14 +428,12 @@ opaque
       .Unitrec-reflected →
         ≳ᵐ→←₂ R₂.𝟘ᵐ-preserved R₁.𝟘ᵐ-reflected R₁.Unitrec-reflected
           R₂.Unitrec-reflected
-      .Erased-matches-for-J-reflected →
-        ≈ᵐ→←₂ R₂.𝟘ᵐ-preserved
-          R₁.Erased-matches-for-J-reflected
-          R₂.Erased-matches-for-J-reflected
-      .Erased-matches-for-K-reflected →
-        ≈ᵐ→←₂ R₂.𝟘ᵐ-preserved
-          R₁.Erased-matches-for-K-reflected
-          R₂.Erased-matches-for-K-reflected
+      .erased-matches-for-J-reflected →
+        ≈ᵐ→≥ᵉᵐ₂ R₂.𝟘ᵐ-preserved R₁.erased-matches-for-J-reflected
+          R₂.erased-matches-for-J-reflected
+      .erased-matches-for-K-reflected →
+        ≈ᵐ→≥ᵉᵐ₂ R₂.𝟘ᵐ-preserved R₁.erased-matches-for-K-reflected
+          R₂.erased-matches-for-K-reflected
     where
     open Are-reflecting-usage-restrictions
     module R₁ = Are-reflecting-usage-restrictions m₁

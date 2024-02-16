@@ -11,6 +11,7 @@ module Graded.Usage.Restrictions
   where
 
 open import Graded.Mode 𝕄
+open import Graded.Usage.Erased-matches
 
 open import Tools.Bool
 open import Tools.Function
@@ -57,47 +58,47 @@ record Usage-restrictions : Set (lsuc a) where
     -- Id-erased is decided.
     Id-erased? : Dec Id-erased
 
-    -- Are erased matches allowed for the J rule (for the current
-    -- mode)? In that case all arguments but one are erased, and the
-    -- non-erased argument is treated as "linear".
-    Erased-matches-for-J : Mode → Set a
+    -- What kinds of erased matches are allowed for the J rule (for
+    -- the current mode)?
+    erased-matches-for-J : Mode → Erased-matches
 
-    -- Erased-matches-for-J is pointwise decided.
-    Erased-matches-for-J? : ∀ m → Dec (Erased-matches-for-J m)
+    -- The usage rule for J is at least as permissive for 𝟘ᵐ[ ok ] as
+    -- for 𝟙ᵐ. (See Graded.Usage.Properties.Jₘ-generalised.)
+    erased-matches-for-J-≤ᵉᵐ :
+      erased-matches-for-J 𝟙ᵐ ≤ᵉᵐ erased-matches-for-J 𝟘ᵐ[ ok ]
 
-    -- Erased-matches-for-J is downwards closed (if 𝟙ᵐ is seen as a
-    -- largest element).
-    Erased-matches-for-J-downwards-closed :
-      Erased-matches-for-J 𝟙ᵐ → Erased-matches-for-J 𝟘ᵐ[ ok ]
+    -- What kinds of erased matches are allowed for the K rule (for
+    -- the current mode)?
+    erased-matches-for-K : Mode → Erased-matches
 
-    -- Are erased matches allowed for the K rule (for the current
-    -- mode)? In that case all arguments but one are erased, and the
-    -- non-erased argument is treated as "linear".
-    Erased-matches-for-K : Mode → Set a
-
-    -- Erased-matches-for-K is pointwise decided.
-    Erased-matches-for-K? : ∀ m → Dec (Erased-matches-for-K m)
-
-    -- Erased-matches-for-K is downwards closed (if 𝟙ᵐ is seen as a
-    -- largest element).
-    Erased-matches-for-K-downwards-closed :
-      Erased-matches-for-K 𝟙ᵐ → Erased-matches-for-K 𝟘ᵐ[ ok ]
+    -- The usage rule for K is at least as permissive for 𝟘ᵐ[ ok ] as
+    -- for 𝟙ᵐ. (See Graded.Usage.Properties.Kₘ-generalised.)
+    erased-matches-for-K-≤ᵉᵐ :
+      erased-matches-for-K 𝟙ᵐ ≤ᵉᵐ erased-matches-for-K 𝟘ᵐ[ ok ]
 
   private opaque
 
-    -- A lemma used to implement Prodrec-allowed-·ᵐ and some other
-    -- lemmas.
+    -- Some lemmas used below.
 
-    ·ᵐ-lemma :
+    ·ᵐ-lemma₁ :
       (P : Mode → Set a) →
       (∀ ⦃ ok ⦄ → P 𝟙ᵐ → P 𝟘ᵐ[ ok ]) →
       P m → P (m′ ·ᵐ m)
-    ·ᵐ-lemma {m′ = 𝟙ᵐ} _ _ =
+    ·ᵐ-lemma₁ {m′ = 𝟙ᵐ} _ _ =
       idᶠ
-    ·ᵐ-lemma {m = 𝟙ᵐ} {m′ = 𝟘ᵐ} _ hyp =
+    ·ᵐ-lemma₁ {m = 𝟙ᵐ} {m′ = 𝟘ᵐ} _ hyp =
       hyp
-    ·ᵐ-lemma {m = 𝟘ᵐ[ ok ]} {m′ = 𝟘ᵐ} P hyp =
+    ·ᵐ-lemma₁ {m = 𝟘ᵐ[ ok ]} {m′ = 𝟘ᵐ} P hyp =
       subst (λ m → P 𝟘ᵐ[ ok ] → P m) 𝟘ᵐ-cong idᶠ
+
+    ·ᵐ-lemma₂ :
+      (f : Mode → Erased-matches) →
+      (∀ ⦃ ok ⦄ → f 𝟙ᵐ ≤ᵉᵐ f 𝟘ᵐ[ ok ]) →
+      f m ≤ᵉᵐ f (m′ ·ᵐ m)
+    ·ᵐ-lemma₂          {m′ = 𝟙ᵐ} _ _   = ≤ᵉᵐ-reflexive
+    ·ᵐ-lemma₂ {m = 𝟙ᵐ} {m′ = 𝟘ᵐ} _ hyp = hyp
+    ·ᵐ-lemma₂ {m = 𝟘ᵐ} {m′ = 𝟘ᵐ} f _   =
+      subst (_≤ᵉᵐ_ _) (cong f 𝟘ᵐ-cong) ≤ᵉᵐ-reflexive
 
   opaque
 
@@ -107,7 +108,7 @@ record Usage-restrictions : Set (lsuc a) where
     Prodrec-allowed-·ᵐ :
       Prodrec-allowed m r p q → Prodrec-allowed (m′ ·ᵐ m) r p q
     Prodrec-allowed-·ᵐ =
-      ·ᵐ-lemma (λ m → Prodrec-allowed m _ _ _)
+      ·ᵐ-lemma₁ (λ m → Prodrec-allowed m _ _ _)
         Prodrec-allowed-downwards-closed
 
   opaque
@@ -118,7 +119,7 @@ record Usage-restrictions : Set (lsuc a) where
     Unitrec-allowed-·ᵐ :
       Unitrec-allowed m p q → Unitrec-allowed (m′ ·ᵐ m) p q
     Unitrec-allowed-·ᵐ =
-      ·ᵐ-lemma (λ m → Unitrec-allowed m _ _)
+      ·ᵐ-lemma₁ (λ m → Unitrec-allowed m _ _)
         Unitrec-allowed-downwards-closed
 
   -- Does the strong unit type act as a "sink"?
@@ -151,22 +152,20 @@ record Usage-restrictions : Set (lsuc a) where
 
   opaque
 
-    -- Erased-matches-for-J is closed under application of m′ ·ᵐ_ to
-    -- the mode.
+    -- The usage rule for J is at least as permissive for m′ ·ᵐ m as
+    -- for m. (See Graded.Usage.Properties.Jₘ-generalised.)
 
-    Erased-matches-for-J-·ᵐ :
-      Erased-matches-for-J m → Erased-matches-for-J (m′ ·ᵐ m)
-    Erased-matches-for-J-·ᵐ =
-      ·ᵐ-lemma Erased-matches-for-J
-        Erased-matches-for-J-downwards-closed
+    erased-matches-for-J-≤ᵉᵐ·ᵐ :
+      erased-matches-for-J m ≤ᵉᵐ erased-matches-for-J (m′ ·ᵐ m)
+    erased-matches-for-J-≤ᵉᵐ·ᵐ =
+      ·ᵐ-lemma₂ erased-matches-for-J erased-matches-for-J-≤ᵉᵐ
 
   opaque
 
-    -- Erased-matches-for-K is closed under application of m′ ·ᵐ_ to
-    -- the mode.
+    -- The usage rule for K is at least as permissive for m′ ·ᵐ m as
+    -- for m. (See Graded.Usage.Properties.Kₘ-generalised.)
 
-    Erased-matches-for-K-·ᵐ :
-      Erased-matches-for-K m → Erased-matches-for-K (m′ ·ᵐ m)
-    Erased-matches-for-K-·ᵐ =
-      ·ᵐ-lemma Erased-matches-for-K
-        Erased-matches-for-K-downwards-closed
+    erased-matches-for-K-≤ᵉᵐ·ᵐ :
+      erased-matches-for-K m ≤ᵉᵐ erased-matches-for-K (m′ ·ᵐ m)
+    erased-matches-for-K-≤ᵉᵐ·ᵐ =
+      ·ᵐ-lemma₂ erased-matches-for-K erased-matches-for-K-≤ᵉᵐ

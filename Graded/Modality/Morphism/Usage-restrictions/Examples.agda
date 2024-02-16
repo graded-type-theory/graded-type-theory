@@ -66,8 +66,8 @@ opaque
       .𝟘ᵐ-preserved                   → hyp
       .starˢ-sink-preserved           → refl
       .Id-erased-preserved            → _
-      .Erased-matches-for-J-preserved → _
-      .Erased-matches-for-K-preserved → _
+      .erased-matches-for-J-preserved → _
+      .erased-matches-for-K-preserved → _
     where
     open Common-properties
 
@@ -113,8 +113,8 @@ opaque
       .𝟘ᵐ-reflected                   → hyp₂
       .Prodrec-reflected              → _
       .Unitrec-reflected              → _
-      .Erased-matches-for-J-reflected → _
-      .Erased-matches-for-K-reflected → _
+      .erased-matches-for-J-reflected → _
+      .erased-matches-for-K-reflected → _
     where
     open Are-reflecting-usage-restrictions
 
@@ -135,14 +135,12 @@ opaque
     { 𝟘ᵐ-preserved                   = 𝟘ᵐ-preserved
     ; starˢ-sink-preserved           = starˢ-sink-preserved
     ; Id-erased-preserved            = Id-erased-preserved
-    ; Erased-matches-for-J-preserved = λ m₁≈m₂ →
-        Σ.map
-          (Erased-matches-for-J-preserved m₁≈m₂)
-          (_∘→ ≈ᵐ→≡𝟙ᵐ→≡𝟙ᵐ m₁≈m₂)
-    ; Erased-matches-for-K-preserved = λ m₁≈m₂ →
-        Σ.map
-          (Erased-matches-for-K-preserved m₁≈m₂)
-          (_∘→ ≈ᵐ→≡𝟙ᵐ→≡𝟙ᵐ m₁≈m₂)
+    ; erased-matches-for-J-preserved = λ where
+        𝟙ᵐ → _
+        𝟘ᵐ → erased-matches-for-J-preserved 𝟘ᵐ
+    ; erased-matches-for-K-preserved = λ where
+        𝟙ᵐ → _
+        𝟘ᵐ → erased-matches-for-K-preserved 𝟘ᵐ
     }
     where
     open Common-properties cp
@@ -230,12 +228,12 @@ Are-reflecting-usage-restrictions-no-erased-matches-UR
                ⊥            □
              (𝟙ᵐ≳𝟘ᵐ trivial₁) _ →
                non-trivial₁ trivial₁)
-  ; Erased-matches-for-J-reflected = λ m₁≈m₂ (ok₂ , m₂≢𝟙ᵐ) →
-        Erased-matches-for-J-reflected m₁≈m₂ ok₂
-      , m₂≢𝟙ᵐ ∘→ ≈ᵐ→≡𝟙ᵐ←≡𝟙ᵐ m₁≈m₂
-  ; Erased-matches-for-K-reflected = λ m₁≈m₂ (ok₂ , m₂≢𝟙ᵐ) →
-        Erased-matches-for-K-reflected m₁≈m₂ ok₂
-      , m₂≢𝟙ᵐ ∘→ ≈ᵐ→≡𝟙ᵐ←≡𝟙ᵐ m₁≈m₂
+  ; erased-matches-for-J-reflected = λ where
+      𝟙ᵐ → _
+      𝟘ᵐ → erased-matches-for-J-reflected 𝟘ᵐ
+  ; erased-matches-for-K-reflected = λ where
+      𝟙ᵐ → _
+      𝟘ᵐ → erased-matches-for-K-reflected 𝟘ᵐ
   }
   where
   module M₁ = Modality 𝕄₁

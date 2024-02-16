@@ -37,6 +37,7 @@ import Graded.Derived.Erased.Typed TR as ET
 import Graded.Derived.Erased.Untyped 𝕄 as Erased
 open import Graded.Derived.Erased.Usage 𝕄 UR
 open import Graded.Usage 𝕄 UR
+open import Graded.Usage.Erased-matches
 open import Graded.Usage.Properties 𝕄 UR
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
@@ -58,7 +59,7 @@ open import Tools.Nat
 open import Tools.Product
 import Tools.Reasoning.PartialOrder
 open import Tools.Relation
-import Tools.PropositionalEquality as PE hiding (trans)
+open import Tools.PropositionalEquality as PE using (_≢_)
 open import Tools.Sum
 
 private
@@ -327,12 +328,13 @@ opaque
       inhabited-consistent (singleSubst (rflⱼ (zeroⱼ ε)))
     , Jⱼ′ (ℕⱼ (J-motive-context ([]ⱼ (zeroⱼ ⊢Id))))
         (zeroⱼ ⊢Id) ([]-congⱼ′ ok (var ⊢Id here))
-    , Jₘ′ (▸Erased s ℕₘ) (▸[] s zeroₘ)
-        (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
-         sub ℕₘ $ begin
-           𝟘ᶜ ∙ 𝟙 · 𝟘 ∙ 𝟙 · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
-           𝟘ᶜ                  ∎)
-        zeroₘ (▸[] s zeroₘ) ([]-congₘ ℕₘ zeroₘ zeroₘ var)
+    , sub
+        (Jₘ-generalised (▸Erased s ℕₘ) (▸[] s zeroₘ)
+           (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
+            sub ℕₘ $ begin
+              𝟘ᶜ ∙ 𝟙 · 𝟘 ∙ 𝟙 · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
+              𝟘ᶜ                  ∎)
+           zeroₘ (▸[] s zeroₘ) ([]-congₘ ℕₘ zeroₘ zeroₘ var))
         (≤ᶜ-reflexive (≈ᶜ-sym ω·ᶜ⋀ᶜ⁵𝟘ᶜ))
     , (λ where
          (0 , whred J⇒ ⇨ˢ _) →
@@ -344,13 +346,13 @@ opaque
 
 opaque
 
-  -- If Erased-matches-for-J 𝟙ᵐ holds, then there is a counterexample
-  -- to soundness-ℕ-only-source without the assumption "erased matches
-  -- are not allowed unless the context is empty" (and without the
-  -- assumption that the modality's zero is well-behaved).
+  -- If erased-matches-for-J 𝟙ᵐ is not equal to none, then there is a
+  -- counterexample to soundness-ℕ-only-source without the assumption
+  -- "erased matches are not allowed unless the context is empty" (and
+  -- without the assumption that the modality's zero is well-behaved).
 
   soundness-ℕ-only-source-counterexample₃ :
-    Erased-matches-for-J 𝟙ᵐ →
+    erased-matches-for-J 𝟙ᵐ ≢ none →
     let Δ = ε ∙ Id ℕ zero zero
         t = J 𝟘 𝟘 ℕ zero ℕ zero zero (var {n = 1} x0)
     in
@@ -363,7 +365,7 @@ opaque
       ⊢Id →
       inhabited-consistent (singleSubst (rflⱼ (zeroⱼ ε)))
     , Jⱼ′ (ℕⱼ (J-motive-context (zeroⱼ ⊢Id))) (zeroⱼ ⊢Id) (var ⊢Id here)
-    , J₀ₘ ok ℕₘ zeroₘ
+    , J₀ₘ (≢none→≡all ok) ℕₘ zeroₘ
         (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
          sub ℕₘ $ begin
            𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
@@ -375,14 +377,15 @@ opaque
 
 opaque
 
-  -- If K-allowed and Erased-matches-for-K 𝟙ᵐ hold, then there is a
-  -- counterexample to soundness-ℕ-only-source without the assumption
-  -- "erased matches are not allowed unless the context is empty" (and
-  -- without the assumption that the modality's zero is well-behaved).
+  -- If K-allowed holds and erased-matches-for-K 𝟙ᵐ is not equal to
+  -- none, then there is a counterexample to soundness-ℕ-only-source
+  -- without the assumption "erased matches are not allowed unless the
+  -- context is empty" (and without the assumption that the modality's
+  -- zero is well-behaved).
 
   soundness-ℕ-only-source-counterexample₄ :
     K-allowed →
-    Erased-matches-for-K 𝟙ᵐ →
+    erased-matches-for-K 𝟙ᵐ ≢ none →
     let Δ = ε ∙ Id ℕ zero zero
         t = K 𝟘 ℕ zero ℕ zero (var {n = 1} x0)
     in
@@ -396,7 +399,7 @@ opaque
       inhabited-consistent (singleSubst (rflⱼ (zeroⱼ ε)))
     , Kⱼ′ (ℕⱼ (K-motive-context (zeroⱼ ⊢Id))) (zeroⱼ ⊢Id) (var ⊢Id here)
         K-ok
-    , K₀ₘ K₀-ok ℕₘ zeroₘ
+    , K₀ₘ (≢none→≡all K₀-ok) ℕₘ zeroₘ
         (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
          sub ℕₘ $ begin
            𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩

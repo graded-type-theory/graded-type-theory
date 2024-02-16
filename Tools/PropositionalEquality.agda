@@ -8,6 +8,7 @@ module Tools.PropositionalEquality where
 -- We reexport Agda's builtin equality type.
 
 open import Tools.Level
+open import Tools.Product
 open import Tools.Relation
 
 import Relation.Binary.PropositionalEquality as Eq
@@ -62,3 +63,9 @@ Is-proposition A = {x y : A} → x ≡ y
 
 Is-set : Set a → Set a
 Is-set A = {x y : A} → Is-proposition (x ≡ y)
+
+-- If A is inhabited, then a corresponding "singleton type" is
+-- inhabited.
+
+singleton : (x : A) → ∃ λ (y : A) → x ≡ y
+singleton x = x , refl

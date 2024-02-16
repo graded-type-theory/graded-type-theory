@@ -24,6 +24,7 @@ open import Graded.Modality.Dedicated-nr 𝕄
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
 open import Graded.Usage 𝕄 R
+open import Graded.Usage.Erased-matches
 open import Graded.Usage.Properties 𝕄 R
 open import Graded.Usage.Weakening 𝕄 R
 open import Graded.Mode 𝕄
@@ -711,7 +712,7 @@ private
 
   substₘ-lemma₀-J₀ :
     ⦃ ok : T 𝟘ᵐ-allowed ⦄ →
-    Erased-matches-for-J mo₁ →
+    erased-matches-for-J mo₁ ≡ all →
     (Ψ : Substₘ m n) →
     Ψ ▶[ mos ] σ →
     γ₁ ▸[ 𝟘ᵐ? ] A →
@@ -722,7 +723,7 @@ private
     γ₆ ▸[ mo₂ ] w →
     𝟘ᶜ ▸[ 𝟘ᵐ ] J p q A t B u v w [ σ ]
   substₘ-lemma₀-J₀ {p} {q} ⦃ ok ⦄ erased Ψ Ψ▶σ ▸A ▸t ▸B ▸u ▸v ▸w = J₀ₘ
-    (Erased-matches-for-J-·ᵐ erased)
+    (≤ᵉᵐ→≡all→≡all erased-matches-for-J-≤ᵉᵐ·ᵐ erased)
     (substₘ-lemma₀-𝟘ᵐ? Ψ Ψ▶σ ▸A)
     (substₘ-lemma₀-𝟘ᵐ? Ψ Ψ▶σ ▸t)
     (sub
@@ -741,7 +742,7 @@ private
 
   substₘ-lemma₀-K₀ :
     ⦃ ok : T 𝟘ᵐ-allowed ⦄ →
-    Erased-matches-for-K mo₁ →
+    erased-matches-for-K mo₁ ≡ all →
     (Ψ : Substₘ m n) →
     Ψ ▶[ mos ] σ →
     γ₁ ▸[ 𝟘ᵐ? ] A →
@@ -751,7 +752,7 @@ private
     γ₅ ▸[ mo₂ ] v →
     𝟘ᶜ ▸[ 𝟘ᵐ ] K p A t B u v [ σ ]
   substₘ-lemma₀-K₀ {p} ⦃ ok ⦄ erased Ψ Ψ▶σ ▸A ▸t ▸B ▸u ▸v = K₀ₘ
-    (Erased-matches-for-K-·ᵐ erased)
+    (≤ᵉᵐ→≡all→≡all erased-matches-for-K-≤ᵉᵐ·ᵐ erased)
     (substₘ-lemma₀-𝟘ᵐ? Ψ Ψ▶σ ▸A)
     (substₘ-lemma₀-𝟘ᵐ? Ψ Ψ▶σ ▸t)
     (sub
@@ -939,10 +940,10 @@ substₘ-lemma₀ _ _ rflₘ =
   rflₘ
 
 substₘ-lemma₀ Ψ Ψ▶σ (Jₘ {p} {q} _ ▸A ▸t ▸B ▸u ▸v ▸w) =
-  case Erased-matches-for-J? 𝟘ᵐ of λ where
-    (yes erased) →
+  case singleton $ erased-matches-for-J 𝟘ᵐ of λ where
+    (all , erased) →
       substₘ-lemma₀-J₀ erased Ψ Ψ▶σ ▸A ▸t ▸B ▸u ▸v ▸w
-    (no not-erased) → sub
+    (none , not-erased) → sub
       (Jₘ not-erased
          (substₘ-lemma₀-𝟘ᵐ? Ψ Ψ▶σ ▸A)
          (substₘ-lemma₀ Ψ Ψ▶σ ▸t)
@@ -969,10 +970,10 @@ substₘ-lemma₀ Ψ Ψ▶σ (J₀ₘ erased ▸A ▸t ▸B ▸u ▸v ▸w) =
   substₘ-lemma₀-J₀ erased Ψ Ψ▶σ ▸A ▸t ▸B ▸u ▸v ▸w
 
 substₘ-lemma₀ Ψ Ψ▶σ (Kₘ {p} _ ▸A ▸t ▸B ▸u ▸v) =
-  case Erased-matches-for-K? 𝟘ᵐ of λ where
-    (yes erased) →
+  case singleton $ erased-matches-for-K 𝟘ᵐ of λ where
+    (all , erased) →
       substₘ-lemma₀-K₀ erased Ψ Ψ▶σ ▸A ▸t ▸B ▸u ▸v
-    (no not-erased) → sub
+    (none , not-erased) → sub
       (Kₘ not-erased
          (substₘ-lemma₀-𝟘ᵐ? Ψ Ψ▶σ ▸A)
          (substₘ-lemma₀ Ψ Ψ▶σ ▸t)
@@ -1289,7 +1290,8 @@ substₘ-lemma₁
   (·ᶜ⋀ᶜ⁵<* γ₂)
 
 substₘ-lemma₁ not-ok Ψ Ψ▶σ (J₀ₘ {γ₃} ok ▸A ▸t ▸B ▸u ▸t′ ▸v) = J₀ₘ
-  (subst Erased-matches-for-J (Mode-propositional-without-𝟘ᵐ not-ok) ok)
+  (subst ((_≡ all) ∘→ erased-matches-for-J)
+     (Mode-propositional-without-𝟘ᵐ not-ok) ok)
   (substₘ-lemma₁′ not-ok Ψ Ψ▶σ ▸A)
   (substₘ-lemma₁′ not-ok Ψ Ψ▶σ ▸t)
   (sub
@@ -1315,7 +1317,8 @@ substₘ-lemma₁
   (·ᶜ⋀ᶜ⁴<* γ₂)
 
 substₘ-lemma₁ not-ok Ψ Ψ▶σ (K₀ₘ {γ₃} ok ▸A ▸t ▸B ▸u ▸v) = K₀ₘ
-  (subst Erased-matches-for-K (Mode-propositional-without-𝟘ᵐ not-ok) ok)
+  (subst ((_≡ all) ∘→ erased-matches-for-K)
+     (Mode-propositional-without-𝟘ᵐ not-ok) ok)
   (substₘ-lemma₁′ not-ok Ψ Ψ▶σ ▸A)
   (substₘ-lemma₁′ not-ok Ψ Ψ▶σ ▸t)
   (sub

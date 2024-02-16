@@ -21,6 +21,7 @@ open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Usage 𝕄 R
 open import Graded.Usage.Inversion 𝕄 R
+open import Graded.Usage.Erased-matches
 open import Graded.Modality.Dedicated-nr 𝕄
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
@@ -300,8 +301,8 @@ var-usage-lookup (there x) = var-usage-lookup x
   sub rflₘ (≤ᶜ-reflexive (·ᶜ-zeroʳ _))
 ▸-· {m} {m′}
   (Jₘ {γ₂} {γ₃} {p} {q} {B} {γ₄} {γ₅} {γ₆} _ ▸A ▸t ▸B ▸u ▸v ▸w) =
-  case Erased-matches-for-J? (m′ ·ᵐ m) of λ where
-    (no ok) → sub
+  case singleton $ erased-matches-for-J (m′ ·ᵐ m) of λ where
+    (none , ok) → sub
       (Jₘ ok ▸A (▸-· ▸t)
          (sub (▸-· ▸B)
             (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
@@ -322,7 +323,7 @@ var-usage-lookup (there x) = var-usage-lookup x
          ω ·ᶜ
          (⌜ m′ ⌝ ·ᶜ γ₂ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₃ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₄ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₅ ∧ᶜ
           ⌜ m′ ⌝ ·ᶜ γ₆)                                                    ∎)
-    (yes ok) → sub
+    (all , ok) → sub
       (J₀ₘ ok ▸A (▸-𝟘ᵐ? ▸t .proj₂)
          (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
           𝟘ᵐ?-elim (λ m′ → ∃ λ δ → δ ∙ ⌜ m′ ⌝ · p ∙ ⌜ m′ ⌝ · q ▸[ m′ ] B)
@@ -352,10 +353,11 @@ var-usage-lookup (there x) = var-usage-lookup x
                                                              ∧ᶜ-decreasingˡ _ _ ⟩
          ⌜ m′ ⌝ ·ᶜ γ₄                                     ∎)
 ▸-· (J₀ₘ ok ▸A ▸t ▸F ▸u ▸v ▸w) =
-  J₀ₘ (Erased-matches-for-J-·ᵐ ok) ▸A ▸t ▸F (▸-· ▸u) ▸v ▸w
+  J₀ₘ (≤ᵉᵐ→≡all→≡all erased-matches-for-J-≤ᵉᵐ·ᵐ ok) ▸A ▸t ▸F (▸-· ▸u) ▸v
+    ▸w
 ▸-· {m} {m′} (Kₘ {γ₂} {γ₃} {p} {B} {γ₄} {γ₅} _ ▸A ▸t ▸B ▸u ▸v) =
-  case Erased-matches-for-K? (m′ ·ᵐ m) of λ where
-    (no ok) → sub
+  case singleton $ erased-matches-for-K (m′ ·ᵐ m) of λ where
+    (none , ok) → sub
       (Kₘ ok ▸A (▸-· ▸t)
          (sub (▸-· ▸B)
             (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
@@ -374,7 +376,7 @@ var-usage-lookup (there x) = var-usage-lookup x
                                                                             ·ᶜ-distribˡ-∧ᶜ _ _ _ ⟩
          ω ·ᶜ
          (⌜ m′ ⌝ ·ᶜ γ₂ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₃ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₄ ∧ᶜ ⌜ m′ ⌝ ·ᶜ γ₅)  ∎)
-    (yes ok) → sub
+    (all , ok) → sub
       (K₀ₘ ok ▸A (▸-𝟘ᵐ? ▸t .proj₂)
          (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
           𝟘ᵐ?-elim (λ m′ → ∃ λ δ → δ ∙ ⌜ m′ ⌝ · p ▸[ m′ ] B)
@@ -402,7 +404,7 @@ var-usage-lookup (there x) = var-usage-lookup x
                                                                           ∧ᶜ-decreasingˡ _ _ ⟩
          ⌜ m′ ⌝ ·ᶜ γ₄                                                  ∎)
 ▸-· (K₀ₘ ok ▸A ▸t ▸F ▸u ▸v) =
-  K₀ₘ (Erased-matches-for-K-·ᵐ ok) ▸A ▸t ▸F (▸-· ▸u) ▸v
+  K₀ₘ (≤ᵉᵐ→≡all→≡all erased-matches-for-K-≤ᵉᵐ·ᵐ ok) ▸A ▸t ▸F (▸-· ▸u) ▸v
 ▸-· ([]-congₘ ▸A ▸t ▸u ▸v) = sub
   ([]-congₘ ▸A ▸t ▸u ▸v)
   (≤ᶜ-reflexive (·ᶜ-zeroʳ _))
@@ -554,7 +556,7 @@ data Usage-restrictions-satisfied {n} (m : Mode) : Term n → Set a where
   rflᵤ :
     Usage-restrictions-satisfied m rfl
   Jᵤ :
-    ¬ Erased-matches-for-J m →
+    erased-matches-for-J m ≡ none →
     Usage-restrictions-satisfied 𝟘ᵐ? A →
     Usage-restrictions-satisfied m t →
     Usage-restrictions-satisfied m B →
@@ -563,7 +565,7 @@ data Usage-restrictions-satisfied {n} (m : Mode) : Term n → Set a where
     Usage-restrictions-satisfied m w →
     Usage-restrictions-satisfied m (J p q A t B u v w)
   J₀ᵤ :
-    Erased-matches-for-J m →
+    erased-matches-for-J m ≡ all →
     Usage-restrictions-satisfied 𝟘ᵐ? A →
     Usage-restrictions-satisfied 𝟘ᵐ? t →
     Usage-restrictions-satisfied 𝟘ᵐ? B →
@@ -572,7 +574,7 @@ data Usage-restrictions-satisfied {n} (m : Mode) : Term n → Set a where
     Usage-restrictions-satisfied 𝟘ᵐ? w →
     Usage-restrictions-satisfied m (J p q A t B u v w)
   Kᵤ :
-    ¬ Erased-matches-for-K m →
+    erased-matches-for-K m ≡ none →
     Usage-restrictions-satisfied 𝟘ᵐ? A →
     Usage-restrictions-satisfied m t →
     Usage-restrictions-satisfied m B →
@@ -580,7 +582,7 @@ data Usage-restrictions-satisfied {n} (m : Mode) : Term n → Set a where
     Usage-restrictions-satisfied m v →
     Usage-restrictions-satisfied m (K p A t B u v)
   K₀ᵤ :
-    Erased-matches-for-K m →
+    erased-matches-for-K m ≡ all →
     Usage-restrictions-satisfied 𝟘ᵐ? A →
     Usage-restrictions-satisfied 𝟘ᵐ? t →
     Usage-restrictions-satisfied 𝟘ᵐ? B →
@@ -1614,11 +1616,11 @@ Conₘ-interchange
   x =
   J₀ₘ ok ▸A ▸t₁ ▸F₁ (Conₘ-interchange ▸u₁ ▸u₂ x) ▸v₁ ▸w₁
 
-Conₘ-interchange (Jₘ not-ok _ _ _ _ _ _) (J₀ₘ ok _ _ _ _ _ _) =
-  ⊥-elim (not-ok ok)
+Conₘ-interchange (Jₘ ≡none _ _ _ _ _ _) (J₀ₘ ≡all _ _ _ _ _ _) =
+  case trans (PE.sym ≡none) ≡all of λ ()
 
-Conₘ-interchange (J₀ₘ ok _ _ _ _ _ _) (Jₘ not-ok _ _ _ _ _ _) =
-  ⊥-elim (not-ok ok)
+Conₘ-interchange (J₀ₘ ≡all _ _ _ _ _ _) (Jₘ ≡none _ _ _ _ _ _) =
+  case trans (PE.sym ≡none) ≡all of λ ()
 
 Conₘ-interchange
   (Kₘ {γ₂} {γ₃} {γ₄} {γ₅} ok ▸A ▸t₁ ▸F₁ ▸u₁ ▸v₁)
@@ -1659,11 +1661,11 @@ Conₘ-interchange
 Conₘ-interchange (K₀ₘ ok ▸A ▸t₁ ▸F₁ ▸u₁ ▸v₁) (K₀ₘ _ _ _ _ ▸u₂ _) x =
   K₀ₘ ok ▸A ▸t₁ ▸F₁ (Conₘ-interchange ▸u₁ ▸u₂ x) ▸v₁
 
-Conₘ-interchange (Kₘ not-ok _ _ _ _ _) (K₀ₘ ok _ _ _ _ _) =
-  ⊥-elim (not-ok ok)
+Conₘ-interchange (Kₘ ≡none _ _ _ _ _) (K₀ₘ ≡all _ _ _ _ _) =
+  case trans (PE.sym ≡none) ≡all of λ ()
 
-Conₘ-interchange (K₀ₘ ok _ _ _ _ _) (Kₘ not-ok _ _ _ _ _) =
-  ⊥-elim (not-ok ok)
+Conₘ-interchange (K₀ₘ ≡all _ _ _ _ _) (Kₘ ≡none _ _ _ _ _) =
+  case trans (PE.sym ≡none) ≡all of λ ()
 
 Conₘ-interchange ([]-congₘ ▸A₁ ▸t₁ ▸u₁ ▸v₁) ([]-congₘ _ _ _ _) x =
   subst (_▸[ _ ] _)
@@ -1753,104 +1755,87 @@ opaque
 
 opaque
 
-  -- A variant of Jₘ and J₀ₘ.
+  -- A generalisation of the usage rule Jₘ:
+  -- erased-matches-for-J m ≡ none has been removed.
 
-  Jₘ′ :
+  Jₘ-generalised :
     γ₁ ▸[ 𝟘ᵐ? ] A →
     γ₂ ▸[ m ] t →
     γ₃ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · q ▸[ m ] B →
     γ₄ ▸[ m ] u →
     γ₅ ▸[ m ] v →
     γ₆ ▸[ m ] w →
-    δ ≤ᶜ ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆) →
-    δ ▸[ m ] J p q A t B u v w
-  Jₘ′ {γ₂} {m} {γ₃} {p} {q} {γ₄} {γ₅} {γ₆} {δ} ▸A ▸t ▸B ▸u ▸v ▸w δ≤ =
-    case Erased-matches-for-J? m of λ where
-      (no not-erased) →
-        sub (Jₘ not-erased ▸A ▸t ▸B ▸u ▸v ▸w) δ≤
-      (yes erased) → 𝟘ᵐ-allowed-elim
-        (λ ok →
-           sub
-             (J₀ₘ erased ▸A (𝟘ᶜ▸[𝟘ᵐ?] ok ▸t)
-                (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
-                 sub (𝟘ᶜ▸[𝟘ᵐ?] ok ▸B) $ begin
-                   𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · p ∙ ⌜ 𝟘ᵐ? ⌝ · q  ≈⟨ ≈ᶜ-refl ∙
-                                                      cong (λ m → ⌜ m ⌝ · p) (𝟘ᵐ?≡𝟘ᵐ {ok = ok}) ∙
-                                                      cong (λ m → ⌜ m ⌝ · q) (𝟘ᵐ?≡𝟘ᵐ {ok = ok}) ⟩
-                   𝟘ᶜ ∙ 𝟘 · p ∙ 𝟘 · q              ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
-                   𝟘ᶜ                              ∎)
-                ▸u (𝟘ᶜ▸[𝟘ᵐ?] ok ▸v) (𝟘ᶜ▸[𝟘ᵐ?] ok ▸w))
-             δ≤γ₄)
-        (λ not-ok →
-           sub
-             (J₀ₘ erased ▸A (▸-without-𝟘ᵐ not-ok ▸t)
-                (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
-                 sub (▸-without-𝟘ᵐ not-ok ▸B) $ begin
-                   γ₃ ∙ ⌜ 𝟘ᵐ? ⌝ · p ∙ ⌜ 𝟘ᵐ? ⌝ · q  ≈⟨ ≈ᶜ-refl ∙
-                                                      cong (λ m → ⌜ m ⌝ · p) (Mode-propositional-without-𝟘ᵐ {m₁ = 𝟘ᵐ?} {m₂ = m} not-ok) ∙
-                                                      cong (λ m → ⌜ m ⌝ · q) (Mode-propositional-without-𝟘ᵐ {m₁ = 𝟘ᵐ?} {m₂ = m} not-ok) ⟩
-                   γ₃ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · q      ∎)
-                ▸u (▸-without-𝟘ᵐ not-ok ▸v) (▸-without-𝟘ᵐ not-ok ▸w))
-             δ≤γ₄)
-    where
-    δ≤γ₄ : δ ≤ᶜ γ₄
-    δ≤γ₄ = begin
-      δ                                  ≤⟨ δ≤ ⟩
-      ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆)  ≤⟨ ω·ᶜ-decreasing ⟩
-      γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆         ≤⟨ ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
-                                            ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
-                                            ∧ᶜ-decreasingˡ _ _ ⟩
-      γ₄                                 ∎
-      where
-      open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+    ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆) ▸[ m ] J p q A t B u v w
+  Jₘ-generalised
+    {γ₂} {m} {γ₃} {p} {q} {B} {γ₄} {γ₅} {γ₆} ▸A ▸t ▸B ▸u ▸v ▸w
+    with erased-matches-for-J m in ok
+  … | none = Jₘ ok ▸A ▸t ▸B ▸u ▸v ▸w
+  … | all  = sub
+    (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
+     J₀ₘ ok ▸A (▸-𝟘ᵐ? ▸t .proj₂)
+       (𝟘ᵐ?-elim (λ m → ∃ λ γ → γ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · q ▸[ m ] B)
+          ( 𝟘ᶜ
+          , sub (▸-𝟘 ▸B) (begin
+              𝟘ᶜ ∙ 𝟘 · p ∙ 𝟘 · q  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
+              𝟘ᶜ                  ∎)
+          )
+          (λ not-ok →
+               γ₃
+             , sub (▸-cong (Mode-propositional-without-𝟘ᵐ not-ok) ▸B)
+                 (begin
+                    γ₃ ∙ 𝟙 · p ∙ 𝟙 · q          ≈˘⟨ ≈ᶜ-refl ∙
+                                                    cong (λ m → ⌜ m ⌝ · _) (only-𝟙ᵐ-without-𝟘ᵐ {m = m} not-ok) ∙
+                                                    cong (λ m → ⌜ m ⌝ · _) (only-𝟙ᵐ-without-𝟘ᵐ {m = m} not-ok) ⟩
+                    γ₃ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · q  ∎))
+          .proj₂)
+       ▸u (▸-𝟘ᵐ? ▸v .proj₂) (▸-𝟘ᵐ? ▸w .proj₂))
+    (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
+     begin
+       ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆)  ≤⟨ ω·ᶜ-decreasing ⟩
+       γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆         ≤⟨ ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
+                                             ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
+                                             ∧ᶜ-decreasingˡ _ _ ⟩
+       γ₄                                 ∎)
 
 opaque
 
-  -- A variant of Kₘ and K₀ₘ.
+  -- A generalisation of the usage rule Kₘ:
+  -- erased-matches-for-K m ≡ none has been removed.
 
-  Kₘ′ :
+  Kₘ-generalised :
     γ₁ ▸[ 𝟘ᵐ? ] A →
     γ₂ ▸[ m ] t →
     γ₃ ∙ ⌜ m ⌝ · p ▸[ m ] B →
     γ₄ ▸[ m ] u →
     γ₅ ▸[ m ] v →
-    δ ≤ᶜ ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅) →
-    δ ▸[ m ] K p A t B u v
-  Kₘ′ {γ₂} {m} {γ₃} {p} {γ₄} {γ₅} {δ} ▸A ▸t ▸B ▸u ▸v δ≤ =
-    case Erased-matches-for-K? m of λ where
-      (no not-erased) →
-        sub (Kₘ not-erased ▸A ▸t ▸B ▸u ▸v) δ≤
-      (yes erased) → 𝟘ᵐ-allowed-elim
-        (λ ok →
-           sub
-             (K₀ₘ erased ▸A (𝟘ᶜ▸[𝟘ᵐ?] ok ▸t)
-                (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
-                 sub (𝟘ᶜ▸[𝟘ᵐ?] ok ▸B) $ begin
-                   𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · p  ≈⟨ ≈ᶜ-refl ∙ cong (λ m → ⌜ m ⌝ · p) (𝟘ᵐ?≡𝟘ᵐ {ok = ok}) ⟩
-                   𝟘ᶜ ∙ 𝟘 · p        ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
-                   𝟘ᶜ                ∎)
-                ▸u (𝟘ᶜ▸[𝟘ᵐ?] ok ▸v))
-             δ≤γ₄)
-        (λ not-ok →
-           sub
-             (K₀ₘ erased ▸A (▸-without-𝟘ᵐ not-ok ▸t)
-                (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
-                 sub (▸-without-𝟘ᵐ not-ok ▸B) $ begin
-                   γ₃ ∙ ⌜ 𝟘ᵐ? ⌝ · p  ≈⟨ ≈ᶜ-refl ∙ cong (λ m → ⌜ m ⌝ · p) (Mode-propositional-without-𝟘ᵐ {m₁ = 𝟘ᵐ?} {m₂ = m} not-ok) ⟩
-                   γ₃ ∙ ⌜ m ⌝ · p    ∎)
-                ▸u (▸-without-𝟘ᵐ not-ok ▸v))
-             δ≤γ₄)
-    where
-    δ≤γ₄ : δ ≤ᶜ γ₄
-    δ≤γ₄ = begin
-      δ                            ≤⟨ δ≤ ⟩
-      ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅)  ≤⟨ ω·ᶜ-decreasing ⟩
-      γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅         ≤⟨ ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
-                                      ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
-                                      ∧ᶜ-decreasingˡ _ _ ⟩
-      γ₄                           ∎
-      where
-      open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+    ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅) ▸[ m ] K p A t B u v
+  Kₘ-generalised {γ₂} {m} {γ₃} {p} {B} {γ₄} {γ₅} ▸A ▸t ▸B ▸u ▸v
+    with erased-matches-for-K m in ok
+  … | none = Kₘ ok ▸A ▸t ▸B ▸u ▸v
+  … | all  = sub
+    (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
+     K₀ₘ ok ▸A (▸-𝟘ᵐ? ▸t .proj₂)
+       (𝟘ᵐ?-elim (λ m → ∃ λ γ → γ ∙ ⌜ m ⌝ · p ▸[ m ] B)
+          ( 𝟘ᶜ
+          , sub (▸-𝟘 ▸B) (begin
+              𝟘ᶜ ∙ 𝟘 · p  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
+              𝟘ᶜ          ∎)
+          )
+          (λ not-ok →
+               γ₃
+             , sub (▸-cong (Mode-propositional-without-𝟘ᵐ not-ok) ▸B)
+                 (begin
+                    γ₃ ∙ 𝟙 · p      ≈˘⟨ ≈ᶜ-refl ∙ cong (λ m → ⌜ m ⌝ · _) (only-𝟙ᵐ-without-𝟘ᵐ {m = m} not-ok) ⟩
+                    γ₃ ∙ ⌜ m ⌝ · p  ∎))
+          .proj₂)
+       ▸u (▸-𝟘ᵐ? ▸v .proj₂))
+    (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
+     begin
+       ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅)  ≤⟨ ω·ᶜ-decreasing ⟩
+       γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅         ≤⟨ ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
+                                       ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
+                                       ∧ᶜ-decreasingˡ _ _ ⟩
+       γ₄                           ∎)
 
 ------------------------------------------------------------------------
 -- Lemmas related to ⌈_⌉
@@ -1950,9 +1935,9 @@ opaque
   open Tools.Reasoning.Equivalence Conₘ-setoid
 ⌈⌉-𝟘ᵐ rfl =
   ≈ᶜ-refl
-⌈⌉-𝟘ᵐ {ok} (J _ _ _ t B u v w) with Erased-matches-for-J? 𝟘ᵐ[ ok ]
-… | yes _ = ⌈⌉-𝟘ᵐ u
-… | no _  = begin
+⌈⌉-𝟘ᵐ {ok} (J _ _ _ t B u v w) with erased-matches-for-J 𝟘ᵐ[ ok ]
+… | all  = ⌈⌉-𝟘ᵐ u
+… | none = begin
   ω ·ᶜ
   (⌈ t ⌉ 𝟘ᵐ[ ok ] ∧ᶜ tailₘ (tailₘ (⌈ B ⌉ 𝟘ᵐ[ ok ])) ∧ᶜ ⌈ u ⌉ 𝟘ᵐ[ ok ] ∧ᶜ
    ⌈ v ⌉ 𝟘ᵐ[ ok ] ∧ᶜ ⌈ w ⌉ 𝟘ᵐ[ ok ])                                      ≈⟨ ·ᶜ-congˡ $
@@ -1974,9 +1959,9 @@ opaque
   𝟘ᶜ                                                                      ∎
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
-⌈⌉-𝟘ᵐ {ok} (K _ _ t B u v) with Erased-matches-for-K? 𝟘ᵐ[ ok ]
-… | yes _ = ⌈⌉-𝟘ᵐ u
-… | no _  = begin
+⌈⌉-𝟘ᵐ {ok} (K _ _ t B u v) with erased-matches-for-K 𝟘ᵐ[ ok ]
+… | all  = ⌈⌉-𝟘ᵐ u
+… | none = begin
   ω ·ᶜ
   (⌈ t ⌉ 𝟘ᵐ[ ok ] ∧ᶜ tailₘ (⌈ B ⌉ 𝟘ᵐ[ ok ]) ∧ᶜ ⌈ u ⌉ 𝟘ᵐ[ ok ] ∧ᶜ
    ⌈ v ⌉ 𝟘ᵐ[ ok ])                                                ≈⟨ ·ᶜ-congˡ $
@@ -2108,9 +2093,9 @@ usage-upper-bound
   {m}
   (Jₘ {γ₂} {t} {γ₃} {B} {γ₄} {u} {γ₅} {v} {γ₆} {w}
      not-ok _ ▸t ▸B ▸u ▸v ▸w)
-  with Erased-matches-for-J? m
-… | yes ok = ⊥-elim (not-ok ok)
-… | no _   = begin
+  with erased-matches-for-J m
+… | all  = case not-ok of λ ()
+… | none = begin
   ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆)                                      ≤⟨ ·ᶜ-monotoneʳ $
                                                                             ∧ᶜ-monotone (usage-upper-bound ▸t) $
                                                                             ∧ᶜ-monotone (tailₘ-monotone (tailₘ-monotone (usage-upper-bound ▸B))) $
@@ -2122,15 +2107,15 @@ usage-upper-bound
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-usage-upper-bound {m} (J₀ₘ ok _ _ _ ▸u _ _) with Erased-matches-for-J? m
-… | no not-ok = ⊥-elim (not-ok ok)
-… | yes _     = usage-upper-bound ▸u
+usage-upper-bound {m} (J₀ₘ ok _ _ _ ▸u _ _) with erased-matches-for-J m
+… | none = case ok of λ ()
+… | all  = usage-upper-bound ▸u
 
 usage-upper-bound
   {m} (Kₘ {γ₂} {t} {γ₃} {B} {γ₄} {u} {γ₅} {v} not-ok _ ▸t ▸B ▸u ▸v)
-  with Erased-matches-for-K? m
-… | yes ok = ⊥-elim (not-ok ok)
-… | no _   = begin
+  with erased-matches-for-K m
+… | all  = case not-ok of λ ()
+… | none = begin
   ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅)                              ≤⟨ ·ᶜ-monotoneʳ $
                                                               ∧ᶜ-monotone (usage-upper-bound ▸t) $
                                                               ∧ᶜ-monotone (tailₘ-monotone (usage-upper-bound ▸B)) $
@@ -2140,9 +2125,9 @@ usage-upper-bound
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-usage-upper-bound {m} (K₀ₘ ok _ _ _ ▸u _) with Erased-matches-for-K? m
-… | no not-ok = ⊥-elim (not-ok ok)
-… | yes _     = usage-upper-bound ▸u
+usage-upper-bound {m} (K₀ₘ ok _ _ _ ▸u _) with erased-matches-for-K m
+… | none = case ok of λ ()
+… | all  = usage-upper-bound ▸u
 
 usage-upper-bound ([]-congₘ _ _ _ _) =
   ≤ᶜ-refl
@@ -2203,25 +2188,27 @@ usage-inf (Id₀ₘ ok ▸A ▸t ▸u) with Id-erased?
 usage-inf rflₘ =
   rflₘ
 usage-inf {m} (Jₘ {p} {q} {B} not-ok ▸A ▸t ▸B ▸u ▸v ▸w)
-  with Erased-matches-for-J? m
-… | yes ok = ⊥-elim (not-ok ok)
-… | no _   =
-  Jₘ not-ok ▸A (usage-inf ▸t)
+  with erased-matches-for-J m in not-ok′
+… | all  = case not-ok of λ ()
+… | none =
+  Jₘ not-ok′ ▸A (usage-inf ▸t)
      (Conₘ-interchange₂ (usage-inf ▸B) ▸B)
      (usage-inf ▸u) (usage-inf ▸v) (usage-inf ▸w)
-usage-inf {m} (J₀ₘ ok ▸A ▸t ▸B ▸u ▸v ▸w) with Erased-matches-for-J? m
-… | no not-ok = ⊥-elim (not-ok ok)
-… | yes _     = J₀ₘ ok ▸A ▸t ▸B (usage-inf ▸u) ▸v ▸w
+usage-inf {m} (J₀ₘ ok ▸A ▸t ▸B ▸u ▸v ▸w)
+  with erased-matches-for-J m in ok′
+… | none = case ok of λ ()
+… | all  = J₀ₘ ok′ ▸A ▸t ▸B (usage-inf ▸u) ▸v ▸w
 usage-inf {m} (Kₘ {p} {B} not-ok ▸A ▸t ▸B ▸u ▸v)
-  with Erased-matches-for-K? m
-… | yes ok = ⊥-elim (not-ok ok)
-… | no _   =
-  Kₘ not-ok ▸A (usage-inf ▸t)
+  with erased-matches-for-K m in not-ok′
+… | all  = case not-ok of λ ()
+… | none =
+  Kₘ not-ok′ ▸A (usage-inf ▸t)
      (Conₘ-interchange₁ (usage-inf ▸B) ▸B)
      (usage-inf ▸u) (usage-inf ▸v)
-usage-inf {m} (K₀ₘ ok ▸A ▸t ▸B ▸u ▸v) with Erased-matches-for-K? m
-… | no not-ok = ⊥-elim (not-ok ok)
-… | yes _     = K₀ₘ ok ▸A ▸t ▸B (usage-inf ▸u) ▸v
+usage-inf {m} (K₀ₘ ok ▸A ▸t ▸B ▸u ▸v)
+  with erased-matches-for-K m in ok′
+… | none = case ok of λ ()
+… | all  = K₀ₘ ok′ ▸A ▸t ▸B (usage-inf ▸u) ▸v
 usage-inf ([]-congₘ ▸A ▸t ▸u ▸v) =
   []-congₘ ▸A ▸t ▸u ▸v
 usage-inf (sub γ▸t x) = usage-inf γ▸t

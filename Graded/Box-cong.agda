@@ -46,6 +46,7 @@ open import Graded.Neutral TR UR
 open import Graded.Reduction TR UR
 open import Graded.Restrictions 𝕄
 open import Graded.Usage 𝕄 UR
+open import Graded.Usage.Erased-matches
 open import Graded.Usage.Inversion 𝕄 UR
 open import Graded.Usage.Properties 𝕄 UR
 open import Graded.Usage.Weakening 𝕄 UR
@@ -56,7 +57,7 @@ open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat using (Nat)
 open import Tools.Product
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE using (_≢_)
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
@@ -144,7 +145,7 @@ opaque
             𝟘ᶜ ∙ 𝟘 · ω  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
             𝟘ᶜ          ≈˘⟨ +ᶜ-identityʳ _ ⟩
             𝟘ᶜ +ᶜ 𝟘ᶜ    ∎))
-      ▸t ▸u ▸v rflₘ (≤ᶜ-refl {γ = _ ·ᶜ (𝟘ᶜ ∧ᶜ _)})
+      ▸t ▸u ▸v rflₘ
     where
     open ErasedU s
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
@@ -390,7 +391,7 @@ opaque
   -- grades for which "Π 𝟘" are allowed.
 
   J₀→[]-cong :
-    Erased-matches-for-J 𝟙ᵐ →
+    erased-matches-for-J 𝟙ᵐ ≢ none →
     Erased-allowed s →
     Π-allowed 𝟘 q₁ →
     Π-allowed 𝟘 q₂ →
@@ -408,7 +409,7 @@ opaque
       ( []-cong′
       , (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
          lamₘ $ lamₘ $ lamₘ $ lamₘ $
-         sub (J₀ₘ J₀-ok var var ▸Id rflₘ var var) $ begin
+         sub (J₀ₘ (≢none→≡all J₀-ok) var var ▸Id rflₘ var var) $ begin
            ε ∙ 𝟙 · 𝟘 ∙ 𝟙 · 𝟘 ∙ 𝟙 · 𝟘 ∙ 𝟙 · 𝟘  ≈⟨ ε ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
            𝟘ᶜ                                 ∎)
       , ⊢[]-cong

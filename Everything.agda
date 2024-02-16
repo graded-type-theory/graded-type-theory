@@ -10,9 +10,9 @@ module Everything where
 import Tools.Level
 import Tools.Unit
 import Tools.Relation
+import Tools.Product
 import Tools.PropositionalEquality
 import Tools.Empty
-import Tools.Product
 import Tools.Sum
 import Tools.Function
 import Tools.Bool
@@ -208,6 +208,7 @@ import Graded.Context.Properties
 import Graded.Mode
 
 -- The usage relation and its properties
+import Graded.Usage.Erased-matches
 import Graded.Usage.Restrictions
 import Graded.Usage
 import Graded.Usage.Inversion

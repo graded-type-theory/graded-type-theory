@@ -557,7 +557,10 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
                (inj₁ $ case closed-or-no-erased-matches of λ where
                   (inj₂ k≡0) → k≡0
                   (inj₁ nem) →
-                    ⊥-elim (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₁ em)) }
+                    case
+                      PE.trans (PE.sym em)
+                        (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₁)
+                    of λ ()) }
            (invUsageJ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} _ _ _ _ ▸u _ ▸w γ≤) →
              case fundamental′ ⊢u ▸u of λ {
                (⊩B[t,rfl] , ⊩ʳu) →
@@ -601,7 +604,10 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
                (inj₁ $ case closed-or-no-erased-matches of λ where
                   (inj₂ k≡0) → k≡0
                   (inj₁ nem) →
-                    ⊥-elim (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₂ em)) }
+                    case
+                      PE.trans (PE.sym em)
+                        (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₂)
+                    of λ ()) }
            (invUsageK {γ₂} {γ₃} {γ₄} {γ₅} _ _ _ _ ▸u ▸v γ≤) →
              case fundamental′ ⊢u ▸u of λ {
                (⊩B[rfl] , ⊩ʳu) →

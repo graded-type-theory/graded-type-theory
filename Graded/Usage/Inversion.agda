@@ -18,6 +18,7 @@ open Usage-restrictions R
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Usage 𝕄 R
+open import Graded.Usage.Erased-matches
 open import Graded.Modality.Dedicated-nr 𝕄
 open import Graded.Modality.Dedicated-nr.Instance
 open import Graded.Mode 𝕄
@@ -389,7 +390,7 @@ data InvUsageJ
        (B : Term (2+ n)) (u t′ v : Term n) : Set a where
   invUsageJ :
     {γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ : Conₘ n} →
-    ¬ Erased-matches-for-J m →
+    erased-matches-for-J m ≡ none →
     γ₁ ▸[ 𝟘ᵐ? ] A →
     γ₂ ▸[ m ] t →
     γ₃ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · q ▸[ m ] B →
@@ -400,7 +401,7 @@ data InvUsageJ
     InvUsageJ γ m p q A t B u t′ v
   invUsageJ₀ :
     {γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ : Conₘ n} →
-    Erased-matches-for-J m →
+    erased-matches-for-J m ≡ all →
     γ₁ ▸[ 𝟘ᵐ? ] A →
     γ₂ ▸[ 𝟘ᵐ? ] t →
     γ₃ ∙ ⌜ 𝟘ᵐ? ⌝ · p ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] B →
@@ -431,7 +432,7 @@ data InvUsageK
        (B : Term (1+ n)) (u v : Term n) : Set a where
   invUsageK :
     {γ₁ γ₂ γ₃ γ₄ γ₅ : Conₘ n} →
-    ¬ Erased-matches-for-K m →
+    erased-matches-for-K m ≡ none →
     γ₁ ▸[ 𝟘ᵐ? ] A →
     γ₂ ▸[ m ] t →
     γ₃ ∙ ⌜ m ⌝ · p ▸[ m ] B →
@@ -441,7 +442,7 @@ data InvUsageK
     InvUsageK γ m p A t B u v
   invUsageK₀ :
     {γ₁ γ₂ γ₃ γ₄ γ₅ : Conₘ n} →
-    Erased-matches-for-K m →
+    erased-matches-for-K m ≡ all →
     γ₁ ▸[ 𝟘ᵐ? ] A →
     γ₂ ▸[ 𝟘ᵐ? ] t →
     γ₃ ∙ ⌜ 𝟘ᵐ? ⌝ · p ▸[ 𝟘ᵐ? ] B →

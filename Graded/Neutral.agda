@@ -32,12 +32,13 @@ open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 open import Graded.Restrictions 𝕄
 open import Graded.Usage 𝕄 UR
+open import Graded.Usage.Erased-matches
 open import Graded.Usage.Properties 𝕄 UR
 
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Product
-open import Tools.PropositionalEquality as PE using (_≡_)
+open import Tools.PropositionalEquality as PE using (_≡_; _≢_)
 open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
@@ -136,7 +137,10 @@ opaque
         γ₆ ≈ᶜ 𝟘ᶜ                                  →⟨ helper w-n ⊢w ▸w ⟩
         ⊥                                         □ }
       (Jₙ _) _ (J₀ₘ em _ _ _ _ _ _) →
-        ⊥-elim $ nem non-trivial .proj₂ .proj₂ .proj₂ .proj₁ em
+        case
+          PE.trans (PE.sym em)
+            (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₁)
+        of λ ()
       (Kₙ v-n) ⊢K (Kₘ {γ₂} {γ₃} {γ₄} {γ₅} _ _ _ _ _ ▸v) →
         case inversion-K ⊢K of λ {
           (_ , _ , _ , _ , ⊢v , _) →
@@ -150,7 +154,10 @@ opaque
         γ₅ ≈ᶜ 𝟘ᶜ                            →⟨ helper v-n ⊢v ▸v ⟩
         ⊥                                   □ }
       (Kₙ _) _ (K₀ₘ em _ _ _ _ _) →
-        ⊥-elim $ nem non-trivial .proj₂ .proj₂ .proj₂ .proj₂ em
+        case
+          PE.trans (PE.sym em)
+            (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₂)
+        of λ ()
       ([]-congₙ _) ⊢bc _ →
         case inversion-[]-cong ⊢bc of λ {
           (_ , _ , _ , _ , ok , _) →
@@ -204,7 +211,7 @@ opaque
   -- consistent, erased context.
 
   neutral-well-resourced₃ :
-    Erased-matches-for-J 𝟙ᵐ →
+    erased-matches-for-J 𝟙ᵐ ≢ none →
     ∃₄ λ n (Γ : Con Term n) (t A : Term n) →
     Consistent Γ ×
     Neutral t ×
@@ -223,7 +230,7 @@ opaque
 
   neutral-well-resourced₄ :
     K-allowed →
-    Erased-matches-for-K 𝟙ᵐ →
+    erased-matches-for-K 𝟙ᵐ ≢ none →
     ∃₄ λ n (Γ : Con Term n) (t A : Term n) →
     Consistent Γ ×
     Neutral t ×
