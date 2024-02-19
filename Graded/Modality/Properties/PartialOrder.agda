@@ -9,6 +9,7 @@ module Graded.Modality.Properties.PartialOrder
 
 open Semiring-with-meet 𝕄
 
+open import Tools.Empty
 open import Tools.Function
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
@@ -88,3 +89,27 @@ private
 
 <→≰ : p < q → ¬ q ≤ p
 <→≰ (p≤q , p≢q) q≤p = p≢q (≤-antisym p≤q q≤p)
+
+opaque
+
+  -- A kind of transitivity for _<_.
+
+  <≤-trans : p < q → q ≤ r → p < r
+  <≤-trans {p} {q} {r} (p≤q , p≢q) q≤r =
+      ≤-trans p≤q q≤r
+    , (p ≡ r  →⟨ flip (subst (_ ≤_)) q≤r ∘→ sym ⟩
+       q ≤ p  →⟨ ≤-antisym p≤q ⟩
+       p ≡ q  →⟨ p≢q ⟩
+       ⊥      □)
+
+opaque
+
+  -- Another kind of transitivity for _<_.
+
+  ≤<-trans : p ≤ q → q < r → p < r
+  ≤<-trans {p} {q} {r} p≤q (q≤r , q≢r) =
+      ≤-trans p≤q q≤r
+    , (p ≡ r  →⟨ flip (subst (_≤ _)) p≤q ⟩
+       r ≤ q  →⟨ ≤-antisym q≤r ⟩
+       q ≡ r  →⟨ q≢r ⟩
+       ⊥      □)
