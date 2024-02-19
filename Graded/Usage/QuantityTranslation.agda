@@ -709,23 +709,9 @@ module Is-order-embedding
         rfl rflᵤ →
           UP₁.rflᵤ
         (J _ _ _ _ _ _ _ _) (Jᵤ not-ok A t B u v w) →
-          case m₁≳m₂ of λ where
-            [ m₁≈m₂ ] →
-              UP₁.Jᵤ
-                (≤ᵉᵐ→≡none→≡none (erased-matches-for-J-preserved m₁≈m₂)
-                   not-ok)
-                (lemma-𝟘ᵐ? A) (lemma m₁≳m₂ _ t) (lemma m₁≳m₂ _ B)
-                (lemma m₁≳m₂ _ u) (lemma m₁≳m₂ _ v) (lemma m₁≳m₂ _ w)
-            (𝟙ᵐ≳𝟘ᵐ _) →
-              case singleton $ UR₁.erased-matches-for-J m₁ of λ where
-                (none , not-ok) →
-                  UP₁.Jᵤ not-ok (lemma-𝟘ᵐ? A) (lemma m₁≳m₂ _ t)
-                    (lemma m₁≳m₂ _ B) (lemma m₁≳m₂ _ u)
-                    (lemma m₁≳m₂ _ v) (lemma m₁≳m₂ _ w)
-                (all , ok) →
-                  UP₁.J₀ᵤ ok (lemma-𝟘ᵐ? A) (lemma-𝟘ᵐ-𝟘ᵐ? t)
-                    (lemma-𝟘ᵐ-𝟘ᵐ? B) (lemma m₁≳m₂ _ u) (lemma-𝟘ᵐ-𝟘ᵐ? v)
-                    (lemma-𝟘ᵐ-𝟘ᵐ? w)
+          UP₁.Jᵤ-generalised (lemma-𝟘ᵐ? A) (lemma m₁≳m₂ _ t)
+            (lemma m₁≳m₂ _ B) (lemma m₁≳m₂ _ u) (lemma m₁≳m₂ _ v)
+            (lemma m₁≳m₂ _ w)
         (J _ _ _ _ _ _ _ _) (J₀ᵤ ok A t B u v w) →
           case m₁≳m₂ of λ where
             [ m₁≈m₂ ] →
@@ -735,31 +721,12 @@ module Is-order-embedding
                 (lemma-𝟘ᵐ? A) (lemma-𝟘ᵐ? t) (lemma-𝟘ᵐ? B)
                 (lemma m₁≳m₂ _ u) (lemma-𝟘ᵐ? v) (lemma-𝟘ᵐ? w)
             (𝟙ᵐ≳𝟘ᵐ _) →
-              case singleton $ UR₁.erased-matches-for-J m₁ of λ where
-                (all , ok) →
-                  UP₁.J₀ᵤ ok (lemma-𝟘ᵐ? A) (lemma-𝟘ᵐ? t) (lemma-𝟘ᵐ? B)
-                    (lemma m₁≳m₂ _ u) (lemma-𝟘ᵐ? v) (lemma-𝟘ᵐ? w)
-                (none , not-ok) →
-                  UP₁.Jᵤ not-ok (lemma-𝟘ᵐ? A) (lemma-𝟘ᵐ?-𝟙ᵐ m₁≳m₂ t)
-                    (lemma-𝟘ᵐ?-𝟙ᵐ m₁≳m₂ B) (lemma m₁≳m₂ _ u)
-                    (lemma-𝟘ᵐ?-𝟙ᵐ m₁≳m₂ v) (lemma-𝟘ᵐ?-𝟙ᵐ m₁≳m₂ w)
+              UP₁.Jᵤ-generalised (lemma-𝟘ᵐ? A) (lemma-𝟘ᵐ?-𝟙ᵐ m₁≳m₂ t)
+                (lemma-𝟘ᵐ?-𝟙ᵐ m₁≳m₂ B) (lemma m₁≳m₂ _ u)
+                (lemma-𝟘ᵐ?-𝟙ᵐ m₁≳m₂ v) (lemma-𝟘ᵐ?-𝟙ᵐ m₁≳m₂ w)
         (K _ _ _ _ _ _) (Kᵤ not-ok A t B u v) →
-          case m₁≳m₂ of λ where
-            [ m₁≈m₂ ] →
-              UP₁.Kᵤ
-                (≤ᵉᵐ→≡none→≡none (erased-matches-for-K-preserved m₁≈m₂)
-                   not-ok)
-                (lemma-𝟘ᵐ? A) (lemma m₁≳m₂ _ t) (lemma m₁≳m₂ _ B)
-                (lemma m₁≳m₂ _ u) (lemma m₁≳m₂ _ v)
-            (𝟙ᵐ≳𝟘ᵐ _) →
-              case singleton $ UR₁.erased-matches-for-K m₁ of λ where
-                (none , not-ok) →
-                  UP₁.Kᵤ not-ok (lemma-𝟘ᵐ? A) (lemma m₁≳m₂ _ t)
-                    (lemma m₁≳m₂ _ B) (lemma m₁≳m₂ _ u)
-                    (lemma m₁≳m₂ _ v)
-                (all , ok) →
-                  UP₁.K₀ᵤ ok (lemma-𝟘ᵐ? A) (lemma-𝟘ᵐ-𝟘ᵐ? t)
-                    (lemma-𝟘ᵐ-𝟘ᵐ? B) (lemma m₁≳m₂ _ u) (lemma-𝟘ᵐ-𝟘ᵐ? v)
+          UP₁.Kᵤ-generalised (lemma-𝟘ᵐ? A) (lemma m₁≳m₂ _ t)
+            (lemma m₁≳m₂ _ B) (lemma m₁≳m₂ _ u) (lemma m₁≳m₂ _ v)
         (K _ _ _ _ _ _) (K₀ᵤ ok A t B u v) →
           case m₁≳m₂ of λ where
             [ m₁≈m₂ ] →
@@ -769,14 +736,9 @@ module Is-order-embedding
                 (lemma-𝟘ᵐ? A) (lemma-𝟘ᵐ? t) (lemma-𝟘ᵐ? B)
                 (lemma m₁≳m₂ _ u) (lemma-𝟘ᵐ? v)
             (𝟙ᵐ≳𝟘ᵐ _) →
-              case singleton $ UR₁.erased-matches-for-K m₁ of λ where
-                (all , ok) →
-                  UP₁.K₀ᵤ ok (lemma-𝟘ᵐ? A) (lemma-𝟘ᵐ? t) (lemma-𝟘ᵐ? B)
-                    (lemma m₁≳m₂ _ u) (lemma-𝟘ᵐ? v)
-                (none , not-ok) →
-                  UP₁.Kᵤ not-ok (lemma-𝟘ᵐ? A) (lemma-𝟘ᵐ?-𝟙ᵐ m₁≳m₂ t)
-                    (lemma-𝟘ᵐ?-𝟙ᵐ m₁≳m₂ B) (lemma m₁≳m₂ _ u)
-                    (lemma-𝟘ᵐ?-𝟙ᵐ m₁≳m₂ v)
+              UP₁.Kᵤ-generalised (lemma-𝟘ᵐ? A) (lemma-𝟘ᵐ?-𝟙ᵐ m₁≳m₂ t)
+                (lemma-𝟘ᵐ?-𝟙ᵐ m₁≳m₂ B) (lemma m₁≳m₂ _ u)
+                (lemma-𝟘ᵐ?-𝟙ᵐ m₁≳m₂ v)
         ([]-cong _ _ _ _ _) ([]-congᵤ A t u v) →
           UP₁.[]-congᵤ (lemma-𝟘ᵐ? A) (lemma-𝟘ᵐ? t) (lemma-𝟘ᵐ? u)
             (lemma-𝟘ᵐ? v)

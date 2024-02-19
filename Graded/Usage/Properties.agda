@@ -549,6 +549,161 @@ data Usage-restrictions-satisfied {n} (m : Mode) : Term n → Set a where
     Usage-restrictions-satisfied 𝟘ᵐ? v →
     Usage-restrictions-satisfied m ([]-cong str A t u v)
 
+opaque
+
+  -- If Usage-restrictions-satisfied holds for the mode 𝟙ᵐ and the
+  -- term t, then the predicate holds for any mode.
+
+  Usage-restrictions-satisfied-𝟙ᵐ→ :
+    Usage-restrictions-satisfied 𝟙ᵐ t →
+    Usage-restrictions-satisfied m t
+
+  -- If Usage-restrictions-satisfied holds for any mode and the
+  -- term t, then the predicate holds for the mode 𝟘ᵐ?.
+
+  Usage-restrictions-satisfied-→𝟘ᵐ? :
+    Usage-restrictions-satisfied m t →
+    Usage-restrictions-satisfied 𝟘ᵐ? t
+  Usage-restrictions-satisfied-→𝟘ᵐ? {m = 𝟙ᵐ} =
+    Usage-restrictions-satisfied-𝟙ᵐ→
+  Usage-restrictions-satisfied-→𝟘ᵐ? {m = 𝟘ᵐ} =
+    subst (flip Usage-restrictions-satisfied _) (PE.sym 𝟘ᵐ?≡𝟘ᵐ)
+
+  -- If Usage-restrictions-satisfied holds for any mode and the
+  -- term t, then the predicate holds for the mode 𝟘ᵐ[ ok ].
+
+  Usage-restrictions-satisfied-→𝟘ᵐ :
+    Usage-restrictions-satisfied m t →
+    Usage-restrictions-satisfied 𝟘ᵐ[ ok ] t
+  Usage-restrictions-satisfied-→𝟘ᵐ =
+    subst (flip Usage-restrictions-satisfied _) 𝟘ᵐ?≡𝟘ᵐ ∘→
+    Usage-restrictions-satisfied-→𝟘ᵐ?
+
+  -- A generalisation of Jᵤ: erased-matches-for-J m ≡ none has been
+  -- removed.
+
+  Jᵤ-generalised :
+    Usage-restrictions-satisfied 𝟘ᵐ? A →
+    Usage-restrictions-satisfied m t →
+    Usage-restrictions-satisfied m B →
+    Usage-restrictions-satisfied m u →
+    Usage-restrictions-satisfied m v →
+    Usage-restrictions-satisfied m w →
+    Usage-restrictions-satisfied m (J p q A t B u v w)
+  Jᵤ-generalised {m} A t B u v w
+    with erased-matches-for-J m in ok
+  … | none =
+    Jᵤ ok A t B u v w
+  … | all =
+    J₀ᵤ ok A (Usage-restrictions-satisfied-→𝟘ᵐ? t)
+      (Usage-restrictions-satisfied-→𝟘ᵐ? B) u
+      (Usage-restrictions-satisfied-→𝟘ᵐ? v)
+      (Usage-restrictions-satisfied-→𝟘ᵐ? w)
+
+  -- A generalisation of Kᵤ: erased-matches-for-K m ≡ none has been
+  -- removed.
+
+  Kᵤ-generalised :
+    Usage-restrictions-satisfied 𝟘ᵐ? A →
+    Usage-restrictions-satisfied m t →
+    Usage-restrictions-satisfied m B →
+    Usage-restrictions-satisfied m u →
+    Usage-restrictions-satisfied m v →
+    Usage-restrictions-satisfied m (K p A t B u v)
+  Kᵤ-generalised {m} A t B u v
+    with erased-matches-for-K m in ok
+  … | none =
+    Kᵤ ok A t B u v
+  … | all =
+    K₀ᵤ ok A (Usage-restrictions-satisfied-→𝟘ᵐ? t)
+      (Usage-restrictions-satisfied-→𝟘ᵐ? B) u
+      (Usage-restrictions-satisfied-→𝟘ᵐ? v)
+
+  Usage-restrictions-satisfied-𝟙ᵐ→ {m = 𝟙ᵐ} = idᶠ
+  Usage-restrictions-satisfied-𝟙ᵐ→ {m = 𝟘ᵐ[ ok ]} = λ where
+    varᵤ →
+      varᵤ
+    Emptyᵤ →
+      Emptyᵤ
+    (emptyrecᵤ A t) →
+      emptyrecᵤ A (Usage-restrictions-satisfied-→𝟘ᵐ t)
+    Unitᵤ →
+      Unitᵤ
+    starᵤ →
+      starᵤ
+    (unitrecᵤ ok A t u) →
+      unitrecᵤ (Unitrec-allowed-downwards-closed ok) A
+        (Usage-restrictions-satisfied-→𝟘ᵐ t)
+        (Usage-restrictions-satisfied-→𝟘ᵐ u)
+    (ΠΣᵤ A B) →
+      ΠΣᵤ (Usage-restrictions-satisfied-→𝟘ᵐ A)
+        (Usage-restrictions-satisfied-𝟙ᵐ→ B)
+    (lamᵤ t) →
+      lamᵤ (Usage-restrictions-satisfied-𝟙ᵐ→ t)
+    (∘ᵤ t u) →
+      ∘ᵤ (Usage-restrictions-satisfied-𝟙ᵐ→ t)
+        (Usage-restrictions-satisfied-→𝟘ᵐ u)
+    (prodᵤ t u) →
+      prodᵤ (Usage-restrictions-satisfied-→𝟘ᵐ t)
+        (Usage-restrictions-satisfied-𝟙ᵐ→ u)
+    (prodrecᵤ ok A t u) →
+      prodrecᵤ (Prodrec-allowed-downwards-closed ok) A
+        (Usage-restrictions-satisfied-→𝟘ᵐ t)
+        (Usage-restrictions-satisfied-𝟙ᵐ→ u)
+    (fstᵤ t) →
+      fstᵤ (Usage-restrictions-satisfied-𝟙ᵐ→ t)
+    (sndᵤ t) →
+      sndᵤ (Usage-restrictions-satisfied-𝟙ᵐ→ t)
+    ℕᵤ →
+      ℕᵤ
+    zeroᵤ →
+      zeroᵤ
+    (sucᵤ t) →
+      sucᵤ (Usage-restrictions-satisfied-𝟙ᵐ→ t)
+    (natrecᵤ A t u v) →
+      natrecᵤ A (Usage-restrictions-satisfied-𝟙ᵐ→ t)
+        (Usage-restrictions-satisfied-𝟙ᵐ→ u)
+        (Usage-restrictions-satisfied-𝟙ᵐ→ v)
+    Uᵤ →
+      Uᵤ
+    (Idᵤ ok A t u) →
+      Idᵤ ok A (Usage-restrictions-satisfied-𝟙ᵐ→ t)
+        (Usage-restrictions-satisfied-𝟙ᵐ→ u)
+    (Id₀ᵤ ok A t u) →
+      Id₀ᵤ ok A t u
+    rflᵤ →
+      rflᵤ
+    (Jᵤ _ A t B u v w) →
+      Jᵤ-generalised A (Usage-restrictions-satisfied-𝟙ᵐ→ t)
+        (Usage-restrictions-satisfied-𝟙ᵐ→ B)
+        (Usage-restrictions-satisfied-𝟙ᵐ→ u)
+        (Usage-restrictions-satisfied-𝟙ᵐ→ v)
+        (Usage-restrictions-satisfied-𝟙ᵐ→ w)
+    (J₀ᵤ ≡all A t B u v w) →
+      J₀ᵤ (≤ᵉᵐ→≡all→≡all erased-matches-for-J-≤ᵉᵐ ≡all) A t B
+        (Usage-restrictions-satisfied-𝟙ᵐ→ u) v w
+    (Kᵤ _ A t B u v) →
+      Kᵤ-generalised A (Usage-restrictions-satisfied-𝟙ᵐ→ t)
+        (Usage-restrictions-satisfied-𝟙ᵐ→ B)
+        (Usage-restrictions-satisfied-𝟙ᵐ→ u)
+        (Usage-restrictions-satisfied-𝟙ᵐ→ v)
+    (K₀ᵤ ≡all A t B u v) →
+      K₀ᵤ (≤ᵉᵐ→≡all→≡all erased-matches-for-K-≤ᵉᵐ ≡all) A t B
+        (Usage-restrictions-satisfied-𝟙ᵐ→ u) v
+    ([]-congᵤ A t u v) →
+      []-congᵤ A t u v
+
+opaque
+
+  -- Usage-restrictions-satisfied is closed under _ᵐ· p.
+
+  Usage-restrictions-satisfied-ᵐ· :
+    Usage-restrictions-satisfied m t →
+    Usage-restrictions-satisfied (m ᵐ· p) t
+  Usage-restrictions-satisfied-ᵐ· {m = 𝟘ᵐ} = idᶠ
+  Usage-restrictions-satisfied-ᵐ· {m = 𝟙ᵐ} =
+    Usage-restrictions-satisfied-𝟙ᵐ→
+
 -- If t is well-resourced (with respect to any context and the
 -- mode m), then Usage-restrictions-satisfied m t holds.
 
