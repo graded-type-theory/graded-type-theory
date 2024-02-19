@@ -156,9 +156,8 @@ opaque
     case extractMaybeEmb (Id-elim ⊩Id) .proj₂ of λ {
       ⊩Id′ →
     case irrelevanceTerm ⊩Id (Idᵣ ⊩Id′) t®v of λ {
-      (rflᵣ t⇒* v⇒*) →
-    rflᵣ (conv* t⇒* (sym (subset* (red (_⊩ₗId_.⇒*Id ⊩Id′)))))
-      v⇒* }}
+      (rflᵣ t⇒*) →
+    rflᵣ (conv* t⇒* (sym (subset* (red (_⊩ₗId_.⇒*Id ⊩Id′))))) }}
 
 opaque
   unfolding _®⟨_⟩_∷_

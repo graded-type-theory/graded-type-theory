@@ -144,14 +144,13 @@ convTermʳ′ {v = v}
                    let t₁®v₁′ = convTermʳ′ [F]′ [F]₁′ F≡F₁′ SV₁ t₁®v₁
                    in  Σ-®-intro-ω v₁ v⇒p t₁®v₁′
   in  t₁ , t₂ , t⇒t″ , [t₁]′ , v₂ , t₂®v₂′ , extra′
-convTermʳ′ {A} {B} _ _ A≡B (Idᵥ ⊩A ⊩B) (rflᵣ t⇒*rfl v⇒*rfl) =
+convTermʳ′ {A} {B} _ _ A≡B (Idᵥ ⊩A ⊩B) (rflᵣ t⇒*rfl) =
   rflᵣ
     (conv* t⇒*rfl
        (Id (_⊩ₗId_.Ty ⊩A) (_⊩ₗId_.lhs ⊩A) (_⊩ₗId_.rhs ⊩A)  ≡˘⟨ subset* (red (_⊩ₗId_.⇒*Id ⊩A)) ⟩⊢
         A                                                  ≡⟨ A≡B ⟩⊢
         B                                                  ≡⟨ subset* (red (_⊩ₗId_.⇒*Id ⊩B)) ⟩⊢∎
         Id (_⊩ₗId_.Ty ⊩B) (_⊩ₗId_.lhs ⊩B) (_⊩ₗId_.rhs ⊩B)  ∎))
-    v⇒*rfl
 convTermʳ′ (emb 0<1 [A]) [B] A≡B (emb⁰¹ SV) t®v =
   convTermʳ′ [A] [B] A≡B SV t®v
 convTermʳ′ [A] (emb 0<1 [B]) A≡B (emb¹⁰ SV) t®v =

@@ -73,7 +73,7 @@ opaque
               ; other-assumptions = ok
               })
            ⊢v ▸v of λ {
-      (rflᵣ v⇒rfl _) →
+      (rflᵣ v⇒rfl) →
     inversion-rfl-Id
       (syntacticEqTerm (subset*Term v⇒rfl) .proj₂ .proj₂) }
     where

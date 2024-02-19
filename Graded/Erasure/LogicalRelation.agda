@@ -80,13 +80,12 @@ data _®_∷Empty (t : U.Term k) (v : T.Term k) : Set a where
 data _®_∷Unit⟨_⟩ (t : U.Term k) (v : T.Term k) (s : Strength) : Set a where
   starᵣ : Δ ⊢ t ⇒* U.star s ∷ Unit s → v T.⇒* T.star → t ® v ∷Unit⟨ s ⟩
 
--- Equality proofs are related if both terms reduce to rfl.
+-- Equality proofs are related if the source term reduces to rfl.
 
 data _®_∷Id⟨_⟩⟨_⟩⟨_⟩
        (t : U.Term k) (v : T.Term k) (Ty lhs rhs : U.Term k) :
        Set a where
-  rflᵣ : Δ ⊢ t ⇒* U.rfl ∷ Id Ty lhs rhs → v T.⇒* T.rfl →
-         t ® v ∷Id⟨ Ty ⟩⟨ lhs ⟩⟨ rhs ⟩
+  rflᵣ : Δ ⊢ t ⇒* U.rfl ∷ Id Ty lhs rhs → t ® v ∷Id⟨ Ty ⟩⟨ lhs ⟩⟨ rhs ⟩
 
 mutual
 
