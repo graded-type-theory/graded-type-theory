@@ -19,7 +19,8 @@ open import Graded.Erasure.Extraction 𝕄 is-𝟘?
 open import Graded.Erasure.Target as T hiding (refl; trans)
 open import Graded.Erasure.Target.Properties.Substitution
 
-open import Definition.Untyped M as U hiding (Wk; Term; wk; wkVar; _[_]; _[_,_]; liftSubst)
+open import Definition.Untyped M as U
+  hiding (Term; wk; _[_]; _[_,_]; liftSubst)
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
@@ -86,21 +87,11 @@ prodrec-ω {r} p r≢𝟘 with is-𝟘? r
 ... | yes p≡𝟘 = PE.refl
 ... | no p≢𝟘 = PE.refl
 
--- Weakenings act the same on variables of both target and source languages
--- wkVar (eraseWk ρ) x ≡ wkVar ρ x
-
-wkVar-erase-comm : (ρ : U.Wk m n) (x : Fin n) → wkVar (eraseWk ρ) x ≡ U.wkVar ρ x
-wkVar-erase-comm id x = refl
-wkVar-erase-comm (step ρ) x = cong _+1 (wkVar-erase-comm ρ x)
-wkVar-erase-comm (lift ρ) x0 = refl
-wkVar-erase-comm (lift ρ) (x +1) = cong _+1 (wkVar-erase-comm ρ x)
-
--- wk commutes with erase (modulo translating weakening to target language)
--- wk (eraseWk ρ) (erase t) ≡ erase (wk ρ t)
+-- The functions wk ρ/U.wk ρ and erase commute.
 
 wk-erase-comm : (ρ : U.Wk m n) (t : U.Term n)
-              → wk (eraseWk ρ) (erase t) ≡ erase (U.wk ρ t)
-wk-erase-comm ρ (var x) = cong var (wkVar-erase-comm ρ x)
+              → wk ρ (erase t) ≡ erase (U.wk ρ t)
+wk-erase-comm _ (var _) = refl
 wk-erase-comm ρ U = refl
 wk-erase-comm ρ (Π p , w ▷ F ▹ G) = refl
 wk-erase-comm ρ (U.lam p t) =
@@ -123,12 +114,12 @@ wk-erase-comm ρ (U.prodrec r p _ A t u) with is-𝟘? r
                    (wk-erase-comm (lift (lift ρ)) u)
 ... | no _ with is-𝟘? p
 ... | yes _ =
-  T.prodrec (T.prod ↯ (wk (eraseWk ρ) (erase t)))
-    (wk (lift (lift (eraseWk ρ))) (erase u))       ≡⟨ cong₂ (λ t u → T.prodrec (T.prod ↯ t) u)
-                                                        (wk-erase-comm _ t)
-                                                        (wk-erase-comm _ u) ⟩
+  T.prodrec (T.prod ↯ (wk ρ (erase t)))
+    (wk (lift (lift ρ)) (erase u))         ≡⟨ cong₂ (λ t u → T.prodrec (T.prod ↯ t) u)
+                                                (wk-erase-comm _ t)
+                                                (wk-erase-comm _ u) ⟩
   T.prodrec (T.prod ↯ (erase (U.wk ρ t)))
-    (erase (U.wk (lift (lift ρ)) u))               ∎
+    (erase (U.wk (lift (lift ρ)) u))       ∎
   where
   open Tools.Reasoning.PropositionalEquality
 ... | no _ = cong₂ T.prodrec (wk-erase-comm ρ t)

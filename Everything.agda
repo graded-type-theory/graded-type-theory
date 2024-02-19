@@ -41,6 +41,7 @@ import Graded.Modality.Dedicated-nr.Instance
 import Definition.Untyped.NotParametrised
 import Definition.Untyped
 import Definition.Untyped.Inversion
+import Definition.Untyped.Properties.NotParametrised
 import Definition.Untyped.Properties
 import Graded.Derived.Erased.Untyped
 

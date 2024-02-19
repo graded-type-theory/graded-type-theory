@@ -8,6 +8,8 @@ open import Tools.Fin
 open import Tools.Nat
 import Tools.PropositionalEquality as PE
 
+open import Definition.Untyped.NotParametrised
+
 infixl 30 _∘_
 infixl 25 _[_]
 infixl 25 _[_,_]
@@ -60,34 +62,6 @@ data HasX (x : Fin n) : (t : Term n) → Set where
   prodrecₓʳ : HasX (x +2) u → HasX x (prodrec t u)
   unitrecₓˡ : HasX x t → HasX x (unitrec t u)
   unitrecₓʳ : HasX x u → HasX x (unitrec t u)
-
--- Weakenings in the same style as the source language
-
-data Wk : (m n : Nat) → Set where
-  id   : Wk n n
-  step : (ρ : Wk m n) → Wk (1+ m) n
-  lift : (ρ : Wk m n) → Wk (1+ m) (1+ n)
-
--- Composition of weakenings
-
-_•_ : (ρ : Wk m n) → (ρ′ : Wk n ℓ) → Wk m ℓ
-id • ρ′ = ρ′
-step ρ • ρ′ = step (ρ • ρ′)
-lift ρ • id = lift ρ
-lift ρ • step ρ′ = step (ρ • ρ′)
-lift ρ • lift ρ′ = lift (ρ • ρ′)
-
-liftn : (ρ : Wk ℓ m) → (n : Nat) → Wk (n + ℓ) (n + m)
-liftn ρ 0 = ρ
-liftn ρ (1+ n) = lift (liftn ρ n)
-
--- Weakening of variables
-
-wkVar : (ρ : Wk m n) → (x : Fin n) → Fin m
-wkVar id x = x
-wkVar (step ρ) x = (wkVar ρ x) +1
-wkVar (lift ρ) x0 = x0
-wkVar (lift ρ) (x +1) = (wkVar ρ x) +1
 
 -- Weakening of terms
 

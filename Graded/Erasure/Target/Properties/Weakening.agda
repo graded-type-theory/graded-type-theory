@@ -4,6 +4,9 @@
 
 module Graded.Erasure.Target.Properties.Weakening where
 
+open import Definition.Untyped.NotParametrised
+open import Definition.Untyped.Properties.NotParametrised
+
 open import Graded.Erasure.Target renaming (refl to ⇒*-refl; trans to ⇒*-trans)
 
 open import Tools.Fin
@@ -16,18 +19,6 @@ private
     ρ ρ′ : Wk m n
 
 -- Weakening properties
-
--- Two weakenings ρ and ρ′ are extensionally equal if they agree on
--- all arguments when interpreted as functions mapping variables to
--- variables.  Formally, they are considered equal iff
---
---   (∀ x → wkVar ρ x ≡ wkVar ρ′ x)
-
-wkVar-lift : (∀ x → wkVar ρ x ≡ wkVar ρ′ x)
-           → (∀ x → wkVar (lift ρ) x ≡ wkVar (lift ρ′) x)
-wkVar-lift eq x0     = refl
-wkVar-lift eq (x +1) = cong _+1 (eq x)
-
 
 -- Extensionally equal weakenings, if applied to a term,
 -- yield the same weakened term.  Or:
@@ -50,22 +41,7 @@ mutual
   wkVar-to-wk eq (unitrec t u) = cong₂ unitrec (wkVar-to-wk eq t) (wkVar-to-wk eq u)
   wkVar-to-wk eq ↯ = refl
 
-
--- lift id  is extensionally equal to  id.
-
-wkVar-lift-id : (x : Fin (1+ n)) → wkVar (lift id) x ≡ wkVar id x
-wkVar-lift-id x0     = refl
-wkVar-lift-id (x +1) = refl
-
-wkVar-lifts-id : (n : Nat) (x : Fin (n + m)) → wkVar (liftn id n) x ≡ wkVar id x
-wkVar-lifts-id 0 x           = refl
-wkVar-lifts-id (1+ n) x0     = refl
-wkVar-lifts-id (1+ n) (x +1) = cong _+1 (wkVar-lifts-id n x)
-
 -- id is the identity renaming.
-
-wkVar-id : (x : Fin n) → wkVar id x ≡ x
-wkVar-id x = refl
 
 mutual
   wk-id : (t : Term n) → wk id t ≡ t
@@ -88,26 +64,7 @@ mutual
 wk-lift-id : (t : Term (1+ n)) → wk (lift id) t ≡ t
 wk-lift-id t = trans (wkVar-to-wk wkVar-lift-id t) (wk-id t)
 
--- The composition of weakenings is correct...
---
--- ...as action on variables.
-
-wkVar-comp : (ρ : Wk m ℓ) (ρ′ : Wk ℓ n) (x : Fin n) → wkVar ρ (wkVar ρ′ x) ≡ wkVar (ρ • ρ′) x
-wkVar-comp id       ρ′        x      = refl
-wkVar-comp (step ρ) ρ′        x      = cong _+1 (wkVar-comp ρ ρ′ x)
-wkVar-comp (lift ρ) id        x      = refl
-wkVar-comp (lift ρ) (step ρ′) x      = cong _+1 (wkVar-comp ρ ρ′ x)
-wkVar-comp (lift ρ) (lift ρ′) x0     = refl
-wkVar-comp (lift ρ) (lift ρ′) (x +1) = cong _+1 (wkVar-comp ρ ρ′ x)
-
-wkVar-comps : ∀ k → (ρ : Wk m ℓ) (ρ′ : Wk ℓ n) (x : Fin (k + n))
-            → wkVar (liftn ρ k • liftn ρ′ k) x
-            ≡ wkVar (liftn (ρ • ρ′) k) x
-wkVar-comps 0      ρ ρ′ x      = refl
-wkVar-comps (1+ n) ρ ρ′ x0     = refl
-wkVar-comps (1+ n) ρ ρ′ (x +1) = cong _+1 (wkVar-comps n ρ ρ′ x)
-
--- ... as action on terms.
+-- The function wk commutes with composition.
 
 mutual
   wk-comp : (ρ : Wk m ℓ) (ρ′ : Wk ℓ n) (t : Term n) → wk ρ (wk ρ′ t) ≡ wk (ρ • ρ′) t
@@ -132,11 +89,6 @@ mutual
 --   wk1 ∘ ρ = lift ρ ∘ wk1.
 --
 -- Typing:  Γ∙A ≤ Γ ≤ Δ  <==>  Γ∙A ≤ Δ∙A ≤ Δ.
-
-lift-step-comp : (ρ : Wk m n) → step id • ρ ≡ lift ρ • step id
-lift-step-comp id       = refl
-lift-step-comp (step ρ) = cong step (lift-step-comp ρ)
-lift-step-comp (lift ρ) = refl
 
 wk1-wk : (ρ : Wk m n) (t : Term n) → wk1 (wk ρ t) ≡ wk (step ρ) t
 wk1-wk ρ t = wk-comp (step id) ρ t

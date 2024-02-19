@@ -75,10 +75,3 @@ erase ([]-cong _ _ _ _ _) = ↯
 
 eraseSubst : U.Subst m n → T.Subst m n
 eraseSubst σ x = erase (σ x)
-
--- Extraction of weakenings.
-
-eraseWk : U.Wk m n → T.Wk m n
-eraseWk id = id
-eraseWk (step ρ) = step (eraseWk ρ)
-eraseWk (lift ρ) = lift (eraseWk ρ)

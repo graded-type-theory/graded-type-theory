@@ -4,6 +4,8 @@
 
 module Graded.Erasure.Target.Properties.Substitution where
 
+open import Definition.Untyped.NotParametrised
+
 open import Graded.Erasure.Target hiding (refl ; trans)
 open import Graded.Erasure.Target.Properties.Weakening
 
