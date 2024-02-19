@@ -29,6 +29,7 @@ import Graded.Modality.Properties
 open import Graded.Usage
 open import Graded.Usage.Erased-matches
 import Graded.Usage.Properties
+import Graded.Usage.Restrictions.Satisfied
 open import Graded.Modality.Morphism.Usage-restrictions
 
 open import Graded.Mode
@@ -37,6 +38,7 @@ open import Graded.Mode.QuantityTranslation 𝕄₁ 𝕄₂ tr tr-Σ
 
 open Graded.Modality.Properties 𝕄₂
 open Graded.Usage.Properties 𝕄₂ R₂
+open Graded.Usage.Restrictions.Satisfied 𝕄₂ R₂
 
 private
   module C₁  = Graded.Context 𝕄₁
@@ -47,7 +49,8 @@ private
   module U₁  = Graded.Usage 𝕄₁ R₁
   module U₂  = Graded.Usage 𝕄₂ R₂
   module UP₁ = Graded.Usage.Properties 𝕄₁ R₁
-  module UP₂ = Graded.Usage.Properties 𝕄₂ R₂
+  module RS₁ = Graded.Usage.Restrictions.Satisfied 𝕄₁ R₁
+  module RS₂ = Graded.Usage.Restrictions.Satisfied 𝕄₂ R₂
   module Mo₁ = Graded.Mode 𝕄₁
   module Mo₂ = Graded.Mode 𝕄₂
   module M₁  = Modality 𝕄₁
@@ -619,53 +622,53 @@ module Is-order-embedding
 
     Usage-restrictions-satisfied-tr-Term :
       m₁ ≳ᵐ m₂ →
-      UP₂.Usage-restrictions-satisfied m₂ (tr-Term t) →
-      UP₁.Usage-restrictions-satisfied m₁ t
+      RS₂.Usage-restrictions-satisfied m₂ (tr-Term t) →
+      RS₁.Usage-restrictions-satisfied m₁ t
     Usage-restrictions-satisfied-tr-Term = flip lemma _
       where
       lemma :
         m₁ ≳ᵐ m₂ →
         (t : Term M₁ n) →
-        UP₂.Usage-restrictions-satisfied m₂ (tr-Term t) →
-        UP₁.Usage-restrictions-satisfied m₁ t
+        RS₂.Usage-restrictions-satisfied m₂ (tr-Term t) →
+        RS₁.Usage-restrictions-satisfied m₁ t
 
       lemma-𝟘ᵐ?-𝟘ᵐ? :
-        UP₂.Usage-restrictions-satisfied Mo₂.𝟘ᵐ? (tr-Term t) →
-        UP₁.Usage-restrictions-satisfied Mo₁.𝟘ᵐ? t
+        RS₂.Usage-restrictions-satisfied Mo₂.𝟘ᵐ? (tr-Term t) →
+        RS₁.Usage-restrictions-satisfied Mo₁.𝟘ᵐ? t
       lemma-𝟘ᵐ?-𝟘ᵐ? {t} = Mo₁.𝟘ᵐ?-elim
         (λ m →
-           UP₂.Usage-restrictions-satisfied Mo₂.𝟘ᵐ? (tr-Term t) →
-           UP₁.Usage-restrictions-satisfied m t)
+           RS₂.Usage-restrictions-satisfied Mo₂.𝟘ᵐ? (tr-Term t) →
+           RS₁.Usage-restrictions-satisfied m t)
         (λ ⦃ ok = ok₁ ⦄ →
            Mo₂.𝟘ᵐ?-elim
              (λ m →
-                UP₂.Usage-restrictions-satisfied m (tr-Term t) →
-                UP₁.Usage-restrictions-satisfied 𝟘ᵐ t)
+                RS₂.Usage-restrictions-satisfied m (tr-Term t) →
+                RS₁.Usage-restrictions-satisfied 𝟘ᵐ t)
              (lemma [ 𝟘ᵐ ] _)
              (λ not-ok₂ →
                 ⊥-elim $ not-ok₂ (𝟘ᵐ-in-second-if-in-first ok₁)))
         (λ not-ok₁ →
            Mo₂.𝟘ᵐ?-elim
              (λ m →
-                UP₂.Usage-restrictions-satisfied m (tr-Term t) →
-                UP₁.Usage-restrictions-satisfied 𝟙ᵐ t)
+                RS₂.Usage-restrictions-satisfied m (tr-Term t) →
+                RS₁.Usage-restrictions-satisfied 𝟙ᵐ t)
              (λ ⦃ ok = ok₂ ⦄ →
                 lemma (𝟙ᵐ≳𝟘ᵐ (trivial not-ok₁ ok₂)) _)
              (λ _ → lemma [ 𝟙ᵐ ] _))
 
       lemma-𝟘ᵐ? :
         _≳ᵐ_ {𝕄₁ = 𝕄₁} {𝕄₂ = 𝕄₂} 𝟙ᵐ 𝟘ᵐ[ ok₂ ] →
-        UP₂.Usage-restrictions-satisfied Mo₂.𝟘ᵐ? (tr-Term t) →
-        UP₁.Usage-restrictions-satisfied m t
+        RS₂.Usage-restrictions-satisfied Mo₂.𝟘ᵐ? (tr-Term t) →
+        RS₁.Usage-restrictions-satisfied m t
       lemma-𝟘ᵐ? 𝟙≳𝟘 =
-        UP₁.Usage-restrictions-satisfied-𝟙ᵐ→ ∘→
+        RS₁.Usage-restrictions-satisfied-𝟙ᵐ→ ∘→
         lemma (subst (_ ≳ᵐ_) (sym Mo₂.𝟘ᵐ?≡𝟘ᵐ) 𝟙≳𝟘) _
 
       lemma-ᵐ·-+ :
         m₁ ≳ᵐ m₂ →
-        UP₂.Usage-restrictions-satisfied
+        RS₂.Usage-restrictions-satisfied
           (m₂ Mo₂.ᵐ· (tr p M₂.+ tr q)) (tr-Term t) →
-        UP₁.Usage-restrictions-satisfied (m₁ Mo₁.ᵐ· (p M₁.+ q)) t
+        RS₁.Usage-restrictions-satisfied (m₁ Mo₁.ᵐ· (p M₁.+ q)) t
       lemma-ᵐ·-+ {m₂} m₁≳m₂ =
         lemma (ᵐ·≳ᵐᵐ· m₁≳m₂) _ ∘→
         subst (flip Usage-restrictions-satisfied _)
@@ -673,55 +676,55 @@ module Is-order-embedding
 
       lemma {m₁} m₁≳m₂ = λ where
         (var _) varᵤ →
-          UP₁.varᵤ
+          RS₁.varᵤ
         Empty Emptyᵤ →
-          UP₁.Emptyᵤ
+          RS₁.Emptyᵤ
         (emptyrec _ _ _) (emptyrecᵤ A t) →
-          UP₁.emptyrecᵤ (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma (ᵐ·≳ᵐᵐ· m₁≳m₂) _ t)
+          RS₁.emptyrecᵤ (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma (ᵐ·≳ᵐᵐ· m₁≳m₂) _ t)
         (Unit _) Unitᵤ →
-          UP₁.Unitᵤ
+          RS₁.Unitᵤ
         (star _) starᵤ →
-          UP₁.starᵤ
+          RS₁.starᵤ
         (unitrec _ _ _ _ _) (unitrecᵤ ok A t u) →
-          UP₁.unitrecᵤ (Unitrec-reflected m₁≳m₂ ok) (lemma-𝟘ᵐ?-𝟘ᵐ? A)
+          RS₁.unitrecᵤ (Unitrec-reflected m₁≳m₂ ok) (lemma-𝟘ᵐ?-𝟘ᵐ? A)
             (lemma (ᵐ·≳ᵐᵐ· m₁≳m₂) _ t) (lemma m₁≳m₂ _ u)
         (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) (ΠΣᵤ A B) →
-          UP₁.ΠΣᵤ (lemma (ᵐ·≳ᵐᵐ·-BinderMode m₁≳m₂) _ A)
+          RS₁.ΠΣᵤ (lemma (ᵐ·≳ᵐᵐ·-BinderMode m₁≳m₂) _ A)
             (lemma m₁≳m₂ _ B)
         (lam _ _) (lamᵤ t) →
-          UP₁.lamᵤ (lemma m₁≳m₂ _ t)
+          RS₁.lamᵤ (lemma m₁≳m₂ _ t)
         (_ ∘⟨ _ ⟩ _) (∘ᵤ t u) →
-          UP₁.∘ᵤ (lemma m₁≳m₂ _ t) (lemma (ᵐ·≳ᵐᵐ· m₁≳m₂) _ u)
+          RS₁.∘ᵤ (lemma m₁≳m₂ _ t) (lemma (ᵐ·≳ᵐᵐ· m₁≳m₂) _ u)
         (prod _ _ _ _) (prodᵤ t u) →
-          UP₁.prodᵤ (lemma (ᵐ·≳ᵐᵐ·-Σ m₁≳m₂) _ t) (lemma m₁≳m₂ _ u)
+          RS₁.prodᵤ (lemma (ᵐ·≳ᵐᵐ·-Σ m₁≳m₂) _ t) (lemma m₁≳m₂ _ u)
         (prodrec _ _ _ _ _ _) (prodrecᵤ ok A t u) →
-          UP₁.prodrecᵤ (Prodrec-reflected m₁≳m₂ ok) (lemma-𝟘ᵐ?-𝟘ᵐ? A)
+          RS₁.prodrecᵤ (Prodrec-reflected m₁≳m₂ ok) (lemma-𝟘ᵐ?-𝟘ᵐ? A)
             (lemma (ᵐ·≳ᵐᵐ· m₁≳m₂) _ t) (lemma m₁≳m₂ _ u)
         (fst _ _) (fstᵤ t) →
-          UP₁.fstᵤ (lemma m₁≳m₂ _ t)
+          RS₁.fstᵤ (lemma m₁≳m₂ _ t)
         (snd _ _) (sndᵤ t) →
-          UP₁.sndᵤ (lemma m₁≳m₂ _ t)
+          RS₁.sndᵤ (lemma m₁≳m₂ _ t)
         ℕ ℕᵤ →
-          UP₁.ℕᵤ
+          RS₁.ℕᵤ
         zero zeroᵤ →
-          UP₁.zeroᵤ
+          RS₁.zeroᵤ
         (suc _) (sucᵤ t) →
-          UP₁.sucᵤ (lemma m₁≳m₂ _ t)
+          RS₁.sucᵤ (lemma m₁≳m₂ _ t)
         (natrec _ _ _ _ _ _ _) (natrecᵤ A t u v) →
-          UP₁.natrecᵤ (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma m₁≳m₂ _ t)
+          RS₁.natrecᵤ (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma m₁≳m₂ _ t)
             (lemma m₁≳m₂ _ u) (lemma m₁≳m₂ _ v)
         U Uᵤ →
-          UP₁.Uᵤ
+          RS₁.Uᵤ
         (Id _ _ _) (Idᵤ not-erased A t u) →
-          UP₁.Idᵤ (not-erased ∘→ Id-erased-preserved .proj₁)
+          RS₁.Idᵤ (not-erased ∘→ Id-erased-preserved .proj₁)
             (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma m₁≳m₂ _ t) (lemma m₁≳m₂ _ u)
         (Id _ _ _) (Id₀ᵤ erased A t u) →
-          UP₁.Id₀ᵤ (Id-erased-preserved .proj₂ erased) (lemma-𝟘ᵐ?-𝟘ᵐ? A)
+          RS₁.Id₀ᵤ (Id-erased-preserved .proj₂ erased) (lemma-𝟘ᵐ?-𝟘ᵐ? A)
             (lemma-𝟘ᵐ?-𝟘ᵐ? t) (lemma-𝟘ᵐ?-𝟘ᵐ? u)
         rfl rflᵤ →
-          UP₁.rflᵤ
+          RS₁.rflᵤ
         (J _ _ _ _ _ _ _ _) (Jᵤ _ A t B u v w) →
-          UP₁.Jᵤ-generalised (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma m₁≳m₂ _ t)
+          RS₁.Jᵤ-generalised (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma m₁≳m₂ _ t)
             (lemma m₁≳m₂ _ B) (lemma m₁≳m₂ _ u) (lemma m₁≳m₂ _ v)
             (lemma m₁≳m₂ _ w)
         (J _ _ _ _ _ _ _ _) (Jᵤ′ ≡some A t B u v w) →
@@ -735,28 +738,28 @@ module Is-order-embedding
                          (erased-matches-for-J-reflected m₁≈m₂) ≡none)
                   of λ ()
                 (not-none _ , ≡not-none) →
-                  UP₁.Jᵤ′-generalised ≡not-none (lemma-𝟘ᵐ?-𝟘ᵐ? A)
+                  RS₁.Jᵤ′-generalised ≡not-none (lemma-𝟘ᵐ?-𝟘ᵐ? A)
                     (lemma-ᵐ·-+ m₁≳m₂ t) (lemma m₁≳m₂ _ B)
                     (lemma m₁≳m₂ _ u) (lemma-ᵐ·-+ m₁≳m₂ v)
                     (lemma-ᵐ·-+ m₁≳m₂ w)
             (𝟙ᵐ≳𝟘ᵐ _) →
-              UP₁.Jᵤ-generalised (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma m₁≳m₂ _ t)
+              RS₁.Jᵤ-generalised (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma m₁≳m₂ _ t)
                 (lemma m₁≳m₂ _ B) (lemma m₁≳m₂ _ u) (lemma m₁≳m₂ _ v)
                 (lemma m₁≳m₂ _ w)
         (J _ _ _ _ _ _ _ _) (J₀ᵤ ≡all A t B u v w) →
           case m₁≳m₂ of λ where
             [ m₁≈m₂ ] →
-              UP₁.J₀ᵤ
+              RS₁.J₀ᵤ
                 (≤ᵉᵐ→≡all→≡all (erased-matches-for-J-reflected m₁≈m₂)
                    ≡all)
                 (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma-𝟘ᵐ?-𝟘ᵐ? t) (lemma-𝟘ᵐ?-𝟘ᵐ? B)
                 (lemma m₁≳m₂ _ u) (lemma-𝟘ᵐ?-𝟘ᵐ? v) (lemma-𝟘ᵐ?-𝟘ᵐ? w)
             (𝟙ᵐ≳𝟘ᵐ _) →
-              UP₁.Jᵤ-generalised (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma-𝟘ᵐ? m₁≳m₂ t)
+              RS₁.Jᵤ-generalised (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma-𝟘ᵐ? m₁≳m₂ t)
                 (lemma-𝟘ᵐ? m₁≳m₂ B) (lemma m₁≳m₂ _ u)
                 (lemma-𝟘ᵐ? m₁≳m₂ v) (lemma-𝟘ᵐ? m₁≳m₂ w)
         (K _ _ _ _ _ _) (Kᵤ _ A t B u v) →
-          UP₁.Kᵤ-generalised (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma m₁≳m₂ _ t)
+          RS₁.Kᵤ-generalised (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma m₁≳m₂ _ t)
             (lemma m₁≳m₂ _ B) (lemma m₁≳m₂ _ u) (lemma m₁≳m₂ _ v)
         (K _ _ _ _ _ _) (Kᵤ′ ≡some A t B u v) →
           case m₁≳m₂ of λ where
@@ -769,26 +772,26 @@ module Is-order-embedding
                          (erased-matches-for-K-reflected m₁≈m₂) ≡none)
                   of λ ()
                 (not-none _ , ≡not-none) →
-                  UP₁.Kᵤ′-generalised ≡not-none (lemma-𝟘ᵐ?-𝟘ᵐ? A)
+                  RS₁.Kᵤ′-generalised ≡not-none (lemma-𝟘ᵐ?-𝟘ᵐ? A)
                     (lemma (ᵐ·≳ᵐᵐ· m₁≳m₂) _ t) (lemma m₁≳m₂ _ B)
                     (lemma m₁≳m₂ _ u) (lemma (ᵐ·≳ᵐᵐ· m₁≳m₂) _ v)
             (𝟙ᵐ≳𝟘ᵐ _) →
-              UP₁.Kᵤ-generalised (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma m₁≳m₂ _ t)
+              RS₁.Kᵤ-generalised (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma m₁≳m₂ _ t)
                 (lemma m₁≳m₂ _ B) (lemma m₁≳m₂ _ u) (lemma m₁≳m₂ _ v)
         (K _ _ _ _ _ _) (K₀ᵤ ≡all A t B u v) →
           case m₁≳m₂ of λ where
             [ m₁≈m₂ ] →
-              UP₁.K₀ᵤ
+              RS₁.K₀ᵤ
                 (≤ᵉᵐ→≡all→≡all (erased-matches-for-K-reflected m₁≈m₂)
                    ≡all)
                 (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma-𝟘ᵐ?-𝟘ᵐ? t) (lemma-𝟘ᵐ?-𝟘ᵐ? B)
                 (lemma m₁≳m₂ _ u) (lemma-𝟘ᵐ?-𝟘ᵐ? v)
             (𝟙ᵐ≳𝟘ᵐ _) →
-              UP₁.Kᵤ-generalised (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma-𝟘ᵐ? m₁≳m₂ t)
+              RS₁.Kᵤ-generalised (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma-𝟘ᵐ? m₁≳m₂ t)
                 (lemma-𝟘ᵐ? m₁≳m₂ B) (lemma m₁≳m₂ _ u)
                 (lemma-𝟘ᵐ? m₁≳m₂ v)
         ([]-cong _ _ _ _ _) ([]-congᵤ A t u v) →
-          UP₁.[]-congᵤ (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma-𝟘ᵐ?-𝟘ᵐ? t)
+          RS₁.[]-congᵤ (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma-𝟘ᵐ?-𝟘ᵐ? t)
             (lemma-𝟘ᵐ?-𝟘ᵐ? u) (lemma-𝟘ᵐ?-𝟘ᵐ? v)
 
   -- Preservation of _▸[_]_ for trivial source modalities.
@@ -798,7 +801,7 @@ module Is-order-embedding
   tr-▸⁻¹-trivial {γ} {m} {t} 𝟙≡𝟘 =
     γ U₂.▸[ m ] tr-Term t                       →⟨ ▸→Usage-restrictions-satisfied ⟩
     Usage-restrictions-satisfied m (tr-Term t)  →⟨ Usage-restrictions-satisfied-tr-Term (𝟙ᵐ≳ᵐ m) ⟩
-    UP₁.Usage-restrictions-satisfied 𝟙ᵐ t       →⟨ UP₁.Trivial→▸⇔ 𝟙≡𝟘 .proj₂ ⟩
+    RS₁.Usage-restrictions-satisfied 𝟙ᵐ t       →⟨ RS₁.Trivial→▸⇔ 𝟙≡𝟘 .proj₂ ⟩
     C₁.𝟘ᶜ U₁.▸[ 𝟙ᵐ ] t                          □
     where
     𝟙ᵐ≳ᵐ : (m : Mo₂.Mode) → Mo₁.𝟙ᵐ ≳ᵐ m

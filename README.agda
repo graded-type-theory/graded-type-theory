@@ -99,6 +99,7 @@ import Graded.Usage.Inversion
 import Graded.Usage.Properties
 import Graded.Usage.Properties.Has-well-behaved-zero
 import Graded.Usage.Restrictions
+import Graded.Usage.Restrictions.Satisfied
 
 ------------------------------------------------------------------------
 -- Differences between this version of the code and the code that the
@@ -1073,7 +1074,7 @@ _▸[_]_ = Graded.Usage._▸[_]_
 -- the zero mode exactly when all subterms of the form
 -- prodrec_r,p^q A u v in t are allowed.
 
-𝟘ᶜ▸[𝟘ᵐ]⇔ = Graded.Usage.Properties.𝟘ᶜ▸[𝟘ᵐ]⇔
+𝟘ᶜ▸[𝟘ᵐ]⇔ = Graded.Usage.Restrictions.Satisfied.𝟘ᶜ▸[𝟘ᵐ]⇔
 
 -- Theorem 8.2: Subject reduction for the usage relation with modes.
 
