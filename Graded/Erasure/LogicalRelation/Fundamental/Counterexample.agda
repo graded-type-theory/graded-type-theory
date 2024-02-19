@@ -23,7 +23,6 @@ open Type-restrictions TR
 open Usage-restrictions UR
 
 open import Graded.Context 𝕄
-open import Graded.Context.Properties 𝕄
 import Graded.Derived.Erased.Untyped 𝕄 as Erased
 open import Graded.Modality.Properties 𝕄
 open import Graded.Usage 𝕄 UR
@@ -39,6 +38,7 @@ open import Definition.Typed.Properties TR
 open import Definition.LogicalRelation TR
 open import Definition.LogicalRelation.Substitution TR
 
+open import Graded.Erasure.Consequences.Soundness TR UR
 open import Graded.Erasure.Extraction 𝕄 is-𝟘?
 import Graded.Erasure.LogicalRelation TR is-𝟘? as LR
 import Graded.Erasure.LogicalRelation.Hidden TR is-𝟘? as LRH
@@ -47,8 +47,7 @@ open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Product
-open import Tools.PropositionalEquality as PE using (_≢_)
-import Tools.Reasoning.PartialOrder
+open import Tools.PropositionalEquality using (_≢_)
 open import Tools.Relation
 
 private variable
@@ -74,6 +73,8 @@ negation-of-fundamental-lemma-with-erased-matches₁ :
        γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A / [Γ] / [A])
 negation-of-fundamental-lemma-with-erased-matches₁
   {p = p} P-ok Σʷ-ok hyp =
+  case soundness-ℕ-only-source-counterexample₁ P-ok Σʷ-ok of λ
+    (consistent , ⊢t , ▸t , _) →
   ¬t®t $ hidden-®-intro-fundamental non-trivial $
   hyp ⊢Δ consistent ⊢t ▸t
   where
@@ -88,34 +89,6 @@ negation-of-fundamental-lemma-with-erased-matches₁
 
   ⊢Δ : ⊢ Δ
   ⊢Δ = ε ∙ ΠΣⱼ (ℕⱼ ε) (ℕⱼ (ε ∙ ℕⱼ ε)) Σʷ-ok
-
-  consistent : Consistent Δ
-  consistent =
-    inhabited-consistent $ singleSubst $
-    prodⱼ (ℕⱼ ε) (ℕⱼ (ε ∙ ℕⱼ ε)) (zeroⱼ ε) (zeroⱼ ε) Σʷ-ok
-
-  ⊢t : Δ ⊢ t ∷ A
-  ⊢t = prodrecⱼ′
-    (ℕⱼ (⊢Δ ∙ ΠΣⱼ (ℕⱼ ⊢Δ) (ℕⱼ (⊢Δ ∙ ℕⱼ ⊢Δ)) Σʷ-ok))
-    (var ⊢Δ here)
-    (zeroⱼ (⊢Δ ∙ ℕⱼ ⊢Δ ∙ ℕⱼ (⊢Δ ∙ ℕⱼ ⊢Δ)))
-
-  ▸t : 𝟘ᶜ ▸[ 𝟙ᵐ ] t
-  ▸t = sub
-    (prodrecₘ var
-       (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
-        sub zeroₘ $ begin
-          𝟘ᶜ ∙ 𝟙 · 𝟘 · p ∙ 𝟙 · 𝟘  ≈⟨ ≈ᶜ-refl ∙ PE.trans (·-congˡ (·-zeroˡ _)) (·-zeroʳ _) ∙ ·-zeroʳ _ ⟩
-          𝟘ᶜ                      ∎)
-       (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
-        sub ℕₘ $ begin
-          𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
-          𝟘ᶜ                ∎)
-       P-ok)
-    (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-     𝟘ᶜ                           ≈˘⟨ +ᶜ-identityˡ _ ⟩
-     𝟘ᶜ +ᶜ 𝟘ᶜ                     ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
-     𝟘 ·ᶜ (𝟘ᶜ ∙ ⌜ ⌞ 𝟘 ⌟ ⌝) +ᶜ 𝟘ᶜ  ∎)
 
   open LR ⊢Δ
   open LRH ⊢Δ
@@ -195,6 +168,8 @@ opaque
        ∃₂ λ ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ]) →
          γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A / [Γ] / [A])
   negation-of-fundamental-lemma-with-erased-matches₃ ok hyp =
+    case soundness-ℕ-only-source-counterexample₃ ok of λ
+      (consistent , ⊢t , ▸t , _) →
     ¬t®t $ hidden-®-intro-fundamental non-trivial $
     hyp ⊢Δ consistent ⊢t ▸t
     where
@@ -209,22 +184,6 @@ opaque
 
     ⊢Δ : ⊢ Δ
     ⊢Δ = ε ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε)
-
-    consistent : Consistent Δ
-    consistent = inhabited-consistent (singleSubst (rflⱼ (zeroⱼ ε)))
-
-    ⊢t : Δ ⊢ t ∷ A
-    ⊢t =
-      Jⱼ′ (ℕⱼ (J-motive-context (zeroⱼ ⊢Δ))) (zeroⱼ ⊢Δ) (var ⊢Δ here)
-
-    ▸t : 𝟘ᶜ ▸[ 𝟙ᵐ ] t
-    ▸t =
-      J₀ₘ (≢none→≡all ok) ℕₘ zeroₘ
-        (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
-         sub ℕₘ $ begin
-           𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
-           𝟘ᶜ                              ∎)
-        zeroₘ zeroₘ var
 
     open LR ⊢Δ
     open LRH ⊢Δ
@@ -252,6 +211,8 @@ opaque
        ∃₂ λ ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ]) →
          γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A / [Γ] / [A])
   negation-of-fundamental-lemma-with-erased-matches₄ K-ok K₀-ok hyp =
+    case soundness-ℕ-only-source-counterexample₄ K-ok K₀-ok of λ
+      (consistent , ⊢t , ▸t , _) →
     ¬t®t $ hidden-®-intro-fundamental non-trivial $
     hyp ⊢Δ consistent ⊢t ▸t
     where
@@ -266,23 +227,6 @@ opaque
 
     ⊢Δ : ⊢ Δ
     ⊢Δ = ε ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε)
-
-    consistent : Consistent Δ
-    consistent = inhabited-consistent (singleSubst (rflⱼ (zeroⱼ ε)))
-
-    ⊢t : Δ ⊢ t ∷ A
-    ⊢t =
-      Kⱼ′ (ℕⱼ (K-motive-context (zeroⱼ ⊢Δ))) (zeroⱼ ⊢Δ) (var ⊢Δ here)
-        K-ok
-
-    ▸t : 𝟘ᶜ ▸[ 𝟙ᵐ ] t
-    ▸t =
-      K₀ₘ (≢none→≡all K₀-ok) ℕₘ zeroₘ
-        (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
-         sub ℕₘ $ begin
-           𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
-           𝟘ᶜ                ∎)
-        zeroₘ var
 
     open LR ⊢Δ
     open LRH ⊢Δ
@@ -311,6 +255,8 @@ opaque
        ∃₂ λ ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ]) →
          γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A / [Γ] / [A])
   negation-of-fundamental-lemma-with-erased-matches₅ Unit-ok ok hyp =
+    case soundness-ℕ-only-source-counterexample₅ ok Unit-ok of λ
+      (consistent , ⊢t , ▸t , _) →
     ¬t®t $ hidden-®-intro-fundamental non-trivial $
     hyp ⊢Δ consistent ⊢t ▸t
     where
@@ -325,25 +271,6 @@ opaque
 
     ⊢Δ : ⊢ Δ
     ⊢Δ = ε ∙ Unitⱼ ε Unit-ok
-
-    consistent : Consistent Δ
-    consistent = inhabited-consistent (singleSubst (starⱼ ε Unit-ok))
-
-    ⊢t : Δ ⊢ t ∷ A
-    ⊢t = unitrecⱼ (ℕⱼ (⊢Δ ∙ Unitⱼ ⊢Δ Unit-ok)) (var ⊢Δ here) (zeroⱼ ⊢Δ) Unit-ok
-
-    ▸t : 𝟘ᶜ ▸[ 𝟙ᵐ ] t
-    ▸t = sub (unitrecₘ var zeroₘ
-             (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
-               sub ℕₘ $ begin
-                 𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
-                 𝟘ᶜ                ∎)
-               ok)
-             let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
-               begin
-                 𝟘ᶜ                                  ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
-                 𝟘 ·ᶜ (𝟘ᶜ , x0 ≔ ⌜ 𝟙ᵐ ᵐ· 𝟘 ⌝)        ≈˘⟨ +ᶜ-identityʳ _ ⟩
-                 𝟘 ·ᶜ (𝟘ᶜ , x0 ≔ ⌜ 𝟙ᵐ ᵐ· 𝟘 ⌝) +ᶜ 𝟘ᶜ  ∎
 
     open LR ⊢Δ
     open LRH ⊢Δ
