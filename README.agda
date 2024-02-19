@@ -1070,9 +1070,10 @@ _⊢′_⇒*_∷_ = Definition.Typed._⊢_⇒*_∷_
 
 _▸[_]_ = Graded.Usage._▸[_]_
 
--- A term is well-resourced with respect to the zero usage context and
--- the zero mode exactly when all subterms of the form
--- prodrec_r,p^q A u v in t are allowed.
+-- A term t is well-resourced with respect to the zero usage context
+-- and the zero mode exactly when all subterms of the form
+-- prodrec_r,p^q A u v in t are allowed (and some other conditions,
+-- related to term formers added after the paper was written, hold).
 
 𝟘ᶜ▸[𝟘ᵐ]⇔ = Graded.Usage.Restrictions.Satisfied.𝟘ᶜ▸[𝟘ᵐ]⇔
 
