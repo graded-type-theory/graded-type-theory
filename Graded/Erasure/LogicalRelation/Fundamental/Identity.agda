@@ -81,18 +81,14 @@ opaque
   -- Validity of Id.
 
   Idʳ :
-    Γ ⊢ A ∷ U →
-    Γ ⊢ t ∷ A →
-    Γ ⊢ u ∷ A →
+    ∀ A t u → ⊢ Γ →
     ∃ λ (⊩Γ : ⊩ᵛ Γ) →
     ∃ λ (⊩U : Γ ⊩ᵛ⟨ ¹ ⟩ U / ⊩Γ) →
     γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ Id A t u ∷[ m ] U / ⊩Γ / ⊩U
-  Idʳ ⊢A ⊢t ⊢u =
-      valid (wfTerm ⊢A)
+  Idʳ _ _ _ ⊢Γ =
+      valid ⊢Γ
     , Uᵛ _
-    , λ ⊩σ _ →
-        Uᵣ (substitutionTerm (Idⱼ ⊢A ⊢t ⊢u) (wellformedSubst _ _ ⊩σ) ⊢Δ)
-          ◀ _
+    , λ _ _ → Uᵣ ◀ _
 
 opaque
   unfolding Idᵛ ⊩Id

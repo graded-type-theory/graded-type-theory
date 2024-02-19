@@ -63,8 +63,8 @@ private
 
 sourceRedSubstTerm : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t′ ®⟨ l ⟩ v ∷ A / [A]
                    → Δ ⊢ t ⇒ t′ ∷ A → t ®⟨ l ⟩ v ∷ A / [A]
-sourceRedSubstTerm (Uᵣ _) (Uᵣ _) t⇒t′ =
-  Uᵣ (redFirstTerm t⇒t′)
+sourceRedSubstTerm (Uᵣ _) Uᵣ _ =
+  Uᵣ
 sourceRedSubstTerm (ℕᵣ ([ ⊢A , ⊢B , D ])) (zeroᵣ t′⇒zero v⇒v′) t⇒t′ =
   zeroᵣ ((conv t⇒t′ (subset* D)) ⇨ t′⇒zero) v⇒v′
 sourceRedSubstTerm (ℕᵣ ([ ⊢A , ⊢B , D ])) (sucᵣ t′⇒suc v⇒v′ t®v) t⇒t′ =
@@ -117,7 +117,7 @@ sourceRedSubstTerm* [A] t′®v (x ⇨ t⇒t′) =
 
 targetRedSubstTerm : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v′ ∷ A / [A]
                    → v T.⇒ v′ → t ®⟨ l ⟩ v ∷ A / [A]
-targetRedSubstTerm (Uᵣ x) (Uᵣ x₁) v⇒v′ = Uᵣ x₁
+targetRedSubstTerm (Uᵣ _) Uᵣ _ = Uᵣ
 targetRedSubstTerm (ℕᵣ x) (zeroᵣ t′⇒zero v′⇒zero) v⇒v′ = zeroᵣ t′⇒zero (trans v⇒v′ v′⇒zero)
 targetRedSubstTerm (ℕᵣ x) (sucᵣ t′⇒suc v′⇒suc t®v) v⇒v′ = sucᵣ t′⇒suc (trans v⇒v′ v′⇒suc) t®v
 targetRedSubstTerm (Unitᵣ x) (starᵣ x₁ v′⇒star) v⇒v′ = starᵣ x₁ (trans v⇒v′ v′⇒star)
@@ -188,8 +188,8 @@ redSubstTerm* [A] t′®v′ t⇒t′ v⇒v′ = targetRedSubstTerm* [A] (source
 
 sourceRedSubstTerm′ : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A]
                     → Δ ⊢ t ⇒ t′ ∷ A → t′ ®⟨ l ⟩ v ∷ A / [A]
-sourceRedSubstTerm′ (Uᵣ x) (Uᵣ x₁) t⇒t′ with syntacticRedTerm (redMany t⇒t′)
-... | _ , _ , Δ⊢t′∷U = Uᵣ Δ⊢t′∷U
+sourceRedSubstTerm′ (Uᵣ _) Uᵣ _ =
+  Uᵣ
 sourceRedSubstTerm′ (ℕᵣ [ ⊢A , ⊢B , D ]) (zeroᵣ t⇒zero v⇒zero) t⇒t′
   with whrDet↘Term (t⇒zero , zeroₙ) (conv* (redMany t⇒t′) (subset* D))
 ... | t′⇒zero = zeroᵣ t′⇒zero v⇒zero
@@ -259,7 +259,8 @@ targetRedSubstTerm*′ :
 
 targetRedSubstTerm′ : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A]
                     → v T.⇒ v′ → t ®⟨ l ⟩ v′ ∷ A / [A]
-targetRedSubstTerm′ (Uᵣ x) (Uᵣ x₁) v⇒v′ = Uᵣ x₁
+targetRedSubstTerm′ (Uᵣ _) Uᵣ _ =
+  Uᵣ
 targetRedSubstTerm′ (ℕᵣ x) (zeroᵣ x₁ v⇒zero) v⇒v′ with red*Det v⇒zero (T.trans v⇒v′ T.refl)
 ... | inj₁ x₂ rewrite zero-noRed x₂ = zeroᵣ x₁ T.refl
 ... | inj₂ x₂ = zeroᵣ x₁ x₂

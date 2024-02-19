@@ -81,12 +81,11 @@ private
     p q : M
 
 Unitʳ : ⊢ Γ
-      → Unit-allowed s
       → ∃ λ ([Γ] : ⊩ᵛ Γ)
       → ∃ λ ([U] : Γ ⊩ᵛ⟨ ¹ ⟩ U / [Γ])
       → γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ Unit s ∷[ m ] U / [Γ] / [U]
-Unitʳ {m = m} ⊢Γ ok =
-  [Γ] , [U] , λ _ _ → Uᵣ (Unitⱼ ⊢Δ ok) ◀ ⌜ m ⌝
+Unitʳ {m = m} ⊢Γ =
+  [Γ] , [U] , λ _ _ → Uᵣ ◀ ⌜ m ⌝
   where
   [Γ] = valid ⊢Γ
   [U] = Uᵛ [Γ]

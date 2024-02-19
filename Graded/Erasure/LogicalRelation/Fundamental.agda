@@ -58,6 +58,7 @@ open import Graded.Mode 𝕄
 
 open import Definition.Untyped.Properties M
 open import Definition.Typed.Consequences.Syntactic TR
+open import Definition.Typed.Properties TR
 
 import Graded.Erasure.LogicalRelation TR is-𝟘? as LR
 open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions TR UR
@@ -270,14 +271,14 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
     case F.fundamental (syntacticTerm ⊢t) of λ ([Γ] , [A]) →
       [Γ] , [A] , _
   ... | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 PE.refl)
-  fundamental Γ⊢ΠΣ@(ΠΣⱼ Γ⊢F:U _ _) γ▸t =
+  fundamental Γ⊢ΠΣ@(ΠΣⱼ {F} {G} Γ⊢F:U _ _) γ▸t =
     let invUsageΠΣ δ▸F _ _ = inv-usage-ΠΣ γ▸t
         [Γ] , _ , _ = fundamental Γ⊢F:U δ▸F
-        [U] , ⊩ʳΠΣ = ΠΣʳ [Γ] Γ⊢ΠΣ
+        [U] , ⊩ʳΠΣ = ΠΣʳ F G [Γ]
     in  [Γ] , [U] , ⊩ʳΠΣ
   fundamental (ℕⱼ ⊢Γ) γ▸t = ℕʳ ⊢Γ
   fundamental (Emptyⱼ ⊢Γ) γ▸t = Emptyʳ ⊢Γ
-  fundamental (Unitⱼ ⊢Γ ok) _ = Unitʳ ⊢Γ ok
+  fundamental (Unitⱼ ⊢Γ _) _ = Unitʳ ⊢Γ
   fundamental (var ⊢Γ x∷A∈Γ) γ▸t =
     let [Γ] = F.valid ⊢Γ
         [A] , ⊩ʳx = fundamentalVar well-formed [Γ] x∷A∈Γ γ▸t
@@ -522,8 +523,8 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
           (inj₂ k≡0) → k≡0
         [Aₜ] , ⊩ʳur = unitrecʳ {u = u} [Γ] ok [Unit] [A] [A₊] [t] [u] ⊩ʳt ⊩ʳu p≡𝟘→k≡0
     in  [Γ] , [Aₜ] , subsumption-≤ well-formed {t = unitrec _ _ A t u} [Γ] [Aₜ] ⊩ʳur γ≤γ′
-  fundamental (Idⱼ ⊢A ⊢t ⊢u) _ =
-    Idʳ ⊢A ⊢t ⊢u
+  fundamental (Idⱼ {A} {t} {u} ⊢A _ _) _ =
+    Idʳ A t u (wfTerm ⊢A)
   fundamental (rflⱼ ⊢t) _ =
     rflʳ ⊢t
   fundamental

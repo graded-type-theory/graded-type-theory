@@ -94,11 +94,11 @@ private
     m : Mode
 
 ΠΣʳ :
-  ([Γ] : ⊩ᵛ Γ) → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ∷ U →
+  ∀ F G ([Γ] : ⊩ᵛ Γ) →
   ∃ λ ([U] : Γ ⊩ᵛ⟨ ¹ ⟩ U / [Γ]) →
   γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ∷[ m ] U / [Γ] / [U]
-ΠΣʳ {F = F} {G = G} {m = m} [Γ] ⊢ΠΣ =
-    [U] , λ [σ] σ®σ′ → Uᵣ (substitutionTerm ⊢ΠΣ (wellformedSubst [Γ] ⊢Δ [σ]) ⊢Δ) ◀ ⌜ m ⌝
+ΠΣʳ {m = m} _ _ [Γ] =
+    [U] , λ _ _ → Uᵣ ◀ ⌜ m ⌝
   where
   [U] = Uᵛ [Γ]
 

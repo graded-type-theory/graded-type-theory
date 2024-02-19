@@ -61,7 +61,7 @@ private
 -- (All types are erased by the extraction function.)
 
 data _®_∷U (t : U.Term k) (v : T.Term k) : Set a where
-  Uᵣ : Δ ⊢ t ∷ U → t ® v ∷U
+  Uᵣ : t ® v ∷U
 
 -- Terms of type ℕ are related if both are zero
 -- or if both reduce to the successor of related terms.
