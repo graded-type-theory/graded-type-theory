@@ -153,7 +153,6 @@ suc-view = λ where
   (T.natrec _ _ _) → not-is-suc (λ ())
   T.star           → not-is-suc (λ ())
   (T.unitrec _ _)  → not-is-suc (λ ())
-  T.rfl            → not-is-suc (λ ())
   T.↯              → not-is-suc (λ ())
 
 -- If v reduces to w and v is of the form "T.suc something", then w is

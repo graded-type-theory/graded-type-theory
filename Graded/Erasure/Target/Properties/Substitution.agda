@@ -55,7 +55,6 @@ substVar-to-subst eq (snd t) = cong snd (substVar-to-subst eq t)
 substVar-to-subst eq (prodrec t u) = cong₂ prodrec (substVar-to-subst eq t) (substVar-to-subst (substVar-lifts eq 2) u)
 substVar-to-subst eq star = refl
 substVar-to-subst eq (unitrec t u) = cong₂ unitrec (substVar-to-subst eq t) (substVar-to-subst eq u)
-substVar-to-subst _  rfl = refl
 substVar-to-subst eq ↯ = refl
 
 -- lift id = id  (as substitutions)
@@ -84,7 +83,6 @@ subst-id (snd t) = cong snd (subst-id t)
 subst-id (prodrec t u) = cong₂ prodrec (subst-id t) (trans (substVar-to-subst (subst-lifts-id 2) u) (subst-id u))
 subst-id star = refl
 subst-id (unitrec t u) = cong₂ unitrec (subst-id t) (subst-id u)
-subst-id rfl = refl
 subst-id ↯ = refl
 
 
@@ -149,7 +147,6 @@ wk-subst (snd t) = cong snd (wk-subst t)
 wk-subst (prodrec t u) = cong₂ prodrec (wk-subst t) (trans (wk-subst u) (subst-lifts-•ₛ 2 u))
 wk-subst star = refl
 wk-subst (unitrec t u) = cong₂ unitrec (wk-subst t) (wk-subst u)
-wk-subst rfl = refl
 wk-subst ↯ = refl
 
 -- _[ σ ] ∘ wk ρ = _[ σ •ₛ ρ ]
@@ -167,7 +164,6 @@ subst-wk (snd t) = cong snd (subst-wk t)
 subst-wk (prodrec t u) = cong₂ prodrec (subst-wk t) (trans (subst-wk u) (subst-lifts-ₛ• 2 u))
 subst-wk star = refl
 subst-wk (unitrec t u) = cong₂ unitrec (subst-wk t) (subst-wk u)
-subst-wk rfl = refl
 subst-wk ↯ = refl
 
 
@@ -218,7 +214,6 @@ substCompEq (snd t) = cong snd (substCompEq t)
 substCompEq (prodrec t u) = cong₂ prodrec (substCompEq t) (trans (substCompEq u) (substVar-to-subst (substCompLifts 2) u))
 substCompEq star = refl
 substCompEq (unitrec t u) = cong₂ unitrec (substCompEq t) (substCompEq u)
-substCompEq rfl = refl
 substCompEq ↯ = refl
 
 -- Weakening single substitutions.

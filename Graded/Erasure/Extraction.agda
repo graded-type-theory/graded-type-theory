@@ -66,10 +66,10 @@ erase (U.unitrec p q A t u) = case is-𝟘? p of λ where
 erase Empty = ↯
 erase (emptyrec p A t) = ↯
 erase (Id _ _ _) = ↯
-erase U.rfl = T.rfl
+erase U.rfl = ↯
 erase (J _ _ _ _ _ u _ _) = erase u
 erase (K _ _ _ _ u _) = erase u
-erase ([]-cong _ _ _ _ _) = T.rfl
+erase ([]-cong _ _ _ _ _) = ↯
 
 -- Extraction of substitutions.
 
