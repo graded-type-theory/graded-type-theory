@@ -37,6 +37,8 @@ module Graded.Erasure.Consequences.Soundness.Erased-matches
      Consistent Δ)
   -- Certain erased matches are not allowed.
   (only-some-erased-matches : Only-some-erased-matches TR UR)
+  -- Equality reflection is not allowed or Δ is empty.
+  ⦃ ok : No-equality-reflection or-empty Δ ⦄
   -- The variant of extraction that is used.
   (str : Strictness)
   -- The modality's zero is well-behaved.
@@ -92,6 +94,11 @@ private
              inj₁ $
              Only-some-erased-matches→No-erased-matches
                TR-η UR _ only-some-erased-matches
+         ; inc =
+             Type-restrictions.No-equality-reflection-or-empty⇔ TR-η
+               .proj₂ $
+             No-equality-reflection-or-empty⇔ .proj₁ $
+             ok
          })
       str
 
@@ -106,13 +113,14 @@ opaque
     subst₃ T-η._⊢_∷_ tr-Con-id tr-Term-id tr-Term-id $
     QT.tr-⊢∷ TR TR-η idᶠ idᶠ m (Is-morphism→Is-Σ-morphism m)
       (record
-         { Unit-preserved    = idᶠ
-         ; ΠΣ-preserved      = λ {b = b} →
-                                 subst (flip (ΠΣ-allowed _) _) $
-                                 PE.sym $
-                                 tr-BinderMode-id b
-         ; K-preserved       = idᶠ
-         ; []-cong-preserved = idᶠ
+         { Unit-preserved = idᶠ
+         ; ΠΣ-preserved   =
+             λ {b = b} →
+               subst (flip (ΠΣ-allowed _) _) $
+               PE.sym $ tr-BinderMode-id b
+         ; K-preserved                   = idᶠ
+         ; []-cong-preserved             = idᶠ
+         ; Equality-reflection-preserved = idᶠ
          })
       ⊢t
 

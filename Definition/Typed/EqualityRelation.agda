@@ -78,6 +78,11 @@ record Equality-relations
     -- Neutrals-included is decided.
     Neutrals-included? : Dec Neutrals-included
 
+    -- If Equality-reflection-allowed holds, then Neutrals-included
+    -- does not hold.
+    Equality-reflection-allowed→¬Neutrals-included :
+      Equality-reflection → ¬ Neutrals-included
+
     -- If Neutrals-included does not hold, then definitional equality
     -- for types and terms is contained in _⊢_≅_ and _⊢_≅_∷_,
     -- respectively.

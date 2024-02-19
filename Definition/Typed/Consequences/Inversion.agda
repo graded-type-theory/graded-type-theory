@@ -18,6 +18,7 @@ open Type-restrictions R
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
+open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
@@ -45,23 +46,57 @@ opaque
 
   -- A variant of inversion-lam.
 
+  inversion-lam-Π′ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Γ ⊢ lam p′ t ∷ Π p , q ▷ A ▹ B →
+    p PE.≡ p′ × Π-allowed p q ×
+    (⦃ not-ok : No-equality-reflection ⦄ → Γ ∙ A ⊢ t ∷ B) ×
+    ∃ λ B′ →
+      Γ ∙ A ⊢ t ∷ B′ ×
+      (∀ {u v} → Γ ⊢ u ≡ v ∷ A → Γ ⊢ B′ [ u ]₀ ≡ B [ v ]₀)
+  inversion-lam-Π′ ⊢lam =
+    case inversion-lam ⊢lam of λ
+      (_ , _ , _ , _ , ⊢t , Π≡Π , ok) →
+    case ΠΣ-injectivity′ Π≡Π of λ {
+      (A≡A′ , B≡B′ , B[]≡B′[] , PE.refl , PE.refl , _) →
+    let ⊢t = stabilityTerm (refl-∙ (sym A≡A′)) ⊢t in
+    PE.refl , ok ,
+    (λ ⦃ _ ⦄ → conv ⊢t (sym B≡B′)) ,
+    _ , ⊢t , (λ {_ _} u≡v → sym (B[]≡B′[] (sym′ u≡v))) }
+
+opaque
+
+  -- A variant of inversion-lam.
+
   inversion-lam-Π :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Γ ⊢ lam p′ t ∷ Π p , q ▷ A ▹ B →
+    ∃ λ B′ →
+      Γ ∙ A ⊢ t ∷ B′ ×
+      (∀ {u v} → Γ ⊢ u ≡ v ∷ A → Γ ⊢ B′ [ u ]₀ ≡ B [ v ]₀) ×
+      p PE.≡ p′ × Π-allowed p q
+  inversion-lam-Π ⊢lam =
+    let p≡p′ , ok , _ , _ , ⊢t , B[]≡B′[] = inversion-lam-Π′ ⊢lam in
+    _ , ⊢t , B[]≡B′[] , p≡p′ , ok
+
+opaque
+
+  -- A variant of inversion-lam.
+
+  inversion-lam-Π-no-equality-reflection :
+    ⦃ ok : No-equality-reflection ⦄ →
     Γ ⊢ lam p′ t ∷ Π p , q ▷ A ▹ B →
     Γ ∙ A ⊢ t ∷ B × p PE.≡ p′ × Π-allowed p q
-  inversion-lam-Π ⊢lam =
-    case inversion-lam ⊢lam of λ {
-      (_ , _ , _ , _ , ⊢t , Π≡Π , ok) →
-    case ΠΣ-injectivity Π≡Π of λ {
-      (A≡A′ , B≡B′ , PE.refl , PE.refl , _) →
-      conv (stabilityTerm (refl-∙ (sym A≡A′)) ⊢t) (sym B≡B′)
-    , PE.refl
-    , ok }}
+  inversion-lam-Π-no-equality-reflection ⊢lam =
+    let p≡p′ , ok , ⊢t , _ = inversion-lam-Π′ ⦃ ok = included ⦄ ⊢lam in
+    ⊢t , p≡p′ , ok
 
 opaque
 
   -- A variant of inversion-prod.
 
   inversion-prod-Σ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     Γ ⊢ prod s′ p′ t u ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B →
     Γ ⊢ t ∷ A × Γ ⊢ u ∷ B [ t ]₀ ×
     s PE.≡ s′ × p PE.≡ p′ × Σ-allowed s p q
@@ -69,11 +104,11 @@ opaque
     case inversion-prod ⊢prod of λ {
       (_ , _ , _ , _ , _ , ⊢t , ⊢u , Σ≡Σ , ok) →
     case ΠΣ-injectivity Σ≡Σ of λ {
-      (A≡A′ , B≡B′ , PE.refl , PE.refl , PE.refl) →
+      (A≡A′ , B[]≡B′[] , PE.refl , PE.refl , PE.refl) →
     case conv ⊢t (sym A≡A′) of λ {
       ⊢t →
       ⊢t
-    , conv ⊢u (sym (substTypeEq B≡B′ (refl ⊢t)))
+    , conv ⊢u (sym (B[]≡B′[] (refl ⊢t)))
     , PE.refl
     , PE.refl
     , ok }}}
@@ -83,19 +118,23 @@ opaque
   -- A variant of inversion-star.
 
   inversion-star-Unit :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     Γ ⊢ star s₁ l₁ ∷ Unit s₂ l₂ →
     s₁ PE.≡ s₂ × l₁ PE.≡ l₂ × Unit-allowed s₁
   inversion-star-Unit ⊢star =
-    let Unit≡Unit , ok = inversion-star ⊢star
-        eq₁ , eq₂      = Unit-injectivity (sym Unit≡Unit)
+    let Unit≡Unit , Unit-ok = inversion-star ⊢star
+        eq₁ , eq₂           = Unit-injectivity (sym Unit≡Unit)
     in
-    eq₁ , eq₂ , ok
+    eq₁ , eq₂ , Unit-ok
 
 opaque
 
   -- A variant of inversion-rfl.
 
-  inversion-rfl-Id : Γ ⊢ rfl ∷ Id A t u → Γ ⊢ t ≡ u ∷ A
+  inversion-rfl-Id :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Γ ⊢ rfl ∷ Id A t u →
+    Γ ⊢ t ≡ u ∷ A
   inversion-rfl-Id ⊢rfl =
     case inversion-rfl ⊢rfl of λ {
       (_ , _ , _ , _ , Id≡Id) →
@@ -108,6 +147,7 @@ opaque
   -- Inversion of products in WHNF.
 
   whnfProduct :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     Γ ⊢ t ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B → Whnf t → Product t
   whnfProduct ⊢t = λ where
     prodₙ →

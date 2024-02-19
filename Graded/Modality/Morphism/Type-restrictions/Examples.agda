@@ -44,7 +44,7 @@ open import Definition.Untyped.NotParametrised
 open import Definition.Untyped.QuantityTranslation
 
 private variable
-  b 𝟙≤𝟘       : Bool
+  b₁ b₂ 𝟙≤𝟘   : Bool
   R R₁ R₂     : Type-restrictions _
   s           : Strength
   M₁ M₂       : Set _
@@ -64,14 +64,15 @@ opaque
   Are-preserving-type-restrictions-no-type-restrictions :
     (¬ Modality.Trivial 𝕄₁ → ¬ Modality.Trivial 𝕄₂) →
     Are-preserving-type-restrictions
-      (no-type-restrictions 𝕄₁ b)
-      (no-type-restrictions 𝕄₂ b)
+      (no-type-restrictions 𝕄₁ b₁ b₂)
+      (no-type-restrictions 𝕄₂ b₁ b₂)
       tr tr-Σ
   Are-preserving-type-restrictions-no-type-restrictions hyp = λ where
-      .Unit-preserved    → _
-      .ΠΣ-preserved      → _
-      .K-preserved       → lift ∘→ Lift.lower
-      .[]-cong-preserved → hyp
+      .Unit-preserved                → _
+      .ΠΣ-preserved                  → _
+      .K-preserved                   → lift ∘→ Lift.lower
+      .[]-cong-preserved             → hyp
+      .Equality-reflection-preserved → lift ∘→ Lift.lower
     where
     open Are-preserving-type-restrictions
 
@@ -84,14 +85,15 @@ opaque
     (Modality.Trivial 𝕄₂ ⊎ ¬ Modality.Trivial 𝕄₂ →
      Modality.Trivial 𝕄₁ ⊎ ¬ Modality.Trivial 𝕄₁) →
     Are-reflecting-type-restrictions
-      (no-type-restrictions 𝕄₁ b)
-      (no-type-restrictions 𝕄₂ b)
+      (no-type-restrictions 𝕄₁ b₁ b₂)
+      (no-type-restrictions 𝕄₂ b₁ b₂)
       tr tr-Σ
   Are-reflecting-type-restrictions-no-type-restrictions hyp = λ where
-      .Unit-reflected    → _
-      .ΠΣ-reflected      → _
-      .K-reflected       → lift ∘→ Lift.lower
-      .[]-cong-reflected → ⊎.comm ∘→ hyp ∘→ ⊎.comm
+      .Unit-reflected                → _
+      .ΠΣ-reflected                  → _
+      .K-reflected                   → lift ∘→ Lift.lower
+      .[]-cong-reflected             → ⊎.comm ∘→ hyp ∘→ ⊎.comm
+      .Equality-reflection-reflected → lift ∘→ Lift.lower
     where
     open Are-reflecting-type-restrictions
 
@@ -116,8 +118,9 @@ Are-preserving-type-restrictions-equal-binder-quantities {tr = tr} r =
         (bn , refl) →
             R.ΠΣ-preserved bn
           , tr-BinderMode-one-function _ _ refl b
-    ; K-preserved       = R.K-preserved
-    ; []-cong-preserved = R.[]-cong-preserved
+    ; K-preserved                   = R.K-preserved
+    ; []-cong-preserved             = R.[]-cong-preserved
+    ; Equality-reflection-preserved = R.Equality-reflection-preserved
     }
   where
   module R = Are-preserving-type-restrictions r
@@ -145,8 +148,9 @@ Are-reflecting-type-restrictions-equal-binder-quantities
             tr p                     ≡˘⟨ tr-BinderMode-one-function _ _ refl b ⟩
             tr-BinderMode tr tr b p  ≡⟨ eq ⟩
             tr q                     ∎)
-  ; K-reflected       = K-reflected
-  ; []-cong-reflected = []-cong-reflected
+  ; K-reflected                   = K-reflected
+  ; []-cong-reflected             = []-cong-reflected
+  ; Equality-reflection-reflected = Equality-reflection-reflected
   }
   where
   open Are-reflecting-type-restrictions r
@@ -169,8 +173,9 @@ Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘 tr-𝟘 r = record
   ; Unit-preserved    = Unit-preserved
   ; ΠΣ-preserved      = λ where
       (b , refl) → ΠΣ-preserved b , tr-𝟘
-  ; K-preserved       = K-preserved
-  ; []-cong-preserved = []-cong-preserved
+  ; K-preserved                   = K-preserved
+  ; []-cong-preserved             = []-cong-preserved
+  ; Equality-reflection-preserved = Equality-reflection-preserved
   }
   where
   open Are-preserving-type-restrictions r
@@ -188,11 +193,12 @@ Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘 :
     (second-ΠΣ-quantities-𝟘 𝕄₂ R₂)
     tr tr-Σ
 Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘 tr-𝟘 r = record
-  { Unitʷ-η-reflected = Unitʷ-η-reflected
-  ; Unit-reflected    = Unit-reflected
-  ; ΠΣ-reflected      = λ (b , eq) → ΠΣ-reflected b , tr-𝟘 eq
-  ; K-reflected       = K-reflected
-  ; []-cong-reflected = []-cong-reflected
+  { Unitʷ-η-reflected             = Unitʷ-η-reflected
+  ; Unit-reflected                = Unit-reflected
+  ; ΠΣ-reflected                  = Σ.map ΠΣ-reflected tr-𝟘
+  ; K-reflected                   = K-reflected
+  ; []-cong-reflected             = []-cong-reflected
+  ; Equality-reflection-reflected = Equality-reflection-reflected
   }
   where
   open Are-reflecting-type-restrictions r
@@ -217,8 +223,9 @@ Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
   ; Unit-preserved    = Unit-preserved
   ; ΠΣ-preserved      = λ {b = b} (bn , is-𝟘 , not-𝟘) →
       ΠΣ-preserved bn , lemma₁ b is-𝟘 , lemma₃ b not-𝟘
-  ; K-preserved       = K-preserved
-  ; []-cong-preserved = []-cong-preserved
+  ; K-preserved                   = K-preserved
+  ; []-cong-preserved             = []-cong-preserved
+  ; Equality-reflection-preserved = Equality-reflection-preserved
   }
   where
   module M₁ = Modality 𝕄₁
@@ -282,8 +289,9 @@ Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
   ; Unit-reflected    = Unit-reflected
   ; ΠΣ-reflected      = λ {b = b} (bn , is-𝟘 , not-𝟘) →
       ΠΣ-reflected bn , lemma₁ b is-𝟘 , lemma₂ b not-𝟘
-  ; K-reflected       = K-reflected
-  ; []-cong-reflected = []-cong-reflected
+  ; K-reflected                   = K-reflected
+  ; []-cong-reflected             = []-cong-reflected
+  ; Equality-reflection-reflected = Equality-reflection-reflected
   }
   where
   module M₁ = Modality 𝕄₁
@@ -346,6 +354,8 @@ opaque
        K-preserved
    ; []-cong-preserved =
        Σ.map []-cong-preserved idᶠ
+   ; Equality-reflection-preserved =
+       Equality-reflection-preserved
    }
    where
    open Are-preserving-type-restrictions r
@@ -385,6 +395,8 @@ opaque
          case []-cong-reflected {s = s} (inj₂ trivial₂) of λ where
            (inj₁ ok₁)      → ⊥-elim $ hyp₂ trivial₂ ok₁
            (inj₂ trivial₁) → inj₂ trivial₁
+   ; Equality-reflection-reflected =
+       Equality-reflection-reflected
    }
    where
    open Are-reflecting-type-restrictions r
@@ -412,6 +424,8 @@ opaque
        K-preserved
    ; []-cong-preserved =
        Σ.map []-cong-preserved idᶠ
+   ; Equality-reflection-preserved =
+       Equality-reflection-preserved
    }
    where
    open Are-preserving-type-restrictions r
@@ -449,6 +463,8 @@ opaque
          case []-cong-reflected {s = s} (inj₂ trivial₂) of λ where
            (inj₁ ok₁)      → ⊥-elim $ hyp trivial₂ ok₁
            (inj₂ trivial₁) → inj₂ trivial₁
+   ; Equality-reflection-reflected =
+       Equality-reflection-reflected
    }
    where
    open Are-reflecting-type-restrictions r
@@ -464,11 +480,12 @@ Are-preserving-type-restrictions-no-erased-matches-TR :
     (no-erased-matches-TR 𝕄₂ s R₂)
     tr tr-Σ
 Are-preserving-type-restrictions-no-erased-matches-TR r = record
-  { Unitʷ-η-preserved = Unitʷ-η-preserved
-  ; Unit-preserved    = Unit-preserved
-  ; ΠΣ-preserved      = ΠΣ-preserved
-  ; K-preserved       = K-preserved
-  ; []-cong-preserved = Σ.map []-cong-preserved idᶠ
+  { Unitʷ-η-preserved             = Unitʷ-η-preserved
+  ; Unit-preserved                = Unit-preserved
+  ; ΠΣ-preserved                  = ΠΣ-preserved
+  ; K-preserved                   = K-preserved
+  ; []-cong-preserved             = Σ.map []-cong-preserved idᶠ
+  ; Equality-reflection-preserved = Equality-reflection-preserved
   }
   where
   open Are-preserving-type-restrictions r
@@ -500,6 +517,7 @@ Are-reflecting-type-restrictions-no-erased-matches-TR hyp r = record
         case []-cong-reflected {s = s} (inj₂ trivial₂) of λ where
           (inj₁ ok₁)      → ⊥-elim $ hyp trivial₂ ok₁
           (inj₂ trivial₁) → inj₂ trivial₁
+  ; Equality-reflection-reflected = Equality-reflection-reflected
   }
   where
   open Are-reflecting-type-restrictions r
@@ -515,7 +533,7 @@ Are-reflecting-type-restrictions-no-erased-matches-TR hyp r = record
 ¬-erasure→zero-one-many-Σ-preserves-equal-binder-quantities :
   (R : Type-restrictions 𝕄₂) →
   ¬ Are-preserving-type-restrictions
-      (equal-binder-quantities 𝕄₁ (no-type-restrictions 𝕄₁ b))
+      (equal-binder-quantities 𝕄₁ (no-type-restrictions 𝕄₁ b₁ b₂))
       (equal-binder-quantities 𝕄₂ R)
       erasure→zero-one-many erasure→zero-one-many-Σ
 ¬-erasure→zero-one-many-Σ-preserves-equal-binder-quantities _ r =
@@ -530,7 +548,7 @@ Are-reflecting-type-restrictions-no-erased-matches-TR hyp r = record
 ¬-affine→linear-or-affine-Σ-preserves-equal-binder-quantities :
   (R : Type-restrictions 𝕄₂) →
   ¬ Are-preserving-type-restrictions
-      (equal-binder-quantities 𝕄₁ (no-type-restrictions 𝕄₁ b))
+      (equal-binder-quantities 𝕄₁ (no-type-restrictions 𝕄₁ b₁ b₂))
       (equal-binder-quantities 𝕄₂ R)
       affine→linear-or-affine affine→linear-or-affine-Σ
 ¬-affine→linear-or-affine-Σ-preserves-equal-binder-quantities _ r =
@@ -593,9 +611,10 @@ erasure→unit-preserves-second-ΠΣ-quantities-𝟘-or-ω r =
     ; Unit-preserved    = Unit-preserved
     ; ΠΣ-preserved      = λ (b , _) →
         ΠΣ-preserved b , (λ _ → refl) , (λ _ → refl)
-    ; K-preserved       = K-preserved
-    ; []-cong-preserved = []-cong-preserved
-    }
+    ; K-preserved                   = K-preserved
+    ; []-cong-preserved             = []-cong-preserved
+    ; Equality-reflection-preserved = Equality-reflection-preserved
+  }
   where
   open Are-preserving-type-restrictions r
 
@@ -609,7 +628,7 @@ erasure→unit-preserves-second-ΠΣ-quantities-𝟘-or-ω r =
   (R₁ : Type-restrictions 𝕄₁) →
   ¬ Are-reflecting-type-restrictions
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ R₁)
-      (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ (no-type-restrictions 𝕄₂ b))
+      (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ (no-type-restrictions 𝕄₂ b₁ b₂))
       erasure→unit erasure→unit
 ¬-erasure→unit-reflects-second-ΠΣ-quantities-𝟘-or-ω _ r =
   case
@@ -675,7 +694,7 @@ erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω =
   in
   (R₂ : Type-restrictions 𝕄₂) →
   ¬ Are-preserving-type-restrictions
-      (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ (no-type-restrictions 𝕄₁ b))
+      (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ (no-type-restrictions 𝕄₁ b₁ b₂))
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ R₂)
       erasure→zero-one-many erasure→zero-one-many-Σ
 ¬-erasure→zero-one-many-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω _ r =
@@ -698,7 +717,7 @@ erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω =
   (R₁ : Type-restrictions 𝕄₁) →
   ¬ Are-reflecting-type-restrictions
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ R₁)
-      (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ (no-type-restrictions 𝕄₂ b))
+      (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ (no-type-restrictions 𝕄₂ b₁ b₂))
       erasure→zero-one-many erasure→zero-one-many-Σ
 ¬-erasure→zero-one-many-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω _ r =
   case
@@ -718,7 +737,7 @@ erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω =
   in
   (R₂ : Type-restrictions 𝕄₂) →
   ¬ Are-preserving-type-restrictions
-      (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ (no-type-restrictions 𝕄₁ b))
+      (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ (no-type-restrictions 𝕄₁ b₁ b₂))
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ R₂)
       zero-one-many→erasure zero-one-many→erasure
 ¬-zero-one-many→erasure-preserves-second-ΠΣ-quantities-𝟘-or-ω _ r =
@@ -740,7 +759,7 @@ erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω =
   (R₁ : Type-restrictions 𝕄₁) →
   ¬ Are-reflecting-type-restrictions
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ R₁)
-      (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ (no-type-restrictions 𝕄₂ b))
+      (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ (no-type-restrictions 𝕄₂ b₁ b₂))
       zero-one-many→erasure zero-one-many→erasure
 ¬-zero-one-many→erasure-reflects-second-ΠΣ-quantities-𝟘-or-ω _ r =
   case
@@ -810,7 +829,7 @@ linearity→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω =
   in
   (R₂ : Type-restrictions 𝕄₂) →
   ¬ Are-preserving-type-restrictions
-      (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ (no-type-restrictions 𝕄₁ b))
+      (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ (no-type-restrictions 𝕄₁ b₁ b₂))
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ R₂)
       linear-or-affine→linearity linear-or-affine→linearity
 ¬-linear-or-affine→linearity-preserves-second-ΠΣ-quantities-𝟘-or-ω _ r =
@@ -832,7 +851,7 @@ linearity→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω =
   (R₁ : Type-restrictions 𝕄₁) →
   ¬ Are-reflecting-type-restrictions
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ R₁)
-      (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ (no-type-restrictions 𝕄₂ b))
+      (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ (no-type-restrictions 𝕄₂ b₁ b₂))
       linear-or-affine→linearity linear-or-affine→linearity
 ¬-linear-or-affine→linearity-reflects-second-ΠΣ-quantities-𝟘-or-ω _ r =
   case
@@ -1007,7 +1026,7 @@ linear-or-affine→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω =
   in
   (R₂ : Type-restrictions 𝕄₂) →
   ¬ Are-preserving-type-restrictions
-      (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ (no-type-restrictions 𝕄₁ b))
+      (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ (no-type-restrictions 𝕄₁ b₁ b₂))
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ R₂)
       affine→linearity affine→linearity
 ¬-affine→linearity-preserves-second-ΠΣ-quantities-𝟘-or-ω _ r =
@@ -1029,7 +1048,7 @@ linear-or-affine→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω =
   (R₁ : Type-restrictions 𝕄₁) →
   ¬ Are-reflecting-type-restrictions
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ R₁)
-      (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ (no-type-restrictions 𝕄₂ b))
+      (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ (no-type-restrictions 𝕄₂ b₁ b₂))
       affine→linearity affine→linearity
 ¬-affine→linearity-reflects-second-ΠΣ-quantities-𝟘-or-ω _ r =
   case
@@ -1051,7 +1070,7 @@ linear-or-affine→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω =
   in
   (R₂ : Type-restrictions 𝕄₂) →
   ¬ Are-preserving-type-restrictions
-      (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ (no-type-restrictions 𝕄₁ b))
+      (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ (no-type-restrictions 𝕄₁ b₁ b₂))
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ R₂)
       affine→linearity affine→linearity-Σ
 ¬-affine→linearity-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω _ r =
@@ -1074,7 +1093,7 @@ linear-or-affine→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω =
   (R₁ : Type-restrictions 𝕄₁) →
   ¬ Are-reflecting-type-restrictions
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ R₁)
-      (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ (no-type-restrictions 𝕄₂ b))
+      (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ (no-type-restrictions 𝕄₂ b₁ b₂))
       affine→linearity affine→linearity-Σ
 ¬-affine→linearity-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω _ r =
   case
@@ -1201,7 +1220,7 @@ opaque
     (R₁ : Type-restrictions 𝕄₁) →
     ¬ Are-reflecting-type-restrictions
         (strong-types-restricted 𝕄₁ R₁)
-        (strong-types-restricted 𝕄₂ (no-type-restrictions 𝕄₂ b))
+        (strong-types-restricted 𝕄₂ (no-type-restrictions 𝕄₂ b₁ b₂))
         erasure→unit erasure→unit
   ¬-erasure→unit-reflects-strong-types-restricted _ r =
     case
@@ -1222,7 +1241,7 @@ opaque
     in
     (R₂ : Type-restrictions 𝕄₂) →
     ¬ Are-preserving-type-restrictions
-        (strong-types-restricted 𝕄₁ (no-type-restrictions 𝕄₁ b))
+        (strong-types-restricted 𝕄₁ (no-type-restrictions 𝕄₁ b₁ b₂))
         (strong-types-restricted 𝕄₂ R₂)
         erasure→zero-one-many erasure→zero-one-many
   ¬-erasure→zero-one-many-preserves-strong-types-restricted _ r =
@@ -1317,7 +1336,7 @@ opaque
     (R₁ : Type-restrictions 𝕄₁) →
     ¬ Are-reflecting-type-restrictions
         (strong-types-restricted 𝕄₁ R₁)
-        (strong-types-restricted 𝕄₂ (no-type-restrictions 𝕄₂ b))
+        (strong-types-restricted 𝕄₂ (no-type-restrictions 𝕄₂ b₁ b₂))
         zero-one-many→erasure zero-one-many→erasure
   ¬-zero-one-many→erasure-reflects-strong-types-restricted _ r =
     case
@@ -1406,7 +1425,7 @@ opaque
     in
     (R₂ : Type-restrictions 𝕄₂) →
     ¬ Are-preserving-type-restrictions
-        (strong-types-restricted 𝕄₁ (no-type-restrictions 𝕄₁ b))
+        (strong-types-restricted 𝕄₁ (no-type-restrictions 𝕄₁ b₁ b₂))
         (strong-types-restricted 𝕄₂ R₂)
         affine→linear-or-affine affine→linear-or-affine
   ¬-affine→linear-or-affine-preserves-strong-types-restricted _ r =
@@ -1502,7 +1521,7 @@ opaque
     (R₁ : Type-restrictions 𝕄₁) →
     ¬ Are-reflecting-type-restrictions
         (strong-types-restricted 𝕄₁ R₁)
-        (strong-types-restricted 𝕄₂ (no-type-restrictions 𝕄₂ b))
+        (strong-types-restricted 𝕄₂ (no-type-restrictions 𝕄₂ b₁ b₂))
         linear-or-affine→affine linear-or-affine→affine
   ¬-linear-or-affine→affine-reflects-strong-types-restricted _ r =
     case
@@ -1523,7 +1542,7 @@ opaque
     in
     (R₂ : Type-restrictions 𝕄₂) →
     ¬ Are-preserving-type-restrictions
-        (strong-types-restricted 𝕄₁ (no-type-restrictions 𝕄₁ b))
+        (strong-types-restricted 𝕄₁ (no-type-restrictions 𝕄₁ b₁ b₂))
         (strong-types-restricted 𝕄₂ R₂)
         affine→linearity affine→linearity
   ¬-affine→linearity-preserves-strong-types-restricted _ r =

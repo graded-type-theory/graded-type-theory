@@ -12,6 +12,7 @@ module Application.NegativeOrErasedAxioms.NegativeOrErasedType
   where
 
 open Modality 𝕄
+open Type-restrictions R
 
 open import Definition.Untyped M as U
 
@@ -37,6 +38,7 @@ private variable
   A B C : Term m
   t u   : Term m
   l     : Universe-level
+  s     : Strength
   p q   : M
 
 -- Negative types.
@@ -113,9 +115,10 @@ subNeg1 : NegativeType (Γ ∙ A) B → Γ ⊢ t ∷ A → NegativeType Γ (B [ 
 subNeg1 n ⊢t = subNeg n (⊢ˢʷ∷-sgSubst ⊢t)
 
 -- The first component of a negative Σ-type is negative if the
--- quantity is not 𝟘.
+-- quantity is not 𝟘 (given a certain assumption).
 
 fstNeg :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   NegativeType Γ C →
   Γ ⊢ C ≡ Σˢ p , q ▷ A ▹ B →
   𝟘 ≢ p →
@@ -129,9 +132,10 @@ fstNeg universe       c  _   = ⊥-elim (U≢ΠΣⱼ c)
 fstNeg (conv n c)     c′ 𝟘≢p = fstNeg n (trans c c′) 𝟘≢p
 
 -- Any instance of the second component of a negative Σ-type is
--- negative.
+-- negative (given a certain assumption).
 
 sndNeg :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   NegativeType Γ C →
   Γ ⊢ C ≡ Σˢ p , q ▷ A ▹ B →
   Γ ⊢ t ∷ A →
@@ -139,17 +143,23 @@ sndNeg :
 sndNeg empty          c    = ⊥-elim (Empty≢ΠΣⱼ c)
 sndNeg (pi _ _)       c    = ⊥-elim (Π≢Σⱼ c)
 sndNeg (sigma-𝟘 _ nB) c ⊢t =
-  let (cA , cB , _ , _) = ΠΣ-injectivity c in
-  subNeg (conv nB cB) (⊢ˢʷ∷-sgSubst (conv ⊢t (sym cA)))
+  let (cA , cB , _ , _) = ΠΣ-injectivity c
+      ⊢t                = conv ⊢t (sym cA)
+  in
+  conv (subNeg nB (⊢ˢʷ∷-sgSubst ⊢t)) (cB (refl ⊢t))
 sndNeg (sigma _ _ nB) c ⊢t =
-  let (cA , cB , _ , _) = ΠΣ-injectivity c in
-  subNeg (conv nB cB) (⊢ˢʷ∷-sgSubst (conv ⊢t (sym cA)))
+  let (cA , cB , _ , _) = ΠΣ-injectivity c
+      ⊢t                = conv ⊢t (sym cA)
+  in
+  conv (subNeg nB (⊢ˢʷ∷-sgSubst ⊢t)) (cB (refl ⊢t))
 sndNeg universe   c  = ⊥-elim (U≢ΠΣⱼ c)
 sndNeg (conv n c) c′ = sndNeg n (trans c c′)
 
--- Any instance of the codomain of a negative Π-type is negative.
+-- Any instance of the codomain of a negative Π-type is negative
+-- (given a certain assumption).
 
 appNeg :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   NegativeType Γ C →
   Γ ⊢ C ≡ Π p , q ▷ A ▹ B →
   Γ ⊢ t ∷ A →
@@ -158,14 +168,18 @@ appNeg empty          c = ⊥-elim (Empty≢ΠΣⱼ c)
 appNeg (sigma-𝟘 _ _)  c = ⊥-elim (Π≢Σⱼ (sym c))
 appNeg (sigma _ _ _)  c = ⊥-elim (Π≢Σⱼ (sym c))
 appNeg (pi _ nB) c ⊢t =
-  let (cA , cB , _ , _) = ΠΣ-injectivity c in
-  subNeg (conv nB cB) (⊢ˢʷ∷-sgSubst (conv ⊢t (sym cA)))
+  let (cA , cB , _ , _) = ΠΣ-injectivity c
+      ⊢t                = conv ⊢t (sym cA)
+  in
+  conv (subNeg nB (⊢ˢʷ∷-sgSubst ⊢t)) (cB (refl ⊢t))
 appNeg universe   c  = ⊥-elim (U≢ΠΣⱼ c)
 appNeg (conv n c) c′ = appNeg n (trans c c′)
 
--- The type ℕ is not negative.
+-- The type ℕ is not negative (given a certain assumption).
 
-¬negℕ : NegativeType Γ C → Γ ⊢ C ≡ ℕ → ⊥
+¬negℕ :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+  NegativeType Γ C → Γ ⊢ C ≡ ℕ → ⊥
 ¬negℕ empty         c  = ℕ≢Emptyⱼ (sym c)
 ¬negℕ (pi _ _)      c  = ℕ≢ΠΣⱼ (sym c)
 ¬negℕ (sigma-𝟘 _ _) c  = ℕ≢ΠΣⱼ (sym c)
@@ -173,9 +187,11 @@ appNeg (conv n c) c′ = appNeg n (trans c c′)
 ¬negℕ universe      c  = U≢ℕ c
 ¬negℕ (conv n c)    c′ = ¬negℕ n (trans c c′)
 
--- Σʷ-types are not negative.
+-- Σʷ-types are not negative (given a certain assumption).
 
-¬negΣʷ : NegativeType Γ C → Γ ⊢ C ≡ Σʷ p , q ▷ A ▹ B → ⊥
+¬negΣʷ :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+  NegativeType Γ C → Γ ⊢ C ≡ Σʷ p , q ▷ A ▹ B → ⊥
 ¬negΣʷ empty         c  = Empty≢ΠΣⱼ c
 ¬negΣʷ (pi _ _)      c  = Π≢Σⱼ c
 ¬negΣʷ (sigma-𝟘 _ _) c  = Σˢ≢Σʷⱼ c
@@ -183,9 +199,11 @@ appNeg (conv n c) c′ = appNeg n (trans c c′)
 ¬negΣʷ universe      c  = U≢ΠΣⱼ c
 ¬negΣʷ (conv n c)    c′ = ¬negΣʷ n (trans c c′)
 
--- Unit types are not negative
+-- Unit types are not negative (given a certain assumption).
 
-¬negUnit : ∀ {s} → NegativeType Γ C → Γ ⊢ C ≡ Unit s l → ⊥
+¬negUnit :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+  NegativeType Γ C → Γ ⊢ C ≡ Unit s l → ⊥
 ¬negUnit empty         c  = Empty≢Unitⱼ c
 ¬negUnit (pi _ _)      c  = Unit≢ΠΣⱼ (sym c)
 ¬negUnit (sigma-𝟘 _ _) c  = Unit≢ΠΣⱼ (sym c)
@@ -195,9 +213,11 @@ appNeg (conv n c) c′ = appNeg n (trans c c′)
 
 opaque
 
-  -- Identity types are not negative.
+  -- Identity types are not negative (given a certain assumption).
 
-  ¬negId : NegativeType Γ A → ¬ Γ ⊢ A ≡ Id B t u
+  ¬negId :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    NegativeType Γ A → ¬ Γ ⊢ A ≡ Id B t u
   ¬negId empty         = Id≢Empty ∘→ sym
   ¬negId (pi _ _)      = I.Id≢ΠΣ ∘→ sym
   ¬negId (sigma-𝟘 _ _) = I.Id≢ΠΣ ∘→ sym

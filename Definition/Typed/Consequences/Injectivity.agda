@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------
--- Term constructors are injective.
+-- Injectivity lemmas
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
@@ -45,7 +45,9 @@ opaque
 
   -- A kind of injectivity for U.
 
-  U-injectivity : Γ ⊢ U l₁ ≡ U l₂ → l₁ PE.≡ l₂
+  U-injectivity :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Γ ⊢ U l₁ ≡ U l₂ → l₁ PE.≡ l₂
   U-injectivity U≡U =
     case ⊩U≡⇔ .proj₁ $ reducible-⊩≡ U≡U .proj₂ of λ
       (_ , U⇒*U) →
@@ -57,20 +59,59 @@ opaque
 
   -- A kind of injectivity for Π and Σ.
 
+  ΠΣ-injectivity′ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Γ ⊢ ΠΣ⟨ b₁ ⟩ p₁ , q₁ ▷ A₁ ▹ B₁ ≡ ΠΣ⟨ b₂ ⟩ p₂ , q₂ ▷ A₂ ▹ B₂ →
+    Γ ⊢ A₁ ≡ A₂ ×
+    (⦃ not-ok : No-equality-reflection ⦄ → Γ ∙ A₁ ⊢ B₁ ≡ B₂) ×
+    (∀ {t₁ t₂} → Γ ⊢ t₁ ≡ t₂ ∷ A₁ → Γ ⊢ B₁ [ t₁ ]₀ ≡ B₂ [ t₂ ]₀) ×
+    p₁ PE.≡ p₂ × q₁ PE.≡ q₂ × b₁ PE.≡ b₂
+  ΠΣ-injectivity′ ΠΣ≡ΠΣ =
+    let _ , ⊩ΠΣ≡ΠΣ                                = reducible-⊩≡ ΠΣ≡ΠΣ
+        _ , b₁≡b₂ , p₁≡p₂ , q₁≡q₂ , A₁≡A₂ , B₁≡B₂ = ⊩ΠΣ≡ΠΣ→ ⊩ΠΣ≡ΠΣ
+    in
+    escape-⊩≡ A₁≡A₂ ,
+    (λ ⦃ not-ok = not-ok ⦄ → escape-⊩≡ (B₁≡B₂ ⦃ inc = not-ok ⦄)) ,
+    escape-⊩≡ ∘→ ⊩ΠΣ≡ΠΣ→⊩≡∷→⊩[]₀≡[]₀ ⊩ΠΣ≡ΠΣ ∘→ proj₂ ∘→ reducible-⊩≡∷ ,
+    p₁≡p₂ , q₁≡q₂ , b₁≡b₂
+
+opaque
+
+  -- A kind of injectivity for Π and Σ.
+
   ΠΣ-injectivity :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Γ ⊢ ΠΣ⟨ b₁ ⟩ p₁ , q₁ ▷ A₁ ▹ B₁ ≡ ΠΣ⟨ b₂ ⟩ p₂ , q₂ ▷ A₂ ▹ B₂ →
+    Γ ⊢ A₁ ≡ A₂ ×
+    (∀ {t₁ t₂} → Γ ⊢ t₁ ≡ t₂ ∷ A₁ → Γ ⊢ B₁ [ t₁ ]₀ ≡ B₂ [ t₂ ]₀) ×
+    p₁ PE.≡ p₂ × q₁ PE.≡ q₂ × b₁ PE.≡ b₂
+  ΠΣ-injectivity ΠΣ≡ΠΣ =
+    let A₁≡A₂ , _ , B₁≡B₂ , p₁≡p₂ , q₁≡q₂ , b₁≡b₂ =
+          ΠΣ-injectivity′ ΠΣ≡ΠΣ
+    in
+    A₁≡A₂ , B₁≡B₂ , p₁≡p₂ , q₁≡q₂ , b₁≡b₂
+
+opaque
+
+  -- A kind of injectivity for Π and Σ.
+
+  ΠΣ-injectivity-no-equality-reflection :
+    ⦃ not-ok : No-equality-reflection ⦄ →
     Γ ⊢ ΠΣ⟨ b₁ ⟩ p₁ , q₁ ▷ A₁ ▹ B₁ ≡ ΠΣ⟨ b₂ ⟩ p₂ , q₂ ▷ A₂ ▹ B₂ →
     Γ ⊢ A₁ ≡ A₂ × Γ ∙ A₁ ⊢ B₁ ≡ B₂ ×
     p₁ PE.≡ p₂ × q₁ PE.≡ q₂ × b₁ PE.≡ b₂
-  ΠΣ-injectivity ΠΣ≡ΠΣ =
-    case ⊩ΠΣ≡ΠΣ→ $ reducible-⊩≡ ΠΣ≡ΠΣ .proj₂ of λ
-      (_ , b₁≡b₂ , p₁≡p₂ , q₁≡q₂ , A₁≡A₂ , B₁≡B₂) →
-    escape-⊩≡ A₁≡A₂ , escape-⊩≡ B₁≡B₂ , p₁≡p₂ , q₁≡q₂ , b₁≡b₂
+  ΠΣ-injectivity-no-equality-reflection ΠΣ≡ΠΣ =
+    let A₁≡A₂ , B₁≡B₂ , _ , p₁≡p₂ , q₁≡q₂ , b₁≡b₂ =
+          ΠΣ-injectivity′ ⦃ ok = included ⦄ ΠΣ≡ΠΣ
+    in
+    A₁≡A₂ , B₁≡B₂ , p₁≡p₂ , q₁≡q₂ , b₁≡b₂
 
 opaque
 
   -- Injectivity of Id.
 
   Id-injectivity :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     Γ ⊢ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂ →
     (Γ ⊢ A₁ ≡ A₂) × Γ ⊢ t₁ ≡ t₂ ∷ A₁ × Γ ⊢ u₁ ≡ u₂ ∷ A₁
   Id-injectivity Id≡Id =
@@ -83,6 +124,7 @@ opaque
   -- Injectivity of suc.
 
   suc-injectivity :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     Γ ⊢ suc t₁ ≡ suc t₂ ∷ ℕ →
     Γ ⊢ t₁ ≡ t₂ ∷ ℕ
   suc-injectivity {Γ} {t₁} {t₂} =
@@ -96,6 +138,7 @@ opaque
   -- Injectivity of Unit.
 
   Unit-injectivity :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     Γ ⊢ Unit s₁ l₁ ≡ Unit s₂ l₂ →
     s₁ PE.≡ s₂ × l₁ PE.≡ l₂
   Unit-injectivity {Γ} {s₁} {l₁} {s₂} {l₂} =

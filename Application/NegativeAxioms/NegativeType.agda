@@ -11,6 +11,8 @@ module Application.NegativeAxioms.NegativeType
   (R : Type-restrictions 𝕄)
   where
 
+open Type-restrictions R
+
 open import Definition.Untyped M as U
 
 open import Definition.Typed R
@@ -109,9 +111,11 @@ subNeg (conv n c) s = conv (subNeg n s) (subst-⊢≡ c (refl-⊢ˢʷ≡∷ s))
 subNeg1 : NegativeType (Γ ∙ A) B → Γ ⊢ t ∷ A → NegativeType Γ (B [ t ]₀)
 subNeg1 n ⊢t = subNeg n (⊢ˢʷ∷-sgSubst ⊢t)
 
--- Lemma: The first component of a negative Σ-type is negative.
+-- Lemma: The first component of a negative Σ-type is negative (given
+-- a certain assumption).
 
 fstNeg :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   NegativeType Γ C →
   Γ ⊢ C ≡ Σˢ p , q ▷ A ▹ B →
   NegativeType Γ A
@@ -121,51 +125,69 @@ fstNeg (sigma _ nA _) c = conv nA (proj₁ (ΠΣ-injectivity c))
 fstNeg universe       c = ⊥-elim (U≢ΠΣⱼ c)
 fstNeg (conv n c)    c' = fstNeg n (trans c c')
 
--- Lemma: Any instance of the second component of a negative Σ-type is negative.
+-- Lemma: Any instance of the second component of a negative Σ-type is
+-- negative (given a certain assumption).
 
 sndNeg :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   NegativeType Γ C →
   Γ ⊢ C ≡ Σˢ p , q ▷ A ▹ B →
   Γ ⊢ t ∷ A →
   NegativeType Γ (B [ t ]₀)
 sndNeg empty          c = ⊥-elim (Empty≢ΠΣⱼ c)
 sndNeg (pi _ _)       c = ⊥-elim (Π≢Σⱼ c)
-sndNeg (sigma _ _ nB) c ⊢t = let (cA , cB , _ , _) = ΠΣ-injectivity c in
-    subNeg (conv nB cB) (⊢ˢʷ∷-sgSubst (conv ⊢t (sym cA)))
+sndNeg (sigma _ _ nB) c ⊢t =
+  let (cA , cB , _ , _) = ΠΣ-injectivity c
+      ⊢t                = conv ⊢t (sym cA)
+  in
+  conv (subNeg nB (⊢ˢʷ∷-sgSubst ⊢t)) (cB (refl ⊢t))
 sndNeg universe      c  = ⊥-elim (U≢ΠΣⱼ c)
 sndNeg (conv n c)    c' = sndNeg n (trans c c')
 
--- Lemma: Any instance of the codomain of a negative Π-type is negative.
+-- Lemma: Any instance of the codomain of a negative Π-type is
+-- negative (given a certain assumption).
 
-appNeg : NegativeType Γ C → Γ ⊢ C ≡ Π p , q ▷ A ▹ B → Γ ⊢ t ∷ A → NegativeType Γ (B [ t ]₀)
+appNeg :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+  NegativeType Γ C → Γ ⊢ C ≡ Π p , q ▷ A ▹ B → Γ ⊢ t ∷ A →
+  NegativeType Γ (B [ t ]₀)
 appNeg empty          c = ⊥-elim (Empty≢ΠΣⱼ c)
 appNeg (sigma _ _ _)  c = ⊥-elim (Π≢Σⱼ (sym c))
-appNeg (pi _ nB) c ⊢t = let (cA , cB , _ , _) = ΠΣ-injectivity c in
-  subNeg (conv nB cB) (⊢ˢʷ∷-sgSubst (conv ⊢t (sym cA)))
+appNeg (pi _ nB) c ⊢t =
+  let (cA , cB , _ , _) = ΠΣ-injectivity c
+      ⊢t                = conv ⊢t (sym cA)
+  in
+  conv (subNeg nB (⊢ˢʷ∷-sgSubst ⊢t)) (cB (refl ⊢t))
 appNeg universe      c  = ⊥-elim (U≢ΠΣⱼ c)
 appNeg (conv n c)    c' = appNeg n (trans c c')
 
--- Lemma: The type ℕ is not negative.
+-- Lemma: The type ℕ is not negative (given a certain assumption).
 
-¬negℕ : NegativeType Γ C → Γ ⊢ C ≡ ℕ → ⊥
+¬negℕ :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+  NegativeType Γ C → Γ ⊢ C ≡ ℕ → ⊥
 ¬negℕ empty         c = ℕ≢Emptyⱼ (sym c)
 ¬negℕ (pi _ _)      c = ℕ≢ΠΣⱼ (sym c)
 ¬negℕ (sigma _ _ _) c = ℕ≢ΠΣⱼ (sym c)
 ¬negℕ universe      c = U≢ℕ c
 ¬negℕ (conv n c)   c' = ¬negℕ n (trans c c')
 
--- Lemma: The type Σʷ is not negative
+-- Lemma: The type Σʷ is not negative (given a certain assumption).
 
-¬negΣʷ : NegativeType Γ C → Γ ⊢ C ≡ Σʷ p , q ▷ A ▹ B → ⊥
+¬negΣʷ :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+  NegativeType Γ C → Γ ⊢ C ≡ Σʷ p , q ▷ A ▹ B → ⊥
 ¬negΣʷ empty         c = Empty≢ΠΣⱼ c
 ¬negΣʷ (pi _ _)      c = Π≢Σⱼ c
 ¬negΣʷ (sigma _ _ _) c = Σˢ≢Σʷⱼ c
 ¬negΣʷ universe      c = U≢ΠΣⱼ c
 ¬negΣʷ (conv n c)   c' = ¬negΣʷ n (trans c c')
 
--- Lemma: Unit types are not negative.
+-- Lemma: Unit types are not negative (given a certain assumption).
 
-¬negUnit : NegativeType Γ C → Γ ⊢ C ≡ Unit s l → ⊥
+¬negUnit :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+  NegativeType Γ C → Γ ⊢ C ≡ Unit s l → ⊥
 ¬negUnit empty c = Empty≢Unitⱼ c
 ¬negUnit (pi _ _) c = Unit≢ΠΣⱼ (sym c)
 ¬negUnit (sigma _ _ _) c = Unit≢ΠΣⱼ (sym c)
@@ -174,9 +196,11 @@ appNeg (conv n c)    c' = appNeg n (trans c c')
 
 opaque
 
-  -- Identity types are not negative.
+  -- Identity types are not negative (given a certain assumption).
 
-  ¬negId : NegativeType Γ A → ¬ Γ ⊢ A ≡ Id B t u
+  ¬negId :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    NegativeType Γ A → ¬ Γ ⊢ A ≡ Id B t u
   ¬negId empty         = Id≢Empty ∘→ sym
   ¬negId (pi _ _)      = I.Id≢ΠΣ ∘→ sym
   ¬negId (sigma _ _ _) = I.Id≢ΠΣ ∘→ sym

@@ -1,5 +1,6 @@
 ------------------------------------------------------------------------
--- Stability of algorithmic equality.
+-- Stability of algorithmic equality (in the absence of equality
+-- reflection)
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
@@ -9,6 +10,8 @@ module Definition.Conversion.Stability
   {a} {M : Set a}
   {𝕄 : Modality M}
   (R : Type-restrictions 𝕄)
+  (open Type-restrictions R)
+  ⦃ no-equality-reflection : No-equality-reflection ⦄
   where
 
 open import Definition.Untyped M

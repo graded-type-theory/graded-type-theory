@@ -86,7 +86,7 @@ opaque
         (Q , here , Unit≡′) →
       case inversion-prod ⊢t′ of
         λ (F′ , G′ , _ , _ , _ , ⊢zero , ⊢zero′ , Σ≡Σ , _) →
-      case ΠΣ-injectivity Σ≡Σ of
+      case ΠΣ-injectivity ⦃ ok = ε ⦄ Σ≡Σ of
         λ (F≡F′ , G≡G′ , _ , _ , _) →
       case inversion-zero ⊢zero of
         λ ≡ℕ →
@@ -94,7 +94,7 @@ opaque
         λ ≡ℕ′ →
       case conv ⊢zero (sym F≡F′) of
         λ ⊢zero″ →
-      case substTypeEq G≡G′ (refl ⊢zero″)  of
+      case G≡G′ (refl ⊢zero″)  of
         λ G₀≡G′₀ →
       let ⊢σ : Γ′ ⊢ˢʷ consSubst (sgSubst zero) zero ∷ (Γ′ ∙ F ∙ G)
           ⊢σ = →⊢ˢʷ∷∙
@@ -107,7 +107,7 @@ opaque
       l , sym (trans Unit≡″ (trans G₀≡G′₀ ≡ℕ′)) }
 
     bad : ⊥
-    bad = ℕ≢Unitⱼ (ℕ≡Unit .proj₂)
+    bad = ℕ≢Unitⱼ ⦃ ok = ε ⦄ (ℕ≡Unit .proj₂)
 
 opaque
 

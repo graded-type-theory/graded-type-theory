@@ -290,6 +290,8 @@ opaque mutual
     _ , K-βᵛ ok ⊢B (fundamental-⊩ᵛ∷ ⊢u .proj₂)
   fundamental-⊩ᵛ≡∷ ([]-cong-β ⊢t PE.refl ok) = _ ,
     []-cong-βᵛ ok (proj₂ (fundamental-⊩ᵛ∷ ⊢t))
+  fundamental-⊩ᵛ≡∷ (equality-reflection ok _ ⊢v) =
+    _ , equality-reflectionᵛ ok (fundamental-⊩ᵛ∷ ⊢v .proj₂)
 
 opaque
 

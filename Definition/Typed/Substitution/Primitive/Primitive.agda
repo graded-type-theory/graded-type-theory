@@ -1421,6 +1421,18 @@ private module Inhabited where
       ([]-cong-β ⊢t PE.refl ok) PE.refl →
         []-cong-β (subst-⊢∷ ⊢t (wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₂ .proj₁)) PE.refl
           ok
+      (equality-reflection ok ⊢Id ⊢v) PE.refl →
+        let ⊢A , ⊢t , ⊢u  = inversion-Id-⊢ ⊢Id
+            _ , ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂
+            ⊢A[σ₁]        = subst-⊢-<ˢ ⊢A ⊢σ₁
+            ⊢t[σ₁]        = subst-⊢∷-<ˢ ⊢t ⊢σ₁
+        in
+        equality-reflection ok
+          (Idⱼ ⊢A[σ₁] ⊢t[σ₁] $
+           conv (subst-⊢∷-<ˢ ⊢u ⊢σ₂) (sym (subst-⊢→⊢≡-<ˢ ⊢A σ₁≡σ₂)))
+          (_⊢_∷_.conv (subst-⊢∷ ⊢v ⊢σ₁) $
+           Id-cong (refl ⊢A[σ₁]) (refl ⊢t[σ₁])
+             (subst-⊢∷→⊢≡∷-<ˢ ⊢u σ₁≡σ₂))
 
   opaque
 

@@ -21,6 +21,7 @@ module Graded.Derived.Unrestricted.Eta.Typed
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Injectivity R
+open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
   hiding ([]ⱼ; []-cong′; inversion-[])
@@ -150,17 +151,23 @@ Unrestricted-η ⊢t ⊢u t≡u =
 
 inversion-Unrestricted-∷ :
   Γ ⊢ Unrestricted A ∷ B →
-  ∃ λ l → Γ ⊢ A ∷ U l × Γ ⊢ B ≡ U l
+  ∃ λ l →
+    Γ ⊢ A ∷ U l ×
+    (⦃ not-ok : No-equality-reflection ⦄ → Γ ⊢ B ≡ U l)
 inversion-Unrestricted-∷ ⊢Unrestricted =
   case inversion-ΠΣ-U ⊢Unrestricted of λ
     (_ , _ , ⊢A , ⊢Unit , B≡ , _) →
-  case U-injectivity (inversion-Unit-U ⊢Unit .proj₁) of λ {
-    PE.refl →
-  _ , ⊢A , B≡ }
+  _ , ⊢A ,
+  (case U-injectivity ⦃ ok = included ⦄
+          (inversion-Unit-U ⊢Unit .proj₁) of λ {
+     PE.refl →
+   B≡ })
 
 -- Another inversion lemma for Unrestricted.
 
-inversion-Unrestricted : Γ ⊢ Unrestricted A → Γ ⊢ A
+inversion-Unrestricted :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+  Γ ⊢ Unrestricted A → Γ ⊢ A
 inversion-Unrestricted (ΠΣⱼ ⊢Unit _)        = ⊢∙→⊢ (wf ⊢Unit)
 inversion-Unrestricted (univ ⊢Unrestricted) =
   univ (inversion-Unrestricted-∷ ⊢Unrestricted .proj₂ .proj₁)
@@ -185,7 +192,9 @@ inversion-[] ⊢[] =
 
 -- Another inversion lemma for [_].
 
-inversion-[]′ : Γ ⊢ [ t ] ∷ Unrestricted A → Γ ⊢ t ∷ A
+inversion-[]′ :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+  Γ ⊢ [ t ] ∷ Unrestricted A → Γ ⊢ t ∷ A
 inversion-[]′ ⊢[] =
   case inversion-[] ⊢[] of
     λ (_ , _ , _ , ⊢t , Unrestricted-A≡ , _) →
@@ -230,16 +239,16 @@ inversion-[]′ ⊢[] =
   ℕ≡Unit =
     case inversion-[] ⊢[t′] of
       λ (_ , _ , _ , _ , A′≡) →
-    case ΠΣ-injectivity A′≡ of
+    case ΠΣ-injectivity ⦃ ok = ε ⦄ A′≡ of
       λ (_ , ≡Unit , _ , _ , _) →
       _
     , _⊢_≡_.trans
         (_⊢_≡_.sym $ _⊢_≡_.univ $
          natrec-suc (Unitⱼ ε Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U) (zeroⱼ ε))
-        (substTypeEq ≡Unit (refl (sucⱼ (zeroⱼ ε))))
+        (≡Unit (refl (sucⱼ (zeroⱼ ε))))
 
   bad : ⊥
-  bad = ℕ≢Unitⱼ (ℕ≡Unit .proj₂)
+  bad = ℕ≢Unitⱼ ⦃ ok = ε ⦄ (ℕ≡Unit .proj₂)
 
 -- Another form of inversion for [] also does not hold.
 
@@ -306,7 +315,7 @@ inversion-unbox ⊢unbox =
       λ (_ , _ , _ , _ , _ , ⊢t′ , Unit≡) →
     case inversion-prod ⊢t′ of
       λ (_ , _ , _ , _ , _ , ⊢zero , ⊢zero′ , Σ≡Σ , _) →
-    case ΠΣ-injectivity Σ≡Σ of
+    case ΠΣ-injectivity ⦃ ok = ε ⦄ Σ≡Σ of
       λ (F≡F′ , G≡G′ , _ , _ , _) →
     case inversion-zero ⊢zero of
       λ ≡ℕ →
@@ -315,13 +324,11 @@ inversion-unbox ⊢unbox =
       l
     , (_⊢_≡_.sym $
        trans Unit≡ $
-       trans
-         (substTypeEq G≡G′ $
-          conv unbox-t′≡zero (_⊢_≡_.sym (trans F≡F′ ≡ℕ)))
+       trans (G≡G′ (conv unbox-t′≡zero (_⊢_≡_.sym (trans F≡F′ ≡ℕ))))
        ≡ℕ′)
 
   bad : ⊥
-  bad = ℕ≢Unitⱼ (ℕ≡Unit .proj₂)
+  bad = ℕ≢Unitⱼ ⦃ ok = ε ⦄ (ℕ≡Unit .proj₂)
 
 -- Another form of inversion for unbox also does not hold.
 

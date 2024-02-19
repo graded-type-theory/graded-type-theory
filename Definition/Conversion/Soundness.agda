@@ -1,5 +1,6 @@
 ------------------------------------------------------------------------
--- Soundness of algorithmic equality.
+-- Soundness of algorithmic equality (in the absence of equality
+-- reflection)
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
@@ -9,13 +10,15 @@ module Definition.Conversion.Soundness
   {a} {M : Set a}
   {𝕄 : Modality M}
   (R : Type-restrictions 𝕄)
+  (open Type-restrictions R)
+  ⦃ no-equality-reflection : No-equality-reflection ⦄
   where
-
-open Type-restrictions R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
+open import Definition.Typed.EqRelInstance R
+open import Definition.Typed.EqualityRelation.Instance R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 import Definition.Typed.Reasoning.Term R as TmR

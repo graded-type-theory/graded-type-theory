@@ -12,8 +12,9 @@ module Definition.Typechecking.Decidable.Assumptions
   (R : Type-restrictions 𝕄)
   where
 
-open Type-restrictions R
+open Type-restrictions R hiding (no-equality-reflection)
 
+open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation
 
@@ -36,3 +37,14 @@ record Assumptions : Set a where
     -- It is decidable whether []-cong is allowed for a given
     -- strength.
     []-cong-allowed? : ∀ s → Dec ([]-cong-allowed s)
+
+    -- Equality reflection is not allowed.
+    no-equality-reflection : ¬ Equality-reflection
+
+  instance
+
+    -- Equality reflection is not allowed.
+
+    no-equality-reflection′ : No-equality-reflection
+    no-equality-reflection′ =
+      No-equality-reflection⇔ .proj₂ no-equality-reflection

@@ -550,9 +550,11 @@ Well-resourced-normal-form-without-η-long-normal-form =
 -- The type Well-resourced-normal-form-without-η-long-normal-form is
 -- inhabited if Unit s is allowed and comes with η-equality, s is 𝕨 or
 -- Unitˢ is not allowed to be used as a sink, 𝟙 is not bounded by 𝟘,
--- and Π-allowed 𝟙 q holds for some q.
+-- Π-allowed 𝟙 q holds for some q, and equality reflection is not
+-- allowed.
 
 well-resourced-normal-form-without-η-long-normal-form-Unit :
+  ⦃ not-ok : No-equality-reflection ⦄ →
   ¬ 𝟙 ≤ 𝟘 →
   s PE.≡ 𝕨 ⊎ ¬ Starˢ-sink →
   Unit-allowed s →
@@ -701,15 +703,16 @@ well-resourced-normal-form-without-η-long-normal-form-Unit
   where
   u′ = prodˢ p (fst p (var x0)) (snd p (var x0))
 
--- The type
--- Well-resourced-normal-form-without-η-long-normal-form is
--- inhabited if there are quantities p, q and r such that
+-- The type Well-resourced-normal-form-without-η-long-normal-form is
+-- inhabited if equality reflection is not allowed and there are
+-- quantities p, q and r such that
 -- * p is distinct from 𝟙,
 -- * "p is 𝟘 and 𝟘ᵐ is allowed and 𝟙 ≤ 𝟘" does not hold,
 -- * Σˢ-allowed p q holds, and
 -- * Π-allowed 𝟙 r holds.
 
 well-resourced-normal-form-without-η-long-normal-form-Σˢ :
+  ⦃ not-ok : No-equality-reflection ⦄ →
   p ≢ 𝟙 →
   ¬ (p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘) →
   Σˢ-allowed p q →

@@ -15,6 +15,7 @@ open Type-restrictions R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.EqRelInstance R
@@ -24,6 +25,7 @@ open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Reasoning.Type R
 open import Definition.Typed.Syntactic R
+open import Definition.Typed.Weakening R
 open import Definition.Typed.Well-formed R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R
@@ -32,15 +34,17 @@ open import Definition.LogicalRelation.Fundamental.Reducibility R
 open import Definition.LogicalRelation.Substitution.Introductions R
 
 open import Tools.Empty
+open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat using (Nat)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Relation
+open import Tools.Sum
 
 private
   variable
-    n : Nat
-    Γ : Con Term n
+    Γ Δ : Con Term _
     A B C t u v : Term _
     p q : M
     b : BinderMode
@@ -50,9 +54,11 @@ private
 opaque
 
   -- If the type of t is U l, then t reduces to an application of a
-  -- type constructor or a neutral term.
+  -- type constructor or a neutral term (given a certain assumption).
 
-  red-U : Γ ⊢ t ∷ U l → ∃ λ u → Type u × Γ ⊢ t ⇒* u ∷ U l
+  red-U :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Γ ⊢ t ∷ U l → ∃ λ u → Type u × Γ ⊢ t ⇒* u ∷ U l
   red-U ⊢t =
     case ⊩∷U⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
       (_ , _ , u , t⇒*u , u-type , _) →
@@ -60,9 +66,12 @@ opaque
 
 opaque
 
-  -- If the type of t is Empty, then t reduces to a neutral term.
+  -- If the type of t is Empty, then t reduces to a neutral term
+  -- (given a certain assumption).
 
-  red-Empty : Γ ⊢ t ∷ Empty → ∃ λ u → Neutral u × Γ ⊢ t ⇒* u ∷ Empty
+  red-Empty :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Γ ⊢ t ∷ Empty → ∃ λ u → Neutral u × Γ ⊢ t ⇒* u ∷ Empty
   red-Empty ⊢t =
     case ⊩∷Empty⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ {
       (Emptyₜ u t⇒*u _ (ne (neNfₜ _ u-ne _))) →
@@ -70,9 +79,12 @@ opaque
 
 opaque
 
-  -- If t has a unit type, then t reduces to star or a neutral term.
+  -- If t has a unit type, then t reduces to star or a neutral term
+  -- (given a certain assumption).
 
-  red-Unit : Γ ⊢ t ∷ Unit s l → ∃ λ u → Star u × Γ ⊢ t ⇒* u ∷ Unit s l
+  red-Unit :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Γ ⊢ t ∷ Unit s l → ∃ λ u → Star u × Γ ⊢ t ⇒* u ∷ Unit s l
   red-Unit ⊢t =
     case ⊩∷Unit⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ {
       (_ , _ , Unitₜ u t⇒*u _ rest) →
@@ -85,9 +97,11 @@ opaque
 opaque
 
   -- If the type of t is ℕ, then t reduces to zero, an application of
-  -- suc, or a neutral term.
+  -- suc, or a neutral term (given a certain assumption).
 
-  red-ℕ : Γ ⊢ t ∷ ℕ → ∃ λ u → Natural u × Γ ⊢ t ⇒* u ∷ ℕ
+  red-ℕ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Γ ⊢ t ∷ ℕ → ∃ λ u → Natural u × Γ ⊢ t ⇒* u ∷ ℕ
   red-ℕ ⊢t =
     case ⊩∷ℕ⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ {
       (ℕₜ u t⇒*u _ rest) →
@@ -100,9 +114,11 @@ opaque
 
 opaque
 
-  -- If t has a Π-type, then t reduces to a lambda or a neutral term.
+  -- If t has a Π-type, then t reduces to a lambda or a neutral term
+  -- (given a certain assumption).
 
   red-Π :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     Γ ⊢ t ∷ Π p , q ▷ A ▹ B →
     ∃ λ u → Function u × Γ ⊢ t ⇒* u ∷ Π p , q ▷ A ▹ B
   red-Π ⊢t =
@@ -112,9 +128,11 @@ opaque
 
 opaque
 
-  -- If t has a Σ-type, then t reduces to a pair or a neutral term.
+  -- If t has a Σ-type, then t reduces to a pair or a neutral term
+  -- (given a certain assumption).
 
   red-Σ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     Γ ⊢ t ∷ Σ⟨ m ⟩ p , q ▷ A ▹ B →
     ∃ λ u → Product u × Γ ⊢ t ⇒* u ∷ Σ⟨ m ⟩ p , q ▷ A ▹ B
   red-Σ {m = 𝕤} ⊢t =
@@ -129,9 +147,10 @@ opaque
 opaque
 
   -- If the type of t is Id A u v, then t reduces to rfl or a neutral
-  -- term.
+  -- term (given a certain assumption).
 
   red-Id :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     Γ ⊢ t ∷ Id A u v →
     ∃ λ w → Identity w × Γ ⊢ t ⇒* w ∷ Id A u v
   red-Id ⊢t =
@@ -157,15 +176,23 @@ whNorm′ (Idᵣ ⊩Id) = _ , Idₙ , _⊩ₗId_.⇒*Id ⊩Id
 whNorm′ (emb ≤ᵘ-refl     ⊩A) = whNorm′ ⊩A
 whNorm′ (emb (≤ᵘ-step p) ⊩A) = whNorm′ (emb p ⊩A)
 
--- Well-formed types can all be reduced to WHNF.
-whNorm : ∀ {A} → Γ ⊢ A → ∃ λ B → Whnf B × Γ ⊢ A ⇒* B
-whNorm A = whNorm′ (reducible-⊩ A .proj₂)
+opaque
+
+  -- Well-formed types reduce to WHNF (given a certain assumption).
+
+  whNorm :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Γ ⊢ A → ∃ λ B → Whnf B × Γ ⊢ A ⇒* B
+  whNorm A = whNorm′ (reducible-⊩ A .proj₂)
 
 opaque
 
-  -- If A is definitionally equal to U l, then A reduces to U l.
+  -- If A is definitionally equal to U l, then A reduces to U l (given
+  -- a certain assumption).
 
-  U-norm : Γ ⊢ A ≡ U l → Γ ⊢ A ⇒* U l
+  U-norm :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Γ ⊢ A ≡ U l → Γ ⊢ A ⇒* U l
   U-norm {A} {l} A≡U =
     let B , B-whnf , A⇒*B = whNorm (syntacticEq A≡U .proj₁)
         U≡B               =
@@ -177,24 +204,28 @@ opaque
 
 opaque
 
-  -- If A is definitionally equal to ΠΣ⟨ b ⟩ p , q ▷ B ▹ C, then A
-  -- reduces to ΠΣ⟨ b ⟩ p , q ▷ B′ ▹ C′, where B′ and C′ satisfy
-  -- Γ ⊢ B ≡ B′ and Γ ∙ B ⊢ C ≡ C′.
+  -- If equality reflection is not allowed or the context is empty,
+  -- and A is definitionally equal to ΠΣ⟨ b ⟩ p , q ▷ B ▹ C, then A
+  -- reduces to ΠΣ⟨ b ⟩ p , q ▷ B′ ▹ C′, where B′ satisfies
+  -- Γ ⊢ B ≡ B′, and C′ satisfies certain properties.
 
   ΠΣNorm :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     Γ ⊢ A ≡ ΠΣ⟨ b ⟩ p , q ▷ B ▹ C →
     ∃₂ λ B′ C′ →
-      Γ ⊢ A ⇒* ΠΣ⟨ b ⟩ p , q ▷ B′ ▹ C′ × Γ ⊢ B ≡ B′ × Γ ∙ B ⊢ C ≡ C′
+      Γ ⊢ A ⇒* ΠΣ⟨ b ⟩ p , q ▷ B′ ▹ C′ × Γ ⊢ B ≡ B′ ×
+      (⦃ not-ok : No-equality-reflection ⦄ → Γ ∙ B ⊢ C ≡ C′) ×
+      (∀ {t u} → Γ ⊢ t ≡ u ∷ B → Γ ⊢ C [ t ]₀ ≡ C′ [ u ]₀)
   ΠΣNorm {A} A≡ΠΣ with whNorm (syntacticEq A≡ΠΣ .proj₁)
   … | _ , Uₙ , D =
     ⊥-elim (U≢ΠΣⱼ (trans (sym (subset* D)) A≡ΠΣ))
   … | _ , ΠΣₙ , D =
-    let B≡B′ , C≡C′ , p≡p′ , q≡q′ , b≡b′ =
-          ΠΣ-injectivity (trans (sym A≡ΠΣ) (subset* D))
+    let B≡B′ , C≡C′ , C[]≡C′[] , p≡p′ , q≡q′ , b≡b′ =
+          ΠΣ-injectivity′ (trans (sym A≡ΠΣ) (subset* D))
         D′ = PE.subst₃ (λ b p q → _ ⊢ A ⇒* ΠΣ⟨ b ⟩ p , q ▷ _ ▹ _)
                (PE.sym b≡b′) (PE.sym p≡p′) (PE.sym q≡q′) D
     in
-    _ , _ , D′ , B≡B′ , C≡C′
+    _ , _ , D′ , B≡B′ , C≡C′ , C[]≡C′[]
   … | _ , ℕₙ , D =
     ⊥-elim (ℕ≢ΠΣⱼ (trans (sym (subset* D)) A≡ΠΣ))
   … | _ , Unitₙ , D =
@@ -235,11 +266,13 @@ opaque
 
 opaque
 
-  -- If A is definitionally equal to Id B t u, then A reduces to
-  -- Id B′ t′ u′ for some B′, t′ and u′ that are definitionally equal to
-  -- B, t and u.
+  -- If equality reflection is not allowed or the context is empty,
+  -- and A is definitionally equal to Id B t u, then A reduces to
+  -- Id B′ t′ u′ for some B′, t′ and u′ that are definitionally equal
+  -- to B, t and u.
 
   Id-norm :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     Γ ⊢ A ≡ Id B t u →
     ∃₃ λ B′ t′ u′ → (Γ ⊢ A ⇒* Id B′ t′ u′) ×
     (Γ ⊢ B ≡ B′) × Γ ⊢ t ≡ t′ ∷ B × Γ ⊢ u ≡ u′ ∷ B
@@ -279,12 +312,110 @@ whNormTerm′ (emb (≤ᵘ-step p) ⊩A) ⊩a = whNormTerm′ (emb p ⊩A) ⊩a
 
 opaque
 
-  -- Well-formed terms reduce to WHNFs.
+  -- Well-formed terms reduce to WHNF (given a certain assumption).
 
-  whNormTerm : Γ ⊢ t ∷ A → ∃ λ u → Whnf u × Γ ⊢ t ⇒* u ∷ A
+  whNormTerm :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Γ ⊢ t ∷ A → ∃ λ u → Whnf u × Γ ⊢ t ⇒* u ∷ A
   whNormTerm ⊢t =
     case reducible-⊩∷ ⊢t of λ
       (_ , ⊩t) →
     case wf-⊩∷ ⊩t of λ
       ⊩A →
     whNormTerm′ ⊩A (⊩∷→⊩∷/ ⊩A ⊩t)
+
+private opaque
+
+  -- A lemma used below.
+
+  term-without-WHNF′ :
+    Equality-reflection →
+    Π-allowed p q →
+    ∃₂ λ (Γ : Con Term 1) A →
+      Γ ⊢ A ∷ U 0 ×
+      (¬ ∃₂ λ Δ B → Whnf B × Δ ⊢ A ⇒* B) ×
+      (¬ ∃₃ λ Δ B C → Whnf B × Δ ⊢ A ⇒* B ∷ C)
+  term-without-WHNF′ {p} {q} ok₁ ok₂ =
+    ε ∙ Empty , Ω , ⊢Ω ,
+    (λ (_ , _ , B-whnf , A⇒*B) → without-WHNF₁ B-whnf A⇒*B) ,
+    (λ (_ , _ , _ , B-whnf , A⇒*B) → without-WHNF₂ B-whnf A⇒*B)
+    where
+    ⊢U : ε ∙ Empty ⊢ U 0 ∷ U 1
+    ⊢U = Uⱼ (∙ Emptyⱼ ε)
+
+    Π≡U : ε ∙ Empty ⊢ Π p , q ▷ U 0 ▹ U 0 ≡ U 0
+    Π≡U =
+      _⊢_≡_.univ $
+      ⊢∷Empty→⊢≡∷ ok₁ (var₀ (Emptyⱼ ε))
+        (ΠΣⱼ ⊢U (wkTerm₁ (univ ⊢U) ⊢U) ok₂) ⊢U
+
+    ω : Term 1
+    ω = lam p (var x0 ∘⟨ p ⟩ var x0)
+
+    Ω : Term 1
+    Ω = ω ∘⟨ p ⟩ ω
+
+    ⊢ω : ε ∙ Empty ⊢ ω ∷ U 0
+    ⊢ω =
+      conv
+        (lamⱼ′ ok₂ $
+         conv (var₀ (univ ⊢U))
+           (sym (wkEq₁ (univ ⊢U) Π≡U)) ∘ⱼ
+         var₀ (univ ⊢U))
+        Π≡U
+
+    ⊢Ω : ε ∙ Empty ⊢ Ω ∷ U 0
+    ⊢Ω = conv ⊢ω (sym Π≡U) ∘ⱼ ⊢ω
+
+    ¬-Whnf-Ω : ¬ Whnf Ω
+    ¬-Whnf-Ω (ne (∘ₙ ()))
+
+    without-WHNF₁ : Whnf A → ¬ Δ ⊢ Ω ⇒* A
+    without-WHNF₁ Whnf-Ω (id _)           = ¬-Whnf-Ω Whnf-Ω
+    without-WHNF₁ Whnf-u (univ Ω⇒t ⇨ t⇒u) =
+      case inv-⇒-∘ Ω⇒t of λ where
+        (inj₁ (_ , _ , ω⇒ , PE.refl)) → ⊥-elim (whnfRedTerm ω⇒ lamₙ)
+        (inj₂ (_ , ω≡lam , PE.refl))  →
+          case lam-PE-injectivity ω≡lam of λ {
+            (_ , PE.refl) →
+          without-WHNF₁ Whnf-u t⇒u }
+
+    without-WHNF₂ : Whnf A → ¬ Δ ⊢ Ω ⇒* A ∷ B
+    without-WHNF₂ Whnf-Ω (id _)      = ¬-Whnf-Ω Whnf-Ω
+    without-WHNF₂ Whnf-u (Ω⇒t ⇨ t⇒u) =
+      case inv-⇒-∘ Ω⇒t of λ where
+        (inj₁ (_ , _ , ω⇒ , PE.refl)) → ⊥-elim (whnfRedTerm ω⇒ lamₙ)
+        (inj₂ (_ , ω≡lam , PE.refl))  →
+          case lam-PE-injectivity ω≡lam of λ {
+            (_ , PE.refl) →
+          without-WHNF₂ Whnf-u t⇒u }
+
+opaque
+
+  -- If equality reflection is allowed, then there is a well-formed
+  -- type that does not reduce to WHNF (if at least one Π-type is
+  -- allowed).
+
+  type-without-WHNF :
+    Equality-reflection →
+    Π-allowed p q →
+    ∃₂ λ (Γ : Con Term 1) A →
+      Γ ⊢ A × ¬ ∃₂ λ Δ B → Whnf B × Δ ⊢ A ⇒* B
+  type-without-WHNF ok₁ ok₂ =
+    let _ , _ , ⊢A , hyp , _ = term-without-WHNF′ ok₁ ok₂ in
+    _ , _ , univ ⊢A , hyp
+
+opaque
+
+  -- If equality reflection is allowed, then there is a well-typed
+  -- term that does not reduce to WHNF (if at least one Π-type is
+  -- allowed).
+
+  term-without-WHNF :
+    Equality-reflection →
+    Π-allowed p q →
+    ∃₃ λ (Γ : Con Term 1) t A →
+      Γ ⊢ t ∷ A × ¬ ∃₃ λ Δ u B → Whnf u × Δ ⊢ t ⇒* u ∷ B
+  term-without-WHNF ok₁ ok₂ =
+    let _ , _ , ⊢A , _ , hyp = term-without-WHNF′ ok₁ ok₂ in
+    _ , _ , _ , ⊢A , hyp

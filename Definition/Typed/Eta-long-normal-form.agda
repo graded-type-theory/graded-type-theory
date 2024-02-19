@@ -23,6 +23,7 @@ open import Definition.Typed.Consequences.Admissible R
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.NeTypeEq R
+open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
@@ -319,9 +320,11 @@ mutual
 opaque
 
   -- If A is a normal type of type U l, then A is a normal term of
-  -- type U l.
+  -- type U l (if equality reflection is not allowed).
 
-  ⊢nf∷U→⊢nf∷U : Γ ⊢nf A → Γ ⊢ A ∷ U l → Γ ⊢nf A ∷ U l
+  ⊢nf∷U→⊢nf∷U :
+    ⦃ not-ok : No-equality-reflection ⦄ →
+    Γ ⊢nf A → Γ ⊢ A ∷ U l → Γ ⊢nf A ∷ U l
   ⊢nf∷U→⊢nf∷U = λ where
     (Uₙ ⊢Γ) ⊢U →
       convₙ (Uₙ ⊢Γ) (sym $ inversion-U ⊢U)
@@ -1005,10 +1008,13 @@ opaque
 ------------------------------------------------------------------------
 -- Lemmas related to η-long normal forms for types with η-equality
 
--- Normal forms of type Π p , q ▷ A ▹ B are not neutral.
+-- Normal forms of type Π p , q ▷ A ▹ B are not neutral (given a
+-- certain assumption).
 
-⊢nf∷Π→Neutral→⊥ : Γ ⊢nf t ∷ Π p , q ▷ A ▹ B → Neutral t → ⊥
-⊢nf∷Π→Neutral→⊥ ⊢t =
+⊢nf∷Π→Neutral→⊥ :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+  Γ ⊢nf t ∷ Π p , q ▷ A ▹ B → Neutral t → ⊥
+⊢nf∷Π→Neutral→⊥ {Γ} ⊢t =
   ⊢nf∷Π→Neutral→⊥′ ⊢t (refl (syntacticTerm (⊢nf∷→⊢∷ ⊢t)))
   where
   ⊢nf∷Π→Neutral→⊥′ :
@@ -1030,10 +1036,13 @@ opaque
     (Idₙ _ _ _)     _ ()
     (rflₙ _)        _ ()
 
--- Normal forms of type Σˢ p , q ▷ A ▹ B are not neutral.
+-- Normal forms of type Σˢ p , q ▷ A ▹ B are not neutral (given a
+-- certain assumption).
 
-⊢nf∷Σˢ→Neutral→⊥ : Γ ⊢nf t ∷ Σˢ p , q ▷ A ▹ B → Neutral t → ⊥
-⊢nf∷Σˢ→Neutral→⊥ ⊢t =
+⊢nf∷Σˢ→Neutral→⊥ :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+  Γ ⊢nf t ∷ Σˢ p , q ▷ A ▹ B → Neutral t → ⊥
+⊢nf∷Σˢ→Neutral→⊥ {Γ} ⊢t =
   ⊢nf∷Σˢ→Neutral→⊥′ ⊢t (refl (syntacticTerm (⊢nf∷→⊢∷ ⊢t)))
   where
   ⊢nf∷Σˢ→Neutral→⊥′ :
@@ -1056,10 +1065,12 @@ opaque
     (rflₙ _)        _ ()
 
 -- Normal forms of type Unit s l are equal to star s l if Unit s l
--- comes with η-equality.
+-- comes with η-equality (given a certain assumption).
 
-⊢nf∷Unitˢ→≡starˢ : Unit-with-η s → Γ ⊢nf t ∷ Unit s l → t PE.≡ star s l
-⊢nf∷Unitˢ→≡starˢ {s} ok ⊢t =
+⊢nf∷Unitˢ→≡starˢ :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+  Unit-with-η s → Γ ⊢nf t ∷ Unit s l → t PE.≡ star s l
+⊢nf∷Unitˢ→≡starˢ {Γ} {s} ok ⊢t =
   ⊢nf∷Unitˢ→≡starˢ′ (refl (syntacticTerm (⊢nf∷→⊢∷ ⊢t))) ⊢t
   where
   ⊢nf∷Unitˢ→≡starˢ′ :
@@ -1082,13 +1093,15 @@ opaque
     (rflₙ _)        → ⊥-elim (Id≢Unit A≡Unit)
 
 ------------------------------------------------------------------------
--- Normal forms (η-long) are unique
+-- Normal forms (η-long) are unique (if equality reflection is not
+-- allowed)
 
 mutual
 
   -- Lemmas used to prove that η-long normal forms are unique.
 
   normal-types-unique-[conv↑] :
+    ⦃ not-ok : No-equality-reflection ⦄ →
     Γ ⊢nf A → Γ ⊢nf B → Γ ⊢ A [conv↑] B → A PE.≡ B
   normal-types-unique-[conv↑] ⊢A ⊢B ([↑] _ _ (A⇒* , _) (B⇒* , _) A≡B) =
     case whnfRed* A⇒* (nfWhnf (⊢nf→Nf ⊢A)) of λ {
@@ -1098,6 +1111,7 @@ mutual
     normal-types-unique-[conv↓] ⊢A ⊢B A≡B }}
 
   normal-types-unique-[conv↓] :
+    ⦃ not-ok : No-equality-reflection ⦄ →
     Γ ⊢nf A → Γ ⊢nf B → Γ ⊢ A [conv↓] B → A PE.≡ B
   normal-types-unique-[conv↓] ⊢A ⊢B = λ where
     (U-refl _) →
@@ -1138,6 +1152,7 @@ mutual
         (normal-terms-unique-[conv↑]∷ ⊢u₁ (convₙ ⊢u₂ C₂≡C₁) u₁≡u₂) }}}
 
   normal-or-neutral-terms-unique-~↑ :
+    ⦃ not-ok : No-equality-reflection ⦄ →
     Γ ⊢nf u ∷ A ⊎ Γ ⊢ne u ∷ A →
     Γ ⊢nf v ∷ B ⊎ Γ ⊢ne v ∷ B →
     Γ ⊢ u ~ v ↑ C → u PE.≡ v
@@ -1155,9 +1170,11 @@ mutual
         t-ne →
       case nfNeutral (⊢ne∷→NfNeutral ⊢v) of λ {
         v-ne →
-      case ΠΣ-injectivity (neTypeEq t-ne (⊢ne∷→⊢∷ ⊢t) ⊢t′) of λ {
+      case ΠΣ-injectivity ⦃ ok = included ⦄
+             (neTypeEq ⦃ ok = included ⦄ t-ne (⊢ne∷→⊢∷ ⊢t) ⊢t′) of λ {
         (A≡ , _) →
-      case ΠΣ-injectivity (neTypeEq v-ne (⊢ne∷→⊢∷ ⊢v) ⊢v′) of λ {
+      case ΠΣ-injectivity ⦃ ok = included ⦄
+             (neTypeEq ⦃ ok = included ⦄ v-ne (⊢ne∷→⊢∷ ⊢v) ⊢v′) of λ {
         (C≡ , _) →
       PE.cong₂ _∘⟨ _ ⟩_
         (neutral-terms-unique-~↓ ⊢t ⊢v t≡v)
@@ -1199,9 +1216,11 @@ mutual
         t-ne →
       case nfNeutral (⊢ne∷→NfNeutral ⊢u) of λ {
         u-ne →
-      case ΠΣ-injectivity (neTypeEq t-ne (⊢ne∷→⊢∷ ⊢t) ⊢t′) of λ {
+      case ΠΣ-injectivity-no-equality-reflection
+             (neTypeEq ⦃ ok = included ⦄ t-ne (⊢ne∷→⊢∷ ⊢t) ⊢t′) of λ {
         (C≡ , D≡ , _ , PE.refl , _) →
-      case ΠΣ-injectivity (neTypeEq u-ne (⊢ne∷→⊢∷ ⊢u) ⊢u′) of λ {
+      case ΠΣ-injectivity-no-equality-reflection
+             (neTypeEq ⦃ ok = included ⦄ u-ne (⊢ne∷→⊢∷ ⊢u) ⊢u′) of λ {
         (E≡ , F≡ , _ , PE.refl , _) →
       case ⊢∷ΠΣ→ΠΣ-allowed (⊢ne∷→⊢∷ ⊢t) of λ {
         ok →
@@ -1302,26 +1321,31 @@ mutual
         (neutral-terms-unique-~↓ ⊢v₁ ⊢v₂ v₁~v₂) }}}
 
   neutral-terms-unique-~↑ :
+    ⦃ not-ok : No-equality-reflection ⦄ →
     Γ ⊢ne u ∷ A → Γ ⊢ne v ∷ B → Γ ⊢ u ~ v ↑ C → u PE.≡ v
   neutral-terms-unique-~↑ ⊢u ⊢v u≡v =
     normal-or-neutral-terms-unique-~↑ (inj₂ ⊢u) (inj₂ ⊢v) u≡v
 
   normal-terms-unique-~↑ :
+    ⦃ not-ok : No-equality-reflection ⦄ →
     Γ ⊢nf u ∷ A → Γ ⊢nf v ∷ B → Γ ⊢ u ~ v ↑ C → u PE.≡ v
   normal-terms-unique-~↑ ⊢u ⊢v u≡v =
     normal-or-neutral-terms-unique-~↑ (inj₁ ⊢u) (inj₁ ⊢v) u≡v
 
   normal-terms-unique-~↓ :
+    ⦃ not-ok : No-equality-reflection ⦄ →
     Γ ⊢nf u ∷ A → Γ ⊢nf v ∷ B → Γ ⊢ u ~ v ↓ C → u PE.≡ v
   normal-terms-unique-~↓ ⊢u ⊢v ([~] _ _ u≡v) =
     normal-terms-unique-~↑ ⊢u ⊢v u≡v
 
   neutral-terms-unique-~↓ :
+    ⦃ not-ok : No-equality-reflection ⦄ →
     Γ ⊢ne u ∷ A → Γ ⊢ne v ∷ B → Γ ⊢ u ~ v ↓ C → u PE.≡ v
   neutral-terms-unique-~↓ ⊢u ⊢v ([~] _ _ u≡v) =
     neutral-terms-unique-~↑ ⊢u ⊢v u≡v
 
   normal-terms-unique-[conv↓]∷ :
+    ⦃ not-ok : No-equality-reflection ⦄ →
     Γ ⊢nf u ∷ A → Γ ⊢nf v ∷ A → Γ ⊢ u [conv↓] v ∷ A → u PE.≡ v
   normal-terms-unique-[conv↓]∷ ⊢u ⊢v = λ where
     (ℕ-ins u≡v) →
@@ -1351,17 +1375,17 @@ mutual
         (_ , _ , _ , _ , ⊢t , ⊢u , Σ≡Σ₁ , _) →
       case inversion-nf-prod ⊢v of λ {
         (_ , _ , _ , _ , ⊢v , ⊢w , Σ≡Σ₂ , _) →
-      case ΠΣ-injectivity Σ≡Σ₁ of λ {
+      case ΠΣ-injectivity ⦃ ok = included ⦄ Σ≡Σ₁ of λ {
         (B≡₁ , C≡₁ , _) →
-      case ΠΣ-injectivity Σ≡Σ₂ of λ {
+      case ΠΣ-injectivity ⦃ ok = included ⦄ Σ≡Σ₂ of λ {
         (B≡₂ , C≡₂ , _) →
       case convₙ ⊢t (sym B≡₁) of λ {
         ⊢t →
       PE.cong₂ (prodʷ _)
         (normal-terms-unique-[conv↑]∷ ⊢t (convₙ ⊢v (sym B≡₂)) t≡v)
         (normal-terms-unique-[conv↑]∷
-           (convₙ ⊢u (sym (substTypeEq C≡₁ (refl (⊢nf∷→⊢∷ ⊢t)))))
-           (convₙ ⊢w (sym (substTypeEq C≡₂ (soundnessConv↑Term t≡v))))
+           (convₙ ⊢u (sym (C≡₁ (refl (⊢nf∷→⊢∷ ⊢t)))))
+           (convₙ ⊢w (sym (C≡₂ (soundnessConv↑Term t≡v))))
            u≡w) }}}}}
     λ≡λ@(η-eq ⊢λu ⊢λv lamₙ lamₙ u∘0≡v∘0) →
       case lam-injective (soundnessConv↓Term λ≡λ) of λ {
@@ -1370,9 +1394,9 @@ mutual
         (_ , _ , _ , ⊢u , Π≡₁ , _) →
       case inversion-nf-lam ⊢v of λ {
         (_ , _ , _ , ⊢v , Π≡₂ , _) →
-      case ΠΣ-injectivity (sym Π≡₁) of λ {
+      case ΠΣ-injectivity-no-equality-reflection (sym Π≡₁) of λ {
         (B≡ , C≡ , _ , _ , _) →
-      case ΠΣ-injectivity (sym Π≡₂) of λ {
+      case ΠΣ-injectivity-no-equality-reflection (sym Π≡₂) of λ {
         (D≡ , E≡ , _ , _ , _) →
       PE.cong (lam _)
         (normal-terms-unique-[conv↑]∷′
@@ -1382,17 +1406,17 @@ mutual
            (redMany (wk1-lam∘0⇒ ⊢λv))
            u∘0≡v∘0) }}}}}
     (η-eq _ _ (ne u-ne) _ _) →
-      ⊥-elim (⊢nf∷Π→Neutral→⊥ ⊢u u-ne)
+      ⊥-elim (⊢nf∷Π→Neutral→⊥ ⦃ ok = included ⦄ ⊢u u-ne)
     (η-eq _ _ _ (ne v-ne) _) →
-      ⊥-elim (⊢nf∷Π→Neutral→⊥ ⊢v v-ne)
+      ⊥-elim (⊢nf∷Π→Neutral→⊥ ⦃ ok = included ⦄ ⊢v v-ne)
     ,≡,@(Σ-η _ _ prodₙ prodₙ fst≡fst snd≡snd) →
       case inversion-nf-prod ⊢u of λ {
         (_ , _ , _ , ⊢C , ⊢t , ⊢u , Σ≡₁ , ok₁) →
       case inversion-nf-prod ⊢v of λ {
         (_ , _ , _ , ⊢E , ⊢v , ⊢w , Σ≡₂ , ok₂) →
-      case ΠΣ-injectivity (sym Σ≡₁) of λ {
+      case ΠΣ-injectivity-no-equality-reflection (sym Σ≡₁) of λ {
         (B≡ , C≡ , PE.refl , _ , PE.refl) →
-      case ΠΣ-injectivity (sym Σ≡₂) of λ {
+      case ΠΣ-injectivity-no-equality-reflection (sym Σ≡₂) of λ {
         (D≡ , E≡ , PE.refl , _ , PE.refl) →
       case Σ-β₁ ⊢C (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u) PE.refl ok₁ of λ {
         fst-t,u⇒t →
@@ -1424,13 +1448,13 @@ mutual
                        (sym′ (conv (soundnessConv↓Term ,≡,) Σ≡₂))))))
            snd≡snd) }}}}}}}
     (Σ-η _ _ (ne u-ne) _ _ _) →
-      ⊥-elim (⊢nf∷Σˢ→Neutral→⊥ ⊢u u-ne)
+      ⊥-elim (⊢nf∷Σˢ→Neutral→⊥ ⦃ ok = included ⦄ ⊢u u-ne)
     (Σ-η _ _ _ (ne v-ne) _ _) →
-      ⊥-elim (⊢nf∷Σˢ→Neutral→⊥ ⊢v v-ne)
+      ⊥-elim (⊢nf∷Σˢ→Neutral→⊥ ⦃ ok = included ⦄ ⊢v v-ne)
     (η-unit _ _ _ _ ok) →
-      case ⊢nf∷Unitˢ→≡starˢ ok ⊢u of λ {
+      case ⊢nf∷Unitˢ→≡starˢ ⦃ ok = included ⦄ ok ⊢u of λ {
         PE.refl →
-      case ⊢nf∷Unitˢ→≡starˢ ok ⊢v of λ {
+      case ⊢nf∷Unitˢ→≡starˢ ⦃ ok = included ⦄ ok ⊢v of λ {
         PE.refl →
       PE.refl }}
     (Id-ins _ u~v) →
@@ -1439,12 +1463,14 @@ mutual
       PE.refl
 
   normal-terms-unique-[conv↑]∷ :
+    ⦃ not-ok : No-equality-reflection ⦄ →
     Γ ⊢nf u ∷ A → Γ ⊢nf v ∷ A → Γ ⊢ u [conv↑] v ∷ A → u PE.≡ v
   normal-terms-unique-[conv↑]∷ ⊢u ⊢v u≡v =
     normal-terms-unique-[conv↑]∷′
       ⊢u ⊢v (id (⊢nf∷→⊢∷ ⊢u)) (id (⊢nf∷→⊢∷ ⊢v)) u≡v
 
   normal-terms-unique-[conv↑]∷′ :
+    ⦃ not-ok : No-equality-reflection ⦄ →
     Γ ⊢nf u ∷ A → Γ ⊢nf w ∷ A →
     Γ ⊢ t ⇒* u ∷ A → Γ ⊢ v ⇒* w ∷ A →
     Γ ⊢ t [conv↑] v ∷ A → u PE.≡ w
@@ -1460,17 +1486,19 @@ mutual
     normal-terms-unique-[conv↓]∷ (convₙ ⊢u A≡B) (convₙ ⊢w A≡B) u≡w }}}
 
 -- Normal types are unique (definitionally equal η-long normal types
--- are equal).
+-- are equal), assuming that equality reflection is not allowed.
 
 normal-types-unique :
+  ⦃ not-ok : No-equality-reflection ⦄ →
   Γ ⊢nf A → Γ ⊢nf B → Γ ⊢ A ≡ B → A PE.≡ B
 normal-types-unique ⊢A ⊢B A≡B =
   normal-types-unique-[conv↑] ⊢A ⊢B (completeEq A≡B)
 
 -- Normal terms are unique (definitionally equal η-long normal terms
--- are equal).
+-- are equal), assuming that equality reflection is not allowed.
 
 normal-terms-unique :
+  ⦃ not-ok : No-equality-reflection ⦄ →
   Γ ⊢nf u ∷ A → Γ ⊢nf v ∷ A → Γ ⊢ u ≡ v ∷ A → u PE.≡ v
 normal-terms-unique ⊢u ⊢v u≡v =
   normal-terms-unique-[conv↑]∷ ⊢u ⊢v (completeEqTerm u≡v)

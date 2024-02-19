@@ -749,6 +749,8 @@ private module Inhabited where
             (wkEqTerm ρ⊇ ⊢Δ u₁≡u₂) (wkEqTerm ρ⊇ ⊢Δ v₁≡v₂) ok
         ([]-cong-β ⊢t eq ok) PE.refl →
           []-cong-β (wkTerm ρ⊇ ⊢Δ ⊢t) (PE.cong (U.wk _) eq) ok
+        (equality-reflection ok ⊢Id ⊢v) PE.refl →
+          equality-reflection ok (wk ρ⊇ ⊢Δ ⊢Id) (wkTerm ρ⊇ ⊢Δ ⊢v)
       where
       open Variants hyp
 

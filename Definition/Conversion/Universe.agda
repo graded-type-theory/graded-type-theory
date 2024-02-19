@@ -1,5 +1,6 @@
 ------------------------------------------------------------------------
--- Equal terms of type U are equal types.
+-- Equal terms of type U are equal types (in the absence of equality
+-- reflection)
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
@@ -26,9 +27,10 @@ import Tools.PropositionalEquality as PE
 
 private
   variable
-    n : Nat
-    Γ : Con Term n
-    l : Universe-level
+    n   : Nat
+    Γ   : Con Term n
+    A B : Term _
+    l   : Universe-level
 
 -- The relation _⊢_[conv↓]_∷ U l is contained in _⊢_[conv↓]_.
 
@@ -38,11 +40,13 @@ univConv↓ : ∀ {A B}
 univConv↓ (ne-ins t u () x)
 univConv↓ (univ x x₁ x₂) = x₂
 
--- The relation _⊢_[conv↑]_∷ U l is contained in _⊢_[conv↑]_.
+-- The relation _⊢_[conv↑]_∷ U l is contained in _⊢_[conv↑]_ (if
+-- equality reflection is not allowed).
 
-univConv↑ : ∀ {A B}
-      → Γ ⊢ A [conv↑] B ∷ U l
-      → Γ ⊢ A [conv↑] B
+univConv↑ :
+  ⦃ no-equality-reflection : No-equality-reflection ⦄ →
+  Γ ⊢ A [conv↑] B ∷ U l →
+  Γ ⊢ A [conv↑] B
 univConv↑ ([↑]ₜ _ _ _ (D , _) (d , _) (d′ , _) t<>u)
       rewrite PE.sym (whnfRed* D Uₙ) =
   reductionConv↑ (univ* d) (univ* d′) (liftConv (univConv↓ t<>u))

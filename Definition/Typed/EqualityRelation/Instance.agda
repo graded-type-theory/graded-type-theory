@@ -9,8 +9,8 @@ open import Graded.Modality
 module Definition.Typed.EqualityRelation.Instance
   {ℓ} {M : Set ℓ}
   {𝕄 : Modality M}
-  {R : Type-restrictions 𝕄}
-  (eq : EqRelSet R)
+  (R : Type-restrictions 𝕄)
+  ⦃ eq : EqRelSet R ⦄
   where
 
 open EqRelSet eq

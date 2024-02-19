@@ -55,9 +55,12 @@ private
 module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
             (consistent : Consistent Γ) where
 
-  -- Lemma: A neutral has negative type in a consistent negative/erased context.
+  -- Lemma: A neutral has negative type in a consistent
+  -- negative/erased context (given a certain assumption).
 
-  neNeg : (d : Γ ⊢ u ∷ A) (n : Neutral u) → NegativeType Γ A
+  neNeg :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄
+    (d : Γ ⊢ u ∷ A) (n : Neutral u) → NegativeType Γ A
   neNeg (var ⊢Γ h          ) (var x      ) = lookupNegative ⊢Γ nΓ h
   neNeg (d ∘ⱼ ⊢t           ) (∘ₙ n       ) =
     appNeg (neNeg d n) (refl (syntacticTerm d)) ⊢t
@@ -84,9 +87,11 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
     ⊥-elim (¬negId (neNeg ⊢v v-ne) (refl (Idⱼ′ ⊢t ⊢u)))
   neNeg (conv d c          ) n          = conv (neNeg d n) c
 
-  -- Lemma: A normal form of type ℕ is a numeral in a consistent negative context.
+  -- Lemma: A normal form of type ℕ is a numeral in a consistent
+  -- negative context (given a certain assumption).
 
-  nfN : (d : Γ ⊢ u ∷ A)
+  nfN : ⦃ ok : No-equality-reflection or-empty Γ ⦄
+      → (d : Γ ⊢ u ∷ A)
       → (n : Nf u)
       → (c : Γ ⊢ A ≡ ℕ)
       → Numeral u
@@ -119,19 +124,24 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   nfN (rflⱼ _)        rflₙ        c = ⊥-elim (Id≢ℕ c)
   -- q.e.d
 
-   -- Terms of non-negative types reduce to non-neutrals
+   -- Terms of non-negative type reduce to non-neutral terms (given a
+   -- certain assumption).
 
-  ¬NeutralNf : Γ ⊢ t ∷ A → (NegativeType Γ A → ⊥)
-             → ∃ λ u → Γ ⊢ t ↘ u ∷ A × (Neutral u → ⊥)
+  ¬NeutralNf :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Γ ⊢ t ∷ A → (NegativeType Γ A → ⊥) →
+    ∃ λ u → Γ ⊢ t ↘ u ∷ A × (Neutral u → ⊥)
   ¬NeutralNf ⊢t ¬negA =
     let u , whnfU , d = whNormTerm ⊢t
     in  u , (d , whnfU) ,
         ¬negA ∘→ neNeg (syntacticEqTerm (subset*Term d) .proj₂ .proj₂)
 
-  -- Canonicity theorem: Any well-typed term Γ ⊢ t ∷ ℕ
-  -- reduces to a numeral under the ⇒ˢ* reduction.
+  -- Canonicity theorem: Any well-typed term Γ ⊢ t ∷ ℕ reduces to a
+  -- numeral under the ⇒ˢ* reduction (given a certain assumption).
 
-  canonicityRed′ : Γ ⊩ℕ t ∷ℕ → ∃ λ v → Numeral v × Γ ⊢ t ⇒ˢ* v ∷ℕ
+  canonicityRed′ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Γ ⊩ℕ t ∷ℕ → ∃ λ v → Numeral v × Γ ⊢ t ⇒ˢ* v ∷ℕ
   canonicityRed′ (ℕₜ _ d n≡n (sucᵣ x)) =
     let v , numV , d′ = canonicityRed′ x
     in  suc v , sucₙ numV , ⇒ˢ*∷ℕ-trans (whred* d) (sucred* d′)
@@ -144,13 +154,18 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
     in  ⊥-elim $ ¬neU $
         PE.subst Neutral (whrDet*Term (d , ne neK) d′) neK
 
-  canonicityRed : Γ ⊢ t ∷ ℕ → ∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ
+  canonicityRed :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Γ ⊢ t ∷ ℕ → ∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ
   canonicityRed =
     canonicityRed′ ∘→ ⊩∷ℕ⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩∷
 
-  -- Canonicity theorem: Any well-typed term Γ ⊢ t : ℕ is convertible to a numeral.
+  -- Canonicity theorem: Any well-typed term Γ ⊢ t : ℕ is convertible
+  -- to a numeral (given a certain assumption).
 
-  canonicityEq : (⊢t : Γ ⊢ t ∷ ℕ) → ∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ
+  canonicityEq :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    (⊢t : Γ ⊢ t ∷ ℕ) → ∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ
   canonicityEq ⊢t =
     let u , numU , d = canonicityRed ⊢t
     in  u , numU , subset*Termˢ d

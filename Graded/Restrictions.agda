@@ -47,18 +47,22 @@ private variable
 
 -- No type restrictions except that
 -- * if the modality is trivial, then []-cong is not allowed,
--- * the K rule is allowed if and only if the boolean is true, and
--- * η-equality is not allowed for weak unit types.
+-- * the K rule is allowed if and only if the first boolean is true,
+-- * η-equality is not allowed for weak unit types, and
+-- * equality reflection is allowed if and only if the second boolean
+--   is true.
 
-no-type-restrictions : Bool → Type-restrictions
-no-type-restrictions allowed = λ where
-    .Unit-allowed     → λ _ → Lift _ ⊤
-    .ΠΣ-allowed       → λ _ _ _ → Lift _ ⊤
-    .K-allowed        → Lift _ (T allowed)
-    .[]-cong-allowed  → λ _ → ¬ Trivial
-    .[]-cong→Erased   → _
-    .[]-cong→¬Trivial → idᶠ
-    .type-variant     → λ where
+no-type-restrictions : Bool → Bool → Type-restrictions
+no-type-restrictions k equality-reflection = λ where
+    .Unit-allowed         → λ _ → Lift _ ⊤
+    .ΠΣ-allowed           → λ _ _ _ → Lift _ ⊤
+    .K-allowed            → Lift _ (T k)
+    .[]-cong-allowed      → λ _ → ¬ Trivial
+    .[]-cong→Erased       → _
+    .[]-cong→¬Trivial     → idᶠ
+    .Equality-reflection  → Lift _ (T equality-reflection)
+    .Equality-reflection? → Lift? (T? equality-reflection)
+    .type-variant         → λ where
       .Type-variant.η-for-Unitʷ → false
   where
   open Type-restrictions
@@ -402,10 +406,11 @@ No-erased-matches′ TV UR =
 opaque
 
   -- If grade equality is decidable, then TD.Assumptions holds for
-  -- no-type-restrictions b.
+  -- no-type-restrictions b false.
 
   Assumptions-no-type-restrictions :
-    Decidable (_≡_ {A = M}) → TD.Assumptions (no-type-restrictions b)
+    Decidable (_≡_ {A = M}) →
+    TD.Assumptions (no-type-restrictions b false)
   Assumptions-no-type-restrictions {b} dec = λ where
       ._≟_                → dec
       .Unit-allowed? _    → yes _
@@ -416,6 +421,7 @@ opaque
       .[]-cong-allowed? _ → case trivial? of λ where
         (yes trivial)    → no (_$ trivial)
         (no non-trivial) → yes non-trivial
+      .no-equality-reflection (lift ())
     where
     open TD.Assumptions
 
@@ -426,11 +432,12 @@ opaque
   Assumptions-equal-binder-quantities :
     TD.Assumptions TR → TD.Assumptions (equal-binder-quantities TR)
   Assumptions-equal-binder-quantities as = λ where
-      ._≟_               → A._≟_
-      .Unit-allowed?     → A.Unit-allowed?
-      .ΠΣ-allowed? b p q → A.ΠΣ-allowed? b p q ×-dec p A.≟ q
-      .K-allowed?        → A.K-allowed?
-      .[]-cong-allowed?  → A.[]-cong-allowed?
+      ._≟_                    → A._≟_
+      .Unit-allowed?          → A.Unit-allowed?
+      .ΠΣ-allowed? b p q      → A.ΠΣ-allowed? b p q ×-dec p A.≟ q
+      .K-allowed?             → A.K-allowed?
+      .[]-cong-allowed?       → A.[]-cong-allowed?
+      .no-equality-reflection → A.no-equality-reflection
     where
     module A = TD.Assumptions as
     open TD.Assumptions
@@ -442,11 +449,12 @@ opaque
   Assumptions-second-ΠΣ-quantities-𝟘 :
     TD.Assumptions TR → TD.Assumptions (second-ΠΣ-quantities-𝟘 TR)
   Assumptions-second-ΠΣ-quantities-𝟘 as = λ where
-      ._≟_               → A._≟_
-      .Unit-allowed?     → A.Unit-allowed?
-      .ΠΣ-allowed? b p q → A.ΠΣ-allowed? b p q ×-dec q A.≟ 𝟘
-      .K-allowed?        → A.K-allowed?
-      .[]-cong-allowed?  → A.[]-cong-allowed?
+      ._≟_                    → A._≟_
+      .Unit-allowed?          → A.Unit-allowed?
+      .ΠΣ-allowed? b p q      → A.ΠΣ-allowed? b p q ×-dec q A.≟ 𝟘
+      .K-allowed?             → A.K-allowed?
+      .[]-cong-allowed?       → A.[]-cong-allowed?
+      .no-equality-reflection → A.no-equality-reflection
     where
     module A = TD.Assumptions as
     open TD.Assumptions
@@ -459,15 +467,16 @@ opaque
   Assumptions-second-ΠΣ-quantities-𝟘-or-ω :
     TD.Assumptions TR → TD.Assumptions (second-ΠΣ-quantities-𝟘-or-ω TR)
   Assumptions-second-ΠΣ-quantities-𝟘-or-ω as = λ where
-      ._≟_               → A._≟_
-      .Unit-allowed?     → A.Unit-allowed?
-      .ΠΣ-allowed? b p q → A.ΠΣ-allowed? b p q
-                             ×-dec
-                           (p A.≟ ω →-dec q A.≟ ω)
-                             ×-dec
-                           (¬? (p A.≟ ω) →-dec q A.≟ 𝟘)
-      .K-allowed?        → A.K-allowed?
-      .[]-cong-allowed?  → A.[]-cong-allowed?
+      ._≟_                    → A._≟_
+      .Unit-allowed?          → A.Unit-allowed?
+      .ΠΣ-allowed? b p q      → A.ΠΣ-allowed? b p q
+                                  ×-dec
+                                (p A.≟ ω →-dec q A.≟ ω)
+                                  ×-dec
+                                (¬? (p A.≟ ω) →-dec q A.≟ 𝟘)
+      .K-allowed?             → A.K-allowed?
+      .[]-cong-allowed?       → A.[]-cong-allowed?
+      .no-equality-reflection → A.no-equality-reflection
     where
     module A = TD.Assumptions as
     open TD.Assumptions
@@ -484,15 +493,18 @@ opaque
     TD.Assumptions TR →
     TD.Assumptions (strong-types-restricted′ P ok TR)
   Assumptions-strong-types-restricted′ P-dec as = λ where
-      ._≟_                → A._≟_
-      .Unit-allowed? s    → A.Unit-allowed? s ×-dec ¬? (decStrength s 𝕤)
-      .ΠΣ-allowed? b p q  → A.ΠΣ-allowed? b p q
-                              ×-dec
-                            P-dec b p
-      .K-allowed?         → A.K-allowed?
-      .[]-cong-allowed? s → A.[]-cong-allowed? s
-                              ×-dec
-                            ¬? (decStrength s 𝕤)
+      ._≟_                    → A._≟_
+      .Unit-allowed? s        → A.Unit-allowed? s
+                                  ×-dec
+                                ¬? (decStrength s 𝕤)
+      .ΠΣ-allowed? b p q      → A.ΠΣ-allowed? b p q
+                                  ×-dec
+                                P-dec b p
+      .K-allowed?             → A.K-allowed?
+      .[]-cong-allowed? s     → A.[]-cong-allowed? s
+                                  ×-dec
+                                ¬? (decStrength s 𝕤)
+      .no-equality-reflection → A.no-equality-reflection
     where
     module A = TD.Assumptions as
     open TD.Assumptions
@@ -530,13 +542,14 @@ opaque
   Assumptions-no-erased-matches-TR :
     TD.Assumptions TR → TD.Assumptions (no-erased-matches-TR s TR)
   Assumptions-no-erased-matches-TR {s} as = λ where
-      ._≟_                 → A._≟_
-      .Unit-allowed?       → A.Unit-allowed?
-      .ΠΣ-allowed?         → A.ΠΣ-allowed?
-      .K-allowed?          → A.K-allowed?
-      .[]-cong-allowed? s′ → A.[]-cong-allowed? s′
-                               ×-dec
-                             ¬? (decStrength s′ s)
+      ._≟_                    → A._≟_
+      .Unit-allowed?          → A.Unit-allowed?
+      .ΠΣ-allowed?            → A.ΠΣ-allowed?
+      .K-allowed?             → A.K-allowed?
+      .[]-cong-allowed? s′    → A.[]-cong-allowed? s′
+                                  ×-dec
+                                ¬? (decStrength s′ s)
+      .no-equality-reflection → A.no-equality-reflection
     where
     module A = TD.Assumptions as
     open TD.Assumptions

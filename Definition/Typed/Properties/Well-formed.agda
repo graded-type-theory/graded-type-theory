@@ -310,6 +310,8 @@ opaque
       fix (wfTerm-<ˢ ⊢u)
     wfEqTerm-<ˢ ([]-cong-β ⊢t _ _) =
       fix (wfTerm-<ˢ ⊢t)
+    wfEqTerm-<ˢ (equality-reflection _ _ ⊢v) =
+      fix (wfTerm-<ˢ ⊢v)
 
 opaque
 

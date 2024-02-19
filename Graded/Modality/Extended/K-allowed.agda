@@ -67,6 +67,7 @@ private variable
 -- * The K rule is allowed.
 -- * []-cong is not allowed for 𝕤.
 -- * []-cong is allowed for 𝕨 exactly when the modality is non-trivial.
+-- * Equality reflection is not allowed.
 -- * 𝟘ᵐ is allowed exactly when the modality is non-trivial.
 
 All-properties-hold-for : Extended-modality a → Set a
@@ -85,6 +86,7 @@ All-properties-hold-for M =
   K-allowed ×
   ¬ []-cong-allowed 𝕤 ×
   ([]-cong-allowed 𝕨 ⇔ (¬ Trivial)) ×
+  ¬ Equality-reflection ×
   (T 𝟘ᵐ-allowed ⇔ (¬ Trivial))
   where
   open Extended-modality M
@@ -98,7 +100,7 @@ private
     Type-restrictions 𝕄
   TR′ =
     strong-types-restricted _ $
-    no-type-restrictions _ true
+    no-type-restrictions _ true false
 
   opaque
 
@@ -163,6 +165,7 @@ opaque
     , _
     , (_$ refl) ∘→ proj₂
     , (proj₁ , (λ hyp → hyp , (λ ())))
+    , (λ { (lift ()) })
     , ((λ ()) , (_$ refl))
 
 -- An erasure modality.
@@ -204,6 +207,7 @@ opaque
     , _
     , (_$ refl) ∘→ proj₂
     , (proj₁ , (λ hyp → hyp , (λ ())))
+    , (λ { (lift ()) })
     , ((λ _ ()) , _)
 
 -- An affine types modality.
@@ -253,6 +257,7 @@ opaque
     , _
     , (_$ refl) ∘→ proj₂
     , (proj₁ , (λ hyp → hyp , (λ ())))
+    , (λ { (lift ()) })
     , ((λ _ ()) , _)
 
 -- A linearity modality.
@@ -306,6 +311,7 @@ opaque
     , _
     , (_$ refl) ∘→ proj₂
     , (proj₁ , (λ hyp → hyp , (λ ())))
+    , (λ { (lift ()) })
     , ((λ _ ()) , _)
 
 -- A linear or affine types modality.
@@ -360,6 +366,7 @@ opaque
     , _
     , (_$ refl) ∘→ proj₂
     , (proj₁ , (λ hyp → hyp , (λ ())))
+    , (λ { (lift ()) })
     , ((λ _ ()) , _)
 
 ------------------------------------------------------------------------

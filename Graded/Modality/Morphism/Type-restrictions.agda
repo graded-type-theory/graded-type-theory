@@ -66,6 +66,11 @@ record Are-preserving-type-restrictions
     []-cong-preserved :
       R₁.[]-cong-allowed s → R₂.[]-cong-allowed s
 
+    -- If R₁.Equality-reflection holds, then R₂.Equality-reflection
+    -- holds.
+    Equality-reflection-preserved :
+      R₁.Equality-reflection → R₂.Equality-reflection
+
 -- The property of reflecting Type-restrictions.
 
 record Are-reflecting-type-restrictions
@@ -106,6 +111,11 @@ record Are-reflecting-type-restrictions
       R₂.[]-cong-allowed s ⊎ M₂.Trivial →
       R₁.[]-cong-allowed s ⊎ M₁.Trivial
 
+    -- If R₂.Equality-reflection holds, then R₁.Equality-reflection
+    -- holds.
+    Equality-reflection-reflected :
+      R₂.Equality-reflection → R₁.Equality-reflection
+
 ------------------------------------------------------------------------
 -- Identity
 
@@ -115,12 +125,13 @@ record Are-reflecting-type-restrictions
 Are-preserving-type-restrictions-id :
   Are-preserving-type-restrictions R R idᶠ idᶠ
 Are-preserving-type-restrictions-id {R = R} = λ where
-    .Unitʷ-η-preserved        → idᶠ
-    .Unit-preserved           → idᶠ
-    .ΠΣ-preserved {b = BMΠ}   → idᶠ
-    .ΠΣ-preserved {b = BMΣ _} → idᶠ
-    .K-preserved              → idᶠ
-    .[]-cong-preserved        → idᶠ
+    .Unitʷ-η-preserved             → idᶠ
+    .Unit-preserved                → idᶠ
+    .ΠΣ-preserved {b = BMΠ}        → idᶠ
+    .ΠΣ-preserved {b = BMΣ _}      → idᶠ
+    .K-preserved                   → idᶠ
+    .[]-cong-preserved             → idᶠ
+    .Equality-reflection-preserved → idᶠ
   where
   open Are-preserving-type-restrictions
   open Type-restrictions R
@@ -131,12 +142,13 @@ Are-preserving-type-restrictions-id {R = R} = λ where
 Are-reflecting-type-restrictions-id :
   Are-reflecting-type-restrictions R R idᶠ idᶠ
 Are-reflecting-type-restrictions-id {R = R} = λ where
-    .Unitʷ-η-reflected        → idᶠ
-    .Unit-reflected           → idᶠ
-    .ΠΣ-reflected {b = BMΠ}   → idᶠ
-    .ΠΣ-reflected {b = BMΣ _} → idᶠ
-    .K-reflected              → idᶠ
-    .[]-cong-reflected        → idᶠ
+    .Unitʷ-η-reflected             → idᶠ
+    .Unit-reflected                → idᶠ
+    .ΠΣ-reflected {b = BMΠ}        → idᶠ
+    .ΠΣ-reflected {b = BMΣ _}      → idᶠ
+    .K-reflected                   → idᶠ
+    .[]-cong-reflected             → idᶠ
+    .Equality-reflection-reflected → idᶠ
   where
   open Are-reflecting-type-restrictions
   open Type-restrictions R
@@ -164,6 +176,9 @@ Are-preserving-type-restrictions-∘ m₁ m₂ = λ where
       M₁.K-preserved ∘→ M₂.K-preserved
     .[]-cong-preserved →
       M₁.[]-cong-preserved ∘→ M₂.[]-cong-preserved
+    .Equality-reflection-preserved →
+      M₁.Equality-reflection-preserved ∘→
+      M₂.Equality-reflection-preserved
   where
   open Are-preserving-type-restrictions
   module M₁ = Are-preserving-type-restrictions m₁
@@ -188,6 +203,9 @@ Are-reflecting-type-restrictions-∘ m₁ m₂ = λ where
       M₂.K-reflected ∘→ M₁.K-reflected
     .[]-cong-reflected →
       M₂.[]-cong-reflected ∘→ M₁.[]-cong-reflected
+    .Equality-reflection-reflected →
+      M₂.Equality-reflection-reflected ∘→
+      M₁.Equality-reflection-reflected
   where
   open Are-reflecting-type-restrictions
   module M₁ = Are-reflecting-type-restrictions m₁

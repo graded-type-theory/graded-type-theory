@@ -934,9 +934,9 @@ opaque
 opaque
   unfolding Σʷ-η-prodʷ-fstʷ-sndʷ
 
-  -- If Σʷ-allowed p q holds for some p and q, then a certain
-  -- definitional η-rule for Σʷ, fstʷ and sndʷ does not hold in
-  -- general, see
+  -- If Σʷ-allowed p q holds for some p and q, and equality reflection
+  -- is not allowed, then a certain definitional η-rule for Σʷ, fstʷ
+  -- and sndʷ does not hold in general, see
   -- Definition.Typed.Consequences.Admissible.Sigma.¬-Σʷ-η-prodʷ-fstʷ-sndʷ.
   -- However, the corresponding propositional η-rule does hold.
 

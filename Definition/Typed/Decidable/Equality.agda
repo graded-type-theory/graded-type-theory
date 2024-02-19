@@ -1,5 +1,6 @@
 ------------------------------------------------------------------------
--- Decidability of type and term equality.
+-- Decidability of type and term equality (in the absence of equality
+-- reflection)
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
@@ -11,7 +12,9 @@ module Definition.Typed.Decidable.Equality
   {a} {M : Set a}
   {𝕄 : Modality M}
   (R : Type-restrictions 𝕄)
+  (open Type-restrictions R)
   (_≟_ : Decidable (PE._≡_ {A = M}))
+  ⦃ no-equality-reflection : No-equality-reflection ⦄
   where
 
 

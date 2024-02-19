@@ -112,7 +112,11 @@ import Graded.Usage.Restrictions.Satisfied
 
 -- Some of the changes:
 --
--- * Identity types have been added.
+-- * Identity types have been added. One can optionally enable
+--   equality reflection, and some properties have been proved under
+--   the assumption that equality reflection is not enabled (in some
+--   cases the assumption is that equality reflection is not enabled
+--   or the context is empty).
 --
 -- * Universe levels have been added. Instead of a single universe
 --   there is now a countably infinite universe hierarchy.

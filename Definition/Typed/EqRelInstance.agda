@@ -12,6 +12,8 @@ module Definition.Typed.EqRelInstance
   (R : Type-restrictions 𝕄)
   where
 
+open Type-restrictions R
+
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Weakening R
@@ -29,10 +31,12 @@ private opaque
   -- A lemma used below.
 
   equality-relations :
-    Equality-relations _⊢_≡_ _⊢_≡_∷_ _⊢_≡_∷_ (Lift _ ⊤)
+    Equality-relations _⊢_≡_ _⊢_≡_∷_ _⊢_≡_∷_ No-equality-reflection
   equality-relations = λ where
       .Neutrals-included? →
-        yes (lift tt)
+        No-equality-reflection?
+      .Equality-reflection-allowed→¬Neutrals-included →
+        λ { ok (no-equality-reflection not-ok) → not-ok ok }
       .⊢≡→⊢≅        → λ _ → idᶠ
       .⊢≡∷→⊢≅∷      → λ _ → idᶠ
       .~-to-≅ₜ      → idᶠ
@@ -84,7 +88,8 @@ private opaque
     open Equality-relations
 
 -- An EqRelSet instance that uses definitional equality (_⊢_≡_ and
--- _⊢_≡_∷_).
+-- _⊢_≡_∷_). Neutrals are included if and only if equality reflection
+-- is not allowed.
 
 instance
 
@@ -93,15 +98,7 @@ instance
     .EqRelSet._⊢_≅_              → _⊢_≡_
     .EqRelSet._⊢_≅_∷_            → _⊢_≡_∷_
     .EqRelSet._⊢_~_∷_            → _⊢_≡_∷_
-    .EqRelSet.Neutrals-included  → Lift _ ⊤
+    .EqRelSet.Neutrals-included  → No-equality-reflection
     .EqRelSet.equality-relations → equality-relations
 
 open EqRelSet eqRelInstance public
-open Definition.Typed.EqualityRelation.Instance eqRelInstance public
-
-instance
-
-  -- A variant of lift tt that is an instance.
-
-  lift-tt : Lift a ⊤
-  lift-tt = lift tt

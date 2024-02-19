@@ -37,8 +37,8 @@ open import Tools.Sum using (inj₁; inj₂)
 private
   variable
     n : Nat
-    Γ : Con Term n
-    A B C D t u v : Term n
+    Γ : Con Term _
+    A B C D t u v : Term _
     p p′ q q′ : M
     b : BinderMode
     s : Strength
@@ -48,6 +48,7 @@ opaque
   unfolding _⊩⟨_⟩_≡_
 
   A≢B :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄
     (_⊩′⟨_⟩A_ _⊩′⟨_⟩B_ : Con Term n → Universe-level → Term n → Set a)
     (A-intr : ∀ {l} → Γ ⊩′⟨ l ⟩A A → Γ ⊩⟨ l ⟩ A)
     (B-intr : ∀ {l} → Γ ⊩′⟨ l ⟩B B → Γ ⊩⟨ l ⟩ B) →
@@ -66,9 +67,12 @@ opaque
 
 opaque
 
-  -- Applications of U are not definitionally equal to ℕ.
+  -- Applications of U are not definitionally equal to ℕ (given a
+  -- certain assumption).
 
-  U≢ℕ : ¬ Γ ⊢ U l ≡ ℕ
+  U≢ℕ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ U l ≡ ℕ
   U≢ℕ =
     A≢B _⊩′⟨_⟩U_ (λ Γ _ A → Γ ⊩ℕ A) Uᵣ ℕᵣ
       (extractMaybeEmb ∘→ U-elim)
@@ -77,9 +81,12 @@ opaque
 
 opaque
 
-  -- Applications of U are not definitionally equal to Empty.
+  -- Applications of U are not definitionally equal to Empty (given a
+  -- certain assumption).
 
-  U≢Emptyⱼ : ¬ Γ ⊢ U l ≡ Empty
+  U≢Emptyⱼ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ U l ≡ Empty
   U≢Emptyⱼ =
     A≢B _⊩′⟨_⟩U_ (λ Γ _ A → Γ ⊩Empty A) Uᵣ Emptyᵣ
       (extractMaybeEmb ∘→ U-elim)
@@ -89,9 +96,11 @@ opaque
 opaque
 
   -- Applications of U are not definitionally equal to applications of
-  -- Unit.
+  -- Unit (given a certain assumption).
 
-  U≢Unitⱼ : ¬ Γ ⊢ U l₁ ≡ Unit s l₂
+  U≢Unitⱼ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ U l₁ ≡ Unit s l₂
   U≢Unitⱼ {s} =
     A≢B _⊩′⟨_⟩U_ _⊩Unit⟨_, s ⟩_ Uᵣ Unitᵣ
       (extractMaybeEmb ∘→ U-elim)
@@ -100,9 +109,12 @@ opaque
 
 opaque
 
-  -- ℕ and Empty are not definitionally equal.
+  -- ℕ and Empty are not definitionally equal (given a certain
+  -- assumption).
 
-  ℕ≢Emptyⱼ : ¬ Γ ⊢ ℕ ≡ Empty
+  ℕ≢Emptyⱼ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ ℕ ≡ Empty
   ℕ≢Emptyⱼ =
     A≢B (λ Γ _ A → Γ ⊩ℕ A) (λ Γ _ A → Γ ⊩Empty A) ℕᵣ Emptyᵣ
       (extractMaybeEmb ∘→ ℕ-elim)
@@ -111,9 +123,29 @@ opaque
 
 opaque
 
-  -- ℕ is not definitionally equal to applications of Unit.
+  -- If equality reflection is allowed, then there is a context for
+  -- which ℕ is judgementally equal to Empty.
+  --
+  -- Similar counterexamples could presumably be constructed for some
+  -- of the other lemmas in this module.
 
-  ℕ≢Unitⱼ : ¬ Γ ⊢ ℕ ≡ Unit s l
+  ℕ≡Empty :
+    Equality-reflection →
+    ∃ λ (Γ : Con Term 1) → Γ ⊢ ℕ ≡ Empty
+  ℕ≡Empty ok =
+    ε ∙ Id (U 0) ℕ Empty ,
+    univ
+      (equality-reflection′ ok $
+       var₀ (Idⱼ′ (ℕⱼ ε) (Emptyⱼ ε)))
+
+opaque
+
+  -- ℕ is not definitionally equal to applications of Unit (given a
+  -- certain assumption).
+
+  ℕ≢Unitⱼ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ ℕ ≡ Unit s l
   ℕ≢Unitⱼ {s} =
     A≢B (λ Γ _ A → Γ ⊩ℕ A) _⊩Unit⟨_, s ⟩_ ℕᵣ Unitᵣ
       (extractMaybeEmb ∘→ ℕ-elim)
@@ -122,9 +154,12 @@ opaque
 
 opaque
 
-  -- Empty is not definitionally equal to applications of Unit.
+  -- Empty is not definitionally equal to applications of Unit (given
+  -- a certain assumption).
 
-  Empty≢Unitⱼ : ¬ Γ ⊢ Empty ≡ Unit s l
+  Empty≢Unitⱼ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ Empty ≡ Unit s l
   Empty≢Unitⱼ {s} =
     A≢B (λ Γ _ A → Γ ⊩Empty A) _⊩Unit⟨_, s ⟩_ Emptyᵣ Unitᵣ
       (extractMaybeEmb ∘→ Empty-elim)
@@ -134,9 +169,11 @@ opaque
 opaque
 
   -- Applications of U are not definitionally equal to applications of
-  -- ΠΣ⟨_⟩_,_▷_▹_.
+  -- ΠΣ⟨_⟩_,_▷_▹_ (given a certain assumption).
 
-  U≢ΠΣⱼ : ¬ Γ ⊢ U l ≡ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
+  U≢ΠΣⱼ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ U l ≡ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
   U≢ΠΣⱼ =
     let b = _ in
     A≢B _⊩′⟨_⟩U_ _⊩′⟨_⟩B⟨ b ⟩_ Uᵣ (Bᵣ _)
@@ -146,9 +183,12 @@ opaque
 
 opaque
 
-  -- Applications of U are not definitionally equal to neutral terms.
+  -- Applications of U are not definitionally equal to neutral terms
+  -- (given a certain assumption).
 
-  U≢ne : Neutral A → ¬ Γ ⊢ U l ≡ A
+  U≢ne :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Neutral A → ¬ Γ ⊢ U l ≡ A
   U≢ne A-ne =
     A≢B _⊩′⟨_⟩U_ (λ Γ _ A → Γ ⊩ne A) Uᵣ ne
       (extractMaybeEmb ∘→ U-elim)
@@ -157,9 +197,12 @@ opaque
 
 opaque
 
-  -- ℕ is not definitionally equal to applications of ΠΣ⟨_⟩_,_▷_▹_.
+  -- ℕ is not definitionally equal to applications of ΠΣ⟨_⟩_,_▷_▹_
+  -- (given a certain assumption).
 
-  ℕ≢ΠΣⱼ : ¬ Γ ⊢ ℕ ≡ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
+  ℕ≢ΠΣⱼ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ ℕ ≡ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
   ℕ≢ΠΣⱼ =
     let b = _ in
     A≢B (λ Γ _ A → Γ ⊩ℕ A) _⊩′⟨_⟩B⟨ b ⟩_ ℕᵣ (Bᵣ _)
@@ -169,10 +212,12 @@ opaque
 
 opaque
 
-  -- Empty is not definitionally equal to applications of
-  -- ΠΣ⟨_⟩_,_▷_▹_.
+  -- Empty is not definitionally equal to applications of ΠΣ⟨_⟩_,_▷_▹_
+  -- (given a certain assumption).
 
-  Empty≢ΠΣⱼ : ¬ Γ ⊢ Empty ≡ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
+  Empty≢ΠΣⱼ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ Empty ≡ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
   Empty≢ΠΣⱼ =
     let b = _ in
     A≢B (λ Γ _ A → Γ ⊩Empty A) _⊩′⟨_⟩B⟨ b ⟩_ Emptyᵣ (Bᵣ _)
@@ -183,9 +228,11 @@ opaque
 opaque
 
   -- Applications of Unit are not definitionally equal to applications
-  -- of ΠΣ⟨_⟩_,_▷_▹_.
+  -- of ΠΣ⟨_⟩_,_▷_▹_ (given a certain assumption).
 
-  Unit≢ΠΣⱼ : ¬ Γ ⊢ Unit s l ≡ ΠΣ⟨ b ⟩ p , q ▷ B ▹ C
+  Unit≢ΠΣⱼ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ Unit s l ≡ ΠΣ⟨ b ⟩ p , q ▷ B ▹ C
   Unit≢ΠΣⱼ {s} =
     let b = _ in
     A≢B _⊩Unit⟨_, s ⟩_ _⊩′⟨_⟩B⟨ b ⟩_ Unitᵣ (Bᵣ _)
@@ -195,9 +242,12 @@ opaque
 
 opaque
 
-  -- ℕ is not definitionally equal to neutral terms.
+  -- ℕ is not definitionally equal to neutral terms (given a certain
+  -- assumption).
 
-  ℕ≢ne : Neutral A → ¬ Γ ⊢ ℕ ≡ A
+  ℕ≢ne :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Neutral A → ¬ Γ ⊢ ℕ ≡ A
   ℕ≢ne A-ne =
     A≢B (λ Γ _ A → Γ ⊩ℕ A) (λ Γ _ A → Γ ⊩ne A) ℕᵣ ne
       (extractMaybeEmb ∘→ ℕ-elim)
@@ -206,9 +256,12 @@ opaque
 
 opaque
 
-  -- Empty is not definitionally equal to neutral terms.
+  -- Empty is not definitionally equal to neutral terms (given a
+  -- certain assumption).
 
-  Empty≢neⱼ : Neutral A → ¬ Γ ⊢ Empty ≡ A
+  Empty≢neⱼ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Neutral A → ¬ Γ ⊢ Empty ≡ A
   Empty≢neⱼ A-ne =
     A≢B (λ Γ _ A → Γ ⊩Empty A) (λ Γ _ A → Γ ⊩ne A) Emptyᵣ ne
       (extractMaybeEmb ∘→ Empty-elim)
@@ -218,9 +271,11 @@ opaque
 opaque
 
   -- Applications of Unit are not definitionally equal to neutral
-  -- terms.
+  -- terms (given a certain assumption).
 
-  Unit≢neⱼ : Neutral A → ¬ Γ ⊢ Unit s l ≡ A
+  Unit≢neⱼ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Neutral A → ¬ Γ ⊢ Unit s l ≡ A
   Unit≢neⱼ {s} A-ne =
     A≢B _⊩Unit⟨_, s ⟩_ (λ Γ _ A → Γ ⊩ne A) Unitᵣ ne
       (extractMaybeEmb ∘→ Unit-elim)
@@ -230,9 +285,11 @@ opaque
 opaque
 
   -- Applications of ΠΣ⟨_⟩_,_▷_▹_ are not definitionally equal to
-  -- neutral terms.
+  -- neutral terms (given a certain assumption).
 
-  ΠΣ≢ne : Neutral C → ¬ Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ≡ C
+  ΠΣ≢ne :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Neutral C → ¬ Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ≡ C
   ΠΣ≢ne C-ne =
     let b = _ in
     A≢B _⊩′⟨_⟩B⟨ b ⟩_ (λ Γ _ A → Γ ⊩ne A) (Bᵣ _) ne
@@ -243,9 +300,11 @@ opaque
 opaque
 
   -- Applications of Π_,_▷_▹_ are not definitionally equal to
-  -- applications of Σ⟨_⟩_,_▷_▹_.
+  -- applications of Σ⟨_⟩_,_▷_▹_ (given a certain assumption).
 
-  Π≢Σⱼ : ¬ Γ ⊢ Π p , q ▷ A ▹ B ≡ Σ⟨ s ⟩ p′ , q′ ▷ C ▹ D
+  Π≢Σⱼ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ Π p , q ▷ A ▹ B ≡ Σ⟨ s ⟩ p′ , q′ ▷ C ▹ D
   Π≢Σⱼ =
     let b₁ = _
         b₂ = _
@@ -258,9 +317,11 @@ opaque
 opaque
 
   -- Applications of Σˢ_,_▷_▹_ are not definitionally equal to
-  -- applications of Σʷ_,_▷_▹_.
+  -- applications of Σʷ_,_▷_▹_ (given a certain assumption).
 
-  Σˢ≢Σʷⱼ : ¬ Γ ⊢ Σˢ p , q ▷ A ▹ B ≡ Σʷ p′ , q′ ▷ C ▹ D
+  Σˢ≢Σʷⱼ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ Σˢ p , q ▷ A ▹ B ≡ Σʷ p′ , q′ ▷ C ▹ D
   Σˢ≢Σʷⱼ =
     let b₁ = _
         b₂ = _
@@ -273,9 +334,11 @@ opaque
 opaque
 
   -- Applications of Unitʷ are not definitionally equal to
-  -- applications of Unitˢ.
+  -- applications of Unitˢ (given a certain assumption).
 
-  Unitʷ≢Unitˢ : ¬ Γ ⊢ Unitʷ l₁ ≡ Unitˢ l₂
+  Unitʷ≢Unitˢ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ Unitʷ l₁ ≡ Unitˢ l₂
   Unitʷ≢Unitˢ =
     A≢B _⊩Unit⟨_, 𝕨 ⟩_ _⊩Unit⟨_, 𝕤 ⟩_ Unitᵣ Unitᵣ
       (extractMaybeEmb ∘→ Unit-elim)
@@ -284,9 +347,12 @@ opaque
 
 opaque
 
-  -- Applications of Id are not definitionally equal to neutral types.
+  -- Applications of Id are not definitionally equal to neutral types
+  -- (given a certain assumption).
 
-  Id≢ne : Neutral B → ¬ Γ ⊢ Id A t u ≡ B
+  Id≢ne :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Neutral B → ¬ Γ ⊢ Id A t u ≡ B
   Id≢ne B-ne =
     A≢B _⊩′⟨_⟩Id_ (λ Γ _ A → Γ ⊩ne A) Idᵣ ne
       (extractMaybeEmb ∘→ Id-elim)
@@ -296,9 +362,11 @@ opaque
 opaque
 
   -- Applications of Id are not definitionally equal to applications
-  -- of U.
+  -- of U (given a certain assumption).
 
-  Id≢U : ¬ Γ ⊢ Id A t u ≡ U l
+  Id≢U :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ Id A t u ≡ U l
   Id≢U =
     A≢B _⊩′⟨_⟩Id_ _⊩′⟨_⟩U_ Idᵣ Uᵣ
       (extractMaybeEmb ∘→ Id-elim)
@@ -307,9 +375,12 @@ opaque
 
 opaque
 
-  -- Applications of Id are not definitionally equal to ℕ.
+  -- Applications of Id are not definitionally equal to ℕ (given a
+  -- certain assumption).
 
-  Id≢ℕ : ¬ Γ ⊢ Id A t u ≡ ℕ
+  Id≢ℕ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ Id A t u ≡ ℕ
   Id≢ℕ =
     A≢B _⊩′⟨_⟩Id_ (λ Γ _ A → Γ ⊩ℕ A) Idᵣ ℕᵣ
       (extractMaybeEmb ∘→ Id-elim)
@@ -319,9 +390,11 @@ opaque
 opaque
 
   -- Applications of Id are not definitionally equal to applications
-  -- of Unit.
+  -- of Unit (given a certain assumption).
 
-  Id≢Unit : ¬ Γ ⊢ Id A t u ≡ Unit s l
+  Id≢Unit :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ Id A t u ≡ Unit s l
   Id≢Unit {s} =
     A≢B _⊩′⟨_⟩Id_ _⊩Unit⟨_, s ⟩_ Idᵣ Unitᵣ
       (extractMaybeEmb ∘→ Id-elim)
@@ -330,9 +403,12 @@ opaque
 
 opaque
 
-  -- Applications of Id are not definitionally equal to Empty.
+  -- Applications of Id are not definitionally equal to Empty (given a
+  -- certain assumption).
 
-  Id≢Empty : ¬ Γ ⊢ Id A t u ≡ Empty
+  Id≢Empty :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ Id A t u ≡ Empty
   Id≢Empty =
     A≢B _⊩′⟨_⟩Id_ (λ Γ _ A → Γ ⊩Empty A) Idᵣ Emptyᵣ
       (extractMaybeEmb ∘→ Id-elim)
@@ -342,9 +418,11 @@ opaque
 opaque
 
   -- Applications of Id are not definitionally equal to applications
-  -- of ΠΣ⟨_⟩_,_▷_▹_.
+  -- of ΠΣ⟨_⟩_,_▷_▹_ (given a certain assumption).
 
-  Id≢ΠΣ : ¬ Γ ⊢ Id A t u ≡ ΠΣ⟨ b ⟩ p , q ▷ B ▹ C
+  Id≢ΠΣ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ Id A t u ≡ ΠΣ⟨ b ⟩ p , q ▷ B ▹ C
   Id≢ΠΣ =
     let b = _ in
     A≢B _⊩′⟨_⟩Id_ _⊩′⟨_⟩B⟨ b ⟩_ Idᵣ (Bᵣ _)
@@ -352,9 +430,12 @@ opaque
       (extractMaybeEmb ∘→ B-elim _)
       (λ ())
 
--- If No-η-equality A holds, then A is not a Π-type.
+-- If No-η-equality A holds, then A is not a Π-type (given a certain
+-- assumption).
 
-No-η-equality→≢Π : No-η-equality A → Γ ⊢ A ≡ Π p , q ▷ B ▹ C → ⊥
+No-η-equality→≢Π :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+  No-η-equality A → Γ ⊢ A ≡ Π p , q ▷ B ▹ C → ⊥
 No-η-equality→≢Π = λ where
   U.Uₙ         U≡Π     → U≢ΠΣⱼ U≡Π
   U.Σʷₙ        Σʷ≡Π    → Π≢Σⱼ (sym Σʷ≡Π)
@@ -364,9 +445,12 @@ No-η-equality→≢Π = λ where
   (U.Unitʷₙ _) Unit≡Π  → Unit≢ΠΣⱼ Unit≡Π
   (U.neₙ A-ne) A≡Π     → ΠΣ≢ne A-ne (sym A≡Π)
 
--- If No-η-equality A holds, then A is not a Σ-type with η-equality.
+-- If No-η-equality A holds, then A is not a Σ-type with η-equality
+-- (given a certain assumption).
 
-No-η-equality→≢Σˢ : No-η-equality A → Γ ⊢ A ≡ Σˢ p , q ▷ B ▹ C → ⊥
+No-η-equality→≢Σˢ :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+  No-η-equality A → Γ ⊢ A ≡ Σˢ p , q ▷ B ▹ C → ⊥
 No-η-equality→≢Σˢ = λ where
   U.Uₙ         U≡Σ     → U≢ΠΣⱼ U≡Σ
   U.Σʷₙ        Σʷ≡Σ    → Σˢ≢Σʷⱼ (sym Σʷ≡Σ)
@@ -376,10 +460,11 @@ No-η-equality→≢Σˢ = λ where
   (U.Unitʷₙ _) Unit≡Σ  → Unit≢ΠΣⱼ Unit≡Σ
   (U.neₙ A-ne) A≡Σ     → ΠΣ≢ne A-ne (sym A≡Σ)
 
--- If No-η-equality A holds, then A is not a unit type with
--- η-equality.
+-- If No-η-equality A holds, then A is not a unit type with η-equality
+-- (given a certain assumption).
 
 No-η-equality→≢Unit :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   No-η-equality A → Γ ⊢ A ≡ Unit s l → ¬ Unit-with-η s
 No-η-equality→≢Unit = λ where
   U.Uₙ            U≡Unit      _              → U≢Unitⱼ U≡Unit
@@ -393,12 +478,14 @@ No-η-equality→≢Unit = λ where
                                                  (sym A≡Unit)
 
 -- If A is a type without η-equality, then a non-neutral WHNF is not
--- definitionally equal at type A to any neutral term.
+-- definitionally equal at type A to any neutral term (given a certain
+-- assumption).
 
 whnf≢ne :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   No-η-equality A → Whnf t → ¬ Neutral t → Neutral u →
   ¬ Γ ⊢ t ≡ u ∷ A
-whnf≢ne {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
+whnf≢ne {Γ} {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
   case reducible-⊩≡∷ t≡u of λ
     (_ , t≡u) →
   case wf-⊩∷ $ wf-⊩≡∷ t≡u .proj₁ of λ
@@ -481,33 +568,37 @@ whnf≢ne {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
     (emb (≤ᵘ-step p) [A]) → lemma (emb p [A])
 
 -- The term zero is not definitionally equal (at type ℕ) to any
--- neutral term.
+-- neutral term (given a certain assumption).
 
 zero≢ne :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   Neutral t →
   ¬ Γ ⊢ zero ≡ t ∷ ℕ
 zero≢ne = whnf≢ne U.ℕₙ U.zeroₙ (λ ())
 
 -- The term suc t is not definitionally equal (at type ℕ) to any
--- neutral term.
+-- neutral term (given a certain assumption).
 
 suc≢ne :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   Neutral u →
   ¬ Γ ⊢ suc t ≡ u ∷ ℕ
 suc≢ne = whnf≢ne U.ℕₙ U.sucₙ (λ ())
 
 -- The term prodʷ p t u is not definitionally equal (at type
--- Σʷ p , q ▷ A ▹ B) to any neutral term.
+-- Σʷ p , q ▷ A ▹ B) to any neutral term (given a certain assumption).
 
 prodʷ≢ne :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   Neutral v →
   ¬ Γ ⊢ prodʷ p t u ≡ v ∷ Σʷ p , q ▷ A ▹ B
 prodʷ≢ne = whnf≢ne U.Σʷₙ U.prodₙ (λ ())
 
 -- The term rfl is not definitionally equal (at type Id A t u) to any
--- neutral term.
+-- neutral term (given a certain assumption).
 
 rfl≢ne :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   Neutral v →
   ¬ Γ ⊢ rfl ≡ v ∷ Id A t u
 rfl≢ne = whnf≢ne U.Idₙ U.rflₙ (λ ())

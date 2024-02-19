@@ -11,8 +11,11 @@ module Definition.Typed.Consequences.Inversion.Lift
   (R : Type-restrictions 𝕄)
   where
 
+open Type-restrictions R
+
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Injectivity R
+open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 
@@ -37,15 +40,19 @@ opaque
 
   inversion-Lift-U :
     Γ ⊢ Lift s l₁ A ∷ U l₂ →
-    Lift-allowed s × l₁ ≤ᵘ l₂ × ∃ λ l → Γ ⊢ A ∷ U l × l ≤ᵘ l₂
+    Lift-allowed s ×
+    (⦃ not-ok : No-equality-reflection ⦄ → l₁ ≤ᵘ l₂) ×
+    ∃ λ l → Γ ⊢ A ∷ U l ×
+      (⦃ ok : No-equality-reflection or-empty Γ ⦄ → l ≤ᵘ l₂)
   inversion-Lift-U {l₁} ⊢Lift =
     let l , l′ , ⊢A , ⊢Unit , U≡U₁ , ok₁ = inversion-ΠΣ-U ⊢Lift
         U≡U₂ , ok₂                       = inversion-Unit-U ⊢Unit
-        l⊔l′≡l₂                          = PE.sym $ U-injectivity U≡U₁
-        l′≡l₁                            = U-injectivity U≡U₂
+
+        l⊔l′≡l₂ = λ ok → PE.sym $ U-injectivity ⦃ ok = ok ⦄ U≡U₁
+        l′≡l₁   = λ ok → U-injectivity ⦃ ok = ok ⦄ U≡U₂
     in
       (ok₁ , ok₂)
-    , PE.subst₂ _≤ᵘ_ l′≡l₁ l⊔l′≡l₂ ≤ᵘ⊔ᵘˡ
+    , PE.subst₂ _≤ᵘ_ (l′≡l₁ included) (l⊔l′≡l₂ included) ≤ᵘ⊔ᵘˡ
     , l
     , ⊢A
-    , PE.subst (l ≤ᵘ_) l⊔l′≡l₂ ≤ᵘ⊔ᵘʳ
+    , (λ ⦃ ok = ok ⦄ → PE.subst (l ≤ᵘ_) (l⊔l′≡l₂ ok) ≤ᵘ⊔ᵘʳ)

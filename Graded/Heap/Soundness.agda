@@ -80,6 +80,7 @@ opaque
   -- the logical relation reduce to numerals.
 
   redNumeral′ : {Δ : Con Term k}
+                ⦃ ok : No-equality-reflection or-empty Δ ⦄
              → (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
              → (k PE.≢ 0 → No-erased-matches′ type-variant UR)
              → Δ ⊩ℕ n ∷ℕ → n PE.≡ ⦅ s ⦆ → Δ ⊢ₛ s ∷ ℕ → ▸ s
@@ -150,6 +151,7 @@ opaque
   -- All well-resourced, well-typed states of type ℕ reduce to numerals.
 
   redNumeral : {Δ : Con Term k}
+               ⦃ ok : No-equality-reflection or-empty Δ ⦄
              → (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
              → (k PE.≢ 0 → No-erased-matches′ type-variant UR)
              → Δ ⊢ₛ s ∷ ℕ → ▸ s
@@ -169,6 +171,7 @@ opaque
   -- Note that some assumptions to this theorem are given as a module parameter.
 
   soundness : {Δ : Con Term k}
+              ⦃ ok : No-equality-reflection or-empty Δ ⦄
             → (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
             → (k PE.≢ 0 → No-erased-matches′ type-variant UR)
             → Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸ t
@@ -218,7 +221,8 @@ opaque
                    initial t ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
                    (ε ⊢ t ≡ sucᵏ k ∷ ℕ) ×
                    H ≤ʰ 𝟘
-  soundness-closed = soundness (λ _ _ → ¬Empty) (λ 0≢0 → ⊥-elim (0≢0 PE.refl))
+  soundness-closed =
+    soundness ⦃ ok = ε ⦄ (λ _ _ → ¬Empty) (λ 0≢0 → ⊥-elim (0≢0 PE.refl))
 
 opaque
 
@@ -228,7 +232,8 @@ opaque
 
   -- Note that some assumptions to this theorem are given as a module parameter.
 
-  soundness-open : (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
+  soundness-open : ⦃ No-equality-reflection or-empty Δ ⦄
+                   → (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
                    → No-erased-matches′ type-variant UR
                    → Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸ t
                    → ∃₅ λ m n H k (ρ : Wk m n) →

@@ -189,11 +189,13 @@ module _ (As : Assumptions) where
 -- the abstract machine (with tracking).
 
 -- Most properties are proven only under the assumption that the
--- modality has a factoring nr function
+-- modality has a factoring nr function (and that equality reflection
+-- is not allowed or the context is empty).
 
 module _
   ⦃ _ : Has-nr M semiring-with-meet ⦄
   ⦃ _ : Has-factoring-nr M semiring-with-meet ⦄
+  ⦃ ok : No-equality-reflection or-empty Δ ⦄
   where
 
   opaque
@@ -218,7 +220,7 @@ module _
           → Normal s
           → Δ ⊢ₛ s ∷ B
           → ∃₃ λ m n (s′ : State _ m n) → s ⇒ᵥ s′ × u PE.≡ ⦅ s′ ⦆
-    ⊢⇒→⇒ᵥ {Δ} {s = ⟨ H , t , ρ , ε ⟩} d (val x) ⊢s =
+    ⊢⇒→⇒ᵥ {s = ⟨ H , t , ρ , ε ⟩} d (val x) ⊢s =
       case Value→Whnf (substValue (toSubstₕ H) (wkValue ρ x)) of λ where
           (inj₁ w) → ⊥-elim (whnfRedTerm d w)
           (inj₂ (_ , _ , _ , _ , _ , _ , ≡ur , η)) →
@@ -249,10 +251,12 @@ module _ (As : Assumptions) where
 
   opaque
 
-    ⊢⇒→⇾* : Δ ⊢ ⦅ s ⦆ ⇒ u ∷ A
-         → Δ ⊢ₛ s ∷ B
-         → ▸ s
-         → ∃₃ λ m n (s′ : State _ m n) → s ⇾* s′ × u PE.≡ ⦅ s′ ⦆
+    ⊢⇒→⇾* :
+      ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
+      Δ ⊢ ⦅ s ⦆ ⇒ u ∷ A →
+      Δ ⊢ₛ s ∷ B →
+      ▸ s →
+      ∃₃ λ m n (s′ : State _ m n) → s ⇾* s′ × u PE.≡ ⦅ s′ ⦆
     ⊢⇒→⇾* {s} d ⊢s ▸s =
       let _ , s′ , n , d′ = ▸normalize As s ▸s
           d″ = PE.subst (_ ⊢_⇒ _ ∷ _) (⇾ₑ*-⦅⦆-≡ d′) d
@@ -262,10 +266,12 @@ module _ (As : Assumptions) where
 
   opaque
 
-    ⊢⇒*→⇾* : Δ ⊢ ⦅ s ⦆ ⇒* u ∷ A
-           → Δ ⊢ₛ s ∷ B
-           → ▸ s
-           → ∃₃ λ m n (s′ : State _ m n) → s ⇾* s′ × u PE.≡ ⦅ s′ ⦆
+    ⊢⇒*→⇾* :
+      ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
+      Δ ⊢ ⦅ s ⦆ ⇒* u ∷ A →
+      Δ ⊢ₛ s ∷ B →
+      ▸ s →
+      ∃₃ λ m n (s′ : State _ m n) → s ⇾* s′ × u PE.≡ ⦅ s′ ⦆
     ⊢⇒*→⇾* (id x) ⊢s ▸s =
       _ , _ , _ , id , refl
     ⊢⇒*→⇾* {s} (x ⇨ d) ⊢s ▸s =

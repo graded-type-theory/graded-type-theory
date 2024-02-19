@@ -537,6 +537,9 @@ private module Inhabited where
           (stability-⊢≡∷ Γ≡Δ u₁≡u₂) (stability-⊢≡∷ Γ≡Δ v₁≡v₂) ok
       ([]-cong-β ⊢t eq ok) PE.refl →
         []-cong-β (stability-⊢∷ Γ≡Δ ⊢t) eq ok
+      (equality-reflection ok ⊢Id ⊢v) PE.refl →
+        equality-reflection ok (stability-⊢ Γ≡Δ ⊢Id)
+          (stability-⊢∷ Γ≡Δ ⊢v)
 
   opaque
 

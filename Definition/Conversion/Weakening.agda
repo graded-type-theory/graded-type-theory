@@ -1,5 +1,6 @@
 ------------------------------------------------------------------------
--- The algorithmic equality is closed under weakening.
+-- The algorithmic equality is closed under weakening (in the absence
+-- of equality reflection)
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
@@ -9,9 +10,9 @@ module Definition.Conversion.Weakening
   {a} {M : Set a}
   {𝕄 : Modality M}
   (R : Type-restrictions 𝕄)
+  (open Type-restrictions R)
+  ⦃ no-equality-reflection : No-equality-reflection ⦄
   where
-
-open Type-restrictions R
 
 open import Definition.Untyped M as U hiding (wk)
 open import Definition.Untyped.Neutral M type-variant

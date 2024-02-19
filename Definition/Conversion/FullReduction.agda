@@ -1,5 +1,6 @@
 ------------------------------------------------------------------------
--- Every well-typed term has an η-long normal form
+-- Every well-typed term has an η-long normal form (in the absence of
+-- equality reflection)
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
@@ -9,9 +10,9 @@ module Definition.Conversion.FullReduction
   {a} {M : Set a}
   {𝕄 : Modality M}
   (R : Type-restrictions 𝕄)
+  (open Type-restrictions R)
+  ⦃ no-equality-reflection : No-equality-reflection ⦄
   where
-
-open Type-restrictions R
 
 open import Definition.Conversion R
 open import Definition.Conversion.Consequences.Completeness R
@@ -21,6 +22,8 @@ open import Definition.Conversion.Whnf R
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Admissible R
 open import Definition.Typed.Consequences.NeTypeEq R
+open import Definition.Typed.EqRelInstance R
+open import Definition.Typed.EqualityRelation.Instance R
 open import Definition.Typed.Eta-long-normal-form R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R

@@ -364,9 +364,12 @@ opaque
 
 opaque
 
-  -- An eliminator's "hole type" is not definitionally equal to U l.
+  -- An eliminator's "hole type" is not definitionally equal to U l
+  -- (given a certain assumption).
 
-  hole-type-not-U : Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B → ¬ Γ ⊢ A ≡ U l
+  hole-type-not-U :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B → ¬ Γ ⊢ A ≡ U l
   hole-type-not-U (∘ₑ _ _)         = U≢ΠΣⱼ ∘→ sym
   hole-type-not-U (fstₑ _)         = U≢ΠΣⱼ ∘→ sym
   hole-type-not-U (sndₑ _)         = U≢ΠΣⱼ ∘→ sym

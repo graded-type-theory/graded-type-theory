@@ -1,5 +1,6 @@
 ------------------------------------------------------------------------
--- The algorithmic equality is decidable.
+-- The algorithmic equality is decidable (in the absence of equality
+-- reflection)
 ------------------------------------------------------------------------
 
 {-# OPTIONS --no-infer-absurd-clauses #-}
@@ -13,10 +14,10 @@ module Definition.Conversion.Decidable
   {a} {M : Set a}
   {𝕄 : Modality M}
   (R : Type-restrictions 𝕄)
+  (open Type-restrictions R)
   (_≟_ : Decidable (PE._≡_ {A = M}))
+  ⦃ no-equality-reflection : No-equality-reflection ⦄
   where
-
-open Type-restrictions R
 
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
@@ -24,6 +25,8 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Properties.Neutral M type-variant
 open import Definition.Typed R
+open import Definition.Typed.EqRelInstance R
+open import Definition.Typed.EqualityRelation.Instance R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Type R
@@ -236,8 +239,9 @@ private opaque
           Σʷ p₁ , q₁ ▷ A₁ ▹ B₁  ≡⟨ Σ₁≡D ⟩⊢
           D                     ≡⟨ neTypeEq t₂-ne ⊢t₂′ ⊢t₂ ⟩⊢∎
           Σʷ p₂ , q₂ ▷ A₂ ▹ B₂  ∎
-        A₁≡A₂ , B₁≡B₂ , p₁≡p₂ , _ = ΠΣ-injectivity Σ₁≡Σ₂
-        ΓA₁B₁≡ΓA₂B₂               = refl-∙ A₁≡A₂ ⊢_≡_.∙ B₁≡B₂
+        A₁≡A₂ , B₁≡B₂ , p₁≡p₂ , _ =
+          ΠΣ-injectivity-no-equality-reflection Σ₁≡Σ₂
+        ΓA₁B₁≡ΓA₂B₂ = refl-∙ A₁≡A₂ ⊢_≡_.∙ B₁≡B₂
     in
     case p₁≡p₂ of λ {
       PE.refl →
@@ -252,7 +256,9 @@ private opaque
         yes $
         case ΠΣ≡Whnf Σ₁≡D D-whnf of λ {
           (_ , _ , PE.refl) →
-        let A₁≡ , B₁≡ , _ = ΠΣ-injectivity Σ₁≡D in
+        let A₁≡ , B₁≡ , _ =
+              ΠΣ-injectivity-no-equality-reflection Σ₁≡D
+        in
           _
         , prodrec-cong (stabilityConv↑ (refl-∙ Σ₁≡D) C₁≡C₂) t₁~t₂
             (stabilityConv↑Term (refl-∙ A₁≡ ∙ B₁≡) u₁≡u₂) }
@@ -261,7 +267,8 @@ private opaque
         let _ , _ , _ , _ , _ , _ , _ , pr≡pr , C₁≡ , t₁~ , u₁≡ =
               inv-prodrec~ pr~pr
             ≡A₁ , ≡B₁ , _ =
-              ΠΣ-injectivity (neTypeEq t₁-ne (~↓→∷ t₁~) ⊢t₁)
+              ΠΣ-injectivity-no-equality-reflection
+                (neTypeEq t₁-ne (~↓→∷ t₁~) ⊢t₁)
             _ , _ , _ , ≡C₂ , _ , ≡u₂ =
               prodrec-PE-injectivity (PE.sym pr≡pr)
         in
@@ -864,7 +871,10 @@ mutual
       (inj₁ (l₂ , PE.refl , _)) →
         case l₁ ≟ᵘ l₂ of λ where
           (yes PE.refl) → yes U≡U
-          (no l₁≢l₂)    → no (l₁≢l₂ ∘→ U-injectivity ∘→ soundnessConv↓)
+          (no l₁≢l₂)    →
+            no (l₁≢l₂ ∘→ U-injectivity ∘→
+                soundnessConv↓
+                  ⦃ no-equality-reflection = no-equality-reflection ⦄)
       (inj₂ (B≢U , _)) → no (B≢U ∘→ (_ ,_) ∘→ inv-[conv↓]-U)
   decConv↓ (ΠΣ-cong A₁≡ A₂≡ ok) B≡ =
     case inv-[conv↓]-ΠΣ′ B≡ of λ where

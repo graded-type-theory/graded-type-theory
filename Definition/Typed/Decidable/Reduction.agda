@@ -1,23 +1,26 @@
 ------------------------------------------------------------------------
 -- Decidability of whether terms reduce to applications of specific
--- type formers
+-- type formers (in the absence of equality reflection, or for empty
+-- contexts)
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
+import Definition.Untyped
 open import Graded.Modality
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 
 module Definition.Typed.Decidable.Reduction
   {a} {M : Set a}
+  (open Definition.Untyped M)
   {𝕄 : Modality M}
   (R : Type-restrictions 𝕄)
+  (open Type-restrictions R)
   (_≟_ : Decidable (PE._≡_ {A = M}))
+  {n} {Γ : Con Term n}
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄
   where
 
-open Type-restrictions R
-
-open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant as N
 open import Definition.Typed R
 open import Definition.Typed.Properties R
@@ -29,14 +32,11 @@ open import Definition.LogicalRelation.Fundamental.Reducibility R
 open import Definition.LogicalRelation.Properties R
 
 open import Tools.Function
-open import Tools.Nat
 open import Tools.Product
 import Tools.Relation as Dec
 
 private
   variable
-    n   : Nat
-    Γ   : Con Term n
     A B : Term n
     l   : Universe-level
 

@@ -348,7 +348,11 @@ mutual
                   → let open Erased k in
                     Γ ⊢ []-cong k A t t′ rfl ≡ rfl ∷
                       Id (Erased A) ([ t ]) ([ t′ ])
-
+    equality-reflection
+                  : Equality-reflection
+                  → Γ ⊢ Id A t u
+                  → Γ ⊢ v ∷ Id A t u
+                  → Γ ⊢ t ≡ u ∷ A
 
 -- Term reduction
 data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ where

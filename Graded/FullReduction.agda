@@ -191,6 +191,7 @@ module _ (as : Full-reduction-assumptions) where
     -- Some lemmas used to prove the main theorems below.
 
     fullRedNe :
+      ⦃ not-ok : No-equality-reflection ⦄ →
       (⊢t : Γ ⊢ t ~ t′ ↑ A) → γ ▸[ m ] t →
       γ ▸[ m ] FR.fullRedNe ⊢t .proj₁
     fullRedNe {Γ = Γ} = λ where
@@ -281,18 +282,21 @@ module _ (as : Full-reduction-assumptions) where
           γ≤ }
 
     fullRedNe~↓ :
+      ⦃ not-ok : No-equality-reflection ⦄ →
       (⊢t : Γ ⊢ t ~ t′ ↓ A) → γ ▸[ m ] t →
       γ ▸[ m ] FR.fullRedNe~↓ ⊢t .proj₁
     fullRedNe~↓ ([~] _ _ k~l) γ▸t =
       fullRedNe k~l γ▸t
 
     fullRedConv↑ :
+      ⦃ not-ok : No-equality-reflection ⦄ →
       (⊢A : Γ ⊢ A [conv↑] A′) → γ ▸[ m ] A →
       γ ▸[ m ] FR.fullRedConv↑ ⊢A .proj₁
     fullRedConv↑ ([↑] _ _ (D , _) _ A′<>B′) γ▸A =
       fullRedConv↓ A′<>B′ (usagePres* Unitʷ-η→ γ▸A D)
 
     fullRedConv↓ :
+      ⦃ not-ok : No-equality-reflection ⦄ →
       (⊢A : Γ ⊢ A [conv↓] A′) → γ ▸[ m ] A →
       γ ▸[ m ] FR.fullRedConv↓ ⊢A .proj₁
     fullRedConv↓ = λ where
@@ -317,12 +321,14 @@ module _ (as : Full-reduction-assumptions) where
               γ≤
 
     fullRedTermConv↑ :
+      ⦃ not-ok : No-equality-reflection ⦄ →
       (⊢t : Γ ⊢ t [conv↑] t′ ∷ A) → γ ▸[ m ] t →
       γ ▸[ m ] FR.fullRedTermConv↑ ⊢t .proj₁
     fullRedTermConv↑ ([↑]ₜ _ _ _ _ (d , _) _ t<>u) γ▸t =
       fullRedTermConv↓ t<>u (usagePres*Term Unitʷ-η→ γ▸t d)
 
     fullRedTermConv↓ :
+      ⦃ not-ok : No-equality-reflection ⦄ →
       (⊢t : Γ ⊢ t [conv↓] t′ ∷ A) → γ ▸[ m ] t →
       γ ▸[ m ] FR.fullRedTermConv↓ ⊢t .proj₁
     fullRedTermConv↓ {Γ = Γ} {t = t} {γ = γ} {m = m} = λ where
@@ -376,6 +382,7 @@ module _ (as : Full-reduction-assumptions) where
 -- form (given certain assumptions).
 
 fullRed :
+  ⦃ not-ok : No-equality-reflection ⦄ →
   Full-reduction-assumptions →
   Γ ⊢ A → γ ▸[ m ] A →
   ∃ λ B → Γ ⊢nf B × Γ ⊢ A ≡ B × γ ▸[ m ] B
@@ -402,6 +409,7 @@ Full-reduction-term =
 -- form (given certain assumptions).
 
 fullRedTerm :
+  ⦃ not-ok : No-equality-reflection ⦄ →
   Full-reduction-assumptions →
   Full-reduction-term
 fullRedTerm as ⊢t ▸t =
@@ -411,9 +419,10 @@ fullRedTerm as ⊢t ▸t =
   t≡t = completeEqTerm (refl ⊢t)
 
 -- Full-reduction-term is logically equivalent to
--- Full-reduction-assumptions.
+-- Full-reduction-assumptions (if equality reflection is not allowed).
 
 Full-reduction-term⇔Full-reduction-assumptions :
+  ⦃ not-ok : No-equality-reflection ⦄ →
   Full-reduction-term ⇔ Full-reduction-assumptions
 Full-reduction-term⇔Full-reduction-assumptions =
     (λ red → λ where
@@ -504,10 +513,12 @@ Full-reduction-term-ε =
   ε ⊢ t ∷ A → ε ▸[ m ] t →
   ∃ λ u → ε ⊢nf u ∷ A × ε ⊢ t ≡ u ∷ A × ε ▸[ m ] u
 
--- If Π-allowed 𝟙 r holds for any r, then Full-reduction-term-ε
--- implies Full-reduction-assumptions.
+-- If Π-allowed 𝟙 r holds for any r, and equality reflection is not
+-- allowed, then Full-reduction-term-ε implies
+-- Full-reduction-assumptions.
 
 Full-reduction-term-ε→Full-reduction-assumptions :
+  ⦃ not-ok : No-equality-reflection ⦄ →
   Π-allowed 𝟙 r →
   Full-reduction-term-ε →
   Full-reduction-assumptions
@@ -578,10 +589,12 @@ Full-reduction-term-ε→Full-reduction-assumptions
   open Full-reduction-assumptions
   open Tools.Reasoning.PartialOrder ≤-poset
 
--- If Π-allowed 𝟙 r holds for any r, then Full-reduction-term is
--- logically equivalent to Full-reduction-term-ε.
+-- If Π-allowed 𝟙 r holds for any r, and equality reflection is not
+-- allowed, then Full-reduction-term is logically equivalent to
+-- Full-reduction-term-ε.
 
 Full-reduction-term⇔Full-reduction-term-ε :
+  ⦃ not-ok : No-equality-reflection ⦄ →
   Π-allowed 𝟙 r →
   Full-reduction-term ⇔ Full-reduction-term-ε
 Full-reduction-term⇔Full-reduction-term-ε ok =

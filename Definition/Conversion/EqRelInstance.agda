@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------
--- The algorithmic equality is an instance of the abstract set of
--- equality relations.
+-- The algorithmic equality is (in the absence of equality reflection)
+-- an instance of the abstract set of equality relations
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
@@ -10,15 +10,18 @@ module Definition.Conversion.EqRelInstance
   {a} {M : Set a}
   {𝕄 : Modality M}
   (R : Type-restrictions 𝕄)
+  (open Type-restrictions R)
+  ⦃ no-equality-reflection : No-equality-reflection ⦄
   where
-
-open Type-restrictions R
 
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
+open import Definition.Typed.EqRelInstance R
+  using () renaming (eqRelInstance to eqRelInstance′)
+open import Definition.Typed.EqualityRelation.Instance R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
@@ -98,7 +101,7 @@ private module Lemmas where
       (H , E , B≡ΠHE) →
     case ΠΣ-injectivity (PE.subst (λ x → _ ⊢ _ ≡ x) B≡ΠHE ΠFG≡B′) of λ {
       (F≡H , G≡E , _ , _) →
-    ↑ (substTypeEq G≡E (refl ⊢f))
+    ↑ (G≡E (refl ⊢f))
       (app-cong
          (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡ΠHE
             ([~] _ (D , whnfB′) x))
@@ -135,7 +138,7 @@ private module Lemmas where
                 _ , ⊢p , _ = syntacticEqTerm (soundness~↑ p~r)
                 ⊢fst       = fstⱼ ⊢G (conv ⊢p (sym A≡B))
             in
-            ↑ (substTypeEq G≡E (refl ⊢fst)) (snd-cong p~r↓)
+            ↑ (G≡E (refl ⊢fst)) (snd-cong p~r↓)
 
   ~-natrec : ∀ {z z′ s s′ n n′ F F′}
            → (Γ ∙ ℕ) ⊢ F [conv↑] F′ →
@@ -167,7 +170,7 @@ private module Lemmas where
     case _⊢_≡_.trans A≡B (subset* D) of λ Σ≡Σ′ →
     case Σ≡A (trans A≡B (subset* D)) whnfB′ of λ where
       (F′ , G′ , PE.refl) →
-        case ΠΣ-injectivity Σ≡Σ′ of λ where
+        case ΠΣ-injectivity-no-equality-reflection Σ≡Σ′ of λ where
           (F≡F′ , G≡G′ , _ , _ , _) →
             let t~t′       = [~] _ (D , whnfB′) k~↑l
                 ⊢A , _     = syntacticEq (soundnessConv↑ x₂)
@@ -317,6 +320,8 @@ private opaque
   equality-relations = let open Lemmas in λ where
     .Equality-relations.Neutrals-included? →
       yes (lift tt)
+    .Equality-relations.Equality-reflection-allowed→¬Neutrals-included →
+      λ ok _ → No-equality-reflection⇔ .proj₁ no-equality-reflection ok
     .Equality-relations.⊢≡→⊢≅    → ⊥-elim ∘→ (_$ _)
     .Equality-relations.⊢≡∷→⊢≅∷  → ⊥-elim ∘→ (_$ _)
     .Equality-relations.~-to-≅ₜ  → ~-to-conv
@@ -432,7 +437,9 @@ instance
     .EqRelSet.equality-relations → equality-relations
 
 open EqRelSet eqRelInstance public hiding (_⊢_~_∷_)
-open Definition.Typed.EqualityRelation.Instance eqRelInstance public
+open Definition.Typed.EqualityRelation.Instance
+       R ⦃ eq = eqRelInstance ⦄
+  public
 
 instance
 

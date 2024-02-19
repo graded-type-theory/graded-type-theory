@@ -431,6 +431,8 @@ opaque mutual
       Idⱼ (Erasedⱼ ⊢A) ⊢[t] ⊢[t] ,
       []-congⱼ ⊢A ⊢t ⊢t (rflⱼ ⊢t) ok ,
       rflⱼ ⊢[t]
+    (equality-reflection _ ⊢Id _) →
+      inversion-Id ⊢Id
 
 opaque
 

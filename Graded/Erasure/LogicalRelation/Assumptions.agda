@@ -11,14 +11,19 @@ module Graded.Erasure.LogicalRelation.Assumptions
   (R : Type-restrictions 𝕄)
   where
 
+open Type-restrictions R
+
 open import Definition.Typed R
 open import Definition.Typed.EqualityRelation R
 open import Definition.Untyped M
+open import Definition.Untyped.Properties M
 
 open import Graded.Erasure.Target using (Strictness)
 
+open import Tools.Function
 open import Tools.Level
 open import Tools.Nat
+open import Tools.Product
 
 record Assumptions : Set (lsuc a) where
   field
@@ -43,3 +48,15 @@ record Assumptions : Set (lsuc a) where
     -- Should applications be extracted to strict or non-strict
     -- applications?
     str : Strictness
+
+  instance
+
+    -- Equality reflection is not allowed or Δ is empty.
+
+    no-equality-reflection-or-empty :
+      No-equality-reflection or-empty Δ
+    no-equality-reflection-or-empty =
+      or-empty-map
+        (No-equality-reflection⇔ .proj₂ ∘→
+         flip Equality-reflection-allowed→¬Neutrals-included)
+        inc

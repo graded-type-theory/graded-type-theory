@@ -117,6 +117,7 @@ opaque
     Γ ⊢ t ≡ u ∷ A                                          □
     where
     open Erased s
+    open Fundamental-assumptions⁻ ok
 
 opaque
 

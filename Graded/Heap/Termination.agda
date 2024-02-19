@@ -68,7 +68,8 @@ private variable
 opaque
 
   ⊢▸Final-reasons :
-    {Δ : Con Term k} →
+    {Δ : Con Term k}
+    ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
     (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) →
     (k ≢ 0 → No-erased-matches′ type-variant UR) →
     Δ ⊢ₛ ⟨ H , t , ρ , S ⟩ ∷ A →
@@ -86,7 +87,8 @@ opaque
 opaque
 
   ⊢▸-⇘-reasons :
-    {Δ : Con Term k} →
+    {Δ : Con Term k}
+    ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
     (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) →
     (k ≢ 0 → No-erased-matches′ type-variant UR) →
     Δ ⊢ₛ s ∷ A →
@@ -101,6 +103,7 @@ opaque
 opaque
 
   ↘→⇘ :
+    ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
     Δ ⊢ₛ s ∷ B →
     ▸ s →
     Δ ⊢ ⦅ s ⦆ ↘ u ∷ A →
@@ -121,6 +124,7 @@ opaque
 
   whBisim :
     {Δ : Con Term k} →
+    ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
     (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) →
     (k ≢ 0 → No-erased-matches′ type-variant UR) →
     Δ ⊢ₛ s ∷ B →
@@ -143,6 +147,7 @@ opaque
 
   whBisim-initial :
     {Δ : Con Term k} →
+    ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
     (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) →
     (k ≢ 0 → No-erased-matches′ type-variant UR) →
     𝟘ᶜ ▸ t →
@@ -156,6 +161,7 @@ opaque
 
   ⊢▸-⇘ :
     {Δ : Con Term k} →
+    ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
     (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) →
     (k ≢ 0 → No-erased-matches′ type-variant UR) →
     Δ ⊢ₛ s ∷ B →
@@ -171,6 +177,7 @@ opaque
 
   initial-⇘ :
     {Δ : Con Term k} →
+    ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
     (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) →
     (k ≢ 0 → No-erased-matches′ type-variant UR) →
     Δ ⊢ t ∷ A → 𝟘ᶜ ▸ t →
@@ -184,4 +191,5 @@ opaque
     ε ⊢ t ∷ A → ε ▸ t →
     ∃₅ λ m n H u (ρ : Wk m n)→ initial t ⇘ ⟨ H , u , ρ , ε ⟩ × Value u
   initial-⇘-closed ⊢t ▸t =
-    initial-⇘ (λ _ _ → ¬Empty) (λ 0≢0 → ⊥-elim (0≢0 refl)) ⊢t ▸t
+    initial-⇘ ⦃ ok = ε ⦄
+      (λ _ _ → ¬Empty) (λ 0≢0 → ⊥-elim (0≢0 refl)) ⊢t ▸t

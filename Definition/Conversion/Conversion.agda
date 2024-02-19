@@ -9,13 +9,16 @@ module Definition.Conversion.Conversion
   {a} {M : Set a}
   {𝕄 : Modality M}
   (R : Type-restrictions 𝕄)
+  (open Type-restrictions R)
+  -- Equality reflection is not allowed.
+  ⦃ no-equality-reflection : No-equality-reflection ⦄
   where
-
-open Type-restrictions R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
+open import Definition.Typed.EqRelInstance R
+open import Definition.Typed.EqualityRelation.Instance R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
@@ -89,7 +92,7 @@ mutual
     suc-cong (stabilityConv↑Term Γ≡Δ x)
   convConv↓Term′ Γ≡Δ A≡B whnfB (prod-cong x₁ x₂ x₃ ok)
     with Σ≡A A≡B whnfB
-  ... | F′ , G′ , PE.refl with ΠΣ-injectivity A≡B
+  ... | F′ , G′ , PE.refl with ΠΣ-injectivity-no-equality-reflection A≡B
   ...   | F≡F′ , G≡G′ , _ , _ =
     let _ , ⊢G′ = syntacticEq G≡G′
         _ , ⊢t , _ = syntacticEqTerm (soundnessConv↑Term x₂)
@@ -98,7 +101,7 @@ mutual
           (convConv↑Term′ Γ≡Δ F≡F′ x₂) (convConv↑Term′ Γ≡Δ Gt≡G′t x₃) ok
   convConv↓Term′ Γ≡Δ A≡B whnfB (η-eq x₁ x₂ y y₁ x₃) with Π≡A A≡B whnfB
   convConv↓Term′ Γ≡Δ A≡B whnfB (η-eq x₁ x₂ y y₁ x₃) | _ , _ , PE.refl =
-    case ΠΣ-injectivity A≡B of λ {
+    case ΠΣ-injectivity-no-equality-reflection A≡B of λ {
       (F≡F′ , G≡G′ , _ , _) →
     η-eq (stabilityTerm Γ≡Δ (conv x₁ A≡B))
          (stabilityTerm Γ≡Δ (conv x₂ A≡B))
@@ -106,7 +109,7 @@ mutual
          (convConv↑Term′ (Γ≡Δ ∙ F≡F′) G≡G′ x₃) }
   convConv↓Term′ Γ≡Δ A≡B whnfB (Σ-η ⊢p ⊢r pProd rProd fstConv sndConv)
     with Σ≡A A≡B whnfB
-  ... | F , G , PE.refl with ΠΣ-injectivity A≡B
+  ... | F , G , PE.refl with ΠΣ-injectivity-no-equality-reflection A≡B
   ...   | F≡ , G≡ , _ , _ =
     let ⊢G = proj₁ (syntacticEq G≡)
         ⊢fst = fstⱼ ⊢G ⊢p

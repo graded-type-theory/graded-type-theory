@@ -86,9 +86,10 @@ private
 
 -- Lemma: A neutral which is well-typed in a negative/erased context,
 -- and also well-resourced (with respect to the mode 𝟙ᵐ), has a
--- negative type.
+-- negative type (given a certain assumption).
 
 neNeg :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   Γ ⊢ u ∷ A → Neutral u → γ ▸[ 𝟙ᵐ ] u → NegativeErasedContext Γ γ →
   NegativeType Γ A
 neNeg {γ = γ} (var ⊢Γ h) (var x) γ▸u nΓγ =
@@ -240,9 +241,10 @@ neNeg (conv d c) n γ▸u nΓγ =
 
 -- Lemma: A normal form which has the type ℕ in a negative/erased
 -- context, and which is well-resourced (with respect to the mode 𝟙ᵐ),
--- is a numeral.
+-- is a numeral (given a certain assumption).
 
-nfN : (d : Γ ⊢ u ∷ A)
+nfN : ⦃ ok : No-equality-reflection or-empty Γ ⦄
+    → (d : Γ ⊢ u ∷ A)
     → (m : γ ▸[ 𝟙ᵐ ] u)
     → NegativeErasedContext Γ γ
     → (n : Nf u)
@@ -282,13 +284,16 @@ nfN (rflⱼ _)        _ _ rflₙ        c = ⊥-elim (Id≢ℕ c)
 
 -- The following results are proved under the assumption that, if weak
 -- unit types are allowed, η-equality is allowed for them, and
--- Unitrec-allowed 𝟙ᵐ p q holds for some p and q, then p ≤ 𝟘.
+-- Unitrec-allowed 𝟙ᵐ p q holds for some p and q, then p ≤ 𝟘 (and
+-- furthermore that equality reflection is not allowed or the context
+-- is empty).
 
 module _
   (Unitʷ-η→ :
      ∀ {p q} →
      Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
      p ≤ 𝟘)
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄
   where
 
   -- Terms that have non-negative types reduce to non-neutral terms.

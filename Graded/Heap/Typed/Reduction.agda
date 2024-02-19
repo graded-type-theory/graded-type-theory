@@ -189,19 +189,24 @@ opaque
 ------------------------------------------------------------------------
 -- State typing is preserved by reduction
 
+-- The properties below are proved under the assumption that equality
+-- reflection is not allowed or the context is empty.
 
 opaque
 
   -- Type preservation for _⇒ᵥ_
 
-  ⊢ₛ-⇒ᵥ : Δ ⊢ₛ s ∷ A → s ⇒ᵥ s′ → Δ ⊢ₛ s′ ∷ A
+  ⊢ₛ-⇒ᵥ :
+    ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
+    Δ ⊢ₛ s ∷ A → s ⇒ᵥ s′ → Δ ⊢ₛ s′ ∷ A
   ⊢ₛ-⇒ᵥ ⊢s (lamₕ {H} {p} {t} {ρ} {u} {ρ′}) =
     case ⊢ₛ-inv′ ⊢s of λ
       (Γ , _ , _ , ⊢H , ⊢λt , ⊢e , ⊢S) →
     case inversion-∘ₑ ⊢e of λ {
       (F , G , q , ⊢u , PE.refl , B≡Gu) →
-    let ⊢t , _ , ok = inversion-lam-Π ⊢λt
-        ⊢t′ = substTerm ⊢t ⊢u
+    let _ , ⊢t , ≡G , _ , ok = inversion-lam-Π ⊢λt
+        ≡G[u]₀ = ≡G (refl ⊢u)
+        ⊢t′ = conv (substTerm ⊢t ⊢u) ≡G[u]₀
         t≡t′ = singleSubstComp (wk ρ′ u [ H ]ₕ)
                  (toSubstₕ H) (wk (lift ρ) t)
     in  ⊢ₛ {Γ = Γ ∙ wk (toWkₕ H) F}
@@ -214,7 +219,7 @@ opaque
                (wk ρ (lam p t) [ H ]ₕ) ∘⟨ p ⟩ (wk ρ′ u [ H ]ₕ)               ≡⟨ β-red-≡ ⊢t ⊢u ok ⟩⊢∎≡
                (wk (lift ρ) t [ H ]⇑ₕ) [ wk ρ′ u [ H ]ₕ ]₀                  ≡⟨ singleSubstComp (wk ρ′ u [ H ]ₕ) (toSubstₕ H) (wk (lift ρ) t) ⟩
                wk (lift ρ) t [ H ∙ (p , u , ρ′) ]ₕ                          ∎)
-               (sym B≡Gu))) }
+               (sym (trans B≡Gu (sym ≡G[u]₀))))) }
 
   ⊢ₛ-⇒ᵥ ⊢s prodˢₕ₁ =
     case ⊢ₛ-inv′ ⊢s of λ
@@ -450,7 +455,9 @@ opaque
 
   -- Type preservation for _⇾_
 
-  ⊢ₛ-⇾ : Δ ⊢ₛ s ∷ A → s ⇾ s′ → Δ ⊢ₛ s′ ∷ A
+  ⊢ₛ-⇾ :
+    ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
+    Δ ⊢ₛ s ∷ A → s ⇾ s′ → Δ ⊢ₛ s′ ∷ A
   ⊢ₛ-⇾ ⊢s (⇾ₑ d) = ⊢ₛ-⇾ₑ ⊢s d
   ⊢ₛ-⇾ ⊢s (⇒ᵥ d) = ⊢ₛ-⇒ᵥ ⊢s d
 
@@ -458,7 +465,9 @@ opaque
 
   -- Type preservation for _⇢_
 
-  ⊢ₛ-⇢ : Δ ⊢ₛ s ∷ A → s ⇢ s′ → Δ ⊢ₛ s′ ∷ A
+  ⊢ₛ-⇢ :
+    ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
+    Δ ⊢ₛ s ∷ A → s ⇢ s′ → Δ ⊢ₛ s′ ∷ A
   ⊢ₛ-⇢ ⊢s (⇢ₑ d) = ⊢ₛ-⇢ₑ ⊢s d
   ⊢ₛ-⇢ ⊢s (⇒ᵥ d) = ⊢ₛ-⇒ᵥ ⊢s d
 
@@ -466,7 +475,9 @@ opaque
 
   -- Type preservation for _⇾*_
 
-  ⊢ₛ-⇾* : Δ ⊢ₛ s ∷ A → s ⇾* s′ → Δ ⊢ₛ s′ ∷ A
+  ⊢ₛ-⇾* :
+    ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
+    Δ ⊢ₛ s ∷ A → s ⇾* s′ → Δ ⊢ₛ s′ ∷ A
   ⊢ₛ-⇾* ⊢s id = ⊢s
   ⊢ₛ-⇾* ⊢s (d ⇨ d′) = ⊢ₛ-⇾* (⊢ₛ-⇾ ⊢s d) d′
 
@@ -474,7 +485,9 @@ opaque
 
   -- Type preservation for _⇢*_
 
-  ⊢ₛ-⇢* : Δ ⊢ₛ s ∷ A → s ⇢* s′ → Δ ⊢ₛ s′ ∷ A
+  ⊢ₛ-⇢* :
+    ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
+    Δ ⊢ₛ s ∷ A → s ⇢* s′ → Δ ⊢ₛ s′ ∷ A
   ⊢ₛ-⇢* ⊢s id = ⊢s
   ⊢ₛ-⇢* ⊢s (d ⇨ d′) = ⊢ₛ-⇢* (⊢ₛ-⇢ ⊢s d) d′
 
@@ -505,7 +518,9 @@ opaque
 
   -- Reduction of values correspond to one step in the wh cbn reduction
 
-  ⇒ᵥ→⇒ : Δ ⊢ₛ s ∷ A → s ⇒ᵥ s′ → Δ ⊢ ⦅ s ⦆ ⇒ ⦅ s′ ⦆ ∷ A
+  ⇒ᵥ→⇒ :
+    ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
+    Δ ⊢ₛ s ∷ A → s ⇒ᵥ s′ → Δ ⊢ ⦅ s ⦆ ⇒ ⦅ s′ ⦆ ∷ A
   ⇒ᵥ→⇒ {A} ⊢s (lamₕ {H} {p} {t} {ρ} {u} {ρ′} {S}) =
     case ⊢ₛ-inv′ ⊢s of λ
       (_ , _ , _ , ⊢H , ⊢t , ⊢e , ⊢S) →
@@ -543,7 +558,7 @@ opaque
       (F′ , G′ , q′ , ⊢G′ , PE.refl , C≡G′₊) →
     let F , G , q , ⊢F , ⊢G , ⊢t₁ , ⊢t₂ , B≡Σ , ok = inversion-prod ⊢t
         F≡F′ , G≡G′ , _ = ΠΣ-injectivity (sym B≡Σ)
-        G₊≡G′₊ = substTypeEq G≡G′ (refl (conv (fstⱼ′ ⊢t) (sym F≡F′)))
+        G₊≡G′₊ = G≡G′ (refl (conv (fstⱼ′ ⊢t) (sym F≡F′)))
     in  ⊢⦅⦆ˢ-subst ⊢S (conv (Σ-β₂-⇒ ⊢G ⊢t₁ ⊢t₂ ok) (trans G₊≡G′₊ (sym (C≡G′₊ ⊢t)))) }
   ⇒ᵥ→⇒ {(k)} {(_)} {(m)} ⊢s (prodʷₕ {H} {p} {t₁} {t₂} {ρ} {r} {q} {A} {u} {ρ′} {S}) =
     case ⊢ₛ-inv′ ⊢s of λ
@@ -641,14 +656,18 @@ opaque
 
   -- Reduction of values preserves definitional equality
 
-  ⇒ᵥ→≡ : Δ ⊢ₛ s ∷ A → s ⇒ᵥ s′ → Δ ⊢ ⦅ s ⦆ ≡ ⦅ s′ ⦆ ∷ A
+  ⇒ᵥ→≡ :
+    ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
+    Δ ⊢ₛ s ∷ A → s ⇒ᵥ s′ → Δ ⊢ ⦅ s ⦆ ≡ ⦅ s′ ⦆ ∷ A
   ⇒ᵥ→≡ ⊢s d = subsetTerm (⇒ᵥ→⇒ ⊢s d)
 
 opaque
 
   -- Reduction preserves definitional equality
 
-  ⇾→≡ : Δ ⊢ₛ s ∷ A → s ⇾ s′ → Δ ⊢ ⦅ s ⦆ ≡ ⦅ s′ ⦆ ∷ A
+  ⇾→≡ :
+    ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
+    Δ ⊢ₛ s ∷ A → s ⇾ s′ → Δ ⊢ ⦅ s ⦆ ≡ ⦅ s′ ⦆ ∷ A
   ⇾→≡ ⊢s (⇾ₑ d) =
     PE.subst (_ ⊢ _ ≡_∷ _) (⇾ₑ-⦅⦆-≡ d) (refl (⊢⦅⦆ ⊢s))
   ⇾→≡ ⊢s (⇒ᵥ d) =
@@ -658,7 +677,9 @@ opaque
 
   -- Reduction preserves definitional equality
 
-  ⇢→≡ : Δ ⊢ₛ s ∷ A → s ⇢ s′ → Δ ⊢ ⦅ s ⦆ ≡ ⦅ s′ ⦆ ∷ A
+  ⇢→≡ :
+    ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
+    Δ ⊢ₛ s ∷ A → s ⇢ s′ → Δ ⊢ ⦅ s ⦆ ≡ ⦅ s′ ⦆ ∷ A
   ⇢→≡ ⊢s (⇢ₑ d) =
     PE.subst (_ ⊢ _ ≡_∷ _) (⇢ₑ-⦅⦆-≡ d) (refl (⊢⦅⦆ ⊢s))
   ⇢→≡ ⊢s (⇒ᵥ d) =
@@ -668,7 +689,9 @@ opaque
 
   -- Reduction preserves definitional equality
 
-  ⇾*→≡ : Δ ⊢ₛ s ∷ A → s ⇾* s′ → Δ ⊢ ⦅ s ⦆ ≡ ⦅ s′ ⦆ ∷ A
+  ⇾*→≡ :
+    ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
+    Δ ⊢ₛ s ∷ A → s ⇾* s′ → Δ ⊢ ⦅ s ⦆ ≡ ⦅ s′ ⦆ ∷ A
   ⇾*→≡ ⊢s id = refl (⊢⦅⦆ ⊢s)
   ⇾*→≡ ⊢s (x ⇨ d) =
     trans (⇾→≡ ⊢s x) (⇾*→≡ (⊢ₛ-⇾ ⊢s x) d)
@@ -677,7 +700,9 @@ opaque
 
   -- Reduction preserves definitional equality
 
-  ⇢*→≡ : Δ ⊢ₛ s ∷ A → s ⇢* s′ → Δ ⊢ ⦅ s ⦆ ≡ ⦅ s′ ⦆ ∷ A
+  ⇢*→≡ :
+    ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
+    Δ ⊢ₛ s ∷ A → s ⇢* s′ → Δ ⊢ ⦅ s ⦆ ≡ ⦅ s′ ⦆ ∷ A
   ⇢*→≡ ⊢s id = refl (⊢⦅⦆ ⊢s)
   ⇢*→≡ ⊢s (x ⇨ d) =
     trans (⇢→≡ ⊢s x) (⇢*→≡ (⊢ₛ-⇢ ⊢s x) d)
@@ -687,6 +712,7 @@ opaque
   -- Values in non-empty stacks always reduce
 
   ⊢ˢValue-⇒ᵥ :
+    ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
     Δ ⨾ H ⊢ᵉ e ⟨ wk ρ t ⟩∷ A ↝ B → Δ ⊢ wk ρ t [ H ]ₕ ∷ A → Value t →
     ∃₃ λ m n (s : State _ m n) → ⟨ H , t , ρ , e ∙ S ⟩ ⇒ᵥ s
   -- Ok cases:
@@ -696,7 +722,7 @@ opaque
     _ , _ , _ , unitrec-ηₕ η
   ⊢ˢValue-⇒ᵥ (∘ₑ x x₁) ⊢t lamᵥ =
     case inversion-lam-Π ⊢t of λ {
-      (_ , PE.refl , _) →
+      (_ , _ , _ , PE.refl , _) →
     _ , _ , _ , lamₕ}
   ⊢ˢValue-⇒ᵥ (fstₑ _) ⊢t prodᵥ =
     case inversion-prod-Σ ⊢t of λ {
@@ -1020,6 +1046,7 @@ opaque
   -- Values in non-empty stacks always reduce
 
   ⊢Value-⇒ᵥ :
+    ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
     Δ ⊢ₛ ⟨ H , t , ρ , e ∙ S ⟩ ∷ A → Value t →
     ∃₃ λ m n (s : State _ m n) → ⟨ H , t , ρ , e ∙ S ⟩ ⇒ᵥ s
   ⊢Value-⇒ᵥ ⊢s v =
@@ -1029,6 +1056,7 @@ opaque
 opaque
 
   ⊢Matching :
+    ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
     Δ ⊢ₛ ⟨ H , t , ρ , e ∙ S ⟩ ∷ A →
     Value t →
     Matching t (e ∙ S)
@@ -1043,6 +1071,7 @@ opaque
   -- 2. It has a value in head position and the stack is empty.
 
   ⊢Final-reasons :
+    ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
     Δ ⊢ₛ ⟨ H , t , ρ , S ⟩ ∷ A →
     Final ⟨ H , t , ρ , S ⟩ →
     (∃ λ x → t PE.≡ var x ×
@@ -1060,6 +1089,7 @@ opaque
   -- A variant of the above property.
 
   ⊢⇘-reasons :
+    ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
     Δ ⊢ₛ s ∷ A →
     s ⇘ ⟨ H , t , ρ , S ⟩ →
     (∃ λ x → t PE.≡ var x ×

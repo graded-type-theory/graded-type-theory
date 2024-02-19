@@ -61,12 +61,19 @@ module Counterexample
     -- The type and usage restrictions used in this local module.
 
     TR : Type-restrictions 𝕄
-    TR = no-type-restrictions true
+    TR = no-type-restrictions true false
 
     UR : Usage-restrictions 𝕄
     UR = no-usage-restrictions true true
 
   open Type-restrictions TR
+
+  private instance
+
+    -- Equality reflection is not allowed.
+
+    not-ok : No-equality-reflection
+    not-ok = No-equality-reflection⇔ .proj₂ (λ { (lift ()) })
 
   open Application.NegativeOrErasedAxioms.NegativeOrErasedContext TR
 

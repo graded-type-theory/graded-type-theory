@@ -18,7 +18,6 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 
 open import Definition.Typed R
-open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Syntactic R
@@ -89,5 +88,5 @@ opaque
   ε⊢∷Id→ε⊢≡∷ {v} {A} {t} {u} =
     ε ⊢ v ∷ Id A t u         →⟨ ε⊢⇒*rfl∷Id ⟩
     ε ⊢ v ⇒* rfl ∷ Id A t u  →⟨ proj₂ ∘→ proj₂ ∘→ syntacticEqTerm ∘→ subset*Term ⟩
-    ε ⊢ rfl ∷ Id A t u       →⟨ inversion-rfl-Id ⟩
+    ε ⊢ rfl ∷ Id A t u       →⟨ inversion-rfl-Id ⦃ ok = ε ⦄ ⟩
     ε ⊢ t ≡ u ∷ A            □

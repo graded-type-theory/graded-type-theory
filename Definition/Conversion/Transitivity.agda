@@ -1,5 +1,6 @@
 ------------------------------------------------------------------------
--- The algorithmic equality is transitive.
+-- The algorithmic equality is transitive (in the absence of equality
+-- reflection)
 ------------------------------------------------------------------------
 
 {-# OPTIONS --no-infer-absurd-clauses #-}
@@ -11,15 +12,17 @@ module Definition.Conversion.Transitivity
   {a} {M : Set a}
   {𝕄 : Modality M}
   (R : Type-restrictions 𝕄)
+  (open Type-restrictions R)
+  ⦃ no-equality-reflection : No-equality-reflection ⦄
   where
-
-open Type-restrictions R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Properties.Neutral M type-variant
 open import Definition.Typed R
+open import Definition.Typed.EqRelInstance R
+open import Definition.Typed.EqualityRelation.Instance R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
@@ -65,7 +68,7 @@ mutual
     let t~v , ΠFG≡ΠF′G′ = trans~↓ t~u u~v
         F≡F₁ , G≡G₁ , p≡p₄ , _ = ΠΣ-injectivity ΠFG≡ΠF′G′
         a<>c = transConv↑Term F≡F₁ a<>b b<>c
-    in  app-cong t~v a<>c , substTypeEq G≡G₁ (soundnessConv↑Term a<>b)
+    in  app-cong t~v a<>c , G≡G₁ (soundnessConv↑Term a<>b)
   trans~↑ (fst-cong t~u) (fst-cong u~v) =
     let t~v , ΣFG≡ΣF′G′ = trans~↓ t~u u~v
         F≡F′ , _ , _ = ΠΣ-injectivity ΣFG≡ΣF′G′
@@ -73,7 +76,7 @@ mutual
   trans~↑ (snd-cong t~u) (snd-cong u~v) =
     let t~v , ΣFG≡ΣF′G′ = trans~↓ t~u u~v
         F≡F′ , G≡G′ , _ = ΠΣ-injectivity ΣFG≡ΣF′G′
-    in  snd-cong t~v , substTypeEq G≡G′ (soundness~↑ (fst-cong t~u))
+    in  snd-cong t~v , G≡G′ (soundness~↑ (fst-cong t~u))
   trans~↑ (natrec-cong A<>B a₀<>b₀ aₛ<>bₛ t~u)
           (natrec-cong B<>C b₀<>c₀ bₛ<>cₛ u~v) =
     let ⊢Γ = wf (proj₁ (syntacticEqTerm (soundness~↓ t~u)))
@@ -91,7 +94,8 @@ mutual
                   (prodrec-cong B<>C b~c u<>v) =
     let a~c , Σ≡Σ′ = trans~↓ a~b b~c
         ⊢Γ = wfEq Σ≡Σ′
-        F≡F′ , G≡G′ , _ = ΠΣ-injectivity (sym Σ≡Σ′)
+        F≡F′ , G≡G′ , _ =
+          ΠΣ-injectivity-no-equality-reflection (sym Σ≡Σ′)
         _ , ⊢F = syntacticEq F≡F′
         _ , ⊢G = syntacticEq G≡G′
         ⊢G = stability (refl-∙ F≡F′) ⊢G

@@ -17,6 +17,7 @@ open import Definition.Typed R
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Inversion R
+open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
@@ -45,6 +46,7 @@ opaque
   -- A variant of the reduction rule prodrec-β.
 
   prodrec-β-⇒₁ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     Γ ∙ (Σʷ p , q′ ▷ A ▹ B) ⊢ C →
     Γ ⊢ prodʷ p t u ∷ Σʷ p , q′ ▷ A ▹ B →
     Γ ∙ A ∙ B ⊢ v ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
@@ -57,13 +59,14 @@ opaque
       (A≡F , B≡G , _) →
     case conv ⊢t (sym A≡F) of λ
       ⊢t′ →
-    prodrec-β-⇒ ⊢C ⊢t′ (conv ⊢u (substTypeEq (sym B≡G) (refl ⊢t′))) ⊢v
+    prodrec-β-⇒ ⊢C ⊢t′ (conv ⊢u (sym (B≡G (refl ⊢t′)))) ⊢v
 
 opaque
 
   -- A variant of the equality rule prodrec-β.
 
   prodrec-β-≡₁ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     Γ ∙ (Σʷ p , q′ ▷ A ▹ B) ⊢ C →
     Γ ⊢ prodʷ p t u ∷ Σʷ p , q′ ▷ A ▹ B →
     Γ ∙ A ∙ B ⊢ v ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
@@ -75,6 +78,7 @@ opaque
 -- An "inverse" of prod-cong for Σˢ.
 
 prod-cong⁻¹-Σˢ :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   Γ ⊢ prodˢ p t u ≡ prodˢ p v w ∷ Σˢ p , q ▷ A ▹ B →
   (Γ ∙ A ⊢ B) × Γ ⊢ t ≡ v ∷ A × Γ ⊢ u ≡ w ∷ B [ t ]₀ ×
   Σˢ-allowed p q
@@ -118,6 +122,7 @@ prod-cong⁻¹-Σˢ
 -- An "inverse" of prod-cong for Σʷ.
 
 prod-cong⁻¹-Σʷ :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   Γ ⊢ prodʷ p t u ≡ prodʷ p v w ∷ Σʷ p , q ▷ A ▹ B →
   (Γ ∙ A ⊢ B) × Γ ⊢ t ≡ v ∷ A × Γ ⊢ u ≡ w ∷ B [ t ]₀ ×
   Σʷ-allowed p q
@@ -163,6 +168,7 @@ prod-cong⁻¹-Σʷ
 -- An "inverse" of prod-cong.
 
 prod-cong⁻¹ :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   Γ ⊢ prod s p t u ≡ prod s p v w ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B →
   (Γ ∙ A ⊢ B) × Γ ⊢ t ≡ v ∷ A × Γ ⊢ u ≡ w ∷ B [ t ]₀ ×
   Σ-allowed s p q
@@ -172,15 +178,15 @@ prod-cong⁻¹ {s = 𝕨} = prod-cong⁻¹-Σʷ
 ------------------------------------------------------------------------
 -- Negative results related to η-rules for Σʷ
 
--- If Σʷ-allowed p q holds for some p and q, then a certain
--- definitional η-rule for Σʷ, fstʷ and sndʷ does not hold in
--- general.
+-- If Σʷ-allowed p q holds for some p and q, and equality reflection
+-- is not allowed, then a certain definitional η-rule for Σʷ, fstʷ and
+-- sndʷ does not hold in general.
 --
 -- See also
 -- Definition.Typed.Properties.Admissible.Sigma.⊢Σʷ-η-prodʷ-fstʷ-sndʷ.
 
 ¬-Σʷ-η-prodʷ-fstʷ-sndʷ :
-  ∀ {p q} →
+  ⦃ not-ok : No-equality-reflection ⦄ →
   Σʷ-allowed p q →
   ¬ (∀ {n} {Γ : Con Term n} {t A B} →
      Γ ⊢ t ∷ Σʷ p , q ▷ A ▹ B →
@@ -212,14 +218,14 @@ prod-cong⁻¹ {s = 𝕨} = prod-cong⁻¹-Σʷ
   ¬fst,snd≡ :
     ¬ Γ′ ⊢ prodʷ p (fstʷ p A′ t′) (sndʷ p q A′ B′ t′) ≡ t′ ∷
         Σʷ p , q ▷ A′ ▹ B′
-  ¬fst,snd≡ = prodʷ≢ne (var _)
+  ¬fst,snd≡ = prodʷ≢ne ⦃ ok = included ⦄ (var _)
 
--- If Σʷ-allowed p q holds for some p and q, then a certain
--- definitional η-rule for Σʷ, fstʷ and sndʷ does not hold in
--- general.
+-- If Σʷ-allowed p q holds for some p and q, and equality reflection
+-- is not allowed, then a certain definitional η-rule for Σʷ, fstʷ and
+-- sndʷ does not hold in general.
 
 ¬-Σʷ-η :
-  ∀ {p q} →
+  ⦃ not-ok : No-equality-reflection ⦄ →
   Σʷ-allowed p q →
   ¬ (∀ {n} {Γ : Con Term n} {t A B u} →
      Γ ⊢ t ∷ Σʷ p , q ▷ A ▹ B →

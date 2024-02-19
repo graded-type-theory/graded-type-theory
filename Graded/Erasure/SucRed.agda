@@ -11,6 +11,8 @@ module Graded.Erasure.SucRed
   (R : Type-restrictions 𝕄)
   where
 
+open Type-restrictions R
+
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Nat
@@ -76,31 +78,40 @@ subset*Termˢ (id x) = refl x
 subset*Termˢ (x ⇨ˢ d) = trans (subsetTermˢ x) (subset*Termˢ d)
 
 -- If t reduces to u according to _⊢_⇒ˢ_∷ℕ, and u is definitionally
--- equal to zero, then t reduces to u.
+-- equal to zero, then t reduces to u (given a certain assumption).
 
-⇒ˢ∷ℕ≡zero→⇒ : Γ ⊢ t ⇒ˢ u ∷ℕ → Γ ⊢ u ≡ zero ∷ ℕ → Γ ⊢ t ⇒ u ∷ ℕ
+⇒ˢ∷ℕ≡zero→⇒ :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+  Γ ⊢ t ⇒ˢ u ∷ℕ → Γ ⊢ u ≡ zero ∷ ℕ → Γ ⊢ t ⇒ u ∷ ℕ
 ⇒ˢ∷ℕ≡zero→⇒ (whred t⇒u) _        = t⇒u
 ⇒ˢ∷ℕ≡zero→⇒ (sucred _)  suc≡zero = ⊥-elim (zero≢suc (sym′ suc≡zero))
 
 -- If t reduces to u according to _⊢_⇒ˢ*_∷ℕ, and u is definitionally
--- equal to zero, then t reduces to u.
+-- equal to zero, then t reduces to u (given a certain assumption).
 
-⇒ˢ*∷ℕ≡zero→⇒* : Γ ⊢ t ⇒ˢ* u ∷ℕ → Γ ⊢ u ≡ zero ∷ ℕ → Γ ⊢ t ⇒* u ∷ ℕ
+⇒ˢ*∷ℕ≡zero→⇒* :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+  Γ ⊢ t ⇒ˢ* u ∷ℕ → Γ ⊢ u ≡ zero ∷ ℕ → Γ ⊢ t ⇒* u ∷ ℕ
 ⇒ˢ*∷ℕ≡zero→⇒* (id ⊢t)       _   = id ⊢t
 ⇒ˢ*∷ℕ≡zero→⇒* (t⇒v ⇨ˢ v⇒*u) u≡0 =
   ⇒ˢ∷ℕ≡zero→⇒ t⇒v (trans (subset*Termˢ v⇒*u) u≡0) ⇨
   ⇒ˢ*∷ℕ≡zero→⇒* v⇒*u u≡0
 
--- If t reduces to zero according to _⊢_⇒ˢ_∷ℕ, then t reduces to zero.
+-- If t reduces to zero according to _⊢_⇒ˢ_∷ℕ, then t reduces to zero
+-- (given a certain assumption).
 
-⇒ˢzero∷ℕ→⇒zero : Γ ⊢ t ⇒ˢ zero ∷ℕ → Γ ⊢ t ⇒ zero ∷ ℕ
+⇒ˢzero∷ℕ→⇒zero :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+  Γ ⊢ t ⇒ˢ zero ∷ℕ → Γ ⊢ t ⇒ zero ∷ ℕ
 ⇒ˢzero∷ℕ→⇒zero t⇒ =
   ⇒ˢ∷ℕ≡zero→⇒ t⇒ (refl (zeroⱼ (wfEqTerm (subsetTermˢ t⇒))))
 
 -- If t reduces to zero according to _⊢_⇒ˢ*_∷ℕ, then t reduces to
--- zero.
+-- zero (given a certain assumption).
 
-⇒ˢ*zero∷ℕ→⇒*zero : Γ ⊢ t ⇒ˢ* zero ∷ℕ → Γ ⊢ t ⇒* zero ∷ ℕ
+⇒ˢ*zero∷ℕ→⇒*zero :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+  Γ ⊢ t ⇒ˢ* zero ∷ℕ → Γ ⊢ t ⇒* zero ∷ ℕ
 ⇒ˢ*zero∷ℕ→⇒*zero t⇒ =
   ⇒ˢ*∷ℕ≡zero→⇒* t⇒ (refl (zeroⱼ (wfEqTerm (subset*Termˢ t⇒))))
 

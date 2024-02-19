@@ -1,5 +1,6 @@
 ------------------------------------------------------------------------
--- The algorithmic equality is symmetric.
+-- The algorithmic equality is symmetric (in the absence of equality
+-- reflection)
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
@@ -9,13 +10,15 @@ module Definition.Conversion.Symmetry
   {a} {M : Set a}
   {𝕄 : Modality M}
   (R : Type-restrictions 𝕄)
+  (open Type-restrictions R)
+  ⦃ no-equality-reflection : No-equality-reflection ⦄
   where
-
-open Type-restrictions R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
+open import Definition.Typed.EqRelInstance R
+open import Definition.Typed.EqualityRelation.Instance R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
@@ -60,7 +63,7 @@ mutual
       (F′ , G′ , ΠF′G′≡B) →
     case ΠΣ-injectivity (PE.subst (λ x → _ ⊢ _ ≡ x) ΠF′G′≡B A≡B) of λ {
       (F≡F′ , G≡G′ , _ , _) →
-    _ , substTypeEq G≡G′ (soundnessConv↑Term x) ,
+    _ , G≡G′ (soundnessConv↑Term x) ,
     app-cong (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) ΠF′G′≡B u~t)
       (convConv↑Term (stabilityEq Γ≡Δ F≡F′) (symConv↑Term Γ≡Δ x)) }}}}
   sym~↑ Γ≡Δ (fst-cong p~r) =
@@ -77,7 +80,7 @@ mutual
         case ΠΣ-injectivity A≡B of λ where
           (F≡ , G≡ , _ , _) →
             let fst≡ = soundness~↑ (fst-cong p~r) in
-            _ , substTypeEq G≡ fst≡ , snd-cong r~p
+            _ , G≡ fst≡ , snd-cong r~p
   sym~↑ Γ≡Δ (natrec-cong x x₁ x₂ t~u) =
     let ⊢Γ , ⊢Δ , _ = contextConvSubst Γ≡Δ
         B , whnfB , A≡B , u~t = sym~↓ Γ≡Δ t~u
@@ -96,7 +99,8 @@ mutual
     case sym~↓ Γ≡Δ g~h of λ (B , whnfB , ⊢Σ≡B , h~g) →
     case Σ≡A ⊢Σ≡B whnfB of λ where
       (F′ , G′ , PE.refl) →
-        case ΠΣ-injectivity (stabilityEq Γ≡Δ ⊢Σ≡B) of λ where
+        case ΠΣ-injectivity-no-equality-reflection
+               (stabilityEq Γ≡Δ ⊢Σ≡B) of λ where
           (⊢F≡F′ , ⊢G≡G′ , _ , _ , _) →
             let g≡h = soundness~↓ g~h
                 C≡E = soundnessConv↑ C↑E

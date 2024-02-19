@@ -179,3 +179,5 @@ opaque mutual
     size-⊢ ⊢B ⊕ size-⊢∷ ⊢u
   size-⊢≡∷ ([]-cong-β ⊢t _ _) =
     node (size-⊢∷ ⊢t)
+  size-⊢≡∷ (equality-reflection _ ⊢Id ⊢v) =
+    size-⊢ ⊢Id ⊕ size-⊢∷ ⊢v

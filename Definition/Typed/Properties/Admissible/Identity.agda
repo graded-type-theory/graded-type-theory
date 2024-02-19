@@ -20,6 +20,7 @@ open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties.Admissible.Equality R
 import Definition.Typed.Properties.Admissible.Erased.Primitive R as EP
 import Definition.Typed.Properties.Admissible.Identity.Primitive
+open import Definition.Typed.Properties.Admissible.Pi R
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Reduction R
 open import Definition.Typed.Properties.Well-formed R
@@ -1013,3 +1014,126 @@ opaque
           (wk1 u [ _ ]₀) (wk1 eq₂ [ _ ]₀) eq                             ≡⟨ PE.cong₆ transitivity (wk1-sgSubst _ _) (wk1-sgSubst _ _)
                                                                               (wk1-sgSubst _ _) (wk1-sgSubst _ _) (wk1-sgSubst _ _) PE.refl ⟩
         transitivity A t u u eq₂ eq                                      ∎
+
+------------------------------------------------------------------------
+-- Some lemmas related to equality-reflection
+
+opaque
+
+  -- A variant of equality-reflection.
+
+  equality-reflection′ :
+    Equality-reflection →
+    Γ ⊢ v ∷ Id A t u →
+    Γ ⊢ t ≡ u ∷ A
+  equality-reflection′ ok ⊢v =
+    equality-reflection ok (wf-⊢∷ ⊢v) ⊢v
+
+opaque
+
+  -- If equality reflection is allowed and the context is inconsistent
+  -- (in a certain sense), then any two well-typed terms of the same
+  -- type are "definitionally" equal to each other.
+
+  ⊢∷Empty→⊢≡∷ :
+    Equality-reflection →
+    Γ ⊢ t ∷ Empty →
+    Γ ⊢ u ∷ A →
+    Γ ⊢ v ∷ A →
+    Γ ⊢ u ≡ v ∷ A
+  ⊢∷Empty→⊢≡∷ ok ⊢t ⊢u ⊢v =
+    equality-reflection′ ok (emptyrecⱼ {p = ω} (Idⱼ′ ⊢u ⊢v) ⊢t)
+
+opaque
+
+  -- In the presence of equality reflection one can prove (one variant
+  -- of) function extensionality.
+
+  function-extensionality-∙ :
+    Equality-reflection →
+    Γ ⊢ t ∷ Π p , q ▷ A ▹ B →
+    Γ ⊢ u ∷ Π p , q ▷ A ▹ B →
+    Γ ∙ A ⊢ v ∷ Id B (wk1 t ∘⟨ p ⟩ var x0) (wk1 u ∘⟨ p ⟩ var x0) →
+    Γ ⊢ rfl ∷ Id (Π p , q ▷ A ▹ B) t u
+  function-extensionality-∙ ok ⊢t ⊢u ⊢v =
+    rflⱼ′ $ η-eq′ ⊢t ⊢u $ equality-reflection′ ok ⊢v
+
+opaque
+
+  -- In the presence of equality reflection one can prove (another
+  -- variant of) function extensionality.
+
+  function-extensionality-Π :
+    Equality-reflection →
+    Γ ⊢ t ∷ Π p , q ▷ A ▹ B →
+    Γ ⊢ u ∷ Π p , q ▷ A ▹ B →
+    Γ ⊢ v ∷
+      Π p , q ▷ A ▹ Id B (wk1 t ∘⟨ p ⟩ var x0) (wk1 u ∘⟨ p ⟩ var x0) →
+    Γ ⊢ rfl ∷ Id (Π p , q ▷ A ▹ B) t u
+  function-extensionality-Π ok ⊢t ⊢u ⊢v =
+    let ⊢A , _ , _ = inversion-ΠΣ (syntacticTerm ⊢t) in
+    function-extensionality-∙ ok ⊢t ⊢u $
+    PE.subst (_⊢_∷_ _ _)
+      (PE.cong₃ Id
+         (wkSingleSubstId _)
+         (PE.cong₃ _∘⟨_⟩_ (wkSingleSubstId _) PE.refl PE.refl)
+         (PE.cong₃ _∘⟨_⟩_ (wkSingleSubstId _) PE.refl PE.refl))
+      (wkTerm₁ ⊢A ⊢v ∘ⱼ var₀ ⊢A)
+
+opaque
+
+  -- In the presence of equality reflection one can prove a
+  -- definitional variant of UIP.
+
+  uip-with-equality-reflection-≡ :
+    Equality-reflection →
+    Γ ⊢ eq₁ ∷ Id A t u →
+    Γ ⊢ eq₂ ∷ Id A t u →
+    Γ ⊢ eq₁ ≡ eq₂ ∷ Id A t u
+  uip-with-equality-reflection-≡ ok ⊢eq₁ ⊢eq₂ =
+    trans (lemma ⊢eq₁) (sym′ (lemma ⊢eq₂))
+    where
+    lemma : Γ ⊢ eq ∷ Id A t u → Γ ⊢ eq ≡ rfl ∷ Id A t u
+    lemma ⊢eq =
+      let ⊢A , ⊢t , _ = inversion-Id (syntacticTerm ⊢eq)
+          ⊢Id         = var₀ $ Idⱼ′ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A)
+      in
+      equality-reflection′ ok $
+      PE.subst (_⊢_∷_ _ _)
+        (PE.cong₃ Id
+           (PE.cong₃ Id wk2-[,] wk2-[,] PE.refl) PE.refl PE.refl) $
+      Jⱼ′ {p = ω} {q = ω}
+        (Idⱼ′ ⊢Id (rflⱼ′ (equality-reflection′ ok ⊢Id)))
+        (rflⱼ′ $ _⊢_≡_∷_.refl $
+         PE.subst (_⊢_∷_ _ _)
+           (PE.sym $ PE.cong₃ Id wk2-[,] wk2-[,] PE.refl) $
+         rflⱼ ⊢t)
+        ⊢eq
+
+opaque
+
+  -- In the presence of equality reflection one can prove a variant of
+  -- UIP.
+
+  uip-with-equality-reflection-Id :
+    Equality-reflection →
+    Γ ⊢ eq₁ ∷ Id A t u →
+    Γ ⊢ eq₂ ∷ Id A t u →
+    Γ ⊢ rfl ∷ Id (Id A t u) eq₁ eq₂
+  uip-with-equality-reflection-Id ok ⊢eq₁ ⊢eq₂ =
+    rflⱼ′ (uip-with-equality-reflection-≡ ok ⊢eq₁ ⊢eq₂)
+
+opaque
+
+  -- In the presence of equality reflection one can define a variant
+  -- of []-cong.
+
+  []-cong-with-equality-reflection :
+    let open Erased s in
+    Equality-reflection →
+    Erased-allowed s →
+    Γ ⊢ eq ∷ Id A t u →
+    Γ ⊢ rfl ∷ Id (Erased A) [ t ] ([ u ])
+  []-cong-with-equality-reflection ok₁ ok₂ ⊢eq =
+    let ⊢A , _ = inversion-Id (syntacticTerm ⊢eq) in
+    rflⱼ′ (EP.[]-cong′ ok₂ ⊢A (equality-reflection′ ok₁ ⊢eq))

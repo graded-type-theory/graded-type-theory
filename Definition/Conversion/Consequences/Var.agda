@@ -9,9 +9,10 @@ module Definition.Conversion.Consequences.Var
   {a} {M : Set a}
   {𝕄 : Modality M}
   (R : Type-restrictions 𝕄)
+  (open Type-restrictions R)
+  -- Equality reflection is not allowed.
+  ⦃ no-equality-reflection : No-equality-reflection ⦄
   where
-
-open Type-restrictions R
 
 open import Definition.Conversion R
 open import Definition.Conversion.Consequences.Completeness R

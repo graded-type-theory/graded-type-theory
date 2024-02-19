@@ -10,14 +10,16 @@ module Definition.Conversion.Lift
   {a} {M : Set a}
   {𝕄 : Modality M}
   (R : Type-restrictions 𝕄)
+  (open Type-restrictions R)
+  -- Equality reflection is not allowed.
+  ⦃ no-equality-reflection : No-equality-reflection ⦄
   where
-
-open Type-restrictions R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
+open import Definition.Typed.EqualityRelation.Instance R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R
@@ -111,7 +113,8 @@ mutual
         neT , neU = ne~↑ k~l
         step-id = stepʷ id ⊢F
         step-idʳ = ∷ʷ⊇→∷ʷʳ⊇ step-id
-        var0 = neuTerm _ ([F] step-idʳ) (var x0) (refl (var₀ ⊢F))
+        var0 = neuTerm no-equality-reflection ([F] step-idʳ) (var x0)
+                 (refl (var₀ ⊢F))
         0≡0 = lift~toConv↑′ ([F] step-idʳ) (var-refl (var₀ ⊢F) PE.refl)
     in  η-eq ⊢t ⊢u (ne neT) (ne neU)
           (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x) (wkSingleSubstId _) $
@@ -135,7 +138,7 @@ mutual
         wk[F] = [F] (id ⊢Γ)
         wkfst≡ = PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym wkId)
                    (fst-cong ⊢G (refl ⊢t))
-        wk[fst] = neuTerm _ wk[F] (fstₙ neT) wkfst≡
+        wk[fst] = neuTerm no-equality-reflection wk[F] (fstₙ neT) wkfst≡
         wk[Gfst] = [G] (id ⊢Γ) wk[fst]
 
         wkfst~ = PE.subst (λ x → _ ⊢ _ ~ _ ↑ x) (PE.sym wkId) (fst-cong t~u↓)

@@ -1,5 +1,6 @@
 ------------------------------------------------------------------------
--- Completeness of the bi-directional typechecking relations.
+-- Completeness of the bi-directional typechecking relations (in the
+-- absence of equality reflection)
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
@@ -9,13 +10,15 @@ module Definition.Typechecking.Completeness
   {a} {M : Set a}
   {𝕄 : Modality M}
   (R : Type-restrictions 𝕄)
+  (open Type-restrictions R)
+  ⦃ no-equality-reflection : No-equality-reflection ⦄
   where
-
-open Type-restrictions R
 
 open import Definition.Typechecking R
 open import Definition.Typechecking.Soundness R
 open import Definition.Typed R
+open import Definition.Typed.EqRelInstance R
+open import Definition.Typed.EqualityRelation.Instance R
 open import Definition.Typed.InverseUniv R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
@@ -94,7 +97,7 @@ mutual
   completeness⇉ (∘ᵢ t u) ⊢tu =
     let F , G , q , ⊢t , ⊢u , A≡Gu = inversion-app ⊢tu
         B , t⇉B , ΠFG≡B = completeness⇉ t ⊢t
-        F′ , G′ , B⇒Π′ , F≡F′ , G≡G′ = ΠΣNorm (sym ΠFG≡B)
+        F′ , G′ , B⇒Π′ , F≡F′ , G≡G′ , _ = ΠΣNorm (sym ΠFG≡B)
         ⊢u′ = conv ⊢u F≡F′
         u⇇G = completeness⇇ u ⊢u′
     in  _ , appᵢ t⇉B (B⇒Π′ , ΠΣₙ) u⇇G , trans A≡Gu (substTypeEq G≡G′ (refl ⊢u))
@@ -106,7 +109,7 @@ mutual
   completeness⇉ (sndᵢ t) ⊢t =
     let F , G , q , _ , ⊢G , ⊢t , A≡Gt = inversion-snd ⊢t
         B , t⇉B , ΣFG≡B = completeness⇉ t ⊢t
-        F′ , G′ , B⇒Σ′ , F≡F′ , G≡G′ = ΠΣNorm (sym ΣFG≡B)
+        F′ , G′ , B⇒Σ′ , F≡F′ , G≡G′ , _ = ΠΣNorm (sym ΣFG≡B)
     in
     _ , sndᵢ t⇉B (B⇒Σ′ , ΠΣₙ) ,
     trans A≡Gt (substTypeEq G≡G′ (refl (fstⱼ ⊢G ⊢t)))
@@ -114,7 +117,7 @@ mutual
     let F , G , q , _ , ⊢G , ⊢C , ⊢t , ⊢u , A≡Ct = inversion-prodrec ⊢t
         ok = ⊢∷ΠΣ→ΠΣ-allowed ⊢t
         B , t⇉B , ΣFG≡B = completeness⇉ t ⊢t
-        F′ , G′ , B⇒Σ′ , F≡F′ , G≡G′ = ΠΣNorm (sym ΣFG≡B)
+        F′ , G′ , B⇒Σ′ , F≡F′ , G≡G′ , _ = ΠΣNorm (sym ΣFG≡B)
         u⇇C₊ = completeness⇇ u (stabilityTerm (refl-∙ F≡F′ ∙ G≡G′) ⊢u)
         C⇇Type = completeness⇇Type C $
                  stability (refl-∙ (ΠΣ-cong F≡F′ G≡G′ ok)) ⊢C
@@ -193,13 +196,13 @@ mutual
   completeness⇇ : Checkable t → Γ ⊢ t ∷ A → Γ ⊢ t ⇇ A
   completeness⇇ (lamᶜ t) ⊢t =
     let F , G , q , _ , ⊢t , A≡ΠFG , _ = inversion-lam ⊢t
-        F′ , G′ , A⇒ΠF′G′ , F≡F′ , G≡G′ = ΠΣNorm A≡ΠFG
+        F′ , G′ , A⇒ΠF′G′ , F≡F′ , G≡G′ , _ = ΠΣNorm A≡ΠFG
         t⇇G = completeness⇇ t
                 (stabilityTerm (refl-∙ F≡F′) (conv ⊢t G≡G′))
     in  lamᶜ (A⇒ΠF′G′ , ΠΣₙ) t⇇G
   completeness⇇ (prodᶜ t u) ⊢t =
     let F , G , m , ⊢F , ⊢G , ⊢t , ⊢u , A≡ΣFG , _ = inversion-prod ⊢t
-        F′ , G′ , A⇒ΣF′G′ , F≡F′ , G≡G′ = ΠΣNorm A≡ΣFG
+        F′ , G′ , A⇒ΣF′G′ , F≡F′ , G≡G′ , _ = ΠΣNorm A≡ΣFG
         t⇇F = completeness⇇ t (conv ⊢t F≡F′)
         u⇇Gt = completeness⇇ u (conv ⊢u (substTypeEq G≡G′ (refl ⊢t)))
     in  prodᶜ (A⇒ΣF′G′ , ΠΣₙ) t⇇F u⇇Gt

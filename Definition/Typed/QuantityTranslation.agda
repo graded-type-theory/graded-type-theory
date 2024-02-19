@@ -386,6 +386,8 @@ mutual
   tr-⊢≡∷ ([]-cong-β t PE.refl ok) =
     PE.subst (T₂._⊢_≡_∷_ _ _ _) (tr-Term-Id-Erased-[]-[] ok) $
     []-cong-β (tr-⊢∷ t) PE.refl ([]-cong-preserved ok)
+  tr-⊢≡∷ (equality-reflection ok _ v) =
+    equality-reflection′ (Equality-reflection-preserved ok) (tr-⊢∷ v)
 
 -- Preservation of _⊢ˢ_∷_.
 

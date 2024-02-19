@@ -951,7 +951,7 @@ head-[0]⇒*zero =
   case Soundness₀.soundness-ℕ
          T.non-strict ⊢head-[0] ▸head-[0] of λ where
     (0 , head-[0]⇒*zero , _) →
-      S.⇒ˢ*zero∷ℕ→⇒*zero head-[0]⇒*zero
+      S.⇒ˢ*zero∷ℕ→⇒*zero ⦃ ok = ε ⦄ head-[0]⇒*zero
     (1+ _ , _ , erase-head-[0]⇒*suc) →
       case TP.red*Det (erase-head-[0]⇒*zero {str = non-strict})
               (S.⇒ˢ*suc→⇒*suc erase-head-[0]⇒*suc .proj₂)

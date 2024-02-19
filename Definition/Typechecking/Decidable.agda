@@ -1,5 +1,6 @@
 ------------------------------------------------------------------------
--- Decidability of bi-derectional typechecking.
+-- Decidability of bi-directional typechecking (given certain
+-- assumptions)
 ------------------------------------------------------------------------
 
 {-# OPTIONS --no-infer-absurd-clauses #-}
@@ -22,6 +23,8 @@ open import Definition.Typechecking R
 open import Definition.Typechecking.Soundness R
 open import Definition.Typechecking.Deterministic R
 open import Definition.Typed R
+open import Definition.Typed.EqRelInstance R
+open import Definition.Typed.EqualityRelation.Instance R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Type R

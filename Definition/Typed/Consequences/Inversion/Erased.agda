@@ -44,6 +44,7 @@ opaque
   -- See also Definition.Typed.Inversion.inversion-[].
 
   inversion-[]′ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     Γ ⊢ [ t ] ∷ Erased A →
     Γ ⊢ t ∷ A × Erased-allowed s
   inversion-[]′ ⊢[] =
@@ -99,15 +100,15 @@ opaque
     ℕ≡Unit =
       case inversion-[] ⊢[t′] of
         λ (_ , _ , _ , A′≡) →
-      case ΠΣ-injectivity A′≡ of
+      case ΠΣ-injectivity ⦃ ok = ε ⦄ A′≡ of
         λ (_ , ≡Unit , _ , _ , _) →
       trans
         (_⊢_≡_.sym $ _⊢_≡_.univ $
          natrec-suc (Unitⱼ ε Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U) (zeroⱼ ε))
-        (substTypeEq ≡Unit (refl (sucⱼ (zeroⱼ ε))))
+        (≡Unit (refl (sucⱼ (zeroⱼ ε))))
 
     bad : ⊥
-    bad = ℕ≢Unitⱼ ℕ≡Unit
+    bad = ℕ≢Unitⱼ ⦃ ok = ε ⦄ ℕ≡Unit
 
 opaque
 

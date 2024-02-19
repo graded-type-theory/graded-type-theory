@@ -737,6 +737,35 @@ opaque
   rflᵛ = ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ ∘→ rfl-congᵛ
 
 ------------------------------------------------------------------------
+-- Equality reflection
+
+opaque
+
+  -- Validity of equality reflection.
+
+  equality-reflectionᵛ :
+    Equality-reflection →
+    Γ ⊩ᵛ⟨ l ⟩ v ∷ Id A t u →
+    Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A
+  equality-reflectionᵛ ok ⊩v =
+    case ⊩ᵛ∷⇔ʰ .proj₁ ⊩v of λ
+      (⊩Id , v≡v) →
+    case ⊩ᵛId⇔ .proj₁ ⊩Id of λ
+      (⊩t , ⊩u) →
+    ⊩ᵛ≡∷⇔′ʰ .proj₂
+      ( ⊩t
+      , ⊩u
+      , λ ⊩σ →
+          case ⊩≡∷Id⇔ .proj₁ $ v≡v $ refl-⊩ˢ≡∷ ⊩σ of λ
+            (_ , _ , _ , _ , _ , _ , rest) →
+          case rest of λ where
+            (rfl₌ t[σ]≡u[σ]) → t[σ]≡u[σ]
+            (ne inc _ _ _)   →
+              ⊥-elim $
+              Equality-reflection-allowed→¬Neutrals-included ok inc
+      )
+
+------------------------------------------------------------------------
 -- []-cong
 
 opaque

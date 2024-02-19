@@ -13,6 +13,7 @@ open Modality 𝕄
 
 open import Definition.Typed.Variant
 open import Definition.Untyped M
+open import Definition.Untyped.Properties M
 
 open import Tools.Function
 open import Tools.Level
@@ -21,6 +22,9 @@ open import Tools.Relation
 open import Tools.PropositionalEquality
 open import Tools.Sum
 open import Tools.Unit
+
+private variable
+  Γ : Con Term _
 
 -- This type specifies what variant of the type system should be used.
 -- Various things can be disallowed, and one can also choose between
@@ -101,6 +105,60 @@ record Type-restrictions : Set (lsuc a) where
 
   []-congˢ-allowed = []-cong-allowed 𝕤
   []-congʷ-allowed = []-cong-allowed 𝕨
+
+  field
+    -- Equality reflection is only allowed if the given predicate
+    -- holds.
+    Equality-reflection : Set a
+
+    -- Equality-reflection is decided.
+    Equality-reflection? : Dec Equality-reflection
+
+  -- No-equality-reflection holds if equality reflection is not
+  -- allowed.
+
+  data No-equality-reflection : Set a where
+    no-equality-reflection :
+      ¬ Equality-reflection → No-equality-reflection
+
+  opaque
+
+    -- A characterisation lemma for No-equality-reflection.
+
+    No-equality-reflection⇔ :
+      No-equality-reflection ⇔ (¬ Equality-reflection)
+    No-equality-reflection⇔ =
+        (λ { (no-equality-reflection not-ok) → not-ok })
+      , no-equality-reflection
+
+  opaque
+
+    -- No-equality-reflection is decided.
+
+    No-equality-reflection? : Dec No-equality-reflection
+    No-equality-reflection? =
+      Dec-map (sym⇔ No-equality-reflection⇔) (¬? Equality-reflection?)
+
+  opaque
+
+    -- A characterisation lemma for No-equality-reflection or-empty_.
+
+    No-equality-reflection-or-empty⇔ :
+      No-equality-reflection or-empty Γ ⇔
+      (¬ Equality-reflection ⊎ Empty-con Γ)
+    No-equality-reflection-or-empty⇔ {Γ} =
+      No-equality-reflection or-empty Γ     ⇔⟨ or-empty⇔ ⟩
+      No-equality-reflection ⊎ Empty-con Γ  ⇔⟨ No-equality-reflection⇔ ⊎-cong-⇔ id⇔ ⟩
+      ¬ Equality-reflection ⊎ Empty-con Γ   □⇔
+
+  opaque
+
+    -- No-equality-reflection or-empty_ is decidable.
+
+    No-equality-reflection-or-empty? :
+      Dec (No-equality-reflection or-empty Γ)
+    No-equality-reflection-or-empty? =
+      No-equality-reflection? or-empty?
 
   -- A variant of ΠΣ-allowed for BindingType.
 

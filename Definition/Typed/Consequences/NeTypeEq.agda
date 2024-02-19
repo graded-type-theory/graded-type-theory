@@ -1,5 +1,6 @@
 ------------------------------------------------------------------------
--- Neutral terms have only one type (up to type equality).
+-- Neutral terms have only one type (up to type equality) if equality
+-- reflection is not allowed
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
@@ -29,8 +30,9 @@ import Tools.PropositionalEquality as PE
 
 private
   variable
-    n : Nat
-    Γ : Con Term n
+    n     : Nat
+    Γ     : Con Term n
+    A B t : Term _
 
 -- Helper function for the same variable instance of a context have equal types.
 varTypeEq′ : ∀ {n R T} → n ∷ R ∈ Γ → n ∷ T ∈ Γ → R PE.≡ T
@@ -41,19 +43,19 @@ varTypeEq′ (there n∷R) (there n∷T) rewrite varTypeEq′ n∷R n∷T = PE.r
 varTypeEq : ∀ {x A B} → Γ ⊢ A → Γ ⊢ B → x ∷ A ∈ Γ → x ∷ B ∈ Γ → Γ ⊢ A ≡ B
 varTypeEq A B x∷A x∷B rewrite varTypeEq′ x∷A x∷B = refl A
 
--- The same neutral term have equal types.
-neTypeEq : ∀ {t A B} → Neutral t → Γ ⊢ t ∷ A → Γ ⊢ t ∷ B → Γ ⊢ A ≡ B
+-- Types are unique for neutral terms (given a certain assumption).
+
+neTypeEq :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+  Neutral t → Γ ⊢ t ∷ A → Γ ⊢ t ∷ B → Γ ⊢ A ≡ B
 neTypeEq (var x) (var x₁ x₂) (var x₃ x₄) =
   varTypeEq (syntacticTerm (var x₃ x₂)) (syntacticTerm (var x₃ x₄)) x₂ x₄
 neTypeEq (∘ₙ neT) (t∷A ∘ⱼ t∷A₁) (t∷B ∘ⱼ t∷B₁) with neTypeEq neT t∷A t∷B
-... | q = let w = proj₁ (proj₂ (ΠΣ-injectivity q))
-          in  substTypeEq w (refl t∷A₁)
+... | q = ΠΣ-injectivity q .proj₂ .proj₁ (refl t∷A₁)
 neTypeEq (fstₙ neP) (fstⱼ _ ⊢t) (fstⱼ _ ⊢t′) with neTypeEq neP ⊢t ⊢t′
 ... | q = proj₁ (ΠΣ-injectivity q)
 neTypeEq (sndₙ neP) (sndⱼ ⊢G ⊢t) (sndⱼ _ ⊢t′) with neTypeEq neP ⊢t ⊢t′
-... | q = let G≡G₁ = proj₁ (proj₂ (ΠΣ-injectivity q))
-              ⊢fst = fstⱼ ⊢G ⊢t
-          in  substTypeEq G≡G₁ (refl ⊢fst)
+... | q = ΠΣ-injectivity q .proj₂ .proj₁ (refl (fstⱼ ⊢G ⊢t))
 neTypeEq (natrecₙ _) ⊢t@(natrecⱼ _ _ _) (natrecⱼ _ _ _) =
   refl (syntacticTerm ⊢t)
 neTypeEq

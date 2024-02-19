@@ -82,7 +82,7 @@ opaque
         λ (_ , _ , _ , _ , _ , ⊢t′ , Unit≡) →
       case inversion-prod ⊢t′ of
         λ (_ , _ , _ , _ , _ , ⊢zero , ⊢zero′ , Σ≡Σ , _) →
-      case ΠΣ-injectivity Σ≡Σ of
+      case ΠΣ-injectivity ⦃ ok = ε ⦄ Σ≡Σ of
         λ (F≡F′ , G≡G′ , _ , _ , _) →
       case inversion-zero ⊢zero of
         λ ≡ℕ →
@@ -91,13 +91,11 @@ opaque
         l
       , (_⊢_≡_.sym $
          trans Unit≡ $
-         trans
-           (substTypeEq G≡G′ $
-            conv erased-t′≡zero (_⊢_≡_.sym (trans F≡F′ ≡ℕ)))
+         trans (G≡G′ (conv erased-t′≡zero (_⊢_≡_.sym (trans F≡F′ ≡ℕ))))
            ≡ℕ′)
 
     bad : ⊥
-    bad = ℕ≢Unitⱼ (ℕ≡Unit .proj₂)
+    bad = ℕ≢Unitⱼ ⦃ ok = ε ⦄ (ℕ≡Unit .proj₂)
 
 opaque
 
