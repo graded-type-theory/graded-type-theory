@@ -54,7 +54,7 @@ opaque
 
   -- If the modality's zero is well-behaved and erased matches are not
   -- allowed, then neutral, well-typed terms are not well-resourced
-  -- with respect to consistent, erased contexts.
+  -- with respect to consistent, erasable contexts.
 
   neutral-not-well-resourced :
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
@@ -183,7 +183,7 @@ opaque
   -- If Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 holds for some p (which means that
   -- certain kinds of erased matches are allowed), and if additionally
   -- Σʷ-allowed p 𝟘 holds, then there is a well-typed, well-resourced,
-  -- neutral term in a consistent, erased context.
+  -- neutral term in a consistent, erasable context.
 
   neutral-well-resourced₁ :
     Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 →
@@ -201,7 +201,7 @@ opaque
 opaque
 
   -- If []-cong is allowed, then there is a well-typed,
-  -- well-resourced, neutral term in a consistent, erased context.
+  -- well-resourced, neutral term in a consistent, erasable context.
 
   neutral-well-resourced₂ :
     []-cong-allowed s →
@@ -223,7 +223,7 @@ opaque
   -- * if it is equal to some, then 𝟘ᵐ is allowed,
   --
   -- then there is a well-typed, well-resourced, neutral term in a
-  -- consistent, erased context.
+  -- consistent, erasable context.
 
   neutral-well-resourced₃ :
     erased-matches-for-J 𝟙ᵐ ≢ none →
@@ -248,7 +248,7 @@ opaque
   --   allowed,
   --
   -- then there is a well-typed, well-resourced, neutral term in a
-  -- consistent, erased context.
+  -- consistent, erasable context.
 
   neutral-well-resourced₄ :
     K-allowed →
@@ -267,8 +267,8 @@ opaque
 opaque
 
   -- If Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 and Unitʷ-allowed hold, then there is a
-  -- well-typed, well-resourced, neutral term in a consistent, erased
-  -- context.
+  -- well-typed, well-resourced, neutral term in a consistent,
+  -- erasable context.
 
   neutral-well-resourced₅ :
     Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 →
