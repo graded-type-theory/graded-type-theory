@@ -86,7 +86,7 @@ sucᵏ′ 0      = T.zero
 sucᵏ′ (1+ n) = T.suc (sucᵏ′ n)
 
 -- Some results that are proved under the assumption that the
--- modality's zero is well-bahved.
+-- modality's zero is well-behaved.
 
 module _
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
