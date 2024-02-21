@@ -41,6 +41,7 @@ open import Graded.Mode 𝕄 hiding (_≟_)
 open import Definition.Untyped M
 
 open import Tools.Bool using (T; true; false)
+open import Tools.Empty
 open import Tools.Function
 open import Tools.Level
 open import Tools.Nat using (Nat)
@@ -407,77 +408,77 @@ infix 10 ⌈⌉▸[_]?_
 ⌈⌉▸[ m ]? rfl =
   inj₁ rflₘ
 
-⌈⌉▸[ m ]? J p q A t B u t′ v with erased-matches-for-J m in ok
-… | all =
+⌈⌉▸[ m ]? J p q A t B u t′ v with J-view p q m
+… | is-all ≡all =
   case ⌈⌉▸[ 𝟘ᵐ? ]? A of λ where
     (inj₂ ¬▸A) → inj₂ λ _ ▸J →
       case inv-usage-J ▸J of λ where
-        (invUsageJ₀ _ ▸A _ _ _ _ _ _)    → ¬▸A _ ▸A
-        (invUsageJ not-ok _ _ _ _ _ _ _) →
-          case trans (sym not-ok) ok of λ ()
-        (invUsageJ′ ok′ _ _ _ _ _ _ _) →
-          case trans (sym ok′) ok of λ ()
+        (invUsageJ₀₂ _ ▸A _ _ _ _ _ _)    → ¬▸A _ ▸A
+        (invUsageJ ≤some _ _ _ _ _ _ _ _) →
+          case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
+        (invUsageJ₀₁ ≡some _ _ _ _ _ _ _ _ _) →
+          case trans (sym ≡some) ≡all of λ ()
     (inj₁ ▸A) → case ⌈⌉▸[ 𝟘ᵐ? ]? t of λ where
       (inj₂ ¬▸t) → inj₂ λ _ ▸J →
         case inv-usage-J ▸J of λ where
-          (invUsageJ₀ _ _ ▸t _ _ _ _ _)    → ¬▸t _ ▸t
-          (invUsageJ not-ok _ _ _ _ _ _ _) →
-            case trans (sym not-ok) ok of λ ()
-          (invUsageJ′ ok′ _ _ _ _ _ _ _) →
-            case trans (sym ok′) ok of λ ()
+          (invUsageJ₀₂ _ _ ▸t _ _ _ _ _)    → ¬▸t _ ▸t
+          (invUsageJ ≤some _ _ _ _ _ _ _ _) →
+            case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
+          (invUsageJ₀₁ ≡some _ _ _ _ _ _ _ _ _) →
+            case trans (sym ≡some) ≡all of λ ()
       (inj₁ ▸t) → case ⌈⌉▸[ m ]? u of λ where
         (inj₂ ¬▸u) → inj₂ λ _ ▸J →
           case inv-usage-J ▸J of λ where
-            (invUsageJ₀ _ _ _ _ ▸u _ _ _)    → ¬▸u _ ▸u
-            (invUsageJ not-ok _ _ _ _ _ _ _) →
-              case trans (sym not-ok) ok of λ ()
-            (invUsageJ′ ok′ _ _ _ _ _ _ _) →
-              case trans (sym ok′) ok of λ ()
+            (invUsageJ₀₂ _ _ _ _ ▸u _ _ _)    → ¬▸u _ ▸u
+            (invUsageJ ≤some _ _ _ _ _ _ _ _) →
+              case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
+            (invUsageJ₀₁ ≡some _ _ _ _ _ _ _ _ _) →
+              case trans (sym ≡some) ≡all of λ ()
         (inj₁ ▸u) → case ⌈⌉▸[ 𝟘ᵐ? ]? t′ of λ where
           (inj₂ ¬▸t′) → inj₂ λ _ ▸J →
             case inv-usage-J ▸J of λ where
-              (invUsageJ₀ _ _ _ _ _ ▸t′ _ _)   → ¬▸t′ _ ▸t′
-              (invUsageJ not-ok _ _ _ _ _ _ _) →
-                case trans (sym not-ok) ok of λ ()
-              (invUsageJ′ ok′ _ _ _ _ _ _ _) →
-                case trans (sym ok′) ok of λ ()
+              (invUsageJ₀₂ _ _ _ _ _ ▸t′ _ _)   → ¬▸t′ _ ▸t′
+              (invUsageJ ≤some _ _ _ _ _ _ _ _) →
+                case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
+              (invUsageJ₀₁ ≡some _ _ _ _ _ _ _ _ _) →
+                case trans (sym ≡some) ≡all of λ ()
           (inj₁ ▸t′) → case ⌈⌉▸[ 𝟘ᵐ? ]? v of λ where
             (inj₂ ¬▸v) → inj₂ λ _ ▸J →
               case inv-usage-J ▸J of λ where
-                (invUsageJ₀ _ _ _ _ _ _ ▸v _)    → ¬▸v _ ▸v
-                (invUsageJ not-ok _ _ _ _ _ _ _) →
-                  case trans (sym not-ok) ok of λ ()
-                (invUsageJ′ ok′ _ _ _ _ _ _ _) →
-                  case trans (sym ok′) ok of λ ()
+                (invUsageJ₀₂ _ _ _ _ _ _ ▸v _)    → ¬▸v _ ▸v
+                (invUsageJ ≤some _ _ _ _ _ _ _ _) →
+                  case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
+                (invUsageJ₀₁ ≡some _ _ _ _ _ _ _ _ _) →
+                  case trans (sym ≡some) ≡all of λ ()
             (inj₁ ▸v) → case ⌈⌉▸[ 𝟘ᵐ? ]? B of λ where
               (inj₂ ¬▸B) → inj₂ λ _ ▸J →
                 case inv-usage-J ▸J of λ where
-                  (invUsageJ₀ _ _ _ ▸B _ _ _ _)    → ¬▸B _ ▸B
-                  (invUsageJ not-ok _ _ _ _ _ _ _) →
-                    case trans (sym not-ok) ok of λ ()
-                  (invUsageJ′ ok′ _ _ _ _ _ _ _) →
-                    case trans (sym ok′) ok of λ ()
+                  (invUsageJ₀₂ _ _ _ ▸B _ _ _ _)    → ¬▸B _ ▸B
+                  (invUsageJ ≤some _ _ _ _ _ _ _ _) →
+                    case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
+                  (invUsageJ₀₁ ≡some _ _ _ _ _ _ _ _ _) →
+                    case trans (sym ≡some) ≡all of λ ()
               (inj₁ ▸B) → case ⌜ 𝟘ᵐ? ⌝ · p ≤?
                                headₘ (tailₘ (⌈ B ⌉ 𝟘ᵐ?)) of λ where
                 (no 𝟘ᵐ?p≰) → inj₂ λ _ ▸J →
                   case inv-usage-J ▸J of λ where
-                    (invUsageJ₀ _ _ _ ▸B _ _ _ _) →
+                    (invUsageJ₀₂ _ _ _ ▸B _ _ _ _) →
                       𝟘ᵐ?p≰ $ headₘ-monotone $ tailₘ-monotone $
                       usage-upper-bound ▸B
-                    (invUsageJ not-ok _ _ _ _ _ _ _) →
-                      case trans (sym not-ok) ok of λ ()
-                    (invUsageJ′ ok′ _ _ _ _ _ _ _) →
-                      case trans (sym ok′) ok of λ ()
+                    (invUsageJ ≤some _ _ _ _ _ _ _ _) →
+                      case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
+                    (invUsageJ₀₁ ≡some _ _ _ _ _ _ _ _ _) →
+                      case trans (sym ≡some) ≡all of λ ()
                 (yes 𝟘ᵐ?p≤) → case ⌜ 𝟘ᵐ? ⌝ · q ≤?
                                    headₘ (⌈ B ⌉ 𝟘ᵐ?) of λ where
                   (no 𝟘ᵐ?q≰) → inj₂ λ _ ▸J →
                     case inv-usage-J ▸J of λ where
-                      (invUsageJ₀ _ _ _ ▸B _ _ _ _) →
+                      (invUsageJ₀₂ _ _ _ ▸B _ _ _ _) →
                         𝟘ᵐ?q≰ $ headₘ-monotone $ usage-upper-bound ▸B
-                      (invUsageJ not-ok _ _ _ _ _ _ _) →
-                        case trans (sym not-ok) ok of λ ()
-                      (invUsageJ′ ok′ _ _ _ _ _ _ _) →
-                        case trans (sym ok′) ok of λ ()
+                      (invUsageJ ≤some _ _ _ _ _ _ _ _) →
+                        case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
+                      (invUsageJ₀₁ ≡some _ _ _ _ _ _ _ _ _) →
+                        case trans (sym ≡some) ≡all of λ ()
                   (yes 𝟘ᵐ?q≤) →
                     let lemma = begin
                           tailₘ (tailₘ (⌈ B ⌉ 𝟘ᵐ?)) ∙
@@ -490,82 +491,80 @@ infix 10 ⌈⌉▸[_]?_
 
                           ⌈ B ⌉ 𝟘ᵐ?                                      ∎
                     in
-                    inj₁ (J₀ₘ ok ▸A ▸t (sub ▸B lemma) ▸u ▸t′ ▸v)
+                    inj₁ (J₀ₘ₂ ≡all ▸A ▸t (sub ▸B lemma) ▸u ▸t′ ▸v)
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-… | some =
+… | is-some-yes ≡some (refl , refl) =
   case ⌈⌉▸[ 𝟘ᵐ? ]? A of λ where
     (inj₂ ¬▸A) → inj₂ λ _ ▸J →
       case inv-usage-J ▸J of λ where
-        (invUsageJ′ _ ▸A _ _ _ _ _ _) → ¬▸A _ ▸A
-        (invUsageJ ok′ _ _ _ _ _ _ _) →
-          case trans (sym ok′) ok of λ ()
-        (invUsageJ₀ ok′ _ _ _ _ _ _ _) →
-          case trans (sym ok′) ok of λ ()
-    (inj₁ ▸A) → case ⌈⌉▸[ m ᵐ· (p + q) ]? t of λ where
+        (invUsageJ₀₁ _ _ _ ▸A _ _ _ _ _ _) → ¬▸A _ ▸A
+        (invUsageJ _ ≢𝟘 _ _ _ _ _ _ _)     →
+          ⊥-elim $ ≢𝟘 ≡some (refl , refl)
+        (invUsageJ₀₂ ≡all _ _ _ _ _ _ _) →
+          case trans (sym ≡all) ≡some of λ ()
+    (inj₁ ▸A) → case ⌈⌉▸[ 𝟘ᵐ? ]? t of λ where
       (inj₂ ¬▸t) → inj₂ λ _ ▸J →
         case inv-usage-J ▸J of λ where
-          (invUsageJ′ _ _ ▸t _ _ _ _ _) → ¬▸t _ ▸t
-          (invUsageJ ok′ _ _ _ _ _ _ _) →
-            case trans (sym ok′) ok of λ ()
-          (invUsageJ₀ ok′ _ _ _ _ _ _ _) →
-            case trans (sym ok′) ok of λ ()
+          (invUsageJ₀₁ _ _ _ _ ▸t _ _ _ _ _) → ¬▸t _ ▸t
+          (invUsageJ _ ≢𝟘 _ _ _ _ _ _ _)     →
+            ⊥-elim $ ≢𝟘 ≡some (refl , refl)
+          (invUsageJ₀₂ ≡all _ _ _ _ _ _ _) →
+            case trans (sym ≡all) ≡some of λ ()
       (inj₁ ▸t) → case ⌈⌉▸[ m ]? u of λ where
         (inj₂ ¬▸u) → inj₂ λ _ ▸J →
           case inv-usage-J ▸J of λ where
-            (invUsageJ′ _ _ _ _ ▸u _ _ _) → ¬▸u _ ▸u
-            (invUsageJ ok′ _ _ _ _ _ _ _) →
-              case trans (sym ok′) ok of λ ()
-            (invUsageJ₀ ok′ _ _ _ _ _ _ _) →
-              case trans (sym ok′) ok of λ ()
-        (inj₁ ▸u) → case ⌈⌉▸[ m ᵐ· (p + q) ]? t′ of λ where
+            (invUsageJ₀₁ _ _ _ _ _ _ ▸u _ _ _) → ¬▸u _ ▸u
+            (invUsageJ _ ≢𝟘 _ _ _ _ _ _ _)     →
+              ⊥-elim $ ≢𝟘 ≡some (refl , refl)
+            (invUsageJ₀₂ ≡all _ _ _ _ _ _ _) →
+              case trans (sym ≡all) ≡some of λ ()
+        (inj₁ ▸u) → case ⌈⌉▸[ 𝟘ᵐ? ]? t′ of λ where
           (inj₂ ¬▸t′) → inj₂ λ _ ▸J →
             case inv-usage-J ▸J of λ where
-              (invUsageJ′ _ _ _ _ _ ▸t′ _ _) → ¬▸t′ _ ▸t′
-              (invUsageJ ok′ _ _ _ _ _ _ _)  →
-                case trans (sym ok′) ok of λ ()
-              (invUsageJ₀ ok′ _ _ _ _ _ _ _) →
-                case trans (sym ok′) ok of λ ()
-          (inj₁ ▸t′) → case ⌈⌉▸[ m ᵐ· (p + q) ]? v of λ where
+              (invUsageJ₀₁ _ _ _ _ _ _ _ ▸t′ _ _) → ¬▸t′ _ ▸t′
+              (invUsageJ _ ≢𝟘 _ _ _ _ _ _ _)      →
+                ⊥-elim $ ≢𝟘 ≡some (refl , refl)
+              (invUsageJ₀₂ ≡all _ _ _ _ _ _ _) →
+                case trans (sym ≡all) ≡some of λ ()
+          (inj₁ ▸t′) → case ⌈⌉▸[ 𝟘ᵐ? ]? v of λ where
             (inj₂ ¬▸v) → inj₂ λ _ ▸J →
               case inv-usage-J ▸J of λ where
-                (invUsageJ′ _ _ _ _ _ _ ▸v _) → ¬▸v _ ▸v
-                (invUsageJ ok′ _ _ _ _ _ _ _) →
-                  case trans (sym ok′) ok of λ ()
-                (invUsageJ₀ ok′ _ _ _ _ _ _ _) →
-                  case trans (sym ok′) ok of λ ()
+                (invUsageJ₀₁ _ _ _ _ _ _ _ _ ▸v _) → ¬▸v _ ▸v
+                (invUsageJ _ ≢𝟘 _ _ _ _ _ _ _)     →
+                  ⊥-elim $ ≢𝟘 ≡some (refl , refl)
+                (invUsageJ₀₂ ≡all _ _ _ _ _ _ _) →
+                  case trans (sym ≡all) ≡some of λ ()
             (inj₁ ▸v) → case ⌈⌉▸[ m ]? B of λ where
               (inj₂ ¬▸B) → inj₂ λ _ ▸J →
                 case inv-usage-J ▸J of λ where
-                  (invUsageJ′ _ _ _ ▸B _ _ _ _) → ¬▸B _ ▸B
-                  (invUsageJ ok′ _ _ _ _ _ _ _) →
-                    case trans (sym ok′) ok of λ ()
-                  (invUsageJ₀ ok′ _ _ _ _ _ _ _) →
-                    case trans (sym ok′) ok of λ ()
-              (inj₁ ▸B) → case ⌜ m ⌝ · p ≤?
-                               headₘ (tailₘ (⌈ B ⌉ m)) of λ where
-                (no mp≰) → inj₂ λ _ ▸J →
+                  (invUsageJ₀₁ _ _ _ _ _ ▸B _ _ _ _) → ¬▸B _ ▸B
+                  (invUsageJ _ ≢𝟘 _ _ _ _ _ _ _)     →
+                    ⊥-elim $ ≢𝟘 ≡some (refl , refl)
+                  (invUsageJ₀₂ ≡all _ _ _ _ _ _ _) →
+                    case trans (sym ≡all) ≡some of λ ()
+              (inj₁ ▸B) → case 𝟘 ≤? headₘ (tailₘ (⌈ B ⌉ m)) of λ where
+                (no 𝟘≰) → inj₂ λ _ ▸J →
                   case inv-usage-J ▸J of λ where
-                    (invUsageJ′ _ _ _ ▸B _ _ _ _) →
-                      mp≰ $ headₘ-monotone $ tailₘ-monotone $
+                    (invUsageJ₀₁ _ _ _ _ _ ▸B _ _ _ _) →
+                      𝟘≰ $ headₘ-monotone $ tailₘ-monotone $
                       usage-upper-bound ▸B
-                    (invUsageJ ok′ _ _ _ _ _ _ _) →
-                      case trans (sym ok′) ok of λ ()
-                    (invUsageJ₀ ok′ _ _ _ _ _ _ _) →
-                      case trans (sym ok′) ok of λ ()
-                (yes mp≤) → case ⌜ m ⌝ · q ≤? headₘ (⌈ B ⌉ m) of λ where
-                  (no mq≰) → inj₂ λ _ ▸J →
+                    (invUsageJ _ ≢𝟘 _ _ _ _ _ _ _) →
+                      ⊥-elim $ ≢𝟘 ≡some (refl , refl)
+                    (invUsageJ₀₂ ≡all _ _ _ _ _ _ _) →
+                      case trans (sym ≡all) ≡some of λ ()
+                (yes 𝟘≤₁) → case 𝟘 ≤? headₘ (⌈ B ⌉ m) of λ where
+                  (no 𝟘≰) → inj₂ λ _ ▸J →
                     case inv-usage-J ▸J of λ where
-                      (invUsageJ′ _ _ _ ▸B _ _ _ _) →
-                        mq≰ $ headₘ-monotone $ usage-upper-bound ▸B
-                      (invUsageJ ok′ _ _ _ _ _ _ _) →
-                        case trans (sym ok′) ok of λ ()
-                      (invUsageJ₀ ok′ _ _ _ _ _ _ _) →
-                        case trans (sym ok′) ok of λ ()
-                  (yes mq≤) →
+                      (invUsageJ₀₁ _ _ _ _ _ ▸B _ _ _ _) →
+                        𝟘≰ $ headₘ-monotone $ usage-upper-bound ▸B
+                      (invUsageJ _ ≢𝟘 _ _ _ _ _ _ _) →
+                        ⊥-elim $ ≢𝟘 ≡some (refl , refl)
+                      (invUsageJ₀₂ ≡all _ _ _ _ _ _ _) →
+                        case trans (sym ≡all) ≡some of λ ()
+                  (yes 𝟘≤₂) →
                     let lemma = begin
-                          tailₘ (tailₘ (⌈ B ⌉ m)) ∙
-                          ⌜ m ⌝ · p ∙ ⌜ m ⌝ · q                      ≤⟨ ≤ᶜ-refl ∙ mp≤ ∙ mq≤ ⟩
+                          tailₘ (tailₘ (⌈ B ⌉ m)) ∙ 𝟘 ∙ 𝟘            ≤⟨ ≤ᶜ-refl ∙ 𝟘≤₁ ∙ 𝟘≤₂ ⟩
 
                           tailₘ (tailₘ (⌈ B ⌉ m)) ∙
                           headₘ (tailₘ (⌈ B ⌉ m)) ∙ headₘ (⌈ B ⌉ m)  ≡⟨ cong (_∙ headₘ (⌈ B ⌉ _)) (headₘ-tailₘ-correct _) ⟩
@@ -574,78 +573,79 @@ infix 10 ⌈⌉▸[_]?_
 
                           ⌈ B ⌉ m                                    ∎
                     in
-                    inj₁ (Jₘ′ ok ▸A ▸t (sub ▸B lemma) ▸u ▸t′ ▸v)
+                    inj₁ $
+                    J₀ₘ₁ ≡some refl refl ▸A ▸t (sub ▸B lemma) ▸u ▸t′ ▸v
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-… | none =
+… | is-other ≤some ≢𝟘 =
   case ⌈⌉▸[ 𝟘ᵐ? ]? A of λ where
     (inj₂ ¬▸A) → inj₂ λ _ ▸J →
       case inv-usage-J ▸J of λ where
-        (invUsageJ _ ▸A _ _ _ _ _ _)   → ¬▸A _ ▸A
-        (invUsageJ′ ok′ _ _ _ _ _ _ _) →
-          case trans (sym ok′) ok of λ ()
-        (invUsageJ₀ ok′ _ _ _ _ _ _ _) →
-          case trans (sym ok′) ok of λ ()
+        (invUsageJ _ _ ▸A _ _ _ _ _ _)            → ¬▸A _ ▸A
+        (invUsageJ₀₁ ≡some p≡𝟘 q≡𝟘 _ _ _ _ _ _ _) →
+          ⊥-elim $ ≢𝟘 ≡some (p≡𝟘 , q≡𝟘)
+        (invUsageJ₀₂ ≡all _ _ _ _ _ _ _) →
+          case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
     (inj₁ ▸A) → case ⌈⌉▸[ m ]? t of λ where
       (inj₂ ¬▸t) → inj₂ λ _ ▸J →
         case inv-usage-J ▸J of λ where
-          (invUsageJ _ _ ▸t _ _ _ _ _)   → ¬▸t _ ▸t
-          (invUsageJ′ ok′ _ _ _ _ _ _ _) →
-            case trans (sym ok′) ok of λ ()
-          (invUsageJ₀ ok′ _ _ _ _ _ _ _) →
-            case trans (sym ok′) ok of λ ()
+          (invUsageJ _ _ _ ▸t _ _ _ _ _)            → ¬▸t _ ▸t
+          (invUsageJ₀₁ ≡some p≡𝟘 q≡𝟘 _ _ _ _ _ _ _) →
+            ⊥-elim $ ≢𝟘 ≡some (p≡𝟘 , q≡𝟘)
+          (invUsageJ₀₂ ≡all _ _ _ _ _ _ _) →
+            case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
       (inj₁ ▸t) → case ⌈⌉▸[ m ]? u of λ where
         (inj₂ ¬▸u) → inj₂ λ _ ▸J →
           case inv-usage-J ▸J of λ where
-            (invUsageJ _ _ _ _ ▸u _ _ _)   → ¬▸u _ ▸u
-            (invUsageJ′ ok′ _ _ _ _ _ _ _) →
-              case trans (sym ok′) ok of λ ()
-            (invUsageJ₀ ok′ _ _ _ _ _ _ _) →
-              case trans (sym ok′) ok of λ ()
+            (invUsageJ _ _ _ _ _ ▸u _ _ _)            → ¬▸u _ ▸u
+            (invUsageJ₀₁ ≡some p≡𝟘 q≡𝟘 _ _ _ _ _ _ _) →
+              ⊥-elim $ ≢𝟘 ≡some (p≡𝟘 , q≡𝟘)
+            (invUsageJ₀₂ ≡all _ _ _ _ _ _ _) →
+              case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
         (inj₁ ▸u) → case ⌈⌉▸[ m ]? t′ of λ where
           (inj₂ ¬▸t′) → inj₂ λ _ ▸J →
             case inv-usage-J ▸J of λ where
-              (invUsageJ _ _ _ _ _ ▸t′ _ _)  → ¬▸t′ _ ▸t′
-              (invUsageJ′ ok′ _ _ _ _ _ _ _) →
-                case trans (sym ok′) ok of λ ()
-              (invUsageJ₀ ok′ _ _ _ _ _ _ _) →
-                case trans (sym ok′) ok of λ ()
+              (invUsageJ _ _ _ _ _ _ ▸t′ _ _)           → ¬▸t′ _ ▸t′
+              (invUsageJ₀₁ ≡some p≡𝟘 q≡𝟘 _ _ _ _ _ _ _) →
+                ⊥-elim $ ≢𝟘 ≡some (p≡𝟘 , q≡𝟘)
+              (invUsageJ₀₂ ≡all _ _ _ _ _ _ _) →
+                case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
           (inj₁ ▸t′) → case ⌈⌉▸[ m ]? v of λ where
             (inj₂ ¬▸v) → inj₂ λ _ ▸J →
               case inv-usage-J ▸J of λ where
-                (invUsageJ _ _ _ _ _ _ ▸v _)   → ¬▸v _ ▸v
-                (invUsageJ′ ok′ _ _ _ _ _ _ _) →
-                  case trans (sym ok′) ok of λ ()
-                (invUsageJ₀ ok′ _ _ _ _ _ _ _) →
-                  case trans (sym ok′) ok of λ ()
+                (invUsageJ _ _ _ _ _ _ _ ▸v _)            → ¬▸v _ ▸v
+                (invUsageJ₀₁ ≡some p≡𝟘 q≡𝟘 _ _ _ _ _ _ _) →
+                  ⊥-elim $ ≢𝟘 ≡some (p≡𝟘 , q≡𝟘)
+                (invUsageJ₀₂ ≡all _ _ _ _ _ _ _) →
+                  case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
             (inj₁ ▸v) → case ⌈⌉▸[ m ]? B of λ where
               (inj₂ ¬▸B) → inj₂ λ _ ▸J →
                 case inv-usage-J ▸J of λ where
-                  (invUsageJ _ _ _ ▸B _ _ _ _)   → ¬▸B _ ▸B
-                  (invUsageJ′ ok′ _ _ _ _ _ _ _) →
-                    case trans (sym ok′) ok of λ ()
-                  (invUsageJ₀ ok′ _ _ _ _ _ _ _) →
-                    case trans (sym ok′) ok of λ ()
+                  (invUsageJ _ _ _ _ ▸B _ _ _ _)            → ¬▸B _ ▸B
+                  (invUsageJ₀₁ ≡some p≡𝟘 q≡𝟘 _ _ _ _ _ _ _) →
+                    ⊥-elim $ ≢𝟘 ≡some (p≡𝟘 , q≡𝟘)
+                  (invUsageJ₀₂ ≡all _ _ _ _ _ _ _) →
+                    case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
               (inj₁ ▸B) → case ⌜ m ⌝ · p ≤?
                                headₘ (tailₘ (⌈ B ⌉ m)) of λ where
                 (no mp≰) → inj₂ λ _ ▸J →
                   case inv-usage-J ▸J of λ where
-                    (invUsageJ _ _ _ ▸B _ _ _ _) →
+                    (invUsageJ _ _ _ _ ▸B _ _ _ _) →
                       mp≰ $ headₘ-monotone $ tailₘ-monotone $
                       usage-upper-bound ▸B
-                    (invUsageJ′ ok′ _ _ _ _ _ _ _) →
-                      case trans (sym ok′) ok of λ ()
-                    (invUsageJ₀ ok′ _ _ _ _ _ _ _) →
-                      case trans (sym ok′) ok of λ ()
+                    (invUsageJ₀₁ ≡some p≡𝟘 q≡𝟘 _ _ _ _ _ _ _) →
+                      ⊥-elim $ ≢𝟘 ≡some (p≡𝟘 , q≡𝟘)
+                    (invUsageJ₀₂ ≡all _ _ _ _ _ _ _) →
+                      case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
                 (yes mp≤) → case ⌜ m ⌝ · q ≤? headₘ (⌈ B ⌉ m) of λ where
                   (no mq≰) → inj₂ λ _ ▸J →
                     case inv-usage-J ▸J of λ where
-                      (invUsageJ _ _ _ ▸B _ _ _ _) →
+                      (invUsageJ _ _ _ _ ▸B _ _ _ _) →
                         mq≰ $ headₘ-monotone $ usage-upper-bound ▸B
-                      (invUsageJ′ ok′ _ _ _ _ _ _ _) →
-                        case trans (sym ok′) ok of λ ()
-                      (invUsageJ₀ ok′ _ _ _ _ _ _ _) →
-                        case trans (sym ok′) ok of λ ()
+                      (invUsageJ₀₁ ≡some p≡𝟘 q≡𝟘 _ _ _ _ _ _ _) →
+                        ⊥-elim $ ≢𝟘 ≡some (p≡𝟘 , q≡𝟘)
+                      (invUsageJ₀₂ ≡all _ _ _ _ _ _ _) →
+                        case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
                   (yes mq≤) →
                     let lemma = begin
                           tailₘ (tailₘ (⌈ B ⌉ m)) ∙
@@ -658,186 +658,186 @@ infix 10 ⌈⌉▸[_]?_
 
                           ⌈ B ⌉ m                                    ∎
                     in
-                    inj₁ (Jₘ ok ▸A ▸t (sub ▸B lemma) ▸u ▸t′ ▸v)
+                    inj₁ (Jₘ ≤some ≢𝟘 ▸A ▸t (sub ▸B lemma) ▸u ▸t′ ▸v)
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-⌈⌉▸[ m ]? K p A t B u v with erased-matches-for-K m in ok
-… | all =
+⌈⌉▸[ m ]? K p A t B u v with K-view p m
+… | is-all ≡all =
   case ⌈⌉▸[ 𝟘ᵐ? ]? A of λ where
     (inj₂ ¬▸A) → inj₂ λ _ ▸K →
       case inv-usage-K ▸K of λ where
-        (invUsageK₀ _ ▸A _ _ _ _ _)    → ¬▸A _ ▸A
-        (invUsageK not-ok _ _ _ _ _ _) →
-          case trans (sym not-ok) ok of λ ()
-        (invUsageK′ ok′ _ _ _ _ _ _) →
-          case trans (sym ok′) ok of λ ()
+        (invUsageK₀₂ _ ▸A _ _ _ _ _)    → ¬▸A _ ▸A
+        (invUsageK ≤some _ _ _ _ _ _ _) →
+          case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
+        (invUsageK₀₁ ≡some _ _ _ _ _ _ _) →
+          case trans (sym ≡some) ≡all of λ ()
     (inj₁ ▸A) → case ⌈⌉▸[ 𝟘ᵐ? ]? t of λ where
       (inj₂ ¬▸t) → inj₂ λ _ ▸K →
         case inv-usage-K ▸K of λ where
-          (invUsageK₀ _ _ ▸t _ _ _ _)    → ¬▸t _ ▸t
-          (invUsageK not-ok _ _ _ _ _ _) →
-            case trans (sym not-ok) ok of λ ()
-          (invUsageK′ ok′ _ _ _ _ _ _) →
-            case trans (sym ok′) ok of λ ()
+          (invUsageK₀₂ _ _ ▸t _ _ _ _)    → ¬▸t _ ▸t
+          (invUsageK ≤some _ _ _ _ _ _ _) →
+            case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
+          (invUsageK₀₁ ≡some _ _ _ _ _ _ _) →
+            case trans (sym ≡some) ≡all of λ ()
       (inj₁ ▸t) → case ⌈⌉▸[ m ]? u of λ where
         (inj₂ ¬▸u) → inj₂ λ _ ▸K →
           case inv-usage-K ▸K of λ where
-            (invUsageK₀ _ _ _ _ ▸u _ _)    → ¬▸u _ ▸u
-            (invUsageK not-ok _ _ _ _ _ _) →
-              case trans (sym not-ok) ok of λ ()
-            (invUsageK′ ok′ _ _ _ _ _ _) →
-              case trans (sym ok′) ok of λ ()
+            (invUsageK₀₂ _ _ _ _ ▸u _ _)    → ¬▸u _ ▸u
+            (invUsageK ≤some _ _ _ _ _ _ _) →
+              case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
+            (invUsageK₀₁ ≡some _ _ _ _ _ _ _) →
+              case trans (sym ≡some) ≡all of λ ()
         (inj₁ ▸u) → case ⌈⌉▸[ 𝟘ᵐ? ]? v of λ where
           (inj₂ ¬▸v) → inj₂ λ _ ▸K →
             case inv-usage-K ▸K of λ where
-              (invUsageK₀ _ _ _ _ _ ▸v _)    → ¬▸v _ ▸v
-              (invUsageK not-ok _ _ _ _ _ _) →
-                case trans (sym not-ok) ok of λ ()
-              (invUsageK′ ok′ _ _ _ _ _ _) →
-                case trans (sym ok′) ok of λ ()
+              (invUsageK₀₂ _ _ _ _ _ ▸v _)    → ¬▸v _ ▸v
+              (invUsageK ≤some _ _ _ _ _ _ _) →
+                case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
+              (invUsageK₀₁ ≡some _ _ _ _ _ _ _) →
+                case trans (sym ≡some) ≡all of λ ()
           (inj₁ ▸v) → case ⌈⌉▸[ 𝟘ᵐ? ]? B of λ where
             (inj₂ ¬▸B) → inj₂ λ _ ▸K →
               case inv-usage-K ▸K of λ where
-                (invUsageK₀ _ _ _ ▸B _ _ _)    → ¬▸B _ ▸B
-                (invUsageK not-ok _ _ _ _ _ _) →
-                  case trans (sym not-ok) ok of λ ()
-                (invUsageK′ ok′ _ _ _ _ _ _) →
-                  case trans (sym ok′) ok of λ ()
+                (invUsageK₀₂ _ _ _ ▸B _ _ _)    → ¬▸B _ ▸B
+                (invUsageK ≤some _ _ _ _ _ _ _) →
+                  case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
+                (invUsageK₀₁ ≡some _ _ _ _ _ _ _) →
+                  case trans (sym ≡some) ≡all of λ ()
             (inj₁ ▸B) → case ⌜ 𝟘ᵐ? ⌝ · p ≤? headₘ (⌈ B ⌉ 𝟘ᵐ?) of λ where
               (no 𝟘ᵐ?p≰) → inj₂ λ _ ▸K →
                 case inv-usage-K ▸K of λ where
-                  (invUsageK₀ _ _ _ ▸B _ _ _) →
+                  (invUsageK₀₂ _ _ _ ▸B _ _ _) →
                     𝟘ᵐ?p≰ $ headₘ-monotone $ usage-upper-bound ▸B
-                  (invUsageK not-ok _ _ _ _ _ _) →
-                    case trans (sym not-ok) ok of λ ()
-                  (invUsageK′ ok′ _ _ _ _ _ _) →
-                    case trans (sym ok′) ok of λ ()
+                  (invUsageK ≤some _ _ _ _ _ _ _) →
+                    case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
+                  (invUsageK₀₁ ≡some _ _ _ _ _ _ _) →
+                    case trans (sym ≡some) ≡all of λ ()
               (yes 𝟘ᵐ?p≤) →
                 let lemma = begin
                       tailₘ (⌈ B ⌉ 𝟘ᵐ?) ∙ ⌜ 𝟘ᵐ? ⌝ · p        ≤⟨ ≤ᶜ-refl ∙ 𝟘ᵐ?p≤ ⟩
                       tailₘ (⌈ B ⌉ 𝟘ᵐ?) ∙ headₘ (⌈ B ⌉ 𝟘ᵐ?)  ≡⟨ headₘ-tailₘ-correct _ ⟩
                       ⌈ B ⌉ 𝟘ᵐ?                              ∎
                 in
-                inj₁ (K₀ₘ ok ▸A ▸t (sub ▸B lemma) ▸u ▸v)
+                inj₁ (K₀ₘ₂ ≡all ▸A ▸t (sub ▸B lemma) ▸u ▸v)
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-… | some =
+… | is-some-yes ≡some refl =
   case ⌈⌉▸[ 𝟘ᵐ? ]? A of λ where
     (inj₂ ¬▸A) → inj₂ λ _ ▸K →
       case inv-usage-K ▸K of λ where
-        (invUsageK′ _ ▸A _ _ _ _ _) → ¬▸A _ ▸A
-        (invUsageK ok′ _ _ _ _ _ _) →
-          case trans (sym ok′) ok of λ ()
-        (invUsageK₀ ok′ _ _ _ _ _ _) →
-          case trans (sym ok′) ok of λ ()
-    (inj₁ ▸A) → case ⌈⌉▸[ m ᵐ· p ]? t of λ where
+        (invUsageK₀₁ _ _ ▸A _ _ _ _ _) → ¬▸A _ ▸A
+        (invUsageK _ ≢𝟘 _ _ _ _ _ _)   →
+          ⊥-elim $ ≢𝟘 ≡some refl
+        (invUsageK₀₂ ≡all _ _ _ _ _ _) →
+          case trans (sym ≡all) ≡some of λ ()
+    (inj₁ ▸A) → case ⌈⌉▸[ 𝟘ᵐ? ]? t of λ where
       (inj₂ ¬▸t) → inj₂ λ _ ▸K →
         case inv-usage-K ▸K of λ where
-          (invUsageK′ _ _ ▸t _ _ _ _) → ¬▸t _ ▸t
-          (invUsageK ok′ _ _ _ _ _ _) →
-            case trans (sym ok′) ok of λ ()
-          (invUsageK₀ ok′ _ _ _ _ _ _) →
-            case trans (sym ok′) ok of λ ()
+          (invUsageK₀₁ _ _ _ ▸t _ _ _ _) → ¬▸t _ ▸t
+          (invUsageK _ ≢𝟘 _ _ _ _ _ _)   →
+            ⊥-elim $ ≢𝟘 ≡some refl
+          (invUsageK₀₂ ≡all _ _ _ _ _ _) →
+            case trans (sym ≡all) ≡some of λ ()
       (inj₁ ▸t) → case ⌈⌉▸[ m ]? u of λ where
         (inj₂ ¬▸u) → inj₂ λ _ ▸K →
           case inv-usage-K ▸K of λ where
-            (invUsageK′ _ _ _ _ ▸u _ _) → ¬▸u _ ▸u
-            (invUsageK ok′ _ _ _ _ _ _) →
-              case trans (sym ok′) ok of λ ()
-            (invUsageK₀ ok′ _ _ _ _ _ _) →
-              case trans (sym ok′) ok of λ ()
-        (inj₁ ▸u) → case ⌈⌉▸[ m ᵐ· p ]? v of λ where
+            (invUsageK₀₁ _ _ _ _ _ ▸u _ _) → ¬▸u _ ▸u
+            (invUsageK _ ≢𝟘 _ _ _ _ _ _)   →
+              ⊥-elim $ ≢𝟘 ≡some refl
+            (invUsageK₀₂ ≡all _ _ _ _ _ _) →
+              case trans (sym ≡all) ≡some of λ ()
+        (inj₁ ▸u) → case ⌈⌉▸[ 𝟘ᵐ? ]? v of λ where
           (inj₂ ¬▸v) → inj₂ λ _ ▸K →
             case inv-usage-K ▸K of λ where
-              (invUsageK′ _ _ _ _ _ ▸v _) → ¬▸v _ ▸v
-              (invUsageK ok′ _ _ _ _ _ _) →
-                case trans (sym ok′) ok of λ ()
-              (invUsageK₀ ok′ _ _ _ _ _ _) →
-                case trans (sym ok′) ok of λ ()
+              (invUsageK₀₁ _ _ _ _ _ _ ▸v _) → ¬▸v _ ▸v
+              (invUsageK _ ≢𝟘 _ _ _ _ _ _)   →
+                ⊥-elim $ ≢𝟘 ≡some refl
+              (invUsageK₀₂ ≡all _ _ _ _ _ _) →
+                case trans (sym ≡all) ≡some of λ ()
           (inj₁ ▸v) → case ⌈⌉▸[ m ]? B of λ where
             (inj₂ ¬▸B) → inj₂ λ _ ▸K →
               case inv-usage-K ▸K of λ where
-                (invUsageK′ _ _ _ ▸B _ _ _) → ¬▸B _ ▸B
-                (invUsageK ok′ _ _ _ _ _ _) →
-                  case trans (sym ok′) ok of λ ()
-                (invUsageK₀ ok′ _ _ _ _ _ _) →
-                  case trans (sym ok′) ok of λ ()
-            (inj₁ ▸B) → case ⌜ m ⌝ · p ≤? headₘ (⌈ B ⌉ m) of λ where
-              (no mp≰) → inj₂ λ _ ▸K →
+                (invUsageK₀₁ _ _ _ _ ▸B _ _ _) → ¬▸B _ ▸B
+                (invUsageK _ ≢𝟘 _ _ _ _ _ _)   →
+                  ⊥-elim $ ≢𝟘 ≡some refl
+                (invUsageK₀₂ ≡all _ _ _ _ _ _) →
+                  case trans (sym ≡all) ≡some of λ ()
+            (inj₁ ▸B) → case 𝟘 ≤? headₘ (⌈ B ⌉ m) of λ where
+              (no 𝟘≰) → inj₂ λ _ ▸K →
                 case inv-usage-K ▸K of λ where
-                  (invUsageK′ _ _ _ ▸B _ _ _) →
-                    mp≰ $ headₘ-monotone $ usage-upper-bound ▸B
-                  (invUsageK ok′ _ _ _ _ _ _) →
-                    case trans (sym ok′) ok of λ ()
-                  (invUsageK₀ ok′ _ _ _ _ _ _) →
-                    case trans (sym ok′) ok of λ ()
-              (yes mp≤) →
+                  (invUsageK₀₁ _ _ _ _ ▸B _ _ _) →
+                    𝟘≰ $ headₘ-monotone $ usage-upper-bound ▸B
+                  (invUsageK _ ≢𝟘 _ _ _ _ _ _) →
+                    ⊥-elim $ ≢𝟘 ≡some refl
+                  (invUsageK₀₂ ≡all _ _ _ _ _ _) →
+                    case trans (sym ≡all) ≡some of λ ()
+              (yes 𝟘≤) →
                 let lemma = begin
-                      tailₘ (⌈ B ⌉ m) ∙ ⌜ m ⌝ · p        ≤⟨ ≤ᶜ-refl ∙ mp≤ ⟩
+                      tailₘ (⌈ B ⌉ m) ∙ 𝟘                ≤⟨ ≤ᶜ-refl ∙ 𝟘≤ ⟩
                       tailₘ (⌈ B ⌉ m) ∙ headₘ (⌈ B ⌉ m)  ≡⟨ headₘ-tailₘ-correct _ ⟩
                       ⌈ B ⌉ m                            ∎
                 in
-                inj₁ (Kₘ′ ok ▸A ▸t (sub ▸B lemma) ▸u ▸v)
+                inj₁ (K₀ₘ₁ ≡some refl ▸A ▸t (sub ▸B lemma) ▸u ▸v)
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-… | none =
+… | is-other ≤some ≢𝟘 =
   case ⌈⌉▸[ 𝟘ᵐ? ]? A of λ where
     (inj₂ ¬▸A) → inj₂ λ _ ▸K →
       case inv-usage-K ▸K of λ where
-        (invUsageK _ ▸A _ _ _ _ _)   → ¬▸A _ ▸A
-        (invUsageK′ ok′ _ _ _ _ _ _) →
-          case trans (sym ok′) ok of λ ()
-        (invUsageK₀ ok′ _ _ _ _ _ _) →
-          case trans (sym ok′) ok of λ ()
+        (invUsageK _ _ ▸A _ _ _ _ _)        → ¬▸A _ ▸A
+        (invUsageK₀₁ ≡some p≡𝟘 _ _ _ _ _ _) →
+          ⊥-elim $ ≢𝟘 ≡some p≡𝟘
+        (invUsageK₀₂ ≡all _ _ _ _ _ _) →
+          case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
     (inj₁ ▸A) → case ⌈⌉▸[ m ]? t of λ where
       (inj₂ ¬▸t) → inj₂ λ _ ▸K →
         case inv-usage-K ▸K of λ where
-          (invUsageK _ _ ▸t _ _ _ _)   → ¬▸t _ ▸t
-          (invUsageK′ ok′ _ _ _ _ _ _) →
-            case trans (sym ok′) ok of λ ()
-          (invUsageK₀ ok′ _ _ _ _ _ _) →
-            case trans (sym ok′) ok of λ ()
+          (invUsageK _ _ _ ▸t _ _ _ _)        → ¬▸t _ ▸t
+          (invUsageK₀₁ ≡some p≡𝟘 _ _ _ _ _ _) →
+            ⊥-elim $ ≢𝟘 ≡some p≡𝟘
+          (invUsageK₀₂ ≡all _ _ _ _ _ _) →
+            case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
       (inj₁ ▸t) → case ⌈⌉▸[ m ]? u of λ where
         (inj₂ ¬▸u) → inj₂ λ _ ▸K →
           case inv-usage-K ▸K of λ where
-            (invUsageK _ _ _ _ ▸u _ _)   → ¬▸u _ ▸u
-            (invUsageK′ ok′ _ _ _ _ _ _) →
-              case trans (sym ok′) ok of λ ()
-            (invUsageK₀ ok′ _ _ _ _ _ _) →
-              case trans (sym ok′) ok of λ ()
+            (invUsageK _ _ _ _ _ ▸u _ _)        → ¬▸u _ ▸u
+            (invUsageK₀₁ ≡some p≡𝟘 _ _ _ _ _ _) →
+              ⊥-elim $ ≢𝟘 ≡some p≡𝟘
+            (invUsageK₀₂ ≡all _ _ _ _ _ _) →
+              case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
         (inj₁ ▸u) → case ⌈⌉▸[ m ]? v of λ where
           (inj₂ ¬▸v) → inj₂ λ _ ▸K →
             case inv-usage-K ▸K of λ where
-              (invUsageK _ _ _ _ _ ▸v _)   → ¬▸v _ ▸v
-              (invUsageK′ ok′ _ _ _ _ _ _) →
-                case trans (sym ok′) ok of λ ()
-              (invUsageK₀ ok′ _ _ _ _ _ _) →
-                case trans (sym ok′) ok of λ ()
+              (invUsageK _ _ _ _ _ _ ▸v _)        → ¬▸v _ ▸v
+              (invUsageK₀₁ ≡some p≡𝟘 _ _ _ _ _ _) →
+                ⊥-elim $ ≢𝟘 ≡some p≡𝟘
+              (invUsageK₀₂ ≡all _ _ _ _ _ _) →
+                case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
           (inj₁ ▸v) → case ⌈⌉▸[ m ]? B of λ where
             (inj₂ ¬▸B) → inj₂ λ _ ▸K →
               case inv-usage-K ▸K of λ where
-                (invUsageK _ _ _ ▸B _ _ _)   → ¬▸B _ ▸B
-                (invUsageK′ ok′ _ _ _ _ _ _) →
-                  case trans (sym ok′) ok of λ ()
-                (invUsageK₀ ok′ _ _ _ _ _ _) →
-                  case trans (sym ok′) ok of λ ()
+                (invUsageK _ _ _ _ ▸B _ _ _)        → ¬▸B _ ▸B
+                (invUsageK₀₁ ≡some p≡𝟘 _ _ _ _ _ _) →
+                  ⊥-elim $ ≢𝟘 ≡some p≡𝟘
+                (invUsageK₀₂ ≡all _ _ _ _ _ _) →
+                  case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
             (inj₁ ▸B) → case ⌜ m ⌝ · p ≤? headₘ (⌈ B ⌉ m) of λ where
               (no mp≰) → inj₂ λ _ ▸K →
                 case inv-usage-K ▸K of λ where
-                  (invUsageK _ _ _ ▸B _ _ _) →
+                  (invUsageK _ _ _ _ ▸B _ _ _) →
                     mp≰ $ headₘ-monotone $ usage-upper-bound ▸B
-                  (invUsageK′ ok′ _ _ _ _ _ _) →
-                    case trans (sym ok′) ok of λ ()
-                  (invUsageK₀ ok′ _ _ _ _ _ _) →
-                    case trans (sym ok′) ok of λ ()
+                  (invUsageK₀₁ ≡some p≡𝟘 _ _ _ _ _ _) →
+                    ⊥-elim $ ≢𝟘 ≡some p≡𝟘
+                  (invUsageK₀₂ ≡all _ _ _ _ _ _) →
+                    case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
               (yes mp≤) →
                 let lemma = begin
                       tailₘ (⌈ B ⌉ m) ∙ ⌜ m ⌝ · p        ≤⟨ ≤ᶜ-refl ∙ mp≤ ⟩
                       tailₘ (⌈ B ⌉ m) ∙ headₘ (⌈ B ⌉ m)  ≡⟨ headₘ-tailₘ-correct _ ⟩
                       ⌈ B ⌉ m                            ∎
                 in
-                inj₁ (Kₘ ok ▸A ▸t (sub ▸B lemma) ▸u ▸v)
+                inj₁ (Kₘ ≤some ≢𝟘 ▸A ▸t (sub ▸B lemma) ▸u ▸v)
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 

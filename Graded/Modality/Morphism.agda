@@ -84,9 +84,9 @@ record Is-morphism
     -- The translation of 𝟘 is bounded by 𝟘.
     tr-𝟘-≤ : tr M₁.𝟘 ≤ M₂.𝟘
 
-    -- If the source modality is not trivial, then a quantity p is
-    -- mapped to 𝟘 exactly when p itself is 𝟘.
-    tr-≡-𝟘-⇔ : ∀ {p} → ¬ M₁.Trivial → tr p ≡ M₂.𝟘 ⇔ p ≡ M₁.𝟘
+    -- Either the source modality is trivial, or a quantity p is
+    -- mapped to 𝟘 exactly when p itself is 𝟘.
+    trivial-⊎-tr-≡-𝟘-⇔ : M₁.Trivial ⊎ (∀ {p} → tr p ≡ M₂.𝟘 ⇔ p ≡ M₁.𝟘)
 
     -- If 𝟘ᵐ is allowed in the target modality but not the source
     -- modality, then quantities are translated to quantities that are
@@ -172,6 +172,16 @@ record Is-morphism
   no-nr-in-first-if-in-second ⦃ no-nr = nn ⦄ =
     no-nr-in-first-iff-in-second .proj₂ nn
 
+  opaque
+
+    -- If the source modality is not trivial, then a quantity p is
+    -- mapped to 𝟘 exactly when p itself is 𝟘.
+
+    tr-≡-𝟘-⇔ : ¬ M₁.Trivial → tr p ≡ M₂.𝟘 ⇔ p ≡ M₁.𝟘
+    tr-≡-𝟘-⇔ non-trivial = case trivial-⊎-tr-≡-𝟘-⇔ of λ where
+      (inj₁ trivial)  → ⊥-elim $ non-trivial trivial
+      (inj₂ tr-≡-𝟘-⇔) → tr-≡-𝟘-⇔
+
   -- If the source modality is not trivial, then 𝟘 is translated to 𝟘.
 
   tr-𝟘-≡ : ¬ M₁.Trivial → tr M₁.𝟘 ≡ M₂.𝟘
@@ -182,6 +192,16 @@ record Is-morphism
 
   tr-𝟘-≡-𝟘ᵐ : T M₁.𝟘ᵐ-allowed → tr M₁.𝟘 ≡ M₂.𝟘
   tr-𝟘-≡-𝟘ᵐ = tr-𝟘-≡ ∘→ MP₁.𝟘ᵐ.non-trivial
+
+  opaque
+
+    -- Either the source modality is trivial, or the translation of 𝟘
+    -- is equal to 𝟘.
+
+    trivial-⊎-tr-𝟘 : M₁.Trivial ⊎ (tr M₁.𝟘 ≡ M₂.𝟘)
+    trivial-⊎-tr-𝟘 = case trivial-⊎-tr-≡-𝟘-⇔ of λ where
+      (inj₁ trivial₁) → inj₁ trivial₁
+      (inj₂ tr-≡-𝟘-⇔) → inj₂ (tr-≡-𝟘-⇔ .proj₂ refl)
 
   -- The translation is monotone.
 
@@ -233,10 +253,6 @@ record Is-order-embedding
     -- If 𝟘ᵐ is allowed in the target modality but not the source
     -- modality, then the source modality is trivial.
     trivial : ¬ T M₁.𝟘ᵐ-allowed → T M₂.𝟘ᵐ-allowed → M₁.Trivial
-
-    -- Either the source modality is trivial, or the translation of 𝟘
-    -- is equal to 𝟘.
-    trivial-⊎-tr-𝟘 : M₁.Trivial ⊎ (tr M₁.𝟘 ≡ M₂.𝟘)
 
     -- For every target quantity p there is a source quantity p′ such
     -- that the translation of p′ is bounded by p.
@@ -489,7 +505,6 @@ Is-order-embedding→Is-Σ-order-embedding m = λ where
 Is-order-embedding-id : Is-order-embedding 𝕄 𝕄 idᶠ
 Is-order-embedding-id {𝕄 = 𝕄} = λ where
     .tr-order-reflecting → idᶠ
-    .trivial-⊎-tr-𝟘      → inj₂ refl
     .trivial not-ok ok   → ⊥-elim (not-ok ok)
     .tr-≤                → _ , ≤-refl
     .tr-≤-𝟙              → idᶠ
@@ -502,7 +517,7 @@ Is-order-embedding-id {𝕄 = 𝕄} = λ where
       .tr-𝟙                                    → ≤-refl
       .tr-ω                                    → ≤-refl
       .tr-𝟘-≤                                  → ≤-refl
-      .tr-≡-𝟘-⇔ _                              → idᶠ , idᶠ
+      .trivial-⊎-tr-≡-𝟘-⇔                      → inj₂ (idᶠ , idᶠ)
       .tr-+                                    → refl
       .tr-·                                    → refl
       .tr-∧                                    → ≤-refl
@@ -562,8 +577,13 @@ Is-morphism-∘
        tr₁ (tr₂ M₁.𝟘)  ≤⟨ F.tr-monotone G.tr-𝟘-≤ ⟩
        tr₁ M₂.𝟘        ≤⟨ F.tr-𝟘-≤ ⟩
        M₃.𝟘            ∎
-    .Is-morphism.tr-≡-𝟘-⇔ ok →
-      G.tr-≡-𝟘-⇔ ok ∘⇔ F.tr-≡-𝟘-⇔ (G.second-not-trivial-if-first-not ok)
+    .Is-morphism.trivial-⊎-tr-≡-𝟘-⇔ →
+      case F.trivial-⊎-tr-≡-𝟘-⇔ of λ where
+        (inj₁ trivial₂) →
+          inj₁ (G.first-trivial-if-second-trivial trivial₂)
+        (inj₂ tr-≡-𝟘-⇔₂) → case G.trivial-⊎-tr-≡-𝟘-⇔ of λ where
+          (inj₁ trivial₁)  → inj₁ trivial₁
+          (inj₂ tr-≡-𝟘-⇔₁) → inj₂ (λ {_} → tr-≡-𝟘-⇔₁ ∘⇔ tr-≡-𝟘-⇔₂)
     .Is-morphism.tr-<-𝟘 {p = p} not-ok₁ ok₃ →
       let open R in
       Mo₂.𝟘ᵐ-allowed-elim
@@ -644,16 +664,6 @@ Is-order-embedding-∘
         (λ not-ok₂ → G.tr-injective (
            tr₂ M₁.𝟙  ≡⟨ MP₂.≡-trivial (F.trivial not-ok₂ ok₃) ⟩
            tr₂ M₁.𝟘  ∎))
-    .Is-order-embedding.trivial-⊎-tr-𝟘 →
-      let open Tools.Reasoning.PropositionalEquality in
-      case F.trivial-⊎-tr-𝟘 of λ where
-        (inj₁ triv)    → inj₁ (G.tr-injective (MP₂.≡-trivial triv))
-        (inj₂ tr₁-𝟘≡𝟘) → case G.trivial-⊎-tr-𝟘 of λ where
-          (inj₁ triv)    → inj₁ triv
-          (inj₂ tr₂-𝟘≡𝟘) → inj₂ (
-            tr₁ (tr₂ M₁.𝟘)  ≡⟨ cong tr₁ tr₂-𝟘≡𝟘 ⟩
-            tr₁ M₂.𝟘        ≡⟨ tr₁-𝟘≡𝟘 ⟩
-            M₃.𝟘            ∎)
     .Is-order-embedding.tr-≤ {p = p} →
       let open Tools.Reasoning.PartialOrder MP₃.≤-poset in
       case F.tr-≤ of λ (p′ , tr₁-p′≤p) →

@@ -54,8 +54,11 @@ record Semiring-with-meet : Set a where
   field
     -- In some modalities the grade ω stands for "an unlimited number
     -- of uses", but the only requirement on ω is that it is bounded
-    -- from above by the meet of 𝟘 and 𝟙.
-    ω≤𝟘∧𝟙 : ω ≤ 𝟘 ∧ 𝟙
+    -- from above by 𝟙.
+    ω≤𝟙 : ω ≤ 𝟙
+
+    -- It is decidable whether a grade is equal to 𝟘.
+    is-𝟘? : (p : M) → Dec (p ≡ 𝟘)
 
   -- A semiring with meet is said to be trivial if 𝟙 ≡ 𝟘.
   --
@@ -129,9 +132,6 @@ record Has-well-behaved-zero (𝕄 : Semiring-with-meet) : Set a where
   field
     -- 𝕄 is non-trivial.
     non-trivial : ¬ Trivial
-
-    -- It is decidable whether a value is equal to 𝟘.
-    is-𝟘? : (p : M) → Dec (p ≡ 𝟘)
 
     -- The following two assumptions are based on assumptions from
     -- Conor McBride's "I Got Plenty o’ Nuttin’" and Robert Atkey's

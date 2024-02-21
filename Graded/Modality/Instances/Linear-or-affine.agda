@@ -230,13 +230,18 @@ p ≤ q = p ≡ p ∧ q
 
 linear-or-affine-semiring-with-meet : Semiring-with-meet
 linear-or-affine-semiring-with-meet  = record
-  { _+_          = _+_
-  ; _·_          = _·_
-  ; _∧_          = _∧_
-  ; 𝟘            = 𝟘
-  ; 𝟙            = 𝟙
-  ; ω            = ≤ω
-  ; ω≤𝟘∧𝟙        = refl
+  { _+_   = _+_
+  ; _·_   = _·_
+  ; _∧_   = _∧_
+  ; 𝟘     = 𝟘
+  ; 𝟙     = 𝟙
+  ; ω     = ≤ω
+  ; ω≤𝟙   = refl
+  ; is-𝟘? = λ where
+      𝟘  → yes refl
+      𝟙  → no (λ ())
+      ≤𝟙 → no (λ ())
+      ≤ω → no (λ ())
   ; +-·-Semiring = record
     { isSemiringWithoutAnnihilatingZero = record
       { +-isCommutativeMonoid = record
@@ -675,11 +680,6 @@ instance
     Has-well-behaved-zero linear-or-affine-semiring-with-meet
   linear-or-affine-has-well-behaved-zero = record
     { non-trivial = λ ()
-    ; is-𝟘?       = λ where
-        𝟘  → yes refl
-        𝟙  → no (λ ())
-        ≤𝟙 → no (λ ())
-        ≤ω → no (λ ())
     ; zero-product = λ where
         {p = 𝟘} _ → inj₁ refl
         {q = 𝟘} _ → inj₂ refl

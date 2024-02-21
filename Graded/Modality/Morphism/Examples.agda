@@ -156,7 +156,6 @@ unit⇨erasure :
 unit⇨erasure {v₁-ok = v₁-ok} s⇔s = λ where
     .tr-order-reflecting _ → refl
     .trivial _ _           → refl
-    .trivial-⊎-tr-𝟘        → inj₁ refl
     .tr-≤                  → _ , refl
     .tr-≤-𝟙 _              → refl
     .tr-ω                  → refl
@@ -172,7 +171,7 @@ unit⇨erasure {v₁-ok = v₁-ok} s⇔s = λ where
       .𝟘-well-behaved-in-first-if-in-second → λ _ → inj₂ refl
       .nr-in-first-iff-in-second            → s⇔s
       .tr-𝟘-≤                               → refl
-      .tr-≡-𝟘-⇔                             → ⊥-elim ∘→ (_$ refl)
+      .trivial-⊎-tr-≡-𝟘-⇔                   → inj₁ refl
       .tr-<-𝟘 _ _                           → refl , λ ()
       .tr-𝟙                                 → refl
       .tr-ω                                 → refl
@@ -207,7 +206,6 @@ erasure⇨zero-one-many :
   Is-order-embedding 𝕄₁ 𝕄₂ erasure→zero-one-many
 erasure⇨zero-one-many {v₁ = v₁} {v₂ = v₂} {𝟙≤𝟘 = 𝟙≤𝟘} refl s⇔s = λ where
     .Is-order-embedding.trivial not-ok ok   → ⊥-elim (not-ok ok)
-    .Is-order-embedding.trivial-⊎-tr-𝟘      → inj₂ refl
     .Is-order-embedding.tr-≤                → ω , refl
     .Is-order-embedding.tr-≤-𝟙              → tr-≤-𝟙 _
     .Is-order-embedding.tr-ω                → refl
@@ -220,8 +218,9 @@ erasure⇨zero-one-many {v₁ = v₁} {v₂ = v₂} {𝟙≤𝟘 = 𝟙≤𝟘} 
       tr-order-reflecting _ _
     .Is-order-embedding.tr-morphism → λ where
       .Is-morphism.tr-𝟘-≤                    → refl
-      .Is-morphism.tr-≡-𝟘-⇔ _                → tr-≡-𝟘 _
-                                             , λ { refl → refl }
+      .Is-morphism.trivial-⊎-tr-≡-𝟘-⇔        → inj₂ ( tr-≡-𝟘 _
+                                                    , λ { refl → refl }
+                                                    )
       .Is-morphism.tr-<-𝟘 not-ok ok          → ⊥-elim (not-ok ok)
       .Is-morphism.tr-𝟙                      → refl
       .Is-morphism.tr-ω                      → refl
@@ -622,8 +621,9 @@ zero-one-many⇨erasure :
   Is-morphism 𝕄₁ 𝕄₂ zero-one-many→erasure
 zero-one-many⇨erasure {v₂ = v₂} {𝟙≤𝟘 = 𝟙≤𝟘} refl s⇔s = λ where
     .Is-morphism.tr-𝟘-≤                    → refl
-    .Is-morphism.tr-≡-𝟘-⇔ _                → tr-≡-𝟘 _
-                                           , λ { refl → refl }
+    .Is-morphism.trivial-⊎-tr-≡-𝟘-⇔        → inj₂ ( tr-≡-𝟘 _
+                                                  , λ { refl → refl }
+                                                  )
     .Is-morphism.tr-<-𝟘 not-ok ok          → ⊥-elim (not-ok ok)
     .Is-morphism.tr-𝟙                      → refl
     .Is-morphism.tr-ω                      → refl
@@ -1279,7 +1279,6 @@ linearity⇨linear-or-affine :
   Is-order-embedding 𝕄₁ 𝕄₂ linearity→linear-or-affine
 linearity⇨linear-or-affine {v₁ = v₁} {v₂ = v₂} refl s⇔s = λ where
     .Is-order-embedding.trivial not-ok ok   → ⊥-elim (not-ok ok)
-    .Is-order-embedding.trivial-⊎-tr-𝟘      → inj₂ refl
     .Is-order-embedding.tr-≤                → ω , refl
     .Is-order-embedding.tr-≤-𝟙              → tr-≤-𝟙 _
     .Is-order-embedding.tr-ω                → refl
@@ -1291,8 +1290,9 @@ linearity⇨linear-or-affine {v₁ = v₁} {v₂ = v₂} refl s⇔s = λ where
     .Is-order-embedding.tr-order-reflecting → tr-order-reflecting _ _
     .Is-order-embedding.tr-morphism         → λ where
       .Is-morphism.tr-𝟘-≤                    → refl
-      .Is-morphism.tr-≡-𝟘-⇔ _                → tr-≡-𝟘 _
-                                             , λ { refl → refl }
+      .Is-morphism.trivial-⊎-tr-≡-𝟘-⇔        → inj₂ ( tr-≡-𝟘 _
+                                                    , λ { refl → refl }
+                                                    )
       .Is-morphism.tr-<-𝟘 not-ok ok          → ⊥-elim (not-ok ok)
       .Is-morphism.tr-𝟙                      → refl
       .Is-morphism.tr-ω                      → refl
@@ -2934,7 +2934,9 @@ linear-or-affine⇨linearity :
   Is-morphism 𝕄₁ 𝕄₂ linear-or-affine→linearity
 linear-or-affine⇨linearity {v₂ = v₂} refl s⇔s = λ where
     .Is-morphism.tr-𝟘-≤                    → refl
-    .Is-morphism.tr-≡-𝟘-⇔ _                → tr-≡-𝟘 _ , λ { refl → refl }
+    .Is-morphism.trivial-⊎-tr-≡-𝟘-⇔        → inj₂ ( tr-≡-𝟘 _
+                                                  , λ { refl → refl }
+                                                  )
     .Is-morphism.tr-<-𝟘 not-ok ok          → ⊥-elim (not-ok ok)
     .Is-morphism.tr-𝟙                      → refl
     .Is-morphism.tr-ω                      → refl
@@ -4063,7 +4065,6 @@ affine⇨linear-or-affine :
   Is-order-embedding 𝕄₁ 𝕄₂ affine→linear-or-affine
 affine⇨linear-or-affine {v₁ = v₁} {v₂ = v₂} refl s⇔s = λ where
     .Is-order-embedding.trivial not-ok ok   → ⊥-elim (not-ok ok)
-    .Is-order-embedding.trivial-⊎-tr-𝟘      → inj₂ refl
     .Is-order-embedding.tr-≤                → ω , refl
     .Is-order-embedding.tr-≤-𝟙              → tr-≤-𝟙 _
     .Is-order-embedding.tr-ω                → refl
@@ -4075,8 +4076,9 @@ affine⇨linear-or-affine {v₁ = v₁} {v₂ = v₂} refl s⇔s = λ where
     .Is-order-embedding.tr-order-reflecting → tr-order-reflecting _ _
     .Is-order-embedding.tr-morphism         → λ where
       .Is-morphism.tr-𝟘-≤                    → refl
-      .Is-morphism.tr-≡-𝟘-⇔ _                → tr-≡-𝟘 _
-                                             , λ { refl → refl }
+      .Is-morphism.trivial-⊎-tr-≡-𝟘-⇔        → inj₂ ( tr-≡-𝟘 _
+                                                    , λ { refl → refl }
+                                                    )
       .Is-morphism.tr-<-𝟘 not-ok ok          → ⊥-elim (not-ok ok)
       .Is-morphism.tr-𝟙                      → refl
       .Is-morphism.tr-ω                      → refl
@@ -5735,8 +5737,9 @@ linear-or-affine⇨affine :
   Is-morphism 𝕄₁ 𝕄₂ linear-or-affine→affine
 linear-or-affine⇨affine {v₂ = v₂} refl s⇔s = λ where
     .Is-morphism.tr-𝟘-≤                    → refl
-    .Is-morphism.tr-≡-𝟘-⇔ _                → tr-≡-𝟘 _
-                                           , λ { refl → refl }
+    .Is-morphism.trivial-⊎-tr-≡-𝟘-⇔        → inj₂ ( tr-≡-𝟘 _
+                                                  , λ { refl → refl }
+                                                  )
     .Is-morphism.tr-<-𝟘 not-ok ok          → ⊥-elim (not-ok ok)
     .Is-morphism.tr-𝟙                      → refl
     .Is-morphism.tr-ω                      → refl
@@ -6864,8 +6867,9 @@ affine⇨linearity :
   Is-morphism 𝕄₁ 𝕄₂ affine→linearity
 affine⇨linearity {v₁ = v₁} {v₂ = v₂} refl s⇔s = λ where
     .Is-morphism.tr-𝟘-≤                    → refl
-    .Is-morphism.tr-≡-𝟘-⇔ _                → tr-≡-𝟘 _
-                                           , λ { refl → refl }
+    .Is-morphism.trivial-⊎-tr-≡-𝟘-⇔        → inj₂ ( tr-≡-𝟘 _
+                                                  , λ { refl → refl }
+                                                  )
     .Is-morphism.tr-<-𝟘 not-ok ok          → ⊥-elim (not-ok ok)
     .Is-morphism.tr-𝟙                      → refl
     .Is-morphism.tr-ω                      → refl
@@ -7191,8 +7195,9 @@ linearity⇨affine :
   Is-morphism 𝕄₁ 𝕄₂ linearity→affine
 linearity⇨affine {v₁ = v₁} {v₂ = v₂} refl s⇔s = λ where
     .Is-morphism.tr-𝟘-≤                    → refl
-    .Is-morphism.tr-≡-𝟘-⇔ _                → tr-≡-𝟘 _
-                                           , λ { refl → refl }
+    .Is-morphism.trivial-⊎-tr-≡-𝟘-⇔        → inj₂ ( tr-≡-𝟘 _
+                                                  , λ { refl → refl }
+                                                  )
     .Is-morphism.tr-<-𝟘 not-ok ok          → ⊥-elim (not-ok ok)
     .Is-morphism.tr-𝟙                      → refl
     .Is-morphism.tr-ω                      → refl

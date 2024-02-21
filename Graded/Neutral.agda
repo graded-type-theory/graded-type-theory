@@ -49,6 +49,7 @@ private variable
   χ   : Conₘ _
   p   : M
   s   : Strength
+  sem : Some-erased-matches
 
 opaque
 
@@ -124,7 +125,7 @@ opaque
                                 (inj₂ γ≈𝟘) → γ≈𝟘) ⟩
           γ ≈ᶜ 𝟘ᶜ →⟨ helper t-n ⊢t (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) ▸t) ⟩
           ⊥ □ }
-      (Jₙ w-n) ⊢J (Jₘ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} _ _ _ _ _ _ ▸w) →
+      (Jₙ w-n) ⊢J (Jₘ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} _ _ _ _ _ _ _ ▸w) →
         case inversion-J ⊢J of λ {
           (_ , _ , _ , _ , _ , ⊢w , _) →
         ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆) ≈ᶜ 𝟘ᶜ   →⟨ ·ᶜ-zero-product ⟩
@@ -137,17 +138,17 @@ opaque
                                                      proj₂ ∘→ ∧ᶜ-positive ⟩
         γ₆ ≈ᶜ 𝟘ᶜ                                  →⟨ helper w-n ⊢w ▸w ⟩
         ⊥                                         □ }
-      (Jₙ _) _ (Jₘ′ em _ _ _ _ _ _) →
+      (Jₙ _) _ (J₀ₘ₁ em _ _ _ _ _ _ _ _) →
         case
           PE.trans (PE.sym em)
             (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₁)
         of λ ()
-      (Jₙ _) _ (J₀ₘ em _ _ _ _ _ _) →
+      (Jₙ _) _ (J₀ₘ₂ em _ _ _ _ _ _) →
         case
           PE.trans (PE.sym em)
             (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₁)
         of λ ()
-      (Kₙ v-n) ⊢K (Kₘ {γ₂} {γ₃} {γ₄} {γ₅} _ _ _ _ _ ▸v) →
+      (Kₙ v-n) ⊢K (Kₘ {γ₂} {γ₃} {γ₄} {γ₅} _ _ _ _ _ _ ▸v) →
         case inversion-K ⊢K of λ {
           (_ , _ , _ , _ , ⊢v , _) →
         ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅) ≈ᶜ 𝟘ᶜ   →⟨ ·ᶜ-zero-product ⟩
@@ -159,12 +160,12 @@ opaque
                                                proj₂ ∘→ ∧ᶜ-positive ⟩
         γ₅ ≈ᶜ 𝟘ᶜ                            →⟨ helper v-n ⊢v ▸v ⟩
         ⊥                                   □ }
-      (Kₙ _) _ (Kₘ′ em _ _ _ _ _) →
+      (Kₙ _) _ (K₀ₘ₁ em _ _ _ _ _ _) →
         case
           PE.trans (PE.sym em)
             (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₂)
         of λ ()
-      (Kₙ _) _ (K₀ₘ em _ _ _ _ _) →
+      (Kₙ _) _ (K₀ₘ₂ em _ _ _ _ _) →
         case
           PE.trans (PE.sym em)
             (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₂)
@@ -217,50 +218,38 @@ opaque
 
 opaque
 
-  -- If
-  --
-  -- * erased-matches-for-J 𝟙ᵐ is not equal to none, and
-  -- * if it is equal to some, then 𝟘ᵐ is allowed,
-  --
-  -- then there is a well-typed, well-resourced, neutral term in a
-  -- consistent, erasable context.
+  -- If erased-matches-for-J 𝟙ᵐ is equal to not-none sem, then there
+  -- is a well-typed, well-resourced, neutral term in a consistent,
+  -- erasable context.
 
   neutral-well-resourced₃ :
-    erased-matches-for-J 𝟙ᵐ ≢ none →
-    (erased-matches-for-J 𝟙ᵐ ≡ some → T 𝟘ᵐ-allowed) →
+    erased-matches-for-J 𝟙ᵐ ≡ not-none sem →
     ∃₄ λ n (Γ : Con Term n) (t A : Term n) →
     Consistent Γ ×
     Neutral t ×
     Γ ⊢ t ∷ A ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t
-  neutral-well-resourced₃ ok₁ ok₂ =
-    case soundness-ℕ-only-source-counterexample₃ ok₁ ok₂ of λ {
+  neutral-well-resourced₃ ok =
+    case soundness-ℕ-only-source-counterexample₃ ok of λ {
       (consistent , ⊢t , ▸t , _) →
     _ , _ , _ , _ , consistent , Jₙ (var _) , ⊢t , ▸t }
 
 opaque
 
-  -- If
-  --
-  -- * K-allowed holds,
-  -- * erased-matches-for-K 𝟙ᵐ is not equal to none, and
-  -- * if erased-matches-for-K 𝟙ᵐ is equal to some, then 𝟘ᵐ is
-  --   allowed,
-  --
-  -- then there is a well-typed, well-resourced, neutral term in a
-  -- consistent, erasable context.
+  -- If the K rule is allowed and erased-matches-for-K 𝟙ᵐ is equal to
+  -- not-none sem, then there is a well-typed, well-resourced, neutral
+  -- term in a consistent, erasable context.
 
   neutral-well-resourced₄ :
     K-allowed →
-    erased-matches-for-K 𝟙ᵐ ≢ none →
-    (erased-matches-for-K 𝟙ᵐ ≡ some → T 𝟘ᵐ-allowed) →
+    erased-matches-for-K 𝟙ᵐ ≡ not-none sem →
     ∃₄ λ n (Γ : Con Term n) (t A : Term n) →
     Consistent Γ ×
     Neutral t ×
     Γ ⊢ t ∷ A ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t
-  neutral-well-resourced₄ ok₁ ok₂ ok₃ =
-    case soundness-ℕ-only-source-counterexample₄ ok₁ ok₂ ok₃ of λ {
+  neutral-well-resourced₄ ok₁ ok₂ =
+    case soundness-ℕ-only-source-counterexample₄ ok₁ ok₂ of λ {
       (consistent , ⊢t , ▸t , _) →
     _ , _ , _ , _ , consistent , Kₙ (var _) , ⊢t , ▸t }
 

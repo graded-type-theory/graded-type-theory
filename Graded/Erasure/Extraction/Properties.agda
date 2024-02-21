@@ -470,29 +470,23 @@ module hasX (R : Usage-restrictions) where
     (natrecₓⁿ hasX) =
     erased-hasX (x◂𝟘∈γ≤δ erased χ≤η) η▸n hasX
 
-  erased-hasX erased (Jₘ _ _ _ _ ▸u _ _) hasX =
+  erased-hasX erased (Jₘ _ _ _ _ _ ▸u _ _) hasX =
     erased-hasX
       (x◂𝟘∈γ∧δˡ refl $ x◂𝟘∈γ∧δʳ refl $ x◂𝟘∈γ∧δʳ refl $
        x◂𝟘∈pγ refl ω≢𝟘 erased)
       ▸u hasX
-  erased-hasX erased (Jₘ′ _ _ _ _ ▸u _ _) hasX =
-    erased-hasX
-      (x◂𝟘∈γ∧δˡ refl $ x◂𝟘∈γ∧δʳ refl $ x◂𝟘∈γ∧δʳ refl $
-       x◂𝟘∈pγ refl ω≢𝟘 erased)
-      ▸u hasX
-  erased-hasX erased (J₀ₘ _ _ _ _ ▸u _ _) hasX =
+  erased-hasX erased (J₀ₘ₁ _ _ _ _ _ _ ▸u _ _) hasX =
+    erased-hasX (x◂𝟘∈γ∧δʳ refl $ x◂𝟘∈pγ refl ω≢𝟘 erased) ▸u hasX
+  erased-hasX erased (J₀ₘ₂ _ _ _ _ ▸u _ _) hasX =
     erased-hasX erased ▸u hasX
-  erased-hasX erased (Kₘ _ _ _ _ ▸u _) hasX =
+  erased-hasX erased (Kₘ _ _ _ _ _ ▸u _) hasX =
     erased-hasX
       (x◂𝟘∈γ∧δˡ refl $ x◂𝟘∈γ∧δʳ refl $ x◂𝟘∈γ∧δʳ refl $
        x◂𝟘∈pγ refl ω≢𝟘 erased)
       ▸u hasX
-  erased-hasX erased (Kₘ′ _ _ _ _ ▸u _) hasX =
-    erased-hasX
-      (x◂𝟘∈γ∧δˡ refl $ x◂𝟘∈γ∧δʳ refl $ x◂𝟘∈γ∧δʳ refl $
-       x◂𝟘∈pγ refl ω≢𝟘 erased)
-      ▸u hasX
-  erased-hasX erased (K₀ₘ _ _ _ _ ▸u _) hasX =
+  erased-hasX erased (K₀ₘ₁ _ _ _ _ _ ▸u _) hasX =
+    erased-hasX (x◂𝟘∈γ∧δʳ refl $ x◂𝟘∈pγ refl ω≢𝟘 erased) ▸u hasX
+  erased-hasX erased (K₀ₘ₂ _ _ _ _ ▸u _) hasX =
     erased-hasX erased ▸u hasX
 
   erased-hasX erased (unitrecₘ {p = p} γ▸t δ▸u η▸A ok) hasX

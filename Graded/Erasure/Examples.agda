@@ -62,14 +62,13 @@ private
 
   module EM = Modality EM
 
-open import Graded.Modality.Instances.Erasure.Properties variant
-
 open import Graded.Context EM
 open import Graded.Erasure.Consequences.Soundness TR UR
-open import Graded.Erasure.Extraction EM is-𝟘?
+open import Graded.Erasure.Extraction EM EM.is-𝟘?
 import Graded.Erasure.SucRed TR as S
 import Graded.Erasure.Target as T
 import Graded.Erasure.Target.Properties as TP
+open import Graded.Modality.Instances.Erasure.Properties variant
 open import Graded.Mode EM
 open import Graded.Usage EM UR
 open import Graded.Usage.Inversion EM UR

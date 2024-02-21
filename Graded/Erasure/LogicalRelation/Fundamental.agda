@@ -551,7 +551,7 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
     , ⊩B[v,w]
     , (λ {_ _} →
          case inv-usage-J ▸J of λ where
-           (invUsageJ₀ em _ _ _ ▸u _ _ γ≤) →
+           (invUsageJ₀₂ em _ _ _ ▸u _ _ γ≤) →
              case fundamental′ ⊢u ▸u of λ {
                (⊩B[t,rfl] , ⊩ʳu) →
              Jʳ ⊢t ⊢B ⊢u ⊢v ⊢w ⊩B[t,rfl] ⊩B[v,w] γ≤ ⊩ʳu
@@ -562,17 +562,15 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
                       PE.trans (PE.sym em)
                         (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₁)
                     of λ ()) }
-           (invUsageJ′ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} em _ _ _ ▸u _ _ γ≤) →
+           (invUsageJ₀₁ {γ₃} {γ₄} em _ _ _ _ _ ▸u _ _ γ≤) →
              case fundamental′ ⊢u ▸u of λ
                (⊩B[t,rfl] , ⊩ʳu) →
              Jʳ ⊢t ⊢B ⊢u ⊢v ⊢w ⊩B[t,rfl] ⊩B[v,w]
                (begin
-                  γ                                  ≤⟨ γ≤ ⟩
-                  ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆)  ≤⟨ ω·ᶜ-decreasing ⟩
-                  γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆         ≤⟨ ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
-                                                        ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
-                                                        ∧ᶜ-decreasingˡ _ _ ⟩
-                  γ₄                                 ∎)
+                  γ                ≤⟨ γ≤ ⟩
+                  ω ·ᶜ (γ₃ ∧ᶜ γ₄)  ≤⟨ ω·ᶜ-decreasing ⟩
+                  γ₃ ∧ᶜ γ₄         ≤⟨ ∧ᶜ-decreasingʳ _ _ ⟩
+                  γ₄               ∎)
                ⊩ʳu
                (inj₁ $ case closed-or-no-erased-matches of λ where
                   (inj₂ k≡0) → k≡0
@@ -581,7 +579,7 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
                       PE.trans (PE.sym em)
                         (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₁)
                     of λ ())
-           (invUsageJ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} _ _ _ _ ▸u _ ▸w γ≤) →
+           (invUsageJ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} _ _ _ _ _ ▸u _ ▸w γ≤) →
              case fundamental′ ⊢u ▸u of λ {
                (⊩B[t,rfl] , ⊩ʳu) →
              subsumption {t = J _ _ A t B u v w} _ ⊩B[v,w]
@@ -619,7 +617,7 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
     , ⊩B[v]
     , (λ {_ _} →
          case inv-usage-K ▸K of λ where
-           (invUsageK₀ em _ _ _ ▸u _ γ≤) →
+           (invUsageK₀₂ em _ _ _ ▸u _ γ≤) →
              case fundamental′ ⊢u ▸u of λ {
                (⊩B[rfl] , ⊩ʳu) →
              Kʳ ⊢t ⊢B ⊢u ⊢v ok ⊩B[rfl] ⊩B[v] γ≤ ⊩ʳu
@@ -630,12 +628,12 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
                       PE.trans (PE.sym em)
                         (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₂)
                     of λ ()) }
-           (invUsageK′ {γ₂} {γ₃} {γ₄} {γ₅} em _ _ _ ▸u _ γ≤) →
+           (invUsageK₀₁ {γ₂} {γ₃} {γ₄} {γ₅} em _ _ _ _ ▸u _ γ≤) →
              case fundamental′ ⊢u ▸u of λ
                (⊩B[rfl] , ⊩ʳu) →
              subsumption {t = K _ A t B u v} _ ⊩B[v]
                (Kʳ ⊢t ⊢B ⊢u ⊢v ok ⊩B[rfl] ⊩B[v]
-                  (∧ᶜ-decreasingˡ γ₄ _) ⊩ʳu
+                  (∧ᶜ-decreasingʳ γ₃ _) ⊩ʳu
                   (inj₁ $ case closed-or-no-erased-matches of λ where
                      (inj₂ k≡0) → k≡0
                      (inj₁ nem) →
@@ -644,13 +642,11 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
                            (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₂)
                        of λ ()))
                (λ x →
-                  γ ⟨ x ⟩ PE.≡ 𝟘                                  →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤ ⟩
-                  (ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅)) ⟨ x ⟩ PE.≡ 𝟘      →⟨ ·ᶜ-zero-product-⟨⟩ (γ₂ ∧ᶜ _) ⟩
-                  ω PE.≡ 𝟘 ⊎ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘  →⟨ (λ { (inj₁ ω≡𝟘) → ⊥-elim (ω≢𝟘 ω≡𝟘); (inj₂ hyp) → hyp }) ⟩
-                  (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘             →⟨ proj₂ ∘→ ∧ᶜ-positive-⟨⟩ γ₃ ∘→
-                                                                     proj₂ ∘→ ∧ᶜ-positive-⟨⟩ γ₂ ⟩
-                  (γ₄ ∧ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘                         □)
-           (invUsageK {γ₂} {γ₃} {γ₄} {γ₅} _ _ _ _ ▸u ▸v γ≤) →
+                  γ ⟨ x ⟩ PE.≡ 𝟘                      →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤ ⟩
+                  (ω ·ᶜ (γ₃ ∧ᶜ γ₄)) ⟨ x ⟩ PE.≡ 𝟘      →⟨ ·ᶜ-zero-product-⟨⟩ (γ₃ ∧ᶜ _) ⟩
+                  ω PE.≡ 𝟘 ⊎ (γ₃ ∧ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘  →⟨ (λ { (inj₁ ω≡𝟘) → ⊥-elim (ω≢𝟘 ω≡𝟘); (inj₂ hyp) → hyp }) ⟩
+                  (γ₃ ∧ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘             □)
+           (invUsageK {γ₂} {γ₃} {γ₄} {γ₅} _ _ _ _ _ ▸u ▸v γ≤) →
              case fundamental′ ⊢u ▸u of λ {
                (⊩B[rfl] , ⊩ʳu) →
              subsumption {t = K _ A t B u v} _ ⊩B[v]

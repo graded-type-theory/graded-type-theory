@@ -221,11 +221,31 @@ module _ (fe : Function-extensionality lzero lzero) where
              sym (∨-identityʳ (xs .proj₁ n))
     }
 
+  -- A set is equal to ∅ if and only if 0 is not a member of the set.
+
+  ≡∅⇔0∉ : xs ≡ ∅ ⇔ xs .proj₁ 0 ≡ false
+  ≡∅⇔0∉ {xs = xs@(p , closed)} =
+      (λ { refl → refl })
+    , (λ eq →
+         predicates-equal→sets-equal $ ext fe λ n →
+         ¬-T .proj₁ $ ¬-T .proj₂ eq ∘→ closed 0 n z≤n)
+
   -- A "semiring with meet" for Set-ℕ.
 
   semiring-with-meet : Semiring-with-meet
   semiring-with-meet =
-    BDL.semiring-with-meet bounded-distributive-lattice
+    BDL.semiring-with-meet bounded-distributive-lattice is-𝟘?
+    where
+    is-𝟘? : (xs : Set-ℕ) → Dec (xs ≡ ∅)
+    is-𝟘? xs@(p , _) = lemma _ refl
+      where
+      lemma : (b : Bool) → b ≡ p 0 → Dec (xs ≡ ∅)
+      lemma false eq = yes (≡∅⇔0∉ .proj₂ (sym eq))
+      lemma true  eq = no
+        (xs ≡ ∅        →⟨ ≡∅⇔0∉ .proj₁ ⟩
+         p 0 ≡ false   →⟨ trans eq ⟩
+         true ≡ false  →⟨ (λ ()) ⟩
+         ⊥             □)
 
   -- The function _∪ ys is decreasing.
 
@@ -240,15 +260,6 @@ module _ (fe : Function-extensionality lzero lzero) where
     where
     module R = Semiring-with-meet semiring-with-meet
 
-  -- A set is equal to ∅ if and only if 0 is not a member of the set.
-
-  ≡∅⇔0∉ : xs ≡ ∅ ⇔ xs .proj₁ 0 ≡ false
-  ≡∅⇔0∉ {xs = xs@(p , closed)} =
-      (λ { refl → refl })
-    , (λ eq →
-         predicates-equal→sets-equal $ ext fe λ n →
-         ¬-T .proj₁ $ ¬-T .proj₂ eq ∘→ closed 0 n z≤n)
-
   -- The "semiring with meet" has a well-behaved zero.
 
   has-well-behaved-zero : Has-well-behaved-zero semiring-with-meet
@@ -257,7 +268,6 @@ module _ (fe : Function-extensionality lzero lzero) where
       ℕ ≡ ∅         →⟨ cong (λ xs → xs .proj₁ 0) ⟩
       true ≡ false  →⟨ (λ ()) ⟩
       ⊥             □
-    ; is-𝟘?        = is-𝟘?
     ; zero-product = λ {p = xs} {q = ys} →
         xs ∩ ys ≡ ∅                                →⟨ cong (λ f → f .proj₁ 0) ⟩
         xs .proj₁ 0 ∧ ys .proj₁ 0 ≡ false          →⟨ ∧-zero-product ⟩
@@ -267,17 +277,6 @@ module _ (fe : Function-extensionality lzero lzero) where
     ; ∧-positiveˡ = ∪-positiveˡ _ _
     }
     where
-    is-𝟘? : (xs : Set-ℕ) → Dec (xs ≡ ∅)
-    is-𝟘? xs@(p , _) = lemma _ refl
-      where
-      lemma : (b : Bool) → b ≡ p 0 → Dec (xs ≡ ∅)
-      lemma false eq = yes (≡∅⇔0∉ .proj₂ (sym eq))
-      lemma true  eq = no
-        (xs ≡ ∅        →⟨ ≡∅⇔0∉ .proj₁ ⟩
-         p 0 ≡ false   →⟨ trans eq ⟩
-         true ≡ false  →⟨ (λ ()) ⟩
-         ⊥             □)
-
     ∪-positiveˡ : ∀ xs ys → xs ∪ ys ≡ ∅ → xs ≡ ∅
     ∪-positiveˡ xs ys =
       xs ∪ ys ≡ ∅                        →⟨ cong (λ f → f .proj₁ 0) ⟩

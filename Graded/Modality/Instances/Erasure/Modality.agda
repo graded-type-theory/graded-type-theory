@@ -26,7 +26,10 @@ erasure-semiring-with-meet = record
   ; 𝟘 = 𝟘
   ; 𝟙 = ω
   ; ω = ω
-  ; ω≤𝟘∧𝟙 = refl
+  ; ω≤𝟙 = refl
+  ; is-𝟘? = λ where
+      𝟘 → yes refl
+      ω → no (λ ())
   ; +-·-Semiring = +-·-Semiring
   ; ∧-Semilattice = +-Semilattice
   ; ·-distrib-∧ = ·-distrib-+
@@ -41,9 +44,6 @@ instance
     Has-well-behaved-zero erasure-semiring-with-meet
   erasure-has-well-behaved-zero = record
     { non-trivial = λ ()
-    ; is-𝟘? = λ where
-        𝟘 → yes refl
-        ω → no (λ ())
     ; zero-product = λ where
         {p = 𝟘} {q = 𝟘} _  → inj₁ refl
         {p = 𝟘} {q = ω} _  → inj₁ refl

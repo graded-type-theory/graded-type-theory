@@ -40,11 +40,12 @@ private variable
   p                 : M
   γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ : Conₘ _
   m                 : Mode
+  sem               : Some-erased-matches
 
 opaque
   unfolding subst
 
-  -- A (possibly suboptimal) usage rule for subst.
+  -- A usage rule for subst.
 
   ▸subst :
     γ₁ ▸[ 𝟘ᵐ? ] A →
@@ -70,3 +71,21 @@ opaque
                                              ≈ᶜ-trans (≈ᶜ-sym $ ∧ᶜ-assoc _ _ _) $
                                              ∧ᶜ-comm _ _ ⟩
        ω ·ᶜ (γ₃ ∧ᶜ γ₂ ∧ᶜ γ₆ ∧ᶜ γ₄ ∧ᶜ γ₅)  ∎)
+
+opaque
+  unfolding subst
+
+  -- A usage rule for subst 𝟘.
+
+  ▸subst-𝟘 :
+    erased-matches-for-J m ≡ not-none sem →
+    γ₁ ▸[ 𝟘ᵐ? ] A →
+    γ₂ ∙ 𝟘 ▸[ m ] B →
+    γ₃ ▸[ 𝟘ᵐ? ] t →
+    γ₄ ▸[ 𝟘ᵐ? ] u →
+    γ₅ ▸[ 𝟘ᵐ? ] v →
+    γ₆ ▸[ m ] w →
+    ω ·ᶜ (γ₂ ∧ᶜ γ₆) ▸[ m ] subst 𝟘 A B t u v w
+  ▸subst-𝟘 ≡not-none ▸A ▸B ▸t ▸u ▸v ▸w =
+    J₀ₘ₁-generalised ≡not-none PE.refl PE.refl ▸A ▸t
+      (wkUsage (step id) ▸B) ▸w ▸u ▸v

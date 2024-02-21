@@ -964,13 +964,16 @@ record Is-non-empty-interval (S : Set a) : Set (lsuc (lsuc a)) where
 
     semiring-with-meet : Semiring-with-meet
     semiring-with-meet = λ where
-      .Semiring-with-meet._∧_           → _∪_
-      .Semiring-with-meet._+_           → _+_
-      .Semiring-with-meet._·_           → _·_
-      .Semiring-with-meet.𝟘             → 𝟘
-      .Semiring-with-meet.𝟙             → 𝟙
-      .Semiring-with-meet.ω             → ℕ
-      .Semiring-with-meet.ω≤𝟘∧𝟙         → ℕ-least
+      .Semiring-with-meet._∧_      → _∪_
+      .Semiring-with-meet._+_      → _+_
+      .Semiring-with-meet._·_      → _·_
+      .Semiring-with-meet.𝟘        → 𝟘
+      .Semiring-with-meet.𝟙        → 𝟙
+      .Semiring-with-meet.ω        → ℕ
+      .Semiring-with-meet.ω≤𝟙      → ℕ-least
+      .Semiring-with-meet.is-𝟘? xs → case is-𝟘? xs of λ where
+        (inj₁ xs≡𝟘) → yes (xs≡𝟘 ext)
+        (inj₂ xs≢𝟘) → no xs≢𝟘
       .Semiring-with-meet.∧-Semilattice → ∪-semilattice
       .Semiring-with-meet.+-·-Semiring  → record
         { isSemiringWithoutAnnihilatingZero = record
@@ -993,9 +996,6 @@ record Is-non-empty-interval (S : Set a) : Set (lsuc (lsuc a)) where
       .Has-well-behaved-zero.∧-positiveˡ  → proj₁ ∘→ ∪-positive
       .Has-well-behaved-zero.+-positiveˡ  → proj₁ ∘→ +-positive
       .Has-well-behaved-zero.zero-product → zero-product
-      .Has-well-behaved-zero.is-𝟘? xs     → case is-𝟘? xs of λ where
-        (inj₁ xs≡𝟘) → yes (xs≡𝟘 ext)
-        (inj₂ xs≢𝟘) → no xs≢𝟘
 
     private
       module LB = LowerBounded semiring-with-meet ℕ (λ _ → ℕ-least)

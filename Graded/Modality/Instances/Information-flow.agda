@@ -185,13 +185,17 @@ limit {p = p} P dec P-p =
 
 L≤M≤H-semiring-with-meet : Semiring-with-meet
 L≤M≤H-semiring-with-meet = record
-  { _+_          = _+_
-  ; _·_          = _·_
-  ; _∧_          = _∧_
-  ; 𝟘            = H
-  ; 𝟙            = L
-  ; ω            = L
-  ; ω≤𝟘∧𝟙        = refl
+  { _+_   = _+_
+  ; _·_   = _·_
+  ; _∧_   = _∧_
+  ; 𝟘     = H
+  ; 𝟙     = L
+  ; ω     = L
+  ; ω≤𝟙   = refl
+  ; is-𝟘? = λ where
+      L → no (λ ())
+      M → no (λ ())
+      H → yes refl
   ; +-·-Semiring = record
     { isSemiringWithoutAnnihilatingZero = record
       { +-isCommutativeMonoid = record
@@ -406,10 +410,6 @@ instance
     Has-well-behaved-zero L≤M≤H-semiring-with-meet
   L≤M≤H-has-well-behaved-zero = record
     { non-trivial = λ ()
-    ; is-𝟘?       = λ where
-        L → no (λ ())
-        M → no (λ ())
-        H → yes refl
     ; zero-product = λ where
         {p = L} {q = L} ()
         {p = L} {q = M} ()

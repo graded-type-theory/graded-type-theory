@@ -269,7 +269,6 @@ import
   Graded.Modality.Instances.Bounded-distributive-lattice.No-division
 import
   Graded.Modality.Instances.Bounded-distributive-lattice.Nat-plus-infinity
-import Graded.Modality.Instances.Bounded-distributive-lattice.Set
 import
   Graded.Modality.Instances.Bounded-distributive-lattice.Downward-closed
 import Graded.Modality.Instances.Set.Interval.Implementation

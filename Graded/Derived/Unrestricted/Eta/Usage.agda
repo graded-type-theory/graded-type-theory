@@ -9,10 +9,11 @@ open import Definition.Untyped.NotParametrised
 module Graded.Derived.Unrestricted.Eta.Usage
   {a} {M : Set a}
   (𝕄 : Modality M)
+  (open Modality 𝕄)
   (R : Usage-restrictions 𝕄)
+  -- The quantity ω is bounded by 𝟘.
+  (ω≤𝟘 : ω ≤ 𝟘)
   where
-
-open Modality 𝕄
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄

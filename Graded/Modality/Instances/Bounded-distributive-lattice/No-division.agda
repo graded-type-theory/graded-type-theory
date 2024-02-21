@@ -18,7 +18,7 @@ open import Tools.Nat as N using (Nat; 1+; _⊔_; _⊓_)
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PropositionalEquality
-open import Tools.Relation
+open import Tools.Relation as Dec
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
@@ -244,7 +244,10 @@ bounded-distributive-lattice = record
 
 semiring-with-meet : Semiring-with-meet ⊤⊎ℕ⊎ℕ
 semiring-with-meet =
-  BDL.semiring-with-meet _ bounded-distributive-lattice
+  BDL.semiring-with-meet _ bounded-distributive-lattice λ where
+    ⊥         → no (λ ())
+    (left _)  → no (λ ())
+    (right n) → Dec.map (cong right) (λ { refl → refl }) (n N.≟ 0)
 
 -- The zero-product property fails for this "semiring with meet".
 

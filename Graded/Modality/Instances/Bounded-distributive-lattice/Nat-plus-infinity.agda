@@ -259,14 +259,15 @@ bounded-distributive-lattice = record
 
 semiring-with-meet : Semiring-with-meet
 semiring-with-meet =
-  BDL.semiring-with-meet bounded-distributive-lattice
+  BDL.semiring-with-meet bounded-distributive-lattice is-𝟘?
+  where
+  open Semiring-with-meet ℕ⊎∞.ℕ⊎∞-semiring-with-meet
 
 -- The "semiring with meet" has a well-behaved zero.
 
 has-well-behaved-zero : Has-well-behaved-zero semiring-with-meet
 has-well-behaved-zero = record
   { non-trivial  = λ ()
-  ; is-𝟘?        = Z.is-𝟘?
   ; +-positiveˡ  = Z.∧-positiveˡ
   ; ∧-positiveˡ  = Z.∧-positiveˡ
   ; zero-product = λ where

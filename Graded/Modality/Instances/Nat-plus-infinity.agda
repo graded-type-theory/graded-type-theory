@@ -237,7 +237,8 @@ _≟_ = λ where
   ; 𝟘            = ⌞ 0 ⌟
   ; 𝟙            = ⌞ 1 ⌟
   ; ω            = ∞
-  ; ω≤𝟘∧𝟙        = refl
+  ; ω≤𝟙          = refl
+  ; is-𝟘?        = _≟ ⌞ 0 ⌟
   ; +-·-Semiring = record
     { isSemiringWithoutAnnihilatingZero = record
       { +-isCommutativeMonoid = record
@@ -435,7 +436,6 @@ instance
     Has-well-behaved-zero ℕ⊎∞-semiring-with-meet
   ℕ⊎∞-has-well-behaved-zero = record
     { non-trivial  = λ ()
-    ; is-𝟘?        = _≟ ⌞ 0 ⌟
     ; zero-product = λ where
         {p = ⌞ 0 ⌟} {q = ⌞ _ ⌟} _ → inj₁ refl
         {p = ⌞ 0 ⌟} {q = ∞}     _ → inj₁ refl

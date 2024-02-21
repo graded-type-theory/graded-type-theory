@@ -133,13 +133,16 @@ _≟_ = λ where
 
 𝟘≤𝟙-semiring-with-meet : Semiring-with-meet
 𝟘≤𝟙-semiring-with-meet = record
-  { _+_          = _+_
-  ; _·_          = _·_
-  ; _∧_          = _∧_
-  ; 𝟘            = 𝟘
-  ; 𝟙            = 𝟙
-  ; ω            = 𝟘
-  ; ω≤𝟘∧𝟙        = refl
+  { _+_   = _+_
+  ; _·_   = _·_
+  ; _∧_   = _∧_
+  ; 𝟘     = 𝟘
+  ; 𝟙     = 𝟙
+  ; ω     = 𝟙
+  ; ω≤𝟙   = refl
+  ; is-𝟘? = λ where
+      𝟘 → yes refl
+      𝟙 → no (λ ())
   ; +-·-Semiring = record
     { isSemiringWithoutAnnihilatingZero = record
       { +-isCommutativeMonoid = record

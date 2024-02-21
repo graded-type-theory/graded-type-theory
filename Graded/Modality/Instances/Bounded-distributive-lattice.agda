@@ -1,5 +1,6 @@
 ------------------------------------------------------------------------
--- Bounded, distributive lattices can be turned into modalities
+-- Bounded, distributive lattices can be turned into modalities (if
+-- equality with ⊤ is decidable)
 ------------------------------------------------------------------------
 
 module Graded.Modality.Instances.Bounded-distributive-lattice
@@ -15,6 +16,7 @@ open import Tools.Bool using (T; false)
 open import Tools.Product
 open import Tools.PropositionalEquality
 import Tools.Reasoning.PropositionalEquality
+open import Tools.Relation
 
 -- Bounded, distributive lattices over M.
 
@@ -52,18 +54,22 @@ record Bounded-distributive-lattice : Set a where
     ≤⊤ : ∀ p → p ≤ ⊤
 
 -- Bounded, distributive lattices can be turned into "semirings with
--- meet".
+-- meet" (if equality with ⊤ is decidable).
 
 semiring-with-meet :
-  Bounded-distributive-lattice → Semiring-with-meet
-semiring-with-meet bl = record
+  (bl : Bounded-distributive-lattice) →
+  let open Bounded-distributive-lattice bl in
+  ((p : M) → Dec (p ≡ ⊤)) →
+  Semiring-with-meet
+semiring-with-meet bl is-⊤? = record
   { _+_           = _∧_
   ; _·_           = _∨_
   ; _∧_           = _∧_
   ; 𝟘             = ⊤
   ; 𝟙             = ⊥
   ; ω             = ⊥
-  ; ω≤𝟘∧𝟙         = ⊥≤ _
+  ; ω≤𝟙           = ⊥≤ _
+  ; is-𝟘?         = is-⊤?
   ; +-·-Semiring  = record
     { isSemiringWithoutAnnihilatingZero = record
       { +-isCommutativeMonoid = record
@@ -121,25 +127,31 @@ semiring-with-meet bl = record
     ⊤            ∎
 
 -- One can define natrec-star operators for bounded, distributive
--- lattices.
+-- lattices (if equality with ⊤ is decidable).
 
 has-star :
-  (bl : Bounded-distributive-lattice) → Has-star (semiring-with-meet bl)
+  (bl : Bounded-distributive-lattice) →
+  let open Bounded-distributive-lattice bl in
+  {is-⊤? : (p : M) → Dec (p ≡ ⊤)} →
+  Has-star (semiring-with-meet bl is-⊤?)
 has-star bl = L.has-star _ ⊥ ⊥≤
   where
   open Bounded-distributive-lattice bl
 
--- Bounded, distributive lattices can be turned into modalities
--- (without 𝟘ᵐ).
+-- Bounded, distributive lattices for which equality with ⊤ is
+-- decidable can be turned into modalities (without 𝟘ᵐ).
 
 modality :
   (variant : Modality-variant)
   (𝕃 : Bounded-distributive-lattice) →
-  let open Modality-variant variant in
-  (T 𝟘ᵐ-allowed → Has-well-behaved-zero (semiring-with-meet 𝕃)) →
+  let open Modality-variant variant
+      open Bounded-distributive-lattice 𝕃
+  in
+  {is-⊤? : (p : M) → Dec (p ≡ ⊤)} →
+  (T 𝟘ᵐ-allowed → Has-well-behaved-zero (semiring-with-meet 𝕃 is-⊤?)) →
   Modality
 modality variant 𝕃 = L.isModality
-  (semiring-with-meet 𝕃)
+  (semiring-with-meet 𝕃 _)
   ⊥
   ⊥≤
   variant

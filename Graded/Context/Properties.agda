@@ -166,6 +166,18 @@ private opaque
 
 opaque
 
+  -- A lemma related to some of the usage rules for J and K.
+
+  ω·ᶜ⋀ᶜ²𝟘ᶜ : ω ·ᶜ (𝟘ᶜ ∧ᶜ 𝟘ᶜ) ≈ᶜ 𝟘ᶜ {n = n}
+  ω·ᶜ⋀ᶜ²𝟘ᶜ = begin
+    ω ·ᶜ (𝟘ᶜ ∧ᶜ 𝟘ᶜ)  ≈⟨ ·ᶜ-congˡ $ ∧ᶜ-idem _ ⟩
+    ω ·ᶜ 𝟘ᶜ          ≈⟨ ·ᶜ-zeroʳ _ ⟩
+    𝟘ᶜ               ∎
+    where
+    open Tools.Reasoning.Equivalence Conₘ-setoid
+
+opaque
+
   -- A lemma related to one of the usage rules for K.
 
   ω·ᶜ⋀ᶜ⁴𝟘ᶜ : ω ·ᶜ (𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ) ≈ᶜ 𝟘ᶜ {n = n}

@@ -305,8 +305,8 @@ module Is-morphism
     tr-▸ rflₘ =
       sub rflₘ tr-Conₘ-𝟘ᶜ-≤ᶜ
     tr-▸
-      (Jₘ {m} {γ₂} {γ₃} {p} {q} {γ₄} {γ₅} {γ₆}
-         _ ▸A ▸t ▸B ▸u ▸v ▸w) = sub
+      (Jₘ {m} {p} {q} {γ₂} {γ₃} {γ₄} {γ₅} {γ₆}
+         _ _ ▸A ▸t ▸B ▸u ▸v ▸w) = sub
       (Jₘ-generalised (tr-▸[𝟘ᵐ?] ▸A) (tr-▸ ▸t)
          (sub (tr-▸ ▸B) $ begin
             tr-Conₘ γ₃ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr p ∙
@@ -328,38 +328,60 @@ module Is-morphism
       where
       open CR₂
     tr-▸
-      (Jₘ′ {m} {γ₂} {p} {q} {γ₃} {γ₄} {γ₅} {γ₆}
-         ≡some ▸A ▸t ▸B ▸u ▸v ▸w) = sub
-      (Jₘ′-generalised
-         (≤ᵉᵐ→≡some→≡not-none
-            (erased-matches-for-J-preserved ≈ᵐ-tr-Mode) ≡some
-            .proj₂)
-         (tr-▸[𝟘ᵐ?] ▸A) (▸-cong (tr-Mode-ᵐ·-+ m) (tr-▸ ▸t))
-         (sub (tr-▸ ▸B) $ begin
-            tr-Conₘ γ₃ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr p ∙
-            Mo₂.⌜ tr-Mode m ⌝ M₂.· tr q                                 ≈⟨ ≈ᶜ-refl ∙ tr-⌜⌝-· m ∙ tr-⌜⌝-· m ⟩
+      (J₀ₘ₁ {m} {γ₂} {γ₃} {γ₄} {γ₅} {γ₆}
+         ≡some refl refl ▸A ▸t ▸B ▸u ▸v ▸w) =
+      case trivial-⊎-tr-𝟘 of λ where
+        (inj₁ trivial₁) → sub
+          (Jₘ-generalised (tr-▸[𝟘ᵐ?] ▸A) (tr-▸-trivial trivial₁ ▸t)
+             (sub (tr-▸ ▸B) $ begin
+                tr-Conₘ γ₃ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr M₁.𝟘 ∙
+                Mo₂.⌜ tr-Mode m ⌝ M₂.· tr M₁.𝟘                      ≡⟨ cong
+                                                                         (λ m →
+                                                                            tr-Conₘ γ₃ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr M₁.𝟘 ∙
+                                                                            Mo₂.⌜ tr-Mode m ⌝ M₂.· tr M₁.𝟘) $
+                                                                       Mo₁.only-𝟙ᵐ-without-𝟘ᵐ {m = m} ((_$ trivial₁) ∘→ MP₁.𝟘ᵐ.non-trivial) ⟩
 
-            tr-Conₘ γ₃ ∙ tr (Mo₁.⌜ m ⌝ M₁.· p) ∙ tr (Mo₁.⌜ m ⌝ M₁.· q)  ∎)
-         (tr-▸ ▸u) (▸-cong (tr-Mode-ᵐ·-+ m) (tr-▸ ▸v))
-         (▸-cong (tr-Mode-ᵐ·-+ m) (tr-▸ ▸w)))
-      (begin
-         tr-Conₘ (M₁.ω C₁.·ᶜ (γ₂ C₁.∧ᶜ γ₃ C₁.∧ᶜ γ₄ C₁.∧ᶜ γ₅ C₁.∧ᶜ γ₆))   ≈⟨ tr-Conₘ-·ᶜ ⟩
+                tr-Conₘ γ₃ ∙ M₂.𝟙 M₂.· tr M₁.𝟘 ∙ M₂.𝟙 M₂.· tr M₁.𝟘  ≈⟨ ≈ᶜ-refl ∙ M₂.·-identityˡ _ ∙ M₂.·-identityˡ _ ⟩
 
-         tr M₁.ω C₂.·ᶜ tr-Conₘ (γ₂ C₁.∧ᶜ γ₃ C₁.∧ᶜ γ₄ C₁.∧ᶜ γ₅ C₁.∧ᶜ γ₆)  ≤⟨ flip ·ᶜ-monotone tr-ω $
-                                                                            ≤ᶜ-trans tr-Conₘ-∧ᶜ $ ∧ᶜ-monotoneʳ $
-                                                                            ≤ᶜ-trans tr-Conₘ-∧ᶜ $ ∧ᶜ-monotoneʳ $
-                                                                            ≤ᶜ-trans tr-Conₘ-∧ᶜ $ ∧ᶜ-monotoneʳ
-                                                                            tr-Conₘ-∧ᶜ ⟩
-         M₂.ω C₂.·ᶜ
-         (tr-Conₘ γ₂ C₂.∧ᶜ tr-Conₘ γ₃ C₂.∧ᶜ tr-Conₘ γ₄ C₂.∧ᶜ
-          tr-Conₘ γ₅ C₂.∧ᶜ tr-Conₘ γ₆)                                   ∎)
+                tr-Conₘ γ₃ ∙ tr M₁.𝟘 ∙ tr M₁.𝟘                      ∎)
+             (tr-▸ ▸u) (tr-▸-trivial trivial₁ ▸v)
+             (tr-▸-trivial trivial₁ ▸w))
+          (begin
+             tr-Conₘ (M₁.ω C₁.·ᶜ (γ₃ C₁.∧ᶜ γ₄))                       ≡⟨ cong tr-Conₘ $ CP₁.≈ᶜ→≡ $ CP₁.≈ᶜ-trivial trivial₁ ⟩
+
+             tr-Conₘ
+               (M₁.ω C₁.·ᶜ (γ₂ C₁.∧ᶜ γ₃ C₁.∧ᶜ γ₄ C₁.∧ᶜ γ₅ C₁.∧ᶜ γ₆))  ≈⟨ tr-Conₘ-·ᶜ ⟩
+
+             tr M₁.ω C₂.·ᶜ
+             tr-Conₘ (γ₂ C₁.∧ᶜ γ₃ C₁.∧ᶜ γ₄ C₁.∧ᶜ γ₅ C₁.∧ᶜ γ₆)         ≤⟨ flip ·ᶜ-monotone tr-ω $
+                                                                         ≤ᶜ-trans tr-Conₘ-∧ᶜ $ ∧ᶜ-monotoneʳ $
+                                                                         ≤ᶜ-trans tr-Conₘ-∧ᶜ $ ∧ᶜ-monotoneʳ $
+                                                                         ≤ᶜ-trans tr-Conₘ-∧ᶜ $ ∧ᶜ-monotoneʳ
+                                                                         tr-Conₘ-∧ᶜ ⟩
+             M₂.ω C₂.·ᶜ
+             (tr-Conₘ γ₂ C₂.∧ᶜ tr-Conₘ γ₃ C₂.∧ᶜ tr-Conₘ γ₄ C₂.∧ᶜ
+              tr-Conₘ γ₅ C₂.∧ᶜ tr-Conₘ γ₆)                            ∎)
+        (inj₂ tr-𝟘) → sub
+          (J₀ₘ₁-generalised
+             (≤ᵉᵐ→≡some→≡not-none
+                (erased-matches-for-J-preserved ≈ᵐ-tr-Mode) ≡some
+                .proj₂)
+             tr-𝟘 tr-𝟘 (tr-▸[𝟘ᵐ?] ▸A) (tr-▸[𝟘ᵐ?] ▸t)
+             (sub (tr-▸ ▸B) $ begin
+                tr-Conₘ γ₃ ∙ M₂.𝟘 ∙ M₂.𝟘        ≈˘⟨ ≈ᶜ-refl ∙ tr-𝟘 ∙ tr-𝟘 ⟩
+                tr-Conₘ γ₃ ∙ tr M₁.𝟘 ∙ tr M₁.𝟘  ∎)
+             (tr-▸ ▸u) (tr-▸[𝟘ᵐ?] ▸v) (tr-▸[𝟘ᵐ?] ▸w))
+          (begin
+             tr-Conₘ (M₁.ω C₁.·ᶜ (γ₃ C₁.∧ᶜ γ₄))        ≈⟨ tr-Conₘ-·ᶜ ⟩
+             tr M₁.ω C₂.·ᶜ tr-Conₘ (γ₃ C₁.∧ᶜ γ₄)       ≤⟨ ·ᶜ-monotone tr-Conₘ-∧ᶜ tr-ω ⟩
+             M₂.ω C₂.·ᶜ (tr-Conₘ γ₃ C₂.∧ᶜ tr-Conₘ γ₄)  ∎)
       where
       open CR₂
-    tr-▸ (J₀ₘ ≡all ▸A ▸t ▸B ▸u ▸v ▸w) = J₀ₘ
+    tr-▸ (J₀ₘ₂ ≡all ▸A ▸t ▸B ▸u ▸v ▸w) = J₀ₘ₂
       (≤ᵉᵐ→≡all→≡all (erased-matches-for-J-preserved ≈ᵐ-tr-Mode) ≡all)
       (tr-▸[𝟘ᵐ?] ▸A) (tr-▸[𝟘ᵐ?] ▸t) (tr-∙∙▸[𝟘ᵐ?] ▸B) (tr-▸ ▸u)
       (tr-▸[𝟘ᵐ?] ▸v) (tr-▸[𝟘ᵐ?] ▸w)
-    tr-▸ (Kₘ {m} {γ₂} {γ₃} {p} {γ₄} {γ₅} _ ▸A ▸t ▸B ▸u ▸v) = sub
+    tr-▸ (Kₘ {m} {p} {γ₂} {γ₃} {γ₄} {γ₅} _ _ ▸A ▸t ▸B ▸u ▸v) = sub
       (Kₘ-generalised (tr-▸[𝟘ᵐ?] ▸A) (tr-▸ ▸t)
          (sub (tr-▸ ▸B) $ begin
             tr-Conₘ γ₃ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr p  ≈⟨ ≈ᶜ-refl ∙ tr-⌜⌝-· m ⟩
@@ -377,29 +399,45 @@ module Is-morphism
           tr-Conₘ γ₅)                                           ∎)
       where
       open CR₂
-    tr-▸ (Kₘ′ {m} {γ₂} {p} {γ₃} {γ₄} {γ₅} ≡some ▸A ▸t ▸B ▸u ▸v) = sub
-      (Kₘ′-generalised
-         (≤ᵉᵐ→≡some→≡not-none
-            (erased-matches-for-K-preserved ≈ᵐ-tr-Mode) ≡some
-            .proj₂)
-         (tr-▸[𝟘ᵐ?] ▸A) (▸-cong (tr-Mode-ᵐ· m _) (tr-▸ ▸t))
-         (sub (tr-▸ ▸B) $ begin
-            tr-Conₘ γ₃ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr p  ≈⟨ ≈ᶜ-refl ∙ tr-⌜⌝-· m ⟩
-            tr-Conₘ γ₃ ∙ tr (Mo₁.⌜ m ⌝ M₁.· p)        ∎)
-         (tr-▸ ▸u) (▸-cong (tr-Mode-ᵐ· m _) (tr-▸ ▸v)))
-      (begin
-         tr-Conₘ (M₁.ω C₁.·ᶜ (γ₂ C₁.∧ᶜ γ₃ C₁.∧ᶜ γ₄ C₁.∧ᶜ γ₅))   ≈⟨ tr-Conₘ-·ᶜ ⟩
+    tr-▸ (K₀ₘ₁ {m} {γ₂} {γ₃} {γ₄} {γ₅} ≡some refl ▸A ▸t ▸B ▸u ▸v) =
+      case trivial-⊎-tr-𝟘 of λ where
+        (inj₁ trivial₁) → sub
+          (Kₘ-generalised (tr-▸[𝟘ᵐ?] ▸A) (tr-▸-trivial trivial₁ ▸t)
+             (sub (tr-▸ ▸B) $ begin
+                tr-Conₘ γ₃ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr M₁.𝟘  ≡⟨ cong (λ m → tr-Conₘ γ₃ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr M₁.𝟘) $
+                                                                Mo₁.only-𝟙ᵐ-without-𝟘ᵐ {m = m} ((_$ trivial₁) ∘→ MP₁.𝟘ᵐ.non-trivial) ⟩
+                tr-Conₘ γ₃ ∙ M₂.𝟙 M₂.· tr M₁.𝟘               ≈⟨ ≈ᶜ-refl ∙ M₂.·-identityˡ _ ⟩
+                tr-Conₘ γ₃ ∙ tr M₁.𝟘                         ∎)
+             (tr-▸ ▸u) (tr-▸-trivial trivial₁ ▸v))
+          (begin
+             tr-Conₘ (M₁.ω C₁.·ᶜ (γ₃ C₁.∧ᶜ γ₄))                     ≡⟨ cong tr-Conₘ $ CP₁.≈ᶜ→≡ $ CP₁.≈ᶜ-trivial trivial₁ ⟩
 
-         tr M₁.ω C₂.·ᶜ tr-Conₘ (γ₂ C₁.∧ᶜ γ₃ C₁.∧ᶜ γ₄ C₁.∧ᶜ γ₅)  ≤⟨ flip ·ᶜ-monotone tr-ω $
-                                                                   ≤ᶜ-trans tr-Conₘ-∧ᶜ $ ∧ᶜ-monotoneʳ $
-                                                                   ≤ᶜ-trans tr-Conₘ-∧ᶜ $ ∧ᶜ-monotoneʳ
-                                                                   tr-Conₘ-∧ᶜ ⟩
-         M₂.ω C₂.·ᶜ
-         (tr-Conₘ γ₂ C₂.∧ᶜ tr-Conₘ γ₃ C₂.∧ᶜ tr-Conₘ γ₄ C₂.∧ᶜ
-          tr-Conₘ γ₅)                                           ∎)
+             tr-Conₘ (M₁.ω C₁.·ᶜ (γ₂ C₁.∧ᶜ γ₃ C₁.∧ᶜ γ₄ C₁.∧ᶜ γ₅))   ≈⟨ tr-Conₘ-·ᶜ ⟩
+
+             tr M₁.ω C₂.·ᶜ tr-Conₘ (γ₂ C₁.∧ᶜ γ₃ C₁.∧ᶜ γ₄ C₁.∧ᶜ γ₅)  ≤⟨ flip ·ᶜ-monotone tr-ω $
+                                                                       ≤ᶜ-trans tr-Conₘ-∧ᶜ $ ∧ᶜ-monotoneʳ $
+                                                                       ≤ᶜ-trans tr-Conₘ-∧ᶜ $ ∧ᶜ-monotoneʳ
+                                                                       tr-Conₘ-∧ᶜ ⟩
+             M₂.ω C₂.·ᶜ
+             (tr-Conₘ γ₂ C₂.∧ᶜ tr-Conₘ γ₃ C₂.∧ᶜ tr-Conₘ γ₄ C₂.∧ᶜ
+              tr-Conₘ γ₅)                                           ∎)
+        (inj₂ tr-𝟘) → sub
+          (K₀ₘ₁-generalised
+             (≤ᵉᵐ→≡some→≡not-none
+                (erased-matches-for-K-preserved ≈ᵐ-tr-Mode) ≡some
+                .proj₂)
+             tr-𝟘 (tr-▸[𝟘ᵐ?] ▸A) (tr-▸[𝟘ᵐ?] ▸t)
+             (sub (tr-▸ ▸B) $ begin
+                tr-Conₘ γ₃ ∙ M₂.𝟘     ≈˘⟨ ≈ᶜ-refl ∙ tr-𝟘 ⟩
+                tr-Conₘ γ₃ ∙ tr M₁.𝟘  ∎)
+             (tr-▸ ▸u) (tr-▸[𝟘ᵐ?] ▸v))
+          (begin
+             tr-Conₘ (M₁.ω C₁.·ᶜ (γ₃ C₁.∧ᶜ γ₄))        ≈⟨ tr-Conₘ-·ᶜ ⟩
+             tr M₁.ω C₂.·ᶜ tr-Conₘ (γ₃ C₁.∧ᶜ γ₄)       ≤⟨ ·ᶜ-monotone tr-Conₘ-∧ᶜ tr-ω ⟩
+             M₂.ω C₂.·ᶜ (tr-Conₘ γ₃ C₂.∧ᶜ tr-Conₘ γ₄)  ∎)
       where
       open CR₂
-    tr-▸ (K₀ₘ ≡none ▸A ▸t ▸B ▸u ▸v) = K₀ₘ
+    tr-▸ (K₀ₘ₂ ≡none ▸A ▸t ▸B ▸u ▸v) = K₀ₘ₂
       (≤ᵉᵐ→≡all→≡all (erased-matches-for-K-preserved ≈ᵐ-tr-Mode) ≡none)
       (tr-▸[𝟘ᵐ?] ▸A) (tr-▸[𝟘ᵐ?] ▸t) (tr-∙▸[𝟘ᵐ?] ▸B) (tr-▸ ▸u)
       (tr-▸[𝟘ᵐ?] ▸v)
@@ -436,6 +474,15 @@ module Is-morphism
              _
            , ▸-cong (Mo₂.Mode-propositional-without-𝟘ᵐ not-ok)
                (tr-▸ ▸t))
+
+      -- A variant of tr-▸.
+
+      tr-▸-trivial :
+        M₁.Trivial → γ U₁.▸[ m₁ ] t → tr-Conₘ γ U₂.▸[ tr-Mode m₂ ] tr-Term t
+      tr-▸-trivial trivial =
+        ▸-cong
+          (cong tr-Mode (Mo₁.Mode-propositional-if-trivial trivial)) ∘→
+        tr-▸
 
       -- A variant of tr-▸.
 
@@ -664,16 +711,6 @@ module Is-order-embedding
         RS₁.Usage-restrictions-satisfied-𝟙ᵐ→ ∘→
         lemma (subst (_ ≳ᵐ_) (sym Mo₂.𝟘ᵐ?≡𝟘ᵐ) 𝟙≳𝟘) _
 
-      lemma-ᵐ·-+ :
-        m₁ ≳ᵐ m₂ →
-        RS₂.Usage-restrictions-satisfied
-          (m₂ Mo₂.ᵐ· (tr p M₂.+ tr q)) (tr-Term t) →
-        RS₁.Usage-restrictions-satisfied (m₁ Mo₁.ᵐ· (p M₁.+ q)) t
-      lemma-ᵐ·-+ {m₂} m₁≳m₂ =
-        lemma (ᵐ·≳ᵐᵐ· m₁≳m₂) _ ∘→
-        subst (flip Usage-restrictions-satisfied _)
-          (cong (m₂ Mo₂.ᵐ·_) $ sym tr-+)
-
       lemma {m₁} m₁≳m₂ = λ where
         (var _) varᵤ →
           RS₁.varᵤ
@@ -723,11 +760,22 @@ module Is-order-embedding
             (lemma-𝟘ᵐ?-𝟘ᵐ? t) (lemma-𝟘ᵐ?-𝟘ᵐ? u)
         rfl rflᵤ →
           RS₁.rflᵤ
-        (J _ _ _ _ _ _ _ _) (Jᵤ _ A t B u v w) →
+        (J _ _ _ _ _ _ _ _) (Jᵤ _ _ A t B u v w) →
           RS₁.Jᵤ-generalised (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma m₁≳m₂ _ t)
             (lemma m₁≳m₂ _ B) (lemma m₁≳m₂ _ u) (lemma m₁≳m₂ _ v)
             (lemma m₁≳m₂ _ w)
-        (J _ _ _ _ _ _ _ _) (Jᵤ′ ≡some A t B u v w) →
+        (J _ _ _ _ _ _ _ _) (J₀ᵤ₁ ≡some tr-p≡𝟘 tr-q≡𝟘 A t B u v w) →
+          subst (RS₁.Usage-restrictions-satisfied _)
+            (sym $
+             case trivial-⊎-tr-≡-𝟘-⇔ of λ where
+               (inj₁ trivial₁) →
+                 cong₂ (λ p q → J p q _ _ _ _ _ _)
+                   (MP₁.≡-trivial trivial₁)
+                   (MP₁.≡-trivial trivial₁)
+               (inj₂ tr-≡-𝟘-⇔) →
+                 cong₂ (λ p q → J p q _ _ _ _ _ _)
+                   (tr-≡-𝟘-⇔ .proj₁ tr-p≡𝟘)
+                   (tr-≡-𝟘-⇔ .proj₁ tr-q≡𝟘)) $
           case m₁≳m₂ of λ where
             [ m₁≈m₂ ] →
               case singleton $ UR₁.erased-matches-for-J m₁ of λ where
@@ -738,18 +786,18 @@ module Is-order-embedding
                          (erased-matches-for-J-reflected m₁≈m₂) ≡none)
                   of λ ()
                 (not-none _ , ≡not-none) →
-                  RS₁.Jᵤ′-generalised ≡not-none (lemma-𝟘ᵐ?-𝟘ᵐ? A)
-                    (lemma-ᵐ·-+ m₁≳m₂ t) (lemma m₁≳m₂ _ B)
-                    (lemma m₁≳m₂ _ u) (lemma-ᵐ·-+ m₁≳m₂ v)
-                    (lemma-ᵐ·-+ m₁≳m₂ w)
+                  RS₁.J₀ᵤ₁-generalised ≡not-none refl refl
+                    (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma-𝟘ᵐ?-𝟘ᵐ? t)
+                    (lemma m₁≳m₂ _ B) (lemma m₁≳m₂ _ u)
+                    (lemma-𝟘ᵐ?-𝟘ᵐ? v) (lemma-𝟘ᵐ?-𝟘ᵐ? w)
             (𝟙ᵐ≳𝟘ᵐ _) →
-              RS₁.Jᵤ-generalised (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma m₁≳m₂ _ t)
-                (lemma m₁≳m₂ _ B) (lemma m₁≳m₂ _ u) (lemma m₁≳m₂ _ v)
-                (lemma m₁≳m₂ _ w)
-        (J _ _ _ _ _ _ _ _) (J₀ᵤ ≡all A t B u v w) →
+              RS₁.Jᵤ-generalised (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma-𝟘ᵐ? m₁≳m₂ t)
+                (lemma m₁≳m₂ _ B) (lemma m₁≳m₂ _ u) (lemma-𝟘ᵐ? m₁≳m₂ v)
+                (lemma-𝟘ᵐ? m₁≳m₂ w)
+        (J _ _ _ _ _ _ _ _) (J₀ᵤ₂ ≡all A t B u v w) →
           case m₁≳m₂ of λ where
             [ m₁≈m₂ ] →
-              RS₁.J₀ᵤ
+              RS₁.J₀ᵤ₂
                 (≤ᵉᵐ→≡all→≡all (erased-matches-for-J-reflected m₁≈m₂)
                    ≡all)
                 (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma-𝟘ᵐ?-𝟘ᵐ? t) (lemma-𝟘ᵐ?-𝟘ᵐ? B)
@@ -758,10 +806,10 @@ module Is-order-embedding
               RS₁.Jᵤ-generalised (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma-𝟘ᵐ? m₁≳m₂ t)
                 (lemma-𝟘ᵐ? m₁≳m₂ B) (lemma m₁≳m₂ _ u)
                 (lemma-𝟘ᵐ? m₁≳m₂ v) (lemma-𝟘ᵐ? m₁≳m₂ w)
-        (K _ _ _ _ _ _) (Kᵤ _ A t B u v) →
+        (K _ _ _ _ _ _) (Kᵤ _ _ A t B u v) →
           RS₁.Kᵤ-generalised (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma m₁≳m₂ _ t)
             (lemma m₁≳m₂ _ B) (lemma m₁≳m₂ _ u) (lemma m₁≳m₂ _ v)
-        (K _ _ _ _ _ _) (Kᵤ′ ≡some A t B u v) →
+        (K _ _ _ _ _ _) (K₀ᵤ₁ ≡some tr-p≡𝟘 A t B u v) →
           case m₁≳m₂ of λ where
             [ m₁≈m₂ ] →
               case singleton $ UR₁.erased-matches-for-K m₁ of λ where
@@ -772,16 +820,20 @@ module Is-order-embedding
                          (erased-matches-for-K-reflected m₁≈m₂) ≡none)
                   of λ ()
                 (not-none _ , ≡not-none) →
-                  RS₁.Kᵤ′-generalised ≡not-none (lemma-𝟘ᵐ?-𝟘ᵐ? A)
-                    (lemma (ᵐ·≳ᵐᵐ· m₁≳m₂) _ t) (lemma m₁≳m₂ _ B)
-                    (lemma m₁≳m₂ _ u) (lemma (ᵐ·≳ᵐᵐ· m₁≳m₂) _ v)
+                  RS₁.K₀ᵤ₁-generalised ≡not-none
+                    (case trivial-⊎-tr-≡-𝟘-⇔ of λ where
+                       (inj₁ trivial₁) → MP₁.≡-trivial trivial₁
+                       (inj₂ tr-≡-𝟘-⇔) → tr-≡-𝟘-⇔ .proj₁ tr-p≡𝟘)
+                    (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma-𝟘ᵐ?-𝟘ᵐ? t)
+                    (lemma m₁≳m₂ _ B) (lemma m₁≳m₂ _ u)
+                    (lemma-𝟘ᵐ?-𝟘ᵐ? v)
             (𝟙ᵐ≳𝟘ᵐ _) →
-              RS₁.Kᵤ-generalised (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma m₁≳m₂ _ t)
-                (lemma m₁≳m₂ _ B) (lemma m₁≳m₂ _ u) (lemma m₁≳m₂ _ v)
-        (K _ _ _ _ _ _) (K₀ᵤ ≡all A t B u v) →
+              RS₁.Kᵤ-generalised (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma-𝟘ᵐ? m₁≳m₂ t)
+                (lemma m₁≳m₂ _ B) (lemma m₁≳m₂ _ u) (lemma-𝟘ᵐ? m₁≳m₂ v)
+        (K _ _ _ _ _ _) (K₀ᵤ₂ ≡all A t B u v) →
           case m₁≳m₂ of λ where
             [ m₁≈m₂ ] →
-              RS₁.K₀ᵤ
+              RS₁.K₀ᵤ₂
                 (≤ᵉᵐ→≡all→≡all (erased-matches-for-K-reflected m₁≈m₂)
                    ≡all)
                 (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma-𝟘ᵐ?-𝟘ᵐ? t) (lemma-𝟘ᵐ?-𝟘ᵐ? B)
@@ -1104,7 +1156,7 @@ module Is-order-embedding
 
     tr-▸⁻¹′
       {m} {γ} (J p q _ _ _ _ _ _)
-      (Jₘ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} _ ▸A ▸t ▸B ▸u ▸v ▸w) refl
+      (Jₘ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} _ _ ▸A ▸t ▸B ▸u ▸v ▸w) refl
       γ≤ω[γ₂∧γ₃∧γ₄∧γ₅∧γ₆] =
       case
         (let open CR₂ in
@@ -1172,85 +1224,57 @@ module Is-order-embedding
 
     tr-▸⁻¹′
       {m} {γ} (J p q _ _ _ _ _ _)
-      (Jₘ′ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} ≡some ▸A ▸t ▸B ▸u ▸v ▸w) refl
-      γ≤ω[γ₂∧γ₃∧γ₄∧γ₅∧γ₆] =
+      (J₀ₘ₁ {γ₃} {γ₄} ≡some tr-p≡𝟘 tr-q≡𝟘 ▸A ▸t ▸B ▸u ▸v ▸w) refl
+      γ≤ω[γ₃∧γ₄] =
+      case
+        (case trivial-⊎-tr-≡-𝟘-⇔ of λ where
+           (inj₁ trivial₁) →
+             MP₁.≡-trivial trivial₁ , MP₁.≡-trivial trivial₁
+           (inj₂ tr-≡-𝟘-⇔) →
+             tr-≡-𝟘-⇔ .proj₁ tr-p≡𝟘 , tr-≡-𝟘-⇔ .proj₁ tr-q≡𝟘)
+      of λ
+        (p≡𝟘 , q≡𝟘) →
       case
         (let open CR₂ in
          tr-Conₘ-≤ᶜ-·ᶜ $ begin
-           tr-Conₘ γ                                               ≤⟨ γ≤ω[γ₂∧γ₃∧γ₄∧γ₅∧γ₆] ⟩
-           M₂.ω C₂.·ᶜ (γ₂ C₂.∧ᶜ γ₃ C₂.∧ᶜ γ₄ C₂.∧ᶜ γ₅ C₂.∧ᶜ γ₆)     ≈⟨ CP₂.·ᶜ-congʳ (sym tr-ω) ⟩
-           tr M₁.ω C₂.·ᶜ (γ₂ C₂.∧ᶜ γ₃ C₂.∧ᶜ γ₄ C₂.∧ᶜ γ₅ C₂.∧ᶜ γ₆)  ∎)
+           tr-Conₘ γ                    ≤⟨ γ≤ω[γ₃∧γ₄] ⟩
+           M₂.ω C₂.·ᶜ (γ₃ C₂.∧ᶜ γ₄)     ≈⟨ CP₂.·ᶜ-congʳ (sym tr-ω) ⟩
+           tr M₁.ω C₂.·ᶜ (γ₃ C₂.∧ᶜ γ₄)  ∎)
       of λ {
-        (γ′ , γ′≤γ₂∧γ₃∧γ₄∧γ₅∧γ₆ , γ≤ωγ′) → sub
-      (UP₁.Jₘ′-generalised
+        (γ′ , γ′≤γ₃∧γ₄ , γ≤ωγ′) → sub
+      (UP₁.J₀ₘ₁-generalised
          (≤ᵉᵐ→≡some→≡not-none
             (erased-matches-for-J-reflected ≈ᵐ-tr-Mode) ≡some
             .proj₂)
-         (tr-▸[𝟘ᵐ?]⁻¹ ▸A .proj₂)
-         (let open CR₂ in
-          tr-▸⁻¹′ _ ▸t (sym $ tr-Mode-ᵐ·-+ m) $ begin
-            tr-Conₘ γ′                              ≤⟨ γ′≤γ₂∧γ₃∧γ₄∧γ₅∧γ₆ ⟩
-            γ₂ C₂.∧ᶜ γ₃ C₂.∧ᶜ γ₄ C₂.∧ᶜ γ₅ C₂.∧ᶜ γ₆  ≤⟨ CP₂.∧ᶜ-decreasingˡ _ _ ⟩
-            γ₂                                      ∎)
+         p≡𝟘 q≡𝟘 (tr-▸[𝟘ᵐ?]⁻¹ ▸A .proj₂) (tr-▸[𝟘ᵐ?]⁻¹ ▸t .proj₂)
          (let open CR₂ in
           tr-▸⁻¹′ _ ▸B refl $ begin
-            tr-Conₘ γ′ ∙ tr (Mo₁.⌜ m ⌝ M₁.· p) ∙ tr (Mo₁.⌜ m ⌝ M₁.· q)  ≤⟨ γ′≤γ₂∧γ₃∧γ₄∧γ₅∧γ₆ ∙ ≤-reflexive (sym (tr-⌜⌝-· m)) ∙
-                                                                           ≤-reflexive (sym (tr-⌜⌝-· m)) ⟩
-            γ₂ C₂.∧ᶜ γ₃ C₂.∧ᶜ γ₄ C₂.∧ᶜ γ₅ C₂.∧ᶜ γ₆ ∙
-            Mo₂.⌜ tr-Mode m ⌝ M₂.· tr p ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr q   ≤⟨ (CP₂.≤ᶜ-trans (CP₂.∧ᶜ-decreasingʳ _ _) $
-                                                                            CP₂.∧ᶜ-decreasingˡ _ _) ∙
-                                                                           ≤-refl ∙ ≤-refl ⟩
-            γ₃ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr p ∙
-            Mo₂.⌜ tr-Mode m ⌝ M₂.· tr q                                 ∎)
+            tr-Conₘ γ′ ∙ tr M₁.𝟘 ∙ tr M₁.𝟘  ≤⟨ γ′≤γ₃∧γ₄ ∙ ≤-reflexive (trans (cong tr $ sym p≡𝟘) tr-p≡𝟘) ∙
+                                               ≤-reflexive (trans (cong tr $ sym q≡𝟘) tr-q≡𝟘) ⟩
+            γ₃ C₂.∧ᶜ γ₄ ∙ M₂.𝟘 ∙ M₂.𝟘       ≤⟨ CP₂.∧ᶜ-decreasingˡ _ _ ∙ ≤-refl ∙ ≤-refl ⟩
+            γ₃ ∙ M₂.𝟘 ∙ M₂.𝟘                ∎)
          (let open CR₂ in
-          tr-▸⁻¹′ _ ▸u refl $ begin
-            tr-Conₘ γ′                              ≤⟨ γ′≤γ₂∧γ₃∧γ₄∧γ₅∧γ₆ ⟩
-            γ₂ C₂.∧ᶜ γ₃ C₂.∧ᶜ γ₄ C₂.∧ᶜ γ₅ C₂.∧ᶜ γ₆  ≤⟨ CP₂.≤ᶜ-trans (CP₂.∧ᶜ-decreasingʳ _ _) $
-                                                       CP₂.≤ᶜ-trans (CP₂.∧ᶜ-decreasingʳ _ _) $
-                                                       CP₂.∧ᶜ-decreasingˡ _ _ ⟩
-            γ₄                                      ∎)
-         (let open CR₂ in
-          tr-▸⁻¹′ _ ▸v (sym $ tr-Mode-ᵐ·-+ m) $ begin
-            tr-Conₘ γ′                              ≤⟨ γ′≤γ₂∧γ₃∧γ₄∧γ₅∧γ₆ ⟩
-            γ₂ C₂.∧ᶜ γ₃ C₂.∧ᶜ γ₄ C₂.∧ᶜ γ₅ C₂.∧ᶜ γ₆  ≤⟨ CP₂.≤ᶜ-trans (CP₂.∧ᶜ-decreasingʳ _ _) $
-                                                       CP₂.≤ᶜ-trans (CP₂.∧ᶜ-decreasingʳ _ _) $
-                                                       CP₂.≤ᶜ-trans (CP₂.∧ᶜ-decreasingʳ _ _) $
-                                                       CP₂.∧ᶜ-decreasingˡ _ _ ⟩
-            γ₅                                      ∎)
-         (let open CR₂ in
-          tr-▸⁻¹′ _ ▸w (sym $ tr-Mode-ᵐ·-+ m) $ begin
-            tr-Conₘ γ′                              ≤⟨ γ′≤γ₂∧γ₃∧γ₄∧γ₅∧γ₆ ⟩
-            γ₂ C₂.∧ᶜ γ₃ C₂.∧ᶜ γ₄ C₂.∧ᶜ γ₅ C₂.∧ᶜ γ₆  ≤⟨ CP₂.≤ᶜ-trans (CP₂.∧ᶜ-decreasingʳ _ _) $
-                                                       CP₂.≤ᶜ-trans (CP₂.∧ᶜ-decreasingʳ _ _) $
-                                                       CP₂.≤ᶜ-trans (CP₂.∧ᶜ-decreasingʳ _ _) $
-                                                       CP₂.∧ᶜ-decreasingʳ _ _ ⟩
-            γ₆                                      ∎))
+          tr-▸⁻¹′ _ ▸u refl $ (begin
+            tr-Conₘ γ′   ≤⟨ γ′≤γ₃∧γ₄ ⟩
+            γ₃ C₂.∧ᶜ γ₄  ≤⟨ CP₂.∧ᶜ-decreasingʳ _ _ ⟩
+            γ₄           ∎))
+         (tr-▸[𝟘ᵐ?]⁻¹ ▸v .proj₂) (tr-▸[𝟘ᵐ?]⁻¹ ▸w .proj₂))
       (let open CR₁ in begin
-         γ                                                    ≤⟨ γ≤ωγ′ ⟩
-         M₁.ω C₁.·ᶜ γ′                                        ≤⟨ flip CP₁.·ᶜ-monotone MP₁.≤-refl $
-                                                                 CP₁.≤ᶜ-reflexive $ CP₁.≈ᶜ-sym $
-                                                                 CP₁.≈ᶜ-trans
-                                                                   (CP₁.∧ᶜ-congˡ $
-                                                                    CP₁.≈ᶜ-trans
-                                                                      (CP₁.∧ᶜ-congˡ $
-                                                                       CP₁.≈ᶜ-trans
-                                                                         (CP₁.∧ᶜ-congˡ $
-                                                                          CP₁.∧ᶜ-idem _) $
-                                                                       CP₁.∧ᶜ-idem _) $
-                                                                    CP₁.∧ᶜ-idem _) $
-                                                                 CP₁.∧ᶜ-idem _ ⟩
-         M₁.ω C₁.·ᶜ (γ′ C₁.∧ᶜ γ′ C₁.∧ᶜ γ′ C₁.∧ᶜ γ′ C₁.∧ᶜ γ′)  ∎) }
+         γ                         ≤⟨ γ≤ωγ′ ⟩
+         M₁.ω C₁.·ᶜ γ′             ≈˘⟨ CP₁.·ᶜ-congˡ $ CP₁.∧ᶜ-idem _ ⟩
+         M₁.ω C₁.·ᶜ (γ′ C₁.∧ᶜ γ′)  ∎) }
 
     tr-▸⁻¹′
-      (J _ _ _ _ _ _ _ _) (J₀ₘ ≡all ▸A ▸t ▸B ▸u ▸v ▸w) refl ≤γ′ = J₀ₘ
+      (J _ _ _ _ _ _ _ _) (J₀ₘ₂ ≡all ▸A ▸t ▸B ▸u ▸v ▸w) refl ≤γ′ = J₀ₘ₂
       (≤ᵉᵐ→≡all→≡all (erased-matches-for-J-reflected ≈ᵐ-tr-Mode) ≡all)
       (tr-▸[𝟘ᵐ?]⁻¹ ▸A .proj₂) (tr-▸[𝟘ᵐ?]⁻¹ ▸t .proj₂)
       (tr-∙∙▸[𝟘ᵐ?]⁻¹ ▸B .proj₂) (tr-▸⁻¹′ _ ▸u refl ≤γ′)
       (tr-▸[𝟘ᵐ?]⁻¹ ▸v .proj₂) (tr-▸[𝟘ᵐ?]⁻¹ ▸w .proj₂)
 
     tr-▸⁻¹′
-      {m} {γ} (K p _ _ _ _ _) (Kₘ {γ₂} {γ₃} {γ₄} {γ₅} _ ▸A ▸t ▸B ▸u ▸v)
-      refl γ≤ω[γ₂∧γ₃∧γ₄∧γ₅] =
+      {m} {γ}
+      (K p _ _ _ _ _) (Kₘ {γ₂} {γ₃} {γ₄} {γ₅} _ _ ▸A ▸t ▸B ▸u ▸v) refl
+      γ≤ω[γ₂∧γ₃∧γ₄∧γ₅] =
       case
         (let open CR₂ in
          tr-Conₘ-≤ᶜ-·ᶜ $ begin
@@ -1302,61 +1326,43 @@ module Is-order-embedding
 
     tr-▸⁻¹′
       {m} {γ} (K p _ _ _ _ _)
-      (Kₘ′ {γ₂} {γ₃} {γ₄} {γ₅} ≡some ▸A ▸t ▸B ▸u ▸v) refl
-      γ≤ω[γ₂∧γ₃∧γ₄∧γ₅] =
+      (K₀ₘ₁ {γ₃} {γ₄} ≡some tr-p≡𝟘 ▸A ▸t ▸B ▸u ▸v) refl γ≤ω[γ₃∧γ₄] =
+      case
+        (case trivial-⊎-tr-≡-𝟘-⇔ of λ where
+           (inj₁ trivial₁) → MP₁.≡-trivial trivial₁
+           (inj₂ tr-≡-𝟘-⇔) → tr-≡-𝟘-⇔ .proj₁ tr-p≡𝟘)
+      of λ
+        p≡𝟘 →
       case
         (let open CR₂ in
          tr-Conₘ-≤ᶜ-·ᶜ $ begin
-           tr-Conₘ γ                                      ≤⟨ γ≤ω[γ₂∧γ₃∧γ₄∧γ₅] ⟩
-           M₂.ω C₂.·ᶜ (γ₂ C₂.∧ᶜ γ₃ C₂.∧ᶜ γ₄ C₂.∧ᶜ γ₅)     ≈⟨ CP₂.·ᶜ-congʳ (sym tr-ω) ⟩
-           tr M₁.ω C₂.·ᶜ (γ₂ C₂.∧ᶜ γ₃ C₂.∧ᶜ γ₄ C₂.∧ᶜ γ₅)  ∎)
+           tr-Conₘ γ                    ≤⟨ γ≤ω[γ₃∧γ₄] ⟩
+           M₂.ω C₂.·ᶜ (γ₃ C₂.∧ᶜ γ₄)     ≈⟨ CP₂.·ᶜ-congʳ (sym tr-ω) ⟩
+           tr M₁.ω C₂.·ᶜ (γ₃ C₂.∧ᶜ γ₄)  ∎)
       of λ {
-        (γ′ , γ′≤γ₂∧γ₃∧γ₄∧γ₅ , γ≤ωγ′) → sub
-      (UP₁.Kₘ′-generalised
+        (γ′ , γ′≤γ₃∧γ₄ , γ≤ωγ′) → sub
+      (UP₁.K₀ₘ₁-generalised
          (≤ᵉᵐ→≡some→≡not-none
             (erased-matches-for-K-reflected ≈ᵐ-tr-Mode) ≡some
             .proj₂)
-         (tr-▸[𝟘ᵐ?]⁻¹ ▸A .proj₂)
-         (let open CR₂ in
-          tr-▸⁻¹′ _ ▸t (sym $ tr-Mode-ᵐ· m _) $ begin
-            tr-Conₘ γ′                     ≤⟨ γ′≤γ₂∧γ₃∧γ₄∧γ₅ ⟩
-            γ₂ C₂.∧ᶜ γ₃ C₂.∧ᶜ γ₄ C₂.∧ᶜ γ₅  ≤⟨ CP₂.∧ᶜ-decreasingˡ _ _ ⟩
-            γ₂                             ∎)
+         p≡𝟘 (tr-▸[𝟘ᵐ?]⁻¹ ▸A .proj₂) (tr-▸[𝟘ᵐ?]⁻¹ ▸t .proj₂)
          (let open CR₂ in
           tr-▸⁻¹′ _ ▸B refl $ begin
-            tr-Conₘ γ′ ∙ tr (Mo₁.⌜ m ⌝ M₁.· p)                           ≤⟨ γ′≤γ₂∧γ₃∧γ₄∧γ₅ ∙ ≤-reflexive (sym (tr-⌜⌝-· m)) ⟩
-            γ₂ C₂.∧ᶜ γ₃ C₂.∧ᶜ γ₄ C₂.∧ᶜ γ₅ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr p  ≤⟨ (CP₂.≤ᶜ-trans (CP₂.∧ᶜ-decreasingʳ _ _) $
-                                                                             CP₂.∧ᶜ-decreasingˡ _ _) ∙
-                                                                            ≤-refl ⟩
-            γ₃ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr p                             ∎)
+            tr-Conₘ γ′ ∙ tr M₁.𝟘  ≤⟨ γ′≤γ₃∧γ₄ ∙ ≤-reflexive (trans (cong tr $ sym p≡𝟘) tr-p≡𝟘) ⟩
+            γ₃ C₂.∧ᶜ γ₄ ∙ M₂.𝟘    ≤⟨ CP₂.∧ᶜ-decreasingˡ _ _ ∙ ≤-refl ⟩
+            γ₃ ∙ M₂.𝟘             ∎)
          (let open CR₂ in
-          tr-▸⁻¹′ _ ▸u refl $ begin
-            tr-Conₘ γ′                     ≤⟨ γ′≤γ₂∧γ₃∧γ₄∧γ₅ ⟩
-            γ₂ C₂.∧ᶜ γ₃ C₂.∧ᶜ γ₄ C₂.∧ᶜ γ₅  ≤⟨ CP₂.≤ᶜ-trans (CP₂.∧ᶜ-decreasingʳ _ _) $
-                                              CP₂.≤ᶜ-trans (CP₂.∧ᶜ-decreasingʳ _ _) $
-                                              CP₂.∧ᶜ-decreasingˡ _ _ ⟩
-            γ₄                             ∎)
-         (let open CR₂ in
-          tr-▸⁻¹′ _ ▸v (sym $ tr-Mode-ᵐ· m _) $ begin
-            tr-Conₘ γ′                     ≤⟨ γ′≤γ₂∧γ₃∧γ₄∧γ₅ ⟩
-            γ₂ C₂.∧ᶜ γ₃ C₂.∧ᶜ γ₄ C₂.∧ᶜ γ₅  ≤⟨ CP₂.≤ᶜ-trans (CP₂.∧ᶜ-decreasingʳ _ _) $
-                                              CP₂.≤ᶜ-trans (CP₂.∧ᶜ-decreasingʳ _ _) $
-                                              CP₂.∧ᶜ-decreasingʳ _ _ ⟩
-            γ₅                             ∎))
+          tr-▸⁻¹′ _ ▸u refl $ (begin
+            tr-Conₘ γ′   ≤⟨ γ′≤γ₃∧γ₄ ⟩
+            γ₃ C₂.∧ᶜ γ₄  ≤⟨ CP₂.∧ᶜ-decreasingʳ _ _ ⟩
+            γ₄           ∎))
+         (tr-▸[𝟘ᵐ?]⁻¹ ▸v .proj₂))
       (let open CR₁ in begin
-         γ                                           ≤⟨ γ≤ωγ′ ⟩
-         M₁.ω C₁.·ᶜ γ′                               ≤⟨ flip CP₁.·ᶜ-monotone MP₁.≤-refl $
-                                                        CP₁.≤ᶜ-reflexive $ CP₁.≈ᶜ-sym $
-                                                        CP₁.≈ᶜ-trans
-                                                          (CP₁.∧ᶜ-congˡ $
-                                                           CP₁.≈ᶜ-trans
-                                                             (CP₁.∧ᶜ-congˡ $
-                                                              CP₁.∧ᶜ-idem _) $
-                                                           CP₁.∧ᶜ-idem _) $
-                                                        CP₁.∧ᶜ-idem _ ⟩
-         M₁.ω C₁.·ᶜ (γ′ C₁.∧ᶜ γ′ C₁.∧ᶜ γ′ C₁.∧ᶜ γ′)  ∎) }
+         γ                         ≤⟨ γ≤ωγ′ ⟩
+         M₁.ω C₁.·ᶜ γ′             ≈˘⟨ CP₁.·ᶜ-congˡ $ CP₁.∧ᶜ-idem _ ⟩
+         M₁.ω C₁.·ᶜ (γ′ C₁.∧ᶜ γ′)  ∎) }
 
-    tr-▸⁻¹′ (K _ _ _ _ _ _) (K₀ₘ ≡all ▸A ▸t ▸B ▸u ▸v) refl ≤γ′ = K₀ₘ
+    tr-▸⁻¹′ (K _ _ _ _ _ _) (K₀ₘ₂ ≡all ▸A ▸t ▸B ▸u ▸v) refl ≤γ′ = K₀ₘ₂
       (≤ᵉᵐ→≡all→≡all (erased-matches-for-K-reflected ≈ᵐ-tr-Mode) ≡all)
       (tr-▸[𝟘ᵐ?]⁻¹ ▸A .proj₂) (tr-▸[𝟘ᵐ?]⁻¹ ▸t .proj₂)
       (tr-∙▸[𝟘ᵐ?]⁻¹ ▸B .proj₂) (tr-▸⁻¹′ _ ▸u refl ≤γ′)

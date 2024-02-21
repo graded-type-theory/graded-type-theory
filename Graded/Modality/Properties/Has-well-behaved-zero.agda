@@ -86,15 +86,21 @@ private
 
 opaque
 
-  -- The grade ω is strictly less than 𝟘.
+  -- 𝟘 is not less than or equal to ω.
 
-  ω<𝟘 : ω < 𝟘
-  ω<𝟘 = ≤<-trans ω≤𝟘∧𝟙 𝟘∧𝟙<𝟘
+  𝟘≰ω : ¬ 𝟘 ≤ ω
+  𝟘≰ω =
+    𝟘 ≤ ω    →⟨ curry (𝟘≰𝟙 ∘→ uncurry ≤-trans) ⟩
+    ¬ ω ≤ 𝟙  →⟨ _$ ω≤𝟙 ⟩
+    ⊥        □
 
 -- The grade ω is not equal to 𝟘.
 
 ω≢𝟘 : ω ≢ 𝟘
-ω≢𝟘 = ω<𝟘 .proj₂
+ω≢𝟘 =
+  ω ≡ 𝟘  →⟨ ≤-reflexive ∘→ sym ⟩
+  𝟘 ≤ ω  →⟨ 𝟘≰ω ⟩
+  ⊥      □
 
 -- If p ⊛ q ▷ r is equal to zero, then p is equal to zero.
 

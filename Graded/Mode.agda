@@ -197,7 +197,7 @@ opaque
     -- A function used in the implementation of ⌞_⌟.
 
     ⌞_⌟′ : M → T 𝟘ᵐ-allowed → Mode
-    ⌞ p ⌟′ ok = case 𝟘ᵐ.is-𝟘? ok p of λ where
+    ⌞ p ⌟′ ok = case is-𝟘? p of λ where
       (yes _) → 𝟘ᵐ[ ok ]
       (no _)  → 𝟙ᵐ
 
@@ -577,7 +577,7 @@ opaque
            (λ ok → ⌞ p ⌟′ (subst T eq ok))
            (λ _ → 𝟙ᵐ))
     lemma false refl = 𝟘ᵐ-not-allowed idᶠ refl
-    lemma true  refl with 𝟘ᵐ.is-𝟘? tt p
+    lemma true  refl with is-𝟘? p
     … | no p≢𝟘  = 𝟙ᵐ ⦃ ok = _ ⦄ p≢𝟘 refl
     … | yes p≡𝟘 = 𝟘ᵐ ⦃ ok = _ ⦄ p≡𝟘 refl
 
@@ -633,7 +633,7 @@ opaque
            𝟙ᵐ ≡ m ⇔ (¬ T 𝟘ᵐ-allowed ⊎ T 𝟘ᵐ-allowed × p ≡ 𝟘))
         (λ ⦃ ok = ok ⦄ → ⊥-elim ok)
         (λ _ → (λ _ → inj₁ idᶠ) , (λ _ → refl))
-    lemma true refl with 𝟘ᵐ.is-𝟘? tt p
+    lemma true refl with is-𝟘? p
     … | no p≢𝟘 =
         (λ ())
       , (λ where

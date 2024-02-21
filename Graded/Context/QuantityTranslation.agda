@@ -112,6 +112,17 @@ module Is-morphism (m : Is-morphism 𝕄₁ 𝕄₂ tr) where
   tr-Conₘ-𝟘ᶜ-≤ᶜ {n = 0}    = CP₂.≤ᶜ-refl
   tr-Conₘ-𝟘ᶜ-≤ᶜ {n = 1+ _} = tr-Conₘ-𝟘ᶜ-≤ᶜ ∙ tr-𝟘-≤
 
+  opaque
+
+    -- A variant of trivial-⊎-tr-𝟘 for usage contexts.
+
+    trivial-⊎-tr-Conₘ-𝟘ᶜ-≈ᶜ :
+      (∀ {n} {γ δ : C₁.Conₘ n} → γ C₁.≈ᶜ δ) ⊎
+      (∀ {n} → tr-Conₘ C₁.𝟘ᶜ C₂.≈ᶜ C₂.𝟘ᶜ {n = n})
+    trivial-⊎-tr-Conₘ-𝟘ᶜ-≈ᶜ = case trivial-⊎-tr-𝟘 of λ where
+      (inj₁ trivial) → inj₁ (λ {_ _ _} → CP₁.≈ᶜ-trivial trivial)
+      (inj₂ tr-𝟘)    → inj₂ (λ {_} → tr-Conₘ-𝟘ᶜ-≈ᶜ tr-𝟘)
+
   -- Translation commutes with _+ᶜ_.
 
   tr-Conₘ-+ᶜ : tr-Conₘ (γ C₁.+ᶜ δ) ≈ᶜ tr-Conₘ γ C₂.+ᶜ tr-Conₘ δ
@@ -181,15 +192,6 @@ module Is-order-embedding (m : Is-order-embedding 𝕄₁ 𝕄₂ tr) where
   tr-Conₘ-order-reflecting {γ = ε}     {δ = ε}     ε       = ε
   tr-Conₘ-order-reflecting {γ = _ ∙ _} {δ = _ ∙ _} (γ ∙ p) =
     tr-Conₘ-order-reflecting γ ∙ tr-order-reflecting p
-
-  -- A variant of trivial-⊎-tr-𝟘 for usage contexts.
-
-  trivial-⊎-tr-Conₘ-𝟘ᶜ-≈ᶜ :
-    (∀ {n} {γ δ : C₁.Conₘ n} → γ C₁.≈ᶜ δ) ⊎
-    (∀ {n} → tr-Conₘ C₁.𝟘ᶜ C₂.≈ᶜ C₂.𝟘ᶜ {n = n})
-  trivial-⊎-tr-Conₘ-𝟘ᶜ-≈ᶜ = case trivial-⊎-tr-𝟘 of λ where
-    (inj₁ trivial) → inj₁ (λ {_ _ _} → CP₁.≈ᶜ-trivial trivial)
-    (inj₂ tr-𝟘)    → inj₂ (λ {_} → tr-Conₘ-𝟘ᶜ-≈ᶜ tr-𝟘)
 
   -- If the translation of γ is bounded by 𝟘ᶜ, then γ is bounded by
   -- 𝟘ᶜ.

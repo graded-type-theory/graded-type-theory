@@ -111,7 +111,8 @@ import Graded.Usage.Restrictions.Satisfied
 
 -- One difference is the addition of identity types. A weak unit type
 -- has also been added, and the strong unit type can now optionally be
--- used as a "sink".
+-- used as a "sink". Furthermore equality with the grade 𝟘 is now
+-- required to be decidable for all modalities.
 
 -- Another notable change is related to the natrec-star operators. The
 -- paper does not focus on linearity, but some modalities for linear
@@ -334,8 +335,9 @@ no-erased-matches = Graded.Restrictions.no-erased-matches-UR
 -- match the paper the nr function should correspond to a natrec-star
 -- operator).
 --
--- Unlike in the paper equality is not required to be decidable.
--- Instead this property is assumed where it is used.
+-- Unlike in the paper equality is not required to be decidable (only
+-- equality with the grade 𝟘). Instead this property is assumed where
+-- it is used.
 
 Modality = Graded.Modality.Modality
 
@@ -682,11 +684,6 @@ Theorem-5-4 = Graded.Reduction.usagePresTerm
 -- 6: Erasure Case Study
 
 -- Definition 6.1: Well-behaved zeros.
---
--- This definition includes one requirement that is not part of the
--- definition in the paper: equality with zero must be decidable. The
--- paper's definition of a modality instead includes the requirement
--- that equality is decidable for all elements.
 
 Has-well-behaved-zero = Graded.Modality.Has-well-behaved-zero
 
