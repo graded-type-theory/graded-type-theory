@@ -116,7 +116,7 @@ opaque
 
   []-cong₀ : Strength → Term n → Term n → Term n → Term n → Term n
   []-cong₀ s A t u v =
-    subst A (Id (Erased (wk1 A)) [ wk1 t ] ([ var x0 ])) t u v rfl
+    subst 𝟘 A (Id (Erased (wk1 A)) [ wk1 t ] ([ var x0 ])) t u v rfl
     where
     open Erased s
 
@@ -139,10 +139,10 @@ opaque
       (Idₘ′ (▸Erased (wkUsage (step id) ▸A))
          (▸[] (wkUsage (step id) (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸t))) (▸[] var)
          (begin
-            𝟘ᶜ ∙ 𝟘 · ω  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
+            𝟘ᶜ ∙ 𝟘 · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
             𝟘ᶜ          ∎)
          (begin
-            𝟘ᶜ ∙ 𝟘 · ω  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
+            𝟘ᶜ ∙ 𝟘 · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
             𝟘ᶜ          ≈˘⟨ +ᶜ-identityʳ _ ⟩
             𝟘ᶜ +ᶜ 𝟘ᶜ    ∎))
       ▸t ▸u ▸v rflₘ
@@ -253,19 +253,19 @@ opaque
     []-cong₀ s A t u v [ σ ] PE.≡
     []-cong₀ s (A [ σ ]) (t [ σ ]) (u [ σ ]) (v [ σ ])
   []-cong₀-[] {s} {A} {t} {u} {v} {σ} =
-    subst A (Id (Erased (wk1 A)) [ wk1 t ] ([ var x0 ])) t u v rfl
+    subst 𝟘 A (Id (Erased (wk1 A)) [ wk1 t ] ([ var x0 ])) t u v rfl
       U.[ σ ]                                                             ≡⟨ subst-[] ⟩
 
-    subst (A U.[ σ ])
+    subst 𝟘 (A U.[ σ ])
       (Id (Erased (wk1 A U.[ liftSubst σ ])) [ wk1 t U.[ liftSubst σ ] ]
          ([ var x0 ]))
-      (t U.[ σ ]) (u U.[ σ ]) (v U.[ σ ]) rfl                             ≡⟨ PE.cong₅ (subst _)
+      (t U.[ σ ]) (u U.[ σ ]) (v U.[ σ ]) rfl                             ≡⟨ PE.cong₅ (subst _ _)
                                                                                (PE.cong₃ Id
                                                                                   (PE.cong Erased (wk1-liftSubst A))
                                                                                   (PE.cong [_] (wk1-liftSubst t))
                                                                                   PE.refl)
                                                                                PE.refl PE.refl PE.refl PE.refl ⟩
-    subst (A U.[ σ ])
+    subst 𝟘 (A U.[ σ ])
       (Id (Erased (wk1 (A U.[ σ ]))) [ wk1 (t U.[ σ ]) ] ([ var x0 ]))
       (t U.[ σ ]) (u U.[ σ ]) (v U.[ σ ]) rfl                             ∎
     where

@@ -16,12 +16,14 @@ module Graded.Derived.Identity
   where
 
 open Modality 𝕄
+open Usage-restrictions UR
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 open import Graded.Usage 𝕄 UR
+open import Graded.Usage.Erased-matches
 open import Graded.Usage.Properties 𝕄 UR
 open import Graded.Usage.Weakening 𝕄 UR
 
@@ -30,12 +32,14 @@ open import Definition.Typed.Consequences.DerivedRules.Identity TR
 
 open import Tools.Bool
 open import Tools.Function
+open import Tools.PropositionalEquality as PE using (_≡_)
 import Tools.Reasoning.PartialOrder
 
 private variable
-  A B t u v w         : Term _
-  γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ δ : Conₘ _
-  m                   : Mode
+  A B t u v w       : Term _
+  p                 : M
+  γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ : Conₘ _
+  m                 : Mode
 
 opaque
   unfolding subst
@@ -44,18 +48,18 @@ opaque
 
   ▸subst :
     γ₁ ▸[ 𝟘ᵐ? ] A →
-    γ₂ ∙ ⌜ m ⌝ · ω ▸[ m ] B →
+    γ₂ ∙ ⌜ m ⌝ · p ▸[ m ] B →
     γ₃ ▸[ m ] t →
     γ₄ ▸[ m ] u →
     γ₅ ▸[ m ] v →
     γ₆ ▸[ m ] w →
-    ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆) ▸[ m ] subst A B t u v w
-  ▸subst {γ₁} {γ₂} {m} {γ₃} {γ₄} {γ₅} {γ₆} ▸A ▸B ▸t ▸u ▸v ▸w = sub
+    ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆) ▸[ m ] subst p A B t u v w
+  ▸subst {γ₁} {γ₂} {m} {p} {γ₃} {γ₄} {γ₅} {γ₆} ▸A ▸B ▸t ▸u ▸v ▸w = sub
     (Jₘ-generalised ▸A ▸t
        (sub (wkUsage (step id) ▸B) $
         let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-          γ₂ ∙ ⌜ m ⌝ · ω ∙ ⌜ m ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
-          γ₂ ∙ ⌜ m ⌝ · ω ∙ 𝟘          ∎)
+          γ₂ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+          γ₂ ∙ ⌜ m ⌝ · p ∙ 𝟘          ∎)
        ▸w ▸u ▸v)
     (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
        ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆)  ≈⟨ ·ᶜ-congˡ $

@@ -448,9 +448,10 @@ opaque
   -- Substitutivity.
 
   subst :
+    M →
     Term n → Term (1+ n) → Term n → Term n → Term n → Term n → Term n
-  subst A B t u v w =
-    J ω 𝟘 A t (wk1 B) w u v
+  subst p A B t u v w =
+    J p 𝟘 A t (wk1 B) w u v
 
 opaque
   unfolding subst
@@ -461,7 +462,7 @@ opaque
     Γ ∙ A ⊢ B →
     Γ ⊢ v ∷ Id A t u →
     Γ ⊢ w ∷ B [ t ]₀ →
-    Γ ⊢ subst A B t u v w ∷ B [ u ]₀
+    Γ ⊢ subst p A B t u v w ∷ B [ u ]₀
   ⊢subst {B} ⊢B ⊢v ⊢w =
     case inversion-Id (syntacticTerm ⊢v) of λ {
       (_ , ⊢t , _) →
@@ -479,7 +480,7 @@ opaque
     Γ ∙ A ⊢ B →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
-    Γ ⊢ subst A B t t rfl u ⇒ u ∷ B [ t ]₀
+    Γ ⊢ subst p A B t t rfl u ⇒ u ∷ B [ t ]₀
   subst-⇒ {B} ⊢B ⊢t ⊢u =
     PE.subst (_⊢_⇒_∷_ _ _ _) (subst-wk B) $
     J-β-⇒ (refl ⊢t) (wk₁ (J-motive-context-type ⊢t) ⊢B)
@@ -493,7 +494,7 @@ opaque
     Γ ∙ A ⊢ B →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
-    Γ ⊢ subst A B t t rfl u ≡ u ∷ B [ t ]₀
+    Γ ⊢ subst p A B t t rfl u ≡ u ∷ B [ t ]₀
   subst-≡ ⊢B ⊢t ⊢u =
     subsetTerm (subst-⇒ ⊢B ⊢t ⊢u)
 
@@ -509,7 +510,8 @@ opaque
     Γ ⊢ u₁ ≡ u₂ ∷ A₁ →
     Γ ⊢ v₁ ≡ v₂ ∷ Id A₁ t₁ u₁ →
     Γ ⊢ w₁ ≡ w₂ ∷ B₁ [ t₁ ]₀ →
-    Γ ⊢ subst A₁ B₁ t₁ u₁ v₁ w₁ ≡ subst A₂ B₂ t₂ u₂ v₂ w₂ ∷ B₁ [ u₁ ]₀
+    Γ ⊢ subst p A₁ B₁ t₁ u₁ v₁ w₁ ≡ subst p A₂ B₂ t₂ u₂ v₂ w₂ ∷
+      B₁ [ u₁ ]₀
   subst-cong {B₁} A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂ =
     PE.subst (_⊢_≡_∷_ _ _ _) (subst-wk B₁) $
     J-cong′ A₁≡A₂ t₁≡t₂
@@ -528,7 +530,7 @@ opaque
     Γ ∙ A ⊢ B →
     Γ ⊢ v₁ ⇒ v₂ ∷ Id A t u →
     Γ ⊢ w ∷ B [ t ]₀ →
-    Γ ⊢ subst A B t u v₁ w ⇒ subst A B t u v₂ w ∷ B [ u ]₀
+    Γ ⊢ subst p A B t u v₁ w ⇒ subst p A B t u v₂ w ∷ B [ u ]₀
   subst-subst {B} ⊢B v₁⇒v₂ ⊢w =
     case inversion-Id (syntacticEqTerm (subsetTerm v₁⇒v₂) .proj₁) of λ {
       (_ , ⊢t , _) →
@@ -542,8 +544,8 @@ opaque
   -- A substitution lemma for subst.
 
   subst-[] :
-    subst A B t u v w [ σ ] PE.≡
-    subst (A [ σ ]) (B [ liftSubst σ ]) (t [ σ ]) (u [ σ ]) (v [ σ ])
+    subst p A B t u v w [ σ ] PE.≡
+    subst p (A [ σ ]) (B [ liftSubst σ ]) (t [ σ ]) (u [ σ ]) (v [ σ ])
       (w [ σ ])
   subst-[] {B} =
     PE.cong₄ (J _ _ _ _) (wk1-liftSubst B) PE.refl PE.refl PE.refl
@@ -558,7 +560,7 @@ opaque
   symmetry :
     Term n → Term n → Term n → Term n → Term n
   symmetry A t u eq =
-    subst A (Id (wk1 A) (var x0) (wk1 t)) t u eq rfl
+    subst ω A (Id (wk1 A) (var x0) (wk1 t)) t u eq rfl
 
 opaque
   unfolding symmetry
@@ -620,14 +622,14 @@ opaque
     symmetry A t u eq [ σ ] PE.≡
     symmetry (A [ σ ]) (t [ σ ]) (u [ σ ]) (eq [ σ ])
   symmetry-[] {A} {t} {u} {eq} {σ} =
-    subst A (Id (wk1 A) (var x0) (wk1 t)) t u eq rfl [ σ ]           ≡⟨ subst-[] ⟩
+    subst ω A (Id (wk1 A) (var x0) (wk1 t)) t u eq rfl [ σ ]         ≡⟨ subst-[] ⟩
 
-    subst (A [ σ ])
+    subst ω (A [ σ ])
       (Id (wk1 A [ liftSubst σ ]) (var x0) (wk1 t [ liftSubst σ ]))
-      (t [ σ ]) (u [ σ ]) (eq [ σ ]) rfl                             ≡⟨ PE.cong₅ (subst _)
+      (t [ σ ]) (u [ σ ]) (eq [ σ ]) rfl                             ≡⟨ PE.cong₅ (subst _ _)
                                                                           (PE.cong₃ Id (wk1-liftSubst A) PE.refl (wk1-liftSubst t))
                                                                           PE.refl PE.refl PE.refl PE.refl ⟩
-    subst (A [ σ ])
+    subst ω (A [ σ ])
       (Id (wk1 (A [ σ ])) (var x0) (wk1 (t [ σ ])))
       (t [ σ ]) (u [ σ ]) (eq [ σ ]) rfl                             ∎
 
@@ -641,7 +643,7 @@ opaque
   transitivity :
     Term n → Term n → Term n → Term n → Term n → Term n → Term n
   transitivity A t u v eq₁ eq₂ =
-    subst A (Id (wk1 A) (wk1 t) (var x0)) u v eq₂ eq₁
+    subst ω A (Id (wk1 A) (wk1 t) (var x0)) u v eq₂ eq₁
 
 opaque
   unfolding transitivity
@@ -700,14 +702,14 @@ opaque
     transitivity (A [ σ ]) (t [ σ ]) (u [ σ ]) (v [ σ ]) (eq₁ [ σ ])
       (eq₂ [ σ ])
   transitivity-[] {A} {t} {u} {v} {eq₁} {eq₂} {σ} =
-    subst A (Id (wk1 A) (wk1 t) (var x0)) u v eq₂ eq₁ [ σ ]          ≡⟨ subst-[] ⟩
+    subst ω A (Id (wk1 A) (wk1 t) (var x0)) u v eq₂ eq₁ [ σ ]        ≡⟨ subst-[] ⟩
 
-    subst (A [ σ ])
+    subst ω (A [ σ ])
       (Id (wk1 A [ liftSubst σ ]) (wk1 t [ liftSubst σ ]) (var x0))
-      (u [ σ ]) (v [ σ ]) (eq₂ [ σ ]) (eq₁ [ σ ])                    ≡⟨ PE.cong₅ (subst _)
+      (u [ σ ]) (v [ σ ]) (eq₂ [ σ ]) (eq₁ [ σ ])                    ≡⟨ PE.cong₅ (subst _ _)
                                                                           (PE.cong₃ Id (wk1-liftSubst A) (wk1-liftSubst t) PE.refl)
                                                                           PE.refl PE.refl PE.refl PE.refl ⟩
-    subst (A [ σ ]) (Id (wk1 (A [ σ ])) (wk1 (t [ σ ])) (var x0))
+    subst ω (A [ σ ]) (Id (wk1 (A [ σ ])) (wk1 (t [ σ ])) (var x0))
       (u [ σ ]) (v [ σ ]) (eq₂ [ σ ]) (eq₁ [ σ ])                    ∎
 
 ------------------------------------------------------------------------
@@ -799,7 +801,7 @@ opaque
   cong :
     Term n → Term n → Term n → Term n → Term (1+ n) → Term n → Term n
   cong A t u B v w =
-    subst A (Id (wk1 B) (wk1 (v [ t ]₀)) v) t u w rfl
+    subst ω A (Id (wk1 B) (wk1 (v [ t ]₀)) v) t u w rfl
 
 opaque
   unfolding cong
@@ -869,12 +871,12 @@ opaque
     cong (A [ σ ]) (t [ σ ]) (u [ σ ]) (B [ σ ]) (v [ liftSubst σ ])
       (w [ σ ])
   cong-[] {A} {t} {u} {B} {v} {w} {σ} =
-    subst A (Id (wk1 B) (wk1 (v [ t ]₀)) v) t u w rfl [ σ ]          ≡⟨ subst-[] ⟩
+    subst ω A (Id (wk1 B) (wk1 (v [ t ]₀)) v) t u w rfl [ σ ]        ≡⟨ subst-[] ⟩
 
-    subst (A [ σ ])
+    subst ω (A [ σ ])
       (Id (wk1 B [ liftSubst σ ]) (wk1 (v [ t ]₀) [ liftSubst σ ])
          (v [ liftSubst σ ]))
-      (t [ σ ]) (u [ σ ]) (w [ σ ]) rfl                              ≡⟨ PE.cong₅ (subst _)
+      (t [ σ ]) (u [ σ ]) (w [ σ ]) rfl                              ≡⟨ PE.cong₅ (subst _ _)
                                                                           (PE.cong₃ Id
                                                                              (wk1-liftSubst B)
                                                                              (
@@ -883,7 +885,7 @@ opaque
       wk1 (v [ liftSubst σ ] [ t [ σ ] ]₀)                                    ∎)
                                                                              PE.refl)
                                                                           PE.refl PE.refl PE.refl PE.refl ⟩
-    subst (A [ σ ])
+    subst ω (A [ σ ])
       (Id (wk1 (B [ σ ])) (wk1 (v [ liftSubst σ ] [ t [ σ ] ]₀))
          (v [ liftSubst σ ]))
       (t [ σ ]) (u [ σ ]) (w [ σ ]) rfl                              ∎

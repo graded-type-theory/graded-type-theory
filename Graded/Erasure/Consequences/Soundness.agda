@@ -524,7 +524,7 @@ module _ (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘)) where
   ... | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 PE.refl)
   ... | yes _ =
       0
-    , subst ℕ² (Id ℕ pr zero) 0,0 (var x0) η rfl
+    , subst ω ℕ² (Id ℕ pr zero) 0,0 (var x0) η rfl
     , ⊢subst (Idⱼ ⊢pr (zeroⱼ (ε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ])))
         (⊢Σʷ-η-prodʷ-fstʷ-sndʷ (var₀ (⊢ℕ² ε)))
         (rflⱼ′
