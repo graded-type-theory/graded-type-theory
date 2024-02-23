@@ -232,10 +232,10 @@ wkUsage ρ
      (wkUsage _ ▸t′) (wkUsage _ ▸v))
   (begin
      wkConₘ ρ (ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆))                  ≈⟨ ≈ᶜ-trans (wk-·ᶜ ρ) $ ·ᶜ-congˡ $
-                                                                  ≈ᶜ-trans (wk-∧ᶜ ρ) $ ∧ᶜ-congˡ $
-                                                                  ≈ᶜ-trans (wk-∧ᶜ ρ) $ ∧ᶜ-congˡ $
-                                                                  ≈ᶜ-trans (wk-∧ᶜ ρ) $ ∧ᶜ-congˡ $
-                                                                  wk-∧ᶜ ρ ⟩
+                                                                      ≈ᶜ-trans (wk-∧ᶜ ρ) $ ∧ᶜ-congˡ $
+                                                                      ≈ᶜ-trans (wk-∧ᶜ ρ) $ ∧ᶜ-congˡ $
+                                                                      ≈ᶜ-trans (wk-∧ᶜ ρ) $ ∧ᶜ-congˡ $
+                                                                      wk-∧ᶜ ρ ⟩
      ω ·ᶜ
      (wkConₘ ρ γ₂ ∧ᶜ wkConₘ ρ γ₃ ∧ᶜ wkConₘ ρ γ₄ ∧ᶜ wkConₘ ρ γ₅ ∧ᶜ
       wkConₘ ρ γ₆)                                                 ∎)
