@@ -56,28 +56,30 @@ private variable
 ------------------------------------------------------------------------
 -- Some eliminators or similar principles
 
-private
+opaque
 
-  -- A lemma used in the implementation of 𝟘ᵐ-allowed-elim.
+  private
 
-  𝟘ᵐ-allowed-elim-helper :
-    ∀ {p} {P : Set p} (b : Bool) →
-    (T b → P) →
-    ((not-ok : ¬ T b) → P) →
+    -- A lemma used in the implementation of 𝟘ᵐ-allowed-elim.
+
+    𝟘ᵐ-allowed-elim-helper :
+      ∀ {p} {P : Set p} (b : Bool) →
+      (T b → P) →
+      ((not-ok : ¬ T b) → P) →
+      P
+    𝟘ᵐ-allowed-elim-helper true  t f = t _
+    𝟘ᵐ-allowed-elim-helper false t f = f (λ ())
+
+  -- One can prove that a predicate holds for 𝟘ᵐ-allowed by proving
+  -- that it holds given that T 𝟘ᵐ-allowed is inhabited, and that it
+  -- holds given that T 𝟘ᵐ-allowed is not inhabited.
+
+  𝟘ᵐ-allowed-elim :
+    ∀ {p} {P : Set p} →
+    (T 𝟘ᵐ-allowed → P) →
+    ((not-ok : ¬ T 𝟘ᵐ-allowed) → P) →
     P
-  𝟘ᵐ-allowed-elim-helper true  t f = t _
-  𝟘ᵐ-allowed-elim-helper false t f = f (λ ())
-
--- One can prove that a predicate holds for 𝟘ᵐ-allowed by proving that
--- it holds given that T 𝟘ᵐ-allowed is inhabited, and that it holds
--- given that T 𝟘ᵐ-allowed is not inhabited.
-
-𝟘ᵐ-allowed-elim :
-  ∀ {p} {P : Set p} →
-  (T 𝟘ᵐ-allowed → P) →
-  ((not-ok : ¬ T 𝟘ᵐ-allowed) → P) →
-  P
-𝟘ᵐ-allowed-elim = 𝟘ᵐ-allowed-elim-helper 𝟘ᵐ-allowed
+  𝟘ᵐ-allowed-elim = 𝟘ᵐ-allowed-elim-helper 𝟘ᵐ-allowed
 
 -- An eliminator for modes.
 
@@ -123,30 +125,36 @@ Mode-propositional-if-trivial 𝟙≡𝟘 =
 ------------------------------------------------------------------------
 -- 𝟘ᵐ?
 
--- A mode that is 𝟘ᵐ[ something ] if 𝟘ᵐ-allowed is true, and otherwise
--- 𝟙ᵐ.
+opaque
+  unfolding 𝟘ᵐ-allowed-elim
 
-𝟘ᵐ? : Mode
-𝟘ᵐ? = 𝟘ᵐ-allowed-elim 𝟘ᵐ[_] (λ _ → 𝟙ᵐ)
+  -- A mode that is 𝟘ᵐ[ something ] if 𝟘ᵐ-allowed is true, and otherwise
+  -- 𝟙ᵐ.
 
--- One can prove that a predicate holds for 𝟘ᵐ? by proving that it
--- holds for 𝟘ᵐ[ ok ] (for any ok) and that it holds for 𝟙ᵐ (under the
--- assumption that T 𝟘ᵐ-allowed is not inhabited).
+  𝟘ᵐ? : Mode
+  𝟘ᵐ? = 𝟘ᵐ-allowed-elim 𝟘ᵐ[_] (λ _ → 𝟙ᵐ)
 
-𝟘ᵐ?-elim :
-  ∀ {p} (P : Mode → Set p) →
-  (⦃ ok : T 𝟘ᵐ-allowed ⦄ → P 𝟘ᵐ) →
-  (¬ T 𝟘ᵐ-allowed → P 𝟙ᵐ) →
-  P 𝟘ᵐ?
-𝟘ᵐ?-elim P = lemma _ refl
-  where
-  lemma :
-    ∀ b (eq : b ≡ 𝟘ᵐ-allowed)
-    (z : ⦃ ok : T b ⦄ → P 𝟘ᵐ[ subst T eq ok ])
-    (o : ¬ T b → P 𝟙ᵐ) →
-    P (𝟘ᵐ-allowed-elim-helper b (λ ok → 𝟘ᵐ[ subst T eq ok ]) (λ _ → 𝟙ᵐ))
-  lemma true  _ z _ = z ⦃ ok = _ ⦄
-  lemma false _ _ o = o (λ ())
+opaque
+  unfolding 𝟘ᵐ?
+
+  -- One can prove that a predicate holds for 𝟘ᵐ? by proving that it
+  -- holds for 𝟘ᵐ[ ok ] (for any ok) and that it holds for 𝟙ᵐ (under
+  -- the assumption that T 𝟘ᵐ-allowed is not inhabited).
+
+  𝟘ᵐ?-elim :
+    ∀ {p} (P : Mode → Set p) →
+    (⦃ ok : T 𝟘ᵐ-allowed ⦄ → P 𝟘ᵐ) →
+    (¬ T 𝟘ᵐ-allowed → P 𝟙ᵐ) →
+    P 𝟘ᵐ?
+  𝟘ᵐ?-elim P = lemma _ refl
+    where
+    lemma :
+      ∀ b (eq : b ≡ 𝟘ᵐ-allowed)
+      (z : ⦃ ok : T b ⦄ → P 𝟘ᵐ[ subst T eq ok ])
+      (o : ¬ T b → P 𝟙ᵐ) →
+      P (𝟘ᵐ-allowed-elim-helper b (λ ok → 𝟘ᵐ[ subst T eq ok ]) (λ _ → 𝟙ᵐ))
+    lemma true  _ z _ = z ⦃ ok = _ ⦄
+    lemma false _ _ o = o (λ ())
 
 -- 𝟘ᵐ? is equal to 𝟘ᵐ[ ok ].
 
@@ -181,19 +189,22 @@ _·ᵐ_ : Mode → Mode → Mode
 ⌜ 𝟘ᵐ ⌝ = 𝟘
 ⌜ 𝟙ᵐ ⌝ = 𝟙
 
-private
+opaque
+  unfolding 𝟘ᵐ-allowed-elim
 
-  -- A function used in the implementation of ⌞_⌟.
+  private
 
-  ⌞_⌟′ : M → T 𝟘ᵐ-allowed → Mode
-  ⌞ p ⌟′ ok = case 𝟘ᵐ.is-𝟘? ok p of λ where
-    (yes _) → 𝟘ᵐ[ ok ]
-    (no _)  → 𝟙ᵐ
+    -- A function used in the implementation of ⌞_⌟.
 
--- Quantities can be translated to modes (in a potentially lossy way).
+    ⌞_⌟′ : M → T 𝟘ᵐ-allowed → Mode
+    ⌞ p ⌟′ ok = case 𝟘ᵐ.is-𝟘? ok p of λ where
+      (yes _) → 𝟘ᵐ[ ok ]
+      (no _)  → 𝟙ᵐ
 
-⌞_⌟ : M → Mode
-⌞ p ⌟ = 𝟘ᵐ-allowed-elim ⌞ p ⌟′ (λ _ → 𝟙ᵐ)
+  -- Quantities can be translated to modes (in a potentially lossy way).
+
+  ⌞_⌟ : M → Mode
+  ⌞ p ⌟ = 𝟘ᵐ-allowed-elim ⌞ p ⌟′ (λ _ → 𝟙ᵐ)
 
 -- Modes can be scaled by quantities.
 --
@@ -552,6 +563,7 @@ data ⌞⌟-view (p : M) (m : Mode) : Set a where
   𝟘ᵐ             : ⦃ ok : T 𝟘ᵐ-allowed ⦄ → p ≡ 𝟘 → m ≡ 𝟘ᵐ → ⌞⌟-view p m
 
 opaque
+  unfolding ⌞_⌟
 
   -- The view is total.
 
@@ -598,6 +610,7 @@ opaque
       , (λ ≡𝟘 → ⊥-elim $ ≢𝟘 ≡𝟘)
 
 opaque
+  unfolding ⌞_⌟ 𝟘ᵐ?
 
   -- The value of ⌞ p ⌟ is 𝟘ᵐ? if and only if
   -- * 𝟘ᵐ is not allowed or
