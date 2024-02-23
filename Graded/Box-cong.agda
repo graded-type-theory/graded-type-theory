@@ -57,10 +57,11 @@ open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat using (Nat)
 open import Tools.Product
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE using (_≢_)
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
+open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
   n                                 : Nat
@@ -69,6 +70,7 @@ private variable
   σ                                 : Subst _ _
   p q₁ q₂ q₃ q₄                     : M
   γ₁ γ₂ γ₃ γ₄                       : Conₘ _
+  m                                 : Mode
   s                                 : Strength
   sem                               : Some-erased-matches
   ok                                : T _
@@ -107,32 +109,63 @@ private opaque
     open Erased s
 
 ------------------------------------------------------------------------
--- []-cong₀
+-- []-cong-J
 
 opaque
 
-  -- A variant of []-cong which can be used when the mode is 𝟘ᵐ[ ok ].
-  -- Note that the lemmas in this section do not include assumptions
-  -- of the form "[]-cong-allowed s".
+  -- A variant of []-cong which can be used when erased matches are
+  -- available for J, or when the mode is 𝟘ᵐ[ ok ]. Note that the
+  -- lemmas in this section do not include assumptions of the form
+  -- "[]-cong-allowed s".
 
-  []-cong₀ : Strength → Term n → Term n → Term n → Term n → Term n
-  []-cong₀ s A t u v =
+  []-cong-J : Strength → Term n → Term n → Term n → Term n → Term n
+  []-cong-J s A t u v =
     subst 𝟘 A (Id (Erased (wk1 A)) [ wk1 t ] ([ var x0 ])) t u v rfl
     where
     open Erased s
 
 opaque
-  unfolding []-cong₀
+  unfolding []-cong-J
 
-  -- A usage rule for []-cong₀.
+  -- A usage rule for []-cong-J.
 
-  ▸[]-cong₀ :
+  ▸[]-cong-J :
+    erased-matches-for-J m PE.≡ not-none sem →
+    γ₁ ▸[ 𝟘ᵐ? ] A →
+    γ₂ ▸[ 𝟘ᵐ? ] t →
+    γ₃ ▸[ 𝟘ᵐ? ] u →
+    γ₄ ▸[ 𝟘ᵐ? ] v →
+    𝟘ᶜ ▸[ m ] []-cong-J s A t u v
+  ▸[]-cong-J {m} {s} ≡not-none ▸A ▸t ▸u ▸v =
+    case PE.singleton $ erased-matches-for-J m of λ where
+      (not-none _ , ≡not-none) → sub
+        (▸subst-𝟘 ≡not-none ▸A
+           (Idₘ′ (▸Erased (wkUsage _ ▸A)) (▸[] (wkUsage _ ▸t)) (▸[] var)
+              ≤ᶜ-refl $
+            let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+              𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
+              𝟘ᶜ +ᶜ 𝟘ᶜ  ∎)
+            ▸t ▸u ▸v rflₘ)
+        (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+           𝟘ᶜ               ≈˘⟨ ω·ᶜ⋀ᶜ²𝟘ᶜ ⟩
+           ω ·ᶜ (𝟘ᶜ ∧ᶜ 𝟘ᶜ)  ∎)
+      (none , ≡none) →
+        case PE.trans (PE.sym ≡not-none) ≡none of λ ()
+    where
+    open ErasedU s
+
+opaque
+  unfolding []-cong-J
+
+  -- Another usage rule for []-cong-J.
+
+  ▸[]-cong-J-𝟘ᵐ :
     γ₁ ▸[ 𝟘ᵐ[ ok ] ] A →
     γ₂ ▸[ 𝟘ᵐ[ ok ] ] t →
     γ₃ ▸[ 𝟘ᵐ[ ok ] ] u →
     γ₄ ▸[ 𝟘ᵐ[ ok ] ] v →
-    𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] []-cong₀ s A t u v
-  ▸[]-cong₀ {s} ▸A ▸t ▸u ▸v =
+    𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] []-cong-J s A t u v
+  ▸[]-cong-J-𝟘ᵐ {s} ▸A ▸t ▸u ▸v =
     case ▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸A of λ
       ▸A →
     ▸-𝟘 $
@@ -152,16 +185,16 @@ opaque
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
 opaque
-  unfolding []-cong₀
+  unfolding []-cong-J
 
-  -- A typing rule for []-cong₀.
+  -- A typing rule for []-cong-J.
 
-  []-cong₀ⱼ :
+  []-cong-Jⱼ :
     let open Erased s in
     Erased-allowed s →
     Γ ⊢ v ∷ Id A t u →
-    Γ ⊢ []-cong₀ s A t u v ∷ Id (Erased A) [ t ] ([ u ])
-  []-cong₀ⱼ ok ⊢v =
+    Γ ⊢ []-cong-J s A t u v ∷ Id (Erased A) [ t ] ([ u ])
+  []-cong-Jⱼ ok ⊢v =
     case inversion-Id (syntacticTerm ⊢v) of λ
       (⊢A , ⊢t , _) →
     PE.subst (_⊢_∷_ _ _) Id-[]₀≡ $
@@ -170,16 +203,16 @@ opaque
        rflⱼ ([]ⱼ ok ⊢t))
 
 opaque
-  unfolding []-cong₀
+  unfolding []-cong-J
 
-  -- A reduction rule for []-cong₀.
+  -- A reduction rule for []-cong-J.
 
-  []-cong₀-β-⇒ :
+  []-cong-J-β-⇒ :
     let open Erased s in
     Erased-allowed s →
     Γ ⊢ t ∷ A →
-    Γ ⊢ []-cong₀ s A t t rfl ⇒ rfl ∷ Id (Erased A) [ t ] ([ t ])
-  []-cong₀-β-⇒ ok ⊢t =
+    Γ ⊢ []-cong-J s A t t rfl ⇒ rfl ∷ Id (Erased A) [ t ] ([ t ])
+  []-cong-J-β-⇒ ok ⊢t =
     case syntacticTerm ⊢t of λ
       ⊢A →
     PE.subst (_⊢_⇒_∷_ _ _ _) Id-[]₀≡ $
@@ -189,30 +222,30 @@ opaque
 
 opaque
 
-  -- An equality rule for []-cong₀.
+  -- An equality rule for []-cong-J.
 
-  []-cong₀-β-≡ :
+  []-cong-J-β-≡ :
     let open Erased s in
     Erased-allowed s →
     Γ ⊢ t ∷ A →
-    Γ ⊢ []-cong₀ s A t t rfl ≡ rfl ∷ Id (Erased A) [ t ] ([ t ])
-  []-cong₀-β-≡ ok ⊢t = subsetTerm ([]-cong₀-β-⇒ ok ⊢t)
+    Γ ⊢ []-cong-J s A t t rfl ≡ rfl ∷ Id (Erased A) [ t ] ([ t ])
+  []-cong-J-β-≡ ok ⊢t = subsetTerm ([]-cong-J-β-⇒ ok ⊢t)
 
 opaque
-  unfolding []-cong₀
+  unfolding []-cong-J
 
-  -- An equality rule for []-cong₀.
+  -- An equality rule for []-cong-J.
 
-  []-cong₀-cong :
+  []-cong-J-cong :
     let open Erased s in
     Erased-allowed s →
     Γ ⊢ A₁ ≡ A₂ →
     Γ ⊢ t₁ ≡ t₂ ∷ A₁ →
     Γ ⊢ u₁ ≡ u₂ ∷ A₁ →
     Γ ⊢ v₁ ≡ v₂ ∷ Id A₁ t₁ u₁ →
-    Γ ⊢ []-cong₀ s A₁ t₁ u₁ v₁ ≡ []-cong₀ s A₂ t₂ u₂ v₂ ∷
+    Γ ⊢ []-cong-J s A₁ t₁ u₁ v₁ ≡ []-cong-J s A₂ t₂ u₂ v₂ ∷
       Id (Erased A₁) [ t₁ ] ([ u₁ ])
-  []-cong₀-cong ok A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ =
+  []-cong-J-cong ok A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ =
     case syntacticEq A₁≡A₂ of λ
       (⊢A₁ , _) →
     PE.subst (_⊢_≡_∷_ _ _ _) Id-[]₀≡ $
@@ -226,17 +259,17 @@ opaque
        rflⱼ ([]ⱼ ok (syntacticEqTerm t₁≡t₂ .proj₂ .proj₁)))
 
 opaque
-  unfolding []-cong₀
+  unfolding []-cong-J
 
-  -- A reduction rule for []-cong₀.
+  -- A reduction rule for []-cong-J.
 
-  []-cong₀-subst :
+  []-cong-J-subst :
     let open Erased s in
     Erased-allowed s →
     Γ ⊢ v₁ ⇒ v₂ ∷ Id A t u →
-    Γ ⊢ []-cong₀ s A t u v₁ ⇒ []-cong₀ s A t u v₂ ∷
+    Γ ⊢ []-cong-J s A t u v₁ ⇒ []-cong-J s A t u v₂ ∷
       Id (Erased A) [ t ] ([ u ])
-  []-cong₀-subst ok v₁⇒v₂ =
+  []-cong-J-subst ok v₁⇒v₂ =
     case inversion-Id (syntacticEqTerm (subsetTerm v₁⇒v₂) .proj₁) of λ
       (⊢A , ⊢t , _) →
     PE.subst (_⊢_⇒_∷_ _ _ _) Id-[]₀≡ $
@@ -246,14 +279,14 @@ opaque
        rflⱼ ([]ⱼ ok ⊢t))
 
 opaque
-  unfolding []-cong₀
+  unfolding []-cong-J
 
-  -- A substitution lemma for []-cong₀.
+  -- A substitution lemma for []-cong-J.
 
-  []-cong₀-[] :
-    []-cong₀ s A t u v [ σ ] PE.≡
-    []-cong₀ s (A [ σ ]) (t [ σ ]) (u [ σ ]) (v [ σ ])
-  []-cong₀-[] {s} {A} {t} {u} {v} {σ} =
+  []-cong-J-[] :
+    []-cong-J s A t u v [ σ ] PE.≡
+    []-cong-J s (A [ σ ]) (t [ σ ]) (u [ σ ]) (v [ σ ])
+  []-cong-J-[] {s} {A} {t} {u} {v} {σ} =
     subst 𝟘 A (Id (Erased (wk1 A)) [ wk1 t ] ([ var x0 ])) t u v rfl
       U.[ σ ]                                                             ≡⟨ subst-[] ⟩
 
@@ -309,157 +342,114 @@ Has-computing-[]-cong s m q₁ q₂ q₃ q₄ =
 
 opaque
 
-  -- []-cong is supported for the strength s and the mode 𝟘ᵐ[ ok ],
-  -- for grades for which "Π 𝟘" are allowed, if Erased is allowed
-  -- for s.
+  -- []-cong is supported for the strength s and the mode m, for
+  -- grades for which "Π 𝟘" are allowed, if
+  --
+  -- * []-cong is allowed for s, or
+  -- * Erased is allowed for s and
+  --   * erased matches are available for J, or
+  --   * m is 𝟘ᵐ.
 
-  []-cong-𝟘ᵐ :
-    Erased-allowed s →
+  []-cong⊎J⊎𝟘ᵐ→[]-cong :
+    []-cong-allowed s ⊎
+    Erased-allowed s ×
+    (erased-matches-for-J m ≢ none ⊎
+     (∃ λ ok → m PE.≡ 𝟘ᵐ[ ok ])) →
     Π-allowed 𝟘 q₁ →
     Π-allowed 𝟘 q₂ →
     Π-allowed 𝟘 q₃ →
     Π-allowed 𝟘 q₄ →
-    Has-computing-[]-cong s 𝟘ᵐ[ ok ] q₁ q₂ q₃ q₄
-  []-cong-𝟘ᵐ {s} ok ok₁ ok₂ ok₃ ok₄ =
+    Has-computing-[]-cong s m q₁ q₂ q₃ q₄
+  []-cong⊎J⊎𝟘ᵐ→[]-cong {s} {m} ok ok₁ ok₂ ok₃ ok₄ =
     case lamⱼ′ ok₁ $ lamⱼ′ ok₂ $ lamⱼ′ ok₃ $ lamⱼ′ ok₄ $
-         []-cong₀ⱼ ok (var₀ ⊢Id-2-1-0) of λ
-      ⊢[]-cong₀′ →
-      ( []-cong₀′
+         ⊢[]-cong″ ok′ (var₀ ⊢Id-2-1-0) of λ {
+      ⊢[]-cong →
+      ( []-cong′
       , (lamₘ $ lamₘ $ lamₘ $ lamₘ $
-         sub (▸[]-cong₀ var var var var) $ begin
-           ε ∙ 𝟘 · 𝟘 ∙ 𝟘 · 𝟘 ∙ 𝟘 · 𝟘 ∙ 𝟘 · 𝟘  ≈⟨ ε ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
-           𝟘ᶜ                                 ∎)
-      , ⊢[]-cong₀′
+         sub (▸[]-cong″ ok′ var var var var) $ begin
+           ⌜ m ⌝ ·ᶜ 𝟘ᶜ  ≈⟨ ·ᶜ-zeroʳ _ ⟩
+           𝟘ᶜ           ∎)
+      , ⊢[]-cong
       )
     , λ _ _ A t ⊢A ⊢t →
-        wk wk₀ []-cong₀′ ∘⟨ 𝟘 ⟩ A ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ rfl        ⇒*⟨ β-red-⇒₄ (W.wkTerm W.wk₀∷⊇ (wfTerm ⊢A) ⊢[]-cong₀′) ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩
+        wk wk₀ []-cong′ ∘⟨ 𝟘 ⟩ A ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ rfl        ⇒*⟨ β-red-⇒₄ (W.wkTerm W.wk₀∷⊇ (wfTerm ⊢A) ⊢[]-cong) ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩
 
         wk (liftn wk₀ 4)
-          ([]-cong₀ s (var x3) (var x2) (var x1) (var x0))
-          [ consSubst (consSubst (consSubst (sgSubst A) t) t) rfl ]   ≡⟨ PE.trans (subst-wk ([]-cong₀ _ _ _ _ _))
-                                                                         []-cong₀-[] ⟩⇒
+          ([]-cong″ ok′ (var x3) (var x2) (var x1) (var x0))
+          [ consSubst (consSubst (consSubst (sgSubst A) t) t) rfl ]  ≡⟨ PE.trans (subst-wk ([]-cong″ ok′ _ _ _ _)) $
+                                                                        []-cong″-[] ok′ ⟩⇒
 
-        []-cong₀ s A t t rfl                                          ⇒⟨ []-cong₀-β-⇒ ok ⊢t ⟩∎
+        []-cong″ ok′ A t t rfl                                       ⇒⟨ []-cong″-β-⇒ ok′ ⊢t ⟩∎
 
-        rfl                                                           ∎
+        rfl                                                          ∎ }
     where
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-    []-cong₀′ : Term 0
-    []-cong₀′ =
-      lam 𝟘 $ lam 𝟘 $ lam 𝟘 $ lam 𝟘 $
-      []-cong₀ s (var x3) (var x2) (var x1) (var x0)
+    Erased-ok : Erased-allowed s
+    Erased-ok = case ok of λ where
+      (inj₁ ok)       → []-cong→Erased ok
+      (inj₂ (ok , _)) → ok
 
-opaque
+    OK : Set a
+    OK =
+      []-cong-allowed s ⊎
+      ((∃ λ sem → erased-matches-for-J m PE.≡ not-none sem) ⊎
+       (∃ λ ok → m PE.≡ 𝟘ᵐ[ ok ]))
 
-  -- If the []-cong primitive is allowed, then []-cong is supported
-  -- for 𝟙ᵐ and grades for which "Π 𝟘" are allowed.
+    ok′ : OK
+    ok′ = case ok of λ where
+      (inj₁ ok)               → inj₁ ok
+      (inj₂ (_ , inj₂ ok))    → inj₂ (inj₂ ok)
+      (inj₂ (_ , inj₁ ≢none)) →
+        inj₂ $ inj₁ $
+        case PE.singleton $ erased-matches-for-J m of λ where
+          (not-none _ , ≡not-none) → _ , ≡not-none
+          (none       , ≡none)     → ⊥-elim $ ≢none ≡none
 
-  []-cong→[]-cong :
-    []-cong-allowed s →
-    Π-allowed 𝟘 q₁ →
-    Π-allowed 𝟘 q₂ →
-    Π-allowed 𝟘 q₃ →
-    Π-allowed 𝟘 q₄ →
-    Has-computing-[]-cong s 𝟙ᵐ q₁ q₂ q₃ q₄
-  []-cong→[]-cong {s} ok ok₁ ok₂ ok₃ ok₄ =
-    case lamⱼ′ ok₁ $ lamⱼ′ ok₂ $ lamⱼ′ ok₃ $ lamⱼ′ ok₄ $
-         []-congⱼ′ ok (var₀ ⊢Id-2-1-0) of λ {
-      ⊢[]-cong →
-      ( []-cong′
-      , (lamₘ $ lamₘ $ lamₘ $ lamₘ $
-         sub ([]-congₘ var var var var) $ begin
-           ε ∙ 𝟙 · 𝟘 ∙ 𝟙 · 𝟘 ∙ 𝟙 · 𝟘 ∙ 𝟙 · 𝟘  ≈⟨ ε ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
-           𝟘ᶜ                                 ∎)
-      , ⊢[]-cong
-      )
-    , λ _ _ A t ⊢A ⊢t →
-        wk wk₀ []-cong′ ∘⟨ 𝟘 ⟩ A ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ rfl  ⇒*⟨ β-red-⇒₄ (W.wkTerm W.wk₀∷⊇ (wfTerm ⊢A) ⊢[]-cong) ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩
-        []-cong s A t t rfl                                    ⇒⟨ []-cong-β-⇒ (refl ⊢t) ok ⟩∎
-        rfl                                                    ∎ }
-    where
-    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+    []-cong″ : OK → Term n → Term n → Term n → Term n → Term n
+    []-cong″ (inj₁ _) = []-cong s
+    []-cong″ (inj₂ _) = []-cong-J s
+
+    ▸[]-cong″ :
+      ∀ ok →
+      γ₁ ▸[ 𝟘ᵐ? ] A →
+      γ₂ ▸[ 𝟘ᵐ? ] t →
+      γ₃ ▸[ 𝟘ᵐ? ] u →
+      γ₄ ▸[ 𝟘ᵐ? ] v →
+      𝟘ᶜ ▸[ m ] []-cong″ ok A t u v
+    ▸[]-cong″ (inj₁ _)                      = []-congₘ
+    ▸[]-cong″ (inj₂ (inj₁ (_ , ≡not-none))) = ▸[]-cong-J ≡not-none
+    ▸[]-cong″ (inj₂ (inj₂ (_ , PE.refl)))   = λ ▸A ▸t ▸u ▸v →
+      ▸[]-cong-J-𝟘ᵐ (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸A) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸t)
+        (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸u) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸v)
+
+    ⊢[]-cong″ :
+      let open Erased s in
+      ∀ ok →
+      Γ ⊢ v ∷ Id A t u →
+      Γ ⊢ []-cong″ ok A t u v ∷ Id (Erased A) [ t ] ([ u ])
+    ⊢[]-cong″ (inj₁ ok) = []-congⱼ′ ok
+    ⊢[]-cong″ (inj₂ _)  = []-cong-Jⱼ Erased-ok
+
+    []-cong″-[] :
+      ∀ ok →
+      []-cong″ ok A t u v [ σ ] PE.≡
+      []-cong″ ok (A [ σ ]) (t [ σ ]) (u [ σ ]) (v [ σ ])
+    []-cong″-[] (inj₁ _) = PE.refl
+    []-cong″-[] (inj₂ _) = []-cong-J-[]
+
+    []-cong″-β-⇒ :
+      let open Erased s in
+      ∀ ok →
+      Γ ⊢ t ∷ A →
+      Γ ⊢ []-cong″ ok A t t rfl ⇒ rfl ∷ Id (Erased A) [ t ] ([ t ])
+    []-cong″-β-⇒ (inj₁ ok) ⊢t = []-cong-β-⇒ (refl ⊢t) ok
+    []-cong″-β-⇒ (inj₂ _)  ⊢t = []-cong-J-β-⇒ Erased-ok ⊢t
 
     []-cong′ : Term 0
     []-cong′ =
       lam 𝟘 $ lam 𝟘 $ lam 𝟘 $ lam 𝟘 $
-      []-cong s (var x3) (var x2) (var x1) (var x0)
-
-opaque
-
-  -- If erased-matches-for-J 𝟙ᵐ is equal to not-none sem and the type
-  -- Erased is allowed, then []-cong is supported for 𝟙ᵐ and grades
-  -- for which "Π 𝟘" are allowed.
-
-  J₀→[]-cong :
-    erased-matches-for-J 𝟙ᵐ PE.≡ not-none sem →
-    Erased-allowed s →
-    Π-allowed 𝟘 q₁ →
-    Π-allowed 𝟘 q₂ →
-    Π-allowed 𝟘 q₃ →
-    Π-allowed 𝟘 q₄ →
-    Has-computing-[]-cong s 𝟙ᵐ q₁ q₂ q₃ q₄
-  J₀→[]-cong {s} ≡not-none Erased-ok ok₁ ok₂ ok₃ ok₄ =
-    case lamⱼ′ ok₁ $ lamⱼ′ ok₂ $ lamⱼ′ ok₃ $ lamⱼ′ ok₄ $
-         Jⱼ′
-           (Idⱼ ([]ⱼ Erased-ok (var₄ ⊢Id-4-3-0))
-              ([]ⱼ Erased-ok (var₁ ⊢Id-4-3-0)))
-           (rflⱼ ([]ⱼ Erased-ok (var₂ ⊢Id-2-1-0)))
-           (var₀ ⊢Id-2-1-0) of λ {
-      ⊢[]-cong →
-      ( []-cong′
-      , (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
-         lamₘ $ lamₘ $ lamₘ $ lamₘ $ sub
-           (J₀ₘ₁-generalised ≡not-none PE.refl PE.refl var var ▸Id rflₘ
-              var var)
-           (begin
-              𝟙 ·ᶜ 𝟘ᶜ          ≈⟨ ·ᶜ-zeroʳ _ ⟩
-              𝟘ᶜ               ≈˘⟨ ω·ᶜ⋀ᶜ²𝟘ᶜ ⟩
-              ω ·ᶜ (𝟘ᶜ ∧ᶜ 𝟘ᶜ)  ∎))
-      , ⊢[]-cong
-      )
-    , λ _ _ A t ⊢A ⊢t →
-        case Idⱼ (W.wkTerm₁ (univ ⊢A) ⊢t) (var₀ (univ ⊢A)) of λ {
-          ⊢Id →
-        case PE.cong₂
-               (λ A′ t′ → Id (Erased A′) ([ t′ ]) ([ t ]))
-               (PE.trans (wk2-tail A) (subst-id A))
-               (PE.trans (wk2-tail t) (subst-id t)) of λ {
-          lemma →
-        wk wk₀ []-cong′ ∘⟨ 𝟘 ⟩ A ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ rfl  ⇒*⟨ β-red-⇒₄ (W.wkTerm W.wk₀∷⊇ (wfTerm ⊢A) ⊢[]-cong) ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩
-
-        J 𝟘 𝟘 A t
-          (Id (Erased (wk1 (wk1 A))) ([ wk1 (wk1 t) ])
-             ([ var x1 ]))
-          rfl t rfl                                            ⇒⟨ PE.subst (_⊢_⇒_∷_ _ _ _) lemma $
-                                                                  J-β-⇒ (refl ⊢t)
-                                                                    (Idⱼ
-                                                                       ([]ⱼ Erased-ok $
-                                                                        W.wkTerm₁ ⊢Id (W.wkTerm₁ (univ ⊢A) ⊢t))
-                                                                       ([]ⱼ Erased-ok (var₁ ⊢Id)))
-                                                                    (PE.subst (_⊢_∷_ _ _) (PE.sym lemma) $
-                                                                     rflⱼ ([]ⱼ Erased-ok ⊢t)) ⟩∎
-        rfl                                                    ∎ }}}
-    where
-    open Erased s
-    open ErasedU s
-
-    []-cong′ : Term 0
-    []-cong′ =
-      lam 𝟘 $ lam 𝟘 $ lam 𝟘 $ lam 𝟘 $
-      J 𝟘 𝟘 (var x3) (var x2)
-        (Id (Erased (var x5)) ([ var x4 ]) ([ var x1 ]))
-        rfl (var x1) (var x0)
-
-    ▸Id :
-      𝟘ᶜ {n = 4} ∙ 𝟘 ∙ 𝟘 ▸[ 𝟙ᵐ ]
-        Id (Erased (var x5)) [ var x4 ] ([ var x1 ])
-    ▸Id = Idₘ′ (▸Erased var) (▸[] var) (▸[] var) ≤ᶜ-refl
-      (begin
-         𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
-         𝟘ᶜ +ᶜ 𝟘ᶜ  ∎)
-      where
-      open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+      []-cong″ ok′ (var x3) (var x2) (var x1) (var x0)
 
 opaque
 

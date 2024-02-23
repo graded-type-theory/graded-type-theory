@@ -235,11 +235,11 @@ open import Graded.Modality.Dedicated-nr.Instance
 -- rules for J are intended to more or less give the power of J with
 -- the "none" rule plus []-cong. At the time of writing this
 -- formalisation does not contain a complete proof of this, but
--- Graded.Box-cong.J₀→[]-cong shows that one can define something like
--- []-cong using J. (The "some" variants of the usage rules for K were
--- included to mirror the rules for J, but if the K rule is available,
--- then it might be a better idea to use the "all" variants of the
--- rules.)
+-- Graded.Box-cong contains proofs showing that one can define
+-- something like []-cong using J. (The "some" variants of the usage
+-- rules for K were included to mirror the rules for J, but if the K
+-- rule is available, then it might be a better idea to use the "all"
+-- variants of the rules.)
 data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
   Uₘ        : 𝟘ᶜ ▸[ m ] U
   ℕₘ        : 𝟘ᶜ ▸[ m ] ℕ
