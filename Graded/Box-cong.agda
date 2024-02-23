@@ -64,16 +64,16 @@ open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
-  n                                 : Nat
-  Γ                                 : Con Term _
-  A A₁ A₂ B t t₁ t₂ u u₁ u₂ v v₁ v₂ : Term _
-  σ                                 : Subst _ _
-  p q₁ q₂ q₃ q₄                     : M
-  γ₁ γ₂ γ₃ γ₄                       : Conₘ _
-  m                                 : Mode
-  s                                 : Strength
-  sem                               : Some-erased-matches
-  ok                                : T _
+  n                                    : Nat
+  Γ                                    : Con Term _
+  A A₁ A₂ B t t₁ t₂ t′ u u₁ u₂ v v₁ v₂ : Term _
+  σ                                    : Subst _ _
+  p q₁ q₂ q₃ q₄                        : M
+  γ₁ γ₂ γ₃ γ₄                          : Conₘ _
+  m                                    : Mode
+  s                                    : Strength
+  sem                                  : Some-erased-matches
+  ok                                   : T _
 
 ------------------------------------------------------------------------
 -- Some lemmas
@@ -207,18 +207,42 @@ opaque
 
   -- A reduction rule for []-cong-J.
 
+  []-cong-J-β-⇒′ :
+    let open Erased s in
+    Erased-allowed s →
+    Γ ⊢ t ≡ t′ ∷ A →
+    Γ ⊢ []-cong-J s A t t′ rfl ⇒ rfl ∷ Id (Erased A) [ t ] ([ t′ ])
+  []-cong-J-β-⇒′ ok t≡t′ =
+    case syntacticEqTerm t≡t′ of λ
+      (⊢A , ⊢t , _) →
+    PE.subst (_⊢_⇒_∷_ _ _ _) Id-[]₀≡ $
+    conv
+      (subst-⇒′ (Idⱼ ([]ⱼ ok (W.wkTerm₁ ⊢A ⊢t)) ([]ⱼ ok (var₀ ⊢A))) t≡t′
+         (PE.subst (_⊢_∷_ _ _) (PE.sym Id-[]₀≡) $
+         rflⱼ ([]ⱼ ok ⊢t)))
+      (Id-cong
+         (PE.subst₂ (_⊢_≡_ _)
+            (PE.sym $ wk1-sgSubst _ _)
+            (PE.sym $ wk1-sgSubst _ _) $
+          Erased-cong ok $ refl ⊢A)
+         (PE.subst₃ (_⊢_≡_∷_ _)
+            (PE.sym $ wk1-sgSubst _ _)
+            (PE.sym $ wk1-sgSubst _ _)
+            (PE.sym $ wk1-sgSubst _ _) $
+          ET.[]-cong′ ok $ refl ⊢t)
+         (PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ wk1-sgSubst _ _) $
+          ET.[]-cong′ ok t≡t′))
+
+opaque
+
+  -- Another reduction rule for []-cong-J.
+
   []-cong-J-β-⇒ :
     let open Erased s in
     Erased-allowed s →
     Γ ⊢ t ∷ A →
     Γ ⊢ []-cong-J s A t t rfl ⇒ rfl ∷ Id (Erased A) [ t ] ([ t ])
-  []-cong-J-β-⇒ ok ⊢t =
-    case syntacticTerm ⊢t of λ
-      ⊢A →
-    PE.subst (_⊢_⇒_∷_ _ _ _) Id-[]₀≡ $
-    subst-⇒ (Idⱼ ([]ⱼ ok (W.wkTerm₁ ⊢A ⊢t)) ([]ⱼ ok (var₀ ⊢A))) ⊢t
-      (PE.subst (_⊢_∷_ _ _) (PE.sym Id-[]₀≡) $
-       rflⱼ ([]ⱼ ok ⊢t))
+  []-cong-J-β-⇒ ok ⊢t = []-cong-J-β-⇒′ ok (refl ⊢t)
 
 opaque
 

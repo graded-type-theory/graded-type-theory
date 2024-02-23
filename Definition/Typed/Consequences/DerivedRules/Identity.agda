@@ -476,15 +476,28 @@ opaque
 
   -- A reduction rule for subst.
 
+  subst-⇒′ :
+    Γ ∙ A ⊢ B →
+    Γ ⊢ t ≡ t′ ∷ A →
+    Γ ⊢ u ∷ B [ t ]₀ →
+    Γ ⊢ subst p A B t t′ rfl u ⇒ u ∷ B [ t ]₀
+  subst-⇒′ {B} ⊢B t≡t′ ⊢u =
+    case syntacticEqTerm t≡t′ of λ
+      (_ , ⊢t , _) →
+    PE.subst (_⊢_⇒_∷_ _ _ _) (subst-wk B) $
+    J-β-⇒ t≡t′ (wk₁ (J-motive-context-type ⊢t) ⊢B)
+      (PE.subst (_⊢_∷_ _ _) (PE.sym $ subst-wk B) ⊢u)
+
+opaque
+
+  -- Another reduction rule for subst.
+
   subst-⇒ :
     Γ ∙ A ⊢ B →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
     Γ ⊢ subst p A B t t rfl u ⇒ u ∷ B [ t ]₀
-  subst-⇒ {B} ⊢B ⊢t ⊢u =
-    PE.subst (_⊢_⇒_∷_ _ _ _) (subst-wk B) $
-    J-β-⇒ (refl ⊢t) (wk₁ (J-motive-context-type ⊢t) ⊢B)
-      (PE.subst (_⊢_∷_ _ _) (PE.sym $ subst-wk B) ⊢u)
+  subst-⇒ ⊢B ⊢t = subst-⇒′ ⊢B (refl ⊢t)
 
 opaque
 
