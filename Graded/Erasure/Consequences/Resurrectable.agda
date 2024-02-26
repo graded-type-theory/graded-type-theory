@@ -103,7 +103,7 @@ opaque
        ⊢prod
          (Erasedⱼ Erased-ok (Idⱼ (var₀ ⊢Unit₂) (var₁ ⊢Unit₂)))
          (starⱼ ⊢Γ∙Unit Unit-ok)
-         ([]ⱼ Erased-ok (rflⱼ′ (Unit-η (var₀ ⊢Unit₁)))) ok₂)
+         ([]ⱼ Erased-ok (rflⱼ′ (Unit-η-≡ (var₀ ⊢Unit₁)))) ok₂)
     where
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 

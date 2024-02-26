@@ -45,6 +45,7 @@ import Definition.Untyped.Properties.NotParametrised
 import Definition.Untyped.Properties
 import Definition.Untyped.Identity
 import Definition.Untyped.Sigma
+import Definition.Untyped.Unit
 import Graded.Derived.Erased.Eta.Untyped
 import Graded.Derived.Erased.NoEta.Untyped
 import Graded.Derived.Erased.Untyped
@@ -136,6 +137,7 @@ import Definition.Typed.Consequences.DerivedRules.Pi-Sigma
 import Definition.Typed.Consequences.DerivedRules.Pi
 import Definition.Typed.Consequences.DerivedRules.Identity
 import Definition.Typed.Consequences.DerivedRules.Sigma
+import Definition.Typed.Consequences.DerivedRules.Unit
 import Definition.Typed.Consequences.DerivedRules
 import Definition.Typed.Consequences.InverseUniv
 import Graded.Derived.Erased.Eta.Typed.Primitive
@@ -236,8 +238,9 @@ import Graded.FullReduction.Assumptions
 -- Σ-types, and vice versa.
 import Graded.Derived.Sigma
 
--- Properties related to usage and Id.
+-- Properties related to usage and certain type formers.
 import Graded.Derived.Identity
+import Graded.Derived.Unit
 
 -- Some structures that are not modalities.
 import Graded.Modality.Instances.Set

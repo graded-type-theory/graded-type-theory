@@ -367,7 +367,7 @@ Well-resourced-normal-form-without-η-long-normal-form =
     ⊢0
   , var
   , starₙ (ε ∙ ⊢Unit) ok
-  , sym (Unit-η ⊢0)
+  , sym (Unit-η-≡ ⊢0)
   , (λ ▸* → case sink-or-no-sink of λ where
        (inj₁ sink)     → inj₁ sink
        (inj₂ not-sink) →
