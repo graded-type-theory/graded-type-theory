@@ -311,6 +311,19 @@ liftSubstₘ-app (Ψ ⊙ η) γ p = begin
 -- Well-formed substitutions --
 -------------------------------
 
+opaque
+
+  -- The identity substitution is well-formed.
+
+  wf-idSubstₘ :
+    {mos : Mode-vector n} →
+    idSubstₘ ▶[ mos ] idSubst
+  wf-idSubstₘ {mos} x = sub var $ begin
+    (𝟘ᶜ , x ≔ ⌜ mos x ⌝) <* idSubstₘ  ≈⟨ <*-identityˡ _ ⟩
+    𝟘ᶜ , x ≔ ⌜ mos x ⌝                ∎
+    where
+    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+
 -- The substitution of a single variable is well-formed if the
 -- substituted term is suitably well-resourced.
 
