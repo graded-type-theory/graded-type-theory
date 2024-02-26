@@ -25,6 +25,7 @@ open import Graded.Mode 𝕄
 open import Definition.Untyped M hiding (_∙_)
 
 open import Tools.Bool using (T)
+open import Tools.Function
 open import Tools.Nat using (Nat; 1+; 2+)
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
@@ -167,6 +168,30 @@ inv-usage-prodˢ (prodˢₘ γ▸t γ▸u) = invUsageProdˢ γ▸t γ▸u ≤ᶜ
 inv-usage-prodˢ (sub δ▸tu γ≤γ′) with inv-usage-prodˢ δ▸tu
 ... | invUsageProdˢ δ▸t δ▸u γ′≤δ = invUsageProdˢ δ▸t δ▸u (≤ᶜ-trans γ≤γ′ γ′≤δ)
 
+-- A type used to state inv-usage-prod.
+
+record InvUsageProd
+         {n}
+         (γ : Conₘ n) (m : Mode) (s : Strength) (p : M) (t u : Term n) :
+         Set a where
+  constructor invUsageProd
+  field
+    {δ η} : Conₘ n
+    δ▸    : δ ▸[ m ᵐ· p ] t
+    η▸    : η ▸[ m ] u
+    ≤∧    : s ≡ 𝕤 → γ ≤ᶜ p ·ᶜ δ ∧ᶜ η
+    ≤+    : s ≡ 𝕨 → γ ≤ᶜ p ·ᶜ δ +ᶜ η
+
+-- An inversion lemma that works for both prodʷ and prodˢ.
+
+inv-usage-prod : γ ▸[ m ] prod s p t u → InvUsageProd γ m s p t u
+inv-usage-prod (prodˢₘ γ▸t γ▸u) =
+  invUsageProd γ▸t γ▸u (λ _ → ≤ᶜ-refl) (λ ())
+inv-usage-prod (prodʷₘ γ▸t γ▸u) =
+  invUsageProd γ▸t γ▸u (λ ()) (λ _ → ≤ᶜ-refl)
+inv-usage-prod (sub δ▸tu γ≤γ′) with inv-usage-prod δ▸tu
+… | invUsageProd δ▸t δ▸u γ′≤₁ γ′≤₂ =
+  invUsageProd δ▸t δ▸u (≤ᶜ-trans γ≤γ′ ∘→ γ′≤₁) (≤ᶜ-trans γ≤γ′ ∘→ γ′≤₂)
 
 record InvUsageFst
          {n} (γ : Conₘ n) (m : Mode) (p : M) (t : Term n) :
