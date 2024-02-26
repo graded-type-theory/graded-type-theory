@@ -28,6 +28,7 @@ open import Definition.Typed.Consequences.Substitution R
 open import Definition.Untyped M as U hiding (_∷_)
 open import Definition.Untyped.Properties M
 open import Graded.Derived.Erased.NoEta.Untyped 𝕄
+open import Graded.Derived.Erased.Untyped 𝕄 𝕨 hiding (erased)
 
 open import Tools.Empty
 open import Tools.Function

@@ -16,6 +16,7 @@ module Graded.Derived.Erased.Usage
   where
 
 open Modality 𝕄
+open Usage-restrictions R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
@@ -25,20 +26,24 @@ open import Graded.Usage.Properties 𝕄 R
 open import Graded.Mode 𝕄
 
 open import Definition.Untyped M hiding (_∷_)
+import Graded.Derived.Erased.Eta.Usage 𝕄 R as Eta
+import Graded.Derived.Erased.NoEta.Usage 𝕄 R as NoEta
 import Graded.Derived.Erased.Untyped
 open Graded.Derived.Erased.Untyped 𝕄 s
 
-open import Tools.Bool
+open import Tools.Bool using (T)
 open import Tools.Function
 open import Tools.Product
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE using (_≡_)
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
+open import Tools.Relation
 
 private variable
   A t : Term _
-  γ   : Conₘ _
+  γ δ : Conₘ _
   m   : Mode
+  ok  : T _
 
 ------------------------------------------------------------------------
 -- Usage rules
@@ -80,6 +85,49 @@ opaque
          𝟘ᶜ             ≈˘⟨ +ᶜ-identityˡ _ ⟩
          𝟘ᶜ +ᶜ 𝟘ᶜ       ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
          𝟘 ·ᶜ γ +ᶜ 𝟘ᶜ  ∎)
+
+opaque
+  unfolding erased
+
+  -- A usage rule for erased.
+
+  ▸erased′ :
+    (s ≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial) →
+    (s ≡ 𝕤 → ¬ T 𝟘ᵐ-allowed → 𝟘 ≤ 𝟙) →
+    γ ▸[ 𝟘ᵐ? ] t →
+    (s ≡ 𝕨 → δ ▸[ 𝟘ᵐ? ] A) →
+    (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘) →
+    𝟘ᶜ ▸[ 𝟘ᵐ? ] erased A t
+  ▸erased′ {γ} trivial 𝟘≤𝟙 ▸t ▸A ok =
+    case PE.singleton s of λ where
+      (𝕨 , PE.refl) →
+        NoEta.▸erased′ (trivial PE.refl) ▸t (▸A PE.refl) (ok PE.refl)
+      (𝕤 , PE.refl) →
+        let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
+        sub (Eta.▸erased′ (𝟘≤𝟙 PE.refl) ▸t) $
+        𝟘ᵐ?-elim
+          (λ m → 𝟘ᶜ ≤ᶜ ⌜ m ⌝ ·ᶜ γ)
+          (begin
+             𝟘ᶜ      ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
+             𝟘 ·ᶜ γ  ∎)
+          (λ not-ok → begin
+             𝟘ᶜ      ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
+             𝟘 ·ᶜ γ  ≤⟨ ·ᶜ-monotoneˡ $ 𝟘≤𝟙 PE.refl not-ok ⟩
+             𝟙 ·ᶜ γ  ∎)
+
+opaque
+  unfolding erased
+
+  -- Another usage rule for erased.
+
+  ▸erased :
+    γ ▸[ 𝟘ᵐ[ ok ] ] t →
+    (s ≡ 𝕨 → δ ▸[ 𝟘ᵐ[ ok ] ] A) →
+    (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ[ ok ] (𝟘 ∧ 𝟙) 𝟘 𝟘) →
+    𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] erased A t
+  ▸erased ▸t ▸A ok = case PE.singleton s of λ where
+    (𝕤 , PE.refl) → Eta.▸erased ▸t
+    (𝕨 , PE.refl) → NoEta.▸erased ▸t (▸A PE.refl) (ok PE.refl)
 
 ------------------------------------------------------------------------
 -- Inversion lemmas for usage
@@ -130,3 +178,24 @@ opaque
           𝟘ᶜ +ᶜ η      ≈⟨ +ᶜ-identityˡ _ ⟩
           η            ≤⟨ η≤𝟘 ⟩
           𝟘ᶜ           ∎) }
+
+opaque
+  unfolding erased
+
+  -- An inversion lemma for erased.
+
+  inv-usage-erased :
+    γ ▸[ m ] erased A t →
+    𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] t ×
+    γ ≤ᶜ 𝟘ᶜ ×
+    m ≡ 𝟘ᵐ[ ok ] ×
+    (s ≡ 𝕨 → 𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] A × Prodrec-allowed m (𝟘 ∧ 𝟙) 𝟘 𝟘)
+  inv-usage-erased ▸erased = case PE.singleton s of λ where
+    (𝕤 , PE.refl) →
+      case Eta.inv-usage-erased ▸erased of λ
+        (▸t , γ≤𝟘 , m≡𝟘ᵐ) →
+          ▸t , γ≤𝟘 , m≡𝟘ᵐ , (λ ())
+    (𝕨 , PE.refl) →
+      case NoEta.inv-usage-erased ▸erased of λ
+        (▸t , ▸A , γ≤𝟘 , m≡𝟘ᵐ , ok) →
+          ▸t , γ≤𝟘 , m≡𝟘ᵐ , λ _ → ▸A , ok

@@ -43,6 +43,10 @@ import Definition.Untyped
 import Definition.Untyped.Inversion
 import Definition.Untyped.Properties.NotParametrised
 import Definition.Untyped.Properties
+import Definition.Untyped.Identity
+import Definition.Untyped.Sigma
+import Graded.Derived.Erased.Eta.Untyped
+import Graded.Derived.Erased.NoEta.Untyped
 import Graded.Derived.Erased.Untyped
 
 ------------------------------------------------------------------------
@@ -127,8 +131,6 @@ import Definition.Typed.Consequences.Equality
 import Definition.Typed.Consequences.Canonicity
 import Definition.Typed.Consequences.Reduction
 import Definition.Typed.Reasoning.Reduction
-import Definition.Untyped.Identity
-import Definition.Untyped.Sigma
 import Definition.Typed.Consequences.DerivedRules.Nat
 import Definition.Typed.Consequences.DerivedRules.Pi-Sigma
 import Definition.Typed.Consequences.DerivedRules.Pi
@@ -136,12 +138,10 @@ import Definition.Typed.Consequences.DerivedRules.Identity
 import Definition.Typed.Consequences.DerivedRules.Sigma
 import Definition.Typed.Consequences.DerivedRules
 import Definition.Typed.Consequences.InverseUniv
-import Graded.Derived.Erased.Eta.Untyped
-import Graded.Derived.Erased.NoEta.Untyped
-import Graded.Derived.Erased.Typed
 import Graded.Derived.Erased.Eta.Typed.Primitive
 import Graded.Derived.Erased.Eta.Typed
 import Graded.Derived.Erased.NoEta.Typed
+import Graded.Derived.Erased.Typed
 import Definition.Typed.Consequences.NeTypeEq
 import Definition.Typed.Consequences.Consistency
 import Definition.Typed.Consequences.RedSteps
@@ -290,9 +290,9 @@ import Graded.Modality.Instances.Linearity.Good
 import Graded.Derived.Erased.Typed.Inversion
 import Graded.Derived.Erased.Eta.Typed.Inversion
 import Graded.Derived.Erased.NoEta.Typed.Inversion
-import Graded.Derived.Erased.Usage
 import Graded.Derived.Erased.Eta.Usage
 import Graded.Derived.Erased.NoEta.Usage
+import Graded.Derived.Erased.Usage
 
 -- The type Unrestricted (defined using a Σ-type with η-equality).
 import Graded.Derived.Unrestricted.Eta.Untyped

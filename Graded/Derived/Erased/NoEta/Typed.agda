@@ -26,6 +26,7 @@ open Fstʷ-sndʷ (𝟘 ∧ 𝟙) 𝟘
 open import Definition.Untyped M hiding (_∷_; _[_])
 
 open import Graded.Derived.Erased.NoEta.Untyped 𝕄
+open import Graded.Derived.Erased.Untyped 𝕄 𝕨 hiding (erased)
 
 open import Tools.Function
 open import Tools.Product
@@ -34,23 +35,17 @@ private variable
   Γ       : Con Term _
   A B t u : Term _
 
--- Some lemmas that are proved under the assumption that Erased
--- without η-equality is allowed.
+-- A β-rule for Erased.
 
-module _ (Erased-ok@(Unit-ok , Σ-ok) : Erasedʷ-allowed) where
-
-  open import Graded.Derived.Erased.Typed R Erased-ok public
-
-  -- A β-rule for Erased.
-
-  Erased-β :
-    Γ ⊢ t ∷ A →
-    Γ ⊢ erased A [ t ] ≡ t ∷ A
-  Erased-β ⊢t =
-    fstʷ-β-≡ (Unitⱼ ⊢ΓA Unit-ok) ⊢t (starⱼ ⊢Γ Unit-ok) Σ-ok
-    where
-    ⊢Γ = wfTerm ⊢t
-    ⊢ΓA = ⊢Γ ∙ syntacticTerm ⊢t
+Erased-β :
+  Erasedʷ-allowed →
+  Γ ⊢ t ∷ A →
+  Γ ⊢ erased A [ t ] ≡ t ∷ A
+Erased-β (Unit-ok , Σ-ok) ⊢t =
+  fstʷ-β-≡ (Unitⱼ ⊢ΓA Unit-ok) ⊢t (starⱼ ⊢Γ Unit-ok) Σ-ok
+  where
+  ⊢Γ = wfTerm ⊢t
+  ⊢ΓA = ⊢Γ ∙ syntacticTerm ⊢t
 
 -- An elimination rule for Erased.
 

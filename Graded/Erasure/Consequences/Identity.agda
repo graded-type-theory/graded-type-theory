@@ -136,4 +136,5 @@ opaque
                                     (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸u) (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $ ▸erased ▸v) ⟩
     Γ ⊢ t ≡ u ∷ A              □
     where
+    open Erased 𝕤 using (Erased)
     open import Graded.Derived.Erased.Eta.Untyped 𝕄

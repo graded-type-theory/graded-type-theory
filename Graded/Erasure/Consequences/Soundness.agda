@@ -34,7 +34,7 @@ open import Definition.Typed.Reasoning.Term TR
 open import Definition.LogicalRelation TR
 
 open import Graded.Context 𝕄
-import Graded.Derived.Erased.Typed TR as ET
+open import Graded.Derived.Erased.Typed TR
 import Graded.Derived.Erased.Untyped 𝕄 as Erased
 open import Graded.Derived.Erased.Usage 𝕄 UR
 open import Graded.Usage 𝕄 UR
@@ -329,7 +329,7 @@ opaque
     case ε ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε) of λ {
       ⊢Id →
       inhabited-consistent (singleSubst (rflⱼ (zeroⱼ ε)))
-    , Jⱼ′ (ℕⱼ (J-motive-context ([]ⱼ (zeroⱼ ⊢Id))))
+    , Jⱼ′ (ℕⱼ (J-motive-context ([]ⱼ ([]-cong→Erased ok) (zeroⱼ ⊢Id))))
         (zeroⱼ ⊢Id) ([]-congⱼ′ ok (var ⊢Id here))
     , sub
         (Jₘ-generalised (▸Erased s ℕₘ) (▸[] s zeroₘ)
@@ -344,8 +344,6 @@ opaque
            whnfRedTerm J⇒ (ne (Jₙ ([]-congₙ (var _))))
          (1+ _ , whred J⇒ ⇨ˢ _) →
            whnfRedTerm J⇒ (ne (Jₙ ([]-congₙ (var _))))) }
-    where
-    open ET ([]-cong→Erased ok)
 
 opaque
 
@@ -539,24 +537,27 @@ module _ (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘)) where
           rfl zero (var x0)
       , Jⱼ′
           (Idⱼ
-             (Jⱼ′ (ℕⱼ (J-motive-context ([]ⱼ ⊢zero))) ⊢zero
+             (Jⱼ′ (ℕⱼ (J-motive-context ([]ⱼ Erased-ok ⊢zero))) ⊢zero
                 ([]-congⱼ′ ok
                    (var₀ (J-motive-context-type (zeroⱼ ⊢Δ)))))
              ⊢zero)
           (rflⱼ′
              (J 𝟘 𝟘 (Erased ℕ) Er.[ zero ] ℕ zero Er.[ zero ]
-                ([]-cong s ℕ zero zero rfl)                        ≡⟨ J-cong′ (refl (Erasedⱼ (ℕⱼ ⊢Δ))) (refl ([]ⱼ (zeroⱼ ⊢Δ))) (refl ⊢ℕ)
-                                                                        (refl (zeroⱼ ⊢Δ)) (refl ([]ⱼ (zeroⱼ ⊢Δ)))
+                ([]-cong s ℕ zero zero rfl)                        ≡⟨ J-cong′ (refl (Erasedⱼ Erased-ok (ℕⱼ ⊢Δ)))
+                                                                        (refl ([]ⱼ Erased-ok (zeroⱼ ⊢Δ))) (refl ⊢ℕ)
+                                                                        (refl (zeroⱼ ⊢Δ)) (refl ([]ⱼ Erased-ok (zeroⱼ ⊢Δ)))
                                                                         ([]-cong-β (zeroⱼ ⊢Δ) PE.refl ok) ⟩⊢
 
-              J 𝟘 𝟘 (Erased ℕ) Er.[ zero ] ℕ zero Er.[ zero ] rfl  ≡⟨ J-β-≡ ([]ⱼ (zeroⱼ ⊢Δ)) ⊢ℕ (zeroⱼ ⊢Δ) ⟩⊢∎
+              J 𝟘 𝟘 (Erased ℕ) Er.[ zero ] ℕ zero Er.[ zero ] rfl  ≡⟨ J-β-≡ ([]ⱼ Erased-ok (zeroⱼ ⊢Δ)) ⊢ℕ (zeroⱼ ⊢Δ) ⟩⊢∎
 
               zero                                                 ∎))
           (var₀ ⊢0≡0)
       , refl
       where
       open module Er = Erased s using (Erased)
-      open ET ([]-cong→Erased ok)
+
+      Erased-ok : Erased-allowed s
+      Erased-ok = []-cong→Erased ok
 
       Δ′ : Con Term 1
       Δ′ = ε ∙ Id ℕ zero zero
@@ -568,7 +569,7 @@ module _ (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘)) where
       ⊢Δ = ε ∙ ⊢0≡0
 
       ⊢ℕ : Δ′ ∙ Erased ℕ ∙ Id (Erased ℕ) Er.[ zero ] (var x0) ⊢ ℕ
-      ⊢ℕ = ℕⱼ (J-motive-context ([]ⱼ (zeroⱼ ⊢Δ)))
+      ⊢ℕ = ℕⱼ (J-motive-context ([]ⱼ Erased-ok (zeroⱼ ⊢Δ)))
 
       ⊢zero : Δ′ ∙ ℕ ∙ Id ℕ zero (var x0) ⊢ zero ∷ ℕ
       ⊢zero = zeroⱼ (J-motive-context (zeroⱼ ⊢Δ))

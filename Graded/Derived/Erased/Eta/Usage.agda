@@ -24,7 +24,6 @@ open import Graded.Mode 𝕄
 
 open import Definition.Untyped M hiding (_∷_)
 open import Graded.Derived.Erased.Eta.Untyped 𝕄
-open import Graded.Derived.Erased.Usage 𝕄 R 𝕤 public
 
 open import Tools.Bool
 open import Tools.Empty

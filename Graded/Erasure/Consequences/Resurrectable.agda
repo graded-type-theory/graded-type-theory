@@ -32,9 +32,9 @@ open import Definition.Untyped M hiding (_∷_)
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Derived.Erased.Eta.Typed TR
-open import Graded.Derived.Erased.Eta.Untyped 𝕄 as Erased using (Erased)
-open import Graded.Derived.Erased.Eta.Usage 𝕄 UR
+open import Graded.Derived.Erased.Typed TR
+open import Graded.Derived.Erased.Usage 𝕄 UR 𝕤
+open import Graded.Derived.Erased.Untyped 𝕄 𝕤 as Erased using (Erased)
 open import Graded.Erasure.Consequences.Identity TR UR
 import Graded.Erasure.LogicalRelation TR as L
 open import Graded.Erasure.LogicalRelation.Fundamental TR UR

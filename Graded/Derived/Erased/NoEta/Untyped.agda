@@ -12,14 +12,12 @@ module Graded.Derived.Erased.NoEta.Untyped
 
 open Modality 𝕄
 
-open import Definition.Untyped M as U
+open import Definition.Untyped M
 open import Definition.Untyped.Sigma M
 
 open import Tools.Fin
 open import Tools.Nat
 open import Tools.PropositionalEquality
-
-open import Graded.Derived.Erased.Untyped 𝕄 𝕨 public
 
 private variable
   n : Nat
@@ -37,8 +35,7 @@ opaque
   -- A substitution lemma for erased.
 
   erased-[] :
-    (A t : Term n) →
-    erased A t U.[ σ ] ≡ erased (A U.[ σ ]) (t U.[ σ ])
+    (A t : Term n) → erased A t [ σ ] ≡ erased (A [ σ ]) (t [ σ ])
   erased-[] = fstrʷ-[]
     where
     open Fstʷ-sndʷ (𝟘 ∧ 𝟙) 𝟘

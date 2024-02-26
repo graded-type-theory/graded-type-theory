@@ -16,8 +16,6 @@ open import Definition.Untyped M
 
 open import Tools.Nat
 
-open import Graded.Derived.Erased.Untyped 𝕄 𝕤 public
-
 private variable
   n : Nat
 

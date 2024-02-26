@@ -26,7 +26,6 @@ open import Graded.Mode 𝕄
 
 open import Definition.Untyped M hiding (_∷_)
 open import Graded.Derived.Erased.NoEta.Untyped 𝕄
-open import Graded.Derived.Erased.Usage 𝕄 R 𝕨 public
 
 open import Graded.Derived.Sigma 𝕄 R
 

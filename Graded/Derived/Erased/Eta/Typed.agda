@@ -24,6 +24,7 @@ open import Definition.Untyped M hiding (_∷_; _[_])
 
 import Graded.Derived.Erased.Eta.Typed.Primitive R as P
 open import Graded.Derived.Erased.Eta.Untyped 𝕄
+open import Graded.Derived.Erased.Untyped 𝕄 𝕤 hiding (erased)
 
 open import Tools.Function
 
@@ -31,23 +32,15 @@ private variable
   Γ       : Con Term _
   A B t u : Term _
 
--- Some lemmas that are proved under the assumption that Erased
--- with η-equality is allowed.
+-- A β-rule for Erased.
 
-module _ (Erased-ok@(Unit-ok , Σ-ok) : Erased-allowed 𝕤) where
-
-  open import Graded.Derived.Erased.Typed R Erased-ok public
-
-  private module P′ = P Erased-ok
-
-  -- A β-rule for Erased.
-
-  Erased-β :
-    Γ ⊢ t ∷ A →
-    Γ ⊢ erased [ t ] ≡ t ∷ A
-  Erased-β ⊢t = P′.Erased-β ⊢A ⊢t
-    where
-    ⊢A = syntacticTerm ⊢t
+Erased-β :
+  Erasedˢ-allowed →
+  Γ ⊢ t ∷ A →
+  Γ ⊢ erased [ t ] ≡ t ∷ A
+Erased-β ok ⊢t = P.Erased-β ok ⊢A ⊢t
+  where
+  ⊢A = syntacticTerm ⊢t
 
 -- An elimination rule for Erased.
 
