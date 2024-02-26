@@ -32,7 +32,7 @@ open import Tools.Product
 
 private variable
   Γ       : Con Term _
-  A t u : Term _
+  A B t u : Term _
 
 -- Some lemmas that are proved under the assumption that Erased
 -- without η-equality is allowed.
@@ -59,12 +59,13 @@ erasedⱼ ⊢t = fstʷⱼ ⊢t
 
 -- A corresponding congruence rule.
 
-erased-cong : Γ ⊢ t ≡ u ∷ Erased A → Γ ⊢ erased A t ≡ erased A u ∷ A
-erased-cong t≡u =
+erased-cong :
+  Γ ⊢ A ≡ B → Γ ⊢ t ≡ u ∷ Erased A → Γ ⊢ erased A t ≡ erased B u ∷ A
+erased-cong A≡B t≡u =
   case syntacticEqTerm t≡u of λ {
     (⊢Erased , _ , _) →
   case syntacticΣ ⊢Erased of λ {
     (⊢A , ⊢Unit) →
   case inversion-Unit ⊢Unit of λ
     Unit-ok →
-  fstʷ-cong (refl ⊢A) (Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok) t≡u }}
+  fstʷ-cong A≡B (Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok) t≡u }}
