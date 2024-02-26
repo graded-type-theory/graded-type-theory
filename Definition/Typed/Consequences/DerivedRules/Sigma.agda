@@ -977,6 +977,9 @@ sndʷ-cong
   ⊢B    = ⊢B,ok .proj₁
   ok    = ⊢B,ok .proj₂
 
+------------------------------------------------------------------------
+-- A discussion of η-rules for Σʷ
+
 -- If Σʷ-allowed p q holds for some p and q, then a certain
 -- definitional η-rule for Σʷ, fstʷ and sndʷ does not hold in
 -- general.
@@ -1161,6 +1164,8 @@ opaque
       (fstʷ-β-≡ ⊢B (fstʷⱼ ⊢t) (sndʷⱼ ⊢t) ok)
       (sndʷ-β-≡ ⊢B (fstʷⱼ ⊢t) (sndʷⱼ ⊢t) ok) }
 
+------------------------------------------------------------------------
+-- An inversion lemma
 
 -- Inversion lemma for fstʷ.
 
