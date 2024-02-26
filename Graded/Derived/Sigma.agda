@@ -54,8 +54,9 @@ open import Tools.Sum using (_⊎_; inj₁; inj₂)
 private variable
   n       : Nat
   A B t u : Term _
+  s       : Strength
   p q r   : M
-  γ δ     : Conₘ _
+  γ δ η   : Conₘ _
   m       : Mode
 
 ------------------------------------------------------------------------
@@ -143,6 +144,19 @@ prodʷˢₘ :
   δ ▸[ m ] u →
   p ·ᶜ γ ∧ᶜ δ ▸[ m ] prodʷ p t u
 prodʷˢₘ ∧≤+ ▸t ▸u = sub (prodʷₘ ▸t ▸u) (∧ᶜ≤ᶜ+ᶜ ∧≤+)
+
+opaque
+
+  -- A usage rule that works for both kinds of pair constructors.
+
+  prodₘ :
+    γ ▸[ m ᵐ· p ] t →
+    δ ▸[ m ] u →
+    (s PE.≡ 𝕨 → η ≤ᶜ p ·ᶜ γ +ᶜ δ) →
+    (s PE.≡ 𝕤 → η ≤ᶜ p ·ᶜ γ ∧ᶜ δ) →
+    η ▸[ m ] prod s p t u
+  prodₘ {s = 𝕤} ▸t ▸u _  ok = sub (prodˢₘ ▸t ▸u) (ok PE.refl)
+  prodₘ {s = 𝕨} ▸t ▸u ok _  = sub (prodʷₘ ▸t ▸u) (ok PE.refl)
 
 ------------------------------------------------------------------------
 -- Usage lemmas for prodrecˢ
