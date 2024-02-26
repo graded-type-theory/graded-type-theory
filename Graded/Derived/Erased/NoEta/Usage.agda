@@ -38,6 +38,7 @@ open import Tools.Sum
 open import Tools.PropositionalEquality as PE using (_≡_)
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
+open import Tools.Relation
 
 private variable
   A t : Term _
@@ -48,14 +49,42 @@ private variable
 ------------------------------------------------------------------------
 -- Usage rules
 
--- A usage rule for erased.
+opaque
+
+  -- A usage rule for erased.
+
+  ▸erased′ :
+    (¬ T 𝟘ᵐ-allowed → Trivial) →
+    γ ▸[ 𝟘ᵐ? ] t →
+    δ ▸[ 𝟘ᵐ? ] A →
+    Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘 →
+    𝟘ᶜ ▸[ 𝟘ᵐ? ] erased A t
+  ▸erased′ {γ} {t} {δ} {A} hyp = 𝟘ᵐ?-elim
+    (λ m →
+       γ ▸[ m ] t → δ ▸[ m ] A → Prodrec-allowed m (𝟘 ∧ 𝟙) 𝟘 𝟘 →
+       𝟘ᶜ ▸[ m ] erased A t)
+    (λ ▸t ▸A ok → ▸-𝟘 (fstʷₘ-𝟘ᵐ ok ▸t ▸A))
+    (λ not-ok ▸t ▸A ok →
+       case hyp not-ok of λ
+         trivial → sub
+       (fstʷₘ-𝟙ᵐ (inj₂ trivial) (≡-trivial trivial) ok ▸t
+          (▸-cong (Mode-propositional-without-𝟘ᵐ not-ok) ▸A))
+       (≤ᶜ-reflexive (≈ᶜ-trivial trivial)))
+
+-- Another usage rule for erased.
 
 ▸erased : γ ▸[ 𝟘ᵐ[ ok ] ] t →
           δ ▸[ 𝟘ᵐ[ ok ] ] A →
           Prodrec-allowed 𝟘ᵐ[ ok ] (𝟘 ∧ 𝟙) 𝟘 𝟘 →
           𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] erased A t
-▸erased {ok = ok} ▸t ▸A P-ok =
-  ▸-𝟘 (fstʷₘ-𝟘ᵐ ⦃ ok ⦄ P-ok ▸t ▸A)
+▸erased {ok} ▸t ▸A P-ok =
+  ▸-cong 𝟘ᵐ?≡𝟘ᵐ $
+  ▸erased′
+    (⊥-elim ∘→ (_$ ok))
+    (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸t)
+    (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸A)
+    (PE.subst (λ m → Prodrec-allowed m (_ ∧ _) _ _) (PE.sym 𝟘ᵐ?≡𝟘ᵐ)
+       P-ok)
 
 ------------------------------------------------------------------------
 -- Inversion lemmas for usage
