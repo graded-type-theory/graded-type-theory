@@ -11,7 +11,6 @@ open import Graded.Usage.Restrictions
 module Graded.Derived.Identity
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (TR : Type-restrictions 𝕄)
   (UR : Usage-restrictions 𝕄)
   where
 
@@ -28,7 +27,7 @@ open import Graded.Usage.Properties 𝕄 UR
 open import Graded.Usage.Weakening 𝕄 UR
 
 open import Definition.Untyped M
-open import Definition.Typed.Consequences.DerivedRules.Identity TR
+open import Definition.Untyped.Identity 𝕄
 
 open import Tools.Bool
 open import Tools.Function

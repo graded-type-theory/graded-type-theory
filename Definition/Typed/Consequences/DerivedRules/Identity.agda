@@ -29,6 +29,7 @@ open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Term R
 import Definition.Typed.RedSteps R as R
 open import Definition.Typed.Weakening R
+open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Properties M
 
 import Graded.Derived.Erased.Untyped 𝕄 as Erased
@@ -441,17 +442,7 @@ opaque
     []-cong-β ⊢A ⊢t ⊢t′ t≡t′ }
 
 ------------------------------------------------------------------------
--- Subst
-
-opaque
-
-  -- Substitutivity.
-
-  subst :
-    M →
-    Term n → Term (1+ n) → Term n → Term n → Term n → Term n → Term n
-  subst p A B t u v w =
-    J p 𝟘 A t (wk1 B) w u v
+-- Lemmas related to subst
 
 opaque
   unfolding subst
@@ -551,29 +542,8 @@ opaque
     J-subst′ (wk₁ (J-motive-context-type ⊢t) ⊢B)
       (PE.subst (_⊢_∷_ _ _) (PE.sym $ subst-wk B) ⊢w) v₁⇒v₂ }
 
-opaque
-  unfolding subst
-
-  -- A substitution lemma for subst.
-
-  subst-[] :
-    subst p A B t u v w [ σ ] PE.≡
-    subst p (A [ σ ]) (B [ liftSubst σ ]) (t [ σ ]) (u [ σ ]) (v [ σ ])
-      (w [ σ ])
-  subst-[] {B} =
-    PE.cong₄ (J _ _ _ _) (wk1-liftSubst B) PE.refl PE.refl PE.refl
-
 ------------------------------------------------------------------------
--- Symmetry
-
-opaque
-
-  -- Symmetry.
-
-  symmetry :
-    Term n → Term n → Term n → Term n → Term n
-  symmetry A t u eq =
-    subst ω A (Id (wk1 A) (var x0) (wk1 t)) t u eq rfl
+-- Lemmas related to symmetry
 
 opaque
   unfolding symmetry
@@ -626,37 +596,8 @@ opaque
   symmetry-≡ ⊢t =
     subsetTerm (symmetry-⇒ ⊢t)
 
-opaque
-  unfolding symmetry
-
-  -- A substitution lemma for symmetry.
-
-  symmetry-[] :
-    symmetry A t u eq [ σ ] PE.≡
-    symmetry (A [ σ ]) (t [ σ ]) (u [ σ ]) (eq [ σ ])
-  symmetry-[] {A} {t} {u} {eq} {σ} =
-    subst ω A (Id (wk1 A) (var x0) (wk1 t)) t u eq rfl [ σ ]         ≡⟨ subst-[] ⟩
-
-    subst ω (A [ σ ])
-      (Id (wk1 A [ liftSubst σ ]) (var x0) (wk1 t [ liftSubst σ ]))
-      (t [ σ ]) (u [ σ ]) (eq [ σ ]) rfl                             ≡⟨ PE.cong₅ (subst _ _)
-                                                                          (PE.cong₃ Id (wk1-liftSubst A) PE.refl (wk1-liftSubst t))
-                                                                          PE.refl PE.refl PE.refl PE.refl ⟩
-    subst ω (A [ σ ])
-      (Id (wk1 (A [ σ ])) (var x0) (wk1 (t [ σ ])))
-      (t [ σ ]) (u [ σ ]) (eq [ σ ]) rfl                             ∎
-
 ------------------------------------------------------------------------
--- Transitivity
-
-opaque
-
-  -- Transitivity.
-
-  transitivity :
-    Term n → Term n → Term n → Term n → Term n → Term n → Term n
-  transitivity A t u v eq₁ eq₂ =
-    subst ω A (Id (wk1 A) (wk1 t) (var x0)) u v eq₂ eq₁
+-- Lemmas related to transitivity
 
 opaque
   unfolding transitivity
@@ -705,43 +646,8 @@ opaque
   transitivity-≡ ⊢eq =
     subsetTerm (transitivity-⇒ ⊢eq)
 
-opaque
-  unfolding transitivity
-
-  -- A substitution lemma for transitivity.
-
-  transitivity-[] :
-    transitivity A t u v eq₁ eq₂ [ σ ] PE.≡
-    transitivity (A [ σ ]) (t [ σ ]) (u [ σ ]) (v [ σ ]) (eq₁ [ σ ])
-      (eq₂ [ σ ])
-  transitivity-[] {A} {t} {u} {v} {eq₁} {eq₂} {σ} =
-    subst ω A (Id (wk1 A) (wk1 t) (var x0)) u v eq₂ eq₁ [ σ ]        ≡⟨ subst-[] ⟩
-
-    subst ω (A [ σ ])
-      (Id (wk1 A [ liftSubst σ ]) (wk1 t [ liftSubst σ ]) (var x0))
-      (u [ σ ]) (v [ σ ]) (eq₂ [ σ ]) (eq₁ [ σ ])                    ≡⟨ PE.cong₅ (subst _ _)
-                                                                          (PE.cong₃ Id (wk1-liftSubst A) (wk1-liftSubst t) PE.refl)
-                                                                          PE.refl PE.refl PE.refl PE.refl ⟩
-    subst ω (A [ σ ]) (Id (wk1 (A [ σ ])) (wk1 (t [ σ ])) (var x0))
-      (u [ σ ]) (v [ σ ]) (eq₂ [ σ ]) (eq₁ [ σ ])                    ∎
-
 ------------------------------------------------------------------------
--- The lemma transitivity-symmetryˡ
-
-opaque
-
-  -- A simplification lemma for transitivity and symmetry.
-
-  transitivity-symmetryˡ :
-    Term n → Term n → Term n → Term n → Term n
-  transitivity-symmetryˡ A t u eq =
-    J ω ω A t
-      (Id (Id (wk2 A) (var x1) (var x1))
-         (transitivity (wk2 A) (var x1) (wk2 t) (var x1)
-            (symmetry (wk2 A) (wk2 t) (var x1) (var x0))
-            (var x0))
-         rfl)
-      rfl u eq
+-- Lemmas related to transitivity-symmetryˡ
 
 opaque
   unfolding transitivity-symmetryˡ
@@ -805,16 +711,7 @@ opaque
       ⊢eq
 
 ------------------------------------------------------------------------
--- Congruence
-
-opaque
-
-  -- Congruence.
-
-  cong :
-    Term n → Term n → Term n → Term n → Term (1+ n) → Term n → Term n
-  cong A t u B v w =
-    subst ω A (Id (wk1 B) (wk1 (v [ t ]₀)) v) t u w rfl
+-- Lemmas related to cong
 
 opaque
   unfolding cong
@@ -874,47 +771,8 @@ opaque
   cong-≡ ⊢t ⊢u =
     subsetTerm (cong-⇒ ⊢t ⊢u)
 
-opaque
-  unfolding cong
-
-  -- A substitution lemma for cong.
-
-  cong-[] :
-    cong A t u B v w [ σ ] PE.≡
-    cong (A [ σ ]) (t [ σ ]) (u [ σ ]) (B [ σ ]) (v [ liftSubst σ ])
-      (w [ σ ])
-  cong-[] {A} {t} {u} {B} {v} {w} {σ} =
-    subst ω A (Id (wk1 B) (wk1 (v [ t ]₀)) v) t u w rfl [ σ ]        ≡⟨ subst-[] ⟩
-
-    subst ω (A [ σ ])
-      (Id (wk1 B [ liftSubst σ ]) (wk1 (v [ t ]₀) [ liftSubst σ ])
-         (v [ liftSubst σ ]))
-      (t [ σ ]) (u [ σ ]) (w [ σ ]) rfl                              ≡⟨ PE.cong₅ (subst _ _)
-                                                                          (PE.cong₃ Id
-                                                                             (wk1-liftSubst B)
-                                                                             (
-      wk1 (v [ t ]₀) [ liftSubst σ ]                                          ≡⟨ wk1-liftSubst (v [ _ ]₀) ⟩
-      wk1 (v [ t ]₀ [ σ ])                                                    ≡⟨ PE.cong wk1 $ singleSubstLift v _ ⟩
-      wk1 (v [ liftSubst σ ] [ t [ σ ] ]₀)                                    ∎)
-                                                                             PE.refl)
-                                                                          PE.refl PE.refl PE.refl PE.refl ⟩
-    subst ω (A [ σ ])
-      (Id (wk1 (B [ σ ])) (wk1 (v [ liftSubst σ ] [ t [ σ ] ]₀))
-         (v [ liftSubst σ ]))
-      (t [ σ ]) (u [ σ ]) (w [ σ ]) rfl                              ∎
-
 ------------------------------------------------------------------------
--- Pointwise equality of functions
-
-opaque
-
-  -- If two functions are equal, then they are pointwise equal.
-
-  pointwise-equality :
-    M → M → Term n → Term (1+ n) → Term n → Term n → Term n → Term n →
-    Term n
-  pointwise-equality p q A B t u v w =
-    cong (Π p , q ▷ A ▹ B) t u (B [ w ]₀) (var x0 ∘⟨ p ⟩ wk1 w) v
+-- Lemmas related to pointwise-equality
 
 opaque
   unfolding pointwise-equality
@@ -972,59 +830,8 @@ opaque
   pointwise-equality-≡ ⊢t ⊢u =
     subsetTerm (pointwise-equality-⇒ ⊢t ⊢u)
 
-opaque
-  unfolding pointwise-equality
-
-  -- A substitution lemma for pointwise-equality.
-
-  pointwise-equality-[] :
-    pointwise-equality p q A B t u v w [ σ ] PE.≡
-    pointwise-equality p q (A [ σ ]) (B [ liftSubst σ ]) (t [ σ ])
-      (u [ σ ]) (v [ σ ]) (w [ σ ])
-  pointwise-equality-[] {p} {q} {A} {B} {t} {u} {v} {w} {σ} =
-    cong (Π p , q ▷ A ▹ B) t u (B [ w ]₀) (var x0 ∘⟨ p ⟩ wk1 w) v [ σ ]  ≡⟨ cong-[] ⟩
-
-    cong (Π p , q ▷ A [ σ ] ▹ (B [ liftSubst σ ])) (t [ σ ]) (u [ σ ])
-      (B [ w ]₀ [ σ ]) (var x0 ∘⟨ p ⟩ wk1 w [ liftSubst σ ]) (v [ σ ])   ≡⟨ PE.cong₃ (cong _ _ _)
-                                                                              (singleSubstLift B _)
-                                                                              (PE.cong (_∘⟨_⟩_ _ _) $ wk1-liftSubst w)
-                                                                              PE.refl ⟩
-    cong (Π p , q ▷ A [ σ ] ▹ (B [ liftSubst σ ])) (t [ σ ]) (u [ σ ])
-      (B [ liftSubst σ ] [ w [ σ ] ]₀) (var x0 ∘⟨ p ⟩ wk1 (w [ σ ]))
-      (v [ σ ])                                                          ∎
-
 ------------------------------------------------------------------------
--- Uniqueness of identity proofs (UIP)
-
-opaque
-
-  -- UIP.
-
-  uip : M → M → Term n → Term n → Term n → Term n → Term n → Term n
-  uip p q A t u eq₁ eq₂ =
-    transitivity
-      (Id A t u)
-      eq₁
-      (transitivity A t u u eq₂
-         (transitivity A u t u (symmetry A t u eq₁) eq₁))
-      eq₂
-      (J ω ω A t
-         (Id
-            (Id (wk2 A) (wk2 t) (var x1))
-            (var x0)
-            (transitivity (wk2 A) (wk2 t) (wk2 u) (var x1) (wk2 eq₂)
-               (transitivity (wk2 A) (wk2 u) (wk2 t) (var x1)
-                  (symmetry (wk2 A) (wk2 t) (wk2 u) (wk2 eq₁))
-                  (var x0))))
-         (K ω A t (Id (Id (wk1 A) (wk1 t) (wk1 t)) rfl (var x0)) rfl
-            (transitivity A t u t eq₂
-               (transitivity A u t t (symmetry A t u eq₁) rfl)))
-         u eq₁)
-      (cong (Id A u u) (transitivity A u t u (symmetry A t u eq₁) eq₁)
-         rfl (Id A t u)
-         (transitivity (wk1 A) (wk1 t) (wk1 u) (wk1 u) (wk1 eq₂)
-            (var x0))
-         (transitivity-symmetryˡ A t u eq₁))
+-- Lemmas related to uip
 
 opaque
   unfolding uip

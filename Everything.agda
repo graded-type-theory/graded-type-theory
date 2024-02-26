@@ -127,6 +127,7 @@ import Definition.Typed.Consequences.Equality
 import Definition.Typed.Consequences.Canonicity
 import Definition.Typed.Consequences.Reduction
 import Definition.Typed.Reasoning.Reduction
+import Definition.Untyped.Identity
 import Definition.Untyped.Sigma
 import Definition.Typed.Consequences.DerivedRules.Nat
 import Definition.Typed.Consequences.DerivedRules.Pi-Sigma

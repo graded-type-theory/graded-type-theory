@@ -32,6 +32,7 @@ open import Definition.Typed.Properties TR
 open import Definition.Typed.Reasoning.Reduction TR
 import Definition.Typed.Weakening TR as W
 open import Definition.Untyped M as U hiding (_∷_)
+open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Properties M
 
 open import Graded.Context 𝕄
@@ -39,7 +40,7 @@ open import Graded.Context.Properties 𝕄
 open import Graded.Derived.Erased.Typed TR as ET hiding ([]-cong′)
 import Graded.Derived.Erased.Untyped 𝕄 as Erased
 import Graded.Derived.Erased.Usage 𝕄 UR as ErasedU
-open import Graded.Derived.Identity TR UR
+open import Graded.Derived.Identity UR
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 open import Graded.Neutral TR UR
