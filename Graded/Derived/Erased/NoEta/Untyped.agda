@@ -36,6 +36,6 @@ opaque
 
   erased-[] :
     (A t : Term n) → erased A t [ σ ] ≡ erased (A [ σ ]) (t [ σ ])
-  erased-[] = fstrʷ-[]
+  erased-[] = fstʷ-[]
     where
     open Fstʷ-sndʷ (𝟘 ∧ 𝟙) 𝟘

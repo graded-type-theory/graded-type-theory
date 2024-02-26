@@ -51,8 +51,8 @@ module Fstʷ-sndʷ (r′ q′ : M) where
 
     -- A substitution lemma for fstʷ.
 
-    fstrʷ-[] : ∀ A t → fstʷ p A t [ σ ] ≡ fstʷ p (A [ σ ]) (t [ σ ])
-    fstrʷ-[] {p} {σ} A t =
+    fstʷ-[] : ∀ A t → fstʷ p A t [ σ ] ≡ fstʷ p (A [ σ ]) (t [ σ ])
+    fstʷ-[] {p} {σ} A t =
       fstʷ p A t [ σ ]                                            ≡⟨⟩
       prodrec r′ p q′ (wk1 A [ liftSubst σ ]) (t [ σ ]) (var x1)  ≡⟨ cong (λ A → prodrec _ _ _ A _ _) (wk1-liftSubst A) ⟩
       prodrec r′ p q′ (wk1 (A [ σ ])) (t [ σ ]) (var x1)          ≡⟨⟩
@@ -77,7 +77,7 @@ module Fstʷ-sndʷ (r′ q′ : M) where
         (B [ liftSubst σ ] [ fstʷ p (wk1 A) (var x0) [ liftSubst σ ] ]↑)
         (t [ σ ]) (var x0)                                                ≡⟨ cong (λ B → prodrec _ _ _ B _ _) $
                                                                              cong (λ t → B [ liftSubst σ ] [ t ]↑) $
-                                                                             fstrʷ-[] (wk1 A) (var x0) ⟩
+                                                                             fstʷ-[] (wk1 A) (var x0) ⟩
       prodrec r′ p q
         (B [ liftSubst σ ] [ fstʷ p (wk1 A [ liftSubst σ ]) (var x0) ]↑)
         (t [ σ ]) (var x0)                                                ≡⟨ cong (λ B → prodrec _ _ _ B _ _) $

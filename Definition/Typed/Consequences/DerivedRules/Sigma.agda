@@ -1099,7 +1099,7 @@ module Fstʷ-sndʷ (r′ q′ : M) where
                                                                                   (U.wk (lift (step id)) B [ liftSubst (sgSubst t) ]))
                                                                                  x t) $
                                                                          PE.cong₂ (prodʷ p)
-                                                                           (fstrʷ-[] (wk1 A) (var x0))
+                                                                           (fstʷ-[] (wk1 A) (var x0))
                                                                            (sndʷ-[] (U.wk (lift (step id)) B) (var x0)) ⟩
          Id
            (Σʷ p , q ▷ wk1 A [ t ]₀ ▹
@@ -1129,7 +1129,7 @@ module Fstʷ-sndʷ (r′ q′ : M) where
            (prodʷ p (fstʷ p (wk1 A) (var x0) [ pair ]↑²)
               (sndʷ p q (wk1 A) (U.wk (lift (step id)) B) (var x0)
                  [ pair ]↑²)                                           ≡⟨ PE.cong₂ (prodʷ p)
-                                                                            (fstrʷ-[] (wk1 A) (var x0))
+                                                                            (fstʷ-[] (wk1 A) (var x0))
                                                                             (sndʷ-[] (U.wk (lift (step id)) B) (var x0)) ⟩⊢≡
             prodʷ p (fstʷ p (wk1 A [ pair ]↑²) pair)
               (sndʷ p q (wk1 A [ pair ]↑²)
