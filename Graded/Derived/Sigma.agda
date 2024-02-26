@@ -36,8 +36,7 @@ open import Graded.Substitution.Properties 𝕄 UR
 open import Graded.Mode 𝕄
 
 open import Definition.Untyped M
-open import Definition.Untyped.Sigma M as Sigma
-  using (prodrecˢ; module Fstʷ-sndʷ)
+open import Definition.Untyped.Sigma 𝕄
 
 open import Tools.Bool using (T)
 open import Tools.Empty
@@ -598,11 +597,6 @@ fstʷ′ₘ→≡𝟙≤𝟘 {r = r} {q = q} {A = A} =
 ¬fstʷ′ₘ 𝟙≰𝟘 hyp =
   ¬fstʷ′ₘ′ 𝟙≰𝟘 λ ▸t →
     hyp 𝟙ᵐ (▸-cong (PE.sym ⌞𝟙⌟) ▸t) ⌞𝟙⌟ (λ _ → ≤-refl)
-
-------------------------------------------------------------------------
--- The first and second projections for weak Σ-types
-
-open Fstʷ-sndʷ (𝟘 ∧ 𝟙) 𝟘 public using (fstʷ; sndʷ)
 
 ------------------------------------------------------------------------
 -- Inversion lemmas for usage for fstʷ

@@ -563,7 +563,7 @@ snd-for-Σᵣ = Definition.Untyped.Sigma.Fstʷ-sndʷ.sndʷ
 -- However, η-equality does not hold in general for our definitions.
 
 no-η-equality-Σᵣ =
-  Definition.Typed.Consequences.DerivedRules.Sigma.Fstʷ-sndʷ.¬-Σʷ-η-prodʷ-fstʷ-sndʷ
+  Definition.Typed.Consequences.DerivedRules.Sigma.¬-Σʷ-η-prodʷ-fstʷ-sndʷ
 
 -- Reduction relations
 

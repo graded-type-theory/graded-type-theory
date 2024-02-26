@@ -21,6 +21,7 @@ open Usage-restrictions UR
 
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Untyped.Identity 𝕄
+open import Definition.Untyped.Sigma 𝕄
 
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Consistency TR
@@ -492,8 +493,6 @@ module _ (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘)) where
             zero                      ∎))
     , trans (whred T.prodrec-β) refl
     where
-    open Fstʷ-sndʷ 𝟘 𝟘
-
     ℕ² : Term n
     ℕ² = Σʷ p , 𝟘 ▷ ℕ ▹ ℕ
 

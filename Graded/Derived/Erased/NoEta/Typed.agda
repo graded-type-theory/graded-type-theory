@@ -21,8 +21,6 @@ open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Consequences.DerivedRules.Sigma R
 
-open Fstʷ-sndʷ (𝟘 ∧ 𝟙) 𝟘
-
 open import Definition.Untyped M hiding (_∷_; _[_])
 
 open import Graded.Derived.Erased.NoEta.Untyped 𝕄

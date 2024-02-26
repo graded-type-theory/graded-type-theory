@@ -18,11 +18,10 @@ module Graded.Modality.Instances.Linearity.Properties
 open Usage-restrictions UR
 
 open import Definition.Untyped Linearity
-open import Definition.Untyped.Sigma Linearity
+open import Definition.Untyped.Sigma linearityModality
 
 open import Graded.Context linearityModality
-open import Graded.Derived.Sigma linearityModality UR as S
-  using (fstʷ; sndʷ)
+import Graded.Derived.Sigma linearityModality UR as S
 open import Graded.Mode  linearityModality
 open import Graded.Usage linearityModality UR
 

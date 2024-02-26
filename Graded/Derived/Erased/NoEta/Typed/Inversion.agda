@@ -27,6 +27,7 @@ open import Definition.Typed.Consequences.Substitution R
 
 open import Definition.Untyped M as U hiding (_∷_)
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Sigma 𝕄
 open import Graded.Derived.Erased.NoEta.Untyped 𝕄
 open import Graded.Derived.Erased.Untyped 𝕄 𝕨 hiding (erased)
 
@@ -37,8 +38,6 @@ import Tools.PropositionalEquality as PE
 open import Tools.Relation
 
 open import Graded.Derived.Erased.Typed.Inversion R 𝕨 public
-
-open Fstʷ-sndʷ (𝟘 ∧ 𝟙) 𝟘
 
 private variable
   Γ       : Con Term _

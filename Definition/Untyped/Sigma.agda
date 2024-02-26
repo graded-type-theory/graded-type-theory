@@ -10,7 +10,14 @@
 -- reviewer. See also Definition.Typed.Consequences.DerivedRules.Sigma
 -- and Graded.Derived.Sigma.
 
-module Definition.Untyped.Sigma {a} (M : Set a) where
+open import Graded.Modality
+
+module Definition.Untyped.Sigma
+  {a} {M : Set a}
+  (𝕄 : Modality M)
+  where
+
+open Modality 𝕄
 
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
@@ -88,3 +95,8 @@ module Fstʷ-sndʷ (r′ q′ : M) where
         (t [ σ ]) (var x0)                                                ≡⟨⟩
 
       sndʷ p q (A [ σ ]) (B [ liftSubst σ ]) (t [ σ ])                    ∎
+
+-- The quantities "p" and "q" are instantiated based on an analysis
+-- performed in Graded.Derived.Sigma.
+
+open Fstʷ-sndʷ (𝟘 ∧ 𝟙) 𝟘 public

@@ -13,7 +13,7 @@ module Graded.Derived.Erased.NoEta.Untyped
 open Modality 𝕄
 
 open import Definition.Untyped M
-open import Definition.Untyped.Sigma M
+open import Definition.Untyped.Sigma 𝕄
 
 open import Tools.Fin
 open import Tools.Nat
@@ -27,8 +27,6 @@ private variable
 
 erased : Term n → Term n → Term n
 erased = fstʷ 𝟘
-  where
-  open Fstʷ-sndʷ (𝟘 ∧ 𝟙) 𝟘
 
 opaque
 
@@ -37,5 +35,3 @@ opaque
   erased-[] :
     (A t : Term n) → erased A t [ σ ] ≡ erased (A [ σ ]) (t [ σ ])
   erased-[] = fstʷ-[]
-    where
-    open Fstʷ-sndʷ (𝟘 ∧ 𝟙) 𝟘
