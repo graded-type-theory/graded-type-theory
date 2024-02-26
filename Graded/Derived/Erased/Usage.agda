@@ -20,18 +20,25 @@ open Usage-restrictions R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
+open import Graded.Modality.Properties 𝕄
+open import Graded.Substitution 𝕄 R
+open import Graded.Substitution.Properties 𝕄 R
 open import Graded.Usage 𝕄 R
 open import Graded.Usage.Inversion 𝕄 R
 open import Graded.Usage.Properties 𝕄 R
+open import Graded.Usage.Weakening 𝕄 R
 open import Graded.Mode 𝕄
 
 open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped.Identity 𝕄
 import Graded.Derived.Erased.Eta.Usage 𝕄 R as Eta
 import Graded.Derived.Erased.NoEta.Usage 𝕄 R as NoEta
 import Graded.Derived.Erased.Untyped
 open Graded.Derived.Erased.Untyped 𝕄 s
+open import Graded.Derived.Identity R
 
 open import Tools.Bool using (T)
+open import Tools.Fin
 open import Tools.Function
 open import Tools.Product
 open import Tools.PropositionalEquality as PE using (_≡_)
@@ -40,10 +47,10 @@ import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 
 private variable
-  A t : Term _
-  γ δ : Conₘ _
-  m   : Mode
-  ok  : T _
+  A B t u v w           : Term _
+  γ γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ δ : Conₘ _
+  m                     : Mode
+  ok                    : T _
 
 ------------------------------------------------------------------------
 -- Usage rules
@@ -128,6 +135,89 @@ opaque
   ▸erased ▸t ▸A ok = case PE.singleton s of λ where
     (𝕤 , PE.refl) → Eta.▸erased ▸t
     (𝕨 , PE.refl) → NoEta.▸erased ▸t (▸A PE.refl) (ok PE.refl)
+
+opaque
+  unfolding substᵉ
+
+  -- A usage rule for substᵉ.
+
+  ▸substᵉ :
+    (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘) →
+    (s ≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial) →
+    (s ≡ 𝕤 → ¬ T 𝟘ᵐ-allowed → 𝟘 ≤ 𝟙) →
+    γ₁ ▸[ 𝟘ᵐ? ] A →
+    γ₂ ∙ 𝟘 ▸[ m ] B →
+    γ₃ ▸[ 𝟘ᵐ? ] t →
+    γ₄ ▸[ 𝟘ᵐ? ] u →
+    γ₅ ▸[ 𝟘ᵐ? ] v →
+    γ₆ ▸[ m ] w →
+    𝟘ᶜ ∧ᶜ ω ·ᶜ (γ₂ ∧ᶜ γ₆) ▸[ m ] substᵉ A B t u v w
+  ▸substᵉ {γ₂} {m} {γ₆} ok trivial 𝟘≤𝟙 ▸A ▸B ▸t ▸u ▸v ▸w = sub
+    (▸subst (▸Erased ▸A)
+       (sub
+          (substₘ-lemma _
+             (▶-cong _
+                (λ where
+                   x0     → PE.refl
+                   (_ +1) → PE.refl) $
+              wf-consSubstₘ (wf-wk1Substₘ _ _ wf-idSubstₘ) $
+              sub
+                (▸-cong (PE.sym ⌞𝟘⌟≡𝟘ᵐ?) $
+                 ▸erased′ trivial 𝟘≤𝟙
+                   var (λ _ → wkUsage (step id) ▸A) ok)
+                (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+                   ⌜ ⌞ 𝟘 ⌟ ⌝ ·ᶜ 𝟘ᶜ  ≈⟨ ·ᶜ-zeroʳ _ ⟩
+                   𝟘ᶜ               ∎))
+             ▸B)
+          (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+             γ₂ ∙ ⌜ m ⌝ · 𝟘                       ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+             γ₂ ∙ 𝟘                               ≈˘⟨ <*-identityˡ _ ∙ PE.refl ⟩
+             γ₂ <* idSubstₘ ∙ 𝟘                   ≈˘⟨ wk1Substₘ-app _ γ₂ ⟩
+             γ₂ <* wk1Substₘ idSubstₘ             ≈˘⟨ ≈ᶜ-trans (+ᶜ-congʳ $ ·ᶜ-zeroˡ _) $
+                                                      +ᶜ-identityˡ _ ⟩
+             𝟘 ·ᶜ 𝟘ᶜ +ᶜ γ₂ <* wk1Substₘ idSubstₘ  ∎))
+       (▸[] ▸t) (▸[] ▸u) ([]-congₘ ▸A ▸t ▸u ▸v) ▸w)
+    (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+       𝟘ᶜ ∧ᶜ ω ·ᶜ (γ₂ ∧ᶜ γ₆)              ≈˘⟨ ≈ᶜ-trans
+                                                (·ᶜ-congˡ $
+                                                 ≈ᶜ-trans
+                                                   (∧ᶜ-congˡ $
+                                                    ≈ᶜ-trans (≈ᶜ-sym $ ∧ᶜ-assoc _ _ _) $
+                                                    ≈ᶜ-trans (∧ᶜ-congʳ $ ∧ᶜ-idem _) $
+                                                    ≈ᶜ-trans (≈ᶜ-sym $ ∧ᶜ-assoc _ _ _) $
+                                                    ∧ᶜ-congʳ $ ∧ᶜ-idem _) $
+                                                 ≈ᶜ-trans (≈ᶜ-sym $ ∧ᶜ-assoc _ _ _) $
+                                                 ≈ᶜ-trans (∧ᶜ-congʳ $ ∧ᶜ-comm _ _) $
+                                                 ∧ᶜ-assoc _ _ _) $
+                                              ≈ᶜ-trans (·ᶜ-distribˡ-∧ᶜ _ _ _) $
+                                              ∧ᶜ-congʳ $ ·ᶜ-zeroʳ _ ⟩
+       ω ·ᶜ (γ₂ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ γ₆)  ∎)
+
+opaque
+
+  -- A variant of the usage rule for substᵉ given above.
+
+  ▸substᵉ′ :
+    (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘) →
+    (s ≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial) →
+    (s ≡ 𝕤 → ¬ T 𝟘ᵐ-allowed → 𝟘 ≤ 𝟙) →
+    ω ≤ 𝟘 →
+    γ₁ ▸[ 𝟘ᵐ? ] A →
+    γ₂ ∙ 𝟘 ▸[ m ] B →
+    γ₃ ▸[ 𝟘ᵐ? ] t →
+    γ₄ ▸[ 𝟘ᵐ? ] u →
+    γ₅ ▸[ 𝟘ᵐ? ] v →
+    γ₆ ▸[ m ] w →
+    ω ·ᶜ (γ₂ ∧ᶜ γ₆) ▸[ m ] substᵉ A B t u v w
+  ▸substᵉ′ {γ₂} {γ₆} ok trivial 𝟘≤𝟙 ω≤𝟘 ▸A ▸B ▸t ▸u ▸v ▸w = sub
+    (▸substᵉ ok trivial 𝟘≤𝟙 ▸A ▸B ▸t ▸u ▸v ▸w)
+    (begin
+       ω ·ᶜ (γ₂ ∧ᶜ γ₆)        ≤⟨ ∧ᶜ-greatest-lower-bound
+                                   (≤ᶜ-trans (·ᶜ-monotoneˡ ω≤𝟘) (≤ᶜ-reflexive (·ᶜ-zeroˡ _)))
+                                   ≤ᶜ-refl ⟩
+       𝟘ᶜ ∧ᶜ ω ·ᶜ (γ₂ ∧ᶜ γ₆)  ∎)
+    where
+    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
 ------------------------------------------------------------------------
 -- Inversion lemmas for usage
