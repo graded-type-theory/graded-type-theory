@@ -138,8 +138,6 @@ opaque
        t∘0⇒t₁,t₂ , erase-t∘↯⇒v₁,v₂ , t₁®v₁ , _) →
 
     -- The term t₁ is definitionally equal to zero.
-    case inv-usage-prodʷ (usagePres*Term (▸t ∘ₘ zeroₘ) t∘0⇒t₁,t₂) of λ {
-      (invUsageProdʷ ▸t₁ ▸t₂ _) →
     case ε⊢∷Id→ε⊢≡∷ $
          erasedⱼ $
          inversion-prod-Σ
@@ -167,10 +165,6 @@ opaque
            t∘1⇒t₁′,t₂′ , erase-t∘↯⇒v₁′,v₂′ , t₁′®v₁′ , _) →
 
         -- The term t₁′ is definitionally equal to suc zero.
-        case inv-usage-prodʷ
-               (usagePres*Term (▸t ∘ₘ sucₘ zeroₘ)
-                  t∘1⇒t₁′,t₂′) of λ {
-          (invUsageProdʷ ▸t₁′ ▸t₂′ _) →
         case ε⊢∷Id→ε⊢≡∷ $
              erasedⱼ $
              inversion-prod-Σ
@@ -207,7 +201,7 @@ opaque
             case TP.red*Det v₁⇒zero v₁′⇒suc of λ where
               (inj₁ zero⇒suc) → case TP.zero-noRed zero⇒suc of λ ()
               (inj₂ suc⇒zero) →
-                case TP.suc-noRed suc⇒zero of λ () }}}}}}
+                case TP.suc-noRed suc⇒zero of λ () }}}}
     where
     open Fundamental-assumptions fundamental-assumptions₀
     open H is-𝟘? well-formed
