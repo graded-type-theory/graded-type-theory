@@ -215,25 +215,23 @@ opaque
 
 opaque
 
-  -- If the modality's zero is well-behaved and []-cong and 𝟘ᵐ are
-  -- allowed, then ℕ is not resurrectable with respect to any context
-  -- that satisfies Fundamental-assumptions⁻.
+  -- If []-cong and 𝟘ᵐ are allowed, then ℕ is not resurrectable with
+  -- respect to any context that satisfies Fundamental-assumptions⁻.
   --
   -- Note that if []-cong is allowed, then (at the time of writing)
   -- Fundamental-assumptions⁻ only holds for the empty context.
 
   ¬-ℕ-resurrectable :
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄
     ⦃ ok : T 𝟘ᵐ-allowed ⦄ →
     []-congˢ-allowed →
     Fundamental-assumptions⁻ Γ →
     ¬ Resurrectable q₁ q₂ Γ ℕ
-  ¬-ℕ-resurrectable {Γ} []-cong-ok ok (_ , ▸t , ⊢t) =
+  ¬-ℕ-resurrectable {Γ} ⦃ ok ⦄ []-cong-ok as (_ , ▸t , ⊢t) =
     -- By the fundamental theorem t is related to erase t.
     case Fundamental.fundamentalErased-𝟙ᵐ
            (record
               { well-formed       = wfTerm ⊢t
-              ; other-assumptions = ok
+              ; other-assumptions = as
               })
            ⊢t ▸t of λ {
       t®erase-t →
@@ -247,7 +245,7 @@ opaque
     -- The term t₁ is definitionally equal to zero.
     case inv-usage-prodʷ (usagePres*Term (▸t ∘ₘ zeroₘ) t∘0⇒t₁,t₂) of λ {
       (invUsageProdʷ ▸t₁ ▸t₂ _) →
-    case Id→≡″ []-cong-ok ok ℕₘ (▸-𝟘 ▸t₁) zeroₘ (▸-𝟘 ▸t₂) $
+    case Id→≡″ []-cong-ok (λ ()) as ℕₘ (▸-𝟘 ▸t₁) zeroₘ (▸-𝟘 ▸t₂) $
          inversion-prod-Σ
            (syntacticEqTerm (subset*Term t∘0⇒t₁,t₂) .proj₂ .proj₂)
            .proj₂ .proj₁ of λ
@@ -277,7 +275,7 @@ opaque
                (usagePres*Term (▸t ∘ₘ sucₘ zeroₘ)
                   t∘1⇒t₁′,t₂′) of λ {
           (invUsageProdʷ ▸t₁′ ▸t₂′ _) →
-        case Id→≡″ []-cong-ok ok ℕₘ (▸-𝟘 ▸t₁′) (sucₘ zeroₘ)
+        case Id→≡″ []-cong-ok (λ ()) as ℕₘ (▸-𝟘 ▸t₁′) (sucₘ zeroₘ)
                (▸-𝟘 ▸t₂′) $
              inversion-prod-Σ
                (syntacticEqTerm (subset*Term t∘1⇒t₁′,t₂′)
@@ -315,6 +313,11 @@ opaque
               (inj₂ suc⇒zero) →
                 case TP.suc-noRed suc⇒zero of λ () }}}}}}
     where
-    open Fundamental-assumptions⁻ ok
+    open Fundamental-assumptions⁻ as
     open H is-𝟘? (wfTerm ⊢t)
     open L is-𝟘? (wfTerm ⊢t)
+
+    instance
+
+      _ : Has-well-behaved-zero semiring-with-meet
+      _ = 𝟘-well-behaved ok

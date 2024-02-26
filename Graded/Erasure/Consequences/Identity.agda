@@ -19,6 +19,7 @@ module Graded.Erasure.Consequences.Identity
 
 open Modality 𝕄
 open Type-restrictions TR
+open Usage-restrictions UR
 
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.DerivedRules TR
@@ -29,9 +30,10 @@ open import Definition.Typed.Properties TR
 open import Definition.Untyped M hiding (_∷_)
 
 open import Graded.Context 𝕄
-open import Graded.Derived.Erased.Eta.Typed TR
+open import Graded.Context.Properties 𝕄
+open import Graded.Derived.Erased.Typed TR
 import Graded.Derived.Erased.Untyped 𝕄 as Erased
-open import Graded.Derived.Erased.Eta.Usage 𝕄 UR
+open import Graded.Derived.Erased.Usage 𝕄 UR
 import Graded.Erasure.LogicalRelation TR as L
 open import Graded.Erasure.LogicalRelation.Fundamental TR UR
 open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions TR UR
@@ -45,12 +47,13 @@ open import Tools.Bool using (T)
 open import Tools.Function
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+import Tools.Reasoning.PartialOrder
 
 private variable
   Γ           : Con Term _
   γ₁ γ₂ γ₃ γ₄ : Conₘ _
   A t u v     : Term _
-  s           : Strength
+  s s₁ s₂     : Strength
 
 opaque
 
@@ -119,22 +122,34 @@ opaque
   -- Fundamental-assumptions⁻ only holds for the empty context.
 
   Id→≡″ :
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄
     ⦃ ok : T 𝟘ᵐ-allowed ⦄ →
-    []-cong-allowed s →
+    []-cong-allowed s₁ →
+    (s₂ PE.≡ 𝕨 → Prodrec-allowed 𝟘ᵐ (𝟘 ∧ 𝟙) 𝟘 𝟘) →
     Fundamental-assumptions⁻ Γ →
     γ₁ ▸[ 𝟘ᵐ ] A →
     γ₂ ▸[ 𝟘ᵐ ] t →
     γ₃ ▸[ 𝟘ᵐ ] u →
     γ₄ ▸[ 𝟘ᵐ ] v →
-    Γ ⊢ v ∷ Erased.Erased 𝕤 (Id A t u) →
+    Γ ⊢ v ∷ Erased.Erased s₂ (Id A t u) →
     Γ ⊢ t ≡ u ∷ A
-  Id→≡″ {Γ} {A} {t} {u} {v} []-cong-ok ok ▸A ▸t ▸u ▸v =
-    Γ ⊢ v ∷ Erased (Id A t u)  →⟨ erasedⱼ ⟩
-    Γ ⊢ erased v ∷ Id A t u    →⟨ Id→≡′ []-cong-ok ok
-                                    (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸A) (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸t)
-                                    (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸u) (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $ ▸erased ▸v) ⟩
-    Γ ⊢ t ≡ u ∷ A              □
+  Id→≡″
+    {s₂} {Γ} {A} {γ₂} {t} {γ₃} {u} {v} ⦃ ok ⦄
+    []-cong-ok P-ok as ▸A ▸t ▸u ▸v =
+    Γ ⊢ v ∷ Erased (Id A t u)           →⟨ erasedⱼ ⟩
+    Γ ⊢ erased (Id A t u) v ∷ Id A t u  →⟨ Id→≡′ ⦃ 𝟘-well-behaved = 𝟘-well-behaved ok ⦄ []-cong-ok as
+                                             (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸A) (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸t)
+                                             (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸u)
+                                             (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $
+                                              ▸erased s₂ ▸v
+                                                (λ _ →
+                                                   Idₘ′ (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸A) ▸t ▸u
+                                                     (begin
+                                                        γ₂ +ᶜ γ₃  ≤⟨ +ᶜ-monotone (▸-𝟘ᵐ ▸t) (▸-𝟘ᵐ ▸u) ⟩
+                                                        𝟘ᶜ +ᶜ 𝟘ᶜ  ≈⟨ +ᶜ-identityˡ _ ⟩
+                                                        𝟘ᶜ        ∎)
+                                                     ≤ᶜ-refl)
+                                                P-ok) ⟩
+    Γ ⊢ t ≡ u ∷ A                       □
     where
-    open Erased 𝕤 using (Erased)
-    open import Graded.Derived.Erased.Eta.Untyped 𝕄
+    open Erased s₂
+    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
