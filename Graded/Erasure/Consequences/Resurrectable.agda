@@ -18,6 +18,7 @@ module Graded.Erasure.Consequences.Resurrectable
 
 open Modality 𝕄
 open Type-restrictions TR
+open Usage-restrictions UR
 
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Canonicity TR
@@ -29,12 +30,15 @@ open import Definition.Typed.EqRelInstance TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Reasoning.Term TR
 open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped.Unit 𝕄
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Derived.Erased.Typed TR
-open import Graded.Derived.Erased.Usage 𝕄 UR 𝕤
-open import Graded.Derived.Erased.Untyped 𝕄 𝕤 as Erased using (Erased)
+open import Graded.Derived.Erased.Usage 𝕄 UR
+open import Graded.Derived.Erased.Untyped 𝕄 as Erased using (Erased)
+open import Graded.Derived.Sigma 𝕄 UR
+open import Graded.Derived.Unit UR
 open import Graded.Erasure.Consequences.Identity TR UR
 import Graded.Erasure.LogicalRelation TR as L
 open import Graded.Erasure.LogicalRelation.Fundamental TR UR
@@ -59,61 +63,72 @@ open import Tools.Relation
 open import Tools.Sum using (inj₁; inj₂)
 
 private variable
-  n     : Nat
-  Γ     : Con Term _
-  q₁ q₂ : M
+  n       : Nat
+  Γ       : Con Term _
+  q₁ q₂   : M
+  s s₁ s₂ : Strength
 
--- The type A is "resurrectable" with respect to Γ (and some grades)
--- if (roughly speaking) there is a function that
+-- The type A is "resurrectable" with respect to Γ (as well as a
+-- strength and some grades) if (roughly speaking) there is a function
+-- that
 -- * given an erased value x of type A, returns a value y of type A
 --   along with an erased proof which shows that y is equal to x,
 -- * is well-typed with respect to Γ, and
 -- * is well-resourced with respect to 𝟘ᶜ.
 
-Resurrectable : M → M → Con Term n → Term n → Set a
-Resurrectable q₁ q₂ Γ A =
+Resurrectable : Strength → M → M → Con Term n → Term n → Set a
+Resurrectable s q₁ q₂ Γ A =
   ∃ λ t →
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     Γ ⊢ t ∷
       Π 𝟘 , q₁ ▷ A ▹
-      Σʷ 𝟙 , q₂ ▷ wk1 A ▹ Erased (Id (wk1 (wk1 A)) (var x0) (var x1))
+      Σ⟨ s ⟩ 𝟙 , q₂ ▷ wk1 A ▹
+      Erased s (Id (wk1 (wk1 A)) (var x0) (var x1))
 
 opaque
 
-  -- If Erased and Unitˢ are allowed, then Unitˢ is resurrectable with
-  -- respect to any well-formed context and grades that satisfy
-  -- certain properties.
+  -- If certain assumptions hold, then Unit s₂ is resurrectable with
+  -- respect to certain things.
 
   Unit-resurrectable :
-    Erasedˢ-allowed →
-    Unitˢ-allowed →
     Π-allowed 𝟘 q₁ →
-    Σʷ-allowed 𝟙 q₂ →
+    Σ-allowed s₁ 𝟙 q₂ →
+    Erased-allowed s₁ →
+    Unit-allowed s₂ →
+    (s₂ PE.≡ 𝕨 → Unitrec-allowed 𝟘ᵐ? 𝟙 Unit-η-grade) →
     ⊢ Γ →
-    Resurrectable q₁ q₂ Γ Unitˢ
-  Unit-resurrectable {Γ} Erased-ok Unit-ok ok₁ ok₂ ⊢Γ =
-      lam 𝟘 (prodʷ 𝟙 starˢ Erased.[ rfl ])
+    Resurrectable s₁ q₁ q₂ Γ (Unit s₂)
+  Unit-resurrectable {s₁} {s₂} {Γ} ok₁ ok₂ Erased-ok Unit-ok ur-ok ⊢Γ =
+      lam 𝟘 (prod s₁ 𝟙 (star s₂) ([ Unit-η s₂ Unit-η-grade (var x0) ]))
     , (lamₘ $
-       sub (prodʷₘ starₘ (▸[] rflₘ)) $ begin
-         𝟘ᶜ ∙ 𝟙 · 𝟘     ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
-         𝟘ᶜ             ≈˘⟨ ·ᶜ-identityˡ _ ⟩
-         𝟙 ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
-         𝟙 ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎)
+       prodₘ starₘ (▸[] _ $ ▸Unit-η′ ur-ok (λ _ → _ , var) .proj₂)
+         (λ _ → begin
+            𝟘ᶜ ∙ 𝟙 · 𝟘     ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+            𝟘ᶜ             ≈˘⟨ ·ᶜ-identityˡ _ ⟩
+            𝟙 ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
+            𝟙 ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎)
+         (λ _ → begin
+            𝟘ᶜ ∙ 𝟙 · 𝟘     ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+            𝟘ᶜ             ≈˘⟨ ∧ᶜ-idem _ ⟩
+            𝟘ᶜ ∧ᶜ 𝟘ᶜ       ≈˘⟨ ∧ᶜ-congʳ $ ·ᶜ-zeroʳ _ ⟩
+            𝟙 ·ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ  ∎))
     , (lamⱼ′ ok₁ $
        ⊢prod
          (Erasedⱼ Erased-ok (Idⱼ (var₀ ⊢Unit₂) (var₁ ⊢Unit₂)))
          (starⱼ ⊢Γ∙Unit Unit-ok)
-         ([]ⱼ Erased-ok (rflⱼ′ (Unit-η-≡ (var₀ ⊢Unit₁)))) ok₂)
+         ([]ⱼ Erased-ok (⊢Unit-η (var₀ ⊢Unit₁)))
+         ok₂)
     where
+    open Erased s₁
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-    ⊢Unit₁ : Γ ⊢ Unitˢ
+    ⊢Unit₁ : Γ ⊢ Unit s₂
     ⊢Unit₁ = Unitⱼ ⊢Γ Unit-ok
 
-    ⊢Γ∙Unit : ⊢ Γ ∙ Unitˢ
+    ⊢Γ∙Unit : ⊢ Γ ∙ Unit s₂
     ⊢Γ∙Unit = wf ⊢Unit₁ ∙ ⊢Unit₁
 
-    ⊢Unit₂ : Γ ∙ Unitˢ ⊢ Unitˢ
+    ⊢Unit₂ : Γ ∙ Unit s₂ ⊢ Unit s₂
     ⊢Unit₂ = Unitⱼ ⊢Γ∙Unit Unit-ok
 
 opaque
@@ -123,8 +138,8 @@ opaque
 
   ¬-ℕ-resurrectable-ε :
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
-    Erasedˢ-allowed →
-    ¬ Resurrectable q₁ q₂ ε ℕ
+    Erased-allowed s →
+    ¬ Resurrectable s q₁ q₂ ε ℕ
   ¬-ℕ-resurrectable-ε ok (_ , ▸t , ⊢t) =
     -- By the fundamental theorem t is related to erase t.
     case Fundamental.fundamentalErased-𝟙ᵐ
@@ -209,7 +224,8 @@ opaque
 
 opaque
 
-  -- If []-cong and 𝟘ᵐ are allowed, then ℕ is not resurrectable with
+  -- If 𝟘ᵐ is allowed and []-cong is allowed for s (and another
+  -- assumption holds if s is 𝕨), then ℕ is not s-resurrectable with
   -- respect to any context that satisfies Fundamental-assumptions⁻.
   --
   -- Note that if []-cong is allowed, then (at the time of writing)
@@ -217,10 +233,11 @@ opaque
 
   ¬-ℕ-resurrectable :
     ⦃ ok : T 𝟘ᵐ-allowed ⦄ →
-    []-congˢ-allowed →
+    (s PE.≡ 𝕨 → Prodrec-allowed 𝟘ᵐ (𝟘 ∧ 𝟙) 𝟘 𝟘) →
+    []-cong-allowed s →
     Fundamental-assumptions⁻ Γ →
-    ¬ Resurrectable q₁ q₂ Γ ℕ
-  ¬-ℕ-resurrectable {Γ} ⦃ ok ⦄ []-cong-ok as (_ , ▸t , ⊢t) =
+    ¬ Resurrectable s q₁ q₂ Γ ℕ
+  ¬-ℕ-resurrectable {Γ} ⦃ ok ⦄ P-ok []-cong-ok as (_ , ▸t , ⊢t) =
     -- By the fundamental theorem t is related to erase t.
     case Fundamental.fundamentalErased-𝟙ᵐ
            (record
@@ -237,9 +254,9 @@ opaque
        t∘0⇒t₁,t₂ , erase-t∘↯⇒v₁,v₂ , t₁®v₁ , _) →
 
     -- The term t₁ is definitionally equal to zero.
-    case inv-usage-prodʷ (usagePres*Term (▸t ∘ₘ zeroₘ) t∘0⇒t₁,t₂) of λ {
-      (invUsageProdʷ ▸t₁ ▸t₂ _) →
-    case Id→≡″ []-cong-ok (λ ()) as ℕₘ (▸-𝟘 ▸t₁) zeroₘ (▸-𝟘 ▸t₂) $
+    case inv-usage-prod (usagePres*Term (▸t ∘ₘ zeroₘ) t∘0⇒t₁,t₂) of λ {
+      (invUsageProd ▸t₁ ▸t₂ _ _) →
+    case Id→≡″ []-cong-ok P-ok as ℕₘ (▸-𝟘 ▸t₁) zeroₘ (▸-𝟘 ▸t₂) $
          inversion-prod-Σ
            (syntacticEqTerm (subset*Term t∘0⇒t₁,t₂) .proj₂ .proj₂)
            .proj₂ .proj₁ of λ
@@ -265,11 +282,11 @@ opaque
            t∘1⇒t₁′,t₂′ , erase-t∘↯⇒v₁′,v₂′ , t₁′®v₁′ , _) →
 
         -- The term t₁′ is definitionally equal to suc zero.
-        case inv-usage-prodʷ
+        case inv-usage-prod
                (usagePres*Term (▸t ∘ₘ sucₘ zeroₘ)
                   t∘1⇒t₁′,t₂′) of λ {
-          (invUsageProdʷ ▸t₁′ ▸t₂′ _) →
-        case Id→≡″ []-cong-ok (λ ()) as ℕₘ (▸-𝟘 ▸t₁′) (sucₘ zeroₘ)
+          (invUsageProd ▸t₁′ ▸t₂′ _ _) →
+        case Id→≡″ []-cong-ok P-ok as ℕₘ (▸-𝟘 ▸t₁′) (sucₘ zeroₘ)
                (▸-𝟘 ▸t₂′) $
              inversion-prod-Σ
                (syntacticEqTerm (subset*Term t∘1⇒t₁′,t₂′)
