@@ -54,11 +54,4 @@ erasedⱼ ⊢t = fstʷⱼ ⊢t
 
 erased-cong :
   Γ ⊢ A ≡ B → Γ ⊢ t ≡ u ∷ Erased A → Γ ⊢ erased A t ≡ erased B u ∷ A
-erased-cong A≡B t≡u =
-  case syntacticEqTerm t≡u of λ {
-    (⊢Erased , _ , _) →
-  case syntacticΣ ⊢Erased of λ {
-    (⊢A , ⊢Unit) →
-  case inversion-Unit ⊢Unit of λ
-    Unit-ok →
-  fstʷ-cong A≡B (Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok) t≡u }}
+erased-cong = fstʷ-cong

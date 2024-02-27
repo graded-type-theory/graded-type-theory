@@ -649,23 +649,18 @@ fstʷ-β-⇒
 -- Another reduction rule for fstʷ.
 
 fstʷ-subst :
-  Γ ∙ A ⊢ B →
   Γ ⊢ t₁ ⇒ t₂ ∷ Σʷ p , q ▷ A ▹ B →
   Γ ⊢ fstʷ p A t₁ ⇒ fstʷ p A t₂ ∷ A
-fstʷ-subst
-  {Γ = Γ} {A = A} {B = B} {t₁ = t₁} {t₂ = t₂} {p = p} {q = q}
-  ⊢B t₁⇒t₂ =                                                   $⟨ Σ⊢wk1 ⊢B ok , 1∷wk1[1,0] ⊢B ⟩
+fstʷ-subst {Γ} {t₁} {t₂} {p} {q} {A} {B} t₁⇒t₂ =
+  case inversion-ΠΣ (syntacticEqTerm (subsetTerm t₁⇒t₂) .proj₁) of λ
+    (⊢A , ⊢B , ok) →
+                                                               $⟨ Σ⊢wk1 ⊢B ok , 1∷wk1[1,0] ⊢B ⟩
   (Γ ∙ (Σʷ p , q ▷ A ▹ B) ⊢ wk1 A) ×
   Γ ∙ A ∙ B ⊢ var x1 ∷ wk1 A [ prodʷ p (var x1) (var x0) ]↑²   →⟨ (λ (hyp₁ , hyp₂) → prodrec-subst′ hyp₁ hyp₂ t₁⇒t₂ ok) ⟩
 
   Γ ⊢ fstʷ p A t₁ ⇒ fstʷ p A t₂ ∷ wk1 A [ t₁ ]₀                →⟨ flip conv (⊢wk1[]≡ ⊢A) ⟩
 
   Γ ⊢ fstʷ p A t₁ ⇒ fstʷ p A t₂ ∷ A                            □
-  where
-  ⊢A = case wf ⊢B of λ where
-         (_ ∙ ⊢A) → ⊢A
-  ok = ⊢∷ΠΣ→ΠΣ-allowed $
-       syntacticRedTerm (redMany t₁⇒t₂) .proj₂ .proj₁
 
 -- An equality rule for fstʷ.
 
@@ -681,12 +676,11 @@ fstʷ-β-≡ ⊢B ⊢t ⊢u ok = subsetTerm (fstʷ-β-⇒ ⊢B ⊢t ⊢u ok)
 
 fstʷ-cong :
   Γ ⊢ A₁ ≡ A₂ →
-  Γ ∙ A₁ ⊢ B₁ →
   Γ ⊢ t₁ ≡ t₂ ∷ Σʷ p , q ▷ A₁ ▹ B₁ →
   Γ ⊢ fstʷ p A₁ t₁ ≡ fstʷ p A₂ t₂ ∷ A₁
-fstʷ-cong
-  {Γ = Γ} {A₁ = A₁} {A₂ = A₂} {B₁ = B₁} {t₁ = t₁} {t₂ = t₂}
-  {p = p} {q = q} A₁≡A₂ ⊢B₁ t₁≡t₂ =                              $⟨ W.wkEq₁ (ΠΣⱼ′ ⊢B₁ ok) A₁≡A₂
+fstʷ-cong {Γ} {A₁} {A₂} {t₁} {t₂} {p} {q} {B₁} A₁≡A₂ t₁≡t₂ =
+  case inversion-ΠΣ (syntacticEqTerm t₁≡t₂ .proj₁) of λ
+    (⊢A₁ , ⊢B₁ , ok) →                                            $⟨ W.wkEq₁ (ΠΣⱼ′ ⊢B₁ ok) A₁≡A₂
                                                                   , 1∷wk1[1,0] ⊢B₁
                                                                   ⟩
   (Γ ∙ (Σʷ p , q ▷ A₁ ▹ B₁) ⊢ wk1 A₁ ≡ wk1 A₂) ×
@@ -695,10 +689,6 @@ fstʷ-cong
   Γ ⊢ fstʷ p A₁ t₁ ≡ fstʷ p A₂ t₂ ∷ wk1 A₁ [ t₁ ]₀               →⟨ flip conv (⊢wk1[]≡ ⊢A₁) ⟩
 
   Γ ⊢ fstʷ p A₁ t₁ ≡ fstʷ p A₂ t₂ ∷ A₁                           □
-  where
-  ⊢A₁ = syntacticEq A₁≡A₂ .proj₁
-  ok  = ⊢∷ΠΣ→ΠΣ-allowed $
-        syntacticEqTerm t₁≡t₂ .proj₂ .proj₁
 
 ------------------------------------------------------------------------
 -- Some private lemmas related to fstʷ
@@ -838,9 +828,8 @@ private
     Γ ∙ (Σʷ p , q ▷ A₁ ▹ B₁) ⊢
       var x0 ≡
       var x0 ∷
-      wk1 (Σʷ p , q ▷ A₁ ▹ B₁)                                   →⟨ fstʷ-cong
-                                                                      (wkEq (step id) ⊢ΓΣA₁B₁ A₁≡A₂)
-                                                                      (W.wk (lift (step id)) (⊢ΓΣA₁B₁ ∙ W.wk₁ ⊢ΣA₁B₁ ⊢A₁) ⊢B₁) ⟩
+      wk1 (Σʷ p , q ▷ A₁ ▹ B₁)                                   →⟨ fstʷ-cong (wkEq (step id) ⊢ΓΣA₁B₁ A₁≡A₂) ⟩
+
     Γ ∙ (Σʷ p , q ▷ A₁ ▹ B₁) ⊢
       fstʷ p (wk1 A₁) (var x0) ≡
       fstʷ p (wk1 A₂) (var x0) ∷
@@ -1226,7 +1215,7 @@ prod-cong⁻¹-Σʷ
   fst-t,u≡t = fstʷ-β-≡ ⊢B ⊢t ⊢u ok
 
   t≡v =                                                      $⟨ prod≡prod ⟩
-    Γ ⊢ prodʷ p t u ≡ prodʷ p v w ∷ Σʷ p , q ▷ A ▹ B         →⟨ fstʷ-cong (refl ⊢A) ⊢B ⟩
+    Γ ⊢ prodʷ p t u ≡ prodʷ p v w ∷ Σʷ p , q ▷ A ▹ B         →⟨ fstʷ-cong (refl ⊢A) ⟩
     Γ ⊢ fstʷ p A (prodʷ p t u) ≡ fstʷ p A (prodʷ p v w) ∷ A  →⟨ (λ hyp → trans (sym fst-t,u≡t)
                                                                    (trans hyp (fstʷ-β-≡ ⊢B ⊢v ⊢w ok))) ⟩
     Γ ⊢ t ≡ v ∷ A                                            □
@@ -1240,7 +1229,7 @@ prod-cong⁻¹-Σʷ
                                                                             (trans hyp
                                                                                (conv (sndʷ-β-≡ ⊢B ⊢v ⊢w ok)
                                                                                   (substTypeEq (refl ⊢B)
-                                                                                     (fstʷ-cong (refl ⊢A) ⊢B (sym prod≡prod)))))) ⟩
+                                                                                     (fstʷ-cong (refl ⊢A) (sym prod≡prod)))))) ⟩
 
     Γ ⊢ u ≡ w ∷ B [ fstʷ p A (prodʷ p t u) ]₀                      →⟨ flip _⊢_≡_∷_.conv (substTypeEq (refl ⊢B) fst-t,u≡t) ⟩
 
