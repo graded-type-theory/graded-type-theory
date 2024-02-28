@@ -92,6 +92,13 @@ lift-wk1 pr A = trans (wk-comp (lift pr) (step id) A)
 wk1-wk≡lift-wk1 : (ρ : Wk m n) (t : Term n) → wk1 (wk ρ t) ≡ wk (lift ρ) (wk1 t)
 wk1-wk≡lift-wk1 ρ t = trans (wk1-wk ρ t) (sym (lift-wk1 ρ t))
 
+opaque
+
+  -- The functions wk2 and wk₂ are interchangeable.
+
+  wk2≡wk₂ : wk2 t ≡ wk₂ t
+  wk2≡wk₂ = wk-comp _ _ _
+
 -- Substitution properties.
 
 -- Two substitutions σ and σ′ are equal if they are pointwise equal,
@@ -263,6 +270,17 @@ opaque
     t [ liftSubst σ ₛ• step id ]  ≡⟨⟩
     t [ wk1Subst σ ]              ≡⟨ wk1Subst-wk1 t ⟩
     wk1 (t [ σ ])                 ∎
+
+opaque
+
+  -- A variant of wk1-liftSubst for wk₂.
+
+  wk₂-liftSubst : ∀ t → wk₂ t [ liftSubstn σ 2 ] ≡ wk₂ (t [ σ ])
+  wk₂-liftSubst {σ} t =
+    wk₂ t [ liftSubstn σ 2 ]                ≡⟨ subst-wk t ⟩
+    t [ liftSubstn σ 2 ₛ• step (step id) ]  ≡⟨ substVar-to-subst (wk-comp _ _ ∘→ σ) t ⟩
+    t [ step (step id) •ₛ σ ]               ≡˘⟨ wk-subst t ⟩
+    wk₂ (t [ σ ])                           ∎
 
 -- Composition of liftings is lifting of the composition.
 
@@ -648,17 +666,39 @@ opaque
     t [ idSubst ]    ≡⟨ subst-id _ ⟩
     t                ∎
 
--- Applying _[ u ]↑ to a doubly weakened term amounts to the same
--- thing as doing nothing.
+opaque
 
-wk2-[]↑ : wk2 t [ u ]↑ ≡ wk2 t
-wk2-[]↑ {t = t} {u = u} =
-  wk2 t [ u ]↑                                             ≡⟨⟩
-  wk (step id) (wk1 t) [ consSubst (wk1Subst idSubst) u ]  ≡⟨ subst-wk (wk1 t) ⟩
-  wk1 t [ consSubst (wk1Subst idSubst) u ₛ• step id ]      ≡⟨ subst-wk t ⟩
-  t [ toSubst (step (step id)) ]                           ≡˘⟨ wk≡subst _ _ ⟩
-  wk (step (step id)) t                                    ≡˘⟨ wk1-wk _ _ ⟩
-  wk1 (wk1 t)                                              ∎
+  -- A variant of wk2-[,] for wk₂.
+
+  wk₂-[,] : wk₂ t [ u , v ] ≡ t
+  wk₂-[,] {t} {u} {v} =
+    wk₂ t [ u , v ]  ≡⟨ subst-wk t ⟩
+    t [ idSubst ]    ≡⟨ subst-id _ ⟩
+    t                ∎
+
+opaque
+
+  -- Applying _[ u ]↑ to a doubly weakened term amounts to the same
+  -- thing as doing nothing.
+
+  wk₂-[]↑ : wk₂ t [ u ]↑ ≡ wk₂ t
+  wk₂-[]↑ {t} {u} =
+    wk₂ t [ u ]↑                                            ≡⟨⟩
+    wk₂ t [ consSubst (wk1Subst idSubst) u ]                ≡⟨ subst-wk t ⟩
+    t [ consSubst (wk1Subst idSubst) u ₛ• step (step id) ]  ≡˘⟨ wk≡subst _ _ ⟩
+    wk₂ t                                                   ∎
+
+opaque
+
+  -- Applying _[ u ]↑ to a doubly weakened term amounts to the same
+  -- thing as doing nothing.
+
+  wk2-[]↑ : wk2 t [ u ]↑ ≡ wk2 t
+  wk2-[]↑ {t} {u} =
+    wk2 t [ u ]↑  ≡⟨ cong (_[ _ ]↑) $ wk2≡wk₂ {t = t} ⟩
+    wk₂ t [ u ]↑  ≡⟨ wk₂-[]↑ ⟩
+    wk₂ t         ≡˘⟨ wk2≡wk₂ ⟩
+    wk2 t         ∎
 
 -- Substituting variable one into t using _[_]↑² amounts to the same
 -- thing as applying wk1 to t.

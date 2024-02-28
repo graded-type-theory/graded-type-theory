@@ -486,6 +486,11 @@ wk1 = wk (step id)
 wk2 : Term n → Term (1+ (1+ n))
 wk2 = wk1 ∘→ wk1
 
+-- An alternative to wk2.
+
+wk₂ : Term n → Term (2+ n)
+wk₂ = wk (step (step id))
+
 -- Three successive uses of wk1.
 
 wk3 : Term n → Term (1+ (1+ (1+ n)))
