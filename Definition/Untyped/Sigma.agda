@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------
--- Prodrec for strong Σ-types and projections for weak Σ-types
+-- Prodrec for strong Σ-types and projections for all Σ-types
 ------------------------------------------------------------------------
 
 {-# OPTIONS --hidden-argument-puns #-}
@@ -29,10 +29,11 @@ open import Tools.PropositionalEquality
 open import Tools.Reasoning.PropositionalEquality
 
 private variable
-  n   : Nat
-  A   : Term _
-  σ   : Subst _ _
-  p q : M
+  n     : Nat
+  A B t : Term _
+  σ     : Subst _ _
+  s     : Strength
+  p q   : M
 
 -- A definition of prodrec for strong Σ-types.
 
@@ -100,3 +101,39 @@ module Fstʷ-sndʷ (r′ q′ : M) where
 -- performed in Graded.Derived.Sigma.
 
 open Fstʷ-sndʷ (𝟘 ∧ 𝟙) 𝟘 public
+
+opaque
+
+  -- A variant of fst for all kinds of Σ-types.
+
+  fst⟨_⟩ : Strength → M → Term n → Term n → Term n
+  fst⟨ 𝕤 ⟩ p _ t = fst p t
+  fst⟨ 𝕨 ⟩ p A t = fstʷ p A t
+
+opaque
+
+  -- A variant of snd for all kinds of Σ-types.
+
+  snd⟨_⟩ : Strength → M → M → Term n → Term (1+ n) → Term n → Term n
+  snd⟨ 𝕤 ⟩ p _ _ _ t = snd p t
+  snd⟨ 𝕨 ⟩ p q A B t = sndʷ p q A B t
+
+opaque
+  unfolding fst⟨_⟩
+
+  -- A substitution lemma for fst⟨_⟩.
+
+  fst⟨⟩-[] : fst⟨ s ⟩ p A t [ σ ] ≡ fst⟨ s ⟩ p (A [ σ ]) (t [ σ ])
+  fst⟨⟩-[] {s = 𝕤}         = refl
+  fst⟨⟩-[] {s = 𝕨} {A} {t} = fstʷ-[] A t
+
+opaque
+  unfolding snd⟨_⟩
+
+  -- A substitution lemma for snd⟨_⟩.
+
+  snd⟨⟩-[] :
+    snd⟨ s ⟩ p q A B t [ σ ] ≡
+    snd⟨ s ⟩ p q (A [ σ ]) (B [ liftSubst σ ]) (t [ σ ])
+  snd⟨⟩-[] {s = 𝕤}         = refl
+  snd⟨⟩-[] {s = 𝕨} {B} {t} = sndʷ-[] B t

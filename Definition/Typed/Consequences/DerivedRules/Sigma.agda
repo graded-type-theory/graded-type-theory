@@ -1154,6 +1154,166 @@ opaque
       (sndʷ-β-≡ ⊢B (fstʷⱼ ⊢t) (sndʷⱼ ⊢t) ok) }
 
 ------------------------------------------------------------------------
+-- Typing rules for fst⟨_⟩
+
+opaque
+  unfolding fst⟨_⟩
+
+  -- A typing rule for fst⟨_⟩.
+
+  ⊢fst⟨⟩ :
+    Γ ⊢ t ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B →
+    Γ ⊢ fst⟨ s ⟩ p A t ∷ A
+  ⊢fst⟨⟩ {s = 𝕤} = fstⱼ′
+  ⊢fst⟨⟩ {s = 𝕨} = fstʷⱼ
+
+opaque
+  unfolding fst⟨_⟩
+
+  -- A reduction rule for fst⟨_⟩.
+
+  fst⟨⟩-β-⇒ :
+    Γ ∙ A ⊢ B →
+    Γ ⊢ t ∷ A →
+    Γ ⊢ u ∷ B [ t ]₀ →
+    Σ-allowed s p q →
+    Γ ⊢ fst⟨ s ⟩ p A (prod s p t u) ⇒ t ∷ A
+  fst⟨⟩-β-⇒ {s = 𝕤} = Σ-β₁-⇒
+  fst⟨⟩-β-⇒ {s = 𝕨} = fstʷ-β-⇒
+
+opaque
+  unfolding fst⟨_⟩
+
+  -- Another reduction rule for fst⟨_⟩.
+
+  fst⟨⟩-subst :
+    Γ ⊢ t₁ ⇒ t₂ ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B →
+    Γ ⊢ fst⟨ s ⟩ p A t₁ ⇒ fst⟨ s ⟩ p A t₂ ∷ A
+  fst⟨⟩-subst {s = 𝕤} = fst-subst′
+  fst⟨⟩-subst {s = 𝕨} = fstʷ-subst
+
+opaque
+  unfolding fst⟨_⟩
+
+  -- An equality rule for fst⟨_⟩.
+
+  fst⟨⟩-β-≡ :
+    Γ ∙ A ⊢ B →
+    Γ ⊢ t ∷ A →
+    Γ ⊢ u ∷ B [ t ]₀ →
+    Σ-allowed s p q →
+    Γ ⊢ fst⟨ s ⟩ p A (prod s p t u) ≡ t ∷ A
+  fst⟨⟩-β-≡ {s = 𝕤} = Σ-β₁-≡
+  fst⟨⟩-β-≡ {s = 𝕨} = fstʷ-β-≡
+
+opaque
+  unfolding fst⟨_⟩
+
+  -- Another equality rule for fst⟨_⟩.
+
+  fst⟨⟩-cong :
+    Γ ⊢ A₁ ≡ A₂ →
+    Γ ⊢ t₁ ≡ t₂ ∷ Σ⟨ s ⟩ p , q ▷ A₁ ▹ B₁ →
+    Γ ⊢ fst⟨ s ⟩ p A₁ t₁ ≡ fst⟨ s ⟩ p A₂ t₂ ∷ A₁
+  fst⟨⟩-cong {s = 𝕤} = λ _ → fst-cong′
+  fst⟨⟩-cong {s = 𝕨} = fstʷ-cong
+
+------------------------------------------------------------------------
+-- Typing rules for snd⟨_⟩
+
+opaque
+  unfolding fst⟨_⟩ snd⟨_⟩
+
+  -- A typing rule for snd⟨_⟩.
+
+  ⊢snd⟨⟩ :
+    Γ ⊢ t ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B →
+    Γ ⊢ snd⟨ s ⟩ p q A B t ∷ B [ fst⟨ s ⟩ p A t ]₀
+  ⊢snd⟨⟩ {s = 𝕤} = sndⱼ′
+  ⊢snd⟨⟩ {s = 𝕨} = sndʷⱼ
+
+opaque
+  unfolding fst⟨_⟩ snd⟨_⟩
+
+  -- A reduction rule for snd⟨_⟩.
+
+  snd⟨⟩-β-⇒ :
+    Γ ∙ A ⊢ B →
+    Γ ⊢ t ∷ A →
+    Γ ⊢ u ∷ B [ t ]₀ →
+    Σ-allowed s p q →
+    Γ ⊢ snd⟨ s ⟩ p q A B (prod s p t u) ⇒ u ∷
+      B [ fst⟨ s ⟩ p A (prod s p t u) ]₀
+  snd⟨⟩-β-⇒ {s = 𝕤} = Σ-β₂-⇒
+  snd⟨⟩-β-⇒ {s = 𝕨} = sndʷ-β-⇒
+
+opaque
+  unfolding fst⟨_⟩ snd⟨_⟩
+
+  -- Another reduction rule for snd⟨_⟩.
+
+  snd⟨⟩-subst :
+    Γ ⊢ t₁ ⇒ t₂ ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B →
+    Γ ⊢ snd⟨ s ⟩ p q A B t₁ ⇒ snd⟨ s ⟩ p q A B t₂ ∷
+      B [ fst⟨ s ⟩ p A t₁ ]₀
+  snd⟨⟩-subst {s = 𝕤} = snd-subst′
+  snd⟨⟩-subst {s = 𝕨} = sndʷ-subst
+
+opaque
+  unfolding fst⟨_⟩ snd⟨_⟩
+
+  -- An equality rule for snd⟨_⟩.
+
+  snd⟨⟩-β-≡ :
+    Γ ∙ A ⊢ B →
+    Γ ⊢ t ∷ A →
+    Γ ⊢ u ∷ B [ t ]₀ →
+    Σ-allowed s p q →
+    Γ ⊢ snd⟨ s ⟩ p q A B (prod s p t u) ≡ u ∷
+      B [ fst⟨ s ⟩ p A (prod s p t u) ]₀
+  snd⟨⟩-β-≡ {s = 𝕤} = Σ-β₂-≡
+  snd⟨⟩-β-≡ {s = 𝕨} = sndʷ-β-≡
+
+opaque
+  unfolding fst⟨_⟩ snd⟨_⟩
+
+  -- Another equality rule for snd⟨_⟩.
+
+  snd⟨⟩-cong :
+    Γ ⊢ A₁ ≡ A₂ →
+    Γ ∙ A₁ ⊢ B₁ ≡ B₂ →
+    Γ ⊢ t₁ ≡ t₂ ∷ Σ⟨ s ⟩ p , q ▷ A₁ ▹ B₁ →
+    Γ ⊢ snd⟨ s ⟩ p q A₁ B₁ t₁ ≡ snd⟨ s ⟩ p q A₂ B₂ t₂ ∷
+      B₁ [ fst⟨ s ⟩ p A₁ t₁ ]₀
+  snd⟨⟩-cong {s = 𝕤} = λ _ _ → snd-cong′
+  snd⟨⟩-cong {s = 𝕨} = sndʷ-cong
+
+------------------------------------------------------------------------
+-- A propositional η-rule for fst⟨_⟩ and snd⟨_⟩
+
+opaque
+
+  -- A witness for a propositional η-rule.
+
+  Σ⟨_⟩-η-prod-fst-snd :
+    Strength → M → M → Term n → Term (1+ n) → Term n → Term n
+  Σ⟨ 𝕤 ⟩-η-prod-fst-snd = λ _ _ _ _ _ → rfl
+  Σ⟨ 𝕨 ⟩-η-prod-fst-snd = Σʷ-η-prodʷ-fstʷ-sndʷ
+
+opaque
+  unfolding Σ⟨_⟩-η-prod-fst-snd fst⟨_⟩ snd⟨_⟩
+
+  -- The η-rule's typing rule.
+
+  ⊢Σ⟨⟩-η-prod-fst-snd :
+    Γ ⊢ t ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B →
+    Γ ⊢ Σ⟨ s ⟩-η-prod-fst-snd p q A B t ∷
+      Id (Σ⟨ s ⟩ p , q ▷ A ▹ B)
+        (prod s p (fst⟨ s ⟩ p A t) (snd⟨ s ⟩ p q A B t)) t
+  ⊢Σ⟨⟩-η-prod-fst-snd {s = 𝕤} = rflⱼ′ ∘→ Σ-η-prod-fst-snd
+  ⊢Σ⟨⟩-η-prod-fst-snd {s = 𝕨} = ⊢Σʷ-η-prodʷ-fstʷ-sndʷ
+
+------------------------------------------------------------------------
 -- An inversion lemma
 
 -- Inversion lemma for fstʷ.

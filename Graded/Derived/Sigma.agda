@@ -3,6 +3,8 @@
 -- Σ-types, and vice versa
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 -- This module contains parts of an investigation of to what degree
 -- weak Σ-types can emulate strong Σ-types, and vice versa. This
 -- investigation was prompted by a question asked by an anonymous
@@ -1022,3 +1024,80 @@ sndʷₘ→𝟙≤𝟘 {p = p} {q = q} {A = A} B =
      γ ▸[ 𝟙ᵐ ] t →
      γ ▸[ 𝟙ᵐ ] sndʷ p q A B t)
 ¬sndʷₘ B 𝟙≰𝟘 hyp = 𝟙≰𝟘 (sndʷₘ→𝟙≤𝟘 B hyp)
+
+------------------------------------------------------------------------
+-- Usage lemmas for fst⟨_⟩ and snd⟨_⟩
+
+opaque
+  unfolding fst⟨_⟩
+
+  -- A usage lemma for fst⟨_⟩.
+
+  ▸fst⟨⟩ :
+    (s PE.≡ 𝕨 → ¬ 𝟘 ≤ 𝟙 ⊎ Trivial ⊎ m ≢ 𝟙ᵐ) →
+    (s PE.≡ 𝕨 → Prodrec-allowed m (𝟘 ∧ 𝟙) p 𝟘) →
+    (m PE.≡ 𝟙ᵐ → p ≤ 𝟙) →
+    γ ▸[ m ] t →
+    (s PE.≡ 𝕨 → δ ▸[ 𝟘ᵐ? ] A) →
+    𝟘ᶜ ∧ᶜ γ ▸[ m ] fst⟨ s ⟩ p A t
+  ▸fst⟨⟩ {s = 𝕨} {m} {p} hyp₁ hyp₂ hyp₃ ▸t ▸A =
+    fstʷₘ (hyp₁ PE.refl)
+      (case PE.singleton m of λ where
+         (𝟘ᵐ , PE.refl) →
+           begin
+             𝟘 ∧ 𝟘 · p  ≤⟨ ∧-decreasingʳ _ _ ⟩
+             𝟘 · p      ≡⟨ ·-zeroˡ _ ⟩
+             𝟘          ∎
+         (𝟙ᵐ , PE.refl) →
+           begin
+             𝟘 ∧ 𝟙 · p  ≤⟨ ∧-decreasingʳ _ _ ⟩
+             𝟙 · p      ≡⟨ ·-identityˡ _ ⟩
+             p          ≤⟨ hyp₃ PE.refl ⟩
+             𝟙          ∎)
+      (hyp₂ PE.refl) ▸t (▸A PE.refl)
+    where
+    open Tools.Reasoning.PartialOrder ≤-poset
+  ▸fst⟨⟩ {s = 𝕤} {m = 𝟙ᵐ} {p} {γ} _ _ hyp₃ ▸t _ = sub
+    (case is-𝟘? p of λ where
+       (yes PE.refl) →
+         case flip 𝟘ᵐ.𝟘≰𝟙 (hyp₃ PE.refl) of λ
+           not-ok →
+         fstₘ 𝟙ᵐ (▸-cong (Mode-propositional-without-𝟘ᵐ not-ok) ▸t)
+           (Mode-propositional-without-𝟘ᵐ not-ok) hyp₃
+       (no p≢𝟘) →
+         fstₘ 𝟙ᵐ (▸-cong (PE.sym $ ≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) ▸t) (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘)
+           hyp₃)
+    (begin
+       𝟘ᶜ ∧ᶜ γ  ≤⟨ ∧ᶜ-decreasingʳ _ _ ⟩
+       γ        ∎)
+    where
+    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+  ▸fst⟨⟩ {s = 𝕤} {m = 𝟘ᵐ} {γ} _ _ _ ▸t _ = sub
+    (fstₘ 𝟘ᵐ ▸t PE.refl (λ ()))
+    (begin
+       𝟘ᶜ ∧ᶜ γ  ≤⟨ ∧ᶜ-decreasingʳ _ _ ⟩
+       γ        ∎)
+    where
+    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+
+opaque
+  unfolding fst⟨_⟩ snd⟨_⟩
+
+  -- A usage lemma for snd⟨_⟩.
+
+  ▸snd⟨⟩ :
+    (s PE.≡ 𝕨 → ¬ 𝟘 ≤ 𝟙 ⊎ Trivial ⊎ m ≢ 𝟙ᵐ) →
+    (s PE.≡ 𝕨 → Prodrec-allowed m (𝟘 ∧ 𝟙) p q) →
+    γ ▸[ m ] t →
+    (s PE.≡ 𝕨 →
+     δ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] B [ fst⟨ s ⟩ p (wk1 A) (var x0) ]↑) →
+    𝟘ᶜ ∧ᶜ γ ▸[ m ] snd⟨ s ⟩ p q A B t
+  ▸snd⟨⟩ {s = 𝕨} {B} hyp₁ hyp₂ ▸t ▸B =
+    sndʷₘ (hyp₁ PE.refl) (hyp₂ PE.refl) B ▸t (▸B PE.refl)
+  ▸snd⟨⟩ {s = 𝕤} {γ} _ _ ▸t _ = sub
+    (sndₘ ▸t)
+    (begin
+       𝟘ᶜ ∧ᶜ γ  ≤⟨ ∧ᶜ-decreasingʳ _ _ ⟩
+       γ        ∎)
+    where
+    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
