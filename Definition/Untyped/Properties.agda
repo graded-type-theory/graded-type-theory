@@ -176,6 +176,21 @@ mutual
                      (subst-id t))
               (substGen-id ts)
 
+opaque
+
+  -- The identity substitution is a left identity for _ₛ•ₛ_ (in a
+  -- certain sense).
+
+  idSubst-ₛ•ₛˡ : (x : Fin n) → (idSubst ₛ•ₛ σ) x ≡ σ x
+  idSubst-ₛ•ₛˡ _ = subst-id _
+
+opaque
+
+  -- The identity substitution is a right identity for _ₛ•ₛ_ (in a
+  -- certain sense).
+
+  idSubst-ₛ•ₛʳ : (x : Fin n) → (σ ₛ•ₛ idSubst) x ≡ σ x
+  idSubst-ₛ•ₛʳ _ = refl
 
 -- Correctness of composition of weakening and substitution.
 
