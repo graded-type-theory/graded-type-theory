@@ -24,7 +24,7 @@ private
     A t u v : Term _
     ρ ρ′ : Wk m n
     η : Wk n ℓ
-    σ σ′ : Subst m n
+    σ σ₁ σ₂ σ′ : Subst m n
     p q r : M
 
 -- Extensionally equal weakenings, if applied to a term,
@@ -830,23 +830,32 @@ substCompProdrec {n = n} A t u σ = begin
                                                   subst-id t ⟩
   t [ prodˢ p u v ]₀                           ∎
 
+opaque
+
+  -- A generalisation of doubleSubstComp (given below).
+
+  doubleSubstComp′ :
+    (t : Term (2+ n)) →
+    t [ liftSubstn σ₁ 2 ] [ consSubst (consSubst σ₂ u) v ] ≡
+    t [ consSubst (consSubst (σ₂ ₛ•ₛ σ₁) u) v ]
+  doubleSubstComp′ {σ₁} {σ₂} {u} {v} t =
+    t [ liftSubstn σ₁ 2 ] [ consSubst (consSubst σ₂ u) v ]  ≡⟨ substCompEq t ⟩
+    t [ consSubst (consSubst σ₂ u) v ₛ•ₛ liftSubstn σ₁ 2 ]  ≡⟨ (flip substVar-to-subst t λ {
+                                                                  x0          → refl;
+                                                                  (x0 +1)     → refl;
+                                                                  ((x +1) +1) →
+      wk2 (σ₁ x) [ consSubst (consSubst σ₂ u) v ]                   ≡⟨ wk2-tail (σ₁ _) ⟩
+      σ₁ x [ σ₂ ]                                                   ∎ }) ⟩
+
+    t [ consSubst (consSubst (σ₂ ₛ•ₛ σ₁) u) v ]             ∎
+
 doubleSubstComp : (A : Term (2+ n)) (t u : Term m) (σ : Subst m n)
                 → A [ liftSubstn σ 2 ] [ t , u ]
                 ≡ A [ consSubst (consSubst σ t) u ]
-doubleSubstComp {n = n} A t u σ = begin
-  A [ liftSubstn σ 2 ] [ t , u ]
-    ≡⟨ substCompEq A ⟩
-  A [ consSubst (sgSubst t) u ₛ•ₛ liftSubstn σ 2 ]
-    ≡⟨ substVar-to-subst varEq A ⟩
-  A [ consSubst (consSubst σ t) u ] ∎
-  where
-  varEq : (x : Fin (2+ n))
-        → (consSubst (consSubst idSubst t) u ₛ•ₛ liftSubstn σ 2) x
-        ≡  consSubst (consSubst σ t) u x
-  varEq x0 = refl
-  varEq (x0 +1) = refl
-  varEq (x +2) = trans (wk1-tail (wk1 (σ x)))
-                       (trans (wk1-tail (σ x)) (subst-id (σ x)))
+doubleSubstComp {n} A t u σ =
+  A [ liftSubstn σ 2 ] [ t , u ]                   ≡⟨ doubleSubstComp′ A ⟩
+  A [ consSubst (consSubst (idSubst ₛ•ₛ σ) t) u ]  ≡⟨ flip substVar-to-subst A $ consSubst-cong $ consSubst-cong $ idSubst-ₛ•ₛˡ ⟩
+  A [ consSubst (consSubst σ t) u ]                ∎
 
 opaque
 
