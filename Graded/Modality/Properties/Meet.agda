@@ -2,6 +2,8 @@
 -- Properties of meet.
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 open import Graded.Modality
 
 module Graded.Modality.Properties.Meet
@@ -172,3 +174,15 @@ largest→∧≡ˡ {p = p} {q = q} ≤p =
   p ∧ 𝟘              ∎
   where
   open Tools.Reasoning.PropositionalEquality
+
+opaque
+
+  -- The grade p · (𝟘 ∧ 𝟙) is equal to 𝟘 ∧ p.
+
+  ·[𝟘∧𝟙]≡𝟘∧ : p · (𝟘 ∧ 𝟙) ≡ 𝟘 ∧ p
+  ·[𝟘∧𝟙]≡𝟘∧ {p} =
+    p · (𝟘 ∧ 𝟙)    ≡⟨ ·-distribˡ-∧ _ _ _ ⟩
+    p · 𝟘 ∧ p · 𝟙  ≡⟨ ∧-cong (·-zeroʳ _) (·-identityʳ _) ⟩
+    𝟘 ∧ p          ∎
+    where
+    open Tools.Reasoning.PropositionalEquality

@@ -106,14 +106,6 @@ private
     where
     open Tools.Reasoning.PropositionalEquality
 
-  ·[𝟘∧𝟙]≡𝟘∧ : p · (𝟘 ∧ 𝟙) PE.≡ 𝟘 ∧ p
-  ·[𝟘∧𝟙]≡𝟘∧ {p = p} =
-    p · (𝟘 ∧ 𝟙)    ≡⟨ ·-distribˡ-∧ _ _ _ ⟩
-    p · 𝟘 ∧ p · 𝟙  ≡⟨ ∧-cong (·-zeroʳ _) (·-identityʳ _) ⟩
-    𝟘 ∧ p          ∎
-    where
-    open Tools.Reasoning.PropositionalEquality
-
   ·[𝟘∧𝟙]·≡𝟘∧· : p · (𝟘 ∧ 𝟙) · q PE.≡ 𝟘 ∧ p · q
   ·[𝟘∧𝟙]·≡𝟘∧· {p = p} {q = q} =
     p · (𝟘 ∧ 𝟙) · q  ≡⟨ ·-congˡ [𝟘∧𝟙]·≡𝟘∧ ⟩
