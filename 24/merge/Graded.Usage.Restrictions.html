@@ -1,0 +1,174 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Graded.Usage.Restrictions</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- Restrictions on usage derivations</a>
+<a id="111" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="185" class="Keyword">import</a> <a id="192" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+
+<a id="209" class="Keyword">module</a> <a id="216" href="Graded.Usage.Restrictions.html" class="Module">Graded.Usage.Restrictions</a>
+  <a id="244" class="Symbol">{</a><a id="245" href="Graded.Usage.Restrictions.html#245" class="Bound">a</a><a id="246" class="Symbol">}</a> <a id="248" class="Symbol">{</a><a id="249" href="Graded.Usage.Restrictions.html#249" class="Bound">M</a> <a id="251" class="Symbol">:</a> <a id="253" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="257" href="Graded.Usage.Restrictions.html#245" class="Bound">a</a><a id="258" class="Symbol">}</a>
+  <a id="262" class="Symbol">(</a><a id="263" class="Keyword">open</a> <a id="268" href="Graded.Modality.html" class="Module">Graded.Modality</a> <a id="284" href="Graded.Usage.Restrictions.html#249" class="Bound">M</a><a id="285" class="Symbol">)</a>
+  <a id="289" class="Symbol">(</a><a id="290" href="Graded.Usage.Restrictions.html#290" class="Bound">𝕄</a> <a id="292" class="Symbol">:</a> <a id="294" href="Graded.Modality.html#7142" class="Record">Modality</a><a id="302" class="Symbol">)</a>
+  <a id="306" class="Keyword">where</a>
+
+<a id="313" class="Keyword">open</a> <a id="318" class="Keyword">import</a> <a id="325" href="Graded.Mode.html" class="Module">Graded.Mode</a> <a id="337" href="Graded.Usage.Restrictions.html#290" class="Bound">𝕄</a>
+
+<a id="340" class="Keyword">open</a> <a id="345" class="Keyword">import</a> <a id="352" href="Tools.Bool.html" class="Module">Tools.Bool</a>
+<a id="363" class="Keyword">open</a> <a id="368" class="Keyword">import</a> <a id="375" href="Tools.Function.html" class="Module">Tools.Function</a>
+<a id="390" class="Keyword">open</a> <a id="395" class="Keyword">import</a> <a id="402" href="Tools.Level.html" class="Module">Tools.Level</a>
+<a id="414" class="Keyword">open</a> <a id="419" class="Keyword">import</a> <a id="426" href="Tools.PropositionalEquality.html" class="Module">Tools.PropositionalEquality</a>
+<a id="454" class="Keyword">open</a> <a id="459" class="Keyword">import</a> <a id="466" href="Tools.Relation.html" class="Module">Tools.Relation</a>
+<a id="481" class="Keyword">open</a> <a id="486" class="Keyword">import</a> <a id="493" href="Tools.Sum.html" class="Module">Tools.Sum</a>
+<a id="503" class="Keyword">open</a> <a id="508" class="Keyword">import</a> <a id="515" href="Tools.Empty.html" class="Module">Tools.Empty</a>
+
+<a id="528" class="Keyword">private</a> <a id="536" class="Keyword">variable</a>
+  <a id="547" href="Graded.Usage.Restrictions.html#547" class="Generalizable">p</a> <a id="549" href="Graded.Usage.Restrictions.html#549" class="Generalizable">q</a> <a id="551" href="Graded.Usage.Restrictions.html#551" class="Generalizable">r</a>  <a id="554" class="Symbol">:</a> <a id="556" href="Graded.Usage.Restrictions.html#249" class="Bound">M</a>
+  <a id="560" href="Graded.Usage.Restrictions.html#560" class="Generalizable">m</a> <a id="562" href="Graded.Usage.Restrictions.html#562" class="Generalizable">m′</a>   <a id="567" class="Symbol">:</a> <a id="569" href="Graded.Mode.html#1102" class="Datatype">Mode</a>
+  <a id="576" class="Symbol">⦃</a> <a id="578" href="Graded.Usage.Restrictions.html#578" class="Generalizable">ok</a> <a id="581" class="Symbol">⦄</a> <a id="583" class="Symbol">:</a> <a id="585" href="Data.Bool.Base.html#1348" class="Function">T</a> <a id="587" class="Symbol">_</a>
+
+<a id="590" class="Comment">-- Restrictions on/choices for usage derivations.</a>
+
+<a id="641" class="Keyword">record</a> <a id="Usage-restrictions"></a><a id="648" href="Graded.Usage.Restrictions.html#648" class="Record">Usage-restrictions</a> <a id="667" class="Symbol">:</a> <a id="669" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="673" class="Symbol">(</a><a id="674" href="Agda.Primitive.html#931" class="Primitive">lsuc</a> <a id="679" href="Graded.Usage.Restrictions.html#245" class="Bound">a</a><a id="680" class="Symbol">)</a> <a id="682" class="Keyword">where</a>
+  <a id="690" class="Keyword">no-eta-equality</a>
+  <a id="708" class="Keyword">field</a>
+    <a id="718" class="Comment">-- The prodrec constructor&#39;s quantities have to satisfy this</a>
+    <a id="783" class="Comment">-- predicate (for the current mode).</a>
+    <a id="Usage-restrictions.Prodrec-allowed"></a><a id="824" href="Graded.Usage.Restrictions.html#824" class="Field">Prodrec-allowed</a> <a id="840" class="Symbol">:</a> <a id="842" href="Graded.Mode.html#1102" class="Datatype">Mode</a> <a id="847" class="Symbol">→</a> <a id="849" class="Symbol">(</a><a id="850" href="Graded.Usage.Restrictions.html#850" class="Bound">r</a> <a id="852" href="Graded.Usage.Restrictions.html#852" class="Bound">p</a> <a id="854" href="Graded.Usage.Restrictions.html#854" class="Bound">q</a> <a id="856" class="Symbol">:</a> <a id="858" href="Graded.Usage.Restrictions.html#249" class="Bound">M</a><a id="859" class="Symbol">)</a> <a id="861" class="Symbol">→</a> <a id="863" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="867" href="Graded.Usage.Restrictions.html#245" class="Bound">a</a>
+
+    <a id="874" class="Comment">-- Prodrec-allowed is downwards closed in the mode (if 𝟙ᵐ is seen</a>
+    <a id="944" class="Comment">-- as a largest element).</a>
+    <a id="Usage-restrictions.Prodrec-allowed-downwards-closed"></a><a id="974" href="Graded.Usage.Restrictions.html#974" class="Field">Prodrec-allowed-downwards-closed</a> <a id="1007" class="Symbol">:</a>
+      <a id="1015" href="Graded.Usage.Restrictions.html#824" class="Field">Prodrec-allowed</a> <a id="1031" href="Graded.Mode.html#1157" class="InductiveConstructor">𝟙ᵐ</a> <a id="1034" href="Graded.Usage.Restrictions.html#551" class="Generalizable">r</a> <a id="1036" href="Graded.Usage.Restrictions.html#547" class="Generalizable">p</a> <a id="1038" href="Graded.Usage.Restrictions.html#549" class="Generalizable">q</a> <a id="1040" class="Symbol">→</a> <a id="1042" href="Graded.Usage.Restrictions.html#824" class="Field">Prodrec-allowed</a> <a id="1058" href="Graded.Mode.html#1176" class="InductiveConstructor Operator">𝟘ᵐ[</a> <a id="1062" href="Graded.Usage.Restrictions.html#578" class="Generalizable">ok</a> <a id="1065" href="Graded.Mode.html#1176" class="InductiveConstructor Operator">]</a> <a id="1067" href="Graded.Usage.Restrictions.html#551" class="Generalizable">r</a> <a id="1069" href="Graded.Usage.Restrictions.html#547" class="Generalizable">p</a> <a id="1071" href="Graded.Usage.Restrictions.html#549" class="Generalizable">q</a>
+
+    <a id="1078" class="Comment">-- The unitrec constructor&#39;s quantities have to satisfy this</a>
+    <a id="1143" class="Comment">-- predicate (for the current mode).</a>
+    <a id="Usage-restrictions.Unitrec-allowed"></a><a id="1184" href="Graded.Usage.Restrictions.html#1184" class="Field">Unitrec-allowed</a> <a id="1200" class="Symbol">:</a> <a id="1202" href="Graded.Mode.html#1102" class="Datatype">Mode</a> <a id="1207" class="Symbol">→</a> <a id="1209" class="Symbol">(</a><a id="1210" href="Graded.Usage.Restrictions.html#1210" class="Bound">p</a> <a id="1212" href="Graded.Usage.Restrictions.html#1212" class="Bound">q</a> <a id="1214" class="Symbol">:</a> <a id="1216" href="Graded.Usage.Restrictions.html#249" class="Bound">M</a><a id="1217" class="Symbol">)</a> <a id="1219" class="Symbol">→</a> <a id="1221" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="1225" href="Graded.Usage.Restrictions.html#245" class="Bound">a</a>
+
+    <a id="1232" class="Comment">-- Unitrec-allowed is downwards closed in the mode (if 𝟙ᵐ is seen</a>
+    <a id="1302" class="Comment">-- as a largest element).</a>
+    <a id="Usage-restrictions.Unitrec-allowed-downwards-closed"></a><a id="1332" href="Graded.Usage.Restrictions.html#1332" class="Field">Unitrec-allowed-downwards-closed</a> <a id="1365" class="Symbol">:</a>
+      <a id="1373" href="Graded.Usage.Restrictions.html#1184" class="Field">Unitrec-allowed</a> <a id="1389" href="Graded.Mode.html#1157" class="InductiveConstructor">𝟙ᵐ</a> <a id="1392" href="Graded.Usage.Restrictions.html#547" class="Generalizable">p</a> <a id="1394" href="Graded.Usage.Restrictions.html#549" class="Generalizable">q</a> <a id="1396" class="Symbol">→</a> <a id="1398" href="Graded.Usage.Restrictions.html#1184" class="Field">Unitrec-allowed</a> <a id="1414" href="Graded.Mode.html#1176" class="InductiveConstructor Operator">𝟘ᵐ[</a> <a id="1418" href="Graded.Usage.Restrictions.html#578" class="Generalizable">ok</a> <a id="1421" href="Graded.Mode.html#1176" class="InductiveConstructor Operator">]</a> <a id="1423" href="Graded.Usage.Restrictions.html#547" class="Generalizable">p</a> <a id="1425" href="Graded.Usage.Restrictions.html#549" class="Generalizable">q</a>
+
+    <a id="1432" class="Comment">-- Should the strong unit type act as a &quot;sink&quot;?</a>
+    <a id="Usage-restrictions.starˢ-sink"></a><a id="1484" href="Graded.Usage.Restrictions.html#1484" class="Field">starˢ-sink</a> <a id="1495" class="Symbol">:</a> <a id="1497" href="Agda.Builtin.Bool.html#173" class="Datatype">Bool</a>
+
+    <a id="1507" class="Comment">-- Are most things erased in the usage rule for Id?</a>
+    <a id="Usage-restrictions.Id-erased"></a><a id="1563" href="Graded.Usage.Restrictions.html#1563" class="Field">Id-erased</a> <a id="1573" class="Symbol">:</a> <a id="1575" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="1579" href="Graded.Usage.Restrictions.html#245" class="Bound">a</a>
+
+    <a id="1586" class="Comment">-- Id-erased is decided.</a>
+    <a id="Usage-restrictions.Id-erased?"></a><a id="1615" href="Graded.Usage.Restrictions.html#1615" class="Field">Id-erased?</a> <a id="1626" class="Symbol">:</a> <a id="1628" href="Relation.Nullary.Decidable.Core.html#1485" class="Record">Dec</a> <a id="1632" href="Graded.Usage.Restrictions.html#1563" class="Field">Id-erased</a>
+
+    <a id="1647" class="Comment">-- Are erased matches allowed for the J rule (for the current</a>
+    <a id="1713" class="Comment">-- mode)? In that case all arguments but one are erased, and the</a>
+    <a id="1782" class="Comment">-- non-erased argument is treated as &quot;linear&quot;.</a>
+    <a id="Usage-restrictions.Erased-matches-for-J"></a><a id="1833" href="Graded.Usage.Restrictions.html#1833" class="Field">Erased-matches-for-J</a> <a id="1854" class="Symbol">:</a> <a id="1856" href="Graded.Mode.html#1102" class="Datatype">Mode</a> <a id="1861" class="Symbol">→</a> <a id="1863" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="1867" href="Graded.Usage.Restrictions.html#245" class="Bound">a</a>
+
+    <a id="1874" class="Comment">-- Erased-matches-for-J is pointwise decided.</a>
+    <a id="Usage-restrictions.Erased-matches-for-J?"></a><a id="1924" href="Graded.Usage.Restrictions.html#1924" class="Field">Erased-matches-for-J?</a> <a id="1946" class="Symbol">:</a> <a id="1948" class="Symbol">∀</a> <a id="1950" href="Graded.Usage.Restrictions.html#1950" class="Bound">m</a> <a id="1952" class="Symbol">→</a> <a id="1954" href="Relation.Nullary.Decidable.Core.html#1485" class="Record">Dec</a> <a id="1958" class="Symbol">(</a><a id="1959" href="Graded.Usage.Restrictions.html#1833" class="Field">Erased-matches-for-J</a> <a id="1980" href="Graded.Usage.Restrictions.html#1950" class="Bound">m</a><a id="1981" class="Symbol">)</a>
+
+    <a id="1988" class="Comment">-- Erased-matches-for-J is downwards closed (if 𝟙ᵐ is seen as a</a>
+    <a id="2056" class="Comment">-- largest element).</a>
+    <a id="Usage-restrictions.Erased-matches-for-J-downwards-closed"></a><a id="2081" href="Graded.Usage.Restrictions.html#2081" class="Field">Erased-matches-for-J-downwards-closed</a> <a id="2119" class="Symbol">:</a>
+      <a id="2127" href="Graded.Usage.Restrictions.html#1833" class="Field">Erased-matches-for-J</a> <a id="2148" href="Graded.Mode.html#1157" class="InductiveConstructor">𝟙ᵐ</a> <a id="2151" class="Symbol">→</a> <a id="2153" href="Graded.Usage.Restrictions.html#1833" class="Field">Erased-matches-for-J</a> <a id="2174" href="Graded.Mode.html#1176" class="InductiveConstructor Operator">𝟘ᵐ[</a> <a id="2178" href="Graded.Usage.Restrictions.html#578" class="Generalizable">ok</a> <a id="2181" href="Graded.Mode.html#1176" class="InductiveConstructor Operator">]</a>
+
+    <a id="2188" class="Comment">-- Are erased matches allowed for the K rule (for the current</a>
+    <a id="2254" class="Comment">-- mode)? In that case all arguments but one are erased, and the</a>
+    <a id="2323" class="Comment">-- non-erased argument is treated as &quot;linear&quot;.</a>
+    <a id="Usage-restrictions.Erased-matches-for-K"></a><a id="2374" href="Graded.Usage.Restrictions.html#2374" class="Field">Erased-matches-for-K</a> <a id="2395" class="Symbol">:</a> <a id="2397" href="Graded.Mode.html#1102" class="Datatype">Mode</a> <a id="2402" class="Symbol">→</a> <a id="2404" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="2408" href="Graded.Usage.Restrictions.html#245" class="Bound">a</a>
+
+    <a id="2415" class="Comment">-- Erased-matches-for-K is pointwise decided.</a>
+    <a id="Usage-restrictions.Erased-matches-for-K?"></a><a id="2465" href="Graded.Usage.Restrictions.html#2465" class="Field">Erased-matches-for-K?</a> <a id="2487" class="Symbol">:</a> <a id="2489" class="Symbol">∀</a> <a id="2491" href="Graded.Usage.Restrictions.html#2491" class="Bound">m</a> <a id="2493" class="Symbol">→</a> <a id="2495" href="Relation.Nullary.Decidable.Core.html#1485" class="Record">Dec</a> <a id="2499" class="Symbol">(</a><a id="2500" href="Graded.Usage.Restrictions.html#2374" class="Field">Erased-matches-for-K</a> <a id="2521" href="Graded.Usage.Restrictions.html#2491" class="Bound">m</a><a id="2522" class="Symbol">)</a>
+
+    <a id="2529" class="Comment">-- Erased-matches-for-K is downwards closed (if 𝟙ᵐ is seen as a</a>
+    <a id="2597" class="Comment">-- largest element).</a>
+    <a id="Usage-restrictions.Erased-matches-for-K-downwards-closed"></a><a id="2622" href="Graded.Usage.Restrictions.html#2622" class="Field">Erased-matches-for-K-downwards-closed</a> <a id="2660" class="Symbol">:</a>
+      <a id="2668" href="Graded.Usage.Restrictions.html#2374" class="Field">Erased-matches-for-K</a> <a id="2689" href="Graded.Mode.html#1157" class="InductiveConstructor">𝟙ᵐ</a> <a id="2692" class="Symbol">→</a> <a id="2694" href="Graded.Usage.Restrictions.html#2374" class="Field">Erased-matches-for-K</a> <a id="2715" href="Graded.Mode.html#1176" class="InductiveConstructor Operator">𝟘ᵐ[</a> <a id="2719" href="Graded.Usage.Restrictions.html#578" class="Generalizable">ok</a> <a id="2722" href="Graded.Mode.html#1176" class="InductiveConstructor Operator">]</a>
+
+  <a id="2727" class="Keyword">private</a> <a id="2735" class="Keyword">opaque</a>
+
+    <a id="2747" class="Comment">-- A lemma used to implement Prodrec-allowed-·ᵐ and some other</a>
+    <a id="2814" class="Comment">-- lemmas.</a>
+
+    <a id="Usage-restrictions.·ᵐ-lemma"></a><a id="2830" href="Graded.Usage.Restrictions.html#2830" class="Function">·ᵐ-lemma</a> <a id="2839" class="Symbol">:</a>
+      <a id="2847" class="Symbol">(</a><a id="2848" href="Graded.Usage.Restrictions.html#2848" class="Bound">P</a> <a id="2850" class="Symbol">:</a> <a id="2852" href="Graded.Mode.html#1102" class="Datatype">Mode</a> <a id="2857" class="Symbol">→</a> <a id="2859" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="2863" href="Graded.Usage.Restrictions.html#245" class="Bound">a</a><a id="2864" class="Symbol">)</a> <a id="2866" class="Symbol">→</a>
+      <a id="2874" class="Symbol">(∀</a> <a id="2877" class="Symbol">⦃</a> <a id="2879" href="Graded.Usage.Restrictions.html#2879" class="Bound">ok</a> <a id="2882" class="Symbol">⦄</a> <a id="2884" class="Symbol">→</a> <a id="2886" href="Graded.Usage.Restrictions.html#2848" class="Bound">P</a> <a id="2888" href="Graded.Mode.html#1157" class="InductiveConstructor">𝟙ᵐ</a> <a id="2891" class="Symbol">→</a> <a id="2893" href="Graded.Usage.Restrictions.html#2848" class="Bound">P</a> <a id="2895" href="Graded.Mode.html#1176" class="InductiveConstructor Operator">𝟘ᵐ[</a> <a id="2899" href="Graded.Usage.Restrictions.html#2879" class="Bound">ok</a> <a id="2902" href="Graded.Mode.html#1176" class="InductiveConstructor Operator">]</a><a id="2903" class="Symbol">)</a> <a id="2905" class="Symbol">→</a>
+      <a id="2913" href="Graded.Usage.Restrictions.html#2848" class="Bound">P</a> <a id="2915" href="Graded.Usage.Restrictions.html#560" class="Generalizable">m</a> <a id="2917" class="Symbol">→</a> <a id="2919" href="Graded.Usage.Restrictions.html#2848" class="Bound">P</a> <a id="2921" class="Symbol">(</a><a id="2922" href="Graded.Usage.Restrictions.html#562" class="Generalizable">m′</a> <a id="2925" href="Graded.Mode.html#4717" class="Function Operator">·ᵐ</a> <a id="2928" href="Graded.Usage.Restrictions.html#560" class="Generalizable">m</a><a id="2929" class="Symbol">)</a>
+    <a id="2935" href="Graded.Usage.Restrictions.html#2830" class="Function">·ᵐ-lemma</a> <a id="2944" class="Symbol">{</a><a id="2945" class="Argument">m′</a> <a id="2948" class="Symbol">=</a> <a id="2950" href="Graded.Mode.html#1157" class="InductiveConstructor">𝟙ᵐ</a><a id="2952" class="Symbol">}</a> <a id="2954" class="Symbol">_</a> <a id="2956" class="Symbol">_</a> <a id="2958" class="Symbol">=</a>
+      <a id="2966" href="Function.Base.html#704" class="Function">idᶠ</a>
+    <a id="2974" href="Graded.Usage.Restrictions.html#2830" class="Function">·ᵐ-lemma</a> <a id="2983" class="Symbol">{</a><a id="2984" class="Argument">m</a> <a id="2986" class="Symbol">=</a> <a id="2988" href="Graded.Mode.html#1157" class="InductiveConstructor">𝟙ᵐ</a><a id="2990" class="Symbol">}</a> <a id="2992" class="Symbol">{</a><a id="2993" class="Argument">m′</a> <a id="2996" class="Symbol">=</a> <a id="2998" href="Graded.Mode.html#1121" class="InductiveConstructor">𝟘ᵐ</a><a id="3000" class="Symbol">}</a> <a id="3002" class="Symbol">_</a> <a id="3004" href="Graded.Usage.Restrictions.html#3004" class="Bound">hyp</a> <a id="3008" class="Symbol">=</a>
+      <a id="3016" href="Graded.Usage.Restrictions.html#3004" class="Bound">hyp</a>
+    <a id="3024" href="Graded.Usage.Restrictions.html#2830" class="Function">·ᵐ-lemma</a> <a id="3033" class="Symbol">{</a><a id="3034" class="Argument">m</a> <a id="3036" class="Symbol">=</a> <a id="3038" href="Graded.Mode.html#1176" class="InductiveConstructor Operator">𝟘ᵐ[</a> <a id="3042" href="Graded.Usage.Restrictions.html#3042" class="Bound">ok</a> <a id="3045" href="Graded.Mode.html#1176" class="InductiveConstructor Operator">]</a><a id="3046" class="Symbol">}</a> <a id="3048" class="Symbol">{</a><a id="3049" class="Argument">m′</a> <a id="3052" class="Symbol">=</a> <a id="3054" href="Graded.Mode.html#1121" class="InductiveConstructor">𝟘ᵐ</a><a id="3056" class="Symbol">}</a> <a id="3058" href="Graded.Usage.Restrictions.html#3058" class="Bound">P</a> <a id="3060" href="Graded.Usage.Restrictions.html#3060" class="Bound">hyp</a> <a id="3064" class="Symbol">=</a>
+      <a id="3072" href="Relation.Binary.PropositionalEquality.Core.html#1808" class="Function">subst</a> <a id="3078" class="Symbol">(λ</a> <a id="3081" href="Graded.Usage.Restrictions.html#3081" class="Bound">m</a> <a id="3083" class="Symbol">→</a> <a id="3085" href="Graded.Usage.Restrictions.html#3058" class="Bound">P</a> <a id="3087" href="Graded.Mode.html#1176" class="InductiveConstructor Operator">𝟘ᵐ[</a> <a id="3091" href="Graded.Usage.Restrictions.html#3042" class="Bound">ok</a> <a id="3094" href="Graded.Mode.html#1176" class="InductiveConstructor Operator">]</a> <a id="3096" class="Symbol">→</a> <a id="3098" href="Graded.Usage.Restrictions.html#3058" class="Bound">P</a> <a id="3100" href="Graded.Usage.Restrictions.html#3081" class="Bound">m</a><a id="3101" class="Symbol">)</a> <a id="3103" href="Graded.Mode.html#2333" class="Function">𝟘ᵐ-cong</a> <a id="3111" href="Function.Base.html#704" class="Function">idᶠ</a>
+
+  <a id="3118" class="Keyword">opaque</a>
+
+    <a id="3130" class="Comment">-- Prodrec-allowed is closed under application of m′ ·ᵐ_ to the</a>
+    <a id="3198" class="Comment">-- mode.</a>
+
+    <a id="Usage-restrictions.Prodrec-allowed-·ᵐ"></a><a id="3212" href="Graded.Usage.Restrictions.html#3212" class="Function">Prodrec-allowed-·ᵐ</a> <a id="3231" class="Symbol">:</a>
+      <a id="3239" href="Graded.Usage.Restrictions.html#824" class="Field">Prodrec-allowed</a> <a id="3255" href="Graded.Usage.Restrictions.html#560" class="Generalizable">m</a> <a id="3257" href="Graded.Usage.Restrictions.html#551" class="Generalizable">r</a> <a id="3259" href="Graded.Usage.Restrictions.html#547" class="Generalizable">p</a> <a id="3261" href="Graded.Usage.Restrictions.html#549" class="Generalizable">q</a> <a id="3263" class="Symbol">→</a> <a id="3265" href="Graded.Usage.Restrictions.html#824" class="Field">Prodrec-allowed</a> <a id="3281" class="Symbol">(</a><a id="3282" href="Graded.Usage.Restrictions.html#562" class="Generalizable">m′</a> <a id="3285" href="Graded.Mode.html#4717" class="Function Operator">·ᵐ</a> <a id="3288" href="Graded.Usage.Restrictions.html#560" class="Generalizable">m</a><a id="3289" class="Symbol">)</a> <a id="3291" href="Graded.Usage.Restrictions.html#551" class="Generalizable">r</a> <a id="3293" href="Graded.Usage.Restrictions.html#547" class="Generalizable">p</a> <a id="3295" href="Graded.Usage.Restrictions.html#549" class="Generalizable">q</a>
+    <a id="3301" href="Graded.Usage.Restrictions.html#3212" class="Function">Prodrec-allowed-·ᵐ</a> <a id="3320" class="Symbol">=</a>
+      <a id="3328" href="Graded.Usage.Restrictions.html#2830" class="Function">·ᵐ-lemma</a> <a id="3337" class="Symbol">(λ</a> <a id="3340" href="Graded.Usage.Restrictions.html#3340" class="Bound">m</a> <a id="3342" class="Symbol">→</a> <a id="3344" href="Graded.Usage.Restrictions.html#824" class="Field">Prodrec-allowed</a> <a id="3360" href="Graded.Usage.Restrictions.html#3340" class="Bound">m</a> <a id="3362" class="Symbol">_</a> <a id="3364" class="Symbol">_</a> <a id="3366" class="Symbol">_)</a>
+        <a id="3377" href="Graded.Usage.Restrictions.html#974" class="Field">Prodrec-allowed-downwards-closed</a>
+
+  <a id="3413" class="Keyword">opaque</a>
+
+    <a id="3425" class="Comment">-- Unitrec-allowed is closed under application of m′ ·ᵐ_ to the</a>
+    <a id="3493" class="Comment">-- mode.</a>
+
+    <a id="Usage-restrictions.Unitrec-allowed-·ᵐ"></a><a id="3507" href="Graded.Usage.Restrictions.html#3507" class="Function">Unitrec-allowed-·ᵐ</a> <a id="3526" class="Symbol">:</a>
+      <a id="3534" href="Graded.Usage.Restrictions.html#1184" class="Field">Unitrec-allowed</a> <a id="3550" href="Graded.Usage.Restrictions.html#560" class="Generalizable">m</a> <a id="3552" href="Graded.Usage.Restrictions.html#547" class="Generalizable">p</a> <a id="3554" href="Graded.Usage.Restrictions.html#549" class="Generalizable">q</a> <a id="3556" class="Symbol">→</a> <a id="3558" href="Graded.Usage.Restrictions.html#1184" class="Field">Unitrec-allowed</a> <a id="3574" class="Symbol">(</a><a id="3575" href="Graded.Usage.Restrictions.html#562" class="Generalizable">m′</a> <a id="3578" href="Graded.Mode.html#4717" class="Function Operator">·ᵐ</a> <a id="3581" href="Graded.Usage.Restrictions.html#560" class="Generalizable">m</a><a id="3582" class="Symbol">)</a> <a id="3584" href="Graded.Usage.Restrictions.html#547" class="Generalizable">p</a> <a id="3586" href="Graded.Usage.Restrictions.html#549" class="Generalizable">q</a>
+    <a id="3592" href="Graded.Usage.Restrictions.html#3507" class="Function">Unitrec-allowed-·ᵐ</a> <a id="3611" class="Symbol">=</a>
+      <a id="3619" href="Graded.Usage.Restrictions.html#2830" class="Function">·ᵐ-lemma</a> <a id="3628" class="Symbol">(λ</a> <a id="3631" href="Graded.Usage.Restrictions.html#3631" class="Bound">m</a> <a id="3633" class="Symbol">→</a> <a id="3635" href="Graded.Usage.Restrictions.html#1184" class="Field">Unitrec-allowed</a> <a id="3651" href="Graded.Usage.Restrictions.html#3631" class="Bound">m</a> <a id="3653" class="Symbol">_</a> <a id="3655" class="Symbol">_)</a>
+        <a id="3666" href="Graded.Usage.Restrictions.html#1332" class="Field">Unitrec-allowed-downwards-closed</a>
+
+  <a id="3702" class="Comment">-- Does the strong unit type act as a &quot;sink&quot;?</a>
+
+  <a id="Usage-restrictions.Starˢ-sink"></a><a id="3751" href="Graded.Usage.Restrictions.html#3751" class="Function">Starˢ-sink</a> <a id="3762" class="Symbol">:</a> <a id="3764" href="Agda.Primitive.html#388" class="Primitive">Set</a>
+  <a id="3770" href="Graded.Usage.Restrictions.html#3751" class="Function">Starˢ-sink</a> <a id="3781" class="Symbol">=</a> <a id="3783" href="Data.Bool.Base.html#1348" class="Function">T</a> <a id="3785" href="Graded.Usage.Restrictions.html#1484" class="Field">starˢ-sink</a>
+
+  <a id="3799" class="Comment">-- Does the strong unit type not act as a &quot;sink&quot;?</a>
+  <a id="3851" class="Comment">--</a>
+  <a id="3856" class="Comment">-- This type is used instead of ¬ Starˢ-sink because &quot;¬ A&quot; does not</a>
+  <a id="3926" class="Comment">-- work well as the type of an instance argument.</a>
+
+  <a id="Usage-restrictions.¬Starˢ-sink"></a><a id="3979" href="Graded.Usage.Restrictions.html#3979" class="Function">¬Starˢ-sink</a> <a id="3991" class="Symbol">:</a> <a id="3993" href="Agda.Primitive.html#388" class="Primitive">Set</a>
+  <a id="3999" href="Graded.Usage.Restrictions.html#3979" class="Function">¬Starˢ-sink</a> <a id="4011" class="Symbol">=</a> <a id="4013" href="Data.Bool.Base.html#1348" class="Function">T</a> <a id="4015" class="Symbol">(</a><a id="4016" href="Data.Bool.Base.html#941" class="Function">not</a> <a id="4020" href="Graded.Usage.Restrictions.html#1484" class="Field">starˢ-sink</a><a id="4030" class="Symbol">)</a>
+
+  <a id="4035" class="Comment">-- The strong unit type is not allowed to both act and not act as a</a>
+  <a id="4105" class="Comment">-- sink.</a>
+
+  <a id="Usage-restrictions.not-sink-and-no-sink"></a><a id="4117" href="Graded.Usage.Restrictions.html#4117" class="Function">not-sink-and-no-sink</a> <a id="4138" class="Symbol">:</a> <a id="4140" href="Graded.Usage.Restrictions.html#3751" class="Function">Starˢ-sink</a> <a id="4151" class="Symbol">→</a> <a id="4153" href="Graded.Usage.Restrictions.html#3979" class="Function">¬Starˢ-sink</a> <a id="4165" class="Symbol">→</a> <a id="4167" href="Data.Empty.html#895" class="Function">⊥</a>
+  <a id="4171" href="Graded.Usage.Restrictions.html#4117" class="Function">not-sink-and-no-sink</a> <a id="4192" href="Graded.Usage.Restrictions.html#4192" class="Bound">sink</a> <a id="4197" href="Graded.Usage.Restrictions.html#4197" class="Bound">¬sink</a> <a id="4203" class="Keyword">with</a> <a id="4208" href="Graded.Usage.Restrictions.html#1484" class="Field">starˢ-sink</a>
+  <a id="4221" class="Symbol">…</a> <a id="4223" class="Symbol">|</a> <a id="4225" href="Agda.Builtin.Bool.html#192" class="InductiveConstructor">false</a> <a id="4231" class="Symbol">=</a> <a id="4233" class="Bound">sink</a>
+  <a id="4240" class="Symbol">…</a> <a id="4242" class="Symbol">|</a> <a id="4244" href="Agda.Builtin.Bool.html#198" class="InductiveConstructor">true</a> <a id="4249" class="Symbol">=</a> <a id="4251" class="Bound">¬sink</a>
+
+  <a id="4260" class="Comment">-- The strong unit type either acts or does not act as a sink.</a>
+
+  <a id="Usage-restrictions.sink-or-no-sink"></a><a id="4326" href="Graded.Usage.Restrictions.html#4326" class="Function">sink-or-no-sink</a> <a id="4342" class="Symbol">:</a> <a id="4344" href="Graded.Usage.Restrictions.html#3751" class="Function">Starˢ-sink</a> <a id="4355" href="Data.Sum.Base.html#625" class="Datatype Operator">⊎</a> <a id="4357" href="Graded.Usage.Restrictions.html#3979" class="Function">¬Starˢ-sink</a>
+  <a id="4371" href="Graded.Usage.Restrictions.html#4326" class="Function">sink-or-no-sink</a> <a id="4387" class="Keyword">with</a> <a id="4392" href="Graded.Usage.Restrictions.html#1484" class="Field">starˢ-sink</a>
+  <a id="4405" href="Graded.Usage.Restrictions.html#4326" class="Function">…</a> <a id="4407" class="Symbol">|</a> <a id="4409" href="Agda.Builtin.Bool.html#192" class="InductiveConstructor">false</a> <a id="4415" class="Symbol">=</a> <a id="4417" href="Data.Sum.Base.html#700" class="InductiveConstructor">inj₂</a> <a id="4422" class="Symbol">_</a>
+  <a id="4426" href="Graded.Usage.Restrictions.html#4326" class="Function">…</a> <a id="4428" class="Symbol">|</a> <a id="4430" href="Agda.Builtin.Bool.html#198" class="InductiveConstructor">true</a> <a id="4435" class="Symbol">=</a> <a id="4437" href="Data.Sum.Base.html#675" class="InductiveConstructor">inj₁</a> <a id="4442" class="Symbol">_</a>
+
+  <a id="4447" class="Keyword">opaque</a>
+
+    <a id="4459" class="Comment">-- Erased-matches-for-J is closed under application of m′ ·ᵐ_ to</a>
+    <a id="4528" class="Comment">-- the mode.</a>
+
+    <a id="Usage-restrictions.Erased-matches-for-J-·ᵐ"></a><a id="4546" href="Graded.Usage.Restrictions.html#4546" class="Function">Erased-matches-for-J-·ᵐ</a> <a id="4570" class="Symbol">:</a>
+      <a id="4578" href="Graded.Usage.Restrictions.html#1833" class="Field">Erased-matches-for-J</a> <a id="4599" href="Graded.Usage.Restrictions.html#560" class="Generalizable">m</a> <a id="4601" class="Symbol">→</a> <a id="4603" href="Graded.Usage.Restrictions.html#1833" class="Field">Erased-matches-for-J</a> <a id="4624" class="Symbol">(</a><a id="4625" href="Graded.Usage.Restrictions.html#562" class="Generalizable">m′</a> <a id="4628" href="Graded.Mode.html#4717" class="Function Operator">·ᵐ</a> <a id="4631" href="Graded.Usage.Restrictions.html#560" class="Generalizable">m</a><a id="4632" class="Symbol">)</a>
+    <a id="4638" href="Graded.Usage.Restrictions.html#4546" class="Function">Erased-matches-for-J-·ᵐ</a> <a id="4662" class="Symbol">=</a>
+      <a id="4670" href="Graded.Usage.Restrictions.html#2830" class="Function">·ᵐ-lemma</a> <a id="4679" href="Graded.Usage.Restrictions.html#1833" class="Field">Erased-matches-for-J</a>
+        <a id="4708" href="Graded.Usage.Restrictions.html#2081" class="Field">Erased-matches-for-J-downwards-closed</a>
+
+  <a id="4749" class="Keyword">opaque</a>
+
+    <a id="4761" class="Comment">-- Erased-matches-for-K is closed under application of m′ ·ᵐ_ to</a>
+    <a id="4830" class="Comment">-- the mode.</a>
+
+    <a id="Usage-restrictions.Erased-matches-for-K-·ᵐ"></a><a id="4848" href="Graded.Usage.Restrictions.html#4848" class="Function">Erased-matches-for-K-·ᵐ</a> <a id="4872" class="Symbol">:</a>
+      <a id="4880" href="Graded.Usage.Restrictions.html#2374" class="Field">Erased-matches-for-K</a> <a id="4901" href="Graded.Usage.Restrictions.html#560" class="Generalizable">m</a> <a id="4903" class="Symbol">→</a> <a id="4905" href="Graded.Usage.Restrictions.html#2374" class="Field">Erased-matches-for-K</a> <a id="4926" class="Symbol">(</a><a id="4927" href="Graded.Usage.Restrictions.html#562" class="Generalizable">m′</a> <a id="4930" href="Graded.Mode.html#4717" class="Function Operator">·ᵐ</a> <a id="4933" href="Graded.Usage.Restrictions.html#560" class="Generalizable">m</a><a id="4934" class="Symbol">)</a>
+    <a id="4940" href="Graded.Usage.Restrictions.html#4848" class="Function">Erased-matches-for-K-·ᵐ</a> <a id="4964" class="Symbol">=</a>
+      <a id="4972" href="Graded.Usage.Restrictions.html#2830" class="Function">·ᵐ-lemma</a> <a id="4981" href="Graded.Usage.Restrictions.html#2374" class="Field">Erased-matches-for-K</a>
+        <a id="5010" href="Graded.Usage.Restrictions.html#2622" class="Field">Erased-matches-for-K-downwards-closed</a>
+</pre></body></html>
