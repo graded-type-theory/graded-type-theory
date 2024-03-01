@@ -18,6 +18,7 @@ open Modality 𝕄
 open import Definition.Untyped M as U
 open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Sigma 𝕄
 
 import Graded.Derived.Erased.Eta.Untyped 𝕄 as Eta
 import Graded.Derived.Erased.NoEta.Untyped 𝕄 as NoEta
@@ -106,3 +107,163 @@ opaque
       B U.[ liftSubst σ ] [ erased (wk1 A) (var x0) U.[ liftSubst σ ] ]↑  ≡⟨ PE.cong (B U.[ _ ] [_]↑) erased-[] ⟩
       B U.[ liftSubst σ ] [ erased (wk1 A U.[ liftSubst σ ]) (var x0) ]↑  ≡⟨ PE.cong (λ A → B U.[ _ ] [ erased A _ ]↑) $ wk1-liftSubst A ⟩
       B U.[ liftSubst σ ] [ erased (wk1 (A U.[ σ ])) (var x0) ]↑          ∎
+
+opaque
+
+  -- An alternative to J 𝟘 𝟘.
+
+  Jᵉ : Term n → Term n → Term (2+ n) → Term n → Term n → Term n → Term n
+  Jᵉ {n} A t B u v w =
+    substᵉ Singleton
+      (B U.[ consSubst
+               (consSubst (wk1Subst idSubst)
+                  (fst⟨ s ⟩ 𝟘 (wk1 A) (var x0)))
+               (snd⟨ s ⟩ 𝟘 𝟘 (wk1 A) (Id (wk₂ A) (wk₂ t) (var x0))
+                  (var x0)) ])
+      (prod s 𝟘 t rfl)
+      (prod s 𝟘 v w)
+      (J 𝟘 (𝟘 ∧ 𝟙) A t
+         (Id (wk₂ Singleton) (wk₂ (prod s 𝟘 t rfl))
+            (prod s 𝟘 (var x1) (var x0)))
+         rfl v w)
+      u
+    where
+    Singleton : Term n
+    Singleton = Σ⟨ s ⟩ 𝟘 , 𝟘 ▷ A ▹ Id (wk1 A) (wk1 t) (var x0)
+
+opaque
+  unfolding Jᵉ
+
+  -- A substitution lemma for Jᵉ.
+
+  Jᵉ-[] :
+    Jᵉ A t B u v w U.[ σ ] ≡
+    Jᵉ (A U.[ σ ]) (t U.[ σ ]) (B U.[ liftSubstn σ 2 ]) (u U.[ σ ])
+      (v U.[ σ ]) (w U.[ σ ])
+  Jᵉ-[] {A} {t} {B} {u} {v} {w} {σ} =
+    case
+      PE.cong (Σ⟨_⟩_,_▷_▹_ s 𝟘 𝟘 (A U.[ σ ]))
+        {x = Id (wk1 A) (wk1 t) (var x0) U.[ _ ]} $
+      cong₃ Id
+        (wk1-liftSubst A)
+        (wk1-liftSubst t)
+        refl
+    of λ
+      lemma →
+    substᵉ
+      (Σ⟨ s ⟩ 𝟘 , 𝟘 ▷ A ▹ Id (wk1 A) (wk1 t) (var x0))
+      (B U.[ consSubst
+               (consSubst (wk1Subst idSubst)
+                  (fst⟨ s ⟩ 𝟘 (wk1 A) (var x0)))
+               (snd⟨ s ⟩ 𝟘 𝟘 (wk1 A) (Id (wk₂ A) (wk₂ t) (var x0))
+                  (var x0)) ])
+      (prod s 𝟘 t rfl)
+      (prod s 𝟘 v w)
+      (J 𝟘 (𝟘 ∧ 𝟙) A t
+         (Id (wk₂ $ Σ⟨ s ⟩ 𝟘 , 𝟘 ▷ A ▹ Id (wk1 A) (wk1 t) (var x0))
+            (wk₂ (prod s 𝟘 t rfl)) (prod s 𝟘 (var x1) (var x0)))
+         rfl v w)
+      u U.[ σ ]                                                          ≡⟨ substᵉ-[] ⟩
+
+    substᵉ
+      (Σ⟨ s ⟩ 𝟘 , 𝟘 ▷ A U.[ σ ] ▹
+       Id (wk1 A U.[ liftSubst σ ]) (wk1 t U.[ liftSubst σ ]) (var x0))
+      (B U.[ consSubst
+               (consSubst (wk1Subst idSubst)
+                  (fst⟨ s ⟩ 𝟘 (wk1 A) (var x0)))
+               (snd⟨ s ⟩ 𝟘 𝟘 (wk1 A) (Id (wk₂ A) (wk₂ t) (var x0))
+                  (var x0)) ]
+         U.[ liftSubst σ ])
+      (prod s 𝟘 (t U.[ σ ]) rfl)
+      (prod s 𝟘 (v U.[ σ ]) (w U.[ σ ]))
+      (J 𝟘 (𝟘 ∧ 𝟙) (A U.[ σ ]) (t U.[ σ ])
+         (Id
+            (wk₂ (Σ⟨ s ⟩ 𝟘 , 𝟘 ▷ A ▹ Id (wk1 A) (wk1 t) (var x0))
+               U.[ liftSubstn σ 2 ])
+            (wk₂ (prod s 𝟘 t rfl) U.[ liftSubstn σ 2 ])
+            (prod s 𝟘 (var x1) (var x0)))
+         rfl (v U.[ σ ]) (w U.[ σ ]))
+      (u U.[ σ ])                                                         ≡⟨ cong₆ substᵉ lemma
+                                                                               (
+      B U.[ consSubst
+              (consSubst (wk1Subst idSubst)
+                 (fst⟨ s ⟩ 𝟘 (wk1 A) (var x0)))
+              (snd⟨ s ⟩ 𝟘 𝟘 (wk1 A) (Id (wk₂ A) (wk₂ t) (var x0))
+                 (var x0)) ]
+        U.[ liftSubst σ ]                                                       ≡⟨ substCompEq B ⟩
+
+      B U.[ liftSubst σ ₛ•ₛ
+            consSubst
+              (consSubst (wk1Subst idSubst)
+                 (fst⟨ s ⟩ 𝟘 (wk1 A) (var x0)))
+              (snd⟨ s ⟩ 𝟘 𝟘 (wk1 A) (Id (wk₂ A) (wk₂ t) (var x0))
+                 (var x0)) ]                                                    ≡⟨ (flip substVar-to-subst B λ {
+                                                                                      x0 →
+        snd⟨ s ⟩ 𝟘 𝟘 (wk1 A) (Id (wk₂ A) (wk₂ t) (var x0)) (var x0)
+          U.[ liftSubst σ ]                                                             ≡⟨ snd⟨⟩-[] ⟩
+
+        snd⟨ s ⟩ 𝟘 𝟘 (wk1 A U.[ liftSubst σ ])
+          (Id (wk₂ A U.[ liftSubstn σ 2 ]) (wk₂ t U.[ liftSubstn σ 2 ])
+             (var x0))
+          (var x0)                                                                      ≡⟨ cong₃ (snd⟨ _ ⟩ _ _)
+                                                                                             (wk1-liftSubst A)
+                                                                                             (cong₃ Id (wk₂-liftSubst A) (wk₂-liftSubst t) refl)
+                                                                                             refl ⟩
+        snd⟨ s ⟩ 𝟘 𝟘 (wk1 (A U.[ σ ]))
+          (Id (wk₂ (A U.[ σ ])) (wk₂ (t U.[ σ ])) (var x0)) (var x0)                    ∎;
+                                                                                      (x0 +1) →
+        fst⟨ s ⟩ 𝟘 (wk1 A) (var x0) U.[ liftSubst σ ]                                   ≡⟨ fst⟨⟩-[] ⟩
+        fst⟨ s ⟩ 𝟘 (wk1 A U.[ liftSubst σ ]) (var x0)                                   ≡⟨ cong₂ (fst⟨ _ ⟩ _) (wk1-liftSubst A) refl ⟩
+        fst⟨ s ⟩ 𝟘 (wk1 (A U.[ σ ])) (var x0)                                           ∎;
+                                                                                      (x +1 +1) →
+        wk1 (σ x)                                                                       ≡⟨ wk1-tailId _ ⟩
+        σ x U.[ wk1Subst idSubst ]                                                      ∎ }) ⟩
+
+      B U.[ consSubst
+              (consSubst (wk1Subst idSubst ₛ•ₛ σ)
+                 (fst⟨ s ⟩ 𝟘 (wk1 (A U.[ σ ])) (var x0)))
+              (snd⟨ s ⟩ 𝟘 𝟘 (wk1 (A U.[ σ ]))
+                 (Id (wk₂ (A U.[ σ ])) (wk₂ (t U.[ σ ])) (var x0))
+                 (var x0)) ]                                                    ≡˘⟨ doubleSubstComp′ B ⟩
+
+      B U.[ liftSubstn σ 2 ]
+        U.[ consSubst
+              (consSubst (wk1Subst idSubst)
+                 (fst⟨ s ⟩ 𝟘 (wk1 (A U.[ σ ])) (var x0)))
+              (snd⟨ s ⟩ 𝟘 𝟘 (wk1 (A U.[ σ ]))
+                 (Id (wk₂ (A U.[ σ ])) (wk₂ (t U.[ σ ])) (var x0))
+                 (var x0)) ]                                                    ∎)
+                                                                               refl refl
+                                                                               (cong₄ (J 𝟘 (𝟘 ∧ 𝟙) (A U.[ σ ]) (t U.[ σ ]))
+                                                                                  (cong₃ Id
+                                                                                     (trans
+                                                                                        (wk₂-liftSubst
+                                                                                           (Σ⟨ _ ⟩ _ , _ ▷ A ▹ Id (wk1 A) (wk1 t) (var x0))) $
+                                                                                      PE.cong wk₂ lemma)
+                                                                                     (cong₂ (prod s 𝟘)
+                                                                                        (wk₂-liftSubst t)
+                                                                                        refl)
+                                                                                     refl)
+                                                                                  refl refl refl)
+                                                                               refl ⟩
+    substᵉ
+      (Σ⟨ s ⟩ 𝟘 , 𝟘 ▷ A U.[ σ ] ▹
+       Id (wk1 (A U.[ σ ])) (wk1 (t U.[ σ ])) (var x0))
+      (B U.[ liftSubstn σ 2 ]
+         U.[ consSubst
+               (consSubst (wk1Subst idSubst)
+                  (fst⟨ s ⟩ 𝟘 (wk1 (A U.[ σ ])) (var x0)))
+               (snd⟨ s ⟩ 𝟘 𝟘 (wk1 (A U.[ σ ]))
+                  (Id (wk₂ (A U.[ σ ])) (wk₂ (t U.[ σ ])) (var x0))
+                  (var x0)) ])
+      (prod s 𝟘 (t U.[ σ ]) rfl)
+      (prod s 𝟘 (v U.[ σ ]) (w U.[ σ ]))
+      (J 𝟘 (𝟘 ∧ 𝟙) (A U.[ σ ]) (t U.[ σ ])
+         (Id
+            (wk₂ $
+             Σ⟨ s ⟩ 𝟘 , 𝟘 ▷ A U.[ σ ] ▹
+             Id (wk1 (A U.[ σ ])) (wk1 (t U.[ σ ])) (var x0))
+            (wk₂ (prod s 𝟘 (t U.[ σ ]) rfl))
+            (prod s 𝟘 (var x1) (var x0)))
+         rfl (v U.[ σ ]) (w U.[ σ ]))
+      (u U.[ σ ])                                                         ∎

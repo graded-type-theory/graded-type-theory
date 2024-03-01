@@ -231,15 +231,29 @@ open import Graded.Modality.Dedicated-nr.Instance
 --
 -- Yet another set of usage rules (where erased-matches-for-J and
 -- erased-matches-for-K are both equal to "some") provides an
--- alternative to []-cong: If 𝟘ᵐ is allowed, then the given usage
--- rules for J are intended to more or less give the power of J with
--- the "none" rule plus []-cong. At the time of writing this
--- formalisation does not contain a complete proof of this, but
--- Graded.Box-cong contains proofs showing that one can define
--- something like []-cong using J. (The "some" variants of the usage
--- rules for K were included to mirror the rules for J, but if the K
--- rule is available, then it might be a better idea to use the "all"
--- variants of the rules.)
+-- alternative to []-cong. If 𝟘ᵐ is allowed, then the given usage
+-- rules for J more or less give the power of []-cong plus the "none"
+-- variants of the usage rules for J:
+--
+-- * Graded.Box-cong.[]-cong-J is a variant of []-cong defined
+--   using J. This term former satisfies typing rules that are similar
+--   to those for []-cong (see Graded.Box-cong), and if the "some"
+--   variants of the usage rules for J are used, then the term former
+--   satisfies a usage rule that is similar to []-congₘ (see
+--   Graded.Box-cong.▸[]-cong-J).
+--
+-- * Graded.Derived.Erased.Untyped.Jᵉ is a variant of J that is
+--   defined using []-cong. If []-cong is allowed (which at the time
+--   of writing implies that the modality is non-trivial, see
+--   Definition.Typed.Restrictions.Type-restrictions.[]-cong→¬Trivial),
+--   then this term former satisfies typing rules that are similar to
+--   those for J (see Graded.Derived.Erased.Typed). Furthermore the
+--   term former satisfies a usage rule that is similar to J₀ₘ₁ if 𝟘ᵐ
+--   is allowed (see Graded.Derived.Erased.Usage.▸Jᵉ).
+--
+-- The "some" variants of the usage rules for K were included to
+-- mirror the rules for J, but if the K rule is available, then it
+-- might be a better idea to use the "all" rules.
 data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
   Uₘ        : 𝟘ᶜ ▸[ m ] U
   ℕₘ        : 𝟘ᶜ ▸[ m ] ℕ
