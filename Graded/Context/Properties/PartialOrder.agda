@@ -13,6 +13,7 @@ open import Graded.Modality.Properties 𝕄
 
 open import Tools.Function
 open import Tools.Nat using (Nat)
+import Tools.Reasoning.PartialOrder
 open import Tools.Relation
 
 open Modality 𝕄
@@ -79,6 +80,11 @@ private
   ; _≤_ = _≤ᶜ_
   ; isPartialOrder = ≤ᶜ-partial
   }
+
+-- Partial order reasoning for _≤ᶜ_.
+
+module ≤ᶜ-reasoning {n : Nat} =
+  Tools.Reasoning.PartialOrder (≤ᶜ-poset {n = n})
 
 -- If _≤_ is decidable, then _≤ᶜ_ is decidable.
 

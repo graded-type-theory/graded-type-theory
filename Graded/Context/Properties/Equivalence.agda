@@ -12,6 +12,7 @@ open import Graded.Context 𝕄
 open import Tools.Function
 open import Tools.Nat
 open import Tools.PropositionalEquality
+import Tools.Reasoning.Equivalence
 open import Tools.Relation
 
 open Modality 𝕄
@@ -56,6 +57,11 @@ private
 Conₘ-setoid : {n : Nat} → Setoid a a
 Conₘ-setoid {n} = record
   { Carrier = Conₘ n ; _≈_ = _≈ᶜ_ ; isEquivalence = ≈ᶜ-equivalence }
+
+-- Equational reasoning for _≈ᶜ_.
+
+module ≈ᶜ-reasoning {n : Nat} =
+  Tools.Reasoning.Equivalence (Conₘ-setoid {n = n})
 
 -- Equivalent contexts are equal.
 
