@@ -3992,9 +3992,16 @@ suitable-for-full-reduction {urs} rs =
           𝕨 → Unitʷ-allowed
       ; ΠΣ-allowed   = λ b p q →
           ΠΣ-allowed b p q × (b ≡ BMΣ 𝕤 → p ≡ 𝟙)
-      ; []-cong-allowed  = λ _ → ⊥
-      ; []-cong→Erased   = λ ()
-      ; []-cong→¬Trivial = λ ()
+      ; []-cong-allowed = λ where
+          𝕤 → ⊥
+          𝕨 → []-congʷ-allowed
+      ; []-cong→Erased = λ where
+          {s = 𝕨} ok →
+            case []-cong→Erased ok of λ
+              (ok₁ , ok₂) →
+            ok₁ , ok₂ , (λ ())
+      ; []-cong→¬Trivial = λ where
+          {s = 𝕨} → []-cong→¬Trivial
       }
   , (case sink-or-no-sink of λ where
        (inj₁ ok)     → inj₂ ok
