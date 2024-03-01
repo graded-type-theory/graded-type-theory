@@ -141,11 +141,13 @@ opaque
     case PE.singleton $ erased-matches-for-J m of λ where
       (not-none _ , ≡not-none) → sub
         (▸subst-𝟘 ≡not-none ▸A
-           (Idₘ′ (▸Erased (wkUsage _ ▸A)) (▸[] (wkUsage _ ▸t)) (▸[] var)
-              ≤ᶜ-refl $
-            let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-              𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
-              𝟘ᶜ +ᶜ 𝟘ᶜ  ∎)
+           (Idₘ-generalised (▸Erased (wkUsage _ ▸A))
+              (▸[] (wkUsage _ ▸t)) (▸[] var)
+              (λ _ → ≤ᶜ-refl)
+              (λ _ →
+                 let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+                   𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
+                   𝟘ᶜ +ᶜ 𝟘ᶜ  ∎))
             ▸t ▸u ▸v rflₘ)
         (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
            𝟘ᶜ               ≈˘⟨ ω·ᶜ⋀ᶜ²𝟘ᶜ ⟩
@@ -171,12 +173,12 @@ opaque
       ▸A →
     ▸-𝟘 $
     ▸subst ▸A
-      (Idₘ′ (▸Erased (wkUsage (step id) ▸A))
+      (Idₘ-generalised (▸Erased (wkUsage (step id) ▸A))
          (▸[] (wkUsage (step id) (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸t))) (▸[] var)
-         (begin
+         (λ _ → begin
             𝟘ᶜ ∙ 𝟘 · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
             𝟘ᶜ          ∎)
-         (begin
+         (λ _ → begin
             𝟘ᶜ ∙ 𝟘 · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
             𝟘ᶜ          ≈˘⟨ +ᶜ-identityʳ _ ⟩
             𝟘ᶜ +ᶜ 𝟘ᶜ    ∎))

@@ -1386,24 +1386,26 @@ opaque
 
   -- A variant of Idₘ and Id₀ₘ.
 
-  Idₘ′ :
+  Idₘ-generalised :
     γ₁ ▸[ 𝟘ᵐ? ] A →
     γ₂ ▸[ m ] t →
     γ₃ ▸[ m ] u →
-    δ ≤ᶜ 𝟘ᶜ →
-    δ ≤ᶜ γ₂ +ᶜ γ₃ →
+    (Id-erased → δ ≤ᶜ 𝟘ᶜ) →
+    (¬ Id-erased → δ ≤ᶜ γ₂ +ᶜ γ₃) →
     δ ▸[ m ] Id A t u
-  Idₘ′ {γ₂} {m} {γ₃} {δ} ▸A ▸t ▸u δ≤𝟘ᶜ δ≤γ₂+γ₃ =
+  Idₘ-generalised {γ₂} {m} {γ₃} {δ} ▸A ▸t ▸u δ≤𝟘ᶜ δ≤γ₂+γ₃ =
     case Id-erased? of λ where
-      (no not-erased) → sub (Idₘ not-erased ▸A ▸t ▸u) δ≤γ₂+γ₃
-      (yes erased)    → 𝟘ᵐ-allowed-elim
+      (no not-erased) →
+        sub (Idₘ not-erased ▸A ▸t ▸u) (δ≤γ₂+γ₃ not-erased)
+      (yes erased) → 𝟘ᵐ-allowed-elim
         (λ ok →
-           sub (Id₀ₘ erased ▸A (𝟘ᶜ▸[𝟘ᵐ?] ok ▸t) (𝟘ᶜ▸[𝟘ᵐ?] ok ▸u)) δ≤𝟘ᶜ)
+           sub (Id₀ₘ erased ▸A (𝟘ᶜ▸[𝟘ᵐ?] ok ▸t) (𝟘ᶜ▸[𝟘ᵐ?] ok ▸u))
+             (δ≤𝟘ᶜ erased))
         (λ not-ok →
            sub
              (Id₀ₘ erased ▸A (▸-without-𝟘ᵐ not-ok ▸t)
                 (▸-without-𝟘ᵐ not-ok ▸u))
-             δ≤𝟘ᶜ)
+             (δ≤𝟘ᶜ erased))
 
 opaque
 
