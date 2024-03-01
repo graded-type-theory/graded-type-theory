@@ -164,6 +164,22 @@ opaque
   𝟘ᵐ-cong
   (λ not-ok → ⊥-elim (not-ok ok))
 
+opaque
+
+  -- 𝟘ᵐ? is equal to 𝟙ᵐ if and only if 𝟘ᵐ is not allowed.
+
+  𝟘ᵐ?≡𝟙ᵐ⇔ : 𝟘ᵐ? ≡ 𝟙ᵐ ⇔ (¬ T 𝟘ᵐ-allowed)
+  𝟘ᵐ?≡𝟙ᵐ⇔ =
+      (λ 𝟘ᵐ?≡𝟙ᵐ ok →
+         case
+           𝟘ᵐ[ ok ]  ≡˘⟨ 𝟘ᵐ?≡𝟘ᵐ ⟩
+           𝟘ᵐ?       ≡⟨ 𝟘ᵐ?≡𝟙ᵐ ⟩
+           𝟙ᵐ        ∎
+         of λ ())
+    , Mode-propositional-without-𝟘ᵐ
+    where
+    open Tools.Reasoning.PropositionalEquality
+
 ------------------------------------------------------------------------
 -- Some basic definitions
 
@@ -533,6 +549,15 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
   𝟘             ∎
   where
   open Tools.Reasoning.PropositionalEquality
+
+opaque
+
+  -- If 𝟘ᵐ is not allowed, then ⌜ 𝟘ᵐ? ⌝ is equal to 𝟙.
+
+  ⌜𝟘ᵐ?⌝≡𝟙 : ¬ T 𝟘ᵐ-allowed → ⌜ 𝟘ᵐ? ⌝ ≡ 𝟙
+  ⌜𝟘ᵐ?⌝≡𝟙 =
+    cong ⌜_⌝ {x = 𝟘ᵐ?} {y = 𝟙ᵐ} ∘→
+    Mode-propositional-without-𝟘ᵐ
 
 -- Multiplication is idempotent for ⌜ m ⌝.
 
