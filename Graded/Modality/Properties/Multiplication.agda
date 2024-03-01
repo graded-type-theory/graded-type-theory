@@ -50,6 +50,18 @@ private
   where
   open Tools.Reasoning.PartialOrder ≤-poset
 
+opaque
+
+  -- Multiplication by ω (from the right) is decreasing.
+
+  ·ω-decreasing : p · ω ≤ p
+  ·ω-decreasing {p = p} = begin
+    p · ω  ≤⟨ ·-monotoneʳ ω≤𝟙 ⟩
+    p · 𝟙  ≡⟨ ·-identityʳ _ ⟩
+    p      ∎
+    where
+    open Tools.Reasoning.PartialOrder ≤-poset
+
 -- If the function p ·_ is injective, then it is order-reflecting.
 
 ·-order-reflectingˡ :
