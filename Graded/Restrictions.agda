@@ -27,6 +27,7 @@ open import Graded.Usage.Erased-matches
 open import Graded.Usage.Restrictions 𝕄
 
 open import Definition.Typed.Restrictions 𝕄
+open import Definition.Untyped.NotParametrised
 
 private variable
   TR : Type-restrictions
@@ -135,13 +136,13 @@ No-erased-matches TR UR =
   open Usage-restrictions UR
 
 -- The function adds the restriction that erased matches are not
--- allowed.
+-- allowed for the given strength.
 
-no-erased-matches-TR : Type-restrictions → Type-restrictions
-no-erased-matches-TR TR = record TR
-  { []-cong-allowed  = λ _ → Lift _ ⊥
-  ; []-cong→Erased   = λ ()
-  ; []-cong→¬Trivial = λ ()
+no-erased-matches-TR : Strength → Type-restrictions → Type-restrictions
+no-erased-matches-TR s TR = record TR
+  { []-cong-allowed  = λ s′ → []-cong-allowed s′ × s′ ≢ s
+  ; []-cong→Erased   = []-cong→Erased ∘→ proj₁
+  ; []-cong→¬Trivial = []-cong→¬Trivial ∘→ proj₁
   }
   where
   open Type-restrictions TR
@@ -176,15 +177,19 @@ no-erased-matches-UR UR = record UR
   where
   open Usage-restrictions UR
 
--- The restrictions obtained from no-erased-matches-TR and
+-- Certain restrictions obtained from no-erased-matches-TR and
 -- no-erased-matches-UR satisfy No-erased-matches.
 
 No-erased-matches-no-erased-matches :
   ∀ TR UR →
-  No-erased-matches (no-erased-matches-TR TR) (no-erased-matches-UR UR)
+  No-erased-matches
+    (no-erased-matches-TR 𝕤 (no-erased-matches-TR 𝕨 TR))
+    (no-erased-matches-UR UR)
 No-erased-matches-no-erased-matches _ _ 𝟙≢𝟘 =
     (_$ refl) ∘→ (_$ 𝟙≢𝟘) ∘→ proj₂
   , (_$ refl) ∘→ (_$ 𝟙≢𝟘) ∘→ proj₂
-  , (λ ())
+  , (λ where
+       {s = 𝕤} → (_$ refl) ∘→ proj₂
+       {s = 𝕨} → (_$ refl) ∘→ proj₂ ∘→ proj₁)
   , refl
   , refl

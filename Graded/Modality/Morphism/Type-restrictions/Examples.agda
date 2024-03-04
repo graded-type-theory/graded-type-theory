@@ -13,7 +13,7 @@ open import Tools.Bool
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Level
-open import Tools.Product
+open import Tools.Product as Σ
 open import Tools.PropositionalEquality
 import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
@@ -48,6 +48,7 @@ open import Definition.Untyped.QuantityTranslation
 private variable
   b 𝟙≤𝟘       : Bool
   R R₁ R₂     : Type-restrictions _
+  s           : Strength
   M₁ M₂       : Set _
   𝕄₁ 𝕄₂       : Modality _
   tr tr-Σ     : M₁ → M₂
@@ -322,14 +323,14 @@ Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
 Are-preserving-type-restrictions-no-erased-matches-TR :
   Are-preserving-type-restrictions R₁ R₂ tr tr-Σ →
   Are-preserving-type-restrictions
-    (no-erased-matches-TR 𝕄₁ R₁)
-    (no-erased-matches-TR 𝕄₂ R₂)
+    (no-erased-matches-TR 𝕄₁ s R₁)
+    (no-erased-matches-TR 𝕄₂ s R₂)
     tr tr-Σ
 Are-preserving-type-restrictions-no-erased-matches-TR r = record
   { Unit-preserved    = Unit-preserved
   ; ΠΣ-preserved      = ΠΣ-preserved
   ; K-preserved       = K-preserved
-  ; []-cong-preserved = λ ()
+  ; []-cong-preserved = Σ.map []-cong-preserved idᶠ
   }
   where
   open Are-preserving-type-restrictions r
@@ -344,17 +345,21 @@ Are-reflecting-type-restrictions-no-erased-matches-TR :
    ¬ Type-restrictions.[]-cong-allowed R₁ s) →
   Are-reflecting-type-restrictions R₁ R₂ tr tr-Σ →
   Are-reflecting-type-restrictions
-    (no-erased-matches-TR 𝕄₁ R₁)
-    (no-erased-matches-TR 𝕄₂ R₂)
+    (no-erased-matches-TR 𝕄₁ s R₁)
+    (no-erased-matches-TR 𝕄₂ s R₂)
     tr tr-Σ
 Are-reflecting-type-restrictions-no-erased-matches-TR hyp r = record
   { Unit-reflected    = Unit-reflected
   ; ΠΣ-reflected      = ΠΣ-reflected
   ; K-reflected       = K-reflected
   ; []-cong-reflected = λ {s = s} → λ where
+      (inj₁ (ok₂ , s≢)) →
+        case []-cong-reflected (inj₁ ok₂) of λ where
+          (inj₁ ok₁)      → inj₁ (ok₁ , s≢)
+          (inj₂ trivial₁) → inj₂ trivial₁
       (inj₂ trivial₂) →
         case []-cong-reflected {s = s} (inj₂ trivial₂) of λ where
-          (inj₁ ok)       → ⊥-elim $ hyp trivial₂ ok
+          (inj₁ ok₁)      → ⊥-elim $ hyp trivial₂ ok₁
           (inj₂ trivial₁) → inj₂ trivial₁
   }
   where
