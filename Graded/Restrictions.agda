@@ -32,6 +32,7 @@ open import Definition.Untyped.NotParametrised
 private variable
   TR : Type-restrictions
   UR : Usage-restrictions
+  ok : T _
 
 -- No type restrictions except that if the modality is trivial, then
 -- []-cong is not allowed, and the K rule is allowed if the boolean is
@@ -194,6 +195,42 @@ no-erased-matches-TR s TR = record TR
   }
   where
   open Type-restrictions TR
+
+-- A function used to define not-all-erased-matches-JK.
+
+not-all-for-𝟙ᵐ : (Mode → Erased-matches) → Mode → Erased-matches
+not-all-for-𝟙ᵐ f 𝟘ᵐ = f 𝟘ᵐ
+not-all-for-𝟙ᵐ f 𝟙ᵐ with f 𝟙ᵐ
+… | all = some
+… | em  = em
+
+-- The function adds the restriction that, for the mode 𝟙ᵐ, "all"
+-- erased matches are not allowed for J and K.
+
+not-all-erased-matches-JK : Usage-restrictions → Usage-restrictions
+not-all-erased-matches-JK UR = record UR
+  { erased-matches-for-J =
+      not-all-for-𝟙ᵐ erased-matches-for-J
+  ; erased-matches-for-J-≤ᵉᵐ =
+      not-all-for-𝟙ᵐ-≤ᵉᵐ erased-matches-for-J erased-matches-for-J-≤ᵉᵐ
+  ; erased-matches-for-K =
+      not-all-for-𝟙ᵐ erased-matches-for-K
+  ; erased-matches-for-K-≤ᵉᵐ =
+      not-all-for-𝟙ᵐ-≤ᵉᵐ erased-matches-for-K erased-matches-for-K-≤ᵉᵐ
+  }
+  where
+  open Usage-restrictions UR
+
+  opaque
+
+    not-all-for-𝟙ᵐ-≤ᵉᵐ :
+      (f : Mode → Erased-matches) →
+      f 𝟙ᵐ ≤ᵉᵐ f 𝟘ᵐ[ ok ] →
+      not-all-for-𝟙ᵐ f 𝟙ᵐ ≤ᵉᵐ not-all-for-𝟙ᵐ f 𝟘ᵐ[ ok ]
+    not-all-for-𝟙ᵐ-≤ᵉᵐ f f-≤ᵉᵐ with f 𝟙ᵐ
+    … | all  = ≤ᵉᵐ-transitive _ f-≤ᵉᵐ
+    … | some = f-≤ᵉᵐ
+    … | none = f-≤ᵉᵐ
 
 -- The function adds the restriction that erased matches are not
 -- allowed for the mode 𝟙ᵐ (for prodrec and unitrec the restriction

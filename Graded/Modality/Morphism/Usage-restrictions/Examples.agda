@@ -37,6 +37,7 @@ open import Graded.Modality.Instances.Zero-one-many
 open import Graded.Modality.Variant
 open import Graded.Mode
 open import Graded.Restrictions
+open import Graded.Usage.Erased-matches
 open import Graded.Usage.Restrictions
 
 private variable
@@ -45,6 +46,7 @@ private variable
   R R₁ R₂      : Usage-restrictions _
   A M₁ M₂      : Set _
   𝕄₁ 𝕄₂        : Modality _
+  m₁ m₂        : Mode _
   tr tr-Σ      : M₁ → M₂
   v₁-ok v₂-ok  : A
 
@@ -240,6 +242,124 @@ Are-reflecting-usage-restrictions-no-erased-matches-UR
   module M₁ = Modality 𝕄₁
   module M₂ = Modality 𝕄₂
   open Are-reflecting-usage-restrictions r
+
+private opaque
+
+  -- A lemma related to not-all-for-𝟙ᵐ.
+
+  not-all-for-𝟙ᵐ-≤ᵉᵐ :
+    (f₁ : Mode 𝕄₁ → Erased-matches)
+    (f₂ : Mode 𝕄₂ → Erased-matches) →
+    f₁ m₁ ≤ᵉᵐ f₂ m₂ →
+    m₁ ≈ᵐ m₂ →
+    not-all-for-𝟙ᵐ 𝕄₁ f₁ m₁ ≤ᵉᵐ not-all-for-𝟙ᵐ 𝕄₂ f₂ m₂
+  not-all-for-𝟙ᵐ-≤ᵉᵐ _  _  hyp 𝟘ᵐ = hyp
+  not-all-for-𝟙ᵐ-≤ᵉᵐ f₁ f₂ hyp 𝟙ᵐ with f₁ 𝟙ᵐ | f₂ 𝟙ᵐ
+  … | none | _    = _
+  … | some | some = _
+  … | some | all  = _
+  … | all  | none = ⊥-elim hyp
+  … | all  | some = _
+  … | all  | all  = _
+
+opaque
+
+  -- The function not-all-erased-matches-JK preserves
+  -- Common-properties in a certain way.
+
+  Common-properties-not-all-erased-matches-JK :
+    Common-properties R₁ R₂ →
+    Common-properties
+      (not-all-erased-matches-JK 𝕄₁ R₁)
+      (not-all-erased-matches-JK 𝕄₂ R₂)
+  Common-properties-not-all-erased-matches-JK
+    {R₁} {R₂} cp = record
+    { 𝟘ᵐ-preserved                   = 𝟘ᵐ-preserved
+    ; starˢ-sink-preserved           = starˢ-sink-preserved
+    ; Id-erased-preserved            = Id-erased-preserved
+    ; erased-matches-for-J-preserved = λ where
+        𝟘ᵐ → erased-matches-for-J-preserved 𝟘ᵐ
+        𝟙ᵐ →
+          not-all-for-𝟙ᵐ-≤ᵉᵐ R₁.erased-matches-for-J
+            R₂.erased-matches-for-J (erased-matches-for-J-preserved 𝟙ᵐ)
+            𝟙ᵐ
+    ; erased-matches-for-K-preserved = λ where
+        𝟘ᵐ → erased-matches-for-K-preserved 𝟘ᵐ
+        𝟙ᵐ →
+          not-all-for-𝟙ᵐ-≤ᵉᵐ R₁.erased-matches-for-K
+            R₂.erased-matches-for-K (erased-matches-for-K-preserved 𝟙ᵐ)
+            𝟙ᵐ
+    }
+    where
+    module R₁ = Usage-restrictions R₁
+    module R₂ = Usage-restrictions R₂
+    open Common-properties cp
+
+opaque
+
+  -- If the functions tr and tr-Σ preserve certain usage restrictions,
+  -- then they also do this for certain usage restrictions obtained
+  -- using not-all-erased-matches-JK.
+
+  Are-preserving-usage-restrictions-not-all-erased-matches-JK :
+    Are-preserving-usage-restrictions R₁ R₂ tr tr-Σ →
+    Are-preserving-usage-restrictions
+      (not-all-erased-matches-JK 𝕄₁ R₁)
+      (not-all-erased-matches-JK 𝕄₂ R₂)
+      tr tr-Σ
+  Are-preserving-usage-restrictions-not-all-erased-matches-JK
+    r = record
+    { common-properties =
+        Common-properties-not-all-erased-matches-JK common-properties
+    ; Prodrec-preserved =
+        Prodrec-preserved
+    ; Unitrec-preserved =
+        Unitrec-preserved
+    }
+    where
+    open Are-preserving-usage-restrictions r
+
+opaque
+
+  -- If the functions tr and tr-Σ reflect certain usage restrictions,
+  -- then they also do this for certain usage restrictions obtained
+  -- using not-all-erased-matches-JK.
+
+  Are-reflecting-usage-restrictions-not-all-erased-matches-JK :
+    Are-reflecting-usage-restrictions R₁ R₂ tr tr-Σ →
+    Are-reflecting-usage-restrictions
+      (not-all-erased-matches-JK 𝕄₁ R₁)
+      (not-all-erased-matches-JK 𝕄₂ R₂)
+      tr tr-Σ
+  Are-reflecting-usage-restrictions-not-all-erased-matches-JK
+    {𝕄₁} {R₁} {𝕄₂} {R₂} r = record
+    { common-properties =
+        Common-properties-not-all-erased-matches-JK common-properties
+    ; 𝟘ᵐ-reflected =
+        𝟘ᵐ-reflected
+    ; Prodrec-reflected =
+        Prodrec-reflected
+    ; Unitrec-reflected =
+        Unitrec-reflected
+    ; erased-matches-for-J-reflected = λ where
+        𝟘ᵐ → erased-matches-for-J-reflected 𝟘ᵐ
+        𝟙ᵐ →
+          not-all-for-𝟙ᵐ-≤ᵉᵐ R₂.erased-matches-for-J
+            R₁.erased-matches-for-J (erased-matches-for-J-reflected 𝟙ᵐ)
+            𝟙ᵐ
+    ; erased-matches-for-K-reflected = λ where
+        𝟘ᵐ → erased-matches-for-K-reflected 𝟘ᵐ
+        𝟙ᵐ →
+          not-all-for-𝟙ᵐ-≤ᵉᵐ R₂.erased-matches-for-K
+            R₁.erased-matches-for-K (erased-matches-for-K-reflected 𝟙ᵐ)
+            𝟙ᵐ
+    }
+    where
+    module M₁ = Modality 𝕄₁
+    module M₂ = Modality 𝕄₂
+    module R₁ = Usage-restrictions R₁
+    module R₂ = Usage-restrictions R₂
+    open Are-reflecting-usage-restrictions r
 
 ------------------------------------------------------------------------
 -- Some lemmas related to no-erased-matches-UR and concrete
