@@ -1,0 +1,47 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Definition.Untyped.Unit</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- Definitions related to Unit</a>
+<a id="105" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="179" class="Symbol">{-#</a> <a id="183" class="Keyword">OPTIONS</a> <a id="191" class="Pragma">--hidden-argument-puns</a> <a id="214" class="Symbol">#-}</a>
+
+<a id="219" class="Keyword">open</a> <a id="224" class="Keyword">import</a> <a id="231" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+
+<a id="248" class="Keyword">module</a> <a id="255" href="Definition.Untyped.Unit.html" class="Module">Definition.Untyped.Unit</a>
+  <a id="281" class="Symbol">{</a><a id="282" href="Definition.Untyped.Unit.html#282" class="Bound">a</a><a id="283" class="Symbol">}</a> <a id="285" class="Symbol">{</a><a id="286" href="Definition.Untyped.Unit.html#286" class="Bound">M</a> <a id="288" class="Symbol">:</a> <a id="290" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="294" href="Definition.Untyped.Unit.html#282" class="Bound">a</a><a id="295" class="Symbol">}</a>
+  <a id="299" class="Symbol">(</a><a id="300" href="Definition.Untyped.Unit.html#300" class="Bound">𝕄</a> <a id="302" class="Symbol">:</a> <a id="304" href="Graded.Modality.html#7127" class="Record">Modality</a> <a id="313" href="Definition.Untyped.Unit.html#286" class="Bound">M</a><a id="314" class="Symbol">)</a>
+  <a id="318" class="Keyword">where</a>
+
+<a id="325" class="Keyword">open</a> <a id="330" href="Graded.Modality.html#7127" class="Module">Modality</a> <a id="339" href="Definition.Untyped.Unit.html#300" class="Bound">𝕄</a>
+
+<a id="342" class="Keyword">open</a> <a id="347" class="Keyword">import</a> <a id="354" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="373" href="Definition.Untyped.Unit.html#286" class="Bound">M</a>
+
+<a id="376" class="Keyword">open</a> <a id="381" class="Keyword">import</a> <a id="388" href="Tools.Fin.html" class="Module">Tools.Fin</a>
+<a id="398" class="Keyword">open</a> <a id="403" class="Keyword">import</a> <a id="410" href="Tools.Nat.html" class="Module">Tools.Nat</a>
+<a id="420" class="Keyword">open</a> <a id="425" class="Keyword">import</a> <a id="432" href="Tools.PropositionalEquality.html" class="Module">Tools.PropositionalEquality</a>
+
+<a id="461" class="Keyword">private</a> <a id="469" class="Keyword">variable</a>
+  <a id="480" href="Definition.Untyped.Unit.html#480" class="Generalizable">n</a> <a id="482" class="Symbol">:</a> <a id="484" href="Agda.Builtin.Nat.html#203" class="Datatype">Nat</a>
+  <a id="490" href="Definition.Untyped.Unit.html#490" class="Generalizable">t</a> <a id="492" class="Symbol">:</a> <a id="494" href="Definition.Untyped.html#2457" class="Datatype">Term</a> <a id="499" class="Symbol">_</a>
+  <a id="503" href="Definition.Untyped.Unit.html#503" class="Generalizable">σ</a> <a id="505" class="Symbol">:</a> <a id="507" href="Definition.Untyped.html#15884" class="Function">Subst</a> <a id="513" class="Symbol">_</a> <a id="515" class="Symbol">_</a>
+  <a id="519" href="Definition.Untyped.Unit.html#519" class="Generalizable">s</a> <a id="521" class="Symbol">:</a> <a id="523" href="Definition.Untyped.NotParametrised.html#1382" class="Datatype">Strength</a>
+  <a id="534" href="Definition.Untyped.Unit.html#534" class="Generalizable">p</a> <a id="536" class="Symbol">:</a> <a id="538" href="Definition.Untyped.Unit.html#286" class="Bound">M</a>
+
+<a id="541" class="Keyword">opaque</a>
+
+  <a id="551" class="Comment">-- Unit-η s p is an implementation of a propositional η-rule for the</a>
+  <a id="622" class="Comment">-- type Unit s.</a>
+
+  <a id="Unit-η"></a><a id="641" href="Definition.Untyped.Unit.html#641" class="Function">Unit-η</a> <a id="648" class="Symbol">:</a> <a id="650" href="Definition.Untyped.NotParametrised.html#1382" class="Datatype">Strength</a> <a id="659" class="Symbol">→</a> <a id="661" href="Definition.Untyped.Unit.html#286" class="Bound">M</a> <a id="663" class="Symbol">→</a> <a id="665" href="Definition.Untyped.html#2457" class="Datatype">Term</a> <a id="670" href="Definition.Untyped.Unit.html#480" class="Generalizable">n</a> <a id="672" class="Symbol">→</a> <a id="674" href="Definition.Untyped.html#2457" class="Datatype">Term</a> <a id="679" href="Definition.Untyped.Unit.html#480" class="Generalizable">n</a>
+  <a id="683" href="Definition.Untyped.Unit.html#641" class="Function">Unit-η</a> <a id="690" href="Definition.Untyped.NotParametrised.html#1405" class="InductiveConstructor">𝕤</a> <a id="692" class="Symbol">_</a> <a id="694" class="Symbol">_</a> <a id="696" class="Symbol">=</a> <a id="698" href="Definition.Untyped.html#4580" class="InductiveConstructor">rfl</a>
+  <a id="704" href="Definition.Untyped.Unit.html#641" class="Function">Unit-η</a> <a id="711" href="Definition.Untyped.NotParametrised.html#1407" class="InductiveConstructor">𝕨</a> <a id="713" href="Definition.Untyped.Unit.html#713" class="Bound">p</a> <a id="715" href="Definition.Untyped.Unit.html#715" class="Bound">t</a> <a id="717" class="Symbol">=</a> <a id="719" href="Definition.Untyped.html#4406" class="InductiveConstructor">unitrec</a> <a id="727" href="Graded.Modality.html#849" class="Function">𝟙</a> <a id="729" href="Definition.Untyped.Unit.html#713" class="Bound">p</a> <a id="731" class="Symbol">(</a><a id="732" href="Definition.Untyped.html#4533" class="InductiveConstructor">Id</a> <a id="735" href="Definition.Untyped.html#3108" class="InductiveConstructor">Unitʷ</a> <a id="741" href="Definition.Untyped.html#4334" class="InductiveConstructor">starʷ</a> <a id="747" class="Symbol">(</a><a id="748" href="Definition.Untyped.html#2488" class="InductiveConstructor">var</a> <a id="752" href="Data.Fin.Base.html#1176" class="InductiveConstructor">x0</a><a id="754" class="Symbol">))</a> <a id="757" href="Definition.Untyped.Unit.html#715" class="Bound">t</a> <a id="759" href="Definition.Untyped.html#4580" class="InductiveConstructor">rfl</a>
+
+<a id="764" class="Keyword">opaque</a>
+  <a id="773" class="Keyword">unfolding</a> <a id="783" href="Definition.Untyped.Unit.html#641" class="Function">Unit-η</a>
+
+  <a id="793" class="Comment">-- A substitution lemma for Unit-η.</a>
+
+  <a id="Unit-η-[]"></a><a id="832" href="Definition.Untyped.Unit.html#832" class="Function">Unit-η-[]</a> <a id="842" class="Symbol">:</a> <a id="844" href="Definition.Untyped.Unit.html#641" class="Function">Unit-η</a> <a id="851" href="Definition.Untyped.Unit.html#519" class="Generalizable">s</a> <a id="853" href="Definition.Untyped.Unit.html#534" class="Generalizable">p</a> <a id="855" href="Definition.Untyped.Unit.html#490" class="Generalizable">t</a> <a id="857" href="Definition.Untyped.html#17917" class="Function Operator">[</a> <a id="859" href="Definition.Untyped.Unit.html#503" class="Generalizable">σ</a> <a id="861" href="Definition.Untyped.html#17917" class="Function Operator">]</a> <a id="863" href="Agda.Builtin.Equality.html#150" class="Datatype Operator">≡</a> <a id="865" href="Definition.Untyped.Unit.html#641" class="Function">Unit-η</a> <a id="872" href="Definition.Untyped.Unit.html#519" class="Generalizable">s</a> <a id="874" href="Definition.Untyped.Unit.html#534" class="Generalizable">p</a> <a id="876" class="Symbol">(</a><a id="877" href="Definition.Untyped.Unit.html#490" class="Generalizable">t</a> <a id="879" href="Definition.Untyped.html#17917" class="Function Operator">[</a> <a id="881" href="Definition.Untyped.Unit.html#503" class="Generalizable">σ</a> <a id="883" href="Definition.Untyped.html#17917" class="Function Operator">]</a><a id="884" class="Symbol">)</a>
+  <a id="888" href="Definition.Untyped.Unit.html#832" class="Function">Unit-η-[]</a> <a id="898" class="Symbol">{</a><a id="899" class="Argument">s</a> <a id="901" class="Symbol">=</a> <a id="903" href="Definition.Untyped.NotParametrised.html#1405" class="InductiveConstructor">𝕤</a><a id="904" class="Symbol">}</a> <a id="906" class="Symbol">=</a> <a id="908" href="Agda.Builtin.Equality.html#207" class="InductiveConstructor">refl</a>
+  <a id="915" href="Definition.Untyped.Unit.html#832" class="Function">Unit-η-[]</a> <a id="925" class="Symbol">{</a><a id="926" class="Argument">s</a> <a id="928" class="Symbol">=</a> <a id="930" href="Definition.Untyped.NotParametrised.html#1407" class="InductiveConstructor">𝕨</a><a id="931" class="Symbol">}</a> <a id="933" class="Symbol">=</a> <a id="935" href="Agda.Builtin.Equality.html#207" class="InductiveConstructor">refl</a>
+</pre></body></html>
