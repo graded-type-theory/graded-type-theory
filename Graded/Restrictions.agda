@@ -33,13 +33,14 @@ private variable
   UR : Usage-restrictions
 
 -- No type restrictions except that if the modality is trivial, then
--- []-cong is not allowed.
+-- []-cong is not allowed, and the K rule is allowed if the boolean is
+-- true.
 
-no-type-restrictions : Type-restrictions
-no-type-restrictions = λ where
+no-type-restrictions : Bool → Type-restrictions
+no-type-restrictions allowed = λ where
     .Unit-allowed     → λ _ → Lift _ ⊤
     .ΠΣ-allowed       → λ _ _ _ → Lift _ ⊤
-    .K-allowed        → Lift _ ⊤
+    .K-allowed        → Lift _ (T allowed)
     .[]-cong-allowed  → λ _ → ¬ Trivial
     .[]-cong→Erased   → _
     .[]-cong→¬Trivial → idᶠ

@@ -57,7 +57,7 @@ module Counterexample
     -- The type and usage restrictions used in this local module.
 
     TR : Type-restrictions 𝕄
-    TR = no-type-restrictions 𝕄
+    TR = no-type-restrictions 𝕄 true
 
     UR : Usage-restrictions 𝕄
     UR = no-usage-restrictions 𝕄
