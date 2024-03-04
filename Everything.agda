@@ -323,6 +323,12 @@ import Graded.Context.QuantityTranslation
 import Graded.Mode.QuantityTranslation
 import Graded.Usage.QuantityTranslation
 
+-- Extended modalities.
+
+import Graded.Modality.Extended
+import Graded.Modality.Extended.K-allowed
+import Graded.Modality.Extended.K-not-allowed.Erased-matches
+import Graded.Modality.Extended.K-not-allowed.No-erased-matches
 
 ------------------------------------------------------------------------
 -- A case study: erasure
