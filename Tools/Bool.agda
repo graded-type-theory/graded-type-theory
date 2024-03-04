@@ -10,7 +10,8 @@ open import Data.Bool.Base
 open import Data.Bool.Properties
   using (∨-comm; ∨-assoc; ∨-identityʳ;
          ∧-comm; ∧-assoc; ∨-∧-absorptive;
-         ∧-distribʳ-∨; ∧-distribˡ-∨; ∨-distribʳ-∧; ∨-distribˡ-∧)
+         ∧-distribʳ-∨; ∧-distribˡ-∨; ∨-distribʳ-∧; ∨-distribˡ-∧;
+         T?)
   public
 import Function.Bundles as Fun
 

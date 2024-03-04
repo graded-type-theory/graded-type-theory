@@ -60,7 +60,7 @@ module Counterexample
     TR = no-type-restrictions 𝕄 true
 
     UR : Usage-restrictions 𝕄
-    UR = no-usage-restrictions 𝕄
+    UR = no-usage-restrictions 𝕄 true true
 
   open Application.NegativeOrErasedAxioms.NegativeOrErasedContext TR
 

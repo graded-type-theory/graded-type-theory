@@ -18,7 +18,7 @@ open import Tools.Function
 open import Tools.Level
 open import Tools.Product as Σ
 open import Tools.PropositionalEquality
-open import Tools.Relation
+open import Tools.Relation as Dec
 open import Tools.Unit
 
 open import Graded.Modality.Properties 𝕄
@@ -48,18 +48,19 @@ no-type-restrictions allowed = λ where
   open Type-restrictions
 
 -- No restrictions for prodrec or unitrec, all erased matches are
--- allowed for J and K, Id-erased is inhabited, and starˢ is treated
--- as a sink.
+-- allowed for J and K, Id-erased is inhabited if the first boolean is
+-- true, and starˢ is treated as a sink if the second boolean is true.
 
-no-usage-restrictions : Usage-restrictions
-no-usage-restrictions = λ where
+no-usage-restrictions : Bool → Bool → Usage-restrictions
+no-usage-restrictions erased sink = λ where
     .Prodrec-allowed                  → λ _ _ _ _ → Lift _ ⊤
     .Prodrec-allowed-downwards-closed → _
     .Unitrec-allowed                  → λ _ _ _ → Lift _ ⊤
     .Unitrec-allowed-downwards-closed → _
-    .starˢ-sink                       → true
-    .Id-erased                        → Lift _ ⊤
-    .Id-erased?                       → yes _
+    .starˢ-sink                       → sink
+    .Id-erased                        → Lift _ (T erased)
+    .Id-erased?                       → Dec.map lift Lift.lower $
+                                        T? erased
     .erased-matches-for-J             → λ _ → all
     .erased-matches-for-J-≤ᵉᵐ         → _
     .erased-matches-for-K             → λ _ → all

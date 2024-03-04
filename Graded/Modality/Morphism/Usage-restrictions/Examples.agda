@@ -40,13 +40,13 @@ open import Graded.Restrictions
 open import Graded.Usage.Restrictions
 
 private variable
-  𝟙≤𝟘 ok      : Bool
-  v₁ v₂       : Modality-variant _
-  R R₁ R₂     : Usage-restrictions _
-  A M₁ M₂     : Set _
-  𝕄₁ 𝕄₂       : Modality _
-  tr tr-Σ     : M₁ → M₂
-  v₁-ok v₂-ok : A
+  b₁ b₂ 𝟙≤𝟘 ok : Bool
+  v₁ v₂        : Modality-variant _
+  R R₁ R₂      : Usage-restrictions _
+  A M₁ M₂      : Set _
+  𝕄₁ 𝕄₂        : Modality _
+  tr tr-Σ      : M₁ → M₂
+  v₁-ok v₂-ok  : A
 
 ------------------------------------------------------------------------
 -- Preserving/reflecting no usage restrictions
@@ -60,12 +60,13 @@ opaque
   Common-properties-no-usage-restrictions :
     (T (Modality.𝟘ᵐ-allowed 𝕄₁) → T (Modality.𝟘ᵐ-allowed 𝕄₂)) →
     Common-properties
-      (no-usage-restrictions 𝕄₁)
-      (no-usage-restrictions 𝕄₂)
+      (no-usage-restrictions 𝕄₁ b₁ b₂)
+      (no-usage-restrictions 𝕄₂ b₁ b₂)
   Common-properties-no-usage-restrictions hyp = λ where
       .𝟘ᵐ-preserved                   → hyp
       .starˢ-sink-preserved           → refl
-      .Id-erased-preserved            → _
+      .Id-erased-preserved            → lift ∘→ Lift.lower
+                                      , lift ∘→ Lift.lower
       .erased-matches-for-J-preserved → _
       .erased-matches-for-K-preserved → _
     where
@@ -80,8 +81,8 @@ opaque
   Are-preserving-usage-restrictions-no-usage-restrictions :
     (T (Modality.𝟘ᵐ-allowed 𝕄₁) → T (Modality.𝟘ᵐ-allowed 𝕄₂)) →
     Are-preserving-usage-restrictions
-      (no-usage-restrictions 𝕄₁)
-      (no-usage-restrictions 𝕄₂)
+      (no-usage-restrictions 𝕄₁ b₁ b₂)
+      (no-usage-restrictions 𝕄₂ b₁ b₂)
       tr tr-Σ
   Are-preserving-usage-restrictions-no-usage-restrictions hyp = λ where
       .common-properties → Common-properties-no-usage-restrictions hyp
@@ -103,8 +104,8 @@ opaque
     (T M₁.𝟘ᵐ-allowed → T M₂.𝟘ᵐ-allowed) →
     (T M₂.𝟘ᵐ-allowed ⊎ M₂.Trivial → T M₁.𝟘ᵐ-allowed ⊎ M₁.Trivial) →
     Are-reflecting-usage-restrictions
-      (no-usage-restrictions 𝕄₁)
-      (no-usage-restrictions 𝕄₂)
+      (no-usage-restrictions 𝕄₁ b₁ b₂)
+      (no-usage-restrictions 𝕄₂ b₁ b₂)
       tr tr-Σ
   Are-reflecting-usage-restrictions-no-usage-restrictions hyp₁ hyp₂ =
     λ where
@@ -294,7 +295,7 @@ erasure→unit-preserves-no-erased-matches-UR =
   let 𝕄₂ = UnitModality v₂ v₂-ok in
   ¬ Are-reflecting-usage-restrictions
       (no-erased-matches-UR (ErasureModality v₁) R)
-      (no-erased-matches-UR 𝕄₂ (no-usage-restrictions 𝕄₂))
+      (no-erased-matches-UR 𝕄₂ (no-usage-restrictions 𝕄₂ b₁ b₂))
       erasure→unit tr
 ¬-erasure→unit-reflects-no-erased-matches-UR _ r =
   Prodrec-reflected {p = 𝟘} {q = 𝟘} [ 𝟙ᵐ ] (_ , λ tt≢tt _ → tt≢tt)
