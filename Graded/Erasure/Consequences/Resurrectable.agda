@@ -87,6 +87,60 @@ Resurrectable s q₁ q₂ Γ A =
 
 opaque
 
+  -- If certain assumptions hold, then Empty is resurrectable with
+  -- respect to certain things.
+
+  Empty-resurrectable :
+    Π-allowed 𝟘 q₁ →
+    Σ-allowed s 𝟙 q₂ →
+    Erased-allowed s →
+    (¬ T 𝟘ᵐ-allowed → Id-erased → q₂ ≤ 𝟘) →
+    (¬ T 𝟘ᵐ-allowed → ¬ Id-erased → q₂ ≤ 𝟙) →
+    ⊢ Γ →
+    Resurrectable s q₁ q₂ Γ Empty
+  Empty-resurrectable {s} {q₂} {Γ} ok₁ ok₂ Erased-ok hyp₁ hyp₂ ⊢Γ =
+      (lam 𝟘 $
+       emptyrec 𝟘
+         (Σ⟨ s ⟩ 𝟙 , q₂ ▷ Empty ▹ Erased s (Id Empty (var x0) (var x1)))
+         (var x0))
+    , (lamₘ $
+       sub
+         (emptyrecₘ var $ ΠΣₘ Emptyₘ $ ▸Erased _ $
+          Idₘ-generalised Emptyₘ var var
+            (λ erased → begin
+               𝟘ᶜ ∧ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝) ∙ (⌜ 𝟘ᵐ? ⌝ · q₂)  ≤⟨ ∧ᶜ-decreasingˡ _ _ ∙
+                                                         𝟘ᵐ?-elim (λ m → ⌜ m ⌝ · q₂ ≤ 𝟘)
+                                                           (≤-reflexive (·-zeroˡ _))
+                                                           (λ not-ok →
+                                                              ≤-trans (≤-reflexive (·-identityˡ _)) $
+                                                              hyp₁ not-ok erased) ⟩
+               𝟘ᶜ                                     ∎)
+            (λ not-erased → begin
+               𝟘ᶜ ∧ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝) ∙ (⌜ 𝟘ᵐ? ⌝ · q₂)       ≤⟨ ∧ᶜ-decreasingʳ _ _ ∙
+                                                              𝟘ᵐ?-elim (λ m → ⌜ m ⌝ · q₂ ≤ ⌜ m ⌝)
+                                                                (≤-reflexive (·-zeroˡ _))
+                                                                (λ not-ok →
+                                                                   ≤-trans (≤-reflexive (·-identityˡ _)) $
+                                                                   hyp₂ not-ok not-erased) ⟩
+               𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ ∙ ⌜ 𝟘ᵐ? ⌝                      ≈˘⟨ +ᶜ-identityˡ _ ∙ +-identityʳ _ ⟩
+               (𝟘ᶜ , x0 ≔ ⌜ 𝟘ᵐ? ⌝) +ᶜ (𝟘ᶜ , x1 ≔ ⌜ 𝟘ᵐ? ⌝)  ∎))
+         (begin
+            𝟘ᶜ ∙ 𝟙 · 𝟘                  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+            𝟘ᶜ                          ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
+            𝟘 ·ᶜ (𝟘ᶜ , x0 ≔ ⌜ ⌞ 𝟘 ⌟ ⌝)  ∎))
+    , (lamⱼ′ ok₁ $
+       emptyrecⱼ
+         (ΠΣⱼ′
+            (Erasedⱼ Erased-ok $
+             Idⱼ (var₀ (Emptyⱼ (⊢Γ ∙[ Emptyⱼ ])))
+               (var₁ (Emptyⱼ (⊢Γ ∙[ Emptyⱼ ]))))
+            ok₂)
+         (var₀ (Emptyⱼ ⊢Γ)))
+    where
+    open ≤ᶜ-reasoning
+
+opaque
+
   -- If certain assumptions hold, then Unit s₂ is resurrectable with
   -- respect to certain things.
 
