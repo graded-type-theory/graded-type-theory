@@ -316,6 +316,131 @@ Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
     tr q ≡ M₂.𝟘    →⟨ tr-𝟘 ⟩
     q ≡ M₁.𝟘       □
 
+opaque
+
+ -- If the functions tr and tr-Σ preserve certain type restrictions,
+ -- then they do this also for certain type restrictions obtained
+ -- using strong-types-restricted, given a certain assumption.
+
+ Are-preserving-type-restrictions-strong-types-restricted :
+   tr-Σ (Modality.𝟙 𝕄₁) ≡ Modality.𝟙 𝕄₂ →
+   Are-preserving-type-restrictions R₁ R₂ tr tr-Σ →
+   Are-preserving-type-restrictions
+     (strong-types-restricted 𝕄₁ R₁)
+     (strong-types-restricted 𝕄₂ R₂)
+     tr tr-Σ
+ Are-preserving-type-restrictions-strong-types-restricted hyp r = record
+   { Unit-preserved =
+       Σ.map Unit-preserved idᶠ
+   ; ΠΣ-preserved =
+       Σ.map ΠΣ-preserved λ where
+         hyp′ refl → case hyp′ refl of λ where
+           refl → hyp
+   ; K-preserved =
+       K-preserved
+   ; []-cong-preserved =
+       Σ.map []-cong-preserved idᶠ
+   }
+   where
+   open Are-preserving-type-restrictions r
+
+opaque
+
+ -- If the functions tr and tr-Σ reflect certain type restrictions,
+ -- then they do this also for certain type restrictions obtained
+ -- using strong-types-restricted, given certain assumptions.
+
+ Are-reflecting-type-restrictions-strong-types-restricted :
+   (∀ {p} → tr-Σ p ≡ Modality.𝟙 𝕄₂ → p ≡ Modality.𝟙 𝕄₁) →
+   (∀ {s} →
+    Modality.Trivial 𝕄₂ →
+    ¬ Type-restrictions.[]-cong-allowed R₁ s) →
+   Are-reflecting-type-restrictions R₁ R₂ tr tr-Σ →
+   Are-reflecting-type-restrictions
+     (strong-types-restricted 𝕄₁ R₁)
+     (strong-types-restricted 𝕄₂ R₂)
+     tr tr-Σ
+ Are-reflecting-type-restrictions-strong-types-restricted
+   hyp₁ hyp₂ r = record
+   { Unit-reflected =
+       Σ.map Unit-reflected idᶠ
+   ; ΠΣ-reflected =
+       Σ.map ΠΣ-reflected (λ { hyp refl → hyp₁ (hyp refl) })
+   ; K-reflected =
+       K-reflected
+   ; []-cong-reflected = λ {s = s} → λ where
+       (inj₁ (ok₂ , s≢𝕤)) →
+         case []-cong-reflected (inj₁ ok₂) of λ where
+           (inj₁ ok₁)      → inj₁ (ok₁ , s≢𝕤)
+           (inj₂ trivial₁) → inj₂ trivial₁
+       (inj₂ trivial₂) →
+         case []-cong-reflected {s = s} (inj₂ trivial₂) of λ where
+           (inj₁ ok₁)      → ⊥-elim $ hyp₂ trivial₂ ok₁
+           (inj₂ trivial₁) → inj₂ trivial₁
+   }
+   where
+   open Are-reflecting-type-restrictions r
+
+opaque
+
+ -- If the functions tr and tr-Σ preserve certain type restrictions,
+ -- then they do this also for certain type restrictions obtained
+ -- using no-strong-types.
+
+ Are-preserving-type-restrictions-no-strong-types :
+   Are-preserving-type-restrictions R₁ R₂ tr tr-Σ →
+   Are-preserving-type-restrictions
+     (no-strong-types 𝕄₁ R₁)
+     (no-strong-types 𝕄₂ R₂)
+     tr tr-Σ
+ Are-preserving-type-restrictions-no-strong-types r = record
+   { Unit-preserved =
+       Σ.map Unit-preserved idᶠ
+   ; ΠΣ-preserved =
+       Σ.map ΠΣ-preserved (lift ∘→ Lift.lower)
+   ; K-preserved =
+       K-preserved
+   ; []-cong-preserved =
+       Σ.map []-cong-preserved idᶠ
+   }
+   where
+   open Are-preserving-type-restrictions r
+
+opaque
+
+ -- If the functions tr and tr-Σ reflect certain type restrictions,
+ -- then they do this also for certain type restrictions obtained
+ -- using no-strong-types, given a certain assumption.
+
+ Are-reflecting-type-restrictions-no-strong-types :
+   (∀ {s} →
+    Modality.Trivial 𝕄₂ →
+    ¬ Type-restrictions.[]-cong-allowed R₁ s) →
+   Are-reflecting-type-restrictions R₁ R₂ tr tr-Σ →
+   Are-reflecting-type-restrictions
+     (no-strong-types 𝕄₁ R₁)
+     (no-strong-types 𝕄₂ R₂)
+     tr tr-Σ
+ Are-reflecting-type-restrictions-no-strong-types hyp r = record
+   { Unit-reflected =
+       Σ.map Unit-reflected idᶠ
+   ; ΠΣ-reflected =
+       Σ.map ΠΣ-reflected (lift ∘→ Lift.lower)
+   ; K-reflected =
+       K-reflected
+   ; []-cong-reflected = λ {s = s} → λ where
+       (inj₁ (ok₂ , s≢𝕤)) →
+         case []-cong-reflected (inj₁ ok₂) of λ where
+           (inj₁ ok₁)      → inj₁ (ok₁ , s≢𝕤)
+           (inj₂ trivial₁) → inj₂ trivial₁
+       (inj₂ trivial₂) →
+         case []-cong-reflected {s = s} (inj₂ trivial₂) of λ where
+           (inj₁ ok₁)      → ⊥-elim $ hyp trivial₂ ok₁
+           (inj₂ trivial₁) → inj₂ trivial₁
+   }
+   where
+   open Are-reflecting-type-restrictions r
+
 -- If the functions tr and tr-Σ preserve certain type restrictions,
 -- then they do this also for certain type restrictions obtained using
 -- no-erased-matches-TR.
@@ -994,3 +1119,491 @@ linearity→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω =
        {p = 𝟘} → (λ ()) , (λ ())
        {p = 𝟙} → (λ ()) , (λ ())
        {p = ω} → (λ _ → refl) , (λ _ → refl))
+
+------------------------------------------------------------------------
+-- Some lemmas related to strong-types-restricted and concrete
+-- translation functions
+
+opaque
+
+  -- If the function unit→erasure preserves certain type restrictions,
+  -- then it also does this for certain type restrictions obtained
+  -- using strong-types-restricted.
+
+  unit→erasure-preserves-strong-types-restricted :
+    Are-preserving-type-restrictions
+      R₁ R₂ unit→erasure unit→erasure →
+    Are-preserving-type-restrictions
+      (strong-types-restricted (UnitModality v₁ v₁-ok) R₁)
+      (strong-types-restricted (ErasureModality v₂) R₂)
+      unit→erasure unit→erasure
+  unit→erasure-preserves-strong-types-restricted =
+    Are-preserving-type-restrictions-strong-types-restricted refl
+
+opaque
+
+  -- If the function unit→erasure reflects certain type restrictions,
+  -- then it also does this for certain type restrictions obtained
+  -- using strong-types-restricted.
+
+  unit→erasure-reflects-strong-types-restricted :
+    Are-reflecting-type-restrictions
+      R₁ R₂ unit→erasure unit→erasure →
+    Are-reflecting-type-restrictions
+      (strong-types-restricted (UnitModality v₁ v₁-ok) R₁)
+      (strong-types-restricted (ErasureModality v₂) R₂)
+      unit→erasure unit→erasure
+  unit→erasure-reflects-strong-types-restricted =
+    Are-reflecting-type-restrictions-strong-types-restricted
+      (λ _ → refl)
+      (λ ())
+
+opaque
+
+  -- If the function erasure→unit preserves certain type restrictions,
+  -- then it also does this for certain type restrictions obtained
+  -- using strong-types-restricted.
+
+  erasure→unit-preserves-strong-types-restricted :
+    Are-preserving-type-restrictions
+      R₁ R₂ erasure→unit erasure→unit →
+    Are-preserving-type-restrictions
+      (strong-types-restricted (ErasureModality v₁) R₁)
+      (strong-types-restricted (UnitModality v₂ v₂-ok) R₂)
+      erasure→unit erasure→unit
+  erasure→unit-preserves-strong-types-restricted =
+    Are-preserving-type-restrictions-strong-types-restricted refl
+
+opaque
+
+  -- The function erasure→unit does not reflect certain type
+  -- restrictions obtained using strong-types-restricted.
+
+  ¬-erasure→unit-reflects-strong-types-restricted :
+    let 𝕄₁ = ErasureModality v₁
+        𝕄₂ = UnitModality v₂ v₂-ok
+    in
+    (R₁ : Type-restrictions 𝕄₁) →
+    ¬ Are-reflecting-type-restrictions
+        (strong-types-restricted 𝕄₁ R₁)
+        (strong-types-restricted 𝕄₂ (no-type-restrictions 𝕄₂ b))
+        erasure→unit erasure→unit
+  ¬-erasure→unit-reflects-strong-types-restricted _ r =
+    case
+      ΠΣ-reflected {b = BMΣ 𝕤} {p = 𝟘} {q = 𝟘} (_ , (λ _ → refl))
+        .proj₂ refl
+    of λ ()
+    where
+    open Are-reflecting-type-restrictions r
+
+opaque
+
+  -- The function erasure→zero-one-many does not preserve certain type
+  -- restrictions obtained using strong-types-restricted.
+
+  ¬-erasure→zero-one-many-preserves-strong-types-restricted :
+    let 𝕄₁ = ErasureModality v₁
+        𝕄₂ = zero-one-many-modality 𝟙≤𝟘 v₂
+    in
+    (R₂ : Type-restrictions 𝕄₂) →
+    ¬ Are-preserving-type-restrictions
+        (strong-types-restricted 𝕄₁ (no-type-restrictions 𝕄₁ b))
+        (strong-types-restricted 𝕄₂ R₂)
+        erasure→zero-one-many erasure→zero-one-many
+  ¬-erasure→zero-one-many-preserves-strong-types-restricted _ r =
+    case
+      ΠΣ-preserved {b = BMΣ 𝕤} {p = ω} {q = 𝟘} (_ , (λ _ → refl))
+        .proj₂ refl
+    of λ ()
+    where
+    open Are-preserving-type-restrictions r
+
+opaque
+
+  -- If the function erasure→zero-one-many reflects certain type
+  -- restrictions, then the function reflects certain type
+  -- restrictions obtained using strong-types-restricted.
+
+  erasure→zero-one-many-reflects-strong-types-restricted :
+    Are-reflecting-type-restrictions R₁ R₂
+      erasure→zero-one-many erasure→zero-one-many →
+    Are-reflecting-type-restrictions
+      (strong-types-restricted (ErasureModality v₁) R₁)
+      (strong-types-restricted (zero-one-many-modality 𝟙≤𝟘 v₂) R₂)
+      erasure→zero-one-many erasure→zero-one-many
+  erasure→zero-one-many-reflects-strong-types-restricted =
+    Are-reflecting-type-restrictions-strong-types-restricted
+      (λ where
+         {p = 𝟘} ()
+         {p = ω} ())
+      (λ ())
+
+opaque
+
+  -- If the functions erasure→zero-one-many and
+  -- erasure→zero-one-many-Σ preserve certain type restrictions, then
+  -- the functions preserve certain type restrictions obtained using
+  -- strong-types-restricted.
+
+  erasure→zero-one-many-Σ-preserves-strong-types-restricted :
+    Are-preserving-type-restrictions R₁ R₂
+      erasure→zero-one-many erasure→zero-one-many-Σ →
+    Are-preserving-type-restrictions
+      (strong-types-restricted (ErasureModality v₁) R₁)
+      (strong-types-restricted (zero-one-many-modality 𝟙≤𝟘 v₂) R₂)
+      erasure→zero-one-many erasure→zero-one-many-Σ
+  erasure→zero-one-many-Σ-preserves-strong-types-restricted =
+    Are-preserving-type-restrictions-strong-types-restricted refl
+
+opaque
+
+  -- If the functions erasure→zero-one-many and
+  -- erasure→zero-one-many-Σ reflect certain type restrictions, then
+  -- the functions reflect certain type restrictions obtained using
+  -- strong-types-restricted.
+
+  erasure→zero-one-many-Σ-reflects-strong-types-restricted :
+    Are-reflecting-type-restrictions R₁ R₂
+      erasure→zero-one-many erasure→zero-one-many-Σ →
+    Are-reflecting-type-restrictions
+      (strong-types-restricted (ErasureModality v₁) R₁)
+      (strong-types-restricted (zero-one-many-modality 𝟙≤𝟘 v₂) R₂)
+      erasure→zero-one-many erasure→zero-one-many-Σ
+  erasure→zero-one-many-Σ-reflects-strong-types-restricted =
+    Are-reflecting-type-restrictions-strong-types-restricted
+      (λ { {p = ω} refl → refl })
+      (λ ())
+
+opaque
+
+  -- If the function zero-one-many→erasure preserves certain type
+  -- restrictions, then it also does this for certain type
+  -- restrictions obtained using strong-types-restricted.
+
+  zero-one-many→erasure-preserves-strong-types-restricted :
+    Are-preserving-type-restrictions
+      R₁ R₂ zero-one-many→erasure zero-one-many→erasure →
+    Are-preserving-type-restrictions
+      (strong-types-restricted (zero-one-many-modality 𝟙≤𝟘 v₁) R₁)
+      (strong-types-restricted (ErasureModality v₂) R₂)
+      zero-one-many→erasure zero-one-many→erasure
+  zero-one-many→erasure-preserves-strong-types-restricted =
+    Are-preserving-type-restrictions-strong-types-restricted refl
+
+opaque
+
+  -- The function zero-one-many→erasure does not reflect certain type
+  -- restrictions obtained using strong-types-restricted.
+
+  ¬-zero-one-many→erasure-reflects-strong-types-restricted :
+    let 𝕄₁ = zero-one-many-modality 𝟙≤𝟘 v₁
+        𝕄₂ = ErasureModality v₂
+    in
+    (R₁ : Type-restrictions 𝕄₁) →
+    ¬ Are-reflecting-type-restrictions
+        (strong-types-restricted 𝕄₁ R₁)
+        (strong-types-restricted 𝕄₂ (no-type-restrictions 𝕄₂ b))
+        zero-one-many→erasure zero-one-many→erasure
+  ¬-zero-one-many→erasure-reflects-strong-types-restricted _ r =
+    case
+      ΠΣ-reflected {b = BMΣ 𝕤} {p = ω} {q = ω} (_ , (λ _ → refl))
+        .proj₂ refl
+    of λ ()
+    where
+    open Are-reflecting-type-restrictions r
+
+opaque
+
+  -- If the function linearity→linear-or-affine preserves certain type
+  -- restrictions, then the function preserves certain type
+  -- restrictions obtained using strong-types-restricted.
+
+  linearity→linear-or-affine-preserves-strong-types-restricted :
+    Are-preserving-type-restrictions R₁ R₂
+      linearity→linear-or-affine linearity→linear-or-affine →
+    Are-preserving-type-restrictions
+      (strong-types-restricted (linearityModality v₁) R₁)
+      (strong-types-restricted (linear-or-affine v₂) R₂)
+      linearity→linear-or-affine linearity→linear-or-affine
+  linearity→linear-or-affine-preserves-strong-types-restricted =
+    Are-preserving-type-restrictions-strong-types-restricted refl
+
+opaque
+
+  -- If the function linearity→linear-or-affine reflects certain type
+  -- restrictions, then the function reflects certain type
+  -- restrictions obtained using strong-types-restricted.
+
+  linearity→linear-or-affine-reflects-strong-types-restricted :
+    Are-reflecting-type-restrictions R₁ R₂
+      linearity→linear-or-affine linearity→linear-or-affine →
+    Are-reflecting-type-restrictions
+      (strong-types-restricted (linearityModality v₁) R₁)
+      (strong-types-restricted (linear-or-affine v₂) R₂)
+      linearity→linear-or-affine linearity→linear-or-affine
+  linearity→linear-or-affine-reflects-strong-types-restricted =
+    Are-reflecting-type-restrictions-strong-types-restricted
+      (λ { {p = 𝟙} refl → refl })
+      (λ ())
+
+opaque
+
+  -- If the function linearity→linear-or-affine preserves certain type
+  -- restrictions, then the function preserves certain type
+  -- restrictions obtained using strong-types-restricted.
+
+  linear-or-affine→linearity-preserves-strong-types-restricted :
+    Are-preserving-type-restrictions R₁ R₂
+      linear-or-affine→linearity linear-or-affine→linearity →
+    Are-preserving-type-restrictions
+      (strong-types-restricted (linear-or-affine v₁) R₁)
+      (strong-types-restricted (linearityModality v₂) R₂)
+      linear-or-affine→linearity linear-or-affine→linearity
+  linear-or-affine→linearity-preserves-strong-types-restricted =
+    Are-preserving-type-restrictions-strong-types-restricted refl
+
+opaque
+
+  -- If the function linearity→linear-or-affine reflects certain type
+  -- restrictions, then the function reflects certain type
+  -- restrictions obtained using strong-types-restricted.
+
+  linear-or-affine→linearity-reflects-strong-types-restricted :
+    Are-reflecting-type-restrictions R₁ R₂
+      linear-or-affine→linearity linear-or-affine→linearity →
+    Are-reflecting-type-restrictions
+      (strong-types-restricted (linear-or-affine v₁) R₁)
+      (strong-types-restricted (linearityModality v₂) R₂)
+      linear-or-affine→linearity linear-or-affine→linearity
+  linear-or-affine→linearity-reflects-strong-types-restricted =
+    Are-reflecting-type-restrictions-strong-types-restricted
+      (λ { {p = 𝟙} refl → refl })
+      (λ ())
+
+opaque
+
+  -- The function affine→linear-or-affine does not preserve certain
+  -- type restrictions obtained using strong-types-restricted.
+
+  ¬-affine→linear-or-affine-preserves-strong-types-restricted :
+    let 𝕄₁ = affineModality v₁
+        𝕄₂ = linear-or-affine v₂
+    in
+    (R₂ : Type-restrictions 𝕄₂) →
+    ¬ Are-preserving-type-restrictions
+        (strong-types-restricted 𝕄₁ (no-type-restrictions 𝕄₁ b))
+        (strong-types-restricted 𝕄₂ R₂)
+        affine→linear-or-affine affine→linear-or-affine
+  ¬-affine→linear-or-affine-preserves-strong-types-restricted _ r =
+    case
+      ΠΣ-preserved {b = BMΣ 𝕤} {p = 𝟙} {q = 𝟙} (_ , (λ _ → refl))
+        .proj₂ refl
+    of λ ()
+    where
+    open Are-preserving-type-restrictions r
+
+opaque
+
+  -- If the function affine→linear-or-affine reflects certain type
+  -- restrictions, then the function reflects certain type
+  -- restrictions obtained using strong-types-restricted.
+
+  affine→linear-or-affine-reflects-strong-types-restricted :
+    Are-reflecting-type-restrictions R₁ R₂
+      affine→linear-or-affine affine→linear-or-affine →
+    Are-reflecting-type-restrictions
+      (strong-types-restricted (affineModality v₁) R₁)
+      (strong-types-restricted (linear-or-affine v₂) R₂)
+      affine→linear-or-affine affine→linear-or-affine
+  affine→linear-or-affine-reflects-strong-types-restricted =
+    Are-reflecting-type-restrictions-strong-types-restricted
+      (λ where
+         {p = 𝟘} ()
+         {p = 𝟙} ()
+         {p = ω} ())
+      (λ ())
+
+opaque
+
+  -- If the functions affine→linear-or-affine and
+  -- affine→linear-or-affine-Σ preserve certain type restrictions,
+  -- then the functions preserve certain type restrictions obtained
+  -- using strong-types-restricted.
+
+  affine→linear-or-affine-Σ-preserves-strong-types-restricted :
+    Are-preserving-type-restrictions R₁ R₂
+      affine→linear-or-affine affine→linear-or-affine-Σ →
+    Are-preserving-type-restrictions
+      (strong-types-restricted (affineModality v₁) R₁)
+      (strong-types-restricted (linear-or-affine v₂) R₂)
+      affine→linear-or-affine affine→linear-or-affine-Σ
+  affine→linear-or-affine-Σ-preserves-strong-types-restricted =
+    Are-preserving-type-restrictions-strong-types-restricted refl
+
+opaque
+
+  -- If the functions affine→linear-or-affine and
+  -- affine→linear-or-affine-Σ reflect certain type restrictions, then
+  -- the functions reflect certain type restrictions obtained using
+  -- strong-types-restricted.
+
+  affine→linear-or-affine-Σ-reflects-strong-types-restricted :
+    Are-reflecting-type-restrictions R₁ R₂
+      affine→linear-or-affine affine→linear-or-affine-Σ →
+    Are-reflecting-type-restrictions
+      (strong-types-restricted (affineModality v₁) R₁)
+      (strong-types-restricted (linear-or-affine v₂) R₂)
+      affine→linear-or-affine affine→linear-or-affine-Σ
+  affine→linear-or-affine-Σ-reflects-strong-types-restricted =
+    Are-reflecting-type-restrictions-strong-types-restricted
+      (λ { {p = 𝟙} refl → refl })
+      (λ ())
+
+opaque
+
+  -- If the function linear-or-affine→affine preserves certain type
+  -- restrictions, then the function preserves certain type
+  -- restrictions obtained using strong-types-restricted.
+
+  linear-or-affine→affine-preserves-strong-types-restricted :
+    Are-preserving-type-restrictions R₁ R₂
+      linear-or-affine→affine linear-or-affine→affine →
+    Are-preserving-type-restrictions
+      (strong-types-restricted (linear-or-affine v₁) R₁)
+      (strong-types-restricted (affineModality v₂) R₂)
+      linear-or-affine→affine linear-or-affine→affine
+  linear-or-affine→affine-preserves-strong-types-restricted =
+    Are-preserving-type-restrictions-strong-types-restricted refl
+
+opaque
+
+  -- The function linear-or-affine→affine does not reflect certain
+  -- type restrictions obtained using strong-types-restricted.
+
+  ¬-linear-or-affine→affine-reflects-strong-types-restricted :
+    let 𝕄₁ = linear-or-affine v₁
+        𝕄₂ = affineModality v₂
+    in
+    (R₁ : Type-restrictions 𝕄₁) →
+    ¬ Are-reflecting-type-restrictions
+        (strong-types-restricted 𝕄₁ R₁)
+        (strong-types-restricted 𝕄₂ (no-type-restrictions 𝕄₂ b))
+        linear-or-affine→affine linear-or-affine→affine
+  ¬-linear-or-affine→affine-reflects-strong-types-restricted _ r =
+    case
+      ΠΣ-reflected {b = BMΣ 𝕤} {p = ≤𝟙} {q = ≤𝟙} (_ , (λ _ → refl))
+        .proj₂ refl
+    of λ ()
+    where
+    open Are-reflecting-type-restrictions r
+
+opaque
+
+  -- The function affine→linearity does not preserve certain type
+  -- restrictions obtained using strong-types-restricted.
+
+  ¬-affine→linearity-preserves-strong-types-restricted :
+    let 𝕄₁ = affineModality v₁
+        𝕄₂ = linearityModality v₂
+    in
+    (R₂ : Type-restrictions 𝕄₂) →
+    ¬ Are-preserving-type-restrictions
+        (strong-types-restricted 𝕄₁ (no-type-restrictions 𝕄₁ b))
+        (strong-types-restricted 𝕄₂ R₂)
+        affine→linearity affine→linearity
+  ¬-affine→linearity-preserves-strong-types-restricted _ r =
+    case
+      ΠΣ-preserved {b = BMΣ 𝕤} {p = 𝟙} {q = 𝟙} (_ , (λ _ → refl))
+        .proj₂ refl
+    of λ ()
+    where
+    open Are-preserving-type-restrictions r
+
+opaque
+
+  -- If the function affine→linearity reflects certain type
+  -- restrictions, then the function reflects certain type
+  -- restrictions obtained using strong-types-restricted.
+
+  affine→linearity-reflects-strong-types-restricted :
+    Are-reflecting-type-restrictions R₁ R₂
+      affine→linearity affine→linearity →
+    Are-reflecting-type-restrictions
+      (strong-types-restricted (affineModality v₁) R₁)
+      (strong-types-restricted (linearityModality v₂) R₂)
+      affine→linearity affine→linearity
+  affine→linearity-reflects-strong-types-restricted =
+    Are-reflecting-type-restrictions-strong-types-restricted
+      (λ where
+         {p = 𝟘} ()
+         {p = 𝟙} ()
+         {p = ω} ())
+      (λ ())
+
+opaque
+
+  -- If the functions affine→linearity and affine→linearity-Σ preserve
+  -- certain type restrictions, then the functions preserve certain
+  -- type restrictions obtained using strong-types-restricted.
+
+  affine→linearity-Σ-preserves-strong-types-restricted :
+    Are-preserving-type-restrictions R₁ R₂
+      affine→linearity affine→linearity-Σ →
+    Are-preserving-type-restrictions
+      (strong-types-restricted (affineModality v₁) R₁)
+      (strong-types-restricted (linearityModality v₂) R₂)
+      affine→linearity affine→linearity-Σ
+  affine→linearity-Σ-preserves-strong-types-restricted =
+    Are-preserving-type-restrictions-strong-types-restricted refl
+
+opaque
+
+  -- If the functions affine→linearity and affine→linearity-Σ reflect
+  -- certain type restrictions, then the functions reflect certain
+  -- type restrictions obtained using strong-types-restricted.
+
+  affine→linearity-Σ-reflects-strong-types-restricted :
+    Are-reflecting-type-restrictions R₁ R₂
+      affine→linearity affine→linearity-Σ →
+    Are-reflecting-type-restrictions
+      (strong-types-restricted (affineModality v₁) R₁)
+      (strong-types-restricted (linearityModality v₂) R₂)
+      affine→linearity affine→linearity-Σ
+  affine→linearity-Σ-reflects-strong-types-restricted =
+    Are-reflecting-type-restrictions-strong-types-restricted
+      (λ { {p = 𝟙} refl → refl })
+      (λ ())
+
+opaque
+
+  -- If the function linearity→affine preserves certain type
+  -- restrictions, then the function preserves certain type
+  -- restrictions obtained using strong-types-restricted.
+
+  linearity→affine-preserves-strong-types-restricted :
+    Are-preserving-type-restrictions R₁ R₂
+      linearity→affine linearity→affine →
+    Are-preserving-type-restrictions
+      (strong-types-restricted (linearityModality v₁) R₁)
+      (strong-types-restricted (affineModality v₂) R₂)
+      linearity→affine linearity→affine
+  linearity→affine-preserves-strong-types-restricted =
+    Are-preserving-type-restrictions-strong-types-restricted refl
+
+opaque
+
+  -- If the function linearity→affine reflects certain type
+  -- restrictions, then the function reflects certain type
+  -- restrictions obtained using strong-types-restricted.
+
+  linearity→affine-reflects-strong-types-restricted :
+    Are-reflecting-type-restrictions R₁ R₂
+      linearity→affine linearity→affine →
+    Are-reflecting-type-restrictions
+      (strong-types-restricted (linearityModality v₁) R₁)
+      (strong-types-restricted (affineModality v₂) R₂)
+      linearity→affine linearity→affine
+  linearity→affine-reflects-strong-types-restricted =
+    Are-reflecting-type-restrictions-strong-types-restricted
+      (λ { {p = 𝟙} refl → refl })
+      (λ ())

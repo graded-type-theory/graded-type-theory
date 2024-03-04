@@ -115,6 +115,54 @@ second-ΠΣ-quantities-𝟘-or-ω R = record R
   where
   open Type-restrictions R
 
+-- A lemma used to define strong-types-restricted and no-strong-types.
+
+strong-types-restricted′ :
+  (P : BinderMode → M → Set a) →
+  (∀ {s} → s ≢ 𝕤 → P (BMΣ s) 𝟘) →
+  Type-restrictions → Type-restrictions
+strong-types-restricted′ P hyp R = record R
+  { Unit-allowed = λ s →
+      Unit-allowed s × s ≢ 𝕤
+  ; ΠΣ-allowed = λ b p q →
+      ΠΣ-allowed b p q × P b p
+  ; []-cong-allowed = λ s →
+      []-cong-allowed s × s ≢ 𝕤
+  ; []-cong→Erased = λ (ok , s≢𝕤) →
+        ([]-cong→Erased ok .proj₁ , s≢𝕤)
+      , []-cong→Erased ok .proj₂
+      , hyp s≢𝕤
+  ; []-cong→¬Trivial =
+      []-cong→¬Trivial ∘→ proj₁
+  }
+  where
+  open Type-restrictions R
+
+-- The function strong-types-restricted adds the following
+-- restrictions:
+--
+-- * The strong unit type is not allowed.
+-- * If strong Σ-types are allowed for p and q, then p is 𝟙.
+-- * []-cong is not allowed for 𝕤.
+
+strong-types-restricted :
+  Type-restrictions → Type-restrictions
+strong-types-restricted =
+  strong-types-restricted′ (λ b p → b ≡ BMΣ 𝕤 → p ≡ 𝟙)
+    (λ { hyp refl → ⊥-elim $ hyp refl })
+
+-- The function no-strong-types adds the following restrictions:
+--
+-- * The strong unit type is not allowed.
+-- * Strong Σ-types are not allowed.
+-- * []-cong is not allowed for 𝕤.
+
+no-strong-types :
+  Type-restrictions → Type-restrictions
+no-strong-types =
+  strong-types-restricted′ (λ b _ → Lift _ (b ≢ BMΣ 𝕤))
+    (λ hyp → lift (λ { refl → ⊥-elim $ hyp refl }))
+
 -- The property of not allowing erased matches.
 --
 -- "Erased" matches are allowed for trivial modalities. Erased matches
