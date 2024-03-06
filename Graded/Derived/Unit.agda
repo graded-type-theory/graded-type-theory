@@ -42,7 +42,7 @@ private variable
 
 opaque
 
-  -- A grade used in the implementation of Unit-η.
+  -- A grade used to state ▸Unit-η.
 
   Unit-η-grade : M
   Unit-η-grade = case Id-erased? of λ where
