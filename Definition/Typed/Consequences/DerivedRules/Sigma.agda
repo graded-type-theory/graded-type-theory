@@ -575,7 +575,7 @@ private
     Γ ∙ A ⊢ˢ wk1Subst idSubst ∷ Γ
   ⊢ˢwk1Subst-idSubst {Γ = Γ} {A = A} ⊢A =
                                    $⟨ idSubst′ ⊢Γ ⟩
-    Γ ⊢ˢ idSubst ∷ Γ               →⟨ wk1Subst′ ⊢Γ ⊢Γ ⊢A ⟩
+    Γ ⊢ˢ idSubst ∷ Γ               →⟨ wk1Subst′ ⊢Γ ⊢A ⟩
     Γ ∙ A ⊢ˢ wk1Subst idSubst ∷ Γ  □
     where
     ⊢Γ = wf ⊢A
@@ -584,12 +584,10 @@ private
     Γ ∙ A ⊢ B →
     Γ ∙ A ∙ B ⊢ˢ wk1Subst (wk1Subst idSubst) ∷ Γ
   ⊢ˢwk1Subst-wk1Subst-idSubst {Γ = Γ} {A = A} {B = B} ⊢B =
-    case ⊢ΓA of λ { (⊢Γ ∙ ⊢A) →
+    case wf ⊢B of λ { (⊢Γ ∙ ⊢A) →
                                                   $⟨ ⊢ˢwk1Subst-idSubst ⊢A ⟩
-    Γ ∙ A ⊢ˢ wk1Subst idSubst ∷ Γ                 →⟨ wk1Subst′ ⊢Γ ⊢ΓA ⊢B ⟩
+    Γ ∙ A ⊢ˢ wk1Subst idSubst ∷ Γ                 →⟨ wk1Subst′ ⊢Γ ⊢B ⟩
     Γ ∙ A ∙ B ⊢ˢ wk1Subst (wk1Subst idSubst) ∷ Γ  □ }
-    where
-    ⊢ΓA = wf ⊢B
 
 ------------------------------------------------------------------------
 -- Typing rules for fstʷ

@@ -773,7 +773,7 @@ erase-head = PE.refl
     Uℕℕ∙ΠΠ ⊢ wk wk₀ Vec ∘⟨ ω ⟩ var x3 ∘⟨ ω ⟩ suc (var x1) ∷ U
   ⊢Vec-3-1+1 = substitutionTerm
     ⊢Vec-2-0
-    (wk1Subst′ ⊢Uℕℕ ⊢Uℕℕ (univ Uℕℕ⊢ΠΠ∷U)
+    (wk1Subst′ ⊢Uℕℕ (univ Uℕℕ⊢ΠΠ∷U)
        (singleSubst↑ (sucⱼ (var ⊢Uℕℕ here))))
     ⊢Uℕℕ∙ΠΠ
 
@@ -784,8 +784,8 @@ erase-head = PE.refl
     Uℕℕ∙ΠΠ∙Vec ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ suc (var x2) ∷ U
   ⊢Non-zero-1+2 = substitutionTerm
     ⊢Non-zero-0
-    (wk1Subst′ ⊢Uℕℕ ⊢Uℕℕ∙ΠΠ (univ ⊢Vec-3-1+1)
-       (wk1Subst′ ⊢Uℕℕ ⊢Uℕℕ (univ Uℕℕ⊢ΠΠ∷U)
+    (wk1Subst′ ⊢Uℕℕ (univ ⊢Vec-3-1+1)
+       (wk1Subst′ ⊢Uℕℕ (univ Uℕℕ⊢ΠΠ∷U)
           (singleSubst↑ (sucⱼ (var ⊢Uℕℕ here)))))
     ⊢Uℕℕ∙ΠΠ∙Vec
 

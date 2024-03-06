@@ -99,12 +99,12 @@ wkSubst′ (_∙_ {Γ = Γ} {A} ⊢Γ ⊢A) ⊢Δ ⊢Δ′ ρ (tailσ , headσ) 
   , PE.subst (λ x → _ ⊢ _ ∷ x) (wk-subst A) (wkTerm ρ ⊢Δ′ headσ)
 
 -- Weakening of well-formed substitution by one.
-wk1Subst′ : ∀ {F Γ Δ} (⊢Γ : ⊢ Γ) (⊢Δ : ⊢ Δ)
+wk1Subst′ : ∀ {F Γ Δ} (⊢Γ : ⊢ Γ)
             (⊢F : Δ ⊢ F)
             ([σ] : Δ ⊢ˢ σ ∷ Γ)
           → (Δ ∙ F) ⊢ˢ wk1Subst σ ∷ Γ
-wk1Subst′ {σ = σ} {F} {Γ} {Δ} ⊢Γ ⊢Δ ⊢F [σ] =
-  wkSubst′ ⊢Γ ⊢Δ (⊢Δ ∙ ⊢F) (step id) [σ]
+wk1Subst′ {σ = σ} {F} {Γ} {Δ} ⊢Γ ⊢F [σ] =
+  wkSubst′ ⊢Γ (wf ⊢F) (⊢→⊢∙ ⊢F) (step id) [σ]
 
 -- Lifting of well-formed substitution.
 liftSubst′ : ∀ {F Γ Δ} (⊢Γ : ⊢ Γ) (⊢Δ : ⊢ Δ)
@@ -122,7 +122,7 @@ idSubst′ : (⊢Γ : ⊢ Γ)
          → Γ ⊢ˢ idSubst ∷ Γ
 idSubst′ ε = id
 idSubst′ (_∙_ {Γ = Γ} {A} ⊢Γ ⊢A) =
-  wk1Subst′ ⊢Γ ⊢Γ ⊢A (idSubst′ ⊢Γ)
+  wk1Subst′ ⊢Γ ⊢A (idSubst′ ⊢Γ)
   , PE.subst (λ x → Γ ∙ A ⊢ _ ∷ x) (wk1-tailId A) (var₀ ⊢A)
 
 -- Well-formed substitution composition.
@@ -152,14 +152,14 @@ singleSubstEq {A = A} t =
 -- Well-formed singleton substitution of terms with lifting.
 singleSubst↑ : ∀ {A t} → Γ ∙ A ⊢ t ∷ wk1 A → Γ ∙ A ⊢ˢ consSubst (wk1Subst idSubst) t ∷ Γ ∙ A
 singleSubst↑ {A = A} t with wfTerm t
-... | ⊢Γ ∙ ⊢A = wk1Subst′ ⊢Γ ⊢Γ ⊢A (idSubst′ ⊢Γ)
+... | ⊢Γ ∙ ⊢A = wk1Subst′ ⊢Γ ⊢A (idSubst′ ⊢Γ)
               , PE.subst (λ x → _ ∙ A ⊢ _ ∷ x) (wk1-tailId A) t
 
 -- Well-formed singleton substitution of term equality with lifting.
 singleSubst↑Eq : ∀ {A t u} → Γ ∙ A ⊢ t ≡ u ∷ wk1 A
               → Γ ∙ A ⊢ˢ consSubst (wk1Subst idSubst) t ≡ consSubst (wk1Subst idSubst) u ∷ Γ ∙ A
 singleSubst↑Eq {A = A} t with wfEqTerm t
-... | ⊢Γ ∙ ⊢A = substRefl (wk1Subst′ ⊢Γ ⊢Γ ⊢A (idSubst′ ⊢Γ))
+... | ⊢Γ ∙ ⊢A = substRefl (wk1Subst′ ⊢Γ ⊢A (idSubst′ ⊢Γ))
               , PE.subst (λ x → _ ∙ A ⊢ _ ≡ _ ∷ x) (wk1-tailId A) t
 
 -- Helper lemmas for single substitution
@@ -206,7 +206,7 @@ subst↑²Type {n} {Γ} {t} {F} {G} {A} {B} ⊢F ⊢G ⊢B ⊢t =
       ⊢t′ = PE.subst (λ x → Γ ∙ F ∙ G ⊢ t ∷ x)
                      (PE.trans (wk-comp (step id) (step id) A) (wk≡subst _ A))
                      ⊢t
-      ⊢σ = wk1Subst′ ⊢Γ (⊢Γ ∙ ⊢F) ⊢G (wk1Subst′ ⊢Γ ⊢Γ ⊢F (idSubst′ ⊢Γ)) , ⊢t′
+      ⊢σ = wk1Subst′ ⊢Γ ⊢G (wk1Subst′ ⊢Γ ⊢F (idSubst′ ⊢Γ)) , ⊢t′
   in  substitution ⊢B ⊢σ (⊢Γ ∙ ⊢F ∙ ⊢G)
 
 subst↑²Type-prod : ∀ {m F G A}
@@ -238,7 +238,7 @@ subst↑²Type-prod {Γ = Γ} {F = F} {G} {A} ⊢A ok =
                                           (PE.sym (substCompEq G))))
                       (var₀ ⊢G)
   in  substitution ⊢A
-                   (wk1Subst′ ⊢Γ (⊢Γ ∙ ⊢F) ⊢G (wk1Subst′ ⊢Γ ⊢Γ ⊢F (idSubst′ ⊢Γ))
+                   (wk1Subst′ ⊢Γ ⊢G (wk1Subst′ ⊢Γ ⊢F (idSubst′ ⊢Γ))
                    , prodⱼ ⊢ρF′ ⊢ρG′ var1 var0 ok)
                    ⊢ΓFG
   where
@@ -255,7 +255,8 @@ subst↑²TypeEq {n} {Γ} {t} {u} {F} {G} {A} {B} {C} ⊢F ⊢G B≡C t≡u =
   let ⊢Γ = wf ⊢F
       t≡u′ = PE.subst (λ x → Γ ∙ F ∙ G ⊢ t ≡ u ∷ x)
                       (PE.trans (wk-comp (step id) (step id) A) (wk≡subst _ A)) t≡u
-      σ≡σ′ = substRefl (wk1Subst′ ⊢Γ (⊢Γ ∙ ⊢F) ⊢G (wk1Subst′ ⊢Γ ⊢Γ ⊢F (idSubst′ ⊢Γ))) , t≡u′
+      σ≡σ′ = substRefl (wk1Subst′ ⊢Γ ⊢G (wk1Subst′ ⊢Γ ⊢F (idSubst′ ⊢Γ)))
+           , t≡u′
   in  substitutionEq B≡C σ≡σ′ (⊢Γ ∙ ⊢F ∙ ⊢G)
 
 
@@ -290,8 +291,8 @@ subst↑²TypeEq-prod {Γ = Γ} {F = F} {G} {A} {B} A≡B ok =
                                           (PE.sym (substCompEq G))))
                       (var₀ ⊢G)
   in  substitutionEq A≡B
-                     (substRefl (wk1Subst′ ⊢Γ (⊢Γ ∙ ⊢F) ⊢G
-                                           (wk1Subst′ ⊢Γ ⊢Γ ⊢F
+                     (substRefl (wk1Subst′ ⊢Γ ⊢G
+                                           (wk1Subst′ ⊢Γ ⊢F
                                                       (idSubst′ ⊢Γ))
                                 , prodⱼ ⊢ρF′ ⊢ρG′ var1 var0 ok))
                      ⊢ΓFG

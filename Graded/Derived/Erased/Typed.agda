@@ -189,7 +189,7 @@ module _ (ok : []-cong-allowed s) where
       case Erasedⱼ Erased-ok ⊢A of λ
         ⊢Erased-A →
       substitution ⊢B
-        ( wk1Subst′ ⊢Γ ⊢Γ ⊢Erased-A (idSubst′ ⊢Γ)
+        ( wk1Subst′ ⊢Γ ⊢Erased-A (idSubst′ ⊢Γ)
         , PE.subst (_⊢_∷_ _ _) (wk≡subst _ _)
             (erasedⱼ $ var₀ ⊢Erased-A)
         )
@@ -302,7 +302,7 @@ module _ (ok : []-cong-allowed s) where
       conv
         (subst-cong (Erased-cong Erased-ok A₁≡A₂)
            (substitutionEq B₁≡B₂
-              ( substRefl (wk1Subst′ ⊢Γ ⊢Γ ⊢Erased-A₁ (idSubst′ ⊢Γ))
+              ( substRefl (wk1Subst′ ⊢Γ ⊢Erased-A₁ (idSubst′ ⊢Γ))
               , PE.subst (_⊢_≡_∷_ _ _ _) (wk≡subst _ _)
                   (erased-cong (wkEq₁ ⊢Erased-A₁ A₁≡A₂)
                      (refl $ var₀ ⊢Erased-A₁))
@@ -508,7 +508,7 @@ module _ (ok : []-cong-allowed s) where
       case syntacticEq A₁≡A₂′ of λ
         (⊢A₁′ , _) →
       substitutionEq B₁≡B₂
-        ( ( substRefl (wk1Subst′ ⊢Γ ⊢Γ ⊢Singleton₁ (idSubst′ ⊢Γ))
+        ( ( substRefl (wk1Subst′ ⊢Γ ⊢Singleton₁ (idSubst′ ⊢Γ))
           , PE.subst (_⊢_≡_∷_ _ _ _) (wk1-tailId _)
               (fst⟨⟩-cong A₁≡A₂′ $
                refl (var₀ ⊢Singleton₁))
