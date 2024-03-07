@@ -616,6 +616,12 @@ idSubst = var
 wk1Subst : Subst m n → Subst (1+ m) n
 wk1Subst σ x = wk1 (σ x)
 
+-- An n-ary variant of wk1Subst.
+
+wkSubst : ∀ k → Subst m n → Subst (k + m) n
+wkSubst 0      = idᶠ
+wkSubst (1+ k) = wk1Subst ∘→ wkSubst k
+
 -- Lift a substitution.
 --
 -- If Γ ⊢ σ : Δ then Γ∙A ⊢ liftSubst σ : Δ∙A.

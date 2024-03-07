@@ -504,19 +504,19 @@ wk-β-doubleSubst ρ s t u =
     eq (x +2)  = refl
 
 natrecSucCaseLemma : (x : Fin (1+ n))
-  → (liftSubstn σ 2 ₛ•ₛ consSubst (wk1Subst (wk1Subst idSubst)) (suc (var x1))) x
-  ≡ (consSubst (wk1Subst (wk1Subst idSubst)) (suc (var x1)) ₛ•ₛ liftSubst σ) x
+  → (liftSubstn σ 2 ₛ•ₛ consSubst (wkSubst 2 idSubst) (suc (var x1))) x
+  ≡ (consSubst (wkSubst 2 idSubst) (suc (var x1)) ₛ•ₛ liftSubst σ) x
 natrecSucCaseLemma x0 = refl
 natrecSucCaseLemma {σ = σ} (_+1 x) = begin
   wk1 (wk1 (σ x))
     ≡⟨ wk-comp (step id) (step id) (σ x) ⟩
   wk (step id • step id) (σ x)
     ≡⟨ wk≡subst (step id • step id) (σ x) ⟩
-  σ x [ wk1Subst (wk1Subst idSubst) ]
+  σ x [ wkSubst 2 idSubst ]
     ≡⟨⟩
-  σ x [ consSubst (wk1Subst (wk1Subst idSubst)) (suc (var x1)) ₛ• step id ]
+  σ x [ consSubst (wkSubst 2 idSubst) (suc (var x1)) ₛ• step id ]
     ≡˘⟨ subst-wk (σ x) ⟩
-  wk1 (σ x) [ consSubst (wk1Subst (wk1Subst idSubst)) (suc (var x1)) ] ∎
+  wk1 (σ x) [ consSubst (wkSubst 2 idSubst) (suc (var x1)) ] ∎
 
 natrecSucCase : ∀ (σ : Subst m n) F
               → F [ suc (var x1) ]↑² [ liftSubstn σ 2 ]
@@ -531,7 +531,7 @@ natrecSucCase σ F = begin
   F [ liftSubst σ ] [ suc (var x1) ]↑² ∎
   where
   σₛ : Subst (2+ ℓ) (1+ ℓ)
-  σₛ = consSubst (wk1Subst (wk1Subst idSubst)) (suc (var x1))
+  σₛ = consSubst (wkSubst 2 idSubst) (suc (var x1))
 
 natrecIrrelevantSubstLemma : ∀ p q r F z s m (σ : Subst ℓ n) (x : Fin (1+ n))
   → (sgSubst (natrec p q r
@@ -731,12 +731,12 @@ opaque
 
 wk1-[]↑² : wk1 t [ u ]↑² ≡ wk1 (wk1 t)
 wk1-[]↑² {t = t} {u = u} =
-  wk1 t [ u ]↑²                                                 ≡⟨⟩
-  wk (step id) t [ consSubst (wk1Subst (wk1Subst idSubst)) u ]  ≡⟨ subst-wk t ⟩
-  t [ consSubst (wk1Subst (wk1Subst idSubst)) u ₛ• step id ]    ≡⟨⟩
-  t [ toSubst (step (step id)) ]                                ≡˘⟨ wk≡subst _ _ ⟩
-  wk (step (step id)) t                                         ≡˘⟨ wk1-wk _ _ ⟩
-  wk1 (wk1 t)                                                   ∎
+  wk1 t [ u ]↑²                                       ≡⟨⟩
+  wk (step id) t [ consSubst (wkSubst 2 idSubst) u ]  ≡⟨ subst-wk t ⟩
+  t [ consSubst (wkSubst 2 idSubst) u ₛ• step id ]    ≡⟨⟩
+  t [ toSubst (step (step id)) ]                      ≡˘⟨ wk≡subst _ _ ⟩
+  wk (step (step id)) t                               ≡˘⟨ wk1-wk _ _ ⟩
+  wk1 (wk1 t)                                         ∎
 
 -- Substituting wk1 u into t using _[_]↑² amounts to the same thing as
 -- substituting u into t using _[_]↑ and then weakening one step.
@@ -756,9 +756,9 @@ subst-β-prodrec :
 subst-β-prodrec {n = n} A σ = begin
    A [ t₁ ]↑² [ liftSubstn σ 2 ]
      ≡⟨ substCompEq A ⟩
-   A [ liftSubstn σ 2 ₛ•ₛ consSubst (wk1Subst (wk1Subst idSubst)) t₁ ]
+   A [ liftSubstn σ 2 ₛ•ₛ consSubst (wkSubst 2 idSubst) t₁ ]
      ≡⟨ substVar-to-subst varEq A ⟩
-   A [ consSubst (wk1Subst (wk1Subst idSubst)) t₂ ₛ•ₛ liftSubst σ ]
+   A [ consSubst (wkSubst 2 idSubst) t₂ ₛ•ₛ liftSubst σ ]
      ≡˘⟨ substCompEq A ⟩
    A [ liftSubst σ ] [ t₂ ]↑² ∎
    where
@@ -766,8 +766,8 @@ subst-β-prodrec {n = n} A σ = begin
    t₂ = prod! (var (x0 +1)) (var x0)
    varEq :
      (x : Fin (1+ n)) →
-     (liftSubstn σ 2 ₛ•ₛ consSubst (wk1Subst (wk1Subst idSubst)) t₁) x ≡
-     (consSubst (wk1Subst (wk1Subst idSubst)) t₂ ₛ•ₛ liftSubst σ) x
+     (liftSubstn σ 2 ₛ•ₛ consSubst (wkSubst 2 idSubst) t₁) x ≡
+     (consSubst (wkSubst 2 idSubst) t₂ ₛ•ₛ liftSubst σ) x
    varEq x0 = refl
    varEq (x +1) = begin
      wk1 (wk1 (σ x))
@@ -786,13 +786,13 @@ substComp↑² :
 substComp↑² {n = n} {σ = σ} A t = begin
   A [ consSubst (tail (tail σ)) (t [ σ ]) ]
     ≡⟨ substVar-to-subst varEq A ⟩
-  A [ σ ₛ•ₛ consSubst (wk1Subst (wk1Subst idSubst)) t ]
+  A [ σ ₛ•ₛ consSubst (wkSubst 2 idSubst) t ]
     ≡˘⟨ substCompEq A ⟩
   A [ t ]↑² [ σ ] ∎
   where
   varEq : (x : Fin (1+ n)) →
           consSubst (tail (tail σ)) (t [ σ ]) x ≡
-          (σ ₛ•ₛ consSubst (wk1Subst (wk1Subst idSubst)) t) x
+          (σ ₛ•ₛ consSubst (wkSubst 2 idSubst) t) x
   varEq x0 = refl
   varEq (x +1) = refl
 
@@ -805,14 +805,16 @@ substCompProdrec {n = n} A t u σ = begin
      ≡⟨ substCompEq A ⟩
    A [ sgSubst (prod! t u) ₛ•ₛ liftSubst σ ]
      ≡⟨ substVar-to-subst varEq A ⟩
-   A [ consSubst (consSubst σ t) u ₛ•ₛ consSubst (wk1Subst (wk1Subst idSubst)) px ]
+   A [ consSubst (consSubst σ t) u ₛ•ₛ
+       consSubst (wkSubst 2 idSubst) px ]
      ≡˘⟨ substCompEq A ⟩
    A [ px ]↑² [ consSubst (consSubst σ t) u ] ∎
    where
    px = prod! (var (x0 +1)) (var x0)
    varEq : (x : Fin (1+ n))
          → (sgSubst (prod! t u) ₛ•ₛ liftSubst σ) x
-         ≡ (consSubst (consSubst σ t) u ₛ•ₛ consSubst (wk1Subst (wk1Subst idSubst)) px) x
+         ≡ (consSubst (consSubst σ t) u ₛ•ₛ
+            consSubst (wkSubst 2 idSubst) px) x
    varEq x0 = refl
    varEq (x +1) = trans (wk1-tail (σ x)) (subst-id (σ x))
 
