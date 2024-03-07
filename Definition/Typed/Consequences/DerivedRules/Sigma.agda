@@ -419,33 +419,32 @@ prodrecˢⱼ
 -- An equality rule for prodrecˢ.
 
 prodrecˢ-β :
+  ∀ C →
   Γ ⊢ t ∷ A →
   Γ ⊢ u ∷ B [ t ]₀ →
   Γ ∙ A ∙ B ⊢ v ∷ C [ prodˢ p (var x1) (var x0) ]↑² →
-  Σˢ-allowed p q →
+  Σˢ-allowed p q′ →
   Γ ⊢ prodrecˢ p (prodˢ p t u) v ≡ v [ t ∣ u ] ∷ C [ prodˢ p t u ]₀
-prodrecˢ-β
-  {Γ = Γ} {t = t} {A = A} {u = u} {B = B} {v = v} {C = C} {p = p}
-  ⊢t ⊢u ⊢v ok =                                                     $⟨ Σ-β₁-≡ ⊢B ⊢t ⊢u ok
-                                                                     , Σ-β₂-≡ ⊢B ⊢t ⊢u ok
-                                                                     ⟩
+prodrecˢ-β {Γ} {t} {A} {u} {B} {v} {p} C ⊢t ⊢u ⊢v ok =               $⟨ Σ-β₁-≡ ⊢B ⊢t ⊢u ok
+                                                                      , Σ-β₂-≡ ⊢B ⊢t ⊢u ok
+                                                                      ⟩
   Γ ⊢ fst p (prodˢ p t u) ≡ t ∷ A ×
   Γ ⊢ snd p (prodˢ p t u) ≡ u ∷ B [ fst p (prodˢ p t u) ]₀           →⟨ (λ (hyp₁ , hyp₂) →
-                                                                            PE.subst (_ ⊢ _ ≡ _ ∷_) (PE.sym $ subst-id _) hyp₁
-                                                                          , conv hyp₂ (substTypeEq (refl ⊢B) hyp₁)) ⟩
+                                                                             PE.subst (_ ⊢ _ ≡ _ ∷_) (PE.sym $ subst-id _) hyp₁
+                                                                           , conv hyp₂ (substTypeEq (refl ⊢B) hyp₁)) ⟩
   Γ ⊢ fst p (prodˢ p t u) ≡ t ∷ A [ idSubst ] ×
   Γ ⊢ snd p (prodˢ p t u) ≡ u ∷ B [ t ]₀                             →⟨ (λ (hyp₁ , hyp₂) →
-                                                                          (substRefl (idSubst′ ⊢Γ) , sym hyp₁) , sym hyp₂) ⟩
+                                                                           (substRefl (idSubst′ ⊢Γ) , sym hyp₁) , sym hyp₂) ⟩
   Γ ⊢ˢ
     consSubst (consSubst idSubst t) u ≡
     consSubst (consSubst idSubst (fst p (prodˢ p t u)))
       (snd p (prodˢ p t u)) ∷
-    Γ ∙ A ∙ B                                                       →⟨ flip (substitutionEqTerm (refl ⊢v)) ⊢Γ ⟩
+    Γ ∙ A ∙ B                                                        →⟨ flip (substitutionEqTerm (refl ⊢v)) ⊢Γ ⟩
 
   Γ ⊢
     v [ t ∣ u ] ≡
     prodrecˢ p (prodˢ p t u) v ∷
-    C [ prodˢ p (var x1) (var x0) ]↑² [ t ∣ u ]                     →⟨ PE.subst (_⊢_≡_∷_ _ _ _) ([1,0]↑²[,] C) ∘→ sym ⟩
+    C [ prodˢ p (var x1) (var x0) ]↑² [ t ∣ u ]                      →⟨ PE.subst (_⊢_≡_∷_ _ _ _) ([1,0]↑²[,] C) ∘→ sym ⟩
 
   Γ ⊢ prodrecˢ p (prodˢ p t u) v ≡ v [ t ∣ u ] ∷ C [ prodˢ p t u ]₀  □
   where
