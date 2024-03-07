@@ -29,16 +29,40 @@ open import Tools.PropositionalEquality
 open import Tools.Reasoning.PropositionalEquality
 
 private variable
-  n     : Nat
-  A B t : Term _
-  σ     : Subst _ _
-  s     : Strength
-  p q   : M
+  n       : Nat
+  A B t u : Term _
+  σ       : Subst _ _
+  s       : Strength
+  p q r   : M
 
 -- A definition of prodrec for strong Σ-types.
 
 prodrecˢ : M → Term n → Term (2+ n) → Term n
 prodrecˢ p t u = u [ fst p t , snd p t ]
+
+opaque
+
+  -- A variant of prodrec for all kinds of Σ-types.
+
+  prodrec⟨_⟩ :
+    Strength → M → M → M → Term (1+ n) → Term n → Term (2+ n) → Term n
+  prodrec⟨ 𝕨 ⟩ = prodrec
+  prodrec⟨ 𝕤 ⟩ = λ _ p _ _ t u → prodrecˢ p t u
+
+opaque
+  unfolding prodrec⟨_⟩
+
+  -- A substitution lemma for prodrec⟨_⟩.
+
+  prodrec⟨⟩-[] :
+    prodrec⟨ s ⟩ r p q A t u [ σ ] ≡
+    prodrec⟨ s ⟩ r p q (A [ liftSubst σ ]) (t [ σ ])
+      (u [ liftSubstn σ 2 ])
+  prodrec⟨⟩-[] {s = 𝕨} =
+    refl
+  prodrec⟨⟩-[] {s = 𝕤} {p} {t} {u} {σ} =
+    u [ fst p t , snd p t ] [ σ ]                               ≡⟨ [,]-[]-commute u ⟩
+    u [ liftSubstn σ 2 ] [ fst p (t [ σ ]) , snd p (t [ σ ]) ]  ∎
 
 -- The projections are defined using some extra quantities r′ and q′.
 

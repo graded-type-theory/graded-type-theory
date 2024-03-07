@@ -1151,6 +1151,52 @@ opaque
       (sndʷ-β-≡ ⊢B (fstʷⱼ ⊢t) (sndʷⱼ ⊢t) ok) }
 
 ------------------------------------------------------------------------
+-- Typing rules for prodrec⟨_⟩
+
+opaque
+  unfolding prodrec⟨_⟩
+
+  -- A typing rule for prodrec⟨_⟩.
+
+  ⊢prodrec⟨⟩ :
+    Γ ∙ (Σ⟨ s ⟩ p , q′ ▷ A ▹ B) ⊢ C →
+    Γ ⊢ t ∷ Σ⟨ s ⟩ p , q′ ▷ A ▹ B →
+    Γ ∙ A ∙ B ⊢ u ∷ C [ prod s p (var x1) (var x0) ]↑² →
+    Γ ⊢ prodrec⟨ s ⟩ r p q C t u ∷ C [ t ]₀
+  ⊢prodrec⟨⟩ {s = 𝕨} = prodrecⱼ′
+  ⊢prodrec⟨⟩ {s = 𝕤} = prodrecˢⱼ
+
+opaque
+  unfolding prodrec⟨_⟩
+
+  -- An equality rule for prodrec⟨_⟩.
+
+  prodrec⟨⟩-β :
+    (s PE.≡ 𝕨 → Γ ∙ (Σ⟨ s ⟩ p , q′ ▷ A ▹ B) ⊢ C) →
+    Γ ⊢ t ∷ A →
+    Γ ⊢ u ∷ B [ t ]₀ →
+    Γ ∙ A ∙ B ⊢ v ∷ C [ prod s p (var x1) (var x0) ]↑² →
+    Σ-allowed s p q′ →
+    Γ ⊢ prodrec⟨ s ⟩ r p q C (prod s p t u) v ≡ v [ t ∣ u ] ∷
+      C [ prod s p t u ]₀
+  prodrec⟨⟩-β {s = 𝕨}     ⊢C = prodrec-β-≡ (⊢C PE.refl)
+  prodrec⟨⟩-β {s = 𝕤} {C} _  = prodrecˢ-β C
+
+opaque
+  unfolding prodrec⟨_⟩
+
+  -- Another equality rule for prodrec⟨_⟩.
+
+  prodrec⟨⟩-cong :
+    Γ ∙ (Σ⟨ s ⟩ p , q′ ▷ A ▹ B) ⊢ C₁ ≡ C₂ →
+    Γ ⊢ t₁ ≡ t₂ ∷ Σ⟨ s ⟩ p , q′ ▷ A ▹ B →
+    Γ ∙ A ∙ B ⊢ u₁ ≡ u₂ ∷ C₁ [ prod s p (var x1) (var x0) ]↑² →
+    Γ ⊢ prodrec⟨ s ⟩ r p q C₁ t₁ u₁ ≡
+      prodrec⟨ s ⟩ r p q C₂ t₂ u₂ ∷ C₁ [ t₁ ]₀
+  prodrec⟨⟩-cong {s = 𝕨} = prodrec-cong′
+  prodrec⟨⟩-cong {s = 𝕤} = prodrecˢ-cong ∘→ proj₁ ∘→ syntacticEq
+
+------------------------------------------------------------------------
 -- Typing rules for fst⟨_⟩
 
 opaque

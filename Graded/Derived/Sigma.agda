@@ -53,12 +53,12 @@ open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
-  n       : Nat
-  A B t u : Term _
-  s       : Strength
-  p q r   : M
-  γ δ η   : Conₘ _
-  m       : Mode
+  n        : Nat
+  A B t u  : Term _
+  s        : Strength
+  p q r r′ : M
+  γ δ η    : Conₘ _
+  m        : Mode
 
 ------------------------------------------------------------------------
 -- Some private lemmas related to the modality
@@ -376,6 +376,36 @@ prodrecˢₘ-𝟙ᵐ-𝟙-∧≤+ {γ = γ} {r = r} {δ = δ} ∧≤+ ▸t ▸u 
   where
   ⦅_⦆ : {p q : M} → ε ∙ p ≤ᶜ ε ∙ q → p ≤ q
   ⦅_⦆ = headₘ-monotone
+
+------------------------------------------------------------------------
+-- A usage lemma for prodrec⟨_⟩
+
+opaque
+  unfolding prodrec⟨_⟩
+
+  -- A usage lemma for prodrec⟨_⟩.
+
+  ▸prodrec⟨⟩ :
+    (s PE.≡ 𝕤 → m ᵐ· r · p PE.≡ 𝟙ᵐ → p ≤ 𝟙) →
+    (s PE.≡ 𝕤 → r′ ≤ ⌜ m ⌝ · r · (𝟙 + p)) →
+    (s PE.≡ 𝕨 → r′ ≤ r) →
+    (s PE.≡ 𝕨 → Prodrec-allowed m r p q) →
+    (s PE.≡ 𝕨 → η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A) →
+    γ ▸[ m ᵐ· r ] t →
+    δ ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u →
+    r′ ·ᶜ γ +ᶜ δ ▸[ m ] prodrec⟨ s ⟩ r p q A t u
+  ▸prodrec⟨⟩ {s = 𝕨} {r} {r′} {γ} {δ} _ _ hyp₃ ok ▸A ▸t ▸u =
+    sub (prodrecₘ ▸t ▸u (▸A PE.refl) (ok PE.refl)) $ begin
+      r′ ·ᶜ γ +ᶜ δ  ≤⟨ +ᶜ-monotoneˡ $ ·ᶜ-monotoneˡ $ hyp₃ PE.refl ⟩
+      r ·ᶜ γ +ᶜ δ   ∎
+    where
+    open ≤ᶜ-reasoning
+  ▸prodrec⟨⟩ {s = 𝕤} {m} {r} {p} {r′} {γ} {δ} hyp₁ hyp₂ _ _ _ ▸t ▸u =
+    sub (prodrecˢₘ (hyp₁ PE.refl) ▸t ▸u) (begin
+      r′ ·ᶜ γ +ᶜ δ                     ≤⟨ +ᶜ-monotoneˡ $ ·ᶜ-monotoneˡ $ hyp₂ PE.refl ⟩
+      (⌜ m ⌝ · r · (𝟙 + p)) ·ᶜ γ +ᶜ δ  ∎)
+    where
+    open ≤ᶜ-reasoning
 
 ------------------------------------------------------------------------
 -- An investigation of different potential implementations of a first
