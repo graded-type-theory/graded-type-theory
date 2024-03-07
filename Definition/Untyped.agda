@@ -493,8 +493,13 @@ wk₂ = wk (step (step id))
 
 -- Three successive uses of wk1.
 
-wk3 : Term n → Term (1+ (1+ (1+ n)))
+wk3 : Term n → Term (3+ n)
 wk3 = wk1 ∘→ wk2
+
+-- An alternative to wk3.
+
+wk₃ : Term n → Term (3+ n)
+wk₃ = wk (step (step (step id)))
 
 -- Weakening of a neutral term.
 

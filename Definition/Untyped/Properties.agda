@@ -99,6 +99,16 @@ opaque
   wk2≡wk₂ : wk2 t ≡ wk₂ t
   wk2≡wk₂ = wk-comp _ _ _
 
+opaque
+
+  -- The functions wk3 and wk₃ are interchangeable.
+
+  wk3≡wk₃ : wk3 t ≡ wk₃ t
+  wk3≡wk₃ {t} =
+    wk1 (wk2 t)  ≡⟨ cong wk1 wk2≡wk₂ ⟩
+    wk1 (wk₂ t)  ≡⟨ wk-comp _ _ _ ⟩
+    wk₃ t        ∎
+
 -- Substitution properties.
 
 -- Two substitutions σ and σ′ are equal if they are pointwise equal,
@@ -714,6 +724,16 @@ opaque
     wk₂ t [ u ]↑  ≡⟨ wk₂-[]↑ ⟩
     wk₂ t         ≡˘⟨ wk2≡wk₂ ⟩
     wk2 t         ∎
+
+opaque
+
+  -- Applications of wk3 can be expressed using a substitution.
+
+  wk3≡[] : wk3 t ≡ t [ wkSubst 3 idSubst ]
+  wk3≡[] {t} =
+    wk3 t                    ≡⟨ wk3≡wk₃ ⟩
+    wk₃ t                    ≡⟨ wk≡subst _ _ ⟩
+    t [ wkSubst 3 idSubst ]  ∎
 
 -- Substituting variable one into t using _[_]↑² amounts to the same
 -- thing as applying wk1 to t.

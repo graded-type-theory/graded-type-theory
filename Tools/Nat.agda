@@ -50,6 +50,7 @@ open import Tools.Sum as ⊎ using (_⊎_; inj₁; inj₂)
 
 pattern 1+ n = suc n
 pattern 2+ n = 1+ (1+ n)
+pattern 3+ n = 1+ (1+ (1+ n))
 
 private variable
   a       : Level
