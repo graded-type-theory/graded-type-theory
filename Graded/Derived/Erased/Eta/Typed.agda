@@ -58,17 +58,17 @@ erased-cong t≡u =
     (⊢A , ⊢Unit , Σˢ-ok) →
   P.erased-cong (inversion-Unit ⊢Unit , Σˢ-ok) ⊢A t≡u }
 
--- An η-rule for Erased.
+-- A definitional η-rule for Erased.
 
-Erased-η :
+Erased-η-≡ :
   Γ ⊢ t ∷ Erased A →
   Γ ⊢ u ∷ Erased A →
   Γ ⊢ erased t ≡ erased u ∷ A →
   Γ ⊢ t ≡ u ∷ Erased A
-Erased-η ⊢t =
+Erased-η-≡ ⊢t =
   case inversion-ΠΣ (syntacticTerm ⊢t) of λ {
     (⊢A , ⊢Unit , Σˢ-ok) →
-  P.Erased-η (inversion-Unit ⊢Unit , Σˢ-ok) ⊢A ⊢t }
+  P.Erased-η-≡ (inversion-Unit ⊢Unit , Σˢ-ok) ⊢A ⊢t }
 
 -- An instance of the η-rule.
 

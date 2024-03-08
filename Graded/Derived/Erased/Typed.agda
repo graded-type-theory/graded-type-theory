@@ -342,6 +342,46 @@ opaque
     open TermR
 
 ------------------------------------------------------------------------
+-- A lemma about Erased-η
+
+opaque
+  unfolding Erased.Erased-η
+
+  -- A typing rule for Erased-η.
+
+  ⊢Erased-η :
+    let open Erased s in
+    Γ ⊢ t ∷ Erased A →
+    Γ ⊢ Erased-η A t ∷ Id (Erased A) [ erased A t ] t
+  ⊢Erased-η {s} {A} ⊢t =
+    case syntacticTerm ⊢t of λ
+      ⊢Erased-A →
+    case inversion-Erased _ ⊢Erased-A of λ
+      (⊢A , Erased-ok) →
+    PE.subst (_⊢_∷_ _ _)
+      (PE.cong₃ Id
+         (PE.cong Erased $ wk1-sgSubst _ _)
+         (PE.cong [_] $
+          PE.trans erased-[] $
+          PE.cong₂ erased (wk1-sgSubst _ _) PE.refl)
+         PE.refl) $
+    ⊢erasedrec
+      (Idⱼ ([]ⱼ Erased-ok (erasedⱼ (var₀ ⊢Erased-A))) (var₀ ⊢Erased-A))
+      (rflⱼ′ $
+       []-cong′ Erased-ok
+         (erased (wk1 A) (var x0) [ [ var x0 ] ]↑    ≡⟨ erased-[] ⟩⊢≡
+          erased (wk1 A [ [ var x0 ] ]↑) [ var x0 ]  ≡⟨ Erased-β Erased-ok $
+                                                        PE.subst (_⊢_∷_ _ _)
+                                                          (PE.trans (wk≡subst _ _) $
+                                                           PE.sym $ wk1-tail A) $
+                                                        var₀ ⊢A ⟩⊢∎
+          var x0                                     ∎))
+      ⊢t
+    where
+    open Erased s
+    open TermR
+
+------------------------------------------------------------------------
 -- Lemmas proved under the assumption that []-cong is allowed
 
 module _ (ok : []-cong-allowed s) where

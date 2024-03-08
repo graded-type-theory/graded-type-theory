@@ -272,6 +272,46 @@ opaque
         𝟘 ·ᶜ η +ᶜ δ  ∎
 
 opaque
+  unfolding Erased-η
+
+  -- A usage rule for Erased-η.
+
+  ▸Erased-η :
+    (¬ T 𝟘ᵐ-allowed → Trivial) →
+    (s ≡ 𝕨 → Prodrec-allowed m 𝟙 𝟘 𝟙) →
+    (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘) →
+    (s ≡ 𝕨 → Unitrec-allowed m 𝟙 𝟙) →
+    (s ≡ 𝕨 → γ ▸[ 𝟘ᵐ? ] A) →
+    δ ▸[ m ᵐ· is-𝕨 ] t →
+    δ ▸[ m ] Erased-η A t
+  ▸Erased-η {δ} trivial P-ok₁ P-ok₂ U-ok ▸A ▸t = sub
+    (▸erasedrec (λ _ → trivial) P-ok₁ U-ok
+       (λ s≡𝕨 →
+          Idₘ-generalised (▸Erased (wkUsage _ (▸A s≡𝕨)))
+            (▸[] $
+             ▸erased′ (λ _ → trivial)
+               (λ s≡𝕤 → case PE.trans (PE.sym s≡𝕤) s≡𝕨 of λ ()) var
+               (wkUsage _ ∘→ ▸A) P-ok₂)
+            var
+            (λ _ → 𝟘ᵐ?-elim
+               (λ m → 𝟘ᶜ ∙ ⌜ m ⌝ · 𝟙 ≤ᶜ 𝟘ᶜ)
+               (begin
+                  𝟘ᶜ ∙ 𝟘 · 𝟙  ≈⟨ ≈ᶜ-refl ∙ ·-identityʳ _ ⟩
+                  𝟘ᶜ          ∎)
+               (≈ᶜ-trivial ∘→ trivial))
+            (λ _ → begin
+               𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟙           ≈⟨ ≈ᶜ-refl ∙ ·-identityʳ _ ⟩
+               𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝               ≈˘⟨ +ᶜ-identityˡ _ ⟩
+               𝟘ᶜ +ᶜ (𝟘ᶜ , x0 ≔ ⌜ 𝟘ᵐ? ⌝)  ∎))
+       rflₘ
+       ▸t)
+    (begin
+       δ        ≈˘⟨ +ᶜ-identityˡ _ ⟩
+       𝟘ᶜ +ᶜ δ  ∎)
+    where
+    open ≤ᶜ-reasoning
+
+opaque
   unfolding substᵉ
 
   -- A usage rule for substᵉ.

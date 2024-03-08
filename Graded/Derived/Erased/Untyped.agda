@@ -141,6 +141,45 @@ opaque
 
 opaque
 
+  -- A propositional η-rule for Erased.
+
+  Erased-η : Term n → Term n → Term n
+  Erased-η A t =
+    erasedrec 𝟙
+      (Id (Erased (wk1 A)) [ erased (wk1 A) (var x0) ] (var x0))
+      rfl t
+
+opaque
+  unfolding Erased-η
+
+  -- A substitution lemma for Erased-η.
+
+  Erased-η-[] :
+    Erased-η A t U.[ σ ] ≡ Erased-η (A U.[ σ ]) (t U.[ σ ])
+  Erased-η-[] {A} {t} {σ} =
+    erasedrec 𝟙
+      (Id (Erased (wk1 A)) [ erased (wk1 A) (var x0) ] (var x0))
+      rfl t U.[ σ ]                                               ≡⟨ erasedrec-[] ⟩
+
+    erasedrec 𝟙
+      (Id (Erased (wk1 A U.[ liftSubst σ ]))
+         [ erased (wk1 A) (var x0) U.[ liftSubst σ ] ] (var x0))
+      rfl (t U.[ σ ])                                             ≡⟨ cong₃ (erasedrec _)
+                                                                       (cong₃ Id refl (PE.cong [_] erased-[]) refl)
+                                                                       refl
+                                                                       refl ⟩
+    erasedrec 𝟙
+      (Id (Erased (wk1 A U.[ liftSubst σ ]))
+         [ erased (wk1 A U.[ liftSubst σ ]) (var x0) ] (var x0))
+      rfl (t U.[ σ ])                                             ≡⟨ PE.cong (λ A → erasedrec _ (Id (Erased A) [ erased A _ ] _) _ _) $
+                                                                     wk1-liftSubst A ⟩
+    erasedrec 𝟙
+      (Id (Erased (wk1 (A U.[ σ ])))
+         [ erased (wk1 (A U.[ σ ])) (var x0) ] (var x0))
+      rfl (t U.[ σ ])                                             ∎
+
+opaque
+
   -- Substitutivity.
   --
   -- This variant of subst is an alternative to subst 𝟘.

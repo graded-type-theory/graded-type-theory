@@ -60,15 +60,15 @@ Erased-β ⊢A ⊢t =
   where
   ⊢Γ = wf ⊢A
 
--- An η-rule for Erased.
+-- A definitional η-rule for Erased.
 
-Erased-η :
+Erased-η-≡ :
   Γ ⊢ A →
   Γ ⊢ t ∷ Erased A →
   Γ ⊢ u ∷ Erased A →
   Γ ⊢ erased t ≡ erased u ∷ A →
   Γ ⊢ t ≡ u ∷ Erased A
-Erased-η ⊢A ⊢t ⊢u t≡u = Σ-η
+Erased-η-≡ ⊢A ⊢t ⊢u t≡u = Σ-η
   ⊢A Γ∙A⊢Unit ⊢t ⊢u t≡u
   (η-unit (sndⱼ ⊢A Γ∙A⊢Unit ⊢t) (sndⱼ ⊢A Γ∙A⊢Unit ⊢u))
   where
@@ -81,5 +81,5 @@ Erased-η ⊢A ⊢t ⊢u t≡u = Σ-η
   Γ ⊢ t ∷ Erased A →
   Γ ⊢ [ erased t ] ≡ t ∷ Erased A
 [erased] ⊢A ⊢t =
-  Erased-η ⊢A ([]ⱼ ⊢A (erasedⱼ ⊢A ⊢t)) ⊢t $
+  Erased-η-≡ ⊢A ([]ⱼ ⊢A (erasedⱼ ⊢A ⊢t)) ⊢t $
   Erased-β ⊢A (erasedⱼ ⊢A ⊢t)
