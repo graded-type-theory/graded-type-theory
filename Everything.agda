@@ -62,6 +62,7 @@ import Definition.Untyped.Properties
 import Definition.Untyped.Identity
 import Definition.Untyped.Sigma
 import Definition.Untyped.Unit
+import Definition.Untyped.Nat
 import Definition.Untyped.Lift
 import Definition.Untyped.Empty
 import Graded.Derived.Erased.Eta.Untyped
@@ -143,6 +144,7 @@ import Graded.Derived.Sigma
 -- Properties related to usage and certain type formers.
 import Graded.Derived.Identity
 import Graded.Derived.Unit
+import Graded.Derived.Nat
 import Graded.Derived.Lift
 import Graded.Derived.Empty
 import Graded.Derived.Erased.Eta.Usage
