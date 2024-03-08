@@ -19,6 +19,7 @@ open import Definition.Untyped M as U
 open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Sigma 𝕄
+open import Definition.Untyped.Unit 𝕄
 
 import Graded.Derived.Erased.Eta.Untyped 𝕄 as Eta
 import Graded.Derived.Erased.NoEta.Untyped 𝕄 as NoEta
@@ -34,6 +35,7 @@ private variable
   n           : Nat
   A B t u v w : Term _
   σ           : Subst _ _
+  p           : M
 
 -- The type constructor Erased.
 
@@ -63,6 +65,79 @@ opaque
   erased-[] {A} {t} = case singleton s of λ where
     (𝕤 , refl) → refl
     (𝕨 , refl) → NoEta.erased-[] A t
+
+opaque
+
+  -- A grade that is used in the implementation of erasedrec.
+
+  is-𝕨 : M
+  is-𝕨 = case PE.singleton s of λ where
+    (𝕨 , _) → 𝟙
+    (𝕤 , _) → 𝟘
+
+opaque
+
+  -- An eliminator for Erased.
+
+  erasedrec : M → Term (1+ n) → Term (1+ n) → Term n → Term n
+  erasedrec p B t u =
+    prodrec⟨ s ⟩ is-𝕨 𝟘 p B u
+      (unitrec⟨ s ⟩ 𝟙 p
+         (B U.[ consSubst (wkSubst 3 idSubst) $
+                prod s 𝟘 (var x2) (var x0) ])
+         (var x0) (wk1 t))
+
+opaque
+  unfolding erasedrec
+
+  -- A substitution lemma for erasedrec.
+
+  erasedrec-[] :
+    erasedrec p B t u U.[ σ ] ≡
+    erasedrec p (B U.[ liftSubst σ ]) (t U.[ liftSubst σ ]) (u U.[ σ ])
+  erasedrec-[] {p} {B} {t} {u} {σ} =
+    prodrec⟨ s ⟩ is-𝕨 𝟘 p B u
+      (unitrec⟨ s ⟩ 𝟙 p
+         (B U.[ consSubst (wkSubst 3 idSubst) $
+                prod s 𝟘 (var x2) (var x0) ])
+         (var x0) (wk1 t))
+      U.[ σ ]                                                       ≡⟨ prodrec⟨⟩-[] ⟩
+
+    prodrec⟨ s ⟩ is-𝕨 𝟘 p (B U.[ liftSubst σ ]) (u U.[ σ ])
+      (unitrec⟨ s ⟩ 𝟙 p
+         (B U.[ consSubst (wkSubst 3 idSubst) $
+                prod s 𝟘 (var x2) (var x0) ])
+         (var x0) (wk1 t)
+         U.[ liftSubstn σ 2 ])                                      ≡⟨ PE.cong (prodrec⟨_⟩ _ _ _ _ _ _)
+                                                                       unitrec⟨⟩-[] ⟩
+    prodrec⟨ s ⟩ is-𝕨 𝟘 p (B U.[ liftSubst σ ]) (u U.[ σ ])
+      (unitrec⟨ s ⟩ 𝟙 p
+         (B U.[ consSubst (wkSubst 3 idSubst) $
+                prod s 𝟘 (var x2) (var x0) ]
+            U.[ liftSubstn σ 3 ])
+         (var x0) (wk1 t U.[ liftSubstn σ 2 ]))                     ≡⟨ PE.cong (prodrec⟨_⟩ _ _ _ _ _ _) $
+                                                                       PE.cong₃ (unitrec⟨_⟩ _ _ _)
+                                                                         (PE.trans (substCompEq B) $
+                                                                          PE.trans (flip substVar-to-subst B λ
+                                                                                      { x0     → PE.refl
+                                                                                      ; (x +1) →
+      wk3 (σ x)                                                                           ≡⟨ wk3≡[] ⟩
+
+      σ x U.[ wkSubst 3 idSubst ]                                                         ≡˘⟨ wk1-tail (σ _) ⟩
+
+      wk1 (σ x)
+        U.[ consSubst (wkSubst 3 idSubst) $
+            prod s 𝟘 (var x2) (var x0) ]                                                  ∎
+                                                                                      }) $
+                                                                          PE.sym $ substCompEq B)
+                                                                         PE.refl
+                                                                         (wk1-liftSubst t) ⟩
+    prodrec⟨ s ⟩ is-𝕨 𝟘 p (B U.[ liftSubst σ ]) (u U.[ σ ])
+      (unitrec⟨ s ⟩ 𝟙 p
+         (B U.[ liftSubst σ ]
+            U.[ consSubst (wkSubst 3 idSubst) $
+                prod s 𝟘 (var x2) (var x0) ])
+         (var x0) (wk1 (t U.[ liftSubst σ ])))                      ∎
 
 opaque
 

@@ -28,7 +28,8 @@ open import Definition.Typed.Consequences.Substitution R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Reduction R
-open import Definition.Typed.Reasoning.Type R
+import Definition.Typed.Reasoning.Term R as TermR
+import Definition.Typed.Reasoning.Type R as TypeR
 open import Definition.Typed.RedSteps R
 open import Definition.Typed.Weakening R as W
 
@@ -36,10 +37,12 @@ import Definition.Untyped M as U
 open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Sigma 𝕄
+open import Definition.Untyped.Unit 𝕄
 
 import Graded.Derived.Erased.Eta.Typed R as Eta
 import Graded.Derived.Erased.NoEta.Typed R as NoEta
 import Graded.Derived.Erased.Typed.Primitive R as P
+open import Graded.Derived.Erased.Typed.Inversion R
 import Graded.Derived.Erased.Untyped 𝕄 as Erased
 
 open import Tools.Fin
@@ -56,6 +59,7 @@ private variable
   A A₁ A₂ B B₁ B₂ C t t′ t₁ t₂ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
   σ                                                    : Subst _ _
   s                                                    : Strength
+  p                                                    : M
 
 ------------------------------------------------------------------------
 -- Lemmas about Erased, [_] and erased
@@ -153,6 +157,191 @@ module _ where
       (𝕨 , PE.refl) → NoEta.erased-cong A≡B
 
 ------------------------------------------------------------------------
+-- Lemmas about erasedrec
+
+private opaque
+
+  -- Some lemmas used below.
+
+  erasedrec-lemma₁ :
+    (B : Term (1+ n)) →
+    B U.[ consSubst (wkSubst 3 idSubst) $ prod s 𝟘 (var x2) (var x0) ]
+      [ var x0 ]₀ PE.≡
+    B [ prod s 𝟘 (var x1) (var x0) ]↑²
+  erasedrec-lemma₁ {s} B =
+    B U.[ consSubst (wkSubst 3 idSubst) $ prod s 𝟘 (var x2) (var x0) ]
+      [ var x0 ]₀                                                       ≡⟨ substCompEq B ⟩
+
+    B U.[ sgSubst (var x0) ₛ•ₛ
+          consSubst (wkSubst 3 idSubst) (prod s 𝟘 (var x2) (var x0)) ]  ≡⟨ (flip substVar-to-subst B λ where
+                                                                              x0     → PE.refl
+                                                                              (_ +1) → PE.refl) ⟩
+    B [ prod s 𝟘 (var x1) (var x0) ]↑²                                  ∎
+
+  erasedrec-lemma₂ :
+    let open Erased s in
+    Γ ∙ Erased A₁ ⊢ B₁ ≡ B₂ →
+    Γ ∙ A₁ ∙ Unit s ∙ Unit s ⊢
+      B₁ U.[ consSubst (wkSubst 3 idSubst) $
+             prod s 𝟘 (var x2) (var x0) ] ≡
+      B₂ U.[ consSubst (wkSubst 3 idSubst) $
+             prod s 𝟘 (var x2) (var x0) ]
+  erasedrec-lemma₂ B₁≡B₂ =
+    case wfEq B₁≡B₂ of λ {
+      (⊢Γ ∙ ⊢Erased-A) →
+    case inversion-Erased _ ⊢Erased-A of λ
+      (⊢A , Unit-ok , Σ-ok) →
+    case Unitⱼ (⊢→⊢∙ ⊢A) Unit-ok of λ
+      ⊢Unit₁ →
+    case Unitⱼ (⊢→⊢∙ ⊢Unit₁) Unit-ok of λ
+      ⊢Unit₂ →
+    case wk1Subst′ ⊢Γ ⊢Unit₂ $ wk1Subst′ ⊢Γ ⊢Unit₁ $ wk1Subst′ ⊢Γ ⊢A $
+         idSubst′ ⊢Γ of λ
+      ⊢wk3 →
+    substitutionEq B₁≡B₂
+      (substRefl
+         ( ⊢wk3
+         , ⊢prod
+             (Unitⱼ (⊢→⊢∙ $ substitution ⊢A ⊢wk3 (⊢→⊢∙ ⊢Unit₂)) Unit-ok)
+             (PE.subst (_⊢_∷_ _ _) wk3≡[] $ var₂ ⊢Unit₂)
+             (var₀ ⊢Unit₂) Σ-ok
+         ))
+      (⊢→⊢∙ ⊢Unit₂) }
+
+  erasedrec-lemma₃ :
+    let open Erased s in
+    ∀ B →
+    Unit-allowed s →
+    Γ ∙ A ⊢ t₁ ≡ t₂ ∷ B [ [ var x0 ] ]↑ →
+    Γ ∙ A ∙ Unit s ⊢ wk1 t₁ ≡ wk1 t₂ ∷
+      B U.[ consSubst (wkSubst 3 idSubst) $
+            prod s 𝟘 (var x2) (var x0) ]
+        [ star s ]₀
+  erasedrec-lemma₃ {s} B Unit-ok t₁≡t₂ =
+    flip (PE.subst (_⊢_≡_∷_ _ _ _))
+      (wkEqTerm₁ (Unitⱼ (wfEqTerm t₁≡t₂) Unit-ok) t₁≡t₂) $
+    wk1 (B [ [ var x0 ] ]↑)                                     ≡˘⟨ wk1Subst-wk1 B ⟩
+
+    B U.[ wk1Subst $ consSubst (wk1Subst idSubst) [ var x0 ] ]  ≡⟨ (flip substVar-to-subst B λ where
+                                                                      x0     → PE.refl
+                                                                      (_ +1) → PE.refl) ⟩
+    B U.[ sgSubst (star s) ₛ•ₛ
+          consSubst (wkSubst 3 idSubst)
+            (prod s 𝟘 (var x2) (var x0)) ]                      ≡˘⟨ substCompEq B ⟩
+
+    B U.[ consSubst (wkSubst 3 idSubst) $
+          prod s 𝟘 (var x2) (var x0) ]
+      [ star s ]₀                                               ∎
+    where
+    open Erased s
+
+opaque
+  unfolding Erased.erasedrec
+
+  -- An equality rule for erasedrec.
+
+  erasedrec-cong :
+    let open Erased s in
+    Γ ∙ Erased A ⊢ B₁ ≡ B₂ →
+    Γ ∙ A ⊢ t₁ ≡ t₂ ∷ B₁ [ [ var x0 ] ]↑ →
+    Γ ⊢ u₁ ≡ u₂ ∷ Erased A →
+    Γ ⊢ erasedrec p B₁ t₁ u₁ ≡ erasedrec p B₂ t₂ u₂ ∷ B₁ [ u₁ ]₀
+  erasedrec-cong {B₁} B₁≡B₂ t₁≡t₂ u₁≡u₂ =
+    case wf $ syntacticEq B₁≡B₂ .proj₁ of λ {
+      (_ ∙ ⊢Erased-A) →
+    case inversion-Erased _ ⊢Erased-A of λ
+      (_ , Unit-ok , _) →
+    prodrec⟨⟩-cong B₁≡B₂ u₁≡u₂ $
+    PE.subst (_⊢_≡_∷_ _ _ _) (erasedrec-lemma₁ B₁) $
+    unitrec⟨⟩-cong (erasedrec-lemma₂ B₁≡B₂)
+      (refl $ var₀ $
+       Unitⱼ (wfTerm (syntacticEqTerm t₁≡t₂ .proj₂ .proj₁)) Unit-ok)
+      (erasedrec-lemma₃ B₁ Unit-ok t₁≡t₂) }
+
+opaque
+
+  -- A typing rule for erasedrec.
+
+  ⊢erasedrec :
+    let open Erased s in
+    Γ ∙ Erased A ⊢ B →
+    Γ ∙ A ⊢ t ∷ B [ [ var x0 ] ]↑ →
+    Γ ⊢ u ∷ Erased A →
+    Γ ⊢ erasedrec p B t u ∷ B [ u ]₀
+  ⊢erasedrec ⊢B ⊢t ⊢u =
+    syntacticEqTerm
+      (erasedrec-cong (refl ⊢B) (refl ⊢t) (refl ⊢u))
+      .proj₂ .proj₁
+
+opaque
+  unfolding Erased.erasedrec
+
+  -- Another equality rule for erasedrec.
+
+  erasedrec-β :
+    let open Erased s in
+    Γ ∙ Erased A ⊢ B →
+    Γ ∙ A ⊢ t ∷ B [ [ var x0 ] ]↑ →
+    Γ ⊢ u ∷ A →
+    Γ ⊢ erasedrec p B t [ u ] ≡ t [ u ]₀ ∷ B [ [ u ] ]₀
+  erasedrec-β {s} {B} {t} {u} {p} ⊢B ⊢t ⊢u =
+    case wf ⊢B of λ {
+      (⊢Γ ∙ ⊢Erased-A) →
+    case inversion-Erased _ ⊢Erased-A of λ
+      (⊢A , Unit-ok , Σ-ok) →
+    case Unitⱼ ⊢Γ Unit-ok of λ
+      ⊢Unit →
+    prodrec⟨ s ⟩ is-𝕨 𝟘 p B [ u ]
+      (unitrec⟨ s ⟩ 𝟙 p
+        (B U.[ consSubst (wkSubst 3 idSubst) $
+               prod s 𝟘 (var x2) (var x0) ])
+        (var x0) (wk1 t))                                           ≡⟨ prodrec⟨⟩-β (λ _ → ⊢B) ⊢u (starⱼ ⊢Γ Unit-ok)
+                                                                         (PE.subst (_⊢_∷_ _ _) (erasedrec-lemma₁ B) $
+                                                                          ⊢unitrec⟨⟩ (syntacticEq (erasedrec-lemma₂ (refl ⊢B)) .proj₁)
+                                                                            (var₀ $ Unitⱼ (wfTerm ⊢t) Unit-ok)
+                                                                            (syntacticEqTerm (erasedrec-lemma₃ B Unit-ok (refl ⊢t))
+                                                                               .proj₂ .proj₁))
+                                                                         Σ-ok ⟩⊢
+    unitrec⟨ s ⟩ 𝟙 p
+      (B U.[ consSubst (wkSubst 3 idSubst) $
+             prod s 𝟘 (var x2) (var x0) ])
+      (var x0) (wk1 t)
+      [ u , star s ]₁₀                                              ≡⟨ PE.trans unitrec⟨⟩-[] $
+                                                                       PE.cong₃ (unitrec⟨_⟩ _ _ _)
+                                                                         (PE.trans (substCompEq B) $
+                                                                          flip substVar-to-subst B (λ { x0 → PE.refl; (_ +1) → PE.refl }))
+                                                                         PE.refl
+                                                                         (wk1-tail t) ⟩⊢≡
+    unitrec⟨ s ⟩ 𝟙 p (B U.[ prod s 𝟘 (wk1 u) (var x0) ]↑) (star s)
+      (t [ u ]₀)                                                    ≡⟨ (case PE.trans (substCompEq B)
+                                                                               (flip substVar-to-subst B λ where
+                                                                                  x0     → PE.cong₂ (prod s 𝟘) (wk1-sgSubst _ _) PE.refl
+                                                                                  (_ +1) → PE.refl) of λ
+                                                                          lemma →
+                                                                        PE.subst (_⊢_≡_∷_ _ _ _) lemma $
+                                                                        unitrec⟨⟩-β-≡
+                                                                          (λ _ →
+                                                                             substitution ⊢B
+                                                                               ( wk1Subst′ ⊢Γ ⊢Unit (idSubst′ ⊢Γ)
+                                                                               , ⊢prod
+                                                                                   (Unitⱼ
+                                                                                      (⊢→⊢∙ $
+                                                                                       substitution ⊢A (wk1Subst′ ⊢Γ ⊢Unit (idSubst′ ⊢Γ))
+                                                                                         (⊢→⊢∙ ⊢Unit))
+                                                                                      Unit-ok)
+                                                                                   (PE.subst (_⊢_∷_ _ _) (wk≡subst _ _) $
+                                                                                    wkTerm₁ ⊢Unit ⊢u)
+                                                                                   (var₀ ⊢Unit) Σ-ok
+                                                                               )
+                                                                               (⊢→⊢∙ ⊢Unit))
+                                                                          (PE.subst (_⊢_∷_ _ _) (PE.trans ([]↑-[]₀ B) (PE.sym lemma)) $
+                                                                           substTerm ⊢t ⊢u)) ⟩⊢∎
+    t [ u ]₀                                                        ∎ }
+    where
+    open Erased s
+    open TermR
+
+------------------------------------------------------------------------
 -- Lemmas proved under the assumption that []-cong is allowed
 
 module _ (ok : []-cong-allowed s) where
@@ -179,6 +368,8 @@ module _ (ok : []-cong-allowed s) where
       B [ erased (wk1 A [ [ t ] ]₀) [ t ] ]₀     ≡⟨ PE.cong (λ A → B [ erased A _ ]₀) $ wk1-sgSubst _ _ ⟩⊢≡
       B [ erased A [ t ] ]₀                      ≡⟨ substTypeEq (refl ⊢B) $ Erased-β Erased-ok ⊢t ⟩⊢∎
       B [ t ]₀                                   ∎
+      where
+      open TypeR
 
     ⊢[erased-0]↑ :
       Γ ∙ A ⊢ B →
@@ -598,6 +789,8 @@ module _ (ok : []-cong-allowed s) where
                                                                             (fst⟨⟩-β-≡ (J-motive-context-type ⊢t) ⊢u ⊢v′ Σ-ok)
                                                                             (snd⟨⟩-β-≡ (J-motive-context-type ⊢t) ⊢u ⊢v′ Σ-ok) ⟩⊢∎
       B [ u , v ]₁₀                                                    ∎
+      where
+      open TypeR
 
   opaque
     unfolding Jᵉ
