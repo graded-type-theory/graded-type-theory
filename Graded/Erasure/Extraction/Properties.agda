@@ -18,12 +18,15 @@ open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
 
 open import Graded.Erasure.Extraction 𝕄 is-𝟘?
-open import Graded.Erasure.Target as T hiding (refl; trans)
+open import Graded.Erasure.Target as T
+  hiding (refl; trans)
+  renaming (_[_,_] to _[_,_]₁₀)
 open import Graded.Erasure.Target.Non-terminating
 open import Graded.Erasure.Target.Properties
 
 open import Definition.Untyped M as U
-  hiding (Term; wk; _[_]; _[_,_]; liftSubst)
+  hiding (Term; wk; _[_]; liftSubst)
+  renaming (_[_,_] to _[_,_]U₁₀)
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
@@ -39,6 +42,7 @@ open import Tools.Function
 open import Tools.Nat using (Nat; 1+) renaming (_+_ to _+ⁿ_)
 open import Tools.Product
 open import Tools.Relation
+open import Tools.Sum using (inj₁; inj₂)
 
 import Tools.Reasoning.Equivalence
 import Tools.Reasoning.PartialOrder
@@ -84,7 +88,7 @@ snd-ω {p = p} p≢𝟘 with is-𝟘? p
 
 prodrec-ω : ∀ p → r PE.≢ 𝟘
           → erase s (U.prodrec r p q A t u)
-          PE.≡ erase-prodrecω p (erase s t) (erase s u)
+          PE.≡ erase-prodrecω s p (erase s t) (erase s u)
 prodrec-ω {r} p r≢𝟘 with is-𝟘? r
 ... | yes r≡𝟘 = ⊥-elim (r≢𝟘 r≡𝟘)
 ... | no r≢𝟘 with is-𝟘? p
@@ -114,16 +118,23 @@ wk-erase-comm ρ (U.snd p t) with is-𝟘? p
 ... | yes _ = wk-erase-comm ρ t
 ... | no _ = cong T.snd (wk-erase-comm ρ t)
 wk-erase-comm {s} ρ (U.prodrec r p _ A t u) with is-𝟘? r
-... | yes _ = cong (Term.prodrec (Term.prod ↯ ↯))
-                   (wk-erase-comm (lift (lift ρ)) u)
+... | yes _ =
+  wk ρ (erase s u [ ↯ , ↯ ]₁₀)                  ≡⟨ wk-β-doubleSubst _ (erase _ u) _ _ ⟩
+  wk (lift (lift ρ)) (erase s u) [ ↯ , ↯ ]₁₀    ≡⟨ cong _[ _ , _ ]₁₀ $ wk-erase-comm _ u ⟩
+  erase s (U.wk (lift (lift ρ)) u) [ ↯ , ↯ ]₁₀  ∎
+  where
+  open Tools.Reasoning.PropositionalEquality
 ... | no _ with is-𝟘? p
 ... | yes _ =
-  T.prodrec (T.prod ↯ (wk ρ (erase s t)))
-    (wk (lift (lift ρ)) (erase s u))         ≡⟨ cong₂ (λ t u → T.prodrec (T.prod ↯ t) u)
-                                                  (wk-erase-comm _ t)
-                                                  (wk-erase-comm _ u) ⟩
-  T.prodrec (T.prod ↯ (erase s (U.wk ρ t)))
-    (erase s (U.wk (lift (lift ρ)) u))       ∎
+  T.lam (wk (lift ρ) (erase s u T.[ liftSubst (T.sgSubst ↯) ]))
+    T.∘⟨ s ⟩ wk ρ (erase s t)                                             ≡⟨ cong (λ u → T.lam u T.∘⟨ _ ⟩ _) $
+                                                                             wk-lift-β (erase _ u) ⟩
+  T.lam (wk (lift (lift ρ)) (erase s u) T.[ liftSubst (T.sgSubst ↯) ])
+    T.∘⟨ s ⟩ wk ρ (erase s t)                                             ≡⟨ cong₂ (λ u t → T.lam (u T.[ _ ]) T.∘⟨ _ ⟩ t)
+                                                                               (wk-erase-comm _ u)
+                                                                               (wk-erase-comm _ t) ⟩
+  T.lam (erase s (U.wk (lift (lift ρ)) u) T.[ liftSubst (T.sgSubst ↯) ])
+    T.∘⟨ s ⟩ erase s (U.wk ρ t)                                           ∎
   where
   open Tools.Reasoning.PropositionalEquality
 ... | no _ = cong₂ T.prodrec (wk-erase-comm ρ t)
@@ -145,7 +156,7 @@ wk-erase-comm ρ U.star! = refl
 wk-erase-comm ρ (U.unitrec p q A t u)
   with is-𝟘? p
 ... | yes _ =
-  cong (T.unitrec T.star) (wk-erase-comm ρ u)
+  wk-erase-comm _ u
 ... | no _ =
   cong₂ T.unitrec (wk-erase-comm ρ t)
                   (wk-erase-comm ρ u)
@@ -214,20 +225,32 @@ subst-erase-comm σ (U.snd p t) with is-𝟘? p
 ... | no _  = cong T.snd (subst-erase-comm σ t)
 subst-erase-comm {s} σ (U.prodrec r p _ A t u) with is-𝟘? r
 ... | yes _ =
-  cong (Term.prodrec (Term.prod ↯ ↯))
-       (trans (substVar-to-subst (liftSubsts-erase-comm 2) (erase _ u))
-              (subst-erase-comm (U.liftSubstn σ 2) u))
+  erase s u [ ↯ , ↯ ]₁₀ T.[ eraseSubst s σ ]                   ≡⟨ doubleSubstLift _ (erase _ u) _ _ ⟩
+  erase s u T.[ T.liftSubstn (eraseSubst s σ) 2 ] [ ↯ , ↯ ]₁₀  ≡⟨ cong _[ _ , _ ]₁₀ $
+                                                                  substVar-to-subst (liftSubsts-erase-comm 2) (erase _ u) ⟩
+  erase s u T.[ eraseSubst s (U.liftSubstn σ 2) ] [ ↯ , ↯ ]₁₀  ≡⟨ cong _[ _ , _ ]₁₀ $
+                                                                  subst-erase-comm _ u ⟩
+  erase s (u U.[ U.liftSubstn σ 2 ]) [ ↯ , ↯ ]₁₀               ∎
+  where
+  open Tools.Reasoning.PropositionalEquality
 ... | no _ with is-𝟘? p
 ... | yes _ =
-  T.prodrec (T.prod ↯ (erase s t T.[ eraseSubst s σ ]))
-    (erase s u T.[ T.liftSubstn (eraseSubst s σ) 2 ])    ≡⟨ cong (T.prodrec _) $
-                                                            substVar-to-subst (liftSubsts-erase-comm 2) (erase _ u) ⟩
-  T.prodrec (T.prod ↯ (erase s t T.[ eraseSubst s σ ]))
-    (erase s u T.[ eraseSubst s (U.liftSubstn σ 2) ])    ≡⟨ cong₂ (λ t u → T.prodrec (T.prod _ t) u)
-                                                              (subst-erase-comm _ t)
-                                                              (subst-erase-comm _ u) ⟩
-  T.prodrec (T.prod ↯ (erase s (t U.[ σ ])))
-    (erase s (u U.[ U.liftSubstn σ 2 ]))                 ∎
+  T.lam (erase s u T.[ liftSubst (T.sgSubst ↯) ]
+           T.[ liftSubst (eraseSubst s σ) ])
+    T.∘⟨ s ⟩ (erase s t T.[ eraseSubst s σ ])                        ≡⟨ cong (λ u → T.lam u T.∘⟨ _ ⟩ _) $
+                                                                        subst-liftSubst-sgSubst (erase _ u) ⟩
+  T.lam (erase s u T.[ T.liftSubstn (eraseSubst s σ) 2 ]
+           T.[ liftSubst (T.sgSubst ↯) ])
+    T.∘⟨ s ⟩ (erase s t T.[ eraseSubst s σ ])                        ≡⟨ cong (λ u → T.lam (u T.[ _ ]) T.∘⟨ _ ⟩ _) $
+                                                                        substVar-to-subst (liftSubsts-erase-comm 2) (erase _ u) ⟩
+  T.lam (erase s u T.[ eraseSubst s (U.liftSubstn σ 2) ]
+           T.[ liftSubst (T.sgSubst ↯) ])
+    T.∘⟨ s ⟩ (erase s t T.[ eraseSubst s σ ])                        ≡⟨ cong₂ (λ u t → T.lam (u T.[ _ ]) T.∘⟨ _ ⟩ t)
+                                                                          (subst-erase-comm _ u)
+                                                                          (subst-erase-comm _ t) ⟩
+  T.lam (erase s (u U.[ U.liftSubstn σ 2 ])
+           T.[ liftSubst (T.sgSubst ↯) ])
+    T.∘⟨ s ⟩ erase s (t U.[ σ ])                                     ∎
   where
   open Tools.Reasoning.PropositionalEquality
 ... | no _ =
@@ -251,7 +274,7 @@ subst-erase-comm σ Unit! = refl
 subst-erase-comm σ U.star! = refl
 subst-erase-comm σ (U.unitrec p q A t u) with is-𝟘? p
 ... | yes _ =
-  cong (T.unitrec T.star) (subst-erase-comm σ u)
+  subst-erase-comm σ u
 ... | no _ =
   cong₂ T.unitrec (subst-erase-comm σ t)
                   (subst-erase-comm σ u)
@@ -356,20 +379,21 @@ module hasX (R : Usage-restrictions) where
 
   erased-hasX erased (prodrecₘ {r = r} {p = p} ▸t ▸u _ _) hasX
     with is-𝟘? r
-  erased-hasX erased (prodrecₘ ▸t ▸u _ _) (prodrecₓˡ (prodₓˡ ()))
-    | yes _
-  erased-hasX erased (prodrecₘ ▸t ▸u _ _) (prodrecₓˡ (prodₓʳ ()))
-    | yes _
-  erased-hasX erased (prodrecₘ ▸t ▸u _ _) (prodrecₓʳ hasX) | yes _ =
-    erased-hasX (there (there (x◂𝟘∈γ+δʳ refl erased))) ▸u hasX
+  erased-hasX erased (prodrecₘ ▸t ▸u _ _) hasX
+    | yes _ =
+    erased-hasX (there (there (x◂𝟘∈γ+δʳ refl erased))) ▸u
+      (HasX-[closed,closed]→ (λ ()) (λ ()) hasX)
   ... | no _ with is-𝟘? p
-  erased-hasX erased (prodrecₘ ▸t ▸u _ _)
-              (prodrecₓˡ (prodₓʳ hasX)) | no r≢𝟘 | yes _ =
-    erased-hasX (x◂𝟘∈pγ refl r≢𝟘 (x◂𝟘∈γ+δˡ refl erased))
-                (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ r≢𝟘) ▸t) hasX
-  erased-hasX erased (prodrecₘ ▸t ▸u _ _) (prodrecₓʳ hasX)
+  erased-hasX erased (prodrecₘ {u} _ ▸u _ _) (∘ₓˡ (lamₓ hasX))
     | no _ | yes _ =
-    erased-hasX (there (there (x◂𝟘∈γ+δʳ refl erased))) ▸u hasX
+    case HasX-[liftSubst]→ {t = erase _ u} hasX of λ where
+      (inj₁ (() , _))
+      (inj₂ (_ , refl , x0     , _    , ()))
+      (inj₂ (_ , refl , (_ +1) , hasX , varₓ)) →
+        erased-hasX (there (there (x◂𝟘∈γ+δʳ refl erased))) ▸u hasX
+  erased-hasX erased (prodrecₘ ▸t _ _ _) (∘ₓʳ hasX) | no r≢𝟘 | yes _ =
+    erased-hasX (x◂𝟘∈pγ refl r≢𝟘 (x◂𝟘∈γ+δˡ refl erased))
+      (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ r≢𝟘) ▸t) hasX
   erased-hasX erased (prodrecₘ ▸t ▸u _ _) (prodrecₓˡ hasX)
     | no r≢𝟘 | no _ =
     erased-hasX (x◂𝟘∈pγ refl r≢𝟘 (x◂𝟘∈γ+δˡ refl erased))
@@ -451,7 +475,7 @@ module hasX (R : Usage-restrictions) where
 
   erased-hasX erased (unitrecₘ {p = p} γ▸t δ▸u η▸A ok) hasX
     with is-𝟘? p
-  erased-hasX erased (unitrecₘ {p = _} γ▸t δ▸u η▸A ok) (unitrecₓʳ hasX) | yes _ =
+  erased-hasX erased (unitrecₘ _ δ▸u _ _) hasX | yes _ =
     erased-hasX (x◂𝟘∈γ+δʳ refl erased) δ▸u hasX
   erased-hasX erased (unitrecₘ {p = _} γ▸t δ▸u η▸A ok) (unitrecₓˡ hasX) | no p≢𝟘 =
     erased-hasX (x◂𝟘∈pγ refl p≢𝟘 (x◂𝟘∈γ+δˡ refl erased))

@@ -62,11 +62,14 @@ open import Graded.Erasure.LogicalRelation.Conversion is-𝟘? as
 open import Graded.Erasure.LogicalRelation.Reduction is-𝟘? as
 open import Graded.Erasure.LogicalRelation.Subsumption is-𝟘? as
 open import Graded.Erasure.LogicalRelation.Irrelevance is-𝟘? as
+open import Graded.Erasure.LogicalRelation.Value is-𝟘? as
 
 open import Graded.Erasure.Extraction 𝕄 is-𝟘?
 open import Graded.Erasure.Extraction.Properties 𝕄
 import Graded.Erasure.Target as T
+  renaming (_[_,_] to _[_,_]₁₀)
 import Graded.Erasure.Target.Properties as TP
+open import Graded.Erasure.Target.Reasoning
 
 
 private
@@ -83,6 +86,27 @@ private
     σ′ : T.Subst k n
     m : Mode
     l : TypeLevel
+
+private opaque
+
+  -- A lemma that is used below.
+
+  [liftSubst-sgSubst][liftSubst][]₀≡ :
+    (v : T.Term (2+ n)) →
+    v T.[ T.liftSubst (T.sgSubst v₁) ] T.[ T.liftSubst σ′ ] T.[ v₂ ]₀
+      PE.≡
+    v T.[ T.consSubst (T.consSubst σ′ (v₁ T.[ σ′ ])) v₂ ]
+  [liftSubst-sgSubst][liftSubst][]₀≡ {v₁} {σ′} {v₂} v =
+    v T.[ T.liftSubst (T.sgSubst v₁) ] T.[ T.liftSubst σ′ ] T.[ v₂ ]₀  ≡⟨ PE.cong T._[ _ ]₀ $ TP.subst-liftSubst-sgSubst v ⟩
+
+    v T.[ T.liftSubstn σ′ 2 ]
+      T.[ T.liftSubst (T.sgSubst (v₁ T.[ σ′ ])) ] T.[ v₂ ]₀            ≡⟨ TP.singleSubstComp _ _ (v T.[ _ ]) ⟩
+
+    v T.[ T.liftSubstn σ′ 2 ] T.[ v₁ T.[ σ′ ] , v₂ ]₁₀                 ≡⟨ TP.doubleSubstComp v _ _ _ ⟩
+
+    v T.[ T.consSubst (T.consSubst σ′ (v₁ T.[ σ′ ])) v₂ ]              ∎
+    where
+    open Tools.Reasoning.PropositionalEquality
 
 prodrecωʳ′-𝟘 :
   {Γ : Con Term n}
@@ -162,44 +186,57 @@ prodrecωʳ′-𝟘
              (doubleSubstComp u t₁ t₂ σ)
              (substCompProdrec A t₁ t₂ σ)
              (conv* red₁ At≡Ap ⇨∷* redMany red₂)
-  lemma′ = λ x →
-             (T.wk1 (T.wk1 (σ′ x)))
-               T.[ T.consSubst (T.sgSubst T.↯) (erase str t T.[ σ′ ]) ]  ≡⟨ TP.wk1-tail (T.wk1 (σ′ x)) ⟩
+  red″ :
+    ∃ λ v₂′ → erase str t T.[ σ′ ] T.⇒* v₂′ ×
+    T.lam (erase str u T.[ T.liftSubst (T.sgSubst T.↯) ]
+             T.[ T.liftSubst σ′ ])
+      T.∘⟨ str ⟩ (erase str t T.[ σ′ ]) T.⇒*
+    erase str u
+      T.[ T.consSubst (T.consSubst σ′ T.↯) v₂′ ]
+  red″ =
+    case PE.singleton str of λ where
+      (T.non-strict , PE.refl) → _ , T.refl ,
+        (T.lam (erase str u T.[ T.liftSubst (T.sgSubst T.↯) ]
+                  T.[ T.liftSubst σ′ ])
+           T.∘⟨ str ⟩ (erase str t T.[ σ′ ])                              ⇒⟨ T.β-red _ ⟩
 
-              (T.wk1 (σ′ x)) T.[ T.↯ ]₀                                  ≡⟨ TP.wk1-tail (σ′ x) ⟩
+         erase str u T.[ T.liftSubst (T.sgSubst T.↯) ]
+           T.[ T.liftSubst σ′ ] T.[ erase str t T.[ σ′ ] ]₀               ≡⟨ [liftSubst-sgSubst][liftSubst][]₀≡ (erase _ u) ⟩⇒
 
-              σ′ x T.[ T.idSubst ]                                       ≡⟨ TP.subst-id (σ′ x) ⟩
+         erase str u
+           T.[ T.consSubst (T.consSubst σ′ T.↯) (erase str t T.[ σ′ ]) ]  ∎⇒)
+      (T.strict , PE.refl) →
+        case reduces-to-value [σGt₁] t₂®v₂ of λ
+          (v₂′ , v₂′-val , v₂⇒*v₂′) →
+        case TP.red*concat d′ v₂⇒*v₂′ of λ
+          erase-t[σ′]⇒*v₂′ →
+        _ , erase-t[σ′]⇒*v₂′ ,
+        (T.lam (erase str u T.[ T.liftSubst (T.sgSubst T.↯) ]
+                  T.[ T.liftSubst σ′ ])
+           T.∘⟨ str ⟩ (erase str t T.[ σ′ ])                     ⇒*⟨ TP.app-subst*-arg T.lam erase-t[σ′]⇒*v₂′ ⟩
 
-             σ′ x                                                        ∎
-  lemma  = erase str u
-             T.[ T.liftSubstn σ′ 2 ]
-             T.[ T.consSubst (T.sgSubst T.↯) (erase str t T.[ σ′ ]) ]  ≡⟨ TP.substCompEq (erase _ u) ⟩
+         T.lam (erase str u T.[ T.liftSubst (T.sgSubst T.↯) ]
+                  T.[ T.liftSubst σ′ ])
+           T.∘⟨ str ⟩ v₂′                                        ⇒⟨ T.β-red v₂′-val ⟩
 
-           erase str u
-             T.[ T.consSubst (T.sgSubst T.↯)
-                   (erase str t T.[ σ′ ]) T.ₛ•ₛ
-                 T.liftSubst (T.liftSubst σ′) ]                        ≡⟨ (flip TP.substVar-to-subst (erase _ u) λ where
-                                                                             x0      → PE.refl
-                                                                             (x0 +1) → PE.refl
-                                                                             (x +2)  → lemma′ x) ⟩
-           erase str u
-             T.[ T.consSubst (T.consSubst σ′ T.↯)
-                   (erase str t T.[ σ′ ]) ]                            ∎
+         erase str u T.[ T.liftSubst (T.sgSubst T.↯) ]
+           T.[ T.liftSubst σ′ ] T.[ v₂′ ]₀                       ≡⟨ [liftSubst-sgSubst][liftSubst][]₀≡ (erase _ u) ⟩⇒
 
-  red″   = T.trans T.prodrec-β
-             (PE.subst
-                (T._⇒* erase str u
-                         T.[ T.consSubst (T.consSubst σ′ T.↯)
-                               (erase str t T.[ σ′ ]) ])
-                (PE.sym lemma)
-                T.refl)
+         erase str u T.[ T.consSubst (T.consSubst σ′ T.↯) v₂′ ]  ∎⇒)
   σ®σ′ᵤ  = subsumptionSubst σ®σ′ λ x rγ+δ≡𝟘 →
              +-positiveʳ (PE.trans (PE.sym (lookup-distrib-+ᶜ (r ·ᶜ γ) δ x)) rγ+δ≡𝟘)
   t₁®v₁ = subsumptionTerm {p = p} t®v◂𝟘 λ _ → PE.trans (·-identityˡ (r · 𝟘)) (·-zeroʳ r)
-  t₂®v₂′ = targetRedSubstTerm* [σGt₁] t₂®v₂ d′ ◀ _
-  σ₊®σ′₊ = (σ®σ′ᵤ , t₁®v₁) , t₂®v₂′
-  u®u′   = ⊩ʳu [σ₊] σ₊®σ′₊
-  pr®pr′ = redSubstTerm* [σ₊A₊] (u®u′ ◀≢𝟘 non-trivial) red′ red″
+  pr®pr′ =
+    case red″ of λ
+      (_ , erase-t⇒* , red″) →
+    redSubstTerm* [σ₊A₊]
+      (⊩ʳu [σ₊]
+         ( (σ®σ′ᵤ , t₁®v₁)
+         , (targetRedSubstTerm*′ [σGt₁]
+              (targetRedSubstTerm* [σGt₁] t₂®v₂ d′)
+              erase-t⇒* ◀ _)
+         ) ◀≢𝟘 non-trivial)
+      red′ red″
 
 prodrecωʳ′-ω :
   {Γ : Con Term n}
@@ -468,13 +505,13 @@ prodrec𝟘ʳ {n} {l} {F} {G} {p} {q} {A} {δ} {u} {t} {r} {σ} {σ′} {q′} {
       red = PE.subst (λ x → _ ⊢ prodrec r p q′ A t u [ σ ] ⇒* x ∷ _)
                      (doubleSubstComp u t₁ t₂ σ)
                      (red₁′ ⇨∷* red₂′)
-      red′ = PE.subst (T._⇒_ _)
-               (TP.doubleSubstComp (erase _ u) _ _ _)
-               T.prodrec-β
+      red′ = PE.subst (T._⇒*_ _)
+               (TP.doubleSubstComp′ (erase _ u))
+               T.refl
 
 
       pr®pr′ = redSubstTerm* [σ₊A₊] (σ₊u®σ′₊u′ ◀≢𝟘 non-trivial)
-                             red (T.trans red′ T.refl)
+                             red red′
       [σAt] = proj₁ (unwrap [At] ⊢Δ [σ])
       At≡At‴ = PE.subst (λ x → Δ ⊢ x ≡ _) (PE.sym (singleSubstLift A t)) At≡At″
 

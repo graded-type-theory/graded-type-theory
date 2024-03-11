@@ -152,7 +152,7 @@ unitrecʳ′ {n} {Γ} {l} {A} {t} {u} {γ} {𝟙ᵐ} {p} {δ} {q}
                            (PE.sym (singleSubstLift A t)) redₜ′
       in  case is-𝟘? p of λ
           { (yes p≡𝟘) →
-              let ur®ur′ = redSubstTerm* [σAₜ] u®u″ redₜ″ (T.trans T.unitrec-β T.refl)
+              let ur®ur′ = redSubstTerm* [σAₜ] u®u″ redₜ″ T.refl
               in  unitrec𝟘 p≡𝟘 [σAₜ] ur®ur′
           ; (no p≢𝟘) →
               let _ , d′ = lemma p≢𝟘
@@ -182,7 +182,7 @@ unitrecʳ′ {n} {Γ} {l} {A} {t} {u} {γ} {𝟙ᵐ} {p} {δ} {q}
   ur = unitrec p q A t u
   unitrec𝟘 :
     p PE.≡ 𝟘 → ([B] : Δ ⊩⟨ l ⟩ B) →
-    ur [ σ ] ®⟨ l ⟩ T.unitrec T.star (erase str u) T.[ σ′ ] ∷ B / [B] →
+    ur [ σ ] ®⟨ l ⟩ erase str u T.[ σ′ ] ∷ B / [B] →
     ur [ σ ] ®⟨ l ⟩ erase str ur T.[ σ′ ] ∷ B ◂ 𝟙 / [B]
   unitrec𝟘 p≡𝟘 [B] ur®ur′ with is-𝟘? p
   ... | yes _ = ur®ur′ ◀ 𝟙
