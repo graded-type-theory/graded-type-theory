@@ -32,7 +32,7 @@ import Definition.Typed.Consequences.Canonicity TR as TC
 open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Reasoning.Term TR
-open import Definition.LogicalRelation TR
+open import Definition.LogicalRelation TR hiding (_≤_; _<_)
 
 open import Graded.Context 𝕄
 open import Graded.Derived.Erased.Typed TR
@@ -50,6 +50,7 @@ open import Graded.Erasure.Target as T
 import Graded.Erasure.Target.Properties as TP
 open import Graded.Erasure.Target.Reasoning
 open import Graded.Erasure.Extraction 𝕄
+open import Graded.Erasure.Extraction.Non-terminating TR UR
 open import Graded.Erasure.SucRed TR
 import Graded.Erasure.LogicalRelation
 open import Graded.Erasure.LogicalRelation.Assumptions TR
@@ -58,7 +59,7 @@ import Graded.Erasure.LogicalRelation.Fundamental
 import Graded.Erasure.LogicalRelation.Irrelevance
 import Graded.Erasure.LogicalRelation.Subsumption
 
-open import Tools.Bool using (T)
+open import Tools.Bool using (T; true)
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
@@ -76,7 +77,7 @@ private
     t t′ u F : Term n
     G : Term (1+ n)
     v v′ w : T.Term n
-    p : M
+    p q : M
     s : Strength
     sem : Some-erased-matches
     str : Strictness
@@ -92,6 +93,14 @@ sucᵏ (1+ n) = suc (sucᵏ n)
 sucᵏ′ : (k : Nat) → T.Term n
 sucᵏ′ 0      = T.zero
 sucᵏ′ (1+ n) = T.suc (sucᵏ′ n)
+
+opaque
+
+  -- The term sucᵏ′ k is a value.
+
+  Value-sucᵏ′ : ∀ {k} → T.Value (sucᵏ′ {n = n} k)
+  Value-sucᵏ′ {k = 0}    = T.zero
+  Value-sucᵏ′ {k = 1+ _} = T.suc
 
 -- Some results that are proved under the assumption that the
 -- modality's zero is well-behaved.
@@ -673,3 +682,35 @@ opaque
 
     ⊢zero : Δ′ ∙ Id ℕ zero zero ⊢ zero ∷ ℕ
     ⊢zero = zeroⱼ (K-motive-context (zeroⱼ ⊢Δ))
+
+-- A variant of run-time canonicity that uses erase′ true instead of
+-- erase.
+
+Run-time-canonicity-with-arguments-removed-for :
+  Strictness → Con Term n → Term n → Set a
+Run-time-canonicity-with-arguments-removed-for str Δ t =
+  ∃₂ λ n u →
+  Δ ⊢ u ∷ Id ℕ t (sucᵏ n) ×
+  erase′ true str t ⇒ˢ⟨ str ⟩* sucᵏ′ n
+
+opaque
+
+  -- Run-time canonicity does not necessarily hold for closed,
+  -- well-typed, well-resourced terms of type ℕ if strict
+  -- applications are used and erasable arguments are removed
+  -- entirely, assuming that certain Π-types are allowed and that ω
+  -- satisfies certain inequalities.
+
+  no-run-time-canonicity-if-strict-and-arguments-removed :
+    Π-allowed 𝟘 p →
+    Π-allowed ω q →
+    ω < 𝟘 →
+    ω ≤ ω + ω →
+    q ≤ 𝟘 →
+    ¬ ((t : Term 0) → ε ⊢ t ∷ ℕ → ε ▸[ 𝟙ᵐ ] t →
+       Run-time-canonicity-with-arguments-removed-for strict ε t)
+  no-run-time-canonicity-if-strict-and-arguments-removed
+    𝟘-ok ω-ok ω<𝟘@(_ , ω≢𝟘) ω≤ω+ω q≤𝟘 hyp =
+    case hyp (loops _) (⊢loops 𝟘-ok ω-ok ε) (▸loops ω<𝟘 ω≤ω+ω q≤𝟘) of λ
+      (_ , _ , _ , ⇒*n) →
+    loops-does-not-reduce-to-a-value ω≢𝟘 Value-sucᵏ′ ⇒*n

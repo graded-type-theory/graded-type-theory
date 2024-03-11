@@ -347,6 +347,7 @@ import Graded.Erasure.Target.Non-terminating
 
 import Graded.Erasure.Extraction
 import Graded.Erasure.Extraction.Properties
+import Graded.Erasure.Extraction.Non-terminating
 
 -- Logical relation for Erasure
 
