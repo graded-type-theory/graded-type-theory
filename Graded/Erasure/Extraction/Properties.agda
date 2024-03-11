@@ -2,6 +2,8 @@
 -- Properties of the extraction function.
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 open import Graded.Modality
 open import Tools.PropositionalEquality as PE
 
@@ -154,60 +156,8 @@ wk-erase-comm _ ([]-cong _ _ _ _ _) = refl
 
 liftSubst-erase-comm : (x : Fin (1+ n))
                      → liftSubst (eraseSubst σ) x ≡ eraseSubst (U.liftSubst σ) x
-liftSubst-erase-comm x0 = refl
-liftSubst-erase-comm {σ = σ} (x +1) with σ x
-... | var x₁ = refl
-... | U = refl
-... | Π p , q ▷ F ▹ G = refl
-... | U.lam p t =
-  cong T.lam (wk-erase-comm (lift (step id)) t)
-... | t ∘⟨ p ⟩ u with is-𝟘? p
-... | yes _ = cong (T._∘ ↯) (wk-erase-comm (step id) t)
-... | no _ = cong₂ T._∘_ (wk-erase-comm (step id) t)
-                         (wk-erase-comm (step id) u)
-liftSubst-erase-comm (x +1) | ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _ = refl
-liftSubst-erase-comm (x +1) | U.prod _ p t u with is-𝟘? p
-... | yes _ = wk-erase-comm (step id) u
-... | no _ = cong₂ T.prod (wk-erase-comm (step id) t)
-                          (wk-erase-comm (step id) u)
-liftSubst-erase-comm (x +1) | U.fst p t with is-𝟘? p
-... | yes _ = refl
-... | no _ = cong T.fst (wk-erase-comm (step id) t)
-liftSubst-erase-comm (x +1) | U.snd p t with is-𝟘? p
-... | yes _ = wk-erase-comm (step id) t
-... | no _ = cong T.snd (wk-erase-comm (step id) t)
-liftSubst-erase-comm (x +1) | U.prodrec r p _ A t u with is-𝟘? r
-... | yes r≡𝟘 = cong (Term.prodrec (Term.prod ↯ ↯))
-                   (wk-erase-comm (lift (lift (step id))) u)
-... | no r≢𝟘 with is-𝟘? p
-... | yes p≡𝟘 = cong₂ (λ t u → Term.prodrec (Term.prod ↯ t) u)
-                      (wk-erase-comm (step id) t)
-                      (wk-erase-comm _ u)
-... | no _ =
-  cong₂ Term.prodrec (wk-erase-comm (step id) t)
-                     (wk-erase-comm (lift (lift (step id))) u)
-liftSubst-erase-comm (x +1) | ℕ = refl
-liftSubst-erase-comm (x +1) | U.zero = refl
-liftSubst-erase-comm (x +1) | U.suc t = cong T.suc (wk-erase-comm (step id) t)
-liftSubst-erase-comm (x +1) | U.natrec p q r A z s n =
-  cong₃ T.natrec (wk-erase-comm (step id) z)
-                 (wk-erase-comm (lift (lift (step id))) s)
-                 (wk-erase-comm (step id) n)
-liftSubst-erase-comm (x +1) | Unit! = refl
-liftSubst-erase-comm (x +1) | U.star! = refl
-liftSubst-erase-comm (x +1) | U.unitrec p q A t u with is-𝟘? p
-... | yes _ =
-  cong (T.unitrec T.star) (wk-erase-comm (step id) u)
-... | no _ =
-  cong₂ Term.unitrec (wk-erase-comm (step id) t)
-                     (wk-erase-comm (step id) u)
-liftSubst-erase-comm (x +1) | Empty = refl
-liftSubst-erase-comm (x +1) | emptyrec p A t = refl
-liftSubst-erase-comm _      | Id _ _ _ = refl
-liftSubst-erase-comm _      | U.rfl = refl
-liftSubst-erase-comm _      | J _ _ _ _ _ u _ _ = wk-erase-comm _ u
-liftSubst-erase-comm _      | K _ _ _ _ u _ = wk-erase-comm _ u
-liftSubst-erase-comm _      | []-cong _ _ _ _ _ = refl
+liftSubst-erase-comm     x0     = refl
+liftSubst-erase-comm {σ} (_ +1) = wk-erase-comm _ (σ _)
 
 -- Multiple lifts commutes with erase
 -- liftSubstn (eraseSubst σ) n x ≡ eraseSubst (liftSubstn σ n) x
