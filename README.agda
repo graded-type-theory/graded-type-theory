@@ -113,9 +113,10 @@ import Graded.Usage.Restrictions.Satisfied
 -- has also been added, and the strong unit type can now optionally be
 -- used as a "sink". Another difference is that function applications
 -- and applications of the suc constructor can optionally be extracted
--- to strict applications instead of non-strict ones. Furthermore
--- equality with the grade 𝟘 is now required to be decidable for all
--- modalities.
+-- to strict applications instead of non-strict ones, and that a
+-- non-terminating term is used instead of ↯ in the extraction of
+-- emptyrec and fst. Furthermore equality with the grade 𝟘 is now
+-- required to be decidable for all modalities.
 
 -- Another notable change is related to the natrec-star operators. The
 -- paper does not focus on linearity, but some modalities for linear

@@ -70,6 +70,7 @@ open import Graded.Erasure.Extraction EM EM.is-𝟘?
 import Graded.Erasure.SucRed TR as S
 open import Graded.Erasure.Target as T
   using (Strictness; strict; non-strict)
+open import Graded.Erasure.Target.Non-terminating
 import Graded.Erasure.Target.Properties as TP
 open import Graded.Modality.Instances.Erasure.Properties variant
 open import Graded.Mode EM
@@ -619,13 +620,13 @@ head =
     (lam ω $ lam 𝟘 $ fst ω (var x1))
     (var x0)
 
--- The erasure of head includes an erased part (T.↯).
+-- The erasure of head includes an erased part (loop str).
 
 erase-head :
   erase str head PE.≡
   (T.Term.lam $ T.Term.lam $
    T.natrec
-     (T.lam (T.lam T.↯))
+     (T.lam (T.lam (loop str)))
      (T.lam (T.lam (T.fst (T.var x1))))
      (T.var x0))
 erase-head = PE.refl
@@ -849,13 +850,14 @@ erase-head = PE.refl
 head-[0] : Term 0
 head-[0] = head ∘⟨ 𝟘 ⟩ ℕ ∘⟨ ω ⟩ suc zero ∘⟨ ω ⟩ [0] ∘⟨ 𝟘 ⟩ (star s)
 
--- The non-strict erasure of head-[0] includes several erased parts (T.↯).
+-- The non-strict erasure of head-[0] includes several erased parts
+-- (loop non-strict and T.↯).
 
 erase-non-strict-head-[0] :
   erase non-strict head-[0] PE.≡
   (T.lam
      (T.Term.lam $
-      T.natrec (T.lam (T.lam T.↯))
+      T.natrec (T.lam (T.lam (loop non-strict)))
         (T.lam (T.lam (T.fst (T.var x1))))
         (T.var x0)) T.∘⟨ non-strict ⟩
    T.↯ T.∘⟨ non-strict ⟩
@@ -869,7 +871,7 @@ erase-strict-head-[0] :
   erase strict head-[0] PE.≡
   (T.lam
      (T.Term.lam $
-      T.natrec (T.lam (T.lam T.↯))
+      T.natrec (T.lam (T.lam (loop strict)))
         (T.lam (T.lam (T.fst (T.var x1))))
         (T.var x0)) T.∘⟨ strict ⟩
    T.↯ T.∘⟨ strict ⟩

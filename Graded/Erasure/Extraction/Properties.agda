@@ -19,6 +19,7 @@ open import Graded.Modality.Properties 𝕄
 
 open import Graded.Erasure.Extraction 𝕄 is-𝟘?
 open import Graded.Erasure.Target as T hiding (refl; trans)
+open import Graded.Erasure.Target.Non-terminating
 open import Graded.Erasure.Target.Properties
 
 open import Definition.Untyped M as U
@@ -107,7 +108,7 @@ wk-erase-comm ρ (U.prod _ p t u) with is-𝟘? p
 ... | yes _ = wk-erase-comm ρ u
 ... | no _ = cong₂ T.prod (wk-erase-comm ρ t) (wk-erase-comm ρ u)
 wk-erase-comm ρ (U.fst p t) with is-𝟘? p
-... | yes _ = refl
+... | yes _ = wk-loop
 ... | no _ = cong T.fst (wk-erase-comm ρ t)
 wk-erase-comm ρ (U.snd p t) with is-𝟘? p
 ... | yes _ = wk-erase-comm ρ t
@@ -149,7 +150,7 @@ wk-erase-comm ρ (U.unitrec p q A t u)
   cong₂ T.unitrec (wk-erase-comm ρ t)
                   (wk-erase-comm ρ u)
 wk-erase-comm ρ Empty = refl
-wk-erase-comm ρ (emptyrec p A t) = refl
+wk-erase-comm _ (emptyrec _ _ _) = wk-loop
 wk-erase-comm _ (Id _ _ _) = refl
 wk-erase-comm _ U.rfl = refl
 wk-erase-comm _ (J _ _ _ _ _ u _ _) = wk-erase-comm _ u
@@ -206,7 +207,7 @@ subst-erase-comm σ (U.prod _ p t u) with is-𝟘? p
 ... | yes _ = subst-erase-comm σ u
 ... | no _ = cong₂ T.prod (subst-erase-comm σ t) (subst-erase-comm σ u)
 subst-erase-comm σ (U.fst p t) with is-𝟘? p
-... | yes _ = refl
+... | yes _ = loop-[]
 ... | no _ = cong T.fst (subst-erase-comm σ t)
 subst-erase-comm σ (U.snd p t) with is-𝟘? p
 ... | yes _ = subst-erase-comm σ t
@@ -255,7 +256,7 @@ subst-erase-comm σ (U.unitrec p q A t u) with is-𝟘? p
   cong₂ T.unitrec (subst-erase-comm σ t)
                   (subst-erase-comm σ u)
 subst-erase-comm σ Empty = refl
-subst-erase-comm σ (emptyrec p A t) = refl
+subst-erase-comm _ (emptyrec _ _ _) = loop-[]
 subst-erase-comm _ (Id _ _ _) = refl
 subst-erase-comm _ U.rfl = refl
 subst-erase-comm _ (J _ _ _ _ _ u _ _) = subst-erase-comm _ u
@@ -341,7 +342,8 @@ module hasX (R : Usage-restrictions) where
     erased-hasX erased (sub δ▸ (∧ᶜ-decreasingʳ _ _)) hasX
 
   erased-hasX erased (fstₘ {p = p} _ _ _ _) hasX with is-𝟘? p
-  erased-hasX erased (fstₘ {p = _} _ _ _ _) () | yes _
+  erased-hasX erased (fstₘ         _ _ _ _) hasX | yes _ =
+    loop-closed hasX
   erased-hasX erased (fstₘ {p = _} 𝟘ᵐ _ () _) (fstₓ hasX) | no _
   erased-hasX erased (fstₘ {p = _} 𝟙ᵐ γ▸ _ _) (fstₓ hasX) | no p≢𝟘 =
     erased-hasX erased (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸) hasX
@@ -456,6 +458,9 @@ module hasX (R : Usage-restrictions) where
                 (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸t) hasX
   erased-hasX erased (unitrecₘ {p = _} γ▸t δ▸u η▸A ok) (unitrecₓʳ hasX) | no _ =
     erased-hasX (x◂𝟘∈γ+δʳ refl erased) δ▸u hasX
+
+  erased-hasX _ (emptyrecₘ _ _) =
+    loop-closed
 
   erased-hasX erased (sub δ▸t γ≤δ) hasX =
     erased-hasX (x◂𝟘∈γ≤δ erased γ≤δ) δ▸t hasX
