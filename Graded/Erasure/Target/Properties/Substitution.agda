@@ -394,6 +394,19 @@ doubleSubstComp {n = n} A t u σ = begin
   varEq (x +2) = trans (wk1-tail (wk1 (σ x)))
                        (trans (wk1-tail (σ x)) (subst-id (σ x)))
 
+opaque
+
+  -- A variant of doubleSubstComp.
+
+  doubleSubstComp′ :
+    (t : Term (2+ n)) →
+    t [ u , v ] [ σ ] ≡
+    t [ consSubst (consSubst σ (u [ σ ])) (v [ σ ]) ]
+  doubleSubstComp′ {u} {v} {σ} t =
+    t [ u , v ] [ σ ]                                  ≡⟨ doubleSubstLift _ t _ _ ⟩
+    t [ liftSubstn σ 2 ] [ u [ σ ] , v [ σ ] ]         ≡⟨ doubleSubstComp t _ _ _ ⟩
+    t [ consSubst (consSubst σ (u [ σ ])) (v [ σ ]) ]  ∎
+
 -- Lifted substitutions kind of commute with lifted single
 -- substitutions.
 
