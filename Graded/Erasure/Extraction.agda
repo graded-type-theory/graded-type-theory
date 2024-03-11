@@ -30,7 +30,8 @@ private
 erase-prodrecω :
   Strictness → M → T.Term n → T.Term (2+ n) → T.Term n
 erase-prodrecω s p t u = case is-𝟘? p of λ where
-    (yes p≡𝟘) → T.lam (u T.[ T.liftSubst (T.sgSubst ↯) ]) T.∘⟨ s ⟩ t
+    (yes p≡𝟘) → T.lam (u T.[ T.liftSubst (T.sgSubst (loop s)) ])
+                  T.∘⟨ s ⟩ t
     (no p≢𝟘) → T.prodrec t u
 
 -- The extraction function.
@@ -60,7 +61,7 @@ erase s (U.snd p t) = case is-𝟘? p of λ where
   (yes p≡𝟘) → erase s t
   (no p≢𝟘) → T.snd (erase s t)
 erase s (U.prodrec r p _ _ t u) = case is-𝟘? r of λ where
-  (yes r≡𝟘) → erase s u T.[ ↯ , ↯ ]
+  (yes r≡𝟘) → erase s u T.[ loop s , loop s ]
   (no r≢𝟘) → erase-prodrecω s p (erase s t) (erase s u)
 erase _ ℕ = ↯
 erase _ U.zero = T.zero
