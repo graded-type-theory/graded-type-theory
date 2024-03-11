@@ -153,8 +153,8 @@ opaque
     case extractMaybeEmb (Id-elim ⊩Id) .proj₂ of λ {
       ⊩Id′ →
     case irrelevanceTerm ⊩Id (Idᵣ ⊩Id′) t®v of λ {
-      (rflᵣ t⇒*) →
-    rflᵣ (conv* t⇒* (sym (subset* (red (_⊩ₗId_.⇒*Id ⊩Id′))))) }}
+      (rflᵣ t⇒* ⇒*↯) →
+    rflᵣ (conv* t⇒* (sym (subset* (red (_⊩ₗId_.⇒*Id ⊩Id′))))) ⇒*↯ }}
 
 opaque
   unfolding _®⟨_⟩_∷_
@@ -164,6 +164,7 @@ opaque
   ®-Π :
     p ≢ 𝟘 →
     t ®⟨ l ⟩ v ∷ Π p , q ▷ A ▹ B →
+    (∃ λ v′ → v T.⇒* T.lam v′) ×
     ∃ λ l′ → l′ L.≤ l ×
     ∀ t′ v′ → Δ ⊢ t′ ∷ A → t′ ®⟨ l′ ⟩ v′ ∷ A →
     t ∘⟨ p ⟩ t′ ®⟨ l′ ⟩ v T.∘⟨ T.non-strict ⟩ v′ ∷ B [ t′ ]₀
@@ -174,14 +175,15 @@ opaque
     lemma :
       (⊩Π : Δ ⊩⟨ l ⟩B⟨ BΠ p q ⟩ Π p , q ▷ A ▹ B) →
       t ®⟨ l ⟩ v ∷ Π p , q ▷ A ▹ B / B-intr (BΠ p q) ⊩Π →
+      (∃ λ v′ → v T.⇒* T.lam v′) ×
       ∃ λ l′ → l′ L.≤ l ×
       ∀ t′ v′ → Δ ⊢ t′ ∷ A → t′ ®⟨ l′ ⟩ v′ ∷ A →
       t ∘⟨ p ⟩ t′ ®⟨ l′ ⟩ v T.∘⟨ T.non-strict ⟩ v′ ∷ B [ t′ ]₀
     lemma (emb 0<1 ⊩Π) t®v =
       case lemma ⊩Π t®v of λ {
-        (_ , refl , f) →
-      _ , emb 0<1 , f }
-    lemma (noemb ⊩Π) t®v = _ , refl , λ t′ v′ ⊢t′ t′®v′ →
+        (⇒*lam , _ , refl , f) →
+      ⇒*lam , _ , emb 0<1 , f }
+    lemma (noemb ⊩Π) t®v = t®v .proj₁ , _ , refl , λ t′ v′ ⊢t′ t′®v′ →
       case B-PE-injectivity (BΠ _ _) (BΠ _ _)
              (whnfRed* (red (_⊩ₗB⟨_⟩_.D ⊩Π)) ΠΣₙ) of λ {
         (PE.refl , PE.refl , _) →
@@ -195,7 +197,7 @@ opaque
         ⊩B[t′]
       , irrelevanceTerm′ (PE.cong _[ t′ ]₀ $ wk-lift-id B)
           (_⊩ₗB⟨_⟩_.[G] ⊩Π W.id ⊢Δ ⊩t′) ⊩B[t′]
-          (Π-®-ω p≢𝟘 (is-𝟘? p) (t®v ⊩t′)
+          (Π-®-ω p≢𝟘 (is-𝟘? p) (t®v .proj₂ ⊩t′)
              (irrelevanceTerm′ (PE.sym $ wk-id _) (t′®v′ .proj₁)
                 (_⊩ₗB⟨_⟩_.[F] ⊩Π W.id ⊢Δ) $
               t′®v′ .proj₂)) }}}
@@ -207,6 +209,7 @@ opaque
 
   ®-Π₀ :
     t ®⟨ l ⟩ v ∷ Π 𝟘 , q ▷ A ▹ B →
+    (∃ λ v′ → v T.⇒* T.lam v′) ×
     ∃ λ l′ → l′ L.≤ l ×
     ∀ t′ → Δ ⊢ t′ ∷ A →
     t ∘⟨ 𝟘 ⟩ t′ ®⟨ l′ ⟩ v T.∘⟨ T.non-strict ⟩ T.↯ ∷ B [ t′ ]₀
@@ -217,14 +220,15 @@ opaque
     lemma :
       (⊩Π : Δ ⊩⟨ l ⟩B⟨ BΠ 𝟘 q ⟩ Π 𝟘 , q ▷ A ▹ B) →
       t ®⟨ l ⟩ v ∷ Π 𝟘 , q ▷ A ▹ B / B-intr (BΠ 𝟘 q) ⊩Π →
+      (∃ λ v′ → v T.⇒* T.lam v′) ×
       ∃ λ l′ → l′ L.≤ l ×
       ∀ t′ → Δ ⊢ t′ ∷ A →
       t ∘⟨ 𝟘 ⟩ t′ ®⟨ l′ ⟩ v T.∘⟨ T.non-strict ⟩ T.↯ ∷ B [ t′ ]₀
     lemma (emb 0<1 ⊩Π) t®v =
       case lemma ⊩Π t®v of λ {
-        (_ , refl , f) →
-      _ , emb 0<1 , f }
-    lemma (noemb ⊩Π) t®v = _ , refl , λ t′ ⊢t′ →
+        (⇒*lam , _ , refl , f) →
+      ⇒*lam , _ , emb 0<1 , f }
+    lemma (noemb ⊩Π) t®v = t®v .proj₁ , _ , refl , λ t′ ⊢t′ →
       case B-PE-injectivity (BΠ _ _) (BΠ _ _)
              (whnfRed* (red (_⊩ₗB⟨_⟩_.D ⊩Π)) ΠΣₙ) of λ {
         (PE.refl , PE.refl , _) →
@@ -238,7 +242,7 @@ opaque
         ⊩B[t′]
       , irrelevanceTerm′ (PE.cong _[ t′ ]₀ $ wk-lift-id B)
           (_⊩ₗB⟨_⟩_.[G] ⊩Π W.id ⊢Δ ⊩t′) ⊩B[t′]
-          (Π-®-𝟘 (is-𝟘? 𝟘) (t®v ⊩t′)) }}}
+          (Π-®-𝟘 (is-𝟘? 𝟘) (t®v .proj₂ ⊩t′)) }}}
 
 opaque
   unfolding _®⟨_⟩_∷_

@@ -86,7 +86,7 @@ opaque
   Idʳ _ _ _ ⊢Γ =
       valid ⊢Γ
     , Uᵛ _
-    , λ _ _ → Uᵣ ◀ _
+    , λ _ _ → Uᵣ T.refl ◀ _
 
 opaque
   unfolding Idᵛ ⊩Id
@@ -106,6 +106,7 @@ opaque
     , λ ⊩σ _ →
         rflᵣ
           (rfl  ∎⟨ rflⱼ (substitutionTerm ⊢t (wellformedSubst _ _ ⊩σ) ⊢Δ) ⟩⇒)
+          T.refl
           ◀ _ }
 
 private opaque
@@ -150,6 +151,7 @@ opaque
           (([]-cong _ A t u v) [ σ ]    ⇒*⟨ []-cong-subst* (ε⊢⇒*rfl∷Id ⊢v[σ]) ok ⟩
            ([]-cong _ A t u rfl) [ σ ]  ⇒⟨ []-cong-β-⇒ t[σ]≡u[σ] ok ⟩∎
            rfl                          ∎)
+          T.refl
           ◀ _ }}}}
     where
     open IE ([]-cong→Erased ok)
@@ -193,7 +195,7 @@ opaque
               case ⊩ʳv ⊩σ
                      (subsumptionSubst σ®σ′ λ _ →
                       ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤η) of λ {
-                (rflᵣ v[σ]⇒*rfl) → v[σ]⇒*rfl }) of λ {
+                (rflᵣ v[σ]⇒*rfl _) → v[σ]⇒*rfl }) of λ {
       v[σ]⇒*rfl →
     case substitution ⊢B
            (liftSubst′ (wfTerm ⊢t) ⊢Δ (Idⱼ ⊢t ⊢t) ⊢ˢσ)
@@ -264,7 +266,7 @@ opaque
               case ⊩ʳw ⊩σ
                      (subsumptionSubst σ®σ′ λ _ →
                       ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤η) of λ {
-                (rflᵣ w[σ]⇒*rfl) → w[σ]⇒*rfl }) of λ {
+                (rflᵣ w[σ]⇒*rfl _) → w[σ]⇒*rfl }) of λ {
       w[σ]⇒*rfl →
     case inversion-rfl-Id
            (syntacticEqTerm (subset*Term w[σ]⇒*rfl)

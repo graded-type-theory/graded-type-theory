@@ -94,7 +94,7 @@ appʳ′
                                  (proj₁ (unwrap [F] ⊢Δ (wkSubstS [Γ] ⊢Δ ⊢Δ id [σ]))) [σu]′
       tu®v↯ = ⊩ʳt [σ] (subsumptionSubst σ®σ′ λ x γ+pδ≡𝟘 →
                         +-positiveˡ (PE.trans (PE.sym (lookup-distrib-+ᶜ γ _ x)) γ+pδ≡𝟘))
-                  [σu]′
+                  .proj₂ [σu]′
       [σG[u]] = I.irrelevance′ (PE.sym (singleSubstWkComp (u [ σ ]) σ G))
                                (proj₁ (unwrap [G] ⊢Δ (wkSubstS [Γ] ⊢Δ ⊢Δ id [σ] , [σu]″)))
   in  irrelevanceTerm′ (PE.trans (PE.cong (_[ u [ σ ] ]₀) (wk-lift-id (G [ liftSubst σ ])))
@@ -118,7 +118,7 @@ appʳ′
       σ®σ′ₜ = subsumptionSubst σ®σ′ λ x γ+pδ≡𝟘 →
                 +-positiveˡ (PE.trans (PE.sym (lookup-distrib-+ᶜ γ _ x)) γ+pδ≡𝟘)
       t∘u®v∘w = ⊩ʳt [σ] (subsumptionSubstMode σ®σ′ₜ)
-                    [σu]′ u®w
+                    .proj₂ [σu]′ u®w
       [σG[u]] = I.irrelevance′ (PE.sym (singleSubstWkComp (u [ σ ]) σ G))
                                (proj₁ (unwrap [G] ⊢Δ (wkSubstS [Γ] ⊢Δ ⊢Δ id [σ] , [σu]″)))
   in  irrelevanceTerm′ (PE.trans (PE.cong (_[ u [ σ ] ]₀)

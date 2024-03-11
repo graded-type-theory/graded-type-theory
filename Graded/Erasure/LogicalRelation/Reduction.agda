@@ -59,8 +59,8 @@ private
 
 sourceRedSubstTerm : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t′ ®⟨ l ⟩ v ∷ A / [A]
                    → Δ ⊢ t ⇒ t′ ∷ A → t ®⟨ l ⟩ v ∷ A / [A]
-sourceRedSubstTerm (Uᵣ _) Uᵣ _ =
-  Uᵣ
+sourceRedSubstTerm (Uᵣ _) (Uᵣ ⇒*↯) _ =
+  Uᵣ ⇒*↯
 sourceRedSubstTerm (ℕᵣ ([ ⊢A , ⊢B , D ])) (zeroᵣ t′⇒zero v⇒v′) t⇒t′ =
   zeroᵣ ((conv t⇒t′ (subset* D)) ⇨ t′⇒zero) v⇒v′
 sourceRedSubstTerm (ℕᵣ ([ ⊢A , ⊢B , D ])) (sucᵣ t′⇒suc v⇒v′ t®v) t⇒t′ =
@@ -70,16 +70,16 @@ sourceRedSubstTerm
   starᵣ (conv t⇒t′ (subset* D) ⇨ t′⇒star) v⇒star
 sourceRedSubstTerm
   (Bᵣ′ (BΠ p q) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext _)
-  t®v′ t⇒t′ {a = a} [a] with is-𝟘? p
-... | yes PE.refl =
-  let t®v = t®v′ [a]
+  t®v′ t⇒t′ with is-𝟘? p
+... | yes PE.refl = t®v′ .proj₁ , λ {a = a} [a] →
+  let t®v = t®v′ .proj₂ [a]
       ⊢a = escapeTerm ([F] id ⊢Δ) [a]
       ⊢a′ = PE.subst (Δ ⊢ a ∷_) (UP.wk-id F) ⊢a
       t∘a⇒t′∘w′ = app-subst (conv t⇒t′ (subset* D)) ⊢a′
       t∘a⇒t′∘w = PE.subst (_⊢_⇒_∷_ Δ _ _) (PE.cong (U._[ a ]₀) (PE.sym (UP.wk-lift-id G))) t∘a⇒t′∘w′
   in  sourceRedSubstTerm ([G] id ⊢Δ [a]) t®v t∘a⇒t′∘w
-... | no p≢𝟘 = λ a®w →
-  let t®v = t®v′ [a] a®w
+... | no p≢𝟘 = t®v′ .proj₁ , λ {a = a} [a] a®w →
+  let t®v = t®v′ .proj₂ [a] a®w
       ⊢a = escapeTerm ([F] id ⊢Δ) [a]
       ⊢a′ = PE.subst (Δ ⊢ a ∷_) (UP.wk-id F) ⊢a
       t∘a⇒t′∘w′ = app-subst (conv t⇒t′ (subset* D)) ⊢a′
@@ -89,8 +89,8 @@ sourceRedSubstTerm
   (Bᵣ′ BΣ! F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext _)
   (t₁ , t₂ , t′⇒p , [t₁] , v₂ , t₂®v₂ , extra) t⇒t′ =
   t₁ , t₂ , conv t⇒t′ (subset* D) ⇨ t′⇒p , [t₁] , v₂ , t₂®v₂ , extra
-sourceRedSubstTerm (Idᵣ ⊩A) (rflᵣ t′⇒*rfl) t⇒t′ =
-  rflᵣ (conv t⇒t′ (subset* (red (_⊩ₗId_.⇒*Id ⊩A))) ⇨ t′⇒*rfl)
+sourceRedSubstTerm (Idᵣ ⊩A) (rflᵣ t′⇒*rfl ⇒*↯) t⇒t′ =
+  rflᵣ (conv t⇒t′ (subset* (red (_⊩ₗId_.⇒*Id ⊩A))) ⇨ t′⇒*rfl) ⇒*↯
 sourceRedSubstTerm (emb 0<1 [A]) t®v t⇒t′ = sourceRedSubstTerm [A] t®v t⇒t′
 
 
@@ -113,19 +113,20 @@ sourceRedSubstTerm* [A] t′®v (x ⇨ t⇒t′) =
 
 targetRedSubstTerm : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v′ ∷ A / [A]
                    → v T.⇒ v′ → t ®⟨ l ⟩ v ∷ A / [A]
-targetRedSubstTerm (Uᵣ _) Uᵣ _ = Uᵣ
+targetRedSubstTerm (Uᵣ _) (Uᵣ ⇒*↯) v⇒v′ = Uᵣ (T.trans v⇒v′ ⇒*↯)
 targetRedSubstTerm (ℕᵣ x) (zeroᵣ t′⇒zero v′⇒zero) v⇒v′ = zeroᵣ t′⇒zero (trans v⇒v′ v′⇒zero)
 targetRedSubstTerm (ℕᵣ x) (sucᵣ t′⇒suc v′⇒suc t®v) v⇒v′ = sucᵣ t′⇒suc (trans v⇒v′ v′⇒suc) t®v
 targetRedSubstTerm (Unitᵣ x) (starᵣ x₁ v′⇒star) v⇒v′ = starᵣ x₁ (trans v⇒v′ v′⇒star)
 targetRedSubstTerm
   (Bᵣ′ (BΠ p q) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext _)
-  t®v′ v⇒v′ {a = a} [a] with is-𝟘? p
-... | yes PE.refl =
+  ((_ , v′⇒*lam) , t®v′) v⇒v′
+  with is-𝟘? p | T.trans v⇒v′ v′⇒*lam
+... | yes PE.refl | v⇒*lam = (_ , v⇒*lam) , λ {a = a} [a] →
   let t®v = t®v′ [a]
       v∘w⇒v′∘w′ = T.app-subst v⇒v′
       [G[a]] = [G] id ⊢Δ [a]
   in  targetRedSubstTerm [G[a]] t®v v∘w⇒v′∘w′
-... | no p≢𝟘 = λ a®w →
+... | no p≢𝟘 | v⇒*lam = (_ , v⇒*lam) , λ {a = a} [a] a®w →
   let t®v = t®v′ [a] a®w
       v∘w⇒v′∘w′ = T.app-subst v⇒v′
       [G[a]] = [G] id ⊢Δ [a]
@@ -138,8 +139,8 @@ targetRedSubstTerm {A = A} {t = t} {v = v}
   extra′ = Σ-®-elim (λ _ → Σ-® _ F ([F] id ⊢Δ) t₁ v v₂ p) extra
                     (λ v′⇒v₂         → Σ-®-intro-𝟘 (trans v⇒v′ v′⇒v₂))
                     (λ v₁ v′⇒p t₁®v₁ → Σ-®-intro-ω v₁ (trans v⇒v′ v′⇒p) t₁®v₁)
-targetRedSubstTerm (Idᵣ _) (rflᵣ t⇒*rfl) _ =
-  rflᵣ t⇒*rfl
+targetRedSubstTerm (Idᵣ _) (rflᵣ t⇒*rfl ⇒*↯) v⇒v′ =
+  rflᵣ t⇒*rfl (T.trans v⇒v′ ⇒*↯)
 targetRedSubstTerm (emb 0<1 [A]) t®v′ v⇒v′ = targetRedSubstTerm [A] t®v′ v⇒v′
 
 
@@ -184,8 +185,8 @@ redSubstTerm* [A] t′®v′ t⇒t′ v⇒v′ = targetRedSubstTerm* [A] (source
 
 sourceRedSubstTerm′ : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A]
                     → Δ ⊢ t ⇒ t′ ∷ A → t′ ®⟨ l ⟩ v ∷ A / [A]
-sourceRedSubstTerm′ (Uᵣ _) Uᵣ _ =
-  Uᵣ
+sourceRedSubstTerm′ (Uᵣ _) (Uᵣ ⇒*↯) _ =
+  Uᵣ ⇒*↯
 sourceRedSubstTerm′ (ℕᵣ [ ⊢A , ⊢B , D ]) (zeroᵣ t⇒zero v⇒zero) t⇒t′
   with whrDet↘Term (t⇒zero , zeroₙ) (conv* (redMany t⇒t′) (subset* D))
 ... | t′⇒zero = zeroᵣ t′⇒zero v⇒zero
@@ -196,10 +197,10 @@ sourceRedSubstTerm′ (Unitᵣ (Unitₜ x _)) (starᵣ t⇒star v⇒star) t⇒t�
   with whrDet↘Term (t⇒star , starₙ) (redMany (conv t⇒t′ (subset* (red x))))
 ... | t′⇒star = starᵣ t′⇒star v⇒star
 sourceRedSubstTerm′
-  (Bᵣ′ (BΠ p q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _) t®v′ t⇒t′ {a = a} [a]
+  (Bᵣ′ (BΠ p q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _) t®v′ t⇒t′
   with is-𝟘? p
-... | yes PE.refl =
-  let t®v = t®v′ [a]
+... | yes PE.refl = t®v′ .proj₁ , λ {a = a} [a] →
+  let t®v = t®v′ .proj₂ [a]
       ⊢a = escapeTerm ([F] id ⊢Δ) [a]
       ⊢a′ = PE.subst (Δ ⊢ a ∷_) (UP.wk-id F) ⊢a
       t∘a⇒t′∘a′ = app-subst (conv t⇒t′ (subset* (red D))) ⊢a′
@@ -207,8 +208,8 @@ sourceRedSubstTerm′
                           (PE.cong (U._[ a ]₀) (PE.sym (UP.wk-lift-id G)))
                           t∘a⇒t′∘a′
   in  sourceRedSubstTerm′ ([G] id ⊢Δ [a]) t®v t∘a⇒t′∘a
-... | no p≢𝟘 = λ a®w →
-  let t®v = t®v′ [a] a®w
+... | no p≢𝟘 = t®v′ .proj₁ , λ {a = a} [a] a®w →
+  let t®v = t®v′ .proj₂ [a] a®w
       ⊢a = escapeTerm ([F] id ⊢Δ) [a]
       ⊢a′ = PE.subst (Δ ⊢ a ∷_) (UP.wk-id F) ⊢a
       t∘a⇒t′∘a′ = app-subst (conv t⇒t′ (subset* (red D))) ⊢a′
@@ -222,10 +223,11 @@ sourceRedSubstTerm′
   t₁ , t₂
      , whrDet↘Term (t⇒p , prodₙ) (redMany (conv t⇒t′ (subset* (red D))))
      , [t₁] , v₂ , t₂®v₂ , extra
-sourceRedSubstTerm′ (Idᵣ ⊩A) (rflᵣ t⇒*rfl) t⇒t′ =
-  rflᵣ $
-  whrDet↘Term (t⇒*rfl , rflₙ)
-    (redMany (conv t⇒t′ (subset* (red (_⊩ₗId_.⇒*Id ⊩A)))))
+sourceRedSubstTerm′ (Idᵣ ⊩A) (rflᵣ t⇒*rfl ⇒*↯) t⇒t′ =
+  rflᵣ
+    (whrDet↘Term (t⇒*rfl , rflₙ) $
+     redMany (conv t⇒t′ (subset* (red (_⊩ₗId_.⇒*Id ⊩A)))))
+    ⇒*↯
 sourceRedSubstTerm′ (emb 0<1 [A]) t®v t⇒t′ = sourceRedSubstTerm′ [A] t®v t⇒t′
 
 
@@ -239,6 +241,19 @@ sourceRedSubstTerm*′ : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v �
 sourceRedSubstTerm*′ [A] t®v (id x) = t®v
 sourceRedSubstTerm*′ [A] t®v (x ⇨ t⇒t′) =
   sourceRedSubstTerm*′ [A] (sourceRedSubstTerm′ [A] t®v x) t⇒t′
+
+private opaque
+
+  -- A lemma used below.
+
+  Π-lemma :
+    v T.⇒ v′ →
+    (∃ λ v″ → v T.⇒* T.lam v″) →
+    (∃ λ v″ → v′ T.⇒* T.lam v″)
+  Π-lemma v⇒v′ (_ , v⇒*lam)
+    with red*Det v⇒*lam (T.trans v⇒v′ T.refl)
+  … | inj₁ lam⇒*v′ rewrite Value→⇒*→≡ T.lam lam⇒*v′ = _ , T.refl
+  … | inj₂ v′⇒*lam = _ , v′⇒*lam
 
 -- The logical relation for erasure is preserved under reduction of
 -- the target language term.
@@ -254,8 +269,10 @@ targetRedSubstTerm*′ :
 
 targetRedSubstTerm′ : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A]
                     → v T.⇒ v′ → t ®⟨ l ⟩ v′ ∷ A / [A]
-targetRedSubstTerm′ (Uᵣ _) Uᵣ _ =
-  Uᵣ
+targetRedSubstTerm′ (Uᵣ _) (Uᵣ v⇒*↯) v⇒v′
+  with red*Det v⇒*↯ (T.trans v⇒v′ T.refl)
+... | inj₁ ↯⇒*v′ rewrite ↯-noRed ↯⇒*v′ = Uᵣ T.refl
+... | inj₂ v′⇒*↯ = Uᵣ v′⇒*↯
 targetRedSubstTerm′ (ℕᵣ x) (zeroᵣ x₁ v⇒zero) v⇒v′ with red*Det v⇒zero (T.trans v⇒v′ T.refl)
 ... | inj₁ x₂ rewrite zero-noRed x₂ = zeroᵣ x₁ T.refl
 ... | inj₂ x₂ = zeroᵣ x₁ x₂
@@ -266,14 +283,14 @@ targetRedSubstTerm′ (Unitᵣ x) (starᵣ x₁ v⇒star) v⇒v′ with red*Det 
 ... | inj₁ x₂ rewrite star-noRed x₂ = starᵣ x₁ T.refl
 ... | inj₂ x₂ = starᵣ x₁ x₂
 targetRedSubstTerm′
-  (Bᵣ′ (BΠ p q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _) t®v′ v⇒v′ [a]
+  (Bᵣ′ (BΠ p q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _) t®v′ v⇒v′
   with is-𝟘? p
-... | yes PE.refl =
-  let t®v = t®v′ [a]
+... | yes PE.refl = Π-lemma v⇒v′ (t®v′ .proj₁) , λ [a] →
+  let t®v = t®v′ .proj₂ [a]
       v∘w⇒v′∘w = T.app-subst v⇒v′
   in  targetRedSubstTerm′ ([G] id ⊢Δ [a]) t®v v∘w⇒v′∘w
-... | no p≢𝟘 = λ a®w →
-  let t®v = t®v′ [a] a®w
+... | no p≢𝟘 = Π-lemma v⇒v′ (t®v′ .proj₁) , λ [a] a®w →
+  let t®v = t®v′ .proj₂ [a] a®w
       v∘w⇒v′∘w = T.app-subst v⇒v′
   in  targetRedSubstTerm′ ([G] id ⊢Δ [a]) t®v v∘w⇒v′∘w
 targetRedSubstTerm′
@@ -295,8 +312,10 @@ targetRedSubstTerm′
              PE.refl → Σ-®-intro-ω v₁ refl t₁®v₁ p≢𝟘
            (inj₂ v′⇒p) → Σ-®-intro-ω v₁ v′⇒p t₁®v₁ p≢𝟘)
 
-targetRedSubstTerm′ (Idᵣ _) (rflᵣ t⇒*rfl) _ =
-  rflᵣ t⇒*rfl
+targetRedSubstTerm′ (Idᵣ _) (rflᵣ t⇒*rfl v⇒*↯) v⇒v′
+  with red*Det v⇒*↯ (T.trans v⇒v′ T.refl)
+... | inj₁ ↯⇒*v′ rewrite ↯-noRed ↯⇒*v′ = rflᵣ t⇒*rfl T.refl
+... | inj₂ v′⇒*↯ = rflᵣ t⇒*rfl v′⇒*↯
 targetRedSubstTerm′ (emb 0<1 [A]) t®v v⇒v′ = targetRedSubstTerm′ [A] t®v v⇒v′
 
 

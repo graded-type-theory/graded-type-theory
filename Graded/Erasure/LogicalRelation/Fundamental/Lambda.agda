@@ -129,7 +129,7 @@ lamʳ {F = F} {G = G} {t = t} {m = 𝟙ᵐ} {p = p} {q = q}
      with is-𝟘? ⌜ 𝟙ᵐ ⌝
 ... | yes 𝟙≡𝟘 = _
 ... | no 𝟙≢𝟘 with is-𝟘? p
-... | yes PE.refl = λ [a] →
+... | yes PE.refl = (_ , T.refl) , λ [a] →
   let [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
       [ρσF] = W.wk id ⊢Δ [σF]
       [a]′ = I.irrelevanceTerm′ (UP.wk-id (F [ σ ])) [ρσF] [σF] [a]
@@ -148,7 +148,7 @@ lamʳ {F = F} {G = G} {t = t} {m = 𝟙ᵐ} {p = p} {q = q}
                                                   (UP.wk-lift-id (G [ liftSubst σ ])))
                                          (UP.singleSubstComp _ σ G)))
                        [Ga] [Ga]″ λta®λv↯
-... | no p≢𝟘 = λ [a] {w} a®w →
+... | no p≢𝟘 = (_ , T.refl) , λ [a] {w} a®w →
   let [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
       [ρσF] = W.wk id ⊢Δ [σF]
       [a]′ = I.irrelevanceTerm′ (UP.wk-id (F [ σ ])) [ρσF] [σF] [a]

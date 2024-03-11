@@ -355,6 +355,7 @@ import Graded.Erasure.LogicalRelation.Irrelevance
 import Graded.Erasure.LogicalRelation.Reduction
 import Graded.Erasure.LogicalRelation.Subsumption
 import Graded.Erasure.LogicalRelation.Hidden
+import Graded.Erasure.LogicalRelation.Value
 
 -- The fundamental lemma of the logical relation
 

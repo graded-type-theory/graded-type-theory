@@ -73,16 +73,16 @@ irrelevanceTermSV
        with B-PE-injectivity BΠ! BΠ! (whrDet* (red D , ΠΣₙ) (red D₁ , ΠΣₙ))
 ... | PE.refl , PE.refl , _
        with is-𝟘? p
-... | (yes p≡𝟘) = λ [a]′ →
+... | (yes p≡𝟘) = t®v .proj₁ , λ [a]′ →
   let [a] = I.irrelevanceTerm ([F]₁ id ⊢Δ) ([F] id ⊢Δ) [a]′
-      t®v′ = t®v [a]
+      t®v′ = t®v .proj₂ [a]
       SV′ = goodCasesRefl ([G] id ⊢Δ [a]) ([G]₁ id ⊢Δ [a]′)
   in  irrelevanceTermSV ([G] id ⊢Δ [a]) ([G]₁ id ⊢Δ [a]′) t®v′ SV′
-... | (no p≢𝟘) = λ [a]′ a®w′ →
+... | (no p≢𝟘) = t®v .proj₁ , λ [a]′ a®w′ →
   let [a] = I.irrelevanceTerm ([F]₁ id ⊢Δ) ([F] id ⊢Δ) [a]′
       SV = goodCasesRefl ([F]₁ id ⊢Δ) ([F] id ⊢Δ)
       a®w = irrelevanceTermSV ([F]₁ id ⊢Δ) ([F] id ⊢Δ) a®w′ SV
-      t®v′ = t®v [a] a®w
+      t®v′ = t®v .proj₂ [a] a®w
       SV′ = goodCasesRefl ([G] id ⊢Δ [a]) ([G]₁ id ⊢Δ [a]′)
   in  irrelevanceTermSV ([G] id ⊢Δ [a]) ([G]₁ id ⊢Δ [a]′) t®v′ SV′
 irrelevanceTermSV {v = v}

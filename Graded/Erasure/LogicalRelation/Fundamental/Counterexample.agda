@@ -164,7 +164,7 @@ opaque
     ¬t®t : ¬ t ®⟨ ¹ ⟩ erase t ∷ A
     ¬t®t t®t =
       case ®-Id t®t of λ {
-        (rflᵣ t⇒*) →
+        (rflᵣ t⇒* _) →
       case whnfRed*Term t⇒* (ne ([]-congₙ (var _))) of λ () }
 
 opaque

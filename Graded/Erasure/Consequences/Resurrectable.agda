@@ -203,7 +203,8 @@ opaque
 
     -- Let us first apply t to zero.
     case ®-Σ non-trivial $
-         ®-Π₀ t®erase-t .proj₂ .proj₂ zero (zeroⱼ (wfTerm ⊢t)) of λ {
+         ®-Π₀ t®erase-t .proj₂ .proj₂ .proj₂
+           zero (zeroⱼ (wfTerm ⊢t)) of λ {
       (_ , _ , t₁ , _ , _ , _ ,
        t∘0⇒t₁,t₂ , erase-t∘↯⇒v₁,v₂ , t₁®v₁ , _) →
 
@@ -229,7 +230,7 @@ opaque
       (zeroᵣ t₁⇒zero v₁⇒zero) →
         -- Let us now apply t to suc zero.
         case ®-Σ non-trivial $
-             ®-Π₀ t®erase-t .proj₂ .proj₂
+             ®-Π₀ t®erase-t .proj₂ .proj₂ .proj₂
                (suc zero) (sucⱼ (zeroⱼ (wfTerm ⊢t))) of λ {
           (_ , _ , t₁′ , _ , _ , _ ,
            t∘1⇒t₁′,t₂′ , erase-t∘↯⇒v₁′,v₂′ , t₁′®v₁′ , _) →
@@ -308,7 +309,8 @@ opaque
 
     -- Let us first apply t to zero.
     case ®-Σ non-trivial $
-         ®-Π₀ t®erase-t .proj₂ .proj₂ zero (zeroⱼ (wfTerm ⊢t)) of λ {
+         ®-Π₀ t®erase-t .proj₂ .proj₂ .proj₂
+           zero (zeroⱼ (wfTerm ⊢t)) of λ {
       (_ , _ , t₁ , _ , _ , _ ,
        t∘0⇒t₁,t₂ , erase-t∘↯⇒v₁,v₂ , t₁®v₁ , _) →
 
@@ -335,7 +337,7 @@ opaque
       (zeroᵣ t₁⇒zero v₁⇒zero) →
         -- Let us now apply t to suc zero.
         case ®-Σ non-trivial $
-             ®-Π₀ t®erase-t .proj₂ .proj₂
+             ®-Π₀ t®erase-t .proj₂ .proj₂ .proj₂
                (suc zero) (sucⱼ (zeroⱼ (wfTerm ⊢t))) of λ {
           (_ , _ , t₁′ , _ , _ , _ ,
            t∘1⇒t₁′,t₂′ , erase-t∘↯⇒v₁′,v₂′ , t₁′®v₁′ , _) →

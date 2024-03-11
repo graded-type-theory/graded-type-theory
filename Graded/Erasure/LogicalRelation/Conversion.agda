@@ -79,7 +79,7 @@ convTermʳ′
      (Bᵣ F₁ G₁ [ _ , _ , B⇒Π₁ ] ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
   t®v
      with is-𝟘? p
-... | yes PE.refl = λ [a]′ →
+... | yes PE.refl = t®v .proj₁ , λ [a]′ →
   let Π≡Π₁ = reduction′ A⇒Π B⇒Π₁ ΠΣₙ ΠΣₙ A≡B
       F≡F₁ , G≡G₁ , _ , _ = injectivity Π≡Π₁
       [F₁]′ , [F]′ , [F₁≡F]′ = reducibleEq (sym F≡F₁)
@@ -90,10 +90,10 @@ convTermʳ′
       G[a]≡G₁[a] = substTypeEq G≡G₁′ (refl (escapeTerm ([F] id ⊢Δ) [a]))
       [Ga]′ , [G₁a]′ , [Ga≡G₁a]′ = reducibleEq G[a]≡G₁[a]
       [Ga≡G₁a] = irrelevanceEq [Ga]′ ([G] id ⊢Δ [a]) [Ga≡G₁a]′
-      t®v′ = t®v [a]
+      t®v′ = t®v .proj₂ [a]
       SV = goodCases ([G] id ⊢Δ [a]) ([G]₁ id ⊢Δ [a]′) [Ga≡G₁a]
   in  convTermʳ′ ([G] id ⊢Δ [a]) ([G]₁ id ⊢Δ [a]′) G[a]≡G₁[a] SV t®v′
-... | no p≢𝟘 = λ [a]′ a®w′ →
+... | no p≢𝟘 = t®v .proj₁ , λ [a]′ a®w′ →
   let Π≡Π₁ = reduction′ A⇒Π B⇒Π₁ ΠΣₙ ΠΣₙ A≡B
       F≡F₁ , G≡G₁ , _ , _ = injectivity Π≡Π₁
       [F₁]′ , [F]′ , [F₁≡F]′ = reducibleEq (sym F≡F₁)
@@ -107,7 +107,7 @@ convTermʳ′
       SV = goodCases ([F]₁ id ⊢Δ) ([F] id ⊢Δ) [F₁≡F]
       F₁≡F = PE.subst₂ (Δ ⊢_≡_) (PE.sym (wk-id F₁)) (PE.sym (wk-id F)) (sym F≡F₁)
       a®w = convTermʳ′ ([F]₁ id ⊢Δ) ([F] id ⊢Δ) F₁≡F SV a®w′
-      t®v′ = t®v [a] a®w
+      t®v′ = t®v .proj₂ [a] a®w
       SV′ = goodCases ([G] id ⊢Δ [a]) ([G]₁ id ⊢Δ [a]′) [Ga≡G₁a]
   in  convTermʳ′ ([G] id ⊢Δ [a]) ([G]₁ id ⊢Δ [a]′) G[a]≡G₁[a] SV′ t®v′
 convTermʳ′ {v = v}
@@ -141,13 +141,14 @@ convTermʳ′ {v = v}
                    let t₁®v₁′ = convTermʳ′ [F]′ [F]₁′ F≡F₁′ SV₁ t₁®v₁
                    in  Σ-®-intro-ω v₁ v⇒p t₁®v₁′
   in  t₁ , t₂ , t⇒t″ , [t₁]′ , v₂ , t₂®v₂′ , extra′
-convTermʳ′ {A} {B} _ _ A≡B (Idᵥ ⊩A ⊩B) (rflᵣ t⇒*rfl) =
+convTermʳ′ {A} {B} _ _ A≡B (Idᵥ ⊩A ⊩B) (rflᵣ t⇒*rfl ⇒*↯) =
   rflᵣ
     (conv* t⇒*rfl
        (Id (_⊩ₗId_.Ty ⊩A) (_⊩ₗId_.lhs ⊩A) (_⊩ₗId_.rhs ⊩A)  ≡˘⟨ subset* (red (_⊩ₗId_.⇒*Id ⊩A)) ⟩⊢
         A                                                  ≡⟨ A≡B ⟩⊢
         B                                                  ≡⟨ subset* (red (_⊩ₗId_.⇒*Id ⊩B)) ⟩⊢∎
         Id (_⊩ₗId_.Ty ⊩B) (_⊩ₗId_.lhs ⊩B) (_⊩ₗId_.rhs ⊩B)  ∎))
+    ⇒*↯
 convTermʳ′ (emb 0<1 [A]) [B] A≡B (emb⁰¹ SV) t®v =
   convTermʳ′ [A] [B] A≡B SV t®v
 convTermʳ′ [A] (emb 0<1 [B]) A≡B (emb¹⁰ SV) t®v =
