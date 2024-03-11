@@ -341,6 +341,7 @@ import Graded.Erasure.Target.Properties.Substitution
 import Graded.Erasure.Target.Properties.Reduction
 import Graded.Erasure.Target.Properties
 import Graded.Erasure.Target.Reasoning
+import Graded.Erasure.Target.Non-terminating
 
 -- Extraction
 
