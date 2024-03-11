@@ -68,8 +68,9 @@ prod-𝟘 {p = p} p≡𝟘 with is-𝟘? p
 ... | yes p≡𝟘 = PE.refl
 ... | no p≢𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
 
-prod-ω : p PE.≢ 𝟘
-       → erase s (U.prod k p t u) PE.≡ T.prod (erase s t) (erase s u)
+prod-ω :
+  p PE.≢ 𝟘 →
+  erase s (U.prod k p t u) PE.≡ prod⟨ s ⟩ (erase s t) (erase s u)
 prod-ω {p = p} p≢𝟘 with is-𝟘? p
 ... | yes p≡𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
 ... | no p≢𝟘 = PE.refl
@@ -108,9 +109,14 @@ wk-erase-comm ρ (t U.∘⟨ p ⟩ u) with is-𝟘? p
 ... | yes _ = cong (T._∘⟨ _ ⟩ ↯) (wk-erase-comm ρ t)
 ... | no _ = cong₂ T._∘⟨ _ ⟩_ (wk-erase-comm ρ t) (wk-erase-comm ρ u)
 wk-erase-comm ρ (Σ _ , _ ▷ _ ▹ _) = refl
-wk-erase-comm ρ (U.prod _ p t u) with is-𝟘? p
+wk-erase-comm {s} ρ (U.prod _ p t u) with is-𝟘? p
 ... | yes _ = wk-erase-comm ρ u
-... | no _ = cong₂ T.prod (wk-erase-comm ρ t) (wk-erase-comm ρ u)
+... | no _ =
+  wk ρ (prod⟨ s ⟩ (erase s t) (erase s u))             ≡⟨ wk-prod⟨⟩ ⟩
+  prod⟨ s ⟩ (wk ρ (erase s t)) (wk ρ (erase s u))      ≡⟨ cong₂ prod⟨ _ ⟩ (wk-erase-comm _ t) (wk-erase-comm _ u) ⟩
+  prod⟨ s ⟩ (erase s (U.wk ρ t)) (erase s (U.wk ρ u))  ∎
+  where
+  open Tools.Reasoning.PropositionalEquality
 wk-erase-comm ρ (U.fst p t) with is-𝟘? p
 ... | yes _ = wk-loop
 ... | no _ = cong T.fst (wk-erase-comm ρ t)
@@ -217,9 +223,17 @@ subst-erase-comm σ (t U.∘⟨ p ⟩ u) with is-𝟘? p
 ... | no _ =
   cong₂ T._∘⟨ _ ⟩_ (subst-erase-comm σ t) (subst-erase-comm σ u)
 subst-erase-comm σ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = refl
-subst-erase-comm σ (U.prod _ p t u) with is-𝟘? p
+subst-erase-comm {s} σ (U.prod _ p t u) with is-𝟘? p
 ... | yes _ = subst-erase-comm σ u
-... | no _ = cong₂ T.prod (subst-erase-comm σ t) (subst-erase-comm σ u)
+... | no _ =
+  prod⟨ s ⟩ (erase s t) (erase s u) [ eraseSubst s σ ]   ≡⟨ prod⟨⟩-[] ⟩
+
+  prod⟨ s ⟩ (erase s t [ eraseSubst s σ ])
+    (erase s u [ eraseSubst s σ ])                       ≡⟨ cong₂ prod⟨ _ ⟩ (subst-erase-comm _ t) (subst-erase-comm _ u) ⟩
+
+  prod⟨ s ⟩ (erase s (t U.[ σ ])) (erase s (u U.[ σ ]))  ∎
+  where
+  open Tools.Reasoning.PropositionalEquality
 subst-erase-comm σ (U.fst p t) with is-𝟘? p
 ... | yes _ = loop-[]
 ... | no _ = cong T.fst (subst-erase-comm σ t)
@@ -353,24 +367,50 @@ module hasX (R : Usage-restrictions) where
       δ▸ hasX
     where
     open Tools.Reasoning.Equivalence Conₘ-setoid
-  erased-hasX erased (prodʷₘ {γ = γ} {p = _} {δ = δ} γ▸ _) (prodₓˡ hasX)
+  erased-hasX {s = non-strict} erased (prodʷₘ γ▸ _) (prodₓˡ hasX)
     | no p≢𝟘 =
     erased-hasX (x◂𝟘∈pγ refl p≢𝟘 (x◂𝟘∈γ+δˡ refl erased))
                 (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸) hasX
-  erased-hasX erased (prodʷₘ {γ = γ} {p = _} {δ = δ} _ δ▸) (prodₓʳ hasX)
+  erased-hasX {s = non-strict} erased (prodʷₘ _ δ▸) (prodₓʳ hasX)
+    | no _ =
+    erased-hasX (x◂𝟘∈γ+δʳ refl erased) δ▸ hasX
+  erased-hasX
+    {s = strict} _ (prodʷₘ _ _) (∘ₓˡ (∘ₓˡ (lamₓ (lamₓ (prodₓˡ ())))))
+    | no _
+  erased-hasX
+    {s = strict} _ (prodʷₘ _ _) (∘ₓˡ (∘ₓˡ (lamₓ (lamₓ (prodₓʳ ())))))
+    | no _
+  erased-hasX {s = strict} erased (prodʷₘ γ▸ _) (∘ₓˡ (∘ₓʳ hasX))
+    | no p≢𝟘 =
+    erased-hasX (x◂𝟘∈pγ refl p≢𝟘 (x◂𝟘∈γ+δˡ refl erased))
+      (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸) hasX
+  erased-hasX {s = strict} erased (prodʷₘ _ δ▸) (∘ₓʳ hasX)
     | no _ =
     erased-hasX (x◂𝟘∈γ+δʳ refl erased) δ▸ hasX
 
   erased-hasX erased (prodˢₘ {γ = γ} {p = p} {δ = δ} _ γ▸u) hasX
     with is-𝟘? p
   ... | yes refl = erased-hasX (x◂𝟘∈γ∧δʳ refl erased) γ▸u hasX
-  erased-hasX erased (prodˢₘ {γ = γ} {p = p} {δ = δ} γ▸ _) (prodₓˡ hasX)
+  erased-hasX {s = non-strict} erased (prodˢₘ γ▸ _) (prodₓˡ hasX)
     | no p≢𝟘 =
     erased-hasX (x◂𝟘∈pγ refl p≢𝟘 (x◂𝟘∈γ∧δˡ refl erased))
                 (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸) hasX
-  erased-hasX erased (prodˢₘ {γ = γ} {p = _} {δ = δ} _ δ▸) (prodₓʳ hasX)
+  erased-hasX {s = non-strict} erased (prodˢₘ _ δ▸) (prodₓʳ hasX)
     | no p≢𝟘 =
     erased-hasX erased (sub δ▸ (∧ᶜ-decreasingʳ _ _)) hasX
+  erased-hasX
+    {s = strict} _ (prodˢₘ _ _) (∘ₓˡ (∘ₓˡ (lamₓ (lamₓ (prodₓˡ ())))))
+    | no _
+  erased-hasX
+    {s = strict} _ (prodˢₘ _ _) (∘ₓˡ (∘ₓˡ (lamₓ (lamₓ (prodₓʳ ())))))
+    | no _
+  erased-hasX {s = strict} erased (prodˢₘ γ▸ _) (∘ₓˡ (∘ₓʳ hasX))
+    | no p≢𝟘 =
+    erased-hasX (x◂𝟘∈pγ refl p≢𝟘 (x◂𝟘∈γ∧δˡ refl erased))
+      (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸) hasX
+  erased-hasX {s = strict} erased (prodˢₘ _ δ▸) (∘ₓʳ hasX)
+    | no _ =
+    erased-hasX (x◂𝟘∈γ∧δʳ refl erased) δ▸ hasX
 
   erased-hasX erased (fstₘ {p = p} _ _ _ _) hasX with is-𝟘? p
   erased-hasX erased (fstₘ         _ _ _ _) hasX | yes _ =

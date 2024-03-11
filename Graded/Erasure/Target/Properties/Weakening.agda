@@ -23,7 +23,7 @@ private
     ℓ m n : Nat
     x : Fin n
     ρ ρ′ : Wk m n
-    t : Term n
+    t u : Term n
     s : Strictness
 
 -- Weakening properties
@@ -117,6 +117,14 @@ opaque
   wk-suc⟨⟩ : wk ρ (suc⟨ s ⟩ t) ≡ suc⟨ s ⟩ (wk ρ t)
   wk-suc⟨⟩ {s = strict}     = refl
   wk-suc⟨⟩ {s = non-strict} = refl
+
+opaque
+
+  -- A weakening lemma for prod⟨_⟩.
+
+  wk-prod⟨⟩ : wk ρ (prod⟨ s ⟩ t u) ≡ prod⟨ s ⟩ (wk ρ t) (wk ρ u)
+  wk-prod⟨⟩ {s = strict}     = refl
+  wk-prod⟨⟩ {s = non-strict} = refl
 
 opaque
 

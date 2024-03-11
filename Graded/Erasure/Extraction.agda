@@ -36,8 +36,8 @@ erase-prodrecω s p t u = case is-𝟘? p of λ where
 
 -- The extraction function.
 --
--- Function applications and applications of suc are made strict if
--- the first argument is "strict".
+-- Function and constructor applications are made strict if the first
+-- argument is "strict".
 --
 -- A non-terminating term, loop s, is used instead of ↯ in some
 -- places. The idea is that it should be safe to replace this term
@@ -53,7 +53,7 @@ erase s (t U.∘⟨ p ⟩ u) = case is-𝟘? p of λ where
   (no p≢𝟘)  → erase s t T.∘⟨ s ⟩ (erase s u)
 erase s (U.prod _ p t u) = case is-𝟘? p of λ where
   (yes p≡𝟘) → erase s u
-  (no p≢𝟘) → T.prod (erase s t) (erase s u)
+  (no p≢𝟘) → prod⟨ s ⟩ (erase s t) (erase s u)
 erase s (U.fst p t) = case is-𝟘? p of λ where
   (yes p≡𝟘) → loop s
   (no p≢𝟘) → T.fst (erase s t)

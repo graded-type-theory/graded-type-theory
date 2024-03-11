@@ -60,13 +60,16 @@ open import Graded.Erasure.LogicalRelation.Conversion is-𝟘? as
 open import Graded.Erasure.LogicalRelation.Reduction is-𝟘? as
 open import Graded.Erasure.LogicalRelation.Subsumption is-𝟘? as
 open import Graded.Erasure.LogicalRelation.Irrelevance is-𝟘? as
+open import Graded.Erasure.LogicalRelation.Value is-𝟘? as
 
 open import Graded.Erasure.Extraction 𝕄 is-𝟘?
 open import Graded.Erasure.Extraction.Properties 𝕄
 import Graded.Erasure.Target as T
 import Graded.Erasure.Target.Properties as TP
+open import Graded.Erasure.Target.Reasoning
 
 open import Tools.Empty
+open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
@@ -136,9 +139,7 @@ prodʳ
     (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ ⌞ p ⌟ ] F / [Γ] / [F])
     (⊩ʳu : δ ▸ Γ ⊩ʳ⟨ l ⟩ u ∷[ 𝟙ᵐ ] G [ t ]₀ / [Γ] / [G[t]]) →
     (p ·ᶜ γ ⊕ᶜ δ) ▸ Γ ⊩ʳ⟨ l ⟩ prod s p t u ∷[ 𝟙ᵐ ] Σ p , q ▷ F ▹ G / [Γ] / [Σ]
-  lemma ⊩ʳt ⊩ʳu {σ = σ} {σ′ = σ′} [σ] σ®σ′ =
-    (t [ σ ] , u [ σ ] , id ⊢prod , [σt]′ ,
-     erase str u T.[ σ′ ] , u®u″ , extra) ◀ 𝟙
+  lemma ⊩ʳt ⊩ʳu {σ = σ} {σ′ = σ′} [σ] σ®σ′ = prod®prod ◀ 𝟙
     where
     σ®σ′ᵤ = subsumptionSubst σ®σ′ λ _ → propʳ
     u®u′ = ⊩ʳu [σ] σ®σ′ᵤ
@@ -163,31 +164,65 @@ prodʳ
     u®u″ = irrelevanceQuant′ _ σGt≡ρσGt [σG[t]] [σG[t]]″ u®u′
              ◀≢𝟘 non-trivial
     open Tools.Reasoning.PropositionalEquality
-    extra = case is-𝟘? p of λ where
-              (yes p≡𝟘) →
-                let d = PE.subst (λ x → x T.[ σ′ ] T.⇒* _)
-                                 (PE.sym (prod-𝟘 {k = s} p≡𝟘))
-                                 T.refl
-                in  Σ-®-intro-𝟘 d p≡𝟘
-              (no p≢𝟘) →
-                let d = PE.subst (λ x → x T.[ σ′ ] T.⇒* _)
-                                 (PE.sym (prod-ω {k = s} p≢𝟘))
-                                 T.refl
-                    σ®σ′ₜ = subsumptionSubst σ®σ′ λ x pγ⊕δ≡𝟘 →
-                      case PE.trans (PE.sym (lookup-distrib-·ᶜ γ p x))
-                                    (propˡ pγ⊕δ≡𝟘) of λ pγ≡𝟘 →
-                      case zero-product pγ≡𝟘 of λ where
-                        (inj₁ p≡𝟘) → ⊥-elim (p≢𝟘 p≡𝟘)
-                        (inj₂ γx≡𝟘) → γx≡𝟘
-                    t₁®v₁ = ⊩ʳt [σ] (subsumptionSubstMode σ®σ′ₜ)
-                    t₁®v₁′ = irrelevanceQuant′ _ (PE.sym (wk-id _)) [σF] [σF]′ t₁®v₁
-                    t₁®v₁″ = t₁®v₁′ ◀≢𝟘 λ ⌞p⌟≡𝟘 → non-trivial
-                      (begin
-                        𝟙         ≡˘⟨ PE.cong ⌜_⌝ (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) ⟩
-                        ⌜ ⌞ p ⌟ ⌝ ≡⟨ ⌞p⌟≡𝟘 ⟩
-                        𝟘 ∎)
-                in  Σ-®-intro-ω (erase str t T.[ σ′ ])
-                                d t₁®v₁″ p≢𝟘
+    prod®prod = case is-𝟘? p of λ where
+      (yes p≡𝟘) →
+        let d = PE.subst (λ x → x T.[ σ′ ] T.⇒* _)
+                         (PE.sym (prod-𝟘 {k = s} p≡𝟘))
+                         T.refl
+        in t [ σ ] , u [ σ ] , id ⊢prod , [σt]′ ,
+           erase str u T.[ σ′ ] , u®u″ , Σ-®-intro-𝟘 d p≡𝟘
+      (no p≢𝟘) →
+        let σ®σ′ₜ = subsumptionSubst σ®σ′ λ x pγ⊕δ≡𝟘 →
+              case PE.trans (PE.sym (lookup-distrib-·ᶜ γ p x))
+                            (propˡ pγ⊕δ≡𝟘) of λ pγ≡𝟘 →
+              case zero-product pγ≡𝟘 of λ where
+                (inj₁ p≡𝟘) → ⊥-elim (p≢𝟘 p≡𝟘)
+                (inj₂ γx≡𝟘) → γx≡𝟘
+            t₁®v₁ = ⊩ʳt [σ] (subsumptionSubstMode σ®σ′ₜ)
+            t₁®v₁′ = irrelevanceQuant′ _ (PE.sym (wk-id _))
+                       [σF] [σF]′ t₁®v₁
+            t₁®v₁″ = t₁®v₁′ ◀≢𝟘 λ ⌞p⌟≡𝟘 → non-trivial
+              (begin
+                𝟙         ≡˘⟨ PE.cong ⌜_⌝ (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) ⟩
+                ⌜ ⌞ p ⌟ ⌝ ≡⟨ ⌞p⌟≡𝟘 ⟩
+                𝟘 ∎)
+        in case PE.singleton str of λ where
+          (T.non-strict , PE.refl) →
+            t [ σ ] , u [ σ ] , id ⊢prod , [σt]′ ,
+            erase str u T.[ σ′ ] , u®u″ ,
+            Σ-®-intro-ω _
+              (PE.subst ((T._⇒* _) ∘→ T._[ σ′ ])
+                 (PE.sym (prod-ω {k = s} p≢𝟘)) T.refl)
+              t₁®v₁″ p≢𝟘
+          (T.strict , PE.refl) →
+            case reduces-to-value [σF]′ t₁®v₁″ of λ
+              (v₁ , v₁-val , erase-t[σ′]⇒*v₁) →
+            case reduces-to-value [σG[t]]″ u®u″ of λ
+              (v₂ , v₂-val , erase-u[σ′]⇒*v₂) →
+            _ , _ , id ⊢prod , [σt]′ , _ ,
+            targetRedSubstTerm*′ [σG[t]]″ u®u″ erase-u[σ′]⇒*v₂ ,
+            Σ-®-intro-ω _
+              (PE.subst (λ v → v T.[ σ′ ] T.⇒* T.prod v₁ v₂)
+                 (PE.sym (prod-ω {k = s} p≢𝟘))
+                 (T.lam (T.lam (T.prod (T.var x1) (T.var x0)))
+                    T.∘⟨ T.strict ⟩ (erase T.strict t T.[ σ′ ])
+                    T.∘⟨ T.strict ⟩ (erase T.strict u T.[ σ′ ])  ⇒*⟨ TP.app-subst* $ TP.app-subst*-arg T.lam erase-t[σ′]⇒*v₁ ⟩
+
+                  T.lam (T.lam (T.prod (T.var x1) (T.var x0)))
+                    T.∘⟨ T.strict ⟩ v₁
+                    T.∘⟨ T.strict ⟩ (erase T.strict u T.[ σ′ ])  ⇒⟨ T.app-subst $ T.β-red v₁-val ⟩
+
+                  T.lam (T.prod (T.wk1 v₁) (T.var x0))
+                    T.∘⟨ T.strict ⟩ (erase T.strict u T.[ σ′ ])  ⇒*⟨ TP.app-subst*-arg T.lam erase-u[σ′]⇒*v₂ ⟩
+
+                  T.lam (T.prod (T.wk1 v₁) (T.var x0))
+                    T.∘⟨ T.strict ⟩ v₂                           ⇒⟨ T.β-red v₂-val ⟩
+
+                  T.prod (T.wk1 v₁ T.[ v₂ ]₀) v₂                 ≡⟨ PE.cong (flip T.prod v₂) $ TP.wk1-sgSubst _ _ ⟩⇒
+
+                  T.prod v₁ v₂                                   ∎⇒))
+              (targetRedSubstTerm*′ [σF]′ t₁®v₁″ erase-t[σ′]⇒*v₁)
+              p≢𝟘
 
 
 fstʳ′ : ∀ {l} {Γ : Con Term n}

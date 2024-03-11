@@ -869,14 +869,16 @@ erase-non-strict-head-[0] = PE.refl
 
 erase-strict-head-[0] :
   erase strict head-[0] PE.≡
-  (T.lam
-     (T.Term.lam $
-      T.natrec (T.lam (T.lam (loop strict)))
-        (T.lam (T.lam (T.fst (T.var x1))))
-        (T.var x0)) T.∘⟨ strict ⟩
-   T.↯ T.∘⟨ strict ⟩
-   (T.lam (T.suc (T.var x0)) T.∘⟨ strict ⟩ T.zero) T.∘⟨ strict ⟩
-   T.prod T.zero T.star T.∘⟨ strict ⟩ T.↯)
+  T.lam
+    (T.Term.lam $
+     T.natrec (T.lam (T.lam (loop strict)))
+       (T.lam (T.lam (T.fst (T.var x1))))
+       (T.var x0)) T.∘⟨ strict ⟩
+  T.↯ T.∘⟨ strict ⟩
+  (T.lam (T.suc (T.var x0)) T.∘⟨ strict ⟩ T.zero) T.∘⟨ strict ⟩
+  (T.lam (T.lam (T.prod (T.var x1) (T.var x0))) T.∘⟨ strict ⟩
+   T.zero T.∘⟨ strict ⟩ T.star) T.∘⟨ strict ⟩
+  T.↯
 erase-strict-head-[0] = PE.refl
 
 -- The term head-[0] is well-resourced.
@@ -911,6 +913,9 @@ erase-head-[0]⇒*zero {str = strict} =
            T.β-red T.zero) $
   T.trans (T.app-subst $ T.app-subst $ T.β-red T.suc) $
   T.trans (T.app-subst $ T.app-subst $ T.natrec-suc) $
+  T.trans (T.app-subst $ T.app-subst-arg T.lam $ T.app-subst $
+           T.β-red T.zero) $
+  T.trans (T.app-subst $ T.app-subst-arg T.lam $ T.β-red T.star) $
   T.trans (T.app-subst $ T.β-red T.prod) $
   T.trans (T.β-red T.↯) $
   T.trans T.Σ-β₁

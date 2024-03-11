@@ -58,6 +58,13 @@ suc⟨_⟩ : Strictness → Term n → Term n
 suc⟨ non-strict ⟩ t = suc t
 suc⟨ strict     ⟩ t = lam (suc (var x0)) ∘⟨ strict ⟩ t
 
+-- A possibly strict variant of prod.
+
+prod⟨_⟩ : Strictness → Term n → Term n → Term n
+prod⟨ non-strict ⟩ t u = prod t u
+prod⟨ strict     ⟩ t u =
+  lam (lam (prod (var x1) (var x0))) ∘⟨ strict ⟩ t ∘⟨ strict ⟩ u
+
 -- Does a term contain a variable?
 
 data HasX (x : Fin n) : (t : Term n) → Set where

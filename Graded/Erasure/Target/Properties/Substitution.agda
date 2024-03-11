@@ -436,6 +436,14 @@ opaque
 
 opaque
 
+  -- A substitution lemma for prod⟨_⟩.
+
+  prod⟨⟩-[] : prod⟨ s ⟩ t u [ σ ] ≡ prod⟨ s ⟩ (t [ σ ]) (u [ σ ])
+  prod⟨⟩-[] {s = strict}     = refl
+  prod⟨⟩-[] {s = non-strict} = refl
+
+opaque
+
   -- If x occurs in t [ σ ], then x occurs in σ y for some y that
   -- occurs in t.
 
