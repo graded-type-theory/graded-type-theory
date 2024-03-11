@@ -5,14 +5,12 @@
 open import Definition.Typed.Restrictions
 open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality
-import Tools.PropositionalEquality as PE
 open import Tools.Relation
 
 module Graded.Erasure.LogicalRelation.Fundamental.Lambda
   {a} {M : Set a}
   {𝕄 : Modality M}
   (open Modality 𝕄)
-  (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘))
   (non-trivial : ¬ Trivial)
   {R : Type-restrictions 𝕄}
   (as : Assumptions R)
@@ -40,12 +38,12 @@ open import Definition.Typed R
 open import Definition.Typed.Weakening R hiding (wk)
 open import Definition.Typed.Consequences.Reduction R
 
-open import Graded.Erasure.Extraction 𝕄 is-𝟘?
-open import Graded.Erasure.LogicalRelation is-𝟘? as
-open import Graded.Erasure.LogicalRelation.Irrelevance is-𝟘? as
-open import Graded.Erasure.LogicalRelation.Reduction is-𝟘? as
-open import Graded.Erasure.LogicalRelation.Subsumption is-𝟘? as
-open import Graded.Erasure.LogicalRelation.Value is-𝟘? as
+open import Graded.Erasure.Extraction 𝕄
+open import Graded.Erasure.LogicalRelation as
+open import Graded.Erasure.LogicalRelation.Irrelevance as
+open import Graded.Erasure.LogicalRelation.Reduction as
+open import Graded.Erasure.LogicalRelation.Subsumption as
+open import Graded.Erasure.LogicalRelation.Value as
 open import Graded.Erasure.Target.Properties as TP
 import Graded.Erasure.Target as T
 open import Graded.Erasure.Target.Reasoning
@@ -54,6 +52,7 @@ open import Tools.Empty
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
+import Tools.PropositionalEquality as PE
 
 private
   variable

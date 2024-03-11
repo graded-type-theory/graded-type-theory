@@ -5,26 +5,23 @@
 open import Definition.Typed.Restrictions
 open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality
-open import Tools.PropositionalEquality
-open import Tools.Relation
 
 module Graded.Erasure.LogicalRelation.Fundamental.Nat
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (open Modality 𝕄)
-  (is-𝟘? : (p : M) → Dec (p ≡ 𝟘))
   {R : Type-restrictions 𝕄}
   (as : Assumptions R)
   where
 
 open Assumptions as
+open Modality 𝕄
 
-open import Graded.Erasure.Extraction 𝕄 is-𝟘?
-open import Graded.Erasure.LogicalRelation is-𝟘? as
-open import Graded.Erasure.LogicalRelation.Irrelevance is-𝟘? as
-open import Graded.Erasure.LogicalRelation.Reduction is-𝟘? as
-open import Graded.Erasure.LogicalRelation.Subsumption is-𝟘? as
-open import Graded.Erasure.LogicalRelation.Value is-𝟘? as
+open import Graded.Erasure.Extraction 𝕄
+open import Graded.Erasure.LogicalRelation as
+open import Graded.Erasure.LogicalRelation.Irrelevance as
+open import Graded.Erasure.LogicalRelation.Reduction as
+open import Graded.Erasure.LogicalRelation.Subsumption as
+open import Graded.Erasure.LogicalRelation.Value as
 import Graded.Erasure.Target as T
 import Graded.Erasure.Target.Properties as TP
 open import Graded.Erasure.Target.Reasoning
@@ -49,6 +46,8 @@ open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
+open import Tools.PropositionalEquality
+open import Tools.Relation
 
 private
   variable

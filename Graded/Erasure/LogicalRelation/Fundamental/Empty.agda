@@ -6,14 +6,10 @@ import Definition.Typed
 open import Definition.Typed.Restrictions
 open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality
-open import Tools.PropositionalEquality
-open import Tools.Relation
 
 module Graded.Erasure.LogicalRelation.Fundamental.Empty
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (open Modality 𝕄)
-  (is-𝟘? : (p : M) → Dec (p ≡ 𝟘))
   {R : Type-restrictions 𝕄}
   (open Definition.Typed R)
   (as : Assumptions R)
@@ -21,8 +17,8 @@ module Graded.Erasure.LogicalRelation.Fundamental.Empty
   (consistent : Consistent Δ)
   where
 
-open import Graded.Erasure.LogicalRelation is-𝟘? as
-open import Graded.Erasure.LogicalRelation.Subsumption is-𝟘? as
+open import Graded.Erasure.LogicalRelation as
+open import Graded.Erasure.LogicalRelation.Subsumption as
 import Graded.Erasure.Target as T
 
 open import Definition.LogicalRelation R

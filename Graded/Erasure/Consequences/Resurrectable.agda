@@ -280,8 +280,8 @@ opaque
     as : Assumptions
     as = record { ⊢Δ = well-formed; str = T.non-strict }
 
-    open H is-𝟘? as
-    open L is-𝟘? as
+    open H as
+    open L as
 
 opaque
 
@@ -391,8 +391,8 @@ opaque
     as′ : Assumptions
     as′ = record { ⊢Δ = wfTerm ⊢t; str = T.non-strict }
 
-    open H is-𝟘? as′
-    open L is-𝟘? as′
+    open H as′
+    open L as′
 
     instance
 

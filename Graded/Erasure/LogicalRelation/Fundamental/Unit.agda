@@ -21,12 +21,12 @@ open Type-restrictions R
 open import Graded.Modality.Properties.Has-well-behaved-zero
   semiring-with-meet
 
-open import Graded.Erasure.LogicalRelation is-𝟘? as
-open import Graded.Erasure.LogicalRelation.Conversion is-𝟘? as
-open import Graded.Erasure.LogicalRelation.Irrelevance is-𝟘? as
-open import Graded.Erasure.LogicalRelation.Reduction is-𝟘? as
-open import Graded.Erasure.LogicalRelation.Subsumption is-𝟘? as
-open import Graded.Erasure.Extraction 𝕄 is-𝟘?
+open import Graded.Erasure.LogicalRelation as
+open import Graded.Erasure.LogicalRelation.Conversion as
+open import Graded.Erasure.LogicalRelation.Irrelevance as
+open import Graded.Erasure.LogicalRelation.Reduction as
+open import Graded.Erasure.LogicalRelation.Subsumption as
+open import Graded.Erasure.Extraction 𝕄
 
 import Graded.Erasure.Target as T
 import Graded.Erasure.Target.Properties as TP

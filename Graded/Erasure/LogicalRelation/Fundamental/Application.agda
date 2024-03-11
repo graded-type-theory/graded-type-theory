@@ -42,9 +42,9 @@ open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 
-open import Graded.Erasure.LogicalRelation is-𝟘? as
-open import Graded.Erasure.LogicalRelation.Subsumption is-𝟘? as
-open import Graded.Erasure.LogicalRelation.Irrelevance is-𝟘? as
+open import Graded.Erasure.LogicalRelation as
+open import Graded.Erasure.LogicalRelation.Subsumption as
+open import Graded.Erasure.LogicalRelation.Irrelevance as
 import Graded.Erasure.Target as T
 
 open import Tools.Empty

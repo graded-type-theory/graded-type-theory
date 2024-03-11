@@ -18,7 +18,7 @@ open import Graded.Modality.Dedicated-nr.Instance
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
 
-open import Graded.Erasure.Extraction 𝕄 is-𝟘?
+open import Graded.Erasure.Extraction 𝕄
 open import Graded.Erasure.Target as T
   hiding (refl; trans)
   renaming (_[_,_] to _[_,_]₁₀)

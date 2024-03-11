@@ -41,7 +41,7 @@ open import Definition.LogicalRelation TR
 open import Definition.LogicalRelation.Substitution TR
 
 open import Graded.Erasure.Consequences.Soundness TR UR
-open import Graded.Erasure.Extraction 𝕄 is-𝟘?
+open import Graded.Erasure.Extraction 𝕄
 open import Graded.Erasure.LogicalRelation.Assumptions TR
 import Graded.Erasure.LogicalRelation
 import Graded.Erasure.LogicalRelation.Hidden
@@ -73,8 +73,8 @@ private module LR {Δ : Con Term k} (⊢Δ : ⊢ Δ) (str : Strictness) where
     as : Assumptions
     as = record { ⊢Δ = ⊢Δ; str = str }
 
-  open Graded.Erasure.LogicalRelation is-𝟘? as public
-  open Graded.Erasure.LogicalRelation.Hidden is-𝟘? as public
+  open Graded.Erasure.LogicalRelation as public
+  open Graded.Erasure.LogicalRelation.Hidden as public
 
 -- If Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 holds for some p (which means that
 -- certain kinds of erased matches are allowed), and if additionally

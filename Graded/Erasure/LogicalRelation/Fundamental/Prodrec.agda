@@ -57,14 +57,14 @@ open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 
-open import Graded.Erasure.LogicalRelation is-𝟘? as
-open import Graded.Erasure.LogicalRelation.Conversion is-𝟘? as
-open import Graded.Erasure.LogicalRelation.Reduction is-𝟘? as
-open import Graded.Erasure.LogicalRelation.Subsumption is-𝟘? as
-open import Graded.Erasure.LogicalRelation.Irrelevance is-𝟘? as
-open import Graded.Erasure.LogicalRelation.Value is-𝟘? as
+open import Graded.Erasure.LogicalRelation as
+open import Graded.Erasure.LogicalRelation.Conversion as
+open import Graded.Erasure.LogicalRelation.Reduction as
+open import Graded.Erasure.LogicalRelation.Subsumption as
+open import Graded.Erasure.LogicalRelation.Irrelevance as
+open import Graded.Erasure.LogicalRelation.Value as
 
-open import Graded.Erasure.Extraction 𝕄 is-𝟘?
+open import Graded.Erasure.Extraction 𝕄
 open import Graded.Erasure.Extraction.Properties 𝕄
 import Graded.Erasure.Target as T
   renaming (_[_,_] to _[_,_]₁₀)

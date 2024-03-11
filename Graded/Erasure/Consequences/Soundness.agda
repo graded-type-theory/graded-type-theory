@@ -49,7 +49,7 @@ open import Graded.Erasure.Target as T
   using (Strictness; strict; non-strict)
 import Graded.Erasure.Target.Properties as TP
 open import Graded.Erasure.Target.Reasoning
-import Graded.Erasure.Extraction 𝕄 as E
+open import Graded.Erasure.Extraction 𝕄
 open import Graded.Erasure.SucRed TR
 import Graded.Erasure.LogicalRelation
 open import Graded.Erasure.LogicalRelation.Assumptions TR
@@ -100,8 +100,6 @@ module _
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
   where
 
-  open E is-𝟘?
-
   -- The following results make use of some assumptions.
 
   module Soundness′
@@ -117,10 +115,10 @@ module _
       as : Assumptions
       as = record { ⊢Δ = well-formed; str = str }
 
-    open Graded.Erasure.LogicalRelation is-𝟘? as
+    open Graded.Erasure.LogicalRelation as
     open Graded.Erasure.LogicalRelation.Fundamental.Fundamental TR UR FA
-    open Graded.Erasure.LogicalRelation.Irrelevance is-𝟘? as
-    open Graded.Erasure.LogicalRelation.Subsumption is-𝟘? as
+    open Graded.Erasure.LogicalRelation.Irrelevance as
+    open Graded.Erasure.LogicalRelation.Subsumption as
 
     -- Helper lemma for WH reduction soundness of zero
     -- If t ® v ∷ℕ  and t ⇒* zero then v ⇒* zero
@@ -218,8 +216,8 @@ module _
       open Graded.Erasure.LogicalRelation.Fundamental.Fundamental
         TR UR FA
         public
-      open Graded.Erasure.LogicalRelation.Irrelevance is-𝟘? as public
-      open Graded.Erasure.LogicalRelation.Subsumption is-𝟘? as public
+      open Graded.Erasure.LogicalRelation.Irrelevance as public
+      open Graded.Erasure.LogicalRelation.Subsumption as public
 
     -- Soundness for erasure of natural numbers
     -- Well-typed terms of the natural number type reduce to numerals
@@ -488,194 +486,190 @@ opaque
          (1+ _ , whred unitrec⇒ ⇨ˢ _) →
            whnfRedTerm unitrec⇒ (ne (unitrecₙ (var _))))
 
-module _ (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘)) where
+-- Run-time canonicity for a given term with respect to a given
+-- context (and strictness).
 
-  open E is-𝟘?
+Run-time-canonicity-for : Strictness → Con Term n → Term n → Set a
+Run-time-canonicity-for str Δ t =
+  ∃₂ λ n u → Δ ⊢ u ∷ Id ℕ t (sucᵏ n) × erase str t ⇒ˢ⟨ str ⟩* sucᵏ′ n
 
-  -- Run-time canonicity for a given term with respect to a given
-  -- context (and strictness).
+-- Above some counterexamples to variants of soundness-ℕ-only-source
+-- are presented. Those counterexamples are (at the time of writing)
+-- not counterexamples to "run-time canonicity holds for well-typed,
+-- well-resourced terms of type ℕ in consistent contexts".
 
-  Run-time-canonicity-for : Strictness → Con Term n → Term n → Set a
-  Run-time-canonicity-for str Δ t =
-    ∃₂ λ n u → Δ ⊢ u ∷ Id ℕ t (sucᵏ n) × erase str t ⇒ˢ⟨ str ⟩* sucᵏ′ n
+soundness-ℕ-only-target-not-counterexample₁ :
+  Σʷ-allowed p 𝟘 →
+  Run-time-canonicity-for str
+    (ε ∙ Σʷ p , 𝟘 ▷ ℕ ▹ ℕ)
+    (prodrec 𝟘 p 𝟘 ℕ (var {n = 1} x0) zero)
+soundness-ℕ-only-target-not-counterexample₁ {p} ok
+  with is-𝟘? 𝟘
+... | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 PE.refl)
+... | yes _ =
+    0
+  , subst ω ℕ² (Id ℕ pr zero) 0,0 (var x0) η rfl
+  , ⊢subst (Idⱼ ⊢pr (zeroⱼ (ε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ])))
+      (⊢Σʷ-η-prodʷ-fstʷ-sndʷ (var₀ (⊢ℕ² ε)))
+      (rflⱼ′
+         (prodrec 𝟘 p 𝟘 ℕ 0,0 zero  ≡⟨ prodrec-β-≡ (ℕⱼ (ε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ]))
+                                         (fstʷⱼ (var₀ (⊢ℕ² ε))) (sndʷⱼ (var₀ (⊢ℕ² ε)))
+                                         (zeroⱼ (ε ∙[ ⊢ℕ² ] ∙[ ℕⱼ ] ∙[ ℕⱼ ])) ok ⟩⊢∎
+          zero                      ∎))
+  , refl-⇒ˢ⟨⟩*
+  where
+  ℕ² : Term n
+  ℕ² = Σʷ p , 𝟘 ▷ ℕ ▹ ℕ
 
-  -- Above some counterexamples to variants of soundness-ℕ-only-source
-  -- are presented. Those counterexamples are (at the time of writing)
-  -- not counterexamples to "run-time canonicity holds for well-typed,
-  -- well-resourced terms of type ℕ in consistent contexts".
+  Δ′ : Con Term 1
+  Δ′ = ε ∙ ℕ²
 
-  soundness-ℕ-only-target-not-counterexample₁ :
-    Σʷ-allowed p 𝟘 →
+  pr : Term 2
+  pr = prodrec _ _ _ _ (var x0) zero
+
+  0,0 : Term 1
+  0,0 = prodʷ _ (fstʷ _ _ (var x0)) (sndʷ _ _ ℕ ℕ (var x0))
+
+  η : Term 1
+  η = Σʷ-η-prodʷ-fstʷ-sndʷ _ _ _ _ (var x0)
+
+  ⊢ℕ² : ⊢ Γ → Γ ⊢ ℕ²
+  ⊢ℕ² ⊢Γ = ΠΣⱼ′ (ℕⱼ (⊢Γ ∙[ ℕⱼ ])) ok
+
+  ⊢pr : Δ′ ∙ ℕ² ⊢ pr ∷ ℕ
+  ⊢pr =
+    prodrecⱼ′ (ℕⱼ (ε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ]))
+      (var₀ (⊢ℕ² (ε ∙[ ⊢ℕ² ])))
+      (zeroⱼ (ε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ] ∙[ ℕⱼ ] ∙[ ℕⱼ ]))
+
+opaque
+
+  soundness-ℕ-only-target-not-counterexample₂ :
+    []-cong-allowed s →
+    let open Erased s in
     Run-time-canonicity-for str
-      (ε ∙ Σʷ p , 𝟘 ▷ ℕ ▹ ℕ)
-      (prodrec 𝟘 p 𝟘 ℕ (var {n = 1} x0) zero)
-  soundness-ℕ-only-target-not-counterexample₁ {p} ok
-    with is-𝟘? 𝟘
-  ... | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 PE.refl)
-  ... | yes _ =
-      0
-    , subst ω ℕ² (Id ℕ pr zero) 0,0 (var x0) η rfl
-    , ⊢subst (Idⱼ ⊢pr (zeroⱼ (ε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ])))
-        (⊢Σʷ-η-prodʷ-fstʷ-sndʷ (var₀ (⊢ℕ² ε)))
+      (ε ∙ Id ℕ zero zero)
+      (J 𝟘 𝟘 (Erased ℕ) ([ zero ]) ℕ zero ([ zero ])
+         ([]-cong s ℕ zero zero (var {n = 1} x0)))
+  soundness-ℕ-only-target-not-counterexample₂ {s} ok =
+      _
+    , J 𝟘 𝟘 ℕ zero
+        (Id ℕ
+            (J 𝟘 𝟘 (Erased ℕ) Er.[ zero ] ℕ zero Er.[ var x1 ]
+               ([]-cong s ℕ zero (var x1) (var x0)))
+            zero)
+        rfl zero (var x0)
+    , Jⱼ′
+        (Idⱼ
+           (Jⱼ′ (ℕⱼ (J-motive-context ([]ⱼ Erased-ok ⊢zero))) ⊢zero
+              ([]-congⱼ′ ok
+                 (var₀ (J-motive-context-type (zeroⱼ ⊢Δ)))))
+           ⊢zero)
         (rflⱼ′
-           (prodrec 𝟘 p 𝟘 ℕ 0,0 zero  ≡⟨ prodrec-β-≡ (ℕⱼ (ε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ]))
-                                           (fstʷⱼ (var₀ (⊢ℕ² ε))) (sndʷⱼ (var₀ (⊢ℕ² ε)))
-                                           (zeroⱼ (ε ∙[ ⊢ℕ² ] ∙[ ℕⱼ ] ∙[ ℕⱼ ])) ok ⟩⊢∎
-            zero                      ∎))
+           (J 𝟘 𝟘 (Erased ℕ) Er.[ zero ] ℕ zero Er.[ zero ]
+              ([]-cong s ℕ zero zero rfl)                        ≡⟨ J-cong′ (refl (Erasedⱼ Erased-ok (ℕⱼ ⊢Δ)))
+                                                                      (refl ([]ⱼ Erased-ok (zeroⱼ ⊢Δ))) (refl ⊢ℕ)
+                                                                      (refl (zeroⱼ ⊢Δ)) (refl ([]ⱼ Erased-ok (zeroⱼ ⊢Δ)))
+                                                                      ([]-cong-β (zeroⱼ ⊢Δ) PE.refl ok) ⟩⊢
+
+            J 𝟘 𝟘 (Erased ℕ) Er.[ zero ] ℕ zero Er.[ zero ] rfl  ≡⟨ J-β-≡ ([]ⱼ Erased-ok (zeroⱼ ⊢Δ)) ⊢ℕ (zeroⱼ ⊢Δ) ⟩⊢∎
+
+            zero                                                 ∎))
+        (var₀ ⊢0≡0)
     , refl-⇒ˢ⟨⟩*
     where
-    ℕ² : Term n
-    ℕ² = Σʷ p , 𝟘 ▷ ℕ ▹ ℕ
+    open module Er = Erased s using (Erased)
+
+    Erased-ok : Erased-allowed s
+    Erased-ok = []-cong→Erased ok
 
     Δ′ : Con Term 1
-    Δ′ = ε ∙ ℕ²
+    Δ′ = ε ∙ Id ℕ zero zero
 
-    pr : Term 2
-    pr = prodrec _ _ _ _ (var x0) zero
+    ⊢0≡0 : ε ⊢ Id ℕ zero zero
+    ⊢0≡0 = Idⱼ (zeroⱼ ε) (zeroⱼ ε)
 
-    0,0 : Term 1
-    0,0 = prodʷ _ (fstʷ _ _ (var x0)) (sndʷ _ _ ℕ ℕ (var x0))
+    ⊢Δ : ⊢ Δ′
+    ⊢Δ = ε ∙ ⊢0≡0
 
-    η : Term 1
-    η = Σʷ-η-prodʷ-fstʷ-sndʷ _ _ _ _ (var x0)
+    ⊢ℕ : Δ′ ∙ Erased ℕ ∙ Id (Erased ℕ) Er.[ zero ] (var x0) ⊢ ℕ
+    ⊢ℕ = ℕⱼ (J-motive-context ([]ⱼ Erased-ok (zeroⱼ ⊢Δ)))
 
-    ⊢ℕ² : ⊢ Γ → Γ ⊢ ℕ²
-    ⊢ℕ² ⊢Γ = ΠΣⱼ′ (ℕⱼ (⊢Γ ∙[ ℕⱼ ])) ok
+    ⊢zero : Δ′ ∙ ℕ ∙ Id ℕ zero (var x0) ⊢ zero ∷ ℕ
+    ⊢zero = zeroⱼ (J-motive-context (zeroⱼ ⊢Δ))
 
-    ⊢pr : Δ′ ∙ ℕ² ⊢ pr ∷ ℕ
-    ⊢pr =
-      prodrecⱼ′ (ℕⱼ (ε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ]))
-        (var₀ (⊢ℕ² (ε ∙[ ⊢ℕ² ])))
-        (zeroⱼ (ε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ] ∙[ ℕⱼ ] ∙[ ℕⱼ ]))
+opaque
 
-  opaque
+  soundness-ℕ-only-target-not-counterexample₃ :
+    Run-time-canonicity-for str
+      (ε ∙ Id ℕ zero zero)
+      (J 𝟘 𝟘 ℕ zero ℕ zero zero (var {n = 1} x0))
+  soundness-ℕ-only-target-not-counterexample₃ =
+      _
+    , J 𝟘 𝟘 ℕ zero
+        (Id ℕ (J 𝟘 𝟘 ℕ zero ℕ zero (var x1) (var x0)) zero)
+        rfl zero (var x0)
+    , Jⱼ′
+        (Idⱼ
+           (Jⱼ′ (ℕⱼ (J-motive-context ⊢zero)) ⊢zero
+              (var₀ (J-motive-context-type (zeroⱼ ⊢Δ))))
+           ⊢zero)
+        (rflⱼ′
+           (J 𝟘 𝟘 ℕ zero ℕ zero zero rfl  ≡⟨ J-β-≡ (zeroⱼ ⊢Δ) ⊢ℕ (zeroⱼ ⊢Δ) ⟩⊢∎
+            zero                          ∎))
+        (var₀ ⊢0≡0)
+    , refl-⇒ˢ⟨⟩*
+    where
+    Δ′ : Con Term 1
+    Δ′ = ε ∙ Id ℕ zero zero
 
-    soundness-ℕ-only-target-not-counterexample₂ :
-      []-cong-allowed s →
-      let open Erased s in
-      Run-time-canonicity-for str
-        (ε ∙ Id ℕ zero zero)
-        (J 𝟘 𝟘 (Erased ℕ) ([ zero ]) ℕ zero ([ zero ])
-           ([]-cong s ℕ zero zero (var {n = 1} x0)))
-    soundness-ℕ-only-target-not-counterexample₂ {s} ok =
-        _
-      , J 𝟘 𝟘 ℕ zero
-          (Id ℕ
-              (J 𝟘 𝟘 (Erased ℕ) Er.[ zero ] ℕ zero Er.[ var x1 ]
-                 ([]-cong s ℕ zero (var x1) (var x0)))
-              zero)
-          rfl zero (var x0)
-      , Jⱼ′
-          (Idⱼ
-             (Jⱼ′ (ℕⱼ (J-motive-context ([]ⱼ Erased-ok ⊢zero))) ⊢zero
-                ([]-congⱼ′ ok
-                   (var₀ (J-motive-context-type (zeroⱼ ⊢Δ)))))
-             ⊢zero)
-          (rflⱼ′
-             (J 𝟘 𝟘 (Erased ℕ) Er.[ zero ] ℕ zero Er.[ zero ]
-                ([]-cong s ℕ zero zero rfl)                        ≡⟨ J-cong′ (refl (Erasedⱼ Erased-ok (ℕⱼ ⊢Δ)))
-                                                                        (refl ([]ⱼ Erased-ok (zeroⱼ ⊢Δ))) (refl ⊢ℕ)
-                                                                        (refl (zeroⱼ ⊢Δ)) (refl ([]ⱼ Erased-ok (zeroⱼ ⊢Δ)))
-                                                                        ([]-cong-β (zeroⱼ ⊢Δ) PE.refl ok) ⟩⊢
+    ⊢0≡0 : ε ⊢ Id ℕ zero zero
+    ⊢0≡0 = Idⱼ (zeroⱼ ε) (zeroⱼ ε)
 
-              J 𝟘 𝟘 (Erased ℕ) Er.[ zero ] ℕ zero Er.[ zero ] rfl  ≡⟨ J-β-≡ ([]ⱼ Erased-ok (zeroⱼ ⊢Δ)) ⊢ℕ (zeroⱼ ⊢Δ) ⟩⊢∎
+    ⊢Δ : ⊢ Δ′
+    ⊢Δ = ε ∙ ⊢0≡0
 
-              zero                                                 ∎))
-          (var₀ ⊢0≡0)
-      , refl-⇒ˢ⟨⟩*
-      where
-      open module Er = Erased s using (Erased)
+    ⊢ℕ : Δ′ ∙ ℕ ∙ Id ℕ zero (var x0) ⊢ ℕ
+    ⊢ℕ = ℕⱼ (J-motive-context (zeroⱼ ⊢Δ))
 
-      Erased-ok : Erased-allowed s
-      Erased-ok = []-cong→Erased ok
+    ⊢zero : Δ′ ∙ ℕ ∙ Id ℕ zero (var x0) ⊢ zero ∷ ℕ
+    ⊢zero = zeroⱼ (J-motive-context (zeroⱼ ⊢Δ))
 
-      Δ′ : Con Term 1
-      Δ′ = ε ∙ Id ℕ zero zero
+opaque
 
-      ⊢0≡0 : ε ⊢ Id ℕ zero zero
-      ⊢0≡0 = Idⱼ (zeroⱼ ε) (zeroⱼ ε)
+  soundness-ℕ-only-target-not-counterexample₄ :
+    K-allowed →
+    Run-time-canonicity-for str
+      (ε ∙ Id ℕ zero zero)
+      (K 𝟘 ℕ zero ℕ zero (var {n = 1} x0))
+  soundness-ℕ-only-target-not-counterexample₄ ok =
+      _
+    , K 𝟘 ℕ zero
+        (Id ℕ (K 𝟘 ℕ zero ℕ zero (var x0)) zero)
+        rfl (var x0)
+    , Kⱼ′
+        (Idⱼ
+           (Kⱼ′ (ℕⱼ (K-motive-context ⊢zero)) ⊢zero
+              (var₀ (K-motive-context-type (zeroⱼ ⊢Δ))) ok)
+           ⊢zero)
+        (rflⱼ′
+           (K 𝟘 ℕ zero ℕ zero rfl  ≡⟨ K-β-≡ ⊢ℕ (zeroⱼ ⊢Δ) ok ⟩⊢∎
+            zero                   ∎))
+        (var₀ ⊢0≡0)
+        ok
+    , refl-⇒ˢ⟨⟩*
+    where
+    Δ′ : Con Term 1
+    Δ′ = ε ∙ Id ℕ zero zero
 
-      ⊢Δ : ⊢ Δ′
-      ⊢Δ = ε ∙ ⊢0≡0
+    ⊢0≡0 : ε ⊢ Id ℕ zero zero
+    ⊢0≡0 = Idⱼ (zeroⱼ ε) (zeroⱼ ε)
 
-      ⊢ℕ : Δ′ ∙ Erased ℕ ∙ Id (Erased ℕ) Er.[ zero ] (var x0) ⊢ ℕ
-      ⊢ℕ = ℕⱼ (J-motive-context ([]ⱼ Erased-ok (zeroⱼ ⊢Δ)))
+    ⊢Δ : ⊢ Δ′
+    ⊢Δ = ε ∙ ⊢0≡0
 
-      ⊢zero : Δ′ ∙ ℕ ∙ Id ℕ zero (var x0) ⊢ zero ∷ ℕ
-      ⊢zero = zeroⱼ (J-motive-context (zeroⱼ ⊢Δ))
+    ⊢ℕ : Δ′ ∙ Id ℕ zero zero ⊢ ℕ
+    ⊢ℕ = ℕⱼ (K-motive-context (zeroⱼ ⊢Δ))
 
-  opaque
-
-    soundness-ℕ-only-target-not-counterexample₃ :
-      Run-time-canonicity-for str
-        (ε ∙ Id ℕ zero zero)
-        (J 𝟘 𝟘 ℕ zero ℕ zero zero (var {n = 1} x0))
-    soundness-ℕ-only-target-not-counterexample₃ =
-        _
-      , J 𝟘 𝟘 ℕ zero
-          (Id ℕ (J 𝟘 𝟘 ℕ zero ℕ zero (var x1) (var x0)) zero)
-          rfl zero (var x0)
-      , Jⱼ′
-          (Idⱼ
-             (Jⱼ′ (ℕⱼ (J-motive-context ⊢zero)) ⊢zero
-                (var₀ (J-motive-context-type (zeroⱼ ⊢Δ))))
-             ⊢zero)
-          (rflⱼ′
-             (J 𝟘 𝟘 ℕ zero ℕ zero zero rfl  ≡⟨ J-β-≡ (zeroⱼ ⊢Δ) ⊢ℕ (zeroⱼ ⊢Δ) ⟩⊢∎
-              zero                          ∎))
-          (var₀ ⊢0≡0)
-      , refl-⇒ˢ⟨⟩*
-      where
-      Δ′ : Con Term 1
-      Δ′ = ε ∙ Id ℕ zero zero
-
-      ⊢0≡0 : ε ⊢ Id ℕ zero zero
-      ⊢0≡0 = Idⱼ (zeroⱼ ε) (zeroⱼ ε)
-
-      ⊢Δ : ⊢ Δ′
-      ⊢Δ = ε ∙ ⊢0≡0
-
-      ⊢ℕ : Δ′ ∙ ℕ ∙ Id ℕ zero (var x0) ⊢ ℕ
-      ⊢ℕ = ℕⱼ (J-motive-context (zeroⱼ ⊢Δ))
-
-      ⊢zero : Δ′ ∙ ℕ ∙ Id ℕ zero (var x0) ⊢ zero ∷ ℕ
-      ⊢zero = zeroⱼ (J-motive-context (zeroⱼ ⊢Δ))
-
-  opaque
-
-    soundness-ℕ-only-target-not-counterexample₄ :
-      K-allowed →
-      Run-time-canonicity-for str
-        (ε ∙ Id ℕ zero zero)
-        (K 𝟘 ℕ zero ℕ zero (var {n = 1} x0))
-    soundness-ℕ-only-target-not-counterexample₄ ok =
-        _
-      , K 𝟘 ℕ zero
-          (Id ℕ (K 𝟘 ℕ zero ℕ zero (var x0)) zero)
-          rfl (var x0)
-      , Kⱼ′
-          (Idⱼ
-             (Kⱼ′ (ℕⱼ (K-motive-context ⊢zero)) ⊢zero
-                (var₀ (K-motive-context-type (zeroⱼ ⊢Δ))) ok)
-             ⊢zero)
-          (rflⱼ′
-             (K 𝟘 ℕ zero ℕ zero rfl  ≡⟨ K-β-≡ ⊢ℕ (zeroⱼ ⊢Δ) ok ⟩⊢∎
-              zero                   ∎))
-          (var₀ ⊢0≡0)
-          ok
-      , refl-⇒ˢ⟨⟩*
-      where
-      Δ′ : Con Term 1
-      Δ′ = ε ∙ Id ℕ zero zero
-
-      ⊢0≡0 : ε ⊢ Id ℕ zero zero
-      ⊢0≡0 = Idⱼ (zeroⱼ ε) (zeroⱼ ε)
-
-      ⊢Δ : ⊢ Δ′
-      ⊢Δ = ε ∙ ⊢0≡0
-
-      ⊢ℕ : Δ′ ∙ Id ℕ zero zero ⊢ ℕ
-      ⊢ℕ = ℕⱼ (K-motive-context (zeroⱼ ⊢Δ))
-
-      ⊢zero : Δ′ ∙ Id ℕ zero zero ⊢ zero ∷ ℕ
-      ⊢zero = zeroⱼ (K-motive-context (zeroⱼ ⊢Δ))
+    ⊢zero : Δ′ ∙ Id ℕ zero zero ⊢ zero ∷ ℕ
+    ⊢zero = zeroⱼ (K-motive-context (zeroⱼ ⊢Δ))

@@ -78,7 +78,7 @@ import Graded.Erasure.LogicalRelation.Irrelevance
 import Graded.Erasure.LogicalRelation.Subsumption
 
 open import Graded.Erasure.Target as T using (Strictness)
-open import Graded.Erasure.Extraction 𝕄 is-𝟘?
+open import Graded.Erasure.Extraction 𝕄
 import Graded.Erasure.Target.Properties as TP
 
 open import Tools.Empty
@@ -113,10 +113,10 @@ module _ (⊢Δ : ⊢ Δ) {s : Strictness} where
     as : Assumptions
     as = record { ⊢Δ = ⊢Δ; str = s }
 
-  open Graded.Erasure.LogicalRelation is-𝟘? as
-  open Graded.Erasure.LogicalRelation.Conversion is-𝟘? as
-  open Graded.Erasure.LogicalRelation.Irrelevance is-𝟘? as
-  open Graded.Erasure.LogicalRelation.Subsumption is-𝟘? as
+  open Graded.Erasure.LogicalRelation as
+  open Graded.Erasure.LogicalRelation.Conversion as
+  open Graded.Erasure.LogicalRelation.Irrelevance as
+  open Graded.Erasure.LogicalRelation.Subsumption as
 
   -- A special case of subsumption.
 
@@ -214,22 +214,20 @@ module Fundamental
     as : Assumptions
     as = record { ⊢Δ = well-formed; str = s }
 
-  open Graded.Erasure.LogicalRelation is-𝟘? as
+  open Graded.Erasure.LogicalRelation as
   open Graded.Erasure.LogicalRelation.Fundamental.Application as
-  open Graded.Erasure.LogicalRelation.Fundamental.Empty
-    is-𝟘? as consistent
+  open Graded.Erasure.LogicalRelation.Fundamental.Empty as consistent
   open Graded.Erasure.LogicalRelation.Fundamental.Identity as
-  open Graded.Erasure.LogicalRelation.Fundamental.Lambda
-    is-𝟘? non-trivial as
-  open Graded.Erasure.LogicalRelation.Fundamental.Nat is-𝟘? as
+  open Graded.Erasure.LogicalRelation.Fundamental.Lambda non-trivial as
+  open Graded.Erasure.LogicalRelation.Fundamental.Nat as
   open Graded.Erasure.LogicalRelation.Fundamental.Natrec as
   open Graded.Erasure.LogicalRelation.Fundamental.Prodrec as
   open Graded.Erasure.LogicalRelation.Fundamental.Product UR as
   open Graded.Erasure.LogicalRelation.Fundamental.Unit as
-  open Graded.Erasure.LogicalRelation.Conversion is-𝟘? as
-  open Graded.Erasure.LogicalRelation.Hidden is-𝟘? as
-  open Graded.Erasure.LogicalRelation.Irrelevance is-𝟘? as
-  open Graded.Erasure.LogicalRelation.Subsumption is-𝟘? as
+  open Graded.Erasure.LogicalRelation.Conversion as
+  open Graded.Erasure.LogicalRelation.Hidden as
+  open Graded.Erasure.LogicalRelation.Irrelevance as
+  open Graded.Erasure.LogicalRelation.Subsumption as
 
   -- The fundamental lemma for the erasure relation.
   --

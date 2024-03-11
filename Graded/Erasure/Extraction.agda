@@ -3,15 +3,17 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
-open import Tools.PropositionalEquality
-open import Tools.Relation
 
-module Graded.Erasure.Extraction {a} {M : Set a} (𝕄 : Modality M)
-                                 (open Modality 𝕄)
-                                 (is-𝟘? : (p : M) → Dec (p ≡ 𝟘)) where
+module Graded.Erasure.Extraction
+  {a} {M : Set a}
+  (𝕄 : Modality M)
+  where
+
+open Modality 𝕄
 
 open import Tools.Function
 open import Tools.Nat
+open import Tools.Relation
 
 open import Definition.Untyped M as U
 open import Graded.Erasure.Target as T

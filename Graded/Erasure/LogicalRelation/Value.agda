@@ -5,14 +5,10 @@
 open import Definition.Typed.Restrictions
 open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality
-open import Tools.PropositionalEquality
-open import Tools.Relation
 
 module Graded.Erasure.LogicalRelation.Value
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (open Modality 𝕄)
-  (is-𝟘? : (p : M) → Dec (p ≡ 𝟘))
   {R : Type-restrictions 𝕄}
   (as : Assumptions R)
   where
@@ -22,13 +18,14 @@ open Assumptions as
 open import Definition.LogicalRelation R
 open import Definition.Untyped M
 
-open import Graded.Erasure.LogicalRelation is-𝟘? as
-open import Graded.Erasure.LogicalRelation.Hidden is-𝟘? as
+open import Graded.Erasure.LogicalRelation as
+open import Graded.Erasure.LogicalRelation.Hidden as
 open import Graded.Erasure.Target as T using (strict)
 open import Graded.Erasure.Target.Properties
 
 open import Tools.Function
 open import Tools.Product as Σ
+open import Tools.PropositionalEquality
 
 private variable
   A t : Term _

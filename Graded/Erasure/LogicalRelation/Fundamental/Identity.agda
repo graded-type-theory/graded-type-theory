@@ -50,10 +50,10 @@ open import Definition.Untyped.Properties M
 open import Graded.Context 𝕄
 open import Graded.Context.Properties.Has-well-behaved-zero 𝕄
 import Graded.Derived.Erased.Untyped 𝕄 as Erased
-open import Graded.Erasure.LogicalRelation is-𝟘? as
-open import Graded.Erasure.LogicalRelation.Conversion is-𝟘? as
-open import Graded.Erasure.LogicalRelation.Reduction is-𝟘? as
-open import Graded.Erasure.LogicalRelation.Subsumption is-𝟘? as
+open import Graded.Erasure.LogicalRelation as
+open import Graded.Erasure.LogicalRelation.Conversion as
+open import Graded.Erasure.LogicalRelation.Reduction as
+open import Graded.Erasure.LogicalRelation.Subsumption as
 import Graded.Erasure.Target as T
 open import Graded.Mode 𝕄
 

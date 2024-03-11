@@ -66,7 +66,7 @@ private
 
 open import Graded.Context EM
 open import Graded.Erasure.Consequences.Soundness TR UR
-open import Graded.Erasure.Extraction EM EM.is-𝟘?
+open import Graded.Erasure.Extraction EM
 import Graded.Erasure.SucRed TR as S
 open import Graded.Erasure.Target as T
   using (Strictness; strict; non-strict)

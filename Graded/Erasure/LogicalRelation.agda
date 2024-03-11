@@ -7,19 +7,16 @@
 open import Definition.Typed.Restrictions
 open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality
-import Tools.PropositionalEquality as PE
-open import Tools.Relation
 
 module Graded.Erasure.LogicalRelation
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (open Modality 𝕄)
-  (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘))
   {R : Type-restrictions 𝕄}
   (as : Assumptions R)
   where
 
 open Assumptions as
+open Modality 𝕄
 
 open import Definition.Untyped M as U hiding (_∷_; _∘_; K)
 
@@ -31,13 +28,15 @@ open import Graded.Mode 𝕄
 open import Definition.Typed.Weakening R
 
 open import Graded.Erasure.Target as T hiding (_⇒*_)
-open import Graded.Erasure.Extraction 𝕄 is-𝟘?
+open import Graded.Erasure.Extraction 𝕄
 
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
+import Tools.PropositionalEquality as PE
+open import Tools.Relation
 open import Tools.Unit
 
 
