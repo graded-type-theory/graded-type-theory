@@ -286,8 +286,6 @@ module hasX (R : Usage-restrictions) where
   open MUP𝟘 R
 
   -- Erased variables do not occur after extraction.
-  --
-  -- Proof by induction on t being well-resourced.
 
   erased-hasX : x ◂ 𝟘 ∈ γ → γ ▸[ 𝟙ᵐ ] t → HasX x (erase s t) → ⊥
 
