@@ -31,6 +31,7 @@ erase-prodrecω : (p : M) (t : T.Term n) (u : T.Term (2+ n))
                → T.Term n
 erase-prodrecω p t u = case is-𝟘? p of λ where
     (yes p≡𝟘) → T.prodrec (T.prod ↯ t) u
+                -- Note that this is a redex.
     (no p≢𝟘) → T.prodrec t u
 
 -- The extraction function.
@@ -61,6 +62,7 @@ erase s (U.snd p t) = case is-𝟘? p of λ where
   (no p≢𝟘) → T.snd (erase s t)
 erase s (U.prodrec r p _ _ t u) = case is-𝟘? r of λ where
   (yes r≡𝟘) → T.prodrec (T.prod ↯ ↯) (erase s u)
+              -- Note that this is a redex.
   (no r≢𝟘) → erase-prodrecω p (erase s t) (erase s u)
 erase _ ℕ = ↯
 erase _ U.zero = T.zero
@@ -71,6 +73,7 @@ erase _ Unit! = ↯
 erase _ U.star! = T.star
 erase s (U.unitrec p q A t u) = case is-𝟘? p of λ where
   (yes p≡𝟘) → T.unitrec T.star (erase s u)
+              -- Note that this is a redex.
   (no p≢𝟘) → T.unitrec (erase s t) (erase s u)
 erase _ Empty = ↯
 erase s (emptyrec p A t) = loop s
