@@ -4,28 +4,24 @@
 
 {-# OPTIONS --hidden-argument-puns #-}
 
-import Graded.Modality
-open import Definition.Typed.EqualityRelation
-import Definition.Typed
 open import Definition.Typed.Restrictions
-import Definition.Untyped hiding (_∷_)
+open import Graded.Erasure.LogicalRelation.Assumptions
+open import Graded.Modality
 
 module Graded.Erasure.LogicalRelation.Fundamental.Identity
   {a} {M : Set a}
-  (open Graded.Modality M)
-  (open Definition.Untyped M renaming (_[_,_] to _[_,_]₁₀))
-  {𝕄 : Modality}
+  {𝕄 : Modality M}
   (open Modality 𝕄)
-  (R : Type-restrictions 𝕄)
-  (open Definition.Typed R)
-  ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄
-  {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ)
-  ⦃ eqrel : EqRelSet R ⦄
+  {R : Type-restrictions 𝕄}
+  (as : Assumptions R)
+  ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
   where
 
+open Assumptions as
 open Has-well-behaved-zero 𝟘-well-behaved
 open Type-restrictions R
 
+open import Definition.Typed R
 open import Definition.Typed.Consequences.Canonicity R
 open import Definition.Typed.Consequences.DerivedRules R
 open import Definition.Typed.Consequences.Inversion R
@@ -47,15 +43,17 @@ open import
   Definition.LogicalRelation.Substitution.Introductions.Universe R
 open import Definition.LogicalRelation.Substitution.Properties R
 
+open import Definition.Untyped M
+  hiding (_∷_) renaming (_[_,_] to _[_,_]₁₀)
 open import Definition.Untyped.Properties M
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties.Has-well-behaved-zero 𝕄
 import Graded.Derived.Erased.Untyped 𝕄 as Erased
-open import Graded.Erasure.LogicalRelation R is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Conversion R is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Reduction R is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Subsumption R is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation is-𝟘? as
+open import Graded.Erasure.LogicalRelation.Conversion is-𝟘? as
+open import Graded.Erasure.LogicalRelation.Reduction is-𝟘? as
+open import Graded.Erasure.LogicalRelation.Subsumption is-𝟘? as
 import Graded.Erasure.Target as T
 open import Graded.Mode 𝕄
 

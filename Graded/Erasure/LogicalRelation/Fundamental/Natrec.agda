@@ -4,29 +4,24 @@
 
 {-# OPTIONS --hidden-argument-puns #-}
 
-import Graded.Modality
-open import Definition.Typed.EqualityRelation
-import Definition.Typed
 open import Definition.Typed.Restrictions
-import Definition.Untyped hiding (_∷_)
-import Tools.PropositionalEquality as PE
+open import Graded.Erasure.LogicalRelation.Assumptions
+open import Graded.Modality
 
 module Graded.Erasure.LogicalRelation.Fundamental.Natrec
-  {a k} {M : Set a}
-  (open Definition.Untyped M)
-  (open Graded.Modality M)
-  {𝕄 : Modality}
+  {a} {M : Set a}
+  {𝕄 : Modality M}
   (open Modality 𝕄)
-  (R : Type-restrictions 𝕄)
-  (open Definition.Typed R)
-  ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄
-  {{eqrel : EqRelSet R}}
-  {Δ : Con Term k} (⊢Δ : ⊢ Δ)
+  {R : Type-restrictions 𝕄}
+  (as : Assumptions R)
+  ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
   where
 
-open EqRelSet {{...}}
+open Assumptions as
 
+open import Definition.Untyped M hiding (_∷_)
 open import Definition.Untyped.Properties M
+open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.RedSteps R
 open import Definition.Typed.Consequences.RedSteps R
@@ -50,11 +45,11 @@ open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 
-open import Graded.Erasure.LogicalRelation R is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Conversion R is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Irrelevance R is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Subsumption R is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Reduction R is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation is-𝟘? as
+open import Graded.Erasure.LogicalRelation.Conversion is-𝟘? as
+open import Graded.Erasure.LogicalRelation.Irrelevance is-𝟘? as
+open import Graded.Erasure.LogicalRelation.Subsumption is-𝟘? as
+open import Graded.Erasure.LogicalRelation.Reduction is-𝟘? as
 open import Graded.Erasure.Extraction 𝕄 is-𝟘?
 import Graded.Erasure.Target as T
 import Graded.Erasure.Target.Properties as TP
@@ -64,6 +59,7 @@ open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat hiding (_+_)
 open import Tools.Product as Σ
+import Tools.PropositionalEquality as PE
 open import Tools.Relation
 
 private

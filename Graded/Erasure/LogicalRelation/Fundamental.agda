@@ -60,7 +60,8 @@ open import Definition.Untyped.Properties M
 open import Definition.Typed.Consequences.Syntactic TR
 open import Definition.Typed.Properties TR
 
-import Graded.Erasure.LogicalRelation TR is-𝟘? as LR
+import Graded.Erasure.LogicalRelation
+open import Graded.Erasure.LogicalRelation.Assumptions TR
 open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions TR UR
 import Graded.Erasure.LogicalRelation.Fundamental.Application
 import Graded.Erasure.LogicalRelation.Fundamental.Empty
@@ -107,11 +108,15 @@ private
 
 module _ (⊢Δ : ⊢ Δ) where
 
-  open LR ⊢Δ
+  private
 
-  open Graded.Erasure.LogicalRelation.Conversion TR is-𝟘? ⊢Δ
-  open Graded.Erasure.LogicalRelation.Irrelevance TR is-𝟘? ⊢Δ
-  open Graded.Erasure.LogicalRelation.Subsumption TR is-𝟘? ⊢Δ
+    as : Assumptions
+    as = record { ⊢Δ = ⊢Δ }
+
+  open Graded.Erasure.LogicalRelation is-𝟘? as
+  open Graded.Erasure.LogicalRelation.Conversion is-𝟘? as
+  open Graded.Erasure.LogicalRelation.Irrelevance is-𝟘? as
+  open Graded.Erasure.LogicalRelation.Subsumption is-𝟘? as
 
   -- A special case of subsumption.
 
@@ -201,30 +206,27 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
 
   open Fundamental-assumptions FA
 
-  open Graded.Erasure.LogicalRelation.Fundamental.Application
-    TR well-formed
-  open Graded.Erasure.LogicalRelation.Fundamental.Empty
-    TR is-𝟘? well-formed consistent
-  open Graded.Erasure.LogicalRelation.Fundamental.Identity
-    TR well-formed
-  open Graded.Erasure.LogicalRelation.Fundamental.Lambda
-    TR is-𝟘? non-trivial well-formed
-  open Graded.Erasure.LogicalRelation.Fundamental.Nat
-    TR is-𝟘? well-formed
-  open Graded.Erasure.LogicalRelation.Fundamental.Natrec
-    TR well-formed
-  open Graded.Erasure.LogicalRelation.Fundamental.Prodrec
-    TR well-formed
-  open Graded.Erasure.LogicalRelation.Fundamental.Product
-    TR UR well-formed
-  open Graded.Erasure.LogicalRelation.Fundamental.Unit
-    TR well-formed
-  open Graded.Erasure.LogicalRelation.Conversion TR is-𝟘? well-formed
-  open Graded.Erasure.LogicalRelation.Hidden TR is-𝟘? well-formed
-  open Graded.Erasure.LogicalRelation.Irrelevance TR is-𝟘? well-formed
-  open Graded.Erasure.LogicalRelation.Subsumption TR is-𝟘? well-formed
+  private
 
-  open LR well-formed
+    as : Assumptions
+    as = record { ⊢Δ = well-formed }
+
+  open Graded.Erasure.LogicalRelation is-𝟘? as
+  open Graded.Erasure.LogicalRelation.Fundamental.Application as
+  open Graded.Erasure.LogicalRelation.Fundamental.Empty
+    is-𝟘? as consistent
+  open Graded.Erasure.LogicalRelation.Fundamental.Identity as
+  open Graded.Erasure.LogicalRelation.Fundamental.Lambda
+    is-𝟘? non-trivial as
+  open Graded.Erasure.LogicalRelation.Fundamental.Nat is-𝟘? as
+  open Graded.Erasure.LogicalRelation.Fundamental.Natrec as
+  open Graded.Erasure.LogicalRelation.Fundamental.Prodrec as
+  open Graded.Erasure.LogicalRelation.Fundamental.Product UR as
+  open Graded.Erasure.LogicalRelation.Fundamental.Unit as
+  open Graded.Erasure.LogicalRelation.Conversion is-𝟘? as
+  open Graded.Erasure.LogicalRelation.Hidden is-𝟘? as
+  open Graded.Erasure.LogicalRelation.Irrelevance is-𝟘? as
+  open Graded.Erasure.LogicalRelation.Subsumption is-𝟘? as
 
   -- The fundamental lemma for the erasure relation.
   --

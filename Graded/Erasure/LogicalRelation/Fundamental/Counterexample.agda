@@ -40,22 +40,37 @@ open import Definition.LogicalRelation.Substitution TR
 
 open import Graded.Erasure.Consequences.Soundness TR UR
 open import Graded.Erasure.Extraction 𝕄 is-𝟘?
-import Graded.Erasure.LogicalRelation TR is-𝟘? as LR
-import Graded.Erasure.LogicalRelation.Hidden TR is-𝟘? as LRH
+open import Graded.Erasure.LogicalRelation.Assumptions TR
+import Graded.Erasure.LogicalRelation
+import Graded.Erasure.LogicalRelation.Hidden
 
 open import Tools.Bool using (T)
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
+open import Tools.Nat
 open import Tools.Product
 open import Tools.PropositionalEquality using (_≡_; _≢_)
 open import Tools.Relation
 open import Tools.Sum
 
 private variable
+  k   : Nat
   p q : M
   s   : Strength
   sem : Some-erased-matches
+
+-- The module LR exports some module instantiations.
+
+private module LR {Δ : Con Term k} (⊢Δ : ⊢ Δ) where
+
+  private
+
+    as : Assumptions
+    as = record { ⊢Δ = ⊢Δ }
+
+  open Graded.Erasure.LogicalRelation is-𝟘? as public
+  open Graded.Erasure.LogicalRelation.Hidden is-𝟘? as public
 
 -- If Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 holds for some p (which means that
 -- certain kinds of erased matches are allowed), and if additionally
@@ -94,7 +109,6 @@ negation-of-fundamental-lemma-with-erased-matches₁
   ⊢Δ = ε ∙ ΠΣⱼ (ℕⱼ ε) (ℕⱼ (ε ∙ ℕⱼ ε)) Σʷ-ok
 
   open LR ⊢Δ
-  open LRH ⊢Δ
 
   ¬t®t : ¬ t ®⟨ ¹ ⟩ erase t ∷ A
   ¬t®t t®t = case ®-ℕ t®t of λ where
@@ -146,7 +160,6 @@ opaque
     ▸t = []-congₘ ℕₘ zeroₘ zeroₘ var
 
     open LR ⊢Δ
-    open LRH ⊢Δ
 
     ¬t®t : ¬ t ®⟨ ¹ ⟩ erase t ∷ A
     ¬t®t t®t =
@@ -189,7 +202,6 @@ opaque
     ⊢Δ = ε ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε)
 
     open LR ⊢Δ
-    open LRH ⊢Δ
 
     ¬t®t : ¬ t ®⟨ ¹ ⟩ erase t ∷ A
     ¬t®t t®t = case ®-ℕ t®t of λ where
@@ -233,7 +245,6 @@ opaque
     ⊢Δ = ε ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε)
 
     open LR ⊢Δ
-    open LRH ⊢Δ
 
     ¬t®t : ¬ t ®⟨ ¹ ⟩ erase t ∷ A
     ¬t®t t®t = case ®-ℕ t®t of λ where
@@ -277,7 +288,6 @@ opaque
     ⊢Δ = ε ∙ Unitⱼ ε Unit-ok
 
     open LR ⊢Δ
-    open LRH ⊢Δ
 
     ¬t®t : ¬ t ®⟨ ¹ ⟩ erase t ∷ A
     ¬t®t t®t = case ®-ℕ t®t of λ where

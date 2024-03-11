@@ -3,27 +3,22 @@
 -- relation is allowed in some cases).
 ------------------------------------------------------------------------
 
-open import Definition.Typed.EqualityRelation
-import Definition.Typed
 open import Definition.Typed.Restrictions
-import Definition.Untyped using (Con; Term)
+open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 
 module Graded.Erasure.LogicalRelation.Subsumption
   {a} {M : Set a}
-  (open Definition.Untyped M)
   {𝕄 : Modality M}
   (open Modality 𝕄)
-  (R : Type-restrictions 𝕄)
-  (open Definition.Typed R)
   (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘))
-  {{eqrel : EqRelSet R}}
-  {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ)
+  {R : Type-restrictions 𝕄}
+  (as : Assumptions R)
   where
 
-open EqRelSet {{...}}
+open Assumptions as
 
 open import Definition.Untyped M as U
 open import Definition.LogicalRelation.Substitution R
@@ -34,7 +29,7 @@ open import Graded.Context 𝕄
 open import Graded.Mode 𝕄
 
 open import Graded.Erasure.Extraction 𝕄 is-𝟘?
-open import Graded.Erasure.LogicalRelation R is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation is-𝟘? as
 open import Graded.Erasure.Target as T hiding (_⇒_; _⇒*_)
 
 open import Tools.Empty

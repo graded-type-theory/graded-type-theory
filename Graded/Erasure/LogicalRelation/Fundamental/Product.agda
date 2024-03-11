@@ -2,32 +2,27 @@
 -- Erasure validity of products and projections.
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
+open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality
 open import Graded.Usage.Restrictions
-open import Definition.Typed.EqualityRelation
-import Definition.Typed
-open import Definition.Typed.Restrictions
-import Definition.Untyped hiding (_∷_)
-import Tools.PropositionalEquality as PE
-open import Tools.Relation
-open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 module Graded.Erasure.LogicalRelation.Fundamental.Product
-  {a k} {M : Set a}
-  (open Definition.Untyped M)
+  {a} {M : Set a}
   {𝕄 : Modality M}
   (open Modality 𝕄)
-  (TR : Type-restrictions 𝕄)
-  (open Definition.Typed TR)
   (UR : Usage-restrictions 𝕄)
+  {TR : Type-restrictions 𝕄}
+  (as : Assumptions TR)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
-  {{eqrel : EqRelSet TR}}
-  {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   where
-open EqRelSet {{...}}
+
+open Assumptions as
 open Type-restrictions TR
 
+open import Definition.Untyped M hiding (_∷_)
 open import Definition.Untyped.Properties M
+open import Definition.Typed TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.RedSteps TR
 open import Definition.Typed.Weakening TR hiding (wk)
@@ -60,11 +55,11 @@ open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Inversion 𝕄 UR
 open import Graded.Mode 𝕄
 
-open import Graded.Erasure.LogicalRelation TR is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Conversion TR is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Reduction TR is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Subsumption TR is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Irrelevance TR is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation is-𝟘? as
+open import Graded.Erasure.LogicalRelation.Conversion is-𝟘? as
+open import Graded.Erasure.LogicalRelation.Reduction is-𝟘? as
+open import Graded.Erasure.LogicalRelation.Subsumption is-𝟘? as
+open import Graded.Erasure.LogicalRelation.Irrelevance is-𝟘? as
 
 open import Graded.Erasure.Extraction 𝕄 is-𝟘?
 open import Graded.Erasure.Extraction.Properties 𝕄
@@ -75,7 +70,10 @@ open import Tools.Empty
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
+import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PropositionalEquality
+open import Tools.Relation
+open import Tools.Sum using (inj₁; inj₂)
 
 private
   variable

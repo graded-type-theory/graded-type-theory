@@ -348,6 +348,7 @@ import Graded.Erasure.Extraction.Properties
 
 -- Logical relation for Erasure
 
+import Graded.Erasure.LogicalRelation.Assumptions
 import Graded.Erasure.LogicalRelation
 import Graded.Erasure.LogicalRelation.Conversion
 import Graded.Erasure.LogicalRelation.Irrelevance

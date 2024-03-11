@@ -4,30 +4,25 @@
 
 {-# OPTIONS --hidden-argument-puns #-}
 
-open import Graded.Modality
-open import Definition.Typed.EqualityRelation
-import Definition.Typed
 open import Definition.Typed.Restrictions
-import Definition.Untyped hiding (_∷_)
-open import Tools.Sum hiding (id; sym)
-import Tools.PropositionalEquality as PE
+open import Graded.Erasure.LogicalRelation.Assumptions
+open import Graded.Modality
 
 module Graded.Erasure.LogicalRelation.Fundamental.Prodrec
-  {a k} {M : Set a}
-  (open Definition.Untyped M)
+  {a} {M : Set a}
   {𝕄 : Modality M}
   (open Modality 𝕄)
-  (R : Type-restrictions 𝕄)
-  (open Definition.Typed R)
+  {R : Type-restrictions 𝕄}
+  (as : Assumptions R)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
-  {{eqrel : EqRelSet R}}
-  {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   where
 
-open EqRelSet {{...}}
+open Assumptions as
 open Type-restrictions R
 
+open import Definition.Untyped M hiding (_∷_)
 open import Definition.Untyped.Properties M
+open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.RedSteps R
 open import Definition.Typed.Weakening R
@@ -52,19 +47,21 @@ open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
+import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
+open import Tools.Sum hiding (id; sym)
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 
-open import Graded.Erasure.LogicalRelation R is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Conversion R is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Reduction R is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Subsumption R is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Irrelevance R is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation is-𝟘? as
+open import Graded.Erasure.LogicalRelation.Conversion is-𝟘? as
+open import Graded.Erasure.LogicalRelation.Reduction is-𝟘? as
+open import Graded.Erasure.LogicalRelation.Subsumption is-𝟘? as
+open import Graded.Erasure.LogicalRelation.Irrelevance is-𝟘? as
 
 open import Graded.Erasure.Extraction 𝕄 is-𝟘?
 open import Graded.Erasure.Extraction.Properties 𝕄

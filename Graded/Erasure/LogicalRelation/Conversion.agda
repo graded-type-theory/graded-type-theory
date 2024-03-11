@@ -4,29 +4,24 @@
 
 {-# OPTIONS --hidden-argument-puns #-}
 
-open import Definition.Typed.EqualityRelation
-import Definition.Typed
 open import Definition.Typed.Restrictions
-import Definition.Untyped
+open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 
 module Graded.Erasure.LogicalRelation.Conversion
   {a} {M : Set a}
-  (open Definition.Untyped M)
   {𝕄 : Modality M}
   (open Modality 𝕄)
-  (R : Type-restrictions 𝕄)
-  (open Definition.Typed R)
   (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘))
-  {{eqrel : EqRelSet R}}
-  {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ)
+  {R : Type-restrictions 𝕄}
+  (as : Assumptions R)
   where
 
-open EqRelSet {{...}}
+open Assumptions as
 
-open import Graded.Erasure.LogicalRelation R is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation is-𝟘? as
 import Graded.Erasure.Target as T
 
 open import Definition.LogicalRelation R
@@ -39,8 +34,10 @@ open import Definition.LogicalRelation.Substitution R
 open import Definition.LogicalRelation.Substitution.Properties R
 import Definition.LogicalRelation.Substitution.Irrelevance R as IS
 open import Graded.Mode 𝕄
+open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 
+open import Definition.Typed R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Substitution R
 open import Definition.Typed.Properties R

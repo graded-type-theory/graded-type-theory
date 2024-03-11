@@ -2,31 +2,27 @@
 -- Graded.Erasure validity of the empty type.
 ------------------------------------------------------------------------
 
-open import Graded.Modality
-open import Definition.Typed.EqualityRelation
 import Definition.Typed
 open import Definition.Typed.Restrictions
-import Definition.Untyped hiding (_∷_)
+open import Graded.Erasure.LogicalRelation.Assumptions
+open import Graded.Modality
 open import Tools.PropositionalEquality
 open import Tools.Relation
 
 module Graded.Erasure.LogicalRelation.Fundamental.Empty
-  {a k} {M : Set a}
-  (open Definition.Untyped M)
+  {a} {M : Set a}
   {𝕄 : Modality M}
   (open Modality 𝕄)
-  (R : Type-restrictions 𝕄)
-  (open Definition.Typed R)
   (is-𝟘? : (p : M) → Dec (p ≡ 𝟘))
-  {{eqrel : EqRelSet R}}
-  {Δ : Con Term k} (⊢Δ : ⊢ Δ)
+  {R : Type-restrictions 𝕄}
+  (open Definition.Typed R)
+  (as : Assumptions R)
+  (open Assumptions as)
   (consistent : Consistent Δ)
   where
 
-open EqRelSet {{...}}
-
-open import Graded.Erasure.LogicalRelation R is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Subsumption R is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation is-𝟘? as
+open import Graded.Erasure.LogicalRelation.Subsumption is-𝟘? as
 import Graded.Erasure.Target as T
 
 open import Definition.LogicalRelation R
@@ -35,6 +31,7 @@ open import Definition.LogicalRelation.Substitution R
 open import Definition.LogicalRelation.Substitution.Irrelevance R
 open import Definition.LogicalRelation.Substitution.Introductions.Universe R
 open import Definition.LogicalRelation.Substitution.Introductions.Empty R
+open import Definition.Untyped M hiding (_∷_)
 
 open import Graded.Context 𝕄
 open import Graded.Mode 𝕄

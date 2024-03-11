@@ -2,28 +2,23 @@
 -- Graded.Erasure validity of lambda abstractions.
 ------------------------------------------------------------------------
 
-open import Graded.Modality
-open import Definition.Typed.EqualityRelation
-import Definition.Typed
 open import Definition.Typed.Restrictions
-import Definition.Untyped hiding (_∷_)
+open import Graded.Erasure.LogicalRelation.Assumptions
+open import Graded.Modality
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 
 module Graded.Erasure.LogicalRelation.Fundamental.Lambda
-  {a k} {M : Set a}
-  (open Definition.Untyped M)
+  {a} {M : Set a}
   {𝕄 : Modality M}
   (open Modality 𝕄)
-  (R : Type-restrictions 𝕄)
-  (open Definition.Typed R)
   (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘))
   (non-trivial : ¬ Trivial)
-  {{eqrel : EqRelSet R}}
-  {Δ : Con Term k} (⊢Δ : ⊢ Δ)
+  {R : Type-restrictions 𝕄}
+  (as : Assumptions R)
   where
 
-open EqRelSet {{...}}
+open Assumptions as
 open Type-restrictions R
 
 open import Definition.LogicalRelation R
@@ -39,15 +34,17 @@ import Definition.LogicalRelation.Substitution.Irrelevance R as IS
 open import Graded.Context 𝕄
 open import Graded.Mode 𝕄
 
+open import Definition.Untyped M hiding (_∷_)
 open import Definition.Untyped.Properties M as UP
+open import Definition.Typed R
 open import Definition.Typed.Weakening R hiding (wk)
 open import Definition.Typed.Consequences.Reduction R
 
 open import Graded.Erasure.Extraction 𝕄 is-𝟘?
-open import Graded.Erasure.LogicalRelation R is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Irrelevance R is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Reduction R is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Subsumption R is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation is-𝟘? as
+open import Graded.Erasure.LogicalRelation.Irrelevance is-𝟘? as
+open import Graded.Erasure.LogicalRelation.Reduction is-𝟘? as
+open import Graded.Erasure.LogicalRelation.Subsumption is-𝟘? as
 open import Graded.Erasure.Target.Properties as TP
 import Graded.Erasure.Target as T
 

@@ -40,14 +40,19 @@ open import Graded.Usage 𝕄 UR
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 
-import Graded.Erasure.Target as T
 open import Graded.Erasure.Extraction 𝕄 is-𝟘?
-open import Graded.Erasure.LogicalRelation TR is-𝟘? well-formed
+open import Graded.Erasure.LogicalRelation.Assumptions TR
+import Graded.Erasure.Target as T
+
+private
+
+  as : Assumptions
+  as = record { ⊢Δ = well-formed }
+
+open import Graded.Erasure.LogicalRelation is-𝟘? as
 open import Graded.Erasure.LogicalRelation.Fundamental TR UR
-open import Graded.Erasure.LogicalRelation.Irrelevance
-  TR is-𝟘? well-formed
-open import Graded.Erasure.LogicalRelation.Subsumption
-  TR is-𝟘? well-formed
+open import Graded.Erasure.LogicalRelation.Irrelevance is-𝟘? as
+open import Graded.Erasure.LogicalRelation.Subsumption is-𝟘? as
 
 open Fundamental FA
 

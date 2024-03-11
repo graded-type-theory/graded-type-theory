@@ -5,27 +5,22 @@
 
 {-# OPTIONS --hidden-argument-puns #-}
 
-import Definition.Typed
-open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
-import Definition.Untyped
-import Graded.Modality
+open import Graded.Erasure.LogicalRelation.Assumptions
+open import Graded.Modality
 open import Tools.PropositionalEquality as PE using (_≡_; _≢_)
 open import Tools.Relation
 
 module Graded.Erasure.LogicalRelation.Hidden
   {a} {M : Set a}
-  (open Definition.Untyped M hiding (_∷_))
-  (open Graded.Modality M)
-  {𝕄 : Modality}
+  {𝕄 : Modality M}
   (open Modality 𝕄)
-  (TR : Type-restrictions 𝕄)
-  (open Definition.Typed TR)
   (is-𝟘? : (p : M) → Dec (p ≡ 𝟘))
-  {k} {Δ : Con Term k}
-  (⊢Δ : ⊢ Δ)
-  ⦃ eqrel : EqRelSet TR ⦄
+  {TR : Type-restrictions 𝕄}
+  (as : Assumptions TR)
   where
+
+open Assumptions as
 
 open import Definition.LogicalRelation TR as L
 open import Definition.LogicalRelation.Fundamental.Reducibility TR
@@ -33,16 +28,18 @@ open import Definition.LogicalRelation.ShapeView TR
 open import Definition.LogicalRelation.Substitution TR
 import Definition.LogicalRelation.Substitution.Irrelevance TR as IS
 open import Definition.LogicalRelation.Substitution.Properties TR
+open import Definition.Typed TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.RedSteps TR
 import Definition.Typed.Weakening TR as W
+open import Definition.Untyped M hiding (_∷_)
 open import Definition.Untyped.Properties M
 
 open import Graded.Context 𝕄
 open import Graded.Erasure.Extraction 𝕄 is-𝟘?
-open import Graded.Erasure.LogicalRelation TR is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Irrelevance TR is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Subsumption TR is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation is-𝟘? as
+open import Graded.Erasure.LogicalRelation.Irrelevance is-𝟘? as
+open import Graded.Erasure.LogicalRelation.Subsumption is-𝟘? as
 import Graded.Erasure.Target as T
 import Graded.Erasure.Target.Properties as TP
 open import Graded.Mode 𝕄

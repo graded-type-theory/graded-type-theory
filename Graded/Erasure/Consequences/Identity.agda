@@ -34,10 +34,11 @@ open import Graded.Context.Properties 𝕄
 open import Graded.Derived.Erased.Typed TR
 import Graded.Derived.Erased.Untyped 𝕄 as Erased
 open import Graded.Derived.Erased.Usage 𝕄 UR
-import Graded.Erasure.LogicalRelation TR as L
+import Graded.Erasure.LogicalRelation as L
+open import Graded.Erasure.LogicalRelation.Assumptions TR
 open import Graded.Erasure.LogicalRelation.Fundamental TR UR
 open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions TR UR
-import Graded.Erasure.LogicalRelation.Hidden TR as H
+import Graded.Erasure.LogicalRelation.Hidden as H
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 open import Graded.Usage 𝕄 UR
@@ -81,8 +82,12 @@ opaque
       (syntacticEqTerm (subset*Term v⇒rfl) .proj₂ .proj₂) }
     where
     open Fundamental-assumptions⁻ ok
-    open H is-𝟘? (wfTerm ⊢v)
-    open L is-𝟘? (wfTerm ⊢v)
+
+    as : Assumptions
+    as = record { ⊢Δ = wfTerm ⊢v }
+
+    open H is-𝟘? as
+    open L is-𝟘? as
 
 opaque
 

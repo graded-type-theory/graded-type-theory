@@ -40,10 +40,11 @@ open import Graded.Derived.Erased.Untyped 𝕄 as Erased using (Erased)
 open import Graded.Derived.Sigma 𝕄 UR
 open import Graded.Derived.Unit UR
 open import Graded.Erasure.Consequences.Identity TR UR
-import Graded.Erasure.LogicalRelation TR as L
+import Graded.Erasure.LogicalRelation as L
+open import Graded.Erasure.LogicalRelation.Assumptions TR
 open import Graded.Erasure.LogicalRelation.Fundamental TR UR
 open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions TR UR
-import Graded.Erasure.LogicalRelation.Hidden TR as H
+import Graded.Erasure.LogicalRelation.Hidden as H
 import Graded.Erasure.Target.Properties as TP
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
@@ -273,8 +274,12 @@ opaque
                 case TP.suc-noRed suc⇒zero of λ () }}}}
     where
     open Fundamental-assumptions fundamental-assumptions₀
-    open H is-𝟘? well-formed
-    open L is-𝟘? well-formed
+
+    as : Assumptions
+    as = record { ⊢Δ = well-formed }
+
+    open H is-𝟘? as
+    open L is-𝟘? as
 
 opaque
 
@@ -379,8 +384,12 @@ opaque
                 case TP.suc-noRed suc⇒zero of λ () }}}}}}
     where
     open Fundamental-assumptions⁻ as
-    open H is-𝟘? (wfTerm ⊢t)
-    open L is-𝟘? (wfTerm ⊢t)
+
+    as′ : Assumptions
+    as′ = record { ⊢Δ = wfTerm ⊢t }
+
+    open H is-𝟘? as′
+    open L is-𝟘? as′
 
     instance
 

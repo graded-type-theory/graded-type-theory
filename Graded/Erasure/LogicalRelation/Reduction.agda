@@ -2,27 +2,22 @@
 -- The logical relation is clsoed under reduction (in both directions).
 ------------------------------------------------------------------------
 
-open import Definition.Typed.EqualityRelation
-import Definition.Typed
 open import Definition.Typed.Restrictions
-import Definition.Untyped using (Con; Term)
+open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 
 module Graded.Erasure.LogicalRelation.Reduction
   {a} {M : Set a}
-  (open Definition.Untyped M)
   {𝕄 : Modality M}
   (open Modality 𝕄)
-  (R : Type-restrictions 𝕄)
-  (open Definition.Typed R)
   (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘))
-  {{eqrel : EqRelSet R}}
-  {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ)
+  {R : Type-restrictions 𝕄}
+  (as : Assumptions R)
   where
 
-open EqRelSet {{...}}
+open Assumptions as
 
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Properties.Escape R
@@ -32,6 +27,7 @@ import Definition.LogicalRelation.Irrelevance R as I
 import Definition.LogicalRelation.Properties.Reduction R as R
 
 open import Definition.Untyped M as U hiding (_∷_)
+open import Definition.Typed R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Consequences.Reduction R
 open import Definition.Typed.Properties R
@@ -40,7 +36,7 @@ open import Definition.Typed.Weakening R
 
 open import Definition.Untyped.Properties M as UP using (wk-id ; wk-lift-id)
 
-open import Graded.Erasure.LogicalRelation R is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation is-𝟘? as
 open import Graded.Erasure.Target as T hiding (_⇒_; _⇒*_)
 open import Graded.Erasure.Target.Properties as TP
 

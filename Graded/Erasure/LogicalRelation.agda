@@ -4,10 +4,8 @@
 
 {-# OPTIONS --hidden-argument-puns #-}
 
-open import Definition.Typed.EqualityRelation
-import Definition.Untyped as U′ using (Con; Term)
-import Definition.Typed
 open import Definition.Typed.Restrictions
+open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
@@ -16,20 +14,18 @@ module Graded.Erasure.LogicalRelation
   {a} {M : Set a}
   {𝕄 : Modality M}
   (open Modality 𝕄)
-  (R : Type-restrictions 𝕄)
-  (open Definition.Typed R)
   (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘))
-  {{eqrel : EqRelSet R}}
-  {k} {Δ : U′.Con (U′.Term M) k}
-  (⊢Δ : ⊢ Δ)
+  {R : Type-restrictions 𝕄}
+  (as : Assumptions R)
   where
 
-open EqRelSet {{...}}
+open Assumptions as
 
 open import Definition.Untyped M as U hiding (_∷_; _∘_; K)
 
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Substitution R
+open import Definition.Typed R
 open import Graded.Context 𝕄
 open import Graded.Mode 𝕄
 open import Definition.Typed.Weakening R
@@ -277,7 +273,8 @@ opaque
     Σ-® l A ⊩A t₁ v v₂ 𝟘 →
     v T.⇒* v₂
   Σ-®-𝟘 x =
-    Σ-®-elim _ x (λ v⇒ _ → v⇒) (λ _ _ _ 𝟘≢𝟘 → ⊥-elim $ 𝟘≢𝟘 PE.refl)
+    Σ-®-elim (λ _ → _ T.⇒* _) x (λ v⇒ _ → v⇒)
+      (λ _ _ _ 𝟘≢𝟘 → ⊥-elim $ 𝟘≢𝟘 PE.refl)
 
 opaque
 

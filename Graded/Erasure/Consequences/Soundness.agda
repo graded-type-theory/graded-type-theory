@@ -48,11 +48,12 @@ open import Graded.Mode 𝕄
 import Graded.Erasure.Target as T
 import Graded.Erasure.Extraction 𝕄 as E
 open import Graded.Erasure.SucRed TR
-import Graded.Erasure.LogicalRelation TR as LR
+import Graded.Erasure.LogicalRelation
+open import Graded.Erasure.LogicalRelation.Assumptions TR
 open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions TR UR
-import Graded.Erasure.LogicalRelation.Fundamental TR UR as LRF
-import Graded.Erasure.LogicalRelation.Irrelevance TR as LRI
-import Graded.Erasure.LogicalRelation.Subsumption TR as LRS
+import Graded.Erasure.LogicalRelation.Fundamental
+import Graded.Erasure.LogicalRelation.Irrelevance
+import Graded.Erasure.LogicalRelation.Subsumption
 
 open import Tools.Bool using (T)
 open import Tools.Empty
@@ -106,10 +107,15 @@ module _
 
     open Fundamental-assumptions FA
 
-    open LR is-𝟘? well-formed
-    open LRF.Fundamental FA
-    open LRI is-𝟘? well-formed
-    open LRS is-𝟘? well-formed
+    private
+
+      as : Assumptions
+      as = record { ⊢Δ = well-formed }
+
+    open Graded.Erasure.LogicalRelation is-𝟘? as
+    open Graded.Erasure.LogicalRelation.Fundamental.Fundamental TR UR FA
+    open Graded.Erasure.LogicalRelation.Irrelevance is-𝟘? as
+    open Graded.Erasure.LogicalRelation.Subsumption is-𝟘? as
 
     -- Helper lemma for WH reduction soundness of zero
     -- If t ® v ∷ℕ  and t ⇒* zero then v ⇒* zero
@@ -189,11 +195,16 @@ module _
         ; other-assumptions = FA⁻
         }
 
+      as : Assumptions
+      as = record { ⊢Δ = ⊢Δ }
+
       open Soundness′ FA public
 
-      open LRF.Fundamental FA public
-      open LRI is-𝟘? ⊢Δ public
-      open LRS is-𝟘? ⊢Δ public
+      open Graded.Erasure.LogicalRelation.Fundamental.Fundamental
+        TR UR FA
+        public
+      open Graded.Erasure.LogicalRelation.Irrelevance is-𝟘? as public
+      open Graded.Erasure.LogicalRelation.Subsumption is-𝟘? as public
 
     -- Soundness for erasure of natural numbers
     -- Well-typed terms of the natural number type reduce to numerals

@@ -4,29 +4,23 @@
 
 {-# OPTIONS --hidden-argument-puns #-}
 
-open import Graded.Modality
-open import Definition.Typed.EqualityRelation
-import Definition.Typed
 open import Definition.Typed.Restrictions
-import Definition.Untyped
-open import Tools.Sum hiding (id)
-import Tools.PropositionalEquality as PE
+open import Graded.Erasure.LogicalRelation.Assumptions
+open import Graded.Modality
 
 module Graded.Erasure.LogicalRelation.Fundamental.Application
-  {a k} {M : Set a}
-  (open Definition.Untyped M)
+  {a} {M : Set a}
   {𝕄 : Modality M}
   (open Modality 𝕄)
-  (R : Type-restrictions 𝕄)
-  (open Definition.Typed R)
+  {R : Type-restrictions 𝕄}
+  (as : Assumptions R)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
-  {{eqrel : EqRelSet R}}
-  {Δ : Con Term k} (⊢Δ : ⊢ Δ)
   where
 
-open EqRelSet {{...}}
+open Assumptions as
 open Type-restrictions R
 
+open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 open import Definition.Typed.Weakening R
 open import Definition.Typed.Consequences.Syntactic R
@@ -48,17 +42,19 @@ open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 
-open import Graded.Erasure.LogicalRelation R is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Subsumption R is-𝟘? ⊢Δ
-open import Graded.Erasure.LogicalRelation.Irrelevance R is-𝟘? ⊢Δ
+open import Graded.Erasure.LogicalRelation is-𝟘? as
+open import Graded.Erasure.LogicalRelation.Subsumption is-𝟘? as
+open import Graded.Erasure.LogicalRelation.Irrelevance is-𝟘? as
 import Graded.Erasure.Target as T
 
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
+import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
+open import Tools.Sum hiding (id)
 
 private
   variable
