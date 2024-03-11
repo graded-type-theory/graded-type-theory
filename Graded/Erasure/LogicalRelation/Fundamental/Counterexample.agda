@@ -117,7 +117,7 @@ negation-of-fundamental-lemma-with-erased-matches₁
   ¬t®t t®t = case ®-ℕ t®t of λ where
     (zeroᵣ t⇒* _) →
       case whnfRed*Term t⇒* (ne (prodrecₙ (var _))) of λ ()
-    (sucᵣ t⇒* _ _) →
+    (sucᵣ t⇒* _ _ _) →
       case whnfRed*Term t⇒* (ne (prodrecₙ (var _))) of λ ()
 
 opaque
@@ -209,8 +209,8 @@ opaque
 
     ¬t®t : ¬ t ®⟨ ¹ ⟩ erase str t ∷ A
     ¬t®t t®t = case ®-ℕ t®t of λ where
-      (zeroᵣ t⇒* _)  → case whnfRed*Term t⇒* (ne (Jₙ (var _))) of λ ()
-      (sucᵣ t⇒* _ _) → case whnfRed*Term t⇒* (ne (Jₙ (var _))) of λ ()
+      (zeroᵣ t⇒* _)    → case whnfRed*Term t⇒* (ne (Jₙ (var _))) of λ ()
+      (sucᵣ t⇒* _ _ _) → case whnfRed*Term t⇒* (ne (Jₙ (var _))) of λ ()
 
 opaque
 
@@ -253,8 +253,8 @@ opaque
 
     ¬t®t : ¬ t ®⟨ ¹ ⟩ erase str t ∷ A
     ¬t®t t®t = case ®-ℕ t®t of λ where
-      (zeroᵣ t⇒* _)  → case whnfRed*Term t⇒* (ne (Kₙ (var _))) of λ ()
-      (sucᵣ t⇒* _ _) → case whnfRed*Term t⇒* (ne (Kₙ (var _))) of λ ()
+      (zeroᵣ t⇒* _)    → case whnfRed*Term t⇒* (ne (Kₙ (var _))) of λ ()
+      (sucᵣ t⇒* _ _ _) → case whnfRed*Term t⇒* (ne (Kₙ (var _))) of λ ()
 
 opaque
 
@@ -297,5 +297,5 @@ opaque
 
     ¬t®t : ¬ t ®⟨ ¹ ⟩ erase str t ∷ A
     ¬t®t t®t = case ®-ℕ t®t of λ where
-      (zeroᵣ t⇒* _)  → case whnfRed*Term t⇒* (ne (unitrecₙ (var _))) of λ ()
-      (sucᵣ t⇒* _ _) → case whnfRed*Term t⇒* (ne (unitrecₙ (var _))) of λ ()
+      (zeroᵣ t⇒* _)    → case whnfRed*Term t⇒* (ne (unitrecₙ (var _))) of λ ()
+      (sucᵣ t⇒* _ _ _) → case whnfRed*Term t⇒* (ne (unitrecₙ (var _))) of λ ()

@@ -104,15 +104,16 @@ sucʳ {Γ = Γ} {γ = γ} {t = t} {m = m} {l = l}
   irrelevanceTerm [σℕ]′ [σℕ] $
   case singleton str of λ where
     (T.non-strict , refl) →
-      sucᵣ (id ⊢suc-t) T.refl t®v∷ℕ
+      sucᵣ (id ⊢suc-t) T.refl _ t®v∷ℕ
     (T.strict , refl) →
-      case reduces-to-value [σℕ] t®v of λ
-        (v′ , v′-val , erase-t[σ′]⇒*v′) →
+      case reduces-to-numeral refl [σℕ] t®v of λ
+        (v′ , v′-num , erase-t[σ′]⇒*v′) →
       sucᵣ (id ⊢suc-t)
         (T.lam (T.suc (T.var x0)) T.∘⟨ T.strict ⟩
          erase T.strict t T.[ σ′ ]                    ⇒*⟨ TP.app-subst*-arg T.lam erase-t[σ′]⇒*v′ ⟩
 
-         T.lam (T.suc (T.var x0)) T.∘⟨ T.strict ⟩ v′  ⇒⟨ T.β-red v′-val ⟩
+         T.lam (T.suc (T.var x0)) T.∘⟨ T.strict ⟩ v′  ⇒⟨ T.β-red (TP.Numeral→Value v′-num) ⟩
 
          T.suc v′                                     ∎⇒)
+        v′-num
         (targetRedSubstTerm*′ [σℕ]′ t®v∷ℕ erase-t[σ′]⇒*v′)

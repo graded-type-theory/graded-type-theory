@@ -23,7 +23,8 @@ open import Definition.LogicalRelation R
 open import Definition.Untyped M
 
 open import Graded.Erasure.LogicalRelation is-𝟘? as
-import Graded.Erasure.Target as T
+open import Graded.Erasure.LogicalRelation.Hidden is-𝟘? as
+open import Graded.Erasure.Target as T using (strict)
 open import Graded.Erasure.Target.Properties
 
 open import Tools.Function
@@ -43,15 +44,15 @@ opaque
     t ®⟨ l ⟩ u ∷ A / ⊩A →
     ∃ λ v → T.Value v × u T.⇒* v
   reduces-to-value = λ where
-    (Uᵣ _)            (Uᵣ v⇒*↯)         → _ , T.↯    , v⇒*↯
-    (ℕᵣ _)            (zeroᵣ _ v⇒*zero) → _ , T.zero , v⇒*zero
-    (ℕᵣ _)            (sucᵣ _ v⇒*suc _) → _ , T.suc  , v⇒*suc
+    (Uᵣ _)            (Uᵣ v⇒*↯)           → _ , T.↯    , v⇒*↯
+    (ℕᵣ _)            (zeroᵣ _ v⇒*zero)   → _ , T.zero , v⇒*zero
+    (ℕᵣ _)            (sucᵣ _ v⇒*suc _ _) → _ , T.suc  , v⇒*suc
     (Emptyᵣ _)        ()
-    (Unitᵣ _)         (starᵣ _ v⇒*star) → _ , T.star , v⇒*star
+    (Unitᵣ _)         (starᵣ _ v⇒*star)   → _ , T.star , v⇒*star
     (ne _)            ()
-    (Idᵣ _)           (rflᵣ _ v⇒*↯)     → _ , T.↯    , v⇒*↯
-    (Bᵣ (BΠ _ _) _)   (u⇒*lam , _)      → _ , T.lam  , u⇒*lam .proj₂
-    (emb 0<1 ⊩A)      t®u               → reduces-to-value ⊩A t®u
+    (Idᵣ _)           (rflᵣ _ v⇒*↯)       → _ , T.↯    , v⇒*↯
+    (Bᵣ (BΠ _ _) _)   (u⇒*lam , _)        → _ , T.lam  , u⇒*lam .proj₂
+    (emb 0<1 ⊩A)      t®u                 → reduces-to-value ⊩A t®u
     (Bᵣ′ (BΣ _ _ _) _ _ _ _ _ _ _ ⊩B _ _)
       (_ , _ , _ , _ , _ , t₂®v₂ , more) →
       Σ-®-elim _ more
@@ -59,3 +60,18 @@ opaque
            Σ.map idᶠ (Σ.map idᶠ (red*concat u⇒*v₂)) $
            reduces-to-value (⊩B _ _ _) t₂®v₂)
         (λ _ u⇒*prod _ _ → _ , T.prod , u⇒*prod)
+
+opaque
+
+  -- In the strict setting, if t is related to u at type ℕ, then u
+  -- reduces to a numeral.
+
+  reduces-to-numeral :
+    str ≡ strict →
+    (⊩ℕ : Δ ⊩⟨ l ⟩ ℕ) →
+    t ®⟨ l ⟩ u ∷ ℕ / ⊩ℕ →
+    ∃ λ v → T.Numeral v × u T.⇒* v
+  reduces-to-numeral refl ⊩ℕ′ t®u =
+    case ®-ℕ (hidden-®-intro ⊩ℕ′ t®u) of λ where
+      (zeroᵣ _ v⇒*zero)     → _ , T.zero    , v⇒*zero
+      (sucᵣ _ v⇒*suc num _) → _ , T.suc num , v⇒*suc

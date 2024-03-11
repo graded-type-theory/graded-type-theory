@@ -148,7 +148,7 @@ natrecʳ″
   {p = p} {r = r} {q = q} {l = l} {m = m} {w = w}
   {Γ = Γ}
   [Γ] [A] [A₊] [A₀] [z] [s] [σ] σ®σ′ ⊩ʳz ⊩ʳs ≡𝟘→≡𝟘 [m]
-  (sucᵣ {t′ = m′} {v′ = w′} m⇒sucm′ w⇒sucw′ m′®w′)
+  (sucᵣ {t′ = m′} {v′ = w′} m⇒sucm′ w⇒sucw′ _ m′®w′)
   with is-𝟘? 𝟙
 ... | yes 𝟘≡𝟙 = _
 ... | no 𝟘≢𝟙 =

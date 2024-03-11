@@ -68,8 +68,8 @@ sourceRedSubstTerm (Uᵣ _) (Uᵣ ⇒*↯) _ =
   Uᵣ ⇒*↯
 sourceRedSubstTerm (ℕᵣ ([ ⊢A , ⊢B , D ])) (zeroᵣ t′⇒zero v⇒v′) t⇒t′ =
   zeroᵣ ((conv t⇒t′ (subset* D)) ⇨ t′⇒zero) v⇒v′
-sourceRedSubstTerm (ℕᵣ ([ ⊢A , ⊢B , D ])) (sucᵣ t′⇒suc v⇒v′ t®v) t⇒t′ =
-  sucᵣ ((conv t⇒t′ (subset* D)) ⇨ t′⇒suc) v⇒v′ t®v
+sourceRedSubstTerm (ℕᵣ ⇒*ℕ) (sucᵣ t′⇒suc v⇒v′ num t®v) t⇒t′ =
+  sucᵣ (conv t⇒t′ (subset* (red ⇒*ℕ)) ⇨ t′⇒suc) v⇒v′ num t®v
 sourceRedSubstTerm
   (Unitᵣ (Unitₜ [ _ , _ , D ] _)) (starᵣ t′⇒star v⇒star) t⇒t′ =
   starᵣ (conv t⇒t′ (subset* D) ⇨ t′⇒star) v⇒star
@@ -120,7 +120,8 @@ targetRedSubstTerm : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v′ �
                    → v T.⇒ v′ → t ®⟨ l ⟩ v ∷ A / [A]
 targetRedSubstTerm (Uᵣ _) (Uᵣ ⇒*↯) v⇒v′ = Uᵣ (T.trans v⇒v′ ⇒*↯)
 targetRedSubstTerm (ℕᵣ x) (zeroᵣ t′⇒zero v′⇒zero) v⇒v′ = zeroᵣ t′⇒zero (trans v⇒v′ v′⇒zero)
-targetRedSubstTerm (ℕᵣ x) (sucᵣ t′⇒suc v′⇒suc t®v) v⇒v′ = sucᵣ t′⇒suc (trans v⇒v′ v′⇒suc) t®v
+targetRedSubstTerm (ℕᵣ _) (sucᵣ t′⇒suc v′⇒suc num t®v) v⇒v′ =
+  sucᵣ t′⇒suc (trans v⇒v′ v′⇒suc) num t®v
 targetRedSubstTerm (Unitᵣ x) (starᵣ x₁ v′⇒star) v⇒v′ = starᵣ x₁ (trans v⇒v′ v′⇒star)
 targetRedSubstTerm
   (Bᵣ′ (BΠ p q) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext _)
@@ -207,9 +208,9 @@ sourceRedSubstTerm′ (Uᵣ _) (Uᵣ ⇒*↯) _ =
 sourceRedSubstTerm′ (ℕᵣ [ ⊢A , ⊢B , D ]) (zeroᵣ t⇒zero v⇒zero) t⇒t′
   with whrDet↘Term (t⇒zero , zeroₙ) (conv* (redMany t⇒t′) (subset* D))
 ... | t′⇒zero = zeroᵣ t′⇒zero v⇒zero
-sourceRedSubstTerm′ (ℕᵣ [ ⊢A , ⊢B , D ]) (sucᵣ t⇒suc v⇒suc t®v) t⇒t′
+sourceRedSubstTerm′ (ℕᵣ [ _ , _ , D ]) (sucᵣ t⇒suc v⇒suc num t®v) t⇒t′
   with whrDet↘Term (t⇒suc , sucₙ) (conv* (redMany t⇒t′) (subset* D))
-... | t′⇒suc = sucᵣ t′⇒suc v⇒suc t®v
+... | t′⇒suc = sucᵣ t′⇒suc v⇒suc num t®v
 sourceRedSubstTerm′ (Unitᵣ (Unitₜ x _)) (starᵣ t⇒star v⇒star) t⇒t′
   with whrDet↘Term (t⇒star , starₙ) (redMany (conv t⇒t′ (subset* (red x))))
 ... | t′⇒star = starᵣ t′⇒star v⇒star
@@ -293,9 +294,10 @@ targetRedSubstTerm′ (Uᵣ _) (Uᵣ v⇒*↯) v⇒v′
 targetRedSubstTerm′ (ℕᵣ x) (zeroᵣ x₁ v⇒zero) v⇒v′ with red*Det v⇒zero (T.trans v⇒v′ T.refl)
 ... | inj₁ x₂ rewrite zero-noRed x₂ = zeroᵣ x₁ T.refl
 ... | inj₂ x₂ = zeroᵣ x₁ x₂
-targetRedSubstTerm′ (ℕᵣ x) (sucᵣ x₁ v⇒suc t®v) v⇒v′ with red*Det v⇒suc (T.trans v⇒v′ T.refl)
-... | inj₁ x₂ rewrite suc-noRed x₂ = sucᵣ x₁ T.refl t®v
-... | inj₂ x₂ = sucᵣ x₁ x₂ t®v
+targetRedSubstTerm′ (ℕᵣ _) (sucᵣ t⇒suc v⇒suc num t®v) v⇒v′
+  with red*Det v⇒suc (T.trans v⇒v′ T.refl)
+... | inj₁ suc⇒* rewrite suc-noRed suc⇒* = sucᵣ t⇒suc T.refl num t®v
+... | inj₂ ⇒*suc = sucᵣ t⇒suc ⇒*suc num t®v
 targetRedSubstTerm′ (Unitᵣ x) (starᵣ x₁ v⇒star) v⇒v′ with red*Det v⇒star (T.trans v⇒v′ T.refl)
 ... | inj₁ x₂ rewrite star-noRed x₂ = starᵣ x₁ T.refl
 ... | inj₂ x₂ = starᵣ x₁ x₂

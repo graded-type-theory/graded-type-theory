@@ -59,12 +59,15 @@ private
 data _®_∷U (t : U.Term k) (v : T.Term k) : Set a where
   Uᵣ : v T.⇒* ↯ → t ® v ∷U
 
--- Terms of type ℕ are related if both are zero
--- or if both reduce to the successor of related terms.
+-- Terms of type ℕ are related if both reduce to zero or if both
+-- reduce to the successors of related terms (in the strict setting
+-- the reduct has to be a numeral).
 
 data _®_∷ℕ (t : U.Term k) (v : T.Term k) : Set a where
-  zeroᵣ : Δ ⊢ t ⇒* U.zero ∷ ℕ → v T.⇒* T.zero → t ® v ∷ℕ
-  sucᵣ : Δ ⊢ t ⇒* U.suc t′ ∷ ℕ → v T.⇒* T.suc v′ → t′ ® v′ ∷ℕ → t ® v ∷ℕ
+  zeroᵣ : Δ ⊢ t ⇒* U.zero ∷ ℕ → v T.⇒* T.zero →
+          t ® v ∷ℕ
+  sucᵣ  : Δ ⊢ t ⇒* U.suc t′ ∷ ℕ → v T.⇒* T.suc v′ → Numeral⟨ str ⟩ v′ →
+          t′ ® v′ ∷ℕ → t ® v ∷ℕ
 
 -- Terms of type Empty are not related to anything.
 -- (There are no terms of the Empty type in a consistent context).

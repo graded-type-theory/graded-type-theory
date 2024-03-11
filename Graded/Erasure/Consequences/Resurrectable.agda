@@ -220,7 +220,7 @@ opaque
     -- Either both of t₁ and v₁ reduce to zero, or both reduce to an
     -- application of suc.
     case ®-ℕ t₁®v₁ of λ where
-      (sucᵣ {t′ = t₁′} t₁⇒suc-t₁′ _ _) →
+      (sucᵣ {t′ = t₁′} t₁⇒suc-t₁′ _ _ _) →
         -- The term t₁ is definitionally equal to zero, so it cannot
         -- reduce to an application of suc.
         zero≢suc
@@ -256,7 +256,7 @@ opaque
                t₁′       ≡⟨ t₁′≡1 ⟩⊢∎
                suc zero  ∎)
 
-          (sucᵣ _ v₁′⇒suc _) →
+          (sucᵣ _ v₁′⇒suc _ _) →
             -- The terms v₁ and v₁′ have to be equal, because
             -- reduction is deterministic.
             case
@@ -327,7 +327,7 @@ opaque
     -- Either both of t₁ and v₁ reduce to zero, or both reduce to an
     -- application of suc.
     case ®-ℕ t₁®v₁ of λ where
-      (sucᵣ {t′ = t₁′} t₁⇒suc-t₁′ _ _) →
+      (sucᵣ {t′ = t₁′} t₁⇒suc-t₁′ _ _ _) →
         -- The term t₁ is definitionally equal to zero, so it cannot
         -- reduce to an application of suc.
         zero≢suc
@@ -367,7 +367,7 @@ opaque
                t₁′       ≡⟨ t₁′≡1 ⟩⊢∎
                suc zero  ∎)
 
-          (sucᵣ _ v₁′⇒suc _) →
+          (sucᵣ _ v₁′⇒suc _ _) →
             -- The terms v₁ and v₁′ have to be equal, because
             -- reduction is deterministic.
             case

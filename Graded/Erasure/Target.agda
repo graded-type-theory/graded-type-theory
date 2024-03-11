@@ -220,6 +220,20 @@ Value⟨_⟩ : Strictness → Term n → Set
 Value⟨ non-strict ⟩ _ = ⊤
 Value⟨ strict     ⟩ t = Value t
 
+-- A term is a numeral if it is the application of suc constructors to
+-- zero.
+
+data Numeral {n} : Term n → Set where
+  zero : Numeral zero
+  suc  : Numeral t → Numeral (suc t)
+
+-- Any term is a "non-strict numeral", but only real numerals are
+-- "strict numerals".
+
+Numeral⟨_⟩ : Strictness → Term n → Set
+Numeral⟨ non-strict ⟩ _ = ⊤
+Numeral⟨ strict     ⟩ t = Numeral t
+
 -- Single-step reduction relation
 
 data _⇒_ : (t u : Term n) → Set where

@@ -124,7 +124,7 @@ module _
 
     soundness-zero′ : t ® v ∷ℕ → Δ ⊢ t ⇒* zero ∷ ℕ → v T.⇒* T.zero
     soundness-zero′ (zeroᵣ t⇒zero′ v⇒zero) t⇒zero = v⇒zero
-    soundness-zero′ (sucᵣ t⇒suc v⇒suc t®v) t⇒zero
+    soundness-zero′ (sucᵣ t⇒suc v⇒suc _ t®v) t⇒zero
       with whrDet*Term (t⇒zero , zeroₙ) (t⇒suc , sucₙ)
     ... | ()
 
@@ -150,7 +150,7 @@ module _
     soundness-suc′ (zeroᵣ t⇒zero v⇒zero) t⇒suc
       with whrDet*Term (t⇒zero , zeroₙ) (t⇒suc , sucₙ)
     ... | ()
-    soundness-suc′ (sucᵣ {v′ = v′} t⇒suc′ v⇒suc t®v) t⇒suc
+    soundness-suc′ (sucᵣ {v′ = v′} t⇒suc′ v⇒suc _ t®v) t⇒suc
       with whrDet*Term (t⇒suc , sucₙ) (t⇒suc′ , sucₙ)
     ... | PE.refl = v′ , (v⇒suc , t®v)
 
@@ -173,7 +173,7 @@ module _
     soundness-ℕ′ :
       t ® v ∷ℕ → ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ × v ⇒ˢ* sucᵏ′ n
     soundness-ℕ′ (zeroᵣ x x₁) = 0 , whred* x , whred*′ x₁
-    soundness-ℕ′ (sucᵣ x x₁ t®v) =
+    soundness-ℕ′ (sucᵣ x x₁ _ t®v) =
       let n , d , d′ = soundness-ℕ′ t®v
       in  1+ n , ⇒ˢ*∷ℕ-trans (whred* x) (sucred* d)
                , ⇒ˢ*-trans (whred*′ x₁) (sucred*′ d′)

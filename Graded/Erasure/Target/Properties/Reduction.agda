@@ -154,3 +154,11 @@ opaque
   Value→Value⟨⟩ : Value t → Value⟨ s ⟩ t
   Value→Value⟨⟩ {s = strict}     v = v
   Value→Value⟨⟩ {s = non-strict} _ = _
+
+opaque
+
+  -- Numerals are values.
+
+  Numeral→Value : Numeral t → Value t
+  Numeral→Value zero    = zero
+  Numeral→Value (suc _) = suc
