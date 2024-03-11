@@ -186,7 +186,9 @@ id-ℕ-zero = id ∘⟨ 𝟘 ⟩ ℕ ∘⟨ ω ⟩ zero
 -- The erasure of id-ℕ-zero includes an erased part (T.↯).
 
 erase-id-ℕ-zero :
-  erase id-ℕ-zero PE.≡ T.lam (T.lam (T.var x0)) T.∘ T.↯ T.∘ T.zero
+  erase id-ℕ-zero PE.≡
+  T.lam (T.lam (T.var x0)) T.∘⟨ T.non-strict ⟩
+  T.↯ T.∘⟨ T.non-strict ⟩ T.zero
 erase-id-ℕ-zero = PE.refl
 
 -- The term id-ℕ-zero is well-typed (in the empty context).
@@ -215,7 +217,7 @@ id-ℕ-zero⇒*zero =
 
 erase-id-ℕ-zero⇒*zero : erase id-ℕ-zero T.⇒* T.zero
 erase-id-ℕ-zero⇒*zero =
-  T.trans (T.app-subst T.β-red) (T.trans T.β-red T.refl)
+  T.trans (T.app-subst (T.β-red _)) (T.trans (T.β-red _) T.refl)
 
 ------------------------------------------------------------------------
 -- A function that uses an erased argument in a non-erased position
@@ -246,7 +248,8 @@ id₀-zero = id₀ ∘⟨ 𝟘 ⟩ zero
 
 -- The erasure of id₀-zero includes an erased part (T.↯).
 
-erase-id₀-zero : erase id₀-zero PE.≡ T.lam (T.var x0) T.∘ T.↯
+erase-id₀-zero :
+  erase id₀-zero PE.≡ T.lam (T.var x0) T.∘⟨ T.non-strict ⟩ T.↯
 erase-id₀-zero = PE.refl
 
 -- The term id₀-zero is well-typed (in the empty context).
@@ -272,7 +275,7 @@ id₀-zero⇒*zero =
 -- The erasure of id₀-zero reduces to T.↯.
 
 erase-id₀-zero⇒*↯ : erase id₀-zero T.⇒* T.↯
-erase-id₀-zero⇒*↯ = T.trans T.β-red T.refl
+erase-id₀-zero⇒*↯ = T.trans (T.β-red _) T.refl
 
 -- The erasure of id₀-zero does not reduce to T.zero.
 
@@ -614,7 +617,7 @@ head =
 
 erase-head :
   erase head PE.≡
-  (T.lam $ T.lam $
+  (T.Term.lam $ T.Term.lam $
    T.natrec
      (T.lam (T.lam T.↯))
      (T.lam (T.lam (T.fst (T.var x1))))
@@ -845,11 +848,12 @@ head-[0] = head ∘⟨ 𝟘 ⟩ ℕ ∘⟨ ω ⟩ suc zero ∘⟨ ω ⟩ [0] ∘
 erase-head-[0] :
   erase head-[0] PE.≡
   (T.lam
-     (T.lam $
+     (T.Term.lam $
       T.natrec (T.lam (T.lam T.↯))
         (T.lam (T.lam (T.fst (T.var x1))))
-        (T.var x0)) T.∘
-   T.↯ T.∘ T.suc T.zero T.∘ T.prod T.zero T.star T.∘ T.↯)
+        (T.var x0)) T.∘⟨ T.non-strict ⟩
+   T.↯ T.∘⟨ T.non-strict ⟩ T.suc T.zero T.∘⟨ T.non-strict ⟩
+   T.prod T.zero T.star T.∘⟨ T.non-strict ⟩ T.↯)
 erase-head-[0] = PE.refl
 
 -- The term head-[0] is well-resourced.
@@ -871,11 +875,11 @@ erase-head-[0] = PE.refl
 
 erase-head-[0]⇒*zero : erase head-[0] T.⇒* T.zero
 erase-head-[0]⇒*zero =
-  T.trans (T.app-subst (T.app-subst (T.app-subst T.β-red))) $
-  T.trans (T.app-subst (T.app-subst T.β-red)) $
+  T.trans (T.app-subst (T.app-subst (T.app-subst (T.β-red _)))) $
+  T.trans (T.app-subst (T.app-subst (T.β-red _))) $
   T.trans (T.app-subst (T.app-subst T.natrec-suc)) $
-  T.trans (T.app-subst T.β-red) $
-  T.trans T.β-red $
+  T.trans (T.app-subst (T.β-red _)) $
+  T.trans (T.β-red _) $
   T.trans T.Σ-β₁
   T.refl
 

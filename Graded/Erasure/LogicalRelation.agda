@@ -140,13 +140,15 @@ mutual
   -- Functions t and v are related if the applications
   -- t∘a and v∘↯ are related (cf. the extraction function).
   Π-® l F G t a v [F] [Ga] p (yes p≡𝟘) =
-    (t ∘⟨ p ⟩ a) ®⟨ l ⟩ v ∘ ↯ ∷ U.wk (lift id) G U.[ a ]₀ / [Ga]
+    (t U.∘⟨ p ⟩ a) ®⟨ l ⟩ v T.∘⟨ non-strict ⟩ ↯ ∷
+      U.wk (lift id) G U.[ a ]₀ / [Ga]
   -- Non-erased Π:
   -- Functions t and v are related if the applications
   -- t∘a and v∘w are related for all related a and w.
   Π-® l F G t a v [F] [Ga] p (no p≢𝟘) =
     ∀ {w} → a ®⟨ l ⟩ w ∷ U.wk id F / [F]
-          → (t ∘⟨ p ⟩ a) ®⟨ l ⟩ v ∘ w ∷ U.wk (lift id) G U.[ a ]₀ / [Ga]
+          → (t U.∘⟨ p ⟩ a) ®⟨ l ⟩ v T.∘⟨ non-strict ⟩ w ∷
+              U.wk (lift id) G U.[ a ]₀ / [Ga]
 
   -- Extra data for Σ-types, depending on whether the first component
   -- is erased or not.
@@ -216,7 +218,8 @@ opaque
     {⊩B[u] : Δ ⊩⟨ l ⟩ U.wk (lift id) B U.[ u ]₀}
     (d : Dec (𝟘 PE.≡ 𝟘)) →
     Π-® l A B t u v ⊩A ⊩B[u] 𝟘 d →
-    (t ∘⟨ 𝟘 ⟩ u) ®⟨ l ⟩ v ∘ ↯ ∷ U.wk (lift id) B U.[ u ]₀ / ⊩B[u]
+    (t U.∘⟨ 𝟘 ⟩ u) ®⟨ l ⟩ v T.∘⟨ non-strict ⟩ ↯ ∷
+      U.wk (lift id) B U.[ u ]₀ / ⊩B[u]
   Π-®-𝟘 (no 𝟘≢𝟘) = λ _ → ⊥-elim (𝟘≢𝟘 PE.refl)
   Π-®-𝟘 (yes _)  = idᶠ
 
@@ -231,7 +234,8 @@ opaque
     (d : Dec (p PE.≡ 𝟘)) →
     Π-® l A B t u v ⊩A ⊩B[u] p d →
     u ®⟨ l ⟩ w ∷ U.wk id A / ⊩A →
-    (t ∘⟨ p ⟩ u) ®⟨ l ⟩ v ∘ w ∷ U.wk (lift id) B U.[ u ]₀ / ⊩B[u]
+    (t U.∘⟨ p ⟩ u) ®⟨ l ⟩ v T.∘⟨ non-strict ⟩ w ∷
+      U.wk (lift id) B U.[ u ]₀ / ⊩B[u]
   Π-®-ω p≢𝟘 (yes p≡𝟘) _   = ⊥-elim (p≢𝟘 p≡𝟘)
   Π-®-ω _   (no _)    hyp = hyp
 

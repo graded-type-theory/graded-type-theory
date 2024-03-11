@@ -98,9 +98,9 @@ wk-erase-comm ρ U = refl
 wk-erase-comm ρ (Π p , w ▷ F ▹ G) = refl
 wk-erase-comm ρ (U.lam p t) =
   cong T.lam (wk-erase-comm (lift ρ) t)
-wk-erase-comm ρ (t ∘⟨ p ⟩ u) with is-𝟘? p
-... | yes _ = cong (T._∘ ↯) (wk-erase-comm ρ t)
-... | no _ = cong₂ T._∘_ (wk-erase-comm ρ t) (wk-erase-comm ρ u)
+wk-erase-comm ρ (t U.∘⟨ p ⟩ u) with is-𝟘? p
+... | yes _ = cong (T._∘⟨ _ ⟩ ↯) (wk-erase-comm ρ t)
+... | no _ = cong₂ T._∘⟨ _ ⟩_ (wk-erase-comm ρ t) (wk-erase-comm ρ u)
 wk-erase-comm ρ (Σ _ , _ ▷ _ ▹ _) = refl
 wk-erase-comm ρ (U.prod _ p t u) with is-𝟘? p
 ... | yes _ = wk-erase-comm ρ u
@@ -196,9 +196,10 @@ subst-erase-comm σ (U.lam p t) =
         ≡⟨ subst-erase-comm (U.liftSubst σ) t ⟩
       erase (t U.[ U.liftSubst σ ]) ∎)
   where open import Tools.Reasoning.PropositionalEquality
-subst-erase-comm σ (t ∘⟨ p ⟩ u) with is-𝟘? p
-... | yes _ = cong (T._∘ ↯) (subst-erase-comm σ t)
-... | no _ = cong₂ T._∘_ (subst-erase-comm σ t) (subst-erase-comm σ u)
+subst-erase-comm σ (t U.∘⟨ p ⟩ u) with is-𝟘? p
+... | yes _ = cong (T._∘⟨ _ ⟩ ↯) (subst-erase-comm σ t)
+... | no _ =
+  cong₂ T._∘⟨ _ ⟩_ (subst-erase-comm σ t) (subst-erase-comm σ u)
 subst-erase-comm σ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = refl
 subst-erase-comm σ (U.prod _ p t u) with is-𝟘? p
 ... | yes _ = subst-erase-comm σ u

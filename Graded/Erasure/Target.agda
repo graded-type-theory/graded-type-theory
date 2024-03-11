@@ -7,10 +7,11 @@ module Graded.Erasure.Target where
 open import Tools.Fin
 open import Tools.Nat
 import Tools.PropositionalEquality as PE
+open import Tools.Unit
 
 open import Definition.Untyped.NotParametrised
 
-infixl 30 _∘_
+infixl 30 _∘⟨_⟩_
 infixl 25 _[_]
 infixl 25 _[_,_]
 infixl 25 _[_]₀
@@ -20,6 +21,14 @@ private
   variable
     ℓ m n : Nat
 
+-- Function applications can be strict or non-strict.
+
+data Strictness : Set where
+  strict non-strict : Strictness
+
+private variable
+  s : Strictness
+
 -- Terms of the target language:
 -- A lambda calculus extended with natural numbers, products, unit
 -- and an undefined value.
@@ -27,33 +36,33 @@ private
 data Term : Nat → Set where
   var     : (x : Fin n) → Term n
   lam     : (t : Term (1+ n)) → Term n
-  _∘_     : (t u : Term n) → Term n
+  _∘⟨_⟩_  : (t : Term n) (s : Strictness) (u : Term n) → Term n
   prod    : (t u : Term n) → Term n
   fst     : (t : Term n) → Term n
   snd     : (t : Term n) → Term n
   prodrec : (t : Term n) (u : Term (2+ n)) → Term n
   zero    : Term n
   suc     : (t : Term n) → Term n
-  natrec  : (z : Term m) (s : Term (2+ m)) (n : Term m) → Term m
+  natrec  : (t : Term m) (u : Term (2+ m)) (v : Term m) → Term m
   star    : Term n
   unitrec : (t u : Term n) → Term n
   ↯       : Term n
 
 private
   variable
-    s t t′ u z : Term n
+    t t′ u u′ v v′ : Term n
 
 -- Does a term contain a variable?
 
 data HasX (x : Fin n) : (t : Term n) → Set where
   varₓ : HasX x (var x)
   lamₓ : HasX (x +1) t → HasX x (lam t)
-  ∘ₓˡ : HasX x t → HasX x (t ∘ u)
-  ∘ₓʳ : HasX x u → HasX x (t ∘ u)
+  ∘ₓˡ : HasX x t → HasX x (t ∘⟨ s ⟩ u)
+  ∘ₓʳ : HasX x u → HasX x (t ∘⟨ s ⟩ u)
   sucₓ : HasX x t → HasX x (suc t)
-  natrecₓᶻ : HasX x z → HasX x (natrec z s t)
-  natrecₓˢ : HasX (x +2) s → HasX x (natrec z s t)
-  natrecₓⁿ : HasX x t → HasX x (natrec z s t)
+  natrecₓᶻ : HasX x t → HasX x (natrec t u v)
+  natrecₓˢ : HasX (x +2) u → HasX x (natrec t u v)
+  natrecₓⁿ : HasX x v → HasX x (natrec t u v)
   prodₓˡ : HasX x t → HasX x (prod t u)
   prodₓʳ : HasX x u → HasX x (prod t u)
   fstₓ : HasX x t → HasX x (fst t)
@@ -68,7 +77,7 @@ data HasX (x : Fin n) : (t : Term n) → Set where
 wk : (ρ : Wk m n) → (t : Term n) → Term m
 wk ρ (var x) = var (wkVar ρ x)
 wk ρ (lam t) = lam (wk (lift ρ) t)
-wk ρ (t ∘ u) = wk ρ t ∘ wk ρ u
+wk ρ (t ∘⟨ s ⟩ u) = wk ρ t ∘⟨ s ⟩ wk ρ u
 wk ρ zero = zero
 wk ρ (suc t) = suc (wk ρ t)
 wk ρ (natrec z s n) = natrec (wk ρ z) (wk (lift (lift ρ)) s) (wk ρ n)
@@ -144,7 +153,7 @@ toSubst ρ x = var (wkVar ρ x)
 _[_] : (t : Term n) → (σ : Subst m n) → Term m
 var x        [ σ ] = σ x
 lam t        [ σ ] = lam (t [ liftSubst σ ])
-(t ∘ u)      [ σ ] = (t [ σ ]) ∘ (u [ σ ])
+(t ∘⟨ s ⟩ u) [ σ ] = (t [ σ ]) ∘⟨ s ⟩ (u [ σ ])
 prod t u     [ σ ] = prod (t [ σ ]) (u [ σ ])
 fst t        [ σ ] = fst (t [ σ ])
 snd t        [ σ ] = snd (t [ σ ])
@@ -180,21 +189,40 @@ t [ u ]₀ = t [ sgSubst u ]
 _[_,_] : (t : Term (2+ n)) → (u v : Term n) → Term n
 t [ u , v ] = t [ consSubst (sgSubst u) v ]
 
+-- A term is a value if it is a lambda abstraction, a constructor
+-- application, or ↯.
+
+data Value {n} : Term n → Set where
+  lam  : Value (lam t)
+  prod : Value (prod t u)
+  zero : Value zero
+  suc  : Value (suc t)
+  star : Value star
+  ↯    : Value ↯
+
+-- Any term is a "non-strict value", but only real values are "strict
+-- values".
+
+Value⟨_⟩ : Strictness → Term n → Set
+Value⟨ non-strict ⟩ _ = ⊤
+Value⟨ strict     ⟩ t = Value t
 
 -- Single-step reduction relation
 
 data _⇒_ : (t u : Term n) → Set where
-  app-subst       : t ⇒ t′ → t ∘ u ⇒ t′ ∘ u
-  β-red           : (lam t) ∘ u ⇒ t [ u ]₀
+  app-subst       : t ⇒ t′ → t ∘⟨ s ⟩ u ⇒ t′ ∘⟨ s ⟩ u
+  app-subst-arg   : Value t → u ⇒ u′ →
+                    t ∘⟨ strict ⟩ u ⇒ t ∘⟨ strict ⟩ u′
+  β-red           : Value⟨ s ⟩ u → lam t ∘⟨ s ⟩ u ⇒ t [ u ]₀
   fst-subst       : t ⇒ t′ → fst t ⇒ fst t′
   snd-subst       : t ⇒ t′ → snd t ⇒ snd t′
   Σ-β₁            : fst (prod t u) ⇒ t
   Σ-β₂            : snd (prod t u) ⇒ u
   prodrec-subst   : t ⇒ t′ → prodrec t u ⇒ prodrec t′ u
   prodrec-β       : prodrec (prod t t′) u ⇒ u [ t , t′ ]
-  natrec-subst    : t ⇒ t′ → natrec z s t ⇒ natrec z s t′
-  natrec-zero     : natrec z s zero ⇒ z
-  natrec-suc      : natrec z s (suc t) ⇒ s [ t , natrec z s t ]
+  natrec-subst    : v ⇒ v′ → natrec t u v ⇒ natrec t u v′
+  natrec-zero     : natrec t u zero ⇒ t
+  natrec-suc      : natrec t u (suc v) ⇒ u [ v , natrec t u v ]
   unitrec-subst   : t ⇒ t′ → unitrec t u ⇒ unitrec t′ u
   unitrec-β       : unitrec star u ⇒ u
 

@@ -169,7 +169,7 @@ opaque
     t ®⟨ l ⟩ v ∷ Π p , q ▷ A ▹ B →
     ∃ λ l′ → l′ L.≤ l ×
     ∀ t′ v′ → Δ ⊢ t′ ∷ A → t′ ®⟨ l′ ⟩ v′ ∷ A →
-    t ∘⟨ p ⟩ t′ ®⟨ l′ ⟩ v T.∘ v′ ∷ B [ t′ ]₀
+    t ∘⟨ p ⟩ t′ ®⟨ l′ ⟩ v T.∘⟨ T.non-strict ⟩ v′ ∷ B [ t′ ]₀
   ®-Π {p} {B} p≢𝟘 (⊩Π , t®v) =
     lemma (B-elim (BΠ _ _) ⊩Π) $
     irrelevanceTerm ⊩Π (B-intr (BΠ _ _) (B-elim (BΠ _ _) ⊩Π)) t®v
@@ -179,7 +179,7 @@ opaque
       t ®⟨ l ⟩ v ∷ Π p , q ▷ A ▹ B / B-intr (BΠ p q) ⊩Π →
       ∃ λ l′ → l′ L.≤ l ×
       ∀ t′ v′ → Δ ⊢ t′ ∷ A → t′ ®⟨ l′ ⟩ v′ ∷ A →
-      t ∘⟨ p ⟩ t′ ®⟨ l′ ⟩ v T.∘ v′ ∷ B [ t′ ]₀
+      t ∘⟨ p ⟩ t′ ®⟨ l′ ⟩ v T.∘⟨ T.non-strict ⟩ v′ ∷ B [ t′ ]₀
     lemma (emb 0<1 ⊩Π) t®v =
       case lemma ⊩Π t®v of λ {
         (_ , refl , f) →
@@ -211,7 +211,8 @@ opaque
   ®-Π₀ :
     t ®⟨ l ⟩ v ∷ Π 𝟘 , q ▷ A ▹ B →
     ∃ λ l′ → l′ L.≤ l ×
-    ∀ t′ → Δ ⊢ t′ ∷ A → t ∘⟨ 𝟘 ⟩ t′ ®⟨ l′ ⟩ v T.∘ T.↯ ∷ B [ t′ ]₀
+    ∀ t′ → Δ ⊢ t′ ∷ A →
+    t ∘⟨ 𝟘 ⟩ t′ ®⟨ l′ ⟩ v T.∘⟨ T.non-strict ⟩ T.↯ ∷ B [ t′ ]₀
   ®-Π₀ {B} (⊩Π , t®v) =
     lemma (B-elim (BΠ _ _) ⊩Π) $
     irrelevanceTerm ⊩Π (B-intr (BΠ _ _) (B-elim (BΠ _ _) ⊩Π)) t®v
@@ -220,7 +221,8 @@ opaque
       (⊩Π : Δ ⊩⟨ l ⟩B⟨ BΠ 𝟘 q ⟩ Π 𝟘 , q ▷ A ▹ B) →
       t ®⟨ l ⟩ v ∷ Π 𝟘 , q ▷ A ▹ B / B-intr (BΠ 𝟘 q) ⊩Π →
       ∃ λ l′ → l′ L.≤ l ×
-      ∀ t′ → Δ ⊢ t′ ∷ A → t ∘⟨ 𝟘 ⟩ t′ ®⟨ l′ ⟩ v T.∘ T.↯ ∷ B [ t′ ]₀
+      ∀ t′ → Δ ⊢ t′ ∷ A →
+      t ∘⟨ 𝟘 ⟩ t′ ®⟨ l′ ⟩ v T.∘⟨ T.non-strict ⟩ T.↯ ∷ B [ t′ ]₀
     lemma (emb 0<1 ⊩Π) t®v =
       case lemma ⊩Π t®v of λ {
         (_ , refl , f) →

@@ -6,14 +6,18 @@ module Graded.Erasure.Target.Properties.Reduction where
 
 open import Graded.Erasure.Target
 
+open import Tools.Empty
+open import Tools.Function
 open import Tools.Nat
 import Tools.PropositionalEquality as PE
+open import Tools.Relation
 open import Tools.Sum
 
 private
   variable
     n : Nat
-    t t′ u : Term n
+    t t′ u u′ : Term n
+    s : Strictness
 
 -- Reduction properties
 
@@ -25,9 +29,14 @@ red*concat (trans x t⇒*t′) t′⇒*u = trans x (red*concat t⇒*t′ t′⇒
 
 -- Closure of substitution reductions
 
-app-subst* : t ⇒* t′ → (t ∘ u) ⇒* (t′ ∘ u)
+app-subst* : t ⇒* t′ → t ∘⟨ s ⟩ u ⇒* t′ ∘⟨ s ⟩ u
 app-subst* refl = refl
 app-subst* (trans x t⇒*t′) = trans (app-subst x) (app-subst* t⇒*t′)
+
+app-subst*-arg : Value t → u ⇒* u′ → t ∘⟨ strict ⟩ u ⇒* t ∘⟨ strict ⟩ u′
+app-subst*-arg _   refl                = refl
+app-subst*-arg val (trans u⇒u′ u′⇒*u″) =
+  trans (app-subst-arg val u⇒u′) (app-subst*-arg val u′⇒*u″)
 
 fst-subst* : t ⇒* t′ → fst t ⇒* fst t′
 fst-subst* refl = refl
@@ -49,37 +58,55 @@ unitrec-subst* : t ⇒* t′ → unitrec t u ⇒* unitrec t′ u
 unitrec-subst* refl = refl
 unitrec-subst* (trans x d) = trans (unitrec-subst x) (unitrec-subst* d)
 
+-- Values do not reduce.
 
--- Reduction is deterministic
--- If a ⇒ b and a ⇒ c then b ≡ c
+opaque
 
-redDet : (u : Term n) → u ⇒ t → u ⇒ t′ → t PE.≡ t′
-redDet (var x) () u⇒t′
-redDet (lam a) () u⇒t′
-redDet (a ∘ a₁) (app-subst u⇒t) (app-subst u⇒t′) =
-  PE.cong₂ _∘_ (redDet a u⇒t u⇒t′) PE.refl
-redDet (.(lam _) ∘ a) β-red β-red = PE.refl
-redDet zero () u⇒t′
-redDet (suc a) () u⇒t′
-redDet (natrec a a₁ a₂) (natrec-subst u⇒t) (natrec-subst u⇒t′) =
-  PE.cong (natrec a a₁) (redDet a₂ u⇒t u⇒t′)
-redDet (natrec a a₁ .zero) natrec-zero natrec-zero = PE.refl
-redDet (natrec a a₁ .(suc _)) natrec-suc natrec-suc = PE.refl
-redDet (prod a a₁) () u⇒t′
-redDet (fst a) (fst-subst u⇒t) (fst-subst u⇒t′) =
-  PE.cong fst (redDet a u⇒t u⇒t′)
-redDet (fst .(prod _ _)) Σ-β₁ Σ-β₁ = PE.refl
-redDet (snd a) (snd-subst u⇒t) (snd-subst u⇒t′) =
-  PE.cong snd (redDet a u⇒t u⇒t′)
-redDet (snd .(prod _ _)) Σ-β₂ Σ-β₂ = PE.refl
-redDet (prodrec a a₁) (prodrec-subst u⇒t) (prodrec-subst u⇒t′) =
-  PE.cong (λ z → prodrec z a₁) (redDet a u⇒t u⇒t′)
-redDet (prodrec .(prod _ _) a) prodrec-β prodrec-β = PE.refl
-redDet star () u⇒t′
-redDet (unitrec _ _) (unitrec-subst u⇒t) (unitrec-subst u⇒t′) =
-  PE.cong (λ z → unitrec z _) (redDet _ u⇒t u⇒t′)
-redDet (unitrec _ _) unitrec-β unitrec-β = PE.refl
-redDet ↯ () u⇒t′
+  Value→¬⇒ : Value t → ¬ t ⇒ u
+  Value→¬⇒ lam  ()
+  Value→¬⇒ prod ()
+  Value→¬⇒ zero ()
+  Value→¬⇒ suc  ()
+  Value→¬⇒ star ()
+
+opaque
+
+  -- Reduction is deterministic.
+
+  redDet : (u : Term n) → u ⇒ t → u ⇒ t′ → t PE.≡ t′
+  redDet _ = λ where
+    (app-subst p) → λ where
+      (app-subst q)       → PE.cong (_∘⟨ _ ⟩ _) $ redDet _ p q
+      (app-subst-arg v _) → ⊥-elim $ Value→¬⇒ v p
+    (app-subst-arg v p) → λ where
+      (app-subst q)       → ⊥-elim $ Value→¬⇒ v q
+      (app-subst-arg _ q) → PE.cong (_ ∘⟨ _ ⟩_) $ redDet _ p q
+      (β-red v)           → ⊥-elim $ Value→¬⇒ v p
+    (β-red v) → λ where
+      (app-subst-arg _ q) → ⊥-elim $ Value→¬⇒ v q
+      (β-red _)           → PE.refl
+    (fst-subst p) → λ where
+      (fst-subst q) → PE.cong fst $ redDet _ p q
+    (snd-subst p) → λ where
+      (snd-subst q) → PE.cong snd $ redDet _ p q
+    Σ-β₁ → λ where
+      Σ-β₁ → PE.refl
+    Σ-β₂ → λ where
+      Σ-β₂ → PE.refl
+    (prodrec-subst p) → λ where
+      (prodrec-subst q) → PE.cong (flip prodrec _) $ redDet _ p q
+    prodrec-β → λ where
+      prodrec-β → PE.refl
+    (natrec-subst p) → λ where
+      (natrec-subst q) → PE.cong (natrec _ _) $ redDet _ p q
+    natrec-zero → λ where
+      natrec-zero → PE.refl
+    natrec-suc → λ where
+      natrec-suc → PE.refl
+    (unitrec-subst p) → λ where
+      (unitrec-subst q) → PE.cong (flip unitrec _) $ redDet _ p q
+    unitrec-β → λ where
+      unitrec-β → PE.refl
 
 -- Reduction closure is deterministic
 -- (there is only one reduction path)
@@ -108,3 +135,22 @@ prod-noRed refl = PE.refl
 
 star-noRed : star ⇒* t → t PE.≡ star
 star-noRed refl = PE.refl
+
+opaque
+
+  Value→⇒*→≡ : Value t → t ⇒* u → u PE.≡ t
+  Value→⇒*→≡ = λ where
+    lam  refl → PE.refl
+    prod refl → PE.refl
+    zero refl → PE.refl
+    suc  refl → PE.refl
+    star refl → PE.refl
+    ↯    refl → PE.refl
+
+opaque
+
+  -- If t is a value, then Value⟨ s ⟩ t holds.
+
+  Value→Value⟨⟩ : Value t → Value⟨ s ⟩ t
+  Value→Value⟨⟩ {s = strict}     v = v
+  Value→Value⟨⟩ {s = non-strict} _ = _

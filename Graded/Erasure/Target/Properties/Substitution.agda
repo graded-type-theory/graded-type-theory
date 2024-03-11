@@ -47,7 +47,8 @@ substVar-to-subst : ((x : Fin n) → σ x ≡ σ′ x)
                   → (t : Term n) → t [ σ ] ≡ t [ σ′ ]
 substVar-to-subst eq (var x) = eq x
 substVar-to-subst eq (lam t) = cong lam (substVar-to-subst (substVar-lift eq) t)
-substVar-to-subst eq (t ∘ u) = cong₂ _∘_ (substVar-to-subst eq t) (substVar-to-subst eq u)
+substVar-to-subst eq (t ∘⟨ _ ⟩ u) =
+  cong₂ _∘⟨ _ ⟩_ (substVar-to-subst eq t) (substVar-to-subst eq u)
 substVar-to-subst eq zero = refl
 substVar-to-subst eq (suc t) = cong suc (substVar-to-subst eq t)
 substVar-to-subst eq (natrec z s n) = cong₃ natrec (substVar-to-subst eq z) (substVar-to-subst (substVar-lifts eq 2) s) (substVar-to-subst eq n)
@@ -75,7 +76,7 @@ subst-lifts-id (1+ n) (x +1) = cong wk1 (subst-lifts-id n x)
 subst-id : (t : Term n) → t [ idSubst ] ≡ t
 subst-id (var x) = refl
 subst-id (lam t) = cong lam (trans (substVar-to-subst subst-lift-id t) (subst-id t))
-subst-id (t ∘ u) = cong₂ _∘_ (subst-id t) (subst-id u)
+subst-id (t ∘⟨ _ ⟩ u) = cong₂ _∘⟨ _ ⟩_ (subst-id t) (subst-id u)
 subst-id zero = refl
 subst-id (suc t) = cong suc (subst-id t)
 subst-id (natrec z s n) = cong₃ natrec (subst-id z) (trans (substVar-to-subst (subst-lifts-id 2) s) (subst-id s)) (subst-id n)
@@ -139,7 +140,7 @@ subst-lifts-ₛ• (1+ n) t = substVar-to-subst (helper2 n) t
 wk-subst : ∀ t → wk ρ (t [ σ ]) ≡ t [ ρ •ₛ σ ]
 wk-subst (var x) = refl
 wk-subst (lam t) = cong lam (trans (wk-subst t) (subst-lift-•ₛ t))
-wk-subst (t ∘ u) = cong₂ _∘_ (wk-subst t) (wk-subst u)
+wk-subst (t ∘⟨ _ ⟩ u) = cong₂ _∘⟨ _ ⟩_ (wk-subst t) (wk-subst u)
 wk-subst zero = refl
 wk-subst (suc t) = cong suc (wk-subst t)
 wk-subst (natrec z s n) = cong₃ natrec (wk-subst z) (trans (wk-subst s) (subst-lifts-•ₛ 2 s)) (wk-subst n)
@@ -156,7 +157,7 @@ wk-subst ↯ = refl
 subst-wk : ∀ t → wk ρ t [ σ ] ≡ t [ σ ₛ• ρ ]
 subst-wk (var x) = refl
 subst-wk (lam t) = cong lam (trans (subst-wk t) (subst-lift-ₛ• t))
-subst-wk (t ∘ u) = cong₂ _∘_ (subst-wk t) (subst-wk u)
+subst-wk (t ∘⟨ _ ⟩ u) = cong₂ _∘⟨ _ ⟩_ (subst-wk t) (subst-wk u)
 subst-wk zero = refl
 subst-wk (suc t) = cong suc (subst-wk t)
 subst-wk (natrec z s n) = cong₃ natrec (subst-wk z) (trans (subst-wk s) (subst-lifts-ₛ• 2 s)) (subst-wk n)
@@ -206,7 +207,7 @@ substCompEq : ∀ (t : Term n)
             → t [ σ′ ] [ σ ] ≡ t [ σ ₛ•ₛ σ′ ]
 substCompEq (var x) = refl
 substCompEq (lam t) = cong lam (trans (substCompEq t) (substVar-to-subst substCompLift t))
-substCompEq (t ∘ u) = cong₂ _∘_ (substCompEq t) (substCompEq u)
+substCompEq (t ∘⟨ _ ⟩ u) = cong₂ _∘⟨ _ ⟩_ (substCompEq t) (substCompEq u)
 substCompEq zero = refl
 substCompEq (suc t) = cong suc (substCompEq t)
 substCompEq (natrec z s n) = cong₃ natrec (substCompEq z) (trans (substCompEq s) (substVar-to-subst (substCompLifts 2) s)) (substCompEq n)

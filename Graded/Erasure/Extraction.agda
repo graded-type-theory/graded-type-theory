@@ -39,9 +39,9 @@ erase (var x) = T.var x
 erase U = ↯
 erase (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = ↯
 erase (U.lam p t) = T.lam (erase t)
-erase (t ∘⟨ p ⟩ u) = case is-𝟘? p of λ where
-  (yes p≡𝟘) → erase t T.∘ ↯
-  (no p≢𝟘) → erase t T.∘ erase u
+erase (t U.∘⟨ p ⟩ u) = case is-𝟘? p of λ where
+  (yes p≡𝟘) → erase t T.∘⟨ non-strict ⟩ ↯
+  (no p≢𝟘) → erase t T.∘⟨ non-strict ⟩ erase u
 erase (U.prod _ p t u) = case is-𝟘? p of λ where
   (yes p≡𝟘) → erase u
   (no p≢𝟘) → T.prod (erase t) (erase u)

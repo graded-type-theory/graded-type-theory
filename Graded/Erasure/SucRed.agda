@@ -144,7 +144,7 @@ suc-view = λ where
   (T.suc _)        → is-suc
   (T.var _)        → not-is-suc (λ ())
   (T.lam _)        → not-is-suc (λ ())
-  (_ T.∘ _)        → not-is-suc (λ ())
+  (_ T.∘⟨ _ ⟩ _)   → not-is-suc (λ ())
   (T.prod _ _)     → not-is-suc (λ ())
   (T.fst _)        → not-is-suc (λ ())
   (T.snd _)        → not-is-suc (λ ())

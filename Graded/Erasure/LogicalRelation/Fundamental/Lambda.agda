@@ -80,7 +80,8 @@ lamʳ′ : ∀ {l} {Γ : Con Term n}
         ([u] : Δ ⊩⟨ l ⟩ u ∷ F [ σ ] / proj₁ (unwrap [F] ⊢Δ [σ]))
         (u®w : u ®⟨ l ⟩ w ∷ F [ σ ] ◂ p / proj₁ (unwrap [F] ⊢Δ [σ]))
       → Π-allowed p q
-      → (lam p t [ σ ]) ∘⟨ p ⟩ u ®⟨ l ⟩ (T.lam (erase t) T.[ σ′ ]) T.∘ w
+      → (lam p t [ σ ]) ∘⟨ p ⟩ u ®⟨ l ⟩
+        (T.lam (erase t) T.[ σ′ ]) T.∘⟨ T.non-strict ⟩ w
            ∷ G [ consSubst σ u ] / proj₁ (unwrap [G] ⊢Δ ([σ] , [u]))
 lamʳ′ {F = F} {G = G} {γ = γ} {p = p} {t = t} {σ = σ} {σ′ = σ′}
       {u = u} {w = w} {l = l} {Γ}
@@ -99,7 +100,9 @@ lamʳ′ {F = F} {G = G} {γ = γ} {p = p} {t = t} {σ = σ} {σ′ = σ′}
                t [ liftSubst σ ] [ u ]₀ ∷ G [ liftSubst σ ] [ u ]₀
       t⇒t′ = redMany (β-red ⊢σF ⊢σG ⊢σt ⊢u PE.refl ok)
       t⇒t″ = PE.subst (λ G → Δ ⊢ _ ⇒* _ ∷ G) (UP.singleSubstComp u σ G) t⇒t′
-      v⇒v′ = T.trans (T.β-red {t = erase t T.[ T.liftSubst σ′ ]} {u = w}) T.refl
+      v⇒v′ = T.trans
+               (T.β-red {u = w} {t = erase t T.[ T.liftSubst σ′ ]} _)
+               T.refl
 
       u®w′ = PE.subst (λ p → u ®⟨ l ⟩ w ∷ F [ σ ] ◂ p / [σF])
                       (PE.sym (·-identityˡ p)) u®w

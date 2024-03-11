@@ -29,7 +29,8 @@ mutual
               → ∀ (t : Term n) → wk ρ t ≡ wk ρ′ t
   wkVar-to-wk eq (var x) = cong var (eq x)
   wkVar-to-wk eq (lam t) = cong lam (wkVar-to-wk (wkVar-lift eq) t)
-  wkVar-to-wk eq (t ∘ u) = cong₂ _∘_ (wkVar-to-wk eq t) (wkVar-to-wk eq u)
+  wkVar-to-wk eq (t ∘⟨ _ ⟩ u) =
+    cong₂ _∘⟨ _ ⟩_ (wkVar-to-wk eq t) (wkVar-to-wk eq u)
   wkVar-to-wk eq zero = refl
   wkVar-to-wk eq (suc t) = cong suc (wkVar-to-wk eq t)
   wkVar-to-wk eq (natrec z s n) = cong₃ natrec (wkVar-to-wk eq z) (wkVar-to-wk (wkVar-lift (wkVar-lift eq)) s) (wkVar-to-wk eq n)
@@ -47,7 +48,7 @@ mutual
   wk-id : (t : Term n) → wk id t ≡ t
   wk-id (var x) = refl
   wk-id (lam t) = cong lam (trans (wkVar-to-wk wkVar-lift-id t) (wk-id t))
-  wk-id (t ∘ u) = cong₂ _∘_ (wk-id t) (wk-id u)
+  wk-id (t ∘⟨ _ ⟩ u) = cong₂ _∘⟨ _ ⟩_ (wk-id t) (wk-id u)
   wk-id zero = refl
   wk-id (suc t) = cong suc (wk-id t)
   wk-id (natrec z s n) = cong₃ natrec (wk-id z) (trans (wkVar-to-wk (wkVar-lifts-id 2) s) (wk-id s)) (wk-id n)
@@ -70,7 +71,8 @@ mutual
   wk-comp : (ρ : Wk m ℓ) (ρ′ : Wk ℓ n) (t : Term n) → wk ρ (wk ρ′ t) ≡ wk (ρ • ρ′) t
   wk-comp ρ ρ′ (var x) = cong var (wkVar-comp ρ ρ′ x)
   wk-comp ρ ρ′ (lam t) = cong lam (wk-comp (lift ρ) (lift ρ′) t)
-  wk-comp ρ ρ′ (t ∘ u) = cong₂ _∘_ (wk-comp ρ ρ′ t) (wk-comp ρ ρ′ u)
+  wk-comp ρ ρ′ (t ∘⟨ _ ⟩ u) =
+    cong₂ _∘⟨ _ ⟩_ (wk-comp ρ ρ′ t) (wk-comp ρ ρ′ u)
   wk-comp ρ ρ′ zero = refl
   wk-comp ρ ρ′ (suc t) = cong suc (wk-comp ρ ρ′ t)
   wk-comp ρ ρ′ (natrec z s n) = cong₃ natrec (wk-comp ρ ρ′ z) (wk-comp (lift (lift ρ)) (lift (lift ρ′)) s) (wk-comp ρ ρ′ n)
