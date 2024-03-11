@@ -34,6 +34,9 @@ private
     t t′ u : Term n
     v v′ w w′ : T.Term n
 
+------------------------------------------------------------------------
+-- _⊢_⇒ˢ*_∷ℕ
+
 -- Extended reduction relation for natural numbers.
 -- Allows reduction under suc
 
@@ -96,6 +99,9 @@ subset*Termˢ (x ⇨ˢ d) = trans (subsetTermˢ x) (subset*Termˢ d)
 ⇒ˢ*zero∷ℕ→⇒*zero : Γ ⊢ t ⇒ˢ* zero ∷ℕ → Γ ⊢ t ⇒* zero ∷ ℕ
 ⇒ˢ*zero∷ℕ→⇒*zero t⇒ =
   ⇒ˢ*∷ℕ≡zero→⇒* t⇒ (refl (zeroⱼ (wfEqTerm (subset*Termˢ t⇒))))
+
+------------------------------------------------------------------------
+-- _⇒ˢ*_
 
 -- Extended reduction relation for the target language
 -- Allows reduction under suc
