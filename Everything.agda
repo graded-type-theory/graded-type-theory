@@ -340,6 +340,7 @@ import Graded.Erasure.Target.Properties.Weakening
 import Graded.Erasure.Target.Properties.Substitution
 import Graded.Erasure.Target.Properties.Reduction
 import Graded.Erasure.Target.Properties
+import Graded.Erasure.Target.Reasoning
 
 -- Extraction
 
