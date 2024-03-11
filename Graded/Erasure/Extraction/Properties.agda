@@ -464,3 +464,17 @@ module hasX (R : Usage-restrictions) where
 
   erased-hasX erased (sub δ▸t γ≤δ) hasX =
     erased-hasX (x◂𝟘∈γ≤δ erased γ≤δ) δ▸t hasX
+
+  -- Agda might type-check the proof a little quicker if the following
+  -- cases are included.
+  erased-hasX _ Uₘ                 ()
+  erased-hasX _ ℕₘ                 ()
+  erased-hasX _ Emptyₘ             ()
+  erased-hasX _ Unitₘ              ()
+  erased-hasX _ (ΠΣₘ _ _)          ()
+  erased-hasX _ (Idₘ _ _ _ _)      ()
+  erased-hasX _ (Id₀ₘ _ _ _ _)     ()
+  erased-hasX _ starʷₘ             ()
+  erased-hasX _ (starˢₘ _)         ()
+  erased-hasX _ rflₘ               ()
+  erased-hasX _ ([]-congₘ _ _ _ _) ()
