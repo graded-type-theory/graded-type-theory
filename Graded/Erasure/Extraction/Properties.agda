@@ -8,10 +8,11 @@ open import Graded.Modality
 open import Tools.PropositionalEquality as PE
 
 module Graded.Erasure.Extraction.Properties
-  {a} {M : Set a} (𝕄 : Modality M)
-  (open Modality 𝕄)
-  ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
+  {a} {M : Set a}
+  (𝕄 : Modality M)
   where
+
+open Modality 𝕄
 
 open import Graded.Modality.Dedicated-nr.Instance
 open import Graded.Modality.Nr-instances
@@ -331,9 +332,12 @@ module hasX (R : Usage-restrictions) where
   open MUP R
   open MUP𝟘 R
 
-  -- Erased variables do not occur after extraction.
+  -- If the modality's zero is well-behaved, then erased variables do
+  -- not occur after extraction.
 
-  erased-hasX : x ◂ 𝟘 ∈ γ → γ ▸[ 𝟙ᵐ ] t → HasX x (erase s t) → ⊥
+  erased-hasX :
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
+    x ◂ 𝟘 ∈ γ → γ ▸[ 𝟙ᵐ ] t → HasX x (erase s t) → ⊥
 
   erased-hasX erased γ▸t@var varₓ =
     valid-var-usage γ▸t (var-usage-lookup erased)
