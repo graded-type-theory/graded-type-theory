@@ -33,45 +33,48 @@ erase-prodrecω p t u = case is-𝟘? p of λ where
     (no p≢𝟘) → T.prodrec t u
 
 -- The extraction function.
+--
+-- Applications are made strict if the first argument is "strict".
 
-erase : U.Term n → T.Term n
-erase (var x) = T.var x
-erase U = ↯
-erase (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = ↯
-erase (U.lam p t) = T.lam (erase t)
-erase (t U.∘⟨ p ⟩ u) = case is-𝟘? p of λ where
-  (yes p≡𝟘) → erase t T.∘⟨ non-strict ⟩ ↯
-  (no p≢𝟘) → erase t T.∘⟨ non-strict ⟩ erase u
-erase (U.prod _ p t u) = case is-𝟘? p of λ where
-  (yes p≡𝟘) → erase u
-  (no p≢𝟘) → T.prod (erase t) (erase u)
-erase (U.fst p t) = case is-𝟘? p of λ where
+erase : Strictness → U.Term n → T.Term n
+erase _ (var x) = T.var x
+erase _ U = ↯
+erase _ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = ↯
+erase s (U.lam p t) = T.lam (erase s t)
+erase s (t U.∘⟨ p ⟩ u) = case is-𝟘? p of λ where
+  (yes p≡𝟘) → erase s t T.∘⟨ s ⟩ ↯
+  (no p≢𝟘)  → erase s t T.∘⟨ s ⟩ (erase s u)
+erase s (U.prod _ p t u) = case is-𝟘? p of λ where
+  (yes p≡𝟘) → erase s u
+  (no p≢𝟘) → T.prod (erase s t) (erase s u)
+erase s (U.fst p t) = case is-𝟘? p of λ where
   (yes p≡𝟘) → ↯
-  (no p≢𝟘) → T.fst (erase t)
-erase (U.snd p t) = case is-𝟘? p of λ where
-  (yes p≡𝟘) → erase t
-  (no p≢𝟘) → T.snd (erase t)
-erase (U.prodrec r p _ _ t u) = case is-𝟘? r of λ where
-  (yes r≡𝟘) → T.prodrec (T.prod ↯ ↯) (erase u)
-  (no r≢𝟘) → erase-prodrecω p (erase t) (erase u)
-erase ℕ = ↯
-erase U.zero = T.zero
-erase (U.suc t) = T.suc (erase t)
-erase (U.natrec p q r A z s n) = T.natrec (erase z) (erase s) (erase n)
-erase Unit! = ↯
-erase U.star! = T.star
-erase (U.unitrec p q A t u) = case is-𝟘? p of λ where
-  (yes p≡𝟘) → T.unitrec T.star (erase u)
-  (no p≢𝟘) → T.unitrec (erase t) (erase u)
-erase Empty = ↯
-erase (emptyrec p A t) = ↯
-erase (Id _ _ _) = ↯
-erase U.rfl = ↯
-erase (J _ _ _ _ _ u _ _) = erase u
-erase (K _ _ _ _ u _) = erase u
-erase ([]-cong _ _ _ _ _) = ↯
+  (no p≢𝟘) → T.fst (erase s t)
+erase s (U.snd p t) = case is-𝟘? p of λ where
+  (yes p≡𝟘) → erase s t
+  (no p≢𝟘) → T.snd (erase s t)
+erase s (U.prodrec r p _ _ t u) = case is-𝟘? r of λ where
+  (yes r≡𝟘) → T.prodrec (T.prod ↯ ↯) (erase s u)
+  (no r≢𝟘) → erase-prodrecω p (erase s t) (erase s u)
+erase _ ℕ = ↯
+erase _ U.zero = T.zero
+erase s (U.suc t) = T.suc (erase s t)
+erase s (U.natrec p q r A t u v) =
+  T.natrec (erase s t) (erase s u) (erase s v)
+erase _ Unit! = ↯
+erase _ U.star! = T.star
+erase s (U.unitrec p q A t u) = case is-𝟘? p of λ where
+  (yes p≡𝟘) → T.unitrec T.star (erase s u)
+  (no p≢𝟘) → T.unitrec (erase s t) (erase s u)
+erase _ Empty = ↯
+erase _ (emptyrec p A t) = ↯
+erase _ (Id _ _ _) = ↯
+erase _ U.rfl = ↯
+erase s (J _ _ _ _ _ u _ _) = erase s u
+erase s (K _ _ _ _ u _) = erase s u
+erase _ ([]-cong _ _ _ _ _) = ↯
 
 -- Extraction of substitutions.
 
-eraseSubst : U.Subst m n → T.Subst m n
-eraseSubst σ x = erase (σ x)
+eraseSubst : Strictness → U.Subst m n → T.Subst m n
+eraseSubst s σ x = erase s (σ x)

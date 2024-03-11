@@ -77,7 +77,7 @@ import Graded.Erasure.LogicalRelation.Hidden
 import Graded.Erasure.LogicalRelation.Irrelevance
 import Graded.Erasure.LogicalRelation.Subsumption
 
-import Graded.Erasure.Target as T
+open import Graded.Erasure.Target as T using (Strictness)
 open import Graded.Erasure.Extraction 𝕄 is-𝟘?
 import Graded.Erasure.Target.Properties as TP
 
@@ -106,12 +106,12 @@ private
 
 -- Some lemmas.
 
-module _ (⊢Δ : ⊢ Δ) where
+module _ (⊢Δ : ⊢ Δ) {s : Strictness} where
 
   private
 
     as : Assumptions
-    as = record { ⊢Δ = ⊢Δ }
+    as = record { ⊢Δ = ⊢Δ; str = s }
 
   open Graded.Erasure.LogicalRelation is-𝟘? as
   open Graded.Erasure.LogicalRelation.Conversion is-𝟘? as
@@ -202,14 +202,17 @@ module _ (⊢Δ : ⊢ Δ) where
 -- The fundamental lemma, and a variant for terms in fully erased
 -- contexts.
 
-module Fundamental (FA : Fundamental-assumptions Δ) where
+module Fundamental
+  (FA : Fundamental-assumptions Δ)
+  {s : Strictness}
+  where
 
   open Fundamental-assumptions FA
 
   private
 
     as : Assumptions
-    as = record { ⊢Δ = well-formed }
+    as = record { ⊢Δ = well-formed; str = s }
 
   open Graded.Erasure.LogicalRelation is-𝟘? as
   open Graded.Erasure.LogicalRelation.Fundamental.Application as
@@ -686,7 +689,7 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
 
   fundamentalErased :
     Δ ⊢ t ∷ A → 𝟘ᶜ ▸[ m ] t →
-    ∃ λ ([A] : Δ ⊩⟨ ¹ ⟩ A) → t ®⟨ ¹ ⟩ erase t ∷ A ◂ ⌜ m ⌝ / [A]
+    ∃ λ ([A] : Δ ⊩⟨ ¹ ⟩ A) → t ®⟨ ¹ ⟩ erase s t ∷ A ◂ ⌜ m ⌝ / [A]
   fundamentalErased {t = t} {A = A} {m = m} ⊢t 𝟘▸t =
     [A]′ , lemma m ⊩ʳt
     where
@@ -703,7 +706,7 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
     lemma :
       ∀ m →
       𝟘ᶜ ▸ Δ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A / [Δ] / [A] →
-      t ®⟨ ¹ ⟩ erase t ∷ A ◂ ⌜ m ⌝ / [A]′
+      t ®⟨ ¹ ⟩ erase s t ∷ A ◂ ⌜ m ⌝ / [A]′
     lemma 𝟘ᵐ with is-𝟘? 𝟘
     ... | yes 𝟘≡𝟘 = _
     ... | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 PE.refl)
@@ -712,7 +715,7 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
     ... | yes 𝟙≡𝟘 = ⊥-elim (non-trivial 𝟙≡𝟘)
     ... | no 𝟙≢𝟘 =
       PE.subst₂ (λ x y → x ®⟨ ¹ ⟩ y ∷ A / [A]′)
-        (subst-id t) (TP.subst-id (erase t)) t®t″
+        (subst-id t) (TP.subst-id (erase s t)) t®t″
       where
       id®id′ = erasedSubst {σ′ = T.idSubst} [Δ] [id]
       t®t′ = ⊩ʳt [id] id®id′
@@ -724,7 +727,7 @@ module Fundamental (FA : Fundamental-assumptions Δ) where
 
     fundamentalErased-𝟙ᵐ :
       Δ ⊢ t ∷ A → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
-      t ®⟨ ¹ ⟩ erase t ∷ A
+      t ®⟨ ¹ ⟩ erase s t ∷ A
     fundamentalErased-𝟙ᵐ ⊢t ▸t =
       case fundamentalErased ⊢t ▸t of λ {
         (⊩A , t®t) →

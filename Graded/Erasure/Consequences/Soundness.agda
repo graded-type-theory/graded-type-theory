@@ -45,7 +45,7 @@ open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 
-import Graded.Erasure.Target as T
+open import Graded.Erasure.Target as T using (Strictness)
 import Graded.Erasure.Extraction 𝕄 as E
 open import Graded.Erasure.SucRed TR
 import Graded.Erasure.LogicalRelation
@@ -76,6 +76,7 @@ private
     p : M
     s : Strength
     sem : Some-erased-matches
+    str : Strictness
 
 -- WH reduction soundness of natural numbers
 
@@ -102,6 +103,7 @@ module _
 
   module Soundness′
     (FA : Fundamental-assumptions Δ)
+    {str : Strictness}
     {{eqrel : EqRelSet TR}}
     where
 
@@ -110,7 +112,7 @@ module _
     private
 
       as : Assumptions
-      as = record { ⊢Δ = well-formed }
+      as = record { ⊢Δ = well-formed; str = str }
 
     open Graded.Erasure.LogicalRelation is-𝟘? as
     open Graded.Erasure.LogicalRelation.Fundamental.Fundamental TR UR FA
@@ -130,7 +132,7 @@ module _
     -- If t ⇒* zero and 𝟘ᶜ ▸ t then erase t ⇒* zero
 
     soundness-zero :
-      Δ ⊢ t ⇒* zero ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t → erase t T.⇒* T.zero
+      Δ ⊢ t ⇒* zero ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t → erase str t T.⇒* T.zero
     soundness-zero t⇒zero 𝟘▸t =
       let ⊢t = redFirst*Term t⇒zero
           [ℕ] , t®t′ = fundamentalErased ⊢t 𝟘▸t
@@ -157,7 +159,7 @@ module _
     -- for some v′
 
     soundness-suc : Δ ⊢ t ⇒* suc t′ ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t
-                  → ∃ λ v′ → erase t T.⇒* T.suc v′ × t′ ® v′ ∷ℕ
+                  → ∃ λ v′ → erase str t T.⇒* T.suc v′ × t′ ® v′ ∷ℕ
     soundness-suc t⇒suc 𝟘▸t =
       let ⊢t = redFirst*Term t⇒suc
           [ℕ] , t®t′ = fundamentalErased ⊢t 𝟘▸t
@@ -183,7 +185,10 @@ module _
 
   -- The following results make use of some assumptions.
 
-  module Soundness (FA⁻ : Fundamental-assumptions⁻ Δ) where
+  module Soundness
+    (FA⁻ : Fundamental-assumptions⁻ Δ)
+    (str : Strictness)
+    where
 
     private module L (⊢Δ : ⊢ Δ) where
 
@@ -196,7 +201,7 @@ module _
         }
 
       as : Assumptions
-      as = record { ⊢Δ = ⊢Δ }
+      as = record { ⊢Δ = ⊢Δ; str = str }
 
       open Soundness′ FA public
 
@@ -213,7 +218,7 @@ module _
     -- Note the assumptions of the local module Soundness.
 
     soundness-ℕ : Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t
-                → ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ × erase t ⇒ˢ* sucᵏ′ n
+                → ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ × erase str t ⇒ˢ* sucᵏ′ n
     soundness-ℕ ⊢t 𝟘▸t =
       let [ℕ] , t®v = fundamentalErased ⊢t 𝟘▸t
       in  soundness-ℕ′ $
@@ -242,7 +247,7 @@ module _
     -- Note the assumptions of the local module Soundness.
 
     soundness-star :
-      Δ ⊢ t ∷ Unit s → 𝟘ᶜ ▸[ 𝟙ᵐ ] t → erase t T.⇒* T.star
+      Δ ⊢ t ∷ Unit s → 𝟘ᶜ ▸[ 𝟙ᵐ ] t → erase str t T.⇒* T.star
     soundness-star ⊢t γ▸t =
       let [⊤] , t®t′ = fundamentalErased ⊢t γ▸t
           ok = ⊢∷Unit→Unit-allowed ⊢t
@@ -259,16 +264,17 @@ module _
   -- If the context is empty, then the results in Soundness hold
   -- without any further assumptions.
 
-  module Soundness₀ where
+  module Soundness₀ (str : Strictness) where
 
-    open Soundness fundamental-assumptions⁻₀ public
+    open Soundness fundamental-assumptions⁻₀ str public
 
 -- If Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 holds for some p (which means that
 -- certain kinds of erased matches are allowed), and if additionally
 -- Σʷ-allowed p 𝟘 holds, then there is a counterexample to
 -- soundness-ℕ-only-source without the assumption "erased matches are
 -- not allowed unless the context is empty" (and without the
--- assumption that the modality's zero is well-behaved).
+-- strictness argument as well as the assumption that the modality's
+-- zero is well-behaved).
 
 soundness-ℕ-only-source-counterexample₁ :
   Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 →
@@ -324,7 +330,8 @@ opaque
   -- If []-cong-allowed holds, then there is a counterexample to
   -- soundness-ℕ-only-source without the assumption "erased matches
   -- are not allowed unless the context is empty" (and without the
-  -- assumption that the modality's zero is well-behaved).
+  -- strictness argument as well as the assumption that the modality's
+  -- zero is well-behaved).
 
   soundness-ℕ-only-source-counterexample₂ :
     []-cong-allowed s →
@@ -362,8 +369,8 @@ opaque
   -- If erased-matches-for-J 𝟙ᵐ is equal to not-none sem, then there
   -- is a counterexample to soundness-ℕ-only-source without the
   -- assumption "erased matches are not allowed unless the context is
-  -- empty" (and without the assumption that the modality's zero is
-  -- well-behaved).
+  -- empty" (and without the strictness argument as well as the
+  -- assumption that the modality's zero is well-behaved).
 
   soundness-ℕ-only-source-counterexample₃ :
     erased-matches-for-J 𝟙ᵐ ≡ not-none sem →
@@ -397,7 +404,8 @@ opaque
   -- not-none sem, then there is a counterexample to
   -- soundness-ℕ-only-source without the assumption "erased matches
   -- are not allowed unless the context is empty" (and without the
-  -- assumption that the modality's zero is well-behaved).
+  -- strictness argument as well as the assumption that the modality's
+  -- zero is well-behaved).
 
   soundness-ℕ-only-source-counterexample₄ :
     K-allowed →
@@ -431,7 +439,8 @@ opaque
   -- If Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 and Unitʷ-allowed hold, then there is a
   -- counterexample to soundness-ℕ-only-source without the assumption
   -- "erased matches are not allowed unless the context is empty" (and
-  -- without the assumption that the modality's zero is well-behaved).
+  -- without the strictness argument as well as the assumption that
+  -- the modality's zero is well-behaved).
 
   soundness-ℕ-only-source-counterexample₅ :
     Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 →
@@ -473,11 +482,11 @@ module _ (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘)) where
   open E is-𝟘?
 
   -- Run-time canonicity for a given term with respect to a given
-  -- context.
+  -- context (and strictness).
 
-  Run-time-canonicity-for : Con Term n → Term n → Set a
-  Run-time-canonicity-for Δ t =
-    ∃₂ λ n u → Δ ⊢ u ∷ Id ℕ t (sucᵏ n) × erase t ⇒ˢ* sucᵏ′ n
+  Run-time-canonicity-for : Strictness → Con Term n → Term n → Set a
+  Run-time-canonicity-for str Δ t =
+    ∃₂ λ n u → Δ ⊢ u ∷ Id ℕ t (sucᵏ n) × erase str t ⇒ˢ* sucᵏ′ n
 
   -- Above some counterexamples to variants of soundness-ℕ-only-source
   -- are presented. Those counterexamples are (at the time of writing)
@@ -486,7 +495,7 @@ module _ (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘)) where
 
   soundness-ℕ-only-target-not-counterexample₁ :
     Σʷ-allowed p 𝟘 →
-    Run-time-canonicity-for
+    Run-time-canonicity-for str
       (ε ∙ Σʷ p , 𝟘 ▷ ℕ ▹ ℕ)
       (prodrec 𝟘 p 𝟘 ℕ (var {n = 1} x0) zero)
   soundness-ℕ-only-target-not-counterexample₁ {p} ok
@@ -533,7 +542,7 @@ module _ (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘)) where
     soundness-ℕ-only-target-not-counterexample₂ :
       []-cong-allowed s →
       let open Erased s in
-      Run-time-canonicity-for
+      Run-time-canonicity-for str
         (ε ∙ Id ℕ zero zero)
         (J 𝟘 𝟘 (Erased ℕ) ([ zero ]) ℕ zero ([ zero ])
            ([]-cong s ℕ zero zero (var {n = 1} x0)))
@@ -587,7 +596,7 @@ module _ (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘)) where
   opaque
 
     soundness-ℕ-only-target-not-counterexample₃ :
-      Run-time-canonicity-for
+      Run-time-canonicity-for str
         (ε ∙ Id ℕ zero zero)
         (J 𝟘 𝟘 ℕ zero ℕ zero zero (var {n = 1} x0))
     soundness-ℕ-only-target-not-counterexample₃ =
@@ -625,7 +634,7 @@ module _ (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘)) where
 
     soundness-ℕ-only-target-not-counterexample₄ :
       K-allowed →
-      Run-time-canonicity-for
+      Run-time-canonicity-for str
         (ε ∙ Id ℕ zero zero)
         (K 𝟘 ℕ zero ℕ zero (var {n = 1} x0))
     soundness-ℕ-only-target-not-counterexample₄ ok =

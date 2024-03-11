@@ -45,10 +45,13 @@ open import Graded.Erasure.LogicalRelation is-𝟘? as
 open import Graded.Erasure.LogicalRelation.Irrelevance is-𝟘? as
 open import Graded.Erasure.LogicalRelation.Reduction is-𝟘? as
 open import Graded.Erasure.LogicalRelation.Subsumption is-𝟘? as
+open import Graded.Erasure.LogicalRelation.Value is-𝟘? as
 open import Graded.Erasure.Target.Properties as TP
 import Graded.Erasure.Target as T
+open import Graded.Erasure.Target.Reasoning
 
 open import Tools.Empty
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 
@@ -76,13 +79,14 @@ lamʳ′ : ∀ {l} {Γ : Con Term n}
         ([t] : Γ ∙ F ⊩ᵛ⟨ l ⟩ t ∷ G / [Γ] ∙ [F] / [G])
         ([u] : Δ ⊩⟨ l ⟩ u ∷ F [ σ ] / proj₁ (unwrap [F] ⊢Δ [σ]))
         (u®w : u ®⟨ l ⟩ w ∷ F [ σ ] ◂ p / proj₁ (unwrap [F] ⊢Δ [σ]))
+      → (p PE.≡ 𝟘 → w PE.≡ T.↯)
       → Π-allowed p q
       → (lam p t [ σ ]) ∘⟨ p ⟩ u ®⟨ l ⟩
-        (T.lam (erase t) T.[ σ′ ]) T.∘⟨ T.non-strict ⟩ w
+        (T.lam (erase str t) T.[ σ′ ]) T.∘⟨ str ⟩ w
            ∷ G [ consSubst σ u ] / proj₁ (unwrap [G] ⊢Δ ([σ] , [u]))
 lamʳ′ {F = F} {G = G} {γ = γ} {p = p} {t = t} {σ = σ} {σ′ = σ′}
       {u = u} {w = w} {l = l} {Γ}
-      [Γ] [F] [G] ⊩ʳt [σ] σ®σ′ [t] [u] u®w ok =
+      [Γ] [F] [G] ⊩ʳt [σ] σ®σ′ [t] [u] u®w ≡𝟘→≡↯ ok =
   let [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
       ⊢σF = escape [σF]
       [σG] = proj₁ (unwrap [G] {σ = liftSubst σ} (⊢Δ ∙ ⊢σF)
@@ -97,18 +101,52 @@ lamʳ′ {F = F} {G = G} {γ = γ} {p = p} {t = t} {σ = σ} {σ′ = σ′}
                t [ liftSubst σ ] [ u ]₀ ∷ G [ liftSubst σ ] [ u ]₀
       t⇒t′ = redMany (β-red ⊢σF ⊢σG ⊢σt ⊢u PE.refl ok)
       t⇒t″ = PE.subst (λ G → Δ ⊢ _ ⇒* _ ∷ G) (UP.singleSubstComp u σ G) t⇒t′
-      v⇒v′ = T.trans
-               (T.β-red {u = w} {t = erase t T.[ T.liftSubst σ′ ]} _)
-               T.refl
 
-      u®w′ = PE.subst (λ p → u ®⟨ l ⟩ w ∷ F [ σ ] ◂ p / [σF])
-                      (PE.sym (·-identityˡ p)) u®w
-      σut®σwv = ⊩ʳt {σ = consSubst σ u} {σ′ = T.consSubst σ′ w} ([σ] , [u]) (σ®σ′ , u®w′)
-      σut®σwv′ = PE.subst₂ (λ t v → t ®⟨ l ⟩ v ∷ G [ consSubst σ u ] ◂ 𝟙 / [σGu])
-                           (PE.sym (UP.singleSubstComp u σ t))
-                           (PE.sym (TP.singleSubstComp w σ′ (erase t)))
-                           σut®σwv
-  in  redSubstTerm* [σGu] (σut®σwv′ ◀≢𝟘 non-trivial) t⇒t″ v⇒v′
+      v⇒* :
+        ∃ λ w′ → T.Value⟨ str ⟩ w′ × w T.⇒* w′ ×
+        T.lam (erase str t T.[ T.liftSubst σ′ ]) T.∘⟨ str ⟩ w T.⇒*
+        erase str t T.[ T.liftSubst σ′ ] T.[ w′ ]₀
+      v⇒* = case PE.singleton str of λ where
+        (T.non-strict , PE.refl) →
+          _ , _ , T.refl ,
+          (T.lam (erase T.non-strict t T.[ T.liftSubst σ′ ])
+             T.∘⟨ T.non-strict ⟩ w                             ⇒⟨ T.β-red _ ⟩
+
+           erase T.non-strict t T.[ T.liftSubst σ′ ] T.[ w ]₀  ∎⇒)
+        (T.strict , PE.refl) → case is-𝟘? p of λ where
+          (yes p≡𝟘) →
+            case PE.subst T.Value (PE.sym $ ≡𝟘→≡↯ p≡𝟘) T.↯ of λ
+              val →
+            _ , val , T.refl ,
+            (T.lam (erase T.strict t T.[ T.liftSubst σ′ ])
+               T.∘⟨ T.strict ⟩ w                             ⇒⟨ T.β-red val ⟩
+             erase T.strict t T.[ T.liftSubst σ′ ] T.[ w ]₀  ∎⇒)
+          (no p≢𝟘) →
+            case reduces-to-value [σF] (u®w ◀≢𝟘 p≢𝟘) of λ
+              (w′ , val , w⇒*w′) →
+              _ , val , w⇒*w′
+            , (T.lam (erase T.strict t T.[ T.liftSubst σ′ ])
+                 T.∘⟨ T.strict ⟩ w                              ⇒*⟨ app-subst*-arg T.lam w⇒*w′ ⟩
+
+               T.lam (erase T.strict t T.[ T.liftSubst σ′ ])
+                 T.∘⟨ T.strict ⟩ w′                             ⇒⟨ T.β-red val ⟩
+
+               erase T.strict t T.[ T.liftSubst σ′ ] T.[ w′ ]₀  ∎⇒)
+  in
+  case v⇒* of λ
+    (_ , w′-value , w⇒*w′ , v⇒*) →
+  redSubstTerm* [σGu]
+    (PE.subst₂ (λ t v → t ®⟨ _ ⟩ v ∷ _ / [σGu])
+       (PE.sym (UP.singleSubstComp _ _ t))
+       (PE.sym (TP.singleSubstComp _ _ (erase _ t))) $
+      ⊩ʳt ([σ] , [u])
+        ( σ®σ′
+        , PE.subst (λ p → _ ®⟨ _ ⟩ _ ∷ _ ◂ p / _)
+            (PE.sym $ ·-identityˡ p)
+            (redSubstTerm*′-◂ u®w (id ⊢u) w⇒*w′)
+        )
+       ◀≢𝟘 non-trivial)
+    t⇒t″ v⇒*
 
 lamʳ : ∀ {l} {Γ : Con Term n} → ([Γ] : ⊩ᵛ Γ) ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
        ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
@@ -143,7 +181,7 @@ lamʳ {F = F} {G = G} {t = t} {m = 𝟙ᵐ} {p = p} {q = q}
       ⊩ʳt′ = PE.subst (λ x → _ ∙ x ▸ _ ∙ F ⊩ʳ⟨ _ ⟩ t ∷[ 𝟙ᵐ ] G / [Γ] ∙ [F] / [G])
                       (·-identityˡ 𝟘) (subsumption′ {t = t} ([Γ] ∙ [F]) [G] ⊩ʳt)
       λta®λv↯ = lamʳ′ {t = t} {w = T.↯} [Γ] [F] [G] ⊩ʳt′
-                      [σ] σ®σ′ [t] [a]′ t®v◂𝟘 ok
+                      [σ] σ®σ′ [t] [a]′ t®v◂𝟘 (λ _ → PE.refl) ok
   in  irrelevanceTerm′ (PE.sym (PE.trans (PE.cong (_[ _ ]₀)
                                                   (UP.wk-lift-id (G [ liftSubst σ ])))
                                          (UP.singleSubstComp _ σ G)))
@@ -163,7 +201,7 @@ lamʳ {F = F} {G = G} {t = t} {m = 𝟙ᵐ} {p = p} {q = q}
       ⊩ʳt′ = PE.subst (λ x → _ ∙ x ▸ _ ∙ F ⊩ʳ⟨ _ ⟩ t ∷[ 𝟙ᵐ ] G / [Γ] ∙ [F] / [G])
                       (·-identityˡ p) (subsumption′ {t = t} ([Γ] ∙ [F]) [G] ⊩ʳt)
       λta®λvw = lamʳ′ {t = t} {w = w} [Γ] [F] [G] ⊩ʳt′
-                      [σ] σ®σ′ [t] [a]′ (a®w′ ◀ p) ok
+                      [σ] σ®σ′ [t] [a]′ (a®w′ ◀ p) (⊥-elim ∘→ p≢𝟘) ok
   in  irrelevanceTerm′ (PE.sym (PE.trans (PE.cong (_[ _ ]₀)
                                                   (UP.wk-lift-id (G [ liftSubst σ ])))
                                          (UP.singleSubstComp _ σ G)))

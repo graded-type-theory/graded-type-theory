@@ -139,14 +139,14 @@ mutual
   -- Functions t and v are related if the applications
   -- t∘a and v∘↯ are related (cf. the extraction function).
   Π-® l F G t a v [F] [Ga] p (yes p≡𝟘) =
-    (t U.∘⟨ p ⟩ a) ®⟨ l ⟩ v T.∘⟨ non-strict ⟩ ↯ ∷
+    (t U.∘⟨ p ⟩ a) ®⟨ l ⟩ v T.∘⟨ str ⟩ ↯ ∷
       U.wk (lift id) G U.[ a ]₀ / [Ga]
   -- Non-erased Π:
   -- Functions t and v are related if the applications
   -- t∘a and v∘w are related for all related a and w.
   Π-® l F G t a v [F] [Ga] p (no p≢𝟘) =
     ∀ {w} → a ®⟨ l ⟩ w ∷ U.wk id F / [F]
-          → (t U.∘⟨ p ⟩ a) ®⟨ l ⟩ v T.∘⟨ non-strict ⟩ w ∷
+          → (t U.∘⟨ p ⟩ a) ®⟨ l ⟩ v T.∘⟨ str ⟩ w ∷
               U.wk (lift id) G U.[ a ]₀ / [Ga]
 
   -- Extra data for Σ-types, depending on whether the first component
@@ -191,8 +191,8 @@ _®_∷[_]_◂_/_/_ :
 
 -- Validity of erasure
 --
--- A term t is valid if t[σ] is related to (erase t)[σ′]
--- for all related contexts σ and σ′.
+-- A term t is valid if t[σ] is related to (erase str t)[σ′]
+-- for all related contexts σ and σ′.
 
 _▸_⊩ʳ⟨_⟩_∷[_]_/_/_ :
   (γ : Conₘ n) (Γ : Con U.Term n) (l : TypeLevel)
@@ -202,7 +202,7 @@ _▸_⊩ʳ⟨_⟩_∷[_]_/_/_ :
   ∀ {σ σ′} →
   ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ) →
   σ ® σ′ ∷[ m ] Γ ◂ γ / [Γ] / [σ] →
-  t U.[ σ ] ®⟨ l ⟩ erase t T.[ σ′ ] ∷ A U.[ σ ] ◂ ⌜ m ⌝ /
+  t U.[ σ ] ®⟨ l ⟩ erase str t T.[ σ′ ] ∷ A U.[ σ ] ◂ ⌜ m ⌝ /
     proj₁ (unwrap [A] ⊢Δ [σ])
 
 ------------------------------------------------------------------------
@@ -217,7 +217,7 @@ opaque
     {⊩B[u] : Δ ⊩⟨ l ⟩ U.wk (lift id) B U.[ u ]₀}
     (d : Dec (𝟘 PE.≡ 𝟘)) →
     Π-® l A B t u v ⊩A ⊩B[u] 𝟘 d →
-    (t U.∘⟨ 𝟘 ⟩ u) ®⟨ l ⟩ v T.∘⟨ non-strict ⟩ ↯ ∷
+    (t U.∘⟨ 𝟘 ⟩ u) ®⟨ l ⟩ v T.∘⟨ str ⟩ ↯ ∷
       U.wk (lift id) B U.[ u ]₀ / ⊩B[u]
   Π-®-𝟘 (no 𝟘≢𝟘) = λ _ → ⊥-elim (𝟘≢𝟘 PE.refl)
   Π-®-𝟘 (yes _)  = idᶠ
@@ -233,7 +233,7 @@ opaque
     (d : Dec (p PE.≡ 𝟘)) →
     Π-® l A B t u v ⊩A ⊩B[u] p d →
     u ®⟨ l ⟩ w ∷ U.wk id A / ⊩A →
-    (t U.∘⟨ p ⟩ u) ®⟨ l ⟩ v T.∘⟨ non-strict ⟩ w ∷
+    (t U.∘⟨ p ⟩ u) ®⟨ l ⟩ v T.∘⟨ str ⟩ w ∷
       U.wk (lift id) B U.[ u ]₀ / ⊩B[u]
   Π-®-ω p≢𝟘 (yes p≡𝟘) _   = ⊥-elim (p≢𝟘 p≡𝟘)
   Π-®-ω _   (no _)    hyp = hyp

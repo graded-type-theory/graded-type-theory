@@ -45,6 +45,7 @@ open import Graded.Erasure.LogicalRelation.Assumptions TR
 open import Graded.Erasure.LogicalRelation.Fundamental TR UR
 open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions TR UR
 import Graded.Erasure.LogicalRelation.Hidden as H
+import Graded.Erasure.Target as T
 import Graded.Erasure.Target.Properties as TP
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
@@ -277,7 +278,7 @@ opaque
     open Fundamental-assumptions fundamental-assumptions₀
 
     as : Assumptions
-    as = record { ⊢Δ = well-formed }
+    as = record { ⊢Δ = well-formed; str = T.non-strict }
 
     open H is-𝟘? as
     open L is-𝟘? as
@@ -388,7 +389,7 @@ opaque
     open Fundamental-assumptions⁻ as
 
     as′ : Assumptions
-    as′ = record { ⊢Δ = wfTerm ⊢t }
+    as′ = record { ⊢Δ = wfTerm ⊢t; str = T.non-strict }
 
     open H is-𝟘? as′
     open L is-𝟘? as′

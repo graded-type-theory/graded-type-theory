@@ -15,6 +15,8 @@ open import Definition.Typed R
 open import Definition.Typed.EqualityRelation R
 open import Definition.Untyped M
 
+open import Graded.Erasure.Target using (Strictness)
+
 open import Tools.Level
 open import Tools.Nat
 
@@ -31,5 +33,9 @@ record Assumptions : Set (lsuc a) where
 
     -- The context is well-formed.
     ⊢Δ : ⊢ Δ
+
+    -- Should applications be extracted to strict or non-strict
+    -- applications?
+    str : Strictness
 
   open EqRelSet eqRelSet public

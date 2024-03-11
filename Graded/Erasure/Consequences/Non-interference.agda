@@ -8,6 +8,7 @@ import Definition.Untyped
 open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
 open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions
+open import Graded.Erasure.Target as T using (Strictness)
 open import Tools.Nat using (Nat)
 
 module Graded.Erasure.Consequences.Non-interference
@@ -21,6 +22,7 @@ module Graded.Erasure.Consequences.Non-interference
   {k : Nat}
   {Δ : Con Term k}
   (FA : Fundamental-assumptions TR UR Δ)
+  {str : Strictness}
   {{eqrel : EqRelSet TR}}
   where
 
@@ -42,12 +44,11 @@ open import Graded.Mode 𝕄
 
 open import Graded.Erasure.Extraction 𝕄 is-𝟘?
 open import Graded.Erasure.LogicalRelation.Assumptions TR
-import Graded.Erasure.Target as T
 
 private
 
   as : Assumptions
-  as = record { ⊢Δ = well-formed }
+  as = record { ⊢Δ = well-formed; str = str }
 
 open import Graded.Erasure.LogicalRelation is-𝟘? as
 open import Graded.Erasure.LogicalRelation.Fundamental TR UR
@@ -68,7 +69,7 @@ non-interference : ∀ {m} {Γ : Con Term m} {t : Term m} {γ : Conₘ m}
                    (⊢σ : Δ ⊢ˢ σ ∷ Γ) →
                    ∃₂ λ [Γ] [σ] →
                    σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ γ / [Γ] / [σ] →
-                   t [ σ ] ® erase t T.[ σ′ ] ∷ℕ
+                   t [ σ ] ® erase str t T.[ σ′ ] ∷ℕ
 non-interference ⊢t ▸t ⊢σ =
   let [Γ] , [ℕ] , ⊩ʳt = fundamental ⊢t ▸t
       ⊢Γ = wfTerm ⊢t

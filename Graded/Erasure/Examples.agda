@@ -2,6 +2,8 @@
 -- Some examples related to the erasure modality and extraction
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 open import Tools.Level
 
 open import Graded.Modality.Instances.Erasure
@@ -66,7 +68,7 @@ open import Graded.Context EM
 open import Graded.Erasure.Consequences.Soundness TR UR
 open import Graded.Erasure.Extraction EM EM.is-𝟘?
 import Graded.Erasure.SucRed TR as S
-import Graded.Erasure.Target as T
+open import Graded.Erasure.Target as T using (Strictness)
 import Graded.Erasure.Target.Properties as TP
 open import Graded.Modality.Instances.Erasure.Properties variant
 open import Graded.Mode EM
@@ -80,6 +82,7 @@ private variable
   Γ       : Con Term _
   A t u v : Term _
   γ       : Conₘ _
+  str     : Strictness
 
 private
 
@@ -186,9 +189,9 @@ id-ℕ-zero = id ∘⟨ 𝟘 ⟩ ℕ ∘⟨ ω ⟩ zero
 -- The erasure of id-ℕ-zero includes an erased part (T.↯).
 
 erase-id-ℕ-zero :
-  erase id-ℕ-zero PE.≡
-  T.lam (T.lam (T.var x0)) T.∘⟨ T.non-strict ⟩
-  T.↯ T.∘⟨ T.non-strict ⟩ T.zero
+  erase str id-ℕ-zero PE.≡
+  T.lam (T.lam (T.var x0)) T.∘⟨ str ⟩
+  T.↯ T.∘⟨ str ⟩ T.zero
 erase-id-ℕ-zero = PE.refl
 
 -- The term id-ℕ-zero is well-typed (in the empty context).
@@ -215,9 +218,11 @@ id-ℕ-zero⇒*zero =
 
 -- The erasure of id-ℕ-zero reduces to zero.
 
-erase-id-ℕ-zero⇒*zero : erase id-ℕ-zero T.⇒* T.zero
+erase-id-ℕ-zero⇒*zero : erase str id-ℕ-zero T.⇒* T.zero
 erase-id-ℕ-zero⇒*zero =
-  T.trans (T.app-subst (T.β-red _)) (T.trans (T.β-red _) T.refl)
+  T.trans (T.app-subst $ T.β-red $ TP.Value→Value⟨⟩ T.↯) $
+  T.trans (T.β-red $ TP.Value→Value⟨⟩ T.zero)
+  T.refl
 
 ------------------------------------------------------------------------
 -- A function that uses an erased argument in a non-erased position
@@ -249,7 +254,7 @@ id₀-zero = id₀ ∘⟨ 𝟘 ⟩ zero
 -- The erasure of id₀-zero includes an erased part (T.↯).
 
 erase-id₀-zero :
-  erase id₀-zero PE.≡ T.lam (T.var x0) T.∘⟨ T.non-strict ⟩ T.↯
+  erase str id₀-zero PE.≡ T.lam (T.var x0) T.∘⟨ str ⟩ T.↯
 erase-id₀-zero = PE.refl
 
 -- The term id₀-zero is well-typed (in the empty context).
@@ -274,14 +279,14 @@ id₀-zero⇒*zero =
 
 -- The erasure of id₀-zero reduces to T.↯.
 
-erase-id₀-zero⇒*↯ : erase id₀-zero T.⇒* T.↯
-erase-id₀-zero⇒*↯ = T.trans (T.β-red _) T.refl
+erase-id₀-zero⇒*↯ : erase str id₀-zero T.⇒* T.↯
+erase-id₀-zero⇒*↯ = T.trans (T.β-red $ TP.Value→Value⟨⟩ T.↯) T.refl
 
 -- The erasure of id₀-zero does not reduce to T.zero.
 
-¬erase-id₀-zero⇒*zero : ¬ erase id₀-zero T.⇒* T.zero
-¬erase-id₀-zero⇒*zero =
-  erase id₀-zero T.⇒* T.zero         →⟨ TP.red*Det erase-id₀-zero⇒*↯ ⟩
+¬erase-id₀-zero⇒*zero : ¬ erase str id₀-zero T.⇒* T.zero
+¬erase-id₀-zero⇒*zero {str} =
+  erase str id₀-zero T.⇒* T.zero     →⟨ TP.red*Det erase-id₀-zero⇒*↯ ⟩
   T.↯ T.⇒* T.zero ⊎ T.zero T.⇒* T.↯  →⟨ ⊎.map TP.↯-noRed TP.zero-noRed ⟩
   T.zero PE.≡ T.↯ ⊎ T.↯ PE.≡ T.zero  →⟨ (λ { (inj₁ ()); (inj₂ ()) }) ⟩
   ⊥                                  □
@@ -616,7 +621,7 @@ head =
 -- The erasure of head includes an erased part (T.↯).
 
 erase-head :
-  erase head PE.≡
+  erase str head PE.≡
   (T.Term.lam $ T.Term.lam $
    T.natrec
      (T.lam (T.lam T.↯))
@@ -846,14 +851,14 @@ head-[0] = head ∘⟨ 𝟘 ⟩ ℕ ∘⟨ ω ⟩ suc zero ∘⟨ ω ⟩ [0] ∘
 -- The erasure of head-[0] includes several erased parts (T.↯).
 
 erase-head-[0] :
-  erase head-[0] PE.≡
+  erase str head-[0] PE.≡
   (T.lam
      (T.Term.lam $
       T.natrec (T.lam (T.lam T.↯))
         (T.lam (T.lam (T.fst (T.var x1))))
-        (T.var x0)) T.∘⟨ T.non-strict ⟩
-   T.↯ T.∘⟨ T.non-strict ⟩ T.suc T.zero T.∘⟨ T.non-strict ⟩
-   T.prod T.zero T.star T.∘⟨ T.non-strict ⟩ T.↯)
+        (T.var x0)) T.∘⟨ str ⟩
+   T.↯ T.∘⟨ str ⟩ T.suc T.zero T.∘⟨ str ⟩
+   T.prod T.zero T.star T.∘⟨ str ⟩ T.↯)
 erase-head-[0] = PE.refl
 
 -- The term head-[0] is well-resourced.
@@ -873,24 +878,27 @@ erase-head-[0] = PE.refl
 
 -- The erasure of head-[0] reduces to T.zero.
 
-erase-head-[0]⇒*zero : erase head-[0] T.⇒* T.zero
+erase-head-[0]⇒*zero : erase str head-[0] T.⇒* T.zero
 erase-head-[0]⇒*zero =
-  T.trans (T.app-subst (T.app-subst (T.app-subst (T.β-red _)))) $
-  T.trans (T.app-subst (T.app-subst (T.β-red _))) $
-  T.trans (T.app-subst (T.app-subst T.natrec-suc)) $
-  T.trans (T.app-subst (T.β-red _)) $
-  T.trans (T.β-red _) $
+  T.trans (T.app-subst $ T.app-subst $ T.app-subst $ T.β-red $
+           TP.Value→Value⟨⟩ T.↯) $
+  T.trans (T.app-subst $ T.app-subst $ T.β-red $
+           TP.Value→Value⟨⟩ T.suc) $
+  T.trans (T.app-subst $ T.app-subst $ T.natrec-suc) $
+  T.trans (T.app-subst $ T.β-red $ TP.Value→Value⟨⟩ T.prod) $
+  T.trans (T.β-red $ TP.Value→Value⟨⟩ T.↯) $
   T.trans T.Σ-β₁
   T.refl
 
 -- The term head-[0] reduces to zero.
 --
--- Note that this is proved using the fact that the erasure of
--- head-[0] reduces to T.zero.
+-- Note that this is proved using the fact that the (non-strict)
+-- erasure of head-[0] reduces to T.zero.
 
 head-[0]⇒*zero : ε ⊢ head-[0] ⇒* zero ∷ ℕ
 head-[0]⇒*zero =
-  case Soundness₀.soundness-ℕ ⊢head-[0] ▸head-[0] of λ where
+  case Soundness₀.soundness-ℕ
+         T.non-strict ⊢head-[0] ▸head-[0] of λ where
     (0 , head-[0]⇒*zero , _) →
       S.⇒ˢ*zero∷ℕ→⇒*zero head-[0]⇒*zero
     (1+ _ , _ , erase-head-[0]⇒*suc) →

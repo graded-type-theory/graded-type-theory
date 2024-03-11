@@ -94,10 +94,11 @@ natrecʳ″ : ∀ {l m w} {Γ : Con Term n}
          → ([m] : Δ ⊩⟨ l ⟩ m ∷ ℕ / proj₁ (unwrap [ℕ] ⊢Δ [σ]))
          → (n®w : m ® w ∷ℕ)
          → natrec p q r (A [ liftSubst σ ]) (z [ σ ])
-             (s [ liftSubstn σ 2 ]) m
-           ®⟨ l ⟩ T.natrec (erase z T.[ σ′ ]) (erase s T.[ T.liftSubstn σ′ 2 ]) w
-           ∷ A [ consSubst σ m ] ◂ ⌜ mo ⌝
-           / proj₁ (unwrap [A] ⊢Δ ([σ] , [m]))
+             (s [ liftSubstn σ 2 ]) m ®⟨ l ⟩
+           T.natrec (erase str z T.[ σ′ ])
+             (erase str s T.[ T.liftSubstn σ′ 2 ]) w ∷
+           A [ consSubst σ m ] ◂ ⌜ mo ⌝ /
+           proj₁ (unwrap [A] ⊢Δ ([σ] , [m]))
 natrecʳ″ {mo = 𝟘ᵐ} with is-𝟘? 𝟘
 ... | yes _ = _
 ... | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 PE.refl)
@@ -131,7 +132,7 @@ natrecʳ″
       nrm⇒nr0′ = conv* nrm⇒nr0 A[m]≡A[0]
       nr0⇒z = natrec-zero ⊢σA ⊢σz′ ⊢σs′
       nrm⇒z = nrm⇒nr0′ ⇨∷* redMany nr0⇒z
-      nrw⇒nr0 = TP.natrec-subst* {s = erase s T.[ T.liftSubstn σ′ 2 ]} w⇒zero
+      nrw⇒nr0 = TP.natrec-subst* w⇒zero
       nrw⇒z = TP.red*concat nrw⇒nr0 (T.trans T.natrec-zero T.refl)
       z®z′ = ⊩ʳz [σ] $
              subsumptionSubst σ®σ′ (λ _ → proj₁ ∘→ ≡𝟘→≡𝟘 _)
@@ -154,7 +155,8 @@ natrecʳ″
   let [ℕ] = ℕᵛ {l = l} [Γ]
       σnrm = natrec p q r (A [ liftSubst σ ]) (z [ σ ]) (s [ liftSubstn σ 2 ]) m
       σnrm′ = natrec p q r (A [ liftSubst σ ]) (z [ σ ]) (s [ liftSubstn σ 2 ]) m′
-      σnrw′ = T.natrec (erase z T.[ σ′ ]) (erase s T.[ T.liftSubstn σ′ 2 ]) w′
+      σnrw′ = T.natrec (erase str z T.[ σ′ ])
+                (erase str s T.[ T.liftSubstn σ′ 2 ]) w′
       [σA₀] = proj₁ (unwrap [A₀] ⊢Δ [σ])
       [σz] = proj₁ ([z] ⊢Δ [σ])
       ⊢σz = escapeTerm [σA₀] [σz]
@@ -189,9 +191,7 @@ natrecʳ″
       nrm⇒nrsucm″ = conv* nrm⇒nrsucm′ A[m]≡A[sucm′]
       nrsucm′⇒s = natrec-suc ⊢σA ⊢σz′ ⊢σs′ ⊢m′
       nrm⇒s = nrm⇒nrsucm″ ⇨∷* redMany nrsucm′⇒s
-      nrw⇒nrsucw′ = TP.natrec-subst* {z = erase z T.[ σ′ ]}
-                                     {s = erase s T.[ T.liftSubstn σ′ 2 ]}
-                                     w⇒sucw′
+      nrw⇒nrsucw′ = TP.natrec-subst* w⇒sucw′
       nrw⇒s = TP.red*concat nrw⇒nrsucw′ (T.trans T.natrec-suc T.refl)
       σ®σ′ₛ = subsumptionSubst σ®σ′ (λ _ → proj₂ ∘→ ≡𝟘→≡𝟘 _)
       nrm′®nrw′ = natrecʳ″ {A = A} {z = z} {s = s}
@@ -210,10 +210,12 @@ natrecʳ″
                               (PE.trans (substVar-to-subst substLem A) (PE.sym (substCompEq A))))
                               [σ₊A₊] [A[sucm′]]′ s®s′
       s®s‴ = PE.subst₂ (λ t v → t ®⟨ l ⟩ v ∷ A [ liftSubst σ ] [ suc m′ ]₀ / [A[sucm′]]′)
-                       (PE.trans (substVar-to-subst substLem′ s) (PE.sym (substCompEq s)))
-                       (PE.trans (TP.substVar-to-subst substLem″ (erase s))
-                                 (PE.sym (TP.substCompEq (erase s))))
-                       s®s″
+               (PE.trans (substVar-to-subst substLem′ s) $
+                PE.sym (substCompEq s))
+               (PE.trans
+                  (TP.substVar-to-subst substLem″ (erase str s)) $
+                PE.sym (TP.substCompEq (erase str s)))
+               s®s″
       nrm®nrw = redSubstTerm* [A[sucm′]]′ s®s‴ nrm⇒s nrw⇒s
       nrm®nrw′ = convTermʳ [A[sucm′]]′ [σA[m]]′ (sym A[m]≡A[sucm′])
                    nrm®nrw
@@ -234,13 +236,15 @@ natrecʳ″
   substLem′ (x0 +1) = PE.refl
   substLem′ (x +2) = PE.sym (PE.trans (wk1-tail (wk1 (σ x)))
                                          (PE.trans (wk1-tail (σ x)) (subst-id (σ x))))
-  substLem″ : (x : Fin (2+ n))
-            → T.consSubst (T.consSubst σ′ w′) (T.natrec (erase z T.[ σ′ ])
-                          (erase s T.[ T.liftSubstn σ′ 2 ]) w′) x
-            PE.≡ (T.consSubst (T.consSubst T.idSubst w′)
-                              (T.natrec (erase z T.[ σ′ ])
-                                        (erase s T.[ T.liftSubstn σ′ 2 ]) w′)
-                 T.ₛ•ₛ T.liftSubst (T.liftSubst σ′)) x
+  substLem″ :
+    (x : Fin (2+ n)) →
+    T.consSubst (T.consSubst σ′ w′)
+      (T.natrec (erase str z T.[ σ′ ])
+         (erase str s T.[ T.liftSubstn σ′ 2 ]) w′) x PE.≡
+    (T.consSubst (T.consSubst T.idSubst w′)
+       (T.natrec (erase str z T.[ σ′ ])
+          (erase str s T.[ T.liftSubstn σ′ 2 ]) w′) T.ₛ•ₛ
+     T.liftSubst (T.liftSubst σ′)) x
   substLem″ x0 = PE.refl
   substLem″ (x0 +1) = PE.refl
   substLem″ (x +2) = PE.sym (PE.trans (TP.wk1-tail (T.wk1 (σ′ x)))

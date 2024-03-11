@@ -156,14 +156,16 @@ unitrecʳ′ {n} {Γ} {l} {A} {t} {u} {γ} {𝟙ᵐ} {p} {δ} {q}
               in  unitrec𝟘 p≡𝟘 [σAₜ] ur®ur′
           ; (no p≢𝟘) →
               let _ , d′ = lemma p≢𝟘
-                  redᵥ = TP.unitrec-subst* {u = (erase u) T.[ σ′ ]} d′
+                  redᵥ = TP.unitrec-subst* d′
                   redᵥ′ = TP.red*concat redᵥ (T.trans T.unitrec-β T.refl)
                   ur®ur′ = redSubstTerm* [σAₜ] u®u″ redₜ″ redᵥ′
               in  unitrecω p≢𝟘 [σAₜ] ur®ur′
           }
     }
   where
-  lemma : (p PE.≢ 𝟘) → Δ ⊢ t [ σ ] ⇒* starʷ ∷ Unitʷ × erase t T.[ σ′ ] T.⇒* T.star
+  lemma :
+    (p PE.≢ 𝟘) →
+    Δ ⊢ t [ σ ] ⇒* starʷ ∷ Unitʷ × erase str t T.[ σ′ ] T.⇒* T.star
   lemma p≢𝟘 =
     let σ®σ′ₜ = subsumptionSubst σ®σ′ λ x pγ+δ≡𝟘 →
                  case zero-product (PE.trans (PE.sym (lookup-distrib-·ᶜ γ p x))
@@ -178,15 +180,18 @@ unitrecʳ′ {n} {Γ} {l} {A} {t} {u} {γ} {𝟙ᵐ} {p} {δ} {q}
              non-trivial (PE.trans (PE.sym (PE.cong ⌜_⌝ (≢𝟘→ᵐ·≡ {m = 𝟙ᵐ} p≢𝟘))) x)) of λ where
         (starᵣ d d′) → d , d′
   ur = unitrec p q A t u
-  unitrec𝟘 : p PE.≡ 𝟘 → ([B] : Δ ⊩⟨ l ⟩ B)
-           → ur [ σ ] ®⟨ l ⟩ T.unitrec T.star (erase u) T.[ σ′ ] ∷ B / [B]
-           → ur [ σ ] ®⟨ l ⟩ erase ur T.[ σ′ ] ∷ B ◂ 𝟙 / [B]
+  unitrec𝟘 :
+    p PE.≡ 𝟘 → ([B] : Δ ⊩⟨ l ⟩ B) →
+    ur [ σ ] ®⟨ l ⟩ T.unitrec T.star (erase str u) T.[ σ′ ] ∷ B / [B] →
+    ur [ σ ] ®⟨ l ⟩ erase str ur T.[ σ′ ] ∷ B ◂ 𝟙 / [B]
   unitrec𝟘 p≡𝟘 [B] ur®ur′ with is-𝟘? p
   ... | yes _ = ur®ur′ ◀ 𝟙
   ... | no p≢𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
-  unitrecω : p PE.≢ 𝟘 → ([B] : Δ ⊩⟨ l ⟩ B)
-           → ur [ σ ] ®⟨ l ⟩ T.unitrec (erase t) (erase u) T.[ σ′ ] ∷ B / [B]
-           → ur [ σ ] ®⟨ l ⟩ erase ur T.[ σ′ ] ∷ B ◂ 𝟙 / [B]
+  unitrecω :
+    p PE.≢ 𝟘 → ([B] : Δ ⊩⟨ l ⟩ B) →
+    ur [ σ ] ®⟨ l ⟩ T.unitrec (erase str t) (erase str u) T.[ σ′ ] ∷ B /
+      [B] →
+    ur [ σ ] ®⟨ l ⟩ erase str ur T.[ σ′ ] ∷ B ◂ 𝟙 / [B]
   unitrecω p≢𝟘 [B] ur®ur′ with is-𝟘? p
   ... | yes p≡𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
   ... | no _ = ur®ur′ ◀ 𝟙
