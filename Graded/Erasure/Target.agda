@@ -14,7 +14,7 @@ infixl 30 _∘_
 infixl 25 _[_]
 infixl 25 _[_,_]
 infixl 25 _[_]₀
-infix 10 _⇒_
+infix 10 _⇒_ _⇒*_
 
 private
   variable
