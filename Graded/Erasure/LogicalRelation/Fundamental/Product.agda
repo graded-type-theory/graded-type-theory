@@ -99,7 +99,7 @@ private
   ∃ λ ([U] : Γ ⊩ᵛ⟨ ¹ ⟩ U / [Γ]) →
   γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ∷[ m ] U / [Γ] / [U]
 ΠΣʳ {m = m} _ _ [Γ] =
-    [U] , λ _ _ → Uᵣ T.refl ◀ ⌜ m ⌝
+    [U] , λ _ _ → Uᵣ (λ _ → T.refl) ◀ ⌜ m ⌝
   where
   [U] = Uᵛ [Γ]
 
@@ -195,9 +195,9 @@ prodʳ
                  (PE.sym (prod-ω s p≢𝟘)) T.refl)
               t₁®v₁″ p≢𝟘
           (T.strict , PE.refl) →
-            case reduces-to-value [σF]′ t₁®v₁″ of λ
+            case reduces-to-value PE.refl [σF]′ t₁®v₁″ of λ
               (v₁ , v₁-val , erase-t[σ′]⇒*v₁) →
-            case reduces-to-value [σG[t]]″ u®u″ of λ
+            case reduces-to-value PE.refl [σG[t]]″ u®u″ of λ
               (v₂ , v₂-val , erase-u[σ′]⇒*v₂) →
             _ , _ , id ⊢prod , [σt]′ , _ ,
             targetRedSubstTerm*′ [σG[t]]″ u®u″ erase-u[σ′]⇒*v₂ ,

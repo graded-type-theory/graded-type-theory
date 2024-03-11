@@ -121,7 +121,7 @@ lamʳ′ {F = F} {G = G} {γ = γ} {p = p} {t = t} {σ = σ} {σ′ = σ′}
                T.∘⟨ T.strict ⟩ w                             ⇒⟨ T.β-red val ⟩
              erase T.strict t T.[ T.liftSubst σ′ ] T.[ w ]₀  ∎⇒)
           (no p≢𝟘) →
-            case reduces-to-value [σF] (u®w ◀≢𝟘 p≢𝟘) of λ
+            case reduces-to-value PE.refl [σF] (u®w ◀≢𝟘 p≢𝟘) of λ
               (w′ , val , w⇒*w′) →
               _ , val , w⇒*w′
             , (T.lam (erase T.strict t T.[ T.liftSubst σ′ ])
@@ -166,7 +166,7 @@ lamʳ {F = F} {G = G} {t = t} {m = 𝟙ᵐ} {p = p} {q = q}
      with is-𝟘? ⌜ 𝟙ᵐ ⌝
 ... | yes 𝟙≡𝟘 = _
 ... | no 𝟙≢𝟘 with is-𝟘? p
-... | yes PE.refl = (_ , T.refl) , λ [a] →
+... | yes PE.refl = (λ _ → _ , T.refl) , λ [a] →
   let [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
       [ρσF] = W.wk id ⊢Δ [σF]
       [a]′ = I.irrelevanceTerm′ (UP.wk-id (F [ σ ])) [ρσF] [σF] [a]
@@ -185,7 +185,7 @@ lamʳ {F = F} {G = G} {t = t} {m = 𝟙ᵐ} {p = p} {q = q}
                                                   (UP.wk-lift-id (G [ liftSubst σ ])))
                                          (UP.singleSubstComp _ σ G)))
                        [Ga] [Ga]″ λta®λv↯
-... | no p≢𝟘 = (_ , T.refl) , λ [a] {w} a®w →
+... | no p≢𝟘 = (λ _ → _ , T.refl) , λ [a] {w} a®w →
   let [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
       [ρσF] = W.wk id ⊢Δ [σF]
       [a]′ = I.irrelevanceTerm′ (UP.wk-id (F [ σ ])) [ρσF] [σF] [a]

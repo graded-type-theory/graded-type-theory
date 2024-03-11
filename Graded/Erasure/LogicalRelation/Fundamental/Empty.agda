@@ -50,7 +50,7 @@ Emptyʳ : ⊢ Γ
       → ∃ λ ([U] : Γ ⊩ᵛ⟨ ¹ ⟩ U / [Γ])
       → γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ Empty ∷[ m ] U / [Γ] / [U]
 Emptyʳ {m = m} ⊢Γ =
-  [Γ] , [U] , λ _ _ → Uᵣ T.refl ◀ ⌜ m ⌝
+  [Γ] , [U] , λ _ _ → Uᵣ (λ _ → T.refl) ◀ ⌜ m ⌝
   where
   [Γ] = valid ⊢Γ
   [U] = Uᵛ [Γ]

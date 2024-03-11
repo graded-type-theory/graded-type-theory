@@ -213,7 +213,7 @@ prodrecωʳ′-𝟘
            T.[ T.consSubst (T.consSubst σ′ (loop str)) $
                erase str t T.[ σ′ ] ]                                 ∎⇒)
       (T.strict , PE.refl) →
-        case reduces-to-value [σGt₁] t₂®v₂ of λ
+        case reduces-to-value PE.refl [σGt₁] t₂®v₂ of λ
           (v₂′ , v₂′-val , v₂⇒*v₂′) →
         case TP.red*concat d′ v₂⇒*v₂′ of λ
           erase-t[σ′]⇒*v₂′ →

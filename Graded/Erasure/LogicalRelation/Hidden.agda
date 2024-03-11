@@ -37,13 +37,13 @@ open import Graded.Erasure.Extraction 𝕄
 open import Graded.Erasure.LogicalRelation as
 open import Graded.Erasure.LogicalRelation.Irrelevance as
 open import Graded.Erasure.LogicalRelation.Subsumption as
-import Graded.Erasure.Target as T
+open import Graded.Erasure.Target as T using (strict)
 import Graded.Erasure.Target.Properties as TP
 open import Graded.Mode 𝕄
 
 open import Tools.Function
 open import Tools.Product
-open import Tools.PropositionalEquality as PE using (_≢_)
+open import Tools.PropositionalEquality as PE using (_≡_; _≢_)
 open import Tools.Relation
 
 private variable
@@ -163,7 +163,7 @@ opaque
   ®-Π :
     p ≢ 𝟘 →
     t ®⟨ l ⟩ v ∷ Π p , q ▷ A ▹ B →
-    (∃ λ v′ → v T.⇒* T.lam v′) ×
+    (str ≡ strict → ∃ λ v′ → v T.⇒* T.lam v′) ×
     ∃ λ l′ → l′ L.≤ l ×
     ∀ t′ v′ → Δ ⊢ t′ ∷ A → t′ ®⟨ l′ ⟩ v′ ∷ A →
     t ∘⟨ p ⟩ t′ ®⟨ l′ ⟩ v T.∘⟨ str ⟩ v′ ∷ B [ t′ ]₀
@@ -174,7 +174,7 @@ opaque
     lemma :
       (⊩Π : Δ ⊩⟨ l ⟩B⟨ BΠ p q ⟩ Π p , q ▷ A ▹ B) →
       t ®⟨ l ⟩ v ∷ Π p , q ▷ A ▹ B / B-intr (BΠ p q) ⊩Π →
-      (∃ λ v′ → v T.⇒* T.lam v′) ×
+      (str ≡ strict → ∃ λ v′ → v T.⇒* T.lam v′) ×
       ∃ λ l′ → l′ L.≤ l ×
       ∀ t′ v′ → Δ ⊢ t′ ∷ A → t′ ®⟨ l′ ⟩ v′ ∷ A →
       t ∘⟨ p ⟩ t′ ®⟨ l′ ⟩ v T.∘⟨ str ⟩ v′ ∷ B [ t′ ]₀
@@ -208,7 +208,7 @@ opaque
 
   ®-Π₀ :
     t ®⟨ l ⟩ v ∷ Π 𝟘 , q ▷ A ▹ B →
-    (∃ λ v′ → v T.⇒* T.lam v′) ×
+    (str ≡ strict → ∃ λ v′ → v T.⇒* T.lam v′) ×
     ∃ λ l′ → l′ L.≤ l ×
     ∀ t′ → Δ ⊢ t′ ∷ A →
     t ∘⟨ 𝟘 ⟩ t′ ®⟨ l′ ⟩ v T.∘⟨ str ⟩ T.↯ ∷ B [ t′ ]₀
@@ -219,7 +219,7 @@ opaque
     lemma :
       (⊩Π : Δ ⊩⟨ l ⟩B⟨ BΠ 𝟘 q ⟩ Π 𝟘 , q ▷ A ▹ B) →
       t ®⟨ l ⟩ v ∷ Π 𝟘 , q ▷ A ▹ B / B-intr (BΠ 𝟘 q) ⊩Π →
-      (∃ λ v′ → v T.⇒* T.lam v′) ×
+      (str ≡ strict → ∃ λ v′ → v T.⇒* T.lam v′) ×
       ∃ λ l′ → l′ L.≤ l ×
       ∀ t′ → Δ ⊢ t′ ∷ A →
       t ∘⟨ 𝟘 ⟩ t′ ®⟨ l′ ⟩ v T.∘⟨ str ⟩ T.↯ ∷ B [ t′ ]₀

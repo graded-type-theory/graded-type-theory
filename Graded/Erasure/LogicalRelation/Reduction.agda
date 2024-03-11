@@ -38,10 +38,11 @@ open import Definition.Untyped.Properties M as UP using (wk-id ; wk-lift-id)
 open import Graded.Erasure.LogicalRelation as
 open import Graded.Erasure.Target as T hiding (_⇒_; _⇒*_)
 open import Graded.Erasure.Target.Properties as TP
+open import Graded.Erasure.Target.Reasoning
 
 open import Tools.Function
 open import Tools.Nat
-open import Tools.Product
+open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 open import Tools.Sum hiding (id ; sym)
@@ -117,21 +118,21 @@ sourceRedSubstTerm* [A] t′®v (x ⇨ t⇒t′) =
 
 targetRedSubstTerm : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v′ ∷ A / [A]
                    → v T.⇒ v′ → t ®⟨ l ⟩ v ∷ A / [A]
-targetRedSubstTerm (Uᵣ _) (Uᵣ ⇒*↯) v⇒v′ = Uᵣ (T.trans v⇒v′ ⇒*↯)
+targetRedSubstTerm (Uᵣ _) (Uᵣ ⇒*↯) v⇒v′ = Uᵣ (T.trans v⇒v′ ∘→ ⇒*↯)
 targetRedSubstTerm (ℕᵣ x) (zeroᵣ t′⇒zero v′⇒zero) v⇒v′ = zeroᵣ t′⇒zero (trans v⇒v′ v′⇒zero)
 targetRedSubstTerm (ℕᵣ _) (sucᵣ t′⇒suc v′⇒suc num t®v) v⇒v′ =
   sucᵣ t′⇒suc (trans v⇒v′ v′⇒suc) num t®v
 targetRedSubstTerm (Unitᵣ x) (starᵣ x₁ v′⇒star) v⇒v′ = starᵣ x₁ (trans v⇒v′ v′⇒star)
 targetRedSubstTerm
   (Bᵣ′ (BΠ p q) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext _)
-  ((_ , v′⇒*lam) , t®v′) v⇒v′
-  with is-𝟘? p | T.trans v⇒v′ v′⇒*lam
-... | yes PE.refl | v⇒*lam = (_ , v⇒*lam) , λ {a = a} [a] →
+  (v′⇒*lam , t®v′) v⇒v′
+  with is-𝟘? p | Σ.map idᶠ (T.trans v⇒v′) ∘→ v′⇒*lam
+... | yes PE.refl | v⇒*lam = v⇒*lam , λ {a = a} [a] →
   let t®v = t®v′ [a]
       v∘w⇒v′∘w′ = T.app-subst v⇒v′
       [G[a]] = [G] id ⊢Δ [a]
   in  targetRedSubstTerm [G[a]] t®v v∘w⇒v′∘w′
-... | no p≢𝟘 | v⇒*lam = (_ , v⇒*lam) , λ {a = a} [a] a®w →
+... | no p≢𝟘 | v⇒*lam = v⇒*lam , λ {a = a} [a] a®w →
   let t®v = t®v′ [a] a®w
       v∘w⇒v′∘w′ = T.app-subst v⇒v′
       [G[a]] = [G] id ⊢Δ [a]
@@ -145,7 +146,7 @@ targetRedSubstTerm {A = A} {t = t} {v = v}
                     (λ v′⇒v₂         → Σ-®-intro-𝟘 (trans v⇒v′ v′⇒v₂))
                     (λ v₁ v′⇒p t₁®v₁ → Σ-®-intro-ω v₁ (trans v⇒v′ v′⇒p) t₁®v₁)
 targetRedSubstTerm (Idᵣ _) (rflᵣ t⇒*rfl ⇒*↯) v⇒v′ =
-  rflᵣ t⇒*rfl (T.trans v⇒v′ ⇒*↯)
+  rflᵣ t⇒*rfl (T.trans v⇒v′ ∘→ ⇒*↯)
 targetRedSubstTerm (emb 0<1 [A]) t®v′ v⇒v′ = targetRedSubstTerm [A] t®v′ v⇒v′
 
 
@@ -286,10 +287,13 @@ targetRedSubstTerm*′ :
 
 targetRedSubstTerm′ : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A]
                     → v T.⇒ v′ → t ®⟨ l ⟩ v′ ∷ A / [A]
-targetRedSubstTerm′ (Uᵣ _) (Uᵣ v⇒*↯) v⇒v′
-  with red*Det v⇒*↯ (T.trans v⇒v′ T.refl)
-... | inj₁ ↯⇒*v′ rewrite ↯-noRed ↯⇒*v′ = Uᵣ T.refl
-... | inj₂ v′⇒*↯ = Uᵣ v′⇒*↯
+targetRedSubstTerm′ {v′} (Uᵣ _) (Uᵣ v⇒*↯) v⇒v′ =
+  Uᵣ λ ≡strict →
+  case red*Det (v⇒*↯ ≡strict) (T.trans v⇒v′ T.refl) of λ where
+    (inj₂ v′⇒*↯) → v′⇒*↯
+    (inj₁ ↯⇒*v′) →
+      v′  ≡⟨ ↯-noRed ↯⇒*v′ ⟩⇒
+      ↯   ∎⇒
 targetRedSubstTerm′ (ℕᵣ x) (zeroᵣ x₁ v⇒zero) v⇒v′ with red*Det v⇒zero (T.trans v⇒v′ T.refl)
 ... | inj₁ x₂ rewrite zero-noRed x₂ = zeroᵣ x₁ T.refl
 ... | inj₂ x₂ = zeroᵣ x₁ x₂
@@ -303,11 +307,11 @@ targetRedSubstTerm′ (Unitᵣ x) (starᵣ x₁ v⇒star) v⇒v′ with red*Det 
 targetRedSubstTerm′
   (Bᵣ′ (BΠ p q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _) t®v′ v⇒v′
   with is-𝟘? p
-... | yes PE.refl = Π-lemma v⇒v′ (t®v′ .proj₁) , λ [a] →
+... | yes PE.refl = Π-lemma v⇒v′ ∘→ t®v′ .proj₁ , λ [a] →
   let t®v = t®v′ .proj₂ [a]
       v∘w⇒v′∘w = T.app-subst v⇒v′
   in  targetRedSubstTerm′ ([G] id ⊢Δ [a]) t®v v∘w⇒v′∘w
-... | no p≢𝟘 = Π-lemma v⇒v′ (t®v′ .proj₁) , λ [a] a®w →
+... | no p≢𝟘 = Π-lemma v⇒v′ ∘→ t®v′ .proj₁ , λ [a] a®w →
   let t®v = t®v′ .proj₂ [a] a®w
       v∘w⇒v′∘w = T.app-subst v⇒v′
   in  targetRedSubstTerm′ ([G] id ⊢Δ [a]) t®v v∘w⇒v′∘w
@@ -330,10 +334,13 @@ targetRedSubstTerm′
              PE.refl → Σ-®-intro-ω v₁ refl t₁®v₁ p≢𝟘
            (inj₂ v′⇒p) → Σ-®-intro-ω v₁ v′⇒p t₁®v₁ p≢𝟘)
 
-targetRedSubstTerm′ (Idᵣ _) (rflᵣ t⇒*rfl v⇒*↯) v⇒v′
-  with red*Det v⇒*↯ (T.trans v⇒v′ T.refl)
-... | inj₁ ↯⇒*v′ rewrite ↯-noRed ↯⇒*v′ = rflᵣ t⇒*rfl T.refl
-... | inj₂ v′⇒*↯ = rflᵣ t⇒*rfl v′⇒*↯
+targetRedSubstTerm′ {v′} (Idᵣ _) (rflᵣ t⇒*rfl v⇒*↯) v⇒v′ =
+  rflᵣ t⇒*rfl λ ≡strict →
+  case red*Det (v⇒*↯ ≡strict) (T.trans v⇒v′ T.refl) of λ where
+    (inj₂ v′⇒*↯) → v′⇒*↯
+    (inj₁ ↯⇒*v′) →
+      v′  ≡⟨ ↯-noRed ↯⇒*v′ ⟩⇒
+      ↯   ∎⇒
 targetRedSubstTerm′ (emb 0<1 [A]) t®v v⇒v′ = targetRedSubstTerm′ [A] t®v v⇒v′
 
 

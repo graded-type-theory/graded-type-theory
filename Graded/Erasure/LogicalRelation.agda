@@ -35,7 +35,7 @@ open import Tools.Function
 open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE using (_≡_)
 open import Tools.Relation
 open import Tools.Unit
 
@@ -52,11 +52,13 @@ private
 ------------------------------------------------------------------------
 -- The logical relation
 
--- Terms of type U are related to those terms that reduce to ↯.
--- (All types are erased by the extraction function.)
+-- In the non-strict setting terms of type U are related to all target
+-- terms, and in the strict setting they are related to those terms
+-- that reduce to ↯. (All types are erased by the extraction
+-- function.)
 
 data _®_∷U (t : U.Term k) (v : T.Term k) : Set a where
-  Uᵣ : v T.⇒* ↯ → t ® v ∷U
+  Uᵣ : (str ≡ strict → v T.⇒* ↯) → t ® v ∷U
 
 -- Terms of type ℕ are related if both reduce to zero or if both
 -- reduce to the successors of related terms (in the strict setting
@@ -78,13 +80,14 @@ data _®_∷Empty (t : U.Term k) (v : T.Term k) : Set a where
 data _®_∷Unit⟨_⟩ (t : U.Term k) (v : T.Term k) (s : Strength) : Set a where
   starᵣ : Δ ⊢ t ⇒* U.star s ∷ Unit s → v T.⇒* T.star → t ® v ∷Unit⟨ s ⟩
 
--- Equality proofs are related if the source term reduces to rfl and
--- the target term reduces to ↯.
+-- Equality proofs are related in the non-strict setting if the source
+-- term reduces to rfl. In the strict setting the target term should
+-- additionally reduce to ↯.
 
 data _®_∷Id⟨_⟩⟨_⟩⟨_⟩
        (t : U.Term k) (v : T.Term k) (Ty lhs rhs : U.Term k) :
        Set a where
-  rflᵣ : Δ ⊢ t ⇒* U.rfl ∷ Id Ty lhs rhs → v T.⇒* ↯ →
+  rflᵣ : Δ ⊢ t ⇒* U.rfl ∷ Id Ty lhs rhs → (str ≡ strict → v T.⇒* ↯) →
          t ® v ∷Id⟨ Ty ⟩⟨ lhs ⟩⟨ rhs ⟩
 
 mutual
@@ -102,7 +105,7 @@ mutual
 
   -- Π:
   t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΠ p q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _ =
-    (∃ λ v′ → v T.⇒* T.lam v′) ×
+    (str ≡ strict → ∃ λ v′ → v T.⇒* T.lam v′) ×
     (∀ {a} → ([a] : Δ ⊩⟨ l ⟩ a ∷ U.wk id F / [F] id ⊢Δ) →
      Π-® l F G t a v ([F] id ⊢Δ) ([G] id ⊢Δ [a]) p (is-𝟘? p))
 
