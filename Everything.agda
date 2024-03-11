@@ -373,14 +373,14 @@ import Graded.Erasure.LogicalRelation.Fundamental.Identity
 import Graded.Erasure.LogicalRelation.Fundamental.Assumptions
 import Graded.Erasure.LogicalRelation.Fundamental
 
+-- Soundness of Extraction function
+import Graded.Erasure.SucRed
+import Graded.Erasure.Consequences.Soundness
+
 -- The fundamental lemma does not hold in general without the
 -- assumption that erased matches are disallowed or the context is
 -- empty
 import Graded.Erasure.LogicalRelation.Fundamental.Counterexample
-
--- Soundness of Extraction function
-import Graded.Erasure.SucRed
-import Graded.Erasure.Consequences.Soundness
 
 -- Non-interference
 import Graded.Erasure.Consequences.Non-interference
