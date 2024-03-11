@@ -2,24 +2,32 @@
 -- Laws for substiutions in the target language.
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 module Graded.Erasure.Target.Properties.Substitution where
 
-open import Definition.Untyped.NotParametrised
+open import Definition.Untyped.NotParametrised hiding (_∙_)
 
 open import Graded.Erasure.Target hiding (refl ; trans)
 open import Graded.Erasure.Target.Properties.Weakening
 
+open import Tools.Empty
 open import Tools.Fin
+open import Tools.Function
 open import Tools.Nat
+open import Tools.Product as Σ renaming (_,_ to _∙_)
 open import Tools.PropositionalEquality hiding (subst)
 open import Tools.Reasoning.PropositionalEquality
+open import Tools.Relation
+open import Tools.Sum as ⊎ using (_⊎_; inj₁; inj₂)
 
 private
   variable
     ℓ m n : Nat
+    x : Fin n
     ρ ρ′ : Wk m n
     σ σ′ : Subst m n
-    t : Term n
+    t u v : Term n
     s : Strictness
 
 -- Substitution properties.
@@ -412,3 +420,161 @@ opaque
   suc⟨⟩-[] : suc⟨ s ⟩ t [ σ ] ≡ suc⟨ s ⟩ (t [ σ ])
   suc⟨⟩-[] {s = strict}     = refl
   suc⟨⟩-[] {s = non-strict} = refl
+
+opaque
+
+  -- If x occurs in t [ σ ], then x occurs in σ y for some y that
+  -- occurs in t.
+
+  HasX-[]→ : HasX x (t [ σ ]) → ∃ λ y → HasX y t × HasX x (σ y)
+  HasX-[]→ {x} {t = var z} {σ} =
+    HasX x (σ z)                             →⟨ (λ has → z ∙ varₓ ∙ has) ⟩
+    (∃ λ y → HasX y (var z) × HasX x (σ y))  □
+  HasX-[]→ {x} {t = lam t} {σ} =
+    HasX x (lam t [ σ ])                                        →⟨ (λ { (lamₓ has) → has }) ⟩
+    HasX (x +1) (t [ liftSubst σ ])                             →⟨ HasX-[]→ ⟩
+    (∃ λ y → HasX y t × HasX (x +1) (liftSubst σ y))            →⟨ (λ { (x0 ∙ _ ∙ ()); (y +1 ∙ has₁ ∙ has₂) → y ∙ has₁ ∙ has₂ }) ⟩
+    (∃ λ y → HasX (y +1) t × HasX (x +1) (liftSubst σ (y +1)))  →⟨ idᶠ ⟩
+    (∃ λ y → HasX (y +1) t × HasX (x +1) (wk1Subst σ y))        →⟨ Σ.map idᶠ $ Σ.map lamₓ HasX-wkVar-wk→ ⟩
+    (∃ λ y → HasX y (lam t) × HasX x (σ y))                     □
+  HasX-[]→ {x} {t = t ∘⟨ s ⟩ u} {σ} =
+    HasX x ((t [ σ ]) ∘⟨ s ⟩ (u [ σ ]))           →⟨ (λ { (∘ₓˡ has) → inj₁ has; (∘ₓʳ has) → inj₂ has }) ⟩
+
+    HasX x (t [ σ ]) ⊎ HasX x (u [ σ ])           →⟨ ⊎.map HasX-[]→ HasX-[]→ ⟩
+
+    (∃ λ y → HasX y t × HasX x (σ y)) ⊎
+    (∃ λ y → HasX y u × HasX x (σ y))             →⟨ (λ { (inj₁ (_ ∙ has₁ ∙ has₂)) → _ ∙ ∘ₓˡ has₁ ∙ has₂
+                                                        ; (inj₂ (_ ∙ has₁ ∙ has₂)) → _ ∙ ∘ₓʳ has₁ ∙ has₂
+                                                        }) ⟩
+    (∃ λ y → HasX y (t ∘⟨ s ⟩ u) × HasX x (σ y))  □
+  HasX-[]→ {x} {t = prod t u} {σ} =
+    HasX x (prod (t [ σ ]) (u [ σ ]))           →⟨ (λ { (prodₓˡ has) → inj₁ has; (prodₓʳ has) → inj₂ has }) ⟩
+
+    HasX x (t [ σ ]) ⊎ HasX x (u [ σ ])         →⟨ ⊎.map HasX-[]→ HasX-[]→ ⟩
+
+    (∃ λ y → HasX y t × HasX x (σ y)) ⊎
+    (∃ λ y → HasX y u × HasX x (σ y))           →⟨ (λ { (inj₁ (_ ∙ has₁ ∙ has₂)) → _ ∙ prodₓˡ has₁ ∙ has₂
+                                                      ; (inj₂ (_ ∙ has₁ ∙ has₂)) → _ ∙ prodₓʳ has₁ ∙ has₂
+                                                      }) ⟩
+    (∃ λ y → HasX y (prod t u) × HasX x (σ y))  □
+  HasX-[]→ {x} {t = fst t} {σ} =
+    HasX x (fst (t [ σ ]))                   →⟨ (λ { (fstₓ has) → has }) ⟩
+    HasX x (t [ σ ])                         →⟨ HasX-[]→ ⟩
+    (∃ λ y → HasX y t × HasX x (σ y))        →⟨ (λ { (_ ∙ has₁ ∙ has₂) → _ ∙ fstₓ has₁ ∙ has₂ }) ⟩
+    (∃ λ y → HasX y (fst t) × HasX x (σ y))  □
+  HasX-[]→ {x} {t = snd t} {σ} =
+    HasX x (snd (t [ σ ]))                   →⟨ (λ { (sndₓ has) → has }) ⟩
+    HasX x (t [ σ ])                         →⟨ HasX-[]→ ⟩
+    (∃ λ y → HasX y t × HasX x (σ y))        →⟨ (λ { (_ ∙ has₁ ∙ has₂) → _ ∙ sndₓ has₁ ∙ has₂ }) ⟩
+    (∃ λ y → HasX y (snd t) × HasX x (σ y))  □
+  HasX-[]→ {x} {t = prodrec t u} {σ} =
+    HasX x (prodrec (t [ σ ]) (u [ liftSubstn σ 2 ]))      →⟨ (λ { (prodrecₓˡ has) → inj₁ has; (prodrecₓʳ has) → inj₂ has }) ⟩
+
+    HasX x (t [ σ ]) ⊎ HasX (x +2) (u [ liftSubstn σ 2 ])  →⟨ ⊎.map HasX-[]→ HasX-[]→ ⟩
+
+    (∃ λ y → HasX y t × HasX x (σ y)) ⊎
+    (∃ λ y → HasX y u × HasX (x +2) (liftSubstn σ 2 y))    →⟨ (⊎.map idᶠ λ where
+                                                                 (x0      ∙ _    ∙ ())
+                                                                 ((x0 +1) ∙ _    ∙ ())
+                                                                 ((y +2)  ∙ has₁ ∙ has₂) → y ∙ has₁ ∙ HasX-wkVar-wk→ (HasX-wkVar-wk→ has₂)) ⟩
+    (∃ λ y → HasX y t × HasX x (σ y)) ⊎
+    (∃ λ y → HasX (y +2) u × HasX x (σ y))                 →⟨ (λ { (inj₁ (_ ∙ has₁ ∙ has₂)) → _ ∙ prodrecₓˡ has₁ ∙ has₂
+                                                                 ; (inj₂ (_ ∙ has₁ ∙ has₂)) → _ ∙ prodrecₓʳ has₁ ∙ has₂
+                                                                 }) ⟩
+    (∃ λ y → HasX y (prodrec t u) × HasX x (σ y))          □
+  HasX-[]→ {x} {t = suc t} {σ} =
+    HasX x (suc (t [ σ ]))                   →⟨ (λ { (sucₓ has) → has }) ⟩
+    HasX x (t [ σ ])                         →⟨ HasX-[]→ ⟩
+    (∃ λ y → HasX y t × HasX x (σ y))        →⟨ (λ { (_ ∙ has₁ ∙ has₂) → _ ∙ sucₓ has₁ ∙ has₂ }) ⟩
+    (∃ λ y → HasX y (suc t) × HasX x (σ y))  □
+  HasX-[]→ {x} {t = natrec t u v} {σ} =
+    HasX x (natrec (t [ σ ]) (u [ liftSubstn σ 2 ]) (v [ σ ]))  →⟨ (λ { (natrecₓᶻ has) → inj₁ has
+                                                                      ; (natrecₓˢ has) → inj₂ (inj₁ has)
+                                                                      ; (natrecₓⁿ has) → inj₂ (inj₂ has)
+                                                                      }) ⟩
+    HasX x (t [ σ ]) ⊎
+    HasX (x +2) (u [ liftSubstn σ 2 ]) ⊎
+    HasX x (v [ σ ])                                            →⟨ ⊎.map HasX-[]→ $ ⊎.map HasX-[]→ HasX-[]→ ⟩
+
+    (∃ λ y → HasX y t × HasX x (σ y)) ⊎
+    (∃ λ y → HasX y u × HasX (x +2) (liftSubstn σ 2 y)) ⊎
+    (∃ λ y → HasX y v × HasX x (σ y))                           →⟨ (⊎.map idᶠ $ flip ⊎.map idᶠ λ where
+                                                                      (x0      ∙ _    ∙ ())
+                                                                      ((x0 +1) ∙ _    ∙ ())
+                                                                      ((y +2)  ∙ has₁ ∙ has₂) → y ∙ has₁ ∙ HasX-wkVar-wk→ (HasX-wkVar-wk→ has₂)) ⟩
+    (∃ λ y → HasX y t × HasX x (σ y)) ⊎
+    (∃ λ y → HasX (y +2) u × HasX x (σ y)) ⊎
+    (∃ λ y → HasX y v × HasX x (σ y))                           →⟨ (λ { (inj₁       (_ ∙ has₁ ∙ has₂))  → _ ∙ natrecₓᶻ has₁ ∙ has₂
+                                                                      ; (inj₂ (inj₁ (_ ∙ has₁ ∙ has₂))) → _ ∙ natrecₓˢ has₁ ∙ has₂
+                                                                      ; (inj₂ (inj₂ (_ ∙ has₁ ∙ has₂))) → _ ∙ natrecₓⁿ has₁ ∙ has₂
+                                                                      }) ⟩
+    (∃ λ y → HasX y (natrec t u v) × HasX x (σ y))              □
+  HasX-[]→ {x} {t = unitrec t u} {σ} =
+    HasX x (unitrec (t [ σ ]) (u [ σ ]))           →⟨ (λ { (unitrecₓˡ has) → inj₁ has; (unitrecₓʳ has) → inj₂ has }) ⟩
+
+    HasX x (t [ σ ]) ⊎ HasX x (u [ σ ])            →⟨ ⊎.map HasX-[]→ HasX-[]→ ⟩
+
+    (∃ λ y → HasX y t × HasX x (σ y)) ⊎
+    (∃ λ y → HasX y u × HasX x (σ y))              →⟨ (λ { (inj₁ (_ ∙ has₁ ∙ has₂)) → _ ∙ unitrecₓˡ has₁ ∙ has₂
+                                                         ; (inj₂ (_ ∙ has₁ ∙ has₂)) → _ ∙ unitrecₓʳ has₁ ∙ has₂
+                                                         }) ⟩
+    (∃ λ y → HasX y (unitrec t u) × HasX x (σ y))  □
+  HasX-[]→ {t = zero} ()
+  HasX-[]→ {t = star} ()
+  HasX-[]→ {t = ↯}    ()
+
+opaque
+
+  -- If x occurs in t [ liftSubst σ ], then either x is x0 and x0
+  -- occurs in t, or x is x′ +1 for some x′ that occurs in σ y for
+  -- some y such that y +1 occurs in t.
+
+  HasX-[liftSubst]→ :
+    HasX x (t [ liftSubst σ ]) →
+    x ≡ x0 × HasX x0 t ⊎
+    (∃ λ x′ → x ≡ (x′ +1) × ∃ λ y → HasX (y +1) t × HasX x′ (σ y))
+  HasX-[liftSubst]→ {x} {t} {σ} =
+    HasX x (t [ liftSubst σ ])                                         →⟨ HasX-[]→ ⟩
+
+    (∃ λ y → HasX y t × HasX x (liftSubst σ y))                        →⟨ (λ where
+                                                                             (x0     ∙ has  ∙ varₓ) → inj₁ (refl ∙ has)
+                                                                             ((y +1) ∙ has₁ ∙ has₂) → inj₂ (y ∙ has₁ ∙ has₂)) ⟩
+
+    x ≡ x0 × HasX x0 t ⊎ (∃ λ y → HasX (y +1) t × HasX x (wk1 (σ y)))  →⟨ ⊎.map idᶠ (Σ.map idᶠ $ Σ.map idᶠ HasX-wk→) ⟩
+
+    x ≡ x0 × HasX x0 t ⊎
+    (∃ λ y → HasX (y +1) t × ∃ λ x′ → x ≡ x′ +1 × HasX x′ (σ y))       →⟨ ⊎.map idᶠ (λ (y ∙ has₁ ∙ x′ ∙ eq ∙ has₂) → x′ ∙ eq ∙ y ∙ has₁ ∙ has₂) ⟩
+
+    x ≡ x0 × HasX x0 t ⊎
+    (∃ λ x′ → x ≡ (x′ +1) × ∃ λ y → HasX (y +1) t × HasX x′ (σ y))     □
+
+opaque
+
+  -- If x occurs in t [ u ]₀ and u is closed, then x +1 occurs in t.
+
+  HasX-[closed]₀→ :
+    (∀ {x} → ¬ HasX x u) → HasX x (t [ u ]₀) → HasX (x +1) t
+  HasX-[closed]₀→ {u} {x} {t} closed =
+    HasX x (t [ u ]₀)                          →⟨ HasX-[]→ ⟩
+    (∃ λ y → HasX y t × HasX x (sgSubst u y))  →⟨ (λ where
+                                                     (x0     ∙ _    ∙ has₂) → ⊥-elim $ closed has₂
+                                                     ((y +1) ∙ has₁ ∙ has₂) → y ∙ has₁ ∙ has₂) ⟩
+    (∃ λ y → HasX (y +1) t × HasX x (var y))   →⟨ (λ { (_ ∙ has ∙ varₓ) → has }) ⟩
+    HasX (x +1) t                              □
+
+opaque
+
+  -- If x occurs in t [ u , v ] and u and v are closed, then x +2
+  -- occurs in t.
+
+  HasX-[closed,closed]→ :
+    (∀ {x} → ¬ HasX x u) → (∀ {x} → ¬ HasX x v) →
+    HasX x (t [ u , v ]) → HasX (x +2) t
+  HasX-[closed,closed]→ {u} {v} {x} {t} u-closed v-closed =
+    HasX x (t [ u , v ])                                     →⟨ HasX-[]→ ⟩
+    (∃ λ y → HasX y t × HasX x (consSubst (sgSubst u) v y))  →⟨ (λ where
+                                                                   (x0        ∙ _    ∙ has₂) → ⊥-elim $ v-closed has₂
+                                                                   (x0 +1     ∙ _    ∙ has₂) → ⊥-elim $ u-closed has₂
+                                                                   ((y +1 +1) ∙ has₁ ∙ has₂) → y ∙ has₁ ∙ has₂) ⟩
+    (∃ λ y → HasX (y +2) t × HasX x (var y))                 →⟨ (λ { (_ ∙ has ∙ varₓ) → has }) ⟩
+    HasX (x +2) t                                            □

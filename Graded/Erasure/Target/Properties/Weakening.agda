@@ -2,6 +2,8 @@
 -- Laws for weakenings in the target language.
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 module Graded.Erasure.Target.Properties.Weakening where
 
 open import Definition.Untyped.NotParametrised
@@ -10,12 +12,16 @@ open import Definition.Untyped.Properties.NotParametrised
 open import Graded.Erasure.Target renaming (refl to ⇒*-refl; trans to ⇒*-trans)
 
 open import Tools.Fin
+open import Tools.Function
 open import Tools.Nat
+open import Tools.Product as Σ
 open import Tools.PropositionalEquality hiding (subst)
+open import Tools.Sum as ⊎ using (_⊎_; inj₁; inj₂)
 
 private
   variable
     ℓ m n : Nat
+    x : Fin n
     ρ ρ′ : Wk m n
     t : Term n
     s : Strictness
@@ -111,3 +117,118 @@ opaque
   wk-suc⟨⟩ : wk ρ (suc⟨ s ⟩ t) ≡ suc⟨ s ⟩ (wk ρ t)
   wk-suc⟨⟩ {s = strict}     = refl
   wk-suc⟨⟩ {s = non-strict} = refl
+
+opaque
+
+  -- If x occurs in wk ρ t, then x is equal to wkVar ρ y for some y
+  -- that occurs in t.
+
+  HasX-wk→ : HasX x (wk ρ t) → ∃ λ y → x ≡ wkVar ρ y × HasX y t
+  HasX-wk→ {x} {ρ} {t = var z} =
+    HasX x (var (wkVar ρ z))                  →⟨ (λ { varₓ → refl }) ⟩
+    x ≡ wkVar ρ z                             →⟨ (λ eq → _ , eq , varₓ) ⟩
+    (∃ λ y → x ≡ wkVar ρ y × HasX y (var z))  □
+  HasX-wk→ {x} {ρ} {t = lam t} =
+    HasX x (lam (wk (lift ρ) t))                  →⟨ (λ { (lamₓ has) → has }) ⟩
+    HasX (x +1) (wk (lift ρ) t)                   →⟨ HasX-wk→ ⟩
+    (∃ λ y → x +1 ≡ wkVar (lift ρ) y × HasX y t)  →⟨ (λ where
+                                                        (x0     , ()   , _)
+                                                        ((y +1) , refl , has) → y , refl , lamₓ has) ⟩
+    (∃ λ y → x ≡ wkVar ρ y × HasX y (lam t))      □
+  HasX-wk→ {x} {ρ} {t = t ∘⟨ s ⟩ u} =
+    HasX x (wk ρ t ∘⟨ s ⟩ wk ρ u)                  →⟨ (λ where
+                                                         (∘ₓˡ has) → inj₁ has
+                                                         (∘ₓʳ has) → inj₂ has) ⟩
+
+    HasX x (wk ρ t) ⊎ HasX x (wk ρ u)              →⟨ ⊎.map HasX-wk→ HasX-wk→ ⟩
+
+    (∃ λ y → x ≡ wkVar ρ y × HasX y t) ⊎
+    (∃ λ y → x ≡ wkVar ρ y × HasX y u)             →⟨ (λ where
+                                                         (inj₁ (_ , eq , has)) → _ , eq , ∘ₓˡ has
+                                                         (inj₂ (_ , eq , has)) → _ , eq , ∘ₓʳ has) ⟩
+    (∃ λ y → x ≡ wkVar ρ y × HasX y (t ∘⟨ s ⟩ u))  □
+  HasX-wk→ {x} {ρ} {t = prod t u} =
+    HasX x (prod (wk ρ t) (wk ρ u))              →⟨ (λ where
+                                                       (prodₓˡ has) → inj₁ has
+                                                       (prodₓʳ has) → inj₂ has) ⟩
+
+    HasX x (wk ρ t) ⊎ HasX x (wk ρ u)            →⟨ ⊎.map HasX-wk→ HasX-wk→ ⟩
+
+    (∃ λ y → x ≡ wkVar ρ y × HasX y t) ⊎
+    (∃ λ y → x ≡ wkVar ρ y × HasX y u)           →⟨ (λ where
+                                                       (inj₁ (_ , eq , has)) → _ , eq , prodₓˡ has
+                                                       (inj₂ (_ , eq , has)) → _ , eq , prodₓʳ has) ⟩
+    (∃ λ y → x ≡ wkVar ρ y × HasX y (prod t u))  □
+  HasX-wk→ {x} {ρ} {t = fst t} =
+    HasX x (fst (wk ρ t))                     →⟨ (λ { (fstₓ has) → has }) ⟩
+    HasX x (wk ρ t)                           →⟨ HasX-wk→ ⟩
+    (∃ λ y → x ≡ wkVar ρ y × HasX y t)        →⟨ (λ (_ , eq , has) → _ , eq , fstₓ has) ⟩
+    (∃ λ y → x ≡ wkVar ρ y × HasX y (fst t))  □
+  HasX-wk→ {x} {ρ} {t = snd t} =
+    HasX x (snd (wk ρ t))                     →⟨ (λ { (sndₓ has) → has }) ⟩
+    HasX x (wk ρ t)                           →⟨ HasX-wk→ ⟩
+    (∃ λ y → x ≡ wkVar ρ y × HasX y t)        →⟨ (λ (_ , eq , has) → _ , eq , sndₓ has) ⟩
+    (∃ λ y → x ≡ wkVar ρ y × HasX y (snd t))  □
+  HasX-wk→ {x} {ρ} {t = prodrec t u} =
+    HasX x (prodrec (wk ρ t) (wk (lift (lift ρ)) u))       →⟨ (λ where
+                                                            (prodrecₓˡ has) → inj₁ has
+                                                            (prodrecₓʳ has) → inj₂ has) ⟩
+
+    HasX x (wk ρ t) ⊎ HasX (x +2) (wk (lift (lift ρ)) u)   →⟨ ⊎.map HasX-wk→ HasX-wk→ ⟩
+
+    (∃ λ y → x ≡ wkVar ρ y × HasX y t) ⊎
+    (∃ λ y → (x +2) ≡ wkVar (lift (lift ρ)) y × HasX y u)  →⟨ (λ where
+                                                                 (inj₁ (_ , eq , has))         → _ , eq , prodrecₓˡ has
+                                                                 (inj₂ (x0      , ()   , _))
+                                                                 (inj₂ ((x0 +1) , ()   , _))
+                                                                 (inj₂ ((y +2)  , refl , has)) → _ , refl , prodrecₓʳ has) ⟩
+    (∃ λ y → x ≡ wkVar ρ y × HasX y (prodrec t u))         □
+  HasX-wk→ {x} {ρ} {t = suc t} =
+    HasX x (suc (wk ρ t))                     →⟨ (λ { (sucₓ has) → has }) ⟩
+    HasX x (wk ρ t)                           →⟨ HasX-wk→ ⟩
+    (∃ λ y → x ≡ wkVar ρ y × HasX y t)        →⟨ (λ (_ , eq , has) → _ , eq , sucₓ has) ⟩
+    (∃ λ y → x ≡ wkVar ρ y × HasX y (suc t))  □
+  HasX-wk→ {x} {ρ} {t = natrec t u v} =
+    HasX x (natrec (wk ρ t) (wk (lift (lift ρ)) u) (wk ρ v))  →⟨ (λ where
+                                                                    (natrecₓᶻ has) → inj₁ has
+                                                                    (natrecₓˢ has) → inj₂ (inj₁ has)
+                                                                    (natrecₓⁿ has) → inj₂ (inj₂ has)) ⟩
+    HasX x (wk ρ t) ⊎
+    HasX (x +2) (wk (lift (lift ρ)) u) ⊎
+    HasX x (wk ρ v)                                           →⟨ ⊎.map HasX-wk→ $ ⊎.map HasX-wk→ HasX-wk→ ⟩
+
+    (∃ λ y → x ≡ wkVar ρ y × HasX y t) ⊎
+    (∃ λ y → (x +2) ≡ wkVar (lift (lift ρ)) y × HasX y u) ⊎
+    (∃ λ y → x ≡ wkVar ρ y × HasX y v)                        →⟨ (λ where
+                                                                    (inj₁ (_ , eq , has))                → _ , eq   , natrecₓᶻ has
+                                                                    (inj₂ (inj₁ (x0      , ()   , _)))
+                                                                    (inj₂ (inj₁ ((x0 +1) , ()   , _)))
+                                                                    (inj₂ (inj₁ ((y +2)  , refl , has))) → _ , refl , natrecₓˢ has
+                                                                    (inj₂ (inj₂ (_ , eq , has)))         → _ , eq   , natrecₓⁿ has) ⟩
+    (∃ λ y → x ≡ wkVar ρ y × HasX y (natrec t u v))           □
+  HasX-wk→ {x} {ρ} {t = unitrec t u} =
+    HasX x (unitrec (wk ρ t) (wk ρ u))              →⟨ (λ where
+                                                          (unitrecₓˡ has) → inj₁ has
+                                                          (unitrecₓʳ has) → inj₂ has) ⟩
+
+    HasX x (wk ρ t) ⊎ HasX x (wk ρ u)               →⟨ ⊎.map HasX-wk→ HasX-wk→ ⟩
+
+    (∃ λ y → x ≡ wkVar ρ y × HasX y t) ⊎
+    (∃ λ y → x ≡ wkVar ρ y × HasX y u)              →⟨ (λ where
+                                                          (inj₁ (_ , eq , has)) → _ , eq , unitrecₓˡ has
+                                                          (inj₂ (_ , eq , has)) → _ , eq , unitrecₓʳ has) ⟩
+    (∃ λ y → x ≡ wkVar ρ y × HasX y (unitrec t u))  □
+  HasX-wk→ {t = zero} ()
+  HasX-wk→ {t = star} ()
+  HasX-wk→ {t = ↯}    ()
+
+opaque
+
+  -- If wkVar ρ x occurs in wk ρ t, then x occurs in t.
+
+  HasX-wkVar-wk→ : HasX (wkVar ρ x) (wk ρ t) → HasX x t
+  HasX-wkVar-wk→ {ρ} {x} {t} =
+    HasX (wkVar ρ x) (wk ρ t)                   →⟨ HasX-wk→ ⟩
+    (∃ λ y → wkVar ρ x ≡ wkVar ρ y × HasX y t)  →⟨ Σ.map idᶠ $ Σ.map wkVar-injective idᶠ ⟩
+    (∃ λ y → x ≡ y × HasX y t)                  →⟨ (λ { (_ , refl , has) → has }) ⟩
+    HasX x t                                    □
