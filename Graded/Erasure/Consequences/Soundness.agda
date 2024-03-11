@@ -45,7 +45,10 @@ open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 
-open import Graded.Erasure.Target as T using (Strictness)
+open import Graded.Erasure.Target as T
+  using (Strictness; strict; non-strict)
+import Graded.Erasure.Target.Properties as TP
+open import Graded.Erasure.Target.Reasoning
 import Graded.Erasure.Extraction 𝕄 as E
 open import Graded.Erasure.SucRed TR
 import Graded.Erasure.LogicalRelation
@@ -171,12 +174,19 @@ module _
     -- Helper lemma for soundness of natural numbers
 
     soundness-ℕ′ :
-      t ® v ∷ℕ → ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ × v ⇒ˢ* sucᵏ′ n
-    soundness-ℕ′ (zeroᵣ x x₁) = 0 , whred* x , whred*′ x₁
-    soundness-ℕ′ (sucᵣ x x₁ _ t®v) =
+      t ® v ∷ℕ → ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ × v ⇒ˢ⟨ str ⟩* sucᵏ′ n
+    soundness-ℕ′ (zeroᵣ ⇒*zero ⇒*zero′) =
+      0 , whred* ⇒*zero , ⇒*→⇒ˢ⟨⟩* ⇒*zero′
+    soundness-ℕ′ {v} (sucᵣ {v′} ⇒*suc ⇒*suc′ num t®v) =
       let n , d , d′ = soundness-ℕ′ t®v
-      in  1+ n , ⇒ˢ*∷ℕ-trans (whred* x) (sucred* d)
-               , ⇒ˢ*-trans (whred*′ x₁) (sucred*′ d′)
+      in  1+ n , ⇒ˢ*∷ℕ-trans (whred* ⇒*suc) (sucred* d) ,
+          (case PE.singleton str of λ where
+             (non-strict , PE.refl) →
+               ⇒ˢ*-trans (whred*′ ⇒*suc′) (sucred*′ d′)
+             (strict , PE.refl) →
+               v             ⇒*⟨ ⇒*suc′ ⟩
+               T.suc v′      ≡˘⟨ PE.cong T.suc $ TP.Value→⇒*→≡ (TP.Numeral→Value num) d′ ⟩⇒
+               sucᵏ′ (1+ n)  ∎⇒)
 
     -- Helper lemma for WH reduction soundness of unit
 
@@ -217,8 +227,9 @@ module _
     --
     -- Note the assumptions of the local module Soundness.
 
-    soundness-ℕ : Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t
-                → ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ × erase str t ⇒ˢ* sucᵏ′ n
+    soundness-ℕ :
+      Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
+      ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ × erase str t ⇒ˢ⟨ str ⟩* sucᵏ′ n
     soundness-ℕ ⊢t 𝟘▸t =
       let [ℕ] , t®v = fundamentalErased ⊢t 𝟘▸t
       in  soundness-ℕ′ $
@@ -486,7 +497,7 @@ module _ (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘)) where
 
   Run-time-canonicity-for : Strictness → Con Term n → Term n → Set a
   Run-time-canonicity-for str Δ t =
-    ∃₂ λ n u → Δ ⊢ u ∷ Id ℕ t (sucᵏ n) × erase str t ⇒ˢ* sucᵏ′ n
+    ∃₂ λ n u → Δ ⊢ u ∷ Id ℕ t (sucᵏ n) × erase str t ⇒ˢ⟨ str ⟩* sucᵏ′ n
 
   -- Above some counterexamples to variants of soundness-ℕ-only-source
   -- are presented. Those counterexamples are (at the time of writing)
@@ -511,7 +522,7 @@ module _ (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘)) where
                                            (fstʷⱼ (var₀ (⊢ℕ² ε))) (sndʷⱼ (var₀ (⊢ℕ² ε)))
                                            (zeroⱼ (ε ∙[ ⊢ℕ² ] ∙[ ℕⱼ ] ∙[ ℕⱼ ])) ok ⟩⊢∎
             zero                      ∎))
-    , refl
+    , refl-⇒ˢ⟨⟩*
     where
     ℕ² : Term n
     ℕ² = Σʷ p , 𝟘 ▷ ℕ ▹ ℕ
@@ -571,7 +582,7 @@ module _ (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘)) where
 
               zero                                                 ∎))
           (var₀ ⊢0≡0)
-      , refl
+      , refl-⇒ˢ⟨⟩*
       where
       open module Er = Erased s using (Erased)
 
@@ -613,7 +624,7 @@ module _ (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘)) where
              (J 𝟘 𝟘 ℕ zero ℕ zero zero rfl  ≡⟨ J-β-≡ (zeroⱼ ⊢Δ) ⊢ℕ (zeroⱼ ⊢Δ) ⟩⊢∎
               zero                          ∎))
           (var₀ ⊢0≡0)
-      , refl
+      , refl-⇒ˢ⟨⟩*
       where
       Δ′ : Con Term 1
       Δ′ = ε ∙ Id ℕ zero zero
@@ -652,7 +663,7 @@ module _ (is-𝟘? : (p : M) → Dec (p PE.≡ 𝟘)) where
               zero                   ∎))
           (var₀ ⊢0≡0)
           ok
-      , refl
+      , refl-⇒ˢ⟨⟩*
       where
       Δ′ : Con Term 1
       Δ′ = ε ∙ Id ℕ zero zero

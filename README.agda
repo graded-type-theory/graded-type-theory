@@ -881,6 +881,11 @@ Theorem-6-12 =
   Graded.Erasure.LogicalRelation.Fundamental.Fundamental.fundamentalErased
 
 -- Extended reduction relations.
+--
+-- Note that the extended relation for the target language is used in
+-- the statement of soundness of extraction when terms are extracted
+-- to terms with non-strict applications, but not when terms are
+-- extracted to terms with strict applications.
 
 _⊢_⇒ˢ_∷ℕ  = Graded.Erasure.SucRed._⊢_⇒ˢ_∷ℕ
 _⊢_⇒ˢ*_∷ℕ = Graded.Erasure.SucRed._⊢_⇒ˢ*_∷ℕ

@@ -24,7 +24,8 @@ open import Definition.Typed R
 open import Definition.Typed.Consequences.Consistency R
 open import Definition.Typed.Properties R
 
-import Graded.Erasure.Target as T
+open import Graded.Erasure.Target as T
+  using (Strictness; strict; non-strict)
 
 
 private
@@ -33,6 +34,7 @@ private
     Γ : Con Term n
     t t′ u : Term n
     v v′ w w′ : T.Term n
+    s : Strictness
 
 ------------------------------------------------------------------------
 -- _⊢_⇒ˢ*_∷ℕ
@@ -218,3 +220,29 @@ suc⇒*suc {v = v} (T.trans v⇒ _) is-suc-v =
       case ⇒ˢ*suc→⇒*suc v′⇒*suc of λ {
         (_ , v′⇒*suc) →
       _ , T.trans (⇒ˢ≢suc→⇒ v⇒v′ not-suc) v′⇒*suc }
+
+------------------------------------------------------------------------
+-- _⇒ˢ⟨_⟩*_
+
+-- The extended relation _⇒ˢ*_ is only used when non-strict
+-- applications are used, otherwise T._⇒*_ is used.
+
+_⇒ˢ⟨_⟩*_ : T.Term n → Strictness → T.Term n → Set
+v ⇒ˢ⟨ non-strict ⟩* w = v ⇒ˢ* w
+v ⇒ˢ⟨ strict     ⟩* w = v T.⇒* w
+
+opaque
+
+  -- The relation _⇒ˢ⟨_⟩*_ is reflexive.
+
+  refl-⇒ˢ⟨⟩* : v ⇒ˢ⟨ s ⟩* v
+  refl-⇒ˢ⟨⟩* {s = non-strict} = refl
+  refl-⇒ˢ⟨⟩* {s = strict}     = T.refl
+
+opaque
+
+  -- The relation T._⇒*_ is contained in _⇒ˢ⟨ s ⟩*_.
+
+  ⇒*→⇒ˢ⟨⟩* : v T.⇒* w → v ⇒ˢ⟨ s ⟩* w
+  ⇒*→⇒ˢ⟨⟩* {s = non-strict} = whred*′
+  ⇒*→⇒ˢ⟨⟩* {s = strict}     = idᶠ
