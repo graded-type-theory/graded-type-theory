@@ -19,6 +19,7 @@ open import Tools.PropositionalEquality
 private variable
   ℓ m n : Nat
   ρ ρ′  : Wk _ _
+  x y   : Fin _
 
 ------------------------------------------------------------------------
 -- Properties of weakening
@@ -94,6 +95,33 @@ lift-step-comp : (ρ : Wk m n) → step id • ρ ≡ lift ρ • step id
 lift-step-comp id       = refl
 lift-step-comp (step ρ) = cong step (lift-step-comp ρ)
 lift-step-comp (lift ρ) = refl
+
+opaque
+
+  -- The function wkVar ρ is injective.
+
+  wkVar-injective : wkVar ρ x ≡ wkVar ρ y → x ≡ y
+  wkVar-injective = lemma _ _ _
+    where
+    lemma : ∀ (ρ : Wk m n) x y → wkVar ρ x ≡ wkVar ρ y → x ≡ y
+    lemma ρ x0 x0 =
+      wkVar ρ x0 ≡ wkVar ρ x0  →⟨ (λ _ → refl) ⟩
+      x0 ≡ x0                  □
+    lemma id (x +1) (y +1) =
+      (x +1) ≡ (y +1)  □
+    lemma (lift ρ) (x +1) (y +1) =
+      (wkVar ρ x +1) ≡ (wkVar ρ y +1)  →⟨ suc-injective ⟩
+      wkVar ρ x ≡ wkVar ρ y            →⟨ wkVar-injective ⟩
+      x ≡ y                            →⟨ cong _+1 ⟩
+      x +1 ≡ y +1                      □
+    lemma (step ρ) x y =
+      (wkVar ρ x +1) ≡ (wkVar ρ y +1)  →⟨ suc-injective ⟩
+      wkVar ρ x ≡ wkVar ρ y            →⟨ wkVar-injective ⟩
+      x ≡ y                            □
+    lemma id       x0     (_ +1) ()
+    lemma id       (_ +1) x0     ()
+    lemma (lift _) x0     (_ +1) ()
+    lemma (lift _) (_ +1) x0     ()
 
 ------------------------------------------------------------------------
 -- Other properties
