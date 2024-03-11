@@ -111,10 +111,11 @@ import Graded.Usage.Restrictions.Satisfied
 
 -- One difference is the addition of identity types. A weak unit type
 -- has also been added, and the strong unit type can now optionally be
--- used as a "sink". Another difference is that applications can
--- optionally be extracted to strict applications instead of
--- non-strict ones. Furthermore equality with the grade 𝟘 is now
--- required to be decidable for all modalities.
+-- used as a "sink". Another difference is that function applications
+-- and applications of the suc constructor can optionally be extracted
+-- to strict applications instead of non-strict ones. Furthermore
+-- equality with the grade 𝟘 is now required to be decidable for all
+-- modalities.
 
 -- Another notable change is related to the natrec-star operators. The
 -- paper does not focus on linearity, but some modalities for linear

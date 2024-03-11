@@ -52,6 +52,12 @@ private
   variable
     t t′ u u′ v v′ : Term n
 
+-- A possibly strict variant of suc.
+
+suc⟨_⟩ : Strictness → Term n → Term n
+suc⟨ non-strict ⟩ t = suc t
+suc⟨ strict     ⟩ t = lam (suc (var x0)) ∘⟨ strict ⟩ t
+
 -- Does a term contain a variable?
 
 data HasX (x : Fin n) : (t : Term n) → Set where

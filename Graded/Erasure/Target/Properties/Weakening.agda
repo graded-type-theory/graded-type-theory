@@ -17,6 +17,8 @@ private
   variable
     ℓ m n : Nat
     ρ ρ′ : Wk m n
+    t : Term n
+    s : Strictness
 
 -- Weakening properties
 
@@ -101,3 +103,11 @@ lift-wk1 pr A = trans (wk-comp (lift pr) (step id) A)
 
 wk1-wk≡lift-wk1 : (ρ : Wk m n) (t : Term n) → wk1 (wk ρ t) ≡ wk (lift ρ) (wk1 t)
 wk1-wk≡lift-wk1 ρ t = trans (wk1-wk ρ t) (sym (lift-wk1 ρ t))
+
+opaque
+
+  -- A weakening lemma for suc⟨_⟩.
+
+  wk-suc⟨⟩ : wk ρ (suc⟨ s ⟩ t) ≡ suc⟨ s ⟩ (wk ρ t)
+  wk-suc⟨⟩ {s = strict}     = refl
+  wk-suc⟨⟩ {s = non-strict} = refl

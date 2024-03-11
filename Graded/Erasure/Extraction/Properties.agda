@@ -19,7 +19,7 @@ open import Graded.Modality.Properties 𝕄
 
 open import Graded.Erasure.Extraction 𝕄 is-𝟘?
 open import Graded.Erasure.Target as T hiding (refl; trans)
-open import Graded.Erasure.Target.Properties.Substitution
+open import Graded.Erasure.Target.Properties
 
 open import Definition.Untyped M as U
   hiding (Term; wk; _[_]; _[_,_]; liftSubst)
@@ -129,8 +129,12 @@ wk-erase-comm {s} ρ (U.prodrec r p _ A t u) with is-𝟘? r
                    (wk-erase-comm (lift (lift ρ)) u)
 wk-erase-comm ρ ℕ = refl
 wk-erase-comm ρ U.zero = refl
-wk-erase-comm ρ (U.suc t) =
-  cong T.suc (wk-erase-comm ρ t)
+wk-erase-comm {s} ρ (U.suc t) =
+  wk ρ (suc⟨ s ⟩ (erase s t))    ≡⟨ wk-suc⟨⟩ ⟩
+  suc⟨ s ⟩ (wk ρ (erase s t))    ≡⟨ cong suc⟨ _ ⟩ (wk-erase-comm _ t) ⟩
+  suc⟨ s ⟩ (erase s (U.wk ρ t))  ∎
+  where
+  open Tools.Reasoning.PropositionalEquality
 wk-erase-comm ρ (U.natrec p q r A z s n) =
   cong₃ T.natrec (wk-erase-comm ρ z)
                  (wk-erase-comm (lift (lift ρ)) s)
@@ -231,7 +235,12 @@ subst-erase-comm {s} σ (U.prodrec r p _ A t u) with is-𝟘? r
                (subst-erase-comm (U.liftSubstn σ 2) u))
 subst-erase-comm σ ℕ = refl
 subst-erase-comm σ U.zero = refl
-subst-erase-comm σ (U.suc t) = cong T.suc (subst-erase-comm σ t)
+subst-erase-comm {s} σ (U.suc t) =
+  suc⟨ s ⟩ (erase s t) T.[ eraseSubst s σ ]  ≡⟨ suc⟨⟩-[] ⟩
+  suc⟨ s ⟩ (erase s t T.[ eraseSubst s σ ])  ≡⟨ cong suc⟨ _ ⟩ (subst-erase-comm _ t) ⟩
+  suc⟨ s ⟩ (erase s (t U.[ σ ]))             ∎
+  where
+  open Tools.Reasoning.PropositionalEquality
 subst-erase-comm σ (U.natrec p q r A z s n) = cong₃ T.natrec
   (subst-erase-comm σ z)
   (trans (substVar-to-subst (liftSubsts-erase-comm 2) (erase _ s))
@@ -369,7 +378,10 @@ module hasX (R : Usage-restrictions) where
     | no _ | no _ =
     erased-hasX (there (there (x◂𝟘∈γ+δʳ refl erased))) ▸u hasX
 
-  erased-hasX erased (sucₘ γ▸t) (sucₓ hasX) =
+  erased-hasX {s = non-strict} erased (sucₘ γ▸t) (sucₓ hasX) =
+    erased-hasX erased γ▸t hasX
+  erased-hasX {s = strict} _ (sucₘ _) (∘ₓˡ (lamₓ (sucₓ ())))
+  erased-hasX {s = strict} erased (sucₘ γ▸t) (∘ₓʳ hasX) =
     erased-hasX erased γ▸t hasX
 
   erased-hasX {x = x} erased

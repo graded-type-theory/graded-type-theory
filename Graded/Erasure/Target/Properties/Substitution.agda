@@ -20,6 +20,7 @@ private
     ρ ρ′ : Wk m n
     σ σ′ : Subst m n
     t : Term n
+    s : Strictness
 
 -- Substitution properties.
 
@@ -403,3 +404,11 @@ subst-liftSubst-sgSubst {t = t} {σ = σ} u =
   u [ liftSubst (sgSubst (t [ σ ]) ₛ•ₛ liftSubst σ) ]              ≡˘⟨ substVar-to-subst substCompLift u ⟩
   u [ liftSubst (sgSubst (t [ σ ])) ₛ•ₛ liftSubst (liftSubst σ) ]  ≡˘⟨ substCompEq u ⟩
   u [ liftSubstn σ 2 ] [ liftSubst (sgSubst (t [ σ ])) ]           ∎
+
+opaque
+
+  -- A substitution lemma for suc⟨_⟩.
+
+  suc⟨⟩-[] : suc⟨ s ⟩ t [ σ ] ≡ suc⟨ s ⟩ (t [ σ ])
+  suc⟨⟩-[] {s = strict}     = refl
+  suc⟨⟩-[] {s = non-strict} = refl

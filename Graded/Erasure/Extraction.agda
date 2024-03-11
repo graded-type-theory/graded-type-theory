@@ -34,7 +34,8 @@ erase-prodrecω p t u = case is-𝟘? p of λ where
 
 -- The extraction function.
 --
--- Applications are made strict if the first argument is "strict".
+-- Function applications and applications of suc are made strict if
+-- the first argument is "strict".
 
 erase : Strictness → U.Term n → T.Term n
 erase _ (var x) = T.var x
@@ -58,7 +59,7 @@ erase s (U.prodrec r p _ _ t u) = case is-𝟘? r of λ where
   (no r≢𝟘) → erase-prodrecω p (erase s t) (erase s u)
 erase _ ℕ = ↯
 erase _ U.zero = T.zero
-erase s (U.suc t) = T.suc (erase s t)
+erase s (U.suc t) = suc⟨ s ⟩ (erase s t)
 erase s (U.natrec p q r A t u v) =
   T.natrec (erase s t) (erase s u) (erase s v)
 erase _ Unit! = ↯

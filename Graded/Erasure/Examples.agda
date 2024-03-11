@@ -68,7 +68,8 @@ open import Graded.Context EM
 open import Graded.Erasure.Consequences.Soundness TR UR
 open import Graded.Erasure.Extraction EM EM.is-𝟘?
 import Graded.Erasure.SucRed TR as S
-open import Graded.Erasure.Target as T using (Strictness)
+open import Graded.Erasure.Target as T
+  using (Strictness; strict; non-strict)
 import Graded.Erasure.Target.Properties as TP
 open import Graded.Modality.Instances.Erasure.Properties variant
 open import Graded.Mode EM
@@ -848,18 +849,33 @@ erase-head = PE.refl
 head-[0] : Term 0
 head-[0] = head ∘⟨ 𝟘 ⟩ ℕ ∘⟨ ω ⟩ suc zero ∘⟨ ω ⟩ [0] ∘⟨ 𝟘 ⟩ (star s)
 
--- The erasure of head-[0] includes several erased parts (T.↯).
+-- The non-strict erasure of head-[0] includes several erased parts (T.↯).
 
-erase-head-[0] :
-  erase str head-[0] PE.≡
+erase-non-strict-head-[0] :
+  erase non-strict head-[0] PE.≡
   (T.lam
      (T.Term.lam $
       T.natrec (T.lam (T.lam T.↯))
         (T.lam (T.lam (T.fst (T.var x1))))
-        (T.var x0)) T.∘⟨ str ⟩
-   T.↯ T.∘⟨ str ⟩ T.suc T.zero T.∘⟨ str ⟩
-   T.prod T.zero T.star T.∘⟨ str ⟩ T.↯)
-erase-head-[0] = PE.refl
+        (T.var x0)) T.∘⟨ non-strict ⟩
+   T.↯ T.∘⟨ non-strict ⟩
+   T.suc T.zero T.∘⟨ non-strict ⟩
+   T.prod T.zero T.star T.∘⟨ non-strict ⟩ T.↯)
+erase-non-strict-head-[0] = PE.refl
+
+-- The strict erasure of head-[0] also includes several erased parts.
+
+erase-strict-head-[0] :
+  erase strict head-[0] PE.≡
+  (T.lam
+     (T.Term.lam $
+      T.natrec (T.lam (T.lam T.↯))
+        (T.lam (T.lam (T.fst (T.var x1))))
+        (T.var x0)) T.∘⟨ strict ⟩
+   T.↯ T.∘⟨ strict ⟩
+   (T.lam (T.suc (T.var x0)) T.∘⟨ strict ⟩ T.zero) T.∘⟨ strict ⟩
+   T.prod T.zero T.star T.∘⟨ strict ⟩ T.↯)
+erase-strict-head-[0] = PE.refl
 
 -- The term head-[0] is well-resourced.
 
@@ -879,14 +895,22 @@ erase-head-[0] = PE.refl
 -- The erasure of head-[0] reduces to T.zero.
 
 erase-head-[0]⇒*zero : erase str head-[0] T.⇒* T.zero
-erase-head-[0]⇒*zero =
-  T.trans (T.app-subst $ T.app-subst $ T.app-subst $ T.β-red $
-           TP.Value→Value⟨⟩ T.↯) $
-  T.trans (T.app-subst $ T.app-subst $ T.β-red $
-           TP.Value→Value⟨⟩ T.suc) $
+erase-head-[0]⇒*zero {str = non-strict} =
+  T.trans (T.app-subst $ T.app-subst $ T.app-subst $ T.β-red _) $
+  T.trans (T.app-subst $ T.app-subst $ T.β-red _) $
+  T.trans (T.app-subst $ T.app-subst T.natrec-suc) $
+  T.trans (T.app-subst $ T.β-red _) $
+  T.trans (T.β-red _) $
+  T.trans T.Σ-β₁
+  T.refl
+erase-head-[0]⇒*zero {str = strict} =
+  T.trans (T.app-subst $ T.app-subst $ T.app-subst $ T.β-red T.↯) $
+  T.trans (T.app-subst $ T.app-subst $ T.app-subst-arg T.lam $
+           T.β-red T.zero) $
+  T.trans (T.app-subst $ T.app-subst $ T.β-red T.suc) $
   T.trans (T.app-subst $ T.app-subst $ T.natrec-suc) $
-  T.trans (T.app-subst $ T.β-red $ TP.Value→Value⟨⟩ T.prod) $
-  T.trans (T.β-red $ TP.Value→Value⟨⟩ T.↯) $
+  T.trans (T.app-subst $ T.β-red T.prod) $
+  T.trans (T.β-red T.↯) $
   T.trans T.Σ-β₁
   T.refl
 
