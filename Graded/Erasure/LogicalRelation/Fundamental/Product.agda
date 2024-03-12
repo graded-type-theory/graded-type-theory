@@ -167,7 +167,7 @@ prodʳ
     prod®prod = case is-𝟘? p of λ where
       (yes p≡𝟘) →
         let d = PE.subst (λ x → x T.[ σ′ ] T.⇒* _)
-                         (PE.sym (prod-𝟘 {k = s} p≡𝟘))
+                         (PE.sym (prod-𝟘 s p≡𝟘))
                          T.refl
         in t [ σ ] , u [ σ ] , id ⊢prod , [σt]′ ,
            erase str u T.[ σ′ ] , u®u″ , Σ-®-intro-𝟘 d p≡𝟘
@@ -192,7 +192,7 @@ prodʳ
             erase str u T.[ σ′ ] , u®u″ ,
             Σ-®-intro-ω _
               (PE.subst ((T._⇒* _) ∘→ T._[ σ′ ])
-                 (PE.sym (prod-ω {k = s} p≢𝟘)) T.refl)
+                 (PE.sym (prod-ω s p≢𝟘)) T.refl)
               t₁®v₁″ p≢𝟘
           (T.strict , PE.refl) →
             case reduces-to-value [σF]′ t₁®v₁″ of λ
@@ -203,7 +203,7 @@ prodʳ
             targetRedSubstTerm*′ [σG[t]]″ u®u″ erase-u[σ′]⇒*v₂ ,
             Σ-®-intro-ω _
               (PE.subst (λ v → v T.[ σ′ ] T.⇒* T.prod v₁ v₂)
-                 (PE.sym (prod-ω {k = s} p≢𝟘))
+                 (PE.sym (prod-ω s p≢𝟘))
                  (T.lam (T.lam (T.prod (T.var x1) (T.var x0)))
                     T.∘⟨ T.strict ⟩ (erase T.strict t T.[ σ′ ])
                     T.∘⟨ T.strict ⟩ (erase T.strict u T.[ σ′ ])  ⇒*⟨ TP.app-subst* $ TP.app-subst*-arg T.lam erase-t[σ′]⇒*v₁ ⟩

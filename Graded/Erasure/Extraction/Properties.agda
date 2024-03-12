@@ -63,18 +63,24 @@ private
 
 -- Lemmata on how erase computes
 
-prod-𝟘 : p PE.≡ 𝟘
-       → erase s (U.prod k p t u) PE.≡ erase s u
-prod-𝟘 {p = p} p≡𝟘 with is-𝟘? p
-... | yes p≡𝟘 = PE.refl
-... | no p≢𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
+opaque
 
-prod-ω :
-  p PE.≢ 𝟘 →
-  erase s (U.prod k p t u) PE.≡ prod⟨ s ⟩ (erase s t) (erase s u)
-prod-ω {p = p} p≢𝟘 with is-𝟘? p
-... | yes p≡𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
-... | no p≢𝟘 = PE.refl
+  prod-𝟘 :
+    ∀ k → p PE.≡ 𝟘 →
+    erase s (U.prod k p t u) PE.≡ erase s u
+  prod-𝟘 {p} _ p≡𝟘 with is-𝟘? p
+  … | yes _  = PE.refl
+  … | no p≢𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
+
+opaque
+
+  prod-ω :
+    ∀ k → p PE.≢ 𝟘 →
+    erase s (U.prod k p t u) PE.≡
+    prod⟨ s ⟩ (erase s t) (erase s u)
+  prod-ω {p} _ p≢𝟘 with is-𝟘? p
+  … | yes p≡𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
+  … | no _    = PE.refl
 
 snd-𝟘 : p PE.≡ 𝟘
       → erase s (U.snd p t) PE.≡ erase s t
@@ -88,14 +94,15 @@ snd-ω {p = p} p≢𝟘 with is-𝟘? p
 ... | yes p≡𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
 ... | no p≢𝟘 = PE.refl
 
-prodrec-ω : ∀ p → r PE.≢ 𝟘
-          → erase s (U.prodrec r p q A t u)
-          PE.≡ erase-prodrecω s p (erase s t) (erase s u)
-prodrec-ω {r} p r≢𝟘 with is-𝟘? r
-... | yes r≡𝟘 = ⊥-elim (r≢𝟘 r≡𝟘)
-... | no r≢𝟘 with is-𝟘? p
-... | yes p≡𝟘 = PE.refl
-... | no p≢𝟘 = PE.refl
+opaque
+
+  prodrec-ω :
+    ∀ q A → r PE.≢ 𝟘 →
+    erase s (U.prodrec r p q A t u) PE.≡
+    erase-prodrecω s p (erase s t) (erase s u)
+  prodrec-ω {r} _ _ r≢𝟘 with is-𝟘? r
+  ... | yes r≡𝟘 = ⊥-elim (r≢𝟘 r≡𝟘)
+  ... | no _    = PE.refl
 
 -- The functions wk ρ/U.wk ρ and erase s commute.
 

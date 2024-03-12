@@ -372,7 +372,7 @@ prodrecωʳ′
 ... | no _
   with whrDet*Term (redₜ t⇒p , prodₙ) (d , prodₙ)
 ... | PE.refl = PE.subst (λ x → prodrec r p′ q′ A t u [ σ ] ®⟨ l ⟩ x ∷ A [ t ]₀ [ σ ] / [At] .unwrap ⊢Δ [σ] .proj₁)
-                         (PE.cong (T._[ σ′ ]) (prodrec-ω {q = q′} {A = A} p′ r≢𝟘))
+                         (PE.cong (T._[ σ′ ]) (prodrec-ω q′ A r≢𝟘))
                          pr®pr′
   where
   [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
