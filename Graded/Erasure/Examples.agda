@@ -189,13 +189,21 @@ id-x1-x0 = id ∘⟨ 𝟘 ⟩ var x1 ∘⟨ ω ⟩ var x0
 id-ℕ-zero : Term 0
 id-ℕ-zero = id ∘⟨ 𝟘 ⟩ ℕ ∘⟨ ω ⟩ zero
 
--- The erasure of id-ℕ-zero includes an erased part (loop? str).
+-- In the strict setting the extraction of id-ℕ-zero includes an
+-- erased part (T.↯).
 
-erase-id-ℕ-zero :
-  erase str id-ℕ-zero PE.≡
-  T.lam (T.lam (T.var x0)) T.∘⟨ str ⟩
-  loop? str T.∘⟨ str ⟩ T.zero
-erase-id-ℕ-zero = PE.refl
+erase-strict-id-ℕ-zero :
+  erase strict id-ℕ-zero PE.≡
+  T.lam (T.lam (T.var x0)) T.∘⟨ strict ⟩ T.↯ T.∘⟨ strict ⟩ T.zero
+erase-strict-id-ℕ-zero = PE.refl
+
+-- In the non-strict setting that part is removed entirely, and one
+-- lambda is removed.
+
+erase-non-strict-id-ℕ-zero :
+  erase non-strict id-ℕ-zero PE.≡
+  T.lam (T.var x0) T.∘⟨ non-strict ⟩ T.zero
+erase-non-strict-id-ℕ-zero = PE.refl
 
 -- The term id-ℕ-zero is well-typed (in the empty context).
 
@@ -222,9 +230,12 @@ id-ℕ-zero⇒*zero =
 -- The erasure of id-ℕ-zero reduces to zero.
 
 erase-id-ℕ-zero⇒*zero : erase str id-ℕ-zero T.⇒* T.zero
-erase-id-ℕ-zero⇒*zero {str} =
-  T.trans (T.app-subst $ T.β-red $ Value⟨⟩-loop? str) $
+erase-id-ℕ-zero⇒*zero {str = strict} =
+  T.trans (T.app-subst $ T.β-red T.↯) $
   T.trans (T.β-red $ TP.Value→Value⟨⟩ T.zero)
+  T.refl
+erase-id-ℕ-zero⇒*zero {str = non-strict} =
+  T.trans (T.β-red _)
   T.refl
 
 ------------------------------------------------------------------------
@@ -254,11 +265,19 @@ id₀ = lam 𝟘 (var x0)
 id₀-zero : Term 0
 id₀-zero = id₀ ∘⟨ 𝟘 ⟩ zero
 
--- The erasure of id₀-zero includes an erased part (loop? str).
+-- In the strict setting the extraction of id₀-zero includes an erased
+-- part (T.↯).
 
-erase-id₀-zero :
-  erase str id₀-zero PE.≡ T.lam (T.var x0) T.∘⟨ str ⟩ loop? str
-erase-id₀-zero = PE.refl
+erase-strict-id₀-zero :
+  erase strict id₀-zero PE.≡ T.lam (T.var x0) T.∘⟨ strict ⟩ T.↯
+erase-strict-id₀-zero = PE.refl
+
+-- In the non-strict setting the extraction of id₀-zero is the
+-- non-terminating term loop non-strict.
+
+erase-non-strict-id₀-zero :
+  erase non-strict id₀-zero PE.≡ loop non-strict
+erase-non-strict-id₀-zero = PE.refl
 
 -- The term id₀-zero is well-typed (in the empty context).
 
@@ -280,11 +299,13 @@ id₀-zero⇒*zero =
   β-red (ℕⱼ ε) (ℕⱼ ⊢ℕ) (var ⊢ℕ here) (zeroⱼ ε) PE.refl Π-𝟘-ok ⇨
   DT.id (zeroⱼ ε)
 
--- The erasure of id₀-zero reduces to loop? str.
+-- The erasure of id₀-zero reduces to loop?.
 
-erase-id₀-zero⇒*loop? : erase str id₀-zero T.⇒* loop? str
-erase-id₀-zero⇒*loop? {str} =
-  T.trans (T.β-red $ Value⟨⟩-loop? str) T.refl
+erase-id₀-zero⇒*loop? : ∀ s → erase s id₀-zero T.⇒* loop? s
+erase-id₀-zero⇒*loop? strict =
+  T.trans (T.β-red T.↯) T.refl
+erase-id₀-zero⇒*loop? non-strict =
+  T.refl
 
 opaque
   unfolding loop
@@ -293,12 +314,12 @@ opaque
 
   ¬erase-id₀-zero⇒*zero : ¬ erase str id₀-zero T.⇒* T.zero
   ¬erase-id₀-zero⇒*zero {str = strict} =
-    erase strict id₀-zero T.⇒* T.zero  →⟨ TP.red*Det erase-id₀-zero⇒*loop? ⟩
+    erase strict id₀-zero T.⇒* T.zero  →⟨ TP.red*Det $ erase-id₀-zero⇒*loop? strict ⟩
     T.↯ T.⇒* T.zero ⊎ T.zero T.⇒* T.↯  →⟨ ⊎.map TP.↯-noRed TP.zero-noRed ⟩
     T.zero PE.≡ T.↯ ⊎ T.↯ PE.≡ T.zero  →⟨ (λ { (inj₁ ()); (inj₂ ()) }) ⟩
     ⊥                                  □
   ¬erase-id₀-zero⇒*zero {str = non-strict} =
-    erase non-strict id₀-zero T.⇒* T.zero                      →⟨ TP.red*Det erase-id₀-zero⇒*loop? ⟩
+    erase non-strict id₀-zero T.⇒* T.zero                      →⟨ TP.red*Det $ erase-id₀-zero⇒*loop? _ ⟩
     loop non-strict T.⇒* T.zero ⊎ T.zero T.⇒* loop non-strict  →⟨ ⊎.map (¬loop⇒* T.zero) TP.zero-noRed ⟩
     ⊥ ⊎ loop non-strict PE.≡ T.zero                            →⟨ (λ { (inj₁ ()); (inj₂ ()) }) ⟩
     ⊥                                                          □
@@ -630,16 +651,32 @@ head =
     (lam ω $ lam 𝟘 $ fst ω (var x1))
     (var x0)
 
--- The erasure of head includes an erased part (loop str).
+-- In the strict setting the extraction of head includes an erased
+-- part (loop strict).
 
-erase-head :
-  erase str head PE.≡
+erase-strict-head :
+  erase strict head PE.≡
   (T.Term.lam $ T.Term.lam $
    T.natrec
-     (T.lam (T.lam (loop str)))
+     (T.lam (T.lam (loop strict)))
      (T.lam (T.lam (T.fst (T.var x1))))
      (T.var x0))
-erase-head = PE.refl
+erase-strict-head = PE.refl
+
+opaque
+  unfolding loop
+
+  -- In the non-strict setting the extraction of head also includes an
+  -- erased part (loop non-strict), and several lambdas are removed.
+
+  erase-non-strict-head :
+    erase non-strict head PE.≡
+    (T.Term.lam $
+     T.natrec
+       (T.lam (loop non-strict))
+       (T.lam (T.fst (T.var x0)))
+       (T.var x0))
+  erase-non-strict-head = PE.refl
 
 -- The term head is well-resourced.
 
@@ -860,22 +897,8 @@ erase-head = PE.refl
 head-[0] : Term 0
 head-[0] = head ∘⟨ 𝟘 ⟩ ℕ ∘⟨ ω ⟩ suc zero ∘⟨ ω ⟩ [0] ∘⟨ 𝟘 ⟩ (star s)
 
--- The non-strict erasure of head-[0] includes several erased parts
--- (loop non-strict).
-
-erase-non-strict-head-[0] :
-  erase non-strict head-[0] PE.≡
-  (T.lam
-     (T.Term.lam $
-      T.natrec (T.lam (T.lam (loop non-strict)))
-        (T.lam (T.lam (T.fst (T.var x1))))
-        (T.var x0)) T.∘⟨ non-strict ⟩
-   loop non-strict T.∘⟨ non-strict ⟩
-   T.suc T.zero T.∘⟨ non-strict ⟩
-   T.prod T.zero T.star T.∘⟨ non-strict ⟩ loop non-strict)
-erase-non-strict-head-[0] = PE.refl
-
--- The strict erasure of head-[0] also includes several erased parts.
+-- In the strict setting the extraction of id-ℕ-zero includes several
+-- erased parts (T.↯ and loop strict).
 
 erase-strict-head-[0] :
   erase strict head-[0] PE.≡
@@ -885,11 +908,26 @@ erase-strict-head-[0] :
        (T.lam (T.lam (T.fst (T.var x1))))
        (T.var x0)) T.∘⟨ strict ⟩
   T.↯ T.∘⟨ strict ⟩
-  (T.lam (T.suc (T.var x0)) T.∘⟨ strict ⟩ T.zero) T.∘⟨ strict ⟩
-  (T.lam (T.lam (T.prod (T.var x1) (T.var x0))) T.∘⟨ strict ⟩
-   T.zero T.∘⟨ strict ⟩ T.star) T.∘⟨ strict ⟩
+  T.suc⟨ strict ⟩ T.zero T.∘⟨ strict ⟩
+  T.prod⟨ strict ⟩ T.zero T.star T.∘⟨ strict ⟩
   T.↯
 erase-strict-head-[0] = PE.refl
+
+opaque
+  unfolding loop
+
+  -- In the non-strict setting two of those parts are removed
+  -- entirely, and several lambdas are also removed.
+
+  erase-non-strict-head-[0] :
+    erase non-strict head-[0] PE.≡
+    T.lam
+      (T.natrec (T.lam (loop non-strict))
+         (T.lam (T.fst (T.var x0)))
+         (T.var x0)) T.∘⟨ non-strict ⟩
+    T.suc T.zero T.∘⟨ non-strict ⟩
+    T.prod T.zero T.star
+  erase-non-strict-head-[0] = PE.refl
 
 -- The term head-[0] is well-resourced.
 
@@ -910,10 +948,8 @@ erase-strict-head-[0] = PE.refl
 
 erase-head-[0]⇒*zero : erase str head-[0] T.⇒* T.zero
 erase-head-[0]⇒*zero {str = non-strict} =
-  T.trans (T.app-subst $ T.app-subst $ T.app-subst $ T.β-red _) $
-  T.trans (T.app-subst $ T.app-subst $ T.β-red _) $
-  T.trans (T.app-subst $ T.app-subst T.natrec-suc) $
   T.trans (T.app-subst $ T.β-red _) $
+  T.trans (T.app-subst T.natrec-suc) $
   T.trans (T.β-red _) $
   T.trans T.Σ-β₁
   T.refl
@@ -943,7 +979,7 @@ head-[0]⇒*zero =
     (0 , head-[0]⇒*zero , _) →
       S.⇒ˢ*zero∷ℕ→⇒*zero head-[0]⇒*zero
     (1+ _ , _ , erase-head-[0]⇒*suc) →
-      case TP.red*Det erase-head-[0]⇒*zero
+      case TP.red*Det (erase-head-[0]⇒*zero {str = non-strict})
               (S.⇒ˢ*suc→⇒*suc erase-head-[0]⇒*suc .proj₂)
       of λ where
         (inj₁ zero⇒*suc) → case TP.zero-noRed zero⇒*suc of λ ()

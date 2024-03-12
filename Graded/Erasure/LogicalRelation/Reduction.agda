@@ -129,9 +129,11 @@ targetRedSubstTerm
   with is-𝟘? p | Σ.map idᶠ (T.trans v⇒v′) ∘→ v′⇒*lam
 ... | yes PE.refl | v⇒*lam = v⇒*lam , λ {a = a} [a] →
   let t®v = t®v′ [a]
-      v∘w⇒v′∘w′ = T.app-subst v⇒v′
       [G[a]] = [G] id ⊢Δ [a]
-  in  targetRedSubstTerm [G[a]] t®v v∘w⇒v′∘w′
+  in  targetRedSubstTerm [G[a]] t®v $
+      case PE.singleton str of λ where
+        (strict     , PE.refl) → T.app-subst v⇒v′
+        (non-strict , PE.refl) → v⇒v′
 ... | no p≢𝟘 | v⇒*lam = v⇒*lam , λ {a = a} [a] a®w →
   let t®v = t®v′ [a] a®w
       v∘w⇒v′∘w′ = T.app-subst v⇒v′
@@ -309,8 +311,10 @@ targetRedSubstTerm′
   with is-𝟘? p
 ... | yes PE.refl = Π-lemma v⇒v′ ∘→ t®v′ .proj₁ , λ [a] →
   let t®v = t®v′ .proj₂ [a]
-      v∘w⇒v′∘w = T.app-subst v⇒v′
-  in  targetRedSubstTerm′ ([G] id ⊢Δ [a]) t®v v∘w⇒v′∘w
+  in  targetRedSubstTerm′ ([G] id ⊢Δ [a]) t®v $
+      case PE.singleton str of λ where
+        (strict     , PE.refl) → T.app-subst v⇒v′
+        (non-strict , PE.refl) → v⇒v′
 ... | no p≢𝟘 = Π-lemma v⇒v′ ∘→ t®v′ .proj₁ , λ [a] a®w →
   let t®v = t®v′ .proj₂ [a] a®w
       v∘w⇒v′∘w = T.app-subst v⇒v′

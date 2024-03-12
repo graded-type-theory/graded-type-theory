@@ -134,6 +134,15 @@ opaque
 
 opaque
 
+  lam-𝟘-keep :
+    (t : U.Term (1+ n)) →
+    erase′ false s (U.lam 𝟘 t) ≡ T.lam (erase′ false s t)
+  lam-𝟘-keep _ with is-𝟘? 𝟘
+  … | yes _  = refl
+  … | no 𝟘≢𝟘 = ⊥-elim $ 𝟘≢𝟘 refl
+
+opaque
+
   lam-𝟘-remove :
     erase′ true s (U.lam 𝟘 t) ≡ erase′ true s t T.[ loop? s ]₀
   lam-𝟘-remove with is-𝟘? 𝟘
@@ -290,6 +299,16 @@ liftSubsts-erase-comm {b} {s} {σ} (1+ k) (x +1) =
   where
   open Tools.Reasoning.PropositionalEquality
 
+opaque
+
+  -- A substitution lemma for app-𝟘′.
+
+  app-𝟘-[] :
+    (t : T.Term n) →
+    app-𝟘′ b s t T.[ σ′ ] ≡
+    app-𝟘′ b s (t T.[ σ′ ])
+  app-𝟘-[] {b = true}      _ = refl
+  app-𝟘-[] {b = false} {s} _ = cong (T._∘⟨_⟩_ _ _) $ loop?-[] s
 
 -- Substitution commutes with erase′ b s (modulo the translation of
 -- the substitution to the target language).
@@ -330,10 +349,12 @@ subst-erase-comm {b = false} {s} σ (U.lam _ t) =
   where
   open Tools.Reasoning.PropositionalEquality
 subst-erase-comm σ (t U.∘⟨ p ⟩ u) with is-𝟘? p
-subst-erase-comm {b = true} _ (t U.∘⟨ _ ⟩ _) | yes _ =
-  subst-erase-comm _ t
-subst-erase-comm {b = false} {s} _ (t U.∘⟨ _ ⟩ _) | yes _ =
-  cong₂ T._∘⟨ _ ⟩_ (subst-erase-comm _ t) (loop?-[] s)
+subst-erase-comm {b} {s} σ (t U.∘⟨ _ ⟩ _) | yes _ =
+  app-𝟘′ b s (erase′ b s t) T.[ eraseSubst′ b s σ ]  ≡⟨ app-𝟘-[] (erase′ _ _ t) ⟩
+  app-𝟘′ b s (erase′ b s t T.[ eraseSubst′ b s σ ])  ≡⟨ cong (app-𝟘′ _ _) $ subst-erase-comm _ t ⟩
+  app-𝟘′ b s (erase′ b s (t U.[ σ ]))                ∎
+  where
+  open Tools.Reasoning.PropositionalEquality
 subst-erase-comm σ (t U.∘⟨ _ ⟩ u) | no _ =
   cong₂ T._∘⟨ _ ⟩_ (subst-erase-comm σ t) (subst-erase-comm σ u)
 subst-erase-comm {b} {s} σ (U.prod _ p t u) with is-𝟘? p

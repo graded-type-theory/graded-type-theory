@@ -759,8 +759,17 @@ id-ℕ-zero = Graded.Erasure.Examples.id-ℕ-zero
 ▸id-ℕ-zero = Graded.Erasure.Examples.▸id-ℕ-zero
 
 -- One of the arguments gets erased by the extraction function.
+--
+-- The current version of the code includes one extraction function
+-- that uses strict applications, and one that uses non-strict
+-- applications. In the strict case the extraction of id-ℕ-zero
+-- includes ↯, and in the non-strict case that argument is removed
+-- entirely, along with one lambda.
 
-erase-id-ℕ-zero = Graded.Erasure.Examples.erase-id-ℕ-zero
+erase-strict-id-ℕ-zero =
+  Graded.Erasure.Examples.erase-strict-id-ℕ-zero
+erase-non-strict-id-ℕ-zero =
+  Graded.Erasure.Examples.erase-non-strict-id-ℕ-zero
 
 -- Theorem 6.4.
 

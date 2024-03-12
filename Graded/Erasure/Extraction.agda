@@ -13,7 +13,7 @@ open Modality 𝕄
 
 open import Tools.Bool
 open import Tools.Function
-open import Tools.Nat
+open import Tools.Nat using (Nat; 2+)
 open import Tools.Relation
 
 open import Definition.Untyped M as U
@@ -45,12 +45,28 @@ erase-prodrecω s p t u = case is-𝟘? p of λ where
                   T.∘⟨ s ⟩ t
     (no p≢𝟘) → T.prodrec t u
 
+-- A function application that is used when the grade is 𝟘.
+--
+-- The argument is removed entirely if the boolean is true.
+
+app-𝟘′ : Bool → Strictness → T.Term n → T.Term n
+app-𝟘′ false s t = t T.∘⟨ s ⟩ loop? s
+app-𝟘′ true  _ t = t
+
+-- A variant of app-𝟘.
+
+app-𝟘 : Strictness → T.Term n → T.Term n
+app-𝟘 s = app-𝟘′ (s == non-strict) s
+
 mutual
 
   -- The extraction function.
   --
   -- Function and constructor applications are made strict if the
   -- first argument is "strict".
+  --
+  -- Erasable arguments are removed entirely if the first argument is
+  -- "non-strict".
   --
   -- A non-terminating term, loop s, is used in some places. The idea
   -- is that it should be safe to replace this term with, say, a term
@@ -59,7 +75,7 @@ mutual
   -- which is a value.
 
   erase : Strictness → U.Term n → T.Term n
-  erase = erase′ false
+  erase s = erase′ (s == non-strict) s
 
   -- A variant of the extraction function.
   --
@@ -80,9 +96,7 @@ mutual
         (yes _) → erase″ t T.[ loop? s ]₀
     erase″ (t U.∘⟨ p ⟩ u) = case is-𝟘? p of λ where
       (no _)  → erase″ t T.∘⟨ s ⟩ erase″ u
-      (yes _) → case remove of λ where
-        false → erase″ t T.∘⟨ s ⟩ loop? s
-        true  → erase″ t
+      (yes _) → app-𝟘′ remove s (erase″ t)
     erase″ (U.prod _ p t u) = case is-𝟘? p of λ where
       (no _)  → prod⟨ s ⟩ (erase″ t) (erase″ u)
       (yes _) → erase″ u

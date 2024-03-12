@@ -4,9 +4,11 @@
 
 module Graded.Erasure.Target where
 
+open import Tools.Bool
 open import Tools.Fin
-open import Tools.Nat
-import Tools.PropositionalEquality as PE
+open import Tools.Nat using (Nat; 1+; 2+; _+_)
+open import Tools.PropositionalEquality using (_≡_; refl)
+open import Tools.Relation
 open import Tools.Unit
 
 open import Definition.Untyped.NotParametrised
@@ -28,6 +30,23 @@ data Strictness : Set where
 
 private variable
   s : Strictness
+
+-- Equality of Strictness is decidable.
+
+infix 10 _≟_
+
+_≟_ : (s₁ s₂ : Strictness) → Dec (s₁ ≡ s₂)
+strict     ≟ strict     = yes refl
+non-strict ≟ non-strict = yes refl
+strict     ≟ non-strict = no (λ ())
+non-strict ≟ strict     = no (λ ())
+
+-- A boolean variant of _≟_.
+
+infix 10 _==_
+
+_==_ : Strictness → Strictness → Bool
+s₁ == s₂ = Dec.does (s₁ ≟ s₂)
 
 -- Terms of the target language:
 -- A lambda calculus extended with natural numbers, products, unit

@@ -42,11 +42,14 @@ open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 
+open import Graded.Erasure.Extraction 𝕄
 open import Graded.Erasure.Extraction.Properties 𝕄
 open import Graded.Erasure.LogicalRelation as
 open import Graded.Erasure.LogicalRelation.Subsumption as
 open import Graded.Erasure.LogicalRelation.Irrelevance as
+open import Graded.Erasure.LogicalRelation.Reduction as
 import Graded.Erasure.Target as T
+open import Graded.Erasure.Target.Reasoning
 
 open import Tools.Empty
 open import Tools.Function
@@ -81,7 +84,7 @@ appʳ′ {m = 𝟘ᵐ} with is-𝟘? 𝟘
 ... | no m≢𝟘 = ⊥-elim (m≢𝟘 PE.refl)
 appʳ′
   {F} {G} {u} {p} {q} {γ} {t} {m = 𝟙ᵐ} {δ}
-  [Γ] [F] [G] [G[u]] [u] _ ⊩ʳt ⊩ʳu {σ} [σ] σ®σ′
+  [Γ] [F] [G] [G[u]] [u] _ ⊩ʳt ⊩ʳu {σ} {σ′} [σ] σ®σ′
   with is-𝟘? 𝟙
 ... | yes 𝟙≡𝟘 = _
 ... | no 𝟙≢𝟘
@@ -101,8 +104,9 @@ appʳ′
   in  irrelevanceTerm′ (PE.trans (PE.cong (_[ u [ σ ] ]₀) (wk-lift-id (G [ liftSubst σ ])))
                                  (PE.sym (singleSubstLift G u)))
                        [σG[u]] (proj₁ (unwrap [G[u]] ⊢Δ [σ])) $
-      PE.subst ((t [ σ ]) ∘⟨ p ⟩ (u [ σ ]) ®⟨ _ ⟩_∷ _ / [σG[u]])
-        (PE.sym $ PE.cong (T._∘⟨_⟩_ _ _) $ loop?-[] str) tu®v↯
+      targetRedSubstTerm*′ [σG[u]] tu®v↯
+        (app-𝟘 str (erase str t T.[ σ′ ])  ≡˘⟨ app-𝟘-[] (erase _ t) ⟩⇒
+         app-𝟘 str (erase str t) T.[ σ′ ]  ∎⇒)
 ... | no p≢𝟘 =
   let [Π] = Πᵛ {F = F} {G = G} {p = p} {q = q} [Γ] [F] [G]
       [σF] = proj₁ (unwrap [F] ⊢Δ [σ])

@@ -39,13 +39,15 @@ open import Definition.Typed.Weakening R hiding (wk)
 open import Definition.Typed.Consequences.Reduction R
 
 open import Graded.Erasure.Extraction 𝕄
+import Graded.Erasure.Extraction.Properties 𝕄 as EP
 open import Graded.Erasure.LogicalRelation as
 open import Graded.Erasure.LogicalRelation.Irrelevance as
 open import Graded.Erasure.LogicalRelation.Reduction as
 open import Graded.Erasure.LogicalRelation.Subsumption as
 open import Graded.Erasure.LogicalRelation.Value as
+open import Graded.Erasure.Target.Non-terminating
 open import Graded.Erasure.Target.Properties as TP
-import Graded.Erasure.Target as T
+open import Graded.Erasure.Target as T using (strict; non-strict)
 open import Graded.Erasure.Target.Reasoning
 
 open import Tools.Empty
@@ -166,7 +168,7 @@ lamʳ {F = F} {G = G} {t = t} {m = 𝟙ᵐ} {p = p} {q = q}
      with is-𝟘? ⌜ 𝟙ᵐ ⌝
 ... | yes 𝟙≡𝟘 = _
 ... | no 𝟙≢𝟘 with is-𝟘? p
-... | yes PE.refl = (λ _ → _ , T.refl) , λ [a] →
+... | yes PE.refl = (λ { PE.refl → _ , T.refl }) , λ [a] →
   let [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
       [ρσF] = W.wk id ⊢Δ [σF]
       [a]′ = I.irrelevanceTerm′ (UP.wk-id (F [ σ ])) [ρσF] [σF] [a]
@@ -184,8 +186,28 @@ lamʳ {F = F} {G = G} {t = t} {m = 𝟙ᵐ} {p = p} {q = q}
   in  irrelevanceTerm′ (PE.sym (PE.trans (PE.cong (_[ _ ]₀)
                                                   (UP.wk-lift-id (G [ liftSubst σ ])))
                                          (UP.singleSubstComp _ σ G)))
-                       [Ga] [Ga]″ λta®λv↯
-... | no p≢𝟘 = (λ _ → _ , T.refl) , λ [a] {w} a®w →
+                       [Ga] [Ga]″ $
+      case PE.singleton str of λ where
+        (strict , PE.refl) →
+          targetRedSubstTerm* [Ga] λta®λv↯
+            ((erase strict (lam 𝟘 t) T.[ σ′ ]) T.∘⟨ strict ⟩ T.↯  ≡⟨ PE.cong (λ t → (t T.[ σ′ ]) T.∘⟨ strict ⟩ T.↯) $
+                                                                     EP.lam-𝟘-keep t ⟩⇒
+             (T.lam (erase strict t) T.[ σ′ ]) T.∘⟨ strict ⟩ T.↯  ∎⇒)
+        (non-strict , PE.refl) →
+          targetRedSubstTerm*′ [Ga] λta®λv↯
+            ((T.lam (erase non-strict t) T.[ σ′ ]) T.∘⟨ non-strict ⟩
+             loop non-strict                                          ⇒⟨ T.β-red _ ⟩
+
+             erase non-strict t T.[ T.liftSubst σ′ ]
+               T.[ loop non-strict ]₀                                 ≡˘⟨ PE.cong (erase _ t T.[ T.liftSubst _ ] T.[_]₀) loop-[] ⟩⇒
+
+             erase non-strict t T.[ T.liftSubst σ′ ]
+               T.[ loop non-strict T.[ σ′ ] ]₀                        ≡˘⟨ TP.singleSubstLift (erase _ t) _ ⟩⇒
+
+             erase non-strict t T.[ loop non-strict ]₀ T.[ σ′ ]       ≡˘⟨ PE.cong T._[ _ ] EP.lam-𝟘-remove ⟩⇒
+
+             erase non-strict (lam 𝟘 t) T.[ σ′ ]                      ∎⇒)
+... | no p≢𝟘 = (λ { PE.refl → _ , T.refl }) , λ [a] {w} a®w →
   let [σF] = proj₁ (unwrap [F] ⊢Δ [σ])
       [ρσF] = W.wk id ⊢Δ [σF]
       [a]′ = I.irrelevanceTerm′ (UP.wk-id (F [ σ ])) [ρσF] [σF] [a]
@@ -204,4 +226,8 @@ lamʳ {F = F} {G = G} {t = t} {m = 𝟙ᵐ} {p = p} {q = q}
   in  irrelevanceTerm′ (PE.sym (PE.trans (PE.cong (_[ _ ]₀)
                                                   (UP.wk-lift-id (G [ liftSubst σ ])))
                                          (UP.singleSubstComp _ σ G)))
-                       [Ga] [Ga]″ λta®λvw
+                       [Ga] [Ga]″ $
+      targetRedSubstTerm* [Ga] λta®λvw
+        ((erase str (lam p t) T.[ σ′ ]) T.∘⟨ str ⟩ w  ≡⟨ PE.cong (λ t → (t T.[ _ ]) T.∘⟨ _ ⟩ _) $
+                                                         EP.lam-≢𝟘 (str T.== _) p≢𝟘 ⟩⇒
+         (T.lam (erase str t) T.[ σ′ ]) T.∘⟨ str ⟩ w  ∎⇒)
