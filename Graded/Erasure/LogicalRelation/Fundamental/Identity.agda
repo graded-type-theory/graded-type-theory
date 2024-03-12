@@ -86,7 +86,7 @@ opaque
   Idʳ _ _ _ ⊢Γ =
       valid ⊢Γ
     , Uᵛ _
-    , λ _ _ → Uᵣ (λ _ → T.refl) ◀ _
+    , λ _ _ → Uᵣ (λ { PE.refl → T.refl }) ◀ _
 
 opaque
   unfolding Idᵛ ⊩Id
@@ -106,7 +106,7 @@ opaque
     , λ ⊩σ _ →
         rflᵣ
           (rfl  ∎⟨ rflⱼ (substitutionTerm ⊢t (wellformedSubst _ _ ⊩σ) ⊢Δ) ⟩⇒)
-          (λ _ → T.refl)
+          (λ { PE.refl → T.refl })
           ◀ _ }
 
 private opaque
@@ -151,7 +151,7 @@ opaque
           (([]-cong _ A t u v) [ σ ]    ⇒*⟨ []-cong-subst* (ε⊢⇒*rfl∷Id ⊢v[σ]) ok ⟩
            ([]-cong _ A t u rfl) [ σ ]  ⇒⟨ []-cong-β-⇒ t[σ]≡u[σ] ok ⟩∎
            rfl                          ∎)
-          (λ _ → T.refl)
+          (λ { PE.refl → T.refl })
           ◀ _ }}}}
     where
     open IE ([]-cong→Erased ok)

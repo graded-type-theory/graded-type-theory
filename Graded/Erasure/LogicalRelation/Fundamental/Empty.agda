@@ -35,6 +35,7 @@ open import Graded.Mode 𝕄
 open import Tools.Empty
 open import Tools.Nat
 open import Tools.Product
+open import Tools.PropositionalEquality
 
 private
   variable
@@ -50,7 +51,7 @@ Emptyʳ : ⊢ Γ
       → ∃ λ ([U] : Γ ⊩ᵛ⟨ ¹ ⟩ U / [Γ])
       → γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ Empty ∷[ m ] U / [Γ] / [U]
 Emptyʳ {m = m} ⊢Γ =
-  [Γ] , [U] , λ _ _ → Uᵣ (λ _ → T.refl) ◀ ⌜ m ⌝
+  [Γ] , [U] , λ _ _ → Uᵣ (λ { refl → T.refl }) ◀ ⌜ m ⌝
   where
   [Γ] = valid ⊢Γ
   [U] = Uᵛ [Γ]

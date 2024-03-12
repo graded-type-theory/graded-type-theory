@@ -42,6 +42,7 @@ open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 
+open import Graded.Erasure.Extraction.Properties 𝕄
 open import Graded.Erasure.LogicalRelation as
 open import Graded.Erasure.LogicalRelation.Subsumption as
 open import Graded.Erasure.LogicalRelation.Irrelevance as
@@ -99,7 +100,9 @@ appʳ′
                                (proj₁ (unwrap [G] ⊢Δ (wkSubstS [Γ] ⊢Δ ⊢Δ id [σ] , [σu]″)))
   in  irrelevanceTerm′ (PE.trans (PE.cong (_[ u [ σ ] ]₀) (wk-lift-id (G [ liftSubst σ ])))
                                  (PE.sym (singleSubstLift G u)))
-                       [σG[u]] (proj₁ (unwrap [G[u]] ⊢Δ [σ])) tu®v↯
+                       [σG[u]] (proj₁ (unwrap [G[u]] ⊢Δ [σ])) $
+      PE.subst ((t [ σ ]) ∘⟨ p ⟩ (u [ σ ]) ®⟨ _ ⟩_∷ _ / [σG[u]])
+        (PE.sym $ PE.cong (T._∘⟨_⟩_ _ _) $ loop?-[] str) tu®v↯
 ... | no p≢𝟘 =
   let [Π] = Πᵛ {F = F} {G = G} {p = p} {q = q} [Γ] [F] [G]
       [σF] = proj₁ (unwrap [F] ⊢Δ [σ])

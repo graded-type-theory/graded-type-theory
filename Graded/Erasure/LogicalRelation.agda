@@ -141,10 +141,10 @@ mutual
         ([G] : Δ ⊩⟨ l ⟩ U.wk (lift id) G U.[ b ]₀)
         (p : M) (p≟𝟘 : Dec (p PE.≡ 𝟘)) → Set a
   -- Erased Π:
-  -- Functions t and v are related if the applications
-  -- t∘a and v∘↯ are related (cf. the extraction function).
+  -- The functions t and v are related if the applications t ∘ a and
+  -- v ∘ loop? str are related (compare with the extraction function).
   Π-® l F G t a v [F] [Ga] p (yes p≡𝟘) =
-    (t U.∘⟨ p ⟩ a) ®⟨ l ⟩ v T.∘⟨ str ⟩ ↯ ∷
+    (t U.∘⟨ p ⟩ a) ®⟨ l ⟩ v T.∘⟨ str ⟩ loop? str ∷
       U.wk (lift id) G U.[ a ]₀ / [Ga]
   -- Non-erased Π:
   -- Functions t and v are related if the applications
@@ -222,7 +222,7 @@ opaque
     {⊩B[u] : Δ ⊩⟨ l ⟩ U.wk (lift id) B U.[ u ]₀}
     (d : Dec (𝟘 PE.≡ 𝟘)) →
     Π-® l A B t u v ⊩A ⊩B[u] 𝟘 d →
-    (t U.∘⟨ 𝟘 ⟩ u) ®⟨ l ⟩ v T.∘⟨ str ⟩ ↯ ∷
+    (t U.∘⟨ 𝟘 ⟩ u) ®⟨ l ⟩ v T.∘⟨ str ⟩ loop? str ∷
       U.wk (lift id) B U.[ u ]₀ / ⊩B[u]
   Π-®-𝟘 (no 𝟘≢𝟘) = λ _ → ⊥-elim (𝟘≢𝟘 PE.refl)
   Π-®-𝟘 (yes _)  = idᶠ

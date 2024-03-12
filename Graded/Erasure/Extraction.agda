@@ -28,6 +28,14 @@ private
     v v′ w : T.Term n
     p : M
 
+-- If the first argument is strict, then the result is ↯ (which is a
+-- value), but if the first argument is non-strict, then the result is
+-- loop non-strict (which does not reduce to a value).
+
+loop? : Strictness → T.Term n
+loop? non-strict = loop non-strict
+loop? strict     = ↯
+
 -- Extraction for prodrec when the match is not erased.
 
 erase-prodrecω :
@@ -44,9 +52,11 @@ mutual
   -- Function and constructor applications are made strict if the
   -- first argument is "strict".
   --
-  -- A non-terminating term, loop s, is used instead of ↯ in some
-  -- places. The idea is that it should be safe to replace this term
-  -- with, say, a term that throws an exception.
+  -- A non-terminating term, loop s, is used in some places. The idea
+  -- is that it should be safe to replace this term with, say, a term
+  -- that throws an exception. The term loop? s is equal to loop s
+  -- when s is non-strict, but if s is strict, then loop? s is ↯,
+  -- which is a value.
 
   erase : Strictness → U.Term n → T.Term n
   erase = erase′ false
@@ -61,17 +71,17 @@ mutual
     where
     erase″ : U.Term n → T.Term n
     erase″ (var x)                 = T.var x
-    erase″ U                       = ↯
-    erase″ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = ↯
+    erase″ U                       = loop? s
+    erase″ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = loop? s
     erase″ (U.lam p t)             = case remove of λ where
       false → T.lam (erase″ t)
       true  → case is-𝟘? p of λ where
         (no _)  → T.lam (erase″ t)
-        (yes _) → erase″ t T.[ ↯ ]₀
+        (yes _) → erase″ t T.[ loop? s ]₀
     erase″ (t U.∘⟨ p ⟩ u) = case is-𝟘? p of λ where
       (no _)  → erase″ t T.∘⟨ s ⟩ erase″ u
       (yes _) → case remove of λ where
-        false → erase″ t T.∘⟨ s ⟩ ↯
+        false → erase″ t T.∘⟨ s ⟩ loop? s
         true  → erase″ t
     erase″ (U.prod _ p t u) = case is-𝟘? p of λ where
       (no _)  → prod⟨ s ⟩ (erase″ t) (erase″ u)
@@ -85,23 +95,23 @@ mutual
     erase″ (U.prodrec r p _ _ t u) = case is-𝟘? r of λ where
       (no _)  → erase-prodrecω s p (erase″ t) (erase″ u)
       (yes _) → erase″ u T.[ loop s , loop s ]
-    erase″ ℕ                        = ↯
+    erase″ ℕ                        = loop? s
     erase″ U.zero                   = T.zero
     erase″ (U.suc t)                = suc⟨ s ⟩ (erase″ t)
     erase″ (U.natrec p q r A t u v) =
       T.natrec (erase″ t) (erase″ u) (erase″ v)
-    erase″ Unit!                 = ↯
+    erase″ Unit!                 = loop? s
     erase″ U.star!               = T.star
     erase″ (U.unitrec p q A t u) = case is-𝟘? p of λ where
       (no _)  → T.unitrec (erase″ t) (erase″ u)
       (yes _) → erase″ u
-    erase″ Empty               = ↯
+    erase″ Empty               = loop? s
     erase″ (emptyrec p A t)    = loop s
-    erase″ (Id _ _ _)          = ↯
-    erase″ U.rfl               = ↯
+    erase″ (Id _ _ _)          = loop? s
+    erase″ U.rfl               = loop? s
     erase″ (J _ _ _ _ _ u _ _) = erase″ u
     erase″ (K _ _ _ _ u _)     = erase″ u
-    erase″ ([]-cong _ _ _ _ _) = ↯
+    erase″ ([]-cong _ _ _ _ _) = loop? s
 
 mutual
 

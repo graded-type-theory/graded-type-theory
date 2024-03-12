@@ -57,6 +57,7 @@ private
     t u A : U.Term n
     σ : U.Subst m n
     σ′ : T.Subst m n
+    ρ : Wk _ _
     γ : Conₘ n
     x : Fin n
     p q r : M
@@ -134,36 +135,69 @@ opaque
 opaque
 
   lam-𝟘-remove :
-    erase′ true s (U.lam 𝟘 t) ≡ erase′ true s t T.[ ↯ ]₀
+    erase′ true s (U.lam 𝟘 t) ≡ erase′ true s t T.[ loop? s ]₀
   lam-𝟘-remove with is-𝟘? 𝟘
   … | yes _  = refl
   … | no 𝟘≢𝟘 = ⊥-elim $ 𝟘≢𝟘 refl
+
+opaque
+
+  -- The result of weakening loop? s is loop? s.
+
+  wk-loop? : ∀ s → wk ρ (loop? s) ≡ loop? s
+  wk-loop? non-strict = wk-loop
+  wk-loop? strict     = refl
+
+opaque
+
+  -- The result of applying a substitution to loop? s is loop? s.
+
+  loop?-[] : ∀ s → loop? s T.[ σ′ ] ≡ loop? s
+  loop?-[] non-strict = loop-[]
+  loop?-[] strict     = refl
+
+opaque
+
+  -- The term loop? s is closed.
+
+  loop?-closed : ∀ s → ¬ HasX x (loop? s)
+  loop?-closed non-strict = loop-closed
+  loop?-closed strict     = λ ()
+
+opaque
+
+  -- The term loop? {n = n} s satisfies Value⟨ s ⟩.
+
+  Value⟨⟩-loop? : ∀ s → Value⟨ s ⟩ (loop? {n = n} s)
+  Value⟨⟩-loop? non-strict = _
+  Value⟨⟩-loop? strict     = T.↯
 
 -- The functions wk ρ/U.wk ρ and erase′ b s commute.
 
 wk-erase-comm : (ρ : U.Wk m n) (t : U.Term n)
               → wk ρ (erase′ b s t) ≡ erase′ b s (U.wk ρ t)
 wk-erase-comm _ (var _) = refl
-wk-erase-comm ρ U = refl
-wk-erase-comm ρ (Π p , w ▷ F ▹ G) = refl
+wk-erase-comm {s} _ U = wk-loop? s
+wk-erase-comm {s} _ (Π _ , _ ▷ _ ▹ _) = wk-loop? s
 wk-erase-comm {b = true} {s} ρ (U.lam p t) with is-𝟘? p
 ... | no _  = cong T.lam $ wk-erase-comm _ t
 ... | yes _ =
-  wk ρ (erase′ true s t T.[ ↯ ]₀)           ≡⟨ wk-β (erase′ _ _ t) ⟩
-  wk (lift ρ) (erase′ true s t) T.[ ↯ ]₀    ≡⟨ cong T._[ _ ]₀ $ wk-erase-comm _ t ⟩
-  erase′ true s (U.wk (lift ρ) t) T.[ ↯ ]₀  ∎
+  wk ρ (erase′ true s t T.[ loop? s ]₀)                ≡⟨ wk-β (erase′ _ _ t) ⟩
+  wk (lift ρ) (erase′ true s t) T.[ wk ρ (loop? s) ]₀  ≡⟨ cong (wk _ (erase′ _ _ t) T.[_]₀) $ wk-loop? s ⟩
+  wk (lift ρ) (erase′ true s t) T.[ loop? s ]₀         ≡⟨ cong T._[ _ ]₀ $ wk-erase-comm _ t ⟩
+  erase′ true s (U.wk (lift ρ) t) T.[ loop? s ]₀       ∎
   where
   open Tools.Reasoning.PropositionalEquality
 wk-erase-comm {b = false} ρ (U.lam p t) =
   cong T.lam (wk-erase-comm (lift ρ) t)
 wk-erase-comm ρ (t U.∘⟨ p ⟩ u) with is-𝟘? p
-wk-erase-comm {b = false} _ (t U.∘⟨ _ ⟩ _) | yes _ =
-  cong (T._∘⟨ _ ⟩ ↯) (wk-erase-comm _ t)
+wk-erase-comm {b = false} {s} _ (t U.∘⟨ _ ⟩ _) | yes _ =
+  cong₂ T._∘⟨ _ ⟩_ (wk-erase-comm _ t) (wk-loop? s)
 wk-erase-comm {b = true} _ (t U.∘⟨ _ ⟩ _) | yes _ =
   wk-erase-comm _ t
 wk-erase-comm _ (t U.∘⟨ _ ⟩ u) | no _ =
   cong₂ T._∘⟨ _ ⟩_ (wk-erase-comm _ t) (wk-erase-comm _ u)
-wk-erase-comm ρ (Σ _ , _ ▷ _ ▹ _) = refl
+wk-erase-comm {s} _ (Σ _ , _ ▷ _ ▹ _) = wk-loop? s
 wk-erase-comm {b} {s} ρ (U.prod _ p t u) with is-𝟘? p
 ... | yes _ = wk-erase-comm ρ u
 ... | no _ =
@@ -203,7 +237,7 @@ wk-erase-comm {b} {s} ρ (U.prodrec r p _ A t u) with is-𝟘? r
   open Tools.Reasoning.PropositionalEquality
 ... | no _ = cong₂ T.prodrec (wk-erase-comm ρ t)
                    (wk-erase-comm (lift (lift ρ)) u)
-wk-erase-comm ρ ℕ = refl
+wk-erase-comm {s} _ ℕ = wk-loop? s
 wk-erase-comm ρ U.zero = refl
 wk-erase-comm {b} {s} ρ (U.suc t) =
   wk ρ (suc⟨ s ⟩ (erase′ b s t))    ≡⟨ wk-suc⟨⟩ ⟩
@@ -215,7 +249,7 @@ wk-erase-comm ρ (U.natrec p q r A z s n) =
   cong₃ T.natrec (wk-erase-comm ρ z)
                  (wk-erase-comm (lift (lift ρ)) s)
                  (wk-erase-comm ρ n)
-wk-erase-comm ρ Unit! = refl
+wk-erase-comm {s} _ Unit! = wk-loop? s
 wk-erase-comm ρ U.star! = refl
 wk-erase-comm ρ (U.unitrec p q A t u)
   with is-𝟘? p
@@ -224,13 +258,13 @@ wk-erase-comm ρ (U.unitrec p q A t u)
 ... | no _ =
   cong₂ T.unitrec (wk-erase-comm ρ t)
                   (wk-erase-comm ρ u)
-wk-erase-comm ρ Empty = refl
+wk-erase-comm {s} _ Empty = wk-loop? s
 wk-erase-comm _ (emptyrec _ _ _) = wk-loop
-wk-erase-comm _ (Id _ _ _) = refl
-wk-erase-comm _ U.rfl = refl
+wk-erase-comm {s} _ (Id _ _ _) = wk-loop? s
+wk-erase-comm {s} _ U.rfl = wk-loop? s
 wk-erase-comm _ (J _ _ _ _ _ u _ _) = wk-erase-comm _ u
 wk-erase-comm _ (K _ _ _ _ u _) = wk-erase-comm _ u
-wk-erase-comm _ ([]-cong _ _ _ _ _) = refl
+wk-erase-comm {s} _ ([]-cong _ _ _ _ _) = wk-loop? s
 
 -- Lifting substitutions commute with erase
 
@@ -265,8 +299,8 @@ subst-erase-comm :
   (σ : U.Subst m n) (t : U.Term n) →
   erase′ b s t T.[ eraseSubst′ b s σ ] ≡ erase′ b s (t U.[ σ ])
 subst-erase-comm σ (var x) = refl
-subst-erase-comm σ U = refl
-subst-erase-comm σ (Π p , q ▷ F ▹ G) = refl
+subst-erase-comm {s} _ U = loop?-[] s
+subst-erase-comm {s} _ (Π _ , _ ▷ _ ▹ _) = loop?-[] s
 subst-erase-comm {b = true} {s} σ (U.lam p t) with is-𝟘? p
 ... | no _ =
   cong T.lam
@@ -276,13 +310,20 @@ subst-erase-comm {b = true} {s} σ (U.lam p t) with is-𝟘? p
   where
   open Tools.Reasoning.PropositionalEquality
 ... | yes _ =
-  erase′ true s t T.[ ↯ ]₀ T.[ (eraseSubst′ true s σ) ]              ≡⟨ singleSubstLift (erase′ _ _ t) _ ⟩
-  erase′ true s t T.[ liftSubst (eraseSubst′ true s σ) ] T.[ ↯ ]₀    ≡⟨ cong T._[ _ ]₀ $ substVar-to-subst liftSubst-erase-comm (erase′ _ _ t) ⟩
-  erase′ true s t T.[ eraseSubst′ true s (U.liftSubst σ) ] T.[ ↯ ]₀  ≡⟨ cong T._[ _ ]₀ $ subst-erase-comm _ t ⟩
-  erase′ true s (t U.[ U.liftSubst σ ]) T.[ ↯ ]₀                     ∎
+  erase′ true s t T.[ loop? s ]₀ T.[ (eraseSubst′ true s σ) ]            ≡⟨ singleSubstLift (erase′ _ _ t) _ ⟩
+
+  erase′ true s t T.[ liftSubst (eraseSubst′ true s σ) ]
+    T.[ loop? s [ eraseSubst′ true s σ ] ]₀                              ≡⟨ cong (erase′ _ _ t T.[ liftSubst _ ] T.[_]₀) $ loop?-[] s ⟩
+
+  erase′ true s t T.[ liftSubst (eraseSubst′ true s σ) ] T.[ loop? s ]₀  ≡⟨ cong T._[ _ ]₀ $ substVar-to-subst liftSubst-erase-comm (erase′ _ _ t) ⟩
+
+  erase′ true s t T.[ eraseSubst′ true s (U.liftSubst σ) ]
+    T.[ loop? s ]₀                                                       ≡⟨ cong T._[ _ ]₀ $ subst-erase-comm _ t ⟩
+
+  erase′ true s (t U.[ U.liftSubst σ ]) T.[ loop? s ]₀                   ∎
   where
   open Tools.Reasoning.PropositionalEquality
-subst-erase-comm {b = false} {s} σ (U.lam p t) =
+subst-erase-comm {b = false} {s} σ (U.lam _ t) =
   cong Term.lam
     (erase′ false s t T.[ liftSubst (eraseSubst′ false s σ) ]    ≡⟨ substVar-to-subst (liftSubsts-erase-comm 1) (erase′ _ _ t) ⟩
      erase′ false s t T.[ eraseSubst′ false s (U.liftSubst σ) ]  ≡⟨ subst-erase-comm _ t ⟩
@@ -292,11 +333,11 @@ subst-erase-comm {b = false} {s} σ (U.lam p t) =
 subst-erase-comm σ (t U.∘⟨ p ⟩ u) with is-𝟘? p
 subst-erase-comm {b = true} _ (t U.∘⟨ _ ⟩ _) | yes _ =
   subst-erase-comm _ t
-subst-erase-comm {b = false} _ (t U.∘⟨ _ ⟩ _) | yes _ =
-  cong (T._∘⟨ _ ⟩ _) $ subst-erase-comm _ t
+subst-erase-comm {b = false} {s} _ (t U.∘⟨ _ ⟩ _) | yes _ =
+  cong₂ T._∘⟨ _ ⟩_ (subst-erase-comm _ t) (loop?-[] s)
 subst-erase-comm σ (t U.∘⟨ _ ⟩ u) | no _ =
   cong₂ T._∘⟨ _ ⟩_ (subst-erase-comm σ t) (subst-erase-comm σ u)
-subst-erase-comm σ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = refl
+subst-erase-comm {s} _ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = loop?-[] s
 subst-erase-comm {b} {s} σ (U.prod _ p t u) with is-𝟘? p
 ... | yes _ = subst-erase-comm σ u
 ... | no _ =
@@ -356,7 +397,7 @@ subst-erase-comm {b} {s} σ (U.prodrec r p _ A t u) with is-𝟘? r
   cong₂ Term.prodrec (subst-erase-comm σ t)
     (trans (substVar-to-subst (liftSubsts-erase-comm 2) (erase′ _ _ u))
        (subst-erase-comm (U.liftSubstn σ 2) u))
-subst-erase-comm σ ℕ = refl
+subst-erase-comm {s} _ ℕ = loop?-[] s
 subst-erase-comm σ U.zero = refl
 subst-erase-comm {b} {s} σ (U.suc t) =
   suc⟨ s ⟩ (erase′ b s t) T.[ eraseSubst′ b s σ ]  ≡⟨ suc⟨⟩-[] ⟩
@@ -369,7 +410,7 @@ subst-erase-comm σ (U.natrec p q r A z s n) = cong₃ T.natrec
   (trans (substVar-to-subst (liftSubsts-erase-comm 2) (erase′ _ _ s))
          (subst-erase-comm (U.liftSubst (U.liftSubst σ)) s))
   (subst-erase-comm σ n)
-subst-erase-comm σ Unit! = refl
+subst-erase-comm {s} _ Unit! = loop?-[] s
 subst-erase-comm σ U.star! = refl
 subst-erase-comm σ (U.unitrec p q A t u) with is-𝟘? p
 ... | yes _ =
@@ -377,17 +418,17 @@ subst-erase-comm σ (U.unitrec p q A t u) with is-𝟘? p
 ... | no _ =
   cong₂ T.unitrec (subst-erase-comm σ t)
                   (subst-erase-comm σ u)
-subst-erase-comm σ Empty = refl
+subst-erase-comm {s} _ Empty = loop?-[] s
 subst-erase-comm _ (emptyrec _ _ _) = loop-[]
-subst-erase-comm _ (Id _ _ _) = refl
-subst-erase-comm _ U.rfl = refl
+subst-erase-comm {s} _ (Id _ _ _) = loop?-[] s
+subst-erase-comm {s} _ U.rfl = loop?-[] s
 subst-erase-comm _ (J _ _ _ _ _ u _ _) = subst-erase-comm _ u
 subst-erase-comm _ (K _ _ _ _ u _) = subst-erase-comm _ u
-subst-erase-comm _ ([]-cong _ _ _ _ _) = refl
+subst-erase-comm {s} _ ([]-cong _ _ _ _ _) = loop?-[] s
 
 subst-undefined : (x : Fin (1+ n)) →
       eraseSubst′ b s (U.sgSubst Empty) x ≡
-      T.sgSubst ↯ x
+      T.sgSubst (loop? s) x
 subst-undefined x0 = refl
 subst-undefined (x +1) = refl
 
@@ -421,8 +462,9 @@ module hasX (R : Usage-restrictions) where
   erased-hasX {b = false} erased (lamₘ γ▸t) (lamₓ hasX) =
     erased-hasX (there erased) γ▸t hasX
   erased-hasX {b = true} erased (lamₘ {p} γ▸t) hasX with is-𝟘? p
-  erased-hasX {b = true} erased (lamₘ γ▸t) hasX | yes _ =
-    erased-hasX (there erased) γ▸t (HasX-[closed]₀→ (λ ()) hasX)
+  erased-hasX {b = true} {s} erased (lamₘ γ▸t) hasX | yes _ =
+    erased-hasX (there erased) γ▸t
+      (HasX-[closed]₀→ (loop?-closed s) hasX)
   erased-hasX {b = true} erased (lamₘ γ▸t) (lamₓ hasX) | no _ =
     erased-hasX (there erased) γ▸t hasX
 
@@ -430,7 +472,8 @@ module hasX (R : Usage-restrictions) where
     with is-𝟘? p
   erased-hasX {b = false} erased (γ▸t ∘ₘ _) (∘ₓˡ hasX) | yes _ =
     erased-hasX (x◂𝟘∈γ+δˡ refl erased) γ▸t hasX
-  erased-hasX {b = false} _ (_ ∘ₘ _) (∘ₓʳ ()) | yes _
+  erased-hasX {b = false} {s} _ (_ ∘ₘ _) (∘ₓʳ hasX) | yes _ =
+    loop?-closed s hasX
   erased-hasX {b = true} erased (γ▸t ∘ₘ _) hasX | yes _ =
     erased-hasX (x◂𝟘∈γ+δˡ refl erased) γ▸t hasX
   erased-hasX erased (_∘ₘ_ {γ = γ} {δ = δ} {_} γ▸t δ▸u) (∘ₓˡ hasX)
@@ -624,16 +667,15 @@ module hasX (R : Usage-restrictions) where
   erased-hasX erased (sub δ▸t γ≤δ) hasX =
     erased-hasX (x◂𝟘∈γ≤δ erased γ≤δ) δ▸t hasX
 
-  -- Agda might type-check the proof a little quicker if the following
-  -- cases are included.
-  erased-hasX _ Uₘ                 ()
-  erased-hasX _ ℕₘ                 ()
-  erased-hasX _ Emptyₘ             ()
-  erased-hasX _ Unitₘ              ()
-  erased-hasX _ (ΠΣₘ _ _)          ()
-  erased-hasX _ (Idₘ _ _ _ _)      ()
-  erased-hasX _ (Id₀ₘ _ _ _ _)     ()
-  erased-hasX _ starʷₘ             ()
-  erased-hasX _ (starˢₘ _)         ()
-  erased-hasX _ rflₘ               ()
-  erased-hasX _ ([]-congₘ _ _ _ _) ()
+  erased-hasX {s} _ Uₘ                 = loop?-closed s
+  erased-hasX {s} _ ℕₘ                 = loop?-closed s
+  erased-hasX {s} _ Emptyₘ             = loop?-closed s
+  erased-hasX {s} _ Unitₘ              = loop?-closed s
+  erased-hasX {s} _ (ΠΣₘ _ _)          = loop?-closed s
+  erased-hasX {s} _ (Idₘ _ _ _ _)      = loop?-closed s
+  erased-hasX {s} _ (Id₀ₘ _ _ _ _)     = loop?-closed s
+  erased-hasX {s} _ rflₘ               = loop?-closed s
+  erased-hasX {s} _ ([]-congₘ _ _ _ _) = loop?-closed s
+
+  erased-hasX _ starʷₘ     ()
+  erased-hasX _ (starˢₘ _) ()

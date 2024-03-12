@@ -78,7 +78,7 @@ lamʳ′ : ∀ {l} {Γ : Con Term n}
         ([t] : Γ ∙ F ⊩ᵛ⟨ l ⟩ t ∷ G / [Γ] ∙ [F] / [G])
         ([u] : Δ ⊩⟨ l ⟩ u ∷ F [ σ ] / proj₁ (unwrap [F] ⊢Δ [σ]))
         (u®w : u ®⟨ l ⟩ w ∷ F [ σ ] ◂ p / proj₁ (unwrap [F] ⊢Δ [σ]))
-      → (p PE.≡ 𝟘 → w PE.≡ T.↯)
+      → (p PE.≡ 𝟘 → w PE.≡ loop? str)
       → Π-allowed p q
       → (lam p t [ σ ]) ∘⟨ p ⟩ u ®⟨ l ⟩
         (T.lam (erase str t) T.[ σ′ ]) T.∘⟨ str ⟩ w
@@ -179,7 +179,7 @@ lamʳ {F = F} {G = G} {t = t} {m = 𝟙ᵐ} {p = p} {q = q}
                              [Ga]′
       ⊩ʳt′ = PE.subst (λ x → _ ∙ x ▸ _ ∙ F ⊩ʳ⟨ _ ⟩ t ∷[ 𝟙ᵐ ] G / [Γ] ∙ [F] / [G])
                       (·-identityˡ 𝟘) (subsumption′ {t = t} ([Γ] ∙ [F]) [G] ⊩ʳt)
-      λta®λv↯ = lamʳ′ {t = t} {w = T.↯} [Γ] [F] [G] ⊩ʳt′
+      λta®λv↯ = lamʳ′ {t = t} [Γ] [F] [G] ⊩ʳt′
                       [σ] σ®σ′ [t] [a]′ t®v◂𝟘 (λ _ → PE.refl) ok
   in  irrelevanceTerm′ (PE.sym (PE.trans (PE.cong (_[ _ ]₀)
                                                   (UP.wk-lift-id (G [ liftSubst σ ])))
