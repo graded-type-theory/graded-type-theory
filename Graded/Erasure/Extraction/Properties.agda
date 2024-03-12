@@ -178,7 +178,7 @@ wk-erase-comm : (ρ : U.Wk m n) (t : U.Term n)
               → wk ρ (erase′ b s t) ≡ erase′ b s (U.wk ρ t)
 wk-erase-comm _ (var _) = refl
 wk-erase-comm {s} _ U = wk-loop? s
-wk-erase-comm {s} _ (Π _ , _ ▷ _ ▹ _) = wk-loop? s
+wk-erase-comm {s} _ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = wk-loop? s
 wk-erase-comm {b = true} {s} ρ (U.lam p t) with is-𝟘? p
 ... | no _  = cong T.lam $ wk-erase-comm _ t
 ... | yes _ =
@@ -197,7 +197,6 @@ wk-erase-comm {b = true} _ (t U.∘⟨ _ ⟩ _) | yes _ =
   wk-erase-comm _ t
 wk-erase-comm _ (t U.∘⟨ _ ⟩ u) | no _ =
   cong₂ T._∘⟨ _ ⟩_ (wk-erase-comm _ t) (wk-erase-comm _ u)
-wk-erase-comm {s} _ (Σ _ , _ ▷ _ ▹ _) = wk-loop? s
 wk-erase-comm {b} {s} ρ (U.prod _ p t u) with is-𝟘? p
 ... | yes _ = wk-erase-comm ρ u
 ... | no _ =
@@ -300,7 +299,7 @@ subst-erase-comm :
   erase′ b s t T.[ eraseSubst′ b s σ ] ≡ erase′ b s (t U.[ σ ])
 subst-erase-comm σ (var x) = refl
 subst-erase-comm {s} _ U = loop?-[] s
-subst-erase-comm {s} _ (Π _ , _ ▷ _ ▹ _) = loop?-[] s
+subst-erase-comm {s} _ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = loop?-[] s
 subst-erase-comm {b = true} {s} σ (U.lam p t) with is-𝟘? p
 ... | no _ =
   cong T.lam
@@ -337,7 +336,6 @@ subst-erase-comm {b = false} {s} _ (t U.∘⟨ _ ⟩ _) | yes _ =
   cong₂ T._∘⟨ _ ⟩_ (subst-erase-comm _ t) (loop?-[] s)
 subst-erase-comm σ (t U.∘⟨ _ ⟩ u) | no _ =
   cong₂ T._∘⟨ _ ⟩_ (subst-erase-comm σ t) (subst-erase-comm σ u)
-subst-erase-comm {s} _ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = loop?-[] s
 subst-erase-comm {b} {s} σ (U.prod _ p t u) with is-𝟘? p
 ... | yes _ = subst-erase-comm σ u
 ... | no _ =
