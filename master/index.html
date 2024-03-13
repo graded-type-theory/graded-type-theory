@@ -497,20 +497,20 @@
 <a id="19506" class="Comment">-- indexed by two natural numbers, the sizes of the target and source</a>
 <a id="19576" class="Comment">-- contexts, respectively.</a>
 
-<a id="Subst"></a><a id="19604" href="README.html#19604" class="Function">Subst</a> <a id="19610" class="Symbol">=</a> <a id="19612" href="Definition.Untyped.html#15884" class="Function">Definition.Untyped.Subst</a>
+<a id="Subst"></a><a id="19604" href="README.html#19604" class="Function">Subst</a> <a id="19610" class="Symbol">=</a> <a id="19612" href="Definition.Untyped.html#15962" class="Function">Definition.Untyped.Subst</a>
 
 <a id="19638" class="Comment">-- Application of a substitution to a term.</a>
 
-<a id="_[_]"></a><a id="19683" href="README.html#19683" class="Function Operator">_[_]</a> <a id="19688" class="Symbol">=</a> <a id="19690" href="Definition.Untyped.html#17917" class="Function Operator">Definition.Untyped._[_]</a>
+<a id="_[_]"></a><a id="19683" href="README.html#19683" class="Function Operator">_[_]</a> <a id="19688" class="Symbol">=</a> <a id="19690" href="Definition.Untyped.html#18134" class="Function Operator">Definition.Untyped._[_]</a>
 
 <a id="19715" class="Comment">-- Some other substitution operations from the paper.</a>
 
-<a id="identity"></a><a id="19770" href="README.html#19770" class="Function">identity</a>  <a id="19780" class="Symbol">=</a> <a id="19782" href="Definition.Untyped.html#16951" class="Function">Definition.Untyped.idSubst</a>
-<a id="shifting"></a><a id="19809" href="README.html#19809" class="Function">shifting</a>  <a id="19819" class="Symbol">=</a> <a id="19821" href="Definition.Untyped.html#17066" class="Function">Definition.Untyped.wk1Subst</a>
-<a id="lifting"></a><a id="19849" href="README.html#19849" class="Function">lifting</a>   <a id="19859" class="Symbol">=</a> <a id="19861" href="Definition.Untyped.html#17204" class="Function">Definition.Untyped.liftSubst</a>
-<a id="extension"></a><a id="19890" href="README.html#19890" class="Function">extension</a> <a id="19900" class="Symbol">=</a> <a id="19902" href="Definition.Untyped.html#18201" class="Function">Definition.Untyped.consSubst</a>
-<a id="head"></a><a id="19931" href="README.html#19931" class="Function">head</a>      <a id="19941" class="Symbol">=</a> <a id="19943" href="Definition.Untyped.html#16467" class="Function">Definition.Untyped.head</a>
-<a id="tail"></a><a id="19967" href="README.html#19967" class="Function">tail</a>      <a id="19977" class="Symbol">=</a> <a id="19979" href="Definition.Untyped.html#16650" class="Function">Definition.Untyped.tail</a>
+<a id="identity"></a><a id="19770" href="README.html#19770" class="Function">identity</a>  <a id="19780" class="Symbol">=</a> <a id="19782" href="Definition.Untyped.html#17029" class="Function">Definition.Untyped.idSubst</a>
+<a id="shifting"></a><a id="19809" href="README.html#19809" class="Function">shifting</a>  <a id="19819" class="Symbol">=</a> <a id="19821" href="Definition.Untyped.html#17144" class="Function">Definition.Untyped.wk1Subst</a>
+<a id="lifting"></a><a id="19849" href="README.html#19849" class="Function">lifting</a>   <a id="19859" class="Symbol">=</a> <a id="19861" href="Definition.Untyped.html#17421" class="Function">Definition.Untyped.liftSubst</a>
+<a id="extension"></a><a id="19890" href="README.html#19890" class="Function">extension</a> <a id="19900" class="Symbol">=</a> <a id="19902" href="Definition.Untyped.html#18418" class="Function">Definition.Untyped.consSubst</a>
+<a id="head"></a><a id="19931" href="README.html#19931" class="Function">head</a>      <a id="19941" class="Symbol">=</a> <a id="19943" href="Definition.Untyped.html#16545" class="Function">Definition.Untyped.head</a>
+<a id="tail"></a><a id="19967" href="README.html#19967" class="Function">tail</a>      <a id="19977" class="Symbol">=</a> <a id="19979" href="Definition.Untyped.html#16728" class="Function">Definition.Untyped.tail</a>
 
 <a id="20004" class="Comment">-- The typing relations.</a>
 <a id="20029" class="Comment">--</a>
@@ -547,24 +547,24 @@
 <a id="20841" class="Comment">-- One can define something like prodrec for the Σ-types with</a>
 <a id="20903" class="Comment">-- η-equality.</a>
 
-<a id="prodrec-for-Σₚ"></a><a id="20919" href="README.html#20919" class="Function">prodrec-for-Σₚ</a>              <a id="20947" class="Symbol">=</a> <a id="20949" href="Definition.Untyped.Sigma.html#1082" class="Function">Definition.Untyped.Sigma.prodrecˢ</a>
+<a id="prodrec-for-Σₚ"></a><a id="20919" href="README.html#20919" class="Function">prodrec-for-Σₚ</a>              <a id="20947" class="Symbol">=</a> <a id="20949" href="Definition.Untyped.Sigma.html#1092" class="Function">Definition.Untyped.Sigma.prodrecˢ</a>
 <a id="prodrec-for-Σₚ-type-correct"></a><a id="20983" href="README.html#20983" class="Function">prodrec-for-Σₚ-type-correct</a> <a id="21011" class="Symbol">=</a>
   <a id="21015" href="Definition.Typed.Consequences.DerivedRules.Sigma.html#11079" class="Function">Definition.Typed.Consequences.DerivedRules.Sigma.prodrecˢⱼ</a>
 
 <a id="21075" class="Comment">-- However, our definition does not in general satisfy the usage rule</a>
 <a id="21145" class="Comment">-- for prodrec.</a>
 
-<a id="prodrec-for-Σₚ-usage"></a><a id="21162" href="README.html#21162" class="Function">prodrec-for-Σₚ-usage</a> <a id="21183" class="Symbol">=</a> <a id="21185" href="Graded.Derived.Sigma.html#11028" class="Function">Graded.Derived.Sigma.¬prodrecₘ</a>
+<a id="prodrec-for-Σₚ-usage"></a><a id="21162" href="README.html#21162" class="Function">prodrec-for-Σₚ-usage</a> <a id="21183" class="Symbol">=</a> <a id="21185" href="Graded.Derived.Sigma.html#11034" class="Function">Graded.Derived.Sigma.¬prodrecₘ</a>
 
 <a id="21217" class="Comment">-- One can also define projections for weak Σ-types by using prodrec.</a>
 
-<a id="fst-for-Σᵣ"></a><a id="21288" href="README.html#21288" class="Function">fst-for-Σᵣ</a> <a id="21299" class="Symbol">=</a> <a id="21301" href="Definition.Untyped.Sigma.html#1306" class="Function">Definition.Untyped.Sigma.Fstʷ-sndʷ.fstʷ</a>
-<a id="snd-for-Σᵣ"></a><a id="21341" href="README.html#21341" class="Function">snd-for-Σᵣ</a> <a id="21352" class="Symbol">=</a> <a id="21354" href="Definition.Untyped.Sigma.html#1424" class="Function">Definition.Untyped.Sigma.Fstʷ-sndʷ.sndʷ</a>
+<a id="fst-for-Σᵣ"></a><a id="21288" href="README.html#21288" class="Function">fst-for-Σᵣ</a> <a id="21299" class="Symbol">=</a> <a id="21301" href="Definition.Untyped.Sigma.html#1975" class="Function">Definition.Untyped.Sigma.Fstʷ-sndʷ.fstʷ</a>
+<a id="snd-for-Σᵣ"></a><a id="21341" href="README.html#21341" class="Function">snd-for-Σᵣ</a> <a id="21352" class="Symbol">=</a> <a id="21354" href="Definition.Untyped.Sigma.html#2093" class="Function">Definition.Untyped.Sigma.Fstʷ-sndʷ.sndʷ</a>
 
 <a id="21395" class="Comment">-- However, η-equality does not hold in general for our definitions.</a>
 
 <a id="no-η-equality-Σᵣ"></a><a id="21465" href="README.html#21465" class="Function">no-η-equality-Σᵣ</a> <a id="21482" class="Symbol">=</a>
-  <a id="21486" href="Definition.Typed.Consequences.DerivedRules.Sigma.html#34447" class="Function">Definition.Typed.Consequences.DerivedRules.Sigma.¬-Σʷ-η-prodʷ-fstʷ-sndʷ</a>
+  <a id="21486" href="Definition.Typed.Consequences.DerivedRules.Sigma.html#34356" class="Function">Definition.Typed.Consequences.DerivedRules.Sigma.¬-Σʷ-η-prodʷ-fstʷ-sndʷ</a>
 
 <a id="21559" class="Comment">-- Reduction relations</a>
 
