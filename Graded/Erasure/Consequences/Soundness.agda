@@ -22,6 +22,7 @@ open Usage-restrictions UR
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Sigma 𝕄
+open import Definition.Untyped.Unit 𝕄
 
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Consistency TR
@@ -682,6 +683,34 @@ opaque
 
     ⊢zero : Δ′ ∙ Id ℕ zero zero ⊢ zero ∷ ℕ
     ⊢zero = zeroⱼ (K-motive-context (zeroⱼ ⊢Δ))
+
+opaque
+
+  soundness-ℕ-only-target-not-counterexample₅ :
+    Unitʷ-allowed →
+    Run-time-canonicity-for str
+      (ε ∙ Unitʷ)
+      (unitrec 𝟘 𝟘 ℕ (var {n = 1} x0) zero)
+  soundness-ℕ-only-target-not-counterexample₅ Unit-ok with is-𝟘? 𝟘
+  … | no 𝟘≢𝟘 = ⊥-elim $ 𝟘≢𝟘 PE.refl
+  … | yes _  =
+      _
+    , subst ω Unitʷ (Id ℕ (unitrec 𝟘 𝟘 ℕ (var x0) zero) zero) starʷ
+        (var x0) (Unit-η 𝕨 ω (var x0)) rfl
+    , ⊢subst
+        (Idⱼ
+           (unitrecⱼ (ℕⱼ (ε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ]))
+              (var₀ (⊢Unitʷ (ε ∙[ ⊢Unitʷ ])))
+              (zeroⱼ (ε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ])) Unit-ok)
+           (zeroⱼ (ε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ])))
+        (⊢Unit-η (var₀ (⊢Unitʷ ε)))
+        (rflⱼ′
+           (unitrec 𝟘 𝟘 ℕ starʷ zero  ≡⟨ unitrec-β (ℕⱼ (ε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ])) (zeroⱼ (ε ∙[ ⊢Unitʷ ])) Unit-ok ⟩⊢∎
+            zero                      ∎))
+    , refl-⇒ˢ⟨⟩*
+    where
+    ⊢Unitʷ : ⊢ Γ → Γ ⊢ Unitʷ
+    ⊢Unitʷ ⊢Γ = Unitⱼ ⊢Γ Unit-ok
 
 -- A variant of run-time canonicity that uses erase′ true instead of
 -- erase.
