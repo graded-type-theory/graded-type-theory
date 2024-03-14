@@ -503,8 +503,8 @@ opaque
              prod-cong⁻¹ (inversion-rfl-Id (⊢u-redₜ ⇒*rfl))
                .proj₂ .proj₁ of λ ()
       (_ , ne u-ne , t⇒*u) →
-        neutral-not-well-resourced nem (inhabited-consistent ⊢σ) u-ne
-          (⊢u-redₜ t⇒*u) (usagePres*Term ▸t (redₜ t⇒*u)) }
+        neutral-not-well-resourced nem (λ _ → inhabited-consistent ⊢σ)
+          u-ne (⊢u-redₜ t⇒*u) (usagePres*Term ▸t (redₜ t⇒*u)) }
     where
     lemma :
       ((σ , _) :
@@ -519,8 +519,9 @@ opaque
       , (case red-Π ⊢t of λ where
            (_ , ne v-n , t⇒*v) →
              ⊥-elim $
-             neutral-not-well-resourced nem (inhabited-consistent ⊢σ)
-               v-n (⊢u-redₜ t⇒*v) (usagePres*Term ▸t (redₜ t⇒*v))
+             neutral-not-well-resourced nem
+               (λ _ → inhabited-consistent ⊢σ) v-n (⊢u-redₜ t⇒*v)
+               (usagePres*Term ▸t (redₜ t⇒*v))
            (lam _ v , lamₙ , t⇒*lam) →
              case inv-usage-lam (usagePres*Term ▸t (redₜ t⇒*lam)) of λ {
                (invUsageLam ▸v 𝟘≤) →

@@ -205,8 +205,8 @@ usagePresTerm
   open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
 usagePresTerm γ▸et (emptyrec-subst x t⇒u) =
-  let invUsageemptyrec δ▸t η▸A γ≤δ = inv-usage-emptyrec γ▸et
-  in  sub (emptyrecₘ (usagePresTerm δ▸t t⇒u) η▸A) γ≤δ
+  let invUsageemptyrec δ▸t η▸A ok γ≤δ = inv-usage-emptyrec γ▸et
+  in  sub (emptyrecₘ (usagePresTerm δ▸t t⇒u) η▸A ok) γ≤δ
 
 usagePresTerm γ▸ur (unitrec-subst x x₁ t⇒t′ _) =
   let invUsageUnitrec δ▸t η▸u θ▸A ok γ≤γ′ = inv-usage-unitrec γ▸ur

@@ -346,8 +346,8 @@ opaque
          𝟘ᶜ +ᶜ p ·ᶜ 𝟘ᶜ +ᶜ r ·ᶜ 𝟘ᶜ  ∎)
     where
     open CR
-  ▸-𝟘 (emptyrecₘ {p} e A) = sub
-    (emptyrecₘ (▸-𝟘 e) A)
+  ▸-𝟘 (emptyrecₘ {p} e A ok) = sub
+    (emptyrecₘ (▸-𝟘 e) A (Emptyrec-allowed-·ᵐ ok))
     (begin
        𝟘ᶜ       ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
        p ·ᶜ 𝟘ᶜ  ∎)
@@ -575,7 +575,7 @@ opaque
   𝟘ᶜ  ∎
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-▸-𝟘ᵐ (emptyrecₘ {γ = γ} {p = p} γ▸ _) = begin
+▸-𝟘ᵐ (emptyrecₘ {γ = γ} {p = p} γ▸ _ _) = begin
   p ·ᶜ γ   ≤⟨ ·ᶜ-monotoneʳ (▸-𝟘ᵐ γ▸) ⟩
   p ·ᶜ 𝟘ᶜ  ≈⟨ ·ᶜ-zeroʳ _ ⟩
   𝟘ᶜ       ∎
@@ -995,10 +995,10 @@ opaque
     where
     open CR
 
-  Conₘ-interchange {δ} (emptyrecₘ {γ} {p} ▸t ▸A) ▸er x =
+  Conₘ-interchange {δ} (emptyrecₘ {γ} {p} ▸t ▸A ok) ▸er x =
     case inv-usage-emptyrec ▸er of λ
-      (invUsageemptyrec {δ = γ′} ▸t′ _ δ≤pγ′) → sub
-    (emptyrecₘ (Conₘ-interchange ▸t ▸t′ x) ▸A)
+      (invUsageemptyrec {δ = γ′} ▸t′ _ _ δ≤pγ′) → sub
+    (emptyrecₘ (Conₘ-interchange ▸t ▸t′ x) ▸A ok)
     (begin
        p ·ᶜ γ , x ≔ δ ⟨ x ⟩          ≤⟨ update-monotoneʳ _ $ lookup-monotone _ δ≤pγ′ ⟩
        p ·ᶜ γ , x ≔ (p ·ᶜ γ′) ⟨ x ⟩  ≡⟨ cong (_ , _ ≔_) $ lookup-distrib-·ᶜ γ′ _ _ ⟩
@@ -1829,7 +1829,7 @@ usage-upper-bound
 usage-upper-bound (natrec-no-nrₘ _ _ _ _ _ _ _ _) =
   ⊥-elim not-nr-and-no-nr
 
-usage-upper-bound (emptyrecₘ e A) =
+usage-upper-bound (emptyrecₘ e A _) =
   ·ᶜ-monotoneʳ (usage-upper-bound e)
 
 usage-upper-bound starʷₘ = ≤ᶜ-refl
@@ -1972,7 +1972,7 @@ usage-inf {m = m}
           θ▸A }
 usage-inf (natrec-no-nrₘ _ _ _ _ _ _ _ _) =
   ⊥-elim not-nr-and-no-nr
-usage-inf (emptyrecₘ γ▸t δ▸A) = emptyrecₘ (usage-inf γ▸t) δ▸A
+usage-inf (emptyrecₘ γ▸t δ▸A ok) = emptyrecₘ (usage-inf γ▸t) δ▸A ok
 usage-inf starʷₘ = starʷₘ
 usage-inf (starˢₘ prop) = starₘ
 usage-inf (unitrecₘ γ▸t δ▸u η▸A ok) =

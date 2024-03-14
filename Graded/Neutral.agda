@@ -55,12 +55,13 @@ opaque
 
   -- If the modality's zero is well-behaved and erased matches are not
   -- allowed, then neutral, well-typed terms are not well-resourced
-  -- with respect to consistent, erasable contexts.
+  -- with respect to consistent, erasable contexts. (The contexts only
+  -- need to be consistent if emptyrec is allowed for 𝟙ᵐ and 𝟘.)
 
   neutral-not-well-resourced :
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
     No-erased-matches TR UR →
-    Consistent Γ →
+    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Γ) →
     Neutral t →
     Γ ⊢ t ∷ A →
     ¬ 𝟘ᶜ ▸[ 𝟙ᵐ ] t
@@ -111,8 +112,16 @@ opaque
         χ ≈ᶜ 𝟘ᶜ  →⟨ ≤ᶜ→≈ᶜ𝟘ᶜ→≈ᶜ𝟘ᶜ χ≤η ⟩
         η ≈ᶜ 𝟘ᶜ  →⟨ helper v-n ⊢v ▸v ⟩
         ⊥        □ }
-      (emptyrecₙ _) ⊢er _ →
-        ⊥-elim $ consistent _ (inversion-emptyrec ⊢er .proj₂ .proj₁)
+      (emptyrecₙ t-n) ⊢er (emptyrecₘ {γ} {p} γ▸t _ allowed) →
+        case inversion-emptyrec ⊢er of λ
+          (_ , ⊢t , _) →
+        case is-𝟘? p of λ where
+          (yes PE.refl) → ⊥-elim $ consistent allowed _ ⊢t
+          (no p≢𝟘)      →
+            p ·ᶜ γ ≈ᶜ 𝟘ᶜ     →⟨ ·ᶜ-zero-product ⟩
+            p ≡ 𝟘 ⊎ γ ≈ᶜ 𝟘ᶜ  →⟨ (λ { (inj₁ p≡𝟘) → ⊥-elim $ p≢𝟘 p≡𝟘; (inj₂ γ≈𝟘) → γ≈𝟘 }) ⟩
+            γ ≈ᶜ 𝟘ᶜ          →⟨ helper t-n ⊢t (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸t) ⟩
+            ⊥                □
       (unitrecₙ t-n) ⊢ur (unitrecₘ {γ} {p} {δ} ▸t _ _ ok) →
         case inversion-unitrec ⊢ur of λ {
           (_ , ⊢t , _ , _) →

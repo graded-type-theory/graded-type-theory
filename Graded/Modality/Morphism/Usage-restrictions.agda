@@ -297,6 +297,13 @@ record Are-preserving-usage-restrictions
       R₁.Unitrec-allowed m₁ p q →
       R₂.Unitrec-allowed m₂ (tr p) (tr q)
 
+    -- The function tr preserves the Emptyrec-allowed property in a
+    -- certain way.
+    Emptyrec-preserved :
+      m₁ ≈ᵐ m₂ →
+      R₁.Emptyrec-allowed m₁ p →
+      R₂.Emptyrec-allowed m₂ (tr p)
+
   open Common-properties common-properties public
 
 opaque
@@ -307,9 +314,10 @@ opaque
   Are-preserving-usage-restrictions-id :
     Are-preserving-usage-restrictions R R idᶠ idᶠ
   Are-preserving-usage-restrictions-id = λ where
-      .common-properties → Common-properties-reflexive
-      .Prodrec-preserved → ≈ᵐ→→₁
-      .Unitrec-preserved → ≈ᵐ→→₁
+      .common-properties  → Common-properties-reflexive
+      .Prodrec-preserved  → ≈ᵐ→→₁
+      .Unitrec-preserved  → ≈ᵐ→→₁
+      .Emptyrec-preserved → ≈ᵐ→→₁
     where
     open Are-preserving-usage-restrictions
 
@@ -331,6 +339,9 @@ opaque
         ≈ᵐ→→₂ P₂.𝟘ᵐ-preserved P₂.Prodrec-preserved P₁.Prodrec-preserved
       .Unitrec-preserved →
         ≈ᵐ→→₂ P₂.𝟘ᵐ-preserved P₂.Unitrec-preserved P₁.Unitrec-preserved
+      .Emptyrec-preserved →
+        ≈ᵐ→→₂ P₂.𝟘ᵐ-preserved P₂.Emptyrec-preserved
+          P₁.Emptyrec-preserved
     where
     open Are-preserving-usage-restrictions
     module P₁ = Are-preserving-usage-restrictions m₁
@@ -375,6 +386,13 @@ record Are-reflecting-usage-restrictions
       R₂.Unitrec-allowed m₂ (tr p) (tr q) →
       R₁.Unitrec-allowed m₁ p q
 
+    -- The function tr reflects the Emptyrec-allowed property in a
+    -- certain way.
+    Emptyrec-reflected :
+      m₁ ≳ᵐ m₂ →
+      R₂.Emptyrec-allowed m₂ (tr p) →
+      R₁.Emptyrec-allowed m₁ p
+
     -- If m₁ ≈ᵐ m₂ holds, then R₂.Erased-matches-for-J m₂ is bounded
     -- by R₁.erased-matches-for-J m₁.
     erased-matches-for-J-reflected :
@@ -401,6 +419,7 @@ opaque
       .𝟘ᵐ-reflected                   → idᶠ
       .Prodrec-reflected              → ≳ᵐ→←₁
       .Unitrec-reflected              → ≳ᵐ→←₁
+      .Emptyrec-reflected             → ≳ᵐ→←₁
       .erased-matches-for-J-reflected → ≈ᵐ→≤ᵉᵐ₁ ∘→ ≈ᵐ-symmetric
       .erased-matches-for-K-reflected → ≈ᵐ→≤ᵉᵐ₁ ∘→ ≈ᵐ-symmetric
     where
@@ -428,6 +447,9 @@ opaque
       .Unitrec-reflected →
         ≳ᵐ→←₂ R₂.𝟘ᵐ-preserved R₁.𝟘ᵐ-reflected R₁.Unitrec-reflected
           R₂.Unitrec-reflected
+      .Emptyrec-reflected →
+        ≳ᵐ→←₂ R₂.𝟘ᵐ-preserved R₁.𝟘ᵐ-reflected R₁.Emptyrec-reflected
+          R₂.Emptyrec-reflected
       .erased-matches-for-J-reflected →
         ≈ᵐ→≥ᵉᵐ₂ R₂.𝟘ᵐ-preserved R₁.erased-matches-for-J-reflected
           R₂.erased-matches-for-J-reflected

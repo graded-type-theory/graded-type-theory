@@ -354,6 +354,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
 
   emptyrecₘ : γ ▸[ m ᵐ· p ] t
             → δ ▸[ 𝟘ᵐ? ] A
+            → Emptyrec-allowed m p
             → p ·ᶜ γ ▸[ m ] emptyrec p A t
 
   starʷₘ    : 𝟘ᶜ ▸[ m ] starʷ

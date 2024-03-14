@@ -52,7 +52,7 @@ private variable
 -- The following extended modalities all satisfy the following
 -- properties:
 --
--- * There are no restrictions on prodrec or unitrec.
+-- * There are no restrictions on prodrec, unitrec or emptyrec.
 -- * The strong unit type is not allowed to be used as a sink.
 -- * Id-erased is not inhabited.
 -- * All erased matches are allowed for J and K.
@@ -71,6 +71,7 @@ All-properties-hold-for : Extended-modality a → Set a
 All-properties-hold-for M =
   (∀ {m r p q} → Prodrec-allowed m r p q) ×
   (∀ {m p q} → Unitrec-allowed m p q) ×
+  (∀ {m p} → Emptyrec-allowed m p) ×
   ¬ Starˢ-sink ×
   ¬ Id-erased ×
   (∀ {m} → erased-matches-for-J m ≡ all) ×
@@ -122,6 +123,7 @@ opaque
   All-properties-hold-for-Trivial =
       _
     , _
+    , _
     , (λ ())
     , (λ ())
     , refl
@@ -154,6 +156,7 @@ opaque
   All-properties-hold-for-Erasure : All-properties-hold-for Erasure
   All-properties-hold-for-Erasure =
       _
+    , _
     , _
     , (λ ())
     , (λ ())
@@ -197,6 +200,7 @@ opaque
     All-properties-hold-for Affine-types
   All-properties-hold-for-Affine-types =
       _
+    , _
     , _
     , (λ ())
     , (λ ())
@@ -244,6 +248,7 @@ opaque
   All-properties-hold-for-Linearity =
       _
     , _
+    , _
     , (λ ())
     , (λ ())
     , refl
@@ -290,6 +295,7 @@ opaque
     All-properties-hold-for Linear-or-affine-types
   All-properties-hold-for-Linear-or-affine-types =
       _
+    , _
     , _
     , (λ ())
     , (λ ())

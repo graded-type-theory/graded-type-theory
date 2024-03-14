@@ -63,6 +63,7 @@ data Usage-restrictions-satisfied {n} (m : Mode) : Term n → Set a where
   Emptyᵤ :
     Usage-restrictions-satisfied m Empty
   emptyrecᵤ :
+    Emptyrec-allowed m p →
     Usage-restrictions-satisfied 𝟘ᵐ? A →
     Usage-restrictions-satisfied (m ᵐ· p) t →
     Usage-restrictions-satisfied m (emptyrec p A t)
@@ -327,8 +328,9 @@ opaque
       varᵤ
     Emptyᵤ →
       Emptyᵤ
-    (emptyrecᵤ A t) →
-      emptyrecᵤ A (Usage-restrictions-satisfied-→𝟘ᵐ t)
+    (emptyrecᵤ ok A t) →
+      emptyrecᵤ (Emptyrec-allowed-downwards-closed ok) A
+        (Usage-restrictions-satisfied-→𝟘ᵐ t)
     Unitᵤ →
       Unitᵤ
     starᵤ →
@@ -448,8 +450,8 @@ opaque
       varᵤ
     Emptyₘ →
       Emptyᵤ
-    (emptyrecₘ ▸t ▸A) →
-      emptyrecᵤ (▸→Usage-restrictions-satisfied ▸A)
+    (emptyrecₘ ▸t ▸A ok) →
+      emptyrecᵤ ok (▸→Usage-restrictions-satisfied ▸A)
         (▸→Usage-restrictions-satisfied ▸t)
     Unitₘ →
       Unitᵤ
@@ -654,8 +656,8 @@ opaque
               𝟘ᶜ +ᶜ 𝟘ᶜ                  ≈˘⟨ +ᶜ-cong (·ᶜ-zeroʳ _) (·ᶜ-zeroʳ _) ⟩
               p ·ᶜ 𝟘ᶜ +ᶜ r ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityˡ _ ⟩
               𝟘ᶜ +ᶜ p ·ᶜ 𝟘ᶜ +ᶜ r ·ᶜ 𝟘ᶜ  ∎
-      (emptyrecᵤ {p} A-ok t-ok) →
-        sub (emptyrecₘ (lemma t-ok) (lemma-𝟘ᵐ? A-ok)) $ begin
+      (emptyrecᵤ {p} ok A-ok t-ok) →
+        sub (emptyrecₘ (lemma t-ok) (lemma-𝟘ᵐ? A-ok) ok) $ begin
           𝟘ᶜ       ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
           p ·ᶜ 𝟘ᶜ  ∎
       (unitrecᵤ {p} {q} ok A-ok t-ok u-ok) →
@@ -837,8 +839,8 @@ opaque
             natrec-no-nrₘ {δ = 𝟘ᶜ} {θ = 𝟘ᶜ} (lemma₀ t-ok) (lemma u-ok)
               (lemma₀ v-ok) (lemma A-ok) (≈ᶜ-trivial 𝟙≡𝟘)
               (λ _ → ≈ᶜ-trivial 𝟙≡𝟘) (≈ᶜ-trivial 𝟙≡𝟘) (≈ᶜ-trivial 𝟙≡𝟘)
-      (emptyrecᵤ A-ok t-ok) →
-        sub (emptyrecₘ (lemma₀ t-ok) (lemma₀ A-ok)) (≈ᶜ-trivial 𝟙≡𝟘)
+      (emptyrecᵤ ok A-ok t-ok) →
+        sub (emptyrecₘ (lemma₀ t-ok) (lemma₀ A-ok) ok) (≈ᶜ-trivial 𝟙≡𝟘)
       (unitrecᵤ ok A-ok t-ok u-ok) →
         sub
           (unitrecₘ {η = 𝟘ᶜ} (lemma₀ t-ok) (lemma₀ u-ok) (lemma A-ok)

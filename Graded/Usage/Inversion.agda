@@ -321,19 +321,21 @@ record InvUsageemptyrec
          Set a where
   constructor invUsageemptyrec
   field
-    {δ η} : Conₘ n
-    δ▸t  : δ ▸[ m ᵐ· p ] t
-    η▸A  : η ▸[ 𝟘ᵐ? ] A
-    γ≤pδ : γ ≤ᶜ p ·ᶜ δ
+    {δ η}   : Conₘ n
+    δ▸t     : δ ▸[ m ᵐ· p ] t
+    η▸A     : η ▸[ 𝟘ᵐ? ] A
+    allowed : Emptyrec-allowed m p
+    γ≤pδ    : γ ≤ᶜ p ·ᶜ δ
 
--- If γ ▸[ m ] emptyrec p A t then δ ▸[ m ᵐ· p ] t, η ▸[ 𝟘ᵐ? ] A and
--- γ ≤ᶜ p ·ᶜ δ.
+-- A usage inversion lemma for emptyrec.
 
 inv-usage-emptyrec :
   γ ▸[ m ] emptyrec p A t → InvUsageemptyrec γ m p A t
-inv-usage-emptyrec (emptyrecₘ δ▸t η▸A) = invUsageemptyrec δ▸t η▸A ≤ᶜ-refl
+inv-usage-emptyrec (emptyrecₘ δ▸t η▸A ok) =
+  invUsageemptyrec δ▸t η▸A ok ≤ᶜ-refl
 inv-usage-emptyrec (sub γ▸et γ≤γ′) with inv-usage-emptyrec γ▸et
-... | invUsageemptyrec δ▸t η▸A γ′≤δ = invUsageemptyrec δ▸t η▸A (≤ᶜ-trans γ≤γ′ γ′≤δ)
+... | invUsageemptyrec δ▸t η▸A ok γ′≤δ =
+  invUsageemptyrec δ▸t η▸A ok (≤ᶜ-trans γ≤γ′ γ′≤δ)
 
 -- If γ ▸[ m ] starʷ then γ ≤ᶜ 𝟘ᶜ.
 

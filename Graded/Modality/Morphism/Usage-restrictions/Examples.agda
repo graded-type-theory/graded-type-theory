@@ -87,9 +87,10 @@ opaque
       (no-usage-restrictions 𝕄₂ b₁ b₂)
       tr tr-Σ
   Are-preserving-usage-restrictions-no-usage-restrictions hyp = λ where
-      .common-properties → Common-properties-no-usage-restrictions hyp
-      .Prodrec-preserved → _
-      .Unitrec-preserved → _
+      .common-properties  → Common-properties-no-usage-restrictions hyp
+      .Prodrec-preserved  → _
+      .Unitrec-preserved  → _
+      .Emptyrec-preserved → _
     where
     open Are-preserving-usage-restrictions
 
@@ -116,6 +117,7 @@ opaque
       .𝟘ᵐ-reflected                   → hyp₂
       .Prodrec-reflected              → _
       .Unitrec-reflected              → _
+      .Emptyrec-reflected             → _
       .erased-matches-for-J-reflected → _
       .erased-matches-for-K-reflected → _
     where
@@ -186,6 +188,8 @@ Are-preserving-usage-restrictions-no-erased-matches-UR
            (inj₂ ≢𝟘) →
              tr p ≡ M₂.𝟘  →⟨ ≢𝟘 ⟩
              ⊥            □)
+  ; Emptyrec-preserved =
+      Emptyrec-preserved
   }
   where
   module M₁ = Modality 𝕄₁
@@ -231,6 +235,8 @@ Are-reflecting-usage-restrictions-no-erased-matches-UR
                ⊥            □
              (𝟙ᵐ≳𝟘ᵐ trivial₁) _ →
                non-trivial₁ trivial₁)
+  ; Emptyrec-reflected =
+      Emptyrec-reflected
   ; erased-matches-for-J-reflected = λ where
       𝟙ᵐ → _
       𝟘ᵐ → erased-matches-for-J-reflected 𝟘ᵐ
@@ -315,6 +321,8 @@ opaque
         Prodrec-preserved
     ; Unitrec-preserved =
         Unitrec-preserved
+    ; Emptyrec-preserved =
+        Emptyrec-preserved
     }
     where
     open Are-preserving-usage-restrictions r
@@ -341,6 +349,8 @@ opaque
         Prodrec-reflected
     ; Unitrec-reflected =
         Unitrec-reflected
+    ; Emptyrec-reflected =
+        Emptyrec-reflected
     ; erased-matches-for-J-reflected = λ where
         𝟘ᵐ → erased-matches-for-J-reflected 𝟘ᵐ
         𝟙ᵐ →

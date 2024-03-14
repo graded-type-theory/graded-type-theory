@@ -76,11 +76,20 @@ private module LR {Δ : Con Term k} (⊢Δ : ⊢ Δ) (str : Strictness) where
   open Graded.Erasure.LogicalRelation as public
   open Graded.Erasure.LogicalRelation.Hidden as public
 
+-- Below negations of variants of the statement of the fundamental
+-- lemma are proved. In each case the variants are given for the
+-- module parameters (𝕄, TR, UR, etc.), and for an arbitrary
+-- Strictness. Furthermore the assumption "erased matches are not
+-- allowed unless the context is empty" is removed. In most cases the
+-- assumption "if erased matches are allowed for emptyrec when the
+-- mode is 𝟙ᵐ, then the context is consistent" is replaced by "the
+-- context is consistent", but in one case this assumption is instead
+-- removed.
+
 -- If Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 holds for some p (which means that
 -- certain kinds of erased matches are allowed), and if additionally
 -- Σʷ-allowed p 𝟘 holds, then one can prove a negation of a variant of
--- the fundamental lemma without the assumption "erased matches are
--- not allowed or the context is empty" (for any strictness).
+-- the statement of the fundamental lemma.
 
 negation-of-fundamental-lemma-with-erased-matches₁ :
   Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 →
@@ -123,9 +132,7 @@ negation-of-fundamental-lemma-with-erased-matches₁
 opaque
 
   -- If []-cong-allowed holds, then one can prove a negation of a
-  -- variant of the statement of the fundamental lemma without the
-  -- assumption "erased matches are not allowed or the context is
-  -- empty" (for any strictness).
+  -- variant of the statement of the fundamental lemma.
 
   negation-of-fundamental-lemma-with-erased-matches₂ :
     []-cong-allowed s →
@@ -174,8 +181,7 @@ opaque
 
   -- If erased-matches-for-J 𝟙ᵐ is equal to not-none sem, then one can
   -- prove a negation of a variant of the statement of the fundamental
-  -- lemma without the assumption "erased matches are not allowed or
-  -- the context is empty" (for any strictness).
+  -- lemma.
 
   negation-of-fundamental-lemma-with-erased-matches₃ :
     erased-matches-for-J 𝟙ᵐ ≡ not-none sem →
@@ -216,9 +222,7 @@ opaque
 
   -- If the K rule is allowed and erased-matches-for-K 𝟙ᵐ is equal to
   -- not-none sem, then one can prove a negation of a variant of the
-  -- statement of the fundamental lemma without the assumption "erased
-  -- matches are not allowed or the context is empty" (for any
-  -- strictness).
+  -- statement of the fundamental lemma.
 
   negation-of-fundamental-lemma-with-erased-matches₄ :
     K-allowed →
@@ -261,8 +265,7 @@ opaque
   -- If Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 holds (which means that certain kinds
   -- of erased matches are allowed), and if additionally Unitʷ-allowed
   -- holds, then one can prove a negation of a variant of the
-  -- fundamental lemma without the assumption "erased matches are not
-  -- allowed or the context is empty" (for any strictness).
+  -- statement of the fundamental lemma.
 
   negation-of-fundamental-lemma-with-erased-matches₅ :
     Unitʷ-allowed →
@@ -299,3 +302,41 @@ opaque
     ¬t®t t®t = case ®-ℕ t®t of λ where
       (zeroᵣ t⇒* _)    → case whnfRed*Term t⇒* (ne (unitrecₙ (var _))) of λ ()
       (sucᵣ t⇒* _ _ _) → case whnfRed*Term t⇒* (ne (unitrecₙ (var _))) of λ ()
+
+opaque
+
+  -- If Emptyrec-allowed 𝟙ᵐ 𝟘 holds, then one can prove a negation of
+  -- a variant of the statement of the fundamental lemma.
+
+  negation-of-fundamental-lemma-without-consistency₆ :
+    Emptyrec-allowed 𝟙ᵐ 𝟘 →
+    ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
+       let open LR ⊢Δ str in
+       ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
+       Γ ⊢ t ∷ A → γ ▸[ m ] t →
+       ∃₂ λ ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ]) →
+         γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A / [Γ] / [A])
+  negation-of-fundamental-lemma-without-consistency₆ {str} ok hyp =
+    case soundness-ℕ-counterexample₆ {str = str} ok of λ
+      (⊢t , ▸t , _) →
+    ¬t®t $ hidden-®-intro-fundamental non-trivial $
+    hyp ⊢Δ ⊢t ▸t
+    where
+    Δ : Con Term 1
+    Δ = ε ∙ Empty
+
+    t : Term 1
+    t = emptyrec 𝟘 ℕ (var x0)
+
+    A : Term 1
+    A = ℕ
+
+    ⊢Δ : ⊢ Δ
+    ⊢Δ = ε ∙ Emptyⱼ ε
+
+    open LR ⊢Δ str
+
+    ¬t®t : ¬ t ®⟨ ¹ ⟩ erase str t ∷ A
+    ¬t®t t®t = case ®-ℕ t®t of λ where
+      (zeroᵣ t⇒* _)    → case whnfRed*Term t⇒* (ne (emptyrecₙ (var _))) of λ ()
+      (sucᵣ t⇒* _ _ _) → case whnfRed*Term t⇒* (ne (emptyrecₙ (var _))) of λ ()

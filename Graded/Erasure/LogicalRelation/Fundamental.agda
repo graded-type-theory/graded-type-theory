@@ -216,7 +216,7 @@ module Fundamental
 
   open Graded.Erasure.LogicalRelation as
   open Graded.Erasure.LogicalRelation.Fundamental.Application as
-  open Graded.Erasure.LogicalRelation.Fundamental.Empty as consistent
+  open Graded.Erasure.LogicalRelation.Fundamental.Empty UR as consistent
   open Graded.Erasure.LogicalRelation.Fundamental.Identity as
   open Graded.Erasure.LogicalRelation.Fundamental.Lambda non-trivial as
   open Graded.Erasure.LogicalRelation.Fundamental.Nat as
@@ -497,16 +497,17 @@ module Fundamental
   fundamental
     {Γ = Γ} {γ = γ}
     (emptyrecⱼ {A = A} {t = t} {p = p} ⊢A Γ⊢t:Empty) γ▸t =
-    let invUsageemptyrec δ▸t _ γ≤δ = inv-usage-emptyrec γ▸t
+    let invUsageemptyrec δ▸t _ ok γ≤ = inv-usage-emptyrec γ▸t
         [Γ] , [Empty] , ⊩ʳt = fundamental Γ⊢t:Empty δ▸t
         [Γ]′ , [A]′ = F.fundamental ⊢A
         [A] = IS.irrelevance {A = A} [Γ]′ [Γ] [A]′
         [Γ]″ , [Empty]′ , [t]′ = F.fundamentalTerm Γ⊢t:Empty
         [t] = IS.irrelevanceTerm {A = Empty} {t = t}
                 [Γ]″ [Γ] [Empty]′ [Empty] [t]′
-        γ⊩ʳemptyrec = emptyrecʳ {A = A} {t = t} {p = p}
-                        [Γ] [Empty] [A] [t]
-    in  [Γ] , [A] , γ⊩ʳemptyrec
+        γ⊩ʳemptyrec = emptyrecʳ t ok [Empty] [A] [t] ⊩ʳt
+    in  [Γ] , [A] ,
+        subsumption-≤ well-formed {t = emptyrec _ A t} [Γ] [A]
+          γ⊩ʳemptyrec γ≤
   fundamental (starⱼ ⊢Γ ok) _ = starʳ ⊢Γ ok
   fundamental
     {m = 𝟙ᵐ} (unitrecⱼ {A = A} {t} {u} ⊢A ⊢t:Unit ⊢u:A₊ ok) γ▸ur =

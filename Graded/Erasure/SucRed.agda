@@ -26,6 +26,8 @@ open import Definition.Typed.Properties R
 
 open import Graded.Erasure.Target as T
   using (Strictness; strict; non-strict)
+open import Graded.Erasure.Target.Non-terminating
+import Graded.Erasure.Target.Properties as TP
 
 
 private
@@ -246,3 +248,20 @@ opaque
   ⇒*→⇒ˢ⟨⟩* : v T.⇒* w → v ⇒ˢ⟨ s ⟩* w
   ⇒*→⇒ˢ⟨⟩* {s = non-strict} = whred*′
   ⇒*→⇒ˢ⟨⟩* {s = strict}     = idᶠ
+
+opaque
+  unfolding loop
+
+  -- The term loop s does not reduce to a value.
+
+  ¬loop⇒ˢ* : T.Value v → ¬ loop s ⇒ˢ⟨ s ⟩* v
+  ¬loop⇒ˢ* {s = strict} =
+    ¬loop⇒*
+  ¬loop⇒ˢ* {s = non-strict} = ¬loop⇒ˢ*′
+    where
+    ¬loop⇒ˢ*′ : T.Value v → ¬ loop non-strict ⇒ˢ* v
+    ¬loop⇒ˢ*′ loop-value refl =
+      ¬loop⇒* loop-value T.refl
+    ¬loop⇒ˢ*′ v-value (trans (whred loop⇒) ⇒*v)
+      rewrite TP.redDet _ loop⇒ loop⇒loop =
+      ¬loop⇒ˢ*′ v-value ⇒*v

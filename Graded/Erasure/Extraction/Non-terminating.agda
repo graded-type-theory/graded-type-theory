@@ -42,6 +42,7 @@ module Graded.Erasure.Extraction.Non-terminating
 
 open Modality 𝕄
 open Type-restrictions TR
+open Usage-restrictions UR
 
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.DerivedRules TR
@@ -154,21 +155,23 @@ opaque
   -- A usage rule for cast.
 
   ▸cast :
+    Emptyrec-allowed 𝟙ᵐ 𝟘 →
     γ₁ ▸[ 𝟘ᵐ? ] t →
     γ₂ ▸[ 𝟙ᵐ ] A →
     γ₃ ▸[ 𝟙ᵐ ] B →
     γ₄ ▸[ 𝟙ᵐ ] u →
     𝟘ᶜ ∧ᶜ ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄) ▸[ 𝟙ᵐ ] cast t A B u
-  ▸cast {γ₁} {γ₂} {γ₃} {γ₄} ▸t ▸A ▸B ▸u =
+  ▸cast {γ₁} {γ₂} {γ₃} {γ₄} ok ▸t ▸A ▸B ▸u =
     sub (▸subst Uₘ
            (sub var $ begin
               𝟘ᶜ ∙ 𝟙 · 𝟙   ≈⟨ ≈ᶜ-refl ∙ ·-identityʳ _ ⟩
               𝟘ᶜ , x0 ≔ 𝟙  ∎)
            ▸A ▸B
-           (emptyrecₘ (▸-cong (PE.sym ⌞𝟘⌟≡𝟘ᵐ?) ▸t) $
-            Idₘ-generalised Uₘ (▸-𝟘ᵐ? ▸A .proj₂) (▸-𝟘ᵐ? ▸B .proj₂)
-              (λ _ → ∧ᶜ-decreasingˡ 𝟘ᶜ _)
-              (λ _ → ∧ᶜ-decreasingʳ _ _))
+           (emptyrecₘ (▸-cong (PE.sym ⌞𝟘⌟≡𝟘ᵐ?) ▸t)
+              (Idₘ-generalised Uₘ (▸-𝟘ᵐ? ▸A .proj₂) (▸-𝟘ᵐ? ▸B .proj₂)
+                 (λ _ → ∧ᶜ-decreasingˡ 𝟘ᶜ _)
+                 (λ _ → ∧ᶜ-decreasingʳ _ _))
+              ok)
            ▸u)
     (begin
        𝟘ᶜ ∧ᶜ ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄)             ≈˘⟨ ≈ᶜ-trans (·ᶜ-distribˡ-∧ᶜ _ _ _) $
@@ -250,12 +253,13 @@ opaque
   -- A usage rule for λx∙xx.
 
   ▸λx∙xx :
+    Emptyrec-allowed 𝟙ᵐ 𝟘 →
     ω ≤ 𝟘 →
     ω ≤ ω + ω →
     p ≤ 𝟘 →
     𝟘ᶜ ▸[ 𝟙ᵐ ] λx∙xx {n = n} p
-  ▸λx∙xx {p} ω≤𝟘 ω≤ω+ω p≤𝟘 =
-    lamₘ $ sub (▸cast var ℕₘ (▸Πℕℕ p≤𝟘) var ∘ₘ var) $ begin
+  ▸λx∙xx {p} ok ω≤𝟘 ω≤ω+ω p≤𝟘 =
+    lamₘ $ sub (▸cast ok var ℕₘ (▸Πℕℕ p≤𝟘) var ∘ₘ var) $ begin
       𝟘ᶜ ∙ 𝟙 · ω                              ≈⟨ ≈ᶜ-refl ∙ ·-identityˡ _ ⟩
 
       𝟘ᶜ ∙ ω                                  ≤⟨ ≤ᶜ-refl ∙ ω≤ω+ω ⟩
@@ -351,15 +355,16 @@ opaque
   -- A usage rule for extracts-to-loop.
 
   ▸extracts-to-loop :
+    Emptyrec-allowed 𝟙ᵐ 𝟘 →
     ω < 𝟘 →
     ω ≤ ω + ω →
     p ≤ 𝟘 →
     𝟘ᶜ ▸[ 𝟙ᵐ ] extracts-to-loop {n = n} p
-  ▸extracts-to-loop {p} {n} (ω≤𝟘 , ω≢𝟘) ω≤ω+ω p≤𝟘 = lamₘ $ sub
+  ▸extracts-to-loop {p} {n} ok (ω≤𝟘 , ω≢𝟘) ω≤ω+ω p≤𝟘 = lamₘ $ sub
     (▸λx∙xx′ ∘ₘ
      sub
        (▸-cong (PE.sym $ ≢𝟘→⌞⌟≡𝟙ᵐ ω≢𝟘) $
-        ▸cast var (▸Πℕℕ p≤𝟘) ℕₘ ▸λx∙xx′)
+        ▸cast ok var (▸Πℕℕ p≤𝟘) ℕₘ ▸λx∙xx′)
      (let open ≤ᶜ-reasoning in begin
         𝟘ᶜ                           ≈˘⟨ ≈ᶜ-trans
                                            (∧ᶜ-congˡ $
@@ -377,7 +382,7 @@ opaque
        𝟘ᶜ +ᶜ ω ·ᶜ 𝟘ᶜ  ∎)
     where
     ▸λx∙xx′ : 𝟘ᶜ ▸[ 𝟙ᵐ ] λx∙xx {n = n} p
-    ▸λx∙xx′ = ▸λx∙xx ω≤𝟘 ω≤ω+ω p≤𝟘
+    ▸λx∙xx′ = ▸λx∙xx ok ω≤𝟘 ω≤ω+ω p≤𝟘
 
 ------------------------------------------------------------------------
 -- The term former loops
@@ -457,17 +462,19 @@ opaque
   -- A usage rule for loops.
 
   ▸loops :
+    Emptyrec-allowed 𝟙ᵐ 𝟘 →
     ω < 𝟘 →
     ω ≤ ω + ω →
     p ≤ 𝟘 →
     𝟘ᶜ ▸[ 𝟙ᵐ ] loops {n = n} p
-  ▸loops ω<𝟘@(ω≤𝟘 , ω≢𝟘) ω≤ω+ω p≤𝟘 = sub
+  ▸loops ok ω<𝟘@(ω≤𝟘 , ω≢𝟘) ω≤ω+ω p≤𝟘 = sub
     (lamₘ
        (sub zeroₘ $ begin
           𝟘ᶜ ∙ 𝟙 · ω  ≈⟨ ≈ᶜ-refl ∙ ·-identityˡ _ ⟩
           𝟘ᶜ ∙ ω      ≤⟨ ≤ᶜ-refl ∙ ω≤𝟘 ⟩
           𝟘ᶜ          ∎) ∘ₘ
-     ▸-cong (PE.sym $ ≢𝟘→⌞⌟≡𝟙ᵐ ω≢𝟘) (▸extracts-to-loop ω<𝟘 ω≤ω+ω p≤𝟘))
+     ▸-cong (PE.sym $ ≢𝟘→⌞⌟≡𝟙ᵐ ω≢𝟘)
+       (▸extracts-to-loop ok ω<𝟘 ω≤ω+ω p≤𝟘))
     (begin
        𝟘ᶜ             ≈˘⟨ ≈ᶜ-trans (+ᶜ-identityˡ _) (·ᶜ-zeroʳ _) ⟩
        𝟘ᶜ +ᶜ ω ·ᶜ 𝟘ᶜ  ∎)

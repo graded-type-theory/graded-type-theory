@@ -496,6 +496,45 @@ opaque
          (1+ _ , whred unitrec⇒ ⇨ˢ _) →
            whnfRedTerm unitrec⇒ (ne (unitrecₙ (var _))))
 
+opaque
+
+  -- If Emptyrec-allowed 𝟙ᵐ 𝟘 holds, then there are counterexamples to
+  -- both parts of the conclusion of a variant of the statement of
+  -- soundness-ℕ without the following assumptions (for any
+  -- strictness):
+  --
+  -- * "if erased matches are allowed for emptyrec when the mode
+  --   is 𝟙ᵐ, then the context is consistent",
+  -- * "erased matches are not allowed unless the context is empty",
+  --   and
+  -- * the assumption that the modality's zero is well-behaved.
+  --
+  -- Note that the counterexample does not make use of any erased
+  -- matches (except for emptyrec).
+
+  soundness-ℕ-counterexample₆ :
+    Emptyrec-allowed 𝟙ᵐ 𝟘 →
+    let Δ = ε ∙ Empty
+        t = emptyrec 𝟘 ℕ (var x0)
+    in
+    Δ ⊢ t ∷ ℕ ×
+    𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
+    (¬ ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ) ×
+    (¬ ∃ λ n → erase str t ⇒ˢ⟨ str ⟩* sucᵏ′ n)
+  soundness-ℕ-counterexample₆ emptyrec-ok =
+      emptyrecⱼ (ℕⱼ (ε ∙[ Emptyⱼ ])) (var₀ (Emptyⱼ ε))
+    , (sub (emptyrecₘ var ℕₘ emptyrec-ok) $ begin
+         𝟘ᶜ                          ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
+         𝟘 ·ᶜ (𝟘ᶜ , x0 ≔ ⌜ ⌞ 𝟘 ⌟ ⌝)  ∎)
+    , (λ where
+         (0 , whred emptyrec⇒ ⇨ˢ _) →
+           whnfRedTerm emptyrec⇒ (ne (emptyrecₙ (var _)))
+         (1+ _ , whred emptyrec⇒ ⇨ˢ _) →
+           whnfRedTerm emptyrec⇒ (ne (emptyrecₙ (var _))))
+    , ¬loop⇒ˢ* Value-sucᵏ′ ∘→ proj₂
+    where
+    open ≤ᶜ-reasoning
+
 -- Run-time canonicity for a given term with respect to a given
 -- context (and strictness).
 
@@ -731,6 +770,7 @@ opaque
   -- satisfies certain inequalities.
 
   no-run-time-canonicity-if-strict-and-arguments-removed :
+    Emptyrec-allowed 𝟙ᵐ 𝟘 →
     Π-allowed 𝟘 p →
     Π-allowed ω q →
     ω < 𝟘 →
@@ -739,7 +779,8 @@ opaque
     ¬ ((t : Term 0) → ε ⊢ t ∷ ℕ → ε ▸[ 𝟙ᵐ ] t →
        Run-time-canonicity-with-arguments-removed-for strict ε t)
   no-run-time-canonicity-if-strict-and-arguments-removed
-    𝟘-ok ω-ok ω<𝟘@(_ , ω≢𝟘) ω≤ω+ω q≤𝟘 hyp =
-    case hyp (loops _) (⊢loops 𝟘-ok ω-ok ε) (▸loops ω<𝟘 ω≤ω+ω q≤𝟘) of λ
+    emptyrec-ok 𝟘-ok ω-ok ω<𝟘@(_ , ω≢𝟘) ω≤ω+ω q≤𝟘 hyp =
+    case hyp (loops _) (⊢loops 𝟘-ok ω-ok ε)
+           (▸loops emptyrec-ok ω<𝟘 ω≤ω+ω q≤𝟘) of λ
       (_ , _ , _ , ⇒*n) →
     loops-does-not-reduce-to-a-value ω≢𝟘 Value-sucᵏ′ ⇒*n

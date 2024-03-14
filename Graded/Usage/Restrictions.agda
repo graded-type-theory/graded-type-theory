@@ -49,6 +49,15 @@ record Usage-restrictions : Set (lsuc a) where
     Unitrec-allowed-downwards-closed :
       Unitrec-allowed 𝟙ᵐ p q → Unitrec-allowed 𝟘ᵐ[ ok ] p q
 
+    -- The emptyrec constructor's quantity has to satisfy this
+    -- predicate (for the current mode).
+    Emptyrec-allowed : Mode → M → Set a
+
+    -- Emptyrec-allowed is downwards closed in the mode (if 𝟙ᵐ is seen
+    -- as a largest element).
+    Emptyrec-allowed-downwards-closed :
+      Emptyrec-allowed 𝟙ᵐ p → Emptyrec-allowed 𝟘ᵐ[ ok ] p
+
     -- Should the strong unit type act as a "sink"?
     starˢ-sink : Bool
 
@@ -123,6 +132,17 @@ record Usage-restrictions : Set (lsuc a) where
     Unitrec-allowed-·ᵐ =
       ·ᵐ-lemma₁ (λ m → Unitrec-allowed m _ _)
         Unitrec-allowed-downwards-closed
+
+  opaque
+
+    -- Emptyrec-allowed is closed under application of m′ ·ᵐ_ to the
+    -- mode.
+
+    Emptyrec-allowed-·ᵐ :
+      Emptyrec-allowed m p → Emptyrec-allowed (m′ ·ᵐ m) p
+    Emptyrec-allowed-·ᵐ =
+      ·ᵐ-lemma₁ (λ m → Emptyrec-allowed m _)
+        Emptyrec-allowed-downwards-closed
 
   -- Does the strong unit type act as a "sink"?
 

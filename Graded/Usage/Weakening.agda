@@ -195,8 +195,9 @@ wkUsage
        wkConₘ ρ δ +ᶜ p ·ᶜ wkConₘ ρ η +ᶜ r ·ᶜ wkConₘ ρ χ  ∎)
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-wkUsage ρ (emptyrecₘ γ▸t δ▸A) =
-  sub (emptyrecₘ (wkUsage ρ γ▸t) (wkUsage ρ δ▸A)) (≤ᶜ-reflexive (wk-·ᶜ ρ))
+wkUsage ρ (emptyrecₘ γ▸t δ▸A ok) =
+  sub (emptyrecₘ (wkUsage ρ γ▸t) (wkUsage ρ δ▸A) ok)
+    (≤ᶜ-reflexive (wk-·ᶜ ρ))
 wkUsage ρ starʷₘ = subst (λ γ → γ ▸[ _ ] starʷ) (PE.sym (wk-𝟘ᶜ ρ)) starʷₘ
 wkUsage ρ (starˢₘ prop) =
   sub (starˢₘ (λ ns → subst (λ γ → γ ≈ᶜ wkConₘ ρ _) (wk-𝟘ᶜ ρ) (wk-≈ᶜ ρ (prop ns))))
@@ -508,10 +509,10 @@ wkUsage⁻¹ ▸t = wkUsage⁻¹′ ▸t refl
                                                                         ≈ᶜ-trans (wkConₘ⁻¹-+ᶜ ρ) $
                                                                         +ᶜ-cong (wkConₘ⁻¹-·ᶜ ρ) (wkConₘ⁻¹-·ᶜ ρ) ⟩
              wkConₘ⁻¹ ρ δ +ᶜ p ·ᶜ wkConₘ⁻¹ ρ η +ᶜ r ·ᶜ wkConₘ⁻¹ ρ χ  ∎) }
-      (emptyrecₘ ▸t ▸A) eq →
+      (emptyrecₘ ▸t ▸A ok) eq →
         case wk-emptyrec eq of λ {
           (_ , _ , refl , refl , refl) →
-        sub (emptyrecₘ (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸A))
+        sub (emptyrecₘ (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸A) ok)
           (≤ᶜ-reflexive (wkConₘ⁻¹-·ᶜ ρ)) }
       starʷₘ eq →
         case wk-star eq of λ {

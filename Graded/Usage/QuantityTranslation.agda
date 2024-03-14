@@ -258,8 +258,9 @@ module Is-morphism
       where
       open import Graded.Modality.Morphism.Forward-instances tr-m
       open CR₂
-    tr-▸ (emptyrecₘ {m = m} ▸t ▸A) = sub
-      (emptyrecₘ (▸-cong (tr-Mode-ᵐ· m BMΠ) (tr-▸ ▸t)) (tr-▸[𝟘ᵐ?] ▸A))
+    tr-▸ (emptyrecₘ {m = m} ▸t ▸A ok) = sub
+      (emptyrecₘ (▸-cong (tr-Mode-ᵐ· m BMΠ) (tr-▸ ▸t)) (tr-▸[𝟘ᵐ?] ▸A)
+         (Emptyrec-preserved ≈ᵐ-tr-Mode ok))
       (≤ᶜ-reflexive tr-Conₘ-·ᶜ)
     tr-▸ starʷₘ = sub starʷₘ tr-Conₘ-𝟘ᶜ-≤ᶜ
     tr-▸ {m = m} (starˢₘ {γ = γ} prop) =
@@ -716,8 +717,9 @@ module Is-order-embedding
           RS₁.varᵤ
         Empty Emptyᵤ →
           RS₁.Emptyᵤ
-        (emptyrec _ _ _) (emptyrecᵤ A t) →
-          RS₁.emptyrecᵤ (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma (ᵐ·≳ᵐᵐ· m₁≳m₂) _ t)
+        (emptyrec _ _ _) (emptyrecᵤ ok A t) →
+          RS₁.emptyrecᵤ (Emptyrec-reflected m₁≳m₂ ok) (lemma-𝟘ᵐ?-𝟘ᵐ? A)
+            (lemma (ᵐ·≳ᵐᵐ· m₁≳m₂) _ t)
         (Unit _) Unitᵤ →
           RS₁.Unitᵤ
         (star _) starᵤ →
@@ -1112,11 +1114,12 @@ module Is-order-embedding
 
     tr-▸⁻¹′
       {m = m} {γ = γ} (emptyrec p _ _)
-      (emptyrecₘ ▸t ▸A) refl γ≤pδ =
+      (emptyrecₘ ▸t ▸A ok) refl γ≤pδ =
       case tr-Conₘ-≤ᶜ-·ᶜ γ≤pδ of λ (δ′ , δ′≤δ , γ≤pδ′) →
       sub
         (emptyrecₘ (tr-▸⁻¹′ _ ▸t (sym (tr-Mode-ᵐ· m BMΠ)) δ′≤δ)
-           (tr-▸[𝟘ᵐ?]⁻¹ ▸A .proj₂))
+           (tr-▸[𝟘ᵐ?]⁻¹ ▸A .proj₂)
+           (Emptyrec-reflected [ ≈ᵐ-tr-Mode ] ok))
         (begin
            γ           ≤⟨ γ≤pδ′ ⟩
            p C₁.·ᶜ δ′  ∎)

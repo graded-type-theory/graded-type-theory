@@ -19,6 +19,8 @@ module Graded.Substitution.Decidable
   (Prodrec? : ∀ m r p q → Dec (Prodrec-allowed m r p q))
   -- The Unitrec-allowed relation is assumed to be decidable.
   (Unitrec? : ∀ m p q → Dec (Unitrec-allowed m p q))
+  -- The Emptyrec-allowed relation is assumed to be decidable.
+  (Emptyrec? : ∀ m p → Dec (Emptyrec-allowed m p))
   where
 
 open Modality 𝕄
@@ -33,7 +35,7 @@ open import Graded.Modality.Dedicated-nr 𝕄
 open import Graded.Modality.Dedicated-nr.Instance
 open import Graded.Modality.Properties 𝕄
 open import Graded.Usage 𝕄 R
-open import Graded.Usage.Decidable 𝕄 R _≟_ Prodrec? Unitrec?
+open import Graded.Usage.Decidable 𝕄 R _≟_ Prodrec? Unitrec? Emptyrec?
 open import Graded.Usage.Properties 𝕄 R
 open import Graded.Mode 𝕄 hiding (_≟_)
 

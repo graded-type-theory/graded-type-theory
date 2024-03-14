@@ -680,7 +680,7 @@ module hasX (R : Usage-restrictions) where
   erased-hasX erased (unitrecₘ {p = _} γ▸t δ▸u η▸A ok) (unitrecₓʳ hasX) | no _ =
     erased-hasX (x◂𝟘∈γ+δʳ refl erased) δ▸u hasX
 
-  erased-hasX _ (emptyrecₘ _ _) =
+  erased-hasX _ (emptyrecₘ _ _ _) =
     loop-closed
 
   erased-hasX erased (sub δ▸t γ≤δ) hasX =

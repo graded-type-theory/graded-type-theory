@@ -9,15 +9,18 @@ open import Tools.Level
 open import Graded.Modality.Instances.Erasure
 open import Graded.Modality.Instances.Erasure.Modality
 open import Graded.Modality.Variant lzero
+import Graded.Mode
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
 
 module Graded.Erasure.Examples
   {p q r s}
   (variant : Modality-variant)
+  (open Graded.Mode (ErasureModality variant))
   (TR : Type-restrictions (ErasureModality variant))
   (open Type-restrictions TR)
   (UR : Usage-restrictions (ErasureModality variant))
+  (open Usage-restrictions UR)
   -- It is assumed that "Π 𝟘 , p" is allowed.
   (Π-𝟘-ok : Π-allowed 𝟘 p)
   -- It is assumed that "Π ω , q" is allowed.
@@ -26,6 +29,8 @@ module Graded.Erasure.Examples
   (Σˢ-ω-ok : Σˢ-allowed ω r)
   -- It is assumed that Unit s is allowed.
   (Unit-ok : Unit-allowed s)
+  -- It is assumed that emptyrec 𝟘 is allowed.
+  (emptyrec-ok : Emptyrec-allowed 𝟙ᵐ 𝟘)
   where
 
 private
@@ -74,7 +79,6 @@ open import Graded.Erasure.Target as T
 open import Graded.Erasure.Target.Non-terminating
 import Graded.Erasure.Target.Properties as TP
 open import Graded.Modality.Instances.Erasure.Properties variant
-open import Graded.Mode EM
 open import Graded.Usage EM UR
 open import Graded.Usage.Inversion EM UR
 open import Graded.Usage.Properties EM UR
@@ -687,7 +691,7 @@ opaque
   natrec-nr-or-no-nrₘ
     (lamₘ $
      lamₘ $
-     sub (emptyrecₘ var var) $
+     sub (emptyrecₘ var var emptyrec-ok) $
      let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
        𝟘ᶜ ∙ ω ∙ 𝟘  ≤⟨ ≤ᶜ-refl ⟩
        𝟘ᶜ          ∎)

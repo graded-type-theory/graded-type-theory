@@ -49,24 +49,27 @@ no-type-restrictions allowed = λ where
   where
   open Type-restrictions
 
--- No restrictions for prodrec or unitrec, all erased matches are
--- allowed for J and K, Id-erased is inhabited if the first boolean is
--- true, and starˢ is treated as a sink if the second boolean is true.
+-- No restrictions for prodrec, unitrec or emptyrec, all erased
+-- matches are allowed for J and K, Id-erased is inhabited if the
+-- first boolean is true, and starˢ is treated as a sink if the second
+-- boolean is true.
 
 no-usage-restrictions : Bool → Bool → Usage-restrictions
 no-usage-restrictions erased sink = λ where
-    .Prodrec-allowed                  → λ _ _ _ _ → Lift _ ⊤
-    .Prodrec-allowed-downwards-closed → _
-    .Unitrec-allowed                  → λ _ _ _ → Lift _ ⊤
-    .Unitrec-allowed-downwards-closed → _
-    .starˢ-sink                       → sink
-    .Id-erased                        → Lift _ (T erased)
-    .Id-erased?                       → Dec.map lift Lift.lower $
-                                        T? erased
-    .erased-matches-for-J             → λ _ → all
-    .erased-matches-for-J-≤ᵉᵐ         → _
-    .erased-matches-for-K             → λ _ → all
-    .erased-matches-for-K-≤ᵉᵐ         → _
+    .Prodrec-allowed                   → λ _ _ _ _ → Lift _ ⊤
+    .Prodrec-allowed-downwards-closed  → _
+    .Unitrec-allowed                   → λ _ _ _ → Lift _ ⊤
+    .Unitrec-allowed-downwards-closed  → _
+    .Emptyrec-allowed                  → λ _ _ → Lift _ ⊤
+    .Emptyrec-allowed-downwards-closed → _
+    .starˢ-sink                        → sink
+    .Id-erased                         → Lift _ (T erased)
+    .Id-erased?                        → Dec.map lift Lift.lower $
+                                         T? erased
+    .erased-matches-for-J              → λ _ → all
+    .erased-matches-for-J-≤ᵉᵐ          → _
+    .erased-matches-for-K              → λ _ → all
+    .erased-matches-for-K-≤ᵉᵐ          → _
   where
   open Usage-restrictions
 
@@ -164,13 +167,13 @@ no-strong-types =
   strong-types-restricted′ (λ b _ → Lift _ (b ≢ BMΣ 𝕤))
     (λ hyp → lift (λ { refl → ⊥-elim $ hyp refl }))
 
--- The property of not allowing erased matches.
+-- The property of not allowing (certain) erased matches.
 --
--- "Erased" matches are allowed for trivial modalities. Erased matches
--- are also allowed when the mode is not 𝟙ᵐ, except for []-cong. (Note
--- that a variant of []-cong that works when the mode is not 𝟙ᵐ can be
--- defined without the use of []-cong, see
--- Graded.Box-cong.▸[]-cong-J-𝟘ᵐ.)
+-- Erased matches are allowed for emptyrec, and "erased" matches are
+-- allowed for trivial modalities. Erased matches are also allowed
+-- when the mode is not 𝟙ᵐ, except for []-cong. (Note that a variant
+-- of []-cong that works when the mode is not 𝟙ᵐ can be defined
+-- without the use of []-cong, see Graded.Box-cong.▸[]-cong-J-𝟘ᵐ.)
 
 No-erased-matches : Type-restrictions → Usage-restrictions → Set a
 No-erased-matches TR UR =
@@ -232,9 +235,10 @@ not-all-erased-matches-JK UR = record UR
     … | some = f-≤ᵉᵐ
     … | none = f-≤ᵉᵐ
 
--- The function adds the restriction that erased matches are not
--- allowed for the mode 𝟙ᵐ (for prodrec and unitrec the restriction
--- only applies to non-trivial modalities).
+-- The function adds the restriction that certain erased matches are
+-- not allowed for the mode 𝟙ᵐ. No restriction is added for emptyrec,
+-- and for prodrec and unitrec the added restriction only applies to
+-- non-trivial modalities.
 
 no-erased-matches-UR : Usage-restrictions → Usage-restrictions
 no-erased-matches-UR UR = record UR

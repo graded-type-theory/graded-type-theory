@@ -58,6 +58,7 @@ private variable
 --   non-zero or the modality is trivial.
 -- * The term former unitrec p is allowed when the mode is 𝟘ᵐ or p is
 --   non-zero or the modality is trivial.
+-- * There are no restrictions on emptyrec.
 -- * The strong unit type is not allowed to be used as a sink.
 -- * Id-erased is not inhabited.
 -- * Erased matches are not allowed for J and K when the mode is 𝟙ᵐ,
@@ -81,6 +82,7 @@ All-properties-hold-for : Extended-modality a → Set a
 All-properties-hold-for M =
   (∀ {m r p q} → Prodrec-allowed m r p q ⇔ (m ≢ 𝟙ᵐ ⊎ r ≢ 𝟘 ⊎ Trivial)) ×
   (∀ {m p q} → Unitrec-allowed m p q ⇔ (m ≢ 𝟙ᵐ ⊎ p ≢ 𝟘 ⊎ Trivial)) ×
+  (∀ {m p} → Emptyrec-allowed m p) ×
   ¬ Starˢ-sink ×
   ¬ Id-erased ×
   erased-matches-for-J 𝟙ᵐ ≡ none ×
@@ -140,6 +142,7 @@ opaque
   All-properties-hold-for-Trivial =
       ((λ _ → inj₂ (inj₂ refl)) , (λ _ → _ , ⊥-elim ∘→ (_$ refl)))
     , ((λ _ → inj₂ (inj₂ refl)) , (λ _ → _ , ⊥-elim ∘→ (_$ refl)))
+    , _
     , (λ ())
     , (λ ())
     , refl
@@ -192,6 +195,7 @@ opaque
            , (λ where
                 (inj₁ 𝟙ᵐ≢𝟙ᵐ)      → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
                 (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)))
+    , _
     , (λ ())
     , (λ ())
     , refl
@@ -256,6 +260,7 @@ opaque
            , (λ where
                 (inj₁ 𝟙ᵐ≢𝟙ᵐ)      → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
                 (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)))
+    , _
     , (λ ())
     , (λ ())
     , refl
@@ -323,6 +328,7 @@ opaque
            , (λ where
                 (inj₁ 𝟙ᵐ≢𝟙ᵐ)      → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
                 (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)))
+    , _
     , (λ ())
     , (λ ())
     , refl
@@ -391,6 +397,7 @@ opaque
            , (λ where
                 (inj₁ 𝟙ᵐ≢𝟙ᵐ)      → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
                 (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)))
+    , _
     , (λ ())
     , (λ ())
     , refl

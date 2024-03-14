@@ -849,9 +849,10 @@ substₘ-lemma₀ ⦃ ok = ok ⦄ Ψ Ψ▶σ
        p ·ᶜ 𝟘ᶜ +ᶜ r ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityˡ _ ⟩
        𝟘ᶜ +ᶜ p ·ᶜ 𝟘ᶜ +ᶜ r ·ᶜ 𝟘ᶜ  ∎)
 
-substₘ-lemma₀ Ψ Ψ▶σ (emptyrecₘ γ▸t δ▸A) =
+substₘ-lemma₀ Ψ Ψ▶σ (emptyrecₘ γ▸t δ▸A ok) =
   sub (emptyrecₘ (substₘ-lemma₀ Ψ Ψ▶σ γ▸t)
-         (substₘ-lemma₀-𝟘ᵐ? Ψ Ψ▶σ δ▸A))
+         (substₘ-lemma₀-𝟘ᵐ? Ψ Ψ▶σ δ▸A)
+         (Emptyrec-allowed-·ᵐ ok))
     (≤ᶜ-reflexive (≈ᶜ-sym (·ᶜ-zeroʳ _)))
 
 substₘ-lemma₀ _ _ starʷₘ =
@@ -1230,9 +1231,10 @@ substₘ-lemma₁
 
 substₘ-lemma₁
   {mo = 𝟙ᵐ} not-ok Ψ Ψ▶σ
-  (emptyrecₘ {γ = γ} {p = p} γ▸t δ▸A) = sub
+  (emptyrecₘ {γ = γ} {p = p} γ▸t δ▸A ok) = sub
   (emptyrecₘ (substₘ-lemma₁′ not-ok Ψ Ψ▶σ γ▸t)
-     (substₘ-lemma₁′ not-ok Ψ Ψ▶σ δ▸A))
+     (substₘ-lemma₁′ not-ok Ψ Ψ▶σ δ▸A)
+     ok)
   (≤ᶜ-reflexive (<*-distrib-·ᶜ Ψ _ γ))
 
 substₘ-lemma₁ _ Ψ _ starʷₘ = sub
@@ -1687,16 +1689,18 @@ substₘ-lemma
             δ <* Ψ +ᶜ p ·ᶜ η <* Ψ +ᶜ r ·ᶜ χ <* Ψ  ∎))
     (λ not-ok → substₘ-lemma₁′ not-ok Ψ Ψ▶σ ▸natrec)
 
-substₘ-lemma {mo = mo} Ψ Ψ▶σ (emptyrecₘ {γ = γ} {p = p} γ▸t δ▸A) =
+substₘ-lemma {mo = mo} Ψ Ψ▶σ (emptyrecₘ {γ = γ} {p = p} γ▸t δ▸A ok) =
   case ▶-⌞·⌟ Ψ γ Ψ▶σ of λ where
     (inj₂ Ψ▶σ) → sub
       (emptyrecₘ (substₘ-lemma Ψ Ψ▶σ γ▸t)
-         (substₘ-lemma-𝟘ᵐ? Ψ Ψ▶σ δ▸A .proj₂))
+         (substₘ-lemma-𝟘ᵐ? Ψ Ψ▶σ δ▸A .proj₂)
+         ok)
       (≤ᶜ-reflexive (<*-distrib-·ᶜ Ψ _ γ))
-    (inj₁ (p≡𝟘 , ok)) → sub
-      (emptyrecₘ (▸-cong (≡𝟘→𝟘ᵐ≡ᵐ· ⦃ ok = ok ⦄ mo p≡𝟘)
-                    (substₘ-lemma₀ ⦃ ok = ok ⦄ Ψ Ψ▶σ γ▸t))
-         (substₘ-lemma₀-𝟘ᵐ? ⦃ ok = ok ⦄ Ψ Ψ▶σ δ▸A))
+    (inj₁ (p≡𝟘 , 𝟘ᵐ-ok)) → sub
+      (emptyrecₘ (▸-cong (≡𝟘→𝟘ᵐ≡ᵐ· ⦃ ok = 𝟘ᵐ-ok ⦄ mo p≡𝟘)
+                    (substₘ-lemma₀ ⦃ ok = 𝟘ᵐ-ok ⦄ Ψ Ψ▶σ γ▸t))
+         (substₘ-lemma₀-𝟘ᵐ? ⦃ ok = 𝟘ᵐ-ok ⦄ Ψ Ψ▶σ δ▸A)
+         ok)
       (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
          (p ·ᶜ γ) <* Ψ  ≈⟨ <*-distrib-·ᶜ Ψ _ γ ⟩
          p ·ᶜ γ <* Ψ    ≈⟨ ≡𝟘→·<*≈ᶜ·𝟘 {δ = γ} Ψ p≡𝟘 ⟩

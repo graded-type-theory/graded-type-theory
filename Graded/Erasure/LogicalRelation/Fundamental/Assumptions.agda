@@ -15,10 +15,14 @@ module Graded.Erasure.LogicalRelation.Fundamental.Assumptions
   (UR : Usage-restrictions 𝕄)
   where
 
+open Modality 𝕄
+open Usage-restrictions UR
+
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Consistency TR
 
+open import Graded.Mode 𝕄
 open import Graded.Restrictions 𝕄
 
 open import Tools.Nat
@@ -34,8 +38,9 @@ private variable
 record Fundamental-assumptions⁻ (Δ : Con Term k) : Set a where
   no-eta-equality
   field
-    -- The context is consistent.
-    consistent : Consistent Δ
+    -- If erased matches are allowed for emptyrec when the mode is 𝟙ᵐ,
+    -- then the context is consistent.
+    consistent : Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ
     -- Erased matches are not allowed unless the context is empty.
     closed-or-no-erased-matches : No-erased-matches TR UR ⊎ k ≡ 0
 
@@ -56,8 +61,9 @@ record Fundamental-assumptions (Δ : Con Term k) : Set a where
 
 fundamental-assumptions⁻₀ : Fundamental-assumptions⁻ ε
 fundamental-assumptions⁻₀ = record
-  { consistent                  = inhabited-consistent
-                                    (_⊢ˢ_∷_.id {σ = idSubst})
+  { consistent                  = λ _ →
+                                    inhabited-consistent
+                                      (_⊢ˢ_∷_.id {σ = idSubst})
   ; closed-or-no-erased-matches = inj₂ refl
   }
 
