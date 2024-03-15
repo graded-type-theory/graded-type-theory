@@ -51,7 +51,7 @@ canonicity″ (sucᵣ (ℕₜ n₁ d n≡n prop)) =
   let a , b = canonicity″ prop
   in  1+ a , suc-cong (trans (subset*Term (redₜ d)) b)
 canonicity″ zeroᵣ = 0 , refl (zeroⱼ ε)
-canonicity″ (ne (neNfₜ neK ⊢k k≡k)) = ⊥-elim (noNe ⊢k neK)
+canonicity″ (ne (neNfₜ neK _ _)) = ⊥-elim (noClosedNe neK)
 
 -- Helper function for canonicity for specific reducible natural numbers
 canonicity′ : ∀ {t l}
@@ -72,8 +72,8 @@ canonicity ⊢t | [ℕ] , [t] =
 -- Canonicity for Empty
 
 ¬Empty′ : ∀ {n} → ε ⊩Empty n ∷Empty → ⊥
-¬Empty′ (Emptyₜ n _ n≡n (ne (neNfₜ neN ⊢n _))) =
-  noNe ⊢n neN
+¬Empty′ (Emptyₜ _ _ _ (ne (neNfₜ neN _ _))) =
+  noClosedNe neN
 
 ¬Empty : ∀ {n} → ε ⊢ n ∷ Empty → ⊥
 ¬Empty {n} ⊢n =
