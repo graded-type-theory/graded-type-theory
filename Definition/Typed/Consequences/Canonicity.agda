@@ -113,9 +113,7 @@ opaque
 
   ε⊢∷Id→ε⊢≡∷ : ε ⊢ v ∷ Id A t u → ε ⊢ t ≡ u ∷ A
   ε⊢∷Id→ε⊢≡∷ {v} {A} {t} {u} =
-    ε ⊢ v ∷ Id A t u                         →⟨ ε⊢⇒*rfl∷Id ⟩
-    ε ⊢ v ⇒* rfl ∷ Id A t u                  →⟨ proj₂ ∘→ proj₂ ∘→ syntacticEqTerm ∘→ subset*Term ⟩
-    ε ⊢ rfl ∷ Id A t u                       →⟨ Σ.map idᶠ (Σ.map idᶠ (proj₂ ∘→ proj₂)) ∘→ inversion-rfl ⟩
-    (∃₂ λ B v → ε ⊢ Id A t u ≡ Id B v v)     →⟨ Σ.map idᶠ (proj₂ ∘→ Id-injectivity) ∘→ proj₂ ⟩
-    (∃ λ v → ε ⊢ t ≡ v ∷ A × ε ⊢ u ≡ v ∷ A)  →⟨ (λ (_ , t≡ , u≡) → trans t≡ (sym u≡)) ⟩
-    ε ⊢ t ≡ u ∷ A                            □
+    ε ⊢ v ∷ Id A t u         →⟨ ε⊢⇒*rfl∷Id ⟩
+    ε ⊢ v ⇒* rfl ∷ Id A t u  →⟨ proj₂ ∘→ proj₂ ∘→ syntacticEqTerm ∘→ subset*Term ⟩
+    ε ⊢ rfl ∷ Id A t u       →⟨ inversion-rfl-Id ⟩
+    ε ⊢ t ≡ u ∷ A            □
