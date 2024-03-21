@@ -8,6 +8,7 @@ module Graded.Modality.Extended where
 open import Tools.Function
 open import Tools.Level
 
+import Definition.Typechecking.Decidable.Assumptions as TD
 open import Definition.Typed.Restrictions
 
 open import Graded.FullReduction.Assumptions
@@ -15,21 +16,39 @@ open import Graded.Modality
 open import Graded.Modality.Morphism
 open import Graded.Modality.Morphism.Type-restrictions
 open import Graded.Modality.Morphism.Usage-restrictions
+import Graded.Usage.Decidable.Assumptions as UD
 open import Graded.Usage.Restrictions
 
 private variable
   a₁ a₂ : Level
 
--- A modality along with type and usage restrictions, and a proof that
--- the full reduction assumptions are satisfied.
+-- A modality along with type and usage restrictions as well as some
+-- proofs.
 
 record Extended-modality a : Set (lsuc a) where
   field
+    -- The type of grades.
     M  : Set a
+
+    -- M is a modality.
     𝕄  : Modality M
+
+    -- Type restrictions for 𝕄.
     TR : Type-restrictions 𝕄
+
+    -- Usage restrictions for 𝕄.
     UR : Usage-restrictions 𝕄
+
+    -- The full reduction assumptions hold for TR and UR.
     FA : Full-reduction-assumptions TR UR
+
+    -- The assumptions used to prove decidability of type-checking
+    -- (for certain contexts, types and terms) hold for TR.
+    TA : TD.Assumptions TR
+
+    -- The assumptions used to prove that the usage relation is
+    -- decidable hold for UR.
+    UA : UD.Assumptions UR
 
   open Modality 𝕄 public
   open Type-restrictions TR public

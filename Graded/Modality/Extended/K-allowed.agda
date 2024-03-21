@@ -7,6 +7,8 @@
 -- show that it is possible to instantiate all of the parameters at
 -- the same time.
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 module Graded.Modality.Extended.K-allowed where
 
 open import Tools.Bool
@@ -18,6 +20,7 @@ open import Tools.Relation
 open import Tools.Sum
 open import Tools.Unit
 
+import Definition.Typechecking.Decidable.Assumptions as TD
 open import Definition.Typed.Restrictions
 open import Definition.Untyped.NotParametrised
 
@@ -40,6 +43,7 @@ open import Graded.Modality.Morphism.Usage-restrictions
 open import Graded.Modality.Morphism.Usage-restrictions.Examples
 open import Graded.Modality.Variant lzero
 open import Graded.Restrictions
+import Graded.Usage.Decidable.Assumptions as UD
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Restrictions
 
@@ -98,10 +102,31 @@ private
     strong-types-restricted _ $
     no-type-restrictions _ true
 
+  opaque
+
+    Assumptions-TR′ :
+      {M : Set} {𝕄 : Modality M} →
+      Decidable (_≡_ {A = M}) →
+      TD.Assumptions (TR′ {𝕄 = 𝕄})
+    Assumptions-TR′ =
+      Assumptions-strong-types-restricted _ ∘→
+      Assumptions-no-type-restrictions _
+
   UR′ :
     {M : Set} {𝕄 : Modality M} →
     Usage-restrictions 𝕄
   UR′ = no-usage-restrictions _ false false
+
+  opaque
+
+    Assumptions-UR′ :
+      {M : Set} {𝕄 : Modality M} →
+      {has-nr : T (Modality.nr-available 𝕄)} →
+      Decidable (_≡_ {A = M}) →
+      UD.Assumptions (UR′ {𝕄 = 𝕄})
+    Assumptions-UR′ {has-nr} =
+      Assumptions-no-usage-restrictions _
+        ⦃ has-nr = dedicated-nr has-nr ⦄
 
 -- A trivial modality.
 
@@ -112,6 +137,8 @@ Trivial = λ where
     .TR → TR′
     .UR → UR′
     .FA → U.full-reduction-assumptions (λ ())
+    .TA → Assumptions-TR′ U._≟_
+    .UA → Assumptions-UR′ U._≟_
   where
   open Extended-modality
 
@@ -146,6 +173,8 @@ Erasure = λ where
     .TR → TR′
     .UR → UR′
     .FA → EP.full-reduction-assumptions _ _
+    .TA → Assumptions-TR′ E._≟_
+    .UA → Assumptions-UR′ E._≟_
   where
   open Extended-modality
 
@@ -180,6 +209,8 @@ Affine-types = λ where
     .TR → TR′
     .UR → UR′
     .FA → FA′
+    .TA → Assumptions-TR′ A._≟_
+    .UA → Assumptions-UR′ A._≟_
   where
   open Extended-modality
 
@@ -224,6 +255,8 @@ Linearity = λ where
     .TR → TR′
     .UR → UR′
     .FA → FA′
+    .TA → Assumptions-TR′ L._≟_
+    .UA → Assumptions-UR′ L._≟_
   where
   open Extended-modality
 
@@ -271,6 +304,8 @@ Linear-or-affine-types = λ where
     .TR → TR′
     .UR → UR′
     .FA → FA′
+    .TA → Assumptions-TR′ LA._≟_
+    .UA → Assumptions-UR′ LA._≟_
   where
   open Extended-modality
 
