@@ -103,15 +103,15 @@ infix 10 ⌈⌉▸[_]?_
 
 ⌈⌉▸[ m ]? emptyrec p A t = case Emptyrec? m p of λ where
   (no not-ok) → inj₂ λ _ ▸er →
-    case inv-usage-emptyrec ▸er of λ (invUsageemptyrec _ _ ok _) →
+    case inv-usage-emptyrec ▸er of λ (invUsageEmptyrec _ _ ok _) →
     not-ok ok
   (yes ok) → case ⌈⌉▸[ m ᵐ· p ]? t of λ where
     (inj₂ ¬▸t) → inj₂ λ _ ▸er →
-      case inv-usage-emptyrec ▸er of λ (invUsageemptyrec ▸t _ _ _) →
+      case inv-usage-emptyrec ▸er of λ (invUsageEmptyrec ▸t _ _ _) →
       ¬▸t _ ▸t
     (inj₁ ▸t) → case ⌈⌉▸[ 𝟘ᵐ? ]? A of λ where
       (inj₂ ¬▸A) → inj₂ λ _ ▸er →
-        case inv-usage-emptyrec ▸er of λ (invUsageemptyrec _ ▸A _ _) →
+        case inv-usage-emptyrec ▸er of λ (invUsageEmptyrec _ ▸A _ _) →
         ¬▸A _ ▸A
       (inj₁ ▸A) → inj₁ (emptyrecₘ ▸t ▸A ok)
 

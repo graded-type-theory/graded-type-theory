@@ -497,7 +497,7 @@ module Fundamental
   fundamental
     {Γ = Γ} {γ = γ}
     (emptyrecⱼ {A = A} {t = t} {p = p} ⊢A Γ⊢t:Empty) γ▸t =
-    let invUsageemptyrec δ▸t _ ok γ≤ = inv-usage-emptyrec γ▸t
+    let invUsageEmptyrec δ▸t _ ok γ≤ = inv-usage-emptyrec γ▸t
         [Γ] , [Empty] , ⊩ʳt = fundamental Γ⊢t:Empty δ▸t
         [Γ]′ , [A]′ = F.fundamental ⊢A
         [A] = IS.irrelevance {A = A} [Γ]′ [Γ] [A]′

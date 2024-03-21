@@ -319,7 +319,7 @@ inv-usage-natrec (sub γ▸natrec γ≤γ′) with inv-usage-natrec γ▸natrec
 record InvUsageemptyrec
          {n} (γ : Conₘ n) (m : Mode) (p : M) (A t : Term n) :
          Set a where
-  constructor invUsageemptyrec
+  constructor invUsageEmptyrec
   field
     {δ η}   : Conₘ n
     δ▸t     : δ ▸[ m ᵐ· p ] t
@@ -332,10 +332,10 @@ record InvUsageemptyrec
 inv-usage-emptyrec :
   γ ▸[ m ] emptyrec p A t → InvUsageemptyrec γ m p A t
 inv-usage-emptyrec (emptyrecₘ δ▸t η▸A ok) =
-  invUsageemptyrec δ▸t η▸A ok ≤ᶜ-refl
+  invUsageEmptyrec δ▸t η▸A ok ≤ᶜ-refl
 inv-usage-emptyrec (sub γ▸et γ≤γ′) with inv-usage-emptyrec γ▸et
-... | invUsageemptyrec δ▸t η▸A ok γ′≤δ =
-  invUsageemptyrec δ▸t η▸A ok (≤ᶜ-trans γ≤γ′ γ′≤δ)
+... | invUsageEmptyrec δ▸t η▸A ok γ′≤δ =
+  invUsageEmptyrec δ▸t η▸A ok (≤ᶜ-trans γ≤γ′ γ′≤δ)
 
 -- If γ ▸[ m ] starʷ then γ ≤ᶜ 𝟘ᶜ.
 

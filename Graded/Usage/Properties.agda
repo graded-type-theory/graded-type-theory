@@ -997,7 +997,7 @@ opaque
 
   Conₘ-interchange {δ} (emptyrecₘ {γ} {p} ▸t ▸A ok) ▸er x =
     case inv-usage-emptyrec ▸er of λ
-      (invUsageemptyrec {δ = γ′} ▸t′ _ _ δ≤pγ′) → sub
+      (invUsageEmptyrec {δ = γ′} ▸t′ _ _ δ≤pγ′) → sub
     (emptyrecₘ (Conₘ-interchange ▸t ▸t′ x) ▸A ok)
     (begin
        p ·ᶜ γ , x ≔ δ ⟨ x ⟩          ≤⟨ update-monotoneʳ _ $ lookup-monotone _ δ≤pγ′ ⟩

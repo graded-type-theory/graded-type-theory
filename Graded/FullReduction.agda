@@ -190,7 +190,7 @@ module _ (as : Full-reduction-assumptions) where
           γ≤ }
       (emptyrec-cong A↑ t~) ▸emptyrec →
         case inv-usage-emptyrec ▸emptyrec of λ {
-          (invUsageemptyrec ▸t ▸A ok γ≤) →
+          (invUsageEmptyrec ▸t ▸A ok γ≤) →
         sub (emptyrecₘ (fullRedNe~↓ t~ ▸t) (fullRedConv↑ A↑ ▸A) ok) γ≤ }
       (unitrec-cong A↑ t~ u↑) ▸unitrec →
         case inv-usage-unitrec ▸unitrec of λ {
