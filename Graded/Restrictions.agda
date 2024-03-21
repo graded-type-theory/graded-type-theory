@@ -2,6 +2,8 @@
 -- Definitions related to type and usage restrictions
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 import Graded.Modality
 
 module Graded.Restrictions
@@ -22,17 +24,21 @@ open import Tools.Relation as Dec
 open import Tools.Unit
 
 open import Graded.Modality.Properties 𝕄
-open import Graded.Mode 𝕄
+open import Graded.Mode 𝕄 hiding (_≟_)
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Restrictions 𝕄
 
+import Definition.Typechecking.Decidable.Assumptions as TD
 open import Definition.Typed.Restrictions 𝕄
 open import Definition.Untyped.NotParametrised
+open import Definition.Untyped.Properties.NotParametrised
 
 private variable
   TR : Type-restrictions
   UR : Usage-restrictions
+  b  : Bool
   ok : T _
+  s  : Strength
 
 ------------------------------------------------------------------------
 -- Functions that construct Type-restrictions
@@ -291,3 +297,148 @@ No-erased-matches-no-erased-matches _ _ 𝟙≢𝟘 =
        {s = 𝕨} → (_$ refl) ∘→ proj₂ ∘→ proj₁)
   , refl
   , refl
+
+------------------------------------------------------------------------
+-- Some lemmas related to TD.Assumptions
+
+opaque
+
+  -- If grade equality is decidable, then TD.Assumptions holds for
+  -- no-type-restrictions b.
+
+  Assumptions-no-type-restrictions :
+    Decidable (_≡_ {A = M}) → TD.Assumptions (no-type-restrictions b)
+  Assumptions-no-type-restrictions {b} dec = λ where
+      ._≟_                → dec
+      .Unit-allowed? _    → yes _
+      .ΠΣ-allowed? _ _ _  → yes _
+      .K-allowed?         → case singleton b of λ where
+        (true  , refl) → yes _
+        (false , refl) → no (λ ())
+      .[]-cong-allowed? _ → case trivial? of λ where
+        (yes trivial)    → no (_$ trivial)
+        (no non-trivial) → yes non-trivial
+    where
+    open TD.Assumptions
+
+opaque
+
+  -- The function equal-binder-quantities preserves TD.Assumptions.
+
+  Assumptions-equal-binder-quantities :
+    TD.Assumptions TR → TD.Assumptions (equal-binder-quantities TR)
+  Assumptions-equal-binder-quantities as = λ where
+      ._≟_               → A._≟_
+      .Unit-allowed?     → A.Unit-allowed?
+      .ΠΣ-allowed? b p q → A.ΠΣ-allowed? b p q ×-dec p A.≟ q
+      .K-allowed?        → A.K-allowed?
+      .[]-cong-allowed?  → A.[]-cong-allowed?
+    where
+    module A = TD.Assumptions as
+    open TD.Assumptions
+
+opaque
+
+  -- The function second-ΠΣ-quantities-𝟘 preserves TD.Assumptions.
+
+  Assumptions-second-ΠΣ-quantities-𝟘 :
+    TD.Assumptions TR → TD.Assumptions (second-ΠΣ-quantities-𝟘 TR)
+  Assumptions-second-ΠΣ-quantities-𝟘 as = λ where
+      ._≟_               → A._≟_
+      .Unit-allowed?     → A.Unit-allowed?
+      .ΠΣ-allowed? b p q → A.ΠΣ-allowed? b p q ×-dec q A.≟ 𝟘
+      .K-allowed?        → A.K-allowed?
+      .[]-cong-allowed?  → A.[]-cong-allowed?
+    where
+    module A = TD.Assumptions as
+    open TD.Assumptions
+
+opaque
+
+  -- The function second-ΠΣ-quantities-𝟘-or-ω preserves
+  -- TD.Assumptions.
+
+  Assumptions-second-ΠΣ-quantities-𝟘-or-ω :
+    TD.Assumptions TR → TD.Assumptions (second-ΠΣ-quantities-𝟘-or-ω TR)
+  Assumptions-second-ΠΣ-quantities-𝟘-or-ω as = λ where
+      ._≟_               → A._≟_
+      .Unit-allowed?     → A.Unit-allowed?
+      .ΠΣ-allowed? b p q → A.ΠΣ-allowed? b p q
+                             ×-dec
+                           (p A.≟ ω →-dec q A.≟ ω)
+                             ×-dec
+                           (¬? (p A.≟ ω) →-dec q A.≟ 𝟘)
+      .K-allowed?        → A.K-allowed?
+      .[]-cong-allowed?  → A.[]-cong-allowed?
+    where
+    module A = TD.Assumptions as
+    open TD.Assumptions
+
+opaque
+
+  -- The function strong-types-restricted′ P ok preserves
+  -- TD.Assumptions if P is pointwise decidable.
+
+  Assumptions-strong-types-restricted′ :
+    {P : BinderMode → M → Set a}
+    {ok : ∀ {s} → s ≢ 𝕤 → P (BMΣ s) 𝟘} →
+    (∀ b p → Dec (P b p)) →
+    TD.Assumptions TR →
+    TD.Assumptions (strong-types-restricted′ P ok TR)
+  Assumptions-strong-types-restricted′ P-dec as = λ where
+      ._≟_                → A._≟_
+      .Unit-allowed? s    → A.Unit-allowed? s ×-dec ¬? (decStrength s 𝕤)
+      .ΠΣ-allowed? b p q  → A.ΠΣ-allowed? b p q
+                              ×-dec
+                            P-dec b p
+      .K-allowed?         → A.K-allowed?
+      .[]-cong-allowed? s → A.[]-cong-allowed? s
+                              ×-dec
+                            ¬? (decStrength s 𝕤)
+    where
+    module A = TD.Assumptions as
+    open TD.Assumptions
+
+opaque
+
+  -- The function strong-types-restricted preserves TD.Assumptions.
+
+  Assumptions-strong-types-restricted :
+    TD.Assumptions TR → TD.Assumptions (strong-types-restricted TR)
+  Assumptions-strong-types-restricted as =
+    Assumptions-strong-types-restricted′
+      (λ b p → decBinderMode b (BMΣ 𝕤) →-dec p ≟ 𝟙)
+      as
+    where
+    open TD.Assumptions as
+
+opaque
+
+  -- The function no-strong-types preserves TD.Assumptions.
+
+  Assumptions-no-strong-types :
+    TD.Assumptions TR → TD.Assumptions (no-strong-types TR)
+  Assumptions-no-strong-types as =
+    Assumptions-strong-types-restricted′
+      (λ b _ → Dec.map lift Lift.lower (¬? (decBinderMode b (BMΣ 𝕤))))
+      as
+    where
+    open TD.Assumptions as
+
+opaque
+
+  -- The function no-erased-matches-TR s preserves TD.Assumptions.
+
+  Assumptions-no-erased-matches-TR :
+    TD.Assumptions TR → TD.Assumptions (no-erased-matches-TR s TR)
+  Assumptions-no-erased-matches-TR {s} as = λ where
+      ._≟_                 → A._≟_
+      .Unit-allowed?       → A.Unit-allowed?
+      .ΠΣ-allowed?         → A.ΠΣ-allowed?
+      .K-allowed?          → A.K-allowed?
+      .[]-cong-allowed? s′ → A.[]-cong-allowed? s′
+                               ×-dec
+                             ¬? (decStrength s′ s)
+    where
+    module A = TD.Assumptions as
+    open TD.Assumptions

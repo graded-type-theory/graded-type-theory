@@ -2,27 +2,18 @@
 -- Decidability of typing.
 ------------------------------------------------------------------------
 
+open import Definition.Typechecking.Decidable.Assumptions
 open import Definition.Typed.Restrictions
 open import Graded.Modality
-import Tools.PropositionalEquality as PE
-open import Tools.Relation as Dec
 
 module Definition.Typed.Decidable
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  (open Type-restrictions R)
-  -- Equality is assumed to be decidable for M.
-  (_≟_ : Decidable (PE._≡_ {A = M}))
-  -- It is decidable whether the Unit types are allowed.
-  (Unit-ok? : ∀ s → Dec (Unit-allowed s))
-  -- ΠΣ-allowed is pointwise decidable.
-  (ΠΣ-ok? : ∀ b p q → Dec (ΠΣ-allowed b p q))
-  -- It is decidable whether the K rule is allowed.
-  (K-allowed? : Dec K-allowed)
-  -- It is decidable whether []-cong is allowed.
-  ([]-cong-allowed? : ∀ s → Dec ([]-cong-allowed s))
+  {R : Type-restrictions 𝕄}
+  (as : Assumptions R)
   where
+
+open Assumptions as
 
 open import Definition.Untyped M hiding (_∷_)
 open import Definition.Typed R
@@ -31,12 +22,12 @@ open import Definition.Typed.Properties R
 open import Definition.Typechecking R
 open import Definition.Typechecking.Soundness R
 open import Definition.Typechecking.Completeness R
-open import Definition.Typechecking.Decidable
-  R _≟_ Unit-ok? ΠΣ-ok? K-allowed? []-cong-allowed?
+open import Definition.Typechecking.Decidable as
 
 open import Tools.Function
 open import Tools.Nat using (Nat)
 open import Tools.Product
+open import Tools.Relation as Dec
 
 private
   variable

@@ -177,6 +177,7 @@ import Definition.Typechecking.Completeness
 -- Decidability of typing
 import Definition.Typed.Decidable.Equality
 import Definition.Typed.Decidable.Reduction
+import Definition.Typechecking.Decidable.Assumptions
 import Definition.Typechecking.Decidable
 import Definition.Typed.Decidable
 

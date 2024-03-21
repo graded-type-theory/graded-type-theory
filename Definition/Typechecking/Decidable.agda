@@ -2,27 +2,18 @@
 -- Decidability of bi-derectional typechecking.
 ------------------------------------------------------------------------
 
+open import Definition.Typechecking.Decidable.Assumptions
 open import Definition.Typed.Restrictions
 open import Graded.Modality
-import Tools.PropositionalEquality as PE
-open import Tools.Relation
 
 module Definition.Typechecking.Decidable
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  (open Type-restrictions R)
-  -- Equality is assumed to be decidable for M.
-  (_≟_ : Decidable (PE._≡_ {A = M}))
-  -- It is decidable whether the Unit types are allowed.
-  (Unit-ok? : ∀ s → Dec (Unit-allowed s))
-  -- ΠΣ-allowed is pointwise decidable.
-  (ΠΣ-ok? : ∀ b p q → Dec (ΠΣ-allowed b p q))
-  -- It is decidable whether the K rule is allowed.
-  (K-allowed? : Dec K-allowed)
-  -- It is decidable whether []-cong is allowed.
-  ([]-cong-allowed? : ∀ s → Dec ([]-cong-allowed s))
+  {R : Type-restrictions 𝕄}
+  (as : Assumptions R)
   where
+
+open Assumptions as
 
 open import Definition.Typechecking R
 open import Definition.Typechecking.Soundness R
@@ -44,6 +35,8 @@ open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat using (Nat)
 open import Tools.Product
+import Tools.PropositionalEquality as PE
+open import Tools.Relation
 
 private
   variable
@@ -412,7 +405,7 @@ mutual
 
   dec⇉-unitrec : ⊢ Γ → Checkable A → Checkable t
               → Checkable u → Dec (∃ λ B → Γ ⊢ unitrec p q A t u ⇉ B)
-  dec⇉-unitrec ⊢Γ A t u = case Unit-ok? 𝕨 of λ where
+  dec⇉-unitrec ⊢Γ A t u = case Unit-allowed? 𝕨 of λ where
     (yes ok) → case Unitⱼ ⊢Γ ok of λ
       ⊢Unit → case dec⇇Type (⊢Γ ∙ ⊢Unit) A of λ where
         (yes A⇇Type) → case dec⇇ ⊢Γ t ⊢Unit of λ where
@@ -505,7 +498,7 @@ mutual
     case dec⇇Type ⊢Γ F of λ where
       (yes F⇇Type) →
         case dec⇇Type (⊢Γ ∙ soundness⇇Type ⊢Γ F⇇Type) G of λ where
-          (yes G⇇Type) → case ΠΣ-ok? b p q of λ where
+          (yes G⇇Type) → case ΠΣ-allowed? b p q of λ where
             (yes ok)    → yes (ΠΣᶜ F⇇Type G⇇Type ok)
             (no not-ok) → no λ where
               (ΠΣᶜ _ _ ok)                  → not-ok ok
@@ -565,7 +558,7 @@ mutual
           PE.refl → A≢U x₁
     (no ¬pr⇉A) → no λ where
       (univᶜ (infᶜ x x₁)) → ¬pr⇉A (_ , x)
-  dec⇉Type ⊢Γ (Unitᵢ {s = s}) = case Unit-ok? s of λ where
+  dec⇉Type ⊢Γ (Unitᵢ {s = s}) = case Unit-allowed? s of λ where
     (yes ok)    → yes (Unitᶜ ok)
     (no not-ok) → no λ where
       (Unitᶜ ok)                  → not-ok ok
@@ -651,7 +644,7 @@ mutual
       (yes F⇇U) →
         let ⊢F = soundness⇇ ⊢Γ F⇇U
         in  case dec⇇ (⊢Γ ∙ univ ⊢F) G (Uⱼ (⊢Γ ∙ univ ⊢F)) of λ where
-          (yes G⇇U) → case ΠΣ-ok? b p q of λ where
+          (yes G⇇U) → case ΠΣ-allowed? b p q of λ where
             (yes ok)    → yes (_ , ΠΣᵢ F⇇U G⇇U ok)
             (no not-ok) → no λ where
               (_ , ΠΣᵢ _ _ ok) → not-ok ok
@@ -671,11 +664,11 @@ mutual
     (no ¬t⇇ℕ) → no λ where
       (_ , sucᵢ x) → ¬t⇇ℕ x
   dec⇉ ⊢Γ (natrecᵢ A z s n) = dec⇉-natrec ⊢Γ A z s n
-  dec⇉ ⊢Γ (Unitᵢ {s = s}) = case Unit-ok? s of λ where
+  dec⇉ ⊢Γ (Unitᵢ {s = s}) = case Unit-allowed? s of λ where
     (yes ok)    → yes (U , Unitᵢ ok)
     (no not-ok) → no λ where
       (_ , Unitᵢ ok) → not-ok ok
-  dec⇉ ⊢Γ (starᵢ {s = s}) = case Unit-ok? s of λ where
+  dec⇉ ⊢Γ (starᵢ {s = s}) = case Unit-allowed? s of λ where
     (yes ok)    → yes (Unit! , starᵢ ok)
     (no not-ok) → no λ where
       (_ , starᵢ ok) → not-ok ok
