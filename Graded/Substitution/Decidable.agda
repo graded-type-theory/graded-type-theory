@@ -55,7 +55,8 @@ private
 -- allowed to be used as a sink, then a given substitution is either
 -- well-resourced with respect to a given mode vector and the
 -- substitution matrix computed by ∥_∥, or it is not well-resourced
--- with respect to any substitution matrix (and the given mode).
+-- with respect to any substitution matrix (and the given mode
+-- vector).
 
 ∥∥▶?_ :
   ⦃ has-nr : Dedicated-nr ⦄ →
