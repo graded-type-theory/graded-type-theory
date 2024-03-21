@@ -6,6 +6,7 @@ module Graded.Modality.Instances.Erasure where
 
 open import Tools.Product
 open import Tools.PropositionalEquality
+open import Tools.Relation
 
 -- The set of erasure annotations with 𝟘 corresponding to no usage
 -- and ω to any usage.
@@ -18,7 +19,7 @@ open import Tools.Algebra Erasure
 infixl 40 _+_
 infixl 40 _∧_
 infixl 45 _·_ _/_
-infix  10 _≤_
+infix  10 _≤_ _≟_
 infix  50 _⊛_▷_
 
 ---------------------------------------
@@ -58,6 +59,14 @@ _ / 𝟘 = ω
 
 _≤_ : (p q : Erasure) → Set
 p ≤ q = p ≡ p ∧ q
+
+-- A decision procedure for equality.
+
+_≟_ : Decidable (_≡_ {A = Erasure})
+𝟘 ≟ 𝟘 = yes refl
+𝟘 ≟ ω = no (λ ())
+ω ≟ 𝟘 = no (λ ())
+ω ≟ ω = yes refl
 
 ---------------------------------------
 -- Properties of addition (and meet) --

@@ -29,6 +29,9 @@ open import Graded.Modality.Variant a
 open import Graded.Modality.Properties.Meet 𝕄
 open import Graded.Modality.Properties.PartialOrder 𝕄
 
+open import Tools.Reasoning.PropositionalEquality
+open import Tools.Relation as Dec
+
 |M| : Nat
 |M| = 1+ (proj₁ fin)
 
@@ -68,6 +71,23 @@ f-f⁻¹ = proj₂ (proj₂ (proj₂ fin))
 
 has-star : Has-star 𝕄
 has-star = LB.has-star ∞ ∞-min
+
+opaque
+
+  -- Equality is decidable for M.
+
+  infix 10 _≟_
+
+  _≟_ : Decidable (_≡_ {A = M})
+  p ≟ q =
+    Dec.map
+      (λ f⁻¹p≡f⁻¹q →
+         p          ≡˘⟨ f-f⁻¹ _ ⟩
+         f (f⁻¹ p)  ≡⟨ cong f f⁻¹p≡f⁻¹q ⟩
+         f (f⁻¹ q)  ≡⟨ f-f⁻¹ _ ⟩
+         q          ∎)
+      (cong f⁻¹)
+      (f⁻¹ p ≟ⱽ f⁻¹ q)
 
 -- If certain properties hold, then 𝕄 can be turned into a certain
 -- kind of modality.

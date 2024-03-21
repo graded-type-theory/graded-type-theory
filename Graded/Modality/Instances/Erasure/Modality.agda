@@ -27,9 +27,7 @@ erasure-semiring-with-meet = record
   ; 𝟙 = ω
   ; ω = ω
   ; ω≤𝟙 = refl
-  ; is-𝟘? = λ where
-      𝟘 → yes refl
-      ω → no (λ ())
+  ; is-𝟘? = _≟ 𝟘
   ; +-·-Semiring = +-·-Semiring
   ; ∧-Semilattice = +-Semilattice
   ; ·-distrib-∧ = ·-distrib-+

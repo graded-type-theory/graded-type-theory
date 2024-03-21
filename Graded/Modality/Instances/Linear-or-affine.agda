@@ -89,6 +89,28 @@ p  · 𝟙  = p
 ≤𝟙 · ≤𝟙 = ≤𝟙
 _  · _  = ≤ω
 
+-- A decision procedure for equality.
+
+infix 10 _≟_
+
+_≟_ : Decidable (_≡_ {A = Linear-or-affine})
+𝟘  ≟ 𝟘  = yes refl
+𝟘  ≟ 𝟙  = no (λ ())
+𝟘  ≟ ≤𝟙 = no (λ ())
+𝟘  ≟ ≤ω = no (λ ())
+𝟙  ≟ 𝟘  = no (λ ())
+𝟙  ≟ 𝟙  = yes refl
+𝟙  ≟ ≤𝟙 = no (λ ())
+𝟙  ≟ ≤ω = no (λ ())
+≤𝟙 ≟ 𝟘  = no (λ ())
+≤𝟙 ≟ 𝟙  = no (λ ())
+≤𝟙 ≟ ≤𝟙 = yes refl
+≤𝟙 ≟ ≤ω = no (λ ())
+≤ω ≟ 𝟘  = no (λ ())
+≤ω ≟ 𝟙  = no (λ ())
+≤ω ≟ ≤𝟙 = no (λ ())
+≤ω ≟ ≤ω = yes refl
+
 ------------------------------------------------------------------------
 -- Some properties
 
@@ -230,18 +252,14 @@ p ≤ q = p ≡ p ∧ q
 
 linear-or-affine-semiring-with-meet : Semiring-with-meet
 linear-or-affine-semiring-with-meet  = record
-  { _+_   = _+_
-  ; _·_   = _·_
-  ; _∧_   = _∧_
-  ; 𝟘     = 𝟘
-  ; 𝟙     = 𝟙
-  ; ω     = ≤ω
-  ; ω≤𝟙   = refl
-  ; is-𝟘? = λ where
-      𝟘  → yes refl
-      𝟙  → no (λ ())
-      ≤𝟙 → no (λ ())
-      ≤ω → no (λ ())
+  { _+_          = _+_
+  ; _·_          = _·_
+  ; _∧_          = _∧_
+  ; 𝟘            = 𝟘
+  ; 𝟙            = 𝟙
+  ; ω            = ≤ω
+  ; ω≤𝟙          = refl
+  ; is-𝟘?        = _≟ 𝟘
   ; +-·-Semiring = record
     { isSemiringWithoutAnnihilatingZero = record
       { +-isCommutativeMonoid = record

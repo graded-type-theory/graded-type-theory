@@ -38,6 +38,13 @@ infixr 20 _+_
 _⊛_▷_ : Op₃ ⊤
 _ ⊛ _ ▷ _ = tt
 
+-- A decision procedure for equality.
+
+infix 10 _≟_
+
+_≟_ : Decidable (_≡_ {A = ⊤})
+_ ≟ _ = yes refl
+
 -- Properties of +
 
 -- Addition is commutative
@@ -166,7 +173,7 @@ unit-semiring-with-meet = record
   ; 𝟙 = tt
   ; ω = tt
   ; ω≤𝟙 = refl
-  ; is-𝟘? = λ _ → yes refl
+  ; is-𝟘? = _≟ tt
   ; +-·-Semiring = +-+-Semiring
   ; ∧-Semilattice = +-Semilattice
   ; ·-distrib-∧ = +-Distributiveˡ , +-Distributiveʳ
