@@ -23,8 +23,10 @@ open import Tools.PropositionalEquality
 open import Tools.Relation as Dec
 open import Tools.Unit
 
+open import Graded.Modality.Dedicated-nr 𝕄
 open import Graded.Modality.Properties 𝕄
-open import Graded.Mode 𝕄 hiding (_≟_)
+open import Graded.Mode 𝕄 as Mode hiding (_≟_)
+import Graded.Usage.Decidable.Assumptions as UD
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Restrictions 𝕄
 
@@ -442,3 +444,66 @@ opaque
     where
     module A = TD.Assumptions as
     open TD.Assumptions
+
+------------------------------------------------------------------------
+-- Some lemmas related to UD.Assumptions
+
+opaque
+
+  -- If grade equality is decidable and the modality comes with a
+  -- dedicated nr function, then UD.Assumptions holds for
+  -- no-usage-restrictions b false.
+
+  Assumptions-no-usage-restrictions :
+    ⦃ has-nr : Dedicated-nr ⦄ →
+    Decidable (_≡_ {A = M}) →
+    UD.Assumptions (no-usage-restrictions b false)
+  Assumptions-no-usage-restrictions dec = λ where
+      ._≟_                      → dec
+      .Prodrec-allowed? _ _ _ _ → yes _
+      .Unitrec-allowed?  _ _ _  → yes _
+      .Emptyrec-allowed? _ _    → yes _
+    where
+    open UD.Assumptions
+
+opaque
+
+  -- The function not-all-erased-matches-JK preserves UD.Assumptions.
+
+  Assumptions-not-all-erased-matches-JK :
+    UD.Assumptions UR → UD.Assumptions (not-all-erased-matches-JK UR)
+  Assumptions-not-all-erased-matches-JK as = λ where
+      ._≟_               → A._≟_
+      .Prodrec-allowed?  → A.Prodrec-allowed?
+      .Unitrec-allowed?  → A.Unitrec-allowed?
+      .Emptyrec-allowed? → A.Emptyrec-allowed?
+    where
+    module A = UD.Assumptions as
+    open UD.Assumptions
+
+opaque
+
+  -- The function no-erased-matches-UR preserves UD.Assumptions.
+
+  Assumptions-no-erased-matches-UR :
+    UD.Assumptions UR → UD.Assumptions (no-erased-matches-UR UR)
+  Assumptions-no-erased-matches-UR as = λ where
+      ._≟_                      → A._≟_
+      .Prodrec-allowed? m r p q → A.Prodrec-allowed? m r p q
+                                    ×-dec
+                                  (¬? trivial?
+                                     →-dec
+                                   m Mode.≟ 𝟙ᵐ
+                                     →-dec
+                                   ¬? (r A.≟ 𝟘))
+      .Unitrec-allowed? m p q   → A.Unitrec-allowed? m p q
+                                    ×-dec
+                                  (¬? trivial?
+                                     →-dec
+                                   m Mode.≟ 𝟙ᵐ
+                                     →-dec
+                                   ¬? (p A.≟ 𝟘))
+      .Emptyrec-allowed?        → A.Emptyrec-allowed?
+    where
+    module A = UD.Assumptions as
+    open UD.Assumptions

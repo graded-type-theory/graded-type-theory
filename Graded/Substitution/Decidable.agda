@@ -5,24 +5,16 @@
 
 open import Graded.Modality
 open import Graded.Usage.Restrictions
-open import Tools.PropositionalEquality
-open import Tools.Relation
+open import Graded.Usage.Decidable.Assumptions
 
 module Graded.Substitution.Decidable
   {a} {M : Set a}
-  (𝕄 : Modality M)
-  (R : Usage-restrictions 𝕄)
-  (open Usage-restrictions R)
-  -- Equality is assumed to be decidable for M.
-  (_≟_ : Decidable (_≡_ {A = M}))
-  -- The Prodrec-allowed relation is assumed to be decidable.
-  (Prodrec? : ∀ m r p q → Dec (Prodrec-allowed m r p q))
-  -- The Unitrec-allowed relation is assumed to be decidable.
-  (Unitrec? : ∀ m p q → Dec (Unitrec-allowed m p q))
-  -- The Emptyrec-allowed relation is assumed to be decidable.
-  (Emptyrec? : ∀ m p → Dec (Emptyrec-allowed m p))
+  {𝕄 : Modality M}
+  {R : Usage-restrictions 𝕄}
+  (as : Assumptions R)
   where
 
+open Assumptions as
 open Modality 𝕄
 
 open import Definition.Untyped M
@@ -35,7 +27,7 @@ open import Graded.Modality.Dedicated-nr 𝕄
 open import Graded.Modality.Dedicated-nr.Instance
 open import Graded.Modality.Properties 𝕄
 open import Graded.Usage 𝕄 R
-open import Graded.Usage.Decidable 𝕄 R _≟_ Prodrec? Unitrec? Emptyrec?
+open import Graded.Usage.Decidable as
 open import Graded.Usage.Properties 𝕄 R
 open import Graded.Mode 𝕄 hiding (_≟_)
 
@@ -44,6 +36,7 @@ open import Tools.Function
 open import Tools.Nat using (Nat; 1+)
 import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PartialOrder
+open import Tools.Relation
 open import Tools.Sum
 
 private
@@ -51,16 +44,12 @@ private
     m n : Nat
     mos : Mode-vector n
 
--- If there is a dedicated nr function and the strong unit type is not
--- allowed to be used as a sink, then a given substitution is either
--- well-resourced with respect to a given mode vector and the
--- substitution matrix computed by ∥_∥, or it is not well-resourced
--- with respect to any substitution matrix (and the given mode
--- vector).
+-- A given substitution is either well-resourced with respect to a
+-- given mode vector and the substitution matrix computed by ∥_∥, or
+-- it is not well-resourced with respect to any substitution matrix
+-- (and the given mode vector).
 
 ∥∥▶?_ :
-  ⦃ has-nr : Dedicated-nr ⦄ →
-  ⦃ no-sink : ¬Starˢ-sink ⦄ →
   (σ : Subst m n) →
   (∥ σ ∥ mos ▶[ mos ] σ) ⊎ (∀ Ψ → ¬ Ψ ▶[ mos ] σ)
 ∥∥▶?_ {n = 0}                _ = inj₁ (λ ())
@@ -97,8 +86,7 @@ _eᵢ≤ᶜ?_eᵢ_ :
 [] eᵢ≤ᶜ? [] eᵢ _ = yes λ ()
 (Ψ ⊙ γ) eᵢ≤ᶜ? Ψ′ ⊙ δ eᵢ mos
   with Ψ eᵢ≤ᶜ? Ψ′ eᵢ tailᵐ mos
-     | ≤ᶜ-decidable (≡-decidable→≤-decidable _≟_)
-         (⌜ headᵐ mos ⌝ ·ᶜ γ) (⌜ headᵐ mos ⌝ ·ᶜ δ)
+     | ⌜ headᵐ mos ⌝ ·ᶜ γ ≤ᶜ? ⌜ headᵐ mos ⌝ ·ᶜ δ
 ... | _ | no γ≰δ = no λ P → γ≰δ (begin
   ⌜ headᵐ mos ⌝ ·ᶜ γ              ≈˘⟨ +ᶜ-identityʳ _ ⟩
   ⌜ headᵐ mos ⌝ ·ᶜ γ +ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-congˡ (<*-zeroˡ Ψ) ⟩
@@ -135,10 +123,7 @@ _eᵢ≤ᶜ?_eᵢ_ :
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-_▶?_ :
-  ⦃ has-nr : Dedicated-nr ⦄ →
-  ⦃ no-sink : ¬Starˢ-sink ⦄ →
-  (Ψ : Substₘ m n) (σ : Subst m n) → Dec (Ψ ▶[ mos ] σ)
+_▶?_ : (Ψ : Substₘ m n) (σ : Subst m n) → Dec (Ψ ▶[ mos ] σ)
 _▶?_ {mos = mos} Ψ σ = case ∥∥▶? σ of λ where
     (inj₂ ¬▶σ) → no (¬▶σ Ψ)
     (inj₁ ▶σ)  → case Ψ eᵢ≤ᶜ? ∥ σ ∥ mos eᵢ mos of λ where

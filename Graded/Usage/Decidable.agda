@@ -2,39 +2,24 @@
 -- The usage relation can be decided (given certain assumptions)
 ------------------------------------------------------------------------
 
-import Graded.Modality
-import Graded.Modality.Dedicated-nr
+open import Graded.Modality
 open import Graded.Usage.Restrictions
-open import Tools.PropositionalEquality
-open import Tools.Relation
+open import Graded.Usage.Decidable.Assumptions
 
 module Graded.Usage.Decidable
   {a} {M : Set a}
-  (open Graded.Modality M)
-  (𝕄 : Modality)
-  (open Graded.Modality.Dedicated-nr 𝕄)
-  (R : Usage-restrictions 𝕄)
-  (open Usage-restrictions R)
-  -- Equality is assumed to be decidable for M.
-  (_≟_ : Decidable (_≡_ {A = M}))
-  -- The Prodrec-allowed relation is assumed to be decidable.
-  (Prodrec? : ∀ m r p q → Dec (Prodrec-allowed m r p q))
-  -- The Unitrec-allowed relation is assumed to be decidable.
-  (Unitrec? : ∀ m p q → Dec (Unitrec-allowed m p q))
-  -- The Emptyrec-allowed relation is assumed to be decidable.
-  (Emptyrec? : ∀ m p → Dec (Emptyrec-allowed m p))
-  -- A dedicated nr function is assumed to exist.
-  ⦃ has-nr : Dedicated-nr ⦄
-  -- The strong unit type is not allowed to be used as a sink.
-  ⦃ no-sink : ¬Starˢ-sink ⦄
+  {𝕄 : Modality M}
+  {R : Usage-restrictions 𝕄}
+  (as : Assumptions R)
   where
 
+open Assumptions as
 open Modality 𝕄 hiding (has-nr)
+open Usage-restrictions R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Dedicated-nr.Instance
-open import Graded.Modality.Properties 𝕄
 open import Graded.Usage 𝕄 R
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Inversion 𝕄 R
@@ -48,25 +33,15 @@ open import Tools.Function
 open import Tools.Level
 open import Tools.Nat using (Nat)
 open import Tools.Product
+open import Tools.PropositionalEquality
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
+open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 open import Tools.Unit
 
 private variable
   n : Nat
-
-private
-
-  -- Inequality is decidable.
-
-  _≤?_ : Decidable _≤_
-  _≤?_ = ≡-decidable→≤-decidable _≟_
-
-  -- Context inequality is decidable.
-
-  _≤ᶜ?_ : Decidable (_≤ᶜ_ {n = n})
-  _≤ᶜ?_ = ≤ᶜ-decidable _≤?_
 
 -- A given term is either well-resourced with respect to a given mode
 -- and the usage context computed by ⌈_⌉, or it is not well-resourced
@@ -101,7 +76,7 @@ infix 10 ⌈⌉▸[_]?_
     case inv-usage-suc ▸suc of λ (invUsageSuc ▸t _) →
     ¬▸t _ ▸t
 
-⌈⌉▸[ m ]? emptyrec p A t = case Emptyrec? m p of λ where
+⌈⌉▸[ m ]? emptyrec p A t = case Emptyrec-allowed? m p of λ where
   (no not-ok) → inj₂ λ _ ▸er →
     case inv-usage-emptyrec ▸er of λ (invUsageEmptyrec _ _ ok _) →
     not-ok ok
@@ -158,7 +133,7 @@ infix 10 ⌈⌉▸[_]?_
   where
   p-ok : ∀ m → Dec (m ≡ 𝟙ᵐ → p ≤ 𝟙)
   p-ok 𝟘ᵐ = yes λ ()
-  p-ok 𝟙ᵐ = case ≡-decidable→≤-decidable _≟_ p 𝟙 of λ where
+  p-ok 𝟙ᵐ = case p ≤? 𝟙 of λ where
     (yes p≤𝟙) → yes λ _ → p≤𝟙
     (no p≰𝟙) → no (λ p≤𝟙 → p≰𝟙 (p≤𝟙 refl))
 
@@ -223,7 +198,7 @@ infix 10 ⌈⌉▸[_]?_
       ¬▸u _ ▸u
     (inj₁ ▸u) → inj₁ (prodˢₘ ▸t ▸u)
 
-⌈⌉▸[ m ]? unitrec p q A t u = case Unitrec? m p q of λ where
+⌈⌉▸[ m ]? unitrec p q A t u = case Unitrec-allowed? m p q of λ where
   (no not-ok) → inj₂ λ _ ▸ur →
           case inv-usage-unitrec ▸ur of λ (invUsageUnitrec _ _ _ ok _) →
           not-ok ok
@@ -252,7 +227,7 @@ infix 10 ⌈⌉▸[_]?_
                   ⌈ A ⌉ 𝟘ᵐ?                              ∎
             in  inj₁ (unitrecₘ ▸t ▸u (sub ▸A lemma) ok)
 
-⌈⌉▸[ m ]? prodrec r p q A t u = case Prodrec? m r p q of λ where
+⌈⌉▸[ m ]? prodrec r p q A t u = case Prodrec-allowed? m r p q of λ where
   (no not-ok) → inj₂ λ _ ▸pr →
     case inv-usage-prodrec ▸pr of λ (invUsageProdrec _ _ _ ok _) →
     not-ok ok
