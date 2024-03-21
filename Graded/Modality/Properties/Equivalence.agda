@@ -34,6 +34,13 @@ private variable
 ------------------------------------------------------------------------
 -- Some lemmas related to Trivial
 
+opaque
+
+  -- It is decidable whether Trivial holds.
+
+  trivial? : Dec Trivial
+  trivial? = is-𝟘? 𝟙
+
 -- If the semiring with meet is trivial, then every value is equal
 -- to 𝟘.
 
