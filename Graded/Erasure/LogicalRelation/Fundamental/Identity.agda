@@ -145,14 +145,11 @@ opaque
     , λ {σ = σ} ⊩σ _ →
         case substitutionTerm ⊢v (wellformedSubst _ _ ⊩σ) ⊢Δ of λ {
           ⊢v[σ] →
-        case ε⊢∷Id→ε⊢≡∷ ⊢v[σ] of λ {
-          t[σ]≡u[σ] →
         rflᵣ
-          (([]-cong _ A t u v) [ σ ]    ⇒*⟨ []-cong-subst* (ε⊢⇒*rfl∷Id ⊢v[σ]) ok ⟩
-           ([]-cong _ A t u rfl) [ σ ]  ⇒⟨ []-cong-β-⇒ t[σ]≡u[σ] ok ⟩∎
-           rfl                          ∎)
+          (([]-cong _ A t u v) [ σ ]  ⇒*⟨ ε⊢⇒*rfl∷Id ([]-congⱼ′ ok ⊢v[σ]) ⟩∎
+           rfl                        ∎)
           (λ { PE.refl → T.refl })
-          ◀ _ }}}}
+          ◀ _ }}}
     where
     open IE ([]-cong→Erased ok)
 
