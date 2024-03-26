@@ -186,7 +186,7 @@ transEqT (ne (ne K [ ⊢A , ⊢B , D ] neK K≡K) (ne K₁ D₁ neK₁ _)
          rewrite whrDet* (red D₁ , ne neK₁) (red D′ , ne neM)
                | whrDet* (red D₂ , ne neK₂) (red D″ , ne neM₁) =
   ne₌ M₁ D″ neM₁
-      (~-trans K≡M K≡M₁)
+      (≅-trans K≡M K≡M₁)
 transEqT {n = n} {Γ = Γ} {l = l} {l′ = l′} {l″ = l″}
          (Bᵥ W W′ W″ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
                (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _)

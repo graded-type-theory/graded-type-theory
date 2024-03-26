@@ -107,7 +107,7 @@ escapeEq (Emptyᵣ [ ⊢A , ⊢B , D ]) D′ =
 escapeEq (Unitᵣ (Unitₜ [ ⊢A , ⊢B , D ] ok)) D′ =
   ≅-red D D′ Unitₙ Unitₙ (≅-Unitrefl (wf ⊢A) ok)
 escapeEq (ne′ K D neK K≡K) (ne₌ M D′ neM K≡M) =
-  ≅-red (red D) (red D′) (ne neK) (ne neM) (~-to-≅ K≡M)
+  ≅-red (red D) (red D′) (ne neK) (ne neM) K≡M
 escapeEq (Bᵣ′ W _ _ D _ _ _ _ _ _ _) (B₌ _ _ D′ A≡B _ _) =
   ≅-red (red D) D′ ⟦ W ⟧ₙ ⟦ W ⟧ₙ A≡B
 escapeEq (Idᵣ ⊩A) A≡B =

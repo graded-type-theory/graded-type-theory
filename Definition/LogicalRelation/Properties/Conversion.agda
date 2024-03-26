@@ -54,7 +54,7 @@ mutual
              (neₜ k d (neNfₜ neK₂ ⊢k k≡k)) =
     let K≡K₁ = PE.subst (λ x → _ ⊢ _ ≡ x)
                         (whrDet* (red D′ , ne neM) (red D₁ , ne neK₁))
-                        (≅-eq (~-to-≅ K≡M))
+                        (≅-eq K≡M)
     in  neₜ k (convRed:*: d K≡K₁)
             (neNfₜ neK₂ (conv ⊢k K≡K₁) (~-conv k≡k K≡K₁))
   convTermT₁
@@ -177,7 +177,7 @@ mutual
              (neₜ k d (neNfₜ neK₂ ⊢k k≡k)) =
     let K₁≡K = PE.subst (λ x → _ ⊢ x ≡ _)
                         (whrDet* (red D′ , ne neM) (red D₁ , ne neK₁))
-                        (sym (≅-eq (~-to-≅ K≡M)))
+                        (sym (≅-eq K≡M))
     in  neₜ k (convRed:*: d K₁≡K)
             (neNfₜ neK₂ (conv ⊢k K₁≡K) (~-conv k≡k K₁≡K))
   convTermT₂
@@ -329,7 +329,7 @@ mutual
                (neₜ₌ k m d d′ (neNfₜ₌ neK₂ neM₁ k≡m)) =
     let K≡K₁ = PE.subst (λ x → _ ⊢ _ ≡ x)
                         (whrDet* (red D′ , ne neM) (red D₁ , ne neK₁))
-                        (≅-eq (~-to-≅ K≡M))
+                        (≅-eq K≡M)
     in  neₜ₌ k m (convRed:*: d K≡K₁)
                  (convRed:*: d′ K≡K₁)
                  (neNfₜ₌ neK₂ neM₁ (~-conv k≡m K≡K₁))
@@ -479,7 +479,7 @@ mutual
                (neₜ₌ k m d d′ (neNfₜ₌ neK₂ neM₁ k≡m)) =
     let K₁≡K = PE.subst (λ x → _ ⊢ x ≡ _)
                         (whrDet* (red D′ , ne neM) (red D₁ , ne neK₁))
-                        (sym (≅-eq (~-to-≅ K≡M)))
+                        (sym (≅-eq K≡M))
     in  neₜ₌ k m (convRed:*: d K₁≡K) (convRed:*: d′ K₁≡K)
                  (neNfₜ₌ neK₂ neM₁ (~-conv k≡m K₁≡K))
   convEqTermT₂

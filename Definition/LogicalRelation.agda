@@ -51,7 +51,7 @@ record _⊩ne_ {ℓ : Nat} (Γ : Con Term ℓ) (A : Term ℓ) : Set a where
     K   : Term ℓ
     D   : Γ ⊢ A :⇒*: K
     neK : Neutral K
-    K≡K : Γ ⊢ K ~ K ∷ U
+    K≡K : Γ ⊢ K ≅ K
 
 -- Neutral type equality
 record _⊩ne_≡_/_ (Γ : Con Term ℓ) (A B : Term ℓ) ([A] : Γ ⊩ne A) : Set a where
@@ -61,7 +61,7 @@ record _⊩ne_≡_/_ (Γ : Con Term ℓ) (A B : Term ℓ) ([A] : Γ ⊩ne A) : S
     M   : Term ℓ
     D′  : Γ ⊢ B :⇒*: M
     neM : Neutral M
-    K≡M : Γ ⊢ K ~ M ∷ U
+    K≡M : Γ ⊢ K ≅ M
 
 -- Neutral term in WHNF
 record _⊩neNf_∷_ (Γ : Con Term ℓ) (k A : Term ℓ) : Set a where

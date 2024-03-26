@@ -40,7 +40,7 @@ private
 -- Neutral reflexive types are reducible.
 neu : ∀ {l A} (neA : Neutral A)
     → Γ ⊢ A
-    → Γ ⊢ A ~ A ∷ U
+    → Γ ⊢ A ≅ A
     → Γ ⊩⟨ l ⟩ A
 neu neA A A~A = ne′ _ (idRed:*: A) neA A~A
 
@@ -49,11 +49,11 @@ neuEq′ : ∀ {l A B} ([A] : Γ ⊩⟨ l ⟩ne A)
          (neA : Neutral A)
          (neB : Neutral B)
        → Γ ⊢ A → Γ ⊢ B
-       → Γ ⊢ A ~ B ∷ U
+       → Γ ⊢ A ≅ B
        → Γ ⊩⟨ l ⟩ A ≡ B / ne-intr [A]
 neuEq′ (noemb (ne K [ ⊢A , ⊢B , D ] neK K≡K)) neA neB A B A~B =
   let A≡K = whnfRed* D (ne neA)
-  in  ne₌ _ (idRed:*: B) neB (PE.subst (λ x → _ ⊢ x ~ _ ∷ _) A≡K A~B)
+  in  ne₌ _ (idRed:*: B) neB (PE.subst (λ x → _ ⊢ x ≅ _) A≡K A~B)
 neuEq′ (emb 0<1 x) neB A:≡:B = neuEq′ x neB A:≡:B
 
 -- Neutrally equal types are of reducible equality.
@@ -61,7 +61,7 @@ neuEq : ∀ {l A B} ([A] : Γ ⊩⟨ l ⟩ A)
         (neA : Neutral A)
         (neB : Neutral B)
       → Γ ⊢ A → Γ ⊢ B
-      → Γ ⊢ A ~ B ∷ U
+      → Γ ⊢ A ≅ B
       → Γ ⊩⟨ l ⟩ A ≡ B / [A]
 neuEq [A] neA neB A B A~B =
   irrelevanceEq (ne-intr (ne-elim neA [A]))
@@ -75,7 +75,8 @@ mutual
           → Γ ⊢ n ~ n ∷ A
           → Γ ⊩⟨ l ⟩ n ∷ A / [A]
   neuTerm (Uᵣ′ .⁰ 0<1 ⊢Γ) neN n n~n =
-    Uₜ _ (idRedTerm:*: n) (ne neN) (~-to-≅ₜ n~n) (neu neN (univ n) n~n)
+    Uₜ _ (idRedTerm:*: n) (ne neN) (~-to-≅ₜ n~n)
+      (neu neN (univ n) (~-to-≅ n~n))
   neuTerm (ℕᵣ [ ⊢A , ⊢B , D ]) neN n n~n =
     let A≡ℕ  = subset* D
         n~n′ = ~-conv n~n A≡ℕ
@@ -192,10 +193,11 @@ mutual
             → Γ ⊢ n ~ n′ ∷ A
             → Γ ⊩⟨ l ⟩ n ≡ n′ ∷ A / [A]
   neuEqTerm (Uᵣ′ .⁰ 0<1 ⊢Γ) neN neN′ n n′ n~n′ =
-    let [n]  = neu neN  (univ n) (~-trans n~n′ (~-sym n~n′))
-        [n′] = neu neN′ (univ n′) (~-trans (~-sym n~n′) n~n′)
+    let [n]  = neu neN  (univ n) (~-to-≅ (~-trans n~n′ (~-sym n~n′)))
+        [n′] = neu neN′ (univ n′) (~-to-≅ (~-trans (~-sym n~n′) n~n′))
     in  Uₜ₌ _ _ (idRedTerm:*: n) (idRedTerm:*: n′) (ne neN) (ne neN′)
-            (~-to-≅ₜ n~n′) [n] [n′] (neuEq [n] neN neN′ (univ n) (univ n′) n~n′)
+            (~-to-≅ₜ n~n′) [n] [n′]
+            (neuEq [n] neN neN′ (univ n) (univ n′) (~-to-≅ n~n′))
   neuEqTerm (ℕᵣ [ ⊢A , ⊢B , D ]) neN neN′ n n′ n~n′ =
     let A≡ℕ = subset* D
         n~n′₁ = ~-conv n~n′ A≡ℕ

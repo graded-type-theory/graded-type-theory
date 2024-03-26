@@ -84,7 +84,7 @@ symEqT (Unitᵥ (Unitₜ D _) D′) A≡B = red D
 symEqT (ne (ne K D neK K≡K) (ne K₁ D₁ neK₁ K≡K₁)) (ne₌ M D′ neM K≡M)
        rewrite whrDet* (red D′ , ne neM) (red D₁ , ne neK₁) =
   ne₌ _ D neK
-      (~-sym K≡M)
+      (≅-sym K≡M)
 symEqT
   {n} {Γ = Γ} {l′ = l′}
   (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)

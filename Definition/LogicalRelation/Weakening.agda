@@ -160,7 +160,7 @@ wk ρ ⊢Δ (Emptyᵣ D) = Emptyᵣ (wkRed:*: ρ ⊢Δ D)
 wk ρ ⊢Δ (Unitᵣ (Unitₜ D ok)) =
   Unitᵣ (Unitₜ (wkRed:*: ρ ⊢Δ D) ok)
 wk {ρ = ρ} [ρ] ⊢Δ (ne′ K D neK K≡K) =
-  ne′ (U.wk ρ K) (wkRed:*: [ρ] ⊢Δ D) (wkNeutral ρ neK) (~-wk [ρ] ⊢Δ K≡K)
+  ne′ (U.wk ρ K) (wkRed:*: [ρ] ⊢Δ D) (wkNeutral ρ neK) (≅-wk [ρ] ⊢Δ K≡K)
 wk
   {m = m} {Δ = Δ} {Γ = Γ} {l = l} {A = A} {ρ = ρ} [ρ] ⊢Δ
   (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok) =
@@ -259,7 +259,7 @@ wkEq ρ ⊢Δ (Emptyᵣ D) A≡B = wkRed* ρ ⊢Δ A≡B
 wkEq ρ ⊢Δ (Unitᵣ (Unitₜ D _)) A≡B = wkRed* ρ ⊢Δ A≡B
 wkEq {ρ = ρ} [ρ] ⊢Δ (ne′ _ _ _ _) (ne₌ M D′ neM K≡M) =
   ne₌ (U.wk ρ M) (wkRed:*: [ρ] ⊢Δ D′)
-      (wkNeutral ρ neM) (~-wk [ρ] ⊢Δ K≡M)
+      (wkNeutral ρ neM) (≅-wk [ρ] ⊢Δ K≡M)
 wkEq {ρ = ρ} [ρ] ⊢Δ (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
                 (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
   B₌ (U.wk ρ F′)
