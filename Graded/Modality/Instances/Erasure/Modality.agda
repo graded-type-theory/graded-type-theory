@@ -26,6 +26,7 @@ erasure-semiring-with-meet = record
   ; 𝟘 = 𝟘
   ; 𝟙 = ω
   ; ω = ω
+  ; ω·+≤ω·ʳ = λ {p = p} → +-decreasingʳ p
   ; ω≤𝟙 = refl
   ; is-𝟘? = _≟ 𝟘
   ; +-·-Semiring = +-·-Semiring

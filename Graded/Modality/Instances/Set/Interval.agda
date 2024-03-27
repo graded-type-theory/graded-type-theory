@@ -2,6 +2,8 @@
 -- Non-empty natural number intervals
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 module Graded.Modality.Instances.Set.Interval where
 
 import Tools.Algebra
@@ -26,7 +28,7 @@ private variable
   A S   : Set _
   P Q   : A → Set _
   xs ys : S
-  n     : Nat
+  m n   : Nat
 
 ------------------------------------------------------------------------
 -- Interval closure
@@ -295,16 +297,6 @@ record Is-non-empty-interval (S : Set a) : Set (lsuc (lsuc a)) where
   -- inhabited.
 
   module _ (ext : Ext) where
-
-    ----------------------------------------------------------------------
-    -- A lemma related to ℕ
-
-    -- The set ℕ is a least one.
-
-    ℕ-least : ℕ ≤ xs
-    ℕ-least {xs = xs} = ≤⇔ ext .proj₂ λ n →
-      n ∈ xs  →⟨ (λ _ → ∈ℕ) ⟩
-      n ∈ ℕ   □
 
     --------------------------------------------------------------------
     -- Lemmas related to _∪_
@@ -954,6 +946,65 @@ record Is-non-empty-interval (S : Set a) : Set (lsuc (lsuc a)) where
                    , (m₂ , m₃ , N.≤-refl , m₂∈ys , m₃∈zs)
                    , (m₂ , m₃ , N.≤-refl , m₂∈ys , m₃∈zs))
 
+    ----------------------------------------------------------------------
+    -- Lemmas related to ℕ
+
+    -- The set ℕ is a least one.
+
+    ℕ-least : ℕ ≤ xs
+    ℕ-least {xs = xs} = ≤⇔ ext .proj₂ λ n →
+      n ∈ xs  →⟨ (λ _ → ∈ℕ) ⟩
+      n ∈ ℕ   □
+
+    opaque
+
+      -- The natural number m is in ℕ · xs if and only if it is
+      -- bounded by n₁n₂ for some natural numbers n₁ and n₂ where n₂
+      -- is in xs.
+
+      ∈ℕ·⇔ :
+        m ∈ ℕ · xs ⇔
+        (∃₂ λ n₁ n₂ → m N.≤ n₁ N.* n₂ × n₂ ∈ xs)
+      ∈ℕ·⇔ {m} {xs} =
+        m ∈ ℕ · xs                                                       ⇔⟨ ∈·⇔ ⟩
+        Closure (λ m → ∃₂ λ n₁ n₂ → n₁ N.* n₂ ≡ m × n₁ ∈ ℕ × n₂ ∈ xs) m  ⇔⟨ (Closure-cong-⇔ λ m → Σ-cong-⇔ λ n₁ → Σ-cong-⇔ λ n₂ →
+                                                                             id⇔ ×-cong-⇔ (proj₂ , (∈ℕ ,_))) ⟩
+        Closure (λ m → ∃₂ λ n₁ n₂ → n₁ N.* n₂ ≡ m × n₂ ∈ xs) m           ⇔⟨ (λ { ( _ , _ , n₁n₂≤m , m≤n₃n₄
+                                                                                 , (n₁ , n₂ , refl , n₂∈xs)
+                                                                                 , (n₃ , n₄ , refl , n₄∈xs)
+                                                                                 ) →
+                                                                                 n₃ , n₄ , m≤n₃n₄ , n₄∈xs })
+                                                                          , (λ (n₁ , n₂ , m≤n₁n₂ , n₂∈xs) →
+                                                                                 0 , n₁ N.* n₂ , N.z≤n , m≤n₁n₂
+                                                                               , (0  , n₂ , refl , n₂∈xs)
+                                                                               , (n₁ , n₂ , refl , n₂∈xs))
+                                                                          ⟩
+        (∃₂ λ n₁ n₂ → m N.≤ n₁ N.* n₂ × n₂ ∈ xs)                         □⇔
+
+    opaque
+
+      -- The set ℕ · (xs + ys) is bounded by ℕ · ys.
+
+      ℕ·+≤ℕ·ʳ : ℕ · (xs + ys) ≤ ℕ · ys
+      ℕ·+≤ℕ·ʳ {xs} {ys} = ≤⇔ ext .proj₂ λ m →
+        m ∈ ℕ · ys                                          ⇔⟨ ∈ℕ·⇔ ⟩→
+        (∃₂ λ n₁ n₂ → m N.≤ n₁ N.* n₂ × n₂ ∈ ys)            →⟨ (λ (n₁ , n₂ , m≤n₁n₂ , n₂∈ys) →
+                                                                  case non-empty of λ
+                                                                    (n₃ , n₃∈xs) →
+                                                                    n₁ , n₃ N.+ n₂
+                                                                  , (begin
+          m                                                            ≤⟨ m≤n₁n₂ ⟩
+          n₁ N.* n₂                                                    ≤⟨ N.m≤n+m _ _ ⟩
+          n₁ N.* n₃ N.+ n₁ N.* n₂                                      ≡˘⟨ N.*-distribˡ-+ n₁ _ _ ⟩
+          n₁ N.* (n₃ N.+ n₂)                                           ∎)
+                                                                  , (n₃ , n₂ , N.≤-refl , n₃∈xs , n₂∈ys)
+                                                                  , (n₃ , n₂ , N.≤-refl , n₃∈xs , n₂∈ys)) ⟩
+        (∃₂ λ n₁ n₂ → m N.≤ n₁ N.* n₂ × In N._+_ xs ys n₂)  ⇔⟨ (Σ-cong-⇔ λ _ → Σ-cong-⇔ λ _ → id⇔ ×-cong-⇔ sym⇔ ∈+⇔′) ⟩→
+        (∃₂ λ n₁ n₂ → m N.≤ n₁ N.* n₂ × n₂ ∈ xs + ys)       ⇔⟨ sym⇔ ∈ℕ·⇔ ⟩→
+        m ∈ ℕ · (xs + ys)                                   □
+        where
+        open N.≤-Reasoning
+
     --------------------------------------------------------------------
     -- Modalities
 
@@ -971,6 +1022,7 @@ record Is-non-empty-interval (S : Set a) : Set (lsuc (lsuc a)) where
       .Semiring-with-meet.𝟙        → 𝟙
       .Semiring-with-meet.ω        → ℕ
       .Semiring-with-meet.ω≤𝟙      → ℕ-least
+      .Semiring-with-meet.ω·+≤ω·ʳ  → ℕ·+≤ℕ·ʳ
       .Semiring-with-meet.is-𝟘? xs → case is-𝟘? xs of λ where
         (inj₁ xs≡𝟘) → yes (xs≡𝟘 ext)
         (inj₂ xs≢𝟘) → no xs≢𝟘

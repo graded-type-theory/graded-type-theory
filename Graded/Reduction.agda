@@ -261,18 +261,17 @@ usagePresTerm {γ = γ} γ▸ (J-β _ _ _ _ _ _ _) =
       ▸u
       (begin
          γ                                  ≤⟨ γ≤ ⟩
-         ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆)  ≤⟨ ·ᶜ-monotoneʳ $
-                                               ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
-                                               ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
-                                               ∧ᶜ-decreasingˡ _ _ ⟩
+         ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆)  ≤⟨ ≤ᶜ-trans ω·ᶜ+ᶜ≤ω·ᶜʳ $
+                                               ≤ᶜ-trans ω·ᶜ+ᶜ≤ω·ᶜʳ
+                                               ω·ᶜ+ᶜ≤ω·ᶜˡ ⟩
          ω ·ᶜ γ₄                            ≤⟨ ω·ᶜ-decreasing ⟩
          γ₄                                 ∎)
     (invUsageJ₀₁ {γ₃} {γ₄} _ _ _ _ _ _ ▸u _ _ γ≤) → sub
       ▸u
       (begin
          γ                ≤⟨ γ≤ ⟩
-         ω ·ᶜ (γ₃ ∧ᶜ γ₄)  ≤⟨ ω·ᶜ-decreasing ⟩
-         γ₃ ∧ᶜ γ₄         ≤⟨ ∧ᶜ-decreasingʳ _ _ ⟩
+         ω ·ᶜ (γ₃ +ᶜ γ₄)  ≤⟨ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
+         ω ·ᶜ γ₄          ≤⟨ ω·ᶜ-decreasing ⟩
          γ₄               ∎)
     (invUsageJ₀₂ _ _ _ _ ▸u _ _ γ≤) →
       sub ▸u γ≤
@@ -286,18 +285,17 @@ usagePresTerm {γ = γ} γ▸ (K-β _ _ _ _) =
       ▸u
       (begin
          γ                            ≤⟨ γ≤ ⟩
-         ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅)  ≤⟨ ·ᶜ-monotoneʳ $
-                                         ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
-                                         ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
-                                         ∧ᶜ-decreasingˡ _ _ ⟩
+         ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅)  ≤⟨ ≤ᶜ-trans ω·ᶜ+ᶜ≤ω·ᶜʳ $
+                                         ≤ᶜ-trans ω·ᶜ+ᶜ≤ω·ᶜʳ
+                                         ω·ᶜ+ᶜ≤ω·ᶜˡ ⟩
          ω ·ᶜ γ₄                      ≤⟨ ω·ᶜ-decreasing ⟩
          γ₄                           ∎)
     (invUsageK₀₁ {γ₃} {γ₄} _ _ _ _ _ ▸u _ γ≤) → sub
       ▸u
       (begin
          γ                ≤⟨ γ≤ ⟩
-         ω ·ᶜ (γ₃ ∧ᶜ γ₄)  ≤⟨ ω·ᶜ-decreasing ⟩
-         γ₃ ∧ᶜ γ₄         ≤⟨ ∧ᶜ-decreasingʳ _ _ ⟩
+         ω ·ᶜ (γ₃ +ᶜ γ₄)  ≤⟨ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
+         ω ·ᶜ γ₄          ≤⟨ ω·ᶜ-decreasing ⟩
          γ₄               ∎)
     (invUsageK₀₂ _ _ _ _ ▸u _ γ≤) →
       sub ▸u γ≤

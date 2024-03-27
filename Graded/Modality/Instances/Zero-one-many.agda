@@ -2,6 +2,8 @@
 -- The zero-one-many modality
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 -- Based on Conor McBride's "I Got Plenty o’ Nuttin’".
 
 -- It might make sense to replace some of the proofs with automated
@@ -427,6 +429,19 @@ _ · _ = ω
 ω·≢𝟙 {p = 𝟙} ()
 ω·≢𝟙 {p = ω} ()
 
+opaque
+
+  -- The grade ω · (p + q) is bounded by ω · q.
+
+  ω·+≤ω·ʳ : ∀ p → ω · (p + q) ≤ ω · q
+  ω·+≤ω·ʳ {q = 𝟘} 𝟘 = refl
+  ω·+≤ω·ʳ {q = 𝟙} 𝟘 = refl
+  ω·+≤ω·ʳ {q = ω} 𝟘 = refl
+  ω·+≤ω·ʳ {q = 𝟘} 𝟙 = refl
+  ω·+≤ω·ʳ {q = 𝟙} 𝟙 = refl
+  ω·+≤ω·ʳ {q = ω} 𝟙 = refl
+  ω·+≤ω·ʳ         ω = refl
+
 ------------------------------------------------------------------------
 -- The modality without the star operation
 
@@ -441,6 +456,7 @@ zero-one-many-semiring-with-meet = record
   ; 𝟙            = 𝟙
   ; ω            = ω
   ; ω≤𝟙          = refl
+  ; ω·+≤ω·ʳ      = λ {p = p} → ω·+≤ω·ʳ p
   ; is-𝟘?        = _≟ 𝟘
   ; +-·-Semiring = record
     { isSemiringWithoutAnnihilatingZero = record

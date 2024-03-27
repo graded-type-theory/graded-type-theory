@@ -53,9 +53,11 @@ record Semiring-with-meet : Set a where
 
   field
     -- In some modalities the grade ω stands for "an unlimited number
-    -- of uses", but the only requirement on ω is that it is bounded
-    -- from above by 𝟙.
+    -- of uses". This grade must be bounded from above by 𝟙.
     ω≤𝟙 : ω ≤ 𝟙
+
+    -- Furthermore ω · (p + q) must be bounded by ω · q.
+    ω·+≤ω·ʳ : ω · (p + q) ≤ ω · q
 
     -- It is decidable whether a grade is equal to 𝟘.
     is-𝟘? : (p : M) → Dec (p ≡ 𝟘)

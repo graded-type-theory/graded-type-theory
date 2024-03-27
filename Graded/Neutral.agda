@@ -137,14 +137,14 @@ opaque
       (Jₙ w-n) ⊢J (Jₘ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} _ _ _ _ _ _ _ ▸w) →
         case inversion-J ⊢J of λ {
           (_ , _ , _ , _ , _ , ⊢w , _) →
-        ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆) ≈ᶜ 𝟘ᶜ   →⟨ ·ᶜ-zero-product ⟩
-        ω ≡ 𝟘 ⊎ γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆ ≈ᶜ 𝟘ᶜ  →⟨ (λ where
+        ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆) ≈ᶜ 𝟘ᶜ   →⟨ ·ᶜ-zero-product ⟩
+        ω ≡ 𝟘 ⊎ γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆ ≈ᶜ 𝟘ᶜ  →⟨ (λ where
                                                         (inj₁ ω≡𝟘) → ⊥-elim (ω≢𝟘 ω≡𝟘)
                                                         (inj₂ hyp) → hyp) ⟩
-        γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆ ≈ᶜ 𝟘ᶜ          →⟨ proj₂ ∘→ ∧ᶜ-positive ∘→
-                                                     proj₂ ∘→ ∧ᶜ-positive ∘→
-                                                     proj₂ ∘→ ∧ᶜ-positive ∘→
-                                                     proj₂ ∘→ ∧ᶜ-positive ⟩
+        γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆ ≈ᶜ 𝟘ᶜ          →⟨ proj₂ ∘→ +ᶜ-positive ∘→
+                                                     proj₂ ∘→ +ᶜ-positive ∘→
+                                                     proj₂ ∘→ +ᶜ-positive ∘→
+                                                     proj₂ ∘→ +ᶜ-positive ⟩
         γ₆ ≈ᶜ 𝟘ᶜ                                  →⟨ helper w-n ⊢w ▸w ⟩
         ⊥                                         □ }
       (Jₙ _) _ (J₀ₘ₁ em _ _ _ _ _ _ _ _) →
@@ -160,13 +160,13 @@ opaque
       (Kₙ v-n) ⊢K (Kₘ {γ₂} {γ₃} {γ₄} {γ₅} _ _ _ _ _ _ ▸v) →
         case inversion-K ⊢K of λ {
           (_ , _ , _ , _ , ⊢v , _) →
-        ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅) ≈ᶜ 𝟘ᶜ   →⟨ ·ᶜ-zero-product ⟩
-        ω ≡ 𝟘 ⊎ γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ≈ᶜ 𝟘ᶜ  →⟨ (λ where
+        ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅) ≈ᶜ 𝟘ᶜ   →⟨ ·ᶜ-zero-product ⟩
+        ω ≡ 𝟘 ⊎ γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ ≈ᶜ 𝟘ᶜ  →⟨ (λ where
                                                   (inj₁ ω≡𝟘) → ⊥-elim (ω≢𝟘 ω≡𝟘)
                                                   (inj₂ hyp) → hyp) ⟩
-        γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ≈ᶜ 𝟘ᶜ          →⟨ proj₂ ∘→ ∧ᶜ-positive ∘→
-                                               proj₂ ∘→ ∧ᶜ-positive ∘→
-                                               proj₂ ∘→ ∧ᶜ-positive ⟩
+        γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ ≈ᶜ 𝟘ᶜ          →⟨ proj₂ ∘→ +ᶜ-positive ∘→
+                                               proj₂ ∘→ +ᶜ-positive ∘→
+                                               proj₂ ∘→ +ᶜ-positive ⟩
         γ₅ ≈ᶜ 𝟘ᶜ                            →⟨ helper v-n ⊢v ▸v ⟩
         ⊥                                   □ }
       (Kₙ _) _ (K₀ₘ₁ em _ _ _ _ _ _) →

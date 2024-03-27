@@ -572,8 +572,8 @@ module Fundamental
              Jʳ ⊢t ⊢B ⊢u ⊢v ⊢w ⊩B[t,rfl] ⊩B[v,w]
                (begin
                   γ                ≤⟨ γ≤ ⟩
-                  ω ·ᶜ (γ₃ ∧ᶜ γ₄)  ≤⟨ ω·ᶜ-decreasing ⟩
-                  γ₃ ∧ᶜ γ₄         ≤⟨ ∧ᶜ-decreasingʳ _ _ ⟩
+                  ω ·ᶜ (γ₃ +ᶜ γ₄)  ≤⟨ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
+                  ω ·ᶜ γ₄          ≤⟨ ω·ᶜ-decreasing ⟩
                   γ₄               ∎)
                ⊩ʳu
                (inj₁ $ case closed-or-no-erased-matches of λ where
@@ -596,17 +596,18 @@ module Fundamental
                      )))
                (λ x →
                   γ ⟨ x ⟩ PE.≡ 𝟘                                        →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤ ⟩
-                  (ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆)) ⟨ x ⟩ PE.≡ 𝟘      →⟨ ·ᶜ-zero-product-⟨⟩ (γ₂ ∧ᶜ _) ⟩
-                  ω PE.≡ 𝟘 ⊎ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆) ⟨ x ⟩ PE.≡ 𝟘  →⟨ (λ { (inj₁ ω≡𝟘) → ⊥-elim (ω≢𝟘 ω≡𝟘); (inj₂ hyp) → hyp }) ⟩
-                  (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆) ⟨ x ⟩ PE.≡ 𝟘             →⟨ proj₂ ∘→ ∧ᶜ-positive-⟨⟩ γ₅ ∘→
-                                                                           ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 {γ = γ₄ ∧ᶜ _}
+                  (ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆)) ⟨ x ⟩ PE.≡ 𝟘      →⟨ ·ᶜ-zero-product-⟨⟩ (γ₂ +ᶜ _) ⟩
+                  ω PE.≡ 𝟘 ⊎ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆) ⟨ x ⟩ PE.≡ 𝟘  →⟨ (λ { (inj₁ ω≡𝟘) → ⊥-elim (ω≢𝟘 ω≡𝟘); (inj₂ hyp) → hyp }) ⟩
+                  (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆) ⟨ x ⟩ PE.≡ 𝟘             →⟨ proj₂ ∘→ +ᶜ-positive-⟨⟩ γ₅ ∘→
+                                                                           ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 {γ = γ₄ +ᶜ _}
                                                                              (≤ᶜ-reflexive $
                                                                               ≈ᶜ-trans
-                                                                                (≈ᶜ-trans (≈ᶜ-sym (∧ᶜ-assoc _ _ _)) $
-                                                                                 ∧ᶜ-congʳ (∧ᶜ-comm _ _)) $
-                                                                              ∧ᶜ-assoc _ _ _) ∘→
-                                                                           proj₂ ∘→ ∧ᶜ-positive-⟨⟩ γ₃ ∘→
-                                                                           proj₂ ∘→ ∧ᶜ-positive-⟨⟩ γ₂ ⟩
+                                                                                (≈ᶜ-trans (≈ᶜ-sym (+ᶜ-assoc _ _ _)) $
+                                                                                 +ᶜ-congʳ (+ᶜ-comm _ _)) $
+                                                                              +ᶜ-assoc _ _ _) ∘→
+                                                                           proj₂ ∘→ +ᶜ-positive-⟨⟩ γ₃ ∘→
+                                                                           proj₂ ∘→ +ᶜ-positive-⟨⟩ γ₂ ⟩
+                  (γ₄ +ᶜ γ₆) ⟨ x ⟩ PE.≡ 𝟘                               →⟨ +ᶜ-⟨⟩-≡-𝟘-→-∧ᶜ-⟨⟩-≡-𝟘 γ₄ ⟩
                   (γ₄ ∧ᶜ γ₆) ⟨ x ⟩ PE.≡ 𝟘                               □) }) }}}
     where
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
@@ -647,8 +648,9 @@ module Fundamental
                        of λ ()))
                (λ x →
                   γ ⟨ x ⟩ PE.≡ 𝟘                      →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤ ⟩
-                  (ω ·ᶜ (γ₃ ∧ᶜ γ₄)) ⟨ x ⟩ PE.≡ 𝟘      →⟨ ·ᶜ-zero-product-⟨⟩ (γ₃ ∧ᶜ _) ⟩
-                  ω PE.≡ 𝟘 ⊎ (γ₃ ∧ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘  →⟨ (λ { (inj₁ ω≡𝟘) → ⊥-elim (ω≢𝟘 ω≡𝟘); (inj₂ hyp) → hyp }) ⟩
+                  (ω ·ᶜ (γ₃ +ᶜ γ₄)) ⟨ x ⟩ PE.≡ 𝟘      →⟨ ·ᶜ-zero-product-⟨⟩ (γ₃ +ᶜ _) ⟩
+                  ω PE.≡ 𝟘 ⊎ (γ₃ +ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘  →⟨ (λ { (inj₁ ω≡𝟘) → ⊥-elim (ω≢𝟘 ω≡𝟘); (inj₂ hyp) → hyp }) ⟩
+                  (γ₃ +ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘             →⟨ +ᶜ-⟨⟩-≡-𝟘-→-∧ᶜ-⟨⟩-≡-𝟘 γ₃ ⟩
                   (γ₃ ∧ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘             □)
            (invUsageK {γ₂} {γ₃} {γ₄} {γ₅} _ _ _ _ _ ▸u ▸v γ≤) →
              case fundamental′ ⊢u ▸u of λ {
@@ -663,10 +665,11 @@ module Fundamental
                      )))
                (λ x →
                   γ ⟨ x ⟩ PE.≡ 𝟘                                  →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤ ⟩
-                  (ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅)) ⟨ x ⟩ PE.≡ 𝟘      →⟨ ·ᶜ-zero-product-⟨⟩ (γ₂ ∧ᶜ _) ⟩
-                  ω PE.≡ 𝟘 ⊎ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘  →⟨ (λ { (inj₁ ω≡𝟘) → ⊥-elim (ω≢𝟘 ω≡𝟘); (inj₂ hyp) → hyp }) ⟩
-                  (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘             →⟨ proj₂ ∘→ ∧ᶜ-positive-⟨⟩ γ₃ ∘→
-                                                                     proj₂ ∘→ ∧ᶜ-positive-⟨⟩ γ₂ ⟩
+                  (ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅)) ⟨ x ⟩ PE.≡ 𝟘      →⟨ ·ᶜ-zero-product-⟨⟩ (γ₂ +ᶜ _) ⟩
+                  ω PE.≡ 𝟘 ⊎ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘  →⟨ (λ { (inj₁ ω≡𝟘) → ⊥-elim (ω≢𝟘 ω≡𝟘); (inj₂ hyp) → hyp }) ⟩
+                  (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘             →⟨ proj₂ ∘→ +ᶜ-positive-⟨⟩ γ₃ ∘→
+                                                                     proj₂ ∘→ +ᶜ-positive-⟨⟩ γ₂ ⟩
+                  (γ₄ +ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘                         →⟨ +ᶜ-⟨⟩-≡-𝟘-→-∧ᶜ-⟨⟩-≡-𝟘 γ₄ ⟩
                   (γ₄ ∧ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘                         □) }) }}
   fundamental ([]-congⱼ ⊢t ⊢u ⊢v ok) _ =
     []-congʳ
