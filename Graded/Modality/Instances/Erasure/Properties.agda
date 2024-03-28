@@ -60,15 +60,6 @@ private
     rs : Type-restrictions
     us : Usage-restrictions
 
--- Addition on the right is a decreasing function
--- γ + δ ≤ᶜ δ
-
-+-decreasingʳ : (p q : Erasure) → (p + q) ≤ q
-+-decreasingʳ 𝟘 𝟘 = PE.refl
-+-decreasingʳ 𝟘 ω = PE.refl
-+-decreasingʳ ω 𝟘 = PE.refl
-+-decreasingʳ ω ω = PE.refl
-
 -- Addition on the left is a decreasing function
 -- γ +ᶜ δ ≤ᶜ γ
 
@@ -81,7 +72,7 @@ private
 
 +ᶜ-decreasingʳ : (γ δ : Conₘ n) → γ +ᶜ δ ≤ᶜ δ
 +ᶜ-decreasingʳ ε ε = ≤ᶜ-refl
-+ᶜ-decreasingʳ (γ ∙ p) (δ ∙ q) = (+ᶜ-decreasingʳ γ δ) ∙ (+-decreasingʳ p q)
++ᶜ-decreasingʳ (_ ∙ p) (_ ∙ _) = +ᶜ-decreasingʳ _ _ ∙ +-decreasingʳ p
 
 -- Addition is idempotent
 -- γ +ᶜ γ ≡ γ

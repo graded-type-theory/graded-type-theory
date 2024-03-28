@@ -30,7 +30,7 @@ private variable
   M M₁ M₂                : Set _
   𝕄 𝕄₁ 𝕄₂ 𝕄₃             : Modality _
   tr tr₁ tr₂ tr-Σ₁ tr-Σ₂ : M₁ → M₂
-  p q₁ q₂ q₃ q₄ r s      : M
+  p q q₁ q₂ q₃ q₄ r s    : M
 
 ------------------------------------------------------------------------
 -- Morphisms
@@ -242,6 +242,8 @@ record Is-order-embedding
   private
     module M₁ = Modality 𝕄₁
     module M₂ = Modality 𝕄₂
+    module P₁ = Graded.Modality.Properties 𝕄₁
+    module P₂ = Graded.Modality.Properties 𝕄₂
 
   field
     -- The translation tr is a morphism.
@@ -332,9 +334,43 @@ record Is-order-embedding
   tr-injective tr-p≡tr-q = P₁.≤-antisym
     (tr-order-reflecting (P₂.≤-reflexive tr-p≡tr-q))
     (tr-order-reflecting (P₂.≤-reflexive (sym tr-p≡tr-q)))
-    where
-    module P₁ = Graded.Modality.Properties 𝕄₁
-    module P₂ = Graded.Modality.Properties 𝕄₂
+
+  opaque
+
+    -- If the translation of p is bounded by M₂.ω · q, then there is a
+    -- q′ such that the translation of q′ is bounded by q, and p is
+    -- bounded by M₁.ω · q′.
+
+    tr-≤-ω· :
+      tr p M₂.≤ M₂.ω M₂.· q →
+      ∃ λ q′ → tr q′ M₂.≤ q × p M₁.≤ M₁.ω M₁.· q′
+    tr-≤-ω· {p} {q} tr-p≤ωq =
+      tr-≤-· $ begin
+        tr p            ≤⟨ tr-p≤ωq ⟩
+        M₂.ω M₂.· q     ≡˘⟨ M₂.·-congʳ tr-ω ⟩
+        tr M₁.ω M₂.· q  ∎
+      where
+      open Tools.Reasoning.PartialOrder P₂.≤-poset
+
+  opaque
+
+    -- A combination of tr-≤-ω· and tr-≤-+.
+
+    tr-≤-ω·+ :
+      tr p M₂.≤ M₂.ω M₂.· (q M₂.+ r) →
+      ∃₂ λ q′ r′ →
+        tr q′ M₂.≤ q × tr r′ M₂.≤ r × p M₁.≤ M₁.ω M₁.· (q′ M₁.+ r′)
+    tr-≤-ω·+ {p} {q} {r} tr-p≤ω[q+r] =
+      case tr-≤-ω· tr-p≤ω[q+r] of λ
+        (s , tr-s≤q+r , p≤ωs) →
+      case tr-≤-+ tr-s≤q+r of λ
+        (q′ , r′ , tr-q′≤q , tr-r′≤r , s≤q′+r′) →
+      q′ , r′ , tr-q′≤q , tr-r′≤r , (begin
+        p                       ≤⟨ p≤ωs ⟩
+        M₁.ω M₁.· s             ≤⟨ P₁.·-monotoneʳ s≤q′+r′ ⟩
+        M₁.ω M₁.· (q′ M₁.+ r′)  ∎)
+      where
+      open Tools.Reasoning.PartialOrder P₁.≤-poset
 
 -- The property of being a Σ-morphism (with respect to a given
 -- function).

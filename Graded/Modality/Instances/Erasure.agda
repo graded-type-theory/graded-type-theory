@@ -16,6 +16,9 @@ data Erasure : Set where
 
 open import Tools.Algebra Erasure
 
+private variable
+  q : Erasure
+
 infixl 40 _+_
 infixl 40 _∧_
 infixl 45 _·_ _/_
@@ -120,6 +123,16 @@ _≟_ : Decidable (_≡_ {A = Erasure})
 +-decreasingˡ 𝟘 ω = refl
 +-decreasingˡ ω 𝟘 = refl
 +-decreasingˡ ω ω = refl
+
+opaque
+
+  -- The function p +_ is decreasing.
+
+  +-decreasingʳ : (p : Erasure) → p + q ≤ q
+  +-decreasingʳ {q = 𝟘} 𝟘 = refl
+  +-decreasingʳ {q = 𝟘} ω = refl
+  +-decreasingʳ {q = ω} 𝟘 = refl
+  +-decreasingʳ {q = ω} ω = refl
 
 ----------------------------------
 -- Properties of multiplication --

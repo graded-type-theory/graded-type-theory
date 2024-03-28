@@ -185,13 +185,21 @@ limit {p = p} P dec P-p =
 
 L≤M≤H-semiring-with-meet : Semiring-with-meet
 L≤M≤H-semiring-with-meet = record
-  { _+_   = _+_
-  ; _·_   = _·_
-  ; _∧_   = _∧_
-  ; 𝟘     = H
-  ; 𝟙     = L
-  ; ω     = L
-  ; ω≤𝟙   = refl
+  { _+_     = _+_
+  ; _·_     = _·_
+  ; _∧_     = _∧_
+  ; 𝟘       = H
+  ; 𝟙       = L
+  ; ω       = L
+  ; ω≤𝟙     = refl
+  ; ω·+≤ω·ʳ = λ where
+      {p = L}         → refl
+      {p = M} {q = L} → refl
+      {p = M} {q = M} → refl
+      {p = M} {q = H} → refl
+      {p = H} {q = L} → refl
+      {p = H} {q = M} → refl
+      {p = H} {q = H} → refl
   ; is-𝟘? = λ where
       L → no (λ ())
       M → no (λ ())

@@ -433,7 +433,7 @@ data InvUsageJ
     γ₄ ▸[ m ] u →
     γ₅ ▸[ m ] t′ →
     γ₆ ▸[ m ] v →
-    γ ≤ᶜ ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆) →
+    γ ≤ᶜ ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆) →
     InvUsageJ γ m p q A t B u t′ v
   invUsageJ₀₁ :
     {γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ : Conₘ n} →
@@ -446,7 +446,7 @@ data InvUsageJ
     γ₄ ▸[ m ] u →
     γ₅ ▸[ 𝟘ᵐ? ] t′ →
     γ₆ ▸[ 𝟘ᵐ? ] v →
-    γ ≤ᶜ ω ·ᶜ (γ₃ ∧ᶜ γ₄) →
+    γ ≤ᶜ ω ·ᶜ (γ₃ +ᶜ γ₄) →
     InvUsageJ γ m p q A t B u t′ v
   invUsageJ₀₂ :
     {γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ : Conₘ n} →
@@ -492,7 +492,7 @@ data InvUsageK
     γ₃ ∙ ⌜ m ⌝ · p ▸[ m ] B →
     γ₄ ▸[ m ] u →
     γ₅ ▸[ m ] v →
-    γ ≤ᶜ ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅) →
+    γ ≤ᶜ ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅) →
     InvUsageK γ m p A t B u v
   invUsageK₀₁ :
     {γ₁ γ₂ γ₃ γ₄ γ₅ : Conₘ n} →
@@ -503,7 +503,7 @@ data InvUsageK
     γ₃ ∙ 𝟘 ▸[ m ] B →
     γ₄ ▸[ m ] u →
     γ₅ ▸[ 𝟘ᵐ? ] v →
-    γ ≤ᶜ ω ·ᶜ (γ₃ ∧ᶜ γ₄) →
+    γ ≤ᶜ ω ·ᶜ (γ₃ +ᶜ γ₄) →
     InvUsageK γ m p A t B u v
   invUsageK₀₂ :
     {γ₁ γ₂ γ₃ γ₄ γ₅ : Conₘ n} →

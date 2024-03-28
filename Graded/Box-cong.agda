@@ -150,8 +150,8 @@ opaque
                    𝟘ᶜ +ᶜ 𝟘ᶜ  ∎))
             ▸t ▸u ▸v rflₘ)
         (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-           𝟘ᶜ               ≈˘⟨ ω·ᶜ⋀ᶜ²𝟘ᶜ ⟩
-           ω ·ᶜ (𝟘ᶜ ∧ᶜ 𝟘ᶜ)  ∎)
+           𝟘ᶜ               ≈˘⟨ ω·ᶜ+ᶜ²𝟘ᶜ ⟩
+           ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ)  ∎)
       (none , ≡none) →
         case PE.trans (PE.sym ≡not-none) ≡none of λ ()
     where

@@ -173,6 +173,7 @@ unit-semiring-with-meet = record
   ; 𝟙 = tt
   ; ω = tt
   ; ω≤𝟙 = refl
+  ; ω·+≤ω·ʳ = refl
   ; is-𝟘? = _≟ tt
   ; +-·-Semiring = +-+-Semiring
   ; ∧-Semilattice = +-Semilattice

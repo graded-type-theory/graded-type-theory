@@ -188,12 +188,12 @@ neNeg {γ} (Jⱼ {A} {t} {B} {v} {w} _ ⊢t _ _ ⊢v ⊢w) (Jₙ w-ne) ▸J =
   case inv-usage-J ▸J of λ where
     (invUsageJ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} _ _ _ _ _ _ _ ▸w γ≤) →
       NegativeErasedContext Γ γ                                    →⟨ NegativeErasedContext-upwards-closed γ≤ ⟩
-      NegativeErasedContext Γ (ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆))  →⟨ NegativeErasedContext-upwards-closed ω·ᶜ-decreasing ⟩
-      NegativeErasedContext Γ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅ ∧ᶜ γ₆)         →⟨ NegativeErasedContext-upwards-closed $
-                                                                      ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
-                                                                      ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
-                                                                      ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
-                                                                      ∧ᶜ-decreasingʳ _ _ ⟩
+      NegativeErasedContext Γ (ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆))  →⟨ NegativeErasedContext-upwards-closed $
+                                                                      ≤ᶜ-trans ω·ᶜ+ᶜ≤ω·ᶜʳ $
+                                                                      ≤ᶜ-trans ω·ᶜ+ᶜ≤ω·ᶜʳ $
+                                                                      ≤ᶜ-trans ω·ᶜ+ᶜ≤ω·ᶜʳ
+                                                                      ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
+      NegativeErasedContext Γ (ω ·ᶜ γ₆)                            →⟨ NegativeErasedContext-upwards-closed ω·ᶜ-decreasing ⟩
       NegativeErasedContext Γ γ₆                                   →⟨ neNeg ⊢w w-ne ▸w ⟩
       NegativeType Γ (Id A t v)                                    →⟨ flip ¬negId (refl (Idⱼ ⊢t ⊢v)) ⟩
       ⊥                                                            →⟨ ⊥-elim ⟩
@@ -212,11 +212,11 @@ neNeg {γ} (Kⱼ {t} {A} {B} {v} ⊢t _ _ ⊢v ok) (Kₙ v-ne) ▸K =
   case inv-usage-K ▸K of λ where
     (invUsageK {γ₂} {γ₃} {γ₄} {γ₅} _ _ _ _ _ _ ▸v γ≤) →
       NegativeErasedContext Γ γ                              →⟨ NegativeErasedContext-upwards-closed γ≤ ⟩
-      NegativeErasedContext Γ (ω ·ᶜ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅))  →⟨ NegativeErasedContext-upwards-closed ω·ᶜ-decreasing ⟩
-      NegativeErasedContext Γ (γ₂ ∧ᶜ γ₃ ∧ᶜ γ₄ ∧ᶜ γ₅)         →⟨ NegativeErasedContext-upwards-closed $
-                                                                ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
-                                                                ≤ᶜ-trans (∧ᶜ-decreasingʳ _ _) $
-                                                                ∧ᶜ-decreasingʳ _ _ ⟩
+      NegativeErasedContext Γ (ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅))  →⟨ NegativeErasedContext-upwards-closed $
+                                                                ≤ᶜ-trans ω·ᶜ+ᶜ≤ω·ᶜʳ $
+                                                                ≤ᶜ-trans ω·ᶜ+ᶜ≤ω·ᶜʳ
+                                                                ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
+      NegativeErasedContext Γ (ω ·ᶜ γ₅)                      →⟨ NegativeErasedContext-upwards-closed ω·ᶜ-decreasing ⟩
       NegativeErasedContext Γ γ₅                             →⟨ neNeg ⊢v v-ne ▸v ⟩
       NegativeType Γ (Id A t t)                              →⟨ flip ¬negId (refl (Idⱼ ⊢t ⊢t)) ⟩
       ⊥                                                      →⟨ ⊥-elim ⟩

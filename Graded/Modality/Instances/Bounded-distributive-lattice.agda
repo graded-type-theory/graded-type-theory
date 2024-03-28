@@ -3,6 +3,8 @@
 -- equality with ⊤ is decidable)
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 module Graded.Modality.Instances.Bounded-distributive-lattice
   {a} (M : Set a)
   where
@@ -17,6 +19,9 @@ open import Tools.Product
 open import Tools.PropositionalEquality
 import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
+
+private variable
+  p q : M
 
 -- Bounded, distributive lattices over M.
 
@@ -69,6 +74,7 @@ semiring-with-meet bl is-⊤? = record
   ; 𝟙             = ⊥
   ; ω             = ⊥
   ; ω≤𝟙           = ⊥≤ _
+  ; ω·+≤ω·ʳ       = ⊥∨∧≤⊥∨ʳ
   ; is-𝟘?         = is-⊤?
   ; +-·-Semiring  = record
     { isSemiringWithoutAnnihilatingZero = record
@@ -125,6 +131,16 @@ semiring-with-meet bl is-⊤? = record
     ⊤ ∨ (p ∧ ⊤)  ≡⟨ cong (_ ∨_) (∧-comm _ _) ⟩
     ⊤ ∨ (⊤ ∧ p)  ≡⟨ ∨-absorbs-∧ _ _ ⟩
     ⊤            ∎
+
+  opaque
+
+    ⊥∨∧≤⊥∨ʳ : ⊥ ∨ (p ∧ q) ≤ ⊥ ∨ q
+    ⊥∨∧≤⊥∨ʳ {p} {q} =
+      ⊥ ∨ (p ∧ q)              ≡⟨ ∨-identityˡ _ ⟩
+      p ∧ q                    ≡˘⟨ cong (_ ∧_) (∧-idem _) ⟩
+      p ∧ (q ∧ q)              ≡˘⟨ ∧-assoc _ _ _ ⟩
+      (p ∧ q) ∧ q              ≡˘⟨ cong₂ _∧_ (∨-identityˡ _) (∨-identityˡ _) ⟩
+      (⊥ ∨ (p ∧ q)) ∧ (⊥ ∨ q)  ∎
 
 -- One can define natrec-star operators for bounded, distributive
 -- lattices (if equality with ⊤ is decidable).

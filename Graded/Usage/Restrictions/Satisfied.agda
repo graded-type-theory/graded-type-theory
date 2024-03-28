@@ -694,14 +694,14 @@ opaque
            (lemma v-ok)
            (lemma w-ok))
         (begin
-           𝟘ᶜ                                 ≈˘⟨ ω·ᶜ⋀ᶜ⁵𝟘ᶜ ⟩
-           ω ·ᶜ (𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ)  ∎)
+           𝟘ᶜ                                 ≈˘⟨ ω·ᶜ+ᶜ⁵𝟘ᶜ ⟩
+           ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ)  ∎)
       (J₀ᵤ₁ ok p≡𝟘 q≡𝟘 A-ok t-ok B-ok u-ok v-ok w-ok) → sub
         (J₀ₘ₁ ok p≡𝟘 q≡𝟘 (lemma-𝟘ᵐ? A-ok) (lemma-𝟘ᵐ? t-ok) (lemma B-ok)
            (lemma u-ok) (lemma-𝟘ᵐ? v-ok) (lemma-𝟘ᵐ? w-ok))
         (begin
-           𝟘ᶜ               ≈˘⟨ ω·ᶜ⋀ᶜ²𝟘ᶜ ⟩
-           ω ·ᶜ (𝟘ᶜ ∧ᶜ 𝟘ᶜ)  ∎)
+           𝟘ᶜ               ≈˘⟨ ω·ᶜ+ᶜ²𝟘ᶜ ⟩
+           ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ)  ∎)
       (J₀ᵤ₂ {p} {q} ok A-ok t-ok B-ok u-ok v-ok w-ok) →
         J₀ₘ₂ ok
           (lemma-𝟘ᵐ? A-ok)
@@ -723,14 +723,14 @@ opaque
            (lemma u-ok)
            (lemma v-ok))
         (begin
-           𝟘ᶜ                           ≈˘⟨ ω·ᶜ⋀ᶜ⁴𝟘ᶜ ⟩
-           ω ·ᶜ (𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ)  ∎)
+           𝟘ᶜ                           ≈˘⟨ ω·ᶜ+ᶜ⁴𝟘ᶜ ⟩
+           ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ)  ∎)
       (K₀ᵤ₁ ok p≡𝟘 A-ok t-ok B-ok u-ok v-ok) → sub
         (K₀ₘ₁ ok p≡𝟘 (lemma-𝟘ᵐ? A-ok) (lemma-𝟘ᵐ? t-ok) (lemma B-ok)
            (lemma u-ok) (lemma-𝟘ᵐ? v-ok))
         (begin
-           𝟘ᶜ               ≈˘⟨ ω·ᶜ⋀ᶜ²𝟘ᶜ ⟩
-           ω ·ᶜ (𝟘ᶜ ∧ᶜ 𝟘ᶜ)  ∎)
+           𝟘ᶜ               ≈˘⟨ ω·ᶜ+ᶜ²𝟘ᶜ ⟩
+           ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ)  ∎)
       (K₀ᵤ₂ {p} ok A-ok t-ok B-ok u-ok v-ok) →
         K₀ₘ₂ ok
           (lemma-𝟘ᵐ? A-ok)
