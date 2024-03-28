@@ -1,0 +1,39 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Graded.Derived.Erased.NoEta.Untyped</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- The type constructor Erased, defined using Σ and Unit types without</a>
+<a id="145" class="Comment">-- η-equality.</a>
+<a id="160" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="234" class="Keyword">open</a> <a id="239" class="Keyword">import</a> <a id="246" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+
+<a id="263" class="Keyword">module</a> <a id="270" href="Graded.Derived.Erased.NoEta.Untyped.html" class="Module">Graded.Derived.Erased.NoEta.Untyped</a>
+  <a id="308" class="Symbol">{</a><a id="309" href="Graded.Derived.Erased.NoEta.Untyped.html#309" class="Bound">a</a><a id="310" class="Symbol">}</a> <a id="312" class="Symbol">{</a><a id="313" href="Graded.Derived.Erased.NoEta.Untyped.html#313" class="Bound">M</a> <a id="315" class="Symbol">:</a> <a id="317" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="321" href="Graded.Derived.Erased.NoEta.Untyped.html#309" class="Bound">a</a><a id="322" class="Symbol">}</a>
+  <a id="326" class="Symbol">(</a><a id="327" href="Graded.Derived.Erased.NoEta.Untyped.html#327" class="Bound">𝕄</a> <a id="329" class="Symbol">:</a> <a id="331" href="Graded.Modality.html#7187" class="Record">Modality</a> <a id="340" href="Graded.Derived.Erased.NoEta.Untyped.html#313" class="Bound">M</a><a id="341" class="Symbol">)</a>
+  <a id="345" class="Keyword">where</a>
+
+<a id="352" class="Keyword">open</a> <a id="357" href="Graded.Modality.html#7187" class="Module">Modality</a> <a id="366" href="Graded.Derived.Erased.NoEta.Untyped.html#327" class="Bound">𝕄</a>
+
+<a id="369" class="Keyword">open</a> <a id="374" class="Keyword">import</a> <a id="381" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="400" href="Graded.Derived.Erased.NoEta.Untyped.html#313" class="Bound">M</a>
+<a id="402" class="Keyword">open</a> <a id="407" class="Keyword">import</a> <a id="414" href="Definition.Untyped.Sigma.html" class="Module">Definition.Untyped.Sigma</a> <a id="439" href="Graded.Derived.Erased.NoEta.Untyped.html#327" class="Bound">𝕄</a>
+
+<a id="442" class="Keyword">open</a> <a id="447" class="Keyword">import</a> <a id="454" href="Tools.Fin.html" class="Module">Tools.Fin</a>
+<a id="464" class="Keyword">open</a> <a id="469" class="Keyword">import</a> <a id="476" href="Tools.Nat.html" class="Module">Tools.Nat</a>
+<a id="486" class="Keyword">open</a> <a id="491" class="Keyword">import</a> <a id="498" href="Tools.PropositionalEquality.html" class="Module">Tools.PropositionalEquality</a>
+
+<a id="527" class="Keyword">private</a> <a id="535" class="Keyword">variable</a>
+  <a id="546" href="Graded.Derived.Erased.NoEta.Untyped.html#546" class="Generalizable">n</a> <a id="548" class="Symbol">:</a> <a id="550" href="Agda.Builtin.Nat.html#203" class="Datatype">Nat</a>
+  <a id="556" href="Graded.Derived.Erased.NoEta.Untyped.html#556" class="Generalizable">σ</a> <a id="558" class="Symbol">:</a> <a id="560" href="Definition.Untyped.html#15962" class="Function">Subst</a> <a id="566" class="Symbol">_</a> <a id="568" class="Symbol">_</a>
+
+<a id="571" class="Comment">-- The &quot;projection&quot; erased.</a>
+
+<a id="erased"></a><a id="600" href="Graded.Derived.Erased.NoEta.Untyped.html#600" class="Function">erased</a> <a id="607" class="Symbol">:</a> <a id="609" href="Definition.Untyped.html#2457" class="Datatype">Term</a> <a id="614" href="Graded.Derived.Erased.NoEta.Untyped.html#546" class="Generalizable">n</a> <a id="616" class="Symbol">→</a> <a id="618" href="Definition.Untyped.html#2457" class="Datatype">Term</a> <a id="623" href="Graded.Derived.Erased.NoEta.Untyped.html#546" class="Generalizable">n</a> <a id="625" class="Symbol">→</a> <a id="627" href="Definition.Untyped.html#2457" class="Datatype">Term</a> <a id="632" href="Graded.Derived.Erased.NoEta.Untyped.html#546" class="Generalizable">n</a>
+<a id="634" href="Graded.Derived.Erased.NoEta.Untyped.html#600" class="Function">erased</a> <a id="641" class="Symbol">=</a> <a id="643" href="Definition.Untyped.Sigma.html#1975" class="Function">fstʷ</a> <a id="648" href="Graded.Modality.html#847" class="Function">𝟘</a>
+
+<a id="651" class="Keyword">opaque</a>
+
+  <a id="661" class="Comment">-- A substitution lemma for erased.</a>
+
+  <a id="erased-[]"></a><a id="700" href="Graded.Derived.Erased.NoEta.Untyped.html#700" class="Function">erased-[]</a> <a id="710" class="Symbol">:</a>
+    <a id="716" class="Symbol">(</a><a id="717" href="Graded.Derived.Erased.NoEta.Untyped.html#717" class="Bound">A</a> <a id="719" href="Graded.Derived.Erased.NoEta.Untyped.html#719" class="Bound">t</a> <a id="721" class="Symbol">:</a> <a id="723" href="Definition.Untyped.html#2457" class="Datatype">Term</a> <a id="728" href="Graded.Derived.Erased.NoEta.Untyped.html#546" class="Generalizable">n</a><a id="729" class="Symbol">)</a> <a id="731" class="Symbol">→</a> <a id="733" href="Graded.Derived.Erased.NoEta.Untyped.html#600" class="Function">erased</a> <a id="740" href="Graded.Derived.Erased.NoEta.Untyped.html#717" class="Bound">A</a> <a id="742" href="Graded.Derived.Erased.NoEta.Untyped.html#719" class="Bound">t</a> <a id="744" href="Definition.Untyped.html#18134" class="Function Operator">[</a> <a id="746" href="Graded.Derived.Erased.NoEta.Untyped.html#556" class="Generalizable">σ</a> <a id="748" href="Definition.Untyped.html#18134" class="Function Operator">]</a> <a id="750" href="Agda.Builtin.Equality.html#150" class="Datatype Operator">≡</a> <a id="752" href="Graded.Derived.Erased.NoEta.Untyped.html#600" class="Function">erased</a> <a id="759" class="Symbol">(</a><a id="760" href="Graded.Derived.Erased.NoEta.Untyped.html#717" class="Bound">A</a> <a id="762" href="Definition.Untyped.html#18134" class="Function Operator">[</a> <a id="764" href="Graded.Derived.Erased.NoEta.Untyped.html#556" class="Generalizable">σ</a> <a id="766" href="Definition.Untyped.html#18134" class="Function Operator">]</a><a id="767" class="Symbol">)</a> <a id="769" class="Symbol">(</a><a id="770" href="Graded.Derived.Erased.NoEta.Untyped.html#719" class="Bound">t</a> <a id="772" href="Definition.Untyped.html#18134" class="Function Operator">[</a> <a id="774" href="Graded.Derived.Erased.NoEta.Untyped.html#556" class="Generalizable">σ</a> <a id="776" href="Definition.Untyped.html#18134" class="Function Operator">]</a><a id="777" class="Symbol">)</a>
+  <a id="781" href="Graded.Derived.Erased.NoEta.Untyped.html#700" class="Function">erased-[]</a> <a id="791" class="Symbol">=</a> <a id="793" href="Definition.Untyped.Sigma.html#2283" class="Function">fstʷ-[]</a>
+</pre></body></html>

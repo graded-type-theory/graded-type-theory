@@ -1,0 +1,27 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Graded.Derived.Erased.Eta.Untyped</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- The type constructor Erased, defined using Σ and Unit types with</a>
+<a id="142" class="Comment">-- η-equality.</a>
+<a id="157" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="231" class="Keyword">open</a> <a id="236" class="Keyword">import</a> <a id="243" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+
+<a id="260" class="Keyword">module</a> <a id="267" href="Graded.Derived.Erased.Eta.Untyped.html" class="Module">Graded.Derived.Erased.Eta.Untyped</a>
+  <a id="303" class="Symbol">{</a><a id="304" href="Graded.Derived.Erased.Eta.Untyped.html#304" class="Bound">a</a><a id="305" class="Symbol">}</a> <a id="307" class="Symbol">{</a><a id="308" href="Graded.Derived.Erased.Eta.Untyped.html#308" class="Bound">M</a> <a id="310" class="Symbol">:</a> <a id="312" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="316" href="Graded.Derived.Erased.Eta.Untyped.html#304" class="Bound">a</a><a id="317" class="Symbol">}</a>
+  <a id="321" class="Symbol">(</a><a id="322" href="Graded.Derived.Erased.Eta.Untyped.html#322" class="Bound">𝕄</a> <a id="324" class="Symbol">:</a> <a id="326" href="Graded.Modality.html#7187" class="Record">Modality</a> <a id="335" href="Graded.Derived.Erased.Eta.Untyped.html#308" class="Bound">M</a><a id="336" class="Symbol">)</a>
+  <a id="340" class="Keyword">where</a>
+
+<a id="347" class="Keyword">open</a> <a id="352" href="Graded.Modality.html#7187" class="Module">Modality</a> <a id="361" href="Graded.Derived.Erased.Eta.Untyped.html#322" class="Bound">𝕄</a>
+
+<a id="364" class="Keyword">open</a> <a id="369" class="Keyword">import</a> <a id="376" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="395" href="Graded.Derived.Erased.Eta.Untyped.html#308" class="Bound">M</a>
+
+<a id="398" class="Keyword">open</a> <a id="403" class="Keyword">import</a> <a id="410" href="Tools.Nat.html" class="Module">Tools.Nat</a>
+
+<a id="421" class="Keyword">private</a> <a id="429" class="Keyword">variable</a>
+  <a id="440" href="Graded.Derived.Erased.Eta.Untyped.html#440" class="Generalizable">n</a> <a id="442" class="Symbol">:</a> <a id="444" href="Agda.Builtin.Nat.html#203" class="Datatype">Nat</a>
+
+<a id="449" class="Comment">-- The projection erased.</a>
+
+<a id="erased"></a><a id="476" href="Graded.Derived.Erased.Eta.Untyped.html#476" class="Function">erased</a> <a id="483" class="Symbol">:</a> <a id="485" href="Definition.Untyped.html#2457" class="Datatype">Term</a> <a id="490" href="Graded.Derived.Erased.Eta.Untyped.html#440" class="Generalizable">n</a> <a id="492" class="Symbol">→</a> <a id="494" href="Definition.Untyped.html#2457" class="Datatype">Term</a> <a id="499" href="Graded.Derived.Erased.Eta.Untyped.html#440" class="Generalizable">n</a>
+<a id="501" href="Graded.Derived.Erased.Eta.Untyped.html#476" class="Function">erased</a> <a id="508" href="Graded.Derived.Erased.Eta.Untyped.html#508" class="Bound">t</a> <a id="510" class="Symbol">=</a> <a id="512" href="Definition.Untyped.html#3959" class="InductiveConstructor">fst</a> <a id="516" href="Graded.Modality.html#847" class="Function">𝟘</a> <a id="518" href="Graded.Derived.Erased.Eta.Untyped.html#508" class="Bound">t</a>
+</pre></body></html>
