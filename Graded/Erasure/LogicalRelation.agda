@@ -62,7 +62,7 @@ data _®_∷U (t : U.Term k) (v : T.Term k) : Set a where
 
 -- Terms of type ℕ are related if both reduce to zero or if both
 -- reduce to the successors of related terms (in the strict setting
--- the reduct has to be a numeral).
+-- the target term's reduct has to be a numeral).
 
 data _®_∷ℕ (t : U.Term k) (v : T.Term k) : Set a where
   zeroᵣ : Δ ⊢ t ⇒* U.zero ∷ ℕ → v T.⇒* T.zero →
