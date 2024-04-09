@@ -17,7 +17,7 @@
 --
 --   (λ^ω _. zero)
 --     (λ⁰ (bot : ⊥).
---        (λ^ω x. cast bot x x) (cast bot (λ^ω x. cast bot x x)))
+--        (λ^ω+ω x. cast bot x x) (cast bot (λ^ω+ω x. cast bot x x)))
 --
 -- If erased arguments are removed entirely, then we end up with a
 -- term like the following one:
@@ -104,11 +104,11 @@ opaque
 
   -- Another lemma used below.
 
-  ▸Πℕℕ : p ≤ 𝟘 → 𝟘ᶜ {n = n} ▸[ 𝟙ᵐ ] Π ω , p ▷ ℕ ▹ ℕ
-  ▸Πℕℕ {p} p≤𝟘 = sub
+  ▸Πℕℕ : q ≤ 𝟘 → 𝟘ᶜ {n = n} ▸[ 𝟙ᵐ ] Π p , q ▷ ℕ ▹ ℕ
+  ▸Πℕℕ {q} q≤𝟘 = sub
     (ΠΣₘ ℕₘ $ sub ℕₘ $ begin
-        𝟘ᶜ ∙ 𝟙 · p  ≈⟨ ≈ᶜ-refl ∙ ·-identityˡ _ ⟩
-        𝟘ᶜ ∙ p      ≤⟨ ≤ᶜ-refl ∙ p≤𝟘 ⟩
+        𝟘ᶜ ∙ 𝟙 · q  ≈⟨ ≈ᶜ-refl ∙ ·-identityˡ _ ⟩
+        𝟘ᶜ ∙ q      ≤⟨ ≤ᶜ-refl ∙ q≤𝟘 ⟩
         𝟘ᶜ          ∎)
     (begin
        𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
@@ -193,7 +193,8 @@ opaque
 
   λx∙xx : M → Term (1+ n)
   λx∙xx p =
-    lam ω $ cast (var x1) ℕ (Π ω , p ▷ ℕ ▹ ℕ) (var x0) ∘⟨ ω ⟩ var x0
+    lam (ω + ω) $
+    cast (var x1) ℕ (Π ω , p ▷ ℕ ▹ ℕ) (var x0) ∘⟨ ω ⟩ var x0
 
 opaque
   unfolding λx∙xx
@@ -201,11 +202,11 @@ opaque
   -- An extraction lemma for λx∙xx.
 
   erase-λx∙xx :
-    ω ≢ 𝟘 →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
     erase′ b s (λx∙xx {n = n} p) ≡
     T.lam (T.var x0 T.∘⟨ s ⟩ T.var x0)
-  erase-λx∙xx {b} {s} {p} ω≢𝟘 =
-    erase′ b s (λx∙xx p)                                          ≡⟨ lam-≢𝟘 b ω≢𝟘 ⟩
+  erase-λx∙xx {b} {s} {p} =
+    erase′ b s (λx∙xx p)                                          ≡⟨ lam-≢𝟘 b (ω≢𝟘 ∘→ proj₁ ∘→ +-positive) ⟩
 
     T.lam
       (erase′ b s $
@@ -227,10 +228,11 @@ opaque
 
   ⊢λx∙xx :
     Π-allowed ω p →
+    Π-allowed (ω + ω) p →
     ⊢ Γ →
-    Γ ∙ Empty ⊢ λx∙xx p ∷ Π ω , p ▷ ℕ ▹ ℕ
-  ⊢λx∙xx ω-ok ⊢Γ =
-    lamⱼ′ ω-ok $
+    Γ ∙ Empty ⊢ λx∙xx p ∷ Π (ω + ω) , p ▷ ℕ ▹ ℕ
+  ⊢λx∙xx ω-ok ω+ω-ok ⊢Γ =
+    lamⱼ′ ω+ω-ok $
     ⊢cast (var₁ Empty⊢ℕ) Empty∙ℕ⊢ℕ∷U
       (ΠΣⱼ Empty∙ℕ⊢ℕ∷U Empty∙ℕ∙ℕ⊢ℕ∷U ω-ok) (var₀ Empty⊢ℕ) ∘ⱼ
     var₀ Empty⊢ℕ
@@ -244,13 +246,11 @@ opaque
 
   ▸λx∙xx :
     Emptyrec-allowed 𝟙ᵐ 𝟘 →
-    ω ≤ ω + ω →
     p ≤ 𝟘 →
     𝟘ᶜ ▸[ 𝟙ᵐ ] λx∙xx {n = n} p
-  ▸λx∙xx {p} ok ω≤ω+ω p≤𝟘 =
+  ▸λx∙xx {p} ok p≤𝟘 =
     lamₘ $ sub (▸cast ok var ℕₘ (▸Πℕℕ p≤𝟘) var ∘ₘ var) $ begin
-      𝟘ᶜ ∙ 𝟙 · ω                                            ≈⟨ ≈ᶜ-refl ∙ ·-identityˡ _ ⟩
-      𝟘ᶜ ∙ ω                                                ≤⟨ ≤ᶜ-refl ∙ ω≤ω+ω ⟩
+      𝟘ᶜ ∙ 𝟙 · (ω + ω)                                      ≈⟨ ≈ᶜ-refl ∙ ·-identityˡ _ ⟩
       𝟘ᶜ ∙ ω + ω                                            ≈˘⟨ (≈ᶜ-trans (+ᶜ-cong (·ᶜ-zeroʳ _) (·ᶜ-zeroʳ _)) $
                                                                  +ᶜ-identityˡ _) ∙
                                                                 +-cong (·-identityʳ _) ·⌜⌞⌟⌝ ⟩
@@ -273,7 +273,8 @@ opaque
 
   extracts-to-loop : M → Term n
   extracts-to-loop p =
-    lam 𝟘 (λx∙xx p ∘⟨ ω ⟩ cast (var x0) (Π ω , p ▷ ℕ ▹ ℕ) ℕ (λx∙xx p))
+    lam 𝟘 $
+    λx∙xx p ∘⟨ ω + ω ⟩ cast (var x0) (Π (ω + ω) , p ▷ ℕ ▹ ℕ) ℕ (λx∙xx p)
 
 opaque
   unfolding extracts-to-loop loop
@@ -281,26 +282,27 @@ opaque
   -- An extraction lemma for extracts-to-loop.
 
   erase-extracts-to-loop :
-    ω ≢ 𝟘 →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
     erase′ true s (extracts-to-loop {n = n} p) ≡ loop s
-  erase-extracts-to-loop {s} {p} ω≢𝟘 =
-    erase′ true s (extracts-to-loop p)                              ≡⟨ lam-𝟘-remove ⟩
+  erase-extracts-to-loop {s} {p} =
+    erase′ true s (extracts-to-loop p)                       ≡⟨ lam-𝟘-remove ⟩
 
     erase′ true s
-      (λx∙xx p ∘⟨ ω ⟩ cast (var x0) (Π ω , p ▷ ℕ ▹ ℕ) ℕ (λx∙xx p))
-      T.[ loop? s ]₀                                                ≡⟨ PE.cong T._[ _ ] $
-                                                                       ∘-≢𝟘 ω≢𝟘 ⟩
+      (λx∙xx p ∘⟨ ω + ω ⟩
+       cast (var x0) (Π (ω + ω) , p ▷ ℕ ▹ ℕ) ℕ (λx∙xx p))
+      T.[ loop? s ]₀                                         ≡⟨ PE.cong T._[ _ ] $
+                                                                ∘-≢𝟘 (ω≢𝟘 ∘→ proj₁ ∘→ +-positive) ⟩
     erase′ true s (λx∙xx p) T.∘⟨ s ⟩
       erase′ true s
-        (cast (var x0) (Π ω , p ▷ ℕ ▹ ℕ) ℕ (λx∙xx p))
-      T.[ loop? s ]₀                                                ≡⟨ PE.cong
-                                                                         (λ t → erase′ _ _ (λx∙xx _) T.∘⟨ _ ⟩ t T.[ _ ])
-                                                                         erase-cast ⟩
+        (cast (var x0) (Π (ω + ω) , p ▷ ℕ ▹ ℕ) ℕ (λx∙xx p))
+      T.[ loop? s ]₀                                         ≡⟨ PE.cong
+                                                                  (λ t → erase′ _ _ (λx∙xx _) T.∘⟨ _ ⟩ t T.[ _ ])
+                                                                  erase-cast ⟩
     erase′ true s (λx∙xx p) T.∘⟨ s ⟩
       erase′ true s (λx∙xx p)
-      T.[ loop? s ]₀                                                ≡⟨ PE.cong (λ t → t T.∘⟨ _ ⟩ t T.[ _ ]) $
-                                                                       erase-λx∙xx ω≢𝟘 ⟩
-    loop s                                                          ∎
+      T.[ loop? s ]₀                                         ≡⟨ PE.cong (λ t → t T.∘⟨ _ ⟩ t T.[ _ ])
+                                                                erase-λx∙xx ⟩
+    loop s                                                   ∎
     where
     open Tools.Reasoning.PropositionalEquality
 
@@ -312,13 +314,14 @@ opaque
   ⊢extracts-to-loop :
     Π-allowed 𝟘 p →
     Π-allowed ω q →
+    Π-allowed (ω + ω) q →
     ⊢ Γ →
     Γ ⊢ extracts-to-loop q ∷ Π 𝟘 , p ▷ Empty ▹ ℕ
-  ⊢extracts-to-loop 𝟘-ok ω-ok ⊢Γ =
+  ⊢extracts-to-loop 𝟘-ok ω-ok ω+ω-ok ⊢Γ =
     lamⱼ′ 𝟘-ok $
-    ⊢λx∙xx ω-ok ⊢Γ ∘ⱼ
-    ⊢cast (var₀ (Emptyⱼ ⊢Γ)) (ΠΣⱼ Empty⊢ℕ∷U Empty∙ℕ⊢ℕ∷U ω-ok) Empty⊢ℕ∷U
-      (⊢λx∙xx ω-ok ⊢Γ)
+    ⊢λx∙xx ω-ok ω+ω-ok ⊢Γ ∘ⱼ
+    ⊢cast (var₀ (Emptyⱼ ⊢Γ)) (ΠΣⱼ Empty⊢ℕ∷U Empty∙ℕ⊢ℕ∷U ω+ω-ok)
+      Empty⊢ℕ∷U (⊢λx∙xx ω-ok ω+ω-ok ⊢Γ)
     where
     open Lemmas ⊢Γ
 
@@ -328,15 +331,14 @@ opaque
   -- A usage rule for extracts-to-loop.
 
   ▸extracts-to-loop :
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
     Emptyrec-allowed 𝟙ᵐ 𝟘 →
-    ω ≢ 𝟘 →
-    ω ≤ ω + ω →
     p ≤ 𝟘 →
     𝟘ᶜ ▸[ 𝟙ᵐ ] extracts-to-loop {n = n} p
-  ▸extracts-to-loop {p} {n} ok ω≢𝟘 ω≤ω+ω p≤𝟘 = lamₘ $ sub
+  ▸extracts-to-loop {p} {n} ok p≤𝟘 = lamₘ $ sub
     (▸λx∙xx′ ∘ₘ
      sub
-       (▸-cong (PE.sym $ ≢𝟘→⌞⌟≡𝟙ᵐ ω≢𝟘) $
+       (▸-cong (PE.sym $ ≢𝟘→⌞⌟≡𝟙ᵐ $ ω≢𝟘 ∘→ proj₁ ∘→ +-positive) $
         ▸cast ok var (▸Πℕℕ p≤𝟘) ℕₘ ▸λx∙xx′)
      (let open ≤ᶜ-reasoning in begin
         𝟘ᶜ                     ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
@@ -345,13 +347,13 @@ opaque
                                    +ᶜ-identityˡ _ ⟩
         ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ)  ∎))
     (let open ≤ᶜ-reasoning in begin
-       𝟘ᶜ ∙ 𝟙 · 𝟘     ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
-       𝟘ᶜ             ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
-       ω ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityˡ _ ⟩
-       𝟘ᶜ +ᶜ ω ·ᶜ 𝟘ᶜ  ∎)
+       𝟘ᶜ ∙ 𝟙 · 𝟘           ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+       𝟘ᶜ                   ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
+       (ω + ω) ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityˡ _ ⟩
+       𝟘ᶜ +ᶜ (ω + ω) ·ᶜ 𝟘ᶜ  ∎)
     where
     ▸λx∙xx′ : 𝟘ᶜ ▸[ 𝟙ᵐ ] λx∙xx {n = n} p
-    ▸λx∙xx′ = ▸λx∙xx ok ω≤ω+ω p≤𝟘
+    ▸λx∙xx′ = ▸λx∙xx ok p≤𝟘
 
 ------------------------------------------------------------------------
 -- The term former loops
@@ -371,15 +373,15 @@ opaque
   -- An extraction lemma for loops.
 
   erase-loops :
-    ω ≢ 𝟘 →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
     erase′ true s (loops {n = n} p) ≡
     T.lam T.zero T.∘⟨ s ⟩ loop s
-  erase-loops {s} {p} ω≢𝟘 =
+  erase-loops {s} {p} =
     erase′ true s (lam ω zero ∘⟨ ω ⟩ extracts-to-loop p)  ≡⟨ ∘-≢𝟘 ω≢𝟘 ⟩
 
     erase′ true s (lam ω zero) T.∘⟨ s ⟩
-    erase′ true s (extracts-to-loop p)                    ≡⟨ PE.cong₂ T._∘⟨ _ ⟩_ (lam-≢𝟘 _ ω≢𝟘) $
-                                                             erase-extracts-to-loop ω≢𝟘 ⟩
+    erase′ true s (extracts-to-loop p)                    ≡⟨ PE.cong₂ T._∘⟨ _ ⟩_ (lam-≢𝟘 _ ω≢𝟘)
+                                                             erase-extracts-to-loop ⟩
     T.lam T.zero T.∘⟨ s ⟩ loop s                          ∎
     where
     open Tools.Reasoning.PropositionalEquality
@@ -391,11 +393,11 @@ opaque
   -- not reduce to a value.
 
   loops-does-not-reduce-to-a-value :
-    ω ≢ 𝟘 →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
     T.Value v →
     ¬ erase′ true strict (loops p) T.⇒* v
-  loops-does-not-reduce-to-a-value {v} {p} ω≢𝟘 v-value =
-    erase′ true strict (loops p) T.⇒* v            ≡⟨ PE.cong (T._⇒* _) $ erase-loops ω≢𝟘 ⟩→
+  loops-does-not-reduce-to-a-value {v} {p} v-value =
+    erase′ true strict (loops p) T.⇒* v            ≡⟨ PE.cong (T._⇒* _) erase-loops ⟩→
     T.lam T.zero T.∘⟨ strict ⟩ loop strict T.⇒* v  →⟨ helper ⟩
     ⊥                                              □
     where
@@ -417,11 +419,12 @@ opaque
   ⊢loops :
     Π-allowed 𝟘 p →
     Π-allowed ω q →
+    Π-allowed (ω + ω) q →
     ⊢ Γ →
     Γ ⊢ loops q ∷ ℕ
-  ⊢loops 𝟘-ok ω-ok ⊢Γ =
+  ⊢loops 𝟘-ok ω-ok ω+ω-ok ⊢Γ =
     lamⱼ′ ω-ok (zeroⱼ (⊢Γ ∙ ΠΣⱼ′ Empty⊢ℕ 𝟘-ok)) ∘ⱼ
-    ⊢extracts-to-loop 𝟘-ok ω-ok ⊢Γ
+    ⊢extracts-to-loop 𝟘-ok ω-ok ω+ω-ok ⊢Γ
     where
     open Lemmas ⊢Γ
 
@@ -431,19 +434,18 @@ opaque
   -- A usage rule for loops.
 
   ▸loops :
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
     Emptyrec-allowed 𝟙ᵐ 𝟘 →
-    ω < 𝟘 →
-    ω ≤ ω + ω →
     p ≤ 𝟘 →
     𝟘ᶜ ▸[ 𝟙ᵐ ] loops {n = n} p
-  ▸loops ok (ω≤𝟘 , ω≢𝟘) ω≤ω+ω p≤𝟘 = sub
+  ▸loops ok p≤𝟘 = sub
     (lamₘ
        (sub zeroₘ $ begin
           𝟘ᶜ ∙ 𝟙 · ω  ≈⟨ ≈ᶜ-refl ∙ ·-identityˡ _ ⟩
           𝟘ᶜ ∙ ω      ≤⟨ ≤ᶜ-refl ∙ ω≤𝟘 ⟩
           𝟘ᶜ          ∎) ∘ₘ
      ▸-cong (PE.sym $ ≢𝟘→⌞⌟≡𝟙ᵐ ω≢𝟘)
-       (▸extracts-to-loop ok ω≢𝟘 ω≤ω+ω p≤𝟘))
+       (▸extracts-to-loop ok p≤𝟘))
     (begin
        𝟘ᶜ             ≈˘⟨ ≈ᶜ-trans (+ᶜ-identityˡ _) (·ᶜ-zeroʳ _) ⟩
        𝟘ᶜ +ᶜ ω ·ᶜ 𝟘ᶜ  ∎)

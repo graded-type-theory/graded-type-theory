@@ -764,23 +764,23 @@ Run-time-canonicity-with-arguments-removed-for str Δ t =
 opaque
 
   -- Run-time canonicity does not necessarily hold for closed,
-  -- well-typed, well-resourced terms of type ℕ if strict
-  -- applications are used and erasable arguments are removed
-  -- entirely, assuming that certain Π-types are allowed and that ω
-  -- satisfies certain inequalities.
+  -- well-typed, well-resourced terms of type ℕ if strict applications
+  -- are used and erasable arguments are removed entirely, assuming
+  -- that certain Π-types are allowed and that the modality's zero is
+  -- well-behaved.
 
   no-run-time-canonicity-if-strict-and-arguments-removed :
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
     Emptyrec-allowed 𝟙ᵐ 𝟘 →
     Π-allowed 𝟘 p →
     Π-allowed ω q →
-    ω < 𝟘 →
-    ω ≤ ω + ω →
+    Π-allowed (ω + ω) q →
     q ≤ 𝟘 →
     ¬ ((t : Term 0) → ε ⊢ t ∷ ℕ → ε ▸[ 𝟙ᵐ ] t →
        Run-time-canonicity-with-arguments-removed-for strict ε t)
   no-run-time-canonicity-if-strict-and-arguments-removed
-    emptyrec-ok 𝟘-ok ω-ok ω<𝟘@(_ , ω≢𝟘) ω≤ω+ω q≤𝟘 hyp =
-    case hyp (loops _) (⊢loops 𝟘-ok ω-ok ε)
-           (▸loops emptyrec-ok ω<𝟘 ω≤ω+ω q≤𝟘) of λ
+    emptyrec-ok 𝟘-ok ω-ok ω+ω-ok q≤𝟘 hyp =
+    case hyp (loops _) (⊢loops 𝟘-ok ω-ok ω+ω-ok ε)
+           (▸loops emptyrec-ok q≤𝟘) of λ
       (_ , _ , _ , ⇒*n) →
-    loops-does-not-reduce-to-a-value ω≢𝟘 Value-sucᵏ′ ⇒*n
+    loops-does-not-reduce-to-a-value Value-sucᵏ′ ⇒*n
