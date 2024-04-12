@@ -14,6 +14,7 @@ module Definition.Typechecking.Decidable
   where
 
 open Assumptions as
+open Type-restrictions R
 
 open import Definition.Typechecking R
 open import Definition.Typechecking.Soundness R
@@ -29,7 +30,7 @@ open import Definition.Typed.Decidable.Equality R _≟_
 open import Definition.Typed.Decidable.Reduction R _≟_
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
-import Definition.Untyped M as U
+open import Definition.Untyped.Neutral M type-variant as U
 
 open import Tools.Fin
 open import Tools.Function

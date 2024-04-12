@@ -28,6 +28,7 @@ open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Eta-long-normal-form R
 open import Definition.Typed.Properties R
 open import Definition.Untyped M
+open import Definition.Untyped.Neutral M type-variant
 
 open import Graded.Derived.Erased.Typed R
 
@@ -35,11 +36,14 @@ open import Tools.Fin
 open import Tools.Function
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Relation
+open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
   Γ    : Con Term _
   A A′ : Term _
   t t′ : Term _
+  s    : Strength
 
 mutual
 
@@ -144,7 +148,7 @@ mutual
          Γ ⊢ne emptyrec p A′ t′ ∷ A′  →⟨ flip _⊢ne_∷_.convₙ (sym A≡A′) ⟩
          Γ ⊢ne emptyrec p A′ t′ ∷ A   □)
       , emptyrec-cong A≡A′ t≡t′ }}
-    (unitrec-cong {F = A} {k = t} A↑ t~ u↑) →
+    (unitrec-cong {F = A} {k = t} A↑ t~ u↑ no-η) →
       case fullRedConv↑ A↑ of λ {
         (A′ , A′-nf , A≡A′) →
       case fullRedNe~↓ t~ of λ {
@@ -157,7 +161,7 @@ mutual
       , ( $⟨ u′-nf ⟩
          Γ ⊢nf u′ ∷ A [ starʷ ]₀                  →⟨ flip _⊢nf_∷_.convₙ $
                                                  substTypeEq A≡A′ (refl (starⱼ (wfEqTerm t≡t′) ok)) ⟩
-         Γ ⊢nf u′ ∷ A′ [ starʷ ]₀                 →⟨ flip (unitrecₙ A′-nf t′-ne) ok ⟩
+         Γ ⊢nf u′ ∷ A′ [ starʷ ]₀                 →⟨ (λ ⊢u′ → unitrecₙ A′-nf t′-ne ⊢u′ ok no-η) ⟩
          Γ ⊢ne unitrec _ _ A′ t′ u′ ∷ A′ [ t′ ]₀  →⟨ flip _⊢ne_∷_.convₙ $ _⊢_≡_.sym $
                                                  substTypeEq A≡A′ t≡t′ ⟩
          Γ ⊢ne unitrec _ _ A′ t′ u′ ∷ A [ t ]₀    □)
@@ -306,20 +310,8 @@ mutual
       case fullRedNe~↓ t~ of λ {
         (u , u-nf , t≡u) →
       u , neₙ Emptyₙ u-nf , t≡u }
-    (Unit-ins {s = 𝕤} t~) →
-      case syntacticEqTerm (soundness~↓ t~) of λ {
-        (Γ⊢ , ⊢t , _) →
-      case wf Γ⊢ of λ {
-        ⊢Γ →
-      case ⊢∷Unit→Unit-allowed ⊢t of λ {
-        ok →
-        starˢ
-      , starₙ ⊢Γ ok
-      , η-unit ⊢t (starⱼ ⊢Γ ok) }}}
-    (Unit-ins {s = 𝕨} t~) →
-      case fullRedNe~↓ t~ of λ {
-        (u , u-nf , t≡u) →
-      u , neₙ Unitʷₙ u-nf , t≡u }
+    (Unit-ins {s} t~) →
+      fullRedTermConv↓-Unit-ins t~ (Unit-with-η? s)
     (Σʷ-ins ⊢t∷ΣAB _ t~) →
       case fullRedNe~↓ t~ of λ {
         (v , v-ne , t≡v) →
@@ -358,7 +350,7 @@ mutual
       , inverseUnivEq ⊢A A≡B }
     (zero-refl ⊢Γ) →
       zero , zeroₙ ⊢Γ , refl (zeroⱼ ⊢Γ)
-    (starʷ-refl ⊢Γ ok) →
+    (starʷ-refl ⊢Γ ok _) →
       starʷ , starₙ ⊢Γ ok , refl (starⱼ ⊢Γ ok)
     (suc-cong t↑) →
       case fullRedTermConv↑ t↑ of λ {
@@ -403,14 +395,14 @@ mutual
          Γ ⊢ t ≡ prodˢ p (fst p t) (snd p t) ∷ Σˢ p , q ▷ A ▹ B  →⟨ flip _⊢_≡_∷_.trans $
                                                                     prod-cong ⊢A ⊢B fst-t≡u₁ snd-t≡u₂ ok ⟩
          Γ ⊢ t ≡ prodˢ p u₁ u₂ ∷ Σˢ p , q ▷ A ▹ B                □) }}}
-    (η-unit ⊢t _ _ _) →
+    (η-unit ⊢t _ _ _ ok) →
       case wfTerm ⊢t of λ {
         ⊢Γ →
       case ⊢∷Unit→Unit-allowed ⊢t of λ {
-        ok →
+        Unit-ok →
         star!
-      , starₙ ⊢Γ ok
-      , η-unit ⊢t (starⱼ ⊢Γ ok) }}
+      , starₙ ⊢Γ Unit-ok
+      , η-unit ⊢t (starⱼ ⊢Γ Unit-ok) ok }}
     (Id-ins ⊢t t~u) →
       case fullRedNe~↓ t~u of λ {
         (v , ⊢v , t≡v) →
@@ -426,6 +418,26 @@ mutual
         rfl
       , convₙ (rflₙ ⊢t) (Id-cong (refl ⊢A) (refl ⊢t) t≡u)
       , refl (rflⱼ′ t≡u) }
+
+  fullRedTermConv↓-Unit-ins :
+    Γ ⊢ t ~ t′ ↓ Unit s →
+    Unit-with-η s ⊎ s PE.≡ 𝕨 × ¬ Unitʷ-η →
+    ∃ λ u → Γ ⊢nf u ∷ Unit s × Γ ⊢ t ≡ u ∷ Unit s
+  fullRedTermConv↓-Unit-ins {s} t~ = λ where
+    (inj₁ η) →
+      case syntacticEqTerm (soundness~↓ t~) of λ
+        (_ , ⊢t , _) →
+      case wfTerm ⊢t of λ
+        ⊢Γ →
+      case ⊢∷Unit→Unit-allowed ⊢t of λ
+        Unit-ok →
+        star s
+      , starₙ ⊢Γ Unit-ok
+      , η-unit ⊢t (starⱼ ⊢Γ Unit-ok) η
+    (inj₂ (PE.refl , no-η)) →
+      case fullRedNe~↓ t~ of λ
+        (u , u-nf , t≡u) →
+      u , neₙ (Unitʷₙ no-η) u-nf , t≡u
 
 -- If A is a well-formed type, then A is definitionally equal to a
 -- type in η-long normal form.

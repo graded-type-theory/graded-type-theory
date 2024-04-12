@@ -17,6 +17,7 @@ open EqRelSet {{...}}
 open Type-restrictions R
 
 open import Definition.Untyped Mod as U hiding (K)
+open import Definition.Untyped.Neutral Mod type-variant
 open import Definition.Typed.Properties R
 open import Definition.Typed R
 open import Definition.Typed.Weakening R
@@ -27,6 +28,7 @@ open import Tools.Level
 open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Relation
 open import Tools.Unit
 
 private
@@ -36,6 +38,7 @@ private
     Γ Δ : Con Term ℓ
     t t′ u u′ : Term _
     ρ : Wk _ _
+    s : Strength
 
 -- The different cases of the logical relation are spread out through out
 -- this file. This is due to them having different dependencies.
@@ -214,30 +217,25 @@ record _⊩Unit⟨_⟩_∷Unit (Γ : Con Term ℓ) (s : Strength) (t : Term ℓ)
 
 -- Unit term equality
 
-record _⊩Unitˢ_≡_∷Unit (Γ : Con Term ℓ) (t u : Term ℓ) : Set a where
-  inductive
-  constructor Unitₜ₌
-  field
-    ⊢t : Γ ⊢ t ∷ Unitˢ
-    ⊢u : Γ ⊢ u ∷ Unitˢ
-
 data [Unitʷ]-prop (Γ : Con Term ℓ) : (t u : Term ℓ) → Set a where
   starᵣ : [Unitʷ]-prop Γ starʷ starʷ
   ne : ∀ {n n′} → Γ ⊩neNf n ≡ n′ ∷ Unitʷ → [Unitʷ]-prop Γ n n′
 
-record _⊩Unitʷ_≡_∷Unit (Γ : Con Term ℓ) (t u : Term ℓ) : Set a where
-  inductive
-  constructor Unitₜ₌
-  field
-    k k′ : Term ℓ
-    d : Γ ⊢ t :⇒*: k  ∷ Unitʷ
-    d′ : Γ ⊢ u :⇒*: k′ ∷ Unitʷ
-    k≡k′ : Γ ⊢ k ≅ k′ ∷ Unitʷ
-    prop : [Unitʷ]-prop Γ k k′
-
-_⊩Unit⟨_⟩_≡_∷Unit : (Γ : Con Term ℓ) (s : Strength) (t u : Term ℓ) → Set a
-Γ ⊩Unit⟨ 𝕤 ⟩ t ≡ u ∷Unit = Γ ⊩Unitˢ t ≡ u ∷Unit
-Γ ⊩Unit⟨ 𝕨 ⟩ t ≡ u ∷Unit = Γ ⊩Unitʷ t ≡ u ∷Unit
+data _⊩Unit⟨_⟩_≡_∷Unit
+  (Γ : Con Term ℓ) : Strength → (_ _ : Term ℓ) → Set a where
+  Unitₜ₌ˢ :
+    Γ ⊢ t ∷ Unit s →
+    Γ ⊢ u ∷ Unit s →
+    Unit-with-η s →
+    Γ ⊩Unit⟨ s ⟩ t ≡ u ∷Unit
+  Unitₜ₌ʷ :
+    (k k′ : Term ℓ) →
+    Γ ⊢ t :⇒*: k  ∷ Unitʷ →
+    Γ ⊢ u :⇒*: k′ ∷ Unitʷ →
+    Γ ⊢ k ≅ k′ ∷ Unitʷ →
+    [Unitʷ]-prop Γ k k′ →
+    ¬ Unitʷ-η →
+    Γ ⊩Unit⟨ 𝕨 ⟩ t ≡ u ∷Unit
 
 -- Type levels
 

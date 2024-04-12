@@ -17,6 +17,8 @@ open Modality 𝕄
 open Type-restrictions TR
 open Usage-restrictions UR
 
+open import Definition.Untyped M
+
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 
@@ -29,6 +31,7 @@ open import Tools.Sum as ⊎
 
 private variable
   p q r : M
+  s     : Strength
 
 -- The theorems in Graded.FullReduction are proved under the
 -- assumption that the following property holds.
@@ -36,9 +39,11 @@ private variable
 record Full-reduction-assumptions : Set a where
   no-eta-equality
   field
-    -- If the unit type (with η-equality) is allowed, then it is
-    -- either allowed to be used as a sink or 𝟙 ≤ 𝟘.
-    sink⊎𝟙≤𝟘 : Unitˢ-allowed → Starˢ-sink ⊎ 𝟙 ≤ 𝟘
+    -- If Unit s is allowed and η-equality is allowed for this type,
+    -- then either s is 𝕤 and Unitˢ is allowed to be used as a sink,
+    -- or 𝟙 ≤ 𝟘.
+    sink⊎𝟙≤𝟘 :
+      Unit-allowed s → Unit-with-η s → s ≡ 𝕤 × Starˢ-sink ⊎ 𝟙 ≤ 𝟘
 
     -- If a strong Σ-type with the "first component quantity" p is
     -- allowed, then either p ≡ 𝟙, or p ≡ 𝟘, 𝟘ᵐ is allowed and 𝟙 ≤ 𝟘.
@@ -49,10 +54,12 @@ record Full-reduction-assumptions : Set a where
 record Full-reduction-assumptions′ : Set a where
   no-eta-equality
   field
-    -- If the unit type (with η-equality) is allowed, then it is
-    -- either allowed to be used as a sink or 𝟘 must be
-    -- the largest quantity.
-    sink⊎≤𝟘 : Unitˢ-allowed → Starˢ-sink ⊎ (∀ {p} → p ≤ 𝟘)
+    -- If Unit s is allowed and η-equality is allowed for this type,
+    -- then either s is 𝕤 and Unitˢ is allowed to be used as a sink,
+    -- or 𝟘 is the largest grade.
+    sink⊎≤𝟘 :
+      Unit-allowed s → Unit-with-η s →
+      s ≡ 𝕤 × Starˢ-sink ⊎ (∀ {p} → p ≤ 𝟘)
 
     -- If a strong Σ-type with the "first component quantity" p is
     -- allowed, then p ·_ must be increasing.
@@ -69,7 +76,8 @@ Full-reduction-assumptions⇔Full-reduction-assumptions′ :
   Full-reduction-assumptions ⇔ Full-reduction-assumptions′
 Full-reduction-assumptions⇔Full-reduction-assumptions′ =
     (λ as → record
-       { sink⊎≤𝟘      = ⊎.map idᶠ (≤𝟘⇔𝟙≤𝟘 .proj₂) ∘→ sink⊎𝟙≤𝟘 as
+       { sink⊎≤𝟘 =
+           λ ok → ⊎.map idᶠ (≤𝟘⇔𝟙≤𝟘 .proj₂) ∘→ sink⊎𝟙≤𝟘 as ok
        ; ·-increasing = λ {p = p} {q = q} {r = r} →
            Σˢ-allowed p q                        →⟨ ≡𝟙⊎𝟙≤𝟘 as ⟩
 
@@ -90,9 +98,8 @@ Full-reduction-assumptions⇔Full-reduction-assumptions′ =
            (⌞ p ⌟ ≡ 𝟙ᵐ → p ≤ 𝟙)                  □
        })
   , (λ as → record
-       { sink⊎𝟙≤𝟘 = λ ok → case sink⊎≤𝟘 as ok of λ {
-           (inj₁ sink) → inj₁ sink  ;
-           (inj₂ ≤𝟘)   → inj₂ ≤𝟘   }
+       { sink⊎𝟙≤𝟘 =
+           λ ok → ⊎.map idᶠ (≤𝟘⇔𝟙≤𝟘 .proj₁) ∘→ sink⊎≤𝟘 as ok
        ; ≡𝟙⊎𝟙≤𝟘 = λ {p = p} {q = q} →
            Σˢ-allowed p q                          →⟨ (λ ok → ·-increasing as ok , ⌞⌟≡𝟙ᵐ→≤𝟙 as ok) ⟩
            𝟙 ≤ p · 𝟙 × (⌞ p ⌟ ≡ 𝟙ᵐ → p ≤ 𝟙)        →⟨ (λ (𝟙≤p1 , ⌞⌟≡𝟙ᵐ→≤𝟙) →

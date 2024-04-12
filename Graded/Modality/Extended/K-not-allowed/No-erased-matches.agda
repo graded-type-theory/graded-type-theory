@@ -66,6 +66,7 @@ private variable
 -- * Erased matches are not allowed for J and K when the mode is 𝟙ᵐ,
 --   and all erased matches are allowed for J and K when the mode
 --   is 𝟘ᵐ.
+-- * Eta-equality is not allowed for weak types.
 -- * Strong unit types are not allowed, but weak unit types are
 --   allowed.
 -- * Strong Σ-types are not allowed.
@@ -91,6 +92,7 @@ All-properties-hold-for M =
   erased-matches-for-K 𝟙ᵐ ≡ none ×
   (∀ {m} → m ≢ 𝟙ᵐ → erased-matches-for-J m ≡ all) ×
   (∀ {m} → m ≢ 𝟙ᵐ → erased-matches-for-K m ≡ all) ×
+  ¬ Unitʷ-η ×
   ¬ Unit-allowed 𝕤 ×
   Unit-allowed 𝕨 ×
   (∀ {b p q} →
@@ -134,7 +136,7 @@ private
     {M : Set} {𝕄 : Modality M} →
     Usage-restrictions 𝕄
   UR′ =
-    no-erased-matches-UR _ $
+    no-erased-matches-UR _ TR′ $
     no-usage-restrictions _ false false
 
   opaque
@@ -145,7 +147,7 @@ private
       Decidable (_≡_ {A = M}) →
       UD.Assumptions (UR′ {𝕄 = 𝕄})
     Assumptions-UR′ {has-nr} =
-      Assumptions-no-erased-matches-UR _ ∘→
+      Assumptions-no-erased-matches-UR _ TR′ ∘→
       Assumptions-no-usage-restrictions _
         ⦃ has-nr = dedicated-nr has-nr ⦄
 
@@ -180,6 +182,7 @@ opaque
          {m = 𝟙ᵐ} → ⊥-elim ∘→ (_$ refl))
     , (λ where
          {m = 𝟙ᵐ} → ⊥-elim ∘→ (_$ refl))
+    , (λ ())
     , (_$ refl) ∘→ proj₂
     , (_ , (λ ()))
     , ( (λ ((_ , hyp₁) , hyp₂) → Lift.lower hyp₂ , hyp₁)
@@ -237,6 +240,7 @@ opaque
     , (λ where
          {m = 𝟘ᵐ} _ → refl
          {m = 𝟙ᵐ}   → ⊥-elim ∘→ (_$ refl))
+    , (λ ())
     , (_$ refl) ∘→ proj₂
     , (_ , (λ ()))
     , ( (λ ((_ , hyp₁) , hyp₂) → Lift.lower hyp₂ , hyp₁)
@@ -304,6 +308,7 @@ opaque
     , (λ where
          {m = 𝟘ᵐ} _ → refl
          {m = 𝟙ᵐ}   → ⊥-elim ∘→ (_$ refl))
+    , (λ ())
     , (_$ refl) ∘→ proj₂
     , (_ , (λ ()))
     , ( (λ ((_ , hyp₁) , hyp₂) → Lift.lower hyp₂ , hyp₁)
@@ -337,7 +342,8 @@ Linearity = λ where
     FA′ : Full-reduction-assumptions {𝕄 = 𝕄′} TR′ UR′
     FA′ =
       L.full-reduction-assumptions _
-        ( inj₁ ((_$ refl) ∘→ proj₂)
+        ( (_$ refl) ∘→ proj₂
+        , (λ _ ())
         , (λ _ (_ , hyp) → case Lift.lower hyp refl of λ ())
         , (λ _ (_ , hyp) → case Lift.lower hyp refl of λ ())
         )
@@ -374,6 +380,7 @@ opaque
     , (λ where
          {m = 𝟘ᵐ} _ → refl
          {m = 𝟙ᵐ}   → ⊥-elim ∘→ (_$ refl))
+    , (λ ())
     , (_$ refl) ∘→ proj₂
     , (_ , (λ ()))
     , ( (λ ((_ , hyp₁) , hyp₂) → Lift.lower hyp₂ , hyp₁)
@@ -407,7 +414,8 @@ Linear-or-affine-types = λ where
     FA′ : Full-reduction-assumptions {𝕄 = 𝕄′} TR′ UR′
     FA′ =
       LA.full-reduction-assumptions
-        ( inj₁ ((_$ refl) ∘→ proj₂)
+        ( (_$ refl) ∘→ proj₂
+        , (λ _ ())
         , (λ _ (_ , hyp) → case Lift.lower hyp refl of λ ())
         , (λ _ (_ , hyp) → case Lift.lower hyp refl of λ ())
         , (λ _ (_ , hyp) → case Lift.lower hyp refl of λ ())
@@ -445,6 +453,7 @@ opaque
     , (λ where
          {m = 𝟘ᵐ} _ → refl
          {m = 𝟙ᵐ}   → ⊥-elim ∘→ (_$ refl))
+    , (λ ())
     , (_$ refl) ∘→ proj₂
     , (_ , (λ ()))
     , ( (λ ((_ , hyp₁) , hyp₂) → Lift.lower hyp₂ , hyp₁)
@@ -519,14 +528,14 @@ Trivial⇨Erasure = λ where
       Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr
     are-preserving-usage-restrictions =
       Are-preserving-usage-restrictions-no-erased-matches-UR
-        (λ _ → inj₂ (λ ())) $
+        (λ _ → inj₂ (λ ())) are-preserving-type-restrictions $
       Are-preserving-usage-restrictions-no-usage-restrictions _
 
     are-reflecting-usage-restrictions :
       Are-reflecting-usage-restrictions E₁.UR E₂.UR tr tr
     are-reflecting-usage-restrictions =
       Are-reflecting-usage-restrictions-no-erased-matches-UR
-        (⊥-elim ∘→ (_$ refl)) $
+        (⊥-elim ∘→ (_$ refl)) are-reflecting-type-restrictions $
       Are-reflecting-usage-restrictions-no-usage-restrictions
         _ (λ _ → inj₂ refl)
 
@@ -590,14 +599,16 @@ Erasure⇨Affine-types = λ where
       Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr
     are-preserving-usage-restrictions =
       Are-preserving-usage-restrictions-no-erased-matches-UR
-        (λ _ → inj₁ ((λ ()) , (λ { {p = E.𝟘} refl → refl }))) $
+        (λ _ → inj₁ ((λ ()) , (λ { {p = E.𝟘} refl → refl })))
+        are-preserving-type-restrictions $
       Are-preserving-usage-restrictions-no-usage-restrictions _
 
     are-reflecting-usage-restrictions :
       Are-reflecting-usage-restrictions E₁.UR E₂.UR tr tr
     are-reflecting-usage-restrictions =
       Are-reflecting-usage-restrictions-no-erased-matches-UR
-        (λ _ → (λ ()) , (λ { refl → refl })) $
+        (λ _ → (λ ()) , (λ { refl → refl }))
+        are-reflecting-type-restrictions $
       Are-reflecting-usage-restrictions-no-usage-restrictions
         _ (λ _ → inj₁ _)
 
@@ -661,14 +672,16 @@ Erasure⇨Linearity = λ where
       Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr
     are-preserving-usage-restrictions =
       Are-preserving-usage-restrictions-no-erased-matches-UR
-        (λ _ → inj₁ ((λ ()) , (λ { {p = E.𝟘} refl → refl }))) $
+        (λ _ → inj₁ ((λ ()) , (λ { {p = E.𝟘} refl → refl })))
+        are-preserving-type-restrictions $
       Are-preserving-usage-restrictions-no-usage-restrictions _
 
     are-reflecting-usage-restrictions :
       Are-reflecting-usage-restrictions E₁.UR E₂.UR tr tr
     are-reflecting-usage-restrictions =
       Are-reflecting-usage-restrictions-no-erased-matches-UR
-        (λ _ → (λ ()) , (λ { refl → refl })) $
+        (λ _ → (λ ()) , (λ { refl → refl }))
+        are-reflecting-type-restrictions $
       Are-reflecting-usage-restrictions-no-usage-restrictions
         _ (λ _ → inj₁ _)
 
@@ -733,14 +746,16 @@ Affine-types⇨Linear-or-affine-types = λ where
       Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr
     are-preserving-usage-restrictions =
       Are-preserving-usage-restrictions-no-erased-matches-UR
-        (λ _ → inj₁ ((λ ()) , (λ { {p = A.𝟘} refl → refl }))) $
+        (λ _ → inj₁ ((λ ()) , (λ { {p = A.𝟘} refl → refl })))
+        are-preserving-type-restrictions $
       Are-preserving-usage-restrictions-no-usage-restrictions _
 
     are-reflecting-usage-restrictions :
       Are-reflecting-usage-restrictions E₁.UR E₂.UR tr tr
     are-reflecting-usage-restrictions =
       Are-reflecting-usage-restrictions-no-erased-matches-UR
-        (λ _ → (λ ()) , (λ { refl → refl })) $
+        (λ _ → (λ ()) , (λ { refl → refl }))
+        are-reflecting-type-restrictions $
       Are-reflecting-usage-restrictions-no-usage-restrictions
         _ (λ _ → inj₁ _)
 
@@ -805,13 +820,15 @@ Linearity⇨Linear-or-affine-types = λ where
       Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr
     are-preserving-usage-restrictions =
       Are-preserving-usage-restrictions-no-erased-matches-UR
-        (λ _ → inj₁ ((λ ()) , (λ { {p = L.𝟘} refl → refl }))) $
+        (λ _ → inj₁ ((λ ()) , (λ { {p = L.𝟘} refl → refl })))
+        are-preserving-type-restrictions $
       Are-preserving-usage-restrictions-no-usage-restrictions _
 
     are-reflecting-usage-restrictions :
       Are-reflecting-usage-restrictions E₁.UR E₂.UR tr tr
     are-reflecting-usage-restrictions =
       Are-reflecting-usage-restrictions-no-erased-matches-UR
-        (λ _ → (λ ()) , (λ { refl → refl })) $
+        (λ _ → (λ ()) , (λ { refl → refl }))
+        are-reflecting-type-restrictions $
       Are-reflecting-usage-restrictions-no-usage-restrictions
         _ (λ _ → inj₁ _)

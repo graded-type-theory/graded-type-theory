@@ -387,8 +387,8 @@ module Fundamental
       unitrecʳ (F.fundamental-⊩ᵛ ⊢A) (F.fundamental-⊩ᵛ∷ ⊢t)
         (F.fundamental-⊩ᵛ∷ ⊢u) (fundamental ⊢t δ▸t) (fundamental ⊢u η▸u)
         (λ p≡𝟘 → case closed-or-no-erased-matches of λ where
-           (inj₁ nem) → ⊥-elim (nem non-trivial .proj₂ .proj₁ ok′ p≡𝟘)
-           (inj₂ k≡0) → k≡0)
+           (inj₁ nem) → inj₂ (nem non-trivial .proj₂ .proj₁ ok′ p≡𝟘)
+           (inj₂ k≡0) → inj₁ k≡0)
     fundamental (Idⱼ {A} {t} {u} ⊢A _ _) _ =
       Idʳ {A = A} {t = t} {u = u} (wfTerm ⊢A)
     fundamental (rflⱼ ⊢t) _ =

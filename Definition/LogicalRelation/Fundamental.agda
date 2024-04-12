@@ -427,8 +427,8 @@ opaque
                      (emptyrec-congᵛ {F = F} {F′} {n} {n′}
                        [Γ]′ [Empty] [F]′ [F′]′ [F≡F′]′
                        [n] [n′] [n≡n′])
-  fundamentalTermEq (η-unit ⊢t ⊢u) =
-    η-unitᵛ (fundamentalTerm ⊢t) (fundamentalTerm ⊢u)
+  fundamentalTermEq (η-unit ⊢t ⊢u η) =
+    η-unitᵛ (fundamentalTerm ⊢t) (fundamentalTerm ⊢u) η
   fundamentalTermEq (fst-cong {F = F} {G} {t = t} {t′} ⊢F ⊢G t≡t′)
     with fundamentalTermEq t≡t′ | fundamental ⊢F | fundamental ⊢G
   ... | [Γ] , modelsTermEq [ΣFG] [t] [t′] [t≡t′] | [Γ]₁ , [F]₁ | [Γ]₂ , [G]₂ =
@@ -717,8 +717,11 @@ opaque
   fundamentalTermEq (unitrec-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ _) =
     unitrec-congᵛ (fundamentalEq A₁≡A₂) (fundamentalTermEq t₁≡t₂)
       (fundamentalTermEq u₁≡u₂)
-  fundamentalTermEq (unitrec-β ⊢A ⊢u _) =
-    unitrec-βᵛ (fundamental ⊢A) (fundamentalTerm ⊢u)
+  fundamentalTermEq (unitrec-β ⊢A ⊢u _ no-η) =
+    unitrec-βᵛ (fundamental ⊢A) (fundamentalTerm ⊢u) no-η
+  fundamentalTermEq (unitrec-β-η ⊢A ⊢t ⊢u _ η) =
+    unitrec-β-ηᵛ (fundamental ⊢A) (fundamentalTerm ⊢t)
+      (fundamentalTerm ⊢u) η
   fundamentalTermEq (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) =
     Id-congᵗᵛ (fundamentalTermEq A₁≡A₂) (fundamentalTermEq t₁≡t₂)
       (fundamentalTermEq u₁≡u₂)

@@ -33,6 +33,7 @@ open import Tools.Nat
 open import Tools.Fin
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Relation
 
 private
   variable
@@ -88,15 +89,17 @@ prodrec-subst* (x ⇨ t⇒t′) ⊢F ⊢G ⊢A ⊢u =
 
 -- Unitrec substitution of reduction closures
 
-unitrec-subst* : Γ ⊢ t ⇒* t′ ∷ Unitʷ
-               → Γ ∙ Unitʷ ⊢ A
-               → Γ ⊢ u ∷ A [ starʷ ]₀
-               → Γ ⊢ unitrec p q A t u ⇒* unitrec p q A t′ u ∷ A [ t ]₀
-unitrec-subst* (id x) ⊢A ⊢u =
+unitrec-subst* :
+  Γ ⊢ t ⇒* t′ ∷ Unitʷ →
+  Γ ∙ Unitʷ ⊢ A →
+  Γ ⊢ u ∷ A [ starʷ ]₀ →
+  ¬ Unitʷ-η →
+  Γ ⊢ unitrec p q A t u ⇒* unitrec p q A t′ u ∷ A [ t ]₀
+unitrec-subst* (id x) ⊢A ⊢u _ =
   id (unitrecⱼ ⊢A x ⊢u (⊢∷Unit→Unit-allowed x))
-unitrec-subst* (x ⇨ d) ⊢A ⊢u =
-  unitrec-subst ⊢A ⊢u x ok ⇨
-  conv* (unitrec-subst* d ⊢A ⊢u)
+unitrec-subst* (x ⇨ d) ⊢A ⊢u not-ok =
+  unitrec-subst ⊢A ⊢u x ok not-ok ⇨
+  conv* (unitrec-subst* d ⊢A ⊢u not-ok)
         (substTypeEq (refl ⊢A) (sym (subsetTerm x)))
   where
   ok = ⊢∷Unit→Unit-allowed (redFirstTerm x)

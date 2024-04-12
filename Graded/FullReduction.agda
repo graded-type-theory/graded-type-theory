@@ -28,6 +28,7 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
+open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 open import Tools.Unit
 
@@ -81,35 +82,73 @@ private
 
 module _ (as : Full-reduction-assumptions) where
 
+  open Full-reduction-assumptions as
   open Full-reduction-assumptions′
          (Full-reduction-assumptions⇔Full-reduction-assumptions′
             .proj₁ as)
 
   private
 
+    -- A lemma used below.
+
+    Unitʷ-η→ :
+      Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
+      𝟙 ≤ 𝟘 ⊎ p PE.≡ 𝟘
+    Unitʷ-η→ η ok _ =
+      case sink⊎𝟙≤𝟘 ok (inj₂ η) of λ where
+        (inj₁ (() , _))
+        (inj₂ 𝟙≤𝟘)      → inj₁ 𝟙≤𝟘
+
     -- A lemma used in the Unit-ins and η-unit cases of
     -- fullRedTermConv↓.
     --
-    -- Note that the Unit-allowed assumption is only used when the
-    -- mode is 𝟙ᵐ. Currently the typing relation does not track modes,
-    -- but if it did, then it might suffice to require that the
-    -- Unit-allowed assumption holds when the mode is 𝟙ᵐ.
+    -- Note that the Unit-allowed and Unit-with-η assumptions are only
+    -- used when the mode is 𝟙ᵐ. Currently the typing relation does
+    -- not track modes, but if it did, then it might suffice to
+    -- require that these assumptions hold when the mode is 𝟙ᵐ.
 
-    Unitˢ-lemma :
-      ∀ {t : Term n} m →
-      Unitˢ-allowed →
-      γ ▸[ m ] t →
-      ∃ λ δ → (¬Starˢ-sink → 𝟘ᶜ ≈ᶜ δ) × γ ≤ᶜ ⌜ m ⌝ ·ᶜ δ
-    Unitˢ-lemma 𝟘ᵐ ok ▸t =
-        𝟘ᶜ , (λ _ → ≈ᶜ-refl)
-      , ≤ᶜ-trans (▸-𝟘ᵐ ▸t) (≤ᶜ-reflexive (≈ᶜ-sym (·ᶜ-zeroˡ _)))
-    Unitˢ-lemma 𝟙ᵐ ok ▸t = case sink⊎≤𝟘 ok of λ where
-      (inj₁ sink) →
-        _ , (λ ¬sink → ⊥-elim (not-sink-and-no-sink sink ¬sink))
-          , ≤ᶜ-reflexive (≈ᶜ-sym (·ᶜ-identityˡ _))
-      (inj₂ ≤𝟘) →
-        𝟘ᶜ , (λ _ → ≈ᶜ-refl)
-           , ≤ᶜ-trans (≤ᶜ𝟘ᶜ ≤𝟘) (≤ᶜ-reflexive (≈ᶜ-sym (·ᶜ-identityˡ _)))
+    Unit-lemma :
+      Unit-allowed s → Unit-with-η s → γ ▸[ m ] t → γ ▸[ m ] star s
+    Unit-lemma {s} {γ} {m} ok η ▸t =
+      case lemma of λ
+        (δ , prop , γ≤) →
+      case PE.singleton s of λ where
+        (𝕤 , PE.refl) → sub (starˢₘ (prop ∘→ inj₂)) γ≤
+        (𝕨 , PE.refl) → sub starₘ $ begin
+          γ            ≤⟨ γ≤ ⟩
+          ⌜ m ⌝ ·ᶜ δ   ≈˘⟨ ·ᶜ-congˡ (prop (inj₁ PE.refl)) ⟩
+          ⌜ m ⌝ ·ᶜ 𝟘ᶜ  ≈⟨ ·ᶜ-zeroʳ _ ⟩
+          𝟘ᶜ           ∎
+      where
+      open ≤ᶜ-reasoning
+
+      lemma :
+        ∃ λ δ → (s PE.≡ 𝕨 ⊎ ¬Starˢ-sink → 𝟘ᶜ ≈ᶜ δ) × γ ≤ᶜ ⌜ m ⌝ ·ᶜ δ
+      lemma =
+        case PE.singleton m of λ where
+          (𝟘ᵐ , PE.refl) →
+              𝟘ᶜ , (λ _ → ≈ᶜ-refl)
+            , (begin
+                 γ        ≤⟨ ▸-𝟘ᵐ ▸t ⟩
+                 𝟘ᶜ       ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
+                 𝟘 ·ᶜ 𝟘ᶜ  ∎)
+          (𝟙ᵐ , PE.refl) → case sink⊎≤𝟘 ok η of λ where
+            (inj₁ (PE.refl , sink)) →
+                γ
+              , (λ where
+                   (inj₁ ())
+                   (inj₂ ¬sink) →
+                     ⊥-elim (not-sink-and-no-sink sink ¬sink))
+              , (begin
+                   γ       ≈˘⟨ ·ᶜ-identityˡ _ ⟩
+                   𝟙 ·ᶜ γ  ∎)
+            (inj₂ ≤𝟘) →
+                𝟘ᶜ
+              , (λ _ → ≈ᶜ-refl)
+              , (begin
+                   γ        ≤⟨ ≤ᶜ𝟘ᶜ ≤𝟘 ⟩
+                   𝟘ᶜ       ≈˘⟨ ·ᶜ-identityˡ _ ⟩
+                   𝟙 ·ᶜ 𝟘ᶜ  ∎)
 
     -- A lemma used in the Σ-η case of fullRedTermConv↓.
     --
@@ -192,7 +231,7 @@ module _ (as : Full-reduction-assumptions) where
         case inv-usage-emptyrec ▸emptyrec of λ {
           (invUsageEmptyrec ▸t ▸A ok γ≤) →
         sub (emptyrecₘ (fullRedNe~↓ t~ ▸t) (fullRedConv↑ A↑ ▸A) ok) γ≤ }
-      (unitrec-cong A↑ t~ u↑) ▸unitrec →
+      (unitrec-cong A↑ t~ u↑ _) ▸unitrec →
         case inv-usage-unitrec ▸unitrec of λ {
           (invUsageUnitrec ▸t ▸u ▸A ok γ≤) →
         sub (unitrecₘ (fullRedNe~↓ t~ ▸t) (fullRedTermConv↑ u↑ ▸u)
@@ -251,7 +290,7 @@ module _ (as : Full-reduction-assumptions) where
       (⊢A : Γ ⊢ A [conv↑] A′) → γ ▸[ m ] A →
       γ ▸[ m ] FR.fullRedConv↑ ⊢A .proj₁
     fullRedConv↑ ([↑] _ _ D _ _ _ A′<>B′) γ▸A =
-      fullRedConv↓ A′<>B′ (usagePres* γ▸A D)
+      fullRedConv↓ A′<>B′ (usagePres* Unitʷ-η→ γ▸A D)
 
     fullRedConv↓ :
       (⊢A : Γ ⊢ A [conv↓] A′) → γ ▸[ m ] A →
@@ -281,7 +320,7 @@ module _ (as : Full-reduction-assumptions) where
       (⊢t : Γ ⊢ t [conv↑] t′ ∷ A) → γ ▸[ m ] t →
       γ ▸[ m ] FR.fullRedTermConv↑ ⊢t .proj₁
     fullRedTermConv↑ ([↑]ₜ _ _ _ _ d _ _ _ _ t<>u) γ▸t =
-      fullRedTermConv↓ t<>u (usagePres*Term γ▸t d)
+      fullRedTermConv↓ t<>u (usagePres*Term Unitʷ-η→ γ▸t d)
 
     fullRedTermConv↓ :
       (⊢t : Γ ⊢ t [conv↓] t′ ∷ A) → γ ▸[ m ] t →
@@ -289,18 +328,13 @@ module _ (as : Full-reduction-assumptions) where
     fullRedTermConv↓ {Γ = Γ} {t = t} {γ = γ} {m = m} = λ where
       (ℕ-ins t~)     ▸t → fullRedNe~↓ t~ ▸t
       (Empty-ins t~) ▸t → fullRedNe~↓ t~ ▸t
-      (Unit-ins {s = 𝕨} t~)  ▸t → fullRedNe~↓ t~ ▸t
-      (Unit-ins {s = 𝕤} t~)  ▸t →
-        case syntacticEqTerm (soundness~↓ t~) of λ
-          (⊢Unit , _ , _) →
-        case Unitˢ-lemma m (inversion-Unit ⊢Unit) ▸t of λ {
-          (_ , prop , γ≤) →
-        sub (starˢₘ prop) γ≤  }
+      (Unit-ins t~)  ▸t →
+        fullRedTermConv↓-Unit-ins t~ ▸t (Unit-with-η? _)
       (Σʷ-ins _ _ t~)     ▸t     → fullRedNe~↓ t~ ▸t
       (ne-ins _ _ _ t~↓B) ▸t     → fullRedNe~↓ t~↓B ▸t
       (univ _ _ A↓)       ▸A     → fullRedConv↓ A↓ ▸A
       (zero-refl _)       ▸zero  → ▸zero
-      (starʷ-refl x x₁)   ▸star  → ▸star
+      (starʷ-refl _ _ _)  ▸star  → ▸star
       (suc-cong t↑)       ▸suc-t →
         case inv-usage-suc ▸suc-t of λ {
           (invUsageSuc ▸t γ≤) →
@@ -330,12 +364,23 @@ module _ (as : Full-reduction-assumptions) where
         begin
           γ            ≤⟨ ∧ᶜ-greatest-lower-bound γ≤ ≤ᶜ-refl ⟩
           p ·ᶜ δ ∧ᶜ γ  ∎ }}
-      (η-unit ⊢t _ _ _) ▸t →
-        case Unitˢ-lemma m (⊢∷Unit→Unit-allowed ⊢t) ▸t of λ {
-          (_ , prop , γ≤) →
-        sub (starˢₘ prop) γ≤  }
+      (η-unit ⊢t _ _ _ η) ▸t →
+        Unit-lemma (⊢∷Unit→Unit-allowed ⊢t) η ▸t
       (Id-ins _ v~) ▸v   → fullRedNe~↓ v~ ▸v
       (rfl-refl _)  ▸rfl → sub rflₘ (inv-usage-rfl ▸rfl)
+
+    private
+
+      fullRedTermConv↓-Unit-ins :
+        (⊢t : Γ ⊢ t ~ t′ ↓ Unit s) → γ ▸[ m ] t →
+        (Unit-with-η? : Unit-with-η s ⊎ s PE.≡ 𝕨 × ¬ Unitʷ-η) →
+        γ ▸[ m ] FR.fullRedTermConv↓-Unit-ins ⊢t Unit-with-η? .proj₁
+      fullRedTermConv↓-Unit-ins t~ ▸t = λ where
+        (inj₂ (PE.refl , _)) → fullRedNe~↓ t~ ▸t
+        (inj₁ η)             →
+          case syntacticEqTerm (soundness~↓ t~) of λ
+            (⊢Unit , _ , _) →
+          Unit-lemma (inversion-Unit ⊢Unit) η ▸t
 
 ------------------------------------------------------------------------
 -- The main theorems
@@ -386,40 +431,39 @@ Full-reduction-term⇔Full-reduction-assumptions :
   Full-reduction-term ⇔ Full-reduction-assumptions
 Full-reduction-term⇔Full-reduction-assumptions =
     (λ red → λ where
-       .sink⊎𝟙≤𝟘 →
-         Unitˢ-allowed                                           →⟨ η-long-nf-for-0⇔sink⊎𝟙≤𝟘 ⟩
-
-         (let Γ = ε ∙ Unitˢ
+       .sink⊎𝟙≤𝟘 {s} ok η →                                        $⟨ η-long-nf-for-0⇔sink⊎𝟙≤𝟘 ok η ⟩
+         (let Γ = ε ∙ Unit s
               γ = ε ∙ 𝟙
-              A = Unitˢ
+              A = Unit s
               t = var x0
-              u = starˢ
+              u = star s
           in
           Γ ⊢ t ∷ A ×
           γ ▸[ 𝟙ᵐ ] t ×
           Γ ⊢nf u ∷ A ×
           Γ ⊢ t ≡ u ∷ A ×
-          (γ ▸[ 𝟙ᵐ ] u ⇔ (Starˢ-sink ⊎ 𝟙 ≤ 𝟘)))                  →⟨ ((λ (⊢t , ▸t , ⊢u , t≡u , ▸u⇔) →
-                                                                     ⊢u , t≡u , ▸u⇔ , red ⊢t ▸t)) ⟩
-         (let Γ = ε ∙ Unitˢ
+          (γ ▸[ 𝟙ᵐ ] u ⇔ (s PE.≡ 𝕤 × Starˢ-sink ⊎ 𝟙 ≤ 𝟘)))         →⟨ (λ (⊢t , ▸t , ⊢u , t≡u , ▸u⇔) →
+                                                                         ⊢u , t≡u , ▸u⇔ , red ⊢t ▸t) ⟩
+         (let Γ = ε ∙ Unit s
               γ = ε ∙ 𝟙
-              A = Unitˢ
+              A = Unit s
               t = var x0
-              u = starˢ
+              u = star s
           in
           Γ ⊢nf u ∷ A ×
           Γ ⊢ t ≡ u ∷ A ×
-          (γ ▸[ 𝟙ᵐ ] u ⇔ (Starˢ-sink ⊎ 𝟙 ≤ 𝟘)) ×
-          ∃ λ v → Γ ⊢nf v ∷ A × Γ ⊢ t ≡ v ∷ A × γ ▸[ 𝟙ᵐ ] v)    →⟨ ((λ (⊢u , t≡u , ▸u⇔ , v , ⊢v , t≡v , ▸v) →
-                                                                      v ,
-                                                                      PE.subst (λ u → _ ▸[ _ ] u ⇔ _)
-                                                                        (normal-terms-unique ⊢u ⊢v (trans (sym t≡u) t≡v))
-                                                                        ▸u⇔ ,
-                                                                      ▸v)) ⟩
-         (∃ λ v → (ε ∙ 𝟙 ▸[ 𝟙ᵐ ] v ⇔ (Starˢ-sink ⊎ 𝟙 ≤ 𝟘)) ×
-                  ε ∙ 𝟙 ▸[ 𝟙ᵐ ] v)                              →⟨ (λ (_ , ▸v⇔ , ▸v) → ▸v⇔ .proj₁ ▸v) ⟩
+          (γ ▸[ 𝟙ᵐ ] u ⇔ (s PE.≡ 𝕤 × Starˢ-sink ⊎ 𝟙 ≤ 𝟘)) ×
+          ∃ λ v → Γ ⊢nf v ∷ A × Γ ⊢ t ≡ v ∷ A × γ ▸[ 𝟙ᵐ ] v)       →⟨ (λ (⊢u , t≡u , ▸u⇔ , v , ⊢v , t≡v , ▸v) →
+                                                                         v ,
+                                                                         PE.subst (λ u → _ ▸[ _ ] u ⇔ _)
+                                                                           (normal-terms-unique ⊢u ⊢v (trans (sym t≡u) t≡v))
+                                                                           ▸u⇔ ,
+                                                                         ▸v) ⟩
+         (∃ λ v →
+            (ε ∙ 𝟙 ▸[ 𝟙ᵐ ] v ⇔ (s PE.≡ 𝕤 × Starˢ-sink ⊎ 𝟙 ≤ 𝟘)) ×
+            ε ∙ 𝟙 ▸[ 𝟙ᵐ ] v)                                       →⟨ (λ (_ , ▸v⇔ , ▸v) → ▸v⇔ .proj₁ ▸v) ⟩
 
-         Starˢ-sink ⊎ 𝟙 ≤ 𝟘                                                  □
+         s PE.≡ 𝕤 × Starˢ-sink ⊎ 𝟙 ≤ 𝟘                             □
 
        .≡𝟙⊎𝟙≤𝟘 {p = p} {q = q} →
          Σˢ-allowed p q                                                   →⟨ η-long-nf-for-0⇔≡𝟙⊎≡𝟘 ⟩
@@ -483,36 +527,35 @@ Full-reduction-term-ε→Full-reduction-assumptions :
   Full-reduction-assumptions
 Full-reduction-term-ε→Full-reduction-assumptions
   {r = r} ok red = λ where
-    .sink⊎𝟙≤𝟘 →
-      Unitˢ-allowed                                         →⟨ η-long-nf-for-id⇔sink⊎𝟙≤𝟘 ok ⟩
-
-      (let A = Π 𝟙 , r ▷ Unitˢ ▹ Unitˢ
+    .sink⊎𝟙≤𝟘 {s} Unit-ok η →                               $⟨ η-long-nf-for-id⇔sink⊎𝟙≤𝟘 ok Unit-ok η ⟩
+      (let A = Π 𝟙 , r ▷ Unit s ▹ Unit s
            t = lam 𝟙 (var x0)
-           u = lam 𝟙 starˢ
+           u = lam 𝟙 (star s)
        in
        ε ⊢ t ∷ A ×
        ε ▸[ 𝟙ᵐ ] t ×
        ε ⊢nf u ∷ A ×
        ε ⊢ t ≡ u ∷ A ×
-       (ε ▸[ 𝟙ᵐ ] u ⇔ (Starˢ-sink ⊎ 𝟙 ≤ 𝟘)))               →⟨ (λ (⊢t , ▸t , ⊢u , t≡u , ▸u⇔) →
-                                                                ⊢u , t≡u , ▸u⇔ , red ⊢t ▸t) ⟩
-      (let A = Π 𝟙 , r ▷ Unitˢ ▹ Unitˢ
+       (ε ▸[ 𝟙ᵐ ] u ⇔ (s PE.≡ 𝕤 × Starˢ-sink ⊎ 𝟙 ≤ 𝟘)))     →⟨ (λ (⊢t , ▸t , ⊢u , t≡u , ▸u⇔) →
+                                                                  ⊢u , t≡u , ▸u⇔ , red ⊢t ▸t) ⟩
+      (let A = Π 𝟙 , r ▷ Unit s ▹ Unit s
            t = lam 𝟙 (var x0)
-           u = lam 𝟙 starˢ
+           u = lam 𝟙 (star s)
        in
        ε ⊢nf u ∷ A ×
        ε ⊢ t ≡ u ∷ A ×
-       (ε ▸[ 𝟙ᵐ ] u ⇔ (Starˢ-sink ⊎ 𝟙 ≤ 𝟘)) ×
-       ∃ λ v → ε ⊢nf v ∷ A × ε ⊢ t ≡ v ∷ A × ε ▸[ 𝟙ᵐ ] v)  →⟨ (λ (⊢u , t≡u , ▸u⇔ , v , ⊢v , t≡v , ▸v) →
-                                                                 v ,
-                                                                 PE.subst (λ u → _ ▸[ _ ] u ⇔ _)
-                                                                   (normal-terms-unique ⊢u ⊢v (trans (sym t≡u) t≡v))
-                                                                   ▸u⇔ ,
-                                                                 ▸v) ⟩
-      (∃ λ v → (ε ▸[ 𝟙ᵐ ] v ⇔ (Starˢ-sink ⊎ 𝟙 ≤ 𝟘)) ×
-                ε ▸[ 𝟙ᵐ ] v)                               →⟨ (λ (_ , ▸v⇔ , ▸v) → ▸v⇔ .proj₁ ▸v) ⟩
+       (ε ▸[ 𝟙ᵐ ] u ⇔ (s PE.≡ 𝕤 × Starˢ-sink ⊎ 𝟙 ≤ 𝟘)) ×
+       ∃ λ v → ε ⊢nf v ∷ A × ε ⊢ t ≡ v ∷ A × ε ▸[ 𝟙ᵐ ] v)   →⟨ (λ (⊢u , t≡u , ▸u⇔ , v , ⊢v , t≡v , ▸v) →
+                                                                  v ,
+                                                                  PE.subst (λ u → _ ▸[ _ ] u ⇔ _)
+                                                                    (normal-terms-unique ⊢u ⊢v (trans (sym t≡u) t≡v))
+                                                                    ▸u⇔ ,
+                                                                  ▸v) ⟩
+      (∃ λ v →
+         (ε ▸[ 𝟙ᵐ ] v ⇔ (s PE.≡ 𝕤 × Starˢ-sink ⊎ 𝟙 ≤ 𝟘)) ×
+         ε ▸[ 𝟙ᵐ ] v)                                       →⟨ (λ (_ , ▸v⇔ , ▸v) → ▸v⇔ .proj₁ ▸v) ⟩
 
-      Starˢ-sink ⊎ 𝟙 ≤ 𝟘                                   □
+      s PE.≡ 𝕤 × Starˢ-sink ⊎ 𝟙 ≤ 𝟘                         □
 
     .≡𝟙⊎𝟙≤𝟘 {p = p} {q = q} →
       Σˢ-allowed p q                                                  →⟨ η-long-nf-for-id⇔≡𝟙⊎≡𝟘 ok ⟩

@@ -49,6 +49,8 @@ import Definition.Untyped.Unit
 import Graded.Derived.Erased.Eta.Untyped
 import Graded.Derived.Erased.NoEta.Untyped
 import Graded.Derived.Erased.Untyped
+import Definition.Typed.Variant
+import Definition.Untyped.Neutral
 
 ------------------------------------------------------------------------
 -- The type theory
@@ -332,6 +334,7 @@ import Graded.Usage.QuantityTranslation
 import Graded.Modality.Extended
 import Graded.Modality.Extended.K-allowed
 import Graded.Modality.Extended.K-not-allowed.Erased-matches
+import Graded.Modality.Extended.K-not-allowed.Only-some-erased-matches
 import Graded.Modality.Extended.K-not-allowed.No-erased-matches
 
 ------------------------------------------------------------------------

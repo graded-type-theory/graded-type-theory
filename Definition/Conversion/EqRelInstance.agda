@@ -15,6 +15,7 @@ module Definition.Conversion.EqRelInstance
 open Type-restrictions R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
@@ -40,12 +41,15 @@ open import Definition.Typed.Consequences.Reduction R
 open import Graded.Derived.Erased.Typed R
 import Graded.Derived.Erased.Untyped 𝕄 as Erased
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 open import Tools.Function
 import Tools.PropositionalEquality as PE
+open import Tools.Relation
+open import Tools.Sum using (inj₁; inj₂)
 
 private
   variable
@@ -191,8 +195,9 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
           → Γ ⊢ t ~ t′ ∷ Unitʷ
           → Γ ⊢ u [conv↑] u′ ∷ A [ starʷ ]₀
           → Unitʷ-allowed
+          → ¬ Unitʷ-η
           → Γ ⊢ unitrec p q A t u ~ unitrec p q A′ t′ u′ ∷ A [ t ]₀
-~-unitrec A<>A′ (↑ A≡B t~t′) u<>u′ ok =
+~-unitrec A<>A′ (↑ A≡B t~t′) u<>u′ ok no-η =
   let _ , ⊢B = syntacticEq A≡B
       B′ , whnfB′ , D = whNorm ⊢B
       Unit≡B′ = trans A≡B (subset* (red D))
@@ -202,7 +207,7 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
       ⊢A , _ = syntacticEq (soundnessConv↑ A<>A′)
       _ , ⊢t , _ = syntacticEqTerm (soundness~↓ t~t″)
   in  ↑ (refl (substType ⊢A ⊢t))
-        (unitrec-cong A<>A′ t~t″ u<>u′)
+        (unitrec-cong A<>A′ t~t″ u<>u′ no-η)
 
 opaque
 
@@ -327,16 +332,17 @@ eqRelInstance = record {
   ≅ₜ-Unitrefl = λ ⊢Γ ok →
                   liftConvTerm $
                   univ (Unitⱼ ⊢Γ ok) (Unitⱼ ⊢Γ ok) (Unit-refl ⊢Γ ok);
-  ≅ₜ-η-unit = λ [e] [e'] → let u , uWhnf , uRed = whNormTerm [e]
-                               u' , u'Whnf , u'Red = whNormTerm [e']
-                               [u] = ⊢u-redₜ uRed
-                               [u'] = ⊢u-redₜ u'Red
-                           in  [↑]ₜ Unit! u u'
-                               (red (idRed:*: (syntacticTerm [e])))
-                               (redₜ uRed)
-                               (redₜ u'Red)
-                               Unitₙ uWhnf u'Whnf
-                               (η-unit [u] [u'] uWhnf u'Whnf);
+  ≅ₜ-η-unit = λ [e] [e'] ok →
+    let u , uWhnf , uRed = whNormTerm [e]
+        u' , u'Whnf , u'Red = whNormTerm [e']
+        [u] = ⊢u-redₜ uRed
+        [u'] = ⊢u-redₜ u'Red
+    in  [↑]ₜ Unit! u u'
+          (red (idRed:*: (syntacticTerm [e])))
+          (redₜ uRed)
+          (redₜ u'Red)
+          Unitₙ uWhnf u'Whnf
+          (η-unit [u] [u'] uWhnf u'Whnf ok);
   ≅-ΠΣ-cong = λ x x₁ x₂ ok → liftConv (ΠΣ-cong x x₁ x₂ ok);
   ≅ₜ-ΠΣ-cong = λ x x₁ x₂ ok →
     let _ , F∷U , H∷U = syntacticEqTerm (soundnessConv↑Term x₁)

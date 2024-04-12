@@ -14,8 +14,10 @@ module Definition.LogicalRelation.Irrelevance
   where
 
 open EqRelSet {{...}}
+open Type-restrictions R
 
 open import Definition.Untyped M hiding (Wk; K)
+open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
 import Definition.Typed.Weakening R as Wk
 open import Definition.Typed.Properties R

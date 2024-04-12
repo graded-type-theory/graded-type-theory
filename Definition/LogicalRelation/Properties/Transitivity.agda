@@ -14,8 +14,10 @@ module Definition.LogicalRelation.Properties.Transitivity
   where
 
 open EqRelSet {{...}}
+open Type-restrictions R
 
 open import Definition.Untyped M hiding (K)
+open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 import Definition.Typed.Weakening R as Weak
@@ -32,6 +34,7 @@ open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Sum using (inj₂)
 
 private
   variable
@@ -106,16 +109,20 @@ transEqTermUnit : ∀ {s n n′ n″}
   → Γ ⊩Unit⟨ s ⟩ n  ≡ n′ ∷Unit
   → Γ ⊩Unit⟨ s ⟩ n′ ≡ n″ ∷Unit
   → Γ ⊩Unit⟨ s ⟩ n  ≡ n″ ∷Unit
-transEqTermUnit {s = 𝕤} (Unitₜ₌ ⊢t _) (Unitₜ₌ _ ⊢v) = Unitₜ₌ ⊢t ⊢v
+transEqTermUnit (Unitₜ₌ˢ ⊢t _ ok) (Unitₜ₌ˢ _ ⊢v _) = Unitₜ₌ˢ ⊢t ⊢v ok
 transEqTermUnit
-  {s = 𝕨} (Unitₜ₌ k _ d d′ k≡k′ prop) (Unitₜ₌ _ k‴ d″ d‴ k″≡k‴ prop′) =
+  (Unitₜ₌ʷ k _ d d′ k≡k′ prop ok) (Unitₜ₌ʷ _ k‴ d″ d‴ k″≡k‴ prop′ _) =
   let whK″ = proj₁ (usplit prop′)
       whK′ = proj₂ (usplit prop)
       k″≡k′ = whrDet*Term (redₜ d″ , whK″) (redₜ d′ , whK′)
       k′≡k‴ = PE.subst (λ x → _ ⊢ x ≅ _ ∷ _) k″≡k′ k″≡k‴
       prop″ = PE.subst (λ x → [Unitʷ]-prop _ x _) k″≡k′ prop′
-  in  Unitₜ₌ k k‴ d d‴ (≅ₜ-trans k≡k′ k′≡k‴)
-             (transUnit-prop prop prop″)
+  in  Unitₜ₌ʷ k k‴ d d‴ (≅ₜ-trans k≡k′ k′≡k‴)
+        (transUnit-prop prop prop″) ok
+transEqTermUnit (Unitₜ₌ˢ _ _ (inj₂ ok)) (Unitₜ₌ʷ _ _ _ _ _ _ not-ok) =
+  ⊥-elim (not-ok ok)
+transEqTermUnit (Unitₜ₌ʷ _ _ _ _ _ _ not-ok) (Unitₜ₌ˢ _ _ (inj₂ ok)) =
+  ⊥-elim (not-ok ok)
 
 
 -- Helper function for transitivity of type equality using shape views.

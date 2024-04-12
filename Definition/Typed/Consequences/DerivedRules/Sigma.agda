@@ -28,6 +28,7 @@ open import Definition.Typed.Reasoning.Term R
 open import Definition.Typed.Weakening R as W
 
 open import Definition.Untyped M as U
+open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Sigma 𝕄
 

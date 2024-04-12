@@ -15,6 +15,7 @@ module Graded.Erasure.LogicalRelation.Reduction
 
 open Assumptions as
 open Modality 𝕄
+open Type-restrictions R
 
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Properties.Escape R
@@ -24,6 +25,7 @@ import Definition.LogicalRelation.Irrelevance R as I
 import Definition.LogicalRelation.Properties.Reduction R as R
 
 open import Definition.Untyped M as U
+open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Consequences.Reduction R
@@ -43,7 +45,7 @@ open import Tools.Nat
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
-open import Tools.Sum hiding (id ; sym)
+open import Tools.Sum using (inj₁; inj₂)
 
 private
   variable

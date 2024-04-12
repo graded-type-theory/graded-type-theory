@@ -11,18 +11,29 @@ module Definition.Typed.Restrictions
 
 open Modality 𝕄
 
+open import Definition.Typed.Variant
 open import Definition.Untyped M
 
 open import Tools.Function
 open import Tools.Level
 open import Tools.Product
 open import Tools.Relation
+open import Tools.PropositionalEquality
+open import Tools.Sum
 open import Tools.Unit
 
--- Restrictions on typing derivations.
+-- This type specifies what variant of the type system should be used.
+-- Various things can be disallowed, and one can also choose between
+-- different sets of rules.
 
 record Type-restrictions : Set (lsuc a) where
   no-eta-equality
+  field
+    -- What variant of the type system should be used?
+    type-variant : Type-variant
+
+  open Type-variant type-variant public
+
   field
     -- Unit types of either variant are only allowed if the given
     -- predicate holds.
@@ -95,5 +106,20 @@ record Type-restrictions : Set (lsuc a) where
 
   BindingType-allowed : BindingType → Set a
   BindingType-allowed (BM b p q) = ΠΣ-allowed b p q
+
+  -- Some typing rules use the following condition.
+
+  Unit-with-η : Strength → Set
+  Unit-with-η s = s ≡ 𝕤 ⊎ Unitʷ-η
+
+  opaque
+
+    -- A decision procedure related to Unit-with-η.
+
+    Unit-with-η? : ∀ s → Unit-with-η s ⊎ s ≡ 𝕨 × ¬ Unitʷ-η
+    Unit-with-η? 𝕤 = inj₁ (inj₁ refl)
+    Unit-with-η? 𝕨 = case Unitʷ-η? of λ where
+      (yes η)   → inj₁ (inj₂ η)
+      (no no-η) → inj₂ (refl , no-η)
 
 open Type-restrictions

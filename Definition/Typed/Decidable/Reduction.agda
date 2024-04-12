@@ -15,7 +15,6 @@ module Definition.Typed.Decidable.Reduction
   where
 
 open import Definition.Untyped M
-  hiding (U≢B; ℕ≢B; B≢ne; Id≢⟦⟧▷; Id≢ne)
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.EqRelInstance R

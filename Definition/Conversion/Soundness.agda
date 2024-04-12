@@ -61,7 +61,7 @@ mutual
     in  prodrec-cong ⊢F ⊢G C≡E g≡h u≡v ok
   soundness~↑ (emptyrec-cong x₁ k~l) =
     emptyrec-cong (soundnessConv↑ x₁) (soundness~↓ k~l)
-  soundness~↑ (unitrec-cong x x₁ x₂) =
+  soundness~↑ (unitrec-cong x x₁ x₂ _) =
     let F≡H = soundnessConv↑ x
         k≡l = soundness~↓ x₁
         u≡v = soundnessConv↑Term x₂
@@ -134,7 +134,7 @@ mutual
     in  conv (soundness~↓ x₁) M≡A
   soundnessConv↓Term (univ x x₁ x₂) = inverseUnivEq x (soundnessConv↓ x₂)
   soundnessConv↓Term (zero-refl ⊢Γ) = refl (zeroⱼ ⊢Γ)
-  soundnessConv↓Term (starʷ-refl ⊢Γ ok) = refl (starⱼ ⊢Γ ok)
+  soundnessConv↓Term (starʷ-refl ⊢Γ ok _) = refl (starⱼ ⊢Γ ok)
   soundnessConv↓Term (suc-cong c) = suc-cong (soundnessConv↑Term c)
   soundnessConv↓Term (prod-cong x x₁ x₂ x₃ ok) =
     prod-cong x x₁ (soundnessConv↑Term x₂) (soundnessConv↑Term x₃) ok
@@ -148,7 +148,8 @@ mutual
         fst≡ = soundnessConv↑Term fstConv
         snd≡ = soundnessConv↑Term sndConv
     in  Σ-η ⊢F ⊢G ⊢p ⊢r fst≡ snd≡
-  soundnessConv↓Term (η-unit [a] [b] aUnit bUnit) = η-unit [a] [b]
+  soundnessConv↓Term (η-unit [a] [b] aUnit bUnit ok) =
+    η-unit [a] [b] ok
   soundnessConv↓Term
     {Γ} (Id-ins {v₁} {t} {u} {A} {A′} {t′} {u′} ⊢v₁ v₁~v₂) =
     case soundness~↓ v₁~v₂ of λ {

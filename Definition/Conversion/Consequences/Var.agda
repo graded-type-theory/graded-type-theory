@@ -11,15 +11,20 @@ module Definition.Conversion.Consequences.Var
   (R : Type-restrictions 𝕄)
   where
 
+open Type-restrictions R
+
 open import Definition.Conversion R
 open import Definition.Conversion.Consequences.Completeness R
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Untyped M
+open import Definition.Untyped.Neutral M type-variant
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 import Tools.PropositionalEquality as PE
+open import Tools.Sum
 
 private variable
   x   : Fin _
@@ -46,16 +51,18 @@ var-only-equal-to-itself =
   [conv↓]∷-lemma :
     No-η-equality A → Whnf t → Γ ⊢ var x [conv↓] t ∷ A → var x PE.≡ t
   [conv↓]∷-lemma = λ where
-    _        _ (univ _ _ x≡t)     → [conv↓]-lemma x≡t
-    _        _ (Σʷ-ins _ _ x≡t)   → ~↓-lemma x≡t
-    _        _ (Empty-ins x≡t)    → ~↓-lemma x≡t
-    _        _ (Unit-ins x≡t)     → ~↓-lemma x≡t
-    _        _ (ℕ-ins x≡t)        → ~↓-lemma x≡t
-    _        _ (Id-ins _ x≡t)     → ~↓-lemma x≡t
-    _        _ (ne-ins _ _ _ x≡t) → ~↓-lemma x≡t
-    (neₙ ()) _ (η-eq _ _ _ _ _)
-    (neₙ ()) _ (Σ-η _ _ _ _ _ _)
-    (neₙ ()) _ (η-unit _ _ _ _)
+    _             _ (univ _ _ x≡t)             → [conv↓]-lemma x≡t
+    _             _ (Σʷ-ins _ _ x≡t)           → ~↓-lemma x≡t
+    _             _ (Empty-ins x≡t)            → ~↓-lemma x≡t
+    _             _ (Unit-ins x≡t)             → ~↓-lemma x≡t
+    _             _ (ℕ-ins x≡t)                → ~↓-lemma x≡t
+    _             _ (Id-ins _ x≡t)             → ~↓-lemma x≡t
+    _             _ (ne-ins _ _ _ x≡t)         → ~↓-lemma x≡t
+    (Unitʷₙ no-η) _ (η-unit _ _ _ _ (inj₂ η))  → ⊥-elim (no-η η)
+    (Unitʷₙ _)    _ (η-unit _ _ _ _ (inj₁ ()))
+    (neₙ ())      _ (η-eq _ _ _ _ _)
+    (neₙ ())      _ (Σ-η _ _ _ _ _ _)
+    (neₙ ())      _ (η-unit _ _ _ _ _)
 
   [conv↑]∷-lemma :
     No-η-equality A → Whnf t → Γ ⊢ var x [conv↑] t ∷ A → var x PE.≡ t

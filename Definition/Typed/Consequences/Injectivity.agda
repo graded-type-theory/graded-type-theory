@@ -11,8 +11,11 @@ module Definition.Typed.Consequences.Injectivity
   (R : Type-restrictions 𝕄)
   where
 
+open Type-restrictions R
+
 open import Definition.Untyped M hiding (wk)
 import Definition.Untyped M as U
+open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 
 open import Definition.Typed R

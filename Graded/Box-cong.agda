@@ -31,6 +31,7 @@ open import Definition.Typed.Reasoning.Reduction TR
 import Definition.Typed.Weakening TR as W
 open import Definition.Untyped M as U
 open import Definition.Untyped.Identity 𝕄
+open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 
 open import Graded.Context 𝕄
@@ -478,15 +479,20 @@ opaque
 
 opaque
 
-  -- If the modality's zero is well-behaved and erased matches
-  -- (including the []-cong primitive) are not allowed, then []-cong
-  -- is not supported (with any grades) for the mode 𝟙ᵐ.
+  -- If the modality's zero is well-behaved, erased matches (including
+  -- the []-cong primitive) are not allowed, and η-equality is not
+  -- allowed for the weak unit type unless a certain condition is
+  -- satisfied, then []-cong is not supported (with any grades) for
+  -- the mode 𝟙ᵐ.
 
   ¬-[]-cong :
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
     No-erased-matches TR UR →
+    (∀ {p q} →
+     Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
+     𝟙 ≤ 𝟘 ⊎ p PE.≡ 𝟘) →
     ¬ Has-[]-cong s 𝟙ᵐ q₁ q₂ q₃ q₄
-  ¬-[]-cong nem (_ , ▸[]-cong , ⊢[]-cong) =
+  ¬-[]-cong nem Unitʷ-η→ (_ , ▸[]-cong , ⊢[]-cong) =
     case lemma
            (lemma
               (lemma
@@ -502,7 +508,8 @@ opaque
                .proj₂ .proj₁ of λ ()
       (_ , ne u-ne , t⇒*u) →
         neutral-not-well-resourced nem (λ _ → inhabited-consistent ⊢σ)
-          u-ne (⊢u-redₜ t⇒*u) (usagePres*Term ▸t (redₜ t⇒*u)) }
+          u-ne (⊢u-redₜ t⇒*u)
+          (usagePres*Term Unitʷ-η→ ▸t (redₜ t⇒*u)) }
     where
     lemma :
       ((σ , _) :
@@ -519,9 +526,10 @@ opaque
              ⊥-elim $
              neutral-not-well-resourced nem
                (λ _ → inhabited-consistent ⊢σ) v-n (⊢u-redₜ t⇒*v)
-               (usagePres*Term ▸t (redₜ t⇒*v))
+               (usagePres*Term Unitʷ-η→ ▸t (redₜ t⇒*v))
            (lam _ v , lamₙ , t⇒*lam) →
-             case inv-usage-lam (usagePres*Term ▸t (redₜ t⇒*lam)) of λ {
+             case inv-usage-lam
+                    (usagePres*Term Unitʷ-η→ ▸t (redₜ t⇒*lam)) of λ {
                (invUsageLam ▸v 𝟘≤) →
              case inversion-lam-Π (⊢u-redₜ t⇒*lam) of λ {
                (⊢v , PE.refl , _) →

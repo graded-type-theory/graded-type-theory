@@ -15,6 +15,7 @@ module Graded.Erasure.LogicalRelation.Irrelevance
 
 open Assumptions as
 open Modality 𝕄
+open Type-restrictions R
 
 open import Graded.Erasure.LogicalRelation as
 
@@ -29,6 +30,7 @@ open import Definition.Typed.Weakening R hiding (wk)
 open import Definition.Typed.Properties R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Neutral M type-variant
 
 open import Graded.Context 𝕄
 open import Graded.Mode 𝕄

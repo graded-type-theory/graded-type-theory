@@ -14,7 +14,7 @@ module Definition.Typechecking.Deterministic
 open import Definition.Typechecking R
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-open import Definition.Untyped M hiding (U≢B; ℕ≢B; B≢ne)
+open import Definition.Untyped M
 
 open import Tools.Fin
 open import Tools.Nat

@@ -15,6 +15,7 @@ module Definition.Typed.EqualityRelation
 open Type-restrictions R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R hiding (_,_)
 open import Definition.Typed.Weakening R using (_∷_⊇_)
 
@@ -24,6 +25,7 @@ open import Tools.Fin
 open import Tools.Function
 open import Tools.Level
 open import Tools.Nat
+open import Tools.Relation
 
 private
   variable
@@ -132,9 +134,10 @@ record EqRelSet : Set (lsuc ℓ) where
     ≅ₜ-Unitrefl : ⊢ Γ → Unit-allowed s → Γ ⊢ Unit s ≅ Unit s ∷ U
 
     -- Unit η-equality
-    ≅ₜ-η-unit : Γ ⊢ e ∷ Unitˢ
-              → Γ ⊢ e′ ∷ Unitˢ
-              → Γ ⊢ e ≅ e′ ∷ Unitˢ
+    ≅ₜ-η-unit : Γ ⊢ e ∷ Unit s
+              → Γ ⊢ e′ ∷ Unit s
+              → Unit-with-η s
+              → Γ ⊢ e ≅ e′ ∷ Unit s
 
     -- Π- and Σ-congruence
 
@@ -243,6 +246,7 @@ record EqRelSet : Set (lsuc ℓ) where
               → Γ ⊢ t ~ t′ ∷ Unitʷ
               → Γ ⊢ u ≅ u′ ∷ A [ starʷ ]₀
               → Unitʷ-allowed
+              → ¬ Unitʷ-η
               → Γ ⊢ unitrec p q A t u ~ unitrec p q A′ t′ u′ ∷ A [ t ]₀
 
     -- Star reflexivity

@@ -38,6 +38,9 @@ data GenTs (A : Nat → Set a) : Nat → List Nat → Set a where
 
 -- Sigma and Unit types have two modes, allowing either projections
 -- and η-equality (strong) or elimination by prodrec/unitrec (weak).
+--
+-- Note that one can optionally enable η-equality for weak unit types,
+-- see Definition.Typed.Variant.Type-variant.η-for-Unitʷ.
 data Strength : Set where
   𝕤 𝕨 : Strength
 

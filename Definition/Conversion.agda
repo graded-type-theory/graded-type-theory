@@ -14,14 +14,18 @@ module Definition.Conversion
 open Type-restrictions R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
 
 import Graded.Derived.Erased.Untyped 𝕄 as Erased
 
 open import Tools.Fin
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Relation
+open import Tools.Sum
 
 
 infix 10 _⊢_~_↑_
@@ -78,6 +82,7 @@ mutual
     unitrec-cong : Γ ∙ Unitʷ ⊢ F [conv↑] H
                  → Γ ⊢ k ~ l ↓ Unitʷ
                  → Γ ⊢ u [conv↑] v ∷ F [ starʷ ]₀
+                 → ¬ Unitʷ-η
                  → Γ ⊢ unitrec p q F k u ~ unitrec p q H l v ↑ F [ k ]₀
 
     J-cong        : Γ ⊢ A₁ [conv↑] A₂
@@ -206,7 +211,9 @@ mutual
 
     zero-refl : ⊢ Γ → Γ ⊢ zero [conv↓] zero ∷ ℕ
 
-    starʷ-refl : ⊢ Γ → Unitʷ-allowed
+    starʷ-refl : ⊢ Γ
+               → Unitʷ-allowed
+               → ¬ Unitʷ-η
                → Γ ⊢ starʷ [conv↓] starʷ ∷ Unitʷ
 
     suc-cong  : ∀ {m n}
@@ -238,11 +245,12 @@ mutual
               → Γ ⊢ k [conv↓] l ∷ Σˢ p , q ▷ F ▹ G
 
     η-unit    : ∀ {k l}
-              → Γ ⊢ k ∷ Unitˢ
-              → Γ ⊢ l ∷ Unitˢ
+              → Γ ⊢ k ∷ Unit s
+              → Γ ⊢ l ∷ Unit s
               → Whnf k
               → Whnf l
-              → Γ ⊢ k [conv↓] l ∷ Unitˢ
+              → Unit-with-η s
+              → Γ ⊢ k [conv↓] l ∷ Unit s
 
     Id-ins    : ∀ {A A′ t′ u′}
               → Γ ⊢ v₁ ∷ Id A t u
@@ -253,9 +261,14 @@ mutual
               → Γ ⊢ t ≡ u ∷ A
               → Γ ⊢ rfl [conv↓] rfl ∷ Id A t u
 
-star-refl : ⊢ Γ → Unit-allowed s → Γ ⊢ star s [conv↓] star s ∷ Unit s
-star-refl {s = 𝕤} ⊢Γ ok = η-unit (starⱼ ⊢Γ ok) (starⱼ ⊢Γ ok) starₙ starₙ
-star-refl {s = 𝕨} = starʷ-refl
+opaque
+
+  star-refl : ⊢ Γ → Unit-allowed s → Γ ⊢ star s [conv↓] star s ∷ Unit s
+  star-refl {s} ⊢Γ ok =
+    case Unit-with-η? s of λ where
+      (inj₂ (PE.refl , no-η)) → starʷ-refl ⊢Γ ok no-η
+      (inj₁ η)                →
+        η-unit (starⱼ ⊢Γ ok) (starⱼ ⊢Γ ok) starₙ starₙ η
 
 -- An inversion lemma for prod-cong.
 

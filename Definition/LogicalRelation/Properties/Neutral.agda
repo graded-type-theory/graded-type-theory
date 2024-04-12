@@ -14,8 +14,10 @@ module Definition.LogicalRelation.Properties.Neutral
   where
 
 open EqRelSet {{...}}
+open Type-restrictions R
 
 open import Definition.Untyped M hiding (Wk; K)
+open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
@@ -31,6 +33,7 @@ open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+import Tools.Sum as ⊎
 
 private
   variable
@@ -210,16 +213,18 @@ mutual
         n≡n′ = ~-to-≅ₜ n~n′₁
     in  Emptyₜ₌ _ _ (idRedTerm:*: (conv n A≡Empty)) (idRedTerm:*: (conv n′ A≡Empty))
             n≡n′ (ne (neNfₜ₌ neN neN′ n~n′₁))
-  neuEqTerm (Unitᵣ {s = 𝕤} (Unitₜ [ ⊢A , ⊢B , D ] _)) neN neN′ n n′ n~n′ =
-    let A≡Unit = subset* D
-    in  Unitₜ₌ (conv n A≡Unit) (conv n′ A≡Unit)
-  neuEqTerm (Unitᵣ {s = 𝕨} (Unitₜ [ ⊢A , ⊢B , D ] _)) neN neN′ n n′ n~n′ =
+  neuEqTerm (Unitᵣ {s} (Unitₜ [ ⊢A , ⊢B , D ] _)) neN neN′ n n′ n~n′ =
     let A≡Unit = subset* D
         n~n′₁ = ~-conv n~n′ A≡Unit
         n≡n′ = ~-to-≅ₜ n~n′₁
-    in  Unitₜ₌ _ _ (idRedTerm:*: (conv n A≡Unit))
-               (idRedTerm:*: (conv n′ A≡Unit)) n≡n′
-               (ne (neNfₜ₌ neN neN′ n~n′₁))
+    in  case Unit-with-η? s of
+          ⊎.[ Unitₜ₌ˢ (conv n A≡Unit) (conv n′ A≡Unit)
+            , (λ where
+                 (PE.refl , no-η) →
+                   Unitₜ₌ʷ _ _ (idRedTerm:*: (conv n A≡Unit))
+                     (idRedTerm:*: (conv n′ A≡Unit)) n≡n′
+                     (ne (neNfₜ₌ neN neN′ n~n′₁)) no-η)
+            ]
   neuEqTerm (ne (ne K [ ⊢A , ⊢B , D ] neK K≡K)) neN neN′ n n′ n~n′ =
     let A≡K = subset* D
     in  neₜ₌ _ _ (idRedTerm:*: (conv n A≡K)) (idRedTerm:*: (conv n′ A≡K))

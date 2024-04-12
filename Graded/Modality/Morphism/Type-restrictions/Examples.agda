@@ -110,8 +110,9 @@ Are-preserving-type-restrictions-equal-binder-quantities :
     tr tr
 Are-preserving-type-restrictions-equal-binder-quantities {tr = tr} r =
   record
-    { Unit-preserved = R.Unit-preserved
-    ; ΠΣ-preserved   = λ {b = b} → λ where
+    { Unitʷ-η-preserved = R.Unitʷ-η-preserved
+    ; Unit-preserved    = R.Unit-preserved
+    ; ΠΣ-preserved      = λ {b = b} → λ where
         (bn , refl) →
             R.ΠΣ-preserved bn
           , tr-BinderMode-one-function _ _ refl b
@@ -135,8 +136,9 @@ Are-reflecting-type-restrictions-equal-binder-quantities :
     tr tr
 Are-reflecting-type-restrictions-equal-binder-quantities
   {tr = tr} inj r = record
-  { Unit-reflected = Unit-reflected
-  ; ΠΣ-reflected   =
+  { Unitʷ-η-reflected = Unitʷ-η-reflected
+  ; Unit-reflected    = Unit-reflected
+  ; ΠΣ-reflected      =
       λ {b = b} {p = p} {q = q} (bn , eq) →
           ΠΣ-reflected bn
         , inj (
@@ -163,8 +165,9 @@ Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘 :
     (second-ΠΣ-quantities-𝟘 𝕄₂ R₂)
     tr tr-Σ
 Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘 tr-𝟘 r = record
-  { Unit-preserved = Unit-preserved
-  ; ΠΣ-preserved   = λ where
+  { Unitʷ-η-preserved = Unitʷ-η-preserved
+  ; Unit-preserved    = Unit-preserved
+  ; ΠΣ-preserved      = λ where
       (b , refl) → ΠΣ-preserved b , tr-𝟘
   ; K-preserved       = K-preserved
   ; []-cong-preserved = []-cong-preserved
@@ -185,8 +188,9 @@ Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘 :
     (second-ΠΣ-quantities-𝟘 𝕄₂ R₂)
     tr tr-Σ
 Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘 tr-𝟘 r = record
-  { Unit-reflected = Unit-reflected
-  ; ΠΣ-reflected   = λ (b , eq) → ΠΣ-reflected b , tr-𝟘 eq
+  { Unitʷ-η-reflected = Unitʷ-η-reflected
+  ; Unit-reflected    = Unit-reflected
+  ; ΠΣ-reflected      = λ (b , eq) → ΠΣ-reflected b , tr-𝟘 eq
   ; K-reflected       = K-reflected
   ; []-cong-reflected = []-cong-reflected
   }
@@ -209,8 +213,9 @@ Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω :
     tr tr-Σ
 Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
   {𝕄₁} {tr} {𝕄₂} {tr-Σ} tr-𝟘 tr-ω tr-Σ-ω r = record
-  { Unit-preserved = Unit-preserved
-  ; ΠΣ-preserved   = λ {b = b} (bn , is-𝟘 , not-𝟘) →
+  { Unitʷ-η-preserved = Unitʷ-η-preserved
+  ; Unit-preserved    = Unit-preserved
+  ; ΠΣ-preserved      = λ {b = b} (bn , is-𝟘 , not-𝟘) →
       ΠΣ-preserved bn , lemma₁ b is-𝟘 , lemma₃ b not-𝟘
   ; K-preserved       = K-preserved
   ; []-cong-preserved = []-cong-preserved
@@ -273,8 +278,9 @@ Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω :
     tr tr-Σ
 Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
   {tr} {𝕄₂} {𝕄₁} {tr-Σ} tr-𝟘 tr-ω tr-Σ-ω r = record
-  { Unit-reflected = Unit-reflected
-  ; ΠΣ-reflected   = λ {b = b} (bn , is-𝟘 , not-𝟘) →
+  { Unitʷ-η-reflected = Unitʷ-η-reflected
+  ; Unit-reflected    = Unit-reflected
+  ; ΠΣ-reflected      = λ {b = b} (bn , is-𝟘 , not-𝟘) →
       ΠΣ-reflected bn , lemma₁ b is-𝟘 , lemma₂ b not-𝟘
   ; K-reflected       = K-reflected
   ; []-cong-reflected = []-cong-reflected
@@ -328,7 +334,9 @@ opaque
      (strong-types-restricted 𝕄₂ R₂)
      tr tr-Σ
  Are-preserving-type-restrictions-strong-types-restricted hyp r = record
-   { Unit-preserved =
+   { Unitʷ-η-preserved =
+       Unitʷ-η-preserved
+   ; Unit-preserved =
        Σ.map Unit-preserved idᶠ
    ; ΠΣ-preserved =
        Σ.map ΠΣ-preserved λ where
@@ -360,7 +368,9 @@ opaque
      tr tr-Σ
  Are-reflecting-type-restrictions-strong-types-restricted
    hyp₁ hyp₂ r = record
-   { Unit-reflected =
+   { Unitʷ-η-reflected =
+       Unitʷ-η-reflected
+   ; Unit-reflected =
        Σ.map Unit-reflected idᶠ
    ; ΠΣ-reflected =
        Σ.map ΠΣ-reflected (λ { hyp refl → hyp₁ (hyp refl) })
@@ -392,7 +402,9 @@ opaque
      (no-strong-types 𝕄₂ R₂)
      tr tr-Σ
  Are-preserving-type-restrictions-no-strong-types r = record
-   { Unit-preserved =
+   { Unitʷ-η-preserved =
+       Unitʷ-η-preserved
+   ; Unit-preserved =
        Σ.map Unit-preserved idᶠ
    ; ΠΣ-preserved =
        Σ.map ΠΣ-preserved (lift ∘→ Lift.lower)
@@ -420,7 +432,9 @@ opaque
      (no-strong-types 𝕄₂ R₂)
      tr tr-Σ
  Are-reflecting-type-restrictions-no-strong-types hyp r = record
-   { Unit-reflected =
+   { Unitʷ-η-reflected =
+       Unitʷ-η-reflected
+   ; Unit-reflected =
        Σ.map Unit-reflected idᶠ
    ; ΠΣ-reflected =
        Σ.map ΠΣ-reflected (lift ∘→ Lift.lower)
@@ -450,7 +464,8 @@ Are-preserving-type-restrictions-no-erased-matches-TR :
     (no-erased-matches-TR 𝕄₂ s R₂)
     tr tr-Σ
 Are-preserving-type-restrictions-no-erased-matches-TR r = record
-  { Unit-preserved    = Unit-preserved
+  { Unitʷ-η-preserved = Unitʷ-η-preserved
+  ; Unit-preserved    = Unit-preserved
   ; ΠΣ-preserved      = ΠΣ-preserved
   ; K-preserved       = K-preserved
   ; []-cong-preserved = Σ.map []-cong-preserved idᶠ
@@ -472,7 +487,8 @@ Are-reflecting-type-restrictions-no-erased-matches-TR :
     (no-erased-matches-TR 𝕄₂ s R₂)
     tr tr-Σ
 Are-reflecting-type-restrictions-no-erased-matches-TR hyp r = record
-  { Unit-reflected    = Unit-reflected
+  { Unitʷ-η-reflected = Unitʷ-η-reflected
+  ; Unit-reflected    = Unit-reflected
   ; ΠΣ-reflected      = ΠΣ-reflected
   ; K-reflected       = K-reflected
   ; []-cong-reflected = λ {s = s} → λ where
@@ -573,8 +589,9 @@ erasure→unit-preserves-second-ΠΣ-quantities-𝟘-or-ω :
     erasure→unit erasure→unit
 erasure→unit-preserves-second-ΠΣ-quantities-𝟘-or-ω r =
   record
-    { Unit-preserved = Unit-preserved
-    ; ΠΣ-preserved   = λ (b , _) →
+    { Unitʷ-η-preserved = Unitʷ-η-preserved
+    ; Unit-preserved    = Unit-preserved
+    ; ΠΣ-preserved      = λ (b , _) →
         ΠΣ-preserved b , (λ _ → refl) , (λ _ → refl)
     ; K-preserved       = K-preserved
     ; []-cong-preserved = []-cong-preserved

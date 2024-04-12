@@ -30,6 +30,7 @@ open import Graded.Usage.Erased-matches
 open import Graded.Mode 𝕄
 
 open import Definition.Untyped M
+open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Consistency TR
 open import Definition.Typed.Consequences.DerivedRules TR
@@ -260,14 +261,16 @@ opaque
 
 opaque
 
-  -- If Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 holds (which means that certain kinds
-  -- of erased matches are allowed), and if additionally Unitʷ-allowed
-  -- holds, then one can prove a negation of a variant of the
-  -- statement of the fundamental lemma.
+  -- If Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 holds and η-equality is not allowed for
+  -- the weak unit type (which means that certain kinds of erased
+  -- matches are allowed), and if additionally Unitʷ-allowed holds,
+  -- then one can prove a negation of a variant of the statement of
+  -- the fundamental lemma.
 
   negation-of-fundamental-lemma-with-erased-matches₅ :
     Unitʷ-allowed →
     Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 →
+    ¬ Unitʷ-η →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
        let open LR ⊢Δ str in
        Consistent Δ →
@@ -276,8 +279,8 @@ opaque
        ∃₂ λ ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ]) →
          γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A / [Γ] / [A])
   negation-of-fundamental-lemma-with-erased-matches₅
-    {str} Unit-ok ok hyp =
-    case soundness-ℕ-only-source-counterexample₅ ok Unit-ok of λ
+    {str} Unit-ok ok no-η hyp =
+    case soundness-ℕ-only-source-counterexample₅ ok Unit-ok no-η of λ
       (consistent , ⊢t , ▸t , _) →
     ¬t®t $ hidden-®-intro-fundamental non-trivial $
     hyp ⊢Δ consistent ⊢t ▸t
@@ -298,8 +301,10 @@ opaque
 
     ¬t®t : ¬ t ®⟨ ¹ ⟩ erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
-      (zeroᵣ t⇒* _)    → case whnfRed*Term t⇒* (ne (unitrecₙ (var _))) of λ ()
-      (sucᵣ t⇒* _ _ _) → case whnfRed*Term t⇒* (ne (unitrecₙ (var _))) of λ ()
+      (zeroᵣ t⇒* _)    →
+        case whnfRed*Term t⇒* (ne (unitrecₙ no-η (var _))) of λ ()
+      (sucᵣ t⇒* _ _ _) →
+        case whnfRed*Term t⇒* (ne (unitrecₙ no-η (var _))) of λ ()
 
 opaque
 

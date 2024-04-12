@@ -783,7 +783,7 @@ full-reduction-assumptions :
   Suitable-for-full-reduction variant trs →
   Full-reduction-assumptions trs urs
 full-reduction-assumptions (¬M , H→𝟘ᵐ) = record
-  { sink⊎𝟙≤𝟘    = λ _ → inj₂ refl
+  { sink⊎𝟙≤𝟘    = λ _ _ → inj₂ refl
   ; ≡𝟙⊎𝟙≤𝟘 = λ where
       {p = L} _  → inj₁ refl
       {p = M} ok → ⊥-elim (¬M _ ok)

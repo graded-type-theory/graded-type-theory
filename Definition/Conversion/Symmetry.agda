@@ -14,6 +14,7 @@ module Definition.Conversion.Symmetry
 open Type-restrictions R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Weakening R as W hiding (wk)
@@ -125,7 +126,7 @@ mutual
     in  _ , soundnessConv↑ x
     , emptyrec-cong (symConv↑ Γ≡Δ x)
                     (PE.subst (λ x₁ → _ ⊢ _ ~ _ ↓ x₁) B≡Empty u~t)
-  sym~↑ Γ≡Δ (unitrec-cong F<>H k~l u<>v) =
+  sym~↑ Γ≡Δ (unitrec-cong F<>H k~l u<>v no-η) =
     let k≡l = soundness~↓ k~l
         ⊢Unit = proj₁ (syntacticEqTerm k≡l)
         H<>F = symConv↑ (Γ≡Δ ∙ refl ⊢Unit) F<>H
@@ -139,7 +140,7 @@ mutual
         ⊢F₊≡H₊ = substTypeEq ⊢F≡H (refl (starⱼ ⊢Γ (inversion-Unit ⊢Unit)))
         ⊢Fk≡Hl = substTypeEq ⊢F≡H k≡l
         v<>u′ = convConv↑Term (reflConEq ⊢Δ) (stabilityEq Γ≡Δ ⊢F₊≡H₊) v<>u
-    in  _ , ⊢Fk≡Hl , unitrec-cong H<>F l~k′ v<>u′
+    in  _ , ⊢Fk≡Hl , unitrec-cong H<>F l~k′ v<>u′ no-η
   sym~↑ Γ≡Δ (J-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁~w₂ C≡Id-t₁-v₁) =
     case sym~↓ Γ≡Δ w₁~w₂ of λ {
       (_ , _ , C≡D , w₂~w₁) →
@@ -294,9 +295,9 @@ mutual
   symConv↓Term Γ≡Δ (zero-refl x) =
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
     in  zero-refl ⊢Δ
-  symConv↓Term Γ≡Δ (starʷ-refl x ok) =
+  symConv↓Term Γ≡Δ (starʷ-refl _ ok no-η) =
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
-    in  starʷ-refl ⊢Δ ok
+    in  starʷ-refl ⊢Δ ok no-η
   symConv↓Term Γ≡Δ (suc-cong t<>u) = suc-cong (symConv↑Term Γ≡Δ t<>u)
   symConv↓Term Γ≡Δ (prod-cong x x₁ x₂ x₃ ok) =
     let Δ⊢F = stability Γ≡Δ x
@@ -321,10 +322,10 @@ mutual
                                                     (soundnessConv↑Term fstConv))
         Δsnd≡ = convConvTerm Δsnd≡₁ ΔGfstt≡Gfstu
     in  Σ-η Δ⊢r Δ⊢p rProd pProd Δfst≡ Δsnd≡
-  symConv↓Term Γ≡Δ (η-unit [t] [u] tUnit uUnit) =
+  symConv↓Term Γ≡Δ (η-unit [t] [u] tUnit uUnit ok) =
     let [t] = stabilityTerm Γ≡Δ [t]
         [u] = stabilityTerm Γ≡Δ [u]
-    in  η-unit [u] [t] uUnit tUnit
+    in  η-unit [u] [t] uUnit tUnit ok
   symConv↓Term Γ≡Δ (Id-ins ⊢v₁ v₁~v₂) =
     case sym~↓ Γ≡Δ v₁~v₂ of λ {
       (_ , B-whnf , Id≡B , v₂~v₁) →

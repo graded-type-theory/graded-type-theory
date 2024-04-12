@@ -4,7 +4,7 @@
 
 module Tools.Sum where
 
-open import Data.Sum.Base public using (_⊎_; inj₁; inj₂; map)
+open import Data.Sum.Base public using (_⊎_; inj₁; inj₂; map; [_,_])
 
 -- Idempotency.
 

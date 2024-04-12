@@ -19,6 +19,7 @@ open Usage-restrictions UR
 
 open import Definition.Untyped M
 open import Definition.Untyped.Identity 𝕄
+open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Sigma 𝕄
 open import Definition.Untyped.Unit 𝕄
 
@@ -430,7 +431,8 @@ opaque
 
 opaque
 
-  -- If Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 and Unitʷ-allowed hold, then there is a
+  -- If Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 and Unitʷ-allowed hold and η-equality
+  -- is not allowed for the weak unit type, then there is a
   -- counterexample to soundness-ℕ-only-source without the assumption
   -- "erased matches are not allowed unless the context is empty" (and
   -- without the strictness argument as well as the assumption that
@@ -439,6 +441,7 @@ opaque
   soundness-ℕ-only-source-counterexample₅ :
     Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 →
     Unitʷ-allowed →
+    ¬ Unitʷ-η →
     let Δ = ε ∙ Unitʷ
         t = unitrec 𝟘 𝟘 ℕ (var {n = 1} x0) zero
     in
@@ -446,7 +449,7 @@ opaque
     Δ ⊢ t ∷ ℕ ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     ¬ ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
-  soundness-ℕ-only-source-counterexample₅ unitrec-ok Unit-ok =
+  soundness-ℕ-only-source-counterexample₅ unitrec-ok Unit-ok no-η =
     case Unitⱼ ε Unit-ok of λ
       ⊢Unit →
     case ε ∙ ⊢Unit of λ
@@ -467,9 +470,9 @@ opaque
            𝟘 ·ᶜ (𝟘ᶜ , x0 ≔ ⌜ ⌞ 𝟘 ⌟ ⌝) +ᶜ 𝟘ᶜ  ∎)
     , (λ where
          (0 , whred unitrec⇒ ⇨ˢ _) →
-           whnfRedTerm unitrec⇒ (ne (unitrecₙ (var _)))
+           whnfRedTerm unitrec⇒ (ne (unitrecₙ no-η (var _)))
          (1+ _ , whred unitrec⇒ ⇨ˢ _) →
-           whnfRedTerm unitrec⇒ (ne (unitrecₙ (var _))))
+           whnfRedTerm unitrec⇒ (ne (unitrecₙ no-η (var _))))
 
 opaque
 
@@ -719,7 +722,7 @@ opaque
            (zeroⱼ (ε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ])))
         (⊢Unit-η (var₀ (⊢Unitʷ ε)))
         (rflⱼ′
-           (unitrec 𝟘 𝟘 ℕ starʷ zero  ≡⟨ unitrec-β (ℕⱼ (ε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ])) (zeroⱼ (ε ∙[ ⊢Unitʷ ])) Unit-ok ⟩⊢∎
+           (unitrec 𝟘 𝟘 ℕ starʷ zero  ≡⟨ unitrec-β-≡ (ℕⱼ (ε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ])) (zeroⱼ (ε ∙[ ⊢Unitʷ ])) ⟩⊢∎
             zero                      ∎))
     , refl-⇒ˢ⟨⟩*
     where

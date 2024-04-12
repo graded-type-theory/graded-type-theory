@@ -14,8 +14,10 @@ module Definition.LogicalRelation.Weakening
   where
 
 open EqRelSet {{...}}
+open Type-restrictions R
 
 open import Definition.Untyped M as U hiding (wk; K)
+open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
@@ -126,12 +128,12 @@ wkTermUnit {ρ = ρ} [ρ] ⊢Δ (Unitₜ n d n≡n prop) =
 wkEqTermUnit : ∀ {t u s} → ρ ∷ Δ ⊇ Γ → (⊢Δ : ⊢ Δ)
           → Γ ⊩Unit⟨ s ⟩ t ≡ u ∷Unit
           → Δ ⊩Unit⟨ s ⟩ U.wk ρ t ≡ U.wk ρ u ∷Unit
-wkEqTermUnit {ρ = ρ} {s = 𝕤} [ρ] ⊢Δ (Unitₜ₌ ⊢t ⊢u) =
-  Unitₜ₌ (T.wkTerm [ρ] ⊢Δ ⊢t) (T.wkTerm [ρ] ⊢Δ ⊢u)
-wkEqTermUnit {ρ = ρ} {s = 𝕨} [ρ] ⊢Δ (Unitₜ₌ k k′ d d′ k≡k′ prop) =
-  Unitₜ₌ (U.wk ρ k) (U.wk ρ k′) (wkRed:*:Term [ρ] ⊢Δ d)
-         (wkRed:*:Term [ρ] ⊢Δ d′) (≅ₜ-wk [ρ] ⊢Δ k≡k′)
-         (wk[Unitʷ]-prop [ρ] ⊢Δ prop)
+wkEqTermUnit [ρ] ⊢Δ (Unitₜ₌ˢ ⊢t ⊢u ok) =
+  Unitₜ₌ˢ (T.wkTerm [ρ] ⊢Δ ⊢t) (T.wkTerm [ρ] ⊢Δ ⊢u) ok
+wkEqTermUnit {ρ} [ρ] ⊢Δ (Unitₜ₌ʷ k k′ d d′ k≡k′ prop ok) =
+  Unitₜ₌ʷ (U.wk ρ k) (U.wk ρ k′) (wkRed:*:Term [ρ] ⊢Δ d)
+    (wkRed:*:Term [ρ] ⊢Δ d′) (≅ₜ-wk [ρ] ⊢Δ k≡k′)
+    (wk[Unitʷ]-prop [ρ] ⊢Δ prop) ok
 
 -- Weakening of the logical relation
 

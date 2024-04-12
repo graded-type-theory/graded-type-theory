@@ -32,7 +32,7 @@ open import Graded.Mode (ErasureModality variant)
 
 open import Definition.Typed.Restrictions (ErasureModality variant)
 
-open import Definition.Untyped Erasure hiding (Identity)
+open import Definition.Untyped Erasure
 
 open import Tools.Algebra Erasure
 open import Tools.Bool hiding (_∧_)
@@ -246,7 +246,7 @@ full-reduction-assumptions :
   Suitable-for-full-reduction rs →
   Full-reduction-assumptions rs us
 full-reduction-assumptions {rs = rs} 𝟘→𝟘ᵐ = record
-  { sink⊎𝟙≤𝟘 = λ _ → inj₂ PE.refl
+  { sink⊎𝟙≤𝟘 = λ _ _ → inj₂ PE.refl
   ; ≡𝟙⊎𝟙≤𝟘   = λ where
       {p = ω} _  → inj₁ PE.refl
       {p = 𝟘} ok → inj₂ (PE.refl , 𝟘→𝟘ᵐ _ ok , PE.refl)

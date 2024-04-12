@@ -28,6 +28,7 @@ open import Graded.Derived.Erased.Untyped 𝕄 𝕤 hiding (erased)
 
 open import Tools.Function
 import Tools.PropositionalEquality as PE
+open import Tools.Sum
 
 private variable
   Γ       : Con Term _
@@ -70,7 +71,7 @@ Erased-η-≡ :
   Γ ⊢ t ≡ u ∷ Erased A
 Erased-η-≡ ⊢A ⊢t ⊢u t≡u = Σ-η
   ⊢A Γ∙A⊢Unit ⊢t ⊢u t≡u
-  (η-unit (sndⱼ ⊢A Γ∙A⊢Unit ⊢t) (sndⱼ ⊢A Γ∙A⊢Unit ⊢u))
+  (η-unit (sndⱼ ⊢A Γ∙A⊢Unit ⊢t) (sndⱼ ⊢A Γ∙A⊢Unit ⊢u) (inj₁ PE.refl))
   where
   Γ∙A⊢Unit = Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok
 

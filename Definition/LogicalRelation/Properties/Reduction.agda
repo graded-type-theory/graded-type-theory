@@ -14,8 +14,10 @@ module Definition.LogicalRelation.Properties.Reduction
   where
 
 open EqRelSet {{...}}
+open Type-restrictions R
 
 open import Definition.Untyped M hiding (Wk; K)
+open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 import Definition.Typed.Weakening R as Wk
@@ -31,6 +33,7 @@ open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Sum using (inj₁; inj₂)
 
 private
   variable
@@ -107,19 +110,18 @@ redSubst*Term t⇒u (Emptyᵣ D) (Emptyₜ n [ ⊢u , ⊢n , d ] n≡n prop) =
   in  Emptyₜ n [ ⊢t , ⊢n , t⇒u′ ⇨∷* d ] n≡n prop
   ,   Emptyₜ₌ n n [ ⊢t , ⊢n , t⇒u′ ⇨∷* d ] [ ⊢u , ⊢n , d ]
           n≡n (reflEmpty-prop prop)
-redSubst*Term t⇒u (Unitᵣ {s = 𝕤} (Unitₜ D _)) (Unitₜ n [ ⊢u , ⊢n , d ] n≡n prop) =
-  let A≡Unit  = subset* (red D)
-      ⊢t   = conv (redFirst*Term t⇒u) A≡Unit
-      t⇒u′ = conv* t⇒u A≡Unit
-  in  Unitₜ n [ ⊢t , ⊢n , t⇒u′ ⇨∷* d ] n≡n prop
-  ,   Unitₜ₌ ⊢t ⊢u
-redSubst*Term t⇒u (Unitᵣ {s = 𝕨} (Unitₜ D _)) (Unitₜ n [ ⊢u , ⊢n , d ] n≡n prop) =
+redSubst*Term
+  t⇒u (Unitᵣ {s} (Unitₜ D _)) (Unitₜ n [ ⊢u , ⊢n , d ] n≡n prop) =
   let A≡Unit  = subset* (red D)
       ⊢t   = conv (redFirst*Term t⇒u) A≡Unit
       t⇒u′ = conv* t⇒u A≡Unit
       d′ = [ ⊢t , ⊢n , t⇒u′ ⇨∷* d ]
   in  Unitₜ n d′ n≡n prop
-  ,   Unitₜ₌ n n d′ [ ⊢u , ⊢n , d ] n≡n (reflUnitʷ-prop prop)
+  ,   (case Unit-with-η? s of λ where
+         (inj₁ η)                → Unitₜ₌ˢ ⊢t ⊢u η
+         (inj₂ (PE.refl , no-η)) →
+           Unitₜ₌ʷ n n d′ [ ⊢u , ⊢n , d ] n≡n (reflUnitʷ-prop prop)
+             no-η)
 redSubst*Term t⇒u (ne′ K D neK K≡K) (neₜ k [ ⊢t , ⊢u , d ] (neNfₜ neK₁ ⊢k k≡k)) =
   let A≡K  = subset* (red D)
       [d]  = [ ⊢t , ⊢u , d ]
@@ -289,9 +291,11 @@ opaque
            (convRed:*: t⇒*u (subset* (red A⇒*Unit))) of λ
       u⇒*v →
       Unitₜ v u⇒*v v≅v v-ok
-    , (case PE.singleton s of λ where
-         (𝕨 , PE.refl) → Unitₜ₌ v v t⇒*v u⇒*v v≅v (reflUnitʷ-prop v-ok)
-         (𝕤 , PE.refl) → Unitₜ₌ (⊢t-redₜ t⇒*v) (⊢t-redₜ u⇒*v))
+    , (case Unit-with-η? s of λ where
+         (inj₁ η) →
+           Unitₜ₌ˢ (⊢t-redₜ t⇒*v) (⊢t-redₜ u⇒*v) η
+         (inj₂ (PE.refl , no-η)) →
+           Unitₜ₌ʷ v v t⇒*v u⇒*v v≅v (reflUnitʷ-prop v-ok) no-η)
   redSubst*Term′
     t⇒*u (ne′ B A⇒*B B-ne B≅B) (neₜ v t⇒*v v-ok@(neNfₜ v-ne _ v~v)) =
     case whrDet:⇒*:Term (ne v-ne) t⇒*v

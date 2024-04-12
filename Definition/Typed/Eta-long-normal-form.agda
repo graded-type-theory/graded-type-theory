@@ -30,7 +30,8 @@ open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
 
 open import Definition.Untyped M
-open import Definition.Untyped.Normal-form M
+open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Normal-form M type-variant
 
 import Graded.Derived.Erased.Untyped 𝕄 as Erased
 
@@ -40,6 +41,7 @@ open import Tools.Function
 open import Tools.Nat using (Nat)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
@@ -173,6 +175,7 @@ mutual
                 Γ ⊢ne t ∷ Unitʷ →
                 Γ ⊢nf u ∷ A [ starʷ ]₀ →
                 Unitʷ-allowed →
+                ¬ Unitʷ-η →
                 Γ ⊢ne unitrec p q A t u ∷ A [ t ]₀
     Jₙ        : Γ ⊢nf A →
                 Γ ⊢nf t ∷ A →
@@ -265,7 +268,7 @@ mutual
     (emptyrecₙ ⊢A ⊢t)            → emptyrecⱼ (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t)
     (natrecₙ ⊢A ⊢t ⊢u ⊢v)        → natrecⱼ (⊢nf→⊢ ⊢A) (⊢nf∷→⊢∷ ⊢t)
                                      (⊢nf∷→⊢∷ ⊢u) (⊢ne∷→⊢∷ ⊢v)
-    (unitrecₙ ⊢A ⊢t ⊢u ok)       → unitrecⱼ (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t)
+    (unitrecₙ ⊢A ⊢t ⊢u ok _)     → unitrecⱼ (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t)
                                      (⊢nf∷→⊢∷ ⊢u) ok
     (Jₙ ⊢A ⊢t ⊢B ⊢u ⊢v ⊢w)       → Jⱼ (⊢nf→⊢ ⊢A) (⊢nf∷→⊢∷ ⊢t) (⊢nf→⊢ ⊢B)
                                      (⊢nf∷→⊢∷ ⊢u) (⊢nf∷→⊢∷ ⊢v)
@@ -311,26 +314,27 @@ mutual
 
   ⊢ne∷→NfNeutral : Γ ⊢ne t ∷ A → NfNeutral t
   ⊢ne∷→NfNeutral = λ where
-    (convₙ ⊢t _)              → ⊢ne∷→NfNeutral ⊢t
-    (varₙ _ _)                → var _
-    (∘ₙ ⊢t ⊢u)                → ∘ₙ (⊢ne∷→NfNeutral ⊢t) (⊢nf∷→Nf ⊢u)
-    (fstₙ _ _ ⊢t)             → fstₙ (⊢ne∷→NfNeutral ⊢t)
-    (sndₙ _ _ ⊢t)             → sndₙ (⊢ne∷→NfNeutral ⊢t)
-    (prodrecₙ _ _ ⊢C ⊢t ⊢u _) → prodrecₙ (⊢nf→Nf ⊢C)
-                                  (⊢ne∷→NfNeutral ⊢t) (⊢nf∷→Nf ⊢u)
-    (emptyrecₙ ⊢A ⊢t)         → emptyrecₙ (⊢nf→Nf ⊢A)
-                                  (⊢ne∷→NfNeutral ⊢t)
-    (natrecₙ ⊢A ⊢t ⊢u ⊢v)     → natrecₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t)
-                                  (⊢nf∷→Nf ⊢u) (⊢ne∷→NfNeutral ⊢v)
-    (unitrecₙ ⊢A ⊢t ⊢u ok)    → unitrecₙ (⊢nf→Nf ⊢A)
-                                  (⊢ne∷→NfNeutral ⊢t) (⊢nf∷→Nf ⊢u)
-    (Jₙ ⊢A ⊢t ⊢B ⊢u ⊢v ⊢w)    → Jₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t) (⊢nf→Nf ⊢B)
-                                  (⊢nf∷→Nf ⊢u) (⊢nf∷→Nf ⊢v)
-                                  (⊢ne∷→NfNeutral ⊢w)
-    (Kₙ ⊢A ⊢t ⊢B ⊢u ⊢v _)     → Kₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t) (⊢nf→Nf ⊢B)
-                                  (⊢nf∷→Nf ⊢u) (⊢ne∷→NfNeutral ⊢v)
-    ([]-congₙ ⊢A ⊢t ⊢u ⊢v _)  → []-congₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t)
-                                  (⊢nf∷→Nf ⊢u) (⊢ne∷→NfNeutral ⊢v)
+    (convₙ ⊢t _)                 → ⊢ne∷→NfNeutral ⊢t
+    (varₙ _ _)                   → var _
+    (∘ₙ ⊢t ⊢u)                   → ∘ₙ (⊢ne∷→NfNeutral ⊢t) (⊢nf∷→Nf ⊢u)
+    (fstₙ _ _ ⊢t)                → fstₙ (⊢ne∷→NfNeutral ⊢t)
+    (sndₙ _ _ ⊢t)                → sndₙ (⊢ne∷→NfNeutral ⊢t)
+    (prodrecₙ _ _ ⊢C ⊢t ⊢u _)    → prodrecₙ (⊢nf→Nf ⊢C)
+                                     (⊢ne∷→NfNeutral ⊢t) (⊢nf∷→Nf ⊢u)
+    (emptyrecₙ ⊢A ⊢t)            → emptyrecₙ (⊢nf→Nf ⊢A)
+                                     (⊢ne∷→NfNeutral ⊢t)
+    (natrecₙ ⊢A ⊢t ⊢u ⊢v)        → natrecₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t)
+                                     (⊢nf∷→Nf ⊢u) (⊢ne∷→NfNeutral ⊢v)
+    (unitrecₙ ⊢A ⊢t ⊢u _ not-ok) → unitrecₙ not-ok (⊢nf→Nf ⊢A)
+                                     (⊢ne∷→NfNeutral ⊢t) (⊢nf∷→Nf ⊢u)
+    (Jₙ ⊢A ⊢t ⊢B ⊢u ⊢v ⊢w)       → Jₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t)
+                                     (⊢nf→Nf ⊢B) (⊢nf∷→Nf ⊢u)
+                                     (⊢nf∷→Nf ⊢v) (⊢ne∷→NfNeutral ⊢w)
+    (Kₙ ⊢A ⊢t ⊢B ⊢u ⊢v _)        → Kₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t)
+                                     (⊢nf→Nf ⊢B) (⊢nf∷→Nf ⊢u)
+                                     (⊢ne∷→NfNeutral ⊢v)
+    ([]-congₙ ⊢A ⊢t ⊢u ⊢v _)     → []-congₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t)
+                                     (⊢nf∷→Nf ⊢u) (⊢ne∷→NfNeutral ⊢v)
 
 ------------------------------------------------------------------------
 -- Stability
@@ -438,12 +442,12 @@ mutual
         (⊢nf∷-stable Γ≡Δ ⊢t)
         (⊢nf∷-stable (⊢Γℕ≡Δℕ ∙ refl (⊢nf→⊢ ⊢A)) ⊢u)
         (⊢ne∷-stable Γ≡Δ ⊢v) }
-      (unitrecₙ ⊢A ⊢t ⊢u ok) →
+      (unitrecₙ ⊢A ⊢t ⊢u ok not-ok) →
         case Γ≡Δ ∙ refl (Unitⱼ (wfTerm (⊢nf∷→⊢∷ ⊢u)) ok) of λ {
           ⊢Γ⊤≡Δ⊤ → unitrecₙ
         (⊢nf-stable ⊢Γ⊤≡Δ⊤ ⊢A)
         (⊢ne∷-stable Γ≡Δ ⊢t)
-        (⊢nf∷-stable Γ≡Δ ⊢u) ok }
+        (⊢nf∷-stable Γ≡Δ ⊢u) ok not-ok }
       (Jₙ ⊢A ⊢t ⊢B ⊢u ⊢v ⊢w) → Jₙ
         (⊢nf-stable Γ≡Δ ⊢A)
         (⊢nf∷-stable Γ≡Δ ⊢t)
@@ -969,13 +973,14 @@ opaque
     (Γ ∙ Unitʷ ⊢nf A) ×
     Γ ⊢ne t ∷ Unitʷ ×
     Γ ⊢nf u ∷ A [ starʷ ]₀ ×
-    Γ ⊢ B ≡ A [ t ]₀
-  inversion-ne-unitrec (unitrecₙ ⊢A ⊢t ⊢u ok) =
-    ⊢A , ⊢t , ⊢u , refl (substType (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t))
+    Γ ⊢ B ≡ A [ t ]₀ ×
+    ¬ Unitʷ-η
+  inversion-ne-unitrec (unitrecₙ ⊢A ⊢t ⊢u _ not-ok) =
+    ⊢A , ⊢t , ⊢u , refl (substType (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t)) , not-ok
   inversion-ne-unitrec (convₙ ⊢ur B≡C) =
     case inversion-ne-unitrec ⊢ur of λ {
-      (⊢A , ⊢t , ⊢u , B≡) →
-    ⊢A , ⊢t , ⊢u , trans (sym B≡C) B≡ }
+      (⊢A , ⊢t , ⊢u , B≡ , not-ok) →
+    ⊢A , ⊢t , ⊢u , trans (sym B≡C) B≡ , not-ok }
 
 opaque
 
@@ -984,12 +989,13 @@ opaque
     (Γ ∙ Unitʷ ⊢nf A) ×
     Γ ⊢ne t ∷ Unitʷ ×
     Γ ⊢nf u ∷ A [ starʷ ]₀ ×
-    Γ ⊢ B ≡ A [ t ]₀
+    Γ ⊢ B ≡ A [ t ]₀ ×
+    ¬ Unitʷ-η
   inversion-nf-unitrec (neₙ _ ⊢ur) = inversion-ne-unitrec ⊢ur
   inversion-nf-unitrec (convₙ ⊢ur B≡C) =
     case inversion-nf-unitrec ⊢ur of λ {
-      (⊢A , ⊢t , ⊢u , B≡) →
-    ⊢A , ⊢t , ⊢u , trans (sym B≡C) B≡ }
+      (⊢A , ⊢t , ⊢u , B≡ , not-ok) →
+    ⊢A , ⊢t , ⊢u , trans (sym B≡C) B≡ , not-ok }
 
 opaque
 
@@ -998,7 +1004,8 @@ opaque
     (Γ ∙ Unitʷ ⊢nf A) ×
     Γ ⊢ne t ∷ Unitʷ ×
     Γ ⊢nf u ∷ A [ starʷ ]₀ ×
-    Γ ⊢ B ≡ A [ t ]₀
+    Γ ⊢ B ≡ A [ t ]₀ ×
+    ¬ Unitʷ-η
   inversion-nf-ne-unitrec (inj₁ ⊢ur) = inversion-nf-unitrec ⊢ur
   inversion-nf-ne-unitrec (inj₂ ⊢ur) = inversion-ne-unitrec ⊢ur
 
@@ -1056,18 +1063,19 @@ opaque
     (Idₙ _ _ _)       _ ()
     (rflₙ _)          _ ()
 
--- Normal forms of type Unitˢ are equal to starˢ.
+-- Normal forms of type Unit s are equal to star s if Unit s comes
+-- with η-equality.
 
-⊢nf∷Unitˢ→≡starˢ : Γ ⊢nf t ∷ Unitˢ → t PE.≡ starˢ
-⊢nf∷Unitˢ→≡starˢ ⊢t =
+⊢nf∷Unitˢ→≡starˢ : Unit-with-η s → Γ ⊢nf t ∷ Unit s → t PE.≡ star s
+⊢nf∷Unitˢ→≡starˢ {s} ok ⊢t =
   ⊢nf∷Unitˢ→≡starˢ′ (refl (syntacticTerm (⊢nf∷→⊢∷ ⊢t))) ⊢t
   where
   ⊢nf∷Unitˢ→≡starˢ′ :
-    Γ ⊢ A ≡ Unitˢ → Γ ⊢nf t ∷ A → t PE.≡ starˢ
+    Γ ⊢ A ≡ Unit s → Γ ⊢nf t ∷ A → t PE.≡ star s
   ⊢nf∷Unitˢ→≡starˢ′ A≡Unit = λ where
     (starₙ _ _)       → PE.cong star (Unit-injectivity A≡Unit)
     (convₙ ⊢t ≡A)     → ⊢nf∷Unitˢ→≡starˢ′ (trans ≡A A≡Unit) ⊢t
-    (neₙ A-no-η _)    → ⊥-elim (No-η-equality→≢Unit A-no-η A≡Unit)
+    (neₙ A-no-η _)    → ⊥-elim (No-η-equality→≢Unit A-no-η A≡Unit ok)
     (ΠΣₙ _ _ _)       → ⊥-elim (U≢Unitⱼ A≡Unit)
     (lamₙ _ _ _)      → ⊥-elim (Unit≢ΠΣⱼ (sym A≡Unit))
     (prodₙ _ _ _ _ _) → ⊥-elim (Unit≢ΠΣⱼ (sym A≡Unit))
@@ -1227,7 +1235,7 @@ mutual
       PE.cong₂ (emptyrec _)
         (normal-types-unique-[conv↑] ⊢A ⊢B A≡B)
         (neutral-terms-unique-~↓ ⊢u ⊢v u≡v) }}
-    (unitrec-cong A≡B t≡t′ u≡u′) →
+    (unitrec-cong A≡B t≡t′ u≡u′ _) →
       case inversion-nf-ne-unitrec ⊢u of λ {
         (⊢A , ⊢t , ⊢u , _) →
       case inversion-nf-ne-unitrec ⊢v of λ {
@@ -1340,7 +1348,7 @@ mutual
       normal-types-unique-[conv↓] (univₙ ⊢u) (univₙ ⊢v) u≡v
     (zero-refl _) →
       PE.refl
-    (starʷ-refl _ _) →
+    (starʷ-refl _ _ _) →
       PE.refl
     (suc-cong u≡v) →
       case inversion-nf-suc ⊢u of λ {
@@ -1429,10 +1437,10 @@ mutual
       ⊥-elim (⊢nf∷Σˢ→Neutral→⊥ ⊢u u-ne)
     (Σ-η _ _ _ (ne v-ne) _ _) →
       ⊥-elim (⊢nf∷Σˢ→Neutral→⊥ ⊢v v-ne)
-    (η-unit _ _ _ _) →
-      case ⊢nf∷Unitˢ→≡starˢ ⊢u of λ {
+    (η-unit _ _ _ _ ok) →
+      case ⊢nf∷Unitˢ→≡starˢ ok ⊢u of λ {
         PE.refl →
-      case ⊢nf∷Unitˢ→≡starˢ ⊢v of λ {
+      case ⊢nf∷Unitˢ→≡starˢ ok ⊢v of λ {
         PE.refl →
       PE.refl }}
     (Id-ins _ u~v) →

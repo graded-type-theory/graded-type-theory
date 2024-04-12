@@ -2,12 +2,22 @@
 -- Normal forms
 ------------------------------------------------------------------------
 
-module Definition.Untyped.Normal-form {a} (M : Set a) where
+open import Definition.Typed.Variant
+
+module Definition.Untyped.Normal-form
+  {a}
+  (M : Set a)
+  (type-variant : Type-variant)
+  where
+
+open Type-variant type-variant
 
 open import Definition.Untyped M
+open import Definition.Untyped.Neutral M type-variant
 
 open import Tools.Fin
 open import Tools.Nat
+open import Tools.Relation
 
 private variable
   A B C c g k n t t′ u v : Term _
@@ -49,7 +59,7 @@ mutual
     prodrecₙ  : Nf C → NfNeutral t → Nf u →
                 NfNeutral (prodrec r p q C t u)
     emptyrecₙ : Nf C → NfNeutral k → NfNeutral (emptyrec p C k)
-    unitrecₙ  : Nf C → NfNeutral t → Nf u →
+    unitrecₙ  : ¬ Unitʷ-η → Nf C → NfNeutral t → Nf u →
                 NfNeutral (unitrec p q A t u)
     Jₙ        : Nf A → Nf t → Nf B → Nf u → Nf t′ → NfNeutral v →
                 NfNeutral (J p q A t B u t′ v)
@@ -62,17 +72,17 @@ mutual
 
 nfNeutral : NfNeutral n → Neutral n
 nfNeutral = λ where
-  (var _)            → var _
-  (∘ₙ n _)           → ∘ₙ (nfNeutral n)
-  (fstₙ n)           → fstₙ (nfNeutral n)
-  (sndₙ n)           → sndₙ (nfNeutral n)
-  (natrecₙ _ _ _ n)  → natrecₙ (nfNeutral n)
-  (prodrecₙ _ n _)   → prodrecₙ (nfNeutral n)
-  (emptyrecₙ _ n)    → emptyrecₙ (nfNeutral n)
-  (unitrecₙ _ n _)   → unitrecₙ (nfNeutral n)
-  (Jₙ _ _ _ _ _ n)   → Jₙ (nfNeutral n)
-  (Kₙ _ _ _ _ n)     → Kₙ (nfNeutral n)
-  ([]-congₙ _ _ _ n) → []-congₙ (nfNeutral n)
+  (var _)                 → var _
+  (∘ₙ n _)                → ∘ₙ (nfNeutral n)
+  (fstₙ n)                → fstₙ (nfNeutral n)
+  (sndₙ n)                → sndₙ (nfNeutral n)
+  (natrecₙ _ _ _ n)       → natrecₙ (nfNeutral n)
+  (prodrecₙ _ n _)        → prodrecₙ (nfNeutral n)
+  (emptyrecₙ _ n)         → emptyrecₙ (nfNeutral n)
+  (unitrecₙ not-ok _ n _) → unitrecₙ not-ok (nfNeutral n)
+  (Jₙ _ _ _ _ _ n)        → Jₙ (nfNeutral n)
+  (Kₙ _ _ _ _ n)          → Kₙ (nfNeutral n)
+  ([]-congₙ _ _ _ n)      → []-congₙ (nfNeutral n)
 
 -- Normal forms are in WHNF.
 

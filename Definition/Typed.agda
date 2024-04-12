@@ -14,6 +14,7 @@ module Definition.Typed
 open Type-restrictions R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Neutral M type-variant
 
 import Graded.Derived.Erased.Untyped 𝕄 as Erased
 
@@ -311,10 +312,18 @@ mutual
     unitrec-β     : Γ ∙ Unitʷ ⊢ A
                   → Γ ⊢ u ∷ A [ starʷ ]₀
                   → Unitʷ-allowed
+                  → ¬ Unitʷ-η
                   → Γ ⊢ unitrec p q A starʷ u ≡ u ∷ A [ starʷ ]₀
-    η-unit        : Γ ⊢ t ∷ Unitˢ
-                  → Γ ⊢ t′ ∷ Unitˢ
-                  → Γ ⊢ t ≡ t′ ∷ Unitˢ
+    unitrec-β-η   : Γ ∙ Unitʷ ⊢ A
+                  → Γ ⊢ t ∷ Unitʷ
+                  → Γ ⊢ u ∷ A [ starʷ ]₀
+                  → Unitʷ-allowed
+                  → Unitʷ-η
+                  → Γ ⊢ unitrec p q A t u ≡ u ∷ A [ t ]₀
+    η-unit        : Γ ⊢ t ∷ Unit k
+                  → Γ ⊢ t′ ∷ Unit k
+                  → Unit-with-η k
+                  → Γ ⊢ t ≡ t′ ∷ Unit k
     Id-cong       : Γ ⊢ A₁ ≡ A₂ ∷ U
                   → Γ ⊢ t₁ ≡ t₂ ∷ A₁
                   → Γ ⊢ u₁ ≡ u₂ ∷ A₁
@@ -450,11 +459,19 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                 → Γ ⊢ u ∷ A [ starʷ ]₀
                 → Γ ⊢ t ⇒ t′ ∷ Unitʷ
                 → Unitʷ-allowed
+                → ¬ Unitʷ-η
                 → Γ ⊢ unitrec p q A t u ⇒ unitrec p q A t′ u ∷ A [ t ]₀
   unitrec-β     : Γ ∙ Unitʷ ⊢ A
                 → Γ ⊢ u ∷ A [ starʷ ]₀
                 → Unitʷ-allowed
+                → ¬ Unitʷ-η
                 → Γ ⊢ unitrec p q A starʷ u ⇒ u ∷ A [ starʷ ]₀
+  unitrec-β-η   : Γ ∙ Unitʷ ⊢ A
+                → Γ ⊢ t ∷ Unitʷ
+                → Γ ⊢ u ∷ A [ starʷ ]₀
+                → Unitʷ-allowed
+                → Unitʷ-η
+                → Γ ⊢ unitrec p q A t u ⇒ u ∷ A [ t ]₀
   J-subst        : Γ ⊢ A
                  → Γ ⊢ t ∷ A
                  → Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B

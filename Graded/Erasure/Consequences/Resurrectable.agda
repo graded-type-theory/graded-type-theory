@@ -60,7 +60,7 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PartialOrder
 open import Tools.Relation
-open import Tools.Sum using (inj₁; inj₂)
+open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
   n       : Nat
@@ -287,20 +287,26 @@ opaque
 
 opaque
 
-  -- If 𝟘ᵐ is allowed and []-cong is allowed for s (and another
-  -- assumption holds if s is 𝕨), then ℕ is not s-resurrectable with
-  -- respect to any context that satisfies Fundamental-assumptions⁻.
+  -- If 𝟘ᵐ is allowed, η-equality is not allowed for the weak unit
+  -- type unless a certain condition is satisfied, and []-cong is
+  -- allowed for s (and another assumption holds if s is 𝕨), then ℕ is
+  -- not s-resurrectable with respect to any context that satisfies
+  -- Fundamental-assumptions⁻.
   --
   -- Note that if []-cong is allowed, then (at the time of writing)
   -- Fundamental-assumptions⁻ only holds for the empty context.
 
   ¬-ℕ-resurrectable :
     ⦃ ok : T 𝟘ᵐ-allowed ⦄ →
+    (∀ {p q} →
+     Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
+     𝟙 ≤ 𝟘 ⊎ p PE.≡ 𝟘) →
     (s PE.≡ 𝕨 → Prodrec-allowed 𝟘ᵐ (𝟘 ∧ 𝟙) 𝟘 𝟘) →
     []-cong-allowed s →
     Fundamental-assumptions⁻ Γ →
     ¬ Resurrectable s q₁ q₂ Γ ℕ
-  ¬-ℕ-resurrectable {Γ} ⦃ ok ⦄ P-ok []-cong-ok as (_ , ▸t , ⊢t) =
+  ¬-ℕ-resurrectable
+    {Γ} ⦃ ok ⦄ Unitʷ-η→ P-ok []-cong-ok as (_ , ▸t , ⊢t) =
     -- By the fundamental theorem t is related to erase t.
     case Fundamental.fundamentalErased-𝟙ᵐ
            (record
@@ -318,7 +324,8 @@ opaque
        t∘0⇒t₁,t₂ , erase-t∘↯⇒v₁,v₂ , t₁®v₁ , _) →
 
     -- The term t₁ is definitionally equal to zero.
-    case inv-usage-prod (usagePres*Term (▸t ∘ₘ zeroₘ) t∘0⇒t₁,t₂) of λ {
+    case inv-usage-prod
+           (usagePres*Term Unitʷ-η→ (▸t ∘ₘ zeroₘ) t∘0⇒t₁,t₂) of λ {
       (invUsageProd ▸t₁ ▸t₂ _ _) →
     case Id→≡″ []-cong-ok P-ok as ℕₘ (▸-𝟘 ▸t₁) zeroₘ (▸-𝟘 ▸t₂) $
          inversion-prod-Σ
@@ -347,7 +354,7 @@ opaque
 
         -- The term t₁′ is definitionally equal to suc zero.
         case inv-usage-prod
-               (usagePres*Term (▸t ∘ₘ sucₘ zeroₘ)
+               (usagePres*Term Unitʷ-η→ (▸t ∘ₘ sucₘ zeroₘ)
                   t∘1⇒t₁′,t₂′) of λ {
           (invUsageProd ▸t₁′ ▸t₂′ _ _) →
         case Id→≡″ []-cong-ok P-ok as ℕₘ (▸-𝟘 ▸t₁′) (sucₘ zeroₘ)

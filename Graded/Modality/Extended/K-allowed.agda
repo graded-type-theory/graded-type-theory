@@ -58,6 +58,7 @@ private variable
 -- * The strong unit type is not allowed to be used as a sink.
 -- * Id-erased is not inhabited.
 -- * All erased matches are allowed for J and K.
+-- * Eta-equality is not allowed for weak types.
 -- * Strong unit types are not allowed, but weak unit types are
 --   allowed.
 -- * There are no restrictions on Π-types or weak Σ-types.
@@ -78,6 +79,7 @@ All-properties-hold-for M =
   ¬ Id-erased ×
   (∀ {m} → erased-matches-for-J m ≡ all) ×
   (∀ {m} → erased-matches-for-K m ≡ all) ×
+  ¬ Unitʷ-η ×
   ¬ Unit-allowed 𝕤 ×
   Unit-allowed 𝕨 ×
   (∀ {b p q} → ΠΣ-allowed b p q ⇔ (b ≡ BMΣ 𝕤 → p ≡ 𝟙)) ×
@@ -153,6 +155,7 @@ opaque
     , (λ ())
     , refl
     , refl
+    , (λ ())
     , (_$ refl) ∘→ proj₂
     , (_ , (λ ()))
     , (proj₂ , (_ ,_))
@@ -189,6 +192,7 @@ opaque
     , (λ ())
     , refl
     , refl
+    , (λ ())
     , (_$ refl) ∘→ proj₂
     , (_ , (λ ()))
     , (proj₂ , (_ ,_))
@@ -235,6 +239,7 @@ opaque
     , (λ ())
     , refl
     , refl
+    , (λ ())
     , (_$ refl) ∘→ proj₂
     , (_ , (λ ()))
     , (proj₂ , (_ ,_))
@@ -265,7 +270,8 @@ Linearity = λ where
     FA′ : Full-reduction-assumptions {𝕄 = 𝕄′} TR′ UR′
     FA′ =
       L.full-reduction-assumptions _
-        ( inj₁ ((_$ refl) ∘→ proj₂)
+        ( (_$ refl) ∘→ proj₂
+        , (λ _ ())
         , (λ _ (_ , hyp) → case hyp refl of λ ())
         , (λ _ (_ , hyp) → case hyp refl of λ ())
         )
@@ -284,6 +290,7 @@ opaque
     , (λ ())
     , refl
     , refl
+    , (λ ())
     , (_$ refl) ∘→ proj₂
     , (_ , (λ ()))
     , (proj₂ , (_ ,_))
@@ -314,7 +321,8 @@ Linear-or-affine-types = λ where
     FA′ : Full-reduction-assumptions {𝕄 = 𝕄′} TR′ UR′
     FA′ =
       LA.full-reduction-assumptions
-        ( inj₁ ((_$ refl) ∘→ proj₂)
+        ( (_$ refl) ∘→ proj₂
+        , (λ _ ())
         , (λ _ (_ , hyp) → case hyp refl of λ ())
         , (λ _ (_ , hyp) → case hyp refl of λ ())
         , (λ _ (_ , hyp) → case hyp refl of λ ())
@@ -334,6 +342,7 @@ opaque
     , (λ ())
     , refl
     , refl
+    , (λ ())
     , (_$ refl) ∘→ proj₂
     , (_ , (λ ()))
     , (proj₂ , (_ ,_))

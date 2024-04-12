@@ -4,8 +4,11 @@
 
 module Graded.Modality.Morphism.Type-restrictions where
 
+open import Tools.Bool
 open import Tools.Function
 open import Tools.Level
+open import Tools.Product
+open import Tools.PropositionalEquality
 open import Tools.Sum
 
 open import Definition.Typed.Restrictions
@@ -39,6 +42,10 @@ record Are-preserving-type-restrictions
     module R₂ = Type-restrictions R₂
 
   field
+    -- R₁.Unitʷ-η implies R₂.Unitʷ-η.
+    Unitʷ-η-preserved :
+      R₁.Unitʷ-η → R₂.Unitʷ-η
+
     -- If R₁.Unit-allowed s holds, then R₂.Unit-allowed s holds.
     Unit-preserved :
       R₁.Unit-allowed s → R₂.Unit-allowed s
@@ -71,6 +78,10 @@ record Are-reflecting-type-restrictions
     module R₂ = Type-restrictions R₂
 
   field
+    -- R₂.Unitʷ-η implies R₁.Unitʷ-η.
+    Unitʷ-η-reflected :
+      R₂.Unitʷ-η → R₁.Unitʷ-η
+
     -- If R₂.Unit-allowed s holds, then R₁.Unit-allowed s holds.
     Unit-reflected :
       R₂.Unit-allowed s → R₁.Unit-allowed s
@@ -100,6 +111,7 @@ record Are-reflecting-type-restrictions
 Are-preserving-type-restrictions-id :
   Are-preserving-type-restrictions R R idᶠ idᶠ
 Are-preserving-type-restrictions-id {R = R} = λ where
+    .Unitʷ-η-preserved        → idᶠ
     .Unit-preserved           → idᶠ
     .ΠΣ-preserved {b = BMΠ}   → idᶠ
     .ΠΣ-preserved {b = BMΣ _} → idᶠ
@@ -115,6 +127,7 @@ Are-preserving-type-restrictions-id {R = R} = λ where
 Are-reflecting-type-restrictions-id :
   Are-reflecting-type-restrictions R R idᶠ idᶠ
 Are-reflecting-type-restrictions-id {R = R} = λ where
+    .Unitʷ-η-reflected        → idᶠ
     .Unit-reflected           → idᶠ
     .ΠΣ-reflected {b = BMΠ}   → idᶠ
     .ΠΣ-reflected {b = BMΣ _} → idᶠ
@@ -135,6 +148,8 @@ Are-preserving-type-restrictions-∘ :
   Are-preserving-type-restrictions
     R₁ R₃ (tr₁ ∘→ tr₂) (tr-Σ₁ ∘→ tr-Σ₂)
 Are-preserving-type-restrictions-∘ m₁ m₂ = λ where
+    .Unitʷ-η-preserved →
+      M₁.Unitʷ-η-preserved ∘→ M₂.Unitʷ-η-preserved
     .Unit-preserved →
       M₁.Unit-preserved ∘→ M₂.Unit-preserved
     .ΠΣ-preserved {b = BMΠ} →
@@ -157,6 +172,8 @@ Are-reflecting-type-restrictions-∘ :
   Are-reflecting-type-restrictions R₁ R₂ tr₂ tr-Σ₂ →
   Are-reflecting-type-restrictions R₁ R₃ (tr₁ ∘→ tr₂) (tr-Σ₁ ∘→ tr-Σ₂)
 Are-reflecting-type-restrictions-∘ m₁ m₂ = λ where
+    .Unitʷ-η-reflected →
+      M₂.Unitʷ-η-reflected ∘→ M₁.Unitʷ-η-reflected
     .Unit-reflected →
       M₂.Unit-reflected ∘→ M₁.Unit-reflected
     .ΠΣ-reflected {b = BMΠ} →

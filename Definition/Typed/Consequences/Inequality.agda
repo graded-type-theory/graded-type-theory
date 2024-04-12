@@ -11,9 +11,11 @@ module Definition.Typed.Consequences.Inequality
   (R : Type-restrictions 𝕄)
   where
 
-open import Definition.Untyped M as U
-  hiding (U≢ne; ℕ≢ne; B≢ne; ΠΣ≢ne; Id≢ne; zero≢ne; suc≢ne; rfl≢ne;
-          U≢B; ℕ≢B; Id≢⟦⟧▷; Id≢ΠΣ)
+open Type-restrictions R
+
+open import Definition.Untyped M
+open import Definition.Untyped.Neutral M type-variant as U
+  using (Neutral; No-η-equality; Whnf)
 open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Properties R
@@ -29,6 +31,7 @@ open import Tools.Product
 open import Tools.Relation
 open import Tools.Empty
 import Tools.PropositionalEquality as PE
+open import Tools.Sum using (inj₁; inj₂)
 
 private
   variable
@@ -529,38 +532,40 @@ opaque
 
 No-η-equality→≢Π : No-η-equality A → Γ ⊢ A ≡ Π p , q ▷ B ▹ C → ⊥
 No-η-equality→≢Π = λ where
-  Uₙ         U≡Π     → U≢ΠΣⱼ U≡Π
-  Σʷₙ        Σʷ≡Π    → Π≢Σⱼ (sym Σʷ≡Π)
-  Emptyₙ     Empty≡Π → Empty≢ΠΣⱼ Empty≡Π
-  ℕₙ         ℕ≡Π     → ℕ≢ΠΣⱼ ℕ≡Π
-  Idₙ        Id≡Π    → Id≢ΠΣ Id≡Π
-  Unitʷₙ     Unit≡Π  → Unit≢ΠΣⱼ Unit≡Π
-  (neₙ A-ne) A≡Π     → ΠΣ≢ne A-ne (sym A≡Π)
+  U.Uₙ         U≡Π     → U≢ΠΣⱼ U≡Π
+  U.Σʷₙ        Σʷ≡Π    → Π≢Σⱼ (sym Σʷ≡Π)
+  U.Emptyₙ     Empty≡Π → Empty≢ΠΣⱼ Empty≡Π
+  U.ℕₙ         ℕ≡Π     → ℕ≢ΠΣⱼ ℕ≡Π
+  U.Idₙ        Id≡Π    → Id≢ΠΣ Id≡Π
+  (U.Unitʷₙ _) Unit≡Π  → Unit≢ΠΣⱼ Unit≡Π
+  (U.neₙ A-ne) A≡Π     → ΠΣ≢ne A-ne (sym A≡Π)
 
 -- If No-η-equality A holds, then A is not a Σ-type with η-equality.
 
 No-η-equality→≢Σˢ : No-η-equality A → Γ ⊢ A ≡ Σˢ p , q ▷ B ▹ C → ⊥
 No-η-equality→≢Σˢ = λ where
-  Uₙ         U≡Σ     → U≢ΠΣⱼ U≡Σ
-  Σʷₙ        Σʷ≡Σ    → Σˢ≢Σʷⱼ (sym Σʷ≡Σ)
-  Emptyₙ     Empty≡Σ → Empty≢ΠΣⱼ Empty≡Σ
-  ℕₙ         ℕ≡Σ     → ℕ≢ΠΣⱼ ℕ≡Σ
-  Idₙ        Id≡Σ    → Id≢ΠΣ Id≡Σ
-  Unitʷₙ     Unit≡Σ  → Unit≢ΠΣⱼ Unit≡Σ
-  (neₙ A-ne) A≡Σ     → ΠΣ≢ne A-ne (sym A≡Σ)
+  U.Uₙ         U≡Σ     → U≢ΠΣⱼ U≡Σ
+  U.Σʷₙ        Σʷ≡Σ    → Σˢ≢Σʷⱼ (sym Σʷ≡Σ)
+  U.Emptyₙ     Empty≡Σ → Empty≢ΠΣⱼ Empty≡Σ
+  U.ℕₙ         ℕ≡Σ     → ℕ≢ΠΣⱼ ℕ≡Σ
+  U.Idₙ        Id≡Σ    → Id≢ΠΣ Id≡Σ
+  (U.Unitʷₙ _) Unit≡Σ  → Unit≢ΠΣⱼ Unit≡Σ
+  (U.neₙ A-ne) A≡Σ     → ΠΣ≢ne A-ne (sym A≡Σ)
 
--- If No-η-equality A holds, then A is not the unit type with
+-- If No-η-equality A holds, then A is not a unit type with
 -- η-equality.
 
-No-η-equality→≢Unit : No-η-equality A → Γ ⊢ A ≡ Unitˢ → ⊥
+No-η-equality→≢Unit : No-η-equality A → Γ ⊢ A ≡ Unit s → ¬ Unit-with-η s
 No-η-equality→≢Unit = λ where
-  Uₙ         U≡Unit     → U≢Unitⱼ U≡Unit
-  Σʷₙ        Σʷ≡Unit    → Unit≢ΠΣⱼ (sym Σʷ≡Unit)
-  Emptyₙ     Empty≡Unit → Empty≢Unitⱼ Empty≡Unit
-  ℕₙ         ℕ≡Unit     → ℕ≢Unitⱼ ℕ≡Unit
-  Idₙ        Id≡Unit    → Id≢Unit Id≡Unit
-  Unitʷₙ     Unitʷ≡Unitˢ  → Unitʷ≢Unitˢ Unitʷ≡Unitˢ
-  (neₙ A-ne) A≡Unit     → Unit≢neⱼ A-ne (sym A≡Unit)
+  U.Uₙ            U≡Unit      _              → U≢Unitⱼ U≡Unit
+  U.Σʷₙ           Σʷ≡Unit     _              → Unit≢ΠΣⱼ (sym Σʷ≡Unit)
+  U.Emptyₙ        Empty≡Unit  _              → Empty≢Unitⱼ Empty≡Unit
+  U.ℕₙ            ℕ≡Unit      _              → ℕ≢Unitⱼ ℕ≡Unit
+  U.Idₙ           Id≡Unit     _              → Id≢Unit Id≡Unit
+  (U.Unitʷₙ _)    Unitʷ≡Unitˢ (inj₁ PE.refl) → Unitʷ≢Unitˢ Unitʷ≡Unitˢ
+  (U.Unitʷₙ no-η) _           (inj₂ η)       → no-η η
+  (U.neₙ A-ne)    A≡Unit      _              → Unit≢neⱼ A-ne
+                                                 (sym A≡Unit)
 
 -- If A is a type without η-equality, then a non-neutral WHNF is not
 -- definitionally equal at type A to any neutral term.
@@ -573,7 +578,7 @@ whnf≢ne {A = A} {t = t} {u = u} ¬-A-η t-whnf ¬-t-ne u-ne =
   where
   A⇒*no-η : Γ ⊢ A :⇒*: B → No-η-equality B
   A⇒*no-η [ _ , _ , A⇒*B ] =
-    case whnfRed* A⇒*B (No-η-equality→Whnf ¬-A-η) of λ {
+    case whnfRed* A⇒*B (U.No-η-equality→Whnf ¬-A-η) of λ {
       PE.refl →
     ¬-A-η }
 
@@ -585,7 +590,7 @@ whnf≢ne {A = A} {t = t} {u = u} ¬-A-η t-whnf ¬-t-ne u-ne =
 
   u⇒*ne : Γ ⊢ u :⇒*: v ∷ B → Neutral v
   u⇒*ne [ _ , _ , u⇒*v ] =
-    case whnfRed*Term u⇒*v (ne u-ne) of λ {
+    case whnfRed*Term u⇒*v (U.ne u-ne) of λ {
       PE.refl →
     u-ne }
 
@@ -601,41 +606,45 @@ whnf≢ne {A = A} {t = t} {u = u} ¬-A-η t-whnf ¬-t-ne u-ne =
       ¬t⇒*ne t⇒*v v-ne
     (Unitᵣ (Unitₜ A⇒*Unit _)) [t≡u] →
       case A⇒*no-η A⇒*Unit of λ where
-        (neₙ ())
-        Unitʷₙ → case [t≡u] of λ where
-          (Unitₜ₌ _ _ d d′ k≡k′ starᵣ) → star≢ne (u⇒*ne d′) PE.refl
-          (Unitₜ₌ _ _ d d′ k≡k′ (ne (neNfₜ₌ neK neM k≡m))) → ¬t⇒*ne d neK
+        (U.neₙ ())
+        (U.Unitʷₙ not-ok) → case [t≡u] of λ where
+          (Unitₜ₌ʷ _ _ _ d′ _ starᵣ _) →
+            U.star≢ne (u⇒*ne d′) PE.refl
+          (Unitₜ₌ʷ _ _ d _ _ (ne (neNfₜ₌ neK _ _)) _) →
+            ¬t⇒*ne d neK
+          (Unitₜ₌ˢ _ _ (inj₂ ok)) →
+            not-ok ok
     (ne _) (neₜ₌ _ _ t⇒*v _ (neNfₜ₌ v-ne _ _)) →
       ¬t⇒*ne t⇒*v v-ne
     (Bᵣ BΠ! (Bᵣ _ _ A⇒*Π _ _ _ _ _ _ _)) _ →
       case A⇒*no-η A⇒*Π of λ where
-        (neₙ ())
+        (U.neₙ ())
     (Bᵣ BΣˢ (Bᵣ _ _ A⇒*Σ _ _ _ _ _ _ _)) _ →
       case A⇒*no-η A⇒*Σ of λ where
-        (neₙ ())
-    (Bᵣ BΣʷ _) (_ , _ , _ , u⇒*w , _ , _ , _ , _ , prodₙ , _) →
+        (U.neₙ ())
+    (Bᵣ BΣʷ _) (_ , _ , _ , u⇒*w , _ , _ , _ , _ , U.prodₙ , _) →
       U.prod≢ne (u⇒*ne u⇒*w) PE.refl
-    (Bᵣ BΣʷ _) (_ , _ , t⇒*v , _ , _ , _ , _ , ne v-ne , _) →
+    (Bᵣ BΣʷ _) (_ , _ , t⇒*v , _ , _ , _ , _ , U.ne v-ne , _) →
       ¬t⇒*ne t⇒*v v-ne
-    (Bᵣ BΣʷ _) (_ , _ , _ , _ , _ , _ , _ , prodₙ , ne _  , ())
+    (Bᵣ BΣʷ _) (_ , _ , _ , _ , _ , _ , _ , U.prodₙ , U.ne _  , ())
     (Idᵣ ⊩Id) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) →
       case ⊩Id≡∷-view-inhabited ⊩Id t≡u of λ where
         (ne t′-ne _ _) → ¬t⇒*ne t⇒*t′ t′-ne
         (rfl₌ _)       → U.rfl≢ne (u⇒*ne u⇒*u′) PE.refl
     (Uᵣ _) (Uₜ₌ _ _ t⇒*A u⇒*B A-type B-type A≡B _ _ _) →
       case B-type of λ where
-        ΠΣₙ       → U.ΠΣ≢ne _  (u⇒*ne u⇒*B) PE.refl
-        ℕₙ        → U.ℕ≢ne     (u⇒*ne u⇒*B) PE.refl
-        Emptyₙ    → U.Empty≢ne (u⇒*ne u⇒*B) PE.refl
-        Unitₙ     → U.Unit≢ne  (u⇒*ne u⇒*B) PE.refl
-        Idₙ       → U.Id≢ne    (u⇒*ne u⇒*B) PE.refl
-        (ne B-ne) → case A-type of λ where
-          (ne A-ne) → ⊥-elim (¬t⇒*ne t⇒*A A-ne)
-          ΠΣₙ       → ΠΣ≢ne     B-ne (univ A≡B)
-          ℕₙ        → ℕ≢ne      B-ne (univ A≡B)
-          Emptyₙ    → Empty≢neⱼ B-ne (univ A≡B)
-          Unitₙ     → Unit≢neⱼ  B-ne (univ A≡B)
-          Idₙ       → Id≢ne     B-ne (univ A≡B)
+        U.ΠΣₙ       → U.ΠΣ≢ne _  (u⇒*ne u⇒*B) PE.refl
+        U.ℕₙ        → U.ℕ≢ne     (u⇒*ne u⇒*B) PE.refl
+        U.Emptyₙ    → U.Empty≢ne (u⇒*ne u⇒*B) PE.refl
+        U.Unitₙ     → U.Unit≢ne  (u⇒*ne u⇒*B) PE.refl
+        U.Idₙ       → U.Id≢ne    (u⇒*ne u⇒*B) PE.refl
+        (U.ne B-ne) → case A-type of λ where
+          (U.ne A-ne) → ⊥-elim (¬t⇒*ne t⇒*A A-ne)
+          U.ΠΣₙ       → ΠΣ≢ne     B-ne (univ A≡B)
+          U.ℕₙ        → ℕ≢ne      B-ne (univ A≡B)
+          U.Emptyₙ    → Empty≢neⱼ B-ne (univ A≡B)
+          U.Unitₙ     → Unit≢neⱼ  B-ne (univ A≡B)
+          U.Idₙ       → Id≢ne     B-ne (univ A≡B)
     (emb 0<1 [A]) [t≡u] →
       lemma [A] [t≡u]
 
@@ -645,7 +654,7 @@ whnf≢ne {A = A} {t = t} {u = u} ¬-A-η t-whnf ¬-t-ne u-ne =
 zero≢ne :
   Neutral t →
   ¬ Γ ⊢ zero ≡ t ∷ ℕ
-zero≢ne = whnf≢ne ℕₙ zeroₙ (λ ())
+zero≢ne = whnf≢ne U.ℕₙ U.zeroₙ (λ ())
 
 -- The term suc t is not definitionally equal (at type ℕ) to any
 -- neutral term.
@@ -653,7 +662,7 @@ zero≢ne = whnf≢ne ℕₙ zeroₙ (λ ())
 suc≢ne :
   Neutral u →
   ¬ Γ ⊢ suc t ≡ u ∷ ℕ
-suc≢ne = whnf≢ne ℕₙ sucₙ (λ ())
+suc≢ne = whnf≢ne U.ℕₙ U.sucₙ (λ ())
 
 -- The term prodʷ p t u is not definitionally equal (at type
 -- Σʷ p , q ▷ A ▹ B) to any neutral term.
@@ -661,7 +670,7 @@ suc≢ne = whnf≢ne ℕₙ sucₙ (λ ())
 prodʷ≢ne :
   Neutral v →
   ¬ Γ ⊢ prodʷ p t u ≡ v ∷ Σʷ p , q ▷ A ▹ B
-prodʷ≢ne = whnf≢ne Σʷₙ prodₙ (λ ())
+prodʷ≢ne = whnf≢ne U.Σʷₙ U.prodₙ (λ ())
 
 -- The term rfl is not definitionally equal (at type Id A t u) to any
 -- neutral term.
@@ -669,4 +678,4 @@ prodʷ≢ne = whnf≢ne Σʷₙ prodₙ (λ ())
 rfl≢ne :
   Neutral v →
   ¬ Γ ⊢ rfl ≡ v ∷ Id A t u
-rfl≢ne = whnf≢ne Idₙ rflₙ (λ ())
+rfl≢ne = whnf≢ne U.Idₙ U.rflₙ (λ ())

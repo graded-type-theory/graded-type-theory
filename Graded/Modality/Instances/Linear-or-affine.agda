@@ -3999,7 +3999,8 @@ linear-or-affine variant = record
 
 -- Instances of Type-restrictions and Usage-restrictions are suitable
 -- for the full reduction theorem if
--- * Unitˢ-allowed does not hold or Starˢ-sink holds,
+-- * whenever Unitˢ-allowed holds, then Starˢ-sink holds,
+-- * Unitʷ-allowed and Unitʷ-η do not both hold,
 -- * Σˢ-allowed 𝟘 p does not hold,
 -- * Σˢ-allowed ≤𝟙 p does not hold, and
 -- * Σˢ-allowed ≤ω p does not hold.
@@ -4010,7 +4011,8 @@ Suitable-for-full-reduction :
   Usage-restrictions (linear-or-affine variant) →
   Set
 Suitable-for-full-reduction variant rs us =
-  (¬ Unitˢ-allowed ⊎ Starˢ-sink) ×
+  (Unitˢ-allowed → Starˢ-sink) ×
+  (Unitʷ-allowed → ¬ Unitʷ-η) ×
   (∀ p → ¬ Σˢ-allowed 𝟘 p) ×
   (∀ p → ¬ Σˢ-allowed ≤𝟙 p) ×
   (∀ p → ¬ Σˢ-allowed ≤ω p)
@@ -4028,24 +4030,22 @@ suitable-for-full-reduction {urs} rs =
     record rs
       { Unit-allowed = λ where
           𝕤 → Unitˢ-allowed × Starˢ-sink
-          𝕨 → Unitʷ-allowed
+          𝕨 → Unitʷ-allowed × ¬ Unitʷ-η
       ; ΠΣ-allowed   = λ b p q →
           ΠΣ-allowed b p q × (b ≡ BMΣ 𝕤 → p ≡ 𝟙)
       ; []-cong-allowed = λ where
           𝕤 → ⊥
-          𝕨 → []-congʷ-allowed
+          𝕨 → []-congʷ-allowed × ¬ Unitʷ-η
       ; []-cong→Erased = λ where
-          {s = 𝕨} ok →
+          {s = 𝕨} (ok , no-η) →
             case []-cong→Erased ok of λ
               (ok₁ , ok₂) →
-            ok₁ , ok₂ , (λ ())
+            (ok₁ , no-η) , ok₂ , (λ ())
       ; []-cong→¬Trivial = λ where
-          {s = 𝕨} → []-cong→¬Trivial
+          {s = 𝕨} → []-cong→¬Trivial ∘→ proj₁
       }
-  , (case sink-or-no-sink of λ where
-       (inj₁ ok)     → inj₂ ok
-       (inj₂ not-ok) →
-         inj₁ (Tools.Bool.T-not⇔¬-T .proj₁ not-ok ∘→ proj₂))
+  , proj₂
+  , proj₂
   , (λ _ → ((λ ()) ∘→ (_$ PE.refl)) ∘→ proj₂)
   , (λ _ → ((λ ()) ∘→ (_$ PE.refl)) ∘→ proj₂)
   , (λ _ → ((λ ()) ∘→ (_$ PE.refl)) ∘→ proj₂)
@@ -4060,10 +4060,11 @@ suitable-for-full-reduction {urs} rs =
 full-reduction-assumptions :
   Suitable-for-full-reduction variant trs urs →
   Full-reduction-assumptions trs urs
-full-reduction-assumptions (¬Unit⊎sink , ¬𝟘 , ¬≤𝟙 , ¬≤ω) = record
-  { sink⊎𝟙≤𝟘 = case ¬Unit⊎sink of λ where
-     (inj₁ ¬Unit) → ⊥-elim ∘→ ¬Unit
-     (inj₂ sink) → λ _ → inj₁ sink
+full-reduction-assumptions (sink , no-η , ¬𝟘 , ¬≤𝟙 , ¬≤ω) = record
+  { sink⊎𝟙≤𝟘 = λ where
+      {s = 𝕤} ok _         → inj₁ (refl , sink ok)
+      {s = 𝕨} _  (inj₁ ())
+      {s = 𝕨} ok (inj₂ η)  → ⊥-elim (no-η ok η)
   ; ≡𝟙⊎𝟙≤𝟘 = λ where
       {p = 𝟘}  ok → ⊥-elim (¬𝟘 _ ok)
       {p = ≤𝟙} ok → ⊥-elim (¬≤𝟙 _ ok)
@@ -4078,12 +4079,12 @@ full-reduction-assumptions-suitable :
   Full-reduction-assumptions trs urs →
   Suitable-for-full-reduction variant trs urs
 full-reduction-assumptions-suitable {urs = urs} as =
-     (case sink-or-no-sink of λ where
-       (inj₁ sink) → inj₂ sink
-       (inj₂ ¬sink) → inj₁ (λ Unit-ok →
-         case sink⊎𝟙≤𝟘 Unit-ok of λ where
-           (inj₁ sink) → not-sink-and-no-sink sink ¬sink
-           (inj₂ ())))
+     (λ ok → case sink⊎𝟙≤𝟘 ok (inj₁ refl) of λ where
+        (inj₁ (_ , sink)) → sink
+        (inj₂ ()))
+   , (λ ok η → case sink⊎𝟙≤𝟘 ok (inj₂ η) of λ where
+        (inj₁ (() , _))
+        (inj₂ ()))
    , (λ p Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
         (inj₁ ())
         (inj₂ (_ , _ , ())))

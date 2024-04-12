@@ -15,6 +15,7 @@ module Graded.Erasure.LogicalRelation.Conversion
 
 open Assumptions as
 open Modality 𝕄
+open Type-restrictions R
 
 open import Graded.Erasure.LogicalRelation as
 import Graded.Erasure.Target as T
@@ -30,6 +31,7 @@ open import Definition.LogicalRelation.Substitution.Properties R
 import Definition.LogicalRelation.Substitution.Irrelevance R as IS
 open import Graded.Mode 𝕄
 open import Definition.Untyped M
+open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 
 open import Definition.Typed R

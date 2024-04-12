@@ -1166,15 +1166,17 @@ erasure =
 affine = Graded.Modality.Instances.Affine.full-reduction-assumptions
 
 -- The conditions are satisfied for the linear types modality if the
--- strong unit type is not allowed (or can be used as a sink), Σ_&,0^q
--- is not allowed, and Σ_&,ω^q is not allowed.
+-- strong unit type is not allowed (or can be used as a sink), the
+-- weak unit type does not come with η-equality, Σ_&,0^q is not
+-- allowed, and Σ_&,ω^q is not allowed.
 
 linear = Graded.Modality.Instances.Linearity.full-reduction-assumptions
 
 -- The conditions are satisfied for the linear or affine types
 -- modality if the strong unit type is not allowed (or can be used as
--- a sink), Σ_&,0^q is not allowed, Σ_&,01^q is not allowed, and
--- Σ_&,ω^q is not allowed.
+-- a sink), the weak unit type does not come with η-equality, Σ_&,0^q
+-- is not allowed, Σ_&,01^q is not allowed, and Σ_&,ω^q is not
+-- allowed.
 
 linear-or-affine =
   Graded.Modality.Instances.Linear-or-affine.full-reduction-assumptions

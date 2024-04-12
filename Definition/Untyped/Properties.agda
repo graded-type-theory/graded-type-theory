@@ -974,17 +974,3 @@ opaque
     lemma : ∀ x → (sgSubst t ₛ•ₛ consSubst (wk1Subst idSubst) u) x ≡ sgSubst (u [ t ]₀) x
     lemma x0 = refl
     lemma (_+1 x) = refl
-
--- There are no closed neutral terms
-
-noClosedNe : {t : Term 0} → Neutral t → ⊥
-noClosedNe (∘ₙ net) = noClosedNe net
-noClosedNe (fstₙ net) = noClosedNe net
-noClosedNe (sndₙ net) = noClosedNe net
-noClosedNe (natrecₙ net) = noClosedNe net
-noClosedNe (prodrecₙ net) = noClosedNe net
-noClosedNe (emptyrecₙ net) = noClosedNe net
-noClosedNe (unitrecₙ net) = noClosedNe net
-noClosedNe (Jₙ net) = noClosedNe net
-noClosedNe (Kₙ net) = noClosedNe net
-noClosedNe ([]-congₙ net) = noClosedNe net

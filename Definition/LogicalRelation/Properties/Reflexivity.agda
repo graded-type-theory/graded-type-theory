@@ -13,7 +13,10 @@ module Definition.LogicalRelation.Properties.Reflexivity
   {{eqrel : EqRelSet R}}
   where
 
+open Type-restrictions R
+
 open import Definition.Untyped M hiding (K)
+open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Weakening R
 open import Definition.Typed.Properties R
@@ -23,6 +26,7 @@ open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Sum using (inj₁; inj₂)
 
 private
   variable
@@ -88,11 +92,12 @@ reflEqTerm (ℕᵣ D) (ℕₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
 reflEqTerm (Emptyᵣ D) (Emptyₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
   Emptyₜ₌ n n [ ⊢t , ⊢u , d ] [ ⊢t , ⊢u , d ] t≡t
     (reflEmpty-prop prop)
-reflEqTerm (Unitᵣ {s = 𝕤} D) (Unitₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
-  Unitₜ₌ ⊢t ⊢t
-reflEqTerm (Unitᵣ {s = 𝕨} D) (Unitₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
-  Unitₜ₌ n n [ ⊢t , ⊢u , d ] [ ⊢t , ⊢u , d ]
-         t≡t (reflUnitʷ-prop prop)
+reflEqTerm (Unitᵣ {s} D) (Unitₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
+  case Unit-with-η? s of λ where
+    (inj₁ η)                → Unitₜ₌ˢ ⊢t ⊢t η
+    (inj₂ (PE.refl , no-η)) →
+      Unitₜ₌ʷ n n [ ⊢t , ⊢u , d ] [ ⊢t , ⊢u , d ] t≡t
+        (reflUnitʷ-prop prop) no-η
 reflEqTerm (ne′ K D neK K≡K) (neₜ k d (neNfₜ neK₁ ⊢k k≡k)) =
   neₜ₌ k k d d (neNfₜ₌ neK₁ neK₁ k≡k)
 reflEqTerm

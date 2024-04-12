@@ -14,8 +14,10 @@ module Definition.LogicalRelation.Properties.Symmetry
   where
 
 open EqRelSet {{...}}
+open Type-restrictions R
 
 open import Definition.Untyped M hiding (K)
+open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 import Definition.Typed.Weakening R as W
@@ -156,10 +158,10 @@ symEqTerm (ℕᵣ D) (ℕₜ₌ k k′ d d′ t≡u prop) =
   ℕₜ₌ k′ k d′ d (≅ₜ-sym t≡u) (symNatural-prop prop)
 symEqTerm (Emptyᵣ D) (Emptyₜ₌ k k′ d d′ t≡u prop) =
   Emptyₜ₌ k′ k d′ d (≅ₜ-sym t≡u) (symEmpty-prop prop)
-symEqTerm (Unitᵣ {s = 𝕤} D) (Unitₜ₌ ⊢t ⊢u) =
-  Unitₜ₌ ⊢u ⊢t
-symEqTerm (Unitᵣ {s = 𝕨} D) (Unitₜ₌ k k′ d d′ k≡k′ prop) =
-  Unitₜ₌ k′ k d′ d (≅ₜ-sym k≡k′) (symUnit-prop prop)
+symEqTerm (Unitᵣ _) (Unitₜ₌ˢ ⊢t ⊢u ok) =
+  Unitₜ₌ˢ ⊢u ⊢t ok
+symEqTerm (Unitᵣ _) (Unitₜ₌ʷ k k′ d d′ k≡k′ prop ok) =
+  Unitₜ₌ʷ k′ k d′ d (≅ₜ-sym k≡k′) (symUnit-prop prop) ok
 symEqTerm (ne′ K D neK K≡K) (neₜ₌ k m d d′ nf) =
   neₜ₌ m k d′ d (symNeutralTerm nf)
 symEqTerm (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext _)

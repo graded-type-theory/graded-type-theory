@@ -14,6 +14,7 @@ module Definition.Typed.Consequences.NeTypeEq
 open Type-restrictions R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Syntactic R
@@ -61,7 +62,7 @@ neTypeEq
   refl (substType ⊢A ⊢t)
 neTypeEq (emptyrecₙ neT) (emptyrecⱼ x t∷A) (emptyrecⱼ x₁ t∷B) =
   refl x₁
-neTypeEq (unitrecₙ neT) (unitrecⱼ ⊢A ⊢t _ _) (unitrecⱼ _ _ _ _) =
+neTypeEq (unitrecₙ _ neT) (unitrecⱼ ⊢A ⊢t _ _) (unitrecⱼ _ _ _ _) =
   refl (substType ⊢A ⊢t)
 neTypeEq {Γ} (Jₙ _) (Jⱼ {w} _ _ ⊢B _ ⊢v ⊢w) (Jⱼ _ _ _ _ _ _) =
   refl $

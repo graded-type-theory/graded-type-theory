@@ -59,11 +59,11 @@ mutual
   stability~↑ Γ≡Δ (emptyrec-cong x₁ k~l) =
     emptyrec-cong (stabilityConv↑ Γ≡Δ x₁)
                   (stability~↓ Γ≡Δ k~l)
-  stability~↑ Γ≡Δ (unitrec-cong x x₁ x₂) =
+  stability~↑ Γ≡Δ (unitrec-cong x x₁ x₂ no-η) =
     let k≡l = soundness~↓ x₁
         ⊢Unit = proj₁ (syntacticEqTerm k≡l)
     in  unitrec-cong (stabilityConv↑ (Γ≡Δ ∙ refl ⊢Unit) x)
-                     (stability~↓ Γ≡Δ x₁) (stabilityConv↑Term Γ≡Δ x₂)
+          (stability~↓ Γ≡Δ x₁) (stabilityConv↑Term Γ≡Δ x₂) no-η
   stability~↑ Γ≡Δ (J-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁~w₂ ≡Id) =
     case syntacticEq (soundnessConv↑ A₁≡A₂) .proj₁ of λ {
       ⊢A₁ →
@@ -160,9 +160,9 @@ mutual
   stabilityConv↓Term Γ≡Δ (zero-refl x) =
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
     in  zero-refl ⊢Δ
-  stabilityConv↓Term Γ≡Δ (starʷ-refl x ok) =
+  stabilityConv↓Term Γ≡Δ (starʷ-refl _ ok no-η) =
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
-    in  starʷ-refl ⊢Δ ok
+    in  starʷ-refl ⊢Δ ok no-η
   stabilityConv↓Term Γ≡Δ (suc-cong t<>u) = suc-cong (stabilityConv↑Term Γ≡Δ t<>u)
   stabilityConv↓Term Γ≡Δ (prod-cong x x₁ x₂ x₃ ok) =
     prod-cong (stability Γ≡Δ x) (stability (Γ≡Δ ∙ refl x) x₁)
@@ -175,10 +175,10 @@ mutual
     Σ-η (stabilityTerm Γ≡Δ ⊢p) (stabilityTerm Γ≡Δ ⊢r)
         pProd rProd
         (stabilityConv↑Term Γ≡Δ fstConv) (stabilityConv↑Term Γ≡Δ sndConv)
-  stabilityConv↓Term Γ≡Δ (η-unit [t] [u] tUnit uUnit) =
+  stabilityConv↓Term Γ≡Δ (η-unit [t] [u] tUnit uUnit ok) =
     let [t] = stabilityTerm Γ≡Δ [t]
         [u] = stabilityTerm Γ≡Δ [u]
-    in  η-unit [t] [u] tUnit uUnit
+    in  η-unit [t] [u] tUnit uUnit ok
   stabilityConv↓Term Γ≡Δ (Id-ins ⊢v₁ v₁~v₂) =
     Id-ins (stabilityTerm Γ≡Δ ⊢v₁) (stability~↓ Γ≡Δ v₁~v₂)
   stabilityConv↓Term Γ≡Δ (rfl-refl t≡u) =

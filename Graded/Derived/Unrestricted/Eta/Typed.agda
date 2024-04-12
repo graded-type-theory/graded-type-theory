@@ -35,6 +35,7 @@ open import Tools.Function
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
+open import Tools.Sum
 
 private variable
   Γ       : Con Term _
@@ -131,7 +132,8 @@ Unrestricted-η ⊢t ⊢u t≡u =
   case Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok of λ
     Γ∙A⊢Unit → Σ-η
       ⊢A Γ∙A⊢Unit ⊢t ⊢u t≡u
-      (η-unit (sndⱼ ⊢A Γ∙A⊢Unit ⊢t) (sndⱼ ⊢A Γ∙A⊢Unit ⊢u))
+      (η-unit (sndⱼ ⊢A Γ∙A⊢Unit ⊢t) (sndⱼ ⊢A Γ∙A⊢Unit ⊢u)
+         (inj₁ PE.refl))
 
 -- An instance of the η-rule.
 

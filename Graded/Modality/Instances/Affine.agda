@@ -380,7 +380,7 @@ full-reduction-assumptions :
   Suitable-for-full-reduction rs →
   Full-reduction-assumptions rs us
 full-reduction-assumptions (𝟘→𝟘ᵐ , ¬ω) = record
-  { sink⊎𝟙≤𝟘 = λ _ → inj₂ refl
+  { sink⊎𝟙≤𝟘 = λ _ _ → inj₂ refl
   ; ≡𝟙⊎𝟙≤𝟘   = λ where
       {p = ω} ok → ⊥-elim (¬ω _ ok)
       {p = 𝟙} _  → inj₁ refl

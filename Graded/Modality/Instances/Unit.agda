@@ -218,6 +218,6 @@ full-reduction-assumptions :
   {us : Usage-restrictions (UnitModality variant ok)} →
   Full-reduction-assumptions rs us
 full-reduction-assumptions _ = record
-  { sink⊎𝟙≤𝟘 = λ _ → inj₂ refl
+  { sink⊎𝟙≤𝟘 = λ _ _ → inj₂ refl
   ; ≡𝟙⊎𝟙≤𝟘   = λ _ → inj₁ refl
   }

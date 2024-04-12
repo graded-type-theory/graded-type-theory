@@ -79,7 +79,7 @@ wfEqTerm (natrec-cong _ F≡F′ z≡z′ s≡s′ n≡n′) = wfEqTerm z≡z′
 wfEqTerm (natrec-zero F z s) = wfTerm z
 wfEqTerm (natrec-suc _ _ _ n) = wfTerm n
 wfEqTerm (emptyrec-cong A≡A' e≡e') = wfEqTerm e≡e'
-wfEqTerm (η-unit e e') = wfTerm e
+wfEqTerm (η-unit e _ _) = wfTerm e
 wfEqTerm (prod-cong F _ _ _ _) = wf F
 wfEqTerm (fst-cong _ _ a) = wfEqTerm a
 wfEqTerm (snd-cong _ _ a) = wfEqTerm a
@@ -96,7 +96,8 @@ wfEqTerm (K-β ⊢t _ _ _) = wfTerm ⊢t
 wfEqTerm ([]-cong-cong _ t₁≡t₂ _ _ _) = wfEqTerm t₁≡t₂
 wfEqTerm ([]-cong-β ⊢t _ _) = wfTerm ⊢t
 wfEqTerm (unitrec-cong _ t≡t′ _ _) = wfEqTerm t≡t′
-wfEqTerm (unitrec-β _ ⊢u _) = wfTerm ⊢u
+wfEqTerm (unitrec-β _ ⊢u _ _) = wfTerm ⊢u
+wfEqTerm (unitrec-β-η _ ⊢u _ _ _) = wfTerm ⊢u
 
 -- If a type equality is well-formed with respect to Γ, then Γ is
 -- well-formed.

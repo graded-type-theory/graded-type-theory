@@ -638,7 +638,7 @@ full-reduction-assumptions :
   Suitable-for-full-reduction variant TRs →
   Full-reduction-assumptions TRs URs
 full-reduction-assumptions ok = record
-  { sink⊎𝟙≤𝟘    = λ _ → inj₂ refl
+  { sink⊎𝟙≤𝟘    = λ _ _ → inj₂ refl
   ; ≡𝟙⊎𝟙≤𝟘 = ⊎.map idᶠ (λ (p≡⌞0⌟ , ok) → p≡⌞0⌟ , ok , refl) ∘→ ok _ _
   }
 

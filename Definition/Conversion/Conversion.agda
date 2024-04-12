@@ -11,7 +11,10 @@ module Definition.Conversion.Conversion
   (R : Type-restrictions 𝕄)
   where
 
+open Type-restrictions R
+
 open import Definition.Untyped M
+open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
 open import Definition.Typed.RedSteps R
 open import Definition.Typed.Properties R
@@ -78,9 +81,10 @@ mutual
   convConv↓Term Γ≡Δ A≡B whnfB (zero-refl x) rewrite ℕ≡A A≡B whnfB =
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
     in  zero-refl ⊢Δ
-  convConv↓Term Γ≡Δ A≡B whnfB (starʷ-refl x ok) rewrite Unit≡A A≡B whnfB =
+  convConv↓Term Γ≡Δ A≡B whnfB (starʷ-refl _ ok no-η)
+    rewrite Unit≡A A≡B whnfB =
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
-    in  starʷ-refl ⊢Δ ok
+    in  starʷ-refl ⊢Δ ok no-η
   convConv↓Term Γ≡Δ A≡B whnfB (suc-cong x) rewrite ℕ≡A A≡B whnfB =
     suc-cong (stabilityConv↑Term Γ≡Δ x)
   convConv↓Term Γ≡Δ A≡B whnfB (prod-cong x x₁ x₂ x₃ ok)
@@ -114,10 +118,11 @@ mutual
             rProd
             (convConv↑Term Γ≡Δ F≡ fstConv)
             (convConv↑Term Γ≡Δ (substTypeEq G≡ (refl ⊢fst)) sndConv)
-  convConv↓Term Γ≡Δ A≡B whnfB (η-unit [t] [u] tUnit uUnit) rewrite Unit≡A A≡B whnfB =
+  convConv↓Term Γ≡Δ A≡B whnfB (η-unit [t] [u] tUnit uUnit ok)
+    rewrite Unit≡A A≡B whnfB =
     let [t] = stabilityTerm Γ≡Δ [t]
         [u] = stabilityTerm Γ≡Δ [u]
-    in  η-unit [t] [u] tUnit uUnit
+    in  η-unit [t] [u] tUnit uUnit ok
   convConv↓Term Γ≡Δ Id-A-t-u≡B B-whnf (Id-ins ⊢v₁ v₁~v₂) =
     case Id≡Whnf Id-A-t-u≡B B-whnf of λ {
       (_ , _ , _ , PE.refl) →

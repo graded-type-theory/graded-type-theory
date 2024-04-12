@@ -16,6 +16,7 @@ open Type-restrictions R
 open import Definition.Typed.Properties.Well-formed R public
 
 open import Definition.Untyped M
+open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
 
 import Graded.Derived.Erased.Typed.Primitive R as Erased
@@ -34,6 +35,7 @@ private
     A A′ B B′ C D E F U′ : Term n
     a b t u u′ v : Term n
     p p′ q : M
+    s : Strength
 
 
 -- Reduction is a subset of conversion
@@ -81,9 +83,11 @@ subsetTerm ([]-cong-β ⊢A ⊢t _ t≡t′ ok) =
           ([]-cong′ ⊢A t≡t′)))
   where
   open Erased ([]-cong→Erased ok)
-subsetTerm (unitrec-subst A u t⇒t′ ok) =
+subsetTerm (unitrec-subst A u t⇒t′ ok _) =
   unitrec-cong (refl A) (subsetTerm t⇒t′) (refl u) ok
-subsetTerm (unitrec-β A u ok) = unitrec-β A u ok
+subsetTerm (unitrec-β A u ok₁ ok₂) = unitrec-β A u ok₁ ok₂
+subsetTerm (unitrec-β-η A t u ok₁ ok₂) =
+ unitrec-β-η A t u ok₁ ok₂
 
 subset : Γ ⊢ A ⇒ B → Γ ⊢ A ≡ B
 subset (univ A⇒B) = univ (subsetTerm A⇒B)
@@ -136,10 +140,12 @@ redFirstTerm (K-β ⊢t ⊢B ⊢u ok) =
   Kⱼ ⊢t ⊢B ⊢u (rflⱼ ⊢t) ok
 redFirstTerm ([]-cong-β ⊢A ⊢t ⊢t′ t≡t′ ok) =
   []-congⱼ ⊢t ⊢t′ (conv (rflⱼ ⊢t) (Id-cong (refl ⊢A) (refl ⊢t) t≡t′)) ok
-redFirstTerm (unitrec-subst A u t⇒t′ ok) =
+redFirstTerm (unitrec-subst A u t⇒t′ ok _) =
   unitrecⱼ A (redFirstTerm t⇒t′) u ok
-redFirstTerm (unitrec-β A u ok) =
+redFirstTerm (unitrec-β A u ok _) =
   unitrecⱼ A (starⱼ (wfTerm u) ok) u ok
+redFirstTerm (unitrec-β-η A t u ok _) =
+  unitrecⱼ A t u ok
 
 redFirst :{Γ : Con Term n} → Γ ⊢ A ⇒ B → Γ ⊢ A
 redFirst (univ A⇒B) = univ (redFirstTerm A⇒B)
@@ -174,8 +180,9 @@ neRedTerm ([]-cong-subst _ _ _ v⇒v′ _) ([]-congₙ n) = neRedTerm v⇒v′ n
 neRedTerm (J-β _ _ _ _ _ _ _) (Jₙ ())
 neRedTerm (K-β _ _ _ _) (Kₙ ())
 neRedTerm ([]-cong-β _ _ _ _ _) ([]-congₙ ())
-neRedTerm (unitrec-subst _ _ d _) (unitrecₙ n) = neRedTerm d n
-neRedTerm (unitrec-β _ _ _) (unitrecₙ ())
+neRedTerm (unitrec-subst _ _ d _ _) (unitrecₙ _ n) = neRedTerm d n
+neRedTerm (unitrec-β _ _ _ _) (unitrecₙ _ ())
+neRedTerm (unitrec-β-η _ _ _ _ ok) (unitrecₙ not-ok _) = not-ok ok
 
 
 neRed : (d : Γ ⊢ A ⇒ B) (N : Neutral A) → ⊥
@@ -205,8 +212,11 @@ whnfRedTerm ([]-cong-subst _ _ _ v⇒v′ _) (ne ([]-congₙ n)) =
 whnfRedTerm (J-β _ _ _ _ _ _ _) (ne (Jₙ ()))
 whnfRedTerm (K-β _ _ _ _) (ne (Kₙ ()))
 whnfRedTerm ([]-cong-β _ _ _ _ _) (ne ([]-congₙ ()))
-whnfRedTerm (unitrec-subst _ _ d _) (ne (unitrecₙ n)) = neRedTerm d n
-whnfRedTerm (unitrec-β x x₁ x₂) (ne (unitrecₙ ()))
+whnfRedTerm (unitrec-subst _ _ d _ _) (ne (unitrecₙ _ n)) =
+  neRedTerm d n
+whnfRedTerm (unitrec-β _ _ _ _) (ne (unitrecₙ _ ()))
+whnfRedTerm (unitrec-β-η _ _ _ _ ok) (ne (unitrecₙ not-ok _)) =
+  not-ok ok
 
 whnfRed : (d : Γ ⊢ A ⇒ B) (w : Whnf A) → ⊥
 whnfRed (univ x) w = whnfRedTerm x w
@@ -251,9 +261,10 @@ whrDetTerm (K-β _ _ _ _) (K-β _ _ _ _) =
   PE.refl
 whrDetTerm ([]-cong-β _ _ _ _ _) ([]-cong-β _ _ _ _ _) =
   PE.refl
-whrDetTerm (unitrec-subst x x₁ d x₂) (unitrec-subst x₃ x₄ d′ x₅)
+whrDetTerm (unitrec-subst _ _ d _ _) (unitrec-subst _ _ d′ _ _)
   rewrite whrDetTerm d d′ = PE.refl
-whrDetTerm (unitrec-β x x₁ x₂) (unitrec-β x₃ x₄ x₅) = PE.refl
+whrDetTerm (unitrec-β _ _ _ _) (unitrec-β _ _ _ _) = PE.refl
+whrDetTerm (unitrec-β-η _ _ _ _ _) (unitrec-β-η _ _ _ _ _) = PE.refl
 
 whrDetTerm (app-subst d _) (β-red _ _ _ _ _ _) =
   ⊥-elim (whnfRedTerm d lamₙ)
@@ -289,10 +300,18 @@ whrDetTerm ([]-cong-subst _ _ _ rfl⇒ _) ([]-cong-β _ _ _ _ _) =
   ⊥-elim (whnfRedTerm rfl⇒ rflₙ)
 whrDetTerm ([]-cong-β _ _ _ _ _) ([]-cong-subst _ _ _ rfl⇒ _) =
   ⊥-elim (whnfRedTerm rfl⇒ rflₙ)
-whrDetTerm (unitrec-subst _ _ d _) (unitrec-β _ _ _) =
+whrDetTerm (unitrec-subst _ _ d _ _) (unitrec-β _ _ _ _) =
   ⊥-elim (whnfRedTerm d starₙ)
-whrDetTerm (unitrec-β _ _ _) (unitrec-subst _ _ d _) =
+whrDetTerm (unitrec-subst _ _ _ _ not-ok) (unitrec-β-η _ _ _ _ ok) =
+  ⊥-elim (not-ok ok)
+whrDetTerm (unitrec-β _ _ _ _) (unitrec-subst _ _ d _ _) =
   ⊥-elim (whnfRedTerm d starₙ)
+whrDetTerm (unitrec-β _ _ _ not-ok) (unitrec-β-η _ _ _ _ ok) =
+  ⊥-elim (not-ok ok)
+whrDetTerm (unitrec-β-η _ _ _ _ ok) (unitrec-subst _ _ _ _ not-ok) =
+  ⊥-elim (not-ok ok)
+whrDetTerm (unitrec-β-η _ _ _ _ ok) (unitrec-β _ _ _ not-ok) =
+  ⊥-elim (not-ok ok)
 
 whrDet : (d : Γ ⊢ A ⇒ B) (d′ : Γ ⊢ A ⇒ B′) → B PE.≡ B′
 whrDet (univ x) (univ x₁) = whrDetTerm x x₁
@@ -349,11 +368,12 @@ whrDet* (A⇒A′ ⇨ A′⇒*B , whnfB) (A⇒A″ ⇨ A″⇒*B′ , whnfB′) 
                                      (whrDet A⇒A″ A⇒A′)
                                      (A″⇒*B′ , whnfB′))
 
--- Reduction does not include η-expansion for the strong unit type
--- (for WHNFs): if a WHNF t reduces to star (at type Unit), then t is
--- equal to star.
+-- Reduction does not include η-expansion (for WHNFs) for unit types
+-- with (or without) η-equality: if a WHNF t reduces to star s (at
+-- type Unit s), then t is equal to star s.
 
-no-η-expansion-Unit : Whnf t → Γ ⊢ t ⇒* starˢ ∷ Unitˢ → t PE.≡ starˢ
+no-η-expansion-Unit :
+  Whnf t → Γ ⊢ t ⇒* star s ∷ Unit s → t PE.≡ star s
 no-η-expansion-Unit = flip whnfRed*Term
 
 -- Reduction does not include η-expansion for strong Σ-types (for
@@ -420,7 +440,8 @@ redU*Term′ PE.refl (Σ-β₁ _ _ x _ _ _) = UnotInA x
 redU*Term′ PE.refl (Σ-β₂ _ _ _ x _ _) = UnotInA x
 redU*Term′ PE.refl (J-β _ _ _ _ _ _ ⊢u) = UnotInA ⊢u
 redU*Term′ PE.refl (K-β _ _ ⊢u _) = UnotInA ⊢u
-redU*Term′ PE.refl (unitrec-β _ x _) = UnotInA x
+redU*Term′ PE.refl (unitrec-β _ x _ _) = UnotInA x
+redU*Term′ PE.refl (unitrec-β-η _ _ x _ _) = UnotInA x
 
 redU*Term : Γ ⊢ A ⇒* U ∷ B → ⊥
 redU*Term (id x) = UnotInA x

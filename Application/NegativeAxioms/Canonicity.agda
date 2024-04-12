@@ -11,11 +11,14 @@ module Application.NegativeAxioms.Canonicity
   (R : Type-restrictions 𝕄)
   where
 
+open Type-restrictions R
+
 open import Application.NegativeAxioms.NegativeType R
 open import Graded.Erasure.SucRed R
 
-open import Definition.Untyped M hiding (ℕ≢B)
-open import Definition.Untyped.Normal-form M
+open import Definition.Untyped M
+open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Normal-form M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.EqRelInstance R
@@ -70,7 +73,7 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
     in  ⊥-elim (¬negΣʷ (neNeg d n) ⊢Σ)
   neNeg (emptyrecⱼ _ d     ) (emptyrecₙ n) =
     ⊥-elim (consistent _ d)
-  neNeg (unitrecⱼ _ d _ ok) (unitrecₙ n) =
+  neNeg (unitrecⱼ _ d _ ok) (unitrecₙ _ n) =
     let ⊢Unit = refl (Unitⱼ (wfTerm d) ok)
     in  ⊥-elim (¬negUnit (neNeg d n) ⊢Unit)
   neNeg (Jⱼ _ ⊢t _ _ ⊢v ⊢w) (Jₙ w-ne) =

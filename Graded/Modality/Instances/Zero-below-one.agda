@@ -335,7 +335,8 @@ _≟_ = λ where
 
 -- Instances of Type-restrictions (𝟘≤𝟙 variant ok) and
 -- Usage-restrictions are suitable for the full reduction theorem if
--- * whenever Unitˢ-allowed holds, then Starˢ-sink holds, and
+-- * whenever Unitˢ-allowed holds, then Starˢ-sink holds,
+-- * Unitʷ-allowed and Unitʷ-η do not both hold, and
 -- * Σˢ-allowed 𝟘 p does not hold.
 
 Suitable-for-full-reduction :
@@ -345,6 +346,7 @@ Suitable-for-full-reduction :
   Set
 Suitable-for-full-reduction _ _ TR UR =
   (Unitˢ-allowed → Starˢ-sink) ×
+  (Unitʷ-allowed → ¬ Unitʷ-η) ×
   (∀ p → ¬ Σˢ-allowed 𝟘 p)
   where
   open Type-restrictions TR
@@ -360,7 +362,7 @@ suitable-for-full-reduction refl {UR} R =
     record R
       { Unit-allowed = λ where
           𝕤 → Unitˢ-allowed × Starˢ-sink
-          𝕨 → Unitʷ-allowed
+          𝕨 → Unitʷ-allowed × ¬ Unitʷ-η
       ; ΠΣ-allowed = λ b p q →
           ΠΣ-allowed b p q × (b ≡ BMΣ 𝕤 → p ≡ 𝟙)
       ; []-cong-allowed =
@@ -370,6 +372,7 @@ suitable-for-full-reduction refl {UR} R =
       ; []-cong→¬Trivial =
           λ _ ()
       }
+  , proj₂
   , proj₂
   , (λ _ → (λ ()) ∘→ (_$ refl) ∘→ proj₂)
   where
@@ -383,9 +386,12 @@ full-reduction-assumptions :
   ∀ ok {TR UR} →
   Suitable-for-full-reduction variant ok TR UR →
   Full-reduction-assumptions TR UR
-full-reduction-assumptions refl (sink , ¬𝟘) = record
-  { sink⊎𝟙≤𝟘 = inj₁ ∘→ sink
-  ; ≡𝟙⊎𝟙≤𝟘   = λ where
+full-reduction-assumptions refl (sink , no-η , ¬𝟘) = record
+  { sink⊎𝟙≤𝟘 = λ where
+      {s = 𝕤} ok _         → inj₁ (refl , sink ok)
+      {s = 𝕨} _  (inj₁ ())
+      {s = 𝕨} ok (inj₂ η)  → ⊥-elim (no-η ok η)
+  ; ≡𝟙⊎𝟙≤𝟘 = λ where
       {p = 𝟘} ok → ⊥-elim (¬𝟘 _ ok)
       {p = 𝟙} _  → inj₁ refl
   }
@@ -398,8 +404,11 @@ full-reduction-assumptions-suitable :
   Full-reduction-assumptions TR UR →
   Suitable-for-full-reduction variant ok TR UR
 full-reduction-assumptions-suitable {ok = refl} {UR = UR} as =
-    (λ ok → case sink⊎𝟙≤𝟘 ok of λ where
-       (inj₁ sink) → sink
+    (λ ok → case sink⊎𝟙≤𝟘 ok (inj₁ refl) of λ where
+       (inj₁ (_ , sink)) → sink
+       (inj₂ ()))
+  , (λ ok η → case sink⊎𝟙≤𝟘 ok (inj₂ η) of λ where
+       (inj₁ (() , _))
        (inj₂ ()))
   , λ p Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
      (inj₁ ())

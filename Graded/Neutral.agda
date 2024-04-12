@@ -21,6 +21,7 @@ open Usage-restrictions UR
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Untyped M
+open import Definition.Untyped.Neutral M type-variant
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
@@ -120,10 +121,10 @@ opaque
             p ≡ 𝟘 ⊎ γ ≈ᶜ 𝟘ᶜ  →⟨ (λ { (inj₁ p≡𝟘) → ⊥-elim $ p≢𝟘 p≡𝟘; (inj₂ γ≈𝟘) → γ≈𝟘 }) ⟩
             γ ≈ᶜ 𝟘ᶜ          →⟨ helper t-n ⊢t (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸t) ⟩
             ⊥                □
-      (unitrecₙ t-n) ⊢ur (unitrecₘ {γ} {p} {δ} ▸t _ _ ok) →
+      (unitrecₙ no-η t-n) ⊢ur (unitrecₘ {γ} {p} {δ} ▸t _ _ ok) →
         case inversion-unitrec ⊢ur of λ {
           (_ , ⊢t , _ , _) →
-        case nem non-trivial .proj₂ .proj₁ ok of λ
+        case no-η ∘→ nem non-trivial .proj₂ .proj₁ ok of λ
           p≢𝟘 →
           p ·ᶜ γ +ᶜ δ ≈ᶜ 𝟘ᶜ →⟨ proj₁ ∘→ +ᶜ-positive ⟩
           p ·ᶜ γ ≈ᶜ 𝟘ᶜ  →⟨ ·ᶜ-zero-product ⟩
@@ -262,19 +263,21 @@ opaque
 
 opaque
 
-  -- If Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 and Unitʷ-allowed hold, then there is a
+  -- If Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 and Unitʷ-allowed hold and η-equality
+  -- is not allowed for the weak unit type, then there is a
   -- well-typed, well-resourced, neutral term in a consistent,
   -- erasable context.
 
   neutral-well-resourced₅ :
     Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 →
     Unitʷ-allowed →
+    ¬ Unitʷ-η →
     ∃₄ λ n (Γ : Con Term n) (t A : Term n) →
     Consistent Γ ×
     Neutral t ×
     Γ ⊢ t ∷ A ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t
-  neutral-well-resourced₅ ok₁ ok₂ =
-    case soundness-ℕ-only-source-counterexample₅ ok₁ ok₂ of λ {
+  neutral-well-resourced₅ ok₁ ok₂ no-η =
+    case soundness-ℕ-only-source-counterexample₅ ok₁ ok₂ no-η of λ {
       (consistent , ⊢t , ▸t , _) →
-    _ , _ , _ , _ , consistent , unitrecₙ (var _) , ⊢t , ▸t }
+    _ , _ , _ , _ , consistent , unitrecₙ no-η (var _) , ⊢t , ▸t }

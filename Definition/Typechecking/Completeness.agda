@@ -11,6 +11,8 @@ module Definition.Typechecking.Completeness
   (R : Type-restrictions 𝕄)
   where
 
+open Type-restrictions R
+
 open import Definition.Typechecking R
 open import Definition.Typechecking.Soundness R
 open import Definition.Typed R
@@ -22,6 +24,7 @@ open import Definition.Typed.Consequences.Substitution R
 open import Definition.Typed.Consequences.Stability R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Untyped M
+open import Definition.Untyped.Neutral M type-variant
 
 open import Tools.Empty
 open import Tools.Function

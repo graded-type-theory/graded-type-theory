@@ -8,7 +8,7 @@ import Graded.Restrictions
 open import Graded.Usage.Restrictions
 import Definition.Typed
 open import Definition.Typed.Restrictions
-import Definition.Untyped hiding (ℕ≢B)
+import Definition.Untyped
 
 module Application.NegativeOrErasedAxioms.Canonicity
   {a} {M : Set a}
@@ -28,6 +28,9 @@ module Application.NegativeOrErasedAxioms.Canonicity
   (consistent : Consistent Γ)
   where
 
+open Type-restrictions TR
+open Usage-restrictions UR
+
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Reduction TR UR
@@ -43,7 +46,8 @@ open import Application.NegativeOrErasedAxioms.NegativeOrErasedContext
 open import Application.NegativeOrErasedAxioms.NegativeOrErasedType TR
 open import Graded.Erasure.SucRed TR
 
-open import Definition.Untyped.Normal-form M
+open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Normal-form M type-variant
 
 open import Definition.Typed.EqRelInstance TR
 open import Definition.Typed.Properties TR
@@ -62,7 +66,8 @@ open import Tools.PropositionalEquality as PE using (_≢_)
 open import Tools.Product
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
-open import Tools.Sum using (inj₁; inj₂)
+open import Tools.Relation
+open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 -- Preliminaries
 ---------------------------------------------------------------------------
@@ -74,6 +79,7 @@ private
     A B C : Term m
     t u   : Term m
     γ     : Conₘ m
+    l     : TypeLevel
 
 -- Main results
 ---------------------------------------------------------------------------
@@ -165,10 +171,10 @@ neNeg
   NegativeType Γ (A [ t ]₀)              □ }}
 neNeg (emptyrecⱼ _ d) (emptyrecₙ _) _ _ =
   ⊥-elim (consistent _ d)
-neNeg {γ = γ} (unitrecⱼ {A = A} {t} {p = p} _ d _ ok) (unitrecₙ n) γ▸unitrec =
+neNeg {γ} (unitrecⱼ {A} {t} {p} _ d _ ok) (unitrecₙ no-η n) γ▸unitrec =
   case inv-usage-unitrec γ▸unitrec of λ {
    (invUsageUnitrec {δ = δ} {η = η} δ▸t _ _ ok′ γ≤pδ+η) →
-  case no-erased-matches non-trivial .proj₂ .proj₁ ok′ of λ
+  case no-η ∘→ no-erased-matches non-trivial .proj₂ .proj₁ ok′ of λ
     p≢𝟘 →
   NegativeErasedContext Γ γ               →⟨ NegativeErasedContext-upwards-closed γ≤pδ+η ⟩
   NegativeErasedContext Γ (p ·ᶜ δ +ᶜ η)   →⟨ NegativeErasedContext-𝟘 (λ _ → proj₁ ∘→ +ᶜ-positive-⟨⟩ (p ·ᶜ δ)) ⟩
@@ -274,68 +280,82 @@ nfN (starⱼ _ _)       _ _ starₙ       c = ⊥-elim (ℕ≢Unitⱼ (sym c))
 nfN (rflⱼ _)          _ _ rflₙ        c = ⊥-elim (Id≢ℕ c)
 -- q.e.d
 
--- Terms of non-negative types reduce to non-neutrals
+-- The following results are proved under the assumption that, if the
+-- weak unit type is allowed, η-equality is allowed for it, and
+-- Unitrec-allowed 𝟙ᵐ p q holds for some p and q, then either 𝟙 ≤ 𝟘 or
+-- p is 𝟘.
 
-¬NeutralNf :
-  Γ ⊢ t ∷ A → γ ▸[ 𝟙ᵐ ] t →
-  NegativeErasedContext Γ γ → (NegativeType Γ A → ⊥) →
-  ∃ λ u → Γ ⊢ t ⇒* u ∷ A × Whnf u × (Neutral u → ⊥)
-¬NeutralNf ⊢t γ▸t nΓγ ¬negA =
-  let u , whnfU , d = whNormTerm ⊢t
-      γ▸u = usagePres*Term γ▸t (redₜ d)
-  in  u , redₜ d , whnfU , λ x → ¬negA (neNeg (⊢u-redₜ d) x γ▸u nΓγ)
+module _
+  (Unitʷ-η→ :
+     ∀ {p q} →
+     Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
+     𝟙 ≤ 𝟘 ⊎ p PE.≡ 𝟘)
+  where
 
--- Canonicity theorem: A term which has the type ℕ in a
--- negative/erased context, and which is well-resourced (with respect
--- to the mode 𝟙ᵐ), ⇒ˢ*-reduces to a numeral.
+  -- Terms that have non-negative types reduce to non-neutral terms.
 
-canonicityRed′ :
-  ∀ {l} → (⊢Γ : ⊢ Γ) → γ ▸[ 𝟙ᵐ ] t → NegativeErasedContext Γ γ →
-  Γ ⊩⟨ l ⟩ t ∷ ℕ / ℕᵣ (idRed:*: (ℕⱼ ⊢Γ)) →
-  ∃ λ v → Numeral v × Γ ⊢ t ⇒ˢ* v ∷ℕ
-canonicityRed′ {l = l} ⊢Γ γ▸t nΓγ (ℕₜ _ d n≡n (sucᵣ x)) =
-  let invUsageSuc δ▸n γ≤δ = inv-usage-suc (usagePres*Term γ▸t (redₜ d))
-      v , numV , d′ = canonicityRed′ {l = l} ⊢Γ (sub δ▸n γ≤δ) nΓγ x
-  in  suc v , sucₙ numV , ⇒ˢ*∷ℕ-trans (whred* (redₜ d)) (sucred* d′)
-canonicityRed′ _ _ _ (ℕₜ _ d _ zeroᵣ) =
-  zero , zeroₙ , whred* (redₜ d)
-canonicityRed′ ⊢Γ γ▸t nΓγ (ℕₜ n d n≡n (ne (neNfₜ neK ⊢k k≡k))) =
-  let u , d′ , whU , ¬neU =
-        ¬NeutralNf (⊢t-redₜ d) γ▸t nΓγ
-          (λ negℕ → ¬negℕ negℕ (refl (ℕⱼ ⊢Γ)))
-  in  ⊥-elim (¬neU (PE.subst Neutral (whrDet*Term (redₜ d , ne neK) (d′ , whU)) neK))
+  ¬NeutralNf :
+    Γ ⊢ t ∷ A → γ ▸[ 𝟙ᵐ ] t →
+    NegativeErasedContext Γ γ → (NegativeType Γ A → ⊥) →
+    ∃ λ u → Γ ⊢ t ⇒* u ∷ A × Whnf u × (Neutral u → ⊥)
+  ¬NeutralNf ⊢t γ▸t nΓγ ¬negA =
+    let u , whnfU , d = whNormTerm ⊢t
+        γ▸u = usagePres*Term Unitʷ-η→ γ▸t (redₜ d)
+    in  u , redₜ d , whnfU , λ x → ¬negA (neNeg (⊢u-redₜ d) x γ▸u nΓγ)
 
-canonicityRed :
-  Γ ⊢ t ∷ ℕ → γ ▸[ 𝟙ᵐ ] t → NegativeErasedContext Γ γ →
-  ∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ
-canonicityRed ⊢t γ▸t nΓγ with reducibleTerm ⊢t
-... | [ℕ] , [t] =
-  let ⊢Γ = wfTerm ⊢t
-      [ℕ]′ = ℕᵣ {l = ¹} (idRed:*: (ℕⱼ ⊢Γ))
-      [t]′ = irrelevanceTerm [ℕ] [ℕ]′ [t]
-  in  canonicityRed′ {l = ¹} ⊢Γ γ▸t nΓγ [t]′
+  -- Canonicity theorem: A term that has the type ℕ in a
+  -- negative/erased context, and that is well-resourced (with respect
+  -- to the mode 𝟙ᵐ), ⇒ˢ*-reduces to a numeral.
 
--- A variant of the previous result for terms that are well-resourced
--- with respect to 𝟘ᶜ.
+  canonicityRed′ :
+    (⊢Γ : ⊢ Γ) → γ ▸[ 𝟙ᵐ ] t → NegativeErasedContext Γ γ →
+    Γ ⊩⟨ l ⟩ t ∷ ℕ / ℕᵣ (idRed:*: (ℕⱼ ⊢Γ)) →
+    ∃ λ v → Numeral v × Γ ⊢ t ⇒ˢ* v ∷ℕ
+  canonicityRed′ {l} ⊢Γ γ▸t nΓγ (ℕₜ _ d n≡n (sucᵣ x)) =
+    let invUsageSuc δ▸n γ≤δ =
+          inv-usage-suc (usagePres*Term Unitʷ-η→ γ▸t (redₜ d))
+        v , numV , d′ = canonicityRed′ {l = l} ⊢Γ (sub δ▸n γ≤δ) nΓγ x
+    in  suc v , sucₙ numV , ⇒ˢ*∷ℕ-trans (whred* (redₜ d)) (sucred* d′)
+  canonicityRed′ _ _ _ (ℕₜ _ d _ zeroᵣ) =
+    zero , zeroₙ , whred* (redₜ d)
+  canonicityRed′ ⊢Γ γ▸t nΓγ (ℕₜ n d n≡n (ne (neNfₜ neK ⊢k k≡k))) =
+    let u , d′ , whU , ¬neU =
+          ¬NeutralNf (⊢t-redₜ d) γ▸t nΓγ
+            (λ negℕ → ¬negℕ negℕ (refl (ℕⱼ ⊢Γ)))
+    in  ⊥-elim $ ¬neU $
+        PE.subst Neutral (whrDet*Term (redₜ d , ne neK) (d′ , whU)) neK
 
-canonicityRed-𝟘ᶜ :
-  Γ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t → ∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ
-canonicityRed-𝟘ᶜ ⊢t 𝟘▸t = canonicityRed ⊢t 𝟘▸t erasedContext
+  canonicityRed :
+    Γ ⊢ t ∷ ℕ → γ ▸[ 𝟙ᵐ ] t → NegativeErasedContext Γ γ →
+    ∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ
+  canonicityRed ⊢t γ▸t nΓγ with reducibleTerm ⊢t
+  ... | [ℕ] , [t] =
+    let ⊢Γ = wfTerm ⊢t
+        [ℕ]′ = ℕᵣ {l = ¹} (idRed:*: (ℕⱼ ⊢Γ))
+        [t]′ = irrelevanceTerm [ℕ] [ℕ]′ [t]
+    in  canonicityRed′ {l = ¹} ⊢Γ γ▸t nΓγ [t]′
 
--- Canonicity theorem: A term which has the type ℕ in a
--- negative/erased context, and which is well-resourced (with respect
--- to the mode 𝟙ᵐ), is convertible to a numeral.
+  -- A variant of the previous result for terms that are
+  -- well-resourced with respect to 𝟘ᶜ.
 
-canonicityEq :
-  Γ ⊢ t ∷ ℕ → γ ▸[ 𝟙ᵐ ] t → NegativeErasedContext Γ γ →
-  ∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ
-canonicityEq ⊢t γ▸t nΓγ =
-  let u , numU , d = canonicityRed ⊢t γ▸t nΓγ
-  in  u , numU , subset*Termˢ d
+  canonicityRed-𝟘ᶜ :
+    Γ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t → ∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ
+  canonicityRed-𝟘ᶜ ⊢t 𝟘▸t = canonicityRed ⊢t 𝟘▸t erasedContext
 
--- A variant of the previous result for terms that are well-resourced
--- with respect to 𝟘ᶜ.
+  -- Canonicity theorem: A term that has the type ℕ in a
+  -- negative/erased context, and that is well-resourced (with respect
+  -- to the mode 𝟙ᵐ), is convertible to a numeral.
 
-canonicityEq-𝟘ᶜ :
-  Γ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t → ∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ
-canonicityEq-𝟘ᶜ ⊢t 𝟘▸t = canonicityEq ⊢t 𝟘▸t erasedContext
+  canonicityEq :
+    Γ ⊢ t ∷ ℕ → γ ▸[ 𝟙ᵐ ] t → NegativeErasedContext Γ γ →
+    ∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ
+  canonicityEq ⊢t γ▸t nΓγ =
+    let u , numU , d = canonicityRed ⊢t γ▸t nΓγ
+    in  u , numU , subset*Termˢ d
+
+  -- A variant of the previous result for terms that are
+  -- well-resourced with respect to 𝟘ᶜ.
+
+  canonicityEq-𝟘ᶜ :
+    Γ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t → ∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ
+  canonicityEq-𝟘ᶜ ⊢t 𝟘▸t = canonicityEq ⊢t 𝟘▸t erasedContext

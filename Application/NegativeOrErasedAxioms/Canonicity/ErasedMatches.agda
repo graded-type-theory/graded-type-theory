@@ -13,6 +13,7 @@ open import Tools.Level
 open import Tools.Nat using (Nat)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Sum using (_⊎_)
 
 import Application.NegativeOrErasedAxioms.NegativeOrErasedContext
 
@@ -25,6 +26,7 @@ import Definition.Typed.Consequences.Substitution
 import Definition.Typed.Properties
 open import Definition.Typed.Restrictions
 import Definition.Untyped
+import Definition.Untyped.Neutral
 
 import Graded.Context
 import Graded.Context.Properties
@@ -37,7 +39,7 @@ import Graded.Restrictions
 import Graded.Usage
 open import Graded.Usage.Restrictions
 
-open import Graded.Modality.Instances.Erasure
+open import Graded.Modality.Instances.Erasure as E using (Erasure)
 import Graded.Modality.Instances.Erasure.Modality as EM
 
 module Counterexample
@@ -64,6 +66,8 @@ module Counterexample
     UR : Usage-restrictions 𝕄
     UR = no-usage-restrictions true true
 
+  open Type-restrictions TR
+
   open Application.NegativeOrErasedAxioms.NegativeOrErasedContext TR
 
   open Definition.Conversion TR
@@ -74,6 +78,7 @@ module Counterexample
   open Definition.Typed.Consequences.Substitution TR
   open Definition.Typed.Properties TR
   open Definition.Untyped Erasure
+  open Definition.Untyped.Neutral Erasure type-variant
 
   open Graded.Context 𝕄
   open Graded.Context.Properties 𝕄
@@ -115,6 +120,8 @@ module Counterexample
     , (λ { (u , numU , (whred x ⇨ˢ d)) → neRedTerm x (prodrecₙ (var x0))})
     , (_ , id ⊢prodrec , ne neutral , neutral)
     where
+    open E
+
     lem :
       ε ∙ (Σʷ ω , 𝟘 ▷ ℕ ▹ ℕ) ⊢
         prodrec 𝟘 ω 𝟘 ℕ (var x0) zero [conv↑] zero ∷ ℕ →
@@ -174,18 +181,24 @@ not-canonicityEq :
    in
    ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄
    (TR : Type-restrictions 𝕄) →
-   let open
+   let open Type-restrictions TR
+       open
          Application.NegativeOrErasedAxioms.NegativeOrErasedContext TR
        open Definition.Typed TR
    in
    (UR : Usage-restrictions 𝕄) →
-   let open Graded.Usage 𝕄 UR in
+   let open Usage-restrictions UR
+       open Graded.Usage 𝕄 UR
+   in
    ∀ {m} {Γ : Con Term m} →
    Consistent Γ →
+   (∀ {p q} →
+    Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
+    𝟙 ≤ 𝟘 ⊎ p PE.≡ 𝟘) →
    ∀ {t γ} → Γ ⊢ t ∷ ℕ → γ ▸[ 𝟙ᵐ ] t → NegativeErasedContext Γ γ →
    ∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ) →
   ⊥
 not-canonicityEq hyp =
   case Counterexample.cEx (nr-available-and-𝟘ᵐ-allowed-if true) of λ {
     (_ , _ , _ , _ , ⊢t , ▸t , _ , nec , con , not-numeral , _) →
-  not-numeral (hyp _ _ con ⊢t ▸t nec) }
+  not-numeral (hyp _ _ con (λ ()) ⊢t ▸t nec) }

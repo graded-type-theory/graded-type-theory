@@ -11,7 +11,10 @@ module Definition.Conversion.Whnf
   (R : Type-restrictions 𝕄)
   where
 
+open Type-restrictions R
+
 open import Definition.Untyped M
+open import Definition.Untyped.Neutral M type-variant
 open import Definition.Conversion R
 
 open import Tools.Nat
@@ -43,9 +46,9 @@ mutual
     in  prodrecₙ gNe , prodrecₙ hNe
   ne~↑ (emptyrec-cong x x₁) = let _ , q , w = ne~↓ x₁
                               in emptyrecₙ q , emptyrecₙ w
-  ne~↑ (unitrec-cong _ k~l _) =
+  ne~↑ (unitrec-cong _ k~l _ no-η) =
     let _ , kNe , lNe = ne~↓ k~l
-    in  unitrecₙ kNe , unitrecₙ lNe
+    in  unitrecₙ no-η kNe , unitrecₙ no-η lNe
   ne~↑ (J-cong _ _ _ _ _ w₁~w₂ _) =
     Σ.map Jₙ Jₙ (ne~↓ w₁~w₂ .proj₂)
   ne~↑ (K-cong _ _ _ _ v₁~v₂ _ _) =
@@ -91,12 +94,12 @@ whnfConv↓Term (ne-ins t u x x₁) =
   in ne x , ne neT , ne neU
 whnfConv↓Term (univ x x₁ x₂) = Uₙ , whnfConv↓ x₂
 whnfConv↓Term (zero-refl x) = ℕₙ , zeroₙ , zeroₙ
-whnfConv↓Term (starʷ-refl x x₁) = Unitₙ , starₙ , starₙ
+whnfConv↓Term (starʷ-refl _ _ _) = Unitₙ , starₙ , starₙ
 whnfConv↓Term (suc-cong x) = ℕₙ , sucₙ , sucₙ
 whnfConv↓Term (prod-cong _ _ _ _ _) = ΠΣₙ , prodₙ , prodₙ
 whnfConv↓Term (η-eq x₁ x₂ y y₁ x₃) = ΠΣₙ , functionWhnf y , functionWhnf y₁
 whnfConv↓Term (Σ-η _ _ pProd rProd _ _) = ΠΣₙ , productWhnf pProd , productWhnf rProd
-whnfConv↓Term (η-unit _ _ tWhnf uWhnf) = Unitₙ , tWhnf , uWhnf
+whnfConv↓Term (η-unit _ _ tWhnf uWhnf _) = Unitₙ , tWhnf , uWhnf
 whnfConv↓Term (Id-ins _ v₁~v₂) =
   Idₙ , Σ.map ne ne (ne~↓ v₁~v₂ .proj₂)
 whnfConv↓Term (rfl-refl _) =

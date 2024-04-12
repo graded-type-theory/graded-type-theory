@@ -15,6 +15,7 @@ module Definition.LogicalRelation.Hidden
   where
 
 open EqRelSet eqrel
+open Type-restrictions R
 
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Irrelevance R
@@ -39,6 +40,7 @@ open import Definition.Typed R
 open import Definition.Typed.Weakening R using (_∷_⊇_)
 
 open import Definition.Untyped M
+open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 
 open import Tools.Fin

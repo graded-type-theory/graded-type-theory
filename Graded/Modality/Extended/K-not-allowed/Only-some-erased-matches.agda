@@ -7,7 +7,8 @@
 -- show that it is possible to instantiate all of the parameters at
 -- the same time.
 
-module Graded.Modality.Extended.K-not-allowed.Erased-matches where
+module Graded.Modality.Extended.K-not-allowed.Only-some-erased-matches
+  where
 
 open import Tools.Bool
 open import Tools.Empty
@@ -56,12 +57,14 @@ private variable
 -- The following extended modalities all satisfy the following
 -- properties:
 --
--- * There are no restrictions on prodrec, unitrec or emptyrec.
+-- * The term former prodrec r is allowed when the mode is 𝟘ᵐ or r is
+--   non-zero or the modality is trivial.
+-- * There are no restrictions on unitrec or emptyrec.
 -- * The strong unit type is not allowed to be used as a sink.
 -- * Id-erased is not inhabited.
--- * "Some" erased matches are allowed for J and K when the mode
---   is 𝟙ᵐ, and all erased matches are allowed for J and K when the
---   mode is 𝟘ᵐ.
+-- * Erased matches are not allowed for J and K when the mode is 𝟙ᵐ,
+--   and all erased matches are allowed for J and K when the mode
+--   is 𝟘ᵐ.
 -- * Eta-equality is not allowed for weak types.
 -- * Strong unit types are not allowed, but weak unit types are
 --   allowed.
@@ -73,20 +76,19 @@ private variable
 --   * Whenever the first grades are not ω, then the second grades
 --     are 𝟘.
 -- * The K rule is not allowed.
--- * []-cong is not allowed for 𝕤.
--- * []-cong is allowed for 𝕨 exactly when the modality is non-trivial.
+-- * []-cong is not allowed.
 -- * 𝟘ᵐ is allowed exactly when the modality is non-trivial.
 -- * A dedicated nr function is available.
 
 All-properties-hold-for : Extended-modality a → Set a
 All-properties-hold-for M =
-  (∀ {m r p q} → Prodrec-allowed m r p q) ×
+  (∀ {m r p q} → Prodrec-allowed m r p q ⇔ (m ≢ 𝟙ᵐ ⊎ r ≢ 𝟘 ⊎ Trivial)) ×
   (∀ {m p q} → Unitrec-allowed m p q) ×
   (∀ {m p} → Emptyrec-allowed m p) ×
   ¬ Starˢ-sink ×
   ¬ Id-erased ×
-  erased-matches-for-J 𝟙ᵐ ≡ some ×
-  erased-matches-for-K 𝟙ᵐ ≡ some ×
+  erased-matches-for-J 𝟙ᵐ ≡ none ×
+  erased-matches-for-K 𝟙ᵐ ≡ none ×
   (∀ {m} → m ≢ 𝟙ᵐ → erased-matches-for-J m ≡ all) ×
   (∀ {m} → m ≢ 𝟙ᵐ → erased-matches-for-K m ≡ all) ×
   ¬ Unitʷ-η ×
@@ -96,8 +98,7 @@ All-properties-hold-for M =
    ΠΣ-allowed b p q ⇔
    (b ≢ BMΣ 𝕤 × (p ≡ ω → q ≡ ω) × (p ≢ ω → q ≡ 𝟘))) ×
   ¬ K-allowed ×
-  ¬ []-cong-allowed 𝕤 ×
-  ([]-cong-allowed 𝕨 ⇔ (¬ Trivial)) ×
+  (∀ {s} → ¬ []-cong-allowed s) ×
   (T 𝟘ᵐ-allowed ⇔ (¬ Trivial)) ×
   Nr-available
   where
@@ -112,6 +113,7 @@ private
     Type-restrictions 𝕄
   TR′ =
     no-erased-matches-TR _ 𝕤 $
+    no-erased-matches-TR _ 𝕨 $
     no-strong-types _ $
     second-ΠΣ-quantities-𝟘-or-ω _ $
     no-type-restrictions _ false
@@ -124,6 +126,7 @@ private
       TD.Assumptions (TR′ {𝕄 = 𝕄})
     Assumptions-TR′ =
       Assumptions-no-erased-matches-TR _ ∘→
+      Assumptions-no-erased-matches-TR _ ∘→
       Assumptions-no-strong-types _ ∘→
       Assumptions-second-ΠΣ-quantities-𝟘-or-ω _ ∘→
       Assumptions-no-type-restrictions _
@@ -132,7 +135,7 @@ private
     {M : Set} {𝕄 : Modality M} →
     Usage-restrictions 𝕄
   UR′ =
-    not-all-erased-matches-JK _ $
+    only-some-erased-matches _ $
     no-usage-restrictions _ false false
 
   opaque
@@ -143,7 +146,7 @@ private
       Decidable (_≡_ {A = M}) →
       UD.Assumptions (UR′ {𝕄 = 𝕄})
     Assumptions-UR′ {has-nr} =
-      Assumptions-not-all-erased-matches-JK _ ∘→
+      Assumptions-only-some-erased-matches _ ∘→
       Assumptions-no-usage-restrictions _
         ⦃ has-nr = dedicated-nr has-nr ⦄
 
@@ -167,7 +170,7 @@ opaque
 
   All-properties-hold-for-Trivial : All-properties-hold-for Trivial
   All-properties-hold-for-Trivial =
-      _
+      ((λ _ → inj₂ (inj₂ refl)) , (λ _ → _ , ⊥-elim ∘→ (_$ refl)))
     , _
     , _
     , (λ ())
@@ -185,8 +188,9 @@ opaque
       , (λ (hyp₁ , hyp₂) → (_ , hyp₂) , lift hyp₁)
       )
     , (λ ())
-    , (_$ refl) ∘→ proj₂
-    , (proj₁ ∘→ proj₁ , ⊥-elim ∘→ (_$ refl))
+    , (λ where
+         {s = 𝕤} → (_$ refl) ∘→ proj₂
+         {s = 𝕨} → (_$ refl) ∘→ proj₂ ∘→ proj₁)
     , ((λ ()) , (_$ refl))
     , _
 
@@ -210,7 +214,13 @@ opaque
 
   All-properties-hold-for-Erasure : All-properties-hold-for Erasure
   All-properties-hold-for-Erasure =
-      _
+      (λ where
+         {m = 𝟘ᵐ} → (λ _ → inj₁ (λ ())) , (λ _ → _ , (λ _ ()))
+         {m = 𝟙ᵐ} →
+             (λ (_ , r≢𝟘) → inj₂ (inj₁ (r≢𝟘 (λ ()) refl)))
+           , (λ where
+                (inj₁ 𝟙ᵐ≢𝟙ᵐ)      → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
+                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)))
     , _
     , _
     , (λ ())
@@ -230,8 +240,9 @@ opaque
       , (λ (hyp₁ , hyp₂) → (_ , hyp₂) , lift hyp₁)
       )
     , (λ ())
-    , (_$ refl) ∘→ proj₂
-    , (proj₁ ∘→ proj₁ , (λ _ → ((λ ()) , (λ ())) , (λ ())))
+    , (λ where
+         {s = 𝕤} → (_$ refl) ∘→ proj₂
+         {s = 𝕨} → (_$ refl) ∘→ proj₂ ∘→ proj₁)
     , ((λ _ ()) , _)
     , _
 
@@ -265,7 +276,13 @@ opaque
   All-properties-hold-for-Affine-types :
     All-properties-hold-for Affine-types
   All-properties-hold-for-Affine-types =
-      _
+      (λ where
+         {m = 𝟘ᵐ} → (λ _ → inj₁ (λ ())) , (λ _ → _ , (λ _ ()))
+         {m = 𝟙ᵐ} →
+             (λ (_ , r≢𝟘) → inj₂ (inj₁ (r≢𝟘 (λ ()) refl)))
+           , (λ where
+                (inj₁ 𝟙ᵐ≢𝟙ᵐ)      → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
+                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)))
     , _
     , _
     , (λ ())
@@ -285,8 +302,9 @@ opaque
       , (λ (hyp₁ , hyp₂) → (_ , hyp₂) , lift hyp₁)
       )
     , (λ ())
-    , (_$ refl) ∘→ proj₂
-    , (proj₁ ∘→ proj₁ , (λ _ → ((λ ()) , (λ ())) , (λ ())))
+    , (λ where
+         {s = 𝕤} → (_$ refl) ∘→ proj₂
+         {s = 𝕨} → (_$ refl) ∘→ proj₂ ∘→ proj₁)
     , ((λ _ ()) , _)
     , _
 
@@ -324,7 +342,13 @@ opaque
   All-properties-hold-for-Linearity :
     All-properties-hold-for Linearity
   All-properties-hold-for-Linearity =
-      _
+      (λ where
+         {m = 𝟘ᵐ} → (λ _ → inj₁ (λ ())) , (λ _ → _ , (λ _ ()))
+         {m = 𝟙ᵐ} →
+             (λ (_ , r≢𝟘) → inj₂ (inj₁ (r≢𝟘 (λ ()) refl)))
+           , (λ where
+                (inj₁ 𝟙ᵐ≢𝟙ᵐ)      → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
+                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)))
     , _
     , _
     , (λ ())
@@ -344,8 +368,9 @@ opaque
       , (λ (hyp₁ , hyp₂) → (_ , hyp₂) , lift hyp₁)
       )
     , (λ ())
-    , (_$ refl) ∘→ proj₂
-    , (proj₁ ∘→ proj₁ , (λ _ → ((λ ()) , (λ ())) , (λ ())))
+    , (λ where
+         {s = 𝕤} → (_$ refl) ∘→ proj₂
+         {s = 𝕨} → (_$ refl) ∘→ proj₂ ∘→ proj₁)
     , ((λ _ ()) , _)
     , _
 
@@ -384,7 +409,13 @@ opaque
   All-properties-hold-for-Linear-or-affine-types :
     All-properties-hold-for Linear-or-affine-types
   All-properties-hold-for-Linear-or-affine-types =
-      _
+      (λ where
+         {m = 𝟘ᵐ} → (λ _ → inj₁ (λ ())) , (λ _ → _ , (λ _ ()))
+         {m = 𝟙ᵐ} →
+             (λ (_ , r≢𝟘) → inj₂ (inj₁ (r≢𝟘 (λ ()) refl)))
+           , (λ where
+                (inj₁ 𝟙ᵐ≢𝟙ᵐ)      → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
+                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)))
     , _
     , _
     , (λ ())
@@ -404,8 +435,9 @@ opaque
       , (λ (hyp₁ , hyp₂) → (_ , hyp₂) , lift hyp₁)
       )
     , (λ ())
-    , (_$ refl) ∘→ proj₂
-    , (proj₁ ∘→ proj₁ , (λ _ → ((λ ()) , (λ ())) , (λ ())))
+    , (λ where
+         {s = 𝕤} → (_$ refl) ∘→ proj₂
+         {s = 𝕨} → (_$ refl) ∘→ proj₂ ∘→ proj₁)
     , ((λ _ ()) , _)
     , _
 
@@ -452,6 +484,7 @@ Trivial⇨Erasure = λ where
       Are-preserving-type-restrictions E₁.TR E₂.TR tr tr
     are-preserving-type-restrictions =
       Are-preserving-type-restrictions-no-erased-matches-TR $
+      Are-preserving-type-restrictions-no-erased-matches-TR $
       Are-preserving-type-restrictions-no-strong-types $
       unit→erasure-preserves-second-ΠΣ-quantities-𝟘-or-ω $
       Are-preserving-type-restrictions-no-type-restrictions (λ _ ())
@@ -459,6 +492,7 @@ Trivial⇨Erasure = λ where
     are-reflecting-type-restrictions :
       Are-reflecting-type-restrictions E₁.TR E₂.TR tr tr
     are-reflecting-type-restrictions =
+      Are-reflecting-type-restrictions-no-erased-matches-TR (λ ()) $
       Are-reflecting-type-restrictions-no-erased-matches-TR (λ ()) $
       Are-reflecting-type-restrictions-no-strong-types (λ ()) $
       unit→erasure-reflects-second-ΠΣ-quantities-𝟘-or-ω $
@@ -468,13 +502,15 @@ Trivial⇨Erasure = λ where
     are-preserving-usage-restrictions :
       Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr
     are-preserving-usage-restrictions =
-      Are-preserving-usage-restrictions-not-all-erased-matches-JK $
+      Are-preserving-usage-restrictions-only-some-erased-matches
+        (λ _ → inj₂ (λ ())) $
       Are-preserving-usage-restrictions-no-usage-restrictions _
 
     are-reflecting-usage-restrictions :
       Are-reflecting-usage-restrictions E₁.UR E₂.UR tr tr
     are-reflecting-usage-restrictions =
-      Are-reflecting-usage-restrictions-not-all-erased-matches-JK $
+      Are-reflecting-usage-restrictions-only-some-erased-matches
+        (⊥-elim ∘→ (_$ refl)) $
       Are-reflecting-usage-restrictions-no-usage-restrictions
         _ (λ _ → inj₂ refl)
 
@@ -519,6 +555,7 @@ Erasure⇨Affine-types = λ where
       Are-preserving-type-restrictions E₁.TR E₂.TR tr tr
     are-preserving-type-restrictions =
       Are-preserving-type-restrictions-no-erased-matches-TR $
+      Are-preserving-type-restrictions-no-erased-matches-TR $
       Are-preserving-type-restrictions-no-strong-types $
       erasure→zero-one-many-preserves-second-ΠΣ-quantities-𝟘-or-ω $
       Are-preserving-type-restrictions-no-type-restrictions (λ _ ())
@@ -526,6 +563,7 @@ Erasure⇨Affine-types = λ where
     are-reflecting-type-restrictions :
       Are-reflecting-type-restrictions E₁.TR E₂.TR tr tr
     are-reflecting-type-restrictions =
+      Are-reflecting-type-restrictions-no-erased-matches-TR (λ ()) $
       Are-reflecting-type-restrictions-no-erased-matches-TR (λ ()) $
       Are-reflecting-type-restrictions-no-strong-types (λ ()) $
       erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω $
@@ -535,13 +573,15 @@ Erasure⇨Affine-types = λ where
     are-preserving-usage-restrictions :
       Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr
     are-preserving-usage-restrictions =
-      Are-preserving-usage-restrictions-not-all-erased-matches-JK $
+      Are-preserving-usage-restrictions-only-some-erased-matches
+        (λ _ → inj₁ ((λ ()) , (λ { {p = E.𝟘} refl → refl }))) $
       Are-preserving-usage-restrictions-no-usage-restrictions _
 
     are-reflecting-usage-restrictions :
       Are-reflecting-usage-restrictions E₁.UR E₂.UR tr tr
     are-reflecting-usage-restrictions =
-      Are-reflecting-usage-restrictions-not-all-erased-matches-JK $
+      Are-reflecting-usage-restrictions-only-some-erased-matches
+        (λ _ → (λ ()) , (λ { refl → refl })) $
       Are-reflecting-usage-restrictions-no-usage-restrictions
         _ (λ _ → inj₁ _)
 
@@ -586,6 +626,7 @@ Erasure⇨Linearity = λ where
       Are-preserving-type-restrictions E₁.TR E₂.TR tr tr
     are-preserving-type-restrictions =
       Are-preserving-type-restrictions-no-erased-matches-TR $
+      Are-preserving-type-restrictions-no-erased-matches-TR $
       Are-preserving-type-restrictions-no-strong-types $
       erasure→zero-one-many-preserves-second-ΠΣ-quantities-𝟘-or-ω $
       Are-preserving-type-restrictions-no-type-restrictions (λ _ ())
@@ -593,6 +634,7 @@ Erasure⇨Linearity = λ where
     are-reflecting-type-restrictions :
       Are-reflecting-type-restrictions E₁.TR E₂.TR tr tr
     are-reflecting-type-restrictions =
+      Are-reflecting-type-restrictions-no-erased-matches-TR (λ ()) $
       Are-reflecting-type-restrictions-no-erased-matches-TR (λ ()) $
       Are-reflecting-type-restrictions-no-strong-types (λ ()) $
       erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω $
@@ -602,13 +644,15 @@ Erasure⇨Linearity = λ where
     are-preserving-usage-restrictions :
       Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr
     are-preserving-usage-restrictions =
-      Are-preserving-usage-restrictions-not-all-erased-matches-JK $
+      Are-preserving-usage-restrictions-only-some-erased-matches
+        (λ _ → inj₁ ((λ ()) , (λ { {p = E.𝟘} refl → refl }))) $
       Are-preserving-usage-restrictions-no-usage-restrictions _
 
     are-reflecting-usage-restrictions :
       Are-reflecting-usage-restrictions E₁.UR E₂.UR tr tr
     are-reflecting-usage-restrictions =
-      Are-reflecting-usage-restrictions-not-all-erased-matches-JK $
+      Are-reflecting-usage-restrictions-only-some-erased-matches
+        (λ _ → (λ ()) , (λ { refl → refl })) $
       Are-reflecting-usage-restrictions-no-usage-restrictions
         _ (λ _ → inj₁ _)
 
@@ -654,6 +698,7 @@ Affine-types⇨Linear-or-affine-types = λ where
       Are-preserving-type-restrictions E₁.TR E₂.TR tr tr
     are-preserving-type-restrictions =
       Are-preserving-type-restrictions-no-erased-matches-TR $
+      Are-preserving-type-restrictions-no-erased-matches-TR $
       Are-preserving-type-restrictions-no-strong-types $
       affine→linear-or-affine-preserves-second-ΠΣ-quantities-𝟘-or-ω $
       Are-preserving-type-restrictions-no-type-restrictions (λ _ ())
@@ -661,6 +706,7 @@ Affine-types⇨Linear-or-affine-types = λ where
     are-reflecting-type-restrictions :
       Are-reflecting-type-restrictions E₁.TR E₂.TR tr tr
     are-reflecting-type-restrictions =
+      Are-reflecting-type-restrictions-no-erased-matches-TR (λ ()) $
       Are-reflecting-type-restrictions-no-erased-matches-TR (λ ()) $
       Are-reflecting-type-restrictions-no-strong-types (λ ()) $
       affine→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω $
@@ -670,13 +716,15 @@ Affine-types⇨Linear-or-affine-types = λ where
     are-preserving-usage-restrictions :
       Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr
     are-preserving-usage-restrictions =
-      Are-preserving-usage-restrictions-not-all-erased-matches-JK $
+      Are-preserving-usage-restrictions-only-some-erased-matches
+        (λ _ → inj₁ ((λ ()) , (λ { {p = A.𝟘} refl → refl }))) $
       Are-preserving-usage-restrictions-no-usage-restrictions _
 
     are-reflecting-usage-restrictions :
       Are-reflecting-usage-restrictions E₁.UR E₂.UR tr tr
     are-reflecting-usage-restrictions =
-      Are-reflecting-usage-restrictions-not-all-erased-matches-JK $
+      Are-reflecting-usage-restrictions-only-some-erased-matches
+        (λ _ → (λ ()) , (λ { refl → refl })) $
       Are-reflecting-usage-restrictions-no-usage-restrictions
         _ (λ _ → inj₁ _)
 
@@ -722,6 +770,7 @@ Linearity⇨Linear-or-affine-types = λ where
       Are-preserving-type-restrictions E₁.TR E₂.TR tr tr
     are-preserving-type-restrictions =
       Are-preserving-type-restrictions-no-erased-matches-TR $
+      Are-preserving-type-restrictions-no-erased-matches-TR $
       Are-preserving-type-restrictions-no-strong-types $
       linearity→linear-or-affine-preserves-second-ΠΣ-quantities-𝟘-or-ω $
       Are-preserving-type-restrictions-no-type-restrictions (λ _ ())
@@ -729,6 +778,7 @@ Linearity⇨Linear-or-affine-types = λ where
     are-reflecting-type-restrictions :
       Are-reflecting-type-restrictions E₁.TR E₂.TR tr tr
     are-reflecting-type-restrictions =
+      Are-reflecting-type-restrictions-no-erased-matches-TR (λ ()) $
       Are-reflecting-type-restrictions-no-erased-matches-TR (λ ()) $
       Are-reflecting-type-restrictions-no-strong-types (λ ()) $
       linearity→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω $
@@ -738,12 +788,14 @@ Linearity⇨Linear-or-affine-types = λ where
     are-preserving-usage-restrictions :
       Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr
     are-preserving-usage-restrictions =
-      Are-preserving-usage-restrictions-not-all-erased-matches-JK $
+      Are-preserving-usage-restrictions-only-some-erased-matches
+        (λ _ → inj₁ ((λ ()) , (λ { {p = L.𝟘} refl → refl }))) $
       Are-preserving-usage-restrictions-no-usage-restrictions _
 
     are-reflecting-usage-restrictions :
       Are-reflecting-usage-restrictions E₁.UR E₂.UR tr tr
     are-reflecting-usage-restrictions =
-      Are-reflecting-usage-restrictions-not-all-erased-matches-JK $
+      Are-reflecting-usage-restrictions-only-some-erased-matches
+        (λ _ → (λ ()) , (λ { refl → refl })) $
       Are-reflecting-usage-restrictions-no-usage-restrictions
         _ (λ _ → inj₁ _)

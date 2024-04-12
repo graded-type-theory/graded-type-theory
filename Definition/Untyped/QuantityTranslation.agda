@@ -20,12 +20,17 @@ open import Tools.Product renaming (_,_ to _#_)
 open import Tools.PropositionalEquality
 open import Tools.Reasoning.PropositionalEquality
 
+open import Definition.Typed.Variant
+
 open import Definition.Untyped
+open import Definition.Untyped.Neutral
 import Definition.Untyped.Properties
 
 private
   module U₁  = Definition.Untyped M₁
   module U₂  = Definition.Untyped M₂
+  module UN₁ = Definition.Untyped.Neutral M₁
+  module UN₂ = Definition.Untyped.Neutral M₂
   module UP₁ = Definition.Untyped.Properties M₁
   module UP₂ = Definition.Untyped.Properties M₂
 
@@ -41,6 +46,7 @@ private variable
   A B j t u v w : Term _ _
   ρ             : Wk _ _
   σ             : Subst _ _ _
+  tv₁ tv₂       : Type-variant
 
 ------------------------------------------------------------------------
 -- Translation
@@ -114,40 +120,46 @@ module _ (tr-Σ≡tr : ∀ {p} → tr-Σ p ≡ tr p) where
   tr-BinderMode-one-function (BMΣ _) = tr-Σ≡tr
 
 ------------------------------------------------------------------------
--- Translation preserves various things
+-- Lemmas related to Neutral and Whnf
 
--- The function tr-Term preserves neutrality.
+module _
+  -- It is assumed that Unitʷ-η holds for tv₁ if it holds for tv₂.
+  (Unitʷ-η→ : Type-variant.Unitʷ-η tv₂ → Type-variant.Unitʷ-η tv₁)
+  where
 
-tr-Neutral : U₁.Neutral t → U₂.Neutral (tr-Term t)
-tr-Neutral (var x)       = var x
-tr-Neutral (∘ₙ n)        = ∘ₙ (tr-Neutral n)
-tr-Neutral (fstₙ n)      = fstₙ (tr-Neutral n)
-tr-Neutral (sndₙ n)      = sndₙ (tr-Neutral n)
-tr-Neutral (natrecₙ n)   = natrecₙ (tr-Neutral n)
-tr-Neutral (prodrecₙ n)  = prodrecₙ (tr-Neutral n)
-tr-Neutral (emptyrecₙ n) = emptyrecₙ (tr-Neutral n)
-tr-Neutral (unitrecₙ n)  = unitrecₙ (tr-Neutral n)
-tr-Neutral (Jₙ n)        = Jₙ (tr-Neutral n)
-tr-Neutral (Kₙ n)        = Kₙ (tr-Neutral n)
-tr-Neutral ([]-congₙ n)  = []-congₙ (tr-Neutral n)
+  -- The function tr-Term preserves neutrality.
 
--- The function tr-Term takes WHNFs to WHNFs.
+  tr-Neutral : UN₁.Neutral tv₁ t → UN₂.Neutral tv₂ (tr-Term t)
+  tr-Neutral (var x)             = var x
+  tr-Neutral (∘ₙ n)              = ∘ₙ (tr-Neutral n)
+  tr-Neutral (fstₙ n)            = fstₙ (tr-Neutral n)
+  tr-Neutral (sndₙ n)            = sndₙ (tr-Neutral n)
+  tr-Neutral (natrecₙ n)         = natrecₙ (tr-Neutral n)
+  tr-Neutral (prodrecₙ n)        = prodrecₙ (tr-Neutral n)
+  tr-Neutral (emptyrecₙ n)       = emptyrecₙ (tr-Neutral n)
+  tr-Neutral (unitrecₙ not-ok n) = unitrecₙ (not-ok ∘→ Unitʷ-η→)
+                                     (tr-Neutral n)
+  tr-Neutral (Jₙ n)              = Jₙ (tr-Neutral n)
+  tr-Neutral (Kₙ n)              = Kₙ (tr-Neutral n)
+  tr-Neutral ([]-congₙ n)        = []-congₙ (tr-Neutral n)
 
-tr-Whnf : U₁.Whnf t → U₂.Whnf (tr-Term t)
-tr-Whnf Uₙ                = Uₙ
-tr-Whnf (ΠΣₙ {b = BMΠ})   = ΠΣₙ
-tr-Whnf (ΠΣₙ {b = BMΣ _}) = ΠΣₙ
-tr-Whnf ℕₙ                = ℕₙ
-tr-Whnf Unitₙ             = Unitₙ
-tr-Whnf Emptyₙ            = Emptyₙ
-tr-Whnf Idₙ               = Idₙ
-tr-Whnf lamₙ              = lamₙ
-tr-Whnf zeroₙ             = zeroₙ
-tr-Whnf sucₙ              = sucₙ
-tr-Whnf starₙ             = starₙ
-tr-Whnf prodₙ             = prodₙ
-tr-Whnf rflₙ              = rflₙ
-tr-Whnf (ne n)            = ne (tr-Neutral n)
+  -- The function tr-Term takes WHNFs to WHNFs.
+
+  tr-Whnf : UN₁.Whnf tv₁ t → UN₂.Whnf tv₂ (tr-Term t)
+  tr-Whnf Uₙ                = Uₙ
+  tr-Whnf (ΠΣₙ {b = BMΠ})   = ΠΣₙ
+  tr-Whnf (ΠΣₙ {b = BMΣ _}) = ΠΣₙ
+  tr-Whnf ℕₙ                = ℕₙ
+  tr-Whnf Unitₙ             = Unitₙ
+  tr-Whnf Emptyₙ            = Emptyₙ
+  tr-Whnf Idₙ               = Idₙ
+  tr-Whnf lamₙ              = lamₙ
+  tr-Whnf zeroₙ             = zeroₙ
+  tr-Whnf sucₙ              = sucₙ
+  tr-Whnf starₙ             = starₙ
+  tr-Whnf prodₙ             = prodₙ
+  tr-Whnf rflₙ              = rflₙ
+  tr-Whnf (ne n)            = ne (tr-Neutral n)
 
 ------------------------------------------------------------------------
 -- Translation commutes with various things

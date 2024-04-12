@@ -14,10 +14,12 @@ module Definition.LogicalRelation.Properties.Whnf
   where
 
 open EqRelSet eqrel
+open Type-restrictions R
 
 open import Definition.LogicalRelation R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Neutral M type-variant
 
 open import Tools.Function
 open import Tools.Product
