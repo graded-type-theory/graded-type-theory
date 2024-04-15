@@ -55,6 +55,7 @@ private
     m : Mode
     p q r : M
 
+------------------------------------------------------------------------
 -- Subject reduction properties for modality usage
 
 -- Term reduction preserves usage.
@@ -323,6 +324,9 @@ usagePres*Term γ▸t (x ⇨ t⇒u) = usagePres*Term (usagePresTerm γ▸t x) t�
 usagePres* : γ ▸[ m ] A → Γ ⊢ A ⇒* B → γ ▸[ m ] B
 usagePres* γ▸A (id x) = γ▸A
 usagePres* γ▸A (x ⇨ A⇒B) = usagePres* (usagePres γ▸A x) A⇒B
+
+------------------------------------------------------------------------
+-- Some results related to η-long normal forms
 
 -- Note that reduction does not include η-expansion (for WHNFs, see
 -- no-η-expansion-Unitˢ and no-η-expansion-Σˢ in
