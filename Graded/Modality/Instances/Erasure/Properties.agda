@@ -16,7 +16,9 @@ open Modality-variant variant
 open import Graded.Modality.Instances.Erasure.Modality
 
 open import Graded.Context (ErasureModality variant)
-open import Graded.Context.Properties (ErasureModality variant) public
+open import Graded.Context.Properties (ErasureModality variant) as C
+  public
+  hiding (+ᶜ-decreasingˡ; +ᶜ-decreasingʳ)
 
 open import Graded.FullReduction.Assumptions
 
@@ -64,15 +66,13 @@ private
 -- γ +ᶜ δ ≤ᶜ γ
 
 +ᶜ-decreasingˡ : (γ δ : Conₘ n) → γ +ᶜ δ ≤ᶜ γ
-+ᶜ-decreasingˡ ε ε = ≤ᶜ-refl
-+ᶜ-decreasingˡ (γ ∙ p) (δ ∙ q) = (+ᶜ-decreasingˡ γ δ) ∙ (+-decreasingˡ p q)
++ᶜ-decreasingˡ _ _ = C.+ᶜ-decreasingˡ PE.refl
 
 -- Addition on the right is a decreasing function
 -- γ +ᶜ δ ≤ᶜ δ
 
 +ᶜ-decreasingʳ : (γ δ : Conₘ n) → γ +ᶜ δ ≤ᶜ δ
-+ᶜ-decreasingʳ ε ε = ≤ᶜ-refl
-+ᶜ-decreasingʳ (_ ∙ p) (_ ∙ _) = +ᶜ-decreasingʳ _ _ ∙ +-decreasingʳ p
++ᶜ-decreasingʳ _ _ = C.+ᶜ-decreasingʳ PE.refl
 
 -- Addition is idempotent
 -- γ +ᶜ γ ≡ γ

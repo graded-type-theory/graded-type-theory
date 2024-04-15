@@ -188,8 +188,8 @@ import Definition.Typed.Decidable
 import Graded.Modality.Properties.PartialOrder
 import Graded.Modality.Properties.Equivalence
 import Graded.Modality.Properties.Meet
-import Graded.Modality.Properties.Addition
 import Graded.Modality.Properties.Multiplication
+import Graded.Modality.Properties.Addition
 import Graded.Modality.Properties.Division
 import Graded.Modality.Properties.Has-well-behaved-zero
 import Graded.Modality.Properties.Star

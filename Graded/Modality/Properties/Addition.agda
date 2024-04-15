@@ -12,10 +12,12 @@ module Graded.Modality.Properties.Addition
 open Semiring-with-meet 𝕄
 
 open import Graded.Modality.Properties.Meet 𝕄
+open import Graded.Modality.Properties.Multiplication 𝕄
 open import Graded.Modality.Properties.PartialOrder 𝕄
 
 open import Tools.Algebra M
 open import Tools.Function
+open import Tools.Product
 open import Tools.PropositionalEquality
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
@@ -41,6 +43,50 @@ private
 
 +-monotone : p ≤ p′ → q ≤ q′ → p + q ≤ p′ + q′
 +-monotone p≤p′ q≤q′ = ≤-trans (+-monotoneˡ p≤p′) (+-monotoneʳ q≤q′)
+
+opaque
+
+  -- If 𝟙 ≤ 𝟘, then _+ q is decreasing.
+
+  +-decreasingˡ : 𝟙 ≤ 𝟘 → p + q ≤ p
+  +-decreasingˡ {p} {q} 𝟙≤𝟘 = begin
+    p + q  ≤⟨ +-monotoneʳ (≤𝟘⇔𝟙≤𝟘 .proj₂ 𝟙≤𝟘) ⟩
+    p + 𝟘  ≡⟨ +-identityʳ _ ⟩
+    p      ∎
+    where
+    open Tools.Reasoning.PartialOrder ≤-poset
+
+opaque
+
+  -- If _+ q is decreasing for all q, then 𝟙 ≤ 𝟘.
+
+  +-decreasingˡ→𝟙≤𝟘 : (∀ {p q} → p + q ≤ p) → 𝟙 ≤ 𝟘
+  +-decreasingˡ→𝟙≤𝟘 =
+    (∀ {p q} → p + q ≤ p)  →⟨ (λ hyp → hyp) ⟩
+    𝟘 + 𝟙 ≤ 𝟘              →⟨ ≤-trans (≤-reflexive (sym (+-identityˡ _))) ⟩
+    𝟙 ≤ 𝟘                  □
+
+opaque
+
+  -- If 𝟙 ≤ 𝟘, then p +_ is decreasing.
+
+  +-decreasingʳ : 𝟙 ≤ 𝟘 → p + q ≤ q
+  +-decreasingʳ {p} {q} 𝟙≤𝟘 = begin
+    p + q  ≡⟨ +-comm _ _ ⟩
+    q + p  ≤⟨ +-decreasingˡ 𝟙≤𝟘 ⟩
+    q      ∎
+    where
+    open Tools.Reasoning.PartialOrder ≤-poset
+
+opaque
+
+  -- If p +_ is decreasing for all p, then 𝟙 ≤ 𝟘.
+
+  +-decreasingʳ→𝟙≤𝟘 : (∀ {p q} → p + q ≤ q) → 𝟙 ≤ 𝟘
+  +-decreasingʳ→𝟙≤𝟘 =
+    (∀ {p q} → p + q ≤ q)  →⟨ (λ hyp → hyp) ⟩
+    𝟙 + 𝟘 ≤ 𝟘              →⟨ ≤-trans (≤-reflexive (sym (+-identityʳ _))) ⟩
+    𝟙 ≤ 𝟘                  □
 
 -- The operation _+_ is sub-interchangeable with _∧_ (with respect
 -- to _≤_).

@@ -114,6 +114,27 @@ private
 +ᶜ-monotone : γ ≤ᶜ γ′ → δ ≤ᶜ δ′ → γ +ᶜ δ ≤ᶜ γ′ +ᶜ δ′
 +ᶜ-monotone γ≤γ′ δ≤δ′ = ≤ᶜ-trans (+ᶜ-monotoneˡ γ≤γ′) (+ᶜ-monotoneʳ δ≤δ′)
 
+opaque
+
+  -- If 𝟙 ≤ 𝟘, then _+ᶜ δ is decreasing.
+
+  +ᶜ-decreasingˡ : 𝟙 ≤ 𝟘 → γ +ᶜ δ ≤ᶜ γ
+  +ᶜ-decreasingˡ {γ = ε}     {δ = ε}     _   = ε
+  +ᶜ-decreasingˡ {γ = _ ∙ _} {δ = _ ∙ _} 𝟙≤𝟘 =
+    +ᶜ-decreasingˡ 𝟙≤𝟘 ∙ +-decreasingˡ 𝟙≤𝟘
+
+opaque
+
+  -- If 𝟙 ≤ 𝟘, then γ +ᶜ_ is decreasing.
+
+  +ᶜ-decreasingʳ : 𝟙 ≤ 𝟘 → γ +ᶜ δ ≤ᶜ δ
+  +ᶜ-decreasingʳ {γ = γ} {δ = δ} 𝟙≤𝟘 = begin
+    γ +ᶜ δ  ≈⟨ +ᶜ-comm _ _ ⟩
+    δ +ᶜ γ  ≤⟨ +ᶜ-decreasingˡ 𝟙≤𝟘 ⟩
+    δ       ∎
+    where
+    open ≤ᶜ-reasoning
+
 -- Addition forms a commutative monoid.
 
 +ᶜ-commutativeMonoid : ∀ {n} → IsCommutativeMonoid (Conₘ n) _+ᶜ_ 𝟘ᶜ
