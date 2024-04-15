@@ -70,13 +70,7 @@ Full-reduction-assumptions⇔Full-reduction-assumptions′ :
   Full-reduction-assumptions ⇔ Full-reduction-assumptions′
 Full-reduction-assumptions⇔Full-reduction-assumptions′ =
     (λ as → record
-       { sink⊎≤𝟘 = λ ok → case sink⊎𝟙≤𝟘 as ok of λ {
-         (inj₁ sink) → inj₁ sink ;
-         (inj₂ 𝟙≤𝟘)  → inj₂ λ {p} → begin (
-           p                    ≡˘⟨ ·-identityˡ _ ⟩
-           𝟙 · p               ≤⟨ ·-monotoneˡ 𝟙≤𝟘 ⟩
-           𝟘 · p               ≡⟨ ·-zeroˡ _ ⟩
-           𝟘 ∎ )}
+       { sink⊎≤𝟘      = ⊎.map idᶠ (≤𝟘⇔𝟙≤𝟘 .proj₂) ∘→ sink⊎𝟙≤𝟘 as
        ; ·-increasing = λ {p = p} {q = q} {r = r} →
            Σˢ-allowed p q                        →⟨ ≡𝟙⊎𝟙≤𝟘 as ⟩
 

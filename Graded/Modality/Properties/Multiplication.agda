@@ -14,6 +14,7 @@ open import Graded.Modality.Properties.PartialOrder 𝕄
 
 open import Tools.Algebra M
 open import Tools.Function
+open import Tools.Product
 open import Tools.PropositionalEquality
 import Tools.Reasoning.PartialOrder
 
@@ -39,6 +40,21 @@ private
 
 ·-monotone : p ≤ p′ → q ≤ q′ → p · q ≤ p′ · q′
 ·-monotone p≤p′ q≤q′ = ≤-trans (·-monotoneˡ p≤p′) (·-monotoneʳ q≤q′)
+
+opaque
+
+  -- 𝟘 is a largest element if and only if 𝟙 ≤ 𝟘.
+
+  ≤𝟘⇔𝟙≤𝟘 : (∀ {p} → p ≤ 𝟘) ⇔ 𝟙 ≤ 𝟘
+  ≤𝟘⇔𝟙≤𝟘 =
+      (λ ≤𝟘 → ≤𝟘)
+    , (λ 𝟙≤𝟘 {p = p} → begin
+         p      ≡˘⟨ ·-identityʳ _ ⟩
+         p · 𝟙  ≤⟨ ·-monotoneʳ 𝟙≤𝟘 ⟩
+         p · 𝟘  ≡⟨ ·-zeroʳ _ ⟩
+         𝟘      ∎)
+    where
+    open Tools.Reasoning.PartialOrder ≤-poset
 
 -- Multiplication by ω (from the left) is decreasing.
 
