@@ -17,9 +17,3 @@ id (inj₂ x) = x
 sym : ∀ {a b} {A : Set a} {B : Set b} → A ⊎ B → B ⊎ A
 sym (inj₁ x) = inj₂ x
 sym (inj₂ x) = inj₁ x
-
--- Eliminator
-
-cases : ∀ {A B C : Set} → A ⊎ B → (A → C) → (B → C) → C
-cases (inj₁ x) f g = f x
-cases (inj₂ x) f g = g x
