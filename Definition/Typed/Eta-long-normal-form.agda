@@ -1057,7 +1057,7 @@ opaque
     (Idₙ _ _ _)       _ ()
     (rflₙ _)          _ ()
 
--- Normal forms of type Unitʷ are equal to star
+-- Normal forms of type Unitˢ are equal to starˢ.
 
 ⊢nf∷Unitˢ→≡starˢ : Γ ⊢nf t ∷ Unitˢ → t PE.≡ starˢ
 ⊢nf∷Unitˢ→≡starˢ ⊢t =
