@@ -383,6 +383,7 @@ import Graded.Erasure.LogicalRelation.Fundamental
 -- Soundness of Extraction function
 import Graded.Erasure.SucRed
 import Graded.Erasure.Consequences.Soundness
+import Graded.Erasure.Consequences.Soundness.Erased-matches
 
 -- The fundamental lemma does not hold in general without the
 -- assumption that erased matches are disallowed or the context is

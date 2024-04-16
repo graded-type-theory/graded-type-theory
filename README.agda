@@ -113,13 +113,16 @@ import Graded.Usage.Restrictions.Satisfied
 --
 -- * Identity types have been added.
 --
--- * A weak unit type has been added.
+-- * A weak unit type has been added. A variant of Theorem 6.13
+--   (soundness of extraction) now holds in the presence of erased
+--   matches for weak unit types: the statement of this theorem makes
+--   use of a type system with η-equality for weak unit types.
 --
 -- * The strong unit type can now optionally be used as a "sink"
 --
 -- * One can now restrict uses of emptyrec, and if emptyrec 𝟘 is
---   disallowed, then Theorem 6.13 (soundness of extraction) holds
---   also for inconsistent contexts.
+--   disallowed, then Theorem 6.13 holds also for inconsistent
+--   contexts.
 --
 -- * The target language now supports call-by-value, in addition to
 --   call-by-name, and the extraction function has been changed in

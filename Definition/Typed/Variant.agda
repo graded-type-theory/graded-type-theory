@@ -16,6 +16,10 @@ record Type-variant : Set where
   no-eta-equality
   field
     -- Should η-equality be enabled for weak unit types?
+    --
+    -- This variant of the type system is used to state some soundness
+    -- theorems for extraction, see
+    -- Graded.Erasure.Consequences.Soundness.Erased-matches.
     η-for-Unitʷ : Bool
 
   -- Unitʷ-η holds exactly when η-for-Unitʷ is true.
