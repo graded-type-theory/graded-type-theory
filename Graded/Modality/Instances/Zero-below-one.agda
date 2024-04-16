@@ -2,6 +2,8 @@
 -- A modality with 𝟘 < 𝟙
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 module Graded.Modality.Instances.Zero-below-one where
 
 import Tools.Algebra
@@ -335,7 +337,7 @@ _≟_ = λ where
 
 -- Instances of Type-restrictions (𝟘≤𝟙 variant ok) and
 -- Usage-restrictions are suitable for the full reduction theorem if
--- * Unit-allowed does not hold or Starˢ-sink holds, and
+-- * whenever Unitˢ-allowed holds, then Starˢ-sink holds, and
 -- * Σˢ-allowed 𝟘 p does not hold.
 
 Suitable-for-full-reduction :
@@ -344,7 +346,7 @@ Suitable-for-full-reduction :
   Usage-restrictions (𝟘≤𝟙 variant ok) →
   Set
 Suitable-for-full-reduction _ _ TR UR =
-  (¬ Unitˢ-allowed ⊎ Starˢ-sink) ×
+  (Unitˢ-allowed → Starˢ-sink) ×
   (∀ p → ¬ Σˢ-allowed 𝟘 p)
   where
   open Type-restrictions TR
@@ -356,10 +358,11 @@ Suitable-for-full-reduction _ _ TR UR =
 suitable-for-full-reduction :
   ∀ ok {UR} → Type-restrictions (𝟘≤𝟙 variant ok) →
   ∃ λ TR → (Suitable-for-full-reduction variant ok TR UR)
-suitable-for-full-reduction refl R =
+suitable-for-full-reduction refl {UR} R =
     record R
-      { Unit-allowed =
-          λ { 𝕤 → ⊥ ; 𝕨 → Unitʷ-allowed }
+      { Unit-allowed = λ where
+          𝕤 → Unitˢ-allowed × Starˢ-sink
+          𝕨 → Unitʷ-allowed
       ; ΠΣ-allowed = λ b p q →
           ΠΣ-allowed b p q × (b ≡ BMΣ 𝕤 → p ≡ 𝟙)
       ; []-cong-allowed =
@@ -369,10 +372,11 @@ suitable-for-full-reduction refl R =
       ; []-cong→¬Trivial =
           λ _ ()
       }
-  , inj₁ idᶠ
+  , proj₂
   , (λ _ → (λ ()) ∘→ (_$ refl) ∘→ proj₂)
   where
   open Type-restrictions R
+  open Usage-restrictions UR
 
 -- The full reduction assumptions hold for any instance of 𝟘≤𝟙 and any
 -- "suitable" Type-restrictionsa and Usage-restrictions.
@@ -381,11 +385,9 @@ full-reduction-assumptions :
   ∀ ok {TR UR} →
   Suitable-for-full-reduction variant ok TR UR →
   Full-reduction-assumptions TR UR
-full-reduction-assumptions refl (¬Unit⊎sink , ¬𝟘) = record
-  { sink⊎𝟙≤𝟘    = case ¬Unit⊎sink of λ where
-      (inj₁ ¬Unit) → ⊥-elim ∘→ ¬Unit
-      (inj₂ sink) → λ _ → inj₁ sink
-  ; ≡𝟙⊎𝟙≤𝟘 = λ where
+full-reduction-assumptions refl (sink , ¬𝟘) = record
+  { sink⊎𝟙≤𝟘 = inj₁ ∘→ sink
+  ; ≡𝟙⊎𝟙≤𝟘   = λ where
       {p = 𝟘} ok → ⊥-elim (¬𝟘 _ ok)
       {p = 𝟙} _  → inj₁ refl
   }
@@ -398,11 +400,9 @@ full-reduction-assumptions-suitable :
   Full-reduction-assumptions TR UR →
   Suitable-for-full-reduction variant ok TR UR
 full-reduction-assumptions-suitable {ok = refl} {UR = UR} as =
-    (case sink-or-no-sink of λ where
-      (inj₁ sink) → inj₂ sink
-      (inj₂ ¬sink) → inj₁ (λ Unit-ok → case sink⊎𝟙≤𝟘 Unit-ok of λ where
-        (inj₁ sink) → not-sink-and-no-sink sink ¬sink
-        (inj₂ ())))
+    (λ ok → case sink⊎𝟙≤𝟘 ok of λ where
+       (inj₁ sink) → sink
+       (inj₂ ()))
   , λ p Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
      (inj₁ ())
      (inj₂ (_ , () , _))
