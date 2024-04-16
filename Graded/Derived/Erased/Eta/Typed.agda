@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------
--- Some properties related to typing and Erased (with η-equality).
+-- Some properties related to typing and the strong variant of Erased
 ------------------------------------------------------------------------
 
 import Graded.Modality

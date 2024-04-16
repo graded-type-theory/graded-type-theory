@@ -11,10 +11,10 @@ module Graded.Derived.Unrestricted.Eta.Typed
   (open Modality 𝕄)
   (R : Type-restrictions 𝕄)
   (open Type-restrictions R)
-  -- The Unit type with η-equality is assumed to be allowed.
+  -- The strong unit type is assumed to be allowed.
   (Unit-ok : Unitˢ-allowed)
-  -- It is assumed that Σ-types with η-equality are allowed for the
-  -- quantities ω and ω.
+  -- It is assumed that strong Σ-types are allowed for the quantities
+  -- ω and ω.
   (Σˢ-ok : Σˢ-allowed ω ω)
   where
 

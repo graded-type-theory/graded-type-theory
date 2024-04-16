@@ -262,10 +262,9 @@ Modality-variant  = Graded.Modality.Variant.Modality-variant
 Dedicated-star    = Graded.Modality.Dedicated-nr.Dedicated-nr
 No-dedicated-star = Graded.Modality.Dedicated-nr.No-dedicated-nr
 
--- * One can choose whether to allow use of the unit type with
---   η-equality. Furthermore one can choose whether to allow binders
---   of the form B_p^q, where p and q are grades and B is "Π", "Σ
---   without η-equality" or "Σ with η-equality":
+-- * One can choose whether to allow the strong unit type. Furthermore
+--   one can choose whether to allow binders of the form B_p^q, where
+--   p and q are grades and B is "Π", "strong Σ" or "weak Σ":
 
 types = Definition.Typed.Restrictions.Type-restrictions
 
@@ -470,9 +469,9 @@ linearOrAffineModality′ =
 -- Pattern synonyms are used so that one can write code which is
 -- closer to the notation from the paper.
 --
--- The formalization includes a unit type with η-equality which is
--- discussed mainly in Section 7.3. As discussed above use of this
--- unit type can be disallowed.
+-- The formalization includes a strong unit type which is discussed
+-- mainly in Section 7.3. As discussed above use of this unit type can
+-- be disallowed.
 
 grammar = Definition.Untyped.Term
 
@@ -548,8 +547,7 @@ wkEq = Definition.Typed.Weakening.wkEq
 
 ΠΣ-cong′ = Definition.Typed.Consequences.DerivedRules.ΠΣ-cong′
 
--- One can define something like prodrec for the Σ-types with
--- η-equality.
+-- One can define something like prodrec for the strong Σ-types.
 
 prodrec-for-Σₚ              = Definition.Untyped.Sigma.prodrecˢ
 prodrec-for-Σₚ-type-correct =
@@ -1156,15 +1154,15 @@ erasure =
 affine = Graded.Modality.Instances.Affine.full-reduction-assumptions
 
 -- The conditions are satisfied for the linear types modality if the
--- unit type with η-equality is not allowed (or it can be used as a
--- sink), Σ_&,0^q is not allowed, and Σ_&,ω^q is not allowed.
+-- strong unit type is not allowed (or can be used as a sink), Σ_&,0^q
+-- is not allowed, and Σ_&,ω^q is not allowed.
 
 linear = Graded.Modality.Instances.Linearity.full-reduction-assumptions
 
 -- The conditions are satisfied for the linear or affine types
--- modality if the unit type with η-equality is not allowed (or it can
--- be used as a sink), Σ_&,0^q is not allowed, Σ_&,01^q is not
--- allowed, and Σ_&,ω^q is not allowed.
+-- modality if the strong unit type is not allowed (or can be used as
+-- a sink), Σ_&,0^q is not allowed, Σ_&,01^q is not allowed, and
+-- Σ_&,ω^q is not allowed.
 
 linear-or-affine =
   Graded.Modality.Instances.Linear-or-affine.full-reduction-assumptions

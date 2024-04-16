@@ -320,15 +320,15 @@ whrDet* (A⇒A′ ⇨ A′⇒*B , whnfB) (A⇒A″ ⇨ A″⇒*B′ , whnfB′) 
                                      (whrDet A⇒A″ A⇒A′)
                                      (A″⇒*B′ , whnfB′))
 
--- Reduction does not include η-expansion for the unit type with
--- η-equality (for WHNFs): if a WHNF t reduces to star (at type Unit),
--- then t is equal to star.
+-- Reduction does not include η-expansion for the strong unit type
+-- (for WHNFs): if a WHNF t reduces to star (at type Unit), then t is
+-- equal to star.
 
 no-η-expansion-Unit : Whnf t → Γ ⊢ t ⇒* starˢ ∷ Unitˢ → t PE.≡ starˢ
 no-η-expansion-Unit = flip whnfRed*Term
 
--- Reduction does not include η-expansion for Σ-types with η-equality
--- (for WHNFs): if a WHNF t reduces to prodˢ p u v (at type
+-- Reduction does not include η-expansion for strong Σ-types (for
+-- WHNFs): if a WHNF t reduces to prodˢ p u v (at type
 -- Σˢ p′ , q ▷ A ▹ B), then t is equal to prodˢ p u v.
 
 no-η-expansion-Σˢ :

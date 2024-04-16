@@ -1,6 +1,5 @@
 ------------------------------------------------------------------------
--- Some properties related to typing and Erased that hold both with and
--- without η-equality.
+-- Some properties related to typing and Erased
 ------------------------------------------------------------------------
 
 {-# OPTIONS --hidden-argument-puns #-}

@@ -40,9 +40,8 @@ record Full-reduction-assumptions : Set a where
     -- either allowed to be used as a sink or 𝟙 ≤ 𝟘.
     sink⊎𝟙≤𝟘 : Unitˢ-allowed → Starˢ-sink ⊎ 𝟙 ≤ 𝟘
 
-    -- If a Σ-type with η-equality and the "first component
-    -- quantity" p is allowed, then either p ≡ 𝟙, or p ≡ 𝟘, 𝟘ᵐ is
-    -- allowed and 𝟙 ≤ 𝟘.
+    -- If a strong Σ-type with the "first component quantity" p is
+    -- allowed, then either p ≡ 𝟙, or p ≡ 𝟘, 𝟘ᵐ is allowed and 𝟙 ≤ 𝟘.
     ≡𝟙⊎𝟙≤𝟘 : Σˢ-allowed p q → p ≡ 𝟙 ⊎ p ≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘
 
 -- An alternative way to state Full-reduction-assumptions.
@@ -55,12 +54,12 @@ record Full-reduction-assumptions′ : Set a where
     -- the largest quantity.
     sink⊎≤𝟘 : Unitˢ-allowed → Starˢ-sink ⊎ (∀ {p} → p ≤ 𝟘)
 
-    -- If a Σ-type with η-equality and the "first component
-    -- quantity" p is allowed, then p ·_ must be increasing.
+    -- If a strong Σ-type with the "first component quantity" p is
+    -- allowed, then p ·_ must be increasing.
     ·-increasing : Σˢ-allowed p q → r ≤ p · r
 
-    -- If a Σ-type with η-equality and the "first component
-    -- quantity" p is allowed, and ⌞ p ⌟ is 𝟙ᵐ, then p ≤ 𝟙 must hold.
+    -- If a strong Σ-type with the "first component quantity" p is
+    -- allowed, and ⌞ p ⌟ is 𝟙ᵐ, then p ≤ 𝟙 must hold.
     ⌞⌟≡𝟙ᵐ→≤𝟙 : Σˢ-allowed p q → ⌞ p ⌟ ≡ 𝟙ᵐ → p ≤ 𝟙
 
 -- Full-reduction-assumptions is logically equivalent to

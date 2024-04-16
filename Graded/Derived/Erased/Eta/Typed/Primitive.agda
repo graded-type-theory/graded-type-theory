@@ -13,7 +13,7 @@ module Graded.Derived.Erased.Eta.Typed.Primitive
   (open Modality 𝕄)
   (R : Type-restrictions 𝕄)
   (open Type-restrictions R)
-  -- Erased with η-equality is assumed to be allowed.
+  -- The strong variant of Erased is assumed to be allowed.
   ((Unit-ok , Σ-ok) : Erasedˢ-allowed)
   where
 

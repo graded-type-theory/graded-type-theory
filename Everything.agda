@@ -299,7 +299,7 @@ import Graded.Derived.Erased.Eta.Usage
 import Graded.Derived.Erased.NoEta.Usage
 import Graded.Derived.Erased.Usage
 
--- The type Unrestricted (defined using a Σ-type with η-equality).
+-- The type Unrestricted (defined using a strong Σ-type).
 import Graded.Derived.Unrestricted.Eta.Untyped
 import Graded.Derived.Unrestricted.Eta.Typed
 import Graded.Derived.Unrestricted.Eta.Usage

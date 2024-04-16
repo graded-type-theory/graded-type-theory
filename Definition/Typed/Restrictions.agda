@@ -31,14 +31,14 @@ record Type-restrictions : Set (lsuc a) where
     -- Restrictions imposed upon Π- and Σ-types.
     ΠΣ-allowed : BinderMode → (p q : M) → Set a
 
-  -- Unit types with η-equality are only allowed if the following
-  -- predicate holds
+  -- The strong unit type is only allowed if the following predicate
+  -- holds.
 
   Unitˢ-allowed : Set a
   Unitˢ-allowed = Unit-allowed 𝕤
 
-  -- Unit types without η-equality are only allowed if the following
-  -- predicate holds
+  -- The weak unit type is only allowed if the following predicate
+  -- holds.
 
   Unitʷ-allowed : Set a
   Unitʷ-allowed = Unit-allowed 𝕨
@@ -53,12 +53,12 @@ record Type-restrictions : Set (lsuc a) where
   Σ-allowed : Strength → M → M → Set a
   Σ-allowed = ΠΣ-allowed ∘→ BMΣ
 
-  -- Restrictions imposed upon Σ-types with η-equality.
+  -- Restrictions imposed upon strong Σ-types.
 
   Σˢ-allowed : M → M → Set a
   Σˢ-allowed = Σ-allowed 𝕤
 
-  -- Restrictions imposed upon Σ-types without η-equality.
+  -- Restrictions imposed upon weak Σ-types.
 
   Σʷ-allowed : M → M → Set a
   Σʷ-allowed = Σ-allowed 𝕨

@@ -1,6 +1,5 @@
 ------------------------------------------------------------------------
--- The type constructor Unrestricted, defined using a Σ-type with
--- η-equality
+-- The type constructor Unrestricted, defined using a strong Σ-type
 ------------------------------------------------------------------------
 
 open import Graded.Modality

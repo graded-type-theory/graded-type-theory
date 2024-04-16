@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------
--- Some properties related to usage and Erased with η-equality
+-- Some properties related to usage and the strong variant of Erased
 ------------------------------------------------------------------------
 
 {-# OPTIONS --hidden-argument-puns #-}

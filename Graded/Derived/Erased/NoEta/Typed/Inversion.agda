@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------
--- Some inversion lemmas related to typing and Erased without
--- η-equality.
+-- Some inversion lemmas related to typing and the weak variant of
+-- Erased
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
