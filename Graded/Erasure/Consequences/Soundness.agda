@@ -57,6 +57,7 @@ import Graded.Erasure.LogicalRelation
 open import Graded.Erasure.LogicalRelation.Assumptions TR
 open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions TR UR
 import Graded.Erasure.LogicalRelation.Fundamental
+import Graded.Erasure.LogicalRelation.Hidden
 import Graded.Erasure.LogicalRelation.Irrelevance
 import Graded.Erasure.LogicalRelation.Subsumption
 
@@ -178,11 +179,6 @@ module _
                T.suc v′       ≡˘⟨ PE.cong T.suc $ TP.Value→⇒*→≡ (TP.Numeral→Value num) d′ ⟩⇒
                T.sucᵏ (1+ n)  ∎⇒)
 
-    -- Helper lemma for WH reduction soundness of unit
-
-    soundness-star′ : t ® v ∷Unit⟨ s ⟩ → v T.⇒* T.star
-    soundness-star′ (starᵣ _ v⇒star) = v⇒star
-
   -- The following results make use of some assumptions.
 
   module Soundness
@@ -205,9 +201,11 @@ module _
 
       open Soundness′ FA public
 
+      open Graded.Erasure.LogicalRelation as public
       open Graded.Erasure.LogicalRelation.Fundamental.Fundamental
         TR UR FA
         public
+      open Graded.Erasure.LogicalRelation.Hidden as public
       open Graded.Erasure.LogicalRelation.Irrelevance as public
       open Graded.Erasure.LogicalRelation.Subsumption as public
 
@@ -243,24 +241,21 @@ module _
         (n , t⇒ˢ*n , _) →
           n , t⇒ˢ*n }
 
-    -- WH reduction soundness of unit
-    --
-    -- Note the assumptions of the local module Soundness.
+    opaque
 
-    soundness-star :
-      Δ ⊢ t ∷ Unit s → 𝟘ᶜ ▸[ 𝟙ᵐ ] t → erase str t T.⇒* T.star
-    soundness-star ⊢t γ▸t =
-      let [⊤] , t®t′ = fundamentalErased ⊢t γ▸t
-          ok = ⊢∷Unit→Unit-allowed ⊢t
-          t®t″ = irrelevanceTerm {l′ = ¹}
-                   [⊤]
-                   (Unitᵣ (Unitₜ (idRed:*: (Unitⱼ ⊢Δ ok)) ok))
-                   (t®t′ ◀≢𝟘 non-trivial)
-      in  soundness-star′ t®t″
-      where
-      ⊢Δ = wfTerm ⊢t
+      -- Soundness of extraction for unit types.
+      --
+      -- Note the assumptions of the local module Soundness.
 
-      open L ⊢Δ
+      soundness-Unit :
+        Δ ⊢ t ∷ Unit s → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
+        Δ ⊢ t ⇒* star s ∷ Unit s × erase str t T.⇒* T.star
+      soundness-Unit ⊢t ▸t =
+        case ®-Unit $ fundamentalErased-𝟙ᵐ ⊢t ▸t of λ where
+          (starᵣ t⇒*star erase-t⇒*star) →
+            t⇒*star , erase-t⇒*star
+        where
+        open L (wfTerm ⊢t)
 
   -- If the context is empty, then the results in Soundness hold
   -- without any further assumptions.
