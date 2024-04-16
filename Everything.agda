@@ -312,6 +312,7 @@ import Graded.FullReduction
 
 -- Modality morphisms and quantity translations
 import Definition.Untyped.QuantityTranslation
+import Definition.Untyped.QuantityTranslation.Identity
 import Graded.Modality.Morphism
 import Graded.Modality.Morphism.Examples
 import Graded.Modality.Morphism.Forward-instances
