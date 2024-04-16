@@ -15,7 +15,7 @@ open import Tools.Sum
 
 private
   variable
-    n : Nat
+    k n : Nat
     t t′ u u′ : Term n
     s : Strictness
 
@@ -162,3 +162,11 @@ opaque
   Numeral→Value : Numeral t → Value t
   Numeral→Value zero    = zero
   Numeral→Value (suc _) = suc
+
+opaque
+
+  -- The term sucᵏ k is a value.
+
+  Value-sucᵏ : Value (sucᵏ {n = n} k)
+  Value-sucᵏ {k = 0}    = zero
+  Value-sucᵏ {k = 1+ _} = suc

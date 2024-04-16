@@ -85,24 +85,6 @@ private
 
 -- WH reduction soundness of natural numbers
 
--- Canonical representation of natural numbers
-
-sucᵏ : (k : Nat) → Term n
-sucᵏ 0      = zero
-sucᵏ (1+ n) = suc (sucᵏ n)
-
-sucᵏ′ : (k : Nat) → T.Term n
-sucᵏ′ 0      = T.zero
-sucᵏ′ (1+ n) = T.suc (sucᵏ′ n)
-
-opaque
-
-  -- The term sucᵏ′ k is a value.
-
-  Value-sucᵏ′ : ∀ {k} → T.Value (sucᵏ′ {n = n} k)
-  Value-sucᵏ′ {k = 0}    = T.zero
-  Value-sucᵏ′ {k = 1+ _} = T.suc
-
 -- Some results that are proved under the assumption that the
 -- modality's zero is well-behaved.
 
@@ -182,7 +164,7 @@ module _
     -- Helper lemma for soundness of natural numbers
 
     soundness-ℕ′ :
-      t ® v ∷ℕ → ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ × v ⇒ˢ⟨ str ⟩* sucᵏ′ n
+      t ® v ∷ℕ → ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ × v ⇒ˢ⟨ str ⟩* T.sucᵏ n
     soundness-ℕ′ (zeroᵣ ⇒*zero ⇒*zero′) =
       0 , whred* ⇒*zero , ⇒*→⇒ˢ⟨⟩* ⇒*zero′
     soundness-ℕ′ {v} (sucᵣ {v′} ⇒*suc ⇒*suc′ num t®v) =
@@ -192,9 +174,9 @@ module _
              (non-strict , PE.refl) →
                ⇒ˢ*-trans (whred*′ ⇒*suc′) (sucred*′ d′)
              (strict , PE.refl) →
-               v             ⇒*⟨ ⇒*suc′ ⟩
-               T.suc v′      ≡˘⟨ PE.cong T.suc $ TP.Value→⇒*→≡ (TP.Numeral→Value num) d′ ⟩⇒
-               sucᵏ′ (1+ n)  ∎⇒)
+               v              ⇒*⟨ ⇒*suc′ ⟩
+               T.suc v′       ≡˘⟨ PE.cong T.suc $ TP.Value→⇒*→≡ (TP.Numeral→Value num) d′ ⟩⇒
+               T.sucᵏ (1+ n)  ∎⇒)
 
     -- Helper lemma for WH reduction soundness of unit
 
@@ -237,7 +219,7 @@ module _
 
     soundness-ℕ :
       Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
-      ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ × erase str t ⇒ˢ⟨ str ⟩* sucᵏ′ n
+      ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ × erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n
     soundness-ℕ ⊢t 𝟘▸t =
       let [ℕ] , t®v = fundamentalErased ⊢t 𝟘▸t
       in  soundness-ℕ′ $
@@ -520,7 +502,7 @@ opaque
     Δ ⊢ t ∷ ℕ ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     (¬ ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ) ×
-    (¬ ∃ λ n → erase str t ⇒ˢ⟨ str ⟩* sucᵏ′ n)
+    (¬ ∃ λ n → erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n)
   soundness-ℕ-counterexample₆ emptyrec-ok =
       emptyrecⱼ (ℕⱼ (ε ∙[ Emptyⱼ ])) (var₀ (Emptyⱼ ε))
     , (sub (emptyrecₘ var ℕₘ emptyrec-ok) $ begin
@@ -531,7 +513,7 @@ opaque
            whnfRedTerm emptyrec⇒ (ne (emptyrecₙ (var _)))
          (1+ _ , whred emptyrec⇒ ⇨ˢ _) →
            whnfRedTerm emptyrec⇒ (ne (emptyrecₙ (var _))))
-    , ¬loop⇒ˢ* Value-sucᵏ′ ∘→ proj₂
+    , ¬loop⇒ˢ* TP.Value-sucᵏ ∘→ proj₂
     where
     open ≤ᶜ-reasoning
 
@@ -540,7 +522,7 @@ opaque
 
 Run-time-canonicity-for : Strictness → Con Term n → Term n → Set a
 Run-time-canonicity-for str Δ t =
-  ∃₂ λ n u → Δ ⊢ u ∷ Id ℕ t (sucᵏ n) × erase str t ⇒ˢ⟨ str ⟩* sucᵏ′ n
+  ∃₂ λ n u → Δ ⊢ u ∷ Id ℕ t (sucᵏ n) × erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n
 
 -- Above some counterexamples to variants of soundness-ℕ-only-source
 -- are presented. Those counterexamples are (at the time of writing)
@@ -759,7 +741,7 @@ Run-time-canonicity-with-arguments-removed-for :
 Run-time-canonicity-with-arguments-removed-for str Δ t =
   ∃₂ λ n u →
   Δ ⊢ u ∷ Id ℕ t (sucᵏ n) ×
-  erase′ true str t ⇒ˢ⟨ str ⟩* sucᵏ′ n
+  erase′ true str t ⇒ˢ⟨ str ⟩* T.sucᵏ n
 
 opaque
 
@@ -783,4 +765,4 @@ opaque
     case hyp (loops _) (⊢loops 𝟘-ok ω-ok ω+ω-ok ε)
            (▸loops emptyrec-ok q≤𝟘) of λ
       (_ , _ , _ , ⇒*n) →
-    loops-does-not-reduce-to-a-value Value-sucᵏ′ ⇒*n
+    loops-does-not-reduce-to-a-value TP.Value-sucᵏ ⇒*n

@@ -430,6 +430,12 @@ data Numeral {n : Nat} : Term n → Set a where
   zeroₙ : Numeral zero
   sucₙ : Numeral t → Numeral (suc t)
 
+-- The canonical term corresponding to the given natural number.
+
+sucᵏ : (k : Nat) → Term n
+sucᵏ 0      = zero
+sucᵏ (1+ n) = suc (sucᵏ n)
+
 ------------------------------------------------------------------------
 -- No-η-equality
 

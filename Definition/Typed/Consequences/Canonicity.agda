@@ -38,11 +38,6 @@ private
     A t u v : Term _
     l       : TypeLevel
 
--- Turns a natural number into its term representation
-sucᵏ : Nat → Term n
-sucᵏ 0 = zero
-sucᵏ (1+ n) = suc (sucᵏ n)
-
 -- Helper function for canonicity for reducible natural properties
 canonicity″ : ∀ {t}
               → Natural-prop ε t
