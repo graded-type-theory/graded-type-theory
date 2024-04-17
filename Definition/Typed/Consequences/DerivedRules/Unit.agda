@@ -21,6 +21,7 @@ open import Definition.Typed.Consequences.Reduction TR
 open import Definition.Typed.Consequences.Substitution TR
 open import Definition.Typed.Consequences.Syntactic TR
 open import Definition.Typed.Properties TR
+open import Definition.Typed.Reasoning.Term TR
 open import Definition.Untyped.Unit 𝕄
 
 open import Tools.Function
@@ -51,6 +52,34 @@ opaque
 
 ------------------------------------------------------------------------
 -- Lemmas related to unitrec
+
+opaque
+
+  -- A generalisation of unitrec-cong.
+
+  unitrec-cong′ :
+    Γ ∙ Unitʷ ⊢ A₁ ≡ A₂ →
+    Γ ⊢ t₁ ≡ t₂ ∷ Unitʷ →
+    Γ ⊢ u₁ ≡ u₂ ∷ A₁ [ starʷ ]₀ →
+    Unitʷ-allowed →
+    Γ ⊢ unitrec p q A₁ t₁ u₁ ≡ unitrec p q A₂ t₂ u₂ ∷ A₁ [ t₁ ]₀
+  unitrec-cong′ {A₁} {A₂} {t₁} {t₂} {u₁} {u₂} {p} {q} A₁≡A₂ t₁≡t₂ u₁≡u₂ ok =
+    case Unitʷ-η? of λ where
+      (no no-η) →
+        unitrec-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ ok no-η
+      (yes η) →
+        case syntacticEq A₁≡A₂ of λ
+          (⊢A₁ , ⊢A₂) →
+        case syntacticEqTerm t₁≡t₂ of λ
+          (_ , ⊢t₁ , ⊢t₂) →
+        case syntacticEqTerm u₁≡u₂ of λ
+          (_ , ⊢u₁ , ⊢u₂) →
+        unitrec p q A₁ t₁ u₁  ≡⟨ unitrec-β-η ⊢A₁ ⊢t₁ ⊢u₁ ok η ⟩⊢
+        u₁                    ≡⟨ conv u₁≡u₂
+                                   (substTypeEq (refl ⊢A₁) (Unit-η-≡ (inj₂ η) ⊢t₁)) ⟩⊢
+        u₂                    ≡˘⟨ conv (unitrec-β-η ⊢A₂ ⊢t₂ (conv ⊢u₂ (substTypeEq A₁≡A₂ (refl (starⱼ (wfTerm ⊢t₁) ok)))) ok η)
+                                    (sym (substTypeEq A₁≡A₂ t₁≡t₂)) ⟩⊢∎
+        unitrec p q A₂ t₂ u₂  ∎
 
 opaque
 
@@ -166,7 +195,7 @@ opaque
     Γ ⊢ unitrec⟨ s ⟩ p q A₁ t₁ u₁ ≡ unitrec⟨ s ⟩ p q A₂ t₂ u₂ ∷
       A₁ [ t₁ ]₀
   unitrec⟨⟩-cong {s = 𝕨} A₁≡A₂ t₁≡t₂ u₁≡u₂ =
-    unitrec-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ $
+    unitrec-cong′ A₁≡A₂ t₁≡t₂ u₁≡u₂ $
     inversion-Unit $ syntacticEqTerm t₁≡t₂ .proj₁
   unitrec⟨⟩-cong {s = 𝕤} A₁≡A₂ t₁≡t₂ u₁≡u₂ =
     conv u₁≡u₂ $

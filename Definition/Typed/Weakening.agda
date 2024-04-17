@@ -384,14 +384,14 @@ mutual
                    (wkEqTerm [ρ] ⊢Δ e≡e'))
   wkEqTerm ρ ⊢Δ (η-unit e e' ok) =
     η-unit (wkTerm ρ ⊢Δ e) (wkTerm ρ ⊢Δ e') ok
-  wkEqTerm {ρ = ρ} [ρ] ⊢Δ (unitrec-cong {A = A} A≡A′ t≡t′ u≡u′ ok) =
+  wkEqTerm {ρ} [ρ] ⊢Δ (unitrec-cong {A} A≡A′ t≡t′ u≡u′ ok no-η) =
     let ρA≡A′ = wkEq (lift [ρ]) (⊢Δ ∙ Unitⱼ ⊢Δ ok) A≡A′
         ρt≡t′ = wkEqTerm [ρ] ⊢Δ t≡t′
         ρu≡u′ = wkEqTerm [ρ] ⊢Δ u≡u′
         ρu≡u″ = PE.subst (λ x → _ ⊢ _ ≡ _ ∷ x) (wk-β A) ρu≡u′
     in  PE.subst (λ x → _ ⊢ U.wk ρ (unitrec _ _ A _ _) ≡ _ ∷ x)
                  (PE.sym (wk-β A))
-                 (unitrec-cong ρA≡A′ ρt≡t′ ρu≡u″ ok)
+                 (unitrec-cong ρA≡A′ ρt≡t′ ρu≡u″ ok no-η)
   wkEqTerm {ρ = ρ} [ρ] ⊢Δ (unitrec-β {A = A} ⊢A ⊢u ok₁ ok₂) =
     let ρA = wk (lift [ρ]) (⊢Δ ∙ Unitⱼ ⊢Δ ok₁) ⊢A
         ρu = wkTerm [ρ] ⊢Δ ⊢u

@@ -95,7 +95,7 @@ wfEqTerm (K-cong _ _ t₁≡t₂ _ _ _ _) = wfEqTerm t₁≡t₂
 wfEqTerm (K-β ⊢t _ _ _) = wfTerm ⊢t
 wfEqTerm ([]-cong-cong _ t₁≡t₂ _ _ _) = wfEqTerm t₁≡t₂
 wfEqTerm ([]-cong-β ⊢t _ _) = wfTerm ⊢t
-wfEqTerm (unitrec-cong _ t≡t′ _ _) = wfEqTerm t≡t′
+wfEqTerm (unitrec-cong _ t≡t′ _ _ _) = wfEqTerm t≡t′
 wfEqTerm (unitrec-β _ ⊢u _ _) = wfTerm ⊢u
 wfEqTerm (unitrec-β-η _ ⊢u _ _ _) = wfTerm ⊢u
 

@@ -714,7 +714,7 @@ opaque
                                        (PE.trans (substVar-to-subst (λ{x0 → PE.refl; (x0 +1) → PE.refl; (x +2) → PE.refl}) u)
                                                  (PE.sym (substCompEq u))))
                              (PE.sym (singleSubstLift A (prod! t t′))) [σA[p]]′ [σA[p]] [pr≡u₊]
-  fundamentalTermEq (unitrec-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ _) =
+  fundamentalTermEq (unitrec-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ _ _) =
     unitrec-congᵛ (fundamentalEq A₁≡A₂) (fundamentalTermEq t₁≡t₂)
       (fundamentalTermEq u₁≡u₂)
   fundamentalTermEq (unitrec-β ⊢A ⊢u _ no-η) =

@@ -165,7 +165,7 @@ mutual
          Γ ⊢ne unitrec _ _ A′ t′ u′ ∷ A′ [ t′ ]₀  →⟨ flip _⊢ne_∷_.convₙ $ _⊢_≡_.sym $
                                                  substTypeEq A≡A′ t≡t′ ⟩
          Γ ⊢ne unitrec _ _ A′ t′ u′ ∷ A [ t ]₀    □)
-      , unitrec-cong A≡A′ t≡t′ u≡u′ ok  }}}}
+      , unitrec-cong A≡A′ t≡t′ u≡u′ ok no-η }}}}
     (J-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁~w₂ C≡Id-t₁-v₁) →
       case fullRedConv↑ A₁≡A₂ of λ {
         (A₁′ , ⊢A₁′ , A₁≡A₁′) →

@@ -308,6 +308,7 @@ mutual
                   → Γ ⊢ t ≡ t′ ∷ Unitʷ
                   → Γ ⊢ u ≡ u′ ∷ A [ starʷ ]₀
                   → Unitʷ-allowed
+                  → ¬ Unitʷ-η
                   → Γ ⊢ unitrec p q A t u ≡ unitrec p q A′ t′ u′ ∷ A [ t ]₀
     unitrec-β     : Γ ∙ Unitʷ ⊢ A
                   → Γ ⊢ u ∷ A [ starʷ ]₀

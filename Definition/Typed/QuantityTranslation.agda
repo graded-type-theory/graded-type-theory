@@ -320,9 +320,9 @@ mutual
          (tr-⊢∷ n))
   tr-⊢≡∷ (emptyrec-cong A≡B t≡u) =
     emptyrec-cong (tr-⊢≡ A≡B) (tr-⊢≡∷ t≡u)
-  tr-⊢≡∷ (unitrec-cong {A = A} A≡A′ t≡t′ u≡u′ ok) =
+  tr-⊢≡∷ (unitrec-cong {A = A} A≡A′ t≡t′ u≡u′ ok _) =
     PE.subst (_ T₂.⊢ unitrec _ _ _ _ _ ≡ _ ∷_) (tr-Term-[] A)
-      (unitrec-cong (tr-⊢≡ A≡A′) (tr-⊢≡∷ t≡t′)
+      (unitrec-cong′ (tr-⊢≡ A≡A′) (tr-⊢≡∷ t≡t′)
          (PE.subst (_ T₂.⊢ _ ≡ _ ∷_) (PE.sym (tr-Term-[] A)) (tr-⊢≡∷ u≡u′))
          (Unit-preserved ok))
   tr-⊢≡∷ (unitrec-β {A} ⊢A u _ _) =

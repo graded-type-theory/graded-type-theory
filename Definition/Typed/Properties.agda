@@ -83,8 +83,8 @@ subsetTerm ([]-cong-β ⊢A ⊢t _ t≡t′ ok) =
           ([]-cong′ ⊢A t≡t′)))
   where
   open Erased ([]-cong→Erased ok)
-subsetTerm (unitrec-subst A u t⇒t′ ok _) =
-  unitrec-cong (refl A) (subsetTerm t⇒t′) (refl u) ok
+subsetTerm (unitrec-subst A u t⇒t′ ok no-η) =
+  unitrec-cong (refl A) (subsetTerm t⇒t′) (refl u) ok no-η
 subsetTerm (unitrec-β A u ok₁ ok₂) = unitrec-β A u ok₁ ok₂
 subsetTerm (unitrec-β-η A t u ok₁ ok₂) =
  unitrec-β-η A t u ok₁ ok₂
