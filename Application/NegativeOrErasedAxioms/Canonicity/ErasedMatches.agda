@@ -33,7 +33,7 @@ import Graded.Modality
 import Graded.Modality.Properties
 open import Graded.Modality.Variant lzero
 import Graded.Mode
-open import Graded.Restrictions
+import Graded.Restrictions
 import Graded.Usage
 open import Graded.Usage.Restrictions
 
@@ -54,13 +54,15 @@ module Counterexample
 
     module M = Modality 𝕄
 
+    open Graded.Restrictions 𝕄
+
     -- The type and usage restrictions used in this local module.
 
     TR : Type-restrictions 𝕄
-    TR = no-type-restrictions 𝕄 true
+    TR = no-type-restrictions true
 
     UR : Usage-restrictions 𝕄
-    UR = no-usage-restrictions 𝕄 true true
+    UR = no-usage-restrictions true true
 
   open Application.NegativeOrErasedAxioms.NegativeOrErasedContext TR
 
