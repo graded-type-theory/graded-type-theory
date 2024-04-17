@@ -143,6 +143,7 @@ import Definition.Typed.Consequences.InverseUniv
 import Graded.Derived.Erased.Eta.Typed.Primitive
 import Graded.Derived.Erased.Eta.Typed
 import Graded.Derived.Erased.NoEta.Typed
+import Graded.Derived.Erased.Typed.Inversion
 import Graded.Derived.Erased.Typed
 import Definition.Typed.Consequences.NeTypeEq
 import Definition.Typed.Consequences.Consistency
@@ -292,7 +293,6 @@ import Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr
 import Graded.Modality.Instances.Linearity.Good
 
 -- The type Erased.
-import Graded.Derived.Erased.Typed.Inversion
 import Graded.Derived.Erased.Eta.Typed.Inversion
 import Graded.Derived.Erased.NoEta.Typed.Inversion
 import Graded.Derived.Erased.Eta.Usage
