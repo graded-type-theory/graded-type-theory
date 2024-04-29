@@ -36,10 +36,6 @@ private
     p q : M
     Γ : Con Term n
 
--- Conversion of syntactic reduction closures.
-convRed:*: : ∀ {t u A B} → Γ ⊢ t :⇒*: u ∷ A → Γ ⊢ A ≡ B → Γ ⊢ t :⇒*: u ∷ B
-convRed:*: [ ⊢t , ⊢u , d ] A≡B = [ conv ⊢t  A≡B , conv ⊢u  A≡B , conv* d  A≡B ]
-
 mutual
   -- Helper function for conversion of terms converting from left to right.
   convTermT₁ : ∀ {l l′ A B t} {[A] : Γ ⊩⟨ l ⟩ A} {[B] : Γ ⊩⟨ l′ ⟩ B}

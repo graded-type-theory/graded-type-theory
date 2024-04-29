@@ -48,6 +48,10 @@ conv* : Γ ⊢ t ⇒* u ∷ A → Γ ⊢ A ≡ B → Γ ⊢ t ⇒* u ∷ B
 conv* (id x) A≡B = id (conv x A≡B)
 conv* (x ⇨ d) A≡B = conv x A≡B ⇨ conv* d A≡B
 
+-- Conversion of syntactic reduction closures.
+convRed:*: : ∀ {t u A B} → Γ ⊢ t :⇒*: u ∷ A → Γ ⊢ A ≡ B → Γ ⊢ t :⇒*: u ∷ B
+convRed:*: [ ⊢t , ⊢u , d ] A≡B = [ conv ⊢t  A≡B , conv ⊢u  A≡B , conv* d  A≡B ]
+
 -- Universe of reduction closures
 univ* : Γ ⊢ A ⇒* B ∷ U → Γ ⊢ A ⇒* B
 univ* (id x) = id (univ x)
