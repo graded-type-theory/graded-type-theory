@@ -53,6 +53,13 @@ univ* : Γ ⊢ A ⇒* B ∷ U → Γ ⊢ A ⇒* B
 univ* (id x) = id (univ x)
 univ* (x ⇨ A⇒B) = univ x ⇨ univ* A⇒B
 
+opaque
+
+  -- A variant of univ*.
+
+  univ:*: : Γ ⊢ A :⇒*: B ∷ U → Γ ⊢ A :⇒*: B
+  univ:*: [ ⊢A , ⊢B , A⇒*B ] = [ univ ⊢A , univ ⊢B , univ* A⇒*B ]
+
 -- Application substitution of reduction closures
 app-subst* : Γ ⊢ t ⇒* t′ ∷ Π p , q ▷ A ▹ B → Γ ⊢ a ∷ A
            → Γ ⊢ t ∘⟨ p ⟩ a ⇒* t′ ∘⟨ p ⟩ a ∷ B [ a ]₀
