@@ -2,6 +2,8 @@
 -- The logical relation is backwards-closed under reductions
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
 open import Graded.Modality
@@ -34,8 +36,10 @@ import Tools.PropositionalEquality as PE
 
 private
   variable
-    n : Nat
-    Γ : Con Term n
+    n       : Nat
+    Γ       : Con Term n
+    A B t u : Term n
+    l       : TypeLevel
 
 -- Weak head expansion of reducible types.
 redSubst* : ∀ {A B : Term n} {l}
@@ -208,3 +212,144 @@ redSubstTerm : ∀ {A t u : Term n} {l}
              → Γ ⊩⟨ l ⟩ t ∷ A / [A]
              × Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
 redSubstTerm t⇒u [A] [u] = redSubst*Term (t⇒u ⇨ id (escapeTerm [A] [u])) [A] [u]
+
+opaque
+
+  -- If A is reducible and reduces to B, then B is reducible and equal
+  -- to A.
+
+  redSubst*′ :
+    Γ ⊢ A :⇒*: B → (⊩A : Γ ⊩⟨ l ⟩ A) →
+    (Γ ⊩⟨ l ⟩ B) × Γ ⊩⟨ l ⟩ A ≡ B / ⊩A
+  redSubst*′ A⇒*B ⊩U@(Uᵣ′ _ _ _) =
+    case whnfRed* (red A⇒*B) Uₙ of λ {
+      PE.refl →
+    ⊩U , reflEq ⊩U }
+  redSubst*′ A⇒*B (ℕᵣ A⇒*ℕ) =
+    case whrDet:⇒*: ℕₙ A⇒*ℕ A⇒*B of λ
+      B⇒*ℕ →
+    ℕᵣ B⇒*ℕ , red B⇒*ℕ
+  redSubst*′ A⇒*B (Emptyᵣ A⇒*Empty) =
+    case whrDet:⇒*: Emptyₙ A⇒*Empty A⇒*B of λ
+      B⇒*Empty →
+    Emptyᵣ B⇒*Empty , red B⇒*Empty
+  redSubst*′ A⇒*B (Unitᵣ (Unitₜ A⇒*Unit ok)) =
+    case whrDet:⇒*: Unitₙ A⇒*Unit A⇒*B of λ
+      B⇒*Unit →
+    Unitᵣ (Unitₜ B⇒*Unit ok) , red B⇒*Unit
+  redSubst*′ A⇒*B (ne′ C A⇒*C C-ne C≅C) =
+    case whrDet:⇒*: (ne C-ne) A⇒*C A⇒*B of λ
+      B⇒*C →
+    ne′ C B⇒*C C-ne C≅C , ne₌ C B⇒*C C-ne C≅C
+  redSubst*′ A⇒*B (Bᵣ′ W C D A⇒*ΠΣ ⊢C ⊢D ΠΣ≡ΠΣ ⊩C ⊩D D≡D ok) =
+    case whrDet:⇒*: ⟦ W ⟧ₙ A⇒*ΠΣ A⇒*B of λ
+      B⇒*ΠΣ →
+      Bᵣ′ _ _ _ B⇒*ΠΣ ⊢C ⊢D ΠΣ≡ΠΣ ⊩C ⊩D D≡D ok
+    , B₌ _ _ (red B⇒*ΠΣ) ΠΣ≡ΠΣ (λ _ _ → reflEq (⊩C _ _))
+        (λ _ _ _ → reflEq (⊩D _ _ _))
+  redSubst*′ A⇒*B (Idᵣ (Idᵣ Ty lhs rhs A⇒*Id ⊩Ty ⊩lhs ⊩rhs)) =
+    case whrDet:⇒*: Idₙ A⇒*Id A⇒*B of λ
+      B⇒*Id →
+      Idᵣ (Idᵣ Ty lhs rhs B⇒*Id ⊩Ty ⊩lhs ⊩rhs)
+    , Id₌′ B⇒*Id (reflEq ⊩Ty) (reflEqTerm ⊩Ty ⊩lhs)
+        (reflEqTerm ⊩Ty ⊩rhs)
+  redSubst*′ A⇒*B (emb 0<1 ⊩A) =
+    case redSubst*′ A⇒*B ⊩A of λ
+      (⊩B , A≡B) →
+    emb 0<1 ⊩B , A≡B
+
+opaque
+
+  -- If t is reducible and reduces to u, then u is reducible and equal
+  -- to t.
+
+  redSubst*Term′ :
+    Γ ⊢ t :⇒*: u ∷ A → (⊩A : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ t ∷ A / ⊩A →
+    Γ ⊩⟨ l ⟩ u ∷ A / ⊩A × Γ ⊩⟨ l ⟩ t ≡ u ∷ A / ⊩A
+  redSubst*Term′ t⇒*u ⊩U@(Uᵣ′ ⁰ 0<1 ⊢Γ) (Uₜ A t⇒*A A-type A≅A ⊩t) =
+    case whrDet:⇒*:Term (typeWhnf A-type) t⇒*A t⇒*u of λ
+      u⇒*A →
+    case redSubst*′ (univ:*: t⇒*u) ⊩t of λ
+      (⊩u , t≡u) →
+      Uₜ A u⇒*A A-type A≅A ⊩u
+    , Uₜ₌ A A t⇒*A u⇒*A A-type A-type A≅A ⊩t ⊩u t≡u
+  redSubst*Term′ t⇒*u (ℕᵣ A⇒*ℕ) (ℕₜ v t⇒*v v≅v v-ok) =
+    case whrDet:⇒*:Term (naturalWhnf (natural v-ok)) t⇒*v
+           (convRed:*: t⇒*u (subset* (red A⇒*ℕ))) of λ
+      u⇒*v →
+      ℕₜ v u⇒*v v≅v v-ok
+    , ℕₜ₌ v v t⇒*v u⇒*v v≅v (reflNatural-prop v-ok)
+  redSubst*Term′ t⇒*u (Emptyᵣ A⇒*Empty) (Emptyₜ v t⇒*v v≅v v-ok) =
+    case whrDet:⇒*:Term (ne (empty v-ok)) t⇒*v
+           (convRed:*: t⇒*u (subset* (red A⇒*Empty))) of λ
+      u⇒*v →
+      Emptyₜ v u⇒*v v≅v v-ok
+    , Emptyₜ₌ v v t⇒*v u⇒*v v≅v (reflEmpty-prop v-ok)
+  redSubst*Term′
+    t⇒*u (Unitᵣ {s} (Unitₜ A⇒*Unit _)) (Unitₜ v t⇒*v v≅v v-ok) =
+    case whrDet:⇒*:Term (unit v-ok) t⇒*v
+           (convRed:*: t⇒*u (subset* (red A⇒*Unit))) of λ
+      u⇒*v →
+      Unitₜ v u⇒*v v≅v v-ok
+    , (case PE.singleton s of λ where
+         (𝕨 , PE.refl) → Unitₜ₌ v v t⇒*v u⇒*v v≅v (reflUnitʷ-prop v-ok)
+         (𝕤 , PE.refl) → Unitₜ₌ (⊢t-redₜ t⇒*v) (⊢t-redₜ u⇒*v))
+  redSubst*Term′
+    t⇒*u (ne′ B A⇒*B B-ne B≅B) (neₜ v t⇒*v v-ok@(neNfₜ v-ne _ v~v)) =
+    case whrDet:⇒*:Term (ne v-ne) t⇒*v
+           (convRed:*: t⇒*u (subset* (red A⇒*B))) of λ
+      u⇒*v →
+      neₜ v u⇒*v v-ok
+    , neₜ₌ v v t⇒*v u⇒*v (neNfₜ₌ v-ne v-ne v~v)
+  redSubst*Term′
+    t⇒*u ⊩A@(Bᵣ′ BΠ! C D A⇒*Π ⊢C ⊢D Π≡Π ⊩C ⊩D D≡D ok)
+    ⊩t@(v , t⇒*v , v-fun , v≅v , v∘≡v∘ , ⊩v∘) =
+    case whrDet:⇒*:Term (functionWhnf v-fun) t⇒*v
+           (convRed:*: t⇒*u (subset* (red A⇒*Π))) of λ
+      u⇒*v →
+    case v , u⇒*v , v-fun , v≅v , v∘≡v∘ , ⊩v∘ of λ
+      (⊩u : _ ⊩⟨ _ ⟩ _ ∷ _ / ⊩A) →
+      ⊩u
+    , ( v , v , t⇒*v , u⇒*v , v-fun , v-fun , v≅v , ⊩t , ⊩u
+      , (λ _ _ _ → reflEqTerm (⊩D _ _ _) (⊩v∘ _ _ _))
+      )
+  redSubst*Term′
+    t⇒*u ⊩A@(Bᵣ′ (BΣ s _ _) C D A⇒*Σ ⊢C ⊢D Σ≡Σ ⊩C ⊩D D≡D ok)
+    ⊩t@(v , t⇒*v , v≅v , v-prod , v-ok) =
+    case whrDet:⇒*:Term (productWhnf v-prod) t⇒*v
+           (convRed:*: t⇒*u (subset* (red A⇒*Σ))) of λ
+      u⇒*v →
+    case v , u⇒*v , v≅v , v-prod , v-ok of λ
+      (⊩u : _ ⊩⟨ _ ⟩ _ ∷ _ / ⊩A) →
+      ⊩u
+    , ( v , v , t⇒*v , u⇒*v , v≅v , ⊩t , ⊩u , v-prod , v-prod
+      , (case PE.singleton s of λ where
+           (𝕤 , PE.refl) →
+             case v-ok of λ
+               (⊩fst , ⊩snd) →
+               ⊩fst , ⊩fst , reflEqTerm (⊩C _ _) ⊩fst
+             , reflEqTerm (⊩D _ _ _) ⊩snd
+           (𝕨 , PE.refl) →
+             case PE.singleton v-prod of λ where
+               (ne _  , PE.refl) → v-ok
+               (prodₙ , PE.refl) →
+                 case v-ok of λ
+                   (eq , ⊩fst , ⊩snd , _) →
+                   eq , eq , ⊩fst , ⊩fst , ⊩snd , ⊩snd
+                 , reflEqTerm (⊩C _ _) ⊩fst
+                 , reflEqTerm (⊩D _ _ _) ⊩snd)
+      )
+  redSubst*Term′
+    t⇒*u (Idᵣ (Idᵣ Ty lhs rhs A⇒*Id ⊩Ty ⊩lhs ⊩rhs))
+    (v , t⇒*v , v-id , v-ok) =
+    case whrDet:⇒*:Term (identityWhnf v-id) t⇒*v
+           (convRed:*: t⇒*u (subset* (red A⇒*Id))) of λ
+      u⇒*v →
+      (v , u⇒*v , v-id , v-ok)
+    , ( v , v , t⇒*v , u⇒*v , v-id , v-id
+      , (case PE.singleton v-id of λ where
+           (rflₙ , PE.refl) → v-ok
+           (ne _ , PE.refl) → v-ok)
+      )
+  redSubst*Term′ t⇒*u (emb 0<1 ⊩A) ⊩t =
+    redSubst*Term′ t⇒*u ⊩A ⊩t
