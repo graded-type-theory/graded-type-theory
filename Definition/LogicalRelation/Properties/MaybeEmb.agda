@@ -22,10 +22,48 @@ open import Tools.Nat using (Nat)
 
 private
   variable
-    n       : Nat
-    Γ       : Con Term n
-    A B t u : Term n
-    l l′    : TypeLevel
+    n             : Nat
+    Γ             : Con Term n
+    A B t u       : Term n
+    l l₁ l₂ l₃ l′ : TypeLevel
+
+------------------------------------------------------------------------
+-- Some lemmas related to _<_ and _≤_
+
+opaque
+
+  -- The relation _<_ is transitive.
+
+  <-trans : l₁ < l₂ → l₂ < l₃ → l₁ < l₃
+  <-trans 0<1 ()
+
+opaque
+
+  -- The relation _≤_ is transitive.
+
+  ≤-trans : l₁ ≤ l₂ → l₂ ≤ l₃ → l₁ ≤ l₃
+  ≤-trans refl    q       = q
+  ≤-trans p       refl    = p
+  ≤-trans (emb p) (emb q) = emb (<-trans p q)
+
+opaque
+
+  -- The level ⁰ is the lowest level.
+
+  ⁰≤ : ⁰ ≤ l
+  ⁰≤ {l = ⁰} = refl
+  ⁰≤ {l = ¹} = emb 0<1
+
+opaque
+
+  -- The level ¹ is the highest level.
+
+  ≤¹ : l ≤ ¹
+  ≤¹ {l = ⁰} = emb 0<1
+  ≤¹ {l = ¹} = refl
+
+------------------------------------------------------------------------
+-- Embedding lemmas
 
 -- Any level can be embedded into the highest level.
 maybeEmb : ∀ {l A}
