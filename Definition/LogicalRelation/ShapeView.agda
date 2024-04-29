@@ -23,6 +23,7 @@ open import Definition.LogicalRelation.Properties.Escape R
 open import Definition.LogicalRelation.Properties.Reflexivity R
 
 open import Tools.Function
+open import Tools.Level
 open import Tools.Nat using (Nat)
 open import Tools.Product
 open import Tools.Empty using (⊥; ⊥-elim)
@@ -30,6 +31,7 @@ import Tools.PropositionalEquality as PE
 
 private
   variable
+    ℓ : Level
     n : Nat
     Γ : Con Term n
     A B C t u : Term n
@@ -269,6 +271,19 @@ opaque
 extractMaybeEmb : ∀ {l ⊩⟨_⟩} → MaybeEmb {ℓ′ = a} l ⊩⟨_⟩ → ∃ λ l′ → ⊩⟨ l′ ⟩
 extractMaybeEmb (noemb x) = _ , x
 extractMaybeEmb (emb 0<1 x) = extractMaybeEmb x
+
+opaque
+
+  -- If MaybeEmb l P holds, then P l′ holds for some l′ ≤ l.
+
+  extractMaybeEmb′ :
+    {P : TypeLevel → Set ℓ} →
+    MaybeEmb l P → ∃ λ l′ → l′ ≤ l × P l′
+  extractMaybeEmb′ (noemb p)   = _ , refl , p
+  extractMaybeEmb′ (emb 0<1 p) =
+    case extractMaybeEmb′ p of λ where
+      (l , refl , p) →
+        l , emb 0<1 , p
 
 -- A view for constructor equality of types where embeddings are ignored
 data ShapeView (Γ : Con Term n) : ∀ l l′ A B (p : Γ ⊩⟨ l ⟩ A) (q : Γ ⊩⟨ l′ ⟩ B) → Set a where
