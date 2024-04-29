@@ -297,11 +297,40 @@ whrDetTerm (unitrec-β _ _ _) (unitrec-subst _ _ d _) =
 whrDet : (d : Γ ⊢ A ⇒ B) (d′ : Γ ⊢ A ⇒ B′) → B PE.≡ B′
 whrDet (univ x) (univ x₁) = whrDetTerm x x₁
 
+opaque
+
+  -- If A reduces to the WHNF B, and A also reduces to C, then C
+  -- reduces to B.
+
+  whrDet↘ : Γ ⊢ A ↘ B → Γ ⊢ A ⇒* C → Γ ⊢ C ⇒* B
+  whrDet↘ (A⇒*B , _)      (id _)    = A⇒*B
+  whrDet↘ (id _ , A-whnf) (A⇒D ⇨ _) =
+    ⊥-elim (whnfRed A⇒D A-whnf)
+  whrDet↘ (A⇒D ⇨ D⇒*B , B-whnf) (A⇒E ⇨ E⇒*C) =
+    whrDet↘ (PE.subst (_ ⊢_⇒* _) (whrDet A⇒D A⇒E) D⇒*B , B-whnf) E⇒*C
+
+opaque
+
+  -- A variant of whrDet↘.
+
+  whrDet:⇒*: : Whnf B → Γ ⊢ A :⇒*: B → Γ ⊢ A :⇒*: C → Γ ⊢ C :⇒*: B
+  whrDet:⇒*: B-whnf [ _ , ⊢B , A⇒*B ] [ _ , ⊢C , A⇒*C ] =
+    [ ⊢C , ⊢B , whrDet↘ (A⇒*B , B-whnf) A⇒*C ]
+
 whrDet↘Term : (d : Γ ⊢ t ↘ u ∷ A) (d′ : Γ ⊢ t ⇒* u′ ∷ A) → Γ ⊢ u′ ⇒* u ∷ A
 whrDet↘Term (proj₁ , proj₂) (id x) = proj₁
 whrDet↘Term (id x , proj₂) (x₁ ⇨ d′) = ⊥-elim (whnfRedTerm x₁ proj₂)
 whrDet↘Term (x ⇨ proj₁ , proj₂) (x₁ ⇨ d′) =
   whrDet↘Term (PE.subst (λ x₂ → _ ⊢ x₂ ↘ _ ∷ _) (whrDetTerm x x₁) (proj₁ , proj₂)) d′
+
+opaque
+
+  -- A variant of whrDet↘Term.
+
+  whrDet:⇒*:Term :
+    Whnf u → Γ ⊢ t :⇒*: u ∷ A → Γ ⊢ t :⇒*: v ∷ A → Γ ⊢ v :⇒*: u ∷ A
+  whrDet:⇒*:Term u-whnf [ _ , ⊢u , t⇒*u ] [ _ , ⊢v , t⇒*v ] =
+    [ ⊢v , ⊢u , whrDet↘Term (t⇒*u , u-whnf) t⇒*v ]
 
 whrDet*Term : (d : Γ ⊢ t ↘ u ∷ A) (d′ : Γ ⊢ t ↘ u′ ∷ A′) → u PE.≡ u′
 whrDet*Term (id x , proj₂) (id x₁ , proj₄) = PE.refl
