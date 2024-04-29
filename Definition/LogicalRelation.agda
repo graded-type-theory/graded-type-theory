@@ -649,8 +649,24 @@ pattern Bᵣ′ W a b c d e f g h i j = Bᵣ W (Bᵣ a b c d e f g h i j)
 pattern Πᵣ′ a b c d e f g h i j = Bᵣ′ BΠ! a b c d e f g h i j
 pattern 𝕨′ a b c d e f g h i j = Bᵣ′ BΣ! a b c d e f g h i j
 
-kit : TypeLevel → LogRelKit
-kit ℓ = LogRel.kit ℓ (λ { 0<1 → kit ⁰ })
+mutual
+
+  -- A LogRelKit for the given TypeLevel.
+
+  kit : TypeLevel → LogRelKit
+  kit ℓ = LogRel.kit ℓ kit′
+
+  -- A LogRelKit for l′.
+
+  kit′ : ∀ {l′} → l′ < l → LogRelKit
+  kit′ 0<1 = kit ⁰
+
+opaque
+
+  -- If l′<l : l′ < l, then kit l′ is equal to kit′ l′<l.
+
+  kit≡kit′ : ∀ {l′} (l′<l : l′ < l) → kit l′ PE.≡ kit′ l′<l
+  kit≡kit′ 0<1 = PE.refl
 
 _⊩′⟨_⟩U : (Γ : Con Term ℓ) (l : TypeLevel) → Set a
 Γ ⊩′⟨ l ⟩U = Γ ⊩U where open LogRelKit (kit l)
