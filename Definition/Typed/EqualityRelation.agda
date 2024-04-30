@@ -21,6 +21,7 @@ open import Definition.Typed.Weakening R using (_∷_⊇_)
 import Graded.Derived.Erased.Untyped 𝕄 as Erased
 
 open import Tools.Fin
+open import Tools.Function
 open import Tools.Level
 open import Tools.Nat
 
@@ -122,16 +123,13 @@ record EqRelSet : Set (lsuc ℓ) where
     ≅-Urefl   : ⊢ Γ → Γ ⊢ U ≅ U
 
     -- Natural number type reflexivity
-    ≅-ℕrefl   : ⊢ Γ → Γ ⊢ ℕ ≅ ℕ
-    ≅ₜ-ℕrefl  : ⊢ Γ → Γ ⊢ ℕ ≅ ℕ ∷ U
+    ≅ₜ-ℕrefl : ⊢ Γ → Γ ⊢ ℕ ≅ ℕ ∷ U
 
     -- Empty type reflexivity
-    ≅-Emptyrefl   : ⊢ Γ → Γ ⊢ Empty ≅ Empty
-    ≅ₜ-Emptyrefl  : ⊢ Γ → Γ ⊢ Empty ≅ Empty ∷ U
+    ≅ₜ-Emptyrefl : ⊢ Γ → Γ ⊢ Empty ≅ Empty ∷ U
 
     -- Unit type reflexivity
-    ≅-Unitrefl   : ⊢ Γ → Unit-allowed s → Γ ⊢ Unit s ≅ Unit s
-    ≅ₜ-Unitrefl  : ⊢ Γ → Unit-allowed s → Γ ⊢ Unit s ≅ Unit s ∷ U
+    ≅ₜ-Unitrefl : ⊢ Γ → Unit-allowed s → Γ ⊢ Unit s ≅ Unit s ∷ U
 
     -- Unit η-equality
     ≅ₜ-η-unit : Γ ⊢ e ∷ Unitˢ
@@ -305,6 +303,27 @@ record EqRelSet : Set (lsuc ℓ) where
   -- Composition of universe and generic equality compatibility
   ~-to-≅ : ∀ {k l} → Γ ⊢ k ~ l ∷ U → Γ ⊢ k ≅ l
   ~-to-≅ k~l = ≅-univ (~-to-≅ₜ k~l)
+
+  opaque
+
+    -- A variant of ≅ₜ-ℕrefl.
+
+    ≅-ℕrefl : ⊢ Γ → Γ ⊢ ℕ ≅ ℕ
+    ≅-ℕrefl = ≅-univ ∘→ ≅ₜ-ℕrefl
+
+  opaque
+
+    -- A variant of ≅ₜ-Emptyrefl.
+
+    ≅-Emptyrefl : ⊢ Γ → Γ ⊢ Empty ≅ Empty
+    ≅-Emptyrefl = ≅-univ ∘→ ≅ₜ-Emptyrefl
+
+  opaque
+
+    -- A variant of ≅ₜ-Unitrefl.
+
+    ≅-Unitrefl : ⊢ Γ → Unit-allowed s → Γ ⊢ Unit s ≅ Unit s
+    ≅-Unitrefl ⊢Γ ok = ≅-univ (≅ₜ-Unitrefl ⊢Γ ok)
 
   ≅-W-cong : ∀ {F G H E} W
           → Γ ⊢ F
