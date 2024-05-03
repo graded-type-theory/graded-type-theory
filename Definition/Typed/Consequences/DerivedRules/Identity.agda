@@ -700,10 +700,11 @@ opaque
                                                                                (PE.cong₄ symmetry wk2-[,] wk2-[,] PE.refl PE.refl)
                                                                                PE.refl ⟩⊢≡
 
-          transitivity A t t t (symmetry A t t rfl) rfl                   ≡⟨ transitivity-≡ (⊢symmetry (rflⱼ ⊢t)) ⟩⊢
                                                                            ⟨ PE.subst (flip (_⊢_≡_ _) _)
                                                                                (PE.sym $ PE.cong₃ Id wk2-[,] PE.refl PE.refl) $
-                                                                             refl (Idⱼ ⊢t ⊢t) ⟩
+                                                                             refl (Idⱼ ⊢t ⊢t) ⟩≡
+
+          transitivity A t t t (symmetry A t t rfl) rfl                   ≡⟨ transitivity-≡ (⊢symmetry (rflⱼ ⊢t)) ⟩⊢
 
           symmetry A t t rfl                                              ≡⟨ symmetry-≡ ⊢t ⟩⊢∎
 
