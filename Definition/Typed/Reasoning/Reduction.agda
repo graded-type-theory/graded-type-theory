@@ -140,7 +140,7 @@ syntax finally-⇒* t u t⇒u = t ⇒*⟨ t⇒u ⟩∎ u ∎
 
 opaque
 
-  -- A variant of finally that makes it possible to end the chain of
+  -- A variant of finally-⇒ that makes it possible to end the chain of
   -- reasoning steps with a propositional equality, without the use of
   -- _∎⟨_⟩⇒.
 
@@ -149,7 +149,7 @@ opaque
 
   syntax finally-⇒≡ t u≡v t⇒u = t ⇒⟨ t⇒u ⟩∎≡ u≡v
 
--- A variant of finally that makes it possible to end the chain of
+-- A variant of finally-⇒* that makes it possible to end the chain of
 -- reasoning steps with a propositional equality, without the use of
 -- _∎⟨_⟩⇒.
 
