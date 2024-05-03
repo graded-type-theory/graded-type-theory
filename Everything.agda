@@ -102,6 +102,7 @@ import Definition.LogicalRelation.Substitution.Escape
 -- The fundamental lemma of the logical relations
 import Definition.LogicalRelation.Substitution.Introductions.SingleSubst
 import Definition.LogicalRelation.Substitution.Introductions.DoubleSubst
+import Definition.LogicalRelation.Hidden
 import Definition.LogicalRelation.Substitution.Introductions.Var
 import Definition.LogicalRelation.Substitution.Introductions.Universe
 import Definition.LogicalRelation.Substitution.Introductions.Empty
