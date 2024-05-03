@@ -26,8 +26,8 @@ private variable
 ------------------------------------------------------------------------
 -- Combinators for left-to-right reductions
 
-infix  -1 _∎⟨_⟩⇒ finally-⇒* finally-⇒
-infixr -2 step-⇒ step-⇒* step-≡ step-≡˘ _≡⟨⟩⇒_ finally-⇒*≡ finally-⇒≡
+infix  -1 finally-⇒* finally-⇒
+infixr -2 step-⇒ step-⇒* finally-⇒*≡ finally-⇒≡
 
 -- A single step.
 
@@ -46,35 +46,6 @@ step-⇒* _ = flip _⇨∷*_
 syntax step-⇒* t u⇒v t⇒u = t ⇒*⟨ t⇒u ⟩ u⇒v
 
 {-# INLINE step-⇒* #-}
-
--- A reasoning step that uses propositional equality.
-
-step-≡ : ∀ t → Γ ⊢ u ⇒* v ∷ A → t PE.≡ u → Γ ⊢ t ⇒* v ∷ A
-step-≡ _ u⇒v PE.refl = u⇒v
-
-syntax step-≡ t u⇒v t≡u = t ≡⟨ t≡u ⟩⇒ u⇒v
-
--- A reasoning step that uses propositional equality, combined with
--- symmetry.
-
-step-≡˘ : ∀ t → Γ ⊢ u ⇒* v ∷ A → u PE.≡ t → Γ ⊢ t ⇒* v ∷ A
-step-≡˘ _ u⇒v PE.refl = u⇒v
-
-syntax step-≡˘ t u⇒v u≡t = t ≡˘⟨ u≡t ⟩⇒ u⇒v
-
--- A reasoning step that uses (Agda's) definitional equality.
-
-_≡⟨⟩⇒_ : ∀ t → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t ⇒* u ∷ A
-_ ≡⟨⟩⇒ t⇒u = t⇒u
-
-{-# INLINE _≡⟨⟩⇒_ #-}
-
--- Reflexivity.
-
-_∎⟨_⟩⇒ : ∀ t → Γ ⊢ t ∷ A → Γ ⊢ t ⇒* t ∷ A
-_ ∎⟨ ⊢t ⟩⇒ = id ⊢t
-
-{-# INLINE _∎⟨_⟩⇒ #-}
 
 -- The reflexivity proof requires one to prove that the term is
 -- well-formed. In a non-empty chain of reasoning steps one can
@@ -111,6 +82,102 @@ finally-⇒≡ : ∀ t → u PE.≡ v → Γ ⊢ t ⇒ u ∷ A → Γ ⊢ u ∷ 
 finally-⇒≡ _ PE.refl = finally-⇒ _ _
 
 syntax finally-⇒≡ t u≡v t⇒u = t ⇒⟨ t⇒u ⟩∎≡ u≡v
+
+------------------------------------------------------------------------
+-- Combinators for right-to-left reductions
+
+infix  -1 finally-⇐* finally-⇐
+infixr -2 step-⇐ step-⇐* finally-⇐*≡ finally-⇐≡
+
+opaque
+
+  -- A single step.
+
+  step-⇐ :
+    ∀ v → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ u ⇒ v ∷ A → Γ ⊢ v ∷ A → Γ ⊢ t ⇒* v ∷ A
+  step-⇐ _ t⇒u u⇒v ⊢v = t⇒u ⇨∷* (u⇒v ⇨ id ⊢v)
+
+  syntax step-⇐ v t⇒u u⇒v ⊢v = v ⇐⟨ u⇒v , ⊢v ⟩ t⇒u
+
+-- Multiple steps.
+
+step-⇐* : ∀ v → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ u ⇒* v ∷ A → Γ ⊢ t ⇒* v ∷ A
+step-⇐* _ = _⇨∷*_
+
+syntax step-⇐* v t⇒u u⇒v = v ⇐*⟨ u⇒v ⟩ t⇒u
+
+{-# INLINE step-⇐* #-}
+
+-- The reflexivity proof requires one to prove that the term is
+-- well-formed. In a non-empty chain of reasoning steps one can
+-- instead end with the following combinator.
+
+finally-⇐* : ∀ u t → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t ⇒* u ∷ A
+finally-⇐* _ _ t⇒u = t⇒u
+
+syntax finally-⇐* u t t⇒u = u ⇐*⟨ t⇒u ⟩∎ t ∎
+
+{-# INLINE finally-⇐* #-}
+
+-- A variant of finally-⇐*.
+
+finally-⇐ : ∀ u t → Γ ⊢ t ⇒ u ∷ A → Γ ⊢ u ∷ A → Γ ⊢ t ⇒* u ∷ A
+finally-⇐ _ _ t⇒u ⊢u = t⇒u ⇨ id ⊢u
+
+syntax finally-⇐ u t t⇒u ⊢u = u ⇐⟨ t⇒u , ⊢u ⟩∎ t ∎
+
+{-# INLINE finally-⇐ #-}
+
+-- A variant of finally-⇐* that makes it possible to end the chain of
+-- reasoning steps with a propositional equality, without the use of
+-- _∎⟨_⟩⇒.
+
+finally-⇐*≡ : ∀ v → u PE.≡ t → Γ ⊢ v ⇒* u ∷ A → Γ ⊢ v ⇒* t ∷ A
+finally-⇐*≡ _ PE.refl v⇒u = v⇒u
+
+syntax finally-⇐*≡ v u≡t v⇒u = v ⇐*⟨ v⇒u ⟩∎≡ u≡t
+
+-- A variant of finally-⇐*≡.
+
+finally-⇐≡ : ∀ v → u PE.≡ t → Γ ⊢ v ⇒ u ∷ A → Γ ⊢ u ∷ A → Γ ⊢ v ⇒* t ∷ A
+finally-⇐≡ _ PE.refl = finally-⇐ _ _
+
+syntax finally-⇐≡ v u≡t v⇒u ⊢u = v ⇐⟨ v⇒u , ⊢u ⟩∎≡ u≡t
+
+------------------------------------------------------------------------
+-- Combinators for left-to-right or right-to-left reductions
+
+infix  -1 _∎⟨_⟩⇒
+infixr -2 step-≡ step-≡˘ _≡⟨⟩⇒_
+
+-- A reasoning step that uses propositional equality.
+
+step-≡ : ∀ t → Γ ⊢ u ⇒* v ∷ A → t PE.≡ u → Γ ⊢ t ⇒* v ∷ A
+step-≡ _ u⇒v PE.refl = u⇒v
+
+syntax step-≡ t u⇒v t≡u = t ≡⟨ t≡u ⟩⇒ u⇒v
+
+-- A reasoning step that uses propositional equality, combined with
+-- symmetry.
+
+step-≡˘ : ∀ t → Γ ⊢ u ⇒* v ∷ A → u PE.≡ t → Γ ⊢ t ⇒* v ∷ A
+step-≡˘ _ u⇒v PE.refl = u⇒v
+
+syntax step-≡˘ t u⇒v u≡t = t ≡˘⟨ u≡t ⟩⇒ u⇒v
+
+-- A reasoning step that uses (Agda's) definitional equality.
+
+_≡⟨⟩⇒_ : ∀ t → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t ⇒* u ∷ A
+_ ≡⟨⟩⇒ t⇒u = t⇒u
+
+{-# INLINE _≡⟨⟩⇒_ #-}
+
+-- Reflexivity.
+
+_∎⟨_⟩⇒ : ∀ t → Γ ⊢ t ∷ A → Γ ⊢ t ⇒* t ∷ A
+_ ∎⟨ ⊢t ⟩⇒ = id ⊢t
+
+{-# INLINE _∎⟨_⟩⇒ #-}
 
 ------------------------------------------------------------------------
 -- Conversion combinators
