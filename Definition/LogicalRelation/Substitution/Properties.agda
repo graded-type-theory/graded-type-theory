@@ -43,7 +43,7 @@ open import Tools.Reasoning.PropositionalEquality
 private
   variable
     k m n : Nat
-    A A₁ A₂ B B₁ B₂ C C₁ C₂ t t₁ t₂ u u₁ u₂ : Term _
+    A A₁ A₂ B B₁ B₂ C C₁ C₂ t t₁ t₂ u u₁ u₂ v : Term _
     Γ Δ : Con Term n
     σ σ₁ σ₂ σ′ : Subst m n
     ρ : Wk k n
@@ -331,6 +331,30 @@ symS ([Γ] ∙ x) ⊢Δ [σ] [σ′] [σ≡σ′] =
         [headσ′≡headσ] = symEqTerm [σA] (proj₂ [σ≡σ′])
     in  convEqTerm₁ [σA] [σ′A] [σA≡σ′A] [headσ′≡headσ]
 
+opaque
+
+  -- Symmetry for _⊩ᵛ⟨_⟩_≡_/_/_.
+
+  sym-⊩ᵛ≡// :
+    (⊩A : Γ ⊩ᵛ⟨ l ⟩ A / ⊩Γ)
+    (⊩B : Γ ⊩ᵛ⟨ l ⟩ B / ⊩Γ) →
+    Γ ⊩ᵛ⟨ l ⟩ A ≡ B / ⊩Γ / ⊩A →
+    Γ ⊩ᵛ⟨ l ⟩ B ≡ A / ⊩Γ / ⊩B
+  sym-⊩ᵛ≡// ⊩A ⊩B A≡B _ ⊩σ =
+    symEq (⊩A .unwrap _ _ .proj₁) (⊩B .unwrap _ _ .proj₁) (A≡B _ ⊩σ)
+
+opaque
+
+  -- Symmetry for _⊩ᵛ⟨_⟩_≡_∷_/_/_.
+
+  sym-⊩ᵛ≡∷// :
+    ∀ t u →
+    (⊩A : Γ ⊩ᵛ⟨ l ⟩ A / ⊩Γ) →
+    Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A / ⊩Γ / ⊩A →
+    Γ ⊩ᵛ⟨ l ⟩ u ≡ t ∷ A / ⊩Γ / ⊩A
+  sym-⊩ᵛ≡∷// _ _ ⊩A t≡u _ ⊩σ =
+    symEqTerm (⊩A .unwrap _ _ .proj₁) (t≡u _ ⊩σ)
+
 -- Transitivity of valid substitution
 transS : ∀ {σ″ Γ Δ} ([Γ] : ⊩ᵛ Γ) (⊢Δ : ⊢ Δ)
          ([σ]   : Δ ⊩ˢ σ   ∷ Γ / [Γ] / ⊢Δ)
@@ -350,6 +374,34 @@ transS ([Γ] ∙ x) ⊢Δ [σ] [σ′] [σ″] [σ≡σ′] [σ′≡σ″] =
                                 ((proj₂ (unwrap x ⊢Δ (proj₁ [σ]))) (proj₁ [σ′])
                                         (proj₁ [σ≡σ′])) (proj₂ [σ′≡σ″])
     in  transEqTerm [σA] (proj₂ [σ≡σ′]) [σ′≡σ″]′
+
+opaque
+
+  -- Transitivity for _⊩ᵛ⟨_⟩_≡_/_/_.
+
+  trans-⊩ᵛ≡// :
+    (⊩A : Γ ⊩ᵛ⟨ l ⟩ A / ⊩Γ)
+    (⊩B : Γ ⊩ᵛ⟨ l ⟩ B / ⊩Γ) →
+    Γ ⊩ᵛ⟨ l ⟩ C / ⊩Γ →
+    Γ ⊩ᵛ⟨ l ⟩ A ≡ B / ⊩Γ / ⊩A →
+    Γ ⊩ᵛ⟨ l ⟩ B ≡ C / ⊩Γ / ⊩B →
+    Γ ⊩ᵛ⟨ l ⟩ A ≡ C / ⊩Γ / ⊩A
+  trans-⊩ᵛ≡// ⊩A ⊩B ⊩C A≡B B≡C _ ⊩σ =
+    transEq (⊩A .unwrap _ _ .proj₁) (⊩B .unwrap _ _ .proj₁)
+      (⊩C .unwrap _ ⊩σ .proj₁) (A≡B _ ⊩σ) (B≡C _ ⊩σ)
+
+opaque
+
+  -- Transitivity for _⊩ᵛ⟨_⟩_≡_∷_/_/_.
+
+  trans-⊩ᵛ≡∷// :
+    ∀ t u v →
+    (⊩A : Γ ⊩ᵛ⟨ l ⟩ A / ⊩Γ) →
+    Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A / ⊩Γ / ⊩A →
+    Γ ⊩ᵛ⟨ l ⟩ u ≡ v ∷ A / ⊩Γ / ⊩A →
+    Γ ⊩ᵛ⟨ l ⟩ t ≡ v ∷ A / ⊩Γ / ⊩A
+  trans-⊩ᵛ≡∷// _ _ _ ⊩A t≡u u≡v _ ⊩σ =
+    transEqTerm (⊩A .unwrap _ _ .proj₁) (t≡u _ ⊩σ) (u≡v _ ⊩σ)
 
 opaque
 
