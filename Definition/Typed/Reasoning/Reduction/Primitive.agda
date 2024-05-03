@@ -26,8 +26,8 @@ private variable
 ------------------------------------------------------------------------
 -- Combinators for left-to-right reductions
 
-infix  -1 _∎⟨_⟩⇒ finally-⇒* finally-⇒ finally-⇒*≡ finally-⇒≡
-infixr -2 step-⇒ step-⇒* step-≡ step-≡˘ _≡⟨⟩⇒_
+infix  -1 _∎⟨_⟩⇒ finally-⇒* finally-⇒
+infixr -2 step-⇒ step-⇒* step-≡ step-≡˘ _≡⟨⟩⇒_ finally-⇒*≡ finally-⇒≡
 
 -- A single step.
 

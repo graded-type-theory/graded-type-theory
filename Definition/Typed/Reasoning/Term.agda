@@ -24,8 +24,8 @@ private variable
 ------------------------------------------------------------------------
 -- Equational reasoning combinators
 
-infix  -1 _∎⟨_⟩⊢ finally finally-˘ finally-≡ finally-˘≡
-infixr -2 step-≡ step-≡˘ step-≡≡ step-≡˘≡ _≡⟨⟩⊢_
+infix  -1 _∎⟨_⟩⊢ finally finally-˘
+infixr -2 step-≡ step-≡˘ step-≡≡ step-≡˘≡ _≡⟨⟩⊢_ finally-≡ finally-≡˘
 
 -- A regular reasoning step.
 
@@ -105,10 +105,10 @@ syntax finally-≡ t u≡v t≡u = t ≡⟨ t≡u ⟩⊢∎≡ u≡v
 
 -- A variant of finally-≡.
 
-finally-˘≡ : ∀ t → u PE.≡ v → Γ ⊢ u ≡ t ∷ A → Γ ⊢ t ≡ v ∷ A
-finally-˘≡ _ PE.refl u≡t = sym u≡t
+finally-≡˘ : ∀ t → u PE.≡ v → Γ ⊢ u ≡ t ∷ A → Γ ⊢ t ≡ v ∷ A
+finally-≡˘ _ PE.refl u≡t = sym u≡t
 
-syntax finally-˘≡ t u≡v u≡t = t ≡˘⟨ u≡t ⟩⊢∎≡ u≡v
+syntax finally-≡˘ t u≡v u≡t = t ≡˘⟨ u≡t ⟩⊢∎≡ u≡v
 
 ------------------------------------------------------------------------
 -- Conversion combinators
