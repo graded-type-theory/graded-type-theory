@@ -101,6 +101,8 @@ import Definition.LogicalRelation.Substitution.Escape
 
 -- The fundamental lemma of the logical relations
 import Definition.LogicalRelation.Substitution.Introductions.SingleSubst
+import Definition.LogicalRelation.Substitution.Introductions.DoubleSubst
+import Definition.LogicalRelation.Substitution.Introductions.Var
 import Definition.LogicalRelation.Substitution.Introductions.Universe
 import Definition.LogicalRelation.Substitution.Introductions.Empty
 import Definition.LogicalRelation.Substitution.Introductions.Emptyrec
@@ -114,8 +116,6 @@ import Definition.LogicalRelation.Substitution.Introductions.Prod
 import Definition.LogicalRelation.Substitution.Introductions.Fst
 import Definition.LogicalRelation.Substitution.Introductions.Snd
 import Definition.LogicalRelation.Substitution.Introductions.ProdBetaEta
-import Definition.LogicalRelation.Substitution.Introductions.Var
-import Definition.LogicalRelation.Substitution.Introductions.DoubleSubst
 import Definition.LogicalRelation.Substitution.Introductions.Prodrec
 import Definition.LogicalRelation.Substitution.Introductions.Erased
 import Definition.LogicalRelation.Substitution.Introductions.Identity

@@ -27,9 +27,15 @@ open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.Substitution R
 open import Definition.LogicalRelation.Substitution.Reflexivity R
+open import
+  Definition.LogicalRelation.Substitution.Introductions.DoubleSubst R
 open import Definition.LogicalRelation.Substitution.Introductions.Pi R
 open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst R
+open import Definition.LogicalRelation.Substitution.Introductions.Var R
+import Definition.LogicalRelation.Substitution.Irrelevance R as IS
+open import Definition.LogicalRelation.Substitution.Weakening R
 
+open import Tools.Fin
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -39,7 +45,7 @@ private
     n   : Nat
     p q : M
     Γ   : Con Term n
-    F   : Term n
+    A F G : Term n
     m   : Strength
 
 prod′ : ∀ {Γ : Con Term n} {F : Term n} {G t u l l′ l″}
@@ -424,3 +430,98 @@ prodᵛ
             σu≡σ′u : Δ ⊩⟨ l ⟩ u [ σ ] ≡ u [ σ′ ] ∷ G [ liftSubst σ ] [ t [ σ ] ]₀ / ⊩σGt
             σu≡σ′u = irrelevanceEqTerm′ (singleSubstLift G t) ⊩σGt′ ⊩σGt (proj₂ ([u] ⊢Δ [σ]) [σ′] [σ≡σ′])
         in  prod-cong″ ⊩σF ⊩σt ⊩σ′t σt≡σ′t ⊩σGt ⊩σu ⊩σ′u σu≡σ′u ⊩σΣFG)
+
+private
+
+  [prod] : ∀ {l m}
+         → ([Γ] : ⊩ᵛ Γ)
+           ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
+           ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
+           ([Σ] : Γ ⊩ᵛ⟨ l ⟩ Σ⟨ m ⟩ p , q ▷ F ▹ G / [Γ])
+           ([A] : Γ ∙ (Σ p , q ▷ F ▹ G) ⊩ᵛ⟨ l ⟩ A / [Γ] ∙ [Σ]) →
+           Σ-allowed m p q →
+           Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ prod m p (var x1) (var x0) ∷ wk1 (wk1 (Σ⟨ m ⟩ p , q ▷ F ▹ G))
+                           / [Γ] ∙ [F] ∙ [G] / wk1ᵛ ([Γ] ∙ [F]) [G] (wk1ᵛ [Γ] [F] [Σ])
+  [prod] {n} {Γ} {F} {G} {p} {q} {A} {l} {m} [Γ] [F] [G] [Σ] [A] ok =
+    let [ΓF] = [Γ] ∙ [F]
+        [ΓFG] = [ΓF] ∙ [G]
+        wk[F] = wk1ᵛ [ΓF] [G] (wk1ᵛ [Γ] [F] [F])
+        wk[G] : Γ ∙ F ∙ G ∙ wk1 (wk1 F) ⊩ᵛ⟨ l ⟩ U.wk (lift (step (step id))) G / [Γ] ∙ [F] ∙ [G] ∙ wk[F]
+        wk[G] = wrap λ {_} {Δ} {σ} ⊢Δ [σ] →
+          let [tail] = proj₁ (proj₁ (proj₁ [σ]))
+              [σF] = proj₁ (unwrap [F] ⊢Δ [tail])
+              wk2[σF] = proj₁ (unwrap wk[F] {σ = tail σ} ⊢Δ (proj₁ [σ]))
+              [head] = proj₂ [σ]
+              [head]′ = irrelevanceTerm′ (PE.trans (wk1-tail (wk1 F)) (wk1-tail F)) wk2[σF] [σF] [head]
+              [ρσ] : Δ ⊩ˢ consSubst (tail (tail (tail σ))) (head σ) ∷ Γ ∙ F / [ΓF] / ⊢Δ
+              [ρσ] = [tail] , [head]′
+              [ρσG] = proj₁ (unwrap [G] {σ = consSubst (tail (tail (tail σ))) (head σ)} ⊢Δ [ρσ])
+              [ρσG]′ = irrelevance′ (PE.sym (PE.trans (subst-wk {ρ = lift (step (step id))} {σ = σ} G)
+                                                      (substVar-to-subst (λ {x0 → PE.refl
+                                                                            ;(x +1) → PE.refl}) G)))
+                                    [ρσG]
+          in  [ρσG]′ , λ {σ′} [σ′] [σ≡σ′] →
+            let [tail′] = proj₁ (proj₁ (proj₁ [σ′]))
+                [head′] = proj₂ [σ′]
+                [σ′F] = proj₁ (unwrap [F] ⊢Δ [tail′])
+                wk2[σ′F] = proj₁ (unwrap wk[F] {σ = tail σ′} ⊢Δ (proj₁ [σ′]))
+                [head′]′ = irrelevanceTerm′ (wk2-tail F) wk2[σ′F] [σ′F] [head′]
+                [ρσ′] : Δ ⊩ˢ consSubst (tail (tail (tail σ′))) (head σ′) ∷ Γ ∙ F / [ΓF] / ⊢Δ
+                [ρσ′] = [tail′] , [head′]′
+                [tail≡] = proj₁ (proj₁ (proj₁ [σ≡σ′]))
+                [head≡] = proj₂ [σ≡σ′]
+                [head≡]′ = irrelevanceEqTerm′ (wk2-tail F) wk2[σF] [σF] [head≡]
+                [ρσ≡] : Δ ⊩ˢ consSubst (tail (tail (tail σ))) (head σ)
+                           ≡ consSubst (tail (tail (tail σ′))) (head σ′) ∷ Γ ∙ F / [ΓF] / ⊢Δ / [ρσ]
+                [ρσ≡] = [tail≡] , [head≡]′
+                [ρσG≡] = proj₂ (unwrap [G] {σ = consSubst (tail (tail (tail σ))) (head σ)} ⊢Δ [ρσ])
+                               {σ′ = consSubst (tail (tail (tail σ′))) (head σ′)} [ρσ′] [ρσ≡]
+            in  irrelevanceEq″ (PE.sym (PE.trans (subst-wk G) (substVar-to-subst (λ { x0 → PE.refl ; (x +1) → PE.refl }) G)))
+                               (PE.sym (PE.trans (subst-wk G) (substVar-to-subst (λ { x0 → PE.refl ; (x +1) → PE.refl }) G)))
+                               [ρσG] [ρσG]′ [ρσG≡]
+        [x1] = varᵛ (there here) [ΓFG] wk[F]
+        [x0]′ = varᵛ here [ΓFG] (wk1ᵛ [ΓF] [G] [G])
+        wk[G[x1]] = substS [ΓFG] wk[F] wk[G] [x1]
+        [x0] = IS.irrelevanceTerm′ (PE.sym (wkSingleSubstWk1 G)) [ΓFG] [ΓFG]
+                                   (wk1ᵛ [ΓF] [G] [G]) wk[G[x1]] [x0]′
+        [prod]′ = prodᵛ {F = wk1 (wk1 F)} {U.wk (lift (step (step id))) G} {var x1} {var x0}
+                        [ΓFG] wk[F] wk[G] [x1] [x0] ok
+        wk[Σ] = wk1ᵛ [ΓF] [G] (wk1ᵛ [Γ] [F] [Σ])
+        wk[Σ]′ = Σᵛ [ΓFG] wk[F] wk[G] ok
+    in  IS.irrelevanceTerm′ {t = prod _ _ (var x1) (var x0)}
+                            (wk2-B BΣ! F G) [ΓFG] [ΓFG] wk[Σ]′ wk[Σ] [prod]′
+
+subst↑²S-prod :
+  ∀ {Γ : Con Term n} {F G A m l}
+  ([Γ] : ⊩ᵛ Γ)
+  ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
+  ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
+  ([Σ] : Γ ⊩ᵛ⟨ l ⟩ Σ⟨ m ⟩ p , q ▷ F ▹ G / [Γ])
+  ([A] : Γ ∙ (Σ p , q ▷ F ▹ G) ⊩ᵛ⟨ l ⟩ A / [Γ] ∙ [Σ]) →
+  Σ-allowed m p q →
+  Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A [ prod m p (var x1) (var x0) ]↑² /
+    [Γ] ∙ [F] ∙ [G]
+subst↑²S-prod [Γ] [F] [G] [Σ] [A] ok =
+  subst↑²S [Γ] [F] [G] [Σ] [A] ([prod] [Γ] [F] [G] [Σ] [A] ok)
+
+subst↑²SEq-prod :
+  ∀ {Γ : Con Term n} {F G A A′ m l} →
+  ([Γ] : ⊩ᵛ Γ)
+  ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
+  ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
+  ([Σ] : Γ ⊩ᵛ⟨ l ⟩ Σ⟨ m ⟩ p , q ▷ F ▹ G / [Γ])
+  ([A] : Γ ∙ (Σ p , q ▷ F ▹ G) ⊩ᵛ⟨ l ⟩ A / [Γ] ∙ [Σ])
+  ([A′] : Γ ∙ (Σ p , q ▷ F ▹ G) ⊩ᵛ⟨ l ⟩ A′ / [Γ] ∙ [Σ])
+  ([A≡A′] : Γ ∙ (Σ p , q ▷ F ▹ G) ⊩ᵛ⟨ l ⟩ A ≡ A′ / [Γ] ∙ [Σ] / [A])
+  ([A₊] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A [ prod m p (var x1) (var x0) ]↑² /
+            [Γ] ∙ [F] ∙ [G]) →
+  Σ-allowed m p q →
+  Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A  [ prod m p (var x1) (var x0) ]↑² ≡
+    A′ [ prod m p (var x1) (var x0) ]↑² / [Γ] ∙ [F] ∙ [G] / [A₊]
+subst↑²SEq-prod
+  {n = n} {q = q} {Γ = Γ} {F} {G} {A} {A′} {m} {l}
+  [Γ] [F] [G] [Σ] [A] [A′] [A≡A′] [A₊] ok =
+    let [A₊≡A′₊] = subst↑²SEq {t = prod! (var x1) (var x0)} [Γ] [F] [G] [Σ] [A] [A′] [A≡A′] ([prod] [Γ] [F] [G] [Σ] [A] ok)
+        [A₊]′ = subst↑²S-prod [Γ] [F] [G] [Σ] [A] ok
+    in  IS.irrelevanceEq {B = A′ [ prod! (var x1) (var x0) ]↑²}
+                         ([Γ] ∙ [F] ∙ [G]) ([Γ] ∙ [F] ∙ [G]) [A₊]′ [A₊] [A₊≡A′₊]
