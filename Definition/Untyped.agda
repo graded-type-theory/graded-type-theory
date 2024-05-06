@@ -645,6 +645,11 @@ liftSubstn : {k m : Nat} → Subst k m → (n : Nat) → Subst (n + k) (n + m)
 liftSubstn σ Nat.zero = σ
 liftSubstn σ (1+ n)   = liftSubst (liftSubstn σ n)
 
+-- A synonym of liftSubst.
+
+_⇑ : Subst m n → Subst (1+ m) (1+ n)
+_⇑ = liftSubst
+
 -- Transform a weakening into a substitution.
 --
 -- If ρ : Γ ≤ Δ then Γ ⊢ toSubst ρ : Δ.

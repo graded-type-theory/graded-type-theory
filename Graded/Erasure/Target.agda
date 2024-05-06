@@ -166,6 +166,11 @@ liftSubstn : (σ : Subst ℓ m) → (n : Nat) → Subst (n + ℓ) (n + m)
 liftSubstn σ 0 = σ
 liftSubstn σ (1+ n) = liftSubst (liftSubstn σ n)
 
+-- A synonym of liftSubst.
+
+_⇑ : Subst m n → Subst (1+ m) (1+ n)
+_⇑ = liftSubst
+
 
 -- Extend a substitution σ with a term t, substituting x0 with t
 -- and remaining variables by σ.
