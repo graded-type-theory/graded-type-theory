@@ -202,6 +202,17 @@ opaque
   idSubst-ₛ•ₛʳ : (x : Fin n) → (σ ₛ•ₛ idSubst) x ≡ σ x
   idSubst-ₛ•ₛʳ _ = refl
 
+opaque
+
+  -- The substitution liftSubstn idSubst m does not have any effect.
+
+  [idSubst⇑ⁿ]≡ :
+    ∀ m {t : Term (m + n)} → t [ liftSubstn idSubst m ] ≡ t
+  [idSubst⇑ⁿ]≡ m {t} =
+    t [ liftSubstn idSubst m ]  ≡⟨ substVar-to-subst (subst-lifts-id m) t ⟩
+    t [ idSubst ]               ≡⟨ subst-id _ ⟩
+    t                           ∎
+
 -- Correctness of composition of weakening and substitution.
 
 -- Composition of liftings is lifting of the composition.
