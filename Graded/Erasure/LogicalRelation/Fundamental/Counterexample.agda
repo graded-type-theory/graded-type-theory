@@ -123,7 +123,7 @@ negation-of-fundamental-lemma-with-erased-matches₁
   open LR ⊢Δ str
 
   ¬t®t : ¬ t ®⟨ ¹ ⟩ erase str t ∷ A
-  ¬t®t t®t = case ®-ℕ t®t of λ where
+  ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
     (zeroᵣ t⇒* _) →
       case whnfRed*Term t⇒* (ne (prodrecₙ (var _))) of λ ()
     (sucᵣ t⇒* _ _ _) →
@@ -173,8 +173,8 @@ opaque
 
     ¬t®t : ¬ t ®⟨ ¹ ⟩ erase str t ∷ A
     ¬t®t t®t =
-      case ®-Id t®t of λ {
-        (rflᵣ t⇒* _) →
+      case ®∷Id⇔ .proj₁ t®t of λ {
+        (_ , rflᵣ t⇒* _) →
       case whnfRed*Term t⇒* (ne ([]-congₙ (var _))) of λ () }
 
 opaque
@@ -214,7 +214,7 @@ opaque
     open LR ⊢Δ str
 
     ¬t®t : ¬ t ®⟨ ¹ ⟩ erase str t ∷ A
-    ¬t®t t®t = case ®-ℕ t®t of λ where
+    ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
       (zeroᵣ t⇒* _)    → case whnfRed*Term t⇒* (ne (Jₙ (var _))) of λ ()
       (sucᵣ t⇒* _ _ _) → case whnfRed*Term t⇒* (ne (Jₙ (var _))) of λ ()
 
@@ -256,7 +256,7 @@ opaque
     open LR ⊢Δ str
 
     ¬t®t : ¬ t ®⟨ ¹ ⟩ erase str t ∷ A
-    ¬t®t t®t = case ®-ℕ t®t of λ where
+    ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
       (zeroᵣ t⇒* _)    → case whnfRed*Term t⇒* (ne (Kₙ (var _))) of λ ()
       (sucᵣ t⇒* _ _ _) → case whnfRed*Term t⇒* (ne (Kₙ (var _))) of λ ()
 
@@ -299,7 +299,7 @@ opaque
     open LR ⊢Δ str
 
     ¬t®t : ¬ t ®⟨ ¹ ⟩ erase str t ∷ A
-    ¬t®t t®t = case ®-ℕ t®t of λ where
+    ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
       (zeroᵣ t⇒* _)    → case whnfRed*Term t⇒* (ne (unitrecₙ (var _))) of λ ()
       (sucᵣ t⇒* _ _ _) → case whnfRed*Term t⇒* (ne (unitrecₙ (var _))) of λ ()
 
@@ -337,6 +337,6 @@ opaque
     open LR ⊢Δ str
 
     ¬t®t : ¬ t ®⟨ ¹ ⟩ erase str t ∷ A
-    ¬t®t t®t = case ®-ℕ t®t of λ where
+    ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
       (zeroᵣ t⇒* _)    → case whnfRed*Term t⇒* (ne (emptyrecₙ (var _))) of λ ()
       (sucᵣ t⇒* _ _ _) → case whnfRed*Term t⇒* (ne (emptyrecₙ (var _))) of λ ()

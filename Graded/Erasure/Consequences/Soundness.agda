@@ -251,7 +251,7 @@ module _
         Δ ⊢ t ∷ Unit s → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
         Δ ⊢ t ⇒* star s ∷ Unit s × erase str t T.⇒* T.star
       soundness-Unit ⊢t ▸t =
-        case ®-Unit $ fundamentalErased-𝟙ᵐ ⊢t ▸t of λ where
+        case ®∷Unit⇔ .proj₁ $ fundamentalErased-𝟙ᵐ ⊢t ▸t of λ where
           (starᵣ t⇒*star erase-t⇒*star) →
             t⇒*star , erase-t⇒*star
         where

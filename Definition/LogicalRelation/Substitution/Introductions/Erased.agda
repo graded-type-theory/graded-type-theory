@@ -24,12 +24,10 @@ module Definition.LogicalRelation.Substitution.Introductions.Erased
 open EqRelSet eqrel
 
 open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Properties R
-open import Definition.LogicalRelation.Substitution R
-open import Definition.LogicalRelation.Substitution.Introductions.Pi R
 open import Definition.LogicalRelation.Substitution.Introductions.Prod R
 open import Definition.LogicalRelation.Substitution.Introductions.Unit R
-open import Definition.LogicalRelation.Substitution.Reflexivity R
 import Definition.LogicalRelation.Weakening R as W
 open import Definition.Typed R
 open import Definition.Typed.Properties R
@@ -44,9 +42,6 @@ private variable
   Γ           : Con Term _
   A A₁ A₂ t u : Term _
   l           : TypeLevel
-  ⊩Γ          : ⊩ᵛ _
-  ⊩A          : _ ⊩⟨ _ ⟩ _
-  ⊩ᵛA ⊩ᵛA₁    : _ ⊩ᵛ⟨ _ ⟩ _ / _
 
 opaque
 
@@ -77,156 +72,100 @@ opaque
     ⊢ΓA = wf ⊢A ∙ ⊢A
 
 opaque
+  unfolding ⊩Erased _⊩⟨_⟩_≡_
+
+  -- Reducibility of equality between applications of Erased.
+
+  ⊩Erased≡Erased :
+    Γ ⊩⟨ l ⟩ A₁ ≡ A₂ →
+    Γ ⊩⟨ l ⟩ Erased A₁ ≡ Erased A₂
+  ⊩Erased≡Erased (⊩A₁ , ⊩A₂ , A₁≡A₂) =
+    case escape ⊩A₁ of λ
+      ⊢A₁ →
+    ⊩≡-intro (⊩Erased ⊩A₁) (⊩Erased ⊩A₂) $
+    B₌ _ _
+      (id (Erasedⱼ (escape ⊩A₂)))
+      (≅-ΠΣ-cong ⊢A₁ (escapeEq ⊩A₁ A₁≡A₂)
+         (≅-Unitrefl (⊢→⊢∙ ⊢A₁) Unit-ok) Σ-ok)
+      (λ _ _ → W.wkEq _ _ ⊩A₁ A₁≡A₂)
+      (λ _ ⊢Δ _ → id (Unitⱼ ⊢Δ Unit-ok))
+
+opaque
 
   -- Validity of Erased.
 
   Erasedᵛ :
-    Γ ⊩ᵛ⟨ l ⟩ A / ⊩Γ →
-    Γ ⊩ᵛ⟨ l ⟩ Erased A / ⊩Γ
-  Erasedᵛ ⊩A = Σᵛ _ ⊩A (Unitᵛ (_ ∙ ⊩A) Unit-ok) Σ-ok
+    Γ ⊩ᵛ⟨ l ⟩ A →
+    Γ ⊩ᵛ⟨ l ⟩ Erased A
+  Erasedᵛ ⊩A =
+    case ⊩ᵛ⇔′ .proj₁ ⊩A of λ
+      (⊩Γ , ⊩A , A≡A) →
+    ⊩ᵛ⇔′ .proj₂ (⊩Γ , ⊩Erased ∘→ ⊩A , ⊩Erased≡Erased ∘→ A≡A)
 
 opaque
-  unfolding Erasedᵛ
 
   -- Validity of equality preservation for Erased.
 
   Erased-congᵛ :
-    Γ ⊩ᵛ⟨ l ⟩ A₂ / ⊩Γ →
-    Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ / ⊩Γ / ⊩ᵛA₁ →
-    Γ ⊩ᵛ⟨ l ⟩ Erased A₁ ≡ Erased A₂ / ⊩Γ / Erasedᵛ ⊩ᵛA₁
-  Erased-congᵛ {l} {⊩ᵛA₁} ⊩A₂ ⊩A₁≡A₂ =
-    Σ-congᵛ
-      _
-      ⊩ᵛA₁
-      (Unitᵛ _ _)
-      ⊩A₂
-      (Unitᵛ _ Unit-ok)
-      ⊩A₁≡A₂
-      (λ {k Δ σ} →
-         reflᵛ {l = l} _ (Unitᵛ (_ ∙ ⊩ᵛA₁) Unit-ok)
-           {k = k} {Δ = Δ} {σ = σ})
-      Σ-ok
+    Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ →
+    Γ ⊩ᵛ⟨ l ⟩ Erased A₁ ≡ Erased A₂
+  Erased-congᵛ A₁≡A₂ =
+    case ⊩ᵛ≡⇔′ .proj₁ A₁≡A₂ of λ
+      (⊩A₁ , ⊩A₂ , A₁≡A₂) →
+    ⊩ᵛ≡⇔′ .proj₂ (Erasedᵛ ⊩A₁ , Erasedᵛ ⊩A₂ , ⊩Erased≡Erased ∘→ A₁≡A₂)
 
 opaque
+  unfolding _⊩⟨_⟩_∷_
 
   -- Reducibility for [_].
 
   ⊩[] :
-    Γ ⊩⟨ l ⟩ t ∷ A / ⊩A →
-    Γ ⊩⟨ l ⟩ [ t ] ∷ Erased A / ⊩Erased ⊩A
-  ⊩[] {Γ} {l} {A} {⊩A} ⊩t =
-    prod″
-      ⊩A
-      ⊩t
-      ⊩Unit′
-      ⊩star
-      (⊩Erased ⊩A)
-      where
-      ⊢Γ : ⊢ Γ
-      ⊢Γ = wf (escape ⊩A)
-
-      ⊢star : Γ ⊢ star s ∷ Unit s
-      ⊢star = starⱼ ⊢Γ Unit-ok
-
-      ⊩Unit′ : Γ ⊩⟨ l ⟩ Unit s
-      ⊩Unit′ = Unitᵣ record
-        { ⇒*-Unit = idRed:*: (Unitⱼ ⊢Γ Unit-ok)
-        ; ok      = Unit-ok
-        }
-
-      ⊩star : Γ ⊩⟨ l ⟩ star s ∷ Unit s / ⊩Unit′
-      ⊩star = record
-        { n    = _
-        ; d    = idRedTerm:*: ⊢star
-        ; n≡n  = ≅ₜ-starrefl ⊢Γ Unit-ok
-        ; prop = starᵣ
-        }
+    Γ ⊩⟨ l ⟩ t ∷ A →
+    Γ ⊩⟨ l ⟩ [ t ] ∷ Erased A
+  ⊩[] (⊩A , ⊩t) =
+    case ⊩star (wf (escape ⊩A)) Unit-ok of λ
+      (⊩Unit , ⊩star) →
+    ⊩∷-intro (⊩Erased ⊩A) $
+    prod″ ⊩A ⊩t ⊩Unit ⊩star (⊩Erased ⊩A)
 
 opaque
-  unfolding Erasedᵛ
+  unfolding _⊩⟨_⟩_∷_ _⊩⟨_⟩_≡_∷_
+
+  -- Reducibility of equality between applications of [_].
+
+  ⊩[]≡[] :
+    Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
+    Γ ⊩⟨ l ⟩ [ t ] ≡ [ u ] ∷ Erased A
+  ⊩[]≡[] (⊩A , ⊩t , ⊩u , t≡u) =
+    case ⊩star (wf (escape ⊩A)) Unit-ok of λ
+      (⊩Unit , ⊩star) →
+    ⊩≡∷-intro
+      (⊩Erased ⊩A)
+      (⊩[] (⊩A , ⊩t))
+      (⊩[] (⊩A , ⊩u))
+      (prod-cong″ ⊩A ⊩t ⊩u t≡u ⊩Unit ⊩star ⊩star
+         (reflEqTerm ⊩Unit ⊩star) (⊩Erased ⊩A))
+
+opaque
 
   -- Validity of [_].
 
   []ᵛ :
-    {⊩A : Γ ⊩ᵛ⟨ l ⟩ A / ⊩Γ} →
-    ∀ t →
-    Γ ⊩ᵛ⟨ l ⟩ t ∷ A / ⊩Γ / ⊩A →
-    Γ ⊩ᵛ⟨ l ⟩ [ t ] ∷ Erased A / ⊩Γ / Erasedᵛ ⊩A
-  []ᵛ {l} {⊩A} t ⊩t =
-    prodᵛ {t = t} {u = star!} _ _
-      (Unitᵛ (_ ∙ ⊩A) Unit-ok)
-      ⊩t
-      (starᵛ {l = l} _ Unit-ok) Σ-ok
+    Γ ⊩ᵛ⟨ l ⟩ t ∷ A →
+    Γ ⊩ᵛ⟨ l ⟩ [ t ] ∷ Erased A
+  []ᵛ ⊩t =
+    case ⊩ᵛ∷⇔′ .proj₁ ⊩t of λ
+      (⊩A , ⊩t , t≡t) →
+    ⊩ᵛ∷⇔′ .proj₂ (Erasedᵛ ⊩A , ⊩[] ∘→ ⊩t , ⊩[]≡[] ∘→ t≡t)
 
 opaque
-
-  -- An equality preservation lemma for [_].
-
-  ⊩[]≡[] :
-    (⊩A : Γ ⊩⟨ l ⟩ A) →
-    Γ ⊩⟨ l ⟩ t ∷ A / ⊩A →
-    Γ ⊩⟨ l ⟩ u ∷ A / ⊩A →
-    Γ ⊩⟨ l ⟩ t ≡ u ∷ A / ⊩A →
-    Γ ⊩⟨ l ⟩ [ t ] ≡ [ u ] ∷ Erased A / ⊩Erased ⊩A
-  ⊩[]≡[] {Γ} {l} {A} ⊩A ⊩t ⊩u ⊩t≡u =
-    prod-cong″
-      ⊩A
-      ⊩t
-      ⊩u
-      ⊩t≡u
-      ⊩Unit′
-      ⊩star
-      ⊩star
-      (reflEqTerm ⊩Unit′ ⊩star)
-      (⊩Erased ⊩A)
-      where
-      ⊢Γ : ⊢ Γ
-      ⊢Γ = wf (escape ⊩A)
-
-      ⊢star : Γ ⊢ star s ∷ Unit s
-      ⊢star = starⱼ ⊢Γ Unit-ok
-
-      ⊩Unit′ : Γ ⊩⟨ l ⟩ Unit s
-      ⊩Unit′ = Unitᵣ record
-        { ⇒*-Unit = idRed:*: (Unitⱼ ⊢Γ Unit-ok)
-        ; ok      = Unit-ok
-        }
-
-      ⊩star : Γ ⊩⟨ l ⟩ star s ∷ Unit s / ⊩Unit′
-      ⊩star = record
-        { n    = _
-        ; d    = idRedTerm:*: ⊢star
-        ; n≡n  = ≅ₜ-starrefl ⊢Γ Unit-ok
-        ; prop = starᵣ
-        }
-
-opaque
-  unfolding Erasedᵛ
 
   -- Validity of equality preservation for [_].
 
   []-congᵛ :
-    ∀ t u →
-    Γ ⊩ᵛ⟨ l ⟩ t ∷ A / ⊩Γ / ⊩ᵛA →
-    Γ ⊩ᵛ⟨ l ⟩ u ∷ A / ⊩Γ / ⊩ᵛA →
-    Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A / ⊩Γ / ⊩ᵛA →
-    Γ ⊩ᵛ⟨ l ⟩ [ t ] ≡ [ u ] ∷ Erased A / ⊩Γ / Erasedᵛ ⊩ᵛA
-  []-congᵛ {Γ} {l} {⊩Γ} {⊩ᵛA} t u ⊩t ⊩u ⊩t≡u =
-    prod-congᵛ
-      {t = t}
-      {t′ = u}
-      {u = star!}
-      {u′ = star!}
-      ⊩Γ
-      ⊩ᵛA
-      (Unitᵛ (_ ∙ ⊩ᵛA) Unit-ok)
-      ⊩t
-      ⊩u
-      ⊩t≡u
-      ⊩star
-      ⊩star
-      (reflᵗᵛ {t = star!} {l = l} ⊩Γ (Unitᵛ ⊩Γ Unit-ok) ⊩star)
-      Σ-ok
-    where
-    ⊩star : Γ ⊩ᵛ⟨ l ⟩ star s ∷ Unit s / ⊩Γ / Unitᵛ ⊩Γ Unit-ok
-    ⊩star = starᵛ {l = l} ⊩Γ Unit-ok
+    Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A →
+    Γ ⊩ᵛ⟨ l ⟩ [ t ] ≡ [ u ] ∷ Erased A
+  []-congᵛ t≡u =
+    case ⊩ᵛ≡∷⇔′ .proj₁ t≡u of λ
+      (⊩t , ⊩u , t≡u) →
+    ⊩ᵛ≡∷⇔′ .proj₂ ([]ᵛ ⊩t , []ᵛ ⊩u , ⊩[]≡[] ∘→ t≡u)

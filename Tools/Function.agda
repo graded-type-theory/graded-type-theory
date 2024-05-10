@@ -154,6 +154,14 @@ _→-cong-⇔_ {A = A} {B = B} {C = C} {D = D} A⇔B C⇔D =
     (λ f x → eq x .proj₁ (f x))
   , (λ f x → eq x .proj₂ (f x))
 
+-- The implicit variant of Π A preserves logical equivalences.
+
+implicit-Π-cong-⇔ :
+  (∀ x → P x ⇔ Q x) → ({x : A} → P x) ⇔ ({x : A} → Q x)
+implicit-Π-cong-⇔ eq =
+    (λ f → eq _ .proj₁ f)
+  , (λ f → eq _ .proj₂ f)
+
 -- Σ A preserves logical equivalences.
 
 Σ-cong-⇔ : (∀ x → P x ⇔ Q x) → Σ A P ⇔ Σ A Q

@@ -68,10 +68,8 @@ opaque
 
   reduces-to-numeral :
     str ≡ strict →
-    (⊩ℕ : Δ ⊩⟨ l ⟩ ℕ) →
-    t ®⟨ l ⟩ u ∷ ℕ / ⊩ℕ →
+    t ® u ∷ℕ →
     ∃ λ v → T.Numeral v × u T.⇒* v
-  reduces-to-numeral refl ⊩ℕ′ t®u =
-    case ®-ℕ (hidden-®-intro ⊩ℕ′ t®u) of λ where
-      (zeroᵣ _ v⇒*zero)     → _ , T.zero    , v⇒*zero
-      (sucᵣ _ v⇒*suc num _) → _ , T.suc num , v⇒*suc
+  reduces-to-numeral refl = λ where
+    (zeroᵣ _ v⇒*zero)     → _ , T.zero    , v⇒*zero
+    (sucᵣ _ v⇒*suc num _) → _ , T.suc num , v⇒*suc

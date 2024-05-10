@@ -18,15 +18,16 @@ open Eq using
   public
 
 private variable
-  a                                   : Level
+  a p                                 : Level
   A B C D E F G                       : Set _
   a₁ a₂ b₁ b₂ c₁ c₂ d₁ d₂ e₁ e₂ f₁ f₂ : A
 
 -- Non-dependent congruence rules.
 
-cong₃ : ∀ {ℓ} {A B C D : Set ℓ} {a a′ b b′ c c′}
-        (f : A → B → C → D) → a ≡ a′ → b ≡ b′ → c ≡ c′
-      → f a b c ≡ f a′ b′ c′
+cong₃ :
+  (f : A → B → C → D) →
+  a₁ ≡ a₂ → b₁ ≡ b₂ → c₁ ≡ c₂ →
+  f a₁ b₁ c₁ ≡ f a₂ b₂ c₂
 cong₃ f refl refl refl = refl
 
 cong₄ : ∀ {ℓ} {A B C D E : Set ℓ} {a a′ b b′ c c′ d d′}
@@ -53,6 +54,14 @@ cong₆ f refl refl refl refl refl refl = refl
 subst₃ : ∀ {ℓ ℓ′ ℓ″ ℓ‴} {A : Set ℓ} {B : Set ℓ′} {C : Set ℓ″} {a a′ b b′ c c′} (F : A → B → C → Set ℓ‴)
        → a ≡ a′ → b ≡ b′ → c ≡ c′ → F a b c → F a′ b′ c′
 subst₃ F refl refl refl f = f
+
+-- A quaternary variant of subst.
+
+subst₄ :
+  (P : A → B → C → D → Set p) →
+  a₁ ≡ a₂ → b₁ ≡ b₂ → c₁ ≡ c₂ → d₁ ≡ d₂ →
+  P a₁ b₁ c₁ d₁ → P a₂ b₂ c₂ d₂
+subst₄ _ refl refl refl refl p = p
 
 -- The property of being a proposition.
 

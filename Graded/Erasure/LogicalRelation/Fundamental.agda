@@ -28,18 +28,13 @@ open Definition.Untyped M
 open Definition.Typed TR
 open EqRelSet {{...}}
 
-open import Definition.LogicalRelation TR
-open import Definition.LogicalRelation.Properties.Escape TR
+open import Definition.LogicalRelation TR hiding (_≤_)
+open import Definition.LogicalRelation.Hidden TR
+import Definition.LogicalRelation.Properties TR as LP
 open import Definition.LogicalRelation.Substitution TR
-open import Definition.LogicalRelation.Substitution.MaybeEmbed TR
 open import Definition.LogicalRelation.Substitution.Properties TR
-open import Definition.LogicalRelation.Substitution.Weakening TR
-open import
-  Definition.LogicalRelation.Substitution.Introductions.Identity TR
-open import Definition.LogicalRelation.Substitution.Introductions.DoubleSubst TR
 open import Definition.LogicalRelation.Substitution.Introductions.Pi TR
 open import Definition.LogicalRelation.Substitution.Introductions.Nat TR
-open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst TR
 import Definition.LogicalRelation.Substitution.Introductions.Var TR as V
 
 import Definition.LogicalRelation.Fundamental TR as F
@@ -68,7 +63,6 @@ import Graded.Erasure.LogicalRelation.Fundamental.Empty
 import Graded.Erasure.LogicalRelation.Fundamental.Identity
 import Graded.Erasure.LogicalRelation.Fundamental.Lambda
 import Graded.Erasure.LogicalRelation.Fundamental.Nat
-import Graded.Erasure.LogicalRelation.Fundamental.Natrec
 import Graded.Erasure.LogicalRelation.Fundamental.Prodrec
 import Graded.Erasure.LogicalRelation.Fundamental.Product
 import Graded.Erasure.LogicalRelation.Fundamental.Unit
@@ -85,9 +79,8 @@ open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat using (Nat)
-open import Tools.Product
+open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
-import Tools.Reasoning.PartialOrder
 open import Tools.Relation
 import Tools.PropositionalEquality as PE
 
@@ -98,91 +91,50 @@ private
      t u A B : Term n
      γ δ : Conₘ n
      p q : M
-     σ : Subst l n
      x : Fin n
-     σ′ : T.Subst l n
      m : Mode
-     ⊩Γ : ⊩ᵛ _
 
--- Some lemmas.
+-- A lemma.
 
 module _ (⊢Δ : ⊢ Δ) {s : Strictness} where
 
-  private
+  open Graded.Erasure.LogicalRelation.Hidden
+         (record { ⊢Δ = ⊢Δ; str = s })
 
-    as : Assumptions
-    as = record { ⊢Δ = ⊢Δ; str = s }
+  opaque
 
-  open Graded.Erasure.LogicalRelation as
-  open Graded.Erasure.LogicalRelation.Conversion as
-  open Graded.Erasure.LogicalRelation.Irrelevance as
-  open Graded.Erasure.LogicalRelation.Subsumption as
+    -- A fundamental lemma for variables.
 
-  -- A lemma used to prove fundamentalVar.
-
-  fundamentalVar′ :
-    ([Γ] : ⊩ᵛ Γ) →
-    x ∷ A ∈ Γ →
-    γ ≤ᶜ 𝟘ᶜ , x ≔ 𝟙 →
-    ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ) →
-    (σ®σ′ : σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ γ / [Γ] / [σ]) →
-    ∃ λ ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ]) →
-      σ x ®⟨ ¹ ⟩ σ′ x ∷ A [ σ ] / proj₁ (unwrap [A] ⊢Δ [σ])
-  fundamentalVar′ ε ()
-  fundamentalVar′ {σ = σ} (_∙_ {A = A} [Γ] [A]) here (_ ∙ p≤𝟙)
-                  ([tailσ] , [headσ]) (σ®σ′ , σ0®σ′0) =
-    let [A]′ = proj₁ (unwrap [A] ⊢Δ [tailσ])
-        [↑A] = wk1ᵛ {A = A} {F = A} [Γ] [A] [A]
-        [↑A]′ = maybeEmbᵛ {A = wk1 A} (_∙_ {A = A} [Γ] [A]) [↑A]
-        [σ↑A] = proj₁ (unwrap [↑A]′ {σ = σ} ⊢Δ ([tailσ] , [headσ]))
-        A≡A : Δ ⊢ A [ tail σ ] ≡ A [ tail σ ]
-        A≡A = refl (escape [A]′)
-        A≡A′ = PE.subst (Δ ⊢ A [ tail σ ] ≡_)
-                        (PE.sym (wk1-tail A)) A≡A
-        σ0®σ′0′ = σ0®σ′0 ◀≢𝟘 λ 𝟙p≡𝟘 →
-          𝟘≰𝟙 $
-          ≤-trans (≤-reflexive (PE.trans (PE.sym 𝟙p≡𝟘) (·-identityˡ _)))
-            p≤𝟙
-    in  [↑A]′ , convTermʳ [A]′ [σ↑A] A≡A′ σ0®σ′0′
-  fundamentalVar′ (_∙_ {A = A} [Γ] [A]) (there {A = B} x) (γ≤eᵢ ∙ _)
-                  ([tailσ] , [headσ]) (σ®σ′ , σ0®σ′0) =
-    let [σA] = proj₁ (unwrap [A] ⊢Δ [tailσ])
-        [A]′ = maybeEmbᵛ {A = A} [Γ] [A]
-        [B] , t®v = fundamentalVar′ [Γ] x γ≤eᵢ [tailσ] σ®σ′
-        [↑B] = wk1ᵛ {A = B} {F = A} [Γ] [A]′ [B]
-        [↑B]′ = maybeEmbᵛ {A = wk1 B} (_∙_ {A = A} [Γ] [A]′) [↑B]
-        [↑B]″ = IS.irrelevance {A = wk1 B} (_∙_ {A = A} [Γ] [A]′) ([Γ] ∙ [A]) [↑B]′
-        t®v′ = irrelevanceTerm′ (PE.sym (wk1-tail B)) (proj₁ (unwrap [B] ⊢Δ [tailσ]))
-                                (proj₁ (unwrap [↑B]″ ⊢Δ ([tailσ] , [headσ]))) t®v
-    in  [↑B]″ , t®v′
-
-  -- A fundamental lemma for variables.
-
-  fundamentalVar : ([Γ] : ⊩ᵛ Γ)
-                 → x ∷ A ∈ Γ
-                 → γ ▸[ m ] var x
-                 → ∃ λ ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ])
-                 → γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ var x ∷[ m ] A / [Γ] / [A]
-  fundamentalVar {Γ = Γ} {x = x} {A = A} {γ = γ} {m = m} [Γ] x∷A∈Γ γ▸x =
-    [A] , lemma m γ▸x
-    where
-    [A] = proj₁ (F.fundamentalVar x∷A∈Γ [Γ])
-
-    lemma :
-      ∀ m →
+    fundamentalVar :
+      ⊢ Γ →
+      x ∷ A ∈ Γ →
       γ ▸[ m ] var x →
-      γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ var x ∷[ m ] A / [Γ] / [A]
-    lemma 𝟘ᵐ with is-𝟘? 𝟘
-    ... | yes 𝟘≡𝟘 = _
-    ... | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 PE.refl)
-
-    lemma 𝟙ᵐ γ▸x [σ] σ®σ′ with is-𝟘? 𝟙
-    ... | yes 𝟙≡𝟘 = ⊥-elim (non-trivial 𝟙≡𝟘)
-    ... | no 𝟙≢𝟘 =
-       let [A]′ , t®v =
-             fundamentalVar′ [Γ] x∷A∈Γ (inv-usage-var γ▸x) [σ] σ®σ′
-       in  irrelevanceTerm (proj₁ (unwrap [A]′ ⊢Δ [σ]))
-             (proj₁ (unwrap [A] ⊢Δ [σ])) t®v
+      γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ var x ∷[ m ] A
+    fundamentalVar {x} {A} {γ} {m} ⊢Γ x∈Γ ▸x =
+      ▸⊩ʳ∷⇔ .proj₂
+        ( wf-⊩ᵛ∷ (emb-⊩ᵛ∷ LP.≤¹ (varᵛ x∈Γ (F.valid ⊢Γ) .proj₂))
+        , λ {σ = σ} {σ′ = σ′} _ σ®σ′ →
+            case ®∷[]◂→ σ®σ′ x∈Γ of λ
+              (l , _ , _ , σx®σ′x) →
+                                                         $⟨ σx®σ′x ⟩
+            σ x ®⟨ l ⟩ σ′ x ∷ A [ σ ] ◂ ⌜ m ⌝ · γ ⟨ x ⟩  →⟨ subsumption-®∷◂ (lemma m (inv-usage-var ▸x)) ⟩
+            σ x ®⟨ l ⟩ σ′ x ∷ A [ σ ] ◂ ⌜ m ⌝            →⟨ emb-®∷◂ LP.≤¹ ⟩
+            σ x ®⟨ ¹ ⟩ σ′ x ∷ A [ σ ] ◂ ⌜ m ⌝            □
+        )
+      where
+      lemma :
+        ∀ m →
+        γ ≤ᶜ 𝟘ᶜ , x ≔ ⌜ m ⌝ →
+        ⌜ m ⌝ · γ ⟨ x ⟩ PE.≡ 𝟘 →
+        ⌜ m ⌝ PE.≡ 𝟘
+      lemma 𝟘ᵐ = λ _ _ → PE.refl
+      lemma 𝟙ᵐ = curry (
+        γ ≤ᶜ 𝟘ᶜ , x ≔ 𝟙 × 𝟙 · γ ⟨ x ⟩ PE.≡ 𝟘  →⟨ Σ.map (PE.subst (_≤_ _) (update-lookup 𝟘ᶜ x) ∘→ lookup-monotone _)
+                                                   (PE.trans (PE.sym (·-identityˡ _))) ⟩
+        γ ⟨ x ⟩ ≤ 𝟙 × γ ⟨ x ⟩ PE.≡ 𝟘          →⟨ uncurry (flip (PE.subst (_≤ _))) ⟩
+        𝟘 ≤ 𝟙                                 →⟨ 𝟘≰𝟙 ⟩
+        ⊥                                     →⟨ ⊥-elim ⟩
+        𝟙 PE.≡ 𝟘                              □)
 
 -- The fundamental lemma, and a variant for terms in fully erased
 -- contexts.
@@ -205,7 +157,6 @@ module Fundamental
   open Graded.Erasure.LogicalRelation.Fundamental.Identity as
   open Graded.Erasure.LogicalRelation.Fundamental.Lambda non-trivial as
   open Graded.Erasure.LogicalRelation.Fundamental.Nat as
-  open Graded.Erasure.LogicalRelation.Fundamental.Natrec as
   open Graded.Erasure.LogicalRelation.Fundamental.Prodrec as
   open Graded.Erasure.LogicalRelation.Fundamental.Product UR as
   open Graded.Erasure.LogicalRelation.Fundamental.Unit as
@@ -225,37 +176,12 @@ module Fundamental
   -- reduction (see Graded.Erasure.LogicalRelation.Reduction).
 
   opaque
+    unfolding _▸_⊩ʳ⟨_⟩_∷[_]_
 
     fundamental :
       Γ ⊢ t ∷ A → γ ▸[ m ] t →
       ∃₂ λ ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ]) →
         γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A / [Γ] / [A]
-
-    -- A variant of fundamental.
-
-    fundamental′ :
-      Γ ⊢ t ∷ A → γ ▸[ m ] t →
-      ∃ λ (⊩A : Γ ⊩ᵛ⟨ ¹ ⟩ A / ⊩Γ) →
-        γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A / ⊩Γ / ⊩A
-    fundamental′ {t} ⊢t ▸t =
-      case fundamental ⊢t ▸t of λ {
-        (_ , ⊩A′ , ⊩ʳt) →
-      case IS.irrelevance _ _ ⊩A′ of λ {
-        ⊩A →
-        ⊩A
-      , λ {_ _} → irrelevance {t = t} _ _ ⊩A′ ⊩A ⊩ʳt }}
-
-    -- Another variant of fundamental.
-
-    fundamental″ :
-      (⊩A : Γ ⊩ᵛ⟨ ¹ ⟩ A / ⊩Γ) →
-      Γ ⊢ t ∷ A → γ ▸[ m ] t →
-      γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A / ⊩Γ / ⊩A
-    fundamental″ {t} ⊩A ⊢t ▸t =
-      case fundamental ⊢t ▸t of λ {
-        (_ , ⊩A′ , ⊩ʳt) →
-      irrelevance {t = t} _ _ ⊩A′ ⊩A ⊩ʳt }
-
     fundamental {m = 𝟘ᵐ} ⊢t _ with is-𝟘? 𝟘
     ... | yes 𝟘≡𝟘 =
       case F.fundamental (syntacticTerm ⊢t) of λ ([Γ] , [A]) →
@@ -266,13 +192,13 @@ module Fundamental
           [Γ] , _ , _ = fundamental Γ⊢F:U δ▸F
           [U] , ⊩ʳΠΣ = ΠΣʳ F G [Γ]
       in  [Γ] , [U] , ⊩ʳΠΣ
-    fundamental (ℕⱼ ⊢Γ) γ▸t = ℕʳ ⊢Γ
+    fundamental (ℕⱼ ⊢Γ) _ =
+      ℕʳ ⊢Γ
     fundamental (Emptyⱼ ⊢Γ) γ▸t = Emptyʳ ⊢Γ
-    fundamental (Unitⱼ ⊢Γ _) _ = Unitʳ ⊢Γ
-    fundamental (var ⊢Γ x∷A∈Γ) γ▸t =
-      let [Γ] = F.valid ⊢Γ
-          [A] , ⊩ʳx = fundamentalVar well-formed [Γ] x∷A∈Γ γ▸t
-      in  [Γ] , [A] , ⊩ʳx
+    fundamental (Unitⱼ ⊢Γ _) _ =
+      Unitʳ ⊢Γ
+    fundamental (var ⊢Γ x∈Γ) ▸x =
+      fundamentalVar well-formed ⊢Γ x∈Γ ▸x
     fundamental
       (lamⱼ {F = F} {t = t} {G = G} {p = p} {q = q} Γ⊢F Γ⊢t:G ok) γ▸t =
       let invUsageLam {δ = δ} δ▸t δ≤γ = inv-usage-lam γ▸t
@@ -414,63 +340,34 @@ module Fundamental
               ⊩ʳu′ r≡𝟘→k≡0
       in  [Γ] , [At] ,
           subsumption-≤ (prodrec _ _ _ A t u) [At] ⊩ʳprodrec γ≤pδ+η
-    fundamental (zeroⱼ ⊢Γ) γ▸t = zeroʳ ⊢Γ
-    fundamental (sucⱼ {n = t} Γ⊢t:ℕ) γ▸t =
-      let invUsageSuc δ▸t γ≤δ = inv-usage-suc γ▸t
-          [Γ] , [ℕ] , ⊩ʳt = fundamental Γ⊢t:ℕ δ▸t
-          δ⊩ʳsuct = sucʳ [Γ] [ℕ] ⊩ʳt Γ⊢t:ℕ
-          γ⊩ʳsuct = subsumption-≤ {A = ℕ} (suc t) [ℕ] δ⊩ʳsuct γ≤δ
-      in  [Γ] , [ℕ] , γ⊩ʳsuct
+    fundamental (zeroⱼ ⊢Γ) _ =
+      zeroʳ ⊢Γ
+    fundamental (sucⱼ {n = t} ⊢t) γ▸suc =
+      case inv-usage-suc γ▸suc of λ
+        (invUsageSuc δ▸t γ≤δ) →
+      subsumption-▸⊩ʳ∷[]-≤ {t = suc t} γ≤δ $
+      sucʳ ⊢t (fundamental ⊢t δ▸t)
     fundamental
-      (natrecⱼ {A = A} {z = z} {s = s} {p = p} {q = q} {r = r} {n = n}
-         Γ⊢A Γ⊢z:A Γ⊢s:A Γ⊢n:ℕ)
-      γ▸t =
-      case inv-usage-natrec γ▸t of λ {
-        (invUsageNatrec {δ = δ} {η = η} {θ = θ}
-           δ▸z η▸s θ▸n _ γ≤γ′ extra) →
-      let [Γ]   , [A₀]  , ⊩ʳz  = fundamental Γ⊢z:A δ▸z
-          [ΓℕA] , [A₊]′ , ⊩ʳs′ = fundamental Γ⊢s:A η▸s
-          [Γ]′  , [ℕ]′  , ⊩ʳn′ = fundamental Γ⊢n:ℕ θ▸n
-          [ℕ] = ℕᵛ {l = ¹} [Γ]
-          [Γℕ] = [Γ] ∙ [ℕ]
-          [Γℕ]′ , [A]′ = F.fundamental Γ⊢A
-          [A] = IS.irrelevance {A = A} [Γℕ]′ [Γℕ] [A]′
-          [A₊] = IS.irrelevance {A = A [ suc (var x1) ]↑²}
-                                [ΓℕA] ([Γℕ] ∙ [A]) [A₊]′
-          [Γ]ᶻ , [A]ᶻ , [z]′ = F.fundamentalTerm Γ⊢z:A
-          [z] = IS.irrelevanceTerm {A = A [ zero ]₀} {t = z}
-                  [Γ]ᶻ [Γ] [A]ᶻ [A₀] [z]′
-          [Γ]ˢ , [A]ˢ , [s]′ = F.fundamentalTerm Γ⊢s:A
-          [s] = IS.irrelevanceTerm
-                  {A = A [ suc (var x1) ]↑²} {t = s}
-                  [Γ]ˢ ([Γℕ] ∙ [A]) [A]ˢ [A₊] [s]′
-          [Γ]ⁿ , [ℕ]ⁿ , [n]′ = F.fundamentalTerm Γ⊢n:ℕ
-          [n] = IS.irrelevanceTerm {A = ℕ} {t = n}
-                  [Γ]ⁿ [Γ] [ℕ]ⁿ [ℕ] [n]′
-          ⊩ʳs = irrelevance
-                  {A = A [ suc (var x1) ]↑²} {t = s}
-                  [ΓℕA] ([Γℕ] ∙ [A]) [A₊]′ [A₊] ⊩ʳs′
-          ⊩ʳn = irrelevance {A = ℕ} {t = n} [Γ]′ [Γ] [ℕ]′ [ℕ] ⊩ʳn′
-          [A[n]] , ⊩ʳnatrec =
-            natrecʳ {A = A} {z = z} {s = s} {m = n}
-              [Γ] [A] [A₊] [A₀] [z] [s] [n] ⊩ʳz ⊩ʳs ⊩ʳn
-              (λ x → case extra of λ where
-                 invUsageNatrecNr →
-                   nrᶜ p r δ η θ ⟨ x ⟩ PE.≡ 𝟘                        →⟨ PE.trans (PE.sym (nrᶜ-⟨⟩ δ)) ⟩
-                   nr p r (δ ⟨ x ⟩) (η ⟨ x ⟩) (θ ⟨ x ⟩) PE.≡ 𝟘       →⟨ (λ hyp →
-                                                                           case nr-positive hyp of λ {
-                                                                             (p , q , r) → p , r , q }) ⟩
-                   δ ⟨ x ⟩ PE.≡ 𝟘 × θ ⟨ x ⟩ PE.≡ 𝟘 × η ⟨ x ⟩ PE.≡ 𝟘  □
-                 (invUsageNatrecNoNr {χ = χ} χ≤δ _ χ≤θ fix) →
-                   χ ⟨ x ⟩ PE.≡ 𝟘                                    →⟨ (λ hyp →
-                                                                             ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 χ≤δ hyp
-                                                                           , ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 χ≤θ hyp
-                                                                           , ⟨⟩≡𝟘→⟨⟩≡𝟘-fixpoint fix hyp) ⟩
-                   δ ⟨ x ⟩ PE.≡ 𝟘 × θ ⟨ x ⟩ PE.≡ 𝟘 × η ⟨ x ⟩ PE.≡ 𝟘  □)
-      in  [Γ] , [A[n]] ,
-          λ {_ _} →
-            subsumption-≤ {A = A [ n ]₀} (natrec p q r A z s n) [A[n]]
-              ⊩ʳnatrec γ≤γ′ }
+      (natrecⱼ {A} {z = t} {s = u} {p} {r} {n = v} ⊢A ⊢t ⊢u ⊢v)
+      γ▸nr =
+      case inv-usage-natrec γ▸nr of λ {
+        (invUsageNatrec {δ} {η} {θ} δ▸t η▸u θ▸v _ γ≤χ extra) →
+      subsumption-▸⊩ʳ∷[]-≤ {t = natrec _ _ _ A t u v} γ≤χ $
+      natrecʳ (F.fundamental-⊩ᵛ ⊢A) ⊢t ⊢u ⊢v (fundamental ⊢t δ▸t)
+        (fundamental ⊢u η▸u) (fundamental ⊢v θ▸v)
+        (λ x → case extra of λ where
+           invUsageNatrecNr →
+             nrᶜ p r δ η θ ⟨ x ⟩ PE.≡ 𝟘                        →⟨ PE.trans (PE.sym (nrᶜ-⟨⟩ δ)) ⟩
+             nr p r (δ ⟨ x ⟩) (η ⟨ x ⟩) (θ ⟨ x ⟩) PE.≡ 𝟘       →⟨ (λ hyp →
+                                                                     case nr-positive hyp of λ {
+                                                                       (p , q , r) → p , r , q }) ⟩
+             δ ⟨ x ⟩ PE.≡ 𝟘 × θ ⟨ x ⟩ PE.≡ 𝟘 × η ⟨ x ⟩ PE.≡ 𝟘  □
+           (invUsageNatrecNoNr {χ = χ} χ≤δ _ χ≤θ fix) →
+             χ ⟨ x ⟩ PE.≡ 𝟘                                    →⟨ (λ hyp →
+                                                                       ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 χ≤δ hyp
+                                                                     , ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 χ≤θ hyp
+                                                                     , ⟨⟩≡𝟘→⟨⟩≡𝟘-fixpoint fix hyp) ⟩
+             δ ⟨ x ⟩ PE.≡ 𝟘 × θ ⟨ x ⟩ PE.≡ 𝟘 × η ⟨ x ⟩ PE.≡ 𝟘  □) }
     fundamental
       {Γ = Γ} {γ = γ}
       (emptyrecⱼ {A = A} {t = t} {p = p} ⊢A Γ⊢t:Empty) γ▸t =
@@ -483,187 +380,119 @@ module Fundamental
                   [Γ]″ [Γ] [Empty]′ [Empty] [t]′
           γ⊩ʳemptyrec = emptyrecʳ t ok [Empty] [A] [t] ⊩ʳt
       in  [Γ] , [A] , subsumption-≤ (emptyrec _ A t) [A] γ⊩ʳemptyrec γ≤
-    fundamental (starⱼ ⊢Γ ok) _ = starʳ ⊢Γ ok
-    fundamental
-      {m = 𝟙ᵐ} (unitrecⱼ {A = A} {t} {u} ⊢A ⊢t:Unit ⊢u:A₊ ok) γ▸ur =
-      let invUsageUnitrec δ▸t η▸u _ ok′ γ≤γ′ = inv-usage-unitrec γ▸ur
-          [Γ] , [Unit] , ⊩ʳt = fundamental ⊢t:Unit δ▸t
-          [Γ]₁ , [A₊]₁ , ⊩ʳu′ = fundamental ⊢u:A₊ η▸u
-          [Γ]₂ , [A]₂ = F.fundamental ⊢A
-          [Γ]₃ , [Unit]₃ , [t]₃ = F.fundamentalTerm ⊢t:Unit
-          [Γ]₄ , [A₊]₄ , [u]₄ = F.fundamentalTerm ⊢u:A₊
-          [A] = IS.irrelevance [Γ]₂ ([Γ] ∙ [Unit]) [A]₂
-          [A₊] = IS.irrelevance [Γ]₁ [Γ] [A₊]₁
-          [t] = IS.irrelevanceTerm {t = t} [Γ]₃ [Γ] [Unit]₃ [Unit] [t]₃
-          [u] = IS.irrelevanceTerm {t = u} [Γ]₄ [Γ] [A₊]₄ [A₊] [u]₄
-          ⊩ʳu = irrelevance {t = u} [Γ]₁ [Γ] [A₊]₁ [A₊] ⊩ʳu′
-          p≡𝟘→k≡0 = λ p≡𝟘 → case closed-or-no-erased-matches of λ where
-            (inj₁ nem) → ⊥-elim (nem non-trivial .proj₂ .proj₁ ok′ p≡𝟘)
-            (inj₂ k≡0) → k≡0
-          [Aₜ] , ⊩ʳur =
-            unitrecʳ {u = u} [Γ] ok [Unit] [A] [A₊] [t] [u] ⊩ʳt ⊩ʳu
-              p≡𝟘→k≡0
-      in  [Γ] , [Aₜ] , subsumption-≤ (unitrec _ _ A t u) [Aₜ] ⊩ʳur γ≤γ′
+    fundamental (starⱼ ⊢Γ ok) _ =
+      starʳ ⊢Γ ok
+    fundamental {m = 𝟙ᵐ} (unitrecⱼ {A} ⊢A ⊢t ⊢u ok) γ▸ur =
+      case inv-usage-unitrec γ▸ur of λ
+        (invUsageUnitrec δ▸t η▸u _ ok′ γ≤pδ+η) →
+      subsumption-▸⊩ʳ∷[]-≤ {t = unitrec _ _ A _ _} γ≤pδ+η $
+      unitrecʳ (F.fundamental-⊩ᵛ ⊢A) (F.fundamental-⊩ᵛ∷ ⊢t)
+        (F.fundamental-⊩ᵛ∷ ⊢u) (fundamental ⊢t δ▸t) (fundamental ⊢u η▸u)
+        (λ p≡𝟘 → case closed-or-no-erased-matches of λ where
+           (inj₁ nem) → ⊥-elim (nem non-trivial .proj₂ .proj₁ ok′ p≡𝟘)
+           (inj₂ k≡0) → k≡0)
     fundamental (Idⱼ {A} {t} {u} ⊢A _ _) _ =
-      Idʳ A t u (wfTerm ⊢A)
+      Idʳ {A = A} {t = t} {u = u} (wfTerm ⊢A)
     fundamental (rflⱼ ⊢t) _ =
       rflʳ ⊢t
     fundamental
-      {γ} {m = 𝟙ᵐ} (Jⱼ {A} {t} {B} {u} {v} {w} _ ⊢t ⊢B ⊢u ⊢v ⊢w) ▸J =
-      case F.fundamentalTerm ⊢t of λ {
-        (⊩Γ , ⊩A , ⊩t) →
-      case (λ {k Δ σ} →
-              F.fundamentalTerm′ ⊩A ⊢v
-                {k = k} {Δ = Δ} {σ = σ}) of λ {
-        ⊩v →
-      let ⊩Id-t-v        = Idᵛ {t = t} ⊩A ⊩t ⊩v
-          ⊩Id-wk1-t[v]-v = PE.subst (_ ⊩ᵛ⟨ ¹ ⟩_/ ⊩Γ) ≡Id-wk1-wk1-0[]₀
-                             ⊩Id-t-v
-          ⊩wk1-A         = wk1ᵛ _ ⊩A ⊩A
-      in
-      case substD
-             {⊩B = Idᵛ ⊩wk1-A (wk1Termᵛ t ⊩A ⊩A ⊩t)
-                     (V.varᵛ here (_ ∙ ⊩A) ⊩wk1-A)}
-             ⊩v ⊩Id-wk1-t[v]-v
-             (F.fundamentalTerm′ ⊩Id-wk1-t[v]-v $
-              PE.subst (_⊢_∷_ _ _) ≡Id-wk1-wk1-0[]₀ ⊢w)
-             (F.fundamental′ ⊢B) of λ {
-        ⊩B[v,w] →
-        ⊩Γ
-      , ⊩B[v,w]
-      , (λ {_ _} →
-           case inv-usage-J ▸J of λ where
-             (invUsageJ₀₂ em _ _ _ ▸u _ _ γ≤) →
-               case fundamental′ ⊢u ▸u of λ {
-                 (⊩B[t,rfl] , ⊩ʳu) →
-               Jʳ ⊢t ⊢B ⊢u ⊢v ⊢w ⊩B[t,rfl] ⊩B[v,w] γ≤ ⊩ʳu
-                 (inj₁ $ case closed-or-no-erased-matches of λ where
-                    (inj₂ k≡0) → k≡0
-                    (inj₁ nem) →
-                      case
-                        PE.trans (PE.sym em)
-                          (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₁)
-                      of λ ()) }
-             (invUsageJ₀₁ {γ₃} {γ₄} em _ _ _ _ _ ▸u _ _ γ≤) →
-               case fundamental′ ⊢u ▸u of λ
-                 (⊩B[t,rfl] , ⊩ʳu) →
-               Jʳ ⊢t ⊢B ⊢u ⊢v ⊢w ⊩B[t,rfl] ⊩B[v,w]
-                 (begin
-                    γ                ≤⟨ γ≤ ⟩
-                    ω ·ᶜ (γ₃ +ᶜ γ₄)  ≤⟨ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
-                    ω ·ᶜ γ₄          ≤⟨ ω·ᶜ-decreasing ⟩
-                    γ₄               ∎)
-                 ⊩ʳu
-                 (inj₁ $ case closed-or-no-erased-matches of λ where
-                    (inj₂ k≡0) → k≡0
-                    (inj₁ nem) →
-                      case
-                        PE.trans (PE.sym em)
-                          (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₁)
-                      of λ ())
-             (invUsageJ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} _ _ _ _ _ ▸u _ ▸w γ≤) →
-               case fundamental′ ⊢u ▸u of λ {
-                 (⊩B[t,rfl] , ⊩ʳu) →
-               subsumption {t = J _ _ A t B u v w} _ ⊩B[v,w]
-                 (Jʳ ⊢t ⊢B ⊢u ⊢v ⊢w ⊩B[t,rfl] ⊩B[v,w]
-                    (∧ᶜ-decreasingˡ γ₄ _) ⊩ʳu
-                    (inj₂
-                       ( _ , _ , _ , _
-                       , ∧ᶜ-decreasingʳ γ₄ _
-                       , fundamental″ ⊩Id-t-v ⊢w ▸w
-                       )))
-                 (λ x →
-                    γ ⟨ x ⟩ PE.≡ 𝟘                                        →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤ ⟩
-                    (ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆)) ⟨ x ⟩ PE.≡ 𝟘      →⟨ ·ᶜ-zero-product-⟨⟩ (γ₂ +ᶜ _) ⟩
-                    ω PE.≡ 𝟘 ⊎ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆) ⟨ x ⟩ PE.≡ 𝟘  →⟨ (λ { (inj₁ ω≡𝟘) → ⊥-elim (ω≢𝟘 ω≡𝟘); (inj₂ hyp) → hyp }) ⟩
-                    (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆) ⟨ x ⟩ PE.≡ 𝟘             →⟨ proj₂ ∘→ +ᶜ-positive-⟨⟩ γ₅ ∘→
-                                                                             ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 {γ = γ₄ +ᶜ _}
-                                                                               (≤ᶜ-reflexive $
-                                                                                ≈ᶜ-trans
-                                                                                  (≈ᶜ-trans (≈ᶜ-sym (+ᶜ-assoc _ _ _)) $
-                                                                                   +ᶜ-congʳ (+ᶜ-comm _ _)) $
-                                                                                +ᶜ-assoc _ _ _) ∘→
-                                                                             proj₂ ∘→ +ᶜ-positive-⟨⟩ γ₃ ∘→
-                                                                             proj₂ ∘→ +ᶜ-positive-⟨⟩ γ₂ ⟩
-                    (γ₄ +ᶜ γ₆) ⟨ x ⟩ PE.≡ 𝟘                               →⟨ +ᶜ-⟨⟩-≡-𝟘-→-∧ᶜ-⟨⟩-≡-𝟘 γ₄ ⟩
-                    (γ₄ ∧ᶜ γ₆) ⟨ x ⟩ PE.≡ 𝟘                               □) }) }}}
-      where
-      open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-    fundamental
-      {γ} {m = 𝟙ᵐ} (Kⱼ {t} {A} {B} {u} {v} ⊢t ⊢B ⊢u ⊢v ok) ▸K =
-      case F.fundamentalTerm ⊢t of λ {
-        (⊩Γ , ⊩A , ⊩t) →
-      let ⊩Id-t-t = Idᵛ ⊩A ⊩t ⊩t in
-      case substS _ ⊩Id-t-t (F.fundamental′ ⊢B)
-             (F.fundamentalTerm′ ⊩Id-t-t ⊢v) of λ {
-        ⊩B[v] →
-        ⊩Γ
-      , ⊩B[v]
-      , (λ {_ _} →
-           case inv-usage-K ▸K of λ where
-             (invUsageK₀₂ em _ _ _ ▸u _ γ≤) →
-               case fundamental′ ⊢u ▸u of λ {
-                 (⊩B[rfl] , ⊩ʳu) →
-               Kʳ ⊢t ⊢B ⊢u ⊢v ok ⊩B[rfl] ⊩B[v] γ≤ ⊩ʳu
-                 (inj₁ $ case closed-or-no-erased-matches of λ where
-                    (inj₂ k≡0) → k≡0
-                    (inj₁ nem) →
-                      case
-                        PE.trans (PE.sym em)
-                          (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₂)
-                      of λ ()) }
-             (invUsageK₀₁ {γ₂} {γ₃} {γ₄} {γ₅} em _ _ _ _ ▸u _ γ≤) →
-               case fundamental′ ⊢u ▸u of λ
-                 (⊩B[rfl] , ⊩ʳu) →
-               subsumption {t = K _ A t B u v} _ ⊩B[v]
-                 (Kʳ ⊢t ⊢B ⊢u ⊢v ok ⊩B[rfl] ⊩B[v]
-                    (∧ᶜ-decreasingʳ γ₃ _) ⊩ʳu
-                    (inj₁ $ case closed-or-no-erased-matches of λ where
-                       (inj₂ k≡0) → k≡0
-                       (inj₁ nem) →
-                         case
-                           PE.trans (PE.sym em)
-                             (nem non-trivial
-                                .proj₂ .proj₂ .proj₂ .proj₂)
-                         of λ ()))
-                 (λ x →
-                    γ ⟨ x ⟩ PE.≡ 𝟘                      →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤ ⟩
-                    (ω ·ᶜ (γ₃ +ᶜ γ₄)) ⟨ x ⟩ PE.≡ 𝟘      →⟨ ·ᶜ-zero-product-⟨⟩ (γ₃ +ᶜ _) ⟩
-                    ω PE.≡ 𝟘 ⊎ (γ₃ +ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘  →⟨ (λ { (inj₁ ω≡𝟘) → ⊥-elim (ω≢𝟘 ω≡𝟘); (inj₂ hyp) → hyp }) ⟩
-                    (γ₃ +ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘             →⟨ +ᶜ-⟨⟩-≡-𝟘-→-∧ᶜ-⟨⟩-≡-𝟘 γ₃ ⟩
-                    (γ₃ ∧ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘             □)
-             (invUsageK {γ₂} {γ₃} {γ₄} {γ₅} _ _ _ _ _ ▸u ▸v γ≤) →
-               case fundamental′ ⊢u ▸u of λ {
-                 (⊩B[rfl] , ⊩ʳu) →
-               subsumption {t = K _ A t B u v} _ ⊩B[v]
-                 (Kʳ ⊢t ⊢B ⊢u ⊢v ok ⊩B[rfl] ⊩B[v]
-                    (∧ᶜ-decreasingˡ γ₄ _) ⊩ʳu
-                    (inj₂
-                       ( _ , _ , _
-                       , ∧ᶜ-decreasingʳ γ₄ _
-                       , fundamental″ ⊩Id-t-t ⊢v ▸v
-                       )))
-                 (λ x →
-                    γ ⟨ x ⟩ PE.≡ 𝟘                                  →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤ ⟩
-                    (ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅)) ⟨ x ⟩ PE.≡ 𝟘      →⟨ ·ᶜ-zero-product-⟨⟩ (γ₂ +ᶜ _) ⟩
-                    ω PE.≡ 𝟘 ⊎ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘  →⟨ (λ { (inj₁ ω≡𝟘) → ⊥-elim (ω≢𝟘 ω≡𝟘); (inj₂ hyp) → hyp }) ⟩
-                    (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘             →⟨ proj₂ ∘→ +ᶜ-positive-⟨⟩ γ₃ ∘→
-                                                                       proj₂ ∘→ +ᶜ-positive-⟨⟩ γ₂ ⟩
-                    (γ₄ +ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘                         →⟨ +ᶜ-⟨⟩-≡-𝟘-→-∧ᶜ-⟨⟩-≡-𝟘 γ₄ ⟩
-                    (γ₄ ∧ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘                         □) }) }}
-    fundamental ([]-congⱼ ⊢t ⊢u ⊢v ok) _ =
+      {γ} {m = 𝟙ᵐ} (Jⱼ {A} {t} {B} {u} {v} {w} _ _ ⊢B ⊢u _ ⊢w) ▸J =
+      case F.fundamental-⊩ᵛ ⊢B of λ
+        ⊩B →
+      case inv-usage-J ▸J of λ where
+        (invUsageJ₀₂ em _ _ _ ▸u _ _ γ≤) →
+          Jʳ ⊩B ⊢u ⊢w γ≤ (fundamental ⊢u ▸u)
+            (inj₁ $ case closed-or-no-erased-matches of λ where
+               (inj₂ k≡0) → k≡0
+               (inj₁ nem) →
+                 case
+                   PE.trans (PE.sym em)
+                     (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₁)
+                 of λ ())
+        (invUsageJ₀₁ {γ₃} {γ₄} em _ _ _ _ _ ▸u _ _ γ≤) →
+          subsumption-▸⊩ʳ∷[] {t = J _ _ A t B u v w}
+            (λ x →
+               γ ⟨ x ⟩ PE.≡ 𝟘                      →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤ ⟩
+               (ω ·ᶜ (γ₃ +ᶜ γ₄)) ⟨ x ⟩ PE.≡ 𝟘      →⟨ ·ᶜ-zero-product-⟨⟩ (γ₃ +ᶜ _) ⟩
+               ω PE.≡ 𝟘 ⊎ (γ₃ +ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘  →⟨ (λ { (inj₁ ω≡𝟘) → ⊥-elim (ω≢𝟘 ω≡𝟘); (inj₂ hyp) → hyp }) ⟩
+               (γ₃ +ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘             →⟨ +ᶜ-⟨⟩-≡-𝟘-→-∧ᶜ-⟨⟩-≡-𝟘 γ₃ ⟩
+               (γ₃ ∧ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘             □) $
+          Jʳ ⊩B ⊢u ⊢w (∧ᶜ-decreasingʳ γ₃ _) (fundamental ⊢u ▸u)
+            (inj₁ $ case closed-or-no-erased-matches of λ where
+               (inj₂ k≡0) → k≡0
+               (inj₁ nem) →
+                 case
+                   PE.trans (PE.sym em)
+                     (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₁)
+                 of λ ())
+        (invUsageJ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} _ _ _ _ _ ▸u _ ▸w γ≤) →
+          subsumption-▸⊩ʳ∷[] {t = J _ _ A t B u v w}
+            (λ x →
+               γ ⟨ x ⟩ PE.≡ 𝟘                                        →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤ ⟩
+               (ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆)) ⟨ x ⟩ PE.≡ 𝟘      →⟨ ·ᶜ-zero-product-⟨⟩ (γ₂ +ᶜ _) ⟩
+               ω PE.≡ 𝟘 ⊎ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆) ⟨ x ⟩ PE.≡ 𝟘  →⟨ (λ { (inj₁ ω≡𝟘) → ⊥-elim (ω≢𝟘 ω≡𝟘); (inj₂ hyp) → hyp }) ⟩
+               (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆) ⟨ x ⟩ PE.≡ 𝟘             →⟨ proj₂ ∘→ +ᶜ-positive-⟨⟩ γ₅ ∘→
+                                                                        ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 {γ = γ₄ +ᶜ _}
+                                                                          (≤ᶜ-reflexive $
+                                                                           ≈ᶜ-trans
+                                                                             (≈ᶜ-trans (≈ᶜ-sym (+ᶜ-assoc _ _ _)) $
+                                                                              +ᶜ-congʳ (+ᶜ-comm _ _)) $
+                                                                           +ᶜ-assoc _ _ _) ∘→
+                                                                        proj₂ ∘→ +ᶜ-positive-⟨⟩ γ₃ ∘→
+                                                                        proj₂ ∘→ +ᶜ-positive-⟨⟩ γ₂ ⟩
+               (γ₄ +ᶜ γ₆) ⟨ x ⟩ PE.≡ 𝟘                               →⟨ +ᶜ-⟨⟩-≡-𝟘-→-∧ᶜ-⟨⟩-≡-𝟘 γ₄ ⟩
+               (γ₄ ∧ᶜ γ₆) ⟨ x ⟩ PE.≡ 𝟘                               □)
+            (Jʳ ⊩B ⊢u ⊢w (∧ᶜ-decreasingˡ γ₄ _) (fundamental ⊢u ▸u)
+               (inj₂ (_ , ∧ᶜ-decreasingʳ γ₄ _ , _ , fundamental ⊢w ▸w)))
+    fundamental {γ} {m = 𝟙ᵐ} (Kⱼ {t} {A} {B} {u} {v} _ ⊢B ⊢u ⊢v ok) ▸K =
+      case F.fundamental-⊩ᵛ ⊢B of λ
+        ⊩B →
+      case inv-usage-K ▸K of λ where
+        (invUsageK₀₂ em _ _ _ ▸u _ γ≤) →
+          Kʳ ⊩B ⊢u ⊢v ok γ≤ (fundamental ⊢u ▸u)
+            (inj₁ $ case closed-or-no-erased-matches of λ where
+               (inj₂ k≡0) → k≡0
+               (inj₁ nem) →
+                 case
+                   PE.trans (PE.sym em)
+                     (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₂)
+                 of λ ())
+        (invUsageK₀₁ {γ₃} {γ₄} em _ _ _ _ ▸u _ γ≤) →
+          subsumption-▸⊩ʳ∷[] {t = K _ A t B u v}
+            (λ x →
+               γ ⟨ x ⟩ PE.≡ 𝟘                      →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤ ⟩
+               (ω ·ᶜ (γ₃ +ᶜ γ₄)) ⟨ x ⟩ PE.≡ 𝟘      →⟨ ·ᶜ-zero-product-⟨⟩ (γ₃ +ᶜ _) ⟩
+               ω PE.≡ 𝟘 ⊎ (γ₃ +ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘  →⟨ (λ { (inj₁ ω≡𝟘) → ⊥-elim (ω≢𝟘 ω≡𝟘); (inj₂ hyp) → hyp }) ⟩
+               (γ₃ +ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘             →⟨ +ᶜ-⟨⟩-≡-𝟘-→-∧ᶜ-⟨⟩-≡-𝟘 γ₃ ⟩
+               (γ₃ ∧ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘             □) $
+          Kʳ ⊩B ⊢u ⊢v ok (∧ᶜ-decreasingʳ γ₃ _) (fundamental ⊢u ▸u)
+            (inj₁ $ case closed-or-no-erased-matches of λ where
+               (inj₂ k≡0) → k≡0
+               (inj₁ nem) →
+                 case
+                   PE.trans (PE.sym em)
+                     (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₂)
+                 of λ ())
+        (invUsageK {γ₂} {γ₃} {γ₄} {γ₅} _ _ _ _ _ ▸u ▸v γ≤) →
+          subsumption-▸⊩ʳ∷[] {t = K _ A t B u v}
+            (λ x →
+               γ ⟨ x ⟩ PE.≡ 𝟘                                  →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤ ⟩
+               (ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅)) ⟨ x ⟩ PE.≡ 𝟘      →⟨ ·ᶜ-zero-product-⟨⟩ (γ₂ +ᶜ _) ⟩
+               ω PE.≡ 𝟘 ⊎ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘  →⟨ (λ { (inj₁ ω≡𝟘) → ⊥-elim (ω≢𝟘 ω≡𝟘); (inj₂ hyp) → hyp }) ⟩
+               (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘             →⟨ proj₂ ∘→ +ᶜ-positive-⟨⟩ γ₃ ∘→
+                                                                  proj₂ ∘→ +ᶜ-positive-⟨⟩ γ₂ ⟩
+               (γ₄ +ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘                         →⟨ +ᶜ-⟨⟩-≡-𝟘-→-∧ᶜ-⟨⟩-≡-𝟘 γ₄ ⟩
+               (γ₄ ∧ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘                         □) $
+          Kʳ ⊩B ⊢u ⊢v ok (∧ᶜ-decreasingˡ γ₄ _) (fundamental ⊢u ▸u)
+            (inj₂ (_ , ∧ᶜ-decreasingʳ γ₄ _ , _ , fundamental ⊢v ▸v))
+    fundamental ([]-congⱼ _ _ ⊢v ok) _ =
       []-congʳ
         (case closed-or-no-erased-matches of λ where
            (inj₁ nem) → ⊥-elim (nem non-trivial .proj₂ .proj₂ .proj₁ ok)
            (inj₂ k≡0) → k≡0)
-        ⊢t ⊢u ⊢v ok
-    fundamental (conv {t = t} {A = A} {B = B} Γ⊢t:A A≡B) γ▸t =
-      let [Γ] , [A] , ⊩ʳt = fundamental Γ⊢t:A γ▸t
-          Γ⊢B = syntacticTerm (conv Γ⊢t:A A≡B)
-          [Γ]′ , [B]′ = F.fundamental Γ⊢B
-          [B] = IS.irrelevance {A = B} [Γ]′ [Γ] [B]′
-      in  [Γ] , [B] ,
-          convʳ {A = A} {B = B} {t = t} [Γ] [A] [B] A≡B ⊩ʳt
+        ⊢v ok
+    fundamental (conv {t} ⊢t A≡B) γ▸t =
+      conv-▸⊩ʳ∷ {t = t} (F.fundamental-⊩ᵛ≡ A≡B) (fundamental ⊢t γ▸t)
 
   -- A fundamental lemma for terms in fully erased contexts.
   --

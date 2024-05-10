@@ -23,7 +23,6 @@ open import Definition.LogicalRelation.Substitution.Introductions.ProdBetaEta R 
 open import Definition.LogicalRelation.Substitution.Introductions.Prodrec R public
 open import Definition.LogicalRelation.Substitution.Introductions.DoubleSubst R public
 open import Definition.LogicalRelation.Substitution.Introductions.Nat R public
-open import Definition.LogicalRelation.Substitution.Introductions.Natrec R public
 open import Definition.LogicalRelation.Substitution.Introductions.Empty R public
 open import Definition.LogicalRelation.Substitution.Introductions.Emptyrec R public
 open import Definition.LogicalRelation.Substitution.Introductions.Unit R public

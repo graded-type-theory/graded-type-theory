@@ -17,7 +17,7 @@ module Graded.Erasure.LogicalRelation.Hidden
   where
 
 open Assumptions as
-open Modality 𝕄 hiding (_≤_)
+open Modality 𝕄 hiding (_≤_; _<_)
 
 open import Definition.LogicalRelation TR as L
 open import Definition.LogicalRelation.Fundamental.Reducibility TR
@@ -26,9 +26,12 @@ import Definition.LogicalRelation.Irrelevance TR as IR
 open import Definition.LogicalRelation.Properties TR
 open import Definition.LogicalRelation.ShapeView TR
 open import Definition.LogicalRelation.Substitution TR
+open import Definition.LogicalRelation.Substitution.Introductions TR
 import Definition.LogicalRelation.Substitution.Irrelevance TR as IS
 open import Definition.LogicalRelation.Substitution.Properties TR
 open import Definition.Typed TR
+open import Definition.Typed.Consequences.Inversion TR
+open import Definition.Typed.Consequences.Syntactic TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.RedSteps TR
 import Definition.Typed.Weakening TR as W
@@ -148,60 +151,98 @@ opaque
       (⊩t ⊩σ (erasedSubst _ ⊩σ) ◀≢𝟘 𝟙≢𝟘) }
 
 ------------------------------------------------------------------------
--- "Rewriting" lemmas for _®⟨_⟩_∷_
+-- Some characterisation lemmas for _®⟨_⟩_∷_
+
+opaque
+  unfolding _®⟨_⟩_∷_ ⊩U⇔
+
+  -- A characterisation lemma for U.
+
+  ®∷U⇔ : t ®⟨ l ⟩ v ∷ U ⇔ ((∃ λ l′ → l′ < l) × t ® v ∷U)
+  ®∷U⇔ {t} {l} {v} =
+    t ®⟨ l ⟩ v ∷ U                                 ⇔⟨ id⇔ ⟩
+    (∃ λ (⊩U : Δ ⊩⟨ l ⟩ U) → t ®⟨ l ⟩ v ∷ U / ⊩U)  ⇔⟨ (λ (⊩U , t®v) →
+                                                           ⊩U⇔ .proj₁ ⊩U
+                                                         , irrelevanceTerm ⊩U (Uᵣ (extractMaybeEmb (U-elim ⊩U) .proj₂)) t®v)
+                                                    , Σ.map (⊩U⇔ .proj₂) idᶠ
+                                                    ⟩
+    ((∃ λ l′ → l′ < l) × ⊢ Δ) × t ® v ∷U           ⇔⟨ (λ ((<l , _) , t®v) → <l , t®v)
+                                                    , (λ (<l , t®v) → (<l , ⊢Δ) , t®v)
+                                                    ⟩
+    (∃ λ l′ → l′ < l) × t ® v ∷U                   □⇔
 
 opaque
   unfolding _®⟨_⟩_∷_
 
-  -- A rewriting lemma for U.
+  -- A characterisation lemma for Empty.
 
-  ®-U : t ®⟨ l ⟩ v ∷ U → t ® v ∷U
-  ®-U (⊩U′ , t®v) =
-    irrelevanceTerm ⊩U′
-      (Uᵣ (extractMaybeEmb (U-elim ⊩U′) .proj₂)) t®v
-
-opaque
-  unfolding _®⟨_⟩_∷_
-
-  -- A rewriting lemma for Empty.
-
-  ®-Empty : t ®⟨ l ⟩ v ∷ Empty → t ® v ∷Empty
-  ®-Empty (⊩Empty′ , t®v) =
-    irrelevanceTerm {l′ = ¹} ⊩Empty′
-      (Emptyᵣ (extractMaybeEmb (Empty-elim ⊩Empty′) .proj₂)) t®v
+  ®∷Empty⇔ : t ®⟨ l ⟩ v ∷ Empty ⇔ t ® v ∷Empty
+  ®∷Empty⇔ =
+      (λ (⊩Empty′ , t®v) →
+         irrelevanceTerm {l′ = ¹} ⊩Empty′
+           (Emptyᵣ (extractMaybeEmb (Empty-elim ⊩Empty′) .proj₂)) t®v)
+    , (λ ())
 
 opaque
-  unfolding _®⟨_⟩_∷_
+  unfolding _®⟨_⟩_∷_ ⊩Unit⇔
 
-  -- A rewriting lemma for Unit.
+  -- A characterisation lemma for Unit.
 
-  ®-Unit : t ®⟨ l ⟩ v ∷ Unit s → t ® v ∷Unit⟨ s ⟩
-  ®-Unit (⊩Unit′ , t®v) =
-    irrelevanceTerm {l′ = ¹} ⊩Unit′
-      (Unitᵣ (extractMaybeEmb (Unit-elim ⊩Unit′) .proj₂)) t®v
+  ®∷Unit⇔ : t ®⟨ l ⟩ v ∷ Unit s ⇔ t ® v ∷Unit⟨ s ⟩
+  ®∷Unit⇔ =
+      (λ (⊩U , t®v) →
+         irrelevanceTerm {l′ = ¹} ⊩U
+           (Unitᵣ (extractMaybeEmb (Unit-elim ⊩U) .proj₂)) t®v)
+    , (λ t®v →
+           ⊩Unit⇔ .proj₂
+             ( ⊢Δ
+             , (case t®v of λ {
+                  (starᵣ t⇒* _) →
+                inversion-Unit (syntacticRedTerm t⇒* .proj₁) })
+             )
+         , t®v)
 
 opaque
-  unfolding _®⟨_⟩_∷_
+  unfolding _®⟨_⟩_∷_ ⊩ℕ⇔
 
-  -- A rewriting lemma for ℕ.
+  -- A characterisation lemma for ℕ.
 
-  ®-ℕ : t ®⟨ l ⟩ v ∷ ℕ → t ® v ∷ℕ
-  ®-ℕ (⊩ℕ′ , t®v) =
-    irrelevanceTerm {l′ = ¹} ⊩ℕ′
-      (ℕᵣ (extractMaybeEmb (ℕ-elim ⊩ℕ′) .proj₂)) t®v
+  ®∷ℕ⇔ : t ®⟨ l ⟩ v ∷ ℕ ⇔ t ® v ∷ℕ
+  ®∷ℕ⇔ =
+      (λ (⊩ℕ′ , t®v) →
+         irrelevanceTerm {l′ = ¹} ⊩ℕ′
+           (ℕᵣ (extractMaybeEmb (ℕ-elim ⊩ℕ′) .proj₂)) t®v)
+    , (⊩ℕ⇔ .proj₂ ⊢Δ ,_)
 
 opaque
-  unfolding _®⟨_⟩_∷_
+  unfolding _®⟨_⟩_∷_ ⊩Id⇔
 
-  -- A rewriting lemma for Id.
+  -- A characterisation lemma for Id.
 
-  ®-Id : t ®⟨ l ⟩ v ∷ Id A t₁ t₂ → t ® v ∷Id⟨ A ⟩⟨ t₁ ⟩⟨ t₂ ⟩
-  ®-Id (⊩Id , t®v) =
-    case extractMaybeEmb (Id-elim ⊩Id) .proj₂ of λ {
-      ⊩Id′ →
-    case irrelevanceTerm ⊩Id (Idᵣ ⊩Id′) t®v of λ {
-      (rflᵣ t⇒* ⇒*↯) →
-    rflᵣ (conv* t⇒* (sym (subset* (red (_⊩ₗId_.⇒*Id ⊩Id′))))) ⇒*↯ }}
+  ®∷Id⇔ :
+    t ®⟨ l ⟩ v ∷ Id A t₁ t₂ ⇔
+    (Δ ⊩⟨ l ⟩ A × t ® v ∷Id⟨ A ⟩⟨ t₁ ⟩⟨ t₂ ⟩)
+  ®∷Id⇔ =
+      (λ (⊩Id , t®v) →
+         case extractMaybeEmb (Id-elim ⊩Id) .proj₂ of λ
+           ⊩Id′ →
+         case irrelevanceTerm ⊩Id (Idᵣ ⊩Id′) t®v of λ {
+           (rflᵣ t⇒* ⇒*↯) →
+           wf-⊩∷ (⊩Id⇔ .proj₁ ⊩Id .proj₁)
+         , rflᵣ (conv* t⇒* (sym (subset* (red (_⊩ₗId_.⇒*Id ⊩Id′)))))
+             ⇒*↯ })
+    , (λ (⊩A , t®v) →
+           ⊩Id⇔ .proj₂
+             (case t®v of λ {
+                (rflᵣ t⇒* _) →
+              case inversion-Id (syntacticRedTerm t⇒* .proj₁) of λ
+                (_ , ⊢t₁ , ⊢t₂) →
+                level-⊩∷ ⊩A (reducibleTerm ⊢t₁)
+              , level-⊩∷ ⊩A (reducibleTerm ⊢t₂) })
+         , t®v)
+
+------------------------------------------------------------------------
+-- Some "rewriting" lemmas for _®⟨_⟩_∷_
 
 opaque
   unfolding _®⟨_⟩_∷_

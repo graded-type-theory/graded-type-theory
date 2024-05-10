@@ -80,7 +80,6 @@ import Definition.LogicalRelation.Properties.MaybeEmb
 import Definition.LogicalRelation.Properties.Symmetry
 import Definition.LogicalRelation.Properties.Neutral
 import Definition.LogicalRelation.Properties.Universe
-import Definition.LogicalRelation.Properties.Successor
 import Definition.LogicalRelation.Properties.Transitivity
 import Definition.LogicalRelation.Properties.Reduction
 import Definition.LogicalRelation.Properties
@@ -109,7 +108,6 @@ import Definition.LogicalRelation.Substitution.Introductions.Empty
 import Definition.LogicalRelation.Substitution.Introductions.Emptyrec
 import Definition.LogicalRelation.Substitution.Introductions.Unit
 import Definition.LogicalRelation.Substitution.Introductions.Nat
-import Definition.LogicalRelation.Substitution.Introductions.Natrec
 import Definition.LogicalRelation.Substitution.Introductions.Pi
 import Definition.LogicalRelation.Substitution.Introductions.Lambda
 import Definition.LogicalRelation.Substitution.Introductions.Application
@@ -372,7 +370,6 @@ import Graded.Erasure.LogicalRelation.Fundamental.Application
 import Graded.Erasure.LogicalRelation.Fundamental.Empty
 import Graded.Erasure.LogicalRelation.Fundamental.Lambda
 import Graded.Erasure.LogicalRelation.Fundamental.Nat
-import Graded.Erasure.LogicalRelation.Fundamental.Natrec
 import Graded.Erasure.LogicalRelation.Fundamental.Prodrec
 import Graded.Erasure.LogicalRelation.Fundamental.Product
 import Graded.Erasure.LogicalRelation.Fundamental.Unit

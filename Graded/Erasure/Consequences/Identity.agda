@@ -71,14 +71,14 @@ opaque
     𝟘ᶜ ▸[ 𝟙ᵐ ] v →
     Γ ⊢ t ≡ u ∷ A
   Id→≡ ok ⊢v ▸v =
-    case ®-Id $
+    case ®∷Id⇔ .proj₁ $
          Fundamental.fundamentalErased-𝟙ᵐ
            (record
               { well-formed       = wfTerm ⊢v
               ; other-assumptions = ok
               })
            ⊢v ▸v of λ {
-      (rflᵣ v⇒rfl _) →
+      (_ , rflᵣ v⇒rfl _) →
     inversion-rfl-Id
       (syntacticEqTerm (subset*Term v⇒rfl) .proj₂ .proj₂) }
     where

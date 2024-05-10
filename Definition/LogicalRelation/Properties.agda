@@ -21,5 +21,4 @@ open import Definition.LogicalRelation.Properties.Escape R public
 open import Definition.LogicalRelation.Properties.Universe R public
 open import Definition.LogicalRelation.Properties.Neutral R public
 open import Definition.LogicalRelation.Properties.Reduction R public
-open import Definition.LogicalRelation.Properties.Successor R public
 open import Definition.LogicalRelation.Properties.MaybeEmb R public

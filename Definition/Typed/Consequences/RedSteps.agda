@@ -25,10 +25,11 @@ open import Definition.Typed.Consequences.DerivedRules R
 open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Substitution R
 open import Definition.Typed.Consequences.Syntactic R
+open import Definition.LogicalRelation.Fundamental R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
+open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Properties R
-import Definition.LogicalRelation.Substitution.Introductions.Identity R
-  as I
+import Definition.LogicalRelation.Substitution.Introductions R as I
 
 open import Tools.Function
 open import Tools.Nat
@@ -54,18 +55,20 @@ snd-subst* (x ⇨ t⇒t′) ⊢F ⊢G =
   snd-subst ⊢F ⊢G x ⇨ conv* (snd-subst* t⇒t′ ⊢F ⊢G)
                               (substTypeEq (refl ⊢G) (sym (fst-cong ⊢F ⊢G (subsetTerm x))))
 
+opaque
+  unfolding _⊩ᵛ⟨_⟩_ _⊩⟨_⟩_∷_
 
--- Natrec substitution of reduction closures
+  -- A variant of natrec-subst for _⊢_⇒*_∷_.
 
-natrec-subst* : ∀ {z s} → Γ ⊢ t ⇒* t′ ∷ ℕ
-              → Γ ∙ ℕ ⊢ A
-              → Γ ⊢ z ∷ A [ zero ]₀
-              → Γ ∙ ℕ ∙ A ⊢ s ∷ A [ suc (var x1) ]↑²
-              → Γ ⊢ natrec p q r A z s t ⇒* natrec p q r A z s t′ ∷ A [ t ]₀
-natrec-subst* (id x) ⊢A ⊢z ⊢s = id (natrecⱼ ⊢A ⊢z ⊢s x)
-natrec-subst* (x ⇨ t⇒t′) ⊢A ⊢z ⊢s =
-  natrec-subst ⊢A ⊢z ⊢s x ⇨ conv* (natrec-subst* t⇒t′ ⊢A ⊢z ⊢s)
-                                    (substTypeEq (refl ⊢A) (sym (subsetTerm x)))
+  natrec-subst* :
+    Γ ∙ ℕ ⊢ A →
+    Γ ⊢ t ∷ A [ zero ]₀ →
+    Γ ∙ ℕ ∙ A ⊢ u ∷ A [ suc (var x1) ]↑² →
+    Γ ⊢ v₁ ⇒* v₂ ∷ ℕ →
+    Γ ⊢ natrec p q r A t u v₁ ⇒* natrec p q r A t u v₂ ∷ A [ v₁ ]₀
+  natrec-subst* ⊢A ⊢t ⊢u v₁⇒*v₂ =
+    I.natrec-subst* (fundamental ⊢A) ⊢t ⊢u v₁⇒*v₂
+      (reducibleTerm (syntacticRedTerm v₁⇒*v₂ .proj₂ .proj₂))
 
 -- Prodrec substitution of reduction closures
 
@@ -102,6 +105,7 @@ unitrec-subst* (x ⇨ d) ⊢A ⊢u =
   ok = ⊢∷Unit→Unit-allowed (redFirstTerm x)
 
 opaque
+  unfolding _⊩ᵛ⟨_⟩_ _⊩⟨_⟩_∷_
 
   -- A variant of K-subst for _⊢_⇒*_∷_.
 
@@ -111,18 +115,12 @@ opaque
     Γ ⊢ v₁ ⇒* v₂ ∷ Id A t t →
     K-allowed →
     Γ ⊢ K p A t B u v₁ ⇒* K p A t B u v₂ ∷ B [ v₁ ]₀
-  K-subst* ⊢B ⊢u v₁⇒*v₂ =
-    case syntacticRedTerm v₁⇒*v₂ of λ {
-      (⊢Id , _ , ⊢v₂) →
-    case inversion-Id ⊢Id of λ {
-      (⊢A , ⊢t , _) →
-    case reducibleTerm ⊢v₂ of λ {
-      (⊩Id , ⊩v₂) →
-    I.K-subst* ⊢A ⊢t ⊢B ⊢u v₁⇒*v₂ ⊩Id ⊩v₂
-      (λ _ _ v₁≡v₂ →
-         substTypeEq (refl ⊢B) (escapeTermEq ⊩Id v₁≡v₂)) }}}
+  K-subst* ⊢B ⊢u v₁⇒*v₂ ok =
+    I.K-subst* (fundamental ⊢B) ⊢u v₁⇒*v₂
+      (reducibleTerm (syntacticRedTerm v₁⇒*v₂ .proj₂ .proj₂)) ok
 
 opaque
+  unfolding _⊩ᵛ⟨_⟩_ _⊩⟨_⟩_∷_
 
   -- A variant of J-subst for _⊢_⇒*_∷_.
 
@@ -131,13 +129,9 @@ opaque
     Γ ⊢ u ∷ B [ t , rfl ]₁₀ →
     Γ ⊢ w₁ ⇒* w₂ ∷ Id A t v →
     Γ ⊢ J p q A t B u v w₁ ⇒* J p q A t B u v w₂ ∷ B [ v , w₁ ]₁₀
-  J-subst* {Γ} ⊢B ⊢u w₁⇒*w₂ =
-    case syntacticRedTerm w₁⇒*w₂ of λ {
+  J-subst* ⊢B ⊢u w₁⇒*w₂ =
+    case syntacticRedTerm w₁⇒*w₂ of λ
       (⊢Id , _ , ⊢w₂) →
-    case inversion-Id ⊢Id of λ {
-      (⊢A , ⊢t , ⊢v) →
-    case reducibleTerm ⊢w₂ of λ {
-      (⊩Id , ⊩w₂) →
-    I.J-subst* ⊢A ⊢t ⊢B ⊢u ⊢v w₁⇒*w₂ ⊩Id ⊩w₂
-      (λ _ _ w₁≡w₂ →
-         J-result-cong (refl ⊢B) (refl ⊢v) (escapeTermEq ⊩Id w₁≡w₂)) }}}
+    I.J-subst* (fundamental ⊢B) ⊢u
+      (reducibleTerm (inversion-Id ⊢Id .proj₂ .proj₂)) w₁⇒*w₂
+      (reducibleTerm ⊢w₂)

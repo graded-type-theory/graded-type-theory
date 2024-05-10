@@ -479,8 +479,8 @@ private
             in  irrelevanceEq″ (PE.sym (PE.trans (subst-wk G) (substVar-to-subst (λ { x0 → PE.refl ; (x +1) → PE.refl }) G)))
                                (PE.sym (PE.trans (subst-wk G) (substVar-to-subst (λ { x0 → PE.refl ; (x +1) → PE.refl }) G)))
                                [ρσG] [ρσG]′ [ρσG≡]
-        [x1] = varᵛ (there here) [ΓFG] wk[F]
-        [x0]′ = varᵛ here [ΓFG] (wk1ᵛ [ΓF] [G] [G])
+        [x1] = var-⊩ᵛ∷// (there here) [ΓFG] wk[F]
+        [x0]′ = var-⊩ᵛ∷// here [ΓFG] (wk1ᵛ [ΓF] [G] [G])
         wk[G[x1]] = substS [ΓFG] wk[F] wk[G] [x1]
         [x0] = IS.irrelevanceTerm′ (PE.sym (wkSingleSubstWk1 G)) [ΓFG] [ΓFG]
                                    (wk1ᵛ [ΓF] [G] [G]) wk[G[x1]] [x0]′
