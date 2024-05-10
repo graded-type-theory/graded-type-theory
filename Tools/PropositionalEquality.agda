@@ -30,9 +30,10 @@ cong₃ :
   f a₁ b₁ c₁ ≡ f a₂ b₂ c₂
 cong₃ f refl refl refl = refl
 
-cong₄ : ∀ {ℓ} {A B C D E : Set ℓ} {a a′ b b′ c c′ d d′}
-        (f : A → B → C → D → E) → a ≡ a′ → b ≡ b′ → c ≡ c′ → d ≡ d′
-      → f a b c d ≡ f a′ b′ c′ d′
+cong₄ :
+  (f : A → B → C → D → E) →
+  a₁ ≡ a₂ → b₁ ≡ b₂ → c₁ ≡ c₂ → d₁ ≡ d₂ →
+  f a₁ b₁ c₁ d₁ ≡ f a₂ b₂ c₂ d₂
 cong₄ f refl refl refl refl = refl
 
 cong₅ :
