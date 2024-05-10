@@ -2,6 +2,8 @@
 -- Validity of some two-variable substitutions.
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
 open import Graded.Modality
@@ -41,7 +43,7 @@ private
     Γ   : Con Term n
     p q : M
     F G A B B₁ B₂ C C₁ C₂ t t₁ t₂ u u₁ u₂ : Term n
-    l : TypeLevel
+    l l′ l″ l‴ : TypeLevel
     ⊩Γ : ⊩ᵛ _
 
 opaque
@@ -49,11 +51,11 @@ opaque
   -- If C, t and u are valid, then C [ t , u ]₁₀ is valid.
 
   substD :
-    {⊩A : Γ ⊩ᵛ⟨ l ⟩ A / ⊩Γ}
-    {⊩B : Γ ∙ A ⊩ᵛ⟨ l ⟩ B / ⊩Γ ∙ ⊩A}
-    (⊩t : Γ ⊩ᵛ⟨ l ⟩ t ∷ A / ⊩Γ / ⊩A)
-    (⊩B[t] : Γ ⊩ᵛ⟨ l ⟩ B [ t ]₀ / ⊩Γ) →
-    Γ ⊩ᵛ⟨ l ⟩ u ∷ B [ t ]₀ / ⊩Γ / ⊩B[t] →
+    {⊩A : Γ ⊩ᵛ⟨ l′ ⟩ A / ⊩Γ}
+    {⊩B : Γ ∙ A ⊩ᵛ⟨ l″ ⟩ B / ⊩Γ ∙ ⊩A}
+    (⊩t : Γ ⊩ᵛ⟨ l′ ⟩ t ∷ A / ⊩Γ / ⊩A)
+    (⊩B[t] : Γ ⊩ᵛ⟨ l″ ⟩ B [ t ]₀ / ⊩Γ) →
+    Γ ⊩ᵛ⟨ l″ ⟩ u ∷ B [ t ]₀ / ⊩Γ / ⊩B[t] →
     Γ ∙ A ∙ B ⊩ᵛ⟨ l ⟩ C / ⊩Γ ∙ ⊩A ∙ ⊩B →
     Γ ⊩ᵛ⟨ l ⟩ C [ t , u ]₁₀ / ⊩Γ
   substD {B = B} {C = C} {⊩B = ⊩B} ⊩t ⊩B[t] ⊩u ⊩C = wrap λ _ ⊩σ →
@@ -99,21 +101,21 @@ opaque
 
   substDEq :
     {A₁ A₂ : Term n}
-    {⊩A₁ : Γ ⊩ᵛ⟨ l ⟩ A₁ / ⊩Γ}
-    {⊩A₂ : Γ ⊩ᵛ⟨ l ⟩ A₂ / ⊩Γ}
-    {⊩B₁ : Γ ∙ A₁ ⊩ᵛ⟨ l ⟩ B₁ / ⊩Γ ∙ ⊩A₁}
-    {⊩B₂ : Γ ∙ A₂ ⊩ᵛ⟨ l ⟩ B₂ / ⊩Γ ∙ ⊩A₂}
-    {⊩t₁ : Γ ⊩ᵛ⟨ l ⟩ t₁ ∷ A₁ / ⊩Γ / ⊩A₁}
-    {⊩B₁[t₁] : Γ ⊩ᵛ⟨ l ⟩ B₁ [ t₁ ]₀ / ⊩Γ}
-    {⊩u₁ : Γ ⊩ᵛ⟨ l ⟩ u₁ ∷ B₁ [ t₁ ]₀ / ⊩Γ / ⊩B₁[t₁]}
+    {⊩A₁ : Γ ⊩ᵛ⟨ l′ ⟩ A₁ / ⊩Γ}
+    {⊩A₂ : Γ ⊩ᵛ⟨ l′ ⟩ A₂ / ⊩Γ}
+    {⊩B₁ : Γ ∙ A₁ ⊩ᵛ⟨ l″ ⟩ B₁ / ⊩Γ ∙ ⊩A₁}
+    {⊩B₂ : Γ ∙ A₂ ⊩ᵛ⟨ l″ ⟩ B₂ / ⊩Γ ∙ ⊩A₂}
+    {⊩t₁ : Γ ⊩ᵛ⟨ l′ ⟩ t₁ ∷ A₁ / ⊩Γ / ⊩A₁}
+    {⊩B₁[t₁] : Γ ⊩ᵛ⟨ l″ ⟩ B₁ [ t₁ ]₀ / ⊩Γ}
+    {⊩u₁ : Γ ⊩ᵛ⟨ l″ ⟩ u₁ ∷ B₁ [ t₁ ]₀ / ⊩Γ / ⊩B₁[t₁]}
     {⊩C₁ : Γ ∙ A₁ ∙ B₁ ⊩ᵛ⟨ l ⟩ C₁ / ⊩Γ ∙ ⊩A₁ ∙ ⊩B₁} →
-    Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ / ⊩Γ / ⊩A₁ →
-    Γ ∙ A₁ ⊩ᵛ⟨ l ⟩ B₁ ≡ B₂ / ⊩Γ ∙ ⊩A₁ / ⊩B₁ →
-    (⊩t₂ : Γ ⊩ᵛ⟨ l ⟩ t₂ ∷ A₂ / ⊩Γ / ⊩A₂) →
-    Γ ⊩ᵛ⟨ l ⟩ t₁ ≡ t₂ ∷ A₁ / ⊩Γ / ⊩A₁ →
-    (⊩B₂[t₂] : Γ ⊩ᵛ⟨ l ⟩ B₂ [ t₂ ]₀ / ⊩Γ) →
-    Γ ⊩ᵛ⟨ l ⟩ u₂ ∷ B₂ [ t₂ ]₀ / ⊩Γ / ⊩B₂[t₂] →
-    Γ ⊩ᵛ⟨ l ⟩ u₁ ≡ u₂ ∷ B₁ [ t₁ ]₀ / ⊩Γ / ⊩B₁[t₁] →
+    Γ ⊩ᵛ⟨ l′ ⟩ A₁ ≡ A₂ / ⊩Γ / ⊩A₁ →
+    Γ ∙ A₁ ⊩ᵛ⟨ l″ ⟩ B₁ ≡ B₂ / ⊩Γ ∙ ⊩A₁ / ⊩B₁ →
+    (⊩t₂ : Γ ⊩ᵛ⟨ l′ ⟩ t₂ ∷ A₂ / ⊩Γ / ⊩A₂) →
+    Γ ⊩ᵛ⟨ l′ ⟩ t₁ ≡ t₂ ∷ A₁ / ⊩Γ / ⊩A₁ →
+    (⊩B₂[t₂] : Γ ⊩ᵛ⟨ l″ ⟩ B₂ [ t₂ ]₀ / ⊩Γ) →
+    Γ ⊩ᵛ⟨ l″ ⟩ u₂ ∷ B₂ [ t₂ ]₀ / ⊩Γ / ⊩B₂[t₂] →
+    Γ ⊩ᵛ⟨ l″ ⟩ u₁ ≡ u₂ ∷ B₁ [ t₁ ]₀ / ⊩Γ / ⊩B₁[t₁] →
     (⊩C₁[t₁,u₁] : Γ ⊩ᵛ⟨ l ⟩ C₁ [ t₁ , u₁ ]₁₀ / ⊩Γ) →
     Γ ∙ A₂ ∙ B₂ ⊩ᵛ⟨ l ⟩ C₂ / ⊩Γ ∙ ⊩A₂ ∙ ⊩B₂ →
     Γ ∙ A₁ ∙ B₁ ⊩ᵛ⟨ l ⟩ C₁ ≡ C₂ / ⊩Γ ∙ ⊩A₁ ∙ ⊩B₁ / ⊩C₁ →
@@ -177,11 +179,12 @@ opaque
 subst↑²S :
   ∀ {l}
   ([Γ] : ⊩ᵛ Γ)
-  ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
-  ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
-  ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ])
+  ([F] : Γ ⊩ᵛ⟨ l′ ⟩ F / [Γ])
+  ([G] : Γ ∙ F ⊩ᵛ⟨ l″ ⟩ G / [Γ] ∙ [F])
+  ([A] : Γ ⊩ᵛ⟨ l‴ ⟩ A / [Γ])
   ([B] : Γ ∙ A ⊩ᵛ⟨ l ⟩ B / [Γ] ∙ [A])
-  ([t] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ t ∷ wk1 (wk1 A) / [Γ] ∙ [F] ∙ [G] / wk1ᵛ ([Γ] ∙ [F]) [G] (wk1ᵛ [Γ] [F] [A])) →
+  ([t] : Γ ∙ F ∙ G ⊩ᵛ⟨ l‴ ⟩ t ∷ wk1 (wk1 A) / [Γ] ∙ [F] ∙ [G] /
+           wk1ᵛ ([Γ] ∙ [F]) [G] (wk1ᵛ [Γ] [F] [A])) →
   Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ B [ t ]↑² / [Γ] ∙ [F] ∙ [G]
 subst↑²S {A = A} {B = B} {t = t} [Γ] [F] [G] [A] [B] [t] = wrap λ {k} {Δ} {σ} ⊢Δ [σ]@(([σ₋] , [σ₁]) , [σ₀]) →
   let [wk2A] = wk1ᵛ ([Γ] ∙ [F]) [G] (wk1ᵛ [Γ] [F] [A])
@@ -210,15 +213,18 @@ subst↑²S {A = A} {B = B} {t = t} [Γ] [F] [G] [A] [B] [t] = wrap λ {k} {Δ} 
 subst↑²SEq :
   ∀ {l} {Γ : Con Term n}
   ([Γ] : ⊩ᵛ Γ)
-  ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
-  ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
-  ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ])
+  ([F] : Γ ⊩ᵛ⟨ l′ ⟩ F / [Γ])
+  ([G] : Γ ∙ F ⊩ᵛ⟨ l″ ⟩ G / [Γ] ∙ [F])
+  ([A] : Γ ⊩ᵛ⟨ l‴ ⟩ A / [Γ])
   ([B] : Γ ∙ A ⊩ᵛ⟨ l ⟩ B / [Γ] ∙ [A])
   ([C] : Γ ∙ A ⊩ᵛ⟨ l ⟩ C / [Γ] ∙ [A])
   ([B≡C] : Γ ∙ A ⊩ᵛ⟨ l ⟩ B ≡ C / [Γ] ∙ [A] / [B])
-  ([t] : (Γ ∙ F ∙ G) ⊩ᵛ⟨ l ⟩ t ∷ wk1 (wk1 A) / [Γ] ∙ [F] ∙ [G] / wk1ᵛ ([Γ] ∙ [F]) [G] (wk1ᵛ [Γ] [F] [A])) →
+  ([t] : Γ ∙ F ∙ G ⊩ᵛ⟨ l‴ ⟩ t ∷ wk1 (wk1 A) / [Γ] ∙ [F] ∙ [G] /
+           wk1ᵛ ([Γ] ∙ [F]) [G] (wk1ᵛ [Γ] [F] [A])) →
   Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ B [ t ]↑² ≡ C [ t ]↑² / [Γ] ∙ [F] ∙ [G] / subst↑²S [Γ] [F] [G] [A] [B] [t]
-subst↑²SEq {Γ} {F} {G} {A} {B} {C} {t} [Γ] [F] [G] [A] [B] [C] [B≡C] [t] {k} {Δ} {σ} ⊢Δ [σ]@(([σ₋] , [σ₁]) , [σ₀]) =
+subst↑²SEq
+  {A} {B} {C} {t} [Γ] [F] [G] [A] [B] [C] [B≡C] [t] {k} {Δ} {σ} ⊢Δ
+  [σ]@(([σ₋] , [σ₁]) , [σ₀]) =
   let [wk2A] = wk1ᵛ ([Γ] ∙ [F]) [G] (wk1ᵛ [Γ] [F] [A])
       [σwk2A] = proj₁ (unwrap [wk2A] {σ = σ} ⊢Δ [σ])
       [σ₋A] = proj₁ (unwrap [A] {σ = tail (tail σ)} ⊢Δ [σ₋])
@@ -235,15 +241,15 @@ subst↑²SEq {Γ} {F} {G} {A} {B} {C} {t} [Γ] [F] [G] [A] [B] [C] [B≡C] [t] 
 subst↑²STerm :
   ∀ {F G A t t′ u m l} →
   ([Γ] : ⊩ᵛ Γ)
-  ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
-  ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
-  ([Σ] : Γ ⊩ᵛ⟨ l ⟩ Σ⟨ m ⟩ p , q ▷ F ▹ G / [Γ])
+  ([F] : Γ ⊩ᵛ⟨ l′ ⟩ F / [Γ])
+  ([G] : Γ ∙ F ⊩ᵛ⟨ l″ ⟩ G / [Γ] ∙ [F])
+  ([Σ] : Γ ⊩ᵛ⟨ l‴ ⟩ Σ⟨ m ⟩ p , q ▷ F ▹ G / [Γ])
   ([A] : Γ ∙ (Σ p , q ▷ F ▹ G) ⊩ᵛ⟨ l ⟩ A / [Γ] ∙ [Σ])
   ([A₊] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ A [ prod m p (var x1) (var x0) ]↑² /
             [Γ] ∙ [F] ∙ [G])
   ([Ap] : Γ ⊩ᵛ⟨ l ⟩ A [ prod m p t t′ ]₀ / [Γ])
-  ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ F / [Γ] / [F])
-  ([t′] : Γ ⊩ᵛ⟨ l ⟩ t′ ∷ G [ t ]₀ / [Γ] / substS [Γ] [F] [G] [t])
+  ([t] : Γ ⊩ᵛ⟨ l′ ⟩ t ∷ F / [Γ] / [F])
+  ([t′] : Γ ⊩ᵛ⟨ l″ ⟩ t′ ∷ G [ t ]₀ / [Γ] / substS [Γ] [F] [G] [t])
   ([u] : Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ u ∷ A [ prod m p (var x1) (var x0) ]↑² /
            [Γ] ∙ [F] ∙ [G] / [A₊]) →
   Γ ⊩ᵛ⟨ l ⟩ u [ consSubst (consSubst idSubst t) t′ ] ∷

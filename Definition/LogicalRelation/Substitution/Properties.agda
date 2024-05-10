@@ -47,7 +47,7 @@ private
     Γ Δ : Con Term n
     σ σ₁ σ₂ σ′ : Subst m n
     ρ : Wk k n
-    l : TypeLevel
+    l l′ : TypeLevel
     ⊢Δ : ⊢ _
     ⊩Γ : ⊩ᵛ _
 
@@ -408,7 +408,7 @@ opaque
   -- A validity lemma for sgSubst.
 
   sgSubstS :
-    (⊩ᵛA : Γ ⊩ᵛ⟨ l ⟩ A / ⊩Γ)
+    (⊩ᵛA : Γ ⊩ᵛ⟨ l′ ⟩ A / ⊩Γ)
     (⊩A : Γ ⊩⟨ l ⟩ A) →
     Γ ⊩⟨ l ⟩ t ∷ A / ⊩A →
     Γ ⊩ˢ sgSubst t ∷ Γ ∙ A / ⊩Γ ∙ ⊩ᵛA / soundContext ⊩Γ
@@ -423,7 +423,7 @@ opaque
   -- An equality preservation lemma for sgSubst.
 
   sgSubstSEq :
-    {⊩ᵛA : Γ ⊩ᵛ⟨ l ⟩ A / ⊩Γ}
+    {⊩ᵛA : Γ ⊩ᵛ⟨ l′ ⟩ A / ⊩Γ}
     {⊩A : Γ ⊩⟨ l ⟩ A}
     {⊩t : Γ ⊩⟨ l ⟩ t ∷ A / ⊩A} →
     Γ ⊩⟨ l ⟩ t ≡ u ∷ A / ⊩A →

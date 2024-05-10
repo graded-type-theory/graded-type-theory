@@ -39,10 +39,10 @@ private
     Γ : Con Term n
 
 -- Validity of substitution of single variable in types.
-substS : ∀ {F G t l} ([Γ] : ⊩ᵛ Γ)
-         ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
+substS : ∀ {F G t l l′} ([Γ] : ⊩ᵛ Γ)
+         ([F] : Γ ⊩ᵛ⟨ l′ ⟩ F / [Γ])
          ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
-         ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ F / [Γ] / [F])
+         ([t] : Γ ⊩ᵛ⟨ l′ ⟩ t ∷ F / [Γ] / [F])
        → Γ ⊩ᵛ⟨ l ⟩ G [ t ]₀ / [Γ]
 substS {F = F} {G} {t} [Γ] [F] [G] [t] = wrap λ {_} {_} {σ} ⊢Δ [σ] →
   let Geq = substConsId G
@@ -60,16 +60,16 @@ substS {F = F} {G} {t} [Γ] [F] [G] [t] = wrap λ {_} {_} {σ} ⊢Δ [σ] →
 
 
 -- Validity of substitution of single variable in type equality.
-substSEq : ∀ {F F′ G G′ t t′ l} ([Γ] : ⊩ᵛ Γ)
-           ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
-           ([F′] : Γ ⊩ᵛ⟨ l ⟩ F′ / [Γ])
-           ([F≡F′] : Γ ⊩ᵛ⟨ l ⟩ F ≡ F′ / [Γ] / [F])
+substSEq : ∀ {F F′ G G′ t t′ l l′} ([Γ] : ⊩ᵛ Γ)
+           ([F] : Γ ⊩ᵛ⟨ l′ ⟩ F / [Γ])
+           ([F′] : Γ ⊩ᵛ⟨ l′ ⟩ F′ / [Γ])
+           ([F≡F′] : Γ ⊩ᵛ⟨ l′ ⟩ F ≡ F′ / [Γ] / [F])
            ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
            ([G′] : Γ ∙ F′ ⊩ᵛ⟨ l ⟩ G′ / [Γ] ∙ [F′])
            ([G≡G′] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G ≡ G′ / [Γ] ∙ [F] / [G])
-           ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ F / [Γ] / [F])
-           ([t′] : Γ ⊩ᵛ⟨ l ⟩ t′ ∷ F′ / [Γ] / [F′])
-           ([t≡t′] : Γ ⊩ᵛ⟨ l ⟩ t ≡ t′ ∷ F / [Γ] / [F])
+           ([t] : Γ ⊩ᵛ⟨ l′ ⟩ t ∷ F / [Γ] / [F])
+           ([t′] : Γ ⊩ᵛ⟨ l′ ⟩ t′ ∷ F′ / [Γ] / [F′])
+           ([t≡t′] : Γ ⊩ᵛ⟨ l′ ⟩ t ≡ t′ ∷ F / [Γ] / [F])
          → Γ ⊩ᵛ⟨ l ⟩ G [ t ]₀ ≡ G′ [ t′ ]₀ / [Γ]
                    / substS {F = F} {G} {t} [Γ] [F] [G] [t]
 substSEq {F = F} {F′} {G} {G′} {t} {t′}
@@ -93,11 +93,11 @@ substSEq {F = F} {F′} {G} {G′} {t} {t′}
   in  transEq G[t]′ G′[t] G′[t′]′ G[t]≡G′[t] G′[t]≡G′[t′]
 
 -- Validity of substitution of single variable in terms.
-substSTerm : ∀ {F G t f l} ([Γ] : ⊩ᵛ Γ)
-             ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
+substSTerm : ∀ {F G t f l l′} ([Γ] : ⊩ᵛ Γ)
+             ([F] : Γ ⊩ᵛ⟨ l′ ⟩ F / [Γ])
              ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
              ([f] : Γ ∙ F ⊩ᵛ⟨ l ⟩ f ∷ G / [Γ] ∙ [F] / [G])
-             ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ F / [Γ] / [F])
+             ([t] : Γ ⊩ᵛ⟨ l′ ⟩ t ∷ F / [Γ] / [F])
            → Γ ⊩ᵛ⟨ l ⟩ f [ t ]₀ ∷ G [ t ]₀ / [Γ]
                       / substS {F = F} {G} {t} [Γ] [F] [G] [t]
 substSTerm {F = F} {G} {t} {f} [Γ] [F] [G] [f] [t] {σ = σ} ⊢Δ [σ] =
@@ -118,10 +118,10 @@ substSTerm {F = F} {G} {t} {f} [Γ] [F] [G] [f] [t] {σ = σ} ⊢Δ [σ] =
                   ([σ≡σ′] , proj₂ ([t] ⊢Δ [σ]) [σ′] [σ≡σ′])))
 
 -- Validity of substitution of single lifted variable in types.
-subst↑S : ∀ {F G t l} ([Γ] : ⊩ᵛ Γ)
-          ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
+subst↑S : ∀ {F G t l l′} ([Γ] : ⊩ᵛ Γ)
+          ([F] : Γ ⊩ᵛ⟨ l′ ⟩ F / [Γ])
           ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
-          ([t] : Γ ∙ F ⊩ᵛ⟨ l ⟩ t ∷ wk1 F / [Γ] ∙ [F]
+          ([t] : Γ ∙ F ⊩ᵛ⟨ l′ ⟩ t ∷ wk1 F / [Γ] ∙ [F]
                               / wk1ᵛ {A = F} {F} [Γ] [F] [F])
         → Γ ∙ F ⊩ᵛ⟨ l ⟩ G [ t ]↑ / [Γ] ∙ [F]
 subst↑S {F = F} {G} {t} [Γ] [F] [G] [t] = wrap λ {_} {_} {σ} ⊢Δ [σ] →
@@ -147,16 +147,16 @@ subst↑S {F = F} {G} {t} [Γ] [F] [G] [t] = wrap λ {_} {_} {σ} ⊢Δ [σ] →
                             G[t] G[t]′ [σG[t]≡σ′G[t]])
 
 -- Validity of substitution of single lifted variable in type equality.
-subst↑SEq : ∀ {F G G′ t t′ l} ([Γ] : ⊩ᵛ Γ)
-            ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
+subst↑SEq : ∀ {F G G′ t t′ l l′} ([Γ] : ⊩ᵛ Γ)
+            ([F] : Γ ⊩ᵛ⟨ l′ ⟩ F / [Γ])
             ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
             ([G′] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G′ / [Γ] ∙ [F])
             ([G≡G′] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G ≡ G′ / [Γ] ∙ [F] / [G])
-            ([t] : Γ ∙ F ⊩ᵛ⟨ l ⟩ t ∷ wk1 F / [Γ] ∙ [F]
+            ([t] : Γ ∙ F ⊩ᵛ⟨ l′ ⟩ t ∷ wk1 F / [Γ] ∙ [F]
                                 / wk1ᵛ {A = F} {F} [Γ] [F] [F])
-            ([t′] : Γ ∙ F ⊩ᵛ⟨ l ⟩ t′ ∷ wk1 F / [Γ] ∙ [F]
+            ([t′] : Γ ∙ F ⊩ᵛ⟨ l′ ⟩ t′ ∷ wk1 F / [Γ] ∙ [F]
                                  / wk1ᵛ {A = F} {F} [Γ] [F] [F])
-            ([t≡t′] : Γ ∙ F ⊩ᵛ⟨ l ⟩ t ≡ t′ ∷ wk1 F / [Γ] ∙ [F]
+            ([t≡t′] : Γ ∙ F ⊩ᵛ⟨ l′ ⟩ t ≡ t′ ∷ wk1 F / [Γ] ∙ [F]
                                    / wk1ᵛ {A = F} {F} [Γ] [F] [F])
           → Γ ∙ F ⊩ᵛ⟨ l ⟩ G [ t ]↑ ≡ G′ [ t′ ]↑ / [Γ] ∙ [F]
                         / subst↑S {F = F} {G} {t} [Γ] [F] [G] [t]
@@ -257,11 +257,11 @@ substSΠ₂ W [ΠFG] [ΠFG≡ΠF′G′] =
   in  substSΠ₂′ W (B-elim W [ΠFG]) [ΠFG≡ΠF′G′]′
 
 -- Valid substitution of Π-types.
-substSΠ : ∀ {F G t l} W
+substSΠ : ∀ {F G t l l′} W
           ([Γ] : ⊩ᵛ Γ)
-          ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
+          ([F] : Γ ⊩ᵛ⟨ l′ ⟩ F / [Γ])
           ([ΠFG] : Γ ⊩ᵛ⟨ l ⟩ ⟦ W ⟧ F ▹ G / [Γ])
-          ([t] : Γ ⊩ᵛ⟨ l ⟩ t ∷ F / [Γ] / [F])
+          ([t] : Γ ⊩ᵛ⟨ l′ ⟩ t ∷ F / [Γ] / [F])
         → Γ ⊩ᵛ⟨ l ⟩ G [ t ]₀ / [Γ]
 substSΠ {F = F} {G} {t} BΠ! [Γ] [F] [ΠFG] [t] = wrap λ ⊢Δ [σ] →
   let ⊩σΠFG = unwrap [ΠFG] ⊢Δ [σ]
@@ -311,16 +311,16 @@ substSΠ {F = F} {G} {t} BΣ! [Γ] [F] [ΠFG] [t] = wrap λ ⊢Δ [σ] →
                                              (proj₁ ([t] ⊢Δ [σ′])))))
 
 -- Valid substitution of Π-congruence.
-substSΠEq : ∀ {F G F′ G′ t u l} W
+substSΠEq : ∀ {F G F′ G′ t u l l′} W
             ([Γ] : ⊩ᵛ Γ)
-            ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
-            ([F′] : Γ ⊩ᵛ⟨ l ⟩ F′ / [Γ])
+            ([F] : Γ ⊩ᵛ⟨ l′ ⟩ F / [Γ])
+            ([F′] : Γ ⊩ᵛ⟨ l′ ⟩ F′ / [Γ])
             ([ΠFG] : Γ ⊩ᵛ⟨ l ⟩ ⟦ W ⟧ F ▹ G / [Γ])
             ([ΠF′G′] : Γ ⊩ᵛ⟨ l ⟩ ⟦ W ⟧ F′ ▹ G′ / [Γ])
             ([ΠFG≡ΠF′G′] : Γ ⊩ᵛ⟨ l ⟩ ⟦ W ⟧ F ▹ G ≡ ⟦ W ⟧ F′ ▹ G′ / [Γ] / [ΠFG])
-            ([t]   : Γ ⊩ᵛ⟨ l ⟩ t ∷ F / [Γ] / [F])
-            ([u]   : Γ ⊩ᵛ⟨ l ⟩ u ∷ F′ / [Γ] / [F′])
-            ([t≡u] : Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ F / [Γ] / [F])
+            ([t]   : Γ ⊩ᵛ⟨ l′ ⟩ t ∷ F / [Γ] / [F])
+            ([u]   : Γ ⊩ᵛ⟨ l′ ⟩ u ∷ F′ / [Γ] / [F′])
+            ([t≡u] : Γ ⊩ᵛ⟨ l′ ⟩ t ≡ u ∷ F / [Γ] / [F])
           → Γ ⊩ᵛ⟨ l ⟩ G [ t ]₀ ≡ G′ [ u ]₀ / [Γ]
                     / substSΠ {F = F} {G} {t} W [Γ] [F] [ΠFG] [t]
 substSΠEq {F = F} {G} {F′} {G′} {t} {u} BΠ! [Γ] [F] [F′] [ΠFG] [ΠF′G′] [ΠFG≡ΠF′G′]

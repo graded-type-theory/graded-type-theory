@@ -35,7 +35,7 @@ private
     Γ : Con Term n
     A A₁ A₂ A′ B₁ B₂ C t u : Term _
     σ : Subst m n
-    l l′ : TypeLevel
+    l l′ l″ l‴ l⁗ : TypeLevel
     ⊩Γ ⊩Γ′ : ⊩ᵛ _
 
 -- Irrelevance of valid substitutions with different derivations of contexts
@@ -97,9 +97,9 @@ open import Definition.LogicalRelation.Properties R
 -- with lifting of eqaul types
 irrelevanceLift : ∀ {l A F H}
               ([Γ] : ⊩ᵛ Γ)
-              ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
-              ([H] : Γ ⊩ᵛ⟨ l ⟩ H / [Γ])
-              ([F≡H] : Γ ⊩ᵛ⟨ l ⟩ F ≡ H / [Γ] / [F])
+              ([F] : Γ ⊩ᵛ⟨ l′ ⟩ F / [Γ])
+              ([H] : Γ ⊩ᵛ⟨ l″ ⟩ H / [Γ])
+              ([F≡H] : Γ ⊩ᵛ⟨ l′ ⟩ F ≡ H / [Γ] / [F])
             → Γ ∙ F ⊩ᵛ⟨ l ⟩ A / [Γ] ∙ [F]
             → Γ ∙ H ⊩ᵛ⟨ l ⟩ A / [Γ] ∙ [H]
 irrelevanceLift [Γ] [F] [H] [F≡H] [A] = wrap λ { ⊢Δ ([tailσ] , [headσ]) →
@@ -124,12 +124,12 @@ opaque
   -- A variant of irrelevanceLift.
 
   irrelevanceLift₂ :
-    {⊩A₁ : Γ ⊩ᵛ⟨ l ⟩ A₁ / ⊩Γ}
-    {⊩A₂ : Γ ⊩ᵛ⟨ l ⟩ A₂ / ⊩Γ}
-    {⊩B₁ : Γ ∙ A₁ ⊩ᵛ⟨ l ⟩ B₁ / ⊩Γ ∙ ⊩A₁}
-    {⊩B₂ : Γ ∙ A₂ ⊩ᵛ⟨ l ⟩ B₂ / ⊩Γ ∙ ⊩A₂} →
-    Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ / ⊩Γ / ⊩A₁ →
-    Γ ∙ A₁ ⊩ᵛ⟨ l ⟩ B₁ ≡ B₂ / ⊩Γ ∙ ⊩A₁ / ⊩B₁ →
+    {⊩A₁ : Γ ⊩ᵛ⟨ l′ ⟩ A₁ / ⊩Γ}
+    {⊩A₂ : Γ ⊩ᵛ⟨ l″ ⟩ A₂ / ⊩Γ}
+    {⊩B₁ : Γ ∙ A₁ ⊩ᵛ⟨ l‴ ⟩ B₁ / ⊩Γ ∙ ⊩A₁}
+    {⊩B₂ : Γ ∙ A₂ ⊩ᵛ⟨ l⁗ ⟩ B₂ / ⊩Γ ∙ ⊩A₂} →
+    Γ ⊩ᵛ⟨ l′ ⟩ A₁ ≡ A₂ / ⊩Γ / ⊩A₁ →
+    Γ ∙ A₁ ⊩ᵛ⟨ l‴ ⟩ B₁ ≡ B₂ / ⊩Γ ∙ ⊩A₁ / ⊩B₁ →
     Γ ∙ A₁ ∙ B₁ ⊩ᵛ⟨ l ⟩ C / ⊩Γ ∙ ⊩A₁ ∙ ⊩B₁ →
     Γ ∙ A₂ ∙ B₂ ⊩ᵛ⟨ l ⟩ C / ⊩Γ ∙ ⊩A₂ ∙ ⊩B₂
   irrelevanceLift₂ {⊩A₁} {⊩A₂} {⊩B₁} {⊩B₂} ⊩A₁≡A₂ ⊩B₁≡B₂ ⊩C =
@@ -208,9 +208,9 @@ irrelevanceTerm′ {A = A} {t = t} PE.refl [Γ] [Γ]′ [A] [A]′ [t] =
 -- contexts and types with a lifting of equal types
 irrelevanceTermLift : ∀ {l A F H t}
               ([Γ] : ⊩ᵛ Γ)
-              ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
-              ([H] : Γ ⊩ᵛ⟨ l ⟩ H / [Γ])
-              ([F≡H] : Γ ⊩ᵛ⟨ l ⟩ F ≡ H / [Γ] / [F])
+              ([F] : Γ ⊩ᵛ⟨ l′ ⟩ F / [Γ])
+              ([H] : Γ ⊩ᵛ⟨ l″ ⟩ H / [Γ])
+              ([F≡H] : Γ ⊩ᵛ⟨ l′ ⟩ F ≡ H / [Γ] / [F])
               ([A] : Γ ∙ F ⊩ᵛ⟨ l ⟩ A / [Γ] ∙ [F])
             → Γ ∙ F ⊩ᵛ⟨ l ⟩ t ∷ A / [Γ] ∙ [F] / [A]
             → Γ ∙ H ⊩ᵛ⟨ l ⟩ t ∷ A / [Γ] ∙ [H]

@@ -33,7 +33,7 @@ private
     n           : Nat
     Γ           : Con Term n
     A A₁ A₂ B t : Term _
-    l           : TypeLevel
+    l l′        : TypeLevel
     ⊩Γ          : ⊩ᵛ _
 
 opaque
@@ -41,7 +41,7 @@ opaque
   -- Weakening of valid types by one.
   wk1ᵛ : ∀ {A F l}
         ([Γ] : ⊩ᵛ Γ)
-        ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
+        ([F] : Γ ⊩ᵛ⟨ l′ ⟩ F / [Γ])
       → Γ ⊩ᵛ⟨ l ⟩ A / [Γ]
       → Γ ∙ F ⊩ᵛ⟨ l ⟩ wk1 A / [Γ] ∙ [F]
   wk1ᵛ {A = A} [Γ] [F] [A] = wrap λ ⊢Δ [σ] →
@@ -60,7 +60,7 @@ opaque
   -- Weakening of valid type equality by one.
   wk1Eqᵛ : ∀ {A B F l}
            ([Γ] : ⊩ᵛ Γ)
-           ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
+           ([F] : Γ ⊩ᵛ⟨ l′ ⟩ F / [Γ])
            ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ])
            ([A≡B] : Γ ⊩ᵛ⟨ l ⟩ A ≡ B / [Γ] / [A])
          → Γ ∙ F ⊩ᵛ⟨ l ⟩ wk1 A ≡ wk1 B / [Γ] ∙ [F] / wk1ᵛ {A = A} {F} [Γ] [F] [A]
@@ -79,7 +79,7 @@ opaque
   wk1Termᵛ :
     ∀ t →
     (⊩A : Γ ⊩ᵛ⟨ l ⟩ A / ⊩Γ)
-    (⊩B : Γ ⊩ᵛ⟨ l ⟩ B / ⊩Γ) →
+    (⊩B : Γ ⊩ᵛ⟨ l′ ⟩ B / ⊩Γ) →
     Γ ⊩ᵛ⟨ l ⟩ t ∷ A / ⊩Γ / ⊩A →
     Γ ∙ B ⊩ᵛ⟨ l ⟩ wk1 t ∷ wk1 A / ⊩Γ ∙ ⊩B / wk1ᵛ ⊩Γ ⊩B ⊩A
   wk1Termᵛ {A} t ⊩A ⊩B ⊩t _ ⊩σ,@(⊩σ , _) =
@@ -107,7 +107,7 @@ opaque
 
   wk1EqTermᵛ :
     {⊩A₁ : Γ ⊩ᵛ⟨ l ⟩ A₁ / ⊩Γ}
-    {⊩B : Γ ⊩ᵛ⟨ l ⟩ B / ⊩Γ} →
+    {⊩B : Γ ⊩ᵛ⟨ l′ ⟩ B / ⊩Γ} →
     ∀ t₁ t₂ →
     Γ ⊩ᵛ⟨ l ⟩ t₁ ≡ t₂ ∷ A₁ / ⊩Γ / ⊩A₁ →
     Γ ∙ B ⊩ᵛ⟨ l ⟩ wk1 t₁ ≡ wk1 t₂ ∷ wk1 A₁ / ⊩Γ ∙ ⊩B / wk1ᵛ ⊩Γ ⊩B ⊩A₁
