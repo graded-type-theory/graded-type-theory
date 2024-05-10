@@ -18,11 +18,13 @@ open Assumptions as
 open Modality 𝕄
 
 open import Definition.Untyped M as U
+open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Substitution R
 import Definition.LogicalRelation.Fundamental R as F
 import Definition.LogicalRelation.Irrelevance R as I
 
 open import Graded.Context 𝕄
+open import Graded.Context.Properties 𝕄
 open import Graded.Mode 𝕄
 
 open import Graded.Erasure.Extraction 𝕄
@@ -48,6 +50,8 @@ private
     p q : M
     γ δ : Conₘ n
     m m′ : Mode
+    l : TypeLevel
+    ⊩Γ : ⊩ᵛ Γ
 
 -- Subsumption of quantified logical relation
 -- If t ® v ◂ p then t ® v ◂ q if when p ≡ 𝟘 then q ≡ 𝟘
@@ -137,6 +141,19 @@ subsumption : ∀ {l} {Γ : U.Con U.Term n} {t A : U.Term n}
             → γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A / [Γ] / [A]
 subsumption [Γ] [A] δ⊩ʳt prop [σ] σ®σ′ =
   δ⊩ʳt [σ] (subsumptionSubst σ®σ′ prop)
+
+opaque
+
+  -- A special case of subsumption.
+
+  subsumption-≤ :
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
+    ∀ t (⊩A : Γ ⊩ᵛ⟨ l ⟩ A / ⊩Γ) →
+    γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A / ⊩Γ / ⊩A →
+    δ ≤ᶜ γ →
+    δ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A / ⊩Γ / ⊩A
+  subsumption-≤ t ⊩A γ⊩ʳt δ≤γ =
+    subsumption {t = t} _ ⊩A γ⊩ʳt (λ _ → ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 δ≤γ)
 
 subsumption′ : ∀ {l} {Γ : U.Con U.Term n} {t A : U.Term n}
              → ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ])

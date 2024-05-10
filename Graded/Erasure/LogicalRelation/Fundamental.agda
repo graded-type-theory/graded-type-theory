@@ -118,21 +118,6 @@ module _ (⊢Δ : ⊢ Δ) {s : Strictness} where
   open Graded.Erasure.LogicalRelation.Irrelevance as
   open Graded.Erasure.LogicalRelation.Subsumption as
 
-  -- A special case of subsumption.
-
-  subsumption-≤ : ∀ {l}
-                → ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ])
-                → γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A / [Γ] / [A]
-                → δ ≤ᶜ γ
-                → δ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A / [Γ] / [A]
-  subsumption-≤ {t = t} [Γ] [A] γ⊩ʳt δ≤γ =
-    subsumption {t = t} [Γ] [A] γ⊩ʳt λ x δx≡𝟘 → lemma x δx≡𝟘 δ≤γ
-    where
-    lemma : (x : Fin n) → δ ⟨ x ⟩ PE.≡ 𝟘 → δ ≤ᶜ γ
-          → γ ⟨ x ⟩ PE.≡ 𝟘
-    lemma {δ = δ ∙ p} {γ ∙ q} x0 PE.refl (δ≤γ ∙ p≤q) = 𝟘≮ p≤q
-    lemma {δ = δ ∙ p} {γ ∙ q} (x +1) δx≡𝟘 (δ≤γ ∙ _) = lemma x δx≡𝟘 δ≤γ
-
   -- A lemma used to prove fundamentalVar.
 
   fundamentalVar′ :
@@ -300,8 +285,7 @@ module Fundamental
         ⊩ʳλt = lamʳ {t = t} [Γ] [F] [G] [t] ⊩ʳt′ ok
         [Π] = Πᵛ [Γ] [F] [G] ok
     in  [Γ] , [Π] ,
-        subsumption-≤ well-formed {A = Π p , q ▷ F ▹ G} {t = lam p t}
-          [Γ] [Π] ⊩ʳλt δ≤γ
+        subsumption-≤ {A = Π p , q ▷ F ▹ G} (lam p t) [Π] ⊩ʳλt δ≤γ
   fundamental
     (_∘ⱼ_ {t = t} {p = p} {q = q} {F = F} {G = G} {u = u} Γ⊢t:Π Γ⊢u:F)
     γ▸t =
@@ -317,8 +301,7 @@ module Fundamental
         [G[u]] , ⊩ʳt∘u = appʳ {F = F} {G = G} {u = u} {t = t}
                            [Γ] [F] [Π] [u] ⊩ʳt ⊩ʳu
     in  [Γ] , [G[u]] ,
-        subsumption-≤ well-formed {A = G [ u ]₀} {t = t ∘⟨ p ⟩ u}
-          [Γ] [G[u]] ⊩ʳt∘u γ≤δ+pη
+        subsumption-≤ {A = G [ u ]₀} (t ∘⟨ p ⟩ u) [G[u]] ⊩ʳt∘u γ≤δ+pη
   fundamental
     (prodⱼ {F = F} {G = G} {t = t} {u = u} {k = 𝕤}
        Γ⊢F Γ⊢G Γ⊢t:F Γ⊢u:G ok)
@@ -349,8 +332,7 @@ module Fundamental
                ∧-positiveʳ
                  (PE.trans (PE.sym (lookup-distrib-∧ᶜ γ δ x)) γ∧δ≡𝟘))
             ok
-    in  [Γ] , [Σ] ,
-        subsumption-≤ well-formed {t = prod! t u} [Γ] [Σ] ⊩ʳp γ≤pδ∧η
+    in  [Γ] , [Σ] , subsumption-≤ (prod! t u) [Σ] ⊩ʳp γ≤pδ∧η
   fundamental
     (prodⱼ {F = F} {G = G} {t = t} {u = u} {k = 𝕨}
        Γ⊢F Γ⊢G Γ⊢t:F Γ⊢u:G ok)
@@ -381,22 +363,19 @@ module Fundamental
                +-positiveʳ $
                PE.trans (PE.sym (lookup-distrib-+ᶜ γ δ x)) γ∧δ≡𝟘)
             ok
-    in  [Γ] , [Σ] ,
-        subsumption-≤ well-formed {t = prod! t u} [Γ] [Σ] ⊩ʳp γ≤pδ+η
+    in  [Γ] , [Σ] , subsumption-≤ (prod! t u) [Σ] ⊩ʳp γ≤pδ+η
   fundamental (fstⱼ {F = F} {t = t} Γ⊢F Γ⊢G Γ⊢t:Σ) γ▸t =
     let invUsageFst m′ m≡m′ᵐ·p δ▸t γ≤δ ok = inv-usage-fst γ▸t
         [Γ] , [Σ] , ⊩ʳt = fundamental Γ⊢t:Σ δ▸t
         [F] , ⊩ʳt₁ =
           fstʳ Γ⊢F Γ⊢G Γ⊢t:Σ [Γ] [Σ] ⊩ʳt
             (fstₘ m′ (▸-cong m≡m′ᵐ·p δ▸t) (PE.sym m≡m′ᵐ·p) ok)
-    in  [Γ] , [F] ,
-        subsumption-≤ well-formed {t = fst _ t} [Γ] [F] ⊩ʳt₁ γ≤δ
+    in  [Γ] , [F] , subsumption-≤ (fst _ t) [F] ⊩ʳt₁ γ≤δ
   fundamental (sndⱼ {G = G} {t = t} Γ⊢F Γ⊢G Γ⊢t:Σ) γ▸t =
     let invUsageSnd δ▸t γ≤δ = inv-usage-snd γ▸t
         [Γ] , [Σ] , ⊩ʳt = fundamental Γ⊢t:Σ δ▸t
         [G] , ⊩ʳt₂ = sndʳ Γ⊢F Γ⊢G Γ⊢t:Σ [Γ] [Σ] ⊩ʳt
-    in  [Γ] , [G] ,
-        subsumption-≤ well-formed {t = snd _ t} [Γ] [G] ⊩ʳt₂ γ≤δ
+    in  [Γ] , [G] , subsumption-≤ (snd _ t) [G] ⊩ʳt₂ γ≤δ
   fundamental
     {m = 𝟙ᵐ}
     (prodrecⱼ {F = F} {G} {A = A} {t = t} {u} {r = r}
@@ -432,16 +411,13 @@ module Fundamental
                  (≢𝟘→ᵐ·≡ r≢𝟘) ⊩ʳt)
             ⊩ʳu′ r≡𝟘→k≡0
     in  [Γ] , [At] ,
-        subsumption-≤ well-formed {t = prodrec _ _ _ A t u}
-          [Γ] [At] ⊩ʳprodrec γ≤pδ+η
+        subsumption-≤ (prodrec _ _ _ A t u) [At] ⊩ʳprodrec γ≤pδ+η
   fundamental (zeroⱼ ⊢Γ) γ▸t = zeroʳ ⊢Γ
   fundamental (sucⱼ {n = t} Γ⊢t:ℕ) γ▸t =
     let invUsageSuc δ▸t γ≤δ = inv-usage-suc γ▸t
         [Γ] , [ℕ] , ⊩ʳt = fundamental Γ⊢t:ℕ δ▸t
         δ⊩ʳsuct = sucʳ [Γ] [ℕ] ⊩ʳt Γ⊢t:ℕ
-        γ⊩ʳsuct =
-          subsumption-≤ well-formed {A = ℕ} {t = suc t}
-            [Γ] [ℕ] δ⊩ʳsuct γ≤δ
+        γ⊩ʳsuct = subsumption-≤ {A = ℕ} (suc t) [ℕ] δ⊩ʳsuct γ≤δ
     in  [Γ] , [ℕ] , γ⊩ʳsuct
   fundamental
     (natrecⱼ {A = A} {z = z} {s = s} {p = p} {q = q} {r = r} {n = n}
@@ -491,9 +467,8 @@ module Fundamental
                  δ ⟨ x ⟩ PE.≡ 𝟘 × θ ⟨ x ⟩ PE.≡ 𝟘 × η ⟨ x ⟩ PE.≡ 𝟘  □)
     in  [Γ] , [A[n]] ,
         λ {_ _} →
-          subsumption-≤ well-formed
-            {A = A [ n ]₀} {t = natrec p q r A z s n}
-            [Γ] [A[n]] ⊩ʳnatrec γ≤γ′ }
+          subsumption-≤ {A = A [ n ]₀} (natrec p q r A z s n) [A[n]]
+            ⊩ʳnatrec γ≤γ′ }
   fundamental
     {Γ = Γ} {γ = γ}
     (emptyrecⱼ {A = A} {t = t} {p = p} ⊢A Γ⊢t:Empty) γ▸t =
@@ -505,9 +480,7 @@ module Fundamental
         [t] = IS.irrelevanceTerm {A = Empty} {t = t}
                 [Γ]″ [Γ] [Empty]′ [Empty] [t]′
         γ⊩ʳemptyrec = emptyrecʳ t ok [Empty] [A] [t] ⊩ʳt
-    in  [Γ] , [A] ,
-        subsumption-≤ well-formed {t = emptyrec _ A t} [Γ] [A]
-          γ⊩ʳemptyrec γ≤
+    in  [Γ] , [A] , subsumption-≤ (emptyrec _ A t) [A] γ⊩ʳemptyrec γ≤
   fundamental (starⱼ ⊢Γ ok) _ = starʳ ⊢Γ ok
   fundamental
     {m = 𝟙ᵐ} (unitrecⱼ {A = A} {t} {u} ⊢A ⊢t:Unit ⊢u:A₊ ok) γ▸ur =
@@ -526,7 +499,7 @@ module Fundamental
           (inj₁ nem) → ⊥-elim (nem non-trivial .proj₂ .proj₁ ok′ p≡𝟘)
           (inj₂ k≡0) → k≡0
         [Aₜ] , ⊩ʳur = unitrecʳ {u = u} [Γ] ok [Unit] [A] [A₊] [t] [u] ⊩ʳt ⊩ʳu p≡𝟘→k≡0
-    in  [Γ] , [Aₜ] , subsumption-≤ well-formed {t = unitrec _ _ A t u} [Γ] [Aₜ] ⊩ʳur γ≤γ′
+    in  [Γ] , [Aₜ] , subsumption-≤ (unitrec _ _ A t u) [Aₜ] ⊩ʳur γ≤γ′
   fundamental (Idⱼ {A} {t} {u} ⊢A _ _) _ =
     Idʳ A t u (wfTerm ⊢A)
   fundamental (rflⱼ ⊢t) _ =
