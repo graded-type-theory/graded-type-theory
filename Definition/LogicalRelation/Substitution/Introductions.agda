@@ -10,7 +10,6 @@ module Definition.LogicalRelation.Substitution.Introductions
   {a} {M : Set a}
   {𝕄 : Modality M}
   (R : Type-restrictions 𝕄)
-  {{eqrel : EqRelSet R}}
   where
 
 open import Definition.LogicalRelation.Substitution.Introductions.Pi R public
