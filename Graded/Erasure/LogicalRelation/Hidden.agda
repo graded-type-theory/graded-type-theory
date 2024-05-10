@@ -21,6 +21,7 @@ open Modality 𝕄
 
 open import Definition.LogicalRelation TR as L
 open import Definition.LogicalRelation.Fundamental.Reducibility TR
+import Definition.LogicalRelation.Irrelevance TR as IR
 open import Definition.LogicalRelation.ShapeView TR
 open import Definition.LogicalRelation.Substitution TR
 import Definition.LogicalRelation.Substitution.Irrelevance TR as IS
@@ -186,8 +187,10 @@ opaque
       case B-PE-injectivity (BΠ _ _) (BΠ _ _)
              (whnfRed* (red (_⊩ₗB⟨_⟩_.D ⊩Π)) ΠΣₙ) of λ {
         (PE.refl , PE.refl , _) →
-      case reducibleTerm′ (_⊩ₗB⟨_⟩_.[F] ⊩Π W.id ⊢Δ) $
+      case reducibleTerm $
            PE.subst (_⊢_∷_ _ _) (PE.sym $ wk-id _) ⊢t′ of λ {
+        (⊩A , ⊩t′) →
+      case IR.irrelevanceTerm ⊩A (_⊩ₗB⟨_⟩_.[F] ⊩Π W.id ⊢Δ) ⊩t′ of λ
         ⊩t′ →
       case PE.subst (_⊩⟨_⟩_ _ _)
              (PE.cong _[ _ ]₀ $ wk-lift-id B) $
@@ -229,8 +232,10 @@ opaque
       case B-PE-injectivity (BΠ _ _) (BΠ _ _)
              (whnfRed* (red (_⊩ₗB⟨_⟩_.D ⊩Π)) ΠΣₙ) of λ {
         (PE.refl , PE.refl , _) →
-      case reducibleTerm′ (_⊩ₗB⟨_⟩_.[F] ⊩Π W.id ⊢Δ) $
+      case reducibleTerm $
            PE.subst (_⊢_∷_ _ _) (PE.sym $ wk-id _) ⊢t′ of λ {
+        (⊩A , ⊩t′) →
+      case IR.irrelevanceTerm ⊩A (_⊩ₗB⟨_⟩_.[F] ⊩Π W.id ⊢Δ) ⊩t′ of λ
         ⊩t′ →
       case PE.subst (_⊩⟨_⟩_ _ _)
              (PE.cong _[ _ ]₀ $ wk-lift-id B) $
