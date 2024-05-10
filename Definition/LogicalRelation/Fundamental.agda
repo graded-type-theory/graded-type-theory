@@ -23,6 +23,7 @@ open import Definition.Untyped.Properties M
 
 open import Definition.Typed R
 open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Hidden R hiding (varᵛ)
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.Substitution R
@@ -44,7 +45,7 @@ open import Tools.Function
 open import Tools.Level
 open import Tools.Product
 open import Tools.Unit
-open import Tools.Nat
+open import Tools.Nat using (Nat)
 import Tools.PropositionalEquality as PE
 
 private
@@ -52,8 +53,8 @@ private
     m n : Nat
     Γ : Con Term n
     Δ : Con Term m
-    σ σ′ : Subst m n
-    A A₁ A₂ t t₁ t₂ : Term _
+    σ σ₁ σ₂ σ′ : Subst m n
+    A A₁ A₂ B t t₁ t₂ u : Term _
     ⊩Γ : ⊩ᵛ _
 
 open import Definition.LogicalRelation.Substitution.Introductions.Var R using (fundamentalVar) public
@@ -1573,3 +1574,57 @@ fundamentalSubstEq (⊢Γ ∙ ⊢A) ⊢Δ (tailσ≡σ′ , headσ≡σ′) =
                                                 [idA] [idA]′ [idt′]))
   ,   ([tailσ≡σ′]′ , irrelevanceEqTerm″ (subst-id _) (subst-id _) (subst-id _)
                                          [idA] [idA]′ [idt≡t′])
+
+opaque
+  unfolding _⊩ᵛ⟨_⟩_
+
+  -- A variant of fundamental.
+
+  fundamental-⊩ᵛ : Γ ⊢ A → Γ ⊩ᵛ⟨ ¹ ⟩ A
+  fundamental-⊩ᵛ = fundamental
+
+opaque
+  unfolding _⊩ᵛ⟨_⟩_≡_
+
+  -- A variant of fundamentalEq.
+
+  fundamental-⊩ᵛ≡ : Γ ⊢ A ≡ B → Γ ⊩ᵛ⟨ ¹ ⟩ A ≡ B
+  fundamental-⊩ᵛ≡ = fundamentalEq
+
+opaque
+  unfolding _⊩ᵛ⟨_⟩_∷_
+
+  -- A variant of fundamentalTerm.
+
+  fundamental-⊩ᵛ∷ : Γ ⊢ t ∷ A → Γ ⊩ᵛ⟨ ¹ ⟩ t ∷ A
+  fundamental-⊩ᵛ∷ = fundamentalTerm
+
+opaque
+  unfolding _⊩ᵛ⟨_⟩_≡_∷_
+
+  -- A variant of fundamentalTermEq.
+
+  fundamental-⊩ᵛ≡∷ : Γ ⊢ t ≡ u ∷ A → Γ ⊩ᵛ⟨ ¹ ⟩ t ≡ u ∷ A
+  fundamental-⊩ᵛ≡∷ = fundamentalTermEq
+
+opaque
+  unfolding _⊩ˢ_∷_
+
+  -- A variant of fundamentalSubst.
+
+  fundamental-⊩ˢ∷ : ⊢ Δ → ⊢ Γ → Δ ⊢ˢ σ ∷ Γ → Δ ⊩ˢ σ ∷ Γ
+  fundamental-⊩ˢ∷ ⊢Δ ⊢Γ ⊢σ =
+    case fundamentalSubst ⊢Γ ⊢Δ ⊢σ of λ
+      (_ , ⊩σ) →
+    _ , _ , ⊩σ
+
+opaque
+  unfolding _⊩ˢ_≡_∷_
+
+  -- A variant of fundamentalSubstEq.
+
+  fundamental-⊩ˢ≡∷ : ⊢ Δ → ⊢ Γ → Δ ⊢ˢ σ₁ ≡ σ₂ ∷ Γ → Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ
+  fundamental-⊩ˢ≡∷ ⊢Δ ⊢Γ σ₁≡σ₂ =
+    case fundamentalSubstEq ⊢Γ ⊢Δ σ₁≡σ₂ of λ
+      (_ , σ₁≡σ₂) →
+    _ , _ , σ₁≡σ₂
