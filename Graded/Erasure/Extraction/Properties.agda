@@ -115,6 +115,25 @@ opaque
 
 opaque
 
+  unitrec-𝟘 :
+    ∀ q A → p PE.≡ 𝟘 →
+    erase′ b s (U.unitrec p q A t u) PE.≡ erase′ b s u
+  unitrec-𝟘 {p} _ _ p≡𝟘 with is-𝟘? p
+  … | yes _  = PE.refl
+  … | no p≢𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
+
+opaque
+
+  unitrec-ω :
+    ∀ q A → p PE.≢ 𝟘 →
+    erase′ b s (U.unitrec p q A t u) PE.≡
+    T.unitrec (erase′ b s t) (erase′ b s u)
+  unitrec-ω {p} _ _ p≢𝟘 with is-𝟘? p
+  … | yes p≡𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
+  … | no _    = PE.refl
+
+opaque
+
   ∘-≢𝟘 :
     p ≢ 𝟘 →
     erase′ b s (t U.∘⟨ p ⟩ u) ≡ erase′ b s t T.∘⟨ s ⟩ erase′ b s u
