@@ -21,6 +21,7 @@ open import Definition.LogicalRelation.Substitution.Escape R
 open import Definition.LogicalRelation.Fundamental R
 open import Definition.Typed.Consequences.Injectivity R
 
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 
@@ -28,6 +29,7 @@ private
   variable
     n : Nat
     Γ : Con Term n
+    A B t u : Term n
     p q : M
 
 -- Syntactic validity of type equality.
@@ -51,9 +53,29 @@ syntacticEqTerm t≡u | [Γ] , modelsTermEq [A] [t] [u] [t≡u] =
 syntacticRed : ∀ {A B} → Γ ⊢ A ⇒* B → Γ ⊢ A × Γ ⊢ B
 syntacticRed D = syntacticEq (subset* D)
 
+opaque
+
+  -- The relation _⊢_⇒*_ is contained in _⊢_:⇒*:_.
+
+  ⇒*→:⇒*: : Γ ⊢ A ⇒* B → Γ ⊢ A :⇒*: B
+  ⇒*→:⇒*: A⇒*B =
+    case syntacticRed A⇒*B of λ
+      (⊢A , ⊢B) →
+    [ ⊢A , ⊢B , A⇒*B ]
+
 -- Syntactic validity of term reductions.
 syntacticRedTerm : ∀ {t u A} → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ A × (Γ ⊢ t ∷ A × Γ ⊢ u ∷ A)
 syntacticRedTerm d = syntacticEqTerm (subset*Term d)
+
+opaque
+
+  -- The relation _⊢_⇒*_∷_ is contained in _⊢_:⇒*:_∷_.
+
+  ⇒*∷→:⇒*:∷ : Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t :⇒*: u ∷ A
+  ⇒*∷→:⇒*:∷ t⇒*u =
+    case syntacticRedTerm t⇒*u of λ
+      (_ , ⊢t , ⊢u) →
+    [ ⊢t , ⊢u , t⇒*u ]
 
 -- Syntactic validity of Π-types.
 syntacticΠ : ∀ {F G} → Γ ⊢ Π p , q ▷ F ▹ G → Γ ⊢ F × Γ ∙ F ⊢ G
