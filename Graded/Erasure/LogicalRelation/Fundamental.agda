@@ -697,13 +697,32 @@ module Fundamental
       t®t″ = irrelevanceTerm′ (subst-id A) [idA] [A]′ t®t′
 
   opaque
+    unfolding _▸_⊩ʳ⟨_⟩_∷[_]_
+
+    -- A variant of fundamental.
+
+    fundamental-⊩ʳ∷ :
+      Γ ⊢ t ∷ A → γ ▸[ m ] t →
+      γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A
+    fundamental-⊩ʳ∷ = fundamental
+
+  opaque
+    unfolding _®⟨_⟩_∷_◂_
 
     -- A variant of fundamentalErased.
+
+    fundamentalErased-®∷◂ :
+      Δ ⊢ t ∷ A → 𝟘ᶜ ▸[ m ] t →
+      t ®⟨ ¹ ⟩ erase s t ∷ A ◂ ⌜ m ⌝
+    fundamentalErased-®∷◂ = fundamentalErased
+
+  opaque
+
+    -- Another variant of fundamentalErased.
 
     fundamentalErased-𝟙ᵐ :
       Δ ⊢ t ∷ A → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
       t ®⟨ ¹ ⟩ erase s t ∷ A
     fundamentalErased-𝟙ᵐ ⊢t ▸t =
-      case fundamentalErased ⊢t ▸t of λ {
-        (⊩A , t®t) →
-      hidden-®-intro ⊩A (t®t ◀≢𝟘 non-trivial) }
+      ®∷→®∷◂ω non-trivial $
+      fundamentalErased-®∷◂ ⊢t ▸t
