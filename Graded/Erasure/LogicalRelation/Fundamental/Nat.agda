@@ -37,7 +37,7 @@ open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
 import Definition.Typed.Reasoning.Reduction R as RR
 
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 
 open import Definition.LogicalRelation R

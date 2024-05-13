@@ -15,7 +15,7 @@ module Definition.LogicalRelation.Properties.MaybeEmb
 
 open EqRelSet {{...}}
 
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 open import Definition.LogicalRelation R
 
 open import Tools.Nat using (Nat)

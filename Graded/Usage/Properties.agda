@@ -29,7 +29,7 @@ open import Graded.Mode 𝕄
 
 import Definition.Typed
 open import Definition.Typed.Restrictions 𝕄
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 
 open import Tools.Bool using (Bool; T)
 open import Tools.Empty

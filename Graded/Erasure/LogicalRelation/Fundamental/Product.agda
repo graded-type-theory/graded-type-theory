@@ -20,7 +20,7 @@ module Graded.Erasure.LogicalRelation.Fundamental.Product
 open Assumptions as
 open Type-restrictions TR
 
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 open import Definition.Typed TR
 open import Definition.Typed.Properties TR

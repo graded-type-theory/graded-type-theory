@@ -88,8 +88,8 @@ mutual
   -- Translation for GenTs.
 
   tr-GenTs : U₁.GenTs U₁.Term n bs → U₂.GenTs U₂.Term n bs
-  tr-GenTs []       = []
-  tr-GenTs (t ∷ ts) = tr-Term t ∷ tr-GenTs ts
+  tr-GenTs []        = []
+  tr-GenTs (t ∷ₜ ts) = tr-Term t ∷ₜ tr-GenTs ts
 
 -- Translation of contexts.
 
@@ -163,8 +163,8 @@ mutual
   -- Weakening commutes with translation.
 
   tr-GenTs-wkGen : U₂.wkGen ρ (tr-GenTs ts) ≡ tr-GenTs (U₁.wkGen ρ ts)
-  tr-GenTs-wkGen {ts = []}    = refl
-  tr-GenTs-wkGen {ts = _ ∷ _} = cong₂ _∷_ tr-Term-wk tr-GenTs-wkGen
+  tr-GenTs-wkGen {ts = []}     = refl
+  tr-GenTs-wkGen {ts = _ ∷ₜ _} = cong₂ _∷ₜ_ tr-Term-wk tr-GenTs-wkGen
 
 -- The function liftSubst commutes with translation.
 
@@ -224,8 +224,8 @@ mutual
 
   tr-GenTs-substGen :
     U₂.substGen (tr-Subst σ) (tr-GenTs ts) ≡ tr-GenTs (U₁.substGen σ ts)
-  tr-GenTs-substGen         {ts = []}              = refl
-  tr-GenTs-substGen {σ = σ} {ts = _∷_ {b = b} t _} = cong₂ _∷_
+  tr-GenTs-substGen         {ts = []}               = refl
+  tr-GenTs-substGen {σ = σ} {ts = _∷ₜ_ {b = b} t _} = cong₂ _∷ₜ_
     (tr-Term t U₂.[ U₂.liftSubstn (tr-Subst σ) b ]  ≡⟨ UP₂.substVar-to-subst (λ _ → tr-Subst-liftSubstn b) (tr-Term t) ⟩
      tr-Term t U₂.[ tr-Subst (U₁.liftSubstn σ b) ]  ≡⟨ tr-Term-subst t ⟩
      tr-Term (t U₁.[ U₁.liftSubstn σ b ])           ∎)
@@ -525,12 +525,12 @@ mutual
   tr-GenTs-wkGen⁻¹ :
     tr-GenTs ts ≡ U₂.wkGen ρ us →
     ∃ λ ts′ → tr-GenTs ts′ ≡ us × ts ≡ U₁.wkGen ρ ts′
-  tr-GenTs-wkGen⁻¹ {ts = []}    {us = []}    refl = [] # refl # refl
-  tr-GenTs-wkGen⁻¹ {ts = _ ∷ _} {us = _ ∷ _} eq   =
+  tr-GenTs-wkGen⁻¹ {ts = []}     {us = []}     refl = [] # refl # refl
+  tr-GenTs-wkGen⁻¹ {ts = _ ∷ₜ _} {us = _ ∷ₜ _} eq   =
     case U₂.∷-cong⁻¹ eq of λ (eq₁ # eq₂) →
     case tr-Term-wk⁻¹ eq₁ of λ (t′ # eq₃ # eq₄) →
     case tr-GenTs-wkGen⁻¹ eq₂ of λ (ts′ # eq₅ # eq₆) →
-    t′ U₂.∷ ts′ # cong₂ _∷_ eq₃ eq₅ # cong₂ _∷_ eq₄ eq₆
+    t′ ∷ₜ ts′ # cong₂ _∷ₜ_ eq₃ eq₅ # cong₂ _∷ₜ_ eq₄ eq₆
 
 ------------------------------------------------------------------------
 -- Results that are proved under the assumption that the translation
@@ -635,10 +635,10 @@ module Injective
     -- The function tr-GenTs is injective.
 
     tr-GenTs-injective : tr-GenTs ts ≡ tr-GenTs us → ts ≡ us
-    tr-GenTs-injective {ts = []}    {us = []}    _  = refl
-    tr-GenTs-injective {ts = _ ∷ _} {us = _ ∷ _} eq =
+    tr-GenTs-injective {ts = []}     {us = []}     _  = refl
+    tr-GenTs-injective {ts = _ ∷ₜ _} {us = _ ∷ₜ _} eq =
       case U₂.∷-cong⁻¹ eq of λ (eq₁ # eq₂) →
-      cong₂ _∷_ (tr-Term-injective eq₁) (tr-GenTs-injective eq₂)
+      cong₂ _∷ₜ_ (tr-Term-injective eq₁) (tr-GenTs-injective eq₂)
 
   ----------------------------------------------------------------------
   -- Inversion lemmas
@@ -668,7 +668,8 @@ module Injective
       ∃ λ us′ → tr-GenTs us′ ≡ us × ts ≡ U₁.substGen σ us′
     tr-Term-substGen⁻¹ {ts = []} {us = []} _ =
       [] # refl # refl
-    tr-Term-substGen⁻¹ {ts = _∷_ {b = b} t _} {σ = σ} {us = u ∷ _} eq =
+    tr-Term-substGen⁻¹
+      {ts = _∷ₜ_ {b = b} t _} {σ = σ} {us = u ∷ₜ _} eq =
       case U₂.∷-cong⁻¹ eq of λ (eq₁ # eq₂) →
       case
         tr-Term t                              ≡⟨ eq₁ ⟩
@@ -678,7 +679,7 @@ module Injective
       case tr-Term-substGen⁻¹ eq₂ of λ where
         (us′ # refl # refl) →
           case tr-Term-subst⁻¹ {u = u} lemma of λ where
-            (u′ # refl # refl) → u′ ∷ us′ # refl # refl
+            (u′ # refl # refl) → u′ ∷ₜ us′ # refl # refl
 
   -- Inversion for _[_].
 

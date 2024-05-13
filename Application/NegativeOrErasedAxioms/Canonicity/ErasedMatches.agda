@@ -24,7 +24,7 @@ import Definition.Typed.Consequences.Consistency
 import Definition.Typed.Consequences.Substitution
 import Definition.Typed.Properties
 open import Definition.Typed.Restrictions
-import Definition.Untyped hiding (_∷_)
+import Definition.Untyped
 
 import Graded.Context
 import Graded.Context.Properties

@@ -31,7 +31,7 @@ import Tools.Reasoning.PropositionalEquality
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 open import Tools.Unit
 
-open import Definition.Untyped M as U hiding (_∷_)
+open import Definition.Untyped M as U
 open import Definition.Typed TR
 open import Definition.Typed.Eta-long-normal-form TR
 open import Definition.Typed.Properties TR

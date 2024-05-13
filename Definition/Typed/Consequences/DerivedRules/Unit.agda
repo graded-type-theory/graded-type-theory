@@ -15,7 +15,7 @@ module Definition.Typed.Consequences.DerivedRules.Unit
 
 open Type-restrictions TR
 
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.DerivedRules.Identity TR
 open import Definition.Typed.Consequences.Inversion TR

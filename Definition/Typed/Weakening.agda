@@ -11,7 +11,7 @@ module Definition.Typed.Weakening
   (R : Type-restrictions 𝕄)
   where
 
-open import Definition.Untyped M as U hiding (wk ; _∷_)
+open import Definition.Untyped M as U hiding (wk)
 open import Definition.Untyped.Properties M
 open import Definition.Typed R hiding (_,_)
 open import Definition.Typed.Properties R

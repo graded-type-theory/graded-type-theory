@@ -21,7 +21,7 @@ open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Consequences.DerivedRules.Sigma R
 
-open import Definition.Untyped M hiding (_∷_; _[_])
+open import Definition.Untyped M hiding (_[_])
 
 open import Graded.Derived.Erased.NoEta.Untyped 𝕄
 open import Graded.Derived.Erased.Untyped 𝕄 𝕨 hiding (erased)

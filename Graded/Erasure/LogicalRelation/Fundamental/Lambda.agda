@@ -32,7 +32,7 @@ import Definition.LogicalRelation.Substitution.Irrelevance R as IS
 open import Graded.Context 𝕄
 open import Graded.Mode 𝕄
 
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 open import Definition.Untyped.Properties M as UP
 open import Definition.Typed R
 open import Definition.Typed.Weakening R hiding (wk)

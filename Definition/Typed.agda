@@ -13,7 +13,7 @@ module Definition.Typed
 
 open Type-restrictions R
 
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 
 import Graded.Derived.Erased.Untyped 𝕄 as Erased
 

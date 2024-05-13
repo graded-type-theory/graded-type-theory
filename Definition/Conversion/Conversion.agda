@@ -11,7 +11,7 @@ module Definition.Conversion.Conversion
   (R : Type-restrictions 𝕄)
   where
 
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 open import Definition.Typed R
 open import Definition.Typed.RedSteps R
 open import Definition.Typed.Properties R

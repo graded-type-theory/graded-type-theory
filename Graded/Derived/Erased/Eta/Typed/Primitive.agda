@@ -20,7 +20,7 @@ module Graded.Derived.Erased.Eta.Typed.Primitive
 open import Definition.Typed R
 open import Definition.Typed.Properties.Well-formed R
 
-open import Definition.Untyped M hiding (_∷_; _[_])
+open import Definition.Untyped M hiding (_[_])
 
 open import Graded.Derived.Erased.Eta.Untyped 𝕄
 open import Graded.Derived.Erased.Typed.Primitive R (Unit-ok , Σ-ok) public

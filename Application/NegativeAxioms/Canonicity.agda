@@ -14,7 +14,7 @@ module Application.NegativeAxioms.Canonicity
 open import Application.NegativeAxioms.NegativeType R
 open import Graded.Erasure.SucRed R
 
-open import Definition.Untyped M hiding (_∷_; ℕ≢B)
+open import Definition.Untyped M hiding (ℕ≢B)
 open import Definition.Untyped.Normal-form M
 open import Definition.Typed R
 open import Definition.Typed.Properties R

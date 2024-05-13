@@ -14,7 +14,7 @@ module Definition.Typed.EqualityRelation
 
 open Type-restrictions R
 
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 open import Definition.Typed R hiding (_,_)
 open import Definition.Typed.Weakening R using (_∷_⊇_)
 

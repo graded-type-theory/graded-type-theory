@@ -20,7 +20,7 @@ open import Definition.Typed R
 open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Syntactic R
 
-open import Definition.Untyped M hiding (_∷_; _[_])
+open import Definition.Untyped M hiding (_[_])
 
 import Graded.Derived.Erased.Eta.Typed.Primitive R as P
 open import Graded.Derived.Erased.Eta.Untyped 𝕄

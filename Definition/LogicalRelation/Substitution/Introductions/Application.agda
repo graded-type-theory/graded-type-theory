@@ -15,7 +15,7 @@ module Definition.LogicalRelation.Substitution.Introductions.Application
 
 open EqRelSet {{...}}
 
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties R

@@ -16,7 +16,7 @@ module Definition.LogicalRelation.Substitution.Introductions.Pi
 open EqRelSet {{...}}
 open Type-restrictions R
 
-open import Definition.Untyped M as U hiding (wk ; _∷_)
+open import Definition.Untyped M as U hiding (wk)
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Weakening R using (_∷_⊇_)

@@ -21,7 +21,7 @@ module Graded.Derived.Erased.Typed.Primitive
 open import Definition.Typed R
 open import Definition.Typed.Properties.Well-formed R
 
-open import Definition.Untyped M hiding (_∷_; _[_])
+open import Definition.Untyped M hiding (_[_])
 
 open import Graded.Derived.Erased.Untyped 𝕄 s
 

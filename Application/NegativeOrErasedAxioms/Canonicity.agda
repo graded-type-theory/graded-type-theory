@@ -10,7 +10,7 @@ import Graded.Restrictions
 open import Graded.Usage.Restrictions
 import Definition.Typed
 open import Definition.Typed.Restrictions
-import Definition.Untyped hiding (_∷_; ℕ≢B)
+import Definition.Untyped hiding (ℕ≢B)
 
 module Application.NegativeOrErasedAxioms.Canonicity
   {a} {M : Set a}

@@ -15,7 +15,7 @@ module Definition.LogicalRelation.Properties.Conversion
 
 open EqRelSet {{...}}
 
-open import Definition.Untyped M hiding (Wk; _∷_; K)
+open import Definition.Untyped M hiding (Wk; K)
 open import Definition.Typed R
 open import Definition.Typed.RedSteps R
 open import Definition.Typed.Properties R

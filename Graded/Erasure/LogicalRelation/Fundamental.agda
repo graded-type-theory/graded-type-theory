@@ -9,7 +9,7 @@ open import Graded.Usage.Restrictions
 open import Definition.Typed.EqualityRelation
 import Definition.Typed
 open import Definition.Typed.Restrictions
-import Definition.Untyped hiding (_∷_)
+import Definition.Untyped
 open import Tools.Empty
 open import Tools.Sum hiding (id)
 import Tools.PropositionalEquality as PE

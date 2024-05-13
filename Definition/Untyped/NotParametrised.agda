@@ -29,11 +29,12 @@ data Con (A : Nat → Set a) : Nat → Set a where
 
 -- Representation of sub terms using a list of binding levels
 
-infixr 5 _∷_
+infixr 5 _∷ₜ_
 
 data GenTs (A : Nat → Set a) : Nat → List Nat → Set a where
-  []  : {n : Nat} → GenTs A n []
-  _∷_ : {n b : Nat} {bs : List Nat} (t : A (b + n)) (ts : GenTs A n bs) → GenTs A n (b ∷ bs)
+  []   : {n : Nat} → GenTs A n []
+  _∷ₜ_ : {n b : Nat} {bs : List Nat}
+         (t : A (b + n)) (ts : GenTs A n bs) → GenTs A n (b ∷ bs)
 
 -- Sigma and Unit types have two modes, allowing either projections
 -- and η-equality (strong) or elimination by prodrec/unitrec (weak).

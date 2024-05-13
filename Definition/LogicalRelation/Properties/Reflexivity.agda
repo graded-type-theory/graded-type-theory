@@ -13,7 +13,7 @@ module Definition.LogicalRelation.Properties.Reflexivity
   {{eqrel : EqRelSet R}}
   where
 
-open import Definition.Untyped M hiding (_∷_; K)
+open import Definition.Untyped M hiding (K)
 open import Definition.Typed R
 open import Definition.Typed.Weakening R
 open import Definition.Typed.Properties R

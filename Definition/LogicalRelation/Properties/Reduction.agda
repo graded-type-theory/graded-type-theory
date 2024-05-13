@@ -17,7 +17,7 @@ module Definition.LogicalRelation.Properties.Reduction
 
 open EqRelSet {{...}}
 
-open import Definition.Untyped M hiding (Wk; _∷_; K)
+open import Definition.Untyped M hiding (Wk; K)
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 import Definition.Typed.Weakening R as Wk

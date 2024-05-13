@@ -27,7 +27,7 @@ open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Consequences.Syntactic TR
 open import Definition.Typed.EqRelInstance TR
 open import Definition.Typed.Properties TR
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄

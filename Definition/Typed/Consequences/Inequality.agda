@@ -13,7 +13,7 @@ module Definition.Typed.Consequences.Inequality
 
 open import Definition.Untyped M as U
   hiding (U≢ne; ℕ≢ne; B≢ne; ΠΣ≢ne; Id≢ne; zero≢ne; suc≢ne; rfl≢ne;
-          U≢B; ℕ≢B; Id≢⟦⟧▷; Id≢ΠΣ; _∷_)
+          U≢B; ℕ≢B; Id≢⟦⟧▷; Id≢ΠΣ)
 open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Properties R

@@ -33,7 +33,7 @@ import Graded.Erasure.Target as T
 import Graded.Erasure.Target.Properties as TP
 import Graded.Erasure.Target.Reasoning
 
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 
 open import Definition.Typed R

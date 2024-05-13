@@ -21,7 +21,7 @@ open import Definition.Typed.Consequences.Reduction R
 open import Definition.Typed.Consequences.Substitution R
 open import Definition.Typed.Consequences.Stability R
 open import Definition.Typed.Consequences.Syntactic R
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 
 open import Tools.Empty
 open import Tools.Function

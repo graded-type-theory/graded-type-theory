@@ -15,7 +15,7 @@ open import Definition.Typed R
 open import Definition.Typed.Consequences.Reduction R
 import Definition.Typed.Reasoning.Reduction.Primitive
 open import Definition.Typed.RedSteps R
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 
 import Tools.PropositionalEquality as PE
 

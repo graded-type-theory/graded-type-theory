@@ -18,7 +18,7 @@ module Graded.Erasure.LogicalRelation
 open Assumptions as
 open Modality 𝕄
 
-open import Definition.Untyped M as U hiding (_∷_; _∘_; K)
+open import Definition.Untyped M as U hiding (_∘_; K)
 
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Substitution R

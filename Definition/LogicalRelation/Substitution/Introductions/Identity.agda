@@ -33,7 +33,7 @@ open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Reduction.Primitive R
 open import Definition.Typed.RedSteps R
-open import Definition.Untyped M as U hiding (_∷_; _[_])
+open import Definition.Untyped M as U hiding (_[_])
 open import Definition.Untyped.Properties M
 
 import Graded.Derived.Erased.Typed.Primitive R as ETP

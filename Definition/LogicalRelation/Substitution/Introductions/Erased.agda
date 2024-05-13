@@ -31,7 +31,7 @@ open import Definition.LogicalRelation.Substitution.Introductions.Unit R
 import Definition.LogicalRelation.Weakening R as W
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 
 open import Graded.Derived.Erased.Typed.Primitive R Erased-ok
 open import Graded.Derived.Erased.Untyped 𝕄 s

@@ -15,7 +15,7 @@ module Definition.LogicalRelation.Substitution.Introductions.Emptyrec
 
 open EqRelSet {{...}}
 
-open import Definition.Untyped M as U hiding (wk ; _∷_)
+open import Definition.Untyped M as U hiding (wk)
 open import Definition.Typed R
 import Definition.Typed.Weakening R as T
 open import Definition.Typed.Properties R

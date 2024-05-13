@@ -25,7 +25,7 @@ open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Consequences.Substitution R
 
-open import Definition.Untyped M as U hiding (_∷_)
+open import Definition.Untyped M as U
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Sigma 𝕄
 open import Graded.Derived.Erased.NoEta.Untyped 𝕄

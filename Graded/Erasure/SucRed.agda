@@ -19,7 +19,7 @@ import Tools.PropositionalEquality as PE
 open import Tools.Relation
 open import Tools.Unit
 
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Consistency R
 open import Definition.Typed.Properties R

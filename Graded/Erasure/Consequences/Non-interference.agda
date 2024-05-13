@@ -15,7 +15,7 @@ open import Tools.Nat using (Nat)
 
 module Graded.Erasure.Consequences.Non-interference
   {a} {M : Set a}
-  (open Definition.Untyped M hiding (_∷_))
+  (open Definition.Untyped M)
   {𝕄 : Modality M}
   (open Modality 𝕄)
   (TR : Type-restrictions 𝕄)

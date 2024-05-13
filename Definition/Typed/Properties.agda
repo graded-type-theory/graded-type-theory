@@ -15,7 +15,7 @@ open Type-restrictions R
 
 open import Definition.Typed.Properties.Well-formed R public
 
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 open import Definition.Typed R
 
 import Graded.Derived.Erased.Typed.Primitive R as Erased

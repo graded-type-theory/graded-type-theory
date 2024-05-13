@@ -2,6 +2,8 @@
 -- Raw terms, weakening (renaming) and substitution.
 ------------------------------------------------------------------------
 
+{-# OPTIONS --hidden-argument-puns #-}
+
 module Definition.Untyped {a} (M : Set a) where
 
 open import Tools.Fin
@@ -110,45 +112,48 @@ pattern Unit s = gen (Unitkind s) []
 pattern Unitʷ = gen (Unitkind 𝕨) []
 pattern Unitˢ = gen (Unitkind 𝕤) []
 
-pattern ΠΣ⟨_⟩_,_▷_▹_ b p q F G = gen (Binderkind b p q) (F ∷ G ∷ [])
-pattern Π_,_▷_▹_ p q F G = gen (Binderkind BMΠ p q) (F ∷ G ∷ [])
-pattern Σˢ_,_▷_▹_ p q F G = gen (Binderkind (BMΣ 𝕤) p q) (F ∷ G ∷ [])
-pattern Σʷ_,_▷_▹_ p q F G = gen (Binderkind (BMΣ 𝕨) p q) (F ∷ G ∷ [])
-pattern Σ_,_▷_▹_ p q F G = gen (Binderkind (BMΣ _) p q) (F ∷ G ∷ [])
+pattern ΠΣ⟨_⟩_,_▷_▹_ b p q F G = gen (Binderkind b p q) (F ∷ₜ G ∷ₜ [])
+pattern Π_,_▷_▹_ p q F G = gen (Binderkind BMΠ p q) (F ∷ₜ G ∷ₜ [])
+pattern Σˢ_,_▷_▹_ p q F G = gen (Binderkind (BMΣ 𝕤) p q) (F ∷ₜ G ∷ₜ [])
+pattern Σʷ_,_▷_▹_ p q F G = gen (Binderkind (BMΣ 𝕨) p q) (F ∷ₜ G ∷ₜ [])
+pattern Σ_,_▷_▹_ p q F G = gen (Binderkind (BMΣ _) p q) (F ∷ₜ G ∷ₜ [])
 pattern Σ⟨_⟩_,_▷_▹_ s p q F G =
-  gen (Binderkind (BMΣ s) p q) (F ∷ G ∷ [])
+  gen (Binderkind (BMΣ s) p q) (F ∷ₜ G ∷ₜ [])
 
-pattern lam p t = gen (Lamkind p) (t ∷ [])
-pattern _∘⟨_⟩_ t p u = gen (Appkind p) (t ∷ u ∷ [])
-pattern _∘_ t u = gen (Appkind _) (t ∷ u ∷ [])
+pattern lam p t = gen (Lamkind p) (t ∷ₜ [])
+pattern _∘⟨_⟩_ t p u = gen (Appkind p) (t ∷ₜ u ∷ₜ [])
+pattern _∘_ t u = gen (Appkind _) (t ∷ₜ u ∷ₜ [])
 
-pattern prodˢ p t u = gen (Prodkind 𝕤 p) (t ∷ u ∷ [])
-pattern prodʷ p t u = gen (Prodkind 𝕨 p) (t ∷ u ∷ [])
-pattern prod m p t u = gen (Prodkind m p) (t ∷ u ∷ [])
-pattern prod! t u = gen (Prodkind _ _) (t ∷ u ∷ [])
-pattern fst p t = gen (Fstkind p) (t ∷ [])
-pattern snd p t = gen (Sndkind p) (t ∷ [])
-pattern prodrec r p q A t u = gen (Prodreckind r p q) (A ∷ t ∷ u ∷ [])
+pattern prodˢ p t u = gen (Prodkind 𝕤 p) (t ∷ₜ u ∷ₜ [])
+pattern prodʷ p t u = gen (Prodkind 𝕨 p) (t ∷ₜ u ∷ₜ [])
+pattern prod m p t u = gen (Prodkind m p) (t ∷ₜ u ∷ₜ [])
+pattern prod! t u = gen (Prodkind _ _) (t ∷ₜ u ∷ₜ [])
+pattern fst p t = gen (Fstkind p) (t ∷ₜ [])
+pattern snd p t = gen (Sndkind p) (t ∷ₜ [])
+pattern prodrec r p q A t u =
+  gen (Prodreckind r p q) (A ∷ₜ t ∷ₜ u ∷ₜ [])
 
 pattern zero = gen Zerokind []
-pattern suc t = gen Suckind (t ∷ [])
-pattern natrec p q r A z s n = gen (Natreckind p q r) (A ∷ z ∷ s ∷ n ∷ [])
+pattern suc t = gen Suckind (t ∷ₜ [])
+pattern natrec p q r A z s n =
+  gen (Natreckind p q r) (A ∷ₜ z ∷ₜ s ∷ₜ n ∷ₜ [])
 
 pattern star! = gen (Starkind _) []
 pattern star s = gen (Starkind s) []
 pattern starʷ = gen (Starkind 𝕨) []
 pattern starˢ = gen (Starkind 𝕤) []
-pattern unitrec p q A t u = gen (Unitreckind p q) (A ∷ t ∷ u ∷ [])
-pattern emptyrec p A t = gen (Emptyreckind p) (A ∷ t ∷ [])
+pattern unitrec p q A t u = gen (Unitreckind p q) (A ∷ₜ t ∷ₜ u ∷ₜ [])
+pattern emptyrec p A t = gen (Emptyreckind p) (A ∷ₜ t ∷ₜ [])
 
-pattern Id A t u = gen Idkind (A ∷ t ∷ u ∷ [])
+pattern Id A t u = gen Idkind (A ∷ₜ t ∷ₜ u ∷ₜ [])
 pattern rfl = gen Reflkind []
-pattern J p q A t B u v w = gen (Jkind p q) (A ∷ t ∷ B ∷ u ∷ v ∷ w ∷ [])
-pattern K p A t B u v = gen (Kkind p) (A ∷ t ∷ B ∷ u ∷ v ∷ [])
-pattern []-cong! A t u v = gen (Boxcongkind _) (A ∷ t ∷ u ∷ v ∷ [])
-pattern []-cong m A t u v = gen (Boxcongkind m) (A ∷ t ∷ u ∷ v ∷ [])
-pattern []-congʷ A t u v = gen (Boxcongkind 𝕨) (A ∷ t ∷ u ∷ v ∷ [])
-pattern []-congˢ A t u v = gen (Boxcongkind 𝕤) (A ∷ t ∷ u ∷ v ∷ [])
+pattern J p q A t B u v w =
+  gen (Jkind p q) (A ∷ₜ t ∷ₜ B ∷ₜ u ∷ₜ v ∷ₜ w ∷ₜ [])
+pattern K p A t B u v = gen (Kkind p) (A ∷ₜ t ∷ₜ B ∷ₜ u ∷ₜ v ∷ₜ [])
+pattern []-cong! A t u v = gen (Boxcongkind _) (A ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ [])
+pattern []-cong m A t u v = gen (Boxcongkind m) (A ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ [])
+pattern []-congʷ A t u v = gen (Boxcongkind 𝕨) (A ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ [])
+pattern []-congˢ A t u v = gen (Boxcongkind 𝕤) (A ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ [])
 
 
 data BindingType : Set a where
@@ -473,8 +478,8 @@ No-η-equality→Whnf = λ where
 
 mutual
   wkGen : {m n : Nat} {bs : List Nat} (ρ : Wk m n) (c : GenTs (Term) n bs) → GenTs (Term) m bs
-  wkGen ρ []                = []
-  wkGen ρ (_∷_ {b = b} t c) = (wk (liftn ρ b) t) ∷ (wkGen ρ c)
+  wkGen ρ []                 = []
+  wkGen ρ (_∷ₜ_ {b = b} t c) = wk (liftn ρ b) t ∷ₜ wkGen ρ c
 
   wk : {m n : Nat} (ρ : Wk m n) (t : Term n) → Term m
   wk ρ (var x)   = var (wkVar ρ x)
@@ -663,8 +668,8 @@ toSubst pr x = var (wkVar pr x)
 
 mutual
   substGen : {bs : List Nat} (σ : Subst m n) (g : GenTs (Term) n bs) → GenTs (Term) m bs
-  substGen σ  []      = []
-  substGen σ (_∷_ {b = b} t ts) = t [ liftSubstn σ b ] ∷ (substGen σ ts)
+  substGen σ []              = []
+  substGen σ (_∷ₜ_ {b} t ts) = t [ liftSubstn σ b ] ∷ₜ substGen σ ts
 
   _[_] : (t : Term n) (σ : Subst m n) → Term m
   var x [ σ ] = substVar σ x
@@ -756,6 +761,6 @@ gen-cong⁻¹ refl = refl , refl , refl
 
 ∷-cong⁻¹ :
   ∀ {b} {t t′ : Term (b + n)} →
-  GenTs._∷_ {A = Term} {b = b} t ts ≡ t′ ∷ ts′ →
+  _∷ₜ_ {A = Term} {b = b} t ts ≡ t′ ∷ₜ ts′ →
   t ≡ t′ × ts ≡ ts′
 ∷-cong⁻¹ refl = refl , refl

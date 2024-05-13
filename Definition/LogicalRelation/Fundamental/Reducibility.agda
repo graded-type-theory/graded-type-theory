@@ -15,7 +15,7 @@ module Definition.LogicalRelation.Fundamental.Reducibility
 
 open EqRelSet {{...}}
 
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 open import Definition.Typed R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R

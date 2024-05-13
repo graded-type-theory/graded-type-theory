@@ -15,7 +15,7 @@ module Definition.Typed.Decidable.Equality
   where
 
 
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 open import Definition.Typed R
 open import Definition.Conversion.Decidable R _≟_
 open import Definition.Conversion.Soundness R

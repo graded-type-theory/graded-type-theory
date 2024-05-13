@@ -15,7 +15,7 @@ module Definition.LogicalRelation.Properties.Transitivity
 
 open EqRelSet {{...}}
 
-open import Definition.Untyped M hiding (_∷_; K)
+open import Definition.Untyped M hiding (K)
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 import Definition.Typed.Weakening R as Weak

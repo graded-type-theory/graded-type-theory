@@ -11,7 +11,7 @@ module Application.NegativeAxioms.NegativeType
   (R : Type-restrictions 𝕄)
   where
 
-open import Definition.Untyped M as U hiding (_∷_)
+open import Definition.Untyped M as U
 
 open import Definition.Typed R
 open import Definition.Typed.Properties R

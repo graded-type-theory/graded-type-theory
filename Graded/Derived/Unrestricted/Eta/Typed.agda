@@ -26,7 +26,7 @@ open import Definition.Typed.Consequences.Substitution R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
 
-open import Definition.Untyped M hiding (_∷_; _[_])
+open import Definition.Untyped M hiding (_[_])
 open import Graded.Derived.Unrestricted.Eta.Untyped 𝕄
 
 open import Tools.Empty

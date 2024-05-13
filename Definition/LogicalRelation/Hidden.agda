@@ -40,7 +40,7 @@ import Definition.LogicalRelation.Weakening R as W
 open import Definition.Typed R
 open import Definition.Typed.Weakening R using (_∷_⊇_)
 
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 
 open import Tools.Fin

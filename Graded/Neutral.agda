@@ -22,7 +22,7 @@ open Usage-restrictions UR
 
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Inversion TR
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄

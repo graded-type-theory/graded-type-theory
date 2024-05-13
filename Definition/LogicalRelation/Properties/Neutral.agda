@@ -15,7 +15,7 @@ module Definition.LogicalRelation.Properties.Neutral
 
 open EqRelSet {{...}}
 
-open import Definition.Untyped M hiding (Wk; _∷_; K)
+open import Definition.Untyped M hiding (Wk; K)
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R

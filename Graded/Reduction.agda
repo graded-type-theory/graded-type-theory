@@ -32,7 +32,7 @@ open import Definition.Typed TR
 open import Definition.Typed.Consequences.DerivedRules TR
 open import Definition.Typed.Eta-long-normal-form TR
 open import Definition.Typed.Properties TR
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 open import Definition.Untyped.Normal-form M
 
 open import Tools.Bool using (T; true; false)

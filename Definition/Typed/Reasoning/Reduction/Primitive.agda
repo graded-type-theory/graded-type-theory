@@ -14,7 +14,7 @@ module Definition.Typed.Reasoning.Reduction.Primitive
 
 open import Definition.Typed R
 open import Definition.Typed.RedSteps R
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 
 open import Tools.Function
 import Tools.PropositionalEquality as PE

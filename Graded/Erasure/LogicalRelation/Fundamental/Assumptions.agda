@@ -18,7 +18,7 @@ module Graded.Erasure.LogicalRelation.Fundamental.Assumptions
 open Modality 𝕄
 open Usage-restrictions UR
 
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Consistency TR
 

@@ -39,9 +39,9 @@ mutual
 
   wkVar-to-wkGen : (∀ x → wkVar ρ x ≡ wkVar ρ′ x)
                  → ∀ {bs} c → wkGen {bs = bs} ρ c ≡ wkGen {bs = bs} ρ′ c
-  wkVar-to-wkGen eq [] = refl
-  wkVar-to-wkGen eq (_∷_ {b = b} t ts) =
-    cong₂ _∷_ (wkVar-to-wk (wkVar-lifts eq b) t) (wkVar-to-wkGen eq ts)
+  wkVar-to-wkGen eq []              = refl
+  wkVar-to-wkGen eq (_∷ₜ_ {b} t ts) =
+    cong₂ _∷ₜ_ (wkVar-to-wk (wkVar-lifts eq b) t) (wkVar-to-wkGen eq ts)
 
 -- id is the identity renaming.
 
@@ -51,9 +51,10 @@ mutual
   wk-id (gen k ts) = cong (gen k) (wkGen-id ts)
 
   wkGen-id : ∀ {bs} x → wkGen {m = n} {n} {bs} id x ≡ x
-  wkGen-id [] = refl
-  wkGen-id (_∷_ {b = b} t ts) =
-    cong₂ _∷_ (trans (wkVar-to-wk (wkVar-lifts-id b) t) ( wk-id t)) (wkGen-id ts)
+  wkGen-id []              = refl
+  wkGen-id (_∷ₜ_ {b} t ts) =
+    cong₂ _∷ₜ_ (trans (wkVar-to-wk (wkVar-lifts-id b) t) (wk-id t))
+      (wkGen-id ts)
 
 -- lift id  is also the identity renaming.
 
@@ -69,10 +70,11 @@ mutual
 
   wkGen-comp : (ρ : Wk m ℓ) (ρ′ : Wk ℓ n) → ∀ {bs} g
              → wkGen ρ (wkGen ρ′ g) ≡ wkGen {bs = bs} (ρ • ρ′) g
-  wkGen-comp ρ ρ′ [] = refl
-  wkGen-comp ρ ρ′ (_∷_ {b = b} t ts) =
-    cong₂ _∷_ (trans (wk-comp (liftn ρ b) (liftn ρ′ b) t)
-                     (wkVar-to-wk (wkVar-comps b ρ ρ′) t))
+  wkGen-comp ρ ρ′ []              = refl
+  wkGen-comp ρ ρ′ (_∷ₜ_ {b} t ts) =
+    cong₂ _∷ₜ_
+      (trans (wk-comp (liftn ρ b) (liftn ρ′ b) t)
+         (wkVar-to-wk (wkVar-comps b ρ ρ′) t))
       (wkGen-comp ρ ρ′ ts)
 
 
@@ -155,10 +157,10 @@ mutual
 
   substVar-to-substGen : ∀ {bs} → ((x : Fin n) → σ x ≡ σ′ x)
                        → ∀ g → substGen {bs = bs} σ g ≡ substGen {bs = bs} σ′ g
-  substVar-to-substGen eq [] = refl
-  substVar-to-substGen eq (_∷_ {b = b} t ts) =
-    cong₂ _∷_ (substVar-to-subst (substVar-lifts eq b) t)
-              (substVar-to-substGen eq ts)
+  substVar-to-substGen eq []              = refl
+  substVar-to-substGen eq (_∷ₜ_ {b} t ts) =
+    cong₂ _∷ₜ_ (substVar-to-subst (substVar-lifts eq b) t)
+      (substVar-to-substGen eq ts)
 
 
 -- lift id = id  (as substitutions)
@@ -180,11 +182,12 @@ mutual
   subst-id (gen k ts) = cong (gen k) (substGen-id ts)
 
   substGen-id : ∀ {bs} g → substGen {m = n} {n} {bs} idSubst g ≡ g
-  substGen-id [] = refl
-  substGen-id (_∷_ {b = b} t ts) =
-    cong₂ _∷_ (trans (substVar-to-subst (subst-lifts-id b) t )
-                     (subst-id t))
-              (substGen-id ts)
+  substGen-id []              = refl
+  substGen-id (_∷ₜ_ {b} t ts) =
+    cong₂ _∷ₜ_
+      (trans (substVar-to-subst (subst-lifts-id b) t)
+         (subst-id t))
+      (substGen-id ts)
 
 opaque
 
@@ -267,9 +270,10 @@ mutual
   wk-subst (gen k ts) = cong (gen k) (wkGen-substGen ts)
 
   wkGen-substGen : ∀ {bs} t → wkGen ρ (substGen σ t) ≡ substGen {bs = bs} (ρ •ₛ σ) t
-  wkGen-substGen [] = refl
-  wkGen-substGen (_∷_ {b = b} t ts) =
-    cong₂ _∷_ (trans (wk-subst t) ( subst-lifts-•ₛ b t)) (wkGen-substGen ts)
+  wkGen-substGen []              = refl
+  wkGen-substGen (_∷ₜ_ {b} t ts) =
+    cong₂ _∷ₜ_ (trans (wk-subst t) (subst-lifts-•ₛ b t))
+      (wkGen-substGen ts)
 
 
 -- _[ σ ] ∘ wk ρ = _[ σ •ₛ ρ ]
@@ -280,9 +284,10 @@ mutual
   subst-wk (gen k ts) = cong (gen k) (substGen-wkGen ts)
 
   substGen-wkGen : ∀ {bs} t → substGen σ (wkGen ρ t) ≡ substGen {bs = bs} (σ ₛ• ρ) t
-  substGen-wkGen [] = refl
-  substGen-wkGen (_∷_ {b = b} t ts) =
-    cong₂ _∷_ (trans (subst-wk t) (subst-lifts-ₛ• b t)) (substGen-wkGen ts)
+  substGen-wkGen []              = refl
+  substGen-wkGen (_∷ₜ_ {b} t ts) =
+    cong₂ _∷ₜ_ (trans (subst-wk t) (subst-lifts-ₛ• b t))
+      (substGen-wkGen ts)
 
 opaque
 
@@ -358,10 +363,11 @@ mutual
 
   substGenCompEq : ∀ {bs} t
               → substGen σ (substGen σ′ t) ≡ substGen {bs = bs} (σ ₛ•ₛ σ′) t
-  substGenCompEq [] = refl
-  substGenCompEq (_∷_ {b = b} t ts) =
-    cong₂ _∷_ (trans (substCompEq t) (substVar-to-subst (substCompLifts b) t))
-              (substGenCompEq ts)
+  substGenCompEq []              = refl
+  substGenCompEq (_∷ₜ_ {b} t ts) =
+    cong₂ _∷ₜ_
+      (trans (substCompEq t) (substVar-to-subst (substCompLifts b) t))
+      (substGenCompEq ts)
 
 -- Weakening single substitutions.
 

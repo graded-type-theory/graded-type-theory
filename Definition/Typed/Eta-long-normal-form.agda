@@ -29,7 +29,7 @@ open import Definition.Typed.Consequences.Stability R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
 
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 open import Definition.Untyped.Normal-form M
 
 import Graded.Derived.Erased.Untyped 𝕄 as Erased

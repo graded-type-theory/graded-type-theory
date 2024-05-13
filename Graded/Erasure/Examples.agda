@@ -59,7 +59,7 @@ open import Definition.Typed.EqRelInstance TR
 open import Definition.Typed.Eta-long-normal-form TR
 open import Definition.Typed.Properties TR
 import Definition.Typed.Weakening TR as W
-open import Definition.Untyped Erasure as U hiding (id; head; _∷_)
+open import Definition.Untyped Erasure as U hiding (id; head)
 open import Definition.Untyped.Properties Erasure
 
 private

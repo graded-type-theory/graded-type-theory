@@ -23,7 +23,7 @@ open import Tools.Function
 import Tools.Reasoning.PartialOrder
 
 open import Definition.Typed R
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 
 private
 

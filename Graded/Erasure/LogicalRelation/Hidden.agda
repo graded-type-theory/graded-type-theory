@@ -35,7 +35,7 @@ open import Definition.Typed.Consequences.Syntactic TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.RedSteps TR
 import Definition.Typed.Weakening TR as W
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 
 open import Graded.Context 𝕄

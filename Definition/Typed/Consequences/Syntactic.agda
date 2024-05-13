@@ -11,7 +11,7 @@ module Definition.Typed.Consequences.Syntactic
   (R : Type-restrictions 𝕄)
   where
 
-open import Definition.Untyped M hiding (_∷_; wk)
+open import Definition.Untyped M hiding (wk)
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.EqRelInstance R

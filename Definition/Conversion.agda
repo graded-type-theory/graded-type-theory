@@ -13,7 +13,7 @@ module Definition.Conversion
 
 open Type-restrictions R
 
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 open import Definition.Typed R
 
 import Graded.Derived.Erased.Untyped 𝕄 as Erased

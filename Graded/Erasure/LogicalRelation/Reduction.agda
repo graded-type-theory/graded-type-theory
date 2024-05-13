@@ -25,7 +25,7 @@ import Definition.LogicalRelation.Fundamental R as F
 import Definition.LogicalRelation.Irrelevance R as I
 import Definition.LogicalRelation.Properties.Reduction R as R
 
-open import Definition.Untyped M as U hiding (_∷_)
+open import Definition.Untyped M as U
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Consequences.Reduction R

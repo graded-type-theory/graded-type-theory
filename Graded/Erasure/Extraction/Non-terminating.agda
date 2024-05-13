@@ -47,7 +47,7 @@ open Usage-restrictions UR
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.DerivedRules TR
 open import Definition.Typed.Properties TR
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 open import Definition.Untyped.Identity 𝕄
 
 open import Graded.Context 𝕄

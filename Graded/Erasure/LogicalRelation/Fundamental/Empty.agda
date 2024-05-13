@@ -37,7 +37,7 @@ open import Definition.LogicalRelation.Substitution R
 open import Definition.LogicalRelation.Substitution.Irrelevance R
 open import Definition.LogicalRelation.Substitution.Introductions.Universe R
 open import Definition.LogicalRelation.Substitution.Introductions.Empty R
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄

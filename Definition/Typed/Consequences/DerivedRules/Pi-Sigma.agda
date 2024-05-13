@@ -17,7 +17,7 @@ open import Definition.Typed R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
 
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 
 open import Tools.Function
 open import Tools.Product

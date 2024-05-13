@@ -24,7 +24,7 @@ open import Graded.Usage.Properties 𝕄 R
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 open import Graded.Derived.Erased.NoEta.Untyped 𝕄
 
 open import Graded.Derived.Sigma 𝕄 R

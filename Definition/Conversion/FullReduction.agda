@@ -27,7 +27,7 @@ open import Definition.Typed.Consequences.Substitution R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Eta-long-normal-form R
 open import Definition.Typed.Properties R
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 
 open import Graded.Derived.Erased.Typed R
 

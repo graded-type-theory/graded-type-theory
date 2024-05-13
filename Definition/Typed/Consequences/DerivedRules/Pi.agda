@@ -24,7 +24,7 @@ open import Definition.Typed.Reasoning.Reduction R
 open import Definition.Typed.RedSteps R
 open import Definition.Typed.Weakening R as W hiding (wk)
 
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 
 open import Tools.Fin

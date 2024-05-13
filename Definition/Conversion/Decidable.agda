@@ -14,7 +14,7 @@ module Definition.Conversion.Decidable
   (_≟_ : Decidable (PE._≡_ {A = M}))
   where
 
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R

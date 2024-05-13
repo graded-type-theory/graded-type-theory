@@ -73,8 +73,8 @@ opaque mutual
   -- The function tr-GenTs is pointwise equal to an identity function.
 
   tr-GenTs-id : tr-GenTs ts ≡ ts
-  tr-GenTs-id {ts = []}    = refl
-  tr-GenTs-id {ts = _ ∷ _} = cong₂ _∷_ tr-Term-id tr-GenTs-id
+  tr-GenTs-id {ts = []}     = refl
+  tr-GenTs-id {ts = _ ∷ₜ _} = cong₂ _∷ₜ_ tr-Term-id tr-GenTs-id
 
 opaque
 

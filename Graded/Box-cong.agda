@@ -31,7 +31,7 @@ open import Definition.Typed.Consequences.Syntactic TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Reasoning.Reduction TR
 import Definition.Typed.Weakening TR as W
-open import Definition.Untyped M as U hiding (_∷_)
+open import Definition.Untyped M as U
 open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Properties M
 

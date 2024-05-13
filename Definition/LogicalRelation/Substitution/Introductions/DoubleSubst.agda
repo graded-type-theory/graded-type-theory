@@ -18,7 +18,7 @@ module Definition.LogicalRelation.Substitution.Introductions.DoubleSubst
 open EqRelSet {{...}}
 open Type-restrictions R
 
-open import Definition.Untyped M as U hiding (_∷_)
+open import Definition.Untyped M as U
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.LogicalRelation R

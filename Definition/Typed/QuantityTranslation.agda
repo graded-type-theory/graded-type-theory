@@ -33,7 +33,7 @@ open import Tools.Reasoning.PropositionalEquality
 
 open import Definition.Typed
 open import Definition.Typed.Consequences.DerivedRules R₂
-open import Definition.Untyped hiding (_∷_)
+open import Definition.Untyped
 open import Definition.Untyped.QuantityTranslation tr tr-Σ
 
 import Graded.Derived.Erased.Untyped

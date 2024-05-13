@@ -13,7 +13,7 @@ module Definition.Typed.Consequences.Equality
   (R : Type-restrictions 𝕄)
   where
 
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.EqRelInstance R

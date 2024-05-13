@@ -29,7 +29,7 @@ open import Definition.Typed.Consequences.Syntactic TR
 open import Definition.Typed.EqRelInstance TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Reasoning.Term TR
-open import Definition.Untyped M hiding (_∷_)
+open import Definition.Untyped M
 open import Definition.Untyped.Unit 𝕄
 
 open import Graded.Context 𝕄
