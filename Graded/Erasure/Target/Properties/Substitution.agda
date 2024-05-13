@@ -262,12 +262,11 @@ wk-lift-β {ρ = ρ} {t = t} u =
   u [ liftSubst (sgSubst (wk ρ t)) ₛ• lift (lift ρ) ]    ≡˘⟨ subst-wk u ⟩
   wk (lift (lift ρ)) u [ liftSubst (sgSubst (wk ρ t)) ]  ∎
 
--- Pushing a weakening into a double substitution
--- ρ (t[a,b]) = ((lift (lift ρ)) t) [ ρ a , ρ b ]
+-- Pushing a weakening into a double substitution.
 
 wk-β-doubleSubst : ∀ (ρ : Wk m n) (s : Term (2+ n)) (t u : Term n)
-                 → wk ρ (s [ u , t ])
-                 ≡ wk (lift (lift ρ)) s [ wk ρ u , wk ρ t ]
+                 → wk ρ (s [ u , t ]₁₀)
+                 ≡ wk (lift (lift ρ)) s [ wk ρ u , wk ρ t ]₁₀
 wk-β-doubleSubst ρ s t u =
  begin
     wk ρ (s [ σₜ t u ])
@@ -276,7 +275,7 @@ wk-β-doubleSubst ρ s t u =
        ≡⟨ substVar-to-subst (λ { x0 → refl ; (x0 +1) → refl ; (x +2) → refl}) s ⟩
      s [ (σₜ (wk ρ t) (wk ρ u)) ₛ• (lift (lift ρ)) ]
        ≡⟨ sym (subst-wk s) ⟩
-     wk (lift (lift ρ)) s [ wk ρ u , wk ρ t ] ∎
+     wk (lift (lift ρ)) s [ wk ρ u , wk ρ t ]₁₀ ∎
   where
     σₜ : (x y : Term ℓ) → Subst ℓ (2+ ℓ)
     σₜ x y = consSubst (consSubst idSubst y) x
@@ -328,10 +327,10 @@ singleSubstLift G t =
 -- Pushing a substiution into a double substitution
 
 doubleSubstLift : (σ : Subst m n) (G : Term (2+ n)) (t u : Term n)
-                → G [ t , u ] [ σ ]
-                ≡ G [ liftSubstn σ 2 ] [ t [ σ ] , u [ σ ] ]
+                → G [ t , u ]₁₀ [ σ ]
+                ≡ G [ liftSubstn σ 2 ] [ t [ σ ] , u [ σ ] ]₁₀
 doubleSubstLift {n = n} σ G t u = begin
-  G [ t , u ] [ σ ]
+  G [ t , u ]₁₀ [ σ ]
     ≡⟨⟩
   G [ consSubst (sgSubst t) u ] [ σ ]
     ≡⟨ substCompEq G ⟩
@@ -341,7 +340,7 @@ doubleSubstLift {n = n} σ G t u = begin
     ≡˘⟨ substCompEq G ⟩
   G [ liftSubstn σ 2 ] [ consSubst (sgSubst (t [ σ ])) (u [ σ ]) ]
     ≡⟨⟩
-  G [ liftSubstn σ 2 ] [ t [ σ ] , u [ σ ] ] ∎
+  G [ liftSubstn σ 2 ] [ t [ σ ] , u [ σ ] ]₁₀ ∎
   where
   σ₁ =  consSubst (sgSubst t) u
   σ₂ = consSubst (sgSubst (t [ σ ])) (u [ σ ])
@@ -377,10 +376,10 @@ wk1-sgSubst t t' rewrite wk1-tailId t =
       (subst-id t)
 
 doubleSubstComp : (A : Term (2+ n)) (t u : Term m) (σ : Subst m n)
-                → A [ liftSubstn σ 2 ] [ t , u ]
+                → A [ liftSubstn σ 2 ] [ t , u ]₁₀
                 ≡ A [ consSubst (consSubst σ t) u ]
 doubleSubstComp {n = n} A t u σ = begin
-  A [ liftSubstn σ 2 ] [ t , u ]
+  A [ liftSubstn σ 2 ] [ t , u ]₁₀
     ≡⟨ substCompEq A ⟩
   A [ consSubst (consSubst idSubst t) u ₛ•ₛ liftSubstn σ 2 ]
     ≡⟨ substVar-to-subst varEq A ⟩
@@ -400,11 +399,11 @@ opaque
 
   doubleSubstComp′ :
     (t : Term (2+ n)) →
-    t [ u , v ] [ σ ] ≡
+    t [ u , v ]₁₀ [ σ ] ≡
     t [ consSubst (consSubst σ (u [ σ ])) (v [ σ ]) ]
   doubleSubstComp′ {u} {v} {σ} t =
-    t [ u , v ] [ σ ]                                  ≡⟨ doubleSubstLift _ t _ _ ⟩
-    t [ liftSubstn σ 2 ] [ u [ σ ] , v [ σ ] ]         ≡⟨ doubleSubstComp t _ _ _ ⟩
+    t [ u , v ]₁₀ [ σ ]                                ≡⟨ doubleSubstLift _ t _ _ ⟩
+    t [ liftSubstn σ 2 ] [ u [ σ ] , v [ σ ] ]₁₀       ≡⟨ doubleSubstComp t _ _ _ ⟩
     t [ consSubst (consSubst σ (u [ σ ])) (v [ σ ]) ]  ∎
 
 -- Lifted substitutions kind of commute with lifted single
@@ -585,14 +584,14 @@ opaque
 
 opaque
 
-  -- If x occurs in t [ u , v ] and u and v are closed, then x +2
+  -- If x occurs in t [ u , v ]₁₀ and u and v are closed, then x +2
   -- occurs in t.
 
   HasX-[closed,closed]→ :
     (∀ {x} → ¬ HasX x u) → (∀ {x} → ¬ HasX x v) →
-    HasX x (t [ u , v ]) → HasX (x +2) t
+    HasX x (t [ u , v ]₁₀) → HasX (x +2) t
   HasX-[closed,closed]→ {u} {v} {x} {t} u-closed v-closed =
-    HasX x (t [ u , v ])                                     →⟨ HasX-[]→ ⟩
+    HasX x (t [ u , v ]₁₀)                                   →⟨ HasX-[]→ ⟩
     (∃ λ y → HasX y t × HasX x (consSubst (sgSubst u) v y))  →⟨ (λ where
                                                                    (x0        ∙ _    ∙ has₂) → ⊥-elim $ v-closed has₂
                                                                    (x0 +1     ∙ _    ∙ has₂) → ⊥-elim $ u-closed has₂

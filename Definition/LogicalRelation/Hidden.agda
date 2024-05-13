@@ -40,8 +40,7 @@ import Definition.LogicalRelation.Weakening R as W
 open import Definition.Typed R
 open import Definition.Typed.Weakening R using (_∷_⊇_)
 
-open import Definition.Untyped M
-  hiding (_∷_) renaming (_[_,_] to _[_,_]₁₀)
+open import Definition.Untyped M hiding (_∷_)
 open import Definition.Untyped.Properties M
 
 open import Tools.Fin

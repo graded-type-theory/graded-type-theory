@@ -18,7 +18,7 @@ module Definition.LogicalRelation.Fundamental
 open EqRelSet {{...}}
 open Type-restrictions R
 
-open import Definition.Untyped M hiding (_∷_) renaming (_[_,_] to _[_,,_])
+open import Definition.Untyped M hiding (_∷_)
 open import Definition.Untyped.Properties M
 
 open import Definition.Typed R

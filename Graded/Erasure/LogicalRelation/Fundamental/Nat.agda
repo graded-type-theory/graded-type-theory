@@ -24,7 +24,7 @@ open import Graded.Erasure.Extraction 𝕄
 open import Graded.Erasure.LogicalRelation as
 open import Graded.Erasure.LogicalRelation.Hidden as
 open import Graded.Erasure.LogicalRelation.Value as
-import Graded.Erasure.Target as T renaming (_[_,_] to _[_,_]₁₀)
+import Graded.Erasure.Target as T
 import Graded.Erasure.Target.Properties as TP
 open import Graded.Erasure.Target.Reasoning
 
@@ -37,8 +37,7 @@ open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
 import Definition.Typed.Reasoning.Reduction R as RR
 
-open import Definition.Untyped M
-  hiding (_∷_) renaming (_[_,_] to _[_,_]₁₀)
+open import Definition.Untyped M hiding (_∷_)
 open import Definition.Untyped.Properties M
 
 open import Definition.LogicalRelation R

@@ -270,11 +270,11 @@ record EqRelSet : Set (lsuc ℓ) where
       → Γ ⊢ t₁ ∷ A₁
       → Γ ⊢ t₁ ≅ t₂ ∷ A₁
       → Γ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ ≅ B₂
-      → Γ ⊢ u₁ ≅ u₂ ∷ B₁ [ t₁ , rfl ]
+      → Γ ⊢ u₁ ≅ u₂ ∷ B₁ [ t₁ , rfl ]₁₀
       → Γ ⊢ v₁ ≅ v₂ ∷ A₁
       → Γ ⊢ w₁ ~ w₂ ∷ Id A₁ t₁ v₁
       → Γ ⊢ J p q A₁ t₁ B₁ u₁ v₁ w₁ ~ J p q A₂ t₂ B₂ u₂ v₂ w₂ ∷
-          B₁ [ v₁ , w₁ ]
+          B₁ [ v₁ , w₁ ]₁₀
 
     -- K preserves the _⊢_~_ relation (in a certain way).
     ~-K

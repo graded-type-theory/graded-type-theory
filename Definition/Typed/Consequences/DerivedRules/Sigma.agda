@@ -29,8 +29,7 @@ open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Term R
 open import Definition.Typed.Weakening R as W
 
-open import Definition.Untyped M as U
-  hiding (_∷_) renaming (_[_,_] to _[_∣_])
+open import Definition.Untyped M as U hiding (_∷_)
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Sigma 𝕄
 
@@ -252,7 +251,7 @@ opaque
     Γ ⊢ u ∷ B [ t ]₀ →
     Γ ∙ A ∙ B ⊢ v ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
     Σʷ-allowed p q′ →
-    Γ ⊢ prodrec r p q C (prodʷ p t u) v ⇒ v [ t ∣ u ] ∷
+    Γ ⊢ prodrec r p q C (prodʷ p t u) v ⇒ v [ t , u ]₁₀ ∷
       C [ prodʷ p t u ]₀
   prodrec-β-⇒ ⊢C ⊢t ⊢u ⊢v ok =
     case wf ⊢C of λ {
@@ -271,7 +270,7 @@ opaque
     Γ ⊢ u ∷ B [ t ]₀ →
     Γ ∙ A ∙ B ⊢ v ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
     Σʷ-allowed p q′ →
-    Γ ⊢ prodrec r p q C (prodʷ p t u) v ≡ v [ t ∣ u ] ∷
+    Γ ⊢ prodrec r p q C (prodʷ p t u) v ≡ v [ t , u ]₁₀ ∷
       C [ prodʷ p t u ]₀
   prodrec-β-≡ ⊢C ⊢t ⊢u ⊢v ok =
     subsetTerm (prodrec-β-⇒ ⊢C ⊢t ⊢u ⊢v ok)
@@ -374,19 +373,18 @@ private
     Γ ∙ (Σˢ p , q ▷ A ▹ B) ⊢ C →
     Γ ⊢ t ∷ Σˢ p , q ▷ A ▹ B →
     Γ ⊢
-      C [ prodˢ p (var x1) (var x0) ]↑² [ fst p t ∣ snd p t ] ≡
+      C [ prodˢ p (var x1) (var x0) ]↑² [ fst p t , snd p t ]₁₀ ≡
       C [ t ]₀
   ⊢[1,0]↑²[fst,snd]≡
     {Γ = Γ} {p = p} {q = q} {A = A} {B = B} {C = C} {t = t} ⊢C =
-    Γ ⊢ t ∷ Σˢ p , q ▷ A ▹ B                                     →⟨ Σ-η-prod-fst-snd ⟩
+    Γ ⊢ t ∷ Σˢ p , q ▷ A ▹ B                                         →⟨ Σ-η-prod-fst-snd ⟩
 
-    Γ ⊢ prodˢ p (fst p t) (snd p t) ≡ t ∷ Σˢ p , q ▷ A ▹ B       →⟨ substTypeEq (refl ⊢C) ⟩
+    Γ ⊢ prodˢ p (fst p t) (snd p t) ≡ t ∷ Σˢ p , q ▷ A ▹ B           →⟨ substTypeEq (refl ⊢C) ⟩
 
-    Γ ⊢ C [ prodˢ p (fst p t) (snd p t) ]₀ ≡ C [ t ]₀              →⟨ PE.subst (_ ⊢_≡ _) (PE.sym $ [1,0]↑²[,] C) ⟩
+    Γ ⊢ C [ prodˢ p (fst p t) (snd p t) ]₀ ≡ C [ t ]₀                →⟨ PE.subst (_ ⊢_≡ _) (PE.sym $ [1,0]↑²[,] C) ⟩
 
-    Γ ⊢
-      C [ prodˢ p (var x1) (var x0) ]↑² [ fst p t ∣ snd p t ] ≡
-      C [ t ]₀                                                    □
+    Γ ⊢ C [ prodˢ p (var x1) (var x0) ]↑² [ fst p t , snd p t ]₁₀ ≡
+      C [ t ]₀                                                       □
 
 -- A typing rule for prodrecˢ.
 
@@ -397,22 +395,22 @@ prodrecˢⱼ :
   Γ ⊢ prodrecˢ p t u ∷ C [ t ]₀
 prodrecˢⱼ
   {Γ = Γ} {p = p} {q = q} {A = A} {B = B} {C = C} {t = t} {u = u}
-  ⊢C ⊢t ⊢u =                                                 $⟨ fstⱼ′ ⊢t , sndⱼ′ ⊢t ⟩
+  ⊢C ⊢t ⊢u =                                                   $⟨ fstⱼ′ ⊢t , sndⱼ′ ⊢t ⟩
   Γ ⊢ fst p t ∷ A ×
-  Γ ⊢ snd p t ∷ B [ fst p t ]₀                                →⟨ (λ (hyp₁ , hyp₂) →
-                                                                   PE.subst (_ ⊢ _ ∷_) (PE.sym (subst-id _)) hyp₁ , hyp₂) ⟩
+  Γ ⊢ snd p t ∷ B [ fst p t ]₀                                 →⟨ (λ (hyp₁ , hyp₂) →
+                                                                     PE.subst (_ ⊢ _ ∷_) (PE.sym (subst-id _)) hyp₁ , hyp₂) ⟩
   Γ ⊢ fst p t ∷ A [ idSubst ] ×
-  Γ ⊢ snd p t ∷ B [ fst p t ]₀                                →⟨ (λ (hyp₁ , hyp₂) → (idSubst′ ⊢Γ , hyp₁) , hyp₂) ⟩
+  Γ ⊢ snd p t ∷ B [ fst p t ]₀                                 →⟨ (λ (hyp₁ , hyp₂) → (idSubst′ ⊢Γ , hyp₁) , hyp₂) ⟩
 
   Γ ⊢ˢ
     consSubst (consSubst idSubst (fst p t)) (snd p t) ∷
-    Γ ∙ A ∙ B                                                →⟨ flip (substitutionTerm ⊢u) ⊢Γ ⟩
+    Γ ∙ A ∙ B                                                  →⟨ flip (substitutionTerm ⊢u) ⊢Γ ⟩
 
   Γ ⊢
     prodrecˢ p t u ∷
-    C [ prodˢ p (var x1) (var x0) ]↑² [ fst p t ∣ snd p t ]  →⟨ flip conv (⊢[1,0]↑²[fst,snd]≡ ⊢C ⊢t) ⟩
+    C [ prodˢ p (var x1) (var x0) ]↑² [ fst p t , snd p t ]₁₀  →⟨ flip conv (⊢[1,0]↑²[fst,snd]≡ ⊢C ⊢t) ⟩
 
-  Γ ⊢ prodrecˢ p t u ∷ C [ t ]₀                               □
+  Γ ⊢ prodrecˢ p t u ∷ C [ t ]₀                                □
   where
   ⊢Γ = wfTerm ⊢t
 
@@ -424,29 +422,29 @@ prodrecˢ-β :
   Γ ⊢ u ∷ B [ t ]₀ →
   Γ ∙ A ∙ B ⊢ v ∷ C [ prodˢ p (var x1) (var x0) ]↑² →
   Σˢ-allowed p q′ →
-  Γ ⊢ prodrecˢ p (prodˢ p t u) v ≡ v [ t ∣ u ] ∷ C [ prodˢ p t u ]₀
-prodrecˢ-β {Γ} {t} {A} {u} {B} {v} {p} C ⊢t ⊢u ⊢v ok =               $⟨ Σ-β₁-≡ ⊢B ⊢t ⊢u ok
-                                                                      , Σ-β₂-≡ ⊢B ⊢t ⊢u ok
-                                                                      ⟩
+  Γ ⊢ prodrecˢ p (prodˢ p t u) v ≡ v [ t , u ]₁₀ ∷ C [ prodˢ p t u ]₀
+prodrecˢ-β {Γ} {t} {A} {u} {B} {v} {p} C ⊢t ⊢u ⊢v ok =                 $⟨ Σ-β₁-≡ ⊢B ⊢t ⊢u ok
+                                                                        , Σ-β₂-≡ ⊢B ⊢t ⊢u ok
+                                                                        ⟩
   Γ ⊢ fst p (prodˢ p t u) ≡ t ∷ A ×
-  Γ ⊢ snd p (prodˢ p t u) ≡ u ∷ B [ fst p (prodˢ p t u) ]₀           →⟨ (λ (hyp₁ , hyp₂) →
-                                                                             PE.subst (_ ⊢ _ ≡ _ ∷_) (PE.sym $ subst-id _) hyp₁
-                                                                           , conv hyp₂ (substTypeEq (refl ⊢B) hyp₁)) ⟩
+  Γ ⊢ snd p (prodˢ p t u) ≡ u ∷ B [ fst p (prodˢ p t u) ]₀             →⟨ (λ (hyp₁ , hyp₂) →
+                                                                               PE.subst (_ ⊢ _ ≡ _ ∷_) (PE.sym $ subst-id _) hyp₁
+                                                                             , conv hyp₂ (substTypeEq (refl ⊢B) hyp₁)) ⟩
   Γ ⊢ fst p (prodˢ p t u) ≡ t ∷ A [ idSubst ] ×
-  Γ ⊢ snd p (prodˢ p t u) ≡ u ∷ B [ t ]₀                             →⟨ (λ (hyp₁ , hyp₂) →
-                                                                           (substRefl (idSubst′ ⊢Γ) , sym hyp₁) , sym hyp₂) ⟩
+  Γ ⊢ snd p (prodˢ p t u) ≡ u ∷ B [ t ]₀                               →⟨ (λ (hyp₁ , hyp₂) →
+                                                                             (substRefl (idSubst′ ⊢Γ) , sym hyp₁) , sym hyp₂) ⟩
   Γ ⊢ˢ
     consSubst (consSubst idSubst t) u ≡
     consSubst (consSubst idSubst (fst p (prodˢ p t u)))
       (snd p (prodˢ p t u)) ∷
-    Γ ∙ A ∙ B                                                        →⟨ flip (substitutionEqTerm (refl ⊢v)) ⊢Γ ⟩
+    Γ ∙ A ∙ B                                                          →⟨ flip (substitutionEqTerm (refl ⊢v)) ⊢Γ ⟩
 
   Γ ⊢
-    v [ t ∣ u ] ≡
+    v [ t , u ]₁₀ ≡
     prodrecˢ p (prodˢ p t u) v ∷
-    C [ prodˢ p (var x1) (var x0) ]↑² [ t ∣ u ]                      →⟨ PE.subst (_⊢_≡_∷_ _ _ _) ([1,0]↑²[,] C) ∘→ sym ⟩
+    C [ prodˢ p (var x1) (var x0) ]↑² [ t , u ]₁₀                      →⟨ PE.subst (_⊢_≡_∷_ _ _ _) ([1,0]↑²[,] C) ∘→ sym ⟩
 
-  Γ ⊢ prodrecˢ p (prodˢ p t u) v ≡ v [ t ∣ u ] ∷ C [ prodˢ p t u ]₀  □
+  Γ ⊢ prodrecˢ p (prodˢ p t u) v ≡ v [ t , u ]₁₀ ∷ C [ prodˢ p t u ]₀  □
   where
   ⊢Γ = wfTerm ⊢t
   ⊢B = case wfTerm ⊢v of λ where
@@ -461,24 +459,24 @@ prodrecˢ-cong :
   Γ ⊢ prodrecˢ p t₁ u₁ ≡ prodrecˢ p t₂ u₂ ∷ C [ t₁ ]₀
 prodrecˢ-cong
   {Γ = Γ} {p = p} {q = q} {A = A} {B = B} {C = C} {t₁ = t₁} {t₂ = t₂}
-  {u₁ = u₁} {u₂ = u₂} ⊢C t₁≡t₂ u₁≡u₂ =                         $⟨ fst-cong′ t₁≡t₂ , snd-cong′ t₁≡t₂ ⟩
+  {u₁ = u₁} {u₂ = u₂} ⊢C t₁≡t₂ u₁≡u₂ =                           $⟨ fst-cong′ t₁≡t₂ , snd-cong′ t₁≡t₂ ⟩
   Γ ⊢ fst p t₁ ≡ fst p t₂ ∷ A ×
-  Γ ⊢ snd p t₁ ≡ snd p t₂ ∷ B [ fst p t₁ ]₀                     →⟨ (λ (hyp₁ , hyp₂) →
-                                                                     PE.subst (_ ⊢ _ ≡ _ ∷_) (PE.sym (subst-id _)) hyp₁ , hyp₂) ⟩
+  Γ ⊢ snd p t₁ ≡ snd p t₂ ∷ B [ fst p t₁ ]₀                      →⟨ (λ (hyp₁ , hyp₂) →
+                                                                       PE.subst (_ ⊢ _ ≡ _ ∷_) (PE.sym (subst-id _)) hyp₁ , hyp₂) ⟩
   Γ ⊢ fst p t₁ ≡ fst p t₂ ∷ A [ idSubst ] ×
-  Γ ⊢ snd p t₁ ≡ snd p t₂ ∷ B [ fst p t₁ ]₀                     →⟨ (λ (hyp₁ , hyp₂) → (substRefl (idSubst′ ⊢Γ) , hyp₁) , hyp₂) ⟩
+  Γ ⊢ snd p t₁ ≡ snd p t₂ ∷ B [ fst p t₁ ]₀                      →⟨ (λ (hyp₁ , hyp₂) → (substRefl (idSubst′ ⊢Γ) , hyp₁) , hyp₂) ⟩
 
   Γ ⊢ˢ
     consSubst (consSubst idSubst (fst p t₁)) (snd p t₁) ≡
     consSubst (consSubst idSubst (fst p t₂)) (snd p t₂) ∷
-    Γ ∙ A ∙ B                                                   →⟨ flip (substitutionEqTerm u₁≡u₂) ⊢Γ ⟩
+    Γ ∙ A ∙ B                                                    →⟨ flip (substitutionEqTerm u₁≡u₂) ⊢Γ ⟩
 
   Γ ⊢
     prodrecˢ p t₁ u₁ ≡
     prodrecˢ p t₂ u₂ ∷
-    C [ prodˢ p (var x1) (var x0) ]↑² [ fst p t₁ ∣ snd p t₁ ]   →⟨ flip conv (⊢[1,0]↑²[fst,snd]≡ ⊢C ⊢t₁) ⟩
+    C [ prodˢ p (var x1) (var x0) ]↑² [ fst p t₁ , snd p t₁ ]₁₀  →⟨ flip conv (⊢[1,0]↑²[fst,snd]≡ ⊢C ⊢t₁) ⟩
 
-  Γ ⊢ prodrecˢ p t₁ u₁ ≡ prodrecˢ p t₂ u₂ ∷ C [ t₁ ]₀           □
+  Γ ⊢ prodrecˢ p t₁ u₁ ≡ prodrecˢ p t₂ u₂ ∷ C [ t₁ ]₀            □
   where
   ⊢Γ  = wfEqTerm t₁≡t₂
   ⊢t₁ = syntacticEqTerm t₁≡t₂ .proj₂ .proj₁
@@ -491,7 +489,7 @@ prodrecˢ-cong
 --   Γ ⊢ t ∷ A →
 --   Γ ⊢ u ∷ B [ t ]₀ →
 --   Γ ∙ A ∙ B ⊢ v ∷ C [ prodˢ p (var x1) (var x0) ]↑² →
---   Γ ⊢ prodrecˢ p (prodˢ p t u) v ⇒ v [ t ∣ u ] ∷ C [ prodˢ p t u ]₀
+--   Γ ⊢ prodrecˢ p (prodˢ p t u) v ⇒ v [ t , u ]₁₀ ∷ C [ prodˢ p t u ]₀
 --
 --   Γ ∙ (Σˢ p , q ▷ A ▹ B) ⊢ C →
 --   Γ ∙ A ∙ B ⊢ u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
@@ -1177,7 +1175,7 @@ opaque
     Γ ⊢ u ∷ B [ t ]₀ →
     Γ ∙ A ∙ B ⊢ v ∷ C [ prod s p (var x1) (var x0) ]↑² →
     Σ-allowed s p q′ →
-    Γ ⊢ prodrec⟨ s ⟩ r p q C (prod s p t u) v ≡ v [ t ∣ u ] ∷
+    Γ ⊢ prodrec⟨ s ⟩ r p q C (prod s p t u) v ≡ v [ t , u ]₁₀ ∷
       C [ prod s p t u ]₀
   prodrec⟨⟩-β {s = 𝕨}     ⊢C = prodrec-β-≡ (⊢C PE.refl)
   prodrec⟨⟩-β {s = 𝕤} {C} _  = prodrecˢ-β C

@@ -28,7 +28,7 @@ open import Graded.Usage.Erased-matches
 open import Graded.Usage.Properties 𝕄 R
 open import Graded.Usage.Weakening 𝕄 R
 open import Graded.Mode 𝕄
-open import Definition.Untyped M renaming (_[_,_] to _[_,,_])
+open import Definition.Untyped M
 
 open import Tools.Bool using (T)
 open import Tools.Empty
@@ -1938,7 +1938,7 @@ sgSubstₘ-lemma₃ {mo = 𝟙ᵐ} ▸t ▸u =
 doubleSubstₘ-lemma₁ :
   γ ∙ ⌜ mo ⌝ · q ∙ ⌜ mo ⌝ · p ▸[ mo ] t →
   δ ▸[ mo ᵐ· p ] u → η ▸[ mo ᵐ· q ] u′ →
-  γ +ᶜ (⌜ mo ⌝ · p) ·ᶜ δ +ᶜ (⌜ mo ⌝ · q) ·ᶜ η ▸[ mo ] t [ u′ ,, u ]
+  γ +ᶜ (⌜ mo ⌝ · p) ·ᶜ δ +ᶜ (⌜ mo ⌝ · q) ·ᶜ η ▸[ mo ] t [ u′ , u ]₁₀
 doubleSubstₘ-lemma₁
   {γ = γ} {mo = mo} {q = q} {p = p} {δ = δ} {η = η} γ▸t δ▸u η▸u′ = sub
   (substₘ-lemma (consSubstₘ (sgSubstₘ _) _)
@@ -1962,7 +1962,7 @@ doubleSubstₘ-lemma₁
 doubleSubstₘ-lemma₂ :
   γ ∙ ⌜ mo ⌝ · q ∙ ⌜ mo ⌝ · p ▸[ mo ] t →
   δ ▸[ mo ᵐ· p ] u → η ▸[ mo ᵐ· q ] u′ →
-  γ +ᶜ p ·ᶜ δ +ᶜ q ·ᶜ η ▸[ mo ] t [ u′ ,, u ]
+  γ +ᶜ p ·ᶜ δ +ᶜ q ·ᶜ η ▸[ mo ] t [ u′ , u ]₁₀
 doubleSubstₘ-lemma₂
   {γ = γ} {mo = 𝟙ᵐ} {q = q} {p = p} {δ = δ} {η = η} γ▸t δ▸u η▸u′ = sub
   (doubleSubstₘ-lemma₁ γ▸t δ▸u η▸u′)
@@ -1988,7 +1988,7 @@ doubleSubstₘ-lemma₂
 doubleSubstₘ-lemma₃ :
   γ ∙ ⌜ mo ⌝ · q ∙ ⌜ mo ⌝ · p ▸[ mo ] t →
   δ ▸[ mo ] u → η ▸[ mo ] u′ →
-  γ +ᶜ p ·ᶜ δ +ᶜ q ·ᶜ η ▸[ mo ] t [ u′ ,, u ]
+  γ +ᶜ p ·ᶜ δ +ᶜ q ·ᶜ η ▸[ mo ] t [ u′ , u ]₁₀
 doubleSubstₘ-lemma₃ {mo = 𝟘ᵐ} =
   doubleSubstₘ-lemma₂
 doubleSubstₘ-lemma₃ {mo = 𝟙ᵐ} ▸t ▸u ▸u′ =

@@ -146,10 +146,10 @@ mutual
     Jⱼ        : Γ ⊢ A
               → Γ ⊢ t ∷ A
               → Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B
-              → Γ ⊢ u ∷ B [ t , rfl ]
+              → Γ ⊢ u ∷ B [ t , rfl ]₁₀
               → Γ ⊢ v ∷ A
               → Γ ⊢ w ∷ Id A t v
-              → Γ ⊢ J p q A t B u v w ∷ B [ v , w ]
+              → Γ ⊢ J p q A t B u v w ∷ B [ v , w ]₁₀
     Kⱼ        : Γ ⊢ t ∷ A
               → Γ ∙ Id A t t ⊢ B
               → Γ ⊢ u ∷ B [ rfl ]₀
@@ -275,7 +275,7 @@ mutual
                   → p PE.≡ p′
                   → Σʷ-allowed p q′
                   → Γ ⊢ prodrec r p q A (prodʷ p′ t t′) u ≡
-                        u [ t , t′ ] ∷ A [ prodʷ p′ t t′ ]₀
+                        u [ t , t′ ]₁₀ ∷ A [ prodʷ p′ t t′ ]₀
     suc-cong      : ∀ {n}
                   → Γ ⊢ m ≡ n ∷ ℕ
                   → Γ ⊢ suc m ≡ suc n ∷ ℕ
@@ -298,7 +298,7 @@ mutual
                   → Γ ∙ ℕ ∙ A ⊢ s ∷ A [ suc (var x1) ]↑²
                   → Γ         ⊢ n ∷ ℕ
                   → Γ         ⊢ natrec p q r A z s (suc n) ≡
-                                s [ n , natrec p q r A z s n ] ∷
+                                s [ n , natrec p q r A z s n ]₁₀ ∷
                                 A [ suc n ]₀
     emptyrec-cong : Γ ⊢ A ≡ B
                   → Γ ⊢ t ≡ u ∷ Empty
@@ -324,11 +324,11 @@ mutual
                   → Γ ⊢ t₁ ∷ A₁
                   → Γ ⊢ t₁ ≡ t₂ ∷ A₁
                   → Γ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ ≡ B₂
-                  → Γ ⊢ u₁ ≡ u₂ ∷ B₁ [ t₁ , rfl ]
+                  → Γ ⊢ u₁ ≡ u₂ ∷ B₁ [ t₁ , rfl ]₁₀
                   → Γ ⊢ v₁ ≡ v₂ ∷ A₁
                   → Γ ⊢ w₁ ≡ w₂ ∷ Id A₁ t₁ v₁
                   → Γ ⊢ J p q A₁ t₁ B₁ u₁ v₁ w₁ ≡
-                        J p q A₂ t₂ B₂ u₂ v₂ w₂ ∷ B₁ [ v₁ , w₁ ]
+                        J p q A₂ t₂ B₂ u₂ v₂ w₂ ∷ B₁ [ v₁ , w₁ ]₁₀
     K-cong        : Γ ⊢ A₁ ≡ A₂
                   → Γ ⊢ t₁ ∷ A₁
                   → Γ ⊢ t₁ ≡ t₂ ∷ A₁
@@ -349,9 +349,9 @@ mutual
     J-β           : Γ ⊢ A
                   → Γ ⊢ t ∷ A
                   → Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B
-                  → Γ ⊢ u ∷ B [ t , rfl ]
+                  → Γ ⊢ u ∷ B [ t , rfl ]₁₀
                   → t PE.≡ t′
-                  → Γ ⊢ J p q A t B u t′ rfl ≡ u ∷ B [ t , rfl ]
+                  → Γ ⊢ J p q A t B u t′ rfl ≡ u ∷ B [ t , rfl ]₁₀
     K-β           : Γ ⊢ t ∷ A
                   → Γ ∙ Id A t t ⊢ B
                   → Γ ⊢ u ∷ B [ rfl ]₀
@@ -421,7 +421,7 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                  → p PE.≡ p′
                  → Σʷ-allowed p q′
                  → Γ ⊢ prodrec r p q A (prodʷ p′ t t′) u ⇒
-                       u [ t , t′ ] ∷ A [ prodʷ p′ t t′ ]₀
+                       u [ t , t′ ]₁₀ ∷ A [ prodʷ p′ t t′ ]₀
   natrec-subst   : ∀ {n}
                  → Γ ∙ ℕ     ⊢ A
                  → Γ         ⊢ z ∷ A [ zero ]₀
@@ -440,7 +440,7 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                  → Γ ∙ ℕ ∙ A ⊢ s ∷ A [ suc (var x1) ]↑²
                  → Γ         ⊢ n ∷ ℕ
                  → Γ         ⊢ natrec p q r A z s (suc n) ⇒
-                               s [ n , natrec p q r A z s n ] ∷
+                               s [ n , natrec p q r A z s n ]₁₀ ∷
                                A [ suc n ]₀
   emptyrec-subst : ∀ {n}
                  → Γ ⊢ A
@@ -458,11 +458,11 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
   J-subst        : Γ ⊢ A
                  → Γ ⊢ t ∷ A
                  → Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B
-                 → Γ ⊢ u ∷ B [ t , rfl ]
+                 → Γ ⊢ u ∷ B [ t , rfl ]₁₀
                  → Γ ⊢ v ∷ A
                  → Γ ⊢ w₁ ⇒ w₂ ∷ Id A t v
                  → Γ ⊢ J p q A t B u v w₁ ⇒ J p q A t B u v w₂ ∷
-                     B [ v , w₁ ]
+                     B [ v , w₁ ]₁₀
   K-subst        : Γ ⊢ A
                  → Γ ⊢ t ∷ A
                  → Γ ∙ Id A t t ⊢ B
@@ -483,9 +483,9 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                  → Γ ⊢ t′ ∷ A
                  → Γ ⊢ t ≡ t′ ∷ A
                  → Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B
-                 → Γ ⊢ B [ t , rfl ] ≡ B [ t′ , rfl ]
-                 → Γ ⊢ u ∷ B [ t , rfl ]
-                 → Γ ⊢ J p q A t B u t′ rfl ⇒ u ∷ B [ t , rfl ]
+                 → Γ ⊢ B [ t , rfl ]₁₀ ≡ B [ t′ , rfl ]₁₀
+                 → Γ ⊢ u ∷ B [ t , rfl ]₁₀
+                 → Γ ⊢ J p q A t B u t′ rfl ⇒ u ∷ B [ t , rfl ]₁₀
   K-β            : Γ ⊢ t ∷ A
                  → Γ ∙ Id A t t ⊢ B
                  → Γ ⊢ u ∷ B [ rfl ]₀

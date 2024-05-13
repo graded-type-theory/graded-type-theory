@@ -255,7 +255,8 @@ private
 -- Substitution commutes with translation.
 
 tr-Term-[,] :
-  ∀ t → tr-Term t U₂.[ tr-Term u , tr-Term v ] ≡ tr-Term (t U₁.[ u , v ])
+  ∀ t →
+  tr-Term t U₂.[ tr-Term u , tr-Term v ]₁₀ ≡ tr-Term (t U₁.[ u , v ]₁₀)
 tr-Term-[,] {u = u} {v = v} t =
   tr-Term t
     U₂.[ U₂.consSubst (U₂.sgSubst (tr-Term u)) (tr-Term v) ]  ≡⟨ UP₂.substVar-to-subst [,]-lemma (tr-Term t) ⟩
@@ -690,14 +691,14 @@ module Injective
     u U₂.[ U₂.sgSubst (tr-Term v) ]   ≡⟨ UP₂.substVar-to-subst tr-Subst-sgSubst u ⟩
     u U₂.[ tr-Subst (U₁.sgSubst v) ]  ∎)
 
-  -- Inversion for _[_,_].
+  -- Inversion for _[_,_]₁₀.
 
   tr-Term-[,]⁻¹ :
-    tr-Term t ≡ u U₂.[ tr-Term v , tr-Term w ] →
-    ∃ λ u′ → tr-Term u′ ≡ u × t ≡ u′ U₁.[ v , w ]
+    tr-Term t ≡ u U₂.[ tr-Term v , tr-Term w ]₁₀ →
+    ∃ λ u′ → tr-Term u′ ≡ u × t ≡ u′ U₁.[ v , w ]₁₀
   tr-Term-[,]⁻¹ {t = t} {u = u} {v = v} {w = w} eq = tr-Term-subst⁻¹ (
     tr-Term t                                                   ≡⟨ eq ⟩
-    u U₂.[ tr-Term v , tr-Term w ]                              ≡⟨⟩
+    u U₂.[ tr-Term v , tr-Term w ]₁₀                            ≡⟨⟩
     u U₂.[ U₂.consSubst (U₂.sgSubst (tr-Term v)) (tr-Term w) ]  ≡⟨ UP₂.substVar-to-subst [,]-lemma u ⟩
     u U₂.[ tr-Subst (U₁.consSubst (U₁.sgSubst v) w) ]           ∎)
 

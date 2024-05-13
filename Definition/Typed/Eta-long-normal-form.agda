@@ -29,8 +29,7 @@ open import Definition.Typed.Consequences.Stability R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
 
-open import Definition.Untyped M
-  hiding (_∷_) renaming (_[_,_] to _[_,_]₁₀)
+open import Definition.Untyped M hiding (_∷_)
 open import Definition.Untyped.Normal-form M
 
 import Graded.Derived.Erased.Untyped 𝕄 as Erased

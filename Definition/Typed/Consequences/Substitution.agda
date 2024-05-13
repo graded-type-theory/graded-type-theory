@@ -13,8 +13,7 @@ module Definition.Typed.Consequences.Substitution
 
 open Type-restrictions R
 
-open import Definition.Untyped M
-  hiding (_∷_; wk) renaming (_[_,_] to _[_,_]₁₀)
+open import Definition.Untyped M hiding (_∷_; wk)
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R

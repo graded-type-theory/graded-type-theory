@@ -503,8 +503,8 @@ wk-β-prodrec :
 wk-β-prodrec {p = p} ρ A = wk-β↑² {ρ = ρ} A
 
 wk-β-doubleSubst : ∀ (ρ : Wk m n) (s : Term (2+ n)) (t u : Term n)
-                 → wk ρ (s [ u , t ])
-                 ≡ wk (lift (lift ρ)) s [ wk ρ u , wk ρ t ]
+                 → wk ρ (s [ u , t ]₁₀)
+                 ≡ wk (lift (lift ρ)) s [ wk ρ u , wk ρ t ]₁₀
 wk-β-doubleSubst ρ s t u =
  begin
     wk ρ (s [ σₜ t u ])
@@ -513,7 +513,7 @@ wk-β-doubleSubst ρ s t u =
        ≡⟨ substVar-to-subst eq s ⟩
      s [ (σₜ (wk ρ t) (wk ρ u)) ₛ• (lift (lift ρ)) ]
        ≡⟨ sym (subst-wk s) ⟩
-     wk (lift (lift ρ)) s [ wk ρ u , wk ρ t ] ∎
+     wk (lift (lift ρ)) s [ wk ρ u , wk ρ t ]₁₀ ∎
   where
     σₜ : (x y : Term ℓ) → Subst ℓ (2+ ℓ)
     σₜ x y = consSubst (consSubst idSubst y) x
@@ -696,21 +696,21 @@ opaque
   -- Weakening twice and then substituting something for the two new
   -- variables amounts to the same thing as doing nothing.
 
-  wk2-[,] : wk2 t [ u , v ] ≡ t
+  wk2-[,] : wk2 t [ u , v ]₁₀ ≡ t
   wk2-[,] {t} {u} {v} =
-    wk2 t [ u , v ]  ≡⟨ wk2-tail t ⟩
-    t [ idSubst ]    ≡⟨ subst-id _ ⟩
-    t                ∎
+    wk2 t [ u , v ]₁₀  ≡⟨ wk2-tail t ⟩
+    t [ idSubst ]      ≡⟨ subst-id _ ⟩
+    t                  ∎
 
 opaque
 
   -- A variant of wk2-[,] for wk₂.
 
-  wk₂-[,] : wk₂ t [ u , v ] ≡ t
+  wk₂-[,] : wk₂ t [ u , v ]₁₀ ≡ t
   wk₂-[,] {t} {u} {v} =
-    wk₂ t [ u , v ]  ≡⟨ subst-wk t ⟩
-    t [ idSubst ]    ≡⟨ subst-id _ ⟩
-    t                ∎
+    wk₂ t [ u , v ]₁₀  ≡⟨ subst-wk t ⟩
+    t [ idSubst ]      ≡⟨ subst-id _ ⟩
+    t                  ∎
 
 opaque
 
@@ -853,15 +853,15 @@ substCompProdrec {n = n} A t u σ = begin
 
 [1,0]↑²[,] :
   (t : Term (1+ n)) →
-  t [ prodˢ p (var x1) (var x0) ]↑² [ u , v ] ≡
+  t [ prodˢ p (var x1) (var x0) ]↑² [ u , v ]₁₀ ≡
   t [ prodˢ p u v ]₀
 [1,0]↑²[,] {p = p} {u = u} {v = v} t =
-  t [ prodˢ p (var x1) (var x0) ]↑² [ u , v ]  ≡˘⟨ substCompProdrec t _ _ _ ⟩
+  t [ prodˢ p (var x1) (var x0) ]↑² [ u , v ]₁₀  ≡˘⟨ substCompProdrec t _ _ _ ⟩
 
-  t [ liftSubst idSubst ] [ prodˢ p u v ]₀     ≡⟨ cong _[ _ ] $
-                                                  trans (substVar-to-subst subst-lift-id t) $
-                                                  subst-id t ⟩
-  t [ prodˢ p u v ]₀                           ∎
+  t [ liftSubst idSubst ] [ prodˢ p u v ]₀       ≡⟨ cong _[ _ ] $
+                                                    trans (substVar-to-subst subst-lift-id t) $
+                                                    subst-id t ⟩
+  t [ prodˢ p u v ]₀                             ∎
 
 opaque
 
@@ -883,24 +883,24 @@ opaque
     t [ consSubst (consSubst (σ₂ ₛ•ₛ σ₁) u) v ]             ∎
 
 doubleSubstComp : (A : Term (2+ n)) (t u : Term m) (σ : Subst m n)
-                → A [ liftSubstn σ 2 ] [ t , u ]
+                → A [ liftSubstn σ 2 ] [ t , u ]₁₀
                 ≡ A [ consSubst (consSubst σ t) u ]
 doubleSubstComp {n} A t u σ =
-  A [ liftSubstn σ 2 ] [ t , u ]                   ≡⟨ doubleSubstComp′ A ⟩
+  A [ liftSubstn σ 2 ] [ t , u ]₁₀                 ≡⟨ doubleSubstComp′ A ⟩
   A [ consSubst (consSubst (idSubst ₛ•ₛ σ) t) u ]  ≡⟨ flip substVar-to-subst A $ consSubst-cong $ consSubst-cong $ idSubst-ₛ•ₛˡ ⟩
   A [ consSubst (consSubst σ t) u ]                ∎
 
 opaque
 
-  -- One can fuse an application of _[_,_] and an application of _[_]
-  -- into an application of _[_].
+  -- One can fuse an application of _[_,_]₁₀ and an application of
+  -- _[_] into an application of _[_].
 
   [,]-[]-fusion :
     ∀ t →
-    t [ u , v ] [ σ ] ≡
+    t [ u , v ]₁₀ [ σ ] ≡
     t [ consSubst (consSubst σ (u [ σ ])) (v [ σ ]) ]
   [,]-[]-fusion {u} {v} {σ} t =
-    t [ u , v ] [ σ ]                                  ≡⟨ substCompEq t ⟩
+    t [ u , v ]₁₀ [ σ ]                                ≡⟨ substCompEq t ⟩
     t [ σ ₛ•ₛ consSubst (sgSubst u) v ]                ≡⟨ (flip substVar-to-subst t λ where
                                                              x0      → refl
                                                              (x0 +1) → refl
@@ -909,16 +909,16 @@ opaque
 
 opaque
 
-  -- The function _[_,_] kind of commutes with _[_].
+  -- The function _[_,_]₁₀ kind of commutes with _[_].
 
   [,]-[]-commute :
     ∀ t →
-    t [ u , v ] [ σ ] ≡
-    t [ liftSubstn σ 2 ] [ u [ σ ] , v [ σ ] ]
+    t [ u , v ]₁₀ [ σ ] ≡
+    t [ liftSubstn σ 2 ] [ u [ σ ] , v [ σ ] ]₁₀
   [,]-[]-commute {u} {v} {σ} t =
-    t [ u , v ] [ σ ]                                  ≡⟨ [,]-[]-fusion t ⟩
+    t [ u , v ]₁₀ [ σ ]                                ≡⟨ [,]-[]-fusion t ⟩
     t [ consSubst (consSubst σ (u [ σ ])) (v [ σ ]) ]  ≡˘⟨ doubleSubstComp t _ _ _ ⟩
-    t [ liftSubstn σ 2 ] [ u [ σ ] , v [ σ ] ]         ∎
+    t [ liftSubstn σ 2 ] [ u [ σ ] , v [ σ ] ]₁₀       ∎
 
 opaque
 
@@ -936,11 +936,11 @@ opaque
   -- A variant of the previous lemma.
 
   ≡Id-wk2-wk2-1[,] :
-    Id A t u ≡ Id (wk2 A) (wk2 t) (var x1) [ u , v ]
+    Id A t u ≡ Id (wk2 A) (wk2 t) (var x1) [ u , v ]₁₀
   ≡Id-wk2-wk2-1[,] {A} {t} {u} {v} =
-    Id A t u                                  ≡˘⟨ cong₂ (λ A t → Id A t _) wk2-[,] wk2-[,] ⟩
-    Id (wk2 A [ u , v ]) (wk2 t [ u , v ]) u  ≡⟨⟩
-    Id (wk2 A) (wk2 t) (var x1) [ u , v ]     ∎
+    Id A t u                                      ≡˘⟨ cong₂ (λ A t → Id A t _) wk2-[,] wk2-[,] ⟩
+    Id (wk2 A [ u , v ]₁₀) (wk2 t [ u , v ]₁₀) u  ≡⟨⟩
+    Id (wk2 A) (wk2 t) (var x1) [ u , v ]₁₀       ∎
 
 opaque
 

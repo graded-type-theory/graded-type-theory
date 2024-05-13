@@ -67,7 +67,6 @@ open import Graded.Erasure.LogicalRelation.Value as
 open import Graded.Erasure.Extraction 𝕄
 open import Graded.Erasure.Extraction.Properties 𝕄
 import Graded.Erasure.Target as T
-  renaming (_[_,_] to _[_,_]₁₀)
 open import Graded.Erasure.Target.Non-terminating
 import Graded.Erasure.Target.Properties as TP
 open import Graded.Erasure.Target.Reasoning

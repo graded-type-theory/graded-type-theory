@@ -335,8 +335,7 @@ mutual
     let ρn = wkTerm [ρ] ⊢Δ ⊢n
         ρF = wk (lift [ρ]) (⊢Δ ∙ (ℕⱼ ⊢Δ)) ⊢F
         ρz = PE.subst (λ x → _ ⊢ _ ∷ x) (wk-β F) (wkTerm [ρ] ⊢Δ ⊢z)
-    in  PE.subst (λ x → _ ⊢ natrec _ _ _ (U.wk (lift ρ) F) _ _ _
-                          ≡ U.wk ρ (s [ n , natrec p q r F z s n ]) ∷ x)
+    in  PE.subst (_⊢_≡_∷_ _ _ _)
              (PE.sym (wk-β F))
              (PE.subst (λ x → Δ ⊢ natrec _ _ _ _ _ _ _ ≡ x ∷ _)
                        (PE.sym (wk-β-doubleSubst ρ s (natrec p q r F z s n) n))
@@ -625,7 +624,7 @@ mutual
     let ρn = wkTerm [ρ] ⊢Δ ⊢n
         ρF = wk (lift [ρ]) (⊢Δ ∙ (ℕⱼ ⊢Δ)) ⊢F
         ρz = PE.subst (λ x → _ ⊢ _ ∷ x) (wk-β F) (wkTerm [ρ] ⊢Δ ⊢z)
-        ρs = U.wk ρ (s [ n , natrec p q r F z s n ])
+        ρs = U.wk ρ (s [ n , natrec p q r F z s n ]₁₀)
     in  PE.subst (λ x → _ ⊢ natrec _ _ _ (U.wk (lift ρ) F) _ _ _ ⇒ ρs ∷ x)
              (PE.sym (wk-β F))
              (PE.subst (λ x → _ ⊢ natrec _ _ _ _ _ _ _ ⇒ x ∷ _)

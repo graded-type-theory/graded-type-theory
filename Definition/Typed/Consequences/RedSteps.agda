@@ -15,8 +15,7 @@ module Definition.Typed.Consequences.RedSteps
 
 open Type-restrictions R
 
-open import Definition.Untyped M
-  hiding (_∷_) renaming (_[_,_] to _[_,_]₁₀)
+open import Definition.Untyped M hiding (_∷_)
 open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Properties R

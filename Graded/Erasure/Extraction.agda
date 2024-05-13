@@ -108,7 +108,7 @@ mutual
       (yes _) → erase″ t
     erase″ (U.prodrec r p _ _ t u) = case is-𝟘? r of λ where
       (no _)  → erase-prodrecω s p (erase″ t) (erase″ u)
-      (yes _) → erase″ u T.[ loop s , loop s ]
+      (yes _) → erase″ u T.[ loop s , loop s ]₁₀
     erase″ ℕ                        = loop? s
     erase″ U.zero                   = T.zero
     erase″ (U.suc t)                = suc⟨ s ⟩ (erase″ t)

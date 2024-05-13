@@ -10,8 +10,7 @@ import Graded.Restrictions
 open import Graded.Usage.Restrictions
 import Definition.Typed
 open import Definition.Typed.Restrictions
-import Definition.Untyped
-  hiding (_∷_; ℕ≢B) renaming (_[_,_] to _[_,_]₁₀)
+import Definition.Untyped hiding (_∷_; ℕ≢B)
 
 module Application.NegativeOrErasedAxioms.Canonicity
   {a} {M : Set a}

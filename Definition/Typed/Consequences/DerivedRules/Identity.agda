@@ -16,8 +16,7 @@ module Definition.Typed.Consequences.DerivedRules.Identity
 open Modality 𝕄
 open Type-restrictions R
 
-open import Definition.Untyped M as U
-  hiding (_∷_) renaming (_[_,_] to _[_,_]₁₀)
+open import Definition.Untyped M as U hiding (_∷_)
 open import Definition.Typed R
 open import Definition.Typed.Consequences.DerivedRules.Pi R
 open import Definition.Typed.Consequences.DerivedRules.Pi-Sigma R

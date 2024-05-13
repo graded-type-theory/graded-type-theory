@@ -21,13 +21,11 @@ open import Graded.Modality.Properties 𝕄
 open import Graded.Erasure.Extraction 𝕄
 open import Graded.Erasure.Target as T
   hiding (refl; trans)
-  renaming (_[_,_] to _[_,_]₁₀)
 open import Graded.Erasure.Target.Non-terminating
 open import Graded.Erasure.Target.Properties
 
 open import Definition.Untyped M as U
-  hiding (Term; wk; _[_]; liftSubst)
-  renaming (_[_,_] to _[_,_]U₁₀)
+  hiding (Term; wk; _[_]; _[_,_]₁₀; liftSubst)
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄

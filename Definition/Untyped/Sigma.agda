@@ -38,7 +38,7 @@ private variable
 -- A definition of prodrec for strong Σ-types.
 
 prodrecˢ : M → Term n → Term (2+ n) → Term n
-prodrecˢ p t u = u [ fst p t , snd p t ]
+prodrecˢ p t u = u [ fst p t , snd p t ]₁₀
 
 opaque
 
@@ -61,8 +61,8 @@ opaque
   prodrec⟨⟩-[] {s = 𝕨} =
     refl
   prodrec⟨⟩-[] {s = 𝕤} {p} {t} {u} {σ} =
-    u [ fst p t , snd p t ] [ σ ]                               ≡⟨ [,]-[]-commute u ⟩
-    u [ liftSubstn σ 2 ] [ fst p (t [ σ ]) , snd p (t [ σ ]) ]  ∎
+    u [ fst p t , snd p t ]₁₀ [ σ ]                               ≡⟨ [,]-[]-commute u ⟩
+    u [ liftSubstn σ 2 ] [ fst p (t [ σ ]) , snd p (t [ σ ]) ]₁₀  ∎
 
 -- The projections are defined using some extra quantities r′ and q′.
 

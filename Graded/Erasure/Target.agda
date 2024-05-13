@@ -15,7 +15,7 @@ open import Definition.Untyped.NotParametrised
 
 infixl 30 _∘⟨_⟩_
 infixl 25 _[_]
-infixl 25 _[_,_]
+infixl 25 _[_,_]₁₀
 infixl 25 _[_]₀
 infix 10 _⇒_ _⇒*_
 
@@ -223,8 +223,8 @@ t [ u ]₀ = t [ sgSubst u ]
 
 -- Substitute the first two variables of a term with other terms.
 
-_[_,_] : (t : Term (2+ n)) → (u v : Term n) → Term n
-t [ u , v ] = t [ consSubst (sgSubst u) v ]
+_[_,_]₁₀ : (t : Term (2+ n)) → (u v : Term n) → Term n
+t [ u , v ]₁₀ = t [ consSubst (sgSubst u) v ]
 
 -- A term is a value if it is a lambda abstraction, a constructor
 -- application, or ↯.
@@ -276,10 +276,10 @@ data _⇒_ : (t u : Term n) → Set where
   Σ-β₁            : fst (prod t u) ⇒ t
   Σ-β₂            : snd (prod t u) ⇒ u
   prodrec-subst   : t ⇒ t′ → prodrec t u ⇒ prodrec t′ u
-  prodrec-β       : prodrec (prod t t′) u ⇒ u [ t , t′ ]
+  prodrec-β       : prodrec (prod t t′) u ⇒ u [ t , t′ ]₁₀
   natrec-subst    : v ⇒ v′ → natrec t u v ⇒ natrec t u v′
   natrec-zero     : natrec t u zero ⇒ t
-  natrec-suc      : natrec t u (suc v) ⇒ u [ v , natrec t u v ]
+  natrec-suc      : natrec t u (suc v) ⇒ u [ v , natrec t u v ]₁₀
   unitrec-subst   : t ⇒ t′ → unitrec t u ⇒ unitrec t′ u
   unitrec-β       : unitrec star u ⇒ u
 

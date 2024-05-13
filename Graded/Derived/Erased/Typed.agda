@@ -6,8 +6,7 @@
 
 import Graded.Modality
 open import Definition.Typed.Restrictions
-import Definition.Untyped
-  hiding (_∷_; _[_]) renaming (_[_,_] to _[_,_]₁₀)
+import Definition.Untyped hiding (_∷_; _[_])
 
 module Graded.Derived.Erased.Typed
   {a} {M : Set a}

@@ -40,8 +40,7 @@ import Definition.LogicalRelation.Substitution.Introductions.Erased R
   as IE
 open import Definition.LogicalRelation.Substitution.Introductions R
 
-open import Definition.Untyped M
-  hiding (_∷_) renaming (_[_,_] to _[_,_]₁₀)
+open import Definition.Untyped M hiding (_∷_)
 open import Definition.Untyped.Properties M
 
 open import Graded.Context 𝕄
