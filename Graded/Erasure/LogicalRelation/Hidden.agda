@@ -626,6 +626,18 @@ opaque
 -- Other lemmas
 
 opaque
+  unfolding _®⟨_⟩_∷_
+
+  -- Changing type levels for _®⟨_⟩_∷_.
+
+  level-®∷ :
+    Δ ⊩⟨ l ⟩ A →
+    t ®⟨ l′ ⟩ v ∷ A →
+    t ®⟨ l ⟩ v ∷ A
+  level-®∷ ⊩A (⊩A′ , t®v) =
+    ⊩A , irrelevanceTerm ⊩A′ ⊩A t®v
+
+opaque
   unfolding _®⟨_⟩_∷_◂_
 
   -- Embedding for _®⟨_⟩_∷_◂_.
@@ -679,6 +691,20 @@ opaque
       )
 
 opaque
+  unfolding _®⟨_⟩_∷_
+
+  -- Conversion for _®⟨_⟩_∷_.
+
+  conv-®∷ :
+    Δ ⊩⟨ l ⟩ A ≡ B →
+    t ®⟨ l ⟩ v ∷ A →
+    t ®⟨ l ⟩ v ∷ B
+  conv-®∷ A≡B (⊩A , t®v) =
+    case wf-⊩≡ A≡B of λ
+      (_ , ⊩B) →
+    ⊩B , convTermʳ ⊩A ⊩B (≅-eq (escape-⊩≡ A≡B)) t®v
+
+opaque
   unfolding _®⟨_⟩_∷_◂_
 
   -- Conversion for _®⟨_⟩_∷_◂_.
@@ -705,6 +731,31 @@ opaque
       _ , ⊩B
     , convʳ {t = t} _ ⊩A ⊩B (≅-eq (escape-⊩ᵛ≡ A≡B))
         (irrelevance {t = t} _ _ ⊩A′ ⊩A ⊩ʳt)
+
+opaque
+  unfolding _®⟨_⟩_∷_
+
+  -- Closure under reduction of the target language term for _®⟨_⟩_∷_.
+
+  ®∷-⇒* :
+    v T.⇒* v′ →
+    t ®⟨ l ⟩ v ∷ A →
+    t ®⟨ l ⟩ v′ ∷ A
+  ®∷-⇒* v⇒v′ (⊩A , t®v) =
+    ⊩A , targetRedSubstTerm*′ ⊩A t®v v⇒v′
+
+opaque
+  unfolding _®⟨_⟩_∷_
+
+  -- Closure under expansion for _®⟨_⟩_∷_.
+
+  ®∷-⇐* :
+    Δ ⊢ t ⇒* t′ ∷ A →
+    v T.⇒* v′ →
+    t′ ®⟨ l ⟩ v′ ∷ A →
+    t ®⟨ l ⟩ v ∷ A
+  ®∷-⇐* t⇒t′ v⇒v′ (⊩A , t′®v′) =
+    ⊩A , redSubstTerm* ⊩A t′®v′ t⇒t′ v⇒v′
 
 opaque
   unfolding _®⟨_⟩_∷_◂_
