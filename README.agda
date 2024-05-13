@@ -109,15 +109,27 @@ import Graded.Usage.Restrictions.Satisfied
 -- This is not the version of the code that the paper refers to. Some
 -- things have been added, but things have also changed.
 
--- One difference is the addition of identity types. A weak unit type
--- has also been added, and the strong unit type can now optionally be
--- used as a "sink". One can now restrict uses of emptyrec, and if
--- emptyrec 𝟘 is disallowed, then Theorem 6.13 (soundness of
--- extraction) holds also for inconsistent contexts. The target
--- language now supports call-by-value, in addition to call-by-name,
--- and the extraction function has been changed in several ways.
--- Furthermore equality with the grade 𝟘 is now required to be
--- decidable for all modalities.
+-- Some of the changes:
+--
+-- * Identity types have been added.
+--
+-- * A weak unit type has been added.
+--
+-- * The strong unit type can now optionally be used as a "sink"
+--
+-- * One can now restrict uses of emptyrec, and if emptyrec 𝟘 is
+--   disallowed, then Theorem 6.13 (soundness of extraction) holds
+--   also for inconsistent contexts.
+--
+-- * The target language now supports call-by-value, in addition to
+--   call-by-name, and the extraction function has been changed in
+--   several ways.
+--
+-- * Equality with the grade 𝟘 is now required to be decidable for all
+--   modalities.
+--
+-- * The logical relations for reducibility and erasure have been
+--   changed.
 
 -- Another notable change is related to the natrec-star operators. The
 -- paper does not focus on linearity, but some modalities for linear
