@@ -13,6 +13,7 @@ module Definition.LogicalRelation.Properties
   {{eqrel : EqRelSet R}}
   where
 
+open import Definition.LogicalRelation.Properties.Whnf R public
 open import Definition.LogicalRelation.Properties.Reflexivity R public
 open import Definition.LogicalRelation.Properties.Symmetry R public
 open import Definition.LogicalRelation.Properties.Transitivity R public

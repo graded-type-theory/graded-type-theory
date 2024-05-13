@@ -24,6 +24,7 @@ open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties.Conversion R
 open import Definition.LogicalRelation.Properties.Symmetry R
+open import Definition.LogicalRelation.Properties.Whnf R
 
 open import Tools.Empty
 open import Tools.Function

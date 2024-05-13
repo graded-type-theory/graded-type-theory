@@ -21,6 +21,7 @@ open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Properties.Reflexivity R
+open import Definition.LogicalRelation.Properties.Whnf R
 
 open import Tools.Empty
 open import Tools.Function

@@ -146,18 +146,6 @@ mutual
     zeroᵣ : [Natural]-prop Γ zero zero
     ne    : ∀ {n n′} → Γ ⊩neNf n ≡ n′ ∷ ℕ → [Natural]-prop Γ n n′
 
--- Natural extraction from term WHNF property
-natural : ∀ {n} → Natural-prop Γ n → Natural n
-natural (sucᵣ x) = sucₙ
-natural zeroᵣ = zeroₙ
-natural (ne (neNfₜ neK ⊢k k≡k)) = ne neK
-
--- Natural extraction from term equality WHNF property
-split : ∀ {a b} → [Natural]-prop Γ a b → Natural a × Natural b
-split (sucᵣ x) = sucₙ , sucₙ
-split zeroᵣ = zeroₙ , zeroₙ
-split (ne (neNfₜ₌ neK neM k≡m)) = ne neK , ne neM
-
 -- Reducibility of Empty
 
 -- Empty type
@@ -195,12 +183,6 @@ record _⊩Empty_≡_∷Empty (Γ : Con Term ℓ) (t u : Term ℓ) : Set a where
     d′ : Γ ⊢ u :⇒*: k′ ∷ Empty
     k≡k′ : Γ ⊢ k ≅ k′ ∷ Empty
     prop : [Empty]-prop Γ k k′
-
-empty : ∀ {n} → Empty-prop Γ n → Neutral n
-empty (ne (neNfₜ neK _ _)) = neK
-
-esplit : ∀ {a b} → [Empty]-prop Γ a b → Neutral a × Neutral b
-esplit (ne (neNfₜ₌ neK neM k≡m)) = neK , neM
 
 -- Reducibility of Unit
 
@@ -242,14 +224,6 @@ record _⊩Unitˢ_≡_∷Unit (Γ : Con Term ℓ) (t u : Term ℓ) : Set a where
 data [Unitʷ]-prop (Γ : Con Term ℓ) : (t u : Term ℓ) → Set a where
   starᵣ : [Unitʷ]-prop Γ starʷ starʷ
   ne : ∀ {n n′} → Γ ⊩neNf n ≡ n′ ∷ Unitʷ → [Unitʷ]-prop Γ n n′
-
-unit : ∀ {s a} → Unit-prop Γ s a → Whnf a
-unit starᵣ = starₙ
-unit (ne (neNfₜ neK ⊢k k≡k)) = ne neK
-
-usplit : ∀ {a b} → [Unitʷ]-prop Γ a b → Whnf a × Whnf b
-usplit starᵣ = starₙ , starₙ
-usplit (ne (neNfₜ₌ neK neM k≡m)) = ne neK , ne neM
 
 record _⊩Unitʷ_≡_∷Unit (Γ : Con Term ℓ) (t u : Term ℓ) : Set a where
   inductive

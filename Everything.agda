@@ -69,6 +69,7 @@ import Definition.Typed.EqRelInstance
 
 -- The logical relation for reducibility
 import Definition.LogicalRelation
+import Definition.LogicalRelation.Properties.Whnf
 import Definition.LogicalRelation.Properties.Reflexivity
 import Definition.LogicalRelation.Properties.Escape
 import Definition.LogicalRelation.ShapeView

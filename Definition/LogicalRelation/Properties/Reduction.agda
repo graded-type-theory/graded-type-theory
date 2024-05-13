@@ -25,6 +25,7 @@ open import Definition.LogicalRelation.Properties.Reflexivity R
 open import Definition.LogicalRelation.Properties.Universe R
 open import Definition.LogicalRelation.Properties.Escape R
 open import Definition.LogicalRelation.Properties.Transitivity R
+open import Definition.LogicalRelation.Properties.Whnf R
 
 open import Tools.Function
 open import Tools.Nat
