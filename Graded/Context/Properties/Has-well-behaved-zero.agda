@@ -3,8 +3,6 @@
 -- well-behaved
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 import Graded.Modality
 
 module Graded.Context.Properties.Has-well-behaved-zero

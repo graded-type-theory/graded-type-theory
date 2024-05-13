@@ -3,8 +3,6 @@
 -- term former can be defined
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 open import Definition.Typed.Restrictions
 import Graded.Modality
 open import Graded.Usage.Restrictions

@@ -5,8 +5,6 @@
 -- no-type-restrictions)
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 module Graded.Modality.Morphism.Type-restrictions.Examples where
 
 open import Tools.Bool

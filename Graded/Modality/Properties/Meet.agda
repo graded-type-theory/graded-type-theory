@@ -2,8 +2,6 @@
 -- Properties of meet.
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 open import Graded.Modality
 
 module Graded.Modality.Properties.Meet

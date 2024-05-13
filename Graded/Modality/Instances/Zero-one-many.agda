@@ -2,8 +2,6 @@
 -- The zero-one-many modality
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 -- Based on Conor McBride's "I Got Plenty o’ Nuttin’".
 
 -- It might make sense to replace some of the proofs with automated

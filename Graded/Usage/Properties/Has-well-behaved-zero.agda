@@ -55,10 +55,11 @@ valid-var-usage γ▸x γ⟨x⟩≡𝟘 = 𝟘≰𝟙 (lemma _ (inv-usage-var γ
 -- usage relation for variables.
 
 x◂𝟘∈γ+δˡ : p ≡ 𝟘 → x ◂ p ∈ γ +ᶜ δ → x ◂ 𝟘 ∈ γ
-x◂𝟘∈γ+δˡ {x = ()} {ε} _
-x◂𝟘∈γ+δˡ {x = x0} {γ ∙ p} {δ ∙ q} p+q≡𝟘 here =
-  subst (λ x → x0 ◂ x ∈ (γ ∙ p)) (+-positiveˡ p+q≡𝟘) here
-x◂𝟘∈γ+δˡ {x = x +1} {γ ∙ p} {δ ∙ q} eq (there d) = there (x◂𝟘∈γ+δˡ eq d)
+x◂𝟘∈γ+δˡ {x = ()} {γ = ε}
+x◂𝟘∈γ+δˡ {x = x0} {γ = _ ∙ _} {δ = _ ∙ _} p+q≡𝟘 here =
+  subst (λ x → _ ◂ x ∈ _) (+-positiveˡ p+q≡𝟘) here
+x◂𝟘∈γ+δˡ {x = _ +1} {γ = _ ∙ _} {δ = _ ∙ _} eq (there d) =
+  there (x◂𝟘∈γ+δˡ eq d)
 
 -- A variant of the positivity property for addition for the
 -- usage relation for variables.
@@ -71,21 +72,22 @@ x◂𝟘∈γ+δʳ {γ = γ} {δ} p≡𝟘 d =
 -- usage relation for variables.
 
 x◂𝟘∈pγ : q ≡ 𝟘 → p ≢ 𝟘 → x ◂ q ∈ p ·ᶜ γ → x ◂ 𝟘 ∈ γ
-x◂𝟘∈pγ {x = ()} {ε} q≡𝟘 p≢𝟘 d
-x◂𝟘∈pγ {x = x0} {γ ∙ r} pr≡𝟘 p≢𝟘 here = case zero-product pr≡𝟘 of λ where
-  (inj₁ p≡𝟘) → ⊥-elim (p≢𝟘 p≡𝟘)
-  (inj₂ refl) → here
-x◂𝟘∈pγ {x = x +1} {γ ∙ r} q≡𝟘 p≢𝟘 (there d) =
+x◂𝟘∈pγ {x = ()} {γ = ε}
+x◂𝟘∈pγ {x = x0} {γ = _ ∙ _} pr≡𝟘 p≢𝟘 here =
+  case zero-product pr≡𝟘 of λ where
+    (inj₁ p≡𝟘)  → ⊥-elim (p≢𝟘 p≡𝟘)
+    (inj₂ refl) → here
+x◂𝟘∈pγ {x = _ +1} {γ = _ ∙ _} q≡𝟘 p≢𝟘 (there d) =
   there (x◂𝟘∈pγ q≡𝟘 p≢𝟘 d)
 
 -- A variant of the positivity property for meet for the
 -- usage relation for variables.
 
 x◂𝟘∈γ∧δˡ : p ≡ 𝟘 → x ◂ p ∈ γ ∧ᶜ δ → x ◂ 𝟘 ∈ γ
-x◂𝟘∈γ∧δˡ {x = ()} {ε} _
-x◂𝟘∈γ∧δˡ {x = x0} {γ ∙ p} {δ ∙ q} p∧q≡𝟘 here =
-  subst (λ x → x0 ◂ x ∈ (γ ∙ p)) (∧-positiveˡ p∧q≡𝟘) here
-x◂𝟘∈γ∧δˡ {x = x +1} {γ ∙ p} {δ ∙ q} eq (there d) =
+x◂𝟘∈γ∧δˡ {x = ()} {γ = ε} _
+x◂𝟘∈γ∧δˡ {x = x0} {γ = _ ∙ _} {δ = _ ∙ _} p∧q≡𝟘 here =
+  subst (λ x → _ ◂ x ∈ _) (∧-positiveˡ p∧q≡𝟘) here
+x◂𝟘∈γ∧δˡ {x = _ +1} {γ = _ ∙ _} {δ = _ ∙ _} eq (there d) =
   there (x◂𝟘∈γ∧δˡ eq d)
 
 -- A variant of the positivity property for meet for the

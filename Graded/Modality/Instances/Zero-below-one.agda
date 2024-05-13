@@ -2,8 +2,6 @@
 -- A modality with 𝟘 < 𝟙
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 module Graded.Modality.Instances.Zero-below-one where
 
 import Tools.Algebra

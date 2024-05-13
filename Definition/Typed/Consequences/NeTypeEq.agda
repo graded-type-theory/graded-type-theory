@@ -2,8 +2,6 @@
 -- Neutral terms have only one type (up to type equality).
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 

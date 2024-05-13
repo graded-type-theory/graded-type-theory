@@ -2,8 +2,6 @@
 -- Modality morphisms
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 module Graded.Modality.Morphism where
 
 open import Tools.Bool

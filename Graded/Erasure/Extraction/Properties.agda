@@ -2,8 +2,6 @@
 -- Properties of the extraction function.
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 open import Graded.Modality
 open import Tools.PropositionalEquality as PE
 

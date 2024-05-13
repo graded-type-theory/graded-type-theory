@@ -2,8 +2,6 @@
 -- Some properties related to typing and Erased
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 import Graded.Modality
 open import Definition.Typed.Restrictions
 import Definition.Untyped hiding (_[_])

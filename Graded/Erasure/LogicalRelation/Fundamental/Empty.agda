@@ -2,8 +2,6 @@
 -- Graded.Erasure validity of the empty type.
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 import Definition.Typed
 open import Definition.Typed.Restrictions
 open import Graded.Erasure.LogicalRelation.Assumptions

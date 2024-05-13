@@ -2,8 +2,6 @@
 -- Some examples related to the erasure modality and extraction
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 open import Tools.Level
 
 open import Graded.Modality.Instances.Erasure

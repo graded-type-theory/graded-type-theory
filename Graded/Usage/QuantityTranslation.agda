@@ -2,8 +2,6 @@
 -- Modality morphisms preserve some things related to usage
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 open import Graded.Modality
 open import Graded.Modality.Morphism as M
   using (Is-morphism; Is-order-embedding;

@@ -2,8 +2,6 @@
 -- Graded.Erasure validity of the unit type.
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 open import Definition.Typed.Restrictions
 open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality

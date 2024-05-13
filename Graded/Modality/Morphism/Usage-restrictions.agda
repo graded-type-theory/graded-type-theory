@@ -2,8 +2,6 @@
 -- Preserving/reflecting usage restrictions
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 module Graded.Modality.Morphism.Usage-restrictions where
 
 open import Tools.Bool

@@ -3,8 +3,6 @@
 -- canonicity if erased matches are not allowed.
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 import Graded.Modality
 import Graded.Restrictions
 open import Graded.Usage.Restrictions

@@ -284,8 +284,8 @@ module Is-morphism
   -- Translation is injective
 
   tr-Mode-injective : ∀ {m m′} → tr-Mode m ≡ tr-Mode m′ → m ≡ m′
-  tr-Mode-injective {m = 𝟘ᵐ} {𝟘ᵐ} eq = 𝟘ᵐ-cong 𝕄₁
-  tr-Mode-injective {m = 𝟙ᵐ} {𝟙ᵐ} eq = refl
+  tr-Mode-injective {m = 𝟘ᵐ} {m′ = 𝟘ᵐ} _ = 𝟘ᵐ-cong 𝕄₁
+  tr-Mode-injective {m = 𝟙ᵐ} {m′ = 𝟙ᵐ} _ = refl
 
 ------------------------------------------------------------------------
 -- Definitions that are made under the assumptions that tr is an order

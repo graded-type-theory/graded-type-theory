@@ -2,8 +2,6 @@
 -- Prodrec for strong Σ-types and projections for all Σ-types
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 -- These definitions are part of an investigation of to what degree
 -- weak Σ-types can emulate strong Σ-types, and vice versa. This
 -- investigation was prompted by a question asked by an anonymous

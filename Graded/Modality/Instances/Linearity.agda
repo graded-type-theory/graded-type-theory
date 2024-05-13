@@ -117,11 +117,12 @@ suitable-for-full-reduction {us} rs =
       ; []-cong-allowed =
           λ { 𝕨 → []-congʷ-allowed ; 𝕤 → ⊥ }
       ; []-cong→Erased =
-          λ { {𝕨} ok →
+          λ { {s = 𝕨} ok →
                 []-cong→Erased ok .proj₁ , []-cong→Erased ok .proj₂
               , λ ()
-            ; {𝕤} () }
-      ; []-cong→¬Trivial = λ { {𝕨} ok () ; {𝕤} () }
+            ; {s = 𝕤} ()
+            }
+      ; []-cong→¬Trivial = λ { {s = 𝕨} _ (); {s = 𝕤} () }
       }
   , (case sink-or-no-sink of λ where
       (inj₁ sink) → inj₂ sink

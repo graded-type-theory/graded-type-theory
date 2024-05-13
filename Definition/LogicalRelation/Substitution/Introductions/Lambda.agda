@@ -47,7 +47,7 @@ private
     p p₁ p₂ q : M
 
 -- Valid lambda term construction.
-lamᵛ : ∀ {F G t l}
+lamᵛ : ∀ {Γ : Con Term n} {F G t l}
        ([Γ] : ⊩ᵛ Γ)
        ([F] : Γ ⊩ᵛ⟨ l ⟩ F / [Γ])
        ([G] : Γ ∙ F ⊩ᵛ⟨ l ⟩ G / [Γ] ∙ [F])
@@ -55,8 +55,8 @@ lamᵛ : ∀ {F G t l}
        (ok : Π-allowed p q)
      → Γ ⊩ᵛ⟨ l ⟩ lam p t ∷ Π p , q ▷ F ▹ G / [Γ] / Πᵛ [Γ] [F] [G] ok
 lamᵛ
-  {n} {Γ = Γ} {p = p} {q = q} {F = F} {G} {t} {l}
-  [Γ] [F] [G] [t] ok {k} {Δ = Δ} {σ = σ} ⊢Δ [σ] =
+  {n} {p} {q} {Γ} {F} {G} {t} {l}
+  [Γ] [F] [G] [t] ok {k} {Δ} {σ} ⊢Δ [σ] =
   let ⊢F = escape (proj₁ (unwrap [F] ⊢Δ [σ]))
       [liftσ] = liftSubstS {F = F} [Γ] ⊢Δ [F] [σ]
       [ΠFG] = Πᵛ {F = F} {G} {p = p} {q = q} [Γ] [F] [G] ok

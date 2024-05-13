@@ -3,8 +3,6 @@
 -- equality with ⊤ is decidable)
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 module Graded.Modality.Instances.Bounded-distributive-lattice
   {a} (M : Set a)
   where

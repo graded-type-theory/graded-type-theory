@@ -5,8 +5,6 @@
 -- Typing rules for the terms given in this module can be found in
 -- Definition.Typed.Consequences.DerivedRules.Identity.
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 open import Graded.Modality
 
 module Definition.Untyped.Identity

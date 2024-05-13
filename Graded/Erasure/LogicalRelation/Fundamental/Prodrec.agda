@@ -2,8 +2,6 @@
 -- Graded.Erasure validity of prodrec.
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 open import Definition.Typed.Restrictions
 open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality

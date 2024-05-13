@@ -4,4 +4,5 @@ include: .
 flags:
   --without-K
   --safe
+  --hidden-argument-puns
   -WnoUnsupportedIndexedMatch

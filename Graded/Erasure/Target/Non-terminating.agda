@@ -2,8 +2,6 @@
 -- A non-terminating term
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 module Graded.Erasure.Target.Non-terminating where
 
 open import Definition.Untyped.NotParametrised

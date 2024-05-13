@@ -52,14 +52,14 @@ mutual
                → Γ ⊩ℕ n  ≡ n′  ∷ℕ
                → Γ ⊩ℕ n′ ≡ n″ ∷ℕ
                → Γ ⊩ℕ n  ≡ n″ ∷ℕ
-  transEqTermℕ {n} (ℕₜ₌ k k′ d d′ t≡u prop)
-               (ℕₜ₌ k₁ k″ d₁ d″ t≡u₁ prop₁) =
+  transEqTermℕ (ℕₜ₌ k _ d d′ t≡u prop) (ℕₜ₌ _ k″ d₁ d″ t≡u₁ prop₁) =
     let k₁Whnf = naturalWhnf (proj₁ (split prop₁))
         k′Whnf = naturalWhnf (proj₂ (split prop))
         k₁≡k′ = whrDet*Term (redₜ d₁ , k₁Whnf) (redₜ d′ , k′Whnf)
-        prop′ = PE.subst (λ (x : Term n) → [Natural]-prop _ x _) k₁≡k′ prop₁
-    in  ℕₜ₌ k k″ d d″ (≅ₜ-trans t≡u (PE.subst (λ (x : Term n) → _ ⊢ x ≅ _ ∷ _) k₁≡k′ t≡u₁))
-            (transNatural-prop prop prop′)
+        prop′ = PE.subst (λ x → [Natural]-prop _ x _) k₁≡k′ prop₁
+    in  ℕₜ₌ k k″ d d″
+          (≅ₜ-trans t≡u (PE.subst (λ x → _ ⊢ x ≅ _ ∷ _) k₁≡k′ t≡u₁))
+          (transNatural-prop prop prop′)
 
   transNatural-prop : ∀ {k k′ k″}
                     → [Natural]-prop Γ k k′
@@ -85,14 +85,15 @@ transEqTermEmpty : ∀ {n n′ n″}
   → Γ ⊩Empty n  ≡ n′ ∷Empty
   → Γ ⊩Empty n′ ≡ n″ ∷Empty
   → Γ ⊩Empty n  ≡ n″ ∷Empty
-transEqTermEmpty {n} (Emptyₜ₌ k k′ d d′ t≡u prop)
-             (Emptyₜ₌ k₁ k″ d₁ d″ t≡u₁ prop₁) =
+transEqTermEmpty
+  (Emptyₜ₌ k _ d d′ t≡u prop) (Emptyₜ₌ _ k″ d₁ d″ t≡u₁ prop₁) =
   let k₁Whnf = ne (proj₁ (esplit prop₁))
       k′Whnf = ne (proj₂ (esplit prop))
       k₁≡k′ = whrDet*Term (redₜ d₁ , k₁Whnf) (redₜ d′ , k′Whnf)
-      prop′ = PE.subst (λ (x : Term n) → [Empty]-prop _ x _) k₁≡k′ prop₁
-  in Emptyₜ₌ k k″ d d″ (≅ₜ-trans t≡u (PE.subst (λ (x : Term n) → _ ⊢ x ≅ _ ∷ _) k₁≡k′ t≡u₁))
-     (transEmpty-prop prop prop′)
+      prop′ = PE.subst (λ x → [Empty]-prop _ x _) k₁≡k′ prop₁
+  in Emptyₜ₌ k k″ d d″
+       (≅ₜ-trans t≡u (PE.subst (λ x → _ ⊢ x ≅ _ ∷ _) k₁≡k′ t≡u₁))
+       (transEmpty-prop prop prop′)
 
 transUnit-prop : ∀ {k k′ k″}
   → [Unitʷ]-prop Γ k k′
@@ -106,14 +107,13 @@ transEqTermUnit : ∀ {s n n′ n″}
   → Γ ⊩Unit⟨ s ⟩ n′ ≡ n″ ∷Unit
   → Γ ⊩Unit⟨ s ⟩ n  ≡ n″ ∷Unit
 transEqTermUnit {s = 𝕤} (Unitₜ₌ ⊢t _) (Unitₜ₌ _ ⊢v) = Unitₜ₌ ⊢t ⊢v
-transEqTermUnit {n} {s = 𝕨} (Unitₜ₌ k k′ d d′ k≡k′ prop)
-                (Unitₜ₌ k″ k‴ d″ d‴ k″≡k‴ prop′) =
+transEqTermUnit
+  {s = 𝕨} (Unitₜ₌ k _ d d′ k≡k′ prop) (Unitₜ₌ _ k‴ d″ d‴ k″≡k‴ prop′) =
   let whK″ = proj₁ (usplit prop′)
       whK′ = proj₂ (usplit prop)
       k″≡k′ = whrDet*Term (redₜ d″ , whK″) (redₜ d′ , whK′)
-      k′≡k‴ = PE.subst (λ (x : Term n) → _ ⊢ x ≅ _ ∷ _)
-                       k″≡k′ k″≡k‴
-      prop″ = PE.subst (λ (x : Term n) → [Unitʷ]-prop _ x _) k″≡k′ prop′
+      k′≡k‴ = PE.subst (λ x → _ ⊢ x ≅ _ ∷ _) k″≡k′ k″≡k‴
+      prop″ = PE.subst (λ x → [Unitʷ]-prop _ x _) k″≡k′ prop′
   in  Unitₜ₌ k k‴ d d‴ (≅ₜ-trans k≡k′ k′≡k‴)
              (transUnit-prop prop prop″)
 

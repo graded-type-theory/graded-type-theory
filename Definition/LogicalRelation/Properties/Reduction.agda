@@ -2,8 +2,6 @@
 -- The logical relation is backwards-closed under reductions
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
 open import Graded.Modality

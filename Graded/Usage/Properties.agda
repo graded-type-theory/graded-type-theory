@@ -2,8 +2,6 @@
 -- Properties of the usage relation.
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 import Graded.Modality
 open import Graded.Usage.Restrictions
 

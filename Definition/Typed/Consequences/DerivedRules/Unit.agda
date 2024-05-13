@@ -2,8 +2,6 @@
 -- Derived rules related to the unit types
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 

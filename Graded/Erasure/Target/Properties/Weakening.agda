@@ -2,8 +2,6 @@
 -- Laws for weakenings in the target language.
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 module Graded.Erasure.Target.Properties.Weakening where
 
 open import Definition.Untyped.NotParametrised

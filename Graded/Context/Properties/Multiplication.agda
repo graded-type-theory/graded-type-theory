@@ -107,15 +107,17 @@ private
 -- If γ ≤ᶜ δ then p ·ᶜ γ ≤ᶜ p ·ᶜ δ
 
 ·ᶜ-monotoneʳ : γ ≤ᶜ δ → p ·ᶜ γ ≤ᶜ p ·ᶜ δ
-·ᶜ-monotoneʳ {γ = ε} {ε} ε = ≤ᶜ-refl
-·ᶜ-monotoneʳ {γ = γ ∙ p} {δ ∙ q} (γ≤δ ∙ p≤q) = (·ᶜ-monotoneʳ γ≤δ) ∙ (·-monotoneʳ p≤q)
+·ᶜ-monotoneʳ {γ = ε}     {δ = ε}     ε           = ≤ᶜ-refl
+·ᶜ-monotoneʳ {γ = _ ∙ _} {δ = _ ∙ _} (γ≤δ ∙ p≤q) =
+  ·ᶜ-monotoneʳ γ≤δ ∙ ·-monotoneʳ p≤q
 
 -- Multiplication is monotone
 -- If γ ≤ᶜ δ and p ≤ q then p ·ᶜ γ ≤ᶜ q ·ᶜ δ
 
 ·ᶜ-monotone : γ ≤ᶜ δ → p ≤ q → p ·ᶜ γ ≤ᶜ q ·ᶜ δ
-·ᶜ-monotone {γ = ε} {ε} ε p≤q = ≤ᶜ-refl
-·ᶜ-monotone {γ = γ ∙ p} {δ ∙ q} (γ≤δ ∙ p≤q) p′≤q′ = (·ᶜ-monotone γ≤δ p′≤q′) ∙ (·-monotone p′≤q′ p≤q)
+·ᶜ-monotone {γ = ε}     {δ = ε}     ε           p≤q   = ≤ᶜ-refl
+·ᶜ-monotone {γ = _ ∙ _} {δ = _ ∙ _} (γ≤δ ∙ p≤q) p′≤q′ =
+  ·ᶜ-monotone γ≤δ p′≤q′ ∙ ·-monotone p′≤q′ p≤q
 
 -- If p ·_ is increasing, then p ·ᶜ_ is increasing.
 

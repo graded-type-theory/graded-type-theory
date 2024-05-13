@@ -3,8 +3,6 @@
 -- Σ-types, and vice versa
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 -- This module contains parts of an investigation of to what degree
 -- weak Σ-types can emulate strong Σ-types, and vice versa. This
 -- investigation was prompted by a question asked by an anonymous

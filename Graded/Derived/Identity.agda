@@ -2,8 +2,6 @@
 -- Properties related to usage and Id
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 open import Graded.Usage.Restrictions

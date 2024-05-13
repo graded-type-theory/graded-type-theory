@@ -2,8 +2,6 @@
 -- The logical relation is clsoed under reduction (in both directions).
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 open import Definition.Typed.Restrictions
 open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality

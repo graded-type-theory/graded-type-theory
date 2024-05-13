@@ -442,7 +442,7 @@ private
            Σ-allowed m p q →
            Γ ∙ F ∙ G ⊩ᵛ⟨ l ⟩ prod m p (var x1) (var x0) ∷ wk1 (wk1 (Σ⟨ m ⟩ p , q ▷ F ▹ G))
                            / [Γ] ∙ [F] ∙ [G] / wk1ᵛ ([Γ] ∙ [F]) [G] (wk1ᵛ [Γ] [F] [Σ])
-  [prod] {n} {Γ} {F} {G} {p} {q} {A} {l} {m} [Γ] [F] [G] [Σ] [A] ok =
+  [prod] {Γ} {F} {G} {l} [Γ] [F] [G] [Σ] _ ok =
     let [ΓF] = [Γ] ∙ [F]
         [ΓFG] = [ΓF] ∙ [G]
         wk[F] = wk1ᵛ [ΓF] [G] (wk1ᵛ [Γ] [F] [F])

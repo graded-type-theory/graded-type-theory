@@ -2,8 +2,6 @@
 -- Some properties related to usage and the strong variant of Erased
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 

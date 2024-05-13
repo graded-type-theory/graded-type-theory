@@ -2,8 +2,6 @@
 -- A result related to neutral terms and usage
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 open import Definition.Typed.Restrictions
 import Graded.Modality
 open import Graded.Usage.Restrictions

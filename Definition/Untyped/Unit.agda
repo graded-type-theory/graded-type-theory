@@ -2,8 +2,6 @@
 -- Definitions related to Unit
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 open import Graded.Modality
 
 module Definition.Untyped.Unit

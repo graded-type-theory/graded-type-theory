@@ -2,8 +2,6 @@
 -- Some properties related to usage and Erased
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Untyped.NotParametrised using (Strength)

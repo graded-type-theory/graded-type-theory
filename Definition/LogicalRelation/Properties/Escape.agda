@@ -132,7 +132,7 @@ escapeTermEq {l} {A} {t} {u} (Unitᵣ {s = 𝕤} (Unitₜ D _)) (Unitₜ₌ ⊢t
   let t≅u = ≅ₜ-η-unit ⊢t ⊢u
       A≡Unit = subset* (red D)
   in  ≅-conv t≅u (sym A≡Unit)
-escapeTermEq {l} {Γ} {A} {t} {u} (Unitᵣ {s = 𝕨} (Unitₜ D _)) (Unitₜ₌ k k′ d d′ k≡k′ prop) =
+escapeTermEq (Unitᵣ {s = 𝕨} (Unitₜ D _)) (Unitₜ₌ _ _ d d′ k≡k′ prop) =
   let whK , whK′ = usplit prop
   in  ≅ₜ-red (red D) (redₜ d) (redₜ d′) Unitₙ
              whK whK′ k≡k′

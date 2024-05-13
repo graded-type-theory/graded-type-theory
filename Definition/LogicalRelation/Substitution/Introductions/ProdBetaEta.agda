@@ -268,9 +268,7 @@ private
   ([fst≡] : Γ ⊩⟨ l ⟩ fst p′ p ≡ fst p′ r ∷ F / [F])
   ([snd≡] : Γ ⊩⟨ l ⟩ snd p′ p ≡ snd p′ r ∷ G [ fst p′ p ]₀ / [Gfst]) →
   Γ ⊩⟨ l ⟩ p ≡ r ∷ Σ p′ , q ▷ F ▹ G / [ΣFG]
-Σ-η″
-  {Γ = Γ} {F = F} {G} {t} {l}
-  [F] [Gfst] [ΣFG] [p] [r] [fst≡] [snd≡] =
+Σ-η″ [F] [Gfst] [ΣFG] [p] [r] [fst≡] [snd≡] =
   let [ΣFG]′ = B-intr BΣ! (B-elim BΣ! [ΣFG])
       [p]′ = irrelevanceTerm [ΣFG] [ΣFG]′ [p]
       [r]′ = irrelevanceTerm [ΣFG] [ΣFG]′ [r]

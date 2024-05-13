@@ -2,8 +2,6 @@
 -- The usage relation is closed under weakening.
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 open import Graded.Modality using (Modality)
 open import Graded.Usage.Restrictions
 

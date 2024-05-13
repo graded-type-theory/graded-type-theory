@@ -3,8 +3,6 @@
 -- to typing (given certain assumptions)
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 open import Graded.Modality
 open import Graded.Modality.Morphism
 open import Graded.Modality.Morphism.Type-restrictions

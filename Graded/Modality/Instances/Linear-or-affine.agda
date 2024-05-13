@@ -2,8 +2,6 @@
 -- A modality with simultaneous support for affine and linear types
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 -- It might make sense to replace some of the proofs with automated
 -- proofs.
 

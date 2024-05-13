@@ -2,8 +2,6 @@
 -- Properties of substitution matrices.
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 import Graded.Modality
 open import Graded.Usage.Restrictions
 

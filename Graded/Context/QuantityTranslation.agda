@@ -3,8 +3,6 @@
 -- properties
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 open import Graded.Modality
 
 module Graded.Context.QuantityTranslation

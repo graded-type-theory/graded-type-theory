@@ -2,8 +2,6 @@
 -- Properties related to usage and Unit
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 

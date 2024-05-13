@@ -3,8 +3,6 @@
 -- Laws for weakenings and substitutions.
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 module Definition.Untyped.Properties {a} (M : Set a) where
 
 open import Definition.Untyped M

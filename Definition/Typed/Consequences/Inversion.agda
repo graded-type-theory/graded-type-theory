@@ -2,8 +2,6 @@
 -- Inversion lemmata for the typing relation.
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 

@@ -45,7 +45,7 @@ appTerm′ : ∀ {F G t u l l′ l″}
           ([t] : Γ ⊩⟨ l ⟩ t ∷ Π p , q ▷ F ▹ G / B-intr BΠ! [ΠFG])
           ([u] : Γ ⊩⟨ l″ ⟩ u ∷ F / [F])
         → Γ ⊩⟨ l′ ⟩ t ∘⟨ p ⟩ u ∷ G [ u ]₀ / [G[u]]
-appTerm′ {n} {Γ = Γ} {p = p} {q = q} {F = F} {G} {t} {u}
+appTerm′ {Γ} {p} {q} {F} {G} {t} {u}
          [F] [G[u]] (noemb (Bᵣ F′ G′ D ⊢F ⊢G A≡A [F′] [G′] G-ext ok))
          (Πₜ f d funcF f≡f [f] [f]₁) [u] =
   let ΠFG≡ΠF′G′ = whnfRed* (red D) ΠΣₙ
@@ -88,7 +88,7 @@ app-congTerm′ : ∀ {Γ : Con Term n} {F G t t′ u u′ l l′}
           ([u′] : Γ ⊩⟨ l′ ⟩ u′ ∷ F / [F])
           ([u≡u′] : Γ ⊩⟨ l′ ⟩ u ≡ u′ ∷ F / [F])
         → Γ ⊩⟨ l′ ⟩ t ∘⟨ p ⟩ u ≡ t′ ∘⟨ p ⟩ u′ ∷ G [ u ]₀ / [G[u]]
-app-congTerm′ {n} {p = p} {q = q} {Γ = Γ} {F′} {G′} {t = t} {t′ = t′}
+app-congTerm′ {n} {p} {q} {Γ} {F = F′} {G = G′} {t} {t′}
               [F] [G[u]] (noemb (Bᵣ F G D ⊢F ⊢G A≡A [F]₁ [G] G-ext ok))
               (Πₜ₌ f g [ ⊢t , ⊢f , d ] [ ⊢t′ , ⊢g , d′ ] funcF funcG t≡u
                    (Πₜ f′ [ _ , ⊢f′ , d″ ] funcF′ f≡f [f] [f]₁)

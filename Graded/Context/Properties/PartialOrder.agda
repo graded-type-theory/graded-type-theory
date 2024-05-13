@@ -34,24 +34,24 @@ private
 -- If γ ≤ᶜ δ and δ ≤ᶜ η then γ ≤ᶜ η
 
 ≤ᶜ-trans : γ ≤ᶜ δ → δ ≤ᶜ η → γ ≤ᶜ η
-≤ᶜ-trans {γ = ε} {ε} {ε} _ _ = ε
-≤ᶜ-trans {γ = γ ∙ p} {δ ∙ q} {η ∙ r} (γ≤δ ∙ p≤q) (δ≤η ∙ q≤r) =
+≤ᶜ-trans {γ = ε}     {δ = ε}     {η = ε}     _           _           = ε
+≤ᶜ-trans {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} (γ≤δ ∙ p≤q) (δ≤η ∙ q≤r) =
   (≤ᶜ-trans γ≤δ δ≤η) ∙ (≤-trans p≤q q≤r)
 
 -- ≤ᶜ is antisymmetric
 -- If γ ≤ᶜ δ and δ ≤ᶜ γ then γ ≈ᶜ δ
 
 ≤ᶜ-antisym : γ ≤ᶜ δ → δ ≤ᶜ γ → γ ≈ᶜ δ
-≤ᶜ-antisym {γ = ε} {ε} _ _ = ε
-≤ᶜ-antisym {γ = γ ∙ p} {δ ∙ q} (γ≤δ ∙ p≤q) (δ≤γ ∙ q≤p) =
+≤ᶜ-antisym {γ = ε}     {δ = ε}     _           _           = ε
+≤ᶜ-antisym {γ = _ ∙ _} {δ = _ ∙ _} (γ≤δ ∙ p≤q) (δ≤γ ∙ q≤p) =
   (≤ᶜ-antisym γ≤δ δ≤γ) ∙ (≤-antisym p≤q q≤p)
 
 -- ≤ᶜ is a non-strict order relation
 -- If γ ≈ᶜ δ then γ ≤ᶜ δ
 
 ≤ᶜ-reflexive : γ ≈ᶜ δ → γ ≤ᶜ δ
-≤ᶜ-reflexive {γ = ε} {ε} _ = ε
-≤ᶜ-reflexive {γ = γ ∙ p} {δ ∙ q} (γ≈ᶜδ ∙ p≡q) =
+≤ᶜ-reflexive {γ = ε}     {δ = ε}     _            = ε
+≤ᶜ-reflexive {γ = _ ∙ _} {δ = _ ∙ _} (γ≈ᶜδ ∙ p≡q) =
   ≤ᶜ-reflexive γ≈ᶜδ ∙ ≤-reflexive p≡q
 
 -- ≤ᶜ is a preorder

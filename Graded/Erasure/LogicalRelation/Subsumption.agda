@@ -100,13 +100,15 @@ subsumptionSubst : ∀ {σₜ σᵥ [Γ] [σ]}
                  → σₜ ® σᵥ ∷[ m ] Γ ◂ γ / [Γ] / [σ]
                  → (∀ x → γ ⟨ x ⟩ PE.≡ 𝟘 → δ ⟨ x ⟩ PE.≡ 𝟘)
                  → σₜ ® σᵥ ∷[ m ] Γ ◂ δ / [Γ] / [σ]
-subsumptionSubst {Γ = ε} {ε} {ε} {[Γ] = ε} {lift lower} σ®σ′ prop = _
-subsumptionSubst {m = 𝟘ᵐ} {Γ = Γ ∙ x} {γ ∙ p} {δ ∙ q}
-                 {[Γ] = [Γ] ∙ [A]} {_ , _} (σ®σ′ , t®v) prop with is-𝟘? (𝟘 · q)
+subsumptionSubst
+  {δ = ε} {[Γ] = ε} = _
+subsumptionSubst
+  {m = 𝟘ᵐ} {γ = _ ∙ _} {δ = _ ∙ q} {[Γ] = _ ∙ _} (σ®σ′ , _) prop
+  with is-𝟘? (𝟘 · q)
 ... | yes _ = subsumptionSubst σ®σ′ (λ x → prop (x +1)) , _
 ... | no 𝟘q≢𝟘 = ⊥-elim (𝟘q≢𝟘 (·-zeroˡ q))
-subsumptionSubst {m = 𝟙ᵐ} {Γ = Γ ∙ x} {γ ∙ p} {δ ∙ q}
-                 {[Γ] = [Γ] ∙ [A]} {_ , _} (σ®σ′ , t®v) prop
+subsumptionSubst
+  {m = 𝟙ᵐ} {γ = _ ∙ p} {δ = _ ∙ q} {[Γ] = _ ∙ _} (σ®σ′ , t®v) prop
   rewrite ·-identityˡ q rewrite ·-identityˡ p with is-𝟘? q
 ... | yes q≡𝟘 = subsumptionSubst σ®σ′ (λ x → prop (x +1)) , _
 ... | no q≢𝟘 with is-𝟘? p

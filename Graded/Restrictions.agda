@@ -2,8 +2,6 @@
 -- Definitions related to type and usage restrictions
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 import Graded.Modality
 
 module Graded.Restrictions

@@ -2,8 +2,6 @@
 -- The type constructor Erased
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 open import Graded.Modality
 open import Definition.Untyped.NotParametrised
 

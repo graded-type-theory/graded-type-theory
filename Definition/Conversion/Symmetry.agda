@@ -72,7 +72,7 @@ mutual
         case Σ-injectivity A≡B of λ where
           (F≡ , G≡ , _ , _) →
             F′ , F≡ , fst-cong r~p
-  sym~↑ Γ≡Δ (snd-cong {p} {r} {F} {G} p~r) =
+  sym~↑ Γ≡Δ (snd-cong {l = r} p~r) =
     case sym~↓ Γ≡Δ p~r of λ (B , whnfB , A≡B , r~p) →
     case Σ≡A A≡B whnfB of λ where
       (F′ , G′ , PE.refl) →

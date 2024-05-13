@@ -34,16 +34,16 @@ private
 -- If γ ≈ᶜ δ and δ ≈ᶜ η then γ ≈ᶜ η
 
 ≈ᶜ-trans : γ ≈ᶜ δ → δ ≈ᶜ η → γ ≈ᶜ η
-≈ᶜ-trans {γ = ε} {ε} {ε} _ _ = ε
-≈ᶜ-trans {γ = γ ∙ p} {δ ∙ q} {η ∙ r} (γ≈ᶜδ ∙ p≡q) (δ≈ᶜη ∙ q≡r) =
-  ≈ᶜ-trans γ≈ᶜδ δ≈ᶜη ∙ trans p≡q q≡r
+≈ᶜ-trans {γ = ε}     {δ = ε}     {η = ε}     _           _           = ε
+≈ᶜ-trans {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} (γ≈δ ∙ p≡q) (δ≈η ∙ q≡r) =
+  ≈ᶜ-trans γ≈δ δ≈η ∙ trans p≡q q≡r
 
 -- ≈ᶜ is symmetric
 -- If γ ≈ᶜ δ and δ ≈ᶜ γ then γ ≈ᶜ δ
 
 ≈ᶜ-sym : γ ≈ᶜ δ → δ ≈ᶜ γ
-≈ᶜ-sym {γ = ε} {ε} a = ε
-≈ᶜ-sym {γ = γ ∙ p} {δ ∙ q} (γ≈ᶜδ ∙ p≡q) = ≈ᶜ-sym γ≈ᶜδ ∙ sym p≡q
+≈ᶜ-sym {γ = ε}     {δ = ε}     _           = ε
+≈ᶜ-sym {γ = _ ∙ _} {δ = _ ∙ _} (γ≈δ ∙ p≡q) = ≈ᶜ-sym γ≈δ ∙ sym p≡q
 
 -- ≈ᶜ is an equivalence relation
 

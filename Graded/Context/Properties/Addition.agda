@@ -98,15 +98,17 @@ private
 -- If γ ≤ᶜ δ then γ +ᶜ η ≤ᶜ δ +ᶜ η
 
 +ᶜ-monotoneˡ : γ ≤ᶜ δ → γ +ᶜ η ≤ᶜ δ +ᶜ η
-+ᶜ-monotoneˡ {γ = ε} {ε} {ε} ε = ≤ᶜ-refl
-+ᶜ-monotoneˡ {γ = γ ∙ p} {δ ∙ q} {η ∙ r} (γ≤δ ∙ p≤q) = (+ᶜ-monotoneˡ γ≤δ) ∙ (+-monotoneˡ p≤q)
++ᶜ-monotoneˡ {γ = ε}     {δ = ε}     {η = ε}     ε           = ≤ᶜ-refl
++ᶜ-monotoneˡ {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} (γ≤δ ∙ p≤q) =
+  +ᶜ-monotoneˡ γ≤δ ∙ +-monotoneˡ p≤q
 
 -- Addition on the right is monotone
 -- If γ ≤ᶜ δ then η +ᶜ γ ≤ᶜ η +ᶜ δ
 
 +ᶜ-monotoneʳ : γ ≤ᶜ δ → η +ᶜ γ ≤ᶜ η +ᶜ δ
-+ᶜ-monotoneʳ {γ = ε} {ε} {ε} ε = ≤ᶜ-refl
-+ᶜ-monotoneʳ {γ = γ ∙ p} {δ ∙ q} {η ∙ r} (γ≤δ ∙ p≤q) = (+ᶜ-monotoneʳ γ≤δ) ∙ (+-monotoneʳ p≤q)
++ᶜ-monotoneʳ {γ = ε}     {δ = ε}     {η = ε}     ε           = ≤ᶜ-refl
++ᶜ-monotoneʳ {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} (γ≤δ ∙ p≤q) =
+  +ᶜ-monotoneʳ γ≤δ ∙ +-monotoneʳ p≤q
 
 -- Addition is monotone
 -- If γ ≤ᶜ γ′ and δ ≤ᶜ δ′ then γ + δ ≤ᶜ γ′ +ᶜ δ′

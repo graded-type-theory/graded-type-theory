@@ -2,8 +2,6 @@
 -- Usage-restrictions-satisfied
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 import Graded.Modality
 open import Graded.Usage.Restrictions
 

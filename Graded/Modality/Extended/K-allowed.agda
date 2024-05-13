@@ -7,8 +7,6 @@
 -- show that it is possible to instantiate all of the parameters at
 -- the same time.
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 module Graded.Modality.Extended.K-allowed where
 
 open import Tools.Bool

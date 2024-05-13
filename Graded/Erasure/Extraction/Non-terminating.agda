@@ -27,8 +27,6 @@
 -- If strict applications are used, then this program does not
 -- terminate.
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions

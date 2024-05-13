@@ -4,8 +4,6 @@
 -- module parameter
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 module Definition.Untyped.Properties.NotParametrised where
 
 open import Definition.Untyped.NotParametrised

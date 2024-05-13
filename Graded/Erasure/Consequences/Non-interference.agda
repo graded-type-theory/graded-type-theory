@@ -2,8 +2,6 @@
 -- A non-interference result.
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 import Definition.Untyped

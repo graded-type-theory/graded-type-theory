@@ -2,8 +2,6 @@
 -- Laws for substiutions in the target language.
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 module Graded.Erasure.Target.Properties.Substitution where
 
 open import Definition.Untyped.NotParametrised hiding (_∙_)

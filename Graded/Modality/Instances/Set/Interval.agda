@@ -2,8 +2,6 @@
 -- Non-empty natural number intervals
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 module Graded.Modality.Instances.Set.Interval where
 
 import Tools.Algebra

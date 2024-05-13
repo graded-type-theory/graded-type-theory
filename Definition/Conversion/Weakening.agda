@@ -2,8 +2,6 @@
 -- The algorithmic equality is closed under weakening.
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 

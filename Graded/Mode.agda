@@ -2,8 +2,6 @@
 -- Modes
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 import Graded.Modality
 
 module Graded.Mode
