@@ -38,6 +38,9 @@ private
     s : Strength
 
 
+------------------------------------------------------------------------
+-- Some lemmas related to the reduction relations
+
 -- Reduction is a subset of conversion
 
 subsetTerm : Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ≡ u ∷ A
@@ -393,6 +396,9 @@ idRed:*: A = [ A , A , id A ]
 idRedTerm:*: : Γ ⊢ t ∷ A → Γ ⊢ t :⇒*: t ∷ A
 idRedTerm:*: t = [ t , t , id t ]
 
+------------------------------------------------------------------------
+-- Some lemmas related to U
+
 -- U cannot be a term
 
 UnotInA : Γ ⊢ U ∷ A → ⊥
@@ -454,6 +460,9 @@ redU (univ x) = redU*Term′ PE.refl x
 redU* : Γ ⊢ A ⇒* U → A PE.≡ U
 redU* (id x) = PE.refl
 redU* (x ⇨ A⇒*U) rewrite redU* A⇒*U = ⊥-elim (redU x)
+
+------------------------------------------------------------------------
+-- A lemma related to _∷_∈_
 
 det∈ : ∀ {x} → x ∷ A ∈ Γ → x ∷ B ∈ Γ → A PE.≡ B
 det∈ here here = PE.refl
