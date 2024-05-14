@@ -222,9 +222,8 @@ whnfRed : (d : Γ ⊢ A ⇒ B) (w : Whnf A) → ⊥
 whnfRed (univ x) w = whnfRedTerm x w
 
 whnfRed*Term : (d : Γ ⊢ t ⇒* u ∷ A) (w : Whnf t) → t PE.≡ u
-whnfRed*Term (id x) _ = PE.refl
-whnfRed*Term (conv x x₁ ⇨ d) w = ⊥-elim (whnfRedTerm x w)
-whnfRed*Term (x ⇨ d) (ne x₁) = ⊥-elim (neRedTerm x x₁)
+whnfRed*Term (id _)  _ = PE.refl
+whnfRed*Term (d ⇨ _) w = ⊥-elim (whnfRedTerm d w)
 
 whnfRed* : (d : Γ ⊢ A ⇒* B) (w : Whnf A) → A PE.≡ B
 whnfRed* (id x) w = PE.refl
