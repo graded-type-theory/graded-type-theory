@@ -15,6 +15,7 @@ open Type-variant type-variant
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Nat
+open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 
@@ -364,3 +365,151 @@ wkWhnf ρ sucₙ    = sucₙ
 wkWhnf ρ starₙ   = starₙ
 wkWhnf ρ rflₙ    = rflₙ
 wkWhnf ρ (ne x)  = ne (wkNeutral ρ x)
+
+------------------------------------------------------------------------
+-- Inversion lemmas for Neutral
+
+opaque
+
+  -- An inversion lemma for _∘⟨_⟩_.
+
+  inv-ne-∘ : Neutral (t ∘⟨ p ⟩ u) → Neutral t
+  inv-ne-∘ (∘ₙ n) = n
+
+opaque
+
+  -- An inversion lemma for fst.
+
+  inv-ne-fst : Neutral (fst p t) → Neutral t
+  inv-ne-fst (fstₙ n) = n
+
+opaque
+
+  -- An inversion lemma for snd.
+
+  inv-ne-snd : Neutral (snd p t) → Neutral t
+  inv-ne-snd (sndₙ n) = n
+
+opaque
+
+  -- An inversion lemma for natrec.
+
+  inv-ne-natrec : Neutral (natrec p q r A t u v) → Neutral v
+  inv-ne-natrec (natrecₙ n) = n
+
+opaque
+
+  -- An inversion lemma for prodrec.
+
+  inv-ne-prodrec : Neutral (prodrec r p q A t u) → Neutral t
+  inv-ne-prodrec (prodrecₙ n) = n
+
+opaque
+
+  -- An inversion lemma for emptyrec.
+
+  inv-ne-emptyrec : Neutral (emptyrec p A t) → Neutral t
+  inv-ne-emptyrec (emptyrecₙ n) = n
+
+opaque
+
+  -- An inversion lemma for unitrec.
+
+  inv-ne-unitrec :
+    Neutral (unitrec p q A t u) → ¬ Unitʷ-η × Neutral t
+  inv-ne-unitrec (unitrecₙ not-ok n) = not-ok , n
+
+opaque
+
+  -- An inversion lemma for J.
+
+  inv-ne-J : Neutral (J p q A t B u v w) → Neutral w
+  inv-ne-J (Jₙ n) = n
+
+opaque
+
+  -- An inversion lemma for K.
+
+  inv-ne-K : Neutral (K p A t B u v) → Neutral v
+  inv-ne-K (Kₙ n) = n
+
+opaque
+
+  -- An inversion lemma for []-cong.
+
+  inv-ne-[]-cong : Neutral ([]-cong s A t u v) → Neutral v
+  inv-ne-[]-cong ([]-congₙ n) = n
+
+------------------------------------------------------------------------
+-- Inversion lemmas for Whnf
+
+opaque
+
+  -- An inversion lemma for _∘⟨_⟩_.
+
+  inv-whnf-∘ : Whnf (t ∘⟨ p ⟩ u) → Neutral t
+  inv-whnf-∘ (ne n) = inv-ne-∘ n
+
+opaque
+
+  -- An inversion lemma for fst.
+
+  inv-whnf-fst : Whnf (fst p t) → Neutral t
+  inv-whnf-fst (ne n) = inv-ne-fst n
+
+opaque
+
+  -- An inversion lemma for snd.
+
+  inv-whnf-snd : Whnf (snd p t) → Neutral t
+  inv-whnf-snd (ne n) = inv-ne-snd n
+
+opaque
+
+  -- An inversion lemma for natrec.
+
+  inv-whnf-natrec : Whnf (natrec p q r A t u v) → Neutral v
+  inv-whnf-natrec (ne n) = inv-ne-natrec n
+
+opaque
+
+  -- An inversion lemma for prodrec.
+
+  inv-whnf-prodrec : Whnf (prodrec r p q A t u) → Neutral t
+  inv-whnf-prodrec (ne n) = inv-ne-prodrec n
+
+opaque
+
+  -- An inversion lemma for emptyrec.
+
+  inv-whnf-emptyrec : Whnf (emptyrec p A t) → Neutral t
+  inv-whnf-emptyrec (ne n) = inv-ne-emptyrec n
+
+opaque
+
+  -- An inversion lemma for unitrec.
+
+  inv-whnf-unitrec :
+    Whnf (unitrec p q A t u) → ¬ Unitʷ-η × Neutral t
+  inv-whnf-unitrec (ne n) = inv-ne-unitrec n
+
+opaque
+
+  -- An inversion lemma for J.
+
+  inv-whnf-J : Whnf (J p q A t B u v w) → Neutral w
+  inv-whnf-J (ne n) = inv-ne-J n
+
+opaque
+
+  -- An inversion lemma for K.
+
+  inv-whnf-K : Whnf (K p A t B u v) → Neutral v
+  inv-whnf-K (ne n) = inv-ne-K n
+
+opaque
+
+  -- An inversion lemma for []-cong.
+
+  inv-whnf-[]-cong : Whnf ([]-cong s A t u v) → Neutral v
+  inv-whnf-[]-cong (ne n) = inv-ne-[]-cong n

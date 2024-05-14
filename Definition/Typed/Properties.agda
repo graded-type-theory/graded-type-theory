@@ -27,16 +27,148 @@ open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Relation
+open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private
   variable
     n : Nat
     Γ : Con Term n
     A A′ B B′ C D E F U′ : Term n
-    a b t u u′ v : Term n
-    p p′ q : M
+    a b t t′ u u′ v w : Term n
+    p p′ q r : M
     s : Strength
 
+
+------------------------------------------------------------------------
+-- Inversion lemmas related to _⊢_⇒_∷_
+
+private opaque
+
+  -- An inversion lemma related to _∘⟨_⟩_.
+
+  inv-⇒-∘ :
+    Γ ⊢ t ∘⟨ p ⟩ u ⇒ v ∷ A →
+    (∃₂ λ t′ B → Γ ⊢ t ⇒ t′ ∷ B × v PE.≡ t′ ∘⟨ p ⟩ u) ⊎
+    (∃ λ t′ → t PE.≡ lam p t′ × v PE.≡ t′ [ u ]₀)
+  inv-⇒-∘ (conv d _)                = inv-⇒-∘ d
+  inv-⇒-∘ (app-subst d _)           = inj₁ (_ , _ , d , PE.refl)
+  inv-⇒-∘ (β-red _ _ _ _ PE.refl _) = inj₂ (_ , PE.refl , PE.refl)
+
+  -- An inversion lemma related to fst.
+
+  inv-⇒-fst :
+    Γ ⊢ fst p t ⇒ u ∷ A →
+    (∃₂ λ t′ B → Γ ⊢ t ⇒ t′ ∷ B × u PE.≡ fst p t′) ⊎
+    (∃₂ λ t′ t″ → t PE.≡ prodˢ p t′ t″ × u PE.≡ t′)
+  inv-⇒-fst (conv d _)               = inv-⇒-fst d
+  inv-⇒-fst (fst-subst _ _ d)        = inj₁ (_ , _ , d , PE.refl)
+  inv-⇒-fst (Σ-β₁ _ _ _ _ PE.refl _) = inj₂ (_ , _ , PE.refl , PE.refl)
+
+  -- An inversion lemma related to snd.
+
+  inv-⇒-snd :
+    Γ ⊢ snd p t ⇒ u ∷ A →
+    (∃₂ λ t′ B → Γ ⊢ t ⇒ t′ ∷ B × u PE.≡ snd p t′) ⊎
+    (∃₂ λ t′ t″ → t PE.≡ prodˢ p t′ t″ × u PE.≡ t″)
+  inv-⇒-snd (conv d _)               = inv-⇒-snd d
+  inv-⇒-snd (snd-subst _ _ d)        = inj₁ (_ , _ , d , PE.refl)
+  inv-⇒-snd (Σ-β₂ _ _ _ _ PE.refl _) = inj₂ (_ , _ , PE.refl , PE.refl)
+
+  -- An inversion lemma related to prodrec.
+
+  inv-⇒-prodrec :
+    Γ ⊢ prodrec r p q A t u ⇒ v ∷ B →
+    (∃₂ λ t′ C → Γ ⊢ t ⇒ t′ ∷ C × v PE.≡ prodrec r p q A t′ u) ⊎
+    (∃₂ λ t′ t″ → t PE.≡ prodʷ p t′ t″ × v PE.≡ u [ t′ , t″ ]₁₀)
+  inv-⇒-prodrec (conv d _) =
+    inv-⇒-prodrec d
+  inv-⇒-prodrec (prodrec-subst _ _ _ _ d _) =
+    inj₁ (_ , _ , d , PE.refl)
+  inv-⇒-prodrec (prodrec-β _ _ _ _ _ _ PE.refl _) =
+    inj₂ (_ , _ , PE.refl , PE.refl)
+
+  -- An inversion lemma related to natrec.
+
+  inv-⇒-natrec :
+    Γ ⊢ natrec p q r A t u v ⇒ w ∷ B →
+    (∃₂ λ v′ C → Γ ⊢ v ⇒ v′ ∷ C × w PE.≡ natrec p q r A t u v′) ⊎
+    v PE.≡ zero × w PE.≡ t ⊎
+    (∃ λ v′ → v PE.≡ suc v′ × w PE.≡ u [ v′ , natrec p q r A t u v′ ]₁₀)
+  inv-⇒-natrec (conv d _) =
+    inv-⇒-natrec d
+  inv-⇒-natrec (natrec-subst _ _ _ d) =
+    inj₁ (_ , _ , d , PE.refl)
+  inv-⇒-natrec (natrec-zero _ _ _) =
+    inj₂ (inj₁ (PE.refl , PE.refl))
+  inv-⇒-natrec (natrec-suc _ _ _ _) =
+    inj₂ (inj₂ (_ , PE.refl , PE.refl))
+
+  -- An inversion lemma related to emptyrec.
+
+  inv-⇒-emptyrec :
+    Γ ⊢ emptyrec p A t ⇒ u ∷ B →
+    (∃₂ λ t′ C → Γ ⊢ t ⇒ t′ ∷ C × u PE.≡ emptyrec p A t′)
+  inv-⇒-emptyrec (conv d _) =
+    inv-⇒-emptyrec d
+  inv-⇒-emptyrec (emptyrec-subst _ d) =
+    _ , _ , d , PE.refl
+
+  -- An inversion lemma related to unitrec.
+
+  inv-⇒-unitrec :
+    Γ ⊢ unitrec p q A t u ⇒ v ∷ B →
+    (∃₂ λ t′ C → Γ ⊢ t ⇒ t′ ∷ C × v PE.≡ unitrec p q A t′ u ×
+     ¬ Unitʷ-η) ⊎
+    t PE.≡ starʷ × v PE.≡ u × ¬ Unitʷ-η ⊎
+    v PE.≡ u × Unitʷ-η
+  inv-⇒-unitrec (conv d _) =
+    inv-⇒-unitrec d
+  inv-⇒-unitrec (unitrec-subst _ _ d _ no-η) =
+    inj₁ (_ , _ , d , PE.refl , no-η)
+  inv-⇒-unitrec (unitrec-β _ _ _ no-η) =
+    inj₂ (inj₁ (PE.refl , PE.refl , no-η))
+  inv-⇒-unitrec (unitrec-β-η _ _ _ _ η) =
+    inj₂ (inj₂ (PE.refl , η))
+
+  -- An inversion lemma related to J.
+
+  inv-⇒-J :
+    Γ ⊢ J p q A t B u v w ⇒ t′ ∷ C →
+    (∃₂ λ w′ D → Γ ⊢ w ⇒ w′ ∷ D × t′ PE.≡ J p q A t B u v w′) ⊎
+    w PE.≡ rfl × t′ PE.≡ u
+  inv-⇒-J (conv d _) =
+    inv-⇒-J d
+  inv-⇒-J (J-subst _ _ _ _ _ d) =
+    inj₁ (_ , _ , d , PE.refl)
+  inv-⇒-J (J-β _ _ _ _ _ _ _) =
+    inj₂ (PE.refl , PE.refl)
+
+  -- An inversion lemma related to K.
+
+  inv-⇒-K :
+    Γ ⊢ K p A t B u v ⇒ w ∷ C →
+    (∃₂ λ v′ D → Γ ⊢ v ⇒ v′ ∷ D × w PE.≡ K p A t B u v′) ⊎
+    v PE.≡ rfl × w PE.≡ u
+  inv-⇒-K (conv d _) =
+    inv-⇒-K d
+  inv-⇒-K (K-subst _ _ _ _ d _) =
+    inj₁ (_ , _ , d , PE.refl)
+  inv-⇒-K (K-β _ _ _ _) =
+    inj₂ (PE.refl , PE.refl)
+
+  -- An inversion lemma related to []-cong.
+
+  inv-⇒-[]-cong :
+    Γ ⊢ []-cong s A t u v ⇒ w ∷ C →
+    (∃₂ λ v′ D → Γ ⊢ v ⇒ v′ ∷ D × w PE.≡ []-cong s A t u v′) ⊎
+    v PE.≡ rfl × w PE.≡ rfl
+  inv-⇒-[]-cong (conv d _) =
+    inv-⇒-[]-cong d
+  inv-⇒-[]-cong ([]-cong-subst _ _ _ d _) =
+    inj₁ (_ , _ , d , PE.refl)
+  inv-⇒-[]-cong ([]-cong-β _ _ _ _ _) =
+    inj₂ (PE.refl , PE.refl)
 
 ------------------------------------------------------------------------
 -- Some lemmas related to the reduction relations
@@ -161,65 +293,68 @@ redFirst* : {Γ : Con Term n} → Γ ⊢ A ⇒* B → Γ ⊢ A
 redFirst* (id A) = A
 redFirst* (A⇒A′ ⇨ A′⇒*B) = redFirst A⇒A′
 
--- Neutrals do not weak head reduce
+opaque
 
-neRedTerm : (d : Γ ⊢ t ⇒ u ∷ A) (n : Neutral t) → ⊥
-neRedTerm (conv d x) n = neRedTerm d n
-neRedTerm (app-subst d x) (∘ₙ n) = neRedTerm d n
-neRedTerm (β-red _ _ _ _ _ _) (∘ₙ ())
-neRedTerm (natrec-subst x x₁ x₂ d) (natrecₙ n₁) = neRedTerm d n₁
-neRedTerm (natrec-zero x x₁ x₂) (natrecₙ ())
-neRedTerm (natrec-suc x x₁ x₂ x₃) (natrecₙ ())
-neRedTerm (emptyrec-subst x d) (emptyrecₙ n₁) = neRedTerm d n₁
-neRedTerm (fst-subst _ _ d) (fstₙ n) = neRedTerm d n
-neRedTerm (snd-subst _ _ d) (sndₙ n) = neRedTerm d n
-neRedTerm (prodrec-subst _ _ _ _ d _) (prodrecₙ n) = neRedTerm d n
-neRedTerm (prodrec-β _ _ _ _ _ _ _ _) (prodrecₙ ())
-neRedTerm (Σ-β₁ _ _ _ _ _ _) (fstₙ ())
-neRedTerm (Σ-β₂ _ _ _ _ _ _) (sndₙ ())
-neRedTerm (J-subst _ _ _ _ _ w⇒w′) (Jₙ n) = neRedTerm w⇒w′ n
-neRedTerm (K-subst _ _ _ _ v⇒v′ _) (Kₙ n) = neRedTerm v⇒v′ n
-neRedTerm ([]-cong-subst _ _ _ v⇒v′ _) ([]-congₙ n) = neRedTerm v⇒v′ n
-neRedTerm (J-β _ _ _ _ _ _ _) (Jₙ ())
-neRedTerm (K-β _ _ _ _) (Kₙ ())
-neRedTerm ([]-cong-β _ _ _ _ _) ([]-congₙ ())
-neRedTerm (unitrec-subst _ _ d _ _) (unitrecₙ _ n) = neRedTerm d n
-neRedTerm (unitrec-β _ _ _ _) (unitrecₙ _ ())
-neRedTerm (unitrec-β-η _ _ _ _ ok) (unitrecₙ not-ok _) = not-ok ok
+  -- Neutral terms do not reduce.
+
+  neRedTerm : Γ ⊢ t ⇒ u ∷ A → Neutral t → ⊥
+  neRedTerm = λ where
+    (conv d _)                  → neRedTerm d
+    (app-subst d _)             → neRedTerm d ∘→ inv-ne-∘
+    (β-red _ _ _ _ _ _)         → (λ ()) ∘→ inv-ne-∘
+    (natrec-subst _ _ _ d)      → neRedTerm d ∘→ inv-ne-natrec
+    (natrec-zero _ _ _)         → (λ ()) ∘→ inv-ne-natrec
+    (natrec-suc _ _ _ _)        → (λ ()) ∘→ inv-ne-natrec
+    (emptyrec-subst _ d)        → neRedTerm d ∘→ inv-ne-emptyrec
+    (fst-subst _ _ d)           → neRedTerm d ∘→ inv-ne-fst
+    (snd-subst _ _ d)           → neRedTerm d ∘→ inv-ne-snd
+    (prodrec-subst _ _ _ _ d _) → neRedTerm d ∘→ inv-ne-prodrec
+    (prodrec-β _ _ _ _ _ _ _ _) → (λ ()) ∘→ inv-ne-prodrec
+    (Σ-β₁ _ _ _ _ _ _)          → (λ ()) ∘→ inv-ne-fst
+    (Σ-β₂ _ _ _ _ _ _)          → (λ ()) ∘→ inv-ne-snd
+    (J-subst _ _ _ _ _ d)       → neRedTerm d ∘→ inv-ne-J
+    (K-subst _ _ _ _ d _)       → neRedTerm d ∘→ inv-ne-K
+    ([]-cong-subst _ _ _ d _)   → neRedTerm d ∘→ inv-ne-[]-cong
+    (J-β _ _ _ _ _ _ _)         → (λ ()) ∘→ inv-ne-J
+    (K-β _ _ _ _)               → (λ ()) ∘→ inv-ne-K
+    ([]-cong-β _ _ _ _ _)       → (λ ()) ∘→ inv-ne-[]-cong
+    (unitrec-subst _ _ d _ _)   → neRedTerm d ∘→ proj₂ ∘→ inv-ne-unitrec
+    (unitrec-β _ _ _ _)         → (λ ()) ∘→ proj₂ ∘→ inv-ne-unitrec
+    (unitrec-β-η _ _ _ _ ok)    → (_$ ok) ∘→ proj₁ ∘→ inv-ne-unitrec
 
 
 neRed : (d : Γ ⊢ A ⇒ B) (N : Neutral A) → ⊥
 neRed (univ x) N = neRedTerm x N
 
--- Whnfs do not weak head reduce
+opaque
 
-whnfRedTerm : (d : Γ ⊢ t ⇒ u ∷ A) (w : Whnf t) → ⊥
-whnfRedTerm (conv d x) w = whnfRedTerm d w
-whnfRedTerm (app-subst d x) (ne (∘ₙ x₁)) = neRedTerm d x₁
-whnfRedTerm (β-red _ _ _ _ _ _) (ne (∘ₙ ()))
-whnfRedTerm (natrec-subst x x₁ x₂ d) (ne (natrecₙ x₃)) = neRedTerm d x₃
-whnfRedTerm (natrec-zero x x₁ x₂) (ne (natrecₙ ()))
-whnfRedTerm (natrec-suc x x₁ x₂ x₃) (ne (natrecₙ ()))
-whnfRedTerm (emptyrec-subst x d) (ne (emptyrecₙ x₂)) = neRedTerm d x₂
-whnfRedTerm (fst-subst _ _ d) (ne (fstₙ n)) = neRedTerm d n
-whnfRedTerm (snd-subst _ _ d) (ne (sndₙ n)) = neRedTerm d n
-whnfRedTerm (prodrec-subst _ _ _ _ d _) (ne (prodrecₙ n)) =
-  neRedTerm d n
-whnfRedTerm (prodrec-β _ _ _ _ _ _ _ _) (ne (prodrecₙ ()))
-whnfRedTerm (Σ-β₁ _ _ _ _ _ _) (ne (fstₙ ()))
-whnfRedTerm (Σ-β₂ _ _ _ _ _ _) (ne (sndₙ ()))
-whnfRedTerm (J-subst _ _ _ _ _ w⇒w′) (ne (Jₙ n)) = neRedTerm w⇒w′ n
-whnfRedTerm (K-subst _ _ _ _ v⇒v′ _) (ne (Kₙ n)) = neRedTerm v⇒v′ n
-whnfRedTerm ([]-cong-subst _ _ _ v⇒v′ _) (ne ([]-congₙ n)) =
-  neRedTerm v⇒v′ n
-whnfRedTerm (J-β _ _ _ _ _ _ _) (ne (Jₙ ()))
-whnfRedTerm (K-β _ _ _ _) (ne (Kₙ ()))
-whnfRedTerm ([]-cong-β _ _ _ _ _) (ne ([]-congₙ ()))
-whnfRedTerm (unitrec-subst _ _ d _ _) (ne (unitrecₙ _ n)) =
-  neRedTerm d n
-whnfRedTerm (unitrec-β _ _ _ _) (ne (unitrecₙ _ ()))
-whnfRedTerm (unitrec-β-η _ _ _ _ ok) (ne (unitrecₙ not-ok _)) =
-  not-ok ok
+  -- WHNFs do not reduce.
+
+  whnfRedTerm : Γ ⊢ t ⇒ u ∷ A → Whnf t → ⊥
+  whnfRedTerm = λ where
+    (conv d _)                  → whnfRedTerm d
+    (app-subst d _)             → neRedTerm d ∘→ inv-whnf-∘
+    (β-red _ _ _ _ _ _)         → (λ ()) ∘→ inv-whnf-∘
+    (natrec-subst _ _ _ d)      → neRedTerm d ∘→ inv-whnf-natrec
+    (natrec-zero _ _ _)         → (λ ()) ∘→ inv-whnf-natrec
+    (natrec-suc _ _ _ _)        → (λ ()) ∘→ inv-whnf-natrec
+    (emptyrec-subst _ d)        → neRedTerm d ∘→ inv-whnf-emptyrec
+    (fst-subst _ _ d)           → neRedTerm d ∘→ inv-whnf-fst
+    (snd-subst _ _ d)           → neRedTerm d ∘→ inv-whnf-snd
+    (prodrec-subst _ _ _ _ d _) → neRedTerm d ∘→ inv-whnf-prodrec
+    (prodrec-β _ _ _ _ _ _ _ _) → (λ ()) ∘→ inv-whnf-prodrec
+    (Σ-β₁ _ _ _ _ _ _)          → (λ ()) ∘→ inv-whnf-fst
+    (Σ-β₂ _ _ _ _ _ _)          → (λ ()) ∘→ inv-whnf-snd
+    (J-subst _ _ _ _ _ d)       → neRedTerm d ∘→ inv-whnf-J
+    (K-subst _ _ _ _ d _)       → neRedTerm d ∘→ inv-whnf-K
+    ([]-cong-subst _ _ _ d _)   → neRedTerm d ∘→ inv-whnf-[]-cong
+    (J-β _ _ _ _ _ _ _)         → (λ ()) ∘→ inv-whnf-J
+    (K-β _ _ _ _)               → (λ ()) ∘→ inv-whnf-K
+    ([]-cong-β _ _ _ _ _)       → (λ ()) ∘→ inv-whnf-[]-cong
+    (unitrec-subst _ _ d _ _)   → neRedTerm d ∘→ proj₂ ∘→
+                                  inv-whnf-unitrec
+    (unitrec-β _ _ _ _)         → (λ ()) ∘→ proj₂ ∘→ inv-whnf-unitrec
+    (unitrec-β-η _ _ _ _ ok)    → (_$ ok) ∘→ proj₁ ∘→ inv-whnf-unitrec
 
 whnfRed : (d : Γ ⊢ A ⇒ B) (w : Whnf A) → ⊥
 whnfRed (univ x) w = whnfRedTerm x w
@@ -232,88 +367,117 @@ whnfRed* : (d : Γ ⊢ A ⇒* B) (w : Whnf A) → A PE.≡ B
 whnfRed* (id x) w = PE.refl
 whnfRed* (x ⇨ d) w = ⊥-elim (whnfRed x w)
 
--- Whr is deterministic
+opaque
 
-whrDetTerm : (d : Γ ⊢ t ⇒ u ∷ A) (d′ : Γ ⊢ t ⇒ u′ ∷ A′) → u PE.≡ u′
-whrDetTerm (conv d x) d′ = whrDetTerm d d′
-whrDetTerm d (conv d′ x₁) = whrDetTerm d d′
-whrDetTerm (app-subst d x) (app-subst d′ x₁) rewrite whrDetTerm d d′ = PE.refl
-whrDetTerm (β-red _ _ _ _ _ _) (β-red _ _ _ _ _ _) = PE.refl
-whrDetTerm (fst-subst _ _ x) (fst-subst _ _ y) rewrite whrDetTerm x y = PE.refl
-whrDetTerm (snd-subst _ _ x) (snd-subst _ _ y) rewrite whrDetTerm x y = PE.refl
-whrDetTerm (Σ-β₁ _ _ _ _ _ _) (Σ-β₁ _ _ _ _ _ _) = PE.refl
-whrDetTerm (Σ-β₂ _ _ _ _ _ _) (Σ-β₂ _ _ _ _ _ _) = PE.refl
-whrDetTerm (natrec-subst x x₁ x₂ d) (natrec-subst x₃ x₄ x₅ d′) rewrite whrDetTerm d d′ = PE.refl
-whrDetTerm (natrec-zero x x₁ x₂) (natrec-zero x₃ x₄ x₅) = PE.refl
-whrDetTerm (natrec-suc x x₁ x₂ x₃) (natrec-suc x₄ x₅ x₆ x₇) = PE.refl
-whrDetTerm (prodrec-subst _ _ _ _ d _) (prodrec-subst _ _ _ _ d′ _)
-  rewrite whrDetTerm d d′ = PE.refl
-whrDetTerm (prodrec-β _ _ _ _ _ _ _ _) (prodrec-β _ _ _ _ _ _ _ _) =
-  PE.refl
-whrDetTerm (emptyrec-subst x d) (emptyrec-subst x₂ d′) rewrite whrDetTerm d d′ = PE.refl
-whrDetTerm (J-subst _ _ _ _ _ w⇒w₁) (J-subst _ _ _ _ _ w⇒w₂)
-  rewrite whrDetTerm w⇒w₁ w⇒w₂ = PE.refl
-whrDetTerm (K-subst _ _ _ _ v⇒v₁ _) (K-subst _ _ _ _ v⇒v₂ _)
-  rewrite whrDetTerm v⇒v₁ v⇒v₂ = PE.refl
-whrDetTerm ([]-cong-subst _ _ _ v⇒v₁ _) ([]-cong-subst _ _ _ v⇒v₂ _)
-  rewrite whrDetTerm v⇒v₁ v⇒v₂ = PE.refl
-whrDetTerm (J-β _ _ _ _ _ _ _) (J-β _ _ _ _ _ _ _) =
-  PE.refl
-whrDetTerm (K-β _ _ _ _) (K-β _ _ _ _) =
-  PE.refl
-whrDetTerm ([]-cong-β _ _ _ _ _) ([]-cong-β _ _ _ _ _) =
-  PE.refl
-whrDetTerm (unitrec-subst _ _ d _ _) (unitrec-subst _ _ d′ _ _)
-  rewrite whrDetTerm d d′ = PE.refl
-whrDetTerm (unitrec-β _ _ _ _) (unitrec-β _ _ _ _) = PE.refl
-whrDetTerm (unitrec-β-η _ _ _ _ _) (unitrec-β-η _ _ _ _ _) = PE.refl
+  -- Single-step reduction is deterministic.
 
-whrDetTerm (app-subst d _) (β-red _ _ _ _ _ _) =
-  ⊥-elim (whnfRedTerm d lamₙ)
-whrDetTerm (β-red _ _ _ _ _ _) (app-subst d _) =
-  ⊥-elim (whnfRedTerm d lamₙ)
-whrDetTerm (natrec-subst x x₁ x₂ d) (natrec-zero x₃ x₄ x₅) = ⊥-elim (whnfRedTerm d zeroₙ)
-whrDetTerm (natrec-subst x x₁ x₂ d) (natrec-suc x₃ x₄ x₅ x₆) = ⊥-elim (whnfRedTerm d sucₙ)
-whrDetTerm (natrec-zero x x₁ x₂) (natrec-subst x₃ x₄ x₅ d′) = ⊥-elim (whnfRedTerm d′ zeroₙ)
-whrDetTerm (natrec-suc x x₁ x₂ x₃) (natrec-subst x₄ x₅ x₆ d′) = ⊥-elim (whnfRedTerm d′ sucₙ)
-whrDetTerm (fst-subst _ _ x) (Σ-β₁ _ _ _ _ _ _) =
-  ⊥-elim (whnfRedTerm x prodₙ)
-whrDetTerm (snd-subst _ _ x) (Σ-β₂ _ _ _ _ _ _) =
-  ⊥-elim (whnfRedTerm x prodₙ)
-whrDetTerm (Σ-β₁ _ _ _ _ _ _) (fst-subst _ _ y) =
-  ⊥-elim (whnfRedTerm y prodₙ)
-whrDetTerm (Σ-β₂ _ _ _ _ _ _) (snd-subst _ _ y) =
-  ⊥-elim (whnfRedTerm y prodₙ)
-whrDetTerm
-  (prodrec-subst _ _ _ _ t⇒ _) (prodrec-β _ _ _ _ _ _ _ _) =
-  ⊥-elim (whnfRedTerm t⇒ prodₙ)
-whrDetTerm
-  (prodrec-β _ _ _ _ _ _ _ _) (prodrec-subst _ _ _ _ t⇒ _) =
-  ⊥-elim (whnfRedTerm t⇒ prodₙ)
-whrDetTerm (J-subst _ _ _ _ _ rfl⇒) (J-β _ _ _ _ _ _ _) =
-  ⊥-elim (whnfRedTerm rfl⇒ rflₙ)
-whrDetTerm (J-β _ _ _ _ _ _ _) (J-subst _ _ _ _ _ rfl⇒) =
-  ⊥-elim (whnfRedTerm rfl⇒ rflₙ)
-whrDetTerm (K-subst _ _ _ _ rfl⇒ _) (K-β _ _ _ _) =
-  ⊥-elim (whnfRedTerm rfl⇒ rflₙ)
-whrDetTerm (K-β _ _ _ _) (K-subst _ _ _ _ rfl⇒ _) =
-  ⊥-elim (whnfRedTerm rfl⇒ rflₙ)
-whrDetTerm ([]-cong-subst _ _ _ rfl⇒ _) ([]-cong-β _ _ _ _ _) =
-  ⊥-elim (whnfRedTerm rfl⇒ rflₙ)
-whrDetTerm ([]-cong-β _ _ _ _ _) ([]-cong-subst _ _ _ rfl⇒ _) =
-  ⊥-elim (whnfRedTerm rfl⇒ rflₙ)
-whrDetTerm (unitrec-subst _ _ d _ _) (unitrec-β _ _ _ _) =
-  ⊥-elim (whnfRedTerm d starₙ)
-whrDetTerm (unitrec-subst _ _ _ _ not-ok) (unitrec-β-η _ _ _ _ ok) =
-  ⊥-elim (not-ok ok)
-whrDetTerm (unitrec-β _ _ _ _) (unitrec-subst _ _ d _ _) =
-  ⊥-elim (whnfRedTerm d starₙ)
-whrDetTerm (unitrec-β _ _ _ not-ok) (unitrec-β-η _ _ _ _ ok) =
-  ⊥-elim (not-ok ok)
-whrDetTerm (unitrec-β-η _ _ _ _ ok) (unitrec-subst _ _ _ _ not-ok) =
-  ⊥-elim (not-ok ok)
-whrDetTerm (unitrec-β-η _ _ _ _ ok) (unitrec-β _ _ _ not-ok) =
-  ⊥-elim (not-ok ok)
+  whrDetTerm : Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ⇒ u′ ∷ A′ → u PE.≡ u′
+  whrDetTerm = λ where
+    (conv d _) d′ →
+      whrDetTerm d d′
+    (app-subst d _) d′ →
+      case inv-⇒-∘ d′ of λ where
+        (inj₁ (_ , _ , d′ , PE.refl)) →
+          PE.cong (_∘⟨ _ ⟩ _) (whrDetTerm d d′)
+        (inj₂ (_ , PE.refl , _)) → ⊥-elim (whnfRedTerm d lamₙ)
+    (β-red _ _ _ _ _ _) d′ →
+      case inv-⇒-∘ d′ of λ where
+        (inj₁ (_ , _ , d′ , _))        → ⊥-elim (whnfRedTerm d′ lamₙ)
+        (inj₂ (_ , PE.refl , PE.refl)) → PE.refl
+    (fst-subst _ _ d) d′ →
+      case inv-⇒-fst d′ of λ where
+        (inj₁ (_ , _ , d′ , PE.refl)) →
+          PE.cong (fst _) (whrDetTerm d d′)
+        (inj₂ (_ , _ , PE.refl , _)) → ⊥-elim (whnfRedTerm d prodₙ)
+    (Σ-β₁ _ _ _ _ _ _) d′ →
+      case inv-⇒-fst d′ of λ where
+        (inj₁ (_ , _ , d′ , _)) →
+          ⊥-elim (whnfRedTerm d′ prodₙ)
+        (inj₂ (_ , _ , PE.refl , PE.refl)) → PE.refl
+    (snd-subst _ _ d) d′ →
+      case inv-⇒-snd d′ of λ where
+        (inj₁ (_ , _ , d′ , PE.refl)) →
+          PE.cong (snd _) (whrDetTerm d d′)
+        (inj₂ (_ , _ , PE.refl , _)) → ⊥-elim (whnfRedTerm d prodₙ)
+    (Σ-β₂ _ _ _ _ _ _) d′ →
+      case inv-⇒-snd d′ of λ where
+        (inj₁ (_ , _ , d′ , _)) →
+          ⊥-elim (whnfRedTerm d′ prodₙ)
+        (inj₂ (_ , _ , PE.refl , PE.refl)) → PE.refl
+    (prodrec-subst x x₁ x₂ x₃ d x₄) d′ →
+      case inv-⇒-prodrec d′ of λ where
+        (inj₁ (_ , _ , d′ , PE.refl)) →
+          PE.cong (λ t → prodrec _ _ _ _ t _) (whrDetTerm d d′)
+        (inj₂ (_ , _ , PE.refl , _)) → ⊥-elim (whnfRedTerm d prodₙ)
+    (prodrec-β _ _ _ _ _ _ _ _) d′ →
+      case inv-⇒-prodrec d′ of λ where
+        (inj₁ (_ , _ , d′ , _)) →
+          ⊥-elim (whnfRedTerm d′ prodₙ)
+        (inj₂ (_ , _ , PE.refl , PE.refl)) → PE.refl
+    (natrec-subst _ _ _ d) d′ →
+      case inv-⇒-natrec d′ of λ where
+        (inj₁ (_ , _ , d′ , PE.refl)) →
+          PE.cong (natrec _ _ _ _ _ _) (whrDetTerm d d′)
+        (inj₂ (inj₁ (PE.refl , _))) → ⊥-elim (whnfRedTerm d zeroₙ)
+        (inj₂ (inj₂ (_ , PE.refl , _))) → ⊥-elim (whnfRedTerm d sucₙ)
+    (natrec-zero _ _ _) d′ →
+      case inv-⇒-natrec d′ of λ where
+        (inj₁ (_ , _ , d′ , _))     → ⊥-elim (whnfRedTerm d′ zeroₙ)
+        (inj₂ (inj₁ (_ , PE.refl))) → PE.refl
+        (inj₂ (inj₂ (_ , () , _)))
+    (natrec-suc _ _ _ _) d′ →
+      case inv-⇒-natrec d′ of λ where
+        (inj₁ (_ , _ , d′ , _)) →
+          ⊥-elim (whnfRedTerm d′ sucₙ)
+        (inj₂ (inj₁ (() , _)))
+        (inj₂ (inj₂ (_ , PE.refl , PE.refl))) → PE.refl
+    (emptyrec-subst _ d) d′ →
+      case inv-⇒-emptyrec d′ of λ where
+        (_ , _ , d′ , PE.refl) →
+          PE.cong (emptyrec _ _) (whrDetTerm d d′)
+    (unitrec-subst _ _ d _ no-η) d′ →
+      case inv-⇒-unitrec d′ of λ where
+        (inj₁ (_ , _ , d′ , PE.refl , _)) →
+          PE.cong (λ t → unitrec _ _ _ t _) (whrDetTerm d d′)
+        (inj₂ (inj₁ (PE.refl , _))) → ⊥-elim (whnfRedTerm d starₙ)
+        (inj₂ (inj₂ (_ , η)))       → ⊥-elim (no-η η)
+    (unitrec-β _ _ _ no-η) d′ →
+      case inv-⇒-unitrec d′ of λ where
+        (inj₁ (_ , _ , d′ , _))         → ⊥-elim (whnfRedTerm d′ starₙ)
+        (inj₂ (inj₁ (_ , PE.refl , _))) → PE.refl
+        (inj₂ (inj₂ (_ , η)))           → ⊥-elim (no-η η)
+    (unitrec-β-η _ _ _ _ η) d′ →
+      case inv-⇒-unitrec d′ of λ where
+        (inj₁ (_ , _ , _ , _ , no-η)) → ⊥-elim (no-η η)
+        (inj₂ (inj₁ (_ , _ , no-η)))  → ⊥-elim (no-η η)
+        (inj₂ (inj₂ (PE.refl , _)))   → PE.refl
+    (J-subst _ _ _ _ _ d) d′ →
+      case inv-⇒-J d′ of λ where
+        (inj₁ (_ , _ , d′ , PE.refl)) →
+          PE.cong (J _ _ _ _ _ _ _) (whrDetTerm d d′)
+        (inj₂ (PE.refl , _)) → ⊥-elim (whnfRedTerm d rflₙ)
+    (J-β _ _ _ _ _ _ _) d′ →
+      case inv-⇒-J d′ of λ where
+        (inj₁ (_ , _ , d′ , _)) → ⊥-elim (whnfRedTerm d′ rflₙ)
+        (inj₂ (_ , PE.refl))    → PE.refl
+    (K-subst _ _ _ _ d _) d′ →
+      case inv-⇒-K d′ of λ where
+        (inj₁ (_ , _ , d′ , PE.refl)) →
+          PE.cong (K _ _ _ _ _) (whrDetTerm d d′)
+        (inj₂ (PE.refl , _)) → ⊥-elim (whnfRedTerm d rflₙ)
+    (K-β _ _ _ _) d′ →
+      case inv-⇒-K d′ of λ where
+        (inj₁ (_ , _ , d′ , _)) → ⊥-elim (whnfRedTerm d′ rflₙ)
+        (inj₂ (_ , PE.refl))    → PE.refl
+    ([]-cong-subst _ _ _ d _) d′ →
+      case inv-⇒-[]-cong d′ of λ where
+        (inj₁ (_ , _ , d′ , PE.refl)) →
+          PE.cong ([]-cong _ _ _ _) (whrDetTerm d d′)
+        (inj₂ (PE.refl , _)) → ⊥-elim (whnfRedTerm d rflₙ)
+    ([]-cong-β _ _ _ _ _) d′ →
+      case inv-⇒-[]-cong d′ of λ where
+        (inj₁ (_ , _ , d′ , _)) → ⊥-elim (whnfRedTerm d′ rflₙ)
+        (inj₂ (_ , PE.refl))    → PE.refl
 
 whrDet : (d : Γ ⊢ A ⇒ B) (d′ : Γ ⊢ A ⇒ B′) → B PE.≡ B′
 whrDet (univ x) (univ x₁) = whrDetTerm x x₁
