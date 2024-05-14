@@ -72,7 +72,7 @@ alternative-greater :
       nr₂ = bad-affine-modality
               .Modality.has-nr nr-available .Has-nr.nr
   in
-  (∃₂ λ p r → ∃₃ λ z s n → ¬ nr₁ p r z s n ≡ nr₂ p r z s n) ×
+  (∃₅ λ p r z s n → ¬ nr₁ p r z s n ≡ nr₂ p r z s n) ×
   (∀ p r z s n → nr₁ p r z s n ≤ nr₂ p r z s n)
 alternative-greater _ =
     (𝟘 , 𝟙 , 𝟙 , 𝟘 , 𝟙 , (λ ()))

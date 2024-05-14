@@ -164,7 +164,7 @@ wk-rfl {t = rfl} refl = refl
 
 wk-J :
   wk ρ w ≡ J p q A t B u t′ v →
-  ∃₃ λ A′ t″ B′ → ∃₃ λ u′ t‴ v′ →
+  ∃₆ λ A′ t″ B′ u′ t‴ v′ →
      w ≡ J p q A′ t″ B′ u′ t‴ v′ ×
      wk ρ A′ ≡ A × wk ρ t″ ≡ t × wk (lift (lift ρ)) B′ ≡ B ×
      wk ρ u′ ≡ u × wk ρ t‴ ≡ t′ × wk ρ v′ ≡ v
@@ -175,7 +175,7 @@ wk-J {w = J _ _ _ _ _ _ _ _} refl =
 
 wk-K :
   wk ρ w ≡ K p A t B u v →
-  ∃₃ λ A′ t′ B′ → ∃₂ λ u′ v′ →
+  ∃₅ λ A′ t′ B′ u′ v′ →
      w ≡ K p A′ t′ B′ u′ v′ ×
      wk ρ A′ ≡ A × wk ρ t′ ≡ t × wk (lift ρ) B′ ≡ B ×
      wk ρ u′ ≡ u × wk ρ v′ ≡ v

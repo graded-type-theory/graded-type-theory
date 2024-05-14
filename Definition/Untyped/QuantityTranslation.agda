@@ -402,7 +402,7 @@ tr-Term-snd {t = snd _ _} refl = _ # _ # refl # refl # refl
 
 tr-Term-prodrec :
   tr-Term t ≡ prodrec r p q A u v →
-  ∃₃ λ r′ p′ q′ → ∃₃ λ A′ u′ v′ →
+  ∃₆ λ r′ p′ q′ A′ u′ v′ →
      t ≡ prodrec r′ p′ q′ A′ u′ v′ × tr r′ ≡ r × tr-Σ p′ ≡ p ×
      tr q′ ≡ q × tr-Term A′ ≡ A × tr-Term u′ ≡ u × tr-Term v′ ≡ v
 tr-Term-prodrec {t = prodrec _ _ _ _ _ _} refl =
@@ -422,7 +422,7 @@ tr-Term-star {t = star!} refl = refl
 
 tr-Term-unitrec :
   tr-Term t ≡ unitrec p q A u v →
-  ∃₂ λ p′ q′ → ∃₃ λ A′ u′ v′ →
+  ∃₅ λ p′ q′ A′ u′ v′ →
      t ≡ unitrec p′ q′ A′ u′ v′ × tr p′ ≡ p × tr q′ ≡ q ×
      tr-Term A′ ≡ A × tr-Term u′ ≡ u × tr-Term v′ ≡ v
 tr-Term-unitrec {t = unitrec _ _ _ _ _} refl =
@@ -463,7 +463,7 @@ tr-Term-suc {t = suc _} refl = _ # refl # refl
 
 tr-Term-natrec :
   tr-Term t ≡ natrec p q r A u v w →
-  ∃₃ λ p′ q′ r′ → ∃₄ λ A′ u′ v′ w′ →
+  ∃₇ λ p′ q′ r′ A′ u′ v′ w′ →
      t ≡ natrec p′ q′ r′ A′ u′ v′ w′ ×
      tr p′ ≡ p × tr q′ ≡ q × tr r′ ≡ r ×
      tr-Term A′ ≡ A × tr-Term u′ ≡ u × tr-Term v′ ≡ v × tr-Term w′ ≡ w
@@ -489,7 +489,7 @@ tr-Term-rfl {t = rfl} refl = refl
 
 tr-Term-J :
   tr-Term j ≡ J p q A t B u v w →
-  ∃₂ λ p′ q′ → ∃₃ λ A′ t′ B′ → ∃₃ λ u′ v′ w′ →
+  ∃₈ λ p′ q′ A′ t′ B′ u′ v′ w′ →
      j ≡ J p′ q′ A′ t′ B′ u′ v′ w′ × tr p′ ≡ p × tr q′ ≡ q ×
      tr-Term A′ ≡ A × tr-Term t′ ≡ t × tr-Term B′ ≡ B ×
      tr-Term u′ ≡ u × tr-Term v′ ≡ v × tr-Term w′ ≡ w
@@ -501,7 +501,7 @@ tr-Term-J {j = J _ _ _ _ _ _ _ _} refl =
 
 tr-Term-K :
   tr-Term w ≡ K p A t B u v →
-  ∃₄ λ p′ A′ t′ B′ → ∃₂ λ u′ v′ →
+  ∃₆ λ p′ A′ t′ B′ u′ v′ →
      w ≡ K p′ A′ t′ B′ u′ v′ × tr p′ ≡ p ×
      tr-Term A′ ≡ A × tr-Term t′ ≡ t × tr-Term B′ ≡ B ×
      tr-Term u′ ≡ u × tr-Term v′ ≡ v
