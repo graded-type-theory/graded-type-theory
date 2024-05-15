@@ -242,7 +242,7 @@ opaque
          , lemma₁ refl (Id-elim ⊩Id) ⊩B
              (irrelevanceEq ⊩Id (Id-intr (Id-elim ⊩Id)) Id≡B))
     , (λ (⊩Id , rest) →
-         Id-intr (Id-elim ⊩Id) , lemma₂ refl (Id-elim ⊩Id) rest)
+         Id-intr (Id-elim ⊩Id) , lemma₂ (Id-elim ⊩Id) rest)
     where
     lemma₁ :
       l′ ≤ l →
@@ -282,7 +282,6 @@ opaque
       open _⊩ₗId_ ⊩Id
 
     lemma₂ :
-      l′ ≤ l →
       (⊩Id : Γ ⊩⟨ l′ ⟩Id Id A t u) →
       (∃₃ λ A′ t′ u′ →
        (Γ ⊢ B :⇒*: Id A′ t′ u′) ×
@@ -290,10 +289,9 @@ opaque
        Γ ⊩⟨ l ⟩ t ≡ t′ ∷ A ×
        Γ ⊩⟨ l ⟩ u ≡ u′ ∷ A) →
       (Γ ⊩⟨ l ⟩ B) × Γ ⊩⟨ l′ ⟩ Id A t u ≡ B / Id-intr ⊩Id
-    lemma₂ 1≤l (emb 0<1 ⊩Id) rest =
-      lemma₂ (≤-trans (emb 0<1) 1≤l) ⊩Id rest
+    lemma₂ (emb 0<1 ⊩Id) rest =
+      lemma₂ ⊩Id rest
     lemma₂
-      _
       (noemb ⊩Id)
       ( A′ , t′ , u′ , B⇒*Id , (⊩A , ⊩A′ , A≡A′)
       , (⊩A″ , _ , ⊩t′ , t≡t′) , (⊩A‴ , _ , ⊩u′ , u≡u′)
