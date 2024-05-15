@@ -161,8 +161,7 @@ pattern BΣʷ = BΣ 𝕨 _ _
 pattern BΣˢ = BΣ 𝕤 _ _
 
 ⟦_⟧_▹_ : BindingType → Term n → Term (1+ n) → Term n
-⟦ BΠ p q   ⟧ F ▹ G = Π p , q ▷ F ▹ G
-⟦ BΣ m p q ⟧ F ▹ G = Σ⟨ m ⟩ p , q ▷ F ▹ G
+⟦ BM b p q ⟧ A ▹ B = ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
 
 -- Injectivity of term constructors w.r.t. propositional equality.
 
