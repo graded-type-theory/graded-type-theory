@@ -78,6 +78,15 @@ fst-subst* : Γ ⊢ t ⇒* t′ ∷ Σˢ p , q ▷ A ▹ B
 fst-subst* (id x) ⊢F ⊢G = id (fstⱼ ⊢F ⊢G x)
 fst-subst* (x ⇨ t⇒t′) ⊢F ⊢G = (fst-subst ⊢F ⊢G x) ⇨ (fst-subst* t⇒t′ ⊢F ⊢G)
 
+opaque
+
+  -- emptyrec substitution of reduction closures
+  emptyrec-subst* : Γ ⊢ t ⇒* t′ ∷ Empty
+                  → Γ ⊢ A
+                  → Γ ⊢ emptyrec p A t ⇒* emptyrec p A t′ ∷ A
+  emptyrec-subst* (id x) ⊢A = id (emptyrecⱼ ⊢A x)
+  emptyrec-subst* (x ⇨ d) ⊢A = emptyrec-subst ⊢A x ⇨ emptyrec-subst* d ⊢A
+
 -- A variant of []-cong-subst for _⊢_⇒*_∷_.
 
 []-cong-subst* :
