@@ -411,7 +411,7 @@ opaque
   fundamentalTermEq (emptyrec-cong F≡F′ n≡n′) =
     emptyrec-congᵛ (fundamentalEq F≡F′) (fundamentalTermEq n≡n′)
   fundamentalTermEq (η-unit ⊢t ⊢u η) =
-    η-unitᵛ (fundamentalTerm ⊢t) (fundamentalTerm ⊢u)
+    η-unitᵛ (fundamentalTerm ⊢t) (fundamentalTerm ⊢u) η
   fundamentalTermEq (fst-cong {F = F} {G} {t = t} {t′} ⊢F ⊢G t≡t′)
     with fundamentalTermEq t≡t′ | fundamental ⊢F | fundamental ⊢G
   ... | [Γ] , modelsTermEq [ΣFG] [t] [t′] [t≡t′] | [Γ]₁ , [F]₁ | [Γ]₂ , [G]₂ =
