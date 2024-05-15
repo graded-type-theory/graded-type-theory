@@ -368,16 +368,12 @@ module Fundamental
              δ ⟨ x ⟩ PE.≡ 𝟘 × θ ⟨ x ⟩ PE.≡ 𝟘 × η ⟨ x ⟩ PE.≡ 𝟘  □) }
     fundamental
       {Γ = Γ} {γ = γ}
-      (emptyrecⱼ {A = A} {t = t} {p = p} ⊢A Γ⊢t:Empty) γ▸t =
-      let invUsageEmptyrec δ▸t _ ok γ≤ = inv-usage-emptyrec γ▸t
-          [Γ] , [Empty] , ⊩ʳt = fundamental Γ⊢t:Empty δ▸t
-          [Γ]′ , [A]′ = F.fundamental ⊢A
-          [A] = IS.irrelevance {A = A} [Γ]′ [Γ] [A]′
-          [Γ]″ , [Empty]′ , [t]′ = F.fundamentalTerm Γ⊢t:Empty
-          [t] = IS.irrelevanceTerm {A = Empty} {t = t}
-                  [Γ]″ [Γ] [Empty]′ [Empty] [t]′
-          γ⊩ʳemptyrec = emptyrecʳ t ok [Empty] [A] [t] ⊩ʳt
-      in  [Γ] , [A] , subsumption-≤ (emptyrec _ A t) [A] γ⊩ʳemptyrec γ≤
+      (emptyrecⱼ {A = A} {t = t} {p = p} ⊢A ⊢t) ▸t =
+        case inv-usage-emptyrec ▸t of λ
+          (invUsageEmptyrec ▸t _ ok γ≤pδ) →
+        subsumption-▸⊩ʳ∷[]-≤ {t = emptyrec p A t} γ≤pδ $
+        emptyrecʳ ok (F.fundamental-⊩ᵛ ⊢A) (F.fundamental-⊩ᵛ∷ ⊢t)
+          (fundamental ⊢t ▸t)
     fundamental (starⱼ ⊢Γ ok) _ =
       starʳ ⊢Γ ok
     fundamental {m = 𝟙ᵐ} (unitrecⱼ {A} ⊢A ⊢t ⊢u ok) γ▸ur =

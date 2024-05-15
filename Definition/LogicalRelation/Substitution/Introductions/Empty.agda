@@ -21,27 +21,134 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Hidden R
+open import Definition.LogicalRelation.Irrelevance R
+open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Substitution R
 open import Definition.LogicalRelation.Substitution.Introductions.Universe R
 
-open import Tools.Nat using (Nat)
+open import Tools.Function
 open import Tools.Product
 
-private
-  variable
-    n : Nat
-    Γ : Con Term n
+private variable
+  Γ Δ : Con Term _
+  t u : Term _
+  l : TypeLevel
 
+------------------------------------------------------------------------
+-- Characterisation lemmas
 
--- Validity of the Empty type.
-Emptyᵛ : ∀ {l} ([Γ] : ⊩ᵛ Γ) → Γ ⊩ᵛ⟨ l ⟩ Empty / [Γ]
-Emptyᵛ [Γ] = wrap λ ⊢Δ [σ] → Emptyᵣ (idRed:*: (Emptyⱼ ⊢Δ)) , λ _ x₂ → id (Emptyⱼ ⊢Δ)
+opaque
 
--- Validity of the Empty type as a term.
-Emptyᵗᵛ : ([Γ] : ⊩ᵛ Γ)
-    → Γ ⊩ᵛ⟨ ¹ ⟩ Empty ∷ U / [Γ] / Uᵛ [Γ]
-Emptyᵗᵛ [Γ] ⊢Δ [σ] = let ⊢Empty  = Emptyⱼ ⊢Δ
-                         [Empty] = Emptyᵣ (idRed:*: (Emptyⱼ ⊢Δ))
-                 in  Uₜ Empty (idRedTerm:*: ⊢Empty) Emptyₙ (≅ₜ-Emptyrefl ⊢Δ) [Empty]
-                 ,   (λ x x₁ → Uₜ₌ Empty Empty (idRedTerm:*: ⊢Empty) (idRedTerm:*: ⊢Empty) Emptyₙ Emptyₙ
-                                   (≅ₜ-Emptyrefl ⊢Δ) [Empty] [Empty] (id (Emptyⱼ ⊢Δ)))
+  --  A characterisation lemma for _⊩⟨_⟩_.
+
+  ⊩Empty⇔ :
+    Γ ⊩⟨ l ⟩ Empty ⇔ ⊢ Γ
+  ⊩Empty⇔ =
+      (λ ⊩Empty → lemma (Empty-elim ⊩Empty))
+    , (λ ⊢Γ → Emptyᵣ (idRed:*: (Emptyⱼ ⊢Γ)))
+    where
+    lemma : Γ ⊩⟨ l ⟩Empty Empty → ⊢ Γ
+    lemma (emb 0<1 ⊩Empty) = lemma ⊩Empty
+    lemma (noemb d) = wf (⊢A-red d)
+
+opaque
+  unfolding _⊩⟨_⟩_∷_ ⊩Empty⇔
+
+  -- A characterisation lemma for _⊩⟨_⟩_∷_.
+
+  ⊩∷Empty⇔ :
+    Γ ⊩⟨ l ⟩ t ∷ Empty ⇔ Γ ⊩Empty t ∷Empty
+  ⊩∷Empty⇔ =
+      (λ (⊩Empty′ , ⊩t) →
+         lemma (Empty-elim ⊩Empty′)
+           (irrelevanceTerm ⊩Empty′ (Empty-intr (Empty-elim ⊩Empty′)) ⊩t))
+    , (λ ⊩t@(Emptyₜ n d n≡n prop) →
+         ⊩Empty⇔ .proj₂ (wfTerm (⊢t-redₜ d)) , ⊩t)
+    where
+    lemma :
+      (⊩Empty : Γ ⊩⟨ l ⟩Empty Empty) →
+      Γ ⊩⟨ l ⟩ t ∷ Empty / Empty-intr ⊩Empty →
+      Γ ⊩Empty t ∷Empty
+    lemma (emb 0<1 ⊩Empty′) ⊩t = lemma ⊩Empty′ ⊩t
+    lemma (noemb _) ⊩t = ⊩t
+
+opaque
+  unfolding _⊩⟨_⟩_≡_∷_ ⊩Empty⇔
+
+  -- A characterisation lemma for _⊩⟨_⟩_≡_∷_.
+
+  ⊩≡∷Empty⇔ : Γ ⊩⟨ l ⟩ t ≡ u ∷ Empty ⇔
+    (Γ ⊩Empty t ∷Empty ×
+     Γ ⊩Empty u ∷Empty ×
+     Γ ⊩Empty t ≡ u ∷Empty)
+  ⊩≡∷Empty⇔ =
+      (λ (⊩Empty′ , ⊩t , ⊩u , t≡u) →
+        lemma (Empty-elim ⊩Empty′)
+          (irrelevanceTerm ⊩Empty′ (Empty-intr (Empty-elim ⊩Empty′)) ⊩t)
+          (irrelevanceTerm ⊩Empty′ (Empty-intr (Empty-elim ⊩Empty′)) ⊩u)
+          (irrelevanceEqTerm ⊩Empty′ (Empty-intr (Empty-elim ⊩Empty′)) t≡u))
+    , λ (⊩t@(Emptyₜ _ d _ _) , ⊩u , t≡u) →
+        ⊩Empty⇔ .proj₂ (wfTerm (⊢t-redₜ d)) , ⊩t , ⊩u , t≡u
+    where
+    lemma :
+      (⊩Empty : Γ ⊩⟨ l ⟩Empty Empty) →
+      Γ ⊩⟨ l ⟩ t ∷ Empty / Empty-intr ⊩Empty →
+      Γ ⊩⟨ l ⟩ u ∷ Empty / Empty-intr ⊩Empty →
+      Γ ⊩⟨ l ⟩ t ≡ u ∷ Empty / Empty-intr ⊩Empty →
+      Γ ⊩Empty t ∷Empty ×
+      Γ ⊩Empty u ∷Empty ×
+      Γ ⊩Empty t ≡ u ∷Empty
+    lemma (emb 0<1 ⊩Empty′) ⊩t ⊩u t≡u = lemma ⊩Empty′ ⊩t ⊩u t≡u
+    lemma (noemb _) ⊩t ⊩u t≡u = ⊩t , ⊩u , t≡u
+
+------------------------------------------------------------------------
+-- Empty
+
+opaque
+
+  -- Reducibility for Empty.
+
+  ⊩Empty : ⊢ Γ → Γ ⊩⟨ l ⟩ Empty
+  ⊩Empty = ⊩Empty⇔ .proj₂
+
+opaque
+
+  -- Validity for Empty, seen as a type formerr.
+
+  Emptyᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ l ⟩ Empty
+  Emptyᵛ ⊩Γ =
+    ⊩ᵛ⇔ .proj₂
+      ( ⊩Γ
+      , (λ ⊩σ →
+           case ⊩Empty (escape-⊩ˢ∷ ⊩σ .proj₁) of λ
+             ⊩Empty′ →
+           ⊩Empty′ , λ {σ′ = _} _ → refl-⊩≡ ⊩Empty′))
+
+opaque
+
+  -- Validity for Empty, seen as a term former.
+
+  Emptyᵗᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ ¹ ⟩ Empty ∷ U
+  Emptyᵗᵛ ⊩Γ =
+    ⊩ᵛ∷⇔ .proj₂
+      ( ⊩ᵛU ⊩Γ
+        , λ ⊩σ →
+            case escape-⊩ˢ∷ ⊩σ .proj₁ of λ
+              ⊢Δ →
+            case ⊩Empty ⊢Δ of λ
+              ⊩Empty′ →
+            case Emptyⱼ ⊢Δ of λ
+              ⊢Empty →
+            case ≅ₜ-Emptyrefl ⊢Δ of λ
+              Empty≅Empty →
+              Type→⊩∷U⇔ Emptyₙ .proj₂
+                ( (_ , 0<1 , ⊩Empty′)
+                , (⊢Empty , Empty≅Empty)
+                )
+            , λ _ →
+                Type→⊩≡∷U⇔ Emptyₙ Emptyₙ .proj₂
+                  ( ⊢Empty , ⊢Empty , Empty≅Empty
+                  , (_ , 0<1 , refl-⊩≡ ⊩Empty′)
+                  )
+      )

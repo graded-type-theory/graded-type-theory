@@ -69,7 +69,7 @@ opaque
   fundamental : ∀ {A} (⊢A : Γ ⊢ A) → Σ (⊩ᵛ Γ) (λ [Γ] → Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ])
   fundamental (ℕⱼ ⊢Γ) =
     ℕᵛ (valid ⊢Γ)
-  fundamental (Emptyⱼ x) = valid x , Emptyᵛ (valid x)
+  fundamental (Emptyⱼ x) = Emptyᵛ (valid x)
   fundamental (Unitⱼ ⊢Γ ok) =
     Unitᵛ (valid ⊢Γ) ok
   fundamental (Uⱼ ⊢Γ) =
@@ -132,7 +132,8 @@ opaque
     → Γ ⊩ᵛ⟨ ¹ ⟩ t ∷ A / [Γ] / [A]
   fundamentalTerm (ℕⱼ ⊢Γ) =
     ℕᵗᵛ (valid ⊢Γ)
-  fundamentalTerm (Emptyⱼ x) = valid x , Uᵛ (valid x) , Emptyᵗᵛ (valid x)
+  fundamentalTerm (Emptyⱼ x) =
+    Emptyᵗᵛ (valid x)
   fundamentalTerm (Unitⱼ ⊢Γ ok) =
     Unitᵗᵛ (valid ⊢Γ) ok
   fundamentalTerm (ΠΣⱼ {F = F} {G} {b = BMΠ} ⊢F ⊢G ok)
@@ -211,11 +212,8 @@ opaque
   fundamentalTerm (natrecⱼ {z = t} {s = u} ⊢A ⊢t ⊢u ⊢v) =
     natrecᵛ {t = t} {u = u} (fundamental ⊢A) (fundamentalTerm ⊢t)
       (fundamentalTerm ⊢u) (fundamentalTerm ⊢v)
-  fundamentalTerm (emptyrecⱼ {A} {t = n} ⊢A ⊢n)
-    with fundamental ⊢A | fundamentalTerm ⊢n
-  ... | [Γ] , [A] | [Γ]′ , [Empty] , [n] =
-    let [A]′ = S.irrelevance {A = A} [Γ] [Γ]′ [A]
-    in [Γ]′ , [A]′ , emptyrecᵛ {F = A} {n} [Γ]′ [Empty] [A]′ [n]
+  fundamentalTerm (emptyrecⱼ {t = t} ⊢A ⊢t) =
+    emptyrecᵛ {t = t} (fundamental ⊢A) (fundamentalTerm ⊢t)
   fundamentalTerm (starⱼ ⊢Γ ok) =
     starᵛ (valid ⊢Γ) ok
   fundamentalTerm (conv {t} ⊢t A≡B) =
@@ -410,25 +408,10 @@ opaque
   fundamentalTermEq (natrec-suc ⊢A ⊢t ⊢u ⊢v) =
     natrec-sucᵛ (fundamental ⊢A) (fundamentalTerm ⊢t)
       (fundamentalTerm ⊢u) (fundamentalTerm ⊢v)
-  fundamentalTermEq (emptyrec-cong F≡F′ n≡n′)
-    with fundamentalEq F≡F′ |
-         fundamentalTermEq n≡n′
-  fundamentalTermEq (emptyrec-cong {A = F} {B = F′} {t = n} {u = n′}
-                                 F≡F′ n≡n′) |
-    [Γ]  , [F] , [F′] , [F≡F′] |
-    [Γ]′ , modelsTermEq [Empty] [n] [n′] [n≡n′] =
-    let [F]′ = S.irrelevance {A = F} [Γ] [Γ]′ [F]
-        [F′]′ = S.irrelevance {A = F′} [Γ] [Γ]′ [F′]
-        [F≡F′]′ = S.irrelevanceEq {A = F} {B = F′} [Γ] [Γ]′ [F] [F]′ [F≡F′]
-    in [Γ]′
-      , modelsTermEq [F]′ (emptyrecᵛ {F = F} {n} [Γ]′ [Empty] [F]′ [n])
-                     (conv₂ᵛ {t = emptyrec _ F′ n′} {F} {F′} [Γ]′ [F]′ [F′]′ [F≡F′]′
-                       (emptyrecᵛ {F = F′} {n′} [Γ]′ [Empty] [F′]′ [n′]))
-                     (emptyrec-congᵛ {F = F} {F′} {n} {n′}
-                       [Γ]′ [Empty] [F]′ [F′]′ [F≡F′]′
-                       [n] [n′] [n≡n′])
+  fundamentalTermEq (emptyrec-cong F≡F′ n≡n′) =
+    emptyrec-congᵛ (fundamentalEq F≡F′) (fundamentalTermEq n≡n′)
   fundamentalTermEq (η-unit ⊢t ⊢u η) =
-    η-unitᵛ (fundamentalTerm ⊢t) (fundamentalTerm ⊢u) η
+    η-unitᵛ (fundamentalTerm ⊢t) (fundamentalTerm ⊢u)
   fundamentalTermEq (fst-cong {F = F} {G} {t = t} {t′} ⊢F ⊢G t≡t′)
     with fundamentalTermEq t≡t′ | fundamental ⊢F | fundamental ⊢G
   ... | [Γ] , modelsTermEq [ΣFG] [t] [t′] [t≡t′] | [Γ]₁ , [F]₁ | [Γ]₂ , [G]₂ =
