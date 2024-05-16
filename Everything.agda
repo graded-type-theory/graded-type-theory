@@ -110,6 +110,7 @@ import Definition.LogicalRelation.Substitution.Introductions.Empty
 import Definition.LogicalRelation.Substitution.Introductions.Emptyrec
 import Definition.LogicalRelation.Substitution.Introductions.Unit
 import Definition.LogicalRelation.Substitution.Introductions.Nat
+import Definition.LogicalRelation.Substitution.Introductions.Pi-Sigma
 import Definition.LogicalRelation.Substitution.Introductions.Pi
 import Definition.LogicalRelation.Substitution.Introductions.Lambda
 import Definition.LogicalRelation.Substitution.Introductions.Application

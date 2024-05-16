@@ -12,7 +12,9 @@ module Definition.LogicalRelation.Substitution.Introductions
   (R : Type-restrictions 𝕄)
   where
 
-open import Definition.LogicalRelation.Substitution.Introductions.Pi R public
+open import
+  Definition.LogicalRelation.Substitution.Introductions.Pi-Sigma R
+  public
 open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst R public
 open import Definition.LogicalRelation.Substitution.Introductions.Lambda R public
 open import Definition.LogicalRelation.Substitution.Introductions.Application R public
