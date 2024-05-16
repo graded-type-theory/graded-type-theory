@@ -117,13 +117,15 @@ opaque
   -- Validity for Empty, seen as a type formerr.
 
   Emptyᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ l ⟩ Empty
-  Emptyᵛ ⊩Γ =
+  Emptyᵛ {Γ} {l} ⊩Γ =
     ⊩ᵛ⇔ .proj₂
       ( ⊩Γ
-      , (λ ⊩σ →
-           case ⊩Empty (escape-⊩ˢ∷ ⊩σ .proj₁) of λ
-             ⊩Empty′ →
-           ⊩Empty′ , λ {σ′ = _} _ → refl-⊩≡ ⊩Empty′))
+      , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
+          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ        →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
+          ⊢ Δ                     ⇔˘⟨ ⊩Empty⇔ ⟩→
+          (Δ ⊩⟨ l ⟩ Empty)        →⟨ refl-⊩≡ ⟩
+          Δ ⊩⟨ l ⟩ Empty ≡ Empty  □
+      )
 
 opaque
 
@@ -133,22 +135,13 @@ opaque
   Emptyᵗᵛ ⊩Γ =
     ⊩ᵛ∷⇔ .proj₂
       ( ⊩ᵛU ⊩Γ
-        , λ ⊩σ →
-            case escape-⊩ˢ∷ ⊩σ .proj₁ of λ
-              ⊢Δ →
-            case ⊩Empty ⊢Δ of λ
-              ⊩Empty′ →
-            case Emptyⱼ ⊢Δ of λ
-              ⊢Empty →
-            case ≅ₜ-Emptyrefl ⊢Δ of λ
-              Empty≅Empty →
-              Type→⊩∷U⇔ Emptyₙ .proj₂
-                ( (_ , 0<1 , ⊩Empty′)
-                , (⊢Empty , Empty≅Empty)
-                )
-            , λ _ →
-                Type→⊩≡∷U⇔ Emptyₙ Emptyₙ .proj₂
-                  ( ⊢Empty , ⊢Empty , Empty≅Empty
-                  , (_ , 0<1 , refl-⊩≡ ⊩Empty′)
-                  )
+      , λ σ₁≡σ₂ →
+          case escape-⊩ˢ≡∷ σ₁≡σ₂ of λ
+            (⊢Δ , _) →
+          case Emptyⱼ ⊢Δ of λ
+            ⊢Empty →
+          Type→⊩≡∷U⇔ Emptyₙ Emptyₙ .proj₂
+            ( ⊢Empty , ⊢Empty , ≅ₜ-Emptyrefl ⊢Δ
+            , (_ , 0<1 , refl-⊩≡ (⊩Empty ⊢Δ))
+            )
       )

@@ -94,9 +94,9 @@ opaque
       , λ ⊩σ _ →
           ®∷→®∷◂ $
           ®∷Id⇔ .proj₂
-            ( ⊩ᵛ⇔′ .proj₁ (wf-⊩ᵛ∷ ⊩t) .proj₂ .proj₁ ⊩σ
+            ( ⊩ᵛ→⊩ˢ∷→⊩[] (wf-⊩ᵛ∷ ⊩t) ⊩σ
             , rflᵣ
-                (rfl  ∎⟨ rflⱼ (escape-⊩∷ (⊩ᵛ∷⇔′ .proj₁ ⊩t .proj₂ .proj₁ ⊩σ)) ⟩⇒)
+                (rfl  ∎⟨ rflⱼ (escape-⊩∷ (⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ)) ⟩⇒)
                 (λ { PE.refl → T.refl })
             )
       )
@@ -133,10 +133,10 @@ opaque
       , λ {σ = σ} ⊩σ _ →
           ®∷→®∷◂ $
           ®∷Id⇔ .proj₂
-            ( ⊩ᵛ⇔′ .proj₁ (Erasedᵛ (wf-⊩ᵛ∷ ⊩t)) .proj₂ .proj₁ ⊩σ
+            ( ⊩ᵛ→⊩ˢ∷→⊩[] (Erasedᵛ (wf-⊩ᵛ∷ ⊩t)) ⊩σ
             , rflᵣ
                 (([]-cong _ A t u v) [ σ ]  ⇒*⟨ ε⊢⇒*rfl∷Id $ []-congⱼ′ ok $ escape-⊩∷ $
-                                                ⊩ᵛ∷⇔′ .proj₁ ⊩v .proj₂ .proj₁ ⊩σ ⟩∎
+                                                ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩v ⊩σ ⟩∎
                  rfl                        ∎)
                 (λ { PE.refl → T.refl })
             )
@@ -176,7 +176,7 @@ opaque
           case PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) $
                substitutionTerm ⊢u (escape-⊩ˢ∷ ⊩σ .proj₂) ⊢Δ of λ
             ⊢u[σ] →
-          case ⊩ᵛ∷⇔′ .proj₁ ⊩v .proj₂ .proj₁ ⊩σ of λ
+          case ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩v ⊩σ of λ
             ⊩v[σ] →
           case
             (case k≡0⊎⊩ʳv of λ where
@@ -261,7 +261,7 @@ opaque
           case PE.subst (_⊢_∷_ _ _) ([,]-[]-commute B) $
                substitutionTerm ⊢u (escape-⊩ˢ∷ ⊩σ .proj₂) ⊢Δ of λ
             ⊢u[σ] →
-          case ⊩ᵛ∷⇔′ .proj₁ ⊩w .proj₂ .proj₁ ⊩σ of λ
+          case ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩w ⊩σ of λ
             ⊩w[σ] →
           case
             (case k≡0⊎⊩ʳw of λ where

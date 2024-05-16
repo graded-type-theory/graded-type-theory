@@ -96,9 +96,9 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ A →
     Γ ⊩ᵛ⟨ l ⟩ Erased A
   Erasedᵛ ⊩A =
-    case ⊩ᵛ⇔′ .proj₁ ⊩A of λ
-      (⊩Γ , ⊩A , A≡A) →
-    ⊩ᵛ⇔′ .proj₂ (⊩Γ , ⊩Erased ∘→ ⊩A , ⊩Erased≡Erased ∘→ A≡A)
+    case ⊩ᵛ⇔ .proj₁ ⊩A of λ
+      (⊩Γ , A≡A) →
+    ⊩ᵛ⇔ .proj₂ (⊩Γ , ⊩Erased≡Erased ∘→ A≡A)
 
 opaque
 
@@ -152,9 +152,9 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ t ∷ A →
     Γ ⊩ᵛ⟨ l ⟩ [ t ] ∷ Erased A
   []ᵛ ⊩t =
-    case ⊩ᵛ∷⇔′ .proj₁ ⊩t of λ
-      (⊩A , ⊩t , t≡t) →
-    ⊩ᵛ∷⇔′ .proj₂ (Erasedᵛ ⊩A , ⊩[] ∘→ ⊩t , ⊩[]≡[] ∘→ t≡t)
+    case ⊩ᵛ∷⇔ .proj₁ ⊩t of λ
+      (⊩A , t≡t) →
+    ⊩ᵛ∷⇔ .proj₂ (Erasedᵛ ⊩A , ⊩[]≡[] ∘→ t≡t)
 
 opaque
 

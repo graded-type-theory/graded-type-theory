@@ -728,7 +728,7 @@ opaque
   ▸⊩ʳ∷[𝟘ᵐ] ⊩A =
     ▸⊩ʳ∷⇔ .proj₂
       ( ⊩A
-      , λ ⊩σ _ → ®∷◂𝟘 PE.refl (⊩ᵛ⇔′ .proj₁ ⊩A .proj₂ .proj₁ ⊩σ)
+      , λ ⊩σ _ → ®∷◂𝟘 PE.refl (⊩ᵛ→⊩ˢ∷→⊩[] ⊩A ⊩σ)
       )
 
 opaque

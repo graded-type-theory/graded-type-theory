@@ -307,7 +307,7 @@ opaque
                                                                               sym-⊩≡∷ ∘→ reducible-⊩≡∷ ∘→ subset*Term)
                                                                              (escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩A ⊩σ)
                                                                              (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) $
-                                                                              escape-⊩∷ $ ⊩ᵛ∷⇔′ .proj₁ (fundamental-⊩ᵛ∷ ⊢t) .proj₂ .proj₁ ⊩σ)
+                                                                              escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (fundamental-⊩ᵛ∷ ⊢t) ⊩σ)
                                                                              (PE.subst (_⊢_∷_ _ _) (natrecSucCase _ A) $
                                                                               escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[⇑⇑]∷ (fundamental-⊩ᵛ∷ ⊢u) ⊩σ)
                                                                              t[σ]®t[σ′] u[σ⇑⇑]®u[σ′⇑⇑] ⟩

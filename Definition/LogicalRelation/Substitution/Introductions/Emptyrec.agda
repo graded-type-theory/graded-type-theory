@@ -117,9 +117,8 @@ opaque
     Γ ⊩ᵛ⟨ l′ ⟩ t ∷ Empty →
     Γ ⊩ᵛ⟨ l ⟩ emptyrec p A t ∷ A
   emptyrecᵛ ⊩A ⊩t =
-    ⊩ᵛ∷⇔′ .proj₂
+    ⊩ᵛ∷⇔ .proj₂
       ( ⊩A
-      , ⊩emptyrec ⊩A ⊩t
       , ⊩emptyrec≡emptyrec (refl-⊩ᵛ≡ ⊩A) (refl-⊩ᵛ≡∷ ⊩t)
       )
 

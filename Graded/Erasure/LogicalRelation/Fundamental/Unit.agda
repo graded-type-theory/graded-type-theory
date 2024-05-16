@@ -186,14 +186,12 @@ opaque
           of λ
             unitrec® →
 
-          case escape $
-               ⊩ᵛ⇔′ .proj₁ ⊩A .proj₂ .proj₁ $
-               ⊩ˢ∷-liftSubst (wf-⊩ᵛ∷ ⊩t) ⊩σ of λ
+          case escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩A ⊩σ of λ
             ⊢A[σ⇑] →
-          case ⊩ᵛ∷⇔′ .proj₁ ⊩t .proj₂ .proj₁ ⊩σ of λ
+          case ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ of λ
             ⊩t[σ] →
           case PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) $
-               escape-⊩∷ $ ⊩ᵛ∷⇔′ .proj₁ ⊩u .proj₂ .proj₁ ⊩σ of λ
+               escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u ⊩σ of λ
             ⊢u[σ] →
 
           case ⊩∷Unit⇔ .proj₁ ⊩t[σ] of λ

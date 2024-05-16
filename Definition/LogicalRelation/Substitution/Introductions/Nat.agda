@@ -176,14 +176,15 @@ opaque
   -- Validity of ℕ, seen as a type former.
 
   ℕᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ l ⟩ ℕ
-  ℕᵛ ⊩Γ =
+  ℕᵛ {Γ} {l} ⊩Γ =
     ⊩ᵛ⇔ .proj₂
       ( ⊩Γ
-      , λ ⊩σ →
-          case escape-⊩ˢ∷ ⊩σ of λ
-            (⊢Δ , _) →
-            ⊩ℕ⇔ .proj₂ ⊢Δ
-          , λ _ → ⊩ℕ≡⇔ .proj₂ (id (ℕⱼ ⊢Δ))
+      , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
+          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ  →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
+          ⊢ Δ               →⟨ ℕⱼ ⟩
+          (Δ ⊢ ℕ)           →⟨ id ⟩
+          Δ ⊢ ℕ ⇒* ℕ        ⇔˘⟨ ⊩ℕ≡⇔ ⟩→
+          Δ ⊩⟨ l ⟩ ℕ ≡ ℕ    □
       )
 
 opaque
@@ -191,14 +192,13 @@ opaque
   -- Validity of ℕ, seen as a term former.
 
   ℕᵗᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ ¹ ⟩ ℕ ∷ U
-  ℕᵗᵛ ⊩Γ =
+  ℕᵗᵛ {Γ} ⊩Γ =
     ⊩ᵛ∷⇔ .proj₂
       ( ⊩ᵛU ⊩Γ
-      , λ ⊩σ →
-          case escape-⊩ˢ∷ ⊩σ of λ
-            (⊢Δ , _) →
-            ⊩ℕ∷U⇔ .proj₂ ⊢Δ
-          , λ _ → ⊩ℕ≡ℕ∷U⇔ .proj₂ ⊢Δ
+      , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
+          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ    →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
+          ⊢ Δ                 ⇔˘⟨ ⊩ℕ≡ℕ∷U⇔ ⟩→
+          Δ ⊩⟨ ¹ ⟩ ℕ ≡ ℕ ∷ U  □
       )
 
 ------------------------------------------------------------------------
@@ -221,14 +221,14 @@ opaque
   zeroᵛ :
     ⊩ᵛ Γ →
     Γ ⊩ᵛ⟨ l ⟩ zero ∷ ℕ
-  zeroᵛ ⊩Γ =
+  zeroᵛ {Γ} {l} ⊩Γ =
     ⊩ᵛ∷⇔ .proj₂
       ( ℕᵛ ⊩Γ
-      , λ ⊩σ →
-          case ⊩zero (escape-⊩ˢ∷ ⊩σ .proj₁) of λ
-            ⊩zero →
-            ⊩zero
-          , λ {_} _ → refl-⊩≡∷ ⊩zero
+      , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
+          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ          →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
+          ⊢ Δ                       →⟨ ⊩zero ⟩
+          Δ ⊩⟨ l ⟩ zero ∷ ℕ         →⟨ refl-⊩≡∷ ⟩
+          Δ ⊩⟨ l ⟩ zero ≡ zero ∷ ℕ  □
       )
 
 opaque
@@ -287,10 +287,9 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ t ∷ ℕ →
     Γ ⊩ᵛ⟨ l ⟩ suc t ∷ ℕ
   sucᵛ ⊩t =
-    ⊩ᵛ∷⇔′ .proj₂
+    ⊩ᵛ∷⇔ .proj₂
       ( wf-⊩ᵛ∷ ⊩t
-      , ⊩suc ∘→ ⊩ᵛ∷⇔′ .proj₁ ⊩t .proj₂ .proj₁
-      , ⊩suc≡suc ∘→ ⊩ᵛ∷⇔′ .proj₁ ⊩t .proj₂ .proj₂
+      , ⊩suc≡suc ∘→ ⊩ᵛ∷⇔ .proj₁ ⊩t .proj₂
       )
 
 opaque
@@ -551,7 +550,7 @@ opaque
       (⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ A₁≡A₂ σ₁≡σ₂)
       (escape-⊩∷ $ wf-⊩≡∷ t₁[σ₁]≡t₂[σ₂] .proj₁)
       (PE.subst (_⊢_∷_ _ _) (singleSubstLift A₂ _) $
-       escape-⊩∷ $ ⊩ᵛ∷⇔′ .proj₁ ⊩t₂ .proj₂ .proj₁ ⊩σ₂)
+       escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t₂ ⊩σ₂)
       (level-⊩≡∷
          (wf-⊩≡
             (⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ A₁≡A₂ σ₁≡σ₂ $
@@ -605,9 +604,8 @@ opaque
     Γ ⊩ᵛ⟨ l‴ ⟩ v ∷ ℕ →
     Γ ⊩ᵛ⟨ l ⟩ natrec p q r A t u v ∷ A [ v ]₀
   natrecᵛ ⊩A ⊩t ⊩u ⊩v =
-    ⊩ᵛ∷⇔′ .proj₂
+    ⊩ᵛ∷⇔ .proj₂
       ( ⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]₀ ⊩A ⊩v
-      , ⊩natrec ⊩A ⊩t ⊩u ⊩v
       , ⊩natrec≡natrec (refl-⊩ᵛ≡ ⊩A) (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ᵛ≡∷ ⊩u)
           (refl-⊩ᵛ≡∷ ⊩v)
       )
@@ -665,7 +663,7 @@ opaque
          natrec-zero
            (escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩A ⊩σ)
            (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) $
-            escape-⊩∷ $ ⊩ᵛ∷⇔′ .proj₁ ⊩t .proj₂ .proj₁ ⊩σ)
+            escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ)
            (PE.subst (_⊢_∷_ _ _) (natrecSucCase _ A) $
             escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[⇑⇑]∷ ⊩u ⊩σ))
       ⊩t
@@ -690,10 +688,10 @@ opaque
          natrec-suc
            (escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩A ⊩σ)
            (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) $
-            escape-⊩∷ $ ⊩ᵛ∷⇔′ .proj₁ ⊩t .proj₂ .proj₁ ⊩σ)
+            escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ)
            (PE.subst (_⊢_∷_ _ _) (natrecSucCase _ A) $
             escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[⇑⇑]∷ ⊩u ⊩σ)
-           (escape-⊩∷ $ ⊩ᵛ∷⇔′ .proj₁ ⊩v .proj₂ .proj₁ ⊩σ))
+           (escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩v ⊩σ))
       (PE.subst (_⊩ᵛ⟨_⟩_∷_ _ _ _) (PE.sym $ substComp↑² A _) $
        ⊩ᵛ∷→⊩ᵛ∷→⊩ᵛ∷→⊩ᵛ[]₁₀∷ ⊩u ⊩v (natrecᵛ ⊩A ⊩t ⊩u ⊩v))
       .proj₂
