@@ -62,6 +62,15 @@ opaque
         (λ _ u⇒*prod _ _ → _ , T.prod , u⇒*prod)
 
 opaque
+  unfolding _®⟨_⟩_∷_
+
+  reduces-to-value′ :
+    str ≡ strict →
+    t ®⟨ l ⟩ u ∷ A →
+    ∃ λ v → T.Value v × u T.⇒* v
+  reduces-to-value′ eq = uncurry (reduces-to-value eq)
+
+opaque
 
   -- In the strict setting, if t is related to u at type ℕ, then u
   -- reduces to a numeral.
