@@ -253,44 +253,34 @@ opaque
     p ≢ 𝟘 →
     t ®⟨ l ⟩ v ∷ Π p , q ▷ A ▹ B →
     (str PE.≡ strict → ∃ λ v′ → v T.⇒* T.lam v′) ×
-    ∃ λ l′ → l′ L.≤ l ×
-    ∀ t′ v′ → Δ ⊢ t′ ∷ A → t′ ®⟨ l′ ⟩ v′ ∷ A →
-    t ∘⟨ p ⟩ t′ ®⟨ l′ ⟩ v T.∘⟨ str ⟩ v′ ∷ B [ t′ ]₀
+     ∀ t′ v′ → Δ ⊢ t′ ∷ A → t′ ®⟨ l ⟩ v′ ∷ A →
+    t ∘⟨ p ⟩ t′ ®⟨ l ⟩ v T.∘⟨ str ⟩ v′ ∷ B [ t′ ]₀
   ®-Π {p} {B} p≢𝟘 (⊩Π , t®v) =
-    lemma (B-elim (BΠ _ _) ⊩Π) $
-    irrelevanceTerm ⊩Π (B-intr (BΠ _ _) (B-elim (BΠ _ _) ⊩Π)) t®v
-    where
-    lemma :
-      (⊩Π : Δ ⊩⟨ l ⟩B⟨ BΠ p q ⟩ Π p , q ▷ A ▹ B) →
-      t ®⟨ l ⟩ v ∷ Π p , q ▷ A ▹ B / B-intr (BΠ p q) ⊩Π →
-      (str PE.≡ strict → ∃ λ v′ → v T.⇒* T.lam v′) ×
-      ∃ λ l′ → l′ L.≤ l ×
-      ∀ t′ v′ → Δ ⊢ t′ ∷ A → t′ ®⟨ l′ ⟩ v′ ∷ A →
-      t ∘⟨ p ⟩ t′ ®⟨ l′ ⟩ v T.∘⟨ str ⟩ v′ ∷ B [ t′ ]₀
-    lemma (emb 0<1 ⊩Π) t®v =
-      case lemma ⊩Π t®v of λ {
-        (⇒*lam , _ , refl , f) →
-      ⇒*lam , _ , emb 0<1 , f }
-    lemma (noemb ⊩Π) t®v = t®v .proj₁ , _ , refl , λ t′ v′ ⊢t′ t′®v′ →
-      case B-PE-injectivity (BΠ _ _) (BΠ _ _)
-             (whnfRed* (red (_⊩ₗB⟨_⟩_.D ⊩Π)) ΠΣₙ) of λ {
-        (PE.refl , PE.refl , _) →
-      case reducibleTerm $
-           PE.subst (_⊢_∷_ _ _) (PE.sym $ wk-id _) ⊢t′ of λ {
-        (⊩A , ⊩t′) →
-      case IR.irrelevanceTerm ⊩A (_⊩ₗB⟨_⟩_.[F] ⊩Π W.id ⊢Δ) ⊩t′ of λ
-        ⊩t′ →
-      case PE.subst (_⊩⟨_⟩_ _ _)
-             (PE.cong _[ _ ]₀ $ wk-lift-id B) $
-           _⊩ₗB⟨_⟩_.[G] ⊩Π W.id ⊢Δ ⊩t′ of λ {
-        ⊩B[t′] →
-        ⊩B[t′]
-      , irrelevanceTerm′ (PE.cong _[ t′ ]₀ $ wk-lift-id B)
-          (_⊩ₗB⟨_⟩_.[G] ⊩Π W.id ⊢Δ ⊩t′) ⊩B[t′]
-          (Π-®-ω p≢𝟘 (is-𝟘? p) (t®v .proj₂ ⊩t′)
-             (irrelevanceTerm′ (PE.sym $ wk-id _) (t′®v′ .proj₁)
-                (_⊩ₗB⟨_⟩_.[F] ⊩Π W.id ⊢Δ) $
-              t′®v′ .proj₂)) }}}
+    case extractMaybeEmb′ (B-elim _ ⊩Π) of λ
+      (_ , l′≤l , ⊩Π′) →
+    case irrelevanceTerm ⊩Π (Bᵣ _ ⊩Π′) t®v of λ
+      t®v →
+      t®v .proj₁
+    , λ t′ v′ ⊢t′ t′®v′ →
+        case B-PE-injectivity (BΠ _ _) (BΠ _ _)
+               (whnfRed* (red (_⊩ₗB⟨_⟩_.D ⊩Π′)) ΠΣₙ) of λ {
+          (PE.refl , PE.refl , _) →
+        case reducibleTerm $
+             PE.subst (_⊢_∷_ _ _) (PE.sym $ wk-id _) ⊢t′ of λ
+          (⊩A , ⊩t′) →
+        case IR.irrelevanceTerm ⊩A (_⊩ₗB⟨_⟩_.[F] ⊩Π′ W.id ⊢Δ) ⊩t′ of λ
+          ⊩t′ →
+        case emb-≤-⊩ l′≤l  $
+             PE.subst (_⊩⟨_⟩_ _ _) (PE.cong _[ _ ]₀ $ wk-lift-id B) $
+             _⊩ₗB⟨_⟩_.[G] ⊩Π′ W.id ⊢Δ ⊩t′ of λ
+          ⊩B[t′] →
+          ⊩B[t′]
+        , irrelevanceTerm′ (PE.cong _[ t′ ]₀ $ wk-lift-id B)
+            (_⊩ₗB⟨_⟩_.[G] ⊩Π′ W.id ⊢Δ ⊩t′) ⊩B[t′]
+            (Π-®-ω p≢𝟘 (is-𝟘? p) (t®v .proj₂ ⊩t′)
+               (irrelevanceTerm′ (PE.sym $ wk-id _) (t′®v′ .proj₁)
+                  (_⊩ₗB⟨_⟩_.[F] ⊩Π′ W.id ⊢Δ) $
+                t′®v′ .proj₂)) }
 
 opaque
   unfolding _®⟨_⟩_∷_
@@ -300,39 +290,30 @@ opaque
   ®-Π₀ :
     t ®⟨ l ⟩ v ∷ Π 𝟘 , q ▷ A ▹ B →
     (str PE.≡ strict → ∃ λ v′ → v T.⇒* T.lam v′) ×
-    ∃ λ l′ → l′ L.≤ l ×
-    ∀ t′ → Δ ⊢ t′ ∷ A → t ∘⟨ 𝟘 ⟩ t′ ®⟨ l′ ⟩ app-𝟘 str v ∷ B [ t′ ]₀
+    ∀ t′ → Δ ⊢ t′ ∷ A → t ∘⟨ 𝟘 ⟩ t′ ®⟨ l ⟩ app-𝟘 str v ∷ B [ t′ ]₀
   ®-Π₀ {B} (⊩Π , t®v) =
-    lemma (B-elim (BΠ _ _) ⊩Π) $
-    irrelevanceTerm ⊩Π (B-intr (BΠ _ _) (B-elim (BΠ _ _) ⊩Π)) t®v
-    where
-    lemma :
-      (⊩Π : Δ ⊩⟨ l ⟩B⟨ BΠ 𝟘 q ⟩ Π 𝟘 , q ▷ A ▹ B) →
-      t ®⟨ l ⟩ v ∷ Π 𝟘 , q ▷ A ▹ B / B-intr (BΠ 𝟘 q) ⊩Π →
-      (str PE.≡ strict → ∃ λ v′ → v T.⇒* T.lam v′) ×
-      ∃ λ l′ → l′ L.≤ l ×
-      ∀ t′ → Δ ⊢ t′ ∷ A → t ∘⟨ 𝟘 ⟩ t′ ®⟨ l′ ⟩ app-𝟘 str v ∷ B [ t′ ]₀
-    lemma (emb 0<1 ⊩Π) t®v =
-      case lemma ⊩Π t®v of λ {
-        (⇒*lam , _ , refl , f) →
-      ⇒*lam , _ , emb 0<1 , f }
-    lemma (noemb ⊩Π) t®v = t®v .proj₁ , _ , refl , λ t′ ⊢t′ →
-      case B-PE-injectivity (BΠ _ _) (BΠ _ _)
-             (whnfRed* (red (_⊩ₗB⟨_⟩_.D ⊩Π)) ΠΣₙ) of λ {
-        (PE.refl , PE.refl , _) →
-      case reducibleTerm $
-           PE.subst (_⊢_∷_ _ _) (PE.sym $ wk-id _) ⊢t′ of λ {
-        (⊩A , ⊩t′) →
-      case IR.irrelevanceTerm ⊩A (_⊩ₗB⟨_⟩_.[F] ⊩Π W.id ⊢Δ) ⊩t′ of λ
-        ⊩t′ →
-      case PE.subst (_⊩⟨_⟩_ _ _)
-             (PE.cong _[ _ ]₀ $ wk-lift-id B) $
-           _⊩ₗB⟨_⟩_.[G] ⊩Π W.id ⊢Δ ⊩t′ of λ {
-        ⊩B[t′] →
-        ⊩B[t′]
-      , irrelevanceTerm′ (PE.cong _[ t′ ]₀ $ wk-lift-id B)
-          (_⊩ₗB⟨_⟩_.[G] ⊩Π W.id ⊢Δ ⊩t′) ⊩B[t′]
-          (Π-®-𝟘 (is-𝟘? 𝟘) (t®v .proj₂ ⊩t′)) }}}
+    case extractMaybeEmb′ (B-elim _ ⊩Π) of λ
+      (_ , l′≤l , ⊩Π′) →
+    case irrelevanceTerm ⊩Π (Bᵣ _ ⊩Π′) t®v of λ
+      t®v →
+      t®v .proj₁
+    , λ t′ ⊢t′ →
+        case B-PE-injectivity (BΠ _ _) (BΠ _ _)
+               (whnfRed* (red (_⊩ₗB⟨_⟩_.D ⊩Π′)) ΠΣₙ) of λ {
+          (PE.refl , PE.refl , _) →
+        case reducibleTerm $
+             PE.subst (_⊢_∷_ _ _) (PE.sym $ wk-id _) ⊢t′ of λ
+          (⊩A , ⊩t′) →
+        case IR.irrelevanceTerm ⊩A (_⊩ₗB⟨_⟩_.[F] ⊩Π′ W.id ⊢Δ) ⊩t′ of λ
+          ⊩t′ →
+        case emb-≤-⊩ l′≤l  $
+             PE.subst (_⊩⟨_⟩_ _ _) (PE.cong _[ _ ]₀ $ wk-lift-id B) $
+             _⊩ₗB⟨_⟩_.[G] ⊩Π′ W.id ⊢Δ ⊩t′ of λ
+          ⊩B[t′] →
+          ⊩B[t′]
+        , irrelevanceTerm′ (PE.cong _[ t′ ]₀ $ wk-lift-id B)
+            (_⊩ₗB⟨_⟩_.[G] ⊩Π′ W.id ⊢Δ ⊩t′) ⊩B[t′]
+            (Π-®-𝟘 (is-𝟘? 𝟘) (t®v .proj₂ ⊩t′)) }
 
 opaque
   unfolding _®⟨_⟩_∷_
@@ -342,50 +323,45 @@ opaque
   ®-Σ :
     p ≢ 𝟘 →
     t ®⟨ l ⟩ v ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B →
-    ∃ λ l′ → l′ L.≤ l × ∃₄ λ t₁ t₂ v₁ v₂ →
+    ∃₄ λ t₁ t₂ v₁ v₂ →
     Δ ⊢ t ⇒* prod s p t₁ t₂ ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B ×
     v T.⇒* T.prod v₁ v₂ ×
-    t₁ ®⟨ l′ ⟩ v₁ ∷ A ×
-    t₂ ®⟨ l′ ⟩ v₂ ∷ B [ t₁ ]₀
-  ®-Σ {p} {B} p≢𝟘 (⊩Σ , t®v) =
-    lemma (B-elim (BΣ _ _ _) ⊩Σ) $
-    irrelevanceTerm ⊩Σ (B-intr (BΣ _ _ _) (B-elim (BΣ _ _ _) ⊩Σ)) t®v
-    where
-    lemma :
-      (⊩Σ : Δ ⊩⟨ l ⟩B⟨ BΣ s p q ⟩ Σ⟨ s ⟩ p , q ▷ A ▹ B) →
-      t ®⟨ l ⟩ v ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B / B-intr (BΣ s p q) ⊩Σ →
-      ∃ λ l′ → l′ L.≤ l × ∃₄ λ t₁ t₂ v₁ v₂ →
-      Δ ⊢ t ⇒* prod s p t₁ t₂ ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B ×
-      v T.⇒* T.prod v₁ v₂ ×
-      t₁ ®⟨ l′ ⟩ v₁ ∷ A ×
-      t₂ ®⟨ l′ ⟩ v₂ ∷ B [ t₁ ]₀
-    lemma (emb 0<1 ⊩Σ) t®v =
-      case lemma ⊩Σ t®v of λ {
-        (_ , refl , f) →
-      _ , emb 0<1 , f }
-    lemma (noemb ⊩Σ) (t₁ , t₂ , t⇒ , ⊩t₁ , v₂ , t₂®v₂ , rest) =
-      case B-PE-injectivity (BΣ _ _ _) (BΣ _ _ _)
-             (whnfRed* (red (_⊩ₗB⟨_⟩_.D ⊩Σ)) ΠΣₙ) of λ {
-        (PE.refl , PE.refl , _) →
-      case PE.subst (_⊩⟨_⟩_ _ _) (wk-id _)
-             (_⊩ₗB⟨_⟩_.[F] ⊩Σ W.id ⊢Δ) of λ {
-        ⊩A →
-      let ⊩wk-B[t₁] = _⊩ₗB⟨_⟩_.[G] ⊩Σ W.id ⊢Δ ⊩t₁ in
-      case PE.subst (_⊩⟨_⟩_ _ _) (PE.cong _[ t₁ ]₀ $ wk-lift-id B)
-             ⊩wk-B[t₁] of λ {
-        ⊩B[t₁] →
-      case Σ-®-ω p≢𝟘 rest of λ {
-        (v₁ , v⇒ , t₁®v₁) →
-      -- Note that ⊩t₁ is not returned.
-        _ , refl , t₁ , t₂ , v₁ , v₂ , t⇒ , v⇒
-      , ( ⊩A
-        , irrelevanceTerm′ (wk-id _)
-            (_⊩ₗB⟨_⟩_.[F] ⊩Σ W.id ⊢Δ) ⊩A t₁®v₁
-        )
-      , ( ⊩B[t₁]
-        , irrelevanceTerm′ (PE.cong _[ t₁ ]₀ $ wk-lift-id B)
-            ⊩wk-B[t₁] ⊩B[t₁] t₂®v₂
-        ) }}}}
+    t₁ ®⟨ l ⟩ v₁ ∷ A ×
+    t₂ ®⟨ l ⟩ v₂ ∷ B [ t₁ ]₀
+  ®-Σ {p} {t} {l} {v} {s} {q} {A} {B} p≢𝟘 (⊩Σ , t®v) =
+    case extractMaybeEmb′ (B-elim _ ⊩Σ) of λ
+      (_ , l′≤l , ⊩Σ′) →
+    case irrelevanceTerm ⊩Σ (Bᵣ _ ⊩Σ′) t®v of λ
+      (t₁ , t₂ , t⇒ , ⊩t₁ , v₂ , t₂®v₂ , rest) →
+    case B-PE-injectivity (BΣ _ _ _) (BΣ _ _ _)
+           (whnfRed* (red (_⊩ₗB⟨_⟩_.D ⊩Σ′)) ΠΣₙ) of λ {
+      (PE.refl , PE.refl , _) →
+    case emb-≤-⊩ l′≤l  $
+         PE.subst (_⊩⟨_⟩_ _ _) (wk-id _)
+           (_⊩ₗB⟨_⟩_.[F] ⊩Σ′ W.id ⊢Δ) of λ
+      ⊩A →
+    let ⊩wk-B[t₁] = _⊩ₗB⟨_⟩_.[G] ⊩Σ′ W.id ⊢Δ ⊩t₁ in
+    case emb-≤-⊩ l′≤l  $
+         PE.subst (_⊩⟨_⟩_ _ _) (PE.cong _[ t₁ ]₀ $ wk-lift-id B)
+           ⊩wk-B[t₁] of λ
+      ⊩B[t₁] →
+    case Σ-®-ω p≢𝟘 rest of λ
+      (v₁ , v⇒ , t₁®v₁) →
+    (∃₄ λ t₁ t₂ v₁ v₂ →
+     Δ ⊢ t ⇒* prod s p t₁ t₂ ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B ×
+     v T.⇒* T.prod v₁ v₂ ×
+     t₁ ®⟨ l ⟩ v₁ ∷ A ×
+     t₂ ®⟨ l ⟩ v₂ ∷ B [ t₁ ]₀) ∋
+    -- Note that ⊩t₁ is not returned.
+      t₁ , t₂ , v₁ , v₂ , t⇒ , v⇒
+    , ( ⊩A
+      , irrelevanceTerm′ (wk-id _)
+          (_⊩ₗB⟨_⟩_.[F] ⊩Σ′ W.id ⊢Δ) ⊩A t₁®v₁
+      )
+    , ( ⊩B[t₁]
+      , irrelevanceTerm′ (PE.cong _[ t₁ ]₀ $ wk-lift-id B)
+          ⊩wk-B[t₁] ⊩B[t₁] t₂®v₂
+      ) }
 
 opaque
   unfolding _®⟨_⟩_∷_
@@ -394,39 +370,33 @@ opaque
 
   ®-Σ₀ :
     t ®⟨ l ⟩ v ∷ Σ⟨ s ⟩ 𝟘 , q ▷ A ▹ B →
-    ∃ λ l′ → l′ L.≤ l × ∃₃ λ t₁ t₂ v′ →
+    ∃₃ λ t₁ t₂ v′ →
     Δ ⊢ t ⇒* prod s 𝟘 t₁ t₂ ∷ Σ⟨ s ⟩ 𝟘 , q ▷ A ▹ B ×
     v T.⇒* v′ ×
-    t₂ ®⟨ l′ ⟩ v′ ∷ B [ t₁ ]₀
-  ®-Σ₀ {B} (⊩Σ , t®v) =
-    lemma (B-elim (BΣ _ _ _) ⊩Σ) $
-    irrelevanceTerm ⊩Σ (B-intr (BΣ _ _ _) (B-elim (BΣ _ _ _) ⊩Σ)) t®v
-    where
-    lemma :
-      (⊩Σ : Δ ⊩⟨ l ⟩B⟨ BΣ s 𝟘 q ⟩ Σ⟨ s ⟩ 𝟘 , q ▷ A ▹ B) →
-      t ®⟨ l ⟩ v ∷ Σ⟨ s ⟩ 𝟘 , q ▷ A ▹ B / B-intr (BΣ s 𝟘 q) ⊩Σ →
-      ∃ λ l′ → l′ L.≤ l × ∃₃ λ t₁ t₂ v′ →
-      Δ ⊢ t ⇒* prod s 𝟘 t₁ t₂ ∷ Σ⟨ s ⟩ 𝟘 , q ▷ A ▹ B ×
-      v T.⇒* v′ ×
-      t₂ ®⟨ l′ ⟩ v′ ∷ B [ t₁ ]₀
-    lemma (emb 0<1 ⊩Σ) t®v =
-      case lemma ⊩Σ t®v of λ {
-        (_ , refl , f) →
-      _ , emb 0<1 , f }
-    lemma (noemb ⊩Σ) (t₁ , t₂ , t⇒ , ⊩t₁ , v₂ , t₂®v₂ , rest) =
-      case B-PE-injectivity (BΣ _ _ _) (BΣ _ _ _)
-             (whnfRed* (red (_⊩ₗB⟨_⟩_.D ⊩Σ)) ΠΣₙ) of λ {
-        (PE.refl , PE.refl , _) →
-      let ⊩wk-B[t₁] = _⊩ₗB⟨_⟩_.[G] ⊩Σ W.id ⊢Δ ⊩t₁ in
-      case PE.subst (_⊩⟨_⟩_ _ _) (PE.cong _[ t₁ ]₀ $ wk-lift-id B)
-             ⊩wk-B[t₁] of λ {
-        ⊩B[t₁] →
-      -- Note that ⊩t₁ is not returned.
-        _ , refl , t₁ , t₂ , v₂ , t⇒ , Σ-®-𝟘 rest
-      , ( ⊩B[t₁]
-        , irrelevanceTerm′ (PE.cong _[ t₁ ]₀ $ wk-lift-id B)
-            ⊩wk-B[t₁] ⊩B[t₁] t₂®v₂
-        ) }}
+    t₂ ®⟨ l ⟩ v′ ∷ B [ t₁ ]₀
+  ®-Σ₀ {t} {l} {v} {s} {q} {A} {B} (⊩Σ , t®v) =
+    case extractMaybeEmb′ (B-elim _ ⊩Σ) of λ
+      (_ , l′≤l , ⊩Σ′) →
+    case irrelevanceTerm ⊩Σ (Bᵣ _ ⊩Σ′) t®v of λ
+      (t₁ , t₂ , t⇒ , ⊩t₁ , v₂ , t₂®v₂ , rest) →
+    case B-PE-injectivity (BΣ _ _ _) (BΣ _ _ _)
+           (whnfRed* (red (_⊩ₗB⟨_⟩_.D ⊩Σ′)) ΠΣₙ) of λ {
+      (PE.refl , PE.refl , _) →
+    let ⊩wk-B[t₁] = _⊩ₗB⟨_⟩_.[G] ⊩Σ′ W.id ⊢Δ ⊩t₁ in
+    case emb-≤-⊩ l′≤l  $
+         PE.subst (_⊩⟨_⟩_ _ _) (PE.cong _[ t₁ ]₀ $ wk-lift-id B)
+           ⊩wk-B[t₁] of λ
+      ⊩B[t₁] →
+    (∃₃ λ t₁ t₂ v′ →
+     Δ ⊢ t ⇒* prod s 𝟘 t₁ t₂ ∷ Σ⟨ s ⟩ 𝟘 , q ▷ A ▹ B ×
+     v T.⇒* v′ ×
+     t₂ ®⟨ l ⟩ v′ ∷ B [ t₁ ]₀) ∋
+    -- Note that ⊩t₁ is not returned.
+      t₁ , t₂ , v₂ , t⇒ , Σ-®-𝟘 rest
+    , ( ⊩B[t₁]
+      , irrelevanceTerm′ (PE.cong _[ t₁ ]₀ $ wk-lift-id B)
+          ⊩wk-B[t₁] ⊩B[t₁] t₂®v₂
+      ) }
 
 ------------------------------------------------------------------------
 -- Characterisation lemmas for _®⟨_⟩_∷_◂_, _®_∷[_]_◂_ and
