@@ -96,20 +96,6 @@ opaque
 
 opaque
 
-  -- Reducibility for emptyrec.
-
-  ⊩emptyrec :
-    Γ ⊩ᵛ⟨ l ⟩ A →
-    Γ ⊩ᵛ⟨ l′ ⟩ t ∷ Empty →
-    Δ ⊩ˢ σ ∷ Γ →
-    Δ ⊩⟨ l ⟩ emptyrec p A t [ σ ] ∷ A [ σ ]
-  ⊩emptyrec ⊩A ⊩t ⊩σ =
-    wf-⊩≡∷
-      (⊩emptyrec≡emptyrec (refl-⊩ᵛ≡ ⊩A) (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ˢ≡∷ ⊩σ))
-      .proj₁
-
-opaque
-
   -- Validity of emptyrec.
 
   emptyrecᵛ :

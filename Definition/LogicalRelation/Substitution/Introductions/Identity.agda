@@ -1145,27 +1145,6 @@ opaque
 
 opaque
 
-  -- Reducibility for K.
-
-  ⊩K :
-    K-allowed →
-    Γ ∙ Id A t t ⊩ᵛ⟨ l ⟩ B →
-    Γ ⊩ᵛ⟨ l′ ⟩ u ∷ B [ rfl ]₀ →
-    Γ ⊩ᵛ⟨ l″ ⟩ v ∷ Id A t t →
-    Δ ⊩ˢ σ ∷ Γ →
-    Δ ⊩⟨ l ⟩ K p A t B u v U.[ σ ] ∷ B [ v ]₀ U.[ σ ]
-  ⊩K ok ⊩B ⊩u ⊩v ⊩σ =
-    case ⊩ᵛId⇔ .proj₁ $ wf-⊩ᵛ∷ ⊩v of λ
-      (⊩t , _) →
-    case wf-⊩ᵛ∷ ⊩t of λ
-      ⊩A →
-    wf-⊩≡∷
-      (⊩K≡K ok (refl-⊩ᵛ≡ ⊩A) (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ᵛ≡ ⊩B) (refl-⊩ᵛ≡∷ ⊩u)
-         (refl-⊩ᵛ≡∷ ⊩v) (refl-⊩ˢ≡∷ ⊩σ))
-      .proj₁
-
-opaque
-
   -- Validity of K.
 
   Kᵛ :
@@ -1560,26 +1539,6 @@ opaque
              (escape-⊩≡∷ t₁[σ₁]≡t₂[σ₂]) (escape-⊩≡ B₁[σ₁⇑⇑]≡B₂[σ₂⇑⇑])
              (escape-⊩≡∷ u₁[σ₁]≡u₂[σ₂]) (escape-⊩≡∷ v₁[σ₁]≡v₂[σ₂])
              w₁′~w₂′)
-
-opaque
-
-  -- Reducibility for J.
-
-  ⊩J :
-    Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊩ᵛ⟨ l ⟩ B →
-    Γ ⊩ᵛ⟨ l′ ⟩ u ∷ B [ t , rfl ]₁₀ →
-    Γ ⊩ᵛ⟨ l″ ⟩ w ∷ Id A t v →
-    Δ ⊩ˢ σ ∷ Γ →
-    Δ ⊩⟨ l ⟩ J p q A t B u v w U.[ σ ] ∷ B [ v , w ]₁₀ U.[ σ ]
-  ⊩J ⊩B ⊩u ⊩w ⊩σ =
-    case ⊩ᵛId⇔ .proj₁ $ wf-⊩ᵛ∷ ⊩w of λ
-      (⊩t , ⊩v) →
-    case wf-⊩ᵛ∷ ⊩t of λ
-      ⊩A →
-    wf-⊩≡∷
-      (⊩J≡J (refl-⊩ᵛ≡ ⊩A) (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ᵛ≡ ⊩B) (refl-⊩ᵛ≡∷ ⊩u)
-         (refl-⊩ᵛ≡∷ ⊩v) (refl-⊩ᵛ≡∷ ⊩w) (refl-⊩ˢ≡∷ ⊩σ))
-      .proj₁
 
 opaque
 

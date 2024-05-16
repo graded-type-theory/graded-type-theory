@@ -432,22 +432,6 @@ opaque
 
 opaque
 
-  -- Reducibility for unitrec.
-
-  ⊩unitrec :
-    Γ ∙ Unitʷ ⊩ᵛ⟨ l ⟩ A →
-    Γ ⊩ᵛ⟨ l′ ⟩ t ∷ Unitʷ →
-    Γ ⊩ᵛ⟨ l″ ⟩ u ∷ A [ starʷ ]₀ →
-    Δ ⊩ˢ σ ∷ Γ →
-    Δ ⊩⟨ l ⟩ unitrec p q A t u [ σ ] ∷ A [ t ]₀ [ σ ]
-  ⊩unitrec ⊩A ⊩t ⊩u ⊩σ =
-    wf-⊩≡∷
-      (⊩unitrec≡unitrec (refl-⊩ᵛ≡ ⊩A) (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ᵛ≡∷ ⊩u)
-         (refl-⊩ˢ≡∷ ⊩σ))
-      .proj₁
-
-opaque
-
   -- Validity of unitrec.
 
   unitrecᵛ :

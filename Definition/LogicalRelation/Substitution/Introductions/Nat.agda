@@ -42,7 +42,7 @@ import Tools.Reasoning.PropositionalEquality
 private variable
   Γ Δ                               : Con Term _
   A A₁ A₂ B t t₁ t₂ u u₁ u₂ v v₁ v₂ : Term _
-  σ σ₁ σ₂                           : Subst _ _
+  σ₁ σ₂                             : Subst _ _
   l l′ l″ l‴                        : TypeLevel
   p q r                             : M
 
@@ -575,23 +575,6 @@ opaque
       ⊩ℕ-v₁ ⊩ℕ-v₂ ⊩ℕ-v₁≡v₂
     where
     open Tools.Reasoning.PropositionalEquality
-
-opaque
-
-  -- Reducibility for natrec.
-
-  ⊩natrec :
-    Γ ∙ ℕ ⊩ᵛ⟨ l ⟩ A →
-    Γ ⊩ᵛ⟨ l′ ⟩ t ∷ A [ zero ]₀ →
-    Γ ∙ ℕ ∙ A ⊩ᵛ⟨ l″ ⟩ u ∷ A [ suc (var x1) ]↑² →
-    Γ ⊩ᵛ⟨ l‴ ⟩ v ∷ ℕ →
-    Δ ⊩ˢ σ ∷ Γ →
-    Δ ⊩⟨ l ⟩ natrec p q r A t u v [ σ ] ∷ A [ v ]₀ [ σ ]
-  ⊩natrec ⊩A ⊩t ⊩u ⊩v ⊩σ =
-    wf-⊩≡∷
-      (⊩natrec≡natrec (refl-⊩ᵛ≡ ⊩A) (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ᵛ≡∷ ⊩u)
-         (refl-⊩ᵛ≡∷ ⊩v) (refl-⊩ˢ≡∷ ⊩σ))
-      .proj₁
 
 opaque
 
