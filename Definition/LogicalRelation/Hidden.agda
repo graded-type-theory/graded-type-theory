@@ -925,8 +925,9 @@ opaque
 
   -- An escape lemma for _⊩ˢ_≡_∷_.
 
-  escape-⊩ˢ≡∷ : Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ → Δ ⊢ˢ σ₁ ≡ σ₂ ∷ Γ
-  escape-⊩ˢ≡∷ (_ , _ , _ , _ , σ₁≡σ₂) = wellformedSubstEq _ _ _ σ₁≡σ₂
+  escape-⊩ˢ≡∷ : Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ → ⊢ Δ × Δ ⊢ˢ σ₁ ≡ σ₂ ∷ Γ
+  escape-⊩ˢ≡∷ (_ , ⊢Δ , _ , _ , σ₁≡σ₂) =
+    ⊢Δ , wellformedSubstEq _ _ _ σ₁≡σ₂
 
 ------------------------------------------------------------------------
 -- Reducibility from validity
