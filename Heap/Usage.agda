@@ -88,26 +88,25 @@ data _▸ʰ_ : (γ : Conₘ n) (H : Heap n) → Set a where
 
 -- Usage of eliminators
 
-data _▸ᵉ[_]_ {n : Nat} : (γ : Conₘ n) (q : M)
-                         (e : Elim n) → Set a where
-  ∘ₑ : γ ▸[ ⌞ q · p ⌟ ] u → (q · p) ·ᶜ wkᶜ E γ ▸ᵉ[ q ] ∘ₑ p u E
-  fstₑ : p ≤ 𝟙 → 𝟘ᶜ ▸ᵉ[ q ] fstₑ p
-  sndₑ : 𝟘ᶜ ▸ᵉ[ q ] sndₑ p
+data _▸ᵉ_ {n : Nat} : (γ : Conₘ n) (e : Elim n) → Set a where
+  ∘ₑ : γ ▸[ ⌞ p ⌟ ] u → p ·ᶜ wkᶜ E γ ▸ᵉ ∘ₑ p u E
+  fstₑ : p ≤ 𝟙 → 𝟘ᶜ ▸ᵉ fstₑ p
+  sndₑ : 𝟘ᶜ ▸ᵉ sndₑ p
   prodrecₑ : γ ∙ r · p ∙ r ▸ u → r ≢ 𝟘
-           → q ·ᶜ wkᶜ E γ ▸ᵉ[ q ] prodrecₑ r p q′ A u E
+           → wkᶜ E γ ▸ᵉ prodrecₑ r p q A u E
   natrecₑ : γ ▸ z → δ ∙ p ∙ r ▸ s
           → θ ∙ (⌜ 𝟘ᵐ? ⌝ · q′) ▸[ 𝟘ᵐ? ] A
-          → q ·ᶜ wkᶜ E (nrᶜ p r γ δ 𝟘ᶜ) ▸ᵉ[ q ] natrecₑ p q′ r A z s E
-  unitrecₑ : γ ▸ u → p ≤ 𝟙 → r ·ᶜ wkᶜ E γ ▸ᵉ[ r ] unitrecₑ p q A u E
-  Jₑ : γ ▸ u → (r · ω) ·ᶜ wkᶜ E γ ▸ᵉ[ r ] Jₑ p q A t B u v E
-  Kₑ : γ ▸ u → (q · ω) ·ᶜ wkᶜ E γ ▸ᵉ[ q ] Kₑ p A t B u E
-  sucₑ : 𝟘ᶜ ▸ᵉ[ q ] sucₑ
+          → wkᶜ E (nrᶜ p r γ δ 𝟘ᶜ) ▸ᵉ natrecₑ p q′ r A z s E
+  unitrecₑ : γ ▸ u → p ≤ 𝟙 → wkᶜ E γ ▸ᵉ unitrecₑ p q A u E
+  Jₑ : γ ▸ u → ω ·ᶜ wkᶜ E γ ▸ᵉ Jₑ p q A t B u v E
+  Kₑ : γ ▸ u → ω ·ᶜ wkᶜ E γ ▸ᵉ Kₑ p A t B u E
+  sucₑ : 𝟘ᶜ ▸ᵉ sucₑ
 
 -- Usage of stacks.
 
 data _▸ˢ_ {n : Nat} : (γ : Conₘ n) (S : Stack n) → Set a where
   ε : 𝟘ᶜ ▸ˢ ε
-  _∙_ : δ ▸ᵉ[ ∣ S ∣ ] e → γ ▸ˢ S → γ +ᶜ δ ▸ˢ e ∙ S
+  _∙_ : δ ▸ᵉ e → γ ▸ˢ S → γ +ᶜ ∣ S ∣ ·ᶜ δ ▸ˢ e ∙ S
 
 ------------------------------------------------------------------------
 -- Usage of evaluation states.

@@ -96,7 +96,7 @@ opaque
   -- The multiplicity of a well-resourced eliminator is not zero
 
   ▸∣e∣≢𝟘 : ⦃ Has-well-behaved-zero M semiring-with-meet ⦄
-         → γ ▸ᵉ[ q ] e → ∣ e ∣ᵉ ≢ 𝟘
+         → γ ▸ᵉ e → ∣ e ∣ᵉ ≢ 𝟘
   ▸∣e∣≢𝟘 (∘ₑ x) = non-trivial
   ▸∣e∣≢𝟘 (fstₑ x) = non-trivial
   ▸∣e∣≢𝟘 sndₑ = non-trivial
