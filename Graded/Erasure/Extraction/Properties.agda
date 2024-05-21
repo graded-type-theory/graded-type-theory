@@ -83,6 +83,15 @@ opaque
 
 opaque
 
+  fst-≢𝟘 :
+    p PE.≢ 𝟘 →
+    erase′ b s (U.fst p t) PE.≡ T.fst (erase′ b s t)
+  fst-≢𝟘 {p} p≢𝟘 with is-𝟘? p
+  … | yes p≡𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
+  … | no _    = PE.refl
+
+opaque
+
   snd-𝟘 :
     p PE.≡ 𝟘 →
     erase′ b s (U.snd p t) PE.≡ erase′ b s t
@@ -111,6 +120,41 @@ opaque
 
 opaque
 
+  prodrec-𝟘 :
+    ∀ q A →
+    erase′ b s (U.prodrec 𝟘 p q A t u) ≡
+    erase′ b s u T.[ loop s , loop s ]₁₀
+  prodrec-𝟘 _ _ with is-𝟘? 𝟘
+  … | yes _  = refl
+  … | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 refl)
+
+opaque
+
+  prodrec-≢𝟘-𝟘 :
+    ∀ q A → r ≢ 𝟘 →
+    erase′ b s (U.prodrec r 𝟘 q A t u) ≡
+    T.lam (erase′ b s u T.[ T.sgSubst (loop s) T.⇑ ]) T.∘⟨ s ⟩
+      erase′ b s t
+  prodrec-≢𝟘-𝟘 {b} {s} {t} {u} q A r≢𝟘
+    rewrite prodrec-ω {b = b} {s = s} {p = 𝟘} {t = t} {u = u} q A r≢𝟘
+    with is-𝟘? 𝟘
+  … | yes _  = refl
+  … | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 refl)
+
+opaque
+
+  prodrec-≢𝟘-≢𝟘 :
+    ∀ q A → r ≢ 𝟘 → p ≢ 𝟘 →
+    erase′ b s (U.prodrec r p q A t u) ≡
+    T.prodrec (erase′ b s t) (erase′ b s u)
+  prodrec-≢𝟘-≢𝟘 {p} {b} {s} {t} {u} q A r≢𝟘 p≢𝟘
+    rewrite prodrec-ω {b = b} {s = s} {p = p} {t = t} {u = u} q A r≢𝟘
+    with is-𝟘? p
+  … | no _    = refl
+  … | yes p≡𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
+
+opaque
+
   unitrec-𝟘 :
     ∀ q A → p PE.≡ 𝟘 →
     erase′ b s (U.unitrec p q A t u) PE.≡ erase′ b s u
@@ -136,6 +180,13 @@ opaque
   ∘-≢𝟘 {p} p≢𝟘 with is-𝟘? p
   … | no _    = refl
   … | yes p≡𝟘 = ⊥-elim $ p≢𝟘 p≡𝟘
+
+opaque
+
+  ∘-𝟘 : erase′ b s (t U.∘⟨ 𝟘 ⟩ u) ≡ app-𝟘′ b s (erase′ b s t)
+  ∘-𝟘 with is-𝟘? 𝟘
+  … | yes _  = refl
+  … | no 𝟘≢𝟘 = ⊥-elim $ 𝟘≢𝟘 refl
 
 opaque
 
