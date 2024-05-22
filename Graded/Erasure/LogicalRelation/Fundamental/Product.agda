@@ -346,7 +346,7 @@ sndʳ′ {F = F} {G = G} {p = p} {q = q} {t = t} {m = m} {l = l} {Γ = Γ}
                (PE.sym (wk-lift-id (G [ liftSubst σ ]))))
             (PE.sym (singleSubstLift G (fst p t)))
             (sym G[t′]≡G[t₁])
-          t⇒u = conv* (snd-subst* t⇒t′ ⊢σF ⊢σG)
+          t⇒u = conv* (snd-subst* t⇒t′)
                       (substTypeEq (refl ⊢σG) (fst-cong ⊢σF ⊢σG (subset*Term t⇒t′)))
           t⇒u′ = t⇒u ⇨∷* redMany (Σ-β₂ ⊢σF ⊢σG ⊢t₁′ ⊢t₂′ PE.refl ok)
           t⇒u″ = PE.subst (λ x → Δ ⊢ snd p t [ σ ] ⇒* t₂ ∷ x) (PE.sym (singleSubstLift G (fst p t)))

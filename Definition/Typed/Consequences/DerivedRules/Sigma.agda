@@ -25,6 +25,7 @@ open import Definition.Typed.Consequences.Substitution R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Term R
+open import Definition.Typed.RedSteps R
 open import Definition.Typed.Weakening R as W
 
 open import Definition.Untyped M as U
@@ -125,6 +126,18 @@ opaque
 
 opaque
 
+  -- A variant of fst-subst*.
+
+  fst-subst*′ :
+    Γ ⊢ t ⇒* u ∷ Σˢ p , q ▷ A ▹ B →
+    Γ ⊢ fst p t ⇒* fst p u ∷ A
+  fst-subst*′ t⇒*u =
+    case inversion-ΠΣ (syntacticTerm (redFirst*Term t⇒*u)) of λ {
+      (⊢A , ⊢B , _) →
+    fst-subst* t⇒*u ⊢A ⊢B }
+
+opaque
+
   -- A variant of fst-cong.
 
   fst-cong′ :
@@ -167,12 +180,11 @@ opaque
     Γ ∙ (Σʷ p , q′ ▷ A ▹ B) ⊢ C →
     Γ ∙ A ∙ B ⊢ u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
     Γ ⊢ t₁ ⇒ t₂ ∷ Σʷ p , q′ ▷ A ▹ B →
-    Σʷ-allowed p q′ →
     Γ ⊢ prodrec r p q C t₁ u ⇒ prodrec r p q C t₂ u ∷ C [ t₁ ]₀
   prodrec-subst′ ⊢C ⊢u t₁⇒t₂ =
     case inversion-ΠΣ (syntacticTerm (redFirstTerm t₁⇒t₂)) of λ {
-      (⊢A , ⊢B , _) →
-    prodrec-subst ⊢A ⊢B ⊢C ⊢u t₁⇒t₂ }
+      (⊢A , ⊢B , ok) →
+    prodrec-subst ⊢A ⊢B ⊢C ⊢u t₁⇒t₂ ok }
 
 opaque
 
@@ -650,7 +662,7 @@ fstʷ-subst {Γ} {t₁} {t₂} {p} {q} {A} {B} t₁⇒t₂ =
     (⊢A , ⊢B , ok) →
                                                                $⟨ Σ⊢wk1 ⊢B ok , 1∷wk1[1,0] ⊢B ⟩
   (Γ ∙ (Σʷ p , q ▷ A ▹ B) ⊢ wk1 A) ×
-  Γ ∙ A ∙ B ⊢ var x1 ∷ wk1 A [ prodʷ p (var x1) (var x0) ]↑²   →⟨ (λ (hyp₁ , hyp₂) → prodrec-subst′ hyp₁ hyp₂ t₁⇒t₂ ok) ⟩
+  Γ ∙ A ∙ B ⊢ var x1 ∷ wk1 A [ prodʷ p (var x1) (var x0) ]↑²   →⟨ (λ (hyp₁ , hyp₂) → prodrec-subst′ hyp₁ hyp₂ t₁⇒t₂) ⟩
 
   Γ ⊢ fstʷ p A t₁ ⇒ fstʷ p A t₂ ∷ wk1 A [ t₁ ]₀                →⟨ flip conv (⊢wk1[]≡ ⊢A) ⟩
 
@@ -916,7 +928,7 @@ sndʷ-subst :
   Γ ⊢ sndʷ p q A B t₁ ⇒ sndʷ p q A B t₂ ∷ B [ fstʷ p A t₁ ]₀
 sndʷ-subst
   {Γ = Γ} {t₁ = t₁} {t₂ = t₂} {p = p} {q = q} {A = A} {B = B} t₁⇒t₂ =
-                                            $⟨ prodrec-subst′ (⊢[fstʷ-0]↑ ⊢B ok) (⊢0∷[fstʷ-0]↑[1,0]↑² ⊢B ok) t₁⇒t₂ ok ⟩
+                                            $⟨ prodrec-subst′ (⊢[fstʷ-0]↑ ⊢B ok) (⊢0∷[fstʷ-0]↑[1,0]↑² ⊢B ok) t₁⇒t₂ ⟩
   Γ ⊢ sndʷ p q A B t₁ ⇒ sndʷ p q A B t₂ ∷
     B [ fstʷ p (wk1 A) (var x0) ]↑ [ t₁ ]₀  →⟨ flip conv (⊢≡[fstʷ] ⊢t₁) ⟩
 

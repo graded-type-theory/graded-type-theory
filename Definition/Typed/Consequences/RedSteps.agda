@@ -39,19 +39,25 @@ private
   variable
     n : Nat
     Γ : Con Term n
-    A B F G t t′ u v v₁ v₂ w₁ w₂ : Term n
+    A B C t t′ t₁ t₂ u v v₁ v₂ w₁ w₂ : Term n
     p q q′ r : M
 
--- Second projector substitution of reduction closures
+opaque
 
-snd-subst* : Γ ⊢ t ⇒* t′ ∷ Σˢ p , q ▷ F ▹ G
-           → Γ ⊢ F
-           → Γ ∙ F ⊢ G
-           → Γ ⊢ snd p t ⇒* snd p t′ ∷ G [ fst p t ]₀
-snd-subst* (id x) ⊢F ⊢G = id (sndⱼ ⊢F ⊢G x)
-snd-subst* (x ⇨ t⇒t′) ⊢F ⊢G =
-  snd-subst ⊢F ⊢G x ⇨ conv* (snd-subst* t⇒t′ ⊢F ⊢G)
-                              (substTypeEq (refl ⊢G) (sym (fst-cong ⊢F ⊢G (subsetTerm x))))
+  -- A variant of snd-subst for _⊢_⇒*_∷_.
+
+  snd-subst* :
+    Γ ⊢ t ⇒* u ∷ Σˢ p , q ▷ A ▹ B →
+    Γ ⊢ snd p t ⇒* snd p u ∷ B [ fst p t ]₀
+  snd-subst* t⇒*u =
+    case inversion-ΠΣ $ syntacticTerm $ redFirst*Term t⇒*u of λ
+      (_ , ⊢B , _) →
+    case t⇒*u of λ where
+      (id ⊢t)      → id (sndⱼ′ ⊢t)
+      (t⇒v ⇨ v⇨*u) →
+        snd-subst′ t⇒v ⇨
+        conv* (snd-subst* v⇨*u)
+          (substTypeEq (refl ⊢B) (sym (fst-cong′ (subsetTerm t⇒v))))
 
 opaque
   unfolding _⊩ᵛ⟨_⟩_ _⊩⟨_⟩_∷_
@@ -68,24 +74,22 @@ opaque
     I.natrec-subst* (fundamental ⊢A) ⊢t ⊢u v₁⇒*v₂
       (reducibleTerm (syntacticRedTerm v₁⇒*v₂ .proj₂ .proj₂))
 
--- Prodrec substitution of reduction closures
+opaque
 
-prodrec-subst* : Γ ⊢ t ⇒* t′ ∷ Σʷ p , q ▷ F ▹ G
-               → Γ ⊢ F
-               → Γ ∙ F ⊢ G
-               → Γ ∙ (Σʷ p , q ▷ F ▹ G) ⊢ A
-               → Γ ∙ F ∙ G ⊢ u ∷ A [ prodʷ p (var x1) (var x0) ]↑²
-               → Γ ⊢ prodrec r p q′ A t u ⇒* prodrec r p q′ A t′ u ∷ A [ t ]₀
-prodrec-subst* (id x) ⊢F ⊢G ⊢A ⊢u =
-  id (prodrecⱼ ⊢F ⊢G ⊢A x ⊢u ok)
-  where
-  ok = ⊢∷ΠΣ→ΠΣ-allowed (var (wf ⊢A) here)
-prodrec-subst* (x ⇨ t⇒t′) ⊢F ⊢G ⊢A ⊢u =
-  prodrec-subst ⊢F ⊢G ⊢A ⊢u x ok ⇨
-  conv* (prodrec-subst* t⇒t′ ⊢F ⊢G ⊢A ⊢u)
-    (substTypeEq (refl ⊢A) (sym (subsetTerm x)))
-  where
-  ok = ⊢∷ΠΣ→ΠΣ-allowed (var (wf ⊢A) here)
+  -- A variant of prodrec-subst for _⊢_⇒*_∷_.
+
+  prodrec-subst* :
+    Γ ∙ Σʷ p , q ▷ A ▹ B ⊢ C →
+    Γ ⊢ t₁ ⇒* t₂ ∷ Σʷ p , q ▷ A ▹ B →
+    Γ ∙ A ∙ B ⊢ u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
+    Γ ⊢ prodrec r p q′ C t₁ u ⇒* prodrec r p q′ C t₂ u ∷ C [ t₁ ]₀
+  prodrec-subst* ⊢C t₁⇒*t₂ ⊢u =
+    case t₁⇒*t₂ of λ where
+      (id ⊢t₁)         → id (prodrecⱼ′ ⊢C ⊢t₁ ⊢u)
+      (t₁⇒t₃ ⇨ t₃⇒*t₂) →
+        prodrec-subst′ ⊢C ⊢u t₁⇒t₃ ⇨
+        conv* (prodrec-subst* ⊢C t₃⇒*t₂ ⊢u)
+          (substTypeEq (refl ⊢C) (sym (subsetTerm t₁⇒t₃)))
 
 -- Unitrec substitution of reduction closures
 

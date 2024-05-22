@@ -184,7 +184,7 @@ prodrecωʳ′-𝟘
              (PE.sym (singleSubstLift A t))
              (substCompProdrec A t₁ t₂ σ)
              At≡Ap
-  red₁   = prodrec-subst* {r = r} d ⊢σF ⊢σG ⊢σA ⊢σu′
+  red₁   = prodrec-subst* {r = r} ⊢σA d ⊢σu′
   red₂   = prodrec-β ⊢σF ⊢σG ⊢σA ⊢t₁ ⊢t₂′ ⊢σu′ PE.refl ok
   red′   = PE.subst₂ (λ x y → Δ ⊢ _ ⇒* x ∷ y)
              (doubleSubstComp u t₁ t₂ σ)
@@ -313,7 +313,7 @@ prodrecωʳ′-ω
       ⊢t₂ = escapeTerm [σGt₁] [t₂]
       ⊢t₂′ = PE.subst (λ x → Δ ⊢ t₂ ∷ x) (PE.sym (singleSubstComp t₁ σ G)) ⊢t₂
 
-      red₁ = prodrec-subst* {r = r} d ⊢σF ⊢σG ⊢σA ⊢σu′
+      red₁ = prodrec-subst* {r = r} ⊢σA d ⊢σu′
       red₂ = prodrec-β ⊢σF ⊢σG ⊢σA ⊢t₁ ⊢t₂′ ⊢σu′ PE.refl ok
       At≡Ap = substTypeEq (refl ⊢σA) (subset*Term d)
       red = PE.subst₂ (λ x y → Δ ⊢ _ ⇒* x ∷ y)
@@ -504,7 +504,7 @@ prodrec𝟘ʳ {n} {l} {F} {G} {p} {q} {A} {δ} {u} {t} {r} {σ} {σ′} {q′} {
       At≡At′ = substTypeEq (refl ⊢σA) (subset*Term (redₜ t⇒t′))
       At≡At″ = PE.subst (λ x → Δ ⊢ _ ≡ x) (substCompProdrec A t₁ t₂ σ) At≡At′
 
-      red₁ = prodrec-subst* (redₜ t⇒t′) ⊢σF ⊢σG ⊢σA ⊢σu′
+      red₁ = prodrec-subst* ⊢σA (redₜ t⇒t′) ⊢σu′
       red₁′ = conv* red₁ At≡At″
       red₂ = redMany $
              prodrec-β ⊢σF ⊢σG ⊢σA ⊢t₁ ⊢t₂′ ⊢σu′ PE.refl ok
