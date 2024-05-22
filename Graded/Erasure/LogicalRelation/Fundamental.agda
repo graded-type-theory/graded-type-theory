@@ -111,7 +111,7 @@ module _ (⊢Δ : ⊢ Δ) {s : Strictness} where
     fundamentalVar {x} {A} {γ} {m} ⊢Γ x∈Γ ▸x =
       ▸⊩ʳ∷⇔ .proj₂
         ( wf-⊩ᵛ∷ (emb-⊩ᵛ∷ LP.≤¹ (varᵛ x∈Γ (F.valid ⊢Γ) .proj₂))
-        , λ {σ = σ} {σ′ = σ′} _ σ®σ′ →
+        , λ {σ = σ} {σ′ = σ′} σ®σ′ →
             case ®∷[]◂→ σ®σ′ x∈Γ of λ
               (l , _ , _ , σx®σ′x) →
                                                          $⟨ σx®σ′x ⟩

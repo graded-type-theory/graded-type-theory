@@ -29,11 +29,7 @@ module Graded.Erasure.Consequences.Non-interference
 open Fundamental-assumptions FA
 
 open import Definition.Typed TR
-open import Definition.Typed.Properties TR
 open import Definition.LogicalRelation TR
-open import Definition.LogicalRelation.Fundamental TR
-  using (fundamental-⊩ˢ∷)
-open import Definition.LogicalRelation.Hidden TR
 
 open import Graded.Context 𝕄
 open import Graded.Usage 𝕄 UR
@@ -73,15 +69,15 @@ non-interference :
   σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ γ →
   t [ σ ] ® erase str t T.[ σ′ ] ∷ℕ
 non-interference {Γ} {t} {γ} ⊢t ▸t {σ} {σ′} ⊢σ σ®σ′ =
-                                                   $⟨ fundamental-⊩ʳ∷ ⊢t ▸t ⟩
+                                                 $⟨ fundamental-⊩ʳ∷ ⊢t ▸t ⟩
 
-  γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ 𝟙ᵐ ] ℕ                        →⟨ proj₂ ∘→ ▸⊩ʳ∷⇔ .proj₁ ⟩
+  γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ 𝟙ᵐ ] ℕ                      →⟨ proj₂ ∘→ ▸⊩ʳ∷⇔ .proj₁ ⟩
 
-  (∀ {σ σ′} → Δ ⊩ˢ σ ∷ Γ → σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ γ →
-   t [ σ ] ®⟨ ¹ ⟩ erase str t T.[ σ′ ] ∷ ℕ ◂ 𝟙)    →⟨ (λ hyp → hyp (fundamental-⊩ˢ∷ well-formed (wfTerm ⊢t) ⊢σ) σ®σ′) ⟩
+  (∀ {σ σ′} → σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ γ →
+   t [ σ ] ®⟨ ¹ ⟩ erase str t T.[ σ′ ] ∷ ℕ ◂ 𝟙)  →⟨ (λ hyp → hyp σ®σ′) ⟩
 
-  t [ σ ] ®⟨ ¹ ⟩ erase str t T.[ σ′ ] ∷ ℕ ◂ 𝟙      →⟨ ®∷→®∷◂ω non-trivial ⟩
+  t [ σ ] ®⟨ ¹ ⟩ erase str t T.[ σ′ ] ∷ ℕ ◂ 𝟙    →⟨ ®∷→®∷◂ω non-trivial ⟩
 
-  t [ σ ] ®⟨ ¹ ⟩ erase str t T.[ σ′ ] ∷ ℕ          ⇔⟨ ®∷ℕ⇔ ⟩→
+  t [ σ ] ®⟨ ¹ ⟩ erase str t T.[ σ′ ] ∷ ℕ        ⇔⟨ ®∷ℕ⇔ ⟩→
 
-  t [ σ ] ® erase str t T.[ σ′ ] ∷ℕ                □
+  t [ σ ] ® erase str t T.[ σ′ ] ∷ℕ              □
