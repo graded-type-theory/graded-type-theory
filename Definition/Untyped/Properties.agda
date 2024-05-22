@@ -138,6 +138,14 @@ consSubst-cong :
 consSubst-cong eq x0     = refl
 consSubst-cong eq (x +1) = eq x
 
+opaque
+
+  -- An η-law for consSubst.
+
+  consSubst-η : ∀ x → consSubst (tail σ) (head σ) x ≡ σ x
+  consSubst-η x0     = refl
+  consSubst-η (_ +1) = refl
+
 -- If σ = σ′ then wk1Subst σ = wk1Subst σ′.
 
 wk1Subst-cong :
