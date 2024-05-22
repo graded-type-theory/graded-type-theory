@@ -520,7 +520,7 @@ opaque
       (⊩u₁ , ⊩u₂) →
     case conv-∙-⊩ᵛ∷ A₁≡A₂ $
          conv-⊩ᵛ∷
-           (⊩ᵛ≡→⊩ᵛ≡∷→⊩ᵛ[]↑²≡[]↑² A₁≡A₂ $
+           (⊩ᵛ≡→⊩ᵛ∷→⊩ᵛ[]↑²≡[]↑² A₁≡A₂ $
             sucᵛ (varᵛ (there here) (wf-⊩ᵛ (wf-⊩ᵛ∷ ⊩u₁)) .proj₂))
          ⊩u₂ of λ
       ⊩u₂ →
@@ -623,7 +623,7 @@ opaque
                 ⊩t₂)
              (conv-∙-⊩ᵛ∷ A₁≡A₂ $
               conv-⊩ᵛ∷
-                (⊩ᵛ≡→⊩ᵛ≡∷→⊩ᵛ[]↑²≡[]↑² A₁≡A₂ $
+                (⊩ᵛ≡→⊩ᵛ∷→⊩ᵛ[]↑²≡[]↑² A₁≡A₂ $
                  sucᵛ $ varᵛ (there here) (wf-⊩ᵛ (wf-⊩ᵛ∷ ⊩u₁)) .proj₂)
                 ⊩u₂)
              ⊩v₂)
