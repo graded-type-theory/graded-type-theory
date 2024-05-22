@@ -2092,6 +2092,34 @@ opaque
         (Irr.irrelevanceEqTerm {t = t} {u = u} _ _ ⊩A ⊩A′ t≡u)
 
 opaque
+
+  -- A substitution lemma for _⊩ᵛ⟨_⟩_.
+
+  ⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]₀ :
+    Γ ∙ A ⊩ᵛ⟨ l ⟩ B →
+    Γ ⊩ᵛ⟨ l′ ⟩ t ∷ A →
+    Γ ⊩ᵛ⟨ l ⟩ B [ t ]₀
+  ⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]₀ ⊩B ⊩t =
+    wf-⊩ᵛ≡ (⊩ᵛ≡→⊩ᵛ≡∷→⊩ᵛ[]₀≡[]₀ (refl-⊩ᵛ≡ ⊩B) (refl-⊩ᵛ≡∷ ⊩t)) .proj₁
+
+opaque
+  unfolding _⊩ᵛ⟨_⟩_∷_
+
+  -- A substitution lemma for _⊩ᵛ⟨_⟩_∷_.
+
+  ⊩ᵛ∷→⊩ᵛ∷→⊩ᵛ[]₀∷ :
+    Γ ∙ A ⊩ᵛ⟨ l ⟩ t ∷ B →
+    Γ ⊩ᵛ⟨ l′ ⟩ u ∷ A →
+    Γ ⊩ᵛ⟨ l ⟩ t [ u ]₀ ∷ B [ u ]₀
+  ⊩ᵛ∷→⊩ᵛ∷→⊩ᵛ[]₀∷ {t} (_ , ⊩B , ⊩t) (_ , ⊩A , ⊩u) =
+    case Irr.irrelevance _ _ ⊩B of λ
+      ⊩B′ →
+      _
+    , substS _ ⊩A ⊩B′ ⊩u
+    , substSTerm {f = t} _ ⊩A ⊩B′
+        (Irr.irrelevanceTerm {t = t} _ _ ⊩B ⊩B′ ⊩t) ⊩u
+
+opaque
   unfolding _⊩ᵛ⟨_⟩_ _⊩ᵛ⟨_⟩_≡_ _⊩ᵛ⟨_⟩_≡_∷_
 
   -- A substitution lemma for _⊩ᵛ⟨_⟩_≡_.
@@ -2141,40 +2169,6 @@ opaque
         ⊩C₁[t₁,u₁] ⊩C₂′ (Irr.irrelevanceEq {B = C₂} _ _ ⊩C₁ ⊩C₁′ C₁≡C₂)
 
 opaque
-  unfolding _⊩ᵛ⟨_⟩_≡_ _⊩ᵛ⟨_⟩_∷_
-
-  -- A substitution lemma for _⊩ᵛ⟨_⟩_≡_.
-
-  ⊩ᵛ≡→⊩ᵛ≡∷→⊩ᵛ[]↑²≡[]↑² :
-    Γ ∙ A ⊩ᵛ⟨ l ⟩ D ≡ E →
-    Γ ∙ B ∙ C ⊩ᵛ⟨ l′ ⟩ t ∷ wk2 A →
-    Γ ∙ B ∙ C ⊩ᵛ⟨ l ⟩ D [ t ]↑² ≡ E [ t ]↑²
-  ⊩ᵛ≡→⊩ᵛ≡∷→⊩ᵛ[]↑²≡[]↑²
-    {t} (_ ∙ ⊩A , ⊩D , ⊩E , D≡E) (_ ∙ ⊩B′ ∙ ⊩C′ , ⊩A′ , ⊩t′) =
-    case (λ {k Δ σ} →
-            Irr.irrelevanceTerm {t = t} _ _ ⊩A′
-              (wk1ᵛ _ (Irr.irrelevance _ _ ⊩C′) $
-               wk1ᵛ _ (Irr.irrelevance _ _ ⊩B′) ⊩A)
-              ⊩t′
-              {k = k} {Δ = Δ} {σ = σ}) of λ
-      ⊩t →
-      _
-    , subst↑²S _ _ _ _ ⊩D ⊩t
-    , subst↑²S _ _ _ _ ⊩E ⊩t
-    , subst↑²SEq _ _ _ _ ⊩D ⊩E D≡E ⊩t
-
-opaque
-
-  -- A substitution lemma for _⊩ᵛ⟨_⟩_.
-
-  ⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]₀ :
-    Γ ∙ A ⊩ᵛ⟨ l ⟩ B →
-    Γ ⊩ᵛ⟨ l′ ⟩ t ∷ A →
-    Γ ⊩ᵛ⟨ l ⟩ B [ t ]₀
-  ⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]₀ ⊩B ⊩t =
-    wf-⊩ᵛ≡ (⊩ᵛ≡→⊩ᵛ≡∷→⊩ᵛ[]₀≡[]₀ (refl-⊩ᵛ≡ ⊩B) (refl-⊩ᵛ≡∷ ⊩t)) .proj₁
-
-opaque
 
   -- A substitution lemma for _⊩ᵛ⟨_⟩_.
 
@@ -2187,34 +2181,6 @@ opaque
     proj₁ $ wf-⊩ᵛ≡ $
     ⊩ᵛ≡→⊩ᵛ≡∷→⊩ᵛ≡∷→⊩ᵛ[]₁₀≡[]₁₀ (refl-⊩ᵛ≡ ⊩C) (refl-⊩ᵛ≡∷ ⊩t)
       (refl-⊩ᵛ≡∷ ⊩u)
-
-opaque
-
-  -- A substitution lemma for _⊩ᵛ⟨_⟩_.
-
-  ⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]↑² :
-    Γ ∙ A ⊩ᵛ⟨ l ⟩ D →
-    Γ ∙ B ∙ C ⊩ᵛ⟨ l′ ⟩ t ∷ wk2 A →
-    Γ ∙ B ∙ C ⊩ᵛ⟨ l ⟩ D [ t ]↑²
-  ⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]↑² ⊩D ⊩t =
-    proj₁ $ wf-⊩ᵛ≡ $ ⊩ᵛ≡→⊩ᵛ≡∷→⊩ᵛ[]↑²≡[]↑² (refl-⊩ᵛ≡ ⊩D) ⊩t
-
-opaque
-  unfolding _⊩ᵛ⟨_⟩_∷_
-
-  -- A substitution lemma for _⊩ᵛ⟨_⟩_∷_.
-
-  ⊩ᵛ∷→⊩ᵛ∷→⊩ᵛ[]₀∷ :
-    Γ ∙ A ⊩ᵛ⟨ l ⟩ t ∷ B →
-    Γ ⊩ᵛ⟨ l′ ⟩ u ∷ A →
-    Γ ⊩ᵛ⟨ l ⟩ t [ u ]₀ ∷ B [ u ]₀
-  ⊩ᵛ∷→⊩ᵛ∷→⊩ᵛ[]₀∷ {t} (_ , ⊩B , ⊩t) (_ , ⊩A , ⊩u) =
-    case Irr.irrelevance _ _ ⊩B of λ
-      ⊩B′ →
-      _
-    , substS _ ⊩A ⊩B′ ⊩u
-    , substSTerm {f = t} _ ⊩A ⊩B′
-        (Irr.irrelevanceTerm {t = t} _ _ ⊩B ⊩B′ ⊩t) ⊩u
 
 opaque
 
@@ -2250,6 +2216,40 @@ opaque
       )
 
 opaque
+  unfolding _⊩ᵛ⟨_⟩_≡_ _⊩ᵛ⟨_⟩_∷_
+
+  -- A substitution lemma for _⊩ᵛ⟨_⟩_≡_.
+
+  ⊩ᵛ≡→⊩ᵛ≡∷→⊩ᵛ[]↑²≡[]↑² :
+    Γ ∙ A ⊩ᵛ⟨ l ⟩ D ≡ E →
+    Γ ∙ B ∙ C ⊩ᵛ⟨ l′ ⟩ t ∷ wk2 A →
+    Γ ∙ B ∙ C ⊩ᵛ⟨ l ⟩ D [ t ]↑² ≡ E [ t ]↑²
+  ⊩ᵛ≡→⊩ᵛ≡∷→⊩ᵛ[]↑²≡[]↑²
+    {t} (_ ∙ ⊩A , ⊩D , ⊩E , D≡E) (_ ∙ ⊩B′ ∙ ⊩C′ , ⊩A′ , ⊩t′) =
+    case (λ {k Δ σ} →
+            Irr.irrelevanceTerm {t = t} _ _ ⊩A′
+              (wk1ᵛ _ (Irr.irrelevance _ _ ⊩C′) $
+               wk1ᵛ _ (Irr.irrelevance _ _ ⊩B′) ⊩A)
+              ⊩t′
+              {k = k} {Δ = Δ} {σ = σ}) of λ
+      ⊩t →
+      _
+    , subst↑²S _ _ _ _ ⊩D ⊩t
+    , subst↑²S _ _ _ _ ⊩E ⊩t
+    , subst↑²SEq _ _ _ _ ⊩D ⊩E D≡E ⊩t
+
+opaque
+
+  -- A substitution lemma for _⊩ᵛ⟨_⟩_.
+
+  ⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]↑² :
+    Γ ∙ A ⊩ᵛ⟨ l ⟩ D →
+    Γ ∙ B ∙ C ⊩ᵛ⟨ l′ ⟩ t ∷ wk2 A →
+    Γ ∙ B ∙ C ⊩ᵛ⟨ l ⟩ D [ t ]↑²
+  ⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]↑² ⊩D ⊩t =
+    proj₁ $ wf-⊩ᵛ≡ $ ⊩ᵛ≡→⊩ᵛ≡∷→⊩ᵛ[]↑²≡[]↑² (refl-⊩ᵛ≡ ⊩D) ⊩t
+
+opaque
 
   -- A substitution lemma for _⊩ᵛ⟨_⟩_≡_ and _⊩⟨_⟩_≡_.
 
@@ -2262,6 +2262,20 @@ opaque
       (_ , ⊩A) →
     ⊩ᵛ≡⇔′ .proj₁ B≡C .proj₂ .proj₂
       (⊩ˢ≡∷-sgSubst ⊩A (level-⊩≡∷ (⊩ᵛ→⊩ ⊩A) t≡u))
+
+opaque
+
+  -- A substitution lemma for _⊩ᵛ⟨_⟩_≡_∷_ and _⊩⟨_⟩_≡_∷_.
+
+  ⊩ᵛ≡∷→⊩≡∷→⊩[]₀≡[]₀∷ :
+    Γ ∙ A ⊩ᵛ⟨ l ⟩ t ≡ u ∷ B →
+    Γ ⊩⟨ l′ ⟩ v ≡ w ∷ A →
+    Γ ⊩⟨ l ⟩ t [ v ]₀ ≡ u [ w ]₀ ∷ B [ v ]₀
+  ⊩ᵛ≡∷→⊩≡∷→⊩[]₀≡[]₀∷ t≡u v≡w =
+    case wf-∙-⊩ᵛ (wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ t≡u .proj₁)) of λ
+      (_ , ⊩A) →
+    ⊩ᵛ≡∷⇔′ .proj₁ t≡u .proj₂ .proj₂
+      (⊩ˢ≡∷-sgSubst ⊩A (level-⊩≡∷ (⊩ᵛ→⊩ ⊩A) v≡w))
 
 opaque
 
@@ -2290,6 +2304,41 @@ opaque
 
 opaque
 
+  -- A substitution lemma for _⊩ᵛ⟨_⟩_ and _⊩⟨_⟩_.
+
+  ⊩ᵛ→⊩ˢ∷→⊩[⇑] :
+    Γ ∙ A ⊩ᵛ⟨ l ⟩ B →
+    Δ ⊩ˢ σ ∷ Γ →
+    Δ ∙ A [ σ ] ⊩⟨ l ⟩ B [ σ ⇑ ]
+  ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B ⊩σ =
+    proj₁ $ wf-⊩≡ $ ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑]≡[⇑] (refl-⊩ᵛ≡ ⊩B) (refl-⊩ˢ≡∷ ⊩σ)
+
+opaque
+
+  -- A substitution lemma for _⊩ᵛ⟨_⟩_≡_∷_ and _⊩⟨_⟩_≡_∷_.
+
+  ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑]≡[⇑]∷ :
+    Γ ∙ A ⊩ᵛ⟨ l ⟩ t₁ ≡ t₂ ∷ B →
+    Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
+    Δ ∙ A [ σ₁ ] ⊩⟨ l ⟩ t₁ [ σ₁ ⇑ ] ≡ t₂ [ σ₂ ⇑ ] ∷ B [ σ₁ ⇑ ]
+  ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑]≡[⇑]∷ t₁≡t₂ σ₁≡σ₂ =
+    ⊩ᵛ≡∷⇔′ .proj₁ t₁≡t₂ .proj₂ .proj₂ $
+    ⊩ˢ≡∷-liftSubst (wf-∙-⊩ᵛ (wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁)) .proj₂)
+      σ₁≡σ₂
+
+opaque
+
+  -- A substitution lemma for _⊩ᵛ⟨_⟩_∷_ and _⊩⟨_⟩_∷_.
+
+  ⊩ᵛ∷→⊩ˢ∷→⊩[⇑]∷ :
+    Γ ∙ A ⊩ᵛ⟨ l ⟩ t ∷ B →
+    Δ ⊩ˢ σ ∷ Γ →
+    Δ ∙ A [ σ ] ⊩⟨ l ⟩ t [ σ ⇑ ] ∷ B [ σ ⇑ ]
+  ⊩ᵛ∷→⊩ˢ∷→⊩[⇑]∷ ⊩t ⊩σ =
+    proj₁ $ wf-⊩≡∷ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑]≡[⇑]∷ (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ˢ≡∷ ⊩σ)
+
+opaque
+
   -- A substitution lemma for _⊩ᵛ⟨_⟩_≡_ and _⊩⟨_⟩_≡_.
 
   ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑] :
@@ -2301,6 +2350,43 @@ opaque
       (_ , ⊩B) →
     ⊩ᵛ≡⇔′ .proj₁ C₁≡C₂ .proj₂ .proj₂ $
     ⊩ˢ≡∷-liftSubst ⊩B $ ⊩ˢ≡∷-liftSubst (wf-∙-⊩ᵛ ⊩B .proj₂) σ₁≡σ₂
+
+opaque
+
+  -- A substitution lemma for _⊩ᵛ⟨_⟩_ and _⊩⟨_⟩_.
+
+  ⊩ᵛ→⊩ˢ∷→⊩[⇑⇑] :
+    Γ ∙ A ∙ B ⊩ᵛ⟨ l ⟩ C →
+    Δ ⊩ˢ σ ∷ Γ →
+    Δ ∙ A [ σ ] ∙ B [ σ ⇑ ] ⊩⟨ l ⟩ C [ σ ⇑ ⇑ ]
+  ⊩ᵛ→⊩ˢ∷→⊩[⇑⇑] ⊩C ⊩σ =
+    proj₁ $ wf-⊩≡ $ ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑] (refl-⊩ᵛ≡ ⊩C) (refl-⊩ˢ≡∷ ⊩σ)
+
+opaque
+
+  -- A substitution lemma for _⊩ᵛ⟨_⟩_≡_∷_ and _⊩⟨_⟩_≡_∷_.
+
+  ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑]∷ :
+    Γ ∙ A ∙ B ⊩ᵛ⟨ l ⟩ t₁ ≡ t₂ ∷ C →
+    Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
+    Δ ∙ A [ σ₁ ] ∙ B [ σ₁ ⇑ ] ⊩⟨ l ⟩ t₁ [ σ₁ ⇑ ⇑ ] ≡ t₂ [ σ₂ ⇑ ⇑ ] ∷
+      C [ σ₁ ⇑ ⇑ ]
+  ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑]∷ t₁≡t₂ σ₁≡σ₂ =
+    case wf-∙-⊩ᵛ (wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁)) of λ
+      (_ , ⊩B) →
+    ⊩ᵛ≡∷⇔′ .proj₁ t₁≡t₂ .proj₂ .proj₂ $
+    ⊩ˢ≡∷-liftSubst ⊩B $ ⊩ˢ≡∷-liftSubst (wf-∙-⊩ᵛ ⊩B .proj₂) σ₁≡σ₂
+
+opaque
+
+  -- A substitution lemma for _⊩ᵛ⟨_⟩_∷_ and _⊩⟨_⟩_∷_.
+
+  ⊩ᵛ∷→⊩ˢ∷→⊩[⇑⇑]∷ :
+    Γ ∙ A ∙ B ⊩ᵛ⟨ l ⟩ t ∷ C →
+    Δ ⊩ˢ σ ∷ Γ →
+    Δ ∙ A [ σ ] ∙ B [ σ ⇑ ] ⊩⟨ l ⟩ t [ σ ⇑ ⇑ ] ∷ C [ σ ⇑ ⇑ ]
+  ⊩ᵛ∷→⊩ˢ∷→⊩[⇑⇑]∷ ⊩t ⊩σ =
+    proj₁ $ wf-⊩≡∷ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑]∷ (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ˢ≡∷ ⊩σ)
 
 opaque
 
@@ -2316,6 +2402,20 @@ opaque
       (PE.sym $ singleSubstComp _ _ B₁)
       (PE.sym $ singleSubstComp _ _ B₂) $
     ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[,]≡[,] B₁≡B₂ σ₁≡σ₂ t₁≡t₂
+
+opaque
+
+  -- A substitution lemma for _⊩ᵛ⟨_⟩_ and _⊩⟨_⟩_.
+
+  ⊩ᵛ→⊩ˢ∷→⊩∷→⊩[⇑][]₀ :
+    Γ ∙ A ⊩ᵛ⟨ l ⟩ B →
+    Δ ⊩ˢ σ ∷ Γ →
+    Δ ⊩⟨ l′ ⟩ t ∷ A [ σ ] →
+    Δ ⊩⟨ l ⟩ B [ σ ⇑ ] [ t ]₀
+  ⊩ᵛ→⊩ˢ∷→⊩∷→⊩[⇑][]₀ ⊩B ⊩σ ⊩t =
+    proj₁ $ wf-⊩≡ $
+    ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩B) (refl-⊩ˢ≡∷ ⊩σ)
+      (refl-⊩≡∷ ⊩t)
 
 opaque
 
@@ -2357,61 +2457,6 @@ opaque
 
 opaque
 
-  -- A substitution lemma for _⊩ᵛ⟨_⟩_≡_ and _⊩⟨_⟩_≡_.
-
-  ⊩ᵛ≡→⊩≡∷→⊩≡∷→⊩ˢ≡∷→⊩[]₁₀[]≡[]₁₀[] :
-    Γ ∙ A ∙ B ⊩ᵛ⟨ l ⟩ C₁ ≡ C₂ →
-    Δ ⊩⟨ l′ ⟩ t₁ [ σ₁ ] ≡ t₂ [ σ₂ ] ∷ A [ σ₁ ] →
-    Δ ⊩⟨ l″ ⟩ u₁ [ σ₁ ] ≡ u₂ [ σ₂ ] ∷ B [ t₁ ]₀ [ σ₁ ] →
-    Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
-    Δ ⊩⟨ l ⟩ C₁ [ t₁ , u₁ ]₁₀ [ σ₁ ] ≡ C₂ [ t₂ , u₂ ]₁₀ [ σ₂ ]
-  ⊩ᵛ≡→⊩≡∷→⊩≡∷→⊩ˢ≡∷→⊩[]₁₀[]≡[]₁₀[]
-    {B} {C₁} {C₂} C₁≡C₂ t₁[σ₁]≡t₂[σ₂] u₁[σ₁]≡u₂[σ₂] σ₁≡σ₂ =
-    PE.subst₂ (_⊩⟨_⟩_≡_ _ _)
-      (PE.sym $ [,]-[]-commute C₁)
-      (PE.sym $ [,]-[]-commute C₂) $
-    ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩≡∷→⊩[⇑⇑][]₁₀≡[⇑⇑][]₁₀ C₁≡C₂ σ₁≡σ₂ t₁[σ₁]≡t₂[σ₂]
-      (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (singleSubstLift B _)
-         u₁[σ₁]≡u₂[σ₂])
-
-opaque
-
-  -- A substitution lemma for _⊩ᵛ⟨_⟩_ and _⊩⟨_⟩_.
-
-  ⊩ᵛ→⊩ˢ∷→⊩[⇑] :
-    Γ ∙ A ⊩ᵛ⟨ l ⟩ B →
-    Δ ⊩ˢ σ ∷ Γ →
-    Δ ∙ A [ σ ] ⊩⟨ l ⟩ B [ σ ⇑ ]
-  ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B ⊩σ =
-    proj₁ $ wf-⊩≡ $ ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑]≡[⇑] (refl-⊩ᵛ≡ ⊩B) (refl-⊩ˢ≡∷ ⊩σ)
-
-opaque
-
-  -- A substitution lemma for _⊩ᵛ⟨_⟩_ and _⊩⟨_⟩_.
-
-  ⊩ᵛ→⊩ˢ∷→⊩[⇑⇑] :
-    Γ ∙ A ∙ B ⊩ᵛ⟨ l ⟩ C →
-    Δ ⊩ˢ σ ∷ Γ →
-    Δ ∙ A [ σ ] ∙ B [ σ ⇑ ] ⊩⟨ l ⟩ C [ σ ⇑ ⇑ ]
-  ⊩ᵛ→⊩ˢ∷→⊩[⇑⇑] ⊩C ⊩σ =
-    proj₁ $ wf-⊩≡ $ ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑] (refl-⊩ᵛ≡ ⊩C) (refl-⊩ˢ≡∷ ⊩σ)
-
-opaque
-
-  -- A substitution lemma for _⊩ᵛ⟨_⟩_ and _⊩⟨_⟩_.
-
-  ⊩ᵛ→⊩ˢ∷→⊩∷→⊩[⇑][]₀ :
-    Γ ∙ A ⊩ᵛ⟨ l ⟩ B →
-    Δ ⊩ˢ σ ∷ Γ →
-    Δ ⊩⟨ l′ ⟩ t ∷ A [ σ ] →
-    Δ ⊩⟨ l ⟩ B [ σ ⇑ ] [ t ]₀
-  ⊩ᵛ→⊩ˢ∷→⊩∷→⊩[⇑][]₀ ⊩B ⊩σ ⊩t =
-    proj₁ $ wf-⊩≡ $
-    ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩B) (refl-⊩ˢ≡∷ ⊩σ)
-      (refl-⊩≡∷ ⊩t)
-
-opaque
-
   -- A substitution lemma for _⊩ᵛ⟨_⟩_ and _⊩⟨_⟩_.
 
   ⊩ᵛ→⊩ˢ∷→⊩∷→⊩[⇑⇑][]₁₀ :
@@ -2424,48 +2469,6 @@ opaque
     proj₁ $ wf-⊩≡ $
     ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩≡∷→⊩[⇑⇑][]₁₀≡[⇑⇑][]₁₀ (refl-⊩ᵛ≡ ⊩C) (refl-⊩ˢ≡∷ ⊩σ)
       (refl-⊩≡∷ ⊩t) (refl-⊩≡∷ ⊩u)
-
-opaque
-
-  -- A substitution lemma for _⊩ᵛ⟨_⟩_≡_∷_ and _⊩⟨_⟩_≡_∷_.
-
-  ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑]≡[⇑]∷ :
-    Γ ∙ A ⊩ᵛ⟨ l ⟩ t₁ ≡ t₂ ∷ B →
-    Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
-    Δ ∙ A [ σ₁ ] ⊩⟨ l ⟩ t₁ [ σ₁ ⇑ ] ≡ t₂ [ σ₂ ⇑ ] ∷ B [ σ₁ ⇑ ]
-  ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑]≡[⇑]∷ t₁≡t₂ σ₁≡σ₂ =
-    ⊩ᵛ≡∷⇔′ .proj₁ t₁≡t₂ .proj₂ .proj₂ $
-    ⊩ˢ≡∷-liftSubst (wf-∙-⊩ᵛ (wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁)) .proj₂)
-      σ₁≡σ₂
-
-opaque
-
-  -- A substitution lemma for _⊩ᵛ⟨_⟩_≡_∷_ and _⊩⟨_⟩_≡_∷_.
-
-  ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑]∷ :
-    Γ ∙ A ∙ B ⊩ᵛ⟨ l ⟩ t₁ ≡ t₂ ∷ C →
-    Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
-    Δ ∙ A [ σ₁ ] ∙ B [ σ₁ ⇑ ] ⊩⟨ l ⟩ t₁ [ σ₁ ⇑ ⇑ ] ≡ t₂ [ σ₂ ⇑ ⇑ ] ∷
-      C [ σ₁ ⇑ ⇑ ]
-  ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑]∷ t₁≡t₂ σ₁≡σ₂ =
-    case wf-∙-⊩ᵛ (wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁)) of λ
-      (_ , ⊩B) →
-    ⊩ᵛ≡∷⇔′ .proj₁ t₁≡t₂ .proj₂ .proj₂ $
-    ⊩ˢ≡∷-liftSubst ⊩B $ ⊩ˢ≡∷-liftSubst (wf-∙-⊩ᵛ ⊩B .proj₂) σ₁≡σ₂
-
-opaque
-
-  -- A substitution lemma for _⊩ᵛ⟨_⟩_≡_∷_ and _⊩⟨_⟩_≡_∷_.
-
-  ⊩ᵛ≡∷→⊩≡∷→⊩[]₀≡[]₀∷ :
-    Γ ∙ A ⊩ᵛ⟨ l ⟩ t ≡ u ∷ B →
-    Γ ⊩⟨ l′ ⟩ v ≡ w ∷ A →
-    Γ ⊩⟨ l ⟩ t [ v ]₀ ≡ u [ w ]₀ ∷ B [ v ]₀
-  ⊩ᵛ≡∷→⊩≡∷→⊩[]₀≡[]₀∷ t≡u v≡w =
-    case wf-∙-⊩ᵛ (wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ t≡u .proj₁)) of λ
-      (_ , ⊩A) →
-    ⊩ᵛ≡∷⇔′ .proj₁ t≡u .proj₂ .proj₂
-      (⊩ˢ≡∷-sgSubst ⊩A (level-⊩≡∷ (⊩ᵛ→⊩ ⊩A) v≡w))
 
 opaque
 
@@ -2497,22 +2500,19 @@ opaque
 
 opaque
 
-  -- A substitution lemma for _⊩ᵛ⟨_⟩_∷_ and _⊩⟨_⟩_∷_.
+  -- A substitution lemma for _⊩ᵛ⟨_⟩_≡_ and _⊩⟨_⟩_≡_.
 
-  ⊩ᵛ∷→⊩ˢ∷→⊩[⇑]∷ :
-    Γ ∙ A ⊩ᵛ⟨ l ⟩ t ∷ B →
-    Δ ⊩ˢ σ ∷ Γ →
-    Δ ∙ A [ σ ] ⊩⟨ l ⟩ t [ σ ⇑ ] ∷ B [ σ ⇑ ]
-  ⊩ᵛ∷→⊩ˢ∷→⊩[⇑]∷ ⊩t ⊩σ =
-    proj₁ $ wf-⊩≡∷ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑]≡[⇑]∷ (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ˢ≡∷ ⊩σ)
-
-opaque
-
-  -- A substitution lemma for _⊩ᵛ⟨_⟩_∷_ and _⊩⟨_⟩_∷_.
-
-  ⊩ᵛ∷→⊩ˢ∷→⊩[⇑⇑]∷ :
-    Γ ∙ A ∙ B ⊩ᵛ⟨ l ⟩ t ∷ C →
-    Δ ⊩ˢ σ ∷ Γ →
-    Δ ∙ A [ σ ] ∙ B [ σ ⇑ ] ⊩⟨ l ⟩ t [ σ ⇑ ⇑ ] ∷ C [ σ ⇑ ⇑ ]
-  ⊩ᵛ∷→⊩ˢ∷→⊩[⇑⇑]∷ ⊩t ⊩σ =
-    proj₁ $ wf-⊩≡∷ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑]∷ (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ˢ≡∷ ⊩σ)
+  ⊩ᵛ≡→⊩≡∷→⊩≡∷→⊩ˢ≡∷→⊩[]₁₀[]≡[]₁₀[] :
+    Γ ∙ A ∙ B ⊩ᵛ⟨ l ⟩ C₁ ≡ C₂ →
+    Δ ⊩⟨ l′ ⟩ t₁ [ σ₁ ] ≡ t₂ [ σ₂ ] ∷ A [ σ₁ ] →
+    Δ ⊩⟨ l″ ⟩ u₁ [ σ₁ ] ≡ u₂ [ σ₂ ] ∷ B [ t₁ ]₀ [ σ₁ ] →
+    Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
+    Δ ⊩⟨ l ⟩ C₁ [ t₁ , u₁ ]₁₀ [ σ₁ ] ≡ C₂ [ t₂ , u₂ ]₁₀ [ σ₂ ]
+  ⊩ᵛ≡→⊩≡∷→⊩≡∷→⊩ˢ≡∷→⊩[]₁₀[]≡[]₁₀[]
+    {B} {C₁} {C₂} C₁≡C₂ t₁[σ₁]≡t₂[σ₂] u₁[σ₁]≡u₂[σ₂] σ₁≡σ₂ =
+    PE.subst₂ (_⊩⟨_⟩_≡_ _ _)
+      (PE.sym $ [,]-[]-commute C₁)
+      (PE.sym $ [,]-[]-commute C₂) $
+    ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩≡∷→⊩[⇑⇑][]₁₀≡[⇑⇑][]₁₀ C₁≡C₂ σ₁≡σ₂ t₁[σ₁]≡t₂[σ₂]
+      (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (singleSubstLift B _)
+         u₁[σ₁]≡u₂[σ₂])
