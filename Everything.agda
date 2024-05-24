@@ -370,12 +370,9 @@ import Graded.Erasure.LogicalRelation.Value
 
 -- The fundamental lemma of the logical relation
 
-import Graded.Erasure.LogicalRelation.Fundamental.Application
 import Graded.Erasure.LogicalRelation.Fundamental.Empty
-import Graded.Erasure.LogicalRelation.Fundamental.Lambda
 import Graded.Erasure.LogicalRelation.Fundamental.Nat
-import Graded.Erasure.LogicalRelation.Fundamental.Prodrec
-import Graded.Erasure.LogicalRelation.Fundamental.Product
+import Graded.Erasure.LogicalRelation.Fundamental.Pi-Sigma
 import Graded.Erasure.LogicalRelation.Fundamental.Unit
 import Graded.Erasure.LogicalRelation.Fundamental.Identity
 import Graded.Erasure.LogicalRelation.Fundamental.Assumptions

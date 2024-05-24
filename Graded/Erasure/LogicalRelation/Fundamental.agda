@@ -31,7 +31,6 @@ open import Definition.LogicalRelation.Hidden TR
 import Definition.LogicalRelation.Properties TR as LP
 open import Definition.LogicalRelation.Substitution TR
 open import Definition.LogicalRelation.Substitution.Properties TR
-open import Definition.LogicalRelation.Substitution.Introductions.Pi TR
 open import Definition.LogicalRelation.Substitution.Introductions.Nat TR
 import Definition.LogicalRelation.Substitution.Introductions.Var TR as V
 
@@ -56,13 +55,10 @@ open import Definition.Typed.Properties TR
 import Graded.Erasure.LogicalRelation
 open import Graded.Erasure.LogicalRelation.Assumptions TR
 open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions TR UR
-import Graded.Erasure.LogicalRelation.Fundamental.Application
 import Graded.Erasure.LogicalRelation.Fundamental.Empty
 import Graded.Erasure.LogicalRelation.Fundamental.Identity
-import Graded.Erasure.LogicalRelation.Fundamental.Lambda
 import Graded.Erasure.LogicalRelation.Fundamental.Nat
-import Graded.Erasure.LogicalRelation.Fundamental.Prodrec
-import Graded.Erasure.LogicalRelation.Fundamental.Product
+import Graded.Erasure.LogicalRelation.Fundamental.Pi-Sigma
 import Graded.Erasure.LogicalRelation.Fundamental.Unit
 import Graded.Erasure.LogicalRelation.Conversion
 import Graded.Erasure.LogicalRelation.Hidden
@@ -150,13 +146,10 @@ module Fundamental
     as = record { ⊢Δ = well-formed; str = s }
 
   open Graded.Erasure.LogicalRelation as
-  open Graded.Erasure.LogicalRelation.Fundamental.Application as
   open Graded.Erasure.LogicalRelation.Fundamental.Empty UR as consistent
   open Graded.Erasure.LogicalRelation.Fundamental.Identity as
-  open Graded.Erasure.LogicalRelation.Fundamental.Lambda non-trivial as
   open Graded.Erasure.LogicalRelation.Fundamental.Nat as
-  open Graded.Erasure.LogicalRelation.Fundamental.Prodrec as
-  open Graded.Erasure.LogicalRelation.Fundamental.Product UR as
+  open Graded.Erasure.LogicalRelation.Fundamental.Pi-Sigma UR as
   open Graded.Erasure.LogicalRelation.Fundamental.Unit as
   open Graded.Erasure.LogicalRelation.Conversion as
   open Graded.Erasure.LogicalRelation.Hidden as
@@ -185,11 +178,8 @@ module Fundamental
       case F.fundamental (syntacticTerm ⊢t) of λ ([Γ] , [A]) →
         [Γ] , [A] , _
     ... | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 PE.refl)
-    fundamental Γ⊢ΠΣ@(ΠΣⱼ {F} {G} Γ⊢F:U _ _) γ▸t =
-      let invUsageΠΣ δ▸F _ _ = inv-usage-ΠΣ γ▸t
-          [Γ] , _ , _ = fundamental Γ⊢F:U δ▸F
-          [U] , ⊩ʳΠΣ = ΠΣʳ F G [Γ]
-      in  [Γ] , [U] , ⊩ʳΠΣ
+    fundamental (ΠΣⱼ {F = A} {G = B} ⊢A _ _) _ =
+      ΠΣʳ {A = A} {B = B} (wfTerm ⊢A)
     fundamental (ℕⱼ ⊢Γ) _ =
       ℕʳ ⊢Γ
     fundamental (Emptyⱼ ⊢Γ) γ▸t = Emptyʳ ⊢Γ
@@ -197,147 +187,46 @@ module Fundamental
       Unitʳ ⊢Γ
     fundamental (var ⊢Γ x∈Γ) ▸x =
       fundamentalVar well-formed ⊢Γ x∈Γ ▸x
-    fundamental
-      (lamⱼ {F = F} {t = t} {G = G} {p = p} {q = q} Γ⊢F Γ⊢t:G ok) γ▸t =
-      let invUsageLam {δ = δ} δ▸t δ≤γ = inv-usage-lam γ▸t
-          [ΓF] , [G]′ , ⊩ʳt = fundamental Γ⊢t:G δ▸t
-          [Γ] , [F] = F.fundamental Γ⊢F
-          [G] = IS.irrelevance {A = G} [ΓF] ([Γ] ∙ [F]) [G]′
-          [Γ]′ , [G]″ , [t]′ = F.fundamentalTerm Γ⊢t:G
-          [t] = IS.irrelevanceTerm {A = G} {t = t}
-                  [Γ]′ ([Γ] ∙ [F]) [G]″ [G] [t]′
-          ⊩ʳt′ = irrelevance {A = G} {t = t}
-                   [ΓF] ([Γ] ∙ [F]) [G]′ [G] ⊩ʳt
-          ⊩ʳλt = lamʳ {t = t} [Γ] [F] [G] [t] ⊩ʳt′ ok
-          [Π] = Πᵛ [Γ] [F] [G] ok
-      in  [Γ] , [Π] ,
-          subsumption-≤ {A = Π p , q ▷ F ▹ G} (lam p t) [Π] ⊩ʳλt δ≤γ
-    fundamental
-      (_∘ⱼ_ {t = t} {p = p} {q = q} {F = F} {G = G} {u = u} Γ⊢t:Π Γ⊢u:F)
-      γ▸t =
-      let invUsageApp δ▸t η▸u γ≤δ+pη = inv-usage-app γ▸t
-          [Γ]′ , [Π]′ , ⊩ʳt′ = fundamental Γ⊢t:Π δ▸t
-          [Γ] , [F] , ⊩ʳu = fundamental Γ⊢u:F η▸u
-          [Π] = IS.irrelevance {A = Π p , q ▷ F ▹ G} [Γ]′ [Γ] [Π]′
-          ⊩ʳt = irrelevance {A = Π p , q ▷ F ▹ G} {t = t}
-                  [Γ]′ [Γ] [Π]′ [Π] ⊩ʳt′
-          [Γ]″ , [F]′ , [u]′ = F.fundamentalTerm Γ⊢u:F
-          [u] = IS.irrelevanceTerm {A = F} {t = u}
-                  [Γ]″ [Γ] [F]′ [F] [u]′
-          [G[u]] , ⊩ʳt∘u = appʳ {F = F} {G = G} {u = u} {t = t}
-                             [Γ] [F] [Π] [u] ⊩ʳt ⊩ʳu
-      in  [Γ] , [G[u]] ,
-          subsumption-≤ {A = G [ u ]₀} (t ∘⟨ p ⟩ u) [G[u]] ⊩ʳt∘u γ≤δ+pη
-    fundamental
-      (prodⱼ {F = F} {G = G} {t = t} {u = u} {k = 𝕤}
-         Γ⊢F Γ⊢G Γ⊢t:F Γ⊢u:G ok)
-      γ▸t =
-      let invUsageProdˢ δ▸t η▸u γ≤pδ∧η = inv-usage-prodˢ γ▸t
-          [Γ]₁ , [F] , ⊩ʳt = fundamental Γ⊢t:F δ▸t
-          [Γ]₂ , [G[t]]′ , ⊩ʳu = fundamental Γ⊢u:G η▸u
-          [Γ] = [Γ]₁
-          [Γ]₃ , [G]′ = F.fundamental Γ⊢G
-          [G] = IS.irrelevance {A = G} [Γ]₃ ([Γ] ∙ [F]) [G]′
-          [G[t]] = IS.irrelevance {A = G [ t ]₀} [Γ]₂ [Γ] [G[t]]′
-          [Γ]₄ , [F]₄ , [t]′ = F.fundamentalTerm Γ⊢t:F
-          [t] = IS.irrelevanceTerm {A = F} {t = t}
-                  [Γ]₄ [Γ] [F]₄ [F] [t]′
-          [Γ]₅ , [G]₅ , [u]′ = F.fundamentalTerm Γ⊢u:G
-          [u] = IS.irrelevanceTerm {A = G [ t ]₀} {t = u}
-                  [Γ]₅ [Γ] [G]₅ [G[t]] [u]′
-          [Σ] , ⊩ʳp =
-            prodʳ
-              {F = F} {G = G} {t = t} {u = u} {_⊕ᶜ_ = _∧ᶜ_}
-              [Γ] [F] [G] [G[t]] [t] [u] ⊩ʳt
-              (irrelevance {A = G [ t ]₀} {t = u}
-                 [Γ]₂ [Γ] [G[t]]′ [G[t]] ⊩ʳu)
-              (λ {x} {γ} {δ} γ∧δ≡𝟘 →
-                 ∧-positiveˡ
-                   (PE.trans (PE.sym (lookup-distrib-∧ᶜ γ δ x)) γ∧δ≡𝟘))
-              (λ {x} {γ} {δ} γ∧δ≡𝟘 →
-                 ∧-positiveʳ
-                   (PE.trans (PE.sym (lookup-distrib-∧ᶜ γ δ x)) γ∧δ≡𝟘))
-              ok
-      in  [Γ] , [Σ] , subsumption-≤ (prod! t u) [Σ] ⊩ʳp γ≤pδ∧η
-    fundamental
-      (prodⱼ {F = F} {G = G} {t = t} {u = u} {k = 𝕨}
-         Γ⊢F Γ⊢G Γ⊢t:F Γ⊢u:G ok)
-      γ▸t =
-      let invUsageProdʷ δ▸t η▸u γ≤pδ+η = inv-usage-prodʷ γ▸t
-          [Γ]₁ , [F] , ⊩ʳt = fundamental Γ⊢t:F δ▸t
-          [Γ]₂ , [G[t]]′ , ⊩ʳu = fundamental Γ⊢u:G η▸u
-          [Γ] = [Γ]₁
-          [Γ]₃ , [G]′ = F.fundamental Γ⊢G
-          [G] = IS.irrelevance {A = G} [Γ]₃ ([Γ] ∙ [F]) [G]′
-          [G[t]] = IS.irrelevance {A = G [ t ]₀} [Γ]₂ [Γ] [G[t]]′
-          [Γ]₄ , [F]₄ , [t]′ = F.fundamentalTerm Γ⊢t:F
-          [t] = IS.irrelevanceTerm {A = F} {t = t}
-                  [Γ]₄ [Γ] [F]₄ [F] [t]′
-          [Γ]₅ , [G]₅ , [u]′ = F.fundamentalTerm Γ⊢u:G
-          [u] = IS.irrelevanceTerm {A = G [ t ]₀} {t = u}
-                  [Γ]₅ [Γ] [G]₅ [G[t]] [u]′
-          [Σ] , ⊩ʳp =
-            prodʳ
-              {F = F} {G = G} {t = t} {u = u} {_⊕ᶜ_ = _+ᶜ_}
-              [Γ] [F] [G] [G[t]] [t] [u] ⊩ʳt
-              (irrelevance {A = G [ t ]₀} {t = u}
-                 [Γ]₂ [Γ] [G[t]]′ [G[t]] ⊩ʳu)
-              (λ {x} {γ} {δ} γ∧δ≡𝟘 →
-                 +-positiveˡ $
-                 PE.trans (PE.sym (lookup-distrib-+ᶜ γ δ x)) γ∧δ≡𝟘)
-              (λ {x} {γ} {δ} γ∧δ≡𝟘 →
-                 +-positiveʳ $
-                 PE.trans (PE.sym (lookup-distrib-+ᶜ γ δ x)) γ∧δ≡𝟘)
-              ok
-      in  [Γ] , [Σ] , subsumption-≤ (prod! t u) [Σ] ⊩ʳp γ≤pδ+η
-    fundamental (fstⱼ {F = F} {t = t} Γ⊢F Γ⊢G Γ⊢t:Σ) γ▸t =
-      let invUsageFst m′ m≡m′ᵐ·p δ▸t γ≤δ ok = inv-usage-fst γ▸t
-          [Γ] , [Σ] , ⊩ʳt = fundamental Γ⊢t:Σ δ▸t
-          [F] , ⊩ʳt₁ =
-            fstʳ Γ⊢F Γ⊢G Γ⊢t:Σ [Γ] [Σ] ⊩ʳt
-              (fstₘ m′ (▸-cong m≡m′ᵐ·p δ▸t) (PE.sym m≡m′ᵐ·p) ok)
-      in  [Γ] , [F] , subsumption-≤ (fst _ t) [F] ⊩ʳt₁ γ≤δ
-    fundamental (sndⱼ {G = G} {t = t} Γ⊢F Γ⊢G Γ⊢t:Σ) γ▸t =
-      let invUsageSnd δ▸t γ≤δ = inv-usage-snd γ▸t
-          [Γ] , [Σ] , ⊩ʳt = fundamental Γ⊢t:Σ δ▸t
-          [G] , ⊩ʳt₂ = sndʳ Γ⊢F Γ⊢G Γ⊢t:Σ [Γ] [Σ] ⊩ʳt
-      in  [Γ] , [G] , subsumption-≤ (snd _ t) [G] ⊩ʳt₂ γ≤δ
-    fundamental
-      {m = 𝟙ᵐ}
-      (prodrecⱼ {F = F} {G} {A = A} {t = t} {u} {r = r}
-         Γ⊢F Γ⊢G Γ⊢A Γ⊢t Γ⊢u _)
-      γ▸prodrec =
-      let invUsageProdrec {δ = δ} δ▸t η▸u _ ok γ≤pδ+η =
-            inv-usage-prodrec γ▸prodrec
-          [Γ] , [Σ] , ⊩ʳt = fundamental Γ⊢t δ▸t
-          [Γ]₂ , [A₊]₂ , ⊩ʳu = fundamental Γ⊢u η▸u
-          [Γ]₃ , [F]₃ = F.fundamental Γ⊢F
-          [Γ]₄ , [G]₄ = F.fundamental Γ⊢G
-          [Γ]₅ , [A]₅ = F.fundamental Γ⊢A
-          [Γ]₆ , [Σ]₆ , [t]₆ = F.fundamentalTerm Γ⊢t
-          [Γ]₇ , [A₊]₇ , [u]₇ = F.fundamentalTerm Γ⊢u
-          A₊ = A [ prodʷ _ (var (x0 +1)) (var x0) ]↑²
-          [F] = IS.irrelevance {A = F} [Γ]₃ [Γ] [F]₃
-          [G] = IS.irrelevance {A = G} [Γ]₄ ([Γ] ∙ [F]) [G]₄
-          [A₊] = IS.irrelevance {A = A₊} [Γ]₂ ([Γ] ∙ [F] ∙ [G]) [A₊]₂
-          [A] = IS.irrelevance {A = A} [Γ]₅ ([Γ] ∙ [Σ]) [A]₅
-          [t] = IS.irrelevanceTerm {t = t} [Γ]₆ [Γ] [Σ]₆ [Σ] [t]₆
-          [u] = IS.irrelevanceTerm {A = A₊} {u}
-                  [Γ]₇ ([Γ] ∙ [F] ∙ [G]) [A₊]₇ [A₊] [u]₇
-          ⊩ʳu′ = irrelevance {t = u}
-                   [Γ]₂ ([Γ] ∙ [F] ∙ [G]) [A₊]₂ [A₊] ⊩ʳu
-          r≡𝟘→k≡0 = case closed-or-no-erased-matches of λ where
-            (inj₁ nem) → λ r≡𝟘 → ⊥-elim (nem non-trivial .proj₁ ok r≡𝟘)
-            (inj₂ k≡0) → λ _ → k≡0
-          [At] , ⊩ʳprodrec =
-            prodrecʳ
-              [Γ] [F] [G] [Σ] [A] [A₊] [t] [u]
-              (λ r≢𝟘 →
-                 PE.subst (δ ▸ _ ⊩ʳ⟨ _ ⟩ t ∷[_] _ / _ / [Σ])
-                   (≢𝟘→ᵐ·≡ r≢𝟘) ⊩ʳt)
-              ⊩ʳu′ r≡𝟘→k≡0
-      in  [Γ] , [At] ,
-          subsumption-≤ (prodrec _ _ _ A t u) [At] ⊩ʳprodrec γ≤pδ+η
+    fundamental (lamⱼ ⊢A ⊢t ok) ▸lam =
+      case inv-usage-lam ▸lam of λ
+        (invUsageLam ▸t γ≤δ) →
+      subsumption-▸⊩ʳ∷[]-≤ {t = lam _ _} γ≤δ $
+      lamʳ ok (F.fundamental-⊩ᵛ ⊢A) (F.fundamental-⊩ᵛ∷ ⊢t)
+        (fundamental ⊢t ▸t)
+    fundamental (⊢t ∘ⱼ ⊢u) ▸∘ =
+      case inv-usage-app ▸∘ of λ
+        (invUsageApp ▸t ▸u γ≤δ+pη) →
+      subsumption-▸⊩ʳ∷[]-≤ {t = _ ∘⟨ _ ⟩ _} γ≤δ+pη $
+      ∘ʳ ⊢u (fundamental ⊢t ▸t) (fundamental ⊢u ▸u)
+    fundamental (prodⱼ {k = 𝕤} _ ⊢B ⊢t ⊢u ok) ▸prod =
+      case inv-usage-prodˢ ▸prod of λ
+        (invUsageProdˢ ▸t ▸u γ≤pδ∧η) →
+      subsumption-▸⊩ʳ∷[]-≤ {t = prodˢ _ _ _} γ≤pδ∧η $
+      prodˢʳ ok (F.fundamental-⊩ᵛ ⊢B) (F.fundamental-⊩ᵛ∷ ⊢t) ⊢u
+        (fundamental ⊢t ▸t) (fundamental ⊢u ▸u)
+    fundamental (prodⱼ {k = 𝕨} _ ⊢B ⊢t ⊢u ok) ▸prod =
+      case inv-usage-prodʷ ▸prod of λ
+        (invUsageProdʷ ▸t ▸u γ≤pδ+η) →
+      subsumption-▸⊩ʳ∷[]-≤ {t = prodʷ _ _ _} γ≤pδ+η $
+      prodʷʳ ok (F.fundamental-⊩ᵛ ⊢B) (F.fundamental-⊩ᵛ∷ ⊢t) ⊢u
+        (fundamental ⊢t ▸t) (fundamental ⊢u ▸u)
+    fundamental (fstⱼ _ _ ⊢t) ▸fst =
+      case inv-usage-fst ▸fst of λ
+        (invUsageFst _ _ ▸t γ≤δ _) →
+      fstʳ (fundamental ⊢t (sub ▸t γ≤δ)) ▸fst
+    fundamental (sndⱼ _ _ ⊢t) ▸snd =
+      case inv-usage-snd ▸snd of λ
+        (invUsageSnd ▸t γ≤δ) →
+      sndʳ ⊢t (fundamental ⊢t (sub ▸t γ≤δ))
+    fundamental {m = 𝟙ᵐ} (prodrecⱼ {A = C} ⊢A ⊢B ⊢C ⊢t ⊢u _) ▸prodrec =
+      case inv-usage-prodrec ▸prodrec of λ
+        (invUsageProdrec ▸t ▸u _ ok γ≤rδ+η) →
+      subsumption-▸⊩ʳ∷[]-≤ {t = prodrec _ _ _ C _ _} γ≤rδ+η $
+      prodrecʳ (F.fundamental-⊩ᵛ ⊢C) ⊢t ⊢u (fundamental ⊢t ▸t)
+        (fundamental ⊢u ▸u)
+        (case closed-or-no-erased-matches of λ where
+           (inj₁ nem) r≡𝟘 → ⊥-elim (nem non-trivial .proj₁ ok r≡𝟘)
+           (inj₂ k≡0) _   → k≡0)
     fundamental (zeroⱼ ⊢Γ) _ =
       zeroʳ ⊢Γ
     fundamental (sucⱼ {n = t} ⊢t) γ▸suc =
