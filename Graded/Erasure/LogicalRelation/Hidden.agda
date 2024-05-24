@@ -613,8 +613,8 @@ opaque
     ∀ {A x} → x ∷ A ∈ Γ →
     ∃ λ l →
     (Γ ⊩ᵛ⟨ l ⟩ A) ×
-    Δ ⊩⟨ l ⟩ var x [ σ ] ∷ A [ σ ] ×
-    var x [ σ ] ®⟨ l ⟩ T.var x T.[ σ′ ] ∷ A [ σ ] ◂ ⌜ m ⌝ · γ ⟨ x ⟩
+    Δ ⊩⟨ l ⟩ σ x ∷ A [ σ ] ×
+    σ x ®⟨ l ⟩ σ′ x ∷ A [ σ ] ◂ ⌜ m ⌝ · γ ⟨ x ⟩
   ®∷[]◂→ {γ = _ ∙ _} σ®σ′ (here {A}) =
     case ®∷[]∙◂∙⇔ .proj₁ σ®σ′ of λ
       ((l , ⊩A , ⊩σ₀ , σ₀®σ′₀) , _) →
@@ -626,12 +626,12 @@ opaque
     case ®∷[]∙◂∙⇔ .proj₁ σ®σ′ of λ
       ((_ , ⊩B , _) , σ₊®σ′₊) →
     case ®∷[]◂→ σ₊®σ′₊ x∈Γ of λ
-      (l , ⊩A , ⊩x[σ₊] , x[σ₊]®x[σ′₊]) →
+      (l , ⊩A , ⊩σ₊x , σ₊x®σ′₊x) →
       l
     , wk1-⊩ᵛ ⊩B ⊩A
-    , PE.subst (_⊩⟨_⟩_∷_ _ _ _) (PE.sym $ wk1-tail A) ⊩x[σ₊]
+    , PE.subst (_⊩⟨_⟩_∷_ _ _ _) (PE.sym $ wk1-tail A) ⊩σ₊x
     , PE.subst₂ (_®⟨_⟩_∷_◂_ _ _ _) (PE.sym $ wk1-tail A) PE.refl
-        x[σ₊]®x[σ′₊]
+        σ₊x®σ′₊x
 
 -- The other direction holds if a form of strengthening can be
 -- proved.
@@ -646,13 +646,12 @@ module _
     (∀ {A x} → x ∷ A ∈ Γ →
      ∃ λ l →
      (Γ ⊩ᵛ⟨ l ⟩ A) ×
-     Δ ⊩⟨ l ⟩ var x [ σ ] ∷ A [ σ ] ×
-     var x [ σ ] ®⟨ l ⟩ T.var x T.[ σ′ ] ∷ A [ σ ] ◂
-       ⌜ m ⌝ · γ ⟨ x ⟩) →
+     Δ ⊩⟨ l ⟩ σ x ∷ A [ σ ] ×
+     σ x ®⟨ l ⟩ σ′ x ∷ A [ σ ] ◂ ⌜ m ⌝ · γ ⟨ x ⟩) →
     σ ® σ′ ∷[ m ] Γ ◂ γ
   ®∷[]◂← {Γ = ε} {γ = ε} _ =
     ®∷[]ε◂ε⇔ .proj₂ _
-  ®∷[]◂← {Γ = Γ ∙ A} {σ} {σ′} {γ = γ ∙ p} hyp =
+  ®∷[]◂← {Γ = _ ∙ A} {γ = _ ∙ _} hyp =
     case hyp here of λ
       (l , ⊩wk1-A , ⊩σ₀ , σ₀®σ′₀) →
     ®∷[]∙◂∙⇔ .proj₂
@@ -662,11 +661,10 @@ module _
         )
       , (®∷[]◂← λ {A = A} x∈Γ →
          case hyp (there x∈Γ) of λ
-           (l , ⊩wk1-A , ⊩x+1[σ] , x+1[σ]®x+1[σ′]) →
+           (l , ⊩wk1-A , ⊩σ₊x , σ₊x®σ′₊x) →
            l , strengthen-⊩ᵛ ⊩wk1-A
-         , PE.subst (_⊩⟨_⟩_∷_ _ _ _) (wk1-tail A) ⊩x+1[σ]
-         , PE.subst₂ (_®⟨_⟩_∷_◂_ _ _ _) (wk1-tail A) PE.refl
-             x+1[σ]®x+1[σ′])
+         , PE.subst (_⊩⟨_⟩_∷_ _ _ _) (wk1-tail A) ⊩σ₊x
+         , PE.subst₂ (_®⟨_⟩_∷_◂_ _ _ _) (wk1-tail A) PE.refl σ₊x®σ′₊x)
       )
 
 opaque
