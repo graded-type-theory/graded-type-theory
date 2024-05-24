@@ -847,7 +847,7 @@ opaque
 
   conv-®∷ :
     Δ ⊩⟨ l ⟩ A ≡ B →
-    t ®⟨ l ⟩ v ∷ A →
+    t ®⟨ l′ ⟩ v ∷ A →
     t ®⟨ l ⟩ v ∷ B
   conv-®∷ A≡B (⊩A , t®v) =
     case wf-⊩≡ A≡B of λ
