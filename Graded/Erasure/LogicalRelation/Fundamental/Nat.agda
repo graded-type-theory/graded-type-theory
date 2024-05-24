@@ -259,18 +259,23 @@ opaque
 
                σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ χ                                      →⟨ subsumption-®∷[]◂ (λ x → proj₂ ∘→ proj₂ ∘→ ≡𝟘→≡𝟘 x) ⟩
 
-               σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ δ                                      →⟨ ®∷[]∙◂∙⇔′ .proj₂ ∘→
-                                                                            (( _ , _ , _ , ⊩A
-                                                                             , PE.subst (_⊩⟨_⟩_∷_ _ _ _) (singleSubstComp _ _ A)
-                                                                                 (reducible-⊩∷ ⊢w)
-                                                                             , ®∷→®∷◂
-                                                                                 (PE.subst (_®⟨_⟩_∷_ _ _ _) (singleSubstComp _ _ A)
-                                                                                    w®w′)
-                                                                             ) ,_) ∘→
-                                                                            ®∷[]∙◂∙⇔′ .proj₂ ∘→
-                                                                            (( _ , _ , _ , wf-∙-⊩ᵛ ⊩A .proj₂ , ⊩v
-                                                                             , ®∷→®∷◂ (®∷ℕ⇔ {l = l} .proj₂ v®v′)
-                                                                             ) ,_) ⟩
+               σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ δ                                      →⟨ (λ σ®σ′ →
+                                                                               ®∷[]∙◂∙⇔′ .proj₂
+                                                                                 ( (_ , ⊩A)
+                                                                                 , ( _
+                                                                                   , PE.subst (_⊩⟨_⟩_∷_ _ _ _) (singleSubstComp _ _ A)
+                                                                                       (reducible-⊩∷ ⊢w)
+                                                                                   )
+                                                                                 , ( _
+                                                                                   , ®∷→®∷◂
+                                                                                       (PE.subst (_®⟨_⟩_∷_ _ _ _) (singleSubstComp _ _ A)
+                                                                                          w®w′)
+                                                                                   )
+                                                                                 , ®∷[]∙◂∙⇔′ .proj₂
+                                                                                     ( (_ , wf-∙-⊩ᵛ ⊩A .proj₂) , (_ , ⊩v)
+                                                                                     , (_ , ®∷→®∷◂ (®∷ℕ⇔ {l = l} .proj₂ v®v′)) , σ®σ′
+                                                                                     )
+                                                                                 )) ⟩
                consSubst (consSubst σ v) w ®
                  T.consSubst (T.consSubst σ′ v′) w′ ∷[ 𝟙ᵐ ] Γ ∙ ℕ ∙ A ◂
                  δ ∙ 𝟙 · p ∙ 𝟙 · r                                       →⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳu .proj₂ ⟩

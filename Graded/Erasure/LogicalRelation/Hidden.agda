@@ -548,17 +548,14 @@ private opaque
   -- A lemma used below.
 
   ®∷[]∙◂∙←′ :
-    (∃₃ λ l₁ l₂ l₃ →
-     (Γ ⊩ᵛ⟨ l₁ ⟩ A) ×
-     Δ ⊩⟨ l₂ ⟩ head σ ∷ A [ tail σ ] ×
-     head σ ®⟨ l₃ ⟩ T.head σ′ ∷ A [ tail σ ] ◂ ⌜ m ⌝ · p) ×
+    (∃ λ l → Γ ⊩ᵛ⟨ l ⟩ A) ×
+    (∃ λ l → Δ ⊩⟨ l ⟩ head σ ∷ A [ tail σ ]) ×
+    (∃ λ l → head σ ®⟨ l ⟩ T.head σ′ ∷ A [ tail σ ] ◂ ⌜ m ⌝ · p) ×
     tail σ ® T.tail σ′ ∷[ m ] Γ ◂ γ →
     σ ® σ′ ∷[ m ] Γ ∙ A ◂ γ ∙ p
   ®∷[]∙◂∙←′
-    ( ( _ , _ , _ , (⊩Γ , ⊩A) , (⊩A[tail] , ⊩head)
-      , (⊩A[tail]′ , head®head)
-      )
-    , (⊩Γ′ , ⊩tail , tail®tail)
+    ( (_ , ⊩Γ , ⊩A) , (_ , ⊩A[tail] , ⊩head)
+    , (_ , ⊩A[tail]′ , head®head) , (⊩Γ′ , ⊩tail , tail®tail)
     ) =
     case IS.irrelevance _ _ ⊩A of λ
       ⊩A′ →
@@ -587,7 +584,8 @@ opaque
                )
              , (_ , _ , tail®tail))
     , ®∷[]∙◂∙←′ ∘→
-      (λ ((l , rest₁) , rest₂) → (l , l , l , rest₁) , rest₂)
+      (λ ((l , hyp₁ , hyp₂ , hyp₃) , rest) →
+         ((l , hyp₁) , (l , hyp₂) , (l , hyp₃) , rest))
 
 opaque
 
@@ -595,13 +593,13 @@ opaque
 
   ®∷[]∙◂∙⇔′ :
     σ ® σ′ ∷[ m ] Γ ∙ A ◂ γ ∙ p ⇔
-    ((∃₃ λ l₁ l₂ l₃ →
-      (Γ ⊩ᵛ⟨ l₁ ⟩ A) ×
-      Δ ⊩⟨ l₂ ⟩ head σ ∷ A [ tail σ ] ×
-      head σ ®⟨ l₃ ⟩ T.head σ′ ∷ A [ tail σ ] ◂ ⌜ m ⌝ · p) ×
+    ((∃ λ l → Γ ⊩ᵛ⟨ l ⟩ A) ×
+     (∃ λ l → Δ ⊩⟨ l ⟩ head σ ∷ A [ tail σ ]) ×
+     (∃ λ l → head σ ®⟨ l ⟩ T.head σ′ ∷ A [ tail σ ] ◂ ⌜ m ⌝ · p) ×
      tail σ ® T.tail σ′ ∷[ m ] Γ ◂ γ)
   ®∷[]∙◂∙⇔′ =
-      (λ ((l , rest₁) , rest₂) → (l , l , l , rest₁) , rest₂) ∘→
+      (λ ((l , hyp₁ , hyp₂ , hyp₃) , rest) →
+         ((l , hyp₁) , (l , hyp₂) , (l , hyp₃) , rest)) ∘→
       ®∷[]∙◂∙⇔ .proj₁
     , ®∷[]∙◂∙←′
 
