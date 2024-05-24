@@ -54,8 +54,8 @@ import Graded.Erasure.Extraction.Properties
 import Graded.Erasure.LogicalRelation
 import Graded.Erasure.LogicalRelation.Fundamental
 import Graded.Erasure.LogicalRelation.Fundamental.Counterexample
+import Graded.Erasure.LogicalRelation.Hidden
 import Graded.Erasure.LogicalRelation.Reduction
-import Graded.Erasure.LogicalRelation.Subsumption
 import Graded.Erasure.SucRed
 import Graded.Erasure.Target
 import Graded.FullReduction
@@ -865,17 +865,23 @@ _⊩′ᵛ⟨_⟩_/_ = Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_/_
 
 -- Definition 6.6: The logical relation for substitutions.
 --
--- The paper's definition includes an unused type level. This level is
--- not present in this version of the code.
+-- The current definition does not take the same arguments as the
+-- definition in the paper: an unused type level has been omitted, as
+-- well as the context and substitution validity proofs, but a mode
+-- has been added.
 
-_®_∷_◂_/_/_ = Graded.Erasure.LogicalRelation._®_∷[_]_◂_/_/_
+_®_∷[_]_◂_ = Graded.Erasure.LogicalRelation.Hidden._®_∷[_]_◂_
 
 -- Definition 6.7: Erasure validity.
 --
 -- In the paper the type level is written as a subscript instead of
 -- within brackets.
+--
+-- The current definition does not take the same arguments as the
+-- definition in the paper: the context and type validity proofs have
+-- been omitted, but a mode has been added.
 
-_▸_⊩ʳ⟨_⟩_∷_/_/_ = Graded.Erasure.LogicalRelation._▸_⊩ʳ⟨_⟩_∷[_]_/_/_
+_▸_⊩ʳ⟨_⟩_∷[_]_ = Graded.Erasure.LogicalRelation.Hidden._▸_⊩ʳ⟨_⟩_∷[_]_
 
 -- Theorem 6.8: Backwards closure of the logical relation under
 -- reduction.
@@ -885,9 +891,9 @@ Theorem-6-8 = Graded.Erasure.LogicalRelation.Reduction.redSubstTerm*
 -- Theorem 6.9: Subsumption for the logical relation.
 
 Theorem-6-9a =
-  Graded.Erasure.LogicalRelation.Subsumption.subsumptionSubst
+  Graded.Erasure.LogicalRelation.Hidden.subsumption-®∷[]◂
 Theorem-6-9b =
-  Graded.Erasure.LogicalRelation.Subsumption.subsumption
+  Graded.Erasure.LogicalRelation.Hidden.subsumption-▸⊩ʳ∷[]
 
 -- Theorem 6.10: The fundamental lemma.
 
@@ -897,7 +903,7 @@ fundamental =
 -- Theorem 6.11: Every valid source substitution from an erasable
 -- context is related to every matching target substitution.
 
-Theorem-6-11 = Graded.Erasure.LogicalRelation.Subsumption.erasedSubst
+Theorem-6-11 = Graded.Erasure.LogicalRelation.Hidden.®∷[]◂𝟘ᶜ
 
 -- Theorem 6.12: The fundamental lemma for open terms in erased
 -- contexts.

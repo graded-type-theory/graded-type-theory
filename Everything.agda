@@ -364,7 +364,6 @@ import Graded.Erasure.LogicalRelation
 import Graded.Erasure.LogicalRelation.Conversion
 import Graded.Erasure.LogicalRelation.Irrelevance
 import Graded.Erasure.LogicalRelation.Reduction
-import Graded.Erasure.LogicalRelation.Subsumption
 import Graded.Erasure.LogicalRelation.Hidden
 import Graded.Erasure.LogicalRelation.Value
 

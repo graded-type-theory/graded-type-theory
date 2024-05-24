@@ -53,9 +53,6 @@ private
     t t′ A : U.Term n
     v v′ : T.Term n
     Γ : U.Con U.Term n
-    l : TypeLevel
-    p : M
-    ⊩A : _ ⊩⟨ _ ⟩ _
 
 -- Logical relation for erasure is preserved under a single reduction backwards on the source language term
 -- If t′ ® v ∷ A and Δ ⊢ t ⇒ t′ ∷ A then t ® v ∷ A
@@ -184,18 +181,6 @@ redSubstTerm [A] t′®v′ t⇒t′ v⇒v′ =
 redSubstTerm* : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t′ ®⟨ l ⟩ v′ ∷ A / [A]
               → Δ ⊢ t ⇒* t′ ∷ A → v T.⇒* v′ → t ®⟨ l ⟩ v ∷ A / [A]
 redSubstTerm* [A] t′®v′ t⇒t′ v⇒v′ = targetRedSubstTerm* [A] (sourceRedSubstTerm* [A] t′®v′ t⇒t′) v⇒v′
-
-opaque
-
-  -- A variant of redSubstTerm* for _®⟨_⟩_∷_◂_/_.
-
-  redSubstTerm*-◂ :
-    t′ ®⟨ l ⟩ v′ ∷ A ◂ p / ⊩A →
-    Δ ⊢ t ⇒* t′ ∷ A → v T.⇒* v′ →
-    t ®⟨ l ⟩ v ∷ A ◂ p / ⊩A
-  redSubstTerm*-◂ {p} {⊩A} with is-𝟘? p
-  … | yes _ = _
-  … | no _  = redSubstTerm* ⊩A
 
 
 -- Logical relation for erasure is preserved under one reduction step on the source language term
@@ -371,15 +356,3 @@ redSubstTerm*′ : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A /
                → Δ ⊢ t ⇒* t′ ∷ A → v T.⇒* v′ → t′ ®⟨ l ⟩ v′ ∷ A / [A]
 redSubstTerm*′ [A] t®v t⇒t′ v⇒v′ =
   targetRedSubstTerm*′ [A] (sourceRedSubstTerm*′ [A] t®v t⇒t′) v⇒v′
-
-opaque
-
-  -- A variant of redSubstTerm*′ for _®⟨_⟩_∷_◂_/_.
-
-  redSubstTerm*′-◂ :
-    t ®⟨ l ⟩ v ∷ A ◂ p / ⊩A →
-    Δ ⊢ t ⇒* t′ ∷ A → v T.⇒* v′ →
-    t′ ®⟨ l ⟩ v′ ∷ A ◂ p / ⊩A
-  redSubstTerm*′-◂ {p} {⊩A} with is-𝟘? p
-  … | yes _ = _
-  … | no _  = redSubstTerm*′ ⊩A

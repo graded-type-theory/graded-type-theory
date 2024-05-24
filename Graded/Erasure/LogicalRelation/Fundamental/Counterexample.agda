@@ -98,14 +98,12 @@ negation-of-fundamental-lemma-with-erased-matches₁ :
      Consistent Δ →
      ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
      Γ ⊢ t ∷ A → γ ▸[ m ] t →
-     ∃₂ λ ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ]) →
-       γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A / [Γ] / [A])
+     γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A)
 negation-of-fundamental-lemma-with-erased-matches₁
   {p} {str} P-ok Σʷ-ok hyp =
   case soundness-ℕ-only-source-counterexample₁ P-ok Σʷ-ok of λ
     (consistent , ⊢t , ▸t , _) →
-  ¬t®t $ hidden-®-intro-fundamental non-trivial $
-  hyp ⊢Δ consistent ⊢t ▸t
+  ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⊢t ▸t
   where
   Δ : Con Term 1
   Δ = ε ∙ (Σʷ p , 𝟘 ▷ ℕ ▹ ℕ)
@@ -140,11 +138,9 @@ opaque
        Consistent Δ →
        ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
-       ∃₂ λ ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ]) →
-         γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A / [Γ] / [A])
+       γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A)
   negation-of-fundamental-lemma-with-erased-matches₂ {s} {str} ok hyp =
-    ¬t®t $ hidden-®-intro-fundamental non-trivial $
-    hyp ⊢Δ consistent ⊢t ▸t
+    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⊢t ▸t
     where
     open Erased s
     Δ : Con Term 1
@@ -189,14 +185,12 @@ opaque
        Consistent Δ →
        ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
-       ∃₂ λ ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ]) →
-         γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A / [Γ] / [A])
+       γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A)
   negation-of-fundamental-lemma-with-erased-matches₃
     {str} ≡not-none hyp =
     case soundness-ℕ-only-source-counterexample₃ ≡not-none of λ
       (consistent , ⊢t , ▸t , _) →
-    ¬t®t $ hidden-®-intro-fundamental non-trivial $
-    hyp ⊢Δ consistent ⊢t ▸t
+    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⊢t ▸t
     where
     Δ : Con Term 1
     Δ = ε ∙ Id ℕ zero zero
@@ -231,14 +225,12 @@ opaque
        Consistent Δ →
        ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
-       ∃₂ λ ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ]) →
-         γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A / [Γ] / [A])
+       γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A)
   negation-of-fundamental-lemma-with-erased-matches₄
     {str} K-ok ≡not-none hyp =
     case soundness-ℕ-only-source-counterexample₄ K-ok ≡not-none of λ
       (consistent , ⊢t , ▸t , _) →
-    ¬t®t $ hidden-®-intro-fundamental non-trivial $
-    hyp ⊢Δ consistent ⊢t ▸t
+    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⊢t ▸t
     where
     Δ : Con Term 1
     Δ = ε ∙ Id ℕ zero zero
@@ -276,14 +268,12 @@ opaque
        Consistent Δ →
        ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
-       ∃₂ λ ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ]) →
-         γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A / [Γ] / [A])
+       γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A)
   negation-of-fundamental-lemma-with-erased-matches₅
     {str} Unit-ok ok no-η hyp =
     case soundness-ℕ-only-source-counterexample₅ ok Unit-ok no-η of λ
       (consistent , ⊢t , ▸t , _) →
-    ¬t®t $ hidden-®-intro-fundamental non-trivial $
-    hyp ⊢Δ consistent ⊢t ▸t
+    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⊢t ▸t
     where
     Δ : Con Term 1
     Δ = ε ∙ Unitʷ
@@ -317,13 +307,11 @@ opaque
        let open LR ⊢Δ str in
        ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
-       ∃₂ λ ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ ¹ ⟩ A / [Γ]) →
-         γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A / [Γ] / [A])
+       γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A)
   negation-of-fundamental-lemma-without-consistency₆ {str} ok hyp =
     case soundness-ℕ-counterexample₆ {str = str} ok of λ
       (⊢t , ▸t , _) →
-    ¬t®t $ hidden-®-intro-fundamental non-trivial $
-    hyp ⊢Δ ⊢t ▸t
+    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ ⊢t ▸t
     where
     Δ : Con Term 1
     Δ = ε ∙ Empty

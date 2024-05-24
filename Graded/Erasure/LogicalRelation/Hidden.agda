@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------
 -- A variant of the logical relation with a hidden reducibility
--- argument, along with variants of some other relations
+-- argument
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
@@ -19,6 +19,7 @@ open Modality 𝕄 hiding (_≤_; _<_)
 open Type-restrictions TR
 
 open import Definition.LogicalRelation TR as L
+open import Definition.LogicalRelation.Fundamental TR
 open import Definition.LogicalRelation.Fundamental.Reducibility TR
 open import Definition.LogicalRelation.Hidden TR
 import Definition.LogicalRelation.Irrelevance TR as IR
@@ -27,7 +28,6 @@ open import Definition.LogicalRelation.ShapeView TR
 open import Definition.LogicalRelation.Substitution TR
 open import Definition.LogicalRelation.Substitution.Introductions TR
 import Definition.LogicalRelation.Substitution.Irrelevance TR as IS
-open import Definition.LogicalRelation.Substitution.Properties TR
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Consequences.Syntactic TR
@@ -39,24 +39,27 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 
 open import Graded.Context 𝕄
+open import Graded.Context.Properties 𝕄
 open import Graded.Erasure.Extraction 𝕄
 open import Graded.Erasure.LogicalRelation as
 open import Graded.Erasure.LogicalRelation.Conversion as
 open import Graded.Erasure.LogicalRelation.Irrelevance as
 open import Graded.Erasure.LogicalRelation.Reduction as
-open import Graded.Erasure.LogicalRelation.Subsumption as
 open import Graded.Erasure.Target as T using (strict)
 import Graded.Erasure.Target.Properties as TP
+open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 
 open import Tools.Bool
 open import Tools.Empty
+open import Tools.Fin
 open import Tools.Function
+open import Tools.Level
 open import Tools.Nat using (Nat)
 open import Tools.Product as Σ
 open import Tools.PropositionalEquality as PE using (_≢_)
+import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
-open import Tools.Sum using (_⊎_; inj₁; inj₂)
 open import Tools.Unit
 
 private variable
@@ -74,7 +77,7 @@ private variable
   ok             : T _
 
 ------------------------------------------------------------------------
--- The type formers
+-- The type former
 
 opaque
 
@@ -85,70 +88,6 @@ opaque
   _®⟨_⟩_∷_ : Term k → TypeLevel → T.Term k → Term k → Set a
   t ®⟨ l ⟩ v ∷ A =
     ∃ λ (⊩A : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / ⊩A
-
-opaque
-
-  -- A variant of _®⟨_⟩_∷_◂_/_.
-
-  infix 19 _®⟨_⟩_∷_◂_
-
-  _®⟨_⟩_∷_◂_ : Term k → TypeLevel → T.Term k → Term k → M → Set a
-  t ®⟨ l ⟩ v ∷ A ◂ p =
-    ∃ (t ®⟨ l ⟩ v ∷ A ◂ p /_)
-
-opaque
-
-  -- A variant of _®_∷[_]_◂_/_/_.
-
-  infix 19 _®_∷[_]_◂_
-
-  _®_∷[_]_◂_ :
-    Subst k n → T.Subst k n → Mode → Con Term n → Conₘ n → Set a
-  σ ® σ′ ∷[ m ] Γ ◂ γ =
-    ∃₂ (σ ® σ′ ∷[ m ] Γ ◂ γ /_/_)
-
-opaque
-
-  -- A variant of _▸_⊩ʳ⟨_⟩_∷[_]_/_/_.
-
-  infix 19 _▸_⊩ʳ⟨_⟩_∷[_]_
-
-  _▸_⊩ʳ⟨_⟩_∷[_]_ :
-    Conₘ n → Con Term n → TypeLevel → Term n → Mode → Term n → Set a
-  γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A =
-    ∃₂ (γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A /_/_)
-
-------------------------------------------------------------------------
--- Some introduction rules
-
-opaque
-  unfolding _®⟨_⟩_∷_
-
-  -- An introduction rule.
-
-  hidden-®-intro :
-    (⊩A : Δ ⊩⟨ l ⟩ A) →
-    t ®⟨ l ⟩ v ∷ A / ⊩A →
-    t ®⟨ l ⟩ v ∷ A
-  hidden-®-intro = _,_
-
-opaque
-
-  -- A lemma that can sometimes be used to convert the output from the
-  -- fundamental lemma.
-
-  hidden-®-intro-fundamental :
-    ¬ Trivial →
-    (∃₂ λ (⊩Δ : ⊩ᵛ Δ) (⊩A : Δ ⊩ᵛ⟨ l ⟩ A / ⊩Δ) →
-     𝟘ᶜ ▸ Δ ⊩ʳ⟨ l ⟩ t ∷[ 𝟙ᵐ ] A / ⊩Δ / ⊩A) →
-    t ®⟨ l ⟩ erase str t ∷ A
-  hidden-®-intro-fundamental 𝟙≢𝟘 (⊩Δ , ⊩A , ⊩t) =
-    case IS.irrelevanceSubst _ _ (soundContext ⊩Δ) ⊢Δ
-           (idSubstS ⊩Δ) of λ {
-      ⊩σ →
-    PE.subst₃ (_®⟨ _ ⟩_∷_) (subst-id _) (TP.subst-id _) (subst-id _) $
-    hidden-®-intro (⊩A .unwrap _ ⊩σ .proj₁)
-      (⊩t ⊩σ (erasedSubst _ ⊩σ) ◀≢𝟘 𝟙≢𝟘) }
 
 ------------------------------------------------------------------------
 -- Some characterisation lemmas for _®⟨_⟩_∷_
@@ -513,6 +452,48 @@ opaque
      t₂ ®⟨ l ⟩ v′ ∷ B [ t₁ ]₀)                                   □⇔
 
 ------------------------------------------------------------------------
+-- The type formers _®⟨_⟩_∷_◂_, _®_∷[_]_◂_ and _▸_⊩ʳ⟨_⟩_∷[_]_
+
+opaque
+
+  -- A variant of _®⟨_⟩_∷_ that is trivial (up to _⇔_) when the last
+  -- argument is 𝟘.
+
+  infix 19 _®⟨_⟩_∷_◂_
+
+  _®⟨_⟩_∷_◂_ : Term k → TypeLevel → T.Term k → Term k → M → Set a
+  t ®⟨ l ⟩ v ∷ A ◂ p = p ≢ 𝟘 → t ®⟨ l ⟩ v ∷ A
+
+opaque
+
+  -- A logical relation for substitutions.
+
+  infix 19 _®_∷[_]_◂_
+
+  _®_∷[_]_◂_ :
+    Subst k n → T.Subst k n → Mode → Con Term n → Conₘ n → Set a
+  _ ® _  ∷[ _ ] ε     ◂ ε     = Lift _ ⊤
+  σ ® σ′ ∷[ m ] Γ ∙ A ◂ γ ∙ p =
+    (∃ λ l →
+     (Γ ⊩ᵛ⟨ l ⟩ A) ×
+     Δ ⊩⟨ l ⟩ head σ ∷ A [ tail σ ] ×
+     head σ ®⟨ l ⟩ T.head σ′ ∷ A [ tail σ ] ◂ ⌜ m ⌝ · p) ×
+    tail σ ® T.tail σ′ ∷[ m ] Γ ◂ γ
+
+opaque
+
+  -- Validity with respect to erasure.
+
+  infix 19 _▸_⊩ʳ⟨_⟩_∷[_]_
+
+  _▸_⊩ʳ⟨_⟩_∷[_]_ :
+    Conₘ n → Con Term n → TypeLevel → Term n → Mode → Term n → Set a
+  γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A =
+    ∀ {σ σ′} →
+    σ ® σ′ ∷[ m ] Γ ◂ γ →
+    t [ σ ] ®⟨ l ⟩ erase str t T.[ σ′ ] ∷ A [ σ ] ◂ ⌜ m ⌝
+
+------------------------------------------------------------------------
 -- Characterisation lemmas for _®⟨_⟩_∷_◂_, _®_∷[_]_◂_ and
 -- _▸_⊩ʳ⟨_⟩_∷[_]_
 
@@ -523,16 +504,8 @@ opaque
 
   ®∷◂⇔ :
     t ®⟨ l ⟩ v ∷ A ◂ p ⇔
-    (Δ ⊩⟨ l ⟩ A × (p PE.≡ 𝟘 ⊎ p ≢ 𝟘 × t ®⟨ l ⟩ v ∷ A))
-  ®∷◂⇔ {p} with is-𝟘? p
-  … | yes p≡𝟘 =
-      (λ (⊩A , _) → ⊩A , inj₁ p≡𝟘)
-    , (λ (⊩A , _) → ⊩A , _)
-  … | no p≢𝟘 =
-      (λ t®v@(⊩A , _) → ⊩A , inj₂ (p≢𝟘 , t®v))
-    , (λ where
-         (_ , inj₁ p≡𝟘)       → ⊥-elim (p≢𝟘 p≡𝟘)
-         (_ , inj₂ (_ , t®v)) → t®v)
+    (p ≢ 𝟘 → t ®⟨ l ⟩ v ∷ A)
+  ®∷◂⇔ = id⇔
 
 opaque
   unfolding _®_∷[_]_◂_
@@ -540,34 +513,17 @@ opaque
   -- A characterisation lemma for _®_∷[_]_◂_.
 
   ®∷[]ε◂ε⇔ : σ ® σ′ ∷[ m ] ε ◂ ε ⇔ ⊤
-  ®∷[]ε◂ε⇔ = _ , λ _ → ε , _ , _
-
-private opaque
-  unfolding _®_∷[_]_◂_ _⊩ᵛ⟨_⟩_ _⊩⟨_⟩_∷_ _®⟨_⟩_∷_◂_
-
-  -- A lemma used below.
-
-  ®∷[]∙◂∙←′ :
-    (∃ λ l → Γ ⊩ᵛ⟨ l ⟩ A) ×
-    (∃ λ l → Δ ⊩⟨ l ⟩ head σ ∷ A [ tail σ ]) ×
-    (∃ λ l → head σ ®⟨ l ⟩ T.head σ′ ∷ A [ tail σ ] ◂ ⌜ m ⌝ · p) ×
-    tail σ ® T.tail σ′ ∷[ m ] Γ ◂ γ →
-    σ ® σ′ ∷[ m ] Γ ∙ A ◂ γ ∙ p
-  ®∷[]∙◂∙←′
-    ( (_ , ⊩Γ , ⊩A) , (_ , ⊩A[tail] , ⊩head)
-    , (_ , ⊩A[tail]′ , head®head) , (⊩Γ′ , ⊩tail , tail®tail)
-    ) =
-    case IS.irrelevance _ _ ⊩A of λ
-      ⊩A′ →
-    let ⊩A[tail]″ , _ = ⊩A′ .unwrap _ _ in
-      _ ∙ ⊩A′
-    , (⊩tail , IR.irrelevanceTerm ⊩A[tail] ⊩A[tail]″ ⊩head)
-    , tail®tail , irrelevanceQuant _ ⊩A[tail]′ ⊩A[tail]″ head®head
+  ®∷[]ε◂ε⇔ {σ} {σ′} {m} =
+    σ ® σ′ ∷[ m ] ε ◂ ε  ⇔⟨ id⇔ ⟩
+    Lift _ ⊤             ⇔⟨ _ ⟩
+    ⊤                    □⇔
 
 opaque
-  unfolding _®_∷[_]_◂_ _⊩ᵛ⟨_⟩_ _⊩⟨_⟩_∷_ _®⟨_⟩_∷_◂_
+  unfolding _®_∷[_]_◂_
 
   -- Another characterisation lemma for _®_∷[_]_◂_.
+  --
+  -- See also ®∷[]∙◂∙⇔′ below.
 
   ®∷[]∙◂∙⇔ :
     σ ® σ′ ∷[ m ] Γ ∙ A ◂ γ ∙ p ⇔
@@ -576,32 +532,7 @@ opaque
       Δ ⊩⟨ l ⟩ head σ ∷ A [ tail σ ] ×
       head σ ®⟨ l ⟩ T.head σ′ ∷ A [ tail σ ] ◂ ⌜ m ⌝ · p) ×
      tail σ ® T.tail σ′ ∷[ m ] Γ ◂ γ)
-  ®∷[]∙◂∙⇔ =
-      (λ where
-           (_ ∙ ⊩A , (_ , ⊩head) , tail®tail , head®head) →
-               ( _ , (_ , ⊩A) , (⊩A .unwrap _ _ .proj₁ , ⊩head)
-               , (_ , head®head)
-               )
-             , (_ , _ , tail®tail))
-    , ®∷[]∙◂∙←′ ∘→
-      (λ ((l , hyp₁ , hyp₂ , hyp₃) , rest) →
-         ((l , hyp₁) , (l , hyp₂) , (l , hyp₃) , rest))
-
-opaque
-
-  -- A variant of ®∷[]∙◂∙⇔.
-
-  ®∷[]∙◂∙⇔′ :
-    σ ® σ′ ∷[ m ] Γ ∙ A ◂ γ ∙ p ⇔
-    ((∃ λ l → Γ ⊩ᵛ⟨ l ⟩ A) ×
-     (∃ λ l → Δ ⊩⟨ l ⟩ head σ ∷ A [ tail σ ]) ×
-     (∃ λ l → head σ ®⟨ l ⟩ T.head σ′ ∷ A [ tail σ ] ◂ ⌜ m ⌝ · p) ×
-     tail σ ® T.tail σ′ ∷[ m ] Γ ◂ γ)
-  ®∷[]∙◂∙⇔′ =
-      (λ ((l , hyp₁ , hyp₂ , hyp₃) , rest) →
-         ((l , hyp₁) , (l , hyp₂) , (l , hyp₃) , rest)) ∘→
-      ®∷[]∙◂∙⇔ .proj₁
-    , ®∷[]∙◂∙←′
+  ®∷[]∙◂∙⇔ = id⇔
 
 opaque
 
@@ -668,6 +599,206 @@ module _
       )
 
 opaque
+  unfolding _▸_⊩ʳ⟨_⟩_∷[_]_
+
+  -- A characterisation lemma for _▸_⊩ʳ⟨_⟩_∷[_]_.
+
+  ▸⊩ʳ∷⇔ :
+    γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A ⇔
+    (∀ {σ σ′} → σ ® σ′ ∷[ m ] Γ ◂ γ →
+     t [ σ ] ®⟨ l ⟩ erase str t T.[ σ′ ] ∷ A [ σ ] ◂ ⌜ m ⌝)
+  ▸⊩ʳ∷⇔ = id⇔
+
+------------------------------------------------------------------------
+-- Some subsumption lemmas
+
+opaque
+
+  -- Subsumption for _®⟨_⟩_∷_◂_.
+
+  subsumption-®∷◂ :
+    (p PE.≡ 𝟘 → q PE.≡ 𝟘) →
+    t ®⟨ l ⟩ v ∷ A ◂ p →
+    t ®⟨ l ⟩ v ∷ A ◂ q
+  subsumption-®∷◂ {p} {q} {t} {l} {v} {A} hyp =
+    t ®⟨ l ⟩ v ∷ A ◂ p        ⇔⟨ ®∷◂⇔ ⟩→
+    (p ≢ 𝟘 → t ®⟨ l ⟩ v ∷ A)  →⟨ _∘→ (_∘→ hyp) ⟩
+    (q ≢ 𝟘 → t ®⟨ l ⟩ v ∷ A)  ⇔˘⟨ ®∷◂⇔ ⟩→
+    t ®⟨ l ⟩ v ∷ A ◂ q        □
+
+opaque
+
+  -- Subsumption for _®_∷[_]_◂_.
+
+  subsumption-®∷[]◂ :
+    (∀ x → γ ⟨ x ⟩ PE.≡ 𝟘 → δ ⟨ x ⟩ PE.≡ 𝟘) →
+    σ ® σ′ ∷[ m ] Γ ◂ γ →
+    σ ® σ′ ∷[ m ] Γ ◂ δ
+  subsumption-®∷[]◂ {γ = ε} {δ = ε} {σ} {σ′} {m} {Γ = ε} _ =
+    σ ® σ′ ∷[ m ] ε ◂ ε  □
+  subsumption-®∷[]◂
+    {γ = γ ∙ p} {δ = δ ∙ q} {σ} {σ′} {m} {Γ = Γ ∙ A} hyp =
+    σ ® σ′ ∷[ m ] Γ ∙ A ◂ γ ∙ p                             ⇔⟨ ®∷[]∙◂∙⇔ ⟩→
+
+    (∃ λ l →
+     (Γ ⊩ᵛ⟨ l ⟩ A) ×
+     Δ ⊩⟨ l ⟩ head σ ∷ A [ tail σ ] ×
+     head σ ®⟨ l ⟩ T.head σ′ ∷ A [ tail σ ] ◂ ⌜ m ⌝ · p) ×
+    tail σ ® T.tail σ′ ∷[ m ] Γ ◂ γ                         →⟨ Σ.map
+                                                                 (Σ.map idᶠ $ Σ.map idᶠ $ Σ.map idᶠ $
+                                                                  subsumption-®∷◂ lemma)
+                                                                 (subsumption-®∷[]◂ (hyp ∘→ _+1)) ⟩
+    (∃ λ l →
+     (Γ ⊩ᵛ⟨ l ⟩ A) ×
+     Δ ⊩⟨ l ⟩ head σ ∷ A [ tail σ ] ×
+     head σ ®⟨ l ⟩ T.head σ′ ∷ A [ tail σ ] ◂ ⌜ m ⌝ · q) ×
+    tail σ ® T.tail σ′ ∷[ m ] Γ ◂ δ                         ⇔˘⟨ ®∷[]∙◂∙⇔ ⟩→
+
+    σ ® σ′ ∷[ m ] Γ ∙ A ◂ δ ∙ q                             □
+    where
+    lemma : ⌜ m ⌝ · p PE.≡ 𝟘 → ⌜ m ⌝ · q PE.≡ 𝟘
+    lemma = case PE.singleton m of λ where
+      (𝟘ᵐ , PE.refl) →
+        𝟘 · p PE.≡ 𝟘  →⟨ (λ _ → ·-zeroˡ _) ⟩
+        𝟘 · q PE.≡ 𝟘  □
+      (𝟙ᵐ , PE.refl) →
+        𝟙 · p PE.≡ 𝟘  ≡⟨ PE.cong (PE._≡ _) $ ·-identityˡ _ ⟩→
+        p PE.≡ 𝟘      →⟨ hyp x0 ⟩
+        q PE.≡ 𝟘      ≡⟨ PE.cong (PE._≡ _) $ PE.sym $ ·-identityˡ _ ⟩→
+        𝟙 · q PE.≡ 𝟘  □
+
+opaque
+
+  -- Subsumption for _▸_⊩ʳ⟨_⟩_∷[_]_.
+
+  subsumption-▸⊩ʳ∷[] :
+    (∀ x → δ ⟨ x ⟩ PE.≡ 𝟘 → γ ⟨ x ⟩ PE.≡ 𝟘) →
+    γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A →
+    δ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A
+  subsumption-▸⊩ʳ∷[] {δ} {γ} {Γ} {l} {t} {m} {A} hyp =
+    γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A                                 ⇔⟨ ▸⊩ʳ∷⇔ ⟩→
+
+    (∀ {σ σ′} → σ ® σ′ ∷[ m ] Γ ◂ γ →
+     t [ σ ] ®⟨ l ⟩ erase str t T.[ σ′ ] ∷ A [ σ ] ◂ ⌜ m ⌝)  →⟨ _∘→ subsumption-®∷[]◂ hyp ⟩
+
+    (∀ {σ σ′} → σ ® σ′ ∷[ m ] Γ ◂ δ →
+     t [ σ ] ®⟨ l ⟩ erase str t T.[ σ′ ] ∷ A [ σ ] ◂ ⌜ m ⌝)  ⇔˘⟨ ▸⊩ʳ∷⇔ ⟩→
+
+    δ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A                                 □
+
+opaque
+
+  -- Another kind of subsumption for _▸_⊩ʳ⟨_⟩_∷[_]_.
+
+  subsumption-▸⊩ʳ∷[]-≤ :
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
+    δ ≤ᶜ γ →
+    γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A →
+    δ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A
+  subsumption-▸⊩ʳ∷[]-≤ δ≤γ =
+    subsumption-▸⊩ʳ∷[] (λ _ → ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 δ≤γ)
+
+------------------------------------------------------------------------
+-- Some lemmas related to type levels
+
+opaque
+  unfolding _®⟨_⟩_∷_
+
+  -- Changing type levels for _®⟨_⟩_∷_.
+
+  level-®∷ :
+    Δ ⊩⟨ l ⟩ A →
+    t ®⟨ l′ ⟩ v ∷ A →
+    t ®⟨ l ⟩ v ∷ A
+  level-®∷ ⊩A (⊩A′ , t®v) =
+    ⊩A , irrelevanceTerm ⊩A′ ⊩A t®v
+
+opaque
+
+  -- Changing type levels for _®⟨_⟩_∷_◂_.
+
+  level-®∷◂ :
+    Δ ⊩⟨ l ⟩ A →
+    t ®⟨ l′ ⟩ v ∷ A ◂ p →
+    t ®⟨ l ⟩ v ∷ A ◂ p
+  level-®∷◂ {l} {A} {t} {l′} {v} {p} ⊩A =
+    t ®⟨ l′ ⟩ v ∷ A ◂ p        ⇔⟨ ®∷◂⇔ ⟩→
+    (p ≢ 𝟘 → t ®⟨ l′ ⟩ v ∷ A)  →⟨ level-®∷ ⊩A ∘→_ ⟩
+    (p ≢ 𝟘 → t ®⟨ l ⟩ v ∷ A)   ⇔˘⟨ ®∷◂⇔ ⟩→
+    t ®⟨ l ⟩ v ∷ A ◂ p         □
+
+opaque
+  unfolding _®⟨_⟩_∷_
+
+  -- Embedding for _®⟨_⟩_∷_.
+
+  emb-®∷ :
+    l ≤ l′ →
+    t ®⟨ l ⟩ v ∷ A →
+    t ®⟨ l′ ⟩ v ∷ A
+  emb-®∷ l≤l′ (⊩A , t®v) =
+    case emb-≤-⊩ l≤l′ ⊩A of λ
+      ⊩A′ →
+    ⊩A′ , irrelevanceTerm ⊩A ⊩A′ t®v
+
+opaque
+
+  -- Embedding for _®⟨_⟩_∷_◂_.
+
+  emb-®∷◂ :
+    l ≤ l′ →
+    t ®⟨ l ⟩ v ∷ A ◂ p →
+    t ®⟨ l′ ⟩ v ∷ A ◂ p
+  emb-®∷◂ {l} {l′} {t} {v} {A} {p} l≤l′ =
+    t ®⟨ l ⟩ v ∷ A ◂ p         ⇔⟨ ®∷◂⇔ ⟩→
+    (p ≢ 𝟘 → t ®⟨ l  ⟩ v ∷ A)  →⟨ emb-®∷ l≤l′ ∘→_ ⟩
+    (p ≢ 𝟘 → t ®⟨ l′ ⟩ v ∷ A)  ⇔˘⟨ ®∷◂⇔ ⟩→
+    t ®⟨ l′ ⟩ v ∷ A ◂ p        □
+
+------------------------------------------------------------------------
+-- Some lemmas related to grades or modes
+
+opaque
+
+  -- If t ®⟨ l ⟩ v ∷ A holds, then t ®⟨ l ⟩ v ∷ A ◂ p holds for any p.
+
+  ®∷→®∷◂ :
+    t ®⟨ l ⟩ v ∷ A →
+    t ®⟨ l ⟩ v ∷ A ◂ p
+  ®∷→®∷◂ t®v = ®∷◂⇔ .proj₂ λ _ → t®v
+
+opaque
+
+  -- If t ®⟨ l ⟩ v ∷ A ◂ p holds for some non-zero p, then
+  -- t ®⟨ l ⟩ v ∷ A holds.
+
+  ®∷→®∷◂ω :
+    p ≢ 𝟘 →
+    t ®⟨ l ⟩ v ∷ A ◂ p →
+    t ®⟨ l ⟩ v ∷ A
+  ®∷→®∷◂ω {p} {t} {l} {v} {A} p≢𝟘 =
+    t ®⟨ l ⟩ v ∷ A ◂ p        ⇔⟨ ®∷◂⇔ ⟩→
+    (p ≢ 𝟘 → t ®⟨ l ⟩ v ∷ A)  →⟨ _$ p≢𝟘 ⟩
+    t ®⟨ l ⟩ v ∷ A            □
+
+opaque
+
+  -- If p is zero, then t ®⟨ l ⟩ v ∷ A ◂ p holds.
+
+  ®∷◂𝟘 : p PE.≡ 𝟘 → t ®⟨ l ⟩ v ∷ A ◂ p
+  ®∷◂𝟘 p≡𝟘 = ®∷◂⇔ .proj₂ (⊥-elim ∘→ (_$ p≡𝟘))
+
+opaque
+
+  -- The type γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ 𝟘ᵐ[ ok ] ] A is inhabited.
+
+  ▸⊩ʳ∷[𝟘ᵐ] : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ 𝟘ᵐ[ ok ] ] A
+  ▸⊩ʳ∷[𝟘ᵐ] = ▸⊩ʳ∷⇔ .proj₂ (λ _ → ®∷◂𝟘 PE.refl)
+
+------------------------------------------------------------------------
+-- Some lemmas related to substitutions
+
+opaque
 
   -- An escape lemma for _®_∷[_]_◂_.
 
@@ -694,147 +825,139 @@ opaque
     Δ ⊩ˢ σ ∷ Γ ∙ A                                              □
 
 opaque
-  unfolding _▸_⊩ʳ⟨_⟩_∷[_]_ _⊩ᵛ⟨_⟩_ _⊩ˢ_∷_ _®_∷[_]_◂_ _®⟨_⟩_∷_◂_
-
-  -- A characterisation lemma for _▸_⊩ʳ⟨_⟩_∷[_]_.
-
-  ▸⊩ʳ∷⇔ :
-    γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A ⇔
-    (Γ ⊩ᵛ⟨ l ⟩ A ×
-     (∀ {σ σ′} → σ ® σ′ ∷[ m ] Γ ◂ γ →
-      t [ σ ] ®⟨ l ⟩ erase str t T.[ σ′ ] ∷ A [ σ ] ◂ ⌜ m ⌝))
-  ▸⊩ʳ∷⇔ =
-      (λ (_ , ⊩A , ⊩t) →
-           (_ , ⊩A)
-         , (λ σ®σ′@(_ , _ , σ®σ′′) →
-              case escape-®∷[]◂ σ®σ′ of λ
-                (_ , _ , ⊩σ) →
-                _
-              , ⊩t (IS.irrelevanceSubst _ _ _ _ ⊩σ)
-                  (irrelevanceSubst _ _ _ _ σ®σ′′)))
-    , (λ ((_ , ⊩A) , hyp) →
-           _ , ⊩A
-         , λ _ σ®σ′ →
-             case hyp (_ , _ , σ®σ′) of λ
-               (_ , t[σ]®erase-t[σ′]) →
-             irrelevanceQuant _ _ _ t[σ]®erase-t[σ′])
-
-------------------------------------------------------------------------
--- Some subsumption lemmas
-
-opaque
-  unfolding _®⟨_⟩_∷_◂_
-
-  -- Subsumption for _®⟨_⟩_∷_◂_.
-
-  subsumption-®∷◂ :
-    (p PE.≡ 𝟘 → q PE.≡ 𝟘) →
-    t ®⟨ l ⟩ v ∷ A ◂ p →
-    t ®⟨ l ⟩ v ∷ A ◂ q
-  subsumption-®∷◂ hyp =
-    Σ.map idᶠ (flip subsumptionTerm hyp)
-
-opaque
   unfolding _®_∷[_]_◂_
 
-  -- Subsumption for _®_∷[_]_◂_.
+  -- A variant of ®∷[]∙◂∙⇔.
 
-  subsumption-®∷[]◂ :
-    (∀ x → γ ⟨ x ⟩ PE.≡ 𝟘 → δ ⟨ x ⟩ PE.≡ 𝟘) →
-    σ ® σ′ ∷[ m ] Γ ◂ γ →
-    σ ® σ′ ∷[ m ] Γ ◂ δ
-  subsumption-®∷[]◂ hyp =
-    Σ.map idᶠ (Σ.map idᶠ (flip subsumptionSubst hyp))
+  ®∷[]∙◂∙⇔′ :
+    σ ® σ′ ∷[ m ] Γ ∙ A ◂ γ ∙ p ⇔
+    ((∃ λ l → Γ ⊩ᵛ⟨ l ⟩ A) ×
+     (∃ λ l → Δ ⊩⟨ l ⟩ head σ ∷ A [ tail σ ]) ×
+     (∃ λ l → head σ ®⟨ l ⟩ T.head σ′ ∷ A [ tail σ ] ◂ ⌜ m ⌝ · p) ×
+     tail σ ® T.tail σ′ ∷[ m ] Γ ◂ γ)
+  ®∷[]∙◂∙⇔′ {σ} {σ′} =
+      (λ ((l , hyp₁ , hyp₂ , hyp₃) , rest) →
+         ((l , hyp₁) , (l , hyp₂) , (l , hyp₃) , rest)) ∘→
+      ®∷[]∙◂∙⇔ {σ = σ} {σ′ = σ′} .proj₁
+    , (λ ((l , ⊩A) , (_ , ⊩head) , (_ , head®head) , tail®tail) →
+         case ⊩ᵛ→⊩ˢ∷→⊩[] ⊩A (escape-®∷[]◂ tail®tail) of λ
+           ⊩A[tail] →
+           ( l , ⊩A , level-⊩∷ ⊩A[tail] ⊩head
+           , level-®∷◂ ⊩A[tail] head®head
+           )
+         , tail®tail)
 
 opaque
-  unfolding _▸_⊩ʳ⟨_⟩_∷[_]_
 
-  -- Subsumption for _▸_⊩ʳ⟨_⟩_∷[_]_.
+  -- Another variant of ®∷[]∙◂∙⇔.
 
-  subsumption-▸⊩ʳ∷[] :
-    (∀ x → δ ⟨ x ⟩ PE.≡ 𝟘 → γ ⟨ x ⟩ PE.≡ 𝟘) →
-    γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A →
-    δ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A
-  subsumption-▸⊩ʳ∷[] {t} hyp (_ , ⊩A , ⊩ʳt) =
-    _ , ⊩A , subsumption {t = t} _ ⊩A ⊩ʳt hyp
+  ®∷[]∙◂∙⇔″ :
+    Δ ⊩ˢ σ ∷ Γ ∙ A →
+    σ ® σ′ ∷[ m ] Γ ∙ A ◂ γ ∙ p ⇔
+    ((∃ λ l → head σ ®⟨ l ⟩ T.head σ′ ∷ A [ tail σ ] ◂ ⌜ m ⌝ · p) ×
+     tail σ ® T.tail σ′ ∷[ m ] Γ ◂ γ)
+  ®∷[]∙◂∙⇔″ ⊩σ =
+      Σ.map (Σ.map idᶠ (proj₂ ∘→ proj₂)) idᶠ ∘→ ®∷[]∙◂∙⇔ .proj₁
+    , (λ ((_ , head®head) , tail®tail) →
+         case ⊩ˢ∷∙⇔′ .proj₁ ⊩σ of λ
+           ((_ , ⊩A) , (_ , ⊩head) , _) →
+         ®∷[]∙◂∙⇔′ .proj₂
+           ((_ , ⊩A) , (_ , ⊩head) , (_ , head®head) , tail®tail))
 
 opaque
-  unfolding _▸_⊩ʳ⟨_⟩_∷[_]_
 
-  -- Another kind of subsumption for _▸_⊩ʳ⟨_⟩_∷[_]_.
+  -- A variant of ®∷[]◂→.
 
-  subsumption-▸⊩ʳ∷[]-≤ :
+  ®∷[]◂⇔ :
+    Δ ⊩ˢ σ ∷ Γ →
+    σ ® σ′ ∷[ m ] Γ ◂ γ ⇔
+    (∀ {A x} → x ∷ A ∈ Γ →
+     ∃ λ l → σ x ®⟨ l ⟩ σ′ x ∷ A [ σ ] ◂ ⌜ m ⌝ · γ ⟨ x ⟩)
+  ®∷[]◂⇔ {σ} {Γ = ε} {σ′} {m} {γ = ε} _ =
+    σ ® σ′ ∷[ m ] ε ◂ ε                                    ⇔⟨ ®∷[]ε◂ε⇔ ⟩
+
+    ⊤                                                      ⇔⟨ (λ _ ()) , _ ⟩
+
+    (∀ {A x} →
+     x ∷ A ∈ ε →
+     ∃ λ l → σ x ®⟨ l ⟩ σ′ x ∷ A [ σ ] ◂ ⌜ m ⌝ · ε ⟨ x ⟩)  □⇔
+  ®∷[]◂⇔ {σ} {Γ = Γ ∙ A} {σ′} {m} {γ = γ ∙ p} ⊩σ =
+    σ ® σ′ ∷[ m ] Γ ∙ A ◂ γ ∙ p                                     ⇔⟨ ®∷[]∙◂∙⇔″ ⊩σ ⟩
+
+    (∃ λ l → head σ ®⟨ l ⟩ T.head σ′ ∷ A [ tail σ ] ◂ ⌜ m ⌝ · p) ×
+    tail σ ® T.tail σ′ ∷[ m ] Γ ◂ γ                                 ⇔⟨ id⇔ ×-cong-⇔ ®∷[]◂⇔ (⊩ˢ∷∙⇔ .proj₁ ⊩σ .proj₂) ⟩
+
+    (∃ λ l → head σ ®⟨ l ⟩ T.head σ′ ∷ A [ tail σ ] ◂ ⌜ m ⌝ · p) ×
+    (∀ {B x} → x ∷ B ∈ Γ →
+     ∃ λ l →
+     tail σ x ®⟨ l ⟩ T.tail σ′ x ∷ B [ tail σ ] ◂ ⌜ m ⌝ · γ ⟨ x ⟩)  ⇔⟨ (Σ-cong-⇔ λ _ →
+                                                                        PE.subst (flip _⇔_ _)
+                                                                          (PE.cong₂ (_®⟨_⟩_∷_◂_ _ _ _) (wk1-tail A) PE.refl) id⇔)
+                                                                         ×-cong-⇔
+                                                                       (implicit-Π-cong-⇔ λ B → implicit-Π-cong-⇔ λ _ →
+                                                                        Π-cong-⇔ λ _ → Σ-cong-⇔ λ _ →
+                                                                        PE.subst (flip _⇔_ _)
+                                                                          (PE.cong₂ (_®⟨_⟩_∷_◂_ _ _ _) (wk1-tail B) PE.refl) id⇔) ⟩
+    (∃ λ l → head σ ®⟨ l ⟩ T.head σ′ ∷ wk1 A [ σ ] ◂ ⌜ m ⌝ · p) ×
+    (∀ {B x} → x ∷ B ∈ Γ →
+     ∃ λ l →
+     tail σ x ®⟨ l ⟩ T.tail σ′ x ∷ wk1 B [ σ ] ◂ ⌜ m ⌝ · γ ⟨ x ⟩)   ⇔⟨ (λ (hyp₁ , hyp₂) → λ { here → hyp₁; (there x∈) → hyp₂ x∈ })
+                                                                     , (λ hyp → hyp here , hyp ∘→ there)
+                                                                     ⟩
+    (∀ {B x} →
+     x ∷ B ∈ Γ ∙ A →
+     ∃ λ l → σ x ®⟨ l ⟩ σ′ x ∷ B [ σ ] ◂ ⌜ m ⌝ · (γ ∙ p) ⟨ x ⟩)     □⇔
+
+opaque
+
+  -- A valid source substitution is related to every (matching) target
+  -- substitution with respect to the (matching) zero usage context.
+
+  ®∷[]◂𝟘ᶜ : Δ ⊩ˢ σ ∷ Γ → σ ® σ′ ∷[ m ] Γ ◂ 𝟘ᶜ
+  ®∷[]◂𝟘ᶜ {m} ⊩σ =
+    ®∷[]◂⇔ ⊩σ .proj₂ λ {_} {x = x} x∈Γ →
+      ⁰
+    , ®∷◂𝟘
+        (⌜ m ⌝ · 𝟘ᶜ ⟨ x ⟩  ≡⟨ PE.cong (_·_ _) $ 𝟘ᶜ-lookup x ⟩
+         ⌜ m ⌝ · 𝟘         ≡⟨ ·-zeroʳ _ ⟩
+         𝟘                 ∎)
+    where
+    open Tools.Reasoning.PropositionalEquality
+
+opaque
+
+  -- A lemma that can sometimes be used to convert the output from the
+  -- fundamental lemma.
+
+  ▸⊩ʳ∷[]→®∷◂ :
+    𝟘ᶜ ▸ Δ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A →
+    t ®⟨ ¹ ⟩ erase str t ∷ A ◂ ⌜ m ⌝
+  ▸⊩ʳ∷[]→®∷◂ {t} {m} {A} =
+    𝟘ᶜ ▸ Δ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A                                           ⇔⟨ ▸⊩ʳ∷⇔ ⟩→
+
+    (∀ {σ σ′} → σ ® σ′ ∷[ m ] Δ ◂ 𝟘ᶜ →
+     t [ σ ] ®⟨ ¹ ⟩ erase str t T.[ σ′ ] ∷ A [ σ ] ◂ ⌜ m ⌝)             →⟨ _$ ®∷[]◂𝟘ᶜ (⊩ˢ∷-idSubst (valid ⊢Δ)) ⟩
+
+    t [ idSubst ] ®⟨ ¹ ⟩ erase str t T.[ T.idSubst ] ∷ A [ idSubst ] ◂
+      ⌜ m ⌝                                                             ≡⟨ PE.cong₃ (λ t v A → t ®⟨ _ ⟩ v ∷ A ◂ _)
+                                                                             (subst-id _) (TP.subst-id _) (subst-id _) ⟩→
+    t ®⟨ ¹ ⟩ erase str t ∷ A ◂ ⌜ m ⌝                                    □
+
+opaque
+
+  -- A variant of the previous lemma.
+
+  ▸⊩ʳ∷[𝟙ᵐ]→®∷ :
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
-    δ ≤ᶜ γ →
-    γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A →
-    δ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A
-  subsumption-▸⊩ʳ∷[]-≤ {t} δ≤γ (_ , ⊩A , ⊩ʳt) =
-    _ , ⊩A , subsumption-≤ t ⊩A ⊩ʳt δ≤γ
+    𝟘ᶜ ▸ Δ ⊩ʳ⟨ ¹ ⟩ t ∷[ 𝟙ᵐ ] A →
+    t ®⟨ ¹ ⟩ erase str t ∷ A
+  ▸⊩ʳ∷[𝟙ᵐ]→®∷ {t} {A} =
+    𝟘ᶜ ▸ Δ ⊩ʳ⟨ ¹ ⟩ t ∷[ 𝟙ᵐ ] A    →⟨ ▸⊩ʳ∷[]→®∷◂ ⟩
+    t ®⟨ ¹ ⟩ erase str t ∷ A ◂ 𝟙  →⟨ ®∷→®∷◂ω non-trivial ⟩
+    t ®⟨ ¹ ⟩ erase str t ∷ A      □
 
 ------------------------------------------------------------------------
--- Other lemmas
-
-opaque
-  unfolding _®⟨_⟩_∷_
-
-  -- Changing type levels for _®⟨_⟩_∷_.
-
-  level-®∷ :
-    Δ ⊩⟨ l ⟩ A →
-    t ®⟨ l′ ⟩ v ∷ A →
-    t ®⟨ l ⟩ v ∷ A
-  level-®∷ ⊩A (⊩A′ , t®v) =
-    ⊩A , irrelevanceTerm ⊩A′ ⊩A t®v
-
-opaque
-  unfolding _®⟨_⟩_∷_◂_
-
-  -- Embedding for _®⟨_⟩_∷_◂_.
-
-  emb-®∷◂ :
-    l ≤ l′ →
-    t ®⟨ l ⟩ v ∷ A ◂ p →
-    t ®⟨ l′ ⟩ v ∷ A ◂ p
-  emb-®∷◂ l≤l′ (⊩A , t®v) =
-    emb-≤-⊩ l≤l′ ⊩A , irrelevanceQuant _ _ _ t®v
-
-opaque
-  unfolding _®⟨_⟩_∷_ _®⟨_⟩_∷_◂_
-
-  -- If t ®⟨ l ⟩ v ∷ A holds, then t ®⟨ l ⟩ v ∷ A ◂ p holds for any p.
-
-  ®∷→®∷◂ :
-    t ®⟨ l ⟩ v ∷ A →
-    t ®⟨ l ⟩ v ∷ A ◂ p
-  ®∷→®∷◂ = Σ.map idᶠ (_◀ _)
-
-opaque
-  unfolding _®⟨_⟩_∷_ _®⟨_⟩_∷_◂_
-
-  -- If t ®⟨ l ⟩ v ∷ A ◂ p holds for some non-zero p, then
-  -- t ®⟨ l ⟩ v ∷ A holds.
-
-  ®∷→®∷◂ω :
-    p ≢ 𝟘 →
-    t ®⟨ l ⟩ v ∷ A ◂ p →
-    t ®⟨ l ⟩ v ∷ A
-  ®∷→®∷◂ω p≢𝟘 = Σ.map idᶠ (_◀≢𝟘 p≢𝟘)
-
-opaque
-
-  -- If p is zero and Δ ⊩⟨ l ⟩ A holds, then t ®⟨ l ⟩ v ∷ A ◂ p holds.
-
-  ®∷◂𝟘 : p PE.≡ 𝟘 → Δ ⊩⟨ l ⟩ A → t ®⟨ l ⟩ v ∷ A ◂ p
-  ®∷◂𝟘 p≡𝟘 ⊩A = ®∷◂⇔ .proj₂ (⊩A , inj₁ p≡𝟘)
-
-opaque
-
-  -- If Γ ⊩ᵛ⟨ l ⟩ A is inhabited, then γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ 𝟘ᵐ[ ok ] ] A
-  -- holds.
-
-  ▸⊩ʳ∷[𝟘ᵐ] : Γ ⊩ᵛ⟨ l ⟩ A → γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ 𝟘ᵐ[ ok ] ] A
-  ▸⊩ʳ∷[𝟘ᵐ] ⊩A =
-    ▸⊩ʳ∷⇔ .proj₂ (⊩A , ®∷◂𝟘 PE.refl ∘→ ⊩ᵛ→⊩ˢ∷→⊩[] ⊩A ∘→ escape-®∷[]◂)
+-- Some conversion lemmas
 
 opaque
   unfolding _®⟨_⟩_∷_
@@ -851,7 +974,6 @@ opaque
     ⊩B , convTermʳ ⊩A ⊩B (≅-eq (escape-⊩≡ A≡B)) t®v
 
 opaque
-  unfolding _®⟨_⟩_∷_◂_
 
   -- Conversion for _®⟨_⟩_∷_◂_.
 
@@ -859,13 +981,13 @@ opaque
     Δ ⊩⟨ l ⟩ A ≡ B →
     t ®⟨ l′ ⟩ v ∷ A ◂ p →
     t ®⟨ l ⟩ v ∷ B ◂ p
-  conv-®∷◂ A≡B (⊩A , t®v) =
-    case wf-⊩≡ A≡B of λ
-      (_ , ⊩B) →
-    ⊩B , convTermQuantʳ _ _ _ (≅-eq (escape-⊩≡ A≡B)) t®v
+  conv-®∷◂ {l} {A} {B} {t} {l′} {v} {p} A≡B =
+    t ®⟨ l′ ⟩ v ∷ A ◂ p        ⇔⟨ ®∷◂⇔ ⟩→
+    (p ≢ 𝟘 → t ®⟨ l′ ⟩ v ∷ A)  →⟨ conv-®∷ A≡B ∘→_ ⟩
+    (p ≢ 𝟘 → t ®⟨ l  ⟩ v ∷ B)  ⇔˘⟨ ®∷◂⇔ ⟩→
+    t ®⟨ l ⟩ v ∷ B ◂ p         □
 
 opaque
-  unfolding _⊩ᵛ⟨_⟩_≡_ _▸_⊩ʳ⟨_⟩_∷[_]_
 
   -- Conversion for _▸_⊩ʳ⟨_⟩_∷[_]_.
 
@@ -873,10 +995,20 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ A ≡ B →
     γ ▸ Γ ⊩ʳ⟨ l′ ⟩ t ∷[ m ] A →
     γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] B
-  conv-▸⊩ʳ∷ {t} A≡B@(_ , ⊩A , ⊩B , _) (_ , ⊩A′ , ⊩ʳt) =
-      _ , ⊩B
-    , convʳ {t = t} _ ⊩A ⊩B (≅-eq (escape-⊩ᵛ≡ A≡B))
-        (irrelevance {t = t} _ _ ⊩A′ ⊩A ⊩ʳt)
+  conv-▸⊩ʳ∷ {Γ} {l} {A} {B} {γ} {l′} {t} {m} A≡B =
+    γ ▸ Γ ⊩ʳ⟨ l′ ⟩ t ∷[ m ] A                                 ⇔⟨ ▸⊩ʳ∷⇔ ⟩→
+
+    (∀ {σ σ′} → σ ® σ′ ∷[ m ] Γ ◂ γ →
+     t [ σ ] ®⟨ l′ ⟩ erase str t T.[ σ′ ] ∷ A [ σ ] ◂ ⌜ m ⌝)  →⟨ (λ hyp σ®σ′ →
+                                                                    conv-®∷◂ (⊩ᵛ≡⇔ .proj₁ A≡B .proj₂ .proj₂ (escape-®∷[]◂ σ®σ′)) $
+                                                                    hyp σ®σ′) ⟩
+    (∀ {σ σ′} → σ ® σ′ ∷[ m ] Γ ◂ γ →
+     t [ σ ] ®⟨ l ⟩ erase str t T.[ σ′ ] ∷ B [ σ ] ◂ ⌜ m ⌝)   ⇔˘⟨ ▸⊩ʳ∷⇔ ⟩→
+
+    γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] B                                  □
+
+------------------------------------------------------------------------
+-- Closure under reduction or expansion
 
 opaque
   unfolding _®⟨_⟩_∷_
@@ -913,5 +1045,8 @@ opaque
     v T.⇒* v′ →
     t′ ®⟨ l ⟩ v′ ∷ A ◂ p →
     t ®⟨ l ⟩ v ∷ A ◂ p
-  ®∷◂-⇐* t⇒t′ v⇒v′ (_ , t′®v′) =
-    _ , redSubstTerm*-◂ t′®v′ t⇒t′ v⇒v′
+  ®∷◂-⇐* {t} {t′} {A} {v} {v′} {l} {p} t⇒t′ v⇒v′ =
+    t′ ®⟨ l ⟩ v′ ∷ A ◂ p        ⇔⟨ ®∷◂⇔ ⟩→
+    (p ≢ 𝟘 → t′ ®⟨ l ⟩ v′ ∷ A)  →⟨ ®∷-⇐* t⇒t′ v⇒v′ ∘→_ ⟩
+    (p ≢ 𝟘 → t ®⟨ l ⟩ v ∷ A)    ⇔˘⟨ ®∷◂⇔ ⟩→
+    t ®⟨ l ⟩ v ∷ A ◂ p          □

@@ -168,46 +168,6 @@ mutual
     (no p≢𝟘) → ∃ λ v₁ → (v T.⇒* T.prod v₁ v₂)
                       × (t₁ ®⟨ l ⟩ v₁ ∷ U.wk id F / [F])
 
--- Logical relation for terms of quantified type
--- Under grade 𝟘, the terms need not be related.
-_®⟨_⟩_∷_◂_/_ : (t : U.Term k) (l : TypeLevel) (v : T.Term k)
-                 (A : U.Term k) (p : M)
-                 ([A] : Δ ⊩⟨ l ⟩ A) → Set a
-t ®⟨ l ⟩ v ∷ A ◂ p / [A] = case is-𝟘? p of λ where
-  (yes p≡𝟘) → Lift a ⊤
-  (no p≢𝟘) → t ®⟨ l ⟩ v ∷ A / [A]
-
--- Logical relation for substitutions
---
--- Substitutions are related if all terms are pairwise related
--- under the corresponding quantity of the grade context.
-
-_®_∷[_]_◂_/_/_ :
-  (σₜ : U.Subst k n)
-  (σᵥ : T.Subst k n) (m : Mode) (Γ : Con U.Term n) (γ : Conₘ n)
-  ([Γ] : ⊩ᵛ Γ) ([σ] : Δ ⊩ˢ σₜ ∷ Γ / [Γ] / ⊢Δ) → Set a
-σₜ ® σᵥ ∷[ _ ] ε ◂ ε / ε / (lift tt) = Lift a ⊤
-σₜ ® σᵥ ∷[ m ] Γ ∙ A ◂ γ ∙ p / _∙_ {l = l} [Γ] [A] / ([σ] , [σA]) =
-  (U.tail σₜ ® T.tail σᵥ ∷[ m ] Γ ◂ γ / [Γ] / [σ]) ×
-  (U.head σₜ ®⟨ l ⟩ T.head σᵥ ∷ A U.[ U.tail σₜ ] ◂ ⌜ m ⌝ · p /
-     proj₁ (unwrap [A] ⊢Δ [σ]))
-
--- Validity of erasure
---
--- A term t is valid if t[σ] is related to (erase str t)[σ′]
--- for all related contexts σ and σ′.
-
-_▸_⊩ʳ⟨_⟩_∷[_]_/_/_ :
-  (γ : Conₘ n) (Γ : Con U.Term n) (l : TypeLevel)
-  (t : U.Term n) (m : Mode) (A : U.Term n)
-  ([Γ] : ⊩ᵛ Γ) ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ]) → Set a
-γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A / [Γ] / [A] =
-  ∀ {σ σ′} →
-  ([σ] : Δ ⊩ˢ σ ∷ Γ / [Γ] / ⊢Δ) →
-  σ ® σ′ ∷[ m ] Γ ◂ γ / [Γ] / [σ] →
-  t U.[ σ ] ®⟨ l ⟩ erase str t T.[ σ′ ] ∷ A U.[ σ ] ◂ ⌜ m ⌝ /
-    proj₁ (unwrap [A] ⊢Δ [σ])
-
 ------------------------------------------------------------------------
 -- Helper functions
 

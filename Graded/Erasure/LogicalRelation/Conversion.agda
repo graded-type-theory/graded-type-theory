@@ -26,10 +26,7 @@ open import Definition.LogicalRelation.Fundamental.Reducibility R
 open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Properties.Conversion R
 open import Definition.LogicalRelation.Properties.Escape R
-open import Definition.LogicalRelation.Substitution R
-open import Definition.LogicalRelation.Substitution.Properties R
 import Definition.LogicalRelation.Substitution.Irrelevance R as IS
-open import Graded.Mode 𝕄
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
@@ -43,7 +40,6 @@ open import Definition.Typed.Reduction R
 open import Definition.Typed.RedSteps R
 open import Definition.Typed.Weakening R hiding (wk)
 
-open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -57,7 +53,6 @@ private
     A B t : Term n
     v : T.Term n
     p : M
-    m : Mode
 
 -- Conversion of logical relation for erasure using ShapeView
 -- If t ® v ∷ A and Δ ⊩ A ≡ B then t ® v ∷ B
@@ -169,30 +164,3 @@ convTermʳ [A] [B] A≡B t®v =
   let [A]′ , [B]′ , [A≡B]′ = reducibleEq A≡B
       [A≡B] = irrelevanceEq [A]′ [A] [A≡B]′
   in convTermʳ′ [A] [B] A≡B (goodCases [A] [B] [A≡B]) t®v
-
-convTermQuantʳ : ∀ {l l′ A B t v} p
-               → ([A] : Δ ⊩⟨ l ⟩ A)
-                 ([B] : Δ ⊩⟨ l′ ⟩ B)
-               → Δ ⊢ A ≡ B
-               → t ®⟨ l ⟩ v ∷ A ◂ p / [A]
-               → t ®⟨ l′ ⟩ v ∷ B ◂ p / [B]
-convTermQuantʳ p [A] [B] A≡B t®v with is-𝟘? p
-... | yes PE.refl = lift tt
-... | no p≢𝟘 = convTermʳ [A] [B] A≡B t®v
-
--- Conversion of erasure validity
--- If γ ▸ Γ ⊩ʳ t ∷ A and Γ ⊩ᵛ A ≡ B then γ ▸ Γ ⊩ʳ t ∷ B
-
-convʳ : ∀ {l l′ A B t γ}
-      → ([Γ] : ⊩ᵛ Γ)
-        ([A] : Γ ⊩ᵛ⟨ l ⟩ A / [Γ])
-        ([B] : Γ ⊩ᵛ⟨ l′ ⟩ B / [Γ])
-        (A≡B : Γ ⊢ A ≡ B)
-        (⊩ʳt : γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A / [Γ] / [A])
-      → (γ ▸ Γ ⊩ʳ⟨ l′ ⟩ t ∷[ m ] B / [Γ] / [B])
-convʳ {m = m} {A = A} {B = B} [Γ] [A] [B] A≡B ⊩ʳt [σ] σ®σ′ =
-  let t®v = ⊩ʳt [σ] σ®σ′
-      [σA] = proj₁ (unwrap [A] ⊢Δ [σ])
-      [σB] = proj₁ (unwrap [B] ⊢Δ [σ])
-      σA≡σB = substitutionEq A≡B (wellformedSubstEq [Γ] ⊢Δ [σ] (reflSubst [Γ] ⊢Δ [σ])) ⊢Δ
-  in  convTermQuantʳ ⌜ m ⌝ [σA] [σB] σA≡σB t®v

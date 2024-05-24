@@ -43,7 +43,6 @@ open import Definition.LogicalRelation.Fundamental R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
 open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Properties R
-open import Definition.LogicalRelation.Substitution.Introductions.Universe R
 open import Definition.LogicalRelation.Substitution.Introductions.Nat R
 
 open import Graded.Context 𝕄
@@ -71,30 +70,20 @@ opaque
 
   -- Validity of ℕ.
 
-  ℕʳ :
-    ⊢ Γ →
-    γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ ℕ ∷[ m ] U
-  ℕʳ ⊢Γ =
-    ▸⊩ʳ∷⇔ .proj₂
-      ( ⊩ᵛU (valid ⊢Γ)
-      , λ _ →
-          ®∷→®∷◂ (®∷U⇔ .proj₂ ((_ , 0<1) , Uᵣ (λ { PE.refl → T.refl })))
-      )
+  ℕʳ : γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ ℕ ∷[ m ] U
+  ℕʳ =
+    ▸⊩ʳ∷⇔ .proj₂ λ _ →
+    ®∷→®∷◂ (®∷U⇔ .proj₂ ((_ , 0<1) , Uᵣ (λ { PE.refl → T.refl })))
 
 opaque
 
   -- Validity of zero.
 
-  zeroʳ :
-    ⊢ Γ →
-    γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ zero ∷[ m ] ℕ
-  zeroʳ ⊢Γ =
-    ▸⊩ʳ∷⇔ .proj₂
-      ( ℕᵛ (valid ⊢Γ)
-      , λ _ →
-          ®∷→®∷◂ $ ®∷ℕ⇔ .proj₂ $
-          zeroᵣ (id (zeroⱼ ⊢Δ)) T.refl
-      )
+  zeroʳ : γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ zero ∷[ m ] ℕ
+  zeroʳ =
+    ▸⊩ʳ∷⇔ .proj₂ λ _ →
+    ®∷→®∷◂ $ ®∷ℕ⇔ .proj₂ $
+    zeroᵣ (id (zeroⱼ ⊢Δ)) T.refl
 
 opaque
 
@@ -104,53 +93,46 @@ opaque
     Γ ⊢ t ∷ ℕ →
     γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] ℕ →
     γ ▸ Γ ⊩ʳ⟨ l ⟩ suc t ∷[ m ] ℕ
-  sucʳ {t} {l} {m} ⊢t ⊩ʳt =
-    case ▸⊩ʳ∷⇔ .proj₁ ⊩ʳt of λ
-      (⊩ℕ , t®t) →
-    case PE.singleton m of λ {
-      (𝟘ᵐ , PE.refl) → ▸⊩ʳ∷[𝟘ᵐ] ⊩ℕ;
-      (𝟙ᵐ , PE.refl) →
-    ▸⊩ʳ∷⇔ .proj₂
-      ( ⊩ℕ
-      , λ {σ = σ} {σ′ = σ′} σ®σ′ →
-          case escape-®∷[]◂ σ®σ′ of λ
-            ⊩σ →
-          case escape-⊩ˢ∷ ⊩σ of λ
-            (⊢Δ , ⊢σ) →
-          case
-            (let open RR in
-             suc (t [ σ ])  ∎⟨ sucⱼ (substitutionTerm ⊢t ⊢σ ⊢Δ) ⟩⇒)
-          of λ
-            suc-t[σ]⇒*suc-t[σ] →
+  sucʳ         {m = 𝟘ᵐ} _  _   = ▸⊩ʳ∷[𝟘ᵐ]
+  sucʳ {t} {l} {m = 𝟙ᵐ} ⊢t ⊩ʳt =
+    ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} σ®σ′ →
+    case escape-®∷[]◂ σ®σ′ of λ
+      ⊩σ →
+    case escape-⊩ˢ∷ ⊩σ of λ
+      (⊢Δ , ⊢σ) →
+    case
+      (let open RR in
+       suc (t [ σ ])  ∎⟨ sucⱼ (substitutionTerm ⊢t ⊢σ ⊢Δ) ⟩⇒)
+    of λ
+      suc-t[σ]⇒*suc-t[σ] →
 
-          case                                           $⟨ t®t σ®σ′ ⟩
-            t [ σ ] ®⟨ l ⟩ erase str t T.[ σ′ ] ∷ ℕ ◂ 𝟙  →⟨ ®∷→®∷◂ω non-trivial ⟩
-            t [ σ ] ®⟨ l ⟩ erase str t T.[ σ′ ] ∷ ℕ      ⇔⟨ ®∷ℕ⇔ ⟩→
-            t [ σ ] ® erase str t T.[ σ′ ] ∷ℕ            □
-          of λ
-            t[σ]®t[σ′] →
+    case                                           $⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳt σ®σ′ ⟩
+      t [ σ ] ®⟨ l ⟩ erase str t T.[ σ′ ] ∷ ℕ ◂ 𝟙  →⟨ ®∷→®∷◂ω non-trivial ⟩
+      t [ σ ] ®⟨ l ⟩ erase str t T.[ σ′ ] ∷ ℕ      ⇔⟨ ®∷ℕ⇔ ⟩→
+      t [ σ ] ® erase str t T.[ σ′ ] ∷ℕ            □
+    of λ
+      t[σ]®t[σ′] →
 
-          ®∷→®∷◂ $ ®∷ℕ⇔ .proj₂ $
-          case PE.singleton str of λ where
-            (T.non-strict , PE.refl) →
-              sucᵣ suc-t[σ]⇒*suc-t[σ] T.refl _ t[σ]®t[σ′]
-            (T.strict , PE.refl) →
-              case reduces-to-numeral PE.refl t[σ]®t[σ′] of λ
-                (v′ , v′-num , erase-t[σ′]⇒*v′) →
-              sucᵣ suc-t[σ]⇒*suc-t[σ]
-                (T.lam (T.suc (T.var x0)) T.∘⟨ T.strict ⟩
-                 erase T.strict t T.[ σ′ ]                    ⇒*⟨ TP.app-subst*-arg T.lam erase-t[σ′]⇒*v′ ⟩
+    ®∷→®∷◂ $ ®∷ℕ⇔ .proj₂ $
+    case PE.singleton str of λ where
+      (T.non-strict , PE.refl) →
+        sucᵣ suc-t[σ]⇒*suc-t[σ] T.refl _ t[σ]®t[σ′]
+      (T.strict , PE.refl) →
+        case reduces-to-numeral PE.refl t[σ]®t[σ′] of λ
+          (v′ , v′-num , erase-t[σ′]⇒*v′) →
+        sucᵣ suc-t[σ]⇒*suc-t[σ]
+          (T.lam (T.suc (T.var x0)) T.∘⟨ T.strict ⟩
+           erase T.strict t T.[ σ′ ]                    ⇒*⟨ TP.app-subst*-arg T.lam erase-t[σ′]⇒*v′ ⟩
 
-                 T.lam (T.suc (T.var x0)) T.∘⟨ T.strict ⟩ v′  ⇒⟨ T.β-red (TP.Numeral→Value v′-num) ⟩
+           T.lam (T.suc (T.var x0)) T.∘⟨ T.strict ⟩ v′  ⇒⟨ T.β-red (TP.Numeral→Value v′-num) ⟩
 
-                 T.suc v′                                     ∎⇒)
-                v′-num
-                (                                              $⟨ t[σ]®t[σ′] ⟩
-                 t [ σ ] ® erase T.strict t T.[ σ′ ] ∷ℕ        ⇔˘⟨ ®∷ℕ⇔ ⟩→
-                 t [ σ ] ®⟨ l ⟩ erase T.strict t T.[ σ′ ] ∷ ℕ  →⟨ ®∷-⇒* erase-t[σ′]⇒*v′ ⟩
-                 t [ σ ] ®⟨ l ⟩ v′ ∷ ℕ                         ⇔⟨ ®∷ℕ⇔ ⟩→
-                 t [ σ ] ® v′ ∷ℕ                               □)
-      ) }
+           T.suc v′                                     ∎⇒)
+          v′-num
+          (                                              $⟨ t[σ]®t[σ′] ⟩
+           t [ σ ] ® erase T.strict t T.[ σ′ ] ∷ℕ        ⇔˘⟨ ®∷ℕ⇔ ⟩→
+           t [ σ ] ®⟨ l ⟩ erase T.strict t T.[ σ′ ] ∷ ℕ  →⟨ ®∷-⇒* erase-t[σ′]⇒*v′ ⟩
+           t [ σ ] ®⟨ l ⟩ v′ ∷ ℕ                         ⇔⟨ ®∷ℕ⇔ ⟩→
+           t [ σ ] ® v′ ∷ℕ                               □)
 
 private opaque
 
@@ -225,107 +207,100 @@ opaque
     (∀ x → χ ⟨ x ⟩ PE.≡ 𝟘 →
      γ ⟨ x ⟩ PE.≡ 𝟘 × η ⟨ x ⟩ PE.≡ 𝟘 × δ ⟨ x ⟩ PE.≡ 𝟘) →
     χ ▸ Γ ⊩ʳ⟨ l ⟩ natrec p q r A t u v ∷[ m ] A [ v ]₀
+  natrecʳ {m = 𝟘ᵐ} _ _ _ _ _ _ _ _ =
+    ▸⊩ʳ∷[𝟘ᵐ]
   natrecʳ
-    {Γ} {l} {A} {t} {u} {v} {γ} {l′} {m} {δ} {p} {r} {l″} {η} {l‴} {χ}
-    {q} ⊩A ⊢t ⊢u ⊢v ⊩ʳt ⊩ʳu ⊩ʳv ≡𝟘→≡𝟘 =
-    case ⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]₀ ⊩A (fundamental-⊩ᵛ∷ ⊢v) of λ
-      ⊩A[v] →
-    case PE.singleton m of λ {
-      (𝟘ᵐ , PE.refl) → ▸⊩ʳ∷[𝟘ᵐ] ⊩A[v];
-      (𝟙ᵐ , PE.refl) →
-    ▸⊩ʳ∷⇔ .proj₂
-      ( ⊩A[v]
-      , λ {σ = σ} {σ′ = σ′} σ®σ′ →
-          case escape-®∷[]◂ σ®σ′ of λ
-            ⊩σ →
+    {Γ} {l} {A} {t} {u} {v} {γ} {l′} {m = 𝟙ᵐ} {δ} {p} {r} {l″} {η} {l‴}
+    {χ} {q} ⊩A ⊢t ⊢u ⊢v ⊩ʳt ⊩ʳu ⊩ʳv ≡𝟘→≡𝟘 =
+    ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} σ®σ′ →
+    case escape-®∷[]◂ σ®σ′ of λ
+      ⊩σ →
 
-          case                                                            $⟨ σ®σ′ ⟩
-            σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ χ                                          →⟨ subsumption-®∷[]◂ (λ x → proj₁ ∘→ ≡𝟘→≡𝟘 x) ⟩
-            σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ γ                                          →⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳt .proj₂ ⟩
-            t [ σ ] ®⟨ l′ ⟩ erase str t T.[ σ′ ] ∷ A [ zero ]₀ [ σ ] ◂ 𝟙  →⟨ ®∷→®∷◂ω non-trivial ⟩
-            t [ σ ] ®⟨ l′ ⟩ erase str t T.[ σ′ ] ∷ A [ zero ]₀ [ σ ]      ≡⟨ PE.cong (_®⟨_⟩_∷_ _ _ _) $ singleSubstLift A _ ⟩→
-            t [ σ ] ®⟨ l′ ⟩ erase str t T.[ σ′ ] ∷ A [ σ ⇑ ] [ zero ]₀    →⟨ level-®∷ $ ⊩ᵛ→⊩ˢ∷→⊩∷→⊩[⇑][]₀ ⊩A ⊩σ (⊩zero {l = l} ⊢Δ) ⟩
-            t [ σ ] ®⟨ l ⟩ erase str t T.[ σ′ ] ∷ A [ σ ⇑ ] [ zero ]₀     □
-          of λ
-            t[σ]®t[σ′] →
+    case                                                            $⟨ σ®σ′ ⟩
+      σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ χ                                          →⟨ subsumption-®∷[]◂ (λ x → proj₁ ∘→ ≡𝟘→≡𝟘 x) ⟩
+      σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ γ                                          →⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳt ⟩
+      t [ σ ] ®⟨ l′ ⟩ erase str t T.[ σ′ ] ∷ A [ zero ]₀ [ σ ] ◂ 𝟙  →⟨ ®∷→®∷◂ω non-trivial ⟩
+      t [ σ ] ®⟨ l′ ⟩ erase str t T.[ σ′ ] ∷ A [ zero ]₀ [ σ ]      ≡⟨ PE.cong (_®⟨_⟩_∷_ _ _ _) $ singleSubstLift A _ ⟩→
+      t [ σ ] ®⟨ l′ ⟩ erase str t T.[ σ′ ] ∷ A [ σ ⇑ ] [ zero ]₀    →⟨ level-®∷ $ ⊩ᵛ→⊩ˢ∷→⊩∷→⊩[⇑][]₀ ⊩A ⊩σ (⊩zero {l = l} ⊢Δ) ⟩
+      t [ σ ] ®⟨ l ⟩ erase str t T.[ σ′ ] ∷ A [ σ ⇑ ] [ zero ]₀     □
+    of λ
+      t[σ]®t[σ′] →
 
-          case
-            (λ {v = v} {v′ = v′} {w = w} {w′ = w′}
-               (v®v′ : v ® v′ ∷ℕ)
-               (⊢w : Δ ⊢ w ∷ A [ σ ⇑ ] [ v ]₀)
-               (w®w′ : w ®⟨ l ⟩ w′ ∷ A [ σ ⇑ ] [ v ]₀) →
-               case reducible-⊩∷ (®∷ℕ→⊢∷ℕ v®v′) of λ
-                 ⊩v →                                                    $⟨ σ®σ′ ⟩
+    case
+      (λ {v = v} {v′ = v′} {w = w} {w′ = w′}
+         (v®v′ : v ® v′ ∷ℕ)
+         (⊢w : Δ ⊢ w ∷ A [ σ ⇑ ] [ v ]₀)
+         (w®w′ : w ®⟨ l ⟩ w′ ∷ A [ σ ⇑ ] [ v ]₀) →
+         case reducible-⊩∷ (®∷ℕ→⊢∷ℕ v®v′) of λ
+           ⊩v →                                                      $⟨ σ®σ′ ⟩
 
-               σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ χ                                      →⟨ subsumption-®∷[]◂ (λ x → proj₂ ∘→ proj₂ ∘→ ≡𝟘→≡𝟘 x) ⟩
+         σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ χ                                        →⟨ subsumption-®∷[]◂ (λ x → proj₂ ∘→ proj₂ ∘→ ≡𝟘→≡𝟘 x) ⟩
 
-               σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ δ                                      →⟨ (λ σ®σ′ →
-                                                                               ®∷[]∙◂∙⇔′ .proj₂
-                                                                                 ( (_ , ⊩A)
-                                                                                 , ( _
-                                                                                   , PE.subst (_⊩⟨_⟩_∷_ _ _ _) (singleSubstComp _ _ A)
-                                                                                       (reducible-⊩∷ ⊢w)
-                                                                                   )
-                                                                                 , ( _
-                                                                                   , ®∷→®∷◂
-                                                                                       (PE.subst (_®⟨_⟩_∷_ _ _ _) (singleSubstComp _ _ A)
-                                                                                          w®w′)
-                                                                                   )
-                                                                                 , ®∷[]∙◂∙⇔′ .proj₂
-                                                                                     ( (_ , wf-∙-⊩ᵛ ⊩A .proj₂) , (_ , ⊩v)
-                                                                                     , (_ , ®∷→®∷◂ (®∷ℕ⇔ {l = l} .proj₂ v®v′)) , σ®σ′
-                                                                                     )
-                                                                                 )) ⟩
-               consSubst (consSubst σ v) w ®
-                 T.consSubst (T.consSubst σ′ v′) w′ ∷[ 𝟙ᵐ ] Γ ∙ ℕ ∙ A ◂
-                 δ ∙ 𝟙 · p ∙ 𝟙 · r                                       →⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳu .proj₂ ⟩
+         σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ δ                                        →⟨ (λ σ®σ′ →
+                                                                           ®∷[]∙◂∙⇔′ .proj₂
+                                                                             ( (_ , ⊩A)
+                                                                             , ( _
+                                                                               , PE.subst (_⊩⟨_⟩_∷_ _ _ _) (singleSubstComp _ _ A)
+                                                                                   (reducible-⊩∷ ⊢w)
+                                                                               )
+                                                                             , ( _
+                                                                               , ®∷→®∷◂
+                                                                                   (PE.subst (_®⟨_⟩_∷_ _ _ _) (singleSubstComp _ _ A)
+                                                                                      w®w′)
+                                                                               )
+                                                                             , ®∷[]∙◂∙⇔′ .proj₂
+                                                                                 ( (_ , wf-∙-⊩ᵛ ⊩A .proj₂) , (_ , ⊩v)
+                                                                                 , (_ , ®∷→®∷◂ (®∷ℕ⇔ {l = l} .proj₂ v®v′)) , σ®σ′
+                                                                                 )
+                                                                             )) ⟩
+         consSubst (consSubst σ v) w ®
+           T.consSubst (T.consSubst σ′ v′) w′ ∷[ 𝟙ᵐ ] Γ ∙ ℕ ∙ A ◂
+           δ ∙ 𝟙 · p ∙ 𝟙 · r                                         →⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳu ⟩
 
-               u [ consSubst (consSubst σ v) w ] ®⟨ l″ ⟩
-                 erase str u T.[ T.consSubst (T.consSubst σ′ v′) w′ ] ∷
-                 A [ suc (var x1) ]↑² [ consSubst (consSubst σ v) w ] ◂
-                 𝟙                                                       ≡⟨ PE.cong₅ _®⟨_⟩_∷_◂_ (PE.sym $ doubleSubstComp u _ _ _) PE.refl
-                                                                              (PE.sym $ TP.doubleSubstComp (erase _ u) _ _ _)
-                                                                              (
-                 A [ suc (var x1) ]↑² [ consSubst (consSubst σ v) w ]          ≡˘⟨ substComp↑² A _ ⟩
-                 A [ consSubst σ (suc v) ]                                     ≡˘⟨ singleSubstComp _ _ A ⟩
-                 A [ σ ⇑ ] [ suc v ]₀                                          ∎)
-                                                                              PE.refl ⟩→
-               u [ σ ⇑ ⇑ ] [ v , w ]₁₀ ®⟨ l″ ⟩
-                 erase str u T.[ σ′ T.⇑ T.⇑ ] T.[ v′ , w′ ]₁₀ ∷
-                 A [ σ ⇑ ] [ suc v ]₀ ◂ 𝟙                                →⟨ level-®∷ (⊩ᵛ→⊩ˢ∷→⊩∷→⊩[⇑][]₀ ⊩A ⊩σ (⊩suc ⊩v)) ∘→
-                                                                            ®∷→®∷◂ω non-trivial ⟩
-               u [ σ ⇑ ⇑ ] [ v , w ]₁₀ ®⟨ l ⟩
-                 erase str u T.[ σ′ T.⇑ T.⇑ ] T.[ v′ , w′ ]₁₀ ∷
-                 A [ σ ⇑ ] [ suc v ]₀                                    □)
-          of λ
-            u[σ⇑⇑]®u[σ′⇑⇑] →                                            $⟨ σ®σ′ ⟩
+         u [ consSubst (consSubst σ v) w ] ®⟨ l″ ⟩
+           erase str u T.[ T.consSubst (T.consSubst σ′ v′) w′ ] ∷
+           A [ suc (var x1) ]↑² [ consSubst (consSubst σ v) w ] ◂ 𝟙  ≡⟨ PE.cong₅ _®⟨_⟩_∷_◂_ (PE.sym $ doubleSubstComp u _ _ _) PE.refl
+                                                                          (PE.sym $ TP.doubleSubstComp (erase _ u) _ _ _)
+                                                                          (
+           A [ suc (var x1) ]↑² [ consSubst (consSubst σ v) w ]            ≡˘⟨ substComp↑² A _ ⟩
+           A [ consSubst σ (suc v) ]                                       ≡˘⟨ singleSubstComp _ _ A ⟩
+           A [ σ ⇑ ] [ suc v ]₀                                            ∎)
+                                                                          PE.refl ⟩→
+         u [ σ ⇑ ⇑ ] [ v , w ]₁₀ ®⟨ l″ ⟩
+           erase str u T.[ σ′ T.⇑ T.⇑ ] T.[ v′ , w′ ]₁₀ ∷
+           A [ σ ⇑ ] [ suc v ]₀ ◂ 𝟙                                  →⟨ level-®∷ (⊩ᵛ→⊩ˢ∷→⊩∷→⊩[⇑][]₀ ⊩A ⊩σ (⊩suc ⊩v)) ∘→
+                                                                        ®∷→®∷◂ω non-trivial ⟩
+         u [ σ ⇑ ⇑ ] [ v , w ]₁₀ ®⟨ l ⟩
+           erase str u T.[ σ′ T.⇑ T.⇑ ] T.[ v′ , w′ ]₁₀ ∷
+           A [ σ ⇑ ] [ suc v ]₀                                      □)
+    of λ
+      u[σ⇑⇑]®u[σ′⇑⇑] →                                            $⟨ σ®σ′ ⟩
 
-          σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ χ                                          →⟨ subsumption-®∷[]◂ (λ x → proj₁ ∘→ proj₂ ∘→ ≡𝟘→≡𝟘 x) ⟩
+    σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ χ                                          →⟨ subsumption-®∷[]◂ (λ x → proj₁ ∘→ proj₂ ∘→ ≡𝟘→≡𝟘 x) ⟩
 
-          σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ η                                          →⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳv .proj₂ ⟩
+    σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ η                                          →⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳv ⟩
 
-          v [ σ ] ®⟨ l‴ ⟩ erase str v T.[ σ′ ] ∷ ℕ ◂ 𝟙                  →⟨ ®∷ℕ⇔ .proj₁ ∘→ ®∷→®∷◂ω non-trivial ⟩
+    v [ σ ] ®⟨ l‴ ⟩ erase str v T.[ σ′ ] ∷ ℕ ◂ 𝟙                  →⟨ ®∷ℕ⇔ .proj₁ ∘→ ®∷→®∷◂ω non-trivial ⟩
 
-          v [ σ ] ® erase str v T.[ σ′ ] ∷ℕ                             →⟨ natrecʳ′
-                                                                             (⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩A) (refl-⊩ˢ≡∷ ⊩σ) ∘→
-                                                                              sym-⊩≡∷ ∘→ reducible-⊩≡∷ ∘→ subset*Term)
-                                                                             (escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩A ⊩σ)
-                                                                             (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) $
-                                                                              escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (fundamental-⊩ᵛ∷ ⊢t) ⊩σ)
-                                                                             (PE.subst (_⊢_∷_ _ _) (natrecSucCase _ A) $
-                                                                              escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[⇑⇑]∷ (fundamental-⊩ᵛ∷ ⊢u) ⊩σ)
-                                                                             t[σ]®t[σ′] u[σ⇑⇑]®u[σ′⇑⇑] ⟩
-          (natrec p q r (A [ σ ⇑ ]) (t [ σ ]) (u [ σ ⇑ ⇑ ]) (v [ σ ])
-             ®⟨ l ⟩
-             T.natrec (erase str t T.[ σ′ ])
-               (erase str u T.[ σ′ T.⇑ T.⇑ ]) (erase str v T.[ σ′ ]) ∷
-             A [ σ ⇑ ] [ v [ σ ] ]₀)                                    →⟨ ®∷→®∷◂ ∘→
-                                                                           PE.subst (_®⟨_⟩_∷_ _ _ _) (PE.sym $ singleSubstLift A _) ⟩
-          natrec p q r (A [ σ ⇑ ]) (t [ σ ]) (u [ σ ⇑ ⇑ ]) (v [ σ ])
-            ®⟨ l ⟩
-            T.natrec (erase str t T.[ σ′ ])
-              (erase str u T.[ σ′ T.⇑ T.⇑ ]) (erase str v T.[ σ′ ]) ∷
-            A [ v ]₀ [ σ ] ◂ 𝟙                                          □
-      ) }
+    v [ σ ] ® erase str v T.[ σ′ ] ∷ℕ                             →⟨ natrecʳ′
+                                                                       (⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩A) (refl-⊩ˢ≡∷ ⊩σ) ∘→
+                                                                        sym-⊩≡∷ ∘→ reducible-⊩≡∷ ∘→ subset*Term)
+                                                                       (escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩A ⊩σ)
+                                                                       (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) $
+                                                                        escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (fundamental-⊩ᵛ∷ ⊢t) ⊩σ)
+                                                                       (PE.subst (_⊢_∷_ _ _) (natrecSucCase _ A) $
+                                                                        escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[⇑⇑]∷ (fundamental-⊩ᵛ∷ ⊢u) ⊩σ)
+                                                                       t[σ]®t[σ′] u[σ⇑⇑]®u[σ′⇑⇑] ⟩
+    (natrec p q r (A [ σ ⇑ ]) (t [ σ ]) (u [ σ ⇑ ⇑ ]) (v [ σ ])
+       ®⟨ l ⟩
+       T.natrec (erase str t T.[ σ′ ])
+         (erase str u T.[ σ′ T.⇑ T.⇑ ]) (erase str v T.[ σ′ ]) ∷
+       A [ σ ⇑ ] [ v [ σ ] ]₀)                                    →⟨ ®∷→®∷◂ ∘→
+                                                                     PE.subst (_®⟨_⟩_∷_ _ _ _) (PE.sym $ singleSubstLift A _) ⟩
+    natrec p q r (A [ σ ⇑ ]) (t [ σ ]) (u [ σ ⇑ ⇑ ]) (v [ σ ])
+      ®⟨ l ⟩
+      T.natrec (erase str t T.[ σ′ ])
+        (erase str u T.[ σ′ T.⇑ T.⇑ ]) (erase str v T.[ σ′ ]) ∷
+      A [ v ]₀ [ σ ] ◂ 𝟙                                          □
     where
     open Tools.Reasoning.PropositionalEquality

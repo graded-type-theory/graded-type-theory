@@ -58,7 +58,6 @@ open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions TR UR
 import Graded.Erasure.LogicalRelation.Fundamental
 import Graded.Erasure.LogicalRelation.Hidden
 import Graded.Erasure.LogicalRelation.Irrelevance
-import Graded.Erasure.LogicalRelation.Subsumption
 
 open import Tools.Bool using (T; true)
 open import Tools.Empty
@@ -109,43 +108,21 @@ module _
 
     open Graded.Erasure.LogicalRelation as
     open Graded.Erasure.LogicalRelation.Fundamental.Fundamental TR UR FA
+    open Graded.Erasure.LogicalRelation.Hidden as
     open Graded.Erasure.LogicalRelation.Irrelevance as
-    open Graded.Erasure.LogicalRelation.Subsumption as
-
-    -- Helper lemma for WH reduction soundness of zero
-    -- If t ® v ∷ℕ  and t ⇒* zero then v ⇒* zero
-
-    soundness-zero′ : t ® v ∷ℕ → Δ ⊢ t ⇒* zero ∷ ℕ → v T.⇒* T.zero
-    soundness-zero′ (zeroᵣ t⇒zero′ v⇒zero) t⇒zero = v⇒zero
-    soundness-zero′ (sucᵣ t⇒suc v⇒suc _ t®v) t⇒zero
-      with whrDet*Term (t⇒zero , zeroₙ) (t⇒suc , sucₙ)
-    ... | ()
 
     -- WH reduction soundness of zero
     -- If t ⇒* zero and 𝟘ᶜ ▸ t then erase t ⇒* zero
 
     soundness-zero :
       Δ ⊢ t ⇒* zero ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t → erase str t T.⇒* T.zero
-    soundness-zero t⇒zero 𝟘▸t =
-      let ⊢t = redFirst*Term t⇒zero
-          [ℕ] , t®t′ = fundamentalErased ⊢t 𝟘▸t
-          t®t″ = irrelevanceTerm {l′ = ¹} [ℕ]
-                   (ℕᵣ (idRed:*: (ℕⱼ well-formed)))
-                   (t®t′ ◀≢𝟘 non-trivial)
-      in  soundness-zero′ t®t″ t⇒zero
-
-    -- Helper lemma for WH reduction soundness of suc
-    -- If t ® v ∷ℕ  and t ⇒* suc t′ then v ⇒* suc v′ and t′ ® v′ ∷ℕ
-    -- for some v′
-
-    soundness-suc′ : t ® v ∷ℕ → Δ ⊢ t ⇒* suc t′ ∷ ℕ
-                   → ∃ λ v′ → v T.⇒* T.suc v′ × t′ ® v′ ∷ℕ
-    soundness-suc′ (zeroᵣ t⇒zero v⇒zero) t⇒suc
-      with whrDet*Term (t⇒zero , zeroₙ) (t⇒suc , sucₙ)
-    ... | ()
-    soundness-suc′ (sucᵣ {v′ = v′} t⇒suc′ v⇒suc _ t®v) t⇒suc
-      with whrDet*Term (t⇒suc , sucₙ) (t⇒suc′ , sucₙ)
-    ... | PE.refl = v′ , (v⇒suc , t®v)
+    soundness-zero {t} t⇒*zero ▸t = $⟨ fundamentalErased-𝟙ᵐ (redFirst*Term t⇒*zero) ▸t ⟩
+      t ®⟨ ¹ ⟩ erase str t ∷ ℕ  ⇔⟨ ®∷ℕ⇔ ⟩→
+      t ® erase str t ∷ℕ        →⟨ (λ { (zeroᵣ _ ⇒*zero)    → ⇒*zero
+                                      ; (sucᵣ t⇒*suc _ _ _) →
+                                          case whrDet*Term (t⇒*zero , zeroₙ) (t⇒*suc , sucₙ) of λ ()
+                                      }) ⟩
+      erase str t T.⇒* T.zero   □
 
     -- WH reduction soundness of suc
     -- If t ⇒* suc t′ and 𝟘ᶜ ▸ t then erase t ⇒* suc v′ and t′ ® v′ ∷ℕ
@@ -153,13 +130,16 @@ module _
 
     soundness-suc : Δ ⊢ t ⇒* suc t′ ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t
                   → ∃ λ v′ → erase str t T.⇒* T.suc v′ × t′ ® v′ ∷ℕ
-    soundness-suc t⇒suc 𝟘▸t =
-      let ⊢t = redFirst*Term t⇒suc
-          [ℕ] , t®t′ = fundamentalErased ⊢t 𝟘▸t
-          t®t″ = irrelevanceTerm {l′ = ¹} [ℕ]
-                   (ℕᵣ (idRed:*: (ℕⱼ well-formed)))
-                   (t®t′ ◀≢𝟘 non-trivial)
-      in  soundness-suc′ t®t″ t⇒suc
+    soundness-suc {t} {t′} t⇒*suc ▸t =                   $⟨ fundamentalErased-𝟙ᵐ (redFirst*Term t⇒*suc) ▸t ⟩
+      t ®⟨ ¹ ⟩ erase str t ∷ ℕ                           ⇔⟨ ®∷ℕ⇔ ⟩→
+      t ® erase str t ∷ℕ                                 →⟨ (λ { (zeroᵣ t⇒*zero _) →
+                                                                   case whrDet*Term (t⇒*zero , zeroₙ) (t⇒*suc , sucₙ) of λ ()
+                                                               ; (sucᵣ t⇒*suc′ ⇒*suc _ t′®v′) →
+                                                                   case whrDet*Term (t⇒*suc , sucₙ) (t⇒*suc′ , sucₙ) of λ {
+                                                                     PE.refl →
+                                                                   _ , ⇒*suc , t′®v′ }
+                                                               }) ⟩
+      (∃ λ v′ → erase str t T.⇒* T.suc v′ × t′ ® v′ ∷ℕ)  □
 
     -- Helper lemma for soundness of natural numbers
 
@@ -206,7 +186,6 @@ module _
         public
       open Graded.Erasure.LogicalRelation.Hidden as public
       open Graded.Erasure.LogicalRelation.Irrelevance as public
-      open Graded.Erasure.LogicalRelation.Subsumption as public
 
     -- Soundness for erasure of natural numbers
     -- Well-typed terms of the natural number type reduce to numerals
@@ -217,15 +196,12 @@ module _
     soundness-ℕ :
       Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
       ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ × erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n
-    soundness-ℕ ⊢t 𝟘▸t =
-      let [ℕ] , t®v = fundamentalErased ⊢t 𝟘▸t
-      in  soundness-ℕ′ $
-          irrelevanceTerm {l′ = ¹} [ℕ] (ℕᵣ (idRed:*: (ℕⱼ ⊢Δ)))
-            (t®v ◀≢𝟘 non-trivial)
+    soundness-ℕ {t} ⊢t ▸t =                                            $⟨ fundamentalErased-𝟙ᵐ ⊢t ▸t ⟩
+      t ®⟨ ¹ ⟩ erase str t ∷ ℕ                                         ⇔⟨ ®∷ℕ⇔ ⟩→
+      t ® erase str t ∷ℕ                                               →⟨ soundness-ℕ′ ⟩
+      (∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ × erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n)  □
       where
-      ⊢Δ = wfTerm ⊢t
-
-      open L ⊢Δ
+      open L (wfTerm ⊢t)
 
     -- A variant of soundness-ℕ which only considers the source
     -- language.
