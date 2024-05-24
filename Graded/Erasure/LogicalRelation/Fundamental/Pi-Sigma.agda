@@ -201,7 +201,7 @@ opaque
                          , ((T.lam (erase str t) T.[ σ′ ]) T.∘⟨ str ⟩ v′  ⇒⟨ T.β-red _ ⟩
                             erase str t T.[ T.liftSubst σ′ ] T.[ v′ ]₀    ∎⇒)
                        (T.strict , PE.refl) →
-                         case reduces-to-value′ PE.refl t′®v′ of λ
+                         case reduces-to-value PE.refl t′®v′ of λ
                            (v″ , v″-value , v′⇒*v″) →
                            v″
                          , v′⇒*v″
@@ -436,11 +436,11 @@ opaque
                (T.non-strict , PE.refl) →
                  _ , T.refl , λ _ → _ , T.refl , T.refl
                (T.strict     , PE.refl) →
-                 case reduces-to-value′ PE.refl u[σ]® of λ
+                 case reduces-to-value PE.refl u[σ]® of λ
                    (v₂ , v₂-val , u[σ′]⇒*v₂) →
                    v₂ , u[σ′]⇒*v₂
                  , λ p≢𝟘 →
-                     case reduces-to-value′ PE.refl (t[σ]® p≢𝟘) of λ
+                     case reduces-to-value PE.refl (t[σ]® p≢𝟘) of λ
                        (v₁ , v₁-val , t[σ′]⇒*v₁) →
                        v₁ , t[σ′]⇒*v₁
                      , (T.lam (T.lam (T.prod (T.var x1) (T.var x0)))
@@ -998,7 +998,7 @@ opaque
                           (erase str t T.[ σ′ ]) ]               ∎⇒
               }
             (T.strict , PE.refl) →
-              case reduces-to-value′ PE.refl t₂®v₂ of λ
+              case reduces-to-value PE.refl t₂®v₂ of λ
                 (v₂′ , v₂′-val , v₂⇒*v₂′) → record
               { t₁            = t₁
               ; t₂            = t₂
