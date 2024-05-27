@@ -100,9 +100,9 @@ module _ (⊢Δ : ⊢ Δ) {s : Strictness} where
       γ ▸[ m ] var x →
       γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ var x ∷[ m ] A
     fundamentalVar {x} {A} {γ} {m} x∈Γ ▸x =
-      ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} σ®σ′ →
-      case ®∷[]◂→ σ®σ′ x∈Γ of λ
-        (l , _ , _ , σx®σ′x) →
+      ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} _ σ®σ′ →
+      case ®∷[]◂⇔ .proj₁ σ®σ′ x∈Γ of λ
+        (l , σx®σ′x) →
                                                    $⟨ σx®σ′x ⟩
       σ x ®⟨ l ⟩ σ′ x ∷ A [ σ ] ◂ ⌜ m ⌝ · γ ⟨ x ⟩  →⟨ subsumption-®∷◂ (lemma m (inv-usage-var ▸x)) ⟩
       σ x ®⟨ l ⟩ σ′ x ∷ A [ σ ] ◂ ⌜ m ⌝            →⟨ emb-®∷◂ LP.≤¹ ⟩
