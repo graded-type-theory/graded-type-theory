@@ -1,0 +1,430 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Everything</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- Graded modal type theory formalized in Agda</a>
+<a id="121" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="195" class="Keyword">module</a> <a id="202" href="Everything.html" class="Module">Everything</a> <a id="213" class="Keyword">where</a>
+
+<a id="220" class="Comment">------------------------------------------------------------------------</a>
+<a id="293" class="Comment">-- A small library</a>
+
+<a id="313" class="Keyword">import</a> <a id="320" href="Tools.Level.html" class="Module">Tools.Level</a>
+<a id="332" class="Keyword">import</a> <a id="339" href="Tools.Unit.html" class="Module">Tools.Unit</a>
+<a id="350" class="Keyword">import</a> <a id="357" href="Tools.Relation.html" class="Module">Tools.Relation</a>
+<a id="372" class="Keyword">import</a> <a id="379" href="Tools.Product.html" class="Module">Tools.Product</a>
+<a id="393" class="Keyword">import</a> <a id="400" href="Tools.PropositionalEquality.html" class="Module">Tools.PropositionalEquality</a>
+<a id="428" class="Keyword">import</a> <a id="435" href="Tools.Empty.html" class="Module">Tools.Empty</a>
+<a id="447" class="Keyword">import</a> <a id="454" href="Tools.Sum.html" class="Module">Tools.Sum</a>
+<a id="464" class="Keyword">import</a> <a id="471" href="Tools.Function.html" class="Module">Tools.Function</a>
+<a id="486" class="Keyword">import</a> <a id="493" href="Tools.Bool.html" class="Module">Tools.Bool</a>
+<a id="504" class="Keyword">import</a> <a id="511" href="Tools.Nat.html" class="Module">Tools.Nat</a>
+<a id="521" class="Keyword">import</a> <a id="528" href="Tools.Fin.html" class="Module">Tools.Fin</a>
+<a id="538" class="Keyword">import</a> <a id="545" href="Tools.List.html" class="Module">Tools.List</a>
+<a id="556" class="Keyword">import</a> <a id="563" href="Tools.Algebra.html" class="Module">Tools.Algebra</a>
+
+<a id="578" class="Keyword">import</a> <a id="585" href="Tools.Reasoning.Preorder.html" class="Module">Tools.Reasoning.Preorder</a>
+<a id="610" class="Keyword">import</a> <a id="617" href="Tools.Reasoning.Equivalence.html" class="Module">Tools.Reasoning.Equivalence</a>
+<a id="645" class="Keyword">import</a> <a id="652" href="Tools.Reasoning.PartialOrder.html" class="Module">Tools.Reasoning.PartialOrder</a>
+<a id="681" class="Keyword">import</a> <a id="688" href="Tools.Reasoning.PropositionalEquality.html" class="Module">Tools.Reasoning.PropositionalEquality</a>
+
+<a id="727" class="Comment">------------------------------------------------------------------------</a>
+<a id="800" class="Comment">-- Graded modalities</a>
+
+<a id="822" class="Keyword">import</a> <a id="829" href="Graded.Modality.Variant.html" class="Module">Graded.Modality.Variant</a>
+<a id="853" class="Keyword">import</a> <a id="860" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+<a id="876" class="Keyword">import</a> <a id="883" href="Graded.Modality.Nr-instances.html" class="Module">Graded.Modality.Nr-instances</a>
+<a id="912" class="Keyword">import</a> <a id="919" href="Graded.Modality.Dedicated-nr.html" class="Module">Graded.Modality.Dedicated-nr</a>
+<a id="948" class="Keyword">import</a> <a id="955" href="Graded.Modality.Dedicated-nr.Instance.html" class="Module">Graded.Modality.Dedicated-nr.Instance</a>
+
+<a id="994" class="Comment">------------------------------------------------------------------------</a>
+<a id="1067" class="Comment">-- The type theory&#39;s syntax</a>
+
+<a id="1096" class="Keyword">import</a> <a id="1103" href="Definition.Untyped.NotParametrised.html" class="Module">Definition.Untyped.NotParametrised</a>
+<a id="1138" class="Keyword">import</a> <a id="1145" href="Definition.Untyped.html" class="Module">Definition.Untyped</a>
+<a id="1164" class="Keyword">import</a> <a id="1171" href="Definition.Untyped.Inversion.html" class="Module">Definition.Untyped.Inversion</a>
+<a id="1200" class="Keyword">import</a> <a id="1207" href="Definition.Untyped.Properties.NotParametrised.html" class="Module">Definition.Untyped.Properties.NotParametrised</a>
+<a id="1253" class="Keyword">import</a> <a id="1260" href="Definition.Untyped.Properties.html" class="Module">Definition.Untyped.Properties</a>
+<a id="1290" class="Keyword">import</a> <a id="1297" href="Definition.Untyped.Identity.html" class="Module">Definition.Untyped.Identity</a>
+<a id="1325" class="Keyword">import</a> <a id="1332" href="Definition.Untyped.Sigma.html" class="Module">Definition.Untyped.Sigma</a>
+<a id="1357" class="Keyword">import</a> <a id="1364" href="Definition.Untyped.Unit.html" class="Module">Definition.Untyped.Unit</a>
+<a id="1388" class="Keyword">import</a> <a id="1395" href="Graded.Derived.Erased.Eta.Untyped.html" class="Module">Graded.Derived.Erased.Eta.Untyped</a>
+<a id="1429" class="Keyword">import</a> <a id="1436" href="Graded.Derived.Erased.NoEta.Untyped.html" class="Module">Graded.Derived.Erased.NoEta.Untyped</a>
+<a id="1472" class="Keyword">import</a> <a id="1479" href="Graded.Derived.Erased.Untyped.html" class="Module">Graded.Derived.Erased.Untyped</a>
+<a id="1509" class="Keyword">import</a> <a id="1516" href="Definition.Typed.Variant.html" class="Module">Definition.Typed.Variant</a>
+<a id="1541" class="Keyword">import</a> <a id="1548" href="Definition.Untyped.Neutral.html" class="Module">Definition.Untyped.Neutral</a>
+
+<a id="1576" class="Comment">------------------------------------------------------------------------</a>
+<a id="1649" class="Comment">-- The type theory</a>
+
+<a id="1669" class="Comment">-- Typing and conversion rules of language</a>
+<a id="1712" class="Keyword">import</a> <a id="1719" href="Definition.Typed.Restrictions.html" class="Module">Definition.Typed.Restrictions</a>
+<a id="1749" class="Keyword">import</a> <a id="1756" href="Definition.Typed.html" class="Module">Definition.Typed</a>
+<a id="1773" class="Keyword">import</a> <a id="1780" href="Definition.Typed.RedSteps.html" class="Module">Definition.Typed.RedSteps</a>
+<a id="1806" class="Keyword">import</a> <a id="1813" href="Definition.Typed.Reasoning.Type.html" class="Module">Definition.Typed.Reasoning.Type</a>
+<a id="1845" class="Keyword">import</a> <a id="1852" href="Definition.Typed.Reasoning.Term.html" class="Module">Definition.Typed.Reasoning.Term</a>
+<a id="1884" class="Keyword">import</a> <a id="1891" href="Definition.Typed.Reasoning.Reduction.Primitive.html" class="Module">Definition.Typed.Reasoning.Reduction.Primitive</a>
+<a id="1938" class="Keyword">import</a> <a id="1945" href="Definition.Typed.Properties.Well-formed.html" class="Module">Definition.Typed.Properties.Well-formed</a>
+<a id="1985" class="Keyword">import</a> <a id="1992" href="Graded.Derived.Erased.Typed.Primitive.html" class="Module">Graded.Derived.Erased.Typed.Primitive</a>
+<a id="2030" class="Keyword">import</a> <a id="2037" href="Definition.Typed.Properties.html" class="Module">Definition.Typed.Properties</a>
+<a id="2065" class="Keyword">import</a> <a id="2072" href="Definition.Typed.Weakening.html" class="Module">Definition.Typed.Weakening</a>
+<a id="2099" class="Keyword">import</a> <a id="2106" href="Definition.Typed.Reduction.html" class="Module">Definition.Typed.Reduction</a>
+<a id="2133" class="Keyword">import</a> <a id="2140" href="Definition.Typed.EqualityRelation.html" class="Module">Definition.Typed.EqualityRelation</a>
+<a id="2174" class="Keyword">import</a> <a id="2181" href="Definition.Typed.EqRelInstance.html" class="Module">Definition.Typed.EqRelInstance</a>
+
+<a id="2213" class="Comment">-- The logical relation for reducibility</a>
+<a id="2254" class="Keyword">import</a> <a id="2261" href="Definition.LogicalRelation.html" class="Module">Definition.LogicalRelation</a>
+<a id="2288" class="Keyword">import</a> <a id="2295" href="Definition.LogicalRelation.Properties.Whnf.html" class="Module">Definition.LogicalRelation.Properties.Whnf</a>
+<a id="2338" class="Keyword">import</a> <a id="2345" href="Definition.LogicalRelation.Properties.Reflexivity.html" class="Module">Definition.LogicalRelation.Properties.Reflexivity</a>
+<a id="2395" class="Keyword">import</a> <a id="2402" href="Definition.LogicalRelation.Properties.Escape.html" class="Module">Definition.LogicalRelation.Properties.Escape</a>
+<a id="2447" class="Keyword">import</a> <a id="2454" href="Definition.LogicalRelation.ShapeView.html" class="Module">Definition.LogicalRelation.ShapeView</a>
+<a id="2491" class="Keyword">import</a> <a id="2498" href="Definition.LogicalRelation.Irrelevance.html" class="Module">Definition.LogicalRelation.Irrelevance</a>
+<a id="2537" class="Keyword">import</a> <a id="2544" href="Definition.LogicalRelation.Properties.Conversion.html" class="Module">Definition.LogicalRelation.Properties.Conversion</a>
+<a id="2593" class="Keyword">import</a> <a id="2600" href="Definition.LogicalRelation.Properties.MaybeEmb.html" class="Module">Definition.LogicalRelation.Properties.MaybeEmb</a>
+<a id="2647" class="Keyword">import</a> <a id="2654" href="Definition.LogicalRelation.Properties.Symmetry.html" class="Module">Definition.LogicalRelation.Properties.Symmetry</a>
+<a id="2701" class="Keyword">import</a> <a id="2708" href="Definition.LogicalRelation.Properties.Neutral.html" class="Module">Definition.LogicalRelation.Properties.Neutral</a>
+<a id="2754" class="Keyword">import</a> <a id="2761" href="Definition.LogicalRelation.Properties.Universe.html" class="Module">Definition.LogicalRelation.Properties.Universe</a>
+<a id="2808" class="Keyword">import</a> <a id="2815" href="Definition.LogicalRelation.Properties.Transitivity.html" class="Module">Definition.LogicalRelation.Properties.Transitivity</a>
+<a id="2866" class="Keyword">import</a> <a id="2873" href="Definition.LogicalRelation.Properties.Reduction.html" class="Module">Definition.LogicalRelation.Properties.Reduction</a>
+<a id="2921" class="Keyword">import</a> <a id="2928" href="Definition.LogicalRelation.Properties.html" class="Module">Definition.LogicalRelation.Properties</a>
+<a id="2966" class="Keyword">import</a> <a id="2973" href="Definition.LogicalRelation.Weakening.html" class="Module">Definition.LogicalRelation.Weakening</a>
+<a id="3010" class="Keyword">import</a> <a id="3017" href="Definition.LogicalRelation.Application.html" class="Module">Definition.LogicalRelation.Application</a>
+
+<a id="3057" class="Comment">-- The logical relation for validity</a>
+<a id="3094" class="Keyword">import</a> <a id="3101" href="Definition.LogicalRelation.Substitution.html" class="Module">Definition.LogicalRelation.Substitution</a>
+<a id="3141" class="Keyword">import</a> <a id="3148" href="Definition.LogicalRelation.Substitution.Irrelevance.html" class="Module">Definition.LogicalRelation.Substitution.Irrelevance</a>
+<a id="3200" class="Keyword">import</a> <a id="3207" href="Definition.LogicalRelation.Substitution.Conversion.html" class="Module">Definition.LogicalRelation.Substitution.Conversion</a>
+<a id="3258" class="Keyword">import</a> <a id="3265" href="Definition.LogicalRelation.Substitution.Reduction.html" class="Module">Definition.LogicalRelation.Substitution.Reduction</a>
+<a id="3315" class="Keyword">import</a> <a id="3322" href="Definition.LogicalRelation.Substitution.Reflexivity.html" class="Module">Definition.LogicalRelation.Substitution.Reflexivity</a>
+<a id="3374" class="Keyword">import</a> <a id="3381" href="Definition.LogicalRelation.Substitution.Weakening.html" class="Module">Definition.LogicalRelation.Substitution.Weakening</a>
+<a id="3431" class="Keyword">import</a> <a id="3438" href="Definition.LogicalRelation.Substitution.MaybeEmbed.html" class="Module">Definition.LogicalRelation.Substitution.MaybeEmbed</a>
+<a id="3489" class="Keyword">import</a> <a id="3496" href="Definition.LogicalRelation.Substitution.Properties.html" class="Module">Definition.LogicalRelation.Substitution.Properties</a>
+<a id="3547" class="Keyword">import</a> <a id="3554" href="Definition.LogicalRelation.Substitution.Reducibility.html" class="Module">Definition.LogicalRelation.Substitution.Reducibility</a>
+<a id="3607" class="Keyword">import</a> <a id="3614" href="Definition.LogicalRelation.Substitution.Escape.html" class="Module">Definition.LogicalRelation.Substitution.Escape</a>
+
+<a id="3662" class="Comment">-- The fundamental lemma of the logical relations</a>
+<a id="3712" class="Keyword">import</a> <a id="3719" href="Definition.LogicalRelation.Substitution.Introductions.SingleSubst.html" class="Module">Definition.LogicalRelation.Substitution.Introductions.SingleSubst</a>
+<a id="3785" class="Keyword">import</a> <a id="3792" href="Definition.LogicalRelation.Substitution.Introductions.DoubleSubst.html" class="Module">Definition.LogicalRelation.Substitution.Introductions.DoubleSubst</a>
+<a id="3858" class="Keyword">import</a> <a id="3865" href="Definition.LogicalRelation.Hidden.html" class="Module">Definition.LogicalRelation.Hidden</a>
+<a id="3899" class="Keyword">import</a> <a id="3906" href="Definition.LogicalRelation.Substitution.Introductions.Var.html" class="Module">Definition.LogicalRelation.Substitution.Introductions.Var</a>
+<a id="3964" class="Keyword">import</a> <a id="3971" href="Definition.LogicalRelation.Substitution.Introductions.Universe.html" class="Module">Definition.LogicalRelation.Substitution.Introductions.Universe</a>
+<a id="4034" class="Keyword">import</a> <a id="4041" href="Definition.LogicalRelation.Substitution.Introductions.Empty.html" class="Module">Definition.LogicalRelation.Substitution.Introductions.Empty</a>
+<a id="4101" class="Keyword">import</a> <a id="4108" href="Definition.LogicalRelation.Substitution.Introductions.Emptyrec.html" class="Module">Definition.LogicalRelation.Substitution.Introductions.Emptyrec</a>
+<a id="4171" class="Keyword">import</a> <a id="4178" href="Definition.LogicalRelation.Substitution.Introductions.Unit.html" class="Module">Definition.LogicalRelation.Substitution.Introductions.Unit</a>
+<a id="4237" class="Keyword">import</a> <a id="4244" href="Definition.LogicalRelation.Substitution.Introductions.Nat.html" class="Module">Definition.LogicalRelation.Substitution.Introductions.Nat</a>
+<a id="4302" class="Keyword">import</a> <a id="4309" href="Definition.LogicalRelation.Substitution.Introductions.Pi-Sigma.html" class="Module">Definition.LogicalRelation.Substitution.Introductions.Pi-Sigma</a>
+<a id="4372" class="Keyword">import</a> <a id="4379" href="Definition.LogicalRelation.Substitution.Introductions.Pi.html" class="Module">Definition.LogicalRelation.Substitution.Introductions.Pi</a>
+<a id="4436" class="Keyword">import</a> <a id="4443" href="Definition.LogicalRelation.Substitution.Introductions.Lambda.html" class="Module">Definition.LogicalRelation.Substitution.Introductions.Lambda</a>
+<a id="4504" class="Keyword">import</a> <a id="4511" href="Definition.LogicalRelation.Substitution.Introductions.Application.html" class="Module">Definition.LogicalRelation.Substitution.Introductions.Application</a>
+<a id="4577" class="Keyword">import</a> <a id="4584" href="Definition.LogicalRelation.Substitution.Introductions.Prod.html" class="Module">Definition.LogicalRelation.Substitution.Introductions.Prod</a>
+<a id="4643" class="Keyword">import</a> <a id="4650" href="Definition.LogicalRelation.Substitution.Introductions.Fst.html" class="Module">Definition.LogicalRelation.Substitution.Introductions.Fst</a>
+<a id="4708" class="Keyword">import</a> <a id="4715" href="Definition.LogicalRelation.Substitution.Introductions.Snd.html" class="Module">Definition.LogicalRelation.Substitution.Introductions.Snd</a>
+<a id="4773" class="Keyword">import</a> <a id="4780" href="Definition.LogicalRelation.Substitution.Introductions.ProdBetaEta.html" class="Module">Definition.LogicalRelation.Substitution.Introductions.ProdBetaEta</a>
+<a id="4846" class="Keyword">import</a> <a id="4853" href="Definition.LogicalRelation.Substitution.Introductions.Prodrec.html" class="Module">Definition.LogicalRelation.Substitution.Introductions.Prodrec</a>
+<a id="4915" class="Keyword">import</a> <a id="4922" href="Definition.LogicalRelation.Substitution.Introductions.Erased.html" class="Module">Definition.LogicalRelation.Substitution.Introductions.Erased</a>
+<a id="4983" class="Keyword">import</a> <a id="4990" href="Definition.LogicalRelation.Substitution.Introductions.Identity.html" class="Module">Definition.LogicalRelation.Substitution.Introductions.Identity</a>
+<a id="5053" class="Keyword">import</a> <a id="5060" href="Definition.LogicalRelation.Substitution.Introductions.html" class="Module">Definition.LogicalRelation.Substitution.Introductions</a>
+<a id="5114" class="Keyword">import</a> <a id="5121" href="Definition.LogicalRelation.Fundamental.html" class="Module">Definition.LogicalRelation.Fundamental</a>
+<a id="5160" class="Keyword">import</a> <a id="5167" href="Definition.LogicalRelation.Fundamental.Reducibility.html" class="Module">Definition.LogicalRelation.Fundamental.Reducibility</a>
+
+<a id="5220" class="Comment">-- Consequences of the logical relation for typing</a>
+<a id="5271" class="Keyword">import</a> <a id="5278" href="Definition.Typed.Consequences.Injectivity.html" class="Module">Definition.Typed.Consequences.Injectivity</a>
+<a id="5320" class="Keyword">import</a> <a id="5327" href="Definition.Typed.Consequences.Syntactic.html" class="Module">Definition.Typed.Consequences.Syntactic</a>
+<a id="5367" class="Keyword">import</a> <a id="5374" href="Definition.Typed.Consequences.Inequality.html" class="Module">Definition.Typed.Consequences.Inequality</a>
+<a id="5415" class="Keyword">import</a> <a id="5422" href="Definition.Typed.Consequences.Substitution.html" class="Module">Definition.Typed.Consequences.Substitution</a>
+<a id="5465" class="Keyword">import</a> <a id="5472" href="Definition.Typed.Consequences.Stability.html" class="Module">Definition.Typed.Consequences.Stability</a>
+<a id="5512" class="Keyword">import</a> <a id="5519" href="Definition.Typed.Consequences.Inversion.html" class="Module">Definition.Typed.Consequences.Inversion</a>
+<a id="5559" class="Keyword">import</a> <a id="5566" href="Definition.Typed.Consequences.Equality.html" class="Module">Definition.Typed.Consequences.Equality</a>
+<a id="5605" class="Keyword">import</a> <a id="5612" href="Definition.Typed.Consequences.Canonicity.html" class="Module">Definition.Typed.Consequences.Canonicity</a>
+<a id="5653" class="Keyword">import</a> <a id="5660" href="Definition.Typed.Consequences.Reduction.html" class="Module">Definition.Typed.Consequences.Reduction</a>
+<a id="5700" class="Keyword">import</a> <a id="5707" href="Definition.Typed.Reasoning.Reduction.html" class="Module">Definition.Typed.Reasoning.Reduction</a>
+<a id="5744" class="Keyword">import</a> <a id="5751" href="Definition.Typed.Consequences.DerivedRules.Nat.html" class="Module">Definition.Typed.Consequences.DerivedRules.Nat</a>
+<a id="5798" class="Keyword">import</a> <a id="5805" href="Definition.Typed.Consequences.DerivedRules.Pi-Sigma.html" class="Module">Definition.Typed.Consequences.DerivedRules.Pi-Sigma</a>
+<a id="5857" class="Keyword">import</a> <a id="5864" href="Definition.Typed.Consequences.DerivedRules.Pi.html" class="Module">Definition.Typed.Consequences.DerivedRules.Pi</a>
+<a id="5910" class="Keyword">import</a> <a id="5917" href="Definition.Typed.Consequences.DerivedRules.Identity.html" class="Module">Definition.Typed.Consequences.DerivedRules.Identity</a>
+<a id="5969" class="Keyword">import</a> <a id="5976" href="Definition.Typed.Consequences.DerivedRules.Sigma.html" class="Module">Definition.Typed.Consequences.DerivedRules.Sigma</a>
+<a id="6025" class="Keyword">import</a> <a id="6032" href="Definition.Typed.Consequences.DerivedRules.Unit.html" class="Module">Definition.Typed.Consequences.DerivedRules.Unit</a>
+<a id="6080" class="Keyword">import</a> <a id="6087" href="Definition.Typed.Consequences.DerivedRules.html" class="Module">Definition.Typed.Consequences.DerivedRules</a>
+<a id="6130" class="Keyword">import</a> <a id="6137" href="Definition.Typed.Consequences.InverseUniv.html" class="Module">Definition.Typed.Consequences.InverseUniv</a>
+<a id="6179" class="Keyword">import</a> <a id="6186" href="Graded.Derived.Erased.Eta.Typed.Primitive.html" class="Module">Graded.Derived.Erased.Eta.Typed.Primitive</a>
+<a id="6228" class="Keyword">import</a> <a id="6235" href="Graded.Derived.Erased.Eta.Typed.html" class="Module">Graded.Derived.Erased.Eta.Typed</a>
+<a id="6267" class="Keyword">import</a> <a id="6274" href="Graded.Derived.Erased.NoEta.Typed.html" class="Module">Graded.Derived.Erased.NoEta.Typed</a>
+<a id="6308" class="Keyword">import</a> <a id="6315" href="Graded.Derived.Erased.Typed.Inversion.html" class="Module">Graded.Derived.Erased.Typed.Inversion</a>
+<a id="6353" class="Keyword">import</a> <a id="6360" href="Graded.Derived.Erased.Typed.html" class="Module">Graded.Derived.Erased.Typed</a>
+<a id="6388" class="Keyword">import</a> <a id="6395" href="Definition.Typed.Consequences.NeTypeEq.html" class="Module">Definition.Typed.Consequences.NeTypeEq</a>
+<a id="6434" class="Keyword">import</a> <a id="6441" href="Definition.Typed.Consequences.Consistency.html" class="Module">Definition.Typed.Consequences.Consistency</a>
+<a id="6483" class="Keyword">import</a> <a id="6490" href="Definition.Typed.Consequences.RedSteps.html" class="Module">Definition.Typed.Consequences.RedSteps</a>
+
+<a id="6530" class="Comment">-- Algorithmic equality with lemmas that depend on typing consequences</a>
+<a id="6601" class="Keyword">import</a> <a id="6608" href="Definition.Conversion.html" class="Module">Definition.Conversion</a>
+<a id="6630" class="Keyword">import</a> <a id="6637" href="Definition.Conversion.Whnf.html" class="Module">Definition.Conversion.Whnf</a>
+<a id="6664" class="Keyword">import</a> <a id="6671" href="Definition.Conversion.Reduction.html" class="Module">Definition.Conversion.Reduction</a>
+<a id="6703" class="Keyword">import</a> <a id="6710" href="Definition.Conversion.Soundness.html" class="Module">Definition.Conversion.Soundness</a>
+<a id="6742" class="Keyword">import</a> <a id="6749" href="Definition.Conversion.Stability.html" class="Module">Definition.Conversion.Stability</a>
+<a id="6781" class="Keyword">import</a> <a id="6788" href="Definition.Conversion.Conversion.html" class="Module">Definition.Conversion.Conversion</a>
+<a id="6821" class="Keyword">import</a> <a id="6828" href="Definition.Conversion.Symmetry.html" class="Module">Definition.Conversion.Symmetry</a>
+<a id="6859" class="Keyword">import</a> <a id="6866" href="Definition.Conversion.Transitivity.html" class="Module">Definition.Conversion.Transitivity</a>
+<a id="6901" class="Keyword">import</a> <a id="6908" href="Definition.Conversion.Weakening.html" class="Module">Definition.Conversion.Weakening</a>
+<a id="6940" class="Keyword">import</a> <a id="6947" href="Definition.Conversion.Lift.html" class="Module">Definition.Conversion.Lift</a>
+<a id="6974" class="Keyword">import</a> <a id="6981" href="Definition.Conversion.Universe.html" class="Module">Definition.Conversion.Universe</a>
+<a id="7012" class="Keyword">import</a> <a id="7019" href="Definition.Conversion.Decidable.html" class="Module">Definition.Conversion.Decidable</a>
+<a id="7051" class="Keyword">import</a> <a id="7058" href="Definition.Conversion.EqRelInstance.html" class="Module">Definition.Conversion.EqRelInstance</a>
+<a id="7094" class="Keyword">import</a> <a id="7101" href="Definition.Conversion.Consequences.Completeness.html" class="Module">Definition.Conversion.Consequences.Completeness</a>
+<a id="7149" class="Keyword">import</a> <a id="7156" href="Definition.Conversion.Consequences.Var.html" class="Module">Definition.Conversion.Consequences.Var</a>
+<a id="7195" class="Keyword">import</a> <a id="7202" href="Definition.Untyped.Normal-form.html" class="Module">Definition.Untyped.Normal-form</a>
+<a id="7233" class="Keyword">import</a> <a id="7240" href="Definition.Typed.Eta-long-normal-form.html" class="Module">Definition.Typed.Eta-long-normal-form</a>
+<a id="7278" class="Keyword">import</a> <a id="7285" href="Definition.Conversion.FullReduction.html" class="Module">Definition.Conversion.FullReduction</a>
+
+<a id="7322" class="Comment">-- Bi-directional typechecking</a>
+<a id="7353" class="Keyword">import</a> <a id="7360" href="Definition.Typechecking.html" class="Module">Definition.Typechecking</a>
+<a id="7384" class="Keyword">import</a> <a id="7391" href="Definition.Typechecking.Deterministic.html" class="Module">Definition.Typechecking.Deterministic</a>
+<a id="7429" class="Keyword">import</a> <a id="7436" href="Definition.Typechecking.Soundness.html" class="Module">Definition.Typechecking.Soundness</a>
+<a id="7470" class="Keyword">import</a> <a id="7477" href="Definition.Typechecking.Completeness.html" class="Module">Definition.Typechecking.Completeness</a>
+
+<a id="7515" class="Comment">-- Decidability of typing</a>
+<a id="7541" class="Keyword">import</a> <a id="7548" href="Definition.Typed.Decidable.Equality.html" class="Module">Definition.Typed.Decidable.Equality</a>
+<a id="7584" class="Keyword">import</a> <a id="7591" href="Definition.Typed.Decidable.Reduction.html" class="Module">Definition.Typed.Decidable.Reduction</a>
+<a id="7628" class="Keyword">import</a> <a id="7635" href="Definition.Typechecking.Decidable.Assumptions.html" class="Module">Definition.Typechecking.Decidable.Assumptions</a>
+<a id="7681" class="Keyword">import</a> <a id="7688" href="Definition.Typechecking.Decidable.html" class="Module">Definition.Typechecking.Decidable</a>
+<a id="7722" class="Keyword">import</a> <a id="7729" href="Definition.Typed.Decidable.html" class="Module">Definition.Typed.Decidable</a>
+
+<a id="7757" class="Comment">------------------------------------------------------------------------</a>
+<a id="7830" class="Comment">-- Graded modalities and usage</a>
+
+<a id="7862" class="Comment">-- Properties of the modality semiring</a>
+<a id="7901" class="Keyword">import</a> <a id="7908" href="Graded.Modality.Properties.PartialOrder.html" class="Module">Graded.Modality.Properties.PartialOrder</a>
+<a id="7948" class="Keyword">import</a> <a id="7955" href="Graded.Modality.Properties.Equivalence.html" class="Module">Graded.Modality.Properties.Equivalence</a>
+<a id="7994" class="Keyword">import</a> <a id="8001" href="Graded.Modality.Properties.Meet.html" class="Module">Graded.Modality.Properties.Meet</a>
+<a id="8033" class="Keyword">import</a> <a id="8040" href="Graded.Modality.Properties.Multiplication.html" class="Module">Graded.Modality.Properties.Multiplication</a>
+<a id="8082" class="Keyword">import</a> <a id="8089" href="Graded.Modality.Properties.Addition.html" class="Module">Graded.Modality.Properties.Addition</a>
+<a id="8125" class="Keyword">import</a> <a id="8132" href="Graded.Modality.Properties.Division.html" class="Module">Graded.Modality.Properties.Division</a>
+<a id="8168" class="Keyword">import</a> <a id="8175" href="Graded.Modality.Properties.Has-well-behaved-zero.html" class="Module">Graded.Modality.Properties.Has-well-behaved-zero</a>
+<a id="8224" class="Keyword">import</a> <a id="8231" href="Graded.Modality.Properties.Star.html" class="Module">Graded.Modality.Properties.Star</a>
+<a id="8263" class="Keyword">import</a> <a id="8270" href="Graded.Modality.Properties.html" class="Module">Graded.Modality.Properties</a>
+
+<a id="8298" class="Comment">-- Modality contexts and their properties</a>
+<a id="8340" class="Keyword">import</a> <a id="8347" href="Graded.Context.html" class="Module">Graded.Context</a>
+<a id="8362" class="Keyword">import</a> <a id="8369" href="Graded.Context.Properties.Equivalence.html" class="Module">Graded.Context.Properties.Equivalence</a>
+<a id="8407" class="Keyword">import</a> <a id="8414" href="Graded.Context.Properties.PartialOrder.html" class="Module">Graded.Context.Properties.PartialOrder</a>
+<a id="8453" class="Keyword">import</a> <a id="8460" href="Graded.Context.Properties.Meet.html" class="Module">Graded.Context.Properties.Meet</a>
+<a id="8491" class="Keyword">import</a> <a id="8498" href="Graded.Context.Properties.Addition.html" class="Module">Graded.Context.Properties.Addition</a>
+<a id="8533" class="Keyword">import</a> <a id="8540" href="Graded.Context.Properties.Multiplication.html" class="Module">Graded.Context.Properties.Multiplication</a>
+<a id="8581" class="Keyword">import</a> <a id="8588" href="Graded.Context.Properties.Natrec.html" class="Module">Graded.Context.Properties.Natrec</a>
+<a id="8621" class="Keyword">import</a> <a id="8628" href="Graded.Context.Properties.Star.html" class="Module">Graded.Context.Properties.Star</a>
+<a id="8659" class="Keyword">import</a> <a id="8666" href="Graded.Context.Properties.Lookup.html" class="Module">Graded.Context.Properties.Lookup</a>
+<a id="8699" class="Keyword">import</a> <a id="8706" href="Graded.Context.Properties.Update.html" class="Module">Graded.Context.Properties.Update</a>
+<a id="8739" class="Keyword">import</a> <a id="8746" href="Graded.Context.Properties.Has-well-behaved-zero.html" class="Module">Graded.Context.Properties.Has-well-behaved-zero</a>
+<a id="8794" class="Keyword">import</a> <a id="8801" href="Graded.Context.Properties.html" class="Module">Graded.Context.Properties</a>
+
+<a id="8828" class="Comment">-- Usage modes</a>
+<a id="8843" class="Keyword">import</a> <a id="8850" href="Graded.Mode.html" class="Module">Graded.Mode</a>
+
+<a id="8863" class="Comment">-- The usage relation and its properties</a>
+<a id="8904" class="Keyword">import</a> <a id="8911" href="Graded.Usage.Erased-matches.html" class="Module">Graded.Usage.Erased-matches</a>
+<a id="8939" class="Keyword">import</a> <a id="8946" href="Graded.Usage.Restrictions.html" class="Module">Graded.Usage.Restrictions</a>
+<a id="8972" class="Keyword">import</a> <a id="8979" href="Graded.Usage.html" class="Module">Graded.Usage</a>
+<a id="8992" class="Keyword">import</a> <a id="8999" href="Graded.Usage.Inversion.html" class="Module">Graded.Usage.Inversion</a>
+<a id="9022" class="Keyword">import</a> <a id="9029" href="Graded.Usage.Properties.html" class="Module">Graded.Usage.Properties</a>
+<a id="9053" class="Keyword">import</a> <a id="9060" href="Graded.Usage.Restrictions.Satisfied.html" class="Module">Graded.Usage.Restrictions.Satisfied</a>
+<a id="9096" class="Keyword">import</a> <a id="9103" href="Graded.Usage.Properties.Has-well-behaved-zero.html" class="Module">Graded.Usage.Properties.Has-well-behaved-zero</a>
+<a id="9149" class="Keyword">import</a> <a id="9156" href="Graded.Usage.Weakening.html" class="Module">Graded.Usage.Weakening</a>
+<a id="9179" class="Keyword">import</a> <a id="9186" href="Graded.Usage.Decidable.Assumptions.html" class="Module">Graded.Usage.Decidable.Assumptions</a>
+<a id="9221" class="Keyword">import</a> <a id="9228" href="Graded.Usage.Decidable.html" class="Module">Graded.Usage.Decidable</a>
+
+<a id="9252" class="Comment">-- Definitions related to type and usage restrictions</a>
+<a id="9306" class="Keyword">import</a> <a id="9313" href="Graded.Restrictions.html" class="Module">Graded.Restrictions</a>
+
+<a id="9334" class="Comment">-- Modality substitutions</a>
+<a id="9360" class="Keyword">import</a> <a id="9367" href="Graded.Substitution.html" class="Module">Graded.Substitution</a>
+<a id="9387" class="Keyword">import</a> <a id="9394" href="Graded.Substitution.Properties.html" class="Module">Graded.Substitution.Properties</a>
+<a id="9425" class="Keyword">import</a> <a id="9432" href="Graded.Substitution.Decidable.html" class="Module">Graded.Substitution.Decidable</a>
+
+<a id="9463" class="Comment">-- Assumptions used to state the theorems in</a>
+<a id="9508" class="Comment">-- Graded.FullReduction</a>
+<a id="9532" class="Keyword">import</a> <a id="9539" href="Graded.FullReduction.Assumptions.html" class="Module">Graded.FullReduction.Assumptions</a>
+
+<a id="9573" class="Comment">-- An investigation of to what degree weak Σ-types can emulate strong</a>
+<a id="9643" class="Comment">-- Σ-types, and vice versa.</a>
+<a id="9671" class="Keyword">import</a> <a id="9678" href="Graded.Derived.Sigma.html" class="Module">Graded.Derived.Sigma</a>
+
+<a id="9700" class="Comment">-- Properties related to usage and certain type formers.</a>
+<a id="9757" class="Keyword">import</a> <a id="9764" href="Graded.Derived.Identity.html" class="Module">Graded.Derived.Identity</a>
+<a id="9788" class="Keyword">import</a> <a id="9795" href="Graded.Derived.Unit.html" class="Module">Graded.Derived.Unit</a>
+
+<a id="9816" class="Comment">-- Some structures that are not modalities.</a>
+<a id="9860" class="Keyword">import</a> <a id="9867" href="Graded.Modality.Instances.Set.html" class="Module">Graded.Modality.Instances.Set</a>
+<a id="9897" class="Keyword">import</a> <a id="9904" href="Graded.Modality.Instances.Set.Non-empty.html" class="Module">Graded.Modality.Instances.Set.Non-empty</a>
+<a id="9944" class="Keyword">import</a> <a id="9951" href="Graded.Modality.Instances.Set.Non-empty.Implementation.html" class="Module">Graded.Modality.Instances.Set.Non-empty.Implementation</a>
+
+<a id="10007" class="Comment">-- Modality pseudo-instances</a>
+<a id="10036" class="Keyword">import</a> <a id="10043" href="Graded.Modality.Instances.LowerBounded.html" class="Module">Graded.Modality.Instances.LowerBounded</a>
+<a id="10082" class="Keyword">import</a> <a id="10089" href="Graded.Modality.Instances.BoundedStar.html" class="Module">Graded.Modality.Instances.BoundedStar</a>
+<a id="10127" class="Keyword">import</a> <a id="10134" href="Graded.Modality.Instances.Finite.html" class="Module">Graded.Modality.Instances.Finite</a>
+<a id="10167" class="Keyword">import</a> <a id="10174" href="Graded.Modality.Instances.Recursive.Sequences.html" class="Module">Graded.Modality.Instances.Recursive.Sequences</a>
+<a id="10220" class="Keyword">import</a> <a id="10227" href="Graded.Modality.Instances.Recursive.html" class="Module">Graded.Modality.Instances.Recursive</a>
+<a id="10263" class="Keyword">import</a> <a id="10270" href="Graded.Modality.Instances.Erasure.html" class="Module">Graded.Modality.Instances.Erasure</a>
+<a id="10304" class="Keyword">import</a> <a id="10311" href="Graded.Modality.Instances.Zero-one-many.html" class="Module">Graded.Modality.Instances.Zero-one-many</a>
+<a id="10351" class="Keyword">import</a> <a id="10358" href="Graded.Modality.Instances.Bounded-distributive-lattice.html" class="Module">Graded.Modality.Instances.Bounded-distributive-lattice</a>
+<a id="10413" class="Keyword">import</a> <a id="10420" href="Graded.Modality.Instances.Set.Interval.html" class="Module">Graded.Modality.Instances.Set.Interval</a>
+
+<a id="10460" class="Comment">-- Modality instances</a>
+<a id="10482" class="Keyword">import</a> <a id="10489" href="Graded.Modality.Instances.Erasure.Modality.html" class="Module">Graded.Modality.Instances.Erasure.Modality</a>
+<a id="10532" class="Keyword">import</a> <a id="10539" href="Graded.Modality.Instances.Erasure.Properties.html" class="Module">Graded.Modality.Instances.Erasure.Properties</a>
+<a id="10584" class="Keyword">import</a> <a id="10591" href="Graded.Modality.Instances.Unit.html" class="Module">Graded.Modality.Instances.Unit</a>
+<a id="10622" class="Keyword">import</a> <a id="10629" href="Graded.Modality.Instances.Affine.html" class="Module">Graded.Modality.Instances.Affine</a>
+<a id="10662" class="Keyword">import</a> <a id="10669" href="Graded.Modality.Instances.Linearity.html" class="Module">Graded.Modality.Instances.Linearity</a>
+<a id="10705" class="Keyword">import</a> <a id="10712" href="Graded.Modality.Instances.Linearity.Properties.html" class="Module">Graded.Modality.Instances.Linearity.Properties</a>
+<a id="10759" class="Keyword">import</a> <a id="10766" href="Graded.Modality.Instances.Linear-or-affine.html" class="Module">Graded.Modality.Instances.Linear-or-affine</a>
+<a id="10809" class="Keyword">import</a> <a id="10816" href="Graded.Modality.Instances.Information-flow.html" class="Module">Graded.Modality.Instances.Information-flow</a>
+<a id="10859" class="Keyword">import</a> <a id="10866" href="Graded.Modality.Instances.Zero-below-one.html" class="Module">Graded.Modality.Instances.Zero-below-one</a>
+<a id="10907" class="Keyword">import</a> <a id="10914" href="Graded.Modality.Instances.Nat-plus-infinity.html" class="Module">Graded.Modality.Instances.Nat-plus-infinity</a>
+<a id="10958" class="Keyword">import</a>
+  <a id="10967" href="Graded.Modality.Instances.Bounded-distributive-lattice.No-division.html" class="Module">Graded.Modality.Instances.Bounded-distributive-lattice.No-division</a>
+<a id="11034" class="Keyword">import</a>
+  <a id="11043" href="Graded.Modality.Instances.Bounded-distributive-lattice.Nat-plus-infinity.html" class="Module">Graded.Modality.Instances.Bounded-distributive-lattice.Nat-plus-infinity</a>
+<a id="11116" class="Keyword">import</a>
+  <a id="11125" href="Graded.Modality.Instances.Bounded-distributive-lattice.Downward-closed.html" class="Module">Graded.Modality.Instances.Bounded-distributive-lattice.Downward-closed</a>
+<a id="11196" class="Keyword">import</a> <a id="11203" href="Graded.Modality.Instances.Set.Interval.Implementation.html" class="Module">Graded.Modality.Instances.Set.Interval.Implementation</a>
+
+<a id="11258" class="Comment">-- Some examples.</a>
+<a id="11276" class="Keyword">import</a> <a id="11283" href="Graded.Modality.Instances.Examples.html" class="Module">Graded.Modality.Instances.Examples</a>
+<a id="11318" class="Keyword">import</a> <a id="11325" href="Graded.Modality.Instances.Affine.Bad.html" class="Module">Graded.Modality.Instances.Affine.Bad</a>
+<a id="11362" class="Keyword">import</a> <a id="11369" href="Graded.Modality.Instances.Affine.Bad.No-dedicated-nr.html" class="Module">Graded.Modality.Instances.Affine.Bad.No-dedicated-nr</a>
+<a id="11422" class="Keyword">import</a> <a id="11429" href="Graded.Modality.Instances.Affine.Good.html" class="Module">Graded.Modality.Instances.Affine.Good</a>
+<a id="11467" class="Keyword">import</a> <a id="11474" href="Graded.Modality.Instances.Linear-or-affine.Bad.html" class="Module">Graded.Modality.Instances.Linear-or-affine.Bad</a>
+<a id="11521" class="Keyword">import</a> <a id="11528" href="Graded.Modality.Instances.Linear-or-affine.Bad.No-dedicated-nr.html" class="Module">Graded.Modality.Instances.Linear-or-affine.Bad.No-dedicated-nr</a>
+<a id="11591" class="Keyword">import</a> <a id="11598" href="Graded.Modality.Instances.Linear-or-affine.Good.html" class="Module">Graded.Modality.Instances.Linear-or-affine.Good</a>
+<a id="11646" class="Keyword">import</a> <a id="11653" href="Graded.Modality.Instances.Linearity.Bad.html" class="Module">Graded.Modality.Instances.Linearity.Bad</a>
+<a id="11693" class="Keyword">import</a> <a id="11700" href="Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr.html" class="Module">Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr</a>
+<a id="11756" class="Keyword">import</a> <a id="11763" href="Graded.Modality.Instances.Linearity.Good.html" class="Module">Graded.Modality.Instances.Linearity.Good</a>
+
+<a id="11805" class="Comment">-- The type Erased.</a>
+<a id="11825" class="Keyword">import</a> <a id="11832" href="Graded.Derived.Erased.Eta.Typed.Inversion.html" class="Module">Graded.Derived.Erased.Eta.Typed.Inversion</a>
+<a id="11874" class="Keyword">import</a> <a id="11881" href="Graded.Derived.Erased.NoEta.Typed.Inversion.html" class="Module">Graded.Derived.Erased.NoEta.Typed.Inversion</a>
+<a id="11925" class="Keyword">import</a> <a id="11932" href="Graded.Derived.Erased.Eta.Usage.html" class="Module">Graded.Derived.Erased.Eta.Usage</a>
+<a id="11964" class="Keyword">import</a> <a id="11971" href="Graded.Derived.Erased.NoEta.Usage.html" class="Module">Graded.Derived.Erased.NoEta.Usage</a>
+<a id="12005" class="Keyword">import</a> <a id="12012" href="Graded.Derived.Erased.Usage.html" class="Module">Graded.Derived.Erased.Usage</a>
+
+<a id="12041" class="Comment">-- The type Unrestricted (defined using a strong Σ-type).</a>
+<a id="12099" class="Keyword">import</a> <a id="12106" href="Graded.Derived.Unrestricted.Eta.Untyped.html" class="Module">Graded.Derived.Unrestricted.Eta.Untyped</a>
+<a id="12146" class="Keyword">import</a> <a id="12153" href="Graded.Derived.Unrestricted.Eta.Typed.html" class="Module">Graded.Derived.Unrestricted.Eta.Typed</a>
+<a id="12191" class="Keyword">import</a> <a id="12198" href="Graded.Derived.Unrestricted.Eta.Usage.html" class="Module">Graded.Derived.Unrestricted.Eta.Usage</a>
+
+<a id="12237" class="Comment">-- Subject reduction for modalities.</a>
+<a id="12274" class="Keyword">import</a> <a id="12281" href="Graded.Reduction.html" class="Module">Graded.Reduction</a>
+
+<a id="12299" class="Comment">-- A &quot;full reduction&quot; lemma for modalities.</a>
+<a id="12343" class="Keyword">import</a> <a id="12350" href="Graded.FullReduction.html" class="Module">Graded.FullReduction</a>
+
+<a id="12372" class="Comment">-- Modality morphisms and quantity translations</a>
+<a id="12420" class="Keyword">import</a> <a id="12427" href="Definition.Untyped.QuantityTranslation.html" class="Module">Definition.Untyped.QuantityTranslation</a>
+<a id="12466" class="Keyword">import</a> <a id="12473" href="Definition.Untyped.QuantityTranslation.Identity.html" class="Module">Definition.Untyped.QuantityTranslation.Identity</a>
+<a id="12521" class="Keyword">import</a> <a id="12528" href="Graded.Modality.Morphism.html" class="Module">Graded.Modality.Morphism</a>
+<a id="12553" class="Keyword">import</a> <a id="12560" href="Graded.Modality.Morphism.Examples.html" class="Module">Graded.Modality.Morphism.Examples</a>
+<a id="12594" class="Keyword">import</a> <a id="12601" href="Graded.Modality.Morphism.Forward-instances.html" class="Module">Graded.Modality.Morphism.Forward-instances</a>
+<a id="12644" class="Keyword">import</a> <a id="12651" href="Graded.Modality.Morphism.Backward-instances.html" class="Module">Graded.Modality.Morphism.Backward-instances</a>
+<a id="12695" class="Keyword">import</a> <a id="12702" href="Graded.Modality.Morphism.Type-restrictions.html" class="Module">Graded.Modality.Morphism.Type-restrictions</a>
+<a id="12745" class="Keyword">import</a> <a id="12752" href="Graded.Modality.Morphism.Type-restrictions.Examples.html" class="Module">Graded.Modality.Morphism.Type-restrictions.Examples</a>
+<a id="12804" class="Keyword">import</a> <a id="12811" href="Graded.Modality.Morphism.Usage-restrictions.html" class="Module">Graded.Modality.Morphism.Usage-restrictions</a>
+<a id="12855" class="Keyword">import</a> <a id="12862" href="Graded.Modality.Morphism.Usage-restrictions.Examples.html" class="Module">Graded.Modality.Morphism.Usage-restrictions.Examples</a>
+<a id="12915" class="Keyword">import</a> <a id="12922" href="Definition.Typed.QuantityTranslation.html" class="Module">Definition.Typed.QuantityTranslation</a>
+<a id="12959" class="Keyword">import</a> <a id="12966" href="Graded.Context.QuantityTranslation.html" class="Module">Graded.Context.QuantityTranslation</a>
+<a id="13001" class="Keyword">import</a> <a id="13008" href="Graded.Mode.QuantityTranslation.html" class="Module">Graded.Mode.QuantityTranslation</a>
+<a id="13040" class="Keyword">import</a> <a id="13047" href="Graded.Usage.QuantityTranslation.html" class="Module">Graded.Usage.QuantityTranslation</a>
+
+<a id="13081" class="Comment">-- Extended modalities.</a>
+
+<a id="13106" class="Keyword">import</a> <a id="13113" href="Graded.Modality.Extended.html" class="Module">Graded.Modality.Extended</a>
+<a id="13138" class="Keyword">import</a> <a id="13145" href="Graded.Modality.Extended.K-allowed.html" class="Module">Graded.Modality.Extended.K-allowed</a>
+<a id="13180" class="Keyword">import</a> <a id="13187" href="Graded.Modality.Extended.K-not-allowed.Erased-matches.html" class="Module">Graded.Modality.Extended.K-not-allowed.Erased-matches</a>
+<a id="13241" class="Keyword">import</a> <a id="13248" href="Graded.Modality.Extended.K-not-allowed.Only-some-erased-matches.html" class="Module">Graded.Modality.Extended.K-not-allowed.Only-some-erased-matches</a>
+<a id="13312" class="Keyword">import</a> <a id="13319" href="Graded.Modality.Extended.K-not-allowed.No-erased-matches.html" class="Module">Graded.Modality.Extended.K-not-allowed.No-erased-matches</a>
+
+<a id="13377" class="Comment">------------------------------------------------------------------------</a>
+<a id="13450" class="Comment">-- A case study: erasure</a>
+
+<a id="13476" class="Comment">-- Target language</a>
+
+<a id="13496" class="Keyword">import</a> <a id="13503" href="Graded.Erasure.Target.html" class="Module">Graded.Erasure.Target</a>
+<a id="13525" class="Keyword">import</a> <a id="13532" href="Graded.Erasure.Target.Properties.Weakening.html" class="Module">Graded.Erasure.Target.Properties.Weakening</a>
+<a id="13575" class="Keyword">import</a> <a id="13582" href="Graded.Erasure.Target.Properties.Substitution.html" class="Module">Graded.Erasure.Target.Properties.Substitution</a>
+<a id="13628" class="Keyword">import</a> <a id="13635" href="Graded.Erasure.Target.Properties.Reduction.html" class="Module">Graded.Erasure.Target.Properties.Reduction</a>
+<a id="13678" class="Keyword">import</a> <a id="13685" href="Graded.Erasure.Target.Properties.html" class="Module">Graded.Erasure.Target.Properties</a>
+<a id="13718" class="Keyword">import</a> <a id="13725" href="Graded.Erasure.Target.Reasoning.html" class="Module">Graded.Erasure.Target.Reasoning</a>
+<a id="13757" class="Keyword">import</a> <a id="13764" href="Graded.Erasure.Target.Non-terminating.html" class="Module">Graded.Erasure.Target.Non-terminating</a>
+
+<a id="13803" class="Comment">-- Extraction</a>
+
+<a id="13818" class="Keyword">import</a> <a id="13825" href="Graded.Erasure.Extraction.html" class="Module">Graded.Erasure.Extraction</a>
+<a id="13851" class="Keyword">import</a> <a id="13858" href="Graded.Erasure.Extraction.Properties.html" class="Module">Graded.Erasure.Extraction.Properties</a>
+<a id="13895" class="Keyword">import</a> <a id="13902" href="Graded.Erasure.Extraction.Non-terminating.html" class="Module">Graded.Erasure.Extraction.Non-terminating</a>
+
+<a id="13945" class="Comment">-- Logical relation for Erasure</a>
+
+<a id="13978" class="Keyword">import</a> <a id="13985" href="Graded.Erasure.LogicalRelation.Assumptions.html" class="Module">Graded.Erasure.LogicalRelation.Assumptions</a>
+<a id="14028" class="Keyword">import</a> <a id="14035" href="Graded.Erasure.LogicalRelation.html" class="Module">Graded.Erasure.LogicalRelation</a>
+<a id="14066" class="Keyword">import</a> <a id="14073" href="Graded.Erasure.LogicalRelation.Conversion.html" class="Module">Graded.Erasure.LogicalRelation.Conversion</a>
+<a id="14115" class="Keyword">import</a> <a id="14122" href="Graded.Erasure.LogicalRelation.Irrelevance.html" class="Module">Graded.Erasure.LogicalRelation.Irrelevance</a>
+<a id="14165" class="Keyword">import</a> <a id="14172" href="Graded.Erasure.LogicalRelation.Reduction.html" class="Module">Graded.Erasure.LogicalRelation.Reduction</a>
+<a id="14213" class="Keyword">import</a> <a id="14220" href="Graded.Erasure.LogicalRelation.Hidden.html" class="Module">Graded.Erasure.LogicalRelation.Hidden</a>
+<a id="14258" class="Keyword">import</a> <a id="14265" href="Graded.Erasure.LogicalRelation.Value.html" class="Module">Graded.Erasure.LogicalRelation.Value</a>
+
+<a id="14303" class="Comment">-- The fundamental lemma of the logical relation</a>
+
+<a id="14353" class="Keyword">import</a> <a id="14360" href="Graded.Erasure.LogicalRelation.Fundamental.Empty.html" class="Module">Graded.Erasure.LogicalRelation.Fundamental.Empty</a>
+<a id="14409" class="Keyword">import</a> <a id="14416" href="Graded.Erasure.LogicalRelation.Fundamental.Nat.html" class="Module">Graded.Erasure.LogicalRelation.Fundamental.Nat</a>
+<a id="14463" class="Keyword">import</a> <a id="14470" href="Graded.Erasure.LogicalRelation.Fundamental.Pi-Sigma.html" class="Module">Graded.Erasure.LogicalRelation.Fundamental.Pi-Sigma</a>
+<a id="14522" class="Keyword">import</a> <a id="14529" href="Graded.Erasure.LogicalRelation.Fundamental.Unit.html" class="Module">Graded.Erasure.LogicalRelation.Fundamental.Unit</a>
+<a id="14577" class="Keyword">import</a> <a id="14584" href="Graded.Erasure.LogicalRelation.Fundamental.Identity.html" class="Module">Graded.Erasure.LogicalRelation.Fundamental.Identity</a>
+<a id="14636" class="Keyword">import</a> <a id="14643" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html" class="Module">Graded.Erasure.LogicalRelation.Fundamental.Assumptions</a>
+<a id="14698" class="Keyword">import</a> <a id="14705" href="Graded.Erasure.LogicalRelation.Fundamental.html" class="Module">Graded.Erasure.LogicalRelation.Fundamental</a>
+
+<a id="14749" class="Comment">-- Soundness of Extraction function</a>
+<a id="14785" class="Keyword">import</a> <a id="14792" href="Graded.Erasure.SucRed.html" class="Module">Graded.Erasure.SucRed</a>
+<a id="14814" class="Keyword">import</a> <a id="14821" href="Graded.Erasure.Consequences.Soundness.html" class="Module">Graded.Erasure.Consequences.Soundness</a>
+<a id="14859" class="Keyword">import</a> <a id="14866" href="Graded.Erasure.Consequences.Soundness.Erased-matches.html" class="Module">Graded.Erasure.Consequences.Soundness.Erased-matches</a>
+
+<a id="14920" class="Comment">-- The fundamental lemma does not hold in general without the</a>
+<a id="14982" class="Comment">-- assumption that erased matches are disallowed or the context is</a>
+<a id="15049" class="Comment">-- empty</a>
+<a id="15058" class="Keyword">import</a> <a id="15065" href="Graded.Erasure.LogicalRelation.Fundamental.Counterexample.html" class="Module">Graded.Erasure.LogicalRelation.Fundamental.Counterexample</a>
+
+<a id="15124" class="Comment">-- Non-interference</a>
+<a id="15144" class="Keyword">import</a> <a id="15151" href="Graded.Erasure.Consequences.Non-interference.html" class="Module">Graded.Erasure.Consequences.Non-interference</a>
+
+<a id="15197" class="Comment">-- More consequences of the fundamental lemma.</a>
+<a id="15244" class="Keyword">import</a> <a id="15251" href="Graded.Erasure.Consequences.Identity.html" class="Module">Graded.Erasure.Consequences.Identity</a>
+<a id="15288" class="Keyword">import</a> <a id="15295" href="Graded.Erasure.Consequences.Resurrectable.html" class="Module">Graded.Erasure.Consequences.Resurrectable</a>
+
+<a id="15338" class="Comment">-- A result related to neutral terms and usage.</a>
+<a id="15386" class="Keyword">import</a> <a id="15393" href="Graded.Neutral.html" class="Module">Graded.Neutral</a>
+
+<a id="15409" class="Comment">-- Some discussion of under what circumstances a []-cong combinator</a>
+<a id="15477" class="Comment">-- can be defined.</a>
+<a id="15496" class="Keyword">import</a> <a id="15503" href="Graded.Box-cong.html" class="Module">Graded.Box-cong</a>
+
+<a id="15520" class="Comment">-- Some examples related to the erasure modality and extraction</a>
+
+<a id="15585" class="Keyword">import</a> <a id="15592" href="Graded.Erasure.Examples.html" class="Module">Graded.Erasure.Examples</a>
+
+<a id="15617" class="Comment">------------------------------------------------------------------------</a>
+<a id="15690" class="Comment">-- Some applications</a>
+
+<a id="15712" class="Comment">-- Application: consistent negative axioms preserve canonicity</a>
+<a id="15775" class="Keyword">import</a> <a id="15782" href="Application.NegativeAxioms.NegativeType.html" class="Module">Application.NegativeAxioms.NegativeType</a>
+<a id="15822" class="Keyword">import</a> <a id="15829" href="Application.NegativeAxioms.NegativeContext.html" class="Module">Application.NegativeAxioms.NegativeContext</a>
+<a id="15872" class="Keyword">import</a> <a id="15879" href="Application.NegativeAxioms.Canonicity.html" class="Module">Application.NegativeAxioms.Canonicity</a>
+
+<a id="15918" class="Comment">-- Application: consistent negative or erased axioms preserve canonicity</a>
+<a id="15991" class="Keyword">import</a> <a id="15998" href="Application.NegativeOrErasedAxioms.NegativeOrErasedType.html" class="Module">Application.NegativeOrErasedAxioms.NegativeOrErasedType</a>
+<a id="16054" class="Keyword">import</a> <a id="16061" href="Application.NegativeOrErasedAxioms.NegativeOrErasedContext.html" class="Module">Application.NegativeOrErasedAxioms.NegativeOrErasedContext</a>
+<a id="16120" class="Keyword">import</a> <a id="16127" href="Application.NegativeOrErasedAxioms.Canonicity.html" class="Module">Application.NegativeOrErasedAxioms.Canonicity</a>
+<a id="16173" class="Comment">-- ... but not if matching is allowed on erased pairs</a>
+<a id="16227" class="Keyword">import</a> <a id="16234" href="Application.NegativeOrErasedAxioms.Canonicity.ErasedMatches.html" class="Module">Application.NegativeOrErasedAxioms.Canonicity.ErasedMatches</a>
+
+<a id="16295" class="Comment">------------------------------------------------------------------------</a>
+<a id="16368" class="Comment">-- Pointers to code related to a paper</a>
+
+<a id="16408" class="Comment">-- Pointers to code related to the paper &quot;A Graded Modal Dependent</a>
+<a id="16475" class="Comment">-- Type Theory with a Universe and Erasure, Formalized&quot;.</a>
+<a id="16532" class="Keyword">import</a> <a id="16539" href="README.html" class="Module">README</a>
+</pre></body></html>
