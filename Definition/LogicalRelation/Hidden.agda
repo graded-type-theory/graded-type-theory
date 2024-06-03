@@ -363,6 +363,105 @@ opaque
         (Irr.irrelevanceSubstEq _ _ _ _ _ ⊩σ₂ σ₂≡σ₃)
 
 ------------------------------------------------------------------------
+-- Well-formedness lemmas
+
+opaque
+  unfolding _⊩⟨_⟩_∷_
+
+  -- A well-formedness lemma for _⊩⟨_⟩_∷_.
+
+  wf-⊩∷ : Γ ⊩⟨ l ⟩ t ∷ A → Γ ⊩⟨ l ⟩ A
+  wf-⊩∷ (⊩A , _) = ⊩A
+
+opaque
+  unfolding _⊩⟨_⟩_≡_
+
+  -- A well-formedness lemma for _⊩⟨_⟩_≡_.
+
+  wf-⊩≡ : Γ ⊩⟨ l ⟩ A ≡ B → Γ ⊩⟨ l ⟩ A × Γ ⊩⟨ l ⟩ B
+  wf-⊩≡ (⊩A , ⊩B , _) = ⊩A , ⊩B
+
+opaque
+  unfolding _⊩⟨_⟩_∷_ _⊩⟨_⟩_≡_∷_
+
+  -- A well-formedness lemma for _⊩⟨_⟩_≡_∷_.
+
+  wf-⊩≡∷ :
+    Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
+    Γ ⊩⟨ l ⟩ t ∷ A × Γ ⊩⟨ l ⟩ u ∷ A
+  wf-⊩≡∷ (⊩A , ⊩t , ⊩u , _) = (⊩A , ⊩t) , (⊩A , ⊩u)
+
+opaque
+  unfolding _⊩ᵛ⟨_⟩_
+
+  -- A well-formedness lemma for ⊩ᵛ_.
+
+  wf-⊩ᵛ-∙ : ⊩ᵛ Γ ∙ A → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ A
+  wf-⊩ᵛ-∙ (_ ∙ ⊩A) = _ , _ , ⊩A
+
+opaque
+  unfolding _⊩ᵛ⟨_⟩_
+
+  -- A well-formedness lemma for _⊩ᵛ⟨_⟩_.
+
+  wf-⊩ᵛ : Γ ⊩ᵛ⟨ l ⟩ A → ⊩ᵛ Γ
+  wf-⊩ᵛ (⊩Γ , _) = ⊩Γ
+
+opaque
+  unfolding _⊩ᵛ⟨_⟩_
+
+  -- Another well-formedness lemma for _⊩ᵛ⟨_⟩_.
+
+  wf-∙-⊩ᵛ :
+    Γ ∙ A ⊩ᵛ⟨ l ⟩ B →
+    ∃ λ l′ → Γ ⊩ᵛ⟨ l′ ⟩ A
+  wf-∙-⊩ᵛ ⊩B =
+    case wf-⊩ᵛ ⊩B of λ {
+      (_ ∙ ⊩A) →
+    _ , _ , ⊩A }
+
+opaque
+  unfolding _⊩ᵛ⟨_⟩_ _⊩ᵛ⟨_⟩_∷_
+
+  -- A well-formedness lemma for _⊩ᵛ⟨_⟩_∷_.
+
+  wf-⊩ᵛ∷ : Γ ⊩ᵛ⟨ l ⟩ t ∷ A → Γ ⊩ᵛ⟨ l ⟩ A
+  wf-⊩ᵛ∷ (_ , ⊩A , _) = _ , ⊩A
+
+opaque
+  unfolding _⊩ˢ_∷_
+
+  -- A well-formedness lemma for _⊩ˢ_∷_.
+
+  wf-⊩ˢ∷ : Δ ⊩ˢ σ ∷ Γ → ⊩ᵛ Γ
+  wf-⊩ˢ∷ (⊩Γ , _) = ⊩Γ
+
+opaque
+  unfolding _⊩ᵛ⟨_⟩_ _⊩ᵛ⟨_⟩_≡_
+
+  -- A well-formedness lemma for _⊩ᵛ⟨_⟩_≡_.
+
+  wf-⊩ᵛ≡ : Γ ⊩ᵛ⟨ l ⟩ A ≡ B → Γ ⊩ᵛ⟨ l ⟩ A × Γ ⊩ᵛ⟨ l ⟩ B
+  wf-⊩ᵛ≡ (_ , ⊩A , ⊩B , _) = (_ , ⊩A) , (_ , ⊩B)
+
+opaque
+  unfolding _⊩ᵛ⟨_⟩_∷_ _⊩ᵛ⟨_⟩_≡_∷_
+
+  -- A well-formedness lemma for _⊩ᵛ⟨_⟩_≡_∷_.
+
+  wf-⊩ᵛ≡∷ : Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A → Γ ⊩ᵛ⟨ l ⟩ t ∷ A × Γ ⊩ᵛ⟨ l ⟩ u ∷ A
+  wf-⊩ᵛ≡∷ (_ , modelsTermEq ⊩A ⊩t ⊩u _) =
+    (_ , ⊩A , ⊩t) , (_ , ⊩A , ⊩u)
+
+opaque
+  unfolding _⊩ˢ_∷_ _⊩ˢ_≡_∷_
+
+  -- A well-formedness lemma for _⊩ˢ_≡_∷_.
+
+  wf-⊩ˢ≡∷ : Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ → Δ ⊩ˢ σ₁ ∷ Γ × Δ ⊩ˢ σ₂ ∷ Γ
+  wf-⊩ˢ≡∷ (_ , _ , ⊩σ₁ , ⊩σ₂ , _) = (_ , _ , ⊩σ₁) , (_ , _ , ⊩σ₂)
+
+------------------------------------------------------------------------
 -- Changing type levels
 
 opaque
@@ -670,105 +769,6 @@ opaque
       _
     , modelsTermEq (wk1ᵛ _ ⊩B ⊩A) (wk1Termᵛ t ⊩A ⊩B ⊩t)
         (wk1Termᵛ u ⊩A ⊩B ⊩u) (wk1EqTermᵛ t u t≡u)
-
-------------------------------------------------------------------------
--- Well-formedness lemmas
-
-opaque
-  unfolding _⊩⟨_⟩_∷_
-
-  -- A well-formedness lemma for _⊩⟨_⟩_∷_.
-
-  wf-⊩∷ : Γ ⊩⟨ l ⟩ t ∷ A → Γ ⊩⟨ l ⟩ A
-  wf-⊩∷ (⊩A , _) = ⊩A
-
-opaque
-  unfolding _⊩⟨_⟩_≡_
-
-  -- A well-formedness lemma for _⊩⟨_⟩_≡_.
-
-  wf-⊩≡ : Γ ⊩⟨ l ⟩ A ≡ B → Γ ⊩⟨ l ⟩ A × Γ ⊩⟨ l ⟩ B
-  wf-⊩≡ (⊩A , ⊩B , _) = ⊩A , ⊩B
-
-opaque
-  unfolding _⊩⟨_⟩_∷_ _⊩⟨_⟩_≡_∷_
-
-  -- A well-formedness lemma for _⊩⟨_⟩_≡_∷_.
-
-  wf-⊩≡∷ :
-    Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
-    Γ ⊩⟨ l ⟩ t ∷ A × Γ ⊩⟨ l ⟩ u ∷ A
-  wf-⊩≡∷ (⊩A , ⊩t , ⊩u , _) = (⊩A , ⊩t) , (⊩A , ⊩u)
-
-opaque
-  unfolding _⊩ᵛ⟨_⟩_
-
-  -- A well-formedness lemma for ⊩ᵛ_.
-
-  wf-⊩ᵛ-∙ : ⊩ᵛ Γ ∙ A → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ A
-  wf-⊩ᵛ-∙ (_ ∙ ⊩A) = _ , _ , ⊩A
-
-opaque
-  unfolding _⊩ᵛ⟨_⟩_
-
-  -- A well-formedness lemma for _⊩ᵛ⟨_⟩_.
-
-  wf-⊩ᵛ : Γ ⊩ᵛ⟨ l ⟩ A → ⊩ᵛ Γ
-  wf-⊩ᵛ (⊩Γ , _) = ⊩Γ
-
-opaque
-  unfolding _⊩ᵛ⟨_⟩_
-
-  -- Another well-formedness lemma for _⊩ᵛ⟨_⟩_.
-
-  wf-∙-⊩ᵛ :
-    Γ ∙ A ⊩ᵛ⟨ l ⟩ B →
-    ∃ λ l′ → Γ ⊩ᵛ⟨ l′ ⟩ A
-  wf-∙-⊩ᵛ ⊩B =
-    case wf-⊩ᵛ ⊩B of λ {
-      (_ ∙ ⊩A) →
-    _ , _ , ⊩A }
-
-opaque
-  unfolding _⊩ᵛ⟨_⟩_ _⊩ᵛ⟨_⟩_∷_
-
-  -- A well-formedness lemma for _⊩ᵛ⟨_⟩_∷_.
-
-  wf-⊩ᵛ∷ : Γ ⊩ᵛ⟨ l ⟩ t ∷ A → Γ ⊩ᵛ⟨ l ⟩ A
-  wf-⊩ᵛ∷ (_ , ⊩A , _) = _ , ⊩A
-
-opaque
-  unfolding _⊩ˢ_∷_
-
-  -- A well-formedness lemma for _⊩ˢ_∷_.
-
-  wf-⊩ˢ∷ : Δ ⊩ˢ σ ∷ Γ → ⊩ᵛ Γ
-  wf-⊩ˢ∷ (⊩Γ , _) = ⊩Γ
-
-opaque
-  unfolding _⊩ᵛ⟨_⟩_ _⊩ᵛ⟨_⟩_≡_
-
-  -- A well-formedness lemma for _⊩ᵛ⟨_⟩_≡_.
-
-  wf-⊩ᵛ≡ : Γ ⊩ᵛ⟨ l ⟩ A ≡ B → Γ ⊩ᵛ⟨ l ⟩ A × Γ ⊩ᵛ⟨ l ⟩ B
-  wf-⊩ᵛ≡ (_ , ⊩A , ⊩B , _) = (_ , ⊩A) , (_ , ⊩B)
-
-opaque
-  unfolding _⊩ᵛ⟨_⟩_∷_ _⊩ᵛ⟨_⟩_≡_∷_
-
-  -- A well-formedness lemma for _⊩ᵛ⟨_⟩_≡_∷_.
-
-  wf-⊩ᵛ≡∷ : Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A → Γ ⊩ᵛ⟨ l ⟩ t ∷ A × Γ ⊩ᵛ⟨ l ⟩ u ∷ A
-  wf-⊩ᵛ≡∷ (_ , modelsTermEq ⊩A ⊩t ⊩u _) =
-    (_ , ⊩A , ⊩t) , (_ , ⊩A , ⊩u)
-
-opaque
-  unfolding _⊩ˢ_∷_ _⊩ˢ_≡_∷_
-
-  -- A well-formedness lemma for _⊩ˢ_≡_∷_.
-
-  wf-⊩ˢ≡∷ : Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ → Δ ⊩ˢ σ₁ ∷ Γ × Δ ⊩ˢ σ₂ ∷ Γ
-  wf-⊩ˢ≡∷ (_ , _ , ⊩σ₁ , ⊩σ₂ , _) = (_ , _ , ⊩σ₁) , (_ , _ , ⊩σ₂)
 
 ------------------------------------------------------------------------
 -- Reduction
