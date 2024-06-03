@@ -97,15 +97,12 @@ opaque
                     refl-⊩≡∷ (rest _ _ .proj₁ , ⊩t))
                    .proj₁)
               (λ ρ⊇ ⊢Δ ⊩t ⊩u t≡u →
-                 case rest ρ⊇ ⊢Δ .proj₂
-                        (rest _ _ .proj₁ , ⊩t , ⊩u , t≡u) of λ
-                   (⊩wk-B[t] , ⊩wk-B[u] , wk-B[t]≡wk-B[u]) →
-                 irrelevanceEq ⊩wk-B[t]
+                 ⊩≡→⊩≡/
                    (wf-⊩≡
                       (rest ρ⊇ ⊢Δ .proj₂ $
                        refl-⊩≡∷ (rest _ _ .proj₁ , ⊩t))
-                      .proj₁)
-                   wk-B[t]≡wk-B[u])
+                      .proj₁) $
+                 rest ρ⊇ ⊢Δ .proj₂ (rest _ _ .proj₁ , ⊩t , ⊩u , t≡u))
               ok))
     where
     lemma :
@@ -250,22 +247,17 @@ opaque
       _ ⊩⟨ _ ⟩ _ ≡ _ / Bᵣ _ ⊩ΠΣ₁ ∋
       B₌ _ _ (id (ΠΣⱼ ⊢A₂ ⊢B₂ ok))
         (≅-ΠΣ-cong ⊢A₁ (escape-⊩≡ A₁≡A₂) (escape-⊩≡ B₁≡B₂) ok)
-        (λ ρ⊇ ⊢Δ →
-           case rest ρ⊇ ⊢Δ .proj₁ of λ
-             (⊩wk-ρ-A₁ , _ , wk-ρ-A₁≡wk-ρ-A₂) →
-           irrelevanceEq ⊩wk-ρ-A₁ (⊩wk-A ρ⊇ ⊢Δ) wk-ρ-A₁≡wk-ρ-A₂)
+        (λ ρ⊇ ⊢Δ → ⊩≡→⊩≡/ (⊩wk-A ρ⊇ ⊢Δ) (rest ρ⊇ ⊢Δ .proj₁))
         (λ ρ⊇ ⊢Δ ⊩t →
            case rest ρ⊇ ⊢Δ of λ
              (wk-ρ-A₁≡wk-ρ-A₂ , wk-ρ⇑-B₁≡wk-ρ⇑-B₂) →
            case wf-⊩≡ wk-ρ-A₁≡wk-ρ-A₂ .proj₁ of λ
              ⊩wk-ρ-A₁ →
-           case wk-ρ⇑-B₁≡wk-ρ⇑-B₂
-                  ( ⊩wk-ρ-A₁
-                  , irrelevanceTerm (⊩wk-A ρ⊇ ⊢Δ) ⊩wk-ρ-A₁ ⊩t
-                  ) of λ
-             (wk-ρ⇑-B₁[t] , _ , wk-ρ⇑-B₁[t]≡wk-ρ⇑-B₂[t]) →
-           irrelevanceEq wk-ρ⇑-B₁[t] (⊩wk-B ρ⊇ ⊢Δ ⊩t)
-             wk-ρ⇑-B₁[t]≡wk-ρ⇑-B₂[t]) }}
+           ⊩≡→⊩≡/ (⊩wk-B ρ⊇ ⊢Δ ⊩t) $
+           wk-ρ⇑-B₁≡wk-ρ⇑-B₂
+             ( ⊩wk-ρ-A₁
+             , irrelevanceTerm (⊩wk-A ρ⊇ ⊢Δ) ⊩wk-ρ-A₁ ⊩t
+             )) }}
 
 -- See also ⊩ᵛΠΣ⇔ below.
 

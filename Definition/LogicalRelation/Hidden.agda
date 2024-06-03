@@ -58,6 +58,8 @@ private variable
   ρ                                                     : Wk _ _
   l l′ l″ l‴                                            : TypeLevel
   k                                                     : LogRelKit
+  ⊢Δ                                                    : ⊢ _
+  ⊩Γ                                                    : ⊩ᵛ _
 
 ------------------------------------------------------------------------
 -- The type formers
@@ -167,6 +169,96 @@ opaque
     ∃ λ (⊩σ₁ : Δ ⊩ˢ σ₁ ∷ Γ / ⊩Γ / ⊢Δ) →
     Δ ⊩ˢ σ₂ ∷ Γ / ⊩Γ / ⊢Δ ×
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ / ⊩Γ / ⊢Δ / ⊩σ₁
+
+------------------------------------------------------------------------
+-- Conversions to the underlying type formers
+
+opaque
+  unfolding _⊩⟨_⟩_∷_
+
+  -- A conversion to _⊩⟨_⟩_∷_/_.
+
+  ⊩∷→⊩∷/ : (⊩A : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l′ ⟩ t ∷ A → Γ ⊩⟨ l ⟩ t ∷ A / ⊩A
+  ⊩∷→⊩∷/ ⊩A (⊩A′ , ⊩t) = irrelevanceTerm ⊩A′ ⊩A ⊩t
+
+opaque
+  unfolding _⊩⟨_⟩_≡_
+
+  -- A conversion to _⊩⟨_⟩_≡_/_.
+
+  ⊩≡→⊩≡/ : (⊩A : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l′ ⟩ A ≡ B → Γ ⊩⟨ l ⟩ A ≡ B / ⊩A
+  ⊩≡→⊩≡/ ⊩A (⊩A′ , _ , A≡B) = irrelevanceEq ⊩A′ ⊩A A≡B
+
+opaque
+  unfolding _⊩⟨_⟩_≡_∷_
+
+  -- A conversion to _⊩⟨_⟩_≡_∷_/_.
+
+  ⊩≡∷→⊩≡∷/ :
+    (⊩A : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l′ ⟩ t ≡ u ∷ A →
+    Γ ⊩⟨ l ⟩ t ≡ u ∷ A / ⊩A
+  ⊩≡∷→⊩≡∷/ ⊩A (⊩A′ , _ , _ , t≡u) = irrelevanceEqTerm ⊩A′ ⊩A t≡u
+
+opaque
+  unfolding _⊩ᵛ⟨_⟩_
+
+  -- A conversion to _⊩ᵛ⟨_⟩_/_.
+
+  ⊩ᵛ→⊩ᵛ/ : Γ ⊩ᵛ⟨ l ⟩ A → Γ ⊩ᵛ⟨ l ⟩ A / ⊩Γ
+  ⊩ᵛ→⊩ᵛ/ {⊩Γ} (⊩Γ′ , ⊩A) = Irr.irrelevance ⊩Γ′ ⊩Γ ⊩A
+
+opaque
+  unfolding _⊩ᵛ⟨_⟩_∷_
+
+  -- A conversion to _⊩ᵛ⟨_⟩_∷_/_/_.
+
+  ⊩ᵛ∷→⊩ᵛ∷// :
+    (⊩A : Γ ⊩ᵛ⟨ l ⟩ A / ⊩Γ) → Γ ⊩ᵛ⟨ l′ ⟩ t ∷ A →
+    Γ ⊩ᵛ⟨ l ⟩ t ∷ A / ⊩Γ / ⊩A
+  ⊩ᵛ∷→⊩ᵛ∷// {t} ⊩A (_ , ⊩A′ , ⊩t) =
+    Irr.irrelevanceTerm {t = t} _ _ ⊩A′ ⊩A ⊩t
+
+opaque
+  unfolding _⊩ᵛ⟨_⟩_≡_
+
+  -- A conversion to _⊩ᵛ⟨_⟩_≡_/_/_.
+
+  ⊩ᵛ≡→⊩ᵛ≡// :
+    (⊩A : Γ ⊩ᵛ⟨ l ⟩ A / ⊩Γ) → Γ ⊩ᵛ⟨ l′ ⟩ A ≡ B →
+    Γ ⊩ᵛ⟨ l ⟩ A ≡ B / ⊩Γ / ⊩A
+  ⊩ᵛ≡→⊩ᵛ≡// {B} ⊩A (_ , ⊩A′ , _ , A≡B) =
+    Irr.irrelevanceEq {B = B} _ _ ⊩A′ ⊩A A≡B
+
+opaque
+  unfolding _⊩ᵛ⟨_⟩_≡_∷_
+
+  -- A conversion to _⊩ᵛ⟨_⟩_≡_∷_/_/_.
+
+  ⊩ᵛ≡∷→⊩ᵛ≡∷// :
+    (⊩A : Γ ⊩ᵛ⟨ l ⟩ A / ⊩Γ) → Γ ⊩ᵛ⟨ l′ ⟩ t ≡ u ∷ A →
+    Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A / ⊩Γ / ⊩A
+  ⊩ᵛ≡∷→⊩ᵛ≡∷// {t} {u} ⊩A (_ , modelsTermEq ⊩A′ _ _ t≡u) =
+    Irr.irrelevanceEqTerm {t = t} {u = u} _ _ ⊩A′ ⊩A t≡u
+
+opaque
+  unfolding _⊩ˢ_∷_
+
+  -- A conversion to _⊩ˢ⟨_⟩_∷_/_/_.
+
+  ⊩ˢ∷→⊩ˢ∷// : Δ ⊩ˢ σ ∷ Γ → Δ ⊩ˢ σ ∷ Γ / ⊩Γ / ⊢Δ
+  ⊩ˢ∷→⊩ˢ∷// (_ , _ , ⊩σ) =
+    Irr.irrelevanceSubst _ _ _ _ ⊩σ
+
+opaque
+  unfolding _⊩ˢ_≡_∷_
+
+  -- A conversion to _⊩ˢ⟨_⟩_≡_∷_/_/_/_.
+
+  ⊩ˢ≡∷→⊩ˢ≡∷/// :
+    {⊩σ₁ : Δ ⊩ˢ σ₁ ∷ Γ / ⊩Γ / ⊢Δ} →
+    Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ → Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ / ⊩Γ / ⊢Δ / ⊩σ₁
+  ⊩ˢ≡∷→⊩ˢ≡∷/// (_ , _ , _ , _ , σ₁≡σ₂) =
+    Irr.irrelevanceSubstEq _ _ _ _ _ _ σ₁≡σ₂
 
 ------------------------------------------------------------------------
 -- Reflexivity
@@ -473,8 +565,8 @@ opaque
     Γ ⊩⟨ l ⟩ A →
     Γ ⊩⟨ l′ ⟩ t ∷ A →
     Γ ⊩⟨ l ⟩ t ∷ A
-  level-⊩∷ ⊩A (⊩A′ , ⊩t) =
-    ⊩A , irrelevanceTerm ⊩A′ ⊩A ⊩t
+  level-⊩∷ ⊩A ⊩t =
+    ⊩A , ⊩∷→⊩∷/ ⊩A ⊩t
 
 opaque
   unfolding _⊩⟨_⟩_≡_
@@ -486,8 +578,8 @@ opaque
     Γ ⊩⟨ l ⟩ B →
     Γ ⊩⟨ l′ ⟩ A ≡ B →
     Γ ⊩⟨ l ⟩ A ≡ B
-  level-⊩≡ ⊩A ⊩B (⊩A′ , _ , A≡B) =
-    ⊩A , ⊩B , irrelevanceEq ⊩A′ ⊩A A≡B
+  level-⊩≡ ⊩A ⊩B A≡B =
+    ⊩A , ⊩B , ⊩≡→⊩≡/ ⊩A A≡B
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_
@@ -498,9 +590,10 @@ opaque
     Γ ⊩⟨ l ⟩ A →
     Γ ⊩⟨ l′ ⟩ t ≡ u ∷ A →
     Γ ⊩⟨ l ⟩ t ≡ u ∷ A
-  level-⊩≡∷ ⊩A (⊩A′ , ⊩t , ⊩u , t≡u) =
-      ⊩A , irrelevanceTerm ⊩A′ ⊩A ⊩t , irrelevanceTerm ⊩A′ ⊩A ⊩u
-    , irrelevanceEqTerm ⊩A′ ⊩A t≡u
+  level-⊩≡∷ ⊩A t≡u =
+    case wf-⊩≡∷ t≡u of λ
+      (⊩t , ⊩u) →
+    ⊩A , ⊩∷→⊩∷/ ⊩A ⊩t , ⊩∷→⊩∷/ ⊩A ⊩u , ⊩≡∷→⊩≡∷/ ⊩A t≡u
 
 opaque
   unfolding _⊩ᵛ⟨_⟩_ _⊩ᵛ⟨_⟩_∷_
@@ -511,8 +604,8 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ A →
     Γ ⊩ᵛ⟨ l′ ⟩ t ∷ A →
     Γ ⊩ᵛ⟨ l ⟩ t ∷ A
-  level-⊩ᵛ∷ {t} (_ , ⊩A) (_ , ⊩A′ , ⊩t) =
-    _ , ⊩A , Irr.irrelevanceTerm {t = t} _ _ ⊩A′ ⊩A ⊩t
+  level-⊩ᵛ∷ {t} (_ , ⊩A) ⊩t =
+    _ , ⊩A , ⊩ᵛ∷→⊩ᵛ∷// {t = t} ⊩A ⊩t
 
 opaque
   unfolding _⊩ᵛ⟨_⟩_ _⊩ᵛ⟨_⟩_≡_
@@ -524,9 +617,8 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ B →
     Γ ⊩ᵛ⟨ l′ ⟩ A ≡ B →
     Γ ⊩ᵛ⟨ l ⟩ A ≡ B
-  level-⊩ᵛ≡ {B} (_ , ⊩A) (_ , ⊩B) (_ , ⊩A′ , _ , A≡B) =
-      _ , ⊩A , Irr.irrelevance _ _ ⊩B
-    , Irr.irrelevanceEq {B = B} _ _ ⊩A′ ⊩A A≡B
+  level-⊩ᵛ≡ (_ , ⊩A) ⊩B A≡B =
+    _ , ⊩A , ⊩ᵛ→⊩ᵛ/ ⊩B , ⊩ᵛ≡→⊩ᵛ≡// ⊩A A≡B
 
 opaque
   unfolding _⊩ᵛ⟨_⟩_ _⊩ᵛ⟨_⟩_≡_∷_
@@ -537,12 +629,12 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ A →
     Γ ⊩ᵛ⟨ l′ ⟩ t ≡ u ∷ A →
     Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A
-  level-⊩ᵛ≡∷ {t} {u} (_ , ⊩A) (_ , modelsTermEq ⊩A′ ⊩t ⊩u t≡u) =
+  level-⊩ᵛ≡∷ {t} {u} (_ , ⊩A) t≡u =
+    case wf-⊩ᵛ≡∷ t≡u of λ
+      (⊩t , ⊩u) →
       _
-    , modelsTermEq ⊩A
-        (Irr.irrelevanceTerm {t = t} _ _ ⊩A′ ⊩A ⊩t)
-        (Irr.irrelevanceTerm {t = u} _ _ ⊩A′ ⊩A ⊩u)
-        (Irr.irrelevanceEqTerm {t = t} {u = u} _ _ ⊩A′ ⊩A t≡u)
+    , modelsTermEq ⊩A (⊩ᵛ∷→⊩ᵛ∷// ⊩A ⊩t) (⊩ᵛ∷→⊩ᵛ∷// ⊩A ⊩u)
+        (⊩ᵛ≡∷→⊩ᵛ≡∷// ⊩A t≡u)
 
 ------------------------------------------------------------------------
 -- Conversion
@@ -730,8 +822,8 @@ opaque
   -- Single-step weakening for _⊩ᵛ⟨_⟩_.
 
   wk1-⊩ᵛ : Γ ⊩ᵛ⟨ l′ ⟩ B → Γ ⊩ᵛ⟨ l ⟩ A → Γ ∙ B ⊩ᵛ⟨ l ⟩ wk1 A
-  wk1-⊩ᵛ (_ , ⊩B) (_ , ⊩A) =
-    _ , wk1ᵛ _ (Irr.irrelevance _ _ ⊩B) ⊩A
+  wk1-⊩ᵛ ⊩B (_ , ⊩A) =
+    _ , wk1ᵛ _ (⊩ᵛ→⊩ᵛ/ ⊩B) ⊩A
 
 opaque
   unfolding _⊩ᵛ⟨_⟩_ _⊩ᵛ⟨_⟩_∷_
@@ -1436,7 +1528,7 @@ opaque
   ⊩≡-intro ⊩A ⊩B A≡B = ⊩A , ⊩B , A≡B
 
 opaque
-  unfolding _⊩⟨_⟩_∷_ _⊩⟨_⟩_≡_∷_
+  unfolding _⊩⟨_⟩_≡_∷_
 
   -- An introduction lemma for _⊩⟨_⟩_≡_∷_.
 
@@ -1446,8 +1538,8 @@ opaque
     Γ ⊩⟨ l ⟩ u ∷ A →
     Γ ⊩⟨ l ⟩ t ≡ u ∷ A / ⊩A →
     Γ ⊩⟨ l ⟩ t ≡ u ∷ A
-  ⊩≡∷-intro ⊩A (⊩A′ , ⊩t) (⊩A″ , ⊩u) t≡u =
-    ⊩A , irrelevanceTerm ⊩A′ ⊩A ⊩t , irrelevanceTerm ⊩A″ ⊩A ⊩u , t≡u
+  ⊩≡∷-intro ⊩A ⊩t ⊩u t≡u =
+    ⊩A , ⊩∷→⊩∷/ ⊩A ⊩t , ⊩∷→⊩∷/ ⊩A ⊩u , t≡u
 
 opaque
   unfolding _⊩ᵛ⟨_⟩_
@@ -1488,9 +1580,7 @@ opaque
                (⊩A[σ] , _) →
                ⊩A[σ]
              , λ {σ′ = _} ⊩σ′ σ≡σ′ →
-                 case A≡A (_ , _ , _ , ⊩σ′ , σ≡σ′) of λ
-                   (⊩A[σ]′ , _ , A[σ]≡A[σ′]) →
-                 irrelevanceEq ⊩A[σ]′ ⊩A[σ] A[σ]≡A[σ′])
+                 ⊩≡→⊩≡/ ⊩A[σ] (A≡A (_ , _ , _ , ⊩σ′ , σ≡σ′)))
 
 opaque
 
@@ -1540,9 +1630,7 @@ opaque
                ((⊩A[σ]′ , ⊩t[σ]) , _) →
                irrelevanceTerm ⊩A[σ]′ ⊩A[σ] ⊩t[σ]
              , λ {σ′ = _} ⊩σ′ σ≡σ′ →
-                 case t≡t (_ , _ , _ , ⊩σ′ , σ≡σ′) of λ
-                   (⊩A[σ]″ , _ , _ , t[σ]≡t[σ′]) →
-                 irrelevanceEqTerm ⊩A[σ]″ ⊩A[σ] t[σ]≡t[σ′])
+                 ⊩≡∷→⊩≡∷/ ⊩A[σ] (t≡t (_ , _ , _ , ⊩σ′ , σ≡σ′)))
 
 opaque
 
@@ -1634,10 +1722,7 @@ opaque
            _
          , ⊩A
          , Irr.irrelevance _ _ ⊩B
-         , (λ _ ⊩σ →
-              case A≡B (_ , _ , ⊩σ) of λ
-                (⊩A[σ] , _ , A[σ]≡B[σ]) →
-              irrelevanceEq ⊩A[σ] (⊩A .unwrap _ _ .proj₁) A[σ]≡B[σ]))
+         , (λ _ ⊩σ → ⊩≡→⊩≡/ (⊩A .unwrap _ _ .proj₁) (A≡B (_ , _ , ⊩σ))))
 
 opaque
 
@@ -1699,10 +1784,7 @@ opaque
          , modelsTermEq ⊩A ⊩t
              (Irr.irrelevanceTerm {t = u} _ _ ⊩A′ ⊩A ⊩u)
              (λ _ ⊩σ →
-                case hyp (_ , _ , ⊩σ) of λ
-                  (⊩A[σ] , _ , _ , t[σ]≡u[σ]) →
-                irrelevanceEqTerm ⊩A[σ] (⊩A .unwrap _ _ .proj₁)
-                  t[σ]≡u[σ]))
+                ⊩≡∷→⊩≡∷/ (⊩A .unwrap _ _ .proj₁) (hyp (_ , _ , ⊩σ))))
 
 opaque
 
