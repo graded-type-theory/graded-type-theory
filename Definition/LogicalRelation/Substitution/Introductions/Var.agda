@@ -13,8 +13,13 @@ module Definition.LogicalRelation.Substitution.Introductions.Var
   {{eqrel : EqRelSet R}}
   where
 
+open EqRelSet eqrel
+open Type-restrictions R
+
 open import Definition.Untyped M
+open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
+open import Definition.Typed.Properties R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Substitution R
@@ -30,6 +35,19 @@ private
     Γ : Con Term _
     A : Term _
     l : TypeLevel
+
+opaque
+
+  -- Reducibility for variables.
+
+  ⊩var :
+    x ∷ A ∈ Γ →
+    Γ ⊩⟨ l ⟩ A →
+    Γ ⊩⟨ l ⟩ var x ∷ A
+  ⊩var x∈Γ ⊩A =
+    case var (wf (escape-⊩ ⊩A)) x∈Γ of λ
+      ⊢var →
+    neutral-⊩∷ ⊩A (var _) ⊢var (~-var ⊢var)
 
 opaque
 
