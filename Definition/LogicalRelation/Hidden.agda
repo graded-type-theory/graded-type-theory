@@ -767,6 +767,13 @@ opaque
 -- Weakening
 
 opaque
+
+  -- Weakening for _⊩⟨_⟩_.
+
+  wk-⊩ : ρ ∷ Δ ⊇ Γ → ⊢ Δ → Γ ⊩⟨ l ⟩ A → Δ ⊩⟨ l ⟩ wk ρ A
+  wk-⊩ = W.wk
+
+opaque
   unfolding _⊩⟨_⟩_∷_
 
   -- Weakening for _⊩⟨_⟩_∷_.
@@ -944,6 +951,13 @@ opaque
 
 ------------------------------------------------------------------------
 -- Escape lemmas
+
+opaque
+
+  -- An escape lemma for _⊩⟨_⟩_.
+
+  escape-⊩ : Γ ⊩⟨ l ⟩ A → Γ ⊢ A
+  escape-⊩ = escape
 
 opaque
   unfolding _⊩⟨_⟩_∷_
@@ -1416,6 +1430,16 @@ private opaque
     LogRelKit._⊩_∷_/_ (kit′ l<l′) Γ t A
       (PE.subst (λ k → LogRelKit._⊩_ k _ _) eq ⊩A)
   emb-⊩∷-lemma PE.refl ⊩t = ⊩t
+
+opaque
+
+  -- Embedding for _⊩⟨_⟩_.
+
+  emb-⊩ :
+    l ≤ l′ →
+    Γ ⊩⟨ l ⟩ A →
+    Γ ⊩⟨ l′ ⟩ A
+  emb-⊩ = emb-≤-⊩
 
 opaque
   unfolding _⊩⟨_⟩_∷_
@@ -2086,6 +2110,17 @@ opaque
 
 ------------------------------------------------------------------------
 -- Neutral types and terms
+
+opaque
+
+  -- Neutral types that satisfy certain properties are reducible.
+
+  neutral-⊩ :
+    Neutral A →
+    Γ ⊢ A →
+    Γ ⊢ A ≅ A →
+    Γ ⊩⟨ l ⟩ A
+  neutral-⊩ = neu
 
 opaque
   unfolding _⊩⟨_⟩_∷_
