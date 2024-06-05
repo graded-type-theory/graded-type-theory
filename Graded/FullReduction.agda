@@ -93,11 +93,11 @@ module _ (as : Full-reduction-assumptions) where
 
     Unitʷ-η→ :
       Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
-      𝟙 ≤ 𝟘 ⊎ p PE.≡ 𝟘
+      p ≤ 𝟘
     Unitʷ-η→ η ok _ =
       case sink⊎𝟙≤𝟘 ok (inj₂ η) of λ where
         (inj₁ (() , _))
-        (inj₂ 𝟙≤𝟘)      → inj₁ 𝟙≤𝟘
+        (inj₂ 𝟙≤𝟘)      → ≤𝟘⇔𝟙≤𝟘 .proj₂ 𝟙≤𝟘
 
     -- A lemma used in the Unit-ins and η-unit cases of
     -- fullRedTermConv↓.

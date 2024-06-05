@@ -490,7 +490,7 @@ opaque
     No-erased-matches TR UR →
     (∀ {p q} →
      Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
-     𝟙 ≤ 𝟘 ⊎ p PE.≡ 𝟘) →
+     p ≤ 𝟘) →
     ¬ Has-[]-cong s 𝟙ᵐ q₁ q₂ q₃ q₄
   ¬-[]-cong nem Unitʷ-η→ (_ , ▸[]-cong , ⊢[]-cong) =
     case lemma

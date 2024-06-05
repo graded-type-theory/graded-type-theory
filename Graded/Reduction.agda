@@ -122,8 +122,7 @@ opaque
 
 -- These results are proved under the assumption that, if the weak
 -- unit type is allowed, η-equality is allowed for it, and
--- Unitrec-allowed 𝟙ᵐ p q holds for some p and q, then either 𝟙 ≤ 𝟘 or
--- p is 𝟘.
+-- Unitrec-allowed 𝟙ᵐ p q holds for some p and q, then p ≤ 𝟘.
 --
 -- Maybe things could be changed so that, if Unitʷ-η holds, then
 -- η-equality for the weak unit type is not allowed for 𝟙ᵐ, but only
@@ -133,7 +132,7 @@ module _
   (Unitʷ-η→ :
      ∀ {p q} →
      Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
-     𝟙 ≤ 𝟘 ⊎ p PE.≡ 𝟘)
+     p ≤ 𝟘)
   where
 
   -- Term reduction preserves usage.
@@ -318,21 +317,13 @@ module _
         Usage-restrictions-satisfied 𝟘ᵐ u            →⟨ ▸[𝟘ᵐ]⇔ .proj₁ γ▸ur .proj₁ ,_ ⟩
         γ ≤ᶜ 𝟘ᶜ × Usage-restrictions-satisfied 𝟘ᵐ u  →⟨ ▸[𝟘ᵐ]⇔ .proj₂ ⟩
         γ ▸[ 𝟘ᵐ ] u                                  □
-      (𝟙ᵐ , PE.refl) → case is-𝟘? p of λ where
-        (yes PE.refl) →
-          sub η▸u $ begin
-            γ             ≤⟨ γ≤pδ+η ⟩
-            𝟘 ·ᶜ δ +ᶜ η   ≈⟨ +ᶜ-congʳ $ ·ᶜ-zeroˡ _ ⟩
-            𝟘ᶜ +ᶜ η       ≈⟨ +ᶜ-identityˡ η ⟩
-            η             ∎
-        (no p≢𝟘) →
-          case Unitʷ-η→ η-ok Unit-ok unitrec-ok of λ where
-            (inj₂ p≡𝟘) → ⊥-elim (p≢𝟘 p≡𝟘)
-            (inj₁ 𝟙≤𝟘) →
-              sub η▸u $ begin
-                γ            ≤⟨ γ≤pδ+η ⟩
-                p ·ᶜ δ +ᶜ η  ≤⟨ +ᶜ-decreasingʳ 𝟙≤𝟘 ⟩
-                η            ∎
+      (𝟙ᵐ , PE.refl) →
+        sub η▸u $ begin
+          γ            ≤⟨ γ≤pδ+η ⟩
+          p ·ᶜ δ +ᶜ η  ≤⟨ +ᶜ-monotoneˡ $ ·ᶜ-monotoneˡ $ Unitʷ-η→ η-ok Unit-ok unitrec-ok ⟩
+          𝟘 ·ᶜ δ +ᶜ η  ≈⟨ +ᶜ-congʳ $ ·ᶜ-zeroˡ δ ⟩
+          𝟘ᶜ +ᶜ η      ≈⟨ +ᶜ-identityˡ η ⟩
+          η            ∎
     where
     open ≤ᶜ-reasoning
 

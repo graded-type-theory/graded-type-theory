@@ -299,7 +299,7 @@ opaque
     ⦃ ok : T 𝟘ᵐ-allowed ⦄ →
     (∀ {p q} →
      Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
-     𝟙 ≤ 𝟘 ⊎ p PE.≡ 𝟘) →
+     p ≤ 𝟘) →
     (s PE.≡ 𝕨 → Prodrec-allowed 𝟘ᵐ (𝟘 ∧ 𝟙) 𝟘 𝟘) →
     []-cong-allowed s →
     Fundamental-assumptions⁻ Γ →
