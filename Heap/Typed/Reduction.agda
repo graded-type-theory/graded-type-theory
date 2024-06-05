@@ -34,14 +34,14 @@ open import Definition.Typed.Consequences.Substitution TR
 open import Definition.Typed.Consequences.Syntactic TR
 import Graded.Derived.Erased.Typed TR as ET
 
-open import Heap.Reduction 𝕄 opts
+open import Heap.Reduction 𝕄 type-variant opts
 open import Heap.Reduction.Properties 𝕄 type-variant opts
 open import Heap.Typed TR ℕ-fullred
 open import Heap.Typed.Inversion TR ℕ-fullred
 open import Heap.Typed.Properties TR ℕ-fullred
 open import Heap.Typed.Substitution TR ℕ-fullred
 open import Heap.Typed.Weakening TR ℕ-fullred
-open import Heap.Untyped 𝕄
+open import Heap.Untyped 𝕄 type-variant
 open import Heap.Untyped.Properties 𝕄 type-variant
 
 open import Tools.Bool
@@ -114,7 +114,7 @@ opaque
       ⊢A′ →
     PE.subst (λ x → H′ ⊢ᵉ _ ∷ _ ∷ ℕ ↝ wk (lift E) A [ liftSubst x ] [ t [ x ] ]₀)
       (PE.sym H≡H′) (natrecₑ ⊢z′ ⊢s′ ⊢A′)
-  heapUpdate-⊢ᵉ {H} {t} {H′} (unitrecₑ {E} {u} {A} ⊢u ⊢A) d =
+  heapUpdate-⊢ᵉ {H} {t} {H′} (unitrecₑ {E} {u} {A} ⊢u ⊢A no-η) d =
     case heapUpdateSubst d of λ
       H≡H′ →
     case PE.subst (λ x → ε ⊢ wk E u [ x ] ∷ (wk (lift E)) A [ liftSubst x ] [ starʷ ]₀)
@@ -124,7 +124,7 @@ opaque
            H≡H′ ⊢A of λ
       ⊢A′ →
     PE.subst (λ x → H′ ⊢ᵉ _ ∷ _ ∷ Unitʷ ↝ wk (lift E) A [ liftSubst x ] [ t [ x ] ]₀)
-      (PE.sym H≡H′) (unitrecₑ ⊢u′ ⊢A′)
+      (PE.sym H≡H′) (unitrecₑ ⊢u′ ⊢A′ no-η)
   heapUpdate-⊢ᵉ {t = w} {H′} (Jₑ {E} {A} {B} {t} {u} {v} {p} {q} ⊢u ⊢B) d =
     case heapUpdateSubst d of λ
       H≡H′ →
@@ -345,12 +345,18 @@ opaque
           (conv nr-β-≡ (sym (B≡ ⊢t)))}
   ⊢ₛ-⇒ᵥ (A , ⊢H , ⊢t , ⊢e ∙ ⊢S) starʷₕ =
     case inversion-unitrecₑ ⊢e of λ {
-      (⊢u , ⊢A , PE.refl , B≡) →
+      (⊢u , ⊢A , no-η , PE.refl , B≡) →
     case ⊢∷Unit→Unit-allowed ⊢t of λ
       ok →
     _ , _ , id , _
       , ⊢H , conv ⊢u (sym (B≡ ⊢t))
       , ⊢ˢ-convₜ ⊢S (conv (unitrec-β-≡ ⊢A ⊢u) (sym (B≡ ⊢t))) }
+  ⊢ₛ-⇒ᵥ (A , ⊢H , ⊢t , ⊢S) (unitrec-ηₕ η) =
+    case inversion-unitrec ⊢t of λ
+      (⊢A , ⊢t , ⊢u , A≡) →
+    _ , _ , id , _ , ⊢H
+      , conv ⊢u (trans (substTypeEq (refl ⊢A) (Unit-η-≡ (inj₂ η) ⊢t)) (sym A≡))
+      , ⊢ˢ-convₜ ⊢S (conv (unitrec-β-η-≡ ⊢A ⊢t ⊢u η) (sym A≡))
   ⊢ₛ-⇒ᵥ (_ , ⊢H , ⊢rfl , ⊢e ∙ ⊢S) (rflₕⱼ {H} {p} {q} {A} {t} {B} {u} {v} {E′}) =
     case inversion-Jₑ ⊢e of λ {
       (⊢u , ⊢B , PE.refl , B′≡) →
@@ -439,11 +445,11 @@ opaque
       (⊢A , ⊢z , ⊢s , ⊢n , C≡) →
     _ , _ , id , _ , ⊢H , ⊢n
       , conv (natrecₑ ⊢z ⊢s ⊢A) (sym C≡) ∙ ⊢S
-  ⊢ₛ-⇒ₙ (A , ⊢H , ⊢t , ⊢S) unitrecₕ =
+  ⊢ₛ-⇒ₙ (A , ⊢H , ⊢t , ⊢S) (unitrecₕ no-η) =
     case inversion-unitrec ⊢t of λ
       (⊢A , ⊢t , ⊢u , B≡At) →
     _ , _ , id , _ , ⊢H , ⊢t
-      , conv (unitrecₑ ⊢u ⊢A) (sym B≡At) ∙ ⊢S
+      , conv (unitrecₑ ⊢u ⊢A no-η) (sym B≡At) ∙ ⊢S
   ⊢ₛ-⇒ₙ (A , ⊢H , ⊢t , ⊢S) Jₕ =
     case inversion-J ⊢t of λ
       (_ , ⊢t , ⊢B , ⊢u , ⊢v , ⊢w , A≡B₊) →
@@ -525,19 +531,19 @@ private
   opaque
     unfolding _⊢⟨_⟩_⇒/≡_∷_
 
-    ⊢⦅⦆-subst/cong : (b : Bool) → (T b → ¬ℕ-Fullred × (¬ Unitʷ-allowed ⊎ ¬ Unitʷ-η))
+    ⊢⦅⦆-subst/cong : (b : Bool) → (T b → ¬ℕ-Fullred)
                   → H ⊢ S ∷ t ∷ A ↝ B
                   → _⊢_⇒_∷_ ε (t [ H ]ₕ) (u [ H ]ₕ) A
                   → ε ⊢⟨ b ⟩ ⦅ S ⦆ t [ H ]ₕ ⇒/≡ ⦅ S ⦆ u [ H ]ₕ ∷ B
-    ⊢⦅⦆-subst/cong true prop ⊢S t⇒u = ⊢⦅⦆-subst ⦃ prop _ .proj₁ ⦄ (prop _ .proj₂) ⊢S t⇒u
+    ⊢⦅⦆-subst/cong true prop ⊢S t⇒u = ⊢⦅⦆-subst ⦃ prop _ ⦄ ⊢S t⇒u
     ⊢⦅⦆-subst/cong false _ ⊢S t≡u = ⊢⦅⦆-cong ⊢S (subsetTerm t≡u)
 
   opaque
 
-    ⇒ᵥ→⇒/≡ : (b : Bool) → (T b → ¬ℕ-Fullred × (¬ Unitʷ-allowed ⊎ ¬ Unitʷ-η))
+    ⇒ᵥ→⇒/≡ : (b : Bool) → (T b → ¬ℕ-Fullred)
            → Γ ⊢ₛ s ∷ A → s ⇒ᵥ s′
            → ε ⊢⟨ b ⟩ norm s ⇒/≡ norm s′ ∷ A
-    ⇒ᵥ→⇒/≡ {A} b prop (B , ⊢H , ⊢t , (⊢e ∙ ⊢S))
+    ⇒ᵥ→⇒/≡ {A} b prop (B , ⊢H , ⊢t , ⊢e ∙ ⊢S)
            (lamₕ {H} {p} {t} {E} {u} {E′} {S}) =
       case inversion-∘ₑ ⊢e of λ {
         (F , G , q , ⊢u , PE.refl , C≡Gu) →
@@ -560,7 +566,7 @@ private
           ≡⟨ singleSubstComp _ (toSubstₕ H) (⦅ wk1ˢ S ⦆ (wk (lift E) t)) ⟩
         ⦅ wk1ˢ S ⦆ (wk (lift E) t) [ H ∙ (p , u , E′) ]ₕ ∎
 
-    ⇒ᵥ→⇒/≡ b prop (B , ⊢H , ⊢t , (⊢e ∙ ⊢S)) prodˢₕ₁ =
+    ⇒ᵥ→⇒/≡ b prop (B , ⊢H , ⊢t , ⊢e ∙ ⊢S) prodˢₕ₁ =
       case inversion-fstₑ ⊢e of λ {
       (F′ , G′ , q′ , ⊢F′ , ⊢G′ , PE.refl , C≡F′) →
       case inversion-prod ⊢t of λ
@@ -570,7 +576,7 @@ private
       ⊢⦅⦆-subst/cong b prop ⊢S (conv (Σ-β₁-⇒ ⊢G ⊢t₁ ⊢t₂ ok)
         (trans F≡F′ (sym C≡F′))) }
 
-    ⇒ᵥ→⇒/≡ b prop (B , ⊢H , ⊢t , (⊢e ∙ ⊢S)) prodˢₕ₂ =
+    ⇒ᵥ→⇒/≡ b prop (B , ⊢H , ⊢t , ⊢e ∙ ⊢S) prodˢₕ₂ =
       case inversion-sndₑ ⊢e of λ {
         (F′ , G′ , q′ , ⊢F′ , ⊢G′ , PE.refl , C≡G′₊) →
       case inversion-prod ⊢t of λ
@@ -582,7 +588,7 @@ private
       ⊢⦅⦆-subst/cong b prop ⊢S (conv (Σ-β₂-⇒ ⊢G ⊢t₁ ⊢t₂ ok)
         (trans G₊≡G′₊ (sym (C≡G′₊ ⊢t)))) }
 
-    ⇒ᵥ→⇒/≡ {(m)} b prop (B , ⊢H , ⊢t , (⊢e ∙ ⊢S))
+    ⇒ᵥ→⇒/≡ {(m)} b prop (B , ⊢H , ⊢t , ⊢e ∙ ⊢S)
            (prodʷₕ {H} {p} {t₁} {t₂} {E} {r} {q} {A} {u} {E′} {S}) =
       case inversion-prodrecₑ ⊢e of λ {
         (F , G , q′ , ⊢u , ⊢A , PE.refl , C≡) →
@@ -608,13 +614,13 @@ private
         ⦅ wk2ˢ S ⦆ (wk (liftn E′ 2) u) [ H₂ ]ₕ ∎
 
 
-    ⇒ᵥ→⇒/≡ b prop (B , ⊢H , ⊢t , (⊢e ∙ ⊢S)) zeroₕ =
+    ⇒ᵥ→⇒/≡ b prop (B , ⊢H , ⊢t , ⊢e ∙ ⊢S) zeroₕ =
       case inversion-natrecₑ ⊢e of λ {
         (⊢z , ⊢s , ⊢A , PE.refl , B≡) →
       ⊢⦅⦆-subst/cong b prop ⊢S (conv (natrec-zero ⊢A ⊢z ⊢s)
         (sym (B≡ ⊢t))) }
 
-    ⇒ᵥ→⇒/≡ {(m)} b prop (B , ⊢H , ⊢t , (⊢e ∙ ⊢S))
+    ⇒ᵥ→⇒/≡ {(m)} b prop (B , ⊢H , ⊢t , ⊢e ∙ ⊢S)
       (sucₕ {H} {t} {E} {p} {q} {r} {(n)} {A} {z} {s} {E′} {S}) =
       case inversion-natrecₑ ⊢e of λ {
         (⊢z , ⊢s , ⊢A , PE.refl , B≡) →
@@ -649,14 +655,17 @@ private
           ≡⟨ PE.cong (λ x → ⦅ wk2ˢ S ⦆ (wk (liftn E′ 2) s) [ consSubst (consSubst (toSubstₕ H) (wk E t [ H ]ₕ)) x ]) lemma′ ⟩
         ⦅ wk2ˢ S ⦆ (wk (liftn E′ 2) s) [ H₂ ]ₕ ∎
 
-    ⇒ᵥ→⇒/≡ b prop (B , ⊢H , ⊢t , (⊢e ∙ ⊢S)) starʷₕ =
+    ⇒ᵥ→⇒/≡ b prop (B , ⊢H , ⊢t , ⊢e ∙ ⊢S) starʷₕ =
       case inversion-unitrecₑ ⊢e of λ {
-        (⊢u , ⊢A , PE.refl , C≡A₊) →
-      case ⊢∷Unit→Unit-allowed ⊢t of λ
-        ok →
+        (⊢u , ⊢A , no-η , PE.refl , C≡A₊) →
       ⊢⦅⦆-subst/cong b prop ⊢S (conv (unitrec-β-⇒ ⊢A ⊢u) (sym (C≡A₊ ⊢t)))}
+    ⇒ᵥ→⇒/≡ b prop (B , ⊢H , ⊢t , ⊢S) (unitrec-ηₕ η) =
+      case inversion-unitrec ⊢t of λ
+        (⊢A , ⊢t , ⊢u , A≡) →
+      ⊢⦅⦆-subst/cong b prop ⊢S
+        (conv (unitrec-β-η-⇒ ⊢A ⊢t ⊢u η) (sym A≡))
 
-    ⇒ᵥ→⇒/≡ b prop (B , ⊢H , ⊢rfl , (⊢e ∙ ⊢S)) rflₕⱼ =
+    ⇒ᵥ→⇒/≡ b prop (B , ⊢H , ⊢rfl , ⊢e ∙ ⊢S) rflₕⱼ =
       case inversion-Jₑ ⊢e of λ {
         (⊢w , ⊢B , PE.refl , ≡B) →
       case inversion-rfl-Id ⊢rfl of λ
@@ -677,16 +686,14 @@ private
         (_ , ⊢t , ⊢u) →
       ⊢⦅⦆-subst/cong b prop ⊢S (conv ([]-cong-β-⇒ t≡u ok) (sym (B′≡ ⊢t ⊢u))) }
 
-
 opaque
   unfolding _⊢⟨_⟩_⇒/≡_∷_
 
   -- Reduction of values correspond to one step in the wh cbn reduction
 
   ⇒ᵥ→⇒ : ⦃ ¬fr : ¬ℕ-Fullred ⦄
-       → ¬ Unitʷ-allowed ⊎ ¬ Unitʷ-η
        → Γ ⊢ₛ s ∷ A → s ⇒ᵥ s′ → _⊢_⇒_∷_ ε (norm s) (norm s′) A
-  ⇒ᵥ→⇒ ⦃ ¬fr ⦄ no-Unitʷ⊎no-η = ⇒ᵥ→⇒/≡ true (λ _ → ¬fr , no-Unitʷ⊎no-η)
+  ⇒ᵥ→⇒ ⦃ ¬fr ⦄ = ⇒ᵥ→⇒/≡ true (λ _ → ¬fr)
 
 opaque
   unfolding _⊢⟨_⟩_⇒/≡_∷_
@@ -724,7 +731,7 @@ opaque
   ⊢Val-⇒ᵥ : ⦃ ¬fr : ¬ℕ-Fullred ⦄
           → Γ ⊢ₛ ⟨ H , t , E , e ∙ S ⟩ ∷ A → Val t
           → ∃₃ λ m n (s : State m n) → ⟨ H , t , E , e ∙ S ⟩ ⇒ᵥ s
-  ⊢Val-⇒ᵥ {e = ∘ₑ p u E} (_ , ⊢H , ⊢t , (⊢e ∙ ⊢S)) v =
+  ⊢Val-⇒ᵥ {e = ∘ₑ p u E} (_ , ⊢H , ⊢t , ⊢e ∙ ⊢S) v =
     case inversion-∘ₑ ⊢e of λ {
       (_ , _ , _ , _ , PE.refl , _) →
     case v of λ where
@@ -755,7 +762,7 @@ opaque
         case inversion-Id-U ⊢t of λ
           (_ , _ , _ , Π≡U) →
         ⊥-elim (U≢Π (sym Π≡U))}
-  ⊢Val-⇒ᵥ {e = fstₑ x} (_ , ⊢H , ⊢t , (⊢e ∙ ⊢S)) v =
+  ⊢Val-⇒ᵥ {e = fstₑ x} (_ , ⊢H , ⊢t , ⊢e ∙ ⊢S) v =
     case inversion-fstₑ ⊢e of λ {
       (_ , _ , _ , _ , _ , PE.refl , _) →
     case v of λ where
@@ -786,7 +793,7 @@ opaque
         case inversion-Id-U ⊢t of λ
           (_ , _ , _ , Σ≡U) →
         ⊥-elim (U≢Σ (sym Σ≡U))}
-  ⊢Val-⇒ᵥ {e = sndₑ x} (_ , ⊢H , ⊢t , (⊢e ∙ ⊢S)) v =
+  ⊢Val-⇒ᵥ {e = sndₑ x} (_ , ⊢H , ⊢t , ⊢e ∙ ⊢S) v =
     case inversion-sndₑ ⊢e of λ {
       (_ , _ , _ , _ , _ , PE.refl , _) →
     case v of λ where
@@ -817,7 +824,7 @@ opaque
         case inversion-Id-U ⊢t of λ
           (_ , _ , _ , Σ≡U) →
         ⊥-elim (U≢Σ (sym Σ≡U))}
-  ⊢Val-⇒ᵥ {e = prodrecₑ r p q A u E} (_ , ⊢H , ⊢t , (⊢e ∙ ⊢S)) v =
+  ⊢Val-⇒ᵥ {e = prodrecₑ r p q A u E} (_ , ⊢H , ⊢t , ⊢e ∙ ⊢S) v =
     case inversion-prodrecₑ ⊢e of λ {
       (_ , _ , _ , _ , _ , PE.refl , _) →
     case v of λ where
@@ -848,7 +855,7 @@ opaque
         case inversion-Id-U ⊢t of λ
           (_ , _ , _ , Σ≡U) →
         ⊥-elim (U≢Σ (sym Σ≡U))}
-  ⊢Val-⇒ᵥ {e = natrecₑ p q r A z s E} (_ , ⊢H , ⊢t , (⊢e ∙ ⊢S)) v =
+  ⊢Val-⇒ᵥ {e = natrecₑ p q r A z s E} (_ , ⊢H , ⊢t , ⊢e ∙ ⊢S) v =
     case inversion-natrecₑ ⊢e of λ {
       (_ , _ , _ , PE.refl , _) →
     case v of λ where
@@ -879,9 +886,9 @@ opaque
         case inversion-Id-U ⊢t of λ
           (_ , _ , _ , ℕ≡U) →
         ⊥-elim (U≢ℕ (sym ℕ≡U))}
-  ⊢Val-⇒ᵥ {e = unitrecₑ p q A u E} (_ , ⊢H , ⊢t , (⊢e ∙ ⊢S)) v =
+  ⊢Val-⇒ᵥ {e = unitrecₑ p q A u E} (_ , ⊢H , ⊢t , ⊢e ∙ ⊢S) v =
     case inversion-unitrecₑ ⊢e of λ {
-      (_ , _ , PE.refl , _) →
+      (_ , _ , _ , PE.refl , _) →
     case v of λ where
       lamᵥ   →
         case inversion-lam ⊢t of λ
@@ -997,7 +1004,7 @@ opaque
         case inversion-Id-U ⊢t of λ
           (_ , _ , _ , Id≡U) →
         ⊥-elim (Id≢U Id≡U)}
-  ⊢Val-⇒ᵥ {e = sucₑ} (_ , ⊢H , ⊢t , (⊢e ∙ ⊢S)) v =
+  ⊢Val-⇒ᵥ {e = sucₑ} (_ , ⊢H , ⊢t , ⊢e ∙ ⊢S) v =
     case inversion-sucₑ ⊢e of λ
       (fr , _ , _) →
     ⊥-elim (not-ℕ-Fullred-and-¬ℕ-Fullred ⦃ fr ⦄)

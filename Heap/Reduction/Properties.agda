@@ -29,9 +29,9 @@ open import Tools.Relation
 open import Definition.Untyped M
 open import Graded.Modality.Nr-instances
 
-open import Heap.Untyped 𝕄
+open import Heap.Untyped 𝕄 type-variant
 open import Heap.Untyped.Properties 𝕄 type-variant
-open import Heap.Reduction 𝕄 opts
+open import Heap.Reduction 𝕄 type-variant opts
 
 open Options opts
 
@@ -47,7 +47,7 @@ private variable
   x x′ : Fin _
 
 opaque
-
+  infixr 28 _⇨*_
   -- Concatenation of reduction
 
   _⇨*_ : s ⇒* s′ → s′ ⇒* s″ → s ⇒* s″
@@ -55,6 +55,7 @@ opaque
   (x ⇨ d) ⇨* d′ = x ⇨ (d ⇨* d′)
 
 opaque
+  infix 30 ⇒ₙ*_
 
   -- Lifting normalising reduction to main reduction
 
@@ -88,7 +89,7 @@ opaque
   ⇒ₙ-det sndₕ sndₕ = refl , refl
   ⇒ₙ-det prodrecₕ prodrecₕ = refl , refl
   ⇒ₙ-det natrecₕ natrecₕ = refl , refl
-  ⇒ₙ-det unitrecₕ unitrecₕ = refl , refl
+  ⇒ₙ-det (unitrecₕ _) (unitrecₕ _) = refl , refl
   ⇒ₙ-det Jₕ Jₕ = refl , refl
   ⇒ₙ-det Kₕ Kₕ = refl , refl
   ⇒ₙ-det []-congₕ []-congₕ = refl , refl
@@ -134,6 +135,7 @@ opaque
   ⇒ᵥ-det zeroₕ zeroₕ = refl , refl , refl
   ⇒ᵥ-det sucₕ sucₕ = refl , refl , refl
   ⇒ᵥ-det starʷₕ starʷₕ = refl , refl , refl
+  ⇒ᵥ-det (unitrec-ηₕ _) (unitrec-ηₕ _) = refl , refl , refl
   ⇒ᵥ-det rflₕⱼ rflₕⱼ = refl , refl , refl
   ⇒ᵥ-det rflₕₖ rflₕₖ = refl , refl , refl
   ⇒ᵥ-det rflₕₑ rflₕₑ = refl , refl , refl
@@ -177,6 +179,7 @@ opaque
   not-⇒ᵥ-and-⇒ₙ zeroₕ ()
   not-⇒ᵥ-and-⇒ₙ sucₕ ()
   not-⇒ᵥ-and-⇒ₙ starʷₕ ()
+  not-⇒ᵥ-and-⇒ₙ (unitrec-ηₕ η) (unitrecₕ no-η) = no-η η
   not-⇒ᵥ-and-⇒ₙ rflₕⱼ ()
   not-⇒ᵥ-and-⇒ₙ rflₕₖ ()
   not-⇒ᵥ-and-⇒ₙ rflₕₑ ()
@@ -188,7 +191,7 @@ opaque
   not-⇒ₛ-and-⇒ᵥ : s ⇒ₛ s′ → s ⇒ᵥ s″ → ⊥
   not-⇒ₛ-and-⇒ᵥ (sucₕ {k = 0} x) ()
   not-⇒ₛ-and-⇒ᵥ (sucₕ {k = 1+ k} x) ()
-  not-⇒ₛ-and-⇒ᵥ (numₕ x) ()
+  not-⇒ₛ-and-⇒ᵥ (numₕ ()) (unitrec-ηₕ _)
 
 opaque
 
@@ -239,7 +242,7 @@ opaque
   ⇒ₙ-norm-≡ sndₕ = refl
   ⇒ₙ-norm-≡ prodrecₕ = refl
   ⇒ₙ-norm-≡ natrecₕ = refl
-  ⇒ₙ-norm-≡ unitrecₕ = refl
+  ⇒ₙ-norm-≡ (unitrecₕ _) = refl
   ⇒ₙ-norm-≡ Jₕ = refl
   ⇒ₙ-norm-≡ Kₕ = refl
   ⇒ₙ-norm-≡ []-congₕ = refl
@@ -275,7 +278,7 @@ opaque
   wk1-⇒ₙ sndₕ = sndₕ
   wk1-⇒ₙ prodrecₕ = prodrecₕ
   wk1-⇒ₙ natrecₕ = natrecₕ
-  wk1-⇒ₙ unitrecₕ = unitrecₕ
+  wk1-⇒ₙ (unitrecₕ no-η) = unitrecₕ no-η
   wk1-⇒ₙ Jₕ = Jₕ
   wk1-⇒ₙ Kₕ = Kₕ
   wk1-⇒ₙ []-congₕ = []-congₕ
@@ -325,7 +328,7 @@ opaque
   ++-⇒ₙ S₀ sndₕ = sndₕ
   ++-⇒ₙ S₀ prodrecₕ = prodrecₕ
   ++-⇒ₙ S₀ natrecₕ = natrecₕ
-  ++-⇒ₙ S₀ unitrecₕ = unitrecₕ
+  ++-⇒ₙ S₀ (unitrecₕ no-η) = unitrecₕ no-η
   ++-⇒ₙ S₀ Jₕ = Jₕ
   ++-⇒ₙ S₀ Kₕ = Kₕ
   ++-⇒ₙ S₀ []-congₕ = []-congₕ
@@ -354,7 +357,7 @@ opaque
   ++sucₛ-⇒ₙ sndₕ = sndₕ
   ++sucₛ-⇒ₙ prodrecₕ = prodrecₕ
   ++sucₛ-⇒ₙ natrecₕ = natrecₕ
-  ++sucₛ-⇒ₙ unitrecₕ = unitrecₕ
+  ++sucₛ-⇒ₙ (unitrecₕ no-η) = unitrecₕ no-η
   ++sucₛ-⇒ₙ Jₕ = Jₕ
   ++sucₛ-⇒ₙ Kₕ = Kₕ
   ++sucₛ-⇒ₙ []-congₕ = []-congₕ
@@ -387,6 +390,7 @@ opaque
         ⟨ H ∙ (x · nr₂ p r , t , E) ∙ (x · r , _ , lift E′) , s , liftn E′ 2 , y ⟩)
       (∣S++sucₛ∣≡∣S∣ S) (wk-++sucₛ (step (step id)) S) sucₕ
   ++sucₛ-⇒ᵥ starʷₕ = starʷₕ
+  ++sucₛ-⇒ᵥ (unitrec-ηₕ η) = unitrec-ηₕ η
   ++sucₛ-⇒ᵥ rflₕⱼ = rflₕⱼ
   ++sucₛ-⇒ᵥ rflₕₖ = rflₕₖ
   ++sucₛ-⇒ᵥ rflₕₑ = rflₕₑ
@@ -425,33 +429,34 @@ opaque
 
   ~ʰ-⇒ᵥ : ⟨ H , t , E , S ⟩ ⇒ᵥ ⟨ H′ , t′ , E′ , S′ ⟩ → H ~ʰ H″
         → ∃ λ H‴ → ⟨ H″ , t , E , S ⟩ ⇒ᵥ ⟨ H‴ , t′ , E′ , S′ ⟩ × H′ ~ʰ H‴
-  ~ʰ-⇒ᵥ lamₕ H~H″   = _ , lamₕ , H~H″ ∙ _
-  ~ʰ-⇒ᵥ prodˢₕ₁ H~H″ = _ , prodˢₕ₁ , H~H″
-  ~ʰ-⇒ᵥ prodˢₕ₂ H~H″ = _ , prodˢₕ₂ , H~H″
-  ~ʰ-⇒ᵥ prodʷₕ H~H″ = _ , prodʷₕ , H~H″ ∙ _ ∙ _
-  ~ʰ-⇒ᵥ zeroₕ H~H″  = _ , zeroₕ , H~H″
-  ~ʰ-⇒ᵥ sucₕ H~H″   = _ , sucₕ , H~H″ ∙ _ ∙ _
-  ~ʰ-⇒ᵥ starʷₕ H~H″ = _ , starʷₕ , H~H″
-  ~ʰ-⇒ᵥ rflₕⱼ H~H″  = _ , rflₕⱼ , H~H″
-  ~ʰ-⇒ᵥ rflₕₖ H~H″  = _ , rflₕₖ , H~H″
-  ~ʰ-⇒ᵥ rflₕₑ H~H″  = _ , rflₕₑ , H~H″
+  ~ʰ-⇒ᵥ lamₕ H~H″           = _ , lamₕ , H~H″ ∙ _
+  ~ʰ-⇒ᵥ prodˢₕ₁ H~H″         = _ , prodˢₕ₁ , H~H″
+  ~ʰ-⇒ᵥ prodˢₕ₂ H~H″         = _ , prodˢₕ₂ , H~H″
+  ~ʰ-⇒ᵥ prodʷₕ H~H″         = _ , prodʷₕ , H~H″ ∙ _ ∙ _
+  ~ʰ-⇒ᵥ zeroₕ H~H″          = _ , zeroₕ , H~H″
+  ~ʰ-⇒ᵥ sucₕ H~H″           = _ , sucₕ , H~H″ ∙ _ ∙ _
+  ~ʰ-⇒ᵥ starʷₕ H~H″         = _ , starʷₕ , H~H″
+  ~ʰ-⇒ᵥ (unitrec-ηₕ η) H~H″ = _ , unitrec-ηₕ η , H~H″
+  ~ʰ-⇒ᵥ rflₕⱼ H~H″          = _ , rflₕⱼ , H~H″
+  ~ʰ-⇒ᵥ rflₕₖ H~H″          = _ , rflₕₖ , H~H″
+  ~ʰ-⇒ᵥ rflₕₑ H~H″          = _ , rflₕₑ , H~H″
 
 opaque
 
   ~ʰ-⇒ₙ : ⦃ ¬Track-resources ⦄
         → ⟨ H , t , E , S ⟩ ⇒ₙ ⟨ H′ , t′ , E′ , S′ ⟩ → H ~ʰ H″
         → ∃ λ H‴ → ⟨ H″ , t , E , S ⟩ ⇒ₙ ⟨ H‴ , t′ , E′ , S′ ⟩ × H′ ~ʰ H‴
-  ~ʰ-⇒ₙ (varₕ d) H~H″  = ⊥-elim not-tracking-and-no-tracking
+  ~ʰ-⇒ₙ (varₕ d) H~H″              = ⊥-elim not-tracking-and-no-tracking
   ~ʰ-⇒ₙ (varₕ′ ⦃ tr = tr ⦄ d) H~H″ = _ , varₕ′ ⦃ tr = tr ⦄ (~ʰ-lookup H~H″ d) , H~H″
-  ~ʰ-⇒ₙ appₕ H~H″      = _ , appₕ , H~H″
-  ~ʰ-⇒ₙ fstₕ H~H″      = _ , fstₕ , H~H″
-  ~ʰ-⇒ₙ sndₕ H~H″      = _ , sndₕ , H~H″
-  ~ʰ-⇒ₙ prodrecₕ H~H″  = _ , prodrecₕ , H~H″
-  ~ʰ-⇒ₙ natrecₕ H~H″   = _ , natrecₕ , H~H″
-  ~ʰ-⇒ₙ unitrecₕ H~H″  = _ , unitrecₕ , H~H″
-  ~ʰ-⇒ₙ Jₕ H~H″        = _ , Jₕ , H~H″
-  ~ʰ-⇒ₙ Kₕ H~H″        = _ , Kₕ , H~H″
-  ~ʰ-⇒ₙ []-congₕ H~H″  = _ , []-congₕ , H~H″
+  ~ʰ-⇒ₙ appₕ H~H″                  = _ , appₕ , H~H″
+  ~ʰ-⇒ₙ fstₕ H~H″                  = _ , fstₕ , H~H″
+  ~ʰ-⇒ₙ sndₕ H~H″                  = _ , sndₕ , H~H″
+  ~ʰ-⇒ₙ prodrecₕ H~H″              = _ , prodrecₕ , H~H″
+  ~ʰ-⇒ₙ natrecₕ H~H″               = _ , natrecₕ , H~H″
+  ~ʰ-⇒ₙ (unitrecₕ no-η) H~H″       = _ , unitrecₕ no-η , H~H″
+  ~ʰ-⇒ₙ Jₕ H~H″                    = _ , Jₕ , H~H″
+  ~ʰ-⇒ₙ Kₕ H~H″                    = _ , Kₕ , H~H″
+  ~ʰ-⇒ₙ []-congₕ H~H″              = _ , []-congₕ , H~H″
 
 opaque
 

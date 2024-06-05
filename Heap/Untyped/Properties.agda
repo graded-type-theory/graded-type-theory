@@ -29,7 +29,7 @@ open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 
-open import Heap.Untyped 𝕄
+open import Heap.Untyped 𝕄 type-variant
 
 private variable
   k n n′ n″ m m′ m″ : Nat

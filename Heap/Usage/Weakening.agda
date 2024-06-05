@@ -8,8 +8,8 @@ open import Definition.Typed.Variant
 
 module Heap.Usage.Weakening
   {a} {M : Set a} {𝕄 : Modality M}
-  (UR : Usage-restrictions 𝕄)
   (type-variant : Type-variant)
+  (UR : Usage-restrictions 𝕄)
   (open Modality 𝕄)
   ⦃ _ : Has-nr M semiring-with-meet ⦄
   ⦃ _ : Has-factoring-nr M semiring-with-meet ⦄
@@ -25,9 +25,9 @@ open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
 
-open import Heap.Untyped 𝕄 hiding (wkᶜ)
+open import Heap.Untyped 𝕄 type-variant
 open import Heap.Untyped.Properties 𝕄 type-variant
-open import Heap.Usage 𝕄 UR
+open import Heap.Usage 𝕄 type-variant UR
 
 
 private variable

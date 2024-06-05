@@ -12,8 +12,8 @@ open import Definition.Typed.Variant
 module Heap.Usage.Reduction
   {a} {M : Set a} {𝕄 : Modality M}
   {UR : Usage-restrictions 𝕄}
-  (UA : UsageAssumptions UR)
-  (type-variant : Type-variant)
+  {type-variant : Type-variant}
+  (UA : UsageAssumptions type-variant UR)
   (opts : Options)
   (open Options opts)
   ⦃ _ : Track-resources ⦄
@@ -31,12 +31,12 @@ import Tools.Reasoning.PartialOrder as RPo
 
 open import Definition.Untyped M
 
-open import Heap.Untyped 𝕄 hiding (wkᶜ)
+open import Heap.Untyped 𝕄 type-variant
 open import Heap.Untyped.Properties 𝕄 type-variant
-open import Heap.Reduction 𝕄 opts
-open import Heap.Usage 𝕄 UR
-open import Heap.Usage.Properties UR type-variant
-open import Heap.Usage.Weakening UR type-variant
+open import Heap.Reduction 𝕄 type-variant opts
+open import Heap.Usage 𝕄 type-variant UR
+open import Heap.Usage.Properties type-variant UR
+open import Heap.Usage.Weakening type-variant UR
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
@@ -254,6 +254,20 @@ opaque
           ∣ S ∣ ·ᶜ wkᶜ E′ δ′ +ᶜ η                           ∎) }
     where
     open RPo ≤ᶜ-poset
+  ▸-⇒ᵥ {γ} {δ} {η} (▸H , ▸t , ▸S , γ≤) (unitrec-ηₕ {p} {E} {S} η-ok) =
+    case inv-usage-unitrec ▸t of λ
+      (invUsageUnitrec {δ = δ₁} {η = δ₂} ▸t ▸u _ ok δ≤) →
+    _ , _ , _ , ▸H , ▸u , ▸S , (begin
+      γ                                  ≤⟨ γ≤ ⟩
+      ∣ S ∣ ·ᶜ wkᶜ E δ +ᶜ η               ≤⟨ +ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ E δ≤)) ⟩
+      ∣ S ∣ ·ᶜ wkᶜ E (p ·ᶜ δ₁ +ᶜ δ₂) +ᶜ η ≤⟨ +ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ E (+ᶜ-monotoneˡ
+                                                        (·ᶜ-monotoneˡ (no-erased-unitrec-η η-ok ok))))) ⟩
+      ∣ S ∣ ·ᶜ wkᶜ E (𝟘 ·ᶜ δ₁ +ᶜ δ₂) +ᶜ η ≈⟨ +ᶜ-congʳ (·ᶜ-congˡ (wk-≈ᶜ E (+ᶜ-congʳ (·ᶜ-zeroˡ δ₁)))) ⟩
+      ∣ S ∣ ·ᶜ wkᶜ E (𝟘ᶜ +ᶜ δ₂) +ᶜ η      ≈⟨ +ᶜ-congʳ (·ᶜ-congˡ (wk-≈ᶜ E (+ᶜ-identityˡ δ₂))) ⟩
+      ∣ S ∣ ·ᶜ wkᶜ E δ₂ +ᶜ η              ∎)
+    where
+    open RPo ≤ᶜ-poset
+
   ▸-⇒ᵥ {γ} {δ} (▸H , ▸t , ▸S , γ≤) (rflₕⱼ {E} {E′} {S}) =
     case ▸S of λ {
       (_∙_ {γ = η} (Jₑ {γ = δ′} ▸u) ▸S) →
@@ -425,10 +439,10 @@ opaque
       (∣ S ∣ · nr₂ p r) ·ᶜ wkᶜ E θ +ᶜ η +ᶜ ∣ S ∣ ·ᶜ wkᶜ E (nrᶜ p r δ′ η′ 𝟘ᶜ) ∎)}}}
     where
     open RPo ≤ᶜ-poset
-  ▸-⇒ₙ {γ} {δ} {η} (▸H , ▸t , ▸S , γ≤) (unitrecₕ {p} {E} {S}) =
+  ▸-⇒ₙ {γ} {δ} {η} (▸H , ▸t , ▸S , γ≤) (unitrecₕ {p} {E} {S} no-η) =
     case inv-usage-unitrec ▸t of λ
       (invUsageUnitrec {δ = δ′} {η = η′} ▸t ▸u _ ok δ≤) →
-    case no-erased-unitrec ok of λ
+    case no-erased-unitrec no-η ok of λ
       p≤𝟙 →
     _ , _ , _ , ▸H
       , ▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ λ {refl → 𝟘≰𝟙 p≤𝟙}) ▸t

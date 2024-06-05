@@ -4,11 +4,15 @@
 
 open import Graded.Modality
 open import Tools.Bool
+open import Definition.Typed.Variant
 
 module Heap.Untyped
-  {a} {M : Set a} (𝕄 : Modality M)
+  {a} {M : Set a}
+  (𝕄 : Modality M)
+  (type-variant : Type-variant)
   where
 open Modality 𝕄
+open Type-variant type-variant
 
 open import Tools.Empty
 open import Tools.Fin
@@ -63,10 +67,11 @@ Closure m n = Term n × Env m n
 Closureₘ : (m n : Nat) → Set a
 Closureₘ m n = M × Closure m n
 
--- Weakening of closures
+private
+  -- Weakening of closures
 
-wkᶜ : Wk m′ m → Closure m n → Closure m′ n
-wkᶜ ρ (t , E) = t , ρ • E
+  wkᶜ : Wk m′ m → Closure m n → Closure m′ n
+  wkᶜ ρ (t , E) = t , ρ • E
 
 wk1ᶜ : Closure m n → Closure (1+ m) n
 wk1ᶜ = wkᶜ (step id)
@@ -285,7 +290,6 @@ data Val {n : Nat} : (t : Term n) → Set a where
   lamᵥ : Val (lam p t)
   zeroᵥ : Val zero
   sucᵥ : Val (suc t)
-  -- sucᵥ′ : ⦃ ℕ-Fullred ⦄ → Val t → Val (suc t)
   starᵥ : Val (star s)
   prodᵥ : Val (prod s p u t)
   rflᵥ : Val rfl
@@ -301,3 +305,4 @@ data Val {n : Nat} : (t : Term n) → Set a where
 data Normal {n : Nat} : (t : Term n) → Set a where
   val : Val t → Normal t
   emptyrecₙ : Normal (emptyrec p A t)
+  unitrec-ηₙ : Unitʷ-η → Normal (unitrec p q A t u)

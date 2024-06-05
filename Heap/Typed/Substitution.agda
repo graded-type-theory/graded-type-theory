@@ -12,14 +12,16 @@ module Heap.Typed.Substitution
   (ℕ-fullred : Bool)
   where
 
+open Type-restrictions TR
+
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Substitution TR
 
 open import Heap.Typed TR ℕ-fullred
-open import Heap.Untyped 𝕄
-open import Heap.Untyped.Properties 𝕄
+open import Heap.Untyped 𝕄 type-variant
+open import Heap.Untyped.Properties 𝕄 type-variant
 
 open import Tools.Function
 open import Tools.Product

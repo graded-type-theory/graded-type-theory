@@ -19,11 +19,12 @@ open import Definition.Untyped.Properties M
 open import Definition.Typed TR
 import Graded.Derived.Erased.Untyped 𝕄 as Erased
 
-open import Heap.Untyped 𝕄
+open import Heap.Untyped 𝕄 type-variant
 
 open import Tools.Fin
 open import Tools.Nat
 open import Tools.Product
+open import Tools.Relation
 import Tools.PropositionalEquality as PE
 
 private variable
@@ -66,6 +67,7 @@ data _⊢ᵉ_∷_∷_↝_ (H : Heap m) : (e : Elim m) (t : Term m) (A B : Term 0
           → H ⊢ᵉ natrecₑ p q r A z s E ∷ t ∷ ℕ ↝ wk (lift E) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀
   unitrecₑ : ε ⊢ wk E u [ H ]ₕ ∷ wk (lift E) A [ H ]⇑ₕ [ starʷ ]₀
            → ε ∙ Unitʷ ⊢ wk (lift E) A [ H ]⇑ₕ
+           → ¬ Unitʷ-η
            → H ⊢ᵉ unitrecₑ p q A u E ∷ t ∷ Unitʷ ↝ (wk (lift E) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀)
   Jₑ : let A′ = wk E A [ H ]ₕ
            B′ = wk (liftn E 2) B [ H ]⇑²ₕ
@@ -101,12 +103,3 @@ data _⊢_∷_∷_↝_ (H : Heap m) : (S : Stack m) (t : Term m) (A B : Term 0) 
 _⊢ₛ_∷_ : (Γ : Con Term m) (s : State m n) (A : Term 0) → Set a
 Γ ⊢ₛ ⟨ H , t , E , S ⟩ ∷ A =
   ∃ λ B → (Γ ⊢ʰ H) × (ε ⊢ wk E t [ H ]ₕ ∷ B) × (H ⊢ S ∷ wk E t ∷ B ↝ A)
-
-opaque
-
-  -- Typing of the initial state
-
-  ⊢initial : ε ⊢ t ∷ A → ε ⊢ₛ initial t ∷ A
-  ⊢initial {t} ⊢t =
-    _ , ε , PE.subst (ε ⊢_∷ _)
-      (PE.sym (PE.trans (subst-id (wk id t)) (wk-id t))) ⊢t , ε

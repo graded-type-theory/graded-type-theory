@@ -3,11 +3,13 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
-open import Tools.Bool
 open import Heap.Options
+open import Definition.Typed.Variant
 
 module Heap.Reduction
-  {a} {M : Set a} (𝕄 : Modality M)
+  {a} {M : Set a}
+  (𝕄 : Modality M)
+  (type-variant : Type-variant)
   (opts : Options)
   (open Modality 𝕄)
   ⦃ _ : Has-nr M semiring-with-meet ⦄
@@ -22,9 +24,10 @@ open import Tools.Relation
 
 open import Definition.Untyped M
 open import Graded.Modality.Nr-instances
-open import Heap.Untyped 𝕄
+open import Heap.Untyped 𝕄 type-variant
 
 open Options opts
+open Type-variant type-variant
 
 private variable
   m m′ n n′ k : Nat
@@ -36,7 +39,7 @@ private variable
   p q r : M
   s′ : Strength
 
-
+infix 28 _⇒ₙ_
 
 data _⇒ₙ_ {m n} : State m n → State m n′ → Set a where
   varₕ : ⦃ tr : Track-resources ⦄
@@ -57,7 +60,8 @@ data _⇒ₙ_ {m n} : State m n → State m n′ → Set a where
            ⇒ₙ ⟨ H , t                   , E , prodrecₑ r p q A u E ∙ S ⟩
   natrecₕ : ⟨ H , natrec p q r A z s t , E , S                         ⟩
           ⇒ₙ ⟨ H , t                    , E , natrecₑ p q r A z s E ∙ S ⟩
-  unitrecₕ : ⟨ H , unitrec p q A t u , E , S                      ⟩
+  unitrecₕ : ¬ Unitʷ-η
+           → ⟨ H , unitrec p q A t u , E , S                      ⟩
            ⇒ₙ ⟨ H , t                 , E , unitrecₑ p q A u E ∙ S ⟩
   Jₕ : ⟨ H , J p q A t B u v w , E , S ⟩
      ⇒ₙ ⟨ H , w , E , Jₑ p q A t B u v E ∙ S ⟩
@@ -68,10 +72,14 @@ data _⇒ₙ_ {m n} : State m n → State m n′ → Set a where
 
 -- Reflexive, transistive closure of the reduction relation
 
+infix 28 _⇒ₙ*_
+
 data _⇒ₙ*_ (s : State m n) : (s′ : State m n′) → Set a where
   id : s ⇒ₙ* s
   _⇨_ : ∀ {n″} {s′ : State m n′} {s″ : State m n″}
       → s ⇒ₙ s′ → s′ ⇒ₙ* s″ → s ⇒ₙ* s″
+
+infix 28 _⇒ᵥ_
 
 data _⇒ᵥ_ {m n} : State m n → State m′ n′ → Set a where
   lamₕ : ⟨ H                        , lam p t , E           , ∘ₑ p u E′ ∙ S ⟩
@@ -89,12 +97,17 @@ data _⇒ᵥ_ {m n} : State m n → State m′ n′ → Set a where
                 , s , liftn E′ 2 , wk2ˢ S ⟩
   starʷₕ : ⟨ H , starʷ , E  , unitrecₑ p q A u E′ ∙ S ⟩
          ⇒ᵥ ⟨ H , u     , E′ , S                       ⟩
+  unitrec-ηₕ : Unitʷ-η
+             → ⟨ H , unitrec p q A t u , E , S ⟩
+             ⇒ᵥ ⟨ H , u , E , S ⟩
   rflₕⱼ : ⟨ H , rfl , E , Jₑ p q A t B u v E′ ∙ S ⟩
         ⇒ᵥ ⟨ H , u , E′ , S ⟩
   rflₕₖ : ⟨ H , rfl , E ,  Kₑ p A t B u E′ ∙ S ⟩
         ⇒ᵥ ⟨ H , u , E′ , S ⟩
   rflₕₑ : ⟨ H , rfl , E , []-congₑ s′ A t u E′ ∙ S ⟩
         ⇒ᵥ ⟨ H , rfl , E′ , S ⟩
+
+infix 28 _⇒ₛ_
 
 data _⇒ₛ_ {m n} : State m n → State m n → Set a where
   sucₕ : ¬ Numeral t
@@ -107,12 +120,20 @@ data _⇒ₛ_ {m n} : State m n → State m n → Set a where
 -- The number of free variables and the size of the heap
 -- may change in an evaluation step.
 
+infix 30 ⇒ₙ_
+infix 30 ⇒ᵥ_
+infix 30 ⇒ₛ_
+infix 28 _⇒_
+
 data _⇒_ : State m n → State m′ n′ → Set a where
   ⇒ₙ_ : {s : State m n} {s′ : State m n′} → s ⇒ₙ s′ → s ⇒ s′
   ⇒ᵥ_ : {s : State m n} {s′ : State m′ n′} → s ⇒ᵥ s′ → s ⇒ s′
   ⇒ₛ_ : {s s′ : State m n} → ⦃ ℕ-Fullred ⦄ → s ⇒ₛ s′ → s ⇒ s′
 
 -- Reflexive, transistive closure of the reduction relation
+
+infixr 30 _⇨_
+infix 28 _⇒*_
 
 data _⇒*_ : (s : State m n) (s′ : State m′ n′) → Set a where
   id : {s : State m n} → s ⇒* s

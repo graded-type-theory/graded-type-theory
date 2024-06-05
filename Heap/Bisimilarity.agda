@@ -1,6 +1,3 @@
-
-{-# OPTIONS --hidden-argument-puns #-}
-
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 
@@ -24,15 +21,14 @@ open import Tools.Relation
 open import Tools.Sum hiding (id)
 
 open import Heap.Options
-open import Heap.Untyped 𝕄
+open import Heap.Untyped 𝕄 type-variant
 open import Heap.Untyped.Properties 𝕄 type-variant
-open import Heap.Usage 𝕄 UR
+open import Heap.Usage 𝕄 type-variant UR
 open import Heap.Usage.Assumptions
-open import Heap.Usage.Properties UR type-variant
+open import Heap.Usage.Properties type-variant UR
 open import Heap.Normalization 𝕄 type-variant
-import Heap.Reduction 𝕄 as R
+import Heap.Reduction 𝕄 type-variant as R
 import Heap.Reduction.Properties 𝕄 type-variant as RP
-
 
 open import Definition.Untyped M
 open import Definition.Typed TR
@@ -79,31 +75,32 @@ module _ (ℕ-fullred : Bool) where
 
       bisim₁ₙ : s Rₜ.⇒ₙ ⟨ H , t , E , S ⟩
               → ∃ λ H′ → s Rₙₜ.⇒ₙ ⟨ H′ , t , E , S ⟩ × H ~ʰ H′
-      bisim₁ₙ (Rₜ.varₕ d) = _ , Rₙₜ.varₕ′ (↦[]→↦ d) , ~ʰ-sym (update-~ʰ d)
-      bisim₁ₙ Rₜ.appₕ     = _ , Rₙₜ.appₕ , ~ʰ-refl
-      bisim₁ₙ Rₜ.fstₕ     = _ , Rₙₜ.fstₕ , ~ʰ-refl
-      bisim₁ₙ Rₜ.sndₕ     = _ , Rₙₜ.sndₕ , ~ʰ-refl
-      bisim₁ₙ Rₜ.prodrecₕ = _ , Rₙₜ.prodrecₕ , ~ʰ-refl
-      bisim₁ₙ Rₜ.natrecₕ  = _ , Rₙₜ.natrecₕ , ~ʰ-refl
-      bisim₁ₙ Rₜ.unitrecₕ = _ , Rₙₜ.unitrecₕ , ~ʰ-refl
-      bisim₁ₙ Rₜ.Jₕ       = _ , Rₙₜ.Jₕ , ~ʰ-refl
-      bisim₁ₙ Rₜ.Kₕ       = _ , Rₙₜ.Kₕ , ~ʰ-refl
-      bisim₁ₙ Rₜ.[]-congₕ = _ , Rₙₜ.[]-congₕ , ~ʰ-refl
+      bisim₁ₙ (Rₜ.varₕ d)        = _ , Rₙₜ.varₕ′ (↦[]→↦ d) , ~ʰ-sym (update-~ʰ d)
+      bisim₁ₙ Rₜ.appₕ            = _ , Rₙₜ.appₕ , ~ʰ-refl
+      bisim₁ₙ Rₜ.fstₕ            = _ , Rₙₜ.fstₕ , ~ʰ-refl
+      bisim₁ₙ Rₜ.sndₕ            = _ , Rₙₜ.sndₕ , ~ʰ-refl
+      bisim₁ₙ Rₜ.prodrecₕ        = _ , Rₙₜ.prodrecₕ , ~ʰ-refl
+      bisim₁ₙ Rₜ.natrecₕ         = _ , Rₙₜ.natrecₕ , ~ʰ-refl
+      bisim₁ₙ (Rₜ.unitrecₕ no-η) = _ , Rₙₜ.unitrecₕ no-η , ~ʰ-refl
+      bisim₁ₙ Rₜ.Jₕ              = _ , Rₙₜ.Jₕ , ~ʰ-refl
+      bisim₁ₙ Rₜ.Kₕ              = _ , Rₙₜ.Kₕ , ~ʰ-refl
+      bisim₁ₙ Rₜ.[]-congₕ        = _ , Rₙₜ.[]-congₕ , ~ʰ-refl
 
     opaque
 
       bisim₁ᵥ : s Rₜ.⇒ᵥ ⟨ H , t , E , S ⟩
               → s Rₙₜ.⇒ᵥ ⟨ H , t , E , S ⟩
-      bisim₁ᵥ Rₜ.lamₕ   = Rₙₜ.lamₕ
-      bisim₁ᵥ Rₜ.prodˢₕ₁ = Rₙₜ.prodˢₕ₁
-      bisim₁ᵥ Rₜ.prodˢₕ₂ = Rₙₜ.prodˢₕ₂
-      bisim₁ᵥ Rₜ.prodʷₕ = Rₙₜ.prodʷₕ
-      bisim₁ᵥ Rₜ.zeroₕ  = Rₙₜ.zeroₕ
-      bisim₁ᵥ Rₜ.sucₕ   = Rₙₜ.sucₕ
-      bisim₁ᵥ Rₜ.starʷₕ = Rₙₜ.starʷₕ
-      bisim₁ᵥ Rₜ.rflₕⱼ  = Rₙₜ.rflₕⱼ
-      bisim₁ᵥ Rₜ.rflₕₖ  = Rₙₜ.rflₕₖ
-      bisim₁ᵥ Rₜ.rflₕₑ  = Rₙₜ.rflₕₑ
+      bisim₁ᵥ Rₜ.lamₕ           = Rₙₜ.lamₕ
+      bisim₁ᵥ Rₜ.prodˢₕ₁        = Rₙₜ.prodˢₕ₁
+      bisim₁ᵥ Rₜ.prodˢₕ₂        = Rₙₜ.prodˢₕ₂
+      bisim₁ᵥ Rₜ.prodʷₕ         = Rₙₜ.prodʷₕ
+      bisim₁ᵥ Rₜ.zeroₕ          = Rₙₜ.zeroₕ
+      bisim₁ᵥ Rₜ.sucₕ           = Rₙₜ.sucₕ
+      bisim₁ᵥ Rₜ.starʷₕ         = Rₙₜ.starʷₕ
+      bisim₁ᵥ (Rₜ.unitrec-ηₕ η) = Rₙₜ.unitrec-ηₕ η
+      bisim₁ᵥ Rₜ.rflₕⱼ          = Rₙₜ.rflₕⱼ
+      bisim₁ᵥ Rₜ.rflₕₖ          = Rₙₜ.rflₕₖ
+      bisim₁ᵥ Rₜ.rflₕₑ          = Rₙₜ.rflₕₑ
 
     opaque
 
@@ -151,30 +148,31 @@ module _ (ℕ-fullred : Bool) where
         case ▸↦→↦[] ok (~ʰ-lookup H~H′ d) ▸s of λ
           (_ , d′) →
         _ , Rₜ.varₕ d′ , ~ʰ-trans H~H′ (update-~ʰ d′)
-      bisim₂ₙ ok Rₙₜ.appₕ H~H′ ▸s     = _ , Rₜ.appₕ , H~H′
-      bisim₂ₙ ok Rₙₜ.fstₕ H~H′ ▸s     = _ , Rₜ.fstₕ , H~H′
-      bisim₂ₙ ok Rₙₜ.sndₕ H~H′ ▸s     = _ , Rₜ.sndₕ , H~H′
-      bisim₂ₙ ok Rₙₜ.prodrecₕ H~H′ ▸s = _ , Rₜ.prodrecₕ , H~H′
-      bisim₂ₙ ok Rₙₜ.natrecₕ H~H′ ▸s  = _ , Rₜ.natrecₕ , H~H′
-      bisim₂ₙ ok Rₙₜ.unitrecₕ H~H′ ▸s = _ , Rₜ.unitrecₕ , H~H′
-      bisim₂ₙ ok Rₙₜ.Jₕ H~H′ ▸s       = _ , Rₜ.Jₕ , H~H′
-      bisim₂ₙ ok Rₙₜ.Kₕ H~H′ ▸s       = _ , Rₜ.Kₕ , H~H′
-      bisim₂ₙ ok Rₙₜ.[]-congₕ H~H′ ▸s = _ , Rₜ.[]-congₕ , H~H′
+      bisim₂ₙ ok Rₙₜ.appₕ H~H′ ▸s            = _ , Rₜ.appₕ , H~H′
+      bisim₂ₙ ok Rₙₜ.fstₕ H~H′ ▸s            = _ , Rₜ.fstₕ , H~H′
+      bisim₂ₙ ok Rₙₜ.sndₕ H~H′ ▸s            = _ , Rₜ.sndₕ , H~H′
+      bisim₂ₙ ok Rₙₜ.prodrecₕ H~H′ ▸s        = _ , Rₜ.prodrecₕ , H~H′
+      bisim₂ₙ ok Rₙₜ.natrecₕ H~H′ ▸s         = _ , Rₜ.natrecₕ , H~H′
+      bisim₂ₙ ok (Rₙₜ.unitrecₕ no-η) H~H′ ▸s = _ , Rₜ.unitrecₕ no-η , H~H′
+      bisim₂ₙ ok Rₙₜ.Jₕ H~H′ ▸s              = _ , Rₜ.Jₕ , H~H′
+      bisim₂ₙ ok Rₙₜ.Kₕ H~H′ ▸s              = _ , Rₜ.Kₕ , H~H′
+      bisim₂ₙ ok Rₙₜ.[]-congₕ H~H′ ▸s        = _ , Rₜ.[]-congₕ , H~H′
 
     opaque
 
       bisim₂ᵥ : ⟨ H , t , E , S ⟩ Rₙₜ.⇒ᵥ ⟨ H′ , t′ , E′ , S′ ⟩
               → ⟨ H , t , E , S ⟩ Rₜ.⇒ᵥ ⟨ H′ , t′ , E′ , S′ ⟩
-      bisim₂ᵥ Rₙₜ.lamₕ    = Rₜ.lamₕ
-      bisim₂ᵥ Rₙₜ.prodˢₕ₁ = Rₜ.prodˢₕ₁
-      bisim₂ᵥ Rₙₜ.prodˢₕ₂ = Rₜ.prodˢₕ₂
-      bisim₂ᵥ Rₙₜ.prodʷₕ  = Rₜ.prodʷₕ
-      bisim₂ᵥ Rₙₜ.zeroₕ   = Rₜ.zeroₕ
-      bisim₂ᵥ Rₙₜ.sucₕ    = Rₜ.sucₕ
-      bisim₂ᵥ Rₙₜ.starʷₕ  = Rₜ.starʷₕ
-      bisim₂ᵥ Rₙₜ.rflₕⱼ   = Rₜ.rflₕⱼ
-      bisim₂ᵥ Rₙₜ.rflₕₖ   = Rₜ.rflₕₖ
-      bisim₂ᵥ Rₙₜ.rflₕₑ   = Rₜ.rflₕₑ
+      bisim₂ᵥ Rₙₜ.lamₕ            = Rₜ.lamₕ
+      bisim₂ᵥ Rₙₜ.prodˢₕ₁         = Rₜ.prodˢₕ₁
+      bisim₂ᵥ Rₙₜ.prodˢₕ₂         = Rₜ.prodˢₕ₂
+      bisim₂ᵥ Rₙₜ.prodʷₕ          = Rₜ.prodʷₕ
+      bisim₂ᵥ Rₙₜ.zeroₕ           = Rₜ.zeroₕ
+      bisim₂ᵥ Rₙₜ.sucₕ            = Rₜ.sucₕ
+      bisim₂ᵥ Rₙₜ.starʷₕ          = Rₜ.starʷₕ
+      bisim₂ᵥ (Rₙₜ.unitrec-ηₕ η)  = Rₜ.unitrec-ηₕ η
+      bisim₂ᵥ Rₙₜ.rflₕⱼ           = Rₜ.rflₕⱼ
+      bisim₂ᵥ Rₙₜ.rflₕₖ           = Rₜ.rflₕₖ
+      bisim₂ᵥ Rₙₜ.rflₕₑ           = Rₜ.rflₕₑ
 
     opaque
 
@@ -207,10 +205,10 @@ module _ (ℕ-fullred : Bool) where
   -- The proof that the closure of the non-tracking reduction implies
   -- the closure of the tracking reduction has some extra assumptions
 
-  module _ (UA : UsageAssumptions UR) where
+  module _ (UA : UsageAssumptions type-variant UR) where
 
     open UsageAssumptions UA
-    open import Heap.Usage.Reduction UA type-variant optsₜ
+    open import Heap.Usage.Reduction UA optsₜ
 
     bisim₂* : ⟨ H , t , E , S ⟩ Rₙₜ.⇒* ⟨ H′ , t′ , E′ , S′ ⟩
             → H ~ʰ H″
@@ -245,12 +243,9 @@ module _ where
   open import Heap.Typed.Reduction TR optsₙₜ
 
   -- Most of the bisimilarity properties are proven under
-  -- the assumption that the nr function is factoring and
-  -- either the weak unit type is disallowed or that it
-  -- does not have eta equality turned on
+  -- the assumption that the nr function is factoring.
 
-  module _ (no-Unitʷ⊎no-η : ¬ Unitʷ-allowed ⊎ ¬ Unitʷ-η)
-           ⦃ _ : Has-nr M semiring-with-meet ⦄
+  module _ ⦃ _ : Has-nr M semiring-with-meet ⦄
            ⦃ _ : Has-factoring-nr M semiring-with-meet ⦄
            where
 
@@ -261,7 +256,7 @@ module _ where
       bisim₃ (_ , _ , ⊢t , ⊢S) (Rₙₜ.⇒ₙ d) =
         subst (ε ⊢ _ ⇒*_∷ _) (⇒ₙ-norm-≡ d) (id (⊢⦅⦆ ⊢S ⊢t))
       bisim₃ ⊢s (Rₙₜ.⇒ᵥ d) =
-        redMany (⇒ᵥ→⇒ no-Unitʷ⊎no-η ⊢s d) --(⇒ᵥ→⇒ ⊢s d)
+        redMany (⇒ᵥ→⇒ ⊢s d)
 
     opaque
 
@@ -276,24 +271,23 @@ module _ where
     opaque
 
       bisim₄ᵥ : ε ⊢ ⦅ S ⦆ (wk E t) [ H ]ₕ ⇒ u ∷ A
-              → Val t
+              → Normal t
               → Γ ⊢ₛ ⟨ H , t , E , S ⟩ ∷ B
               → ∃₃ λ m n (s : State m n) → ⟨ H , t , E , S ⟩ Rₙₜ.⇒ᵥ s × u PE.≡ norm s
-      bisim₄ᵥ {S = ε} {E} {H} d v ⊢s =
+      bisim₄ᵥ {S = ε} {E} {H} d (val v) ⊢s =
         ⊥-elim (whnfRedTerm d (Val→Whnf (substVal (toSubstₕ H) (wkVal E v)) .proj₁))
-      bisim₄ᵥ {S = e ∙ S} d v ⊢s =
+      bisim₄ᵥ {S = e ∙ S} d (val v) ⊢s =
         case ⊢Val-⇒ᵥ ⊢s v of λ
           (_ , _ , _ , d′) →
-        _ , _ , _ , d′ , whrDetTerm d (⇒ᵥ→⇒ no-Unitʷ⊎no-η ⊢s d′)
-
-    opaque
-
-      Normal→Val : Γ ⊢ₛ ⟨ H , t , E , S ⟩ ∷ A → Normal t → Val t
-      Normal→Val _ (val v) = v
-      Normal→Val (_ , ⊢H , ⊢t , _) emptyrecₙ =
+        _ , _ , _ , d′ , whrDetTerm d (⇒ᵥ→⇒ ⊢s d′)
+      bisim₄ᵥ d emptyrecₙ (_ , _ , ⊢t , _) =
         case inversion-emptyrec ⊢t of λ
           (_ , ⊢t , _) →
         ⊥-elim (¬Empty ⊢t)
+      bisim₄ᵥ d (unitrec-ηₙ η) ⊢s =
+        case Rₙₜ.unitrec-ηₕ η of λ
+          d′ →
+        _ , _ , _ , d′ , whrDetTerm d (⇒ᵥ→⇒ ⊢s d′)
 
     opaque
 
@@ -305,10 +299,9 @@ module _ where
           (_ , _ , _ , _ , n , d′) →
         case ⊢ₛ-⇒ₙ* ⊢s d′ of λ
           (_ , _ , _ , ⊢s′) →
-        case bisim₄ᵥ (PE.subst (λ x → ε ⊢ x ⇒ _ ∷ _) (⇒ₙ*-norm-≡ d′) d)
-               (Normal→Val ⊢s′ n) ⊢s′ of λ
+        case bisim₄ᵥ (PE.subst (λ x → ε ⊢ x ⇒ _ ∷ _) (⇒ₙ*-norm-≡ d′) d) n ⊢s′ of λ
           (_ , _ , s′ , d″ , u≡) →
-        _ , _ , s′ , ((⇒ₙ* d′) ⇨* ((Rₙₜ.⇒ᵥ d″) Rₙₜ.⇨ Rₙₜ.id)) , u≡
+        _ , _ , s′ , (⇒ₙ* d′ ⇨* (Rₙₜ.⇒ᵥ d″) Rₙₜ.⇨ Rₙₜ.id) , u≡
 
     opaque
 
@@ -340,8 +333,7 @@ module _ where
   -- corresponds to the closure of the tracking reduction has
   -- some extra assumptions.
 
-  module _ (UA : UsageAssumptions UR)
-           (no-Unitʷ⊎no-η : ¬ Unitʷ-allowed ⊎ ¬ Unitʷ-η) where
+  module _ (UA : UsageAssumptions type-variant UR) where
 
     open UsageAssumptions UA
 
@@ -352,7 +344,7 @@ module _ where
               → γ ⨾ δ ⨾ η ▸ ⟨ H , t , E , S ⟩
               → ∃₃ λ m n (s : State m n) → ⟨ H , t , E , S ⟩ Rₜ.⇒* s × u PE.≡ norm s
       bisim₆* d ⊢s ▸s =
-        case bisim₄* no-Unitʷ⊎no-η d ⊢s of λ
+        case bisim₄* d ⊢s of λ
           (_ , _ , ⟨ H , t , E , S ⟩ , d′ , u≡) →
         case bisim₂* false UA d′ ~ʰ-refl ▸s of λ
           (_ , d″ , H~H′) →
@@ -381,7 +373,7 @@ module _ ⦃ _ : Has-nr M semiring-with-meet ⦄
   bisim₇ₙ Rₙₛ.sndₕ = Rₛ.sndₕ
   bisim₇ₙ Rₙₛ.prodrecₕ = Rₛ.prodrecₕ
   bisim₇ₙ Rₙₛ.natrecₕ = Rₛ.natrecₕ
-  bisim₇ₙ Rₙₛ.unitrecₕ = Rₛ.unitrecₕ
+  bisim₇ₙ (Rₙₛ.unitrecₕ no-η) = Rₛ.unitrecₕ no-η
   bisim₇ₙ Rₙₛ.Jₕ = Rₛ.Jₕ
   bisim₇ₙ Rₙₛ.Kₕ = Rₛ.Kₕ
   bisim₇ₙ Rₙₛ.[]-congₕ = Rₛ.[]-congₕ
@@ -394,6 +386,7 @@ module _ ⦃ _ : Has-nr M semiring-with-meet ⦄
   bisim₇ᵥ Rₙₛ.zeroₕ = Rₛ.zeroₕ
   bisim₇ᵥ Rₙₛ.sucₕ = Rₛ.sucₕ
   bisim₇ᵥ Rₙₛ.starʷₕ = Rₛ.starʷₕ
+  bisim₇ᵥ (Rₙₛ.unitrec-ηₕ η) = Rₛ.unitrec-ηₕ η
   bisim₇ᵥ Rₙₛ.rflₕⱼ = Rₛ.rflₕⱼ
   bisim₇ᵥ Rₙₛ.rflₕₖ = Rₛ.rflₕₖ
   bisim₇ᵥ Rₙₛ.rflₕₑ = Rₛ.rflₕₑ

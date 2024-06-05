@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- Bisimilarity properties between the heap semantics with different
+-- options and the call by name weak-head reduction.
+------------------------------------------------------------------------
 
 open import Graded.Modality
 open import Graded.Usage.Restrictions
@@ -9,10 +13,9 @@ open import Tools.Sum hiding (id)
 module Heap.Soundness
   {a} {M : Set a} {𝕄 : Modality M}
   {UR : Usage-restrictions 𝕄}
-  (UA : UsageAssumptions UR)
   (TR : Type-restrictions 𝕄)
   (open Type-restrictions TR)
-  (no-Unitʷ⊎no-η : ¬ Unitʷ-allowed ⊎ ¬ Unitʷ-η)
+  (UA : UsageAssumptions type-variant UR)
   where
 
 open UsageAssumptions UA
@@ -46,20 +49,21 @@ open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Inversion 𝕄 UR
 
 open import Heap.Options
-open import Heap.Untyped 𝕄 hiding (wkᶜ)
+open import Heap.Untyped 𝕄 type-variant
 open import Heap.Untyped.Properties 𝕄
-open import Heap.Usage 𝕄 UR
-open import Heap.Usage.Properties UR type-variant
-import Heap.Usage.Reduction UA type-variant (tracking-and-ℕ-fullred-if false) as URᶠ
-import Heap.Usage.Reduction UA type-variant (tracking-and-ℕ-fullred-if true) as URᵗ
-open import Heap.Termination UA TR no-Unitʷ⊎no-η
+open import Heap.Usage 𝕄 type-variant UR
+open import Heap.Usage.Properties type-variant UR
+import Heap.Usage.Reduction UA (tracking-and-ℕ-fullred-if false) as URᶠ
+import Heap.Usage.Reduction UA (tracking-and-ℕ-fullred-if true) as URᵗ
+open import Heap.Termination TR UA
 open import Heap.Typed TR false
 import Heap.Typed TR true as HTₜ
 open import Heap.Typed.Reduction TR (tracking-and-ℕ-fullred-if false) hiding (⇒*→≡)
 open import Heap.Typed.Reduction TR (tracking-and-ℕ-fullred-if true) using (⇒*→≡)
+open import Heap.Typed.Properties TR
 open import Heap.Bisimilarity UR TR
 open import Heap.Normalization 𝕄
-open import Heap.Reduction 𝕄 (tracking-and-ℕ-fullred-if true)
+open import Heap.Reduction 𝕄 type-variant (tracking-and-ℕ-fullred-if true)
 open import Heap.Reduction.Properties 𝕄 type-variant (tracking-and-ℕ-fullred-if true)
   using (_⇨*_; ++sucₛ-⇒*)
 open import Heap.Reduction.Properties 𝕄 type-variant (not-tracking-and-ℕ-fullred-if false)
@@ -148,7 +152,7 @@ opaque
     case ⊩∷ℕ⇔ .proj₁ (reducible-⊩∷ ⊢t) of λ
       [t] →
     case redNumeral [t] (PE.sym (PE.trans (subst-id (wk id t)) (wk-id t)))
-           (⊢initial ⊢t) ▸s of λ
+           (⊢initial false ⊢t) ▸s of λ
       (_ , _ , H , E , t , d , num) →
     case URᵗ.▸-⇒* ▸s d of λ {
       (γ , δ , _ , ▸H , ▸n , ε , γ≤) →
@@ -162,7 +166,7 @@ opaque
       , PE.subst₂ (ε ⊢_≡_∷ ℕ)
           (PE.trans (subst-id (wk id _)) (wk-id _))
           (PE.trans (PE.cong (_[ H ]ₕ) (wk-sucᵏ k)) (subst-sucᵏ k))
-          (⇒*→≡ (HTₜ.⊢initial ⊢t) d′)
+          (⇒*→≡ (⊢initial true ⊢t) d′)
       , 𝟘▸H→H≤𝟘 (subₕ ▸H (begin
           γ                  ≤⟨ γ≤ ⟩
           𝟙 ·ᶜ wkᶜ E δ +ᶜ 𝟘ᶜ ≈⟨ +ᶜ-identityʳ _ ⟩

@@ -26,13 +26,13 @@ import Graded.Derived.Erased.Untyped 𝕄 as E
 open import Graded.Derived.Erased.Typed TR
 
 open import Heap.Typed TR ℕ-fullred
-open import Heap.Untyped 𝕄
+open import Heap.Untyped 𝕄 type-variant
 
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Product
 import Tools.PropositionalEquality as PE
-open import Tools.Sum hiding (sym)
+open import Tools.Relation
 
 private variable
   H : Heap _
@@ -132,15 +132,16 @@ opaque
   inversion-unitrecₑ : H ⊢ᵉ unitrecₑ p q A u E ∷ t ∷ B ↝ C
                      → ε ⊢ wk E u [ H ]ₕ ∷ wk (lift E) A [ H ]⇑ₕ [ starʷ ]₀
                      × (ε ∙ Unitʷ ⊢ wk (lift E) A [ H ]⇑ₕ)
+                     × ¬ Unitʷ-η
                      × B PE.≡ Unitʷ
                      × (ε ⊢ t [ H ]ₕ ∷ B → ε ⊢ C ≡ (wk (lift E) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀))
-  inversion-unitrecₑ {A} (unitrecₑ ⊢u ⊢A) =
-    ⊢u , ⊢A , PE.refl
+  inversion-unitrecₑ {A} (unitrecₑ ⊢u ⊢A no-η) =
+    ⊢u , ⊢A , no-η , PE.refl
        , λ ⊢t → refl (substType ⊢A ⊢t)
   inversion-unitrecₑ (conv ⊢e ≡C) =
     case inversion-unitrecₑ ⊢e of λ
-      (⊢u , ⊢A , B≡ , C≡) →
-    ⊢u , ⊢A , B≡ , λ ⊢t → trans (sym ≡C) (C≡ ⊢t)
+      (⊢u , ⊢A , no-η , B≡ , C≡) →
+    ⊢u , ⊢A , no-η , B≡ , λ ⊢t → trans (sym ≡C) (C≡ ⊢t)
 
 -- opaque
 

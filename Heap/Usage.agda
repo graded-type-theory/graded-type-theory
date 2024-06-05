@@ -4,9 +4,12 @@
 
 open import Graded.Modality
 open import Graded.Usage.Restrictions
+open import Definition.Typed.Variant
 
 module Heap.Usage
-  {a} {M : Set a} (𝕄 : Modality M)
+  {a} {M : Set a}
+  (𝕄 : Modality M)
+  (type-variant : Type-variant)
   (UR : Usage-restrictions 𝕄)
   (open Modality 𝕄)
   ⦃ _ : Has-nr M semiring-with-meet ⦄
@@ -20,7 +23,7 @@ open import Tools.Product
 open import Tools.PropositionalEquality
 
 open import Definition.Untyped M
-open import Heap.Untyped 𝕄 hiding (wkᶜ)
+open import Heap.Untyped 𝕄 type-variant
 
 open import Graded.Context 𝕄
 open import Graded.Context.Weakening 𝕄

@@ -20,7 +20,7 @@ open import Definition.Typed TR
 open import Definition.Typed.Weakening TR hiding (wk)
 import Graded.Derived.Erased.Untyped 𝕄 as Erased
 
-open import Heap.Untyped 𝕄
+open import Heap.Untyped 𝕄 type-variant
 open import Heap.Untyped.Properties 𝕄 type-variant
 open import Heap.Typed TR ℕ-fullred
 
@@ -110,7 +110,7 @@ opaque
     subst₂ (λ x y → H ⊢ᵉ _ ∷ _ ∷ ℕ ↝ x [ y ]₀)
       (PE.sym A≡A′) (PE.sym (wk-[]ₕ [ρ] t))
       (natrecₑ ⊢z′ ⊢s′ ⊢A′)
-  wk-⊢ᵉ {ρ} {H} {H′} {t} [ρ] (unitrecₑ {E} {u} {A} ⊢u ⊢A) =
+  wk-⊢ᵉ {ρ} {H} {H′} {t} [ρ] (unitrecₑ {E} {u} {A} ⊢u ⊢A no-η) =
     case wk-liftₕ 1 [ρ] A of λ
       A≡A′ →
     case subst₂ (ε ⊢_∷_) (wk-liftₕ 0 [ρ] u) (cong _[ starʷ ]₀ A≡A′) ⊢u of λ
@@ -119,7 +119,7 @@ opaque
       ⊢A′ →
     subst₂ (λ x y → H ⊢ᵉ _ ∷ _ ∷ _ ↝ (x [ y ]₀))
       (PE.sym A≡A′) (PE.sym (wk-[]ₕ [ρ] t))
-      (unitrecₑ ⊢u′ ⊢A′)
+      (unitrecₑ ⊢u′ ⊢A′ no-η)
   wk-⊢ᵉ {ρ} {H} {t = w} [ρ] (Jₑ {E} {A} {B} {t} {u} {v} {p} {q} ⊢u ⊢B) =
     case wk-liftₕ 0 [ρ] u of λ
       u≡u′ →

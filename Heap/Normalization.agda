@@ -9,6 +9,8 @@ module Heap.Normalization
   ⦃ _ : Has-factoring-nr M semiring-with-meet ⦄
   where
 
+open Type-variant type-variant
+
 open import Tools.Bool
 open import Tools.Fin
 open import Tools.Function
@@ -16,6 +18,7 @@ open import Tools.Nat
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
+open import Tools.Relation
 open import Tools.Sum hiding (id)
 
 open import Heap.Options
@@ -24,9 +27,9 @@ private
   opts : Options
   opts = not-tracking-and-ℕ-fullred-if false
 
-open import Heap.Reduction 𝕄 opts
+open import Heap.Reduction 𝕄 type-variant opts
 open import Heap.Reduction.Properties 𝕄 type-variant opts
-open import Heap.Untyped 𝕄
+open import Heap.Untyped 𝕄 type-variant
 open import Heap.Untyped.Properties 𝕄 type-variant
 
 open import Definition.Untyped M hiding (head)
@@ -83,9 +86,13 @@ opaque mutual
   normalize H (star s) E S =
     _ , star s , E , S , val starᵥ , id
   normalize H (unitrec p q A t u) E S =
-    case normalize H t E (unitrecₑ p q A u E ∙ S) of λ
-      (_ , _ , _ , _ , n , d) →
-    _ , _ , _ , _ , n , unitrecₕ ⇨ d
+    case Unitʷ-η? of λ where
+      (yes η) →
+        _ , unitrec p q A t u , E , S , unitrec-ηₙ η , id
+      (no no-η) →
+        case normalize H t E (unitrecₑ p q A u E ∙ S) of λ
+          (_ , _ , _ , _ , n , d) →
+        _ , _ , _ , _ , n , unitrecₕ no-η ⇨ d
   normalize H zero E S =
     _ , zero , E , S , val zeroᵥ , id
   normalize H (suc t) E S =
