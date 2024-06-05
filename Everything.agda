@@ -58,13 +58,13 @@ import Definition.Untyped.Neutral
 -- Typing and conversion rules of language
 import Definition.Typed.Restrictions
 import Definition.Typed
-import Definition.Typed.RedSteps
 import Definition.Typed.Reasoning.Type
 import Definition.Typed.Reasoning.Term
-import Definition.Typed.Reasoning.Reduction.Primitive
 import Definition.Typed.Properties.Well-formed
 import Graded.Derived.Erased.Typed.Primitive
 import Definition.Typed.Properties
+import Definition.Typed.RedSteps
+import Definition.Typed.Reasoning.Reduction.Primitive
 import Definition.Typed.Weakening
 import Definition.Typed.Reduction
 import Definition.Typed.EqualityRelation

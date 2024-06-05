@@ -19,9 +19,11 @@ open Type-restrictions R
 
 open import Definition.Untyped M
 open import Definition.Typed R
+open import Definition.Typed.Properties R
 
 import Graded.Derived.Erased.Untyped 𝕄 as Erased
 
+open import Tools.Function
 open import Tools.Nat
 
 private
@@ -29,7 +31,7 @@ private
     n : Nat
     Γ : Con Term n
     A B C : Term n
-    a t t′ u v₁ v₂ r : Term n
+    a t t₁ t₂ t′ u v v₁ v₂ r : Term n
     p q : M
     s : Strength
 
@@ -42,6 +44,14 @@ id ⊢B ⇨* B⇒C = B⇒C
 _⇨∷*_ : Γ ⊢ t ⇒* u ∷ A → Γ ⊢ u ⇒* r ∷ A → Γ ⊢ t ⇒* r ∷ A
 id ⊢u ⇨∷* u⇒r = u⇒r
 (t⇒t′ ⇨ t′⇒u) ⇨∷* u⇒r = t⇒t′ ⇨ (t′⇒u ⇨∷* u⇒r)
+
+opaque
+
+  -- A variant of _⇨∷*_ for _⊢_:⇒*:_∷_.
+
+  trans-:⇒*: : Γ ⊢ t :⇒*: u ∷ A → Γ ⊢ u :⇒*: v ∷ A → Γ ⊢ t :⇒*: v ∷ A
+  trans-:⇒*: [ ⊢t , _ , t⇒*u ] [ _ , ⊢v , u⇒*v ] =
+    [ ⊢t , ⊢v , t⇒*u ⇨∷* u⇒*v ]
 
 -- Conversion of reduction closures
 conv* : Γ ⊢ t ⇒* u ∷ A → Γ ⊢ A ≡ B → Γ ⊢ t ⇒* u ∷ B
@@ -69,6 +79,17 @@ app-subst* : Γ ⊢ t ⇒* t′ ∷ Π p , q ▷ A ▹ B → Γ ⊢ a ∷ A
            → Γ ⊢ t ∘⟨ p ⟩ a ⇒* t′ ∘⟨ p ⟩ a ∷ B [ a ]₀
 app-subst* (id x) a₁ = id (x ∘ⱼ a₁)
 app-subst* (x ⇨ t⇒t′) a₁ = app-subst x a₁ ⇨ app-subst* t⇒t′ a₁
+
+opaque
+
+  -- A variant of app-subst*.
+
+  app-subst:*: :
+    Γ ⊢ t₁ :⇒*: t₂ ∷ Π p , q ▷ A ▹ B →
+    Γ ⊢ u ∷ A →
+    Γ ⊢ t₁ ∘⟨ p ⟩ u :⇒*: t₂ ∘⟨ p ⟩ u ∷ B [ u ]₀
+  app-subst:*: [ ⊢t₁ , ⊢t₂ , t₁⇒*t₂ ] ⊢u =
+    [ ⊢t₁ ∘ⱼ ⊢u , ⊢t₂ ∘ⱼ ⊢u , app-subst* t₁⇒*t₂ ⊢u ]
 
 -- First projection substitution of reduction closures
 fst-subst* : Γ ⊢ t ⇒* t′ ∷ Σˢ p , q ▷ A ▹ B
