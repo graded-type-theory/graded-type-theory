@@ -1169,7 +1169,7 @@ opaque
   finally-⊩≡⇐* _ C⇒*B A≡B =
     trans-⊩≡ A≡B (sym-⊩≡ (⊩-⇐* C⇒*B (wf-⊩≡ A≡B .proj₂) .proj₂))
 
-  syntax finally-⊩≡⇐* t v⇒*u t≡u = t ≡⟨ t≡u ⟩⊩⇐* v⇒*u
+  syntax finally-⊩≡⇐* A C⇒*B A≡B = A ≡⟨ A≡B ⟩⊩⇐* C⇒*B
 
 opaque
 
