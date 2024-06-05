@@ -1090,7 +1090,7 @@ opaque
     _∎⟨_⟩⊩ finally-⊩≡ finally-⊩≡˘
   infixr -2
     step-⊩≡ step-⊩≡˘ step-⊩≡≡ step-⊩≡≡˘ step-⊩≡⇒* step-⊩≡⇒ step-⊩≡⇐*
-    step-⊩≡⇐ _≡⟨⟩⊩_ finally-⊩≡≡ finally-⊩≡≡˘ finally-⊩≡⇐*
+    step-⊩≡⇐ _≡⟨⟩⊩_ finally-⊩≡≡ finally-⊩≡≡˘ finally-⊩≡⇐* finally-⊩≡:⇒*:
 
   step-⊩≡ : ∀ A → Γ ⊩⟨ l ⟩ B ≡ C → Γ ⊩⟨ l ⟩ A ≡ B → Γ ⊩⟨ l ⟩ A ≡ C
   step-⊩≡ _ = flip trans-⊩≡
@@ -1171,6 +1171,15 @@ opaque
 
   syntax finally-⊩≡⇐* A C⇒*B A≡B = A ≡⟨ A≡B ⟩⊩⇐* C⇒*B
 
+  finally-⊩≡:⇒*: :
+    ∀ A → Γ ⊢ B :⇒*: C → Γ ⊩⟨ l ⟩ A ≡ B → Γ ⊩⟨ l ⟩ A ≡ C
+  finally-⊩≡:⇒*: _ B⇒*C A≡B =
+    case wf-⊩≡ A≡B of λ
+      (_ , ⊩B) →
+    trans-⊩≡ A≡B (⊩-⇒* B⇒*C ⊩B .proj₂)
+
+  syntax finally-⊩≡:⇒*: A B⇒*C A≡B = A ≡⟨ A≡B ⟩⊩:⇒*: B⇒*C
+
 opaque
 
   -- Equational reasoning combinators for _⊩⟨_⟩_≡_∷_.
@@ -1182,7 +1191,7 @@ opaque
   infixr -2
     step-⊩≡∷ step-⊩≡∷˘ step-⊩≡∷≡ step-⊩≡∷≡˘ step-⊩≡∷⇒* step-⊩≡∷⇒
     step-⊩≡∷⇐* step-⊩≡∷⇐ _≡⟨⟩⊩∷_ finally-⊩≡∷≡ finally-⊩≡∷≡˘
-    finally-⊩≡∷⇐*
+    finally-⊩≡∷⇐* finally-⊩≡∷:⇒*:
 
   step-⊩≡∷ :
     ∀ t → Γ ⊩⟨ l ⟩ u ≡ v ∷ A → Γ ⊩⟨ l′ ⟩ t ≡ u ∷ A → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
@@ -1293,6 +1302,15 @@ opaque
 
   syntax finally-⊩≡∷⇐* t v⇒*u t≡u = t ≡⟨ t≡u ⟩⊩∷⇐* v⇒*u
 
+  finally-⊩≡∷:⇒*: :
+    ∀ t → Γ ⊢ u :⇒*: v ∷ A → Γ ⊩⟨ l ⟩ t ≡ u ∷ A → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
+  finally-⊩≡∷:⇒*: _ u⇒*v t≡u =
+    case wf-⊩≡∷ t≡u of λ
+      (_ , ⊩u) →
+    trans-⊩≡∷ t≡u (⊩∷-⇒* u⇒*v ⊩u .proj₂)
+
+  syntax finally-⊩≡∷:⇒*: t u⇒*v t≡u = t ≡⟨ t≡u ⟩⊩∷:⇒*: u⇒*v
+
 opaque
 
   -- Equational reasoning combinators for _⊩⟨_⟩_≡_∷_ with explicit
@@ -1305,7 +1323,7 @@ opaque
   infixr -2
     step-⊩≡∷∷ step-⊩≡∷∷˘ step-⊩≡∷∷≡ step-⊩≡∷∷≡˘ step-⊩≡∷∷⇒* step-⊩≡∷∷⇒
     step-⊩≡∷∷⇐* step-⊩≡∷∷⇐ _∷_≡⟨⟩⊩∷∷_ finally-⊩≡∷∷≡ finally-⊩≡∷∷≡˘
-    finally-⊩≡∷∷⇐*
+    finally-⊩≡∷∷⇐* finally-⊩≡∷∷:⇒*:
 
   step-⊩≡∷∷ :
     ∀ t A →
@@ -1415,6 +1433,12 @@ opaque
   finally-⊩≡∷∷⇐* _ _ = finally-⊩≡∷⇐* _
 
   syntax finally-⊩≡∷∷⇐* t A v⇒*u t≡u = t ∷ A ≡⟨ t≡u ⟩⊩∷∷⇐* v⇒*u
+
+  finally-⊩≡∷∷:⇒*: :
+    ∀ t A → Γ ⊢ u :⇒*: v ∷ A → Γ ⊩⟨ l ⟩ t ≡ u ∷ A → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
+  finally-⊩≡∷∷:⇒*: _ _ = finally-⊩≡∷:⇒*: _
+
+  syntax finally-⊩≡∷∷:⇒*: t A v⇒*u t≡u = t ∷ A ≡⟨ t≡u ⟩⊩∷∷:⇒*: v⇒*u
 
 ------------------------------------------------------------------------
 -- Embedding
