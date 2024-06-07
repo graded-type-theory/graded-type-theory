@@ -24,6 +24,7 @@ private
     η : Wk n ℓ
     σ σ₁ σ₂ σ′ : Subst m n
     p q r : M
+    s : Strength
 
 -- Extensionally equal weakenings, if applied to a term,
 -- yield the same weakened term.  Or:
@@ -861,19 +862,21 @@ substCompProdrec {n = n} A t u σ = begin
    varEq x0 = refl
    varEq (x +1) = trans (wk1-tail (σ x)) (subst-id (σ x))
 
--- A variant of the previous lemma.
+opaque
 
-[1,0]↑²[,] :
-  (t : Term (1+ n)) →
-  t [ prodˢ p (var x1) (var x0) ]↑² [ u , v ]₁₀ ≡
-  t [ prodˢ p u v ]₀
-[1,0]↑²[,] {p = p} {u = u} {v = v} t =
-  t [ prodˢ p (var x1) (var x0) ]↑² [ u , v ]₁₀  ≡˘⟨ substCompProdrec t _ _ _ ⟩
+  -- A variant of the previous lemma.
 
-  t [ liftSubst idSubst ] [ prodˢ p u v ]₀       ≡⟨ cong _[ _ ] $
-                                                    trans (substVar-to-subst subst-lift-id t) $
-                                                    subst-id t ⟩
-  t [ prodˢ p u v ]₀                             ∎
+  [1,0]↑²[,] :
+    (t : Term (1+ n)) →
+    t [ prod s p (var x1) (var x0) ]↑² [ u , v ]₁₀ ≡
+    t [ prod s p u v ]₀
+  [1,0]↑²[,] {s} {p} {u} {v} t =
+    t [ prod s p (var x1) (var x0) ]↑² [ u , v ]₁₀  ≡˘⟨ substCompProdrec t _ _ _ ⟩
+
+    t [ liftSubst idSubst ] [ prod s p u v ]₀       ≡⟨ cong _[ _ ] $
+                                                       trans (substVar-to-subst subst-lift-id t) $
+                                                       subst-id t ⟩
+    t [ prod s p u v ]₀                             ∎
 
 opaque
 
