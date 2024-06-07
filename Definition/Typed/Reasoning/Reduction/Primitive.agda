@@ -48,8 +48,8 @@ syntax step-⇒* t u⇒v t⇒u = t ⇒*⟨ t⇒u ⟩ u⇒v
 {-# INLINE step-⇒* #-}
 
 -- The reflexivity proof requires one to prove that the term is
--- well-formed. In a non-empty chain of reasoning steps one can
--- instead end with the following combinator.
+-- well-typed. In a non-empty chain of reasoning steps one can instead
+-- end with the following combinator.
 
 finally-⇒* : ∀ t u → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t ⇒* u ∷ A
 finally-⇒* _ _ t⇒u = t⇒u
@@ -109,8 +109,8 @@ syntax step-⇐* v t⇒u u⇒v = v ⇐*⟨ u⇒v ⟩ t⇒u
 {-# INLINE step-⇐* #-}
 
 -- The reflexivity proof requires one to prove that the term is
--- well-formed. In a non-empty chain of reasoning steps one can
--- instead end with the following combinator.
+-- well-typed. In a non-empty chain of reasoning steps one can instead
+-- end with the following combinator.
 
 finally-⇐* : ∀ u t → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t ⇒* u ∷ A
 finally-⇐* _ _ t⇒u = t⇒u
@@ -229,8 +229,8 @@ _ ∷ _ ≡⟨⟩⇒∷ t⇒u = t⇒u
 {-# INLINE _∷_≡⟨⟩⇒∷_ #-}
 
 -- The reflexivity proof requires one to prove that the term is
--- well-formed. In a non-empty chain of reasoning steps one can
--- instead end with the following combinator.
+-- well-typed. In a non-empty chain of reasoning steps one can instead
+-- end with the following combinator.
 
 finally-⇒*∷ : ∀ t A u → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t ⇒* u ∷ A
 finally-⇒*∷ _ _ _ t⇒u = t⇒u
@@ -316,8 +316,8 @@ _ ∷ _ ≡⟨⟩⇐∷ t⇒u = t⇒u
 {-# INLINE _∷_≡⟨⟩⇐∷_ #-}
 
 -- The reflexivity proof requires one to prove that the term is
--- well-formed. In a non-empty chain of reasoning steps one can
--- instead end with the following combinator.
+-- well-typed. In a non-empty chain of reasoning steps one can instead
+-- end with the following combinator.
 
 finally-⇐*∷ : ∀ u A t → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t ⇒* u ∷ A
 finally-⇐*∷ _ _ _ t⇒u = t⇒u
@@ -335,7 +335,7 @@ syntax finally-⇐∷ u A t t⇒u ⊢u = u ∷ A ⇐⟨ t⇒u , ⊢u ⟩∎∷ t
 
 {-# INLINE finally-⇐∷ #-}
 
--- A variant of finally-⇐* that makes it possible to end the chain of
+-- A variant of finally-⇐*∷ that makes it possible to end the chain of
 -- reasoning steps with a propositional equality, without the use of
 -- _∷_∎⟨_⟩⇒.
 

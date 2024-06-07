@@ -75,8 +75,8 @@ _ ∎⟨ ⊢t ⟩⊢ = refl ⊢t
 {-# INLINE _∎⟨_⟩⊢ #-}
 
 -- The reflexivity proof requires one to prove that the term is
--- well-formed. In a non-empty chain of reasoning steps one can
--- instead end with the following combinator.
+-- well-typed. In a non-empty chain of reasoning steps one can instead
+-- end with the following combinator.
 
 finally : ∀ t u → Γ ⊢ t ≡ u ∷ A → Γ ⊢ t ≡ u ∷ A
 finally _ _ t≡u = t≡u
@@ -166,8 +166,8 @@ _ ∷ _ ∎⟨ ⊢t ⟩⊢ = refl ⊢t
 {-# INLINE _∷_∎⟨_⟩⊢ #-}
 
 -- The reflexivity proof requires one to prove that the term is
--- well-formed. In a non-empty chain of reasoning steps one can
--- instead end with the following combinator.
+-- well-typed. In a non-empty chain of reasoning steps one can instead
+-- end with the following combinator.
 
 finally-∷ : ∀ t A u → Γ ⊢ t ≡ u ∷ A → Γ ⊢ t ≡ u ∷ A
 finally-∷ _ _ _ t≡u = t≡u
