@@ -1,0 +1,60 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Graded.Usage.Decidable.Assumptions</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- Assumptions used to prove that the usage relation is decidable</a>
+<a id="140" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="214" class="Keyword">open</a> <a id="219" class="Keyword">import</a> <a id="226" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+<a id="242" class="Keyword">open</a> <a id="247" class="Keyword">import</a> <a id="254" href="Graded.Usage.Restrictions.html" class="Module">Graded.Usage.Restrictions</a>
+
+<a id="281" class="Keyword">module</a> <a id="288" href="Graded.Usage.Decidable.Assumptions.html" class="Module">Graded.Usage.Decidable.Assumptions</a>
+  <a id="325" class="Symbol">{</a><a id="326" href="Graded.Usage.Decidable.Assumptions.html#326" class="Bound">a</a><a id="327" class="Symbol">}</a> <a id="329" class="Symbol">{</a><a id="330" href="Graded.Usage.Decidable.Assumptions.html#330" class="Bound">M</a> <a id="332" class="Symbol">:</a> <a id="334" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="338" href="Graded.Usage.Decidable.Assumptions.html#326" class="Bound">a</a><a id="339" class="Symbol">}</a>
+  <a id="343" class="Symbol">{</a><a id="344" href="Graded.Usage.Decidable.Assumptions.html#344" class="Bound">𝕄</a> <a id="346" class="Symbol">:</a> <a id="348" href="Graded.Modality.html#7187" class="Record">Modality</a> <a id="357" href="Graded.Usage.Decidable.Assumptions.html#330" class="Bound">M</a><a id="358" class="Symbol">}</a>
+  <a id="362" class="Symbol">(</a><a id="363" href="Graded.Usage.Decidable.Assumptions.html#363" class="Bound">R</a> <a id="365" class="Symbol">:</a> <a id="367" href="Graded.Usage.Restrictions.html#688" class="Record">Usage-restrictions</a> <a id="386" href="Graded.Usage.Decidable.Assumptions.html#344" class="Bound">𝕄</a><a id="387" class="Symbol">)</a>
+  <a id="391" class="Keyword">where</a>
+
+<a id="398" class="Keyword">open</a> <a id="403" href="Graded.Modality.html#7187" class="Module">Modality</a> <a id="412" href="Graded.Usage.Decidable.Assumptions.html#344" class="Bound">𝕄</a>
+<a id="414" class="Keyword">open</a> <a id="419" href="Graded.Usage.Restrictions.html#688" class="Module">Usage-restrictions</a> <a id="438" href="Graded.Usage.Decidable.Assumptions.html#363" class="Bound">R</a>
+
+<a id="441" class="Keyword">open</a> <a id="446" class="Keyword">import</a> <a id="453" href="Graded.Context.html" class="Module">Graded.Context</a> <a id="468" href="Graded.Usage.Decidable.Assumptions.html#344" class="Bound">𝕄</a>
+<a id="470" class="Keyword">open</a> <a id="475" class="Keyword">import</a> <a id="482" href="Graded.Context.Properties.html" class="Module">Graded.Context.Properties</a> <a id="508" href="Graded.Usage.Decidable.Assumptions.html#344" class="Bound">𝕄</a>
+<a id="510" class="Keyword">open</a> <a id="515" class="Keyword">import</a> <a id="522" href="Graded.Modality.Dedicated-nr.html" class="Module">Graded.Modality.Dedicated-nr</a> <a id="551" href="Graded.Usage.Decidable.Assumptions.html#344" class="Bound">𝕄</a>
+<a id="553" class="Keyword">open</a> <a id="558" class="Keyword">import</a> <a id="565" href="Graded.Modality.Properties.html" class="Module">Graded.Modality.Properties</a> <a id="592" href="Graded.Usage.Decidable.Assumptions.html#344" class="Bound">𝕄</a> <a id="594" class="Keyword">hiding</a> <a id="601" class="Symbol">(</a><a id="602" href="Graded.Modality.Properties.Star.html#2551" class="Function">has-nr</a><a id="608" class="Symbol">)</a>
+
+<a id="611" class="Keyword">open</a> <a id="616" class="Keyword">import</a> <a id="623" href="Tools.Nat.html" class="Module">Tools.Nat</a> <a id="633" class="Keyword">using</a> <a id="639" class="Symbol">(</a><a id="640" href="Agda.Builtin.Nat.html#203" class="Datatype">Nat</a><a id="643" class="Symbol">)</a>
+<a id="645" class="Keyword">open</a> <a id="650" class="Keyword">import</a> <a id="657" href="Tools.PropositionalEquality.html" class="Module">Tools.PropositionalEquality</a>
+<a id="685" class="Keyword">open</a> <a id="690" class="Keyword">import</a> <a id="697" href="Tools.Relation.html" class="Module">Tools.Relation</a>
+
+<a id="713" class="Keyword">private</a> <a id="721" class="Keyword">variable</a>
+  <a id="732" href="Graded.Usage.Decidable.Assumptions.html#732" class="Generalizable">n</a> <a id="734" class="Symbol">:</a> <a id="736" href="Agda.Builtin.Nat.html#203" class="Datatype">Nat</a>
+
+<a id="741" class="Keyword">record</a> <a id="Assumptions"></a><a id="748" href="Graded.Usage.Decidable.Assumptions.html#748" class="Record">Assumptions</a> <a id="760" class="Symbol">:</a> <a id="762" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="766" href="Graded.Usage.Decidable.Assumptions.html#326" class="Bound">a</a> <a id="768" class="Keyword">where</a>
+  <a id="776" class="Keyword">infix</a> <a id="782" class="Number">10</a> <a id="785" href="Graded.Usage.Decidable.Assumptions.html#862" class="Field Operator">_≟_</a> <a id="789" href="Graded.Usage.Decidable.Assumptions.html#1486" class="Function Operator">_≤?_</a> <a id="794" href="Graded.Usage.Decidable.Assumptions.html#1586" class="Function Operator">_≤ᶜ?_</a>
+  <a id="802" class="Keyword">field</a>
+    <a id="812" class="Comment">-- Equality is assumed to be decidable for M.</a>
+    <a id="Assumptions._≟_"></a><a id="862" href="Graded.Usage.Decidable.Assumptions.html#862" class="Field Operator">_≟_</a> <a id="866" class="Symbol">:</a> <a id="868" href="Relation.Binary.Definitions.html#6161" class="Function">Decidable</a> <a id="878" class="Symbol">(</a><a id="879" href="Agda.Builtin.Equality.html#150" class="Datatype Operator">_≡_</a> <a id="883" class="Symbol">{</a><a id="884" class="Argument">A</a> <a id="886" class="Symbol">=</a> <a id="888" href="Graded.Usage.Decidable.Assumptions.html#330" class="Bound">M</a><a id="889" class="Symbol">})</a>
+
+    <a id="897" class="Comment">-- The Prodrec-allowed relation is assumed to be decidable.</a>
+    <a id="Assumptions.Prodrec-allowed?"></a><a id="961" href="Graded.Usage.Decidable.Assumptions.html#961" class="Field">Prodrec-allowed?</a> <a id="978" class="Symbol">:</a> <a id="980" class="Symbol">∀</a> <a id="982" href="Graded.Usage.Decidable.Assumptions.html#982" class="Bound">m</a> <a id="984" href="Graded.Usage.Decidable.Assumptions.html#984" class="Bound">r</a> <a id="986" href="Graded.Usage.Decidable.Assumptions.html#986" class="Bound">p</a> <a id="988" href="Graded.Usage.Decidable.Assumptions.html#988" class="Bound">q</a> <a id="990" class="Symbol">→</a> <a id="992" href="Relation.Nullary.Decidable.Core.html#1485" class="Record">Dec</a> <a id="996" class="Symbol">(</a><a id="997" href="Graded.Usage.Restrictions.html#864" class="Field">Prodrec-allowed</a> <a id="1013" href="Graded.Usage.Decidable.Assumptions.html#982" class="Bound">m</a> <a id="1015" href="Graded.Usage.Decidable.Assumptions.html#984" class="Bound">r</a> <a id="1017" href="Graded.Usage.Decidable.Assumptions.html#986" class="Bound">p</a> <a id="1019" href="Graded.Usage.Decidable.Assumptions.html#988" class="Bound">q</a><a id="1020" class="Symbol">)</a>
+
+    <a id="1027" class="Comment">-- The Unitrec-allowed relation is assumed to be decidable.</a>
+    <a id="Assumptions.Unitrec-allowed?"></a><a id="1091" href="Graded.Usage.Decidable.Assumptions.html#1091" class="Field">Unitrec-allowed?</a> <a id="1108" class="Symbol">:</a> <a id="1110" class="Symbol">∀</a> <a id="1112" href="Graded.Usage.Decidable.Assumptions.html#1112" class="Bound">m</a> <a id="1114" href="Graded.Usage.Decidable.Assumptions.html#1114" class="Bound">p</a> <a id="1116" href="Graded.Usage.Decidable.Assumptions.html#1116" class="Bound">q</a> <a id="1118" class="Symbol">→</a> <a id="1120" href="Relation.Nullary.Decidable.Core.html#1485" class="Record">Dec</a> <a id="1124" class="Symbol">(</a><a id="1125" href="Graded.Usage.Restrictions.html#1224" class="Field">Unitrec-allowed</a> <a id="1141" href="Graded.Usage.Decidable.Assumptions.html#1112" class="Bound">m</a> <a id="1143" href="Graded.Usage.Decidable.Assumptions.html#1114" class="Bound">p</a> <a id="1145" href="Graded.Usage.Decidable.Assumptions.html#1116" class="Bound">q</a><a id="1146" class="Symbol">)</a>
+
+    <a id="1153" class="Comment">-- The Emptyrec-allowed relation is assumed to be decidable.</a>
+    <a id="Assumptions.Emptyrec-allowed?"></a><a id="1218" href="Graded.Usage.Decidable.Assumptions.html#1218" class="Field">Emptyrec-allowed?</a> <a id="1236" class="Symbol">:</a> <a id="1238" class="Symbol">∀</a> <a id="1240" href="Graded.Usage.Decidable.Assumptions.html#1240" class="Bound">m</a> <a id="1242" href="Graded.Usage.Decidable.Assumptions.html#1242" class="Bound">p</a> <a id="1244" class="Symbol">→</a> <a id="1246" href="Relation.Nullary.Decidable.Core.html#1485" class="Record">Dec</a> <a id="1250" class="Symbol">(</a><a id="1251" href="Graded.Usage.Restrictions.html#1576" class="Field">Emptyrec-allowed</a> <a id="1268" href="Graded.Usage.Decidable.Assumptions.html#1240" class="Bound">m</a> <a id="1270" href="Graded.Usage.Decidable.Assumptions.html#1242" class="Bound">p</a><a id="1271" class="Symbol">)</a>
+
+    <a id="1278" class="Comment">-- A dedicated nr function is assumed to exist.</a>
+    <a id="1330" class="Symbol">⦃</a> <a id="Assumptions.has-nr"></a><a id="1332" href="Graded.Usage.Decidable.Assumptions.html#1332" class="Field">has-nr</a> <a id="1339" class="Symbol">⦄</a> <a id="1341" class="Symbol">:</a> <a id="1343" href="Graded.Modality.Dedicated-nr.html#716" class="Record">Dedicated-nr</a>
+
+    <a id="1361" class="Comment">-- The strong unit type is not allowed to be used as a sink.</a>
+    <a id="1426" class="Symbol">⦃</a> <a id="Assumptions.no-sink"></a><a id="1428" href="Graded.Usage.Decidable.Assumptions.html#1428" class="Field">no-sink</a> <a id="1436" class="Symbol">⦄</a> <a id="1438" class="Symbol">:</a> <a id="1440" href="Graded.Usage.Restrictions.html#4692" class="Function">¬Starˢ-sink</a>
+
+  <a id="1455" class="Comment">-- Inequality is decidable.</a>
+
+  <a id="Assumptions._≤?_"></a><a id="1486" href="Graded.Usage.Decidable.Assumptions.html#1486" class="Function Operator">_≤?_</a> <a id="1491" class="Symbol">:</a> <a id="1493" href="Relation.Binary.Definitions.html#6161" class="Function">Decidable</a> <a id="1503" href="Graded.Modality.html#1286" class="Function Operator">_≤_</a>
+  <a id="1509" href="Graded.Usage.Decidable.Assumptions.html#1486" class="Function Operator">_≤?_</a> <a id="1514" class="Symbol">=</a> <a id="1516" href="Graded.Modality.Properties.PartialOrder.html#1661" class="Function">≡-decidable→≤-decidable</a> <a id="1540" href="Graded.Usage.Decidable.Assumptions.html#862" class="Field Operator">_≟_</a>
+
+  <a id="1547" class="Comment">-- Context inequality is decidable.</a>
+
+  <a id="Assumptions._≤ᶜ?_"></a><a id="1586" href="Graded.Usage.Decidable.Assumptions.html#1586" class="Function Operator">_≤ᶜ?_</a> <a id="1592" class="Symbol">:</a> <a id="1594" href="Relation.Binary.Definitions.html#6161" class="Function">Decidable</a> <a id="1604" class="Symbol">(</a><a id="1605" href="Graded.Context.html#1855" class="Function Operator">_≤ᶜ_</a> <a id="1610" class="Symbol">{</a><a id="1611" class="Argument">n</a> <a id="1613" class="Symbol">=</a> <a id="1615" href="Graded.Usage.Decidable.Assumptions.html#732" class="Generalizable">n</a><a id="1616" class="Symbol">})</a>
+  <a id="1621" href="Graded.Usage.Decidable.Assumptions.html#1586" class="Function Operator">_≤ᶜ?_</a> <a id="1627" class="Symbol">=</a> <a id="1629" href="Graded.Context.Properties.PartialOrder.html#2190" class="Function">≤ᶜ-decidable</a> <a id="1642" href="Graded.Usage.Decidable.Assumptions.html#1486" class="Function Operator">_≤?_</a>
+</pre></body></html>
