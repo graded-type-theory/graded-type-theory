@@ -37,7 +37,7 @@ open import Definition.LogicalRelation.Substitution.Weakening R
 import Definition.LogicalRelation.Weakening R as W
 
 open import Definition.Typed R
-open import Definition.Typed.Weakening R using (_∷_⊇_)
+open import Definition.Typed.Weakening R as TW using (_∷_⊇_)
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
@@ -2111,6 +2111,38 @@ opaque
     Η ⊩ˢ ρ •ₛ σ ∷ Γ
   ⊩ˢ∷-•ₛ ⊢Η ρ⊇ ⊩σ =
     wf-⊩ˢ≡∷ (⊩ˢ≡∷-•ₛ ⊢Η ρ⊇ (refl-⊩ˢ≡∷ ⊩σ)) .proj₁
+
+opaque
+
+  -- A lemma related to _ₛ•_.
+
+  ⊩ˢ≡∷-ₛ• :
+    ρ ∷ Δ ⊇ Γ → ⊩ᵛ Γ → Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
+    Η ⊩ˢ σ₁ ₛ• ρ ≡ σ₂ ₛ• ρ ∷ Γ
+  ⊩ˢ≡∷-ₛ• TW.id _ σ₁≡σ₂ =
+    σ₁≡σ₂
+  ⊩ˢ≡∷-ₛ• (TW.step ρ⊇) ⊩Γ σ₁≡σ₂ =
+    case ⊩ˢ≡∷∙⇔ .proj₁ σ₁≡σ₂ of λ
+      ((_ , ⊩A , head≡head) , tail≡tail) →
+    ⊩ˢ≡∷-ₛ• ρ⊇ ⊩Γ tail≡tail
+  ⊩ˢ≡∷-ₛ• (TW.lift {A} ρ⊇) ⊩Γ∙A σ₁≡σ₂ =
+    case wf-⊩ᵛ-∙ ⊩Γ∙A of λ
+      (_ , ⊩A) →
+    case ⊩ˢ≡∷∙⇔ .proj₁ σ₁≡σ₂ of λ
+      ((_ , _ , head≡head) , tail≡tail) →
+    ⊩ˢ≡∷∙⇔′ .proj₂
+      ( (_ , ⊩A)
+      , (_ , PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (subst-wk A) head≡head)
+      , ⊩ˢ≡∷-ₛ• ρ⊇ (wf-⊩ᵛ ⊩A) tail≡tail
+      )
+
+opaque
+
+  -- Another lemma related to _ₛ•_.
+
+  ⊩ˢ∷-ₛ• : ρ ∷ Δ ⊇ Γ → ⊩ᵛ Γ → Η ⊩ˢ σ ∷ Δ → Η ⊩ˢ σ ₛ• ρ ∷ Γ
+  ⊩ˢ∷-ₛ• ρ⊇ ⊩Γ ⊩σ =
+    wf-⊩ˢ≡∷ (⊩ˢ≡∷-ₛ• ρ⊇ ⊩Γ (refl-⊩ˢ≡∷ ⊩σ)) .proj₁
 
 ------------------------------------------------------------------------
 -- Neutral types and terms
