@@ -23,6 +23,7 @@ open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.ShapeView R
 open import
   Definition.LogicalRelation.Substitution.Introductions.Universe R
+open import Definition.LogicalRelation.Substitution.Introductions.Var R
 import Definition.LogicalRelation.Weakening R as W
 
 open import Definition.Typed R
@@ -139,6 +140,28 @@ opaque
               , ⊩wk-B ρ⊇ ⊢Δ ⊩u
               , wk-B≡wk-B ρ⊇ ⊢Δ ⊩t ⊩u
                   (irrelevanceEqTerm ⊩wk-ρ-A′ ⊩wk-ρ-A t≡u) }
+
+opaque
+
+  -- A variant of ⊩ΠΣ⇔.
+
+  ⊩ΠΣ→ :
+    Γ ⊩⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B →
+    ΠΣ-allowed b p q × Γ ⊩⟨ l ⟩ A × Γ ∙ A ⊩⟨ l ⟩ B
+  ⊩ΠΣ→ ⊩ΠΣ =
+    case ⊩ΠΣ⇔ .proj₁ ⊩ΠΣ of λ
+      (ok , ⊢Γ , rest) →
+    case rest TW.id ⊢Γ of λ
+      (⊩wk-id-A , _) →
+    case PE.subst (_⊩⟨_⟩_ _ _) (wk-id _) ⊩wk-id-A of λ
+      ⊩A →
+    case rest (TW.step TW.id) (⊢→⊢∙ $ escape-⊩ ⊩A) of λ
+      (⊩wk₁-A , wk-lift-step-id-B[]₀≡wk-lift-step-id-B[]₀) →
+      ok , ⊩A
+    , PE.subst (_⊩⟨_⟩_ _ _) (wkSingleSubstId _)
+        (proj₁ $ wf-⊩≡ $
+         wk-lift-step-id-B[]₀≡wk-lift-step-id-B[]₀ $
+         refl-⊩≡∷ (⊩var here ⊩wk₁-A))
 
 opaque
   unfolding _⊩⟨_⟩_≡_ _⊩⟨_⟩_∷_ _⊩⟨_⟩_≡_∷_
@@ -258,6 +281,31 @@ opaque
              ( ⊩wk-ρ-A₁
              , irrelevanceTerm (⊩wk-A ρ⊇ ⊢Δ) ⊩wk-ρ-A₁ ⊩t
              )) }}
+
+opaque
+
+  -- A variant of ⊩ΠΣ≡ΠΣ⇔.
+
+  ⊩ΠΣ≡ΠΣ→ :
+    Γ ⊩⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁ ≡ ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂ →
+    ΠΣ-allowed b p q × Γ ⊩⟨ l ⟩ A₁ ≡ A₂ × Γ ∙ A₁ ⊩⟨ l ⟩ B₁ ≡ B₂
+  ⊩ΠΣ≡ΠΣ→ ΠΣ≡ΠΣ =
+    case ⊩ΠΣ≡ΠΣ⇔ .proj₁ ΠΣ≡ΠΣ of λ
+      (⊩ΠΣ₁ , _ , rest) →
+    case ⊩ΠΣ⇔ .proj₁ ⊩ΠΣ₁ of λ
+      (ok , ⊢Γ , _) →
+    case rest TW.id ⊢Γ of λ
+      (wk-id-A₁≡wk-id-A₂ , _) →
+    case PE.subst₂ (_⊩⟨_⟩_≡_ _ _) (wk-id _) (wk-id _)
+           wk-id-A₁≡wk-id-A₂ of λ
+      A₁≡A₂ →
+    case rest (TW.step TW.id)
+           (⊢→⊢∙ $ escape-⊩ $ wf-⊩≡ A₁≡A₂ .proj₁) of λ
+      (wk₁-A₁≡wk₁-A₂ , wk-lift-step-id-B₁[]₀≡wk-lift-step-id-B₂[]₀) →
+      ok , A₁≡A₂
+    , PE.subst₂ (_⊩⟨_⟩_≡_ _ _) (wkSingleSubstId _) (wkSingleSubstId _)
+        (wk-lift-step-id-B₁[]₀≡wk-lift-step-id-B₂[]₀ $
+         ⊩var here (wf-⊩≡ wk₁-A₁≡wk₁-A₂ .proj₁))
 
 -- See also ⊩ᵛΠΣ⇔ below.
 
@@ -382,19 +430,12 @@ opaque
   ⊩ᵛΠΣ⇔ :
     Γ ⊩ᵛ⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ⇔
     (ΠΣ-allowed b p q × Γ ⊩ᵛ⟨ l ⟩ A × Γ ∙ A ⊩ᵛ⟨ l ⟩ B)
-  ⊩ᵛΠΣ⇔ {A} {B} =
+  ⊩ᵛΠΣ⇔ {B} =
       (λ ⊩ΠΣAB →
          case ⊩ᵛ⇔ .proj₁ ⊩ΠΣAB of λ
            (⊩Γ , ΠΣAB≡ΠΣAB) →
          case ⊩ᵛ⇔ .proj₂
-                ( ⊩Γ
-                , λ {_ _} {σ₁ = σ₁} {σ₂ = σ₂} σ₁≡σ₂ →
-                    A [ σ₁ ]          ≡˘⟨ wk-id _ ⟩⊩≡
-                    wk id (A [ σ₁ ])  ≡⟨ ⊩ΠΣ≡ΠΣ⇔ .proj₁ (ΠΣAB≡ΠΣAB σ₁≡σ₂) .proj₂ .proj₂
-                                           TW.id (escape-⊩ˢ≡∷ σ₁≡σ₂ .proj₁) .proj₁ ⟩⊩∎≡
-                    wk id (A [ σ₂ ])  ≡⟨ wk-id _ ⟩
-                    A [ σ₂ ]          ∎
-                ) of λ
+                (⊩Γ , proj₁ ∘→ proj₂ ∘→ ⊩ΠΣ≡ΠΣ→ ∘→ ΠΣAB≡ΠΣAB) of λ
            ⊩A →
            ⊩ΠΣ⇔ .proj₁
              (wf-⊩≡ (ΠΣAB≡ΠΣAB (refl-⊩ˢ≡∷ $ ⊩ˢ∷-idSubst ⊩Γ)) .proj₁)
