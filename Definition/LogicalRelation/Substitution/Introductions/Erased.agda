@@ -19,19 +19,16 @@ module Definition.LogicalRelation.Substitution.Introductions.Erased
   ⦃ eqrel : EqRelSet R ⦄
   where
 
-open EqRelSet eqrel
-
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R
-open import Definition.LogicalRelation.Properties R
-open import Definition.LogicalRelation.Substitution.Introductions.Prod R
+open import
+  Definition.LogicalRelation.Substitution.Introductions.Pi-Sigma R
+open import
+  Definition.LogicalRelation.Substitution.Introductions.Sigma R
 open import Definition.LogicalRelation.Substitution.Introductions.Unit R
-import Definition.LogicalRelation.Weakening R as W
-open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Untyped M
 
-open import Graded.Derived.Erased.Typed.Primitive R Erased-ok
 open import Graded.Derived.Erased.Untyped 𝕄 s
 
 open import Tools.Function
@@ -46,47 +43,32 @@ opaque
   -- Reducibility for Erased.
 
   ⊩Erased : Γ ⊩⟨ l ⟩ A → Γ ⊩⟨ l ⟩ Erased A
-  ⊩Erased {Γ} {A} ⊩A =
-    𝕨′ _
-      Unit!
-      (idRed:*: (Erasedⱼ ⊢A))
-      ⊢A
-      (Unitⱼ ⊢ΓA Unit-ok)
-      (≅-ΠΣ-cong ⊢A (escapeEq ⊩A (reflEq ⊩A))
-         (≅-Unitrefl ⊢ΓA Unit-ok) Σ-ok)
-      (λ ρ∷⊇ ⊢Δ → W.wk ρ∷⊇ ⊢Δ ⊩A)
-      (λ _ ⊢Δ _ → Unitᵣ
-         (record
-            { ⇒*-Unit = idRed:*: (Unitⱼ ⊢Δ Unit-ok)
-            ; ok      = Unit-ok
-            }))
-      (λ ρ∷⊇ ⊢Δ ⊩x ⊩y x≡y → id (Unitⱼ ⊢Δ Unit-ok))
-      Σ-ok
-    where
-    ⊢A : Γ ⊢ A
-    ⊢A = escape ⊩A
-
-    ⊢ΓA : ⊢ Γ ∙ A
-    ⊢ΓA = wf ⊢A ∙ ⊢A
+  ⊩Erased ⊩A =
+    ⊩ΠΣ⇔ .proj₂
+      ( Σ-ok
+      , wf (escape-⊩ ⊩A)
+      , λ ρ⊇ ⊢Δ →
+            wk-⊩ ρ⊇ ⊢Δ ⊩A
+          , λ _ → refl-⊩≡ (⊩Unit ⊢Δ Unit-ok)
+      )
 
 opaque
-  unfolding ⊩Erased _⊩⟨_⟩_≡_
 
   -- Reducibility of equality between applications of Erased.
 
   ⊩Erased≡Erased :
     Γ ⊩⟨ l ⟩ A₁ ≡ A₂ →
     Γ ⊩⟨ l ⟩ Erased A₁ ≡ Erased A₂
-  ⊩Erased≡Erased (⊩A₁ , ⊩A₂ , A₁≡A₂) =
-    case escape ⊩A₁ of λ
-      ⊢A₁ →
-    ⊩≡-intro (⊩Erased ⊩A₁) (⊩Erased ⊩A₂) $
-    B₌ _ _
-      (id (Erasedⱼ (escape ⊩A₂)))
-      (≅-ΠΣ-cong ⊢A₁ (escapeEq ⊩A₁ A₁≡A₂)
-         (≅-Unitrefl (⊢→⊢∙ ⊢A₁) Unit-ok) Σ-ok)
-      (λ _ _ → W.wkEq _ _ ⊩A₁ A₁≡A₂)
-      (λ _ ⊢Δ _ → id (Unitⱼ ⊢Δ Unit-ok))
+  ⊩Erased≡Erased A₁≡A₂ =
+    case wf-⊩≡ A₁≡A₂ of λ
+      (⊩A₁ , ⊩A₂) →
+    ⊩ΠΣ≡ΠΣ⇔ .proj₂
+      ( ⊩Erased ⊩A₁
+      , ⊩Erased ⊩A₂
+      , λ ρ⊇ ⊢Δ →
+            wk-⊩≡ ρ⊇ ⊢Δ A₁≡A₂
+          , λ _ → refl-⊩≡ (⊩Unit ⊢Δ Unit-ok)
+      )
 
 opaque
 
@@ -113,36 +95,27 @@ opaque
     ⊩ᵛ≡⇔′ .proj₂ (Erasedᵛ ⊩A₁ , Erasedᵛ ⊩A₂ , ⊩Erased≡Erased ∘→ A₁≡A₂)
 
 opaque
-  unfolding _⊩⟨_⟩_∷_
-
-  -- Reducibility for [_].
-
-  ⊩[] :
-    Γ ⊩⟨ l ⟩ t ∷ A →
-    Γ ⊩⟨ l ⟩ [ t ] ∷ Erased A
-  ⊩[] (⊩A , ⊩t) =
-    case ⊩star (wf (escape ⊩A)) Unit-ok of λ
-      (⊩Unit , ⊩star) →
-    ⊩∷-intro (⊩Erased ⊩A) $
-    prod″ ⊩A ⊩t ⊩Unit ⊩star (⊩Erased ⊩A)
-
-opaque
-  unfolding _⊩⟨_⟩_∷_ _⊩⟨_⟩_≡_∷_
 
   -- Reducibility of equality between applications of [_].
 
   ⊩[]≡[] :
     Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
     Γ ⊩⟨ l ⟩ [ t ] ≡ [ u ] ∷ Erased A
-  ⊩[]≡[] (⊩A , ⊩t , ⊩u , t≡u) =
-    case ⊩star (wf (escape ⊩A)) Unit-ok of λ
-      (⊩Unit , ⊩star) →
-    ⊩≡∷-intro
-      (⊩Erased ⊩A)
-      (⊩[] (⊩A , ⊩t))
-      (⊩[] (⊩A , ⊩u))
-      (prod-cong″ ⊩A ⊩t ⊩u t≡u ⊩Unit ⊩star ⊩star
-         (reflEqTerm ⊩Unit ⊩star) (⊩Erased ⊩A))
+  ⊩[]≡[] {l} t≡u =
+    case wf-⊩∷ (wf-⊩≡∷ t≡u .proj₁) of λ
+      ⊩A →
+    ⊩prod≡prod (⊩Erased ⊩A) t≡u
+      (refl-⊩≡∷ (⊩star {l = l} (wf (escape-⊩ ⊩A)) Unit-ok))
+
+opaque
+
+  -- Reducibility for [_].
+
+  ⊩[] :
+    Γ ⊩⟨ l ⟩ t ∷ A →
+    Γ ⊩⟨ l ⟩ [ t ] ∷ Erased A
+  ⊩[] ⊩t =
+    wf-⊩≡∷ (⊩[]≡[] (refl-⊩≡∷ ⊩t)) .proj₁
 
 opaque
 

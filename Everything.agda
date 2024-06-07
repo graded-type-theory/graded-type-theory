@@ -87,7 +87,6 @@ import Definition.LogicalRelation.Properties.Transitivity
 import Definition.LogicalRelation.Properties.Reduction
 import Definition.LogicalRelation.Properties
 import Definition.LogicalRelation.Weakening
-import Definition.LogicalRelation.Application
 
 -- The logical relation for validity
 import Definition.LogicalRelation.Substitution
@@ -113,13 +112,10 @@ import Definition.LogicalRelation.Substitution.Introductions.Unit
 import Definition.LogicalRelation.Substitution.Introductions.Nat
 import Definition.LogicalRelation.Substitution.Introductions.Pi-Sigma
 import Definition.LogicalRelation.Substitution.Introductions.Pi
-import Definition.LogicalRelation.Substitution.Introductions.Lambda
-import Definition.LogicalRelation.Substitution.Introductions.Application
-import Definition.LogicalRelation.Substitution.Introductions.Prod
-import Definition.LogicalRelation.Substitution.Introductions.Fst
-import Definition.LogicalRelation.Substitution.Introductions.Snd
-import Definition.LogicalRelation.Substitution.Introductions.ProdBetaEta
-import Definition.LogicalRelation.Substitution.Introductions.Prodrec
+import
+  Definition.LogicalRelation.Substitution.Introductions.Sigma.Strong
+import Definition.LogicalRelation.Substitution.Introductions.Sigma.Weak
+import Definition.LogicalRelation.Substitution.Introductions.Sigma
 import Definition.LogicalRelation.Substitution.Introductions.Erased
 import Definition.LogicalRelation.Substitution.Introductions.Identity
 import Definition.LogicalRelation.Substitution.Introductions
