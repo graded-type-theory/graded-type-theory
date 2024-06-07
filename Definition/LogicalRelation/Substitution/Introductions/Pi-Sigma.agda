@@ -41,13 +41,13 @@ import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PropositionalEquality
 
 private variable
-  n               : Nat
-  Γ Δ             : Con Term _
-  A A₁ A₂ B B₁ B₂ : Term _
-  σ σ₁ σ₂         : Subst _ _
-  p q             : M
-  l l′            : TypeLevel
-  b               : BinderMode
+  n                       : Nat
+  Γ Δ                     : Con Term _
+  A A₁ A₂ B B₁ B₂ t t₁ t₂ : Term _
+  σ σ₁ σ₂                 : Subst _ _
+  p q                     : M
+  l l′                    : TypeLevel
+  b                       : BinderMode
 
 ------------------------------------------------------------------------
 -- Some characterisation lemmas
@@ -310,6 +310,50 @@ opaque
 -- See also ⊩ᵛΠΣ⇔ below.
 
 ------------------------------------------------------------------------
+-- Some substitution lemmas
+
+opaque
+
+  -- A substitution lemma for _⊩⟨_⟩_≡_.
+
+  ⊩ΠΣ≡ΠΣ→⊩≡∷→⊩[]₀≡[]₀ :
+    Γ ⊩⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁ ≡ ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂ →
+    Γ ⊩⟨ l′ ⟩ t₁ ≡ t₂ ∷ A₁ →
+    Γ ⊩⟨ l ⟩ B₁ [ t₁ ]₀ ≡ B₂ [ t₂ ]₀
+  ⊩ΠΣ≡ΠΣ→⊩≡∷→⊩[]₀≡[]₀ {B₁} {B₂} {t₁} {t₂} ΠΣ≡ΠΣ t₁≡t₂ =
+    case ⊩ΠΣ≡ΠΣ⇔ .proj₁ ΠΣ≡ΠΣ of λ
+      (⊩ΠΣ₁ , _ , rest) →
+    case ⊩ΠΣ→ ⊩ΠΣ₁ of λ
+      (_ , ⊩A₁ , _) →
+    case ⊩ΠΣ⇔ .proj₁ ⊩ΠΣ₁ of λ
+      (_ , ⊢Γ , rest₁) →
+    B₁ [ t₁ ]₀  ≡⟨ PE.subst₂ (_⊩⟨_⟩_≡_ _ _)
+                     (PE.cong _[ _ ]₀ $ wk-lift-id B₁)
+                     (PE.cong _[ _ ]₀ $ wk-lift-id B₁) $
+                   rest₁ TW.id ⊢Γ .proj₂ $
+                   PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (PE.sym $ wk-id _) $
+                   level-⊩≡∷ ⊩A₁ t₁≡t₂ ⟩⊩
+    B₁ [ t₂ ]₀  ≡⟨ PE.subst₂ (_⊩⟨_⟩_≡_ _ _)
+                     (PE.cong _[ _ ]₀ $ wk-lift-id B₁)
+                     (PE.cong _[ _ ]₀ $ wk-lift-id B₂) $
+                   rest TW.id ⊢Γ .proj₂ $
+                   PE.subst (_⊩⟨_⟩_∷_ _ _ _) (PE.sym $ wk-id _) $
+                   level-⊩∷ ⊩A₁ $
+                   wf-⊩≡∷ t₁≡t₂ .proj₂ ⟩⊩∎
+    B₂ [ t₂ ]₀  ∎
+
+opaque
+
+  -- A substitution lemma for _⊩⟨_⟩_.
+
+  ⊩ΠΣ→⊩∷→⊩[]₀ :
+    Γ ⊩⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B →
+    Γ ⊩⟨ l′ ⟩ t ∷ A →
+    Γ ⊩⟨ l ⟩ B [ t ]₀
+  ⊩ΠΣ→⊩∷→⊩[]₀ ⊩ΠΣ ⊩t =
+    wf-⊩≡ (⊩ΠΣ≡ΠΣ→⊩≡∷→⊩[]₀≡[]₀ (refl-⊩≡ ⊩ΠΣ) (refl-⊩≡∷ ⊩t)) .proj₁
+
+------------------------------------------------------------------------
 -- Validity of Π and Σ, seen as type formers
 
 opaque
@@ -444,29 +488,14 @@ opaque
          , ⊩ᵛ⇔ .proj₂
              ( ⊩ᵛ-∙-intro ⊩A
              , λ {_ _} {σ₁ = σ₁} {σ₂ = σ₂} σ₁≡σ₂ →
-                 case escape-⊩ˢ≡∷ σ₁≡σ₂ .proj₁ of λ
-                   ⊢Δ →
                  case ⊩ˢ≡∷∙⇔ .proj₁ σ₁≡σ₂ of λ
                    ((_ , _ , head-σ₁≡head-σ₂) , tail-σ₁≡tail-σ₂) →
-                 case ⊩ᵛ→⊩ˢ∷→⊩[] ⊩A $
-                      wf-⊩ˢ≡∷ tail-σ₁≡tail-σ₂ .proj₁ of λ
-                   ⊩A[σ₁] →
-                 case ⊩ΠΣ≡ΠΣ⇔ .proj₁ (ΠΣAB≡ΠΣAB tail-σ₁≡tail-σ₂) of λ
-                   (⊩ΠΣAB[tail-σ₁] , _ , ΠΣAB[tail-σ₁]≡ΠΣAB[tail-σ₂]) →
-                 B [ σ₁ ]                                     ≡˘⟨ substVar-to-subst consSubst-η B ⟩⊩≡
-                 B [ consSubst (tail σ₁) (head σ₁) ]          ≡˘⟨ singleSubstComp _ _ B ⟩⊩≡
-                 B [ tail σ₁ ⇑ ] [ head σ₁ ]₀                 ≡˘⟨ PE.cong _[ _ ] $ wk-lift-id (B [ _ ]) ⟩⊩≡
-                 wk (lift id) (B [ tail σ₁ ⇑ ]) [ head σ₁ ]₀  ≡⟨ ⊩ΠΣ⇔ .proj₁ ⊩ΠΣAB[tail-σ₁] .proj₂ .proj₂ TW.id ⊢Δ .proj₂ $
-                                                                 PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (PE.sym $ wk-id _) $
-                                                                 level-⊩≡∷ ⊩A[σ₁] head-σ₁≡head-σ₂ ⟩⊩
-                 wk (lift id) (B [ tail σ₁ ⇑ ]) [ head σ₂ ]₀  ≡⟨ ΠΣAB[tail-σ₁]≡ΠΣAB[tail-σ₂] TW.id ⊢Δ .proj₂ $
-                                                                 PE.subst (_⊩⟨_⟩_∷_ _ _ _) (PE.sym $ wk-id _) $
-                                                                 level-⊩∷ ⊩A[σ₁] $
-                                                                 wf-⊩≡∷ head-σ₁≡head-σ₂ .proj₂ ⟩⊩∎≡
-                 wk (lift id) (B [ tail σ₂ ⇑ ]) [ head σ₂ ]₀  ≡⟨ PE.cong _[ _ ] $ wk-lift-id (B [ _ ]) ⟩
-                 B [ tail σ₂ ⇑ ] [ head σ₂ ]₀                 ≡⟨ singleSubstComp _ _ B ⟩
-                 B [ consSubst (tail σ₂) (head σ₂) ]          ≡⟨ substVar-to-subst consSubst-η B ⟩
-                 B [ σ₂ ]                                     ∎
+                 B [ σ₁ ]                             ≡˘⟨ substVar-to-subst consSubst-η B ⟩⊩≡
+                 B [ consSubst (tail σ₁) (head σ₁) ]  ≡˘⟨ singleSubstComp _ _ B ⟩⊩≡
+                 B [ tail σ₁ ⇑ ] [ head σ₁ ]₀         ≡⟨ ⊩ΠΣ≡ΠΣ→⊩≡∷→⊩[]₀≡[]₀ (ΠΣAB≡ΠΣAB tail-σ₁≡tail-σ₂) head-σ₁≡head-σ₂ ⟩⊩∎≡
+                 B [ tail σ₂ ⇑ ] [ head σ₂ ]₀         ≡⟨ singleSubstComp _ _ B ⟩
+                 B [ consSubst (tail σ₂) (head σ₂) ]  ≡⟨ substVar-to-subst consSubst-η B ⟩
+                 B [ σ₂ ]                             ∎
              ))
     , (λ (ok , ⊩A , ⊩B) → ΠΣᵛ ok ⊩A ⊩B)
     where
