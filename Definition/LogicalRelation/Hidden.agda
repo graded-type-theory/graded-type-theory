@@ -804,26 +804,6 @@ opaque
     , W.wkEqTerm Δ⊇Γ ⊢Δ ⊩A t≡u
 
 opaque
-  unfolding _⊩ˢ_∷_
-
-  -- Weakening for _⊩ˢ_∷_.
-
-  wk-⊩ˢ∷ : ρ ∷ Η ⊇ Δ → ⊢ Η → Δ ⊩ˢ σ ∷ Γ → Η ⊩ˢ ρ •ₛ σ ∷ Γ
-  wk-⊩ˢ∷ Η⊇Δ ⊢Η (_ , ⊢Δ , ⊩σ) =
-    _ , _ , wkSubstS _ ⊢Δ ⊢Η Η⊇Δ ⊩σ
-
-opaque
-  unfolding _⊩ˢ_≡_∷_
-
-  -- Weakening for _⊩ˢ_≡_∷_.
-
-  wk-⊩ˢ≡∷ :
-    ρ ∷ Η ⊇ Δ → ⊢ Η → Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
-    Η ⊩ˢ ρ •ₛ σ₁ ≡ ρ •ₛ σ₂ ∷ Γ
-  wk-⊩ˢ≡∷ Η⊇Δ ⊢Η (_ , ⊢Δ , ⊩σ₁ , ⊩σ₂ , σ₁≡σ₂) =
-    _ , _ , _ , wkSubstS _ ⊢Δ _ Η⊇Δ ⊩σ₂ , wkSubstSEq _ ⊢Δ ⊢Η Η⊇Δ _ σ₁≡σ₂
-
-opaque
   unfolding _⊩ᵛ⟨_⟩_
 
   -- Single-step weakening for _⊩ᵛ⟨_⟩_.
