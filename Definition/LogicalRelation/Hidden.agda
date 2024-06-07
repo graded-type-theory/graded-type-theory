@@ -48,6 +48,7 @@ open import Tools.Function
 open import Tools.Nat using (Nat)
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
+open import Tools.Reasoning.PropositionalEquality
 
 private variable
   m n                                                   : Nat
@@ -807,6 +808,8 @@ opaque
   unfolding _⊩ᵛ⟨_⟩_
 
   -- Single-step weakening for _⊩ᵛ⟨_⟩_.
+  --
+  -- See also wk-⊩ᵛ below.
 
   wk1-⊩ᵛ : Γ ⊩ᵛ⟨ l′ ⟩ B → Γ ⊩ᵛ⟨ l ⟩ A → Γ ∙ B ⊩ᵛ⟨ l ⟩ wk1 A
   wk1-⊩ᵛ ⊩B (_ , ⊩A) =
@@ -816,6 +819,8 @@ opaque
   unfolding _⊩ᵛ⟨_⟩_ _⊩ᵛ⟨_⟩_∷_
 
   -- Single-step weakening for _⊩ᵛ⟨_⟩_∷_.
+  --
+  -- See also wk-⊩ᵛ∷ below.
 
   wk1-⊩ᵛ∷ : Γ ⊩ᵛ⟨ l′ ⟩ B → Γ ⊩ᵛ⟨ l ⟩ t ∷ A → Γ ∙ B ⊩ᵛ⟨ l ⟩ wk1 t ∷ wk1 A
   wk1-⊩ᵛ∷ {t} (_ , ⊩B) (_ , ⊩A , ⊩t) =
@@ -827,6 +832,8 @@ opaque
   unfolding _⊩ᵛ⟨_⟩_ _⊩ᵛ⟨_⟩_≡_
 
   -- Single-step weakening for _⊩ᵛ⟨_⟩_≡_.
+  --
+  -- See also wk-⊩ᵛ≡ below.
 
   wk1-⊩ᵛ≡ : Γ ⊩ᵛ⟨ l′ ⟩ C → Γ ⊩ᵛ⟨ l ⟩ A ≡ B → Γ ∙ C ⊩ᵛ⟨ l ⟩ wk1 A ≡ wk1 B
   wk1-⊩ᵛ≡ {B} (_ , ⊩C) (_ , ⊩A , ⊩B , A≡B) =
@@ -838,6 +845,8 @@ opaque
   unfolding _⊩ᵛ⟨_⟩_ _⊩ᵛ⟨_⟩_≡_∷_
 
   -- Single-step weakening for _⊩ᵛ⟨_⟩_≡_∷_.
+  --
+  -- See also wk-⊩ᵛ≡∷ below.
 
   wk1-⊩ᵛ≡∷ :
     Γ ⊩ᵛ⟨ l′ ⟩ B → Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A →
@@ -2143,6 +2152,87 @@ opaque
   ⊩ˢ∷-ₛ• : ρ ∷ Δ ⊇ Γ → ⊩ᵛ Γ → Η ⊩ˢ σ ∷ Δ → Η ⊩ˢ σ ₛ• ρ ∷ Γ
   ⊩ˢ∷-ₛ• ρ⊇ ⊩Γ ⊩σ =
     wf-⊩ˢ≡∷ (⊩ˢ≡∷-ₛ• ρ⊇ ⊩Γ (refl-⊩ˢ≡∷ ⊩σ)) .proj₁
+
+------------------------------------------------------------------------
+-- More weakening lemmas
+
+opaque
+
+  -- A weakening lemma for _⊩ᵛ⟨_⟩_.
+
+  wk-⊩ᵛ : ρ ∷ Δ ⊇ Γ → ⊩ᵛ Δ → Γ ⊩ᵛ⟨ l ⟩ A → Δ ⊩ᵛ⟨ l ⟩ wk ρ A
+  wk-⊩ᵛ {ρ} {A} ρ⊇ ⊩Δ ⊩A =
+    ⊩ᵛ⇔ .proj₂
+      ( ⊩Δ
+      , λ {_ _} {σ₁ = σ₁} {σ₂ = σ₂} σ₁≡σ₂ →
+          wk ρ A [ σ₁ ]  ≡⟨ subst-wk A ⟩⊩≡
+          A [ σ₁ ₛ• ρ ]  ≡⟨ ⊩ᵛ≡⇔′ .proj₁ (refl-⊩ᵛ≡ ⊩A) .proj₂ .proj₂ $
+                            ⊩ˢ≡∷-ₛ• ρ⊇ (wf-⊩ᵛ ⊩A) σ₁≡σ₂ ⟩⊩∎≡
+          A [ σ₂ ₛ• ρ ]  ≡˘⟨ subst-wk A ⟩
+          wk ρ A [ σ₂ ]  ∎
+      )
+
+opaque
+
+  -- A weakening lemma for _⊩ᵛ⟨_⟩_∷_.
+
+  wk-⊩ᵛ∷ :
+    ρ ∷ Δ ⊇ Γ → ⊩ᵛ Δ → Γ ⊩ᵛ⟨ l ⟩ t ∷ A → Δ ⊩ᵛ⟨ l ⟩ wk ρ t ∷ wk ρ A
+  wk-⊩ᵛ∷ {ρ} {t} {A} ρ⊇ ⊩Δ ⊩t =
+    case wf-⊩ᵛ∷ ⊩t of λ
+      ⊩A →
+    ⊩ᵛ∷⇔ .proj₂
+      ( wk-⊩ᵛ ρ⊇ ⊩Δ ⊩A
+      , λ {_ _} {σ₁ = σ₁} {σ₂ = σ₂} σ₁≡σ₂ →
+          wk ρ t [ σ₁ ] ∷ wk ρ A [ σ₁ ]  ≡⟨ subst-wk t ⟩⊩∷∷≡
+                                          ⟨ subst-wk A ⟩⊩∷≡
+          t [ σ₁ ₛ• ρ ] ∷ A [ σ₁ ₛ• ρ ]  ≡⟨ ⊩ᵛ≡∷⇔′ .proj₁ (refl-⊩ᵛ≡∷ ⊩t) .proj₂ .proj₂ $
+                                            ⊩ˢ≡∷-ₛ• ρ⊇ (wf-⊩ᵛ ⊩A) σ₁≡σ₂ ⟩⊩∷∎∷≡
+          t [ σ₂ ₛ• ρ ]                  ≡˘⟨ subst-wk t ⟩
+          wk ρ t [ σ₂ ]                  ∎
+      )
+
+opaque
+
+  -- A weakening lemma for _⊩ᵛ⟨_⟩_≡_.
+
+  wk-⊩ᵛ≡ :
+    ρ ∷ Δ ⊇ Γ → ⊩ᵛ Δ → Γ ⊩ᵛ⟨ l ⟩ A ≡ B → Δ ⊩ᵛ⟨ l ⟩ wk ρ A ≡ wk ρ B
+  wk-⊩ᵛ≡ {ρ} {A} {B} ρ⊇ ⊩Δ A≡B =
+    case wf-⊩ᵛ≡ A≡B of λ
+      (⊩A , ⊩B) →
+    ⊩ᵛ≡⇔ .proj₂
+      ( wk-⊩ᵛ ρ⊇ ⊩Δ ⊩A
+      , wk-⊩ᵛ ρ⊇ ⊩Δ ⊩B
+      , λ {_ _} {σ = σ} ⊩σ →
+          wk ρ A [ σ ]  ≡⟨ subst-wk A ⟩⊩≡
+          A [ σ ₛ• ρ ]  ≡⟨ ⊩ᵛ≡⇔ .proj₁ A≡B .proj₂ .proj₂ $
+                           ⊩ˢ∷-ₛ• ρ⊇ (wf-⊩ᵛ ⊩A) ⊩σ ⟩⊩∎≡
+          B [ σ ₛ• ρ ]  ≡˘⟨ subst-wk B ⟩
+          wk ρ B [ σ ]  ∎
+      )
+
+opaque
+
+  -- A weakening lemma for _⊩ᵛ⟨_⟩_≡_∷_.
+
+  wk-⊩ᵛ≡∷ :
+    ρ ∷ Δ ⊇ Γ → ⊩ᵛ Δ → Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A →
+    Δ ⊩ᵛ⟨ l ⟩ wk ρ t ≡ wk ρ u ∷ wk ρ A
+  wk-⊩ᵛ≡∷ {ρ} {t} {u} {A} ρ⊇ ⊩Δ t≡u =
+    case wf-⊩ᵛ≡∷ t≡u of λ
+      (⊩t , ⊩u) →
+    ⊩ᵛ≡∷⇔ .proj₂
+      ( wk-⊩ᵛ∷ ρ⊇ ⊩Δ ⊩t
+      , wk-⊩ᵛ∷ ρ⊇ ⊩Δ ⊩u
+      , λ {_ _} {σ = σ} ⊩σ →
+          wk ρ t [ σ ] ∷ wk ρ A [ σ ]  ≡⟨ subst-wk t ⟩⊩∷∷≡
+                                        ⟨ subst-wk A ⟩⊩∷≡
+          t [ σ ₛ• ρ ] ∷ A [ σ ₛ• ρ ]  ≡⟨ ⊩ᵛ≡∷⇔ .proj₁ t≡u .proj₂ .proj₂ $
+                                          ⊩ˢ∷-ₛ• ρ⊇ (wf-⊩ᵛ $ wf-⊩ᵛ∷ ⊩t) ⊩σ ⟩⊩∷∎∷≡
+          u [ σ ₛ• ρ ]                 ≡˘⟨ subst-wk u ⟩
+          wk ρ u [ σ ]                 ∎
+      )
 
 ------------------------------------------------------------------------
 -- Neutral types and terms
