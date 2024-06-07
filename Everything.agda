@@ -65,6 +65,7 @@ import Graded.Derived.Erased.Typed.Primitive
 import Definition.Typed.Properties
 import Definition.Typed.RedSteps
 import Definition.Typed.Reasoning.Reduction.Primitive
+import Definition.Typed.Reasoning.Reduction.Well-typed
 import Definition.Typed.Weakening
 import Definition.Typed.Reduction
 import Definition.Typed.EqualityRelation
