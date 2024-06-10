@@ -41,7 +41,7 @@ record UsageAssumptions {a} {M : Set a}
 
   field
     -- Erased matches
-    no-erased-unitrec   : ∀ {p q} → ¬ Unitʷ-η → Unitrec-allowed 𝟙ᵐ p q → p ≤ 𝟙
+    no-erased-unitrec   : ∀ {p q} → ¬ Unitʷ-η → Unitrec-allowed 𝟙ᵐ p q → p ≢ 𝟘
     no-erased-unitrec-η : ∀ {p q} → Unitʷ-η → Unitrec-allowed 𝟙ᵐ p q → p ≤ 𝟘
     no-erased-prodrec   : ∀ {p q r} → Prodrec-allowed 𝟙ᵐ r p q → r ≢ 𝟘
     no-erased-J         : erased-matches-for-J 𝟙ᵐ ≡ none

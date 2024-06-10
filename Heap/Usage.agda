@@ -100,9 +100,9 @@ data _▸ᵉ_ {n : Nat} : (γ : Conₘ n) (e : Elim n) → Set a where
   natrecₑ : γ ▸ z → δ ∙ p ∙ r ▸ s
           → θ ∙ (⌜ 𝟘ᵐ? ⌝ · q′) ▸[ 𝟘ᵐ? ] A
           → wkᶜ E (nrᶜ p r γ δ 𝟘ᶜ) ▸ᵉ natrecₑ p q′ r A z s E
-  unitrecₑ : γ ▸ u → p ≤ 𝟙 → wkᶜ E γ ▸ᵉ unitrecₑ p q A u E
-  Jₑ : γ ▸ u → ω ·ᶜ wkᶜ E γ ▸ᵉ Jₑ p q A t B u v E
-  Kₑ : γ ▸ u → ω ·ᶜ wkᶜ E γ ▸ᵉ Kₑ p A t B u E
+  unitrecₑ : γ ▸ u → p ≢ 𝟘 → wkᶜ E γ ▸ᵉ unitrecₑ p q A u E
+  Jₑ : γ ▸ u → wkᶜ E γ ▸ᵉ Jₑ p q A t B u v E
+  Kₑ : γ ▸ u → wkᶜ E γ ▸ᵉ Kₑ p A t B u E
   sucₑ : 𝟘ᶜ ▸ᵉ sucₑ
 
 -- Usage of stacks.

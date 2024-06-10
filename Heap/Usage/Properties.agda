@@ -102,7 +102,7 @@ opaque
   ▸∣e∣≢𝟘 sndₑ = non-trivial
   ▸∣e∣≢𝟘 (prodrecₑ x r≢𝟘) = r≢𝟘
   ▸∣e∣≢𝟘 (natrecₑ x x₁ x₂) = nr₂≢𝟘
-  ▸∣e∣≢𝟘 (unitrecₑ x 𝟘≤𝟙) refl = 𝟘≰𝟙 𝟘≤𝟙
+  ▸∣e∣≢𝟘 (unitrecₑ x p≢𝟘) = p≢𝟘
   ▸∣e∣≢𝟘 (Jₑ x) = ω≢𝟘
   ▸∣e∣≢𝟘 (Kₑ x) = ω≢𝟘
   ▸∣e∣≢𝟘 sucₑ = non-trivial
