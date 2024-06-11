@@ -282,14 +282,13 @@ nfN (rflⱼ _)          _ _ rflₙ        c = ⊥-elim (Id≢ℕ c)
 
 -- The following results are proved under the assumption that, if the
 -- weak unit type is allowed, η-equality is allowed for it, and
--- Unitrec-allowed 𝟙ᵐ p q holds for some p and q, then either 𝟙 ≤ 𝟘 or
--- p is 𝟘.
+-- Unitrec-allowed 𝟙ᵐ p q holds for some p and q, then p ≤ 𝟘.
 
 module _
   (Unitʷ-η→ :
      ∀ {p q} →
      Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
-     𝟙 ≤ 𝟘 ⊎ p PE.≡ 𝟘)
+     p ≤ 𝟘)
   where
 
   -- Terms that have non-negative types reduce to non-neutral terms.
