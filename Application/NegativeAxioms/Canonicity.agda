@@ -28,12 +28,13 @@ open import Definition.Typed.Consequences.Reduction R
 open import Definition.Typed.Consequences.Syntactic R
 
 open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
+open import Definition.LogicalRelation.Substitution.Introductions R
 
 open import Application.NegativeAxioms.NegativeContext R
 
 open import Tools.Empty
+open import Tools.Function
 open import Tools.Nat
 import Tools.PropositionalEquality as PE
 open import Tools.Product
@@ -129,25 +130,20 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   -- Canonicity theorem: Any well-typed term Γ ⊢ t ∷ ℕ
   -- reduces to a numeral under the ⇒ˢ* reduction.
 
-  canonicityRed′ : ∀ {l} → (⊢Γ : ⊢ Γ)
-                 → Γ ⊩⟨ l ⟩ t ∷ ℕ / ℕᵣ (idRed:*: (ℕⱼ ⊢Γ))
-                 → ∃ λ v → Numeral v × Γ ⊢ t ⇒ˢ* v ∷ℕ
-  canonicityRed′ {l = l} ⊢Γ (ℕₜ _ d n≡n (sucᵣ x)) =
-    let v , numV , d′ = canonicityRed′ {l = l} ⊢Γ x
+  canonicityRed′ : Γ ⊩ℕ t ∷ℕ → ∃ λ v → Numeral v × Γ ⊢ t ⇒ˢ* v ∷ℕ
+  canonicityRed′ (ℕₜ _ d n≡n (sucᵣ x)) =
+    let v , numV , d′ = canonicityRed′ x
     in  suc v , sucₙ numV , ⇒ˢ*∷ℕ-trans (whred* (redₜ d)) (sucred* d′)
-  canonicityRed′ ⊢Γ (ℕₜ _ d n≡n zeroᵣ) =
+  canonicityRed′ (ℕₜ _ d n≡n zeroᵣ) =
     zero , zeroₙ , whred* (redₜ d)
-  canonicityRed′ ⊢Γ (ℕₜ n d n≡n (ne (neNfₜ neK ⊢k k≡k))) =
-    let u , d′ , whU , ¬neU = ¬NeutralNf (⊢t-redₜ d) λ negℕ → ¬negℕ negℕ (refl (ℕⱼ ⊢Γ))
+  canonicityRed′ (ℕₜ n d n≡n (ne (neNfₜ neK ⊢k k≡k))) =
+    let u , d′ , whU , ¬neU =
+          ¬NeutralNf (⊢t-redₜ d)
+            (flip ¬negℕ $ refl (ℕⱼ $ wfTerm $ ⊢t-redₜ d))
     in  ⊥-elim (¬neU (PE.subst Neutral (whrDet*Term (redₜ d , ne neK) (d′ , whU)) neK))
 
   canonicityRed : Γ ⊢ t ∷ ℕ → ∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ
-  canonicityRed ⊢t with reducibleTerm ⊢t
-  ... | [ℕ] , [t] =
-    let ⊢Γ = wfTerm ⊢t
-        [ℕ]′ = ℕᵣ {l = ¹} (idRed:*: (ℕⱼ ⊢Γ))
-        [t]′ = irrelevanceTerm [ℕ] [ℕ]′ [t]
-    in  canonicityRed′ {l = ¹} ⊢Γ [t]′
+  canonicityRed = canonicityRed′ ∘→ ⊩∷ℕ⇔ .proj₁ ∘→ reducible-⊩∷
 
   -- Canonicity theorem: Any well-typed term Γ ⊢ t : ℕ is convertible to a numeral.
 

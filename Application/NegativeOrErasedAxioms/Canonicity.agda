@@ -57,8 +57,8 @@ open import Definition.Typed.Consequences.Reduction TR
 open import Definition.Typed.Consequences.Syntactic TR
 
 open import Definition.LogicalRelation TR hiding (_≤_)
-open import Definition.LogicalRelation.Irrelevance TR
 open import Definition.LogicalRelation.Fundamental.Reducibility TR
+open import Definition.LogicalRelation.Substitution.Introductions TR
 
 open import Tools.Empty
 open import Tools.Function
@@ -307,32 +307,27 @@ module _
   -- to the mode 𝟙ᵐ), ⇒ˢ*-reduces to a numeral.
 
   canonicityRed′ :
-    (⊢Γ : ⊢ Γ) → γ ▸[ 𝟙ᵐ ] t → NegativeErasedContext Γ γ →
-    Γ ⊩⟨ l ⟩ t ∷ ℕ / ℕᵣ (idRed:*: (ℕⱼ ⊢Γ)) →
+    γ ▸[ 𝟙ᵐ ] t → NegativeErasedContext Γ γ → Γ ⊩ℕ t ∷ℕ →
     ∃ λ v → Numeral v × Γ ⊢ t ⇒ˢ* v ∷ℕ
-  canonicityRed′ {l} ⊢Γ γ▸t nΓγ (ℕₜ _ d n≡n (sucᵣ x)) =
+  canonicityRed′ γ▸t nΓγ (ℕₜ _ d n≡n (sucᵣ x)) =
     let invUsageSuc δ▸n γ≤δ =
           inv-usage-suc (usagePres*Term Unitʷ-η→ γ▸t (redₜ d))
-        v , numV , d′ = canonicityRed′ {l = l} ⊢Γ (sub δ▸n γ≤δ) nΓγ x
+        v , numV , d′ = canonicityRed′ (sub δ▸n γ≤δ) nΓγ x
     in  suc v , sucₙ numV , ⇒ˢ*∷ℕ-trans (whred* (redₜ d)) (sucred* d′)
-  canonicityRed′ _ _ _ (ℕₜ _ d _ zeroᵣ) =
+  canonicityRed′ _ _ (ℕₜ _ d _ zeroᵣ) =
     zero , zeroₙ , whred* (redₜ d)
-  canonicityRed′ ⊢Γ γ▸t nΓγ (ℕₜ n d n≡n (ne (neNfₜ neK ⊢k k≡k))) =
+  canonicityRed′ γ▸t nΓγ (ℕₜ n d n≡n (ne (neNfₜ neK ⊢k k≡k))) =
     let u , d′ , whU , ¬neU =
           ¬NeutralNf (⊢t-redₜ d) γ▸t nΓγ
-            (λ negℕ → ¬negℕ negℕ (refl (ℕⱼ ⊢Γ)))
+            (flip ¬negℕ $ refl (ℕⱼ $ wfTerm $ ⊢t-redₜ d))
     in  ⊥-elim $ ¬neU $
         PE.subst Neutral (whrDet*Term (redₜ d , ne neK) (d′ , whU)) neK
 
   canonicityRed :
     Γ ⊢ t ∷ ℕ → γ ▸[ 𝟙ᵐ ] t → NegativeErasedContext Γ γ →
     ∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ
-  canonicityRed ⊢t γ▸t nΓγ with reducibleTerm ⊢t
-  ... | [ℕ] , [t] =
-    let ⊢Γ = wfTerm ⊢t
-        [ℕ]′ = ℕᵣ {l = ¹} (idRed:*: (ℕⱼ ⊢Γ))
-        [t]′ = irrelevanceTerm [ℕ] [ℕ]′ [t]
-    in  canonicityRed′ {l = ¹} ⊢Γ γ▸t nΓγ [t]′
+  canonicityRed ⊢t γ▸t nΓγ =
+    canonicityRed′ γ▸t nΓγ $ ⊩∷ℕ⇔ .proj₁ $ reducible-⊩∷ ⊢t
 
   -- A variant of the previous result for terms that are
   -- well-resourced with respect to 𝟘ᶜ.

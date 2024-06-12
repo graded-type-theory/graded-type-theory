@@ -816,9 +816,9 @@ _⊩′⟨_⟩_∷_/_ = Definition.LogicalRelation._⊩⟨_⟩_∷_/_
 -- Some fundamental lemmas for the reducibility relation.
 
 fundamentalReducibleType =
-  Definition.LogicalRelation.Fundamental.Reducibility.reducible
+  Definition.LogicalRelation.Fundamental.Reducibility.reducible-⊩
 fundamentalReducibleTerm =
-  Definition.LogicalRelation.Fundamental.Reducibility.reducibleTerm
+  Definition.LogicalRelation.Fundamental.Reducibility.reducible-⊩∷
 
 -- Definition 6.5: The logical relation for erasure.
 --
@@ -1267,13 +1267,13 @@ _⊩ᵛ⟨_⟩_≡_∷_/_/_ =
 -- Theorem A.9: The fundamental lemma.
 
 fundamentalType =
-  Definition.LogicalRelation.Fundamental.Reducibility.reducible
+  Definition.LogicalRelation.Fundamental.Reducibility.reducible-⊩
 fundamentalTerm =
-  Definition.LogicalRelation.Fundamental.Reducibility.reducibleTerm
+  Definition.LogicalRelation.Fundamental.Reducibility.reducible-⊩∷
 fundamentalTypeEq =
-  Definition.LogicalRelation.Fundamental.Reducibility.reducibleEq
+  Definition.LogicalRelation.Fundamental.Reducibility.reducible-⊩≡
 fundamentalTermEq =
-  Definition.LogicalRelation.Fundamental.Reducibility.reducibleEqTerm
+  Definition.LogicalRelation.Fundamental.Reducibility.reducible-⊩≡∷
 
 ------------------------------------------------------------------------
 -- B: Usage Inference

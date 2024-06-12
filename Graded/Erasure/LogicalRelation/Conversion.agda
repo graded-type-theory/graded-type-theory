@@ -21,7 +21,7 @@ open import Graded.Erasure.LogicalRelation as
 import Graded.Erasure.Target as T
 
 open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Irrelevance R
+open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
 open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Properties.Conversion R
@@ -40,6 +40,7 @@ open import Definition.Typed.Reduction R
 open import Definition.Typed.RedSteps R
 open import Definition.Typed.Weakening R hiding (wk)
 
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -76,28 +77,28 @@ convTermʳ′
 ... | yes PE.refl = t®v .proj₁ , λ [a]′ →
   let Π≡Π₁ = reduction′ A⇒Π B⇒Π₁ ΠΣₙ ΠΣₙ A≡B
       F≡F₁ , G≡G₁ , _ , _ = injectivity Π≡Π₁
-      [F₁]′ , [F]′ , [F₁≡F]′ = reducibleEq (sym F≡F₁)
-      [F₁≡F] = irrelevanceEq″ (PE.sym (wk-id F₁)) (PE.sym (wk-id F))
-                              [F₁]′ ([F]₁ id ⊢Δ) [F₁≡F]′
+      [F₁≡F] = ⊩≡→⊩≡/ ([F]₁ _ _) $
+               PE.subst₂ (_⊩⟨_⟩_≡_ _ _) (PE.sym $ wk-id _)
+                 (PE.sym $ wk-id _) $
+               reducible-⊩≡ (sym F≡F₁)
       [a] = convTerm₁ ([F]₁ id ⊢Δ) ([F] id ⊢Δ) [F₁≡F] [a]′
       G≡G₁′ = wkEq (lift id) (⊢Δ ∙ escape ([F] id ⊢Δ)) G≡G₁
       G[a]≡G₁[a] = substTypeEq G≡G₁′ (refl (escapeTerm ([F] id ⊢Δ) [a]))
-      [Ga]′ , [G₁a]′ , [Ga≡G₁a]′ = reducibleEq G[a]≡G₁[a]
-      [Ga≡G₁a] = irrelevanceEq [Ga]′ ([G] id ⊢Δ [a]) [Ga≡G₁a]′
+      [Ga≡G₁a] = ⊩≡→⊩≡/ ([G] _ _ _) (reducible-⊩≡ G[a]≡G₁[a])
       t®v′ = t®v .proj₂ [a]
       SV = goodCases ([G] id ⊢Δ [a]) ([G]₁ id ⊢Δ [a]′) [Ga≡G₁a]
   in  convTermʳ′ ([G] id ⊢Δ [a]) ([G]₁ id ⊢Δ [a]′) G[a]≡G₁[a] SV t®v′
 ... | no p≢𝟘 = t®v .proj₁ , λ [a]′ a®w′ →
   let Π≡Π₁ = reduction′ A⇒Π B⇒Π₁ ΠΣₙ ΠΣₙ A≡B
       F≡F₁ , G≡G₁ , _ , _ = injectivity Π≡Π₁
-      [F₁]′ , [F]′ , [F₁≡F]′ = reducibleEq (sym F≡F₁)
-      [F₁≡F] = irrelevanceEq″ (PE.sym (wk-id F₁)) (PE.sym (wk-id F))
-                              [F₁]′ ([F]₁ id ⊢Δ) [F₁≡F]′
+      [F₁≡F] = ⊩≡→⊩≡/ ([F]₁ _ _) $
+               PE.subst₂ (_⊩⟨_⟩_≡_ _ _) (PE.sym $ wk-id _)
+                 (PE.sym $ wk-id _) $
+               reducible-⊩≡ (sym F≡F₁)
       [a] = convTerm₁ ([F]₁ id ⊢Δ) ([F] id ⊢Δ) [F₁≡F] [a]′
       G≡G₁′ = wkEq (lift id) (⊢Δ ∙ escape ([F] id ⊢Δ)) G≡G₁
       G[a]≡G₁[a] = substTypeEq G≡G₁′ (refl (escapeTerm ([F] id ⊢Δ) [a]))
-      [Ga]′ , [G₁a]′ , [Ga≡G₁a]′ = reducibleEq G[a]≡G₁[a]
-      [Ga≡G₁a] = irrelevanceEq [Ga]′ ([G] id ⊢Δ [a]) [Ga≡G₁a]′
+      [Ga≡G₁a] = ⊩≡→⊩≡/ ([G] _ _ _) (reducible-⊩≡ G[a]≡G₁[a])
       SV = goodCases ([F]₁ id ⊢Δ) ([F] id ⊢Δ) [F₁≡F]
       F₁≡F = PE.subst₂ (Δ ⊢_≡_) (PE.sym (wk-id F₁)) (PE.sym (wk-id F)) (sym F≡F₁)
       a®w = convTermʳ′ ([F]₁ id ⊢Δ) ([F] id ⊢Δ) F₁≡F SV a®w′
@@ -113,17 +114,17 @@ convTermʳ′ {v = v}
       F≡F₁ , G≡G₁ , _ = Σ-injectivity Σ≡Σ₁
       [F]′ = [F] id ⊢Δ
       [F]₁′ = [F]₁ id ⊢Δ
-      [F]″ , [F₁]″ , [F≡F₁]′ = reducibleEq F≡F₁
-      [F≡F₁] = irrelevanceEq″ (PE.sym (wk-id F)) (PE.sym (wk-id F₁))
-                              [F]″ [F]′ [F≡F₁]′
+      [F≡F₁] = ⊩≡→⊩≡/ [F]′ $
+               PE.subst₂ (_⊩⟨_⟩_≡_ _ _) (PE.sym $ wk-id _)
+                 (PE.sym $ wk-id _) $
+               reducible-⊩≡ F≡F₁
       F≡F₁′ = PE.subst₂ (Δ ⊢_≡_) (PE.sym (wk-id F)) (PE.sym (wk-id F₁)) F≡F₁
       [t₁]′ = convTerm₁ [F]′ [F]₁′ [F≡F₁] [t₁]
       G≡G₁′ = wkEq (lift id) (⊢Δ ∙ escape [F]′) G≡G₁
       G[t₁]≡G₁[t₁] = substTypeEq G≡G₁′ (refl (escapeTerm [F]′ [t₁]))
       [Gt₁] = [G] id ⊢Δ [t₁]
       [Gt₁]₁ = [G]₁ id ⊢Δ [t₁]′
-      [Gt₁]′ , [G₁t₁]′ , [Gt₁≡G₁t₁]′ = reducibleEq G[t₁]≡G₁[t₁]
-      [Gt₁≡G₁t₁] = irrelevanceEq [Gt₁]′ [Gt₁] [Gt₁≡G₁t₁]′
+      [Gt₁≡G₁t₁] = ⊩≡→⊩≡/ [Gt₁] (reducible-⊩≡ G[t₁]≡G₁[t₁])
       t⇒t″ = conv* t⇒t′ Σ≡Σ₁
       SV₂ = goodCases [Gt₁] [Gt₁]₁ [Gt₁≡G₁t₁]
       t₂®v₂′ = convTermʳ′ [Gt₁] [Gt₁]₁ G[t₁]≡G₁[t₁] SV₂ t₂®v₂
@@ -161,6 +162,5 @@ convTermʳ : ∀ {l l′ A B t v}
           → t ®⟨ l ⟩ v ∷ A / [A]
           → t ®⟨ l′ ⟩ v ∷ B / [B]
 convTermʳ [A] [B] A≡B t®v =
-  let [A]′ , [B]′ , [A≡B]′ = reducibleEq A≡B
-      [A≡B] = irrelevanceEq [A]′ [A] [A≡B]′
+  let [A≡B] = ⊩≡→⊩≡/ [A] (reducible-⊩≡ A≡B)
   in convTermʳ′ [A] [B] A≡B (goodCases [A] [B] [A≡B]) t®v

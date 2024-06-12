@@ -15,17 +15,12 @@ open Type-restrictions R
 
 open import Definition.Untyped M hiding (wk)
 import Definition.Untyped M as U
-open import Definition.Untyped.Neutral M type-variant
 
 open import Definition.Typed R
 open import Definition.Typed.Weakening R
-open import Definition.Typed.Properties R
 open import Definition.Typed.EqRelInstance R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R
-open import Definition.LogicalRelation.Irrelevance R
-open import Definition.LogicalRelation.ShapeView R
-open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
 open import Definition.LogicalRelation.Substitution.Introductions R
 
@@ -90,24 +85,9 @@ opaque
     Γ ⊢ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂ →
     (Γ ⊢ A₁ ≡ A₂) × Γ ⊢ t₁ ≡ t₂ ∷ A₁ × Γ ⊢ u₁ ≡ u₂ ∷ A₁
   Id-injectivity Id≡Id =
-    case reducibleEq Id≡Id of λ {
-      (⊩Id , _ , ⊩Id≡Id) →
-    helper (Id-elim ⊩Id)
-      (irrelevanceEq ⊩Id (Id-intr (Id-elim ⊩Id)) ⊩Id≡Id) }
-    where
-    helper :
-      ∀ ⊩Id →
-      Γ ⊩⟨ l ⟩ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂ / Id-intr ⊩Id →
-      (Γ ⊢ A₁ ≡ A₂) × Γ ⊢ t₁ ≡ t₂ ∷ A₁ × Γ ⊢ u₁ ≡ u₂ ∷ A₁
-    helper (emb 0<1 ⊩Id) ⊩Id≡Id = helper ⊩Id ⊩Id≡Id
-    helper (noemb ⊩Id)   ⊩Id≡Id =
-      case whnfRed* (red (_⊩ₗId_.⇒*Id ⊩Id)) Idₙ of λ {
-        PE.refl →
-      case whnfRed* (red (_⊩ₗId_≡_/_.⇒*Id′ ⊩Id≡Id)) Idₙ of λ {
-        PE.refl →
-        escapeEq (_⊩ₗId_.⊩Ty ⊩Id) (_⊩ₗId_≡_/_.Ty≡Ty′ ⊩Id≡Id)
-      , escapeTermEq (_⊩ₗId_.⊩Ty ⊩Id) (_⊩ₗId_≡_/_.lhs≡lhs′ ⊩Id≡Id)
-      , escapeTermEq (_⊩ₗId_.⊩Ty ⊩Id) (_⊩ₗId_≡_/_.rhs≡rhs′ ⊩Id≡Id) }}
+    case ⊩Id≡Id⇔ .proj₁ $ reducible-⊩≡ Id≡Id of λ
+      (A₁≡A₂ , t₁≡t₂ , u₁≡u₂) →
+    escape-⊩≡ A₁≡A₂ , escape-⊩≡∷ t₁≡t₂ , escape-⊩≡∷ u₁≡u₂
 
 opaque
 

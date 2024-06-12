@@ -176,8 +176,8 @@ opaque
                 (rflᵣ t⇒* _) →
               case inversion-Id (syntacticRedTerm t⇒* .proj₁) of λ
                 (_ , ⊢t₁ , ⊢t₂) →
-                level-⊩∷ ⊩A (reducibleTerm ⊢t₁)
-              , level-⊩∷ ⊩A (reducibleTerm ⊢t₂) })
+                level-⊩∷ ⊩A (reducible-⊩∷ ⊢t₁)
+              , level-⊩∷ ⊩A (reducible-⊩∷ ⊢t₂) })
          , t®v)
 
 opaque
@@ -205,7 +205,7 @@ opaque
              case B-PE-injectivity (BΠ _ _) (BΠ _ _)
                     (whnfRed* (red (_⊩ₗB⟨_⟩_.D ⊩Π′)) ΠΣₙ) of λ {
                (PE.refl , PE.refl , _) →
-             case reducibleTerm $
+             case reducible-⊩∷ $
                   PE.subst (_⊢_∷_ _ _) (PE.sym $ wk-id _) ⊢t′ of λ
                (⊩A , ⊩t′) →
              case IR.irrelevanceTerm ⊩A (_⊩ₗB⟨_⟩_.[F] ⊩Π′ W.id ⊢Δ)

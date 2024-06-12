@@ -25,14 +25,14 @@ open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.RedSteps R
 open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Irrelevance R
+open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
-open import Definition.LogicalRelation.ShapeView R
+open import Definition.LogicalRelation.Substitution.Introductions R
 
 open import Tools.Empty
 open import Tools.Function
-open import Tools.Nat
+open import Tools.Nat using (Nat)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 
@@ -42,7 +42,6 @@ private
     Γ : Con Term n
     A B t u v : Term _
     p q : M
-    l : TypeLevel
     m : Strength
 
 opaque
@@ -51,41 +50,20 @@ opaque
   -- constructor or a neutral term.
 
   red-U : Γ ⊢ t ∷ U → ∃ λ u → Type u × Γ ⊢ t :⇒*: u ∷ U
-  red-U {Γ} {t} ⊢t =
-    case reducibleTerm ⊢t of λ {
-      (⊩U , ⊩t) →
-    helper (U-elim ⊩U) (irrelevanceTerm ⊩U (U-intr (U-elim ⊩U)) ⊩t) }
-    where
-    helper :
-      (⊩U : Γ ⊩⟨ l ⟩U) →
-      Γ ⊩⟨ l ⟩ t ∷ U / U-intr ⊩U →
-      ∃ λ u → Type u × Γ ⊢ t :⇒*: u ∷ U
-    helper (emb 0<1 ⊩U) ⊩t =
-      helper ⊩U ⊩t
-    helper (noemb (Uᵣ _ _ _)) (Uₜ u t⇒*u u-type _ _) =
-      u , u-type , t⇒*u
+  red-U ⊢t =
+    case ⊩∷U⇔ .proj₁ $ reducible-⊩∷ ⊢t of λ
+      (_ , u , t⇒*u , u-type , _) →
+    u , u-type , t⇒*u
 
 opaque
 
   -- If the type of t is Empty, then t reduces to a neutral term.
 
   red-Empty : Γ ⊢ t ∷ Empty → ∃ λ u → Neutral u × Γ ⊢ t :⇒*: u ∷ Empty
-  red-Empty {Γ} {t} ⊢t =
-    case reducibleTerm ⊢t of λ {
-      (⊩Empty′ , ⊩t) →
-    helper (Empty-elim ⊩Empty′)
-      (irrelevanceTerm ⊩Empty′ (Empty-intr (Empty-elim ⊩Empty′)) ⊩t) }
-    where
-    helper :
-      (⊩A : Γ ⊩⟨ l ⟩Empty A) →
-      Γ ⊩⟨ l ⟩ t ∷ A / Empty-intr ⊩A →
-      ∃ λ u → Neutral u × Γ ⊢ t :⇒*: u ∷ A
-    helper (emb 0<1 ⊩A) ⊩t =
-      helper ⊩A ⊩t
-    helper (noemb A⇒*Empty) (Emptyₜ u t⇒*u _ (ne (neNfₜ u-ne _ _))) =
-        u
-      , u-ne
-      , convRed:*: t⇒*u (sym (subset* (red A⇒*Empty)))
+  red-Empty ⊢t =
+    case ⊩∷Empty⇔ .proj₁ $ reducible-⊩∷ ⊢t of λ {
+      (Emptyₜ u t⇒*u _ (ne (neNfₜ u-ne _ _))) →
+    u , u-ne , t⇒*u }
 
 opaque
 
@@ -93,24 +71,14 @@ opaque
   -- term.
 
   red-Unit : Γ ⊢ t ∷ Unit m → ∃ λ u → Star u × Γ ⊢ t :⇒*: u ∷ Unit m
-  red-Unit {Γ} {t} ⊢t =
-    case reducibleTerm ⊢t of λ {
-      (⊩Unit′ , ⊩t) →
-    helper (Unit-elim ⊩Unit′)
-      (irrelevanceTerm ⊩Unit′ (Unit-intr (Unit-elim ⊩Unit′)) ⊩t) }
-    where
-    helper :
-      (⊩A : Γ ⊩⟨ l ⟩Unit⟨ m ⟩ A) →
-      Γ ⊩⟨ l ⟩ t ∷ A / Unit-intr ⊩A →
-      ∃ λ u → Star u × Γ ⊢ t :⇒*: u ∷ A
-    helper (emb 0<1 ⊩A) ⊩t =
-      helper ⊩A ⊩t
-    helper (noemb (Unitₜ A⇒*Unit _)) (Unitₜ u t⇒*u _ prop) =
-        u
-      , (case prop of λ where
-              starᵣ → starₙ
-              (ne (neNfₜ neK ⊢k k≡k)) → ne neK)
-      , convRed:*: t⇒*u (sym (subset* (red A⇒*Unit)))
+  red-Unit ⊢t =
+    case ⊩∷Unit⇔ .proj₁ $ reducible-⊩∷ ⊢t of λ
+      (_ , Unitₜ u t⇒*u _ rest) →
+      u
+    , (case rest of λ where
+         starᵣ                 → starₙ
+         (ne (neNfₜ u-ne _ _)) → ne u-ne)
+    , t⇒*u
 
 opaque
 
@@ -118,24 +86,15 @@ opaque
   -- suc, or a neutral term.
 
   red-ℕ : Γ ⊢ t ∷ ℕ → ∃ λ u → Natural u × Γ ⊢ t :⇒*: u ∷ ℕ
-  red-ℕ {Γ} {t} ⊢t =
-    case reducibleTerm ⊢t of λ {
-      (⊩ℕ′ , ⊩t) →
-    helper (ℕ-elim ⊩ℕ′) (irrelevanceTerm ⊩ℕ′ (ℕ-intr (ℕ-elim ⊩ℕ′)) ⊩t) }
-    where
-    helper :
-      (⊩A : Γ ⊩⟨ l ⟩ℕ A) →
-      Γ ⊩⟨ l ⟩ t ∷ A / ℕ-intr ⊩A →
-      ∃ λ u → Natural u × Γ ⊢ t :⇒*: u ∷ A
-    helper (emb 0<1 ⊩A) ⊩t =
-      helper ⊩A ⊩t
-    helper (noemb A⇒*ℕ) (ℕₜ u t⇒*u _ ok) =
-        u
-      , (case ok of λ where
-           zeroᵣ                 → zeroₙ
-           (sucᵣ _)              → sucₙ
-           (ne (neNfₜ u-ne _ _)) → ne u-ne)
-      , convRed:*: t⇒*u (sym (subset* (red A⇒*ℕ)))
+  red-ℕ ⊢t =
+    case ⊩∷ℕ⇔ .proj₁ $ reducible-⊩∷ ⊢t of λ
+      (ℕₜ u t⇒*u _ rest) →
+      u
+    , (case rest of λ where
+         zeroᵣ                 → zeroₙ
+         (sucᵣ _)              → sucₙ
+         (ne (neNfₜ u-ne _ _)) → ne u-ne)
+    , t⇒*u
 
 opaque
 
@@ -144,20 +103,10 @@ opaque
   red-Π :
     Γ ⊢ t ∷ Π p , q ▷ A ▹ B →
     ∃ λ u → Function u × Γ ⊢ t :⇒*: u ∷ Π p , q ▷ A ▹ B
-  red-Π {Γ} {t} {p} {q} ⊢t =
-    case reducibleTerm ⊢t of λ {
-      (⊩Π , ⊩t) →
-    helper (Π-elim ⊩Π)
-      (irrelevanceTerm ⊩Π (B-intr (BΠ p q) (Π-elim ⊩Π)) ⊩t) }
-    where
-    helper :
-      (⊩A : Γ ⊩⟨ l ⟩B⟨ BΠ p q ⟩ A) →
-      Γ ⊩⟨ l ⟩ t ∷ A / B-intr (BΠ p q) ⊩A →
-      ∃ λ u → Function u × Γ ⊢ t :⇒*: u ∷ A
-    helper (emb 0<1 ⊩A) ⊩t =
-      helper ⊩A ⊩t
-    helper (noemb (Bᵣ _ _ A⇒*Π _ _ _ _ _ _ _)) (u , t⇒*u , u-fun , _) =
-      u , u-fun , convRed:*: t⇒*u (sym (subset* (red A⇒*Π)))
+  red-Π ⊢t =
+    case ⊩∷Π⇔ .proj₁ $ reducible-⊩∷ ⊢t of λ
+      (_ , u , t⇒*u , u-fun , _) →
+    u , u-fun , t⇒*u
 
 opaque
 
@@ -166,21 +115,14 @@ opaque
   red-Σ :
     Γ ⊢ t ∷ Σ⟨ m ⟩ p , q ▷ A ▹ B →
     ∃ λ u → Product u × Γ ⊢ t :⇒*: u ∷ Σ⟨ m ⟩ p , q ▷ A ▹ B
-  red-Σ {Γ} {t} {m} {p} {q} ⊢t =
-    case reducibleTerm ⊢t of λ {
-      (⊩Σ , ⊩t) →
-    helper (Σ-elim ⊩Σ)
-      (irrelevanceTerm ⊩Σ (B-intr (BΣ m p q) (Σ-elim ⊩Σ)) ⊩t) }
-    where
-    helper :
-      (⊩A : Γ ⊩⟨ l ⟩B⟨ BΣ m p q ⟩ A) →
-      Γ ⊩⟨ l ⟩ t ∷ A / B-intr (BΣ m p q) ⊩A →
-      ∃ λ u → Product u × Γ ⊢ t :⇒*: u ∷ A
-    helper (emb 0<1 ⊩A) ⊩t =
-      helper ⊩A ⊩t
-    helper
-      (noemb (Bᵣ _ _ A⇒*Σ _ _ _ _ _ _ _)) (u , t⇒*u , _ , u-prod , _) =
-      u , u-prod , convRed:*: t⇒*u (sym (subset* (red A⇒*Σ)))
+  red-Σ {m = 𝕤} ⊢t =
+    case ⊩∷Σˢ⇔ .proj₁ $ reducible-⊩∷ ⊢t of λ
+      (_ , u , t⇒*u , u-prod , _) →
+    u , u-prod , t⇒*u
+  red-Σ {m = 𝕨} ⊢t =
+    case ⊩∷Σʷ⇔ .proj₁ $ reducible-⊩∷ ⊢t of λ
+      (_ , u , t⇒*u , _ , rest) →
+    u , ⊩∷Σʷ→Product rest , t⇒*u
 
 opaque
 
@@ -190,22 +132,14 @@ opaque
   red-Id :
     Γ ⊢ t ∷ Id A u v →
     ∃ λ w → Identity w × Γ ⊢ t :⇒*: w ∷ Id A u v
-  red-Id {Γ} {t} ⊢t =
-    case reducibleTerm ⊢t of λ {
-      (⊩Id , ⊩t) →
-    helper (Id-elim ⊩Id)
-      (irrelevanceTerm ⊩Id (Id-intr (Id-elim ⊩Id)) ⊩t) }
-    where
-    helper :
-      (⊩A : Γ ⊩⟨ l ⟩Id A) →
-      Γ ⊩⟨ l ⟩ t ∷ A / Id-intr ⊩A →
-      ∃ λ w → Identity w × Γ ⊢ t :⇒*: w ∷ A
-    helper (emb 0<1 ⊩A) ⊩t =
-      helper ⊩A ⊩t
-    helper (noemb ⊩A) (w , t⇒*w , w-id , _) =
-        w
-      , w-id
-      , convRed:*: t⇒*w (sym (subset* (red (_⊩ₗId_.⇒*Id ⊩A))))
+  red-Id ⊢t =
+    case ⊩∷Id⇔ .proj₁ $ reducible-⊩∷ ⊢t of λ
+      (w , t⇒*w , _ , _ , rest) →
+      w
+    , (case rest of λ where
+         (rflᵣ _)    → rflₙ
+         (ne w-ne _) → ne w-ne)
+    , t⇒*w
 
 -- Helper function where all reducible types can be reduced to WHNF.
 whNorm′ : ∀ {A l} ([A] : Γ ⊩⟨ l ⟩ A)
@@ -222,7 +156,7 @@ whNorm′ (emb 0<1 [A]) = whNorm′ [A]
 
 -- Well-formed types can all be reduced to WHNF.
 whNorm : ∀ {A} → Γ ⊢ A → ∃ λ B → Whnf B × Γ ⊢ A :⇒*: B
-whNorm A = whNorm′ (reducible A)
+whNorm A = whNorm′ (reducible-⊩ A)
 
 ΠNorm : ∀ {A F G} → Γ ⊢ A → Γ ⊢ A ≡ Π p , q ▷ F ▹ G
       → ∃₂ λ F′ G′ → Γ ⊢ A ⇒* Π p , q ▷ F′ ▹ G′ × Γ ⊢ F ≡ F′
@@ -327,11 +261,17 @@ whNormTerm′ (Idᵣ ⊩Id) (a′ , a⇒*a′ , a′-id , _) =
   , convRed:*: a⇒*a′ (sym (subset* (red (_⊩ₗId_.⇒*Id ⊩Id))))
 whNormTerm′ (emb 0<1 [A]) [a] = whNormTerm′ [A] [a]
 
--- Well-formed terms can all be reduced to WHNF.
-whNormTerm : ∀ {a A} → Γ ⊢ a ∷ A → ∃ λ b → Whnf b × Γ ⊢ a :⇒*: b ∷ A
-whNormTerm {a} {A} ⊢a =
-  let [A] , [a] = reducibleTerm ⊢a
-  in  whNormTerm′ [A] [a]
+opaque
+
+  -- Well-formed terms reduce to WHNFs.
+
+  whNormTerm : Γ ⊢ t ∷ A → ∃ λ u → Whnf u × Γ ⊢ t :⇒*: u ∷ A
+  whNormTerm ⊢t =
+    case reducible-⊩∷ ⊢t of λ
+      ⊩t →
+    case wf-⊩∷ ⊩t of λ
+      ⊩A →
+    whNormTerm′ ⊩A (⊩∷→⊩∷/ ⊩A ⊩t)
 
 redMany : ∀ {t u A} → Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ⇒* u ∷ A
 redMany d =

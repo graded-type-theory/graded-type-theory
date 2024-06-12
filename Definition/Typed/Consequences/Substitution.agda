@@ -20,12 +20,11 @@ open import Definition.Typed.Properties R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Weakening R
 open import Definition.Typed.Consequences.Syntactic R
-open import Definition.LogicalRelation.Properties R
-open import Definition.LogicalRelation.Substitution R
-open import Definition.LogicalRelation.Substitution.Irrelevance R
 open import Definition.LogicalRelation.Fundamental R
+open import Definition.LogicalRelation.Hidden R
 
 open import Tools.Fin
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -33,52 +32,54 @@ import Tools.PropositionalEquality as PE
 private
   variable
     ℓ m n : Nat
-    Γ : Con Term n
+    Γ Δ : Con Term n
     A B C C₁ C₂ t t₁ t₂ u u₁ u₂ v : Term _
     σ σ′ : Subst m n
     ρ : Wk ℓ m
     p q : M
 
--- Well-formed substitution of types.
-substitution : ∀ {A Γ Δ} → Γ ⊢ A → Δ ⊢ˢ σ ∷ Γ → ⊢ Δ → Δ ⊢ A [ σ ]
-substitution A σ ⊢Δ with fundamental A | fundamentalSubst (wf A) ⊢Δ σ
-substitution A σ ⊢Δ | [Γ] , [A] | [Γ]′ , [σ] =
-  escape (proj₁ (unwrap [A] ⊢Δ (irrelevanceSubst [Γ]′ [Γ] ⊢Δ ⊢Δ [σ])))
+opaque
 
--- Well-formed substitution of type equality.
-substitutionEq : ∀ {A B Γ Δ}
-               → Γ ⊢ A ≡ B → Δ ⊢ˢ σ ≡ σ′ ∷ Γ → ⊢ Δ → Δ ⊢ A [ σ ] ≡ B [ σ′ ]
-substitutionEq A≡B σ ⊢Δ with fundamentalEq A≡B | fundamentalSubstEq (wfEq A≡B) ⊢Δ σ
-substitutionEq A≡B σ ⊢Δ | [Γ] , [A] , [B] , [A≡B] | [Γ]′ , [σ] , [σ′] , [σ≡σ′]  =
-  let [σ]′ = irrelevanceSubst [Γ]′ [Γ] ⊢Δ ⊢Δ [σ]
-      [σ′]′ = irrelevanceSubst [Γ]′ [Γ] ⊢Δ ⊢Δ [σ′]
-      [σ≡σ′]′ = irrelevanceSubstEq [Γ]′ [Γ] ⊢Δ ⊢Δ [σ] [σ]′ [σ≡σ′]
-  in  escapeEq (proj₁ (unwrap [A] ⊢Δ [σ]′))
-                   (transEq (proj₁ (unwrap [A] ⊢Δ [σ]′)) (proj₁ (unwrap [B] ⊢Δ [σ]′))
-                            (proj₁ (unwrap [B] ⊢Δ [σ′]′)) ([A≡B] ⊢Δ [σ]′)
-                            (proj₂ (unwrap [B] ⊢Δ [σ]′) [σ′]′ [σ≡σ′]′))
+  -- A substitution lemma for _⊢_.
 
--- Well-formed substitution of terms.
-substitutionTerm : ∀ {t A Γ Δ}
-               → Γ ⊢ t ∷ A → Δ ⊢ˢ σ ∷ Γ → ⊢ Δ → Δ ⊢ t [ σ ] ∷ A [ σ ]
-substitutionTerm t σ ⊢Δ with fundamentalTerm t | fundamentalSubst (wfTerm t) ⊢Δ σ
-substitutionTerm t σ ⊢Δ | [Γ] , [A] , [t] | [Γ]′ , [σ] =
-  let [σ]′ = irrelevanceSubst [Γ]′ [Γ] ⊢Δ ⊢Δ [σ]
-  in  escapeTerm (proj₁ (unwrap [A] ⊢Δ [σ]′)) (proj₁ ([t] ⊢Δ [σ]′))
+  substitution : Γ ⊢ A → Δ ⊢ˢ σ ∷ Γ → ⊢ Δ → Δ ⊢ A [ σ ]
+  substitution ⊢A ⊢σ ⊢Δ =
+    escape-⊩ $
+    ⊩ᵛ→⊩ˢ∷→⊩[] (fundamental-⊩ᵛ ⊢A) (fundamental-⊩ˢ∷ ⊢Δ (wf ⊢A) ⊢σ)
 
--- Well-formed substitution of term equality.
-substitutionEqTerm : ∀ {t u A Γ Δ}
-                   → Γ ⊢ t ≡ u ∷ A → Δ ⊢ˢ σ ≡ σ′ ∷ Γ → ⊢ Δ
-                   → Δ ⊢ t [ σ ] ≡ u [ σ′ ] ∷ A [ σ ]
-substitutionEqTerm t≡u σ≡σ′ ⊢Δ with fundamentalTermEq t≡u
-                                  | fundamentalSubstEq (wfEqTerm t≡u) ⊢Δ σ≡σ′
-... | [Γ] , modelsTermEq [A] [t] [u] [t≡u] | [Γ]′ , [σ] , [σ′] , [σ≡σ′] =
-  let [σ]′ = irrelevanceSubst [Γ]′ [Γ] ⊢Δ ⊢Δ [σ]
-      [σ′]′ = irrelevanceSubst [Γ]′ [Γ] ⊢Δ ⊢Δ [σ′]
-      [σ≡σ′]′ = irrelevanceSubstEq [Γ]′ [Γ] ⊢Δ ⊢Δ [σ] [σ]′ [σ≡σ′]
-  in  escapeTermEq (proj₁ (unwrap [A] ⊢Δ [σ]′))
-                       (transEqTerm (proj₁ (unwrap [A] ⊢Δ [σ]′)) ([t≡u] ⊢Δ [σ]′)
-                                    (proj₂ ([u] ⊢Δ [σ]′) [σ′]′ [σ≡σ′]′))
+opaque
+
+  -- A substitution lemma for _⊢_≡_.
+
+  substitutionEq :
+    Γ ⊢ A ≡ B → Δ ⊢ˢ σ ≡ σ′ ∷ Γ → ⊢ Δ → Δ ⊢ A [ σ ] ≡ B [ σ′ ]
+  substitutionEq A≡B σ≡σ′ ⊢Δ =
+    escape-⊩≡ $
+    ⊩ᵛ≡⇔′ .proj₁ (fundamental-⊩ᵛ≡ A≡B) .proj₂ .proj₂ $
+    fundamental-⊩ˢ≡∷ ⊢Δ (wfEq A≡B) σ≡σ′
+
+opaque
+
+  -- A substitution lemma for _⊢_∷_.
+
+  substitutionTerm :
+    Γ ⊢ t ∷ A → Δ ⊢ˢ σ ∷ Γ → ⊢ Δ → Δ ⊢ t [ σ ] ∷ A [ σ ]
+  substitutionTerm ⊢t ⊢σ ⊢Δ =
+    escape-⊩∷ $
+    ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (fundamental-⊩ᵛ∷ ⊢t)
+      (fundamental-⊩ˢ∷ ⊢Δ (wfTerm ⊢t) ⊢σ)
+
+opaque
+
+  -- A substitution lemma for _⊢_≡_∷_.
+
+  substitutionEqTerm :
+    Γ ⊢ t ≡ u ∷ A → Δ ⊢ˢ σ ≡ σ′ ∷ Γ → ⊢ Δ →
+    Δ ⊢ t [ σ ] ≡ u [ σ′ ] ∷ A [ σ ]
+  substitutionEqTerm t≡u σ≡σ′ ⊢Δ =
+    escape-⊩≡∷ $
+    ⊩ᵛ≡∷⇔′ .proj₁ (fundamental-⊩ᵛ≡∷ t≡u) .proj₂ .proj₂ $
+    fundamental-⊩ˢ≡∷ ⊢Δ (wfEqTerm t≡u) σ≡σ′
 
 -- Reflexivity of well-formed substitution.
 substRefl : ∀ {Γ Δ}

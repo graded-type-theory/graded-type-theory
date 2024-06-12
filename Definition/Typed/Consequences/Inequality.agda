@@ -20,13 +20,14 @@ open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Properties R
 open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
 open import Definition.Typed.Consequences.Syntactic R
 
 open import Tools.Function
-open import Tools.Nat
+open import Tools.Nat using (Nat)
 open import Tools.Product
 open import Tools.Relation
 open import Tools.Empty
@@ -45,20 +46,25 @@ private
     s : Strength
     l l′ : TypeLevel
 
-A≢B : ∀ {A B Γ} (_⊩′⟨_⟩A_ _⊩′⟨_⟩B_ : Con Term n → TypeLevel → Term n → Set a)
-      (A-intr : ∀ {l} → Γ ⊩′⟨ l ⟩A A → Γ ⊩⟨ l ⟩ A)
-      (B-intr : ∀ {l} → Γ ⊩′⟨ l ⟩B B → Γ ⊩⟨ l ⟩ B)
-      (A-elim : ∀ {l} → Γ ⊩⟨ l ⟩ A → ∃ λ l′ → Γ ⊩′⟨ l′ ⟩A A)
-      (B-elim : ∀ {l} → Γ ⊩⟨ l ⟩ B → ∃ λ l′ → Γ ⊩′⟨ l′ ⟩B B)
-      (A≢B′ : ∀ {l l′} ([A] : Γ ⊩′⟨ l ⟩A A) ([B] : Γ ⊩′⟨ l′ ⟩B B)
-            → ShapeView Γ l l′ A B (A-intr [A]) (B-intr [B]) → ⊥)
-    → Γ ⊢ A ≡ B → ⊥
-A≢B {A} {B} _ _ A-intr B-intr A-elim B-elim A≢B′ A≡B with reducibleEq A≡B
-A≢B {A} {B} _ _ A-intr B-intr A-elim B-elim A≢B′ A≡B | [A] , [B] , [A≡B] =
-  let _ , [A]′ = A-elim ([A])
-      _ , [B]′ = B-elim ([B])
-      [A≡B]′ = irrelevanceEq [A] (A-intr [A]′) [A≡B]
-  in  A≢B′ [A]′ [B]′ (goodCases (A-intr [A]′) (B-intr [B]′) [A≡B]′)
+opaque
+  unfolding _⊩⟨_⟩_≡_
+
+  A≢B :
+    (_⊩′⟨_⟩A_ _⊩′⟨_⟩B_ : Con Term n → TypeLevel → Term n → Set a)
+    (A-intr : ∀ {l} → Γ ⊩′⟨ l ⟩A A → Γ ⊩⟨ l ⟩ A)
+    (B-intr : ∀ {l} → Γ ⊩′⟨ l ⟩B B → Γ ⊩⟨ l ⟩ B) →
+    (∀ {l} → Γ ⊩⟨ l ⟩ A → ∃ λ l′ → Γ ⊩′⟨ l′ ⟩A A) →
+    (∀ {l} → Γ ⊩⟨ l ⟩ B → ∃ λ l′ → Γ ⊩′⟨ l′ ⟩B B) →
+    (∀ {l₁ l₂} (⊩A : Γ ⊩′⟨ l₁ ⟩A A) (⊩B : Γ ⊩′⟨ l₂ ⟩B B) →
+     ¬ ShapeView Γ l₁ l₂ A B (A-intr ⊩A) (B-intr ⊩B)) →
+    ¬ Γ ⊢ A ≡ B
+  A≢B {A} {B} _ _ A-intr B-intr A-elim B-elim A≢B′ A≡B
+    with reducible-⊩≡ A≡B
+  … | ⊩A , ⊩B , A≡B =
+    let _ , ⊩A′ = A-elim ⊩A
+        _ , ⊩B′ = B-elim ⊩B
+        A≡B′    = irrelevanceEq ⊩A (A-intr ⊩A′) A≡B
+    in  A≢B′ ⊩A′ ⊩B′ (goodCases (A-intr ⊩A′) (B-intr ⊩B′) A≡B′)
 
 U≢ℕ′ : ∀ {B l l′}
        ([U] : Γ ⊩′⟨ l ⟩U)
@@ -573,8 +579,12 @@ No-η-equality→≢Unit = λ where
 whnf≢ne :
   No-η-equality A → Whnf t → ¬ Neutral t → Neutral u →
   ¬ Γ ⊢ t ≡ u ∷ A
-whnf≢ne {A = A} {t = t} {u = u} ¬-A-η t-whnf ¬-t-ne u-ne =
-  uncurry lemma ∘→ reducibleEqTerm
+whnf≢ne {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
+  case reducible-⊩≡∷ t≡u of λ
+    t≡u →
+  case wf-⊩∷ $ wf-⊩≡∷ t≡u .proj₁ of λ
+    ⊩A →
+  lemma ⊩A (⊩≡∷→⊩≡∷/ ⊩A t≡u)
   where
   A⇒*no-η : Γ ⊢ A :⇒*: B → No-η-equality B
   A⇒*no-η [ _ , _ , A⇒*B ] =

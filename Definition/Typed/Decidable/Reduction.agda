@@ -53,7 +53,7 @@ isB′ (Idᵣ ⊩A) =
 isB′ (emb 0<1 [A]) = isB′ [A]
 
 isB : Γ ⊢ A → Dec (∃₃ λ F G W → (Γ ⊢ F) × (Γ ∙ F ⊢ G) × Γ ⊢ A ⇒* (⟦ W ⟧ F ▹ G))
-isB ⊢A = isB′ (reducible ⊢A)
+isB ⊢A = isB′ (reducible-⊩ ⊢A)
 
 -- Decidability of being (reducing to) a Π-type
 
@@ -92,7 +92,7 @@ opaque
     Γ ⊢ A →
     Dec (∃₃ λ B t u →
          (Γ ⊢ B) × Γ ⊢ t ∷ B × Γ ⊢ u ∷ B × Γ ⊢ A ⇒* Id B t u)
-  is-Id = helper ∘→ reducible
+  is-Id = helper ∘→ reducible-⊩
     where
     helper :
       Γ ⊩⟨ l ⟩ A →

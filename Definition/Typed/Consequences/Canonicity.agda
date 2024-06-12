@@ -22,64 +22,50 @@ open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
-open import Definition.Typed.RedSteps R
 open import Definition.Typed.EqRelInstance R
 open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties R
-open import Definition.LogicalRelation.ShapeView R
+open import Definition.LogicalRelation.Substitution.Introductions R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
 
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product as Σ
+open import Tools.Relation
 
 private
   variable
-    n       : Nat
     A t u v : Term _
-    l       : TypeLevel
 
--- Helper function for canonicity for reducible natural properties
-canonicity″ : ∀ {t}
-              → Natural-prop ε t
-              → ∃ λ k → ε ⊢ t ≡ sucᵏ k ∷ ℕ
-canonicity″ (sucᵣ (ℕₜ n₁ d n≡n prop)) =
-  let a , b = canonicity″ prop
-  in  1+ a , suc-cong (trans (subset*Term (redₜ d)) b)
-canonicity″ zeroᵣ = 0 , refl (zeroⱼ ε)
-canonicity″ (ne (neNfₜ neK _ _)) = ⊥-elim (noClosedNe neK)
+opaque
 
--- Helper function for canonicity for specific reducible natural numbers
-canonicity′ : ∀ {t l}
-             → ([ℕ] : ε ⊩⟨ l ⟩ℕ ℕ)
-             → ε ⊩⟨ l ⟩ t ∷ ℕ / ℕ-intr [ℕ]
-             → ∃ λ k → ε ⊢ t ≡ sucᵏ k ∷ ℕ
-canonicity′ (noemb [ℕ]) (ℕₜ n d n≡n prop) =
-  let a , b = canonicity″ prop
-  in  a , trans (subset*Term (redₜ d)) b
-canonicity′ (emb 0<1 [ℕ]) [t] = canonicity′ [ℕ] [t]
+  -- Canonicity for natural numbers.
 
--- Canonicity of natural numbers
-canonicity : ∀ {t} → ε ⊢ t ∷ ℕ → ∃ λ k → ε ⊢ t ≡ sucᵏ k ∷ ℕ
-canonicity ⊢t with reducibleTerm ⊢t
-canonicity ⊢t | [ℕ] , [t] =
-  canonicity′ (ℕ-elim [ℕ]) (irrelevanceTerm [ℕ] (ℕ-intr (ℕ-elim [ℕ])) [t])
+  canonicity : ε ⊢ t ∷ ℕ → ∃ λ n → ε ⊢ t ≡ sucᵏ n ∷ ℕ
+  canonicity {t} =
+    ε ⊢ t ∷ ℕ                     →⟨ ⊩∷ℕ⇔ .proj₁ ∘→ reducible-⊩∷ ⟩
+    ε ⊩ℕ t ∷ℕ                     →⟨ lemma ⟩
+    (∃ λ n → ε ⊢ t ≡ sucᵏ n ∷ ℕ)  □
+    where
+    lemma : ε ⊩ℕ u ∷ℕ → ∃ λ n → ε ⊢ u ≡ sucᵏ n ∷ ℕ
+    lemma (ℕₜ v u⇒*v _ ⊩v) =
+      Σ.map idᶠ (trans (subset*Term (redₜ u⇒*v)))
+        (case ⊩v of λ where
+           (ne (neNfₜ u-ne _ _)) → ⊥-elim $ noClosedNe u-ne
+           zeroᵣ                 → 0 , refl (zeroⱼ ε)
+           (sucᵣ ⊩u)             → Σ.map 1+ suc-cong (lemma ⊩u))
 
--- Canonicity for Empty
+opaque
 
-¬Empty′ : ∀ {n} → ε ⊩Empty n ∷Empty → ⊥
-¬Empty′ (Emptyₜ _ _ _ (ne (neNfₜ neN _ _))) =
-  noClosedNe neN
+  -- Canonicity for the empty type.
 
-¬Empty : ∀ {n} → ε ⊢ n ∷ Empty → ⊥
-¬Empty {n} ⊢n =
-  let [Empty] , [n] = reducibleTerm ⊢n
-      [Empty]′ = Emptyᵣ {l = ¹} ([ Emptyⱼ ε , Emptyⱼ ε , id (Emptyⱼ ε) ])
-      [n]′ = irrelevanceTerm [Empty] [Empty]′ [n]
-
-  in ¬Empty′ [n]′
+  ¬Empty : ¬ ε ⊢ t ∷ Empty
+  ¬Empty {t} =
+    ε ⊢ t ∷ Empty      →⟨ ⊩∷Empty⇔ .proj₁ ∘→ reducible-⊩∷ ⟩
+    ε ⊩Empty t ∷Empty  →⟨ (λ { (Emptyₜ _ _ _ (ne (neNfₜ u-ne _ _))) →
+                               noClosedNe u-ne }) ⟩
+    ⊥                  □
 
 opaque
 
@@ -87,22 +73,11 @@ opaque
 
   ε⊢⇒*rfl∷Id : ε ⊢ v ∷ Id A t u → ε ⊢ v ⇒* rfl ∷ Id A t u
   ε⊢⇒*rfl∷Id ⊢v =
-    case reducibleTerm ⊢v of λ {
-      (⊩Id , ⊩v) →
-    helper (Id-elim ⊩Id)
-      (irrelevanceTerm ⊩Id (Id-intr (Id-elim ⊩Id)) ⊩v) }
-    where
-    helper :
-      (⊩Id : ε ⊩⟨ l ⟩Id Id A t u) →
-      ε ⊩⟨ l ⟩ v ∷ Id A t u / Id-intr ⊩Id →
-      ε ⊢ v ⇒* rfl ∷ Id A t u
-    helper (emb 0<1 ⊩Id) ⊩v                 = helper ⊩Id ⊩v
-    helper (noemb ⊩Id)   ⊩v@(_ , v⇒*v′ , _) =
-      case ⊩Id∷-view-inhabited ⊩v of λ where
-        (ne v′-n _) → ⊥-elim (noClosedNe v′-n)
-        (rflᵣ ⊩t≡u) →
-          conv* (redₜ v⇒*v′)
-            (sym (subset* (red (_⊩ₗId_.⇒*Id ⊩Id))))
+    case ⊩∷Id⇔ .proj₁ $ reducible-⊩∷ ⊢v of λ
+      (_ , v⇒*w , _ , _ , rest) →
+    case rest of λ where
+      (rflᵣ _)    → redₜ v⇒*w
+      (ne w-ne _) → ⊥-elim $ noClosedNe w-ne
 
 opaque
 

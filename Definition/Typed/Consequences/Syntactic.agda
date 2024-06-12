@@ -11,19 +11,20 @@ module Definition.Typed.Consequences.Syntactic
   (R : Type-restrictions 𝕄)
   where
 
+open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Fundamental.Reducibility R
+open import Definition.LogicalRelation.Hidden R
+
 open import Definition.Untyped M hiding (wk)
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Weakening R
-open import Definition.LogicalRelation.Substitution R
-open import Definition.LogicalRelation.Substitution.Escape R
-open import Definition.LogicalRelation.Fundamental R
 open import Definition.Typed.Consequences.Injectivity R
 
 open import Tools.Function
 open import Tools.Nat
-open import Tools.Product
+open import Tools.Product as Σ
 
 private
   variable
@@ -32,22 +33,39 @@ private
     A B t u : Term n
     p q : M
 
--- Syntactic validity of type equality.
-syntacticEq : ∀ {A B} → Γ ⊢ A ≡ B → Γ ⊢ A × Γ ⊢ B
-syntacticEq A≡B with fundamentalEq A≡B
-syntacticEq A≡B | [Γ] , [A] , [B] , [A≡B] =
-  escapeᵛ [Γ] [A] , escapeᵛ [Γ] [B]
+opaque
 
--- Syntactic validity of terms.
-syntacticTerm : ∀ {t A} → Γ ⊢ t ∷ A → Γ ⊢ A
-syntacticTerm t with fundamentalTerm t
-syntacticTerm t | [Γ] , [A] , [t] = escapeᵛ [Γ] [A]
+  -- If two types are equal, then they are well-formed.
 
--- Syntactic validity of term equality.
-syntacticEqTerm : ∀ {t u A} → Γ ⊢ t ≡ u ∷ A → Γ ⊢ A × (Γ ⊢ t ∷ A × Γ ⊢ u ∷ A)
-syntacticEqTerm t≡u with fundamentalTermEq t≡u
-syntacticEqTerm t≡u | [Γ] , modelsTermEq [A] [t] [u] [t≡u] =
-  escapeᵛ [Γ] [A] , escapeTermᵛ [Γ] [A] [t] , escapeTermᵛ [Γ] [A] [u]
+  syntacticEq : Γ ⊢ A ≡ B → Γ ⊢ A × Γ ⊢ B
+  syntacticEq {Γ} {A} {B} =
+    Γ ⊢ A ≡ B                →⟨ reducible-⊩≡ ⟩
+    Γ ⊩⟨ ¹ ⟩ A ≡ B           →⟨ wf-⊩≡ ⟩
+    Γ ⊩⟨ ¹ ⟩ A × Γ ⊩⟨ ¹ ⟩ B  →⟨ Σ.map escape-⊩ escape-⊩ ⟩
+    Γ ⊢ A × Γ ⊢ B            □
+
+opaque
+
+  -- If a term is well-typed, then its type is well-formed.
+
+  syntacticTerm : Γ ⊢ t ∷ A → Γ ⊢ A
+  syntacticTerm {Γ} {t} {A} =
+    Γ ⊢ t ∷ A       →⟨ reducible-⊩∷ ⟩
+    Γ ⊩⟨ ¹ ⟩ t ∷ A  →⟨ wf-⊩∷ ⟩
+    Γ ⊩⟨ ¹ ⟩ A      →⟨ escape-⊩ ⟩
+    Γ ⊢ A           □
+
+opaque
+
+  -- If two terms are equal at a given type, then they have that type,
+  -- and the type is well-formed.
+
+  syntacticEqTerm : Γ ⊢ t ≡ u ∷ A → (Γ ⊢ A) × Γ ⊢ t ∷ A × Γ ⊢ u ∷ A
+  syntacticEqTerm {Γ} {t} {u} {A} =
+    Γ ⊢ t ≡ u ∷ A                    →⟨ reducible-⊩≡∷ ⟩
+    Γ ⊩⟨ ¹ ⟩ t ≡ u ∷ A               →⟨ wf-⊩≡∷ ⟩
+    Γ ⊩⟨ ¹ ⟩ t ∷ A × Γ ⊩⟨ ¹ ⟩ u ∷ A  →⟨ (λ (⊩t , ⊩u) → escape-⊩ (wf-⊩∷ ⊩t) , escape-⊩∷ ⊩t , escape-⊩∷ ⊩u) ⟩
+    (Γ ⊢ A) × Γ ⊢ t ∷ A × Γ ⊢ u ∷ A  □
 
 -- Syntactic validity of type reductions.
 syntacticRed : ∀ {A B} → Γ ⊢ A ⇒* B → Γ ⊢ A × Γ ⊢ B

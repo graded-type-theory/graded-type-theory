@@ -161,11 +161,13 @@ lift~toConv↓ : ∀ {t u A}
              → Γ ⊢ t ~ u ↓ A
              → Γ ⊢ t [conv↓] u ∷ A
 lift~toConv↓ ([~] A₁ D whnfB k~l) =
-  lift~toConv↓′ (reducible (proj₁ (syntacticRed D))) D ([~] A₁ D whnfB k~l)
+  lift~toConv↓′ (reducible-⊩ (proj₁ (syntacticRed D))) D
+    ([~] A₁ D whnfB k~l)
 
 -- Lifting of algorithmic equality of terms from neutrals to generic terms.
 lift~toConv↑ : ∀ {t u A}
              → Γ ⊢ t ~ u ↑ A
              → Γ ⊢ t [conv↑] u ∷ A
 lift~toConv↑ t~u =
-  lift~toConv↑′ (reducible (proj₁ (syntacticEqTerm (soundness~↑ t~u)))) t~u
+  lift~toConv↑′
+    (reducible-⊩ (proj₁ (syntacticEqTerm (soundness~↑ t~u)))) t~u
