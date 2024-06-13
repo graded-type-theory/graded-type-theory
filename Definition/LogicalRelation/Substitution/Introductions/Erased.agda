@@ -32,6 +32,7 @@ open import Definition.Untyped M
 open import Graded.Derived.Erased.Untyped 𝕄 s
 
 open import Tools.Function
+import Tools.PropositionalEquality as PE
 
 private variable
   Γ           : Con Term _
@@ -65,6 +66,7 @@ opaque
     ⊩ΠΣ≡ΠΣ⇔ .proj₂
       ( ⊩Erased ⊩A₁
       , ⊩Erased ⊩A₂
+      , PE.refl , PE.refl , PE.refl
       , λ ρ⊇ ⊢Δ →
             wk-⊩≡ ρ⊇ ⊢Δ A₁≡A₂
           , λ _ → refl-⊩≡ (⊩Unit ⊢Δ Unit-ok)

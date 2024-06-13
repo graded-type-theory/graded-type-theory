@@ -16,21 +16,21 @@ open Type-restrictions R
 open import Definition.Untyped M hiding (wk)
 import Definition.Untyped M as U
 open import Definition.Untyped.Neutral M type-variant
-open import Definition.Untyped.Properties M
 
 open import Definition.Typed R
 open import Definition.Typed.Weakening R
 open import Definition.Typed.Properties R
 open import Definition.Typed.EqRelInstance R
 open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
+open import Definition.LogicalRelation.Substitution.Introductions R
 
-open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat
+open import Tools.Nat using (Nat)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 
@@ -38,81 +38,49 @@ private
   variable
     n : Nat
     Γ : Con Term n
-    A₁ A₂ F F′ G G′ t₁ t₂ u₁ u₂ : Term _
-    p p′ q q′ : M
-    b b′ : BinderMode
+    A₁ A₂ B₁ B₂ t₁ t₂ u₁ u₂ : Term _
+    p₁ p₂ q₁ q₂ : M
+    b₁ b₂ : BinderMode
     l : TypeLevel
-    s s′ : Strength
+    s s₁ s₂ s′ : Strength
 
--- Helper function of injectivity for specific reducible Π-types
-injectivity′ : ∀ {F G H E l} W W′
-               ([WFG] : Γ ⊩⟨ l ⟩B⟨ W ⟩ ⟦ W ⟧ F ▹ G)
-             → Γ ⊩⟨ l ⟩ ⟦ W ⟧ F ▹ G ≡ ⟦ W′ ⟧ H ▹ E / B-intr W [WFG]
-             → Γ ⊢ F ≡ H
-             × Γ ∙ F ⊢ G ≡ E
-             × W PE.≡ W′
-injectivity′
-  W W′ (noemb (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _))
-  (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
-  case B-PE-injectivity W W (whnfRed* (red D) ⟦ W ⟧ₙ) of λ {
-    (PE.refl , PE.refl , _) →
-  case B-PE-injectivity W′ W (whnfRed* D′ ⟦ W′ ⟧ₙ) of λ {
-    (PE.refl , PE.refl , PE.refl) →
-  let ⊢Γ = wf ⊢F
-      [F]₁ = [F] id ⊢Γ
-      [F]′ = irrelevance′ (wk-id _) [F]₁
-      [x∷F] = neuTerm ([F] (step id) (⊢Γ ∙ ⊢F)) (var x0) (var₀ ⊢F)
-                (refl (var₀ ⊢F))
-      [G]₁ = [G] (step id) (⊢Γ ∙ ⊢F) [x∷F]
-      [G]′ = PE.subst (_ ∙ _ ⊩⟨ _ ⟩_) (wkSingleSubstId _) [G]₁
-      [F≡H]₁ = [F≡F′] id ⊢Γ
-      [F≡H]′ = irrelevanceEq″ (wk-id _) (wk-id _) [F]₁ [F]′ [F≡H]₁
-      [G≡E]₁ = [G≡G′] (step id) (⊢Γ ∙ ⊢F) [x∷F]
-      [G≡E]′ = irrelevanceEq″
-                 (wkSingleSubstId _) (wkSingleSubstId _)
-                 [G]₁ [G]′ [G≡E]₁
-  in escapeEq [F]′ [F≡H]′ , escapeEq [G]′ [G≡E]′ , PE.refl }}
-injectivity′ W W′ (emb 0<1 x) [WFG≡WHE] = injectivity′ W W′ x [WFG≡WHE]
+opaque
 
--- Injectivity of W
-B-injectivity :
-  ∀ {F G H E} W W′ →
-  Γ ⊢ ⟦ W ⟧ F ▹ G ≡ ⟦ W′ ⟧ H ▹ E → Γ ⊢ F ≡ H × Γ ∙ F ⊢ G ≡ E × W PE.≡ W′
-B-injectivity W W′ ⊢WFG≡WHE =
-  let [WFG] , _ , [WFG≡WHE] = reducibleEq ⊢WFG≡WHE
-  in  injectivity′ W W′ (B-elim W [WFG])
-                   (irrelevanceEq [WFG] (B-intr W (B-elim W [WFG])) [WFG≡WHE])
+  -- A kind of injectivity for Π and Σ.
 
-injectivity : ∀ {F G H E} → Γ ⊢ Π p , q ▷ F ▹ G ≡ Π p′ , q′ ▷ H ▹ E
-            → Γ ⊢ F ≡ H × Γ ∙ F ⊢ G ≡ E × p PE.≡ p′ × q PE.≡ q′
-injectivity x with B-injectivity BΠ! BΠ! x
-... | F≡H , G≡E , PE.refl = F≡H , G≡E , PE.refl , PE.refl
+  ΠΣ-injectivity :
+    Γ ⊢ ΠΣ⟨ b₁ ⟩ p₁ , q₁ ▷ A₁ ▹ B₁ ≡ ΠΣ⟨ b₂ ⟩ p₂ , q₂ ▷ A₂ ▹ B₂ →
+    Γ ⊢ A₁ ≡ A₂ × Γ ∙ A₁ ⊢ B₁ ≡ B₂ ×
+    p₁ PE.≡ p₂ × q₁ PE.≡ q₂ × b₁ PE.≡ b₂
+  ΠΣ-injectivity ΠΣ≡ΠΣ =
+    case ⊩ΠΣ≡ΠΣ→ $ reducible-⊩≡ ΠΣ≡ΠΣ of λ
+      (_ , b₁≡b₂ , p₁≡p₂ , q₁≡q₂ , A₁≡A₂ , B₁≡B₂) →
+    escape-⊩≡ A₁≡A₂ , escape-⊩≡ B₁≡B₂ , p₁≡p₂ , q₁≡q₂ , b₁≡b₂
 
-Σ-injectivity :
-  ∀ {m m′ F G H E} →
-  Γ ⊢ Σ⟨ m ⟩ p , q ▷ F ▹ G ≡ Σ⟨ m′ ⟩ p′ , q′ ▷ H ▹ E →
-  Γ ⊢ F ≡ H × Γ ∙ F ⊢ G ≡ E × p PE.≡ p′ × q PE.≡ q′ × m PE.≡ m′
-Σ-injectivity x with B-injectivity BΣ! BΣ! x
-... | F≡H , G≡E , PE.refl =
-  F≡H , G≡E , PE.refl , PE.refl , PE.refl
+opaque
 
-ΠΣ-injectivity :
-  Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ≡ ΠΣ⟨ b′ ⟩ p′ , q′ ▷ F′ ▹ G′ →
-  Γ ⊢ F ≡ F′ × Γ ∙ F ⊢ G ≡ G′ × p PE.≡ p′ × q PE.≡ q′ × b PE.≡ b′
-ΠΣ-injectivity {b = BMΠ} {b′ = BMΠ} Π≡Π =
-  case injectivity Π≡Π of λ {
-    (F≡F′ , G≡G′ , p≡p′ , q≡q′) →
-  F≡F′ , G≡G′ , p≡p′ , q≡q′ , PE.refl }
-ΠΣ-injectivity {b = BMΣ _} {b′ = BMΣ _} Σ≡Σ =
-  case Σ-injectivity Σ≡Σ of λ {
-    (F≡F′ , G≡G′ , p≡p′ , q≡q′ , PE.refl) →
-  F≡F′ , G≡G′ , p≡p′ , q≡q′ , PE.refl }
-ΠΣ-injectivity {b = BMΠ} {b′ = BMΣ _} Π≡Σ =
-  case B-injectivity (BΠ _ _) (BΣ _ _ _) Π≡Σ of λ {
-    (_ , _ , ()) }
-ΠΣ-injectivity {b = BMΣ _} {b′ = BMΠ} Σ≡Π =
-  case B-injectivity (BΣ _ _ _) (BΠ _ _) Σ≡Π of λ {
-    (_ , _ , ()) }
+  -- A kind of injectivity for Π.
+
+  injectivity :
+    Γ ⊢ Π p₁ , q₁ ▷ A₁ ▹ B₁ ≡ Π p₂ , q₂ ▷ A₂ ▹ B₂ →
+    Γ ⊢ A₁ ≡ A₂ × Γ ∙ A₁ ⊢ B₁ ≡ B₂ × p₁ PE.≡ p₂ × q₁ PE.≡ q₂
+  injectivity Π≡Π =
+    case ΠΣ-injectivity Π≡Π of λ
+      (A₁≡A₂ , B₁≡B₂ , p₁≡p₂ , q₁≡q₂ , _) →
+    A₁≡A₂ , B₁≡B₂ , p₁≡p₂ , q₁≡q₂
+
+opaque
+
+  -- A kind of injectivity for Σ.
+
+  Σ-injectivity :
+    Γ ⊢ Σ⟨ s₁ ⟩ p₁ , q₁ ▷ A₁ ▹ B₁ ≡ Σ⟨ s₂ ⟩ p₂ , q₂ ▷ A₂ ▹ B₂ →
+    Γ ⊢ A₁ ≡ A₂ × Γ ∙ A₁ ⊢ B₁ ≡ B₂ ×
+    p₁ PE.≡ p₂ × q₁ PE.≡ q₂ × s₁ PE.≡ s₂
+  Σ-injectivity Σ≡Σ =
+    case ΠΣ-injectivity Σ≡Σ of λ {
+      (A₁≡A₂ , B₁≡B₂ , p₁≡p₂ , q₁≡q₂ , PE.refl) →
+    A₁≡A₂ , B₁≡B₂ , p₁≡p₂ , q₁≡q₂ , PE.refl }
 
 opaque
 

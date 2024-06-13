@@ -637,7 +637,9 @@ opaque
             v₁₁≡v₂₁ v₁₂≡v₂₂) →
            case wf-⊩≡∷ v₁₁≡v₂₁ of λ
              (⊩v₁₁ , ⊩v₂₁) →
-           case conv-⊩∷ (⊩ΠΣ≡ΠΣ→ ΣAB[σ₁]≡ΣAB[σ₂] .proj₂ .proj₁)
+           case conv-⊩∷
+                  (⊩ΠΣ≡ΠΣ→ ΣAB[σ₁]≡ΣAB[σ₂]
+                     .proj₂ .proj₂ .proj₂ .proj₂ .proj₁)
                   ⊩v₂₁ of λ
              ⊩v₂₁ →
            case wf-⊩≡∷ v₁₂≡v₂₂ of λ
