@@ -109,26 +109,18 @@ opaque
       , escapeTermEq (_⊩ₗId_.⊩Ty ⊩Id) (_⊩ₗId_≡_/_.lhs≡lhs′ ⊩Id≡Id)
       , escapeTermEq (_⊩ₗId_.⊩Ty ⊩Id) (_⊩ₗId_≡_/_.rhs≡rhs′ ⊩Id≡Id) }}
 
--- Injectivity of suc
+opaque
 
-suc-injectivity′ : ∀ {l t u A}
-                 → ([ℕ] : Γ ⊩⟨ l ⟩ℕ A)
-                 → Γ ⊩⟨ l ⟩ suc t ≡ suc u ∷ A / ℕ-intr [ℕ]
-                 → Γ ⊩⟨ l ⟩ t ≡ u ∷ A / ℕ-intr [ℕ]
-suc-injectivity′ (noemb [ ⊢A , ⊢B , D ]) (ℕₜ₌ k k′ d d′ k≡k′ prop)
-  with whnfRed*Term (redₜ d) sucₙ | whnfRed*Term (redₜ d′) sucₙ
-suc-injectivity′ (noemb [ ⊢A , ⊢B , D ]) (ℕₜ₌ _ _ d d′ k≡k′ (sucᵣ x)) | PE.refl | PE.refl = x
-suc-injectivity′ (emb 0<1 [ℕ]) x = suc-injectivity′ [ℕ] x
+  -- Injectivity of suc.
 
-suc-injectivity : ∀ {t u}
-                → Γ ⊢ suc t ≡ suc u ∷ ℕ
-                → Γ ⊢ t ≡ u ∷ ℕ
-suc-injectivity ⊢suct≡sucu =
-  let [ℕ] , [suct≡sucu] = reducibleEqTerm ⊢suct≡sucu
-      [ℕ]′ = ℕ-intr (ℕ-elim [ℕ])
-      [suct≡sucu]′ = irrelevanceEqTerm [ℕ] [ℕ]′ [suct≡sucu]
-      [t≡u] = suc-injectivity′ (ℕ-elim [ℕ]) [suct≡sucu]′
-  in  escapeTermEq [ℕ]′ [t≡u]
+  suc-injectivity :
+    Γ ⊢ suc t₁ ≡ suc t₂ ∷ ℕ →
+    Γ ⊢ t₁ ≡ t₂ ∷ ℕ
+  suc-injectivity {Γ} {t₁} {t₂} =
+    Γ ⊢ suc t₁ ≡ suc t₂ ∷ ℕ       →⟨ reducible-⊩≡∷ ⟩
+    Γ ⊩⟨ ¹ ⟩ suc t₁ ≡ suc t₂ ∷ ℕ  ⇔⟨ ⊩suc≡suc∷ℕ⇔ ⟩→
+    Γ ⊩⟨ ¹ ⟩ t₁ ≡ t₂ ∷ ℕ          →⟨ escape-⊩≡∷ ⟩
+    Γ ⊢ t₁ ≡ t₂ ∷ ℕ               □
 
 opaque
 

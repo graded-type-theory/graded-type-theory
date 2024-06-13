@@ -33,6 +33,7 @@ open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Product as Σ
@@ -97,6 +98,44 @@ opaque
       Γ ⊩ℕ t ∷ℕ
     lemma (noemb _)    ⊩t = ⊩t
     lemma (emb 0<1 ⊩A) ⊩t = lemma ⊩A ⊩t
+
+opaque
+
+  -- A characterisation lemma for _⊩⟨_⟩_∷_.
+
+  ⊩zero∷ℕ⇔ : Γ ⊩⟨ l ⟩ zero ∷ ℕ ⇔ ⊢ Γ
+  ⊩zero∷ℕ⇔ =
+      wfTerm ∘→ escape-⊩∷
+    , (λ ⊢Γ →
+         ⊩∷ℕ⇔ .proj₂ $
+         ℕₜ _ (idRedTerm:*: (zeroⱼ ⊢Γ)) (≅ₜ-zerorefl ⊢Γ) zeroᵣ)
+
+opaque
+
+  -- A characterisation lemma for _⊩⟨_⟩_∷_.
+
+  ⊩suc∷ℕ⇔ :
+    Γ ⊩⟨ l ⟩ suc t ∷ ℕ ⇔
+    Γ ⊩⟨ l ⟩ t ∷ ℕ
+  ⊩suc∷ℕ⇔ {Γ} {l} {t} =
+    Γ ⊩⟨ l ⟩ suc t ∷ ℕ  ⇔⟨ ⊩∷ℕ⇔ ⟩
+    Γ ⊩ℕ suc t ∷ℕ       ⇔⟨ (λ (ℕₜ _ suc-t⇒*u _ u-ok) →
+                              case whnfRed*Term (redₜ suc-t⇒*u) sucₙ of λ {
+                                PE.refl →
+                              lemma u-ok })
+                         , (λ ⊩t@(ℕₜ _ [ ⊢t , _ , t⇒*u ] u≅u u-ok) →
+                              let u-whnf = naturalWhnf (natural u-ok) in
+                              ℕₜ _ (idRedTerm:*: (sucⱼ ⊢t))
+                                (≅-suc-cong $
+                                 ≅ₜ-red (id (ℕⱼ (wfTerm ⊢t))) t⇒*u t⇒*u
+                                   ℕₙ u-whnf u-whnf u≅u)
+                                (sucᵣ ⊩t))
+                         ⟩
+    Γ ⊩ℕ t ∷ℕ           ⇔˘⟨ ⊩∷ℕ⇔ ⟩
+    Γ ⊩⟨ l ⟩ t ∷ ℕ      □⇔
+    where
+    lemma : Natural-prop Γ (suc t) → Γ ⊩ℕ t ∷ℕ
+    lemma (sucᵣ ⊩t) = ⊩t
 
 opaque
   unfolding _⊩⟨_⟩_≡_
@@ -168,6 +207,71 @@ opaque
     lemma (noemb _)    ⊩t ⊩u t≡u = ⊩t , ⊩u , t≡u
     lemma (emb 0<1 ⊩A) ⊩t ⊩u t≡u = lemma ⊩A ⊩t ⊩u t≡u
 
+opaque
+
+  -- A characterisation lemma for _⊩⟨_⟩_≡_∷_.
+
+  ⊩zero≡zero∷ℕ⇔ : Γ ⊩⟨ l ⟩ zero ≡ zero ∷ ℕ ⇔ ⊢ Γ
+  ⊩zero≡zero∷ℕ⇔ {Γ} {l} =
+    Γ ⊩⟨ l ⟩ zero ≡ zero ∷ ℕ  ⇔⟨ proj₁ ∘→ wf-⊩≡∷ , refl-⊩≡∷ ⟩
+    Γ ⊩⟨ l ⟩ zero ∷ ℕ         ⇔⟨ ⊩zero∷ℕ⇔ ⟩
+    ⊢ Γ                       □⇔
+
+opaque
+
+  -- A characterisation lemma for _⊩⟨_⟩_≡_∷_.
+
+  ⊩suc≡suc∷ℕ⇔ :
+    Γ ⊩⟨ l ⟩ suc t ≡ suc u ∷ ℕ ⇔
+    Γ ⊩⟨ l ⟩ t ≡ u ∷ ℕ
+  ⊩suc≡suc∷ℕ⇔ {Γ} {l} {t} {u} =
+    Γ ⊩⟨ l ⟩ suc t ≡ suc u ∷ ℕ                             ⇔⟨ ⊩≡∷ℕ⇔ ⟩
+    Γ ⊩ℕ suc t ∷ℕ × Γ ⊩ℕ suc u ∷ℕ × Γ ⊩ℕ suc t ≡ suc u ∷ℕ  ⇔⟨ ⊩∷ℕ⇔ {l = l} ∘⇔ ⊩suc∷ℕ⇔ ∘⇔ sym⇔ ⊩∷ℕ⇔
+                                                                ×-cong-⇔
+                                                              ⊩∷ℕ⇔ {l = l} ∘⇔ ⊩suc∷ℕ⇔ ∘⇔ sym⇔ ⊩∷ℕ⇔
+                                                                ×-cong-⇔
+                                                              (lemma₁ , lemma₂) ⟩
+    Γ ⊩ℕ t ∷ℕ × Γ ⊩ℕ u ∷ℕ × Γ ⊩ℕ t ≡ u ∷ℕ                  ⇔˘⟨ ⊩≡∷ℕ⇔ ⟩
+    Γ ⊩⟨ l ⟩ t ≡ u ∷ ℕ                                     □⇔
+    where
+    lemma₀ : [Natural]-prop Γ (suc t) (suc u) → Γ ⊩ℕ t ≡ u ∷ℕ
+    lemma₀ (sucᵣ t≡u) = t≡u
+
+    lemma₁ : Γ ⊩ℕ suc t ≡ suc u ∷ℕ → Γ ⊩ℕ t ≡ u ∷ℕ
+    lemma₁ (ℕₜ₌ _ _ suc-t⇒*t′ suc-u⇒*u′ _ t′≡u′) =
+      case whnfRed*Term (redₜ suc-t⇒*t′) sucₙ of λ {
+        PE.refl →
+      case whnfRed*Term (redₜ suc-u⇒*u′) sucₙ of λ {
+        PE.refl →
+      lemma₀ t′≡u′}}
+
+    lemma₂ : Γ ⊩ℕ t ≡ u ∷ℕ → Γ ⊩ℕ suc t ≡ suc u ∷ℕ
+    lemma₂
+      t≡u@(ℕₜ₌ _ _ [ ⊢t , _ , t⇒*t′ ] [ ⊢u , _ , u⇒*u′ ] t′≅u′ t′≡u′) =
+      let t′-ok , u′-ok = split t′≡u′ in
+      ℕₜ₌ _ _ (idRedTerm:*: (sucⱼ ⊢t)) (idRedTerm:*: (sucⱼ ⊢u))
+        (≅-suc-cong $
+         ≅ₜ-red (id (ℕⱼ (wfTerm ⊢t))) t⇒*t′ u⇒*u′ ℕₙ
+           (naturalWhnf t′-ok) (naturalWhnf u′-ok) t′≅u′)
+        (sucᵣ t≡u)
+
+opaque
+
+  -- A characterisation lemma for _⊩⟨_⟩_≡_∷_.
+
+  ⊩zero≡suc∷ℕ⇔ : Γ ⊩⟨ l ⟩ zero ≡ suc t ∷ ℕ ⇔ ⊥
+  ⊩zero≡suc∷ℕ⇔ =
+      (λ zero≡suc →
+         case ⊩≡∷ℕ⇔ .proj₁ zero≡suc of λ
+           (_ , _ , ℕₜ₌ _ _ zero⇒* suc⇒* _ rest) →
+         case whnfRed*Term (redₜ zero⇒*) zeroₙ of λ {
+           PE.refl →
+         case whnfRed*Term (redₜ suc⇒*) sucₙ of λ {
+           PE.refl →
+         case rest of λ where
+           (ne (neNfₜ₌ () _ _)) }})
+    , ⊥-elim
+
 ------------------------------------------------------------------------
 -- ℕ
 
@@ -211,8 +315,7 @@ opaque
   ⊩zero :
     ⊢ Γ →
     Γ ⊩⟨ l ⟩ zero ∷ ℕ
-  ⊩zero ⊢Γ =
-    ⊩∷ℕ⇔ .proj₂ (ℕₜ _ (idRedTerm:*: (zeroⱼ ⊢Γ)) (≅ₜ-zerorefl ⊢Γ) zeroᵣ)
+  ⊩zero = ⊩zero∷ℕ⇔ .proj₂
 
 opaque
 
@@ -226,8 +329,7 @@ opaque
       ( ℕᵛ ⊩Γ
       , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
           Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ          →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
-          ⊢ Δ                       →⟨ ⊩zero ⟩
-          Δ ⊩⟨ l ⟩ zero ∷ ℕ         →⟨ refl-⊩≡∷ ⟩
+          ⊢ Δ                       ⇔˘⟨ ⊩zero≡zero∷ℕ⇔ ⟩→
           Δ ⊩⟨ l ⟩ zero ≡ zero ∷ ℕ  □
       )
 
@@ -238,19 +340,7 @@ opaque
   ⊩suc :
     Γ ⊩⟨ l ⟩ t ∷ ℕ →
     Γ ⊩⟨ l ⟩ suc t ∷ ℕ
-  ⊩suc ⊩t =
-    case escape-⊩∷ ⊩t of λ
-      ⊢t →
-    case ⊩∷ℕ⇔ .proj₁ ⊩t of λ
-      ⊩t@(ℕₜ _ t⇒*u u≅u u-ok) →
-    case naturalWhnf (natural u-ok) of λ
-      u-whnf →
-    ⊩∷ℕ⇔ .proj₂
-      (ℕₜ _ (idRedTerm:*: (sucⱼ ⊢t))
-         (≅-suc-cong $
-          ≅ₜ-red (id (ℕⱼ (wfTerm ⊢t))) (redₜ t⇒*u) (redₜ t⇒*u) ℕₙ u-whnf
-            u-whnf u≅u)
-         (sucᵣ ⊩t))
+  ⊩suc = ⊩suc∷ℕ⇔ .proj₂
 
 opaque
 
@@ -259,25 +349,7 @@ opaque
   ⊩suc≡suc :
     Γ ⊩⟨ l ⟩ t ≡ u ∷ ℕ →
     Γ ⊩⟨ l ⟩ suc t ≡ suc u ∷ ℕ
-  ⊩suc≡suc t≡u =
-    case wf-⊩≡∷ t≡u of λ
-      (⊩t , ⊩u) →
-    case escape-⊩∷ ⊩t of λ
-      ⊢t →
-    case ⊩≡∷ℕ⇔ .proj₁ t≡u of λ
-      (_ , _ , t≡u@(ℕₜ₌ _ _ t⇒*t′ u⇒*u′ t′≅u′ t′≡u′)) →
-    case split t′≡u′ of λ
-      (t′-ok , u′-ok) →
-    ⊩≡∷ℕ⇔ .proj₂
-      ( ⊩∷ℕ⇔ .proj₁ (⊩suc ⊩t)
-      , ⊩∷ℕ⇔ .proj₁ (⊩suc ⊩u)
-      , ℕₜ₌ _ _ (idRedTerm:*: (sucⱼ ⊢t))
-          (idRedTerm:*: (sucⱼ (escape-⊩∷ ⊩u)))
-          (≅-suc-cong $
-           ≅ₜ-red (id (ℕⱼ (wfTerm ⊢t))) (redₜ t⇒*t′) (redₜ u⇒*u′) ℕₙ
-             (naturalWhnf t′-ok) (naturalWhnf u′-ok) t′≅u′)
-          (sucᵣ t≡u)
-      )
+  ⊩suc≡suc = ⊩suc≡suc∷ℕ⇔ .proj₂
 
 opaque
 
