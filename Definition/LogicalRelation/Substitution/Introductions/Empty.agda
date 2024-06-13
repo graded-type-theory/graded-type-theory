@@ -23,6 +23,7 @@ open import Definition.Typed.Properties R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Irrelevance R
+open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Substitution R
 open import Definition.LogicalRelation.Substitution.Introductions.Universe R
@@ -32,7 +33,7 @@ open import Tools.Product
 
 private variable
   Γ Δ : Con Term _
-  t u : Term _
+  A B t u : Term _
   l : TypeLevel
 
 ------------------------------------------------------------------------
@@ -72,6 +73,33 @@ opaque
       Γ ⊩Empty t ∷Empty
     lemma (emb 0<1 ⊩Empty′) ⊩t = lemma ⊩Empty′ ⊩t
     lemma (noemb _) ⊩t = ⊩t
+
+opaque
+  unfolding _⊩⟨_⟩_≡_
+
+  -- A characterisation lemma for _⊩⟨_⟩_≡_.
+
+  ⊩Empty≡⇔ : Γ ⊩⟨ l ⟩ Empty ≡ A ⇔ Γ ⊩Empty Empty ≡ A
+  ⊩Empty≡⇔ =
+      (λ (⊩Empty , _ , Empty≡A) →
+         case Empty-elim ⊩Empty of λ
+           ⊩Empty′ →
+         lemma ⊩Empty′
+           ((irrelevanceEq ⊩Empty) (Empty-intr ⊩Empty′) Empty≡A))
+    , (λ Empty≡A →
+         case idRed:*: (Emptyⱼ (wfEq (subset* Empty≡A))) of λ
+           Empty⇒*Empty →
+         let ⊩Empty = Emptyᵣ Empty⇒*Empty in
+           ⊩Empty
+         , (redSubst* Empty≡A ⊩Empty) .proj₁
+         , Empty≡A)
+    where
+    lemma :
+      (⊩A : Γ ⊩⟨ l ⟩Empty A) →
+      Γ ⊩⟨ l ⟩ A ≡ B / Empty-intr ⊩A →
+      Γ ⊩Empty A ≡ B
+    lemma (noemb _)    A≡B = A≡B
+    lemma (emb 0<1 ⊩A) A≡B = lemma ⊩A A≡B
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_ ⊩Empty⇔
