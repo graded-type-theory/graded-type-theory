@@ -72,10 +72,9 @@ mutual
     Σʷ-ins (stabilityTerm Γ≡Δ (conv x A≡B))
            (stabilityTerm Γ≡Δ (conv x₁ A≡B))
            (stability~↓ Γ≡Δ x₂)
-  convConv↓Term Γ≡Δ A≡B whnfB (ne-ins t u x x₁) with ne≡A x A≡B whnfB
-  convConv↓Term Γ≡Δ A≡B whnfB (ne-ins t u x x₁) | B , neB , PE.refl =
+  convConv↓Term Γ≡Δ A≡B whnfB (ne-ins t u x x₁) =
     ne-ins (stabilityTerm Γ≡Δ (conv t A≡B)) (stabilityTerm Γ≡Δ (conv u A≡B))
-           neB (stability~↓ Γ≡Δ x₁)
+           (ne≡A x A≡B whnfB) (stability~↓ Γ≡Δ x₁)
   convConv↓Term Γ≡Δ A≡B whnfB (univ x x₁ x₂) rewrite U≡A A≡B =
     univ (stabilityTerm Γ≡Δ x) (stabilityTerm Γ≡Δ x₁) (stabilityConv↓ Γ≡Δ x₂)
   convConv↓Term Γ≡Δ A≡B whnfB (zero-refl x) rewrite ℕ≡A A≡B whnfB =

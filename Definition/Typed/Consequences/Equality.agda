@@ -23,6 +23,7 @@ open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.RedSteps R
 open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.ShapeView R
@@ -30,8 +31,8 @@ open import Definition.LogicalRelation.Fundamental.Reducibility R
 
 open import Tools.Empty
 open import Tools.Function
-open import Tools.Nat
-open import Tools.Product
+open import Tools.Nat using (Nat)
+open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 
 private
@@ -105,26 +106,18 @@ Unit≡A {A} Unit≡A whnfA with reducibleEq Unit≡A
 Unit≡A {A} Unit≡A whnfA | [Unit] , [A] , [Unit≡A] =
   Unit≡A′ (Unit-elim [Unit]) (irrelevanceEq [Unit] (Unit-intr (Unit-elim [Unit])) [Unit≡A]) whnfA
 
-ne≡A′ : ∀ {A K l}
-     → ([K] : Γ ⊩⟨ l ⟩ne K)
-     → Γ ⊩⟨ l ⟩ K ≡ A / (ne-intr [K])
-     → Whnf A
-     → ∃ λ M → Neutral M × A PE.≡ M
-ne≡A′ (noemb [K]) (ne₌ M D′ neM K≡M) whnfA =
-  M , neM , (whnfRed* (red D′) whnfA)
-ne≡A′ (emb 0<1 [K]) [K≡A] whnfA = ne≡A′ [K] [K≡A] whnfA
+opaque
 
--- If A in WHNF is judgmentally equal to K, then there exists a M such that
--- A is propositionally equal to M.
-ne≡A : ∀ {A K}
-    → Neutral K
-    → Γ ⊢ K ≡ A
-    → Whnf A
-    → ∃ λ M → Neutral M × A PE.≡ M
-ne≡A {A} neK ne≡A whnfA with reducibleEq ne≡A
-ne≡A {A} neK ne≡A whnfA | [ne] , [A] , [ne≡A] =
-  ne≡A′ (ne-elim neK [ne])
-        (irrelevanceEq [ne] (ne-intr (ne-elim neK [ne])) [ne≡A]) whnfA
+  -- If the neutral term B is judgmentally equal to the WHNF A, then A
+  -- is neutral.
+
+  ne≡A : Neutral B → Γ ⊢ B ≡ A → Whnf A → Neutral A
+  ne≡A {B} {Γ} {A} B-ne B≡A A-whnf =  $⟨ B≡A ⟩
+    Γ ⊢ B ≡ A                         →⟨ reducible-⊩≡ ⟩
+    Γ ⊩⟨ ¹ ⟩ B ≡ A                    →⟨ Σ.map idᶠ (Σ.map idᶠ (proj₁ ∘→ proj₂)) ∘→ proj₂ ∘→ ⊩ne≡⇔ B-ne .proj₁ ⟩
+    (∃ λ C → Neutral C × Γ ⊢ A ⇒* C)  →⟨ (λ (_ , C-ne , A⇒*C) →
+                                            PE.subst Neutral (PE.sym $ whnfRed* A⇒*C A-whnf) C-ne) ⟩
+    Neutral A                         □
 
 B≡A′ : ∀ {A F G l} W ([W] : Γ ⊩⟨ l ⟩B⟨ W ⟩ ⟦ W ⟧ F ▹ G)
     → Γ ⊩⟨ l ⟩ ⟦ W ⟧ F ▹ G ≡ A / (B-intr W [W])
