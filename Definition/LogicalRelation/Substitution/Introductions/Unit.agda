@@ -99,30 +99,47 @@ opaque
 
   -- A characterisation lemma for _⊩⟨_⟩_≡_.
 
-  ⊩Unit≡Unit⇔ :
-    Γ ⊩⟨ l ⟩ Unit s₁ ≡ Unit s₂ ⇔
-    (⊢ Γ × Unit-allowed s₁ × s₁ PE.≡ s₂)
-  ⊩Unit≡Unit⇔ =
+  ⊩Unit≡⇔ :
+    Γ ⊩⟨ l ⟩ Unit s ≡ A ⇔
+    (⊢ Γ × Unit-allowed s × Γ ⊩Unit⟨ s ⟩ Unit s ≡ A)
+  ⊩Unit≡⇔ {s} {A} =
       (λ (⊩Unit₁ , _ , Unit₁≡Unit₂) →
          case Unit-elim ⊩Unit₁ of λ
            ⊩Unit₁′ →
          lemma ⊩Unit₁′
            (irrelevanceEq ⊩Unit₁ (Unit-intr ⊩Unit₁′) Unit₁≡Unit₂))
-    , (λ { (⊢Γ , ok , PE.refl) →
-           refl-⊩≡ (⊩Unit⇔ .proj₂ (⊢Γ , ok)) })
+    , (λ (⊢Γ , ok , A⇒*Unit) →
+         sym-⊩≡
+           (A       ⇒*⟨ A⇒*Unit ⟩⊩
+            Unit s  ∎⟨ ⊩Unit⇔ .proj₂ (⊢Γ , ok) ⟩⊩))
     where
     lemma :
-      (⊩Unit₁ : Γ ⊩⟨ l ⟩Unit⟨ s₁ ⟩ Unit s₁) →
-      Γ ⊩⟨ l ⟩ Unit s₁ ≡ Unit s₂ / Unit-intr ⊩Unit₁ →
-      ⊢ Γ × Unit-allowed s₁ × s₁ PE.≡ s₂
-    lemma (emb 0<1 ⊩Unit₁) =
-      lemma ⊩Unit₁
-    lemma {l} ⊩Unit₁@(noemb _) Unit₂⇒*Unit₁ =
-      case whnfRed* Unit₂⇒*Unit₁ Unitₙ of λ {
-        PE.refl →
-      case ⊩Unit⇔ {l = l} .proj₁ $ Unit-intr ⊩Unit₁ of λ
+      (⊩Unit : Γ ⊩⟨ l ⟩Unit⟨ s ⟩ Unit s) →
+      Γ ⊩⟨ l ⟩ Unit s ≡ A / Unit-intr ⊩Unit →
+      ⊢ Γ × Unit-allowed s × Γ ⊩Unit⟨ s ⟩ Unit s ≡ A
+    lemma (emb 0<1 ⊩Unit) =
+      lemma ⊩Unit
+    lemma {l} ⊩Unit@(noemb _) A⇒*Unit =
+      case ⊩Unit⇔ {l = l} .proj₁ $ Unit-intr ⊩Unit of λ
         (⊢Γ , ok) →
-      ⊢Γ , ok , PE.refl }
+      ⊢Γ , ok , A⇒*Unit
+
+opaque
+
+  -- A characterisation lemma for _⊩⟨_⟩_≡_.
+
+  ⊩Unit≡Unit⇔ :
+    Γ ⊩⟨ l ⟩ Unit s₁ ≡ Unit s₂ ⇔
+    (⊢ Γ × Unit-allowed s₁ × s₁ PE.≡ s₂)
+  ⊩Unit≡Unit⇔ {Γ} {l} {s₁} {s₂} =
+    Γ ⊩⟨ l ⟩ Unit s₁ ≡ Unit s₂                      ⇔⟨ ⊩Unit≡⇔ ⟩
+    ⊢ Γ × Unit-allowed s₁ × Γ ⊢ Unit s₂ ⇒* Unit s₁  ⇔⟨ (Σ-cong-⇔ λ ⊢Γ → Σ-cong-⇔ λ ok →
+                                                          (λ Unit⇒*Unit →
+                                                             case whnfRed* Unit⇒*Unit Unitₙ of λ {
+                                                               PE.refl →
+                                                             PE.refl })
+                                                        , (λ { PE.refl → id (Unitⱼ ⊢Γ ok) })) ⟩
+    ⊢ Γ × Unit-allowed s₁ × s₁ PE.≡ s₂              □⇔
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_ ⊩Unit⇔
