@@ -202,10 +202,10 @@ transEqT {n = n} {Γ = Γ} {l = l} {l′ = l′} {l″ = l″}
          (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
          (B₌ F″ G″ D″ A≡B₁ [F≡F′]₁ [G≡G′]₁) =
   case B-PE-injectivity W′ W
-         (whrDet* (red D₁ , ⟦ W′ ⟧ₙ) (D′ , ⟦ W ⟧ₙ)) of λ {
+         (whrDet* (red D₁ , ⟦ W′ ⟧ₙ) (red D′ , ⟦ W ⟧ₙ)) of λ {
     (PE.refl , PE.refl , PE.refl) →
   case B-PE-injectivity W″ W′
-         (whrDet* (red D₂ , ⟦ W″ ⟧ₙ) (D″ , ⟦ W′ ⟧ₙ)) of λ {
+         (whrDet* (red D₂ , ⟦ W″ ⟧ₙ) (red D″ , ⟦ W′ ⟧ₙ)) of λ {
     (PE.refl , PE.refl , PE.refl) →
   B₌ F″ G″ D″ (≅-trans A≡B A≡B₁)
     (λ ρ ⊢Δ → transEq ([F] ρ ⊢Δ) ([F]₁ ρ ⊢Δ) ([F]₂ ρ ⊢Δ)

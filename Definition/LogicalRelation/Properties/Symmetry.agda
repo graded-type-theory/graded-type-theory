@@ -92,7 +92,7 @@ symEqT
   (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
      (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
   (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
-  let ΠF₁G₁≡ΠF′G′       = whrDet* (red D₁ , ⟦ W ⟧ₙ) (D′ , ⟦ W ⟧ₙ)
+  let ΠF₁G₁≡ΠF′G′       = whrDet* (red D₁ , ⟦ W ⟧ₙ) (red D′ , ⟦ W ⟧ₙ)
       F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity W W ΠF₁G₁≡ΠF′G′
       [F₁≡F] :
         {ℓ : Nat} {Δ : Con Term ℓ} {ρ : Wk ℓ n}
@@ -107,7 +107,7 @@ symEqT
                            (symEq ([F] [ρ] ⊢Δ) ([ρF′] [ρ] ⊢Δ)
                                   ([F≡F′] [ρ] ⊢Δ))
   in
-  B₌ _ _ (red D)
+  B₌ _ _ D
     (≅-sym (PE.subst (Γ ⊢ ⟦ W ⟧ F ▹ G ≅_) (PE.sym ΠF₁G₁≡ΠF′G′) A≡B))
     [F₁≡F]
     (λ {_} {ρ} {Δ} {a} [ρ] ⊢Δ [a] →

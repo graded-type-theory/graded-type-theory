@@ -124,7 +124,7 @@ B≡A′ : ∀ {A F G l} W ([W] : Γ ⊩⟨ l ⟩B⟨ W ⟩ ⟦ W ⟧ F ▹ G)
     → Whnf A
     → ∃₂ λ H E → A PE.≡ ⟦ W ⟧ H ▹ E
 B≡A′ W (noemb [W]) (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) whnfA =
-  F′ , G′ , whnfRed* D′ whnfA
+  F′ , G′ , whnfRed* (red D′) whnfA
 B≡A′ W (emb 0<1 [W]) [W≡A] whnfA = B≡A′ W [W] [W≡A] whnfA
 
 Π≡A′ : ∀ {Γ : Con Term n} {A F G l p q} → _

@@ -111,7 +111,7 @@ escapeEq (Unitᵣ (Unitₜ [ ⊢A , ⊢B , D ] ok)) D′ =
 escapeEq (ne′ K D neK K≡K) (ne₌ M D′ neM K≡M) =
   ≅-red (red D) (red D′) (ne neK) (ne neM) K≡M
 escapeEq (Bᵣ′ W _ _ D _ _ _ _ _ _ _) (B₌ _ _ D′ A≡B _ _) =
-  ≅-red (red D) D′ ⟦ W ⟧ₙ ⟦ W ⟧ₙ A≡B
+  ≅-red (red D) (red D′) ⟦ W ⟧ₙ ⟦ W ⟧ₙ A≡B
 escapeEq (Idᵣ ⊩A) A≡B =
   ≅-red (red (_⊩ₗId_.⇒*Id ⊩A)) (red (_⊩ₗId_≡_/_.⇒*Id′ A≡B)) Idₙ Idₙ
     (Id≅Id A≡B)

@@ -351,7 +351,7 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ < l → LogRelKit) wher
       field
         F′     : Term ℓ
         G′     : Term (1+ ℓ)
-        D′     : Γ ⊢ B ⇒* ⟦ W ⟧ F′ ▹ G′
+        D′     : Γ ⊢ B :⇒*: ⟦ W ⟧ F′ ▹ G′
         A≡B    : Γ ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W ⟧ F′ ▹ G′
         [F≡F′] : {m : Nat} {ρ : Wk m ℓ} {Δ : Con Term m}
                → ([ρ] : ρ ∷ Δ ⊇ Γ) (⊢Δ : ⊢ Δ)

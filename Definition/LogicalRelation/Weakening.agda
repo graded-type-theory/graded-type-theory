@@ -265,7 +265,7 @@ wkEq {ρ = ρ} [ρ] ⊢Δ (ne′ _ _ _ _) (ne₌ M D′ neM K≡M) =
 wkEq {ρ = ρ} [ρ] ⊢Δ (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
                 (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
   B₌ (U.wk ρ F′)
-     (U.wk (lift ρ) G′) (T.wkRed* [ρ] ⊢Δ D′) (≅-wk [ρ] ⊢Δ A≡B)
+     (U.wk (lift ρ) G′) (T.wkRed:*: [ρ] ⊢Δ D′) (≅-wk [ρ] ⊢Δ A≡B)
      (λ {_} {ρ₁} [ρ₁] ⊢Δ₁ → irrelevanceEq″ (PE.sym (wk-comp ρ₁ ρ F))
                                  (PE.sym (wk-comp ρ₁ ρ F′))
                                  ([F] ([ρ₁] •ₜ [ρ]) ⊢Δ₁)
@@ -285,7 +285,7 @@ wkEq {ρ = ρ} [ρ] ⊢Δ (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
                             ([G≡G′] ([ρ₁] •ₜ [ρ]) ⊢Δ₁ [a]′))
 wkEq {ρ = ρ} [ρ] ⊢Δ (𝕨′ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
                 (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
-  B₌ (U.wk ρ F′) (U.wk (lift ρ) G′) (T.wkRed* [ρ] ⊢Δ D′)
+  B₌ (U.wk ρ F′) (U.wk (lift ρ) G′) (T.wkRed:*: [ρ] ⊢Δ D′)
      (≅-wk [ρ] ⊢Δ A≡B)
      (λ {_} {ρ₁} [ρ₁] ⊢Δ₁ → irrelevanceEq″ (PE.sym (wk-comp ρ₁ ρ F))
                                  (PE.sym (wk-comp ρ₁ ρ F′))

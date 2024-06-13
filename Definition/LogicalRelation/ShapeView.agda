@@ -318,11 +318,11 @@ goodCases (Unitᵣ UnitA) (Unitᵣ  UnitB@(Unitₜ D _)) D′
 goodCases (ne neA) (ne neB) A≡B = ne neA neB
 goodCases (Bᵣ BΠ! ΠA) (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
           (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
-  with whrDet* (red D , ΠΣₙ) (D′ , ΠΣₙ)
+  with whrDet* (red D , ΠΣₙ) (red D′ , ΠΣₙ)
 ... | PE.refl = Bᵥ BΠ! ΠA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
 goodCases (Bᵣ BΣ! ΣA) (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext ok)
           (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
-  with whrDet* (red D , ΠΣₙ) (D′ , ΠΣₙ)
+  with whrDet* (red D , ΠΣₙ) (red D′ , ΠΣₙ)
 ... | PE.refl = Bᵥ BΣ! ΣA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok)
 goodCases (Idᵣ ⊩A) (Idᵣ ⊩B) _ = Idᵥ ⊩A ⊩B
 
@@ -411,27 +411,28 @@ goodCases (ne _) (Idᵣ ⊩B) A≡B =
 
 -- B ≡ _
 goodCases (Bᵣ W x) (Uᵣ ⊢Γ) (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
-  ⊥-elim (U≢B W (whnfRed* D′ Uₙ))
+  ⊥-elim (U≢B W (whnfRed* (red D′) Uₙ))
 goodCases (Bᵣ W x) (ℕᵣ D₁) (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
-  ⊥-elim (ℕ≢B W (whrDet* (red D₁ , ℕₙ) (D′ , ⟦ W ⟧ₙ)))
+  ⊥-elim (ℕ≢B W (whrDet* (red D₁ , ℕₙ) (red D′ , ⟦ W ⟧ₙ)))
 goodCases (Bᵣ W x) (Emptyᵣ D₁) (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
-  ⊥-elim (Empty≢B W (whrDet* (red D₁ , Emptyₙ) (D′ , ⟦ W ⟧ₙ)))
+  ⊥-elim (Empty≢B W (whrDet* (red D₁ , Emptyₙ) (red D′ , ⟦ W ⟧ₙ)))
 goodCases
   (Bᵣ W x) (Unitᵣ (Unitₜ D₁ _)) (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
-  ⊥-elim (Unit≢B W (whrDet* (red D₁ , Unitₙ) (D′ , ⟦ W ⟧ₙ)))
+  ⊥-elim (Unit≢B W (whrDet* (red D₁ , Unitₙ) (red D′ , ⟦ W ⟧ₙ)))
 goodCases (Bᵣ W x) (ne′ K D neK K≡K) (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
-  ⊥-elim (B≢ne W neK (whrDet* (D′ , ⟦ W ⟧ₙ) (red D , ne neK)))
+  ⊥-elim (B≢ne W neK (whrDet* (red D′ , ⟦ W ⟧ₙ) (red D , ne neK)))
 goodCases (Bᵣ′ BΠ! _ _ _ _ _ _ _ _ _ _)
           (Bᵣ′ BΣ! _ _ D₁ _ _ _ _ _ _ _)
           (B₌ _ _ D₂ _ _ _) =
-  ⊥-elim (Π≢Σ (whrDet* (D₂ , ΠΣₙ) (red D₁ , ΠΣₙ)))
+  ⊥-elim (Π≢Σ (whrDet* (red D₂ , ΠΣₙ) (red D₁ , ΠΣₙ)))
 goodCases (Bᵣ′ BΣ! _ _ _ _ _ _ _ _ _ _)
           (Bᵣ′ BΠ! _ _ D₁ _ _ _ _ _ _ _)
           (B₌ _ _ D₂ _ _ _) =
-  ⊥-elim (Π≢Σ (whrDet* (red D₁ , ΠΣₙ) (D₂ , ΠΣₙ)))
+  ⊥-elim (Π≢Σ (whrDet* (red D₁ , ΠΣₙ) (red D₂ , ΠΣₙ)))
 goodCases (Bᵣ _ _) (Idᵣ ⊩B) A≡B =
   ⊥-elim $ Id≢⟦⟧▷ _ $
-  whrDet* (red (_⊩ₗId_.⇒*Id ⊩B) , Idₙ) (_⊩ₗB⟨_⟩_≡_/_.D′ A≡B , ⟦ _ ⟧ₙ)
+  whrDet* (red (_⊩ₗId_.⇒*Id ⊩B) , Idₙ)
+    (red (_⊩ₗB⟨_⟩_≡_/_.D′ A≡B) , ⟦ _ ⟧ₙ)
 
 -- Id ≡ _
 goodCases (Idᵣ _) (Uᵣ _) A≡B =

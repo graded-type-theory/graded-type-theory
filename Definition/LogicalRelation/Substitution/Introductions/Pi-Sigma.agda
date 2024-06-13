@@ -209,7 +209,7 @@ opaque
       (B₌ _ _ ⇒*ΠΣ₂ _ wk-A₁≡wk-A₂ wk-B₁≡wk-B₂) =
       case B-PE-injectivity _ _ $ whnfRed* (red ⇒*ΠΣ₁) ΠΣₙ of λ {
         (PE.refl , PE.refl , _) →
-      case B-PE-injectivity _ _ $ whnfRed* ⇒*ΠΣ₂ ΠΣₙ of λ {
+      case B-PE-injectivity _ _ $ whnfRed* (red ⇒*ΠΣ₂) ΠΣₙ of λ {
         (PE.refl , PE.refl , PE.refl) →
         PE.refl , PE.refl , PE.refl
       , λ ρ⊇ ⊢Δ →
@@ -272,7 +272,7 @@ opaque
              (var _) ⊢x0 (~-var ⊢x0) of λ
         B₁≡B₂ →
       _ ⊩⟨ _ ⟩ _ ≡ _ / Bᵣ _ ⊩ΠΣ₁ ∋
-      B₌ _ _ (id (ΠΣⱼ ⊢A₂ ⊢B₂ ok))
+      B₌ _ _ (idRed:*: (ΠΣⱼ ⊢A₂ ⊢B₂ ok))
         (≅-ΠΣ-cong ⊢A₁ (escape-⊩≡ A₁≡A₂) (escape-⊩≡ B₁≡B₂) ok)
         (λ ρ⊇ ⊢Δ → ⊩≡→⊩≡/ (⊩wk-A ρ⊇ ⊢Δ) (rest ρ⊇ ⊢Δ .proj₁))
         (λ ρ⊇ ⊢Δ ⊩t →

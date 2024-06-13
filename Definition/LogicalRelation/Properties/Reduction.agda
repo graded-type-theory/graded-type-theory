@@ -63,9 +63,10 @@ redSubst* D (ne′ K [ ⊢B , ⊢K , D′ ] neK K≡K) =
   let ⊢A = redFirst* D
   in  (ne′ K [ ⊢A , ⊢K , D ⇨* D′ ] neK K≡K)
   ,   (ne₌ _ [ ⊢B , ⊢K , D′ ] neK K≡K)
-redSubst* D (Bᵣ′ W F G [ ⊢B , ⊢ΠFG , D′ ] ⊢F ⊢G A≡A [F] [G] G-ext ok) =
+redSubst*
+  D (Bᵣ′ W F G D′@([ _ , ⊢ΠFG , D″ ]) ⊢F ⊢G A≡A [F] [G] G-ext ok) =
   let ⊢A = redFirst* D
-  in  (Bᵣ′ W F G [ ⊢A , ⊢ΠFG , D ⇨* D′ ] ⊢F ⊢G A≡A [F] [G] G-ext ok)
+  in  (Bᵣ′ W F G [ ⊢A , ⊢ΠFG , D ⇨* D″ ] ⊢F ⊢G A≡A [F] [G] G-ext ok)
   ,   (B₌ _ _ D′ A≡A (λ ρ ⊢Δ → reflEq ([F] ρ ⊢Δ))
         (λ ρ ⊢Δ [a] → reflEq ([G] ρ ⊢Δ [a])))
 redSubst* A⇒*B (Idᵣ ⊩B) =
@@ -245,7 +246,7 @@ opaque
     case whrDet:⇒*: ⟦ W ⟧ₙ A⇒*ΠΣ A⇒*B of λ
       B⇒*ΠΣ →
       Bᵣ′ _ _ _ B⇒*ΠΣ ⊢C ⊢D ΠΣ≡ΠΣ ⊩C ⊩D D≡D ok
-    , B₌ _ _ (red B⇒*ΠΣ) ΠΣ≡ΠΣ (λ _ _ → reflEq (⊩C _ _))
+    , B₌ _ _ B⇒*ΠΣ ΠΣ≡ΠΣ (λ _ _ → reflEq (⊩C _ _))
         (λ _ _ _ → reflEq (⊩D _ _ _))
   redSubst*′ A⇒*B (Idᵣ (Idᵣ Ty lhs rhs A⇒*Id ⊩Ty ⊩lhs ⊩rhs)) =
     case whrDet:⇒*: Idₙ A⇒*Id A⇒*B of λ

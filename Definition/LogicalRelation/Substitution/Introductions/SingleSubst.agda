@@ -226,7 +226,8 @@ substSΠ₂′ W (noemb (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _))
           (B₌ F″ G″ D′ A≡B [F≡F′] [G≡G′])
           [F]₁ [F′] [t] [t′] [t≡t′] [G[t]] [G′[t′]] =
   let F≡F′  , G≡G′  , _ = B-PE-injectivity W W (whnfRed* (red D) (⟦ W ⟧ₙ))
-      F′≡F″ , G′≡G″ , _ = B-PE-injectivity W W (whnfRed* D′ ⟦ W ⟧ₙ)
+      F′≡F″ , G′≡G″ , _ =
+        B-PE-injectivity W W (whnfRed* (red D′) ⟦ W ⟧ₙ)
       Feq = PE.trans F≡F′ (PE.sym (wk-id _))
       F′eq = PE.trans F′≡F″ (PE.sym (wk-id _))
       Geq = PE.cong (λ x → x [ _ ]₀) (PE.trans (wk-lift-id _) (PE.sym G≡G′))
