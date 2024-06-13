@@ -43,7 +43,7 @@ private
     n : Nat
     Γ Δ : Con Term n
     σ σ₁ σ₂ : Subst _ _
-    s : Strength
+    s s₁ s₂ : Strength
     l l′ l″ : TypeLevel
     A A₁ A₂ t t₁ t₂ u u₁ u₂ : Term n
     p q : M
@@ -93,6 +93,36 @@ opaque
       Γ ⊩Unit⟨ s ⟩ t ∷Unit
     lemma (emb 0<1 ⊩Unit)      ⊩t = lemma ⊩Unit ⊩t
     lemma (noemb (Unitₜ _ ok)) ⊩t = ok , ⊩t
+
+opaque
+  unfolding _⊩⟨_⟩_≡_
+
+  -- A characterisation lemma for _⊩⟨_⟩_≡_.
+
+  ⊩Unit≡Unit⇔ :
+    Γ ⊩⟨ l ⟩ Unit s₁ ≡ Unit s₂ ⇔
+    (⊢ Γ × Unit-allowed s₁ × s₁ PE.≡ s₂)
+  ⊩Unit≡Unit⇔ =
+      (λ (⊩Unit₁ , _ , Unit₁≡Unit₂) →
+         case Unit-elim ⊩Unit₁ of λ
+           ⊩Unit₁′ →
+         lemma ⊩Unit₁′
+           (irrelevanceEq ⊩Unit₁ (Unit-intr ⊩Unit₁′) Unit₁≡Unit₂))
+    , (λ { (⊢Γ , ok , PE.refl) →
+           refl-⊩≡ (⊩Unit⇔ .proj₂ (⊢Γ , ok)) })
+    where
+    lemma :
+      (⊩Unit₁ : Γ ⊩⟨ l ⟩Unit⟨ s₁ ⟩ Unit s₁) →
+      Γ ⊩⟨ l ⟩ Unit s₁ ≡ Unit s₂ / Unit-intr ⊩Unit₁ →
+      ⊢ Γ × Unit-allowed s₁ × s₁ PE.≡ s₂
+    lemma (emb 0<1 ⊩Unit₁) =
+      lemma ⊩Unit₁
+    lemma {l} ⊩Unit₁@(noemb _) Unit₂⇒*Unit₁ =
+      case whnfRed* Unit₂⇒*Unit₁ Unitₙ of λ {
+        PE.refl →
+      case ⊩Unit⇔ {l = l} .proj₁ $ Unit-intr ⊩Unit₁ of λ
+        (⊢Γ , ok) →
+      ⊢Γ , ok , PE.refl }
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_ ⊩Unit⇔

@@ -42,7 +42,7 @@ private
     p₁ p₂ q₁ q₂ : M
     b₁ b₂ : BinderMode
     l : TypeLevel
-    s s₁ s₂ s′ : Strength
+    s₁ s₂ : Strength
 
 opaque
 
@@ -130,22 +130,15 @@ suc-injectivity ⊢suct≡sucu =
       [t≡u] = suc-injectivity′ (ℕ-elim [ℕ]) [suct≡sucu]′
   in  escapeTermEq [ℕ]′ [t≡u]
 
--- Injectivity of Unit
+opaque
 
-Unit-injectivity′ : ∀ {l}
-                  → ([Unit] : Γ ⊩⟨ l ⟩Unit⟨ s ⟩ Unit s)
-                  → Γ ⊩⟨ l ⟩ Unit s ≡ Unit s′ / Unit-intr [Unit]
-                  → s PE.≡ s′
-Unit-injectivity′ (noemb (Unitₜ ⇒*-Unit ok)) D
-  with whnfRed* D Unitₙ
-... | PE.refl = PE.refl
-Unit-injectivity′ (emb 0<1 [Unit]) [Unit≡Unit] =
-  Unit-injectivity′ [Unit] [Unit≡Unit]
+  -- Injectivity of Unit.
 
-Unit-injectivity : Γ ⊢ Unit s ≡ Unit s′
-                 → s PE.≡ s′
-Unit-injectivity x =
-  let [Unit] , _ , [Unit≡Unit] = reducibleEq x
-      [Unit]′ = Unit-intr (Unit-elim [Unit])
-      [Unit≡Unit]′ = irrelevanceEq [Unit] [Unit]′ [Unit≡Unit]
-  in  Unit-injectivity′ (Unit-elim [Unit]) [Unit≡Unit]′
+  Unit-injectivity :
+    Γ ⊢ Unit s₁ ≡ Unit s₂ →
+    s₁ PE.≡ s₂
+  Unit-injectivity {Γ} {s₁} {s₂} =
+    Γ ⊢ Unit s₁ ≡ Unit s₂               →⟨ reducible-⊩≡ ⟩
+    Γ ⊩⟨ ¹ ⟩ Unit s₁ ≡ Unit s₂          ⇔⟨ ⊩Unit≡Unit⇔ ⟩→
+    ⊢ Γ × Unit-allowed s₁ × s₁ PE.≡ s₂  →⟨ proj₂ ∘→ proj₂ ⟩
+    s₁ PE.≡ s₂                          □
