@@ -1,0 +1,37 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Definition.Typed.Variant</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- Variants of the type system</a>
+<a id="105" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="179" class="Keyword">module</a> <a id="186" href="Definition.Typed.Variant.html" class="Module">Definition.Typed.Variant</a> <a id="211" class="Keyword">where</a>
+
+<a id="218" class="Keyword">open</a> <a id="223" class="Keyword">import</a> <a id="230" href="Tools.Bool.html" class="Module">Tools.Bool</a>
+<a id="241" class="Keyword">open</a> <a id="246" class="Keyword">import</a> <a id="253" href="Tools.Relation.html" class="Module">Tools.Relation</a>
+
+<a id="269" class="Comment">-- This type makes it possible to choose between different variants of</a>
+<a id="340" class="Comment">-- the type system.</a>
+<a id="360" class="Comment">--</a>
+<a id="363" class="Comment">-- See also Definition.Typed.Restrictions.Type-restrictions.</a>
+
+<a id="425" class="Keyword">record</a> <a id="Type-variant"></a><a id="432" href="Definition.Typed.Variant.html#432" class="Record">Type-variant</a> <a id="445" class="Symbol">:</a> <a id="447" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="451" class="Keyword">where</a>
+  <a id="459" class="Keyword">no-eta-equality</a>
+  <a id="477" class="Keyword">field</a>
+    <a id="487" class="Comment">-- Should η-equality be enabled for weak unit types?</a>
+    <a id="544" class="Comment">--</a>
+    <a id="551" class="Comment">-- This variant of the type system is used to state some soundness</a>
+    <a id="622" class="Comment">-- theorems for extraction, see</a>
+    <a id="658" class="Comment">-- Graded.Erasure.Consequences.Soundness.Erased-matches.</a>
+    <a id="Type-variant.η-for-Unitʷ"></a><a id="719" href="Definition.Typed.Variant.html#719" class="Field">η-for-Unitʷ</a> <a id="731" class="Symbol">:</a> <a id="733" href="Agda.Builtin.Bool.html#173" class="Datatype">Bool</a>
+
+  <a id="741" class="Comment">-- Unitʷ-η holds exactly when η-for-Unitʷ is true.</a>
+
+  <a id="Type-variant.Unitʷ-η"></a><a id="795" href="Definition.Typed.Variant.html#795" class="Function">Unitʷ-η</a> <a id="803" class="Symbol">:</a> <a id="805" href="Agda.Primitive.html#388" class="Primitive">Set</a>
+  <a id="811" href="Definition.Typed.Variant.html#795" class="Function">Unitʷ-η</a> <a id="819" class="Symbol">=</a> <a id="821" href="Data.Bool.Base.html#1348" class="Function">T</a> <a id="823" href="Definition.Typed.Variant.html#719" class="Field">η-for-Unitʷ</a>
+
+  <a id="838" class="Keyword">opaque</a>
+
+    <a id="850" class="Comment">-- Unitʷ-η is decided.</a>
+
+    <a id="Type-variant.Unitʷ-η?"></a><a id="878" href="Definition.Typed.Variant.html#878" class="Function">Unitʷ-η?</a> <a id="887" class="Symbol">:</a> <a id="889" href="Relation.Nullary.Decidable.Core.html#1485" class="Record">Dec</a> <a id="893" href="Definition.Typed.Variant.html#795" class="Function">Unitʷ-η</a>
+    <a id="905" href="Definition.Typed.Variant.html#878" class="Function">Unitʷ-η?</a> <a id="914" class="Symbol">=</a> <a id="916" href="Relation.Nullary.Decidable.Core.html#2465" class="Function">T?</a> <a id="919" class="Symbol">_</a>
+</pre></body></html>
