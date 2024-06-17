@@ -60,9 +60,9 @@ opaque
   ⊩emptyrec≡emptyrec
     {A₁} {A₂} {t₁} {t₂} {σ₁} {σ₂} {p}
     A₁≡A₂ t₁≡t₂ σ₁≡σ₂ =
-    case ⊩ᵛ≡⇔′ .proj₁ A₁≡A₂ .proj₂ .proj₂ of λ
+    case ⊩ᵛ≡⇔ .proj₁ A₁≡A₂ .proj₂ of λ
       A₁≡A₂ →
-    case ⊩ᵛ≡∷⇔′ .proj₁ t₁≡t₂ .proj₂ .proj₂ of λ
+    case ⊩ᵛ≡∷⇔ .proj₁ t₁≡t₂ .proj₂ of λ
       t₁≡t₂ →
     case ⊩≡∷Empty⇔ .proj₁ (t₁≡t₂ σ₁≡σ₂) of λ
       (_ , _ ,
@@ -93,20 +93,6 @@ opaque
 
 opaque
 
-  -- Validity of emptyrec.
-
-  emptyrecᵛ :
-    Γ ⊩ᵛ⟨ l ⟩ A →
-    Γ ⊩ᵛ⟨ l′ ⟩ t ∷ Empty →
-    Γ ⊩ᵛ⟨ l ⟩ emptyrec p A t ∷ A
-  emptyrecᵛ ⊩A ⊩t =
-    ⊩ᵛ∷⇔ .proj₂
-      ( ⊩A
-      , ⊩emptyrec≡emptyrec (refl-⊩ᵛ≡ ⊩A) (refl-⊩ᵛ≡∷ ⊩t)
-      )
-
-opaque
-
   -- Validity of equality between applications of emptyrec
 
   emptyrec-congᵛ :
@@ -114,13 +100,19 @@ opaque
     Γ ⊩ᵛ⟨ l′ ⟩ t₁ ≡ t₂ ∷ Empty →
     Γ ⊩ᵛ⟨ l ⟩ emptyrec p A₁ t₁ ≡ emptyrec p A₂ t₂ ∷ A₁
   emptyrec-congᵛ A₁≡A₂ t₁≡t₂ =
-    case wf-⊩ᵛ≡ A₁≡A₂ of λ
-      (⊩A₁ , ⊩A₂) →
-    case wf-⊩ᵛ≡∷ t₁≡t₂ of λ
-      (⊩t₁ , ⊩t₂) →
-    ⊩ᵛ≡∷⇔′ .proj₂
-      ( emptyrecᵛ ⊩A₁ ⊩t₁
-      , conv-⊩ᵛ∷ (sym-⊩ᵛ≡ A₁≡A₂)
-          (emptyrecᵛ ⊩A₂ ⊩t₂)
+    ⊩ᵛ≡∷⇔ .proj₂
+      ( wf-⊩ᵛ≡ A₁≡A₂ .proj₁
       , ⊩emptyrec≡emptyrec A₁≡A₂ t₁≡t₂
       )
+
+opaque
+
+  -- Validity of emptyrec.
+
+  emptyrecᵛ :
+    Γ ⊩ᵛ⟨ l ⟩ A →
+    Γ ⊩ᵛ⟨ l′ ⟩ t ∷ Empty →
+    Γ ⊩ᵛ⟨ l ⟩ emptyrec p A t ∷ A
+  emptyrecᵛ ⊩A ⊩t =
+    ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $
+    emptyrec-congᵛ (refl-⊩ᵛ≡ ⊩A) (refl-⊩ᵛ≡∷ ⊩t)

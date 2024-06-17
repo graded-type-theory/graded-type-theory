@@ -309,12 +309,11 @@ opaque
     Γ ⊩ᵛ⟨ l′ ⟩ A ≡ B
   ⊩ᵛ≡∷U→⊩ᵛ≡ A≡B∷U =
     case ⊩ᵛ≡∷⇔ .proj₁ A≡B∷U of λ
-      (⊩A∷U , ⊩B∷U , A≡B∷U) →
+      (⊩U , A≡B∷U) →
     ⊩ᵛ≡⇔ .proj₂
-      ( ⊩ᵛ∷U→⊩ᵛ ⊩A∷U
-      , ⊩ᵛ∷U→⊩ᵛ ⊩B∷U
-      , λ ⊩σ →
-          case ⊩≡∷U⇔ .proj₁ $ A≡B∷U ⊩σ of λ {
+      ( wf-⊩ᵛ ⊩U
+      , λ σ₁≡σ₂ →
+          case ⊩≡∷U⇔ .proj₁ $ A≡B∷U σ₁≡σ₂ of λ {
             ((_ , 0<1 , A≡B) , _) →
           emb-⊩≡ ⁰≤ A≡B }
       )

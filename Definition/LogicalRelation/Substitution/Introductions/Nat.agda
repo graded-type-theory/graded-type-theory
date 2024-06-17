@@ -354,32 +354,27 @@ opaque
 
 opaque
 
-  -- Validity of suc.
-
-  sucᵛ :
-    Γ ⊩ᵛ⟨ l ⟩ t ∷ ℕ →
-    Γ ⊩ᵛ⟨ l ⟩ suc t ∷ ℕ
-  sucᵛ ⊩t =
-    ⊩ᵛ∷⇔ .proj₂
-      ( wf-⊩ᵛ∷ ⊩t
-      , ⊩suc≡suc ∘→ ⊩ᵛ∷⇔ .proj₁ ⊩t .proj₂
-      )
-
-opaque
-
   -- Validity of equality preservation for suc.
 
   suc-congᵛ :
     Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ ℕ →
     Γ ⊩ᵛ⟨ l ⟩ suc t ≡ suc u ∷ ℕ
   suc-congᵛ t≡u =
-    case wf-⊩ᵛ≡∷ t≡u of λ
-      (⊩t , ⊩u) →
-    ⊩ᵛ≡∷⇔′ .proj₂
-      ( sucᵛ ⊩t
-      , sucᵛ ⊩u
-      , ⊩suc≡suc ∘→ ⊩ᵛ≡∷⇔′ .proj₁ t≡u .proj₂ .proj₂
+    ⊩ᵛ≡∷⇔ .proj₂
+      ( ℕᵛ (wf-⊩ᵛ $ wf-⊩ᵛ∷ $ wf-⊩ᵛ≡∷ t≡u .proj₁)
+      , ⊩suc≡suc ∘→ ⊩ᵛ≡∷⇔ .proj₁ t≡u .proj₂
       )
+
+opaque
+
+  -- Validity of suc.
+
+  sucᵛ :
+    Γ ⊩ᵛ⟨ l ⟩ t ∷ ℕ →
+    Γ ⊩ᵛ⟨ l ⟩ suc t ∷ ℕ
+  sucᵛ ⊩t =
+    ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $
+    suc-congᵛ (refl-⊩ᵛ≡∷ ⊩t)
 
 ------------------------------------------------------------------------
 -- The eliminator natrec
@@ -607,14 +602,14 @@ opaque
     case ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑]≡[⇑] A₁≡A₂ σ₁≡σ₂ of λ
       A₁[σ₁⇑]≡A₂[σ₂⇑] →
     case PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (singleSubstLift A₁ _) $
-         ⊩ᵛ≡∷⇔′ .proj₁ t₁≡t₂ .proj₂ .proj₂ σ₁≡σ₂ of λ
+         ⊩ᵛ≡∷⇔ .proj₁ t₁≡t₂ .proj₂ σ₁≡σ₂ of λ
       t₁[σ₁]≡t₂[σ₂] →
     case PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (natrecSucCase _ A₁) $
          ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑]∷ u₁≡u₂ σ₁≡σ₂ of λ
       u₁[σ₁⇑⇑]≡u₂[σ₂⇑⇑] →
 
     case ⊩≡∷ℕ⇔ .proj₁ $
-         ⊩ᵛ≡∷⇔′ .proj₁ v₁≡v₂ .proj₂ .proj₂ σ₁≡σ₂ of λ
+         ⊩ᵛ≡∷⇔ .proj₁ v₁≡v₂ .proj₂ σ₁≡σ₂ of λ
       (⊩ℕ-v₁ , ⊩ℕ-v₂ , ⊩ℕ-v₁≡v₂) →
 
     PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (PE.sym $ singleSubstLift A₁ _) $
@@ -655,23 +650,6 @@ opaque
 
 opaque
 
-  -- Validity of natrec.
-
-  natrecᵛ :
-    Γ ∙ ℕ ⊩ᵛ⟨ l ⟩ A →
-    Γ ⊩ᵛ⟨ l′ ⟩ t ∷ A [ zero ]₀ →
-    Γ ∙ ℕ ∙ A ⊩ᵛ⟨ l″ ⟩ u ∷ A [ suc (var x1) ]↑² →
-    Γ ⊩ᵛ⟨ l‴ ⟩ v ∷ ℕ →
-    Γ ⊩ᵛ⟨ l ⟩ natrec p q r A t u v ∷ A [ v ]₀
-  natrecᵛ ⊩A ⊩t ⊩u ⊩v =
-    ⊩ᵛ∷⇔ .proj₂
-      ( ⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]₀ ⊩A ⊩v
-      , ⊩natrec≡natrec (refl-⊩ᵛ≡ ⊩A) (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ᵛ≡∷ ⊩u)
-          (refl-⊩ᵛ≡∷ ⊩v)
-      )
-
-opaque
-
   -- Validity of equality preservation for natrec.
 
   natrec-congᵛ :
@@ -681,31 +659,26 @@ opaque
     Γ ⊩ᵛ⟨ l‴ ⟩ v₁ ≡ v₂ ∷ ℕ →
     Γ ⊩ᵛ⟨ l ⟩ natrec p q r A₁ t₁ u₁ v₁ ≡ natrec p q r A₂ t₂ u₂ v₂ ∷
       A₁ [ v₁ ]₀
-  natrec-congᵛ {l} A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ =
-    case wf-⊩ᵛ≡ A₁≡A₂ of λ
-      (⊩A₁ , ⊩A₂) →
-    case wf-⊩ᵛ≡∷ t₁≡t₂ of λ
-      (⊩t₁ , ⊩t₂) →
-    case wf-⊩ᵛ≡∷ u₁≡u₂ of λ
-      (⊩u₁ , ⊩u₂) →
-    case wf-⊩ᵛ≡∷ v₁≡v₂ of λ
-      (⊩v₁ , ⊩v₂) →
-    ⊩ᵛ≡∷⇔′ .proj₂
-      ( natrecᵛ ⊩A₁ ⊩t₁ ⊩u₁ ⊩v₁
-      , conv-⊩ᵛ∷ (sym-⊩ᵛ≡ (⊩ᵛ≡→⊩ᵛ≡∷→⊩ᵛ[]₀≡[]₀ A₁≡A₂ v₁≡v₂))
-          (natrecᵛ ⊩A₂
-             (conv-⊩ᵛ∷
-                (⊩ᵛ≡→⊩ᵛ≡∷→⊩ᵛ[]₀≡[]₀ A₁≡A₂
-                   (refl-⊩ᵛ≡∷ (zeroᵛ {l = l} (wf-⊩ᵛ (wf-⊩ᵛ∷ ⊩t₁)))))
-                ⊩t₂)
-             (conv-∙-⊩ᵛ∷ A₁≡A₂ $
-              conv-⊩ᵛ∷
-                (⊩ᵛ≡→⊩ᵛ∷→⊩ᵛ[]↑²≡[]↑² A₁≡A₂ $
-                 sucᵛ $ varᵛ (there here) (wf-⊩ᵛ (wf-⊩ᵛ∷ ⊩u₁)) .proj₂)
-                ⊩u₂)
-             ⊩v₂)
+  natrec-congᵛ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ =
+    ⊩ᵛ≡∷⇔ .proj₂
+      ( ⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]₀ (wf-⊩ᵛ≡ A₁≡A₂ .proj₁) (wf-⊩ᵛ≡∷ v₁≡v₂ .proj₁)
       , ⊩natrec≡natrec A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂
       )
+
+opaque
+
+  -- Validity of natrec.
+
+  natrecᵛ :
+    Γ ∙ ℕ ⊩ᵛ⟨ l ⟩ A →
+    Γ ⊩ᵛ⟨ l′ ⟩ t ∷ A [ zero ]₀ →
+    Γ ∙ ℕ ∙ A ⊩ᵛ⟨ l″ ⟩ u ∷ A [ suc (var x1) ]↑² →
+    Γ ⊩ᵛ⟨ l‴ ⟩ v ∷ ℕ →
+    Γ ⊩ᵛ⟨ l ⟩ natrec p q r A t u v ∷ A [ v ]₀
+  natrecᵛ ⊩A ⊩t ⊩u ⊩v =
+    ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $
+    natrec-congᵛ (refl-⊩ᵛ≡ ⊩A) (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ᵛ≡∷ ⊩u)
+      (refl-⊩ᵛ≡∷ ⊩v)
 
 opaque
 

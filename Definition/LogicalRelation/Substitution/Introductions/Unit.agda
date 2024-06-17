@@ -294,12 +294,13 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ Unit s
   η-unitᵛ ⊩t ⊩u η =
     ⊩ᵛ≡∷⇔ .proj₂
-      ( ⊩t
-      , level-⊩ᵛ∷ (wf-⊩ᵛ∷ ⊩t) ⊩u
-      , λ ⊩σ →
-          case ⊩∷Unit⇔ .proj₁ (⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ) of λ
+      ( wf-⊩ᵛ∷ ⊩t
+      , λ σ₁≡σ₂ →
+          case wf-⊩ˢ≡∷ σ₁≡σ₂ of λ
+            (⊩σ₁ , ⊩σ₂) →
+          case ⊩∷Unit⇔ .proj₁ (⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ₁) of λ
             (ok , ⊩t@(Unitₜ _ t⇒*t′ _ _)) →
-          case ⊩∷Unit⇔ .proj₁ (⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u ⊩σ) of λ
+          case ⊩∷Unit⇔ .proj₁ (⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u ⊩σ₂) of λ
             (_ , ⊩u@(Unitₜ _ u⇒*u′ _ _)) →
           ⊩≡∷Unit⇔ .proj₂
             (ok , ⊩t , ⊩u , Unitₜ₌ˢ (⊢t-redₜ t⇒*t′) (⊢t-redₜ u⇒*u′) η)
@@ -357,9 +358,9 @@ opaque
     A₁≡A₂ t₁≡t₂ u₁≡u₂ σ₁≡σ₂ =
     case wf-⊩ᵛ≡ A₁≡A₂ of λ
       (⊩A₁ , ⊩A₂) →
-    case ⊩ᵛ≡∷⇔′ .proj₁ t₁≡t₂ of λ
+    case ⊩ᵛ≡∷⇔″ .proj₁ t₁≡t₂ of λ
       (⊩t₁ , ⊩t₂ , t₁≡t₂) →
-    case ⊩ᵛ≡∷⇔′ .proj₁ u₁≡u₂ of λ
+    case ⊩ᵛ≡∷⇔″ .proj₁ u₁≡u₂ of λ
       (⊩u₁ , ⊩u₂ , u₁≡u₂) →
     case wf-⊩ˢ≡∷ σ₁≡σ₂ of λ
       (⊩σ₁ , ⊩σ₂) →
@@ -398,7 +399,7 @@ opaque
         unitrec p q A₁ t₁ u₁ [ σ₁ ] ∷ A₁ [ t₁ ]₀ [ σ₁ ]       ⇒⟨ PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift A₁ t₁) $
                                                                  unitrec-β-η ⊢A₁[σ₁⇑] (escape-⊩∷ ⊩t₁[σ₁]) ⊢u₁[σ₁] ok η ⟩⊩∷∷
                                                                ⟨ ⊩ᵛ≡→⊩≡∷→⊩ˢ≡∷→⊩[]₀[]≡[]₀[] (refl-⊩ᵛ≡ ⊩A₁)
-                                                                   (⊩ᵛ≡∷⇔′ .proj₁ (η-unitᵛ ⊩t₁ ⊩⋆ (inj₂ η)) .proj₂ .proj₂ $
+                                                                   (⊩ᵛ≡∷⇔ .proj₁ (η-unitᵛ ⊩t₁ ⊩⋆ (inj₂ η)) .proj₂ $
                                                                     refl-⊩ˢ≡∷ ⊩σ₁)
                                                                    (refl-⊩ˢ≡∷ ⊩σ₁) ⟩⊩∷
         u₁ [ σ₁ ]                   ∷ A₁ [ starʷ ]₀ [ σ₁ ]    ≡⟨ u₁≡u₂ σ₁≡σ₂ ⟩⊩∷∷⇐*
@@ -407,7 +408,7 @@ opaque
         u₂ [ σ₂ ]                   ∷ A₂ [ σ₂ ⇑ ] [ starʷ ]₀  ⇐⟨ conv (unitrec-β-η ⊢A₂[σ₂⇑] (escape-⊩∷ ⊩t₂[σ₂]) ⊢u₂[σ₂] ok η)
                                                                    (≅-eq $ escape-⊩≡ $
                                                                     ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩A₂) (refl-⊩ˢ≡∷ ⊩σ₂) $
-                                                                    ⊩ᵛ≡∷⇔′ .proj₁ (η-unitᵛ ⊩t₂ ⊩⋆ (inj₂ η)) .proj₂ .proj₂ $
+                                                                    ⊩ᵛ≡∷⇔ .proj₁ (η-unitᵛ ⊩t₂ ⊩⋆ (inj₂ η)) .proj₂ $
                                                                     refl-⊩ˢ≡∷ ⊩σ₂)
                                                                , ⊢u₂[σ₂]
                                                                ⟩∎∷
@@ -480,21 +481,6 @@ opaque
 
 opaque
 
-  -- Validity of unitrec.
-
-  unitrecᵛ :
-    Γ ∙ Unitʷ ⊩ᵛ⟨ l ⟩ A →
-    Γ ⊩ᵛ⟨ l′ ⟩ t ∷ Unitʷ →
-    Γ ⊩ᵛ⟨ l″ ⟩ u ∷ A [ starʷ ]₀ →
-    Γ ⊩ᵛ⟨ l ⟩ unitrec p q A t u ∷ A [ t ]₀
-  unitrecᵛ ⊩A ⊩t ⊩u =
-    ⊩ᵛ∷⇔ .proj₂
-      ( ⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]₀ ⊩A ⊩t
-      , ⊩unitrec≡unitrec (refl-⊩ᵛ≡ ⊩A) (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ᵛ≡∷ ⊩u)
-      )
-
-opaque
-
   -- Validity of equality between applications of unitrec.
 
   unitrec-congᵛ :
@@ -503,25 +489,23 @@ opaque
     Γ ⊩ᵛ⟨ l″ ⟩ u₁ ≡ u₂ ∷ A₁ [ starʷ ]₀ →
     Γ ⊩ᵛ⟨ l ⟩ unitrec p q A₁ t₁ u₁ ≡ unitrec p q A₂ t₂ u₂ ∷ A₁ [ t₁ ]₀
   unitrec-congᵛ A₁≡A₂ t₁≡t₂ u₁≡u₂ =
-    case wf-⊩ᵛ≡ A₁≡A₂ of λ
-      (⊩A₁ , ⊩A₂) →
-    case wf-⊩ᵛ≡∷ t₁≡t₂ of λ
-      (⊩t₁ , ⊩t₂) →
-    case wf-⊩ᵛ≡∷ u₁≡u₂ of λ
-      (⊩u₁ , ⊩u₂) →
-    case wf-∙-⊩ᵛ ⊩A₁ of λ
-      (_ , ⊩Unit) →
-    ⊩ᵛ≡∷⇔′ .proj₂
-      ( unitrecᵛ ⊩A₁ ⊩t₁ ⊩u₁
-      , conv-⊩ᵛ∷ (sym-⊩ᵛ≡ $ ⊩ᵛ≡→⊩ᵛ≡∷→⊩ᵛ[]₀≡[]₀ A₁≡A₂ t₁≡t₂)
-          (unitrecᵛ ⊩A₂ ⊩t₂
-             (conv-⊩ᵛ∷
-                (⊩ᵛ≡→⊩ᵛ≡∷→⊩ᵛ[]₀≡[]₀ A₁≡A₂ $ refl-⊩ᵛ≡∷ $
-                 starᵛ {l = ⁰} (wf-⊩ᵛ ⊩Unit)
-                   (⊩ᵛUnit→Unit-allowed ⊩Unit))
-              ⊩u₂))
+    ⊩ᵛ≡∷⇔ .proj₂
+      ( ⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]₀ (wf-⊩ᵛ≡ A₁≡A₂ .proj₁) (wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁)
       , ⊩unitrec≡unitrec A₁≡A₂ t₁≡t₂ u₁≡u₂
       )
+
+opaque
+
+  -- Validity of unitrec.
+
+  unitrecᵛ :
+    Γ ∙ Unitʷ ⊩ᵛ⟨ l ⟩ A →
+    Γ ⊩ᵛ⟨ l′ ⟩ t ∷ Unitʷ →
+    Γ ⊩ᵛ⟨ l″ ⟩ u ∷ A [ starʷ ]₀ →
+    Γ ⊩ᵛ⟨ l ⟩ unitrec p q A t u ∷ A [ t ]₀
+  unitrecᵛ ⊩A ⊩t ⊩u =
+    ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $
+    unitrec-congᵛ (refl-⊩ᵛ≡ ⊩A) (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ᵛ≡∷ ⊩u)
 
 opaque
 

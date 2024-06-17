@@ -460,13 +460,13 @@ opaque
       , λ ρ⊇ ⊢Η →
             PE.subst₂ (_⊩⟨_⟩_≡_ _ _) (PE.sym $ wk-subst A₁)
               (PE.sym $ wk-subst A₂)
-              (⊩ᵛ≡⇔′ .proj₁ A₁≡A₂ .proj₂ .proj₂ $
+              (⊩ᵛ≡⇔ .proj₁ A₁≡A₂ .proj₂ $
                ⊩ˢ≡∷-•ₛ ⊢Η ρ⊇ σ₁≡σ₂)
           , λ ⊩t →
               PE.subst₂ (_⊩⟨_⟩_≡_ _ _)
                 (PE.sym $ singleSubstWkComp _ _ B₁)
                 (PE.sym $ singleSubstWkComp _ _ B₂) $
-              ⊩ᵛ≡⇔′ .proj₁ B₁≡B₂ .proj₂ .proj₂ $
+              ⊩ᵛ≡⇔ .proj₁ B₁≡B₂ .proj₂ $
               ⊩ˢ≡∷∙⇔ .proj₂
                 ( ( _ , ⊩A₁
                   , refl-⊩≡∷
@@ -474,21 +474,6 @@ opaque
                   )
                 , ⊩ˢ≡∷-•ₛ ⊢Η ρ⊇ σ₁≡σ₂
                 )
-      )
-
-opaque
-
-  -- Validity of Π and Σ, seen as type formers.
-
-  ΠΣᵛ :
-    ΠΣ-allowed b p q →
-    Γ ⊩ᵛ⟨ l ⟩ A →
-    Γ ∙ A ⊩ᵛ⟨ l ⟩ B →
-    Γ ⊩ᵛ⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
-  ΠΣᵛ ok ⊩A ⊩B =
-    ⊩ᵛ⇔ .proj₂
-      ( wf-⊩ᵛ ⊩A
-      , ⊩ΠΣ≡ΠΣ ok (refl-⊩ᵛ≡ ⊩A) (refl-⊩ᵛ≡ ⊩B)
       )
 
 opaque
@@ -502,17 +487,22 @@ opaque
     Γ ∙ A₁ ⊩ᵛ⟨ l ⟩ B₁ ≡ B₂ →
     Γ ⊩ᵛ⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁ ≡ ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂
   ΠΣ-congᵛ ok A₁≡A₂ B₁≡B₂ =
-    case wf-⊩ᵛ≡ A₁≡A₂ of λ
-      (⊩A₁ , ⊩A₂) →
-    case wf-⊩ᵛ≡ B₁≡B₂ of λ
-      (⊩B₁ , ⊩B₂) →
-    case conv-∙-⊩ᵛ A₁≡A₂ ⊩B₂ of λ
-      ⊩B₂ →
     ⊩ᵛ≡⇔ .proj₂
-      ( ΠΣᵛ ok ⊩A₁ ⊩B₁
-      , ΠΣᵛ ok ⊩A₂ ⊩B₂
-      , ⊩ΠΣ≡ΠΣ ok A₁≡A₂ B₁≡B₂ ∘→ refl-⊩ˢ≡∷
+      ( wf-⊩ᵛ (wf-⊩ᵛ≡ A₁≡A₂ .proj₁)
+      , ⊩ΠΣ≡ΠΣ ok A₁≡A₂ B₁≡B₂
       )
+
+opaque
+
+  -- Validity of Π and Σ, seen as type formers.
+
+  ΠΣᵛ :
+    ΠΣ-allowed b p q →
+    Γ ⊩ᵛ⟨ l ⟩ A →
+    Γ ∙ A ⊩ᵛ⟨ l ⟩ B →
+    Γ ⊩ᵛ⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
+  ΠΣᵛ ok ⊩A ⊩B =
+    ⊩ᵛ⇔⊩ᵛ≡ .proj₂ $ ΠΣ-congᵛ ok (refl-⊩ᵛ≡ ⊩A) (refl-⊩ᵛ≡ ⊩B)
 
 opaque
 
@@ -573,7 +563,7 @@ opaque
       A₁≡A₂ →
     case ⊩ᵛ≡∷U→⊩ᵛ≡ {l′ = l″} B₁≡B₂∷U of λ
       B₁≡B₂ →
-    case ⊩ᵛ≡∷⇔′ .proj₁ A₁≡A₂∷U .proj₂ .proj₂ σ₁≡σ₂ of λ
+    case ⊩ᵛ≡∷⇔ .proj₁ A₁≡A₂∷U .proj₂ σ₁≡σ₂ of λ
       A₁[σ₁]≡A₂[σ₂]∷U →
     case ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑]≡[⇑]∷ B₁≡B₂∷U σ₁≡σ₂ of λ
       B₁[σ₁⇑]≡B₂[σ₂⇑]∷U →
@@ -594,23 +584,8 @@ opaque
       , ≅ₜ-ΠΣ-cong (univ ⊢A₁[σ₁]) (escape-⊩≡∷ A₁[σ₁]≡A₂[σ₂]∷U)
           (escape-⊩≡∷ B₁[σ₁⇑]≡B₂[σ₂⇑]∷U) ok
       , ( _ , l″<l
-        , ⊩ᵛ≡⇔′ .proj₁ (ΠΣ-congᵛ ok A₁≡A₂ B₁≡B₂) .proj₂ .proj₂ σ₁≡σ₂
+        , ⊩ᵛ≡⇔ .proj₁ (ΠΣ-congᵛ ok A₁≡A₂ B₁≡B₂) .proj₂ σ₁≡σ₂
         )
-      )
-
-opaque
-
-  -- Validity of Π and Σ, seen as term formers.
-
-  ΠΣᵗᵛ :
-    ΠΣ-allowed b p q →
-    Γ ⊩ᵛ⟨ l ⟩ A ∷ U →
-    Γ ∙ A ⊩ᵛ⟨ l′ ⟩ B ∷ U →
-    Γ ⊩ᵛ⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ U
-  ΠΣᵗᵛ ok ⊩A ⊩B =
-    ⊩ᵛ∷⇔ .proj₂
-      ( ⊩ᵛ∷⇔ .proj₁ ⊩A .proj₁
-      , ⊩ΠΣ≡ΠΣ∷U ok (refl-⊩ᵛ≡∷ ⊩A) (refl-⊩ᵛ≡∷ ⊩B)
       )
 
 opaque
@@ -623,15 +598,20 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ ∷ U →
     Γ ∙ A₁ ⊩ᵛ⟨ l′ ⟩ B₁ ≡ B₂ ∷ U →
     Γ ⊩ᵛ⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁ ≡ ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂ ∷ U
-  ΠΣ-congᵗᵛ {l} ok A₁≡A₂ B₁≡B₂ =
-    case wf-⊩ᵛ≡∷ A₁≡A₂ of λ
-      (⊩A₁ , ⊩A₂) →
-    case wf-⊩ᵛ≡∷ B₁≡B₂ of λ
-      (⊩B₁ , ⊩B₂) →
-    case conv-∙-⊩ᵛ∷ (⊩ᵛ≡∷U→⊩ᵛ≡ {l′ = l} A₁≡A₂) ⊩B₂ of λ
-      ⊩B₂ →
+  ΠΣ-congᵗᵛ ok A₁≡A₂ B₁≡B₂ =
     ⊩ᵛ≡∷⇔ .proj₂
-      ( ΠΣᵗᵛ ok ⊩A₁ ⊩B₁
-      , ΠΣᵗᵛ ok ⊩A₂ ⊩B₂
-      , ⊩ΠΣ≡ΠΣ∷U ok A₁≡A₂ B₁≡B₂ ∘→ refl-⊩ˢ≡∷
+      ( wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ A₁≡A₂ .proj₁)
+      , ⊩ΠΣ≡ΠΣ∷U ok A₁≡A₂ B₁≡B₂
       )
+
+opaque
+
+  -- Validity of Π and Σ, seen as term formers.
+
+  ΠΣᵗᵛ :
+    ΠΣ-allowed b p q →
+    Γ ⊩ᵛ⟨ l ⟩ A ∷ U →
+    Γ ∙ A ⊩ᵛ⟨ l′ ⟩ B ∷ U →
+    Γ ⊩ᵛ⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ U
+  ΠΣᵗᵛ ok ⊩A ⊩B =
+    ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $ ΠΣ-congᵗᵛ ok (refl-⊩ᵛ≡∷ ⊩A) (refl-⊩ᵛ≡∷ ⊩B)

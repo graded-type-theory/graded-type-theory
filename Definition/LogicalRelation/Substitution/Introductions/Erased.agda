@@ -75,27 +75,24 @@ opaque
 
 opaque
 
-  -- Validity of Erased.
-
-  Erasedᵛ :
-    Γ ⊩ᵛ⟨ l ⟩ A →
-    Γ ⊩ᵛ⟨ l ⟩ Erased A
-  Erasedᵛ ⊩A =
-    case ⊩ᵛ⇔ .proj₁ ⊩A of λ
-      (⊩Γ , A≡A) →
-    ⊩ᵛ⇔ .proj₂ (⊩Γ , ⊩Erased≡Erased ∘→ A≡A)
-
-opaque
-
   -- Validity of equality preservation for Erased.
 
   Erased-congᵛ :
     Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ →
     Γ ⊩ᵛ⟨ l ⟩ Erased A₁ ≡ Erased A₂
   Erased-congᵛ A₁≡A₂ =
-    case ⊩ᵛ≡⇔′ .proj₁ A₁≡A₂ of λ
-      (⊩A₁ , ⊩A₂ , A₁≡A₂) →
-    ⊩ᵛ≡⇔′ .proj₂ (Erasedᵛ ⊩A₁ , Erasedᵛ ⊩A₂ , ⊩Erased≡Erased ∘→ A₁≡A₂)
+    case ⊩ᵛ≡⇔ .proj₁ A₁≡A₂ of λ
+      (⊩Γ , A₁≡A₂) →
+    ⊩ᵛ≡⇔ .proj₂ (⊩Γ , ⊩Erased≡Erased ∘→ A₁≡A₂)
+
+opaque
+
+  -- Validity of Erased.
+
+  Erasedᵛ :
+    Γ ⊩ᵛ⟨ l ⟩ A →
+    Γ ⊩ᵛ⟨ l ⟩ Erased A
+  Erasedᵛ = ⊩ᵛ⇔⊩ᵛ≡ .proj₂ ∘→ Erased-congᵛ ∘→ ⊩ᵛ⇔⊩ᵛ≡ .proj₁
 
 opaque
 
@@ -121,24 +118,21 @@ opaque
 
 opaque
 
-  -- Validity of [_].
-
-  []ᵛ :
-    Γ ⊩ᵛ⟨ l ⟩ t ∷ A →
-    Γ ⊩ᵛ⟨ l ⟩ [ t ] ∷ Erased A
-  []ᵛ ⊩t =
-    case ⊩ᵛ∷⇔ .proj₁ ⊩t of λ
-      (⊩A , t≡t) →
-    ⊩ᵛ∷⇔ .proj₂ (Erasedᵛ ⊩A , ⊩[]≡[] ∘→ t≡t)
-
-opaque
-
   -- Validity of equality preservation for [_].
 
   []-congᵛ :
     Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A →
     Γ ⊩ᵛ⟨ l ⟩ [ t ] ≡ [ u ] ∷ Erased A
   []-congᵛ t≡u =
-    case ⊩ᵛ≡∷⇔′ .proj₁ t≡u of λ
-      (⊩t , ⊩u , t≡u) →
-    ⊩ᵛ≡∷⇔′ .proj₂ ([]ᵛ ⊩t , []ᵛ ⊩u , ⊩[]≡[] ∘→ t≡u)
+    case ⊩ᵛ≡∷⇔ .proj₁ t≡u of λ
+      (⊩A , t≡u) →
+    ⊩ᵛ≡∷⇔ .proj₂ (Erasedᵛ ⊩A , ⊩[]≡[] ∘→ t≡u)
+
+opaque
+
+  -- Validity of [_].
+
+  []ᵛ :
+    Γ ⊩ᵛ⟨ l ⟩ t ∷ A →
+    Γ ⊩ᵛ⟨ l ⟩ [ t ] ∷ Erased A
+  []ᵛ = ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ ∘→ []-congᵛ ∘→ ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₁

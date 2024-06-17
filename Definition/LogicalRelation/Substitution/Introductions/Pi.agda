@@ -396,8 +396,7 @@ opaque
          case wf-⊩≡∷ v₁≡v₂ of λ
            (⊩v₁ , ⊩v₂) →
          case conv-⊩∷
-                (wk-⊩≡ ρ⊇ ⊢Ε $
-                 ⊩ᵛ≡⇔′ .proj₁ (refl-⊩ᵛ≡ ⊩A) .proj₂ .proj₂ σ₁≡σ₂)
+                (wk-⊩≡ ρ⊇ ⊢Ε $ ⊩ᵛ≡⇔ .proj₁ (refl-⊩ᵛ≡ ⊩A) .proj₂ σ₁≡σ₂)
                 ⊩v₂ of λ
            ⊩v₂ →
          case ⊩ˢ≡∷∙⇔ {σ₁ = consSubst _ _} {σ₂ = consSubst _ _} .proj₂
@@ -415,9 +414,9 @@ opaque
            wk (lift ρ) (B [ σ₁ ⇑ ]) [ v₁ ]₀           ≡⟨ singleSubstWkComp _ _ t₁ ⟩⊩∷∷≡
                                                        ⟨ singleSubstWkComp _ _ B ⟩⊩∷≡
          t₁ [ consSubst (ρ •ₛ σ₁) v₁ ] ∷
-           B [ consSubst (ρ •ₛ σ₁) v₁ ]               ≡⟨ ⊩ᵛ≡∷⇔′ .proj₁ t₁≡t₂ .proj₂ .proj₂ ρ•ₛσ₁,v₁≡ρ•ₛσ₂,v₂ ⟩⊩∷∷⇐*
+           B [ consSubst (ρ •ₛ σ₁) v₁ ]               ≡⟨ ⊩ᵛ≡∷⇔ .proj₁ t₁≡t₂ .proj₂ ρ•ₛσ₁,v₁≡ρ•ₛσ₂,v₂ ⟩⊩∷∷⇐*
                                                        ⟨ ≅-eq $ escape-⊩≡ $
-                                                         ⊩ᵛ≡⇔′ .proj₁ (refl-⊩ᵛ≡ ⊩B) .proj₂ .proj₂ ρ•ₛσ₁,v₁≡ρ•ₛσ₂,v₂ ⟩⇒
+                                                         ⊩ᵛ≡⇔ .proj₁ (refl-⊩ᵛ≡ ⊩B) .proj₂ ρ•ₛσ₁,v₁≡ρ•ₛσ₂,v₂ ⟩⇒
          t₂ [ consSubst (ρ •ₛ σ₂) v₂ ] ∷
            B [ consSubst (ρ •ₛ σ₂) v₂ ]               ≡˘⟨ singleSubstWkComp _ _ t₂ ⟩⇐∷
                                                        ˘⟨ singleSubstWkComp _ _ B ⟩⇒≡
@@ -451,21 +450,6 @@ opaque
 
 opaque
 
-  -- Validity of lam.
-
-  lamᵛ :
-    Π-allowed p q →
-    Γ ⊩ᵛ⟨ l ⟩ A →
-    Γ ∙ A ⊩ᵛ⟨ l ⟩ t ∷ B →
-    Γ ⊩ᵛ⟨ l ⟩ lam p t ∷ Π p , q ▷ A ▹ B
-  lamᵛ ok ⊩A ⊩t =
-    ⊩ᵛ∷⇔ .proj₂
-      ( ΠΣᵛ ok ⊩A (wf-⊩ᵛ∷ ⊩t)
-      , ⊩lam≡lam ok ⊩A (refl-⊩ᵛ≡∷ ⊩t)
-      )
-
-opaque
-
   -- Validity of equality preservation for lam.
 
   lam-congᵛ :
@@ -474,13 +458,23 @@ opaque
     Γ ∙ A ⊩ᵛ⟨ l ⟩ t₁ ≡ t₂ ∷ B →
     Γ ⊩ᵛ⟨ l ⟩ lam p t₁ ≡ lam p t₂ ∷ Π p , q ▷ A ▹ B
   lam-congᵛ ok ⊩A t₁≡t₂ =
-    case wf-⊩ᵛ≡∷ t₁≡t₂ of λ
-      (⊩t₁ , ⊩t₂) →
     ⊩ᵛ≡∷⇔ .proj₂
-      ( lamᵛ ok ⊩A ⊩t₁
-      , lamᵛ ok ⊩A ⊩t₂
-      , ⊩lam≡lam ok ⊩A t₁≡t₂ ∘→ refl-⊩ˢ≡∷
+      ( ΠΣᵛ ok ⊩A (wf-⊩ᵛ∷ $ wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁)
+      , ⊩lam≡lam ok ⊩A t₁≡t₂
       )
+
+opaque
+
+  -- Validity of lam.
+
+  lamᵛ :
+    Π-allowed p q →
+    Γ ⊩ᵛ⟨ l ⟩ A →
+    Γ ∙ A ⊩ᵛ⟨ l ⟩ t ∷ B →
+    Γ ⊩ᵛ⟨ l ⟩ lam p t ∷ Π p , q ▷ A ▹ B
+  lamᵛ ok ⊩A ⊩t =
+    ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $
+    lam-congᵛ ok ⊩A (refl-⊩ᵛ≡∷ ⊩t)
 
 ------------------------------------------------------------------------
 -- Applications
@@ -496,13 +490,13 @@ opaque
     Δ ⊩⟨ l ⟩ (t₁ ∘⟨ p ⟩ u₁) [ σ₁ ] ≡ (t₂ ∘⟨ p ⟩ u₂) [ σ₂ ] ∷
       B [ u₁ ]₀ [ σ₁ ]
   ⊩∘≡∘ {t₁} {t₂} {p} {B} {u₁} {u₂} {σ₁} {σ₂} t₁≡t₂ u₁≡u₂ σ₁≡σ₂ =
-    case ⊩ᵛ≡∷⇔′ .proj₁ t₁≡t₂ of λ
+    case ⊩ᵛ≡∷⇔″ .proj₁ t₁≡t₂ of λ
       (⊩t₁ , _ , t₁[]≡t₂[]) →
     case wf-⊩ᵛ≡∷ u₁≡u₂ of λ
       (⊩u₁ , ⊩u₂) →
     case wf-⊩ˢ≡∷ σ₁≡σ₂ of λ
       (⊩σ₁ , ⊩σ₂) →
-    case ⊩ᵛ≡∷⇔′ .proj₁ u₁≡u₂ .proj₂ .proj₂ σ₁≡σ₂ of λ
+    case ⊩ᵛ≡∷⇔ .proj₁ u₁≡u₂ .proj₂ σ₁≡σ₂ of λ
       u₁[σ₁]≡u₂[σ₂] →
     case ⊩ᵛΠΣ⇔ .proj₁ (wf-⊩ᵛ∷ ⊩t₁) of λ
       (_ , ⊩A , ⊩B) →
@@ -529,22 +523,6 @@ opaque
 
 opaque
 
-  -- Validity of application.
-
-  ∘ᵛ :
-    Γ ⊩ᵛ⟨ l ⟩ t ∷ Π p , q ▷ A ▹ B →
-    Γ ⊩ᵛ⟨ l′ ⟩ u ∷ A →
-    Γ ⊩ᵛ⟨ l ⟩ t ∘⟨ p ⟩ u ∷ B [ u ]₀
-  ∘ᵛ ⊩t ⊩u =
-    case ⊩ᵛΠΣ⇔ .proj₁ (wf-⊩ᵛ∷ ⊩t) of λ
-      (_ , _ , ⊩B) →
-    ⊩ᵛ∷⇔ .proj₂
-      ( ⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]₀ ⊩B ⊩u
-      , ⊩∘≡∘ (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ᵛ≡∷ ⊩u)
-      )
-
-opaque
-
   -- Validity of equality preservation for application.
 
   ∘-congᵛ :
@@ -552,18 +530,24 @@ opaque
     Γ ⊩ᵛ⟨ l′ ⟩ u₁ ≡ u₂ ∷ A →
     Γ ⊩ᵛ⟨ l ⟩ t₁ ∘⟨ p ⟩ u₁ ≡ t₂ ∘⟨ p ⟩ u₂ ∷ B [ u₁ ]₀
   ∘-congᵛ t₁≡t₂ u₁≡u₂ =
-    case wf-⊩ᵛ≡∷ t₁≡t₂ of λ
-      (⊩t₁ , ⊩t₂) →
-    case wf-⊩ᵛ≡∷ u₁≡u₂ of λ
-      (⊩u₁ , ⊩u₂) →
-    case ⊩ᵛΠΣ⇔ .proj₁ (wf-⊩ᵛ∷ ⊩t₁) of λ
+    case ⊩ᵛΠΣ⇔ .proj₁ $ wf-⊩ᵛ∷ $ wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁ of λ
       (_ , _ , ⊩B) →
     ⊩ᵛ≡∷⇔ .proj₂
-      ( ∘ᵛ ⊩t₁ ⊩u₁
-      , conv-⊩ᵛ∷ (sym-⊩ᵛ≡ (⊩ᵛ≡→⊩ᵛ≡∷→⊩ᵛ[]₀≡[]₀ (refl-⊩ᵛ≡ ⊩B) u₁≡u₂))
-          (∘ᵛ ⊩t₂ ⊩u₂)
-      , ⊩∘≡∘ t₁≡t₂ u₁≡u₂ ∘→ refl-⊩ˢ≡∷
+      ( ⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]₀ ⊩B (wf-⊩ᵛ≡∷ u₁≡u₂ .proj₁)
+      , ⊩∘≡∘ t₁≡t₂ u₁≡u₂
       )
+
+opaque
+
+  -- Validity of application.
+
+  ∘ᵛ :
+    Γ ⊩ᵛ⟨ l ⟩ t ∷ Π p , q ▷ A ▹ B →
+    Γ ⊩ᵛ⟨ l′ ⟩ u ∷ A →
+    Γ ⊩ᵛ⟨ l ⟩ t ∘⟨ p ⟩ u ∷ B [ u ]₀
+  ∘ᵛ ⊩t ⊩u =
+    ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $
+    ∘-congᵛ (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ᵛ≡∷ ⊩u)
 
 ------------------------------------------------------------------------
 -- Validity of some equality rules
@@ -622,7 +606,7 @@ opaque
       ⊩ΠAB →
     case ⊩ᵛΠΣ⇔ .proj₁ ⊩ΠAB of λ
       (_ , ⊩A , ⊩B) →
-    ⊩ᵛ≡∷⇔ .proj₂
+    ⊩ᵛ≡∷⇔′ .proj₂
       ( ⊩t₁
       , level-⊩ᵛ∷ ⊩ΠAB ⊩t₂
       , λ {m = m} {Δ = Δ} {σ = σ} ⊩σ →

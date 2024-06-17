@@ -47,19 +47,6 @@ opaque
 
 opaque
 
-  -- Validity of prod.
-
-  prodᵛ :
-    Σ-allowed s p q →
-    Γ ∙ A ⊩ᵛ⟨ l ⟩ B →
-    Γ ⊩ᵛ⟨ l ⟩ t ∷ A →
-    Γ ⊩ᵛ⟨ l′ ⟩ u ∷ B [ t ]₀ →
-    Γ ⊩ᵛ⟨ l ⟩ prod s p t u ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B
-  prodᵛ {s = 𝕨} = prodʷᵛ
-  prodᵛ {s = 𝕤} = prodˢᵛ
-
-opaque
-
   -- Validity of equality preservation for prod.
 
   prod-congᵛ :
@@ -70,3 +57,16 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ prod s p t₁ u₁ ≡ prod s p t₂ u₂ ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B
   prod-congᵛ {s = 𝕨} = prodʷ-congᵛ
   prod-congᵛ {s = 𝕤} = prodˢ-congᵛ
+
+opaque
+
+  -- Validity of prod.
+
+  prodᵛ :
+    Σ-allowed s p q →
+    Γ ∙ A ⊩ᵛ⟨ l ⟩ B →
+    Γ ⊩ᵛ⟨ l ⟩ t ∷ A →
+    Γ ⊩ᵛ⟨ l′ ⟩ u ∷ B [ t ]₀ →
+    Γ ⊩ᵛ⟨ l ⟩ prod s p t u ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B
+  prodᵛ {s = 𝕨} = prodʷᵛ
+  prodᵛ {s = 𝕤} = prodˢᵛ

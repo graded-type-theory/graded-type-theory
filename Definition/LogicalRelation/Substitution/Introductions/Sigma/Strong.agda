@@ -319,34 +319,27 @@ opaque
 
 opaque
 
-  -- Validity of fst.
-
-  fstᵛ :
-    Γ ⊩ᵛ⟨ l ⟩ t ∷ Σˢ p , q ▷ A ▹ B →
-    Γ ⊩ᵛ⟨ l ⟩ fst p t ∷ A
-  fstᵛ ⊩t =
-    case ⊩ᵛΠΣ⇔ .proj₁ (wf-⊩ᵛ∷ ⊩t) of λ
-      (_ , ⊩A , _) →
-    ⊩ᵛ∷⇔ .proj₂
-      ( ⊩A
-      , ⊩fst≡fst ∘→ ⊩ᵛ≡∷⇔′ .proj₁ (refl-⊩ᵛ≡∷ ⊩t) .proj₂ .proj₂
-      )
-
-opaque
-
   -- Validity of equality preservation for fst.
 
   fst-congᵛ :
     Γ ⊩ᵛ⟨ l ⟩ t₁ ≡ t₂ ∷ Σˢ p , q ▷ A ▹ B →
     Γ ⊩ᵛ⟨ l ⟩ fst p t₁ ≡ fst p t₂ ∷ A
   fst-congᵛ t₁≡t₂ =
-    case wf-⊩ᵛ≡∷ t₁≡t₂ of λ
-      (⊩t₁ , ⊩t₂) →
-    ⊩ᵛ≡∷⇔′ .proj₂
-      ( fstᵛ ⊩t₁
-      , fstᵛ ⊩t₂
-      , ⊩fst≡fst ∘→ ⊩ᵛ≡∷⇔′ .proj₁ t₁≡t₂ .proj₂ .proj₂
+    case ⊩ᵛΠΣ⇔ .proj₁ $ wf-⊩ᵛ∷ $ wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁ of λ
+      (_ , ⊩A , _) →
+    ⊩ᵛ≡∷⇔ .proj₂
+      ( ⊩A
+      , ⊩fst≡fst ∘→ ⊩ᵛ≡∷⇔ .proj₁ t₁≡t₂ .proj₂
       )
+
+opaque
+
+  -- Validity of fst.
+
+  fstᵛ :
+    Γ ⊩ᵛ⟨ l ⟩ t ∷ Σˢ p , q ▷ A ▹ B →
+    Γ ⊩ᵛ⟨ l ⟩ fst p t ∷ A
+  fstᵛ ⊩t = ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $ fst-congᵛ (refl-⊩ᵛ≡∷ ⊩t)
 
 ------------------------------------------------------------------------
 -- The projection snd
@@ -411,22 +404,6 @@ opaque
 
 opaque
 
-  -- Validity of snd.
-
-  sndᵛ :
-    Γ ⊩ᵛ⟨ l ⟩ t ∷ Σˢ p , q ▷ A ▹ B →
-    Γ ⊩ᵛ⟨ l ⟩ snd p t ∷ B [ fst p t ]₀
-  sndᵛ {B} ⊩t =
-    case ⊩ᵛΠΣ⇔ .proj₁ (wf-⊩ᵛ∷ ⊩t) of λ
-      (_ , _ , ⊩B) →
-    ⊩ᵛ∷⇔ .proj₂
-      ( ⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]₀ ⊩B (fstᵛ ⊩t)
-      , PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (PE.sym $ singleSubstLift B _) ∘→
-        ⊩snd≡snd ∘→ ⊩ᵛ≡∷⇔′ .proj₁ (refl-⊩ᵛ≡∷ ⊩t) .proj₂ .proj₂
-      )
-
-opaque
-
   -- Validity of equality preservation for snd.
 
   snd-congᵛ :
@@ -434,17 +411,25 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ snd p t₁ ≡ snd p t₂ ∷ B [ fst p t₁ ]₀
   snd-congᵛ {B} t₁≡t₂ =
     case wf-⊩ᵛ≡∷ t₁≡t₂ of λ
-      (⊩t₁ , ⊩t₂) →
-    case ⊩ᵛΠΣ⇔ .proj₁ (wf-⊩ᵛ∷ ⊩t₁) of λ
+      (⊩t₁ , _) →
+    case ⊩ᵛΠΣ⇔ .proj₁ $ wf-⊩ᵛ∷ ⊩t₁ of λ
       (_ , _ , ⊩B) →
-    ⊩ᵛ≡∷⇔′ .proj₂
-      ( sndᵛ ⊩t₁
-      , conv-⊩ᵛ∷
-          (sym-⊩ᵛ≡ $ ⊩ᵛ≡→⊩ᵛ≡∷→⊩ᵛ[]₀≡[]₀ (refl-⊩ᵛ≡ ⊩B) (fst-congᵛ t₁≡t₂))
-          (sndᵛ ⊩t₂)
+    ⊩ᵛ≡∷⇔ .proj₂
+      ( ⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]₀ ⊩B (fstᵛ ⊩t₁)
       , PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (PE.sym $ singleSubstLift B _) ∘→
-        ⊩snd≡snd ∘→ ⊩ᵛ≡∷⇔′ .proj₁ t₁≡t₂ .proj₂ .proj₂
+        ⊩snd≡snd ∘→ ⊩ᵛ≡∷⇔ .proj₁ t₁≡t₂ .proj₂
       )
+
+opaque
+
+  -- Validity of snd.
+
+  sndᵛ :
+    Γ ⊩ᵛ⟨ l ⟩ t ∷ Σˢ p , q ▷ A ▹ B →
+    Γ ⊩ᵛ⟨ l ⟩ snd p t ∷ B [ fst p t ]₀
+  sndᵛ ⊩t =
+    ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $
+    snd-congᵛ (refl-⊩ᵛ≡∷ ⊩t)
 
 ------------------------------------------------------------------------
 -- Equality rules
@@ -533,7 +518,7 @@ opaque
       ⊩ΣAB →
     case ⊩ᵛΠΣ⇔ .proj₁ ⊩ΣAB of λ
       (_ , ⊩A , ⊩B) →
-    ⊩ᵛ≡∷⇔ .proj₂
+    ⊩ᵛ≡∷⇔′ .proj₂
       ( ⊩t₁
       , level-⊩ᵛ∷ ⊩ΣAB ⊩t₂
       , λ {_ _} {σ = σ} ⊩σ →
@@ -555,7 +540,7 @@ opaque
             fst-u₁≡fst-t₁[σ] →
           case
             fst p u₁        ≡⟨ fst-u₁≡fst-t₁[σ] ⟩⊩∷
-            fst p t₁ [ σ ]  ≡⟨ ⊩ᵛ≡∷⇔ .proj₁ fst-t₁≡fst-t₂ .proj₂ .proj₂ ⊩σ ⟩⊩∷
+            fst p t₁ [ σ ]  ≡⟨ ⊩ᵛ≡∷⇔′ .proj₁ fst-t₁≡fst-t₂ .proj₂ .proj₂ ⊩σ ⟩⊩∷
             fst p t₂ [ σ ]  ≡⟨ level-⊩≡∷ ⊩A[σ] $ ⊩fst≡fst t₂[σ]≡u₂ ⟩⊩∷∎
             fst p u₂        ∎
           of λ
@@ -565,9 +550,9 @@ opaque
                                                              ⟨ ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩B) (refl-⊩ˢ≡∷ ⊩σ)
                                                                  fst-u₁≡fst-t₁[σ] ⟩⊩∷
             snd p t₁ [ σ ] ∷ B [ σ ⇑ ] [ fst p t₁ [ σ ] ]₀  ≡⟨ PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (singleSubstLift B _) $
-                                                               ⊩ᵛ≡∷⇔ .proj₁ snd-t₁≡snd-t₂ .proj₂ .proj₂ ⊩σ ⟩⊩∷∷
+                                                               ⊩ᵛ≡∷⇔′ .proj₁ snd-t₁≡snd-t₂ .proj₂ .proj₂ ⊩σ ⟩⊩∷∷
                                                              ⟨ ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩B) (refl-⊩ˢ≡∷ ⊩σ) $
-                                                               ⊩ᵛ≡∷⇔ .proj₁ fst-t₁≡fst-t₂ .proj₂ .proj₂ ⊩σ ⟩⊩∷
+                                                               ⊩ᵛ≡∷⇔′ .proj₁ fst-t₁≡fst-t₂ .proj₂ .proj₂ ⊩σ ⟩⊩∷
             snd p t₂ [ σ ] ∷ B [ σ ⇑ ] [ fst p t₂ [ σ ] ]₀  ≡⟨ ⊩snd≡snd t₂[σ]≡u₂ ⟩⊩∷∎∷
             snd p u₂                                        ∎
           of λ
@@ -670,25 +655,9 @@ private opaque
     case wf-⊩ˢ≡∷ σ₁≡σ₂ of λ
       (⊩σ₁ , _) →
     ⊩prodˢ≡prodˢ (⊩ΠΣ ok ⊩A ⊩B ⊩σ₁)
-      (⊩ᵛ≡∷⇔′ .proj₁ t₁≡t₂ .proj₂ .proj₂ σ₁≡σ₂)
+      (⊩ᵛ≡∷⇔ .proj₁ t₁≡t₂ .proj₂ σ₁≡σ₂)
       (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (singleSubstLift B _) $
-       ⊩ᵛ≡∷⇔′ .proj₁ u₁≡u₂ .proj₂ .proj₂ σ₁≡σ₂)
-
-opaque
-
-  -- Validity of prodˢ.
-
-  prodˢᵛ :
-    Σˢ-allowed p q →
-    Γ ∙ A ⊩ᵛ⟨ l ⟩ B →
-    Γ ⊩ᵛ⟨ l ⟩ t ∷ A →
-    Γ ⊩ᵛ⟨ l′ ⟩ u ∷ B [ t ]₀ →
-    Γ ⊩ᵛ⟨ l ⟩ prodˢ p t u ∷ Σˢ p , q ▷ A ▹ B
-  prodˢᵛ ok ⊩B ⊩t ⊩u =
-    ⊩ᵛ∷⇔ .proj₂
-      ( ΠΣᵛ ok (wf-⊩ᵛ∷ ⊩t) ⊩B
-      , ⊩prodˢ[]≡prodˢ[] ok ⊩B (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ᵛ≡∷ ⊩u)
-      )
+       ⊩ᵛ≡∷⇔ .proj₁ u₁≡u₂ .proj₂ σ₁≡σ₂)
 
 opaque
 
@@ -701,14 +670,21 @@ opaque
     Γ ⊩ᵛ⟨ l′ ⟩ u₁ ≡ u₂ ∷ B [ t₁ ]₀ →
     Γ ⊩ᵛ⟨ l ⟩ prodˢ p t₁ u₁ ≡ prodˢ p t₂ u₂ ∷ Σˢ p , q ▷ A ▹ B
   prodˢ-congᵛ ok ⊩B t₁≡t₂ u₁≡u₂ =
-    case wf-⊩ᵛ≡∷ t₁≡t₂ of λ
-      (⊩t₁ , ⊩t₂) →
-    case wf-⊩ᵛ≡∷ u₁≡u₂ of λ
-      (⊩u₁ , ⊩u₂) →
-    case conv-⊩ᵛ∷ (⊩ᵛ≡→⊩ᵛ≡∷→⊩ᵛ[]₀≡[]₀ (refl-⊩ᵛ≡ ⊩B) t₁≡t₂) ⊩u₂ of λ
-      ⊩u₂ →
-    ⊩ᵛ≡∷⇔′ .proj₂
-      ( prodˢᵛ ok ⊩B ⊩t₁ ⊩u₁
-      , prodˢᵛ ok ⊩B ⊩t₂ ⊩u₂
+    ⊩ᵛ≡∷⇔ .proj₂
+      ( ΠΣᵛ ok (wf-⊩ᵛ∷ $ wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁) ⊩B
       , ⊩prodˢ[]≡prodˢ[] ok ⊩B t₁≡t₂ u₁≡u₂
       )
+
+opaque
+
+  -- Validity of prodˢ.
+
+  prodˢᵛ :
+    Σˢ-allowed p q →
+    Γ ∙ A ⊩ᵛ⟨ l ⟩ B →
+    Γ ⊩ᵛ⟨ l ⟩ t ∷ A →
+    Γ ⊩ᵛ⟨ l′ ⟩ u ∷ B [ t ]₀ →
+    Γ ⊩ᵛ⟨ l ⟩ prodˢ p t u ∷ Σˢ p , q ▷ A ▹ B
+  prodˢᵛ ok ⊩B ⊩t ⊩u =
+    ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $
+    prodˢ-congᵛ ok ⊩B (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ᵛ≡∷ ⊩u)

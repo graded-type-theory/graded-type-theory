@@ -854,7 +854,7 @@ opaque
 
     (∀ {σ σ′} → Δ ⊩ˢ σ ∷ Γ → σ ® σ′ ∷[ m ] Γ ◂ γ →
      t [ σ ] ®⟨ l′ ⟩ erase str t T.[ σ′ ] ∷ A [ σ ] ◂ ⌜ m ⌝)  →⟨ (λ hyp ⊩σ σ®σ′ →
-                                                                    conv-®∷◂ (⊩ᵛ≡⇔ .proj₁ A≡B .proj₂ .proj₂ ⊩σ) $
+                                                                    conv-®∷◂ (⊩ᵛ≡⇔′ .proj₁ A≡B .proj₂ .proj₂ ⊩σ) $
                                                                     hyp ⊩σ σ®σ′) ⟩
     (∀ {σ σ′} → Δ ⊩ˢ σ ∷ Γ → σ ® σ′ ∷[ m ] Γ ◂ γ →
      t [ σ ] ®⟨ l ⟩ erase str t T.[ σ′ ] ∷ B [ σ ] ◂ ⌜ m ⌝)   ⇔˘⟨ ▸⊩ʳ∷⇔ ⟩→

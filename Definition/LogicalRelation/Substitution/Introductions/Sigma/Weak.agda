@@ -427,25 +427,9 @@ private opaque
     case wf-⊩ˢ≡∷ σ₁≡σ₂ of λ
       (⊩σ₁ , _) →
     ⊩prodʷ≡prodʷ (⊩ΠΣ ok ⊩A ⊩B ⊩σ₁)
-      (⊩ᵛ≡∷⇔′ .proj₁ t₁≡t₂ .proj₂ .proj₂ σ₁≡σ₂)
+      (⊩ᵛ≡∷⇔ .proj₁ t₁≡t₂ .proj₂ σ₁≡σ₂)
       (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (singleSubstLift B _) $
-       ⊩ᵛ≡∷⇔′ .proj₁ u₁≡u₂ .proj₂ .proj₂ σ₁≡σ₂)
-
-opaque
-
-  -- Validity of prodʷ.
-
-  prodʷᵛ :
-    Σʷ-allowed p q →
-    Γ ∙ A ⊩ᵛ⟨ l ⟩ B →
-    Γ ⊩ᵛ⟨ l ⟩ t ∷ A →
-    Γ ⊩ᵛ⟨ l′ ⟩ u ∷ B [ t ]₀ →
-    Γ ⊩ᵛ⟨ l ⟩ prodʷ p t u ∷ Σʷ p , q ▷ A ▹ B
-  prodʷᵛ ok ⊩B ⊩t ⊩u =
-    ⊩ᵛ∷⇔ .proj₂
-      ( ΠΣᵛ ok (wf-⊩ᵛ∷ ⊩t) ⊩B
-      , ⊩prodʷ[]≡prodʷ[] ok ⊩B (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ᵛ≡∷ ⊩u)
-      )
+       ⊩ᵛ≡∷⇔ .proj₁ u₁≡u₂ .proj₂ σ₁≡σ₂)
 
 opaque
 
@@ -458,17 +442,24 @@ opaque
     Γ ⊩ᵛ⟨ l′ ⟩ u₁ ≡ u₂ ∷ B [ t₁ ]₀ →
     Γ ⊩ᵛ⟨ l ⟩ prodʷ p t₁ u₁ ≡ prodʷ p t₂ u₂ ∷ Σʷ p , q ▷ A ▹ B
   prodʷ-congᵛ ok ⊩B t₁≡t₂ u₁≡u₂ =
-    case wf-⊩ᵛ≡∷ t₁≡t₂ of λ
-      (⊩t₁ , ⊩t₂) →
-    case wf-⊩ᵛ≡∷ u₁≡u₂ of λ
-      (⊩u₁ , ⊩u₂) →
-    case conv-⊩ᵛ∷ (⊩ᵛ≡→⊩ᵛ≡∷→⊩ᵛ[]₀≡[]₀ (refl-⊩ᵛ≡ ⊩B) t₁≡t₂) ⊩u₂ of λ
-      ⊩u₂ →
-    ⊩ᵛ≡∷⇔′ .proj₂
-      ( prodʷᵛ ok ⊩B ⊩t₁ ⊩u₁
-      , prodʷᵛ ok ⊩B ⊩t₂ ⊩u₂
+    ⊩ᵛ≡∷⇔ .proj₂
+      ( ΠΣᵛ ok (wf-⊩ᵛ∷ $ wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁) ⊩B
       , ⊩prodʷ[]≡prodʷ[] ok ⊩B t₁≡t₂ u₁≡u₂
       )
+
+opaque
+
+  -- Validity of prodʷ.
+
+  prodʷᵛ :
+    Σʷ-allowed p q →
+    Γ ∙ A ⊩ᵛ⟨ l ⟩ B →
+    Γ ⊩ᵛ⟨ l ⟩ t ∷ A →
+    Γ ⊩ᵛ⟨ l′ ⟩ u ∷ B [ t ]₀ →
+    Γ ⊩ᵛ⟨ l ⟩ prodʷ p t u ∷ Σʷ p , q ▷ A ▹ B
+  prodʷᵛ ok ⊩B ⊩t ⊩u =
+    ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $
+    prodʷ-congᵛ ok ⊩B (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ᵛ≡∷ ⊩u)
 
 ------------------------------------------------------------------------
 -- The eliminator prodrec
@@ -569,8 +560,8 @@ opaque
       (⊩C₁ , ⊩C₂) →
     case wf-⊩ˢ≡∷ σ₁≡σ₂ of λ
       (⊩σ₁ , ⊩σ₂) →
-    case ⊩ᵛ≡⇔′ .proj₁ (refl-⊩ᵛ≡ $ wf-⊩ᵛ∷ $ wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁)
-           .proj₂ .proj₂ σ₁≡σ₂ of λ
+    case ⊩ᵛ≡⇔ .proj₁ (refl-⊩ᵛ≡ $ wf-⊩ᵛ∷ $ wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁)
+           .proj₂ σ₁≡σ₂ of λ
       ΣAB[σ₁]≡ΣAB[σ₂] →
     case wf-⊩≡ ΣAB[σ₁]≡ΣAB[σ₂] of λ
       (⊩ΣAB[σ₁] , ⊩ΣAB[σ₂]) →
@@ -590,7 +581,7 @@ opaque
       ⊢C₁[σ₁⇑] →
     case escape-⊩ $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩C₂ ⊩σ₂ of λ
       ⊢C₂[σ₂⇑] →
-    case ⊩ᵛ≡∷⇔′ .proj₁ t₁≡t₂ .proj₂ .proj₂ σ₁≡σ₂ of λ
+    case ⊩ᵛ≡∷⇔ .proj₁ t₁≡t₂ .proj₂ σ₁≡σ₂ of λ
       t₁[σ₁]≡t₂[σ₂] →
     case wf-⊩≡∷ t₁[σ₁]≡t₂[σ₂] of λ
       (⊩t₁[σ₁] , ⊩t₂[σ₂]) →
@@ -695,21 +686,6 @@ opaque
 
 opaque
 
-  -- Validity of prodrec.
-
-  prodrecᵛ :
-    Γ ∙ Σʷ p , q′ ▷ A ▹ B ⊩ᵛ⟨ l ⟩ C →
-    Γ ⊩ᵛ⟨ l′ ⟩ t ∷ Σʷ p , q′ ▷ A ▹ B →
-    Γ ∙ A ∙ B ⊩ᵛ⟨ l″ ⟩ u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
-    Γ ⊩ᵛ⟨ l ⟩ prodrec r p q C t u ∷ C [ t ]₀
-  prodrecᵛ ⊩C ⊩t ⊩u =
-    ⊩ᵛ∷⇔ .proj₂
-      ( ⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]₀ ⊩C ⊩t
-      , ⊩prodrec≡prodrec (refl-⊩ᵛ≡ ⊩C) (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ᵛ≡∷ ⊩u)
-      )
-
-opaque
-
   -- Validity of equality preservation for prodrec.
 
   prodrec-congᵛ :
@@ -719,20 +695,23 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ prodrec r p q C₁ t₁ u₁ ≡ prodrec r p q C₂ t₂ u₂ ∷
       C₁ [ t₁ ]₀
   prodrec-congᵛ C₁≡C₂ t₁≡t₂ u₁≡u₂ =
-    case wf-⊩ᵛ≡ C₁≡C₂ of λ
-      (⊩C₁ , ⊩C₂) →
-    case wf-⊩ᵛ≡∷ t₁≡t₂ of λ
-      (⊩t₁ , ⊩t₂) →
-    case wf-⊩ᵛ≡∷ u₁≡u₂ of λ
-      (⊩u₁ , ⊩u₂) →
-    case conv-⊩ᵛ∷ ([1,0]↑²≡[1,0]↑² C₁≡C₂) ⊩u₂ of λ
-      ⊩u₂ →
-    ⊩ᵛ≡∷⇔′ .proj₂
-      ( prodrecᵛ ⊩C₁ ⊩t₁ ⊩u₁
-      , conv-⊩ᵛ∷ (sym-⊩ᵛ≡ $ ⊩ᵛ≡→⊩ᵛ≡∷→⊩ᵛ[]₀≡[]₀ C₁≡C₂ t₁≡t₂)
-          (prodrecᵛ ⊩C₂ ⊩t₂ ⊩u₂)
+    ⊩ᵛ≡∷⇔ .proj₂
+      ( ⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]₀ (wf-⊩ᵛ≡ C₁≡C₂ .proj₁) (wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁)
       , ⊩prodrec≡prodrec C₁≡C₂ t₁≡t₂ u₁≡u₂
       )
+
+opaque
+
+  -- Validity of prodrec.
+
+  prodrecᵛ :
+    Γ ∙ Σʷ p , q′ ▷ A ▹ B ⊩ᵛ⟨ l ⟩ C →
+    Γ ⊩ᵛ⟨ l′ ⟩ t ∷ Σʷ p , q′ ▷ A ▹ B →
+    Γ ∙ A ∙ B ⊩ᵛ⟨ l″ ⟩ u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
+    Γ ⊩ᵛ⟨ l ⟩ prodrec r p q C t u ∷ C [ t ]₀
+  prodrecᵛ ⊩C ⊩t ⊩u =
+    ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $
+    prodrec-congᵛ (refl-⊩ᵛ≡ ⊩C) (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ᵛ≡∷ ⊩u)
 
 opaque
 

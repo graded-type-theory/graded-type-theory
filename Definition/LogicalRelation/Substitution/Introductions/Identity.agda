@@ -566,6 +566,28 @@ opaque
 
 opaque
 
+  -- Validity of equality preservation for Id, seen as a type former.
+
+  Id-congᵛ :
+    Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ →
+    Γ ⊩ᵛ⟨ l′ ⟩ t₁ ≡ t₂ ∷ A₁ →
+    Γ ⊩ᵛ⟨ l″ ⟩ u₁ ≡ u₂ ∷ A₁ →
+    Γ ⊩ᵛ⟨ l ⟩ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂
+  Id-congᵛ A₁≡A₂ t₁≡t₂ u₁≡u₂ =
+    case ⊩ᵛ≡⇔″ .proj₁ A₁≡A₂ of λ
+      (⊩A₁ , _ , A₁≡A₂) →
+    case ⊩ᵛ≡∷⇔ .proj₁ $ level-⊩ᵛ≡∷ ⊩A₁ t₁≡t₂ of λ
+      (_ , t₁≡t₂) →
+    case ⊩ᵛ≡∷⇔ .proj₁ $ level-⊩ᵛ≡∷ ⊩A₁ u₁≡u₂ of λ
+      (_ , u₁≡u₂) →
+    ⊩ᵛ≡⇔ .proj₂
+      ( wf-⊩ᵛ ⊩A₁
+      , λ σ₁≡σ₂ →
+          ⊩Id≡Id⇔ .proj₂ (A₁≡A₂ σ₁≡σ₂ , t₁≡t₂ σ₁≡σ₂ , u₁≡u₂ σ₁≡σ₂)
+      )
+
+opaque
+
   -- Validity of Id, seen as a type former.
 
   Idᵛ :
@@ -573,15 +595,26 @@ opaque
     Γ ⊩ᵛ⟨ l′ ⟩ u ∷ A →
     Γ ⊩ᵛ⟨ l ⟩ Id A t u
   Idᵛ ⊩t ⊩u =
-    case ⊩ᵛ∷⇔ .proj₁ ⊩t of λ
-      (⊩A , t≡t) →
-    case ⊩ᵛ∷⇔ .proj₁ (level-⊩ᵛ∷ ⊩A ⊩u) of λ
-      (_ , u≡u) →
-    case ⊩ᵛ⇔ .proj₁ ⊩A of λ
-      (⊩Γ , A≡A) →
-    ⊩ᵛ⇔ .proj₂
-      ( ⊩Γ
-      , λ σ₁≡σ₂ → ⊩Id≡Id⇔ .proj₂ (A≡A σ₁≡σ₂ , t≡t σ₁≡σ₂ , u≡u σ₁≡σ₂)
+    ⊩ᵛ⇔⊩ᵛ≡ .proj₂ $
+    Id-congᵛ (refl-⊩ᵛ≡ $ wf-⊩ᵛ∷ ⊩t) (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ᵛ≡∷ ⊩u)
+
+opaque
+
+  -- Validity of equality preservation for Id, seen as a term former.
+
+  Id-congᵗᵛ :
+    Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ ∷ U →
+    Γ ⊩ᵛ⟨ l ⟩ t₁ ≡ t₂ ∷ A₁ →
+    Γ ⊩ᵛ⟨ l ⟩ u₁ ≡ u₂ ∷ A₁ →
+    Γ ⊩ᵛ⟨ l ⟩ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂ ∷ U
+  Id-congᵗᵛ A₁≡A₂∷U t₁≡t₂ u₁≡u₂ =
+    case ⊩ᵛ≡∷⇔ .proj₁ A₁≡A₂∷U of λ
+      (⊩U , A₁≡A₂∷U) →
+    ⊩ᵛ≡∷⇔ .proj₂
+      ( ⊩U
+      , λ σ₁≡σ₂ →
+          →⊩Id≡Id∷U (A₁≡A₂∷U σ₁≡σ₂) (⊩ᵛ≡∷⇔ .proj₁ t₁≡t₂ .proj₂ σ₁≡σ₂)
+            (⊩ᵛ≡∷⇔ .proj₁ u₁≡u₂ .proj₂ σ₁≡σ₂)
       )
 
 opaque
@@ -594,64 +627,8 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ u ∷ A →
     Γ ⊩ᵛ⟨ l ⟩ Id A t u ∷ U
   Idᵗᵛ ⊩A∷U ⊩t ⊩u =
-    case ⊩ᵛ∷⇔ .proj₁ ⊩A∷U of λ
-      (⊩U , A≡A∷U) →
-    case ⊩ᵛ∷⇔ .proj₁ ⊩t of λ
-      (_ , t≡t) →
-    case ⊩ᵛ∷⇔ .proj₁ ⊩u of λ
-      (_ , u≡u) →
-    ⊩ᵛ∷⇔ .proj₂
-      ( ⊩U
-      , λ σ₁≡σ₂ → →⊩Id≡Id∷U (A≡A∷U σ₁≡σ₂) (t≡t σ₁≡σ₂) (u≡u σ₁≡σ₂)
-      )
-
-opaque
-
-  -- Validity of equality preservation for Id, seen as a type former.
-
-  Id-congᵛ :
-    Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ →
-    Γ ⊩ᵛ⟨ l′ ⟩ t₁ ≡ t₂ ∷ A₁ →
-    Γ ⊩ᵛ⟨ l″ ⟩ u₁ ≡ u₂ ∷ A₁ →
-    Γ ⊩ᵛ⟨ l ⟩ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂
-  Id-congᵛ A₁≡A₂ t₁≡t₂ u₁≡u₂ =
-    case wf-⊩ᵛ≡ A₁≡A₂ of λ
-      (⊩A₁ , _) →
-    case ⊩ᵛ≡∷⇔ .proj₁ (level-⊩ᵛ≡∷ ⊩A₁ t₁≡t₂) of λ
-      (⊩t₁ , ⊩t₂ , t₁≡t₂) →
-    case ⊩ᵛ≡∷⇔ .proj₁ (level-⊩ᵛ≡∷ ⊩A₁ u₁≡u₂) of λ
-      (⊩u₁ , ⊩u₂ , u₁≡u₂) →
-    ⊩ᵛ≡⇔ .proj₂
-      ( Idᵛ ⊩t₁ ⊩u₁
-      , Idᵛ (conv-⊩ᵛ∷ A₁≡A₂ ⊩t₂) (conv-⊩ᵛ∷ A₁≡A₂ ⊩u₂)
-      , λ ⊩σ →
-          ⊩Id≡Id⇔ .proj₂
-            (⊩ᵛ≡⇔ .proj₁ A₁≡A₂ .proj₂ .proj₂ ⊩σ , t₁≡t₂ ⊩σ , u₁≡u₂ ⊩σ)
-      )
-
-opaque
-
-  -- Validity of equality preservation for Id, seen as a term former.
-
-  Id-congᵗᵛ :
-    Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ ∷ U →
-    Γ ⊩ᵛ⟨ l ⟩ t₁ ≡ t₂ ∷ A₁ →
-    Γ ⊩ᵛ⟨ l ⟩ u₁ ≡ u₂ ∷ A₁ →
-    Γ ⊩ᵛ⟨ l ⟩ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂ ∷ U
-  Id-congᵗᵛ A₁≡A₂∷U t₁≡t₂ u₁≡u₂ =
-    case ⊩ᵛ≡∷U→⊩ᵛ≡ A₁≡A₂∷U of λ
-      A₁≡A₂ →
-    case ⊩ᵛ≡∷⇔ .proj₁ A₁≡A₂∷U of λ
-      (⊩A₁∷U , ⊩A₂∷U , A₁≡A₂∷U) →
-    case ⊩ᵛ≡∷⇔ .proj₁ t₁≡t₂ of λ
-      (⊩t₁ , ⊩t₂ , t₁≡t₂) →
-    case ⊩ᵛ≡∷⇔ .proj₁ u₁≡u₂ of λ
-      (⊩u₁ , ⊩u₂ , u₁≡u₂) →
-    ⊩ᵛ≡∷⇔ .proj₂
-      ( Idᵗᵛ ⊩A₁∷U ⊩t₁ ⊩u₁
-      , Idᵗᵛ ⊩A₂∷U (conv-⊩ᵛ∷ A₁≡A₂ ⊩t₂) (conv-⊩ᵛ∷ A₁≡A₂ ⊩u₂)
-      , λ ⊩σ → →⊩Id≡Id∷U (A₁≡A₂∷U ⊩σ) (t₁≡t₂ ⊩σ) (u₁≡u₂ ⊩σ)
-      )
+    ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $
+    Id-congᵗᵛ (refl-⊩ᵛ≡∷ ⊩A∷U) (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ᵛ≡∷ ⊩u)
 
 ------------------------------------------------------------------------
 -- The term rfl
@@ -701,33 +678,26 @@ opaque
 
 opaque
 
-  -- Validity of reflexivity.
-
-  rflᵛ :
-    Γ ⊩ᵛ⟨ l ⟩ t ∷ A →
-    Γ ⊩ᵛ⟨ l ⟩ rfl ∷ Id A t t
-  rflᵛ ⊩t =
-    case ⊩ᵛ∷⇔ .proj₁ ⊩t of λ
-      (_ , t≡t) →
-    ⊩ᵛ∷⇔ .proj₂
-      ( Idᵛ ⊩t ⊩t
-      , ⊩rfl≡rfl ∘→ t≡t ∘→ refl-⊩ˢ≡∷ ∘→ proj₁ ∘→ wf-⊩ˢ≡∷
-      )
-
-opaque
-
   -- Validity of equality for rfl.
 
   rfl-congᵛ :
     Γ ⊩ᵛ⟨ l ⟩ t ∷ A →
     Γ ⊩ᵛ⟨ l ⟩ rfl ≡ rfl ∷ Id A t t
   rfl-congᵛ ⊩t =
-    case rflᵛ ⊩t of λ
-      ⊩rfl →
     ⊩ᵛ≡∷⇔ .proj₂
-      ( ⊩rfl , ⊩rfl
-      , ⊩rfl≡rfl ∘→ ⊩ᵛ∷⇔ .proj₁ ⊩t .proj₂ ∘→ refl-⊩ˢ≡∷
+      ( Idᵛ ⊩t ⊩t
+      , ⊩rfl≡rfl ∘→ ⊩ᵛ∷⇔ .proj₁ ⊩t .proj₂ ∘→
+        refl-⊩ˢ≡∷ ∘→ proj₁ ∘→ wf-⊩ˢ≡∷
       )
+
+opaque
+
+  -- Validity of reflexivity.
+
+  rflᵛ :
+    Γ ⊩ᵛ⟨ l ⟩ t ∷ A →
+    Γ ⊩ᵛ⟨ l ⟩ rfl ∷ Id A t t
+  rflᵛ = ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ ∘→ rfl-congᵛ
 
 ------------------------------------------------------------------------
 -- []-cong
@@ -846,31 +816,6 @@ opaque
 
 opaque
 
-  -- Validity of []-cong.
-
-  []-congᵛ :
-    (ok : []-cong-allowed s) →
-    let open E ok in
-    Γ ⊩ᵛ⟨ l ⟩ v ∷ Id A t u →
-    Γ ⊩ᵛ⟨ l ⟩ []-cong s A t u v ∷ Id (Erased A) [ t ] [ u ]
-  []-congᵛ ok ⊩v =
-    case ⊩ᵛ∷⇔ .proj₁ ⊩v of λ
-      (⊩Id , v≡v) →
-    case ⊩ᵛId⇔ .proj₁ ⊩Id of λ
-      (⊩t , ⊩u) →
-    ⊩ᵛ∷⇔ .proj₂
-      ( Idᵛ ([]ᵛ ⊩t) ([]ᵛ ⊩u)
-      , λ σ₁≡σ₂ →
-          ⊩[]-cong≡[]-cong ok
-            (⊩ᵛ⇔ .proj₁ (wf-⊩ᵛ∷ ⊩t) .proj₂ σ₁≡σ₂)
-            (⊩ᵛ∷⇔ .proj₁ ⊩t .proj₂ σ₁≡σ₂)
-            (⊩ᵛ∷⇔ .proj₁ ⊩u .proj₂ σ₁≡σ₂) (v≡v σ₁≡σ₂)
-      )
-    where
-    open E ok
-
-opaque
-
   -- Validity of equality preservation for []-cong.
 
   []-cong-congᵛ :
@@ -883,25 +828,37 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ []-cong s A₁ t₁ u₁ v₁ ≡ []-cong s A₂ t₂ u₂ v₂ ∷
       Id (Erased A₁) [ t₁ ] [ u₁ ]
   []-cong-congᵛ ok A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ =
-    case Id-congᵛ A₁≡A₂ t₁≡t₂ u₁≡u₂ of λ
-      Id≡Id →
-    case ⊩ᵛ≡∷⇔′ .proj₁ (level-⊩ᵛ≡∷ (wf-⊩ᵛ≡ Id≡Id .proj₁) v₁≡v₂) of λ
-      (⊩v₁ , ⊩v₂ , v₁≡v₂) →
-    ⊩ᵛ≡∷⇔′ .proj₂
-      ( []-congᵛ ok ⊩v₁
-      , conv-⊩ᵛ∷
-          (sym-⊩ᵛ≡ $
-           Id-congᵛ (Erased-congᵛ A₁≡A₂) ([]-congᵛ′ t₁≡t₂)
+    ⊩ᵛ≡∷⇔ .proj₂
+      ( wf-⊩ᵛ≡
+          (Id-congᵛ (Erased-congᵛ A₁≡A₂) ([]-congᵛ′ t₁≡t₂)
              ([]-congᵛ′ u₁≡u₂))
-          ([]-congᵛ ok (conv-⊩ᵛ∷ Id≡Id ⊩v₂))
+          .proj₁
       , λ σ₁≡σ₂ →
-          ⊩[]-cong≡[]-cong ok
-            (⊩ᵛ≡⇔′ .proj₁ A₁≡A₂ .proj₂ .proj₂ σ₁≡σ₂)
-            (⊩ᵛ≡∷⇔′ .proj₁ t₁≡t₂ .proj₂ .proj₂ σ₁≡σ₂)
-            (⊩ᵛ≡∷⇔′ .proj₁ u₁≡u₂ .proj₂ .proj₂ σ₁≡σ₂) (v₁≡v₂ σ₁≡σ₂)
+          ⊩[]-cong≡[]-cong ok (⊩ᵛ≡⇔ .proj₁ A₁≡A₂ .proj₂ σ₁≡σ₂)
+            (⊩ᵛ≡∷⇔ .proj₁ t₁≡t₂ .proj₂ σ₁≡σ₂)
+            (⊩ᵛ≡∷⇔ .proj₁ u₁≡u₂ .proj₂ σ₁≡σ₂)
+            (⊩ᵛ≡∷⇔ .proj₁ v₁≡v₂ .proj₂ σ₁≡σ₂)
       )
     where
     open E ok
+
+opaque
+
+  -- Validity of []-cong.
+
+  []-congᵛ :
+    (ok : []-cong-allowed s) →
+    let open E ok in
+    Γ ⊩ᵛ⟨ l ⟩ v ∷ Id A t u →
+    Γ ⊩ᵛ⟨ l ⟩ []-cong s A t u v ∷ Id (Erased A) [ t ] [ u ]
+  []-congᵛ ok ⊩v =
+    case ⊩ᵛId⇔ .proj₁ $ wf-⊩ᵛ∷ ⊩v of λ
+      (⊩t , ⊩u) →
+    case wf-⊩ᵛ∷ ⊩t of λ
+      ⊩A →
+    ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $
+    []-cong-congᵛ ok (refl-⊩ᵛ≡ ⊩A) (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ᵛ≡∷ ⊩u)
+      (refl-⊩ᵛ≡∷ ⊩v)
 
 opaque
 
@@ -1019,7 +976,7 @@ opaque
     -- Some definitions related to Id.
     case Id-congᵛ A₁≡A₂ t₁≡t₂ t₁≡t₂ of λ
       Id≡Id →
-    case ⊩ᵛ≡⇔′ .proj₁ Id≡Id .proj₂ .proj₂ σ₁≡σ₂ of λ
+    case ⊩ᵛ≡⇔ .proj₁ Id≡Id .proj₂ σ₁≡σ₂ of λ
       Id[σ₁]≡Id[σ₂] →
     case ≅-eq $ escape-⊩≡ Id[σ₁]≡Id[σ₂] of λ
       ⊢Id[σ₁]≡Id[σ₂] →
@@ -1057,9 +1014,9 @@ opaque
          escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u₂ ⊩σ₂ of λ
       ⊢u₂[σ₂] →
     case PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (singleSubstLift B₁ _) $
-         ⊩ᵛ≡∷⇔′ .proj₁
+         ⊩ᵛ≡∷⇔ .proj₁
            (level-⊩ᵛ≡∷ (⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]₀ ⊩B₁ (rflᵛ ⊩t₁)) u₁≡u₂)
-           .proj₂ .proj₂ σ₁≡σ₂ of λ
+           .proj₂ σ₁≡σ₂ of λ
       u₁[σ₁]≡u₂[σ₂] →
 
     -- Some definitions related to v₁ and v₂.
@@ -1067,7 +1024,7 @@ opaque
       (⊩v₁ , ⊩v₂) →
     case conv-⊩ᵛ∷ Id≡Id ⊩v₂ of λ
       ⊩v₂ →
-    case ⊩ᵛ≡∷⇔′ .proj₁ v₁≡v₂ .proj₂ .proj₂ σ₁≡σ₂ of λ
+    case ⊩ᵛ≡∷⇔ .proj₁ v₁≡v₂ .proj₂ σ₁≡σ₂ of λ
       v₁[σ₁]≡v₂[σ₂] →
     case ⊩≡∷Id⇔ .proj₁ v₁[σ₁]≡v₂[σ₂] of λ
       (v₁′ , v₂′ , v₁[σ₁]⇒*v₁′@([ _ , ⊢v₁′ , _ ]) , v₂[σ₂]⇒*v₂′ ,
@@ -1137,10 +1094,28 @@ opaque
           (Kₙ v₂′-ne) (Kⱼ ⊢t₁[σ₁] ⊢B₁[σ₁⇑] ⊢u₁[σ₁] ⊢v₁′ ok)
           (conv (Kⱼ ⊢t₂[σ₂] ⊢B₂[σ₂⇑] ⊢u₂[σ₂] ⊢v₂′ ok)
              (sym ⊢B₁[σ₁⇑][v₁′]₀≡B₂[σ₂⇑][v₂′]₀)) $
-        ~-K (escape-⊩≡ $ ⊩ᵛ≡⇔′ .proj₁ A₁≡A₂ .proj₂ .proj₂ σ₁≡σ₂) ⊢t₁[σ₁]
-          (escape-⊩≡∷ $ ⊩ᵛ≡∷⇔′ .proj₁ t₁≡t₂ .proj₂ .proj₂ σ₁≡σ₂)
+        ~-K (escape-⊩≡ $ ⊩ᵛ≡⇔ .proj₁ A₁≡A₂ .proj₂ σ₁≡σ₂) ⊢t₁[σ₁]
+          (escape-⊩≡∷ $ ⊩ᵛ≡∷⇔ .proj₁ t₁≡t₂ .proj₂ σ₁≡σ₂)
           (escape-⊩≡ $ ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑]≡[⇑] B₁≡B₂ σ₁≡σ₂)
           (escape-⊩≡∷ u₁[σ₁]≡u₂[σ₂]) v₁′~v₂′ ok
+
+opaque
+
+  -- Validity of equality preservation for K.
+
+  K-congᵛ :
+    K-allowed →
+    Γ ⊩ᵛ⟨ l′ ⟩ A₁ ≡ A₂ →
+    Γ ⊩ᵛ⟨ l″ ⟩ t₁ ≡ t₂ ∷ A₁ →
+    Γ ∙ Id A₁ t₁ t₁ ⊩ᵛ⟨ l ⟩ B₁ ≡ B₂ →
+    Γ ⊩ᵛ⟨ l‴ ⟩ u₁ ≡ u₂ ∷ B₁ [ rfl ]₀ →
+    Γ ⊩ᵛ⟨ l⁗ ⟩ v₁ ≡ v₂ ∷ Id A₁ t₁ t₁ →
+    Γ ⊩ᵛ⟨ l ⟩ K p A₁ t₁ B₁ u₁ v₁ ≡ K p A₂ t₂ B₂ u₂ v₂ ∷ B₁ [ v₁ ]₀
+  K-congᵛ ok A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ =
+    ⊩ᵛ≡∷⇔ .proj₂
+      ( ⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]₀ (wf-⊩ᵛ≡ B₁≡B₂ .proj₁) (wf-⊩ᵛ≡∷ v₁≡v₂ .proj₁)
+      , ⊩K≡K ok A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂
+      )
 
 opaque
 
@@ -1157,44 +1132,9 @@ opaque
       (⊩t , _) →
     case wf-⊩ᵛ∷ ⊩t of λ
       ⊩A →
-    ⊩ᵛ∷⇔ .proj₂
-      ( ⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]₀ ⊩B ⊩v
-      , ⊩K≡K ok (refl-⊩ᵛ≡ ⊩A) (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ᵛ≡ ⊩B)
-          (refl-⊩ᵛ≡∷ ⊩u) (refl-⊩ᵛ≡∷ ⊩v)
-      )
-
-opaque
-
-  -- Validity of equality preservation for K.
-
-  K-congᵛ :
-    K-allowed →
-    Γ ⊩ᵛ⟨ l′ ⟩ A₁ ≡ A₂ →
-    Γ ⊩ᵛ⟨ l″ ⟩ t₁ ≡ t₂ ∷ A₁ →
-    Γ ∙ Id A₁ t₁ t₁ ⊩ᵛ⟨ l ⟩ B₁ ≡ B₂ →
-    Γ ⊩ᵛ⟨ l‴ ⟩ u₁ ≡ u₂ ∷ B₁ [ rfl ]₀ →
-    Γ ⊩ᵛ⟨ l⁗ ⟩ v₁ ≡ v₂ ∷ Id A₁ t₁ t₁ →
-    Γ ⊩ᵛ⟨ l ⟩ K p A₁ t₁ B₁ u₁ v₁ ≡ K p A₂ t₂ B₂ u₂ v₂ ∷ B₁ [ v₁ ]₀
-  K-congᵛ ok A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ =
-    case wf-⊩ᵛ≡∷ t₁≡t₂ of λ
-      (⊩t₁ , _) →
-    case wf-⊩ᵛ≡ B₁≡B₂ of λ
-      (⊩B₁ , ⊩B₂) →
-    case wf-⊩ᵛ≡∷ u₁≡u₂ of λ
-      (⊩u₁ , ⊩u₂) →
-    case wf-⊩ᵛ≡∷ v₁≡v₂ of λ
-      (⊩v₁ , ⊩v₂) →
-    case Id-congᵛ A₁≡A₂ t₁≡t₂ t₁≡t₂ of λ
-      Id≡Id →
-    ⊩ᵛ≡∷⇔′ .proj₂
-      ( Kᵛ ok ⊩B₁ ⊩u₁ ⊩v₁
-      , conv-⊩ᵛ∷ (sym-⊩ᵛ≡ (⊩ᵛ≡→⊩ᵛ≡∷→⊩ᵛ[]₀≡[]₀ B₁≡B₂ v₁≡v₂))
-          (Kᵛ ok (conv-∙-⊩ᵛ Id≡Id ⊩B₂)
-             (conv-⊩ᵛ∷ (⊩ᵛ≡→⊩ᵛ≡∷→⊩ᵛ[]₀≡[]₀ B₁≡B₂ (refl-⊩ᵛ≡∷ (rflᵛ ⊩t₁)))
-                ⊩u₂)
-             (conv-⊩ᵛ∷ Id≡Id ⊩v₂))
-      , ⊩K≡K ok A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂
-      )
+    ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $
+    K-congᵛ ok (refl-⊩ᵛ≡ ⊩A) (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ᵛ≡ ⊩B) (refl-⊩ᵛ≡∷ ⊩u)
+      (refl-⊩ᵛ≡∷ ⊩v)
 
 opaque
 
@@ -1343,7 +1283,7 @@ opaque
     -- Some definitions related to A₁ and A₂.
     case wf-⊩ᵛ≡ A₁≡A₂ of λ
       (⊩A₁ , ⊩A₂) →
-    case ⊩ᵛ≡⇔′ .proj₁ A₁≡A₂ .proj₂ .proj₂ σ₁≡σ₂ of λ
+    case ⊩ᵛ≡⇔ .proj₁ A₁≡A₂ .proj₂ σ₁≡σ₂ of λ
       A₁[σ₁]≡A₂[σ₂] →
     case escape $ ⊩ᵛ→⊩ˢ∷→⊩[] ⊩A₁ ⊩σ₁ of λ
       ⊢A₁[σ₁] →
@@ -1351,7 +1291,7 @@ opaque
       ⊢A₂[σ₂] →
 
     -- Some definitions related to t₁ and t₂.
-    case ⊩ᵛ≡∷⇔′ .proj₁ t₁≡t₂ .proj₂ .proj₂ σ₁≡σ₂ of λ
+    case ⊩ᵛ≡∷⇔ .proj₁ t₁≡t₂ .proj₂ σ₁≡σ₂ of λ
       t₁[σ₁]≡t₂[σ₂] →
     case wf-⊩≡∷ t₁[σ₁]≡t₂[σ₂] of λ
       (⊩t₁[σ₁] , ⊩t₂[σ₂]) →
@@ -1369,7 +1309,7 @@ opaque
     -- Some definitions related to Id.
     case Id-congᵛ A₁≡A₂ t₁≡t₂ v₁≡v₂ of λ
       Id-v₁≡Id-v₂ →
-    case ⊩ᵛ≡⇔′ .proj₁ Id-v₁≡Id-v₂ .proj₂ .proj₂ σ₁≡σ₂ of λ
+    case ⊩ᵛ≡⇔ .proj₁ Id-v₁≡Id-v₂ .proj₂ σ₁≡σ₂ of λ
       Id-v₁[σ₁]≡Id-v₂[σ₂] →
 
     -- Some definitions related to B₁ and B₂.
@@ -1397,7 +1337,7 @@ opaque
 
     -- Some definitions related to u₁ and u₂.
     case PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) ([,]-[]-commute B₁) $
-         ⊩ᵛ≡∷⇔′ .proj₁ u₁≡u₂ .proj₂ .proj₂ σ₁≡σ₂ of λ
+         ⊩ᵛ≡∷⇔ .proj₁ u₁≡u₂ .proj₂ σ₁≡σ₂ of λ
       u₁[σ₁]≡u₂[σ₂] →
     case escape-⊩∷ $ wf-⊩≡∷ u₁[σ₁]≡u₂[σ₂] .proj₁ of λ
       ⊢u₁[σ₁] →
@@ -1406,7 +1346,7 @@ opaque
       ⊢u₂[σ₂] →
 
     -- Some definitions related to v₁ and v₂.
-    case ⊩ᵛ≡∷⇔′ .proj₁ v₁≡v₂ .proj₂ .proj₂ σ₁≡σ₂ of λ
+    case ⊩ᵛ≡∷⇔ .proj₁ v₁≡v₂ .proj₂ σ₁≡σ₂ of λ
       v₁[σ₁]≡v₂[σ₂] →
     case wf-⊩≡∷ v₁[σ₁]≡v₂[σ₂] of λ
       (⊩v₁[σ₁] , ⊩v₂[σ₂]) →
@@ -1422,7 +1362,7 @@ opaque
       (⊩w₁ , ⊩w₂) →
     case conv-⊩ᵛ∷ Id-v₁≡Id-v₂ ⊩w₂ of λ
       ⊩w₂ →
-    case ⊩ᵛ≡∷⇔′ .proj₁ w₁≡w₂ .proj₂ .proj₂ σ₁≡σ₂ of λ
+    case ⊩ᵛ≡∷⇔ .proj₁ w₁≡w₂ .proj₂ σ₁≡σ₂ of λ
       w₁[σ₁]≡w₂[σ₂] →
     case ⊩≡∷Id⇔ .proj₁ w₁[σ₁]≡w₂[σ₂] of λ
       (w₁′ , w₂′ , w₁⇒*w₁′@([ _ , ⊢w₁′ , _ ]) , w₂⇒*w₂′ , _ , _ ,
@@ -1542,25 +1482,6 @@ opaque
 
 opaque
 
-  -- Validity of J.
-
-  Jᵛ :
-    Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊩ᵛ⟨ l ⟩ B →
-    Γ ⊩ᵛ⟨ l′ ⟩ u ∷ B [ t , rfl ]₁₀ →
-    Γ ⊩ᵛ⟨ l″ ⟩ w ∷ Id A t v →
-    Γ ⊩ᵛ⟨ l ⟩ J p q A t B u v w ∷ B [ v , w ]₁₀
-  Jᵛ ⊩B ⊩u ⊩w =
-    case ⊩ᵛId⇔ .proj₁ (wf-⊩ᵛ∷ ⊩w) of λ
-      (⊩t , ⊩v) →
-    ⊩ᵛ∷⇔ .proj₂
-      ( ⊩ᵛ→⊩ᵛ∷→⊩ᵛ∷→⊩ᵛ[]₁₀ ⊩B ⊩v
-          (PE.subst (_⊩ᵛ⟨_⟩_∷_ _ _ _) ≡Id-wk1-wk1-0[]₀ ⊩w)
-      , ⊩J≡J (refl-⊩ᵛ≡ (wf-⊩ᵛ∷ ⊩t)) (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ᵛ≡ ⊩B)
-          (refl-⊩ᵛ≡∷ ⊩u) (refl-⊩ᵛ≡∷ ⊩v) (refl-⊩ᵛ≡∷ ⊩w)
-      )
-
-opaque
-
   -- Validity of equality preservation for J.
 
   J-congᵛ :
@@ -1573,34 +1494,30 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ J p q A₁ t₁ B₁ u₁ v₁ w₁ ≡ J p q A₂ t₂ B₂ u₂ v₂ w₂ ∷
       B₁ [ v₁ , w₁ ]₁₀
   J-congᵛ A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁≡w₂ =
-    case wf-⊩ᵛ≡ A₁≡A₂ of λ
-      (⊩A₁ , _) →
-    case wf-⊩ᵛ≡ B₁≡B₂ of λ
-      (⊩B₁ , ⊩B₂) →
-    case wf-⊩ᵛ≡∷ u₁≡u₂ of λ
-      (⊩u₁ , ⊩u₂) →
-    case wf-⊩ᵛ≡∷ w₁≡w₂ of λ
-      (⊩w₁ , ⊩w₂) →
-    ⊩ᵛ≡∷⇔′ .proj₂
-      ( Jᵛ ⊩B₁ ⊩u₁ ⊩w₁
-      , conv-⊩ᵛ∷
-          (sym-⊩ᵛ≡ $
-           ⊩ᵛ≡→⊩ᵛ≡∷→⊩ᵛ≡∷→⊩ᵛ[]₁₀≡[]₁₀ B₁≡B₂ v₁≡v₂ $
-           PE.subst (_⊩ᵛ⟨_⟩_≡_∷_ _ _ _ _) ≡Id-wk1-wk1-0[]₀ w₁≡w₂)
-          (Jᵛ
-             (conv-∙∙-⊩ᵛ A₁≡A₂
-                (Id-congᵛ (wk1-⊩ᵛ≡ ⊩A₁ A₁≡A₂) (wk1-⊩ᵛ≡∷ ⊩A₁ t₁≡t₂)
-                   (refl-⊩ᵛ≡∷ (varᵛ′ here (wk1-⊩ᵛ ⊩A₁ ⊩A₁))))
-                ⊩B₂)
-             (conv-⊩ᵛ∷
-                (⊩ᵛ≡→⊩ᵛ≡∷→⊩ᵛ≡∷→⊩ᵛ[]₁₀≡[]₁₀ B₁≡B₂ t₁≡t₂ $
-                 refl-⊩ᵛ≡∷ $
-                 PE.subst (_⊩ᵛ⟨_⟩_∷_ _ _ _) ≡Id-wk1-wk1-0[]₀ $
-                 rflᵛ (wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁))
-                ⊩u₂)
-             (conv-⊩ᵛ∷ (Id-congᵛ A₁≡A₂ t₁≡t₂ v₁≡v₂) ⊩w₂))
+    ⊩ᵛ≡∷⇔ .proj₂
+      ( ⊩ᵛ→⊩ᵛ∷→⊩ᵛ∷→⊩ᵛ[]₁₀ (wf-⊩ᵛ≡ B₁≡B₂ .proj₁) (wf-⊩ᵛ≡∷ v₁≡v₂ .proj₁)
+          (PE.subst (_⊩ᵛ⟨_⟩_∷_ _ _ _) ≡Id-wk1-wk1-0[]₀ $
+           wf-⊩ᵛ≡∷ w₁≡w₂ .proj₁)
       , ⊩J≡J A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁≡w₂
       )
+
+opaque
+
+  -- Validity of J.
+
+  Jᵛ :
+    Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊩ᵛ⟨ l ⟩ B →
+    Γ ⊩ᵛ⟨ l′ ⟩ u ∷ B [ t , rfl ]₁₀ →
+    Γ ⊩ᵛ⟨ l″ ⟩ w ∷ Id A t v →
+    Γ ⊩ᵛ⟨ l ⟩ J p q A t B u v w ∷ B [ v , w ]₁₀
+  Jᵛ ⊩B ⊩u ⊩w =
+    case ⊩ᵛId⇔ .proj₁ (wf-⊩ᵛ∷ ⊩w) of λ
+      (⊩t , ⊩v) →
+    case wf-⊩ᵛ∷ ⊩t of λ
+      ⊩A →
+    ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $
+    J-congᵛ (refl-⊩ᵛ≡ ⊩A) (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ᵛ≡ ⊩B) (refl-⊩ᵛ≡∷ ⊩u)
+      (refl-⊩ᵛ≡∷ ⊩v) (refl-⊩ᵛ≡∷ ⊩w)
 
 opaque
 

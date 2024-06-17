@@ -193,7 +193,7 @@ opaque
              (η-unitᵛ ⊩t
                 (starᵛ {l = l} (wf-⊩ᵛ (wf-⊩ᵛ∷ ⊩t)) ok)
                 (inj₂ η))
-             .proj₂ .proj₂ (refl-⊩ˢ≡∷ ⊩σ))
+             .proj₂ .proj₂ ⊩σ)
           (                        ∷ A [ t ]₀ [ σ ]           ⟨ singleSubstLift A _ ⟩⇒≡
            unitrec p q A t u [ σ ] ∷ A [ σ ⇑ ] [ t [ σ ] ]₀  ⇒⟨ unitrec-β-η ⊢A[σ⇑] (escape-⊩∷ ⊩t[σ]) ⊢u[σ] ok η ⟩∎∷
            u [ σ ]                                           ∎)
