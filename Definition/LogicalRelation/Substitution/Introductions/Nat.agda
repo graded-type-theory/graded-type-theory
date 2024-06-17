@@ -405,7 +405,7 @@ private opaque
       (_⇨_ {t′ = v₃} v₁⇒v₃ v₃⇒*v₂) →
         case
           v₁  ⇒⟨ v₁⇒v₃ ⟩⊩∷
-          v₃  ∎⟨ ⊩∷-⇐* v₃⇒*v₂ ⊩v₂ .proj₁ ⟩⊩∷
+          v₃  ∎⟨ wf-⊩≡∷ (⊩∷-⇐* v₃⇒*v₂ ⊩v₂) .proj₁ ⟩⊩∷
         of λ
           v₁≡v₃ →
         natrec p q r A t u v₁ ∷ A [ v₁ ]₀  ⇒⟨ natrec-subst ⊢A ⊢t ⊢u v₁⇒v₃ ⟩∷
@@ -484,9 +484,13 @@ private opaque
 
     -- Some definitions related to v₁′ and v₂′.
     case ⊩∷-⇒* v₁⇒*v₁′ ⊩v₁ of λ
-      (⊩v₁′ , v₁≡v₁′) →
+      v₁≡v₁′ →
     case ⊩∷-⇒* v₂⇒*v₂′ ⊩v₂ of λ
-      (⊩v₂′ , v₂≡v₂′) →
+      v₂≡v₂′ →
+    case wf-⊩≡∷ v₁≡v₁′ .proj₂ of λ
+      ⊩v₁′ →
+    case wf-⊩≡∷ v₂≡v₂′ .proj₂ of λ
+      ⊩v₂′ →
     case
       v₁′  ≡˘⟨ v₁≡v₁′ ⟩⊩∷
       v₁   ≡⟨ v₁≡v₂ ⟩⊩∷
@@ -722,7 +726,6 @@ opaque
            (PE.subst (_⊢_∷_ _ _) (natrecSucCase _ A) $
             escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[⇑⇑]∷ ⊩u ⊩σ))
       ⊩t
-      .proj₂
 
 opaque
 
@@ -749,4 +752,3 @@ opaque
            (escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩v ⊩σ))
       (PE.subst (_⊩ᵛ⟨_⟩_∷_ _ _ _) (PE.sym $ substComp↑² A _) $
        ⊩ᵛ∷→⊩ᵛ∷→⊩ᵛ∷→⊩ᵛ[]₁₀∷ ⊩u ⊩v (natrecᵛ ⊩A ⊩t ⊩u ⊩v))
-      .proj₂

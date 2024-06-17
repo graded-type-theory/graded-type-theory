@@ -372,7 +372,7 @@ opaque
       (_⇨_ {t′ = t₃} t₁⇒t₃ t₃⇒*t₂) →
         case
           t₁  ⇒⟨ t₁⇒t₃ ⟩⊩∷
-          t₃  ∎⟨ ⊩∷-⇐* t₃⇒*t₂ ⊩t₂ .proj₁ ⟩⊩∷
+          t₃  ∎⟨ wf-⊩≡∷ (⊩∷-⇐* t₃⇒*t₂ ⊩t₂) .proj₁ ⟩⊩∷
         of λ
           t₁≡t₃ →
         snd p t₁ ∷ B [ fst p t₁ ]₀  ⇒⟨ snd-subst ⊢A ⊢B t₁⇒t₃ ⟩∷
@@ -396,10 +396,8 @@ opaque
     case ⊩≡∷Σˢ⇔ .proj₁ t₁≡t₂ of λ
       (_ , u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , _ , _ , _ , _ , snd-u₁≡snd-u₂) →
     case ⊩∷-⇒* t₁⇒*u₁ ⊩t₁ of λ
-      (⊩u₁ , t₁≡u₁) →
-    case ⊩∷-⇒* t₂⇒*u₂ ⊩t₂ of λ
-      (⊩u₂ , _) →
-    snd p t₁                    ⇒*⟨ snd-subst* (redₜ t₁⇒*u₁) ⊩u₁ ⟩⊩∷
+      t₁≡u₁ →
+    snd p t₁                    ⇒*⟨ snd-subst* (redₜ t₁⇒*u₁) (wf-⊩≡∷ t₁≡u₁ .proj₂) ⟩⊩∷
     snd p u₁ ∷ B [ fst p t₁ ]₀  ≡⟨ conv-⊩≡∷
                                      (⊩ΠΣ≡ΠΣ→⊩≡∷→⊩[]₀≡[]₀ (refl-⊩≡ ⊩ΣAB) $
                                       sym-⊩≡∷ $ ⊩fst≡fst t₁≡u₁)
@@ -407,7 +405,7 @@ opaque
                                  ⟨ ≅-eq $ escape-⊩≡ $
                                    ⊩ΠΣ≡ΠΣ→⊩≡∷→⊩[]₀≡[]₀ (refl-⊩≡ ⊩ΣAB) $
                                    ⊩fst≡fst t₁≡t₂ ⟩⇒
-    snd p u₂ ∷ B [ fst p t₂ ]₀  ⇐*⟨ snd-subst* (redₜ t₂⇒*u₂) ⊩u₂ ⟩∎∷
+    snd p u₂ ∷ B [ fst p t₂ ]₀  ⇐*⟨ snd-subst* (redₜ t₂⇒*u₂) (wf-⊩≡∷ (⊩∷-⇒* t₂⇒*u₂ ⊩t₂) .proj₂) ⟩∎∷
     snd p t₂                    ∎
 
 opaque
@@ -467,7 +465,6 @@ opaque
       (fst p (prodˢ p t u)  ⇒⟨ Σ-β₁ (escape-⊩ $ wf-⊩∷ ⊩t) ⊢B ⊢t ⊢u PE.refl ok ⟩
        t                    ∎⟨ ⊢t ⟩⇒)
       ⊩t
-      .proj₂
 
 opaque
 
@@ -491,7 +488,6 @@ opaque
             escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u ⊩σ)
            PE.refl ok)
       ⊩t
-      .proj₂
 
 opaque
 
@@ -520,7 +516,6 @@ opaque
           ⊩ᵛ≡→⊩ᵛ≡∷→⊩ᵛ[]₀≡[]₀ (refl-⊩ᵛ≡ ⊩B) $
           Σ-β₁ᵛ ok ⊩B ⊩t ⊩u)
          ⊩u)
-      .proj₂
 
 opaque
 
@@ -552,9 +547,9 @@ opaque
           case ⊩∷Σˢ⇔ .proj₁ ⊩t₂[σ] of λ
             (_ , u₂ , t₂[σ]⇒*u₂ , u₂-prod , _) →
           case ⊩∷-⇒* t₁[σ]⇒*u₁ ⊩t₁[σ] of λ
-            (_ , t₁[σ]≡u₁) →
+            t₁[σ]≡u₁ →
           case ⊩∷-⇒* t₂[σ]⇒*u₂ ⊩t₂[σ] of λ
-            (_ , t₂[σ]≡u₂) →
+            t₂[σ]≡u₂ →
           case sym-⊩≡∷ $ ⊩fst≡fst t₁[σ]≡u₁ of λ
             fst-u₁≡fst-t₁[σ] →
           case

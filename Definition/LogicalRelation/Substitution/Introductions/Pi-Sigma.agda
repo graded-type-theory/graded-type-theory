@@ -212,7 +212,7 @@ opaque
         (PE.refl , PE.refl , _) →
         _ , _ , ⇒*ΠΣ′
       , λ ρ⊇ ⊢Δ →
-          case ⊩ΠΣ⇔ .proj₁ (⊩-⇒* ⇒*ΠΣ′ ⊩C .proj₁)
+          case ⊩ΠΣ⇔ .proj₁ (wf-⊩≡ (⊩-⇒* ⇒*ΠΣ′ ⊩C) .proj₂)
                  .proj₂ .proj₂ ρ⊇ ⊢Δ of λ
             (⊩wk-ρ-A′ , wk-ρ⇑-B′≡wk-ρ⇑-B′) →
           case   emb-≤-⊩ l′≤l (⊩wk-A ρ⊇ ⊢Δ)

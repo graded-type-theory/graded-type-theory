@@ -866,30 +866,22 @@ opaque
 opaque
   unfolding _⊩⟨_⟩_≡_
 
-  -- Closure under reduction for _⊩⟨_⟩_.
+  -- A reduction lemma for _⊩⟨_⟩_.
 
-  ⊩-⇒* :
-    Γ ⊢ A :⇒*: B →
-    Γ ⊩⟨ l ⟩ A →
-    (Γ ⊩⟨ l ⟩ B) × Γ ⊩⟨ l ⟩ A ≡ B
-  ⊩-⇒* A⇒*B ⊩A =
-    case redSubst*′ A⇒*B ⊩A of λ
-      (⊩B , A≡B) →
-    ⊩B , (⊩A , ⊩B , A≡B)
+  ⊩-⇒* : Γ ⊢ A :⇒*: B → Γ ⊩⟨ l ⟩ A → Γ ⊩⟨ l ⟩ A ≡ B
+  ⊩-⇒* A⇒*B ⊩A = ⊩A , redSubst*′ A⇒*B ⊩A
 
 opaque
   unfolding _⊩⟨_⟩_∷_ _⊩⟨_⟩_≡_∷_
 
-  -- Closure under reduction for _⊩⟨_⟩_∷_.
+  -- A reduction lemma for _⊩⟨_⟩_∷_.
 
   ⊩∷-⇒* :
     Γ ⊢ t :⇒*: u ∷ A →
     Γ ⊩⟨ l ⟩ t ∷ A →
-    Γ ⊩⟨ l ⟩ u ∷ A × Γ ⊩⟨ l ⟩ t ≡ u ∷ A
+    Γ ⊩⟨ l ⟩ t ≡ u ∷ A
   ⊩∷-⇒* t⇒*u (⊩A , ⊩t) =
-    case redSubst*Term′ t⇒*u ⊩A ⊩t of λ
-      (⊩u , t≡u) →
-    (⊩A , ⊩u) , (⊩A , ⊩t , ⊩u , t≡u)
+    ⊩A , ⊩t , redSubst*Term′ t⇒*u ⊩A ⊩t
 
 ------------------------------------------------------------------------
 -- Expansion
@@ -897,48 +889,45 @@ opaque
 opaque
   unfolding _⊩⟨_⟩_≡_
 
-  -- Closure under expansion for _⊩⟨_⟩_.
+  -- An expansion lemma for _⊩⟨_⟩_.
 
-  ⊩-⇐* :
-    Γ ⊢ A ⇒* B →
-    Γ ⊩⟨ l ⟩ B →
-    (Γ ⊩⟨ l ⟩ A) × Γ ⊩⟨ l ⟩ A ≡ B
+  ⊩-⇐* : Γ ⊢ A ⇒* B → Γ ⊩⟨ l ⟩ B → Γ ⊩⟨ l ⟩ A ≡ B
   ⊩-⇐* A⇒*B ⊩B =
     case redSubst* A⇒*B ⊩B of λ
       (⊩A , A≡B) →
-    ⊩A , (⊩A , ⊩B , A≡B)
+    ⊩A , ⊩B , A≡B
 
 opaque
   unfolding _⊩⟨_⟩_∷_ _⊩⟨_⟩_≡_∷_
 
-  -- Closure under expansion for _⊩⟨_⟩_∷_.
+  -- An expansion lemma for _⊩⟨_⟩_∷_.
 
   ⊩∷-⇐* :
     Γ ⊢ t ⇒* u ∷ A →
     Γ ⊩⟨ l ⟩ u ∷ A →
-    Γ ⊩⟨ l ⟩ t ∷ A × Γ ⊩⟨ l ⟩ t ≡ u ∷ A
+    Γ ⊩⟨ l ⟩ t ≡ u ∷ A
   ⊩∷-⇐* t⇒*u (⊩A , ⊩u) =
     case redSubst*Term t⇒*u ⊩A ⊩u of λ
       (⊩t , t≡u) →
-    (⊩A , ⊩t) , (⊩A , ⊩t , ⊩u , t≡u)
+    ⊩A , ⊩t , ⊩u , t≡u
 
 opaque
   unfolding _⊩ᵛ⟨_⟩_∷_ _⊩ᵛ⟨_⟩_≡_∷_ _⊩ˢ_∷_
 
-  -- Closure under expansion for _⊩ᵛ⟨_⟩_∷_.
+  -- An expansion lemma for _⊩ᵛ⟨_⟩_∷_.
 
   ⊩ᵛ∷-⇐ :
     (∀ {m Δ} {σ : Subst m n} →
      Δ ⊩ˢ σ ∷ Γ →
      Δ ⊢ t [ σ ] ⇒ u [ σ ] ∷ A [ σ ]) →
     Γ ⊩ᵛ⟨ l ⟩ u ∷ A →
-    Γ ⊩ᵛ⟨ l ⟩ t ∷ A × Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A
+    Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A
   ⊩ᵛ∷-⇐ {t} {u} t⇒u (_ , ⊩A , ⊩u) =
     case redSubstTermᵛ {t = t} {u = u} _
            (λ _ ⊩σ → t⇒u (_ , _ , ⊩σ))
            ⊩A ⊩u of λ
       (⊩t , t≡u) →
-    (_ , ⊩A , ⊩t) , (_ , modelsTermEq ⊩A ⊩t ⊩u t≡u)
+    _ , modelsTermEq ⊩A ⊩t ⊩u t≡u
 
 ------------------------------------------------------------------------
 -- Escape lemmas
@@ -1105,7 +1094,7 @@ opaque
 
   step-⊩≡⇒* : ∀ A → Γ ⊩⟨ l ⟩ B ≡ C → Γ ⊢ A ⇒* B → Γ ⊩⟨ l ⟩ A ≡ C
   step-⊩≡⇒* _ B≡C A⇒*B =
-    trans-⊩≡ (⊩-⇐* A⇒*B (wf-⊩≡ B≡C .proj₁) .proj₂) B≡C
+    trans-⊩≡ (⊩-⇐* A⇒*B (wf-⊩≡ B≡C .proj₁)) B≡C
 
   syntax step-⊩≡⇒* A B≡C A⇒*B = A ⇒*⟨ A⇒*B ⟩⊩ B≡C
 
@@ -1117,7 +1106,7 @@ opaque
 
   step-⊩≡⇐* : ∀ A → Γ ⊩⟨ l ⟩ B ≡ C → Γ ⊢ B :⇒*: A → Γ ⊩⟨ l ⟩ A ≡ C
   step-⊩≡⇐* _ B≡C B⇒*A =
-    trans-⊩≡ (sym-⊩≡ (⊩-⇒* B⇒*A (wf-⊩≡ B≡C .proj₁) .proj₂)) B≡C
+    trans-⊩≡ (sym-⊩≡ (⊩-⇒* B⇒*A (wf-⊩≡ B≡C .proj₁))) B≡C
 
   syntax step-⊩≡⇐* A B≡C B⇒*A = A ⇐*⟨ B⇒*A ⟩⊩ B≡C
 
@@ -1158,7 +1147,7 @@ opaque
   finally-⊩≡⇐* :
     ∀ A → Γ ⊢ C ⇒* B → Γ ⊩⟨ l ⟩ A ≡ B → Γ ⊩⟨ l ⟩ A ≡ C
   finally-⊩≡⇐* _ C⇒*B A≡B =
-    trans-⊩≡ A≡B (sym-⊩≡ (⊩-⇐* C⇒*B (wf-⊩≡ A≡B .proj₂) .proj₂))
+    trans-⊩≡ A≡B (sym-⊩≡ (⊩-⇐* C⇒*B (wf-⊩≡ A≡B .proj₂)))
 
   syntax finally-⊩≡⇐* A C⇒*B A≡B = A ≡⟨ A≡B ⟩⊩⇐* C⇒*B
 
@@ -1167,7 +1156,7 @@ opaque
   finally-⊩≡:⇒*: _ B⇒*C A≡B =
     case wf-⊩≡ A≡B of λ
       (_ , ⊩B) →
-    trans-⊩≡ A≡B (⊩-⇒* B⇒*C ⊩B .proj₂)
+    trans-⊩≡ A≡B (⊩-⇒* B⇒*C ⊩B)
 
   syntax finally-⊩≡:⇒*: A B⇒*C A≡B = A ≡⟨ A≡B ⟩⊩:⇒*: B⇒*C
 
@@ -1209,7 +1198,7 @@ opaque
   step-⊩≡∷⇒* :
     ∀ t → Γ ⊩⟨ l ⟩ u ≡ v ∷ A → Γ ⊢ t ⇒* u ∷ A → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
   step-⊩≡∷⇒* _ u≡v t⇒*u =
-    trans-⊩≡∷ (⊩∷-⇐* t⇒*u (wf-⊩≡∷ u≡v .proj₁) .proj₂) u≡v
+    trans-⊩≡∷ (⊩∷-⇐* t⇒*u (wf-⊩≡∷ u≡v .proj₁)) u≡v
 
   syntax step-⊩≡∷⇒* t u≡v t⇒*u = t ⇒*⟨ t⇒*u ⟩⊩∷ u≡v
 
@@ -1223,7 +1212,7 @@ opaque
   step-⊩≡∷⇐* :
     ∀ t → Γ ⊩⟨ l ⟩ u ≡ v ∷ A → Γ ⊢ u :⇒*: t ∷ A → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
   step-⊩≡∷⇐* _ u≡v u⇒*t =
-    trans-⊩≡∷ (sym-⊩≡∷ (⊩∷-⇒* u⇒*t (wf-⊩≡∷ u≡v .proj₁) .proj₂)) u≡v
+    trans-⊩≡∷ (sym-⊩≡∷ (⊩∷-⇒* u⇒*t (wf-⊩≡∷ u≡v .proj₁))) u≡v
 
   syntax step-⊩≡∷⇐* t u≡v u⇒*t = t ⇐*⟨ u⇒*t ⟩⊩∷ u≡v
 
@@ -1289,7 +1278,7 @@ opaque
   finally-⊩≡∷⇐* :
     ∀ t → Γ ⊢ v ⇒* u ∷ A → Γ ⊩⟨ l ⟩ t ≡ u ∷ A → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
   finally-⊩≡∷⇐* _ v⇒*u t≡u =
-    trans-⊩≡∷ t≡u (sym-⊩≡∷ (⊩∷-⇐* v⇒*u (wf-⊩≡∷ t≡u .proj₂) .proj₂))
+    trans-⊩≡∷ t≡u (sym-⊩≡∷ (⊩∷-⇐* v⇒*u (wf-⊩≡∷ t≡u .proj₂)))
 
   syntax finally-⊩≡∷⇐* t v⇒*u t≡u = t ≡⟨ t≡u ⟩⊩∷⇐* v⇒*u
 
@@ -1298,7 +1287,7 @@ opaque
   finally-⊩≡∷:⇒*: _ u⇒*v t≡u =
     case wf-⊩≡∷ t≡u of λ
       (_ , ⊩u) →
-    trans-⊩≡∷ t≡u (⊩∷-⇒* u⇒*v ⊩u .proj₂)
+    trans-⊩≡∷ t≡u (⊩∷-⇒* u⇒*v ⊩u)
 
   syntax finally-⊩≡∷:⇒*: t u⇒*v t≡u = t ≡⟨ t≡u ⟩⊩∷:⇒*: u⇒*v
 

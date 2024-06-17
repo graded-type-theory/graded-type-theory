@@ -199,7 +199,7 @@ opaque
 
       (inj₂ (_ , no-η)) → case rest of λ where
         starᵣ →
-          unitrec® _ (⊩∷-⇐* t[σ]⇒t′ (reducible-⊩∷ ⊢t′) .proj₂)
+          unitrec® _ (⊩∷-⇐* t[σ]⇒t′ (reducible-⊩∷ ⊢t′))
             (                            ∷ A [ t ]₀ [ σ ]            ⟨ singleSubstLift A _ ⟩⇒≡
              unitrec p q A t     u [ σ ] ∷ A [ σ ⇑ ] [ t [ σ ] ]₀  ⇒*⟨ unitrec-subst* t[σ]⇒t′ ⊢A[σ⇑] ⊢u[σ] no-η ⟩∷
                                                                      ⟨ substTypeEq (refl ⊢A[σ⇑]) (subset*Term t[σ]⇒t′) ⟩⇒

@@ -333,9 +333,10 @@ private opaque
           ⊢t₃ →
         case ⊩∷-⇒* [ redFirstTerm t₁⇒t₃ , ⊢t₃ , t₁⇒t₃ ⇨ id ⊢t₃ ]
                ⊩t₁ of λ
-          (⊩t₃ , t₁≡t₃) →
+          t₁≡t₃ →
         unitrec-subst ⊢A[σ⇑] ⊢u t₁⇒t₃ ok no-η ⇨
-        conv* (unitrec-subst* ⊩A ⊩σ ⊩t₃ t₃⇒*t₂ ⊢u no-η)
+        conv*
+          (unitrec-subst* ⊩A ⊩σ (wf-⊩≡∷ t₁≡t₃ .proj₂) t₃⇒*t₂ ⊢u no-η)
           (≅-eq $ escape-⊩≡ $
            ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩A) (refl-⊩ˢ≡∷ ⊩σ)
              (sym-⊩≡∷ t₁≡t₃))
@@ -428,13 +429,13 @@ opaque
         case PE.subst₂ (_⊩⟨_⟩_≡_ _ _)
                (PE.sym $ singleSubstLift A₁ t₁) PE.refl $
              ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩A₁) (refl-⊩ˢ≡∷ ⊩σ₁)
-               (⊩∷-⇒* t₁[σ₁]⇒*t₁′ ⊩t₁[σ₁] .proj₂) of λ
+               (⊩∷-⇒* t₁[σ₁]⇒*t₁′ ⊩t₁[σ₁]) of λ
           A₁[t₁]₀[σ₁]≡A₁[σ₁⇑][t₁′]₀ →
         case ≅-eq $ escape-⊩≡ $
              PE.subst₂ (_⊩⟨_⟩_≡_ _ _)
                (PE.sym $ singleSubstLift A₂ t₂) PE.refl $
              ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩A₂) (refl-⊩ˢ≡∷ ⊩σ₂)
-               (⊩∷-⇒* t₂[σ₂]⇒*t₂′ ⊩t₂[σ₂] .proj₂) of λ
+               (⊩∷-⇒* t₂[σ₂]⇒*t₂′ ⊩t₂[σ₂]) of λ
           ⊢A₂[t₂]₀[σ₂]≡A₂[σ₂⇑][t₂′]₀ →
         case rest of λ where
           starᵣ →
@@ -541,7 +542,6 @@ opaque
             escape-⊩∷ (⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ))
            (⊩ᵛUnit→Unit-allowed (wf-∙-⊩ᵛ ⊩A .proj₂)) no-η)
       ⊩t
-      .proj₂
 
 opaque
 
@@ -573,4 +573,3 @@ opaque
          (⊩ᵛ≡→⊩ᵛ≡∷→⊩ᵛ[]₀≡[]₀ (refl-⊩ᵛ≡ ⊩A) $
           η-unitᵛ (starᵛ {l = l} ⊩Γ ok) ⊩t (inj₂ η))
          ⊩u)
-      .proj₂

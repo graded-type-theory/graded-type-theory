@@ -541,12 +541,12 @@ private opaque
           ⊢t₃ →
         case ⊩∷-⇒* [ redFirstTerm t₁⇒t₃ , ⊢t₃ , t₁⇒t₃ ⇨ id ⊢t₃ ]
                ⊩t₁ of λ
-          (⊩t₃ , t₁≡t₃) →
+          t₁≡t₃ →
         prodrec r p q (C [ σ ⇑ ]) t₁ u ∷ C [ σ ⇑ ] [ t₁ ]₀  ⇒⟨ prodrec-subst ⊢A[σ] ⊢B[σ⇑] ⊢C[σ⇑] ⊢u t₁⇒t₃ ok ⟩∷
                                                              ⟨ ≅-eq $ escape-⊩≡ $
                                                                ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀
                                                                  (refl-⊩ᵛ≡ ⊩C) (refl-⊩ˢ≡∷ ⊩σ) t₁≡t₃ ⟩⇒
-        prodrec r p q (C [ σ ⇑ ]) t₃ u ∷ C [ σ ⇑ ] [ t₃ ]₀  ⇒*⟨ prodrec-subst*′ ⊩C ⊩σ t₃⇒*t₂ ⊩t₃ ⊢u ⟩∎∷
+        prodrec r p q (C [ σ ⇑ ]) t₃ u ∷ C [ σ ⇑ ] [ t₃ ]₀  ⇒*⟨ prodrec-subst*′ ⊩C ⊩σ t₃⇒*t₂ (wf-⊩≡∷ t₁≡t₃ .proj₂) ⊢u ⟩∎∷
 
         prodrec r p q (C [ σ ⇑ ]) t₂ u                      ∎
 
@@ -611,9 +611,9 @@ opaque
          ≅-eq $ escape-⊩≡ ΣAB[σ₁]≡ΣAB[σ₂] of λ
       t₂[σ₂]⇒*v₂ →
     case ⊩∷-⇒* t₁[σ₁]⇒*v₁ ⊩t₁[σ₁] of λ
-      (_ , t₁[σ₁]≡v₁) →
+      t₁[σ₁]≡v₁ →
     case ⊩∷-⇒* t₂[σ₂]⇒*v₂ ⊩t₂[σ₂] of λ
-      (_ , t₂[σ₂]≡v₂) →
+      t₂[σ₂]≡v₂ →
     case
       v₁                                      ≡˘⟨ t₁[σ₁]≡v₁ ⟩⊩∷
       t₁ [ σ₁ ] ∷ (Σʷ p , q′ ▷ A ▹ B) [ σ₁ ]  ≡⟨ t₁[σ₁]≡t₂[σ₂] ⟩⊩∷∷
@@ -762,4 +762,3 @@ opaque
            PE.refl ok)
       (PE.subst (_⊩ᵛ⟨_⟩_∷_ _ _ _) ([1,0]↑²[,] C) $
        ⊩ᵛ∷→⊩ᵛ∷→⊩ᵛ∷→⊩ᵛ[]₁₀∷ ⊩v ⊩t ⊩u)
-      .proj₂
