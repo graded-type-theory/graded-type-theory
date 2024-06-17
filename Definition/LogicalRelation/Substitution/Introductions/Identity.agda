@@ -840,10 +840,9 @@ opaque
   ⊩[]-cong ok ⊩v =
     case ⊩∷Id⇔ .proj₁ ⊩v of λ
       (_ , _ , ⊩t , ⊩u , _) →
-    wf-⊩≡∷
-      (⊩[]-cong≡[]-cong ok (refl-⊩≡ (wf-⊩∷ ⊩t)) (refl-⊩≡∷ ⊩t)
-         (refl-⊩≡∷ ⊩u) (refl-⊩≡∷ ⊩v))
-      .proj₁
+    ⊩∷⇔⊩≡∷ .proj₂ $
+    ⊩[]-cong≡[]-cong ok (refl-⊩≡ (wf-⊩∷ ⊩t)) (refl-⊩≡∷ ⊩t)
+      (refl-⊩≡∷ ⊩u) (refl-⊩≡∷ ⊩v)
 
 opaque
 

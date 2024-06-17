@@ -117,8 +117,7 @@ opaque
   ⊩[] :
     Γ ⊩⟨ l ⟩ t ∷ A →
     Γ ⊩⟨ l ⟩ [ t ] ∷ Erased A
-  ⊩[] ⊩t =
-    wf-⊩≡∷ (⊩[]≡[] (refl-⊩≡∷ ⊩t)) .proj₁
+  ⊩[] = ⊩∷⇔⊩≡∷ .proj₂ ∘→ ⊩[]≡[] ∘→ ⊩∷⇔⊩≡∷ .proj₁
 
 opaque
 

@@ -216,19 +216,24 @@ opaque
   wf-⊩≡∷ (⊩A , ⊩t , ⊩u , _) = (⊩A , ⊩t) , (⊩A , ⊩u)
 
 ------------------------------------------------------------------------
--- Changing type levels
+-- Some characterisation lemmas
 
 opaque
-  unfolding _⊩⟨_⟩_∷_
 
-  -- Changing type levels for _⊩⟨_⟩_∷_.
+  -- A characterisation lemma for _⊩⟨_⟩_.
 
-  level-⊩∷ :
-    Γ ⊩⟨ l ⟩ A →
-    Γ ⊩⟨ l′ ⟩ t ∷ A →
-    Γ ⊩⟨ l ⟩ t ∷ A
-  level-⊩∷ ⊩A ⊩t =
-    ⊩A , ⊩∷→⊩∷/ ⊩A ⊩t
+  ⊩⇔⊩≡ : (Γ ⊩⟨ l ⟩ A) ⇔ Γ ⊩⟨ l ⟩ A ≡ A
+  ⊩⇔⊩≡ = refl-⊩≡ , proj₁ ∘→ wf-⊩≡
+
+opaque
+
+  -- A characterisation lemma for _⊩⟨_⟩_∷_.
+
+  ⊩∷⇔⊩≡∷ : Γ ⊩⟨ l ⟩ t ∷ A ⇔ Γ ⊩⟨ l ⟩ t ≡ t ∷ A
+  ⊩∷⇔⊩≡∷ = refl-⊩≡∷ , proj₁ ∘→ wf-⊩≡∷
+
+------------------------------------------------------------------------
+-- Changing type levels
 
 opaque
   unfolding _⊩⟨_⟩_≡_
@@ -257,20 +262,19 @@ opaque
       (⊩t , ⊩u) →
     ⊩A , ⊩∷→⊩∷/ ⊩A ⊩t , ⊩∷→⊩∷/ ⊩A ⊩u , ⊩≡∷→⊩≡∷/ ⊩A t≡u
 
+opaque
+
+  -- Changing type levels for _⊩⟨_⟩_∷_.
+
+  level-⊩∷ :
+    Γ ⊩⟨ l ⟩ A →
+    Γ ⊩⟨ l′ ⟩ t ∷ A →
+    Γ ⊩⟨ l ⟩ t ∷ A
+  level-⊩∷ ⊩A =
+    ⊩∷⇔⊩≡∷ .proj₂ ∘→ level-⊩≡∷ ⊩A ∘→ ⊩∷⇔⊩≡∷ .proj₁
+
 ------------------------------------------------------------------------
 -- Conversion
-
-opaque
-  unfolding _⊩⟨_⟩_≡_ _⊩⟨_⟩_∷_
-
-  -- Conversion for _⊩⟨_⟩_∷_.
-
-  conv-⊩∷ :
-    Γ ⊩⟨ l ⟩ A ≡ B →
-    Γ ⊩⟨ l′ ⟩ t ∷ A →
-    Γ ⊩⟨ l ⟩ t ∷ B
-  conv-⊩∷ (⊩A , ⊩B , A≡B) (⊩A′ , ⊩t) =
-    ⊩B , convTerm₁ ⊩A′ ⊩B (irrelevanceEq ⊩A ⊩A′ A≡B) ⊩t
 
 opaque
   unfolding _⊩⟨_⟩_≡_ _⊩⟨_⟩_≡_∷_
@@ -287,6 +291,17 @@ opaque
       ⊩B , convTerm₁ ⊩A′ ⊩B A≡B ⊩t , convTerm₁ ⊩A′ ⊩B A≡B ⊩u
     , convEqTerm₁ ⊩A′ ⊩B A≡B t≡u
 
+opaque
+
+  -- Conversion for _⊩⟨_⟩_∷_.
+
+  conv-⊩∷ :
+    Γ ⊩⟨ l ⟩ A ≡ B →
+    Γ ⊩⟨ l′ ⟩ t ∷ A →
+    Γ ⊩⟨ l ⟩ t ∷ B
+  conv-⊩∷ A≡B =
+    ⊩∷⇔⊩≡∷ .proj₂ ∘→ conv-⊩≡∷ A≡B ∘→ ⊩∷⇔⊩≡∷ .proj₁
+
 ------------------------------------------------------------------------
 -- Weakening
 
@@ -296,15 +311,6 @@ opaque
 
   wk-⊩ : ρ ∷ Δ ⊇ Γ → ⊢ Δ → Γ ⊩⟨ l ⟩ A → Δ ⊩⟨ l ⟩ wk ρ A
   wk-⊩ = W.wk
-
-opaque
-  unfolding _⊩⟨_⟩_∷_
-
-  -- Weakening for _⊩⟨_⟩_∷_.
-
-  wk-⊩∷ : ρ ∷ Δ ⊇ Γ → ⊢ Δ → Γ ⊩⟨ l ⟩ t ∷ A → Δ ⊩⟨ l ⟩ wk ρ t ∷ wk ρ A
-  wk-⊩∷ Δ⊇Γ ⊢Δ (⊩A , ⊩t) =
-    W.wk Δ⊇Γ ⊢Δ ⊩A , W.wkTerm Δ⊇Γ ⊢Δ ⊩A ⊩t
 
 opaque
   unfolding _⊩⟨_⟩_≡_
@@ -326,6 +332,14 @@ opaque
   wk-⊩≡∷ Δ⊇Γ ⊢Δ (⊩A , ⊩t , ⊩u , t≡u) =
       W.wk Δ⊇Γ ⊢Δ ⊩A , W.wkTerm Δ⊇Γ ⊢Δ ⊩A ⊩t , W.wkTerm Δ⊇Γ ⊢Δ ⊩A ⊩u
     , W.wkEqTerm Δ⊇Γ ⊢Δ ⊩A t≡u
+
+opaque
+
+  -- Weakening for _⊩⟨_⟩_∷_.
+
+  wk-⊩∷ : ρ ∷ Δ ⊇ Γ → ⊢ Δ → Γ ⊩⟨ l ⟩ t ∷ A → Δ ⊩⟨ l ⟩ wk ρ t ∷ wk ρ A
+  wk-⊩∷ Δ⊇Γ ⊢Δ =
+    ⊩∷⇔⊩≡∷ .proj₂ ∘→ wk-⊩≡∷ Δ⊇Γ ⊢Δ ∘→ ⊩∷⇔⊩≡∷ .proj₁
 
 ------------------------------------------------------------------------
 -- Reduction
@@ -779,18 +793,6 @@ opaque
 ------------------------------------------------------------------------
 -- Embedding
 
-private opaque
-
-  -- A lemma used below.
-
-  emb-⊩∷-lemma :
-    {l<l′ : l < l′} {⊩A : LogRelKit._⊩_ k Γ A}
-    (eq : k PE.≡ kit′ l<l′) →
-    LogRelKit._⊩_∷_/_ k Γ t A ⊩A →
-    LogRelKit._⊩_∷_/_ (kit′ l<l′) Γ t A
-      (PE.subst (λ k → LogRelKit._⊩_ k _ _) eq ⊩A)
-  emb-⊩∷-lemma PE.refl ⊩t = ⊩t
-
 opaque
 
   -- Embedding for _⊩⟨_⟩_.
@@ -800,20 +802,6 @@ opaque
     Γ ⊩⟨ l ⟩ A →
     Γ ⊩⟨ l′ ⟩ A
   emb-⊩ = emb-≤-⊩
-
-opaque
-  unfolding _⊩⟨_⟩_∷_
-
-  -- Embedding for _⊩⟨_⟩_∷_.
-
-  emb-⊩∷ :
-    l ≤ l′ →
-    Γ ⊩⟨ l ⟩ t ∷ A →
-    Γ ⊩⟨ l′ ⟩ t ∷ A
-  emb-⊩∷     refl       ⊩t        = ⊩t
-  emb-⊩∷ {Γ} (emb l<l′) (⊩A , ⊩t) =
-      emb l<l′ (PE.subst (λ k → LogRelKit._⊩_ k _ _) (kit≡kit′ l<l′) ⊩A)
-    , emb-⊩∷-lemma (kit≡kit′ l<l′) ⊩t
 
 opaque
   unfolding _⊩⟨_⟩_≡_
@@ -850,16 +838,35 @@ opaque
   emb-⊩≡∷     refl       t≡u                  = t≡u
   emb-⊩≡∷ {Γ} (emb l<l′) (⊩A , ⊩t , ⊩u , t≡u) =
       emb l<l′ (PE.subst (λ k → LogRelKit._⊩_ k _ _) (kit≡kit′ l<l′) ⊩A)
-    , emb-⊩∷-lemma (kit≡kit′ l<l′) ⊩t , emb-⊩∷-lemma (kit≡kit′ l<l′) ⊩u
-    , lemma (kit≡kit′ l<l′) t≡u
+    , lemma₁ (kit≡kit′ l<l′) ⊩t , lemma₁ (kit≡kit′ l<l′) ⊩u
+    , lemma₂ (kit≡kit′ l<l′) t≡u
     where
-    lemma :
+    lemma₁ :
+      {l<l′ : l < l′} {⊩A : LogRelKit._⊩_ k Γ A}
+      (eq : k PE.≡ kit′ l<l′) →
+      LogRelKit._⊩_∷_/_ k Γ t A ⊩A →
+      LogRelKit._⊩_∷_/_ (kit′ l<l′) Γ t A
+        (PE.subst (λ k → LogRelKit._⊩_ k _ _) eq ⊩A)
+    lemma₁ PE.refl ⊩t = ⊩t
+
+    lemma₂ :
       {⊩A : LogRelKit._⊩_ k Γ A}
       (eq : k PE.≡ kit′ l<l′) →
       LogRelKit._⊩_≡_∷_/_ k Γ t u A ⊩A →
       LogRelKit._⊩_≡_∷_/_ (kit′ l<l′) Γ t u A
         (PE.subst (λ k → LogRelKit._⊩_ k _ _) eq ⊩A)
-    lemma PE.refl t≡u = t≡u
+    lemma₂ PE.refl t≡u = t≡u
+
+opaque
+
+  -- Embedding for _⊩⟨_⟩_∷_.
+
+  emb-⊩∷ :
+    l ≤ l′ →
+    Γ ⊩⟨ l ⟩ t ∷ A →
+    Γ ⊩⟨ l′ ⟩ t ∷ A
+  emb-⊩∷ l≤l′ =
+    ⊩∷⇔⊩≡∷ .proj₂ ∘→ emb-⊩≡∷ l≤l′ ∘→ ⊩∷⇔⊩≡∷ .proj₁
 
 ------------------------------------------------------------------------
 -- Some introduction lemmas
