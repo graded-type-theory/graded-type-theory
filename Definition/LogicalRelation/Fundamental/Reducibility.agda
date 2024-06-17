@@ -21,6 +21,7 @@ open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Fundamental R
 open import Definition.LogicalRelation.Irrelevance R
+open import Definition.LogicalRelation.Substitution R
 
 open import Tools.Function
 open import Tools.Nat using (Nat)

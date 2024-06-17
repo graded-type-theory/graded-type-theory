@@ -26,7 +26,6 @@ open import Definition.LogicalRelation.Fundamental.Reducibility R
 open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Properties.Conversion R
 open import Definition.LogicalRelation.Properties.Escape R
-import Definition.LogicalRelation.Substitution.Irrelevance R as IS
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M

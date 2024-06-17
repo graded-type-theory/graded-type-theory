@@ -24,6 +24,7 @@ open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Substitution R
 open import
   Definition.LogicalRelation.Substitution.Introductions.Universe R
+open import Definition.LogicalRelation.Substitution.Introductions.Var R
 
 open import Definition.Typed R
 open import Definition.Typed.Properties R

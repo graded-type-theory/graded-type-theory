@@ -12,7 +12,6 @@ module Definition.LogicalRelation.Substitution.Introductions
   (R : Type-restrictions 𝕄)
   where
 
-open import Definition.LogicalRelation.Substitution.Introductions.DoubleSubst R public
 open import Definition.LogicalRelation.Substitution.Introductions.Empty R public
 open import Definition.LogicalRelation.Substitution.Introductions.Emptyrec R public
 open import Definition.LogicalRelation.Substitution.Introductions.Identity R public
@@ -22,7 +21,6 @@ open import Definition.LogicalRelation.Substitution.Introductions.Pi-Sigma R pub
 open import Definition.LogicalRelation.Substitution.Introductions.Sigma R public
 open import Definition.LogicalRelation.Substitution.Introductions.Sigma.Strong R public
 open import Definition.LogicalRelation.Substitution.Introductions.Sigma.Weak R public
-open import Definition.LogicalRelation.Substitution.Introductions.SingleSubst R public
 open import Definition.LogicalRelation.Substitution.Introductions.Unit R public
 open import Definition.LogicalRelation.Substitution.Introductions.Universe R public
 open import Definition.LogicalRelation.Substitution.Introductions.Var R public

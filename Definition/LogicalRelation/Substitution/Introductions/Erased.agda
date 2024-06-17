@@ -21,6 +21,7 @@ module Definition.LogicalRelation.Substitution.Introductions.Erased
 
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R
+open import Definition.LogicalRelation.Substitution R
 open import
   Definition.LogicalRelation.Substitution.Introductions.Pi-Sigma R
 open import

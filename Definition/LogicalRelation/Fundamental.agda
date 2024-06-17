@@ -20,14 +20,11 @@ open import Definition.Untyped M
 
 open import Definition.Typed R
 open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.Substitution R
-open import Definition.LogicalRelation.Substitution.Escape R
 open import Definition.LogicalRelation.Substitution.Introductions R
 import Definition.LogicalRelation.Substitution.Introductions.Erased R
   as Erased
-open import Definition.LogicalRelation.Substitution.Weakening R
 
 import Graded.Derived.Erased.Untyped 𝕄 as E
 
@@ -48,7 +45,7 @@ opaque mutual
 
   -- Fundamental theorem for contexts.
   valid : ⊢ Γ → ⊩ᵛ Γ
-  valid ε        = ε
+  valid ε        = ⊩ᵛε⇔ .proj₂ _
   valid (_ ∙ ⊢A) = ⊩ᵛ-∙-intro (fundamental-⊩ᵛ ⊢A)
 
   -- Fundamental theorem for types.

@@ -32,7 +32,7 @@ open import Definition.Typed TR
 open import Definition.Typed.Properties TR
 open import Definition.LogicalRelation TR
 import Definition.LogicalRelation.Fundamental TR as F
-open import Definition.LogicalRelation.Hidden TR
+open import Definition.LogicalRelation.Substitution TR
 
 open import Graded.Context 𝕄
 open import Graded.Usage 𝕄 UR

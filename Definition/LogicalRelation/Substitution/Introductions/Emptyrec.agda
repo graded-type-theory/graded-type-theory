@@ -28,9 +28,6 @@ open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.Substitution R
-open import Definition.LogicalRelation.Substitution.Properties R
-import Definition.LogicalRelation.Substitution.Irrelevance R as S
-open import Definition.LogicalRelation.Substitution.Reflexivity R
 open import Definition.LogicalRelation.Substitution.Introductions.Empty R
 
 open import Tools.Function

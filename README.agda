@@ -849,8 +849,12 @@ _®⟨_⟩_∷_/_ = Graded.Erasure.LogicalRelation._®⟨_⟩_∷_/_
 _®ℕ_ = Graded.Erasure.LogicalRelation._®_∷ℕ
 
 -- Valid substitutions.
+--
+-- The current definition does not take the same arguments as the
+-- definition in the paper: the context well-formedness and validity
+-- proofs have been omitted.
 
-_⊩ˢ_∷_/_ = Definition.LogicalRelation.Substitution._⊩ˢ_∷_/_/_
+_⊩′ˢ_∷_ = Definition.LogicalRelation.Substitution._⊩ˢ_∷_
 
 -- Valid contexts.
 
@@ -858,10 +862,11 @@ _⊩ˢ_∷_/_ = Definition.LogicalRelation.Substitution._⊩ˢ_∷_/_/_
 
 -- Valid types.
 --
--- In the paper the type level is written as a subscript instead of
--- within brackets.
+-- The current definition does not take the same arguments as the
+-- definition in the paper: the context validity proof has been
+-- omitted.
 
-_⊩′ᵛ⟨_⟩_/_ = Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_/_
+_⊩′ᵛ⟨_⟩_ = Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_
 
 -- Definition 6.6: The logical relation for substitutions.
 --
@@ -1248,21 +1253,23 @@ _⊩ℕ_≡_ = Definition.LogicalRelation._⊩ℕ_≡_∷ℕ
 
 -- Definition A.7: Validity of substitutions and equality of valid
 -- substitutions.
+--
+-- Note that the current definitions do not take the same arguments as
+-- the definitions in the paper.
 
-_⊩ˢ_∷_/_/_     = Definition.LogicalRelation.Substitution._⊩ˢ_∷_/_/_
-_⊩ˢ_≡_∷_/_/_/_ = Definition.LogicalRelation.Substitution._⊩ˢ_≡_∷_/_/_/_
+_⊩ˢ_∷_   = Definition.LogicalRelation.Substitution._⊩ˢ_∷_
+_⊩ˢ_≡_∷_ = Definition.LogicalRelation.Substitution._⊩ˢ_≡_∷_
 
 -- Definition A.8: Validity of types and terms and equality of valid
 -- types and terms.
 --
--- In the paper the type levels are written as subscripts instead of
--- within brackets.
+-- Note that the current definitions do not take the same arguments as
+-- the definitions in the paper.
 
-_⊩ᵛ⟨_⟩_/_       = Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_/_
-_⊩ᵛ⟨_⟩_∷_/_/_   = Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_∷_/_/_
-_⊩ᵛ⟨_⟩_≡_/_/_   = Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_≡_/_/_
-_⊩ᵛ⟨_⟩_≡_∷_/_/_ =
-  Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_≡_∷_/_/_
+_⊩ᵛ⟨_⟩_     = Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_
+_⊩ᵛ⟨_⟩_∷_   = Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_∷_
+_⊩ᵛ⟨_⟩_≡_   = Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_≡_
+_⊩ᵛ⟨_⟩_≡_∷_ = Definition.LogicalRelation.Substitution._⊩ᵛ⟨_⟩_≡_∷_
 
 -- Theorem A.9: The fundamental lemma.
 

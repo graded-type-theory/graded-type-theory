@@ -22,6 +22,7 @@ open import Definition.Typed.Weakening R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.LogicalRelation.Fundamental R
 open import Definition.LogicalRelation.Hidden R
+open import Definition.LogicalRelation.Substitution R
 
 open import Tools.Fin
 open import Tools.Function

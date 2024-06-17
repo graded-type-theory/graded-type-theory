@@ -27,7 +27,6 @@ open import Definition.LogicalRelation.Properties TR
 open import Definition.LogicalRelation.ShapeView TR
 open import Definition.LogicalRelation.Substitution TR
 open import Definition.LogicalRelation.Substitution.Introductions TR
-import Definition.LogicalRelation.Substitution.Irrelevance TR as IS
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Consequences.Syntactic TR

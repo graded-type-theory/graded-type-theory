@@ -87,23 +87,12 @@ import Definition.LogicalRelation.Properties.Transitivity
 import Definition.LogicalRelation.Properties.Reduction
 import Definition.LogicalRelation.Properties
 import Definition.LogicalRelation.Weakening
+import Definition.LogicalRelation.Hidden
 
 -- The logical relation for validity
 import Definition.LogicalRelation.Substitution
-import Definition.LogicalRelation.Substitution.Irrelevance
-import Definition.LogicalRelation.Substitution.Conversion
-import Definition.LogicalRelation.Substitution.Reduction
-import Definition.LogicalRelation.Substitution.Reflexivity
-import Definition.LogicalRelation.Substitution.Weakening
-import Definition.LogicalRelation.Substitution.MaybeEmbed
-import Definition.LogicalRelation.Substitution.Properties
-import Definition.LogicalRelation.Substitution.Reducibility
-import Definition.LogicalRelation.Substitution.Escape
 
 -- The fundamental lemma of the logical relations
-import Definition.LogicalRelation.Substitution.Introductions.SingleSubst
-import Definition.LogicalRelation.Substitution.Introductions.DoubleSubst
-import Definition.LogicalRelation.Hidden
 import Definition.LogicalRelation.Substitution.Introductions.Var
 import Definition.LogicalRelation.Substitution.Introductions.Universe
 import Definition.LogicalRelation.Substitution.Introductions.Empty

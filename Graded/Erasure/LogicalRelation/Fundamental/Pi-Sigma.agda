@@ -25,6 +25,7 @@ open import Definition.LogicalRelation.Fundamental TR
 open import Definition.LogicalRelation.Fundamental.Reducibility TR
 open import Definition.LogicalRelation.Hidden TR
 open import Definition.LogicalRelation.Properties TR
+open import Definition.LogicalRelation.Substitution TR
 import Definition.LogicalRelation.Substitution.Introductions TR as I
 
 open import Definition.Typed TR

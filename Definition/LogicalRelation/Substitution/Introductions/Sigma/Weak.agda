@@ -22,6 +22,7 @@ open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.ShapeView R
+open import Definition.LogicalRelation.Substitution R
 open import
   Definition.LogicalRelation.Substitution.Introductions.Pi-Sigma R
 open import Definition.LogicalRelation.Substitution.Introductions.Var R

@@ -30,7 +30,6 @@ open import Definition.LogicalRelation TR hiding (_≤_)
 open import Definition.LogicalRelation.Hidden TR
 import Definition.LogicalRelation.Properties TR as LP
 open import Definition.LogicalRelation.Substitution TR
-open import Definition.LogicalRelation.Substitution.Properties TR
 open import Definition.LogicalRelation.Substitution.Introductions.Nat TR
 import Definition.LogicalRelation.Substitution.Introductions.Var TR as V
 

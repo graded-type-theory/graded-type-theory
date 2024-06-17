@@ -34,6 +34,7 @@ open import Definition.LogicalRelation.Fundamental R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
 open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Properties R
+open import Definition.LogicalRelation.Substitution R
 import Definition.LogicalRelation.Substitution.Introductions.Erased R
   as IE
 open import Definition.LogicalRelation.Substitution.Introductions R

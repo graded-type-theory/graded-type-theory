@@ -30,7 +30,7 @@ import Graded.Erasure.Target as T
 open import Graded.Erasure.Extraction 𝕄
 
 open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Hidden R
+open import Definition.LogicalRelation.Substitution R
 open import Definition.LogicalRelation.Substitution.Introductions.Empty R
 open import Definition.Untyped M
 

@@ -60,7 +60,6 @@ opaque
           (substTypeEq (refl ⊢B) (sym (fst-cong′ (subsetTerm t⇒v))))
 
 opaque
-  unfolding _⊩ᵛ⟨_⟩_ _⊩⟨_⟩_∷_
 
   -- A variant of natrec-subst for _⊢_⇒*_∷_.
 
@@ -109,7 +108,6 @@ unitrec-subst* (x ⇨ d) ⊢A ⊢u not-ok =
   ok = ⊢∷Unit→Unit-allowed (redFirstTerm x)
 
 opaque
-  unfolding _⊩ᵛ⟨_⟩_ _⊩⟨_⟩_∷_
 
   -- A variant of K-subst for _⊢_⇒*_∷_.
 
@@ -124,7 +122,6 @@ opaque
       (reducible-⊩∷ (syntacticRedTerm v₁⇒*v₂ .proj₂ .proj₂)) ok
 
 opaque
-  unfolding _⊩ᵛ⟨_⟩_ _⊩⟨_⟩_∷_
 
   -- A variant of J-subst for _⊢_⇒*_∷_.
 
