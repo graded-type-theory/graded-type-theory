@@ -323,21 +323,3 @@ record EqRelSet : Set (lsuc ℓ) where
 
     ≅-Unitrefl : ⊢ Γ → Unit-allowed s → Γ ⊢ Unit s ≅ Unit s
     ≅-Unitrefl ⊢Γ ok = ≅-univ (≅ₜ-Unitrefl ⊢Γ ok)
-
-  ≅-W-cong : ∀ {F G H E} W
-          → Γ ⊢ F
-          → Γ ⊢ F ≅ H
-          → Γ ∙ F ⊢ G ≅ E
-          → BindingType-allowed W
-          → Γ ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W ⟧ H ▹ E
-  ≅-W-cong BΠ! = ≅-ΠΣ-cong
-  ≅-W-cong BΣ! = ≅-ΠΣ-cong
-
-  ≅ₜ-W-cong : ∀ {F G H E} W
-            → Γ ⊢ F
-            → Γ ⊢ F ≅ H ∷ U
-            → Γ ∙ F ⊢ G ≅ E ∷ U
-            → BindingType-allowed W
-            → Γ ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W ⟧ H ▹ E ∷ U
-  ≅ₜ-W-cong BΠ! = ≅ₜ-ΠΣ-cong
-  ≅ₜ-W-cong BΣ! = ≅ₜ-ΠΣ-cong
