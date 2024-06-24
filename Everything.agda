@@ -36,6 +36,40 @@ import Graded.Modality.Dedicated-nr
 import Graded.Modality.Dedicated-nr.Instance
 
 ------------------------------------------------------------------------
+-- Properties of the modality semiring
+
+import Graded.Modality.Properties.PartialOrder
+import Graded.Modality.Properties.Equivalence
+import Graded.Modality.Properties.Meet
+import Graded.Modality.Properties.Multiplication
+import Graded.Modality.Properties.Addition
+import Graded.Modality.Properties.Division
+import Graded.Modality.Properties.Has-well-behaved-zero
+import Graded.Modality.Properties.Star
+import Graded.Modality.Properties
+
+------------------------------------------------------------------------
+-- Modality contexts and their properties
+
+import Graded.Context
+import Graded.Context.Properties.Equivalence
+import Graded.Context.Properties.PartialOrder
+import Graded.Context.Properties.Meet
+import Graded.Context.Properties.Addition
+import Graded.Context.Properties.Multiplication
+import Graded.Context.Properties.Natrec
+import Graded.Context.Properties.Star
+import Graded.Context.Properties.Lookup
+import Graded.Context.Properties.Update
+import Graded.Context.Properties.Has-well-behaved-zero
+import Graded.Context.Properties
+
+------------------------------------------------------------------------
+-- Usage modes
+
+import Graded.Mode
+
+------------------------------------------------------------------------
 -- The type theory's syntax
 
 import Definition.Untyped.NotParametrised
@@ -49,13 +83,13 @@ import Definition.Untyped.Unit
 import Graded.Derived.Erased.Eta.Untyped
 import Graded.Derived.Erased.NoEta.Untyped
 import Graded.Derived.Erased.Untyped
+import Graded.Derived.Unrestricted.Eta.Untyped
 import Definition.Typed.Variant
 import Definition.Untyped.Neutral
 
 ------------------------------------------------------------------------
--- The type theory
+-- The type theory, along with some basic properties
 
--- Typing and conversion rules of language
 import Definition.Typed.Restrictions
 import Definition.Typed
 import Definition.Typed.Reasoning.Type
@@ -71,139 +105,9 @@ import Definition.Typed.Reduction
 import Definition.Typed.EqualityRelation
 import Definition.Typed.EqRelInstance
 
--- The logical relation for reducibility
-import Definition.LogicalRelation
-import Definition.LogicalRelation.Properties.Whnf
-import Definition.LogicalRelation.Properties.Reflexivity
-import Definition.LogicalRelation.Properties.Escape
-import Definition.LogicalRelation.ShapeView
-import Definition.LogicalRelation.Irrelevance
-import Definition.LogicalRelation.Properties.Conversion
-import Definition.LogicalRelation.Properties.MaybeEmb
-import Definition.LogicalRelation.Properties.Symmetry
-import Definition.LogicalRelation.Properties.Neutral
-import Definition.LogicalRelation.Properties.Universe
-import Definition.LogicalRelation.Properties.Transitivity
-import Definition.LogicalRelation.Properties.Reduction
-import Definition.LogicalRelation.Properties
-import Definition.LogicalRelation.Weakening
-import Definition.LogicalRelation.Hidden
-
--- The logical relation for validity
-import Definition.LogicalRelation.Substitution
-
--- The fundamental lemma of the logical relations
-import Definition.LogicalRelation.Substitution.Introductions.Var
-import Definition.LogicalRelation.Substitution.Introductions.Universe
-import Definition.LogicalRelation.Substitution.Introductions.Empty
-import Definition.LogicalRelation.Substitution.Introductions.Emptyrec
-import Definition.LogicalRelation.Substitution.Introductions.Unit
-import Definition.LogicalRelation.Substitution.Introductions.Nat
-import Definition.LogicalRelation.Substitution.Introductions.Pi-Sigma
-import Definition.LogicalRelation.Substitution.Introductions.Pi
-import
-  Definition.LogicalRelation.Substitution.Introductions.Sigma.Strong
-import Definition.LogicalRelation.Substitution.Introductions.Sigma.Weak
-import Definition.LogicalRelation.Substitution.Introductions.Sigma
-import Definition.LogicalRelation.Substitution.Introductions.Erased
-import Definition.LogicalRelation.Substitution.Introductions.Identity
-import Definition.LogicalRelation.Substitution.Introductions
-import Definition.LogicalRelation.Fundamental
-import Definition.LogicalRelation.Fundamental.Reducibility
-
--- Consequences of the logical relation for typing
-import Definition.Typed.Consequences.Injectivity
-import Definition.Typed.Consequences.Syntactic
-import Definition.Typed.Consequences.Inequality
-import Definition.Typed.Consequences.Substitution
-import Definition.Typed.Consequences.Stability
-import Definition.Typed.Consequences.Inversion
-import Definition.Typed.Consequences.Equality
-import Definition.Typed.Consequences.Canonicity
-import Definition.Typed.Consequences.Reduction
-import Definition.Typed.Reasoning.Reduction
-import Definition.Typed.Consequences.DerivedRules.Nat
-import Definition.Typed.Consequences.DerivedRules.Pi-Sigma
-import Definition.Typed.Consequences.DerivedRules.Pi
-import Definition.Typed.Consequences.DerivedRules.Identity
-import Definition.Typed.Consequences.DerivedRules.Sigma
-import Definition.Typed.Consequences.DerivedRules.Unit
-import Definition.Typed.Consequences.DerivedRules
-import Definition.Typed.Consequences.InverseUniv
-import Graded.Derived.Erased.Eta.Typed.Primitive
-import Graded.Derived.Erased.Eta.Typed
-import Graded.Derived.Erased.NoEta.Typed
-import Graded.Derived.Erased.Typed.Inversion
-import Graded.Derived.Erased.Typed
-import Definition.Typed.Consequences.NeTypeEq
-import Definition.Typed.Consequences.Consistency
-import Definition.Typed.Consequences.RedSteps
-
--- Algorithmic equality with lemmas that depend on typing consequences
-import Definition.Conversion
-import Definition.Conversion.Whnf
-import Definition.Conversion.Reduction
-import Definition.Conversion.Soundness
-import Definition.Conversion.Stability
-import Definition.Conversion.Conversion
-import Definition.Conversion.Symmetry
-import Definition.Conversion.Transitivity
-import Definition.Conversion.Weakening
-import Definition.Conversion.Lift
-import Definition.Conversion.Universe
-import Definition.Conversion.Decidable
-import Definition.Conversion.EqRelInstance
-import Definition.Conversion.Consequences.Completeness
-import Definition.Conversion.Consequences.Var
-import Definition.Untyped.Normal-form
-import Definition.Typed.Eta-long-normal-form
-import Definition.Conversion.FullReduction
-
--- Bi-directional typechecking
-import Definition.Typechecking
-import Definition.Typechecking.Deterministic
-import Definition.Typechecking.Soundness
-import Definition.Typechecking.Completeness
-
--- Decidability of typing
-import Definition.Typed.Decidable.Equality
-import Definition.Typed.Decidable.Reduction
-import Definition.Typechecking.Decidable.Assumptions
-import Definition.Typechecking.Decidable
-import Definition.Typed.Decidable
-
 ------------------------------------------------------------------------
--- Graded modalities and usage
+-- The usage relation
 
--- Properties of the modality semiring
-import Graded.Modality.Properties.PartialOrder
-import Graded.Modality.Properties.Equivalence
-import Graded.Modality.Properties.Meet
-import Graded.Modality.Properties.Multiplication
-import Graded.Modality.Properties.Addition
-import Graded.Modality.Properties.Division
-import Graded.Modality.Properties.Has-well-behaved-zero
-import Graded.Modality.Properties.Star
-import Graded.Modality.Properties
-
--- Modality contexts and their properties
-import Graded.Context
-import Graded.Context.Properties.Equivalence
-import Graded.Context.Properties.PartialOrder
-import Graded.Context.Properties.Meet
-import Graded.Context.Properties.Addition
-import Graded.Context.Properties.Multiplication
-import Graded.Context.Properties.Natrec
-import Graded.Context.Properties.Star
-import Graded.Context.Properties.Lookup
-import Graded.Context.Properties.Update
-import Graded.Context.Properties.Has-well-behaved-zero
-import Graded.Context.Properties
-
--- Usage modes
-import Graded.Mode
-
--- The usage relation and its properties
 import Graded.Usage.Erased-matches
 import Graded.Usage.Restrictions
 import Graded.Usage
@@ -215,17 +119,15 @@ import Graded.Usage.Weakening
 import Graded.Usage.Decidable.Assumptions
 import Graded.Usage.Decidable
 
--- Definitions related to type and usage restrictions
-import Graded.Restrictions
+------------------------------------------------------------------------
+-- Grade substitutions
 
--- Modality substitutions
 import Graded.Substitution
 import Graded.Substitution.Properties
 import Graded.Substitution.Decidable
 
--- Assumptions used to state the theorems in
--- Graded.FullReduction
-import Graded.FullReduction.Assumptions
+------------------------------------------------------------------------
+-- Some derived definitions related to usage
 
 -- An investigation of to what degree weak Σ-types can emulate strong
 -- Σ-types, and vice versa.
@@ -234,13 +136,25 @@ import Graded.Derived.Sigma
 -- Properties related to usage and certain type formers.
 import Graded.Derived.Identity
 import Graded.Derived.Unit
+import Graded.Derived.Erased.Eta.Usage
+import Graded.Derived.Erased.NoEta.Usage
+import Graded.Derived.Erased.Usage
+import Graded.Derived.Unrestricted.Eta.Usage
+
+------------------------------------------------------------------------
+-- Assumptions used to state the theorems in Graded.FullReduction
+
+import Graded.FullReduction.Assumptions
+
+------------------------------------------------------------------------
+-- Modality instances
 
 -- Some structures that are not modalities.
 import Graded.Modality.Instances.Set
 import Graded.Modality.Instances.Set.Non-empty
 import Graded.Modality.Instances.Set.Non-empty.Implementation
 
--- Modality pseudo-instances
+-- Modality pseudo-instances.
 import Graded.Modality.Instances.LowerBounded
 import Graded.Modality.Instances.BoundedStar
 import Graded.Modality.Instances.Finite
@@ -251,7 +165,7 @@ import Graded.Modality.Instances.Zero-one-many
 import Graded.Modality.Instances.Bounded-distributive-lattice
 import Graded.Modality.Instances.Set.Interval
 
--- Modality instances
+-- Modality instances.
 import Graded.Modality.Instances.Erasure.Modality
 import Graded.Modality.Instances.Erasure.Properties
 import Graded.Modality.Instances.Unit
@@ -282,25 +196,127 @@ import Graded.Modality.Instances.Linearity.Bad
 import Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr
 import Graded.Modality.Instances.Linearity.Good
 
--- The type Erased.
+------------------------------------------------------------------------
+-- Properties of the type theory
+
+-- The logical relation for reducibility.
+import Definition.LogicalRelation
+import Definition.LogicalRelation.Properties.Whnf
+import Definition.LogicalRelation.Properties.Reflexivity
+import Definition.LogicalRelation.Properties.Escape
+import Definition.LogicalRelation.ShapeView
+import Definition.LogicalRelation.Irrelevance
+import Definition.LogicalRelation.Properties.Conversion
+import Definition.LogicalRelation.Properties.MaybeEmb
+import Definition.LogicalRelation.Properties.Symmetry
+import Definition.LogicalRelation.Properties.Neutral
+import Definition.LogicalRelation.Properties.Universe
+import Definition.LogicalRelation.Properties.Transitivity
+import Definition.LogicalRelation.Properties.Reduction
+import Definition.LogicalRelation.Properties
+import Definition.LogicalRelation.Weakening
+import Definition.LogicalRelation.Hidden
+
+-- The logical relation for validity.
+import Definition.LogicalRelation.Substitution
+
+-- The fundamental lemma of the logical relations.
+import Definition.LogicalRelation.Substitution.Introductions.Var
+import Definition.LogicalRelation.Substitution.Introductions.Universe
+import Definition.LogicalRelation.Substitution.Introductions.Empty
+import Definition.LogicalRelation.Substitution.Introductions.Emptyrec
+import Definition.LogicalRelation.Substitution.Introductions.Unit
+import Definition.LogicalRelation.Substitution.Introductions.Nat
+import Definition.LogicalRelation.Substitution.Introductions.Pi-Sigma
+import Definition.LogicalRelation.Substitution.Introductions.Pi
+import
+  Definition.LogicalRelation.Substitution.Introductions.Sigma.Strong
+import Definition.LogicalRelation.Substitution.Introductions.Sigma.Weak
+import Definition.LogicalRelation.Substitution.Introductions.Sigma
+import Definition.LogicalRelation.Substitution.Introductions.Erased
+import Definition.LogicalRelation.Substitution.Introductions.Identity
+import Definition.LogicalRelation.Substitution.Introductions
+import Definition.LogicalRelation.Fundamental
+import Definition.LogicalRelation.Fundamental.Reducibility
+
+-- Some consequences of the fundamental lemma.
+import Definition.Typed.Consequences.Injectivity
+import Definition.Typed.Consequences.Syntactic
+import Definition.Typed.Consequences.Inequality
+import Definition.Typed.Consequences.Substitution
+import Definition.Typed.Consequences.Stability
+import Definition.Typed.Consequences.Inversion
+import Definition.Typed.Consequences.Equality
+import Definition.Typed.Consequences.Canonicity
+import Definition.Typed.Consequences.Reduction
+import Definition.Typed.Reasoning.Reduction
+import Definition.Typed.Consequences.DerivedRules.Nat
+import Definition.Typed.Consequences.DerivedRules.Pi-Sigma
+import Definition.Typed.Consequences.DerivedRules.Pi
+import Definition.Typed.Consequences.DerivedRules.Identity
+import Definition.Typed.Consequences.DerivedRules.Sigma
+import Definition.Typed.Consequences.DerivedRules.Unit
+import Definition.Typed.Consequences.DerivedRules
+import Definition.Typed.Consequences.InverseUniv
+import Definition.Typed.Consequences.Consistency
+import Definition.Typed.Consequences.RedSteps
+import Graded.Derived.Erased.Eta.Typed.Primitive
+import Graded.Derived.Erased.Eta.Typed
+import Graded.Derived.Erased.NoEta.Typed
+import Graded.Derived.Erased.Typed.Inversion
 import Graded.Derived.Erased.Eta.Typed.Inversion
 import Graded.Derived.Erased.NoEta.Typed.Inversion
-import Graded.Derived.Erased.Eta.Usage
-import Graded.Derived.Erased.NoEta.Usage
-import Graded.Derived.Erased.Usage
-
--- The type Unrestricted (defined using a strong Σ-type).
-import Graded.Derived.Unrestricted.Eta.Untyped
+import Graded.Derived.Erased.Typed
 import Graded.Derived.Unrestricted.Eta.Typed
-import Graded.Derived.Unrestricted.Eta.Usage
+import Definition.Typed.Consequences.NeTypeEq
 
--- Subject reduction for modalities.
+-- Algorithmic equality.
+import Definition.Conversion
+import Definition.Conversion.Whnf
+import Definition.Conversion.Reduction
+import Definition.Conversion.Soundness
+import Definition.Conversion.Stability
+import Definition.Conversion.Conversion
+import Definition.Conversion.Symmetry
+import Definition.Conversion.Transitivity
+import Definition.Conversion.Weakening
+import Definition.Conversion.Lift
+import Definition.Conversion.Universe
+import Definition.Conversion.Decidable
+import Definition.Conversion.EqRelInstance
+import Definition.Conversion.Consequences.Completeness
+import Definition.Conversion.Consequences.Var
+import Definition.Untyped.Normal-form
+import Definition.Typed.Eta-long-normal-form
+import Definition.Conversion.FullReduction
+
+-- Bidirectional typechecking.
+import Definition.Typechecking
+import Definition.Typechecking.Deterministic
+import Definition.Typechecking.Soundness
+import Definition.Typechecking.Completeness
+
+-- Decidability of typing (given certain assumptions).
+import Definition.Typed.Decidable.Equality
+import Definition.Typed.Decidable.Reduction
+import Definition.Typechecking.Decidable.Assumptions
+import Definition.Typechecking.Decidable
+import Definition.Typed.Decidable
+
+------------------------------------------------------------------------
+-- Definitions related to type and usage restrictions
+
+import Graded.Restrictions
+
+------------------------------------------------------------------------
+-- Subject reduction for modalities
+
 import Graded.Reduction
-
--- A "full reduction" lemma for modalities.
 import Graded.FullReduction
 
+------------------------------------------------------------------------
 -- Modality morphisms and quantity translations
+
 import Definition.Untyped.QuantityTranslation
 import Definition.Untyped.QuantityTranslation.Identity
 import Graded.Modality.Morphism
@@ -316,7 +332,8 @@ import Graded.Context.QuantityTranslation
 import Graded.Mode.QuantityTranslation
 import Graded.Usage.QuantityTranslation
 
--- Extended modalities.
+------------------------------------------------------------------------
+-- Extended modalities
 
 import Graded.Modality.Extended
 import Graded.Modality.Extended.K-allowed
@@ -327,8 +344,7 @@ import Graded.Modality.Extended.K-not-allowed.No-erased-matches
 ------------------------------------------------------------------------
 -- A case study: erasure
 
--- Target language
-
+-- The target language.
 import Graded.Erasure.Target
 import Graded.Erasure.Target.Properties.Weakening
 import Graded.Erasure.Target.Properties.Substitution
@@ -337,14 +353,12 @@ import Graded.Erasure.Target.Properties
 import Graded.Erasure.Target.Reasoning
 import Graded.Erasure.Target.Non-terminating
 
--- Extraction
-
+-- Extraction.
 import Graded.Erasure.Extraction
 import Graded.Erasure.Extraction.Properties
 import Graded.Erasure.Extraction.Non-terminating
 
--- Logical relation for Erasure
-
+-- The logical relation for erasure.
 import Graded.Erasure.LogicalRelation.Assumptions
 import Graded.Erasure.LogicalRelation
 import Graded.Erasure.LogicalRelation.Conversion
@@ -353,8 +367,7 @@ import Graded.Erasure.LogicalRelation.Reduction
 import Graded.Erasure.LogicalRelation.Hidden
 import Graded.Erasure.LogicalRelation.Value
 
--- The fundamental lemma of the logical relation
-
+-- The fundamental lemma of the logical relation for erasure.
 import Graded.Erasure.LogicalRelation.Fundamental.Empty
 import Graded.Erasure.LogicalRelation.Fundamental.Nat
 import Graded.Erasure.LogicalRelation.Fundamental.Pi-Sigma
@@ -363,52 +376,48 @@ import Graded.Erasure.LogicalRelation.Fundamental.Identity
 import Graded.Erasure.LogicalRelation.Fundamental.Assumptions
 import Graded.Erasure.LogicalRelation.Fundamental
 
--- Soundness of Extraction function
+-- Soundness of extraction.
 import Graded.Erasure.SucRed
 import Graded.Erasure.Consequences.Soundness
 import Graded.Erasure.Consequences.Soundness.Erased-matches
-
--- The fundamental lemma does not hold in general without the
--- assumption that erased matches are disallowed or the context is
--- empty
 import Graded.Erasure.LogicalRelation.Fundamental.Counterexample
 
--- Non-interference
+-- Some consequences of the fundamental lemma.
 import Graded.Erasure.Consequences.Non-interference
-
--- More consequences of the fundamental lemma.
 import Graded.Erasure.Consequences.Identity
 import Graded.Erasure.Consequences.Resurrectable
 
--- A result related to neutral terms and usage.
+-- Some examples related to the erasure modality and extraction.
+import Graded.Erasure.Examples
+
+------------------------------------------------------------------------
+-- A result related to neutral terms and usage
+
 import Graded.Neutral
 
+------------------------------------------------------------------------
 -- Some discussion of under what circumstances a []-cong combinator
--- can be defined.
+-- can be defined
+
 import Graded.Box-cong
-
--- Some examples related to the erasure modality and extraction
-
-import Graded.Erasure.Examples
 
 ------------------------------------------------------------------------
 -- Some applications
 
--- Application: consistent negative axioms preserve canonicity
+-- An application: consistent negative axioms preserve canonicity.
 import Application.NegativeAxioms.NegativeType
 import Application.NegativeAxioms.NegativeContext
 import Application.NegativeAxioms.Canonicity
 
--- Application: consistent negative or erased axioms preserve canonicity
+-- An application: consistent negative or erased axioms preserve
+-- canonicity (if erased matches are not allowed).
 import Application.NegativeOrErasedAxioms.NegativeOrErasedType
 import Application.NegativeOrErasedAxioms.NegativeOrErasedContext
 import Application.NegativeOrErasedAxioms.Canonicity
--- ... but not if matching is allowed on erased pairs
 import Application.NegativeOrErasedAxioms.Canonicity.ErasedMatches
 
 ------------------------------------------------------------------------
--- Pointers to code related to a paper
-
 -- Pointers to code related to the paper "A Graded Modal Dependent
--- Type Theory with a Universe and Erasure, Formalized".
+-- Type Theory with a Universe and Erasure, Formalized"
+
 import README
