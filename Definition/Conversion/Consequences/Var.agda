@@ -23,6 +23,7 @@ open import Definition.Untyped.Neutral M type-variant
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
+open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Sum
 
@@ -67,11 +68,11 @@ var-only-equal-to-itself =
   [conv↑]∷-lemma :
     No-η-equality A → Whnf t → Γ ⊢ var x [conv↑] t ∷ A → var x PE.≡ t
   [conv↑]∷-lemma A-no-η t-whnf x≡t =
-    case whnfRed* D (No-η-equality→Whnf A-no-η) of λ {
+    case whnfRed* (D .proj₁) (No-η-equality→Whnf A-no-η) of λ {
       PE.refl →
-    case whnfRed*Term d (ne (var _)) of λ {
+    case whnfRed*Term (d .proj₁) (ne (var _)) of λ {
       PE.refl →
-    case whnfRed*Term d′ t-whnf of λ {
+    case whnfRed*Term (d′ .proj₁) t-whnf of λ {
       PE.refl →
     [conv↓]∷-lemma A-no-η t-whnf t<>u }}}
     where

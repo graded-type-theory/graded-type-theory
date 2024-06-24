@@ -103,7 +103,7 @@ module Counterexample
     × Consistent Γ
     × ((∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ) → ⊥)
     × ((∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ) → ⊥)
-    × (∃ λ u → Γ ⊢ t ⇒* u ∷ ℕ × Whnf u × Neutral u)
+    × (∃ λ u → Γ ⊢ t ↘ u ∷ ℕ × Neutral u)
   cEx =
       _
     , ε ∙ (Σʷ ω , 𝟘 ▷ ℕ ▹ ℕ) , _ , prodrec 𝟘 ω 𝟘 ℕ (var x0) zero
@@ -118,7 +118,7 @@ module Counterexample
          ; (.(suc _) , sucₙ numU , t≡u) → lem′ (completeEqTerm t≡u)
          })
     , (λ { (u , numU , (whred x ⇨ˢ d)) → neRedTerm x (prodrecₙ (var x0))})
-    , (_ , id ⊢prodrec , ne neutral , neutral)
+    , (_ , (id ⊢prodrec , ne neutral) , neutral)
     where
     open E
 
@@ -126,26 +126,26 @@ module Counterexample
       ε ∙ (Σʷ ω , 𝟘 ▷ ℕ ▹ ℕ) ⊢
         prodrec 𝟘 ω 𝟘 ℕ (var x0) zero [conv↑] zero ∷ ℕ →
       ⊥
-    lem ([↑]ₜ B t′ u′ D d d′ whnfB whnft′ whnfu′ t<>u)
+    lem ([↑]ₜ _ _ _ (D , _) (d , _) (d′ , _) _)
       with whnfRed*Term d (ne (prodrecₙ (var x0)))
          | whnfRed*Term d′ zeroₙ
          | whnfRed* D ℕₙ
-    lem ([↑]ₜ _ _ _ D d d′ whnfB whnft′ whnfu′ (ℕ-ins ()))
+    lem ([↑]ₜ _ _ _ _ _ _ (ℕ-ins ()))
       | PE.refl | PE.refl | PE.refl
-    lem ([↑]ₜ _ _ _ D d d′ whnfB whnft′ whnfu′ (ne-ins x x₁ x₂ ()))
+    lem ([↑]ₜ _ _ _ _ _ _ (ne-ins _ _ _ ()))
       | PE.refl | PE.refl | PE.refl
 
     lem′ :
       ε ∙ (Σʷ ω , 𝟘 ▷ ℕ ▹ ℕ) ⊢
         prodrec 𝟘 ω 𝟘 ℕ (var x0) zero [conv↑] suc t ∷ ℕ →
       ⊥
-    lem′ ([↑]ₜ B t′ u′ D d d′ whnfB whnft′ whnfu′ t<>u)
+    lem′ ([↑]ₜ _ _ _ (D , _) (d , _) (d′ , _) _)
       with whnfRed*Term d (ne (prodrecₙ (var x0)))
          | whnfRed*Term d′ sucₙ
          | whnfRed* D ℕₙ
-    lem′ ([↑]ₜ _ _ _ D d d′ whnfB whnft′ whnfu′ (ℕ-ins ()))
+    lem′ ([↑]ₜ _ _ _ _ _ _ (ℕ-ins ()))
       | PE.refl | PE.refl | PE.refl
-    lem′ ([↑]ₜ _ _ _ D d d′ whnfB whnft′ whnfu′ (ne-ins x x₁ x₂ ()))
+    lem′ ([↑]ₜ _ _ _ _ _ _ (ne-ins _ _ _ ()))
       | PE.refl | PE.refl | PE.refl
 
     ε⊢ℕ = ℕⱼ ε

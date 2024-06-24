@@ -217,17 +217,18 @@ mutual
   -- Symmetry of algorithmic equality of neutrals of types in WHNF.
   sym~↓ : ∀ {t u A} → ⊢ Γ ≡ Δ → Γ ⊢ t ~ u ↓ A
          → ∃ λ B → Whnf B × Γ ⊢ A ≡ B × Δ ⊢ u ~ t ↓ B
-  sym~↓ Γ≡Δ ([~] A₁ D whnfA k~l) =
+  sym~↓ Γ≡Δ ([~] A₁ (D , whnfA) k~l) =
     let B , A≡B , k~l′ = sym~↑ Γ≡Δ k~l
         _ , ⊢B = syntacticEq A≡B
         B′ , whnfB′ , D′ = whNorm ⊢B
         A≡B′ = trans (sym (subset* D)) (trans A≡B (subset* (red D′)))
-    in  B′ , whnfB′ , A≡B′ , [~] B (stabilityRed* Γ≡Δ (red D′)) whnfB′ k~l′
+    in  B′ , whnfB′ , A≡B′ ,
+        [~] B (stabilityRed* Γ≡Δ (red D′) , whnfB′) k~l′
 
   -- Symmetry of algorithmic equality of types.
   symConv↑ : ∀ {A B} → ⊢ Γ ≡ Δ → Γ ⊢ A [conv↑] B → Δ ⊢ B [conv↑] A
-  symConv↑ Γ≡Δ ([↑] A′ B′ D D′ whnfA′ whnfB′ A′<>B′) =
-    [↑] B′ A′ (stabilityRed* Γ≡Δ D′) (stabilityRed* Γ≡Δ D) whnfB′ whnfA′
+  symConv↑ Γ≡Δ ([↑] A′ B′ D D′ A′<>B′) =
+    [↑] B′ A′ (stabilityRed↘ Γ≡Δ D′) (stabilityRed↘ Γ≡Δ D)
         (symConv↓ Γ≡Δ A′<>B′)
 
   -- Symmetry of algorithmic equality of types in WHNF.
@@ -264,9 +265,9 @@ mutual
 
   -- Symmetry of algorithmic equality of terms.
   symConv↑Term : ∀ {t u A} → ⊢ Γ ≡ Δ → Γ ⊢ t [conv↑] u ∷ A → Δ ⊢ u [conv↑] t ∷ A
-  symConv↑Term Γ≡Δ ([↑]ₜ B t′ u′ D d d′ whnfB whnft′ whnfu′ t<>u) =
-    [↑]ₜ B u′ t′ (stabilityRed* Γ≡Δ D) (stabilityRed*Term Γ≡Δ d′)
-         (stabilityRed*Term Γ≡Δ d) whnfB whnfu′ whnft′ (symConv↓Term Γ≡Δ t<>u)
+  symConv↑Term Γ≡Δ ([↑]ₜ B t′ u′ D d d′ t<>u) =
+    [↑]ₜ B u′ t′ (stabilityRed↘ Γ≡Δ D) (stabilityRed↘Term Γ≡Δ d′)
+         (stabilityRed↘Term Γ≡Δ d) (symConv↓Term Γ≡Δ t<>u)
 
   -- Symmetry of algorithmic equality of terms in WHNF.
   symConv↓Term : ∀ {t u A} → ⊢ Γ ≡ Δ → Γ ⊢ t [conv↓] u ∷ A → Δ ⊢ u [conv↓] t ∷ A

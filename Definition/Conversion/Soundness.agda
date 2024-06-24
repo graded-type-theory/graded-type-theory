@@ -88,11 +88,11 @@ mutual
 
   -- Algorithmic equality of neutrals in WHNF is well-formed.
   soundness~↓ : ∀ {k l A} → Γ ⊢ k ~ l ↓ A → Γ ⊢ k ≡ l ∷ A
-  soundness~↓ ([~] A₁ D whnfA k~l) = conv (soundness~↑ k~l) (subset* D)
+  soundness~↓ ([~] A₁ (D , _) k~l) = conv (soundness~↑ k~l) (subset* D)
 
   -- Algorithmic equality of types is well-formed.
   soundnessConv↑ : ∀ {A B} → Γ ⊢ A [conv↑] B → Γ ⊢ A ≡ B
-  soundnessConv↑ ([↑] A′ B′ D D′ whnfA′ whnfB′ A′<>B′) =
+  soundnessConv↑ ([↑] _ _ (D , _) (D′ , _) A′<>B′) =
     trans (subset* D) (trans (soundnessConv↓ A′<>B′) (sym (subset* D′)))
 
   -- Algorithmic equality of types in WHNF is well-formed.
@@ -110,7 +110,7 @@ mutual
 
   -- Algorithmic equality of terms is well-formed.
   soundnessConv↑Term : ∀ {a b A} → Γ ⊢ a [conv↑] b ∷ A → Γ ⊢ a ≡ b ∷ A
-  soundnessConv↑Term ([↑]ₜ B t′ u′ D d d′ whnfB whnft′ whnfu′ t<>u) =
+  soundnessConv↑Term ([↑]ₜ B t′ u′ (D , _) (d , _) (d′ , _) t<>u) =
     conv (trans (subset*Term d)
                 (trans (soundnessConv↓Term t<>u)
                        (sym (subset*Term d′))))

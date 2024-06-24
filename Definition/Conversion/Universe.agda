@@ -22,6 +22,7 @@ open import Definition.Conversion.Reduction R
 open import Definition.Conversion.Lift R
 
 open import Tools.Nat
+open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 private
@@ -40,6 +41,6 @@ univConv↓ (univ x x₁ x₂) = x₂
 univConv↑ : ∀ {A B}
       → Γ ⊢ A [conv↑] B ∷ U
       → Γ ⊢ A [conv↑] B
-univConv↑ ([↑]ₜ B₁ t′ u′ D d d′ whnfB whnft′ whnfu′ t<>u)
+univConv↑ ([↑]ₜ _ _ _ (D , _) (d , _) (d′ , _) t<>u)
       rewrite PE.sym (whnfRed* D Uₙ) =
   reductionConv↑ (univ* d) (univ* d′) (liftConv (univConv↓ t<>u))

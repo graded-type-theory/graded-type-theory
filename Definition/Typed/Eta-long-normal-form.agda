@@ -1096,7 +1096,7 @@ mutual
 
   normal-types-unique-[conv↑] :
     Γ ⊢nf A → Γ ⊢nf B → Γ ⊢ A [conv↑] B → A PE.≡ B
-  normal-types-unique-[conv↑] ⊢A ⊢B ([↑] _ _ A⇒* B⇒* _ _ A≡B) =
+  normal-types-unique-[conv↑] ⊢A ⊢B ([↑] _ _ (A⇒* , _) (B⇒* , _) A≡B) =
     case whnfRed* A⇒* (nfWhnf (⊢nf→Nf ⊢A)) of λ {
       PE.refl →
     case whnfRed* B⇒* (nfWhnf (⊢nf→Nf ⊢B)) of λ {
@@ -1323,12 +1323,12 @@ mutual
 
   normal-terms-unique-~↓ :
     Γ ⊢nf u ∷ A → Γ ⊢nf v ∷ B → Γ ⊢ u ~ v ↓ C → u PE.≡ v
-  normal-terms-unique-~↓ ⊢u ⊢v ([~] _ _ _ u≡v) =
+  normal-terms-unique-~↓ ⊢u ⊢v ([~] _ _ u≡v) =
     normal-terms-unique-~↑ ⊢u ⊢v u≡v
 
   neutral-terms-unique-~↓ :
     Γ ⊢ne u ∷ A → Γ ⊢ne v ∷ B → Γ ⊢ u ~ v ↓ C → u PE.≡ v
-  neutral-terms-unique-~↓ ⊢u ⊢v ([~] _ _ _ u≡v) =
+  neutral-terms-unique-~↓ ⊢u ⊢v ([~] _ _ u≡v) =
     neutral-terms-unique-~↑ ⊢u ⊢v u≡v
 
   normal-terms-unique-[conv↓]∷ :
@@ -1460,12 +1460,10 @@ mutual
     Γ ⊢ t [conv↑] v ∷ A → u PE.≡ w
   normal-terms-unique-[conv↑]∷′
     ⊢u ⊢w t⇒*u v⇒*w
-    ([↑]ₜ _ _ _ A⇒*B t⇒*t′ v⇒*v′ _ t′-whnf  v′-whnf u≡w) =
-    case whrDet*Term (t⇒*u , nfWhnf (⊢nf∷→Nf ⊢u))
-           (t⇒*t′ , t′-whnf) of λ {
+    ([↑]ₜ _ _ _ (A⇒*B , _) t↘t′ v↘v′ u≡w) =
+    case whrDet*Term (t⇒*u , nfWhnf (⊢nf∷→Nf ⊢u)) t↘t′ of λ {
       PE.refl →
-    case whrDet*Term (v⇒*w , nfWhnf (⊢nf∷→Nf ⊢w))
-           (v⇒*v′ , v′-whnf) of λ {
+    case whrDet*Term (v⇒*w , nfWhnf (⊢nf∷→Nf ⊢w)) v↘v′ of λ {
       PE.refl →
     case subset* A⇒*B of λ {
       A≡B →

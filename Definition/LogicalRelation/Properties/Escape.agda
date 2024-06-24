@@ -103,52 +103,52 @@ Id≅Id {⊩A = ⊩A} A≡B =
   open _⊩ₗId_≡_/_ A≡B
 
 escapeEq (Uᵣ′ l′ l< ⊢Γ) PE.refl = ≅-Urefl ⊢Γ
-escapeEq (ℕᵣ [ ⊢A , ⊢B , D ]) D′ = ≅-red D D′ ℕₙ ℕₙ (≅-ℕrefl (wf ⊢A))
+escapeEq (ℕᵣ [ ⊢A , ⊢B , D ]) D′ =
+  ≅-red (D , ℕₙ) (D′ , ℕₙ) (≅-ℕrefl (wf ⊢A))
 escapeEq (Emptyᵣ [ ⊢A , ⊢B , D ]) D′ =
-  ≅-red D D′ Emptyₙ Emptyₙ (≅-Emptyrefl (wf ⊢A))
+  ≅-red (D , Emptyₙ) (D′ , Emptyₙ) (≅-Emptyrefl (wf ⊢A))
 escapeEq (Unitᵣ (Unitₜ [ ⊢A , ⊢B , D ] ok)) D′ =
-  ≅-red D D′ Unitₙ Unitₙ (≅-Unitrefl (wf ⊢A) ok)
+  ≅-red (D , Unitₙ) (D′ , Unitₙ) (≅-Unitrefl (wf ⊢A) ok)
 escapeEq (ne′ K D neK K≡K) (ne₌ M D′ neM K≡M) =
-  ≅-red (red D) (red D′) (ne neK) (ne neM) K≡M
+  ≅-red (red D , ne neK) (red D′ , ne neM) K≡M
 escapeEq (Bᵣ′ W _ _ D _ _ _ _ _ _ _) (B₌ _ _ D′ A≡B _ _) =
-  ≅-red (red D) (red D′) ⟦ W ⟧ₙ ⟦ W ⟧ₙ A≡B
+  ≅-red (red D , ⟦ W ⟧ₙ) (red D′ , ⟦ W ⟧ₙ) A≡B
 escapeEq (Idᵣ ⊩A) A≡B =
-  ≅-red (red (_⊩ₗId_.⇒*Id ⊩A)) (red (_⊩ₗId_≡_/_.⇒*Id′ A≡B)) Idₙ Idₙ
+  ≅-red (red (_⊩ₗId_.⇒*Id ⊩A) , Idₙ) (red (_⊩ₗId_≡_/_.⇒*Id′ A≡B) , Idₙ)
     (Id≅Id A≡B)
 escapeEq (emb 0<1 A) A≡B = escapeEq A A≡B
 
 escapeTermEq
   (Uᵣ′ l′ l< ⊢Γ) (Uₜ₌ A B d d′ typeA typeB A≡B [A] [B] [A≡B]) =
-  ≅ₜ-red (id (Uⱼ ⊢Γ)) (redₜ d) (redₜ d′) Uₙ
-    (typeWhnf typeA) (typeWhnf typeB) A≡B
+  ≅ₜ-red (id (Uⱼ ⊢Γ) ,  Uₙ) (redₜ d , typeWhnf typeA)
+    (redₜ d′ , typeWhnf typeB) A≡B
 escapeTermEq (ℕᵣ D) (ℕₜ₌ k k′ d d′ k≡k′ prop) =
   let natK , natK′ = split prop
-  in  ≅ₜ-red (red D) (redₜ d) (redₜ d′) ℕₙ
-             (naturalWhnf natK) (naturalWhnf natK′) k≡k′
+  in  ≅ₜ-red (red D , ℕₙ) (redₜ d , naturalWhnf natK)
+        (redₜ d′ , naturalWhnf natK′) k≡k′
 escapeTermEq (Emptyᵣ D) (Emptyₜ₌ k k′ d d′ k≡k′ prop) =
   let natK , natK′ = esplit prop
-  in  ≅ₜ-red (red D) (redₜ d) (redₜ d′) Emptyₙ
-             (ne natK) (ne natK′) k≡k′
+  in  ≅ₜ-red (red D , Emptyₙ) (redₜ d , ne natK) (redₜ d′ , ne natK′)
+        k≡k′
 escapeTermEq (Unitᵣ (Unitₜ D _)) (Unitₜ₌ˢ ⊢t ⊢u ok) =
   let t≅u = ≅ₜ-η-unit ⊢t ⊢u ok
       A≡Unit = subset* (red D)
   in  ≅-conv t≅u (sym A≡Unit)
 escapeTermEq (Unitᵣ (Unitₜ D _)) (Unitₜ₌ʷ _ _ d d′ k≡k′ prop _) =
   let whK , whK′ = usplit prop
-  in  ≅ₜ-red (red D) (redₜ d) (redₜ d′) Unitₙ
-             whK whK′ k≡k′
+  in  ≅ₜ-red (red D , Unitₙ) (redₜ d , whK) (redₜ d′ , whK′) k≡k′
 escapeTermEq (ne′ K D neK K≡K)
                  (neₜ₌ k m d d′ (neNfₜ₌ neT neU t≡u)) =
-  ≅ₜ-red (red D) (redₜ d) (redₜ d′) (ne neK) (ne neT) (ne neU)
+  ≅ₜ-red (red D , ne neK) (redₜ d , ne neT) (redₜ d′ , ne neU)
          (~-to-≅ₜ t≡u)
 escapeTermEq
   (Bᵣ′ BΠ! _ _ D _ _ _ _ _ _ _) (Πₜ₌ _ _ d d′ funcF funcG f≡g _ _ _) =
-  ≅ₜ-red (red D) (redₜ d) (redₜ d′) ΠΣₙ
-    (functionWhnf funcF) (functionWhnf funcG) f≡g
+  ≅ₜ-red (red D , ΠΣₙ) (redₜ d , functionWhnf funcF)
+    (redₜ d′ , functionWhnf funcG) f≡g
 escapeTermEq
   (Bᵣ′ BΣ! _ _ D _ _ _ _ _ _ _) (Σₜ₌ _ _ d d′ pProd rProd p≅r _ _ _) =
-  ≅ₜ-red (red D) (redₜ d) (redₜ d′) ΠΣₙ
-    (productWhnf pProd) (productWhnf rProd) p≅r
+  ≅ₜ-red (red D , ΠΣₙ) (redₜ d , productWhnf pProd)
+    (redₜ d′ , productWhnf rProd) p≅r
 escapeTermEq {Γ = Γ} (Idᵣ ⊩A) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
   case ⊩Id≡∷-view-inhabited ⊩A t≡u of λ where
     (ne t′-n u′-n t′~u′) →
@@ -165,7 +165,9 @@ escapeTermEq {Γ = Γ} (Idᵣ ⊩A) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
   where
   open _⊩ₗId_ ⊩A
 
-  lemma = ≅ₜ-red (red ⇒*Id) (redₜ t⇒*t′) (redₜ u⇒*u′) Idₙ
+  lemma = λ t′-whnf u′-whnf →
+            ≅ₜ-red (red ⇒*Id , Idₙ) (redₜ t⇒*t′ , t′-whnf)
+              (redₜ u⇒*u′ , u′-whnf)
 escapeTermEq (emb 0<1 A) t≡u = escapeTermEq A t≡u
 
 -- If the type Unit (of some mode) is in the logical relation, then the

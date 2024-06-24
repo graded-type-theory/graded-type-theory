@@ -105,19 +105,14 @@ record EqRelSet : Set (lsuc ℓ) where
           → Δ ⊢ wk ρ k ~ wk ρ l ∷ wk ρ A
 
     -- Weak head expansion
-    ≅-red : Γ ⊢ A ⇒* A′
-          → Γ ⊢ B ⇒* B′
-          → Whnf A′
-          → Whnf B′
+    ≅-red : Γ ⊢ A ↘ A′
+          → Γ ⊢ B ↘ B′
           → Γ ⊢ A′ ≅ B′
           → Γ ⊢ A  ≅ B
 
-    ≅ₜ-red : Γ ⊢ A ⇒* B
-           → Γ ⊢ a ⇒* a′ ∷ B
-           → Γ ⊢ b ⇒* b′ ∷ B
-           → Whnf B
-           → Whnf a′
-           → Whnf b′
+    ≅ₜ-red : Γ ⊢ A ↘ B
+           → Γ ⊢ a ↘ a′ ∷ B
+           → Γ ⊢ b ↘ b′ ∷ B
            → Γ ⊢ a′ ≅ b′ ∷ B
            → Γ ⊢ a  ≅ b  ∷ A
 

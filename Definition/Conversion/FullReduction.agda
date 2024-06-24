@@ -240,7 +240,7 @@ mutual
   fullRedNe~↓ :
     Γ ⊢ t ~ t′ ↓ A →
     ∃ λ u → Γ ⊢ne u ∷ A × Γ ⊢ t ≡ u ∷ A
-  fullRedNe~↓ ([~] A D whnfB k~l) =
+  fullRedNe~↓ ([~] _ (D , _) k~l) =
     let u , A-ne , t≡u = fullRedNe k~l
     in  u , convₙ A-ne A≡ , conv t≡u A≡
     where
@@ -249,7 +249,7 @@ mutual
   fullRedConv↑ :
     Γ ⊢ A [conv↑] A′ →
     ∃ λ B → Γ ⊢nf B × Γ ⊢ A ≡ B
-  fullRedConv↑ ([↑] A′ B′ D D′ whnfA′ whnfB′ A′<>B′) =
+  fullRedConv↑ ([↑] _ _ (D , _) _ A′<>B′) =
     let B″ , nf , B′≡B″ = fullRedConv↓ A′<>B′
     in  B″ , nf , trans (subset* D) B′≡B″
 
@@ -288,8 +288,7 @@ mutual
   fullRedTermConv↑ :
     Γ ⊢ t [conv↑] t′ ∷ A →
     ∃ λ u → Γ ⊢nf u ∷ A × Γ ⊢ t ≡ u ∷ A
-  fullRedTermConv↑
-    ([↑]ₜ B t′ u′ D d d′ whnfB whnft′ whnfu′ t<>u) =
+  fullRedTermConv↑ ([↑]ₜ _ _ _ (D , _) (d , _) _ t<>u) =
     case fullRedTermConv↓ t<>u of λ {
       (u″ , nf , u′≡u″) →
     u″ ,

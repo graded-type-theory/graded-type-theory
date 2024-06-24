@@ -296,11 +296,11 @@ module _
   ¬NeutralNf :
     Γ ⊢ t ∷ A → γ ▸[ 𝟙ᵐ ] t →
     NegativeErasedContext Γ γ → (NegativeType Γ A → ⊥) →
-    ∃ λ u → Γ ⊢ t ⇒* u ∷ A × Whnf u × (Neutral u → ⊥)
+    ∃ λ u → Γ ⊢ t ↘ u ∷ A × (Neutral u → ⊥)
   ¬NeutralNf ⊢t γ▸t nΓγ ¬negA =
     let u , whnfU , d = whNormTerm ⊢t
         γ▸u = usagePres*Term Unitʷ-η→ γ▸t (redₜ d)
-    in  u , redₜ d , whnfU , λ x → ¬negA (neNeg (⊢u-redₜ d) x γ▸u nΓγ)
+    in  u , (redₜ d , whnfU) , λ x → ¬negA (neNeg (⊢u-redₜ d) x γ▸u nΓγ)
 
   -- Canonicity theorem: A term that has the type ℕ in a
   -- negative/erased context, and that is well-resourced (with respect
@@ -317,11 +317,11 @@ module _
   canonicityRed′ _ _ (ℕₜ _ d _ zeroᵣ) =
     zero , zeroₙ , whred* (redₜ d)
   canonicityRed′ γ▸t nΓγ (ℕₜ n d n≡n (ne (neNfₜ neK ⊢k k≡k))) =
-    let u , d′ , whU , ¬neU =
+    let u , d′ , ¬neU =
           ¬NeutralNf (⊢t-redₜ d) γ▸t nΓγ
             (flip ¬negℕ $ refl (ℕⱼ $ wfTerm $ ⊢t-redₜ d))
     in  ⊥-elim $ ¬neU $
-        PE.subst Neutral (whrDet*Term (redₜ d , ne neK) (d′ , whU)) neK
+        PE.subst Neutral (whrDet*Term (redₜ d , ne neK) d′) neK
 
   canonicityRed :
     Γ ⊢ t ∷ ℕ → γ ▸[ 𝟙ᵐ ] t → NegativeErasedContext Γ γ →

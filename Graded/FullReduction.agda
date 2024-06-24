@@ -283,13 +283,13 @@ module _ (as : Full-reduction-assumptions) where
     fullRedNe~↓ :
       (⊢t : Γ ⊢ t ~ t′ ↓ A) → γ ▸[ m ] t →
       γ ▸[ m ] FR.fullRedNe~↓ ⊢t .proj₁
-    fullRedNe~↓ ([~] _ _ _ k~l) γ▸t =
+    fullRedNe~↓ ([~] _ _ k~l) γ▸t =
       fullRedNe k~l γ▸t
 
     fullRedConv↑ :
       (⊢A : Γ ⊢ A [conv↑] A′) → γ ▸[ m ] A →
       γ ▸[ m ] FR.fullRedConv↑ ⊢A .proj₁
-    fullRedConv↑ ([↑] _ _ D _ _ _ A′<>B′) γ▸A =
+    fullRedConv↑ ([↑] _ _ (D , _) _ A′<>B′) γ▸A =
       fullRedConv↓ A′<>B′ (usagePres* Unitʷ-η→ γ▸A D)
 
     fullRedConv↓ :
@@ -319,7 +319,7 @@ module _ (as : Full-reduction-assumptions) where
     fullRedTermConv↑ :
       (⊢t : Γ ⊢ t [conv↑] t′ ∷ A) → γ ▸[ m ] t →
       γ ▸[ m ] FR.fullRedTermConv↑ ⊢t .proj₁
-    fullRedTermConv↑ ([↑]ₜ _ _ _ _ d _ _ _ _ t<>u) γ▸t =
+    fullRedTermConv↑ ([↑]ₜ _ _ _ _ (d , _) _ t<>u) γ▸t =
       fullRedTermConv↓ t<>u (usagePres*Term Unitʷ-η→ γ▸t d)
 
     fullRedTermConv↓ :

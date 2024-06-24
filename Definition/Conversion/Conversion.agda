@@ -45,13 +45,13 @@ mutual
                 → Γ ⊢ A ≡ B
                 → Γ ⊢ t [conv↑] u ∷ A
                 → Δ ⊢ t [conv↑] u ∷ B
-  convConv↑Term Γ≡Δ A≡B ([↑]ₜ B₁ t′ u′ D d d′ whnfB whnft′ whnfu′ t<>u) =
+  convConv↑Term Γ≡Δ A≡B ([↑]ₜ B₁ t′ u′ (D , _) d d′ t<>u) =
     let _ , ⊢B = syntacticEq A≡B
         B′ , whnfB′ , D′ = whNorm ⊢B
         B₁≡B′ = trans (sym (subset* D)) (trans A≡B (subset* (red D′)))
-    in  [↑]ₜ B′ t′ u′ (stabilityRed* Γ≡Δ (red D′))
-             (stabilityRed*Term Γ≡Δ (conv* d B₁≡B′))
-             (stabilityRed*Term Γ≡Δ (conv* d′ B₁≡B′)) whnfB′ whnft′ whnfu′
+    in  [↑]ₜ B′ t′ u′ (stabilityRed↘ Γ≡Δ (red D′ , whnfB′))
+             (stabilityRed↘Term Γ≡Δ (conv↘∷ d B₁≡B′))
+             (stabilityRed↘Term Γ≡Δ (conv↘∷ d′ B₁≡B′))
              (convConv↓Term Γ≡Δ B₁≡B′ whnfB′ t<>u)
 
   -- Conversion of algorithmic equality with terms and types in WHNF.

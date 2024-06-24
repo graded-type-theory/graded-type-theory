@@ -121,10 +121,9 @@ mutual
     inductive
     constructor [~]
     field
-      A     : Term n
-      D     : Γ ⊢ A ⇒* B
-      whnfB : Whnf B
-      k~l   : Γ ⊢ k ~ l ↑ A
+      A   : Term n
+      D   : Γ ⊢ A ↘ B
+      k~l : Γ ⊢ k ~ l ↑ A
 
   -- Type equality.
   record _⊢_[conv↑]_ (Γ : Con Term n) (A B : Term n) : Set a where
@@ -132,10 +131,8 @@ mutual
     constructor [↑]
     field
       A′ B′  : Term n
-      D      : Γ ⊢ A ⇒* A′
-      D′     : Γ ⊢ B ⇒* B′
-      whnfA′ : Whnf A′
-      whnfB′ : Whnf B′
+      D      : Γ ⊢ A ↘ A′
+      D′     : Γ ⊢ B ↘ B′
       A′<>B′ : Γ ⊢ A′ [conv↓] B′
 
   -- Type equality with types in WHNF.
@@ -171,12 +168,9 @@ mutual
     constructor [↑]ₜ
     field
       B t′ u′ : Term n
-      D       : Γ ⊢ A ⇒* B
-      d       : Γ ⊢ t ⇒* t′ ∷ B
-      d′      : Γ ⊢ u ⇒* u′ ∷ B
-      whnfB   : Whnf B
-      whnft′  : Whnf t′
-      whnfu′  : Whnf u′
+      D       : Γ ⊢ A ↘ B
+      d       : Γ ⊢ t ↘ t′ ∷ B
+      d′      : Γ ⊢ u ↘ u′ ∷ B
       t<>u    : Γ ⊢ t′ [conv↓] u′ ∷ B
 
   -- Term equality with types and terms in WHNF.

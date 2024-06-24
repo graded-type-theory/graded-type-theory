@@ -92,16 +92,16 @@ mutual
               → ⊢ Γ ≡ Δ
               → Γ ⊢ k ~ l ↓ A
               → Δ ⊢ k ~ l ↓ A
-  stability~↓ Γ≡Δ ([~] A D whnfA k~l) =
-    [~] A (stabilityRed* Γ≡Δ D) whnfA (stability~↑ Γ≡Δ k~l)
+  stability~↓ Γ≡Δ ([~] A (D , whnfA) k~l) =
+    [~] A (stabilityRed* Γ≡Δ D , whnfA) (stability~↑ Γ≡Δ k~l)
 
   -- Stability of algorithmic equality of types.
   stabilityConv↑ : ∀ {A B}
                  → ⊢ Γ ≡ Δ
                  → Γ ⊢ A [conv↑] B
                  → Δ ⊢ A [conv↑] B
-  stabilityConv↑ Γ≡Δ ([↑] A′ B′ D D′ whnfA′ whnfB′ A′<>B′) =
-    [↑] A′ B′ (stabilityRed* Γ≡Δ D) (stabilityRed* Γ≡Δ D′) whnfA′ whnfB′
+  stabilityConv↑ Γ≡Δ ([↑] A′ B′ D D′ A′<>B′) =
+    [↑] A′ B′ (stabilityRed↘ Γ≡Δ D) (stabilityRed↘ Γ≡Δ D′)
         (stabilityConv↓ Γ≡Δ A′<>B′)
 
   -- Stability of algorithmic equality of types in WHNF.
@@ -135,9 +135,9 @@ mutual
                      → ⊢ Γ ≡ Δ
                      → Γ ⊢ t [conv↑] u ∷ A
                      → Δ ⊢ t [conv↑] u ∷ A
-  stabilityConv↑Term Γ≡Δ ([↑]ₜ B t′ u′ D d d′ whnfB whnft′ whnfu′ t<>u) =
-    [↑]ₜ B t′ u′ (stabilityRed* Γ≡Δ D) (stabilityRed*Term Γ≡Δ d)
-                 (stabilityRed*Term Γ≡Δ d′) whnfB whnft′ whnfu′
+  stabilityConv↑Term Γ≡Δ ([↑]ₜ B t′ u′ D d d′ t<>u) =
+    [↑]ₜ B t′ u′ (stabilityRed↘ Γ≡Δ D) (stabilityRed↘Term Γ≡Δ d)
+                 (stabilityRed↘Term Γ≡Δ d′)
                  (stabilityConv↓Term Γ≡Δ t<>u)
 
   -- Stability of algorithmic equality of terms in WHNF.

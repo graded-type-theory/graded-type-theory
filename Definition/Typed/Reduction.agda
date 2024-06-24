@@ -19,6 +19,7 @@ open import Definition.Typed R
 open import Definition.Typed.Properties R
 
 open import Tools.Nat
+open import Tools.Product
 
 private
   variable
@@ -28,46 +29,36 @@ private
     a a′ b b′ : Term n
 
 -- Weak head expansion of type equality
-reduction : Γ ⊢ A ⇒* A′
-          → Γ ⊢ B ⇒* B′
-          → Whnf A′
-          → Whnf B′
+reduction : Γ ⊢ A ↘ A′
+          → Γ ⊢ B ↘ B′
           → Γ ⊢ A′ ≡ B′
           → Γ ⊢ A ≡ B
-reduction D D′ whnfA′ whnfB′ A′≡B′ =
+reduction (D , _) (D′ , _) A′≡B′ =
   trans (subset* D) (trans A′≡B′ (sym (subset* D′)))
 
-reduction′ : Γ ⊢ A ⇒* A′
-           → Γ ⊢ B ⇒* B′
-           → Whnf A′
-           → Whnf B′
+reduction′ : Γ ⊢ A ↘ A′
+           → Γ ⊢ B ↘ B′
            → Γ ⊢ A ≡ B
            → Γ ⊢ A′ ≡ B′
-reduction′ D D′ whnfA′ whnfB′ A≡B =
+reduction′ (D , _) (D′ , _) A≡B =
   trans (sym (subset* D)) (trans A≡B (subset* D′))
 
 -- Weak head expansion of term equality
-reductionₜ : Γ ⊢ A ⇒* B
-           → Γ ⊢ a ⇒* a′ ∷ B
-           → Γ ⊢ b ⇒* b′ ∷ B
-           → Whnf B
-           → Whnf a′
-           → Whnf b′
+reductionₜ : Γ ⊢ A ↘ B
+           → Γ ⊢ a ↘ a′ ∷ B
+           → Γ ⊢ b ↘ b′ ∷ B
            → Γ ⊢ a′ ≡ b′ ∷ B
            → Γ ⊢ a ≡ b ∷ A
-reductionₜ D d d′ whnfB whnfA′ whnfB′ a′≡b′ =
+reductionₜ (D , _) (d , _) (d′ , _) a′≡b′ =
   conv (trans (subset*Term d)
               (trans a′≡b′ (sym (subset*Term d′))))
        (sym (subset* D))
 
-reductionₜ′ : Γ ⊢ A ⇒* B
-            → Γ ⊢ a ⇒* a′ ∷ B
-            → Γ ⊢ b ⇒* b′ ∷ B
-            → Whnf B
-            → Whnf a′
-            → Whnf b′
+reductionₜ′ : Γ ⊢ A ↘ B
+            → Γ ⊢ a ↘ a′ ∷ B
+            → Γ ⊢ b ↘ b′ ∷ B
             → Γ ⊢ a ≡ b ∷ A
             → Γ ⊢ a′ ≡ b′ ∷ B
-reductionₜ′ D d d′ whnfB whnfA′ whnfB′ a≡b =
+reductionₜ′ (D , _) (d , _) (d′ , _) a≡b =
   trans (sym (subset*Term d))
         (trans (conv a≡b (subset* D)) (subset*Term d′))

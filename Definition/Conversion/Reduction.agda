@@ -18,6 +18,7 @@ open import Definition.Typed.RedSteps R
 open import Definition.Conversion R
 
 open import Tools.Nat
+open import Tools.Product
 
 private
   variable
@@ -30,8 +31,8 @@ reductionConv↑ : ∀ {A A′ B B′}
                → Γ ⊢ B ⇒* B′
                → Γ ⊢ A′ [conv↑] B′
                → Γ ⊢ A  [conv↑] B
-reductionConv↑ A⇒* B⇒* ([↑] A″ B″ D D′ whnfA″ whnfB″ A″<>B″) =
-  [↑] A″ B″ (A⇒* ⇨* D) (B⇒* ⇨* D′) whnfA″ whnfB″ A″<>B″
+reductionConv↑ A⇒* B⇒* ([↑] A″ B″ D D′ A″<>B″) =
+  [↑] A″ B″ (⇒*→↘→↘ A⇒* D) (⇒*→↘→↘ B⇒* D′) A″<>B″
 
 -- Weak head expansion of algorithmic equality of terms.
 reductionConv↑Term : ∀ {t t′ u u′ A B}
@@ -40,9 +41,9 @@ reductionConv↑Term : ∀ {t t′ u u′ A B}
                    → Γ ⊢ u ⇒* u′ ∷ B
                    → Γ ⊢ t′ [conv↑] u′ ∷ B
                    → Γ ⊢ t  [conv↑] u  ∷ A
-reductionConv↑Term A⇒* t⇒* u⇒* ([↑]ₜ B′ t″ u″ D d d′ whnfB′ whnft″ whnfu″ t″<>u″) =
+reductionConv↑Term A⇒* t⇒* u⇒* ([↑]ₜ B′ t″ u″ D@(D′ , _) d d′ t″<>u″) =
   [↑]ₜ B′ t″ u″
-       (A⇒* ⇨* D)
-       ((conv* t⇒* (subset* D)) ⇨∷* d)
-       ((conv* u⇒* (subset* D)) ⇨∷* d′)
-       whnfB′ whnft″ whnfu″ t″<>u″
+       (⇒*→↘→↘ A⇒* D)
+       (⇒*∷→↘∷→↘∷ (conv* t⇒* (subset* D′)) d)
+       (⇒*∷→↘∷→↘∷ (conv* u⇒* (subset* D′)) d′)
+       t″<>u″

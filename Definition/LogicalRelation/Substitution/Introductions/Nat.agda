@@ -125,11 +125,10 @@ opaque
                                 PE.refl →
                               lemma u-ok })
                          , (λ ⊩t@(ℕₜ _ [ ⊢t , _ , t⇒*u ] u≅u u-ok) →
-                              let u-whnf = naturalWhnf (natural u-ok) in
+                              let t↘u = t⇒*u , naturalWhnf (natural u-ok) in
                               ℕₜ _ (idRedTerm:*: (sucⱼ ⊢t))
                                 (≅-suc-cong $
-                                 ≅ₜ-red (id (ℕⱼ (wfTerm ⊢t))) t⇒*u t⇒*u
-                                   ℕₙ u-whnf u-whnf u≅u)
+                                 ≅ₜ-red (id (ℕⱼ (wfTerm ⊢t)) , ℕₙ) t↘u t↘u u≅u)
                                 (sucᵣ ⊩t))
                          ⟩
     Γ ⊩ℕ t ∷ℕ           ⇔˘⟨ ⊩∷ℕ⇔ ⟩
@@ -252,8 +251,8 @@ opaque
       let t′-ok , u′-ok = split t′≡u′ in
       ℕₜ₌ _ _ (idRedTerm:*: (sucⱼ ⊢t)) (idRedTerm:*: (sucⱼ ⊢u))
         (≅-suc-cong $
-         ≅ₜ-red (id (ℕⱼ (wfTerm ⊢t))) t⇒*t′ u⇒*u′ ℕₙ
-           (naturalWhnf t′-ok) (naturalWhnf u′-ok) t′≅u′)
+         ≅ₜ-red (id (ℕⱼ (wfTerm ⊢t)) , ℕₙ) (t⇒*t′ , naturalWhnf t′-ok)
+           (u⇒*u′ , naturalWhnf u′-ok) t′≅u′)
         (sucᵣ t≡u)
 
 opaque

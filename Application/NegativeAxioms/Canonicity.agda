@@ -122,10 +122,10 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
    -- Terms of non-negative types reduce to non-neutrals
 
   ¬NeutralNf : Γ ⊢ t ∷ A → (NegativeType Γ A → ⊥)
-             → ∃ λ u → Γ ⊢ t ⇒* u ∷ A × Whnf u × (Neutral u → ⊥)
+             → ∃ λ u → Γ ⊢ t ↘ u ∷ A × (Neutral u → ⊥)
   ¬NeutralNf ⊢t ¬negA =
     let u , whnfU , d = whNormTerm ⊢t
-    in  u , redₜ d , whnfU , λ x → ¬negA (neNeg (⊢u-redₜ d) x)
+    in  u , (redₜ d , whnfU) , λ x → ¬negA (neNeg (⊢u-redₜ d) x)
 
   -- Canonicity theorem: Any well-typed term Γ ⊢ t ∷ ℕ
   -- reduces to a numeral under the ⇒ˢ* reduction.
@@ -137,10 +137,11 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   canonicityRed′ (ℕₜ _ d n≡n zeroᵣ) =
     zero , zeroₙ , whred* (redₜ d)
   canonicityRed′ (ℕₜ n d n≡n (ne (neNfₜ neK ⊢k k≡k))) =
-    let u , d′ , whU , ¬neU =
+    let u , d′ , ¬neU =
           ¬NeutralNf (⊢t-redₜ d)
             (flip ¬negℕ $ refl (ℕⱼ $ wfTerm $ ⊢t-redₜ d))
-    in  ⊥-elim (¬neU (PE.subst Neutral (whrDet*Term (redₜ d , ne neK) (d′ , whU)) neK))
+    in  ⊥-elim $ ¬neU $
+        PE.subst Neutral (whrDet*Term (redₜ d , ne neK) d′) neK
 
   canonicityRed : Γ ⊢ t ∷ ℕ → ∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ
   canonicityRed = canonicityRed′ ∘→ ⊩∷ℕ⇔ .proj₁ ∘→ reducible-⊩∷
