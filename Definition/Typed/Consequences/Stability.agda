@@ -21,14 +21,14 @@ open import Definition.Typed.Consequences.Substitution R
 
 open import Tools.Function
 open import Tools.Nat
-open import Tools.Product
+open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 
 private
   variable
     n : Nat
     Γ Δ : Con Term n
-    A t u : Term _
+    A B t u : Term _
 
 -- Equality of contexts.
 data ⊢_≡_ : (Γ Δ : Con Term n) → Set a where
@@ -203,3 +203,17 @@ stabilityRed* Γ≡Δ (x ⇨ D) = stabilityRed Γ≡Δ x ⇨ stabilityRed* Γ≡
 stabilityRed*Term : ∀ {t u A} → ⊢ Γ ≡ Δ → Γ ⊢ t ⇒* u ∷ A → Δ ⊢ t ⇒* u ∷ A
 stabilityRed*Term Γ≡Δ (id x) = id (stabilityTerm Γ≡Δ x)
 stabilityRed*Term Γ≡Δ (x ⇨ d) = stabilityRedTerm Γ≡Δ x ⇨ stabilityRed*Term Γ≡Δ d
+
+opaque
+
+  -- Stability for _⊢_↘_.
+
+  stabilityRed↘ : ⊢ Γ ≡ Δ → Γ ⊢ A ↘ B → Δ ⊢ A ↘ B
+  stabilityRed↘ Γ≡Δ = Σ.map (stabilityRed* Γ≡Δ) idᶠ
+
+opaque
+
+  -- Stability for _⊢_↘_∷_.
+
+  stabilityRed↘Term : ⊢ Γ ≡ Δ → Γ ⊢ t ↘ u ∷ A → Δ ⊢ t ↘ u ∷ A
+  stabilityRed↘Term Γ≡Δ = Σ.map (stabilityRed*Term Γ≡Δ) idᶠ
