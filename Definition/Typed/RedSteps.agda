@@ -25,6 +25,7 @@ import Graded.Derived.Erased.Untyped 𝕄 as Erased
 
 open import Tools.Function
 open import Tools.Nat
+open import Tools.Product
 
 private
   variable
@@ -53,6 +54,20 @@ opaque
   trans-:⇒*: [ ⊢t , _ , t⇒*u ] [ _ , ⊢v , u⇒*v ] =
     [ ⊢t , ⊢v , t⇒*u ⇨∷* u⇒*v ]
 
+opaque
+
+  -- A variant of _⇨*_ for _⊢_⇒*_ and _⊢_↘_.
+
+  ⇒*→↘→↘ : Γ ⊢ A ⇒* B → Γ ⊢ B ↘ C → Γ ⊢ A ↘ C
+  ⇒*→↘→↘ A⇒*B (B⇒*C , C-whnf) = (A⇒*B ⇨* B⇒*C) , C-whnf
+
+opaque
+
+  -- A variant of _⇨∷*_ for _⊢_⇒*_∷_ and _⊢_↘_∷_.
+
+  ⇒*∷→↘∷→↘∷ : Γ ⊢ t ⇒* u ∷ A → Γ ⊢ u ↘ v ∷ A → Γ ⊢ t ↘ v ∷ A
+  ⇒*∷→↘∷→↘∷ t⇒*u (u⇒*v , v-whnf) = (t⇒*u ⇨∷* u⇒*v) , v-whnf
+
 -- Conversion of reduction closures
 conv* : Γ ⊢ t ⇒* u ∷ A → Γ ⊢ A ≡ B → Γ ⊢ t ⇒* u ∷ B
 conv* (id x) A≡B = id (conv x A≡B)
@@ -61,6 +76,13 @@ conv* (x ⇨ d) A≡B = conv x A≡B ⇨ conv* d A≡B
 -- Conversion of syntactic reduction closures.
 convRed:*: : ∀ {t u A B} → Γ ⊢ t :⇒*: u ∷ A → Γ ⊢ A ≡ B → Γ ⊢ t :⇒*: u ∷ B
 convRed:*: [ ⊢t , ⊢u , d ] A≡B = [ conv ⊢t  A≡B , conv ⊢u  A≡B , conv* d  A≡B ]
+
+opaque
+
+  -- A variant of conv* for _⊢_↘_∷_.
+
+  conv↘∷ : Γ ⊢ t ↘ u ∷ A → Γ ⊢ A ≡ B → Γ ⊢ t ↘ u ∷ B
+  conv↘∷ (t⇒*u , u-whnf) A≡B = conv* t⇒*u A≡B , u-whnf
 
 -- Universe of reduction closures
 univ* : Γ ⊢ A ⇒* B ∷ U → Γ ⊢ A ⇒* B
