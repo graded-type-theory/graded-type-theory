@@ -11,7 +11,10 @@ module Definition.Typed.Weakening
   (R : Type-restrictions 𝕄)
   where
 
+open Type-restrictions R
+
 open import Definition.Untyped M as U hiding (wk)
+open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed R hiding (_,_)
 open import Definition.Typed.Properties R
@@ -19,6 +22,7 @@ open import Definition.Typed.Properties R
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
+import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 
 private
@@ -771,3 +775,18 @@ wkRed:*:Term : ρ ∷ Δ ⊇ Γ →
              in ⊢ Δ → Γ ⊢ t :⇒*: u ∷ A → Δ ⊢ ρt :⇒*: ρu ∷ ρA
 wkRed:*:Term ρ ⊢Δ [ ⊢t , ⊢u , d ] =
   [ wkTerm ρ ⊢Δ ⊢t , wkTerm ρ ⊢Δ ⊢u , wkRed*Term ρ ⊢Δ d ]
+
+opaque
+
+  -- Weakening for _⊢_↘_.
+
+  wkRed↘ : ρ ∷ Δ ⊇ Γ → ⊢ Δ → Γ ⊢ A ↘ B → Δ ⊢ U.wk ρ A ↘ U.wk ρ B
+  wkRed↘ ρ⊇ ⊢Δ = Σ.map (wkRed* ρ⊇ ⊢Δ) (wkWhnf _)
+
+opaque
+
+  -- Weakening for _⊢_↘_∷_.
+
+  wkRed↘Term :
+    ρ ∷ Δ ⊇ Γ → ⊢ Δ → Γ ⊢ t ↘ u ∷ A → Δ ⊢ U.wk ρ t ↘ U.wk ρ u ∷ U.wk ρ A
+  wkRed↘Term ρ⊇ ⊢Δ = Σ.map (wkRed*Term ρ⊇ ⊢Δ) (wkWhnf _)
