@@ -1923,10 +1923,8 @@ sgSubstₘ-lemma₂ {γ = γ} {mo = 𝟘ᵐ} {p = p} {δ = δ} γ▸t δ▸u =
 sgSubstₘ-lemma₃ :
   γ ∙ ⌜ mo ⌝ · p ▸[ mo ] t → δ ▸[ mo ] u →
   γ +ᶜ p ·ᶜ δ ▸[ mo ] t [ u ]₀
-sgSubstₘ-lemma₃ {mo = 𝟘ᵐ} =
-  sgSubstₘ-lemma₂
-sgSubstₘ-lemma₃ {mo = 𝟙ᵐ} ▸t ▸u =
-  case ▸[𝟙ᵐ]→▸[⌞⌟] ▸u of λ where
+sgSubstₘ-lemma₃ ▸t ▸u =
+  case ▸→▸[ᵐ·] ▸u of λ where
     (_ , ▸u , eq) → sub
       (sgSubstₘ-lemma₂ ▸t ▸u)
       (≤ᶜ-reflexive (+ᶜ-congˡ eq))
@@ -1987,11 +1985,9 @@ doubleSubstₘ-lemma₃ :
   γ ∙ ⌜ mo ⌝ · q ∙ ⌜ mo ⌝ · p ▸[ mo ] t →
   δ ▸[ mo ] u → η ▸[ mo ] u′ →
   γ +ᶜ p ·ᶜ δ +ᶜ q ·ᶜ η ▸[ mo ] t [ u′ , u ]₁₀
-doubleSubstₘ-lemma₃ {mo = 𝟘ᵐ} =
-  doubleSubstₘ-lemma₂
-doubleSubstₘ-lemma₃ {mo = 𝟙ᵐ} ▸t ▸u ▸u′ =
-  case ▸[𝟙ᵐ]→▸[⌞⌟] ▸u of λ where
-    (_ , ▸u , eq) → case ▸[𝟙ᵐ]→▸[⌞⌟] ▸u′ of λ where
+doubleSubstₘ-lemma₃ ▸t ▸u ▸u′ =
+  case ▸→▸[ᵐ·] ▸u of λ where
+    (_ , ▸u , eq) → case ▸→▸[ᵐ·] ▸u′ of λ where
       (_ , ▸u′ , eq′) → sub
         (doubleSubstₘ-lemma₂ ▸t ▸u ▸u′)
         (≤ᶜ-reflexive (+ᶜ-congˡ (+ᶜ-cong eq eq′)))

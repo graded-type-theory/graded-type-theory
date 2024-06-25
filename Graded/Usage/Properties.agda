@@ -473,25 +473,30 @@ opaque
     where
     open Tools.Reasoning.PartialOrder ≤-poset
 
--- If t is well-resourced with respect to the usage context γ, then t
--- is well-resourced with respect to the mode ⌞ p ⌟ and some usage
--- context δ for which p ·ᶜ γ ≈ᶜ p ·ᶜ δ.
+opaque
 
-▸[𝟙ᵐ]→▸[⌞⌟] :
-  γ ▸[ 𝟙ᵐ ] t →
-  ∃ λ δ → δ ▸[ ⌞ p ⌟ ] t × p ·ᶜ γ ≈ᶜ p ·ᶜ δ
-▸[𝟙ᵐ]→▸[⌞⌟] {γ = γ} {t = t} {p = p} ▸t = lemma _ refl
-  where
-  lemma : ∀ m → ⌞ p ⌟ ≡ m → ∃ λ δ → δ ▸[ m ] t × p ·ᶜ γ ≈ᶜ p ·ᶜ δ
-  lemma 𝟙ᵐ       _      = _ , ▸t , ≈ᶜ-refl
-  lemma 𝟘ᵐ[ ok ] ⌞p⌟≡𝟘ᵐ =
-      _
-    , ▸-𝟘 ▸t
-    , (let open Tools.Reasoning.Equivalence Conₘ-setoid in begin
-         p ·ᶜ γ   ≈⟨ ·ᶜ-congʳ (⌞⌟≡𝟘ᵐ→≡𝟘 ⌞p⌟≡𝟘ᵐ) ⟩
-         𝟘 ·ᶜ γ   ≈⟨ ·ᶜ-zeroˡ _ ⟩
-         𝟘ᶜ       ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
-         p ·ᶜ 𝟘ᶜ  ∎)
+  -- If t is well-resourced with respect to m and γ, then t is
+  -- well-resourced with respect to m ᵐ· p and some δ for which
+  -- p ·ᶜ γ ≈ᶜ p ·ᶜ δ.
+
+  ▸→▸[ᵐ·] :
+    γ ▸[ m ] t →
+    ∃ λ δ → δ ▸[ m ᵐ· p ] t × p ·ᶜ γ ≈ᶜ p ·ᶜ δ
+  ▸→▸[ᵐ·] {γ} {m = 𝟘ᵐ}         ▸t = γ , ▸t , ≈ᶜ-refl
+  ▸→▸[ᵐ·] {γ} {m = 𝟙ᵐ} {t} {p} ▸t = lemma _ refl
+    where
+    open ≈ᶜ-reasoning
+
+    lemma : ∀ m → ⌞ p ⌟ ≡ m → ∃ λ δ → δ ▸[ m ] t × p ·ᶜ γ ≈ᶜ p ·ᶜ δ
+    lemma 𝟙ᵐ       _      = γ , ▸t , ≈ᶜ-refl
+    lemma 𝟘ᵐ[ ok ] ⌞p⌟≡𝟘ᵐ =
+        𝟘ᶜ
+      , ▸-𝟘 ▸t
+      , (begin
+           p ·ᶜ γ   ≈⟨ ·ᶜ-congʳ (⌞⌟≡𝟘ᵐ→≡𝟘 ⌞p⌟≡𝟘ᵐ) ⟩
+           𝟘 ·ᶜ γ   ≈⟨ ·ᶜ-zeroˡ _ ⟩
+           𝟘ᶜ       ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
+           p ·ᶜ 𝟘ᶜ  ∎)
 
 ------------------------------------------------------------------------
 -- The lemma ▸-𝟘ᵐ
