@@ -150,11 +150,18 @@ singleSubstEq {A = A} t =
   let ⊢Γ = wfEqTerm t
   in  substRefl (idSubst′ ⊢Γ) , PE.subst (λ x → _ ⊢ _ ≡ _ ∷ x) (PE.sym (subst-id A)) t
 
--- Well-formed singleton substitution of terms with lifting.
-singleSubst↑ : ∀ {A t} → Γ ∙ A ⊢ t ∷ wk1 A → Γ ∙ A ⊢ˢ consSubst (wk1Subst idSubst) t ∷ Γ ∙ A
-singleSubst↑ {A = A} t with wfTerm t
-... | ⊢Γ ∙ ⊢A = wk1Subst′ ⊢Γ ⊢A (idSubst′ ⊢Γ)
-              , PE.subst (λ x → _ ∙ A ⊢ _ ∷ x) (wk1-tailId A) t
+opaque
+
+  -- A substitution lemma related to _[_]↑.
+
+  singleSubst↑ :
+    Γ ∙ A ⊢ t ∷ wk1 B →
+    Γ ∙ A ⊢ˢ consSubst (wk1Subst idSubst) t ∷ Γ ∙ B
+  singleSubst↑ {A} t =
+    case wfTerm t of λ {
+      (⊢Γ ∙ ⊢A) →
+      wk1Subst′ ⊢Γ ⊢A (idSubst′ ⊢Γ)
+    , PE.subst (_⊢_∷_ _ _) (wk1-tailId _) t }
 
 -- Well-formed singleton substitution of term equality with lifting.
 singleSubst↑Eq : ∀ {A t u} → Γ ∙ A ⊢ t ≡ u ∷ wk1 A
@@ -194,11 +201,12 @@ substTypeΠ : ∀ {t F G} → Γ ⊢ Π p , q ▷ F ▹ G → Γ ⊢ t ∷ F →
 substTypeΠ ΠFG t with syntacticΠ ΠFG
 substTypeΠ ΠFG t | F , G = substType G t
 
-subst↑Type : ∀ {t F G}
-           → Γ ∙ F ⊢ G
-           → Γ ∙ F ⊢ t ∷ wk1 F
-           → Γ ∙ F ⊢ G [ t ]↑
-subst↑Type ⊢G ⊢t = substitution ⊢G (singleSubst↑ ⊢t) (wfTerm ⊢t)
+opaque
+
+  -- A substitution lemma related to _[_]↑.
+
+  subst↑Type : Γ ∙ B ⊢ C → Γ ∙ A ⊢ t ∷ wk1 B → Γ ∙ A ⊢ C [ t ]↑
+  subst↑Type ⊢C ⊢t = substitution ⊢C (singleSubst↑ ⊢t) (wfTerm ⊢t)
 
 subst↑TypeEq : ∀ {t u F G E}
              → Γ ∙ F ⊢ G ≡ E
