@@ -539,6 +539,20 @@ opaque
     J-subst′ (wk₁ (J-motive-context-type ⊢t) ⊢B)
       (PE.subst (_⊢_∷_ _ _) (PE.sym $ subst-wk B) ⊢w) v₁⇒v₂ }
 
+opaque
+
+  -- A reduction rule for subst.
+
+  subst-subst* :
+    Γ ∙ A ⊢ B →
+    Γ ⊢ v₁ ⇒* v₂ ∷ Id A t u →
+    Γ ⊢ w ∷ B [ t ]₀ →
+    Γ ⊢ subst p A B t u v₁ w ⇒* subst p A B t u v₂ w ∷ B [ u ]₀
+  subst-subst* ⊢B = λ where
+    (id ⊢v)          ⊢w → id (⊢subst ⊢B ⊢v ⊢w)
+    (v₁⇒v₃ ⇨ v₃⇒*v₂) ⊢w →
+      subst-subst ⊢B v₁⇒v₃ ⊢w ⇨ subst-subst* ⊢B v₃⇒*v₂ ⊢w
+
 ------------------------------------------------------------------------
 -- Lemmas related to symmetry
 
