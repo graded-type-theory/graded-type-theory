@@ -180,6 +180,16 @@ substTerm {F = F} {G} {t} {f} ⊢f ⊢t =
   let ⊢Γ = wfTerm ⊢t
   in  substitutionTerm ⊢f (singleSubst ⊢t) ⊢Γ
 
+opaque
+
+  -- A substitution lemma for term equality.
+
+  substTermEq :
+    Γ ∙ A ⊢ t₁ ≡ t₂ ∷ B → Γ ⊢ u₁ ≡ u₂ ∷ A →
+    Γ ⊢ t₁ [ u₁ ]₀ ≡ t₂ [ u₂ ]₀ ∷ B [ u₁ ]₀
+  substTermEq t₁≡t₂ u₁≡u₂ =
+    substitutionEqTerm t₁≡t₂ (singleSubstEq u₁≡u₂) (wfEqTerm u₁≡u₂)
+
 substTypeΠ : ∀ {t F G} → Γ ⊢ Π p , q ▷ F ▹ G → Γ ⊢ t ∷ F → Γ ⊢ G [ t ]₀
 substTypeΠ ΠFG t with syntacticΠ ΠFG
 substTypeΠ ΠFG t | F , G = substType G t
