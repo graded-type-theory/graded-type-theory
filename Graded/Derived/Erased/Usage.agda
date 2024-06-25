@@ -39,6 +39,7 @@ open import Graded.Derived.Sigma 𝕄 R
 open import Graded.Derived.Unit R
 
 open import Tools.Bool using (T)
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Product
@@ -306,6 +307,44 @@ opaque
     (begin
        δ        ≈˘⟨ +ᶜ-identityˡ _ ⟩
        𝟘ᶜ +ᶜ δ  ∎)
+    where
+    open ≤ᶜ-reasoning
+
+opaque
+  unfolding mapᴱ
+
+  -- A usage rule for mapᴱ.
+
+  ▸mapᴱ′ :
+    (s ≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial) →
+    (s ≡ 𝕤 → ¬ T 𝟘ᵐ-allowed → 𝟘 ≤ 𝟙) →
+    (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘) →
+    (s ≡ 𝕨 → γ₁ ▸[ 𝟘ᵐ? ] A) →
+    γ₂ ∙ ⌜ 𝟘ᵐ? ⌝ · p ▸[ 𝟘ᵐ? ] t →
+    γ₃ ▸[ 𝟘ᵐ? ] u →
+    𝟘ᶜ ▸[ m ] mapᴱ A t u
+  ▸mapᴱ′ trivial 𝟘≤𝟙 ok ▸A ▸t ▸u =
+    ▸[] $ sgSubstₘ-lemma₃ ▸t $
+    ▸erased′ trivial 𝟘≤𝟙 ▸u ▸A ok
+
+opaque
+  unfolding mapᴱ
+
+  -- Another usage rule for mapᴱ.
+
+  ▸mapᴱ :
+    (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘) →
+    (s ≡ 𝕨 → γ₁ ▸[ 𝟘ᵐ[ ok ] ] A) →
+    γ₂ ∙ 𝟘 ▸[ 𝟘ᵐ[ ok ] ] t →
+    γ₃ ▸[ 𝟘ᵐ[ ok ] ] u →
+    𝟘ᶜ ▸[ m ] mapᴱ A t u
+  ▸mapᴱ {ok} {γ₂} prodrec-ok ▸A ▸t ▸u =
+    ▸mapᴱ′ (λ _ → ⊥-elim ∘→ (_$ ok)) (λ _ → ⊥-elim ∘→ (_$ ok))
+      prodrec-ok (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ∘→ ▸A)
+      (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $ sub ▸t $ begin
+         γ₂ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+         γ₂ ∙ 𝟘            ∎)
+      (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸u)
     where
     open ≤ᶜ-reasoning
 
