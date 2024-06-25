@@ -93,10 +93,10 @@ import Definition.Untyped.Neutral
 import Definition.Typed.Restrictions
 import Definition.Typed
 import Definition.Typed.Reasoning.Type
-import Definition.Typed.Reasoning.Term
 import Definition.Typed.Properties.Well-formed
 import Graded.Derived.Erased.Typed.Primitive
 import Definition.Typed.Properties
+import Definition.Typed.Reasoning.Term
 import Definition.Typed.RedSteps
 import Definition.Typed.Reasoning.Reduction.Primitive
 import Definition.Typed.Reasoning.Reduction.Well-typed

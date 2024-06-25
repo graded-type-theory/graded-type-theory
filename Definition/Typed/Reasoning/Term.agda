@@ -12,6 +12,7 @@ module Definition.Typed.Reasoning.Term
   where
 
 open import Definition.Typed R
+open import Definition.Typed.Properties R
 open import Definition.Untyped M
 
 open import Tools.Function
@@ -24,8 +25,11 @@ private variable
 ------------------------------------------------------------------------
 -- Equational reasoning combinators
 
-infix  -1 _∎⟨_⟩⊢ finally finally-˘
-infixr -2 step-≡ step-≡˘ step-≡≡ step-≡˘≡ _≡⟨⟩⊢_ finally-≡ finally-≡˘
+infix -1
+  _∎⟨_⟩⊢ finally finally-˘ finally-⇒ finally-⇒* finally-⇐ finally-⇐*
+infixr -2
+  step-≡ step-≡˘ step-≡≡ step-≡˘≡ step-≡⇒ step-≡⇒* step-≡⇐ step-≡⇐*
+  _≡⟨⟩⊢_ finally-≡ finally-≡˘
 
 -- A regular reasoning step.
 
@@ -59,6 +63,42 @@ step-≡˘≡ : ∀ t → Γ ⊢ u ≡ v ∷ A → u PE.≡ t → Γ ⊢ t ≡ v
 step-≡˘≡ _ u≡v PE.refl = u≡v
 
 syntax step-≡˘≡ t u≡v u≡t = t ≡˘⟨ u≡t ⟩⊢≡ u≡v
+
+opaque
+
+  -- A reduction step.
+
+  step-≡⇒ : ∀ t → Γ ⊢ u ≡ v ∷ A → Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ≡ v ∷ A
+  step-≡⇒ _ u≡v t⇒u = trans (subsetTerm t⇒u) u≡v
+
+  syntax step-≡⇒ t u≡v t⇒u = t ⇒⟨ t⇒u ⟩⊢ u≡v
+
+opaque
+
+  -- Multiple reduction steps.
+
+  step-≡⇒* : ∀ t → Γ ⊢ u ≡ v ∷ A → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t ≡ v ∷ A
+  step-≡⇒* _ u≡v t⇒*u = trans (subset*Term t⇒*u) u≡v
+
+  syntax step-≡⇒* t u≡v t⇒*u = t ⇒*⟨ t⇒*u ⟩⊢ u≡v
+
+opaque
+
+  -- A reduction step, "backwards".
+
+  step-≡⇐ : ∀ t → Γ ⊢ u ≡ v ∷ A → Γ ⊢ u ⇒ t ∷ A → Γ ⊢ t ≡ v ∷ A
+  step-≡⇐ _ u≡v t⇐u = trans (sym (subsetTerm t⇐u)) u≡v
+
+  syntax step-≡⇐ t u≡v t⇐u = t ⇐⟨ t⇐u ⟩⊢ u≡v
+
+opaque
+
+  -- Multiple reduction steps, "backwards".
+
+  step-≡⇐* : ∀ t → Γ ⊢ u ≡ v ∷ A → Γ ⊢ u ⇒* t ∷ A → Γ ⊢ t ≡ v ∷ A
+  step-≡⇐* _ u≡v t⇐*u = trans (sym (subset*Term t⇐*u)) u≡v
+
+  syntax step-≡⇐* t u≡v t⇐*u = t ⇐*⟨ t⇐*u ⟩⊢ u≡v
 
 -- A reasoning step that uses (Agda's) definitional equality.
 
@@ -94,6 +134,42 @@ syntax finally-˘ t u u≡t = t ≡˘⟨ u≡t ⟩⊢∎ u ∎
 
 {-# INLINE finally-˘ #-}
 
+opaque
+
+  -- A variant of finally for reductions.
+
+  finally-⇒ : ∀ t u → Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ≡ u ∷ A
+  finally-⇒ _ _ t⇒u = subsetTerm t⇒u
+
+  syntax finally-⇒ t u t⇒u = t ⇒⟨ t⇒u ⟩⊢∎ u ∎
+
+opaque
+
+  -- A variant of finally for reductions.
+
+  finally-⇒* : ∀ t u → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t ≡ u ∷ A
+  finally-⇒* _ _ t⇒*u = subset*Term t⇒*u
+
+  syntax finally-⇒* t u t⇒*u = t ⇒*⟨ t⇒*u ⟩⊢∎ u ∎
+
+opaque
+
+  -- A variant of finally for reductions.
+
+  finally-⇐ : ∀ t u → Γ ⊢ u ⇒ t ∷ A → Γ ⊢ t ≡ u ∷ A
+  finally-⇐ _ _ t⇐u = sym (subsetTerm t⇐u)
+
+  syntax finally-⇐ t u t⇐u = t ⇐⟨ t⇐u ⟩⊢∎ u ∎
+
+opaque
+
+  -- A variant of finally for reductions.
+
+  finally-⇐* : ∀ t u → Γ ⊢ u ⇒* t ∷ A → Γ ⊢ t ≡ u ∷ A
+  finally-⇐* _ _ t⇐*u = sym (subset*Term t⇐*u)
+
+  syntax finally-⇐* t u t⇐*u = t ⇐*⟨ t⇐*u ⟩⊢∎ u ∎
+
 -- A variant of finally that makes it possible to end the chain of
 -- reasoning steps with a propositional equality, without the use of
 -- _∎⟨_⟩⊢.
@@ -114,9 +190,11 @@ syntax finally-≡˘ t u≡v u≡t = t ≡˘⟨ u≡t ⟩⊢∎≡ u≡v
 -- Equational reasoning combinators with explicit types
 
 infix -1
-  _∷_∎⟨_⟩⊢∷ finally-∷ finally-∷˘
+  _∷_∎⟨_⟩⊢∷ finally-∷ finally-∷˘ finally-∷⇒ finally-∷⇒* finally-∷⇐
+  finally-∷⇐*
 infixr -2
-  step-∷≡ step-∷≡˘ step-∷≡≡ step-∷≡˘≡ _∷_≡⟨⟩⊢∷_ finally-∷≡ finally-∷≡˘
+  step-∷≡ step-∷≡˘ step-∷≡≡ step-∷≡˘≡ step-∷≡⇒ step-∷≡⇒* step-∷≡⇐
+  step-∷≡⇐* _∷_≡⟨⟩⊢∷_ finally-∷≡ finally-∷≡˘
 
 -- A regular reasoning step.
 
@@ -151,6 +229,42 @@ step-∷≡˘≡ _ _ u≡v PE.refl = u≡v
 
 syntax step-∷≡˘≡ t A u≡v u≡t = t ∷ A ≡˘⟨ u≡t ⟩⊢∷≡ u≡v
 
+opaque
+
+  -- A reduction step.
+
+  step-∷≡⇒ : ∀ t A → Γ ⊢ u ≡ v ∷ A → Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ≡ v ∷ A
+  step-∷≡⇒ _ _ = step-≡⇒ _
+
+  syntax step-∷≡⇒ t A u≡v t⇒u = t ∷ A ⇒⟨ t⇒u ⟩⊢∷ u≡v
+
+opaque
+
+  -- Multiple reduction steps.
+
+  step-∷≡⇒* : ∀ t A → Γ ⊢ u ≡ v ∷ A → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t ≡ v ∷ A
+  step-∷≡⇒* _ _ = step-≡⇒* _
+
+  syntax step-∷≡⇒* t A u≡v t⇒*u = t ∷ A ⇒*⟨ t⇒*u ⟩⊢∷ u≡v
+
+opaque
+
+  -- A reduction step, "backwards".
+
+  step-∷≡⇐ : ∀ t A → Γ ⊢ u ≡ v ∷ A → Γ ⊢ u ⇒ t ∷ A → Γ ⊢ t ≡ v ∷ A
+  step-∷≡⇐ _ _ = step-≡⇐ _
+
+  syntax step-∷≡⇐ t A u≡v t⇐u = t ∷ A ⇐⟨ t⇐u ⟩⊢∷ u≡v
+
+opaque
+
+  -- Multiple reduction steps, "backwards".
+
+  step-∷≡⇐* : ∀ t A → Γ ⊢ u ≡ v ∷ A → Γ ⊢ u ⇒* t ∷ A → Γ ⊢ t ≡ v ∷ A
+  step-∷≡⇐* _ _ = step-≡⇐* _
+
+  syntax step-∷≡⇐* t A u≡v t⇐*u = t ∷ A ⇐*⟨ t⇐*u ⟩⊢∷ u≡v
+
 -- A reasoning step that uses (Agda's) definitional equality.
 
 _∷_≡⟨⟩⊢∷_ : ∀ t A → Γ ⊢ t ≡ u ∷ A → Γ ⊢ t ≡ u ∷ A
@@ -184,6 +298,42 @@ finally-∷˘ _ _ _ t≡u = sym t≡u
 syntax finally-∷˘ t A u u≡t = t ∷ A ≡˘⟨ u≡t ⟩⊢∷∎ u ∎
 
 {-# INLINE finally-∷˘ #-}
+
+opaque
+
+  -- A variant of finally-∷ for reductions.
+
+  finally-∷⇒ : ∀ t A u → Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ≡ u ∷ A
+  finally-∷⇒ _ _ = finally-⇒ _
+
+  syntax finally-∷⇒ t A u t⇒u = t ∷ A ⇒⟨ t⇒u ⟩⊢∷∎ u ∎
+
+opaque
+
+  -- A variant of finally-∷ for reductions.
+
+  finally-∷⇒* : ∀ t A u → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t ≡ u ∷ A
+  finally-∷⇒* _ _ = finally-⇒* _
+
+  syntax finally-∷⇒* t A u t⇒*u = t ∷ A ⇒*⟨ t⇒*u ⟩⊢∷∎ u ∎
+
+opaque
+
+  -- A variant of finally-∷ for reductions.
+
+  finally-∷⇐ : ∀ t A u → Γ ⊢ u ⇒ t ∷ A → Γ ⊢ t ≡ u ∷ A
+  finally-∷⇐ _ _ = finally-⇐ _
+
+  syntax finally-∷⇐ t A u t⇐u = t ∷ A ⇐⟨ t⇐u ⟩⊢∷∎ u ∎
+
+opaque
+
+  -- A variant of finally-∷ for reductions.
+
+  finally-∷⇐* : ∀ t A u → Γ ⊢ u ⇒* t ∷ A → Γ ⊢ t ≡ u ∷ A
+  finally-∷⇐* _ _ = finally-⇐* _
+
+  syntax finally-∷⇐* t A u t⇐*u = t ∷ A ⇐*⟨ t⇐*u ⟩⊢∷∎ u ∎
 
 -- A variant of finally-∷ that makes it possible to end the chain of
 -- reasoning steps with a propositional equality, without the use of
