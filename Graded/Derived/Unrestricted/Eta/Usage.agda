@@ -39,11 +39,6 @@ private variable
 
 private
 
-  -- The quantity ω is a right identity for _ᵐ·_.
-
-  ᵐ·-identityʳ′ : m ᵐ· ω ≡ m
-  ᵐ·-identityʳ′ = ≢𝟘→ᵐ·≡′ 𝟘ᵐ.ω≢𝟘
-
   -- The quantity ω · p is bounded by 𝟘.
 
   ω·≤𝟘 : ω · p ≤ 𝟘
@@ -72,7 +67,7 @@ private
   γ ▸[ m ] Unrestricted A
 ▸Unrestricted {m = m} {γ = γ} mω≤𝟘 ▸A = sub
   (ΠΣₘ
-     (▸-cong (PE.sym ᵐ·-identityʳ′) ▸A)
+     (▸-cong (PE.sym ᵐ·-identityʳ-ω) ▸A)
      (sub Unitₘ
         (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
            𝟘ᶜ ∙ ⌜ m ⌝ · ω  ≤⟨ ≤ᶜ-refl ∙ mω≤𝟘 ⟩
@@ -85,7 +80,7 @@ private
 
 ▸[] : γ ▸[ m ] t → ω ·ᶜ γ ▸[ m ] [ t ]
 ▸[] {γ = γ} {m = m} ▸t = sub
-  (prodˢₘ (▸-cong (PE.sym ᵐ·-identityʳ′) ▸t) starₘ)
+  (prodˢₘ (▸-cong (PE.sym ᵐ·-identityʳ-ω) ▸t) starₘ)
   (begin
      ω ·ᶜ γ        ≤⟨ ∧ᶜ-greatest-lower-bound ≤ᶜ-refl ω·ᶜ≤ᶜ𝟘ᶜ ⟩
      ω ·ᶜ γ ∧ᶜ 𝟘ᶜ  ∎)
@@ -97,8 +92,8 @@ private
 ▸unbox : γ ▸[ m ] t → γ ▸[ m ] unbox t
 ▸unbox {m = m} ▸t = fstₘ
   m
-  (▸-cong (PE.sym ᵐ·-identityʳ′) ▸t)
-  ᵐ·-identityʳ′
+  (▸-cong (PE.sym ᵐ·-identityʳ-ω) ▸t)
+  ᵐ·-identityʳ-ω
   λ _ → ω≤𝟙
 
 ------------------------------------------------------------------------
@@ -115,7 +110,7 @@ inv-usage-Unrestricted {γ = γ} {m = m} ▸Unrestricted =
   case inv-usage-Unit ▸Unit of λ {
     (η≤𝟘 ∙ mω≤𝟘) →
       mω≤𝟘
-    , sub (▸-cong ᵐ·-identityʳ′ ▸A) (begin
+    , sub (▸-cong ᵐ·-identityʳ-ω ▸A) (begin
        γ        ≤⟨ γ≤ ⟩
        δ +ᶜ η   ≤⟨ +ᶜ-monotoneʳ η≤𝟘 ⟩
        δ +ᶜ 𝟘ᶜ  ≈⟨ +ᶜ-identityʳ _ ⟩
@@ -130,7 +125,7 @@ inv-usage-[] {γ = γ} {m = m} ▸[] =
   case inv-usage-prodˢ ▸[] of λ {
     (invUsageProdˢ {δ = δ} {η = η} ▸t ▸star γ≤) →
     δ
-  , ▸-cong ᵐ·-identityʳ′ ▸t
+  , ▸-cong ᵐ·-identityʳ-ω ▸t
   , (begin
        γ            ≤⟨ γ≤ ⟩
        ω ·ᶜ δ ∧ᶜ η  ≤⟨ ∧ᶜ-decreasingˡ _ _ ⟩
