@@ -87,6 +87,23 @@ wkVar-comps 0      ρ ρ′ x      = refl
 wkVar-comps (1+ n) ρ ρ′ x0     = refl
 wkVar-comps (1+ n) ρ ρ′ (x +1) = cong _+1 (wkVar-comps n ρ ρ′ x)
 
+opaque
+
+  -- The weakening id is a right identity for composition.
+
+  •-id : ρ • id ≡ ρ
+  •-id {ρ = id}     = refl
+  •-id {ρ = step _} = cong step •-id
+  •-id {ρ = lift _} = refl
+
+opaque
+
+  -- A composition lemma for wk₀.
+
+  liftn-wk₀-•-wk₀ : ∀ n → liftn {k = m} wk₀ n • wk₀ ≡ wk₀
+  liftn-wk₀-•-wk₀ 0      = •-id
+  liftn-wk₀-•-wk₀ (1+ n) = cong step $ liftn-wk₀-•-wk₀ n
+
 -- The weakening step id • ρ is equal to lift ρ • step id.
 
 lift-step-comp : (ρ : Wk m n) → step id • ρ ≡ lift ρ • step id
