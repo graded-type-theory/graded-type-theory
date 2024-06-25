@@ -209,34 +209,34 @@ infix -2 step-≡-conv step-≡-conv˘ step-≡-conv-≡ step-≡-conv-≡˘
 -- Conversion.
 
 step-≡-conv : Γ ⊢ t ≡ u ∷ B → Γ ⊢ A ≡ B → Γ ⊢ t ≡ u ∷ A
-step-≡-conv t⇒u A≡B = conv t⇒u (sym A≡B)
+step-≡-conv t≡u A≡B = conv t≡u (sym A≡B)
 
-syntax step-≡-conv t⇒u A≡B = ⟨ A≡B ⟩≡ t⇒u
+syntax step-≡-conv t≡u A≡B = ⟨ A≡B ⟩≡ t≡u
 
 {-# INLINE step-≡-conv #-}
 
 -- Conversion.
 
 step-≡-conv˘ : Γ ⊢ t ≡ u ∷ B → Γ ⊢ B ≡ A → Γ ⊢ t ≡ u ∷ A
-step-≡-conv˘ t⇒u B≡A = conv t⇒u B≡A
+step-≡-conv˘ t≡u B≡A = conv t≡u B≡A
 
-syntax step-≡-conv˘ t⇒u B≡A = ˘⟨ B≡A ⟩≡ t⇒u
+syntax step-≡-conv˘ t≡u B≡A = ˘⟨ B≡A ⟩≡ t≡u
 
 {-# INLINE step-≡-conv˘ #-}
 
 -- Conversion using propositional equality.
 
 step-≡-conv-≡ : Γ ⊢ t ≡ u ∷ B → A PE.≡ B → Γ ⊢ t ≡ u ∷ A
-step-≡-conv-≡ t⇒u PE.refl = t⇒u
+step-≡-conv-≡ t≡u PE.refl = t≡u
 
-syntax step-≡-conv-≡ t⇒u A≡B = ⟨ A≡B ⟩≡≡ t⇒u
+syntax step-≡-conv-≡ t≡u A≡B = ⟨ A≡B ⟩≡≡ t≡u
 
 -- Conversion using propositional equality.
 
 step-≡-conv-≡˘ : Γ ⊢ t ≡ u ∷ B → B PE.≡ A → Γ ⊢ t ≡ u ∷ A
-step-≡-conv-≡˘ t⇒u PE.refl = t⇒u
+step-≡-conv-≡˘ t≡u PE.refl = t≡u
 
-syntax step-≡-conv-≡˘ t⇒u B≡A = ˘⟨ B≡A ⟩≡≡ t⇒u
+syntax step-≡-conv-≡˘ t≡u B≡A = ˘⟨ B≡A ⟩≡≡ t≡u
 
 ------------------------------------------------------------------------
 -- Conversion combinators with explicit types
@@ -248,7 +248,7 @@ infix -2 step-∷≡-conv step-∷≡-conv˘ step-∷≡-conv-≡ step-∷≡-co
 step-∷≡-conv : ∀ A → Γ ⊢ t ≡ u ∷ B → Γ ⊢ A ≡ B → Γ ⊢ t ≡ u ∷ A
 step-∷≡-conv _ = step-≡-conv
 
-syntax step-∷≡-conv A t⇒u A≡B = ∷ A ⟨ A≡B ⟩≡ t⇒u
+syntax step-∷≡-conv A t≡u A≡B = ∷ A ⟨ A≡B ⟩≡ t≡u
 
 {-# INLINE step-∷≡-conv #-}
 
@@ -257,20 +257,20 @@ syntax step-∷≡-conv A t⇒u A≡B = ∷ A ⟨ A≡B ⟩≡ t⇒u
 step-∷≡-conv˘ : ∀ A → Γ ⊢ t ≡ u ∷ B → Γ ⊢ B ≡ A → Γ ⊢ t ≡ u ∷ A
 step-∷≡-conv˘ _ = step-≡-conv˘
 
-syntax step-∷≡-conv˘ A t⇒u B≡A = ∷ A ˘⟨ B≡A ⟩≡ t⇒u
+syntax step-∷≡-conv˘ A t≡u B≡A = ∷ A ˘⟨ B≡A ⟩≡ t≡u
 
 {-# INLINE step-∷≡-conv˘ #-}
 
 -- Conversion using propositional equality.
 
 step-∷≡-conv-≡ : ∀ A → Γ ⊢ t ≡ u ∷ B → A PE.≡ B → Γ ⊢ t ≡ u ∷ A
-step-∷≡-conv-≡ _ t⇒u PE.refl = t⇒u
+step-∷≡-conv-≡ _ t≡u PE.refl = t≡u
 
-syntax step-∷≡-conv-≡ A t⇒u A≡B = ∷ A ⟨ A≡B ⟩≡≡ t⇒u
+syntax step-∷≡-conv-≡ A t≡u A≡B = ∷ A ⟨ A≡B ⟩≡≡ t≡u
 
 -- Conversion using propositional equality.
 
 step-∷≡-conv-≡˘ : ∀ A → Γ ⊢ t ≡ u ∷ B → B PE.≡ A → Γ ⊢ t ≡ u ∷ A
-step-∷≡-conv-≡˘ _ t⇒u PE.refl = t⇒u
+step-∷≡-conv-≡˘ _ t≡u PE.refl = t≡u
 
-syntax step-∷≡-conv-≡˘ A t⇒u B≡A = ∷ A ˘⟨ B≡A ⟩≡≡ t⇒u
+syntax step-∷≡-conv-≡˘ A t≡u B≡A = ∷ A ˘⟨ B≡A ⟩≡≡ t≡u
