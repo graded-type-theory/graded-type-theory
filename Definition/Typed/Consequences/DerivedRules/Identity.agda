@@ -733,7 +733,7 @@ opaque
   ⊢cong :
     Γ ∙ A ⊢ v ∷ wk1 B →
     Γ ⊢ w ∷ Id A t u →
-    Γ ⊢ cong A t u B v w ∷ Id B (v [ t ]₀) (v [ u ]₀)
+    Γ ⊢ cong p A t u B v w ∷ Id B (v [ t ]₀) (v [ u ]₀)
   ⊢cong ⊢v ⊢w =
     case inversion-Id (syntacticTerm ⊢w) of λ
       (⊢A , ⊢t , _) →
@@ -752,12 +752,45 @@ opaque
 opaque
   unfolding cong
 
-  -- A reduction rule for cong.
+  -- An equality rule for cong.
+
+  cong-cong :
+    Γ ⊢ A₁ ≡ A₂ →
+    Γ ⊢ t₁ ≡ t₂ ∷ A₁ →
+    Γ ⊢ u₁ ≡ u₂ ∷ A₁ →
+    Γ ⊢ B₁ ≡ B₂ →
+    Γ ∙ A₁ ⊢ v₁ ≡ v₂ ∷ wk1 B₁ →
+    Γ ⊢ w₁ ≡ w₂ ∷ Id A₁ t₁ u₁ →
+    Γ ⊢ cong p A₁ t₁ u₁ B₁ v₁ w₁ ≡ cong p A₂ t₂ u₂ B₂ v₂ w₂ ∷
+      Id B₁ (v₁ [ t₁ ]₀) (v₁ [ u₁ ]₀)
+  cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ B₁≡B₂ v₁≡v₂ w₁≡w₂ =
+    case syntacticEqTerm t₁≡t₂ of λ
+      (⊢A₁ , ⊢t₁ , _) →
+    case syntacticEqTerm v₁≡v₂ of λ
+      (_ , ⊢v₁ , _) →
+    PE.subst (_⊢_≡_∷_ _ _ _)
+      (PE.cong₃ Id (wk1-sgSubst _ _) (wk1-sgSubst _ _) PE.refl) $
+    subst-cong A₁≡A₂
+      (Id-cong (wkEq₁ ⊢A₁ B₁≡B₂)
+         (wkEqTerm₁ ⊢A₁ $
+          PE.subst (_⊢_≡_∷_ _ _ _) (wk1-sgSubst _ _) $
+          substTermEq v₁≡v₂ t₁≡t₂)
+         v₁≡v₂)
+      t₁≡t₂ u₁≡u₂ w₁≡w₂
+      (_⊢_≡_∷_.refl $
+       PE.subst (_⊢_∷_ _ _)
+         (PE.cong₂ (Id _) (PE.sym $ wk1-sgSubst _ _) PE.refl) $
+       rflⱼ $ substTerm ⊢v₁ ⊢t₁)
+
+opaque
+  unfolding cong
+
+  -- A β-rule for cong.
 
   cong-⇒ :
     Γ ⊢ t ∷ A →
     Γ ∙ A ⊢ u ∷ wk1 B →
-    Γ ⊢ cong A t t B u rfl ⇒ rfl ∷ Id B (u [ t ]₀) (u [ t ]₀)
+    Γ ⊢ cong p A t t B u rfl ⇒ rfl ∷ Id B (u [ t ]₀) (u [ t ]₀)
   cong-⇒ ⊢t ⊢u =
     PE.subst (_⊢_⇒_∷_ _ _ _)
       (PE.cong₃ Id (wk1-sgSubst _ _) (wk1-sgSubst _ _) PE.refl) $
@@ -774,14 +807,53 @@ opaque
 
 opaque
 
-  -- An equality rule for cong.
+  -- A β-rule for cong.
 
   cong-≡ :
     Γ ⊢ t ∷ A →
     Γ ∙ A ⊢ u ∷ wk1 B →
-    Γ ⊢ cong A t t B u rfl ≡ rfl ∷ Id B (u [ t ]₀) (u [ t ]₀)
+    Γ ⊢ cong p A t t B u rfl ≡ rfl ∷ Id B (u [ t ]₀) (u [ t ]₀)
   cong-≡ ⊢t ⊢u =
     subsetTerm (cong-⇒ ⊢t ⊢u)
+
+opaque
+  unfolding cong
+
+  -- A reduction rule for cong.
+
+  cong-subst :
+    Γ ∙ A ⊢ v ∷ wk1 B →
+    Γ ⊢ w₁ ⇒ w₂ ∷ Id A t u →
+    Γ ⊢ cong p A t u B v w₁ ⇒ cong p A t u B v w₂ ∷
+      Id B (v [ t ]₀) (v [ u ]₀)
+  cong-subst ⊢v w₁⇒w₂ =
+    case inversion-Id $ syntacticEqTerm (subsetTerm w₁⇒w₂) .proj₁ of λ
+      (⊢A , ⊢t , _) →
+    PE.subst (_⊢_⇒_∷_ _ _ _)
+      (PE.cong₃ Id (wk1-sgSubst _ _) (wk1-sgSubst _ _) PE.refl) $
+    subst-subst
+      (Idⱼ
+         (PE.subst (_⊢_∷_ _ _) (PE.cong wk1 $ wk1-sgSubst _ _) $
+          wkTerm₁ ⊢A (substTerm ⊢v ⊢t))
+         ⊢v)
+      w₁⇒w₂
+      (PE.subst (_⊢_∷_ _ _)
+         (PE.sym $ PE.cong₃ Id PE.refl (wk1-sgSubst _ _) PE.refl) $
+       rflⱼ (substTerm ⊢v ⊢t))
+
+opaque
+
+  -- A reduction rule for cong.
+
+  cong-subst* :
+    Γ ∙ A ⊢ v ∷ wk1 B →
+    Γ ⊢ w₁ ⇒* w₂ ∷ Id A t u →
+    Γ ⊢ cong p A t u B v w₁ ⇒* cong p A t u B v w₂ ∷
+      Id B (v [ t ]₀) (v [ u ]₀)
+  cong-subst* ⊢v = λ where
+    (id ⊢w)          → id (⊢cong ⊢v ⊢w)
+    (w₁⇒w₃ ⇨ w₃⇒*w₂) →
+      cong-subst ⊢v w₁⇒w₃ ⇨ cong-subst* ⊢v w₃⇒*w₂
 
 ------------------------------------------------------------------------
 -- Lemmas related to pointwise-equality
