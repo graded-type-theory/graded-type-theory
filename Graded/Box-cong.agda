@@ -27,7 +27,7 @@ open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Consequences.Reduction TR
 open import Definition.Typed.Consequences.Syntactic TR
 open import Definition.Typed.Properties TR
-open import Definition.Typed.Reasoning.Reduction TR
+open import Definition.Typed.Reasoning.Term TR
 import Definition.Typed.Weakening TR as W
 open import Definition.Untyped M as U
 open import Definition.Untyped.Identity 𝕄
@@ -353,8 +353,8 @@ Has-[]-cong s m q₁ q₂ q₃ q₄ =
     Π 𝟘 , q₄ ▷ Id (var x2) (var x1) (var x0) ▹
     Id (Erased (var x3)) ([ var x2 ]) ([ var x1 ])
 
--- The property of supporting a []-cong combinator that computes
--- correctly.
+-- The property of supporting a []-cong combinator that "computes"
+-- correctly (stated in terms of definitional equality).
 
 Has-computing-[]-cong : Strength → Mode → M → M → M → M → Set a
 Has-computing-[]-cong s m q₁ q₂ q₃ q₄ =
@@ -363,7 +363,7 @@ Has-computing-[]-cong s m q₁ q₂ q₃ q₄ =
   ∀ n (Γ : Con Term n) (A t : Term n) →
   Γ ⊢ A ∷ U →
   Γ ⊢ t ∷ A →
-  Γ ⊢ wk wk₀ []-cong′ ∘⟨ 𝟘 ⟩ A ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ rfl ⇒* rfl ∷
+  Γ ⊢ wk wk₀ []-cong′ ∘⟨ 𝟘 ⟩ A ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ rfl ≡ rfl ∷
     Id (Erased A) ([ t ]) ([ t ])
 
 opaque
@@ -398,14 +398,14 @@ opaque
       , ⊢[]-cong
       )
     , λ _ _ A t ⊢A ⊢t →
-        wk wk₀ []-cong′ ∘⟨ 𝟘 ⟩ A ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ rfl        ⇒*⟨ β-red-⇒₄ (W.wkTerm W.wk₀∷⊇ (wfTerm ⊢A) ⊢[]-cong) ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩
+        wk wk₀ []-cong′ ∘⟨ 𝟘 ⟩ A ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ rfl        ⇒*⟨ β-red-⇒₄ (W.wkTerm W.wk₀∷⊇ (wfTerm ⊢A) ⊢[]-cong) ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩⊢
 
         wk (liftn wk₀ 4)
           ([]-cong″ ok′ (var x3) (var x2) (var x1) (var x0))
           [ consSubst (consSubst (consSubst (sgSubst A) t) t) rfl ]  ≡⟨ PE.trans (subst-wk ([]-cong″ ok′ _ _ _ _)) $
-                                                                        []-cong″-[] ok′ ⟩⇒
+                                                                        []-cong″-[] ok′ ⟩⊢≡
 
-        []-cong″ ok′ A t t rfl                                       ⇒⟨ []-cong″-β-⇒ ok′ ⊢t ⟩∎
+        []-cong″ ok′ A t t rfl                                       ⇒⟨ []-cong″-β-⇒ ok′ ⊢t ⟩⊢∎
 
         rfl                                                          ∎ }
     where
