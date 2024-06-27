@@ -113,10 +113,10 @@ private opaque
 
 opaque
 
-  -- A variant of []-cong which can be used when erased matches are
-  -- available for J, or when the mode is 𝟘ᵐ[ ok ]. Note that the
-  -- lemmas in this section do not include assumptions of the form
-  -- "[]-cong-allowed s".
+  -- A variant of []-cong that can be used when erased matches are
+  -- available for J, when the mode is 𝟘ᵐ[ ok ], or when the modality
+  -- is trivial. Note that the lemmas in this section do not include
+  -- assumptions of the form "[]-cong-allowed s".
 
   []-cong-J : Strength → Term n → Term n → Term n → Term n → Term n
   []-cong-J s A t u v =
@@ -185,6 +185,35 @@ opaque
     where
     open ErasedU s
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+
+opaque
+  unfolding []-cong-J
+
+  -- A usage rule for []-cong-J that can be used if the modality is
+  -- trivial.
+
+  ▸[]-cong-J-trivial :
+    Trivial →
+    γ₁ ▸[ 𝟘ᵐ? ] A →
+    γ₂ ▸[ 𝟘ᵐ? ] t →
+    γ₃ ▸[ 𝟘ᵐ? ] u →
+    γ₄ ▸[ 𝟘ᵐ? ] v →
+    𝟘ᶜ ▸[ m ] []-cong-J s A t u v
+  ▸[]-cong-J-trivial {s} trivial ▸A ▸t ▸u ▸v =
+    flip sub (≈ᶜ-trivial trivial) $
+    ▸-trivial trivial $
+    ▸subst {γ₂ = 𝟘ᶜ}
+      ▸A
+      (Idₘ-generalised (▸Erased (wkUsage (step id) ▸A))
+         (▸[] $ wkUsage (step id) $ ▸-trivial trivial ▸t) (▸[] var)
+         (λ _ → ≈ᶜ-trivial trivial)
+         (λ _ → ≈ᶜ-trivial trivial))
+      ▸t
+      ▸u
+      ▸v
+      rflₘ
+    where
+    open ErasedU s
 
 opaque
   unfolding []-cong-J
@@ -374,19 +403,21 @@ opaque
   -- * []-cong is allowed for s, or
   -- * Erased is allowed for s and
   --   * erased matches are available for J, or
-  --   * m is 𝟘ᵐ.
+  --   * m is 𝟘ᵐ, or
+  --   * the modality is trivial.
 
-  []-cong⊎J⊎𝟘ᵐ→[]-cong :
+  []-cong⊎J⊎𝟘ᵐ⊎Trivial→[]-cong :
     []-cong-allowed s ⊎
     Erased-allowed s ×
     (erased-matches-for-J m ≢ none ⊎
-     (∃ λ ok → m PE.≡ 𝟘ᵐ[ ok ])) →
+     (∃ λ ok → m PE.≡ 𝟘ᵐ[ ok ]) ⊎
+     Trivial) →
     Π-allowed 𝟘 q₁ →
     Π-allowed 𝟘 q₂ →
     Π-allowed 𝟘 q₃ →
     Π-allowed 𝟘 q₄ →
     Has-computing-[]-cong s m q₁ q₂ q₃ q₄
-  []-cong⊎J⊎𝟘ᵐ→[]-cong {s} {m} ok ok₁ ok₂ ok₃ ok₄ =
+  []-cong⊎J⊎𝟘ᵐ⊎Trivial→[]-cong {s} {m} ok ok₁ ok₂ ok₃ ok₄ =
     case lamⱼ′ ok₁ $ lamⱼ′ ok₂ $ lamⱼ′ ok₃ $ lamⱼ′ ok₄ $
          ⊢[]-cong″ ok′ (var₀ ⊢Id-2-1-0) of λ {
       ⊢[]-cong →
@@ -419,14 +450,16 @@ opaque
     OK : Set a
     OK =
       []-cong-allowed s ⊎
-      ((∃ λ sem → erased-matches-for-J m PE.≡ not-none sem) ⊎
-       (∃ λ ok → m PE.≡ 𝟘ᵐ[ ok ]))
+      (∃ λ sem → erased-matches-for-J m PE.≡ not-none sem) ⊎
+      (∃ λ ok → m PE.≡ 𝟘ᵐ[ ok ]) ⊎
+      Trivial
 
     ok′ : OK
     ok′ = case ok of λ where
-      (inj₁ ok)               → inj₁ ok
-      (inj₂ (_ , inj₂ ok))    → inj₂ (inj₂ ok)
-      (inj₂ (_ , inj₁ ≢none)) →
+      (inj₁ ok)                        → inj₁ ok
+      (inj₂ (_ , inj₂ (inj₂ trivial))) → inj₂ (inj₂ (inj₂ trivial))
+      (inj₂ (_ , inj₂ (inj₁ ok)))      → inj₂ (inj₂ (inj₁ ok))
+      (inj₂ (_ , inj₁ ≢none))          →
         inj₂ $ inj₁ $
         case PE.singleton $ erased-matches-for-J m of λ where
           (not-none _ , ≡not-none) → _ , ≡not-none
@@ -443,11 +476,12 @@ opaque
       γ₃ ▸[ 𝟘ᵐ? ] u →
       γ₄ ▸[ 𝟘ᵐ? ] v →
       𝟘ᶜ ▸[ m ] []-cong″ ok A t u v
-    ▸[]-cong″ (inj₁ _)                      = []-congₘ
-    ▸[]-cong″ (inj₂ (inj₁ (_ , ≡not-none))) = ▸[]-cong-J ≡not-none
-    ▸[]-cong″ (inj₂ (inj₂ (_ , PE.refl)))   = λ ▸A ▸t ▸u ▸v →
+    ▸[]-cong″ (inj₁ _)                           = []-congₘ
+    ▸[]-cong″ (inj₂ (inj₁ (_ , ≡not-none)))      = ▸[]-cong-J ≡not-none
+    ▸[]-cong″ (inj₂ (inj₂ (inj₁ (_ , PE.refl)))) = λ ▸A ▸t ▸u ▸v →
       ▸[]-cong-J-𝟘ᵐ (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸A) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸t)
         (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸u) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸v)
+    ▸[]-cong″ (inj₂ (inj₂ (inj₂ trivial))) = ▸[]-cong-J-trivial trivial
 
     ⊢[]-cong″ :
       let open Erased s in
