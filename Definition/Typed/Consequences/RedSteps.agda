@@ -14,6 +14,7 @@ module Definition.Typed.Consequences.RedSteps
 open Type-restrictions R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Properties R
@@ -22,6 +23,7 @@ open import Definition.Typed.Consequences.DerivedRules R
 open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Substitution R
 open import Definition.Typed.Consequences.Syntactic R
+open import Definition.Typed.Reasoning.Reduction R
 open import Definition.LogicalRelation.Fundamental R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
 open import Definition.LogicalRelation.Hidden R
@@ -39,7 +41,7 @@ private
   variable
     n : Nat
     Γ : Con Term n
-    A B C t t′ t₁ t₂ u v v₁ v₂ w₁ w₂ : Term n
+    A B C t t′ t₁ t₂ u u₁ u₂ v v₁ v₂ w₁ w₂ : Term n
     p q q′ r : M
 
 opaque
@@ -58,6 +60,58 @@ opaque
         snd-subst′ t⇒v ⇨
         conv* (snd-subst* v⇨*u)
           (substTypeEq (refl ⊢B) (sym (fst-cong′ (subsetTerm t⇒v))))
+
+private opaque
+
+  -- A lemma that can be used to prove lemmas like snd-subst*.
+
+  subst→subst* :
+    ∀ t →
+    Γ ∙ A ⊢ B →
+    (∀ {u} →
+     Γ ⊢ u ∷ A →
+     Γ ⊢ t [ u ]₀ ∷ B [ u ]₀) →
+    (∀ {u₁ u₂} →
+     Γ ⊢ u₁ ⇒ u₂ ∷ A →
+     Γ ⊢ t [ u₁ ]₀ ⇒ t [ u₂ ]₀ ∷ B [ u₁ ]₀) →
+    Γ ⊢ u₁ ⇒* u₂ ∷ A →
+    Γ ⊢ t [ u₁ ]₀ ⇒* t [ u₂ ]₀ ∷ B [ u₁ ]₀
+  subst→subst* {B} {u₁} {u₂} t ⊢B ⊢t[] t[]⇒t[] = λ where
+    (id ⊢u)                      → id (⊢t[] ⊢u)
+    (_⇨_ {t′ = u₃} u₁⇒u₃ u₃⇒*u₂) →
+      t [ u₁ ]₀ ∷ B [ u₁ ]₀  ⇒⟨ t[]⇒t[] u₁⇒u₃ ⟩∷
+                              ⟨ substTypeEq (refl ⊢B) (subsetTerm u₁⇒u₃) ⟩⇒
+      t [ u₃ ]₀ ∷ B [ u₃ ]₀  ⇒*⟨ subst→subst* t ⊢B ⊢t[] t[]⇒t[] u₃⇒*u₂ ⟩∎∷
+      t [ u₂ ]₀              ∎
+
+private opaque
+
+  -- The lemma subst→subst* is private because it can be rather
+  -- awkward to use: tastes may vary, but the following proof is at
+  -- least (at the time of writing) longer than snd-subst*, even if
+  -- one does not count the where clause.
+
+  snd-subst*′ :
+    Γ ⊢ t ⇒* u ∷ Σˢ p , q ▷ A ▹ B →
+    Γ ⊢ snd p t ⇒* snd p u ∷ B [ fst p t ]₀
+  snd-subst*′ {p} {B} t⇒*u =
+    case syntacticTerm $ redFirst*Term t⇒*u of λ
+      ⊢ΣAB →
+    case inversion-ΠΣ ⊢ΣAB of λ
+      (_ , ⊢B , _) →
+    PE.subst (_⊢_⇒*_∷_ _ _ _) (lemma _) $
+    subst→subst* (snd p (var x0))
+      (subst↑Type ⊢B (fstⱼ′ (var₀ ⊢ΣAB)))
+      (λ ⊢u →
+         PE.subst (_⊢_∷_ _ _) (PE.sym $ lemma _) $
+         sndⱼ′ ⊢u)
+      (λ u₁⇒u₂ →
+         PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ lemma _) $
+         snd-subst′ u₁⇒u₂)
+      t⇒*u
+    where
+    lemma : ∀ t → B [ fst p (var x0) ]↑ [ t ]₀ PE.≡ B [ fst p t ]₀
+    lemma _ = []↑-[]₀ B
 
 opaque
 

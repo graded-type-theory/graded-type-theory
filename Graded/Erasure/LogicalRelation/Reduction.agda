@@ -249,7 +249,7 @@ sourceRedSubstTerm*′ [A] t®v (x ⇨ t⇒t′) =
 
 private opaque
 
-  -- A lemma used below.
+  -- Some lemmas used below.
 
   Π-lemma :
     v T.⇒ v′ →
@@ -259,6 +259,16 @@ private opaque
     with red*Det v⇒*lam (T.trans v⇒v′ T.refl)
   … | inj₁ lam⇒*v′ rewrite Value→⇒*→≡ T.lam lam⇒*v′ = _ , T.refl
   … | inj₂ v′⇒*lam = _ , v′⇒*lam
+
+  ⇒*↯→⇒→⇒*↯ :
+    (str PE.≡ strict → v T.⇒* ↯) → v T.⇒ v′ →
+    str PE.≡ strict → v′ T.⇒* ↯
+  ⇒*↯→⇒→⇒*↯ {v′} v⇒*↯ v⇒v′ ≡strict =
+    case red*Det (v⇒*↯ ≡strict) (T.trans v⇒v′ T.refl) of λ where
+      (inj₂ v′⇒*↯) → v′⇒*↯
+      (inj₁ ↯⇒*v′) →
+        v′  ≡⟨ ↯-noRed ↯⇒*v′ ⟩⇒
+        ↯   ∎⇒
 
 -- The logical relation for erasure is preserved under reduction of
 -- the target language term.
@@ -274,13 +284,8 @@ targetRedSubstTerm*′ :
 
 targetRedSubstTerm′ : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A]
                     → v T.⇒ v′ → t ®⟨ l ⟩ v′ ∷ A / [A]
-targetRedSubstTerm′ {v′} (Uᵣ _) (Uᵣ v⇒*↯) v⇒v′ =
-  Uᵣ λ ≡strict →
-  case red*Det (v⇒*↯ ≡strict) (T.trans v⇒v′ T.refl) of λ where
-    (inj₂ v′⇒*↯) → v′⇒*↯
-    (inj₁ ↯⇒*v′) →
-      v′  ≡⟨ ↯-noRed ↯⇒*v′ ⟩⇒
-      ↯   ∎⇒
+targetRedSubstTerm′ (Uᵣ _) (Uᵣ v⇒*↯) v⇒v′ =
+  Uᵣ (⇒*↯→⇒→⇒*↯ v⇒*↯ v⇒v′)
 targetRedSubstTerm′ (ℕᵣ x) (zeroᵣ x₁ v⇒zero) v⇒v′ with red*Det v⇒zero (T.trans v⇒v′ T.refl)
 ... | inj₁ x₂ rewrite zero-noRed x₂ = zeroᵣ x₁ T.refl
 ... | inj₂ x₂ = zeroᵣ x₁ x₂
@@ -323,13 +328,8 @@ targetRedSubstTerm′
              PE.refl → Σ-®-intro-ω v₁ refl t₁®v₁ p≢𝟘
            (inj₂ v′⇒p) → Σ-®-intro-ω v₁ v′⇒p t₁®v₁ p≢𝟘)
 
-targetRedSubstTerm′ {v′} (Idᵣ _) (rflᵣ t⇒*rfl v⇒*↯) v⇒v′ =
-  rflᵣ t⇒*rfl λ ≡strict →
-  case red*Det (v⇒*↯ ≡strict) (T.trans v⇒v′ T.refl) of λ where
-    (inj₂ v′⇒*↯) → v′⇒*↯
-    (inj₁ ↯⇒*v′) →
-      v′  ≡⟨ ↯-noRed ↯⇒*v′ ⟩⇒
-      ↯   ∎⇒
+targetRedSubstTerm′ (Idᵣ _) (rflᵣ t⇒*rfl v⇒*↯) v⇒v′ =
+  rflᵣ t⇒*rfl (⇒*↯→⇒→⇒*↯ v⇒*↯ v⇒v′)
 targetRedSubstTerm′ (emb 0<1 [A]) t®v v⇒v′ = targetRedSubstTerm′ [A] t®v v⇒v′
 
 

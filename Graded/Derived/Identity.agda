@@ -19,6 +19,7 @@ open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
+open import Graded.Substitution.Properties 𝕄 UR
 open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Properties 𝕄 UR
@@ -29,15 +30,17 @@ open import Definition.Untyped.Identity 𝕄
 
 open import Tools.Bool
 open import Tools.Function
+open import Tools.Product
 open import Tools.PropositionalEquality as PE using (_≡_)
 import Tools.Reasoning.PartialOrder
+open import Tools.Relation
 
 private variable
-  A B t u v w       : Term _
-  p                 : M
-  γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ : Conₘ _
-  m                 : Mode
-  sem               : Some-erased-matches
+  A B t u v w          : Term _
+  p                    : M
+  γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ γ₇ : Conₘ _
+  m                    : Mode
+  sem                  : Some-erased-matches
 
 opaque
   unfolding subst
@@ -86,3 +89,64 @@ opaque
   ▸subst-𝟘 ≡not-none ▸A ▸B ▸t ▸u ▸v ▸w =
     J₀ₘ₁-generalised ≡not-none PE.refl PE.refl ▸A ▸t
       (wkUsage (step id) ▸B) ▸w ▸u ▸v
+
+opaque
+  unfolding cong
+
+  -- A usage rule for cong.
+
+  ▸cong :
+    γ₁ ▸[ 𝟘ᵐ? ] A →
+    γ₂ ▸[ m ] t →
+    γ₃ ▸[ m ] u →
+    γ₄ ▸[ 𝟘ᵐ? ] B →
+    γ₅ ∙ ⌜ m ⌝ · p ▸[ m ] v →
+    γ₆ ▸[ m ] w →
+    (Id-erased →
+     γ₇ ∙ ⌜ m ⌝ · p ≤ᶜ 𝟘ᶜ) →
+    (¬ Id-erased →
+     γ₇ ≤ᶜ (⌜ m ⌝ · p) ·ᶜ γ₂ +ᶜ (𝟙 + 𝟙) ·ᶜ γ₅) →
+    ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₆ +ᶜ γ₇) ▸[ m ] cong p A t u B v w
+  ▸cong
+    {γ₂} {m} {t} {γ₃} {γ₅} {p} {γ₆} {γ₇}
+    ▸A ▸t ▸u ▸B ▸v ▸w hyp₁ hyp₂ =
+    case ▸→▸[ᵐ·] ▸t of λ
+      (γ₂′ , ▸t′ , pγ₂≈pγ₂′) →
+    sub
+      (▸subst ▸A
+         (Idₘ-generalised (wkUsage (step id) ▸B)
+            (wkUsage (step id) $ sgSubstₘ-lemma₁ ▸v ▸t′)
+            ▸v
+            hyp₁
+            (λ not-erased → begin
+               γ₇ ∙ ⌜ m ⌝ · p                                      ≤⟨ hyp₂ not-erased ∙ ≤-refl ⟩
+               ((⌜ m ⌝ · p) ·ᶜ γ₂ +ᶜ (𝟙 + 𝟙) ·ᶜ γ₅) ∙ ⌜ m ⌝ · p    ≈˘⟨ (≈ᶜ-trans (+ᶜ-congʳ $ +ᶜ-comm _ _) $
+                                                                        ≈ᶜ-trans (+ᶜ-assoc _ _ _) $
+                                                                        ≈ᶜ-sym $
+                                                                        +ᶜ-cong
+                                                                          (≈ᶜ-trans (·ᶜ-assoc _ _ _) $
+                                                                           ≈ᶜ-trans (·ᶜ-congˡ pγ₂≈pγ₂′) $
+                                                                           ≈ᶜ-sym $ ·ᶜ-assoc _ _ _)
+                                                                          (≈ᶜ-trans (·ᶜ-distribʳ-+ᶜ _ _ _) $
+                                                                           +ᶜ-cong (·ᶜ-identityˡ _) (·ᶜ-identityˡ _))) ∙
+                                                                       +-identityˡ _ ⟩
+               ((γ₅ +ᶜ (⌜ m ⌝ · p) ·ᶜ γ₂′) +ᶜ γ₅) ∙ 𝟘 + ⌜ m ⌝ · p  ∎))
+         ▸t ▸u ▸w rflₘ)
+      (begin
+         ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₆ +ᶜ γ₇)        ≈˘⟨ ·ᶜ-congˡ $
+                                                ≈ᶜ-trans (≈ᶜ-sym $ +ᶜ-assoc _ _ _) $
+                                                ≈ᶜ-trans (+ᶜ-congʳ $ +ᶜ-comm _ _) $
+                                                ≈ᶜ-trans (+ᶜ-assoc _ _ _) $
+                                                +ᶜ-congˡ $
+                                                ≈ᶜ-trans (≈ᶜ-sym $ +ᶜ-assoc _ _ _) $
+                                                ≈ᶜ-trans (+ᶜ-congʳ $ +ᶜ-comm _ _) $
+                                                ≈ᶜ-trans (+ᶜ-assoc _ _ _) $
+                                                +ᶜ-congˡ $
+                                                ≈ᶜ-trans (≈ᶜ-sym $ +ᶜ-assoc _ _ _) $
+                                                ≈ᶜ-trans (+ᶜ-congʳ $ +ᶜ-comm _ _) $
+                                                ≈ᶜ-trans (+ᶜ-assoc _ _ _) $
+                                                +ᶜ-congˡ $
+                                                +ᶜ-identityʳ _ ⟩
+         ω ·ᶜ (γ₇ +ᶜ γ₂ +ᶜ γ₃ +ᶜ γ₆ +ᶜ 𝟘ᶜ)  ∎)
+    where
+    open ≤ᶜ-reasoning

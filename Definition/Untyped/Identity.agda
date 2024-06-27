@@ -129,9 +129,10 @@ opaque
   -- Congruence.
 
   cong :
-    Term n → Term n → Term n → Term n → Term (1+ n) → Term n → Term n
-  cong A t u B v w =
-    subst ω A (Id (wk1 B) (wk1 (v [ t ]₀)) v) t u w rfl
+    M → Term n → Term n → Term n → Term n → Term (1+ n) → Term n →
+    Term n
+  cong p A t u B v w =
+    subst p A (Id (wk1 B) (wk1 (v [ t ]₀)) v) t u w rfl
 
 opaque
   unfolding cong
@@ -139,13 +140,13 @@ opaque
   -- A substitution lemma for cong.
 
   cong-[] :
-    cong A t u B v w [ σ ] ≡
-    cong (A [ σ ]) (t [ σ ]) (u [ σ ]) (B [ σ ]) (v [ liftSubst σ ])
+    cong p A t u B v w [ σ ] ≡
+    cong p (A [ σ ]) (t [ σ ]) (u [ σ ]) (B [ σ ]) (v [ liftSubst σ ])
       (w [ σ ])
-  cong-[] {A} {t} {u} {B} {v} {w} {σ} =
-    subst ω A (Id (wk1 B) (wk1 (v [ t ]₀)) v) t u w rfl [ σ ]        ≡⟨ subst-[] ⟩
+  cong-[] {p} {A} {t} {u} {B} {v} {w} {σ} =
+    subst p A (Id (wk1 B) (wk1 (v [ t ]₀)) v) t u w rfl [ σ ]        ≡⟨ subst-[] ⟩
 
-    subst ω (A [ σ ])
+    subst p (A [ σ ])
       (Id (wk1 B [ liftSubst σ ]) (wk1 (v [ t ]₀) [ liftSubst σ ])
          (v [ liftSubst σ ]))
       (t [ σ ]) (u [ σ ]) (w [ σ ]) rfl                              ≡⟨ cong₅ (subst _ _)
@@ -157,7 +158,7 @@ opaque
       wk1 (v [ liftSubst σ ] [ t [ σ ] ]₀)                                    ∎)
                                                                              refl)
                                                                           refl refl refl refl ⟩
-    subst ω (A [ σ ])
+    subst p (A [ σ ])
       (Id (wk1 (B [ σ ])) (wk1 (v [ liftSubst σ ] [ t [ σ ] ]₀))
          (v [ liftSubst σ ]))
       (t [ σ ]) (u [ σ ]) (w [ σ ]) rfl                              ∎
@@ -170,7 +171,7 @@ opaque
     M → M → Term n → Term (1+ n) → Term n → Term n → Term n → Term n →
     Term n
   pointwise-equality p q A B t u v w =
-    cong (Π p , q ▷ A ▹ B) t u (B [ w ]₀) (var x0 ∘⟨ p ⟩ wk1 w) v
+    cong ω (Π p , q ▷ A ▹ B) t u (B [ w ]₀) (var x0 ∘⟨ p ⟩ wk1 w) v
 
 opaque
   unfolding pointwise-equality
@@ -182,16 +183,17 @@ opaque
     pointwise-equality p q (A [ σ ]) (B [ liftSubst σ ]) (t [ σ ])
       (u [ σ ]) (v [ σ ]) (w [ σ ])
   pointwise-equality-[] {p} {q} {A} {B} {t} {u} {v} {w} {σ} =
-    cong (Π p , q ▷ A ▹ B) t u (B [ w ]₀) (var x0 ∘⟨ p ⟩ wk1 w) v [ σ ]  ≡⟨ cong-[] ⟩
+    cong ω (Π p , q ▷ A ▹ B) t u (B [ w ]₀) (var x0 ∘⟨ p ⟩ wk1 w) v
+      [ σ ]                                                               ≡⟨ cong-[] ⟩
 
-    cong (Π p , q ▷ A [ σ ] ▹ (B [ liftSubst σ ])) (t [ σ ]) (u [ σ ])
-      (B [ w ]₀ [ σ ]) (var x0 ∘⟨ p ⟩ wk1 w [ liftSubst σ ]) (v [ σ ])   ≡⟨ cong₃ (cong _ _ _)
-                                                                              (singleSubstLift B _)
-                                                                              (PE.cong (_∘⟨_⟩_ _ _) $ wk1-liftSubst w)
-                                                                              refl ⟩
-    cong (Π p , q ▷ A [ σ ] ▹ (B [ liftSubst σ ])) (t [ σ ]) (u [ σ ])
+    cong ω (Π p , q ▷ A [ σ ] ▹ (B [ liftSubst σ ])) (t [ σ ]) (u [ σ ])
+      (B [ w ]₀ [ σ ]) (var x0 ∘⟨ p ⟩ wk1 w [ liftSubst σ ]) (v [ σ ])    ≡⟨ cong₃ (cong _ _ _ _)
+                                                                               (singleSubstLift B _)
+                                                                               (PE.cong (_∘⟨_⟩_ _ _) $ wk1-liftSubst w)
+                                                                               refl ⟩
+    cong ω (Π p , q ▷ A [ σ ] ▹ (B [ liftSubst σ ])) (t [ σ ]) (u [ σ ])
       (B [ liftSubst σ ] [ w [ σ ] ]₀) (var x0 ∘⟨ p ⟩ wk1 (w [ σ ]))
-      (v [ σ ])                                                          ∎
+      (v [ σ ])                                                           ∎
 
 opaque
 
@@ -217,7 +219,7 @@ opaque
             (transitivity A t u t eq₂
                (transitivity A u t t (symmetry A t u eq₁) rfl)))
          u eq₁)
-      (cong (Id A u u) (transitivity A u t u (symmetry A t u eq₁) eq₁)
+      (cong ω (Id A u u) (transitivity A u t u (symmetry A t u eq₁) eq₁)
          rfl (Id A t u)
          (transitivity (wk1 A) (wk1 t) (wk1 u) (wk1 u) (wk1 eq₂)
             (var x0))

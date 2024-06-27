@@ -378,6 +378,58 @@ opaque
     open TermR
 
 ------------------------------------------------------------------------
+-- Lemmas about mapᴱ
+
+opaque
+  unfolding Erased.mapᴱ
+
+  -- An equality rule for mapᴱ.
+
+  mapᴱ-cong :
+    let open Erased s in
+    Γ ⊢ A₁ ≡ A₂ →
+    Γ ∙ A₁ ⊢ t₁ ≡ t₂ ∷ wk1 B →
+    Γ ⊢ u₁ ≡ u₂ ∷ Erased A₁ →
+    Γ ⊢ mapᴱ A₁ t₁ u₁ ≡ mapᴱ A₂ t₂ u₂ ∷ Erased B
+  mapᴱ-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ =
+    case inversion-Erased _ $ syntacticEqTerm u₁≡u₂ .proj₁ of λ
+      (_ , ok) →
+    []-cong′ ok $
+    PE.subst (_⊢_≡_∷_ _ _ _) (wk1-sgSubst _ _) $
+    substTermEq t₁≡t₂ (erased-cong A₁≡A₂ u₁≡u₂)
+
+opaque
+
+  -- A typing rule for mapᴱ.
+
+  ⊢mapᴱ :
+    let open Erased s in
+    Γ ∙ A ⊢ t ∷ wk1 B →
+    Γ ⊢ u ∷ Erased A →
+    Γ ⊢ mapᴱ A t u ∷ Erased B
+  ⊢mapᴱ ⊢t ⊢u =
+    syntacticEqTerm
+      (mapᴱ-cong (refl (inversion-Erased _ (syntacticTerm ⊢u) .proj₁))
+         (refl ⊢t) (refl ⊢u))
+      .proj₂ .proj₁
+
+opaque
+  unfolding Erased.mapᴱ
+
+  -- A β-rule for mapᴱ.
+
+  mapᴱ-β :
+    let open Erased s in
+    Erased-allowed s →
+    Γ ∙ A ⊢ t ∷ wk1 B →
+    Γ ⊢ u ∷ A →
+    Γ ⊢ mapᴱ A t [ u ] ≡ [ t [ u ]₀ ] ∷ Erased B
+  mapᴱ-β ok ⊢t ⊢u =
+    []-cong′ ok $
+    PE.subst (_⊢_≡_∷_ _ _ _) (wk1-sgSubst _ _) $
+    substTermEq (refl ⊢t) (Erased-β ok ⊢u)
+
+------------------------------------------------------------------------
 -- Lemmas proved under the assumption that []-cong is allowed
 
 module _ (ok : []-cong-allowed s) where

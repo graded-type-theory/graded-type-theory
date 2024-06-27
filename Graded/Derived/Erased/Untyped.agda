@@ -178,6 +178,26 @@ opaque
 
 opaque
 
+  -- A map function for Erased.
+
+  mapᴱ : Term n → Term (1+ n) → Term n → Term n
+  mapᴱ A t u = [ t [ erased A u ]₀ ]
+
+opaque
+  unfolding mapᴱ
+
+  -- A substitution lemma for mapᴱ.
+
+  mapᴱ-[] :
+    mapᴱ A t u U.[ σ ] ≡
+    mapᴱ (A U.[ σ ]) (t U.[ σ ⇑ ]) (u U.[ σ ])
+  mapᴱ-[] {A} {t} {u} {σ} =
+    [ t U.[ erased A u ]₀ U.[ σ ] ]                        ≡⟨ PE.cong ([_]) $ singleSubstLift t _ ⟩
+    [ t U.[ σ ⇑ ] U.[ erased A u U.[ σ ] ]₀ ]              ≡⟨ PE.cong ([_] ∘→ t U.[ σ ⇑ ] U.[_]₀) erased-[] ⟩
+    [ t U.[ σ ⇑ ] U.[ erased (A U.[ σ ]) (u U.[ σ ]) ]₀ ]  ∎
+
+opaque
+
   -- Substitutivity.
   --
   -- This variant of subst is an alternative to subst 𝟘.

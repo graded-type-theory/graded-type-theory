@@ -990,3 +990,10 @@ opaque
 
 ᵐ·-identityʳ : m ᵐ· 𝟙 ≡ m
 ᵐ·-identityʳ = ≢𝟘→ᵐ·≡′ 𝟘ᵐ.non-trivial
+
+opaque
+
+  -- The quantity ω is a right identity for _ᵐ·_.
+
+  ᵐ·-identityʳ-ω : m ᵐ· ω ≡ m
+  ᵐ·-identityʳ-ω = ≢𝟘→ᵐ·≡′ 𝟘ᵐ.ω≢𝟘
