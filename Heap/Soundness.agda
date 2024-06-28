@@ -45,6 +45,7 @@ open import Definition.LogicalRelation.Substitution.Introductions.Nat TR
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
+open import Graded.Mode 𝕄
 open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Inversion 𝕄 UR
 
@@ -72,7 +73,6 @@ open import Heap.Reduction.Properties 𝕄 type-variant (not-tracking-and-ℕ-fu
 
 
 private variable
-  m : Nat
   n t A : Term _
   s : State _ _ _
   γ δ η : Conₘ _
@@ -80,12 +80,13 @@ private variable
   H : Heap _ _
   E : Env _ _
   S : Stack _
+  m : Mode
 
 opaque
 
   -- All well-typed and well-resourced states of type ℕ reduce to numerals
 
-  redNumeral : Consistent Δ → Δ ⊩ℕ n ∷ℕ → n PE.≡ norm s → Δ ⨾ Γ ⊢ s ∷ ℕ → γ ⨾ δ ⨾ η ▸ s
+  redNumeral : Consistent Δ → Δ ⊩ℕ n ∷ℕ → n PE.≡ norm s → Δ ⨾ Γ ⊢ s ∷ ℕ → γ ⨾ δ ⨾ η ▸[ m ] s
       → ∃₄ λ m n H (E : Env m n) → ∃ λ t → s ⇒* ⟨ H , t , E , ε ⟩ × Numeral t
   redNumeral consistent (ℕₜ _ d n≡n (sucᵣ x)) PE.refl ⊢s ▸s =
     case whBisim consistent (redₜ d , sucₙ) ⊢s ▸s of λ
@@ -107,13 +108,13 @@ opaque
     case inversion-suc ⊢t of λ
       (⊢n″ , ≡ℕ) →
     case URᶠ.▸-⇒* ▸s d′ of λ
-      (_ , _ , _ , ▸H , ▸t , ▸ε , γ≤) →
+      (_ , _ , _ , _ , ▸H , ▸t , ▸ε , m≤ , γ≤) →
     case inv-usage-suc ▸t of λ
       (invUsageSuc ▸n″ δ≤)  →
     case redNumeral {s = ⟨ H , n″ , E , ε ⟩} consistent x
           (PE.sym (PE.trans (PE.cong (_[ H ]ₕ) ≡n′) ≡n))
           (_ , ⊢H , ⊢n″ , ε)
-          (▸H , ▸n″ , ▸ε , ≤ᶜ-trans γ≤ (+ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ E δ≤)))) of λ
+          (▸H , ▸n″ , ▸ε , m≤ , ≤ᶜ-trans γ≤ (+ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ E δ≤)))) of λ
       (_ , _ , H′ , E′ , t′ , d₀ , n) →
     _ , _ , _ , _ , _
       , (bisim₇* true d′ ⇨* ((⇒ₛ (sucₕ ¬num)) ⇨
@@ -159,7 +160,7 @@ opaque
            (⊢initial false ⊢t) ▸s of λ
       (_ , _ , H , E , t , d , num) →
     case URᵗ.▸-⇒* ▸s d of λ {
-      (γ , δ , _ , ▸H , ▸n , ε , γ≤) →
+      (γ , δ , _ , _ , ▸H , ▸n , ε , _ , γ≤) →
     case Numeral→sucᵏ num of λ
       (k , ≡sucᵏ) →
     case PE.subst (λ x → _ ⇒* ⟨ _ , x , _ , _ ⟩) ≡sucᵏ d of λ

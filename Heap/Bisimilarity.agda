@@ -42,6 +42,7 @@ open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Consequences.Reduction TR
 
 open import Graded.Context 𝕄 hiding (_⟨_⟩)
+open import Graded.Mode 𝕄
 open import Graded.Modality.Properties.Subtraction semiring-with-meet
 
 private variable
@@ -52,6 +53,7 @@ private variable
   S S′ : Stack _
   γ δ η : Conₘ _
   Γ Δ : Con Term _
+  m : Mode
 
 -- Bisimilarity between the tracking and non-tracking redutions
 -- (with or without reduction to numerals).
@@ -146,7 +148,7 @@ module _ (ℕ-fullred : Bool) where
               → Supports-subtraction
               → ⟨ H , t , E , S ⟩ Rₙₜ.⇒ₙ ⟨ H′ , t′ , E′ , S′ ⟩
               → H ~ʰ H″
-              → γ ⨾ δ ⨾ η ▸ ⟨ H″ , t , E , S ⟩
+              → γ ⨾ δ ⨾ η ▸[ m ] ⟨ H″ , t , E , S ⟩
               → ∃ λ H‴ → ⟨ H″ , t , E , S ⟩ Rₜ.⇒ₙ ⟨ H‴ , t′ , E′ , S′ ⟩ × H′ ~ʰ H‴
       bisim₂ₙ ok (Rₙₜ.varₕ′ d) H~H′ ▸s =
         case ▸↦→↦[] ok (~ʰ-lookup H~H′ d) ▸s of λ
@@ -192,7 +194,7 @@ module _ (ℕ-fullred : Bool) where
              → Supports-subtraction
              → ⟨ H , t , E , S ⟩ Rₙₜ.⇒ ⟨ H′ , t′ , E′ , S′ ⟩
              → H ~ʰ H″
-             → γ ⨾ δ ⨾ η ▸ ⟨ H″ , t , E , S ⟩
+             → γ ⨾ δ ⨾ η ▸[ m ] ⟨ H″ , t , E , S ⟩
              → ∃ λ H‴ → ⟨ H″ , t , E , S ⟩ Rₜ.⇒ ⟨ H‴ , t′ , E′ , S′ ⟩ × H′ ~ʰ H‴
       bisim₂ ok (Rₙₜ.⇒ₙ d) H~H′ ▸s =
         case bisim₂ₙ ok d H~H′ ▸s of λ
@@ -219,7 +221,7 @@ module _ (ℕ-fullred : Bool) where
 
     bisim₂* : ⟨ H , t , E , S ⟩ Rₙₜ.⇒* ⟨ H′ , t′ , E′ , S′ ⟩
             → H ~ʰ H″
-            → γ ⨾ δ ⨾ η ▸ ⟨ H″ , t , E , S ⟩
+            → γ ⨾ δ ⨾ η ▸[ m ] ⟨ H″ , t , E , S ⟩
             → ∃ λ H‴ → ⟨ H″ , t , E , S ⟩ Rₜ.⇒* ⟨ H‴ , t′ , E′ , S′ ⟩ × H′ ~ʰ H‴
     bisim₂* Rₙₜ.id H~H′ ▸s =
       _ , Rₜ.id , H~H′
@@ -227,7 +229,7 @@ module _ (ℕ-fullred : Bool) where
       case bisim₂ subtraction-ok x H~H′ ▸s of λ
         (_ , x′ , H~H″) →
       case ▸-⇒ ▸s x′ of λ
-        (_ , _ , _ , ▸s′) →
+        (_ , _ , _ , _ , ▸s′) →
       case bisim₂* d H~H″ ▸s′ of λ
         (_ , d′ , H~H‴) →
       _ , (x′ Rₜ.⇨ d′) , H~H‴
@@ -354,7 +356,7 @@ module _ where
       bisim₆* : Consistent Δ
               → Δ ⊢ ⦅ S ⦆ (wk E t) [ H ]ₕ ⇒* u ∷ A
               → Δ ⨾ Γ ⊢ ⟨ H , t , E , S ⟩ ∷ B
-              → γ ⨾ δ ⨾ η ▸ ⟨ H , t , E , S ⟩
+              → γ ⨾ δ ⨾ η ▸[ m ] ⟨ H , t , E , S ⟩
               → ∃₃ λ m n (s : State _ m n) → ⟨ H , t , E , S ⟩ Rₜ.⇒* s × u PE.≡ norm s
       bisim₆* consistent d ⊢s ▸s =
         case bisim₄* consistent d ⊢s of λ

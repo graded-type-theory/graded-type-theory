@@ -5,6 +5,7 @@
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Variant
+open import Tools.Bool
 
 module Heap.Usage.Weakening
   {a} {M : Set a} {𝕄 : Modality M}
@@ -15,8 +16,8 @@ module Heap.Usage.Weakening
   ⦃ _ : Has-factoring-nr M semiring-with-meet ⦄
   where
 
-open import Tools.Bool
 open import Tools.Nat
+open import Tools.Product
 open import Tools.PropositionalEquality
 import Tools.Reasoning.Equivalence
 
@@ -24,6 +25,7 @@ open import Definition.Untyped M
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
+open import Graded.Mode 𝕄
 
 open import Heap.Untyped 𝕄 type-variant
 open import Heap.Untyped.Properties 𝕄 type-variant
@@ -31,16 +33,17 @@ open import Heap.Usage 𝕄 type-variant UR
 
 
 private variable
-  k m n : Nat
+  ℓ k n : Nat
   γ δ : Conₘ _
   e : Elim _
   S : Stack _
   ρ ρ′ : Wk _ _
   p q : M
+  m : Mode
 
 private opaque
 
-  ·ᶜ-• : ∀ γ (ρ : Wk m n) (ρ′ : Wk n k)
+  ·ᶜ-• : ∀ γ (ρ : Wk ℓ n) (ρ′ : Wk n k)
        → p ·ᶜ wkᶜ (ρ • ρ′) γ ≈ᶜ wkᶜ ρ (p ·ᶜ wkᶜ ρ′ γ)
   ·ᶜ-• {p = p} γ ρ ρ′ = begin
     p ·ᶜ wkᶜ (ρ • ρ′) γ       ≡⟨ cong (p ·ᶜ_) (wk-•ᶜ ρ ρ′) ⟩
@@ -53,25 +56,25 @@ opaque
 
   -- Usage of weakened eliminators.
 
-  wk-▸ᵉ : (ρ : Wk k n) → γ ▸ᵉ e → wkᶜ ρ γ ▸ᵉ wkᵉ ρ e
-  wk-▸ᵉ ρ (∘ₑ {γ} {E} ▸u) =
-    subst (_▸ᵉ _) (≈ᶜ→≡ (·ᶜ-• γ ρ E)) (∘ₑ ▸u)
+  wk-▸ᵉ : (ρ : Wk k n) → γ ▸ᵉ[ m ] e → wkᶜ ρ γ ▸ᵉ[ m ] wkᵉ ρ e
+  wk-▸ᵉ ρ (∘ₑ {γ} {m} {E} ▸u) =
+    subst (_▸ᵉ[ _ ] _) (≈ᶜ→≡ (·ᶜ-• γ ρ E)) (∘ₑ {m = m} ▸u)
   wk-▸ᵉ ρ (fstₑ p≤𝟙) =
-    subst (_▸ᵉ _) (sym (wk-𝟘ᶜ ρ)) (fstₑ p≤𝟙)
+    subst (_▸ᵉ[ _ ] _) (sym (wk-𝟘ᶜ ρ)) (fstₑ p≤𝟙)
   wk-▸ᵉ ρ sndₑ =
-    subst (_▸ᵉ _) (sym (wk-𝟘ᶜ ρ)) sndₑ
+    subst (_▸ᵉ[ _ ] _) (sym (wk-𝟘ᶜ ρ)) sndₑ
   wk-▸ᵉ ρ (prodrecₑ {E} ▸u r≢𝟘) =
-    subst (_▸ᵉ _) (wk-•ᶜ ρ E) (prodrecₑ ▸u r≢𝟘)
+    subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ E) (prodrecₑ ▸u r≢𝟘)
   wk-▸ᵉ ρ (natrecₑ {E} ▸z ▸s ▸A) =
-    subst (_▸ᵉ _) (wk-•ᶜ ρ E) (natrecₑ ▸z ▸s ▸A)
+    subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ E) (natrecₑ ▸z ▸s ▸A)
   wk-▸ᵉ ρ (unitrecₑ {E} ▸u p≢𝟘) =
-    subst (_▸ᵉ _) (wk-•ᶜ ρ E) (unitrecₑ ▸u p≢𝟘)
+    subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ E) (unitrecₑ ▸u p≢𝟘)
   wk-▸ᵉ ρ (Jₑ {E} ▸u) =
-    subst (_▸ᵉ _) (wk-•ᶜ ρ E) (Jₑ ▸u)
+    subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ E) (Jₑ ▸u)
   wk-▸ᵉ ρ (Kₑ {E} ▸u) =
-    subst (_▸ᵉ _) (wk-•ᶜ ρ E) (Kₑ ▸u)
+    subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ E) (Kₑ ▸u)
   wk-▸ᵉ ρ sucₑ =
-    subst (_▸ᵉ _) (sym (wk-𝟘ᶜ ρ)) sucₑ
+    subst (_▸ᵉ[ _ ] _) (sym (wk-𝟘ᶜ ρ)) sucₑ
 
 opaque
 
@@ -79,8 +82,8 @@ opaque
 
   wk-▸ˢ : (ρ : Wk k n) → γ ▸ˢ S → wkᶜ ρ γ ▸ˢ wkˢ ρ S
   wk-▸ˢ ρ ε = subst (_▸ˢ ε) (sym (wk-𝟘ᶜ ρ)) ε
-  wk-▸ˢ {S = e ∙ S} ρ (▸e ∙ ▸S) =
-    subst (_▸ˢ _) (≈ᶜ→≡ lemma) (wk-▸ᵉ ρ ▸e ∙ wk-▸ˢ ρ ▸S)
+  wk-▸ˢ {S = e ∙ S} ρ ((▸e , m≤) ∙ ▸S) =
+    subst (_▸ˢ _) (≈ᶜ→≡ lemma) ((wk-▸ᵉ ρ ▸e , subst (_ ≤ᵐ_) (wk-∣S∣ ρ S) m≤) ∙ wk-▸ˢ ρ ▸S)
     where
     open Tools.Reasoning.Equivalence Conₘ-setoid
     lemma : wkᶜ ρ γ +ᶜ ∣ wkˢ ρ S ∣ ·ᶜ wkᶜ ρ δ ≈ᶜ wkᶜ ρ (γ +ᶜ ∣ S ∣ ·ᶜ δ)

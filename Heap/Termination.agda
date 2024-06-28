@@ -35,6 +35,7 @@ open import Definition.Typed.Properties TR
 
 open import Graded.Context 𝕄 hiding (_⟨_⟩)
 open import Graded.Usage 𝕄 UR
+open import Graded.Mode 𝕄
 
 open import Heap.Bisimilarity UR TR
 open import Heap.Normalization 𝕄 type-variant
@@ -61,6 +62,7 @@ private variable
   e : Elim _
   Γ Δ : Con Term _
   s : State _ _ _
+  m : Mode
 
 opaque
 
@@ -70,7 +72,7 @@ opaque
   whBisim : Consistent Δ
           → Δ ⊢ norm s ↘ u ∷ A
           → Δ ⨾ Γ ⊢ s ∷ B
-          → γ ⨾ δ ⨾ η ▸ s
+          → γ ⨾ δ ⨾ η ▸[ m ] s
           → ∃₂ λ m n → ∃₃ λ H t (E : Env m n)
           → s ⇒* ⟨ H , t , E , ε ⟩ × wk E t [ H ]ₕ ≡ u × Value t
   whBisim {s = ⟨ H , t , E , S ⟩} consistent (d , w) ⊢s ▸s =
@@ -81,7 +83,7 @@ opaque
     case RPₙₜ.⇒ₙ*-norm-≡ dₙ of λ {
       t′≡t″ →
     case ▸-⇒* ▸s d₁ of λ
-      (_ , _ , _ , ▸s′) →
+      (_ , _ , _ , _ , ▸s′) →
     case RTₜ.⊢ₛ-⇒* ⊢s d₁ of λ
       (_ , _ , _ , ⊢s′) →
     case bisim₂* false UA (RPₙₜ.⇒ₙ* dₙ) ~ʰ-refl ▸s′ of λ
@@ -96,7 +98,7 @@ opaque
           , PE.sym (PE.trans t′≡t″ (cong (wk E′ t″ [_]) (~ʰ-subst H~H′))) , v}
       (var ¬d) →
         case ▸-⇒* ▸s′ dₜ of λ
-          (_ , _ , _ , ▸s″) →
+          (_ , _ , _ , _ , ▸s″) →
         case ▸s→y↦ subtraction-ok ▸s″ of λ
           (_ , _ , _ , d) →
         ⊥-elim (¬d (~ʰ-lookup (~ʰ-sym H~H′) (↦[]→↦ d)))

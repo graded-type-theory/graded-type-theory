@@ -41,12 +41,12 @@ record UsageAssumptions {a} {M : Set a}
 
   field
     -- Erased matches
-    no-erased-unitrec   : ∀ {p q} → ¬ Unitʷ-η → Unitrec-allowed 𝟙ᵐ p q → p ≢ 𝟘
-    no-erased-unitrec-η : ∀ {p q} → Unitʷ-η → Unitrec-allowed 𝟙ᵐ p q → p ≤ 𝟘
-    no-erased-prodrec   : ∀ {p q r} → Prodrec-allowed 𝟙ᵐ r p q → r ≢ 𝟘
-    no-erased-J         : erased-matches-for-J 𝟙ᵐ ≡ none
-    no-erased-K         : erased-matches-for-K 𝟙ᵐ ≡ none
-    no-[]-cong          : ∀ {s} → ¬ []-cong-allowed-mode s 𝟙ᵐ
+    no-erased-unitrec   : ∀ {m p q} → ¬ Unitʷ-η → Unitrec-allowed m p q → p ≢ 𝟘
+    no-erased-unitrec-η : ∀ {m p q} → Unitʷ-η → Unitrec-allowed m p q → p ≤ 𝟘
+    no-erased-prodrec   : ∀ {m p q r} → Prodrec-allowed m r p q → r ≢ 𝟘
+    no-erased-J         : ∀ {m} → erased-matches-for-J m ≡ none
+    no-erased-K         : ∀ {m} → erased-matches-for-K m ≡ none
+    no-[]-cong          : ∀ {m s} → ¬ []-cong-allowed-mode s m
 
     -- An assumption used for the weak unit type with η-equality
 
@@ -57,16 +57,16 @@ record UsageAssumptions {a} {M : Set a}
       well-behaved-𝟘 : Has-well-behaved-zero M semiring-with-meet
 
 
-  no-erased-J-some : erased-matches-for-J 𝟙ᵐ ≢ some
+  no-erased-J-some : ∀ {m} → erased-matches-for-J m ≢ some
   no-erased-J-some x with trans (sym x) no-erased-J
   ... | ()
-  no-erased-J-all : erased-matches-for-J 𝟙ᵐ ≢ all
+  no-erased-J-all : ∀ {m} → erased-matches-for-J m ≢ all
   no-erased-J-all x with trans (sym x) no-erased-J
   ... | ()
 
-  no-erased-K-some : erased-matches-for-K 𝟙ᵐ ≢ some
+  no-erased-K-some : ∀ {m} → erased-matches-for-K m ≢ some
   no-erased-K-some x with trans (sym x) no-erased-K
   ... | ()
-  no-erased-K-all : erased-matches-for-K 𝟙ᵐ ≢ all
+  no-erased-K-all : ∀ {m} → erased-matches-for-K m ≢ all
   no-erased-K-all x with trans (sym x) no-erased-K
   ... | ()
