@@ -47,7 +47,7 @@ opaque mutual
   -- A well-formed heap is a well-formed substitution
 
   ⊢ʰ→⊢ˢ : Δ ⊢ʰ H ∷ Γ → Δ ⊢ˢ toSubstₕ H ∷ Γ
-  ⊢ʰ→⊢ˢ (ε ⊢Δ) = id
+  ⊢ʰ→⊢ˢ ε = id
   ⊢ʰ→⊢ˢ (⊢H ∙ ⊢t) =
     ⊢ʰ→⊢ˢ ⊢H , ⊢t
   ⊢ʰ→⊢ˢ (_∙●_ {Δ} {H} {A} ⊢H ⊢A) =
@@ -60,7 +60,7 @@ opaque mutual
   -- Well-formed contexts from well-formed heaps
 
   wfHeap : Δ ⊢ʰ H ∷ Γ → ⊢ Δ
-  wfHeap (ε ⊢Δ) = ⊢Δ
+  wfHeap {Δ = ε} ε = ε
   wfHeap (⊢H ∙ ⊢t) = wfHeap ⊢H
   wfHeap (⊢H ∙● ⊢A) =
     let ⊢Δ = wfHeap ⊢H

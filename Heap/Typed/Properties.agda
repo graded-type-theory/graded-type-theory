@@ -52,7 +52,7 @@ opaque
   -- Typing of erased heaps
 
   ⊢erasedHeap : ∀ {n} {Δ : Con Term n} → ⊢ Δ → Δ ⊢ʰ erasedHeap n ∷ Δ
-  ⊢erasedHeap {0} {(ε)} ⊢Δ = ε ⊢Δ
+  ⊢erasedHeap {0} {(ε)} ⊢Δ = ε
   ⊢erasedHeap {1+ n} {(Δ ∙ A)} (⊢Δ ∙ ⊢A) =
     PE.subst (λ x → Δ ∙ x ⊢ʰ _ ∷ Δ ∙ A)
       (erasedHeap-subst A)

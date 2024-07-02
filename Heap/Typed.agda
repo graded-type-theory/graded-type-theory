@@ -41,7 +41,7 @@ private variable
 -- Well-formed heaps
 
 data _⊢ʰ_∷_ : (Δ : Con Term k) (H : Heap k m) (Γ : Con Term m) → Set a where
-  ε : ⊢ Δ → Δ ⊢ʰ ε ∷ ε
+  ε : ε ⊢ʰ ε ∷ ε
   _∙_ : Δ ⊢ʰ H ∷ Γ → Δ ⊢ wk E t [ H ]ₕ ∷ A [ H ]ₕ → Δ ⊢ʰ H ∙ (p , t , E) ∷ Γ ∙ A
   _∙●_ : Δ ⊢ʰ H ∷ Γ → Γ ⊢ A → Δ ∙ A [ H ]ₕ ⊢ʰ H ∙● ∷ Γ ∙ A
 
