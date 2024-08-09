@@ -157,12 +157,12 @@ opaque
   -- Well-typed terms applied to well-typed stacks are
   -- well-typed under a heap substitution.
 
-  ⊢⦅⦆ : Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B
-     → Δ ⊢ t [ H ]ₕ ∷ A
-     → Δ ⊢ ⦅ S ⦆ t [ H ]ₕ ∷ B
-  ⊢⦅⦆ ε ⊢t = ⊢t
-  ⊢⦅⦆ {H} {S = e ∙ S} {t} (⊢e ∙ ⊢S) ⊢t =
-    ⊢⦅⦆ ⊢S (⊢⦅⦆ᵉ ⊢e ⊢t)
+  ⊢⦅⦆ˢ : Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B
+      → Δ ⊢ t [ H ]ₕ ∷ A
+      → Δ ⊢ ⦅ S ⦆ˢ t [ H ]ₕ ∷ B
+  ⊢⦅⦆ˢ ε ⊢t = ⊢t
+  ⊢⦅⦆ˢ {H} {S = e ∙ S} {t} (⊢e ∙ ⊢S) ⊢t =
+    ⊢⦅⦆ˢ ⊢S (⊢⦅⦆ᵉ ⊢e ⊢t)
 
 -- opaque
 
@@ -222,12 +222,12 @@ opaque
   -- Equal terms are equal when applied to stacks under
   -- heap substitutions.
 
-  ⊢⦅⦆-cong : Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B
-          → Δ ⊢ t [ H ]ₕ ≡ u [ H ]ₕ ∷ A
-          → Δ ⊢ ⦅ S ⦆ t [ H ]ₕ ≡ ⦅ S ⦆ u [ H ]ₕ ∷ B
-  ⊢⦅⦆-cong ε t≡u = t≡u
-  ⊢⦅⦆-cong {H} {S = e ∙ S} (⊢e ∙ ⊢S) t≡u =
-    ⊢⦅⦆-cong ⊢S (⊢⦅⦆ᵉ-cong ⊢e t≡u)
+  ⊢⦅⦆ˢ-cong : Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B
+           → Δ ⊢ t [ H ]ₕ ≡ u [ H ]ₕ ∷ A
+           → Δ ⊢ ⦅ S ⦆ˢ t [ H ]ₕ ≡ ⦅ S ⦆ˢ u [ H ]ₕ ∷ B
+  ⊢⦅⦆ˢ-cong ε t≡u = t≡u
+  ⊢⦅⦆ˢ-cong {H} {S = e ∙ S} (⊢e ∙ ⊢S) t≡u =
+    ⊢⦅⦆ˢ-cong ⊢S (⊢⦅⦆ᵉ-cong ⊢e t≡u)
 
 opaque
 
@@ -264,13 +264,13 @@ opaque
 
   -- Applying terms to stacks respects reduction
 
-  ⊢⦅⦆-subst : ⦃ T (not ℕ-fullred) ⦄
-           → Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B
-           → Δ ⊢ (t [ H ]ₕ) ⇒ (u [ H ]ₕ) ∷ A
-           → Δ ⊢ ⦅ S ⦆ t [ H ]ₕ ⇒ ⦅ S ⦆ u [ H ]ₕ ∷ B
-  ⊢⦅⦆-subst ε d = d
-  ⊢⦅⦆-subst (⊢e ∙ ⊢S) d =
-    ⊢⦅⦆-subst ⊢S (⊢⦅⦆ᵉ-subst ⊢e d)
+  ⊢⦅⦆ˢ-subst : ⦃ T (not ℕ-fullred) ⦄
+            → Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B
+            → Δ ⊢ (t [ H ]ₕ) ⇒ (u [ H ]ₕ) ∷ A
+            → Δ ⊢ ⦅ S ⦆ˢ t [ H ]ₕ ⇒ ⦅ S ⦆ˢ u [ H ]ₕ ∷ B
+  ⊢⦅⦆ˢ-subst ε d = d
+  ⊢⦅⦆ˢ-subst (⊢e ∙ ⊢S) d =
+    ⊢⦅⦆ˢ-subst ⊢S (⊢⦅⦆ᵉ-subst ⊢e d)
 
 opaque
 
@@ -347,13 +347,13 @@ opaque
 
 opaque
 
-  ⊢whnf⦅⦆ : ⦃ T (not ℕ-fullred) ⦄
-         → Δ ⨾ H ⊢ e ∙ S ⟨ u ⟩∷ A ↝ B
-         → ¬ Neutral t
-         → ¬ Whnf (⦅ e ∙ S ⦆ t)
-  ⊢whnf⦅⦆ (⊢e ∙ ε) n w = ⊢whnf⦅⦆ᵉ ⊢e n w
-  ⊢whnf⦅⦆ {e} (⊢e ∙ (⊢e′ ∙ ⊢S)) n w =
-    ⊢whnf⦅⦆ (⊢e′ ∙ ⊢S) (¬⦅⦆ᵉ-neutral e n) w
+  ⊢whnf⦅⦆ˢ : ⦃ T (not ℕ-fullred) ⦄
+          → Δ ⨾ H ⊢ e ∙ S ⟨ u ⟩∷ A ↝ B
+          → ¬ Neutral t
+          → ¬ Whnf (⦅ e ∙ S ⦆ˢ t)
+  ⊢whnf⦅⦆ˢ (⊢e ∙ ε) n w = ⊢whnf⦅⦆ᵉ ⊢e n w
+  ⊢whnf⦅⦆ˢ {e} (⊢e ∙ (⊢e′ ∙ ⊢S)) n w =
+    ⊢whnf⦅⦆ˢ (⊢e′ ∙ ⊢S) (¬⦅⦆ᵉ-neutral e n) w
 
 opaque
 
@@ -375,9 +375,9 @@ opaque
 
 opaque
 
-  ⊢⦅⦆-NeutralAt : ⦃ T (not ℕ-fullred) ⦄
-               → Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B
-               → NeutralAt x t
-               → NeutralAt x (⦅ S ⦆ t)
-  ⊢⦅⦆-NeutralAt ε n = n
-  ⊢⦅⦆-NeutralAt (⊢e ∙ ⊢S) n = ⊢⦅⦆-NeutralAt ⊢S (⊢⦅⦆ᵉ-NeutralAt ⊢e n)
+  ⊢⦅⦆ˢ-NeutralAt : ⦃ T (not ℕ-fullred) ⦄
+                → Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B
+                → NeutralAt x t
+                → NeutralAt x (⦅ S ⦆ˢ t)
+  ⊢⦅⦆ˢ-NeutralAt ε n = n
+  ⊢⦅⦆ˢ-NeutralAt (⊢e ∙ ⊢S) n = ⊢⦅⦆ˢ-NeutralAt ⊢S (⊢⦅⦆ᵉ-NeutralAt ⊢e n)

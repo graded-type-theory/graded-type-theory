@@ -70,8 +70,7 @@ open import Heap.Reduction type-variant UR (tracking-and-ℕ-fullred-if true)
 open import Heap.Reduction.Properties type-variant UR (tracking-and-ℕ-fullred-if true)
   using (_⇨*_; ++sucₛ-⇒*)
 open import Heap.Reduction.Properties type-variant UR (not-tracking-and-ℕ-fullred-if false)
-  using (⇒ₙ*-norm-≡; ⇒ₙ*_)
-
+  using (⇒ₙ*_)
 
 private variable
   k : Nat
@@ -88,8 +87,8 @@ opaque
 
   -- All well-typed and well-resourced states of type ℕ reduce to numerals
 
-  redNumeral : Consistent Δ → Δ ⊩ℕ n ∷ℕ → n PE.≡ norm s → Δ ⨾ Γ ⊢ s ∷ ℕ → γ ⨾ δ ⨾ η ▸[ m ] s
-      → ∃₄ λ m n H (E : Env m n) → ∃ λ t → s ⇒* ⟨ H , t , E , ε ⟩ × Numeral t
+  redNumeral : Consistent Δ → Δ ⊩ℕ n ∷ℕ → n PE.≡ ⦅ s ⦆ → Δ ⨾ Γ ⊢ s ∷ ℕ → γ ⨾ δ ⨾ η ▸[ m ] s
+             → ∃₄ λ m n H (E : Env m n) → ∃ λ t → s ⇒* ⟨ H , t , E , ε ⟩ × Numeral t
   redNumeral consistent (ℕₜ _ d n≡n (sucᵣ x)) PE.refl ⊢s ▸s =
     case whBisim consistent (redₜ d , sucₙ) ⊢s ▸s of λ
       (_ , _ , H , t , E , d′ , ≡u , v) →

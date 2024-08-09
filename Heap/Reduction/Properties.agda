@@ -203,27 +203,27 @@ opaque
   -- The normalising reduction preserves equality
   -- in a certain way
 
-  ⇒ₙ-norm-≡ : s ⇒ₙ s′ → norm s ≡ norm s′
-  ⇒ₙ-norm-≡ {s = ⟨ _ , _ , _ , S ⟩} (varₕ d) =
-    trans (⦅⦆-cong S (heapSubstVar d))
-      (cong (λ x → ⦅ S ⦆ _ [ x ]) (heapUpdateSubst d))
-  ⇒ₙ-norm-≡ {s = ⟨ _ , _ , _ , S ⟩} (varₕ′ d) =
-    ⦅⦆-cong S (heapSubstVar′ d)
-  ⇒ₙ-norm-≡ appₕ = refl
-  ⇒ₙ-norm-≡ fstₕ = refl
-  ⇒ₙ-norm-≡ sndₕ = refl
-  ⇒ₙ-norm-≡ prodrecₕ = refl
-  ⇒ₙ-norm-≡ natrecₕ = refl
-  ⇒ₙ-norm-≡ (unitrecₕ _) = refl
-  ⇒ₙ-norm-≡ Jₕ = refl
-  ⇒ₙ-norm-≡ Kₕ = refl
-  ⇒ₙ-norm-≡ []-congₕ = refl
+  ⇒ₙ-⦅⦆-≡ : s ⇒ₙ s′ → ⦅ s ⦆ ≡ ⦅ s′ ⦆
+  ⇒ₙ-⦅⦆-≡ {s = ⟨ _ , _ , _ , S ⟩} (varₕ d) =
+    trans (⦅⦆ˢ-cong S (heapSubstVar d))
+      (cong (λ x → ⦅ S ⦆ˢ _ [ x ]) (heapUpdateSubst d))
+  ⇒ₙ-⦅⦆-≡ {s = ⟨ _ , _ , _ , S ⟩} (varₕ′ d) =
+    ⦅⦆ˢ-cong S (heapSubstVar′ d)
+  ⇒ₙ-⦅⦆-≡ appₕ = refl
+  ⇒ₙ-⦅⦆-≡ fstₕ = refl
+  ⇒ₙ-⦅⦆-≡ sndₕ = refl
+  ⇒ₙ-⦅⦆-≡ prodrecₕ = refl
+  ⇒ₙ-⦅⦆-≡ natrecₕ = refl
+  ⇒ₙ-⦅⦆-≡ (unitrecₕ _) = refl
+  ⇒ₙ-⦅⦆-≡ Jₕ = refl
+  ⇒ₙ-⦅⦆-≡ Kₕ = refl
+  ⇒ₙ-⦅⦆-≡ []-congₕ = refl
 
 opaque
 
-  ⇒ₙ*-norm-≡ : s ⇒ₙ* s′ → norm s ≡ norm s′
-  ⇒ₙ*-norm-≡ id = refl
-  ⇒ₙ*-norm-≡ (x ⇨ d) = trans (⇒ₙ-norm-≡ x) (⇒ₙ*-norm-≡ d)
+  ⇒ₙ*-⦅⦆-≡ : s ⇒ₙ* s′ → ⦅ s ⦆ ≡ ⦅ s′ ⦆
+  ⇒ₙ*-⦅⦆-≡ id = refl
+  ⇒ₙ*-⦅⦆-≡ (x ⇨ d) = trans (⇒ₙ-⦅⦆-≡ x) (⇒ₙ*-⦅⦆-≡ d)
 
 
 opaque
@@ -231,9 +231,9 @@ opaque
   -- The reduction evaluating numerals preserves equality
   -- in a certain way
 
-  ⇒ₛ-norm-≡ : s ⇒ₛ s′ → norm s ≡ norm s′
-  ⇒ₛ-norm-≡ (sucₕ x) = refl
-  ⇒ₛ-norm-≡ (numₕ x) = refl
+  ⇒ₛ-⦅⦆-≡ : s ⇒ₛ s′ → ⦅ s ⦆ ≡ ⦅ s′ ⦆
+  ⇒ₛ-⦅⦆-≡ (sucₕ x) = refl
+  ⇒ₛ-⦅⦆-≡ (numₕ x) = refl
 
 opaque
 

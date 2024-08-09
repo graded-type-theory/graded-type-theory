@@ -168,3 +168,14 @@ opaque mutual
     _ , ΠΣ⟨ b ⟩ p , q ▷ A ▹ B , E , S , val ΠΣᵥ , id
   normalize H (Id A t u) E S =
     _ , Id A t u , E , S , val Idᵥ , id
+
+opaque
+
+  -- A version of normalize that acts on states
+
+  normalizeₛ : (s : State k m n)
+             → ∃₂ λ n′ (s′ : State k m n′) → Normal s′ × s ⇒ₙ* s′
+  normalizeₛ ⟨ H , t , E , S ⟩ =
+    case normalize H t E S of λ
+      (_ , t′ , E′ , S′ , n , d) →
+    _ , _ , n , d

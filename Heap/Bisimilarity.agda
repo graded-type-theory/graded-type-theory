@@ -278,17 +278,17 @@ module _ where
     opaque
 
       bisim₃ : Δ ⨾ Γ ⊢ s ∷ A → s Rₙₜ.⇒ s′
-             → Δ ⊢ norm s ⇒* norm s′ ∷ A
+             → Δ ⊢ ⦅ s ⦆ ⇒* ⦅ s′ ⦆ ∷ A
       bisim₃ (_ , _ , ⊢t , ⊢S) (Rₙₜ.⇒ₙ d) =
-        subst (_ ⊢ _ ⇒*_∷ _) (⇒ₙ-norm-≡ d) (id (⊢⦅⦆ ⊢S ⊢t))
+        subst (_ ⊢ _ ⇒*_∷ _) (⇒ₙ-⦅⦆-≡ d) (id (⊢⦅⦆ˢ ⊢S ⊢t))
       bisim₃ ⊢s (Rₙₜ.⇒ᵥ d) =
         redMany (⇒ᵥ→⇒ ⊢s d)
 
     opaque
 
       bisim₃* : Δ ⨾ Γ ⊢ s ∷ A → s Rₙₜ.⇒* s′
-              → Δ ⊢ norm s ⇒* norm s′ ∷ A
-      bisim₃* (_ , ⊢H , ⊢t , ⊢S) Rₙₜ.id = id (⊢⦅⦆ ⊢S ⊢t)
+              → Δ ⊢ ⦅ s ⦆ ⇒* ⦅ s′ ⦆ ∷ A
+      bisim₃* (_ , ⊢H , ⊢t , ⊢S) Rₙₜ.id = id (⊢⦅⦆ˢ ⊢S ⊢t)
       bisim₃* ⊢s (x Rₙₜ.⇨ d) =
         case ⊢ₛ-⇒ ⊢s x of λ
           (_ , _ , _ , ⊢s′) →
@@ -297,18 +297,18 @@ module _ where
     opaque
 
       bisim₄ᵥ : Consistent Δ
-              → Δ ⊢ ⦅ S ⦆ (wk E t) [ H ]ₕ ⇒ u ∷ A
-              → Normal ⟨ H , t , E , S ⟩
-              → Δ ⨾ Γ ⊢ ⟨ H , t , E , S ⟩ ∷ B
-              → ∃₃ λ m n (s : State _ m n) → ⟨ H , t , E , S ⟩ Rₙₜ.⇒ᵥ s × u PE.≡ norm s
-      bisim₄ᵥ {S = ε} {E} {H} _ d (val v) ⊢s =
+              → Δ ⊢ ⦅ s ⦆ ⇒ u ∷ A
+              → Normal s
+              → Δ ⨾ Γ ⊢ s ∷ B
+              → ∃₃ λ m n (s′ : State _ m n) → s Rₙₜ.⇒ᵥ s′ × u PE.≡ ⦅ s′ ⦆
+      bisim₄ᵥ {s = ⟨ H , _ , E , ε ⟩} _ d (val v) ⊢s =
         ⊥-elim (whnfRedTerm d (Value→Whnf (substValue (toSubstₕ H) (wkValue E v)) .proj₁))
-      bisim₄ᵥ {S = e ∙ S} _ d (val v) ⊢s =
+      bisim₄ᵥ {s = ⟨ _ , _ , _ , e ∙ S ⟩} _ d (val v) ⊢s =
         case ⊢Value-⇒ᵥ ⊢s v of λ
           (_ , _ , _ , d′) →
         _ , _ , _ , d′ , whrDetTerm d (⇒ᵥ→⇒ ⊢s d′)
       bisim₄ᵥ _ d (var ¬d) (_ , _ , _ , ⊢S) =
-        ⊥-elim (neRedTerm d (NeutralAt→Neutral (toSubstₕ-NeutralAt ¬d (⊢⦅⦆-NeutralAt ⊢S var))))
+        ⊥-elim (neRedTerm d (NeutralAt→Neutral (toSubstₕ-NeutralAt ¬d (⊢⦅⦆ˢ-NeutralAt ⊢S var))))
       bisim₄ᵥ consistent d emptyrecₙ (_ , _ , ⊢t , _) =
         case inversion-emptyrec ⊢t of λ
           (_ , ⊢t , _) →
@@ -321,24 +321,24 @@ module _ where
     opaque
 
       bisim₄ : Consistent Δ
-             → Δ ⊢ ⦅ S ⦆ (wk E t) [ H ]ₕ ⇒ u ∷ A
-             → Δ ⨾ Γ ⊢ ⟨ H , t , E , S ⟩ ∷ B
-             → ∃₃ λ m n (s : State _ m n) → ⟨ H , t , E , S ⟩ Rₙₜ.⇒* s × u PE.≡ norm s
-      bisim₄ {S} {E} {t} {H} consistent d ⊢s =
-        case normalize H t E S of λ
-          (_ , _ , _ , _ , n , d′) →
+             → Δ ⊢ ⦅ s ⦆ ⇒ u ∷ A
+             → Δ ⨾ Γ ⊢ s ∷ B
+             → ∃₃ λ m n (s′ : State _ m n) → s Rₙₜ.⇒* s′ × u PE.≡ ⦅ s′ ⦆
+      bisim₄ {s} consistent d ⊢s =
+        case normalizeₛ s of λ
+          (_ , _ , n , d′) →
         case ⊢ₛ-⇒ₙ* ⊢s d′ of λ
           ⊢s′ →
-        case bisim₄ᵥ consistent (PE.subst (λ x → _ ⊢ x ⇒ _ ∷ _) (⇒ₙ*-norm-≡ d′) d) n ⊢s′ of λ
+        case bisim₄ᵥ consistent (PE.subst (λ x → _ ⊢ x ⇒ _ ∷ _) (⇒ₙ*-⦅⦆-≡ d′) d) n ⊢s′ of λ
           (_ , _ , s′ , d″ , u≡) →
         _ , _ , s′ , (⇒ₙ* d′ ⇨* (Rₙₜ.⇒ᵥ d″) Rₙₜ.⇨ Rₙₜ.id) , u≡
 
     opaque
 
       bisim₄* : Consistent Δ
-              → Δ ⊢ ⦅ S ⦆ (wk E t) [ H ]ₕ ⇒* u ∷ A
-             → Δ ⨾ Γ ⊢ ⟨ H , t , E , S ⟩ ∷ B
-             → ∃₃ λ m n (s : State _ m n) → ⟨ H , t , E , S ⟩ Rₙₜ.⇒* s × u PE.≡ norm s
+              → Δ ⊢ ⦅ s ⦆ ⇒* u ∷ A
+              → Δ ⨾ Γ ⊢ s ∷ B
+              → ∃₃ λ m n (s′ : State _ m n) → s Rₙₜ.⇒* s′ × u PE.≡ ⦅ s′ ⦆
       bisim₄* _ (id x) ⊢s =
         _ , _ , _ , Rₙₜ.id , PE.refl
       bisim₄* consistent (x ⇨ d) ⊢s =
@@ -353,11 +353,11 @@ module _ where
     opaque
 
       bisim₅* : Δ ⨾ Γ ⊢ s ∷ A → s Rₜ.⇒* s′
-              → Δ ⊢ norm s ⇒* norm s′ ∷ A
+              → Δ ⊢ ⦅ s ⦆ ⇒* ⦅ s′ ⦆ ∷ A
       bisim₅* {s′ = ⟨ _ , t , E , S ⟩} ⊢s d =
         case bisim₁* false d of λ
           (_ , d′ , H~H′) →
-        PE.subst (λ x → _ ⊢ _ ⇒* ⦅ S ⦆ (wk E t) [ x ] ∷ _)
+        PE.subst (λ x → _ ⊢ _ ⇒* ⦅ S ⦆ˢ (wk E t) [ x ] ∷ _)
           (PE.sym (~ʰ-subst H~H′)) (bisim₃* ⊢s d′)
 
   -- The proof that the closure of the call-by-name reduction
@@ -371,17 +371,17 @@ module _ where
     opaque
 
       bisim₆* : Consistent Δ
-              → Δ ⊢ ⦅ S ⦆ (wk E t) [ H ]ₕ ⇒* u ∷ A
-              → Δ ⨾ Γ ⊢ ⟨ H , t , E , S ⟩ ∷ B
-              → γ ⨾ δ ⨾ η ▸[ m ] ⟨ H , t , E , S ⟩
-              → ∃₃ λ m n (s : State _ m n) → ⟨ H , t , E , S ⟩ Rₜ.⇒* s × u PE.≡ norm s
+              → Δ ⊢ ⦅ s ⦆ ⇒* u ∷ A
+              → Δ ⨾ Γ ⊢ s ∷ B
+              → γ ⨾ δ ⨾ η ▸[ m ] s
+              → ∃₃ λ m n (s′ : State _ m n) → s Rₜ.⇒* s′ × u PE.≡ ⦅ s′ ⦆
       bisim₆* consistent d ⊢s ▸s =
         case bisim₄* consistent d ⊢s of λ
           (_ , _ , ⟨ H , t , E , S ⟩ , d′ , u≡) →
         case bisim₂* false As d′ ~ʰ-refl ▸s of λ
           (_ , d″ , H~H′) →
         _ , _ , _ , d″
-          , PE.trans u≡ (cong (λ x → ⦅ S ⦆ (wk E t) [ x ]) (~ʰ-subst H~H′))
+          , PE.trans u≡ (cong (λ x → ⦅ S ⦆ˢ (wk E t) [ x ]) (~ʰ-subst H~H′))
 
 -- Bisimilarity between redutions with and without reuction to numerals
 -- (with or without resource tracking).

@@ -74,17 +74,17 @@ opaque
   -- corresponding to terms in Whnf.
 
   whBisim : Consistent Δ
-          → Δ ⊢ norm s ↘ u ∷ A
+          → Δ ⊢ ⦅ s ⦆ ↘ u ∷ A
           → Δ ⨾ Γ ⊢ s ∷ B
           → γ ⨾ δ ⨾ η ▸[ m ] s
           → ∃₂ λ m n → ∃₃ λ H t (E : Env m n)
           → s ⇒* ⟨ H , t , E , ε ⟩ × wk E t [ H ]ₕ ≡ u × Value t
   whBisim {s = ⟨ H , t , E , S ⟩} consistent (d , w) ⊢s ▸s =
-    case bisim₆* As {S = S} {E = E} {t} consistent d ⊢s ▸s of λ {
+    case bisim₆* As consistent d ⊢s ▸s of λ {
       (_ , _ , ⟨ H , t′ , E , S ⟩ , d₁ , refl) →
     case normalize H t′ E S of λ
       (_ , t″ , E′ , S′ , n , dₙ) →
-    case RPₙₜ.⇒ₙ*-norm-≡ dₙ of λ {
+    case RPₙₜ.⇒ₙ*-⦅⦆-≡ dₙ of λ {
       t′≡t″ →
     case ▸-⇒* ▸s d₁ of λ
       (_ , _ , _ , _ , ▸s′) →
@@ -96,7 +96,7 @@ opaque
       (_ , _ , _ , ⊢s″@(B , _ , ⊢t″ , ⊢S′)) →
     case n of λ where
       (val v) →
-        case lemma {H = H} {S = S′} w v ⊢s″ (RPₙₜ.⇒ₙ*-norm-≡ dₙ) of λ {
+        case lemma {H = H} {S = S′} w v ⊢s″ (RPₙₜ.⇒ₙ*-⦅⦆-≡ dₙ) of λ {
           refl →
         _ , _ , _ , t″ , E′ , d₁ RPₜ.⇨* dₜ
           , PE.sym (PE.trans t′≡t″ (cong (wk E′ t″ [_]) (~ʰ-subst H~H′))) , v}
@@ -113,19 +113,19 @@ opaque
       (unitrec-ηₙ {u = u} η) →
         case inversion-unitrec ⊢t″ of λ
           (⊢A , ⊢t , ⊢u , B≡) →
-        case ⊢⦅⦆-subst {u = wk E′ u} ⊢S′ (conv (unitrec-β-η-⇒ ⊢A ⊢t ⊢u η) (sym B≡)) of λ
+        case ⊢⦅⦆ˢ-subst {u = wk E′ u} ⊢S′ (conv (unitrec-β-η-⇒ ⊢A ⊢t ⊢u η) (sym B≡)) of λ
           d′ →
         ⊥-elim (whnfRedTerm d′ (subst Whnf t′≡t″ w)) }}
     where
     lemma : ∀ {n} {t : Term n} {H E S}
           → Whnf u → Value t → Δ ⨾ Γ ⊢ ⟨ H , t , E , S ⟩ ∷ A
-          → u PE.≡ norm ⟨ H , t , E , S ⟩ → S PE.≡ ε
+          → u PE.≡ ⦅ ⟨ H , t , E , S ⟩ ⦆ → S PE.≡ ε
     lemma {S = ε} w n _ u≡ = refl
     lemma {t} {H} {E} {S = e ∙ S} w v (_ , _ , _ , ⊢S) u≡ =
       case Value→Whnf v of λ
         (_ , ¬n) →
       ⊥-elim (¬whnf-subst {σ = toSubstₕ H}
-        (⊢whnf⦅⦆ {t = wk E t} ⊢S
+        (⊢whnf⦅⦆ˢ {t = wk E t} ⊢S
           λ n → ¬n (neutral-subst (subst Neutral (wk≡subst E t) n)))
         (subst Whnf u≡ w))
 
@@ -167,7 +167,7 @@ opaque
         → (k ≡ 0 ⊎ Consistent Δ × T erased-heap)
         → Δ ⊢ t ∷ A → 𝟘ᶜ ▸ t
         → ∃₂ λ m n → ∃₃ λ H u′ (E : Env m n)
-          → initial t ⇒* ⟨ H , u′ , E , ε ⟩ × Value u′ × Whnf (norm ⟨ H , u′ , E , ε ⟩)
+          → initial t ⇒* ⟨ H , u′ , E , ε ⟩ × Value u′ × Whnf ⦅ ⟨ H , u′ , E , ε ⟩ ⦆
   whRed as ⊢t ▸t =
     case whNormTerm ⊢t of λ
       (u , w , d) →

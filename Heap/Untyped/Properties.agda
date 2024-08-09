@@ -288,14 +288,14 @@ opaque
 
   -- Applying a single substitution to a term and then to a stack
 
-  ⦅⦆-sgSubst : ∀ S → ⦅ S ⦆ (t [ u ]₀) ≡ ⦅ wk1ˢ S ⦆ t [ u ]₀
-  ⦅⦆-sgSubst ε = refl
-  ⦅⦆-sgSubst {t} {u} (e ∙ S) = begin
-   ⦅ e ∙ S ⦆ (t [ u ]₀)              ≡⟨⟩
-   ⦅ S ⦆ (⦅ e ⦆ᵉ (t [ u ]₀))          ≡⟨ cong ⦅ S ⦆ (⦅⦆ᵉ-sgSubst e) ⟩
-   ⦅ S ⦆ (⦅ wk1ᵉ e ⦆ᵉ t [ u ]₀)       ≡⟨ ⦅⦆-sgSubst S ⟩
-   ⦅ wk1ˢ S ⦆ (⦅ wk1ᵉ e ⦆ᵉ t) [ u ]₀  ≡⟨⟩
-   ⦅ wk1ˢ (e ∙ S) ⦆ t [ u ]₀         ∎
+  ⦅⦆ˢ-sgSubst : ∀ S → ⦅ S ⦆ˢ (t [ u ]₀) ≡ ⦅ wk1ˢ S ⦆ˢ t [ u ]₀
+  ⦅⦆ˢ-sgSubst ε = refl
+  ⦅⦆ˢ-sgSubst {t} {u} (e ∙ S) = begin
+   ⦅ e ∙ S ⦆ˢ (t [ u ]₀)              ≡⟨⟩
+   ⦅ S ⦆ˢ (⦅ e ⦆ᵉ (t [ u ]₀))          ≡⟨ cong ⦅ S ⦆ˢ (⦅⦆ᵉ-sgSubst e) ⟩
+   ⦅ S ⦆ˢ (⦅ wk1ᵉ e ⦆ᵉ t [ u ]₀)       ≡⟨ ⦅⦆ˢ-sgSubst S ⟩
+   ⦅ wk1ˢ S ⦆ˢ (⦅ wk1ᵉ e ⦆ᵉ t) [ u ]₀  ≡⟨⟩
+   ⦅ wk1ˢ (e ∙ S) ⦆ˢ t [ u ]₀         ∎
 
 opaque
 
@@ -337,14 +337,14 @@ opaque
 
   -- Applying a double substitution to a term and then to a stack
 
-  ⦅⦆-[,] : ∀ S → ⦅ S ⦆ (t [ u , v ]₁₀) ≡ ⦅ wk2ˢ S ⦆ t [ u , v ]₁₀
-  ⦅⦆-[,] ε = refl
-  ⦅⦆-[,] {t} {u} {v} (e ∙ S) = begin
-    ⦅ e ∙ S ⦆ (t [ u , v ]₁₀)             ≡⟨⟩
-    ⦅ S ⦆ (⦅ e ⦆ᵉ (t [ u , v ]₁₀))         ≡⟨ cong ⦅ S ⦆ (⦅⦆ᵉ-[,] e) ⟩
-    ⦅ S ⦆ (⦅ wk2ᵉ e ⦆ᵉ t [ u , v ]₁₀)      ≡⟨ ⦅⦆-[,] S ⟩
-    ⦅ wk2ˢ S ⦆ (⦅ wk2ᵉ e ⦆ᵉ t) [ u , v ]₁₀ ≡⟨⟩
-    ⦅ wk2ˢ (e ∙ S) ⦆ t [ u , v ]₁₀        ∎
+  ⦅⦆ˢ-[,] : ∀ S → ⦅ S ⦆ˢ (t [ u , v ]₁₀) ≡ ⦅ wk2ˢ S ⦆ˢ t [ u , v ]₁₀
+  ⦅⦆ˢ-[,] ε = refl
+  ⦅⦆ˢ-[,] {t} {u} {v} (e ∙ S) = begin
+    ⦅ e ∙ S ⦆ˢ (t [ u , v ]₁₀)             ≡⟨⟩
+    ⦅ S ⦆ˢ (⦅ e ⦆ᵉ (t [ u , v ]₁₀))         ≡⟨ cong ⦅ S ⦆ˢ (⦅⦆ᵉ-[,] e) ⟩
+    ⦅ S ⦆ˢ (⦅ wk2ᵉ e ⦆ᵉ t [ u , v ]₁₀)      ≡⟨ ⦅⦆ˢ-[,] S ⟩
+    ⦅ wk2ˢ S ⦆ˢ (⦅ wk2ᵉ e ⦆ᵉ t) [ u , v ]₁₀ ≡⟨⟩
+    ⦅ wk2ˢ (e ∙ S) ⦆ˢ t [ u , v ]₁₀        ∎
 
 opaque
 
@@ -415,10 +415,10 @@ opaque
 
   -- A congruence property for stacks
 
-  ⦅⦆-cong : ∀ S → t [ σ ] ≡ u [ σ ]
-         → ⦅ S ⦆ t [ σ ] ≡ ⦅ S ⦆ u [ σ ]
-  ⦅⦆-cong ε t≡u = t≡u
-  ⦅⦆-cong (e ∙ S) t≡u = ⦅⦆-cong S (⦅⦆ᵉ-cong e t≡u)
+  ⦅⦆ˢ-cong : ∀ S → t [ σ ] ≡ u [ σ ]
+         → ⦅ S ⦆ˢ t [ σ ] ≡ ⦅ S ⦆ˢ u [ σ ]
+  ⦅⦆ˢ-cong ε t≡u = t≡u
+  ⦅⦆ˢ-cong (e ∙ S) t≡u = ⦅⦆ˢ-cong S (⦅⦆ᵉ-cong e t≡u)
 
 opaque
 
@@ -532,9 +532,9 @@ opaque
 
   -- Stack concatenation
 
-  ⦅⦆++ : ∀ S S′ → ⦅ S ++ S′ ⦆ t ≡ ⦅ S′ ⦆ (⦅ S ⦆ t)
-  ⦅⦆++ ε S′ = refl
-  ⦅⦆++ (e ∙ S) S′ = ⦅⦆++ S S′
+  ⦅⦆ˢ++ : ∀ S S′ → ⦅ S ++ S′ ⦆ˢ t ≡ ⦅ S′ ⦆ˢ (⦅ S ⦆ˢ t)
+  ⦅⦆ˢ++ ε S′ = refl
+  ⦅⦆ˢ++ (e ∙ S) S′ = ⦅⦆ˢ++ S S′
 
 opaque
 

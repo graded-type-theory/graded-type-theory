@@ -284,7 +284,7 @@ _[_]⇑²ₕ : Term (2+ m) → Heap k m → Term (2+ k)
 t [ H ]⇑²ₕ = t [ liftSubstn (toSubstₕ H) 2 ]
 
 -- A weakening that acts as an "inverse" to a heap substitution
--- See HeapUntyped.Properties.toWkₕ-toSubstₕ
+-- See Heap.Untyped.Properties.toWkₕ-toSubstₕ
 
 toWkₕ : Heap k m → Wk m k
 toWkₕ ε = id
@@ -325,12 +325,14 @@ record State (k m n : Nat) : Set a where
   []-cong s (wk E A ) (wk E t) (wk E u) v
 ⦅ sucₑ ⦆ᵉ = suc
 
-⦅_⦆ : Stack m → (Term m → Term m)
-⦅ ε ⦆ = idᶠ
-⦅ e ∙ S ⦆ = ⦅ S ⦆ ∘ᶠ ⦅ e ⦆ᵉ
+⦅_⦆ˢ : Stack m → (Term m → Term m)
+⦅ ε ⦆ˢ = idᶠ
+⦅ e ∙ S ⦆ˢ = ⦅ S ⦆ˢ ∘ᶠ ⦅ e ⦆ᵉ
 
-norm : (s : State k m n) → Term k
-norm ⟨ H , t , E , S ⟩ = ⦅ S ⦆ (wk E t) [ H ]ₕ
+⦅_⦆ : (s : State k m n) → Term k
+⦅ ⟨ H , t , E , S ⟩ ⦆ = ⦅ S ⦆ˢ (wk E t) [ H ]ₕ
+
+-- The initial state
 
 initial : Term k → State k k k
 initial {k} t = ⟨ erasedHeap k , t , id , ε ⟩
