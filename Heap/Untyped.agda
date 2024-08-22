@@ -374,6 +374,7 @@ data Value {n : Nat} : (t : Term n) → Set a where
   Unitᵥ : Value (Unit s)
   Emptyᵥ : Value Empty
   Idᵥ : Value (Id A t u)
+  unitrec-ηᵥ : Unitʷ-η → Value (unitrec p q A t u)
 
 -- States in normal form are either values, variables without entries in
 -- the heap or unitrec when the weak unit type has η-equality.
@@ -382,4 +383,3 @@ data Value {n : Nat} : (t : Term n) → Set a where
 data Normal : (State k m n) → Set a where
   val : Value t → Normal ⟨ H , t , E , S ⟩
   var : H ⊢ wkVar E x ↦● → Normal ⟨ H , var x , E , S ⟩
-  unitrec-ηₙ : Unitʷ-η → Normal ⟨ H , unitrec p q A t u , E , S ⟩

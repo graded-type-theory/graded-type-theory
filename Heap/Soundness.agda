@@ -140,9 +140,7 @@ opaque
   redNumeral consistent (ℕₜ _ d n≡n (ne (neNfₜ neK ⊢k k≡k))) PE.refl ⊢s ▸s =
     case whBisim consistent (redₜ d , ne neK) ⊢s ▸s of λ {
       (_ , _ , H , t , E , d′ , PE.refl , v) →
-    case Value→Whnf (substValue (toSubstₕ H) (wkValue E v)) of λ
-      (_ , ¬neK) →
-    ⊥-elim (¬neK neK) }
+    ⊥-elim (Value→¬Neutral (substValue (toSubstₕ H) (wkValue E v)) neK) }
 
 opaque
 

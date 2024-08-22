@@ -302,18 +302,23 @@ module _ where
               → Normal s
               → Δ ⨾ Γ ⊢ s ∷ B
               → ∃₃ λ m n (s′ : State _ m n) → s Rₙₜ.⇒ᵥ s′ × u PE.≡ ⦅ s′ ⦆
-      bisim₄ᵥ {s = ⟨ H , _ , E , ε ⟩} d (val v) ⊢s =
-        ⊥-elim (whnfRedTerm d (Value→Whnf (substValue (toSubstₕ H) (wkValue E v)) .proj₁))
+      bisim₄ᵥ {s = ⟨ H , t , E , ε ⟩} d (val v) ⊢s =
+        lemma refl d (substValue (toSubstₕ H) (wkValue E v)) v
+        where
+        -- TODO: This is slow
+        lemma : t′ PE.≡ wk E t [ H ]ₕ → Δ ⊢ t′ ⇒ u ∷ A → Value t′ → Value t
+              → ∃₃ λ m n (s′ : State _ m n) → ⟨ H , t , E , ε ⟩ Rₙₜ.⇒ᵥ s′ × u PE.≡ ⦅ s′ ⦆
+        lemma t′≡ (conv d x) v v′ = lemma t′≡ d v v′
+        lemma t′≡ (unitrec-subst _ _ _ _ no-η) (unitrec-ηᵥ η) _ = ⊥-elim (no-η η)
+        lemma t′≡ (unitrec-β _ _ _ no-η) (unitrec-ηᵥ η) _ = ⊥-elim (no-η η)
+        lemma refl (unitrec-β-η x x₁ x₂ x₃ x₄) (unitrec-ηᵥ η) (unitrec-ηᵥ x₅) =
+          _ , _ , _ , Rₙₜ.unitrec-ηₕ η , refl
       bisim₄ᵥ {s = ⟨ _ , _ , _ , e ∙ S ⟩} d (val v) ⊢s =
         case ⊢Value-⇒ᵥ ⊢s v of λ
           (_ , _ , _ , d′) →
         _ , _ , _ , d′ , whrDetTerm d (⇒ᵥ→⇒ ⊢s d′)
       bisim₄ᵥ d (var d′) (_ , _ , _ , ⊢S) =
         ⊥-elim (neRedTerm d (NeutralAt→Neutral (toSubstₕ-NeutralAt d′ (⊢⦅⦆ˢ-NeutralAt ⊢S var))))
-      bisim₄ᵥ d (unitrec-ηₙ η) ⊢s =
-        case Rₙₜ.unitrec-ηₕ η of λ
-          d′ →
-        _ , _ , _ , d′ , whrDetTerm d (⇒ᵥ→⇒ ⊢s d′)
 
     opaque
 

@@ -127,7 +127,7 @@ opaque mutual
   normalize H (unitrec p q A t u) E S =
     case Unitʷ-η? of λ where
       (yes η) →
-        _ , unitrec p q A t u , E , S , unitrec-ηₙ η , id
+        _ , unitrec p q A t u , E , S , val (unitrec-ηᵥ η) , id
       (no no-η) →
         case normalize H t E (unitrecₑ p q A u E ∙ S) of λ
           (_ , _ , _ , _ , n , d) →

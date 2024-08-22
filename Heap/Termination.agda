@@ -116,21 +116,15 @@ opaque
               (inj₁ ∣S∣≢𝟘) →
                 ⊥-elim (∣S∣≢𝟘 ∣S∣≡𝟘)
               (inj₂ (er∈S , ok)) →
-                ⊥-elim (⊢emptyrec₀∉S {E = E′} (consistent ok) ⊢s″ er∈S)
-      (unitrec-ηₙ {u = u} η) →
-        case inversion-unitrec ⊢t″ of λ
-          (⊢A , ⊢t , ⊢u , B≡) →
-        case ⊢⦅⦆ˢ-subst {u = wk E′ u} ⊢S′ (conv (unitrec-β-η-⇒ ⊢A ⊢t ⊢u η) (sym B≡)) of λ
-          d′ →
-        ⊥-elim (whnfRedTerm d′ (subst Whnf t′≡t″ w)) }}
+                ⊥-elim (⊢emptyrec₀∉S {E = E′} (consistent ok) ⊢s″ er∈S) }}
     where
     lemma : ∀ {n} {t : Term n} {H E S}
           → Whnf u → Value t → Δ ⨾ Γ ⊢ ⟨ H , t , E , S ⟩ ∷ A
           → u PE.≡ ⦅ ⟨ H , t , E , S ⟩ ⦆ → S PE.≡ ε
     lemma {S = ε} w n _ u≡ = refl
     lemma {t} {H} {E} {S = e ∙ S} w v (_ , _ , _ , ⊢S) u≡ =
-      case Value→Whnf v of λ
-        (_ , ¬n) →
+      case Value→¬Neutral v of λ
+        ¬n →
       ⊥-elim (¬whnf-subst {σ = toSubstₕ H}
         (⊢whnf⦅⦆ˢ {t = wk E t} ⊢S
           λ n → ¬n (neutral-subst (subst Neutral (wk≡subst E t) n)))

@@ -70,6 +70,7 @@ opaque
   wkValue ρ Unitᵥ = Unitᵥ
   wkValue ρ Emptyᵥ = Emptyᵥ
   wkValue ρ Idᵥ = Idᵥ
+  wkValue ρ (unitrec-ηᵥ η) = unitrec-ηᵥ η
 
 opaque
 
@@ -88,24 +89,26 @@ opaque
   substValue σ Unitᵥ = Unitᵥ
   substValue σ Emptyᵥ = Emptyᵥ
   substValue σ Idᵥ = Idᵥ
+  substValue ρ (unitrec-ηᵥ η) = unitrec-ηᵥ η
 
 opaque
 
-  -- Values are non-neutrals in whnf
+  -- Values are non-neutrals
 
-  Value→Whnf : Value t → Whnf t × ¬ Neutral t
-  Value→Whnf lamᵥ = lamₙ , (λ ())
-  Value→Whnf zeroᵥ = zeroₙ , λ ()
-  Value→Whnf sucᵥ = sucₙ , λ ()
-  Value→Whnf starᵥ = starₙ , λ ()
-  Value→Whnf prodᵥ = prodₙ , λ ()
-  Value→Whnf rflᵥ = rflₙ , λ ()
-  Value→Whnf Uᵥ = Uₙ , λ ()
-  Value→Whnf ΠΣᵥ = ΠΣₙ , λ ()
-  Value→Whnf ℕᵥ = ℕₙ , λ ()
-  Value→Whnf Unitᵥ = Unitₙ , λ ()
-  Value→Whnf Emptyᵥ = Emptyₙ , λ ()
-  Value→Whnf Idᵥ = Idₙ , λ ()
+  Value→¬Neutral : Value t → ¬ Neutral t
+  Value→¬Neutral lamᵥ ()
+  Value→¬Neutral zeroᵥ ()
+  Value→¬Neutral sucᵥ ()
+  Value→¬Neutral starᵥ ()
+  Value→¬Neutral prodᵥ ()
+  Value→¬Neutral rflᵥ ()
+  Value→¬Neutral Uᵥ ()
+  Value→¬Neutral ΠΣᵥ ()
+  Value→¬Neutral ℕᵥ ()
+  Value→¬Neutral Unitᵥ ()
+  Value→¬Neutral Emptyᵥ ()
+  Value→¬Neutral Idᵥ ()
+  Value→¬Neutral (unitrec-ηᵥ η) (unitrecₙ no-η _) = no-η η
 
 -- opaque
 
@@ -740,14 +743,12 @@ opaque
   wk1-Normal : Normal ⟨ H , t , E , S ⟩ → Normal ⟨ H ∙ (p , c) , t , step E , wk1ˢ S ⟩
   wk1-Normal (val x) = val x
   wk1-Normal (var d) = var (there d)
-  wk1-Normal (unitrec-ηₙ x) = unitrec-ηₙ x
 
 opaque
 
   wk1●-Normal : Normal ⟨ H , t , E , S ⟩ → Normal ⟨ H ∙● , t , step E , wk1ˢ S ⟩
   wk1●-Normal (val x) = val x
   wk1●-Normal (var d) = var (there● d)
-  wk1●-Normal (unitrec-ηₙ x) = unitrec-ηₙ x
 
 opaque
 
@@ -756,7 +757,6 @@ opaque
   Normal-stack : Normal ⟨ H , t , E , S ⟩ → Normal ⟨ H , t , E , S′ ⟩
   Normal-stack (val x) = val x
   Normal-stack (var x) = var x
-  Normal-stack (unitrec-ηₙ x) = unitrec-ηₙ x
 
 opaque
 
